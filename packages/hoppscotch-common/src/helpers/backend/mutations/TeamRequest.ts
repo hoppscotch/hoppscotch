@@ -84,7 +84,7 @@ export const moveRESTTeamRequest = (collectionID: string, requestID: string) =>
 
 export const updateOrderRESTTeamRequest = (
   requestID: string,
-  nextRequestID: string,
+  nextRequestID: string | null,
   collectionID: string
 ) =>
   runMutation<

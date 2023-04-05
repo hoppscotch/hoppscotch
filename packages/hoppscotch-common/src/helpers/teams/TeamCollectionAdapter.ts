@@ -558,67 +558,112 @@ export default class NewTeamCollectionAdapter {
 
   public updateRequestOrder(
     dragedRequestID: string,
-    destinationRequestID: string,
+    destinationRequestID: string | null,
     destinationCollectionID: string
   ) {
     const tree = this.collections$.value
 
-    // Find collection in tree, don't attempt if no collection is found
-    const collection = findCollInTree(tree, destinationCollectionID)
-    if (!collection) return // Ignore order update
+    // If the destination request is null, then it is the last request in the collection
+    if (destinationRequestID === null) {
+      const collection = findCollInTree(tree, destinationCollectionID)
 
-    // Collection is not expanded
-    if (!collection.requests) return
+      if (!collection) return // Ignore order update
 
-    const requestIndex = collection.requests.findIndex(
-      (req) => req.id === dragedRequestID
-    )
-    const destinationIndex = collection.requests.findIndex(
-      (req) => req.id === destinationRequestID
-    )
+      // Collection is not expanded
+      if (!collection.requests) return
 
-    if (requestIndex === -1) return
+      const requestIndex = collection.requests.findIndex(
+        (req) => req.id === dragedRequestID
+      )
 
-    this.reorderItems(collection.requests, requestIndex, destinationIndex)
+      // If the collection index is not found, don't update
+      if (requestIndex === -1) return
+
+      // Move the request to the end of the requests
+      collection.requests.push(collection.requests.splice(requestIndex, 1)[0])
+    } else {
+      // Find collection in tree, don't attempt if no collection is found
+      const collection = findCollInTree(tree, destinationCollectionID)
+      if (!collection) return // Ignore order update
+
+      // Collection is not expanded
+      if (!collection.requests) return
+
+      const requestIndex = collection.requests.findIndex(
+        (req) => req.id === dragedRequestID
+      )
+      const destinationIndex = collection.requests.findIndex(
+        (req) => req.id === destinationRequestID
+      )
+
+      if (requestIndex === -1) return
+
+      this.reorderItems(collection.requests, requestIndex, destinationIndex)
+    }
 
     this.collections$.next(tree)
   }
 
   public updateCollectionOrder = (
     collectionID: string,
-    destinationCollectionID: string
+    destinationCollectionID: string | null
   ) => {
     const tree = this.collections$.value
 
-    // Find collection in tree
-    const coll = findParentOfColl(tree, destinationCollectionID)
+    // If the destination collection is null, then it is the last collection in the tree
+    if (destinationCollectionID === null) {
+      const collLast = findParentOfColl(tree, collectionID)
+      if (collLast && collLast.children) {
+        const collectionIndex = collLast.children.findIndex(
+          (coll) => coll.id === collectionID
+        )
 
-    // If the collection has a parent collection and check if it has children
-    if (coll && coll.children) {
-      const collectionIndex = coll.children.findIndex(
-        (coll) => coll.id === collectionID
-      )
+        // reorder the collection to the end of the collections
+        collLast.children.push(collLast.children.splice(collectionIndex, 1)[0])
+      } else {
+        const collectionIndex = tree.findIndex(
+          (coll) => coll.id === collectionID
+        )
 
-      const destinationIndex = coll.children.findIndex(
-        (coll) => coll.id === destinationCollectionID
-      )
+        // If the collection index is not found, don't update
+        if (collectionIndex === -1) return
 
-      // If the collection index is not found, don't update
-      if (collectionIndex === -1) return
-
-      this.reorderItems(coll.children, collectionIndex, destinationIndex)
+        // reorder the collection to the end of the collections in the root
+        tree.push(tree.splice(collectionIndex, 1)[0])
+      }
     } else {
-      // If the collection has no parent collection, it is a root collection
-      const collectionIndex = tree.findIndex((coll) => coll.id === collectionID)
+      // Find collection in tree
+      const coll = findParentOfColl(tree, destinationCollectionID)
 
-      const destinationIndex = tree.findIndex(
-        (coll) => coll.id === destinationCollectionID
-      )
+      // If the collection has a parent collection and check if it has children
+      if (coll && coll.children) {
+        const collectionIndex = coll.children.findIndex(
+          (coll) => coll.id === collectionID
+        )
 
-      // If the collection index is not found, don't update
-      if (collectionIndex === -1) return
+        const destinationIndex = coll.children.findIndex(
+          (coll) => coll.id === destinationCollectionID
+        )
 
-      this.reorderItems(tree, collectionIndex, destinationIndex)
+        // If the collection index is not found, don't update
+        if (collectionIndex === -1) return
+
+        this.reorderItems(coll.children, collectionIndex, destinationIndex)
+      } else {
+        // If the collection has no parent collection, it is a root collection
+        const collectionIndex = tree.findIndex(
+          (coll) => coll.id === collectionID
+        )
+
+        const destinationIndex = tree.findIndex(
+          (coll) => coll.id === destinationCollectionID
+        )
+
+        // If the collection index is not found, don't update
+        if (collectionIndex === -1) return
+
+        this.reorderItems(tree, collectionIndex, destinationIndex)
+      }
     }
 
     this.collections$.next(tree)
@@ -821,12 +866,10 @@ export default class NewTeamCollectionAdapter {
         const { request } = requestOrderUpdated
         const { nextRequest } = requestOrderUpdated
 
-        if (!nextRequest) return
-
         this.updateRequestOrder(
           request.id,
-          nextRequest.id,
-          nextRequest.collectionID
+          nextRequest ? nextRequest.id : null,
+          nextRequest ? nextRequest.collectionID : request.collectionID
         )
       }
     )
@@ -851,9 +894,10 @@ export default class NewTeamCollectionAdapter {
         const { collection } = collectionOrderUpdated
         const { nextCollection } = collectionOrderUpdated
 
-        if (!nextCollection) return
-
-        this.updateCollectionOrder(collection.id, nextCollection.id)
+        this.updateCollectionOrder(
+          collection.id,
+          nextCollection ? nextCollection.id : null
+        )
       }
     )
   }

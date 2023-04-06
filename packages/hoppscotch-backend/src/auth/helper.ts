@@ -11,6 +11,11 @@ enum AuthTokenType {
   REFRESH_TOKEN = 'refresh_token',
 }
 
+export enum Origin {
+  ADMIN = 'admin',
+  APP = 'app',
+}
+
 /**
  * This function allows throw to be used as an expression
  * @param errMessage Message present in the error message

@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Post,
+  Query,
   Req,
   Request,
   Res,
@@ -34,9 +35,13 @@ export class AuthController {
    ** Route to initiate magic-link auth for a users email
    */
   @Post('signin')
-  async signInMagicLink(@Body() authData: SignInMagicDto) {
+  async signInMagicLink(
+    @Body() authData: SignInMagicDto,
+    @Query('origin') origin: string,
+  ) {
     const deviceIdToken = await this.authService.signInMagicLink(
       authData.email,
+      origin,
     );
     if (E.isLeft(deviceIdToken)) throwHTTPErr(deviceIdToken.left);
     return deviceIdToken.right;

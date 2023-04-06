@@ -27,6 +27,7 @@ import { JwtService } from '@nestjs/jwt';
 import { AuthError } from 'src/types/AuthError';
 import { AuthUser, IsAdmin } from 'src/types/AuthUser';
 import { VerificationToken } from '@prisma/client';
+import { Origin } from './helper';
 
 @Injectable()
 export class AuthService {
@@ -195,7 +196,7 @@ export class AuthService {
    * @param email User's email
    * @returns Either containing DeviceIdentifierToken
    */
-  async signInMagicLink(email: string) {
+  async signInMagicLink(email: string, origin: string) {
     if (!validateEmail(email))
       return E.left({
         message: INVALID_EMAIL,
@@ -213,11 +214,25 @@ export class AuthService {
 
     const generatedTokens = await this.generateMagicLinkTokens(user);
 
+    // check to see if origin is valid
+    let url: string;
+    switch (origin) {
+      case Origin.ADMIN:
+        url = process.env.VITE_ADMIN_URL;
+        break;
+      case Origin.APP:
+        url = process.env.VITE_BASE_URL;
+        break;
+      default:
+        // if origin is invalid by default set URL to Hoppscotch-App
+        url = process.env.VITE_BASE_URL;
+    }
+
     await this.mailerService.sendAuthEmail(email, {
       template: 'code-your-own',
       variables: {
         inviteeEmail: email,
-        magicLink: `${process.env.VITE_BASE_URL}/magic-link?token=${generatedTokens.token}`,
+        magicLink: `${url}/magic-link?token=${generatedTokens.token}`,
       },
     });
 

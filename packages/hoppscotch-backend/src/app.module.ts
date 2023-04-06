@@ -26,7 +26,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
       buildSchemaOptions: {
         numberScalarMode: 'integer',
       },
-      cors: process.env.PRODUCTION !== 'true' && {
+      cors: {
         origin: process.env.WHITELISTED_ORIGINS.split(','),
         credentials: true,
       },

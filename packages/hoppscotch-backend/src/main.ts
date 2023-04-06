@@ -37,7 +37,8 @@ async function bootstrap() {
     console.log('Enabling CORS with production settings');
 
     app.enableCors({
-      origin: true,
+      origin: process.env.WHITELISTED_ORIGINS.split(','),
+      credentials: true,
     });
   }
   app.enableVersioning({

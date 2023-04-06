@@ -18,6 +18,9 @@ export type PlatformDef = {
     history: HistoryPlatformDef
     tabState: TabStatePlatformDef
   }
+  platformFeatureFlags: {
+    exportAsGIST: boolean
+  }
 }
 
 export let platform: PlatformDef

@@ -15,4 +15,7 @@ createHoppApp("#app", {
     history: historyDef,
     tabState: tabStateDef,
   },
+  platformFeatureFlags: {
+    exportAsGIST: false,
+  },
 })

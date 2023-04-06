@@ -45,6 +45,7 @@ export default class TeamEnvironmentAdapter {
     this.teamEnvironmentCreated$ = null
     this.teamEnvironmentDeleted$ = null
     this.teamEnvironmentUpdated$ = null
+
     this.teamEnvironmentCreatedSub = null
     this.teamEnvironmentDeletedSub = null
     this.teamEnvironmentUpdatedSub = null
@@ -56,6 +57,7 @@ export default class TeamEnvironmentAdapter {
     this.teamEnvironmentCreated$?.unsubscribe()
     this.teamEnvironmentDeleted$?.unsubscribe()
     this.teamEnvironmentUpdated$?.unsubscribe()
+
     this.teamEnvironmentCreatedSub?.unsubscribe()
     this.teamEnvironmentDeletedSub?.unsubscribe()
     this.teamEnvironmentUpdatedSub?.unsubscribe()

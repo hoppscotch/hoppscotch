@@ -157,7 +157,7 @@ import IconUserPlus from '~icons/lucide/user-plus';
 import IconUserMinus from '~icons/lucide/user-minus';
 import IconHelpCircle from '~icons/lucide/help-circle';
 import { useClientHandle, useMutation } from '@urql/vue';
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { useToast } from '../../composables/toast';
 import {
@@ -195,9 +195,12 @@ const getTeamInfo = async () => {
   fetching.value = false;
 };
 
-onMounted(async () => {
-  await getTeamInfo();
-});
+const emit = defineEmits<{
+  (e: 'update-team'): void;
+}>();
+
+onMounted(async () => await getTeamInfo());
+onUnmounted(() => emit('update-team'));
 
 // Update members tab after a change in the members list or member roles
 const updateMembers = () => getTeamInfo();

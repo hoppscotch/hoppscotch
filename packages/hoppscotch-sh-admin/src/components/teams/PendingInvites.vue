@@ -96,9 +96,7 @@ const getTeamInfo = async () => {
   fetching.value = false;
 };
 
-onMounted(async () => {
-  await getTeamInfo();
-});
+onMounted(async () => await getTeamInfo());
 
 // Remove Invitation
 const isLoadingIndex = ref<null | number>(null);

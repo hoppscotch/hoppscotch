@@ -18,6 +18,7 @@ import { auth } from './helpers/auth';
     urql,
     createClient({
       url: import.meta.env.VITE_BACKEND_GQL_URL,
+      requestPolicy: 'network-only',
       fetchOptions: () => {
         return {
           credentials: 'include',
@@ -33,4 +34,4 @@ import { auth } from './helpers/auth';
   HOPP_MODULES.forEach((mod) => mod.onVueAppInit?.(app));
 
   app.mount('#app');
-})()
+})();

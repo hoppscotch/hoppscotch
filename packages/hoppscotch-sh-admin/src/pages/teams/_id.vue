@@ -120,7 +120,7 @@
   </div>
 
   <div v-if="team" class="sm:px-6 px-4">
-    <TeamsMembers v-if="showMembers" />
+    <TeamsMembers v-if="showMembers" @updateTeam="updateTeam()" />
     <TeamsPendingInvites v-if="showPendingInvites" :editingTeamID="team.id" />
     <HoppSmartConfirmModal
       :show="confirmDeletion"
@@ -193,9 +193,8 @@ const getTeamInfo = async () => {
   fetching.value = false;
 };
 
-onMounted(async () => {
-  await getTeamInfo();
-});
+onMounted(async () => await getTeamInfo());
+const updateTeam = async () => await getTeamInfo();
 
 // Rename the team name
 const showRenameInput = ref(false);

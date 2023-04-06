@@ -245,22 +245,31 @@ const showCreateTeamModal = ref(false);
 const getOwnerEmail = (email: string) => (ownerEmail.value = email);
 
 const createTeam = async () => {
+  if (teamName.value.length < 6) {
+    toast.error('Team name should be atleast 6 characters long!!');
+    return;
+  }
+  if (ownerEmail.value.length == 0) {
+    toast.error('Please enter email of team owner!!');
+    return;
+  }
   const userUid =
     usersList.value.find((user) => user.email === ownerEmail.value)?.uid || '';
   const variables = { name: teamName.value.trim(), userUid: userUid };
   await createTeamMutation.executeMutation(variables).then((result) => {
     if (result.error) {
-      if (teamName.value.length < 6) {
-        toast.error('Team name should be atleast 6 characters long!!');
-      }
       if (result.error.toString() == '[GraphQL] user/not_found') {
         toast.error('User not found!!');
       } else {
         toast.error('Failed to create team!!');
       }
+      teamName.value = '';
+      ownerEmail.value = '';
     } else {
       toast.success('Team created successfully!!');
       showCreateTeamModal.value = false;
+      teamName.value = '';
+      ownerEmail.value = '';
       refetch();
     }
   });

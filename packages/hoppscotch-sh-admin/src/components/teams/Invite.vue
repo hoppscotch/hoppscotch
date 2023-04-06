@@ -22,12 +22,17 @@
             :key="`new-member-${index}`"
             class="flex divide-x divide-dividerLight"
           >
-            <input
+            <HoppSmartAutoComplete
               v-model="member.key"
-              class="flex flex-1 px-4 py-2 bg-transparent"
               placeholder="Email"
+              :source="allUsersEmail"
               :name="'member' + index"
-              autofocus
+              :spellcheck="true"
+              styles="
+                w-full pl-3 bg-neutral-900 border-gray-600
+              "
+              class="flex-1 !flex"
+              @input="(email: string) => member.key = email"
             />
             <span>
               <tippy
@@ -195,15 +200,33 @@ import { pipe } from 'fp-ts/function';
 import {
   AddUserToTeamByAdminDocument,
   TeamMemberRole,
+  MetricsDocument,
+  UsersListDocument,
 } from '../../helpers/backend/graphql';
 import { useToast } from '~/composables/toast';
-import { useMutation } from '@urql/vue';
+import { useMutation, useQuery } from '@urql/vue';
 import { Email, EmailCodec } from '~/helpers/backend/Email';
 import IconTrash from '~icons/lucide/trash';
 import IconPlus from '~icons/lucide/plus';
 import IconHelpCircle from '~icons/lucide/help-circle';
 import IconCircleDot from '~icons/lucide/circle-dot';
 import IconCircle from '~icons/lucide/circle';
+import { computed } from 'vue';
+import { usePagedQuery } from '~/composables/usePagedQuery';
+
+// Get Users List
+const { data } = useQuery({ query: MetricsDocument });
+const usersPerPage = computed(() => data.value?.admin.usersCount || 10000);
+
+const { list: usersList } = usePagedQuery(
+  UsersListDocument,
+  (x) => x.admin.allUsers,
+  (x) => x.uid,
+  usersPerPage.value,
+  { cursor: undefined, take: usersPerPage.value }
+);
+
+const allUsersEmail = computed(() => usersList.value.map((user) => user.email));
 
 const toast = useToast();
 
@@ -298,7 +321,6 @@ const addUserToTeam = async (
     .executeMutation(variables)
     .then((result) => {
       if (result.error) {
-        console.log(result.error);
         if (result.error.toString() == '[GraphQL] user/not_found') {
           toast.error('User not found in the infra!!');
         } else {

@@ -20,6 +20,7 @@ export class ChangeUserRoleInTeamArgs {
   })
   newRole: TeamMemberRole;
 }
+
 @ArgsType()
 export class AddUserToTeamArgs {
   @Field(() => ID, {

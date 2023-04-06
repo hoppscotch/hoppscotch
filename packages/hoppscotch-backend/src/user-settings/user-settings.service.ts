@@ -4,6 +4,7 @@ import { PubSubService } from 'src/pubsub/pubsub.service';
 import { User } from 'src/user/user.model';
 import * as E from 'fp-ts/Either';
 import { stringToJson } from 'src/utils';
+import { UserSettings as DbUserSettings } from '@prisma/client';
 import { UserSettings } from './user-settings.model';
 import {
   USER_SETTINGS_ALREADY_EXISTS,
@@ -19,6 +20,13 @@ export class UserSettingsService {
     private readonly pubsub: PubSubService,
   ) {}
 
+  private castToUserSettings(userSettings: DbUserSettings): UserSettings {
+    return {
+      ...userSettings,
+      properties: JSON.stringify(userSettings.properties),
+    };
+  }
+
   /**
    * Fetch user settings for a given user
    * @param user User object
@@ -30,10 +38,7 @@ export class UserSettingsService {
         where: { userUid: user.uid },
       });
 
-      const settings: UserSettings = {
-        ...userSettings,
-        properties: JSON.stringify(userSettings.properties),
-      };
+      const settings = this.castToUserSettings(userSettings);
 
       return E.right(settings);
     } catch (e) {
@@ -61,10 +66,7 @@ export class UserSettingsService {
         },
       });
 
-      const settings: UserSettings = {
-        ...userSettings,
-        properties: JSON.stringify(userSettings.properties),
-      };
+      const settings = this.castToUserSettings(userSettings);
 
       // Publish subscription for user settings creation
       await this.pubsub.publish(`user_settings/${user.uid}/created`, settings);
@@ -95,10 +97,7 @@ export class UserSettingsService {
         },
       });
 
-      const settings: UserSettings = {
-        ...updatedUserSettings,
-        properties: JSON.stringify(updatedUserSettings.properties),
-      };
+      const settings = this.castToUserSettings(updatedUserSettings);
 
       // Publish subscription for user settings update
       await this.pubsub.publish(`user_settings/${user.uid}/updated`, settings);

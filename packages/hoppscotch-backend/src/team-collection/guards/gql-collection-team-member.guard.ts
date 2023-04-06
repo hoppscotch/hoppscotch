@@ -1,7 +1,6 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { GqlExecutionContext } from '@nestjs/graphql';
-import { User } from '../../user/user.model';
 import { TeamCollectionService } from '../team-collection.service';
 import { TeamService } from '../../team/team.service';
 import { TeamMemberRole } from '../../team/team.model';

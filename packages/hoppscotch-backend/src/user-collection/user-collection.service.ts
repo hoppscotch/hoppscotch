@@ -34,6 +34,8 @@ export class UserCollectionService {
     private readonly pubsub: PubSubService,
   ) {}
 
+  TITLE_LENGTH = 3;
+
   /**
    * Typecast a database UserCollection to a UserCollection model
    * @param userCollection database UserCollection
@@ -212,7 +214,7 @@ export class UserCollectionService {
     parentUserCollectionID: string | null,
     type: ReqType,
   ) {
-    const isTitleValid = isValidLength(title, 3);
+    const isTitleValid = isValidLength(title, this.TITLE_LENGTH);
     if (!isTitleValid) return E.left(USER_COLL_SHORT_TITLE);
 
     // If creating a child collection
@@ -330,7 +332,7 @@ export class UserCollectionService {
     userCollectionID: string,
     userID: string,
   ) {
-    const isTitleValid = isValidLength(newTitle, 3);
+    const isTitleValid = isValidLength(newTitle, this.TITLE_LENGTH);
     if (!isTitleValid) return E.left(USER_COLL_SHORT_TITLE);
 
     // Check to see is the collection belongs to the user

@@ -5,7 +5,6 @@ import * as TO from 'fp-ts/TaskOption';
 import * as E from 'fp-ts/Either';
 import { PrismaService } from 'src/prisma/prisma.service';
 import {
-  SHORTCODE_ALREADY_EXISTS,
   SHORTCODE_INVALID_JSON,
   SHORTCODE_NOT_FOUND,
 } from 'src/errors';

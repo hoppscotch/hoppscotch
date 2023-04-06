@@ -12,7 +12,6 @@ import {
   TEAM_INVALID_ID_OR_USER,
   TEAM_MEMBER_NOT_FOUND,
   USER_IS_OWNER,
-  TEAMS_NOT_FOUND,
 } from '../errors';
 import { PubSubService } from '../pubsub/pubsub.service';
 import { flow, pipe } from 'fp-ts/function';
@@ -294,7 +293,6 @@ export class TeamService implements UserDataHandler, OnModuleInit {
           team: true,
         },
       });
-
       return entries.map((entry) => entry.team);
     }
   }

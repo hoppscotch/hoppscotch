@@ -38,7 +38,9 @@ export class AdminResolver {
     private adminService: AdminService,
     private readonly pubsub: PubSubService,
   ) {}
-  // Query
+
+  /* Query */
+
   @Query(() => Admin, {
     description: 'Gives details of the admin executing this query',
   })
@@ -229,7 +231,8 @@ export class AdminResolver {
     return this.adminService.getTeamRequestsCount();
   }
 
-  // Mutations
+  /* Mutations */
+
   @Mutation(() => InvitedUser, {
     description: 'Invite a user to the infra using email',
   })

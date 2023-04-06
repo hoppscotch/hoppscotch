@@ -3,7 +3,6 @@ import * as T from 'fp-ts/Task';
 import * as O from 'fp-ts/Option';
 import * as TO from 'fp-ts/TaskOption';
 import * as TE from 'fp-ts/TaskEither';
-import * as E from 'fp-ts/Either';
 import { pipe, flow, constVoid } from 'fp-ts/function';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Team, TeamMemberRole } from 'src/team/team.model';
@@ -11,7 +10,6 @@ import { Email } from 'src/types/Email';
 import { User } from 'src/user/user.model';
 import { TeamService } from 'src/team/team.service';
 import {
-  TEAM_INVITATION_NOT_FOUND,
   TEAM_INVITE_ALREADY_MEMBER,
   TEAM_INVITE_EMAIL_DO_NOT_MATCH,
   TEAM_INVITE_MEMBER_HAS_INVITE,

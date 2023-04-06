@@ -4,7 +4,6 @@ import { PubSubService } from 'src/pubsub/pubsub.service';
 import { UserSettingsService } from './user-settings.service';
 import { JSON_INVALID, USER_SETTINGS_NULL_SETTINGS } from 'src/errors';
 import { UserSettings } from './user-settings.model';
-import { User } from 'src/user/user.model';
 import { AuthUser } from 'src/types/AuthUser';
 
 const mockPrisma = mockDeep<PrismaService>();

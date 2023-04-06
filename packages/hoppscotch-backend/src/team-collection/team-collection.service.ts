@@ -1,8 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { Team } from '../team/team.model';
 import { TeamCollection } from './team-collection.model';
-// import { FirebaseService } from '../firebase/firebase.service';
 import {
   TEAM_COLL_SHORT_TITLE,
   TEAM_COLL_INVALID_JSON,

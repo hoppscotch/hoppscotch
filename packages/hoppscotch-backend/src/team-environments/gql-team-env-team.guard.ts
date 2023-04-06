@@ -8,7 +8,6 @@ import {
   getAnnotatedRequiredRoles,
   getGqlArg,
   getUserFromGQLContext,
-  namedTrace,
   throwErr,
 } from 'src/utils';
 import { TeamEnvironmentsService } from './team-environments.service';

@@ -1,4 +1,4 @@
-import { ObjectType, ID, Field, ResolveField } from '@nestjs/graphql';
+import { ObjectType } from '@nestjs/graphql';
 
 @ObjectType()
 export class Admin {}

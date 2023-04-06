@@ -415,48 +415,4 @@ export class TeamCollectionResolver {
   ) {
     return this.pubsub.asyncIterator(`team_coll/${teamID}/coll_order_updated`);
   }
-
-  // @Mutation(() => TeamCollection, {
-  //   description: 'Import collection from user firestore',
-  // })
-  // @UseGuards(GqlAuthGuard, GqlTeamMemberGuard)
-  // @RequiresTeamRole(TeamMemberRole.OWNER, TeamMemberRole.EDITOR)
-  // importCollectionFromUserFirestore(
-  //   @Args({
-  //     name: 'teamID',
-  //     type: () => ID,
-  //     description: 'ID of the team to add to',
-  //   })
-  //   teamID: string,
-  //   @Args({
-  //     name: 'fbCollectionPath',
-  //     description:
-  //       'slash separated array indicies path to the target collection',
-  //   })
-  //   fbCollectionPath: string,
-  //   @GqlUser() user: User,
-  //   @Args({
-  //     name: 'parentCollectionID',
-  //     type: () => ID,
-  //     description:
-  //       'ID to the collection which is going to be parent to the result (null if root)',
-  //     nullable: true,
-  //   })
-  //   parentCollectionID?: string
-  // ): Promise<TeamCollection> {
-  //   if (parentCollectionID) {
-  //     return this.teamCollectionService.importCollectionFromFirestore(
-  //       user.uid,
-  //       fbCollectionPath,
-  //       teamID,
-  //       parentCollectionID,
-  //     );
-  //   } else {
-  //     return this.teamCollectionService.importCollectionFromFirestore(
-  //       user.uid,
-  //       fbCollectionPath,
-  //       teamID,
-  //     );
-  //   }
-  // }
 }

@@ -3,7 +3,6 @@ import { Reflector } from '@nestjs/core';
 import { TeamService } from '../team.service';
 import { TeamMemberRole } from '../team.model';
 import { GqlExecutionContext } from '@nestjs/graphql';
-import { User } from '../../user/user.model';
 import {
   TEAM_NOT_REQUIRED_ROLE,
   BUG_AUTH_NO_USER_CTX,

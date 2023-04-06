@@ -101,13 +101,14 @@
         min="1"
         :max="MAX_SCROLL_VALUE"
         v-model="thumbPosition"
-        class="slider absolute inset-x-0 bottom-0 hidden"
+        class="slider absolute bottom-0 hidden left-0"
         :class="{
           '!block': scrollThumb.show,
         }"
         :style="{
           '--thumb-width': scrollThumb.width + 'px',
         }"
+        style="width: calc(100% - 3rem)"
         id="myRange"
       />
     </div>
@@ -126,6 +127,7 @@ import { not } from "fp-ts/Predicate"
 import * as A from "fp-ts/Array"
 import * as O from "fp-ts/Option"
 import { ref, ComputedRef, computed, provide, inject, watch } from "vue"
+import { useElementSize } from "@vueuse/core"
 import type { Slot } from "vue"
 import draggable from "vuedraggable-es"
 import { HoppUIPluginOptions, HOPP_UI_OPTIONS } from "./../../index"
@@ -253,11 +255,12 @@ const addTab = () => {
  */
 
 const MAX_SCROLL_VALUE = 500
-const scrollContainer = ref<HTMLElement | null>(null)
+const scrollContainer = ref<HTMLElement>()
+const { width: scrollContainerWidth } = useElementSize(scrollContainer)
 const thumbPosition = ref(0)
 
 const scrollThumb = computed(() => {
-  const clientWidth = scrollContainer.value?.clientWidth ?? 0
+  const clientWidth = scrollContainerWidth.value ?? 0
   const scrollWidth = tabEntries.value.length * 184
 
   return {

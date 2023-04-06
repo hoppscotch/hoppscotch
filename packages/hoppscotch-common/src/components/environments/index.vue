@@ -255,15 +255,6 @@ watch(
   }
 )
 
-watch(
-  () => environmentType.value.selectedTeam,
-  (newTeam) => {
-    if (newTeam) {
-      adapter.changeTeamID(newTeam.id)
-    }
-  }
-)
-
 const switchToMyEnvironments = () => {
   environmentType.value.selectedTeam = undefined
   updateEnvironmentType("my-environments")
@@ -282,17 +273,10 @@ const updateEnvironmentType = (newEnvironmentType: EnvironmentType) => {
 }
 
 watch(
-  () => environmentType.value.selectedTeam?.id,
-  (newTeamID) => {
-    adapter.changeTeamID(newTeamID)
-  }
-)
-
-watch(
-  () => currentUser.value,
-  (newValue) => {
-    if (!newValue) {
-      switchToMyEnvironments()
+  () => environmentType.value.selectedTeam,
+  (newTeam) => {
+    if (newTeam) {
+      adapter.changeTeamID(newTeam.id)
     }
   }
 )
@@ -316,6 +300,15 @@ watch(
       if (team) {
         updateSelectedTeam(team)
       }
+    }
+  }
+)
+
+watch(
+  () => currentUser.value,
+  (newValue) => {
+    if (!newValue) {
+      switchToMyEnvironments()
     }
   }
 )

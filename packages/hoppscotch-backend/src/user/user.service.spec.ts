@@ -427,7 +427,7 @@ describe('UserService', () => {
       const result = await userService.fetchAllUsers('123344', 20);
       expect(result).toEqual(users);
     });
-    test('should resolve left and return an error when users not found', async () => {
+    test('should resolve left and return an empty array when users not found', async () => {
       mockPrisma.user.findMany.mockResolvedValueOnce([]);
 
       const result = await userService.fetchAllUsers(null, 20);

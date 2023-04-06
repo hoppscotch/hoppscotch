@@ -62,7 +62,7 @@ describe('AdminService', () => {
       const results = await adminService.fetchInvitedUsers();
       expect(results).toEqual(invitedUsers);
     });
-    test('should resolve left and return an error if invited users not found', async () => {
+    test('should resolve left and return an empty array if invited users not found', async () => {
       mockPrisma.invitedUsers.findMany.mockResolvedValue([]);
 
       const results = await adminService.fetchInvitedUsers();

@@ -231,8 +231,8 @@ export class TeamRequestService {
     const teamCollection = await this.teamCollectionService.getCollection(
       req.collectionID,
     );
-    if (!teamCollection) return E.left(TEAM_INVALID_COLL_ID);
-    return E.right(teamCollection);
+    if (E.isLeft(teamCollection)) return E.left(TEAM_INVALID_COLL_ID);
+    return E.right(teamCollection.right);
   }
 
   /**

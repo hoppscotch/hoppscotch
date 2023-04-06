@@ -506,9 +506,10 @@ describe('createUserCollection', () => {
   });
   test('should throw USER_NOT_OWNER when user is not the owner of the collection', async () => {
     // isOwnerCheck
-    mockPrisma.userCollection.findFirstOrThrow.mockRejectedValueOnce(
-      'NotFoundError',
-    );
+    mockPrisma.userCollection.findUniqueOrThrow.mockResolvedValueOnce({
+      ...rootRESTUserCollection,
+      userUid: 'othser-user-uid',
+    });
 
     const result = await userCollectionService.createUserCollection(
       user,
@@ -520,7 +521,7 @@ describe('createUserCollection', () => {
   });
   test('should successfully create a new root REST user-collection with valid inputs', async () => {
     // isOwnerCheck
-    mockPrisma.userCollection.findFirstOrThrow.mockResolvedValueOnce(
+    mockPrisma.userCollection.findUniqueOrThrow.mockResolvedValueOnce(
       rootRESTUserCollection,
     );
 
@@ -540,7 +541,7 @@ describe('createUserCollection', () => {
   });
   test('should successfully create a new root GQL user-collection with valid inputs', async () => {
     // isOwnerCheck
-    mockPrisma.userCollection.findFirstOrThrow.mockResolvedValueOnce(
+    mockPrisma.userCollection.findUniqueOrThrow.mockResolvedValueOnce(
       rootGQLUserCollection,
     );
 
@@ -560,7 +561,7 @@ describe('createUserCollection', () => {
   });
   test('should successfully create a new child REST user-collection with valid inputs', async () => {
     // isOwnerCheck
-    mockPrisma.userCollection.findFirstOrThrow.mockResolvedValueOnce(
+    mockPrisma.userCollection.findUniqueOrThrow.mockResolvedValueOnce(
       childRESTUserCollection,
     );
 
@@ -580,7 +581,7 @@ describe('createUserCollection', () => {
   });
   test('should successfully create a new child GQL user-collection with valid inputs', async () => {
     // isOwnerCheck
-    mockPrisma.userCollection.findFirstOrThrow.mockResolvedValueOnce(
+    mockPrisma.userCollection.findUniqueOrThrow.mockResolvedValueOnce(
       childGQLUserCollection,
     );
 
@@ -594,13 +595,13 @@ describe('createUserCollection', () => {
       user,
       childGQLUserCollection.title,
       childGQLUserCollection.id,
-      ReqType.REST,
+      ReqType.GQL,
     );
     expect(result).toEqualRight(childGQLUserCollection);
   });
   test('should send pubsub message to "user_coll/<userID>/created" if child REST user-collection is created successfully', async () => {
     // isOwnerCheck
-    mockPrisma.userCollection.findFirstOrThrow.mockResolvedValueOnce(
+    mockPrisma.userCollection.findUniqueOrThrow.mockResolvedValueOnce(
       childRESTUserCollection,
     );
 
@@ -623,7 +624,7 @@ describe('createUserCollection', () => {
   });
   test('should send pubsub message to "user_coll/<userID>/created" if child GQL user-collection is created successfully', async () => {
     // isOwnerCheck
-    mockPrisma.userCollection.findFirstOrThrow.mockResolvedValueOnce(
+    mockPrisma.userCollection.findUniqueOrThrow.mockResolvedValueOnce(
       childGQLUserCollection,
     );
 
@@ -637,7 +638,7 @@ describe('createUserCollection', () => {
       user,
       childGQLUserCollection.title,
       childGQLUserCollection.id,
-      ReqType.REST,
+      ReqType.GQL,
     );
     expect(mockPubSub.publish).toHaveBeenCalledWith(
       `user_coll/${user.uid}/created`,
@@ -646,7 +647,7 @@ describe('createUserCollection', () => {
   });
   test('should send pubsub message to "user_coll/<userID>/created" if REST root user-collection is created successfully', async () => {
     // isOwnerCheck
-    mockPrisma.userCollection.findFirstOrThrow.mockResolvedValueOnce(
+    mockPrisma.userCollection.findUniqueOrThrow.mockResolvedValueOnce(
       rootRESTUserCollection,
     );
 
@@ -669,7 +670,7 @@ describe('createUserCollection', () => {
   });
   test('should send pubsub message to "user_coll/<userID>/created" if GQL root user-collection is created successfully', async () => {
     // isOwnerCheck
-    mockPrisma.userCollection.findFirstOrThrow.mockResolvedValueOnce(
+    mockPrisma.userCollection.findUniqueOrThrow.mockResolvedValueOnce(
       rootGQLUserCollection,
     );
 
@@ -683,7 +684,7 @@ describe('createUserCollection', () => {
       user,
       rootGQLUserCollection.title,
       rootGQLUserCollection.id,
-      ReqType.REST,
+      ReqType.GQL,
     );
     expect(mockPubSub.publish).toHaveBeenCalledWith(
       `user_coll/${user.uid}/created`,

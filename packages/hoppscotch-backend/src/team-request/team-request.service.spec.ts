@@ -8,6 +8,7 @@ import {
   TEAM_INVALID_ID,
   TEAM_REQ_NOT_FOUND,
   TEAM_REQ_REORDERING_FAILED,
+  TEAM_COLL_NOT_FOUND,
 } from 'src/errors';
 import * as E from 'fp-ts/Either';
 import { mockDeep, mockReset } from 'jest-mock-extended';
@@ -42,6 +43,9 @@ const teamCollection: DbTeamCollection = {
   parentID: null,
   teamID: team.id,
   title: 'Team Collection 1',
+  orderIndex: 1,
+  createdOn: new Date(),
+  updatedOn: new Date(),
 };
 const dbTeamRequests: DbTeamRequest[] = [];
 for (let i = 1; i <= 10; i++) {
@@ -236,7 +240,7 @@ describe('deleteTeamRequest', () => {
 
 describe('createTeamRequest', () => {
   test('rejects for invalid collection id', async () => {
-    mockTeamCollectionService.getTeamOfCollection.mockResolvedValue(null);
+    mockTeamCollectionService.getTeamOfCollection.mockResolvedValue(E.left(TEAM_INVALID_COLL_ID));
 
     const response = await teamRequestService.createTeamRequest(
       'invalidcollid',
@@ -253,7 +257,9 @@ describe('createTeamRequest', () => {
     const dbRequest = dbTeamRequests[0];
     const teamRequest = teamRequests[0];
 
-    mockTeamCollectionService.getTeamOfCollection.mockResolvedValue(team);
+    mockTeamCollectionService.getTeamOfCollection.mockResolvedValue(
+      E.right(team),
+    );
     mockPrisma.teamRequest.create.mockResolvedValue(dbRequest);
 
     const response = teamRequestService.createTeamRequest(
@@ -270,7 +276,9 @@ describe('createTeamRequest', () => {
     const dbRequest = dbTeamRequests[0];
     const teamRequest = teamRequests[0];
 
-    mockTeamCollectionService.getTeamOfCollection.mockResolvedValue(team);
+    mockTeamCollectionService.getTeamOfCollection.mockResolvedValue(
+      E.right(team),
+    );
     mockPrisma.teamRequest.create.mockResolvedValue(dbRequest);
 
     await teamRequestService.createTeamRequest(
@@ -359,7 +367,9 @@ describe('getTeamOfRequest', () => {
 
 describe('getCollectionOfRequest', () => {
   test('rejects for invalid collection id', async () => {
-    mockTeamCollectionService.getCollection.mockResolvedValue(null as any);
+    mockTeamCollectionService.getCollection.mockResolvedValue(
+      E.left(TEAM_COLL_NOT_FOUND),
+    );
 
     expect(
       teamRequestService.getCollectionOfRequest(teamRequests[0]),
@@ -367,7 +377,9 @@ describe('getCollectionOfRequest', () => {
   });
 
   test('resolves for valid collection id', async () => {
-    mockTeamCollectionService.getCollection.mockResolvedValue(teamCollection);
+    mockTeamCollectionService.getCollection.mockResolvedValue(
+      E.right(teamCollection),
+    );
 
     expect(
       teamRequestService.getCollectionOfRequest(teamRequests[0]),

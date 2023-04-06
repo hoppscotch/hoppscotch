@@ -10,11 +10,12 @@ import {
   TEAM_INVALID_ID_OR_USER,
 } from '../errors';
 import { mockDeep, mockReset } from 'jest-mock-extended';
+import * as O from 'fp-ts/Option';
 
 const mockPrisma = mockDeep<PrismaService>();
 
 const mockUserService = {
-  getUserWithEmail: jest.fn(),
+  findUserByEmail: jest.fn(),
   getUserForUID: jest.fn(),
   authenticateWithIDToken: jest.fn(),
 };
@@ -171,15 +172,17 @@ describe('addMemberToTeam', () => {
 
 describe('addMemberToTeamWithEmail', () => {
   afterEach(() => {
-    mockUserService.getUserWithEmail.mockClear();
+    mockUserService.findUserByEmail.mockClear();
     mockUserService.authenticateWithIDToken.mockClear();
     mockUserService.authenticateWithIDToken.mockClear();
   });
 
   test('resolves when user with email exists', () => {
-    mockUserService.getUserWithEmail.mockResolvedValueOnce({
-      uid: dbTeamMember.userUid,
-    });
+    mockUserService.findUserByEmail.mockResolvedValueOnce(
+      O.some({
+        uid: dbTeamMember.userUid,
+      }),
+    );
     mockPrisma.teamMember.create.mockResolvedValue(dbTeamMember);
 
     const result = teamService.addMemberToTeamWithEmail(
@@ -191,7 +194,7 @@ describe('addMemberToTeamWithEmail', () => {
   });
 
   test("rejects with user with email doesn't exist with USER_NOT_FOUND", () => {
-    mockUserService.getUserWithEmail.mockResolvedValue(null);
+    mockUserService.findUserByEmail.mockResolvedValue(O.none);
 
     const result = teamService.addMemberToTeamWithEmail(
       dbTeamMember.teamID,
@@ -202,9 +205,11 @@ describe('addMemberToTeamWithEmail', () => {
   });
 
   test('makes update in the database', async () => {
-    mockUserService.getUserWithEmail.mockResolvedValueOnce({
-      uid: dbTeamMember.userUid,
-    });
+    mockUserService.findUserByEmail.mockResolvedValueOnce(
+      O.some({
+        uid: dbTeamMember.userUid,
+      }),
+    );
     mockPrisma.teamMember.create.mockResolvedValue(dbTeamMember);
 
     await teamService.addMemberToTeamWithEmail(
@@ -227,9 +232,11 @@ describe('addMemberToTeamWithEmail', () => {
   });
 
   test('fires "team/<team_id>/member_added" pubsub message with correct payload', async () => {
-    mockUserService.getUserWithEmail.mockResolvedValueOnce({
-      uid: dbTeamMember.userUid,
-    });
+    mockUserService.findUserByEmail.mockResolvedValueOnce(
+      O.some({
+        uid: dbTeamMember.userUid,
+      }),
+    );
     mockPrisma.teamMember.create.mockResolvedValue(dbTeamMember);
 
     await teamService.addMemberToTeamWithEmail(
@@ -947,7 +954,7 @@ describe('fetchAllTeams', () => {
     const result = await teamService.fetchAllTeams('teamID', 20);
     expect(result).toEqual(teams);
   });
-  test('should resolve left and return an error when users not found', async () => {
+  test('should resolve left and return an empty array when users not found', async () => {
     mockPrisma.team.findMany.mockResolvedValueOnce([]);
 
     const result = await teamService.fetchAllTeams(null, 20);

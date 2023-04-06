@@ -131,6 +131,7 @@
             @click="emit('export-json-collection')"
           />
           <span
+            v-if="platform.platformFeatureFlags.exportAsGIST"
             v-tippy="{ theme: 'tooltip' }"
             :title="
               !currentUser

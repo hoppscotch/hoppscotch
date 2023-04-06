@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col flex-1 h-auto overflow-y-hidden flex-nowrap">
     <div
-      class="relative sticky top-0 z-10 flex-shrink-0 overflow-x-auto tabs bg-primaryLight"
+      class="relative sticky top-0 z-10 flex-shrink-0 overflow-x-auto tabs bg-primaryLight group-tabs"
     >
       <div
         class="flex flex-1 flex-shrink-0 w-0 overflow-x-auto"
@@ -95,6 +95,22 @@
           </div>
         </div>
       </div>
+
+      <input
+        type="range"
+        min="1"
+        :max="MAX_SCROLL_VALUE"
+        v-model="thumbPosition"
+        class="slider absolute bottom-0 hidden left-0"
+        :class="{
+          '!block': scrollThumb.show,
+        }"
+        :style="{
+          '--thumb-width': scrollThumb.width + 'px',
+        }"
+        style="width: calc(100% - 3rem)"
+        id="myRange"
+      />
     </div>
     <div class="w-full h-full contents">
       <slot></slot>
@@ -110,7 +126,8 @@ import { pipe } from "fp-ts/function"
 import { not } from "fp-ts/Predicate"
 import * as A from "fp-ts/Array"
 import * as O from "fp-ts/Option"
-import { ref, ComputedRef, computed, provide, inject } from "vue"
+import { ref, ComputedRef, computed, provide, inject, watch } from "vue"
+import { useElementSize } from "@vueuse/core"
 import type { Slot } from "vue"
 import draggable from "vuedraggable-es"
 import { HoppUIPluginOptions, HOPP_UI_OPTIONS } from "./../../index"
@@ -135,32 +152,24 @@ export type TabProvider = {
 
 const { t } = inject<HoppUIPluginOptions>(HOPP_UI_OPTIONS) ?? {}
 
-const props = defineProps({
-  styles: {
-    type: String,
-    default: "",
-  },
-  modelValue: {
-    type: String,
-    required: true,
-  },
-  renderInactiveTabs: {
-    type: Boolean,
-    default: false,
-  },
-  canAddNewTab: {
-    type: Boolean,
-    default: true,
-  },
-  newText: {
-    type: String,
-    default: null,
-  },
-  closeText: {
-    type: String,
-    default: null,
-  },
-})
+const props = withDefaults(
+  defineProps<{
+    styles: string
+    modelValue: string
+    renderInactiveTabs: boolean
+    canAddNewTab: boolean
+    newText: string | null
+    closeText: string | null
+  }>(),
+  {
+    styles: "",
+    renderInactiveTabs: false,
+    canAddNewTab: true,
+    newText: null,
+    closeText: null,
+  }
+)
+
 const emit = defineEmits<{
   (e: "update:modelValue", newTabID: string): void
   (e: "sort", body: { oldIndex: number; newIndex: number }): void
@@ -241,12 +250,46 @@ const addTab = () => {
   emit("addTab")
 }
 
-const scrollContainer = ref<HTMLElement | null>(null)
+/**
+ * Scroll related properties
+ */
 
+const MAX_SCROLL_VALUE = 500
+const scrollContainer = ref<HTMLElement>()
+const { width: scrollContainerWidth } = useElementSize(scrollContainer)
+const thumbPosition = ref(0)
+
+const scrollThumb = computed(() => {
+  const clientWidth = scrollContainerWidth.value ?? 0
+  const scrollWidth = tabEntries.value.length * 184
+
+  return {
+    width: (clientWidth / scrollWidth) * clientWidth || 300,
+    show: clientWidth ? scrollWidth > clientWidth : false,
+  }
+})
+
+/*
+ * Scroll with mouse wheel
+ */
 const scroll = (e: WheelEvent) => {
   scrollContainer.value!.scrollLeft += e.deltaY
   scrollContainer.value!.scrollLeft += e.deltaX
+
+  const { scrollWidth, clientWidth, scrollLeft } = scrollContainer.value!
+  const maxScroll = scrollWidth - clientWidth
+  thumbPosition.value = (scrollLeft / maxScroll) * MAX_SCROLL_VALUE
 }
+
+/*
+ * Scroll with scrollbar/slider
+ * when scroll thumb is dragged or clicked on the scrollbar
+ */
+watch(thumbPosition, (newVal) => {
+  const { scrollWidth, clientWidth } = scrollContainer.value!
+  const maxScroll = scrollWidth - clientWidth
+  scrollContainer.value!.scrollLeft = maxScroll * (newVal / MAX_SCROLL_VALUE)
+})
 </script>
 
 <style scoped lang="scss">
@@ -301,5 +344,39 @@ const scroll = (e: WheelEvent) => {
       }
     }
   }
+}
+
+$slider-height: 4px;
+.slider {
+  --thumb-width: 300px;
+  -webkit-appearance: none;
+  width: 100%;
+  height: $slider-height;
+  background: transparent;
+  outline: none;
+  opacity: 0;
+  -webkit-transition: 0.2s;
+  transition: opacity 0.2s;
+
+  &::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    min-width: 300px;
+    width: var(--thumb-width);
+    height: $slider-height;
+    background: gray;
+    cursor: pointer;
+  }
+  &::-moz-range-thumb {
+    min-width: 300px;
+    width: var(--thumb-width);
+    height: $slider-height;
+    background: gray;
+    cursor: pointer;
+  }
+}
+
+.group-tabs:hover .slider {
+  opacity: 0.8;
 }
 </style>

@@ -99,6 +99,12 @@ async function setInitialUser() {
     return
   }
 
+  if (error && error.message === "user/not_found") {
+    setUser(null)
+    isGettingInitialUser.value = false
+    return
+  }
+
   // cookies sent, but it is expired, we need to refresh the token
   if (error && error.message === "Unauthorized") {
     const isRefreshSuccess = await refreshToken()

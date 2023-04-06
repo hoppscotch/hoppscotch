@@ -125,14 +125,14 @@ import { useColorMode } from "~/composables/theming"
 import IconPlus from "~icons/lucide/plus"
 import IconArchive from "~icons/lucide/archive"
 import IconHelpCircle from "~icons/lucide/help-circle"
-import { Team } from "~/helpers/backend/graphql"
 import { defineActionHandler } from "~/helpers/actions"
+import { GetMyTeamsQuery } from "~/helpers/backend/graphql"
 
 const t = useI18n()
 
 const colorMode = useColorMode()
 
-type SelectedTeam = Team | undefined
+type SelectedTeam = GetMyTeamsQuery["myTeams"][number] | undefined
 
 const props = defineProps<{
   team: SelectedTeam

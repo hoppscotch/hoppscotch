@@ -59,8 +59,8 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, watch } from "vue"
+<script setup lang="ts">
+import { onMounted, ref, watch } from "vue"
 import { useRoute, useRouter } from "vue-router"
 import * as E from "fp-ts/Either"
 import { safelyExtractRESTRequest } from "@hoppscotch/data"
@@ -77,71 +77,56 @@ import IconRefreshCW from "~icons/lucide/refresh-cw"
 import { createNewTab } from "~/helpers/rest/tab"
 import { getDefaultRESTRequest } from "~/helpers/rest/default"
 
-export default defineComponent({
-  setup() {
-    const route = useRoute()
-    const router = useRouter()
+const route = useRoute()
+const router = useRouter()
 
-    const t = useI18n()
+const t = useI18n()
 
-    const shortcodeDetails = useGQLQuery<
-      ResolveShortcodeQuery,
-      ResolveShortcodeQueryVariables,
-      ""
-    >({
-      query: ResolveShortcodeDocument,
-      variables: {
-        code: route.params.id as string,
-      },
+const invalidLink = ref(false)
+const shortcodeID = ref("")
+
+const shortcodeDetails = useGQLQuery<
+  ResolveShortcodeQuery,
+  ResolveShortcodeQueryVariables,
+  ""
+>({
+  query: ResolveShortcodeDocument,
+  variables: {
+    code: route.params.id.toString(),
+  },
+})
+
+watch(
+  () => shortcodeDetails.data,
+  () => addRequestToTab()
+)
+
+const addRequestToTab = () => {
+  if (shortcodeDetails.loading) return
+
+  const data = shortcodeDetails.data
+
+  if (E.isRight(data)) {
+    const request: unknown = JSON.parse(data.right.shortcode?.request as string)
+
+    createNewTab({
+      request: safelyExtractRESTRequest(request, getDefaultRESTRequest()),
+      isDirty: false,
     })
 
-    watch(
-      () => shortcodeDetails.data,
-      () => {
-        if (shortcodeDetails.loading) return
+    router.push({ path: "/" })
+  }
+}
 
-        const data = shortcodeDetails.data
+const reloadApplication = () => {
+  window.location.reload()
+}
 
-        if (E.isRight(data)) {
-          const request: unknown = JSON.parse(
-            data.right.shortcode?.request as string
-          )
-
-          createNewTab({
-            request: safelyExtractRESTRequest(request, getDefaultRESTRequest()),
-            isDirty: false,
-          })
-
-          router.push({ path: "/" })
-        }
-      }
-    )
-
-    const reloadApplication = () => {
-      window.location.reload()
-    }
-
-    return {
-      E,
-      shortcodeDetails,
-      reloadApplication,
-      t,
-      route,
-      IconHome,
-      IconRefreshCW,
-    }
-  },
-  data() {
-    return {
-      invalidLink: false,
-      shortcodeID: "",
-    }
-  },
-  mounted() {
-    if (typeof this.route.params.id === "string") {
-      this.shortcodeID = this.route.params.id
-    }
-    this.invalidLink = !this.shortcodeID
-  },
+onMounted(() => {
+  if (typeof route.params.id === "string") {
+    shortcodeID.value = route.params.id
+    shortcodeDetails.execute()
+  }
+  invalidLink.value = !shortcodeID.value
 })
 </script>

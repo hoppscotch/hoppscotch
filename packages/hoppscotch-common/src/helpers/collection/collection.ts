@@ -1,6 +1,9 @@
 import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
 import { getTabsRefTo } from "../rest/tab"
 import { getAffectedIndexes } from "./affectedIndex"
+import { GetSingleRequestDocument } from "../backend/graphql"
+import { runGQLQuery } from "../backend/GQLClient"
+import * as E from "fp-ts/Either"
 
 /**
  * Resolve save context on reorder
@@ -112,6 +115,33 @@ function resetSaveContextForAffectedRequests(folderPath: string) {
   for (const tab of tabs) {
     tab.value.document.saveContext = null
     tab.value.document.isDirty = true
+  }
+}
+
+/**
+ * Reset save context to null if requests are deleted from the team collection or its folder
+ * only runs when collection or folder is deleted
+ */
+
+export async function resetTeamRequestsContext() {
+  const tabs = getTabsRefTo((tab) => {
+    return tab.document.saveContext?.originLocation === "team-collection"
+  })
+
+  for (const tab of tabs) {
+    if (tab.value.document.saveContext?.originLocation === "team-collection") {
+      const data = await runGQLQuery({
+        query: GetSingleRequestDocument,
+        variables: {
+          requestID: tab.value.document.saveContext?.requestID,
+        },
+      })
+
+      if (E.isRight(data) && data.right.request === null) {
+        tab.value.document.saveContext = null
+        tab.value.document.isDirty = true
+      }
+    }
   }
 }
 

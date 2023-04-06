@@ -234,6 +234,7 @@ import {
   getFoldersByPath,
   resolveSaveContextOnCollectionReorder,
   updateSaveContextForAffectedRequests,
+  resetTeamRequestsContext,
 } from "~/helpers/collection/collection"
 import { currentReorderingStatus$ } from "~/newstore/reordering"
 
@@ -990,10 +991,10 @@ const removeCollection = (id: string) => {
  * since folder is treated as collection in the BE.
  * @param collectionID - ID of the collection or folder to be deleted.
  */
-const removeTeamCollectionOrFolder = (collectionID: string) => {
+const removeTeamCollectionOrFolder = async (collectionID: string) => {
   modalLoadingState.value = true
 
-  pipe(
+  await pipe(
     deleteCollection(collectionID),
     TE.match(
       (err: GQLError<string>) => {
@@ -1047,7 +1048,9 @@ const onRemoveCollection = () => {
       emit("select", null)
     }
 
-    removeTeamCollectionOrFolder(collectionID)
+    removeTeamCollectionOrFolder(collectionID).then(() => {
+      resetTeamRequestsContext()
+    })
   }
 }
 
@@ -1099,7 +1102,9 @@ const onRemoveFolder = () => {
       emit("select", null)
     }
 
-    removeTeamCollectionOrFolder(collectionID)
+    removeTeamCollectionOrFolder(collectionID).then(() => {
+      resetTeamRequestsContext()
+    })
   }
 }
 

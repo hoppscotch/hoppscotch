@@ -69,7 +69,7 @@ const accountDetails: Account = {
 };
 
 let nowPlus30 = new Date();
-nowPlus30.setMinutes(nowPlus30.getMinutes() + 30);
+nowPlus30.setMinutes(nowPlus30.getMinutes() + 30000);
 nowPlus30 = new Date(nowPlus30);
 
 const encodedRefreshToken =

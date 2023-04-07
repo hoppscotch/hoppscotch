@@ -48,7 +48,6 @@
     "graphql-subscriptions": "^2.0.0",
     "handlebars": "^4.7.7",
     "io-ts": "^2.2.16",
-    "ioredis": "^5.2.4",
     "luxon": "^3.2.1",
     "nodemailer": "^6.9.1",
     "passport": "^0.6.0",

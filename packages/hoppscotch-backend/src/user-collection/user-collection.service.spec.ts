@@ -873,7 +873,10 @@ describe('deleteUserCollection', () => {
     );
     expect(mockPubSub.publish).toHaveBeenCalledWith(
       `user_coll/${user.uid}/deleted`,
-      rootRESTUserCollection.id,
+      {
+        id: rootRESTUserCollection.id,
+        type: rootRESTUserCollection.type,
+      },
     );
   });
 });

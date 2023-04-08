@@ -22,8 +22,6 @@ declare module '@vue/runtime-core' {
     HoppSmartItem: typeof import('@hoppscotch/ui')['HoppSmartItem']
     HoppSmartModal: typeof import('@hoppscotch/ui')['HoppSmartModal']
     HoppSmartSpinner: typeof import('@hoppscotch/ui')['HoppSmartSpinner']
-    HoppSmartTab: typeof import('@hoppscotch/ui')['HoppSmartTab']
-    IconLucideArrowLeft: typeof import('~icons/lucide/arrow-left')['default']
     IconLucideChevronDown: typeof import('~icons/lucide/chevron-down')['default']
     IconLucideInbox: typeof import('~icons/lucide/inbox')['default']
     IconLucideUser: typeof import('~icons/lucide/user')['default']

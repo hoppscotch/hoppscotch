@@ -78,18 +78,21 @@
     </div>
 
     <section class="mt-15">
-      <div v-if="mode === 'sign-in'" class="text-secondaryLight text-tiny">
+      <div
+        v-if="mode === 'sign-in' && tosLink && privacyPolicyLink"
+        class="text-secondaryLight text-tiny"
+      >
         By signing in, you are agreeing to our
         <HoppSmartAnchor
           class="link"
-          to="https://docs.hoppscotch.io/terms"
+          :to="tosLink"
           blank
           label="Terms of Service"
         />
         and
         <HoppSmartAnchor
           class="link"
-          to="https://docs.hoppscotch.io/privacy"
+          :to="privacyPolicyLink"
           blank
           label="Privacy Policy"
         />
@@ -132,6 +135,9 @@ import { auth } from '~/helpers/auth';
 const { subscribeToStream } = useStreamSubscriber();
 
 const toast = useToast();
+
+const tosLink = import.meta.env.VITE_APP_TOS_LINK;
+const privacyPolicyLink = import.meta.env.VITE_APP_PRIVACY_POLICY_LINK;
 
 // DATA
 

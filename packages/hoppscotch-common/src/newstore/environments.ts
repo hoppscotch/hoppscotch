@@ -96,13 +96,16 @@ const dispatchers = defineDispatchers({
         environments,
       }
     }
+
+    // remove the id, because this is a new environment & it will get its own id when syncing
+    delete newEnvironment["id"]
+
     return {
       environments: [
         ...environments,
         {
           ...cloneDeep(newEnvironment),
           name: `${newEnvironment.name} - Duplicate`,
-          id: undefined,
         },
       ],
     }

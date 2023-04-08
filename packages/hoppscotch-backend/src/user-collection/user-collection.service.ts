@@ -869,6 +869,9 @@ export class UserCollectionService {
         parentID: collectionID,
         type: reqType,
       },
+      orderBy: {
+        orderIndex: 'asc',
+      },
     });
 
     // Create a list of child collection and request data ready for export

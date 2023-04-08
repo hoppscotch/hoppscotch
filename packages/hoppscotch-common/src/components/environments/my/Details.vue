@@ -147,6 +147,7 @@ import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
 import { useReadonlyStream } from "@composables/stream"
 import { useColorMode } from "@composables/theming"
+import { environmentsStore } from "~/newstore/environments"
 
 type EnvironmentVariable = {
   id: number
@@ -315,8 +316,21 @@ const saveEnvironment = () => {
     setGlobalEnvVariables(environmentUpdated.variables)
     toast.success(`${t("environment.updated")}`)
   } else if (props.editingEnvironmentIndex !== null) {
+    const envID =
+      environmentsStore.value.environments[props.editingEnvironmentIndex].id
+
     // Editing an environment
-    updateEnvironment(props.editingEnvironmentIndex, environmentUpdated)
+    updateEnvironment(
+      props.editingEnvironmentIndex,
+      envID
+        ? {
+            ...environmentUpdated,
+            id: envID,
+          }
+        : {
+            ...environmentUpdated,
+          }
+    )
     toast.success(`${t("environment.updated")}`)
   }
 

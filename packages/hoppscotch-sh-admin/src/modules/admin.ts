@@ -6,11 +6,28 @@ const isAdmin = () => {
   return user ? user.isAdmin : false;
 };
 
+const GUEST_ROUTES = ['index', 'magic-link'];
+
+const isGuestRoute = (to: unknown) => GUEST_ROUTES.includes(to as string);
+
+/**
+ * @module routers
+ */
+
+/**
+ * @function
+ * @name onBeforeRouteChange
+ * @param {object} to
+ * @param {object} from
+ * @param {function} next
+ * @returns {void}
+ */
+
 export default <HoppModule>{
   onBeforeRouteChange(to, from, next) {
-    if (to.name !== 'index' && !isAdmin()) {
+    if (!isGuestRoute(to.name) && !isAdmin()) {
       next({ name: 'index' });
-    } else if (to.name === 'index' && isAdmin()) {
+    } else if (isGuestRoute(to.name) && isAdmin()) {
       next({ name: 'dashboard' });
     } else {
       next();

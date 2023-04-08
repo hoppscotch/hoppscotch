@@ -61,17 +61,21 @@ async function logout() {
 }
 
 async function signInUserWithGithubFB() {
-  window.location.href = `${import.meta.env.VITE_BACKEND_API_URL}/auth/github`;
+  window.location.href = `${
+    import.meta.env.VITE_BACKEND_API_URL
+  }/auth/github?redirect_uri=${import.meta.env.VITE_ADMIN_URL}`;
 }
 
 async function signInUserWithGoogleFB() {
-  window.location.href = `${import.meta.env.VITE_BACKEND_API_URL}/auth/google`;
+  window.location.href = `${
+    import.meta.env.VITE_BACKEND_API_URL
+  }/auth/google?redirect_uri=${import.meta.env.VITE_ADMIN_URL}`;
 }
 
 async function signInUserWithMicrosoftFB() {
   window.location.href = `${
     import.meta.env.VITE_BACKEND_API_URL
-  }/auth/microsoft`;
+  }/auth/microsoft?redirect_uri=${import.meta.env.VITE_ADMIN_URL}`;
 }
 
 async function getInitialUserDetails() {
@@ -215,7 +219,7 @@ async function elevateUser() {
 
 async function sendMagicLink(email: string) {
   const res = await axios.post(
-    `${import.meta.env.VITE_BACKEND_API_URL}/auth/signin`,
+    `${import.meta.env.VITE_BACKEND_API_URL}/auth/signin?origin=admin`,
     {
       email,
     },

@@ -70,12 +70,7 @@
         <td>
           <div class="relative">
             <span>
-              <tippy
-                interactive
-                trigger="click"
-                theme="popover"
-                :on-shown="() => tippyActions!.focus()"
-              >
+              <tippy interactive trigger="click" theme="popover">
                 <HoppButtonSecondary
                   v-tippy="{ theme: 'tooltip' }"
                   :icon="IconMoreHorizontal"

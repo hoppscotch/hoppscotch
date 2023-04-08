@@ -1,19 +1,16 @@
 <template>
-  <div class="my-6">
-    <h3 class="text-2xl font-bold text-gray-200">Team Members</h3>
-    <div class="flex flex-col mb-6">
-      <div class="flex items-center justify-end flex-1 pt-4 mb-4">
-        <div class="flex">
-          <HoppButtonPrimary
-            :icon="IconUserPlus"
-            label="Add Members"
-            filled
-            @click="showInvite = !showInvite"
-          />
-        </div>
+  <div class="flex flex-col">
+    <div class="flex flex-col">
+      <div class="flex">
+        <HoppButtonPrimary
+          :icon="IconUserPlus"
+          label="Add Members"
+          filled
+          @click="showInvite = !showInvite"
+        />
       </div>
 
-      <div class="border rounded border-divider">
+      <div class="border rounded border-divider my-8">
         <div
           v-if="team?.teamMembers?.length === 0"
           class="flex flex-col items-center justify-center p-4 text-secondaryLight"
@@ -38,7 +35,7 @@
             class="flex divide-x divide-dividerLight"
           >
             <input
-              class="flex flex-1 px-4 py-2 bg-transparent"
+              class="flex flex-1 px-4 py-3 bg-transparent"
               placeholder="Email"
               :name="'param' + index"
               :value="member.email"
@@ -51,14 +48,19 @@
                 theme="popover"
                 :on-shown="() => tippyActions![index].focus()"
               >
-                <span class="select-wrapper">
+                <span class="relative">
                   <input
-                    class="flex flex-1 px-4 py-2 bg-transparent cursor-pointer"
+                    class="flex flex-1 px-4 py-3 bg-transparent cursor-pointer"
                     placeholder="Permissions"
                     :name="'value' + index"
                     :value="member.role"
                     readonly
                   />
+                  <span
+                    class="absolute right-4 top-1/2 transform !-translate-y-1/2"
+                  >
+                    <IconChevronDown />
+                  </span>
                 </span>
                 <template #content="{ hide }">
                   <div
@@ -136,18 +138,20 @@
       </div>
     </div>
 
-    <HoppButtonPrimary label="Save" outline @click="saveUpdatedTeam" />
+    <div class="flex">
+      <HoppButtonPrimary label="Save" outline @click="saveUpdatedTeam" />
+    </div>
+    <TeamsInvite
+      :show="showInvite"
+      :editingTeamID="route.params.id.toString()"
+      @member="updateMembers"
+      @hide-modal="
+        () => {
+          showInvite = false;
+        }
+      "
+    />
   </div>
-  <TeamsInvite
-    :show="showInvite"
-    :editingTeamID="route.params.id.toString()"
-    @member="updateMembers"
-    @hide-modal="
-      () => {
-        showInvite = false;
-      }
-    "
-  />
 </template>
 
 <script setup lang="ts">
@@ -156,6 +160,7 @@ import IconCircle from '~icons/lucide/circle';
 import IconUserPlus from '~icons/lucide/user-plus';
 import IconUserMinus from '~icons/lucide/user-minus';
 import IconHelpCircle from '~icons/lucide/help-circle';
+import IconChevronDown from '~icons/lucide/chevron-down';
 import { useClientHandle, useMutation } from '@urql/vue';
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
@@ -170,6 +175,10 @@ import {
 import { HoppButtonPrimary, HoppButtonSecondary } from '@hoppscotch/ui';
 
 const toast = useToast();
+
+const emit = defineEmits<{
+  (e: 'update-team'): void;
+}>();
 
 // Used to Invoke the Invite Members Modal
 const showInvite = ref(false);
@@ -195,15 +204,14 @@ const getTeamInfo = async () => {
   fetching.value = false;
 };
 
-const emit = defineEmits<{
-  (e: 'update-team'): void;
-}>();
-
 onMounted(async () => await getTeamInfo());
 onUnmounted(() => emit('update-team'));
 
 // Update members tab after a change in the members list or member roles
-const updateMembers = () => getTeamInfo();
+const updateMembers = () => {
+  getTeamInfo();
+  emit('update-team');
+};
 
 // Template refs
 const tippyActions = ref<any | null>(null);
@@ -295,8 +303,10 @@ const saveUpdatedTeam = async () => {
     );
     if (updateMemberRoleResult.error) {
       toast.error('Role updation has failed!!');
+      roleUpdates.value = [];
     } else {
       toast.success('Roles updated successfully!!');
+      roleUpdates.value = [];
     }
     isLoading.value = false;
   });
@@ -333,5 +343,6 @@ const removeExistingTeamMember = async (userID: string, index: number) => {
     toast.success('Member removed successfully!!');
   }
   isLoadingIndex.value = null;
+  emit('update-team');
 };
 </script>

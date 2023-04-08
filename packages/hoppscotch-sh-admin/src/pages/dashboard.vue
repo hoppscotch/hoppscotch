@@ -1,6 +1,8 @@
 <template>
   <div class="flex flex-col">
-    <div v-if="fetching" class="flex justify-center">
+    <h1 class="text-lg font-bold text-secondaryDark">Dashboard</h1>
+
+    <div v-if="fetching" class="flex justify-center py-6">
       <HoppSmartSpinner />
     </div>
 
@@ -9,7 +11,6 @@
     </div>
 
     <div v-else>
-      <h1 class="text-lg font-bold text-secondaryDark">Dashboard</h1>
       <div class="py-10 grid lg:grid-cols-2 gap-6">
         <DashboardMetricsCard
           :count="metrics.usersCount"

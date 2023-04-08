@@ -1,7 +1,5 @@
 <template>
-  <h3 class="text-2xl font-bold text-gray-200 mb-5">Pending Invites</h3>
-
-  <div class="border rounded divide-y divide-dividerLight border-divider">
+  <div class="border rounded divide-y divide-dividerLight border-divider my-8">
     <div v-if="fetching" class="flex items-center justify-center p-4">
       <HoppSmartSpinner />
     </div>

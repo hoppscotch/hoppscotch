@@ -26,6 +26,7 @@
         >
           <HoppSmartSpinner />
         </div>
+
         <div v-else-if="error">Unable to Load Users List..</div>
 
         <UsersTable

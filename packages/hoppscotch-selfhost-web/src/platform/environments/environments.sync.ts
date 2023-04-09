@@ -89,7 +89,7 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
       updateUserEnvironment(backendId, updatedEnv)()
     }
   },
-  async deleteEnvironment({ _, envID }) {
+  async deleteEnvironment({ envID }) {
     if (envID) {
       await deleteUserEnvironment(envID)()
     }

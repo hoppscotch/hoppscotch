@@ -1,7 +1,7 @@
 {
   "name": "hoppscotch-sh-admin",
   "private": true,
-  "version": "0.0.0",
+  "version": "2023.4.0",
   "type": "module",
   "scripts": {
     "dev": "pnpm exec npm-run-all -p -l dev:*",
@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@graphql-typed-document-node/core": "^3.1.1",
-    "@hoppscotch/ui": "workspace:^0.0.1",
+    "@hoppscotch/ui": "workspace:^",
     "@hoppscotch/vue-toasted": "^0.1.0",
     "@types/cors": "^2.8.13",
     "@types/express": "^4.17.15",

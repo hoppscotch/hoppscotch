@@ -11,6 +11,8 @@
 /packages/hoppscotch-js-sandbox/                        @AndrewBastin
 /packages/hoppscotch-ui/                                @anwarulislam
 /packages/hoppscotch-web/                               @amk-dev
+/packages/hoppscotch-selfhost-web/                      @amk-dev
+/packages/hoppscotch-sh-admin/                          @JoelJacobStephen
 
 # Sections within Hoppscotch Common
 /packages/hoppscotch-common/src/components              @anwarulislam

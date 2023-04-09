@@ -5,12 +5,12 @@
 
 # Packages
 /packages/codemirror-lang-graphql/                      @AndrewBastin
-/packages/hoppscotch-cli/                               @aitchnyu
+/packages/hoppscotch-cli/                               @AndrewBastin
 /packages/hoppscotch-common/                            @amk-dev @AndrewBastin
 /packages/hoppscotch-data/                              @AndrewBastin
-/packages/hoppscotch-js-sandbox/                        @aitchnyu
+/packages/hoppscotch-js-sandbox/                        @AndrewBastin
 /packages/hoppscotch-ui/                                @anwarulislam
-/packages/hoppscotch-web/                               @amk-dev @AndrewBastin
+/packages/hoppscotch-web/                               @amk-dev
 
 # Sections within Hoppscotch Common
 /packages/hoppscotch-common/src/components              @anwarulislam

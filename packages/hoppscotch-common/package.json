@@ -1,7 +1,7 @@
 {
   "name": "@hoppscotch/common",
   "private": true,
-  "version": "3.0.1",
+  "version": "2023.4.0",
   "scripts": {
     "dev": "pnpm exec npm-run-all -p -l dev:*",
     "dev:vite": "vite",
@@ -30,10 +30,10 @@
     "@codemirror/search": "^6.0.0",
     "@codemirror/state": "^6.1.0",
     "@codemirror/view": "^6.0.2",
-    "@hoppscotch/codemirror-lang-graphql": "workspace:^0.2.0",
-    "@hoppscotch/data": "workspace:^0.4.4",
-    "@hoppscotch/js-sandbox": "workspace:^2.1.0",
-    "@hoppscotch/ui": "workspace:^0.0.1",
+    "@hoppscotch/codemirror-lang-graphql": "workspace:^",
+    "@hoppscotch/data": "workspace:^",
+    "@hoppscotch/js-sandbox": "workspace:^",
+    "@hoppscotch/ui": "workspace:^",
     "@hoppscotch/vue-toasted": "^0.1.0",
     "@lezer/highlight": "^1.0.0",
     "@sentry/tracing": "^7.13.0",

@@ -4,7 +4,9 @@
   "version": "2023.4.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev:vite": "vite",
+    "dev:gql-codegen": "graphql-codegen --require dotenv/config --config gql-codegen.yml dotenv_config_path=\"../../.env\" --watch",
+    "dev": "pnpm exec npm-run-all -p -l dev:*",
     "build": "node --max_old_space_size=16384 ./node_modules/vite/bin/vite.js build",
     "preview": "vite preview",
     "lint": "eslint src --ext .ts,.js,.vue --ignore-path .gitignore .",
@@ -55,6 +57,7 @@
     "eslint": "^8.28.0",
     "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-vue": "^9.5.1",
+    "npm-run-all": "^4.1.5",
     "typescript": "^4.6.4",
     "unplugin-icons": "^0.14.9",
     "unplugin-vue-components": "^0.21.0",

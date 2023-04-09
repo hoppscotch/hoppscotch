@@ -24,6 +24,8 @@ const defaultEnvironmentsState = {
     },
   ] as Environment[],
 
+  // as a temp fix for identifying global env when syncing
+  globalEnvID: undefined as string | undefined,
   globals: [] as Environment["variables"],
 
   selectedEnvironmentIndex: {
@@ -62,15 +64,25 @@ const dispatchers = defineDispatchers({
   },
   createEnvironment(
     { environments }: EnvironmentStore,
-    { name, variables }: { name: string; variables: Environment["variables"] }
+    {
+      name,
+      variables,
+      envID,
+    }: { name: string; variables: Environment["variables"]; envID?: string }
   ) {
     return {
       environments: [
         ...environments,
-        {
-          name,
-          variables: variables,
-        },
+        envID
+          ? {
+              id: envID,
+              name,
+              variables,
+            }
+          : {
+              name,
+              variables,
+            },
       ],
     }
   },
@@ -84,6 +96,10 @@ const dispatchers = defineDispatchers({
         environments,
       }
     }
+
+    // remove the id, because this is a new environment & it will get its own id when syncing
+    delete newEnvironment["id"]
+
     return {
       environments: [
         ...environments,
@@ -100,7 +116,9 @@ const dispatchers = defineDispatchers({
       // currentEnvironmentIndex,
       selectedEnvironmentIndex,
     }: EnvironmentStore,
-    { envIndex }: { envIndex: number }
+    // the envID is used in the syncing code, so disabling the lint rule
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    { envIndex, envID }: { envIndex: number; envID?: string }
   ) {
     let newCurrEnvIndex = selectedEnvironmentIndex
 
@@ -266,6 +284,25 @@ const dispatchers = defineDispatchers({
       globals: globals.map((x, i) => (i !== envIndex ? x : updatedEntry)),
     }
   },
+  setGlobalEnvID(_, { id }: { id: string }) {
+    return {
+      globalEnvID: id,
+    }
+  },
+  // only used for environments.sync.ts to prevent double insertion of environments from storeSync and Subscriptions
+  removeDuplicateEntry({ environments }, { id }: { id: string }) {
+    const entries = environments.filter((e) => e.id === id)
+
+    const newEnvironments = [...environments]
+
+    if (entries.length == 2) {
+      const indexToRemove = environments.findIndex((e) => e.id === id)
+      newEnvironments.splice(indexToRemove, 1)
+    }
+    return {
+      environments: newEnvironments,
+    }
+  },
 })
 
 export const environmentsStore = new DispatchingStore(
@@ -404,6 +441,18 @@ export function getGlobalVariables(): Environment["variables"] {
   return environmentsStore.value.globals
 }
 
+export function getGlobalVariableID() {
+  return environmentsStore.value.globalEnvID
+}
+
+export function getLocalIndexByEnvironmentID(id: string) {
+  const envIndex = environmentsStore.value.environments.findIndex(
+    (env) => env.id === id
+  )
+
+  return envIndex != -1 ? envIndex : null
+}
+
 export function addGlobalEnvVariable(entry: Environment["variables"][number]) {
   environmentsStore.dispatch({
     dispatcher: "addGlobalVariable",
@@ -471,13 +520,15 @@ export function appendEnvironments(envs: Environment[]) {
 
 export function createEnvironment(
   envName: string,
-  variables?: Environment["variables"]
+  variables?: Environment["variables"],
+  envID?: string
 ) {
   environmentsStore.dispatch({
     dispatcher: "createEnvironment",
     payload: {
       name: envName,
       variables: variables ?? [],
+      envID,
     },
   })
 }
@@ -491,11 +542,12 @@ export function duplicateEnvironment(envIndex: number) {
   })
 }
 
-export function deleteEnvironment(envIndex: number) {
+export function deleteEnvironment(envIndex: number, envID?: string) {
   environmentsStore.dispatch({
     dispatcher: "deleteEnvironment",
     payload: {
       envIndex,
+      envID,
     },
   })
 }
@@ -572,6 +624,24 @@ export function updateEnvironmentVariable(
       variableIndex,
       updatedKey: key,
       updatedValue: value,
+    },
+  })
+}
+
+export function setGlobalEnvID(id: string) {
+  environmentsStore.dispatch({
+    dispatcher: "setGlobalEnvID",
+    payload: {
+      id,
+    },
+  })
+}
+
+export function removeDuplicateEntry(id: string) {
+  environmentsStore.dispatch({
+    dispatcher: "removeDuplicateEntry",
+    payload: {
+      id,
     },
   })
 }

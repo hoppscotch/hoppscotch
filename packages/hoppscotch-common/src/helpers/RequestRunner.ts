@@ -122,7 +122,7 @@ export const runRESTRequest$ = (
                 updateEnvironment(
                   environmentsStore.value.selectedEnvironmentIndex.index,
                   {
-                    name: env.name,
+                    ...env,
                     variables: runResult.right.envs.selected,
                   }
                 )

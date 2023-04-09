@@ -144,8 +144,9 @@ const deleteAction = ref<typeof HoppSmartItem>()
 
 const removeEnvironment = () => {
   if (props.environmentIndex === null) return
-  if (props.environmentIndex !== "Global")
-    deleteEnvironment(props.environmentIndex)
+  if (props.environmentIndex !== "Global") {
+    deleteEnvironment(props.environmentIndex, props.environment.id)
+  }
   toast.success(`${t("state.deleted")}`)
 }
 

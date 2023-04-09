@@ -2,6 +2,7 @@ import { pipe } from "fp-ts/function"
 import * as E from "fp-ts/Either"
 
 export type Environment = {
+  id?: string
   name: string
   variables: {
     key: string

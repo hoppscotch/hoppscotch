@@ -2,7 +2,10 @@ import { authEvents$, def as platformAuth } from "@platform/auth"
 import {
   createEnvironment,
   deleteEnvironment,
+  environmentsStore,
+  getLocalIndexByEnvironmentID,
   replaceEnvironments,
+  setGlobalEnvID,
   setGlobalEnvVariables,
   updateEnvironment,
 } from "@hoppscotch/common/newstore/environments"
@@ -10,11 +13,7 @@ import {
 import { EnvironmentsPlatformDef } from "@hoppscotch/common/src/platform/environments"
 import { runGQLSubscription } from "@hoppscotch/common/helpers/backend/GQLClient"
 
-import {
-  environmentsMapper,
-  globalEnvironmentMapper,
-  environnmentsSyncer,
-} from "@platform/environments/environments.sync"
+import { environnmentsSyncer } from "@platform/environments/environments.sync"
 
 import * as E from "fp-ts/Either"
 import { runDispatchWithOutSyncing } from "@lib/sync"
@@ -79,10 +78,6 @@ async function loadUserEnvironments() {
     const environments = res.right.me.environments
 
     if (environments.length > 0) {
-      environments.forEach((env, index) => {
-        environmentsMapper.addEntry(index, env.id)
-      })
-
       runDispatchWithOutSyncing(() => {
         replaceEnvironments(
           environments.map(({ id, variables, name }) => ({
@@ -105,15 +100,15 @@ async function loadGlobalEnvironments() {
     if (globalEnv) {
       runDispatchWithOutSyncing(() => {
         setGlobalEnvVariables(JSON.parse(globalEnv.variables))
+        setGlobalEnvID(globalEnv.id)
       })
-      globalEnvironmentMapper.addEntry(0, globalEnv.id)
     }
   } else if (res.left.error == "user_environment/user_env_does_not_exists") {
     const res = await createUserGlobalEnvironment(JSON.stringify([]))
 
     if (E.isRight(res)) {
       const backendId = res.right.createUserGlobalEnvironment.id
-      globalEnvironmentMapper.addEntry(0, backendId)
+      setGlobalEnvID(backendId)
     }
   }
 }
@@ -128,16 +123,16 @@ function setupUserEnvironmentCreatedSubscription() {
     runUserEnvironmentCreatedSubscription()
 
   userEnvironmentCreated$.subscribe((res) => {
-    console.group("Subscription: User Environment Created")
-    console.log(res)
-    console.groupEnd()
-
     if (E.isRight(res)) {
-      const { name, variables } = res.right.userEnvironmentCreated
+      const { name, variables, id } = res.right.userEnvironmentCreated
 
-      if (name) {
+      const isAlreadyExisting = environmentsStore.value.environments.some(
+        (env) => env.id == id
+      )
+
+      if (name && !isAlreadyExisting) {
         runDispatchWithOutSyncing(() => {
-          createEnvironment(name, JSON.parse(variables))
+          createEnvironment(name, JSON.parse(variables), id)
         })
       }
     }
@@ -151,10 +146,6 @@ function setupUserEnvironmentUpdatedSubscription() {
     runUserEnvironmentUpdatedSubscription()
 
   userEnvironmentUpdated$.subscribe((res) => {
-    console.group("Subscription: User Environment Updated")
-    console.log(res)
-    console.groupEnd()
-
     if (E.isRight(res)) {
       const { name, variables, id, isGlobal } = res.right.userEnvironmentUpdated
 
@@ -166,11 +157,14 @@ function setupUserEnvironmentUpdatedSubscription() {
       } else {
         // handle the case for normal environments
 
-        const localIndex = environmentsMapper.getLocalIDByBackendID(id)
+        const localIndex = environmentsStore.value.environments.findIndex(
+          (env) => env.id == id
+        )
 
-        if (localIndex && name) {
+        if ((localIndex || localIndex == 0) && name) {
           runDispatchWithOutSyncing(() => {
             updateEnvironment(localIndex, {
+              id,
               name,
               variables: JSON.parse(variables),
             })
@@ -184,27 +178,20 @@ function setupUserEnvironmentUpdatedSubscription() {
 }
 
 function setupUserEnvironmentDeletedSubscription() {
-  console.log("setting up user environments for user deleted")
-
   const [userEnvironmentDeleted$, userEnvironmentDeletedSub] =
     runUserEnvironmentDeletedSubscription()
 
   userEnvironmentDeleted$.subscribe((res) => {
-    console.group("Subscription: User Environment Deleted")
-    console.log(res)
-    console.groupEnd()
-
     if (E.isRight(res)) {
       const { id } = res.right.userEnvironmentDeleted
 
-      const localIndex = environmentsMapper.getLocalIDByBackendID(id)
+      // TODO: move getLocalIndexByID to a getter in the environmentsStore
+      const localIndex = getLocalIndexByEnvironmentID(id)
 
-      if (localIndex) {
+      if (localIndex || localIndex === 0) {
         runDispatchWithOutSyncing(() => {
           deleteEnvironment(localIndex)
         })
-
-        environmentsMapper.removeEntry(id)
       } else {
         console.log("could not find the localIndex")
         // TODO:

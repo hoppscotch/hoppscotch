@@ -1,4 +1,8 @@
-import { environmentsStore } from "@hoppscotch/common/newstore/environments"
+import {
+  environmentsStore,
+  getGlobalVariableID,
+  removeDuplicateEntry,
+} from "@hoppscotch/common/newstore/environments"
 import {
   getSettingSubject,
   settingsStore,
@@ -25,11 +29,13 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
 > = {
   async createEnvironment({ name, variables }) {
     const lastCreatedEnvIndex = environmentsStore.value.environments.length - 1
+
     const res = await createUserEnvironment(name, JSON.stringify(variables))
 
     if (E.isRight(res)) {
       const id = res.right.createUserEnvironment.id
-      environmentsMapper.addEntry(lastCreatedEnvIndex, id)
+      environmentsStore.value.environments[lastCreatedEnvIndex].id = id
+      removeDuplicateEntry(id)
     }
   },
   async appendEnvironments({ envs }) {
@@ -48,7 +54,9 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
 
         if (E.isRight(res)) {
           const id = res.right.createUserEnvironment.id
-          environmentsMapper.addEntry(envId, id)
+          environmentsStore.value.environments[envId].id = id
+
+          removeDuplicateEntry(id)
         }
       })()
     })
@@ -62,41 +70,38 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
 
     if (environmentToDuplicate) {
       const res = await createUserEnvironment(
-        environmentToDuplicate?.name,
+        `${environmentToDuplicate?.name} - Duplicate`,
         JSON.stringify(environmentToDuplicate?.variables)
       )
 
       if (E.isRight(res)) {
         const id = res.right.createUserEnvironment.id
-        environmentsMapper.addEntry(lastCreatedEnvIndex, id)
+        environmentsStore.value.environments[lastCreatedEnvIndex].id = id
+
+        removeDuplicateEntry(id)
       }
     }
   },
   updateEnvironment({ envIndex, updatedEnv }) {
-    const backendId = environmentsMapper.getBackendIDByLocalID(envIndex)
-    console.log(environmentsMapper)
+    const backendId = environmentsStore.value.environments[envIndex].id
 
     if (backendId) {
       updateUserEnvironment(backendId, updatedEnv)()
     }
   },
-  async deleteEnvironment({ envIndex }) {
-    const backendId = environmentsMapper.getBackendIDByLocalID(envIndex)
-
-    if (backendId) {
-      await deleteUserEnvironment(backendId)()
-      environmentsMapper.removeEntry(backendId)
+  async deleteEnvironment({ _, envID }) {
+    if (envID) {
+      await deleteUserEnvironment(envID)()
     }
   },
   setGlobalVariables({ entries }) {
-    const backendId = globalEnvironmentMapper.getBackendIDByLocalID(0)
-
+    const backendId = getGlobalVariableID()
     if (backendId) {
       updateUserEnvironment(backendId, { name: "", variables: entries })()
     }
   },
   clearGlobalVariables() {
-    const backendId = globalEnvironmentMapper.getBackendIDByLocalID(0)
+    const backendId = getGlobalVariableID()
 
     if (backendId) {
       clearGlobalEnvironmentVariables(backendId)

@@ -292,9 +292,10 @@ _Sample keys only work with the [production build](https://hoppscotch.io)._
 
 1. [Clone this repo](https://help.github.com/en/articles/cloning-a-repository) with git.
 2. Install pnpm using npm by running `npm install -g pnpm`.
-3. Install dependencies by running `pnpm install` within the directory that you cloned (probably `hoppscotch`).
-4. Start the development server with `pnpm run dev`.
-5. Open the development site by going to [`http://localhost:3000`](http://localhost:3000) in your browser.
+3. Run `cp .env.example .env`(update them with your own info)
+4. Install dependencies by running `pnpm install` within the directory that you cloned (probably `hoppscotch`).
+5. Start the development server with `pnpm run dev`.
+6. Open the development site by going to [`http://localhost:3000`](http://localhost:3000) in your browser.
 
 ### Docker compose
 

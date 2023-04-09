@@ -1,7 +1,7 @@
 {
   "name": "@hoppscotch/web",
   "private": true,
-  "version": "0.0.0",
+  "version": "2023.4.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -29,7 +29,7 @@
     "util": "^0.12.4",
     "vue": "^3.2.41",
     "workbox-window": "^6.5.4",
-    "@hoppscotch/data": "workspace:^0.4.4"
+    "@hoppscotch/data": "workspace:^"
   },
   "devDependencies": {
     "@intlify/vite-plugin-vue-i18n": "^6.0.1",

@@ -1,9 +1,4 @@
-import {
-  ObjectType,
-  ID,
-  Field,
-  registerEnumType,
-} from '@nestjs/graphql';
+import { ObjectType, ID, Field, registerEnumType } from '@nestjs/graphql';
 
 @ObjectType()
 export class User {

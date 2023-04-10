@@ -4,10 +4,7 @@ import * as O from 'fp-ts/Option';
 import * as TO from 'fp-ts/TaskOption';
 import * as E from 'fp-ts/Either';
 import { PrismaService } from 'src/prisma/prisma.service';
-import {
-  SHORTCODE_INVALID_JSON,
-  SHORTCODE_NOT_FOUND,
-} from 'src/errors';
+import { SHORTCODE_INVALID_JSON, SHORTCODE_NOT_FOUND } from 'src/errors';
 import { UserDataHandler } from 'src/user/user.data.handler';
 import { Shortcode } from './shortcode.model';
 import { Shortcode as DBShortCode } from '@prisma/client';

@@ -64,7 +64,7 @@ export class TeamInvitationResolver {
     description: 'Get the creator of the invite',
   })
   async creator(@Parent() teamInvitation: TeamInvitation): Promise<User> {
-    let user = await this.userService.findUserById(teamInvitation.creatorUid);
+    const user = await this.userService.findUserById(teamInvitation.creatorUid);
     if (O.isNone(user)) throwErr(USER_NOT_FOUND);
 
     return {

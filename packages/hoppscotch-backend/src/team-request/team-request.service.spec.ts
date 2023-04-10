@@ -240,7 +240,9 @@ describe('deleteTeamRequest', () => {
 
 describe('createTeamRequest', () => {
   test('rejects for invalid collection id', async () => {
-    mockTeamCollectionService.getTeamOfCollection.mockResolvedValue(E.left(TEAM_INVALID_COLL_ID));
+    mockTeamCollectionService.getTeamOfCollection.mockResolvedValue(
+      E.left(TEAM_INVALID_COLL_ID),
+    );
 
     const response = await teamRequestService.createTeamRequest(
       'invalidcollid',

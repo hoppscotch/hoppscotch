@@ -42,4 +42,4 @@
 4. Install dependencies by running `pnpm install` within the `hoppscotch-sh-admin` directory
 5. It is assumed that the backend is running. Refer the Hoppscotch Backend [`README`](https://github.com/hoppscotch/self-hosted/blob/main/packages/hoppscotch-backend/README.md) to get the backend setup and running.
 6. Start the development server with `pnpm run dev`.
-7. Open the development site by going to [`http://localhost:3000`](http://localhost:3000) in your browser.
+7. Open the development site by going to [`http://localhost:3100`](http://localhost:3100) in your browser.

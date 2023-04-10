@@ -13,6 +13,7 @@
 /packages/hoppscotch-web/                               @amk-dev
 /packages/hoppscotch-selfhost-web/                      @amk-dev
 /packages/hoppscotch-sh-admin/                          @JoelJacobStephen
+/packages/hoppscotch-backend/                           @ankitsridhar16 @balub
 
 # Sections within Hoppscotch Common
 /packages/hoppscotch-common/src/components              @anwarulislam

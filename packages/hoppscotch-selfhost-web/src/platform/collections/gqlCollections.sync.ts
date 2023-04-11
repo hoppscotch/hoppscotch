@@ -1,7 +1,7 @@
 import {
   graphqlCollectionStore,
   navigateToFolderWithIndexPath,
-  removeGraphqlRequest,
+  removeDuplicateGraphqlCollectionOrFolder,
 } from "@hoppscotch/common/newstore/collections"
 import {
   getSettingSubject,
@@ -10,7 +10,7 @@ import {
 
 import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
 
-import { getSyncInitFunction, runDispatchWithOutSyncing } from "../../lib/sync"
+import { getSyncInitFunction } from "../../lib/sync"
 
 import { StoreSyncDefinitionOf } from "../../lib/sync"
 import { createMapper } from "../../lib/sync/mapper"
@@ -21,18 +21,11 @@ import {
   deleteUserCollection,
   deleteUserRequest,
   editGQLUserRequest,
-  moveUserRequest,
   renameUserCollection,
 } from "./collections.api"
 
 import * as E from "fp-ts/Either"
-import {
-  moveRequestInMapper,
-  removeAndReorderEntries,
-  reorderIndexesAfterEntryRemoval,
-  reorderRequestsMapper,
-} from "./collections.mapper"
-import { removeDuplicateCollectionsFromStore } from "./collections.sync"
+import { moveOrReorderRequests } from "./collections.sync"
 
 // gqlCollectionsMapper uses the collectionPath as the local identifier
 export const gqlCollectionsMapper = createMapper<string, string>()
@@ -55,7 +48,12 @@ const recursivelySyncCollections = async (
 
     if (E.isRight(res)) {
       parentCollectionID = res.right.createGQLRootUserCollection.id
-      gqlCollectionsMapper.addEntry(collectionPath, parentCollectionID)
+
+      collection.id = parentCollectionID
+      removeDuplicateGraphqlCollectionOrFolder(
+        parentCollectionID,
+        collectionPath
+      )
     } else {
       parentCollectionID = undefined
     }
@@ -68,13 +66,19 @@ const recursivelySyncCollections = async (
 
     if (E.isRight(res)) {
       const childCollectionId = res.right.createGQLChildUserCollection.id
-      gqlCollectionsMapper.addEntry(collectionPath, childCollectionId)
+
+      collection.id = childCollectionId
+
+      removeDuplicateGraphqlCollectionOrFolder(
+        childCollectionId,
+        `${collectionPath}`
+      )
     }
   }
 
   // create the requests
   if (parentCollectionID) {
-    collection.requests.forEach(async (request, index) => {
+    collection.requests.forEach(async (request) => {
       const res =
         parentCollectionID &&
         (await createGQLUserRequest(
@@ -85,7 +89,8 @@ const recursivelySyncCollections = async (
 
       if (res && E.isRight(res)) {
         const requestId = res.right.createGQLUserRequest.id
-        gqlRequestsMapper.addEntry(`${collectionPath}/${index}`, requestId)
+
+        request.id = requestId
       }
     })
   }
@@ -141,86 +146,73 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
       collection,
       `${lastCreatedCollectionIndex}`
     )
-
-    removeDuplicateCollectionsFromStore("GQL")
   },
-  async removeCollection({ collectionIndex }) {
-    const backendIdentifier = gqlCollectionsMapper.getBackendIDByLocalID(
-      `${collectionIndex}`
-    )
-
-    if (backendIdentifier) {
-      gqlCollectionsOperations.push({
-        collectionBackendID: backendIdentifier,
-        type: "COLLECTION_REMOVED",
-        status: "pending",
-      })
-      await deleteUserCollection(backendIdentifier)
-      removeAndReorderEntries(`${collectionIndex}`, "GQL")
+  async removeCollection({ collectionID }) {
+    if (collectionID) {
+      await deleteUserCollection(collectionID)
     }
   },
   editCollection({ collection, collectionIndex }) {
-    const backendIdentifier = gqlCollectionsMapper.getBackendIDByLocalID(
-      `${collectionIndex}`
-    )
+    const collectionID = navigateToFolderWithIndexPath(
+      graphqlCollectionStore.value.state,
+      [collectionIndex]
+    )?.id
 
-    if (backendIdentifier && collection.name) {
-      renameUserCollection(backendIdentifier, collection.name)
+    if (collectionID && collection.name) {
+      renameUserCollection(collectionID, collection.name)
     }
   },
   async addFolder({ name, path }) {
-    const parentCollectionBackendID =
-      gqlCollectionsMapper.getBackendIDByLocalID(path)
+    const parentCollection = navigateToFolderWithIndexPath(
+      graphqlCollectionStore.value.state,
+      path.split("/").map((index) => parseInt(index))
+    )
+
+    const parentCollectionBackendID = parentCollection?.id
 
     if (parentCollectionBackendID) {
-      // TODO: remove this replaceAll thing when updating the mapper
+      const foldersLength = parentCollection.folders.length
+
       const res = await createGQLChildUserCollection(
         name,
         parentCollectionBackendID
       )
 
-      // after the folder is created add the path of the folder with its backend id to the mapper
       if (E.isRight(res)) {
-        const folderBackendID = res.right.createGQLChildUserCollection.id
-        const parentCollection = navigateToFolderWithIndexPath(
-          graphqlCollectionStore.value.state,
-          path.split("/").map((index) => parseInt(index))
-        )
+        const { id } = res.right.createGQLChildUserCollection
 
-        if (parentCollection && parentCollection.folders.length > 0) {
-          const folderIndex = parentCollection.folders.length - 1
-          gqlCollectionsMapper.addEntry(
-            `${path}/${folderIndex}`,
-            folderBackendID
+        if (foldersLength) {
+          parentCollection.folders[foldersLength - 1].id = id
+          removeDuplicateGraphqlCollectionOrFolder(
+            id,
+            `${path}/${foldersLength - 1}`
           )
         }
       }
     }
   },
   editFolder({ folder, path }) {
-    const folderBackendId = gqlCollectionsMapper.getBackendIDByLocalID(
-      `${path}`
-    )
+    const folderBackendId = navigateToFolderWithIndexPath(
+      graphqlCollectionStore.value.state,
+      path.split("/").map((index) => parseInt(index))
+    )?.id
 
-    if (folderBackendId) {
+    if (folderBackendId && folder.name) {
       renameUserCollection(folderBackendId, folder.name)
     }
   },
-  async removeFolder({ path }) {
-    const folderBackendId = gqlCollectionsMapper.getBackendIDByLocalID(
-      `${path}`
-    )
-
-    if (folderBackendId) {
-      await deleteUserCollection(folderBackendId)
-      removeAndReorderEntries(path, "GQL")
+  async removeFolder({ folderID }) {
+    if (folderID) {
+      await deleteUserCollection(folderID)
     }
   },
   editRequest({ path, requestIndex, requestNew }) {
-    const requestPath = `${path}/${requestIndex}`
+    const request = navigateToFolderWithIndexPath(
+      graphqlCollectionStore.value.state,
+      path.split("/").map((index) => parseInt(index))
+    )?.requests[requestIndex]
 
-    const requestBackendID =
-      gqlRequestsMapper.getBackendIDByLocalID(requestPath)
+    const requestBackendID = request?.id
 
     if (requestBackendID) {
       editGQLUserRequest(
@@ -231,67 +223,41 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
     }
   },
   async saveRequestAs({ path, request }) {
-    const parentCollectionBackendID =
-      gqlCollectionsMapper.getBackendIDByLocalID(path)
+    const folder = navigateToFolderWithIndexPath(
+      graphqlCollectionStore.value.state,
+      path.split("/").map((index) => parseInt(index))
+    )
+
+    const parentCollectionBackendID = folder?.id
 
     if (parentCollectionBackendID) {
+      const newRequest = folder.requests[folder.requests.length - 1]
+
       const res = await createGQLUserRequest(
         (request as HoppRESTRequest).name,
         JSON.stringify(request),
         parentCollectionBackendID
       )
 
-      const existingPath =
-        E.isRight(res) &&
-        gqlRequestsMapper.getLocalIDByBackendID(
-          res.right.createGQLUserRequest.id
+      if (E.isRight(res)) {
+        const { id } = res.right.createGQLUserRequest
+
+        newRequest.id = id
+        removeDuplicateGraphqlCollectionOrFolder(
+          id,
+          `${path}/${folder.requests.length - 1}`,
+          "request"
         )
-
-      // remove the request if it is already existing ( can happen when the subscription fired before the mutation is resolved )
-      if (existingPath) {
-        const indexes = existingPath.split("/")
-        const existingRequestIndex = indexes.pop()
-        const existingRequestParentPath = indexes.join("/")
-
-        runDispatchWithOutSyncing(() => {
-          existingRequestIndex &&
-            removeGraphqlRequest(
-              existingRequestParentPath,
-              parseInt(existingRequestIndex)
-            )
-        })
-      }
-
-      const parentCollection = navigateToFolderWithIndexPath(
-        graphqlCollectionStore.value.state,
-        path.split("/").map((index) => parseInt(index))
-      )
-
-      if (parentCollection) {
-        const lastCreatedRequestIndex = parentCollection.requests.length - 1
-
-        if (E.isRight(res)) {
-          gqlRequestsMapper.addEntry(
-            `${path}/${lastCreatedRequestIndex}`,
-            res.right.createGQLUserRequest.id
-          )
-        }
       }
     }
   },
-  async removeRequest({ path, requestIndex }) {
-    const requestPath = `${path}/${requestIndex}`
-    const requestBackendID =
-      gqlRequestsMapper.getBackendIDByLocalID(requestPath)
-
-    if (requestBackendID) {
-      await deleteUserRequest(requestBackendID)
-      gqlRequestsMapper.removeEntry(requestPath)
-      reorderIndexesAfterEntryRemoval(path, gqlRequestsMapper, "GQL")
+  async removeRequest({ requestID }) {
+    if (requestID) {
+      await deleteUserRequest(requestID)
     }
   },
   moveRequest({ destinationPath, path, requestIndex }) {
-    moveOrReorderRequests(requestIndex, path, destinationPath)
+    moveOrReorderRequests(requestIndex, path, destinationPath, undefined, "GQL")
   },
 }
 
@@ -301,47 +267,3 @@ export const gqlCollectionsSyncer = getSyncInitFunction(
   () => settingsStore.value.syncCollections,
   getSettingSubject("syncCollections")
 )
-
-async function moveOrReorderRequests(
-  requestIndex: number,
-  path: string,
-  destinationPath: string,
-  nextRequestIndex?: number
-) {
-  const sourceCollectionBackendID =
-    gqlCollectionsMapper.getBackendIDByLocalID(path)
-  const destinationCollectionBackendID =
-    gqlCollectionsMapper.getBackendIDByLocalID(destinationPath)
-
-  const requestBackendID = gqlRequestsMapper.getBackendIDByLocalID(
-    `${path}/${requestIndex}`
-  )
-
-  let nextRequestBackendID: string | undefined
-
-  // we only need this for reordering requests, not for moving requests
-  if (nextRequestIndex) {
-    nextRequestBackendID = gqlRequestsMapper.getBackendIDByLocalID(
-      `${destinationPath}/${nextRequestIndex}`
-    )
-  }
-
-  if (
-    sourceCollectionBackendID &&
-    destinationCollectionBackendID &&
-    requestBackendID
-  ) {
-    await moveUserRequest(
-      sourceCollectionBackendID,
-      destinationCollectionBackendID,
-      requestBackendID,
-      nextRequestBackendID
-    )
-
-    if (nextRequestBackendID && nextRequestIndex) {
-      reorderRequestsMapper(requestIndex, path, nextRequestIndex, "GQL")
-    } else {
-      moveRequestInMapper(requestIndex, path, destinationPath, "GQL")
-    }
-  }
-}

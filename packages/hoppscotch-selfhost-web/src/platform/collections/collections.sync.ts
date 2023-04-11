@@ -1,8 +1,7 @@
 import {
+  graphqlCollectionStore,
   navigateToFolderWithIndexPath,
-  removeGraphqlCollection,
-  removeRESTCollection,
-  removeRESTRequest,
+  removeDuplicateRESTCollectionOrFolder,
   restCollectionStore,
 } from "@hoppscotch/common/newstore/collections"
 import {
@@ -12,7 +11,7 @@ import {
 
 import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
 
-import { getSyncInitFunction, runDispatchWithOutSyncing } from "../../lib/sync"
+import { getSyncInitFunction } from "../../lib/sync"
 
 import { StoreSyncDefinitionOf } from "../../lib/sync"
 import { createMapper } from "../../lib/sync/mapper"
@@ -30,15 +29,6 @@ import {
 } from "./collections.api"
 
 import * as E from "fp-ts/Either"
-import {
-  removeAndReorderEntries,
-  moveCollectionInMapper,
-  reorderIndexesAfterEntryRemoval,
-  reorderCollectionsInMapper,
-  reorderRequestsMapper,
-  moveRequestInMapper,
-} from "./collections.mapper"
-import { gqlCollectionsMapper } from "./gqlCollections.sync"
 
 // restCollectionsMapper uses the collectionPath as the local identifier
 export const restCollectionsMapper = createMapper<string, string>()
@@ -61,7 +51,9 @@ const recursivelySyncCollections = async (
 
     if (E.isRight(res)) {
       parentCollectionID = res.right.createRESTRootUserCollection.id
-      restCollectionsMapper.addEntry(collectionPath, parentCollectionID)
+
+      collection.id = parentCollectionID
+      removeDuplicateRESTCollectionOrFolder(parentCollectionID, collectionPath)
     } else {
       parentCollectionID = undefined
     }
@@ -74,13 +66,19 @@ const recursivelySyncCollections = async (
 
     if (E.isRight(res)) {
       const childCollectionId = res.right.createRESTChildUserCollection.id
-      restCollectionsMapper.addEntry(collectionPath, childCollectionId)
+
+      collection.id = childCollectionId
+
+      removeDuplicateRESTCollectionOrFolder(
+        childCollectionId,
+        `${collectionPath}`
+      )
     }
   }
 
   // create the requests
   if (parentCollectionID) {
-    collection.requests.forEach(async (request, index) => {
+    collection.requests.forEach(async (request) => {
       const res =
         parentCollectionID &&
         (await createRESTUserRequest(
@@ -91,7 +89,8 @@ const recursivelySyncCollections = async (
 
       if (res && E.isRight(res)) {
         const requestId = res.right.createRESTUserRequest.id
-        restRequestsMapper.addEntry(`${collectionPath}/${index}`, requestId)
+
+        request.id = requestId
       }
     })
   }
@@ -143,109 +142,101 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
     const lastCreatedCollectionIndex =
       restCollectionStore.value.state.length - 1
 
-    await recursivelySyncCollections(
-      collection,
-      `${lastCreatedCollectionIndex}`
-    )
-
-    removeDuplicateCollectionsFromStore("REST")
+    recursivelySyncCollections(collection, `${lastCreatedCollectionIndex}`)
   },
-  async removeCollection({ collectionIndex }) {
-    const backendIdentifier = restCollectionsMapper.getBackendIDByLocalID(
-      `${collectionIndex}`
-    )
-
-    if (backendIdentifier) {
-      restCollectionsOperations.push({
-        collectionBackendID: backendIdentifier,
-        type: "COLLECTION_REMOVED",
-        status: "pending",
-      })
-      await deleteUserCollection(backendIdentifier)
-      removeAndReorderEntries(`${collectionIndex}`, "REST")
+  async removeCollection({ collectionID }) {
+    if (collectionID) {
+      await deleteUserCollection(collectionID)
     }
   },
   editCollection({ partialCollection: collection, collectionIndex }) {
-    const backendIdentifier = restCollectionsMapper.getBackendIDByLocalID(
-      `${collectionIndex}`
-    )
+    const collectionID = navigateToFolderWithIndexPath(
+      restCollectionStore.value.state,
+      [collectionIndex]
+    )?.id
 
-    if (backendIdentifier && collection.name) {
-      renameUserCollection(backendIdentifier, collection.name)
+    if (collectionID && collection.name) {
+      renameUserCollection(collectionID, collection.name)
     }
   },
   async addFolder({ name, path }) {
-    const parentCollectionBackendID =
-      restCollectionsMapper.getBackendIDByLocalID(path)
+    const parentCollection = navigateToFolderWithIndexPath(
+      restCollectionStore.value.state,
+      path.split("/").map((index) => parseInt(index))
+    )
+
+    const parentCollectionBackendID = parentCollection?.id
 
     if (parentCollectionBackendID) {
-      // TODO: remove this replaceAll thing when updating the mapper
+      const foldersLength = parentCollection.folders.length
+
       const res = await createRESTChildUserCollection(
         name,
         parentCollectionBackendID
       )
 
-      // after the folder is created add the path of the folder with its backend id to the mapper
       if (E.isRight(res)) {
-        const folderBackendID = res.right.createRESTChildUserCollection.id
-        const parentCollection = navigateToFolderWithIndexPath(
-          restCollectionStore.value.state,
-          path.split("/").map((index) => parseInt(index))
-        )
+        const { id } = res.right.createRESTChildUserCollection
 
-        if (parentCollection && parentCollection.folders.length > 0) {
-          const folderIndex = parentCollection.folders.length - 1
-          restCollectionsMapper.addEntry(
-            `${path}/${folderIndex}`,
-            folderBackendID
+        if (foldersLength) {
+          parentCollection.folders[foldersLength - 1].id = id
+          removeDuplicateRESTCollectionOrFolder(
+            id,
+            `${path}/${foldersLength - 1}`
           )
         }
       }
     }
   },
   editFolder({ folder, path }) {
-    const folderBackendId = restCollectionsMapper.getBackendIDByLocalID(
-      `${path}`
-    )
+    const folderID = navigateToFolderWithIndexPath(
+      restCollectionStore.value.state,
+      path.split("/").map((index) => parseInt(index))
+    )?.id
 
     const folderName = folder.name
 
-    if (folderBackendId && folderName) {
-      renameUserCollection(folderBackendId, folderName)
+    if (folderID && folderName) {
+      renameUserCollection(folderID, folderName)
     }
   },
-  async removeFolder({ path }) {
-    const folderBackendId = restCollectionsMapper.getBackendIDByLocalID(
-      `${path}`
-    )
-
-    if (folderBackendId) {
-      await deleteUserCollection(folderBackendId)
-      removeAndReorderEntries(path, "REST")
+  async removeFolder({ folderID }) {
+    if (folderID) {
+      await deleteUserCollection(folderID)
     }
   },
   async moveFolder({ destinationPath, path }) {
-    const sourceCollectionBackendID =
-      restCollectionsMapper.getBackendIDByLocalID(path)
+    const { newSourcePath, newDestinationPath } = getPathsAfterMoving(
+      path,
+      destinationPath ?? undefined
+    )
 
-    const destinationCollectionBackendID = destinationPath
-      ? restCollectionsMapper.getBackendIDByLocalID(destinationPath)
-      : undefined
+    if (newSourcePath) {
+      const sourceCollectionID = navigateToFolderWithIndexPath(
+        restCollectionStore.value.state,
+        newSourcePath.split("/").map((index) => parseInt(index))
+      )?.id
 
-    if (sourceCollectionBackendID) {
-      await moveUserCollection(
-        sourceCollectionBackendID,
-        destinationCollectionBackendID
-      )
+      const destinationCollectionID = destinationPath
+        ? newDestinationPath &&
+          navigateToFolderWithIndexPath(
+            restCollectionStore.value.state,
+            newDestinationPath.split("/").map((index) => parseInt(index))
+          )?.id
+        : undefined
 
-      moveCollectionInMapper(path, destinationPath ?? undefined, "REST")
+      if (sourceCollectionID) {
+        await moveUserCollection(sourceCollectionID, destinationCollectionID)
+      }
     }
   },
   editRequest({ path, requestIndex, requestNew }) {
-    const requestPath = `${path}/${requestIndex}`
+    const request = navigateToFolderWithIndexPath(
+      restCollectionStore.value.state,
+      path.split("/").map((index) => parseInt(index))
+    )?.requests[requestIndex]
 
-    const requestBackendID =
-      restRequestsMapper.getBackendIDByLocalID(requestPath)
+    const requestBackendID = request?.id
 
     if (requestBackendID) {
       editUserRequest(
@@ -256,63 +247,37 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
     }
   },
   async saveRequestAs({ path, request }) {
-    const parentCollectionBackendID =
-      restCollectionsMapper.getBackendIDByLocalID(path)
+    const folder = navigateToFolderWithIndexPath(
+      restCollectionStore.value.state,
+      path.split("/").map((index) => parseInt(index))
+    )
+
+    const parentCollectionBackendID = folder?.id
 
     if (parentCollectionBackendID) {
+      const newRequest = folder.requests[folder.requests.length - 1]
+
       const res = await createRESTUserRequest(
         (request as HoppRESTRequest).name,
         JSON.stringify(request),
         parentCollectionBackendID
       )
 
-      const existingPath =
-        E.isRight(res) &&
-        restRequestsMapper.getLocalIDByBackendID(
-          res.right.createRESTUserRequest.id
+      if (E.isRight(res)) {
+        const { id } = res.right.createRESTUserRequest
+
+        newRequest.id = id
+        removeDuplicateRESTCollectionOrFolder(
+          id,
+          `${path}/${folder.requests.length - 1}`,
+          "request"
         )
-
-      // remove the request if it is already existing ( can happen when the subscription fired before the mutation is resolved )
-      if (existingPath) {
-        const indexes = existingPath.split("/")
-        const existingRequestIndex = indexes.pop()
-        const existingRequestParentPath = indexes.join("/")
-
-        runDispatchWithOutSyncing(() => {
-          existingRequestIndex &&
-            removeRESTRequest(
-              existingRequestParentPath,
-              parseInt(existingRequestIndex)
-            )
-        })
-      }
-
-      const parentCollection = navigateToFolderWithIndexPath(
-        restCollectionStore.value.state,
-        path.split("/").map((index) => parseInt(index))
-      )
-
-      if (parentCollection) {
-        const lastCreatedRequestIndex = parentCollection.requests.length - 1
-
-        if (E.isRight(res)) {
-          restRequestsMapper.addEntry(
-            `${path}/${lastCreatedRequestIndex}`,
-            res.right.createRESTUserRequest.id
-          )
-        }
       }
     }
   },
-  async removeRequest({ path, requestIndex }) {
-    const requestPath = `${path}/${requestIndex}`
-    const requestBackendID =
-      restRequestsMapper.getBackendIDByLocalID(requestPath)
-
-    if (requestBackendID) {
-      await deleteUserRequest(requestBackendID)
-      restRequestsMapper.removeEntry(requestPath)
-      reorderIndexesAfterEntryRemoval(path, restRequestsMapper, "REST")
+  async removeRequest({ requestID }) {
+    if (requestID) {
+      await deleteUserRequest(requestID)
     }
   },
   moveRequest({ destinationPath, path, requestIndex }) {
@@ -331,46 +296,73 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
       requestIndex,
       destinationCollectionPath,
       destinationCollectionPath,
-      destinationRequestIndex
+      destinationRequestIndex ?? undefined
     )
   },
   async updateCollectionOrder({
     collectionIndex: collectionPath,
     destinationCollectionIndex: destinationCollectionPath,
   }) {
-    const sourceBackendID =
-      restCollectionsMapper.getBackendIDByLocalID(collectionPath)
+    const collections = restCollectionStore.value.state
 
-    const destinationBackendID = restCollectionsMapper.getBackendIDByLocalID(
-      destinationCollectionPath
-    )
+    const sourcePathIndexes = getParentPathIndexesFromPath(collectionPath)
+    const sourceCollectionIndex = getCollectionIndexFromPath(collectionPath)
 
-    if (sourceBackendID) {
-      collectionReorderOrMovingOperations.push({
-        sourceCollectionID: sourceBackendID,
-        destinationCollectionID: destinationBackendID,
-        reorderOperation: {
-          fromPath: `${parseInt(destinationCollectionPath) - 1}`,
-          toPath: destinationCollectionPath,
-        },
-      })
+    const destinationCollectionIndex = !!destinationCollectionPath
+      ? getCollectionIndexFromPath(destinationCollectionPath)
+      : undefined
 
-      await updateUserCollectionOrder(sourceBackendID, destinationBackendID)
+    let updatedCollectionIndexs:
+      | [newSourceIndex: number, newDestinationIndex: number | undefined]
+      | undefined
 
-      const currentSourcePath =
-        restCollectionsMapper.getLocalIDByBackendID(sourceBackendID)
-
-      const hasAlreadyHappened = !!(
-        currentSourcePath == `${parseInt(destinationCollectionPath) - 1}`
+    if (
+      (sourceCollectionIndex || sourceCollectionIndex == 0) &&
+      (destinationCollectionIndex || destinationCollectionIndex == 0)
+    ) {
+      updatedCollectionIndexs = getIndexesAfterReorder(
+        sourceCollectionIndex,
+        destinationCollectionIndex
       )
+    } else if (sourceCollectionIndex || sourceCollectionIndex == 0) {
+      if (sourcePathIndexes.length == 0) {
+        // we're reordering root collections
+        updatedCollectionIndexs = [collections.length - 1, undefined]
+      } else {
+        const sourceCollection = navigateToFolderWithIndexPath(collections, [
+          ...sourcePathIndexes,
+        ])
 
-      if (!hasAlreadyHappened) {
-        reorderCollectionsInMapper(
-          collectionPath,
-          destinationCollectionPath,
-          "REST"
-        )
+        if (sourceCollection && sourceCollection.folders.length > 0) {
+          updatedCollectionIndexs = [
+            sourceCollection.folders.length - 1,
+            undefined,
+          ]
+        }
       }
+    }
+
+    const sourceCollectionID =
+      updatedCollectionIndexs &&
+      navigateToFolderWithIndexPath(collections, [
+        ...sourcePathIndexes,
+        updatedCollectionIndexs[0],
+      ])?.id
+
+    const destinationCollectionID =
+      updatedCollectionIndexs &&
+      (updatedCollectionIndexs[1] || updatedCollectionIndexs[1] == 0)
+        ? navigateToFolderWithIndexPath(collections, [
+            ...sourcePathIndexes,
+            updatedCollectionIndexs[1],
+          ])?.id
+        : undefined
+
+    if (sourceCollectionID) {
+      await updateUserCollectionOrder(
+        sourceCollectionID,
+        destinationCollectionID
+      )
     }
   },
 }
@@ -382,28 +374,51 @@ export const collectionsSyncer = getSyncInitFunction(
   getSettingSubject("syncCollections")
 )
 
-async function moveOrReorderRequests(
+export async function moveOrReorderRequests(
   requestIndex: number,
   path: string,
   destinationPath: string,
-  nextRequestIndex?: number
+  nextRequestIndex?: number,
+  requestType: "REST" | "GQL" = "REST"
 ) {
-  const sourceCollectionBackendID =
-    restCollectionsMapper.getBackendIDByLocalID(path)
-  const destinationCollectionBackendID =
-    restCollectionsMapper.getBackendIDByLocalID(destinationPath)
+  const { collectionStore } = getStoreByCollectionType(requestType)
 
-  const requestBackendID = restRequestsMapper.getBackendIDByLocalID(
-    `${path}/${requestIndex}`
+  const sourceCollectionBackendID = navigateToFolderWithIndexPath(
+    collectionStore.value.state,
+    path.split("/").map((index) => parseInt(index))
+  )?.id
+
+  const destinationCollection = navigateToFolderWithIndexPath(
+    collectionStore.value.state,
+    destinationPath.split("/").map((index) => parseInt(index))
   )
+
+  const destinationCollectionBackendID = destinationCollection?.id
+
+  let requestBackendID: string | undefined
 
   let nextRequestBackendID: string | undefined
 
   // we only need this for reordering requests, not for moving requests
   if (nextRequestIndex) {
-    nextRequestBackendID = restRequestsMapper.getBackendIDByLocalID(
-      `${destinationPath}/${nextRequestIndex}`
+    // reordering
+    const [newRequestIndex, newDestinationIndex] = getIndexesAfterReorder(
+      requestIndex,
+      nextRequestIndex
     )
+
+    requestBackendID =
+      destinationCollection?.requests[newRequestIndex]?.id ?? undefined
+
+    nextRequestBackendID =
+      destinationCollection?.requests[newDestinationIndex]?.id ?? undefined
+  } else {
+    // moving
+    const requests = destinationCollection?.requests
+    requestBackendID =
+      requests && requests.length > 0
+        ? requests[requests.length - 1]?.id
+        : undefined
   }
 
   if (
@@ -417,46 +432,112 @@ async function moveOrReorderRequests(
       requestBackendID,
       nextRequestBackendID
     )
-
-    if (nextRequestBackendID && nextRequestIndex) {
-      reorderRequestsMapper(requestIndex, path, nextRequestIndex, "REST")
-    } else {
-      moveRequestInMapper(requestIndex, path, destinationPath, "REST")
-    }
   }
 }
 
-export function removeDuplicateCollectionsFromStore(
-  collectionType: "REST" | "GQL"
-) {
-  const collectionsMapper =
-    collectionType === "REST" ? restCollectionsMapper : gqlCollectionsMapper
+function getParentPathIndexesFromPath(path: string) {
+  const indexes = path.split("/")
+  indexes.pop()
+  return indexes.map((index) => parseInt(index))
+}
 
-  const mapperEntries = Array.from(collectionsMapper.getValue().entries())
+export function getCollectionIndexFromPath(collectionPath: string) {
+  const sourceCollectionIndexString = collectionPath.split("/").pop()
+  const sourceCollectionIndex = sourceCollectionIndexString
+    ? parseInt(sourceCollectionIndexString)
+    : undefined
 
-  const seenBackendIDs = new Set<string>()
+  return sourceCollectionIndex
+}
 
-  const localIDsToRemove = new Set<string>()
+/**
+ * the sync function is called after the reordering has happened on the store
+ * because of this we need to find the new source and destination indexes after the reordering
+ */
+function getIndexesAfterReorder(
+  oldSourceIndex: number,
+  oldDestinationIndex: number
+): [newSourceIndex: number, newDestinationIndex: number] {
+  // Source Becomes Destination -1
+  // Destination Remains Same
+  if (oldSourceIndex < oldDestinationIndex) {
+    return [oldDestinationIndex - 1, oldDestinationIndex]
+  }
 
-  mapperEntries.forEach(([localID, backendID]) => {
-    if (backendID && seenBackendIDs.has(backendID)) {
-      localIDsToRemove.add(localID)
-    } else {
-      backendID && seenBackendIDs.add(backendID)
+  // Source Becomes The Destination
+  // Destintion Becomes Source + 1
+  if (oldSourceIndex > oldDestinationIndex) {
+    return [oldDestinationIndex, oldDestinationIndex + 1]
+  }
+
+  throw new Error("Source and Destination are the same")
+}
+
+/**
+ * the sync function is called after moving a folder has happened on the store,
+ * because of this the source index given to the sync function is not the live one
+ * we need to find the new source index after the moving
+ */
+function getPathsAfterMoving(sourcePath: string, destinationPath?: string) {
+  if (!destinationPath) {
+    return {
+      newSourcePath: `${restCollectionStore.value.state.length - 1}`,
+      newDestinationPath: destinationPath,
     }
-  })
+  }
 
-  localIDsToRemove.forEach((localID) => {
-    collectionType === "REST"
-      ? removeRESTCollection(parseInt(localID))
-      : removeGraphqlCollection(parseInt(localID))
+  const sourceParentPath = getParentPathFromPath(sourcePath)
+  const destinationParentPath = getParentPathFromPath(destinationPath)
 
-    collectionsMapper.removeEntry(undefined, localID)
+  const isSameParentPath = sourceParentPath === destinationParentPath
 
-    const indexes = localID.split("/")
-    indexes.pop()
-    const parentPath = indexes.join("/")
+  let newDestinationPath: string
 
-    reorderIndexesAfterEntryRemoval(parentPath, collectionsMapper, "REST")
-  })
+  if (isSameParentPath) {
+    const sourceIndex = getCollectionIndexFromPath(sourcePath)
+    const destinationIndex = getCollectionIndexFromPath(destinationPath)
+
+    if (
+      (sourceIndex || sourceIndex == 0) &&
+      (destinationIndex || destinationIndex == 0) &&
+      sourceIndex < destinationIndex
+    ) {
+      newDestinationPath = destinationParentPath
+        ? `${destinationParentPath}/${destinationIndex - 1}`
+        : `${destinationIndex - 1}`
+    } else {
+      newDestinationPath = destinationPath
+    }
+  } else {
+    newDestinationPath = destinationPath
+  }
+
+  const destinationFolder = navigateToFolderWithIndexPath(
+    restCollectionStore.value.state,
+    newDestinationPath.split("/").map((index) => parseInt(index))
+  )
+
+  const newSourcePath = destinationFolder
+    ? `${newDestinationPath}/${destinationFolder?.folders.length - 1}`
+    : undefined
+
+  return {
+    newSourcePath,
+    newDestinationPath,
+  }
+}
+
+function getParentPathFromPath(path: string | undefined) {
+  const indexes = path ? path.split("/") : []
+  indexes.pop()
+
+  return indexes.join("/")
+}
+
+export function getStoreByCollectionType(type: "GQL" | "REST") {
+  const isGQL = type == "GQL"
+
+  const collectionStore = isGQL ? graphqlCollectionStore : restCollectionStore
+
+  return { collectionStore }
 }

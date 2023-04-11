@@ -14,20 +14,7 @@ import {
   runUserRequestMovedSubscription,
   runUserRequestUpdatedSubscription,
 } from "./collections.api"
-import {
-  collectionReorderOrMovingOperations,
-  collectionsSyncer,
-  restCollectionsOperations,
-  restCollectionsMapper,
-  restRequestsMapper,
-} from "./collections.sync"
-import {
-  moveCollectionInMapper,
-  removeAndReorderEntries,
-  reorderIndexesAfterEntryRemoval,
-  reorderCollectionsInMapper,
-  getMappersAndStoreByType,
-} from "./collections.mapper"
+import { collectionsSyncer, getStoreByCollectionType } from "./collections.sync"
 
 import * as E from "fp-ts/Either"
 import {
@@ -57,6 +44,7 @@ import {
   moveGraphqlRequest,
   removeGraphqlRequest,
   setGraphqlCollections,
+  restCollectionStore,
 } from "@hoppscotch/common/newstore/collections"
 import { runGQLSubscription } from "@hoppscotch/common/helpers/backend/GQLClient"
 import {
@@ -64,10 +52,7 @@ import {
   HoppGQLRequest,
   HoppRESTRequest,
 } from "@hoppscotch/data"
-import {
-  gqlCollectionsOperations,
-  gqlCollectionsSyncer,
-} from "./gqlCollections.sync"
+import { gqlCollectionsSyncer } from "./gqlCollections.sync"
 import { ReqType } from "../../api/generated/graphql"
 
 function initCollectionsSync() {
@@ -77,14 +62,14 @@ function initCollectionsSync() {
 
   gqlCollectionsSyncer.startStoreSync()
 
-  loadUserRootCollections("REST")
-  loadUserRootCollections("GQL")
+  loadUserCollections("REST")
+  loadUserCollections("GQL")
 
   // TODO: test & make sure the auth thing is working properly
   currentUser$.subscribe(async (user) => {
     if (user) {
-      loadUserRootCollections("REST")
-      loadUserRootCollections("GQL")
+      loadUserCollections("REST")
+      loadUserCollections("GQL")
     }
   })
 
@@ -121,6 +106,7 @@ function exportedCollectionToHoppCollection(
     const restCollection = collection as ExportedUserCollectionREST
 
     return {
+      id: restCollection.id,
       v: 1,
       name: restCollection.name,
       folders: restCollection.folders.map((folder) =>
@@ -128,6 +114,7 @@ function exportedCollectionToHoppCollection(
       ),
       requests: restCollection.requests.map(
         ({
+          id,
           v,
           auth,
           body,
@@ -139,6 +126,7 @@ function exportedCollectionToHoppCollection(
           preRequestScript,
           testScript,
         }) => ({
+          id,
           v,
           auth,
           body,
@@ -156,49 +144,26 @@ function exportedCollectionToHoppCollection(
     const gqlCollection = collection as ExportedUserCollectionGQL
 
     return {
+      id: gqlCollection.id,
       v: 1,
       name: gqlCollection.name,
       folders: gqlCollection.folders.map((folder) =>
         exportedCollectionToHoppCollection(folder, collectionType)
       ),
-      requests: gqlCollection.requests.map(({ v, auth, headers, name }) => ({
-        v,
-        auth,
-        headers,
-        name,
-      })) as HoppGQLRequest[],
+      requests: gqlCollection.requests.map(
+        ({ v, auth, headers, name, id }) => ({
+          id,
+          v,
+          auth,
+          headers,
+          name,
+        })
+      ) as HoppGQLRequest[],
     }
   }
 }
 
-function addMapperEntriesForExportedCollection(
-  collection: ExportedUserCollectionREST | ExportedUserCollectionGQL,
-  localPath: string,
-  collectionType: "REST" | "GQL"
-) {
-  const { collectionsMapper, requestsMapper } =
-    getMappersAndStoreByType(collectionType)
-
-  if (collection.id) {
-    collectionsMapper.addEntry(localPath, collection.id)
-
-    collection.folders.forEach((folder, index) => {
-      addMapperEntriesForExportedCollection(
-        folder,
-        `${localPath}/${index}`,
-        collectionType
-      )
-    })
-
-    collection.requests.forEach((request, index) => {
-      const requestID = request.id
-
-      requestID && requestsMapper.addEntry(`${localPath}/${index}`, requestID)
-    })
-  }
-}
-
-async function loadUserRootCollections(collectionType: "REST" | "GQL") {
+async function loadUserCollections(collectionType: "REST" | "GQL") {
   const res = await exportUserCollectionsToJSON(
     undefined,
     collectionType == "REST" ? ReqType.Rest : ReqType.Gql
@@ -233,14 +198,6 @@ async function loadUserRootCollections(collectionType: "REST" | "GQL") {
                 ) as HoppCollection<HoppGQLRequest>
             )
           )
-
-      exportedCollections.forEach((collection, index) =>
-        addMapperEntriesForExportedCollection(
-          collection,
-          `${index}`,
-          collectionType
-        )
-      )
     })
   }
 }
@@ -284,14 +241,14 @@ function setupUserCollectionCreatedSubscription() {
     if (E.isRight(res)) {
       const collectionType = res.right.userCollectionCreated.type
 
-      const { collectionsMapper, collectionStore } =
-        getMappersAndStoreByType(collectionType)
+      const { collectionStore } = getStoreByCollectionType(collectionType)
 
       const userCollectionBackendID = res.right.userCollectionCreated.id
       const parentCollectionID = res.right.userCollectionCreated.parent?.id
 
-      const userCollectionLocalID = collectionsMapper.getLocalIDByBackendID(
-        userCollectionBackendID
+      const userCollectionLocalID = getCollectionPathFromCollectionID(
+        userCollectionBackendID,
+        collectionStore.value.state
       )
 
       // collection already exists in store ( this instance created it )
@@ -301,7 +258,10 @@ function setupUserCollectionCreatedSubscription() {
 
       const parentCollectionPath =
         parentCollectionID &&
-        collectionsMapper.getLocalIDByBackendID(parentCollectionID)
+        getCollectionPathFromCollectionID(
+          parentCollectionID,
+          collectionStore.value.state
+        )
 
       // only folders will have parent collection id
       if (parentCollectionID && parentCollectionPath) {
@@ -325,10 +285,9 @@ function setupUserCollectionCreatedSubscription() {
 
           if (parentCollection) {
             const folderIndex = parentCollection.folders.length - 1
-            collectionsMapper.addEntry(
-              `${parentCollectionPath}/${folderIndex}`,
-              userCollectionBackendID
-            )
+
+            const addedFolder = parentCollection.folders[folderIndex]
+            addedFolder.id = userCollectionBackendID
           }
         })
       } else {
@@ -349,7 +308,9 @@ function setupUserCollectionCreatedSubscription() {
               })
 
           const localIndex = collectionStore.value.state.length - 1
-          collectionsMapper.addEntry(`${localIndex}`, userCollectionBackendID)
+
+          const addedCollection = collectionStore.value.state[localIndex]
+          addedCollection.id = userCollectionBackendID
         })
       }
     }
@@ -366,11 +327,13 @@ function setupUserCollectionUpdatedSubscription() {
     if (E.isRight(res)) {
       const collectionType = res.right.userCollectionUpdated.type
 
-      const { collectionsMapper } = getMappersAndStoreByType(collectionType)
+      const { collectionStore } = getStoreByCollectionType(collectionType)
 
       const updatedCollectionBackendID = res.right.userCollectionUpdated.id
-      const updatedCollectionLocalPath =
-        collectionsMapper.getLocalIDByBackendID(updatedCollectionBackendID)
+      const updatedCollectionLocalPath = getCollectionPathFromCollectionID(
+        updatedCollectionBackendID,
+        collectionStore.value.state
+      )
 
       const isFolder =
         updatedCollectionLocalPath &&
@@ -415,37 +378,25 @@ function setupUserCollectionMovedSubscription() {
     if (E.isRight(res)) {
       const movedMetadata = res.right.userCollectionMoved
 
-      const sourcePath = restCollectionsMapper.getLocalIDByBackendID(
-        movedMetadata.id
+      const sourcePath = getCollectionPathFromCollectionID(
+        movedMetadata.id,
+        restCollectionStore.value.state
       )
 
       let destinationPath: string | undefined
 
       if (movedMetadata.parent?.id) {
-        destinationPath = restCollectionsMapper.getLocalIDByBackendID(
-          movedMetadata.parent?.id
-        )
+        destinationPath =
+          getCollectionPathFromCollectionID(
+            movedMetadata.parent?.id,
+            restCollectionStore.value.state
+          ) ?? undefined
       }
 
-      const hasAlreadyHappened = hasReorderingOrMovingAlreadyHappened(
-        {
-          sourceCollectionID: movedMetadata.id,
-          destinationCollectionID: movedMetadata.parent?.id,
-          sourcePath,
-          destinationPath,
-        },
-        "MOVING"
-      )
-
-      if (!hasAlreadyHappened) {
-        sourcePath &&
-          runDispatchWithOutSyncing(() => {
-            moveRESTFolder(sourcePath, destinationPath ?? null)
-          })
-
-        sourcePath &&
-          moveCollectionInMapper(sourcePath, destinationPath, "REST")
-      }
+      sourcePath &&
+        runDispatchWithOutSyncing(() => {
+          moveRESTFolder(sourcePath, destinationPath ?? null)
+        })
     }
   })
 
@@ -461,27 +412,12 @@ function setupUserCollectionRemovedSubscription() {
       const removedCollectionBackendID = res.right.userCollectionRemoved.id
       const collectionType = res.right.userCollectionRemoved.type
 
-      const { collectionsMapper } = getMappersAndStoreByType(collectionType)
+      const { collectionStore } = getStoreByCollectionType(collectionType)
 
-      const collectionsOperations =
-        collectionType == "REST"
-          ? restCollectionsOperations
-          : gqlCollectionsOperations
-
-      const removedCollectionLocalPath =
-        collectionsMapper.getLocalIDByBackendID(removedCollectionBackendID)
-
-      // TODO: seperate operations for rest and gql
-      const isInOperations = !!collectionsOperations.find(
-        (operation) =>
-          operation.type == "COLLECTION_REMOVED" &&
-          operation.collectionBackendID == removedCollectionBackendID
+      const removedCollectionLocalPath = getCollectionPathFromCollectionID(
+        removedCollectionBackendID,
+        collectionStore.value.state
       )
-
-      // the collection is already removed
-      if (!removedCollectionLocalPath || isInOperations) {
-        return
-      }
 
       const isFolder =
         removedCollectionLocalPath &&
@@ -502,9 +438,6 @@ function setupUserCollectionRemovedSubscription() {
             : removeGraphqlCollection(parseInt(removedCollectionLocalPath))
         })
       }
-
-      removedCollectionLocalPath &&
-        removeAndReorderEntries(removedCollectionLocalPath, collectionType)
     }
   })
 
@@ -523,40 +456,25 @@ function setupUserCollectionOrderUpdatedSubscription() {
       const sourceCollectionID = userCollection.id
       const destinationCollectionID = nextUserCollection?.id
 
-      const sourcePath =
-        restCollectionsMapper.getLocalIDByBackendID(sourceCollectionID)
+      const sourcePath = getCollectionPathFromCollectionID(
+        sourceCollectionID,
+        restCollectionStore.value.state
+      )
 
-      let destinationPath: string | undefined
+      let destinationPath: string | null | undefined
 
       if (destinationCollectionID) {
-        destinationPath = restCollectionsMapper.getLocalIDByBackendID(
-          destinationCollectionID
+        destinationPath = getCollectionPathFromCollectionID(
+          destinationCollectionID,
+          restCollectionStore.value.state
         )
       }
 
-      const hasAlreadyHappened = hasReorderingOrMovingAlreadyHappened(
-        {
-          sourceCollectionID,
-          destinationCollectionID,
-          sourcePath,
-          destinationPath,
-        },
-        "REORDERING"
-      )
-
-      if (!hasAlreadyHappened) {
-        runDispatchWithOutSyncing(() => {
-          if (
-            sourcePath &&
-            destinationPath &&
-            sourceCollectionID &&
-            destinationCollectionID
-          ) {
-            updateRESTCollectionOrder(sourcePath, destinationPath)
-            reorderCollectionsInMapper(sourcePath, destinationPath, "REST")
-          }
-        })
-      }
+      runDispatchWithOutSyncing(() => {
+        if (sourcePath) {
+          updateRESTCollectionOrder(sourcePath, destinationPath ?? null)
+        }
+      })
     }
   })
 
@@ -575,18 +493,21 @@ function setupUserRequestCreatedSubscription() {
 
       const requestType = res.right.userRequestCreated.type
 
-      const { collectionsMapper, requestsMapper, collectionStore } =
-        getMappersAndStoreByType(requestType)
+      const { collectionStore } = getStoreByCollectionType(requestType)
 
-      const hasAlreadyHappened =
-        !!requestsMapper.getLocalIDByBackendID(requestID)
+      const hasAlreadyHappened = getRequestPathFromRequestID(
+        requestID,
+        collectionStore.value.state
+      )
 
-      if (hasAlreadyHappened) {
+      if (!!hasAlreadyHappened) {
         return
       }
 
-      const collectionPath =
-        collectionsMapper.getLocalIDByBackendID(collectionID)
+      const collectionPath = getCollectionPathFromCollectionID(
+        collectionID,
+        collectionStore.value.state
+      )
 
       if (collectionID && collectionPath) {
         runDispatchWithOutSyncing(() => {
@@ -599,10 +520,11 @@ function setupUserRequestCreatedSubscription() {
             collectionPath.split("/").map((index) => parseInt(index))
           )
 
-          const requestPath =
-            target && `${collectionPath}/${target?.requests.length - 1}`
+          const targetRequest = target?.requests[target?.requests.length - 1]
 
-          requestPath && requestsMapper.addEntry(requestPath, requestID)
+          if (targetRequest) {
+            targetRequest.id = requestID
+          }
         })
       }
     }
@@ -619,31 +541,28 @@ function setupUserRequestUpdatedSubscription() {
     if (E.isRight(res)) {
       const requestType = res.right.userRequestUpdated.type
 
-      const { requestsMapper, collectionsMapper } =
-        getMappersAndStoreByType(requestType)
+      const { collectionStore } = getStoreByCollectionType(requestType)
 
-      const requestPath = requestsMapper.getLocalIDByBackendID(
-        res.right.userRequestUpdated.id
+      const requestPath = getRequestPathFromRequestID(
+        res.right.userRequestUpdated.id,
+        collectionStore.value.state
       )
 
-      const indexes = requestPath?.split("/")
-      const requestIndex = indexes && indexes[indexes?.length - 1]
-      const requestParentPath = collectionsMapper.getLocalIDByBackendID(
-        res.right.userRequestUpdated.collectionID
-      )
+      const collectionPath = requestPath?.collectionPath
+      const requestIndex = requestPath?.requestIndex
 
-      requestIndex &&
-        requestParentPath &&
+      ;(requestIndex || requestIndex == 0) &&
+        collectionPath &&
         runDispatchWithOutSyncing(() => {
           requestType == "REST"
             ? editRESTRequest(
-                requestParentPath,
-                parseInt(requestIndex),
+                collectionPath,
+                requestIndex,
                 JSON.parse(res.right.userRequestUpdated.request)
               )
             : editGraphqlRequest(
-                requestParentPath,
-                parseInt(requestIndex),
+                collectionPath,
+                requestIndex,
                 JSON.parse(res.right.userRequestUpdated.request)
               )
         })
@@ -659,40 +578,58 @@ function setupUserRequestMovedSubscription() {
 
   userRequestMoved$.subscribe((res) => {
     if (E.isRight(res)) {
-      const requestType = res.right.userRequestMoved.request.type
+      const { request, nextRequest } = res.right.userRequestMoved
 
-      const { collectionsMapper } = getMappersAndStoreByType(requestType)
+      const {
+        collectionID: destinationCollectionID,
+        id: sourceRequestID,
+        type: requestType,
+      } = request
 
-      const requestID = res.right.userRequestMoved.request.id
-      const requestIndex = getRequestIndexFromRequestID(requestID)
+      const { collectionStore } = getStoreByCollectionType(requestType)
 
-      const sourceCollectionPath = getCollectionPathFromRequestID(requestID)
-
-      const destinationCollectionID =
-        res.right.userRequestMoved.request.collectionID
-      const destinationCollectionPath = collectionsMapper.getLocalIDByBackendID(
-        destinationCollectionID
+      const sourceRequestPath = getRequestPathFromRequestID(
+        sourceRequestID,
+        collectionStore.value.state
       )
 
-      const nextRequest = res.right.userRequestMoved.nextRequest
+      const destinationCollectionPath = getCollectionPathFromCollectionID(
+        destinationCollectionID,
+        collectionStore.value.state
+      )
+
+      const destinationRequestIndex = destinationCollectionPath
+        ? (() => {
+            const requestsLength = navigateToFolderWithIndexPath(
+              collectionStore.value.state,
+              destinationCollectionPath
+                .split("/")
+                .map((index) => parseInt(index))
+            )?.requests.length
+
+            return requestsLength || requestsLength == 0
+              ? requestsLength - 1
+              : undefined
+          })()
+        : undefined
 
       // there is no nextRequest, so request is moved
       if (
-        requestIndex &&
-        sourceCollectionPath &&
+        (destinationRequestIndex || destinationRequestIndex == 0) &&
         destinationCollectionPath &&
+        sourceRequestPath &&
         !nextRequest
       ) {
         runDispatchWithOutSyncing(() => {
           requestType == "REST"
             ? moveRESTRequest(
-                sourceCollectionPath,
-                parseInt(requestIndex),
+                sourceRequestPath.collectionPath,
+                sourceRequestPath.requestIndex,
                 destinationCollectionPath
               )
             : moveGraphqlRequest(
-                sourceCollectionPath,
-                parseInt(requestIndex),
+                sourceRequestPath.collectionPath,
+                sourceRequestPath.requestIndex,
                 destinationCollectionPath
               )
         })
@@ -700,21 +637,37 @@ function setupUserRequestMovedSubscription() {
 
       // there is nextRequest, so request is reordered
       if (
-        requestIndex &&
-        sourceCollectionPath &&
+        (destinationRequestIndex || destinationRequestIndex == 0) &&
         destinationCollectionPath &&
         nextRequest &&
         // we don't have request reordering for graphql yet
         requestType == "REST"
       ) {
-        const nextRequestIndex = getRequestIndexFromRequestID(nextRequest.id)
+        const { collectionID: nextCollectionID, id: nextRequestID } =
+          nextRequest
+
+        const nextCollectionPath =
+          getCollectionPathFromCollectionID(
+            nextCollectionID,
+            collectionStore.value.state
+          ) ?? undefined
+
+        const nextRequestIndex = nextCollectionPath
+          ? getRequestIndex(
+              nextRequestID,
+              nextCollectionPath,
+              collectionStore.value.state
+            )
+          : undefined
 
         nextRequestIndex &&
+          nextCollectionPath &&
+          sourceRequestPath &&
           runDispatchWithOutSyncing(() => {
             updateRESTRequestOrder(
-              parseInt(requestIndex),
-              parseInt(nextRequestIndex),
-              destinationCollectionPath
+              sourceRequestPath?.requestIndex,
+              nextRequestIndex,
+              nextCollectionPath
             )
           })
       }
@@ -732,33 +685,27 @@ function setupUserRequestDeletedSubscription() {
     if (E.isRight(res)) {
       const requestType = res.right.userRequestDeleted.type
 
-      const { requestsMapper, collectionsMapper } =
-        getMappersAndStoreByType(requestType)
+      const { collectionStore } = getStoreByCollectionType(requestType)
 
-      const deletedRequestPath = requestsMapper.getLocalIDByBackendID(
-        res.right.userRequestDeleted.id
+      const deletedRequestPath = getRequestPathFromRequestID(
+        res.right.userRequestDeleted.id,
+        collectionStore.value.state
       )
 
-      const indexes = deletedRequestPath?.split("/")
-      const requestIndex = indexes && indexes[indexes?.length - 1]
-      const requestParentPath = collectionsMapper.getLocalIDByBackendID(
-        res.right.userRequestDeleted.collectionID
-      )
-
-      requestIndex &&
-        requestParentPath &&
+      ;(deletedRequestPath?.requestIndex ||
+        deletedRequestPath?.requestIndex == 0) &&
+        deletedRequestPath.collectionPath &&
         runDispatchWithOutSyncing(() => {
           requestType == "REST"
-            ? removeRESTRequest(requestParentPath, parseInt(requestIndex))
-            : removeGraphqlRequest(requestParentPath, parseInt(requestIndex))
+            ? removeRESTRequest(
+                deletedRequestPath.collectionPath,
+                deletedRequestPath.requestIndex
+              )
+            : removeGraphqlRequest(
+                deletedRequestPath.collectionPath,
+                deletedRequestPath.requestIndex
+              )
         })
-
-      deletedRequestPath &&
-        reorderIndexesAfterEntryRemoval(
-          deletedRequestPath,
-          requestsMapper,
-          requestType
-        )
     }
   })
 
@@ -769,56 +716,74 @@ export const def: CollectionsPlatformDef = {
   initCollectionsSync,
 }
 
-function getRequestIndexFromRequestID(requestID: string) {
-  const requestPath = restRequestsMapper.getLocalIDByBackendID(requestID)
+function getCollectionPathFromCollectionID(
+  collectionID: string,
+  collections: HoppCollection<HoppRESTRequest | HoppGQLRequest>[],
+  parentPath?: string
+): string | null {
+  for (const collectionIndex in collections) {
+    if (collections[collectionIndex].id == collectionID) {
+      return parentPath
+        ? `${parentPath}/${collectionIndex}`
+        : `${collectionIndex}`
+    } else {
+      const collectionPath = getCollectionPathFromCollectionID(
+        collectionID,
+        collections[collectionIndex].folders,
+        parentPath ? `${parentPath}/${collectionIndex}` : `${collectionIndex}`
+      )
 
-  /**
-   * requestPath is in the form collectionPath/requestIndex,
-   * so to get requestIndex we just split the requestPath with / and get the last element
-   */
-  const requestPathIndexes = requestPath?.split("/")
-  const requestIndex =
-    requestPathIndexes && requestPathIndexes[requestPathIndexes?.length - 1]
+      if (collectionPath) return collectionPath
+    }
+  }
+
+  return null
+}
+
+function getRequestPathFromRequestID(
+  requestID: string,
+  collections: HoppCollection<HoppRESTRequest | HoppGQLRequest>[],
+  parentPath?: string
+): { collectionPath: string; requestIndex: number } | null {
+  for (const collectionIndex in collections) {
+    const requestIndex = collections[collectionIndex].requests.findIndex(
+      (request) => request.id == requestID
+    )
+
+    if (requestIndex != -1) {
+      return {
+        collectionPath: parentPath
+          ? `${parentPath}/${collectionIndex}`
+          : `${collectionIndex}`,
+        requestIndex,
+      }
+    } else {
+      const requestPath = getRequestPathFromRequestID(
+        requestID,
+        collections[collectionIndex].folders,
+        parentPath ? `${parentPath}/${collectionIndex}` : `${collectionIndex}`
+      )
+
+      if (requestPath) return requestPath
+    }
+  }
+
+  return null
+}
+
+function getRequestIndex(
+  requestID: string,
+  parentCollectionPath: string,
+  collections: HoppCollection<HoppRESTRequest | HoppGQLRequest>[]
+) {
+  const collection = navigateToFolderWithIndexPath(
+    collections,
+    parentCollectionPath?.split("/").map((index) => parseInt(index))
+  )
+
+  const requestIndex = collection?.requests.findIndex(
+    (request) => request.id == requestID
+  )
 
   return requestIndex
-}
-
-function getCollectionPathFromRequestID(requestID: string) {
-  const requestPath = restRequestsMapper.getLocalIDByBackendID(requestID)
-  const requestPathIndexes = requestPath?.split("/")
-
-  // requestIndex will be the last element, remove it
-  requestPathIndexes?.pop()
-
-  return requestPathIndexes?.join("/")
-}
-
-function hasReorderingOrMovingAlreadyHappened(
-  incomingOperation: {
-    sourceCollectionID: string
-    destinationCollectionID: string | undefined
-    sourcePath: string | undefined
-    destinationPath: string | undefined
-  },
-  type: "REORDERING" | "MOVING"
-) {
-  const {
-    sourcePath,
-    sourceCollectionID,
-    destinationCollectionID,
-    destinationPath,
-  } = incomingOperation
-
-  // TODO: implement this as a module
-  // Something like, SyncOperations.hasAlreadyHappened( type: "REORDER_COLLECTIONS", payload )
-  return !!collectionReorderOrMovingOperations.find((reorderOperation) =>
-    reorderOperation.sourceCollectionID == sourceCollectionID &&
-    reorderOperation.destinationCollectionID == destinationCollectionID &&
-    type == "MOVING"
-      ? reorderOperation.reorderOperation.fromPath == destinationPath
-      : reorderOperation.reorderOperation.fromPath == sourcePath &&
-        type == "MOVING"
-      ? reorderOperation.reorderOperation.toPath == sourcePath
-      : reorderOperation.reorderOperation.toPath == destinationPath
-  )
 }

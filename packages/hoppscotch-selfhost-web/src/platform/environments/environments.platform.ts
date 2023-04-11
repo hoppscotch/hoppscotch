@@ -192,12 +192,6 @@ function setupUserEnvironmentDeletedSubscription() {
         runDispatchWithOutSyncing(() => {
           deleteEnvironment(localIndex)
         })
-      } else {
-        console.log("could not find the localIndex")
-        // TODO:
-        // handle order of events
-        // eg: update coming before create
-        // skipping for this release
       }
     }
   })

@@ -26,7 +26,6 @@ async function loadTabStateFromSync(): Promise<PersistableRESTTabState | null> {
 
     return currentRESTSession ? JSON.parse(currentRESTSession) : null
   } else {
-    console.log(res)
   }
 
   return null

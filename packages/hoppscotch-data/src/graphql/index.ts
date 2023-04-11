@@ -11,6 +11,7 @@ export type GQLHeader = {
 }
 
 export type HoppGQLRequest = {
+  id?: string
   v: number
   name: string
   url: string

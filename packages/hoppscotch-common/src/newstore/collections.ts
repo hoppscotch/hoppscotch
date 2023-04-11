@@ -33,6 +33,10 @@ const defaultGraphqlCollectionState = {
 type RESTCollectionStoreType = typeof defaultRESTCollectionState
 type GraphqlCollectionStoreType = typeof defaultGraphqlCollectionState
 
+/**
+ * NOTE: this function is not pure. It mutates the indexPaths inplace
+ * Not removing this behaviour because i'm not sure if we utilize this behaviour anywhere and i found this on a tight time crunch.
+ */
 export function navigateToFolderWithIndexPath(
   collections: HoppCollection<HoppRESTRequest | HoppGQLRequest>[],
   indexPaths: number[]
@@ -86,7 +90,12 @@ const restCollectionDispatchers = defineDispatchers({
 
   removeCollection(
     { state }: RESTCollectionStoreType,
-    { collectionIndex }: { collectionIndex: number }
+    {
+      collectionIndex,
+      // this collectionID is used to sync the collection removal
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      collectionID,
+    }: { collectionIndex: number; collectionID?: string }
   ) {
     return {
       state: (state as any).filter(
@@ -174,7 +183,12 @@ const restCollectionDispatchers = defineDispatchers({
     }
   },
 
-  removeFolder({ state }: RESTCollectionStoreType, { path }: { path: string }) {
+  removeFolder(
+    { state }: RESTCollectionStoreType,
+    // folderID is used to sync the folder removal in collections.sync.ts
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    { path, folderID }: { path: string; folderID?: string }
+  ) {
     const newState = state
 
     const indexPaths = path.split("/").map((x) => parseInt(x))
@@ -415,7 +429,13 @@ const restCollectionDispatchers = defineDispatchers({
 
   removeRequest(
     { state }: RESTCollectionStoreType,
-    { path, requestIndex }: { path: string; requestIndex: number }
+    {
+      path,
+      requestIndex,
+      // this requestID is used to sync the request removal
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      requestID,
+    }: { path: string; requestIndex: number; requestID?: string }
   ) {
     const newState = state
 
@@ -573,6 +593,31 @@ const restCollectionDispatchers = defineDispatchers({
       state: newState,
     }
   },
+
+  // only used for collections.sync.ts to prevent double insertion of collections from storeSync and Subscriptions
+  removeDuplicateCollectionOrFolder(
+    { state },
+    {
+      id,
+      collectionPath,
+      type,
+    }: {
+      id: string
+      collectionPath: string
+      type: "collection" | "request"
+    }
+  ) {
+    const after = removeDuplicateCollectionsFromPath<HoppRESTRequest>(
+      id,
+      collectionPath,
+      state,
+      type ?? "collection"
+    )
+
+    return {
+      state: after,
+    }
+  },
 })
 
 const gqlCollectionDispatchers = defineDispatchers({
@@ -605,7 +650,11 @@ const gqlCollectionDispatchers = defineDispatchers({
 
   removeCollection(
     { state }: GraphqlCollectionStoreType,
-    { collectionIndex }: { collectionIndex: number }
+    {
+      collectionIndex, // this collectionID is used to sync the collection removal
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      collectionID,
+    }: { collectionIndex: number; collectionID?: string }
   ) {
     return {
       state: (state as any).filter(
@@ -687,7 +736,9 @@ const gqlCollectionDispatchers = defineDispatchers({
 
   removeFolder(
     { state }: GraphqlCollectionStoreType,
-    { path }: { path: string }
+    // folderID is used to sync the folder removal in collections.sync.ts
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    { path, folderID }: { path: string; folderID?: string }
   ) {
     const newState = state
 
@@ -775,7 +826,13 @@ const gqlCollectionDispatchers = defineDispatchers({
 
   removeRequest(
     { state }: GraphqlCollectionStoreType,
-    { path, requestIndex }: { path: string; requestIndex: number }
+    {
+      path,
+      requestIndex,
+      // this requestID is used to sync the request removal
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      requestID,
+    }: { path: string; requestIndex: number; requestID?: string }
   ) {
     const newState = state
 
@@ -838,6 +895,30 @@ const gqlCollectionDispatchers = defineDispatchers({
       state: newState,
     }
   },
+  // only used for collections.sync.ts to prevent double insertion of collections from storeSync and Subscriptions
+  removeDuplicateCollectionOrFolder(
+    { state },
+    {
+      id,
+      collectionPath,
+      type,
+    }: {
+      id: string
+      collectionPath: string
+      type: "collection" | "request"
+    }
+  ) {
+    const after = removeDuplicateCollectionsFromPath<HoppGQLRequest>(
+      id,
+      collectionPath,
+      state,
+      type ?? "collection"
+    )
+
+    return {
+      state: after,
+    }
+  },
 })
 
 export const restCollectionStore = new DispatchingStore(
@@ -887,11 +968,15 @@ export function addRESTCollection(collection: HoppCollection<HoppRESTRequest>) {
   })
 }
 
-export function removeRESTCollection(collectionIndex: number) {
+export function removeRESTCollection(
+  collectionIndex: number,
+  collectionID?: string
+) {
   restCollectionStore.dispatch({
     dispatcher: "removeCollection",
     payload: {
       collectionIndex,
+      collectionID,
     },
   })
 }
@@ -936,11 +1021,12 @@ export function editRESTFolder(
   })
 }
 
-export function removeRESTFolder(path: string) {
+export function removeRESTFolder(path: string, folderID?: string) {
   restCollectionStore.dispatch({
     dispatcher: "removeFolder",
     payload: {
       path,
+      folderID,
     },
   })
 }
@@ -951,6 +1037,21 @@ export function moveRESTFolder(path: string, destinationPath: string | null) {
     payload: {
       path,
       destinationPath,
+    },
+  })
+}
+
+export function removeDuplicateRESTCollectionOrFolder(
+  id: string,
+  collectionPath: string,
+  type?: "collection" | "request"
+) {
+  restCollectionStore.dispatch({
+    dispatcher: "removeDuplicateCollectionOrFolder",
+    payload: {
+      id,
+      collectionPath,
+      type: type ?? "collection",
     },
   })
 }
@@ -996,12 +1097,17 @@ export function saveRESTRequestAs(path: string, request: HoppRESTRequest) {
   return insertionIndex
 }
 
-export function removeRESTRequest(path: string, requestIndex: number) {
+export function removeRESTRequest(
+  path: string,
+  requestIndex: number,
+  requestID?: string
+) {
   restCollectionStore.dispatch({
     dispatcher: "removeRequest",
     payload: {
       path,
       requestIndex,
+      requestID,
     },
   })
 }
@@ -1082,11 +1188,15 @@ export function addGraphqlCollection(
   })
 }
 
-export function removeGraphqlCollection(collectionIndex: number) {
+export function removeGraphqlCollection(
+  collectionIndex: number,
+  collectionID?: string
+) {
   graphqlCollectionStore.dispatch({
     dispatcher: "removeCollection",
     payload: {
       collectionIndex,
+      collectionID,
     },
   })
 }
@@ -1127,11 +1237,27 @@ export function editGraphqlFolder(
   })
 }
 
-export function removeGraphqlFolder(path: string) {
+export function removeGraphqlFolder(path: string, folderID?: string) {
   graphqlCollectionStore.dispatch({
     dispatcher: "removeFolder",
     payload: {
       path,
+      folderID,
+    },
+  })
+}
+
+export function removeDuplicateGraphqlCollectionOrFolder(
+  id: string,
+  collectionPath: string,
+  type?: "collection" | "request"
+) {
+  graphqlCollectionStore.dispatch({
+    dispatcher: "removeDuplicateCollectionOrFolder",
+    payload: {
+      id,
+      collectionPath,
+      type: type ?? "collection",
     },
   })
 }
@@ -1161,12 +1287,17 @@ export function saveGraphqlRequestAs(path: string, request: HoppGQLRequest) {
   })
 }
 
-export function removeGraphqlRequest(path: string, requestIndex: number) {
+export function removeGraphqlRequest(
+  path: string,
+  requestIndex: number,
+  requestID?: string
+) {
   graphqlCollectionStore.dispatch({
     dispatcher: "removeRequest",
     payload: {
       path,
       requestIndex,
+      requestID,
     },
   })
 }
@@ -1184,4 +1315,61 @@ export function moveGraphqlRequest(
       destinationPath,
     },
   })
+}
+
+function removeDuplicateCollectionsFromPath<
+  T extends HoppRESTRequest | HoppGQLRequest
+>(
+  idToRemove: string,
+  collectionPath: string | null,
+  collections: HoppCollection<T>[],
+  type: "collection" | "request"
+): HoppCollection<T>[] {
+  const indexes = collectionPath?.split("/").map((x) => parseInt(x))
+  indexes && indexes.pop()
+  const parentPath = indexes?.join("/")
+
+  const parentCollection = parentPath
+    ? navigateToFolderWithIndexPath(
+        collections,
+        parentPath.split("/").map((x) => parseInt(x)) || []
+      )
+    : undefined
+
+  if (collectionPath && parentCollection) {
+    if (type == "collection") {
+      parentCollection.folders = removeDuplicatesFromAnArrayById(
+        idToRemove,
+        parentCollection.folders
+      )
+    } else {
+      parentCollection.requests = removeDuplicatesFromAnArrayById(
+        idToRemove,
+        parentCollection.requests
+      )
+    }
+  } else {
+    return removeDuplicatesFromAnArrayById(idToRemove, collections)
+  }
+
+  return collections
+
+  function removeDuplicatesFromAnArrayById<T extends { id?: string }>(
+    idToRemove: string,
+    arrayWithID: T[]
+  ) {
+    const duplicateEntries = arrayWithID.filter(
+      (entry) => entry.id === idToRemove
+    )
+
+    if (duplicateEntries.length == 2) {
+      const duplicateEntryIndex = arrayWithID.findIndex(
+        (entry) => entry.id === idToRemove
+      )
+
+      arrayWithID.splice(duplicateEntryIndex, 1)
+    }
+
+    return arrayWithID
+  }
 }

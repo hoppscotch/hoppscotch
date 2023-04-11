@@ -214,7 +214,7 @@ const removeRequest = () => {
     emit("select", null)
   }
 
-  removeGraphqlRequest(props.folderPath, props.requestIndex)
+  removeGraphqlRequest(props.folderPath, props.requestIndex, props.request.id)
   toast.success(`${t("state.deleted")}`)
 }
 </script>

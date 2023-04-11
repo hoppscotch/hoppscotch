@@ -183,6 +183,8 @@ import {
   updateRESTRequestOrder,
   updateRESTCollectionOrder,
   moveRESTFolder,
+  navigateToFolderWithIndexPath,
+  restCollectionStore,
 } from "~/newstore/collections"
 import TeamCollectionAdapter from "~/helpers/teams/TeamCollectionAdapter"
 import {
@@ -1014,6 +1016,13 @@ const onRemoveCollection = () => {
   if (collectionsType.value.type === "my-collections") {
     const collectionIndex = editingCollectionIndex.value
 
+    const collectionToRemove =
+      collectionIndex || collectionIndex == 0
+        ? navigateToFolderWithIndexPath(restCollectionStore.value.state, [
+            collectionIndex,
+          ])
+        : undefined
+
     if (collectionIndex === null) return
 
     if (
@@ -1024,7 +1033,10 @@ const onRemoveCollection = () => {
       emit("select", null)
     }
 
-    removeRESTCollection(collectionIndex)
+    removeRESTCollection(
+      collectionIndex,
+      collectionToRemove ? collectionToRemove.id : undefined
+    )
 
     resolveSaveContextOnCollectionReorder({
       lastIndex: collectionIndex,
@@ -1077,7 +1089,14 @@ const onRemoveFolder = () => {
       emit("select", null)
     }
 
-    removeRESTFolder(folderPath)
+    const folderToRemove = folderPath
+      ? navigateToFolderWithIndexPath(
+          restCollectionStore.value.state,
+          folderPath.split("/").map((i) => parseInt(i))
+        )
+      : undefined
+
+    removeRESTFolder(folderPath, folderToRemove ? folderToRemove.id : undefined)
 
     const parentFolder = folderPath.split("/").slice(0, -1).join("/") // remove last folder to get parent folder
     resolveSaveContextOnCollectionReorder({
@@ -1151,7 +1170,12 @@ const onRemoveRequest = () => {
       possibleTab.value.document.isDirty = true
     }
 
-    removeRESTRequest(folderPath, requestIndex)
+    const requestToRemove = navigateToFolderWithIndexPath(
+      restCollectionStore.value.state,
+      folderPath.split("/").map((i) => parseInt(i))
+    )?.requests[requestIndex]
+
+    removeRESTRequest(folderPath, requestIndex, requestToRemove?.id)
 
     // the same function is used to reorder requests since after removing, it's basically doing reorder
     resolveSaveContextOnRequestReorder({

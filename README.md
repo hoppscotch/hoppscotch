@@ -278,46 +278,7 @@ _Add-ons are developed and maintained under **[Hoppscotch Organization](https://
 - [Vite](https://vitejs.dev)
 
 ## **Developing**
-
-0. Update [`.env.example`](https://github.com/hoppscotch/hoppscotch/blob/main/.env.example) file found in the root of repository with your own keys and rename it to `.env`.
-
-_Sample keys only work with the [production build](https://hoppscotch.io)._
-
-### Browser-based development environment
-
-- [GitHub codespace](https://docs.github.com/en/codespaces/developing-in-codespaces/creating-a-codespace)
-- [Gitpod](https://gitpod.io/#https://github.com/hoppscotch/hoppscotch)
-
-### Local development environment
-
-1. [Clone this repo](https://help.github.com/en/articles/cloning-a-repository) with git.
-2. Install pnpm using npm by running `npm install -g pnpm`.
-3. Install dependencies by running `pnpm install` within the directory that you cloned (probably `hoppscotch`).
-4. Start the development server with `pnpm run dev`.
-5. Open the development site by going to [`http://localhost:3000`](http://localhost:3000) in your browser.
-
-### Docker compose
-
-1. [Clone this repo](https://help.github.com/en/articles/cloning-a-repository) with git.
-2. Run `docker-compose up` within the directory that you cloned (probably `hoppscotch`).
-3. Open the development site by going to [`http://localhost:3000`](http://localhost:3000) in your browser.
-
-## **Docker**
-
-**Official container** &nbsp; [![hoppscotch/hoppscotch](https://img.shields.io/docker/pulls/hoppscotch/hoppscotch?style=social)](https://hub.docker.com/r/hoppscotch/hoppscotch)
-
-```bash
-docker run --rm --name hoppscotch -p 3000:3000 hoppscotch/hoppscotch:latest
-```
-
-## **Releasing**
-
-1. [Clone this repo](https://help.github.com/en/articles/cloning-a-repository) with git.
-2. Install pnpm using npm by running `npm install -g pnpm`.
-3. Install dependencies by running `pnpm install` within the directory that you cloned (probably `hoppscotch`).
-4. Update [`.env.example`](https://github.com/hoppscotch/hoppscotch/blob/main/.env.example) file found in the root of repository with your own keys and rename it to `.env`.
-5. Build the release files with `pnpm run generate`.
-6. Find the built project in `packages/hoppscotch-web/dist`. Host these files on any [static hosting servers](https://www.pluralsight.com/blog/software-development/where-to-host-your-jamstack-site).
+Follow the guide in the [Self Hosted Docs](https://docs.hoppscotch.io/documentation/self-host/getting-started).
 
 ## **Contributing**
 

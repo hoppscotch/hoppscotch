@@ -34,7 +34,7 @@ export class UserCollectionService {
     private readonly pubsub: PubSubService,
   ) {}
 
-  TITLE_LENGTH = 3;
+  TITLE_LENGTH = 1;
 
   /**
    * Typecast a database UserCollection to a UserCollection model

@@ -495,10 +495,10 @@ describe('getUserRootCollections', () => {
 });
 
 describe('createUserCollection', () => {
-  test('should throw USER_COLL_SHORT_TITLE when title is less than 3 characters', async () => {
+  test('should throw USER_COLL_SHORT_TITLE when title is an empty string', async () => {
     const result = await userCollectionService.createUserCollection(
       user,
-      'ab',
+      '',
       rootRESTUserCollection.id,
       ReqType.REST,
     );
@@ -694,7 +694,7 @@ describe('createUserCollection', () => {
 });
 
 describe('renameUserCollection', () => {
-  test('should throw USER_COLL_SHORT_TITLE when title is less than 3 characters', async () => {
+  test('should throw USER_COLL_SHORT_TITLE when title is empty', async () => {
     const result = await userCollectionService.renameUserCollection(
       '',
       rootRESTUserCollection.id,

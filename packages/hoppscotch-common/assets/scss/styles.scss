@@ -459,6 +459,14 @@ pre.ace_editor {
   @apply bg-dividerLight;
 }
 
+.splitpanes--horizontal .splitpanes__pane {
+  @apply transition-none;
+}
+
+.splitpanes--vertical .splitpanes__pane {
+  @apply transition-none;
+}
+
 .cm-focused {
   @apply select-auto;
   @apply outline-none #{!important};

@@ -19,6 +19,7 @@
     "edit": "Bearbeiten",
     "filter": "Filter",
     "go_back": "Zurück",
+    "go_forward": "Go forward",
     "group_by": "Group by",
     "label": "Etikett",
     "learn_more": "Mehr erfahren",
@@ -117,12 +118,16 @@
   },
   "collection": {
     "created": "Sammlung erstellt",
+    "different_parent": "Cannot reorder collection with different parent",
     "edit": "Sammlung bearbeiten",
     "invalid_name": "Bitte gib einen gültigen Namen für die Sammlung an",
+    "invalid_root_move": "Collection already in the root",
+    "moved": "Moved Successfully",
     "my_collections": "Meine Sammlungen",
     "name": "Meine neue Sammlung",
     "name_length_insufficient": "Sammlungsname soll mindestens 3 Zeichen lang sein",
     "new": "Neue Sammlung",
+    "order_changed": "Collection Order Updated",
     "renamed": "Sammlung umbenannt",
     "request_in_use": "Anfrage wird ausgeführt",
     "save_as": "Speichern als",
@@ -142,6 +147,7 @@
     "remove_team": "Möchtest Du dieses Team wirklich löschen?",
     "remove_telemetry": "Möchtest Du die Telemetrie wirklich deaktivieren?",
     "request_change": "Möchtest Du diese Anfrage verwerfen? Ungespeicherte Änderungen gehen verloren.",
+    "save_unsaved_tab": "Do you want to save changes made in this tab?",
     "sync": "Möchtest Du diesen Arbeitsbereich wirklich synchronisieren?"
   },
   "count": {
@@ -310,6 +316,7 @@
     "zen_mode": "Zen-Modus"
   },
   "modal": {
+    "close_unsaved_tab": "You have unsaved changes",
     "collections": "Sammlungen",
     "confirm": "Aktion bestätigen",
     "edit_request": "Anfrage bearbeiten",
@@ -389,6 +396,8 @@
       "text": "Text"
     },
     "copy_link": "Link kopieren",
+    "different_collection": "Cannot reorder requests from different collections",
+    "duplicated": "Request duplicated",
     "duration": "Dauer",
     "enter_curl": "cURL eingeben",
     "generate_code": "Code generieren",
@@ -396,8 +405,10 @@
     "header_list": "Header-Liste",
     "invalid_name": "Bitte gib einen Namen für die Anfrage an",
     "method": "Methode",
+    "moved": "Request moved",
     "name": "Anfragename",
     "new": "Neue Anfrage",
+    "order_changed": "Request Order Updated",
     "override": "Überschreiben",
     "override_help": "Setze <kbd>Content-Type</kbd> in Headers",
     "overriden": "Überschrieben",
@@ -628,6 +639,7 @@
     "body": "Anfragekörper",
     "collections": "Sammlungen",
     "documentation": "Dokumentation",
+    "environments": "Environments",
     "headers": "Header",
     "history": "Verlauf",
     "mqtt": "MQTT",
@@ -652,6 +664,7 @@
     "email_do_not_match": "E-Mail-Adresse stimmt nicht mit Deinen Kontodaten überein, bitte kontaktiere den Teameigentümer.",
     "exit": "Team verlassen",
     "exit_disabled": "Eigentümer können das Team nicht verlassen",
+    "invalid_coll_id": "Invalid collection ID",
     "invalid_email_format": "E-Mail-Format ist ungültig",
     "invalid_id": "Ungültige Team-ID, bitte kontaktiere den Teameigentümer.",
     "invalid_invite_link": "Ungültiger Einladungslink.",
@@ -675,6 +688,7 @@
     "member_removed": "Benutzer entfernt",
     "member_role_updated": "Benutzerrollen aktualisiert",
     "members": "Mitglieder",
+    "more_members": "+{count} more",
     "name_length_insufficient": "Der Teamname sollte mindestens 6 Zeichen lang sein",
     "name_updated": "Teamname aktualisiert",
     "new": "Neues Team",
@@ -682,10 +696,13 @@
     "new_name": "Mein neues Team",
     "no_access": "Du hast keinen Bearbeitungszugriff auf diese Sammlungen",
     "no_invite_found": "Einladung nicht gefunden, bitte kontaktiere den Teameigentümer.",
+    "no_request_found": "Request not found.",
     "not_found": "Team wurde nicht gefunde, bitte kontaktiere den Teameigentümer.",
     "not_valid_viewer": "Du hast nicht die richtige Berechtigung als Gast, bitte kontaktiere den Teameigentümer.",
+    "parent_coll_move": "Cannot move collection to a child collection",
     "pending_invites": "Wartende Einladungen",
     "permissions": "Berechtigungen",
+    "same_target_destination": "Same target and destination",
     "saved": "Team gespeichert",
     "select_a_team": "Team auswählen",
     "title": "Team",
@@ -713,5 +730,11 @@
     "message": "Nachricht",
     "protocols": "Protokolle",
     "url": "URL"
+  },
+  "workspace": {
+    "change": "Change workspace",
+    "personal": "My Workspace",
+    "team": "Team Workspace",
+    "title": "Workspaces"
   }
 }

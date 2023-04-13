@@ -19,6 +19,7 @@
     "edit": "Editar",
     "filter": "Filter",
     "go_back": "Voltar",
+    "go_forward": "Go forward",
     "group_by": "Group by",
     "label": "Etiqueta",
     "learn_more": "Saber mais",
@@ -117,12 +118,16 @@
   },
   "collection": {
     "created": "Coleção criada",
+    "different_parent": "Cannot reorder collection with different parent",
     "edit": "Editar coleção",
     "invalid_name": "Forneça um nome válido para a coleção",
+    "invalid_root_move": "Collection already in the root",
+    "moved": "Moved Successfully",
     "my_collections": "Minhas coleções",
     "name": "Minha nova coleção",
     "name_length_insufficient": "O nome da coleção deve ter pelo menos 3 caracteres",
     "new": "Nova coleção",
+    "order_changed": "Collection Order Updated",
     "renamed": "Coleção renomeada",
     "request_in_use": "Requisição em uso",
     "save_as": "Salvar como",
@@ -142,6 +147,7 @@
     "remove_team": "Tem certeza que deseja excluir esta equipe?",
     "remove_telemetry": "Tem certeza de que deseja cancelar a telemetria?",
     "request_change": "Tem certeza que deseja descartar a requisição atual? Alterações não salvas serão perdidas.",
+    "save_unsaved_tab": "Do you want to save changes made in this tab?",
     "sync": "Tem certeza de que deseja sincronizar este espaço de trabalho?"
   },
   "count": {
@@ -310,6 +316,7 @@
     "zen_mode": "Modo zen"
   },
   "modal": {
+    "close_unsaved_tab": "You have unsaved changes",
     "collections": "Coleções",
     "confirm": "confirme",
     "edit_request": "Editar pedido",
@@ -389,6 +396,8 @@
       "text": "Text"
     },
     "copy_link": "Link de cópia",
+    "different_collection": "Cannot reorder requests from different collections",
+    "duplicated": "Request duplicated",
     "duration": "Duração",
     "enter_curl": "Digite cURL",
     "generate_code": "Gerar código",
@@ -396,8 +405,10 @@
     "header_list": "Lista de Cabeçalhos",
     "invalid_name": "Forneça um nome para a requisição",
     "method": "Método",
+    "moved": "Request moved",
     "name": "Nome da requisição",
     "new": "Nova requisição",
+    "order_changed": "Request Order Updated",
     "override": "Substituir",
     "override_help": "Substituir <kbd>Content-Type</kbd> em Headers",
     "overriden": "Substituído",
@@ -628,6 +639,7 @@
     "body": "Corpo",
     "collections": "Coleções",
     "documentation": "Documentação",
+    "environments": "Environments",
     "headers": "Cabeçalhos",
     "history": "História",
     "mqtt": "MQTT",
@@ -652,6 +664,7 @@
     "email_do_not_match": "O e-mail não corresponde aos detalhes da sua conta. Contate o dono da sua equipe.",
     "exit": "Sair da equipe",
     "exit_disabled": "Apenas o dono não pode sair da equipe",
+    "invalid_coll_id": "Invalid collection ID",
     "invalid_email_format": "O formato do email é inválido",
     "invalid_id": "ID de time inválido. Contate o dono da sua equipe.",
     "invalid_invite_link": "Link de convite inválido",
@@ -675,6 +688,7 @@
     "member_removed": "Usuário removido",
     "member_role_updated": "Funções de usuário atualizadas",
     "members": "Membros",
+    "more_members": "+{count} more",
     "name_length_insufficient": "O nome da equipe deve ter pelo menos 6 caracteres",
     "name_updated": "Nome do time atualizado",
     "new": "Novo time",
@@ -682,10 +696,13 @@
     "new_name": "Minha Nova Equipe",
     "no_access": "Você não tem acesso de edição a essas coleções",
     "no_invite_found": "Convite não encontrado. Contate o dono da sua equipe.",
+    "no_request_found": "Request not found.",
     "not_found": "Equipe não encontrada. Contate o dono da sua equipe",
     "not_valid_viewer": "Você não é um visualizado válido. Contate o dono da sua equipe.",
+    "parent_coll_move": "Cannot move collection to a child collection",
     "pending_invites": "Convites pendentes",
     "permissions": "Permissões",
+    "same_target_destination": "Same target and destination",
     "saved": "Equipe salva",
     "select_a_team": "Selecione uma equipe",
     "title": "Equipes",
@@ -713,5 +730,11 @@
     "message": "Mensagem",
     "protocols": "Protocolos",
     "url": "URL"
+  },
+  "workspace": {
+    "change": "Change workspace",
+    "personal": "My Workspace",
+    "team": "Team Workspace",
+    "title": "Workspaces"
   }
 }

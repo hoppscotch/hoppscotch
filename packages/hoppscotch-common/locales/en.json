@@ -138,7 +138,6 @@
   },
   "confirm": {
     "exit_team": "Are you sure you want to leave this team?",
-    "save_unsaved_tab": "Do you want to save changes made in this tab ?",
     "logout": "Are you sure you want to logout?",
     "remove_collection": "Are you sure you want to permanently delete this collection?",
     "remove_environment": "Are you sure you want to permanently delete this environment?",
@@ -148,6 +147,7 @@
     "remove_team": "Are you sure you want to delete this team?",
     "remove_telemetry": "Are you sure you want to opt-out of Telemetry?",
     "request_change": "Are you sure you want to discard current request, unsaved changes will be lost.",
+    "save_unsaved_tab": "Do you want to save changes made in this tab?",
     "sync": "Would you like to restore your workspace from cloud? This will discard your local progress."
   },
   "count": {
@@ -316,9 +316,9 @@
     "zen_mode": "Zen mode"
   },
   "modal": {
+    "close_unsaved_tab": "You have unsaved changes",
     "collections": "Collections",
     "confirm": "Confirm",
-    "close_unsaved_tab": "Close Unsaved Tab ?",
     "edit_request": "Edit Request",
     "import_export": "Import / Export"
   },
@@ -664,9 +664,9 @@
     "email_do_not_match": "Email doesn't match with your account details. Contact your team owner.",
     "exit": "Exit Team",
     "exit_disabled": "Only owner cannot exit the team",
+    "invalid_coll_id": "Invalid collection ID",
     "invalid_email_format": "Email format is invalid",
     "invalid_id": "Invalid team ID. Contact your team owner.",
-    "invalid_coll_id": "Invalid collection ID",
     "invalid_invite_link": "Invalid invite link",
     "invalid_invite_link_description": "The link you followed is invalid. Contact your team owner.",
     "invalid_member_permission": "Please provide a valid permission to the team member",

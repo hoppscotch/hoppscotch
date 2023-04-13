@@ -19,6 +19,7 @@
     "edit": "Upravit",
     "filter": "Filter",
     "go_back": "Vrať se",
+    "go_forward": "Go forward",
     "group_by": "Group by",
     "label": "Označení",
     "learn_more": "Další informace",
@@ -117,12 +118,16 @@
   },
   "collection": {
     "created": "Kolekce vytvořena",
+    "different_parent": "Cannot reorder collection with different parent",
     "edit": "Upravit sbírku",
     "invalid_name": "Uveďte prosím platný název kolekce",
+    "invalid_root_move": "Collection already in the root",
+    "moved": "Moved Successfully",
     "my_collections": "Moje sbírky",
     "name": "Moje nová kolekce",
     "name_length_insufficient": "Collection name should be at least 3 characters long",
     "new": "Nová kolekce",
+    "order_changed": "Collection Order Updated",
     "renamed": "Sbírka přejmenována",
     "request_in_use": "Request in use",
     "save_as": "Uložit jako",
@@ -142,6 +147,7 @@
     "remove_team": "Opravdu chcete tento tým smazat?",
     "remove_telemetry": "Opravdu se chcete odhlásit z telemetrie?",
     "request_change": "Are you sure you want to discard current request, unsaved changes will be lost.",
+    "save_unsaved_tab": "Do you want to save changes made in this tab?",
     "sync": "Opravdu chcete synchronizovat tento pracovní prostor?"
   },
   "count": {
@@ -310,6 +316,7 @@
     "zen_mode": "Zenový režim"
   },
   "modal": {
+    "close_unsaved_tab": "You have unsaved changes",
     "collections": "Sbírky",
     "confirm": "Potvrdit",
     "edit_request": "Upravit požadavek",
@@ -389,6 +396,8 @@
       "text": "Text"
     },
     "copy_link": "Kopírovat odkaz",
+    "different_collection": "Cannot reorder requests from different collections",
+    "duplicated": "Request duplicated",
     "duration": "Doba trvání",
     "enter_curl": "Zadejte cURL",
     "generate_code": "Vygenerujte kód",
@@ -396,8 +405,10 @@
     "header_list": "Seznam záhlaví",
     "invalid_name": "Uveďte prosím název žádosti",
     "method": "Metoda",
+    "moved": "Request moved",
     "name": "Vyžádejte si jméno",
     "new": "New Request",
+    "order_changed": "Request Order Updated",
     "override": "Override",
     "override_help": "Set <kbd>Content-Type</kbd> in Headers",
     "overriden": "Overridden",
@@ -628,6 +639,7 @@
     "body": "Tělo",
     "collections": "Sbírky",
     "documentation": "Dokumentace",
+    "environments": "Environments",
     "headers": "Záhlaví",
     "history": "Dějiny",
     "mqtt": "MQTT",
@@ -652,6 +664,7 @@
     "email_do_not_match": "Email doesn't match with your account details. Contact your team owner.",
     "exit": "Ukončete tým",
     "exit_disabled": "Pouze vlastník nemůže opustit tým",
+    "invalid_coll_id": "Invalid collection ID",
     "invalid_email_format": "Formát e -mailu je neplatný",
     "invalid_id": "Invalid team ID. Contact your team owner.",
     "invalid_invite_link": "Invalid invite link",
@@ -675,6 +688,7 @@
     "member_removed": "Uživatel odstraněn",
     "member_role_updated": "Role uživatelů aktualizovány",
     "members": "Členové",
+    "more_members": "+{count} more",
     "name_length_insufficient": "Název týmu by měl mít alespoň 6 znaků",
     "name_updated": "Team name updated",
     "new": "Nový tým",
@@ -682,10 +696,13 @@
     "new_name": "Můj nový tým",
     "no_access": "K těmto kolekcím nemáte přístup k úpravám",
     "no_invite_found": "Invitation not found. Contact your team owner.",
+    "no_request_found": "Request not found.",
     "not_found": "Team not found. Contact your team owner.",
     "not_valid_viewer": "You are not a valid viewer. Contact your team owner.",
+    "parent_coll_move": "Cannot move collection to a child collection",
     "pending_invites": "Pending invites",
     "permissions": "Oprávnění",
+    "same_target_destination": "Same target and destination",
     "saved": "Tým uložen",
     "select_a_team": "Select a team",
     "title": "Týmy",
@@ -713,5 +730,11 @@
     "message": "Zpráva",
     "protocols": "Protokoly",
     "url": "URL"
+  },
+  "workspace": {
+    "change": "Change workspace",
+    "personal": "My Workspace",
+    "team": "Team Workspace",
+    "title": "Workspaces"
   }
 }

@@ -19,6 +19,7 @@
     "edit": "編輯",
     "filter": "篩選回應",
     "go_back": "返回",
+    "go_forward": "Go forward",
     "group_by": "分組方式",
     "label": "標籤",
     "learn_more": "瞭解更多",
@@ -117,12 +118,16 @@
   },
   "collection": {
     "created": "組合已建立",
+    "different_parent": "Cannot reorder collection with different parent",
     "edit": "編輯組合",
     "invalid_name": "請提供有效的組合名稱",
+    "invalid_root_move": "Collection already in the root",
+    "moved": "Moved Successfully",
     "my_collections": "我的組合",
     "name": "我的新組合",
     "name_length_insufficient": "組合名稱至少要有 3 個字元。",
     "new": "建立組合",
+    "order_changed": "Collection Order Updated",
     "renamed": "組合已重新命名",
     "request_in_use": "請求正在使用中",
     "save_as": "另存為",
@@ -142,6 +147,7 @@
     "remove_team": "您確定要刪除該團隊嗎？",
     "remove_telemetry": "您確定要退出遙測服務嗎？",
     "request_change": "您確定要捨棄當前請求嗎？未儲存的變更將遺失。",
+    "save_unsaved_tab": "Do you want to save changes made in this tab?",
     "sync": "您想從雲端恢復您的工作區嗎？這將丟棄您的本地進度。"
   },
   "count": {
@@ -310,6 +316,7 @@
     "zen_mode": "專注模式"
   },
   "modal": {
+    "close_unsaved_tab": "You have unsaved changes",
     "collections": "組合",
     "confirm": "確認",
     "edit_request": "編輯請求",
@@ -389,6 +396,8 @@
       "text": "文字"
     },
     "copy_link": "複製連結",
+    "different_collection": "Cannot reorder requests from different collections",
+    "duplicated": "Request duplicated",
     "duration": "持續時間",
     "enter_curl": "輸入 cURL",
     "generate_code": "產生程式碼",
@@ -396,8 +405,10 @@
     "header_list": "請求標頭列表",
     "invalid_name": "請提供請求名稱",
     "method": "方法",
+    "moved": "Request moved",
     "name": "請求名稱",
     "new": "新請求",
+    "order_changed": "Request Order Updated",
     "override": "覆寫",
     "override_help": "在標頭設置 <kbd>Content-Type</kbd>",
     "overriden": "已覆寫",
@@ -628,6 +639,7 @@
     "body": "請求本體",
     "collections": "組合",
     "documentation": "幫助文件",
+    "environments": "Environments",
     "headers": "請求標頭",
     "history": "歷史記錄",
     "mqtt": "MQTT",
@@ -652,6 +664,7 @@
     "email_do_not_match": "電子信箱與您的帳號資料不一致。請聯絡您的團隊擁有者。",
     "exit": "退出團隊",
     "exit_disabled": "團隊擁有者無法退出團隊",
+    "invalid_coll_id": "Invalid collection ID",
     "invalid_email_format": "電子信箱格式無效",
     "invalid_id": "團隊 ID 無效。請聯絡您的團隊擁有者。",
     "invalid_invite_link": "邀請連結無效",
@@ -675,6 +688,7 @@
     "member_removed": "使用者已移除",
     "member_role_updated": "使用者角色已更新",
     "members": "成員",
+    "more_members": "+{count} more",
     "name_length_insufficient": "團隊名稱至少為 6 個字元",
     "name_updated": "團隊名稱已更新",
     "new": "新團隊",
@@ -682,10 +696,13 @@
     "new_name": "我的新團隊",
     "no_access": "您沒有編輯組合的許可權",
     "no_invite_found": "未找到邀請。請聯絡您的團隊擁有者。",
+    "no_request_found": "Request not found.",
     "not_found": "找不到團隊。請聯絡您的團隊擁有者。",
     "not_valid_viewer": "您不是一個有效的檢視者。請聯絡您的團隊擁有者。",
+    "parent_coll_move": "Cannot move collection to a child collection",
     "pending_invites": "待定邀請",
     "permissions": "許可權",
+    "same_target_destination": "Same target and destination",
     "saved": "團隊已儲存",
     "select_a_team": "選擇團隊",
     "title": "團隊",
@@ -713,5 +730,11 @@
     "message": "資訊",
     "protocols": "協定",
     "url": "網址"
+  },
+  "workspace": {
+    "change": "Change workspace",
+    "personal": "My Workspace",
+    "team": "Team Workspace",
+    "title": "Workspaces"
   }
 }

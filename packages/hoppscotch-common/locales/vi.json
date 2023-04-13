@@ -19,6 +19,7 @@
     "edit": "Chỉnh sửa",
     "filter": "Filter",
     "go_back": "Quay lại",
+    "go_forward": "Go forward",
     "group_by": "Group by",
     "label": "Nhãn",
     "learn_more": "Tìm hiểu thêm",
@@ -117,12 +118,16 @@
   },
   "collection": {
     "created": "Bộ sưu tập đã được tạo",
+    "different_parent": "Cannot reorder collection with different parent",
     "edit": "Chỉnh sửa bộ sưu tập",
     "invalid_name": "Vui lòng cung cấp tên hợp lệ cho bộ sưu tập",
+    "invalid_root_move": "Collection already in the root",
+    "moved": "Moved Successfully",
     "my_collections": "Bộ sưu tập của tôi",
     "name": "Bộ sưu tập mới của tôi",
     "name_length_insufficient": "Collection name should be at least 3 characters long",
     "new": "Bộ sưu tập mới",
+    "order_changed": "Collection Order Updated",
     "renamed": "Bộ sưu tập đã được đổi tên",
     "request_in_use": "Request in use",
     "save_as": "Lưu thành",
@@ -142,6 +147,7 @@
     "remove_team": "Bạn có chắc chắn muốn xóa nhóm này không?",
     "remove_telemetry": "Bạn có chắc chắn muốn chọn không tham gia Đo lường từ xa không?",
     "request_change": "Are you sure you want to discard current request, unsaved changes will be lost.",
+    "save_unsaved_tab": "Do you want to save changes made in this tab?",
     "sync": "Bạn có chắc chắn muốn đồng bộ hóa không gian làm việc này không?"
   },
   "count": {
@@ -310,6 +316,7 @@
     "zen_mode": "Chế độ Zen"
   },
   "modal": {
+    "close_unsaved_tab": "You have unsaved changes",
     "collections": "Bộ sưu tập",
     "confirm": "Xác nhận",
     "edit_request": "Chỉnh sửa Yêu cầu",
@@ -389,6 +396,8 @@
       "text": "Text"
     },
     "copy_link": "Sao chép đường dẫn",
+    "different_collection": "Cannot reorder requests from different collections",
+    "duplicated": "Request duplicated",
     "duration": "Khoảng thời gian",
     "enter_curl": "Nhập cURL",
     "generate_code": "Tạo mã",
@@ -396,8 +405,10 @@
     "header_list": "Danh sách tiêu đề",
     "invalid_name": "Vui lòng cung cấp tên cho yêu cầu",
     "method": "Phương pháp",
+    "moved": "Request moved",
     "name": "Yêu cầu tên",
     "new": "New Request",
+    "order_changed": "Request Order Updated",
     "override": "Override",
     "override_help": "Set <kbd>Content-Type</kbd> in Headers",
     "overriden": "Overridden",
@@ -628,6 +639,7 @@
     "body": "Thân hình",
     "collections": "Bộ sưu tập",
     "documentation": "Tài liệu",
+    "environments": "Environments",
     "headers": "Tiêu đề",
     "history": "Môn lịch sử",
     "mqtt": "MQTT",
@@ -652,6 +664,7 @@
     "email_do_not_match": "Email doesn't match with your account details. Contact your team owner.",
     "exit": "Nhóm thoát",
     "exit_disabled": "Chỉ chủ sở hữu không thể thoát khỏi nhóm",
+    "invalid_coll_id": "Invalid collection ID",
     "invalid_email_format": "Định dạng email không hợp lệ",
     "invalid_id": "Invalid team ID. Contact your team owner.",
     "invalid_invite_link": "Invalid invite link",
@@ -675,6 +688,7 @@
     "member_removed": "Người dùng đã bị xóa",
     "member_role_updated": "Đã cập nhật vai trò người dùng",
     "members": "Các thành viên",
+    "more_members": "+{count} more",
     "name_length_insufficient": "Tên nhóm phải dài ít nhất 6 ký tự",
     "name_updated": "Team name updated",
     "new": "Đội mới",
@@ -682,10 +696,13 @@
     "new_name": "Nhóm mới của tôi",
     "no_access": "Bạn không có quyền truy cập chỉnh sửa vào các bộ sưu tập này",
     "no_invite_found": "Invitation not found. Contact your team owner.",
+    "no_request_found": "Request not found.",
     "not_found": "Team not found. Contact your team owner.",
     "not_valid_viewer": "You are not a valid viewer. Contact your team owner.",
+    "parent_coll_move": "Cannot move collection to a child collection",
     "pending_invites": "Pending invites",
     "permissions": "Quyền",
+    "same_target_destination": "Same target and destination",
     "saved": "Đội đã được lưu",
     "select_a_team": "Select a team",
     "title": "Đội",
@@ -713,5 +730,11 @@
     "message": "Thông điệp",
     "protocols": "Các giao thức",
     "url": "URL"
+  },
+  "workspace": {
+    "change": "Change workspace",
+    "personal": "My Workspace",
+    "team": "Team Workspace",
+    "title": "Workspaces"
   }
 }

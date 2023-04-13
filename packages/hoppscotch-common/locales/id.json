@@ -19,6 +19,7 @@
     "edit": "Edit",
     "filter": "Tanggapan filter",
     "go_back": "Kembali",
+    "go_forward": "Go forward",
     "group_by": "Group by",
     "label": "Label",
     "learn_more": "Pelajari lebih lanjut",
@@ -117,12 +118,16 @@
   },
   "collection": {
     "created": "Koleksi dibuat",
+    "different_parent": "Cannot reorder collection with different parent",
     "edit": "Mengubah Koleksi",
     "invalid_name": "Berikan nama untuk Koleksi",
+    "invalid_root_move": "Collection already in the root",
+    "moved": "Moved Successfully",
     "my_collections": "Koleksi Saya",
     "name": "Koleksi Baru Saya",
     "name_length_insufficient": "Nama koleksi harus minimal 3 karakter",
     "new": "Koleksi baru",
+    "order_changed": "Collection Order Updated",
     "renamed": "Koleksi berganti nama",
     "request_in_use": "Permintaan sedang digunakan",
     "save_as": "Simpan Sebagai",
@@ -142,6 +147,7 @@
     "remove_team": "Apakah Anda yakin ingin menghapus tim ini?",
     "remove_telemetry": "Apakah Anda yakin ingin menyisih dari Telemetri?",
     "request_change": "Apakah Anda yakin ingin membuang permintaan saat ini, perubahan yang belum disimpan akan hilang.",
+    "save_unsaved_tab": "Do you want to save changes made in this tab?",
     "sync": "Apakah Anda ingin memulihkan ruang kerja Anda dari cloud? Ini akan membuang kemajuan lokal Anda."
   },
   "count": {
@@ -310,6 +316,7 @@
     "zen_mode": "Zen mode"
   },
   "modal": {
+    "close_unsaved_tab": "You have unsaved changes",
     "collections": "Koleksi",
     "confirm": "Mengonfirmasi",
     "edit_request": "Edit Request",
@@ -389,6 +396,8 @@
       "text": "Text"
     },
     "copy_link": "Salin tautan",
+    "different_collection": "Cannot reorder requests from different collections",
+    "duplicated": "Request duplicated",
     "duration": "Durasi",
     "enter_curl": "Masukkan cURL",
     "generate_code": "Generate code",
@@ -396,8 +405,10 @@
     "header_list": "Daftar Header",
     "invalid_name": "Harap berikan nama untuk request",
     "method": "Method",
+    "moved": "Request moved",
     "name": "Request nama",
     "new": "Request baru",
+    "order_changed": "Request Order Updated",
     "override": "Membatalkan",
     "override_help": "Set <kbd>Content-Type</kbd> in Headers",
     "overriden": "Diganti",
@@ -628,6 +639,7 @@
     "body": "Body",
     "collections": "Collections",
     "documentation": "Dokumentasi",
+    "environments": "Environments",
     "headers": "Headers",
     "history": "Riwayat",
     "mqtt": "MQTT",
@@ -652,6 +664,7 @@
     "email_do_not_match": "Surel tidak cocok dengan detail akun Anda. Hubungi pemilik tim Anda.",
     "exit": "Keluar dari Tim",
     "exit_disabled": "Hanya pemilik yang tidak dapat keluar dari tim",
+    "invalid_coll_id": "Invalid collection ID",
     "invalid_email_format": "Format surel tidak valid",
     "invalid_id": "ID tim tidak valid. Hubungi pemilik tim Anda.",
     "invalid_invite_link": "Tautan undangan tidak valid",
@@ -675,6 +688,7 @@
     "member_removed": "Pengguna dihapus",
     "member_role_updated": "Peran pengguna diperbarui",
     "members": "Anggota",
+    "more_members": "+{count} more",
     "name_length_insufficient": "Nama tim harus setidaknya 6 karakter",
     "name_updated": "Nama tim diperbarui",
     "new": "Tim Baru",
@@ -682,10 +696,13 @@
     "new_name": "Tim baru saya",
     "no_access": "Anda tidak memiliki akses edit ke collections ini",
     "no_invite_found": "Undangan tidak ditemukan. Hubungi pemilik tim Anda.",
+    "no_request_found": "Request not found.",
     "not_found": "Tim tidak ditemukan. Hubungi pemilik tim Anda.",
     "not_valid_viewer": "Anda bukan penonton yang valid. Hubungi pemilik tim Anda.",
+    "parent_coll_move": "Cannot move collection to a child collection",
     "pending_invites": "Undangan tertunda",
     "permissions": "Izin",
+    "same_target_destination": "Same target and destination",
     "saved": "Tim disimpan",
     "select_a_team": "Pilih tim",
     "title": "tim",
@@ -713,5 +730,11 @@
     "message": "Pesan",
     "protocols": "Protokol",
     "url": "URL"
+  },
+  "workspace": {
+    "change": "Change workspace",
+    "personal": "My Workspace",
+    "team": "Team Workspace",
+    "title": "Workspaces"
   }
 }

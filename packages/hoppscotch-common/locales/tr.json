@@ -19,6 +19,7 @@
     "edit": "Düzenle",
     "filter": "Filter",
     "go_back": "Geri git",
+    "go_forward": "Go forward",
     "group_by": "Group by",
     "label": "Etiket",
     "learn_more": "Daha fazla bilgi edin",
@@ -117,12 +118,16 @@
   },
   "collection": {
     "created": "Koleksiyon oluşturuldu",
+    "different_parent": "Cannot reorder collection with different parent",
     "edit": "Koleksiyonu düzenle",
     "invalid_name": "Lütfen koleksiyon için geçerli bir ad girin",
+    "invalid_root_move": "Collection already in the root",
+    "moved": "Moved Successfully",
     "my_collections": "Koleksiyonlarım",
     "name": "Yeni Koleksiyonum",
     "name_length_insufficient": "Koleksiyon adı en az 3 karakter uzunluğunda olmalıdır",
     "new": "Yeni koleksiyon",
+    "order_changed": "Collection Order Updated",
     "renamed": "Koleksiyon yeniden adlandırıldı",
     "request_in_use": "Kullanımda istek",
     "save_as": "Farklı kaydet",
@@ -142,6 +147,7 @@
     "remove_team": "Bu takımı silmek istediğinizden emin misiniz?",
     "remove_telemetry": "Telemetriden çıkmak istediğinizden emin misiniz?",
     "request_change": "Are you sure you want to discard current request, unsaved changes will be lost.",
+    "save_unsaved_tab": "Do you want to save changes made in this tab?",
     "sync": "Bu çalışma alanını senkronize etmek istediğinizden emin misiniz?"
   },
   "count": {
@@ -310,6 +316,7 @@
     "zen_mode": "Zen modu"
   },
   "modal": {
+    "close_unsaved_tab": "You have unsaved changes",
     "collections": "Koleksiyonlar",
     "confirm": "Onayla",
     "edit_request": "İsteği düzenle",
@@ -389,6 +396,8 @@
       "text": "Text"
     },
     "copy_link": "Bağlantıyı kopyala",
+    "different_collection": "Cannot reorder requests from different collections",
+    "duplicated": "Request duplicated",
     "duration": "Süre",
     "enter_curl": "cURL'yi girin",
     "generate_code": "Kodunu oluşturun",
@@ -396,8 +405,10 @@
     "header_list": "Başlık Listesi",
     "invalid_name": "Lütfen istek için bir ad girin",
     "method": "Yöntem",
+    "moved": "Request moved",
     "name": "İstek adı",
     "new": "New Request",
+    "order_changed": "Request Order Updated",
     "override": "Override",
     "override_help": "Set <kbd>Content-Type</kbd> in Headers",
     "overriden": "Overridden",
@@ -628,6 +639,7 @@
     "body": "Gövde",
     "collections": "Koleksiyonlar",
     "documentation": "Belgeler",
+    "environments": "Environments",
     "headers": "Başlıklar",
     "history": "Geçmiş",
     "mqtt": "MQTT",
@@ -652,6 +664,7 @@
     "email_do_not_match": "E-posta, hesap ayrıntılarınızla eşleşmiyor. Takım sahibinizle iletişime geçin.",
     "exit": "Takımdan Çık",
     "exit_disabled": "Takımın kurucusu çıkamaz.",
+    "invalid_coll_id": "Invalid collection ID",
     "invalid_email_format": "E-posta biçimi geçersiz",
     "invalid_id": "Geçersiz ekip kimliği. Takım sahibinizle iletişime geçin.",
     "invalid_invite_link": "Geçersiz davet bağlantısı",
@@ -675,6 +688,7 @@
     "member_removed": "Kullanıcı kaldırıldı",
     "member_role_updated": "Kullanıcı rolleri güncellendi",
     "members": "Üyeler",
+    "more_members": "+{count} more",
     "name_length_insufficient": "Takım adı en az 6 karakter uzunluğunda olmalıdır",
     "name_updated": "Takım ismi güncellendi",
     "new": "Yeni takım",
@@ -682,10 +696,13 @@
     "new_name": "Yeni Takımım",
     "no_access": "Bu koleksiyonlar için düzenleme erişiminiz yok",
     "no_invite_found": "Davetiye bulunamadı. Takım sahibinizle iletişime geçin.",
+    "no_request_found": "Request not found.",
     "not_found": "Takım bulunamadı. Takım sahibinizle iletişime geçin.",
     "not_valid_viewer": "Geçerli bir misafir değilsiniz. Takım sahibinizle iletişime geçin.",
+    "parent_coll_move": "Cannot move collection to a child collection",
     "pending_invites": "Bekleyen davetler",
     "permissions": "İzinler",
+    "same_target_destination": "Same target and destination",
     "saved": "Takım kaydedildi",
     "select_a_team": "Takım seç",
     "title": "Başlık",
@@ -713,5 +730,11 @@
     "message": "Mesaj",
     "protocols": "Protokoller",
     "url": "Bağlantı"
+  },
+  "workspace": {
+    "change": "Change workspace",
+    "personal": "My Workspace",
+    "team": "Team Workspace",
+    "title": "Workspaces"
   }
 }

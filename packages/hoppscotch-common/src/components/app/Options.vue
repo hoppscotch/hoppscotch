@@ -43,7 +43,7 @@
         <HoppSmartItem
           :icon="IconGift"
           :label="t('app.whats_new')"
-          to="https://docs.hoppscotch.io/changelog"
+          to="https://docs.hoppscotch.io/documentation/changelog"
           :description="t('support.changelog')"
           :info-icon="IconChevronRight"
           active

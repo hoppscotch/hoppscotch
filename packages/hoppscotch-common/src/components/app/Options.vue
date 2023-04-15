@@ -63,7 +63,7 @@
         <HoppSmartItem
           :icon="IconLock"
           :label="`${t('app.terms_and_privacy')}`"
-          to="https://docs.hoppscotch.io/privacy"
+          to="https://docs.hoppscotch.io/support/privacy"
           blank
           :description="t('app.terms_and_privacy')"
           :info-icon="IconChevronRight"

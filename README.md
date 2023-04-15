@@ -161,7 +161,7 @@ _Collections are synced with cloud / local session storage_
 - Access APIs served in non-HTTPS (`http://`) endpoints
 - Use your Proxy URL
 
-_Official proxy server is hosted by Hoppscotch - **[GitHub](https://github.com/hoppscotch/proxyscotch)** - **[Privacy Policy](https://docs.hoppscotch.io/privacy)**_
+_Official proxy server is hosted by Hoppscotch - **[GitHub](https://github.com/hoppscotch/proxyscotch)** - **[Privacy Policy](https://docs.hoppscotch.io/support/privacy)**_
 
 📜 **Pre-Request Scripts β:** Snippets of code associated with a request that is executed before the request is sent.
 

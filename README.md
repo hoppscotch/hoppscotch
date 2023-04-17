@@ -178,7 +178,7 @@ _Official proxy server is hosted by Hoppscotch - **[GitHub](https://github.com/h
 
 ⌨️ **Keyboard Shortcuts:** Optimized for efficiency.
 
-> **[Read our documentation on Keyboard Shortcuts](https://docs.hoppscotch.io/features/shortcuts)**
+> **[Read our documentation on Keyboard Shortcuts](https://docs.hoppscotch.io/documentation/features/shortcuts)**
 
 🌎 **i18n:** Experience the app in your language.
 

@@ -15,7 +15,7 @@
         <div class="flex">
           <HoppButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
-            to="https://docs.hoppscotch.io/features/history"
+            to="https://docs.hoppscotch.io/documentation/features/history"
             blank
             :title="t('app.wiki')"
             :icon="IconHelpCircle"

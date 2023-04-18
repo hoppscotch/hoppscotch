@@ -177,7 +177,7 @@
               }}
               <HoppSmartAnchor
                 class="link"
-                to="https://docs.hoppscotch.io/privacy"
+                to="https://docs.hoppscotch.io/support/privacy"
                 blank
                 :label="t('app.proxy_privacy_policy')"
               />.

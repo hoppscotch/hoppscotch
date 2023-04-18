@@ -408,7 +408,6 @@ const selectedEnv = computed(() => {
         teamEnvID: selectedEnvironmentIndex.value.teamEnvID,
       }
     } else {
-      selectedEnvironmentIndex.value = { type: "NO_ENV_SELECTED" }
       return { type: "NO_ENV_SELECTED" }
     }
   } else {

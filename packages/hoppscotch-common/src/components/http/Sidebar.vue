@@ -26,6 +26,9 @@
     >
       <History :page="'rest'" />
     </HoppSmartTab>
+    <HoppSmartTab :id="'export'" :icon="IconCode2" :label="`${t('show.code')}`">
+      <HttpCodegenTab />
+    </HoppSmartTab>
   </HoppSmartTabs>
 </template>
 
@@ -33,6 +36,7 @@
 import IconClock from "~icons/lucide/clock"
 import IconLayers from "~icons/lucide/layers"
 import IconFolder from "~icons/lucide/folder"
+import IconCode2 from "~icons/lucide/code-2"
 import { ref } from "vue"
 import { useI18n } from "@composables/i18n"
 

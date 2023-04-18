@@ -46,7 +46,7 @@
     "@graphql-codegen/typescript-urql-graphcache": "^2.3.1",
     "@graphql-codegen/urql-introspection": "^2.2.0",
     "@graphql-typed-document-node/core": "^3.1.1",
-    "@intlify/vite-plugin-vue-i18n": "^6.0.1",
+    "@intlify/vite-plugin-vue-i18n": "^7.0.0",
     "@rushstack/eslint-patch": "^1.1.4",
     "@typescript-eslint/eslint-plugin": "^5.19.0",
     "@typescript-eslint/parser": "^5.19.0",

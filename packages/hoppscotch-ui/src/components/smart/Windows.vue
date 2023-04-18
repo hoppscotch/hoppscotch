@@ -8,7 +8,7 @@
         ref="scrollContainer"
       >
         <div
-          class="flex justify-between divide-x divide-dividerLight"
+          class="flex justify-between divide-x divide-divider"
           @wheel.prevent="scroll"
         >
           <div class="flex">
@@ -50,7 +50,12 @@
                     <component :is="tabMeta.tabhead" />
                   </div>
 
-                  <component v-if="tabMeta.suffix" :is="tabMeta.suffix" />
+                  <div
+                    v-if="tabMeta.suffix"
+                    class="flex items-center justify-center"
+                  >
+                    <component :is="tabMeta.suffix" />
+                  </div>
 
                   <HoppButtonSecondary
                     v-if="tabMeta.isRemovable"
@@ -67,7 +72,7 @@
                       },
                       'close',
                     ]"
-                    class="!p-0.5"
+                    class="!p-0.25 rounded"
                     @click.stop="emit('removeTab', tabID)"
                   />
                 </button>
@@ -80,13 +85,13 @@
             <slot name="actions">
               <span
                 v-if="canAddNewTab"
-                class="flex items-center justify-center px-2 py-1.5 bg-primaryLight z-8 h-full"
+                class="flex items-center justify-center px-3 bg-primaryLight z-8 h-full"
               >
                 <HoppButtonSecondary
                   v-tippy="{ theme: 'tooltip' }"
                   :title="newText ?? t?.('action.new') ?? 'New'"
                   :icon="IconPlus"
-                  class="rounded !p-1"
+                  class="rounded !text-secondaryDark !p-1"
                   filled
                   @click="addTab"
                 />
@@ -340,43 +345,48 @@ watch(thumbPosition, (newVal) => {
       @apply opacity-50;
 
       &.active {
-        @apply opacity-80;
+        @apply opacity-100;
       }
     }
   }
 }
 
 $slider-height: 4px;
+
 .slider {
-  --thumb-width: 300px;
-  -webkit-appearance: none;
-  width: 100%;
+  --thumb-width: 0;
+
   height: $slider-height;
-  background: transparent;
-  outline: none;
-  opacity: 0;
-  -webkit-transition: 0.2s;
-  transition: opacity 0.2s;
+
+  @apply appearance-none;
+  @apply w-full;
+  @apply bg-transparent;
+  @apply outline-none;
+  @apply opacity-0;
+  @apply transition;
 
   &::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    min-width: 300px;
+    @apply appearance-none;
+    @apply min-w-0;
+    @apply bg-dividerDark;
+    @apply hover:bg-secondaryLight;
+
     width: var(--thumb-width);
     height: $slider-height;
-    background: gray;
-    cursor: pointer;
   }
+
   &::-moz-range-thumb {
-    min-width: 300px;
+    @apply appearance-none;
+    @apply min-w-0;
+    @apply bg-dividerDark;
+    @apply hover:bg-secondaryLight;
+
     width: var(--thumb-width);
     height: $slider-height;
-    background: gray;
-    cursor: pointer;
   }
 }
 
 .group-tabs:hover .slider {
-  opacity: 0.8;
+  @apply opacity-100;
 }
 </style>

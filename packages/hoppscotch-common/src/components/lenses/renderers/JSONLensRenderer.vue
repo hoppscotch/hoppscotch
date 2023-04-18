@@ -381,4 +381,7 @@ defineActionHandler("response.copy", () => copyResponse())
   @apply transition;
   @apply hover: text-secondary;
 }
+::v-deep .cm-panels {
+  top: var(--lower-tertiary-sticky-fold) !important;
+}
 </style>

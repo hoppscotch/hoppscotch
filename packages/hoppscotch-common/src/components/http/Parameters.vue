@@ -9,7 +9,7 @@
       <div class="flex">
         <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
-          to="https://docs.hoppscotch.io/features/parameters"
+          to="https://docs.hoppscotch.io/documentation/getting-started/rest/using-parameters"
           blank
           :title="t('app.wiki')"
           :icon="IconHelpCircle"

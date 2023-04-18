@@ -85,7 +85,7 @@
         </HoppSmartCheckbox>
         <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
-          to="https://docs.hoppscotch.io/realtime"
+          to="https://docs.hoppscotch.io/documentation/features/realtime-api-testing"
           blank
           :title="t('app.wiki')"
           :icon="IconHelpCircle"

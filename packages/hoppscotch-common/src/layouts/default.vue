@@ -106,7 +106,9 @@ onMounted(() => {
           onClick: (_, toastObject) => {
             setLocalConfig("cookiesAllowed", "yes")
             toastObject.goAway(0)
-            window.open("https://docs.hoppscotch.io/privacy", "_blank")?.focus()
+            window
+              .open("https://docs.hoppscotch.io/support/privacy", "_blank")
+              ?.focus()
           },
         },
         {

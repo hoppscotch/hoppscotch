@@ -91,7 +91,7 @@
               <HoppSmartItem
                 :icon="IconGift"
                 :label="`${t('app.whats_new')}`"
-                to="https://docs.hoppscotch.io/changelog"
+                to="https://docs.hoppscotch.io/documentation/changelog"
                 blank
                 @click="hide()"
               />
@@ -130,7 +130,7 @@
               <HoppSmartItem
                 :icon="IconLock"
                 :label="`${t('app.terms_and_privacy')}`"
-                to="https://docs.hoppscotch.io/privacy"
+                to="https://docs.hoppscotch.io/support/privacy"
                 blank
                 @click="hide()"
               />

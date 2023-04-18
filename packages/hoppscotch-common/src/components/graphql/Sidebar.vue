@@ -57,7 +57,7 @@
           <div class="flex">
             <HoppButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
-              to="https://docs.hoppscotch.io/quickstart/graphql"
+              to="https://docs.hoppscotch.io/documentation/protocols/graphql"
               blank
               :title="t('app.wiki')"
               :icon="IconHelpCircle"
@@ -141,7 +141,7 @@
         <div class="flex">
           <HoppButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
-            to="https://docs.hoppscotch.io/quickstart/graphql"
+            to="https://docs.hoppscotch.io/documentation/protocols/graphql"
             blank
             :title="t('app.wiki')"
             :icon="IconHelpCircle"

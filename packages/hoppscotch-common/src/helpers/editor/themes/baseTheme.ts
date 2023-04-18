@@ -64,7 +64,6 @@ export const baseTheme = EditorView.theme({
     backgroundColor: "var(--primary-light-color)",
     color: "var(--secondary-light-color)",
     zIndex: "1",
-    top: "var(--lower-tertiary-sticky-fold) !important",
   },
   ".cm-panels.cm-panels-top": {
     borderBottom: "1px solid var(--divider-light-color)",

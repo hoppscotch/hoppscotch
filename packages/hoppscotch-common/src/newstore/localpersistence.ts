@@ -209,7 +209,7 @@ function setupEnvironmentsPersistence() {
 
 function setupSelectedEnvPersistence() {
   const selectedEnvIndex = JSON.parse(
-    window.localStorage.getItem("selectedEnvIndex") || "null"
+    window.localStorage.getItem("selectedEnvIndex") ?? "null"
   )
 
   // If there is a selected env index, set it to the store else set it to null

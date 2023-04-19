@@ -51,12 +51,23 @@ import {
 function checkAndMigrateOldSettings() {
   if (window.localStorage.getItem("selectedEnvIndex")) {
     const index = window.localStorage.getItem("selectedEnvIndex")
-    if (index && !isNaN(Number(index))) {
-      setSelectedEnvironmentIndex({
-        type: "NO_ENV_SELECTED",
-      })
-
-      window.localStorage.removeItem("selectedEnvIndex")
+    if (index) {
+      if (index === "-1") {
+        window.localStorage.setItem(
+          "selectedEnvIndex",
+          JSON.stringify({
+            type: "NO_ENV_SELECTED",
+          })
+        )
+      } else if (Number(index) >= 0) {
+        window.localStorage.setItem(
+          "selectedEnvIndex",
+          JSON.stringify({
+            type: "MY_ENV",
+            index: parseInt(index),
+          })
+        )
+      }
     }
   }
 

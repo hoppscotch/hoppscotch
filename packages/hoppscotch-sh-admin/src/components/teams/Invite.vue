@@ -131,10 +131,7 @@
           <span
             class="flex items-center justify-center px-2 py-1 mb-4 font-semibold border rounded-full bg-primaryDark border-divider"
           >
-            <component
-              :is="IconHelpCircle"
-              class="mr-2 text-secondaryLight svg-icons"
-            />
+            <icon-lucide-help-circle class="mr-2 text-secondaryLight svg-icons" />
             Roles
           </span>
           <p>
@@ -208,7 +205,6 @@ import { useMutation, useQuery } from '@urql/vue';
 import { Email, EmailCodec } from '~/helpers/backend/Email';
 import IconTrash from '~icons/lucide/trash';
 import IconPlus from '~icons/lucide/plus';
-import IconHelpCircle from '~icons/lucide/help-circle';
 import IconCircleDot from '~icons/lucide/circle-dot';
 import IconCircle from '~icons/lucide/circle';
 import { computed } from 'vue';

@@ -9,7 +9,7 @@
       <div class="flex">
         <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
-          to="https://docs.hoppscotch.io/features/tests"
+          to="https://docs.hoppscotch.io/documentation/getting-started/rest/tests"
           blank
           :title="t('app.wiki')"
           :icon="IconHelpCircle"
@@ -41,7 +41,7 @@
         </div>
         <HoppSmartAnchor
           :label="`${t('test.learn')}`"
-          to="https://docs.hoppscotch.io/features/tests"
+          to="https://docs.hoppscotch.io/documentation/getting-started/rest/tests"
           blank
         />
         <h4 class="pt-6 font-bold text-secondaryLight">

@@ -189,7 +189,7 @@
       <HoppButtonSecondary
         outline
         :label="`${t('action.learn_more')}`"
-        to="https://docs.hoppscotch.io/features/tests"
+        to="https://docs.hoppscotch.io/documentation/getting-started/rest/tests"
         blank
         :icon="IconExternalLink"
         reverse

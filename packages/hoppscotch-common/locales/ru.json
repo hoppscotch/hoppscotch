@@ -19,6 +19,7 @@
     "edit": "Редактировать",
     "filter": "Filter",
     "go_back": "Вернуться",
+    "go_forward": "Go forward",
     "group_by": "Group by",
     "label": "Название",
     "learn_more": "Узнать больше",
@@ -117,12 +118,16 @@
   },
   "collection": {
     "created": "Коллекция создана",
+    "different_parent": "Cannot reorder collection with different parent",
     "edit": "Редактировать коллекцию",
     "invalid_name": "Укажите допустимое название коллекции",
+    "invalid_root_move": "Collection already in the root",
+    "moved": "Moved Successfully",
     "my_collections": "Мои коллекции",
     "name": "Новая коллекция",
     "name_length_insufficient": "Collection name should be at least 3 characters long",
     "new": "Создать коллекцию",
+    "order_changed": "Collection Order Updated",
     "renamed": "Коллекция переименована",
     "request_in_use": "Запрос обрабатывается",
     "save_as": "Сохранить как",
@@ -142,6 +147,7 @@
     "remove_team": "Вы уверены, что хотите удалить эту команду?",
     "remove_telemetry": "Вы действительно хотите отказаться от телеметрии?",
     "request_change": "Are you sure you want to discard current request, unsaved changes will be lost.",
+    "save_unsaved_tab": "Do you want to save changes made in this tab?",
     "sync": "Вы уверены, что хотите синхронизировать это рабочее пространство?"
   },
   "count": {
@@ -310,6 +316,7 @@
     "zen_mode": "Спокойный режим"
   },
   "modal": {
+    "close_unsaved_tab": "You have unsaved changes",
     "collections": "Коллекции",
     "confirm": "Подтверждать",
     "edit_request": "Изменить запрос",
@@ -389,6 +396,8 @@
       "text": "Text"
     },
     "copy_link": "Копировать ссылку",
+    "different_collection": "Cannot reorder requests from different collections",
+    "duplicated": "Request duplicated",
     "duration": "Продолжительность",
     "enter_curl": "Введите cURL",
     "generate_code": "Сгенерировать код",
@@ -396,8 +405,10 @@
     "header_list": "Список заголовков",
     "invalid_name": "Укажите имя для запроса",
     "method": "Методика",
+    "moved": "Request moved",
     "name": "Имя запроса",
     "new": "New Request",
+    "order_changed": "Request Order Updated",
     "override": "Override",
     "override_help": "Set <kbd>Content-Type</kbd> in Headers",
     "overriden": "Overridden",
@@ -628,6 +639,7 @@
     "body": "Тело",
     "collections": "Коллекции",
     "documentation": "Документация",
+    "environments": "Environments",
     "headers": "Заголовки",
     "history": "История",
     "mqtt": "MQTT",
@@ -652,6 +664,7 @@
     "email_do_not_match": "Электронная почта, которой Вы воспользовались не соответсвует указанной в данных Вашей учетной записи.",
     "exit": "Выйти из команды",
     "exit_disabled": "Только владелец не может выйти из команды",
+    "invalid_coll_id": "Invalid collection ID",
     "invalid_email_format": "Формат электронной почты недействителен",
     "invalid_id": "Некорректный ID команды. Свяжитесь с руководителем команды.",
     "invalid_invite_link": "Ссылка недействительна",
@@ -675,6 +688,7 @@
     "member_removed": "Пользователь удален",
     "member_role_updated": "Роли пользователей обновлены",
     "members": "Участники",
+    "more_members": "+{count} more",
     "name_length_insufficient": "Название команды должно быть не менее 6 символов.",
     "name_updated": "Название команды обновлено",
     "new": "Новая команда",
@@ -682,10 +696,13 @@
     "new_name": "Моя новая команда",
     "no_access": "У вас нет прав на редактирование этих коллекций",
     "no_invite_found": "Такое приглашение мы не смогли найти. Свяжитесь с руководителем команды.",
+    "no_request_found": "Request not found.",
     "not_found": "Team not found. Contact your team owner.",
     "not_valid_viewer": "У Вас нет прав просматривать это. Свяжитесь с руководителем команды.",
+    "parent_coll_move": "Cannot move collection to a child collection",
     "pending_invites": "Ожидающие приглашения",
     "permissions": "Разрешения",
+    "same_target_destination": "Same target and destination",
     "saved": "Команда сохранена",
     "select_a_team": "Выбрать команду",
     "title": "Команды",
@@ -713,5 +730,11 @@
     "message": "Сообщение",
     "protocols": "Протоколы",
     "url": "URL"
+  },
+  "workspace": {
+    "change": "Change workspace",
+    "personal": "My Workspace",
+    "team": "Team Workspace",
+    "title": "Workspaces"
   }
 }

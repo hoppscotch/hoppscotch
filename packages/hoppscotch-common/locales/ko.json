@@ -19,6 +19,7 @@
     "edit": "편집",
     "filter": "Filter",
     "go_back": "돌아가기",
+    "go_forward": "Go forward",
     "group_by": "Group by",
     "label": "이름",
     "learn_more": "더 알아보기",
@@ -117,12 +118,16 @@
   },
   "collection": {
     "created": "모음집 생성됨",
+    "different_parent": "Cannot reorder collection with different parent",
     "edit": "모음집 편집",
     "invalid_name": "모음집 이름을 바르게 입력하세요.",
+    "invalid_root_move": "Collection already in the root",
+    "moved": "Moved Successfully",
     "my_collections": "내 모음집",
     "name": "내 새 모음집",
     "name_length_insufficient": "모음집 이름은 최소 세 글자 이상이어야 합니다.",
     "new": "새 모음집",
+    "order_changed": "Collection Order Updated",
     "renamed": "모음집 이름이 변경됨",
     "request_in_use": "사용 중인 요청",
     "save_as": "다른 이름으로 저장",
@@ -142,6 +147,7 @@
     "remove_team": "이 팀을 삭제하겠습니까?",
     "remove_telemetry": "진단 데이터를 보내지 않겠습니까?",
     "request_change": "현재 요청을 취소하시겠습니까? 저장되지 않은 변경사항은 삭제됩니다.",
+    "save_unsaved_tab": "Do you want to save changes made in this tab?",
     "sync": "이 작업 공간을 동기화하겠습니까?"
   },
   "count": {
@@ -310,6 +316,7 @@
     "zen_mode": "전체화면"
   },
   "modal": {
+    "close_unsaved_tab": "You have unsaved changes",
     "collections": "모음집",
     "confirm": "확인",
     "edit_request": "요청 수정",
@@ -389,6 +396,8 @@
       "text": "Text"
     },
     "copy_link": "링크 복사",
+    "different_collection": "Cannot reorder requests from different collections",
+    "duplicated": "Request duplicated",
     "duration": "소요 시간",
     "enter_curl": "cURL 입력",
     "generate_code": "코드 생성",
@@ -396,8 +405,10 @@
     "header_list": "헤더 목록",
     "invalid_name": "요청 이름을 바르게 입력하세요.",
     "method": "메서드",
+    "moved": "Request moved",
     "name": "요청 이름",
     "new": "새로운 요청",
+    "order_changed": "Request Order Updated",
     "override": "덮어쓰기",
     "override_help": "헤더에 <kbd>Content-Type</kbd>를 설정해주세요.",
     "overriden": "Overridden",
@@ -628,6 +639,7 @@
     "body": "본문",
     "collections": "모음집",
     "documentation": "문서",
+    "environments": "Environments",
     "headers": "헤더",
     "history": "이력",
     "mqtt": "MQTT",
@@ -652,6 +664,7 @@
     "email_do_not_match": "이 계정의 이메일이 일치하지 않습니다. 팀 소유자에게 문의하세요.",
     "exit": "팀 나가기",
     "exit_disabled": "소유자는 팀을 나갈 수 없습니다.",
+    "invalid_coll_id": "Invalid collection ID",
     "invalid_email_format": "이메일을 바르게 입력하세요.",
     "invalid_id": "팀 아이디가 올바르지 않습니다. 팀 소유자에게 문의하세요.",
     "invalid_invite_link": "초대 링크가 올바르지 않습니다.",
@@ -675,6 +688,7 @@
     "member_removed": "사용자가 삭제됨",
     "member_role_updated": "사용자 역할 업데이트됨",
     "members": "구성원",
+    "more_members": "+{count} more",
     "name_length_insufficient": "팀 이름은 여섯 글자 이상이어야 합니다.",
     "name_updated": "팀 이름 업데이트됨",
     "new": "새 팀",
@@ -682,10 +696,13 @@
     "new_name": "새 팀",
     "no_access": "이 모음집을 수정할 권한이 없습니다.",
     "no_invite_found": "초대 내역을 찾을 수 없습니다. 팀 소유자에게 문의하세요.",
+    "no_request_found": "Request not found.",
     "not_found": "팀을 찾을 수 없습니다. 팀 소유자에게 문의하세요.",
     "not_valid_viewer": "뷰어 권한이 없습니다. 팀 소유자에게 문의하세요.",
+    "parent_coll_move": "Cannot move collection to a child collection",
     "pending_invites": "응답을 기다리는 초대",
     "permissions": "권한",
+    "same_target_destination": "Same target and destination",
     "saved": "팀이 저장됨",
     "select_a_team": "팀을 선택하세요.",
     "title": "팀",
@@ -713,5 +730,11 @@
     "message": "메시지",
     "protocols": "프로토콜",
     "url": "URL"
+  },
+  "workspace": {
+    "change": "Change workspace",
+    "personal": "My Workspace",
+    "team": "Team Workspace",
+    "title": "Workspaces"
   }
 }

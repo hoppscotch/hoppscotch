@@ -19,6 +19,7 @@
     "edit": "Redigere",
     "filter": "Filter",
     "go_back": "Gå tilbage",
+    "go_forward": "Go forward",
     "group_by": "Group by",
     "label": "Etiket",
     "learn_more": "Lær mere",
@@ -117,12 +118,16 @@
   },
   "collection": {
     "created": "Samlingen er oprettet",
+    "different_parent": "Cannot reorder collection with different parent",
     "edit": "Rediger samling",
     "invalid_name": "Angiv et gyldigt navn til samlingen",
+    "invalid_root_move": "Collection already in the root",
+    "moved": "Moved Successfully",
     "my_collections": "Mine samlinger",
     "name": "Min nye samling",
     "name_length_insufficient": "Collection name should be at least 3 characters long",
     "new": "Ny kollektion",
+    "order_changed": "Collection Order Updated",
     "renamed": "Samling omdøbt",
     "request_in_use": "Request in use",
     "save_as": "Gem som",
@@ -142,6 +147,7 @@
     "remove_team": "Er du sikker på, at du vil slette dette hold?",
     "remove_telemetry": "Er du sikker på, at du vil fravælge telemetri?",
     "request_change": "Are you sure you want to discard current request, unsaved changes will be lost.",
+    "save_unsaved_tab": "Do you want to save changes made in this tab?",
     "sync": "Er du sikker på, at du vil synkronisere dette arbejdsområde?"
   },
   "count": {
@@ -310,6 +316,7 @@
     "zen_mode": "Zen -tilstand"
   },
   "modal": {
+    "close_unsaved_tab": "You have unsaved changes",
     "collections": "Samlinger",
     "confirm": "Bekræfte",
     "edit_request": "Rediger anmodning",
@@ -389,6 +396,8 @@
       "text": "Text"
     },
     "copy_link": "Kopier link",
+    "different_collection": "Cannot reorder requests from different collections",
+    "duplicated": "Request duplicated",
     "duration": "Varighed",
     "enter_curl": "Indtast cURL",
     "generate_code": "Generer kode",
@@ -396,8 +405,10 @@
     "header_list": "Overskriftsliste",
     "invalid_name": "Angiv et navn på anmodningen",
     "method": "Metode",
+    "moved": "Request moved",
     "name": "Anmodningsnavn",
     "new": "New Request",
+    "order_changed": "Request Order Updated",
     "override": "Override",
     "override_help": "Set <kbd>Content-Type</kbd> in Headers",
     "overriden": "Overridden",
@@ -628,6 +639,7 @@
     "body": "Legeme",
     "collections": "Samlinger",
     "documentation": "Dokumentation",
+    "environments": "Environments",
     "headers": "Overskrifter",
     "history": "Historie",
     "mqtt": "MQTT",
@@ -652,6 +664,7 @@
     "email_do_not_match": "Email doesn't match with your account details. Contact your team owner.",
     "exit": "Afslut Team",
     "exit_disabled": "Kun ejeren kan ikke forlade teamet",
+    "invalid_coll_id": "Invalid collection ID",
     "invalid_email_format": "E -mailformatet er ugyldigt",
     "invalid_id": "Invalid team ID. Contact your team owner.",
     "invalid_invite_link": "Invalid invite link",
@@ -675,6 +688,7 @@
     "member_removed": "Bruger fjernet",
     "member_role_updated": "Brugerroller opdateret",
     "members": "Medlemmer",
+    "more_members": "+{count} more",
     "name_length_insufficient": "Holdnavnet bør mindst være 6 tegn langt",
     "name_updated": "Team name updated",
     "new": "Nyt team",
@@ -682,10 +696,13 @@
     "new_name": "Mit nye hold",
     "no_access": "Du har ikke redigeringsadgang til disse samlinger",
     "no_invite_found": "Invitation not found. Contact your team owner.",
+    "no_request_found": "Request not found.",
     "not_found": "Team not found. Contact your team owner.",
     "not_valid_viewer": "You are not a valid viewer. Contact your team owner.",
+    "parent_coll_move": "Cannot move collection to a child collection",
     "pending_invites": "Pending invites",
     "permissions": "Tilladelser",
+    "same_target_destination": "Same target and destination",
     "saved": "Hold reddet",
     "select_a_team": "Select a team",
     "title": "Hold",
@@ -713,5 +730,11 @@
     "message": "Besked",
     "protocols": "Protokoller",
     "url": "URL"
+  },
+  "workspace": {
+    "change": "Change workspace",
+    "personal": "My Workspace",
+    "team": "Team Workspace",
+    "title": "Workspaces"
   }
 }

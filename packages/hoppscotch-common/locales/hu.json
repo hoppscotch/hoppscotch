@@ -19,6 +19,7 @@
     "edit": "Szerkesztés",
     "filter": "Filter",
     "go_back": "Vissza",
+    "go_forward": "Go forward",
     "group_by": "Group by",
     "label": "Címke",
     "learn_more": "Tudjon meg többet",
@@ -117,12 +118,16 @@
   },
   "collection": {
     "created": "Gyűjtemény létrehozva",
+    "different_parent": "Cannot reorder collection with different parent",
     "edit": "Gyűjtemény szerkesztése",
     "invalid_name": "Adjon nevet a gyűjteménynek",
+    "invalid_root_move": "Collection already in the root",
+    "moved": "Moved Successfully",
     "my_collections": "Saját gyűjtemények",
     "name": "Saját új gyűjtemény",
     "name_length_insufficient": "A gyűjtemény nevének legalább 3 karakter hosszúságúnak kell lennie",
     "new": "Új gyűjtemény",
+    "order_changed": "Collection Order Updated",
     "renamed": "Gyűjtemény átnevezve",
     "request_in_use": "A kérés használatban",
     "save_as": "Mentés másként",
@@ -142,6 +147,7 @@
     "remove_team": "Biztosan törölni szeretné ezt a csapatot?",
     "remove_telemetry": "Biztosan ki szeretné kapcsolni a telemetriát?",
     "request_change": "Biztosan el szeretné vetni a jelenlegi kérést? Minden mentetlen változtatás el fog veszni.",
+    "save_unsaved_tab": "Do you want to save changes made in this tab?",
     "sync": "Szeretné visszaállítani a munkaterületét a felhőből? Ez el fogja vetni a helyi folyamatát."
   },
   "count": {
@@ -310,6 +316,7 @@
     "zen_mode": "Zen mód"
   },
   "modal": {
+    "close_unsaved_tab": "You have unsaved changes",
     "collections": "Gyűjtemények",
     "confirm": "Megerősítés",
     "edit_request": "Kérés szerkesztése",
@@ -389,6 +396,8 @@
       "text": "Text"
     },
     "copy_link": "Hivatkozás másolása",
+    "different_collection": "Cannot reorder requests from different collections",
+    "duplicated": "Request duplicated",
     "duration": "Időtartam",
     "enter_curl": "cURL megadása",
     "generate_code": "Kód előállítása",
@@ -396,8 +405,10 @@
     "header_list": "Fejléclista",
     "invalid_name": "Adjon nevet a kérésnek",
     "method": "Módszer",
+    "moved": "Request moved",
     "name": "Kérés neve",
     "new": "Új kérés",
+    "order_changed": "Request Order Updated",
     "override": "Felülbírálás",
     "override_help": "A <kbd>Content-Type</kbd> beállítása a fejlécekben",
     "overriden": "Felülbírálva",
@@ -628,6 +639,7 @@
     "body": "Törzs",
     "collections": "Gyűjtemények",
     "documentation": "Dokumentáció",
+    "environments": "Environments",
     "headers": "Fejlécek",
     "history": "Előzmények",
     "mqtt": "MQTT",
@@ -652,6 +664,7 @@
     "email_do_not_match": "Az e-mail-cím nem egyezik a fiókja részleteivel. Vegye fel a kapcsolatot a csapat tulajdonosával.",
     "exit": "Kilépés a csapatból",
     "exit_disabled": "Csak a tulajdonos nem léphet ki a csapatból",
+    "invalid_coll_id": "Invalid collection ID",
     "invalid_email_format": "Az e-mail formátuma érvénytelen",
     "invalid_id": "Érvénytelen csapatazonosító. Vegye fel a kapcsolatot a csapat tulajdonosával.",
     "invalid_invite_link": "Érvénytelen meghívási hivatkozás",
@@ -675,6 +688,7 @@
     "member_removed": "Felhasználó eltávolítva",
     "member_role_updated": "Felhasználói szerepek frissítve",
     "members": "Tagok",
+    "more_members": "+{count} more",
     "name_length_insufficient": "A csapat nevének legalább 6 karakter hosszúságúnak kell lennie",
     "name_updated": "Csapatnév frissítve",
     "new": "Új csapat",
@@ -682,10 +696,13 @@
     "new_name": "Saját új csapat",
     "no_access": "Nincs szerkesztési jogosultsága ezekhez a gyűjteményekhez",
     "no_invite_found": "A meghívás nem található. Vegye fel a kapcsolatot a csapat tulajdonosával.",
+    "no_request_found": "Request not found.",
     "not_found": "A csapat nem található. Vegye fel a kapcsolatot a csapat tulajdonosával.",
     "not_valid_viewer": "Ön nem érvényes megtekintő. Vegye fel a kapcsolatot a csapat tulajdonosával.",
+    "parent_coll_move": "Cannot move collection to a child collection",
     "pending_invites": "Függőben lévő meghívások",
     "permissions": "Jogosultságok",
+    "same_target_destination": "Same target and destination",
     "saved": "Csapat elmentve",
     "select_a_team": "Csapat kiválasztása",
     "title": "Csapatok",
@@ -713,5 +730,11 @@
     "message": "Üzenet",
     "protocols": "Protokollok",
     "url": "URL"
+  },
+  "workspace": {
+    "change": "Change workspace",
+    "personal": "My Workspace",
+    "team": "Team Workspace",
+    "title": "Workspaces"
   }
 }

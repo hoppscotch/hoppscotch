@@ -177,7 +177,7 @@
               </HoppSmartCheckbox>
               <HoppButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"
-                to="https://docs.hoppscotch.io/features/authorization"
+                to="https://docs.hoppscotch.io/documentation/features/authorization"
                 blank
                 :title="t('app.wiki')"
                 :icon="IconHelpCircle"
@@ -206,7 +206,7 @@
             <HoppButtonSecondary
               outline
               :label="t('app.documentation')"
-              to="https://docs.hoppscotch.io/features/authorization"
+              to="https://docs.hoppscotch.io/documentation/features/authorization"
               blank
               :icon="IconExternalLink"
               reverse
@@ -233,7 +233,7 @@
                   class="link"
                   :label="t('authorization.learn')"
                   :icon="IconExternalLink"
-                  to="https://docs.hoppscotch.io/features/authorization"
+                  to="https://docs.hoppscotch.io/documentation/features/authorization"
                   blank
                   reverse
                 />

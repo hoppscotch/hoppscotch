@@ -19,6 +19,7 @@
     "edit": "Редагувати",
     "filter": "Фільтрувати відповіді",
     "go_back": "Повернутись",
+    "go_forward": "Go forward",
     "group_by": "Групувати за",
     "label": "Мітка",
     "learn_more": "Дізнатись більше",
@@ -117,12 +118,16 @@
   },
   "collection": {
     "created": "Колекція створена",
+    "different_parent": "Cannot reorder collection with different parent",
     "edit": "Редагувати колекцію",
     "invalid_name": "Укажіть дійсну назву колекції",
+    "invalid_root_move": "Collection already in the root",
+    "moved": "Moved Successfully",
     "my_collections": "Мої колекції",
     "name": "Моя нова колекція",
     "name_length_insufficient": "Назва колекції має містити принаймні 3 символи",
     "new": "Нова колекція",
+    "order_changed": "Collection Order Updated",
     "renamed": "Колекція перейменована",
     "request_in_use": "Запит використовується",
     "save_as": "Зберегти як",
@@ -142,6 +147,7 @@
     "remove_team": "Ви впевнені, що хочете видалити цю команду?",
     "remove_telemetry": "Ви впевнені, що хочете відмовитися від телеметрії?",
     "request_change": "Ви дійсно бажаєте скасувати поточний запит? Незбережені зміни будуть втрачені.",
+    "save_unsaved_tab": "Do you want to save changes made in this tab?",
     "sync": "Ви впевнені, що хочете синхронізувати цю робочу область?"
   },
   "count": {
@@ -310,6 +316,7 @@
     "zen_mode": "Режим дзен"
   },
   "modal": {
+    "close_unsaved_tab": "You have unsaved changes",
     "collections": "Колекції",
     "confirm": "Підтвердити",
     "edit_request": "Редагувати запит",
@@ -389,6 +396,8 @@
       "text": "Текст"
     },
     "copy_link": "Скопіювати посилання",
+    "different_collection": "Cannot reorder requests from different collections",
+    "duplicated": "Request duplicated",
     "duration": "Тривалість",
     "enter_curl": "Введіть cURL",
     "generate_code": "Сформувати код",
@@ -396,8 +405,10 @@
     "header_list": "Список заголовків",
     "invalid_name": "Будь ласка, вкажіть назву запиту",
     "method": "Метод",
+    "moved": "Request moved",
     "name": "Назва запиту",
     "new": "Новий запит",
+    "order_changed": "Request Order Updated",
     "override": "Перевизначити",
     "override_help": "Встановити <kbd>тип вмісту</kbd> в заголовках",
     "overriden": "Перевизначений",
@@ -628,6 +639,7 @@
     "body": "Тіло",
     "collections": "Колекції",
     "documentation": "Документація",
+    "environments": "Environments",
     "headers": "Заголовки",
     "history": "Історія",
     "mqtt": "MQTT",
@@ -652,6 +664,7 @@
     "email_do_not_match": "Електронна пошта не відповідає відомостям вашого облікового запису. Зверніться до свого власника команди.",
     "exit": "Вийти з команди",
     "exit_disabled": "Вийти з команди не може тільки власник",
+    "invalid_coll_id": "Invalid collection ID",
     "invalid_email_format": "Формат електронної пошти недійсний",
     "invalid_id": "Недійсний ID команди. Зв'яжіться з власником вашої команди.",
     "invalid_invite_link": "Неправильне посилання для запрошення",
@@ -675,6 +688,7 @@
     "member_removed": "Користувача видалено",
     "member_role_updated": "Оновлено ролі користувачів",
     "members": "Члени",
+    "more_members": "+{count} more",
     "name_length_insufficient": "Назва команди має містити щонайменше 6 символів",
     "name_updated": "Назва команди оновлено",
     "new": "Нова команда",
@@ -682,10 +696,13 @@
     "new_name": "Моя нова команда",
     "no_access": "Ви не маєте доступу до редагування цих колекцій",
     "no_invite_found": "Запрошення не знайдено. Зв’яжіться з власником команди.",
+    "no_request_found": "Request not found.",
     "not_found": "Команда не знайдена. Зв'яжіться з власником команди.",
     "not_valid_viewer": "Ви не є дійсним глядачем. Зв'яжіться з власником команди.",
+    "parent_coll_move": "Cannot move collection to a child collection",
     "pending_invites": "Очікувані запрошення",
     "permissions": "Дозволи",
+    "same_target_destination": "Same target and destination",
     "saved": "Команда збережена",
     "select_a_team": "Виберіть команду",
     "title": "Команди",
@@ -713,5 +730,11 @@
     "message": "повідомлення",
     "protocols": "Протоколи",
     "url": "URL"
+  },
+  "workspace": {
+    "change": "Change workspace",
+    "personal": "My Workspace",
+    "team": "Team Workspace",
+    "title": "Workspaces"
   }
 }

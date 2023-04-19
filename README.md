@@ -161,7 +161,7 @@ _Collections are synced with cloud / local session storage_
 - Access APIs served in non-HTTPS (`http://`) endpoints
 - Use your Proxy URL
 
-_Official proxy server is hosted by Hoppscotch - **[GitHub](https://github.com/hoppscotch/proxyscotch)** - **[Privacy Policy](https://docs.hoppscotch.io/privacy)**_
+_Official proxy server is hosted by Hoppscotch - **[GitHub](https://github.com/hoppscotch/proxyscotch)** - **[Privacy Policy](https://docs.hoppscotch.io/support/privacy)**_
 
 📜 **Pre-Request Scripts β:** Snippets of code associated with a request that is executed before the request is sent.
 
@@ -178,7 +178,7 @@ _Official proxy server is hosted by Hoppscotch - **[GitHub](https://github.com/h
 
 ⌨️ **Keyboard Shortcuts:** Optimized for efficiency.
 
-> **[Read our documentation on Keyboard Shortcuts](https://docs.hoppscotch.io/features/shortcuts)**
+> **[Read our documentation on Keyboard Shortcuts](https://docs.hoppscotch.io/documentation/features/shortcuts)**
 
 🌎 **i18n:** Experience the app in your language.
 
@@ -278,7 +278,8 @@ _Add-ons are developed and maintained under **[Hoppscotch Organization](https://
 - [Vite](https://vitejs.dev)
 
 ## **Developing**
-Follow the guide in the [Self Hosted Docs](https://docs.hoppscotch.io/documentation/self-host/getting-started).
+
+Follow our [self-hosting guide](https://docs.hoppscotch.io/documentation/self-host/getting-started) to get started with the development environment.
 
 ## **Contributing**
 

@@ -17,7 +17,7 @@
       <span class="flex">
         <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
-          to="https://docs.hoppscotch.io/features/collections"
+          to="https://docs.hoppscotch.io/documentation/features/collections"
           blank
           :title="t('app.wiki')"
           :icon="IconHelpCircle"

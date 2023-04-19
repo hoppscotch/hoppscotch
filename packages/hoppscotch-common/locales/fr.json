@@ -19,6 +19,7 @@
     "edit": "Éditer",
     "filter": "Filter",
     "go_back": "Retour",
+    "go_forward": "Go forward",
     "group_by": "Group by",
     "label": "Étiqueter",
     "learn_more": "En savoir plus",
@@ -117,12 +118,16 @@
   },
   "collection": {
     "created": "Collection créée",
+    "different_parent": "Cannot reorder collection with different parent",
     "edit": "Modifier la collection",
     "invalid_name": "Veuillez fournir un nom valide pour la collection",
+    "invalid_root_move": "Collection already in the root",
+    "moved": "Moved Successfully",
     "my_collections": "Mes collections",
     "name": "Ma nouvelle collection",
     "name_length_insufficient": "Le nom de la collection doit comporter au moins 3 caractères",
     "new": "Nouvelle collection",
+    "order_changed": "Collection Order Updated",
     "renamed": "Collection renommée",
     "request_in_use": "Demande en cours d'utilisation",
     "save_as": "Enregistrer sous",
@@ -142,6 +147,7 @@
     "remove_team": "Voulez-vous vraiment supprimer cette équipe ?",
     "remove_telemetry": "Êtes-vous sûr de vouloir désactiver la télémétrie ?",
     "request_change": "Are you sure you want to discard current request, unsaved changes will be lost.",
+    "save_unsaved_tab": "Do you want to save changes made in this tab?",
     "sync": "Voulez-vous vraiment synchroniser cet espace de travail ?"
   },
   "count": {
@@ -310,6 +316,7 @@
     "zen_mode": "Mode Zen"
   },
   "modal": {
+    "close_unsaved_tab": "You have unsaved changes",
     "collections": "Collections",
     "confirm": "Confirmer",
     "edit_request": "Modifier la requête",
@@ -389,6 +396,8 @@
       "text": "Texte"
     },
     "copy_link": "Copier le lien",
+    "different_collection": "Cannot reorder requests from different collections",
+    "duplicated": "Request duplicated",
     "duration": "Durée",
     "enter_curl": "Entrer cURL",
     "generate_code": "Générer le code",
@@ -396,8 +405,10 @@
     "header_list": "Liste des en-têtes",
     "invalid_name": "Veuillez fournir un nom pour la requête",
     "method": "Méthode",
+    "moved": "Request moved",
     "name": "Nom de la requête",
     "new": "Nouvelle requête",
+    "order_changed": "Request Order Updated",
     "override": "Remplacer",
     "override_help": "Set <xmp>Content-Type</xmp> in Headers",
     "overriden": "Remplacé",
@@ -628,6 +639,7 @@
     "body": "Corps",
     "collections": "Collections",
     "documentation": "Documentation",
+    "environments": "Environments",
     "headers": "En-têtes",
     "history": "Histoire",
     "mqtt": "MQTT",
@@ -652,6 +664,7 @@
     "email_do_not_match": "L'email ne correspond pas aux détails de votre compte. Contactez le propriétaire de votre équipe.",
     "exit": "Quitter l'équipe",
     "exit_disabled": "Seul le propriétaire ne peut pas quitter l'équipe",
+    "invalid_coll_id": "Invalid collection ID",
     "invalid_email_format": "Le format de l'e-mail n'est pas valide",
     "invalid_id": "L'email ne correspond pas aux détails de votre compte. Contactez le propriétaire de votre équipe.",
     "invalid_invite_link": "Lien d'invitation invalide",
@@ -675,6 +688,7 @@
     "member_removed": "Utilisateur supprimé",
     "member_role_updated": "Rôles des utilisateurs mis à jour",
     "members": "Membres",
+    "more_members": "+{count} more",
     "name_length_insufficient": "Le nom de l'équipe doit comporter au moins 6 caractères",
     "name_updated": "Nom de l'équipe mis à jour",
     "new": "Nouvelle équipe",
@@ -682,10 +696,13 @@
     "new_name": "Ma nouvelle équipe",
     "no_access": "Vous n'avez pas l'accès en modification à ces collections",
     "no_invite_found": "Invitation non trouvée. Contactez le propriétaire de votre équipe.",
+    "no_request_found": "Request not found.",
     "not_found": "Équipe non trouvée. Contactez le propriétaire de votre équipe.",
     "not_valid_viewer": "Vous n'êtes pas un visionneur valide. Contactez le propriétaire de votre équipe.",
+    "parent_coll_move": "Cannot move collection to a child collection",
     "pending_invites": "Invitations en attente",
     "permissions": "Autorisations",
+    "same_target_destination": "Same target and destination",
     "saved": "Équipe enregistrée",
     "select_a_team": "Choisir une équipe",
     "title": "Équipes",
@@ -713,5 +730,11 @@
     "message": "Message",
     "protocols": "Protocoles",
     "url": "URL"
+  },
+  "workspace": {
+    "change": "Change workspace",
+    "personal": "My Workspace",
+    "team": "Team Workspace",
+    "title": "Workspaces"
   }
 }

@@ -19,6 +19,7 @@
     "edit": "Уредити",
     "filter": "Filter",
     "go_back": "Вратити се",
+    "go_forward": "Go forward",
     "group_by": "Group by",
     "label": "Ознака",
     "learn_more": "Сазнајте више",
@@ -117,12 +118,16 @@
   },
   "collection": {
     "created": "Колекција је направљена",
+    "different_parent": "Cannot reorder collection with different parent",
     "edit": "Измени збирку",
     "invalid_name": "Наведите важећи назив збирке",
+    "invalid_root_move": "Collection already in the root",
+    "moved": "Moved Successfully",
     "my_collections": "Моје колекције",
     "name": "Моја нова колекција",
     "name_length_insufficient": "Collection name should be at least 3 characters long",
     "new": "Нова колекција",
+    "order_changed": "Collection Order Updated",
     "renamed": "Збирка је преименована",
     "request_in_use": "Request in use",
     "save_as": "Сачувај као",
@@ -142,6 +147,7 @@
     "remove_team": "Јесте ли сигурни да желите да избришете овај тим?",
     "remove_telemetry": "Јесте ли сигурни да желите да искључите Телеметрију?",
     "request_change": "Are you sure you want to discard current request, unsaved changes will be lost.",
+    "save_unsaved_tab": "Do you want to save changes made in this tab?",
     "sync": "Јесте ли сигурни да желите да синхронизујете овај радни простор?"
   },
   "count": {
@@ -310,6 +316,7 @@
     "zen_mode": "Зен режим"
   },
   "modal": {
+    "close_unsaved_tab": "You have unsaved changes",
     "collections": "Збирке",
     "confirm": "Потврди",
     "edit_request": "Измените захтев",
@@ -389,6 +396,8 @@
       "text": "Text"
     },
     "copy_link": "Копирај везу",
+    "different_collection": "Cannot reorder requests from different collections",
+    "duplicated": "Request duplicated",
     "duration": "Трајање",
     "enter_curl": "Унесите цУРЛ",
     "generate_code": "Генериши код",
@@ -396,8 +405,10 @@
     "header_list": "Листа заглавља",
     "invalid_name": "Наведите назив захтева",
     "method": "Метод",
+    "moved": "Request moved",
     "name": "Назив захтева",
     "new": "New Request",
+    "order_changed": "Request Order Updated",
     "override": "Override",
     "override_help": "Set <kbd>Content-Type</kbd> in Headers",
     "overriden": "Overridden",
@@ -628,6 +639,7 @@
     "body": "Боди",
     "collections": "Збирке",
     "documentation": "Документација",
+    "environments": "Environments",
     "headers": "Заглавља",
     "history": "Историја",
     "mqtt": "МКТТ",
@@ -652,6 +664,7 @@
     "email_do_not_match": "Email doesn't match with your account details. Contact your team owner.",
     "exit": "Екит Теам",
     "exit_disabled": "Само власник не може изаћи из тима",
+    "invalid_coll_id": "Invalid collection ID",
     "invalid_email_format": "Формат е -поште је неважећи",
     "invalid_id": "Invalid team ID. Contact your team owner.",
     "invalid_invite_link": "Invalid invite link",
@@ -675,6 +688,7 @@
     "member_removed": "Корисник је уклоњен",
     "member_role_updated": "Ажуриране су улоге корисника",
     "members": "Чланови",
+    "more_members": "+{count} more",
     "name_length_insufficient": "Име тима треба да има најмање 6 знакова",
     "name_updated": "Team name updated",
     "new": "Нев Теам",
@@ -682,10 +696,13 @@
     "new_name": "Мој нови тим",
     "no_access": "Немате приступ за уређивање ових колекција",
     "no_invite_found": "Invitation not found. Contact your team owner.",
+    "no_request_found": "Request not found.",
     "not_found": "Team not found. Contact your team owner.",
     "not_valid_viewer": "You are not a valid viewer. Contact your team owner.",
+    "parent_coll_move": "Cannot move collection to a child collection",
     "pending_invites": "Pending invites",
     "permissions": "Дозволе",
+    "same_target_destination": "Same target and destination",
     "saved": "Тим је сачуван",
     "select_a_team": "Select a team",
     "title": "Тимови",
@@ -713,5 +730,11 @@
     "message": "Порука",
     "protocols": "Протоколи",
     "url": "УРЛ"
+  },
+  "workspace": {
+    "change": "Change workspace",
+    "personal": "My Workspace",
+    "team": "Team Workspace",
+    "title": "Workspaces"
   }
 }

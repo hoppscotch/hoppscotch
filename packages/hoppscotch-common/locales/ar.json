@@ -19,6 +19,7 @@
     "edit": "يحرر",
     "filter": "Filter",
     "go_back": "عد",
+    "go_forward": "Go forward",
     "group_by": "Group by",
     "label": "ملصق",
     "learn_more": "اقرأ أكثر",
@@ -117,12 +118,16 @@
   },
   "collection": {
     "created": "تم إنشاء المجموعة",
+    "different_parent": "Cannot reorder collection with different parent",
     "edit": "تحرير المجموعة",
     "invalid_name": "الرجاء تقديم اسم صالح للمجموعة",
+    "invalid_root_move": "Collection already in the root",
+    "moved": "Moved Successfully",
     "my_collections": "مجموعاتي",
     "name": "مجموعتي الجديدة",
     "name_length_insufficient": "اسم المجموعة يجب ان لايقل على 3 رموز",
     "new": "مجموعة جديدة",
+    "order_changed": "Collection Order Updated",
     "renamed": "تمت إعادة تسمية المجموعة",
     "request_in_use": "Request in use",
     "save_as": "حفظ باسم",
@@ -142,6 +147,7 @@
     "remove_team": "هل أنت متأكد أنك تريد حذف هذا الفريق؟",
     "remove_telemetry": "هل أنت متأكد أنك تريد الانسحاب من القياس عن بعد؟",
     "request_change": "Are you sure you want to discard current request, unsaved changes will be lost.",
+    "save_unsaved_tab": "Do you want to save changes made in this tab?",
     "sync": "هل أنت متأكد أنك تريد مزامنة مساحة العمل هذه؟"
   },
   "count": {
@@ -310,6 +316,7 @@
     "zen_mode": "وضع Zen"
   },
   "modal": {
+    "close_unsaved_tab": "You have unsaved changes",
     "collections": "المجموعات",
     "confirm": "يتأكد",
     "edit_request": "تحرير الطلب",
@@ -389,6 +396,8 @@
       "text": "Text"
     },
     "copy_link": "نسخ الوصلة",
+    "different_collection": "Cannot reorder requests from different collections",
+    "duplicated": "Request duplicated",
     "duration": "مدة",
     "enter_curl": "أدخل cURL",
     "generate_code": "إنشاء التعليمات البرمجية",
@@ -396,8 +405,10 @@
     "header_list": "قائمة الرأس",
     "invalid_name": "يرجى تقديم اسم للطلب",
     "method": "طريقة",
+    "moved": "Request moved",
     "name": "اسم الطلب",
     "new": "New Request",
+    "order_changed": "Request Order Updated",
     "override": "Override",
     "override_help": "Set <kbd>Content-Type</kbd> in Headers",
     "overriden": "Overridden",
@@ -628,6 +639,7 @@
     "body": "الجسم",
     "collections": "المجموعات",
     "documentation": "توثيق",
+    "environments": "Environments",
     "headers": "الرؤوس",
     "history": "تاريخ",
     "mqtt": "MQTT",
@@ -652,6 +664,7 @@
     "email_do_not_match": "البريد الإلكتروني لا يتوافق مع معلومات حسابك. اتصل بمدير الفريق.",
     "exit": "فريق الخروج",
     "exit_disabled": "فقط المالك لا يمكنه الخروج من الفريق",
+    "invalid_coll_id": "Invalid collection ID",
     "invalid_email_format": "تنسيق البريد الإلكتروني غير صالح",
     "invalid_id": "معرف الفريق غير صالح. اتصل بمدير الفريق.",
     "invalid_invite_link": "رابط الدعوة غير صالح",
@@ -675,6 +688,7 @@
     "member_removed": "تمت إزالة المستخدم",
     "member_role_updated": "تم تحديث أدوار المستخدم",
     "members": "أعضاء",
+    "more_members": "+{count} more",
     "name_length_insufficient": "يجب أن يتكون اسم الفريق من 6 أحرف على الأقل",
     "name_updated": "تم تحديث اسم الفريق",
     "new": "فريق جديد",
@@ -682,10 +696,13 @@
     "new_name": "فريقي الجديد",
     "no_access": "ليس لديك حق التعديل في هذه المجموعات",
     "no_invite_found": "لم يتم العثور على الدعوة. اتصل بمدير الفريق",
+    "no_request_found": "Request not found.",
     "not_found": "Team not found. Contact your team owner.",
     "not_valid_viewer": "You are not a valid viewer. Contact your team owner.",
+    "parent_coll_move": "Cannot move collection to a child collection",
     "pending_invites": "دعوات معلقة",
     "permissions": "أذونات",
+    "same_target_destination": "Same target and destination",
     "saved": "فريق حفظ",
     "select_a_team": "اختر فريق",
     "title": "فرق",
@@ -713,5 +730,11 @@
     "message": "رسالة",
     "protocols": "البروتوكولات",
     "url": "URL"
+  },
+  "workspace": {
+    "change": "Change workspace",
+    "personal": "My Workspace",
+    "team": "Team Workspace",
+    "title": "Workspaces"
   }
 }

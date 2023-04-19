@@ -19,6 +19,7 @@
     "edit": "संपादित करें",
     "filter": "फ़िल्टर प्रतिक्रिया",
     "go_back": "वापस जाओ",
+    "go_forward": "Go forward",
     "group_by": "Group by",
     "label": "लेबल",
     "learn_more": "और अधिक जानें",
@@ -117,12 +118,16 @@
   },
   "collection": {
     "created": "संग्रह बनाया गया",
+    "different_parent": "Cannot reorder collection with different parent",
     "edit": "संग्रह संपादित करें",
     "invalid_name": "कृपया संग्रह के लिए एक नाम प्रदान करें",
+    "invalid_root_move": "Collection already in the root",
+    "moved": "Moved Successfully",
     "my_collections": "मेरे संग्रह",
     "name": "मेरा नया संग्रह",
     "name_length_insufficient": "संग्रह का नाम कम से कम 3 वर्णों का होना चाहिए",
     "new": "नया संग्रह",
+    "order_changed": "Collection Order Updated",
     "renamed": "संग्रह का नाम बदला गया",
     "request_in_use": "रिक्वेस्ट इन यूज़",
     "save_as": "इस रूप में सेव करें",
@@ -142,6 +147,7 @@
     "remove_team": "क्या आप वाकई इस टीम को हटाना चाहते हैं?",
     "remove_telemetry": "क्या आप वाकई टेलीमेट्री से ऑप्ट-आउट करना चाहते हैं?",
     "request_change": "क्या आप वाकई वर्तमान अनुरोध को छोड़ना चाहते हैं, सहेजे नहीं गए परिवर्तन खो जाएंगे।",
+    "save_unsaved_tab": "Do you want to save changes made in this tab?",
     "sync": "क्या आप अपने कार्यक्षेत्र को क्लाउड से पुनर्स्थापित करना चाहेंगे? यह आपकी स्थानीय प्रगति को त्याग देगा।"
   },
   "count": {
@@ -311,6 +317,7 @@
     "zen_mode": "ज़ेन मोड"
   },
   "modal": {
+    "close_unsaved_tab": "You have unsaved changes",
     "collections": "संग्रह",
     "confirm": "पुष्टि करें",
     "edit_request": "अनुरोध संपादित करें",
@@ -390,6 +397,8 @@
       "text": "मूलपाठ"
     },
     "copy_link": "प्रतिरूप जोड़ना",
+    "different_collection": "Cannot reorder requests from different collections",
+    "duplicated": "Request duplicated",
     "duration": "अवधि",
     "enter_curl": "कर्ल दर्ज करें",
     "generate_code": "उत्पन्न कोड",
@@ -397,8 +406,10 @@
     "header_list": "हेडर सूची",
     "invalid_name": "कृपया अनुरोध के लिए एक नाम प्रदान करें",
     "method": "तरीका",
+    "moved": "Request moved",
     "name": "अनुरोध नाम",
     "new": "नई विनती",
+    "order_changed": "Request Order Updated",
     "override": "अवहेलना",
     "override_help": "हेडर में <kbd> सामग्री-प्रकार </kbd> सेट करें",
     "overriden": "ओवरराइड",
@@ -629,6 +640,7 @@
     "body": "शरीर",
     "collections": "संग्रह",
     "documentation": "प्रलेखन",
+    "environments": "Environments",
     "headers": "हेडर",
     "history": "इतिहास",
     "mqtt": "MQTT",
@@ -653,6 +665,7 @@
     "email_do_not_match": "ईमेल आपके खाते के विवरण के साथ मेल नहीं खाता है। अपनी टीम के मालिक से संपर्क करें।",
     "exit": "निकास टीम",
     "exit_disabled": "केवल मालिक टीम से बाहर नहीं निकल सकते",
+    "invalid_coll_id": "Invalid collection ID",
     "invalid_email_format": "ईमेल प्रारूप अमान्य है",
     "invalid_id": "अमान्य टीम आईडी। अपनी टीम के मालिक से संपर्क करें।",
     "invalid_invite_link": "अमान्य आमंत्रित लिंक",
@@ -676,6 +689,7 @@
     "member_removed": "उपयोगकर्ता हटा दिया",
     "member_role_updated": "उपयोगकर्ता भूमिकाएँ अद्यतन की गईं",
     "members": "सदस्यों",
+    "more_members": "+{count} more",
     "name_length_insufficient": "टीम का नाम कम से कम 6 अक्षर लंबा होना चाहिए",
     "name_updated": "टीम का नाम अपडेट किया गया",
     "new": "नई टीम",
@@ -683,10 +697,13 @@
     "new_name": "मेरी नई टीम",
     "no_access": "आपके पास इन संग्रहों तक पहुंच नहीं है",
     "no_invite_found": "निमंत्रण नहीं मिला। अपनी टीम के मालिक से संपर्क करें।",
+    "no_request_found": "Request not found.",
     "not_found": "टीम नहीं मिली। अपनी टीम के मालिक से संपर्क करें।",
     "not_valid_viewer": "आप एक वैध दर्शक नहीं हैं। अपनी टीम के मालिक से संपर्क करें।",
+    "parent_coll_move": "Cannot move collection to a child collection",
     "pending_invites": "लंबित आमंत्रण",
     "permissions": "अनुमतियां",
+    "same_target_destination": "Same target and destination",
     "saved": "टीम बचाया",
     "select_a_team": "एक टीम का चयन करें",
     "title": "टीमों",
@@ -714,5 +731,11 @@
     "message": "संदेश",
     "protocols": "प्रोटोकॉल",
     "url": "यूआरएल"
+  },
+  "workspace": {
+    "change": "Change workspace",
+    "personal": "My Workspace",
+    "team": "Team Workspace",
+    "title": "Workspaces"
   }
 }

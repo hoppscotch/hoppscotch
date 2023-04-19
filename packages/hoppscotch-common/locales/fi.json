@@ -19,6 +19,7 @@
     "edit": "Muokata",
     "filter": "Filter",
     "go_back": "Mene takaisin",
+    "go_forward": "Go forward",
     "group_by": "Group by",
     "label": "Etiketti",
     "learn_more": "Lue lisää",
@@ -117,12 +118,16 @@
   },
   "collection": {
     "created": "Kokoelma luotu",
+    "different_parent": "Cannot reorder collection with different parent",
     "edit": "Muokkaa kokoelmaa",
     "invalid_name": "Anna kokoelmalle kelvollinen nimi",
+    "invalid_root_move": "Collection already in the root",
+    "moved": "Moved Successfully",
     "my_collections": "Omat kokoelmat",
     "name": "Uusi kokoelmani",
     "name_length_insufficient": "Collection name should be at least 3 characters long",
     "new": "Uusi kokoelma",
+    "order_changed": "Collection Order Updated",
     "renamed": "Kokoelma nimetty uudelleen",
     "request_in_use": "Request in use",
     "save_as": "Tallenna nimellä",
@@ -142,6 +147,7 @@
     "remove_team": "Haluatko varmasti poistaa tämän ryhmän?",
     "remove_telemetry": "Haluatko varmasti poistaa telemetrian käytöstä?",
     "request_change": "Are you sure you want to discard current request, unsaved changes will be lost.",
+    "save_unsaved_tab": "Do you want to save changes made in this tab?",
     "sync": "Haluatko varmasti synkronoida tämän työtilan?"
   },
   "count": {
@@ -310,6 +316,7 @@
     "zen_mode": "Zen -tila"
   },
   "modal": {
+    "close_unsaved_tab": "You have unsaved changes",
     "collections": "Kokoelmat",
     "confirm": "Vahvistaa",
     "edit_request": "Muokkaa pyyntöä",
@@ -389,6 +396,8 @@
       "text": "Text"
     },
     "copy_link": "Kopioi linkki",
+    "different_collection": "Cannot reorder requests from different collections",
+    "duplicated": "Request duplicated",
     "duration": "Kesto",
     "enter_curl": "Kirjoita cURL",
     "generate_code": "Luo koodi",
@@ -396,8 +405,10 @@
     "header_list": "Otsikkoluettelo",
     "invalid_name": "Anna pyynnölle nimi",
     "method": "Menetelmä",
+    "moved": "Request moved",
     "name": "Pyynnön nimi",
     "new": "New Request",
+    "order_changed": "Request Order Updated",
     "override": "Override",
     "override_help": "Set <kbd>Content-Type</kbd> in Headers",
     "overriden": "Overridden",
@@ -628,6 +639,7 @@
     "body": "Runko",
     "collections": "Kokoelmat",
     "documentation": "Dokumentointi",
+    "environments": "Environments",
     "headers": "Otsikot",
     "history": "Historia",
     "mqtt": "MQTT",
@@ -652,6 +664,7 @@
     "email_do_not_match": "Email doesn't match with your account details. Contact your team owner.",
     "exit": "Poistu tiimistä",
     "exit_disabled": "Vain omistaja ei voi poistua tiimistä",
+    "invalid_coll_id": "Invalid collection ID",
     "invalid_email_format": "Sähköpostin muoto on virheellinen",
     "invalid_id": "Invalid team ID. Contact your team owner.",
     "invalid_invite_link": "Invalid invite link",
@@ -675,6 +688,7 @@
     "member_removed": "Käyttäjä poistettu",
     "member_role_updated": "Käyttäjäroolit päivitetty",
     "members": "Jäsenet",
+    "more_members": "+{count} more",
     "name_length_insufficient": "Joukkueen nimen tulee olla vähintään 6 merkkiä pitkä",
     "name_updated": "Team name updated",
     "new": "Uusi tiimi",
@@ -682,10 +696,13 @@
     "new_name": "Uusi tiimini",
     "no_access": "Sinulla ei ole muokkausoikeuksia näihin kokoelmiin",
     "no_invite_found": "Invitation not found. Contact your team owner.",
+    "no_request_found": "Request not found.",
     "not_found": "Team not found. Contact your team owner.",
     "not_valid_viewer": "You are not a valid viewer. Contact your team owner.",
+    "parent_coll_move": "Cannot move collection to a child collection",
     "pending_invites": "Pending invites",
     "permissions": "Käyttöoikeudet",
+    "same_target_destination": "Same target and destination",
     "saved": "Joukkue tallennettu",
     "select_a_team": "Select a team",
     "title": "Joukkueet",
@@ -713,5 +730,11 @@
     "message": "Viesti",
     "protocols": "Pöytäkirjat",
     "url": "URL -osoite"
+  },
+  "workspace": {
+    "change": "Change workspace",
+    "personal": "My Workspace",
+    "team": "Team Workspace",
+    "title": "Workspaces"
   }
 }

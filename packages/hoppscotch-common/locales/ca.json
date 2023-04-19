@@ -19,6 +19,7 @@
     "edit": "Editar",
     "filter": "Filtrar resposta",
     "go_back": "Tornar",
+    "go_forward": "Go forward",
     "group_by": "Group by",
     "label": "Etiquetar",
     "learn_more": "Aprèn més",
@@ -117,12 +118,16 @@
   },
   "collection": {
     "created": "Col·lecció creada",
+    "different_parent": "Cannot reorder collection with different parent",
     "edit": "Editar la col·lecció",
     "invalid_name": "Proporcioneu un nom vàlid per a la col·lecció",
+    "invalid_root_move": "Collection already in the root",
+    "moved": "Moved Successfully",
     "my_collections": "Les meves col·leccions",
     "name": "La meva nova col·lecció",
     "name_length_insufficient": "El nom de la col·lecció ha de tenir almenys 3 caràcters",
     "new": "Nova col · lecció",
+    "order_changed": "Collection Order Updated",
     "renamed": "S'ha canviat el nom de la col·lecció",
     "request_in_use": "Request in use",
     "save_as": "Guardar com",
@@ -142,6 +147,7 @@
     "remove_team": "Està segur que vol suprimir aquest equip?",
     "remove_telemetry": "Està segur que vol desactivar Telemetry?",
     "request_change": "Està segur que vol descartar la sol·licitud actual, els canvis no desats es perdran.",
+    "save_unsaved_tab": "Do you want to save changes made in this tab?",
     "sync": "Està segur que vol sincronitzar aquest espai de treball?"
   },
   "count": {
@@ -310,6 +316,7 @@
     "zen_mode": "Mode Zen"
   },
   "modal": {
+    "close_unsaved_tab": "You have unsaved changes",
     "collections": "Col·leccions",
     "confirm": "Confirmar",
     "edit_request": "Sol·licitud d'edició",
@@ -389,6 +396,8 @@
       "text": "Text"
     },
     "copy_link": "Copia l'enllaç",
+    "different_collection": "Cannot reorder requests from different collections",
+    "duplicated": "Request duplicated",
     "duration": "Durada",
     "enter_curl": "Introduïu cURL",
     "generate_code": "Generar codi",
@@ -396,8 +405,10 @@
     "header_list": "Llista de capçaleres",
     "invalid_name": "Proporcioneu un nom per a la sol·licitud",
     "method": "Mètode",
+    "moved": "Request moved",
     "name": "Sol·licita el nom",
     "new": "Nova sol·licitud",
+    "order_changed": "Request Order Updated",
     "override": "Sobreescriure",
     "override_help": "Estableix <kbd>Content-Type</kbd> a les capçaleres (Headers)",
     "overriden": "Sobreescrit",
@@ -628,6 +639,7 @@
     "body": "Cos",
     "collections": "Col·leccions",
     "documentation": "Documentació",
+    "environments": "Environments",
     "headers": "Capçaleres",
     "history": "Historial",
     "mqtt": "MQTT",
@@ -652,6 +664,7 @@
     "email_do_not_match": "El correu electrònic no coincideix amb les dades del vostre compte. Contacta amb el propietari del teu equip.",
     "exit": "Sortir de l'equip",
     "exit_disabled": "L'únic propietari no pot sortir de l'equip",
+    "invalid_coll_id": "Invalid collection ID",
     "invalid_email_format": "El format del correu electrònic no és vàlid",
     "invalid_id": "Identificador d'equip no vàlid. Contacta amb el propietari del teu equip.",
     "invalid_invite_link": "Enllaç d'invitació no vàlid",
@@ -675,6 +688,7 @@
     "member_removed": "S'ha eliminat l'usuari",
     "member_role_updated": "Rols d'usuari actualitzats",
     "members": "Membres",
+    "more_members": "+{count} more",
     "name_length_insufficient": "El nom de l'equip ha de tenir com a mínim 6 caràcters",
     "name_updated": "S'ha actualitzat el nom de l'equip",
     "new": "Nou equip",
@@ -682,10 +696,13 @@
     "new_name": "El meu Nou Equip",
     "no_access": "No teniu accés d'edició a aquestes col·leccions",
     "no_invite_found": "No s'ha trobat la invitació. Contacta amb el propietari del teu equip.",
+    "no_request_found": "Request not found.",
     "not_found": "No s'ha trobat l'equip. Contacta amb el propietari del teu equip.",
     "not_valid_viewer": "No ets un espectador vàlid. Contacta amb el propietari del teu equip.",
+    "parent_coll_move": "Cannot move collection to a child collection",
     "pending_invites": "Invitacions pendents",
     "permissions": "Permisos",
+    "same_target_destination": "Same target and destination",
     "saved": "S'ha guardat l'equip",
     "select_a_team": "Select a team",
     "title": "Equips",
@@ -713,5 +730,11 @@
     "message": "Missatge",
     "protocols": "Protocols",
     "url": "URL"
+  },
+  "workspace": {
+    "change": "Change workspace",
+    "personal": "My Workspace",
+    "team": "Team Workspace",
+    "title": "Workspaces"
   }
 }

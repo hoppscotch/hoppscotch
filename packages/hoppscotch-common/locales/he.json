@@ -19,6 +19,7 @@
     "edit": "לַעֲרוֹך",
     "filter": "Filter",
     "go_back": "תחזור",
+    "go_forward": "Go forward",
     "group_by": "Group by",
     "label": "תווית",
     "learn_more": "למד עוד",
@@ -117,12 +118,16 @@
   },
   "collection": {
     "created": "אוסף נוצר",
+    "different_parent": "Cannot reorder collection with different parent",
     "edit": "ערוך אוסף",
     "invalid_name": "אנא ספק שם תקף לאוסף",
+    "invalid_root_move": "Collection already in the root",
+    "moved": "Moved Successfully",
     "my_collections": "האוספים שלי",
     "name": "האוסף החדש שלי",
     "name_length_insufficient": "Collection name should be at least 3 characters long",
     "new": "קולקציה חדשה",
+    "order_changed": "Collection Order Updated",
     "renamed": "שם האוסף שונה",
     "request_in_use": "Request in use",
     "save_as": "שמור כ",
@@ -142,6 +147,7 @@
     "remove_team": "האם אתה בטוח שברצונך למחוק את הצוות הזה?",
     "remove_telemetry": "האם אתה בטוח שברצונך לבטל את הסכמתך לטלמטריה?",
     "request_change": "Are you sure you want to discard current request, unsaved changes will be lost.",
+    "save_unsaved_tab": "Do you want to save changes made in this tab?",
     "sync": "האם אתה בטוח שברצונך לסנכרן את סביבת העבודה הזו?"
   },
   "count": {
@@ -310,6 +316,7 @@
     "zen_mode": "מצב זן"
   },
   "modal": {
+    "close_unsaved_tab": "You have unsaved changes",
     "collections": "אוספים",
     "confirm": "לְאַשֵׁר",
     "edit_request": "ערוך בקשה",
@@ -389,6 +396,8 @@
       "text": "Text"
     },
     "copy_link": "העתק קישור",
+    "different_collection": "Cannot reorder requests from different collections",
+    "duplicated": "Request duplicated",
     "duration": "מֶשֶׁך",
     "enter_curl": "הזן cURL",
     "generate_code": "צור קוד",
@@ -396,8 +405,10 @@
     "header_list": "רשימת כותרות",
     "invalid_name": "אנא ספק שם לבקשה",
     "method": "שיטה",
+    "moved": "Request moved",
     "name": "שם הבקשה",
     "new": "New Request",
+    "order_changed": "Request Order Updated",
     "override": "Override",
     "override_help": "Set <kbd>Content-Type</kbd> in Headers",
     "overriden": "Overridden",
@@ -628,6 +639,7 @@
     "body": "גוּף",
     "collections": "אוספים",
     "documentation": "תיעוד",
+    "environments": "Environments",
     "headers": "כותרות",
     "history": "הִיסטוֹרִיָה",
     "mqtt": "MQTT",
@@ -652,6 +664,7 @@
     "email_do_not_match": "Email doesn't match with your account details. Contact your team owner.",
     "exit": "יציאה מצוות",
     "exit_disabled": "רק הבעלים אינו יכול לצאת מהצוות",
+    "invalid_coll_id": "Invalid collection ID",
     "invalid_email_format": "פורמט הדוא\"ל אינו חוקי",
     "invalid_id": "Invalid team ID. Contact your team owner.",
     "invalid_invite_link": "Invalid invite link",
@@ -675,6 +688,7 @@
     "member_removed": "המשתמש הוסר",
     "member_role_updated": "תפקידי משתמשים עודכנו",
     "members": "חברים",
+    "more_members": "+{count} more",
     "name_length_insufficient": "שם הקבוצה צריך לכלול לפחות 6 תווים",
     "name_updated": "Team name updated",
     "new": "קבוצה חדשה",
@@ -682,10 +696,13 @@
     "new_name": "הצוות החדש שלי",
     "no_access": "אין לך גישת עריכה לאוספים אלה",
     "no_invite_found": "Invitation not found. Contact your team owner.",
+    "no_request_found": "Request not found.",
     "not_found": "Team not found. Contact your team owner.",
     "not_valid_viewer": "You are not a valid viewer. Contact your team owner.",
+    "parent_coll_move": "Cannot move collection to a child collection",
     "pending_invites": "Pending invites",
     "permissions": "הרשאות",
+    "same_target_destination": "Same target and destination",
     "saved": "הקבוצה ניצלה",
     "select_a_team": "Select a team",
     "title": "צוותים",
@@ -713,5 +730,11 @@
     "message": "הוֹדָעָה",
     "protocols": "פרוטוקולים",
     "url": "כתובת URL"
+  },
+  "workspace": {
+    "change": "Change workspace",
+    "personal": "My Workspace",
+    "team": "Team Workspace",
+    "title": "Workspaces"
   }
 }

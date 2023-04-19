@@ -49,7 +49,19 @@ import {
 } from "~/helpers/rest/tab"
 
 function checkAndMigrateOldSettings() {
+  if (window.localStorage.getItem("selectedEnvIndex")) {
+    const index = window.localStorage.getItem("selectedEnvIndex")
+    if (index && !isNaN(Number(index))) {
+      setSelectedEnvironmentIndex({
+        type: "NO_ENV_SELECTED",
+      })
+
+      window.localStorage.removeItem("selectedEnvIndex")
+    }
+  }
+
   const vuexData = JSON.parse(window.localStorage.getItem("vuex") || "{}")
+
   if (isEmpty(vuexData)) return
 
   const { postwoman } = vuexData

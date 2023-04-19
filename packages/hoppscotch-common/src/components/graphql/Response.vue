@@ -120,3 +120,8 @@ const downloadResponse = () => {
 defineActionHandler("response.file.download", () => downloadResponse())
 defineActionHandler("response.copy", () => copyResponse())
 </script>
+<style lang="scss" scoped>
+::v-deep .cm-panels {
+  top: var(--sidebar-primary-sticky-fold) !important;
+}
+</style>

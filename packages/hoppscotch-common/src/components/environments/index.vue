@@ -411,7 +411,6 @@ const selectedEnv = computed(() => {
       return { type: "NO_ENV_SELECTED" }
     }
   } else {
-    selectedEnvironmentIndex.value = { type: "NO_ENV_SELECTED" }
     return { type: "NO_ENV_SELECTED" }
   }
 })

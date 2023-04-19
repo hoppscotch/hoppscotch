@@ -106,3 +106,8 @@ const clearContent = () => {
   testScript.value = ""
 }
 </script>
+<style lang="scss" scoped>
+::v-deep .cm-panels {
+  top: var(--upper-tertiary-sticky-fold) !important;
+}
+</style>

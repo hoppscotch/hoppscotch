@@ -123,11 +123,6 @@ export default <HoppModule>{
       fallbackLocale: "en",
       legacy: false,
       allowComposition: true,
-
-      // TODO: Fix this to allow for dynamic imports
-      messages: {
-        en,
-      },
     })
 
     app.use(i18n)

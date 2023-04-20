@@ -193,7 +193,7 @@ const tippyActions = ref<any | null>(null)
 </script>
 
 <style lang="scss" scoped>
-::v-deep .cm-panels {
+:deep(.cm-panels) {
   top: var(--request-body-sticky-fold) !important;
 }
 </style>

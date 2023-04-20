@@ -275,15 +275,10 @@ const prettifyRequestBody = () => {
 defineActionHandler("request.send-cancel", sendMessage)
 </script>
 <style lang="scss" scoped>
-::v-deep {
-  .cm-panels {
-    top: var(--upper-tertiary-sticky-fold) !important;
-  }
-
-  &.showing-event-field {
-    .cm-panels {
-      top: var(--request-body-sticky-fold) !important;
-    }
-  }
+:deep(.cm-panels) {
+  top: var(--upper-tertiary-sticky-fold) !important;
+}
+.showing-event-field :deep(.cm-panels) {
+  top: var(--request-body-sticky-fold) !important;
 }
 </style>

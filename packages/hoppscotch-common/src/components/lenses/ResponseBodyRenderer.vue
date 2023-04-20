@@ -124,7 +124,7 @@ watch(selectedLensTab, (newLensID) => {
 })
 </script>
 <style lang="scss" scoped>
-::v-deep .cm-panels {
+:deep(.cm-panels) {
   top: var(--lower-tertiary-sticky-fold) !important;
 }
 </style>

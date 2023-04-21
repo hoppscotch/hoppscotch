@@ -38,10 +38,15 @@
             <template #suffix>
               <span
                 v-if="tab.document.isDirty"
-                class="text-green-600 text-[8px] group-hover:hidden w-4"
+                class="flex items-center justify-center text-secondary group-hover:hidden w-4"
               >
-                <svg viewBox="0 0 24 24" width="1.2em" height="1.2em">
-                  <circle cx="12" cy="12" r="10" fill="currentColor"></circle>
+                <svg
+                  viewBox="0 0 24 24"
+                  width="1.2em"
+                  height="1.2em"
+                  class="h-1.5 w-1.5"
+                >
+                  <circle cx="12" cy="12" r="12" fill="currentColor"></circle>
                 </svg>
               </span>
             </template>

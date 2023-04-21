@@ -45,6 +45,17 @@
             </template>
           </tippy>
         </label>
+        <HoppSmartItem
+          ref="curl"
+          v-tippy="{ theme: 'tooltip' }"
+          :title="t('import.curl')"
+          :icon="IconFileCode"
+          @click="
+            () => {
+              showCurlImportModal = !showCurlImportModal
+            }
+          "
+        />
       </div>
       <div
         class="flex flex-1 overflow-auto transition border-l rounded-r border-divider bg-primaryLight whitespace-nowrap"
@@ -90,30 +101,6 @@
               @keyup.delete="clearAll.$el.click()"
               @keyup.escape="hide()"
             >
-              <HoppSmartItem
-                ref="curl"
-                :label="`${t('import.curl')}`"
-                :icon="IconFileCode"
-                :shortcut="['C']"
-                @click="
-                  () => {
-                    showCurlImportModal = !showCurlImportModal
-                    hide()
-                  }
-                "
-              />
-              <HoppSmartItem
-                ref="show"
-                :label="`${t('show.code')}`"
-                :icon="IconCode2"
-                :shortcut="['S']"
-                @click="
-                  () => {
-                    showCodegenModal = !showCodegenModal
-                    hide()
-                  }
-                "
-              />
               <HoppSmartItem
                 ref="clearAll"
                 :label="`${t('action.clear_all')}`"
@@ -212,10 +199,6 @@
       :show="showCurlImportModal"
       @hide-modal="showCurlImportModal = false"
     />
-    <HttpCodegenModal
-      :show="showCodegenModal"
-      @hide-modal="showCodegenModal = false"
-    />
     <CollectionsSaveRequest
       mode="rest"
       :show="showSaveRequestModal"
@@ -249,7 +232,6 @@ import { copyToClipboard } from "~/helpers/utils/clipboard"
 import { editRESTRequest } from "~/newstore/collections"
 import IconCheck from "~icons/lucide/check"
 import IconChevronDown from "~icons/lucide/chevron-down"
-import IconCode2 from "~icons/lucide/code-2"
 import IconCopy from "~icons/lucide/copy"
 import IconFileCode from "~icons/lucide/file-code"
 import IconFolderPlus from "~icons/lucide/folder-plus"
@@ -296,7 +278,6 @@ const curlText = ref("")
 const loading = ref(false)
 
 const showCurlImportModal = ref(false)
-const showCodegenModal = ref(false)
 const showSaveRequestModal = ref(false)
 
 const hasNavigatorShare = !!navigator.share

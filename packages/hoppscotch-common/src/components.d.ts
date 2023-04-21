@@ -97,7 +97,7 @@ declare module '@vue/runtime-core' {
     HttpAuthorizationBasic: typeof import('./components/http/authorization/Basic.vue')['default']
     HttpBody: typeof import('./components/http/Body.vue')['default']
     HttpBodyParameters: typeof import('./components/http/BodyParameters.vue')['default']
-    HttpCodegenModal: typeof import('./components/http/CodegenModal.vue')['default']
+    HttpCodegenTab: typeof import('./components/http/CodegenTab.vue')['default']
     HttpHeaders: typeof import('./components/http/Headers.vue')['default']
     HttpImportCurl: typeof import('./components/http/ImportCurl.vue')['default']
     HttpOAuth2Authorization: typeof import('./components/http/OAuth2Authorization.vue')['default']

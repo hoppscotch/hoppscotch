@@ -1,8 +1,6 @@
 /* eslint-disable no-restricted-globals, no-restricted-syntax */
 
 import { clone, assign, isEmpty } from "lodash-es"
-import * as O from "fp-ts/Option"
-import { pipe } from "fp-ts/function"
 import {
   translateToNewRESTCollection,
   translateToNewGQLCollection,
@@ -51,7 +49,30 @@ import {
 } from "~/helpers/rest/tab"
 
 function checkAndMigrateOldSettings() {
+  if (window.localStorage.getItem("selectedEnvIndex")) {
+    const index = window.localStorage.getItem("selectedEnvIndex")
+    if (index) {
+      if (index === "-1") {
+        window.localStorage.setItem(
+          "selectedEnvIndex",
+          JSON.stringify({
+            type: "NO_ENV_SELECTED",
+          })
+        )
+      } else if (Number(index) >= 0) {
+        window.localStorage.setItem(
+          "selectedEnvIndex",
+          JSON.stringify({
+            type: "MY_ENV",
+            index: parseInt(index),
+          })
+        )
+      }
+    }
+  }
+
   const vuexData = JSON.parse(window.localStorage.getItem("vuex") || "{}")
+
   if (isEmpty(vuexData)) return
 
   const { postwoman } = vuexData
@@ -210,35 +231,21 @@ function setupEnvironmentsPersistence() {
 }
 
 function setupSelectedEnvPersistence() {
-  const selectedEnvIndex = pipe(
-    // Value from local storage can be nullable
-    O.fromNullable(window.localStorage.getItem("selectedEnvIndex")),
-    O.map(parseInt), // If not null, parse to integer
-    O.chain(
-      O.fromPredicate(
-        Number.isInteger // Check if the number is proper int (not NaN)
-      )
-    ),
-    O.getOrElse(() => -1) // If all the above conditions pass, we are good, else set default value (-1)
+  const selectedEnvIndex = JSON.parse(
+    window.localStorage.getItem("selectedEnvIndex") ?? "null"
   )
-  // Check if current environment index is -1 ie. no environment is selected
-  if (selectedEnvIndex === -1) {
-    setSelectedEnvironmentIndex({
-      type: "NO_ENV_SELECTED",
-    })
+
+  // If there is a selected env index, set it to the store else set it to null
+  if (selectedEnvIndex) {
+    setSelectedEnvironmentIndex(selectedEnvIndex)
   } else {
     setSelectedEnvironmentIndex({
-      type: "MY_ENV",
-      index: selectedEnvIndex,
+      type: "NO_ENV_SELECTED",
     })
   }
 
   selectedEnvironmentIndex$.subscribe((envIndex) => {
-    if (envIndex.type === "MY_ENV") {
-      window.localStorage.setItem("selectedEnvIndex", envIndex.index.toString())
-    } else {
-      window.localStorage.setItem("selectedEnvIndex", "-1")
-    }
+    window.localStorage.setItem("selectedEnvIndex", JSON.stringify(envIndex))
   })
 }
 

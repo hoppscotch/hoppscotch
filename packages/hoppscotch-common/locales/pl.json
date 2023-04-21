@@ -19,6 +19,7 @@
     "edit": "Edytuj",
     "filter": "Filter",
     "go_back": "Wróć",
+    "go_forward": "Go forward",
     "group_by": "Group by",
     "label": "Etykieta",
     "learn_more": "Dowiedz się więcej",
@@ -117,12 +118,16 @@
   },
   "collection": {
     "created": "Utworzono kolekcję",
+    "different_parent": "Cannot reorder collection with different parent",
     "edit": "Edytuj kolekcję",
     "invalid_name": "Podaj prawidłową nazwę kolekcji",
+    "invalid_root_move": "Collection already in the root",
+    "moved": "Moved Successfully",
     "my_collections": "Moje kolekcje",
     "name": "Moja nowa kolekcja",
     "name_length_insufficient": "Collection name should be at least 3 characters long",
     "new": "Nowa kolekcja",
+    "order_changed": "Collection Order Updated",
     "renamed": "Zmieniono nazwę kolekcji",
     "request_in_use": "Request in use",
     "save_as": "Zapisz jako",
@@ -142,6 +147,7 @@
     "remove_team": "Czy na pewno chcesz usunąć ten zespół?",
     "remove_telemetry": "Czy na pewno chcesz zrezygnować z telemetrii?",
     "request_change": "Are you sure you want to discard current request, unsaved changes will be lost.",
+    "save_unsaved_tab": "Do you want to save changes made in this tab?",
     "sync": "Czy na pewno chcesz zsynchronizować ten obszar roboczy?"
   },
   "count": {
@@ -310,6 +316,7 @@
     "zen_mode": "Tryb Zen"
   },
   "modal": {
+    "close_unsaved_tab": "You have unsaved changes",
     "collections": "Kolekcje",
     "confirm": "Potwierdź",
     "edit_request": "Edytuj żądanie",
@@ -389,6 +396,8 @@
       "text": "Text"
     },
     "copy_link": "Skopiuj link",
+    "different_collection": "Cannot reorder requests from different collections",
+    "duplicated": "Request duplicated",
     "duration": "Czas trwania",
     "enter_curl": "Wpisz cURL",
     "generate_code": "Wygeneruj kod",
@@ -396,8 +405,10 @@
     "header_list": "Lista nagłówków",
     "invalid_name": "Podaj nazwę żądania",
     "method": "metoda",
+    "moved": "Request moved",
     "name": "Nazwa",
     "new": "New Request",
+    "order_changed": "Request Order Updated",
     "override": "Override",
     "override_help": "Set <kbd>Content-Type</kbd> in Headers",
     "overriden": "Overridden",
@@ -628,6 +639,7 @@
     "body": "Ciało",
     "collections": "Kolekcje",
     "documentation": "Dokumentacja",
+    "environments": "Environments",
     "headers": "Nagłówki",
     "history": "Historia",
     "mqtt": "MQTT",
@@ -652,6 +664,7 @@
     "email_do_not_match": "Email doesn't match with your account details. Contact your team owner.",
     "exit": "Opóść zespół",
     "exit_disabled": "Tylko właściciel nie może opuścić zespołu",
+    "invalid_coll_id": "Invalid collection ID",
     "invalid_email_format": "Format e-maila jest nieprawidłowy",
     "invalid_id": "Invalid team ID. Contact your team owner.",
     "invalid_invite_link": "Invalid invite link",
@@ -675,6 +688,7 @@
     "member_removed": "Użytkownik usunięty",
     "member_role_updated": "Zaktualizowano role użytkowników",
     "members": "Członkowie",
+    "more_members": "+{count} more",
     "name_length_insufficient": "Nazwa zespołu powinna mieć co najmniej 6 znaków",
     "name_updated": "Team name updated",
     "new": "Nowy zespół",
@@ -682,10 +696,13 @@
     "new_name": "Mój nowy zespół",
     "no_access": "Nie masz uprawnień do edycji tych kolekcji",
     "no_invite_found": "Invitation not found. Contact your team owner.",
+    "no_request_found": "Request not found.",
     "not_found": "Team not found. Contact your team owner.",
     "not_valid_viewer": "You are not a valid viewer. Contact your team owner.",
+    "parent_coll_move": "Cannot move collection to a child collection",
     "pending_invites": "Pending invites",
     "permissions": "Uprawnienia",
+    "same_target_destination": "Same target and destination",
     "saved": "Zespół zapisany",
     "select_a_team": "Select a team",
     "title": "Zespoły",
@@ -713,5 +730,11 @@
     "message": "Wiadomość",
     "protocols": "Protokoły",
     "url": "URL"
+  },
+  "workspace": {
+    "change": "Change workspace",
+    "personal": "My Workspace",
+    "team": "Team Workspace",
+    "title": "Workspaces"
   }
 }

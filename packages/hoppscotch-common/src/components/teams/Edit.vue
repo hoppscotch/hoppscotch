@@ -167,7 +167,7 @@
           v-if="!teamDetails.loading && E.isLeft(teamDetails.data)"
           class="flex flex-col items-center"
         >
-          <component :is="IconHelpCircle" class="mb-4 svg-icons" />
+          <icon-lucide-help-circle class="mb-4 svg-icons" />
           {{ t("error.something_went_wrong") }}
         </div>
       </div>
@@ -220,7 +220,6 @@ import IconCircleDot from "~icons/lucide/circle-dot"
 import IconCircle from "~icons/lucide/circle"
 import IconUserPlus from "~icons/lucide/user-plus"
 import IconUserMinus from "~icons/lucide/user-minus"
-import IconHelpCircle from "~icons/lucide/help-circle"
 
 const t = useI18n()
 const colorMode = useColorMode()

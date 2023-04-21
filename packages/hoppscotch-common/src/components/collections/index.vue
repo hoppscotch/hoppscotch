@@ -90,7 +90,7 @@
         '!flex': draggingToRoot && currentReorderingStatus.type !== 'request',
       }"
     >
-      <component :is="IconListEnd" class="svg-icons !w-8 !h-8" />
+      <icon-lucide-list-end class="svg-icons !w-8 !h-8" />
     </div>
     <CollectionsAdd
       :show="showModalAdd"
@@ -221,7 +221,6 @@ import * as E from "fp-ts/Either"
 import { platform } from "~/platform"
 import { createCollectionGists } from "~/helpers/gist"
 import { workspaceStatus$ } from "~/newstore/workspace"
-import IconListEnd from "~icons/lucide/list-end"
 import {
   createNewTab,
   currentActiveTab,

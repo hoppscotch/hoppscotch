@@ -44,7 +44,7 @@
         <span class="text-center"> No pending invites </span>
       </div>
       <div v-if="!fetching && error" class="flex flex-col items-center p-4">
-        <component :is="IconHelpCircle" class="mb-4 svg-icons" />
+        <icon-lucide-help-circle class="mb-4 svg-icons" />
         Something went wrong. Please try again later.
       </div>
     </div>
@@ -53,7 +53,6 @@
 
 <script setup lang="ts">
 import IconTrash from '~icons/lucide/trash';
-import IconHelpCircle from '~icons/lucide/help-circle';
 import { useMutation, useClientHandle } from '@urql/vue';
 import { ref, onMounted } from 'vue';
 import {

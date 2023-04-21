@@ -133,7 +133,7 @@
         </div>
       </div>
       <div v-if="!fetching && !team" class="flex flex-col items-center">
-        <component :is="IconHelpCircle" class="mb-4 svg-icons" />
+        <icon-lucide-help-circle class="mb-4 svg-icons" />
         Something went wrong. Please try again later.
       </div>
     </div>
@@ -159,7 +159,6 @@ import IconCircleDot from '~icons/lucide/circle-dot';
 import IconCircle from '~icons/lucide/circle';
 import IconUserPlus from '~icons/lucide/user-plus';
 import IconUserMinus from '~icons/lucide/user-minus';
-import IconHelpCircle from '~icons/lucide/help-circle';
 import IconChevronDown from '~icons/lucide/chevron-down';
 import { useClientHandle, useMutation } from '@urql/vue';
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';

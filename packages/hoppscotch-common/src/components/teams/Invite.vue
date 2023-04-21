@@ -113,7 +113,7 @@
               v-if="!pendingInvites.loading && E.isLeft(pendingInvites.data)"
               class="flex flex-col items-center p-4"
             >
-              <component :is="IconHelpCircle" class="mb-4 svg-icons" />
+              <icon-lucide-help-circle class="mb-4 svg-icons" />
               {{ t("error.something_went_wrong") }}
             </div>
           </div>
@@ -248,8 +248,7 @@
           <span
             class="flex items-center justify-center px-2 py-1 mb-4 font-semibold border rounded-full bg-primaryDark border-divider"
           >
-            <component
-              :is="IconHelpCircle"
+            <icon-lucide-help-circle
               class="mr-2 text-secondaryLight svg-icons"
             />
             {{ t("profile.roles") }}
@@ -368,7 +367,6 @@ import { useColorMode } from "~/composables/theming"
 
 import IconTrash from "~icons/lucide/trash"
 import IconPlus from "~icons/lucide/plus"
-import IconHelpCircle from "~icons/lucide/help-circle"
 import IconAlertTriangle from "~icons/lucide/alert-triangle"
 import IconMailCheck from "~icons/lucide/mail-check"
 import IconCircleDot from "~icons/lucide/circle-dot"

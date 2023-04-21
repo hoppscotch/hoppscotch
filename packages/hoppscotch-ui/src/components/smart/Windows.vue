@@ -131,7 +131,15 @@ import { pipe } from "fp-ts/function"
 import { not } from "fp-ts/Predicate"
 import * as A from "fp-ts/Array"
 import * as O from "fp-ts/Option"
-import { ref, ComputedRef, computed, provide, inject, watch } from "vue"
+import {
+  ref,
+  ComputedRef,
+  computed,
+  provide,
+  inject,
+  watch,
+  nextTick,
+} from "vue"
 import { useElementSize } from "@vueuse/core"
 import type { Slot } from "vue"
 import draggable from "vuedraggable-es"
@@ -186,9 +194,10 @@ const throwError = (message: string): never => {
   throw new Error(message)
 }
 
+const TAB_WIDTH = 184
 const tabEntries = ref<Array<[string, TabMeta]>>([])
 const tabStyles = computed(() => ({
-  maxWidth: `${tabEntries.value.length * 184}px`,
+  maxWidth: `${tabEntries.value.length * TAB_WIDTH}px`,
   width: "100%",
   minWidth: "0px",
   // transition: "max-width 0.2s",
@@ -292,6 +301,33 @@ watch(thumbPosition, (newVal) => {
   const maxScroll = scrollWidth - clientWidth
   scrollContainer.value!.scrollLeft = maxScroll * (newVal / MAX_SCROLL_VALUE)
 })
+
+/*
+ * Watch TabID changes
+ * and scroll to the tab if it's not visible
+ */
+watch(
+  () => props.modelValue,
+  (tabID) => {
+    nextTick(() => {
+      const index = tabEntries.value.findIndex(([id]) => id === tabID)
+      const { scrollLeft, clientWidth } = scrollContainer.value!
+      const tabLeft = index * TAB_WIDTH
+      const tabRight = tabLeft + TAB_WIDTH
+
+      // calculate if the tab is still visible even after changing tab ID
+      const isTabVisible =
+        tabLeft >= scrollLeft - TAB_WIDTH &&
+        tabRight <= scrollLeft + clientWidth + TAB_WIDTH
+
+      // if the tab is not visible or the tab is last entries, scroll to it
+      if (!isTabVisible || index === tabEntries.value.length - 1) {
+        scrollContainer.value!.scrollLeft = tabLeft - TAB_WIDTH
+      }
+    })
+  },
+  { immediate: true }
+)
 </script>
 
 <style scoped lang="scss">

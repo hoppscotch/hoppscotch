@@ -135,6 +135,15 @@ const requestName = ref(
   props.mode === "rest" ? restRequestName.value : gqlRequestName.value
 )
 
+watch(
+  () => [currentActiveTab.value.document.request.name, gqlRequestName.value],
+  () => {
+    if (props.mode === "rest")
+      requestName.value = currentActiveTab.value.document.request.name
+    else requestName.value = gqlRequestName.value
+  }
+)
+
 const requestData = reactive({
   name: requestName,
   collectionIndex: undefined as number | undefined,

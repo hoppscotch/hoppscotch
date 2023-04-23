@@ -508,3 +508,9 @@ const changeTab = (tab: ComputedHeader["source"]) => {
   else emit("change-tab", "bodyParams")
 }
 </script>
+
+<style lang="scss" scoped>
+:deep(.cm-panels) {
+  top: var(--upper-tertiary-sticky-fold) !important;
+}
+</style>

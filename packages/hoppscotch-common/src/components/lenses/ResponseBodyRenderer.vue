@@ -123,6 +123,7 @@ watch(selectedLensTab, (newLensID) => {
   selectedTabPreference.value = newLensID
 })
 </script>
+
 <style lang="scss" scoped>
 :deep(.cm-panels) {
   top: var(--lower-tertiary-sticky-fold) !important;

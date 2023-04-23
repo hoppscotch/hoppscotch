@@ -220,3 +220,9 @@ const prettifyXML = (xml: string) => {
     .join("\r\n")
 }
 </script>
+
+<style lang="scss" scoped>
+:deep(.cm-panels) {
+  top: var(--request-body-sticky-fold) !important;
+}
+</style>

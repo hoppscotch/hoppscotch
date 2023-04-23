@@ -470,3 +470,9 @@ const handleUseHistory = (entry: GQLHistoryEntry) => {
   props.conn.reset()
 }
 </script>
+
+<style lang="scss" scoped>
+:deep(.cm-panels) {
+  top: var(--lower-primary-sticky-fold) !important;
+}
+</style>

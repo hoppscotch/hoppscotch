@@ -199,6 +199,7 @@ export const inputTheme = EditorView.theme({
   ".cm-panels": {
     backgroundColor: "var(--primary-light-color)",
     color: "var(--secondary-light-color)",
+    zIndex: "1",
   },
   ".cm-panels.cm-panels-top": {
     borderBottom: "1px solid var(--divider-light-color)",

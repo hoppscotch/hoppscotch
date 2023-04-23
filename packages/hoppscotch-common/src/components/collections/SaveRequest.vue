@@ -62,7 +62,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, watch } from "vue"
+import { nextTick, reactive, ref, watch } from "vue"
 import { cloneDeep } from "lodash-es"
 import {
   HoppGQLRequest,
@@ -126,12 +126,22 @@ const emit = defineEmits<{
 }>()
 
 const gqlRequestName = useGQLRequestName()
-const requestName = computedWithControl(
-  () => [currentActiveTab.value, gqlRequestName.value],
-  () =>
-    props.mode === "rest"
-      ? currentActiveTab.value.document.request.name
-      : gqlRequestName.value
+const restRequestName = computedWithControl(
+  () => currentActiveTab.value,
+  () => currentActiveTab.value.document.request.name
+)
+
+const requestName = ref(
+  props.mode === "rest" ? restRequestName.value : gqlRequestName.value
+)
+
+watch(
+  () => [currentActiveTab.value.document.request.name, gqlRequestName.value],
+  () => {
+    if (props.mode === "rest")
+      requestName.value = currentActiveTab.value.document.request.name
+    else requestName.value = gqlRequestName.value
+  }
 )
 
 const requestData = reactive({
@@ -191,6 +201,8 @@ const saveRequestAs = async () => {
     props.mode === "rest"
       ? cloneDeep(currentActiveTab.value.document.request)
       : cloneDeep(getGQLSession().request)
+
+  requestUpdated.name = requestName.value
 
   if (picked.value.pickedType === "my-collection") {
     if (!isHoppRESTRequest(requestUpdated))
@@ -373,6 +385,9 @@ const updateTeamCollectionOrFolder = (
 
 const requestSaved = () => {
   toast.success(`${t("request.added")}`)
+  nextTick(() => {
+    currentActiveTab.value.document.isDirty = false
+  })
   hideModal()
 }
 

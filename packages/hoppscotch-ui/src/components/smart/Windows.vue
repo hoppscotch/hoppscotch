@@ -228,9 +228,6 @@ const removeTabEntry = (tabID: string) => {
     O.chain((index) => pipe(tabEntries.value, A.deleteAt(index))),
     O.getOrElseW(() => throwError(`Failed to remove tab entry: ${tabID}`))
   )
-  // If we tried to remove the active tabEntries, switch to first tab entry
-  if (props.modelValue === tabID)
-    if (tabEntries.value.length > 0) selectTab(tabEntries.value[0][0])
 }
 const sortTabs = (e: {
   oldDraggableIndex: number

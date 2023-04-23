@@ -802,6 +802,7 @@ defineActionHandler("request.send-cancel", runQuery)
 defineActionHandler("request.save", saveRequest)
 defineActionHandler("request.reset", clearGQLQuery)
 </script>
+
 <style lang="scss" scoped>
 :deep(.cm-panels) {
   top: var(--upper-tertiary-sticky-fold) !important;

@@ -432,3 +432,9 @@ const clearContent = () => {
   bulkUrlEncodedParams.value = ""
 }
 </script>
+
+<style lang="scss" scoped>
+:deep(.cm-panels) {
+  top: var(--request-body-sticky-fold) !important;
+}
+</style>

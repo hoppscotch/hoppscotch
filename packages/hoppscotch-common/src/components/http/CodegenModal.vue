@@ -273,3 +273,9 @@ const filteredCodegenDefinitions = computed(() => {
 const { copyIcon, copyResponse } = useCopyResponse(requestCode)
 const { downloadIcon, downloadResponse } = useDownloadResponse("", requestCode)
 </script>
+
+<style lang="scss" scoped>
+:deep(.cm-panels) {
+  top: -1rem !important;
+}
+</style>

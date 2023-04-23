@@ -311,7 +311,7 @@ watch(
   (tabID) => {
     nextTick(() => {
       const index = tabEntries.value.findIndex(([id]) => id === tabID)
-      const { scrollLeft, clientWidth } = scrollContainer.value!
+      const { scrollLeft, clientWidth, scrollWidth } = scrollContainer.value!
       const tabLeft = index * TAB_WIDTH
       const tabRight = tabLeft + TAB_WIDTH
 
@@ -322,7 +322,23 @@ watch(
 
       // if the tab is not visible or the tab is last entries, scroll to it
       if (!isTabVisible || index === tabEntries.value.length - 1) {
-        scrollContainer.value!.scrollLeft = tabLeft - TAB_WIDTH
+        const maxScroll = scrollWidth - clientWidth
+        const newPosition =
+          ((tabLeft - TAB_WIDTH) / maxScroll) * MAX_SCROLL_VALUE
+
+        const scrollAnimate = () => {
+          // if thumbPosition value is closed to the newPosition, stop the animation
+          if (Math.abs(thumbPosition.value - newPosition) < 0.1) {
+            thumbPosition.value = newPosition
+            return
+          }
+
+          requestAnimationFrame(scrollAnimate)
+          thumbPosition.value =
+            thumbPosition.value + (newPosition - thumbPosition.value) * 0.1
+        }
+
+        scrollAnimate()
       }
     })
   },

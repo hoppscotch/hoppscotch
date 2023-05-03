@@ -28,7 +28,7 @@
           arrow
           :on-shown="() => tippyActions!.focus()"
         >
-          <ProfilePicture
+          <HoppSmartPicture
             v-if="currentUser.photoURL"
             v-tippy="{
               theme: 'tooltip',
@@ -37,7 +37,7 @@
             :alt="currentUser.displayName ?? 'No Name'"
             :title="currentUser.displayName ?? currentUser.email ?? 'No Name'"
           />
-          <ProfilePicture
+          <HoppSmartPicture
             v-else
             v-tippy="{ theme: 'tooltip' }"
             :title="currentUser.displayName ?? currentUser.email ?? 'No Name'"

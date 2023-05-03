@@ -5,7 +5,7 @@
       :key="`member-${index}`"
       class="inline-flex"
     >
-      <ProfilePicture
+      <HoppSmartPicture
         v-if="member.user.photoURL"
         v-tippy="{ theme: 'tooltip' }"
         :url="member.user.photoURL"
@@ -14,7 +14,7 @@
         class="ring-primary ring-2"
         @click="handleClick()"
       />
-      <ProfilePicture
+      <HoppSmartPicture
         v-else
         v-tippy="{ theme: 'tooltip' }"
         :title="getUserName(member)"

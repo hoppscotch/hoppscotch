@@ -232,7 +232,7 @@ export class AuthService {
       template: 'code-your-own',
       variables: {
         inviteeEmail: email,
-        magicLink: `${url}/magic-link?token=${generatedTokens.token}`,
+        magicLink: `${url}/enter?token=${generatedTokens.token}`,
       },
     });
 

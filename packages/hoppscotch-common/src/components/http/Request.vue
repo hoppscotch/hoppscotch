@@ -232,7 +232,7 @@ import { useToast } from "@composables/toast"
 import { refAutoReset, useVModel } from "@vueuse/core"
 import * as E from "fp-ts/Either"
 import { isLeft, isRight } from "fp-ts/lib/Either"
-import { computed, ref } from "vue"
+import { computed, onBeforeUnmount, ref } from "vue"
 import { defineActionHandler } from "~/helpers/actions"
 import { runMutation } from "~/helpers/backend/GQLClient"
 import { UpdateRequestDocument } from "~/helpers/backend/graphql"
@@ -539,6 +539,10 @@ const saveRequest = () => {
     }
   }
 }
+
+onBeforeUnmount(() => {
+  if (loading.value) cancelRequest()
+})
 
 defineActionHandler("request.send-cancel", () => {
   if (!loading.value) newSendRequest()

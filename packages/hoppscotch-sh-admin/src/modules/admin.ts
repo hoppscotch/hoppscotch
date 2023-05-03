@@ -6,7 +6,7 @@ const isAdmin = () => {
   return user ? user.isAdmin : false;
 };
 
-const GUEST_ROUTES = ['index', 'magic-link'];
+const GUEST_ROUTES = ['index', 'enter'];
 
 const isGuestRoute = (to: unknown) => GUEST_ROUTES.includes(to as string);
 

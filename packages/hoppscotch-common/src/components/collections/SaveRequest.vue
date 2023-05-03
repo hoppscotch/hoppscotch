@@ -136,11 +136,15 @@ const requestName = ref(
 )
 
 watch(
-  () => [currentActiveTab.value.document.request.name, gqlRequestName.value],
+  () => [currentActiveTab.value, gqlRequestName.value],
   () => {
-    if (props.mode === "rest")
-      requestName.value = currentActiveTab.value.document.request.name
-    else requestName.value = gqlRequestName.value
+    if (props.mode === "rest") {
+      if (currentActiveTab.value) {
+        requestName.value = currentActiveTab.value.document.request.name
+      } else {
+        requestName.value = ""
+      }
+    } else requestName.value = gqlRequestName.value
   }
 )
 

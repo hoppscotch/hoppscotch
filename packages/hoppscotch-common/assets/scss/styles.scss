@@ -484,6 +484,7 @@ pre.ace_editor {
   .cm-content {
     @apply whitespace-normal;
   }
+
   .cm-line::selection {
     @apply bg-accentDark #{!important};
     @apply text-accentContrast #{!important};

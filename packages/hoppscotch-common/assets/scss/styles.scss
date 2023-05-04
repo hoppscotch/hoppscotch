@@ -571,8 +571,3 @@ details[open] summary .indicator {
   @apply rounded;
   @apply border-0;
 }
-
-// it fixes the overflow issue on flex items
-.flex {
-  min-width: 0;
-}

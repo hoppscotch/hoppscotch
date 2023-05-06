@@ -128,7 +128,7 @@
           <span class="flex">
             <HoppButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
-              to="https://docs.hoppscotch.io/features/mqtt"
+              to="https://docs.hoppscotch.io/documentation/getting-started/realtime/mqtt"
               blank
               :title="t('app.wiki')"
               :icon="IconHelpCircle"

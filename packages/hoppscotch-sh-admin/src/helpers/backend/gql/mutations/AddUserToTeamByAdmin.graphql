@@ -1,0 +1,13 @@
+mutation AddUserToTeamByAdmin(
+  $userEmail: String!
+  $role: TeamMemberRole!
+  $teamID: ID!
+) {
+  addUserToTeamByAdmin(role: $role, userEmail: $userEmail, teamID: $teamID) {
+    membershipID
+    role
+    user {
+      uid
+    }
+  }
+}

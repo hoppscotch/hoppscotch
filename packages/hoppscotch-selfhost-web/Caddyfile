@@ -1,0 +1,5 @@
+:8080 {
+  try_files {path} /
+  root * /site
+  file_server
+}

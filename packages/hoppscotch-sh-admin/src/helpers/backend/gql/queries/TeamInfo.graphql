@@ -1,0 +1,31 @@
+query TeamInfo($teamID: ID!) {
+  admin {
+    teamInfo(teamID: $teamID) {
+      id
+      name
+
+      teamMembers {
+        membershipID
+        role
+        user {
+          uid
+          displayName
+          email
+          photoURL
+        }
+      }
+      teamInvitations {
+        id
+        inviteeEmail
+        inviteeRole
+      }
+      teamEnvironments {
+        id
+        name
+      }
+      ownersCount
+      editorsCount
+      viewersCount
+    }
+  }
+}

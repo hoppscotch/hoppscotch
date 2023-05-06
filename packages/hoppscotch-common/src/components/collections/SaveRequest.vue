@@ -1,3 +1,4 @@
+<!-- eslint-disable prettier/prettier -->
 <template>
   <HoppSmartModal
     v-if="show"
@@ -61,8 +62,8 @@
 </template>
 
 <script setup lang="ts">
-import { useI18n } from "@composables/i18n"
-import { useToast } from "@composables/toast"
+import { nextTick, reactive, ref, watch } from "vue"
+import { cloneDeep } from "lodash-es"
 import {
   HoppGQLRequest,
   HoppRESTRequest,
@@ -70,8 +71,6 @@ import {
 } from "@hoppscotch/data"
 import { pipe } from "fp-ts/function"
 import * as TE from "fp-ts/TaskEither"
-import { cloneDeep } from "lodash-es"
-import { reactive, ref, watch } from "vue"
 import { GetMyTeamsQuery } from "~/helpers/backend/graphql"
 import {
   createRequestInCollection,
@@ -79,11 +78,8 @@ import {
 } from "~/helpers/backend/mutations/TeamRequest"
 import { Picked } from "~/helpers/types/HoppPicked"
 import { getGQLSession, useGQLRequestName } from "~/newstore/GQLSession"
-import {
-  getRESTRequest,
-  setRESTSaveContext,
-  useRESTRequestName,
-} from "~/newstore/RESTSession"
+import { useI18n } from "@composables/i18n"
+import { useToast } from "@composables/toast"
 import {
   editGraphqlRequest,
   editRESTRequest,
@@ -91,6 +87,8 @@ import {
   saveRESTRequestAs,
 } from "~/newstore/collections"
 import { GQLError } from "~/helpers/backend/GQLClient"
+import { computedWithControl } from "@vueuse/core"
+import { currentActiveTab } from "~/helpers/rest/tab"
 
 const t = useI18n()
 const toast = useToast()
@@ -127,8 +125,23 @@ const emit = defineEmits<{
   (e: "hide-modal"): void
 }>()
 
+const gqlRequestName = useGQLRequestName()
+const restRequestName = computedWithControl(
+  () => currentActiveTab.value,
+  () => currentActiveTab.value.document.request.name
+)
+
 const requestName = ref(
-  props.mode === "rest" ? useRESTRequestName() : useGQLRequestName()
+  props.mode === "rest" ? restRequestName.value : gqlRequestName.value
+)
+
+watch(
+  () => [currentActiveTab.value.document.request.name, gqlRequestName.value],
+  () => {
+    if (props.mode === "rest")
+      requestName.value = currentActiveTab.value.document.request.name
+    else requestName.value = gqlRequestName.value
+  }
 )
 
 const requestData = reactive({
@@ -186,8 +199,10 @@ const saveRequestAs = async () => {
 
   const requestUpdated =
     props.mode === "rest"
-      ? cloneDeep(getRESTRequest())
+      ? cloneDeep(currentActiveTab.value.document.request)
       : cloneDeep(getGQLSession().request)
+
+  requestUpdated.name = requestName.value
 
   if (picked.value.pickedType === "my-collection") {
     if (!isHoppRESTRequest(requestUpdated))
@@ -198,12 +213,15 @@ const saveRequestAs = async () => {
       requestUpdated
     )
 
-    setRESTSaveContext({
-      originLocation: "user-collection",
-      folderPath: `${picked.value.collectionIndex}`,
-      requestIndex: insertionIndex,
-      req: requestUpdated,
-    })
+    currentActiveTab.value.document = {
+      request: requestUpdated,
+      isDirty: false,
+      saveContext: {
+        originLocation: "user-collection",
+        folderPath: `${picked.value.collectionIndex}`,
+        requestIndex: insertionIndex,
+      },
+    }
 
     requestSaved()
   } else if (picked.value.pickedType === "my-folder") {
@@ -215,12 +233,15 @@ const saveRequestAs = async () => {
       requestUpdated
     )
 
-    setRESTSaveContext({
-      originLocation: "user-collection",
-      folderPath: picked.value.folderPath,
-      requestIndex: insertionIndex,
-      req: requestUpdated,
-    })
+    currentActiveTab.value.document = {
+      request: requestUpdated,
+      isDirty: false,
+      saveContext: {
+        originLocation: "user-collection",
+        folderPath: picked.value.folderPath,
+        requestIndex: insertionIndex,
+      },
+    }
 
     requestSaved()
   } else if (picked.value.pickedType === "my-request") {
@@ -233,12 +254,15 @@ const saveRequestAs = async () => {
       requestUpdated
     )
 
-    setRESTSaveContext({
-      originLocation: "user-collection",
-      folderPath: picked.value.folderPath,
-      requestIndex: picked.value.requestIndex,
-      req: requestUpdated,
-    })
+    currentActiveTab.value.document = {
+      request: requestUpdated,
+      isDirty: false,
+      saveContext: {
+        originLocation: "user-collection",
+        folderPath: picked.value.folderPath,
+        requestIndex: picked.value.requestIndex,
+      },
+    }
 
     requestSaved()
   } else if (picked.value.pickedType === "teams-collection") {
@@ -341,13 +365,17 @@ const updateTeamCollectionOrFolder = (
       (result) => {
         const { createRequestInCollection } = result
 
-        setRESTSaveContext({
-          originLocation: "team-collection",
-          requestID: createRequestInCollection.id,
-          collectionID: createRequestInCollection.collection.id,
-          teamID: createRequestInCollection.collection.team.id,
-          req: requestUpdated,
-        })
+        currentActiveTab.value.document = {
+          request: requestUpdated,
+          isDirty: false,
+          saveContext: {
+            originLocation: "team-collection",
+            requestID: createRequestInCollection.id,
+            collectionID: createRequestInCollection.collection.id,
+            teamID: createRequestInCollection.collection.team.id,
+          },
+        }
+
         modalLoadingState.value = false
         requestSaved()
       }
@@ -357,6 +385,9 @@ const updateTeamCollectionOrFolder = (
 
 const requestSaved = () => {
   toast.success(`${t("request.added")}`)
+  nextTick(() => {
+    currentActiveTab.value.document.isDirty = false
+  })
   hideModal()
 }
 

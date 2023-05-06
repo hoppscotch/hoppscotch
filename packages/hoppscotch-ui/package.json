@@ -4,6 +4,7 @@
   "version": "0.0.1",
   "type": "module",
   "scripts": {
+    "watch": "vite build --watch",
     "build": "vite build",
     "story:dev": "histoire dev",
     "story:build": "histoire build",

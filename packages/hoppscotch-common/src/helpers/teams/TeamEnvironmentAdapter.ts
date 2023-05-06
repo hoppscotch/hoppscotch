@@ -11,10 +11,18 @@ import {
 } from "../backend/graphql"
 import { TeamEnvironment } from "./TeamEnvironment"
 
+type EntityType = "environment"
+type EntityID = `${EntityType}-${string}`
 export default class TeamEnvironmentAdapter {
   error$: BehaviorSubject<GQLError<string> | null>
   loading$: BehaviorSubject<boolean>
   teamEnvironmentList$: BehaviorSubject<TeamEnvironment[]>
+
+  /**
+   * Stores the entity (environments) ids of all the loaded entities.
+   * Used for preventing duplication of data which definitely is not possible (duplication due to network problems etc.)
+   */
+  private entityIDs: Set<EntityID>
 
   private isDispose: boolean
 
@@ -32,9 +40,12 @@ export default class TeamEnvironmentAdapter {
     this.teamEnvironmentList$ = new BehaviorSubject<TeamEnvironment[]>([])
     this.isDispose = true
 
+    this.entityIDs = new Set()
+
     this.teamEnvironmentCreated$ = null
     this.teamEnvironmentDeleted$ = null
     this.teamEnvironmentUpdated$ = null
+
     this.teamEnvironmentCreatedSub = null
     this.teamEnvironmentDeletedSub = null
     this.teamEnvironmentUpdatedSub = null
@@ -46,6 +57,7 @@ export default class TeamEnvironmentAdapter {
     this.teamEnvironmentCreated$?.unsubscribe()
     this.teamEnvironmentDeleted$?.unsubscribe()
     this.teamEnvironmentUpdated$?.unsubscribe()
+
     this.teamEnvironmentCreatedSub?.unsubscribe()
     this.teamEnvironmentDeletedSub?.unsubscribe()
     this.teamEnvironmentUpdatedSub?.unsubscribe()
@@ -55,6 +67,8 @@ export default class TeamEnvironmentAdapter {
     this.teamID = newTeamID
     this.teamEnvironmentList$.next([])
     this.loading$.next(false)
+
+    this.entityIDs.clear()
 
     this.unsubscribeSubscriptions()
 
@@ -112,15 +126,24 @@ export default class TeamEnvironmentAdapter {
       )
     }
 
+    // Add all the environments to the entity ids list
+    results.forEach((env) => this.entityIDs.add(`environment-${env.id}`))
+
     this.teamEnvironmentList$.next(results)
 
     this.loading$.next(false)
   }
 
   private createNewTeamEnvironment(newEnvironment: TeamEnvironment) {
+    // Check if we have it already in the entity tree, if so, we don't need it again
+    if (this.entityIDs.has(`environment-${newEnvironment.id}`)) return
+
     const teamEnvironments = this.teamEnvironmentList$.value
 
     teamEnvironments.push(newEnvironment)
+
+    // Add to entity ids set
+    this.entityIDs.add(`environment-${newEnvironment.id}`)
 
     this.teamEnvironmentList$.next(teamEnvironments)
   }
@@ -129,7 +152,7 @@ export default class TeamEnvironmentAdapter {
     const teamEnvironments = this.teamEnvironmentList$.value.filter(
       ({ id }) => id !== envId
     )
-
+    this.entityIDs.delete(`environment-${envId}`)
     this.teamEnvironmentList$.next(teamEnvironments)
   }
 

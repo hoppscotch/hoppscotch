@@ -13,12 +13,15 @@
           :node-item="rootNode"
           :adapter="adapter as SmartTreeAdapter<T>"
         >
-          <template #default="{ node, toggleChildren, isOpen }">
+          <template
+            #default="{ node, toggleChildren, isOpen, highlightChildren }"
+          >
             <slot
               name="content"
               :node="node as TreeNode<T>"
               :toggle-children="toggleChildren as () => void"
               :is-open="isOpen as boolean"
+              :highlight-children="(id:string|null) => highlightChildren(id)"
             ></slot>
           </template>
           <template #emptyNode="{ node }">

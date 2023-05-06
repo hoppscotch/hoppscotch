@@ -1,5 +1,9 @@
 <template>
-  <div v-show="active" class="flex flex-col flex-1 overflow-y-auto">
+  <div
+    v-if="shouldRender"
+    v-show="active"
+    class="flex flex-col flex-1 overflow-y-auto"
+  >
     <slot></slot>
   </div>
 </template>
@@ -17,25 +21,51 @@ import { TabMeta, TabProvider } from "./Windows.vue"
 
 const slots = useSlots()
 
-const props = defineProps({
-  label: { type: String, default: null },
-  info: { type: String, default: null },
-  id: { type: String, default: null, required: true },
-  isRemovable: { type: Boolean, default: true },
-  selected: {
-    type: Boolean,
-    default: false,
-  },
-})
+const props = withDefaults(
+  defineProps<{
+    label: string | null
+    info: string | null
+    id: string
+    isRemovable: boolean
+    closeVisibility: "hover" | "always" | "never"
+    selected: boolean
+  }>(),
+  {
+    label: null,
+    info: null,
+    isRemovable: true,
+    closeVisibility: "always",
+    selected: false,
+  }
+)
+
 const tabMeta = computed<TabMeta>(() => ({
   info: props.info,
   label: props.label,
   isRemovable: props.isRemovable,
   icon: slots.icon,
+  suffix: slots.suffix,
+  tabhead: slots.tabhead,
+  closeVisibility: props.closeVisibility,
 }))
-const { activeTabID, addTabEntry, updateTabEntry, removeTabEntry } =
-  inject<TabProvider>("tabs-system")!
+
+const {
+  activeTabID,
+  renderInactive,
+  addTabEntry,
+  updateTabEntry,
+  removeTabEntry,
+} = inject<TabProvider>("tabs-system")!
+
 const active = computed(() => activeTabID.value === props.id)
+
+const shouldRender = computed(() => {
+  // If render inactive is true, then it should be rendered nonetheless
+  if (renderInactive.value) return true
+
+  // Else, return whatever is the active state
+  return active.value
+})
 
 onMounted(() => {
   addTabEntry(props.id, tabMeta.value)

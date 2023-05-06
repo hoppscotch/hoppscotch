@@ -1,23 +1,71 @@
+# To make it easier to self-host, we have a preset docker compose config that also
+# has a container with a Postgres instance running.
+# You can tweak around this file to match your instances
 version: "3.7"
 
 services:
-  web:
+  # This service runs the backend app in the port 3170
+  hoppscotch-backend:
+    container_name: hoppscotch-backend
     build:
+      dockerfile: packages/hoppscotch-backend/Dockerfile
       context: .
-    volumes:
-      - "./.hoppscotch:/app/.hoppscotch"
-      - "./assets:/app/assets"
-      - "./directives:/app/directives"
-      - "./layouts:/app/layouts"
-      - "./middleware:/app/middleware"
-      - "./pages:/app/pages"
-      - "./plugins:/app/plugins"
-      - "./static:/app/static"
-      - "./store:/app/store"
-      - "./components:/app/components"
-      - "./helpers:/app/helpers"
-    ports:
-      - "3000:3000"
+      target: prod
+    env_file:
+      - ./.env
+    restart: always
     environment:
-      HOST: 0.0.0.0
-    command: "pnpm run dev"
+      # Edit the below line to match your PostgresDB URL if you have an outside DB (make sure to update the .env file as well)
+      - DATABASE_URL=postgresql://postgres:testpass@hoppscotch-db:5432/hoppscotch?connect_timeout=300
+      - PORT=3000
+    volumes:
+      - ./packages/hoppscotch-backend/:/usr/src/app
+      - /usr/src/app/node_modules/
+    depends_on:
+      - hoppscotch-db
+    ports:
+      - "3170:3000"
+
+  # The main hoppscotch app. This will be hosted at port 3000
+  # NOTE: To do TLS or play around with how the app is hosted, you can look into the Caddyfile for
+  #       the SH admin dashboard server at packages/hoppscotch-selfhost-web/Caddyfile
+  hoppscotch-app:
+    container_name: hoppscotch-app
+    build:
+      dockerfile: packages/hoppscotch-selfhost-web/Dockerfile
+      context: .
+    env_file:
+      - ./.env
+    depends_on:
+      - hoppscotch-backend
+    ports:
+      - "3000:8080"
+
+  # The Self Host dashboard for managing the app. This will be hosted at port 3100
+  # NOTE: To do TLS or play around with how the app is hosted, you can look into the Caddyfile for
+  #       the SH admin dashboard server at packages/hoppscotch-sh-admin/Caddyfile
+  hoppscotch-sh-admin:
+    container_name: hoppscotch-sh-admin
+    build:
+      dockerfile: packages/hoppscotch-sh-admin/Dockerfile
+      context: .
+    env_file:
+      - ./.env
+    depends_on:
+      - hoppscotch-backend
+    ports:
+      - "3100:8080"
+
+  # The preset DB service, you can delete/comment the below lines if
+  # you are using an external postgres instance
+  # This will be exposed at port 5432
+  hoppscotch-db:
+    image: postgres
+    ports:
+      - "5432:5432"
+    environment:
+      # NOTE: Please UPDATE THIS PASSWORD!
+      POSTGRES_PASSWORD: testpass
+      POSTGRES_DB: hoppscotch
+
+

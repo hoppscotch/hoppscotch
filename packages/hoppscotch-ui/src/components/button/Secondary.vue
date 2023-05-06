@@ -19,14 +19,28 @@
         'bg-primaryLight hover:bg-primaryDark focus-visible:bg-primaryDark':
           filled,
       },
-    ]" :disabled="disabled" :tabindex="loading ? '-1' : '0'" role="button">
-    <span v-if="!loading" class="inline-flex items-center justify-center whitespace-nowrap"
-      :class="{ 'flex-row-reverse': reverse }">
-      <component :is="icon" v-if="icon" class="svg-icons" :class="[
-        { '!text-2xl': large },
-        label ? (reverse ? 'ml-2' : 'mr-2') : '',
-      ]" />
-      {{ label }}
+    ]"
+    :disabled="disabled"
+    :tabindex="loading ? '-1' : '0'"
+    role="button"
+  >
+    <span
+      v-if="!loading"
+      class="inline-flex items-center justify-center whitespace-nowrap"
+      :class="{ 'flex-row-reverse': reverse }"
+    >
+      <component
+        :is="icon"
+        v-if="icon"
+        class="svg-icons"
+        :class="[
+          { '!text-2xl': large },
+          label ? (reverse ? 'ml-2' : 'mr-2') : '',
+        ]"
+      />
+      <div class="truncate max-w-54">
+        {{ label }}
+      </div>
       <div v-if="shortcut.length" class="<sm:hidden">
         <kbd v-for="(key, index) in shortcut" :key="`key-${index}`" class="shortcut-key !bg-inherit">
           {{ key }}

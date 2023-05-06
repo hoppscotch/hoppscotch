@@ -4,7 +4,7 @@ import { HoppRESTRequest } from "@hoppscotch/data"
  * We use the save context to figure out
  * how a loaded request is to be saved.
  * These will be set when the request is loaded
- * into the request session (RESTSession)
+ * into the request session
  */
 export type HoppRequestSaveContext =
   | {

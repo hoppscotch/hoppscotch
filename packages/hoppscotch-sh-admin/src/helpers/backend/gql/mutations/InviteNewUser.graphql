@@ -1,0 +1,5 @@
+mutation InviteNewUser($inviteeEmail: String!) {
+  inviteNewUser(inviteeEmail: $inviteeEmail) {
+    inviteeEmail
+  }
+}

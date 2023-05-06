@@ -1,0 +1,8 @@
+subscription TeamRequestMoved($teamID: ID!) {
+  requestMoved(teamID: $teamID) {
+    id
+    collectionID
+    request
+    title
+  }
+}

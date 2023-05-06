@@ -28,7 +28,7 @@
           </span>
           <template #content="{ hide }">
             <div class="flex flex-col space-y-2">
-              <div class="sticky top-0 flex-shrink-0 overflow-x-auto">
+              <div class="sticky z-10 top-0 flex-shrink-0 overflow-x-auto">
                 <input
                   v-model="searchQuery"
                   type="search"
@@ -148,7 +148,6 @@ import {
   resolvesEnvsInBody,
 } from "~/helpers/utils/EffectiveURL"
 import { getAggregateEnvs } from "~/newstore/environments"
-import { getRESTRequest } from "~/newstore/RESTSession"
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
 import {
@@ -164,6 +163,8 @@ import {
 import IconCopy from "~icons/lucide/copy"
 import IconCheck from "~icons/lucide/check"
 import IconWrapText from "~icons/lucide/wrap-text"
+import { currentActiveTab } from "~/helpers/rest/tab"
+import cloneDeep from "lodash-es/cloneDeep"
 
 const t = useI18n()
 
@@ -177,7 +178,7 @@ const emit = defineEmits<{
 
 const toast = useToast()
 
-const request = ref(getRESTRequest())
+const request = ref(cloneDeep(currentActiveTab.value.document.request))
 const codegenType = ref<CodegenName>("shell-curl")
 const errorState = ref(false)
 
@@ -246,7 +247,7 @@ watch(
   () => props.show,
   (goingToShow) => {
     if (goingToShow) {
-      request.value = getRESTRequest()
+      request.value = cloneDeep(currentActiveTab.value.document.request)
     }
   }
 )

@@ -1,0 +1,9 @@
+subscription UserEnvironmentUpdated {
+  userEnvironmentUpdated {
+    id
+    userUid
+    name
+    variables
+    isGlobal
+  }
+}

@@ -1,0 +1,16 @@
+subscription TeamRequestOrderUpdated($teamID: ID!) {
+  requestOrderUpdated(teamID: $teamID) {
+    request {
+      id
+      collectionID
+      request
+      title
+    }
+    nextRequest {
+      id
+      collectionID
+      request
+      title
+    }
+  }
+}

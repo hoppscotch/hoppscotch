@@ -19,6 +19,7 @@
     "edit": "Editare",
     "filter": "Filtrare răspuns",
     "go_back": "Înapoi",
+    "go_forward": "Go forward",
     "group_by": "Group by",
     "label": "Etichetă",
     "learn_more": "Află mai multe",
@@ -117,12 +118,16 @@
   },
   "collection": {
     "created": "Colecție creată",
+    "different_parent": "Cannot reorder collection with different parent",
     "edit": "Editați colecția",
     "invalid_name": "Vă rugăm să furnizați un nume valid pentru colecție",
+    "invalid_root_move": "Collection already in the root",
+    "moved": "Moved Successfully",
     "my_collections": "Colecțiile mele",
     "name": "Noua mea colecție",
     "name_length_insufficient": "Numele colecției trebuie să aibă minim 3 caractere lungime",
     "new": "Colecție nouă",
+    "order_changed": "Collection Order Updated",
     "renamed": "Colecția redenumită",
     "request_in_use": "Cerere în executare",
     "save_as": "Salvează ca",
@@ -142,6 +147,7 @@
     "remove_team": "Sigur doriți să ștergeți această echipă?",
     "remove_telemetry": "Sigur doriți să renunțați la telemetrie?",
     "request_change": "Sigur doriți să renunțați la cererea curentă? Modificările nesalvate se vor pierde.",
+    "save_unsaved_tab": "Do you want to save changes made in this tab?",
     "sync": "Sigur doriți să sincronizați acest spațiu de lucru?"
   },
   "count": {
@@ -310,6 +316,7 @@
     "zen_mode": "Modul Zen"
   },
   "modal": {
+    "close_unsaved_tab": "You have unsaved changes",
     "collections": "Colecții",
     "confirm": "Confirmă",
     "edit_request": "Solicită editare",
@@ -389,6 +396,8 @@
       "text": "Text"
     },
     "copy_link": "Copiază legătură",
+    "different_collection": "Cannot reorder requests from different collections",
+    "duplicated": "Request duplicated",
     "duration": "Durată",
     "enter_curl": "Introduceți cURL",
     "generate_code": "Generați cod",
@@ -396,8 +405,10 @@
     "header_list": "Lista anteturilor",
     "invalid_name": "Vă rugăm să furnizați un nume pentru cerere",
     "method": "Metodă",
+    "moved": "Request moved",
     "name": "Solicitați numele",
     "new": "Cerere nouă",
+    "order_changed": "Request Order Updated",
     "override": "Suprascriere",
     "override_help": "Setează <kbd>Content-Type</kbd> în antet",
     "overriden": "Suprascris",
@@ -628,6 +639,7 @@
     "body": "Corp",
     "collections": "Colecții",
     "documentation": "Documentație",
+    "environments": "Environments",
     "headers": "Anteturi",
     "history": "Istorie",
     "mqtt": "MQTT",
@@ -652,6 +664,7 @@
     "email_do_not_match": "Email-ul nu se potrivește cu detaliile contului dumneavoastră. Contactați proprietarul echipei.",
     "exit": "Ieșiți din echipă",
     "exit_disabled": "Numai proprietarul nu poate ieși din echipă",
+    "invalid_coll_id": "Invalid collection ID",
     "invalid_email_format": "Formatul de e-mail nu este valid",
     "invalid_id": "ID-ul echipei nu este valid. Contactați proprietarul echipei.",
     "invalid_invite_link": "Link de invitație invalid",
@@ -675,6 +688,7 @@
     "member_removed": "Utilizatorul a fost eliminat",
     "member_role_updated": "Rolurile utilizatorului au fost actualizate",
     "members": "Membri",
+    "more_members": "+{count} more",
     "name_length_insufficient": "Numele echipei trebuie să aibă cel puțin 6 caractere",
     "name_updated": "Numele echipei a fost actualizat",
     "new": "Echipă nouă",
@@ -682,10 +696,13 @@
     "new_name": "Noua mea echipă",
     "no_access": "Nu aveți acces de editare la aceste colecții",
     "no_invite_found": "Invitația nu a fost găsită. Contactați proprietarul echipei.",
+    "no_request_found": "Request not found.",
     "not_found": "Echipa nu a fost găsită. Contactați proprietarul echipei.",
     "not_valid_viewer": "Nu sunteți un vizualizator valid. Contactați proprietarul echipei.",
+    "parent_coll_move": "Cannot move collection to a child collection",
     "pending_invites": "Invitații în așteptare",
     "permissions": "Permisiuni",
+    "same_target_destination": "Same target and destination",
     "saved": "Echipă salvată",
     "select_a_team": "Selectați o echipă",
     "title": "Echipe",
@@ -713,5 +730,11 @@
     "message": "Mesaj",
     "protocols": "Protocoale",
     "url": "URL"
+  },
+  "workspace": {
+    "change": "Change workspace",
+    "personal": "My Workspace",
+    "team": "Team Workspace",
+    "title": "Workspaces"
   }
 }

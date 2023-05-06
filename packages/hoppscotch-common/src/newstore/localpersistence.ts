@@ -1,11 +1,7 @@
 /* eslint-disable no-restricted-globals, no-restricted-syntax */
 
-import { clone, cloneDeep, assign, isEmpty } from "lodash-es"
-import * as O from "fp-ts/Option"
-import { pipe } from "fp-ts/function"
+import { clone, assign, isEmpty } from "lodash-es"
 import {
-  safelyExtractRESTRequest,
-  translateToNewRequest,
   translateToNewRESTCollection,
   translateToNewGQLCollection,
   Environment,
@@ -41,20 +37,42 @@ import {
   setSelectedEnvironmentIndex,
   selectedEnvironmentIndex$,
 } from "./environments"
-import {
-  getDefaultRESTRequest,
-  restRequest$,
-  setRESTRequest,
-} from "./RESTSession"
 import { WSRequest$, setWSRequest } from "./WebSocketSession"
 import { SIORequest$, setSIORequest } from "./SocketIOSession"
 import { SSERequest$, setSSERequest } from "./SSESession"
 import { MQTTRequest$, setMQTTRequest } from "./MQTTSession"
 import { bulkApplyLocalState, localStateStore } from "./localstate"
-import { StorageLike } from "@vueuse/core"
+import { StorageLike, watchDebounced } from "@vueuse/core"
+import {
+  loadTabsFromPersistedState,
+  persistableTabState,
+} from "~/helpers/rest/tab"
 
 function checkAndMigrateOldSettings() {
+  if (window.localStorage.getItem("selectedEnvIndex")) {
+    const index = window.localStorage.getItem("selectedEnvIndex")
+    if (index) {
+      if (index === "-1") {
+        window.localStorage.setItem(
+          "selectedEnvIndex",
+          JSON.stringify({
+            type: "NO_ENV_SELECTED",
+          })
+        )
+      } else if (Number(index) >= 0) {
+        window.localStorage.setItem(
+          "selectedEnvIndex",
+          JSON.stringify({
+            type: "MY_ENV",
+            index: parseInt(index),
+          })
+        )
+      }
+    }
+  }
+
   const vuexData = JSON.parse(window.localStorage.getItem("vuex") || "{}")
+
   if (isEmpty(vuexData)) return
 
   const { postwoman } = vuexData
@@ -213,35 +231,21 @@ function setupEnvironmentsPersistence() {
 }
 
 function setupSelectedEnvPersistence() {
-  const selectedEnvIndex = pipe(
-    // Value from local storage can be nullable
-    O.fromNullable(window.localStorage.getItem("selectedEnvIndex")),
-    O.map(parseInt), // If not null, parse to integer
-    O.chain(
-      O.fromPredicate(
-        Number.isInteger // Check if the number is proper int (not NaN)
-      )
-    ),
-    O.getOrElse(() => -1) // If all the above conditions pass, we are good, else set default value (-1)
+  const selectedEnvIndex = JSON.parse(
+    window.localStorage.getItem("selectedEnvIndex") ?? "null"
   )
-  // Check if current environment index is -1 ie. no environment is selected
-  if (selectedEnvIndex === -1) {
-    setSelectedEnvironmentIndex({
-      type: "NO_ENV_SELECTED",
-    })
+
+  // If there is a selected env index, set it to the store else set it to null
+  if (selectedEnvIndex) {
+    setSelectedEnvironmentIndex(selectedEnvIndex)
   } else {
     setSelectedEnvironmentIndex({
-      type: "MY_ENV",
-      index: selectedEnvIndex,
+      type: "NO_ENV_SELECTED",
     })
   }
 
   selectedEnvironmentIndex$.subscribe((envIndex) => {
-    if (envIndex.type === "MY_ENV") {
-      window.localStorage.setItem("selectedEnvIndex", envIndex.index.toString())
-    } else {
-      window.localStorage.setItem("selectedEnvIndex", "-1")
-    }
+    window.localStorage.setItem("selectedEnvIndex", JSON.stringify(envIndex))
   })
 }
 
@@ -305,33 +309,28 @@ function setupGlobalEnvsPersistence() {
   })
 }
 
-function setupRequestPersistence() {
-  const localRequest = JSON.parse(
-    window.localStorage.getItem("restRequest") || "null"
-  )
-
-  if (localRequest) {
-    const parsedLocal = translateToNewRequest(localRequest)
-    setRESTRequest(
-      safelyExtractRESTRequest(parsedLocal, getDefaultRESTRequest())
+// TODO: Graceful error handling ?
+export function setupRESTTabsPersistence() {
+  try {
+    const state = window.localStorage.getItem("restTabState")
+    if (state) {
+      const data = JSON.parse(state)
+      loadTabsFromPersistedState(data)
+    }
+  } catch (e) {
+    console.error(
+      `Failed parsing persisted tab state, state:`,
+      window.localStorage.getItem("restTabState")
     )
   }
 
-  restRequest$.subscribe((req) => {
-    const reqClone = cloneDeep(req)
-    if (reqClone.body.contentType === "multipart/form-data") {
-      reqClone.body.body = reqClone.body.body.map((x) => {
-        if (x.isFile)
-          return {
-            ...x,
-            isFile: false,
-            value: "",
-          }
-        else return x
-      })
-    }
-    window.localStorage.setItem("restRequest", JSON.stringify(reqClone))
-  })
+  watchDebounced(
+    persistableTabState,
+    (state) => {
+      window.localStorage.setItem("restTabState", JSON.stringify(state))
+    },
+    { debounce: 500, deep: true }
+  )
 }
 
 export function setupLocalPersistence() {
@@ -339,7 +338,7 @@ export function setupLocalPersistence() {
 
   setupLocalStatePersistence()
   setupSettingsPersistence()
-  setupRequestPersistence()
+  setupRESTTabsPersistence()
   setupHistoryPersistence()
   setupCollectionsPersistence()
   setupGlobalEnvsPersistence()

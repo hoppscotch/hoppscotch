@@ -8,7 +8,7 @@ import {
   GQL_REQ_SCHEMA_VERSION,
 } from "@hoppscotch/data"
 import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
-import { completedRESTResponse$ } from "./RESTSession"
+import { executedResponses$ } from "~/helpers/RequestRunner"
 
 export type RESTHistoryEntry = {
   v: number
@@ -163,6 +163,20 @@ const RESTHistoryDispatchers = defineDispatchers({
       }),
     }
   },
+  // only used for history.sync.ts to prevent double insertion of history entries from storeSync and Subscriptions
+  removeDuplicateEntry(currentVal: RESTHistoryType, { id }: { id: string }) {
+    const entries = currentVal.state.filter((e) => e.id === id)
+
+    if (entries.length == 2) {
+      const indexToRemove = currentVal.state.findIndex((e) => e.id === id)
+
+      currentVal.state.splice(indexToRemove, 1)
+    }
+
+    return {
+      state: currentVal.state,
+    }
+  },
 })
 
 const GQLHistoryDispatchers = defineDispatchers({
@@ -210,6 +224,20 @@ const GQLHistoryDispatchers = defineDispatchers({
         }
         return e
       }),
+    }
+  },
+  // only used for history.sync.ts to prevent double insertion of history entries from storeSync and Subscriptions
+  removeDuplicateEntry(currentVal: GraphqlHistoryType, { id }: { id: string }) {
+    const entries = currentVal.state.filter((e) => e.id === id)
+
+    if (entries.length == 2) {
+      const indexToRemove = currentVal.state.findIndex((e) => e.id === id)
+
+      currentVal.state.splice(indexToRemove, 1)
+    }
+
+    return {
+      state: currentVal.state,
     }
   },
 })
@@ -297,37 +325,42 @@ export function toggleGraphqlHistoryEntryStar(entry: GQLHistoryEntry) {
   })
 }
 
-// Listen to completed responses to add to history
-completedRESTResponse$.subscribe((res) => {
-  if (res !== null) {
-    if (
-      res.type === "loading" ||
-      res.type === "network_fail" ||
-      res.type === "script_fail"
-    )
-      return
+export function removeDuplicateRestHistoryEntry(id: string) {
+  restHistoryStore.dispatch({
+    dispatcher: "removeDuplicateEntry",
+    payload: { id },
+  })
+}
 
-    addRESTHistoryEntry(
-      makeRESTHistoryEntry({
-        request: {
-          auth: res.req.auth,
-          body: res.req.body,
-          endpoint: res.req.endpoint,
-          headers: res.req.headers,
-          method: res.req.method,
-          name: res.req.name,
-          params: res.req.params,
-          preRequestScript: res.req.preRequestScript,
-          testScript: res.req.testScript,
-          v: res.req.v,
-        },
-        responseMeta: {
-          duration: res.meta.responseDuration,
-          statusCode: res.statusCode,
-        },
-        star: false,
-        updatedOn: new Date(),
-      })
-    )
-  }
+export function removeDuplicateGraphqlHistoryEntry(id: string) {
+  graphqlHistoryStore.dispatch({
+    dispatcher: "removeDuplicateEntry",
+    payload: { id },
+  })
+}
+
+// Listen to completed responses to add to history
+executedResponses$.subscribe((res) => {
+  addRESTHistoryEntry(
+    makeRESTHistoryEntry({
+      request: {
+        auth: res.req.auth,
+        body: res.req.body,
+        endpoint: res.req.endpoint,
+        headers: res.req.headers,
+        method: res.req.method,
+        name: res.req.name,
+        params: res.req.params,
+        preRequestScript: res.req.preRequestScript,
+        testScript: res.req.testScript,
+        v: res.req.v,
+      },
+      responseMeta: {
+        duration: res.meta.responseDuration,
+        statusCode: res.statusCode,
+      },
+      star: false,
+      updatedOn: new Date(),
+    })
+  )
 })

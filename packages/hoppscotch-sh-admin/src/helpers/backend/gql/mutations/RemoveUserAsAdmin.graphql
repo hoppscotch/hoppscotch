@@ -1,0 +1,3 @@
+mutation RemoveUserAsAdmin($uid: ID!) {
+  removeUserAsAdmin(userUID: $uid)
+}

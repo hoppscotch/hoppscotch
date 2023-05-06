@@ -1,11 +1,23 @@
 <template>
-  <div :class="{ 'rounded border border-divider': saveRequest }">
+  <div
+    :class="{
+      'rounded border border-divider': saveRequest,
+      'bg-primaryDark':
+        draggingToRoot && currentReorderingStatus.type !== 'request',
+    }"
+    class="flex-1"
+    @drop.prevent="dropToRoot"
+    @dragover.prevent="draggingToRoot = true"
+    @dragend="draggingToRoot = false"
+  >
     <div
-      class="sticky z-10 flex flex-col flex-shrink-0 overflow-x-auto rounded-t bg-primary"
+      class="sticky z-10 flex flex-col flex-shrink-0 overflow-x-auto border-b bg-primary border-dividerLight"
+      :class="{ 'rounded-t': saveRequest }"
       :style="
         saveRequest ? 'top: calc(-1 * var(--line-height-body))' : 'top: 0'
       "
     >
+      <WorkspaceCurrent :section="t('tab.collections')" />
       <input
         v-model="filterTexts"
         type="search"
@@ -15,94 +27,73 @@
         :disabled="collectionsType.type === 'team-collections'"
       />
     </div>
-    <HoppSmartTabs
-      v-model="selectedCollectionTab"
-      render-inactive-tabs
-      :styles="`
-        sticky overflow-x-auto border-y bg-primary border-dividerLight flex-shrink-0 z-10
-        ${
-          saveRequest
-            ? 'top-sidebarSecondaryStickyFold'
-            : 'top-sidebarPrimaryStickyFold'
-        }
-      `"
+    <CollectionsMyCollections
+      v-if="collectionsType.type === 'my-collections'"
+      :collections-type="collectionsType"
+      :filtered-collections="filteredCollections"
+      :filter-text="filterTexts"
+      :save-request="saveRequest"
+      :picked="picked"
+      @add-folder="addFolder"
+      @add-request="addRequest"
+      @edit-collection="editCollection"
+      @edit-folder="editFolder"
+      @export-data="exportData"
+      @remove-collection="removeCollection"
+      @remove-folder="removeFolder"
+      @drop-collection="dropCollection"
+      @export-postman-collection="exportPostmanCollection"
+      @update-request-order="updateRequestOrder"
+      @update-collection-order="updateCollectionOrder"
+      @edit-request="editRequest"
+      @duplicate-request="duplicateRequest"
+      @remove-request="removeRequest"
+      @select-request="selectRequest"
+      @select="selectPicked"
+      @drop-request="dropRequest"
+      @display-modal-add="displayModalAdd(true)"
+      @display-modal-import-export="displayModalImportExport(true)"
+    />
+    <CollectionsTeamCollections
+      v-else
+      :collections-type="collectionsType"
+      :team-collection-list="teamCollectionList"
+      :team-loading-collections="teamLoadingCollections"
+      :export-loading="exportLoading"
+      :duplicate-loading="duplicateLoading"
+      :save-request="saveRequest"
+      :picked="picked"
+      :collection-move-loading="collectionMoveLoading"
+      :request-move-loading="requestMoveLoading"
+      @add-request="addRequest"
+      @add-folder="addFolder"
+      @edit-collection="editCollection"
+      @edit-folder="editFolder"
+      @export-data="exportData"
+      @export-postman-collection="exportPostmanCollection"
+      @remove-collection="removeCollection"
+      @remove-folder="removeFolder"
+      @edit-request="editRequest"
+      @duplicate-request="duplicateRequest"
+      @remove-request="removeRequest"
+      @select-request="selectRequest"
+      @select="selectPicked"
+      @drop-request="dropRequest"
+      @drop-collection="dropCollection"
+      @update-request-order="updateRequestOrder"
+      @update-collection-order="updateCollectionOrder"
+      @expand-team-collection="expandTeamCollection"
+      @display-modal-add="displayModalAdd(true)"
+      @display-modal-import-export="displayModalImportExport(true)"
+    />
+    <div
+      class="hidden bg-primaryDark flex-col flex-1 items-center py-15 justify-center px-4 text-secondaryLight"
+      :class="{
+        '!flex': draggingToRoot && currentReorderingStatus.type !== 'request',
+      }"
     >
-      <HoppSmartTab
-        :id="'my-collections'"
-        :label="`${t('collection.my_collections')}`"
-      >
-        <CollectionsMyCollections
-          :collections-type="collectionsType"
-          :filtered-collections="filteredCollections"
-          :filter-text="filterTexts"
-          :save-request="saveRequest"
-          :picked="picked"
-          @add-folder="addFolder"
-          @add-request="addRequest"
-          @edit-collection="editCollection"
-          @edit-folder="editFolder"
-          @export-data="exportData"
-          @export-postman-collection="exportPostmanCollection"
-          @remove-collection="removeCollection"
-          @remove-folder="removeFolder"
-          @edit-request="editRequest"
-          @duplicate-request="duplicateRequest"
-          @remove-request="removeRequest"
-          @select-request="selectRequest"
-          @select="selectPicked"
-          @drop-request="dropRequest"
-          @display-modal-add="displayModalAdd(true)"
-          @display-modal-import-export="displayModalImportExport(true)"
-        />
-      </HoppSmartTab>
-      <HoppSmartTab
-        :id="'team-collections'"
-        :label="`${t('collection.team_collections')}`"
-      >
-        <div
-          class="sticky z-10 flex flex-1 bg-primary"
-          :style="
-            saveRequest
-              ? 'top: calc(var(--upper-primary-sticky-fold) - var(--line-height-body))'
-              : 'top: var(--upper-primary-sticky-fold)'
-          "
-        >
-          <CollectionsTeamSelect
-            :collections-type="collectionsType"
-            :my-teams="myTeams"
-            :is-team-list-loading="isTeamListLoading"
-            @update-selected-team="updateSelectedTeam"
-            @team-select-intersect="onTeamSelectIntersect"
-            @display-team-modal-add="displayTeamModalAdd(true)"
-          />
-        </div>
-        <CollectionsTeamCollections
-          :collections-type="collectionsType"
-          :team-collection-list="teamCollectionList"
-          :team-loading-collections="teamLoadingCollections"
-          :export-loading="exportLoading"
-          :duplicate-loading="duplicateLoading"
-          :save-request="saveRequest"
-          :picked="picked"
-          @add-request="addRequest"
-          @add-folder="addFolder"
-          @edit-collection="editCollection"
-          @edit-folder="editFolder"
-          @export-data="exportData"
-          @export-postman-collection="exportPostmanCollection"
-          @remove-collection="removeCollection"
-          @remove-folder="removeFolder"
-          @edit-request="editRequest"
-          @duplicate-request="duplicateRequest"
-          @remove-request="removeRequest"
-          @select-request="selectRequest"
-          @select="selectPicked"
-          @expand-team-collection="expandTeamCollection"
-          @display-modal-add="displayModalAdd(true)"
-          @display-modal-import-export="displayModalImportExport(true)"
-        />
-      </HoppSmartTab>
-    </HoppSmartTabs>
+      <icon-lucide-list-end class="svg-icons !w-8 !h-8" />
+    </div>
     <CollectionsAdd
       :show="showModalAdd"
       :loading-state="modalLoadingState"
@@ -160,18 +151,6 @@
       @import-to-teams="importToTeams"
       @hide-modal="displayModalImportExport(false)"
     />
-    <HttpReqChangeConfirmModal
-      :show="confirmChangeToRequest"
-      :loading="modalLoadingState"
-      @hide-modal="confirmChangeToRequest = false"
-      @save-change="saveRequestChange"
-      @discard-change="discardRequestChange"
-    />
-    <CollectionsSaveRequest
-      mode="rest"
-      :show="showSaveRequestModal"
-      @hide-modal="showSaveRequestModal = false"
-    />
     <TeamsAdd
       :show="showTeamModalAdd"
       @hide-modal="displayTeamModalAdd(false)"
@@ -180,7 +159,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, PropType, reactive, ref, watch, nextTick } from "vue"
+import { computed, PropType, ref, watch } from "vue"
 import { useToast } from "@composables/toast"
 import { useI18n } from "@composables/i18n"
 import { Picked } from "~/helpers/types/HoppPicked"
@@ -203,24 +182,19 @@ import {
   removeRESTRequest,
   restCollections$,
   saveRESTRequestAs,
+  updateRESTRequestOrder,
+  updateRESTCollectionOrder,
+  moveRESTFolder,
+  navigateToFolderWithIndexPath,
+  restCollectionStore,
 } from "~/newstore/collections"
 import TeamCollectionAdapter from "~/helpers/teams/TeamCollectionAdapter"
 import {
   HoppCollection,
   HoppRESTRequest,
-  isEqualHoppRESTRequest,
   makeCollection,
-  safelyExtractRESTRequest,
-  translateToNewRequest,
 } from "@hoppscotch/data"
-import {
-  getDefaultRESTRequest,
-  getRESTRequest,
-  getRESTSaveContext,
-  setRESTRequest,
-  setRESTSaveContext,
-} from "~/newstore/RESTSession"
-import { cloneDeep } from "lodash-es"
+import { cloneDeep, isEqual } from "lodash-es"
 import { GQLError } from "~/helpers/backend/GQLClient"
 import {
   createNewRootCollection,
@@ -228,11 +202,15 @@ import {
   renameCollection,
   deleteCollection,
   importJSONToTeam,
+  moveRESTTeamCollection,
+  updateOrderRESTTeamCollection,
 } from "~/helpers/backend/mutations/TeamCollection"
 import {
   updateTeamRequest,
   createRequestInCollection,
   deleteTeamRequest,
+  moveRESTTeamRequest,
+  updateOrderRESTTeamRequest,
 } from "~/helpers/backend/mutations/TeamRequest"
 import { TeamCollection } from "~/helpers/teams/TeamCollection"
 import { Collection as NodeCollection } from "./MyCollections.vue"
@@ -241,12 +219,28 @@ import {
   getTeamCollectionJSON,
   teamCollToHoppRESTColl,
 } from "~/helpers/backend/helpers"
-import { HoppRequestSaveContext } from "~/helpers/types/HoppRequestSaveContext"
 import * as E from "fp-ts/Either"
 import { platform } from "~/platform"
 import { createCollectionGists } from "~/helpers/gist"
-import { invokeAction } from "~/helpers/actions"
+import { workspaceStatus$ } from "~/newstore/workspace"
 import { exportMyCollectionToPostmanCollection } from "~/helpers/import-export/export/postman"
+import {
+  createNewTab,
+  currentActiveTab,
+  currentTabID,
+  getTabRefWithSaveContext,
+} from "~/helpers/rest/tab"
+import {
+  getRequestsByPath,
+  resolveSaveContextOnRequestReorder,
+} from "~/helpers/collection/request"
+import {
+  getFoldersByPath,
+  resolveSaveContextOnCollectionReorder,
+  updateSaveContextForAffectedRequests,
+  resetTeamRequestsContext,
+} from "~/helpers/collection/collection"
+import { currentReorderingStatus$ } from "~/newstore/reordering"
 
 const t = useI18n()
 const toast = useToast()
@@ -270,8 +264,6 @@ const emit = defineEmits<{
   (event: "update-collection-type", type: CollectionType["type"]): void
 }>()
 
-type CollectionTabs = "my-collections" | "team-collections"
-
 type SelectedTeam = GetMyTeamsQuery["myTeams"][number] | undefined
 
 type CollectionType =
@@ -281,25 +273,10 @@ type CollectionType =
     }
   | { type: "my-collections"; selectedTeam: undefined }
 
-const selectedCollectionTab = ref<CollectionTabs>("my-collections")
-
 const collectionsType = ref<CollectionType>({
   type: "my-collections",
   selectedTeam: undefined,
 })
-
-watch(
-  () => selectedCollectionTab.value,
-  (tab) => {
-    if (tab === "team-collections" && !currentUser.value) {
-      invokeAction("modals.login.toggle")
-      nextTick(() => (selectedCollectionTab.value = "my-collections"))
-    } else {
-      collectionsType.value.type = tab
-      emit("update-collection-type", tab)
-    }
-  }
-)
 
 // Collection Data
 const editingCollection = ref<
@@ -327,25 +304,20 @@ const currentUser = useReadonlyStream(
 )
 const myCollections = useReadonlyStream(restCollections$, [], "deep")
 
+// Draging
+const draggingToRoot = ref(false)
+const collectionMoveLoading = ref<string[]>([])
+const requestMoveLoading = ref<string[]>([])
+
 // Export - Import refs
 const collectionJSON = ref("")
 const exportingTeamCollections = ref(false)
 const creatingGistCollection = ref(false)
 const importingMyCollections = ref(false)
 
-// Confirm Change to request modal
-const confirmChangeToRequest = ref(false)
-const showSaveRequestModal = ref(false)
-const clickedRequest = reactive({
-  folderPath: "" as string | undefined,
-  requestIndex: null as string | null,
-  request: null as HoppRESTRequest | null,
-})
-
 // TeamList-Adapter
 const teamListAdapter = new TeamListAdapter(true)
 const myTeams = useReadonlyStream(teamListAdapter.teamList$, null)
-const isTeamListLoading = useReadonlyStream(teamListAdapter.loading$, false)
 const REMEMBERED_TEAM_ID = useLocalState("REMEMBERED_TEAM_ID")
 const teamListFetched = ref(false)
 
@@ -361,6 +333,19 @@ const teamLoadingCollections = useReadonlyStream(
 )
 
 watch(
+  () => myTeams.value,
+  (newTeams) => {
+    if (newTeams && !teamListFetched.value) {
+      teamListFetched.value = true
+      if (REMEMBERED_TEAM_ID.value && currentUser.value) {
+        const team = newTeams.find((t) => t.id === REMEMBERED_TEAM_ID.value)
+        if (team) updateSelectedTeam(team)
+      }
+    }
+  }
+)
+
+watch(
   () => collectionsType.value.selectedTeam,
   (newTeam) => {
     if (newTeam) {
@@ -369,48 +354,62 @@ watch(
   }
 )
 
+const switchToMyCollections = () => {
+  collectionsType.value.type = "my-collections"
+  collectionsType.value.selectedTeam = undefined
+  teamCollectionAdapter.changeTeamID(null)
+}
+
 const expandTeamCollection = (collectionID: string) => {
   teamCollectionAdapter.expandCollection(collectionID)
 }
 
-watch(myTeams, (teams) => {
-  if (teams && !teamListFetched.value) {
-    teamListFetched.value = true
-    if (REMEMBERED_TEAM_ID.value && currentUser.value) {
-      const team = teams.find((t) => t.id === REMEMBERED_TEAM_ID.value)
-      if (team) updateSelectedTeam(team)
-    }
-  }
-})
-
 const updateSelectedTeam = (team: SelectedTeam) => {
   if (team) {
+    collectionsType.value.type = "team-collections"
     collectionsType.value.selectedTeam = team
     REMEMBERED_TEAM_ID.value = team.id
     emit("update-team", team)
+    emit("update-collection-type", "team-collections")
   }
 }
 
 onLoggedIn(() => {
-  teamListAdapter.initialize()
+  !teamListAdapter.isInitialized && teamListAdapter.initialize()
 })
 
-const onTeamSelectIntersect = () => {
-  // Load team data as soon as intersection
-  teamListAdapter.fetchList()
-}
+const workspace = useReadonlyStream(workspaceStatus$, { type: "personal" })
+
+// Used to switch collection type and team when user switch workspace in the global workspace switcher
+// Check if there is a teamID in the workspace, if yes, switch to team collection and select the team
+// If there is no teamID, switch to my environment
+watch(
+  () => workspace.value.teamID,
+  (teamID) => {
+    if (!teamID) {
+      switchToMyCollections()
+    } else if (teamID) {
+      const team = myTeams.value?.find((t) => t.id === teamID)
+      if (team) updateSelectedTeam(team)
+    }
+  }
+)
 
 // Switch to my-collections and reset the team collection when user logout
 watch(
   () => currentUser.value,
   (user) => {
     if (!user) {
-      selectedCollectionTab.value = "my-collections"
-      collectionsType.value.selectedTeam = undefined
-      teamCollectionAdapter.changeTeamID(null)
+      switchToMyCollections()
     }
   }
 )
+
+const currentReorderingStatus = useReadonlyStream(currentReorderingStatus$, {
+  type: "collection",
+  id: "",
+  parentID: "",
+})
 
 const hasTeamWriteAccess = computed(() => {
   if (!collectionsType.value.selectedTeam) return false
@@ -469,62 +468,60 @@ const filteredCollections = computed(() => {
   return filteredCollections
 })
 
-const isSelected = computed(() => {
-  return ({
-    collectionIndex,
-    folderPath,
-    requestIndex,
-    collectionID,
-    folderID,
-    requestID,
-  }: {
-    collectionIndex?: number | undefined
-    folderPath?: string | undefined
-    requestIndex?: number | undefined
-    collectionID?: string | undefined
-    folderID?: string | undefined
-    requestID?: string | undefined
-  }) => {
-    if (collectionIndex !== undefined) {
-      return (
-        props.picked &&
-        props.picked.pickedType === "my-collection" &&
-        props.picked.collectionIndex === collectionIndex
-      )
-    } else if (requestIndex !== undefined && folderPath !== undefined) {
-      return (
-        props.picked &&
-        props.picked.pickedType === "my-request" &&
-        props.picked.folderPath === folderPath &&
-        props.picked.requestIndex === requestIndex
-      )
-    } else if (folderPath !== undefined) {
-      return (
-        props.picked &&
-        props.picked.pickedType === "my-folder" &&
-        props.picked.folderPath === folderPath
-      )
-    } else if (collectionID !== undefined) {
-      return (
-        props.picked &&
-        props.picked.pickedType === "teams-collection" &&
-        props.picked.collectionID === collectionID
-      )
-    } else if (requestID !== undefined) {
-      return (
-        props.picked &&
-        props.picked.pickedType === "teams-request" &&
-        props.picked.requestID === requestID
-      )
-    } else if (folderID !== undefined) {
-      return (
-        props.picked &&
-        props.picked.pickedType === "teams-folder" &&
-        props.picked.folderID === folderID
-      )
-    }
+const isSelected = ({
+  collectionIndex,
+  folderPath,
+  requestIndex,
+  collectionID,
+  folderID,
+  requestID,
+}: {
+  collectionIndex?: number | undefined
+  folderPath?: string | undefined
+  requestIndex?: number | undefined
+  collectionID?: string | undefined
+  folderID?: string | undefined
+  requestID?: string | undefined
+}) => {
+  if (collectionIndex !== undefined) {
+    return (
+      props.picked &&
+      props.picked.pickedType === "my-collection" &&
+      props.picked.collectionIndex === collectionIndex
+    )
+  } else if (requestIndex !== undefined && folderPath !== undefined) {
+    return (
+      props.picked &&
+      props.picked.pickedType === "my-request" &&
+      props.picked.folderPath === folderPath &&
+      props.picked.requestIndex === requestIndex
+    )
+  } else if (folderPath !== undefined) {
+    return (
+      props.picked &&
+      props.picked.pickedType === "my-folder" &&
+      props.picked.folderPath === folderPath
+    )
+  } else if (collectionID !== undefined) {
+    return (
+      props.picked &&
+      props.picked.pickedType === "teams-collection" &&
+      props.picked.collectionID === collectionID
+    )
+  } else if (requestID !== undefined) {
+    return (
+      props.picked &&
+      props.picked.pickedType === "teams-request" &&
+      props.picked.requestID === requestID
+    )
+  } else if (folderID !== undefined) {
+    return (
+      props.picked &&
+      props.picked.pickedType === "teams-folder" &&
+      props.picked.folderID === folderID
+    )
   }
-})
+}
 
 const modalLoadingState = ref(false)
 const exportLoading = ref(false)
@@ -638,7 +635,7 @@ const addRequest = (payload: {
 
 const onAddRequest = (requestName: string) => {
   const newRequest = {
-    ...cloneDeep(getRESTRequest()),
+    ...cloneDeep(currentActiveTab.value.document.request),
     name: requestName,
   }
 
@@ -647,10 +644,14 @@ const onAddRequest = (requestName: string) => {
     if (!path) return
     const insertionIndex = saveRESTRequestAs(path, newRequest)
 
-    setRESTRequest(newRequest, {
-      originLocation: "user-collection",
-      folderPath: path,
-      requestIndex: insertionIndex,
+    createNewTab({
+      request: newRequest,
+      isDirty: false,
+      saveContext: {
+        originLocation: "user-collection",
+        folderPath: path,
+        requestIndex: insertionIndex,
+      },
     })
 
     displayModalAddRequest(false)
@@ -678,12 +679,17 @@ const onAddRequest = (requestName: string) => {
         (result) => {
           const { createRequestInCollection } = result
 
-          setRESTRequest(newRequest, {
-            originLocation: "team-collection",
-            requestID: createRequestInCollection.id,
-            collectionID: createRequestInCollection.collection.id,
-            teamID: createRequestInCollection.collection.team.id,
+          createNewTab({
+            request: newRequest,
+            isDirty: false,
+            saveContext: {
+              originLocation: "team-collection",
+              requestID: createRequestInCollection.id,
+              collectionID: createRequestInCollection.collection.id,
+              teamID: createRequestInCollection.collection.team.id,
+            },
           })
+
           modalLoadingState.value = false
           displayModalAddRequest(false)
         }
@@ -874,27 +880,22 @@ const updateEditingRequest = (newName: string) => {
     ...request,
     name: newName || request.name,
   }
-
-  const saveCtx = getRESTSaveContext()
-
   if (collectionsType.value.type === "my-collections") {
     const folderPath = editingFolderPath.value
     const requestIndex = editingRequestIndex.value
 
     if (folderPath === null || requestIndex === null) return
 
+    const possibleActiveTab = getTabRefWithSaveContext({
+      originLocation: "user-collection",
+      requestIndex,
+      folderPath,
+    })
+
     editRESTRequest(folderPath, requestIndex, requestUpdated)
 
-    if (
-      saveCtx &&
-      saveCtx.originLocation === "user-collection" &&
-      saveCtx.requestIndex === editingRequestIndex.value &&
-      saveCtx.folderPath === editingFolderPath.value
-    ) {
-      setRESTRequest({
-        ...getRESTRequest(),
-        name: requestUpdated.name,
-      })
+    if (possibleActiveTab) {
+      possibleActiveTab.value.document.request.name = requestUpdated.name
     }
 
     displayModalEditRequest(false)
@@ -926,15 +927,13 @@ const updateEditingRequest = (newName: string) => {
       )
     )()
 
-    if (
-      saveCtx &&
-      saveCtx.originLocation === "team-collection" &&
-      saveCtx.requestID === editingRequestID.value
-    ) {
-      setRESTRequest({
-        ...getRESTRequest(),
-        name: requestName,
-      })
+    const possibleTab = getTabRefWithSaveContext({
+      originLocation: "team-collection",
+      requestID,
+    })
+
+    if (possibleTab) {
+      possibleTab.value.document.request.name = requestName
     }
   }
 }
@@ -996,10 +995,10 @@ const removeCollection = (id: string) => {
  * since folder is treated as collection in the BE.
  * @param collectionID - ID of the collection or folder to be deleted.
  */
-const removeTeamCollectionOrFolder = (collectionID: string) => {
+const removeTeamCollectionOrFolder = async (collectionID: string) => {
   modalLoadingState.value = true
 
-  pipe(
+  await pipe(
     deleteCollection(collectionID),
     TE.match(
       (err: GQLError<string>) => {
@@ -1019,17 +1018,34 @@ const onRemoveCollection = () => {
   if (collectionsType.value.type === "my-collections") {
     const collectionIndex = editingCollectionIndex.value
 
+    const collectionToRemove =
+      collectionIndex || collectionIndex == 0
+        ? navigateToFolderWithIndexPath(restCollectionStore.value.state, [
+            collectionIndex,
+          ])
+        : undefined
+
     if (collectionIndex === null) return
 
     if (
-      isSelected.value({
+      isSelected({
         collectionIndex,
       })
     ) {
       emit("select", null)
     }
 
-    removeRESTCollection(collectionIndex)
+    removeRESTCollection(
+      collectionIndex,
+      collectionToRemove ? collectionToRemove.id : undefined
+    )
+
+    resolveSaveContextOnCollectionReorder({
+      lastIndex: collectionIndex,
+      newIndex: -1,
+      folderPath: "", // root folder
+      length: myCollections.value.length,
+    })
 
     toast.success(t("state.deleted"))
     displayConfirmModal(false)
@@ -1039,14 +1055,16 @@ const onRemoveCollection = () => {
     if (!collectionID) return
 
     if (
-      isSelected.value({
+      isSelected({
         collectionID,
       })
     ) {
       emit("select", null)
     }
 
-    removeTeamCollectionOrFolder(collectionID)
+    removeTeamCollectionOrFolder(collectionID).then(() => {
+      resetTeamRequestsContext()
+    })
   }
 }
 
@@ -1066,14 +1084,29 @@ const onRemoveFolder = () => {
     if (!folderPath) return
 
     if (
-      isSelected.value({
+      isSelected({
         folderPath,
       })
     ) {
       emit("select", null)
     }
 
-    removeRESTFolder(folderPath)
+    const folderToRemove = folderPath
+      ? navigateToFolderWithIndexPath(
+          restCollectionStore.value.state,
+          folderPath.split("/").map((i) => parseInt(i))
+        )
+      : undefined
+
+    removeRESTFolder(folderPath, folderToRemove ? folderToRemove.id : undefined)
+
+    const parentFolder = folderPath.split("/").slice(0, -1).join("/") // remove last folder to get parent folder
+    resolveSaveContextOnCollectionReorder({
+      lastIndex: pathToLastIndex(folderPath),
+      newIndex: -1,
+      folderPath: parentFolder,
+      length: getFoldersByPath(myCollections.value, parentFolder).length,
+    })
 
     toast.success(t("state.deleted"))
     displayConfirmModal(false)
@@ -1083,14 +1116,16 @@ const onRemoveFolder = () => {
     if (!collectionID) return
 
     if (
-      isSelected.value({
+      isSelected({
         collectionID,
       })
     ) {
       emit("select", null)
     }
 
-    removeTeamCollectionOrFolder(collectionID)
+    removeTeamCollectionOrFolder(collectionID).then(() => {
+      resetTeamRequestsContext()
+    })
   }
 }
 
@@ -1117,7 +1152,7 @@ const onRemoveRequest = () => {
     if (folderPath === null || requestIndex === null) return
 
     if (
-      isSelected.value({
+      isSelected({
         folderPath,
         requestIndex,
       })
@@ -1125,7 +1160,32 @@ const onRemoveRequest = () => {
       emit("select", null)
     }
 
-    removeRESTRequest(folderPath, requestIndex)
+    const possibleTab = getTabRefWithSaveContext({
+      originLocation: "user-collection",
+      folderPath,
+      requestIndex,
+    })
+
+    // If there is a tab attached to this request, dissociate its state and mark it dirty
+    if (possibleTab) {
+      possibleTab.value.document.saveContext = null
+      possibleTab.value.document.isDirty = true
+    }
+
+    const requestToRemove = navigateToFolderWithIndexPath(
+      restCollectionStore.value.state,
+      folderPath.split("/").map((i) => parseInt(i))
+    )?.requests[requestIndex]
+
+    removeRESTRequest(folderPath, requestIndex, requestToRemove?.id)
+
+    // the same function is used to reorder requests since after removing, it's basically doing reorder
+    resolveSaveContextOnRequestReorder({
+      lastIndex: requestIndex,
+      newIndex: -1,
+      folderPath,
+      length: getRequestsByPath(myCollections.value, folderPath).length,
+    })
 
     toast.success(t("state.deleted"))
     displayConfirmModal(false)
@@ -1135,7 +1195,7 @@ const onRemoveRequest = () => {
     if (!requestID) return
 
     if (
-      isSelected.value({
+      isSelected({
         requestID,
       })
     ) {
@@ -1158,47 +1218,23 @@ const onRemoveRequest = () => {
         }
       )
     )()
+
+    // If there is a tab attached to this request, dissociate its state and mark it dirty
+    const possibleTab = getTabRefWithSaveContext({
+      originLocation: "team-collection",
+      requestID,
+    })
+
+    if (possibleTab) {
+      possibleTab.value.document.saveContext = null
+      possibleTab.value.document.isDirty = true
+    }
   }
 }
 
 // The request is picked in the save request as modal
 const selectPicked = (payload: Picked | null) => {
   emit("select", payload)
-}
-
-// select request change modal functions
-const noChangeSetRESTRequest = () => {
-  const folderPath = clickedRequest.folderPath
-  const requestIndex = clickedRequest.requestIndex
-  const request = clickedRequest.request
-
-  let newContext: HoppRequestSaveContext | null = null
-  if (collectionsType.value.type === "my-collections") {
-    if (!folderPath || !requestIndex || !request) return
-
-    newContext = {
-      originLocation: "user-collection",
-      requestIndex: parseInt(requestIndex),
-      folderPath,
-      req: cloneDeep(request),
-    }
-  } else if (collectionsType.value.type === "team-collections") {
-    if (!requestIndex || !request) return
-    newContext = {
-      originLocation: "team-collection",
-      requestID: requestIndex,
-      req: cloneDeep(request),
-    }
-  }
-  setRESTRequest(
-    cloneDeep(
-      safelyExtractRESTRequest(
-        translateToNewRequest(request),
-        getDefaultRESTRequest()
-      )
-    ),
-    newContext
-  )
 }
 
 /**
@@ -1211,114 +1247,142 @@ const selectRequest = (selectedRequest: {
   requestIndex: string
   isActive: boolean
 }) => {
-  const { request, folderPath, requestIndex, isActive } = selectedRequest
-  // If the request is already active, then we reset the save context
-  if (isActive) {
-    setRESTSaveContext(null)
-    return
-  }
+  const { request, folderPath, requestIndex } = selectedRequest
 
-  const currentRESTRequest = getRESTRequest()
+  // If there is a request with this save context, switch into it
+  let possibleTab = null
 
-  const currentRESTSaveContext = getRESTSaveContext()
-
-  clickedRequest.folderPath = folderPath
-  clickedRequest.requestIndex = requestIndex
-  clickedRequest.request = request
-
-  // If there is no active context,
-  if (!currentRESTSaveContext) {
-    // Check if the use is clicking on the same request
-    if (isEqualHoppRESTRequest(currentRESTRequest, request)) {
-      noChangeSetRESTRequest()
+  if (collectionsType.value.type === "team-collections") {
+    possibleTab = getTabRefWithSaveContext({
+      originLocation: "team-collection",
+      requestID: requestIndex,
+    })
+    if (possibleTab) {
+      currentTabID.value = possibleTab.value.id
     } else {
-      // can show the save change modal here since there is change in the request
-      // and the user is clicking on the different request
-      // and currently we dont have any active context
-
-      confirmChangeToRequest.value = true
+      createNewTab({
+        request: cloneDeep(request),
+        isDirty: false,
+        saveContext: {
+          originLocation: "team-collection",
+          requestID: requestIndex,
+        },
+      })
     }
   } else {
-    if (isEqualHoppRESTRequest(currentRESTRequest, request)) {
-      noChangeSetRESTRequest()
+    possibleTab = getTabRefWithSaveContext({
+      originLocation: "user-collection",
+      requestIndex: parseInt(requestIndex),
+      folderPath: folderPath!,
+    })
+    if (possibleTab) {
+      currentTabID.value = possibleTab.value.id
     } else {
-      const currentReqWithNoChange = currentRESTSaveContext.req
-      // now we compare the current request
-      // with the request inside the active context
-      if (
-        currentReqWithNoChange &&
-        isEqualHoppRESTRequest(currentReqWithNoChange, currentRESTRequest)
-      ) {
-        noChangeSetRESTRequest()
-      } else {
-        // there is change in the request
-        // so we can show the save change modal here
-        confirmChangeToRequest.value = true
-      }
+      // If not, open the request in a new tab
+      createNewTab({
+        request: cloneDeep(request),
+        isDirty: false,
+        saveContext: {
+          originLocation: "user-collection",
+          folderPath: folderPath!,
+          requestIndex: parseInt(requestIndex),
+        },
+      })
     }
   }
 }
 
 /**
- * This function is called when the user clicks on the save button in the confirm change modal
- * There are two cases
- * 1. There is no active context
- * 2. There is active context
- * In the first case, we can show the save request as modal and user can select the location to save the request
- * In the second case, we can save the request in the same location and update the request
+ * Used to get the index of the request from the path
+ * @param path The path of the request
+ * @returns The index of the request
  */
-const saveRequestChange = () => {
-  const currentRESTSaveContext = getRESTSaveContext()
+const pathToLastIndex = (path: string) => {
+  const pathArr = path.split("/")
+  return parseInt(pathArr[pathArr.length - 1])
+}
 
-  if (!currentRESTSaveContext) {
-    showSaveRequestModal.value = true
-    confirmChangeToRequest.value = false
-    return
-  }
+/**
+ * This function is called when the user drops the request inside a collection
+ * @param payload Object that contains the folder path, request index and the destination collection index
+ */
+const dropRequest = (payload: {
+  folderPath?: string | undefined
+  requestIndex: string
+  destinationCollectionIndex: string
+}) => {
+  const { folderPath, requestIndex, destinationCollectionIndex } = payload
 
-  const currentRESTRequest = getRESTRequest()
+  if (!requestIndex || !destinationCollectionIndex) return
 
-  if (currentRESTSaveContext.originLocation === "user-collection") {
-    const folderPath = currentRESTSaveContext.folderPath
-    const requestIndex = currentRESTSaveContext.requestIndex
+  if (collectionsType.value.type === "my-collections" && folderPath) {
+    moveRESTRequest(
+      folderPath,
+      pathToLastIndex(requestIndex),
+      destinationCollectionIndex
+    )
 
-    editRESTRequest(folderPath, requestIndex, currentRESTRequest)
+    const possibleTab = getTabRefWithSaveContext({
+      originLocation: "user-collection",
+      folderPath,
+      requestIndex: pathToLastIndex(requestIndex),
+    })
 
-    // after saving the request, we need to change the context
-    // to the new request (clicked request)
-    noChangeSetRESTRequest()
-
-    toast.success(`${t("request.saved")}`)
-    confirmChangeToRequest.value = false
-  } else {
-    modalLoadingState.value = true
-
-    const requestID = currentRESTSaveContext.requestID
-
-    const data = {
-      request: JSON.stringify(currentRESTRequest),
-      title: currentRESTRequest.name,
+    // If there is a tab attached to this request, change save its save context
+    if (possibleTab) {
+      possibleTab.value.document.saveContext = {
+        originLocation: "user-collection",
+        folderPath: destinationCollectionIndex,
+        requestIndex: getRequestsByPath(
+          myCollections.value,
+          destinationCollectionIndex
+        ).length,
+      }
     }
 
+    // When it's drop it's basically getting deleted from last folder. reordering last folder accordingly
+    resolveSaveContextOnRequestReorder({
+      lastIndex: pathToLastIndex(requestIndex),
+      newIndex: -1, // being deleted from last folder
+      folderPath,
+      length: getRequestsByPath(myCollections.value, folderPath).length,
+    })
+
+    toast.success(`${t("request.moved")}`)
+    draggingToRoot.value = false
+  } else if (hasTeamWriteAccess.value) {
+    // add the request index to the loading array
+    requestMoveLoading.value.push(requestIndex)
+
     pipe(
-      updateTeamRequest(requestID, data),
+      moveRESTTeamRequest(destinationCollectionIndex, requestIndex),
       TE.match(
         (err: GQLError<string>) => {
           toast.error(`${getErrorMessage(err)}`)
-          confirmChangeToRequest.value = false
-          showSaveRequestModal.value = true
-          modalLoadingState.value = false
+          requestMoveLoading.value.splice(
+            requestMoveLoading.value.indexOf(requestIndex),
+            1
+          )
         },
         () => {
-          toast.success(`${t("request.saved")}`)
-          modalLoadingState.value = false
-          confirmChangeToRequest.value = false
+          // remove the request index from the loading array
+          requestMoveLoading.value.splice(
+            requestMoveLoading.value.indexOf(requestIndex),
+            1
+          )
 
-          const clickedRequestID = clickedRequest.requestIndex
+          const possibleTab = getTabRefWithSaveContext({
+            originLocation: "team-collection",
+            requestID: requestIndex,
+          })
 
-          if (!clickedRequestID) return
-
-          noChangeSetRESTRequest()
+          if (possibleTab) {
+            possibleTab.value.document.saveContext = {
+              originLocation: "team-collection",
+              requestID: requestIndex,
+            }
+          }
+          toast.success(`${t("request.moved")}`)
         }
       )
     )()
@@ -1326,26 +1390,398 @@ const saveRequestChange = () => {
 }
 
 /**
- * This function is called when the user clicks on the
- * don't save button in the confirm change modal
- * This function will change the request to the clicked request
- * without saving the changes
+ * @param path The path of the collection or request
+ * @returns The index of the collection or request
  */
-const discardRequestChange = () => {
-  noChangeSetRESTRequest()
-  confirmChangeToRequest.value = false
+const pathToIndex = (path: string) => {
+  const pathArr = path.split("/")
+  return pathArr
 }
 
-// Drag and drop functions
-const dropRequest = (payload: {
-  folderPath: string
-  requestIndex: string
-  collectionIndex: string
+/**
+ * Used to check if the collection exist as the parent of the childrens
+ * @param collectionIndexDragged The index of the collection dragged
+ * @param destinationCollectionIndex The index of the destination collection
+ * @returns True if the collection exist as the parent of the childrens
+ */
+const checkIfCollectionIsAParentOfTheChildren = (
+  collectionIndexDragged: string,
+  destinationCollectionIndex: string
+) => {
+  const collectionDraggedPath = pathToIndex(collectionIndexDragged)
+  const destinationCollectionPath = pathToIndex(destinationCollectionIndex)
+
+  if (collectionDraggedPath.length < destinationCollectionPath.length) {
+    const slicedDestinationCollectionPath = destinationCollectionPath.slice(
+      0,
+      collectionDraggedPath.length
+    )
+    if (isEqual(slicedDestinationCollectionPath, collectionDraggedPath)) {
+      return true
+    } else {
+      return false
+    }
+  }
+
+  return false
+}
+
+const isMoveToSameLocation = (
+  draggedItemPath: string,
+  destinationPath: string
+) => {
+  const draggedItemPathArr = pathToIndex(draggedItemPath)
+  const destinationPathArr = pathToIndex(destinationPath)
+
+  if (draggedItemPathArr.length > 0) {
+    const draggedItemParentPathArr = draggedItemPathArr.slice(
+      0,
+      draggedItemPathArr.length - 1
+    )
+
+    if (isEqual(draggedItemParentPathArr, destinationPathArr)) {
+      return true
+    } else {
+      return false
+    }
+  }
+}
+
+/**
+ * This function is called when the user moves the collection
+ * to a different collection or folder
+ * @param payload - object containing the collection index dragged and the destination collection index
+ */
+const dropCollection = (payload: {
+  collectionIndexDragged: string
+  destinationCollectionIndex: string
 }) => {
-  const { folderPath, requestIndex, collectionIndex } = payload
-  moveRESTRequest(folderPath, parseInt(requestIndex), collectionIndex)
+  const { collectionIndexDragged, destinationCollectionIndex } = payload
+  if (!collectionIndexDragged || !destinationCollectionIndex) return
+  if (collectionIndexDragged === destinationCollectionIndex) return
+
+  if (collectionsType.value.type === "my-collections") {
+    if (
+      checkIfCollectionIsAParentOfTheChildren(
+        collectionIndexDragged,
+        destinationCollectionIndex
+      )
+    ) {
+      toast.error(`${t("team.parent_coll_move")}`)
+      return
+    }
+
+    //check if the collection is being moved to its own parent
+    if (
+      isMoveToSameLocation(collectionIndexDragged, destinationCollectionIndex)
+    ) {
+      return
+    }
+
+    const parentFolder = collectionIndexDragged
+      .split("/")
+      .slice(0, -1)
+      .join("/") // remove last folder to get parent folder
+    const totalFoldersOfDestinationCollection =
+      getFoldersByPath(myCollections.value, destinationCollectionIndex).length -
+      (parentFolder === destinationCollectionIndex ? 1 : 0)
+
+    moveRESTFolder(collectionIndexDragged, destinationCollectionIndex)
+
+    resolveSaveContextOnCollectionReorder(
+      {
+        lastIndex: pathToLastIndex(collectionIndexDragged),
+        newIndex: -1,
+        folderPath: parentFolder,
+        length: getFoldersByPath(myCollections.value, parentFolder).length,
+      },
+      "drop"
+    )
+
+    updateSaveContextForAffectedRequests(
+      collectionIndexDragged,
+      `${destinationCollectionIndex}/${totalFoldersOfDestinationCollection}`
+    )
+
+    draggingToRoot.value = false
+    toast.success(`${t("collection.moved")}`)
+  } else if (hasTeamWriteAccess.value) {
+    // add the collection index to the loading array
+    collectionMoveLoading.value.push(collectionIndexDragged)
+    pipe(
+      moveRESTTeamCollection(
+        collectionIndexDragged,
+        destinationCollectionIndex
+      ),
+      TE.match(
+        (err: GQLError<string>) => {
+          toast.error(`${getErrorMessage(err)}`)
+          collectionMoveLoading.value.splice(
+            collectionMoveLoading.value.indexOf(collectionIndexDragged),
+            1
+          )
+        },
+        () => {
+          toast.success(`${t("collection.moved")}`)
+          // remove the collection index from the loading array
+          collectionMoveLoading.value.splice(
+            collectionMoveLoading.value.indexOf(collectionIndexDragged),
+            1
+          )
+        }
+      )
+    )()
+  }
 }
 
+/**
+ * Checks if the collection is already in the root
+ * @param id - path of the collection
+ * @returns boolean - true if the collection is already in the root
+ */
+const isAlreadyInRoot = (id: string) => {
+  const indexPath = pathToIndex(id)
+  return indexPath.length === 1
+}
+
+/**
+ * This function is called when the user drops the collection
+ * to the root
+ * @param payload - object containing the collection index dragged
+ */
+const dropToRoot = ({ dataTransfer }: DragEvent) => {
+  if (dataTransfer) {
+    const collectionIndexDragged = dataTransfer.getData("collectionIndex")
+    if (!collectionIndexDragged) return
+    if (collectionsType.value.type === "my-collections") {
+      // check if the collection is already in the root
+      if (isAlreadyInRoot(collectionIndexDragged)) {
+        toast.error(`${t("collection.invalid_root_move")}`)
+      } else {
+        moveRESTFolder(collectionIndexDragged, null)
+        toast.success(`${t("collection.moved")}`)
+      }
+
+      draggingToRoot.value = false
+    } else if (hasTeamWriteAccess.value) {
+      // add the collection index to the loading array
+      collectionMoveLoading.value.push(collectionIndexDragged)
+
+      // destination collection index is null since we are moving to root
+      pipe(
+        moveRESTTeamCollection(collectionIndexDragged, null),
+        TE.match(
+          (err: GQLError<string>) => {
+            collectionMoveLoading.value.splice(
+              collectionMoveLoading.value.indexOf(collectionIndexDragged),
+              1
+            )
+            toast.error(`${getErrorMessage(err)}`)
+          },
+          () => {
+            // remove the collection index from the loading array
+            collectionMoveLoading.value.splice(
+              collectionMoveLoading.value.indexOf(collectionIndexDragged),
+              1
+            )
+            toast.success(`${t("collection.moved")}`)
+          }
+        )
+      )()
+    }
+  }
+}
+
+/**
+ * Used to check if the request/collection is being moved to the same parent since reorder is only allowed within the same parent
+ * @param draggedItem - path index of the dragged request
+ * @param destinationItem - path index of the destination request
+ * @param destinationCollectionIndex -  index of the destination collection
+ * @returns boolean - true if the request is being moved to the same parent
+ */
+const isSameSameParent = (
+  draggedItemPath: string,
+  destinationItemPath: string | null,
+  destinationCollectionIndex: string | null
+) => {
+  const draggedItemIndex = pathToIndex(draggedItemPath)
+
+  // if the destinationItemPath and destinationCollectionIndex is null, it means the request is being moved to the root
+  if (destinationItemPath === null && destinationCollectionIndex === null) {
+    return draggedItemIndex.length === 1
+  } else if (
+    destinationItemPath === null &&
+    destinationCollectionIndex !== null &&
+    draggedItemIndex.length === 1
+  ) {
+    return draggedItemIndex[0] === destinationCollectionIndex
+  } else if (
+    destinationItemPath === null &&
+    draggedItemIndex.length !== 1 &&
+    destinationCollectionIndex !== null
+  ) {
+    const dragedItemParent = draggedItemIndex.slice(0, -1)
+
+    return dragedItemParent.join("/") === destinationCollectionIndex
+  } else {
+    if (destinationItemPath === null) return false
+    const destinationItemIndex = pathToIndex(destinationItemPath)
+
+    // length of 1 means the request is in the root
+    if (draggedItemIndex.length === 1 && destinationItemIndex.length === 1) {
+      return true
+    } else if (draggedItemIndex.length === destinationItemIndex.length) {
+      const dragedItemParent = draggedItemIndex.slice(0, -1)
+      const destinationItemParent = destinationItemIndex.slice(0, -1)
+      if (isEqual(dragedItemParent, destinationItemParent)) {
+        return true
+      } else {
+        return false
+      }
+    } else {
+      return false
+    }
+  }
+}
+
+/**
+ * This function is called when the user updates the request order in a collection
+ * @param payload - object containing the request index dragged and the destination request index
+ *  with the destination collection index
+ */
+const updateRequestOrder = (payload: {
+  dragedRequestIndex: string
+  destinationRequestIndex: string | null
+  destinationCollectionIndex: string
+}) => {
+  const {
+    dragedRequestIndex,
+    destinationRequestIndex,
+    destinationCollectionIndex,
+  } = payload
+
+  if (!dragedRequestIndex || !destinationCollectionIndex) return
+
+  if (dragedRequestIndex === destinationRequestIndex) return
+
+  if (collectionsType.value.type === "my-collections") {
+    if (
+      !isSameSameParent(
+        dragedRequestIndex,
+        destinationRequestIndex,
+        destinationCollectionIndex
+      )
+    ) {
+      toast.error(`${t("collection.different_parent")}`)
+    } else {
+      updateRESTRequestOrder(
+        pathToLastIndex(dragedRequestIndex),
+        destinationRequestIndex
+          ? pathToLastIndex(destinationRequestIndex)
+          : null,
+        destinationCollectionIndex
+      )
+
+      toast.success(`${t("request.order_changed")}`)
+    }
+  } else if (hasTeamWriteAccess.value) {
+    // add the request index to the loading array
+    requestMoveLoading.value.push(dragedRequestIndex)
+
+    pipe(
+      updateOrderRESTTeamRequest(
+        dragedRequestIndex,
+        destinationRequestIndex,
+        destinationCollectionIndex
+      ),
+      TE.match(
+        (err: GQLError<string>) => {
+          toast.error(`${getErrorMessage(err)}`)
+          requestMoveLoading.value.splice(
+            requestMoveLoading.value.indexOf(dragedRequestIndex),
+            1
+          )
+        },
+        () => {
+          toast.success(`${t("request.order_changed")}`)
+
+          // remove the request index from the loading array
+          requestMoveLoading.value.splice(
+            requestMoveLoading.value.indexOf(dragedRequestIndex),
+            1
+          )
+        }
+      )
+    )()
+  }
+}
+
+/**
+ * This function is called when the user updates the collection or folder order
+ * @param payload - object containing the collection index dragged and the destination collection index
+ */
+const updateCollectionOrder = (payload: {
+  dragedCollectionIndex: string
+  destinationCollection: {
+    destinationCollectionIndex: string | null
+    destinationCollectionParentIndex: string | null
+  }
+}) => {
+  const { dragedCollectionIndex, destinationCollection } = payload
+  const { destinationCollectionIndex, destinationCollectionParentIndex } =
+    destinationCollection
+  if (!dragedCollectionIndex) return
+  if (dragedCollectionIndex === destinationCollectionIndex) return
+
+  if (collectionsType.value.type === "my-collections") {
+    if (
+      !isSameSameParent(
+        dragedCollectionIndex,
+        destinationCollectionIndex,
+        destinationCollectionParentIndex
+      )
+    ) {
+      toast.error(`${t("collection.different_parent")}`)
+    } else {
+      updateRESTCollectionOrder(
+        dragedCollectionIndex,
+        destinationCollectionIndex
+      )
+      resolveSaveContextOnCollectionReorder({
+        lastIndex: pathToLastIndex(dragedCollectionIndex),
+        newIndex: pathToLastIndex(
+          destinationCollectionIndex ? destinationCollectionIndex : ""
+        ),
+        folderPath: dragedCollectionIndex.split("/").slice(0, -1).join("/"),
+      })
+      toast.success(`${t("collection.order_changed")}`)
+    }
+  } else if (hasTeamWriteAccess.value) {
+    collectionMoveLoading.value.push(dragedCollectionIndex)
+    pipe(
+      updateOrderRESTTeamCollection(
+        dragedCollectionIndex,
+        destinationCollectionIndex
+      ),
+      TE.match(
+        (err: GQLError<string>) => {
+          toast.error(`${getErrorMessage(err)}`)
+          collectionMoveLoading.value.splice(
+            collectionMoveLoading.value.indexOf(dragedCollectionIndex),
+            1
+          )
+        },
+        () => {
+          toast.success(`${t("collection.order_changed")}`)
+          collectionMoveLoading.value.splice(
+            collectionMoveLoading.value.indexOf(dragedCollectionIndex),
+            1
+          )
+        }
+      )
+    )()
+  }
+}
 // Import - Export Collection functions
 /**
  * Export the whole my collection or specific team collection to JSON
@@ -1552,28 +1988,38 @@ const resetSelectedData = () => {
 }
 
 const getErrorMessage = (err: GQLError<string>) => {
+  console.error(err)
   if (err.type === "network_error") {
-    console.error(err)
     return t("error.network_error")
   } else {
     switch (err.error) {
       case "team_coll/short_title":
-        console.error(err)
         return t("collection.name_length_insufficient")
       case "team/invalid_coll_id":
-        console.error(err)
-        return t("team.invalid_id")
+      case "bug/team_coll/no_coll_id":
+      case "team_req/invalid_target_id":
+        return t("team.invalid_coll_id")
       case "team/not_required_role":
-        console.error(err)
         return t("profile.no_permission")
       case "team_req/not_required_role":
-        console.error(err)
         return t("profile.no_permission")
       case "Forbidden resource":
-        console.error(err)
         return t("profile.no_permission")
+      case "team_req/not_found":
+        return t("team.no_request_found")
+      case "bug/team_req/no_req_id":
+        return t("team.no_request_found")
+      case "team/collection_is_parent_coll":
+        return t("team.parent_coll_move")
+      case "team/target_and_destination_collection_are_same":
+        return t("team.same_target_destination")
+      case "team/target_collection_is_already_root_collection":
+        return t("collection.invalid_root_move")
+      case "team_req/requests_not_from_same_collection":
+        return t("request.different_collection")
+      case "team/team_collections_have_different_parents":
+        return t("collection.different_parent")
       default:
-        console.error(err)
         return t("error.something_went_wrong")
     }
   }

@@ -19,6 +19,7 @@
     "edit": "Bewerking",
     "filter": "Filter",
     "go_back": "Ga terug",
+    "go_forward": "Go forward",
     "group_by": "Group by",
     "label": "Label",
     "learn_more": "Leer meer",
@@ -117,12 +118,16 @@
   },
   "collection": {
     "created": "Collectie gemaakt",
+    "different_parent": "Cannot reorder collection with different parent",
     "edit": "Verzameling bewerken",
     "invalid_name": "Geef een geldige naam op voor de collectie",
+    "invalid_root_move": "Collection already in the root",
+    "moved": "Moved Successfully",
     "my_collections": "Mijn collecties",
     "name": "Mijn nieuwe collectie",
     "name_length_insufficient": "Collection name should be at least 3 characters long",
     "new": "Nieuwe collectie",
+    "order_changed": "Collection Order Updated",
     "renamed": "Collectie hernoemd",
     "request_in_use": "Request in use",
     "save_as": "Opslaan als",
@@ -142,6 +147,7 @@
     "remove_team": "Weet je zeker dat je dit team wilt verwijderen?",
     "remove_telemetry": "Weet u zeker dat u zich wilt afmelden voor telemetrie?",
     "request_change": "Are you sure you want to discard current request, unsaved changes will be lost.",
+    "save_unsaved_tab": "Do you want to save changes made in this tab?",
     "sync": "Weet u zeker dat u deze werkruimte wilt synchroniseren?"
   },
   "count": {
@@ -310,6 +316,7 @@
     "zen_mode": "Zen-modus"
   },
   "modal": {
+    "close_unsaved_tab": "You have unsaved changes",
     "collections": "Collecties",
     "confirm": "Bevestigen",
     "edit_request": "Verzoek bewerken",
@@ -389,6 +396,8 @@
       "text": "Text"
     },
     "copy_link": "Kopieer link",
+    "different_collection": "Cannot reorder requests from different collections",
+    "duplicated": "Request duplicated",
     "duration": "Duur",
     "enter_curl": "Voer cURL . in",
     "generate_code": "Genereer code",
@@ -396,8 +405,10 @@
     "header_list": "Koplijst",
     "invalid_name": "Geef een naam op voor het verzoek",
     "method": "Methode",
+    "moved": "Request moved",
     "name": "Naam aanvragen",
     "new": "New Request",
+    "order_changed": "Request Order Updated",
     "override": "Override",
     "override_help": "Set <kbd>Content-Type</kbd> in Headers",
     "overriden": "Overridden",
@@ -628,6 +639,7 @@
     "body": "Inhoud",
     "collections": "Collecties",
     "documentation": "Documentatie",
+    "environments": "Environments",
     "headers": "Headers",
     "history": "Geschiedenis",
     "mqtt": "MQTT",
@@ -652,6 +664,7 @@
     "email_do_not_match": "Email doesn't match with your account details. Contact your team owner.",
     "exit": "Team verlaten",
     "exit_disabled": "Alleen de eigenaar kan het team niet verlaten",
+    "invalid_coll_id": "Invalid collection ID",
     "invalid_email_format": "E-mailindeling is ongeldig",
     "invalid_id": "Invalid team ID. Contact your team owner.",
     "invalid_invite_link": "Invalid invite link",
@@ -675,6 +688,7 @@
     "member_removed": "Gebruiker verwijderd",
     "member_role_updated": "Gebruikersrollen bijgewerkt",
     "members": "Leden",
+    "more_members": "+{count} more",
     "name_length_insufficient": "Teamnaam moet minimaal 6 tekens lang zijn",
     "name_updated": "Team name updated",
     "new": "Nieuw team",
@@ -682,10 +696,13 @@
     "new_name": "Mijn nieuwe team",
     "no_access": "U heeft geen bewerkingsrechten voor deze collecties",
     "no_invite_found": "Invitation not found. Contact your team owner.",
+    "no_request_found": "Request not found.",
     "not_found": "Team not found. Contact your team owner.",
     "not_valid_viewer": "You are not a valid viewer. Contact your team owner.",
+    "parent_coll_move": "Cannot move collection to a child collection",
     "pending_invites": "Pending invites",
     "permissions": "Rechten",
+    "same_target_destination": "Same target and destination",
     "saved": "Team gered",
     "select_a_team": "Select a team",
     "title": "teams",
@@ -713,5 +730,11 @@
     "message": "Bericht",
     "protocols": "Protocollen",
     "url": "URL"
+  },
+  "workspace": {
+    "change": "Change workspace",
+    "personal": "My Workspace",
+    "team": "Team Workspace",
+    "title": "Workspaces"
   }
 }

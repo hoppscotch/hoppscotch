@@ -1,0 +1,9 @@
+mutation CreateTeamInvitation($inviteeEmail: String!, $inviteeRole: TeamMemberRole!, $teamID: ID!) {
+  createTeamInvitation(inviteeRole: $inviteeRole, inviteeEmail: $inviteeEmail, teamID: $teamID) {
+    id
+    teamID
+    creatorUid
+    inviteeEmail
+    inviteeRole
+  }
+}

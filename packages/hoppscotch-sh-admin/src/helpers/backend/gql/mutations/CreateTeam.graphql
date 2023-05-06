@@ -1,0 +1,19 @@
+mutation CreateTeam($userUid: ID!, $name: String!) {
+  createTeamByAdmin(userUid: $userUid, name: $name) {
+    id
+    name
+    members {
+      membershipID
+      role
+      user {
+        uid
+        displayName
+        email
+        photoURL
+      }
+    }
+    ownersCount
+    editorsCount
+    viewersCount
+  }
+}

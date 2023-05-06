@@ -1,0 +1,18 @@
+overwrite: true
+schema: "../../gql-gen/*.gql"
+generates:
+  src/api/generated/graphql.ts:
+    documents: "src/**/*.graphql"
+    plugins:
+      - add:
+          content: >
+            /* eslint-disable */
+            // Auto-generated file (DO NOT EDIT!!!), refer gql-codegen.yml
+      - typescript
+      - typescript-operations
+      - typed-document-node
+      - typescript-urql-graphcache
+
+  src/api/generated/backend-schema.json:
+    plugins:
+      - urql-introspection

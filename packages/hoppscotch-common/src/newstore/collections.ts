@@ -6,7 +6,9 @@ import {
   makeCollection,
 } from "@hoppscotch/data"
 import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
-import { getRESTSaveContext, setRESTSaveContext } from "./RESTSession"
+import { cloneDeep } from "lodash-es"
+import { getTabRefWithSaveContext } from "~/helpers/rest/tab"
+import { resolveSaveContextOnRequestReorder } from "~/helpers/collection/request"
 
 const defaultRESTCollectionState = {
   state: [
@@ -31,7 +33,11 @@ const defaultGraphqlCollectionState = {
 type RESTCollectionStoreType = typeof defaultRESTCollectionState
 type GraphqlCollectionStoreType = typeof defaultGraphqlCollectionState
 
-function navigateToFolderWithIndexPath(
+/**
+ * NOTE: this function is not pure. It mutates the indexPaths inplace
+ * Not removing this behaviour because i'm not sure if we utilize this behaviour anywhere and i found this on a tight time crunch.
+ */
+export function navigateToFolderWithIndexPath(
   collections: HoppCollection<HoppRESTRequest | HoppGQLRequest>[],
   indexPaths: number[]
 ) {
@@ -43,6 +49,15 @@ function navigateToFolderWithIndexPath(
     target = target.folders[indexPaths.shift() as number]
 
   return target !== undefined ? target : null
+}
+
+function reorderItems(array: unknown[], from: number, to: number) {
+  const item = array.splice(from, 1)[0]
+  if (from < to) {
+    array.splice(to - 1, 0, item)
+  } else {
+    array.splice(to, 0, item)
+  }
 }
 
 const restCollectionDispatchers = defineDispatchers({
@@ -75,7 +90,12 @@ const restCollectionDispatchers = defineDispatchers({
 
   removeCollection(
     { state }: RESTCollectionStoreType,
-    { collectionIndex }: { collectionIndex: number }
+    {
+      collectionIndex,
+      // this collectionID is used to sync the collection removal
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      collectionID,
+    }: { collectionIndex: number; collectionID?: string }
   ) {
     return {
       state: (state as any).filter(
@@ -88,12 +108,17 @@ const restCollectionDispatchers = defineDispatchers({
     { state }: RESTCollectionStoreType,
     {
       collectionIndex,
-      collection,
-    }: { collectionIndex: number; collection: HoppCollection<any> }
+      partialCollection,
+    }: {
+      collectionIndex: number
+      partialCollection: Partial<HoppCollection<any>>
+    }
   ) {
     return {
       state: state.map((col, index) =>
-        index === collectionIndex ? collection : col
+        index === collectionIndex
+          ? { ...col, ...cloneDeep(partialCollection) }
+          : col
       ),
     }
   },
@@ -132,7 +157,7 @@ const restCollectionDispatchers = defineDispatchers({
       folder,
     }: {
       path: string
-      folder: HoppCollection<HoppRESTRequest>
+      folder: Partial<HoppCollection<HoppRESTRequest>>
     }
   ) {
     const newState = state
@@ -148,14 +173,22 @@ const restCollectionDispatchers = defineDispatchers({
       return {}
     }
 
-    Object.assign(target, folder)
+    Object.assign(target, {
+      ...target,
+      ...cloneDeep(folder),
+    })
 
     return {
       state: newState,
     }
   },
 
-  removeFolder({ state }: RESTCollectionStoreType, { path }: { path: string }) {
+  removeFolder(
+    { state }: RESTCollectionStoreType,
+    // folderID is used to sync the folder removal in collections.sync.ts
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    { path, folderID }: { path: string; folderID?: string }
+  ) {
     const newState = state
 
     const indexPaths = path.split("/").map((x) => parseInt(x))
@@ -180,6 +213,160 @@ const restCollectionDispatchers = defineDispatchers({
     }
 
     containingFolder.folders.splice(folderIndex, 1)
+
+    return {
+      state: newState,
+    }
+  },
+
+  moveFolder(
+    { state }: RESTCollectionStoreType,
+    { path, destinationPath }: { path: string; destinationPath: string | null }
+  ) {
+    const newState = state
+
+    // Move the folder to the root
+    if (destinationPath === null) {
+      const indexPaths = path.split("/").map((x) => parseInt(x))
+
+      if (indexPaths.length === 0) {
+        console.log("Given path too short. Skipping request.")
+        return {}
+      }
+
+      const folderIndex = indexPaths.pop() as number
+
+      const containingFolder = navigateToFolderWithIndexPath(
+        newState,
+        indexPaths
+      )
+      if (containingFolder === null) {
+        console.error(
+          `The folder to move is already in the root. Skipping request to move folder.`
+        )
+        return {}
+      }
+
+      const theFolder = containingFolder.folders.splice(folderIndex, 1)
+      newState.push(theFolder[0] as HoppCollection<HoppRESTRequest>)
+
+      return {
+        state: newState,
+      }
+    }
+
+    const indexPaths = path.split("/").map((x) => parseInt(x))
+
+    const destinationIndexPaths = destinationPath
+      .split("/")
+      .map((x) => parseInt(x))
+
+    if (indexPaths.length === 0 || destinationIndexPaths.length === 0) {
+      console.error(
+        `Given path is too short. Skipping request to move folder '${path}' to destination '${destinationPath}'.`
+      )
+      return {}
+    }
+
+    const target = navigateToFolderWithIndexPath(
+      newState,
+      destinationIndexPaths
+    )
+    if (target === null) {
+      console.error(
+        `Could not resolve destination path '${destinationPath}'. Skipping moveFolder dispatch.`
+      )
+      return {}
+    }
+
+    const folderIndex = indexPaths.pop() as number
+
+    const containingFolder = navigateToFolderWithIndexPath(newState, indexPaths)
+    // We are moving a folder from the root
+    if (containingFolder === null) {
+      const theFolder = newState.splice(folderIndex, 1)
+
+      target.folders.push(theFolder[0])
+    } else {
+      const theFolder = containingFolder.folders.splice(folderIndex, 1)
+
+      target.folders.push(theFolder[0])
+    }
+
+    return { state: newState }
+  },
+
+  updateCollectionOrder(
+    { state }: RESTCollectionStoreType,
+    {
+      collectionIndex,
+      destinationCollectionIndex,
+    }: {
+      collectionIndex: string
+      destinationCollectionIndex: string | null
+    }
+  ) {
+    const newState = state
+
+    const indexPaths = collectionIndex.split("/").map((x) => parseInt(x))
+
+    if (indexPaths.length === 0) {
+      console.log("Given path too short. Skipping request.")
+      return {}
+    }
+
+    // Reordering the collection to the last position
+    if (destinationCollectionIndex === null) {
+      const folderIndex = indexPaths.pop() as number
+
+      const containingFolder = navigateToFolderWithIndexPath(
+        newState,
+        indexPaths
+      )
+
+      if (containingFolder === null) {
+        newState.push(newState.splice(folderIndex, 1)[0])
+        return {
+          state: newState,
+        }
+      }
+
+      // Pushing the folder to the end of the array (last position)
+      containingFolder.folders.push(
+        containingFolder.folders.splice(folderIndex, 1)[0]
+      )
+
+      return {
+        state: newState,
+      }
+    }
+
+    const destinationIndexPaths = destinationCollectionIndex
+      .split("/")
+      .map((x) => parseInt(x))
+
+    if (destinationIndexPaths.length === 0) {
+      console.log("Given path too short. Skipping request.")
+      return {}
+    }
+
+    const folderIndex = indexPaths.pop() as number
+    const destinationFolderIndex = destinationIndexPaths.pop() as number
+
+    const containingFolder = navigateToFolderWithIndexPath(
+      newState,
+      destinationIndexPaths
+    )
+
+    if (containingFolder === null) {
+      reorderItems(newState, folderIndex, destinationFolderIndex)
+
+      return {
+        state: newState,
+      }
+    }
+
+    reorderItems(containingFolder.folders, folderIndex, destinationFolderIndex)
 
     return {
       state: newState,
@@ -242,7 +429,13 @@ const restCollectionDispatchers = defineDispatchers({
 
   removeRequest(
     { state }: RESTCollectionStoreType,
-    { path, requestIndex }: { path: string; requestIndex: number }
+    {
+      path,
+      requestIndex,
+      // this requestID is used to sync the request removal
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      requestID,
+    }: { path: string; requestIndex: number; requestID?: string }
   ) {
     const newState = state
 
@@ -259,14 +452,17 @@ const restCollectionDispatchers = defineDispatchers({
 
     targetLocation.requests.splice(requestIndex, 1)
 
-    // If the save context is set and is set to the same source, we invalidate it
-    const saveCtx = getRESTSaveContext()
-    if (
-      saveCtx?.originLocation === "user-collection" &&
-      saveCtx.folderPath === path &&
-      saveCtx.requestIndex === requestIndex
-    ) {
-      setRESTSaveContext(null)
+    // Deal with situations where a tab with the given thing is deleted
+    // We are just going to dissociate the save context of the tab and mark it dirty
+    const tab = getTabRefWithSaveContext({
+      originLocation: "user-collection",
+      folderPath: path,
+      requestIndex: requestIndex,
+    })
+
+    if (tab) {
+      tab.value.document.saveContext = undefined
+      tab.value.document.isDirty = true
     }
 
     return {
@@ -285,6 +481,11 @@ const restCollectionDispatchers = defineDispatchers({
     const newState = state
 
     const indexPaths = path.split("/").map((x) => parseInt(x))
+
+    if (indexPaths.length === 0) {
+      console.log("Given path too short. Skipping request.")
+      return {}
+    }
 
     const targetLocation = navigateToFolderWithIndexPath(newState, indexPaths)
 
@@ -311,8 +512,110 @@ const restCollectionDispatchers = defineDispatchers({
     destLocation.requests.push(req)
     targetLocation.requests.splice(requestIndex, 1)
 
+    const possibleTab = getTabRefWithSaveContext({
+      originLocation: "user-collection",
+      folderPath: path,
+      requestIndex,
+    })
+
+    if (possibleTab) {
+      possibleTab.value.document.saveContext = {
+        originLocation: "user-collection",
+        folderPath: destinationPath,
+        requestIndex: destLocation.requests.length - 1,
+      }
+    }
+
     return {
       state: newState,
+    }
+  },
+
+  updateRequestOrder(
+    { state }: RESTCollectionStoreType,
+    {
+      requestIndex,
+      destinationRequestIndex,
+      destinationCollectionPath,
+    }: {
+      requestIndex: number
+      destinationRequestIndex: number | null
+      destinationCollectionPath: string
+    }
+  ) {
+    const newState = state
+
+    const indexPaths = destinationCollectionPath
+      .split("/")
+      .map((x) => parseInt(x))
+
+    if (indexPaths.length === 0) {
+      console.log("Given path too short. Skipping request.")
+      return {}
+    }
+
+    const targetLocation = navigateToFolderWithIndexPath(newState, indexPaths)
+
+    if (targetLocation === null) {
+      console.log(
+        `Could not resolve path '${destinationCollectionPath}'. Ignoring reorderRequest dispatch.`
+      )
+      return {}
+    }
+
+    // if the destination is null, we are moving to the end of the list
+    if (destinationRequestIndex === null) {
+      // move to the end of the list
+      targetLocation.requests.push(
+        targetLocation.requests.splice(requestIndex, 1)[0]
+      )
+
+      resolveSaveContextOnRequestReorder({
+        lastIndex: requestIndex,
+        newIndex: targetLocation.requests.length,
+        folderPath: destinationCollectionPath,
+      })
+
+      return {
+        state: newState,
+      }
+    }
+
+    reorderItems(targetLocation.requests, requestIndex, destinationRequestIndex)
+
+    resolveSaveContextOnRequestReorder({
+      lastIndex: requestIndex,
+      newIndex: destinationRequestIndex,
+      folderPath: destinationCollectionPath,
+    })
+
+    return {
+      state: newState,
+    }
+  },
+
+  // only used for collections.sync.ts to prevent double insertion of collections from storeSync and Subscriptions
+  removeDuplicateCollectionOrFolder(
+    { state },
+    {
+      id,
+      collectionPath,
+      type,
+    }: {
+      id: string
+      collectionPath: string
+      type: "collection" | "request"
+    }
+  ) {
+    const after = removeDuplicateCollectionsFromPath<HoppRESTRequest>(
+      id,
+      collectionPath,
+      state,
+      type ?? "collection"
+    )
+
+    return {
+      state: after,
     }
   },
 })
@@ -347,7 +650,11 @@ const gqlCollectionDispatchers = defineDispatchers({
 
   removeCollection(
     { state }: GraphqlCollectionStoreType,
-    { collectionIndex }: { collectionIndex: number }
+    {
+      collectionIndex, // this collectionID is used to sync the collection removal
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      collectionID,
+    }: { collectionIndex: number; collectionID?: string }
   ) {
     return {
       state: (state as any).filter(
@@ -361,11 +668,11 @@ const gqlCollectionDispatchers = defineDispatchers({
     {
       collectionIndex,
       collection,
-    }: { collectionIndex: number; collection: HoppCollection<any> }
+    }: { collectionIndex: number; collection: Partial<HoppCollection<any>> }
   ) {
     return {
       state: state.map((col, index) =>
-        index === collectionIndex ? collection : col
+        index === collectionIndex ? { ...col, ...cloneDeep(collection) } : col
       ),
     }
   },
@@ -399,7 +706,10 @@ const gqlCollectionDispatchers = defineDispatchers({
 
   editFolder(
     { state }: GraphqlCollectionStoreType,
-    { path, folder }: { path: string; folder: HoppCollection<HoppGQLRequest> }
+    {
+      path,
+      folder,
+    }: { path: string; folder: Partial<HoppCollection<HoppGQLRequest>> }
   ) {
     const newState = state
 
@@ -414,7 +724,10 @@ const gqlCollectionDispatchers = defineDispatchers({
       return {}
     }
 
-    Object.assign(target, folder)
+    Object.assign(target, {
+      ...target,
+      ...cloneDeep(folder),
+    })
 
     return {
       state: newState,
@@ -423,7 +736,9 @@ const gqlCollectionDispatchers = defineDispatchers({
 
   removeFolder(
     { state }: GraphqlCollectionStoreType,
-    { path }: { path: string }
+    // folderID is used to sync the folder removal in collections.sync.ts
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    { path, folderID }: { path: string; folderID?: string }
   ) {
     const newState = state
 
@@ -511,7 +826,13 @@ const gqlCollectionDispatchers = defineDispatchers({
 
   removeRequest(
     { state }: GraphqlCollectionStoreType,
-    { path, requestIndex }: { path: string; requestIndex: number }
+    {
+      path,
+      requestIndex,
+      // this requestID is used to sync the request removal
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      requestID,
+    }: { path: string; requestIndex: number; requestID?: string }
   ) {
     const newState = state
 
@@ -527,16 +848,6 @@ const gqlCollectionDispatchers = defineDispatchers({
     }
 
     targetLocation.requests.splice(requestIndex, 1)
-
-    // If the save context is set and is set to the same source, we invalidate it
-    const saveCtx = getRESTSaveContext()
-    if (
-      saveCtx?.originLocation === "user-collection" &&
-      saveCtx.folderPath === path &&
-      saveCtx.requestIndex === requestIndex
-    ) {
-      setRESTSaveContext(null)
-    }
 
     return {
       state: newState,
@@ -582,6 +893,30 @@ const gqlCollectionDispatchers = defineDispatchers({
 
     return {
       state: newState,
+    }
+  },
+  // only used for collections.sync.ts to prevent double insertion of collections from storeSync and Subscriptions
+  removeDuplicateCollectionOrFolder(
+    { state },
+    {
+      id,
+      collectionPath,
+      type,
+    }: {
+      id: string
+      collectionPath: string
+      type: "collection" | "request"
+    }
+  ) {
+    const after = removeDuplicateCollectionsFromPath<HoppGQLRequest>(
+      id,
+      collectionPath,
+      state,
+      type ?? "collection"
+    )
+
+    return {
+      state: after,
     }
   },
 })
@@ -633,11 +968,15 @@ export function addRESTCollection(collection: HoppCollection<HoppRESTRequest>) {
   })
 }
 
-export function removeRESTCollection(collectionIndex: number) {
+export function removeRESTCollection(
+  collectionIndex: number,
+  collectionID?: string
+) {
   restCollectionStore.dispatch({
     dispatcher: "removeCollection",
     payload: {
       collectionIndex,
+      collectionID,
     },
   })
 }
@@ -648,13 +987,13 @@ export function getRESTCollection(collectionIndex: number) {
 
 export function editRESTCollection(
   collectionIndex: number,
-  collection: HoppCollection<HoppRESTRequest>
+  partialCollection: Partial<HoppCollection<HoppRESTRequest>>
 ) {
   restCollectionStore.dispatch({
     dispatcher: "editCollection",
     payload: {
       collectionIndex,
-      collection,
+      partialCollection: partialCollection,
     },
   })
 }
@@ -671,7 +1010,7 @@ export function addRESTFolder(name: string, path: string) {
 
 export function editRESTFolder(
   path: string,
-  folder: HoppCollection<HoppRESTRequest>
+  folder: Partial<HoppCollection<HoppRESTRequest>>
 ) {
   restCollectionStore.dispatch({
     dispatcher: "editFolder",
@@ -682,11 +1021,37 @@ export function editRESTFolder(
   })
 }
 
-export function removeRESTFolder(path: string) {
+export function removeRESTFolder(path: string, folderID?: string) {
   restCollectionStore.dispatch({
     dispatcher: "removeFolder",
     payload: {
       path,
+      folderID,
+    },
+  })
+}
+
+export function moveRESTFolder(path: string, destinationPath: string | null) {
+  restCollectionStore.dispatch({
+    dispatcher: "moveFolder",
+    payload: {
+      path,
+      destinationPath,
+    },
+  })
+}
+
+export function removeDuplicateRESTCollectionOrFolder(
+  id: string,
+  collectionPath: string,
+  type?: "collection" | "request"
+) {
+  restCollectionStore.dispatch({
+    dispatcher: "removeDuplicateCollectionOrFolder",
+    payload: {
+      id,
+      collectionPath,
+      type: type ?? "collection",
     },
   })
 }
@@ -732,12 +1097,17 @@ export function saveRESTRequestAs(path: string, request: HoppRESTRequest) {
   return insertionIndex
 }
 
-export function removeRESTRequest(path: string, requestIndex: number) {
+export function removeRESTRequest(
+  path: string,
+  requestIndex: number,
+  requestID?: string
+) {
   restCollectionStore.dispatch({
     dispatcher: "removeRequest",
     payload: {
       path,
       requestIndex,
+      requestID,
     },
   })
 }
@@ -753,6 +1123,34 @@ export function moveRESTRequest(
       path,
       requestIndex,
       destinationPath,
+    },
+  })
+}
+
+export function updateRESTRequestOrder(
+  requestIndex: number,
+  destinationRequestIndex: number | null,
+  destinationCollectionPath: string
+) {
+  restCollectionStore.dispatch({
+    dispatcher: "updateRequestOrder",
+    payload: {
+      requestIndex,
+      destinationRequestIndex,
+      destinationCollectionPath,
+    },
+  })
+}
+
+export function updateRESTCollectionOrder(
+  collectionIndex: string,
+  destinationCollectionIndex: string | null
+) {
+  restCollectionStore.dispatch({
+    dispatcher: "updateCollectionOrder",
+    payload: {
+      collectionIndex,
+      destinationCollectionIndex,
     },
   })
 }
@@ -790,18 +1188,22 @@ export function addGraphqlCollection(
   })
 }
 
-export function removeGraphqlCollection(collectionIndex: number) {
+export function removeGraphqlCollection(
+  collectionIndex: number,
+  collectionID?: string
+) {
   graphqlCollectionStore.dispatch({
     dispatcher: "removeCollection",
     payload: {
       collectionIndex,
+      collectionID,
     },
   })
 }
 
 export function editGraphqlCollection(
   collectionIndex: number,
-  collection: HoppCollection<HoppGQLRequest>
+  collection: Partial<HoppCollection<HoppGQLRequest>>
 ) {
   graphqlCollectionStore.dispatch({
     dispatcher: "editCollection",
@@ -824,7 +1226,7 @@ export function addGraphqlFolder(name: string, path: string) {
 
 export function editGraphqlFolder(
   path: string,
-  folder: HoppCollection<HoppGQLRequest>
+  folder: Partial<HoppCollection<HoppGQLRequest>>
 ) {
   graphqlCollectionStore.dispatch({
     dispatcher: "editFolder",
@@ -835,11 +1237,27 @@ export function editGraphqlFolder(
   })
 }
 
-export function removeGraphqlFolder(path: string) {
+export function removeGraphqlFolder(path: string, folderID?: string) {
   graphqlCollectionStore.dispatch({
     dispatcher: "removeFolder",
     payload: {
       path,
+      folderID,
+    },
+  })
+}
+
+export function removeDuplicateGraphqlCollectionOrFolder(
+  id: string,
+  collectionPath: string,
+  type?: "collection" | "request"
+) {
+  graphqlCollectionStore.dispatch({
+    dispatcher: "removeDuplicateCollectionOrFolder",
+    payload: {
+      id,
+      collectionPath,
+      type: type ?? "collection",
     },
   })
 }
@@ -869,12 +1287,17 @@ export function saveGraphqlRequestAs(path: string, request: HoppGQLRequest) {
   })
 }
 
-export function removeGraphqlRequest(path: string, requestIndex: number) {
+export function removeGraphqlRequest(
+  path: string,
+  requestIndex: number,
+  requestID?: string
+) {
   graphqlCollectionStore.dispatch({
     dispatcher: "removeRequest",
     payload: {
       path,
       requestIndex,
+      requestID,
     },
   })
 }
@@ -892,4 +1315,61 @@ export function moveGraphqlRequest(
       destinationPath,
     },
   })
+}
+
+function removeDuplicateCollectionsFromPath<
+  T extends HoppRESTRequest | HoppGQLRequest
+>(
+  idToRemove: string,
+  collectionPath: string | null,
+  collections: HoppCollection<T>[],
+  type: "collection" | "request"
+): HoppCollection<T>[] {
+  const indexes = collectionPath?.split("/").map((x) => parseInt(x))
+  indexes && indexes.pop()
+  const parentPath = indexes?.join("/")
+
+  const parentCollection = parentPath
+    ? navigateToFolderWithIndexPath(
+        collections,
+        parentPath.split("/").map((x) => parseInt(x)) || []
+      )
+    : undefined
+
+  if (collectionPath && parentCollection) {
+    if (type == "collection") {
+      parentCollection.folders = removeDuplicatesFromAnArrayById(
+        idToRemove,
+        parentCollection.folders
+      )
+    } else {
+      parentCollection.requests = removeDuplicatesFromAnArrayById(
+        idToRemove,
+        parentCollection.requests
+      )
+    }
+  } else {
+    return removeDuplicatesFromAnArrayById(idToRemove, collections)
+  }
+
+  return collections
+
+  function removeDuplicatesFromAnArrayById<T extends { id?: string }>(
+    idToRemove: string,
+    arrayWithID: T[]
+  ) {
+    const duplicateEntries = arrayWithID.filter(
+      (entry) => entry.id === idToRemove
+    )
+
+    if (duplicateEntries.length == 2) {
+      const duplicateEntryIndex = arrayWithID.findIndex(
+        (entry) => entry.id === idToRemove
+      )
+
+      arrayWithID.splice(duplicateEntryIndex, 1)
+    }
+
+    return arrayWithID
+  }
 }

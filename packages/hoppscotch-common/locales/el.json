@@ -19,6 +19,7 @@
     "edit": "Επεξεργασία",
     "filter": "Filter",
     "go_back": "Πήγαινε πίσω",
+    "go_forward": "Go forward",
     "group_by": "Group by",
     "label": "Επιγραφή",
     "learn_more": "Μάθε περισσότερα",
@@ -117,12 +118,16 @@
   },
   "collection": {
     "created": "Η συλλογή δημιουργήθηκε",
+    "different_parent": "Cannot reorder collection with different parent",
     "edit": "Επεξεργασία Συλλογής",
     "invalid_name": "Καταχωρίστε ένα έγκυρο όνομα για τη συλλογή",
+    "invalid_root_move": "Collection already in the root",
+    "moved": "Moved Successfully",
     "my_collections": "Οι Συλλογές μου",
     "name": "Η νέα μου συλλογή",
     "name_length_insufficient": "Collection name should be at least 3 characters long",
     "new": "Νέα συλλογή",
+    "order_changed": "Collection Order Updated",
     "renamed": "Η συλλογή μετονομάστηκε",
     "request_in_use": "Request in use",
     "save_as": "Αποθήκευση ως",
@@ -142,6 +147,7 @@
     "remove_team": "Είστε βέβαιοι ότι θέλετε να διαγράψετε αυτήν την ομάδα;",
     "remove_telemetry": "Είστε βέβαιοι ότι θέλετε να εξαιρεθείτε από την τηλεμετρία;",
     "request_change": "Are you sure you want to discard current request, unsaved changes will be lost.",
+    "save_unsaved_tab": "Do you want to save changes made in this tab?",
     "sync": "Είστε βέβαιοι ότι θέλετε να συγχρονίσετε αυτόν τον χώρο εργασίας;"
   },
   "count": {
@@ -310,6 +316,7 @@
     "zen_mode": "Λειτουργία Zen"
   },
   "modal": {
+    "close_unsaved_tab": "You have unsaved changes",
     "collections": "Συλλογές",
     "confirm": "Επιβεβαιώνω",
     "edit_request": "Αίτημα Επεξεργασίας",
@@ -389,6 +396,8 @@
       "text": "Text"
     },
     "copy_link": "Αντιγραφή συνδέσμου",
+    "different_collection": "Cannot reorder requests from different collections",
+    "duplicated": "Request duplicated",
     "duration": "Διάρκεια",
     "enter_curl": "Εισαγάγετε cURL",
     "generate_code": "Δημιουργία κώδικα",
@@ -396,8 +405,10 @@
     "header_list": "Λίστα κεφαλίδων",
     "invalid_name": "Καταχωρίστε ένα όνομα για το αίτημα",
     "method": "Μέθοδος",
+    "moved": "Request moved",
     "name": "Αίτημα ονόματος",
     "new": "Νέο Αίτημα",
+    "order_changed": "Request Order Updated",
     "override": "Override",
     "override_help": "Set <kbd>Content-Type</kbd> in Headers",
     "overriden": "Overridden",
@@ -628,6 +639,7 @@
     "body": "Σώμα",
     "collections": "Συλλογές",
     "documentation": "Τεκμηρίωση",
+    "environments": "Environments",
     "headers": "Κεφαλίδες",
     "history": "Ιστορία",
     "mqtt": "MQTT",
@@ -652,6 +664,7 @@
     "email_do_not_match": "Το Email δεν ταιριάζει με τις λεπτομέριες του προφιλ σας. Επικοινωνήστε με τον Ιδιοκτήτη της Ομάδας.",
     "exit": "Έξοδος από την ομάδα",
     "exit_disabled": "Μόνο ο ιδιοκτήτης δεν μπορεί να αποχωρήσει από την ομάδα",
+    "invalid_coll_id": "Invalid collection ID",
     "invalid_email_format": "Η μορφή ηλεκτρονικού ταχυδρομείου δεν είναι έγκυρη",
     "invalid_id": "Μή εγκυρο αναγνωριστικό ομάδας. Επικοινωνήστε με τον Ιδιοκτήτη της Ομάδας.",
     "invalid_invite_link": "Μη έγκυρος σύνδεσμος πρόσκλησης",
@@ -675,6 +688,7 @@
     "member_removed": "Ο χρήστης καταργήθηκε",
     "member_role_updated": "Οι ρόλοι των χρηστών ενημερώθηκαν",
     "members": "Μέλη",
+    "more_members": "+{count} more",
     "name_length_insufficient": "Το όνομα της ομάδας πρέπει να έχει τουλάχιστον 6 χαρακτήρες",
     "name_updated": "Το όνομα ομάδας ανανεώθηκε",
     "new": "Νέα Ομάδα",
@@ -682,10 +696,13 @@
     "new_name": "Η νέα μου ομάδα",
     "no_access": "Δεν έχετε πρόσβαση επεξεργασίας σε αυτές τις συλλογές",
     "no_invite_found": "Δέν βρέθηκε πρόσκληση. Επικοινωνήστε με τον Ιδιοκτήτη της Ομάδας.",
+    "no_request_found": "Request not found.",
     "not_found": "Η ομάδα δεν βρέθηκε. Επικοινωνήστε με τον Ιδιοκτήτη της Ομάδας.",
     "not_valid_viewer": "Δεν είστε έγκυρος viewer. Επικοινωνήστε με τον Ιδιοκτήτη της Ομάδας.",
+    "parent_coll_move": "Cannot move collection to a child collection",
     "pending_invites": "Εκκρεμης προσκλήσεις",
     "permissions": "Άδειες",
+    "same_target_destination": "Same target and destination",
     "saved": "Η ομάδα σώθηκε",
     "select_a_team": "Επιλογή ομάδας",
     "title": "Της ομάδας",
@@ -713,5 +730,11 @@
     "message": "Μήνυμα",
     "protocols": "Πρωτόκολλα",
     "url": "URL"
+  },
+  "workspace": {
+    "change": "Change workspace",
+    "personal": "My Workspace",
+    "team": "Team Workspace",
+    "title": "Workspaces"
   }
 }

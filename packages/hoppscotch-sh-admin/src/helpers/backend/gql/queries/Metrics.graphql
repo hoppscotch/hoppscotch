@@ -1,0 +1,8 @@
+query Metrics {
+  admin {
+    usersCount
+    teamsCount
+    teamRequestsCount
+    teamCollectionsCount
+  }
+}

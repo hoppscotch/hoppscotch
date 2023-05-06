@@ -279,7 +279,7 @@ const removeFolder = () => {
     emit("select", { picked: null })
   }
 
-  removeGraphqlFolder(props.folderPath)
+  removeGraphqlFolder(props.folderPath, props.folder.id)
   toast.success(t("state.deleted"))
 }
 

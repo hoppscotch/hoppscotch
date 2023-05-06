@@ -1,0 +1,9 @@
+query GetSingleCollection($collectionID: ID!) {
+  collection(collectionID: $collectionID) {
+    id
+    title
+    parent {
+      id
+    }
+  }
+}

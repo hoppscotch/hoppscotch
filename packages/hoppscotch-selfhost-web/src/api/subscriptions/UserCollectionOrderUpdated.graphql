@@ -1,0 +1,17 @@
+subscription UserCollectionOrderUpdated {
+  userCollectionOrderUpdated {
+    userCollection {
+      id
+      parent {
+        id
+      }
+    }
+
+    nextUserCollection {
+      id
+      parent {
+        id
+      }
+    }
+  }
+}

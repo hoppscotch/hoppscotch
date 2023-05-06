@@ -1,0 +1,10 @@
+subscription UserHistoryUpdated {
+  userHistoryUpdated {
+    id
+    reqType
+    request
+    responseMetadata
+    isStarred
+    executedOn
+  }
+}

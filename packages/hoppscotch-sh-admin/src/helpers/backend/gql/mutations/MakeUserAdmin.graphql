@@ -1,0 +1,3 @@
+mutation MakeUserAdmin($uid: ID!) {
+  makeUserAdmin(userUID: $uid)
+}

@@ -19,6 +19,7 @@
     "edit": "编辑",
     "filter": "过滤",
     "go_back": "返回",
+    "go_forward": "Go forward",
     "group_by": "分组方式",
     "label": "标签",
     "learn_more": "了解更多",
@@ -117,12 +118,16 @@
   },
   "collection": {
     "created": "集合已创建",
+    "different_parent": "Cannot reorder collection with different parent",
     "edit": "编辑集合",
     "invalid_name": "请提供有效的集合名称",
+    "invalid_root_move": "Collection already in the root",
+    "moved": "Moved Successfully",
     "my_collections": "我的集合",
     "name": "我的新集合",
     "name_length_insufficient": "集合名字至少需要 3 个字符",
     "new": "新建集合",
+    "order_changed": "Collection Order Updated",
     "renamed": "集合已更名",
     "request_in_use": "请求正在使用中",
     "save_as": "另存为",
@@ -142,6 +147,7 @@
     "remove_team": "你确定要删除该团队吗？",
     "remove_telemetry": "你确定要退出遥测服务吗？",
     "request_change": "你确定你要放弃当前的请求，未保存的修改将被丢失。",
+    "save_unsaved_tab": "Do you want to save changes made in this tab?",
     "sync": "您确定要同步该工作区吗？"
   },
   "count": {
@@ -310,6 +316,7 @@
     "zen_mode": "ZEN 模式"
   },
   "modal": {
+    "close_unsaved_tab": "You have unsaved changes",
     "collections": "集合",
     "confirm": "确认",
     "edit_request": "编辑请求",
@@ -389,6 +396,8 @@
       "text": "文字"
     },
     "copy_link": "复制链接",
+    "different_collection": "Cannot reorder requests from different collections",
+    "duplicated": "Request duplicated",
     "duration": "持续时间",
     "enter_curl": "输入 cURL",
     "generate_code": "生成代码",
@@ -396,8 +405,10 @@
     "header_list": "请求头列表",
     "invalid_name": "请提供请求名称",
     "method": "方法",
+    "moved": "Request moved",
     "name": "请求名称",
     "new": "新请求",
+    "order_changed": "Request Order Updated",
     "override": "覆盖",
     "override_help": "设置 <kbd>Content-Type</kbd> 头",
     "overriden": "覆盖",
@@ -628,6 +639,7 @@
     "body": "请求体",
     "collections": "集合",
     "documentation": "帮助文档",
+    "environments": "Environments",
     "headers": "请求头",
     "history": "历史记录",
     "mqtt": "MQTT",
@@ -652,6 +664,7 @@
     "email_do_not_match": "邮箱无法与你的帐户信息匹配。请联系你的团队者。",
     "exit": "退出团队",
     "exit_disabled": "团队所有者无法退出团队",
+    "invalid_coll_id": "Invalid collection ID",
     "invalid_email_format": "电子邮箱格式无效",
     "invalid_id": "无效的团队 ID，请联系你的团队者。",
     "invalid_invite_link": "无效的邀请链接",
@@ -675,6 +688,7 @@
     "member_removed": "用户已移除",
     "member_role_updated": "用户角色已更新",
     "members": "成员",
+    "more_members": "+{count} more",
     "name_length_insufficient": "团队名称至少为 6 个字符",
     "name_updated": "团队名称已更新",
     "new": "新团队",
@@ -682,10 +696,13 @@
     "new_name": "我的新团队",
     "no_access": "你没有编辑集合的权限",
     "no_invite_found": "未找到邀请。请联系你的团队者。",
+    "no_request_found": "Request not found.",
     "not_found": "没有找到团队，请联系您的团队所有者。",
     "not_valid_viewer": "你不是有效的查看者。请联系你的团队者。",
+    "parent_coll_move": "Cannot move collection to a child collection",
     "pending_invites": "待办邀请",
     "permissions": "权限",
+    "same_target_destination": "Same target and destination",
     "saved": "团队已保存",
     "select_a_team": "选择团队",
     "title": "团队",
@@ -713,5 +730,11 @@
     "message": "信息",
     "protocols": "协议",
     "url": "URL"
+  },
+  "workspace": {
+    "change": "Change workspace",
+    "personal": "My Workspace",
+    "team": "Team Workspace",
+    "title": "Workspaces"
   }
 }

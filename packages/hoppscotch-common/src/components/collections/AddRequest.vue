@@ -43,7 +43,7 @@
 import { ref, watch } from "vue"
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
-import { getRESTRequest } from "~/newstore/RESTSession"
+import { currentActiveTab } from "~/helpers/rest/tab"
 
 const toast = useToast()
 const t = useI18n()
@@ -70,7 +70,7 @@ watch(
   () => props.show,
   (show) => {
     if (show) {
-      name.value = getRESTRequest().name
+      name.value = currentActiveTab.value.document.request.name
     }
   }
 )

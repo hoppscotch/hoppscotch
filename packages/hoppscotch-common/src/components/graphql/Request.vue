@@ -26,7 +26,7 @@
 </template>
 
 <script setup lang="ts">
-import { logHoppRequestRunToAnalytics } from "~/helpers/fb/analytics"
+import { platform } from "~/platform"
 import { GQLConnection } from "~/helpers/GQLConnection"
 import { getCurrentStrategyID } from "~/helpers/network"
 import { useReadonlyStream, useStream } from "@composables/stream"
@@ -48,7 +48,7 @@ const onConnectClick = () => {
   if (!connected.value) {
     props.conn.connect(url.value, headers.value as any)
 
-    logHoppRequestRunToAnalytics({
+    platform.analytics?.logHoppRequestRunToAnalytics({
       platform: "graphql-schema",
       strategy: getCurrentStrategyID(),
     })

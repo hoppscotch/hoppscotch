@@ -7,7 +7,6 @@ import { HoppModule } from "."
 
 import languages from "../../languages.json"
 
-import en from "../../locales/en.json"
 import { throwError } from "~/helpers/functional/error"
 import { getLocalConfig, setLocalConfig } from "~/newstore/localpersistence"
 
@@ -123,11 +122,6 @@ export default <HoppModule>{
       fallbackLocale: "en",
       legacy: false,
       allowComposition: true,
-
-      // TODO: Fix this to allow for dynamic imports
-      messages: {
-        en,
-      },
     })
 
     app.use(i18n)

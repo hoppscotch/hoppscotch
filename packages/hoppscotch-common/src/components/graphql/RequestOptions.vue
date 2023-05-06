@@ -39,7 +39,7 @@
             />
             <HoppButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
-              to="https://docs.hoppscotch.io/graphql"
+              to="https://docs.hoppscotch.io/documentation/features/graphql-api-testing"
               blank
               :title="t('app.wiki')"
               :icon="IconHelpCircle"
@@ -87,7 +87,7 @@
           <div class="flex">
             <HoppButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
-              to="https://docs.hoppscotch.io/graphql"
+              to="https://docs.hoppscotch.io/documentation/features/graphql-api-testing"
               blank
               :title="t('app.wiki')"
               :icon="IconHelpCircle"
@@ -137,7 +137,7 @@
           <div class="flex">
             <HoppButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
-              to="https://docs.hoppscotch.io/graphql"
+              to="https://docs.hoppscotch.io/documentation/features/graphql-api-testing"
               blank
               :title="t('app.wiki')"
               :icon="IconHelpCircle"
@@ -379,7 +379,7 @@ import {
 import { commonHeaders } from "~/helpers/headers"
 import { GQLConnection } from "~/helpers/GQLConnection"
 import { makeGQLHistoryEntry, addGraphqlHistoryEntry } from "~/newstore/history"
-import { logHoppRequestRunToAnalytics } from "~/helpers/fb/analytics"
+import { platform } from "~/platform"
 import { getCurrentStrategyID } from "~/helpers/network"
 import { useCodemirror } from "@composables/codemirror"
 import jsonLinter from "~/helpers/editor/linting/json"
@@ -748,7 +748,7 @@ const runQuery = async () => {
     console.error(e)
   }
 
-  logHoppRequestRunToAnalytics({
+  platform.analytics?.logHoppRequestRunToAnalytics({
     platform: "graphql-query",
     strategy: getCurrentStrategyID(),
   })

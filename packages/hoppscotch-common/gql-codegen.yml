@@ -1,6 +1,5 @@
 overwrite: true
-schema:
-  - ${VITE_BACKEND_GQL_URL}
+schema: "../../gql-gen/*.gql"
 generates:
   src/helpers/backend/graphql.ts:
     documents: "src/**/*.graphql"

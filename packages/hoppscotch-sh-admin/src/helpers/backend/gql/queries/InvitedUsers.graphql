@@ -1,0 +1,10 @@
+query InvitedUsers {
+  admin {
+    invitedUsers {
+      adminUid
+      adminEmail
+      inviteeEmail
+      invitedOn
+    }
+  }
+}

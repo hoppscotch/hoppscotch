@@ -41,7 +41,7 @@
           :on-shown="() => tippyActions!.focus()"
         >
           <HoppButtonSecondary
-            :icon="IconHelpCircle"
+            :icon="IconLifeBuoy"
             class="!rounded-none"
             :label="`${t('app.help')}`"
           />
@@ -91,7 +91,7 @@
               <HoppSmartItem
                 :icon="IconGift"
                 :label="`${t('app.whats_new')}`"
-                to="https://docs.hoppscotch.io/changelog"
+                to="https://docs.hoppscotch.io/documentation/changelog"
                 blank
                 @click="hide()"
               />
@@ -130,7 +130,7 @@
               <HoppSmartItem
                 :icon="IconLock"
                 :label="`${t('app.terms_and_privacy')}`"
-                to="https://docs.hoppscotch.io/privacy"
+                to="https://docs.hoppscotch.io/support/privacy"
                 blank
                 @click="hide()"
               />
@@ -206,7 +206,6 @@ import IconShare2 from "~icons/lucide/share-2"
 import IconColumns from "~icons/lucide/columns"
 import IconSidebarOpen from "~icons/lucide/sidebar-open"
 import IconShieldCheck from "~icons/lucide/shield-check"
-import IconHelpCircle from "~icons/lucide/help-circle"
 import IconBook from "~icons/lucide/book"
 import IconMessageCircle from "~icons/lucide/message-circle"
 import IconGift from "~icons/lucide/gift"
@@ -215,6 +214,7 @@ import IconGithub from "~icons/lucide/github"
 import IconTwitter from "~icons/lucide/twitter"
 import IconUserPlus from "~icons/lucide/user-plus"
 import IconLock from "~icons/lucide/lock"
+import IconLifeBuoy from "~icons/lucide/life-buoy"
 import { showChat } from "@modules/crisp"
 import { useSetting } from "@composables/settings"
 import { useI18n } from "@composables/i18n"

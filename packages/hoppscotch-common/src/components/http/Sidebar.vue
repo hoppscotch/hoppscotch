@@ -6,13 +6,6 @@
     render-inactive-tabs
   >
     <HoppSmartTab
-      :id="'history'"
-      :icon="IconClock"
-      :label="`${t('tab.history')}`"
-    >
-      <History :page="'rest'" />
-    </HoppSmartTab>
-    <HoppSmartTab
       :id="'collections'"
       :icon="IconFolder"
       :label="`${t('tab.collections')}`"
@@ -22,9 +15,16 @@
     <HoppSmartTab
       :id="'env'"
       :icon="IconLayers"
-      :label="`${t('environment.title')}`"
+      :label="`${t('tab.environments')}`"
     >
       <Environments />
+    </HoppSmartTab>
+    <HoppSmartTab
+      :id="'history'"
+      :icon="IconClock"
+      :label="`${t('tab.history')}`"
+    >
+      <History :page="'rest'" />
     </HoppSmartTab>
   </HoppSmartTabs>
 </template>
@@ -40,5 +40,5 @@ const t = useI18n()
 
 type RequestOptionTabs = "history" | "collections" | "env"
 
-const selectedNavigationTab = ref<RequestOptionTabs>("history")
+const selectedNavigationTab = ref<RequestOptionTabs>("collections")
 </script>

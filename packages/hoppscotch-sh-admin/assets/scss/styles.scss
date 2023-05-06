@@ -1,0 +1,570 @@
+* {
+  @apply backface-hidden;
+  @apply before:backface-hidden;
+  @apply after:backface-hidden;
+  @apply selection:bg-accentDark;
+  @apply selection:text-accentContrast;
+}
+
+:root {
+  @apply antialiased;
+  accent-color: var(--accent-color);
+  font-variant-ligatures: common-ligatures;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+  @apply border-solid border-l border-dividerLight border-t-0 border-b-0 border-r-0;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-divider bg-clip-content;
+  @apply rounded-full;
+  @apply border-solid border-transparent border-4;
+  @apply hover:bg-dividerDark;
+  @apply hover:bg-clip-content;
+}
+
+::-webkit-scrollbar {
+  @apply w-4;
+  @apply h-0;
+}
+
+input::placeholder,
+textarea::placeholder,
+.cm-placeholder {
+  @apply text-secondary;
+  @apply opacity-35;
+}
+
+input,
+textarea {
+  @apply text-secondaryDark;
+  @apply font-medium;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-primary;
+  @apply text-secondary text-body;
+  @apply font-medium;
+  @apply select-none;
+  @apply overflow-x-hidden;
+  @apply leading-body;
+  animation: fade 300ms forwards;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+}
+
+@keyframes fade {
+  0% {
+    @apply opacity-0;
+  }
+
+  100% {
+    @apply opacity-100;
+  }
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  @apply transition-opacity;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  @apply opacity-0;
+}
+
+.slide-enter-active,
+.slide-leave-active {
+  @apply transition;
+  @apply duration-300;
+}
+
+.slide-enter-from,
+.slide-leave-to {
+  @apply transform;
+  @apply translate-x-full;
+}
+
+.bounce-enter-active,
+.bounce-leave-active {
+  @apply transition;
+}
+
+.bounce-enter-from,
+.bounce-leave-to {
+  @apply transform;
+  @apply scale-95;
+}
+
+.svg-icons {
+  @apply flex-shrink-0;
+  @apply overflow-hidden;
+  height: var(--line-height-body);
+  width: var(--line-height-body);
+}
+
+a {
+  @apply inline-flex;
+  @apply text-current;
+  @apply no-underline;
+  @apply transition;
+  @apply leading-body;
+  @apply focus:outline-none;
+
+  &.link {
+    @apply items-center;
+    @apply py-0.5 px-1;
+    @apply -my-0.5 -mx-1;
+    @apply text-accent;
+    @apply rounded;
+    @apply hover:text-accentDark;
+    @apply focus-visible:ring;
+    @apply focus-visible:ring-accent;
+    @apply focus-visible:text-accentDark;
+  }
+}
+
+.cm-tooltip {
+  .tippy-box {
+    @apply shadow-none;
+    @apply fixed;
+    @apply inline-flex;
+    @apply -mt-8;
+  }
+}
+
+.tippy-box[data-theme~="tooltip"] {
+  @apply bg-tooltip;
+  @apply border-solid border-tooltip;
+  @apply rounded;
+  @apply shadow;
+
+  .tippy-content {
+    @apply flex;
+    @apply text-tiny text-primary;
+    @apply font-semibold;
+    @apply py-1 px-2;
+    @apply truncate;
+    @apply leading-normal;
+    @apply items-center;
+
+    kbd {
+      @apply hidden;
+      @apply font-sans;
+      @apply bg-gray-500/45;
+      @apply text-primaryLight;
+      @apply rounded-sm;
+      @apply px-1;
+      @apply my-0 ml-1;
+      @apply truncate;
+      @apply sm:inline-flex;
+    }
+
+    .env-icon {
+      @apply transition;
+      @apply inline-flex;
+      @apply items-center;
+    }
+  }
+
+  .tippy-svg-arrow {
+    svg:first-child {
+      @apply fill-tooltip;
+    }
+
+    svg:last-child {
+      @apply fill-tooltip;
+    }
+  }
+}
+
+.tippy-box[data-theme~="popover"] {
+  @apply bg-popover;
+  @apply border-solid border-dividerDark;
+  @apply rounded;
+  @apply shadow-lg;
+
+  .tippy-content {
+    @apply flex flex-col;
+    @apply max-h-56;
+    @apply items-stretch;
+    @apply overflow-y-auto;
+    @apply text-secondary text-body;
+    @apply p-2;
+    @apply leading-normal;
+    @apply focus:outline-none;
+    scroll-behavior: smooth;
+  }
+
+  .tippy-svg-arrow {
+    svg:first-child {
+      @apply fill-dividerDark;
+    }
+
+    svg:last-child {
+      @apply fill-popover;
+    }
+  }
+}
+
+[data-v-tippy] {
+  @apply flex flex-1;
+}
+
+[interactive] > div {
+  @apply flex flex-1;
+  @apply h-full;
+}
+
+hr {
+  @apply border-b border-dividerLight;
+  @apply my-2;
+}
+
+.heading {
+  @apply font-bold;
+  @apply text-secondaryDark text-lg;
+  @apply tracking-tight;
+}
+
+.input,
+.select,
+.textarea {
+  @apply flex;
+  @apply w-full;
+  @apply py-2 px-4;
+  @apply bg-transparent;
+  @apply rounded;
+  @apply text-secondaryDark;
+  @apply border border-divider;
+  @apply focus-visible:border-dividerDark;
+}
+
+input,
+select,
+textarea,
+button {
+  @apply truncate;
+  @apply transition;
+  @apply text-body;
+  @apply leading-body;
+  @apply focus:outline-none;
+  @apply disabled:cursor-not-allowed;
+}
+
+.input[type="file"],
+.input[type="radio"],
+#installPWA {
+  @apply hidden;
+}
+
+.floating-input ~ label {
+  @apply absolute;
+  @apply px-2 py-0.5;
+  @apply m-2;
+  @apply rounded;
+  @apply transition;
+  @apply origin-top-left;
+}
+
+.floating-input:focus-within ~ label,
+.floating-input:not(:placeholder-shown) ~ label {
+  @apply bg-primary;
+  @apply transform;
+  @apply origin-top-left;
+  @apply scale-75;
+  @apply translate-x-1 -translate-y-4;
+}
+
+.floating-input:focus-within ~ label {
+  @apply text-secondaryDark;
+}
+
+.floating-input ~ .end-actions {
+  @apply absolute;
+  @apply right-0.2;
+  @apply inset-y-0;
+  @apply flex;
+  @apply items-center;
+}
+
+.floating-input:has(~ .end-actions) {
+  @apply pr-12;
+}
+
+pre.ace_editor {
+  @apply font-mono;
+  @apply resize-none;
+  @apply z-0;
+}
+
+.select {
+  @apply appearance-none;
+  @apply cursor-pointer;
+
+  &::-ms-expand {
+    @apply hidden;
+  }
+}
+
+.select-wrapper {
+  @apply flex flex-1;
+  @apply relative;
+  @apply after:absolute;
+  @apply after:flex;
+  @apply after:inset-y-0;
+  @apply after:items-center;
+  @apply after:justify-center;
+  @apply after:pointer-events-none;
+  @apply after:font-icon;
+  @apply after:text-secondaryLight;
+  @apply after:right-3;
+  @apply after:content-["\e313"];
+}
+
+.info-response {
+  @apply text-pink-500;
+}
+
+.success-response {
+  @apply text-green-500;
+}
+
+.redir-response {
+  @apply text-yellow-500;
+}
+
+.cl-error-response {
+  @apply text-red-500;
+}
+
+.sv-error-response {
+  @apply text-red-600;
+}
+
+.missing-data-response {
+  @apply text-secondaryLight;
+}
+
+.toasted-container {
+  @apply max-w-md;
+
+  .toasted {
+    &.toasted-primary {
+      @apply px-4 py-2;
+      @apply bg-tooltip;
+      @apply border-secondaryDark;
+      @apply text-primary text-body;
+      @apply justify-between;
+      @apply shadow-lg;
+      @apply font-semibold;
+      @apply transition;
+      @apply leading-body;
+      @apply sm:rounded;
+      @apply sm:border;
+
+      .action {
+        @apply relative;
+        @apply flex flex-shrink-0;
+        @apply text-body;
+        @apply px-4;
+        @apply my-1;
+        @apply ml-auto;
+        @apply normal-case;
+        @apply font-semibold;
+        @apply leading-body;
+        @apply tracking-normal;
+        @apply rounded;
+        @apply last:ml-4;
+        @apply sm:ml-8;
+        @apply before:absolute;
+        @apply before:bg-current;
+        @apply before:opacity-10;
+        @apply before:inset-0;
+        @apply before:transition;
+        @apply before:content-DEFAULT;
+        @apply hover:no-underline;
+        @apply hover:before:opacity-20;
+      }
+    }
+
+    &.info {
+      @apply bg-accent;
+      @apply text-accentContrast;
+      @apply border-accentDark;
+    }
+
+    &.error {
+      @apply bg-red-200;
+      @apply text-red-800;
+      @apply border-red-400;
+    }
+
+    &.success {
+      @apply bg-green-200;
+      @apply text-green-800;
+      @apply border-green-400;
+    }
+  }
+}
+
+.smart-splitter .splitpanes__splitter {
+  @apply relative;
+  @apply bg-primaryLight;
+  @apply before:absolute;
+  @apply before:inset-0;
+  @apply before:bg-accentLight;
+  @apply before:opacity-0;
+  @apply before:z-20;
+  @apply before:transition;
+  @apply before:content-DEFAULT;
+  @apply after:absolute;
+  @apply after:inset-0;
+  @apply after:z-20;
+  @apply after:transition;
+  @apply after:flex;
+  @apply after:items-center;
+  @apply after:justify-center;
+  @apply after:text-dividerDark;
+  @apply after:font-icon;
+  @apply hover:before:opacity-100;
+  @apply hover:after:text-accentDark;
+}
+
+.no-splitter .splitpanes__splitter {
+  @apply relative;
+  @apply bg-primaryLight;
+}
+
+.smart-splitter.splitpanes--vertical > .splitpanes__splitter {
+  @apply w-1;
+  @apply before:-left-0.5;
+  @apply before:-right-0.5;
+  @apply before:h-full;
+  @apply after:content-["\e5d4"];
+}
+
+.smart-splitter.splitpanes--horizontal > .splitpanes__splitter {
+  @apply h-1;
+  @apply before:-top-0.5;
+  @apply before:-bottom-0.5;
+  @apply before:w-full;
+  @apply after:content-["\e5d3"];
+}
+
+.no-splitter.splitpanes--vertical > .splitpanes__splitter {
+  @apply w-0.5;
+  @apply pointer-events-none;
+}
+
+.no-splitter.splitpanes--horizontal > .splitpanes__splitter {
+  @apply h-0.5;
+  @apply pointer-events-none;
+}
+
+.cm-focused {
+  @apply select-auto;
+  @apply outline-none #{!important};
+
+  .cm-activeLine {
+    @apply bg-primaryLight;
+  }
+
+  .cm-activeLineGutter {
+    @apply bg-primaryDark;
+  }
+}
+
+.cm-editor {
+  .cm-line::selection {
+    @apply bg-accentDark #{!important};
+    @apply text-accentContrast #{!important};
+  }
+
+  .cm-line ::selection {
+    @apply bg-accentDark #{!important};
+    @apply text-accentContrast #{!important};
+  }
+}
+
+.shortcut-key {
+  @apply inline-flex;
+  @apply font-sans;
+  @apply text-tiny;
+  @apply bg-divider;
+  @apply rounded;
+  @apply ml-2;
+  @apply px-1;
+  @apply min-w-5;
+  @apply min-h-5;
+  @apply items-center;
+  @apply justify-center;
+  @apply border border-dividerDark;
+  @apply shadow-sm;
+  @apply <sm:hidden;
+}
+
+.capitalize-first {
+  @apply first-letter:capitalize;
+}
+
+details {
+  @apply select-none;
+}
+
+details summary::-webkit-details-marker {
+  @apply hidden;
+}
+
+details summary .indicator {
+  @apply transition;
+}
+
+details[open] summary .indicator {
+  @apply transform;
+  @apply rotate-90;
+}
+
+@media (max-width: 767px) {
+  main {
+    margin-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+.env-highlight {
+  @apply text-accentContrast;
+
+  &.env-found {
+    @apply bg-accentDark;
+    @apply hover:bg-accent;
+  }
+
+  &.env-not-found {
+    @apply bg-red-500;
+    @apply hover:bg-red-600;
+  }
+}
+
+#nprogress .bar {
+  @apply bg-accent #{!important};
+}
+
+.color-picker[type="color"] {
+  @apply appearance-none;
+}
+
+.color-picker[type="color"]::-webkit-color-swatch-wrapper {
+  @apply rounded;
+  @apply p-0;
+}
+
+.color-picker[type="color"]::-webkit-color-swatch {
+  @apply rounded;
+  @apply border-0;
+}

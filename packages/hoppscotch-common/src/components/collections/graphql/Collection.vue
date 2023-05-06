@@ -299,7 +299,8 @@ const removeCollection = () => {
   ) {
     emit("select", null)
   }
-  removeGraphqlCollection(props.collectionIndex)
+
+  removeGraphqlCollection(props.collectionIndex, props.collection.id)
   toast.success(`${t("state.deleted")}`)
 }
 

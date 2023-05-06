@@ -43,7 +43,7 @@
         <HoppSmartItem
           :icon="IconGift"
           :label="t('app.whats_new')"
-          to="https://docs.hoppscotch.io/changelog"
+          to="https://docs.hoppscotch.io/documentation/changelog"
           :description="t('support.changelog')"
           :info-icon="IconChevronRight"
           active
@@ -63,7 +63,7 @@
         <HoppSmartItem
           :icon="IconLock"
           :label="`${t('app.terms_and_privacy')}`"
-          to="https://docs.hoppscotch.io/privacy"
+          to="https://docs.hoppscotch.io/support/privacy"
           blank
           :description="t('app.terms_and_privacy')"
           :info-icon="IconChevronRight"
@@ -145,7 +145,7 @@ import IconActivity from "~icons/lucide/activity"
 import IconLock from "~icons/lucide/lock"
 import IconDiscord from "~icons/brands/discord"
 import IconTwitter from "~icons/brands/twitter"
-import IconGithub from "~icons/hopp/github"
+import IconGithub from "~icons/lucide/github"
 import IconMessageCircle from "~icons/lucide/message-circle"
 import IconUserPlus from "~icons/lucide/user-plus"
 import IconShare2 from "~icons/lucide/share-2"

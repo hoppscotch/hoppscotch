@@ -1,0 +1,205 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-1.1.x"]
+}
+
+model Team {
+  id              String            @id @default(cuid())
+  name            String
+  members         TeamMember[]
+  TeamInvitation  TeamInvitation[]
+  TeamCollection  TeamCollection[]
+  TeamRequest     TeamRequest[]
+  TeamEnvironment TeamEnvironment[]
+}
+
+model TeamMember {
+  id      String         @id @default(uuid()) // Membership ID
+  role    TeamMemberRole
+  userUid String
+  teamID  String
+  team    Team           @relation(fields: [teamID], references: [id], onDelete: Cascade)
+
+  @@unique([teamID, userUid])
+}
+
+model TeamInvitation {
+  id           String         @id @default(cuid())
+  teamID       String
+  team         Team           @relation(fields: [teamID], references: [id], onDelete: Cascade)
+  creatorUid   String
+  inviteeEmail String
+  inviteeRole  TeamMemberRole
+
+  @@unique([teamID, inviteeEmail])
+  @@index([teamID])
+}
+
+model TeamCollection {
+  id         String           @id @default(cuid())
+  parentID   String?
+  parent     TeamCollection?  @relation("TeamCollectionChildParent", fields: [parentID], references: [id])
+  children   TeamCollection[] @relation("TeamCollectionChildParent")
+  requests   TeamRequest[]
+  teamID     String
+  team       Team             @relation(fields: [teamID], references: [id], onDelete: Cascade)
+  title      String
+  orderIndex Int
+  createdOn  DateTime         @default(now()) @db.Timestamp(3)
+  updatedOn  DateTime         @updatedAt @db.Timestamp(3)
+}
+
+model TeamRequest {
+  id           String         @id @default(cuid())
+  collectionID String
+  collection   TeamCollection @relation(fields: [collectionID], references: [id], onDelete: Cascade)
+  teamID       String
+  team         Team           @relation(fields: [teamID], references: [id], onDelete: Cascade)
+  title        String
+  request      Json
+  orderIndex   Int
+  createdOn    DateTime       @default(now()) @db.Timestamp(3)
+  updatedOn    DateTime       @updatedAt @db.Timestamp(3)
+}
+
+model Shortcode {
+  id         String   @id
+  request    Json
+  creatorUid String?
+  createdOn  DateTime @default(now())
+
+  @@unique(fields: [id, creatorUid], name: "creator_uid_shortcode_unique")
+}
+
+model TeamEnvironment {
+  id        String @id @default(cuid())
+  teamID    String
+  team      Team   @relation(fields: [teamID], references: [id], onDelete: Cascade)
+  name      String
+  variables Json
+}
+
+model User {
+  uid                String              @id @default(cuid())
+  displayName        String?
+  email              String?             @unique
+  photoURL           String?
+  isAdmin            Boolean             @default(false)
+  refreshToken       String?
+  providerAccounts   Account[]
+  VerificationToken  VerificationToken[]
+  settings           UserSettings?
+  UserHistory        UserHistory[]
+  UserEnvironments   UserEnvironment[]
+  userCollections    UserCollection[]
+  userRequests       UserRequest[]
+  currentRESTSession Json?
+  currentGQLSession  Json?
+  createdOn          DateTime            @default(now()) @db.Timestamp(3)
+  invitedUsers       InvitedUsers[]
+}
+
+model Account {
+  id                   String   @id @default(cuid())
+  userId               String
+  user                 User     @relation(fields: [userId], references: [uid], onDelete: Cascade)
+  provider             String
+  providerAccountId    String
+  providerRefreshToken String?
+  providerAccessToken  String?
+  providerScope        String?
+  loggedIn             DateTime @default(now()) @db.Timestamp(3)
+
+  @@unique(fields: [provider, providerAccountId], name: "verifyProviderAccount")
+}
+
+model VerificationToken {
+  deviceIdentifier String
+  token            String   @unique @default(cuid())
+  userUid          String
+  user             User     @relation(fields: [userUid], references: [uid], onDelete: Cascade)
+  expiresOn        DateTime @db.Timestamp(3)
+
+  @@unique(fields: [deviceIdentifier, token], name: "passwordless_deviceIdentifier_tokens")
+}
+
+model UserSettings {
+  id         String   @id @default(cuid())
+  userUid    String   @unique
+  user       User     @relation(fields: [userUid], references: [uid], onDelete: Cascade)
+  properties Json
+  updatedOn  DateTime @updatedAt @db.Timestamp(3)
+}
+
+model UserHistory {
+  id               String   @id @default(cuid())
+  userUid          String
+  user             User     @relation(fields: [userUid], references: [uid], onDelete: Cascade)
+  reqType          ReqType
+  request          Json
+  responseMetadata Json
+  isStarred        Boolean
+  executedOn       DateTime @default(now()) @db.Timestamp(3)
+}
+
+enum ReqType {
+  REST
+  GQL
+}
+
+model UserEnvironment {
+  id        String  @id @default(cuid())
+  userUid   String
+  user      User    @relation(fields: [userUid], references: [uid], onDelete: Cascade)
+  name      String?
+  variables Json
+  isGlobal  Boolean
+}
+
+model InvitedUsers {
+  adminUid     String
+  user         User     @relation(fields: [adminUid], references: [uid], onDelete: Cascade)
+  adminEmail   String
+  inviteeEmail String   @unique
+  invitedOn    DateTime @default(now()) @db.Timestamp(3)
+}
+
+model UserRequest {
+  id             String         @id @default(cuid())
+  userCollection UserCollection @relation(fields: [collectionID], references: [id])
+  collectionID   String
+  userUid        String
+  user           User           @relation(fields: [userUid], references: [uid], onDelete: Cascade)
+  title          String
+  request        Json
+  type           ReqType
+  orderIndex     Int
+  createdOn      DateTime       @default(now()) @db.Timestamp(3)
+  updatedOn      DateTime       @updatedAt @db.Timestamp(3)
+}
+
+model UserCollection {
+  id         String           @id @default(cuid())
+  parentID   String?
+  parent     UserCollection?  @relation("ParentUserCollection", fields: [parentID], references: [id], onDelete: Cascade)
+  children   UserCollection[] @relation("ParentUserCollection")
+  requests   UserRequest[]
+  userUid    String
+  user       User             @relation(fields: [userUid], references: [uid], onDelete: Cascade)
+  title      String
+  orderIndex Int
+  type       ReqType
+  createdOn  DateTime         @default(now()) @db.Timestamp(3)
+  updatedOn  DateTime         @updatedAt @db.Timestamp(3)
+}
+
+enum TeamMemberRole {
+  OWNER
+  VIEWER
+  EDITOR
+}

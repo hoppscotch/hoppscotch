@@ -36,8 +36,8 @@
   "license": "MIT",
   "private": false,
   "devDependencies": {
-    "@hoppscotch/data": "workspace:^0.4.4",
-    "@hoppscotch/js-sandbox": "workspace:^2.0.0",
+    "@hoppscotch/data": "workspace:^",
+    "@hoppscotch/js-sandbox": "workspace:^",
     "@relmify/jest-fp-ts": "^2.0.2",
     "@swc/core": "^1.2.181",
     "@types/axios": "^0.14.0",

@@ -149,24 +149,29 @@ function parseMyCollection(
 }
 
 function hoppRequestToPostmanRequest(request: HoppRESTRequest): Item {
-  const url = new URL(request.endpoint)
-
+  const endpointWithoutPort = request.endpoint.replace(/:\d+/, "")
+  const [host, ...path] = hoppToPostmanTemplating(request.endpoint).split("/")
   const postmanRequest = new Item({
     request: {
       url: {
-        hash: url.hash,
-        host: url.host,
-        path: hoppToPostmanTemplating(url.pathname),
+        // hash: url.hash,
+        host: host,
+        path,
 
         // Postman should not get a "" value as it will create url of host:/path instead of host/path
-        port: url.port === "" ? undefined : url.port,
+        port: endpointWithoutPort.includes(":")
+          ? endpointWithoutPort.split(":")[1]
+          : undefined,
 
         // TODO: we are not caring about the active status
         query: request.params.map((param) => ({
           key: hoppToPostmanTemplating(param.key),
           value: hoppToPostmanTemplating(param.value),
         })),
-        protocol: url.protocol.replace(":", ""), // Got a value like https:
+        // Got a value like https:
+        protocol: endpointWithoutPort.includes(":")
+          ? endpointWithoutPort.split(":")[0]
+          : undefined,
       },
       method: request.method,
       // TODO: we are not caring about the active status of header

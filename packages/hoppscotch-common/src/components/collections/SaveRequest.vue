@@ -139,11 +139,7 @@ watch(
   () => [currentActiveTab.value, gqlRequestName.value],
   () => {
     if (props.mode === "rest") {
-      if (currentActiveTab.value) {
-        requestName.value = currentActiveTab.value.document.request.name
-      } else {
-        requestName.value = ""
-      }
+      requestName.value = currentActiveTab.value?.document.request.name ?? ""
     } else requestName.value = gqlRequestName.value
   }
 )

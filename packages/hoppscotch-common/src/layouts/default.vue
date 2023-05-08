@@ -24,7 +24,10 @@
             >
               <Pane class="flex flex-1 !overflow-auto">
                 <main class="flex flex-1 w-full" role="main">
-                  <RouterView v-slot="{ Component }" class="flex flex-1">
+                  <RouterView
+                    v-slot="{ Component }"
+                    class="flex flex-1 min-w-0"
+                  >
                     <Transition name="fade" mode="out-in" appear>
                       <component :is="Component" />
                     </Transition>

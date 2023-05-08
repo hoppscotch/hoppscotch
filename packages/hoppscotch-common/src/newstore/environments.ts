@@ -37,14 +37,26 @@ type EnvironmentStore = typeof defaultEnvironmentsState
 
 const dispatchers = defineDispatchers({
   setSelectedEnvironmentIndex(
-    _: EnvironmentStore,
+    store: EnvironmentStore,
     {
       selectedEnvironmentIndex,
     }: { selectedEnvironmentIndex: SelectedEnvironmentIndex }
   ) {
-    return {
-      selectedEnvironmentIndex,
+    let isValidIndex = true
+
+    if (selectedEnvironmentIndex.type == "MY_ENV") {
+      isValidIndex =
+        selectedEnvironmentIndex.type == "MY_ENV" &&
+        !!store.environments[selectedEnvironmentIndex.index]
     }
+
+    return isValidIndex
+      ? {
+          selectedEnvironmentIndex,
+        }
+      : {
+          type: "NO_ENV_SELECTED",
+        }
   },
   appendEnvironments(
     { environments }: EnvironmentStore,
@@ -358,7 +370,7 @@ export const aggregateEnvs$: Observable<AggregateEnvironment[]> = combineLatest(
   map(([selectedEnv, globalVars]) => {
     const results: AggregateEnvironment[] = []
 
-    selectedEnv.variables.forEach(({ key, value }) =>
+    selectedEnv?.variables.forEach(({ key, value }) =>
       results.push({ key, value, sourceEnv: selectedEnv.name })
     )
     globalVars.forEach(({ key, value }) =>

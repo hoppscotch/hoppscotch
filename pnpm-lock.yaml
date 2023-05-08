@@ -917,7 +917,7 @@ importers:
         version: 3.1.1(graphql@15.8.0)
       '@intlify/vite-plugin-vue-i18n':
         specifier: ^7.0.0
-        version: 7.0.0(vite@3.1.4)(vue-i18n@9.2.2)
+        version: 7.0.0(vite@3.2.4)(vue-i18n@9.2.2)
       '@rushstack/eslint-patch':
         specifier: ^1.1.4
         version: 1.1.4
@@ -1068,6 +1068,9 @@ importers:
       vue:
         specifier: ^3.2.6
         version: 3.2.45
+      vue-i18n:
+        specifier: ^9.2.2
+        version: 9.2.2(vue@3.2.45)
       vue-router:
         specifier: '4'
         version: 4.1.0(vue@3.2.45)
@@ -1099,6 +1102,9 @@ importers:
       '@graphql-codegen/urql-introspection':
         specifier: 2.2.1
         version: 2.2.1(graphql@16.6.0)
+      '@intlify/vite-plugin-vue-i18n':
+        specifier: ^7.0.0
+        version: 7.0.0(vite@3.2.4)(vue-i18n@9.2.2)
       '@vitejs/plugin-vue':
         specifier: ^3.1.0
         version: 3.2.0(vite@3.2.4)(vue@3.2.45)
@@ -5765,6 +5771,34 @@ packages:
       - supports-color
     dev: true
 
+  /@intlify/vite-plugin-vue-i18n@7.0.0(vite@3.2.4)(vue-i18n@9.2.2):
+    resolution: {integrity: sha512-2TbDOQ8XD+vkc0s5OFmr+IY/k4mYMC7pzvx0xGQn+cU/ev314+yi7Z7N7rWcBgiYk1WOUalbGSo3d4nJDxOOyw==}
+    engines: {node: '>= 14.6'}
+    deprecated: This plugin support until Vite 3. If you would like to use on Vite 4, please use @intlify/unplugin-vue-i18n
+    peerDependencies:
+      petite-vue-i18n: '*'
+      vite: ^2.9.0 || ^3.0.0
+      vue-i18n: '*'
+    peerDependenciesMeta:
+      petite-vue-i18n:
+        optional: true
+      vite:
+        optional: true
+      vue-i18n:
+        optional: true
+    dependencies:
+      '@intlify/bundle-utils': 3.4.0(vue-i18n@9.2.2)
+      '@intlify/shared': 9.3.0-beta.17
+      '@rollup/pluginutils': 4.2.1
+      debug: 4.3.4(supports-color@9.2.2)
+      fast-glob: 3.2.12
+      source-map: 0.6.1
+      vite: 3.2.4(@types/node@17.0.45)(sass@1.53.0)(terser@5.14.1)
+      vue-i18n: 9.2.2(vue@3.2.45)
+    transitivePeerDependencies:
+      - supports-color
+    dev: true
+
   /@intlify/vue-devtools@9.2.2:
     resolution: {integrity: sha512-+dUyqyCHWHb/UcvY1MlIpO87munedm3Gn6E9WWYdWrMuYLcoIoOEVDWSS8xSwtlPU+kA+MEQTP6Q1iI/ocusJg==}
     engines: {node: '>= 14'}
@@ -9169,7 +9203,7 @@ packages:
     hasBin: true
 
   /after@0.8.2:
-    resolution: {integrity: sha1-/ts5T58OAqqXaOcCvaI7UF+ufh8=}
+    resolution: {integrity: sha512-QbJ0NTQ/I9DI3uSJA4cbexiwQeRAfjPScqIbSjUDd9TOrcg6pTkdgziesOqxBMBzit8vFCTwrP27t13vFOORRA==}
     dev: false
 
   /agent-base@6.0.2:
@@ -9781,7 +9815,7 @@ packages:
     resolution: {integrity: sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==}
 
   /base64-arraybuffer@0.1.4:
-    resolution: {integrity: sha1-mBjHngWbE1X5fgQooBfIOOkLqBI=}
+    resolution: {integrity: sha512-a1eIFi4R9ySrbiMuyTGx5e92uRH5tQY6kArNcFaKBUleIoLjdjBg7Zxm3Mqm3Kmkf27HLR/1fnxX9q8GQ7Iavg==}
     engines: {node: '>= 0.6.0'}
     dev: false
 
@@ -10428,14 +10462,14 @@ packages:
     dev: true
 
   /component-bind@1.0.0:
-    resolution: {integrity: sha1-AMYIq33Nk4l8AAllGx06jh5zu9E=}
+    resolution: {integrity: sha512-WZveuKPeKAG9qY+FkYDeADzdHyTYdIboXS59ixDeRJL5ZhxpqUnxSOwop4FQjMsiYm3/Or8cegVbpAHNA7pHxw==}
     dev: false
 
   /component-emitter@1.3.0:
     resolution: {integrity: sha512-Rd3se6QB+sO1TwqZjscQrurpEPIfO0/yYnSin6Q/rD3mOutHvUrCAhJub3r90uNb+SESBuE0QYoB90YdfatsRg==}
 
   /component-inherit@0.0.3:
-    resolution: {integrity: sha1-ZF/ErfWLcrZJ1crmUTVhnbJv8UM=}
+    resolution: {integrity: sha512-w+LhYREhatpVqTESyGFg3NlP6Iu0kEKUHETY9GoZP/pQyW4mHFZuFWRUCIqVPZ36ueVLtoOEZaAqbCF2RDndaA==}
     dev: false
 
   /concat-map@0.0.1:
@@ -13635,7 +13669,7 @@ packages:
     dev: false
 
   /has-cors@1.1.0:
-    resolution: {integrity: sha1-XkdHk/fqmEPRu5nCPu9J/xJv/zk=}
+    resolution: {integrity: sha512-g5VNKdkFuUuVCP9gYfDJHjK2nqdQJ7aDLTnycnc2+RvsOQbuLdF5pm7vuE5J76SEBIQjs4kQY/BWq74JUmjbXA==}
     dev: false
 
   /has-flag@3.0.0:
@@ -14028,7 +14062,7 @@ packages:
     engines: {node: '>=8'}
 
   /indexof@0.0.1:
-    resolution: {integrity: sha1-gtwzbSMrkGIXnQWrMpOmYFn9Q10=}
+    resolution: {integrity: sha512-i0G7hLJ1z0DE8dsqJa2rycj9dBmNKgXBvotXtZYXakU9oivfB9Uj2ZBC27qqef2U58/ZLwalxa1X/RDCdkHtVg==}
     dev: false
 
   /inflight@1.0.6:
@@ -19743,7 +19777,7 @@ packages:
     dev: true
 
   /to-array@0.1.4:
-    resolution: {integrity: sha1-F+bBH3PdTz10zaek/zI46a2b+JA=}
+    resolution: {integrity: sha512-LhVdShQD/4Mk4zXNroIQZJC+Ap3zgLcDuwEdcmLv9CCO73NWockQDwyUnW/m8VX/EElfL6FcYx7EeutN4HJA6A==}
     dev: false
 
   /to-fast-properties@2.0.0:
@@ -21458,6 +21492,18 @@ packages:
       '@vue/devtools-api': 6.2.1
       vue: 3.2.37
 
+  /vue-i18n@9.2.2(vue@3.2.45):
+    resolution: {integrity: sha512-yswpwtj89rTBhegUAv9Mu37LNznyu3NpyLQmozF3i1hYOhwpG8RjcjIFIIfnu+2MDZJGSZPXaKWvnQA71Yv9TQ==}
+    engines: {node: '>= 14'}
+    peerDependencies:
+      vue: ^3.0.0
+    dependencies:
+      '@intlify/core-base': 9.2.2
+      '@intlify/shared': 9.2.2
+      '@intlify/vue-devtools': 9.2.2
+      '@vue/devtools-api': 6.2.1
+      vue: 3.2.45
+
   /vue-loader@16.8.3(@vue/compiler-sfc@3.2.45)(vue@3.2.45)(webpack@5.74.0):
     resolution: {integrity: sha512-7vKN45IxsKxe5GcVCbc2qFU5aWzyiLrYJyUuMz4BQLKctCj/fmCa0w6fGiiQ2cLFetNcek1ppGJQDCup0c1hpA==}
     peerDependencies:
@@ -22358,7 +22404,7 @@ packages:
     dev: false
 
   /yeast@0.1.2:
-    resolution: {integrity: sha1-AI4G2AlDIMNy28L47XagymyKxBk=}
+    resolution: {integrity: sha512-8HFIh676uyGYP6wP13R/j6OJ/1HwJ46snpvzE7aHAN3Ryqh2yX6Xox2B4CUmTwwOIzlG3Bs7ocsP5dZH/R1Qbg==}
     dev: false
 
   /yn@3.1.1:

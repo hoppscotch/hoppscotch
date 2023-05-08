@@ -5,7 +5,7 @@
       <h1 class="text-lg font-bold text-secondaryDark">Users</h1>
       <div class="flex items-center space-x-4 py-10">
         <HoppButtonPrimary
-          label="Invite a user"
+          :label="t('header.login')"
           @click="showInviteUserModal = true"
           :icon="IconAddUser"
         />
@@ -94,6 +94,9 @@ import { useRoute, useRouter } from 'vue-router';
 import { useToast } from '../../composables/toast';
 import { HoppButtonSecondary } from '@hoppscotch/ui';
 import IconAddUser from '~icons/lucide/user-plus';
+import { useI18n } from '../../composables/i18n';
+
+const t = useI18n();
 
 const toast = useToast();
 

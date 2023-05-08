@@ -57,6 +57,7 @@ declare module '@vue/runtime-core' {
     EnvironmentsMy: typeof import('./components/environments/my/index.vue')['default']
     EnvironmentsMyDetails: typeof import('./components/environments/my/Details.vue')['default']
     EnvironmentsMyEnvironment: typeof import('./components/environments/my/Environment.vue')['default']
+    EnvironmentsSelector: typeof import('./components/environments/Selector.vue')['default']
     EnvironmentsTeams: typeof import('./components/environments/teams/index.vue')['default']
     EnvironmentsTeamsDetails: typeof import('./components/environments/teams/Details.vue')['default']
     EnvironmentsTeamsEnvironment: typeof import('./components/environments/teams/Environment.vue')['default']

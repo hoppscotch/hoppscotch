@@ -34,7 +34,7 @@
           ></div>
           <div class="flex flex-col justify-between px-4 space-y-8 md:flex-row">
             <div class="flex items-end">
-              <ProfilePicture
+              <HoppSmartPicture
                 v-if="currentUser.photoURL"
                 :url="currentUser.photoURL"
                 :alt="
@@ -44,7 +44,7 @@
                 size="16"
                 rounded="lg"
               />
-              <ProfilePicture
+              <HoppSmartPicture
                 v-else
                 :initial="currentUser.displayName || currentUser.email"
                 rounded="lg"

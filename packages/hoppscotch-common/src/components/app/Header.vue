@@ -124,7 +124,7 @@
               theme="popover"
               :on-shown="() => tippyActions.focus()"
             >
-              <ProfilePicture
+              <HoppSmartPicture
                 v-if="currentUser.photoURL"
                 v-tippy="{
                   theme: 'tooltip',
@@ -144,7 +144,7 @@
                   network.isOnline ? 'bg-green-500' : 'bg-red-500'
                 "
               />
-              <ProfilePicture
+              <HoppSmartPicture
                 v-else
                 v-tippy="{ theme: 'tooltip' }"
                 :title="

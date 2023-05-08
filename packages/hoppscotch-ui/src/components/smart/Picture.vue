@@ -33,55 +33,40 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, PropType } from 'vue';
+<script setup lang="ts">
+withDefaults(
+  defineProps<{
+    url: string
+    alt: string
+    indicator: boolean
+    indicatorStyles: string
+    rounded: string
+    size: string
+    initial: string | undefined | null
+  }>(),
+  {
+    url: "",
+    alt: "Profile picture",
+    indicator: false,
+    indicatorStyles: "bg-green-500",
+    rounded: "full",
+    size: "5",
+    initial: "",
+  }
+)
 
-export default defineComponent({
-  props: {
-    url: {
-      type: String,
-      default: '',
-    },
-    alt: {
-      type: String,
-      default: 'Profile picture',
-    },
-    indicator: {
-      type: Boolean,
-      default: false,
-    },
-    indicatorStyles: {
-      type: String,
-      default: 'bg-green-500',
-    },
-    rounded: {
-      type: String,
-      default: 'full',
-    },
-    size: {
-      type: String,
-      default: '5',
-    },
-    initial: {
-      type: String as PropType<string | undefined | null>,
-      default: '',
-    },
-  },
-  methods: {
-    toHex(initial: string) {
-      let hash = 0;
-      if (initial.length === 0) return hash;
-      for (let i = 0; i < initial.length; i++) {
-        hash = initial.charCodeAt(i) + ((hash << 5) - hash);
-        hash = hash & hash;
-      }
-      let color = '#';
-      for (let i = 0; i < 3; i++) {
-        const value = (hash >> (i * 8)) & 255;
-        color += `00${value.toString(16)}`.slice(-2);
-      }
-      return color;
-    },
-  },
-});
+const toHex = (initial: string) => {
+  let hash = 0
+  if (initial.length === 0) return hash
+  for (let i = 0; i < initial.length; i++) {
+    hash = initial.charCodeAt(i) + ((hash << 5) - hash)
+    hash = hash & hash
+  }
+  let color = "#"
+  for (let i = 0; i < 3; i++) {
+    const value = (hash >> (i * 8)) & 255
+    color += `00${value.toString(16)}`.slice(-2)
+  }
+  return color
+}
 </script>

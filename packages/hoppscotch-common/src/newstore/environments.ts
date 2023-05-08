@@ -337,21 +337,22 @@ export const selectedEnvironmentIndex$ = environmentsStore.subject$.pipe(
   distinctUntilChanged()
 )
 
-export const currentEnvironment$ = environmentsStore.subject$.pipe(
-  map(({ environments, selectedEnvironmentIndex }) => {
-    if (selectedEnvironmentIndex.type === "NO_ENV_SELECTED") {
-      const env: Environment = {
-        name: "No environment",
-        variables: [],
+export const currentEnvironment$: Observable<Environment | undefined> =
+  environmentsStore.subject$.pipe(
+    map(({ environments, selectedEnvironmentIndex }) => {
+      if (selectedEnvironmentIndex.type === "NO_ENV_SELECTED") {
+        const env: Environment = {
+          name: "No environment",
+          variables: [],
+        }
+        return env
+      } else if (selectedEnvironmentIndex.type === "MY_ENV") {
+        return environments[selectedEnvironmentIndex.index]
+      } else {
+        return selectedEnvironmentIndex.environment
       }
-      return env
-    } else if (selectedEnvironmentIndex.type === "MY_ENV") {
-      return environments[selectedEnvironmentIndex.index]
-    } else {
-      return selectedEnvironmentIndex.environment
-    }
-  })
-)
+    })
+  )
 
 export type AggregateEnvironment = {
   key: string

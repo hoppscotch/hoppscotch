@@ -1,14 +1,14 @@
 <template>
   <div class="flex flex-col flex-1 h-auto overflow-y-hidden flex-nowrap">
     <div
-      class="relative sticky top-0 z-10 flex-shrink-0 overflow-x-auto tabs bg-primaryLight group-tabs"
+      class="relative sticky top-0 z-10 flex-shrink-0 overflow-x-auto divide-x divide-dividerLight bg-primaryLight tabs group-tabs"
     >
       <div
         class="flex flex-1 flex-shrink-0 w-0 overflow-x-auto"
         ref="scrollContainer"
       >
         <div
-          class="flex justify-between divide-x divide-divider"
+          class="flex justify-between divide-x divide-dividerLight"
           @wheel.prevent="scroll"
         >
           <div class="flex">
@@ -23,7 +23,8 @@
               <template #item="{ element: [tabID, tabMeta] }">
                 <button
                   :key="`removable-tab-${tabID}`"
-                  class="tab group px-2"
+                  :id="`removable-tab-${tabID}`"
+                  class="px-2 tab group"
                   :class="[{ active: modelValue === tabID }]"
                   :aria-label="tabMeta.label || ''"
                   role="button"
@@ -39,14 +40,14 @@
 
                   <div
                     v-if="!tabMeta.tabhead"
-                    class="truncate w-full text-left px-2"
+                    class="w-full px-2 text-left truncate"
                   >
                     <span class="truncate">
                       {{ tabMeta.label }}
                     </span>
                   </div>
 
-                  <div v-else class="truncate w-full text-left">
+                  <div v-else class="w-full text-left truncate">
                     <component :is="tabMeta.tabhead" />
                   </div>
 
@@ -72,7 +73,7 @@
                       },
                       'close',
                     ]"
-                    class="!p-0.25 rounded"
+                    class="rounded !p-0.25"
                     @click.stop="emit('removeTab', tabID)"
                   />
                 </button>
@@ -80,33 +81,33 @@
             </draggable>
           </div>
           <div
-            class="sticky right-0 flex items-center justify-center flex-shrink-0 overflow-x-auto z-8"
+            class="sticky right-0 flex items-center justify-center flex-shrink-0 overflow-x-auto z-14"
           >
-            <slot name="actions">
-              <span
-                v-if="canAddNewTab"
-                class="flex items-center justify-center px-3 bg-primaryLight z-8 h-full"
-              >
-                <HoppButtonSecondary
-                  v-tippy="{ theme: 'tooltip' }"
-                  :title="newText ?? t?.('action.new') ?? 'New'"
-                  :icon="IconPlus"
-                  class="rounded !text-secondaryDark !p-1"
-                  filled
-                  @click="addTab"
-                />
-              </span>
-            </slot>
+            <span
+              v-if="canAddNewTab"
+              class="flex items-center justify-center h-full px-3 bg-primaryLight z-8"
+            >
+              <HoppButtonSecondary
+                v-tippy="{ theme: 'tooltip' }"
+                :title="newText ?? t?.('action.new') ?? 'New'"
+                :icon="IconPlus"
+                class="rounded create-new-tab !text-secondaryDark !p-1"
+                filled
+                @click="addTab"
+              />
+            </span>
           </div>
         </div>
       </div>
+
+      <slot name="actions" />
 
       <input
         type="range"
         min="1"
         :max="MAX_SCROLL_VALUE"
         v-model="thumbPosition"
-        class="slider absolute bottom-0 hidden left-0"
+        class="absolute bottom-0 left-0 hidden slider"
         :class="{
           '!block': scrollThumb.show,
         }"
@@ -131,7 +132,15 @@ import { pipe } from "fp-ts/function"
 import { not } from "fp-ts/Predicate"
 import * as A from "fp-ts/Array"
 import * as O from "fp-ts/Option"
-import { ref, ComputedRef, computed, provide, inject, watch } from "vue"
+import {
+  ref,
+  ComputedRef,
+  computed,
+  provide,
+  inject,
+  watch,
+  nextTick,
+} from "vue"
 import { useElementSize } from "@vueuse/core"
 import type { Slot } from "vue"
 import draggable from "vuedraggable-es"
@@ -186,9 +195,10 @@ const throwError = (message: string): never => {
   throw new Error(message)
 }
 
+const TAB_WIDTH = 184
 const tabEntries = ref<Array<[string, TabMeta]>>([])
 const tabStyles = computed(() => ({
-  maxWidth: `${tabEntries.value.length * 184}px`,
+  maxWidth: `${tabEntries.value.length * TAB_WIDTH}px`,
   width: "100%",
   minWidth: "0px",
   // transition: "max-width 0.2s",
@@ -292,6 +302,49 @@ watch(thumbPosition, (newVal) => {
   const maxScroll = scrollWidth - clientWidth
   scrollContainer.value!.scrollLeft = maxScroll * (newVal / MAX_SCROLL_VALUE)
 })
+
+/*
+ * Watch TabID changes
+ * and scroll to the tab if it's not visible
+ */
+watch(
+  () => props.modelValue,
+  (tabID) => {
+    nextTick(() => {
+      const element = document.getElementById(`removable-tab-${tabID}`)
+
+      const changeThumbPosition: IntersectionObserverCallback = (
+        entries,
+        observer
+      ) => {
+        entries.forEach((entry) => {
+          if (entry.target === element && entry.intersectionRatio >= 1.0) {
+            // Element is visible now. Stop listening for intersection changes
+            observer.disconnect()
+
+            // We still need setTimeout here because the element might not be fully in position yet
+            setTimeout(() => {
+              const { scrollWidth, clientWidth, scrollLeft } =
+                scrollContainer.value!
+              const maxScroll = scrollWidth - clientWidth
+              thumbPosition.value = (scrollLeft / maxScroll) * MAX_SCROLL_VALUE
+            }, 300)
+          }
+        })
+      }
+
+      let observer = new IntersectionObserver(changeThumbPosition, {
+        root: null,
+        rootMargin: "0px",
+        threshold: 1.0,
+      })
+      observer.observe(element!)
+
+      element?.scrollIntoView({ behavior: "smooth", inline: "center" })
+    })
+  },
+  { immediate: true }
+)
 </script>
 
 <style scoped lang="scss">
@@ -336,6 +389,13 @@ watch(thumbPosition, (newVal) => {
       @apply text-secondaryDark;
       @apply bg-primary;
       @apply before: bg-accent;
+      @apply after: absolute;
+      @apply after: inset-x-0;
+      @apply after: bottom-0;
+      @apply after: bg-primary;
+      @apply after: z-12;
+      @apply after: h-0.25;
+      @apply after: content-DEFAULT;
     }
 
     .close {
@@ -346,6 +406,16 @@ watch(thumbPosition, (newVal) => {
       }
     }
   }
+}
+
+.create-new-tab {
+  @apply after: absolute;
+  @apply after: inset-x-0;
+  @apply after: bottom-0;
+  @apply after: bg-dividerLight;
+  @apply after: z-14;
+  @apply after: h-0.25;
+  @apply after: content-DEFAULT;
 }
 
 $slider-height: 4px;

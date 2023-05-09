@@ -23,6 +23,7 @@
               <template #item="{ element: [tabID, tabMeta] }">
                 <button
                   :key="`removable-tab-${tabID}`"
+                  :id="`removable-tab-${tabID}`"
                   class="tab group px-2"
                   :class="[{ active: modelValue === tabID }]"
                   :aria-label="tabMeta.label || ''"
@@ -310,36 +311,36 @@ watch(
   () => props.modelValue,
   (tabID) => {
     nextTick(() => {
-      const index = tabEntries.value.findIndex(([id]) => id === tabID)
-      const { scrollLeft, clientWidth, scrollWidth } = scrollContainer.value!
-      const tabLeft = index * TAB_WIDTH
-      const tabRight = tabLeft + TAB_WIDTH
+      const element = document.getElementById(`removable-tab-${tabID}`)
 
-      // calculate if the tab is still visible even after changing tab ID
-      const isTabVisible =
-        tabLeft >= scrollLeft - TAB_WIDTH &&
-        tabRight <= scrollLeft + clientWidth + TAB_WIDTH
+      const changeThumbPosition: IntersectionObserverCallback = (
+        entries,
+        observer
+      ) => {
+        entries.forEach((entry) => {
+          if (entry.target === element && entry.intersectionRatio >= 1.0) {
+            // Element is visible now. Stop listening for intersection changes
+            observer.disconnect()
 
-      // if the tab is not visible or the tab is last entries, scroll to it
-      if (!isTabVisible || index === tabEntries.value.length - 1) {
-        const maxScroll = scrollWidth - clientWidth
-        const newPosition =
-          ((tabLeft - TAB_WIDTH) / maxScroll) * MAX_SCROLL_VALUE
-
-        const scrollAnimate = () => {
-          // if thumbPosition value is closed to the newPosition, stop the animation
-          if (Math.abs(thumbPosition.value - newPosition) < 0.1) {
-            thumbPosition.value = newPosition
-            return
+            // We still need setTimeout here because the element might not be fully in position yet
+            setTimeout(() => {
+              const { scrollWidth, clientWidth, scrollLeft } =
+                scrollContainer.value!
+              const maxScroll = scrollWidth - clientWidth
+              thumbPosition.value = (scrollLeft / maxScroll) * MAX_SCROLL_VALUE
+            }, 300)
           }
-
-          requestAnimationFrame(scrollAnimate)
-          thumbPosition.value =
-            thumbPosition.value + (newPosition - thumbPosition.value) * 0.1
-        }
-
-        scrollAnimate()
+        })
       }
+
+      let observer = new IntersectionObserver(changeThumbPosition, {
+        root: null,
+        rootMargin: "0px",
+        threshold: 1.0,
+      })
+      observer.observe(element!)
+
+      element?.scrollIntoView({ behavior: "smooth", inline: "center" })
     })
   },
   { immediate: true }

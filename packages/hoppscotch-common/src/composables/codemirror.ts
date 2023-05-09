@@ -38,6 +38,7 @@ import {
   baseHighlightStyle,
 } from "@helpers/editor/themes/baseTheme"
 import { HoppEnvironmentPlugin } from "@helpers/editor/extensions/HoppEnvironment"
+import { platform } from "~/platform"
 // TODO: Migrate from legacy mode
 
 type ExtendedEditorConfig = {
@@ -267,6 +268,7 @@ export function useCodemirror(
   onMounted(() => {
     if (el.value) {
       if (!view.value) initView(el.value)
+      platform.ui?.onCodemirrorInstanceMount?.(el.value)
     }
   })
 

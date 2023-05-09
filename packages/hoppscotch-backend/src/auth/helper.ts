@@ -63,7 +63,7 @@ export const authCookieHandler = (
   });
 
   if (!redirect) {
-    res.status(HttpStatus.OK).send();
+    return res.status(HttpStatus.OK).send();
   }
 
   // check to see if redirectUrl is a whitelisted url
@@ -72,7 +72,7 @@ export const authCookieHandler = (
     // if it is not redirect by default to REDIRECT_URL
     redirectUrl = process.env.REDIRECT_URL;
 
-  res.status(HttpStatus.OK).redirect(redirectUrl);
+  return res.status(HttpStatus.OK).redirect(redirectUrl);
 };
 
 /**

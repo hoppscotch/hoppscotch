@@ -8,7 +8,7 @@ import { HoppModule } from '.';
 import languages from '../../languages.json';
 
 import { throwError } from '../helpers/error';
-import { getLocalConfig, setLocalConfig } from '../newstore/localpersistence';
+import { getLocalConfig, setLocalConfig } from '../helpers/localpersistence';
 
 /*
   In context of this file, we have 2 main kinds of things.
@@ -32,7 +32,11 @@ import { getLocalConfig, setLocalConfig } from '../newstore/localpersistence';
 
 // TODO: Syncing into settings ?
 
-const LOCALES = import.meta.glob('../locales/*.json');
+const LOCALES = import.meta.glob('../../locales/*.json');
+
+setTimeout(() => {
+  console.log(LOCALES);
+}, 1000);
 
 type LanguagesDef = {
   code: string;
@@ -94,7 +98,7 @@ export const changeAppLanguage = async (locale: string) => {
   const localeData = (
     (await pipe(
       LOCALES,
-      R.lookup(`../locales/${locale}.json`),
+      R.lookup(`../../locales/${locale}.json`),
       O.getOrElseW(() =>
         throwError(
           `Tried to change app language to non-existent locale '${locale}'`

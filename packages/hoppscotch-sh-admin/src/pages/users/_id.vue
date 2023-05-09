@@ -18,7 +18,7 @@
             v-if="user.isAdmin"
             class="absolute left-17 bottom-0 text-xs font-medium px-3 py-0.5 rounded-full bg-green-900 text-green-300"
           >
-            Admin
+            {{ t('users.admin') }}
           </span>
         </div>
 
@@ -28,12 +28,14 @@
             v-if="user.isAdmin"
             class="absolute left-15 bottom-0 text-xs font-medium px-3 py-0.5 rounded-full bg-green-900 text-green-300"
           >
-            Admin
+            {{ t('users.admin') }}
           </span>
         </div>
 
         <div v-if="user.uid">
-          <label class="text-secondaryDark" for="username">UID</label>
+          <label class="text-secondaryDark" for="username">{{
+            t('users.uid')
+          }}</label>
           <div
             class="w-full p-3 mt-2 bg-zinc-800 border-gray-600 rounded-md focus:border-emerald-600 focus:ring focus:ring-opacity-40 focus:ring-emerald-500"
           >
@@ -41,18 +43,22 @@
           </div>
         </div>
         <div>
-          <label class="text-secondaryDark" for="username">Name</label>
+          <label class="text-secondaryDark" for="username">{{
+            t('users.name')
+          }}</label>
           <div
             class="w-full p-3 mt-2 bg-zinc-800 border-gray-600 rounded-md focus:border-emerald-600 focus:ring focus:ring-opacity-40 focus:ring-emerald-500"
           >
             <span v-if="user.displayName">
               {{ user.displayName }}
             </span>
-            <span v-else> (Unnamed user) </span>
+            <span v-else> {{ t('users.unnamed') }} </span>
           </div>
         </div>
         <div v-if="user.email">
-          <label class="text-secondaryDark" for="username">Email</label>
+          <label class="text-secondaryDark" for="username">{{
+            t('users.email')
+          }}</label>
           <div
             class="w-full p-3 mt-2 bg-zinc-800 border-gray-200 border-gray-600 rounded-md focus:border-emerald-600 focus:ring focus:ring-opacity-40 focus:ring-emerald-500"
           >
@@ -60,7 +66,9 @@
           </div>
         </div>
         <div v-if="user.createdOn">
-          <label class="text-secondaryDark" for="username">Created On</label>
+          <label class="text-secondaryDark" for="username">{{
+            t('users.created_on')
+          }}</label>
           <div
             class="w-full p-3 mt-2 bg-zinc-800 border-gray-600 rounded-md focus:border-emerald-600 focus:ring focus:ring-opacity-40 focus:ring-emerald-500"
           >
@@ -75,7 +83,7 @@
             class="mr-4"
             filled
             outline
-            label="Make Admin"
+            :label="t('users.make_admin')"
             @click="makeUserAdmin(user.uid)"
           />
         </span>
@@ -85,7 +93,7 @@
             filled
             outline
             :icon="IconUserMinus"
-            label="Remove Admin Privilege"
+            :label="t('users.remove_admin_privilege')"
             @click="makeAdminToUser(user.uid)"
           />
         </span>
@@ -94,7 +102,7 @@
           class="mr-4 !bg-red-600 !text-gray-300 !hover:text-gray-100"
           filled
           outline
-          label="Delete"
+          :label="t('users.delete')"
           :icon="IconTrash"
           @click="deleteUser(user.uid)"
         />
@@ -105,26 +113,26 @@
           filled
           outline
           :icon="IconTrash"
-          label="Delete"
+          :label="t('users.delete')"
           @click="toast.error('Remove admin privilege to delete the user!!')"
         />
       </div>
     </div>
     <HoppSmartConfirmModal
       :show="confirmDeletion"
-      :title="`Confirm deletion of user?`"
+      :title="t('users.confirm_user_deletion')"
       @hide-modal="confirmDeletion = false"
       @resolve="deleteUserMutation(deleteUserUID)"
     />
     <HoppSmartConfirmModal
       :show="confirmUserToAdmin"
-      :title="`Do you want to make this user into an admin?`"
+      :title="t('users.confirm_user_to_admin')"
       @hide-modal="confirmUserToAdmin = false"
       @resolve="makeUserAdminMutation(userToAdminUID)"
     />
     <HoppSmartConfirmModal
       :show="confirmAdminToUser"
-      :title="`Do you want to remove admin status from this user?`"
+      :title="t('users.confirm_admin_to_user')"
       @hide-modal="confirmAdminToUser = false"
       @resolve="makeAdminToUserMutation(adminToUserUID)"
     />
@@ -146,6 +154,9 @@ import { useRoute, useRouter } from 'vue-router';
 import { useToast } from '../../composables/toast';
 import IconTrash from '~icons/lucide/trash';
 import IconUserMinus from '~icons/lucide/user-minus';
+import { useI18n } from '../../composables/i18n';
+
+const t = useI18n();
 
 const toast = useToast();
 

@@ -1,5 +1,42 @@
 {
-  "header": {
-    "login": "Hello"
+  "metrics": {
+    "dashboard": "Dashboard",
+    "total_users": "Total Users",
+    "total_teams": "Total Teams",
+    "total_collections": "Total Collections",
+    "total_requests": "Total Requests"
+  },
+
+  "users": {
+    "users": "Users",
+    "invite_user": "Invite User",
+    "invited_users": "Invited Users",
+    "id": "User ID",
+    "uid": "UID",
+    "name": "Name",
+    "delete":"Delete",
+    "email": "Email",
+    "email_address":"Email Address",
+    "created_on": "Created On",
+    "date": "Date",
+    "admin":"Admin",
+    "admin_id": "Admin ID",
+    "admin_Email": "Admin Email",
+    "invited_email": "Invitee Email",
+    "invited_on": "Invited On",
+    "no_invite": "No invited users found",
+    "remove_admin_status": "Remove Admin Status",
+    "load_list_error": "Unable to Load Users List",
+    "make_admin":"Make admin",
+    "remove_admin_privilege": "Remove Admin Privilege",
+    "show_more": "Show more",
+    "send_invite": "Send Invite",
+    "no_users": "No users found",
+    "unnamed": "(Unnamed User)",
+    "confirm_user_deletion":"Confirm user deletion?",
+    "confirm_user_to_admin":"Do you want to make this user into an admin?",
+    "confirm_admin_to_user":"Do you want to remove admin status from this user?"
+
   }
+
 }

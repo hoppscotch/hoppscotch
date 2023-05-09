@@ -4,7 +4,8 @@
     "total_users": "Total Users",
     "total_teams": "Total Teams",
     "total_collections": "Total Collections",
-    "total_requests": "Total Requests"
+    "total_requests": "Total Requests",
+    "no_metrics":"No metrics found"
   },
 
   "users": {
@@ -42,18 +43,16 @@
     "teams": "Teams",
     "add_members":"Add Members",
     "no_pending_invites":"No pending invites",
-    "invite_user": "Invite User",
-    "invited_users": "Invited Users",
     "id": "Team ID",
     "error":"Something went wrong. Please try again later.",
     "uid": "UID",
-    "name": "Team Name",
+    "name": "Team name",
     "members": "Number of members",
     "delete_team":"Delete Team",
     "details":"Details",
     "team_members":"Members",
     "team_details":"Team details",
-    "email": "Team Owner Email",
+    "email": "Team owner email",
     "edit":"Edit",
     "rename":"Rename",
     "remove":"Remove",
@@ -66,17 +65,12 @@
     "invites":"Invites",
     "invited_email": "Invitee Email",
     "invited_on": "Invited On",
-    "no_invite": "No invited users found",
     "no_members":"No members in this team. Add members to this team to collaborate",
-    "remove_admin_status": "Remove Admin Status",
     "load_list_error": "Unable to Load Teams List",
     "make_admin":"Make admin",
-    "remove_admin_privilege": "Remove Admin Privilege",
     "show_more": "Show more",
     "save": "Save",
     "send_invite": "Send Invite",
-    "no_users": "No users found",
-    "unnamed": "(Unnamed User)",
     "confirm_team_deletion":"Confirm Deletion of the team?"
   },
 

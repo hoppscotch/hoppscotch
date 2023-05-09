@@ -25,7 +25,7 @@
 
       <div class="py-8">
         <HoppSmartTabs v-model="selectedOptionTab" render-inactive-tabs>
-          <HoppSmartTab :id="'details'" label="Details">
+          <HoppSmartTab :id="'details'" :label="t('teams.details')">
             <TeamsDetails
               :team="team"
               :teamName="teamName"
@@ -35,17 +35,17 @@
               class="py-8 px-4"
             />
           </HoppSmartTab>
-          <HoppSmartTab :id="'members'" label="Members">
+          <HoppSmartTab :id="'members'" :label="t('teams.team_members')">
             <TeamsMembers @update-team="updateTeam()" class="py-8 px-4" />
           </HoppSmartTab>
-          <HoppSmartTab :id="'invites'" label="Invites">
+          <HoppSmartTab :id="'invites'" :label="t('teams.invites')">
             <TeamsPendingInvites :editingTeamID="team.id" class="py-8 px-4" />
           </HoppSmartTab>
         </HoppSmartTabs>
 
         <HoppSmartConfirmModal
           :show="confirmDeletion"
-          :title="`Confirm Deletion of ${team.name} team?`"
+          :title="t('teams.confirm_team_deletion')"
           @hide-modal="confirmDeletion = false"
           @resolve="deleteTeamMutation(deleteTeamUID)"
         />
@@ -67,6 +67,9 @@ import {
   TeamInfoQuery,
 } from '../../helpers/backend/graphql';
 import { HoppSmartTabs } from '@hoppscotch/ui';
+import { useI18n } from '../../composables/i18n';
+
+const t = useI18n();
 
 const toast = useToast();
 

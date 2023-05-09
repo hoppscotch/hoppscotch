@@ -33,7 +33,9 @@
             class="!rounded-l-none"
             filled
             :icon="showRenameInput ? IconSave : IconEdit"
-            :label="showRenameInput ? `t('teams.rename')` : `t('teams.edit')`"
+            :label="
+              showRenameInput ? `${t('teams.rename')}` : `${t('teams.edit')}`
+            "
             @click="handleNameEdit()"
           />
         </div>

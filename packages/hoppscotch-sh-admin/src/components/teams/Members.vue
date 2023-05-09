@@ -70,7 +70,7 @@
                     @keyup.escape="hide()"
                   >
                     <HoppSmartItem
-                      :label="t('role.owner')"
+                      label="OWNER"
                       :icon="
                         member.role === 'OWNER' ? IconCircleDot : IconCircle
                       "
@@ -83,7 +83,7 @@
                       "
                     />
                     <HoppSmartItem
-                      :label="t('role.editor')"
+                      label="EDITOR"
                       :icon="
                         member.role === 'EDITOR' ? IconCircleDot : IconCircle
                       "
@@ -99,7 +99,7 @@
                       "
                     />
                     <HoppSmartItem
-                      :label="t('role.viewer')"
+                      label="VIEWER"
                       :icon="
                         member.role === 'VIEWER' ? IconCircleDot : IconCircle
                       "
@@ -122,7 +122,7 @@
               <HoppButtonSecondary
                 id="member"
                 v-tippy="{ theme: 'tooltip' }"
-                title="Remove"
+                :title="t('teams.remove')"
                 :icon="IconUserMinus"
                 color="red"
                 :loading="isLoadingIndex === index"
@@ -139,7 +139,11 @@
     </div>
 
     <div class="flex">
-      <HoppButtonPrimary label="Save" outline @click="saveUpdatedTeam" />
+      <HoppButtonPrimary
+        :label="t('teams.save')"
+        outline
+        @click="saveUpdatedTeam"
+      />
     </div>
     <TeamsInvite
       :show="showInvite"

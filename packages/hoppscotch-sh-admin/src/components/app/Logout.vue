@@ -22,6 +22,9 @@ import IconLogOut from '~icons/lucide/log-out';
 import { useToast } from '~/composables/toast';
 import { useRouter } from 'vue-router';
 import { auth } from '~/helpers/auth';
+import { useI18n } from '../../composables/i18n';
+
+const t = useI18n();
 
 const router = useRouter();
 
@@ -48,10 +51,10 @@ const logout = async () => {
   try {
     await auth.signOutUser();
     router.push(`/`);
-    toast.success(`Logged out`);
+    toast.success(t('state.log_out'));
   } catch (e) {
     console.error(e);
-    toast.error(`Something went wrong`);
+    toast.error(t('state.error'));
   }
 };
 

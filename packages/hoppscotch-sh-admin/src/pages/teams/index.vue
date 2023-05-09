@@ -113,11 +113,11 @@ const createTeamLoading = ref(false);
 
 const createTeam = async (newTeamName: string, ownerEmail: string) => {
   if (newTeamName.length < 6) {
-    toast.error('Team name should be atleast 6 characters long!!');
+    toast.error(`${t('state.team_name_long')}`);
     return;
   }
   if (ownerEmail.length == 0) {
-    toast.error('Please enter email of team owner!!');
+    toast.error(`${t('state.enter_team_email')}`);
     return;
   }
   createTeamLoading.value = true;
@@ -127,13 +127,13 @@ const createTeam = async (newTeamName: string, ownerEmail: string) => {
   await createTeamMutation.executeMutation(variables).then((result) => {
     if (result.error) {
       if (result.error.toString() == '[GraphQL] user/not_found') {
-        toast.error('User not found!!');
+        toast.error(`${t('users.not_found')}`);
       } else {
-        toast.error('Failed to create team!!');
+        toast.error(`${t('create_team_failure')}`);
       }
       createTeamLoading.value = false;
     } else {
-      toast.success('Team created successfully!!');
+      toast.success(`${t('state.create_team_success')}`);
       showCreateTeamModal.value = false;
       createTeamLoading.value = false;
       refetch();
@@ -167,16 +167,16 @@ const deleteTeam = (id: string) => {
 const deleteTeamMutation = async (id: string | null) => {
   if (!id) {
     confirmDeletion.value = false;
-    toast.error('Team deletion failed!!');
+    toast.error(`${t('state.delete_team_failure')}`);
     return;
   }
   const variables = { uid: id };
   await teamDeletion.executeMutation(variables).then((result) => {
     if (result.error) {
-      toast.error('Team deletion failed!!');
+      toast.error(`${t('state.delete_team_failure')}`);
     } else {
       teamList.value = teamList.value.filter((team) => team.id !== id);
-      toast.success('Team deleted successfully!!');
+      toast.success(`${t('state.delete_team_success')}`);
     }
   });
   confirmDeletion.value = false;

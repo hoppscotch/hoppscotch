@@ -80,11 +80,11 @@ const selectedOptionTab = ref<OptionTabs>('details');
 const currentTabName = computed(() => {
   switch (selectedOptionTab.value) {
     case 'details':
-      return 'Team details';
+      return t('teams.team_details');
     case 'members':
-      return 'Team members';
+      return t('teams.team_members_tab');
     case 'invites':
-      return 'Pending invites';
+      return t('teams.pending_invites');
     default:
       return '';
   }
@@ -103,7 +103,7 @@ const getTeamInfo = async () => {
     .query(TeamInfoDocument, { teamID: route.params.id.toString() })
     .toPromise();
   if (result.error) {
-    return toast.error('Unable to load team info..');
+    return toast.error(`${t('team.load_info_error')}`);
   }
   if (result.data?.admin.teamInfo) {
     team.value = result.data.admin.teamInfo;
@@ -130,12 +130,12 @@ const renameTeamName = async (teamName: string) => {
   const variables = { uid: team.value.id, name: teamName };
   await teamRename.executeMutation(variables).then((result) => {
     if (result.error) {
-      toast.error('Failed to rename team!!');
+      toast.error(`${t('state.rename_team_failure')}`);
     } else {
       showRenameInput.value = false;
       if (team.value) {
         team.value.name = teamName;
-        toast.success('Team renamed successfully!!');
+        toast.success(`${t('state.rename_team_success')}`);
       }
     }
   });
@@ -155,15 +155,15 @@ const deleteTeam = (id: string) => {
 const deleteTeamMutation = async (id: string | null) => {
   if (!id) {
     confirmDeletion.value = false;
-    toast.error('Team deletion failed!!');
+    toast.error(`${t('state.delete_team_failure')}`);
     return;
   }
   const variables = { uid: id };
   await teamDeletion.executeMutation(variables).then((result) => {
     if (result.error) {
-      toast.error('Team deletion failed!!');
+      toast.error(`${t('state.delete_team_failure')}`);
     } else {
-      toast.success('Team deleted successfully!!');
+      toast.success(`${t('state.delete_team_success')}`);
     }
   });
   confirmDeletion.value = false;

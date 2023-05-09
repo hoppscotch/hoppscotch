@@ -202,7 +202,7 @@ const getTeamInfo = async () => {
     .toPromise();
 
   if (result.error) {
-    return toast.error('Unable to Load Team Info..');
+    return toast.error(t('teams.load_info_error'));
   }
   if (result.data?.admin.teamInfo) {
     team.value = result.data.admin.teamInfo;
@@ -308,10 +308,10 @@ const saveUpdatedTeam = async () => {
       update.role
     );
     if (updateMemberRoleResult.error) {
-      toast.error('Role updation has failed!!');
+      toast.error(t('state.role_update_failed'));
       roleUpdates.value = [];
     } else {
-      toast.success('Roles updated successfully!!');
+      toast.success(t('state.role_update_success'));
       roleUpdates.value = [];
     }
     isLoading.value = false;
@@ -341,12 +341,12 @@ const removeExistingTeamMember = async (userID: string, index: number) => {
     team.value.id
   )();
   if (removeTeamMemberResult.error) {
-    toast.error(`Member couldn't be removed!!`);
+    toast.error(t('state.remove_member_failure'));
   } else {
     team.value.teamMembers = team.value.teamMembers?.filter(
       (member: any) => member.user.uid !== userID
     );
-    toast.success('Member removed successfully!!');
+    toast.success(t('state.remove_member_success'));
   }
   isLoadingIndex.value = null;
   emit('update-team');

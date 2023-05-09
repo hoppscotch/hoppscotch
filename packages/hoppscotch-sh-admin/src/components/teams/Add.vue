@@ -78,11 +78,11 @@ const getOwnerEmail = (email: string) => (ownerEmail.value = email);
 
 const createTeam = () => {
   if (teamName.value.trim() === '') {
-    toast.error('Please enter a valid team name');
+    toast.error(t('teams.valid_name'));
     return;
   }
   if (ownerEmail.value.trim() === '') {
-    toast.error('Please enter a valid owner email');
+    toast.error(t('teams.valid_owner_email'));
     return;
   }
   emit('create-team', teamName.value, ownerEmail.value);

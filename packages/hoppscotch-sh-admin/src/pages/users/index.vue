@@ -124,15 +124,15 @@ const showInviteUserModal = ref(false);
 
 const sendInvite = async (email: string) => {
   if (!email.trim()) {
-    toast.error('Please enter a valid email address');
+    toast.error(`${t('state.invalid_email')}`);
     return;
   }
   const variables = { inviteeEmail: email.trim() };
   await sendInvitation.executeMutation(variables).then((result) => {
     if (result.error) {
-      toast.error('Failed to send invitation');
+      toast.error(`${t('state.email_failure')}`);
     } else {
-      toast.success('Email invitation sent successfully');
+      toast.success(`${t('state.email_success')}`);
       showInviteUserModal.value = false;
     }
   });
@@ -158,15 +158,15 @@ const deleteUserUID = ref<string | null>(null);
 const deleteUserMutation = async (id: string | null) => {
   if (!id) {
     confirmDeletion.value = false;
-    toast.error('User deletion failed!!');
+    toast.error(`${t('state.delete_user_failure')}`);
     return;
   }
   const variables = { uid: id };
   await userDeletion.executeMutation(variables).then((result) => {
     if (result.error) {
-      toast.error('User deletion failed!!');
+      toast.error(`${t('state.delete_user_failure')}`);
     } else {
-      toast.success('User deleted successfully!!');
+      toast.success(`${t('state.delete_user_success')}`);
       usersList.value = usersList.value.filter((user) => user.uid !== id);
     }
   });
@@ -187,15 +187,15 @@ const makeUserAdmin = (id: string) => {
 const makeUserAdminMutation = async (id: string | null) => {
   if (!id) {
     confirmUserToAdmin.value = false;
-    toast.error('Failed to make user an admin!!');
+    toast.error(`${t('state.admin_failure')}`);
     return;
   }
   const variables = { uid: id };
   await userToAdmin.executeMutation(variables).then((result) => {
     if (result.error) {
-      toast.error('Failed to make user an admin!!');
+      toast.error(`${t('state.admin_failure')}`);
     } else {
-      toast.success('User is now an admin!!');
+      toast.success(`${t('state.admin_success')}`);
       usersList.value = usersList.value.map((user) => {
         if (user.uid === id) {
           user.isAdmin = true;
@@ -226,15 +226,15 @@ const deleteUser = (id: string) => {
 const makeAdminToUserMutation = async (id: string | null) => {
   if (!id) {
     confirmAdminToUser.value = false;
-    toast.error('Failed to remove admin status!!');
+    toast.error(`${t('state.remove_admin_failure')}`);
     return;
   }
   const variables = { uid: id };
   await adminToUser.executeMutation(variables).then((result) => {
     if (result.error) {
-      toast.error('Failed to remove admin status!!');
+      toast.error(`${t('state.remove_admin_failure')}`);
     } else {
-      toast.success('Admin status removed!!');
+      toast.success(`${t('state.remove_admin_success')}`);
       usersList.value = usersList.value.map((user) => {
         if (user.uid === id) {
           user.isAdmin = false;

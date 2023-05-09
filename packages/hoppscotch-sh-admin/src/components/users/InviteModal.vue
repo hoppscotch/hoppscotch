@@ -62,7 +62,7 @@ const email = ref('');
 
 const sendInvite = () => {
   if (email.value.trim() === '') {
-    toast.error('Please enter a valid email address');
+    toast.error(t('users.valid_email'));
     return;
   }
   emit('send-invite', email.value);

@@ -42,21 +42,18 @@ const dispatchers = defineDispatchers({
       selectedEnvironmentIndex,
     }: { selectedEnvironmentIndex: SelectedEnvironmentIndex }
   ) {
-    let isValidIndex = true
-
-    if (selectedEnvironmentIndex.type == "MY_ENV") {
-      isValidIndex =
-        selectedEnvironmentIndex.type == "MY_ENV" &&
-        !!store.environments[selectedEnvironmentIndex.index]
+    if (
+      selectedEnvironmentIndex.type === "MY_ENV" &&
+      !!store.environments[selectedEnvironmentIndex.index]
+    ) {
+      return {
+        selectedEnvironmentIndex,
+      }
+    } else {
+      return {
+        type: "NO_ENV_SELECTED",
+      }
     }
-
-    return isValidIndex
-      ? {
-          selectedEnvironmentIndex,
-        }
-      : {
-          type: "NO_ENV_SELECTED",
-        }
   },
   appendEnvironments(
     { environments }: EnvironmentStore,

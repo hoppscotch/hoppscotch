@@ -36,7 +36,53 @@
     "confirm_user_deletion":"Confirm user deletion?",
     "confirm_user_to_admin":"Do you want to make this user into an admin?",
     "confirm_admin_to_user":"Do you want to remove admin status from this user?"
+  },
 
+  "teams": {
+    "teams": "Teams",
+    "add_members":"Add Members",
+    "no_pending_invites":"No pending invites",
+    "invite_user": "Invite User",
+    "invited_users": "Invited Users",
+    "id": "Team ID",
+    "error":"Something went wrong. Please try again later.",
+    "uid": "UID",
+    "name": "Team Name",
+    "members": "Number of members",
+    "delete_team":"Delete Team",
+    "details":"Details",
+    "team_members":"Members",
+    "team_details":"Team details",
+    "email": "Team Owner Email",
+    "edit":"Edit",
+    "rename":"Rename",
+    "remove":"Remove",
+    "email_address":"Email Address",
+    "create_team": "Create team",
+    "date": "Date",
+    "admin":"Admin",
+    "admin_id": "Admin ID",
+    "admin_Email": "Admin Email",
+    "invites":"Invites",
+    "invited_email": "Invitee Email",
+    "invited_on": "Invited On",
+    "no_invite": "No invited users found",
+    "no_members":"No members in this team. Add members to this team to collaborate",
+    "remove_admin_status": "Remove Admin Status",
+    "load_list_error": "Unable to Load Teams List",
+    "make_admin":"Make admin",
+    "remove_admin_privilege": "Remove Admin Privilege",
+    "show_more": "Show more",
+    "save": "Save",
+    "send_invite": "Send Invite",
+    "no_users": "No users found",
+    "unnamed": "(Unnamed User)",
+    "confirm_team_deletion":"Confirm Deletion of the team?"
+  },
+
+  "role": {
+    "owner": "OWNER",
+    "editor": "EDITOR",
+    "viewer": "VIEWER"
   }
-
 }

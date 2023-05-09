@@ -2,13 +2,13 @@
   <HoppSmartModal
     v-if="show"
     dialog
-    title="Create team"
+    :title="t('teams.create_team')"
     @close="$emit('hide-modal')"
   >
     <template #body>
       <div class="flex flex-col space-y-4 relative">
         <div class="flex flex-col relaive">
-          <label for="teamName" class="py-2"> Team owner email </label>
+          <label for="teamName" class="py-2"> {{ t('teams.email') }} </label>
           <HoppSmartAutoComplete
             styles="w-full p-2 bg-transparent border border-divider rounded-md "
             class="flex-1 !flex"
@@ -19,7 +19,7 @@
           />
         </div>
         <div class="flex flex-col">
-          <label for="teamName" class="py-2">Team name</label>
+          <label for="teamName" class="py-2">{{ t('teams.name') }} </label>
           <input
             id="teamName"
             v-model="teamName"
@@ -35,7 +35,7 @@
     <template #footer>
       <span class="flex space-x-2">
         <HoppButtonPrimary
-          label="Create team"
+          :label="t('teams.create_team')"
           :loading="loadingState"
           @click="createTeam"
         />
@@ -48,6 +48,9 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useToast } from '~/composables/toast';
+import { useI18n } from '../../composables/i18n';
+
+const t = useI18n();
 
 const toast = useToast();
 

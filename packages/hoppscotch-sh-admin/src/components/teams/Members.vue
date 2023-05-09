@@ -4,7 +4,7 @@
       <div class="flex">
         <HoppButtonPrimary
           :icon="IconUserPlus"
-          label="Add Members"
+          :label="t('teams.add_members')"
           filled
           @click="showInvite = !showInvite"
         />
@@ -16,11 +16,11 @@
           class="flex flex-col items-center justify-center p-4 text-secondaryLight"
         >
           <span class="pb-4 text-center">
-            No members in this team. Add members to this team to collaborate
+            {{ t('teams.no_members') }}
           </span>
           <HoppButtonSecondary
             :icon="IconUserPlus"
-            label="Add Members"
+            :label="t('teams.add_members')"
             @click="
               () => {
                 showInvite = !showInvite;
@@ -70,7 +70,7 @@
                     @keyup.escape="hide()"
                   >
                     <HoppSmartItem
-                      label="OWNER"
+                      :label="t('role.owner')"
                       :icon="
                         member.role === 'OWNER' ? IconCircleDot : IconCircle
                       "
@@ -83,7 +83,7 @@
                       "
                     />
                     <HoppSmartItem
-                      label="EDITOR"
+                      :label="t('role.editor')"
                       :icon="
                         member.role === 'EDITOR' ? IconCircleDot : IconCircle
                       "
@@ -99,7 +99,7 @@
                       "
                     />
                     <HoppSmartItem
-                      label="VIEWER"
+                      :label="t('role.viewer')"
                       :icon="
                         member.role === 'VIEWER' ? IconCircleDot : IconCircle
                       "
@@ -134,7 +134,7 @@
       </div>
       <div v-if="!fetching && !team" class="flex flex-col items-center">
         <icon-lucide-help-circle class="mb-4 svg-icons" />
-        Something went wrong. Please try again later.
+        {{ t('teams.error') }}
       </div>
     </div>
 
@@ -172,6 +172,9 @@ import {
   TeamInfoQuery,
 } from '../../helpers/backend/graphql';
 import { HoppButtonPrimary, HoppButtonSecondary } from '@hoppscotch/ui';
+import { useI18n } from '../../composables/i18n';
+
+const t = useI18n();
 
 const toast = useToast();
 

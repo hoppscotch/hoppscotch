@@ -28,7 +28,7 @@
           <div class="flex">
             <HoppButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
-              title="Remove"
+              :title="t('teams.remove')"
               :icon="IconTrash"
               color="red"
               :loading="isLoadingIndex === index"
@@ -41,11 +41,11 @@
         v-if="team && pendingInvites?.length === 0"
         class="flex flex-col items-center justify-center p-4 text-secondaryLight"
       >
-        <span class="text-center"> No pending invites </span>
+        <span class="text-center">{{ t('teams.no_pending_invites') }} </span>
       </div>
       <div v-if="!fetching && error" class="flex flex-col items-center p-4">
         <icon-lucide-help-circle class="mb-4 svg-icons" />
-        Something went wrong. Please try again later.
+        {{ t('teams.error') }}
       </div>
     </div>
   </div>
@@ -62,6 +62,9 @@ import {
 } from '~/helpers/backend/graphql';
 import { useToast } from '~/composables/toast';
 import { useRoute } from 'vue-router';
+import { useI18n } from '../../composables/i18n';
+
+const t = useI18n();
 
 const toast = useToast();
 

@@ -1,12 +1,12 @@
 <template>
   <div class="flex flex-col">
-    <h1 class="text-lg font-bold text-secondaryDark">Teams</h1>
+    <h1 class="text-lg font-bold text-secondaryDark">{{ t('teams.teams') }}</h1>
 
     <div class="flex flex-col">
       <div class="flex py-10">
         <HoppButtonPrimary
           :icon="IconAddUsers"
-          label="Create team"
+          :label="t('teams.create_team')"
           @click="showCreateTeamModal = true"
         />
       </div>
@@ -19,7 +19,7 @@
           <HoppSmartSpinner />
         </div>
 
-        <div v-else-if="error">Unable to Load Teams List..</div>
+        <div v-else-if="error">{{ t('teams.load_list_error') }}</div>
 
         <TeamsTable
           v-else
@@ -34,7 +34,7 @@
           class="flex justify-center my-5 px-3 py-2 cursor-pointer font-semibold rounded-3xl bg-dividerDark hover:bg-divider transition mx-auto w-38 text-secondaryDark"
           @click="fetchNextTeams"
         >
-          <span>Show more </span>
+          <span>{{ t('teams.show_more') }}</span>
           <icon-lucide-chevron-down class="ml-2 text-lg" />
         </div>
       </div>
@@ -50,7 +50,7 @@
   />
   <HoppSmartConfirmModal
     :show="confirmDeletion"
-    :title="`Confirm Deletion of the team?`"
+    :title="t('teams.confirm_team_deletion')"
     @hide-modal="confirmDeletion = false"
     @resolve="deleteTeamMutation(deleteTeamID)"
   />
@@ -70,6 +70,9 @@ import { ref, watch, computed } from 'vue';
 import { useMutation, useQuery } from '@urql/vue';
 import { useToast } from '../../composables/toast';
 import IconAddUsers from '~icons/lucide/plus';
+import { useI18n } from '../../composables/i18n';
+
+const t = useI18n();
 
 const toast = useToast();
 // Get Users List

@@ -1,14 +1,14 @@
 <template>
   <div class="flex flex-col flex-1 h-auto overflow-y-hidden flex-nowrap">
     <div
-      class="relative sticky top-0 z-10 flex-shrink-0 overflow-x-auto tabs bg-primaryLight group-tabs"
+      class="relative sticky top-0 z-10 flex-shrink-0 overflow-x-auto divide-x divide-dividerLight bg-primaryLight tabs group-tabs"
     >
       <div
         class="flex flex-1 flex-shrink-0 w-0 overflow-x-auto"
         ref="scrollContainer"
       >
         <div
-          class="flex justify-between divide-x divide-divider"
+          class="flex justify-between divide-x divide-dividerLight"
           @wheel.prevent="scroll"
         >
           <div class="flex">
@@ -24,7 +24,7 @@
                 <button
                   :key="`removable-tab-${tabID}`"
                   :id="`removable-tab-${tabID}`"
-                  class="tab group px-2"
+                  class="px-2 tab group"
                   :class="[{ active: modelValue === tabID }]"
                   :aria-label="tabMeta.label || ''"
                   role="button"
@@ -40,14 +40,14 @@
 
                   <div
                     v-if="!tabMeta.tabhead"
-                    class="truncate w-full text-left px-2"
+                    class="w-full px-2 text-left truncate"
                   >
                     <span class="truncate">
                       {{ tabMeta.label }}
                     </span>
                   </div>
 
-                  <div v-else class="truncate w-full text-left">
+                  <div v-else class="w-full text-left truncate">
                     <component :is="tabMeta.tabhead" />
                   </div>
 
@@ -73,7 +73,7 @@
                       },
                       'close',
                     ]"
-                    class="!p-0.25 rounded"
+                    class="rounded !p-0.25"
                     @click.stop="emit('removeTab', tabID)"
                   />
                 </button>
@@ -81,33 +81,33 @@
             </draggable>
           </div>
           <div
-            class="sticky right-0 flex items-center justify-center flex-shrink-0 overflow-x-auto z-8"
+            class="sticky right-0 flex items-center justify-center flex-shrink-0 overflow-x-auto z-14"
           >
-            <slot name="actions">
-              <span
-                v-if="canAddNewTab"
-                class="flex items-center justify-center px-3 bg-primaryLight z-8 h-full"
-              >
-                <HoppButtonSecondary
-                  v-tippy="{ theme: 'tooltip' }"
-                  :title="newText ?? t?.('action.new') ?? 'New'"
-                  :icon="IconPlus"
-                  class="rounded !text-secondaryDark !p-1"
-                  filled
-                  @click="addTab"
-                />
-              </span>
-            </slot>
+            <span
+              v-if="canAddNewTab"
+              class="flex items-center justify-center h-full px-3 bg-primaryLight z-8"
+            >
+              <HoppButtonSecondary
+                v-tippy="{ theme: 'tooltip' }"
+                :title="newText ?? t?.('action.new') ?? 'New'"
+                :icon="IconPlus"
+                class="rounded create-new-tab !text-secondaryDark !p-1"
+                filled
+                @click="addTab"
+              />
+            </span>
           </div>
         </div>
       </div>
+
+      <slot name="actions" />
 
       <input
         type="range"
         min="1"
         :max="MAX_SCROLL_VALUE"
         v-model="thumbPosition"
-        class="slider absolute bottom-0 hidden left-0"
+        class="absolute bottom-0 left-0 hidden slider"
         :class="{
           '!block': scrollThumb.show,
         }"
@@ -389,6 +389,13 @@ watch(
       @apply text-secondaryDark;
       @apply bg-primary;
       @apply before: bg-accent;
+      @apply after: absolute;
+      @apply after: inset-x-0;
+      @apply after: bottom-0;
+      @apply after: bg-primary;
+      @apply after: z-12;
+      @apply after: h-0.25;
+      @apply after: content-DEFAULT;
     }
 
     .close {
@@ -399,6 +406,16 @@ watch(
       }
     }
   }
+}
+
+.create-new-tab {
+  @apply after: absolute;
+  @apply after: inset-x-0;
+  @apply after: bottom-0;
+  @apply after: bg-dividerLight;
+  @apply after: z-14;
+  @apply after: h-0.25;
+  @apply after: content-DEFAULT;
 }
 
 $slider-height: 4px;

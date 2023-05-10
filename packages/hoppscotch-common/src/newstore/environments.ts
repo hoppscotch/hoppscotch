@@ -37,13 +37,22 @@ type EnvironmentStore = typeof defaultEnvironmentsState
 
 const dispatchers = defineDispatchers({
   setSelectedEnvironmentIndex(
-    _: EnvironmentStore,
+    store: EnvironmentStore,
     {
       selectedEnvironmentIndex,
     }: { selectedEnvironmentIndex: SelectedEnvironmentIndex }
   ) {
-    return {
-      selectedEnvironmentIndex,
+    if (
+      selectedEnvironmentIndex.type === "MY_ENV" &&
+      !!store.environments[selectedEnvironmentIndex.index]
+    ) {
+      return {
+        selectedEnvironmentIndex,
+      }
+    } else {
+      return {
+        type: "NO_ENV_SELECTED",
+      }
     }
   },
   appendEnvironments(
@@ -325,21 +334,22 @@ export const selectedEnvironmentIndex$ = environmentsStore.subject$.pipe(
   distinctUntilChanged()
 )
 
-export const currentEnvironment$ = environmentsStore.subject$.pipe(
-  map(({ environments, selectedEnvironmentIndex }) => {
-    if (selectedEnvironmentIndex.type === "NO_ENV_SELECTED") {
-      const env: Environment = {
-        name: "No environment",
-        variables: [],
+export const currentEnvironment$: Observable<Environment | undefined> =
+  environmentsStore.subject$.pipe(
+    map(({ environments, selectedEnvironmentIndex }) => {
+      if (selectedEnvironmentIndex.type === "NO_ENV_SELECTED") {
+        const env: Environment = {
+          name: "No environment",
+          variables: [],
+        }
+        return env
+      } else if (selectedEnvironmentIndex.type === "MY_ENV") {
+        return environments[selectedEnvironmentIndex.index]
+      } else {
+        return selectedEnvironmentIndex.environment
       }
-      return env
-    } else if (selectedEnvironmentIndex.type === "MY_ENV") {
-      return environments[selectedEnvironmentIndex.index]
-    } else {
-      return selectedEnvironmentIndex.environment
-    }
-  })
-)
+    })
+  )
 
 export type AggregateEnvironment = {
   key: string
@@ -358,7 +368,7 @@ export const aggregateEnvs$: Observable<AggregateEnvironment[]> = combineLatest(
   map(([selectedEnv, globalVars]) => {
     const results: AggregateEnvironment[] = []
 
-    selectedEnv.variables.forEach(({ key, value }) =>
+    selectedEnv?.variables.forEach(({ key, value }) =>
       results.push({ key, value, sourceEnv: selectedEnv.name })
     )
     globalVars.forEach(({ key, value }) =>

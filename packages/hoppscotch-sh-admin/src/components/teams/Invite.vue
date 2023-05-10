@@ -115,11 +115,6 @@
             v-if="newMembersList.length === 0"
             class="flex flex-col items-center justify-center p-4 text-secondaryLight"
           >
-            <img
-              :src="`/images/states/dark/add_group.svg`"
-              loading="lazy"
-              class="inline-flex flex-col object-contain object-center w-16 h-16 mb-4"
-            />
             <span class="pb-4 text-center"> No invites </span>
             <HoppButtonSecondary label="Add new" filled @click="addNewMember" />
           </div>
@@ -291,7 +286,7 @@ const addUserasTeamMember = async () => {
 
   if (O.isNone(validationResult)) {
     // Error handling for no validation
-    toast.error(t('users.invalid_user'));
+    toast.error(`${t('users.invalid_user')}`);
     addingUserToTeam.value = false;
     return;
   }
@@ -323,12 +318,12 @@ const addUserToTeam = async (
     .then((result) => {
       if (result.error) {
         if (result.error.toString() == '[GraphQL] user/not_found') {
-          toast.error(t('state.user_not_found'));
+          toast.error(`${t('state.user_not_found')}`);
         } else {
-          toast.error(t('state.add_user_failure'));
+          toast.error(`${t('state.add_user_failure')}`);
         }
       } else {
-        toast.success(t('state.add_user_failure'));
+        toast.success(`${t('state.add_user_success')}`);
         emit('member');
       }
     });

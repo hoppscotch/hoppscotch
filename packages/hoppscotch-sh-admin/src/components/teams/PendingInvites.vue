@@ -86,7 +86,7 @@ const getTeamInfo = async () => {
 
   if (result.error) {
     error.value = true;
-    return toast.error(t('teams.load_info_error'));
+    return toast.error(`${t('teams.load_info_error')}`);
   }
 
   if (result.data?.admin.teamInfo) {
@@ -109,7 +109,7 @@ const removeInvitee = async (id: string, index: number) => {
   isLoadingIndex.value = index;
   const result = await revokeTeamInvitation(id);
   if (result.error) {
-    toast.error(t('state.remove_invitee_failure'));
+    toast.error(`${t('state.remove_invitee_failure')}`);
   } else {
     if (pendingInvites.value) {
       pendingInvites.value = pendingInvites.value.filter(
@@ -117,7 +117,7 @@ const removeInvitee = async (id: string, index: number) => {
           return invite.id !== id;
         }
       );
-      toast.success(t('state.remove_invitee_success'));
+      toast.success(`${t('state.remove_invitee_success')}`);
     }
   }
   isLoadingIndex.value = null;

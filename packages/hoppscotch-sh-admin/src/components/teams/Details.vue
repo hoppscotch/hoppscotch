@@ -100,7 +100,7 @@ const handleNameEdit = () => {
 
 const renameTeam = () => {
   if (newTeamName.value.trim() === '') {
-    toast.error(t('teams.empty_name'));
+    toast.error(`${t('teams.empty_name')}`);
     return;
   }
   emit('rename-team', newTeamName.value);

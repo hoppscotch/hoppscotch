@@ -2,14 +2,14 @@
   <div class="flex" @click="openLogoutModal()">
     <HoppSmartItem
       :icon="IconLogOut"
-      :label="'Logout'"
+      :label="t('state.logout')"
       :outline="outline"
       :shortcut="shortcut"
       @click="openLogoutModal()"
     />
     <HoppSmartConfirmModal
       :show="confirmLogout"
-      :title="`Confirm Logout`"
+      :title="t('state.confirm_logout')"
       @hide-modal="confirmLogout = false"
       @resolve="logout"
     />
@@ -51,10 +51,10 @@ const logout = async () => {
   try {
     await auth.signOutUser();
     router.push(`/`);
-    toast.success(t('state.log_out'));
+    toast.success(`${t('state.logged_out')}`);
   } catch (e) {
     console.error(e);
-    toast.error(t('state.error'));
+    toast.error(`${t('state.error')}`);
   }
 };
 

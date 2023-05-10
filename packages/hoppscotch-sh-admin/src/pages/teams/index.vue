@@ -127,9 +127,9 @@ const createTeam = async (newTeamName: string, ownerEmail: string) => {
   await createTeamMutation.executeMutation(variables).then((result) => {
     if (result.error) {
       if (result.error.toString() == '[GraphQL] user/not_found') {
-        toast.error(`${t('users.not_found')}`);
+        toast.error(`${t('state.user_not_found')}`);
       } else {
-        toast.error(`${t('create_team_failure')}`);
+        toast.error(`${t('state.create_team_failure')}`);
       }
       createTeamLoading.value = false;
     } else {

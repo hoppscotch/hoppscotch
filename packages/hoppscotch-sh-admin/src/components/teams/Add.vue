@@ -39,7 +39,12 @@
           :loading="loadingState"
           @click="createTeam"
         />
-        <HoppButtonSecondary label="Cancel" outline filled @click="hideModal" />
+        <HoppButtonSecondary
+          :label="t('teams.cancel')"
+          outline
+          filled
+          @click="hideModal"
+        />
       </span>
     </template>
   </HoppSmartModal>
@@ -78,11 +83,11 @@ const getOwnerEmail = (email: string) => (ownerEmail.value = email);
 
 const createTeam = () => {
   if (teamName.value.trim() === '') {
-    toast.error(t('teams.valid_name'));
+    toast.error(`${t('teams.valid_name')}`);
     return;
   }
   if (ownerEmail.value.trim() === '') {
-    toast.error(t('teams.valid_owner_email'));
+    toast.error(`${t('teams.valid_owner_email')}`);
     return;
   }
   emit('create-team', teamName.value, ownerEmail.value);

@@ -255,16 +255,16 @@ const makeAdminToUser = (id: string) => {
 const makeAdminToUserMutation = async (id: string | null) => {
   if (!id) {
     confirmAdminToUser.value = false;
-    toast.error(`${t('remove_admin_failure')}`);
+    toast.error(`${t('state.remove_admin_failure')}`);
     return;
   }
   const variables = { uid: id };
   await adminToUser.executeMutation(variables).then((result) => {
     if (result.error) {
-      toast.error(`${t('remove_admin_failure')}`);
+      toast.error(`${t('state.remove_admin_failure')}`);
     } else {
       user.value.isAdmin = false;
-      toast.error(`${t('remove_admin_success')}`);
+      toast.error(`${t('state.remove_admin_success')}`);
     }
   });
   confirmAdminToUser.value = false;

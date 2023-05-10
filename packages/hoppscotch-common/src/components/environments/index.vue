@@ -4,153 +4,15 @@
       class="sticky top-0 z-10 flex flex-col flex-shrink-0 overflow-x-auto bg-primary"
     >
       <WorkspaceCurrent :section="t('tab.environments')" />
-      <tippy
-        v-if="environmentType.type === 'my-environments'"
-        interactive
-        trigger="click"
-        theme="popover"
-        :on-shown="() => tippyActions!.focus()"
-      >
-        <span
-          v-tippy="{ theme: 'tooltip' }"
-          :title="`${t('environment.select')}`"
-          class="bg-transparent border-b border-dividerLight select-wrapper"
-        >
-          <HoppButtonSecondary
-            v-if="
-              selectedEnv.type === 'MY_ENV' && selectedEnv.index !== undefined
-            "
-            :label="myEnvironments[selectedEnv.index].name"
-            class="flex-1 !justify-start pr-8 rounded-none"
-          />
-          <HoppButtonSecondary
-            v-else
-            :label="`${t('environment.select')}`"
-            class="flex-1 !justify-start pr-8 rounded-none"
-          />
-        </span>
-        <template #content="{ hide }">
-          <div
-            ref="tippyActions"
-            role="menu"
-            class="flex flex-col focus:outline-none"
-            tabindex="0"
-            @keyup.escape="hide()"
-          >
-            <HoppSmartItem
-              :label="`${t('environment.no_environment')}`"
-              :info-icon="
-                selectedEnvironmentIndex.type !== 'MY_ENV'
-                  ? IconCheck
-                  : undefined
-              "
-              :active-info-icon="selectedEnvironmentIndex.type !== 'MY_ENV'"
-              @click="
-                () => {
-                  selectedEnvironmentIndex = { type: 'NO_ENV_SELECTED' }
-                  hide()
-                }
-              "
-            />
-            <hr v-if="myEnvironments.length > 0" />
-            <HoppSmartItem
-              v-for="(gen, index) in myEnvironments"
-              :key="`gen-${index}`"
-              :label="gen.name"
-              :info-icon="index === selectedEnv.index ? IconCheck : undefined"
-              :active-info-icon="index === selectedEnv.index"
-              @click="
-                () => {
-                  selectedEnvironmentIndex = { type: 'MY_ENV', index: index }
-                  hide()
-                }
-              "
-            />
-          </div>
-        </template>
-      </tippy>
-      <tippy v-else interactive trigger="click" theme="popover">
-        <span
-          v-tippy="{ theme: 'tooltip' }"
-          :title="`${t('environment.select')}`"
-          class="bg-transparent border-b border-dividerLight select-wrapper"
-        >
-          <HoppButtonSecondary
-            v-if="selectedEnv.name"
-            :label="selectedEnv.name"
-            class="flex-1 !justify-start pr-8 rounded-none"
-          />
-          <HoppButtonSecondary
-            v-else
-            :label="`${t('environment.select')}`"
-            class="flex-1 !justify-start pr-8 rounded-none"
-          />
-        </span>
-        <template #content="{ hide }">
-          <div
-            class="flex flex-col"
-            role="menu"
-            tabindex="0"
-            @keyup.escape="hide()"
-          >
-            <HoppSmartItem
-              :label="`${t('environment.no_environment')}`"
-              :info-icon="
-                selectedEnvironmentIndex.type !== 'TEAM_ENV'
-                  ? IconCheck
-                  : undefined
-              "
-              :active-info-icon="selectedEnvironmentIndex.type !== 'TEAM_ENV'"
-              @click="
-                () => {
-                  selectedEnvironmentIndex = { type: 'NO_ENV_SELECTED' }
-                  hide()
-                }
-              "
-            />
-            <div
-              v-if="loading"
-              class="flex flex-col items-center justify-center p-4"
-            >
-              <HoppSmartSpinner class="my-4" />
-              <span class="text-secondaryLight">{{ t("state.loading") }}</span>
-            </div>
-            <hr v-if="teamEnvironmentList.length > 0" />
-            <div
-              v-if="environmentType.selectedTeam !== undefined"
-              class="flex flex-col"
-            >
-              <HoppSmartItem
-                v-for="(gen, index) in teamEnvironmentList"
-                :key="`gen-team-${index}`"
-                :label="gen.environment.name"
-                :info-icon="
-                  gen.id === selectedEnv.teamEnvID ? IconCheck : undefined
-                "
-                :active-info-icon="gen.id === selectedEnv.teamEnvID"
-                @click="
-                  () => {
-                    selectedEnvironmentIndex = {
-                      type: 'TEAM_ENV',
-                      teamEnvID: gen.id,
-                      teamID: gen.teamID,
-                      environment: gen.environment,
-                    }
-                    hide()
-                  }
-                "
-              />
-            </div>
-            <div
-              v-if="!loading && adapterError"
-              class="flex flex-col items-center py-4"
-            >
-              <icon-lucide-help-circle class="mb-4 svg-icons" />
-              {{ getErrorMessage(adapterError) }}
-            </div>
-          </div>
-        </template>
-      </tippy>
+      <EnvironmentsSelector
+        :environment-type="environmentType.type"
+        :my-environments="myEnvironments"
+        :team-env-loading="loading"
+        :team-environment-list="teamEnvironmentList"
+        :is-adapter-error="adapterError !== null"
+        :error-message="adapterError ? getErrorMessage(adapterError) : ''"
+        :is-team-selected="environmentType.selectedTeam !== undefined"
+      />
       <EnvironmentsMyEnvironment
         environment-index="Global"
         :environment="globalEnvironment"
@@ -191,8 +53,6 @@ import {
 } from "~/newstore/environments"
 import TeamEnvironmentAdapter from "~/helpers/teams/TeamEnvironmentAdapter"
 import { GQLError } from "~/helpers/backend/GQLClient"
-import IconCheck from "~icons/lucide/check"
-import { TippyComponent } from "vue-tippy"
 import { defineActionHandler } from "~/helpers/actions"
 import { workspaceStatus$ } from "~/newstore/workspace"
 import TeamListAdapter from "~/helpers/teams/TeamListAdapter"
@@ -291,14 +151,20 @@ const workspace = useReadonlyStream(workspaceStatus$, { type: "personal" })
 // Check if there is a teamID in the workspace, if yes, switch to team environment and select the team
 // If there is no teamID, switch to my environment
 watch(
-  () => workspace.value.teamID,
+  () => workspace.value.type === "team" && workspace.value.teamID,
   (teamID) => {
     if (!teamID) {
       switchToMyEnvironments()
-    } else if (teamID) {
+      setSelectedEnvironmentIndex({
+        type: "NO_ENV_SELECTED",
+      })
+    } else {
       const team = myTeams.value?.find((t) => t.id === teamID)
       if (team) {
         updateSelectedTeam(team)
+        setSelectedEnvironmentIndex({
+          type: "NO_ENV_SELECTED",
+        })
       }
     }
   }
@@ -388,33 +254,6 @@ watch(
   { deep: true }
 )
 
-const selectedEnv = computed(() => {
-  if (selectedEnvironmentIndex.value.type === "MY_ENV") {
-    return {
-      type: "MY_ENV",
-      index: selectedEnvironmentIndex.value.index,
-    }
-  } else if (selectedEnvironmentIndex.value.type === "TEAM_ENV") {
-    const teamEnv = teamEnvironmentList.value.find(
-      (env) =>
-        env.id ===
-        (selectedEnvironmentIndex.value.type === "TEAM_ENV" &&
-          selectedEnvironmentIndex.value.teamEnvID)
-    )
-    if (teamEnv) {
-      return {
-        type: "TEAM_ENV",
-        name: teamEnv.environment.name,
-        teamEnvID: selectedEnvironmentIndex.value.teamEnvID,
-      }
-    } else {
-      return { type: "NO_ENV_SELECTED" }
-    }
-  } else {
-    return { type: "NO_ENV_SELECTED" }
-  }
-})
-
 const getErrorMessage = (err: GQLError<string>) => {
   if (err.type === "network_error") {
     return t("error.network_error")
@@ -427,7 +266,4 @@ const getErrorMessage = (err: GQLError<string>) => {
     }
   }
 }
-
-// Template refs
-const tippyActions = ref<TippyComponent | null>(null)
 </script>

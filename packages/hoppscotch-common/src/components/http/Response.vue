@@ -10,8 +10,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from "vue"
-import { startPageProgress, completePageProgress } from "@modules/loadingbar"
+import { computed, ref } from "vue"
 import { HoppRESTTab } from "~/helpers/rest/tab"
 import { useVModel } from "@vueuse/core"
 
@@ -34,9 +33,4 @@ const hasResponse = computed(
 )
 
 const loading = computed(() => tab.value.response?.type === "loading")
-
-watch(loading, (isLoading) => {
-  if (isLoading) startPageProgress()
-  else completePageProgress()
-})
 </script>

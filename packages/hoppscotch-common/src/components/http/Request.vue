@@ -229,11 +229,10 @@ import { useI18n } from "@composables/i18n"
 import { useSetting } from "@composables/settings"
 import { useStreamSubscriber } from "@composables/stream"
 import { useToast } from "@composables/toast"
-import { completePageProgress, startPageProgress } from "@modules/loadingbar"
 import { refAutoReset, useVModel } from "@vueuse/core"
 import * as E from "fp-ts/Either"
 import { isLeft, isRight } from "fp-ts/lib/Either"
-import { computed, ref, watch } from "vue"
+import { computed, onBeforeUnmount, ref } from "vue"
 import { defineActionHandler } from "~/helpers/actions"
 import { runMutation } from "~/helpers/backend/GQLClient"
 import { UpdateRequestDocument } from "~/helpers/backend/graphql"
@@ -310,39 +309,6 @@ const show = ref<any | null>(null)
 const clearAll = ref<any | null>(null)
 const copyRequestAction = ref<any | null>(null)
 const saveRequestAction = ref<any | null>(null)
-
-// Update Nuxt Loading bar
-watch(loading, () => {
-  if (loading.value) {
-    startPageProgress()
-  } else {
-    completePageProgress()
-  }
-})
-
-// TODO: make this oAuthURL() work
-
-// function oAuthURL() {
-//   const auth = useReadonlyStream(props.request.auth$, {
-//     authType: "none",
-//     authActive: true,
-//   })
-
-//   const oauth2Token = pluckRef(auth as Ref<HoppRESTAuthOAuth2>, "token")
-
-//   onBeforeMount(async () => {
-//     try {
-//       const tokenInfo = await oauthRedirect()
-//       if (Object.prototype.hasOwnProperty.call(tokenInfo, "access_token")) {
-//         if (typeof tokenInfo === "object") {
-//           oauth2Token.value = tokenInfo.access_token
-//         }
-//       }
-
-//       // eslint-disable-next-line no-empty
-//     } catch (_) {}
-//   })
-// }
 
 const newSendRequest = async () => {
   if (newEndpoint.value === "" || /^\s+$/.test(newEndpoint.value)) {
@@ -573,6 +539,10 @@ const saveRequest = () => {
     }
   }
 }
+
+onBeforeUnmount(() => {
+  if (loading.value) cancelRequest()
+})
 
 defineActionHandler("request.send-cancel", () => {
   if (!loading.value) newSendRequest()

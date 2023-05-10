@@ -151,19 +151,17 @@ const workspace = useReadonlyStream(workspaceStatus$, { type: "personal" })
 // Check if there is a teamID in the workspace, if yes, switch to team environment and select the team
 // If there is no teamID, switch to my environment
 watch(
-  () => workspace.value.teamID,
+  () => workspace.value.type === "team" && workspace.value.teamID,
   (teamID) => {
     if (!teamID) {
       switchToMyEnvironments()
-
       setSelectedEnvironmentIndex({
         type: "NO_ENV_SELECTED",
       })
-    } else if (teamID) {
+    } else {
       const team = myTeams.value?.find((t) => t.id === teamID)
       if (team) {
         updateSelectedTeam(team)
-
         setSelectedEnvironmentIndex({
           type: "NO_ENV_SELECTED",
         })

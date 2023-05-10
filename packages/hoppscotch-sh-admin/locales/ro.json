@@ -1,4 +1,3 @@
-
 {
   "app": {
     "collapse_sidebar": "",
@@ -22,9 +21,10 @@
   },
   "state": {
     "add_user_failure": "",
-    "add_user_sucess": "",
+    "add_user_success": "",
     "admin_failure": "",
     "admin_success": "",
+    "confirm_logout": "",
     "create_team_failure": "",
     "create_team_success": "",
     "delete_team_failure": "",
@@ -38,7 +38,8 @@
     "github_signin_failure": "",
     "google_signin_failure": "",
     "invalid_email": "",
-    "log_out": "",
+    "logged_out": "",
+    "logout": "",
     "non_admin_login": "",
     "remove_admin_failure": "",
     "remove_admin_success": "",
@@ -59,6 +60,8 @@
     "admin": "",
     "admin_Email": "",
     "admin_id": "",
+    "cancel": "",
+    "confirm_team_deletion": "",
     "create_team": "",
     "date": "",
     "delete_team": "",
@@ -80,6 +83,7 @@
     "pending_invites": "",
     "remove": "",
     "rename": "",
+    "save": "",
     "send_invite": "",
     "show_more": "",
     "team_details": "",
@@ -92,10 +96,9 @@
   },
   "users": {
     "admin": "",
-    "admin_Email": "",
+    "admin_email": "",
     "admin_id": "",
     "confirm_admin_to_user": "",
-    "confirm_team_deletion": "",
     "confirm_user_deletion": "",
     "confirm_user_to_admin": "",
     "created_on": "",
@@ -104,10 +107,11 @@
     "email": "",
     "email_address": "",
     "id": "",
-    "invited_email": "",
-    "invited_on": "",
     "invite_user": "",
+    "invited_on": "",
+    "invitee_email": "",
     "invited_users": "",
+    "invalid_user": "",
     "load_info_error": "",
     "load_list_error": "",
     "make_admin": "",
@@ -123,7 +127,6 @@
     "unnamed": "",
     "user_not_found": "",
     "users": "",
-    "valid_email": "",
-    "invalid_user": ""
+    "valid_email": ""
   }
 }

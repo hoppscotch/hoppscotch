@@ -34,6 +34,7 @@ import { inputTheme } from "~/helpers/editor/themes/baseTheme"
 import { HoppReactiveEnvPlugin } from "~/helpers/editor/extensions/HoppEnvironment"
 import { useReadonlyStream } from "@composables/stream"
 import { AggregateEnvironment, aggregateEnvs$ } from "~/newstore/environments"
+import { platform } from "~/platform"
 
 const props = withDefaults(
   defineProps<{
@@ -219,6 +220,7 @@ onMounted(() => {
   if (editor.value) {
     if (!view.value) initView(editor.value)
     if (props.selectTextOnMount) triggerTextSelection()
+    platform.ui?.onCodemirrorInstanceMount?.(editor.value)
   }
 })
 

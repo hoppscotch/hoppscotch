@@ -5,4 +5,5 @@ export type UIPlatformDef = {
     paddingTop?: Ref<string>
     paddingLeft?: Ref<string>
   }
+  onCodemirrorInstanceMount?: (element: HTMLElement) => void
 }

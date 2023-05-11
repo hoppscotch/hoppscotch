@@ -42,16 +42,21 @@ const dispatchers = defineDispatchers({
       selectedEnvironmentIndex,
     }: { selectedEnvironmentIndex: SelectedEnvironmentIndex }
   ) {
-    if (
-      selectedEnvironmentIndex.type === "MY_ENV" &&
-      !!store.environments[selectedEnvironmentIndex.index]
-    ) {
-      return {
-        selectedEnvironmentIndex,
+    if (selectedEnvironmentIndex.type === "MY_ENV") {
+      if (store.environments[selectedEnvironmentIndex.index]) {
+        return {
+          selectedEnvironmentIndex,
+        }
+      } else {
+        return {
+          selectedEnvironmentIndex: {
+            type: "NO_ENV_SELECTED",
+          },
+        }
       }
     } else {
       return {
-        type: "NO_ENV_SELECTED",
+        selectedEnvironmentIndex,
       }
     }
   },

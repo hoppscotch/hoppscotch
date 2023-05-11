@@ -36,13 +36,12 @@
               ? IconCheck
               : undefined
           "
-          class="my-2"
           :active-info-icon="
             selectedEnvironmentIndex.type === 'NO_ENV_SELECTED'
           "
           @click="
             () => {
-              setSelectedEnvironmentIndex({ type: 'NO_ENV_SELECTED' })
+              selectedEnvironmentIndex = { type: 'NO_ENV_SELECTED' }
               hide()
             }
           "

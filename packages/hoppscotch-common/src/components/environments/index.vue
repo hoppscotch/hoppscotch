@@ -121,7 +121,7 @@ const switchToMyEnvironments = () => {
   adapter.changeTeamID(undefined)
 }
 
-const updateSelectedTeam = (newSelectedTeam: SelectedTeam) => {
+const updateSelectedTeam = (newSelectedTeam: SelectedTeam | undefined) => {
   if (newSelectedTeam) {
     environmentType.value.selectedTeam = newSelectedTeam
     REMEMBERED_TEAM_ID.value = newSelectedTeam.id
@@ -150,25 +150,27 @@ const workspace = useReadonlyStream(workspaceStatus$, { type: "personal" })
 // Used to switch environment type and team when user switch workspace in the global workspace switcher
 // Check if there is a teamID in the workspace, if yes, switch to team environment and select the team
 // If there is no teamID, switch to my environment
-watch(
-  () => workspace.value.type === "team" && workspace.value.teamID,
-  (teamID) => {
-    if (!teamID) {
+watch(workspace, (newWorkspace, oldWorkspace) => {
+  // If we are switching into personal from outside
+  if (newWorkspace.type === "personal" && oldWorkspace.type !== "personal") {
+    // If the selected environment is not a my environment, turn off the env
+    if (selectedEnvironmentIndex.value.type !== "MY_ENV") {
       switchToMyEnvironments()
       setSelectedEnvironmentIndex({
         type: "NO_ENV_SELECTED",
       })
-    } else {
-      const team = myTeams.value?.find((t) => t.id === teamID)
-      if (team) {
-        updateSelectedTeam(team)
-        setSelectedEnvironmentIndex({
-          type: "NO_ENV_SELECTED",
-        })
-      }
+    }
+  } else if (newWorkspace.type === "team") {
+    const team = myTeams.value?.find((t) => t.id === newWorkspace.teamID)
+    updateSelectedTeam(team)
+
+    if (selectedEnvironmentIndex.value.type !== "MY_ENV") {
+      setSelectedEnvironmentIndex({
+        type: "NO_ENV_SELECTED",
+      })
     }
   }
-)
+})
 
 watch(
   () => currentUser.value,

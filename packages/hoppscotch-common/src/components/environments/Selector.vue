@@ -46,68 +46,84 @@
             }
           "
         />
-        <div v-if="environmentType === 'my-environments'" class="flex flex-col">
-          <hr v-if="myEnvironments.length > 0" />
-          <HoppSmartItem
-            v-for="(gen, index) in myEnvironments"
-            :key="`gen-${index}`"
-            :label="gen.name"
-            :info-icon="index === selectedEnv.index ? IconCheck : undefined"
-            :active-info-icon="index === selectedEnv.index"
-            @click="
-              () => {
-                selectedEnvironmentIndex = { type: 'MY_ENV', index: index }
-                hide()
-              }
-            "
-          />
-        </div>
-        <div v-else class="flex flex-col">
-          <div
-            v-if="teamEnvLoading"
-            class="flex flex-col items-center justify-center p-4"
+        <HoppSmartTabs
+          v-model="selectedEnvTab"
+          styles="sticky overflow-x-auto my-2 rounded border border-dividerLight flex-shrink-0 bg-primary z-10 top-0"
+          render-inactive-tabs
+        >
+          <HoppSmartTab
+            :id="'my-environments'"
+            :label="`${t('environment.my_environments')}`"
           >
-            <HoppSmartSpinner class="my-4" />
-            <span class="text-secondaryLight">{{ t("state.loading") }}</span>
-          </div>
-          <hr v-if="teamEnvironmentList.length > 0" />
-          <div v-if="isTeamSelected" class="flex flex-col">
             <HoppSmartItem
-              v-for="(gen, index) in teamEnvironmentList"
-              :key="`gen-team-${index}`"
-              :label="gen.environment.name"
-              :info-icon="
-                gen.id === selectedEnv.teamEnvID ? IconCheck : undefined
-              "
-              :active-info-icon="gen.id === selectedEnv.teamEnvID"
+              v-for="(gen, index) in myEnvironments"
+              :key="`gen-${index}`"
+              :label="gen.name"
+              :info-icon="index === selectedEnv.index ? IconCheck : undefined"
+              :active-info-icon="index === selectedEnv.index"
               @click="
                 () => {
-                  selectedEnvironmentIndex = {
-                    type: 'TEAM_ENV',
-                    teamEnvID: gen.id,
-                    teamID: gen.teamID,
-                    environment: gen.environment,
-                  }
+                  selectedEnvironmentIndex = { type: 'MY_ENV', index: index }
                   hide()
                 }
               "
             />
-          </div>
-          <div
-            v-if="!teamEnvLoading && isAdapterError"
-            class="flex flex-col items-center py-4"
+          </HoppSmartTab>
+          <HoppSmartTab
+            :id="'team-environments'"
+            :label="`${t('environment.team_environments')}`"
+            :disabled="
+              !isTeamSelected ||
+              teamEnvLoading ||
+              teamEnvironmentList.length === 0 ||
+              environmentType === 'my-environments'
+            "
           >
-            <icon-lucide-help-circle class="mb-4 svg-icons" />
-            {{ errorMessage }}
-          </div>
-        </div>
+            <div
+              v-if="teamEnvLoading"
+              class="flex flex-col items-center justify-center p-4"
+            >
+              <HoppSmartSpinner class="my-4" />
+              <span class="text-secondaryLight">{{ t("state.loading") }}</span>
+            </div>
+            <div v-if="isTeamSelected" class="flex flex-col">
+              <HoppSmartItem
+                v-for="(gen, index) in teamEnvironmentList"
+                :key="`gen-team-${index}`"
+                :label="gen.environment.name"
+                :info-icon="
+                  gen.id === selectedEnv.teamEnvID ? IconCheck : undefined
+                "
+                :active-info-icon="gen.id === selectedEnv.teamEnvID"
+                @click="
+                  () => {
+                    selectedEnvironmentIndex = {
+                      type: 'TEAM_ENV',
+                      teamEnvID: gen.id,
+                      teamID: gen.teamID,
+                      environment: gen.environment,
+                    }
+                    hide()
+                  }
+                "
+              />
+            </div>
+            <div
+              v-if="!teamEnvLoading && isAdapterError"
+              class="flex flex-col items-center py-4"
+            >
+              <icon-lucide-help-circle class="mb-4 svg-icons" />
+              {{ errorMessage }}
+            </div>
+          </HoppSmartTab>
+        </HoppSmartTabs>
       </div>
     </template>
   </tippy>
 </template>
 
 <script lang="ts" setup>
-import { computed, ref } from "vue"
+import { computed, ref, watch } from "vue"
 import IconCheck from "~icons/lucide/check"
 import { TippyComponent } from "vue-tippy"
 import { useI18n } from "~/composables/i18n"
@@ -138,6 +154,19 @@ const selectedEnvironmentIndex = useStream(
   selectedEnvironmentIndex$,
   { type: "NO_ENV_SELECTED" },
   setSelectedEnvironmentIndex
+)
+
+const selectedEnvTab = ref<EnvironmentType>("my-environments")
+
+watch(
+  () => props.environmentType,
+  (newVal) => {
+    if (newVal === "my-environments") {
+      selectedEnvTab.value = "my-environments"
+    } else {
+      selectedEnvTab.value = "team-environments"
+    }
+  }
 )
 
 const selectedEnv = computed(() => {

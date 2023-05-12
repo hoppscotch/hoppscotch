@@ -1,125 +1,128 @@
 <template>
-  <tippy
-    interactive
-    trigger="click"
-    theme="popover"
-    :on-shown="() => tippyActions!.focus()"
-  >
-    <span
-      v-tippy="{ theme: 'tooltip' }"
-      :title="`${t('environment.select')}`"
-      class="bg-transparent border-b border-dividerLight select-wrapper"
+  <div class="flex flex-col flex-1 min-w-52">
+    <tippy
+      interactive
+      trigger="click"
+      theme="popover"
+      :on-shown="() => tippyActions!.focus()"
     >
-      <HoppButtonSecondary
-        v-if="selectedEnv.type !== 'NO_ENV_SELECTED'"
-        :label="selectedEnv.name"
-        class="flex-1 !justify-start pr-8 rounded-none"
-      />
-      <HoppButtonSecondary
-        v-else
-        :label="`${t('environment.select')}`"
-        class="flex-1 !justify-start pr-8 rounded-none"
-      />
-    </span>
-    <template #content="{ hide }">
-      <div
-        ref="tippyActions"
-        role="menu"
-        class="flex flex-col focus:outline-none"
-        tabindex="0"
-        @keyup.escape="hide()"
+      <span
+        v-tippy="{ theme: 'tooltip' }"
+        :title="`${t('environment.select')}`"
+        class="bg-transparent border-b border-dividerLight select-wrapper"
       >
-        <HoppSmartItem
-          :label="`${t('environment.no_environment')}`"
-          :info-icon="
-            selectedEnvironmentIndex.type === 'NO_ENV_SELECTED'
-              ? IconCheck
-              : undefined
-          "
-          :active-info-icon="
-            selectedEnvironmentIndex.type === 'NO_ENV_SELECTED'
-          "
-          @click="
-            () => {
-              selectedEnvironmentIndex = { type: 'NO_ENV_SELECTED' }
-              hide()
-            }
-          "
+        <HoppButtonSecondary
+          v-if="selectedEnv.type !== 'NO_ENV_SELECTED'"
+          :label="selectedEnv.name"
+          class="flex-1 !justify-start pr-8 rounded-none"
         />
-        <HoppSmartTabs
-          v-model="selectedEnvTab"
-          styles="sticky overflow-x-auto my-2 rounded border border-dividerLight flex-shrink-0 bg-primary z-10 top-0"
-          render-inactive-tabs
+        <HoppButtonSecondary
+          v-else
+          :label="`${t('environment.select')}`"
+          class="flex-1 !justify-start pr-8 rounded-none"
+        />
+      </span>
+      <template #content="{ hide }">
+        <div
+          ref="tippyActions"
+          role="menu"
+          class="flex flex-col focus:outline-none"
+          tabindex="0"
+          @keyup.escape="hide()"
         >
-          <HoppSmartTab
-            :id="'my-environments'"
-            :label="`${t('environment.my_environments')}`"
-          >
-            <HoppSmartItem
-              v-for="(gen, index) in myEnvironments"
-              :key="`gen-${index}`"
-              :label="gen.name"
-              :info-icon="index === selectedEnv.index ? IconCheck : undefined"
-              :active-info-icon="index === selectedEnv.index"
-              @click="
-                () => {
-                  selectedEnvironmentIndex = { type: 'MY_ENV', index: index }
-                  hide()
-                }
-              "
-            />
-          </HoppSmartTab>
-          <HoppSmartTab
-            :id="'team-environments'"
-            :label="`${t('environment.team_environments')}`"
-            :disabled="
-              !isTeamSelected ||
-              teamEnvLoading ||
-              teamEnvironmentList.length === 0 ||
-              environmentType === 'my-environments'
+          <HoppSmartItem
+            :label="`${t('environment.no_environment')}`"
+            :info-icon="
+              selectedEnvironmentIndex.type === 'NO_ENV_SELECTED'
+                ? IconCheck
+                : undefined
             "
+            :active-info-icon="
+              selectedEnvironmentIndex.type === 'NO_ENV_SELECTED'
+            "
+            @click="
+              () => {
+                selectedEnvironmentIndex = { type: 'NO_ENV_SELECTED' }
+                hide()
+              }
+            "
+          />
+          <HoppSmartTabs
+            v-model="selectedEnvTab"
+            styles="sticky overflow-x-auto my-2 flex-shrink-0 z-0 top-0 bg-popover"
+            render-inactive-tabs
           >
-            <div
-              v-if="teamEnvLoading"
-              class="flex flex-col items-center justify-center p-4"
+            <HoppSmartTab
+              :id="'my-environments'"
+              :label="`${t('environment.my_environments')}`"
             >
-              <HoppSmartSpinner class="my-4" />
-              <span class="text-secondaryLight">{{ t("state.loading") }}</span>
-            </div>
-            <div v-if="isTeamSelected" class="flex flex-col">
               <HoppSmartItem
-                v-for="(gen, index) in teamEnvironmentList"
-                :key="`gen-team-${index}`"
-                :label="gen.environment.name"
-                :info-icon="
-                  gen.id === selectedEnv.teamEnvID ? IconCheck : undefined
-                "
-                :active-info-icon="gen.id === selectedEnv.teamEnvID"
+                v-for="(gen, index) in myEnvironments"
+                :key="`gen-${index}`"
+                :label="gen.name"
+                :info-icon="index === selectedEnv.index ? IconCheck : undefined"
+                :active-info-icon="index === selectedEnv.index"
                 @click="
                   () => {
-                    selectedEnvironmentIndex = {
-                      type: 'TEAM_ENV',
-                      teamEnvID: gen.id,
-                      teamID: gen.teamID,
-                      environment: gen.environment,
-                    }
+                    selectedEnvironmentIndex = { type: 'MY_ENV', index: index }
                     hide()
                   }
                 "
               />
-            </div>
-            <div
-              v-if="!teamEnvLoading && isAdapterError"
-              class="flex flex-col items-center py-4"
+            </HoppSmartTab>
+            <HoppSmartTab
+              :id="'team-environments'"
+              :label="`${t('environment.team_environments')}`"
+              :disabled="
+                !isTeamSelected ||
+                teamEnvironmentList.length === 0 ||
+                workspace.type === 'personal'
+              "
             >
-              <icon-lucide-help-circle class="mb-4 svg-icons" />
-              {{ errorMessage }}
-            </div>
-          </HoppSmartTab>
-        </HoppSmartTabs>
-      </div>
-    </template>
-  </tippy>
+              <div
+                v-if="teamListLoading"
+                class="flex flex-col items-center justify-center p-4"
+              >
+                <HoppSmartSpinner class="my-4" />
+                <span class="text-secondaryLight">{{
+                  t("state.loading")
+                }}</span>
+              </div>
+              <div v-if="isTeamSelected" class="flex flex-col">
+                <HoppSmartItem
+                  v-for="(gen, index) in teamEnvironmentList"
+                  :key="`gen-team-${index}`"
+                  :label="gen.environment.name"
+                  :info-icon="
+                    gen.id === selectedEnv.teamEnvID ? IconCheck : undefined
+                  "
+                  :active-info-icon="gen.id === selectedEnv.teamEnvID"
+                  @click="
+                    () => {
+                      selectedEnvironmentIndex = {
+                        type: 'TEAM_ENV',
+                        teamEnvID: gen.id,
+                        teamID: gen.teamID,
+                        environment: gen.environment,
+                      }
+                      hide()
+                    }
+                  "
+                />
+              </div>
+              <div
+                v-if="!teamListLoading && teamAdapterError"
+                class="flex flex-col items-center py-4"
+              >
+                <icon-lucide-help-circle class="mb-4 svg-icons" />
+                {{ getErrorMessage(teamAdapterError) }}
+              </div>
+            </HoppSmartTab>
+          </HoppSmartTabs>
+        </div>
+      </template>
+    </tippy>
+  </div>
 </template>
 
 <script lang="ts" setup>
@@ -128,27 +131,30 @@ import IconCheck from "~icons/lucide/check"
 import { TippyComponent } from "vue-tippy"
 import { useI18n } from "~/composables/i18n"
 import { GQLError } from "~/helpers/backend/GQLClient"
-import { Environment } from "@hoppscotch/data"
-import { TeamEnvironment } from "~/helpers/teams/TeamEnvironment"
-import { useStream } from "~/composables/stream"
+import { useReadonlyStream, useStream } from "~/composables/stream"
 import {
+  environments$,
   selectedEnvironmentIndex$,
   setSelectedEnvironmentIndex,
 } from "~/newstore/environments"
+import { workspaceStatus$ } from "~/newstore/workspace"
+import TeamEnvironmentAdapter from "~/helpers/teams/TeamEnvironmentAdapter"
 
 const t = useI18n()
 
 type EnvironmentType = "my-environments" | "team-environments"
 
-const props = defineProps<{
-  environmentType: EnvironmentType
-  myEnvironments: Environment[]
-  teamEnvironmentList: TeamEnvironment[]
-  teamEnvLoading: boolean
-  isAdapterError: boolean
-  errorMessage: GQLError<string>
-  isTeamSelected: boolean
-}>()
+const myEnvironments = useReadonlyStream(environments$, [])
+
+const workspace = useReadonlyStream(workspaceStatus$, { type: "personal" })
+
+const teamEnvListAdapter = new TeamEnvironmentAdapter(undefined)
+const teamListLoading = useReadonlyStream(teamEnvListAdapter.loading$, false)
+const teamAdapterError = useReadonlyStream(teamEnvListAdapter.error$, null)
+const teamEnvironmentList = useReadonlyStream(
+  teamEnvListAdapter.teamEnvironmentList$,
+  []
+)
 
 const selectedEnvironmentIndex = useStream(
   selectedEnvironmentIndex$,
@@ -156,15 +162,22 @@ const selectedEnvironmentIndex = useStream(
   setSelectedEnvironmentIndex
 )
 
+const isTeamSelected = computed(
+  () => workspace.value.type === "team" && workspace.value.teamID !== undefined
+)
+
 const selectedEnvTab = ref<EnvironmentType>("my-environments")
 
 watch(
-  () => props.environmentType,
+  () => workspace.value,
   (newVal) => {
-    if (newVal === "my-environments") {
+    if (newVal.type === "personal") {
       selectedEnvTab.value = "my-environments"
     } else {
       selectedEnvTab.value = "team-environments"
+      if (newVal.teamID) {
+        teamEnvListAdapter.changeTeamID(newVal.teamID)
+      }
     }
   }
 )
@@ -174,10 +187,10 @@ const selectedEnv = computed(() => {
     return {
       type: "MY_ENV",
       index: selectedEnvironmentIndex.value.index,
-      name: props.myEnvironments[selectedEnvironmentIndex.value.index].name,
+      name: myEnvironments.value[selectedEnvironmentIndex.value.index].name,
     }
   } else if (selectedEnvironmentIndex.value.type === "TEAM_ENV") {
-    const teamEnv = props.teamEnvironmentList.find(
+    const teamEnv = teamEnvironmentList.value.find(
       (env) =>
         env.id ===
         (selectedEnvironmentIndex.value.type === "TEAM_ENV" &&
@@ -199,4 +212,17 @@ const selectedEnv = computed(() => {
 
 // Template refs
 const tippyActions = ref<TippyComponent | null>(null)
+
+const getErrorMessage = (err: GQLError<string>) => {
+  if (err.type === "network_error") {
+    return t("error.network_error")
+  } else {
+    switch (err.error) {
+      case "team_environment/not_found":
+        return t("team_environment.not_found")
+      default:
+        return t("error.something_went_wrong")
+    }
+  }
+}
 </script>

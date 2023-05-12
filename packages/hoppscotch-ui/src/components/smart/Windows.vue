@@ -100,7 +100,7 @@
         </div>
       </div>
 
-      <div v-if="hasActions">
+      <div v-if="hasActions" class="flex">
         <slot name="actions" />
       </div>
 

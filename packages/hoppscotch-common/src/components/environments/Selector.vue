@@ -1,128 +1,148 @@
 <template>
-  <div class="flex flex-col flex-1 min-w-52">
-    <tippy
-      interactive
-      trigger="click"
-      theme="popover"
-      :on-shown="() => tippyActions!.focus()"
+  <tippy
+    interactive
+    trigger="click"
+    theme="popover"
+    :on-shown="() => tippyActions!.focus()"
+  >
+    <span
+      v-tippy="{ theme: 'tooltip' }"
+      :title="`${t('environment.select')}`"
+      class="bg-transparent border-b border-dividerLight select-wrapper"
     >
-      <span
-        v-tippy="{ theme: 'tooltip' }"
-        :title="`${t('environment.select')}`"
-        class="bg-transparent border-b border-dividerLight select-wrapper"
+      <HoppButtonSecondary
+        v-if="selectedEnv.type !== 'NO_ENV_SELECTED'"
+        :label="selectedEnv.name"
+        class="flex-1 !justify-start pr-8 rounded-none"
+      />
+      <HoppButtonSecondary
+        v-else
+        :label="`${t('environment.select')}`"
+        class="flex-1 !justify-start pr-8 rounded-none"
+      />
+    </span>
+    <template #content="{ hide }">
+      <div
+        ref="tippyActions"
+        role="menu"
+        class="flex flex-col focus:outline-none"
+        tabindex="0"
+        @keyup.escape="hide()"
       >
-        <HoppButtonSecondary
-          v-if="selectedEnv.type !== 'NO_ENV_SELECTED'"
-          :label="selectedEnv.name"
-          class="flex-1 !justify-start pr-8 rounded-none"
+        <HoppSmartItem
+          :label="`${t('environment.no_environment')}`"
+          :info-icon="
+            selectedEnvironmentIndex.type === 'NO_ENV_SELECTED'
+              ? IconCheck
+              : undefined
+          "
+          :active-info-icon="
+            selectedEnvironmentIndex.type === 'NO_ENV_SELECTED'
+          "
+          @click="
+            () => {
+              selectedEnvironmentIndex = { type: 'NO_ENV_SELECTED' }
+              hide()
+            }
+          "
         />
-        <HoppButtonSecondary
-          v-else
-          :label="`${t('environment.select')}`"
-          class="flex-1 !justify-start pr-8 rounded-none"
-        />
-      </span>
-      <template #content="{ hide }">
-        <div
-          ref="tippyActions"
-          role="menu"
-          class="flex flex-col focus:outline-none"
-          tabindex="0"
-          @keyup.escape="hide()"
+        <HoppSmartTabs
+          v-model="selectedEnvTab"
+          styles="sticky overflow-x-auto my-2 border border-divider rounded flex-shrink-0 z-0 top-0 bg-primary"
+          render-inactive-tabs
         >
-          <HoppSmartItem
-            :label="`${t('environment.no_environment')}`"
-            :info-icon="
-              selectedEnvironmentIndex.type === 'NO_ENV_SELECTED'
-                ? IconCheck
-                : undefined
-            "
-            :active-info-icon="
-              selectedEnvironmentIndex.type === 'NO_ENV_SELECTED'
-            "
-            @click="
-              () => {
-                selectedEnvironmentIndex = { type: 'NO_ENV_SELECTED' }
-                hide()
-              }
-            "
-          />
-          <HoppSmartTabs
-            v-model="selectedEnvTab"
-            styles="sticky overflow-x-auto my-2 flex-shrink-0 z-0 top-0 bg-popover"
-            render-inactive-tabs
+          <HoppSmartTab
+            :id="'my-environments'"
+            :label="`${t('environment.my_environments')}`"
           >
-            <HoppSmartTab
-              :id="'my-environments'"
-              :label="`${t('environment.my_environments')}`"
+            <HoppSmartItem
+              v-for="(gen, index) in myEnvironments"
+              :key="`gen-${index}`"
+              :label="gen.name"
+              :info-icon="index === selectedEnv.index ? IconCheck : undefined"
+              :active-info-icon="index === selectedEnv.index"
+              @click="
+                () => {
+                  selectedEnvironmentIndex = { type: 'MY_ENV', index: index }
+                  hide()
+                }
+              "
+            />
+            <div
+              v-if="myEnvironments.length === 0"
+              class="flex flex-col items-center justify-center text-secondaryLight"
             >
+              <img
+                :src="`/images/states/${colorMode.value}/blockchain.svg`"
+                loading="lazy"
+                class="inline-flex flex-col object-contain object-center w-16 h-16 mb-2"
+                :alt="`${t('empty.environments')}`"
+              />
+              <span class="pb-2 text-center">
+                {{ t("empty.environments") }}
+              </span>
+            </div>
+          </HoppSmartTab>
+          <HoppSmartTab
+            :id="'team-environments'"
+            :label="`${t('environment.team_environments')}`"
+            :disabled="!isTeamSelected || workspace.type === 'personal'"
+          >
+            <div
+              v-if="teamListLoading"
+              class="flex flex-col items-center justify-center p-4"
+            >
+              <HoppSmartSpinner class="my-4" />
+              <span class="text-secondaryLight">{{ t("state.loading") }}</span>
+            </div>
+            <div v-if="isTeamSelected" class="flex flex-col">
               <HoppSmartItem
-                v-for="(gen, index) in myEnvironments"
-                :key="`gen-${index}`"
-                :label="gen.name"
-                :info-icon="index === selectedEnv.index ? IconCheck : undefined"
-                :active-info-icon="index === selectedEnv.index"
+                v-for="(gen, index) in teamEnvironmentList"
+                :key="`gen-team-${index}`"
+                :label="gen.environment.name"
+                :info-icon="
+                  gen.id === selectedEnv.teamEnvID ? IconCheck : undefined
+                "
+                :active-info-icon="gen.id === selectedEnv.teamEnvID"
                 @click="
                   () => {
-                    selectedEnvironmentIndex = { type: 'MY_ENV', index: index }
+                    selectedEnvironmentIndex = {
+                      type: 'TEAM_ENV',
+                      teamEnvID: gen.id,
+                      teamID: gen.teamID,
+                      environment: gen.environment,
+                    }
                     hide()
                   }
                 "
               />
-            </HoppSmartTab>
-            <HoppSmartTab
-              :id="'team-environments'"
-              :label="`${t('environment.team_environments')}`"
-              :disabled="
-                !isTeamSelected ||
-                teamEnvironmentList.length === 0 ||
-                workspace.type === 'personal'
-              "
-            >
               <div
-                v-if="teamListLoading"
-                class="flex flex-col items-center justify-center p-4"
+                v-if="teamEnvironmentList.length === 0"
+                class="flex flex-col items-center justify-center text-secondaryLight"
               >
-                <HoppSmartSpinner class="my-4" />
-                <span class="text-secondaryLight">{{
-                  t("state.loading")
-                }}</span>
-              </div>
-              <div v-if="isTeamSelected" class="flex flex-col">
-                <HoppSmartItem
-                  v-for="(gen, index) in teamEnvironmentList"
-                  :key="`gen-team-${index}`"
-                  :label="gen.environment.name"
-                  :info-icon="
-                    gen.id === selectedEnv.teamEnvID ? IconCheck : undefined
-                  "
-                  :active-info-icon="gen.id === selectedEnv.teamEnvID"
-                  @click="
-                    () => {
-                      selectedEnvironmentIndex = {
-                        type: 'TEAM_ENV',
-                        teamEnvID: gen.id,
-                        teamID: gen.teamID,
-                        environment: gen.environment,
-                      }
-                      hide()
-                    }
-                  "
+                <img
+                  :src="`/images/states/${colorMode.value}/blockchain.svg`"
+                  loading="lazy"
+                  class="inline-flex flex-col object-contain object-center w-16 h-16 mb-2"
+                  :alt="`${t('empty.environments')}`"
                 />
+                <span class="pb-2 text-center">
+                  {{ t("empty.environments") }}
+                </span>
               </div>
-              <div
-                v-if="!teamListLoading && teamAdapterError"
-                class="flex flex-col items-center py-4"
-              >
-                <icon-lucide-help-circle class="mb-4 svg-icons" />
-                {{ getErrorMessage(teamAdapterError) }}
-              </div>
-            </HoppSmartTab>
-          </HoppSmartTabs>
-        </div>
-      </template>
-    </tippy>
-  </div>
+            </div>
+            <div
+              v-if="!teamListLoading && teamAdapterError"
+              class="flex flex-col items-center py-4"
+            >
+              <icon-lucide-help-circle class="mb-4 svg-icons" />
+              {{ getErrorMessage(teamAdapterError) }}
+            </div>
+          </HoppSmartTab>
+        </HoppSmartTabs>
+      </div>
+    </template>
+  </tippy>
 </template>
 
 <script lang="ts" setup>
@@ -139,8 +159,11 @@ import {
 } from "~/newstore/environments"
 import { workspaceStatus$ } from "~/newstore/workspace"
 import TeamEnvironmentAdapter from "~/helpers/teams/TeamEnvironmentAdapter"
+import { useColorMode } from "@composables/theming"
 
 const t = useI18n()
+
+const colorMode = useColorMode()
 
 type EnvironmentType = "my-environments" | "team-environments"
 

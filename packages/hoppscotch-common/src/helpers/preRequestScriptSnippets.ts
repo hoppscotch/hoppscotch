@@ -7,8 +7,8 @@ pw.env.set("variable", "value");`,
   {
     name: "Environment: Set timestamp variable",
     script: `\n\n// Set timestamp variable
-const cuttentTime = Date.now();
-pw.env.set("timestamp", cuttentTime.toString());`,
+const currentTime = Date.now();
+pw.env.set("timestamp", currentTime.toString());`,
   },
   {
     name: "Environment: Set random number variable",

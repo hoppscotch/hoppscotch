@@ -7,11 +7,13 @@ export {}
 
 declare module '@vue/runtime-core' {
   export interface GlobalComponents {
+    '(fix': current active tab save request)
     AppActionHandler: typeof import('./components/app/ActionHandler.vue')['default']
     AppAnnouncement: typeof import('./components/app/Announcement.vue')['default']
     AppContextMenu: typeof import('./components/app/ContextMenu.vue')['default']
     AppDeveloperOptions: typeof import('./components/app/DeveloperOptions.vue')['default']
     AppFooter: typeof import('./components/app/Footer.vue')['default']
+    AppFuse: typeof import("./components/app/Fuse.vue")["default"]
     AppGitHubStarButton: typeof import('./components/app/GitHubStarButton.vue')['default']
     AppHeader: typeof import('./components/app/Header.vue')['default']
     AppInspection: typeof import('./components/app/Inspection.vue')['default']
@@ -19,6 +21,8 @@ declare module '@vue/runtime-core' {
     AppLogo: typeof import('./components/app/Logo.vue')['default']
     AppOptions: typeof import('./components/app/Options.vue')['default']
     AppPaneLayout: typeof import('./components/app/PaneLayout.vue')['default']
+    AppPowerSearch: typeof import("./components/app/PowerSearch.vue")["default"]
+    AppPowerSearchEntry: typeof import("./components/app/PowerSearchEntry.vue")["default"]
     AppShare: typeof import('./components/app/Share.vue')['default']
     AppShortcuts: typeof import('./components/app/Shortcuts.vue')['default']
     AppShortcutsEntry: typeof import('./components/app/ShortcutsEntry.vue')['default']
@@ -71,10 +75,14 @@ declare module '@vue/runtime-core' {
     FirebaseLogout: typeof import('./components/firebase/Logout.vue')['default']
     GraphqlAuthorization: typeof import('./components/graphql/Authorization.vue')['default']
     GraphqlField: typeof import('./components/graphql/Field.vue')['default']
+    GraphqlHeaders: typeof import("./components/graphql/Headers.vue")["default"]
+    GraphqlQuery: typeof import("./components/graphql/Query.vue")["default"]
     GraphqlRequest: typeof import('./components/graphql/Request.vue')['default']
     GraphqlRequestOptions: typeof import('./components/graphql/RequestOptions.vue')['default']
+    GraphqlRequestTab: typeof import("./components/graphql/RequestTab.vue")["default"]
     GraphqlResponse: typeof import('./components/graphql/Response.vue')['default']
     GraphqlSidebar: typeof import('./components/graphql/Sidebar.vue')['default']
+    GraphqlSubscriptionLog: typeof import("./components/graphql/SubscriptionLog.vue")["default"]
     GraphqlType: typeof import('./components/graphql/Type.vue')['default']
     GraphqlTypeLink: typeof import('./components/graphql/TypeLink.vue')['default']
     GraphqlVariable: typeof import('./components/graphql/Variable.vue')['default']

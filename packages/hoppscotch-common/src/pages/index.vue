@@ -65,13 +65,13 @@
     <HoppSmartModal
       v-if="renamingReqName"
       dialog
-      :title="t('team.new')"
+      :title="t('request.name')"
       @close="renamingReqName = false"
     >
       <template #body>
         <div class="flex flex-col">
           <input
-            id="selectLabelTeamAdd"
+            id="reqName"
             v-model="reqName"
             v-focus
             class="input floating-input"
@@ -80,8 +80,8 @@
             autocomplete="off"
             @keyup.enter="renameReqName"
           />
-          <label for="selectLabelTeamAdd">
-            {{ t("action.label") }}
+          <label for="reqName">
+            {{ t("action.name") }}
           </label>
         </div>
       </template>

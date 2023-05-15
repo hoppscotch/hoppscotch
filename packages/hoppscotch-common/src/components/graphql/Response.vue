@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col flex-1 overflow-auto whitespace-nowrap">
-    <div v-if="response.length === 1" class="flex flex-col flex-1">
+    <div v-if="response?.length === 1" class="flex flex-col flex-1">
       <div
         class="sticky top-0 z-10 flex items-center justify-between flex-shrink-0 pl-4 overflow-x-auto border-b bg-primary border-dividerLight"
       >
@@ -35,7 +35,7 @@
       </div>
       <div ref="schemaEditor" class="flex flex-col flex-1"></div>
     </div>
-    <div v-else-if="response.length > 1" class="flex flex-col flex-1">
+    <div v-else-if="response?.length > 1" class="flex flex-col flex-1">
       <GraphqlSubscriptionLog :log="response" />
     </div>
     <AppShortcutsPrompt v-else class="p-4" />
@@ -65,7 +65,7 @@ const props = defineProps<{
 }>()
 
 const responseString = computed(() => {
-  if (props.response.length === 1) {
+  if (props.response?.length === 1) {
     return JSON.stringify(JSON.parse(props.response[0].data), null, 2)
   }
   return ""

@@ -107,12 +107,13 @@ const sortTabs = (e: { oldIndex: number; newIndex: number }) => {
 
 const removeTab = (tabID: string) => {
   const tab = getTabRef(tabID)
+  closeTab(tab.value.id)
 
-  if (tab.value.document.isDirty) {
-    confirmingCloseForTabID.value = tabID
-  } else {
-    closeTab(tab.value.id)
-  }
+  // TODO: Confirm close??
+  // if (tab.value.document.isDirty) {
+  //   confirmingCloseForTabID.value = tabID
+  // } else {
+  // }
 }
 
 const onTabUpdate = (tab: HoppGQLTab) => {

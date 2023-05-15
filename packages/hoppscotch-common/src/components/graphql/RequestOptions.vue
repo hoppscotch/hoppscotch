@@ -61,7 +61,6 @@ import * as gql from "graphql"
 import { clone } from "lodash-es"
 import { computed, onMounted, ref, watch } from "vue"
 import { defineActionHandler } from "~/helpers/actions"
-import { logHoppRequestRunToAnalytics } from "~/helpers/fb/analytics"
 import { getCurrentStrategyID } from "~/helpers/network"
 import {
   GQLCurrentTabId$,
@@ -72,6 +71,7 @@ import {
 } from "~/newstore/GQLSession"
 import { GQLConnection, GQLEvent } from "~/helpers/graphql/GQLConnection"
 import { HoppGQLRequest } from "@hoppscotch/data"
+import { platform } from "~/platform"
 
 type OptionTabs = "query" | "headers" | "variables" | "authorization"
 const selectedOptionTab = ref<OptionTabs>("query")

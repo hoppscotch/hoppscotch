@@ -23,6 +23,7 @@
                 v-tippy="{ theme: 'tooltip', delay: [500, 20] }"
                 :title="tab.document.request.name"
                 class="truncate px-2"
+                @dblclick="openReqRenameModal()"
               >
                 <span
                   class="font-semibold text-tiny"
@@ -61,6 +62,45 @@
         <HttpSidebar />
       </template>
     </AppPaneLayout>
+    <HoppSmartModal
+      v-if="renamingReqName"
+      dialog
+      :title="t('team.new')"
+      @close="renamingReqName = false"
+    >
+      <template #body>
+        <div class="flex flex-col">
+          <input
+            id="selectLabelTeamAdd"
+            v-model="reqName"
+            v-focus
+            class="input floating-input"
+            placeholder=" "
+            type="text"
+            autocomplete="off"
+            @keyup.enter="renameReqName"
+          />
+          <label for="selectLabelTeamAdd">
+            {{ t("action.label") }}
+          </label>
+        </div>
+      </template>
+      <template #footer>
+        <span class="flex space-x-2">
+          <HoppButtonPrimary
+            :label="t('action.save')"
+            outline
+            @click="renameReqName"
+          />
+          <HoppButtonSecondary
+            :label="t('action.cancel')"
+            outline
+            filled
+            @click="renamingReqName = false"
+          />
+        </span>
+      </template>
+    </HoppSmartModal>
     <HoppSmartConfirmModal
       :show="confirmingCloseForTabID !== null"
       :confirm="t('modal.close_unsaved_tab')"
@@ -116,6 +156,8 @@ import { oauthRedirect } from "~/helpers/oauth"
 
 const savingRequest = ref(false)
 const confirmingCloseForTabID = ref<string | null>(null)
+const renamingReqName = ref(false)
+const reqName = ref<string>("")
 
 const t = useI18n()
 const toast = useToast()
@@ -164,6 +206,20 @@ const removeTab = (tabID: string) => {
   } else {
     closeTab(tab.value.id)
   }
+}
+
+const openReqRenameModal = () => {
+  renamingReqName.value = true
+  reqName.value = currentActiveTab.value.document.request.name
+}
+
+const renameReqName = () => {
+  const tab = getTabRef(currentTabID.value)
+  if (tab.value) {
+    tab.value.document.request.name = reqName.value
+    updateTab(tab.value)
+  }
+  renamingReqName.value = false
 }
 
 /**

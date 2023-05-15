@@ -7,14 +7,15 @@ services:
   # This service runs the backend app in the port 3170
   hoppscotch-backend:
     container_name: hoppscotch-backend
+    image: hoppscotch-hoppscotch-backend:latest
     build:
       dockerfile: packages/hoppscotch-backend/Dockerfile
       context: .
       target: prod
     env_file:
       - ./.env
-    restart: always
     environment:
+      - TZ=Asia/Shanghai
       # Edit the below line to match your PostgresDB URL if you have an outside DB (make sure to update the .env file as well)
       - DATABASE_URL=postgresql://postgres:testpass@hoppscotch-db:5432/hoppscotch?connect_timeout=300
       - PORT=3000
@@ -25,47 +26,60 @@ services:
       - hoppscotch-db
     ports:
       - "3170:3000"
+    restart: always
 
   # The main hoppscotch app. This will be hosted at port 3000
   # NOTE: To do TLS or play around with how the app is hosted, you can look into the Caddyfile for
   #       the SH admin dashboard server at packages/hoppscotch-selfhost-web/Caddyfile
   hoppscotch-app:
     container_name: hoppscotch-app
+    image: hoppscotch-hoppscotch-app:latest
     build:
       dockerfile: packages/hoppscotch-selfhost-web/Dockerfile
       context: .
+    environment:
+      - TZ=Asia/Shanghai
     env_file:
       - ./.env
     depends_on:
       - hoppscotch-backend
     ports:
       - "3000:8080"
+    restart: always
 
   # The Self Host dashboard for managing the app. This will be hosted at port 3100
   # NOTE: To do TLS or play around with how the app is hosted, you can look into the Caddyfile for
   #       the SH admin dashboard server at packages/hoppscotch-sh-admin/Caddyfile
   hoppscotch-sh-admin:
     container_name: hoppscotch-sh-admin
+    image: hoppscotch-hoppscotch-sh-admin:latest
     build:
       dockerfile: packages/hoppscotch-sh-admin/Dockerfile
       context: .
+    environment:
+      - TZ=Asia/Shanghai
     env_file:
       - ./.env
     depends_on:
       - hoppscotch-backend
     ports:
       - "3100:8080"
+    restart: always
 
   # The preset DB service, you can delete/comment the below lines if
   # you are using an external postgres instance
   # This will be exposed at port 5432
   hoppscotch-db:
+    container_name: hoppscotch-postgres
     image: postgres
     ports:
       - "5432:5432"
     environment:
+      TZ: Asia/Shanghai
       # NOTE: Please UPDATE THIS PASSWORD!
       POSTGRES_PASSWORD: testpass
       POSTGRES_DB: hoppscotch
-
-
+    volumes:
+      # NOTE: Please UPDATE THIS PATH!
+      - /opt/hoppscotch-postgres/data:/var/lib/postgresql/data
+    restart: always

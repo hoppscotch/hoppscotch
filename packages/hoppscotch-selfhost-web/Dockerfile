@@ -1,5 +1,5 @@
 # Initial stage, just build the app
-FROM node:lts as builder
+FROM node:lts-alpine as builder
 
 WORKDIR /usr/src/app
 

@@ -132,7 +132,7 @@ import { useToast } from "@composables/toast"
 import { HoppGQLRequest, makeGQLRequest } from "@hoppscotch/data"
 import { cloneDeep } from "lodash-es"
 import { removeGraphqlRequest } from "~/newstore/collections"
-import { setGQLSession } from "~/newstore/GQLSession"
+import { createNewTab } from "~/helpers/graphql/tab"
 
 // Template refs
 const tippyActions = ref<any | null>(null)
@@ -179,7 +179,7 @@ const selectRequest = () => {
   if (props.saveRequest) {
     pick()
   } else {
-    setGQLSession({
+    createNewTab({
       request: cloneDeep(
         makeGQLRequest({
           name: props.request.name,
@@ -190,8 +190,7 @@ const selectRequest = () => {
           auth: props.request.auth,
         })
       ),
-      schema: "",
-      response: "",
+      isDirty: false,
     })
   }
 }

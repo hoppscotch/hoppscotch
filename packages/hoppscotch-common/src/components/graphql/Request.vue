@@ -31,14 +31,11 @@ import { platform } from "~/platform"
 import { getCurrentStrategyID } from "~/helpers/network"
 import { useReadonlyStream, useStream } from "@composables/stream"
 import { useI18n } from "@composables/i18n"
-import {
-  GQLConnection$,
-  setGQLConnection,
-  GQLConnectionURL$,
-  setGQLUrl,
-} from "~/newstore/GQLSession"
+import { GQLConnection$, setGQLConnection } from "~/newstore/GQLSession"
 import { HoppGQLRequest } from "@hoppscotch/data"
 import { GQLConnection } from "~/helpers/graphql/GQLConnection"
+import { computedWithControl } from "@vueuse/core"
+import { currentActiveTab } from "~/helpers/graphql/tab"
 
 const t = useI18n()
 
@@ -49,7 +46,10 @@ const props = defineProps<{
 const conn = useStream(GQLConnection$, new GQLConnection(), setGQLConnection)
 const connected = useReadonlyStream(conn.value.connected$, false)
 
-const url = useStream(GQLConnectionURL$, "", setGQLUrl)
+const url = computedWithControl(
+  () => currentActiveTab.value,
+  () => currentActiveTab.value.document.request.url
+)
 
 const onConnectClick = () => {
   if (!connected.value) {

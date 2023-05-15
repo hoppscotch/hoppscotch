@@ -50,11 +50,7 @@
 
 <script setup lang="ts">
 import { useI18n } from "@composables/i18n"
-import {
-  useReadonlyStream,
-  useStream,
-  useStreamSubscriber,
-} from "@composables/stream"
+import { useStream, useStreamSubscriber } from "@composables/stream"
 import { useToast } from "@composables/toast"
 import { completePageProgress, startPageProgress } from "@modules/loadingbar"
 import * as gql from "graphql"
@@ -62,16 +58,12 @@ import { clone } from "lodash-es"
 import { computed, onMounted, ref, watch } from "vue"
 import { defineActionHandler } from "~/helpers/actions"
 import { getCurrentStrategyID } from "~/helpers/network"
-import {
-  GQLCurrentTabId$,
-  setResponseUnseen,
-  GQLConnection$,
-  setGQLConnection,
-  GQLConnectionURL$,
-} from "~/newstore/GQLSession"
+import { GQLConnection$, setGQLConnection } from "~/newstore/GQLSession"
 import { GQLConnection, GQLEvent } from "~/helpers/graphql/GQLConnection"
 import { HoppGQLRequest } from "@hoppscotch/data"
 import { platform } from "~/platform"
+import { currentActiveTab } from "~/helpers/graphql/tab"
+import { computedWithControl } from "@vueuse/core"
 
 type OptionTabs = "query" | "headers" | "variables" | "authorization"
 const selectedOptionTab = ref<OptionTabs>("query")
@@ -101,9 +93,11 @@ const { subscribeToStream } = useStreamSubscriber()
 
 const conn = useStream(GQLConnection$, new GQLConnection(), setGQLConnection)
 
-const url = useReadonlyStream(GQLConnectionURL$, "")
+const url = computedWithControl(
+  () => currentActiveTab.value,
+  () => currentActiveTab.value.document.request.url
+)
 
-const currentTabId = useReadonlyStream(GQLCurrentTabId$, "")
 const activeGQLHeadersCount = computed(
   () =>
     request.value.headers.filter(
@@ -166,9 +160,8 @@ onMounted(() => {
         emit("update:response", [event])
       } else {
         emit("update:response", [...props.response, event])
-        if (currentTabId.value !== props.tabId) {
-          setResponseUnseen(props.tabId, true)
-        }
+
+        // TODO: subscription indicator??
       }
     } catch (error) {
       console.log(error)

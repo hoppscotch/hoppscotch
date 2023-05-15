@@ -56,7 +56,6 @@
 
 <script setup lang="ts">
 import { computed, ref } from "vue"
-import { setGQLRequest } from "~/newstore/GQLSession"
 import { GQLHistoryEntry } from "~/newstore/history"
 import { shortDateTime } from "~/helpers/utils/date"
 
@@ -68,6 +67,7 @@ import IconMaximize2 from "~icons/lucide/maximize-2"
 
 import { useI18n } from "@composables/i18n"
 import { makeGQLRequest } from "@hoppscotch/data"
+import { createNewTab } from "~/helpers/graphql/tab"
 
 const t = useI18n()
 
@@ -93,16 +93,16 @@ const query = computed(() =>
 )
 
 const useEntry = () => {
-  console.log(props.entry)
-  setGQLRequest(
-    makeGQLRequest({
+  createNewTab({
+    request: makeGQLRequest({
       name: props.entry.request.name,
       url: props.entry.request.url,
       headers: props.entry.request.headers,
       query: props.entry.request.query,
       variables: props.entry.request.variables,
       auth: props.entry.request.auth,
-    })
-  )
+    }),
+    isDirty: false,
+  })
 }
 </script>

@@ -28,7 +28,6 @@
 
 <script setup lang="ts">
 import { platform } from "~/platform"
-import { GQLConnection } from "~/helpers/GQLConnection"
 import { getCurrentStrategyID } from "~/helpers/network"
 import { useReadonlyStream, useStream } from "@composables/stream"
 import { useI18n } from "@composables/i18n"
@@ -39,6 +38,7 @@ import {
   setGQLUrl,
 } from "~/newstore/GQLSession"
 import { HoppGQLRequest } from "@hoppscotch/data"
+import { GQLConnection } from "~/helpers/graphql/GQLConnection"
 
 const t = useI18n()
 

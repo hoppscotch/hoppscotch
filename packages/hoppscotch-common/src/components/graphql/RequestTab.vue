@@ -2,7 +2,7 @@
   <AppPaneLayout layout-id="gql-primary">
     <template #primary>
       <GraphqlRequestOptions
-        v-model="tab.request"
+        v-model="tab.document.request"
         v-model:response="tab.response"
         :tab-id="tab.id"
       />
@@ -14,19 +14,31 @@
 </template>
 
 <script setup lang="ts">
+import { useVModel } from "@vueuse/core"
 import { cloneDeep } from "lodash-es"
-import { ref, watch } from "vue"
-import { GQLTab } from "~/newstore/GQLSession"
+import { watch } from "vue"
+import { HoppGQLTab } from "~/helpers/graphql/tab"
 
-const props = defineProps<{ modelValue: GQLTab }>()
-const emit = defineEmits(["update:modelValue"])
+// TODO: Move Response and Request execution code to over here
 
-const tab = ref(cloneDeep(props.modelValue))
+const props = defineProps<{ modelValue: HoppGQLTab }>()
 
+const emit = defineEmits<{
+  (e: "update:modelValue", val: HoppGQLTab): void
+}>()
+
+const tab = useVModel(props, "modelValue", emit)
+
+// TODO: Come up with a better dirty check
+let oldRequest = cloneDeep(tab.value.document.request)
 watch(
-  () => tab.value,
-  (newVal) => {
-    emit("update:modelValue", newVal)
+  () => tab.value.document.request,
+  (updatedValue) => {
+    // TODO: Check equality of request
+    if (!tab.value.document.isDirty) {
+      tab.value.document.isDirty = true
+    }
+    oldRequest = cloneDeep(updatedValue)
   },
   { deep: true }
 )

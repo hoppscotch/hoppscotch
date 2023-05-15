@@ -1,112 +1,123 @@
 <template>
-  <AppPaneLayout layout-id="graphql">
-    <template #primary>
-      <GraphqlRequest :request="currentTab?.request" />
+  <div>
+    <AppPaneLayout layout-id="graphql">
+      <template #primary>
+        <GraphqlRequest :request="currentActiveTab.document.request" />
 
-      <HoppSmartWindows
-        v-if="currentTabId"
-        :id="'communication_tab'"
-        v-model="currentTabId"
-        @remove-tab="removeTab"
-        @add-tab="addNewTab"
-        @sort="sortTabs"
-      >
-        <HoppSmartWindow
-          v-for="tab in tabs"
-          :id="tab.id"
-          :key="'removable_tab_' + tab.id"
-          :label="tab.request.name"
-          :is-removable="tabs.length > 1"
+        <HoppSmartWindows
+          v-if="currentTabID"
+          :id="'gql_windows'"
+          v-model="currentTabID"
+          @remove-tab="removeTab"
+          @add-tab="addNewTab"
+          @sort="sortTabs"
         >
-          <template #suffix>
-            <span
-              v-if="tabsUnseenState[tab.id]"
-              class="w-1 h-1 ml-auto rounded-full bg-accentLight mr-2"
-            ></span>
-          </template>
+          <HoppSmartWindow
+            v-for="tab in tabs"
+            :id="tab.id"
+            :key="'removable_tab_' + tab.id"
+            :label="tab.document.request.name"
+            :is-removable="tabs.length > 1"
+            :close-visibility="'hover'"
+          >
+            <template #tabhead>
+              <div
+                v-tippy="{ theme: 'tooltip', delay: [500, 20] }"
+                :title="tab.document.request.name"
+                class="truncate px-2"
+              >
+                <span class="leading-8 px-2">
+                  {{ tab.document.request.name }}
+                </span>
+              </div>
+            </template>
 
-          <GraphqlRequestTab
-            :model-value="tab"
-            @update:model-value="onTabUpdate"
-          />
-        </HoppSmartWindow>
-      </HoppSmartWindows>
-    </template>
-    <template #sidebar>
-      <GraphqlSidebar :request="currentTab.request" />
-    </template>
-  </AppPaneLayout>
+            <template #suffix>
+              <span
+                v-if="tab.document.isDirty"
+                class="flex items-center justify-center text-secondary group-hover:hidden w-4"
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  width="1.2em"
+                  height="1.2em"
+                  class="h-1.5 w-1.5"
+                >
+                  <circle cx="12" cy="12" r="12" fill="currentColor"></circle>
+                </svg>
+              </span>
+            </template>
+
+            <GraphqlRequestTab
+              :model-value="tab"
+              @update:model-value="onTabUpdate"
+            />
+          </HoppSmartWindow>
+        </HoppSmartWindows>
+      </template>
+      <template #sidebar>
+        <GraphqlSidebar :request="currentActiveTab.document.request" />
+      </template>
+    </AppPaneLayout>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, watch } from "vue"
-import { useReadonlyStream, useStream } from "@composables/stream"
-import { useI18n } from "@composables/i18n"
 import { usePageHead } from "@composables/head"
-import { startPageProgress, completePageProgress } from "@modules/loadingbar"
-import {
-  GQLTabs$,
-  setGQLTabs,
-  GQLCurrentTabId$,
-  setCurrentTabId,
-  addNewGQLTab,
-  gqlCurrentTab$,
-  setResponseUnseen,
-  setGQLConnection,
-  GQLConnection$,
-  GQLTab,
-} from "~/newstore/GQLSession"
+import { useI18n } from "@composables/i18n"
+import { useStream } from "@composables/stream"
+import { computed, onBeforeUnmount, ref } from "vue"
 import { GQLConnection } from "~/helpers/graphql/GQLConnection"
+import { getDefaultGQLRequest } from "~/helpers/graphql/default"
+import {
+  HoppGQLTab,
+  closeTab,
+  createNewTab,
+  currentActiveTab,
+  currentTabID,
+  getActiveTabs,
+  getTabRef,
+  updateTab,
+  updateTabOrdering,
+} from "~/helpers/graphql/tab"
+import { GQLConnection$, setGQLConnection } from "~/newstore/GQLSession"
 
+const confirmingCloseForTabID = ref<string | null>(null)
 const t = useI18n()
 
 usePageHead({
   title: computed(() => t("navigation.graphql")),
 })
 
-const currentTab = useReadonlyStream(gqlCurrentTab$)
-
 const conn = useStream(GQLConnection$, new GQLConnection(), setGQLConnection)
-const isLoading = useReadonlyStream(conn.value.isLoading$, false)
 
-const currentTabId = useStream(GQLCurrentTabId$, "", setCurrentTabId)
-
-const tabs = useStream(GQLTabs$, [], setGQLTabs)
-watch(currentTabId, (tabID) => {
-  setResponseUnseen(tabID, false)
-})
-
-const tabsUnseenState = computed(() =>
-  Object.fromEntries(tabs.value.map((tab) => [tab.id, tab.unseen]))
-)
+const tabs = getActiveTabs()
 
 const addNewTab = () => {
-  addNewGQLTab()
-  currentTabId.value = tabs.value[tabs.value.length - 1].id
+  const tab = createNewTab({
+    request: getDefaultGQLRequest(),
+    isDirty: false,
+  })
+
+  currentTabID.value = tab.id
 }
 const sortTabs = (e: { oldIndex: number; newIndex: number }) => {
-  const newTabs = [...tabs.value]
-  newTabs.splice(e.newIndex, 0, newTabs.splice(e.oldIndex, 1)[0])
-  tabs.value = newTabs
+  updateTabOrdering(e.oldIndex, e.newIndex)
 }
+
 const removeTab = (tabID: string) => {
-  tabs.value = tabs.value.filter((tab) => tab.id !== tabID)
+  const tab = getTabRef(tabID)
+
+  if (tab.value.document.isDirty) {
+    confirmingCloseForTabID.value = tabID
+  } else {
+    closeTab(tab.value.id)
+  }
 }
 
-const onTabUpdate = (tab: GQLTab) => {
-  tabs.value = tabs.value.map((t) => {
-    if (t.id === tab.id) {
-      return tab
-    } else {
-      return t
-    }
-  })
+const onTabUpdate = (tab: HoppGQLTab) => {
+  updateTab(tab)
 }
-
-watch(isLoading, () => {
-  if (isLoading.value) startPageProgress()
-  else completePageProgress()
-})
 
 onBeforeUnmount(() => {
   if (conn.value.connected$.value) {
@@ -114,13 +125,13 @@ onBeforeUnmount(() => {
   }
 })
 
-defineActionHandler("gql.request.open", ({ request }) => {
-  const session = getGQLSession()
+// defineActionHandler("gql.request.open", ({ request }) => {
+//   const session = getGQLSession()
 
-  setGQLSession({
-    request: cloneDeep(request),
-    schema: session.schema,
-    response: session.response,
-  })
-})
+//   setGQLSession({
+//     request: cloneDeep(request),
+//     schema: session.schema,
+//     response: session.response,
+//   })
+// })
 </script>

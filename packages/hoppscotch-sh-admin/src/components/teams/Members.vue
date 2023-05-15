@@ -167,7 +167,7 @@ import IconChevronDown from '~icons/lucide/chevron-down';
 import { useClientHandle, useMutation } from '@urql/vue';
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
-import { useToast } from '../../composables/toast';
+import { useToast } from '~/composables/toast';
 import {
   ChangeUserRoleInTeamByAdminDocument,
   TeamInfoDocument,
@@ -176,7 +176,7 @@ import {
   TeamInfoQuery,
 } from '../../helpers/backend/graphql';
 import { HoppButtonPrimary, HoppButtonSecondary } from '@hoppscotch/ui';
-import { useI18n } from '../../composables/i18n';
+import { useI18n } from '~/composables/i18n';
 
 const t = useI18n();
 

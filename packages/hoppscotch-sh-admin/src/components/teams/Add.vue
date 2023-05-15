@@ -53,7 +53,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useToast } from '~/composables/toast';
-import { useI18n } from '../../composables/i18n';
+import { useI18n } from '~/composables/i18n';
 
 const t = useI18n();
 

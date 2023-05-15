@@ -91,12 +91,12 @@ import {
   RemoveUserAsAdminDocument,
   UsersListDocument,
 } from '../../helpers/backend/graphql';
-import { usePagedQuery } from '../../composables/usePagedQuery';
+import { usePagedQuery } from '~/composables/usePagedQuery';
 import { useRoute, useRouter } from 'vue-router';
-import { useToast } from '../../composables/toast';
+import { useToast } from '~/composables/toast';
 import { HoppButtonSecondary } from '@hoppscotch/ui';
 import IconAddUser from '~icons/lucide/user-plus';
-import { useI18n } from '../../composables/i18n';
+import { useI18n } from '~/composables/i18n';
 
 const t = useI18n();
 

@@ -70,7 +70,7 @@ import { TeamInfoQuery } from '~/helpers/backend/graphql';
 import IconEdit from '~icons/lucide/edit';
 import IconSave from '~icons/lucide/save';
 import IconTrash from '~icons/lucide/trash-2';
-import { useI18n } from '../../composables/i18n';
+import { useI18n } from '~/composables/i18n';
 
 const t = useI18n();
 

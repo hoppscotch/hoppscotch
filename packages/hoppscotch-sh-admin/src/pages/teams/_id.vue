@@ -58,7 +58,7 @@
 import { useClientHandle, useMutation } from '@urql/vue';
 import { computed, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { useToast } from '../../composables/toast';
+import { useToast } from '~/composables/toast';
 import {
   RemoveTeamDocument,
   RenameTeamDocument,
@@ -67,7 +67,7 @@ import {
   TeamInfoQuery,
 } from '../../helpers/backend/graphql';
 import { HoppSmartTabs } from '@hoppscotch/ui';
-import { useI18n } from '../../composables/i18n';
+import { useI18n } from '~/composables/i18n';
 
 const t = useI18n();
 

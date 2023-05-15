@@ -65,12 +65,12 @@ import {
   TeamListDocument,
   UsersListDocument,
 } from '../../helpers/backend/graphql';
-import { usePagedQuery } from '../../composables/usePagedQuery';
+import { usePagedQuery } from '~/composables/usePagedQuery';
 import { ref, watch, computed } from 'vue';
 import { useMutation, useQuery } from '@urql/vue';
-import { useToast } from '../../composables/toast';
+import { useToast } from '~/composables/toast';
 import IconAddUsers from '~icons/lucide/plus';
-import { useI18n } from '../../composables/i18n';
+import { useI18n } from '~/composables/i18n';
 
 const t = useI18n();
 

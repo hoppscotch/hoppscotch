@@ -151,10 +151,10 @@ import {
 import { useClientHandle } from '@urql/vue';
 import { format } from 'date-fns';
 import { useRoute, useRouter } from 'vue-router';
-import { useToast } from '../../composables/toast';
+import { useToast } from '~/composables/toast';
 import IconTrash from '~icons/lucide/trash';
 import IconUserMinus from '~icons/lucide/user-minus';
-import { useI18n } from '../../composables/i18n';
+import { useI18n } from '~/composables/i18n';
 
 const t = useI18n();
 

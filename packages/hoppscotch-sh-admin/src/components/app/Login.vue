@@ -131,7 +131,7 @@ import { setLocalConfig } from '~/helpers/localpersistence';
 import { useStreamSubscriber } from '~/composables/stream';
 import { useToast } from '~/composables/toast';
 import { auth } from '~/helpers/auth';
-import { useI18n } from '../../composables/i18n';
+import { useI18n } from '~/composables/i18n';
 
 const t = useI18n();
 

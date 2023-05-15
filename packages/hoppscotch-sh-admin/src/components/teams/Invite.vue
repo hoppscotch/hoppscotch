@@ -206,7 +206,7 @@ import IconCircleDot from '~icons/lucide/circle-dot';
 import IconCircle from '~icons/lucide/circle';
 import { computed } from 'vue';
 import { usePagedQuery } from '~/composables/usePagedQuery';
-import { useI18n } from '../../composables/i18n';
+import { useI18n } from '~/composables/i18n';
 
 const t = useI18n();
 

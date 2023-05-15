@@ -82,7 +82,7 @@ import { auth } from '~/helpers/auth';
 import IconMenu from '~icons/lucide/menu';
 import IconSidebarOpen from '~icons/lucide/sidebar-open';
 import IconSidebarClose from '~icons/lucide/sidebar-close';
-import { useI18n } from '../../composables/i18n';
+import { useI18n } from '~/composables/i18n';
 
 const t = useI18n();
 

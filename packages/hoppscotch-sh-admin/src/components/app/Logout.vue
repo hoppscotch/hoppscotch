@@ -22,7 +22,7 @@ import IconLogOut from '~icons/lucide/log-out';
 import { useToast } from '~/composables/toast';
 import { useRouter } from 'vue-router';
 import { auth } from '~/helpers/auth';
-import { useI18n } from '../../composables/i18n';
+import { useI18n } from '~/composables/i18n';
 
 const t = useI18n();
 

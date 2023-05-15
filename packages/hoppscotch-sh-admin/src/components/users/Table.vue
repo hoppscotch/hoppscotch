@@ -138,7 +138,7 @@ import IconUserCheck from '~icons/lucide/user-check';
 import IconMoreHorizontal from '~icons/lucide/more-horizontal';
 import { UsersListQuery } from '~/helpers/backend/graphql';
 import { TippyComponent } from 'vue-tippy';
-import { useI18n } from '../../composables/i18n';
+import { useI18n } from '~/composables/i18n';
 
 const t = useI18n();
 

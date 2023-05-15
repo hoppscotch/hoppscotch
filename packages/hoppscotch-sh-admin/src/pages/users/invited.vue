@@ -87,7 +87,7 @@ import { InvitedUsersDocument } from '../../helpers/backend/graphql';
 import { format } from 'date-fns';
 import { HoppSmartSpinner } from '@hoppscotch/ui';
 import { useRouter } from 'vue-router';
-import { useI18n } from '../../composables/i18n';
+import { useI18n } from '~/composables/i18n';
 
 const t = useI18n();
 

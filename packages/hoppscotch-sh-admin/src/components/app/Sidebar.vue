@@ -61,11 +61,11 @@
 
 <script setup lang="ts">
 import { HoppSmartLink } from '@hoppscotch/ui';
-import { useSidebar } from '../../composables/useSidebar';
+import { useSidebar } from '~/composables/useSidebar';
 import IconDashboard from '~icons/lucide/layout-dashboard';
 import IconUser from '~icons/lucide/user';
 import IconUsers from '~icons/lucide/users';
-import { useI18n } from '../../composables/i18n';
+import { useI18n } from '~/composables/i18n';
 
 const t = useI18n();
 

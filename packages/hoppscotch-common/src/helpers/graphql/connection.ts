@@ -13,6 +13,7 @@ import {
 import { computed, reactive, ref } from "vue"
 import { addGraphqlHistoryEntry, makeGQLHistoryEntry } from "~/newstore/history"
 import { sendNetworkRequest } from "../network"
+import { currentTabID } from "./tab"
 
 const GQL_SCHEMA_POLL_INTERVAL = 7000
 
@@ -53,20 +54,22 @@ const GQL = {
 
 type Connection = {
   state: ConnectionState
-  subscriptionState: SubscriptionState
+  subscriptionState: Map<string, SubscriptionState>
   socket: WebSocket | undefined
   schema: GraphQLSchema | null
 }
 
 export const connection = reactive<Connection>({
   state: "DISCONNECTED",
-  subscriptionState: "UNSUBSCRIBED",
+  subscriptionState: new Map<string, SubscriptionState>(),
   socket: undefined,
   schema: null,
 })
 
 export const schema = computed(() => connection.schema)
-export const subscriptionState = computed(() => connection.subscriptionState)
+export const subscriptionState = computed(() => {
+  return connection.subscriptionState.get(currentTabID.value)
+})
 
 export const gqlMessageEvent = ref<GQLEvent | "reset">()
 
@@ -281,7 +284,7 @@ export const runSubscription = (options: RunQueryOptions) => {
   const { url, query, operationName } = options
   const wsUrl = url.replace(/^http/, "ws")
 
-  connection.subscriptionState = "SUBSCRIBING"
+  connection.subscriptionState.set(currentTabID.value, "SUBSCRIBING")
 
   connection.socket = new WebSocket(wsUrl, "graphql-ws")
 
@@ -309,7 +312,7 @@ export const runSubscription = (options: RunQueryOptions) => {
     const data = JSON.parse(event.data)
     switch (data.type) {
       case GQL.CONNECTION_ACK: {
-        connection.subscriptionState = "SUBSCRIBED"
+        connection.subscriptionState.set(currentTabID.value, "SUBSCRIBED")
         break
       }
       case GQL.CONNECTION_ERROR: {
@@ -337,7 +340,7 @@ export const runSubscription = (options: RunQueryOptions) => {
 
   connection.socket.onclose = (event) => {
     console.log("WebSocket is closed now.", event)
-    connection.subscriptionState = "UNSUBSCRIBED"
+    connection.subscriptionState.set(currentTabID.value, "UNSUBSCRIBED")
   }
 
   addQueryToHistory(options, "")

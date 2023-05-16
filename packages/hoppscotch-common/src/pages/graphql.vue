@@ -2,7 +2,7 @@
   <div>
     <AppPaneLayout layout-id="graphql">
       <template #primary>
-        <GraphqlRequest :request="currentActiveTab.document.request" />
+        <GraphqlRequest />
 
         <HoppSmartWindows
           v-if="currentTabID"
@@ -56,7 +56,7 @@
         </HoppSmartWindows>
       </template>
       <template #sidebar>
-        <GraphqlSidebar :request="currentActiveTab.document.request" />
+        <GraphqlSidebar />
       </template>
     </AppPaneLayout>
   </div>
@@ -72,7 +72,6 @@ import {
   HoppGQLTab,
   closeTab,
   createNewTab,
-  currentActiveTab,
   currentTabID,
   getActiveTabs,
   getTabRef,

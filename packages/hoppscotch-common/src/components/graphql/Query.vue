@@ -85,7 +85,7 @@ import IconCopy from "~icons/lucide/copy"
 import IconCheck from "~icons/lucide/check"
 import IconInfo from "~icons/lucide/info"
 import IconWand from "~icons/lucide/wand"
-import { ref } from "vue"
+import { onMounted, ref } from "vue"
 import { copyToClipboard } from "@helpers/utils/clipboard"
 import { useCodemirror } from "@composables/codemirror"
 import { useI18n } from "@composables/i18n"
@@ -157,6 +157,17 @@ const debouncedOnUpdateQueryState = debounce((update: ViewUpdate) => {
     // console.error(error)
   }
 }, 300)
+
+onMounted(() => {
+  try {
+    const operations = gql.parse(gqlQueryString.value)
+    if (operations.definitions.length) {
+      selectedOperation.value = operations
+        .definitions[0] as gql.OperationDefinitionNode
+      return
+    }
+  } catch (error) {}
+})
 
 useCodemirror(queryEditor, gqlQueryString, {
   extendedEditorConfig: {

@@ -30,7 +30,6 @@
 import { platform } from "~/platform"
 import { getCurrentStrategyID } from "~/helpers/network"
 import { useI18n } from "@composables/i18n"
-import { HoppGQLRequest } from "@hoppscotch/data"
 import { computedWithControl } from "@vueuse/core"
 import { currentActiveTab } from "~/helpers/graphql/tab"
 import { computed } from "vue"
@@ -40,20 +39,16 @@ import { disconnect } from "~/helpers/graphql/connection"
 
 const t = useI18n()
 
-const props = defineProps<{
-  request: HoppGQLRequest
-}>()
-
 const connected = computed(() => connection.state === "CONNECTED")
 
 const url = computedWithControl(
   () => currentActiveTab.value,
-  () => currentActiveTab.value.document.request.url
+  () => currentActiveTab.value?.document.request.url
 )
 
 const onConnectClick = () => {
   if (!connected.value) {
-    connect(url.value, props.request.headers)
+    connect(url.value, currentActiveTab.value?.document.request.headers)
 
     platform.analytics?.logEvent({
       type: "HOPP_REQUEST_RUN",

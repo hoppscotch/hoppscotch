@@ -64,7 +64,7 @@ import IconArrowDown from "~icons/lucide/arrow-down"
 import IconChevronsDown from "~icons/lucide/chevron-down"
 import { useThrottleFn, useScroll } from "@vueuse/core"
 import { useI18n } from "@composables/i18n"
-import { GQLEvent } from "~/helpers/graphql/GQLConnection"
+import { GQLEvent } from "~/helpers/graphql/connection"
 
 const props = defineProps({
   log: { type: Array as PropType<GQLEvent[]>, default: () => [] },

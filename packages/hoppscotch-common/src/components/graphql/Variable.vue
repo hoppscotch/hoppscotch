@@ -75,15 +75,16 @@ import IconWand from "~icons/lucide/wand"
 import { computed, reactive, ref } from "vue"
 import jsonLinter from "~/helpers/editor/linting/json"
 import { copyToClipboard } from "@helpers/utils/clipboard"
-import { useReadonlyStream, useStream } from "@composables/stream"
 import { useCodemirror } from "@composables/codemirror"
 import * as gql from "graphql"
 import { useI18n } from "@composables/i18n"
 import { refAutoReset, useVModel } from "@vueuse/core"
 import { useToast } from "~/composables/toast"
 import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
-import { GQLConnection$, setGQLConnection } from "~/newstore/GQLSession"
-import { GQLConnection } from "~/helpers/graphql/GQLConnection"
+import {
+  socketDisconnect,
+  subscriptionState,
+} from "~/helpers/graphql/connection"
 
 const t = useI18n()
 const toast = useToast()
@@ -92,18 +93,11 @@ const props = defineProps<{
   modelValue: string
 }>()
 
-const conn = useStream(GQLConnection$, new GQLConnection(), setGQLConnection)
-
 const emit = defineEmits<{
   (e: "save-request"): void
   (e: "update:modelValue", val: string): void
   (e: "run-query", definition: gql.OperationDefinitionNode | null): void
 }>()
-
-const subscriptionState = useReadonlyStream(
-  conn.value.subscriptionState$,
-  "UNSUBSCRIBED"
-)
 
 // Watch operations on graphql query string
 const selectedOperation = ref<gql.OperationDefinitionNode | null>(null)
@@ -162,6 +156,6 @@ const runQuery = (definition: gql.OperationDefinitionNode | null = null) => {
   emit("run-query", definition)
 }
 const unsubscribe = () => {
-  conn.value.socketDisconnect()
+  socketDisconnect()
 }
 </script>

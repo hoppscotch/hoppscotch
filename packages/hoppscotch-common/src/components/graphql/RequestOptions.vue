@@ -50,20 +50,22 @@
 
 <script setup lang="ts">
 import { useI18n } from "@composables/i18n"
-import { useStream, useStreamSubscriber } from "@composables/stream"
 import { useToast } from "@composables/toast"
 import { completePageProgress, startPageProgress } from "@modules/loadingbar"
 import * as gql from "graphql"
 import { clone } from "lodash-es"
-import { computed, onMounted, ref, watch } from "vue"
+import { computed, ref, watch } from "vue"
 import { defineActionHandler } from "~/helpers/actions"
 import { getCurrentStrategyID } from "~/helpers/network"
-import { GQLConnection$, setGQLConnection } from "~/newstore/GQLSession"
-import { GQLConnection, GQLEvent } from "~/helpers/graphql/GQLConnection"
 import { HoppGQLRequest } from "@hoppscotch/data"
 import { platform } from "~/platform"
 import { currentActiveTab } from "~/helpers/graphql/tab"
 import { computedWithControl } from "@vueuse/core"
+import {
+  GQLEvent,
+  runGQLOperation,
+  gqlMessageEvent,
+} from "~/helpers/graphql/connection"
 
 type OptionTabs = "query" | "headers" | "variables" | "authorization"
 const selectedOptionTab = ref<OptionTabs>("query")
@@ -89,10 +91,6 @@ watch(
   { deep: true }
 )
 
-const { subscribeToStream } = useStreamSubscriber()
-
-const conn = useStream(GQLConnection$, new GQLConnection(), setGQLConnection)
-
 const url = computedWithControl(
   () => currentActiveTab.value,
   () => currentActiveTab.value.document.request.url
@@ -117,7 +115,7 @@ const runQuery = async (
     const runVariables = clone(request.value.variables)
     const runAuth = clone(request.value.auth)
 
-    await conn.value.runQuery({
+    await runGQLOperation({
       name: request.value.name,
       url: runURL,
       headers: runHeaders,
@@ -147,15 +145,17 @@ const runQuery = async (
     strategy: getCurrentStrategyID(),
   })
 }
-onMounted(() => {
-  subscribeToStream(conn.value.event$, (event) => {
+
+watch(
+  () => gqlMessageEvent.value,
+  (event) => {
     if (event === "reset") {
       emit("update:response", [])
       return
     }
 
     try {
-      if (event.operationType !== "subscription") {
+      if (event?.operationType !== "subscription") {
         // response.value = [event]
         emit("update:response", [event])
       } else {
@@ -166,8 +166,10 @@ onMounted(() => {
     } catch (error) {
       console.log(error)
     }
-  })
-})
+  },
+  { deep: true }
+)
+
 const hideRequestModal = () => {
   showSaveRequestModal.value = false
 }

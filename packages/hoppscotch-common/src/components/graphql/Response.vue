@@ -55,7 +55,7 @@ import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
 import { defineActionHandler } from "~/helpers/actions"
 import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
-import { GQLEvent } from "~/helpers/graphql/GQLConnection"
+import { GQLEvent } from "~/helpers/graphql/connection"
 
 const t = useI18n()
 const toast = useToast()

@@ -87,7 +87,6 @@ import IconInfo from "~icons/lucide/info"
 import IconWand from "~icons/lucide/wand"
 import { ref } from "vue"
 import { copyToClipboard } from "@helpers/utils/clipboard"
-import { useReadonlyStream, useStream } from "@composables/stream"
 import { useCodemirror } from "@composables/codemirror"
 import { useI18n } from "@composables/i18n"
 import { refAutoReset, useVModel } from "@vueuse/core"
@@ -96,12 +95,15 @@ import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
 import * as gql from "graphql"
 import { createGQLQueryLinter } from "~/helpers/editor/linting/gqlQuery"
 import queryCompleter from "~/helpers/editor/completion/gqlQuery"
-import { GQLConnection$, setGQLConnection } from "~/newstore/GQLSession"
-import { GQLConnection } from "~/helpers/graphql/GQLConnection"
 import { selectedGQLOpHighlight } from "~/helpers/editor/gql/operation"
 import { debounce } from "lodash-es"
 import { ViewUpdate } from "@codemirror/view"
 import { defineActionHandler } from "~/helpers/actions"
+import {
+  schema,
+  socketDisconnect,
+  subscriptionState,
+} from "~/helpers/graphql/connection"
 
 // Template refs
 const queryEditor = ref<any | null>(null)
@@ -113,19 +115,11 @@ const props = defineProps<{
   modelValue: string
 }>()
 
-const conn = useStream(GQLConnection$, new GQLConnection(), setGQLConnection)
-
 const emit = defineEmits<{
   (e: "save-request"): void
   (e: "update:modelValue", val: string): void
   (e: "run-query", definition: gql.OperationDefinitionNode | null): void
 }>()
-
-const subscriptionState = useReadonlyStream(
-  conn.value.subscriptionState$,
-  "UNSUBSCRIBED"
-)
-const schema = useReadonlyStream(conn.value.schema$, null, "noclone")
 
 const copyQueryIcon = refAutoReset<typeof IconCopy | typeof IconCheck>(
   IconCopy,
@@ -203,7 +197,7 @@ const runQuery = (definition: gql.OperationDefinitionNode | null = null) => {
   emit("run-query", definition)
 }
 const unsubscribe = () => {
-  conn.value.socketDisconnect()
+  socketDisconnect()
 }
 const saveRequest = () => {
   emit("save-request")

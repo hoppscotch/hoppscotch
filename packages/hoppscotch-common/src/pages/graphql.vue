@@ -65,9 +65,8 @@
 <script setup lang="ts">
 import { usePageHead } from "@composables/head"
 import { useI18n } from "@composables/i18n"
-import { useStream } from "@composables/stream"
-import { computed, onBeforeUnmount, ref } from "vue"
-import { GQLConnection } from "~/helpers/graphql/GQLConnection"
+import { computed, onBeforeUnmount } from "vue"
+import { connection, disconnect } from "~/helpers/graphql/connection"
 import { getDefaultGQLRequest } from "~/helpers/graphql/default"
 import {
   HoppGQLTab,
@@ -80,16 +79,13 @@ import {
   updateTab,
   updateTabOrdering,
 } from "~/helpers/graphql/tab"
-import { GQLConnection$, setGQLConnection } from "~/newstore/GQLSession"
 
-const confirmingCloseForTabID = ref<string | null>(null)
+// const confirmingCloseForTabID = ref<string | null>(null)
 const t = useI18n()
 
 usePageHead({
   title: computed(() => t("navigation.graphql")),
 })
-
-const conn = useStream(GQLConnection$, new GQLConnection(), setGQLConnection)
 
 const tabs = getActiveTabs()
 
@@ -121,8 +117,8 @@ const onTabUpdate = (tab: HoppGQLTab) => {
 }
 
 onBeforeUnmount(() => {
-  if (conn.value.connected$.value) {
-    conn.value.disconnect()
+  if (connection.state === "CONNECTED") {
+    disconnect()
   }
 })
 

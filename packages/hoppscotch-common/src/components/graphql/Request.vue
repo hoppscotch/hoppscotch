@@ -29,13 +29,14 @@
 <script setup lang="ts">
 import { platform } from "~/platform"
 import { getCurrentStrategyID } from "~/helpers/network"
-import { useReadonlyStream, useStream } from "@composables/stream"
 import { useI18n } from "@composables/i18n"
-import { GQLConnection$, setGQLConnection } from "~/newstore/GQLSession"
 import { HoppGQLRequest } from "@hoppscotch/data"
-import { GQLConnection } from "~/helpers/graphql/GQLConnection"
 import { computedWithControl } from "@vueuse/core"
 import { currentActiveTab } from "~/helpers/graphql/tab"
+import { computed } from "vue"
+import { connection } from "~/helpers/graphql/connection"
+import { connect } from "~/helpers/graphql/connection"
+import { disconnect } from "~/helpers/graphql/connection"
 
 const t = useI18n()
 
@@ -43,8 +44,7 @@ const props = defineProps<{
   request: HoppGQLRequest
 }>()
 
-const conn = useStream(GQLConnection$, new GQLConnection(), setGQLConnection)
-const connected = useReadonlyStream(conn.value.connected$, false)
+const connected = computed(() => connection.state === "CONNECTED")
 
 const url = computedWithControl(
   () => currentActiveTab.value,
@@ -53,7 +53,7 @@ const url = computedWithControl(
 
 const onConnectClick = () => {
   if (!connected.value) {
-    conn.value.connect(url.value, props.request.headers)
+    connect(url.value, props.request.headers)
 
     platform.analytics?.logEvent({
       type: "HOPP_REQUEST_RUN",
@@ -61,7 +61,7 @@ const onConnectClick = () => {
       strategy: getCurrentStrategyID(),
     })
   } else {
-    conn.value.disconnect()
+    disconnect()
   }
 }
 </script>

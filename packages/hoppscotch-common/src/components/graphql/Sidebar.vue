@@ -189,16 +189,19 @@ import IconCopy from "~icons/lucide/copy"
 import IconBox from "~icons/lucide/box"
 import { computed, nextTick, reactive, ref } from "vue"
 import { GraphQLField, GraphQLType } from "graphql"
-import { map } from "rxjs/operators"
 import { refAutoReset } from "@vueuse/core"
 import { useCodemirror } from "@composables/codemirror"
 import { copyToClipboard } from "@helpers/utils/clipboard"
-import { useReadonlyStream, useStream } from "@composables/stream"
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
 import { useColorMode } from "@composables/theming"
-import { GQLConnection$, setGQLConnection } from "~/newstore/GQLSession"
-import { GQLConnection } from "~/helpers/graphql/GQLConnection"
+import {
+  graphqlTypes,
+  mutationFields,
+  queryFields,
+  schemaString,
+  subscriptionFields,
+} from "~/helpers/graphql/connection"
 
 type NavigationTabs = "history" | "collection" | "docs" | "schema"
 type GqlTabs = "queries" | "mutations" | "subscriptions" | "types"
@@ -264,28 +267,6 @@ function resolveRootType(type: GraphQLType) {
 }
 
 const toast = useToast()
-
-const conn = useStream(GQLConnection$, new GQLConnection(), setGQLConnection)
-
-const queryFields = useReadonlyStream(
-  conn.value.queryFields$.pipe(map((x) => x ?? [])),
-  []
-)
-
-const mutationFields = useReadonlyStream(
-  conn.value.mutationFields$.pipe(map((x) => x ?? [])),
-  []
-)
-
-const subscriptionFields = useReadonlyStream(
-  conn.value.subscriptionFields$.pipe(map((x) => x ?? [])),
-  []
-)
-
-const graphqlTypes = useReadonlyStream(
-  conn.value.graphqlTypes$.pipe(map((x) => x ?? [])),
-  []
-)
 
 const downloadSchemaIcon = refAutoReset<typeof IconDownload | typeof IconCheck>(
   IconDownload,
@@ -372,11 +353,6 @@ const handleJumpToType = async (type: GraphQLType) => {
     )
   }
 }
-
-const schemaString = useReadonlyStream(
-  conn.value.schemaString$.pipe(map((x) => x ?? "")),
-  ""
-)
 
 const schemaEditor = ref<any | null>(null)
 const linewrapEnabled = ref(true)

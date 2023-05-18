@@ -123,6 +123,11 @@ import { useToast } from "~/composables/toast"
 import { PersistableRESTTabState } from "~/helpers/rest/tab"
 import { watchDebounced } from "@vueuse/core"
 import { oauthRedirect } from "~/helpers/oauth"
+import { useReadonlyStream } from "~/composables/stream"
+import {
+  changeCurrentSyncStatus,
+  currentSyncingStatus$,
+} from "~/newstore/syncing"
 
 const savingRequest = ref(false)
 const confirmingCloseForTabID = ref<string | null>(null)
@@ -134,7 +139,10 @@ const toast = useToast()
 
 const tabs = getActiveTabs()
 
-const confirmSync = ref(false)
+const confirmSync = useReadonlyStream(currentSyncingStatus$, {
+  initialSync: false,
+  sync: true,
+})
 const tabStateForSync = ref<PersistableRESTTabState | null>(null)
 
 function bindRequestToURLParams() {
@@ -229,28 +237,39 @@ const onSaveModalClose = () => {
   }
 }
 
-watch(confirmSync, (newValue) => {
-  if (newValue) {
-    toast.show(t("confirm.sync"), {
-      duration: 0,
-      action: [
-        {
-          text: `${t("action.yes")}`,
-          onClick: (_, toastObject) => {
-            syncTabState()
-            toastObject.goAway(0)
+watch(
+  () => confirmSync.value.initialSync,
+  (newValue) => {
+    if (newValue) {
+      toast.show(t("confirm.sync"), {
+        duration: 0,
+        action: [
+          {
+            text: `${t("action.yes")}`,
+            onClick: (_, toastObject) => {
+              syncTabState()
+              changeCurrentSyncStatus({
+                initialSync: true,
+                sync: true,
+              })
+              toastObject.goAway(0)
+            },
           },
-        },
-        {
-          text: `${t("action.no")}`,
-          onClick: (_, toastObject) => {
-            toastObject.goAway(0)
+          {
+            text: `${t("action.no")}`,
+            onClick: (_, toastObject) => {
+              changeCurrentSyncStatus({
+                initialSync: true,
+                sync: false,
+              })
+              toastObject.goAway(0)
+            },
           },
-        },
-      ],
-    })
+        ],
+      })
+    }
   }
-})
+)
 
 const syncTabState = () => {
   if (tabStateForSync.value) loadTabsFromPersistedState(tabStateForSync.value)
@@ -305,9 +324,12 @@ function setupTabStateSync() {
       const tabStateFromSync =
         await platform.sync.tabState.loadTabStateFromSync()
 
-      if (tabStateFromSync) {
+      if (tabStateFromSync && !confirmSync.value.initialSync) {
         tabStateForSync.value = tabStateFromSync
-        confirmSync.value = true
+        changeCurrentSyncStatus({
+          initialSync: true,
+          sync: false,
+        })
       }
     }
 

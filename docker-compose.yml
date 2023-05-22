@@ -70,6 +70,6 @@ services:
   # NOTE: Please UNCOMMENT and UPDATE THE Path
     # volumes:
       # - <custom_path>:/var/lib/postgresql/data
-      # Replace /custom/mount with path on your device
+      # Replace <custom_path> with path on your device
 
 

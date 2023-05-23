@@ -258,6 +258,8 @@ import IconSave from "~icons/lucide/save"
 import IconShare2 from "~icons/lucide/share-2"
 import { HoppRESTTab } from "~/helpers/rest/tab"
 import { getDefaultRESTRequest } from "~/helpers/rest/default"
+import { platform } from "~/platform"
+import { getCurrentStrategyID } from "~/helpers/network"
 
 const t = useI18n()
 
@@ -319,6 +321,12 @@ const newSendRequest = async () => {
   ensureMethodInEndpoint()
 
   loading.value = true
+
+  // Log the request run into analytics
+  platform.analytics?.logHoppRequestRunToAnalytics({
+    platform: "rest",
+    strategy: getCurrentStrategyID(),
+  })
 
   // Double calling is because the function returns a TaskEither than should be executed
   const streamResult = await runRESTRequest$(tab)()

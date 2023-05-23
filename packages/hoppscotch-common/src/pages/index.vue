@@ -64,7 +64,7 @@
     </AppPaneLayout>
     <CollectionsEditRequest
       :show="showRenamingReqNameModal"
-      :editing-request-name="reqName"
+      v-model="reqName"
       @submit="renameReqName"
       @hide-modal="showRenamingReqNameModal = false"
     />
@@ -180,10 +180,10 @@ const openReqRenameModal = () => {
   reqName.value = currentActiveTab.value.document.request.name
 }
 
-const renameReqName = (name: string) => {
+const renameReqName = () => {
   const tab = getTabRef(currentTabID.value)
   if (tab.value) {
-    tab.value.document.request.name = name
+    tab.value.document.request.name = reqName.value
     updateTab(tab.value)
   }
   showRenamingReqNameModal.value = false

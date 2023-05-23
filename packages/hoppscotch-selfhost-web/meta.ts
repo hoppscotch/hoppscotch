@@ -8,7 +8,9 @@ export const APP_INFO = {
   keywords:
     "hoppscotch, hopp scotch, hoppscotch online, hoppscotch app, postwoman, postwoman chrome, postwoman online, postwoman for mac, postwoman app, postwoman for windows, postwoman google chrome, postwoman chrome app, get postwoman, postwoman web, postwoman android, postwoman app for chrome, postwoman mobile app, postwoman web app, api, request, testing, tool, rest, websocket, sse, graphql, socketio",
   app: {
-    background: "#202124",
+    background: "#181818",
+    lightThemeColor: "#ffffff",
+    darkThemeColor: "#181818",
   },
   social: {
     twitter: "@hoppscotch_io",
@@ -108,7 +110,17 @@ export const META_TAGS = (env: Record<string, string>): IHTMLTag[] => [
   // PWA
   {
     name: "theme-color",
-    content: APP_INFO.app.background,
+    content: APP_INFO.app.darkThemeColor,
+    media: "(prefers-color-scheme: dark)",
+  },
+  {
+    name: "theme-color",
+    content: APP_INFO.app.lightThemeColor,
+    media: "(prefers-color-scheme: light)",
+  },
+  {
+    name: "supported-color-schemes",
+    content: "light dark",
   },
   {
     name: "mask-icon",

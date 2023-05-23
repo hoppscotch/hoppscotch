@@ -6,16 +6,19 @@
 }
 
 @mixin dark-theme {
-  --primary-color: theme('colors.neutral.900');
+  --primary-color: theme('colors.dark.800');
   --primary-light-color: theme('colors.dark.600');
   --primary-dark-color: theme('colors.neutral.800');
-  --primary-contrast-color: #161616;
+  --primary-contrast-color: theme('colors.neutral.900');
+
   --secondary-color: theme('colors.neutral.400');
   --secondary-light-color: theme('colors.neutral.500');
-  --secondary-dark-color: theme('colors.neutral.100');
+  --secondary-dark-color: theme('colors.neutral.50');
+
   --divider-color: theme('colors.neutral.800');
   --divider-light-color: theme('colors.dark.500');
   --divider-dark-color: theme('colors.dark.300');
+
   --error-color: theme('colors.stone.800');
   --tooltip-color: theme('colors.neutral.100');
   --popover-color: theme('colors.dark.700');
@@ -24,15 +27,18 @@
 
 @mixin light-theme {
   --primary-color: theme('colors.white');
-  --primary-light-color: theme('colors.neutral.50');
-  --primary-dark-color: theme('colors.neutral.100');
-  --primary-contrast-color: #fefefe;
-  --secondary-color: theme('colors.neutral.500');
-  --secondary-light-color: theme('colors.neutral.400');
-  --secondary-dark-color: theme('colors.neutral.900');
+  --primary-light-color: theme('colors.gray.50');
+  --primary-dark-color: theme('colors.gray.100');
+  --primary-contrast-color: theme('colors.light.50');
+
+  --secondary-color: theme('colors.gray.500');
+  --secondary-light-color: theme('colors.gray.400');
+  --secondary-dark-color: theme('colors.gray.900');
+
   --divider-color: theme('colors.gray.100');
-  --divider-light-color: theme('colors.neutral.100');
-  --divider-dark-color: theme('colors.neutral.300');
+  --divider-light-color: theme('colors.gray.100');
+  --divider-dark-color: theme('colors.gray.300');
+
   --error-color: theme('colors.yellow.100');
   --tooltip-color: theme('colors.neutral.800');
   --popover-color: theme('colors.white');
@@ -43,16 +49,19 @@
   --primary-color: theme('colors.dark.900');
   --primary-light-color: theme('colors.neutral.900');
   --primary-dark-color: theme('colors.dark.800');
-  --primary-contrast-color: #0e0e0e;
+  --primary-contrast-color: theme('colors.dark.900');
+
   --secondary-color: theme('colors.neutral.400');
   --secondary-light-color: theme('colors.neutral.500');
   --secondary-dark-color: theme('colors.neutral.100');
-  --divider-color: theme('colors.neutral.800');
+
+  --divider-color: theme('colors.dark.600');
   --divider-light-color: theme('colors.dark.800');
-  --divider-dark-color: theme('colors.dark.300');
+  --divider-dark-color: theme('colors.dark.200');
+
   --error-color: theme('colors.stone.900');
   --tooltip-color: theme('colors.neutral.100');
-  --popover-color: theme('colors.dark.600');
+  --popover-color: theme('colors.dark.900');
   --editor-theme: 'twilight';
 }
 
@@ -188,6 +197,67 @@
   --gradient-to-color: theme('colors.pink.600');
 }
 
+:root {
+  @include base-theme;
+  @include dark-theme;
+  @include green-theme;
+  @include dark-editor-theme;
+}
+
+:root.light {
+  @include light-theme;
+  @include light-editor-theme;
+  color-scheme: light;
+}
+
+:root.dark {
+  @include dark-theme;
+  @include dark-editor-theme;
+  color-scheme: dark;
+}
+
+:root.black {
+  @include black-theme;
+  @include black-editor-theme;
+  color-scheme: dark;
+}
+
+:root[data-accent='blue'] {
+  @include blue-theme;
+}
+
+:root[data-accent='green'] {
+  @include green-theme;
+}
+
+:root[data-accent='teal'] {
+  @include teal-theme;
+}
+
+:root[data-accent='indigo'] {
+  @include indigo-theme;
+}
+
+:root[data-accent='purple'] {
+  @include purple-theme;
+}
+
+:root[data-accent='orange'] {
+  @include orange-theme;
+}
+
+:root[data-accent='pink'] {
+  @include pink-theme;
+}
+
+:root[data-accent='red'] {
+  @include red-theme;
+}
+
+:root[data-accent='yellow'] {
+  @include yellow-theme;
+}
+
 @mixin font-small {
   --font-size-body: 0.75rem;
   --line-height-body: 1rem;
@@ -234,65 +304,6 @@
   --lower-secondary-sticky-fold: 6.063rem;
   --lower-tertiary-sticky-fold: 8.625rem;
   --sidebar-primary-sticky-fold: 2.5rem;
-}
-
-:root {
-  @include base-theme;
-  @include dark-theme;
-  @include green-theme;
-  @include dark-editor-theme;
-  @include font-medium;
-}
-
-:root.light {
-  @include light-theme;
-  @include light-editor-theme;
-}
-
-:root.dark {
-  @include dark-theme;
-  @include dark-editor-theme;
-}
-
-:root.black {
-  @include black-theme;
-  @include black-editor-theme;
-}
-
-:root[data-accent='blue'] {
-  @include blue-theme;
-}
-
-:root[data-accent='green'] {
-  @include green-theme;
-}
-
-:root[data-accent='teal'] {
-  @include teal-theme;
-}
-
-:root[data-accent='indigo'] {
-  @include indigo-theme;
-}
-
-:root[data-accent='purple'] {
-  @include purple-theme;
-}
-
-:root[data-accent='orange'] {
-  @include orange-theme;
-}
-
-:root[data-accent='pink'] {
-  @include pink-theme;
-}
-
-:root[data-accent='red'] {
-  @include red-theme;
-}
-
-:root[data-accent='yellow'] {
-  @include yellow-theme;
 }
 
 :root[data-font-size='small'] {

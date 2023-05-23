@@ -2,8 +2,8 @@ import { distinctUntilChanged, pluck } from "rxjs"
 import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
 
 type SyncState = {
-  initialSync: boolean
-  sync: boolean
+  isInitialSync: boolean
+  shouldSync: boolean
 }
 
 type CurrentSyncingState = {
@@ -12,8 +12,8 @@ type CurrentSyncingState = {
 
 const initialState: CurrentSyncingState = {
   currentSyncingItem: {
-    initialSync: false,
-    sync: false,
+    isInitialSync: false,
+    shouldSync: false,
   },
 }
 

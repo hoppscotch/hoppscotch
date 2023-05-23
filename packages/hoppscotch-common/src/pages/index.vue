@@ -87,7 +87,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, onBeforeUnmount, watch, onBeforeMount } from "vue"
+import { ref, onMounted, onBeforeUnmount, onBeforeMount } from "vue"
 import { safelyExtractRESTRequest } from "@hoppscotch/data"
 import { translateExtURLParams } from "~/helpers/RESTExtURLParams"
 import { useRoute } from "vue-router"
@@ -140,8 +140,8 @@ const toast = useToast()
 const tabs = getActiveTabs()
 
 const confirmSync = useReadonlyStream(currentSyncingStatus$, {
-  initialSync: false,
-  sync: true,
+  isInitialSync: false,
+  shouldSync: true,
 })
 const tabStateForSync = ref<PersistableRESTTabState | null>(null)
 
@@ -237,40 +237,6 @@ const onSaveModalClose = () => {
   }
 }
 
-watch(
-  () => confirmSync.value.initialSync,
-  (newValue) => {
-    if (newValue) {
-      toast.show(t("confirm.sync"), {
-        duration: 0,
-        action: [
-          {
-            text: `${t("action.yes")}`,
-            onClick: (_, toastObject) => {
-              syncTabState()
-              changeCurrentSyncStatus({
-                initialSync: true,
-                sync: true,
-              })
-              toastObject.goAway(0)
-            },
-          },
-          {
-            text: `${t("action.no")}`,
-            onClick: (_, toastObject) => {
-              changeCurrentSyncStatus({
-                initialSync: true,
-                sync: false,
-              })
-              toastObject.goAway(0)
-            },
-          },
-        ],
-      })
-    }
-  }
-)
-
 const syncTabState = () => {
   if (tabStateForSync.value) loadTabsFromPersistedState(tabStateForSync.value)
 }
@@ -309,6 +275,35 @@ function startTabStateSync(): Subscription {
   return sub
 }
 
+const showSyncToast = () => {
+  toast.show(t("confirm.sync"), {
+    duration: 0,
+    action: [
+      {
+        text: `${t("action.yes")}`,
+        onClick: (_, toastObject) => {
+          syncTabState()
+          changeCurrentSyncStatus({
+            isInitialSync: true,
+            shouldSync: true,
+          })
+          toastObject.goAway(0)
+        },
+      },
+      {
+        text: `${t("action.no")}`,
+        onClick: (_, toastObject) => {
+          changeCurrentSyncStatus({
+            isInitialSync: true,
+            shouldSync: false,
+          })
+          toastObject.goAway(0)
+        },
+      },
+    ],
+  })
+}
+
 function setupTabStateSync() {
   const route = useRoute()
 
@@ -324,11 +319,14 @@ function setupTabStateSync() {
       const tabStateFromSync =
         await platform.sync.tabState.loadTabStateFromSync()
 
-      if (tabStateFromSync && !confirmSync.value.initialSync) {
+      if (tabStateFromSync && !confirmSync.value.isInitialSync) {
         tabStateForSync.value = tabStateFromSync
+        showSyncToast()
+        // Have to set isInitialSync to true here because the toast is shown
+        // and the user does not click on any of the actions
         changeCurrentSyncStatus({
-          initialSync: true,
-          sync: false,
+          isInitialSync: true,
+          shouldSync: false,
         })
       }
     }

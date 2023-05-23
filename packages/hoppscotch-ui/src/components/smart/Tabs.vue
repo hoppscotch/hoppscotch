@@ -195,9 +195,9 @@ const selectTab = (id: string) => {
     @apply text-secondary;
     @apply font-semibold;
     @apply cursor-pointer;
-    @apply hover: text-secondaryDark;
-    @apply focus: outline-none;
-    @apply focus-visible: text-secondaryDark;
+    @apply hover:text-secondaryDark;
+    @apply focus:outline-none;
+    @apply focus-visible:text-secondaryDark;
     @apply after:absolute;
     @apply after:left-4;
     @apply after:right-4;
@@ -205,8 +205,8 @@ const selectTab = (id: string) => {
     @apply after:bg-transparent;
     @apply after:z-2;
     @apply after:h-0.5;
-    @apply after:content-DEFAULT;
-    @apply focus: after: bg-divider;
+    @apply after:content-[''];
+    @apply focus:after:bg-divider;
 
     .tab-info {
       @apply inline-flex;
@@ -215,7 +215,7 @@ const selectTab = (id: string) => {
       @apply px-1 py-0.75;
       @apply min-w-4;
       @apply ml-2;
-      @apply text-8px;
+      @apply text-[8px];
       @apply border border-divider;
       @apply rounded;
       @apply text-secondaryLight;
@@ -234,7 +234,7 @@ const selectTab = (id: string) => {
     &.vertical {
       @apply p-2;
       @apply rounded;
-      @apply focus: after: hidden;
+      @apply focus:after:hidden;
 
       &.active {
         @apply text-accent;

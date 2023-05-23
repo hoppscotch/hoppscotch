@@ -1,7 +1,24 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 * {
-  @apply backface-hidden;
-  @apply before:backface-hidden;
-  @apply after:backface-hidden;
+  backface-visibility: hidden;
+  -moz-backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+
+  &::before {
+    backface-visibility: hidden;
+    -moz-backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+
+  &::after {
+    backface-visibility: hidden;
+    -moz-backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+
   @apply selection:bg-accentDark;
   @apply selection:text-accentContrast;
 }

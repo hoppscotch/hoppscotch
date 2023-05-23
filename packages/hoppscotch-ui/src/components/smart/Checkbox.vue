@@ -47,7 +47,7 @@ const emit = defineEmits<{
     &::before {
       @apply border-2 border-divider;
       @apply rounded;
-      @apply group-hover: border-accentDark;
+      @apply group-hover:border-accentDark;
       @apply inline-flex;
       @apply items-center;
       @apply justify-center;

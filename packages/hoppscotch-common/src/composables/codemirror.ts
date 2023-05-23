@@ -187,6 +187,8 @@ export function useCodemirror(
     : null
 
   const initView = (el: any) => {
+    if (el) platform.ui?.onCodemirrorInstanceMount?.(el)
+
     const extensions = [
       basicSetup,
       baseTheme,
@@ -268,7 +270,6 @@ export function useCodemirror(
   onMounted(() => {
     if (el.value) {
       if (!view.value) initView(el.value)
-      platform.ui?.onCodemirrorInstanceMount?.(el.value)
     }
   })
 

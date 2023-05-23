@@ -2,7 +2,7 @@ import { defineConfig } from "windicss/helpers"
 
 export default defineConfig({
   extract: {
-    include: ["src/**/*.{vue,html}", "../hoppscotch-ui/src/**/*.{vue,html}"],
+    include: ["src/**/*.{vue,html}"],
   },
   theme: {
     container: {

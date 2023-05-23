@@ -1,9 +1,8 @@
 import vue from "@vitejs/plugin-vue"
-import dts from "vite-plugin-dts"
 import path from "path"
 import Icons from "unplugin-icons/vite"
 import { defineConfig } from "vite"
-import WindiCSS from "vite-plugin-windicss"
+import dts from "vite-plugin-dts"
 import { VitePluginFonts } from "vite-plugin-fonts"
 
 export default defineConfig({
@@ -12,13 +11,10 @@ export default defineConfig({
     dts({
       insertTypesEntry: true,
       skipDiagnostics: true,
-      outputDir: ['dist']
-    }),
-    WindiCSS({
-      root: path.resolve(__dirname),
+      outputDir: ["dist"],
     }),
     Icons({
-      compiler: "vue3"
+      compiler: "vue3",
     }),
     VitePluginFonts({
       google: {
@@ -45,6 +41,6 @@ export default defineConfig({
         exports: "named",
       },
     },
-    emptyOutDir: true
+    emptyOutDir: true,
   },
 })

@@ -23,6 +23,7 @@
                 v-tippy="{ theme: 'tooltip', delay: [500, 20] }"
                 :title="tab.document.request.name"
                 class="truncate px-2"
+                @dblclick="openReqRenameModal()"
               >
                 <span
                   class="font-semibold text-tiny"
@@ -61,6 +62,12 @@
         <HttpSidebar />
       </template>
     </AppPaneLayout>
+    <CollectionsEditRequest
+      :show="showRenamingReqNameModal"
+      v-model="reqName"
+      @submit="renameReqName"
+      @hide-modal="showRenamingReqNameModal = false"
+    />
     <HoppSmartConfirmModal
       :show="confirmingCloseForTabID !== null"
       :confirm="t('modal.close_unsaved_tab')"
@@ -116,6 +123,8 @@ import { oauthRedirect } from "~/helpers/oauth"
 
 const savingRequest = ref(false)
 const confirmingCloseForTabID = ref<string | null>(null)
+const showRenamingReqNameModal = ref(false)
+const reqName = ref<string>("")
 
 const t = useI18n()
 const toast = useToast()
@@ -164,6 +173,20 @@ const removeTab = (tabID: string) => {
   } else {
     closeTab(tab.value.id)
   }
+}
+
+const openReqRenameModal = () => {
+  showRenamingReqNameModal.value = true
+  reqName.value = currentActiveTab.value.document.request.name
+}
+
+const renameReqName = () => {
+  const tab = getTabRef(currentTabID.value)
+  if (tab.value) {
+    tab.value.document.request.name = reqName.value
+    updateTab(tab.value)
+  }
+  showRenamingReqNameModal.value = false
 }
 
 /**

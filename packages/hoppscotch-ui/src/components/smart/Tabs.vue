@@ -203,7 +203,7 @@ const selectTab = (id: string) => {
     @apply after:right-4;
     @apply after:bottom-0;
     @apply after:bg-transparent;
-    @apply after:z-2;
+    @apply after:z-[2];
     @apply after:h-0.5;
     @apply after:content-[''];
     @apply focus:after:bg-divider;

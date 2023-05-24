@@ -9,32 +9,6 @@ module.exports = {
       center: true,
     },
     extend: {
-      height: {
-        0.25: "0.0625rem",
-        46: "11.5rem",
-      },
-      width: {
-        0.25: "0.0625rem",
-        46: "11.5rem",
-      },
-      minWidth: {
-        4: "1rem",
-        5: "1.25rem",
-      },
-      minHeight: {
-        5: "1.25rem",
-      },
-      maxHeight: {
-        46: "11.5rem",
-      },
-      padding: {
-        0.75: "0.1875rem",
-      },
-      zIndex: {
-        2: 2,
-        12: 12,
-        14: 14,
-      },
       inset: {
         "upper-primary-sticky-fold": "var(--upper-primary-sticky-fold)",
         "upper-secondary-sticky-fold": "var(--upper-secondary-sticky-fold)",
@@ -90,6 +64,27 @@ module.exports = {
         nsResize: "ns-resize",
         grab: "grab",
         grabbing: "grabbing",
+      },
+      height: {
+        0.25: "0.0625rem",
+        46: "11.5rem",
+      },
+      width: {
+        0.25: "0.0625rem",
+        46: "11.5rem",
+      },
+      minWidth: {
+        4: "1rem",
+        5: "1.25rem",
+      },
+      minHeight: {
+        5: "1.25rem",
+      },
+      maxHeight: {
+        46: "11.5rem",
+      },
+      padding: {
+        0.75: "0.1875rem",
       },
     },
     screens: {

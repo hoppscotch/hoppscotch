@@ -1,15 +1,15 @@
 <template>
   <div
-    class="flex flex-1 h-full flex-nowrap"
-    :class="{ 'flex-col h-auto': !vertical }"
+    class="flex h-full flex-1 flex-nowrap"
+    :class="{ 'h-auto flex-col': !vertical }"
   >
     <div
-      class="relative tabs border-dividerLight"
+      class="tabs relative border-dividerLight"
       :class="[vertical ? 'border-r' : 'border-b', styles]"
     >
       <div class="flex flex-1">
         <div
-          class="flex justify-between flex-1"
+          class="flex flex-1 justify-between"
           :class="{ 'flex-col': vertical }"
         >
           <div class="flex" :class="{ 'flex-col space-y-2 p-2': vertical }">
@@ -25,7 +25,7 @@
               :class="[
                 { active: modelValue === tabID },
                 { vertical: vertical },
-                { 'opacity-75 !cursor-not-allowed': tabMeta.disabled },
+                { '!cursor-not-allowed opacity-75': tabMeta.disabled },
               ]"
               :aria-label="tabMeta.label || ''"
               :disabled="tabMeta.disabled"
@@ -47,7 +47,7 @@
               </span>
               <span
                 v-if="tabMeta.indicator"
-                class="w-1 h-1 ml-2 rounded-full bg-accentLight"
+                class="ml-2 h-1 w-1 rounded-full bg-accentLight"
               ></span>
             </button>
           </div>
@@ -58,10 +58,10 @@
       </div>
     </div>
     <div
-      class="w-full h-full contents"
+      class="contents h-full w-full"
       :class="[
         {
-          '!flex flex-col flex-1 overflow-y-auto': vertical,
+          '!flex flex-1 flex-col overflow-y-auto': vertical,
         },
         contentStyles,
       ]"
@@ -191,7 +191,7 @@ const selectTab = (id: string) => {
     @apply flex-shrink-0;
     @apply items-center;
     @apply justify-center;
-    @apply py-2 px-4;
+    @apply px-4 py-2;
     @apply text-secondary;
     @apply font-semibold;
     @apply cursor-pointer;

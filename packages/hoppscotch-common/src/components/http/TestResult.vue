@@ -206,7 +206,9 @@
       :show="showTeamEnvironmentDetailsModal"
       action="new"
       :env-vars="getAdditionVars"
-      :editing-team-id="workspace.type === 'team' ? workspace.teamID : null"
+      :editing-team-id="
+        workspace.type === 'team' ? workspace.teamID : undefined
+      "
       @hide-modal="displayModalAdd(false)"
     />
   </div>

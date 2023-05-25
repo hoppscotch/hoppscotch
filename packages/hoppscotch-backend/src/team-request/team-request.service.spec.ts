@@ -9,6 +9,7 @@ import {
   TEAM_REQ_NOT_FOUND,
   TEAM_REQ_REORDERING_FAILED,
   TEAM_COLL_NOT_FOUND,
+  JSON_INVALID,
 } from 'src/errors';
 import * as E from 'fp-ts/Either';
 import { mockDeep, mockReset } from 'jest-mock-extended';
@@ -239,7 +240,7 @@ describe('deleteTeamRequest', () => {
 });
 
 describe('createTeamRequest', () => {
-  test('rejects for invalid collection id', async () => {
+  test('should rejects for invalid collection id', async () => {
     mockTeamCollectionService.getTeamOfCollection.mockResolvedValue(
       E.left(TEAM_INVALID_COLL_ID),
     );
@@ -255,7 +256,42 @@ describe('createTeamRequest', () => {
     expect(mockPrisma.teamRequest.create).not.toHaveBeenCalled();
   });
 
-  test('resolves for valid collection id', async () => {
+  test('should rejects for invalid team ID', async () => {
+    mockTeamCollectionService.getTeamOfCollection.mockResolvedValue(
+      E.right(team),
+    );
+
+    const response = await teamRequestService.createTeamRequest(
+      'testcoll',
+      'invalidteamid',
+      'Test Request',
+      '{}',
+    );
+
+    expect(response).toEqualLeft(TEAM_INVALID_ID);
+    expect(mockPrisma.teamRequest.create).not.toHaveBeenCalled();
+  });
+
+  test('should reject for invalid request body', async () => {
+    mockTeamCollectionService.getTeamOfCollection.mockResolvedValue(
+      E.right(team),
+    );
+    teamRequestService.getRequestsCountInCollection = jest
+      .fn()
+      .mockResolvedValueOnce(0);
+
+    const response = await teamRequestService.createTeamRequest(
+      'testcoll',
+      team.id,
+      'Test Request',
+      'invalidjson',
+    );
+
+    expect(response).toEqualLeft(JSON_INVALID);
+    expect(mockPrisma.teamRequest.create).not.toHaveBeenCalled();
+  });
+
+  test('should resolves  and create team request', async () => {
     const dbRequest = dbTeamRequests[0];
     const teamRequest = teamRequests[0];
 
@@ -536,6 +572,52 @@ describe('findRequestAndNextRequest', () => {
 
     expect(result).resolves.toEqualLeft(TEAM_REQ_NOT_FOUND);
   });
+  test('should resolve left if the next request and given destCollId are different', () => {
+    const args: MoveTeamRequestArgs = {
+      srcCollID: teamRequests[0].collectionID,
+      destCollID: 'different_coll_id',
+      requestID: teamRequests[0].id,
+      nextRequestID: teamRequests[4].id,
+    };
+
+    mockPrisma.teamRequest.findFirst
+      .mockResolvedValueOnce(dbTeamRequests[0])
+      .mockResolvedValueOnce(dbTeamRequests[4]);
+
+    const result = teamRequestService.findRequestAndNextRequest(
+      args.srcCollID,
+      args.requestID,
+      args.destCollID,
+      args.nextRequestID,
+    );
+
+    expect(result).resolves.toEqualLeft(TEAM_REQ_INVALID_TARGET_COLL_ID);
+  });
+  test('should resolve left if the request and the next request are from different teams', async () => {
+    const args: MoveTeamRequestArgs = {
+      srcCollID: teamRequests[0].collectionID,
+      destCollID: teamRequests[4].collectionID,
+      requestID: teamRequests[0].id,
+      nextRequestID: teamRequests[4].id,
+    };
+
+    const request = {
+      ...dbTeamRequests[0],
+      teamID: 'different_team_id',
+    };
+    mockPrisma.teamRequest.findFirst
+      .mockResolvedValueOnce(request)
+      .mockResolvedValueOnce(dbTeamRequests[4]);
+
+    const result = await teamRequestService.findRequestAndNextRequest(
+      args.srcCollID,
+      args.requestID,
+      args.destCollID,
+      args.nextRequestID,
+    );
+
+    expect(result).toEqualLeft(TEAM_REQ_INVALID_TARGET_COLL_ID);
+  });
 });
 
 describe('moveRequest', () => {
@@ -725,13 +807,12 @@ describe('totalRequestsInATeam', () => {
     });
     expect(result).toEqual(0);
   });
+});
+describe('getTeamRequestsCount', () => {
+  test('should return count of all Team Collections in the organization', async () => {
+    mockPrisma.teamRequest.count.mockResolvedValueOnce(10);
 
-  describe('getTeamRequestsCount', () => {
-    test('should return count of all Team Collections in the organization', async () => {
-      mockPrisma.teamRequest.count.mockResolvedValueOnce(10);
-
-      const result = await teamRequestService.getTeamRequestsCount();
-      expect(result).toEqual(10);
-    });
+    const result = await teamRequestService.getTeamRequestsCount();
+    expect(result).toEqual(10);
   });
 });

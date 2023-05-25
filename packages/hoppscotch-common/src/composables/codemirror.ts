@@ -38,6 +38,7 @@ import {
   baseHighlightStyle,
 } from "@helpers/editor/themes/baseTheme"
 import { HoppEnvironmentPlugin } from "@helpers/editor/extensions/HoppEnvironment"
+import xmlFormat from "xml-formatter"
 import { platform } from "~/platform"
 // TODO: Migrate from legacy mode
 
@@ -152,6 +153,27 @@ const getLanguage = (langMime: string): Language | null => {
   return null
 }
 
+/**
+ * Uses xml-formatter to format the XML document
+ * @param doc Document to parse
+ * @param langMime Language mime type
+ * @returns Parsed document if mime type is xml, else returns the original document
+ */
+const parseDoc = (
+  doc: string | undefined,
+  langMime: string
+): string | undefined => {
+  if (langMime === "application/xml" && doc) {
+    return xmlFormat(doc, {
+      indentation: "  ",
+      collapseContent: true,
+      lineSeparator: "\n",
+    })
+  } else {
+    return doc
+  }
+}
+
 const getEditorLanguage = (
   langMime: string,
   linter: LinterDefinition | undefined,
@@ -261,7 +283,7 @@ export function useCodemirror(
     view.value = new EditorView({
       parent: el,
       state: EditorState.create({
-        doc: value.value,
+        doc: parseDoc(value.value, options.extendedEditorConfig.mode ?? ""),
         extensions,
       }),
     })

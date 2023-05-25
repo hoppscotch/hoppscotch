@@ -84,6 +84,7 @@ import { useToast } from "@composables/toast"
 import { isJSONContentType } from "~/helpers/utils/contenttypes"
 import jsonLinter from "~/helpers/editor/linting/json"
 import { readFileAsText } from "~/helpers/functional/files"
+import xmlFormat from "xml-formatter"
 
 type PossibleContentTypes = Exclude<
   ValidContentTypes,
@@ -197,26 +198,10 @@ const prettifyRequestBody = () => {
 }
 
 const prettifyXML = (xml: string) => {
-  const PADDING = " ".repeat(2) // set desired indent size here
-  const reg = /(>)(<)(\/*)/g
-  let pad = 0
-  xml = xml.replace(reg, "$1\r\n$2$3")
-  return xml
-    .split("\r\n")
-    .map((node) => {
-      let indent = 0
-      if (node.match(/.+<\/\w[^>]*>$/)) {
-        indent = 0
-      } else if (node.match(/^<\/\w/) && pad > 0) {
-        pad -= 1
-      } else if (node.match(/^<\w[^>]*[^\/]>.*$/)) {
-        indent = 1
-      } else {
-        indent = 0
-      }
-      pad += indent
-      return PADDING.repeat(pad - indent) + node
-    })
-    .join("\r\n")
+  return xmlFormat(xml, {
+    indentation: "  ",
+    collapseContent: true,
+    lineSeparator: "\n",
+  })
 }
 </script>

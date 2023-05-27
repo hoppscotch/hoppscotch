@@ -65,7 +65,7 @@
     "help": "Ayuda y comentarios",
     "home": "Inicio",
     "invite": "Invitar",
-    "invite_description": "En Hoppscotch, diseñamos una interfaz simple e intuitiva para crear y administrar sus APIs. Hoppscotch es una herramienta que le ayuda a crear, probar, documentar y compartir sus APIs.",
+    "invite_description": "En Hoppscotch, diseñamos una interfaz simple e intuitiva para crear y administrar tus APIs. Hoppscotch es una herramienta que le ayuda a crear, probar, documentar y compartir tus APIs.",
     "invite_your_friends": "Invita a tus amigos",
     "join_discord_community": "Únete a nuestra comunidad Discord",
     "keyboard_shortcuts": "Atajos de teclado",
@@ -707,7 +707,7 @@
     "select_a_team": "Seleccionar un equipo",
     "title": "Equipos",
     "we_sent_invite_link": "¡Hemos enviado un enlace de invitación a todos los invitados!",
-    "we_sent_invite_link_description": "Pide a todos los invitados que revisen su bandeja de entrada. Haz clic en el enlace para unirse al equipo."
+    "we_sent_invite_link_description": "Pide a todos los invitados que revisen tu bandeja de entrada. Haz clic en el enlace para unirse al equipo."
   },
   "team_environment": {
     "deleted": "Entorno eliminado",

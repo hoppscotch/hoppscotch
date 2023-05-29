@@ -100,7 +100,7 @@
                     <label for="displayName">
                       {{ t("settings.profile_name") }}
                     </label>
-                    <form
+                    <!-- <form
                       class="flex mt-2 md:max-w-sm"
                       @submit.prevent="updateDisplayName"
                     >
@@ -121,7 +121,23 @@
                         type="submit"
                         :loading="updatingDisplayName"
                       />
-                    </form>
+                    </form> -->
+                    <HoppSmartInput
+                      :id="displayName"
+                      v-model="displayName"
+                      :placeholder="`${t('settings.profile_name')}`"
+                      :label="t('action.save')"
+                      @submit="updateDisplayName"
+                    >
+                      <HoppButtonSecondary
+                        filled
+                        outline
+                        :label="t('action.save')"
+                        class="ml-2 min-w-16"
+                        type="submit"
+                        :loading="updatingDisplayName"
+                      />
+                    </HoppSmartInput>
                   </div>
                   <div class="py-4">
                     <label for="emailAddress">
@@ -149,6 +165,22 @@
                         :loading="updatingEmailAddress"
                       />
                     </form>
+                    <HoppSmartInput
+                      :id="emailAddress"
+                      v-model="emailAddress"
+                      :placeholder="`${t('settings.profile_name')}`"
+                      :label="t('action.save')"
+                      @submit="updateDisplayName"
+                    >
+                      <HoppButtonSecondary
+                        filled
+                        outline
+                        :label="t('action.save')"
+                        class="ml-2 min-w-16"
+                        type="submit"
+                        :loading="updatingEmailAddress"
+                      />
+                    </HoppSmartInput>
                   </div>
                 </section>
 
@@ -203,7 +235,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watchEffect, computed } from "vue"
+import { ref, watchEffect, computed, provide } from "vue"
 
 import { platform } from "~/platform"
 
@@ -220,6 +252,7 @@ import { toggleSetting } from "~/newstore/settings"
 
 import IconVerified from "~icons/lucide/verified"
 import IconSettings from "~icons/lucide/settings"
+import { HoppSmartInput } from "@hoppscotch/ui"
 
 type ProfileTabs = "sync" | "teams"
 
@@ -255,7 +288,11 @@ const displayName = ref(currentUser.value?.displayName)
 const updatingDisplayName = ref(false)
 watchEffect(() => (displayName.value = currentUser.value?.displayName))
 
+provide("input-text", displayName)
+
 const updateDisplayName = () => {
+  console.log(displayName)
+
   updatingDisplayName.value = true
   platform.auth
     .setDisplayName(displayName.value as string)
@@ -273,6 +310,8 @@ const updateDisplayName = () => {
 const emailAddress = ref(currentUser.value?.email)
 const updatingEmailAddress = ref(false)
 watchEffect(() => (emailAddress.value = currentUser.value?.email))
+
+provide("input-email", emailAddress)
 
 const updateEmailAddress = () => {
   updatingEmailAddress.value = true

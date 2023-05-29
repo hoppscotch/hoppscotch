@@ -1,5 +1,5 @@
-<template lang="">
-  <div class="flex flex-col">
+<template>
+  <div v-if="inputType == 'input'" class="flex flex-col">
     <input
       v-model="input"
       :id="id"
@@ -14,7 +14,7 @@
     <label> {{ label }}</label>
   </div>
 
-  <!-- <div>
+  <div v-if="inputType == 'input-button'">
     <form class="flex mt-2 md:max-w-sm" @submit.prevent="emit('submit')">
       <input
         :id="id"
@@ -27,7 +27,7 @@
       />
       <slot></slot>
     </form>
-  </div> -->
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -57,6 +57,8 @@ defineProps({
 
   inputType: {
     type: String,
+    default: "input",
+    required: true,
   },
 
   label: {

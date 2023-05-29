@@ -125,6 +125,7 @@
                     <HoppSmartInput
                       :id="displayName"
                       v-model="displayName"
+                      input-type="input-button"
                       :placeholder="`${t('settings.profile_name')}`"
                       :label="t('action.save')"
                       @submit="updateDisplayName"
@@ -165,7 +166,7 @@
                         :loading="updatingEmailAddress"
                       />
                     </form>
-                    <HoppSmartInput
+                    <!-- <HoppSmartInput
                       :id="emailAddress"
                       v-model="emailAddress"
                       :placeholder="`${t('settings.profile_name')}`"
@@ -180,7 +181,7 @@
                         type="submit"
                         :loading="updatingEmailAddress"
                       />
-                    </HoppSmartInput>
+                    </HoppSmartInput> -->
                   </div>
                 </section>
 

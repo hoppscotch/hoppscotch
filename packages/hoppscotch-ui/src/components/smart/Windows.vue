@@ -100,7 +100,9 @@
         </div>
       </div>
 
-      <slot name="actions" />
+      <div v-if="hasActions" class="w-64">
+        <slot name="actions" />
+      </div>
 
       <input
         type="range"
@@ -111,10 +113,10 @@
         :class="{
           '!block': scrollThumb.show,
         }"
-        :style="{
-          '--thumb-width': scrollThumb.width + 'px',
-        }"
-        style="width: calc(100% - 3rem)"
+        :style="[
+          `--thumb-width: ${scrollThumb.width}px`,
+          `width: calc(100% - ${hasActions ? '19rem' : '3rem'})`,
+        ]"
         id="myRange"
       />
     </div>
@@ -140,6 +142,7 @@ import {
   inject,
   watch,
   nextTick,
+  useSlots,
 } from "vue"
 import { useElementSize } from "@vueuse/core"
 import type { Slot } from "vue"
@@ -190,6 +193,12 @@ const emit = defineEmits<{
   (e: "removeTab", tabID: string): void
   (e: "addTab"): void
 }>()
+
+const slots = useSlots()
+
+const hasActions = computed(() => {
+  return !!slots.actions
+})
 
 const throwError = (message: string): never => {
   throw new Error(message)

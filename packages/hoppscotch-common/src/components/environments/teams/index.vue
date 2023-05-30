@@ -1,7 +1,7 @@
 <template>
   <div>
     <div
-      class="sticky z-10 flex justify-between flex-1 flex-shrink-0 overflow-x-auto border-b top-upperSecondaryStickyFold border-dividerLight bg-primary"
+      class="sticky z-10 flex justify-between flex-1 flex-shrink-0 overflow-x-auto border-b top-upperPrimaryStickyFold border-dividerLight bg-primary"
     >
       <HoppButtonSecondary
         v-if="team === undefined || team.myRole === 'VIEWER'"

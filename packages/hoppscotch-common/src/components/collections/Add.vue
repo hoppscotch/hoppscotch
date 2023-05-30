@@ -6,21 +6,18 @@
     @close="hideModal"
   >
     <template #body>
-      <div class="flex flex-col">
-        <input
-          id="selectLabelAdd"
-          v-model="name"
-          v-focus
-          class="input floating-input"
-          placeholder=" "
-          type="text"
-          autocomplete="off"
-          @keyup.enter="addNewCollection"
-        />
-        <label for="selectLabelAdd">
-          {{ t("action.label") }}
-        </label>
-      </div>
+      <HoppSmartInput
+        id="selectLabelAdd"
+        v-model="name"
+        styles="flex flex-col"
+        placeholder=" "
+        input-type="input"
+        @submit="addNewCollection"
+      >
+        <template #label>
+          <label for="selectLabelAdd"> {{ t("action.label") }} </label>
+        </template>
+      </HoppSmartInput>
     </template>
     <template #footer>
       <span class="flex space-x-2">

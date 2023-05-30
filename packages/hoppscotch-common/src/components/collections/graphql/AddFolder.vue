@@ -6,21 +6,18 @@
     @close="$emit('hide-modal')"
   >
     <template #body>
-      <div class="flex flex-col">
-        <input
-          id="selectLabelGqlAddFolder"
-          v-model="name"
-          v-focus
-          class="input floating-input"
-          placeholder=" "
-          type="text"
-          autocomplete="off"
-          @keyup.enter="addFolder"
-        />
-        <label for="selectLabelGqlAddFolder">
-          {{ t("action.label") }}
-        </label>
-      </div>
+      <HoppSmartInput
+        id="selectLabelGqlAddFolder"
+        v-model="name"
+        styles="flex flex-col"
+        placeholder=" "
+        input-type="input"
+        @submit="addFolder"
+      >
+        <template #label>
+          <label for="selectLabelGqlAddFolder"> {{ t("action.label") }} </label>
+        </template>
+      </HoppSmartInput>
     </template>
     <template #footer>
       <span class="flex space-x-2">

@@ -6,21 +6,18 @@
     @close="emit('hide-modal')"
   >
     <template #body>
-      <div class="flex flex-col">
-        <input
-          id="selectLabelEditFolder"
-          v-model="name"
-          v-focus
-          class="input floating-input"
-          placeholder=" "
-          type="text"
-          autocomplete="off"
-          @keyup.enter="editFolder"
-        />
-        <label for="selectLabelEditFolder">
-          {{ t("action.label") }}
-        </label>
-      </div>
+      <HoppSmartInput
+        id="selectLabelEditFolder"
+        v-model="name"
+        styles="flex flex-col"
+        placeholder=" "
+        input-type="input"
+        @submit="editFolder"
+      >
+        <template #label>
+          <label for="selectLabelEditFolder"> {{ t("action.label") }} </label>
+        </template>
+      </HoppSmartInput>
     </template>
     <template #footer>
       <span class="flex space-x-2">

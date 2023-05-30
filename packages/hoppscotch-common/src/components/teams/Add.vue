@@ -1,21 +1,6 @@
 <template>
   <HoppSmartModal v-if="show" dialog :title="t('team.new')" @close="hideModal">
     <template #body>
-      <!-- <div class="flex flex-col">
-        <input
-          id="selectLabelTeamAdd"
-          v-model="name"
-          v-focus
-          class="input floating-input"
-          placeholder=" "
-          type="text"
-          autocomplete="off"
-          @keyup.enter="addNewTeam"
-        />
-        <label for="selectLabelTeamAdd">
-          {{ t("action.label") }}
-        </label>
-      </div> -->
       <HoppSmartInput
         id="selectLabelTeamAdd"
         v-model="name"

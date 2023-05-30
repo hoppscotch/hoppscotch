@@ -1,16 +1,4 @@
 <template>
-  <!-- <div v-if="inputType == 'input'" class="flex flex-col">
-    <input
-      v-model="inputText"
-      v-focus
-      class="input floating-input"
-      placeholder=" "
-      type="text"
-      autocomplete="off"
-    />
-    <label> {{ label }}</label>
-  </div> -->
-
   <div :class="styles">
     <input
       :id="id"
@@ -19,8 +7,10 @@
       v-focus
       :placeholder="placeholder"
       type="text"
+      @keyup.enter="emit('submit')"
       autocomplete="off"
       required
+      :disabled="disabled"
     />
     <slot name="label"></slot>
     <slot name="button"></slot>
@@ -39,6 +29,7 @@ const props = withDefaults(
     placeholder: string
     inputType: string
     label: string
+    disabled: boolean
   }>(),
   {
     id: "",
@@ -47,6 +38,7 @@ const props = withDefaults(
     placeholder: "",
     inputType: "input",
     label: "",
+    disabled: false,
   }
 )
 

@@ -46,93 +46,138 @@
             }
           "
         />
-        <div v-if="environmentType === 'my-environments'" class="flex flex-col">
-          <hr v-if="myEnvironments.length > 0" />
-          <HoppSmartItem
-            v-for="(gen, index) in myEnvironments"
-            :key="`gen-${index}`"
-            :label="gen.name"
-            :info-icon="index === selectedEnv.index ? IconCheck : undefined"
-            :active-info-icon="index === selectedEnv.index"
-            @click="
-              () => {
-                selectedEnvironmentIndex = { type: 'MY_ENV', index: index }
-                hide()
-              }
-            "
-          />
-        </div>
-        <div v-else class="flex flex-col">
-          <div
-            v-if="teamEnvLoading"
-            class="flex flex-col items-center justify-center p-4"
+        <HoppSmartTabs
+          v-model="selectedEnvTab"
+          styles="sticky overflow-x-auto my-2 border border-divider rounded flex-shrink-0 z-0 top-0 bg-primary"
+          render-inactive-tabs
+        >
+          <HoppSmartTab
+            :id="'my-environments'"
+            :label="`${t('environment.my_environments')}`"
           >
-            <HoppSmartSpinner class="my-4" />
-            <span class="text-secondaryLight">{{ t("state.loading") }}</span>
-          </div>
-          <hr v-if="teamEnvironmentList.length > 0" />
-          <div v-if="isTeamSelected" class="flex flex-col">
             <HoppSmartItem
-              v-for="(gen, index) in teamEnvironmentList"
-              :key="`gen-team-${index}`"
-              :label="gen.environment.name"
-              :info-icon="
-                gen.id === selectedEnv.teamEnvID ? IconCheck : undefined
-              "
-              :active-info-icon="gen.id === selectedEnv.teamEnvID"
+              v-for="(gen, index) in myEnvironments"
+              :key="`gen-${index}`"
+              :label="gen.name"
+              :info-icon="index === selectedEnv.index ? IconCheck : undefined"
+              :active-info-icon="index === selectedEnv.index"
               @click="
                 () => {
-                  selectedEnvironmentIndex = {
-                    type: 'TEAM_ENV',
-                    teamEnvID: gen.id,
-                    teamID: gen.teamID,
-                    environment: gen.environment,
-                  }
+                  selectedEnvironmentIndex = { type: 'MY_ENV', index: index }
                   hide()
                 }
               "
             />
-          </div>
-          <div
-            v-if="!teamEnvLoading && isAdapterError"
-            class="flex flex-col items-center py-4"
+            <div
+              v-if="myEnvironments.length === 0"
+              class="flex flex-col items-center justify-center text-secondaryLight"
+            >
+              <img
+                :src="`/images/states/${colorMode.value}/blockchain.svg`"
+                loading="lazy"
+                class="inline-flex flex-col object-contain object-center w-16 h-16 mb-2"
+                :alt="`${t('empty.environments')}`"
+              />
+              <span class="pb-2 text-center">
+                {{ t("empty.environments") }}
+              </span>
+            </div>
+          </HoppSmartTab>
+          <HoppSmartTab
+            :id="'team-environments'"
+            :label="`${t('environment.team_environments')}`"
+            :disabled="!isTeamSelected || workspace.type === 'personal'"
           >
-            <icon-lucide-help-circle class="mb-4 svg-icons" />
-            {{ errorMessage }}
-          </div>
-        </div>
+            <div
+              v-if="teamListLoading"
+              class="flex flex-col items-center justify-center p-4"
+            >
+              <HoppSmartSpinner class="my-4" />
+              <span class="text-secondaryLight">{{ t("state.loading") }}</span>
+            </div>
+            <div v-if="isTeamSelected" class="flex flex-col">
+              <HoppSmartItem
+                v-for="(gen, index) in teamEnvironmentList"
+                :key="`gen-team-${index}`"
+                :label="gen.environment.name"
+                :info-icon="
+                  gen.id === selectedEnv.teamEnvID ? IconCheck : undefined
+                "
+                :active-info-icon="gen.id === selectedEnv.teamEnvID"
+                @click="
+                  () => {
+                    selectedEnvironmentIndex = {
+                      type: 'TEAM_ENV',
+                      teamEnvID: gen.id,
+                      teamID: gen.teamID,
+                      environment: gen.environment,
+                    }
+                    hide()
+                  }
+                "
+              />
+              <div
+                v-if="teamEnvironmentList.length === 0"
+                class="flex flex-col items-center justify-center text-secondaryLight"
+              >
+                <img
+                  :src="`/images/states/${colorMode.value}/blockchain.svg`"
+                  loading="lazy"
+                  class="inline-flex flex-col object-contain object-center w-16 h-16 mb-2"
+                  :alt="`${t('empty.environments')}`"
+                />
+                <span class="pb-2 text-center">
+                  {{ t("empty.environments") }}
+                </span>
+              </div>
+            </div>
+            <div
+              v-if="!teamListLoading && teamAdapterError"
+              class="flex flex-col items-center py-4"
+            >
+              <icon-lucide-help-circle class="mb-4 svg-icons" />
+              {{ getErrorMessage(teamAdapterError) }}
+            </div>
+          </HoppSmartTab>
+        </HoppSmartTabs>
       </div>
     </template>
   </tippy>
 </template>
 
 <script lang="ts" setup>
-import { computed, ref } from "vue"
+import { computed, ref, watch } from "vue"
 import IconCheck from "~icons/lucide/check"
 import { TippyComponent } from "vue-tippy"
 import { useI18n } from "~/composables/i18n"
 import { GQLError } from "~/helpers/backend/GQLClient"
-import { Environment } from "@hoppscotch/data"
-import { TeamEnvironment } from "~/helpers/teams/TeamEnvironment"
-import { useStream } from "~/composables/stream"
+import { useReadonlyStream, useStream } from "~/composables/stream"
 import {
+  environments$,
   selectedEnvironmentIndex$,
   setSelectedEnvironmentIndex,
 } from "~/newstore/environments"
+import { workspaceStatus$ } from "~/newstore/workspace"
+import TeamEnvironmentAdapter from "~/helpers/teams/TeamEnvironmentAdapter"
+import { useColorMode } from "@composables/theming"
 
 const t = useI18n()
 
+const colorMode = useColorMode()
+
 type EnvironmentType = "my-environments" | "team-environments"
 
-const props = defineProps<{
-  environmentType: EnvironmentType
-  myEnvironments: Environment[]
-  teamEnvironmentList: TeamEnvironment[]
-  teamEnvLoading: boolean
-  isAdapterError: boolean
-  errorMessage: GQLError<string>
-  isTeamSelected: boolean
-}>()
+const myEnvironments = useReadonlyStream(environments$, [])
+
+const workspace = useReadonlyStream(workspaceStatus$, { type: "personal" })
+
+const teamEnvListAdapter = new TeamEnvironmentAdapter(undefined)
+const teamListLoading = useReadonlyStream(teamEnvListAdapter.loading$, false)
+const teamAdapterError = useReadonlyStream(teamEnvListAdapter.error$, null)
+const teamEnvironmentList = useReadonlyStream(
+  teamEnvListAdapter.teamEnvironmentList$,
+  []
+)
 
 const selectedEnvironmentIndex = useStream(
   selectedEnvironmentIndex$,
@@ -140,15 +185,35 @@ const selectedEnvironmentIndex = useStream(
   setSelectedEnvironmentIndex
 )
 
+const isTeamSelected = computed(
+  () => workspace.value.type === "team" && workspace.value.teamID !== undefined
+)
+
+const selectedEnvTab = ref<EnvironmentType>("my-environments")
+
+watch(
+  () => workspace.value,
+  (newVal) => {
+    if (newVal.type === "personal") {
+      selectedEnvTab.value = "my-environments"
+    } else {
+      selectedEnvTab.value = "team-environments"
+      if (newVal.teamID) {
+        teamEnvListAdapter.changeTeamID(newVal.teamID)
+      }
+    }
+  }
+)
+
 const selectedEnv = computed(() => {
   if (selectedEnvironmentIndex.value.type === "MY_ENV") {
     return {
       type: "MY_ENV",
       index: selectedEnvironmentIndex.value.index,
-      name: props.myEnvironments[selectedEnvironmentIndex.value.index].name,
+      name: myEnvironments.value[selectedEnvironmentIndex.value.index].name,
     }
   } else if (selectedEnvironmentIndex.value.type === "TEAM_ENV") {
-    const teamEnv = props.teamEnvironmentList.find(
+    const teamEnv = teamEnvironmentList.value.find(
       (env) =>
         env.id ===
         (selectedEnvironmentIndex.value.type === "TEAM_ENV" &&
@@ -170,4 +235,17 @@ const selectedEnv = computed(() => {
 
 // Template refs
 const tippyActions = ref<TippyComponent | null>(null)
+
+const getErrorMessage = (err: GQLError<string>) => {
+  if (err.type === "network_error") {
+    return t("error.network_error")
+  } else {
+    switch (err.error) {
+      case "team_environment/not_found":
+        return t("team_environment.not_found")
+      default:
+        return t("error.something_went_wrong")
+    }
+  }
+}
 </script>

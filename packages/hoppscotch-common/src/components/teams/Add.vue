@@ -1,7 +1,7 @@
 <template>
   <HoppSmartModal v-if="show" dialog :title="t('team.new')" @close="hideModal">
     <template #body>
-      <div class="flex flex-col">
+      <!-- <div class="flex flex-col">
         <input
           id="selectLabelTeamAdd"
           v-model="name"
@@ -15,7 +15,20 @@
         <label for="selectLabelTeamAdd">
           {{ t("action.label") }}
         </label>
-      </div>
+      </div> -->
+      <HoppSmartInput
+        id="selectLabelTeamAdd"
+        v-model="name"
+        styles="flex flex-col"
+        label="Email Address"
+        placeholder=" "
+        input-type="input"
+        @submit="addNewTeam"
+      >
+        <template #label>
+          <label for="selectLabelTeamAdd"> {{ t("action.label") }} </label>
+        </template>
+      </HoppSmartInput>
     </template>
     <template #footer>
       <span class="flex space-x-2">

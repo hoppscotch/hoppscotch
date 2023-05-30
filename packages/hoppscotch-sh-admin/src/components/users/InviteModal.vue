@@ -9,11 +9,14 @@
       <HoppSmartInput
         id="inviteUserEmail"
         v-model="email"
+        styles="flex flex-col"
         label="Email Address"
         input-type="input"
-        @send-invite="sendInvite"
-        @click="sendInvite"
-      />
+      >
+        <template #label>
+          <label for="inviteUserEmail"> Email Address </label>
+        </template>
+      </HoppSmartInput>
     </template>
     <template #footer>
       <span class="flex space-x-2">
@@ -56,12 +59,11 @@ const emit = defineEmits<{
 
 const email = ref('');
 
-const sendInvite = (emailId: String) => {
-  if (emailId.trim() === '') {
+const sendInvite = () => {
+  if (email.value.trim() === '') {
     toast.error(`${t('users.valid_email')}`);
     return;
   }
-  email.value = emailId.toString();
   emit('send-invite', email.value);
 };
 

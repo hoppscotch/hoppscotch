@@ -1,91 +1,67 @@
 <template>
-  <div v-if="inputType == 'input'" class="flex flex-col">
+  <!-- <div v-if="inputType == 'input'" class="flex flex-col">
     <input
-      v-model="input"
-      :id="id"
+      v-model="inputText"
       v-focus
       class="input floating-input"
       placeholder=" "
       type="text"
       autocomplete="off"
-      @input.stop="onInput"
-      @keyup.enter="onInput"
     />
     <label> {{ label }}</label>
-  </div>
+  </div> -->
 
-  <div v-if="inputType == 'input-button'">
-    <form class="flex mt-2 md:max-w-sm" @submit.prevent="emit('submit')">
-      <input
-        :id="id"
-        class="input"
-        v-model="displayName"
-        :placeholder="placeholder"
-        type="text"
-        autocomplete="off"
-        required
-      />
-      <slot></slot>
-    </form>
+  <div :class="styles">
+    <input
+      :id="id"
+      :class="inputStyle"
+      v-model="inputText"
+      v-focus
+      :placeholder="placeholder"
+      type="text"
+      autocomplete="off"
+      required
+    />
+    <slot name="label"></slot>
+    <slot name="button"></slot>
   </div>
 </template>
 
 <script setup lang="ts">
-import { defineProps, ref, inject } from "vue"
+import { useVModel } from "@vueuse/core"
+import { computed, defineProps } from "vue"
 
-const displayName = inject("input-text")
-const emailAddress = inject("input-email")
-
-defineProps({
-  id: {
-    type: String,
-    default: "",
-    required: false,
-  },
-
-  name: {
-    type: String,
-    default: "",
-    required: false,
-  },
-
-  placeholder: {
-    type: String,
-    default: "",
-    required: false,
-  },
-
-  inputType: {
-    type: String,
-    default: "input",
-    required: true,
-  },
-
-  label: {
-    type: String,
-    default: "",
-    required: false,
-  },
-
-  styles: {
-    type: String,
-    default: "",
-  },
-})
-
-const input = ref("")
-
-const onInput = (e: Event) => {
-  console.log(input.value)
-
-  emit("sendInvite", input.value)
-}
+const props = withDefaults(
+  defineProps<{
+    id: string
+    styles: string
+    modelValue: string
+    placeholder: string
+    inputType: string
+    label: string
+  }>(),
+  {
+    id: "",
+    styles: "",
+    modelValue: "",
+    placeholder: "",
+    inputType: "input",
+    label: "",
+  }
+)
 
 const emit = defineEmits<{
   (e: "submit"): void
-  (e: "sendInvite", v: string): void
-  (e: "input", v: string): void
+  (e: "update:modelValue", v: string): void
 }>()
+
+const inputText = useVModel(props, "modelValue", emit)
+
+// watch(inputText, (newValue, oldValue) => console.log(newValue))
+
+const inputStyle = computed(() =>
+  props.inputType == "input-button" ? "input" : "input floating-input"
+)
 </script>
 
 <style lang=""></style>

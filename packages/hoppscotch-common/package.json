@@ -92,6 +92,7 @@
     "vuedraggable-es": "^4.1.1",
     "wonka": "^4.0.15",
     "workbox-window": "^6.5.4",
+    "xml-formatter": "^3.4.1",
     "yargs-parser": "^21.1.1"
   },
   "devDependencies": {

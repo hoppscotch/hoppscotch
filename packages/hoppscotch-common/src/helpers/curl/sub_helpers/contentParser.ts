@@ -6,6 +6,7 @@ import { pipe, flow } from "fp-ts/function"
 import { tupleToRecord } from "~/helpers/functional/record"
 import { safeParseJSON } from "~/helpers/functional/json"
 import { optionChoose } from "~/helpers/functional/option"
+import xmlFormat from "xml-formatter"
 
 const isJSON = flow(safeParseJSON, O.isSome)
 
@@ -213,45 +214,18 @@ export function parseBody(
  */
 
 /**
- * Prettifies XML string
+ * Prettifies XML string using xml-formatter
  * @param sourceXml The string to format
  * @returns Indented XML string (uses spaces)
  */
 function prettifyXml(sourceXml: string) {
   return pipe(
     O.tryCatch(() => {
-      const xmlDoc = new DOMParser().parseFromString(
-        sourceXml,
-        "application/xml"
-      )
-
-      if (xmlDoc.querySelector("parsererror")) {
-        throw new Error("Unstructured Body")
-      }
-
-      const xsltDoc = new DOMParser().parseFromString(
-        [
-          // describes how we want to modify the XML - indent everything
-          '<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">',
-          '  <xsl:strip-space elements="*"/>',
-          '  <xsl:template match="para[content-style][not(text())]">', // change to just text() to strip space in text nodes
-          '    <xsl:value-of select="normalize-space(.)"/>',
-          "  </xsl:template>",
-          '  <xsl:template match="node()|@*">',
-          '    <xsl:copy><xsl:apply-templates select="node()|@*"/></xsl:copy>',
-          "  </xsl:template>",
-          '  <xsl:output indent="yes"/>',
-          "</xsl:stylesheet>",
-        ].join("\n"),
-        "application/xml"
-      )
-
-      const xsltProcessor = new XSLTProcessor()
-      xsltProcessor.importStylesheet(xsltDoc)
-      const resultDoc = xsltProcessor.transformToDocument(xmlDoc)
-      const resultXml = new XMLSerializer().serializeToString(resultDoc)
-
-      return resultXml
+      return xmlFormat(sourceXml, {
+        indentation: "  ",
+        collapseContent: true,
+        lineSeparator: "\n",
+      })
     })
   )
 }

@@ -432,6 +432,7 @@
     "view_my_links": "View my links"
   },
   "response": {
+    "audio": "Audio",
     "body": "Reactie inhoud",
     "filter_response_body": "Filter JSON response body (uses JSONPath syntax)",
     "headers": "Headers",
@@ -445,6 +446,7 @@
     "status": "Status",
     "time": "Tijd",
     "title": "Antwoord",
+    "video": "Video",
     "waiting_for_connection": "wachten op verbinding",
     "xml": "XML"
   },

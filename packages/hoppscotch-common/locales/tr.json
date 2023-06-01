@@ -432,6 +432,7 @@
     "view_my_links": "View my links"
   },
   "response": {
+    "audio": "Audio",
     "body": "Yanıt gövdesi",
     "filter_response_body": "Filter JSON response body (uses JSONPath syntax)",
     "headers": "Başlıklar",
@@ -445,6 +446,7 @@
     "status": "Durum",
     "time": "Zaman",
     "title": "Cevap",
+    "video": "Video",
     "waiting_for_connection": "Bağlantı için bekleniyor",
     "xml": "XML"
   },

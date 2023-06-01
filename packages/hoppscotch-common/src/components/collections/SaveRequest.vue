@@ -8,21 +8,18 @@
   >
     <template #body>
       <div class="flex flex-col">
-        <div class="relative flex">
-          <input
-            id="selectLabelSaveReq"
-            v-model="requestName"
-            v-focus
-            class="input floating-input"
-            placeholder=" "
-            type="text"
-            autocomplete="off"
-            @keyup.enter="saveRequestAs"
-          />
-          <label for="selectLabelSaveReq">
-            {{ t("request.name") }}
-          </label>
-        </div>
+        <HoppSmartInput
+          id="selectLabelSaveReq"
+          v-model="requestName"
+          styles="relative flex"
+          placeholder=" "
+          input-styles="input floating-input"
+          @submit="saveRequestAs"
+        >
+          <template #label>
+            <label for="selectLabelSaveReq"> {{ t("request.name") }} </label>
+          </template>
+        </HoppSmartInput>
         <label class="p-4">
           {{ t("collection.select_location") }}
         </label>

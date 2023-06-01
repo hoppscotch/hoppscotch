@@ -18,18 +18,17 @@
             @input="(email: string) => getOwnerEmail(email)"
           />
         </div>
-        <div class="flex flex-col">
-          <label for="teamName" class="py-2">{{ t('teams.name') }} </label>
-          <input
-            id="teamName"
-            v-model="teamName"
-            v-focus
-            class="input relative"
-            placeholder=""
-            type="email"
-            autocomplete="off"
-          />
-        </div>
+        <HoppSmartInput
+          id="teamName"
+          v-model="teamName"
+          styles="flex flex-col"
+          placeholder=" "
+          input-styles="input floating-input"
+        >
+          <template #label>
+            <label for="teamName"> {{ t('teams.name') }} </label>
+          </template>
+        </HoppSmartInput>
       </div>
     </template>
     <template #footer>

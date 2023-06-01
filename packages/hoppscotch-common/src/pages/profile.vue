@@ -100,29 +100,6 @@
                     <label for="displayName">
                       {{ t("settings.profile_name") }}
                     </label>
-                    <!-- <form
-                      class="flex mt-2 md:max-w-sm"
-                      @submit.prevent="updateDisplayName"
-                    >
-                      <input
-                        id="displayName"
-                        v-model="displayName"
-                        class="input"
-                        :placeholder="`${t('settings.profile_name')}`"
-                        type="text"
-                        autocomplete="off"
-                        required
-                      />
-                      <HoppButtonSecondary
-                        filled
-                        outline
-                        :label="t('action.save')"
-                        class="ml-2 min-w-16"
-                        type="submit"
-                        :loading="updatingDisplayName"
-                      />
-                    </form> -->
-
                     <HoppSmartInput
                       :id="displayName"
                       v-model="displayName"
@@ -148,29 +125,6 @@
                     <label for="emailAddress">
                       {{ t("settings.profile_email") }}
                     </label>
-                    <!-- <form
-                      class="flex mt-2 md:max-w-sm"
-                      @submit.prevent="updateEmailAddress"
-                    >
-                      <input
-                        id="emailAddress"
-                        v-model="emailAddress"
-                        class="input"
-                        :placeholder="`${t('settings.profile_name')}`"
-                        type="email"
-                        autocomplete="off"
-                        required
-                      />
-                      <HoppButtonSecondary
-                        filled
-                        outline
-                        :label="t('action.save')"
-                        class="ml-2 min-w-16"
-                        type="submit"
-                        :loading="updatingEmailAddress"
-                      />
-                    </form> -->
-
                     <HoppSmartInput
                       :id="emailAddress"
                       v-model="emailAddress"

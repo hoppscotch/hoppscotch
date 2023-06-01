@@ -6,21 +6,18 @@
     @close="hideModal"
   >
     <template #body>
-      <div class="flex flex-col">
-        <input
-          id="selectLabelGqlEditReq"
-          v-model="requestUpdateData.name"
-          v-focus
-          class="input floating-input"
-          placeholder=" "
-          type="text"
-          autocomplete="off"
-          @keyup.enter="saveRequest"
-        />
-        <label for="selectLabelGqlEditReq">
-          {{ t("action.label") }}
-        </label>
-      </div>
+      <HoppSmartInput
+        id="selectLabelGqlEditReq"
+        v-model="requestUpdateData.name"
+        styles="flex flex-col"
+        placeholder=" "
+        input-styles="input floating-input"
+        @submit="saveRequest"
+      >
+        <template #label>
+          <label for="selectLabelGqlEditReq"> {{ t("action.label") }} </label>
+        </template>
+      </HoppSmartInput>
     </template>
     <template #footer>
       <span class="flex space-x-2">

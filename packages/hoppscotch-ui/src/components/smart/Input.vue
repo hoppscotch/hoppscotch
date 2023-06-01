@@ -2,11 +2,11 @@
   <div :class="styles">
     <input
       :id="id"
-      :class="inputStyle"
+      :class="inputStyles"
       v-model="inputText"
       v-focus
       :placeholder="placeholder"
-      type="text"
+      :type="type"
       @keyup.enter="emit('submit')"
       autocomplete="off"
       required
@@ -19,7 +19,7 @@
 
 <script setup lang="ts">
 import { useVModel } from "@vueuse/core"
-import { computed, defineProps } from "vue"
+import { defineProps } from "vue"
 
 const props = withDefaults(
   defineProps<{
@@ -27,7 +27,9 @@ const props = withDefaults(
     styles: string
     modelValue: string
     placeholder: string
+    inputStyles: string
     inputType: string
+    type: string
     label: string
     disabled: boolean
   }>(),
@@ -36,7 +38,9 @@ const props = withDefaults(
     styles: "",
     modelValue: "",
     placeholder: "",
+    inputStyles: "",
     inputType: "input",
+    type: "text",
     label: "",
     disabled: false,
   }
@@ -51,9 +55,9 @@ const inputText = useVModel(props, "modelValue", emit)
 
 // watch(inputText, (newValue, oldValue) => console.log(newValue))
 
-const inputStyle = computed(() =>
-  props.inputType == "input-button" ? "input" : "input floating-input"
-)
+// const inputStyle = computed(() =>
+//   props.inputType == "input-button" ? "input" : "input floating-input"
+// )
 </script>
 
 <style lang=""></style>

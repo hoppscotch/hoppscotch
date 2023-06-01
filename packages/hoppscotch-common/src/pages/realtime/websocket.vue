@@ -4,7 +4,7 @@
       <div
         class="sticky top-0 z-10 flex flex-shrink-0 p-4 space-x-2 overflow-x-auto bg-primary"
       >
-        <div class="inline-flex flex-1 space-x-2">
+        <!-- <div class="inline-flex flex-1 space-x-2">
           <input
             id="websocket-url"
             v-model="url"
@@ -35,7 +35,38 @@
             :loading="connectionState === 'CONNECTING'"
             @click="toggleConnection"
           />
-        </div>
+        </div> -->
+        <HoppSmartInput
+          id="websocket-url"
+          v-model="url"
+          type="url"
+          styles="inline-flex flex-1 space-x-2"
+          input-styles="w-full px-4 py-2 border rounded bg-primaryLight border-divider text-secondaryDark"
+          input-type="input-button"
+          :placeholder="`${t('websocket.url')}`"
+          :disabled="
+            connectionState === 'CONNECTED' || connectionState === 'CONNECTING'
+          "
+          @submit="isUrlValid ? toggleConnection() : null"
+        >
+          <template #button>
+            <HoppButtonPrimary
+              id="connect"
+              :disabled="!isUrlValid"
+              class="w-32"
+              name="connect"
+              :label="
+                connectionState === 'CONNECTING'
+                  ? t('action.connecting')
+                  : connectionState === 'DISCONNECTED'
+                  ? t('action.connect')
+                  : t('action.disconnect')
+              "
+              :loading="connectionState === 'CONNECTING'"
+              @click="toggleConnection"
+            />
+          </template>
+        </HoppSmartInput>
       </div>
       <HoppSmartTabs
         v-model="selectedTab"

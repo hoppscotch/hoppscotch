@@ -7,7 +7,7 @@
   >
     <template #body>
       <div class="flex flex-col px-2">
-        <div class="relative flex">
+        <!-- <div class="relative flex">
           <input
             id="selectLabelEnvEdit"
             v-model="name"
@@ -23,7 +23,20 @@
           <label for="selectLabelEnvEdit">
             {{ t("action.label") }}
           </label>
-        </div>
+        </div> -->
+        <HoppSmartInput
+          id="selectLabelEnvEdit"
+          v-model="name"
+          styles="relative flex"
+          placeholder=" "
+          input-styles="input floating-input"
+          :disabled="isViewer"
+          @submit="saveEnvironment"
+        >
+          <template #label>
+            <label for="selectLabelEnvEdit"> {{ t("action.label") }} </label>
+          </template>
+        </HoppSmartInput>
         <div class="flex items-center justify-between flex-1">
           <label for="variableList" class="p-4">
             {{ t("environment.variable_list") }}

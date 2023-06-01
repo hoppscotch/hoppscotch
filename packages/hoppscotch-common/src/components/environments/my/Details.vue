@@ -7,22 +7,19 @@
   >
     <template #body>
       <div class="flex flex-col">
-        <div class="relative flex">
-          <input
-            id="selectLabelEnvEdit"
-            v-model="name"
-            v-focus
-            class="input floating-input"
-            placeholder=" "
-            type="text"
-            autocomplete="off"
-            :disabled="editingEnvironmentIndex === 'Global'"
-            @keyup.enter="saveEnvironment"
-          />
-          <label for="selectLabelEnvEdit">
-            {{ t("action.label") }}
-          </label>
-        </div>
+        <HoppSmartInput
+          id="selectLabelEnvEdit"
+          v-model="name"
+          styles="relative flex"
+          placeholder=" "
+          input-styles="input floating-input"
+          :disabled="editingEnvironmentIndex === 'Global'"
+          @submit="saveEnvironment"
+        >
+          <template #label>
+            <label for="selectLabelEnvEdit"> {{ t("action.label") }} </label>
+          </template>
+        </HoppSmartInput>
         <div class="flex items-center justify-between flex-1">
           <label for="variableList" class="p-4">
             {{ t("environment.variable_list") }}

@@ -2,27 +2,12 @@
   <HoppSmartModal v-if="show" dialog :title="t('team.edit')" @close="hideModal">
     <template #body>
       <div class="flex flex-col">
-        <!-- <div class="relative flex">
-          <input
-            id="selectLabelTeamEdit"
-            v-model="name"
-            v-focus
-            class="input floating-input"
-            placeholder=" "
-            type="text"
-            autocomplete="off"
-            @keyup.enter="saveTeam"
-          />
-          <label for="selectLabelTeamEdit">
-            {{ t("action.label") }}
-          </label>
-        </div> -->
         <HoppSmartInput
           id="selectLabelTeamEdit"
           v-model="name"
           styles="relative flex"
           placeholder=" "
-          input-type="input"
+          input-styles="input floating-input"
           @submit="saveTeam"
         >
           <template #label>

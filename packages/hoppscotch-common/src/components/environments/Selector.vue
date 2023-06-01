@@ -11,13 +11,14 @@
       class="bg-transparent border-b border-dividerLight select-wrapper"
     >
       <HoppButtonSecondary
-        v-if="selectedEnv.type !== 'NO_ENV_SELECTED'"
-        :label="selectedEnv.name"
-        class="flex-1 !justify-start pr-8 rounded-none"
-      />
-      <HoppButtonSecondary
-        v-else
-        :label="`${t('environment.select')}`"
+        :icon="IconLayers"
+        :label="
+          mdAndLarger
+            ? selectedEnv.type !== 'NO_ENV_SELECTED'
+              ? selectedEnv.name
+              : `${t('environment.select')}`
+            : ''
+        "
         class="flex-1 !justify-start pr-8 rounded-none"
       />
     </span>
@@ -58,6 +59,7 @@
             <HoppSmartItem
               v-for="(gen, index) in myEnvironments"
               :key="`gen-${index}`"
+              :icon="IconLayers"
               :label="gen.name"
               :info-icon="index === selectedEnv.index ? IconCheck : undefined"
               :active-info-icon="index === selectedEnv.index"
@@ -99,6 +101,7 @@
               <HoppSmartItem
                 v-for="(gen, index) in teamEnvironmentList"
                 :key="`gen-team-${index}`"
+                :icon="IconLayers"
                 :label="gen.environment.name"
                 :info-icon="
                   gen.id === selectedEnv.teamEnvID ? IconCheck : undefined
@@ -148,6 +151,7 @@
 <script lang="ts" setup>
 import { computed, ref, watch } from "vue"
 import IconCheck from "~icons/lucide/check"
+import IconLayers from "~icons/lucide/layers"
 import { TippyComponent } from "vue-tippy"
 import { useI18n } from "~/composables/i18n"
 import { GQLError } from "~/helpers/backend/GQLClient"
@@ -160,6 +164,10 @@ import {
 import { workspaceStatus$ } from "~/newstore/workspace"
 import TeamEnvironmentAdapter from "~/helpers/teams/TeamEnvironmentAdapter"
 import { useColorMode } from "@composables/theming"
+import { breakpointsTailwind, useBreakpoints } from "@vueuse/core"
+
+const breakpoints = useBreakpoints(breakpointsTailwind)
+const mdAndLarger = breakpoints.greater("md")
 
 const t = useI18n()
 

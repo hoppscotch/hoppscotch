@@ -7,7 +7,7 @@
         styles="flex flex-col"
         label="Email Address"
         placeholder=" "
-        input-type="input"
+        input-styles="input floating-input"
         @submit="addNewTeam"
       >
         <template #label>

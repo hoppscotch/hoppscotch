@@ -104,7 +104,7 @@
                       :id="displayName"
                       v-model="displayName"
                       styles="flex mt-2 md:max-w-sm"
-                      input-type="input-button"
+                      input-styles="input"
                       :placeholder="`${t('settings.profile_name')}`"
                       :label="t('action.save')"
                     >
@@ -129,7 +129,7 @@
                       :id="emailAddress"
                       v-model="emailAddress"
                       styles="flex mt-2 md:max-w-sm"
-                      input-type="input-button"
+                      input-styles="input"
                       :placeholder="`${t('settings.profile_name')}`"
                       :label="t('action.save')"
                     >
@@ -215,7 +215,6 @@ import { toggleSetting } from "~/newstore/settings"
 
 import IconVerified from "~icons/lucide/verified"
 import IconSettings from "~icons/lucide/settings"
-import { HoppSmartInput } from "@hoppscotch/ui"
 
 type ProfileTabs = "sync" | "teams"
 

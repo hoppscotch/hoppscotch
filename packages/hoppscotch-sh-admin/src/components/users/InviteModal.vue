@@ -11,7 +11,7 @@
         v-model="email"
         styles="flex flex-col"
         label="Email Address"
-        input-type="input"
+        input-styles="input floating-input"
       >
         <template #label>
           <label for="inviteUserEmail"> Email Address </label>
@@ -32,7 +32,6 @@
 </template>
 
 <script setup lang="ts">
-import { HoppSmartInput } from '@hoppscotch/ui';
 import { ref } from 'vue';
 import { useToast } from '~/composables/toast';
 import { useI18n } from '~/composables/i18n';

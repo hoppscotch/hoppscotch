@@ -198,7 +198,7 @@
                 v-model="PROXY_URL"
                 styles="relative flex flex-col flex-1"
                 placeholder=" "
-                input-type="input"
+                input-styles="input floating-input"
                 :disabled="!PROXY_ENABLED"
               >
                 <template #label>

@@ -11,7 +11,7 @@
         v-model="name"
         styles="flex flex-col"
         placeholder=" "
-        input-type="input"
+        input-styles="input floating-input"
         @submit="editRequest"
       >
         <template #label>

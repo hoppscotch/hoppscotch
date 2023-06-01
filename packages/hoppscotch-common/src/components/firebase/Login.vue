@@ -43,7 +43,7 @@
           type="email"
           styles="flex flex-col"
           placeholder=" "
-          input-type="input"
+          input-styles="input floating-input"
         >
           <template #label>
             <label for="email"> {{ t("auth.email") }} </label>

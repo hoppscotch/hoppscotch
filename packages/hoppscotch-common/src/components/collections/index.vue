@@ -126,7 +126,7 @@
     />
     <CollectionsEditRequest
       :show="showModalEditRequest"
-      v-bind:model-value="editingRequest ? editingRequest.name : ''"
+      :model-value="editingRequest ? editingRequest.name : ''"
       :loading-state="modalLoadingState"
       @submit="updateEditingRequest"
       @hide-modal="displayModalEditRequest(false)"

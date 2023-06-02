@@ -100,7 +100,7 @@
         </div>
       </div>
 
-      <div v-if="hasActions" class="w-64">
+      <div v-if="hasActions" :class="mdAndLarger ? 'w-64' : 'w-16'">
         <slot name="actions" />
       </div>
 
@@ -115,7 +115,7 @@
         }"
         :style="[
           `--thumb-width: ${scrollThumb.width}px`,
-          `width: calc(100% - ${hasActions ? '19rem' : '3rem'})`,
+          `width: calc(100% - ${hasActions ? mdAndLarger ? '19rem' : '7rem' : '3rem'})`,
         ]"
         id="myRange"
       />
@@ -144,7 +144,7 @@ import {
   nextTick,
   useSlots,
 } from "vue"
-import { useElementSize } from "@vueuse/core"
+import { breakpointsTailwind, useBreakpoints, useElementSize } from "@vueuse/core"
 import type { Slot } from "vue"
 import draggable from "vuedraggable-es"
 import { HoppUIPluginOptions, HOPP_UI_OPTIONS } from "./../../index"
@@ -166,6 +166,9 @@ export type TabProvider = {
   updateTabEntry: (tabID: string, newMeta: TabMeta) => void
   removeTabEntry: (tabID: string) => void
 }
+
+const breakpoints = useBreakpoints(breakpointsTailwind)
+const mdAndLarger = breakpoints.greater("md")
 
 const { t } = inject<HoppUIPluginOptions>(HOPP_UI_OPTIONS) ?? {}
 

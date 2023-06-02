@@ -197,9 +197,18 @@
       />
     </div>
     <EnvironmentsMyDetails
-      :show="showModalDetails"
+      :show="showMyEnvironmentDetailsModal"
       action="new"
       :env-vars="getAdditionVars"
+      @hide-modal="displayModalAdd(false)"
+    />
+    <EnvironmentsTeamsDetails
+      :show="showTeamEnvironmentDetailsModal"
+      action="new"
+      :env-vars="getAdditionVars"
+      :editing-team-id="
+        workspace.type === 'team' ? workspace.teamID : undefined
+      "
       @hide-modal="displayModalAdd(false)"
     />
   </div>
@@ -225,6 +234,7 @@ import IconClose from "~icons/lucide/x"
 
 import { useColorMode } from "~/composables/theming"
 import { useVModel } from "@vueuse/core"
+import { workspaceStatus$ } from "~/newstore/workspace"
 
 const props = defineProps<{
   modelValue: HoppTestResult | null | undefined
@@ -239,10 +249,15 @@ const testResults = useVModel(props, "modelValue", emit)
 const t = useI18n()
 const colorMode = useColorMode()
 
-const showModalDetails = ref(false)
+const workspace = useReadonlyStream(workspaceStatus$, { type: "personal" })
+
+const showMyEnvironmentDetailsModal = ref(false)
+const showTeamEnvironmentDetailsModal = ref(false)
 
 const displayModalAdd = (shouldDisplay: boolean) => {
-  showModalDetails.value = shouldDisplay
+  if (workspace.value.type === "personal")
+    showMyEnvironmentDetailsModal.value = shouldDisplay
+  else showTeamEnvironmentDetailsModal.value = shouldDisplay
 }
 
 /**

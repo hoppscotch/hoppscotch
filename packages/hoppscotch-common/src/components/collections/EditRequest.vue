@@ -42,9 +42,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from "vue"
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
+import { useVModel } from "@vueuse/core"
 
 const toast = useToast()
 const t = useI18n()
@@ -53,28 +53,22 @@ const props = withDefaults(
   defineProps<{
     show: boolean
     loadingState: boolean
-    editingRequestName: string
+    modelValue?: string
   }>(),
   {
     show: false,
     loadingState: false,
-    editingRequestName: "",
+    modelValue: "",
   }
 )
 
 const emit = defineEmits<{
   (e: "submit", name: string): void
   (e: "hide-modal"): void
+  (e: "update:modelValue", value: string): void
 }>()
 
-const name = ref("")
-
-watch(
-  () => props.editingRequestName,
-  (newName) => {
-    name.value = newName
-  }
-)
+const name = useVModel(props, "modelValue")
 
 const editRequest = () => {
   if (name.value.trim() === "") {

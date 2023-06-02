@@ -207,16 +207,19 @@
 :root.light {
   @include light-theme;
   @include light-editor-theme;
+  color-scheme: light;
 }
 
 :root.dark {
   @include dark-theme;
   @include dark-editor-theme;
+  color-scheme: dark;
 }
 
 :root.black {
   @include black-theme;
   @include black-editor-theme;
+  color-scheme: dark;
 }
 
 :root[data-accent="blue"] {

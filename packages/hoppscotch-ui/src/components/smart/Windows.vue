@@ -100,7 +100,9 @@
         </div>
       </div>
 
-      <slot name="actions" />
+      <div v-if="hasActions" :class="mdAndLarger ? 'w-64' : 'w-16'">
+        <slot name="actions" />
+      </div>
 
       <input
         type="range"
@@ -111,10 +113,10 @@
         :class="{
           '!block': scrollThumb.show,
         }"
-        :style="{
-          '--thumb-width': scrollThumb.width + 'px',
-        }"
-        style="width: calc(100% - 3rem)"
+        :style="[
+          `--thumb-width: ${scrollThumb.width}px`,
+          `width: calc(100% - ${hasActions ? mdAndLarger ? '19rem' : '7rem' : '3rem'})`,
+        ]"
         id="myRange"
       />
     </div>
@@ -140,8 +142,9 @@ import {
   inject,
   watch,
   nextTick,
+  useSlots,
 } from "vue"
-import { useElementSize } from "@vueuse/core"
+import { breakpointsTailwind, useBreakpoints, useElementSize } from "@vueuse/core"
 import type { Slot } from "vue"
 import draggable from "vuedraggable-es"
 import { HoppUIPluginOptions, HOPP_UI_OPTIONS } from "./../../index"
@@ -163,6 +166,9 @@ export type TabProvider = {
   updateTabEntry: (tabID: string, newMeta: TabMeta) => void
   removeTabEntry: (tabID: string) => void
 }
+
+const breakpoints = useBreakpoints(breakpointsTailwind)
+const mdAndLarger = breakpoints.greater("md")
 
 const { t } = inject<HoppUIPluginOptions>(HOPP_UI_OPTIONS) ?? {}
 
@@ -190,6 +196,12 @@ const emit = defineEmits<{
   (e: "removeTab", tabID: string): void
   (e: "addTab"): void
 }>()
+
+const slots = useSlots()
+
+const hasActions = computed(() => {
+  return !!slots.actions
+})
 
 const throwError = (message: string): never => {
   throw new Error(message)

@@ -66,8 +66,8 @@
       </template>
     </AppPaneLayout>
     <CollectionsEditRequest
-      :show="showRenamingReqNameModal"
       v-model="reqName"
+      :show="showRenamingReqNameModal"
       @submit="renameReqName"
       @hide-modal="showRenamingReqNameModal = false"
     />

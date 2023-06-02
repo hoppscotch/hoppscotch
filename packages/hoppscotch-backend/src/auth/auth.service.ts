@@ -228,12 +228,16 @@ export class AuthService {
         url = process.env.VITE_BASE_URL;
     }
 
+    let email_data: any = {
+      inviteeEmail: email,
+      magicLink: `${url}/enter?token=${generatedTokens.token}`,
+    }
+
+    console.log('Magiclink created, use the link to login: '+email_data.magicLink);
+
     await this.mailerService.sendAuthEmail(email, {
       template: 'code-your-own',
-      variables: {
-        inviteeEmail: email,
-        magicLink: `${url}/enter?token=${generatedTokens.token}`,
-      },
+      variables: email_data,
     });
 
     return E.right(<DeviceIdentifierToken>{

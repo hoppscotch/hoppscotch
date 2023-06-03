@@ -14,7 +14,7 @@ ENV NODE_VERSION=18.16.0
 ENV PATH="/root/.nvm/versions/node/v${NODE_VERSION}/bin/:${PATH}"
 ENV NVM_DIR=/root/.nvm
 RUN echo "**** install node family ****" && \
-    apt update && apt install -y debian-keyring debian-archive-keyring apt-transport-https pwgen python3-pip && \
+    apt update && apt install -y debian-keyring debian-archive-keyring apt-transport-https && \
     curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash  && \
     . "$NVM_DIR/nvm.sh" && nvm install ${NODE_VERSION} && \
     nvm use v${NODE_VERSION} && nvm alias default v${NODE_VERSION} && \
@@ -46,9 +46,6 @@ RUN echo "**** install hoppscoth ****" && \
     /tmp/hoppscotch.tar.gz -C \
     /app/ --strip-components=1
 
-# If you want to build a local version
-# COPY . /app
-
 WORKDIR /app
 RUN echo "**** install app ****" && \
       cp .env.example .env && \
@@ -61,7 +58,4 @@ RUN echo "**** cleanup ****" && \
     /var/lib/apt/lists/* \
     /var/tmp/*
 
-COPY .docker/ /
-
-EXPOSE 80
 VOLUME /config

@@ -95,7 +95,9 @@ export class UserRequestService {
    * @param user User who owns the collection
    * @returns Number of requests in the collection
    */
-  getRequestsCountInCollection(collectionID: string): Promise<number> {
+  private async getRequestsCountInCollection(
+    collectionID: string,
+  ): Promise<number> {
     return this.prisma.userRequest.count({
       where: { collectionID },
     });

@@ -11,6 +11,7 @@
       :src="url"
       :alt="alt"
       loading="lazy"
+      referrerpolicy="no-referrer"
     />
     <div
       v-else
@@ -21,8 +22,7 @@
       <template v-if="initial && initial.charAt(0).toUpperCase()">
         {{ initial.charAt(0).toUpperCase() }}
       </template>
-
-      <icon-lucide-user v-else></icon-lucide-user>
+      <icon-lucide-user v-else />
     </div>
     <span
       v-if="indicator"

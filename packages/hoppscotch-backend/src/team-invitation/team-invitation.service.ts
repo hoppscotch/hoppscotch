@@ -126,7 +126,7 @@ export class TeamInvitationService {
             template: 'team-invitation',
             variables: {
               invitee: creator.displayName ?? 'A Hoppscotch User',
-              action_url: `https://hoppscotch.io/join-team?id=${invitation.id}`,
+              action_url: `${process.env.VITE_BASE_URL}/join-team?id=${invitation.id}`,
               invite_team_name: team.name,
             },
           }),

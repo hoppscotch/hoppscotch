@@ -150,20 +150,54 @@ export default defineConfig({
         short_name: APP_INFO.name,
         description: APP_INFO.shortDescription,
         start_url: "/?source=pwa",
+        id: "/?source=pwa",
+        protocol_handlers: [
+          {
+            protocol: "web+hoppscotch",
+            url: "/%s",
+          },
+          {
+            protocol: "web+hopp",
+            url: "/%s",
+          },
+        ],
         background_color: APP_INFO.app.background,
         theme_color: APP_INFO.app.background,
         icons: [
           {
-            src: "/icon.png",
-            sizes: "512x512",
+            src: "/icons/pwa-16x16.png",
+            sizes: "16x16",
             type: "image/png",
-            purpose: "any maskable",
           },
           {
-            src: "/logo.svg",
-            sizes: "48x48 72x72 96x96 128x128 256x256 512x512",
-            type: "image/svg+xml",
-            purpose: "any maskable",
+            src: "/icons/pwa-32x32.png",
+            sizes: "32x32",
+            type: "image/png",
+          },
+          {
+            src: "/icons/pwa-128x128.png",
+            sizes: "128x128",
+            type: "image/png",
+          },
+          {
+            src: "/icons/pwa-192x192.png",
+            sizes: "192x192",
+            type: "image/png",
+          },
+          {
+            src: "/icons/pwa-256x256.png",
+            sizes: "256x256",
+            type: "image/png",
+          },
+          {
+            src: "/icons/pwa-512x512.png",
+            sizes: "512x512",
+            type: "image/png",
+          },
+          {
+            src: "/icons/pwa-1024x1024.png",
+            sizes: "1024x1024",
+            type: "image/png",
           },
         ],
       },

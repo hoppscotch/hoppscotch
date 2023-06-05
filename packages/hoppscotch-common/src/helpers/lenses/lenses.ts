@@ -5,6 +5,8 @@ import imageLens from "./imageLens"
 import htmlLens from "./htmlLens"
 import xmlLens from "./xmlLens"
 import pdfLens from "./pdfLens"
+import audioLens from "./audioLens"
+import videoLens from "./videoLens"
 import { defineAsyncComponent } from "vue"
 
 export type Lens = {
@@ -20,6 +22,8 @@ export const lenses: Lens[] = [
   htmlLens,
   xmlLens,
   pdfLens,
+  audioLens,
+  videoLens,
   rawLens,
 ]
 

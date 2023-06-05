@@ -360,13 +360,15 @@ describe('UserHistoryService', () => {
   });
   describe('removeRequestFromHistory', () => {
     test('Should resolve right and delete request from users history', async () => {
+      const executedOn = new Date();
+
       mockPrisma.userHistory.delete.mockResolvedValueOnce({
         userUid: 'abc',
         id: '1',
         request: [{}],
         responseMetadata: [{}],
         reqType: ReqType.REST,
-        executedOn: new Date(),
+        executedOn: executedOn,
         isStarred: false,
       });
 
@@ -376,7 +378,7 @@ describe('UserHistoryService', () => {
         request: JSON.stringify([{}]),
         responseMetadata: JSON.stringify([{}]),
         reqType: ReqType.REST,
-        executedOn: new Date(),
+        executedOn: executedOn,
         isStarred: false,
       };
 
@@ -384,7 +386,7 @@ describe('UserHistoryService', () => {
         await userHistoryService.removeRequestFromHistory('abc', '1'),
       ).toEqualRight(userHistory);
     });
-    test('Should resolve left and error out when req id is invalid ', async () => {
+    test('Should resolve left and error out when req id is invalid', async () => {
       mockPrisma.userHistory.delete.mockResolvedValueOnce(null);
 
       return expect(

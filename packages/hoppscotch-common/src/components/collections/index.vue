@@ -126,7 +126,7 @@
     />
     <CollectionsEditRequest
       :show="showModalEditRequest"
-      :model-value="editingRequest ? editingRequest.name : ''"
+      v-model="editingRequestName"
       :loading-state="modalLoadingState"
       @submit="updateEditingRequest"
       @hide-modal="displayModalEditRequest(false)"
@@ -288,6 +288,7 @@ const editingFolder = ref<
 const editingFolderName = ref<string | null>(null)
 const editingFolderPath = ref<string | null>(null)
 const editingRequest = ref<HoppRESTRequest | null>(null)
+const editingRequestName = ref("")
 const editingRequestIndex = ref<number | null>(null)
 const editingRequestID = ref<string | null>(null)
 
@@ -860,6 +861,7 @@ const editRequest = (payload: {
 }) => {
   const { folderPath, requestIndex, request } = payload
   editingRequest.value = request
+  editingRequestName.value = request.name || ""
   if (collectionsType.value.type === "my-collections" && folderPath) {
     editingFolderPath.value = folderPath
     editingRequestIndex.value = parseInt(requestIndex)
@@ -877,6 +879,7 @@ const updateEditingRequest = (newName: string) => {
     ...request,
     name: newName || request.name,
   }
+  editingRequestName.value = ""
   if (collectionsType.value.type === "my-collections") {
     const folderPath = editingFolderPath.value
     const requestIndex = editingRequestIndex.value

@@ -9,7 +9,6 @@ import { emitGQLSchemaFile } from './gql-schema';
 async function bootstrap() {
   console.log(`Running in production: ${process.env.PRODUCTION}`);
   console.log(`Port: ${process.env.PORT}`);
-  console.log(`Database: ${process.env.DATABASE_URL}`);
 
   const app = await NestFactory.create(AppModule);
 

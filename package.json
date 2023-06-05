@@ -11,7 +11,7 @@
     "dev": "pnpm -r do-dev",
     "gen-gql": "cross-env GQL_SCHEMA_EMIT_LOCATION='../../../gql-gen/backend-schema.gql' pnpm -r generate-gql-sdl",
     "generate": "pnpm -r do-build-prod",
-    "start": "http-server packages/hoppscotch-web/dist -p 3000",
+    "start": "http-server packages/hoppscotch-selfhost-web/dist -p 3000",
     "lint": "pnpm -r do-lint",
     "typecheck": "pnpm -r do-typecheck",
     "lintfix": "pnpm -r do-lintfix",

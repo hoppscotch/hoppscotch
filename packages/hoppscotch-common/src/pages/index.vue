@@ -23,6 +23,7 @@
                 v-tippy="{ theme: 'tooltip', delay: [500, 20] }"
                 :title="tab.document.request.name"
                 class="truncate px-2"
+                @dblclick="openReqRenameModal()"
               >
                 <span
                   class="font-semibold text-tiny"
@@ -55,12 +56,21 @@
               @update:model-value="onTabUpdate"
             />
           </HoppSmartWindow>
+          <template #actions>
+            <EnvironmentsSelector class="h-full" />
+          </template>
         </HoppSmartWindows>
       </template>
       <template #sidebar>
         <HttpSidebar />
       </template>
     </AppPaneLayout>
+    <CollectionsEditRequest
+      v-model="reqName"
+      :show="showRenamingReqNameModal"
+      @submit="renameReqName"
+      @hide-modal="showRenamingReqNameModal = false"
+    />
     <HoppSmartConfirmModal
       :show="confirmingCloseForTabID !== null"
       :confirm="t('modal.close_unsaved_tab')"
@@ -77,7 +87,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, onBeforeUnmount, watch, onBeforeMount } from "vue"
+import { ref, onMounted, onBeforeUnmount, onBeforeMount } from "vue"
 import { safelyExtractRESTRequest } from "@hoppscotch/data"
 import { translateExtURLParams } from "~/helpers/RESTExtURLParams"
 import { useRoute } from "vue-router"
@@ -113,16 +123,26 @@ import { useToast } from "~/composables/toast"
 import { PersistableRESTTabState } from "~/helpers/rest/tab"
 import { watchDebounced } from "@vueuse/core"
 import { oauthRedirect } from "~/helpers/oauth"
+import { useReadonlyStream } from "~/composables/stream"
+import {
+  changeCurrentSyncStatus,
+  currentSyncingStatus$,
+} from "~/newstore/syncing"
 
 const savingRequest = ref(false)
 const confirmingCloseForTabID = ref<string | null>(null)
+const showRenamingReqNameModal = ref(false)
+const reqName = ref<string>("")
 
 const t = useI18n()
 const toast = useToast()
 
 const tabs = getActiveTabs()
 
-const confirmSync = ref(false)
+const confirmSync = useReadonlyStream(currentSyncingStatus$, {
+  isInitialSync: false,
+  shouldSync: true,
+})
 const tabStateForSync = ref<PersistableRESTTabState | null>(null)
 
 function bindRequestToURLParams() {
@@ -166,6 +186,20 @@ const removeTab = (tabID: string) => {
   }
 }
 
+const openReqRenameModal = () => {
+  showRenamingReqNameModal.value = true
+  reqName.value = currentActiveTab.value.document.request.name
+}
+
+const renameReqName = () => {
+  const tab = getTabRef(currentTabID.value)
+  if (tab.value) {
+    tab.value.document.request.name = reqName.value
+    updateTab(tab.value)
+  }
+  showRenamingReqNameModal.value = false
+}
+
 /**
  * This function is closed when the confirm tab is closed by some means (even saving triggers close)
  */
@@ -202,29 +236,6 @@ const onSaveModalClose = () => {
     confirmingCloseForTabID.value = null
   }
 }
-
-watch(confirmSync, (newValue) => {
-  if (newValue) {
-    toast.show(t("confirm.sync"), {
-      duration: 0,
-      action: [
-        {
-          text: `${t("action.yes")}`,
-          onClick: (_, toastObject) => {
-            syncTabState()
-            toastObject.goAway(0)
-          },
-        },
-        {
-          text: `${t("action.no")}`,
-          onClick: (_, toastObject) => {
-            toastObject.goAway(0)
-          },
-        },
-      ],
-    })
-  }
-})
 
 const syncTabState = () => {
   if (tabStateForSync.value) loadTabsFromPersistedState(tabStateForSync.value)
@@ -264,6 +275,35 @@ function startTabStateSync(): Subscription {
   return sub
 }
 
+const showSyncToast = () => {
+  toast.show(t("confirm.sync"), {
+    duration: 0,
+    action: [
+      {
+        text: `${t("action.yes")}`,
+        onClick: (_, toastObject) => {
+          syncTabState()
+          changeCurrentSyncStatus({
+            isInitialSync: true,
+            shouldSync: true,
+          })
+          toastObject.goAway(0)
+        },
+      },
+      {
+        text: `${t("action.no")}`,
+        onClick: (_, toastObject) => {
+          changeCurrentSyncStatus({
+            isInitialSync: true,
+            shouldSync: false,
+          })
+          toastObject.goAway(0)
+        },
+      },
+    ],
+  })
+}
+
 function setupTabStateSync() {
   const route = useRoute()
 
@@ -279,9 +319,15 @@ function setupTabStateSync() {
       const tabStateFromSync =
         await platform.sync.tabState.loadTabStateFromSync()
 
-      if (tabStateFromSync) {
+      if (tabStateFromSync && !confirmSync.value.isInitialSync) {
         tabStateForSync.value = tabStateFromSync
-        confirmSync.value = true
+        showSyncToast()
+        // Have to set isInitialSync to true here because the toast is shown
+        // and the user does not click on any of the actions
+        changeCurrentSyncStatus({
+          isInitialSync: true,
+          shouldSync: false,
+        })
       }
     }
 

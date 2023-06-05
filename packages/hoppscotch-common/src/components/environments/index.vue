@@ -4,15 +4,6 @@
       class="sticky top-0 z-10 flex flex-col flex-shrink-0 overflow-x-auto bg-primary"
     >
       <WorkspaceCurrent :section="t('tab.environments')" />
-      <EnvironmentsSelector
-        :environment-type="environmentType.type"
-        :my-environments="myEnvironments"
-        :team-env-loading="loading"
-        :team-environment-list="teamEnvironmentList"
-        :is-adapter-error="adapterError !== null"
-        :error-message="adapterError ? getErrorMessage(adapterError) : ''"
-        :is-team-selected="environmentType.selectedTeam !== undefined"
-      />
       <EnvironmentsMyEnvironment
         environment-index="Global"
         :environment="globalEnvironment"
@@ -46,13 +37,11 @@ import { GetMyTeamsQuery } from "~/helpers/backend/graphql"
 import { useReadonlyStream, useStream } from "@composables/stream"
 import { useI18n } from "~/composables/i18n"
 import {
-  environments$,
   globalEnv$,
   selectedEnvironmentIndex$,
   setSelectedEnvironmentIndex,
 } from "~/newstore/environments"
 import TeamEnvironmentAdapter from "~/helpers/teams/TeamEnvironmentAdapter"
-import { GQLError } from "~/helpers/backend/GQLClient"
 import { defineActionHandler } from "~/helpers/actions"
 import { workspaceStatus$ } from "~/newstore/workspace"
 import TeamListAdapter from "~/helpers/teams/TeamListAdapter"
@@ -147,24 +136,19 @@ onLoggedIn(() => {
 
 const workspace = useReadonlyStream(workspaceStatus$, { type: "personal" })
 
-// Used to switch environment type and team when user switch workspace in the global workspace switcher
-// Check if there is a teamID in the workspace, if yes, switch to team environment and select the team
-// If there is no teamID, switch to my environment
+// Switch to my environments if workspace is personal and to team environments if workspace is team
+// also resets selected environment if workspace is personal and the previous selected environment was a team environment
 watch(workspace, (newWorkspace) => {
   if (newWorkspace.type === "personal") {
     switchToMyEnvironments()
-    setSelectedEnvironmentIndex({
-      type: "NO_ENV_SELECTED",
-    })
-  } else if (newWorkspace.type === "team") {
-    const team = myTeams.value?.find((t) => t.id === newWorkspace.teamID)
-    updateSelectedTeam(team)
-
     if (selectedEnvironmentIndex.value.type !== "MY_ENV") {
       setSelectedEnvironmentIndex({
         type: "NO_ENV_SELECTED",
       })
     }
+  } else if (newWorkspace.type === "team") {
+    const team = myTeams.value?.find((t) => t.id === newWorkspace.teamID)
+    updateSelectedTeam(team)
   }
 })
 
@@ -206,8 +190,6 @@ defineActionHandler(
     envName === "Global" && editEnvironment("Global")
   }
 )
-
-const myEnvironments = useReadonlyStream(environments$, [])
 
 const selectedEnvironmentIndex = useStream(
   selectedEnvironmentIndex$,
@@ -251,17 +233,4 @@ watch(
   },
   { deep: true }
 )
-
-const getErrorMessage = (err: GQLError<string>) => {
-  if (err.type === "network_error") {
-    return t("error.network_error")
-  } else {
-    switch (err.error) {
-      case "team_environment/not_found":
-        return t("team_environment.not_found")
-      default:
-        return t("error.something_went_wrong")
-    }
-  }
-}
 </script>

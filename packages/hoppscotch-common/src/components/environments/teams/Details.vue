@@ -140,7 +140,7 @@ import * as A from "fp-ts/Array"
 import * as O from "fp-ts/Option"
 import * as TE from "fp-ts/TaskEither"
 import { flow, pipe } from "fp-ts/function"
-import { parseTemplateStringE } from "@hoppscotch/data"
+import { Environment, parseTemplateStringE } from "@hoppscotch/data"
 import { refAutoReset } from "@vueuse/core"
 import { clone } from "lodash-es"
 import { useToast } from "@composables/toast"
@@ -173,16 +173,20 @@ const props = withDefaults(
   defineProps<{
     show: boolean
     action: "edit" | "new"
-    editingEnvironment: TeamEnvironment | null
+    editingEnvironment?: TeamEnvironment | null
     editingTeamId: string | undefined
-    editingVariableName: string | null
-    isViewer: boolean
+    editingVariableName?: string | null
+    isViewer?: boolean
+    envVars?: () => Environment["variables"]
   }>(),
   {
     show: false,
     action: "edit",
     editingEnvironment: null,
     editingTeamId: "",
+    editingVariableName: null,
+    isViewer: false,
+    envVars: () => [],
   }
 )
 
@@ -226,10 +230,16 @@ watch(
   () => props.show,
   (show) => {
     if (show) {
-      if (props.editingEnvironment === null) {
+      if (props.action === "new") {
         name.value = null
-        vars.value = []
-      } else {
+        vars.value = pipe(
+          props.envVars() ?? [],
+          A.map((e: { key: string; value: string }) => ({
+            id: idTicker.value++,
+            env: clone(e),
+          }))
+        )
+      } else if (props.editingEnvironment !== null) {
         name.value = props.editingEnvironment.environment.name ?? null
         vars.value = pipe(
           props.editingEnvironment.environment.variables ?? [],

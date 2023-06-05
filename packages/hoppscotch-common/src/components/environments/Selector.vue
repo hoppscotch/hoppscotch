@@ -97,7 +97,7 @@
               <HoppSmartSpinner class="my-4" />
               <span class="text-secondaryLight">{{ t("state.loading") }}</span>
             </div>
-            <div v-if="isTeamSelected" class="flex flex-col">
+            <div v-else-if="isTeamSelected" class="flex flex-col">
               <HoppSmartItem
                 v-for="(gen, index) in teamEnvironmentList"
                 :key="`gen-team-${index}`"

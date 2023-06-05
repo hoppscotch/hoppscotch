@@ -1,0 +1,23 @@
+:80 {
+	handle_path /api/* {
+		reverse_proxy localhost:3170
+	}
+
+	redir VITE_ADMIN_BASE_URL VITE_ADMIN_BASE_URL/
+	handle_path VITE_ADMIN_BASE_URL/* {
+		try_files {path} /
+		root * /app/packages/hoppscotch-sh-admin/dist
+		file_server
+	}
+
+	handle {
+		try_files {path} /
+		root * /app/packages/hoppscotch-selfhost-web/dist
+		file_server
+	}
+
+	log {
+		output stdout
+		level ERROR
+	}
+}

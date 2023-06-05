@@ -196,6 +196,7 @@ const renameReqName = () => {
   if (tab.value) {
     tab.value.document.request.name = reqName.value
     updateTab(tab.value)
+    invokeAction("request.save")
   }
   showRenamingReqNameModal.value = false
 }

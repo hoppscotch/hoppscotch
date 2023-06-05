@@ -2,18 +2,12 @@
   <HoppSmartModal v-if="show" dialog :title="t('team.new')" @close="hideModal">
     <template #body>
       <HoppSmartInput
-        id="selectLabelTeamAdd"
         v-model="name"
-        styles="flex flex-col"
-        label="Email Address"
+        :label="t('action.label')"
         placeholder=" "
-        input-styles="input floating-input"
+        input-styles="floating-input"
         @submit="addNewTeam"
-      >
-        <template #label>
-          <label for="selectLabelTeamAdd"> {{ t("action.label") }} </label>
-        </template>
-      </HoppSmartInput>
+      />
     </template>
     <template #footer>
       <span class="flex space-x-2">

@@ -42,17 +42,13 @@
         @submit.prevent="signInWithEmail"
       >
         <HoppSmartInput
-          id="email"
           v-model="form.email"
           type="email"
-          styles="flex flex-col"
           placeholder=" "
-          input-styles="input floating-input"
-        >
-          <template #label>
-            <label for="email"> Email </label>
-          </template>
-        </HoppSmartInput>
+          input-styles="floating-input"
+          label="Email"
+        />
+
         <HoppButtonPrimary
           :loading="signingInWithEmail"
           type="submit"

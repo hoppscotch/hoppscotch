@@ -9,17 +9,14 @@
     <template #body>
       <div class="flex flex-col">
         <HoppSmartInput
-          id="selectLabelSaveReq"
           v-model="requestName"
           styles="relative flex"
           placeholder=" "
-          input-styles="input floating-input"
+          :label="t('request.name')"
+          input-styles="floating-input"
           @submit="saveRequestAs"
-        >
-          <template #label>
-            <label for="selectLabelSaveReq"> {{ t("request.name") }} </label>
-          </template>
-        </HoppSmartInput>
+        />
+
         <label class="p-4">
           {{ t("collection.select_location") }}
         </label>

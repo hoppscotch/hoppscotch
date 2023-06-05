@@ -7,17 +7,12 @@
   >
     <template #body>
       <HoppSmartInput
-        id="selectLabelEditReq"
         v-model="name"
-        styles="flex flex-col"
         placeholder=" "
-        input-styles="input floating-input"
+        :label="t('action.label')"
+        input-styles="floating-input"
         @submit="editRequest"
-      >
-        <template #label>
-          <label for="selectLabelEditReq"> {{ t("action.label") }} </label>
-        </template>
-      </HoppSmartInput>
+      />
     </template>
     <template #footer>
       <span class="flex space-x-2">

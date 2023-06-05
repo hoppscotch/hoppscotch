@@ -1,7 +1,8 @@
 <template>
-  <div :class="styles">
+  <div class="relative flex flex-col" :class="styles">
     <input
-      :id="id"
+      :id="uid"
+      class="input"
       :class="inputStyles"
       v-model="inputText"
       v-focus
@@ -12,7 +13,10 @@
       required
       :disabled="disabled"
     />
-    <slot name="label"></slot>
+
+    <label v-if="label.length > 0" :for="uid"> {{ label }} </label>
+
+    <!-- <slot name="label"></slot> -->
     <slot name="button"></slot>
   </div>
 </template>
@@ -21,13 +25,15 @@
 import { useVModel } from "@vueuse/core"
 import { defineProps } from "vue"
 
+const uid = "sdsd"
+
 const props = withDefaults(
   defineProps<{
     id: string
     styles: string
-    modelValue: string
+    modelValue: string | null
     placeholder: string
-    inputStyles: string
+    inputStyles: any
     inputType: string
     type: string
     label: string
@@ -38,7 +44,7 @@ const props = withDefaults(
     styles: "",
     modelValue: "",
     placeholder: "",
-    inputStyles: "",
+    inputStyles: [],
     inputType: "input",
     type: "text",
     label: "",

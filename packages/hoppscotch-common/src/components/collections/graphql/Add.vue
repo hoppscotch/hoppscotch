@@ -7,17 +7,12 @@
   >
     <template #body>
       <HoppSmartInput
-        id="selectLabelGqlAdd"
         v-model="name"
-        styles="flex flex-col"
         placeholder=" "
-        input-styles="input floating-input"
+        input-styles="floating-input"
+        :label="t('action.label')"
         @submit="addNewCollection"
-      >
-        <template #label>
-          <label for="selectLabelGqlAdd"> {{ t("action.label") }} </label>
-        </template>
-      </HoppSmartInput>
+      />
     </template>
     <template #footer>
       <span class="flex space-x-2">

@@ -19,16 +19,11 @@
           />
         </div>
         <HoppSmartInput
-          id="teamName"
           v-model="teamName"
-          styles="flex flex-col"
           placeholder=" "
-          input-styles="input floating-input"
-        >
-          <template #label>
-            <label for="teamName"> {{ t('teams.name') }} </label>
-          </template>
-        </HoppSmartInput>
+          input-styles="floating-input"
+          :label="`${t('teams.name')}`"
+        />
       </div>
     </template>
     <template #footer>

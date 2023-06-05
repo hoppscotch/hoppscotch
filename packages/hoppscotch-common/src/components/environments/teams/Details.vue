@@ -27,16 +27,13 @@
         <HoppSmartInput
           id="selectLabelEnvEdit"
           v-model="name"
-          styles="relative flex"
           placeholder=" "
-          input-styles="input floating-input"
+          :input-styles="['floating-input', isViewer && 'opacity-25']"
+          :label="t('action.label')"
           :disabled="isViewer"
           @submit="saveEnvironment"
-        >
-          <template #label>
-            <label for="selectLabelEnvEdit"> {{ t("action.label") }} </label>
-          </template>
-        </HoppSmartInput>
+        />
+
         <div class="flex items-center justify-between flex-1">
           <label for="variableList" class="p-4">
             {{ t("environment.variable_list") }}

@@ -7,16 +7,10 @@
   >
     <template #body>
       <HoppSmartInput
-        id="inviteUserEmail"
         v-model="email"
-        styles="flex flex-col"
         label="Email Address"
-        input-styles="input floating-input"
-      >
-        <template #label>
-          <label for="inviteUserEmail"> Email Address </label>
-        </template>
-      </HoppSmartInput>
+        input-styles="floating-input"
+      />
     </template>
     <template #footer>
       <span class="flex space-x-2">

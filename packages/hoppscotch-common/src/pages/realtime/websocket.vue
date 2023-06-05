@@ -37,12 +37,10 @@
           />
         </div> -->
         <HoppSmartInput
-          id="websocket-url"
           v-model="url"
           type="url"
           styles="inline-flex flex-1 space-x-2"
           input-styles="w-full px-4 py-2 border rounded bg-primaryLight border-divider text-secondaryDark"
-          input-type="input-button"
           :placeholder="`${t('websocket.url')}`"
           :disabled="
             connectionState === 'CONNECTED' || connectionState === 'CONNECTING'

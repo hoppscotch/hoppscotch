@@ -7,7 +7,7 @@
         <HoppSmartInput
           v-model="filterText"
           type="search"
-          styles="flex flex-col px-6 py-4 border-b border-dividerLight"
+          styles="px-6 py-4 border-b border-dividerLight"
           :placeholder="`${t('action.search')}`"
           input-styles="flex px-4 py-2 border rounded bg-primaryContrast border-divider hover:border-dividerDark focus-visible:border-dividerDark"
         />

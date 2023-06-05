@@ -101,12 +101,9 @@
                       {{ t("settings.profile_name") }}
                     </label>
                     <HoppSmartInput
-                      :id="displayName"
                       v-model="displayName"
-                      styles="flex mt-2 md:max-w-sm"
-                      input-styles="input"
+                      styles="mt-2 md:max-w-sm"
                       :placeholder="`${t('settings.profile_name')}`"
-                      :label="t('action.save')"
                     >
                       <template #button>
                         <HoppButtonSecondary
@@ -126,12 +123,9 @@
                       {{ t("settings.profile_email") }}
                     </label>
                     <HoppSmartInput
-                      :id="emailAddress"
                       v-model="emailAddress"
                       styles="flex mt-2 md:max-w-sm"
-                      input-styles="input"
                       :placeholder="`${t('settings.profile_name')}`"
-                      :label="t('action.save')"
                     >
                       <template #button>
                         <HoppButtonSecondary

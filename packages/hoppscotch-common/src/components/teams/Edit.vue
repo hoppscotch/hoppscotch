@@ -3,17 +3,12 @@
     <template #body>
       <div class="flex flex-col">
         <HoppSmartInput
-          id="selectLabelTeamEdit"
           v-model="name"
-          styles="relative flex"
           placeholder=" "
-          input-styles="input floating-input"
+          :label="t('action.label')"
+          input-styles="floating-input"
           @submit="saveTeam"
-        >
-          <template #label>
-            <label for="selectLabelTeamEdit"> {{ t("action.label") }} </label>
-          </template>
-        </HoppSmartInput>
+        />
         <div class="flex items-center justify-between flex-1 pt-4">
           <label for="memberList" class="p-4">
             {{ t("team.members") }}

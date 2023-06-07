@@ -217,7 +217,6 @@
       @hide-modal="showCodegenModal = false"
     />
     <CollectionsSaveRequest
-      v-if="showSaveRequestModal"
       mode="rest"
       :show="showSaveRequestModal"
       @hide-modal="showSaveRequestModal = false"

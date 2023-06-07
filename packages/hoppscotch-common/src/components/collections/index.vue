@@ -125,8 +125,8 @@
       @hide-modal="displayModalEditFolder(false)"
     />
     <CollectionsEditRequest
-      :show="showModalEditRequest"
       v-model="editingRequestName"
+      :show="showModalEditRequest"
       :loading-state="modalLoadingState"
       @submit="updateEditingRequest"
       @hide-modal="displayModalEditRequest(false)"
@@ -879,7 +879,6 @@ const updateEditingRequest = (newName: string) => {
     ...request,
     name: newName || request.name,
   }
-  editingRequestName.value = ""
   if (collectionsType.value.type === "my-collections") {
     const folderPath = editingFolderPath.value
     const requestIndex = editingRequestIndex.value

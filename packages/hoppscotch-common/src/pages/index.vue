@@ -79,8 +79,8 @@
       @resolve="onResolveConfirmSaveTab"
     />
     <CollectionsSaveRequest
+      mode="rest"
       :show="savingRequest"
-      :mode="'rest'"
       @hide-modal="onSaveModalClose"
     />
   </div>

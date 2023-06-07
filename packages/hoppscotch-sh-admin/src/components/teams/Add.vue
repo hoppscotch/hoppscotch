@@ -18,12 +18,8 @@
             @input="(email: string) => getOwnerEmail(email)"
           />
         </div>
-        <HoppSmartInput
-          v-model="teamName"
-          placeholder=" "
-          input-styles="floating-input"
-          :label="`${t('teams.name')}`"
-        />
+        <label for="teamName"> {{ t('teams.name') }} </label>
+        <HoppSmartInput v-model="teamName" placeholder="" class="!my-2" />
       </div>
     </template>
     <template #footer>

@@ -1,5 +1,6 @@
 import type { Plugin, App } from "vue"
 
+import "./assets/themes/themes.scss"
 import "./assets/scss/main.scss"
 import "./assets/scss/styles.scss"
 

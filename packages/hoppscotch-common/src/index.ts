@@ -7,8 +7,6 @@ import { initBackendGQLClient } from "./helpers/backend/GQLClient"
 import { HOPP_MODULES } from "@modules/."
 
 import "virtual:windi.css"
-import "../assets/scss/themes.scss"
-import "../assets/scss/styles.scss"
 import "nprogress/nprogress.css"
 
 import App from "./App.vue"

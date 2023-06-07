@@ -1,5 +1,5 @@
 <template>
-  <div class="relative flex flex-col" :class="styles">
+  <div class="relative flex" :class="styles">
     <input
       :id="uid"
       class="input"
@@ -15,8 +15,6 @@
     />
 
     <label v-if="label.length > 0" :for="uid"> {{ label }} </label>
-
-    <!-- <slot name="label"></slot> -->
     <slot name="button"></slot>
   </div>
 </template>
@@ -25,7 +23,22 @@
 import { useVModel } from "@vueuse/core"
 import { defineProps } from "vue"
 
-const uid = "sdsd"
+const generateUUID = () => {
+  let d = new Date().getTime()
+  if (
+    typeof performance !== "undefined" &&
+    typeof performance.now === "function"
+  ) {
+    d += performance.now() //use high-precision timer if available
+  }
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
+    const r = (d + Math.random() * 16) % 16 | 0
+    d = Math.floor(d / 16)
+    return (c == "x" ? r : (r & 0x3) | 0x8).toString(16)
+  })
+}
+
+const uid = generateUUID()
 
 const props = withDefaults(
   defineProps<{
@@ -58,12 +71,4 @@ const emit = defineEmits<{
 }>()
 
 const inputText = useVModel(props, "modelValue", emit)
-
-// watch(inputText, (newValue, oldValue) => console.log(newValue))
-
-// const inputStyle = computed(() =>
-//   props.inputType == "input-button" ? "input" : "input floating-input"
-// )
 </script>
-
-<style lang=""></style>

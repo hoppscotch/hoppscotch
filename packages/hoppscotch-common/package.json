@@ -18,6 +18,7 @@
     "do-lintfix": "pnpm run lintfix"
   },
   "dependencies": {
+    "dioc": "workspace:^",
     "@apidevtools/swagger-parser": "^10.1.0",
     "@codemirror/autocomplete": "^6.0.3",
     "@codemirror/commands": "^6.0.1",

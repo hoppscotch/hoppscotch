@@ -1,0 +1,54 @@
+{
+  "name": "dioc",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "files": [
+    "dist",
+    "index.d.ts"
+  ],
+  "main": "./dist/counter.umd.cjs",
+  "module": "./dist/counter.js",
+  "types": "./index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/main.d.ts",
+      "require": "./dist/index.cjs",
+      "import": "./dist/index.js"
+    },
+    "./vue": {
+      "types": "./dist/vue.d.ts",
+      "require": "./dist/vue.cjs",
+      "import": "./dist/vue.js"
+    },
+    "./testing": {
+      "types": "./dist/testing.d.ts",
+      "require": "./dist/testing.cjs",
+      "import": "./dist/testing.js"
+    }
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build && tsc --emitDeclarationOnly",
+    "prepare": "pnpm run build",
+    "test": "vitest run",
+    "do-test": "pnpm run test",
+    "test:watch": "vitest"
+  },
+  "devDependencies": {
+    "typescript": "^4.9.4",
+    "vite": "^4.0.4",
+    "vitest": "^0.29.3"
+  },
+  "dependencies": {
+    "rxjs": "^7.8.1"
+  },
+  "peerDependencies": {
+    "vue": "^3.2.25"
+  },
+  "peerDependenciesMeta": {
+    "vue": {
+      "optional": true
+    }
+  }
+}

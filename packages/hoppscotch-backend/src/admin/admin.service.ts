@@ -240,7 +240,7 @@ export class AdminService {
       teamID,
       user.value.uid,
     )();
-    if (E.left(isUserAlreadyMember)) {
+    if (E.isLeft(isUserAlreadyMember)) {
       const addedUser = await this.teamService.addMemberToTeamWithEmail(
         teamID,
         userEmail,

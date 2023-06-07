@@ -79,6 +79,7 @@
       @resolve="onResolveConfirmSaveTab"
     />
     <CollectionsSaveRequest
+      v-if="savingRequest"
       mode="rest"
       :show="savingRequest"
       @hide-modal="onSaveModalClose"

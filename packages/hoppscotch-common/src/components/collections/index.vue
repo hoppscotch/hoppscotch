@@ -861,7 +861,7 @@ const editRequest = (payload: {
 }) => {
   const { folderPath, requestIndex, request } = payload
   editingRequest.value = request
-  editingRequestName.value = request.name || ""
+  editingRequestName.value = request.name ?? ""
   if (collectionsType.value.type === "my-collections" && folderPath) {
     editingFolderPath.value = folderPath
     editingRequestIndex.value = parseInt(requestIndex)

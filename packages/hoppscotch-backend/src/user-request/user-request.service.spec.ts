@@ -5,6 +5,9 @@ import {
 import { mockDeep, mockReset } from 'jest-mock-extended';
 import {
   JSON_INVALID,
+  USER_COLLECTION_NOT_FOUND,
+  USER_COLL_NOT_FOUND,
+  USER_REQUEST_INVALID_TYPE,
   USER_REQUEST_NOT_FOUND,
   USER_REQUEST_REORDERING_FAILED,
 } from 'src/errors';
@@ -372,6 +375,101 @@ describe('UserRequestService', () => {
       );
 
       expect(result).resolves.toEqualLeft(JSON_INVALID);
+    });
+    test('Should resolve left for invalid collection ID', () => {
+      const args: CreateUserRequestArgs = {
+        collectionID: 'invalid-collection-id',
+        title: userRequests[0].title,
+        request: userRequests[0].request,
+        type: userRequests[0].type,
+      };
+
+      mockPrisma.userRequest.count.mockResolvedValue(
+        dbUserRequests[0].orderIndex - 1,
+      );
+      mockUserCollectionService.getUserCollection.mockResolvedValue(
+        E.left(USER_COLL_NOT_FOUND),
+      );
+
+      const result = userRequestService.createRequest(
+        args.collectionID,
+        args.title,
+        args.request,
+        args.type,
+        user,
+      );
+
+      expect(result).resolves.toEqualLeft(USER_COLL_NOT_FOUND);
+    });
+    test('Should resolve left for wrong collection ID (using other users collection ID)', () => {
+      const args: CreateUserRequestArgs = {
+        collectionID: userRequests[0].collectionID,
+        title: userRequests[0].title,
+        request: userRequests[0].request,
+        type: userRequests[0].type,
+      };
+
+      mockPrisma.userRequest.count.mockResolvedValue(
+        dbUserRequests[0].orderIndex - 1,
+      );
+      mockUserCollectionService.getUserCollection.mockResolvedValue(
+        E.right({ type: userRequests[0].type, userUid: 'another-user' } as any),
+      );
+
+      const result = userRequestService.createRequest(
+        args.collectionID,
+        args.title,
+        args.request,
+        args.type,
+        user,
+      );
+
+      expect(result).resolves.toEqualLeft(USER_COLLECTION_NOT_FOUND);
+    });
+    test('Should resolve left for collection type and request type miss match', () => {
+      const args: CreateUserRequestArgs = {
+        collectionID: userRequests[0].collectionID,
+        title: userRequests[0].title,
+        request: userRequests[0].request,
+        type: userRequests[0].type,
+      };
+
+      mockUserCollectionService.getUserCollection.mockResolvedValue(
+        E.right({ type: 'invalid-type', userUid: user.uid } as any),
+      );
+
+      const result = userRequestService.createRequest(
+        args.collectionID,
+        args.title,
+        args.request,
+        args.type,
+        user,
+      );
+
+      expect(result).resolves.toEqualLeft(USER_REQUEST_INVALID_TYPE);
+    });
+    test('Should resolve left if DB request type and parameter type is different', () => {
+      const args: CreateUserRequestArgs = {
+        collectionID: userRequests[0].collectionID,
+        title: userRequests[0].title,
+        request: userRequests[0].request,
+        type: userRequests[0].type,
+      };
+
+      mockPrisma.userRequest.count.mockResolvedValue(
+        dbUserRequests[0].orderIndex - 1,
+      );
+      mockPrisma.userRequest.create.mockResolvedValue(dbUserRequests[0]);
+
+      const result = userRequestService.createRequest(
+        args.collectionID,
+        args.title,
+        args.request,
+        ReqType.GQL,
+        user,
+      );
+
+      expect(result).resolves.toEqualLeft(USER_REQUEST_INVALID_TYPE);
     });
   });
 

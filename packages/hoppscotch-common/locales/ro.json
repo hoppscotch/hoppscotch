@@ -432,6 +432,7 @@
     "view_my_links": "Vizualizare link-uri"
   },
   "response": {
+    "audio": "Audio",
     "body": "Corpul de răspuns",
     "filter_response_body": "Filtrează corpul răspunsului JSON (folosește sintaxa JSONPath)",
     "headers": "Anteturi",
@@ -445,6 +446,7 @@
     "status": "Stare",
     "time": "Timp",
     "title": "Raspuns",
+    "video": "Video",
     "waiting_for_connection": "Așteptând conexiunea",
     "xml": "XML"
   },

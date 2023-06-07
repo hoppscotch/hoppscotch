@@ -432,6 +432,7 @@
     "view_my_links": "查看我的链接"
   },
   "response": {
+    "audio": "Audio",
     "body": "响应体",
     "filter_response_body": "筛选JSON响应本体（使用JSONPath语法）",
     "headers": "响应头",
@@ -445,6 +446,7 @@
     "status": "状态",
     "time": "时间",
     "title": "响应",
+    "video": "Video",
     "waiting_for_connection": "等待连接",
     "xml": "XML"
   },

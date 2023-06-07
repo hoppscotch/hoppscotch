@@ -432,6 +432,7 @@
     "view_my_links": "View my links"
   },
   "response": {
+    "audio": "Audio",
     "body": "Válasz törzse",
     "filter_response_body": "Filter JSON response body (uses JSONPath syntax)",
     "headers": "Fejlécek",
@@ -445,6 +446,7 @@
     "status": "Állapot",
     "time": "Idő",
     "title": "Válasz",
+    "video": "Video",
     "waiting_for_connection": "várakozás kapcsolódásra",
     "xml": "XML"
   },

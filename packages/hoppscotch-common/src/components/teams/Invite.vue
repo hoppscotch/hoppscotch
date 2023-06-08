@@ -221,25 +221,18 @@
               />
             </div>
           </div>
-          <div
+          <HoppSmartPlaceholder
             v-if="newInvites.length === 0"
-            class="flex flex-col items-center justify-center p-4 text-secondaryLight"
+            :src="`/images/states/${colorMode.value}/add_group.svg`"
+            :alt="`${t('empty.invites')}`"
+            :text="`${t('empty.invites')}`"
           >
-            <img
-              :src="`/images/states/${colorMode.value}/add_group.svg`"
-              loading="lazy"
-              class="inline-flex flex-col object-contain object-center w-16 h-16 mb-4"
-              :alt="`${t('empty.invites')}`"
-            />
-            <span class="pb-4 text-center">
-              {{ t("empty.invites") }}
-            </span>
             <HoppButtonSecondary
               :label="t('add.new')"
               filled
               @click="addNewInvitee"
             />
-          </div>
+          </HoppSmartPlaceholder>
         </div>
         <div
           v-if="newInvites.length"

@@ -289,26 +289,20 @@
               </div>
             </template>
           </draggable>
-          <div
-            v-if="workingHeaders.length === 0"
-            class="flex flex-col items-center justify-center p-4 text-secondaryLight"
-          >
-            <img
+          <div v-if="workingHeaders.length === 0">
+            <HoppSmartPlaceholder
               :src="`/images/states/${colorMode.value}/add_category.svg`"
-              loading="lazy"
-              class="inline-flex flex-col object-contain object-center w-16 h-16 my-4"
               :alt="`${t('empty.headers')}`"
-            />
-            <span class="pb-4 text-center">
-              {{ t("empty.headers") }}
-            </span>
-            <HoppButtonSecondary
-              :label="`${t('add.new')}`"
-              filled
-              :icon="IconPlus"
-              class="mb-4"
-              @click="addHeader"
-            />
+              :text="t('empty.headers')"
+            >
+              <HoppButtonSecondary
+                :label="`${t('add.new')}`"
+                filled
+                :icon="IconPlus"
+                class="mb-4"
+                @click="addHeader"
+              />
+            </HoppSmartPlaceholder>
           </div>
         </div>
       </HoppSmartTab>

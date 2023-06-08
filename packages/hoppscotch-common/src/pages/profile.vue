@@ -8,25 +8,18 @@
         >
           <HoppSmartSpinner class="mb-4" />
         </div>
-        <div
+        <HoppSmartPlaceholder
           v-else-if="currentUser === null"
-          class="flex flex-col items-center justify-center"
+          :src="`/images/states/${colorMode.value}/login.svg`"
+          :alt="`${t('empty.profile')}`"
+          :text="`${t('empty.profile')}`"
         >
-          <img
-            :src="`/images/states/${colorMode.value}/login.svg`"
-            loading="lazy"
-            class="inline-flex flex-col object-contain object-center w-24 h-24 my-4"
-            :alt="`${t('empty.parameters')}`"
-          />
-          <p class="pb-4 text-center text-secondaryLight">
-            {{ t("empty.profile") }}
-          </p>
           <HoppButtonPrimary
             :label="t('auth.login')"
             class="mb-4"
             @click="invokeAction('modals.login.toggle')"
           />
-        </div>
+        </HoppSmartPlaceholder>
         <div v-else class="space-y-8">
           <div
             class="h-24 rounded bg-primaryLight -mb-11 md:h-32"

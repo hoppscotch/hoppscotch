@@ -136,28 +136,19 @@
           </span>
         </div>
       </div>
-
-      <div
+      <HoppSmartPlaceholder
         v-if="topics.length === 0"
-        class="flex flex-col items-center justify-center p-4 text-secondaryLight"
+        :src="`/images/states/${colorMode.value}/pack.svg`"
+        :alt="`${t('empty.subscription')}`"
+        :text="`${t('empty.subscription')}`"
       >
-        <img
-          :src="`/images/states/${colorMode.value}/pack.svg`"
-          loading="lazy"
-          class="inline-flex flex-col object-contain object-center w-16 h-16 my-4"
-          :alt="`${t('empty.subscription')}`"
-        />
-        <span class="pb-4 text-center">
-          {{ t("empty.subscription") }}
-        </span>
         <HoppButtonSecondary
           :label="t('mqtt.new')"
           filled
           outline
           @click="showSubscriptionModal(true)"
         />
-      </div>
-
+      </HoppSmartPlaceholder>
       <div v-else>
         <div
           v-for="(topic, index) in topics"

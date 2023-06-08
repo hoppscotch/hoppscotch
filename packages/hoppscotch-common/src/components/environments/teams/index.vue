@@ -43,37 +43,31 @@
         />
       </div>
     </div>
-    <div
-      v-if="!loading && teamEnvironments.length === 0 && !adapterError"
-      class="flex flex-col items-center justify-center p-4 text-secondaryLight"
-    >
-      <img
+    <div v-if="!loading && teamEnvironments.length === 0 && !adapterError">
+      <HoppSmartPlaceholder
         :src="`/images/states/${colorMode.value}/blockchain.svg`"
-        loading="lazy"
-        class="inline-flex flex-col object-contain object-center w-16 h-16 my-4"
         :alt="`${t('empty.environments')}`"
-      />
-      <span class="pb-4 text-center">
-        {{ t("empty.environments") }}
-      </span>
-      <HoppButtonSecondary
-        v-if="team === undefined || team.myRole === 'VIEWER'"
-        v-tippy="{ theme: 'tooltip' }"
-        disabled
-        filled
-        class="mb-4"
-        :icon="IconPlus"
-        :title="t('team.no_access')"
-        :label="t('action.new')"
-      />
-      <HoppButtonSecondary
-        v-else
-        :label="`${t('add.new')}`"
-        filled
-        outline
-        class="mb-4"
-        @click="displayModalAdd(true)"
-      />
+        :text="t('empty.environments')"
+      >
+        <HoppButtonSecondary
+          v-if="team === undefined || team.myRole === 'VIEWER'"
+          v-tippy="{ theme: 'tooltip' }"
+          disabled
+          filled
+          class="mb-4"
+          :icon="IconPlus"
+          :title="t('team.no_access')"
+          :label="t('action.new')"
+        />
+        <HoppButtonSecondary
+          v-else
+          :label="`${t('add.new')}`"
+          filled
+          outline
+          class="mb-4"
+          @click="displayModalAdd(true)"
+        />
+      </HoppSmartPlaceholder>
     </div>
     <div v-else-if="!loading">
       <EnvironmentsTeamsEnvironment

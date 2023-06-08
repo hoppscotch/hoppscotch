@@ -102,17 +102,12 @@
       v-model="body"
     />
     <HttpRawBody v-else-if="body.contentType !== null" v-model="body" />
-    <div
+    <HoppSmartPlaceholder
       v-if="body.contentType == null"
-      class="flex flex-col items-center justify-center p-4 text-secondaryLight"
+      :src="`/images/states/${colorMode.value}/upload_single_file.svg`"
+      :alt="`${t('empty.body')}`"
+      :text="t('empty.body')"
     >
-      <img
-        :src="`/images/states/${colorMode.value}/upload_single_file.svg`"
-        loading="lazy"
-        class="inline-flex flex-col object-contain object-center w-16 h-16 my-4"
-        :alt="`${t('empty.body')}`"
-      />
-      <span class="pb-4 text-center">{{ t("empty.body") }}</span>
       <HoppButtonSecondary
         outline
         :label="`${t('app.documentation')}`"
@@ -122,7 +117,7 @@
         reverse
         class="mb-4"
       />
-    </div>
+    </HoppSmartPlaceholder>
   </div>
 </template>
 

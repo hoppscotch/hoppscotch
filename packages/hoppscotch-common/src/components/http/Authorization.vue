@@ -113,17 +113,12 @@
         />
       </div>
     </div>
-    <div
+    <HoppSmartPlaceholder
       v-if="auth.authType === 'none'"
-      class="flex flex-col items-center justify-center p-4 text-secondaryLight"
+      :src="`/images/states/${colorMode.value}/login.svg`"
+      :alt="`${t('empty.authorization')}`"
+      :text="t('empty.authorization')"
     >
-      <img
-        :src="`/images/states/${colorMode.value}/login.svg`"
-        loading="lazy"
-        class="inline-flex flex-col object-contain object-center w-16 h-16 my-4"
-        :alt="`${t('empty.authorization')}`"
-      />
-      <span class="pb-4 text-center">{{ t("empty.authorization") }}</span>
       <HoppButtonSecondary
         outline
         :label="t('app.documentation')"
@@ -133,7 +128,7 @@
         reverse
         class="mb-4"
       />
-    </div>
+    </HoppSmartPlaceholder>
     <div v-else class="flex flex-1 border-b border-dividerLight">
       <div class="w-2/3 border-r border-dividerLight">
         <div v-if="auth.authType === 'basic'">

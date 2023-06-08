@@ -70,19 +70,13 @@
                 }
               "
             />
-            <div
-              v-if="myEnvironments.length === 0"
-              class="flex flex-col items-center justify-center text-secondaryLight"
-            >
-              <img
+            <div v-if="myEnvironments.length === 0">
+              <HoppSmartPlaceholder
                 :src="`/images/states/${colorMode.value}/blockchain.svg`"
-                loading="lazy"
-                class="inline-flex flex-col object-contain object-center w-16 h-16 mb-2"
                 :alt="`${t('empty.environments')}`"
-              />
-              <span class="pb-2 text-center">
-                {{ t("empty.environments") }}
-              </span>
+                :text="t('empty.environments')"
+              >
+              </HoppSmartPlaceholder>
             </div>
           </HoppSmartTab>
           <HoppSmartTab
@@ -119,19 +113,13 @@
                   }
                 "
               />
-              <div
-                v-if="teamEnvironmentList.length === 0"
-                class="flex flex-col items-center justify-center text-secondaryLight"
-              >
-                <img
+              <div v-if="teamEnvironmentList.length === 0">
+                <HoppSmartPlaceholder
                   :src="`/images/states/${colorMode.value}/blockchain.svg`"
-                  loading="lazy"
-                  class="inline-flex flex-col object-contain object-center w-16 h-16 mb-2"
                   :alt="`${t('empty.environments')}`"
-                />
-                <span class="pb-2 text-center">
-                  {{ t("empty.environments") }}
-                </span>
+                  :text="t('empty.environments')"
+                >
+                </HoppSmartPlaceholder>
               </div>
             </div>
             <div

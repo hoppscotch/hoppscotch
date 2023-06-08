@@ -47,19 +47,12 @@
           "
           class="border rounded border-divider"
         >
-          <div
+          <HoppSmartPlaceholder
             v-if="teamDetails.data.right.team.teamMembers === 0"
-            class="flex flex-col items-center justify-center p-4 text-secondaryLight"
+            :src="`/images/states/${colorMode.value}/add_group.svg`"
+            :alt="`${t('empty.members')}`"
+            :text="t('empty.members')"
           >
-            <img
-              :src="`/images/states/${colorMode.value}/add_group.svg`"
-              loading="lazy"
-              class="inline-flex flex-col object-contain object-center w-16 h-16 my-4"
-              :alt="`${t('empty.members')}`"
-            />
-            <span class="pb-4 text-center">
-              {{ t("empty.members") }}
-            </span>
             <HoppButtonSecondary
               :icon="IconUserPlus"
               :label="t('team.invite')"
@@ -69,7 +62,7 @@
                 }
               "
             />
-          </div>
+          </HoppSmartPlaceholder>
           <div v-else class="divide-y divide-dividerLight">
             <div
               v-for="(member, index) in membersList"

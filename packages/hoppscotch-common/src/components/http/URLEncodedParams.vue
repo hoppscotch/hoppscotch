@@ -143,19 +143,12 @@
           </div>
         </template>
       </draggable>
-      <div
+      <HoppSmartPlaceholder
         v-if="workingUrlEncodedParams.length === 0"
-        class="flex flex-col items-center justify-center p-4 text-secondaryLight"
+        :src="`/images/states/${colorMode.value}/add_category.svg`"
+        :alt="`${t('empty.body')}`"
+        :text="t('empty.body')"
       >
-        <img
-          :src="`/images/states/${colorMode.value}/add_category.svg`"
-          loading="lazy"
-          class="inline-flex flex-col object-contain object-center w-16 h-16 my-4"
-          :alt="`${t('empty.body')}`"
-        />
-        <span class="pb-4 text-center">
-          {{ t("empty.body") }}
-        </span>
         <HoppButtonSecondary
           filled
           :label="`${t('add.new')}`"
@@ -163,7 +156,7 @@
           class="mb-4"
           @click="addUrlEncodedParam"
         />
-      </div>
+      </HoppSmartPlaceholder>
     </div>
   </div>
 </template>

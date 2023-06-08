@@ -31,17 +31,13 @@
           subscriptionFields.length === 0 &&
           graphqlTypes.length === 0
         "
-        class="flex flex-col items-center justify-center p-4 text-secondaryLight"
       >
-        <img
+        <HoppSmartPlaceholder
           :src="`/images/states/${colorMode.value}/add_comment.svg`"
-          loading="lazy"
-          class="inline-flex flex-col object-contain object-center w-16 h-16 my-4"
           :alt="`${t('empty.documentation')}`"
-        />
-        <span class="mb-4 text-center">
-          {{ t("empty.documentation") }}
-        </span>
+          :text="t('empty.documentation')"
+        >
+        </HoppSmartPlaceholder>
       </div>
       <div v-else>
         <div
@@ -172,20 +168,13 @@
         ref="schemaEditor"
         class="flex flex-col flex-1"
       ></div>
-      <div
+      <HoppSmartPlaceholder
         v-else
-        class="flex flex-col items-center justify-center p-4 text-secondaryLight"
+        :src="`/images/states/${colorMode.value}/blockchain.svg`"
+        :alt="`${t('empty.schema')}`"
+        :text="t('empty.schema')"
       >
-        <img
-          :src="`/images/states/${colorMode.value}/blockchain.svg`"
-          loading="lazy"
-          class="inline-flex flex-col object-contain object-center w-16 h-16 my-4"
-          :alt="`${t('empty.schema')}`"
-        />
-        <span class="mb-4 text-center">
-          {{ t("empty.schema") }}
-        </span>
-      </div>
+      </HoppSmartPlaceholder>
     </HoppSmartTab>
   </HoppSmartTabs>
 </template>

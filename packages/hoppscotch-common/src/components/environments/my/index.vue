@@ -32,26 +32,20 @@
       :environment="environment"
       @edit-environment="editEnvironment(index)"
     />
-    <div
-      v-if="environments.length === 0"
-      class="flex flex-col items-center justify-center p-4 text-secondaryLight"
-    >
-      <img
+    <div v-if="environments.length === 0">
+      <HoppSmartPlaceholder
         :src="`/images/states/${colorMode.value}/blockchain.svg`"
-        loading="lazy"
-        class="inline-flex flex-col object-contain object-center w-16 h-16 my-4"
         :alt="`${t('empty.environments')}`"
-      />
-      <span class="pb-4 text-center">
-        {{ t("empty.environments") }}
-      </span>
-      <HoppButtonSecondary
-        :label="`${t('add.new')}`"
-        filled
-        outline
-        class="mb-4"
-        @click="displayModalAdd(true)"
-      />
+        :text="t('empty.environments')"
+      >
+        <HoppButtonSecondary
+          :label="`${t('add.new')}`"
+          filled
+          outline
+          class="mb-4"
+          @click="displayModalAdd(true)"
+        />
+      </HoppSmartPlaceholder>
     </div>
     <EnvironmentsMyDetails
       :show="showModalDetails"

@@ -106,20 +106,13 @@
         />
       </details>
     </div>
-    <div
+    <HoppSmartPlaceholder
       v-if="history.length === 0"
-      class="flex flex-col items-center justify-center p-4 text-secondaryLight"
+      :src="`/images/states/${colorMode.value}/history.svg`"
+      :alt="`${t('empty.history')}`"
+      :text="t('empty.history')"
     >
-      <img
-        :src="`/images/states/${colorMode.value}/history.svg`"
-        loading="lazy"
-        class="inline-flex flex-col object-contain object-center w-16 h-16 my-4"
-        :alt="`${t('empty.history')}`"
-      />
-      <span class="mb-4 text-center">
-        {{ t("empty.history") }}
-      </span>
-    </div>
+    </HoppSmartPlaceholder>
     <div
       v-else-if="
         Object.keys(filteredHistoryGroups).length === 0 ||

@@ -83,33 +83,27 @@
               />
             </div>
           </div>
-          <div
-            v-if="vars.length === 0"
-            class="flex flex-col items-center justify-center p-4 text-secondaryLight"
-          >
-            <img
+          <div v-if="vars.length === 0">
+            <HoppSmartPlaceholder
               :src="`/images/states/${colorMode.value}/blockchain.svg`"
-              loading="lazy"
-              class="inline-flex flex-col object-contain object-center w-16 h-16 my-4"
               :alt="`${t('empty.environments')}`"
-            />
-            <span class="pb-4 text-center">
-              {{ t("empty.environments") }}
-            </span>
-            <HoppButtonSecondary
-              v-if="isViewer"
-              disabled
-              :label="`${t('add.new')}`"
-              filled
-              class="mb-4"
-            />
-            <HoppButtonSecondary
-              v-else
-              :label="`${t('add.new')}`"
-              filled
-              class="mb-4"
-              @click="addEnvironmentVariable"
-            />
+              :text="t('empty.environments')"
+            >
+              <HoppButtonSecondary
+                v-if="isViewer"
+                disabled
+                :label="`${t('add.new')}`"
+                filled
+                class="mb-4"
+              />
+              <HoppButtonSecondary
+                v-else
+                :label="`${t('add.new')}`"
+                filled
+                class="mb-4"
+                @click="addEnvironmentVariable"
+              />
+            </HoppSmartPlaceholder>
           </div>
         </div>
       </div>

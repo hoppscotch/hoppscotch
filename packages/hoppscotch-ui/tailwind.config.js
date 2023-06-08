@@ -1,6 +1,3 @@
-// type
-console.log("tailwind.config.ts")
-
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: ["./src/**/*.{vue,js,ts,jsx,tsx}"],
@@ -97,9 +94,6 @@ module.exports = {
       },
       maxHeight: {
         46: "11.5rem",
-      },
-      padding: {
-        0.75: "0.1875rem",
       },
     },
     screens: {

@@ -157,7 +157,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, PropType, ref, watch } from "vue"
+import { computed, nextTick, PropType, ref, watch } from "vue"
 import { useToast } from "@composables/toast"
 import { useI18n } from "@composables/i18n"
 import { Picked } from "~/helpers/types/HoppPicked"
@@ -895,6 +895,9 @@ const updateEditingRequest = (newName: string) => {
 
     if (possibleActiveTab) {
       possibleActiveTab.value.document.request.name = requestUpdated.name
+      nextTick(() => {
+        possibleActiveTab.value.document.isDirty = false
+      })
     }
 
     displayModalEditRequest(false)
@@ -933,6 +936,9 @@ const updateEditingRequest = (newName: string) => {
 
     if (possibleTab) {
       possibleTab.value.document.request.name = requestName
+      nextTick(() => {
+        possibleTab.value.document.isDirty = false
+      })
     }
   }
 }

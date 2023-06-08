@@ -50,7 +50,8 @@
   },
   "add": {
     "new": "Add new",
-    "star": "Add star"
+    "star": "Add star",
+    "tab": "New tab"
   },
   "app": {
     "chat_with_us": "Chat with us",

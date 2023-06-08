@@ -59,6 +59,20 @@
           <template #actions>
             <EnvironmentsSelector class="h-full" />
           </template>
+          <template #newActions>
+            <HoppSmartItem
+              :label="`${t('add.tab')}`"
+              :icon="IconPlusCircle"
+              :shortcut="['N']"
+              @click="() => {}"
+            />
+            <HoppSmartItem
+              :label="`${t('import.curl')}`"
+              :icon="IconFileCode"
+              :shortcut="['C']"
+              @click="() => {}"
+            />
+          </template>
         </HoppSmartWindows>
       </template>
       <template #sidebar>
@@ -128,6 +142,8 @@ import {
   changeCurrentSyncStatus,
   currentSyncingStatus$,
 } from "~/newstore/syncing"
+import IconFileCode from "~icons/lucide/file-code"
+import IconPlusCircle from "~icons/lucide/plus-circle"
 
 const savingRequest = ref(false)
 const confirmingCloseForTabID = ref<string | null>(null)

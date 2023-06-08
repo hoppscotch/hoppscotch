@@ -87,14 +87,32 @@
               v-if="canAddNewTab"
               class="flex items-center justify-center h-full px-3 bg-primaryLight z-8"
             >
-              <HoppButtonSecondary
-                v-tippy="{ theme: 'tooltip' }"
-                :title="newText ?? t?.('action.new') ?? 'New'"
-                :icon="IconPlus"
-                class="rounded create-new-tab !text-secondaryDark !p-1"
-                filled
-                @click="addTab"
-              />
+              <tippy
+                interactive
+                trigger="mouseenter"
+                theme="popover"
+                placement="bottom"
+                :delay="[500, 20]"
+              >
+                <HoppButtonSecondary
+                  v-tippy="{ theme: 'tooltip' }"
+                  :title="newText ?? t?.('action.new') ?? 'New'"
+                  :icon="IconPlus"
+                  class="rounded create-new-tab !text-secondaryDark !p-1"
+                  filled
+                  @click="addTab"
+                />
+                <template #content="{ hide }">
+                  <div
+                    ref="tippyActions"
+                    class="flex flex-col focus:outline-none"
+                    tabindex="0"
+                    @keyup.escape="hide()"
+                  >
+                    <slot name="newActions" />
+                  </div>
+                </template>
+              </tippy>
             </span>
           </div>
         </div>
@@ -115,7 +133,9 @@
         }"
         :style="[
           `--thumb-width: ${scrollThumb.width}px`,
-          `width: calc(100% - ${hasActions ? mdAndLarger ? '19rem' : '7rem' : '3rem'})`,
+          `width: calc(100% - ${
+            hasActions ? (mdAndLarger ? '19rem' : '7rem') : '3rem'
+          })`,
         ]"
         id="myRange"
       />
@@ -144,7 +164,11 @@ import {
   nextTick,
   useSlots,
 } from "vue"
-import { breakpointsTailwind, useBreakpoints, useElementSize } from "@vueuse/core"
+import {
+  breakpointsTailwind,
+  useBreakpoints,
+  useElementSize,
+} from "@vueuse/core"
 import type { Slot } from "vue"
 import draggable from "vuedraggable-es"
 import { HoppUIPluginOptions, HOPP_UI_OPTIONS } from "./../../index"

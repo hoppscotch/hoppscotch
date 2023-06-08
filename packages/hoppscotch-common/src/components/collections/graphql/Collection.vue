@@ -175,27 +175,23 @@
           v-if="
             collection.folders.length === 0 && collection.requests.length === 0
           "
-          class="flex flex-col items-center justify-center p-4 text-secondaryLight"
         >
-          <img
+          <HoppSmartPlaceholder
             :src="`/images/states/${colorMode.value}/pack.svg`"
-            loading="lazy"
-            class="inline-flex flex-col object-contain object-center w-16 h-16 mb-4"
             :alt="`${t('empty.collection')}`"
-          />
-          <span class="pb-4 text-center">
-            {{ t("empty.collection") }}
-          </span>
-          <HoppButtonSecondary
-            :label="t('add.new')"
-            filled
-            outline
-            @click="
-              emit('add-folder', {
-                path: `${collectionIndex}`,
-              })
-            "
-          />
+            :text="t('empty.collection')"
+          >
+            <HoppButtonSecondary
+              :label="t('add.new')"
+              filled
+              outline
+              @click="
+                emit('add-folder', {
+                  path: `${collectionIndex}`,
+                })
+              "
+            />
+          </HoppSmartPlaceholder>
         </div>
       </div>
     </div>

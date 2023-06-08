@@ -60,25 +60,19 @@
         @select="$emit('select', $event)"
       />
     </div>
-    <div
-      v-if="collections.length === 0"
-      class="flex flex-col items-center justify-center p-4 text-secondaryLight"
-    >
-      <img
+    <div v-if="collections.length === 0">
+      <HoppSmartPlaceholder
         :src="`/images/states/${colorMode.value}/pack.svg`"
-        loading="lazy"
-        class="inline-flex flex-col object-contain object-center w-16 h-16 my-4"
-        :alt="t('empty.collections')"
-      />
-      <span class="pb-4 text-center">
-        {{ t("empty.collections") }}
-      </span>
-      <HoppButtonSecondary
-        :label="t('add.new')"
-        filled
-        outline
-        @click="displayModalAdd(true)"
-      />
+        :alt="`${t('empty.collections')}`"
+        :text="t('empty.collections')"
+      >
+        <HoppButtonSecondary
+          :label="t('add.new')"
+          filled
+          outline
+          @click="displayModalAdd(true)"
+        />
+      </HoppSmartPlaceholder>
     </div>
     <div
       v-if="!(filteredCollections.length !== 0 || collections.length === 0)"

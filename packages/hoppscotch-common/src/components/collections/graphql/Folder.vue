@@ -160,21 +160,19 @@
           @duplicate-request="emit('duplicate-request', $event)"
           @select="emit('select', $event)"
         />
-        <div
+
+        <HoppSmartPlaceholder
           v-if="
             folder.folders &&
             folder.folders.length === 0 &&
             folder.requests &&
             folder.requests.length === 0
           "
+          :src="`/images/states/${colorMode.value}/pack.svg`"
+          :alt="`${t('empty.folder')}`"
+          :text="t('empty.folder')"
         >
-          <HoppSmartPlaceholder
-            :src="`/images/states/${colorMode.value}/pack.svg`"
-            :alt="`${t('empty.folder')}`"
-            :text="t('empty.folder')"
-          >
-          </HoppSmartPlaceholder>
-        </div>
+        </HoppSmartPlaceholder>
       </div>
     </div>
     <HoppSmartConfirmModal

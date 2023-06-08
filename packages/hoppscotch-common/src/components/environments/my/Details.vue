@@ -79,20 +79,19 @@
               />
             </div>
           </div>
-          <div v-if="vars.length === 0">
-            <HoppSmartPlaceholder
-              :src="`/images/states/${colorMode.value}/blockchain.svg`"
-              :alt="`${t('empty.environments')}`"
-              :text="t('empty.environments')"
-            >
-              <HoppButtonSecondary
-                :label="`${t('add.new')}`"
-                filled
-                class="mb-4"
-                @click="addEnvironmentVariable"
-              />
-            </HoppSmartPlaceholder>
-          </div>
+          <HoppSmartPlaceholder
+            v-if="vars.length === 0"
+            :src="`/images/states/${colorMode.value}/blockchain.svg`"
+            :alt="`${t('empty.environments')}`"
+            :text="t('empty.environments')"
+          >
+            <HoppButtonSecondary
+              :label="`${t('add.new')}`"
+              filled
+              class="mb-4"
+              @click="addEnvironmentVariable"
+            />
+          </HoppSmartPlaceholder>
         </div>
       </div>
     </template>

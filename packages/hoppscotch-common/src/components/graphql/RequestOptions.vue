@@ -289,21 +289,20 @@
               </div>
             </template>
           </draggable>
-          <div v-if="workingHeaders.length === 0">
-            <HoppSmartPlaceholder
-              :src="`/images/states/${colorMode.value}/add_category.svg`"
-              :alt="`${t('empty.headers')}`"
-              :text="t('empty.headers')"
-            >
-              <HoppButtonSecondary
-                :label="`${t('add.new')}`"
-                filled
-                :icon="IconPlus"
-                class="mb-4"
-                @click="addHeader"
-              />
-            </HoppSmartPlaceholder>
-          </div>
+          <HoppSmartPlaceholder
+            v-if="workingHeaders.length === 0"
+            :src="`/images/states/${colorMode.value}/add_category.svg`"
+            :alt="`${t('empty.headers')}`"
+            :text="t('empty.headers')"
+          >
+            <HoppButtonSecondary
+              :label="`${t('add.new')}`"
+              filled
+              :icon="IconPlus"
+              class="mb-4"
+              @click="addHeader"
+            />
+          </HoppSmartPlaceholder>
         </div>
       </HoppSmartTab>
       <HoppSmartTab :id="'authorization'" :label="`${t('tab.authorization')}`">

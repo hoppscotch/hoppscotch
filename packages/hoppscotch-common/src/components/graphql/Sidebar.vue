@@ -24,21 +24,18 @@
       :icon="IconBookOpen"
       :label="`${t('tab.documentation')}`"
     >
-      <div
+      <HoppSmartPlaceholder
         v-if="
           queryFields.length === 0 &&
           mutationFields.length === 0 &&
           subscriptionFields.length === 0 &&
           graphqlTypes.length === 0
         "
+        :src="`/images/states/${colorMode.value}/add_comment.svg`"
+        :alt="`${t('empty.documentation')}`"
+        :text="t('empty.documentation')"
       >
-        <HoppSmartPlaceholder
-          :src="`/images/states/${colorMode.value}/add_comment.svg`"
-          :alt="`${t('empty.documentation')}`"
-          :text="t('empty.documentation')"
-        >
-        </HoppSmartPlaceholder>
-      </div>
+      </HoppSmartPlaceholder>
       <div v-else>
         <div
           class="sticky top-0 z-10 flex flex-shrink-0 overflow-x-auto bg-primary"

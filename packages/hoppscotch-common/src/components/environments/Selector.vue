@@ -70,14 +70,13 @@
                 }
               "
             />
-            <div v-if="myEnvironments.length === 0">
-              <HoppSmartPlaceholder
-                :src="`/images/states/${colorMode.value}/blockchain.svg`"
-                :alt="`${t('empty.environments')}`"
-                :text="t('empty.environments')"
-              >
-              </HoppSmartPlaceholder>
-            </div>
+            <HoppSmartPlaceholder
+              v-if="myEnvironments.length === 0"
+              :src="`/images/states/${colorMode.value}/blockchain.svg`"
+              :alt="`${t('empty.environments')}`"
+              :text="t('empty.environments')"
+            >
+            </HoppSmartPlaceholder>
           </HoppSmartTab>
           <HoppSmartTab
             :id="'team-environments'"
@@ -113,14 +112,14 @@
                   }
                 "
               />
-              <div v-if="teamEnvironmentList.length === 0">
-                <HoppSmartPlaceholder
-                  :src="`/images/states/${colorMode.value}/blockchain.svg`"
-                  :alt="`${t('empty.environments')}`"
-                  :text="t('empty.environments')"
-                >
-                </HoppSmartPlaceholder>
-              </div>
+
+              <HoppSmartPlaceholder
+                v-if="teamEnvironmentList.length === 0"
+                :src="`/images/states/${colorMode.value}/blockchain.svg`"
+                :alt="`${t('empty.environments')}`"
+                :text="t('empty.environments')"
+              >
+              </HoppSmartPlaceholder>
             </div>
             <div
               v-if="!teamListLoading && teamAdapterError"

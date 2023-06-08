@@ -252,54 +252,45 @@
               {{ t("state.nothing_found") }} "{{ filterText }}"
             </span>
           </div>
-          <div v-else-if="node === null">
-            <HoppSmartPlaceholder
-              :src="`/images/states/${colorMode.value}/pack.svg`"
-              :alt="`${t('empty.collections')}`"
-              :text="t('empty.collections')"
-            >
-              <HoppButtonSecondary
-                :label="t('add.new')"
-                filled
-                outline
-                @click="emit('display-modal-add')"
-              />
-            </HoppSmartPlaceholder>
-          </div>
-          <div v-else-if="node.data.type === 'collections'">
-            <HoppSmartPlaceholder
-              :src="`/images/states/${colorMode.value}/pack.svg`"
-              :alt="`${t('empty.collections')}`"
-              :text="t('empty.collections')"
-            >
-              <HoppButtonSecondary
-                :label="t('add.new')"
-                filled
-                outline
-                @click="
-                  node.data.type === 'collections' &&
-                    emit('add-folder', {
-                      path: node.id,
-                      folder: node.data.data.data,
-                    })
-                "
-              />
-            </HoppSmartPlaceholder>
-          </div>
-          <div
-            v-else-if="node.data.type === 'folders'"
-            class="flex flex-col items-center justify-center p-4 text-secondaryLight"
+          <HoppSmartPlaceholder
+            v-else-if="node === null"
+            :src="`/images/states/${colorMode.value}/pack.svg`"
+            :alt="`${t('empty.collections')}`"
+            :text="t('empty.collections')"
           >
-            <img
-              :src="`/images/states/${colorMode.value}/pack.svg`"
-              loading="lazy"
-              class="inline-flex flex-col object-contain object-center w-16 h-16 mb-4"
-              :alt="`${t('empty.folder')}`"
+            <HoppButtonSecondary
+              :label="t('add.new')"
+              filled
+              outline
+              @click="emit('display-modal-add')"
             />
-            <span class="text-center">
-              {{ t("empty.folder") }}
-            </span>
-          </div>
+          </HoppSmartPlaceholder>
+          <HoppSmartPlaceholder
+            v-else-if="node.data.type === 'collections'"
+            :src="`/images/states/${colorMode.value}/pack.svg`"
+            :alt="`${t('empty.collections')}`"
+            :text="t('empty.collections')"
+          >
+            <HoppButtonSecondary
+              :label="t('add.new')"
+              filled
+              outline
+              @click="
+                node.data.type === 'collections' &&
+                  emit('add-folder', {
+                    path: node.id,
+                    folder: node.data.data.data,
+                  })
+              "
+            />
+          </HoppSmartPlaceholder>
+          <HoppSmartPlaceholder
+            v-else-if="node.data.type === 'folders'"
+            :src="`/images/states/${colorMode.value}/pack.svg`"
+            :alt="`${t('empty.folder')}`"
+            :text="t('empty.folder')"
+          >
+          </HoppSmartPlaceholder>
         </template>
       </SmartTree>
     </div>

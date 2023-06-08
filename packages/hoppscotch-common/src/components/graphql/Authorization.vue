@@ -114,23 +114,22 @@
         />
       </div>
     </div>
-    <div v-if="authType === 'none'">
-      <HoppSmartPlaceholder
-        :src="`/images/states/${colorMode.value}/login.svg`"
-        :alt="`${t('empty.authorization')}`"
-        :text="t('empty.authorization')"
-      >
-        <HoppButtonSecondary
-          outline
-          :label="t('app.documentation')"
-          to="https://docs.hoppscotch.io/documentation/features/authorization"
-          blank
-          :icon="IconExternalLink"
-          reverse
-          class="mb-4"
-        />
-      </HoppSmartPlaceholder>
-    </div>
+    <HoppSmartPlaceholder
+      v-if="authType === 'none'"
+      :src="`/images/states/${colorMode.value}/login.svg`"
+      :alt="`${t('empty.authorization')}`"
+      :text="t('empty.authorization')"
+    >
+      <HoppButtonSecondary
+        outline
+        :label="t('app.documentation')"
+        to="https://docs.hoppscotch.io/documentation/features/authorization"
+        blank
+        :icon="IconExternalLink"
+        reverse
+        class="mb-4"
+      />
+    </HoppSmartPlaceholder>
     <div v-else class="flex flex-1 border-b border-dividerLight">
       <div class="w-2/3 border-r border-dividerLight">
         <div v-if="authType === 'basic'">

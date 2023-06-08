@@ -35,7 +35,7 @@ const props = withDefaults(
     modelValue: string | null
     placeholder: string
     inputStyles: any
-    inputType: string
+    inputType: string | (string | false)[]
     type: string
     label: string
     disabled: boolean

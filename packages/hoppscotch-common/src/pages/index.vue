@@ -197,11 +197,30 @@ const renameReqName = () => {
   if (tab.value) {
     tab.value.document.request.name = reqName.value
     updateTab(tab.value)
-    if (tab.value.document.saveContext) {
-      invokeAction("request.save")
-    }
+    showSaveToast()
   }
   showRenamingReqNameModal.value = false
+}
+
+const showSaveToast = () => {
+  toast.show(t("confirm.request_save"), {
+    duration: 0,
+    action: [
+      {
+        text: `${t("action.yes")}`,
+        onClick: (_, toastObject) => {
+          invokeAction("request.save")
+          toastObject.goAway(0)
+        },
+      },
+      {
+        text: `${t("action.no")}`,
+        onClick: (_, toastObject) => {
+          toastObject.goAway(0)
+        },
+      },
+    ],
+  })
 }
 
 /**

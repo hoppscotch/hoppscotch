@@ -15,28 +15,20 @@
         v-if="response.type === 'network_fail'"
         :src="`/images/states/${colorMode.value}/youre_lost.svg`"
         :alt="`${t('error.network_fail')}`"
-        :text="t('error.network_fail')"
+        :heading="t('error.network_fail')"
+        :text="t('helpers.network_fail')"
       >
-        <span
-          class="max-w-sm mb-6 text-center whitespace-normal text-secondaryLight"
-        >
-          {{ t("helpers.network_fail") }}
-        </span>
         <AppInterceptor class="p-2 border rounded border-dividerLight" />
       </HoppSmartPlaceholder>
       <HoppSmartPlaceholder
         v-if="response.type === 'script_fail'"
         :src="`/images/states/${colorMode.value}/youre_lost.svg`"
         :alt="`${t('error.script_fail')}`"
-        :text="t('error.script_fail')"
+        :label="t('error.script_fail')"
+        :text="t('helpers.script_fail')"
       >
-        <span
-          class="max-w-sm mb-6 text-center whitespace-normal text-secondaryLight"
-        >
-          {{ t("helpers.script_fail") }}
-        </span>
         <div
-          class="w-full px-4 py-2 overflow-auto font-mono text-red-400 whitespace-normal rounded bg-primaryLight"
+          class="mt-2 w-full px-4 py-2 overflow-auto font-mono text-red-400 whitespace-normal rounded bg-primaryLight"
         >
           {{ response.error.name }}: {{ response.error.message }}<br />
           {{ response.error.stack }}

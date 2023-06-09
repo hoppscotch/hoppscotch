@@ -113,17 +113,16 @@
       :text="t('empty.history')"
     >
     </HoppSmartPlaceholder>
-    <div
+    <HoppSmartPlaceholder
       v-else-if="
         Object.keys(filteredHistoryGroups).length === 0 ||
         filteredHistory.length === 0
       "
-      class="flex flex-col items-center justify-center p-4 text-secondaryLight"
+      :text="`${t('state.nothing_found')} ‟${filterText || filterSelection}”`"
     >
-      <icon-lucide-search class="pb-2 opacity-75 svg-icons" />
-      <span class="mt-2 mb-4 text-center">
-        {{ t("state.nothing_found") }} "{{ filterText || filterSelection }}"
-      </span>
+      <template #icon>
+        <icon-lucide-search class="pb-2 opacity-75 svg-icons" />
+      </template>
       <HoppButtonSecondary
         :label="t('action.clear')"
         outline
@@ -134,7 +133,7 @@
           }
         "
       />
-    </div>
+    </HoppSmartPlaceholder>
     <HoppSmartConfirmModal
       :show="confirmRemove"
       :title="`${t('confirm.remove_history')}`"

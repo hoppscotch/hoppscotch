@@ -1,14 +1,22 @@
 <template>
-  <div
-    class="flex flex-col items-center justify-center p-4 text-secondaryLight"
-  >
+  <div class="flex flex-col items-center justify-center p-4">
     <img
+      v-if="src"
       :src="src"
       loading="lazy"
       class="inline-flex flex-col object-contain object-center w-16 h-16 mb-4"
       :alt="alt"
     />
-    <span class="pb-4 text-center">
+
+    <slot name="icon"></slot>
+
+    <span v-if="heading" class="mb-2 font-semibold text-center">
+      {{ heading }}
+    </span>
+
+    <span
+      class="max-w-sm mb-4 text-center whitespace-normal text-secondaryLight"
+    >
       {{ text }}
     </span>
 
@@ -19,8 +27,9 @@
 <script setup lang="ts">
 withDefaults(
   defineProps<{
-    src: string
+    src?: string
     alt?: string
+    heading?: string
     text?: string
   }>(),
   {

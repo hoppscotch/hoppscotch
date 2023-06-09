@@ -11,13 +11,10 @@
       </div>
 
       <div class="border rounded border-divider my-8">
-        <div
+        <HoppSmartPlaceholder
           v-if="team?.teamMembers?.length === 0"
-          class="flex flex-col items-center justify-center p-4 text-secondaryLight"
+          text="No members in this team. Add members to this team to collaborate"
         >
-          <span class="pb-4 text-center">
-            {{ t('teams.no_members') }}
-          </span>
           <HoppButtonSecondary
             :icon="IconUserPlus"
             :label="t('teams.add_members')"
@@ -27,7 +24,7 @@
               }
             "
           />
-        </div>
+        </HoppSmartPlaceholder>
         <div v-else class="divide-y divide-dividerLight">
           <div
             v-for="(member, index) in membersList"

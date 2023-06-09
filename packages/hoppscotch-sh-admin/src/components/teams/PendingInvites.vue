@@ -37,16 +37,15 @@
           </div>
         </div>
       </div>
-      <div
+      <HoppSmartPlaceholder
         v-if="team && pendingInvites?.length === 0"
-        class="flex flex-col items-center justify-center p-4 text-secondaryLight"
+        text="No pending invites"
       >
-        <span class="text-center">{{ t('teams.no_pending_invites') }} </span>
-      </div>
-      <div v-if="!fetching && error" class="flex flex-col items-center p-4">
-        <icon-lucide-help-circle class="mb-4 svg-icons" />
-        {{ t('teams.error') }}
-      </div>
+        <div v-if="!fetching && error" class="flex flex-col items-center p-4">
+          <icon-lucide-help-circle class="mb-4 svg-icons" />
+          Something went wrong. Please try again later.
+        </div>
+      </HoppSmartPlaceholder>
     </div>
   </div>
 </template>

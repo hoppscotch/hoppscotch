@@ -243,15 +243,14 @@
           />
         </template>
         <template #emptyNode="{ node }">
-          <div
+          <HoppSmartPlaceholder
             v-if="filterText.length !== 0 && filteredCollections.length === 0"
-            class="flex flex-col items-center justify-center p-4 text-secondaryLight"
+            :text="`${t('state.nothing_found')} ‟${filterText}”`"
           >
-            <icon-lucide-search class="pb-2 opacity-75 svg-icons" />
-            <span class="my-2 text-center">
-              {{ t("state.nothing_found") }} "{{ filterText }}"
-            </span>
-          </div>
+            <template #icon>
+              <icon-lucide-search class="pb-2 opacity-75 svg-icons" />
+            </template>
+          </HoppSmartPlaceholder>
           <HoppSmartPlaceholder
             v-else-if="node === null"
             :src="`/images/states/${colorMode.value}/pack.svg`"

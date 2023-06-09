@@ -98,17 +98,14 @@
                 </div>
               </div>
             </div>
-            <div
+            <HoppSmartPlaceholder
               v-if="
                 E.isRight(pendingInvites.data) &&
                 pendingInvites.data.right.team.teamInvitations.length === 0
               "
-              class="flex flex-col items-center justify-center p-4 text-secondaryLight"
+              :text="t('empty.pending_invites')"
             >
-              <span class="text-center">
-                {{ t("empty.pending_invites") }}
-              </span>
-            </div>
+            </HoppSmartPlaceholder>
             <div
               v-if="!pendingInvites.loading && E.isLeft(pendingInvites.data)"
               class="flex flex-col items-center p-4"

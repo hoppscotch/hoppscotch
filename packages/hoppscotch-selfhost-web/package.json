@@ -1,7 +1,7 @@
 {
   "name": "@hoppscotch/selfhost-web",
   "private": true,
-  "version": "2023.4.5",
+  "version": "2023.4.6",
   "type": "module",
   "scripts": {
     "dev:vite": "vite",

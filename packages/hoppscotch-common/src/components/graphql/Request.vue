@@ -31,7 +31,12 @@ import { GQLConnection } from "~/helpers/GQLConnection"
 import { getCurrentStrategyID } from "~/helpers/network"
 import { useReadonlyStream, useStream } from "@composables/stream"
 import { useI18n } from "@composables/i18n"
-import { gqlHeaders$, gqlURL$, setGQLURL } from "~/newstore/GQLSession"
+import {
+  gqlAuth$,
+  gqlHeaders$,
+  gqlURL$,
+  setGQLURL,
+} from "~/newstore/GQLSession"
 
 const t = useI18n()
 
@@ -41,12 +46,16 @@ const props = defineProps<{
 
 const connected = useReadonlyStream(props.conn.connected$, false)
 const headers = useReadonlyStream(gqlHeaders$, [])
+const auth = useReadonlyStream(gqlAuth$, {
+  authType: "none",
+  authActive: true,
+})
 
 const url = useStream(gqlURL$, "", setGQLURL)
 
 const onConnectClick = () => {
   if (!connected.value) {
-    props.conn.connect(url.value, headers.value as any)
+    props.conn.connect(url.value, headers.value as any, auth.value)
 
     platform.analytics?.logHoppRequestRunToAnalytics({
       platform: "graphql-schema",

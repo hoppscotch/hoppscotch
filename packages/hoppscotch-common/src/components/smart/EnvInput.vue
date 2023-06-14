@@ -14,23 +14,21 @@
         @keydown="handleKeystroke"
       ></div>
     </div>
-    <div
+    <ul
       v-if="showSuggestionPopover"
-      class="suggestions left-0 right-0"
+      class="suggestions"
       @click-outside="showSuggestionPopover = false"
     >
-      <ul class="overlow-y-auto">
-        <li
-          v-for="(suggestion, index) in suggestions"
-          :key="`suggestion-${index}`"
-          class="py-1 px-2 cursor-pointer"
-          :class="{ active: currentSuggestionIndex === index }"
-          @click.prevent="updateModelValue(suggestion)"
-        >
-          {{ suggestion }}
-        </li>
-      </ul>
-    </div>
+      <li
+        v-for="(suggestion, index) in suggestions"
+        :key="`suggestion-${index}`"
+        class="py-1 px-2 cursor-pointer"
+        :class="{ active: currentSuggestionIndex === index }"
+        @click.prevent="updateModelValue(suggestion)"
+      >
+        {{ suggestion }}
+      </li>
+    </ul>
   </div>
 </template>
 
@@ -332,11 +330,6 @@ watch(editor, () => {
 .autocomplete-wrapper {
   @apply relative;
 
-  input:focus + ul.suggestions,
-  .suggestions:hover {
-    @apply block;
-  }
-
   .suggestions {
     @apply absolute;
     @apply bg-popover;
@@ -345,29 +338,26 @@ watch(editor, () => {
     @apply max-h-46;
     @apply border-b border-x border-divider;
     @apply p-2;
-    @apply overflow-hidden;
+    @apply overflow-y-auto;
     @apply top-[calc(100%+2px)];
     @apply left-0;
     @apply right-0;
+    border-radius: 0 0 8px 8px;
+    li {
+      @apply w-full;
+      @apply py-2 px-2;
+      @apply text-secondary;
+      @apply font-semibold;
 
-    ul {
-      border-radius: 0 0 8px 8px;
-      li {
-        @apply w-full;
-        @apply py-2 px-2;
-        @apply text-secondary;
-        @apply font-semibold;
+      &:last-child {
+        border-radius: 0 0 0 8px;
+      }
 
-        &:last-child {
-          border-radius: 0 0 0 8px;
-        }
-
-        &:hover,
-        &.active {
-          @apply bg-primaryDark;
-          @apply text-secondaryDark;
-          @apply cursor-pointer;
-        }
+      &:hover,
+      &.active {
+        @apply bg-primaryDark;
+        @apply text-secondaryDark;
+        @apply cursor-pointer;
       }
     }
   }

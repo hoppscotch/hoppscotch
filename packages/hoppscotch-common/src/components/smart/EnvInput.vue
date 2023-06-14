@@ -1,6 +1,6 @@
 <template>
   <div
-    class="relative flex items-center flex-1 flex-shrink-0 py-4 overflow-auto whitespace-nowrap"
+    class="autocomplete-wrapper relative flex items-center flex-1 flex-shrink-0 py-4 whitespace-nowrap"
   >
     <div class="absolute inset-0 flex flex-1">
       <div
@@ -11,8 +11,25 @@
         @keydown.enter.prevent="emit('enter', $event)"
         @keyup="emit('keyup', $event)"
         @click="emit('click', $event)"
-        @keydown="emit('keydown', $event)"
+        @keydown="handleKeystroke"
       ></div>
+    </div>
+    <div
+      v-if="showSuggestionPopover"
+      class="suggestions left-0 right-0"
+      @click-outside="showSuggestionPopover = false"
+    >
+      <ul class="overlow-y-auto">
+        <li
+          v-for="(suggestion, index) in suggestions"
+          :key="`suggestion-${index}`"
+          class="py-1 px-2 cursor-pointer"
+          :class="{ active: currentSuggestionIndex === index }"
+          @click.prevent="updateModelValue(suggestion)"
+        >
+          {{ suggestion }}
+        </li>
+      </ul>
     </div>
   </div>
 </template>
@@ -46,6 +63,7 @@ const props = withDefaults(
     selectTextOnMount?: boolean
     environmentHighlights?: boolean
     readonly?: boolean
+    autoCompleteSource?: string[]
   }>(),
   {
     modelValue: "",
@@ -55,6 +73,7 @@ const props = withDefaults(
     focus: false,
     readonly: false,
     environmentHighlights: true,
+    autoCompleteSource: undefined,
   }
 )
 
@@ -73,6 +92,78 @@ const cachedValue = ref(props.modelValue)
 const view = ref<EditorView>()
 
 const editor = ref<any | null>(null)
+
+const currentSuggestionIndex = ref(-1)
+const showSuggestionPopover = ref(false)
+
+const suggestions = computed(() => {
+  if (
+    props.modelValue &&
+    props.modelValue.length > 0 &&
+    props.autoCompleteSource &&
+    props.autoCompleteSource.length > 0
+  ) {
+    return props.autoCompleteSource.filter((suggestion) =>
+      suggestion.toLowerCase().includes(props.modelValue.toLowerCase())
+    )
+  } else {
+    return []
+  }
+})
+
+watch(
+  () => suggestions.value,
+  (newValue) => {
+    if (
+      newValue.length > 0 &&
+      props.modelValue.length > 0 &&
+      props.modelValue !== newValue[0]
+    ) {
+      showSuggestionPopover.value = true
+    } else {
+      showSuggestionPopover.value = false
+    }
+  }
+)
+
+const updateModelValue = (value: string) => {
+  emit("update:modelValue", value)
+  emit("change", value)
+  showSuggestionPopover.value = false
+}
+
+const handleKeystroke = (ev: KeyboardEvent) => {
+  emit("keydown", ev)
+  if (ev.key === "ArrowDown") {
+    ev.preventDefault()
+
+    currentSuggestionIndex.value =
+      currentSuggestionIndex.value < suggestions.value.length - 1
+        ? currentSuggestionIndex.value + 1
+        : suggestions.value.length - 1
+  } else if (ev.key === "ArrowUp") {
+    ev.preventDefault()
+
+    currentSuggestionIndex.value =
+      currentSuggestionIndex.value - 1 >= 0
+        ? currentSuggestionIndex.value - 1
+        : 0
+  } else if (ev.key === "Enter") {
+    ev.preventDefault()
+    console.log("enter", currentSuggestionIndex.value, suggestions.value)
+    if (currentSuggestionIndex.value >= -1 && suggestions.value.length > 0) {
+      emit("update:modelValue", suggestions.value[currentSuggestionIndex.value])
+      currentSuggestionIndex.value = -1
+    }
+  } else if (ev.key === "Tab") {
+    ev.preventDefault()
+
+    if (currentSuggestionIndex.value >= -1 && suggestions.value.length > 0) {
+      emit("update:modelValue", suggestions.value[currentSuggestionIndex.value])
+      currentSuggestionIndex.value = -1
+    }
+  }
+}
 
 watch(
   () => props.modelValue,
@@ -236,3 +327,49 @@ watch(editor, () => {
   }
 })
 </script>
+
+<style lang="scss" scoped>
+.autocomplete-wrapper {
+  @apply relative;
+
+  input:focus + ul.suggestions,
+  .suggestions:hover {
+    @apply block;
+  }
+
+  .suggestions {
+    @apply absolute;
+    @apply bg-popover;
+    @apply z-50;
+    @apply shadow-lg;
+    @apply max-h-46;
+    @apply border-b border-x border-divider;
+    @apply p-2;
+    @apply overflow-hidden;
+    @apply top-[calc(100%+2px)];
+    @apply left-0;
+    @apply right-0;
+
+    ul {
+      border-radius: 0 0 8px 8px;
+      li {
+        @apply w-full;
+        @apply py-2 px-2;
+        @apply text-secondary;
+        @apply font-semibold;
+
+        &:last-child {
+          border-radius: 0 0 0 8px;
+        }
+
+        &:hover,
+        &.active {
+          @apply bg-primaryDark;
+          @apply text-secondaryDark;
+          @apply cursor-pointer;
+        }
+      }
+    }
+  }
+}
+</style>

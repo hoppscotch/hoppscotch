@@ -26,14 +26,12 @@
         </span>
       </div>
       <div v-else-if="!loading">
-        <div
-          class="hidden w-full border-t rounded-t bg-primaryLight lg:flex border-x border-dividerLight"
-        >
+        <div class="rounded-t bg-primaryLight flex">
           <div class="flex w-full overflow-y-scroll">
             <div class="table-box">
               {{ t("shortcodes.short_code") }}
             </div>
-            <div class="table-box">
+            <div class="flex items-center px-4 py-1 truncate">
               {{ t("shortcodes.method") }}
             </div>
             <div class="table-box">
@@ -48,7 +46,7 @@
           </div>
         </div>
         <div
-          class="flex flex-col items-center justify-between w-full overflow-y-scroll border rounded max-h-sm lg:rounded-t-none lg:divide-y border-dividerLight divide-dividerLight"
+          class="flex flex-col items-center justify-between w-full overflow-y-scroll border rounded max-h-sm rounded-t-none divide-y border-dividerLight divide-dividerLight"
         >
           <ProfileShortcode
             v-for="(shortcode, shortcodeIndex) in myShortcodes"

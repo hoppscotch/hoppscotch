@@ -1,11 +1,17 @@
 <template>
   <div
-    class="block w-full my-6 border divide-y lg:flex lg:my-0 lg:border-0 lg:divide-y-0 lg:divide-x divide-dividerLight border-dividerLight"
+    class="block w-full divide-y flex my-0 border-0 divide-y-0 divide-x divide-dividerLight border-dividerLight"
   >
+    <!-- <div
+    class="block w-full my-6 divide-y flex my-0 border-0 divide-y-0 divide-x divide-dividerLight border-dividerLight"
+  > -->
     <div class="font-mono text-tiny table-box">
       {{ shortcode.id }}
     </div>
-    <div class="table-box" :class="requestLabelColor">
+    <div
+      class="flex items-center px-5 py-1 truncate"
+      :class="requestLabelColor"
+    >
       {{ parseShortcodeRequest.method }}
     </div>
     <div class="table-box">
@@ -14,7 +20,7 @@
     <div ref="timeStampRef" class="table-box">
       {{ dateStamp }}
     </div>
-    <div class="justify-center table-box">
+    <div class="justify-center flex flex-1 items-center pl-4 py-1 truncate">
       <HoppButtonSecondary
         v-tippy="{ theme: 'tooltip' }"
         :title="t('action.open_workspace')"

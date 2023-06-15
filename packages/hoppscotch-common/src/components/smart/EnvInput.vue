@@ -8,8 +8,6 @@
         :placeholder="placeholder"
         class="flex flex-1"
         :class="styles"
-        @keydown.enter.prevent="emit('enter', $event)"
-        @keyup="emit('keyup', $event)"
         @click="emit('click', $event)"
         @keydown="handleKeystroke"
       ></div>
@@ -91,7 +89,7 @@ const editor = ref<any | null>(null)
 const currentSuggestionIndex = ref(-1)
 const showSuggestionPopover = ref(false)
 
-const suggestionsMenu = ref(null)
+const suggestionsMenu = ref<HTMLElement | null>(null)
 
 onClickOutside(suggestionsMenu, () => {
   showSuggestionPopover.value = false
@@ -108,7 +106,7 @@ const suggestions = computed(() => {
       suggestion.toLowerCase().includes(props.modelValue.toLowerCase())
     )
   } else {
-    return []
+    return props.autoCompleteSource ?? []
   }
 })
 
@@ -134,36 +132,65 @@ const updateModelValue = (value: string) => {
 }
 
 const handleKeystroke = (ev: KeyboardEvent) => {
-  emit("keydown", ev)
-  if (ev.key === "ArrowDown") {
+  // emit("keydown", ev)
+  if (["ArrowDown", "ArrowUp", "Enter", "Tab", "Escape"].includes(ev.key)) {
     ev.preventDefault()
+  }
+  if (["ArrowDown"].includes(ev.key) && suggestions.value.length > 0) {
+    showSuggestionPopover.value = true
+  }
+  if (ev.key === "ArrowDown") {
+    fixScrolling()
 
     currentSuggestionIndex.value =
       currentSuggestionIndex.value < suggestions.value.length - 1
         ? currentSuggestionIndex.value + 1
         : suggestions.value.length - 1
-  } else if (ev.key === "ArrowUp") {
-    ev.preventDefault()
+
+    emit("keydown", ev)
+  }
+  if (ev.key === "ArrowUp") {
+    fixScrolling()
 
     currentSuggestionIndex.value =
       currentSuggestionIndex.value - 1 >= 0
         ? currentSuggestionIndex.value - 1
         : 0
-  } else if (ev.key === "Enter") {
-    ev.preventDefault()
-    console.log("enter", currentSuggestionIndex.value, suggestions.value)
+
+    emit("keyup", ev)
+  }
+  if (ev.key === "Enter") {
     if (currentSuggestionIndex.value > -1 && suggestions.value.length > 0) {
       emit("update:modelValue", suggestions.value[currentSuggestionIndex.value])
       currentSuggestionIndex.value = -1
-    } else {
-      emit("enter", ev)
     }
-  } else if (ev.key === "Tab") {
-    ev.preventDefault()
 
+    emit("enter", ev)
+  }
+  if (ev.key === "Tab") {
     if (currentSuggestionIndex.value >= -1 && suggestions.value.length > 0) {
       emit("update:modelValue", suggestions.value[currentSuggestionIndex.value])
       currentSuggestionIndex.value = -1
+    }
+  }
+  if (ev.key === "Escape") {
+    showSuggestionPopover.value = false
+  }
+}
+
+/**
+ * Used to scroll the active suggestion into view
+ */
+const fixScrolling = () => {
+  const suggestionsMenuEl = suggestionsMenu.value
+  if (suggestionsMenuEl) {
+    const activeSuggestionEl = suggestionsMenuEl.querySelector(".active")
+    if (activeSuggestionEl) {
+      activeSuggestionEl.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+        inline: "start",
+      })
     }
   }
 }

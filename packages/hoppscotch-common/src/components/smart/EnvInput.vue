@@ -132,7 +132,6 @@ const updateModelValue = (value: string) => {
 }
 
 const handleKeystroke = (ev: KeyboardEvent) => {
-  // emit("keydown", ev)
   if (["ArrowDown", "ArrowUp", "Enter", "Tab", "Escape"].includes(ev.key)) {
     ev.preventDefault()
   }
@@ -140,7 +139,7 @@ const handleKeystroke = (ev: KeyboardEvent) => {
     showSuggestionPopover.value = true
   }
   if (ev.key === "ArrowDown") {
-    fixScrolling()
+    scrollActiveElIntoView()
 
     currentSuggestionIndex.value =
       currentSuggestionIndex.value < suggestions.value.length - 1
@@ -150,7 +149,7 @@ const handleKeystroke = (ev: KeyboardEvent) => {
     emit("keydown", ev)
   }
   if (ev.key === "ArrowUp") {
-    fixScrolling()
+    scrollActiveElIntoView()
 
     currentSuggestionIndex.value =
       currentSuggestionIndex.value - 1 >= 0
@@ -181,7 +180,7 @@ const handleKeystroke = (ev: KeyboardEvent) => {
 /**
  * Used to scroll the active suggestion into view
  */
-const fixScrolling = () => {
+const scrollActiveElIntoView = () => {
   const suggestionsMenuEl = suggestionsMenu.value
   if (suggestionsMenuEl) {
     const activeSuggestionEl = suggestionsMenuEl.querySelector(".active")

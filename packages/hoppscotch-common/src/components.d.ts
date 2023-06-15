@@ -26,7 +26,6 @@ declare module '@vue/runtime-core' {
     AppShortcutsPrompt: typeof import('./components/app/ShortcutsPrompt.vue')['default']
     AppSidenav: typeof import('./components/app/Sidenav.vue')['default']
     AppSupport: typeof import('./components/app/Support.vue')['default']
-    AppURLAutocomplete: typeof import('./components/app/URLAutocomplete.vue')['default']
     ButtonPrimary: typeof import('./../../hoppscotch-ui/src/components/button/Primary.vue')['default']
     ButtonSecondary: typeof import('./../../hoppscotch-ui/src/components/button/Secondary.vue')['default']
     Collections: typeof import('./components/collections/index.vue')['default']

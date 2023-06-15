@@ -14,11 +14,7 @@
         @keydown="handleKeystroke"
       ></div>
     </div>
-    <ul
-      v-if="showSuggestionPopover"
-      class="suggestions"
-      @click-outside="showSuggestionPopover = false"
-    >
+    <ul v-if="showSuggestionPopover" ref="suggestionsMenu" class="suggestions">
       <li
         v-for="(suggestion, index) in suggestions"
         :key="`suggestion-${index}`"
@@ -50,6 +46,7 @@ import { HoppReactiveEnvPlugin } from "~/helpers/editor/extensions/HoppEnvironme
 import { useReadonlyStream } from "@composables/stream"
 import { AggregateEnvironment, aggregateEnvs$ } from "~/newstore/environments"
 import { platform } from "~/platform"
+import { onClickOutside } from "@vueuse/core"
 
 const props = withDefaults(
   defineProps<{
@@ -93,6 +90,12 @@ const editor = ref<any | null>(null)
 
 const currentSuggestionIndex = ref(-1)
 const showSuggestionPopover = ref(false)
+
+const suggestionsMenu = ref(null)
+
+onClickOutside(suggestionsMenu, () => {
+  showSuggestionPopover.value = false
+})
 
 const suggestions = computed(() => {
   if (

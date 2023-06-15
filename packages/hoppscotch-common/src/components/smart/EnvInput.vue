@@ -138,6 +138,27 @@ const handleKeystroke = (ev: KeyboardEvent) => {
   if (["ArrowDown"].includes(ev.key) && suggestions.value.length > 0) {
     showSuggestionPopover.value = true
   }
+  if (
+    ["Enter", "Tab"].includes(ev.key) &&
+    suggestions.value.length > 0 &&
+    currentSuggestionIndex.value > -1
+  ) {
+    emit("update:modelValue", suggestions.value[currentSuggestionIndex.value])
+    showSuggestionPopover.value = false
+    currentSuggestionIndex.value = -1
+
+    //used to set codemirror cursor at the end of the line after selecting a suggestion
+    nextTick(() => {
+      view.value?.dispatch({
+        selection: EditorSelection.create([
+          EditorSelection.range(
+            props.modelValue.length,
+            props.modelValue.length
+          ),
+        ]),
+      })
+    })
+  }
   if (ev.key === "ArrowDown") {
     scrollActiveElIntoView()
 
@@ -159,21 +180,47 @@ const handleKeystroke = (ev: KeyboardEvent) => {
     emit("keyup", ev)
   }
   if (ev.key === "Enter") {
-    if (currentSuggestionIndex.value > -1 && suggestions.value.length > 0) {
-      emit("update:modelValue", suggestions.value[currentSuggestionIndex.value])
-      currentSuggestionIndex.value = -1
-    }
-
     emit("enter", ev)
   }
-  if (ev.key === "Tab") {
-    if (currentSuggestionIndex.value >= -1 && suggestions.value.length > 0) {
-      emit("update:modelValue", suggestions.value[currentSuggestionIndex.value])
-      currentSuggestionIndex.value = -1
-    }
-  }
+
   if (ev.key === "Escape") {
     showSuggestionPopover.value = false
+  }
+
+  // used to set codemirror cursor at the end of the line when ctrl+right arrow is pressed
+  if (ev.key === "ArrowRight" && ev.ctrlKey) {
+    view.value?.dispatch({
+      selection: EditorSelection.create([
+        EditorSelection.range(props.modelValue.length, props.modelValue.length),
+      ]),
+    })
+  }
+
+  // used to set codemirror cursor at the start of the line when ctrl+left arrow is pressed
+  if (ev.key === "ArrowLeft" && ev.ctrlKey) {
+    view.value?.dispatch({
+      selection: EditorSelection.create([EditorSelection.range(0, 0)]),
+    })
+  }
+
+  // used to scroll to the first suggestion when right arrow is pressed
+  if (ev.key === "ArrowRight") {
+    if (suggestions.value.length > 0 && showSuggestionPopover.value) {
+      currentSuggestionIndex.value = 0
+      nextTick(() => {
+        scrollActiveElIntoView()
+      })
+    }
+  }
+
+  // used to scroll to the last suggestion when left arrow is pressed
+  if (ev.key === "ArrowLeft") {
+    if (suggestions.value.length > 0 && showSuggestionPopover.value) {
+      currentSuggestionIndex.value = suggestions.value.length - 1
+      nextTick(() => {
+        scrollActiveElIntoView()
+      })
+    }
   }
 }
 

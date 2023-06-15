@@ -152,9 +152,11 @@ const handleKeystroke = (ev: KeyboardEvent) => {
   } else if (ev.key === "Enter") {
     ev.preventDefault()
     console.log("enter", currentSuggestionIndex.value, suggestions.value)
-    if (currentSuggestionIndex.value >= -1 && suggestions.value.length > 0) {
+    if (currentSuggestionIndex.value > -1 && suggestions.value.length > 0) {
       emit("update:modelValue", suggestions.value[currentSuggestionIndex.value])
       currentSuggestionIndex.value = -1
+    } else {
+      emit("enter", ev)
     }
   } else if (ev.key === "Tab") {
     ev.preventDefault()

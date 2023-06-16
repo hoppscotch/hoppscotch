@@ -1,7 +1,5 @@
 <template>
-  <div
-    class="autocomplete-wrapper relative flex items-center flex-1 flex-shrink-0 py-4 whitespace-nowrap"
-  >
+  <div class="autocomplete-wrapper">
     <div class="absolute inset-0 flex flex-1">
       <div
         ref="editor"
@@ -406,6 +404,12 @@ watch(editor, () => {
 <style lang="scss" scoped>
 .autocomplete-wrapper {
   @apply relative;
+  @apply flex;
+  @apply items-center;
+  @apply flex-1;
+  @apply flex-shrink-0;
+  @apply py-4;
+  @apply whitespace-nowrap;
 
   .suggestions {
     @apply absolute;

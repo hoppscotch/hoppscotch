@@ -2,9 +2,6 @@
   <div
     class="block w-full divide-y flex my-0 border-0 divide-y-0 divide-x divide-dividerLight border-dividerLight"
   >
-    <!-- <div
-    class="block w-full my-6 divide-y flex my-0 border-0 divide-y-0 divide-x divide-dividerLight border-dividerLight"
-  > -->
     <div class="font-mono text-tiny table-box">
       {{ shortcode.id }}
     </div>

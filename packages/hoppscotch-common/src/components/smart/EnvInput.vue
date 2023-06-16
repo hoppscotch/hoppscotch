@@ -143,8 +143,7 @@ const handleKeystroke = (ev: KeyboardEvent) => {
     suggestions.value.length > 0 &&
     currentSuggestionIndex.value > -1
   ) {
-    emit("update:modelValue", suggestions.value[currentSuggestionIndex.value])
-    showSuggestionPopover.value = false
+    updateModelValue(suggestions.value[currentSuggestionIndex.value])
     currentSuggestionIndex.value = -1
 
     //used to set codemirror cursor at the end of the line after selecting a suggestion

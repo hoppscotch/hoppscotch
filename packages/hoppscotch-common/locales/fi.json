@@ -432,6 +432,7 @@
     "view_my_links": "View my links"
   },
   "response": {
+    "audio": "Audio",
     "body": "Vastauselin",
     "filter_response_body": "Filter JSON response body (uses JSONPath syntax)",
     "headers": "Otsikot",
@@ -445,6 +446,7 @@
     "status": "Tila",
     "time": "Aika",
     "title": "Vastaus",
+    "video": "Video",
     "waiting_for_connection": "yhteyttä odotellessa",
     "xml": "XML"
   },

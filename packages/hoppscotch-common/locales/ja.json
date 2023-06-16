@@ -432,6 +432,7 @@
     "view_my_links": "自分のリンクを見る"
   },
   "response": {
+    "audio": "Audio",
     "body": "レスポンスボディ",
     "filter_response_body": "JSONレスポンスボディをフィルタ (JSONPathシンタックスを使用)",
     "headers": "ヘッダー",
@@ -445,6 +446,7 @@
     "status": "ステータス",
     "time": "時間",
     "title": "レスポンス",
+    "video": "Video",
     "waiting_for_connection": "接続を待っています",
     "xml": "XML"
   },

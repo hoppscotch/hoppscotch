@@ -433,6 +433,7 @@
     "view_my_links": "मेरे लिंक देखें"
   },
   "response": {
+    "audio": "Audio",
     "body": "प्रतिक्रिया निकाय",
     "filter_response_body": "फ़िल्टर JSON रिस्पांस बॉडी (JSONPATH सिंटैक्स का उपयोग करता है)",
     "headers": "हेडर",
@@ -446,6 +447,7 @@
     "status": "दर्जा",
     "time": "समय",
     "title": "जवाब",
+    "video": "Video",
     "waiting_for_connection": "जुडने के लिए इंतजार",
     "xml": "एक्सएमएल"
   },

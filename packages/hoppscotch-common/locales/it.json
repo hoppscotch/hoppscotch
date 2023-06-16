@@ -432,6 +432,7 @@
     "view_my_links": "View my links"
   },
   "response": {
+    "audio": "Audio",
     "body": "Corpo della risposta",
     "filter_response_body": "Filter JSON response body (uses JSONPath syntax)",
     "headers": "Intestazioni",
@@ -445,6 +446,7 @@
     "status": "Stato",
     "time": "Tempo impiegato",
     "title": "Risposta",
+    "video": "Video",
     "waiting_for_connection": "In attesa di connessione",
     "xml": "XML"
   },

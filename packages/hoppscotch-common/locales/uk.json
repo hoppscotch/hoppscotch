@@ -432,6 +432,7 @@
     "view_my_links": "Переглянути мої посилання"
   },
   "response": {
+    "audio": "Audio",
     "body": "Орган реагування",
     "filter_response_body": "Фільтр тіла відповідей JSON (використовує синтаксис JSONPath)",
     "headers": "Заголовки",
@@ -445,6 +446,7 @@
     "status": "Статус",
     "time": "Час",
     "title": "Відповідь",
+    "video": "Video",
     "waiting_for_connection": "очікування підключення",
     "xml": "XML"
   },

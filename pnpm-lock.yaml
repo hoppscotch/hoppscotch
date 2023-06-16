@@ -58,25 +58,6 @@ importers:
         specifier: ^4.6.3
         version: 4.7.4
 
-  packages/dioc:
-    dependencies:
-      rxjs:
-        specifier: ^7.8.1
-        version: 7.8.1
-      vue:
-        specifier: ^3.2.25
-        version: 3.2.45
-    devDependencies:
-      typescript:
-        specifier: ^4.9.4
-        version: 4.9.4
-      vite:
-        specifier: ^4.0.4
-        version: 4.0.4(@types/node@17.0.45)
-      vitest:
-        specifier: ^0.29.3
-        version: 0.29.8(terser@5.14.1)
-
   packages/hoppscotch-backend:
     dependencies:
       '@nestjs-modules/mailer':
@@ -18610,14 +18591,6 @@ packages:
     optionalDependencies:
       fsevents: 2.3.2
 
-  /rollup@3.23.0:
-    resolution: {integrity: sha512-h31UlwEi7FHihLe1zbk+3Q7z1k/84rb9BSwmBSr/XjOCEaBJ2YyedQDuM0t/kfOS0IxM+vk1/zI9XxYj9V+NJQ==}
-    engines: {node: '>=14.18.0', npm: '>=8.0.0'}
-    hasBin: true
-    optionalDependencies:
-      fsevents: 2.3.2
-    dev: true
-
   /run-async@2.4.1:
     resolution: {integrity: sha512-tvVnVv01b8c1RrA6Ep7JkStj85Guv/YrMcwqYQnwjsAS2cTmmPGBBjAjpCW7RrSodNSoE2/qg9O4bceNvUuDgQ==}
     engines: {node: '>=0.12.0'}
@@ -21104,40 +21077,6 @@ packages:
       terser: 5.14.1
     optionalDependencies:
       fsevents: 2.3.2
-
-  /vite@4.0.4(@types/node@17.0.45):
-    resolution: {integrity: sha512-xevPU7M8FU0i/80DMR+YhgrzR5KS2ORy1B4xcX/cXLsvnUWvfHuqMmVU6N0YiJ4JWGRJJsLCgjEzKjG9/GKoSw==}
-    engines: {node: ^14.18.0 || >=16.0.0}
-    hasBin: true
-    peerDependencies:
-      '@types/node': '>= 14'
-      less: '*'
-      sass: '*'
-      stylus: '*'
-      sugarss: '*'
-      terser: ^5.4.0
-    peerDependenciesMeta:
-      '@types/node':
-        optional: true
-      less:
-        optional: true
-      sass:
-        optional: true
-      stylus:
-        optional: true
-      sugarss:
-        optional: true
-      terser:
-        optional: true
-    dependencies:
-      '@types/node': 17.0.45
-      esbuild: 0.16.17
-      postcss: 8.4.21
-      resolve: 1.22.1
-      rollup: 3.23.0
-    optionalDependencies:
-      fsevents: 2.3.2
-    dev: true
 
   /vitest@0.29.8(terser@5.14.1):
     resolution: {integrity: sha512-JIAVi2GK5cvA6awGpH0HvH/gEG9PZ0a/WoxdiV3PmqK+3CjQMf8c+J/Vhv4mdZ2nRyXFw66sAg6qz7VNkaHfDQ==}

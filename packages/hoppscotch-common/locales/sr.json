@@ -432,6 +432,7 @@
     "view_my_links": "View my links"
   },
   "response": {
+    "audio": "Audio",
     "body": "Тело за одговор",
     "filter_response_body": "Filter JSON response body (uses JSONPath syntax)",
     "headers": "Заглавља",
@@ -445,6 +446,7 @@
     "status": "Статус",
     "time": "време",
     "title": "Одговор",
+    "video": "Video",
     "waiting_for_connection": "чека везу",
     "xml": "КСМЛ"
   },

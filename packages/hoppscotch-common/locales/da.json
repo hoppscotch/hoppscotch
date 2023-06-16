@@ -432,6 +432,7 @@
     "view_my_links": "View my links"
   },
   "response": {
+    "audio": "Audio",
     "body": "Svarorgan",
     "filter_response_body": "Filter JSON response body (uses JSONPath syntax)",
     "headers": "Overskrifter",
@@ -445,6 +446,7 @@
     "status": "Status",
     "time": "Tid",
     "title": "Respons",
+    "video": "Video",
     "waiting_for_connection": "venter på forbindelse",
     "xml": "XML"
   },

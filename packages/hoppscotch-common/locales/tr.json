@@ -122,7 +122,7 @@
     "edit": "Koleksiyonu düzenle",
     "invalid_name": "Lütfen koleksiyon için geçerli bir ad girin",
     "invalid_root_move": "Collection already in the root",
-    "moved": "Moved Successfully",
+    "moved": "Başarıyla taşındı",
     "my_collections": "Koleksiyonlarım",
     "name": "Yeni Koleksiyonum",
     "name_length_insufficient": "Koleksiyon adı en az 3 karakter uzunluğunda olmalıdır",
@@ -147,7 +147,7 @@
     "remove_team": "Bu takımı silmek istediğinizden emin misiniz?",
     "remove_telemetry": "Telemetriden çıkmak istediğinizden emin misiniz?",
     "request_change": "Are you sure you want to discard current request, unsaved changes will be lost.",
-    "save_unsaved_tab": "Do you want to save changes made in this tab?",
+    "save_unsaved_tab": "Bu sekmede yapılan değişiklikleri kaydetmek istiyor musunuz?",
     "sync": "Bu çalışma alanını senkronize etmek istediğinizden emin misiniz?"
   },
   "count": {
@@ -368,9 +368,9 @@
   },
   "profile": {
     "app_settings": "Uygulama ayarları",
-    "default_hopp_displayname": "Unnamed User",
-    "editor": "Düzenleyici",
-    "editor_description": "Editors can add, edit, and delete requests.",
+    "default_hopp_displayname": "Adsız Kullanıcı",
+    "editor": "Editör",
+    "editor_description": "Editörler istekleri ekleyebilir, düzenleyebilir ve silebilir.",
     "email_verification_mail": "Doğrulama bağlantısı e-postanıza gönderildi. E-postanızı doğrulamak için gelen bağlantıya tıklayınız.",
     "no_permission": "Bu eylemi gerçekleştirmek için gerekli yetkiniz yok.",
     "owner": "Kurucu",
@@ -432,6 +432,7 @@
     "view_my_links": "View my links"
   },
   "response": {
+    "audio": "Audio",
     "body": "Yanıt gövdesi",
     "filter_response_body": "Filter JSON response body (uses JSONPath syntax)",
     "headers": "Başlıklar",
@@ -445,6 +446,7 @@
     "status": "Durum",
     "time": "Zaman",
     "title": "Cevap",
+    "video": "Video",
     "waiting_for_connection": "Bağlantı için bekleniyor",
     "xml": "XML"
   },

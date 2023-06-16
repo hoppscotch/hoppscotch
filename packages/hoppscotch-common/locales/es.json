@@ -432,6 +432,7 @@
     "view_my_links": "Ver mis enlaces"
   },
   "response": {
+    "audio": "Audio",
     "body": "Cuerpo de respuesta",
     "filter_response_body": "Filtrar el cuerpo de la respuesta JSON (utiliza la sintaxis JSONPath)",
     "headers": "Encabezados",
@@ -445,6 +446,7 @@
     "status": "Estado",
     "time": "Tiempo",
     "title": "Respuesta",
+    "video": "Video",
     "waiting_for_connection": "esperando la conexión",
     "xml": "XML"
   },

@@ -432,6 +432,7 @@
     "view_my_links": "내 링크 보기"
   },
   "response": {
+    "audio": "Audio",
     "body": "응답 본문",
     "filter_response_body": "Filter JSON response body (uses JSONPath syntax)",
     "headers": "헤더",
@@ -445,6 +446,7 @@
     "status": "상태",
     "time": "시간",
     "title": "제목",
+    "video": "Video",
     "waiting_for_connection": "연결 대기 중",
     "xml": "XML"
   },

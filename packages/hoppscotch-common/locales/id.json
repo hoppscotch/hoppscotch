@@ -432,6 +432,7 @@
     "view_my_links": "Lihat tautan saya"
   },
   "response": {
+    "audio": "Audio",
     "body": "Response Body",
     "filter_response_body": "Filter body respons JSON (menggunakan sintaks JSONPath)",
     "headers": "Headers",
@@ -445,6 +446,7 @@
     "status": "Status",
     "time": "Waktu",
     "title": "Response",
+    "video": "Video",
     "waiting_for_connection": "Menunggu koneksi",
     "xml": "XML"
   },

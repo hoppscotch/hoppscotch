@@ -125,8 +125,8 @@
       @hide-modal="displayModalEditFolder(false)"
     />
     <CollectionsEditRequest
+      v-model="editingRequestName"
       :show="showModalEditRequest"
-      :model-value="editingRequest ? editingRequest.name : ''"
       :loading-state="modalLoadingState"
       @submit="updateEditingRequest"
       @hide-modal="displayModalEditRequest(false)"
@@ -157,7 +157,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, PropType, ref, watch } from "vue"
+import { computed, nextTick, PropType, ref, watch } from "vue"
 import { useToast } from "@composables/toast"
 import { useI18n } from "@composables/i18n"
 import { Picked } from "~/helpers/types/HoppPicked"
@@ -288,6 +288,7 @@ const editingFolder = ref<
 const editingFolderName = ref<string | null>(null)
 const editingFolderPath = ref<string | null>(null)
 const editingRequest = ref<HoppRESTRequest | null>(null)
+const editingRequestName = ref("")
 const editingRequestIndex = ref<number | null>(null)
 const editingRequestID = ref<string | null>(null)
 
@@ -860,6 +861,7 @@ const editRequest = (payload: {
 }) => {
   const { folderPath, requestIndex, request } = payload
   editingRequest.value = request
+  editingRequestName.value = request.name ?? ""
   if (collectionsType.value.type === "my-collections" && folderPath) {
     editingFolderPath.value = folderPath
     editingRequestIndex.value = parseInt(requestIndex)
@@ -893,6 +895,9 @@ const updateEditingRequest = (newName: string) => {
 
     if (possibleActiveTab) {
       possibleActiveTab.value.document.request.name = requestUpdated.name
+      nextTick(() => {
+        possibleActiveTab.value.document.isDirty = false
+      })
     }
 
     displayModalEditRequest(false)
@@ -931,6 +936,9 @@ const updateEditingRequest = (newName: string) => {
 
     if (possibleTab) {
       possibleTab.value.document.request.name = requestName
+      nextTick(() => {
+        possibleTab.value.document.isDirty = false
+      })
     }
   }
 }

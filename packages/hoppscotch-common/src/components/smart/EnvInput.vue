@@ -14,7 +14,6 @@
       <li
         v-for="(suggestion, index) in suggestions"
         :key="`suggestion-${index}`"
-        class="py-1 px-2 cursor-pointer"
         :class="{ active: currentSuggestionIndex === index }"
         @click.prevent="updateModelValue(suggestion)"
       >
@@ -429,6 +428,7 @@ watch(editor, () => {
       @apply py-2 px-2;
       @apply text-secondary;
       @apply font-semibold;
+      @apply cursor-pointer;
 
       &:last-child {
         border-radius: 0 0 0 8px;

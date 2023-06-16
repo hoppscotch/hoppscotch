@@ -5,14 +5,18 @@
     <div class="flex items-center">
       <HoppButtonSecondary
         v-tippy="{ theme: 'tooltip' }"
-        title="Open navigation"
+        :title="t('app.open_navigation')"
         :icon="IconMenu"
         class="transform !md:hidden mr-2"
         @click="isOpen = true"
       />
       <HoppButtonSecondary
         v-tippy="{ theme: 'tooltip' }"
-        :title="isExpanded ? 'Collapse sidebar' : 'Expand sidebar'"
+        :title="
+          isExpanded
+            ? `${t('app.collapse_sidebar')}`
+            : `${t('app.expand_sidebar')}`
+        "
         :icon="isExpanded ? IconSidebarClose : IconSidebarOpen"
         class="transform"
         @click="expandSidebar"
@@ -34,13 +38,21 @@
               theme: 'tooltip',
             }"
             :url="currentUser.photoURL"
-            :alt="currentUser.displayName ?? 'No Name'"
-            :title="currentUser.displayName ?? currentUser.email ?? 'No Name'"
+            :alt="currentUser.displayName ?? `${t('app.no_name')}`"
+            :title="
+              currentUser.displayName ??
+              currentUser.email ??
+              `${t('app.no_name')}`
+            "
           />
           <HoppSmartPicture
             v-else
             v-tippy="{ theme: 'tooltip' }"
-            :title="currentUser.displayName ?? currentUser.email ?? 'No Name'"
+            :title="
+              currentUser.displayName ??
+              currentUser.email ??
+              `${t('app.no_name')}`
+            "
             :initial="currentUser.displayName ?? currentUser.email"
           />
           <template #content="{ hide }">
@@ -70,6 +82,9 @@ import { auth } from '~/helpers/auth';
 import IconMenu from '~icons/lucide/menu';
 import IconSidebarOpen from '~icons/lucide/sidebar-open';
 import IconSidebarClose from '~icons/lucide/sidebar-close';
+import { useI18n } from '~/composables/i18n';
+
+const t = useI18n();
 
 const { isOpen, isExpanded } = useSidebar();
 

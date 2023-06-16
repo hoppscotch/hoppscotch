@@ -18,8 +18,10 @@
             <HoppSmartLink class="flex items-center space-x-4" to="/dashboard">
               <img src="/cover.jpg" alt="hoppscotch-logo" class="h-7" />
 
-              <span v-if="isExpanded" class="font-semibold text-accentContrast"
-                >HOPPSCOTCH</span
+              <span
+                v-if="isExpanded"
+                class="font-semibold text-accentContrast"
+                >{{ t('app.name') }}</span
               >
             </HoppSmartLink>
           </div>
@@ -59,28 +61,31 @@
 
 <script setup lang="ts">
 import { HoppSmartLink } from '@hoppscotch/ui';
-import { useSidebar } from '../../composables/useSidebar';
+import { useSidebar } from '~/composables/useSidebar';
 import IconDashboard from '~icons/lucide/layout-dashboard';
 import IconUser from '~icons/lucide/user';
 import IconUsers from '~icons/lucide/users';
+import { useI18n } from '~/composables/i18n';
+
+const t = useI18n();
 
 const { isOpen, isExpanded } = useSidebar();
 
 const primaryNavigations = [
   {
-    label: 'Dashboard',
+    label: t('metrics.dashboard'),
     icon: IconDashboard,
     to: '/dashboard',
     exact: true,
   },
   {
-    label: 'Users',
+    label: t('users.users'),
     icon: IconUser,
     to: '/users',
     exact: false,
   },
   {
-    label: 'Teams',
+    label: t('teams.teams'),
     icon: IconUsers,
     to: '/teams',
     exact: false,

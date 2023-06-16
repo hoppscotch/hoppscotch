@@ -2,7 +2,7 @@
   <HoppSmartModal
     v-if="show"
     dialog
-    title="Invite User"
+    :title="t('users.invite_user')"
     @close="$emit('hide-modal')"
   >
     <template #body>
@@ -17,13 +17,13 @@
           autocomplete="off"
           @keyup.enter="sendInvite"
         />
-        <label for="inviteUserEmail">Email Address</label>
+        <label for="inviteUserEmail">{{ t('users.email_address') }}</label>
       </div>
     </template>
     <template #footer>
       <span class="flex space-x-2">
         <HoppButtonPrimary
-          label="Send Invite"
+          :label="t('users.send_invite')"
           :loading="loadingState"
           @click="sendInvite"
         />
@@ -36,6 +36,9 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useToast } from '~/composables/toast';
+import { useI18n } from '~/composables/i18n';
+
+const t = useI18n();
 
 const toast = useToast();
 
@@ -59,7 +62,7 @@ const email = ref('');
 
 const sendInvite = () => {
   if (email.value.trim() === '') {
-    toast.error('Please enter a valid email address');
+    toast.error(`${t('users.valid_email')}`);
     return;
   }
   emit('send-invite', email.value);

@@ -131,6 +131,9 @@ import { setLocalConfig } from '~/helpers/localpersistence';
 import { useStreamSubscriber } from '~/composables/stream';
 import { useToast } from '~/composables/toast';
 import { auth } from '~/helpers/auth';
+import { useI18n } from '~/composables/i18n';
+
+const t = useI18n();
 
 const { subscribeToStream } = useStreamSubscriber();
 
@@ -158,7 +161,7 @@ onMounted(() => {
   subscribeToStream(currentUser$, (user) => {
     if (user && !user.isAdmin) {
       nonAdminUser.value = true;
-      toast.error(`You are logged in. But you're not an admin`);
+      toast.error(`${t('state.non_admin_login')}`);
     }
   });
 });
@@ -174,7 +177,7 @@ async function signInWithGoogle() {
     A auth/account-exists-with-different-credential Firebase error wont happen between Google and any other providers
     Seems Google account overwrites accounts of other providers https://github.com/firebase/firebase-android-sdk/issues/25
     */
-    toast.error(`Failed to sign in with Google`);
+    toast.error(`${t('state.google_signin_failure')}`);
   }
 
   signingInWithGoogle.value = false;
@@ -190,7 +193,7 @@ async function signInWithGithub() {
     A auth/account-exists-with-different-credential Firebase error wont happen between Google and any other providers
     Seems Google account overwrites accounts of other providers https://github.com/firebase/firebase-android-sdk/issues/25
     */
-    toast.error(`Failed to sign in with GitHub`);
+    toast.error(`${t('state.github_signin_failure')}`);
   }
 
   signingInWithGitHub.value = false;
@@ -211,7 +214,7 @@ async function signInWithMicrosoft() {
         @firebase/auth: Auth (9.6.11): INTERNAL ASSERTION FAILED: Pending promise was never set
     They may be related to https://github.com/firebase/firebaseui-web/issues/947
     */
-    toast.error(`Something went wrong`);
+    toast.error(`${t('state.error')}`);
   }
 
   signingInWithMicrosoft.value = false;
@@ -239,10 +242,10 @@ const logout = async () => {
   try {
     await auth.signOutUser();
     window.location.reload();
-    toast.success(`Logged out`);
+    toast.success(`${t('state.logged_out')}`);
   } catch (e) {
     console.error(e);
-    toast.error(`Something went wrong`);
+    toast.error(`${t('state.error')}`);
   }
 };
 </script>

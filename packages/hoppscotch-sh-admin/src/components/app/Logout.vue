@@ -2,14 +2,14 @@
   <div class="flex" @click="openLogoutModal()">
     <HoppSmartItem
       :icon="IconLogOut"
-      :label="'Logout'"
+      :label="t('state.logout')"
       :outline="outline"
       :shortcut="shortcut"
       @click="openLogoutModal()"
     />
     <HoppSmartConfirmModal
       :show="confirmLogout"
-      :title="`Confirm Logout`"
+      :title="t('state.confirm_logout')"
       @hide-modal="confirmLogout = false"
       @resolve="logout"
     />
@@ -22,6 +22,9 @@ import IconLogOut from '~icons/lucide/log-out';
 import { useToast } from '~/composables/toast';
 import { useRouter } from 'vue-router';
 import { auth } from '~/helpers/auth';
+import { useI18n } from '~/composables/i18n';
+
+const t = useI18n();
 
 const router = useRouter();
 
@@ -48,10 +51,10 @@ const logout = async () => {
   try {
     await auth.signOutUser();
     router.push(`/`);
-    toast.success(`Logged out`);
+    toast.success(`${t('state.logged_out')}`);
   } catch (e) {
     console.error(e);
-    toast.error(`Something went wrong`);
+    toast.error(`${t('state.error')}`);
   }
 };
 

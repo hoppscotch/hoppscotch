@@ -2,10 +2,12 @@
   <div class="flex flex-col">
     <!-- Table View for All Users -->
     <div class="flex flex-col">
-      <h1 class="text-lg font-bold text-secondaryDark">Users</h1>
+      <h1 class="text-lg font-bold text-secondaryDark">
+        {{ t('users.users') }}
+      </h1>
       <div class="flex items-center space-x-4 py-10">
         <HoppButtonPrimary
-          label="Invite a user"
+          :label="t('users.invite_user')"
           @click="showInviteUserModal = true"
           :icon="IconAddUser"
         />
@@ -14,7 +16,7 @@
           <HoppButtonSecondary
             outline
             filled
-            label="Invited users"
+            :label="t('users.invited_users')"
             :to="'/users/invited'"
           />
         </div>
@@ -27,7 +29,7 @@
           <HoppSmartSpinner />
         </div>
 
-        <div v-else-if="error">Unable to Load Users List..</div>
+        <div v-else-if="error">{{ t('users.load_list_error') }}</div>
 
         <UsersTable
           v-else-if="usersList.length >= 1"
@@ -40,14 +42,14 @@
           @deleteUser="deleteUser"
         />
 
-        <div v-else class="flex justify-center">No Users Found</div>
+        <div v-else class="flex justify-center">{{ t('users.no_users') }}</div>
 
         <div
           v-if="hasNextPage && usersList.length >= usersPerPage"
           class="flex justify-center my-5 px-3 py-2 cursor-pointer font-semibold rounded-3xl bg-dividerDark hover:bg-divider transition mx-auto w-38 text-secondaryDark"
           @click="fetchNextUsers"
         >
-          <span>Show more </span>
+          <span>{{ t('users.show_more') }}</span>
           <icon-lucide-chevron-down class="ml-2 text-lg" />
         </div>
       </div>
@@ -60,19 +62,19 @@
     />
     <HoppSmartConfirmModal
       :show="confirmDeletion"
-      :title="`Confirm user deletion?`"
+      :title="t('users.confirm_user_deletion')"
       @hide-modal="confirmDeletion = false"
       @resolve="deleteUserMutation(deleteUserUID)"
     />
     <HoppSmartConfirmModal
       :show="confirmUserToAdmin"
-      :title="`Do you want to make this user into an admin?`"
+      :title="t('users.confirm_user_to_admin')"
       @hide-modal="confirmUserToAdmin = false"
       @resolve="makeUserAdminMutation(userToAdminUID)"
     />
     <HoppSmartConfirmModal
       :show="confirmAdminToUser"
-      :title="`Do you want to remove admin status from this user?`"
+      :title="t('users.confirm_admin_to_user')"
       @hide-modal="confirmAdminToUser = false"
       @resolve="makeAdminToUserMutation(adminToUserUID)"
     />
@@ -89,11 +91,14 @@ import {
   RemoveUserAsAdminDocument,
   UsersListDocument,
 } from '../../helpers/backend/graphql';
-import { usePagedQuery } from '../../composables/usePagedQuery';
+import { usePagedQuery } from '~/composables/usePagedQuery';
 import { useRoute, useRouter } from 'vue-router';
-import { useToast } from '../../composables/toast';
+import { useToast } from '~/composables/toast';
 import { HoppButtonSecondary } from '@hoppscotch/ui';
 import IconAddUser from '~icons/lucide/user-plus';
+import { useI18n } from '~/composables/i18n';
+
+const t = useI18n();
 
 const toast = useToast();
 
@@ -119,15 +124,15 @@ const showInviteUserModal = ref(false);
 
 const sendInvite = async (email: string) => {
   if (!email.trim()) {
-    toast.error('Please enter a valid email address');
+    toast.error(`${t('state.invalid_email')}`);
     return;
   }
   const variables = { inviteeEmail: email.trim() };
   await sendInvitation.executeMutation(variables).then((result) => {
     if (result.error) {
-      toast.error('Failed to send invitation');
+      toast.error(`${t('state.email_failure')}`);
     } else {
-      toast.success('Email invitation sent successfully');
+      toast.success(`${t('state.email_success')}`);
       showInviteUserModal.value = false;
     }
   });
@@ -153,15 +158,15 @@ const deleteUserUID = ref<string | null>(null);
 const deleteUserMutation = async (id: string | null) => {
   if (!id) {
     confirmDeletion.value = false;
-    toast.error('User deletion failed!!');
+    toast.error(`${t('state.delete_user_failure')}`);
     return;
   }
   const variables = { uid: id };
   await userDeletion.executeMutation(variables).then((result) => {
     if (result.error) {
-      toast.error('User deletion failed!!');
+      toast.error(`${t('state.delete_user_failure')}`);
     } else {
-      toast.success('User deleted successfully!!');
+      toast.success(`${t('state.delete_user_success')}`);
       usersList.value = usersList.value.filter((user) => user.uid !== id);
     }
   });
@@ -182,15 +187,15 @@ const makeUserAdmin = (id: string) => {
 const makeUserAdminMutation = async (id: string | null) => {
   if (!id) {
     confirmUserToAdmin.value = false;
-    toast.error('Failed to make user an admin!!');
+    toast.error(`${t('state.admin_failure')}`);
     return;
   }
   const variables = { uid: id };
   await userToAdmin.executeMutation(variables).then((result) => {
     if (result.error) {
-      toast.error('Failed to make user an admin!!');
+      toast.error(`${t('state.admin_failure')}`);
     } else {
-      toast.success('User is now an admin!!');
+      toast.success(`${t('state.admin_success')}`);
       usersList.value = usersList.value.map((user) => {
         if (user.uid === id) {
           user.isAdmin = true;
@@ -221,15 +226,15 @@ const deleteUser = (id: string) => {
 const makeAdminToUserMutation = async (id: string | null) => {
   if (!id) {
     confirmAdminToUser.value = false;
-    toast.error('Failed to remove admin status!!');
+    toast.error(`${t('state.remove_admin_failure')}`);
     return;
   }
   const variables = { uid: id };
   await adminToUser.executeMutation(variables).then((result) => {
     if (result.error) {
-      toast.error('Failed to remove admin status!!');
+      toast.error(`${t('state.remove_admin_failure')}`);
     } else {
-      toast.success('Admin status removed!!');
+      toast.success(`${t('state.remove_admin_success')}`);
       usersList.value = usersList.value.map((user) => {
         if (user.uid === id) {
           user.isAdmin = false;

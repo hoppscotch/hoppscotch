@@ -2,14 +2,18 @@
   <div class="flex flex-col">
     <div class="flex flex-col space-y-8">
       <div v-if="team.id" class="flex flex-col space-y-3">
-        <label class="text-accentContrast" for="username">Team ID</label>
+        <label class="text-accentContrast" for="username"
+          >{{ t('teams.id') }}
+        </label>
         <div class="w-full p-3 bg-divider rounded-md">
           {{ team.id }}
         </div>
       </div>
 
       <div v-if="teamName" class="flex flex-col space-y-3">
-        <label class="text-accentContrast" for="teamname">Team Name </label>
+        <label class="text-accentContrast" for="teamname"
+          >{{ t('teams.name') }}
+        </label>
         <div
           class="flex bg-divider rounded-md items-stretch flex-1 border border-divider"
           :class="{
@@ -29,7 +33,9 @@
             class="!rounded-l-none"
             filled
             :icon="showRenameInput ? IconSave : IconEdit"
-            :label="showRenameInput ? 'Rename' : 'Edit'"
+            :label="
+              showRenameInput ? `${t('teams.rename')}` : `${t('teams.edit')}`
+            "
             @click="handleNameEdit()"
           />
         </div>
@@ -37,8 +43,8 @@
 
       <div v-if="team.teamMembers.length" class="flex flex-col space-y-3">
         <label class="text-accentContrast" for="username"
-          >Number of Members</label
-        >
+          >{{ t('teams.members') }}
+        </label>
         <div class="w-full p-3 bg-divider rounded-md">
           {{ team.teamMembers.length }}
         </div>
@@ -49,7 +55,7 @@
       <HoppButtonPrimary
         class="!bg-red-600 !hover:opacity-80"
         filled
-        label="Delete Team"
+        :label="t('teams.delete_team')"
         @click="team && $emit('delete-team', team.id)"
         :icon="IconTrash"
       />
@@ -58,12 +64,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { ref } from 'vue';
 import { useToast } from '~/composables/toast';
 import { TeamInfoQuery } from '~/helpers/backend/graphql';
 import IconEdit from '~icons/lucide/edit';
 import IconSave from '~icons/lucide/save';
 import IconTrash from '~icons/lucide/trash-2';
+import { useI18n } from '~/composables/i18n';
+
+const t = useI18n();
 
 const toast = useToast();
 
@@ -91,7 +100,7 @@ const handleNameEdit = () => {
 
 const renameTeam = () => {
   if (newTeamName.value.trim() === '') {
-    toast.error('Team name cannot be empty');
+    toast.error(`${t('teams.empty_name')}`);
     return;
   }
   emit('rename-team', newTeamName.value);

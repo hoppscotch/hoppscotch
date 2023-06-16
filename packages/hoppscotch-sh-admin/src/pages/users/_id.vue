@@ -18,7 +18,7 @@
             v-if="user.isAdmin"
             class="absolute left-17 bottom-0 text-xs font-medium px-3 py-0.5 rounded-full bg-green-900 text-green-300"
           >
-            Admin
+            {{ t('users.admin') }}
           </span>
         </div>
 
@@ -28,12 +28,14 @@
             v-if="user.isAdmin"
             class="absolute left-15 bottom-0 text-xs font-medium px-3 py-0.5 rounded-full bg-green-900 text-green-300"
           >
-            Admin
+            {{ t('users.admin') }}
           </span>
         </div>
 
         <div v-if="user.uid">
-          <label class="text-secondaryDark" for="username">UID</label>
+          <label class="text-secondaryDark" for="username">{{
+            t('users.uid')
+          }}</label>
           <div
             class="w-full p-3 mt-2 bg-zinc-800 border-gray-600 rounded-md focus:border-emerald-600 focus:ring focus:ring-opacity-40 focus:ring-emerald-500"
           >
@@ -41,18 +43,22 @@
           </div>
         </div>
         <div>
-          <label class="text-secondaryDark" for="username">Name</label>
+          <label class="text-secondaryDark" for="username">{{
+            t('users.name')
+          }}</label>
           <div
             class="w-full p-3 mt-2 bg-zinc-800 border-gray-600 rounded-md focus:border-emerald-600 focus:ring focus:ring-opacity-40 focus:ring-emerald-500"
           >
             <span v-if="user.displayName">
               {{ user.displayName }}
             </span>
-            <span v-else> (Unnamed user) </span>
+            <span v-else> {{ t('users.unnamed') }} </span>
           </div>
         </div>
         <div v-if="user.email">
-          <label class="text-secondaryDark" for="username">Email</label>
+          <label class="text-secondaryDark" for="username">{{
+            t('users.email')
+          }}</label>
           <div
             class="w-full p-3 mt-2 bg-zinc-800 border-gray-200 border-gray-600 rounded-md focus:border-emerald-600 focus:ring focus:ring-opacity-40 focus:ring-emerald-500"
           >
@@ -60,7 +66,9 @@
           </div>
         </div>
         <div v-if="user.createdOn">
-          <label class="text-secondaryDark" for="username">Created On</label>
+          <label class="text-secondaryDark" for="username">{{
+            t('users.created_on')
+          }}</label>
           <div
             class="w-full p-3 mt-2 bg-zinc-800 border-gray-600 rounded-md focus:border-emerald-600 focus:ring focus:ring-opacity-40 focus:ring-emerald-500"
           >
@@ -75,7 +83,7 @@
             class="mr-4"
             filled
             outline
-            label="Make Admin"
+            :label="t('users.make_admin')"
             @click="makeUserAdmin(user.uid)"
           />
         </span>
@@ -85,7 +93,7 @@
             filled
             outline
             :icon="IconUserMinus"
-            label="Remove Admin Privilege"
+            :label="t('users.remove_admin_privilege')"
             @click="makeAdminToUser(user.uid)"
           />
         </span>
@@ -94,7 +102,7 @@
           class="mr-4 !bg-red-600 !text-gray-300 !hover:text-gray-100"
           filled
           outline
-          label="Delete"
+          :label="t('users.delete')"
           :icon="IconTrash"
           @click="deleteUser(user.uid)"
         />
@@ -105,26 +113,26 @@
           filled
           outline
           :icon="IconTrash"
-          label="Delete"
-          @click="toast.error('Remove admin privilege to delete the user!!')"
+          :label="t('users.delete')"
+          @click="toast.error(t('state.remove_admin_to_delete_user'))"
         />
       </div>
     </div>
     <HoppSmartConfirmModal
       :show="confirmDeletion"
-      :title="`Confirm deletion of user?`"
+      :title="t('users.confirm_user_deletion')"
       @hide-modal="confirmDeletion = false"
       @resolve="deleteUserMutation(deleteUserUID)"
     />
     <HoppSmartConfirmModal
       :show="confirmUserToAdmin"
-      :title="`Do you want to make this user into an admin?`"
+      :title="t('users.confirm_user_to_admin')"
       @hide-modal="confirmUserToAdmin = false"
       @resolve="makeUserAdminMutation(userToAdminUID)"
     />
     <HoppSmartConfirmModal
       :show="confirmAdminToUser"
-      :title="`Do you want to remove admin status from this user?`"
+      :title="t('users.confirm_admin_to_user')"
       @hide-modal="confirmAdminToUser = false"
       @resolve="makeAdminToUserMutation(adminToUserUID)"
     />
@@ -143,9 +151,12 @@ import {
 import { useClientHandle } from '@urql/vue';
 import { format } from 'date-fns';
 import { useRoute, useRouter } from 'vue-router';
-import { useToast } from '../../composables/toast';
+import { useToast } from '~/composables/toast';
 import IconTrash from '~icons/lucide/trash';
 import IconUserMinus from '~icons/lucide/user-minus';
+import { useI18n } from '~/composables/i18n';
+
+const t = useI18n();
 
 const toast = useToast();
 
@@ -166,7 +177,7 @@ onMounted(async () => {
     .toPromise();
 
   if (result.error) {
-    toast.error('Unable to load user info..');
+    toast.error(`${t('users.load_info_error')}`);
   }
   user.value = result.data?.admin.userInfo ?? {};
   fetching.value = false;
@@ -186,15 +197,15 @@ const deleteUser = (id: string) => {
 const deleteUserMutation = async (id: string | null) => {
   if (!id) {
     confirmDeletion.value = false;
-    toast.error('User deletion failed!!');
+    toast.error(`${t('state.delete_user_failure')}`);
     return;
   }
   const variables = { uid: id };
   await userDeletion.executeMutation(variables).then((result) => {
     if (result.error) {
-      toast.error('User deletion failed!!');
+      toast.error(`${t('state.delete_user_failure')}`);
     } else {
-      toast.success('User deleted successfully!!');
+      toast.success(`${t('state.delete_user_success')}`);
     }
   });
   confirmDeletion.value = false;
@@ -215,16 +226,16 @@ const makeUserAdmin = (id: string) => {
 const makeUserAdminMutation = async (id: string | null) => {
   if (!id) {
     confirmUserToAdmin.value = false;
-    toast.error('User deletion failed!!');
+    toast.error(`${t('state.admin_failure')}`);
     return;
   }
   const variables = { uid: id };
   await userToAdmin.executeMutation(variables).then((result) => {
     if (result.error) {
-      toast.error('Failed to make user an admin!!');
+      toast.error(`${t('state.admin_failure')}`);
     } else {
       user.value.isAdmin = true;
-      toast.success('User is now an admin!!');
+      toast.success(`${t('state.admin_success')}`);
     }
   });
   confirmUserToAdmin.value = false;
@@ -244,16 +255,16 @@ const makeAdminToUser = (id: string) => {
 const makeAdminToUserMutation = async (id: string | null) => {
   if (!id) {
     confirmAdminToUser.value = false;
-    toast.error('Failed to remove admin status!!');
+    toast.error(`${t('state.remove_admin_failure')}`);
     return;
   }
   const variables = { uid: id };
   await adminToUser.executeMutation(variables).then((result) => {
     if (result.error) {
-      toast.error('Failed to remove admin status!!');
+      toast.error(`${t('state.remove_admin_failure')}`);
     } else {
       user.value.isAdmin = false;
-      toast.success('Admin status removed!!');
+      toast.error(`${t('state.remove_admin_success')}`);
     }
   });
   confirmAdminToUser.value = false;

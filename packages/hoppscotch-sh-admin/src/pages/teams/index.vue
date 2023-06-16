@@ -1,12 +1,12 @@
 <template>
   <div class="flex flex-col">
-    <h1 class="text-lg font-bold text-secondaryDark">Teams</h1>
+    <h1 class="text-lg font-bold text-secondaryDark">{{ t('teams.teams') }}</h1>
 
     <div class="flex flex-col">
       <div class="flex py-10">
         <HoppButtonPrimary
           :icon="IconAddUsers"
-          label="Create team"
+          :label="t('teams.create_team')"
           @click="showCreateTeamModal = true"
         />
       </div>
@@ -19,7 +19,7 @@
           <HoppSmartSpinner />
         </div>
 
-        <div v-else-if="error">Unable to Load Teams List..</div>
+        <div v-else-if="error">{{ t('teams.load_list_error') }}</div>
 
         <TeamsTable
           v-else
@@ -34,7 +34,7 @@
           class="flex justify-center my-5 px-3 py-2 cursor-pointer font-semibold rounded-3xl bg-dividerDark hover:bg-divider transition mx-auto w-38 text-secondaryDark"
           @click="fetchNextTeams"
         >
-          <span>Show more </span>
+          <span>{{ t('teams.show_more') }}</span>
           <icon-lucide-chevron-down class="ml-2 text-lg" />
         </div>
       </div>
@@ -50,7 +50,7 @@
   />
   <HoppSmartConfirmModal
     :show="confirmDeletion"
-    :title="`Confirm Deletion of the team?`"
+    :title="t('teams.confirm_team_deletion')"
     @hide-modal="confirmDeletion = false"
     @resolve="deleteTeamMutation(deleteTeamID)"
   />
@@ -65,11 +65,14 @@ import {
   TeamListDocument,
   UsersListDocument,
 } from '../../helpers/backend/graphql';
-import { usePagedQuery } from '../../composables/usePagedQuery';
+import { usePagedQuery } from '~/composables/usePagedQuery';
 import { ref, watch, computed } from 'vue';
 import { useMutation, useQuery } from '@urql/vue';
-import { useToast } from '../../composables/toast';
+import { useToast } from '~/composables/toast';
 import IconAddUsers from '~icons/lucide/plus';
+import { useI18n } from '~/composables/i18n';
+
+const t = useI18n();
 
 const toast = useToast();
 // Get Users List
@@ -110,11 +113,11 @@ const createTeamLoading = ref(false);
 
 const createTeam = async (newTeamName: string, ownerEmail: string) => {
   if (newTeamName.length < 6) {
-    toast.error('Team name should be atleast 6 characters long!!');
+    toast.error(`${t('state.team_name_long')}`);
     return;
   }
   if (ownerEmail.length == 0) {
-    toast.error('Please enter email of team owner!!');
+    toast.error(`${t('state.enter_team_email')}`);
     return;
   }
   createTeamLoading.value = true;
@@ -124,13 +127,13 @@ const createTeam = async (newTeamName: string, ownerEmail: string) => {
   await createTeamMutation.executeMutation(variables).then((result) => {
     if (result.error) {
       if (result.error.toString() == '[GraphQL] user/not_found') {
-        toast.error('User not found!!');
+        toast.error(`${t('state.user_not_found')}`);
       } else {
-        toast.error('Failed to create team!!');
+        toast.error(`${t('state.create_team_failure')}`);
       }
       createTeamLoading.value = false;
     } else {
-      toast.success('Team created successfully!!');
+      toast.success(`${t('state.create_team_success')}`);
       showCreateTeamModal.value = false;
       createTeamLoading.value = false;
       refetch();
@@ -164,16 +167,16 @@ const deleteTeam = (id: string) => {
 const deleteTeamMutation = async (id: string | null) => {
   if (!id) {
     confirmDeletion.value = false;
-    toast.error('Team deletion failed!!');
+    toast.error(`${t('state.delete_team_failure')}`);
     return;
   }
   const variables = { uid: id };
   await teamDeletion.executeMutation(variables).then((result) => {
     if (result.error) {
-      toast.error('Team deletion failed!!');
+      toast.error(`${t('state.delete_team_failure')}`);
     } else {
       teamList.value = teamList.value.filter((team) => team.id !== id);
-      toast.success('Team deleted successfully!!');
+      toast.success(`${t('state.delete_team_success')}`);
     }
   });
   confirmDeletion.value = false;

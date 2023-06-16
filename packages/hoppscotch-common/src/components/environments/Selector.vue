@@ -49,7 +49,7 @@
         />
         <HoppSmartTabs
           v-model="selectedEnvTab"
-          styles="sticky overflow-x-auto my-2 border border-divider rounded flex-shrink-0 z-0 top-0 bg-primary"
+          styles="sticky overflow-x-auto my-2 border border-divider rounded flex-shrink-0 z-10 top-0 bg-primary"
           render-inactive-tabs
         >
           <HoppSmartTab
@@ -97,7 +97,7 @@
               <HoppSmartSpinner class="my-4" />
               <span class="text-secondaryLight">{{ t("state.loading") }}</span>
             </div>
-            <div v-if="isTeamSelected" class="flex flex-col">
+            <div v-else-if="isTeamSelected" class="flex flex-col">
               <HoppSmartItem
                 v-for="(gen, index) in teamEnvironmentList"
                 :key="`gen-team-${index}`"
@@ -161,10 +161,14 @@ import {
   selectedEnvironmentIndex$,
   setSelectedEnvironmentIndex,
 } from "~/newstore/environments"
-import { workspaceStatus$ } from "~/newstore/workspace"
+import { changeWorkspace, workspaceStatus$ } from "~/newstore/workspace"
 import TeamEnvironmentAdapter from "~/helpers/teams/TeamEnvironmentAdapter"
 import { useColorMode } from "@composables/theming"
 import { breakpointsTailwind, useBreakpoints } from "@vueuse/core"
+import TeamListAdapter from "~/helpers/teams/TeamListAdapter"
+import { useLocalState } from "~/newstore/localstate"
+import { onLoggedIn } from "~/composables/auth"
+import { GetMyTeamsQuery } from "~/helpers/backend/graphql"
 
 const breakpoints = useBreakpoints(breakpointsTailwind)
 const mdAndLarger = breakpoints.greater("md")
@@ -208,6 +212,38 @@ watch(
       selectedEnvTab.value = "team-environments"
       if (newVal.teamID) {
         teamEnvListAdapter.changeTeamID(newVal.teamID)
+      }
+    }
+  }
+)
+
+// TeamList-Adapter
+const teamListAdapter = new TeamListAdapter(true)
+const myTeams = useReadonlyStream(teamListAdapter.teamList$, null)
+const teamListFetched = ref(false)
+const REMEMBERED_TEAM_ID = useLocalState("REMEMBERED_TEAM_ID")
+
+onLoggedIn(() => {
+  !teamListAdapter.isInitialized && teamListAdapter.initialize()
+})
+
+const switchToTeamWorkspace = (team: GetMyTeamsQuery["myTeams"][number]) => {
+  REMEMBERED_TEAM_ID.value = team.id
+  changeWorkspace({
+    teamID: team.id,
+    teamName: team.name,
+    type: "team",
+  })
+}
+
+watch(
+  () => myTeams.value,
+  (newTeams) => {
+    if (newTeams && !teamListFetched.value) {
+      teamListFetched.value = true
+      if (REMEMBERED_TEAM_ID.value) {
+        const team = newTeams.find((t) => t.id === REMEMBERED_TEAM_ID.value)
+        if (team) switchToTeamWorkspace(team)
       }
     }
   }

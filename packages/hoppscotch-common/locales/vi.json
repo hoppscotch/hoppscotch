@@ -4,7 +4,7 @@
     "cancel": "Hủy bỏ",
     "choose_file": "Chọn một tệp",
     "clear": "Thông thoáng",
-    "clear_all": "Quet sạch tât cả",
+    "clear_all": "Quet sạch tất cả",
     "close": "Close",
     "connect": "Liên kết",
     "connecting": "Connecting",
@@ -432,6 +432,7 @@
     "view_my_links": "View my links"
   },
   "response": {
+    "audio": "Audio",
     "body": "Cơ quan phản hồi",
     "filter_response_body": "Filter JSON response body (uses JSONPath syntax)",
     "headers": "Tiêu đề",
@@ -445,6 +446,7 @@
     "status": "Tình trạng",
     "time": "Thời gian",
     "title": "Phản ứng",
+    "video": "Video",
     "waiting_for_connection": "Đang đợi kết nối",
     "xml": "XML"
   },

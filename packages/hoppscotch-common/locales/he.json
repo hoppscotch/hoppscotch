@@ -432,6 +432,7 @@
     "view_my_links": "View my links"
   },
   "response": {
+    "audio": "Audio",
     "body": "גוף תגובה",
     "filter_response_body": "Filter JSON response body (uses JSONPath syntax)",
     "headers": "כותרות",
@@ -445,6 +446,7 @@
     "status": "סטָטוּס",
     "time": "זְמַן",
     "title": "תְגוּבָה",
+    "video": "Video",
     "waiting_for_connection": "מחכה לחיבור",
     "xml": "XML"
   },

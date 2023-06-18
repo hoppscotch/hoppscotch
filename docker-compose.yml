@@ -19,12 +19,18 @@ services:
       - DATABASE_URL=postgresql://postgres:testpass@hoppscotch-db:5432/hoppscotch?connect_timeout=300
       - PORT=3000
     volumes:
-      - ./packages/hoppscotch-backend/:/usr/src/app
       - /usr/src/app/node_modules/
     depends_on:
-      - hoppscotch-db
+      hoppscotch-db:
+        condition: service_healthy
     ports:
       - "3170:3000"
+    command:
+      - /bin/sh
+      - -c
+      - |
+        pnpm exec prisma migrate deploy
+        pnpm run start:prod
 
   # The main hoppscotch app. This will be hosted at port 3000
   # NOTE: To do TLS or play around with how the app is hosted, you can look into the Caddyfile for
@@ -60,12 +66,18 @@ services:
   # you are using an external postgres instance
   # This will be exposed at port 5432
   hoppscotch-db:
-    image: postgres
+    image: postgres:15.3-alpine3.18
     ports:
       - "5432:5432"
+    user: postgres
     environment:
       # NOTE: Please UPDATE THIS PASSWORD!
       POSTGRES_PASSWORD: testpass
       POSTGRES_DB: hoppscotch
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 

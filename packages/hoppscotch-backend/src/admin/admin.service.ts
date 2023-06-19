@@ -51,8 +51,8 @@ export class AdminService {
 
   /**
    * Invite a user to join the infra.
-   * @param adminUID Admin's UID
-   * @param adminEmail Admin's email
+   * @param adminUID Admins UID
+   * @param adminEmail Admins email
    * @param inviteeEmail Invitee's email
    * @returns an Either of `InvitedUser` object or error
    */

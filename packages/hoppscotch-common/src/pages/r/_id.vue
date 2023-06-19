@@ -11,6 +11,14 @@
       <p class="mt-2 text-center">
         {{ t("error.invalid_link_description") }}
       </p>
+      <p class="mt-4">
+        <HoppButtonSecondary
+          to="/"
+          :icon="IconHome"
+          filled
+          :label="t('app.home')"
+        />
+      </p>
     </div>
     <div v-else class="flex flex-col items-center justify-center flex-1 p-4">
       <div
@@ -107,6 +115,11 @@ const addRequestToTab = () => {
   const data = shortcodeDetails.data
 
   if (E.isRight(data)) {
+    if (!data.right.shortcode?.request) {
+      invalidLink.value = true
+      return
+    }
+
     const request: unknown = JSON.parse(data.right.shortcode?.request as string)
 
     createNewTab({

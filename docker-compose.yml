@@ -19,6 +19,8 @@ services:
       - DATABASE_URL=postgresql://postgres:testpass@hoppscotch-db:5432/hoppscotch?connect_timeout=300
       - PORT=3000
     volumes:
+      # Uncomment the line below when modifying code. Only applicable when using the "dev" target.
+      # - ./packages/hoppscotch-backend/:/usr/src/app
       - /usr/src/app/node_modules/
     depends_on:
       hoppscotch-db:
@@ -66,7 +68,7 @@ services:
   # you are using an external postgres instance
   # This will be exposed at port 5432
   hoppscotch-db:
-    image: postgres:15.3-alpine3.18
+    image: postgres:15
     ports:
       - "5432:5432"
     user: postgres

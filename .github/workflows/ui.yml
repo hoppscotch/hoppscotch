@@ -6,6 +6,7 @@ on:
     # run this workflow only if an update is made to the ui package
     paths:
       - "packages/hoppscotch-ui/**"
+  workflow_dispatch:
 
 jobs:
   deploy:

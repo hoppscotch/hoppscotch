@@ -111,13 +111,14 @@
               />
             </div>
           </div>
-          <div
+          <HoppSmartPlaceholder
             v-if="newMembersList.length === 0"
-            class="flex flex-col items-center justify-center p-4 text-secondaryLight"
+            :src="`/images/states/dark/add_group.svg`"
+            alt="No invites"
+            text="No invites"
           >
-            <span class="pb-4 text-center"> No invites </span>
             <HoppButtonSecondary label="Add new" filled @click="addNewMember" />
-          </div>
+          </HoppSmartPlaceholder>
         </div>
         <div
           v-if="newMembersList.length"

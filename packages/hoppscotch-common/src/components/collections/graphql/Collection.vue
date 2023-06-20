@@ -171,21 +171,14 @@
           @duplicate-request="$emit('duplicate-request', $event)"
           @select="$emit('select', $event)"
         />
-        <div
+        <HoppSmartPlaceholder
           v-if="
             collection.folders.length === 0 && collection.requests.length === 0
           "
-          class="flex flex-col items-center justify-center p-4 text-secondaryLight"
+          :src="`/images/states/${colorMode.value}/pack.svg`"
+          :alt="`${t('empty.collection')}`"
+          :text="t('empty.collection')"
         >
-          <img
-            :src="`/images/states/${colorMode.value}/pack.svg`"
-            loading="lazy"
-            class="inline-flex flex-col object-contain object-center w-16 h-16 mb-4"
-            :alt="`${t('empty.collection')}`"
-          />
-          <span class="pb-4 text-center">
-            {{ t("empty.collection") }}
-          </span>
           <HoppButtonSecondary
             :label="t('add.new')"
             filled
@@ -196,7 +189,7 @@
               })
             "
           />
-        </div>
+        </HoppSmartPlaceholder>
       </div>
     </div>
     <HoppSmartConfirmModal

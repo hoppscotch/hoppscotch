@@ -11,20 +11,13 @@
         <HoppSmartSpinner class="mb-4" />
         <span class="text-secondaryLight">{{ t("state.loading") }}</span>
       </div>
-      <div
+      <HoppSmartPlaceholder
         v-if="!loading && myShortcodes.length === 0"
-        class="flex flex-col items-center justify-center p-4 text-secondaryLight"
+        :src="`/images/states/${colorMode.value}/add_files.svg`"
+        :alt="`${t('empty.shortcodes')}`"
+        :text="t('empty.shortcodes')"
       >
-        <img
-          :src="`/images/states/${colorMode.value}/add_files.svg`"
-          loading="lazy"
-          class="inline-flex flex-col object-contain object-center w-16 h-16 mb-8"
-          :alt="`${t('empty.shortcodes')}`"
-        />
-        <span class="mb-4 text-center">
-          {{ t("empty.shortcodes") }}
-        </span>
-      </div>
+      </HoppSmartPlaceholder>
       <div v-else-if="!loading">
         <div
           class="hidden w-full border-t rounded-t bg-primaryLight lg:flex border-x border-dividerLight"

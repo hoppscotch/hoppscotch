@@ -70,20 +70,13 @@
                 }
               "
             />
-            <div
+            <HoppSmartPlaceholder
               v-if="myEnvironments.length === 0"
-              class="flex flex-col items-center justify-center text-secondaryLight"
+              :src="`/images/states/${colorMode.value}/blockchain.svg`"
+              :alt="`${t('empty.environments')}`"
+              :text="t('empty.environments')"
             >
-              <img
-                :src="`/images/states/${colorMode.value}/blockchain.svg`"
-                loading="lazy"
-                class="inline-flex flex-col object-contain object-center w-16 h-16 mb-2"
-                :alt="`${t('empty.environments')}`"
-              />
-              <span class="pb-2 text-center">
-                {{ t("empty.environments") }}
-              </span>
-            </div>
+            </HoppSmartPlaceholder>
           </HoppSmartTab>
           <HoppSmartTab
             :id="'team-environments'"
@@ -119,20 +112,14 @@
                   }
                 "
               />
-              <div
+
+              <HoppSmartPlaceholder
                 v-if="teamEnvironmentList.length === 0"
-                class="flex flex-col items-center justify-center text-secondaryLight"
+                :src="`/images/states/${colorMode.value}/blockchain.svg`"
+                :alt="`${t('empty.environments')}`"
+                :text="t('empty.environments')"
               >
-                <img
-                  :src="`/images/states/${colorMode.value}/blockchain.svg`"
-                  loading="lazy"
-                  class="inline-flex flex-col object-contain object-center w-16 h-16 mb-2"
-                  :alt="`${t('empty.environments')}`"
-                />
-                <span class="pb-2 text-center">
-                  {{ t("empty.environments") }}
-                </span>
-              </div>
+              </HoppSmartPlaceholder>
             </div>
             <div
               v-if="!teamListLoading && teamAdapterError"

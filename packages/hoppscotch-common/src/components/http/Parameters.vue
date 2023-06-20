@@ -145,18 +145,12 @@
           </div>
         </template>
       </draggable>
-
-      <div
+      <HoppSmartPlaceholder
         v-if="workingParams.length === 0"
-        class="flex flex-col items-center justify-center p-4 text-secondaryLight"
+        :src="`/images/states/${colorMode.value}/add_files.svg`"
+        :alt="`${t('empty.parameters')}`"
+        :text="t('empty.parameters')"
       >
-        <img
-          :src="`/images/states/${colorMode.value}/add_files.svg`"
-          loading="lazy"
-          class="inline-flex flex-col object-contain object-center w-16 h-16 my-4"
-          :alt="`${t('empty.parameters')}`"
-        />
-        <span class="pb-4 text-center">{{ t("empty.parameters") }}</span>
         <HoppButtonSecondary
           :label="`${t('add.new')}`"
           :icon="IconPlus"
@@ -164,7 +158,7 @@
           class="mb-4"
           @click="addParam"
         />
-      </div>
+      </HoppSmartPlaceholder>
     </div>
   </div>
 </template>

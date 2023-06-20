@@ -43,19 +43,12 @@
         />
       </div>
     </div>
-    <div
+    <HoppSmartPlaceholder
       v-if="!loading && teamEnvironments.length === 0 && !adapterError"
-      class="flex flex-col items-center justify-center p-4 text-secondaryLight"
+      :src="`/images/states/${colorMode.value}/blockchain.svg`"
+      :alt="`${t('empty.environments')}`"
+      :text="t('empty.environments')"
     >
-      <img
-        :src="`/images/states/${colorMode.value}/blockchain.svg`"
-        loading="lazy"
-        class="inline-flex flex-col object-contain object-center w-16 h-16 my-4"
-        :alt="`${t('empty.environments')}`"
-      />
-      <span class="pb-4 text-center">
-        {{ t("empty.environments") }}
-      </span>
       <HoppButtonSecondary
         v-if="team === undefined || team.myRole === 'VIEWER'"
         v-tippy="{ theme: 'tooltip' }"
@@ -74,7 +67,7 @@
         class="mb-4"
         @click="displayModalAdd(true)"
       />
-    </div>
+    </HoppSmartPlaceholder>
     <div v-else-if="!loading">
       <EnvironmentsTeamsEnvironment
         v-for="(environment, index) in JSON.parse(

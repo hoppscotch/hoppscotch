@@ -10,15 +10,14 @@
         @mouseover="selectedEntry = shortcutIndex"
       />
     </div>
-    <div
+    <HoppSmartPlaceholder
       v-if="searchResults.length === 0"
-      class="flex flex-col items-center justify-center p-4 text-secondaryLight"
+      :text="`${t('state.nothing_found')} ‟${search}”`"
     >
-      <icon-lucide-search class="pb-2 opacity-75 svg-icons" />
-      <span class="my-2 text-center">
-        {{ t("state.nothing_found") }} "{{ search }}"
-      </span>
-    </div>
+      <template #icon>
+        <icon-lucide-search class="pb-2 opacity-75 svg-icons" />
+      </template>
+    </HoppSmartPlaceholder>
   </div>
 </template>
 

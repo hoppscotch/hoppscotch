@@ -383,7 +383,7 @@ export const auth = {
       await this.signInWithEmailLink(deviceIdentifier, window.location.href);
 
       removeLocalConfig('deviceIdentifier');
-      window.location.href = '/';
+      window.location.href = import.meta.env.VITE_ADMIN_URL;
     }
   },
 };

@@ -72,6 +72,10 @@ const emit = defineEmits<{
 
 const request = ref(props.modelValue)
 
+watch(props, (updatedProps) => {
+  request.value = updatedProps.modelValue
+})
+
 watch(
   () => request.value,
   (newVal) => {

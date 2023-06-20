@@ -1,3 +1,4 @@
+import { vi, describe, expect, test } from "vitest"
 import { BehaviorSubject, Subject } from "rxjs"
 import { isEqual } from "lodash-es"
 import DispatchingStore from "~/newstore/DispatchingStore"
@@ -52,8 +53,8 @@ describe("DispatchingStore", () => {
   })
 
   test("only correct dispatcher method is ran", () => {
-    const dispatchFn = jest.fn().mockReturnValue({})
-    const dontCallDispatchFn = jest.fn().mockReturnValue({})
+    const dispatchFn = vi.fn().mockReturnValue({})
+    const dontCallDispatchFn = vi.fn().mockReturnValue({})
 
     const store = new DispatchingStore(
       {},
@@ -76,7 +77,7 @@ describe("DispatchingStore", () => {
     const testInitValue = { name: "bob" }
     const testPayload = { name: "alice" }
 
-    const testDispatchFn = jest.fn().mockReturnValue({})
+    const testDispatchFn = vi.fn().mockReturnValue({})
 
     const store = new DispatchingStore(testInitValue, {
       testDispatcher: testDispatchFn,
@@ -94,7 +95,7 @@ describe("DispatchingStore", () => {
     const testInitValue = { name: "bob" }
     const testDispatchReturnVal = { name: "alice" }
 
-    const testDispatchFn = jest.fn().mockReturnValue(testDispatchReturnVal)
+    const testDispatchFn = vi.fn().mockReturnValue(testDispatchReturnVal)
 
     const store = new DispatchingStore(testInitValue, {
       testDispatcher: testDispatchFn,
@@ -112,7 +113,7 @@ describe("DispatchingStore", () => {
     const testInitValue = { name: "bob" }
     const testDispatchReturnVal = { age: 25 }
 
-    const testDispatchFn = jest.fn().mockReturnValue(testDispatchReturnVal)
+    const testDispatchFn = vi.fn().mockReturnValue(testDispatchReturnVal)
 
     const store = new DispatchingStore(testInitValue, {
       testDispatcher: testDispatchFn,
@@ -129,49 +130,51 @@ describe("DispatchingStore", () => {
     })
   })
 
-  test("emits the current store value to the new subscribers", (done) => {
-    const testInitValue = { name: "bob" }
+  test("emits the current store value to the new subscribers", () =>
+    new Promise((resolve) => {
+      const testInitValue = { name: "bob" }
 
-    const testDispatchFn = jest.fn().mockReturnValue({})
+      const testDispatchFn = vi.fn().mockReturnValue({})
 
-    const store = new DispatchingStore(testInitValue, {
-      testDispatcher: testDispatchFn,
-    })
+      const store = new DispatchingStore(testInitValue, {
+        testDispatcher: testDispatchFn,
+      })
 
-    store.subject$.subscribe((value) => {
-      if (value === testInitValue) {
-        done()
-      }
-    })
-  })
+      store.subject$.subscribe((value) => {
+        if (value === testInitValue) {
+          resolve()
+        }
+      })
+    }))
 
-  test("emits the dispatched store value to the subscribers", (done) => {
-    const testInitValue = { name: "bob" }
-    const testDispatchReturnVal = { age: 25 }
+  test("emits the dispatched store value to the subscribers", () =>
+    new Promise((resolve) => {
+      const testInitValue = { name: "bob" }
+      const testDispatchReturnVal = { age: 25 }
 
-    const testDispatchFn = jest.fn().mockReturnValue(testDispatchReturnVal)
+      const testDispatchFn = vi.fn().mockReturnValue(testDispatchReturnVal)
 
-    const store = new DispatchingStore(testInitValue, {
-      testDispatcher: testDispatchFn,
-    })
+      const store = new DispatchingStore(testInitValue, {
+        testDispatcher: testDispatchFn,
+      })
 
-    store.subject$.subscribe((value) => {
-      if (isEqual(value, { name: "bob", age: 25 })) {
-        done()
-      }
-    })
+      store.subject$.subscribe((value) => {
+        if (isEqual(value, { name: "bob", age: 25 })) {
+          resolve()
+        }
+      })
 
-    store.dispatch({
-      dispatcher: "testDispatcher",
-      payload: {},
-    })
-  })
+      store.dispatch({
+        dispatcher: "testDispatcher",
+        payload: {},
+      })
+    }))
 
   test("dispatching emits the new dispatch requests to the subscribers", () => {
     const testInitValue = { name: "bob" }
     const testPayload = { age: 25 }
 
-    const testDispatchFn = jest.fn().mockReturnValue({})
+    const testDispatchFn = vi.fn().mockReturnValue({})
 
     const store = new DispatchingStore(testInitValue, {
       testDispatcher: testDispatchFn,

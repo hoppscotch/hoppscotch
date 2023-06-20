@@ -1,3 +1,4 @@
+import { describe, expect, test } from "vitest"
 import { getEditorLangForMimeType } from "../editorutils"
 
 describe("getEditorLangForMimeType", () => {

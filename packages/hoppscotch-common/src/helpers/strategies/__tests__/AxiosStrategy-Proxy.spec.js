@@ -1,11 +1,12 @@
+import { describe, test, expect, vi } from "vitest"
 import axios from "axios"
 import axiosStrategy from "../AxiosStrategy"
 
-jest.mock("../../utils/b64", () => ({
+vi.mock("../../utils/b64", () => ({
   __esModule: true,
-  decodeB64StringToArrayBuffer: jest.fn((data) => `${data}-converted`),
+  decodeB64StringToArrayBuffer: vi.fn((data) => `${data}-converted`),
 }))
-jest.mock("~/newstore/settings", () => {
+vi.mock("~/newstore/settings", () => {
   return {
     __esModule: true,
     settingsStore: {
@@ -22,7 +23,7 @@ describe("axiosStrategy", () => {
     test("sends POST request to proxy if proxy is enabled", async () => {
       let passedURL
 
-      jest.spyOn(axios, "post").mockImplementation((url) => {
+      vi.spyOn(axios, "post").mockImplementation((url) => {
         passedURL = url
         return Promise.resolve({ data: { success: true, isBinary: false } })
       })
@@ -41,7 +42,7 @@ describe("axiosStrategy", () => {
 
       let passedFields
 
-      jest.spyOn(axios, "post").mockImplementation((_url, req) => {
+      vi.spyOn(axios, "post").mockImplementation((_url, req) => {
         passedFields = req
         return Promise.resolve({ data: { success: true, isBinary: false } })
       })
@@ -54,7 +55,7 @@ describe("axiosStrategy", () => {
     test("passes wantsBinary field", async () => {
       let passedFields
 
-      jest.spyOn(axios, "post").mockImplementation((_url, req) => {
+      vi.spyOn(axios, "post").mockImplementation((_url, req) => {
         passedFields = req
         return Promise.resolve({ data: { success: true, isBinary: false } })
       })
@@ -65,7 +66,7 @@ describe("axiosStrategy", () => {
     })
 
     test("checks for proxy response success field and throws error message for non-success", async () => {
-      jest.spyOn(axios, "post").mockResolvedValue({
+      vi.spyOn(axios, "post").mockResolvedValue({
         data: {
           success: false,
           data: {
@@ -78,7 +79,7 @@ describe("axiosStrategy", () => {
     })
 
     test("checks for proxy response success field and throws error 'Proxy Error' for non-success", async () => {
-      jest.spyOn(axios, "post").mockResolvedValue({
+      vi.spyOn(axios, "post").mockResolvedValue({
         data: {
           success: false,
           data: {},
@@ -89,7 +90,7 @@ describe("axiosStrategy", () => {
     })
 
     test("checks for proxy response success and doesn't left for success", async () => {
-      jest.spyOn(axios, "post").mockResolvedValue({
+      vi.spyOn(axios, "post").mockResolvedValue({
         data: {
           success: true,
           data: {},
@@ -100,7 +101,7 @@ describe("axiosStrategy", () => {
     })
 
     test("checks isBinary response field and right with the converted value if so", async () => {
-      jest.spyOn(axios, "post").mockResolvedValue({
+      vi.spyOn(axios, "post").mockResolvedValue({
         data: {
           success: true,
           isBinary: true,
@@ -114,7 +115,7 @@ describe("axiosStrategy", () => {
     })
 
     test("checks isBinary response field and right with the actual value if not so", async () => {
-      jest.spyOn(axios, "post").mockResolvedValue({
+      vi.spyOn(axios, "post").mockResolvedValue({
         data: {
           success: true,
           isBinary: false,
@@ -128,15 +129,15 @@ describe("axiosStrategy", () => {
     })
 
     test("cancel errors are returned a left with the string 'cancellation'", async () => {
-      jest.spyOn(axios, "post").mockRejectedValue("errr")
-      jest.spyOn(axios, "isCancel").mockReturnValueOnce(true)
+      vi.spyOn(axios, "post").mockRejectedValue("errr")
+      vi.spyOn(axios, "isCancel").mockReturnValueOnce(true)
 
       expect(await axiosStrategy({})()).toEqualLeft("cancellation")
     })
 
     test("non-cancellation errors return a left", async () => {
-      jest.spyOn(axios, "post").mockRejectedValue("errr")
-      jest.spyOn(axios, "isCancel").mockReturnValueOnce(false)
+      vi.spyOn(axios, "post").mockRejectedValue("errr")
+      vi.spyOn(axios, "isCancel").mockReturnValueOnce(false)
 
       expect(await axiosStrategy({})()).toEqualLeft("errr")
     })

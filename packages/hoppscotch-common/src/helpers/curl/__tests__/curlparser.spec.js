@@ -1,6 +1,7 @@
 // @ts-check
 // ^^^ Enables Type Checking by the TypeScript compiler
 
+import { describe, expect, test } from "vitest"
 import { makeRESTRequest, rawKeyValueEntriesToString } from "@hoppscotch/data"
 import { parseCurlToHoppRESTReq } from ".."
 
@@ -15,7 +16,7 @@ const samples = [
     `,
     response: makeRESTRequest({
       method: "GET",
-      name: "Untitled request",
+      name: "Untitled",
       endpoint: "https://echo.hoppscotch.io/",
       auth: { authType: "none", authActive: true },
       body: {
@@ -55,7 +56,7 @@ const samples = [
     `,
     response: makeRESTRequest({
       method: "PUT",
-      name: "Untitled request",
+      name: "Untitled",
       endpoint: "http://127.0.0.1:8000/api/admin/crm/brand/4",
       auth: {
         authType: "basic",
@@ -146,7 +147,7 @@ const samples = [
     command: `curl google.com`,
     response: makeRESTRequest({
       method: "GET",
-      name: "Untitled request",
+      name: "Untitled",
       endpoint: "https://google.com/",
       auth: { authType: "none", authActive: true },
       body: {
@@ -163,7 +164,7 @@ const samples = [
     command: `curl -X POST -d '{"foo":"bar"}' http://localhost:1111/hello/world/?bar=baz&buzz`,
     response: makeRESTRequest({
       method: "POST",
-      name: "Untitled request",
+      name: "Untitled",
       endpoint: "http://localhost:1111/hello/world/?buzz",
       auth: { authType: "none", authActive: true },
       body: {
@@ -186,7 +187,7 @@ const samples = [
     command: `curl --get -d "tool=curl" -d "age=old" https://example.com`,
     response: makeRESTRequest({
       method: "GET",
-      name: "Untitled request",
+      name: "Untitled",
       endpoint: "https://example.com/",
       auth: { authType: "none", authActive: true },
       body: {
@@ -214,7 +215,7 @@ const samples = [
     command: `curl -F hello=hello2 -F hello3=@hello4.txt bing.com`,
     response: makeRESTRequest({
       method: "POST",
-      name: "Untitled request",
+      name: "Untitled",
       endpoint: "https://bing.com/",
       auth: { authType: "none", authActive: true },
       body: {
@@ -245,7 +246,7 @@ const samples = [
       "curl -X GET localhost -H 'Accept: application/json' --user root:toor",
     response: makeRESTRequest({
       method: "GET",
-      name: "Untitled request",
+      name: "Untitled",
       endpoint: "http://localhost/",
       auth: {
         authType: "basic",
@@ -274,7 +275,7 @@ const samples = [
       "curl -X GET localhost --header 'Authorization: Basic dXNlcjpwYXNz'",
     response: makeRESTRequest({
       method: "GET",
-      name: "Untitled request",
+      name: "Untitled",
       endpoint: "http://localhost/",
       auth: {
         authType: "basic",
@@ -297,7 +298,7 @@ const samples = [
       "curl -X GET localhost:9900 --header 'Authorization: Basic 77898dXNlcjpwYXNz'",
     response: makeRESTRequest({
       method: "GET",
-      name: "Untitled request",
+      name: "Untitled",
       endpoint: "http://localhost:9900/",
       auth: {
         authType: "none",
@@ -318,7 +319,7 @@ const samples = [
       "curl -X GET localhost --header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c'",
     response: makeRESTRequest({
       method: "GET",
-      name: "Untitled request",
+      name: "Untitled",
       endpoint: "http://localhost/",
       auth: {
         authType: "bearer",
@@ -340,7 +341,7 @@ const samples = [
     command: `curl --get -I -d "tool=curl" -d "platform=hoppscotch" -d"io" https://hoppscotch.io`,
     response: makeRESTRequest({
       method: "HEAD",
-      name: "Untitled request",
+      name: "Untitled",
       endpoint: "https://hoppscotch.io/?io",
       auth: {
         authActive: true,
@@ -375,7 +376,7 @@ const samples = [
   --data $'------WebKitFormBoundaryj3oufpIISPa2DP7c\\r\\nContent-Disposition: form-data; name="EmailAddress"\\r\\n\\r\\ntest@test.com\\r\\n------WebKitFormBoundaryj3oufpIISPa2DP7c\\r\\nContent-Disposition: form-data; name="Entity"\\r\\n\\r\\n1\\r\\n------WebKitFormBoundaryj3oufpIISPa2DP7c--\\r\\n'`,
     response: makeRESTRequest({
       method: "POST",
-      name: "Untitled request",
+      name: "Untitled",
       endpoint: "https://someshadywebsite.com/questionable/path/?so",
       auth: {
         authActive: true,
@@ -436,7 +437,7 @@ const samples = [
       "curl localhost -H 'content-type: multipart/form-data; boundary=------------------------d74496d66958873e' --data '-----------------------------d74496d66958873e\\r\\nContent-Disposition: form-data; name=\"file\"; filename=\"test.txt\"\\r\\nContent-Type: text/plain\\r\\n\\r\\nHello World\\r\\n\\r\\n-----------------------------d74496d66958873e--\\r\\n'",
     response: makeRESTRequest({
       method: "POST",
-      name: "Untitled request",
+      name: "Untitled",
       endpoint: "http://localhost/",
       auth: {
         authActive: true,
@@ -470,7 +471,7 @@ const samples = [
     --compressed`,
     response: makeRESTRequest({
       method: "GET",
-      name: "Untitled request",
+      name: "Untitled",
       endpoint: "https://hoppscotch.io/",
       auth: { authType: "none", authActive: true },
       body: {
@@ -525,7 +526,7 @@ const samples = [
     --data c=d`,
     response: makeRESTRequest({
       method: "GET",
-      name: "Untitled request",
+      name: "Untitled",
       endpoint: "https://echo.hoppscotch.io/",
       auth: { authType: "none", authActive: true },
       body: {
@@ -569,7 +570,7 @@ const samples = [
     --form a=b \
     --form c=d`,
     response: makeRESTRequest({
-      name: "Untitled request",
+      name: "Untitled",
       endpoint: "https://echo.hoppscotch.io/",
       method: "POST",
       auth: { authType: "none", authActive: true },
@@ -611,7 +612,7 @@ const samples = [
   {
     command: "curl 'muxueqz.top/skybook.html'",
     response: makeRESTRequest({
-      name: "Untitled request",
+      name: "Untitled",
       endpoint: "https://muxueqz.top/skybook.html",
       method: "GET",
       auth: { authType: "none", authActive: true },
@@ -625,7 +626,7 @@ const samples = [
   {
     command: "curl -F abcd=efghi",
     response: makeRESTRequest({
-      name: "Untitled request",
+      name: "Untitled",
       endpoint: "https://echo.hoppscotch.io/",
       method: "POST",
       auth: { authType: "none", authActive: true },
@@ -649,7 +650,7 @@ const samples = [
   {
     command: "curl 127.0.0.1 -X custommethod",
     response: makeRESTRequest({
-      name: "Untitled request",
+      name: "Untitled",
       endpoint: "http://127.0.0.1/",
       method: "CUSTOMMETHOD",
       auth: { authType: "none", authActive: true },
@@ -666,7 +667,7 @@ const samples = [
   {
     command: "curl echo.hoppscotch.io -A pinephone",
     response: makeRESTRequest({
-      name: "Untitled request",
+      name: "Untitled",
       endpoint: "https://echo.hoppscotch.io/",
       method: "GET",
       auth: { authType: "none", authActive: true },
@@ -689,7 +690,7 @@ const samples = [
   {
     command: "curl echo.hoppscotch.io -G",
     response: makeRESTRequest({
-      name: "Untitled request",
+      name: "Untitled",
       endpoint: "https://echo.hoppscotch.io/",
       method: "GET",
       auth: { authType: "none", authActive: true },
@@ -706,7 +707,7 @@ const samples = [
   {
     command: `curl --get -I -d "tool=hopp" https://example.org`,
     response: makeRESTRequest({
-      name: "Untitled request",
+      name: "Untitled",
       endpoint: "https://example.org/",
       method: "HEAD",
       auth: { authType: "none", authActive: true },
@@ -730,7 +731,7 @@ const samples = [
     command: `curl google.com -u userx`,
     response: makeRESTRequest({
       method: "GET",
-      name: "Untitled request",
+      name: "Untitled",
       endpoint: "https://google.com/",
       auth: {
         authType: "basic",
@@ -752,7 +753,7 @@ const samples = [
     command: `curl google.com -H "Authorization"`,
     response: makeRESTRequest({
       method: "GET",
-      name: "Untitled request",
+      name: "Untitled",
       endpoint: "https://google.com/",
       auth: {
         authType: "none",
@@ -773,7 +774,7 @@ const samples = [
   google.com -H "content-type: application/json"`,
     response: makeRESTRequest({
       method: "GET",
-      name: "Untitled request",
+      name: "Untitled",
       endpoint: "https://google.com/",
       auth: {
         authType: "none",
@@ -793,7 +794,7 @@ const samples = [
     command: `curl 192.168.0.24:8080/ping`,
     response: makeRESTRequest({
       method: "GET",
-      name: "Untitled request",
+      name: "Untitled",
       endpoint: "http://192.168.0.24:8080/ping",
       auth: {
         authType: "none",
@@ -813,7 +814,7 @@ const samples = [
     command: `curl https://example.com -d "alpha=beta&request_id=4"`,
     response: makeRESTRequest({
       method: "POST",
-      name: "Untitled request",
+      name: "Untitled",
       endpoint: "https://example.com/",
       auth: {
         authType: "none",

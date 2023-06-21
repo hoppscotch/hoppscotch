@@ -1,3 +1,4 @@
+import { describe, test, expect } from "vitest"
 import { wsValid, httpValid, socketioValid } from "../valid"
 
 describe("wsValid", () => {

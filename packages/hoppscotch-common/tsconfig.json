@@ -1,9 +1,10 @@
 {
   "compilerOptions": {
     "target": "ESNext",
+    "allowJs": true,
     "useDefineForClassFields": true,
     "module": "ESNext",
-  "moduleResolution": "node",
+    "moduleResolution": "node",
     "strict": true,
     "jsx": "preserve",
     "sourceMap": true,
@@ -20,7 +21,7 @@
       "@helpers/*": [ "./src/helpers/*" ],
       "@modules/*": [ "./src/modules/*" ],
       "@workers/*": [ "./src/workers/*" ],
-      "@functional/*": [ "./src/helpers/functional/*" ],
+      "@functional/*": [ "./src/helpers/functional/*" ]
     },
     "types": [
       "vite/client",
@@ -28,14 +29,16 @@
       "vite-plugin-pages/client",
       "vite-plugin-vue-layouts/client",
       "vite-plugin-pwa/client"
-    ],
+    ]
   },
   "include": [
     "meta.ts",
+    "src/**/*.js",
+    "src/*.ts",
     "src/**/*.ts",
     "src/**/*.d.ts",
     "src/**/*.tsx",
-    "src/**/*.vue",
+    "src/**/*.vue"
   ],
   "vueCompilerOptions": {
     "jsxTemplates": true,

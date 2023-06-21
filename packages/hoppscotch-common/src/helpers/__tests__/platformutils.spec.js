@@ -1,10 +1,11 @@
+import { vi, beforeEach, describe, expect, test } from "vitest"
 import { getPlatformSpecialKey } from "../platformutils"
 
 describe("getPlatformSpecialKey", () => {
   let platformGetter
 
   beforeEach(() => {
-    platformGetter = jest.spyOn(navigator, "platform", "get")
+    platformGetter = vi.spyOn(navigator, "platform", "get")
   })
 
   test("returns '⌘' for Apple platforms", () => {

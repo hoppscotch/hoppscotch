@@ -4,6 +4,8 @@
   "version": "2023.4.6",
   "scripts": {
     "dev": "pnpm exec npm-run-all -p -l dev:*",
+    "test": "vitest --run",
+    "test:watch": "vitest",
     "dev:vite": "vite",
     "dev:gql-codegen": "graphql-codegen --require dotenv/config --config gql-codegen.yml --watch dotenv_config_path=\"../../.env\"",
     "lint": "eslint src --ext .ts,.js,.vue --ignore-path .gitignore .",
@@ -13,12 +15,12 @@
     "preview": "vite preview",
     "gql-codegen": "graphql-codegen --require dotenv/config --config gql-codegen.yml dotenv_config_path=\"../../.env\"",
     "postinstall": "pnpm run gql-codegen",
+    "do-test": "pnpm run test",
     "do-lint": "pnpm run prod-lint",
     "do-typecheck": "pnpm run lint",
     "do-lintfix": "pnpm run lintfix"
   },
   "dependencies": {
-    "dioc": "workspace:^",
     "@apidevtools/swagger-parser": "^10.1.0",
     "@codemirror/autocomplete": "^6.0.3",
     "@codemirror/commands": "^6.0.1",
@@ -49,6 +51,7 @@
     "acorn-walk": "^8.2.0",
     "axios": "^0.21.4",
     "buffer": "^6.0.3",
+    "dioc": "workspace:^",
     "esprima": "^4.0.1",
     "events": "^3.3.0",
     "fp-ts": "^2.12.1",
@@ -109,6 +112,7 @@
     "@graphql-typed-document-node/core": "^3.1.1",
     "@iconify-json/lucide": "^1.1.40",
     "@intlify/vite-plugin-vue-i18n": "^7.0.0",
+    "@relmify/jest-fp-ts": "^2.1.1",
     "@rushstack/eslint-patch": "^1.1.4",
     "@types/js-yaml": "^4.0.5",
     "@types/lodash-es": "^4.17.6",
@@ -147,6 +151,7 @@
     "vite-plugin-pwa": "^0.13.1",
     "vite-plugin-vue-layouts": "^0.7.0",
     "vite-plugin-windicss": "^1.8.8",
+    "vitest": "^0.32.2",
     "vue-tsc": "^0.38.2",
     "windicss": "^3.5.6"
   }

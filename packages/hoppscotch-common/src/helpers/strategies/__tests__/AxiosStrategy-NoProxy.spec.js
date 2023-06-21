@@ -1,8 +1,9 @@
+import { vi, describe, expect, test } from "vitest"
 import axios from "axios"
 import axiosStrategy from "../AxiosStrategy"
 
-jest.mock("axios")
-jest.mock("~/newstore/settings", () => {
+vi.mock("axios")
+vi.mock("~/newstore/settings", () => {
   return {
     __esModule: true,
     settingsStore: {

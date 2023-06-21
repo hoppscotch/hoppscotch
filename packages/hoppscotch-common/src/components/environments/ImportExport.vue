@@ -190,6 +190,12 @@ const createEnvironmentGist = async () => {
     )
 
     toast.success(t("export.gist_created").toString())
+
+    platform.analytics?.logEvent({
+      type: "HOPP_EXPORT_ENVIRONMENT",
+      platform: "rest",
+    })
+
     window.open(res.data.html_url)
   } catch (e) {
     toast.error(t("error.something_went_wrong").toString())
@@ -249,6 +255,13 @@ const openDialogChooseFileToImportFrom = () => {
 
 const importToTeams = async (content: Environment[]) => {
   loading.value = true
+
+  platform.analytics?.logEvent({
+    type: "HOPP_IMPORT_ENVIRONMENT",
+    platform: "rest",
+    workspaceType: "team",
+  })
+
   for (const [i, env] of content.entries()) {
     if (i === content.length - 1) {
       await pipe(
@@ -301,6 +314,12 @@ const importFromJSON = () => {
     return
   }
 
+  platform.analytics?.logEvent({
+    type: "HOPP_IMPORT_ENVIRONMENT",
+    platform: "rest",
+    workspaceType: "personal",
+  })
+
   const reader = new FileReader()
 
   reader.onload = ({ target }) => {
@@ -352,6 +371,7 @@ const importFromPostman = ({
   const environment: Environment = { name, variables: [] }
   values.forEach(({ key, value }) => environment.variables.push({ key, value }))
   const environments = [environment]
+
   importFromHoppscotch(environments)
 }
 

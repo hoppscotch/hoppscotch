@@ -44,6 +44,7 @@ import { createTeam } from "~/helpers/backend/mutations/Team"
 import { TeamNameCodec } from "~/helpers/backend/types/TeamName"
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
+import { platform } from "~/platform"
 
 const t = useI18n()
 
@@ -68,6 +69,12 @@ const addNewTeam = async () => {
     TE.fromEither,
     TE.mapLeft(() => "invalid_name" as const),
     TE.chainW(createTeam),
+    TE.chainFirstIOK(
+      () => () =>
+        platform.analytics?.logEvent({
+          type: "HOPP_CREATE_TEAM",
+        })
+    ),
     TE.match(
       (err) => {
         // err is of type "invalid_name" | GQLError<Err>

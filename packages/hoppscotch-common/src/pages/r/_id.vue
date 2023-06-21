@@ -84,6 +84,7 @@ import IconHome from "~icons/lucide/home"
 import IconRefreshCW from "~icons/lucide/refresh-cw"
 import { createNewTab } from "~/helpers/rest/tab"
 import { getDefaultRESTRequest } from "~/helpers/rest/default"
+import { platform } from "~/platform"
 
 const route = useRoute()
 const router = useRouter()
@@ -119,6 +120,10 @@ const addRequestToTab = () => {
       invalidLink.value = true
       return
     }
+
+    platform.analytics?.logEvent({
+      type: "HOPP_SHORTCODE_RESOLVED",
+    })
 
     const request: unknown = JSON.parse(data.right.shortcode?.request as string)
 

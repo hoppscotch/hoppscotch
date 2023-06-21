@@ -446,6 +446,11 @@ const copyRequest = async () => {
     shareLink.value = ""
     fetchingShareLink.value = true
     const shortcodeResult = await createShortcode(tab.value.document.request)()
+
+    platform.analytics?.logEvent({
+      type: "HOPP_SHORTCODE_CREATED",
+    })
+
     if (E.isLeft(shortcodeResult)) {
       toast.error(`${shortcodeResult.left.error}`)
       shareLink.value = `${t("error.something_went_wrong")}`
@@ -516,6 +521,14 @@ const saveRequest = () => {
       editRESTRequest(saveCtx.folderPath, saveCtx.requestIndex, req)
 
       tab.value.document.isDirty = false
+
+      platform.analytics?.logEvent({
+        type: "HOPP_SAVE_REQUEST",
+        platform: "rest",
+        createdNow: false,
+        workspaceType: "personal",
+      })
+
       toast.success(`${t("request.saved")}`)
     } catch (e) {
       tab.value.document.saveContext = undefined
@@ -526,6 +539,13 @@ const saveRequest = () => {
 
     // TODO: handle error case (NOTE: overwriteRequestTeams is async)
     try {
+      platform.analytics?.logEvent({
+        type: "HOPP_SAVE_REQUEST",
+        platform: "rest",
+        createdNow: false,
+        workspaceType: "team",
+      })
+
       runMutation(UpdateRequestDocument, {
         requestID: saveCtx.requestID,
         data: {

@@ -23,7 +23,7 @@ export const AUTH_FAIL = 'auth/fail';
 export const JSON_INVALID = 'json_invalid';
 
 /**
- * Tried to delete an user data document from fb firestore but failed.
+ * Tried to delete a user data document from fb firestore but failed.
  * (FirebaseService)
  */
 export const USER_FB_DOCUMENT_DELETION_FAILED =
@@ -231,7 +231,7 @@ export const TEAM_COLL_INVALID_JSON = 'team_coll/invalid_json';
 export const TEAM_NOT_OWNER = 'team_coll/team_not_owner' as const;
 
 /**
- * Tried to perform action on a request that doesn't accept their member role level
+ * Tried to perform an action on a request that doesn't accept their member role level
  * (GqlRequestTeamMemberGuard)
  */
 export const TEAM_REQ_NOT_REQUIRED_ROLE = 'team_req/not_required_role';
@@ -262,7 +262,7 @@ export const TEAM_REQ_REORDERING_FAILED = 'team_req/reordering_failed' as const;
 export const SENDER_EMAIL_INVALID = 'mailer/sender_email_invalid' as const;
 
 /**
- * Tried to perform action on a request when the user is not even member of the team
+ * Tried to perform an action on a request when the user is not even a member of the team
  * (GqlRequestTeamMemberGuard, GqlCollectionTeamMemberGuard)
  */
 export const TEAM_REQ_NOT_MEMBER = 'team_req/not_member';
@@ -307,7 +307,7 @@ export const SHORTCODE_INVALID_JSON = 'shortcode/invalid_json' as const;
 export const SHORTCODE_ALREADY_EXISTS = 'shortcode/already_exists' as const;
 
 /**
- * Invalid or non-existent TEAM ENVIRONMMENT ID
+ * Invalid or non-existent TEAM ENVIRONMENT ID
  * (TeamEnvironmentsService)
  */
 export const TEAM_ENVIRONMENT_NOT_FOUND = 'team_environment/not_found' as const;
@@ -340,7 +340,7 @@ export const USER_SETTINGS_NULL_SETTINGS =
   'user_settings/null_settings' as const;
 
 /*
- * Global environment doesnt exists for the user
+ * Global environment doesn't exist for the user
  * (UserEnvironmentsService)
  */
 export const USER_ENVIRONMENT_GLOBAL_ENV_DOES_NOT_EXISTS =

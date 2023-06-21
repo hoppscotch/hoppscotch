@@ -113,7 +113,8 @@ export class SIOConnection {
       this.handleError(error, "CONNECTION")
     }
 
-    platform.analytics?.logHoppRequestRunToAnalytics({
+    platform.analytics?.logEvent({
+      type: "HOPP_REQUEST_RUN",
       platform: "socketio",
     })
   }

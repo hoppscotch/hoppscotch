@@ -324,7 +324,8 @@ const newSendRequest = async () => {
   loading.value = true
 
   // Log the request run into analytics
-  platform.analytics?.logHoppRequestRunToAnalytics({
+  platform.analytics?.logEvent({
+    type: "HOPP_REQUEST_RUN",
     platform: "rest",
     strategy: getCurrentStrategyID(),
   })

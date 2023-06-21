@@ -105,7 +105,8 @@ export class MQTTConnection {
       this.handleError(e)
     }
 
-    platform.analytics?.logHoppRequestRunToAnalytics({
+    platform.analytics?.logEvent({
+      type: "HOPP_REQUEST_RUN",
       platform: "mqtt",
     })
   }

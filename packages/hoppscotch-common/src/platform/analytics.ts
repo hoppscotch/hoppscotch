@@ -50,6 +50,5 @@ export type AnalyticsEvent =
 export type AnalyticsPlatformDef = {
   initAnalytics: () => void
   logEvent: (ev: AnalyticsEvent) => void
-  logHoppRequestRunToAnalytics: (ev: HoppRequestEvent) => void
   logPageView: (pagePath: string) => void
 }

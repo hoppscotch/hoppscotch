@@ -63,7 +63,7 @@
                   <HoppSmartItem
                     :icon="IconTrash"
                     :label="'Delete Team'"
-                    class="!hover:bg-red-600 w-full"
+                    class="w-full"
                     @click="
                       () => {
                         $emit('delete-team', team.id);

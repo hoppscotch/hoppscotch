@@ -21,13 +21,42 @@
 
         <div v-else-if="error">{{ t('teams.load_list_error') }}</div>
 
-        <TeamsTable
+        <HoppSmartTable
           v-else
-          :teamList="teamList"
-          @goToTeamDetails="goToTeamDetails"
-          @deleteTeam="deleteTeam"
-          class=""
-        />
+          :list="teamList"
+          :headings="headings"
+          @goToDetails="goToTeamDetails"
+          padding="px-6 py-3"
+          item-style="!hover:bg-red-600"
+        >
+          <template #action="{ item }">
+            <td>
+              <div class="relative">
+                <tippy interactive trigger="click" theme="popover">
+                  <HoppButtonSecondary
+                    v-tippy="{ theme: 'tooltip' }"
+                    :icon="IconMoreHorizontal"
+                  />
+                  <template #content="{ hide }">
+                    <div
+                      ref="tippyActions"
+                      class="flex flex-col focus:outline-none"
+                      tabindex="0"
+                      @keyup.escape="hide()"
+                    >
+                      <HoppSmartItem
+                        :icon="IconTrash"
+                        :label="'Delete Team'"
+                        class="!hover:bg-red-600 w-full"
+                        @click="deleteTeam(item)"
+                      />
+                    </div>
+                  </template>
+                </tippy>
+              </div>
+            </td>
+          </template>
+        </HoppSmartTable>
 
         <div
           v-if="hasNextPage && teamList.length >= teamsPerPage"
@@ -66,10 +95,12 @@ import {
   UsersListDocument,
 } from '../../helpers/backend/graphql';
 import { usePagedQuery } from '~/composables/usePagedQuery';
-import { ref, watch, computed } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useMutation, useQuery } from '@urql/vue';
 import { useToast } from '~/composables/toast';
 import IconAddUsers from '~icons/lucide/plus';
+import IconTrash from '~icons/lucide/trash';
+import IconMoreHorizontal from '~icons/lucide/more-horizontal';
 import { useI18n } from '~/composables/i18n';
 
 const t = useI18n();
@@ -96,7 +127,7 @@ const {
   error,
   goToNextPage: fetchNextTeams,
   refetch,
-  list: teamList,
+  list: list,
   hasNextPage,
 } = usePagedQuery(
   TeamListDocument,
@@ -105,6 +136,18 @@ const {
   teamsPerPage,
   { cursor: undefined, take: teamsPerPage }
 );
+
+const teamList = computed(() => {
+  return list.value.map((team) => {
+    return {
+      id: team.id || '',
+      name: team.name || '',
+      members: team.members.length,
+    };
+  });
+});
+
+const headings = ['Team ID', 'Team Name', 'Number of Members'];
 
 // Create Team
 const createTeamMutation = useMutation(CreateTeamDocument);
@@ -143,9 +186,7 @@ const createTeam = async (newTeamName: string, ownerEmail: string) => {
 
 // Go To Individual Team Details Page
 const router = useRouter();
-const goToTeamDetails = (teamId: string) => {
-  router.push('/teams/' + teamId);
-};
+const goToTeamDetails = (team: any) => router.push('/teams/' + team.id);
 
 // Reload Teams Page when routed back to the teams page
 const route = useRoute();
@@ -159,9 +200,9 @@ const teamDeletion = useMutation(RemoveTeamDocument);
 const confirmDeletion = ref(false);
 const deleteTeamID = ref<string | null>(null);
 
-const deleteTeam = (id: string) => {
+const deleteTeam = (team: any) => {
   confirmDeletion.value = true;
-  deleteTeamID.value = id;
+  deleteTeamID.value = team.id;
 };
 
 const deleteTeamMutation = async (id: string | null) => {
@@ -175,7 +216,7 @@ const deleteTeamMutation = async (id: string | null) => {
     if (result.error) {
       toast.error(`${t('state.delete_team_failure')}`);
     } else {
-      teamList.value = teamList.value.filter((team) => team.id !== id);
+      list.value = list.value.filter((team) => team.id !== id);
       toast.success(`${t('state.delete_team_success')}`);
     }
   });

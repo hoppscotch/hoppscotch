@@ -17,7 +17,7 @@ export class MicrosoftStrategy extends PassportStrategy(Strategy) {
       clientSecret: process.env.MICROSOFT_CLIENT_SECRET,
       callbackURL: process.env.MICROSOFT_CALLBACK_URL,
       scope: [process.env.MICROSOFT_SCOPE],
-      passReqToCallback: true,
+      tenant: process.env.MICROSOFT_TENANT,
       store: true,
     });
   }

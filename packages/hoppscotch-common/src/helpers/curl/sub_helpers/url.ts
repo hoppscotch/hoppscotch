@@ -71,9 +71,11 @@ const parseURL = (urlText: string | number) =>
  * @returns URL object
  */
 export function getURLObject(parsedArguments: parser.Arguments) {
+  const location = parsedArguments.location ?? undefined
+
   return pipe(
     // contains raw url strings
-    parsedArguments._.slice(1),
+    [...parsedArguments._.slice(1), location],
     A.findFirstMap(parseURL),
     // no url found
     O.getOrElse(() => new URL(defaultRESTReq.endpoint))

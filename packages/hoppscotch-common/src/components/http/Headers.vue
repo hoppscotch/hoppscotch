@@ -333,7 +333,7 @@ watch(workingHeaders, (headersList) => {
 
 // Sync logic between headers and working/bulk headers
 watch(
-  request.value.headers,
+  () => request.value.headers,
   (newHeadersList) => {
     // Sync should overwrite working headers
     const filteredWorkingHeaders = pipe(

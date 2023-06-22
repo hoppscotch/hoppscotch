@@ -54,7 +54,8 @@
 <script setup lang="ts">
 import { useI18n } from "@composables/i18n"
 import { HoppRESTRequest } from "@hoppscotch/data"
-import { computed, ref, watch } from "vue"
+import { useVModel } from "@vueuse/core"
+import { computed, ref } from "vue"
 
 export type RequestOptionTabs =
   | "params"
@@ -70,15 +71,7 @@ const emit = defineEmits<{
   (e: "update:modelValue", value: HoppRESTRequest): void
 }>()
 
-const request = ref(props.modelValue)
-
-watch(
-  () => request.value,
-  (newVal) => {
-    emit("update:modelValue", newVal)
-  },
-  { deep: true }
-)
+const request = useVModel(props, "modelValue", emit)
 
 const selectedRealtimeTab = ref<RequestOptionTabs>("params")
 

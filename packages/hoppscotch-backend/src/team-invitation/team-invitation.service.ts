@@ -3,6 +3,7 @@ import * as T from 'fp-ts/Task';
 import * as O from 'fp-ts/Option';
 import * as TO from 'fp-ts/TaskOption';
 import * as TE from 'fp-ts/TaskEither';
+import * as E from 'fp-ts/Either';
 import { pipe, flow, constVoid } from 'fp-ts/function';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Team, TeamMemberRole } from 'src/team/team.model';
@@ -10,6 +11,7 @@ import { Email } from 'src/types/Email';
 import { User } from 'src/user/user.model';
 import { TeamService } from 'src/team/team.service';
 import {
+  INVALID_EMAIL,
   TEAM_INVITE_ALREADY_MEMBER,
   TEAM_INVITE_EMAIL_DO_NOT_MATCH,
   TEAM_INVITE_MEMBER_HAS_INVITE,
@@ -19,6 +21,7 @@ import { TeamInvitation } from './team-invitation.model';
 import { MailerService } from 'src/mailer/mailer.service';
 import { UserService } from 'src/user/user.service';
 import { PubSubService } from 'src/pubsub/pubsub.service';
+import { validateEmail } from '../utils';
 
 @Injectable()
 export class TeamInvitationService {
@@ -61,6 +64,32 @@ export class TeamInvitationService {
       TO.fromTask,
       TO.chain(flow(O.fromNullable, TO.fromOption)),
     );
+  }
+
+  /**
+   * Get the team invite for an invitee with email and teamID.
+   * @param inviteeEmail invitee email
+   * @param teamID team id
+   * @returns an Either of team invitation for the invitee or error
+   */
+  async getTeamInviteByEmailAndTeamID(inviteeEmail: string, teamID: string) {
+    const isEmailValid = validateEmail(inviteeEmail);
+    if (!isEmailValid) return E.left(INVALID_EMAIL);
+
+    try {
+      const teamInvite = await this.prisma.teamInvitation.findUniqueOrThrow({
+        where: {
+          teamID_inviteeEmail: {
+            inviteeEmail: inviteeEmail,
+            teamID: teamID,
+          },
+        },
+      });
+
+      return E.right(teamInvite);
+    } catch (e) {
+      return E.left(TEAM_INVITE_NO_INVITE_FOUND);
+    }
   }
 
   createInvitation(

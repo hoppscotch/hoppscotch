@@ -240,13 +240,25 @@ export class AdminService {
       teamID,
       user.value.uid,
     )();
-    if (E.left(isUserAlreadyMember)) {
+    if (E.isLeft(isUserAlreadyMember)) {
       const addedUser = await this.teamService.addMemberToTeamWithEmail(
         teamID,
         userEmail,
         role,
       );
       if (E.isLeft(addedUser)) return E.left(addedUser.left);
+
+      const isUserInvited =
+        await this.teamInvitationService.getTeamInviteByEmailAndTeamID(
+          userEmail,
+          teamID,
+        );
+
+      if (E.isRight(isUserInvited)) {
+        await this.teamInvitationService.revokeInvitation(
+          isUserInvited.right.id,
+        )();
+      }
 
       return E.right(addedUser.right);
     }

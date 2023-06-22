@@ -47,6 +47,8 @@ import {
   loadTabsFromPersistedState,
   persistableTabState,
 } from "~/helpers/rest/tab"
+import { debounceTime } from "rxjs"
+import { gqlSessionStore, setGQLSession } from "./GQLSession"
 
 function checkAndMigrateOldSettings() {
   if (window.localStorage.getItem("selectedEnvIndex")) {
@@ -333,12 +335,35 @@ export function setupRESTTabsPersistence() {
   )
 }
 
+// temporary persistence for GQL session
+export function setupGQLPersistence() {
+  try {
+    const state = window.localStorage.getItem("gqlState")
+    if (state) {
+      const data = JSON.parse(state)
+      data["schema"] = ""
+      data["response"] = ""
+      setGQLSession(data)
+    }
+  } catch (e) {
+    console.error(
+      `Failed parsing persisted GraphQL state, state:`,
+      window.localStorage.getItem("gqlState")
+    )
+  }
+
+  gqlSessionStore.subject$.pipe(debounceTime(500)).subscribe((state) => {
+    window.localStorage.setItem("gqlState", JSON.stringify(state))
+  })
+}
+
 export function setupLocalPersistence() {
   checkAndMigrateOldSettings()
 
   setupLocalStatePersistence()
   setupSettingsPersistence()
   setupRESTTabsPersistence()
+  setupGQLPersistence()
   setupHistoryPersistence()
   setupCollectionsPersistence()
   setupGlobalEnvsPersistence()

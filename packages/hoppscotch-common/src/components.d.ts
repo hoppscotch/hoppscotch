@@ -86,6 +86,7 @@ declare module '@vue/runtime-core' {
     HoppSmartLink: typeof import('@hoppscotch/ui')['HoppSmartLink']
     HoppSmartModal: typeof import('@hoppscotch/ui')['HoppSmartModal']
     HoppSmartPicture: typeof import('@hoppscotch/ui')['HoppSmartPicture']
+    HoppSmartPlaceholder: typeof import('@hoppscotch/ui')['HoppSmartPlaceholder']
     HoppSmartProgressRing: typeof import('@hoppscotch/ui')['HoppSmartProgressRing']
     HoppSmartRadioGroup: typeof import('@hoppscotch/ui')['HoppSmartRadioGroup']
     HoppSmartSlideOver: typeof import('@hoppscotch/ui')['HoppSmartSlideOver']

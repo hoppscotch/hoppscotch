@@ -44,6 +44,7 @@ const props = withDefaults(
     envs?: { key: string; value: string; source: string }[] | null
     focus?: boolean
     selectTextOnMount?: boolean
+    environmentHighlights?: boolean
     readonly?: boolean
   }>(),
   {
@@ -53,6 +54,7 @@ const props = withDefaults(
     envs: null,
     focus: false,
     readonly: false,
+    environmentHighlights: true,
   }
 )
 
@@ -142,7 +144,7 @@ const initView = (el: any) => {
     tooltips({
       position: "absolute",
     }),
-    envTooltipPlugin,
+    props.environmentHighlights ? envTooltipPlugin : [],
     placeholderExt(props.placeholder),
     EditorView.domEventHandlers({
       paste(ev) {

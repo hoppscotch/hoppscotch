@@ -236,11 +236,11 @@ export class AdminService {
     const user = await this.userService.findUserByEmail(userEmail);
     if (O.isNone(user)) return E.left(USER_NOT_FOUND);
 
-    const isUserAlreadyMember = await this.teamService.getTeamMemberTE(
+    const teamMember = await this.teamService.getTeamMemberTE(
       teamID,
       user.value.uid,
     )();
-    if (E.isLeft(isUserAlreadyMember)) {
+    if (E.isLeft(teamMember)) {
       const addedUser = await this.teamService.addMemberToTeamWithEmail(
         teamID,
         userEmail,
@@ -248,15 +248,15 @@ export class AdminService {
       );
       if (E.isLeft(addedUser)) return E.left(addedUser.left);
 
-      const isUserInvited =
+      const userInvitation =
         await this.teamInvitationService.getTeamInviteByEmailAndTeamID(
           userEmail,
           teamID,
         );
 
-      if (E.isRight(isUserInvited)) {
+      if (E.isRight(userInvitation)) {
         await this.teamInvitationService.revokeInvitation(
-          isUserInvited.right.id,
+          userInvitation.right.id,
         )();
       }
 

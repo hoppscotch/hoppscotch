@@ -14,12 +14,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, watch } from "vue"
-import { useReadonlyStream } from "@composables/stream"
-import { useI18n } from "@composables/i18n"
 import { usePageHead } from "@composables/head"
-import { startPageProgress, completePageProgress } from "@modules/loadingbar"
+import { useI18n } from "@composables/i18n"
 import { GQLConnection } from "@helpers/GQLConnection"
+import { computed, onBeforeUnmount } from "vue"
 
 const t = useI18n()
 
@@ -28,16 +26,10 @@ usePageHead({
 })
 
 const gqlConn = new GQLConnection()
-const isLoading = useReadonlyStream(gqlConn.isLoading$, false)
 
 onBeforeUnmount(() => {
   if (gqlConn.connected$.value) {
     gqlConn.disconnect()
   }
-})
-
-watch(isLoading, () => {
-  if (isLoading.value) startPageProgress()
-  else completePageProgress()
 })
 </script>

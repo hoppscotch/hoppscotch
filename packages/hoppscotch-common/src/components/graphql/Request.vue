@@ -17,6 +17,7 @@
       <HoppButtonPrimary
         id="get"
         name="get"
+        :loading="isLoading"
         :label="!connected ? t('action.connect') : t('action.disconnect')"
         class="w-32"
         @click="onConnectClick"
@@ -45,6 +46,7 @@ const props = defineProps<{
 }>()
 
 const connected = useReadonlyStream(props.conn.connected$, false)
+const isLoading = useReadonlyStream(props.conn.isLoading$, false)
 const headers = useReadonlyStream(gqlHeaders$, [])
 const auth = useReadonlyStream(gqlAuth$, {
   authType: "none",

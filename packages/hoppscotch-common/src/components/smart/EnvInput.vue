@@ -9,7 +9,7 @@
         @click="emit('click', $event)"
         @keydown="handleKeystroke"
         @focusin="showSuggestionPopover = true"
-        @focusout="showSuggestionPopover = false"
+        @focusout="handleFocusOut"
       ></div>
     </div>
     <ul
@@ -133,6 +133,13 @@ const suggestions = computed(() => {
     return uniqueAutoCompleteSource.value ?? []
   }
 })
+
+const handleFocusOut = () => {
+  // wait for click event to be handled before hiding the popover
+  setTimeout(() => {
+    showSuggestionPopover.value = false
+  }, 100)
+}
 
 const updateModelValue = (value: string) => {
   emit("update:modelValue", value)

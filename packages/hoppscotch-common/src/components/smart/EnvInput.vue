@@ -9,7 +9,6 @@
         @click="emit('click', $event)"
         @keydown="handleKeystroke"
         @focusin="showSuggestionPopover = true"
-        @focusout="handleFocusOut"
       ></div>
     </div>
     <ul
@@ -62,6 +61,7 @@ import { useReadonlyStream } from "@composables/stream"
 import { AggregateEnvironment, aggregateEnvs$ } from "~/newstore/environments"
 import { platform } from "~/platform"
 import { useI18n } from "~/composables/i18n"
+import { onClickOutside } from "@vueuse/core"
 
 const props = withDefaults(
   defineProps<{
@@ -110,6 +110,10 @@ const showSuggestionPopover = ref(false)
 
 const suggestionsMenu = ref<HTMLElement | null>(null)
 
+onClickOutside(suggestionsMenu, () => {
+  showSuggestionPopover.value = false
+})
+
 //filter autocompleteSource with unique values
 const uniqueAutoCompleteSource = computed(() => {
   if (props.autoCompleteSource) {
@@ -133,13 +137,6 @@ const suggestions = computed(() => {
     return uniqueAutoCompleteSource.value ?? []
   }
 })
-
-const handleFocusOut = () => {
-  // wait for click event to be handled before hiding the popover
-  setTimeout(() => {
-    showSuggestionPopover.value = false
-  }, 80)
-}
 
 const updateModelValue = (value: string) => {
   emit("update:modelValue", value)

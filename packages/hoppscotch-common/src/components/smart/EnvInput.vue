@@ -8,6 +8,8 @@
         :class="styles"
         @click="emit('click', $event)"
         @keydown="handleKeystroke"
+        @focusin="showSuggestionPopover = true"
+        @focusout="showSuggestionPopover = false"
       ></div>
     </div>
     <ul v-if="showSuggestionPopover" ref="suggestionsMenu" class="suggestions">
@@ -55,7 +57,6 @@ import { HoppReactiveEnvPlugin } from "~/helpers/editor/extensions/HoppEnvironme
 import { useReadonlyStream } from "@composables/stream"
 import { AggregateEnvironment, aggregateEnvs$ } from "~/newstore/environments"
 import { platform } from "~/platform"
-import { onClickOutside } from "@vueuse/core"
 import { useI18n } from "~/composables/i18n"
 
 const props = withDefaults(
@@ -105,10 +106,6 @@ const showSuggestionPopover = ref(false)
 
 const suggestionsMenu = ref<HTMLElement | null>(null)
 
-onClickOutside(suggestionsMenu, () => {
-  showSuggestionPopover.value = false
-})
-
 const suggestions = computed(() => {
   if (
     props.modelValue &&
@@ -123,21 +120,6 @@ const suggestions = computed(() => {
     return props.autoCompleteSource ?? []
   }
 })
-
-watch(
-  () => suggestions.value,
-  (newValue) => {
-    if (
-      newValue.length > 0 &&
-      props.modelValue.length > 0 &&
-      props.modelValue !== newValue[0]
-    ) {
-      showSuggestionPopover.value = true
-    } else {
-      showSuggestionPopover.value = false
-    }
-  }
-)
 
 const updateModelValue = (value: string) => {
   emit("update:modelValue", value)

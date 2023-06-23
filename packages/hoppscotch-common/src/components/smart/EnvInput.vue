@@ -28,7 +28,7 @@
         </span>
         <div
           v-if="currentSuggestionIndex === index"
-          class="flex text-secondary items-center"
+          class="hidden md:flex text-secondary items-center"
         >
           <kbd class="shortcut-key">TAB</kbd>
           <span class="ml-2 truncate">to select</span>

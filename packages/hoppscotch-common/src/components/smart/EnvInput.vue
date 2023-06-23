@@ -1,10 +1,10 @@
 <template>
   <div class="autocomplete-wrapper">
-    <div class="absolute inset-0 flex flex-1">
+    <div class="absolute inset-0 flex flex-1 overflow-x-hidden">
       <div
         ref="editor"
         :placeholder="placeholder"
-        class="flex flex-1 overflow-x-hidden"
+        class="flex flex-1"
         :class="styles"
         @click="emit('click', $event)"
         @keydown="handleKeystroke"
@@ -138,7 +138,7 @@ const handleFocusOut = () => {
   // wait for click event to be handled before hiding the popover
   setTimeout(() => {
     showSuggestionPopover.value = false
-  }, 75)
+  }, 80)
 }
 
 const updateModelValue = (value: string) => {
@@ -200,22 +200,6 @@ const handleKeystroke = (ev: KeyboardEvent) => {
 
   if (ev.key === "Escape") {
     showSuggestionPopover.value = false
-  }
-
-  // used to set codemirror cursor at the end of the line when ctrl+right arrow is pressed
-  if (ev.key === "ArrowRight" && ev.ctrlKey) {
-    view.value?.dispatch({
-      selection: EditorSelection.create([
-        EditorSelection.range(props.modelValue.length, props.modelValue.length),
-      ]),
-    })
-  }
-
-  // used to set codemirror cursor at the start of the line when ctrl+left arrow is pressed
-  if (ev.key === "ArrowLeft" && ev.ctrlKey) {
-    view.value?.dispatch({
-      selection: EditorSelection.create([EditorSelection.range(0, 0)]),
-    })
   }
 
   // used to scroll to the first suggestion when right arrow is pressed

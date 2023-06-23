@@ -28,6 +28,11 @@
           <span class="ml-2 truncate">to select</span>
         </div>
       </li>
+      <li v-if="suggestions.length === 0" class="pointer-events-none">
+        <span class="truncate py-0.5">
+          {{ t("empty.history_suggestions") }}
+        </span>
+      </li>
     </ul>
   </div>
 </template>
@@ -51,6 +56,7 @@ import { useReadonlyStream } from "@composables/stream"
 import { AggregateEnvironment, aggregateEnvs$ } from "~/newstore/environments"
 import { platform } from "~/platform"
 import { onClickOutside } from "@vueuse/core"
+import { useI18n } from "~/composables/i18n"
 
 const props = withDefaults(
   defineProps<{
@@ -85,6 +91,8 @@ const emit = defineEmits<{
   (e: "keydown", ev: any): void
   (e: "click", ev: any): void
 }>()
+
+const t = useI18n()
 
 const cachedValue = ref(props.modelValue)
 

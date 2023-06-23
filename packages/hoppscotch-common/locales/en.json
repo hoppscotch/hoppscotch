@@ -173,6 +173,7 @@
     "folder": "Folder is empty",
     "headers": "This request does not have any headers",
     "history": "History is empty",
+    "history_suggestions": "History does not have any matching entries",
     "invites": "Invite list is empty",
     "members": "Team is empty",
     "parameters": "This request does not have any parameters",

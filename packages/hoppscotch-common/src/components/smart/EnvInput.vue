@@ -4,7 +4,7 @@
       <div
         ref="editor"
         :placeholder="placeholder"
-        class="flex flex-1"
+        class="flex flex-1 overflow-x-hidden"
         :class="styles"
         @click="emit('click', $event)"
         @keydown="handleKeystroke"
@@ -138,7 +138,7 @@ const handleFocusOut = () => {
   // wait for click event to be handled before hiding the popover
   setTimeout(() => {
     showSuggestionPopover.value = false
-  }, 100)
+  }, 75)
 }
 
 const updateModelValue = (value: string) => {

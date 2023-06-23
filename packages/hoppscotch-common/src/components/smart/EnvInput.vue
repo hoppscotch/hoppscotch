@@ -12,7 +12,11 @@
         @focusout="showSuggestionPopover = false"
       ></div>
     </div>
-    <ul v-if="showSuggestionPopover" ref="suggestionsMenu" class="suggestions">
+    <ul
+      v-if="showSuggestionPopover && autoCompleteSource"
+      ref="suggestionsMenu"
+      class="suggestions"
+    >
       <li
         v-for="(suggestion, index) in suggestions"
         :key="`suggestion-${index}`"
@@ -106,18 +110,27 @@ const showSuggestionPopover = ref(false)
 
 const suggestionsMenu = ref<HTMLElement | null>(null)
 
+//filter autocompleteSource with unique values
+const uniqueAutoCompleteSource = computed(() => {
+  if (props.autoCompleteSource) {
+    return [...new Set(props.autoCompleteSource)]
+  } else {
+    return []
+  }
+})
+
 const suggestions = computed(() => {
   if (
     props.modelValue &&
     props.modelValue.length > 0 &&
-    props.autoCompleteSource &&
-    props.autoCompleteSource.length > 0
+    uniqueAutoCompleteSource.value &&
+    uniqueAutoCompleteSource.value.length > 0
   ) {
-    return props.autoCompleteSource.filter((suggestion) =>
+    return uniqueAutoCompleteSource.value.filter((suggestion) =>
       suggestion.toLowerCase().includes(props.modelValue.toLowerCase())
     )
   } else {
-    return props.autoCompleteSource ?? []
+    return uniqueAutoCompleteSource.value ?? []
   }
 })
 

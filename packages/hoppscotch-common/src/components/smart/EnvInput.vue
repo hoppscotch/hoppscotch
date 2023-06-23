@@ -17,7 +17,16 @@
         :class="{ active: currentSuggestionIndex === index }"
         @click.prevent="updateModelValue(suggestion)"
       >
-        {{ suggestion }}
+        <span class="truncate py-0.5">
+          {{ suggestion }}
+        </span>
+        <div
+          v-if="currentSuggestionIndex === index"
+          class="flex text-secondary items-center"
+        >
+          <kbd class="shortcut-key">TAB</kbd>
+          <span class="ml-2 truncate">to select</span>
+        </div>
       </li>
     </ul>
   </div>
@@ -404,10 +413,8 @@ watch(editor, () => {
 .autocomplete-wrapper {
   @apply relative;
   @apply flex;
-  @apply items-center;
   @apply flex-1;
   @apply flex-shrink-0;
-  @apply py-4;
   @apply whitespace-nowrap;
 
   .suggestions {
@@ -417,17 +424,20 @@ watch(editor, () => {
     @apply shadow-lg;
     @apply max-h-46;
     @apply border-b border-x border-divider;
-    @apply p-2;
     @apply overflow-y-auto;
-    @apply top-[calc(100%+2px)];
-    @apply left-0;
+    @apply -left-[1px];
     @apply right-0;
+
+    top: calc(100% + 1px);
     border-radius: 0 0 8px 8px;
+
     li {
+      @apply flex;
+      @apply items-center;
+      @apply justify-between;
       @apply w-full;
-      @apply py-2 px-2;
+      @apply py-2 px-4;
       @apply text-secondary;
-      @apply font-semibold;
       @apply cursor-pointer;
 
       &:last-child {

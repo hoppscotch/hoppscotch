@@ -108,7 +108,7 @@ const editor = ref<any | null>(null)
 const currentSuggestionIndex = ref(-1)
 const showSuggestionPopover = ref(false)
 
-const suggestionsMenu = ref<HTMLElement | null>(null)
+const suggestionsMenu = ref<any | null>(null)
 
 onClickOutside(suggestionsMenu, () => {
   showSuggestionPopover.value = false

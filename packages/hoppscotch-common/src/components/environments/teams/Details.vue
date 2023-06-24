@@ -156,6 +156,7 @@ import IconTrash from "~icons/lucide/trash"
 import IconTrash2 from "~icons/lucide/trash-2"
 import IconDone from "~icons/lucide/check"
 import IconPlus from "~icons/lucide/plus"
+import { platform } from "~/platform"
 
 type EnvironmentVariable = {
   id: number
@@ -294,6 +295,11 @@ const saveEnvironment = async () => {
   )
 
   if (props.action === "new") {
+    platform.analytics?.logEvent({
+      type: "HOPP_CREATE_ENVIRONMENT",
+      workspaceType: "team",
+    })
+
     await pipe(
       createTeamEnvironment(
         JSON.stringify(filterdVariables),

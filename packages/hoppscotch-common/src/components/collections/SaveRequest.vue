@@ -89,6 +89,7 @@ import {
 import { GQLError } from "~/helpers/backend/GQLClient"
 import { computedWithControl } from "@vueuse/core"
 import { currentActiveTab } from "~/helpers/rest/tab"
+import { platform } from "~/platform"
 
 const t = useI18n()
 const toast = useToast()
@@ -223,6 +224,13 @@ const saveRequestAs = async () => {
       },
     }
 
+    platform.analytics?.logEvent({
+      type: "HOPP_SAVE_REQUEST",
+      createdNow: true,
+      platform: "rest",
+      workspaceType: "personal",
+    })
+
     requestSaved()
   } else if (picked.value.pickedType === "my-folder") {
     if (!isHoppRESTRequest(requestUpdated))
@@ -242,6 +250,13 @@ const saveRequestAs = async () => {
         requestIndex: insertionIndex,
       },
     }
+
+    platform.analytics?.logEvent({
+      type: "HOPP_SAVE_REQUEST",
+      createdNow: true,
+      platform: "rest",
+      workspaceType: "personal",
+    })
 
     requestSaved()
   } else if (picked.value.pickedType === "my-request") {
@@ -264,17 +279,38 @@ const saveRequestAs = async () => {
       },
     }
 
+    platform.analytics?.logEvent({
+      type: "HOPP_SAVE_REQUEST",
+      createdNow: false,
+      platform: "rest",
+      workspaceType: "personal",
+    })
+
     requestSaved()
   } else if (picked.value.pickedType === "teams-collection") {
     if (!isHoppRESTRequest(requestUpdated))
       throw new Error("requestUpdated is not a REST Request")
 
     updateTeamCollectionOrFolder(picked.value.collectionID, requestUpdated)
+
+    platform.analytics?.logEvent({
+      type: "HOPP_SAVE_REQUEST",
+      createdNow: true,
+      platform: "rest",
+      workspaceType: "team",
+    })
   } else if (picked.value.pickedType === "teams-folder") {
     if (!isHoppRESTRequest(requestUpdated))
       throw new Error("requestUpdated is not a REST Request")
 
     updateTeamCollectionOrFolder(picked.value.folderID, requestUpdated)
+
+    platform.analytics?.logEvent({
+      type: "HOPP_SAVE_REQUEST",
+      createdNow: true,
+      platform: "rest",
+      workspaceType: "team",
+    })
   } else if (picked.value.pickedType === "teams-request") {
     if (!isHoppRESTRequest(requestUpdated))
       throw new Error("requestUpdated is not a REST Request")
@@ -291,6 +327,13 @@ const saveRequestAs = async () => {
       request: JSON.stringify(requestUpdated),
       title: requestUpdated.name,
     }
+
+    platform.analytics?.logEvent({
+      type: "HOPP_SAVE_REQUEST",
+      createdNow: false,
+      platform: "rest",
+      workspaceType: "team",
+    })
 
     pipe(
       updateTeamRequest(picked.value.requestID, data),
@@ -313,6 +356,13 @@ const saveRequestAs = async () => {
       requestUpdated as HoppGQLRequest
     )
 
+    platform.analytics?.logEvent({
+      type: "HOPP_SAVE_REQUEST",
+      createdNow: false,
+      platform: "gql",
+      workspaceType: "team",
+    })
+
     requestSaved()
   } else if (picked.value.pickedType === "gql-my-folder") {
     // TODO: Check for GQL request ?
@@ -321,6 +371,13 @@ const saveRequestAs = async () => {
       requestUpdated as HoppGQLRequest
     )
 
+    platform.analytics?.logEvent({
+      type: "HOPP_SAVE_REQUEST",
+      createdNow: true,
+      platform: "gql",
+      workspaceType: "team",
+    })
+
     requestSaved()
   } else if (picked.value.pickedType === "gql-my-collection") {
     // TODO: Check for GQL request ?
@@ -328,6 +385,13 @@ const saveRequestAs = async () => {
       `${picked.value.collectionIndex}`,
       requestUpdated as HoppGQLRequest
     )
+
+    platform.analytics?.logEvent({
+      type: "HOPP_SAVE_REQUEST",
+      createdNow: true,
+      platform: "gql",
+      workspaceType: "team",
+    })
 
     requestSaved()
   }

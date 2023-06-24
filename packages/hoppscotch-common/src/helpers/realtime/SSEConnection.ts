@@ -63,7 +63,8 @@ export class SSEConnection {
       })
     }
 
-    platform.analytics?.logHoppRequestRunToAnalytics({
+    platform.analytics?.logEvent({
+      type: "HOPP_REQUEST_RUN",
       platform: "sse",
     })
   }

@@ -165,6 +165,7 @@ import IconCheck from "~icons/lucide/check"
 import IconWrapText from "~icons/lucide/wrap-text"
 import { currentActiveTab } from "~/helpers/rest/tab"
 import cloneDeep from "lodash-es/cloneDeep"
+import { platform } from "~/platform"
 
 const t = useI18n()
 
@@ -248,6 +249,10 @@ watch(
   (goingToShow) => {
     if (goingToShow) {
       request.value = cloneDeep(currentActiveTab.value.document.request)
+
+      platform.analytics?.logEvent({
+        type: "HOPP_REST_CODEGEN_OPENED",
+      })
     }
   }
 )

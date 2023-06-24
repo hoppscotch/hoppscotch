@@ -59,7 +59,8 @@ const onConnectClick = () => {
   if (!connected.value) {
     props.conn.connect(url.value, headers.value as any, auth.value)
 
-    platform.analytics?.logHoppRequestRunToAnalytics({
+    platform.analytics?.logEvent({
+      type: "HOPP_REQUEST_RUN",
       platform: "graphql-schema",
       strategy: getCurrentStrategyID(),
     })

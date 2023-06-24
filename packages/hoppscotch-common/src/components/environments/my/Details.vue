@@ -141,6 +141,7 @@ import { useToast } from "@composables/toast"
 import { useReadonlyStream } from "@composables/stream"
 import { useColorMode } from "@composables/theming"
 import { environmentsStore } from "~/newstore/environments"
+import { platform } from "~/platform"
 
 type EnvironmentVariable = {
   id: number
@@ -304,6 +305,11 @@ const saveEnvironment = () => {
       index: envList.value.length - 1,
     })
     toast.success(`${t("environment.created")}`)
+
+    platform.analytics?.logEvent({
+      type: "HOPP_CREATE_ENVIRONMENT",
+      workspaceType: "personal",
+    })
   } else if (props.editingEnvironmentIndex === "Global") {
     // Editing the Global environment
     setGlobalEnvVariables(environmentUpdated.variables)

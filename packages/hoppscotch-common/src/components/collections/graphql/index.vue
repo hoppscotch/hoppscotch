@@ -145,6 +145,7 @@ import IconArchive from "~icons/lucide/archive"
 import { useI18n } from "@composables/i18n"
 import { useReadonlyStream } from "@composables/stream"
 import { useColorMode } from "@composables/theming"
+import { platform } from "~/platform"
 
 export default defineComponent({
   props: {
@@ -277,6 +278,13 @@ export default defineComponent({
         response: "",
       })
 
+      platform.analytics?.logEvent({
+        type: "HOPP_SAVE_REQUEST",
+        platform: "gql",
+        createdNow: true,
+        workspaceType: "personal",
+      })
+
       this.displayModalAddRequest(false)
     },
     addRequest(payload) {
@@ -286,6 +294,14 @@ export default defineComponent({
     },
     onAddFolder({ name, path }) {
       addGraphqlFolder(name, path)
+
+      platform.analytics?.logEvent({
+        type: "HOPP_CREATE_COLLECTION",
+        isRootCollection: false,
+        platform: "gql",
+        workspaceType: "personal",
+      })
+
       this.displayModalAddFolder(false)
     },
     addFolder(payload) {

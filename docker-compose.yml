@@ -27,12 +27,6 @@ services:
         condition: service_healthy
     ports:
       - "3170:3000"
-    command:
-      - /bin/sh
-      - -c
-      - |
-        pnpm exec prisma migrate deploy
-        pnpm run start:prod
 
   # The main hoppscotch app. This will be hosted at port 3000
   # NOTE: To do TLS or play around with how the app is hosted, you can look into the Caddyfile for

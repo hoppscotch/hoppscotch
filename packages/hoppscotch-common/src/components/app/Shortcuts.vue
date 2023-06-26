@@ -44,8 +44,9 @@
           class="flex flex-col items-center justify-center p-4 text-secondaryLight"
         >
           <icon-lucide-search class="pb-2 opacity-75 svg-icons" />
-          <span class="my-2 text-center">
-            {{ t("state.nothing_found") }} "{{ filterText }}"
+          <span class="my-2 text-center flex flex-col">
+            {{ t("state.nothing_found") }}
+            <span class="break-all">"{{ filterText }}"</span>
           </span>
         </div>
       </div>

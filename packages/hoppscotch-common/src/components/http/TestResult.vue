@@ -28,9 +28,11 @@
               class="flex items-center justify-between flex-1 min-w-0 transition cursor-pointer focus:outline-none text-secondaryLight text-tiny group"
             >
               <span
-                class="inline-flex items-center justify-center px-4 py-2 transition group-hover:text-secondary"
+                class="inline-flex items-center justify-center px-4 py-2 transition group-hover:text-secondary truncate"
               >
-                <icon-lucide-chevron-right class="mr-2 indicator" />
+                <icon-lucide-chevron-right
+                  class="mr-2 indicator flex flex-shrink-0"
+                />
                 <span class="truncate capitalize-first">
                   {{ t("environment.title") }}
                 </span>

@@ -43,10 +43,12 @@
           v-if="searchResults.length === 0"
           :text="`${t('state.nothing_found')} ‟${filterText}”`"
         >
-          <template #icon>
-            <icon-lucide-search class="pb-2 opacity-75 svg-icons" />
-          </template>
-        </HoppSmartPlaceholder>
+          <icon-lucide-search class="pb-2 opacity-75 svg-icons" />
+          <span class="my-2 text-center flex flex-col">
+            {{ t("state.nothing_found") }}
+            <span class="break-all">"{{ filterText }}"</span>
+          </span>
+        </div>
       </div>
       <div v-else class="flex flex-col divide-y divide-dividerLight">
         <details

@@ -135,15 +135,15 @@
         <div v-if="authType === 'basic'">
           <div class="flex flex-1 border-b border-dividerLight">
             <SmartEnvInput
-              :environmentHighlights="false"
               v-model="basicUsername"
+              :environment-highlights="false"
               :placeholder="t('authorization.username')"
             />
           </div>
           <div class="flex flex-1 border-b border-dividerLight">
             <SmartEnvInput
-              :environmentHighlights="false"
               v-model="basicPassword"
+              :environment-highlights="false"
               :placeholder="t('authorization.password')"
             />
           </div>
@@ -151,8 +151,8 @@
         <div v-if="authType === 'bearer'">
           <div class="flex flex-1 border-b border-dividerLight">
             <SmartEnvInput
-              :environmentHighlights="false"
               v-model="bearerToken"
+              :environment-highlights="false"
               placeholder="Token"
             />
           </div>
@@ -160,8 +160,8 @@
         <div v-if="authType === 'oauth-2'">
           <div class="flex flex-1 border-b border-dividerLight">
             <SmartEnvInput
-              :environmentHighlights="false"
               v-model="oauth2Token"
+              :environment-highlights="false"
               placeholder="Token"
             />
           </div>
@@ -170,15 +170,15 @@
         <div v-if="authType === 'api-key'">
           <div class="flex flex-1 border-b border-dividerLight">
             <SmartEnvInput
-              :environmentHighlights="false"
               v-model="apiKey"
+              :environment-highlights="false"
               placeholder="Key"
             />
           </div>
           <div class="flex flex-1 border-b border-dividerLight">
             <SmartEnvInput
-              :environmentHighlights="false"
               v-model="apiValue"
+              :environment-highlights="false"
               placeholder="Value"
             />
           </div>

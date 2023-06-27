@@ -67,5 +67,9 @@ services:
       # NOTE: Please UPDATE THIS PASSWORD!
       POSTGRES_PASSWORD: testpass
       POSTGRES_DB: hoppscotch
+  # NOTE: Please UNCOMMENT and UPDATE THE Path
+    # volumes:
+      # - <custom_path>:/var/lib/postgresql/data
+      # Replace <custom_path> with path on your device
 
 

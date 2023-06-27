@@ -161,7 +161,7 @@ function getActiveModifier(ev: KeyboardEvent): ModifierKeys | null {
     .filter((key) => modifierKeys[key as keyof typeof modifierKeys])
     .join("-") as ModifierKeys
 
-  // activeModifier can be empty string which is falsy. other we could have used nullish coalescing
+  // activeModifier can be empty string which is falsy. otherwise we could have used nullish coalescing
   return activeModifier || null
 }
 

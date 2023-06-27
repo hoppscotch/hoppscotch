@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col flex-1 bg-primary">
+  <div class="flex flex-col flex-1">
     <div
       class="sticky z-10 flex justify-between flex-1 border-b bg-primary border-dividerLight"
       :style="

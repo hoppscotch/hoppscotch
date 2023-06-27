@@ -46,6 +46,7 @@ import { useToast } from "@composables/toast"
 import { useI18n } from "@composables/i18n"
 import { HoppGQLRequest, makeCollection } from "@hoppscotch/data"
 import { addGraphqlCollection } from "~/newstore/collections"
+import { platform } from "~/platform"
 
 export default defineComponent({
   props: {
@@ -79,6 +80,13 @@ export default defineComponent({
       )
 
       this.hideModal()
+
+      platform.analytics?.logEvent({
+        type: "HOPP_CREATE_COLLECTION",
+        isRootCollection: true,
+        platform: "gql",
+        workspaceType: "personal",
+      })
     },
     hideModal() {
       this.name = null

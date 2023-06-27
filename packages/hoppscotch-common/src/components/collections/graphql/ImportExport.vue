@@ -244,6 +244,14 @@ const importFromJSON = () => {
       return
     }
     appendGraphqlCollections(collections)
+
+    platform.analytics?.logEvent({
+      type: "HOPP_IMPORT_COLLECTION",
+      importer: "json",
+      workspaceType: "personal",
+      platform: "gql",
+    })
+
     fileImported()
   }
   reader.readAsText(inputChooseFileToImportFrom.value.files[0])
@@ -256,6 +264,12 @@ const exportJSON = () => {
   const a = document.createElement("a")
   const url = URL.createObjectURL(file)
   a.href = url
+
+  platform?.analytics?.logEvent({
+    type: "HOPP_EXPORT_COLLECTION",
+    exporter: "json",
+    platform: "gql",
+  })
 
   // TODO: get uri from meta
   a.download = `${url.split("/").pop()!.split("#")[0].split("?")[0]}.json`

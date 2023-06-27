@@ -17,6 +17,7 @@
       <HoppButtonPrimary
         id="get"
         name="get"
+        :loading="isLoading"
         :label="!connected ? t('action.connect') : t('action.disconnect')"
         class="w-32"
         @click="onConnectClick"
@@ -31,7 +32,12 @@ import { GQLConnection } from "~/helpers/GQLConnection"
 import { getCurrentStrategyID } from "~/helpers/network"
 import { useReadonlyStream, useStream } from "@composables/stream"
 import { useI18n } from "@composables/i18n"
-import { gqlHeaders$, gqlURL$, setGQLURL } from "~/newstore/GQLSession"
+import {
+  gqlAuth$,
+  gqlHeaders$,
+  gqlURL$,
+  setGQLURL,
+} from "~/newstore/GQLSession"
 
 const t = useI18n()
 
@@ -40,15 +46,21 @@ const props = defineProps<{
 }>()
 
 const connected = useReadonlyStream(props.conn.connected$, false)
+const isLoading = useReadonlyStream(props.conn.isLoading$, false)
 const headers = useReadonlyStream(gqlHeaders$, [])
+const auth = useReadonlyStream(gqlAuth$, {
+  authType: "none",
+  authActive: true,
+})
 
 const url = useStream(gqlURL$, "", setGQLURL)
 
 const onConnectClick = () => {
   if (!connected.value) {
-    props.conn.connect(url.value, headers.value as any)
+    props.conn.connect(url.value, headers.value as any, auth.value)
 
-    platform.analytics?.logHoppRequestRunToAnalytics({
+    platform.analytics?.logEvent({
+      type: "HOPP_REQUEST_RUN",
       platform: "graphql-schema",
       strategy: getCurrentStrategyID(),
     })

@@ -94,6 +94,7 @@ import IconClipboard from "~icons/lucide/clipboard"
 import IconCheck from "~icons/lucide/check"
 import IconTrash2 from "~icons/lucide/trash-2"
 import { currentActiveTab } from "~/helpers/rest/tab"
+import { platform } from "~/platform"
 
 const t = useI18n()
 
@@ -143,6 +144,10 @@ const handleImport = () => {
   const text = curl.value
   try {
     const req = parseCurlToHoppRESTReq(text)
+
+    platform.analytics?.logEvent({
+      type: "HOPP_REST_IMPORT_CURL",
+    })
 
     currentActiveTab.value.document.request = req
   } catch (e) {

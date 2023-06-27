@@ -599,10 +599,24 @@ const addNewRootCollection = (name: string) => {
       })
     )
 
+    platform.analytics?.logEvent({
+      type: "HOPP_CREATE_COLLECTION",
+      platform: "rest",
+      workspaceType: "personal",
+      isRootCollection: true,
+    })
+
     displayModalAdd(false)
   } else if (hasTeamWriteAccess.value) {
     if (!collectionsType.value.selectedTeam) return
     modalLoadingState.value = true
+
+    platform.analytics?.logEvent({
+      type: "HOPP_CREATE_COLLECTION",
+      platform: "rest",
+      workspaceType: "team",
+      isRootCollection: true,
+    })
 
     pipe(
       createNewRootCollection(name, collectionsType.value.selectedTeam.id),
@@ -652,6 +666,13 @@ const onAddRequest = (requestName: string) => {
       },
     })
 
+    platform.analytics?.logEvent({
+      type: "HOPP_SAVE_REQUEST",
+      workspaceType: "personal",
+      createdNow: true,
+      platform: "rest",
+    })
+
     displayModalAddRequest(false)
   } else if (hasTeamWriteAccess.value) {
     const folder = editingFolder.value
@@ -666,6 +687,13 @@ const onAddRequest = (requestName: string) => {
       teamID: collectionsType.value.selectedTeam.id,
       title: requestName,
     }
+
+    platform.analytics?.logEvent({
+      type: "HOPP_SAVE_REQUEST",
+      workspaceType: "team",
+      platform: "rest",
+      createdNow: true,
+    })
 
     pipe(
       createRequestInCollection(folder.id, data),
@@ -712,12 +740,27 @@ const onAddFolder = (folderName: string) => {
   if (collectionsType.value.type === "my-collections") {
     if (!path) return
     addRESTFolder(folderName, path)
+
+    platform.analytics?.logEvent({
+      type: "HOPP_CREATE_COLLECTION",
+      workspaceType: "personal",
+      isRootCollection: false,
+      platform: "rest",
+    })
+
     displayModalAddFolder(false)
   } else if (hasTeamWriteAccess.value) {
     const folder = editingFolder.value
     if (!folder || !folder.id) return
 
     modalLoadingState.value = true
+
+    platform.analytics?.logEvent({
+      type: "HOPP_CREATE_COLLECTION",
+      workspaceType: "personal",
+      isRootCollection: false,
+      platform: "rest",
+    })
 
     pipe(
       createChildCollection(folderName, folder.id),
@@ -1884,6 +1927,12 @@ const exportData = async (
 }
 
 const exportJSONCollection = async () => {
+  platform.analytics?.logEvent({
+    type: "HOPP_EXPORT_COLLECTION",
+    exporter: "json",
+    platform: "rest",
+  })
+
   await getJSONCollection()
 
   initializeDownloadCollection(collectionJSON.value, null)
@@ -1894,6 +1943,12 @@ const createCollectionGist = async () => {
     toast.error(t("profile.no_permission").toString())
     return
   }
+
+  platform.analytics?.logEvent({
+    type: "HOPP_EXPORT_COLLECTION",
+    exporter: "gist",
+    platform: "rest",
+  })
 
   creatingGistCollection.value = true
   await getJSONCollection()
@@ -1924,6 +1979,12 @@ const importToTeams = async (collection: HoppCollection<HoppRESTRequest>[]) => {
   if (!collectionsType.value.selectedTeam) return
 
   importingMyCollections.value = true
+
+  platform.analytics?.logEvent({
+    type: "HOPP_EXPORT_COLLECTION",
+    exporter: "import-to-teams",
+    platform: "rest",
+  })
 
   pipe(
     importJSONToTeam(

@@ -143,33 +143,51 @@
           <div class="flex flex-1 border-b border-dividerLight">
             <SmartEnvInput
               v-model="basicUsername"
+              :environment-highlights="false"
               :placeholder="t('authorization.username')"
             />
           </div>
           <div class="flex flex-1 border-b border-dividerLight">
             <SmartEnvInput
               v-model="basicPassword"
+              :environment-highlights="false"
               :placeholder="t('authorization.password')"
             />
           </div>
         </div>
         <div v-if="authType === 'bearer'">
           <div class="flex flex-1 border-b border-dividerLight">
-            <SmartEnvInput v-model="bearerToken" placeholder="Token" />
+            <SmartEnvInput
+              v-model="bearerToken"
+              :environment-highlights="false"
+              placeholder="Token"
+            />
           </div>
         </div>
         <div v-if="authType === 'oauth-2'">
           <div class="flex flex-1 border-b border-dividerLight">
-            <SmartEnvInput v-model="oauth2Token" placeholder="Token" />
+            <SmartEnvInput
+              v-model="oauth2Token"
+              :environment-highlights="false"
+              placeholder="Token"
+            />
           </div>
           <HttpOAuth2Authorization />
         </div>
         <div v-if="authType === 'api-key'">
           <div class="flex flex-1 border-b border-dividerLight">
-            <SmartEnvInput v-model="apiKey" placeholder="Key" />
+            <SmartEnvInput
+              v-model="apiKey"
+              :environment-highlights="false"
+              placeholder="Key"
+            />
           </div>
           <div class="flex flex-1 border-b border-dividerLight">
-            <SmartEnvInput v-model="apiValue" placeholder="Value" />
+            <SmartEnvInput
+              v-model="apiValue"
+              :environment-highlights="false"
+              placeholder="Value"
+            />
           </div>
           <div class="flex items-center border-b border-dividerLight">
             <span class="flex items-center">

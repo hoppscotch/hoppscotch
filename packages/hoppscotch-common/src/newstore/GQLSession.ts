@@ -275,7 +275,4 @@ export const gqlResponse$ = gqlSessionStore.subject$.pipe(
   distinctUntilChanged()
 )
 
-export const gqlAuth$ = gqlSessionStore.subject$.pipe(
-  pluck("request", "auth"),
-  distinctUntilChanged()
-)
+export const gqlAuth$ = gqlSessionStore.subject$.pipe(pluck("request", "auth"))

@@ -1,7 +1,7 @@
 <template>
   <div class="relative flex" :class="styles">
     <input
-      :id="uid"
+      :id="inputID"
       class="input"
       :class="inputStyles"
       v-model="inputText"
@@ -14,7 +14,7 @@
       :disabled="disabled"
     />
 
-    <label v-if="label.length > 0" :for="uid"> {{ label }} </label>
+    <label v-if="label.length > 0" :for="inputID"> {{ label }} </label>
     <slot name="button"></slot>
   </div>
 </template>
@@ -23,10 +23,14 @@
 import { useVModel } from "@vueuse/core"
 import { defineProps } from "vue"
 
-const generateUUID = () =>
-  Math.random().toString(36).substring(2, 9) + Date.now().toString(36)
-
-const uid = generateUUID()
+// Unique ID for input
+const inputID = () => {
+  const s4 = () =>
+    Math.floor((1 + Math.random()) * 0x10000)
+      .toString(16)
+      .substring(1)
+  return `input-${s4()}${s4()}`
+}
 
 const props = withDefaults(
   defineProps<{

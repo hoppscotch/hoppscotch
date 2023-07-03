@@ -2,7 +2,7 @@
  * For example, sending a request.
  */
 
-import { onBeforeUnmount, onMounted } from "vue"
+import { Ref, onBeforeUnmount, onMounted, watch } from "vue"
 import { BehaviorSubject } from "rxjs"
 
 export type HoppAction =
@@ -39,6 +39,8 @@ export type HoppAction =
   | "response.copy" // Copy response to clipboard
   | "modals.login.toggle" // Login to Hoppscotch
   | "history.clear" // Clear REST History
+  | "user.login" // Login to Hoppscotch
+  | "user.logout" // Log out of Hoppscotch
 
 /**
  * Defines the arguments, if present for a given type that is required to be passed on
@@ -143,15 +145,50 @@ export function unbindAction<A extends HoppAction>(
   activeActions$.next(Object.keys(boundActions) as HoppAction[])
 }
 
+/**
+ * A composable function that defines a component can handle a given
+ * HoppAction. The handler will be bound when the component is mounted
+ * and unbound when the component is unmounted.
+ * @param action The action to be bound
+ * @param handler The function to be called when the action is invoked
+ * @param isActive A ref that indicates whether the action is active
+ */
 export function defineActionHandler<A extends HoppAction>(
   action: A,
-  handler: ActionFunc<A>
+  handler: ActionFunc<A>,
+  isActive: Ref<boolean> | undefined = undefined
 ) {
+  let mounted = false
+  let bound = true
+
   onMounted(() => {
+    mounted = true
+    bound = true
+
     bindAction(action, handler)
   })
 
   onBeforeUnmount(() => {
+    mounted = false
+    bound = false
+
     unbindAction(action, handler)
   })
+
+  if (isActive) {
+    watch(isActive, (active) => {
+      if (mounted) {
+        if (active) {
+          if (!bound) {
+            bound = true
+            bindAction(action, handler)
+          }
+        } else if (bound) {
+          bound = false
+
+          unbindAction(action, handler)
+        }
+      }
+    })
+  }
 }

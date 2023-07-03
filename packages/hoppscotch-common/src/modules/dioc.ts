@@ -1,8 +1,13 @@
 import { HoppModule } from "."
 import { Container, Service } from "dioc"
 import { diocPlugin } from "dioc/vue"
+import { DebugService } from "~/services/debug.service"
 
 const serviceContainer = new Container()
+
+if (import.meta.env.DEV) {
+  serviceContainer.bind(DebugService)
+}
 
 /**
  * Gets a service from the app service container. You can use this function

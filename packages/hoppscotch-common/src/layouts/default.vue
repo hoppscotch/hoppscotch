@@ -50,7 +50,7 @@
       </Pane>
     </Splitpanes>
     <AppActionHandler />
-    <AppPowerSearch :show="showSearch" @hide-modal="showSearch = false" />
+    <AppSpotlight :show="showSearch" @hide-modal="showSearch = false" />
     <AppSupport
       v-if="mdAndLarger"
       :show="showSupport"

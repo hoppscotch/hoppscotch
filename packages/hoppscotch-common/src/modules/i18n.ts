@@ -115,6 +115,14 @@ export const changeAppLanguage = async (locale: string) => {
   setLocalConfig("locale", locale)
 }
 
+/**
+ * Returns the i18n instance
+ */
+export function getI18n() {
+  // @ts-expect-error Something weird with the i18n errors
+  return i18nInstance!.global.t
+}
+
 export default <HoppModule>{
   onVueAppInit(app) {
     const i18n = createI18n(<I18nOptions>{

@@ -242,7 +242,7 @@ import { pwaDefferedPrompt, installPWA } from "@modules/pwa"
 import { platform } from "~/platform"
 import { useI18n } from "@composables/i18n"
 import { useReadonlyStream } from "@composables/stream"
-import { invokeAction } from "@helpers/actions"
+import { defineActionHandler, invokeAction } from "@helpers/actions"
 import { workspaceStatus$, updateWorkspaceTeamName } from "~/newstore/workspace"
 import TeamListAdapter from "~/helpers/teams/TeamListAdapter"
 import { onLoggedIn } from "~/composables/auth"
@@ -374,4 +374,12 @@ const profile = ref<any | null>(null)
 const settings = ref<any | null>(null)
 const logout = ref<any | null>(null)
 const accountActions = ref<any | null>(null)
+
+defineActionHandler(
+  "user.login",
+  () => {
+    invokeAction("modals.login.toggle")
+  },
+  computed(() => !currentUser.value)
+)
 </script>

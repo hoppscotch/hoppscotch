@@ -38,6 +38,7 @@ export type HoppAction =
   | "response.file.download" // Download response as file
   | "response.copy" // Copy response to clipboard
   | "modals.login.toggle" // Login to Hoppscotch
+  | "history.clear" // Clear REST History
 
 /**
  * Defines the arguments, if present for a given type that is required to be passed on

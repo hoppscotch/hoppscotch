@@ -176,6 +176,7 @@ import {
 import HistoryRestCard from "./rest/Card.vue"
 import HistoryGraphqlCard from "./graphql/Card.vue"
 import { createNewTab } from "~/helpers/rest/tab"
+import { defineActionHandler } from "~/helpers/actions"
 
 type HistoryEntry = GQLHistoryEntry | RESTHistoryEntry
 
@@ -329,4 +330,8 @@ const toggleStar = (entry: HistoryEntry) => {
     toggleRESTHistoryEntryStar(entry as RESTHistoryEntry)
   else toggleGraphqlHistoryEntryStar(entry as GQLHistoryEntry)
 }
+
+defineActionHandler("history.clear", () => {
+  confirmRemove.value = true
+})
 </script>

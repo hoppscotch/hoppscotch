@@ -7,16 +7,23 @@
   >
     <template #body>
       <div class="flex flex-col border-b transition border-dividerLight">
-        <input
-          id="command"
-          v-model="search"
-          v-focus
-          type="text"
-          autocomplete="off"
-          name="command"
-          :placeholder="`${t('app.type_a_command_search')}`"
-          class="flex flex-shrink-0 p-6 text-base bg-transparent text-secondaryDark"
-        />
+        <div class="flex items-center p-6 space-x-2">
+          <input
+            id="command"
+            v-model="search"
+            v-focus
+            type="text"
+            autocomplete="off"
+            name="command"
+            :placeholder="`${t('app.type_a_command_search')}`"
+            class="flex flex-1 text-base bg-transparent text-secondaryDark"
+          />
+
+          <icon-lucide-refresh-cw
+            v-if="searchSession?.loading"
+            class="animate-spin"
+          />
+        </div>
         <div
           class="flex flex-shrink-0 text-tiny text-secondaryLight px-4 pb-4 justify-between whitespace-nowrap overflow-auto <sm:hidden"
         >
@@ -76,6 +83,7 @@ import {
 } from "~/services/spotlight"
 import { isEqual } from "lodash-es"
 import { HistorySpotlightSearcherService } from "~/services/spotlight/searchers/history.searcher"
+import { UserSpotlightSearcherService } from "~/services/spotlight/searchers/user.searcher"
 
 const t = useI18n()
 
@@ -90,6 +98,7 @@ const emit = defineEmits<{
 const spotlightService = useService(SpotlightService)
 
 useService(HistorySpotlightSearcherService)
+useService(UserSpotlightSearcherService)
 
 const search = ref("")
 

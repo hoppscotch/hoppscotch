@@ -20,6 +20,12 @@ import { useStreamStatic } from "~/composables/stream"
 import { activeActions$, invokeAction } from "~/helpers/actions"
 import { map } from "rxjs/operators"
 
+/**
+ * This searcher is responsible for searching through the history.
+ * It also provides actions to clear the history.
+ *
+ * NOTE: Initializing this service registers it as a searcher with the Spotlight Service.
+ */
 export class HistorySpotlightSearcherService
   extends Service
   implements SpotlightSearcher
@@ -28,8 +34,8 @@ export class HistorySpotlightSearcherService
 
   private t = getI18n()
 
-  public id = "history"
-  public sectionTitle = this.t("tab.history")
+  public searcherID = "history"
+  public searcherSectionTitle = this.t("tab.history")
 
   private readonly spotlight = this.bind(SpotlightService)
 

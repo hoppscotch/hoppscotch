@@ -9,8 +9,8 @@ import { Ref, computed, nextTick, ref, watch } from "vue"
 import { TestContainer } from "dioc/testing"
 
 const echoSearcher: SpotlightSearcher = {
-  id: "echo-searcher",
-  sectionTitle: "Echo Searcher",
+  searcherID: "echo-searcher",
+  searcherSectionTitle: "Echo Searcher",
   createSearchSession: (query: Readonly<Ref<string>>) => {
     // A basic searcher that returns the query string as the sole result
     const loading = ref(false)
@@ -57,8 +57,8 @@ const echoSearcher: SpotlightSearcher = {
 }
 
 const emptySearcher: SpotlightSearcher = {
-  id: "empty-searcher",
-  sectionTitle: "Empty Searcher",
+  searcherID: "empty-searcher",
+  searcherSectionTitle: "Empty Searcher",
   createSearchSession: () => {
     const loading = ref(false)
 
@@ -93,8 +93,8 @@ describe("SpotlightService", () => {
 
     it("if 2 searchers are registered with the same ID, the last one overwrites the first one", () => {
       const echoSearcherFake: SpotlightSearcher = {
-        id: "echo-searcher",
-        sectionTitle: "Echo Searcher",
+        searcherID: "echo-searcher",
+        searcherSectionTitle: "Echo Searcher",
         createSearchSession: () => {
           throw new Error("not implemented")
         },
@@ -123,8 +123,8 @@ describe("SpotlightService", () => {
       const notifiedFn = vi.fn()
 
       const sampleSearcher: SpotlightSearcher = {
-        id: "searcher",
-        sectionTitle: "Searcher",
+        searcherID: "searcher",
+        searcherSectionTitle: "Searcher",
         createSearchSession: (query) => {
           const stop = watch(query, notifiedFn, { immediate: true })
 
@@ -207,8 +207,8 @@ describe("SpotlightService", () => {
       const container = new TestContainer()
 
       const loadingSearcher: SpotlightSearcher = {
-        id: "loading-searcher",
-        sectionTitle: "Loading Searcher",
+        searcherID: "loading-searcher",
+        searcherSectionTitle: "Loading Searcher",
         createSearchSession: () => {
           const loading = ref(true)
           const results = ref<SpotlightSearcherResult[]>([])
@@ -261,8 +261,8 @@ describe("SpotlightService", () => {
       const loading = ref(true)
 
       const loadingSearcher: SpotlightSearcher = {
-        id: "loading-searcher",
-        sectionTitle: "Loading Searcher",
+        searcherID: "loading-searcher",
+        searcherSectionTitle: "Loading Searcher",
         createSearchSession: () => {
           return [
             computed<SpotlightSearcherSessionState>(() => ({
@@ -351,8 +351,8 @@ describe("SpotlightService", () => {
       const disposeFn = vi.fn()
 
       const testSearcher: SpotlightSearcher = {
-        id: "test-searcher",
-        sectionTitle: "Test Searcher",
+        searcherID: "test-searcher",
+        searcherSectionTitle: "Test Searcher",
         createSearchSession: () => {
           return [
             computed<SpotlightSearcherSessionState>(() => ({
@@ -384,8 +384,8 @@ describe("SpotlightService", () => {
       const notifiedFn = vi.fn()
 
       const testSearcher: SpotlightSearcher = {
-        id: "test-searcher",
-        sectionTitle: "Test Searcher",
+        searcherID: "test-searcher",
+        searcherSectionTitle: "Test Searcher",
         createSearchSession: (query) => {
           watch(query, notifiedFn, { immediate: true })
 
@@ -427,8 +427,8 @@ describe("SpotlightService", () => {
       const onResultSelectFn = vi.fn()
 
       const testSearcher: SpotlightSearcher = {
-        id: "test-searcher",
-        sectionTitle: "Test Searcher",
+        searcherID: "test-searcher",
+        searcherSectionTitle: "Test Searcher",
         createSearchSession: () => {
           return [
             computed<SpotlightSearcherSessionState>(() => ({

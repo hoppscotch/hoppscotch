@@ -2,6 +2,7 @@ import { beforeEach, describe, it, expect, vi } from "vitest"
 import { TestContainer } from "dioc/testing"
 import { UserSpotlightSearcherService } from "../user.searcher"
 import { nextTick, ref } from "vue"
+import { SpotlightService } from "../.."
 
 async function flushPromises() {
   return await new Promise((r) => setTimeout(r))
@@ -35,6 +36,22 @@ describe("UserSearcher", () => {
     }
 
     actionsMock.invokeAction.mockReset()
+  })
+
+  it("registers with the spotlight service upon initialization", async () => {
+    const container = new TestContainer()
+
+    const registerSearcherFn = vi.fn()
+
+    container.bindMock(SpotlightService, {
+      registerSearcher: registerSearcherFn,
+    })
+
+    const user = container.bind(UserSpotlightSearcherService)
+    await flushPromises()
+
+    expect(registerSearcherFn).toHaveBeenCalledOnce()
+    expect(registerSearcherFn).toHaveBeenCalledWith(user)
   })
 
   it("if login action is available, the search result should have the login result", async () => {

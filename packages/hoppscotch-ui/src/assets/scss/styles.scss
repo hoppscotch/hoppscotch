@@ -23,6 +23,13 @@
   @apply antialiased;
   accent-color: var(--accent-color);
   font-variant-ligatures: common-ligatures;
+
+  // Colors
+  --info-response: #ec4899;
+  --success-response: #10b981;
+  --redir-response: #f59e0b;
+  --cl-error-response: #ef4444;
+  --sv-error-response: #dc2626;
 }
 
 ::-webkit-scrollbar-track {
@@ -343,23 +350,23 @@ pre.ace_editor {
 }
 
 .info-response {
-  @apply text-pink-500;
+  color: var(--info-response);
 }
 
 .success-response {
-  @apply text-green-500;
+  color: var(--success-response);
 }
 
 .redir-response {
-  @apply text-yellow-500;
+  color: var(--redir-response);
 }
 
 .cl-error-response {
-  @apply text-red-500;
+  color: var(--cl-error-response);
 }
 
 .sv-error-response {
-  @apply text-red-600;
+  color: var(--sv-error-response);
 }
 
 .missing-data-response {

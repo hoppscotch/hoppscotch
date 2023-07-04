@@ -18,6 +18,7 @@
     "vue-router": "^4.0.16"
   },
   "dependencies": {
+    "@hoppscotch/config": "workspace:^",
     "@hoppscotch/vue-toasted": "^0.1.0",
     "@lezer/highlight": "^1.0.0",
     "@vitejs/plugin-legacy": "^2.3.0",

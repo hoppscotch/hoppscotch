@@ -2,6 +2,7 @@ import { defineConfig } from "vitest/config"
 import * as path from "path"
 import Icons from "unplugin-icons/vite"
 import { FileSystemIconLoader } from "unplugin-icons/loaders"
+import Vue from "@vitejs/plugin-vue"
 
 export default defineConfig({
   test: {
@@ -18,6 +19,7 @@ export default defineConfig({
     },
   },
   plugins: [
+    Vue(),
     Icons({
       compiler: "vue3",
       customCollections: {

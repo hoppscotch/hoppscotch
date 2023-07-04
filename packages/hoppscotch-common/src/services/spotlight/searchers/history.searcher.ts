@@ -68,11 +68,15 @@ export class HistorySpotlightSearcherService
       this.clearHistoryActionEnabled,
       (enabled) => {
         if (enabled) {
+          if (minisearch.has("clear-history")) return
+
           minisearch.add({
             id: "clear-history",
             title: this.t("action.clear_history"),
           })
         } else {
+          if (!minisearch.has("clear-history")) return
+
           minisearch.discard("clear-history")
         }
       },
@@ -101,48 +105,52 @@ export class HistorySpotlightSearcherService
     const scopeHandle = effectScope()
 
     scopeHandle.run(() => {
-      watch(query, (query) => {
-        results.value = minisearch
-          .search(query, {
-            prefix: true,
-            fuzzy: true,
-            boost: {
-              reltime: 2,
-            },
-            weights: {
-              fuzzy: 0.2,
-              prefix: 0.8,
-            },
-          })
-          .map((x) => {
-            const entry = restHistoryStore.value.state[parseInt(x.id)]
+      watch(
+        [query, this.clearHistoryActionEnabled],
+        ([query]) => {
+          results.value = minisearch
+            .search(query, {
+              prefix: true,
+              fuzzy: true,
+              boost: {
+                reltime: 2,
+              },
+              weights: {
+                fuzzy: 0.2,
+                prefix: 0.8,
+              },
+            })
+            .map((x) => {
+              const entry = restHistoryStore.value.state[parseInt(x.id)]
 
-            if (x.id === "clear-history") {
+              if (x.id === "clear-history") {
+                return {
+                  id: "clear-history",
+                  icon: markRaw(IconTrash2),
+                  score: x.score,
+                  text: {
+                    type: "text",
+                    text: this.t("action.clear_history"),
+                  },
+                }
+              }
+
               return {
-                id: "clear-history",
-                icon: markRaw(IconTrash2),
+                id: x.id,
+                icon: markRaw(IconHistory),
                 score: x.score,
                 text: {
-                  type: "text",
-                  text: this.t("action.clear_history"),
+                  type: "custom",
+                  component: markRaw(SpotlightHistoryEntry),
+                  componentProps: {
+                    historyEntry: entry,
+                  },
                 },
               }
-            }
-
-            return {
-              id: x.id,
-              icon: markRaw(IconHistory),
-              score: x.score,
-              text: {
-                type: "custom",
-                component: markRaw(SpotlightHistoryEntry),
-                componentProps: {
-                  historyEntry: entry,
-                },
-              },
-            }
-          })
-      })
+            })
+        },
+        { immediate: true }
+      )
     })
 
     const onSessionEnd = () => {

@@ -96,7 +96,8 @@
   "main": "./dist/index.es.js",
   "exports": {
     ".": "./dist/index.es.js",
-    "./style.css": "./dist/style.css"
+    "./style.css": "./dist/style.css",
+    "./tailwind.config.js": "./../tailwind.config.js"
   },
   "types": "./dist/index.d.ts"
 }

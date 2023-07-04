@@ -8,7 +8,6 @@ import VueI18n from "@intlify/vite-plugin-vue-i18n"
 import Components from "unplugin-vue-components/vite"
 import Icons from "unplugin-icons/vite"
 import Inspect from "vite-plugin-inspect"
-import WindiCSS from "vite-plugin-windicss"
 import { VitePWA } from "vite-plugin-pwa"
 import Pages from "vite-plugin-pages"
 import Layouts from "vite-plugin-vue-layouts"
@@ -43,6 +42,15 @@ export default defineConfig({
   },
   resolve: {
     alias: {
+      "tailwind.config.cjs": path.resolve(
+        __dirname,
+        "../hoppscotch-common/tailwind.config.cjs"
+      ),
+      "postcss.config.cjs": path.resolve(
+        __dirname,
+        "../hoppscotch-common/postcss.config.cjs"
+      ),
+      // tailwindcss: path.resolve(__dirname, "node_modules/tailwindcss"),
       // TODO: Maybe leave ~ only for individual apps and not use on common
       "~": path.resolve(__dirname, "../hoppscotch-common/src"),
       "@hoppscotch/common": "@hoppscotch/common/src",
@@ -67,6 +75,9 @@ export default defineConfig({
       util: "util",
     },
     dedupe: ["vue"],
+  },
+  optimizeDeps: {
+    include: ["tailwind.config.js"],
   },
   plugins: [
     Inspect(), // go to url -> /__inspect
@@ -105,9 +116,6 @@ export default defineConfig({
       runtimeOnly: false,
       compositionOnly: true,
       include: [path.resolve(__dirname, "locales")],
-    }),
-    WindiCSS({
-      root: path.resolve(__dirname, "../hoppscotch-common"),
     }),
     Components({
       dts: "../hoppscotch-common/src/components.d.ts",

@@ -1,7 +1,7 @@
 <template>
   <div class="flex items-center py-1">
     <span class="flex flex-1 mr-4">
-      {{ t(shortcut.label) }}
+      {{ shortcut.label }}
     </span>
     <kbd
       v-for="(key, index) in shortcut.keys"
@@ -14,14 +14,9 @@
 </template>
 
 <script setup lang="ts">
-import { useI18n } from "@composables/i18n"
-
-const t = useI18n()
+import { ShortcutDef } from "~/helpers/shortcuts"
 
 defineProps<{
-  shortcut: {
-    label: string
-    keys: string[]
-  }
+  shortcut: ShortcutDef
 }>()
 </script>

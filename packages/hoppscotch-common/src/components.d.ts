@@ -131,7 +131,6 @@ declare module '@vue/runtime-core' {
     IconLucideLayers: typeof import('~icons/lucide/layers')['default']
     IconLucideListEnd: typeof import('~icons/lucide/list-end')['default']
     IconLucideMinus: typeof import('~icons/lucide/minus')['default']
-    IconLucideRefreshCcw: typeof import('~icons/lucide/refresh-ccw')['default']
     IconLucideRefreshCw: typeof import('~icons/lucide/refresh-cw')['default']
     IconLucideSearch: typeof import('~icons/lucide/search')['default']
     IconLucideUsers: typeof import('~icons/lucide/users')['default']

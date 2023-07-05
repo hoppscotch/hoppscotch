@@ -1,6 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 const config = {
-  content: ["**/*.{js,ts,jsx,tsx,vue}"],
+  content: ["**/*.vue"],
   theme: {
     container: {
       center: true,

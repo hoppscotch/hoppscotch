@@ -38,8 +38,7 @@ const props = withDefaults(
     styles: string
     modelValue: string | null
     placeholder: string
-    inputStyles: any
-    inputType: string | (string | false)[]
+    inputStyles: string | (string | false)[]
     type: string
     label: string
     disabled: boolean
@@ -49,8 +48,7 @@ const props = withDefaults(
     styles: "",
     modelValue: "",
     placeholder: "",
-    inputStyles: [],
-    inputType: "input",
+    inputStyles: "input",
     type: "text",
     label: "",
     disabled: false,

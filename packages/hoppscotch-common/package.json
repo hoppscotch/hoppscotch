@@ -100,7 +100,6 @@
     "yargs-parser": "^21.1.1"
   },
   "devDependencies": {
-    "@hoppscotch/config": "workspace:^",
     "@esbuild-plugins/node-globals-polyfill": "^0.1.1",
     "@esbuild-plugins/node-modules-polyfill": "^0.1.4",
     "@graphql-codegen/add": "^3.2.0",

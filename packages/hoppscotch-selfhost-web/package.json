@@ -38,7 +38,7 @@
     "workbox-window": "^6.5.4"
   },
   "devDependencies": {
-    "@hoppscotch/config": "workspace:^",
+    "@hoppscotch/ui": "workspace:^",
     "@graphql-codegen/add": "^3.2.0",
     "@graphql-codegen/cli": "^2.8.0",
     "@graphql-codegen/typed-document-node": "^2.3.1",

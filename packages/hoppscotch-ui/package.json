@@ -18,7 +18,6 @@
     "vue-router": "^4.0.16"
   },
   "dependencies": {
-    "@hoppscotch/config": "workspace:^",
     "@hoppscotch/vue-toasted": "^0.1.0",
     "@lezer/highlight": "^1.0.0",
     "@vitejs/plugin-legacy": "^2.3.0",
@@ -98,7 +97,14 @@
   "exports": {
     ".": "./dist/index.es.js",
     "./style.css": "./dist/style.css",
-    "./tailwind.config.js": "./../tailwind.config.js"
+    "./postcss.config": {
+      "import": "./postcss.config.cjs",
+      "require": "./postcss.config.cjs"
+    },
+    "./tailwind.config": {
+      "import": "./tailwind.config.cjs",
+      "require": "./tailwind.config.cjs"
+    }
   },
   "types": "./dist/index.d.ts"
 }

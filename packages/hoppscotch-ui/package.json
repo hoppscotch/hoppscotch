@@ -92,18 +92,18 @@
   "files": [
     "dist"
   ],
-  "module": "./dist/index.es.js",
-  "main": "./dist/index.es.js",
+  "module": "./dist/index.js",
+  "main": "./dist/index.js",
   "exports": {
-    ".": "./dist/index.es.js",
+    ".": "./dist/index.js",
     "./style.css": "./dist/style.css",
     "./postcss.config": {
       "import": "./postcss.config.cjs",
       "require": "./postcss.config.cjs"
     },
     "./tailwind.config": {
-      "import": "./tailwind.config.cjs",
-      "require": "./tailwind.config.cjs"
+      "import": "./dist/tailwind.config.js",
+      "require": "./dist/tailwind.config.js"
     }
   },
   "types": "./dist/index.d.ts"

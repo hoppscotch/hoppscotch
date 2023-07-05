@@ -30,10 +30,12 @@ export default defineConfig({
     sourcemap: true,
     minify: false,
     lib: {
-      entry: path.resolve(__dirname, "src/index.ts"),
-      name: "hopp-ui",
+      entry: {
+        index: "./src/index.ts",
+        "tailwind.config": "./tailwind.config.ts",
+        "postcss.config": "./postcss.config.cjs",
+      },
       formats: ["es"],
-      fileName: (format, entry) => `${entry}.${format}.js`,
     },
     rollupOptions: {
       external: ["vue", "vue-router"],

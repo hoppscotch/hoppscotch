@@ -1,5 +1,6 @@
-/** @type {import('tailwindcss').Config} */
-const config = {
+import { Config } from "tailwindcss"
+
+export default {
   content: ["**/*.vue"],
   theme: {
     container: {
@@ -109,6 +110,4 @@ const config = {
       "<sm": { max: "639px" },
     },
   },
-}
-
-module.exports = config
+} satisfies Config

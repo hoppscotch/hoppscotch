@@ -39,6 +39,7 @@
             />
           </div>
         </details>
+
         <HoppSmartPlaceholder
           v-if="searchResults.length === 0"
           :text="`${t('state.nothing_found')} ‟${filterText}”`"
@@ -48,7 +49,7 @@
             {{ t("state.nothing_found") }}
             <span class="break-all">"{{ filterText }}"</span>
           </span>
-        </div>
+        </HoppSmartPlaceholder>
       </div>
       <div v-else class="flex flex-col divide-y divide-dividerLight">
         <details

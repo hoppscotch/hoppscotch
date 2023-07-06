@@ -147,7 +147,7 @@ const teamList = computed(() => {
   });
 });
 
-const headings = ['Team ID', 'Team Name', 'Number of Members'];
+const headings = ['Team ID', 'Team Name', 'Number of Members', ''];
 
 // Create Team
 const createTeamMutation = useMutation(CreateTeamDocument);

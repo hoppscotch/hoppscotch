@@ -51,8 +51,7 @@
           badge-name="Admin"
           :badge-row-index="adminUsers"
           badge-col-name="name"
-          subtitle-col-name="createdOn"
-          :subtitle="createdTime"
+          :subtitle="subtitle"
         >
           <template #action="{ item }">
             <td>
@@ -141,7 +140,7 @@
 
 <script setup lang="ts">
 import { format } from 'date-fns';
-import { computed, ref, watch } from 'vue';
+import { computed, onMounted, reactive, ref, watch } from 'vue';
 import { useMutation } from '@urql/vue';
 import {
   InviteNewUserDocument,
@@ -217,6 +216,22 @@ const createdTime = computed(() => {
     return getCreatedTime(user.createdOn);
   });
 });
+
+onMounted(() => {
+  console.log(createdTime);
+
+  console.log(createdTime.value);
+  for (var item in createdTime.value) {
+    console.log(item);
+  }
+});
+
+const subtitle = reactive([
+  {
+    colName: 'createdOn',
+    subtitle: createdTime,
+  },
+]);
 
 // Send Invitation through Email
 const sendInvitation = useMutation(InviteNewUserDocument);

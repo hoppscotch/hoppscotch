@@ -46,13 +46,20 @@
               </div>
               <!-- Column with Subtitles -->
               <div
-                v-else-if="colIndex.toString() === subtitleColName"
+                v-else-if="subCol.includes(colIndex.toString())"
                 class="flex flex-col"
               >
-                <div>
-                  {{ data }}
-                  <div class="text-gray-400 text-tiny">
-                    {{ subtitle[rowIndex] }}
+                {{ data }}
+                <div v-for="item in subtitle">
+                  <div
+                    v-if="item.colName === colIndex.toString()"
+                    class="text-gray-400 text-tiny"
+                  >
+                    <span>
+                      <span>
+                        {{ itemSubtitle(item.subtitle, rowIndex) }}
+                      </span>
+                    </span>
                   </div>
                 </div>
               </div>
@@ -68,7 +75,9 @@
 </template>
 
 <script lang="ts" setup>
-defineProps<{
+import { computed, onMounted } from "vue"
+
+const props = defineProps<{
   xBorder: Boolean
   list: []
   headings: []
@@ -77,14 +86,30 @@ defineProps<{
   badgeName: string
   badgeRowIndex: (number | undefined)[]
   badgeColName: string
-  subtitleColName: string
-  subtitle: []
+  subtitle: [
+    {
+      colName: string
+      subtitle: string | []
+    }
+  ]
 }>()
 
 defineEmits<{
   (event: "goToDetails", uid: string): void
   (event: "id", uid: string): void
 }>()
+
+const subCol = computed(() =>
+  props.subtitle ? props.subtitle.map((item) => item.colName) : []
+)
+
+onMounted(() => {
+  console.log(props.subtitle)
+  console.log(subCol)
+})
+
+const itemSubtitle = (subtitle: string | string[], rowIndex: number) =>
+  typeof subtitle === "object" ? subtitle[rowIndex] : subtitle
 </script>
 
 <style scoped>

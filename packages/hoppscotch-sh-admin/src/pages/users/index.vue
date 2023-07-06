@@ -44,15 +44,15 @@
 
         <HoppSmartTable
           v-else-if="usersList.length >= 1"
+          padding="px-6 py-3"
           :list="newUsersList"
           :headings="headings"
           @goToDetails="goToUserDetails"
-          :subtitle="{
-            index: 'name',
-            label: 'Admin',
-          }"
-          hide-col="isAdmin"
-          padding="px-6 py-3"
+          badge-name="Admin"
+          :badge-row-index="adminUsers"
+          badge-col-name="name"
+          subtitle-col-name="createdOn"
+          :subtitle="createdTime"
         >
           <template #action="{ item }">
             <td>
@@ -202,7 +202,21 @@ const newUsersList = computed(() => {
   });
 });
 
-const headings = ['User UID', 'Name', 'Email', 'Created On'];
+const headings = ['User UID', 'Name', 'Email', 'Created On', ''];
+
+const adminUsers = computed(() => {
+  return usersList.value.map((user, index) => {
+    if (user.isAdmin) {
+      return index;
+    }
+  });
+});
+
+const createdTime = computed(() => {
+  return usersList.value.map((user) => {
+    return getCreatedTime(user.createdOn);
+  });
+});
 
 // Send Invitation through Email
 const sendInvitation = useMutation(InviteNewUserDocument);

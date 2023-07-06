@@ -256,7 +256,9 @@ export class TeamInvitationService {
           pipe(
             undefined,
             TE.fromPredicate(
-              (a) => acceptedBy.email === invitation.inviteeEmail,
+              () =>
+                acceptedBy.email.toLowerCase() ===
+                invitation.inviteeEmail.toLowerCase(),
               () => TEAM_INVITE_EMAIL_DO_NOT_MATCH,
             ),
           ),

@@ -73,11 +73,7 @@ export class TeamEnvironmentsResolver {
   @UseGuards(GqlAuthGuard, GqlTeamEnvTeamGuard)
   @RequiresTeamRole(TeamMemberRole.OWNER, TeamMemberRole.EDITOR)
   async updateTeamEnvironment(
-    @Args({
-      name: 'id',
-      description: 'ID of the Team Environment',
-      type: () => ID,
-    })
+    @Args()
     args: UpdateTeamEnvironmentArgs,
   ): Promise<TeamEnvironment> {
     const res = await this.teamEnvironmentsService.updateTeamEnvironment(

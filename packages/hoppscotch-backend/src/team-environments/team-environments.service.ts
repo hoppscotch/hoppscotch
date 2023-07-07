@@ -83,42 +83,27 @@ export class TeamEnvironmentsService {
     }
   }
 
-  updateTeamEnvironment(id: string, name: string, variables: string) {
-    return pipe(
-      TE.tryCatch(
-        () =>
-          this.prisma.teamEnvironment.update({
-            where: { id: id },
-            data: {
-              name,
-              variables: JSON.parse(variables),
-            },
-          }),
-        () => TEAM_ENVIRONMENT_NOT_FOUND,
-      ),
-      TE.chainFirst((environment) =>
-        TE.fromTask(() =>
-          this.pubsub.publish(
-            `team_environment/${environment.teamID}/updated`,
-            <TeamEnvironment>{
-              id: environment.id,
-              name: environment.name,
-              teamID: environment.teamID,
-              variables: JSON.stringify(environment.variables),
-            },
-          ),
-        ),
-      ),
-      TE.map(
-        (environment) =>
-          <TeamEnvironment>{
-            id: environment.id,
-            name: environment.name,
-            teamID: environment.teamID,
-            variables: JSON.stringify(environment.variables),
-          },
-      ),
-    );
+  async updateTeamEnvironment(id: string, name: string, variables: string) {
+    try {
+      const result = await this.prisma.teamEnvironment.update({
+        where: { id: id },
+        data: {
+          name,
+          variables: JSON.parse(variables),
+        },
+      });
+
+      const updatedTeamEnvironment = this.cast(result);
+
+      this.pubsub.publish(
+        `team_environment/${updatedTeamEnvironment.teamID}/updated`,
+        updatedTeamEnvironment,
+      );
+
+      return E.right(updatedTeamEnvironment);
+    } catch (error) {
+      return E.left(TEAM_ENVIRONMENT_NOT_FOUND);
+    }
   }
 
   deleteAllVariablesFromTeamEnvironment(id: string) {

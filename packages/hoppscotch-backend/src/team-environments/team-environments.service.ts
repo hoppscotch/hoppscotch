@@ -77,7 +77,7 @@ export class TeamEnvironmentsService {
       data: {
         name: name,
         teamID: teamID,
-        variables: variables,
+        variables: JSON.parse(variables),
       },
     });
 
@@ -135,7 +135,7 @@ export class TeamEnvironmentsService {
         where: { id: id },
         data: {
           name,
-          variables: variables,
+          variables: JSON.parse(variables),
         },
       });
 

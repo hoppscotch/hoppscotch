@@ -21,11 +21,11 @@ const teamEnvironmentsService = new TeamEnvironmentsService(
   mockPubSub as any,
 );
 
-const teamEnvironment: TeamEnvironment = {
+const teamEnvironment = {
   id: '123',
   name: 'test',
   teamID: 'abc123',
-  variables: '[{}]',
+  variables: [{}],
 };
 
 beforeEach(() => {
@@ -68,17 +68,10 @@ describe('TeamEnvironmentsService', () => {
         JSON.stringify(teamEnvironment.variables),
       );
 
-      expect(result).toEqualRight(teamEnvironment);
-    });
-
-    test('should throw JSON_INVALID if input TeamEnvironment json is invalid', async () => {
-      const result = await teamEnvironmentsService.createTeamEnvironment(
-        teamEnvironment.name,
-        teamEnvironment.teamID,
-        '[',
-      );
-
-      expect(result).toEqualLeft(JSON_INVALID);
+      expect(result).toEqualRight({
+        ...teamEnvironment,
+        variables: JSON.stringify(teamEnvironment.variables),
+      });
     });
 
     test('should throw TEAM_ENVIRONMENT_SHORT_NAME if input TeamEnvironment name is invalid', async () => {
@@ -102,7 +95,10 @@ describe('TeamEnvironmentsService', () => {
 
       expect(mockPubSub.publish).toHaveBeenCalledWith(
         `team_environment/${teamEnvironment.teamID}/created`,
-        result,
+        {
+          ...teamEnvironment,
+          variables: JSON.stringify(teamEnvironment.variables),
+        },
       );
     });
   });

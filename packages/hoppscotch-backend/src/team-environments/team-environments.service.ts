@@ -150,26 +150,17 @@ export class TeamEnvironmentsService {
     }
   }
 
-  fetchAllTeamEnvironments(teamID: string) {
-    return pipe(
-      () =>
-        this.prisma.teamEnvironment.findMany({
-          where: {
-            teamID: teamID,
-          },
-        }),
-      T.map(
-        A.map(
-          (environment) =>
-            <TeamEnvironment>{
-              id: environment.id,
-              name: environment.name,
-              teamID: environment.teamID,
-              variables: JSON.stringify(environment.variables),
-            },
-        ),
-      ),
-    );
+  async fetchAllTeamEnvironments(teamID: string) {
+    const result = await this.prisma.teamEnvironment.findMany({
+      where: {
+        teamID: teamID,
+      },
+    });
+    const teamEnvironments = result.map((item) => {
+      return this.cast(item);
+    });
+
+    return teamEnvironments;
   }
 
   /**

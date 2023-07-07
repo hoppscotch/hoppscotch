@@ -31,6 +31,12 @@ export class TeamEnvironmentsService {
     };
   }
 
+  /**
+   * Get details of a TeamEnvironment.
+   *
+   * @param id TeamEnvironment ID
+   * @returns Either of a TeamEnvironment or error message
+   */
   async getTeamEnvironment(id: string) {
     try {
       const teamEnvironment =
@@ -43,6 +49,14 @@ export class TeamEnvironmentsService {
     }
   }
 
+  /**
+   *  Create a new TeamEnvironment.
+   *
+   * @param name name of new TeamEnvironment
+   * @param teamID teamID of new TeamEnvironment
+   * @param variables JSONified string of contents of new TeamEnvironment
+   * @returns TeamEnvironment object
+   */
   async createTeamEnvironment(name: string, teamID: string, variables: string) {
     const result = await this.prisma.teamEnvironment.create({
       data: {
@@ -62,6 +76,12 @@ export class TeamEnvironmentsService {
     return createdTeamEnvironment;
   }
 
+  /**
+   * Delete a TeamEnvironment.
+   *
+   * @param id TeamEnvironment ID
+   * @returns Either of boolean or error message
+   */
   async deleteTeamEnvironment(id: string) {
     try {
       const result = await this.prisma.teamEnvironment.delete({
@@ -83,6 +103,14 @@ export class TeamEnvironmentsService {
     }
   }
 
+  /**
+   * Update a TeamEnvironment.
+   *
+   * @param id TeamEnvironment ID
+   * @param name TeamEnvironment name
+   * @param variables JSONified string of contents of new TeamEnvironment
+   * @returns Either of a TeamEnvironment or error message
+   */
   async updateTeamEnvironment(id: string, name: string, variables: string) {
     try {
       const result = await this.prisma.teamEnvironment.update({
@@ -106,6 +134,12 @@ export class TeamEnvironmentsService {
     }
   }
 
+  /**
+   * Clear contents of a TeamEnvironment.
+   *
+   * @param id TeamEnvironment ID
+   * @returns Either of a TeamEnvironment or error message
+   */
   async deleteAllVariablesFromTeamEnvironment(id: string) {
     try {
       const result = await this.prisma.teamEnvironment.update({
@@ -128,6 +162,12 @@ export class TeamEnvironmentsService {
     }
   }
 
+  /**
+   * Create a duplicate of a existing TeamEnvironment.
+   *
+   * @param id TeamEnvironment ID
+   * @returns Either of a TeamEnvironment or error message
+   */
   async createDuplicateEnvironment(id: string) {
     try {
       const result = await this.prisma.teamEnvironment.findFirst({
@@ -150,6 +190,12 @@ export class TeamEnvironmentsService {
     }
   }
 
+  /**
+   * Fetch all TeamEnvironments of a team.
+   *
+   * @param teamID teamID of new TeamEnvironment
+   * @returns List of TeamEnvironments
+   */
   async fetchAllTeamEnvironments(teamID: string) {
     const result = await this.prisma.teamEnvironment.findMany({
       where: {

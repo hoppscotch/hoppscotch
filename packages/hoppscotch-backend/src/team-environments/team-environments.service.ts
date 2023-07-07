@@ -24,6 +24,12 @@ export class TeamEnvironmentsService {
   TITLE_LENGTH = 3;
 
   /**
+   * TeamEnvironments are saved in the DB in the following way
+   * [{ key: value }, { key: value },....]
+   *
+   */
+
+  /**
    * Typecast a database TeamEnvironment to a TeamEnvironment model
    * @param teamEnvironment database TeamEnvironment
    * @returns TeamEnvironment model

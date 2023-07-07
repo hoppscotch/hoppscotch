@@ -9,7 +9,6 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { PubSubService } from 'src/pubsub/pubsub.service';
 import { TeamEnvironment } from './team-environments.model';
 import {
-  TEAM_ENVIRONMENT_INVALID_NAME,
   TEAM_ENVIRONMENT_NOT_FOUND,
   TEAM_ENVIRONMENT_SHORT_NAME,
 } from 'src/errors';

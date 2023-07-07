@@ -13,7 +13,7 @@
 
       <div class="overflow-x-auto">
         <div
-          v-if="fetching && !error && teamList.length === 0"
+          v-if="fetching && !error && teamsList.length === 0"
           class="flex justify-center"
         >
           <HoppSmartSpinner />
@@ -21,13 +21,18 @@
 
         <div v-else-if="error">{{ t('teams.load_list_error') }}</div>
 
+        <div v-else-if="teamsList.length == 0" class="px-2">
+          <p class="text-lg">
+            {{ t('teams.no_teams') }}
+          </p>
+        </div>
+
         <HoppSmartTable
           v-else
-          :list="teamList"
+          :list="newTeamsList"
           :headings="headings"
           @goToDetails="goToTeamDetails"
           padding="px-6 py-3"
-          item-style="!hover:bg-red-600"
         >
           <template #action="{ item }">
             <td>
@@ -59,7 +64,7 @@
         </HoppSmartTable>
 
         <div
-          v-if="hasNextPage && teamList.length >= teamsPerPage"
+          v-if="hasNextPage && teamsList.length >= teamsPerPage"
           class="flex justify-center my-5 px-3 py-2 cursor-pointer font-semibold rounded-3xl bg-dividerDark hover:bg-divider transition mx-auto w-38 text-secondaryDark"
           @click="fetchNextTeams"
         >
@@ -127,7 +132,7 @@ const {
   error,
   goToNextPage: fetchNextTeams,
   refetch,
-  list: list,
+  list: teamsList,
   hasNextPage,
 } = usePagedQuery(
   TeamListDocument,
@@ -137,8 +142,9 @@ const {
   { cursor: undefined, take: teamsPerPage }
 );
 
-const teamList = computed(() => {
-  return list.value.map((team) => {
+// The new teams list that is used in the table
+const newTeamsList = computed(() => {
+  return teamsList.value.map((team) => {
     return {
       id: team.id || '',
       name: team.name || '',
@@ -147,7 +153,8 @@ const teamList = computed(() => {
   });
 });
 
-const headings = ['Team ID', 'Team Name', 'Number of Members', ''];
+// Headers that are used in the table
+const headings = [t('teams.id'), t('teams.name'), t('teams.members'), ''];
 
 // Create Team
 const createTeamMutation = useMutation(CreateTeamDocument);
@@ -216,7 +223,7 @@ const deleteTeamMutation = async (id: string | null) => {
     if (result.error) {
       toast.error(`${t('state.delete_team_failure')}`);
     } else {
-      list.value = list.value.filter((team) => team.id !== id);
+      teamsList.value = teamsList.value.filter((team) => team.id !== id);
       toast.success(`${t('state.delete_team_success')}`);
     }
   });

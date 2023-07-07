@@ -16,64 +16,21 @@
           <div v-if="fetching" class="flex justify-center">
             <HoppSmartSpinner />
           </div>
-          <div v-else-if="error || invitedUsers === undefined">
+          <div
+            v-else-if="
+              error || invitedUsers === undefined || invitedUsers.length === 0
+            "
+          >
             <p class="text-xl">{{ t('users.no_invite') }}</p>
           </div>
 
-          <table v-else class="w-full text-left">
-            <thead>
-              <tr
-                class="text-secondary border-b border-dividerDark text-sm text-left"
-              >
-                <th class="px-3 pb-3">{{ t('users.admin_id') }}</th>
-                <th class="px-3 pb-3">{{ t('users.admin_email') }}</th>
-                <th class="px-3 pb-3">{{ t('users.invitee_email') }}</th>
-                <th class="px-3 pb-3">{{ t('users.invited_on') }}</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-divider">
-              <tr
-                v-if="invitedUsers.length === 0"
-                class="text-secondaryDark py-4"
-              >
-                <div class="py-6 px-3">{{ t('users.no_invite') }}</div>
-              </tr>
-              <tr
-                v-else
-                v-for="(user, index) in invitedUsers"
-                :key="index"
-                class="text-secondaryDark hover:bg-zinc-800 hover:cursor-pointer rounded-xl"
-              >
-                <td class="py-2 px-3 max-w-30">
-                  <div>
-                    <span class="truncate">
-                      {{ user?.adminUid }}
-                    </span>
-                  </div>
-                </td>
-                <td class="py-2 px-3">
-                  <span class="flex items-center">
-                    {{ user?.adminEmail }}
-                  </span>
-                </td>
-                <td class="py-2 px-3">
-                  <span>
-                    {{ user?.inviteeEmail }}
-                  </span>
-                </td>
-                <td class="py-2 px-3">
-                  <div class="flex items-center">
-                    <div class="flex flex-col">
-                      {{ getCreatedDate(user?.invitedOn) }}
-                      <div class="text-gray-400 text-xs">
-                        {{ getCreatedTime(user?.invitedOn) }}
-                      </div>
-                    </div>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+          <HoppSmartTable
+            v-else
+            padding="px-6 py-3"
+            :list="newInvitedUsersList"
+            :headings="headings"
+            :subtitles="subtitles"
+          />
         </div>
       </div>
     </div>
@@ -81,7 +38,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, reactive } from 'vue';
 import { useQuery } from '@urql/vue';
 import { InvitedUsersDocument } from '../../helpers/backend/graphql';
 import { format } from 'date-fns';
@@ -100,4 +57,39 @@ const getCreatedTime = (date: string) => format(new Date(date), 'hh:mm a');
 // Get Invited Users
 const { fetching, error, data } = useQuery({ query: InvitedUsersDocument });
 const invitedUsers = computed(() => data?.value?.admin.invitedUsers);
+
+// The new invited users list that is used in the table
+const newInvitedUsersList = computed(() => {
+  return invitedUsers.value?.map((user) => {
+    return {
+      adminUid: user.adminUid || '',
+      adminEmail: user.adminEmail || '',
+      inviteeEmail: user.inviteeEmail || '',
+      invitedOn: getCreatedDate(user.invitedOn) || '',
+    };
+  });
+});
+
+// Returns the created time of all the invited user
+const createdTime = computed(() => {
+  return invitedUsers.value?.map((user) => {
+    return getCreatedTime(user.invitedOn);
+  });
+});
+
+// Headings used in the table
+const headings = [
+  t('users.admin_id'),
+  t('users.admin_email'),
+  t('users.invitee_email'),
+  t('users.invited_on'),
+];
+
+// Subtitles used in the table
+const subtitles = reactive([
+  {
+    colName: 'invitedOn',
+    subtitle: createdTime,
+  },
+]);
 </script>

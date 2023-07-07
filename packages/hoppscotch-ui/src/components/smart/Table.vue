@@ -16,7 +16,7 @@
       <tbody class="divide-y divide-divider">
         <tr
           v-for="(item, rowIndex) in list"
-          :key="item.id"
+          :key="rowIndex"
           class="text-secondaryDark hover:bg-divider hover:cursor-pointer rounded-xl"
           :class="xBorder ? 'divide-x divide-divider' : ''"
         >
@@ -36,21 +36,29 @@
                 "
               >
                 <div class="flex flex-col">
-                  {{ data }}
+                  <span v-if="data">
+                    {{ data }}
+                  </span>
+
                   <span
-                    class="text-xs font-medium px-3 py-0.5 rounded-full bg-green-900 text-green-300"
+                    class="text-xs font-medium px-3 py-1 my-1 rounded-full bg-green-900 text-green-300 w-min"
                   >
                     {{ badgeName }}
                   </span>
                 </div>
               </div>
+
               <!-- Column with Subtitles -->
               <div
-                v-else-if="subCol.includes(colIndex.toString())"
+                v-else-if="subtitleColumns.includes(colIndex.toString())"
                 class="flex flex-col"
               >
-                {{ data }}
-                <div v-for="item in subtitle">
+                <span v-if="data">
+                  {{ data }}
+                </span>
+                <span v-else> - </span>
+
+                <div v-for="item in subtitles">
                   <div
                     v-if="item.colName === colIndex.toString()"
                     class="text-gray-400 text-tiny"
@@ -63,7 +71,14 @@
                   </div>
                 </div>
               </div>
-              <div v-else class="flex flex-col">{{ data }}</div>
+
+              <!-- Column with no subtitle or badge -->
+              <div v-else class="flex flex-col">
+                <span v-if="data">
+                  {{ data }}
+                </span>
+                <span v-else> - </span>
+              </div>
             </div>
           </td>
 
@@ -75,39 +90,34 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, onMounted } from "vue"
+import { computed } from "vue"
 
 const props = defineProps<{
   xBorder: Boolean
   list: []
-  headings: []
+  headings: string[]
   padding: string
-  itemStyle: string
   badgeName: string
   badgeRowIndex: (number | undefined)[]
   badgeColName: string
-  subtitle: [
+  subtitles: [
     {
       colName: string
-      subtitle: string | []
+      subtitle: string | string[]
     }
   ]
 }>()
 
 defineEmits<{
   (event: "goToDetails", uid: string): void
-  (event: "id", uid: string): void
 }>()
 
-const subCol = computed(() =>
-  props.subtitle ? props.subtitle.map((item) => item.colName) : []
+// Returns all the columns that needs to have a subtitle
+const subtitleColumns = computed(() =>
+  props.subtitles ? props.subtitles.map((item) => item.colName) : []
 )
 
-onMounted(() => {
-  console.log(props.subtitle)
-  console.log(subCol)
-})
-
+// Returns the subtitle for the given column and row
 const itemSubtitle = (subtitle: string | string[], rowIndex: number) =>
   typeof subtitle === "object" ? subtitle[rowIndex] : subtitle
 </script>

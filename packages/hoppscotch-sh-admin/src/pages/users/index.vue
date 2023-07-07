@@ -31,27 +31,16 @@
 
         <div v-else-if="error">{{ t('users.load_list_error') }}</div>
 
-        <!-- <UsersTable
-          v-else-if="usersList.length >= 1"
-          :usersList="usersList"
-          :fetching="fetching"
-          :error="error"
-          @goToUserDetails="goToUserDetails"
-          @makeUserAdmin="makeUserAdmin"
-          @makeAdminToUser="makeAdminToUser"
-          @deleteUser="deleteUser"
-        /> -->
-
         <HoppSmartTable
           v-else-if="usersList.length >= 1"
           padding="px-6 py-3"
           :list="newUsersList"
           :headings="headings"
           @goToDetails="goToUserDetails"
-          badge-name="Admin"
-          :badge-row-index="adminUsers"
+          :badge-name="t('users.admin')"
+          :badge-row-index="adminUsersIndexes"
           badge-col-name="name"
-          :subtitle="subtitle"
+          :subtitles="subtitles"
         >
           <template #action="{ item }">
             <td>
@@ -140,7 +129,7 @@
 
 <script setup lang="ts">
 import { format } from 'date-fns';
-import { computed, onMounted, reactive, ref, watch } from 'vue';
+import { computed, reactive, ref, watch } from 'vue';
 import { useMutation } from '@urql/vue';
 import {
   InviteNewUserDocument,
@@ -148,6 +137,7 @@ import {
   RemoveUserByAdminDocument,
   RemoveUserAsAdminDocument,
   UsersListDocument,
+  UsersListQuery,
 } from '../../helpers/backend/graphql';
 import { usePagedQuery } from '~/composables/usePagedQuery';
 import { useRoute, useRouter } from 'vue-router';
@@ -168,12 +158,6 @@ const t = useI18n();
 
 const toast = useToast();
 
-const isUserAdmin = (selectedUser: any) => {
-  return usersList.value.filter((user) => {
-    return user.uid === selectedUser.uid;
-  })[0].isAdmin;
-};
-
 // Get Paginated Results of all the users in the infra
 const usersPerPage = 20;
 const {
@@ -190,6 +174,7 @@ const {
   { cursor: undefined, take: usersPerPage }
 );
 
+// The new users list that is used in the table
 const newUsersList = computed(() => {
   return usersList.value.map((user) => {
     return {
@@ -201,32 +186,37 @@ const newUsersList = computed(() => {
   });
 });
 
-const headings = ['User UID', 'Name', 'Email', 'Created On', ''];
+const isUserAdmin = (selectedUser: UsersListQuery['admin']['allUsers']) => {
+  return usersList.value.filter((user) => {
+    return user.uid === selectedUser.uid;
+  })[0].isAdmin;
+};
 
-const adminUsers = computed(() => {
-  return usersList.value.map((user, index) => {
+// Returns index of all the admin users
+const adminUsersIndexes = computed(() =>
+  usersList.value.map((user, index) => {
     if (user.isAdmin) {
       return index;
     }
-  });
-});
+  })
+);
 
-const createdTime = computed(() => {
-  return usersList.value.map((user) => {
-    return getCreatedTime(user.createdOn);
-  });
-});
+// Returns created time of all the users
+const createdTime = computed(() =>
+  usersList.value.map((user) => getCreatedTime(user.createdOn))
+);
 
-onMounted(() => {
-  console.log(createdTime);
+// Headers that are used in the table
+const headings = [
+  t('users.id'),
+  t('users.name'),
+  t('users.email'),
+  t('users.date'),
+  '',
+];
 
-  console.log(createdTime.value);
-  for (var item in createdTime.value) {
-    console.log(item);
-  }
-});
-
-const subtitle = reactive([
+// Subtitles that are used in the table
+const subtitles = reactive([
   {
     colName: 'createdOn',
     subtitle: createdTime,

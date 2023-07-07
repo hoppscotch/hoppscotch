@@ -26,7 +26,7 @@
 
           <HoppSmartTable
             v-else
-            padding="px-6 py-3"
+            cell-styles="px-6 py-2"
             :list="newInvitedUsersList"
             :headings="headings"
             :subtitles="subtitles"

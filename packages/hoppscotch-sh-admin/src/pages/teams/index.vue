@@ -32,7 +32,7 @@
           :list="newTeamsList"
           :headings="headings"
           @goToDetails="goToTeamDetails"
-          padding="px-6 py-3"
+          cell-styles="px-6 py-3"
         >
           <template #action="{ item }">
             <td>

@@ -33,7 +33,7 @@
 
         <HoppSmartTable
           v-else-if="usersList.length >= 1"
-          padding="px-6 py-3"
+          cell-styles="px-6 py-2"
           :list="newUsersList"
           :headings="headings"
           @goToDetails="goToUserDetails"

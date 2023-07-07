@@ -37,7 +37,7 @@
             t('users.uid')
           }}</label>
           <div
-            class="w-full p-3 mt-2 bg-zinc-800 border-gray-600 rounded-md focus:border-emerald-600 focus:ring focus:ring-opacity-40 focus:ring-emerald-500"
+            class="w-full p-3 mt-2 bg-divider border-gray-600 rounded-md focus:border-emerald-600 focus:ring focus:ring-opacity-40 focus:ring-emerald-500"
           >
             {{ user.uid }}
           </div>
@@ -47,7 +47,7 @@
             t('users.name')
           }}</label>
           <div
-            class="w-full p-3 mt-2 bg-zinc-800 border-gray-600 rounded-md focus:border-emerald-600 focus:ring focus:ring-opacity-40 focus:ring-emerald-500"
+            class="w-full p-3 mt-2 bg-divider border-gray-600 rounded-md focus:border-emerald-600 focus:ring focus:ring-opacity-40 focus:ring-emerald-500"
           >
             <span v-if="user.displayName">
               {{ user.displayName }}
@@ -60,7 +60,7 @@
             t('users.email')
           }}</label>
           <div
-            class="w-full p-3 mt-2 bg-zinc-800 border-gray-200 border-gray-600 rounded-md focus:border-emerald-600 focus:ring focus:ring-opacity-40 focus:ring-emerald-500"
+            class="w-full p-3 mt-2 bg-divider border-gray-200 border-gray-600 rounded-md focus:border-emerald-600 focus:ring focus:ring-opacity-40 focus:ring-emerald-500"
           >
             {{ user.email }}
           </div>
@@ -70,7 +70,7 @@
             t('users.created_on')
           }}</label>
           <div
-            class="w-full p-3 mt-2 bg-zinc-800 border-gray-600 rounded-md focus:border-emerald-600 focus:ring focus:ring-opacity-40 focus:ring-emerald-500"
+            class="w-full p-3 mt-2 bg-divider border-gray-600 rounded-md focus:border-emerald-600 focus:ring focus:ring-opacity-40 focus:ring-emerald-500"
           >
             {{ getCreatedDateAndTime(user.createdOn) }}
           </div>

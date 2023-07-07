@@ -1,7 +1,5 @@
 <template>
-  <div
-    class="overflow-hidden rounded-md border border-dividerDark shadow-md m-5"
-  >
+  <div class="overflow-auto rounded-md border border-dividerDark shadow-md m-5">
     <table class="w-full">
       <thead class="bg-primaryLight">
         <tr
@@ -25,7 +23,7 @@
             :key="colIndex"
             @click="$emit('goToDetails', item)"
             class="max-w-40"
-            :class="padding"
+            :class="cellStyles"
           >
             <div class="flex items-center">
               <!-- Column with Badge -->
@@ -35,8 +33,8 @@
                   badgeRowIndex.includes(rowIndex)
                 "
               >
-                <div class="flex flex-col">
-                  <span v-if="data">
+                <div class="flex flex-col truncate">
+                  <span v-if="data" class="mt-1 truncate whitespace-normal">
                     {{ data }}
                   </span>
 
@@ -51,9 +49,9 @@
               <!-- Column with Subtitles -->
               <div
                 v-else-if="subtitleColumns.includes(colIndex.toString())"
-                class="flex flex-col"
+                class="flex flex-col truncate"
               >
-                <span v-if="data">
+                <span v-if="data" class="truncate">
                   {{ data }}
                 </span>
                 <span v-else> - </span>
@@ -73,8 +71,8 @@
               </div>
 
               <!-- Column with no subtitle or badge -->
-              <div v-else class="flex flex-col">
-                <span v-if="data">
+              <div v-else class="flex flex-col truncate">
+                <span v-if="data" class="truncate">
                   {{ data }}
                 </span>
                 <span v-else> - </span>
@@ -96,7 +94,7 @@ const props = defineProps<{
   xBorder: Boolean
   list: []
   headings: string[]
-  padding: string
+  cellStyles: string
   badgeName: string
   badgeRowIndex: (number | undefined)[]
   badgeColName: string

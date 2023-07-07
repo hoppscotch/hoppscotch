@@ -19,6 +19,8 @@ import {
   TEAM_ENVIRONMENT_NOT_FOUND,
 } from 'src/errors';
 import { TeamService } from 'src/team/team.service';
+import { GqlExecutionContext } from '@nestjs/graphql';
+import * as E from 'fp-ts/Either';
 
 /**
  * A guard which checks whether the caller of a GQL Operation
@@ -32,6 +34,34 @@ export class GqlTeamEnvTeamGuard implements CanActivate {
     private readonly teamEnvironmentService: TeamEnvironmentsService,
     private readonly teamService: TeamService,
   ) {}
+
+  // async canActivate(context: ExecutionContext): Promise<boolean> {
+  //   const requireRoles = this.reflector.get<TeamMemberRole[]>(
+  //     'requiresTeamRole',
+  //     context.getHandler(),
+  //   );
+  //   if (!requireRoles) throw new Error(BUG_TEAM_ENV_GUARD_NO_REQUIRE_ROLES);
+
+  //   const gqlExecCtx = GqlExecutionContext.create(context);
+
+  //   const { user } = gqlExecCtx.getContext().req;
+  //   if (user == undefined) throw new Error(BUG_AUTH_NO_USER_CTX);
+
+  //   const { id } = gqlExecCtx.getArgs<{ id: string }>();
+  //   if (!id) throw new Error(BUG_TEAM_ENV_GUARD_NO_ENV_ID);
+
+  //   const teamEnvironment =
+  //     await this.teamEnvironmentService.getTeamEnvironment(id);
+  //   if (E.isLeft(teamEnvironment)) throw new Error(TEAM_INVALID_COLL_ID);
+
+  //   const member = await this.teamService.getTeamMember(
+  //     collection.right.teamID,
+  //     user.uid,
+  //   );
+  //   if (!member) throw new Error(TEAM_REQ_NOT_MEMBER);
+
+  //   return requireRoles.includes(member.role);
+  // }
 
   canActivate(context: ExecutionContext): Promise<boolean> {
     return pipe(

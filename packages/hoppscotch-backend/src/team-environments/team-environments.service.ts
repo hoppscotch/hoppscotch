@@ -9,7 +9,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { PubSubService } from 'src/pubsub/pubsub.service';
 import { TeamEnvironment } from './team-environments.model';
 import { TEAM_ENVIRONMENT_NOT_FOUND } from 'src/errors';
-
+import * as E from 'fp-ts/Either';
 @Injectable()
 export class TeamEnvironmentsService {
   constructor(
@@ -17,13 +17,16 @@ export class TeamEnvironmentsService {
     private readonly pubsub: PubSubService,
   ) {}
 
-  getTeamEnvironment(id: string) {
-    return TO.tryCatch(() =>
-      this.prisma.teamEnvironment.findFirst({
-        where: { id },
-        rejectOnNotFound: true,
-      }),
-    );
+  async getTeamEnvironment(id: string) {
+    try {
+      const teamEnvironment =
+        await this.prisma.teamEnvironment.findFirstOrThrow({
+          where: { id },
+        });
+      return E.right(teamEnvironment);
+    } catch (error) {
+      return E.left(TEAM_ENVIRONMENT_NOT_FOUND);
+    }
   }
 
   createTeamEnvironment(name: string, teamID: string, variables: string) {

@@ -10,6 +10,7 @@ import { PubSubService } from 'src/pubsub/pubsub.service';
 import { TeamEnvironment } from './team-environments.model';
 import { TEAM_ENVIRONMENT_NOT_FOUND } from 'src/errors';
 import * as E from 'fp-ts/Either';
+import { stringToJson } from 'src/utils';
 @Injectable()
 export class TeamEnvironmentsService {
   constructor(
@@ -58,11 +59,14 @@ export class TeamEnvironmentsService {
    * @returns TeamEnvironment object
    */
   async createTeamEnvironment(name: string, teamID: string, variables: string) {
+    const jsonVariables = stringToJson(variables);
+    if (E.isLeft(jsonVariables)) return E.left(jsonVariables.left);
+
     const result = await this.prisma.teamEnvironment.create({
       data: {
         name: name,
         teamID: teamID,
-        variables: JSON.parse(variables),
+        variables: jsonVariables.right,
       },
     });
 
@@ -73,7 +77,7 @@ export class TeamEnvironmentsService {
       createdTeamEnvironment,
     );
 
-    return createdTeamEnvironment;
+    return E.right(createdTeamEnvironment);
   }
 
   /**

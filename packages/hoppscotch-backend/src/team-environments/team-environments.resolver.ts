@@ -30,7 +30,7 @@ export class TeamEnvironmentsResolver {
   })
   @UseGuards(GqlAuthGuard, GqlTeamMemberGuard)
   @RequiresTeamRole(TeamMemberRole.OWNER, TeamMemberRole.EDITOR)
-  createTeamEnvironment(
+  async createTeamEnvironment(
     @Args({
       name: 'name',
       description: 'Name of the Team Environment',
@@ -48,11 +48,14 @@ export class TeamEnvironmentsResolver {
     })
     variables: string,
   ): Promise<TeamEnvironment> {
-    return this.teamEnvironmentsService.createTeamEnvironment(
+    const res = await this.teamEnvironmentsService.createTeamEnvironment(
       name,
       teamID,
       variables,
     );
+
+    if (E.isLeft(res)) throwErr(res.left);
+    return res.right;
   }
 
   @Mutation(() => Boolean, {

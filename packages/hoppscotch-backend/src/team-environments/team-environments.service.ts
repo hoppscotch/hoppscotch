@@ -128,52 +128,26 @@ export class TeamEnvironmentsService {
     }
   }
 
-  createDuplicateEnvironment(id: string) {
-    return pipe(
-      TE.tryCatch(
-        () =>
-          this.prisma.teamEnvironment.findFirst({
-            where: {
-              id: id,
-            },
-            rejectOnNotFound: true,
-          }),
-        () => TEAM_ENVIRONMENT_NOT_FOUND,
-      ),
-      TE.chain((environment) =>
-        TE.fromTask(() =>
-          this.prisma.teamEnvironment.create({
-            data: {
-              name: environment.name,
-              teamID: environment.teamID,
-              variables: environment.variables as Prisma.JsonArray,
-            },
-          }),
-        ),
-      ),
-      TE.chainFirst((environment) =>
-        TE.fromTask(() =>
-          this.pubsub.publish(
-            `team_environment/${environment.teamID}/created`,
-            <TeamEnvironment>{
-              id: environment.id,
-              name: environment.name,
-              teamID: environment.teamID,
-              variables: JSON.stringify(environment.variables),
-            },
-          ),
-        ),
-      ),
-      TE.map(
-        (environment) =>
-          <TeamEnvironment>{
-            id: environment.id,
-            name: environment.name,
-            teamID: environment.teamID,
-            variables: JSON.stringify(environment.variables),
-          },
-      ),
-    );
+  async createDuplicateEnvironment(id: string) {
+    try {
+      const result = await this.prisma.teamEnvironment.findFirst({
+        where: {
+          id: id,
+        },
+        rejectOnNotFound: true,
+      });
+
+      const duplicatedTeamEnvironment = this.cast(result);
+
+      this.pubsub.publish(
+        `team_environment/${duplicatedTeamEnvironment.teamID}/created`,
+        duplicatedTeamEnvironment,
+      );
+
+      return E.right(duplicatedTeamEnvironment);
+    } catch (error) {
+      return E.left(TEAM_ENVIRONMENT_NOT_FOUND);
+    }
   }
 
   fetchAllTeamEnvironments(teamID: string) {

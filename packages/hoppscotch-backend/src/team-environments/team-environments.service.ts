@@ -62,32 +62,25 @@ export class TeamEnvironmentsService {
     return createdTeamEnvironment;
   }
 
-  deleteTeamEnvironment(id: string) {
-    return pipe(
-      TE.tryCatch(
-        () =>
-          this.prisma.teamEnvironment.delete({
-            where: {
-              id: id,
-            },
-          }),
-        () => TEAM_ENVIRONMENT_NOT_FOUND,
-      ),
-      TE.chainFirst((environment) =>
-        TE.fromTask(() =>
-          this.pubsub.publish(
-            `team_environment/${environment.teamID}/deleted`,
-            <TeamEnvironment>{
-              id: environment.id,
-              name: environment.name,
-              teamID: environment.teamID,
-              variables: JSON.stringify(environment.variables),
-            },
-          ),
-        ),
-      ),
-      TE.map((data) => true),
-    );
+  async deleteTeamEnvironment(id: string) {
+    try {
+      const result = await this.prisma.teamEnvironment.delete({
+        where: {
+          id: id,
+        },
+      });
+
+      const deletedTeamEnvironment = this.cast(result);
+
+      this.pubsub.publish(
+        `team_environment/${deletedTeamEnvironment.teamID}/deleted`,
+        deletedTeamEnvironment,
+      );
+
+      return E.right(true);
+    } catch (error) {
+      return E.left(TEAM_ENVIRONMENT_NOT_FOUND);
+    }
   }
 
   updateTeamEnvironment(id: string, name: string, variables: string) {

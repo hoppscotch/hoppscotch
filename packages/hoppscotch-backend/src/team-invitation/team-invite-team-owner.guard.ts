@@ -57,7 +57,7 @@ export class TeamInviteTeamOwnerGuard implements CanActivate {
 
       TE.chainW(
         TE.fromPredicate(
-          ({ userMember }) => userMember.role === TeamMemberRole.OWNER,
+          ({ userMember, user }) => (userMember.role === TeamMemberRole.OWNER || user.isAdmin),
           () => TEAM_NOT_REQUIRED_ROLE,
         ),
       ),

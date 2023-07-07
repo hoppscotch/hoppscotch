@@ -55,7 +55,7 @@ export class TeamInviteeGuard implements CanActivate {
       // Check if the emails match
       TE.chainW(
         TE.fromPredicate(
-          ({ user, invite }) => user.email === invite.inviteeEmail,
+          ({ user, invite }) => user.email.toLowerCase() === invite.inviteeEmail.toLowerCase(),
           () => TEAM_INVITE_EMAIL_DO_NOT_MATCH,
         ),
       ),

@@ -64,9 +64,6 @@ export class TeamEnvironmentsService {
    * @returns TeamEnvironment object
    */
   async createTeamEnvironment(name: string, teamID: string, variables: string) {
-    const jsonVariables = stringToJson(variables);
-    if (E.isLeft(jsonVariables)) return E.left(jsonVariables.left);
-
     const isTitleValid = isValidLength(name, this.TITLE_LENGTH);
     if (!isTitleValid) return E.left(TEAM_ENVIRONMENT_SHORT_NAME);
 
@@ -74,7 +71,7 @@ export class TeamEnvironmentsService {
       data: {
         name: name,
         teamID: teamID,
-        variables: jsonVariables.right,
+        variables: variables,
       },
     });
 
@@ -125,9 +122,6 @@ export class TeamEnvironmentsService {
    */
   async updateTeamEnvironment(id: string, name: string, variables: string) {
     try {
-      const jsonVariables = stringToJson(variables);
-      if (E.isLeft(jsonVariables)) return E.left(jsonVariables.left);
-
       const isTitleValid = isValidLength(name, this.TITLE_LENGTH);
       if (!isTitleValid) return E.left(TEAM_ENVIRONMENT_SHORT_NAME);
 
@@ -135,7 +129,7 @@ export class TeamEnvironmentsService {
         where: { id: id },
         data: {
           name,
-          variables: jsonVariables.right,
+          variables: variables,
         },
       });
 

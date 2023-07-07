@@ -14,6 +14,10 @@ import { GqlTeamEnvTeamGuard } from './gql-team-env-team.guard';
 import { TeamEnvironment } from './team-environments.model';
 import { TeamEnvironmentsService } from './team-environments.service';
 import * as E from 'fp-ts/Either';
+import {
+  CreateTeamEnvironmentArgs,
+  UpdateTeamEnvironmentArgs,
+} from './input-type.args';
 
 @UseGuards(GqlThrottlerGuard)
 @Resolver(() => 'TeamEnvironment')
@@ -31,27 +35,12 @@ export class TeamEnvironmentsResolver {
   @UseGuards(GqlAuthGuard, GqlTeamMemberGuard)
   @RequiresTeamRole(TeamMemberRole.OWNER, TeamMemberRole.EDITOR)
   async createTeamEnvironment(
-    @Args({
-      name: 'name',
-      description: 'Name of the Team Environment',
-    })
-    name: string,
-    @Args({
-      name: 'teamID',
-      description: 'ID of the Team',
-      type: () => ID,
-    })
-    teamID: string,
-    @Args({
-      name: 'variables',
-      description: 'JSON string of the variables object',
-    })
-    variables: string,
+    @Args() args: CreateTeamEnvironmentArgs,
   ): Promise<TeamEnvironment> {
     const res = await this.teamEnvironmentsService.createTeamEnvironment(
-      name,
-      teamID,
-      variables,
+      args.name,
+      args.teamID,
+      args.variables,
     );
 
     if (E.isLeft(res)) throwErr(res.left);
@@ -89,22 +78,12 @@ export class TeamEnvironmentsResolver {
       description: 'ID of the Team Environment',
       type: () => ID,
     })
-    id: string,
-    @Args({
-      name: 'name',
-      description: 'Name of the Team Environment',
-    })
-    name: string,
-    @Args({
-      name: 'variables',
-      description: 'JSON string of the variables object',
-    })
-    variables: string,
+    args: UpdateTeamEnvironmentArgs,
   ): Promise<TeamEnvironment> {
     const res = await this.teamEnvironmentsService.updateTeamEnvironment(
-      id,
-      name,
-      variables,
+      args.id,
+      args.name,
+      args.variables,
     );
 
     if (E.isLeft(res)) throwErr(res.left);

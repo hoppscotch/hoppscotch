@@ -106,41 +106,26 @@ export class TeamEnvironmentsService {
     }
   }
 
-  deleteAllVariablesFromTeamEnvironment(id: string) {
-    return pipe(
-      TE.tryCatch(
-        () =>
-          this.prisma.teamEnvironment.update({
-            where: { id: id },
-            data: {
-              variables: [],
-            },
-          }),
-        () => TEAM_ENVIRONMENT_NOT_FOUND,
-      ),
-      TE.chainFirst((environment) =>
-        TE.fromTask(() =>
-          this.pubsub.publish(
-            `team_environment/${environment.teamID}/updated`,
-            <TeamEnvironment>{
-              id: environment.id,
-              name: environment.name,
-              teamID: environment.teamID,
-              variables: JSON.stringify(environment.variables),
-            },
-          ),
-        ),
-      ),
-      TE.map(
-        (environment) =>
-          <TeamEnvironment>{
-            id: environment.id,
-            name: environment.name,
-            teamID: environment.teamID,
-            variables: JSON.stringify(environment.variables),
-          },
-      ),
-    );
+  async deleteAllVariablesFromTeamEnvironment(id: string) {
+    try {
+      const result = await this.prisma.teamEnvironment.update({
+        where: { id: id },
+        data: {
+          variables: [],
+        },
+      });
+
+      const teamEnvironment = this.cast(result);
+
+      this.pubsub.publish(
+        `team_environment/${teamEnvironment.teamID}/updated`,
+        teamEnvironment,
+      );
+
+      return E.right(teamEnvironment);
+    } catch (error) {
+      return E.left(TEAM_ENVIRONMENT_NOT_FOUND);
+    }
   }
 
   createDuplicateEnvironment(id: string) {

@@ -117,11 +117,14 @@ export class TeamEnvironmentsService {
    */
   async updateTeamEnvironment(id: string, name: string, variables: string) {
     try {
+      const jsonVariables = stringToJson(variables);
+      if (E.isLeft(jsonVariables)) return E.left(jsonVariables.left);
+
       const result = await this.prisma.teamEnvironment.update({
         where: { id: id },
         data: {
           name,
-          variables: JSON.parse(variables),
+          variables: jsonVariables.right,
         },
       });
 

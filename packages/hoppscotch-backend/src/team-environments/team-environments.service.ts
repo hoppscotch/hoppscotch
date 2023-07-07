@@ -4,7 +4,7 @@ import * as T from 'fp-ts/Task';
 import * as TO from 'fp-ts/TaskOption';
 import * as TE from 'fp-ts/TaskEither';
 import * as A from 'fp-ts/Array';
-import { Prisma } from '@prisma/client';
+import { Prisma, TeamEnvironment as DBTeamEnvironment } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { PubSubService } from 'src/pubsub/pubsub.service';
 import { TeamEnvironment } from './team-environments.model';
@@ -16,6 +16,20 @@ export class TeamEnvironmentsService {
     private readonly prisma: PrismaService,
     private readonly pubsub: PubSubService,
   ) {}
+
+  /**
+   * Typecast a database TeamEnvironment to a TeamEnvironment model
+   * @param teamEnvironment database TeamEnvironment
+   * @returns TeamEnvironment model
+   */
+  private cast(teamEnvironment: DBTeamEnvironment): TeamEnvironment {
+    return <TeamEnvironment>{
+      id: teamEnvironment.id,
+      name: teamEnvironment.name,
+      teamID: teamEnvironment.teamID,
+      variables: JSON.stringify(teamEnvironment.variables),
+    };
+  }
 
   async getTeamEnvironment(id: string) {
     try {
@@ -29,37 +43,23 @@ export class TeamEnvironmentsService {
     }
   }
 
-  createTeamEnvironment(name: string, teamID: string, variables: string) {
-    return pipe(
-      () =>
-        this.prisma.teamEnvironment.create({
-          data: {
-            name: name,
-            teamID: teamID,
-            variables: JSON.parse(variables),
-          },
-        }),
-      T.chainFirst(
-        (environment) => () =>
-          this.pubsub.publish(
-            `team_environment/${environment.teamID}/created`,
-            <TeamEnvironment>{
-              id: environment.id,
-              name: environment.name,
-              teamID: environment.teamID,
-              variables: JSON.stringify(environment.variables),
-            },
-          ),
-      ),
-      T.map((data) => {
-        return <TeamEnvironment>{
-          id: data.id,
-          name: data.name,
-          teamID: data.teamID,
-          variables: JSON.stringify(data.variables),
-        };
-      }),
+  async createTeamEnvironment(name: string, teamID: string, variables: string) {
+    const result = await this.prisma.teamEnvironment.create({
+      data: {
+        name: name,
+        teamID: teamID,
+        variables: JSON.parse(variables),
+      },
+    });
+
+    const createdTeamEnvironment = this.cast(result);
+
+    this.pubsub.publish(
+      `team_environment/${createdTeamEnvironment.teamID}/created`,
+      createdTeamEnvironment,
     );
+
+    return createdTeamEnvironment;
   }
 
   deleteTeamEnvironment(id: string) {

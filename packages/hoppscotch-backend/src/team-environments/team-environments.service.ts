@@ -8,15 +8,21 @@ import { Prisma, TeamEnvironment as DBTeamEnvironment } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { PubSubService } from 'src/pubsub/pubsub.service';
 import { TeamEnvironment } from './team-environments.model';
-import { TEAM_ENVIRONMENT_NOT_FOUND } from 'src/errors';
+import {
+  TEAM_ENVIRONMENT_INVALID_NAME,
+  TEAM_ENVIRONMENT_NOT_FOUND,
+  TEAM_ENVIRONMENT_SHORT_NAME,
+} from 'src/errors';
 import * as E from 'fp-ts/Either';
-import { stringToJson } from 'src/utils';
+import { isValidLength, stringToJson } from 'src/utils';
 @Injectable()
 export class TeamEnvironmentsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly pubsub: PubSubService,
   ) {}
+
+  TITLE_LENGTH = 3;
 
   /**
    * Typecast a database TeamEnvironment to a TeamEnvironment model
@@ -61,6 +67,9 @@ export class TeamEnvironmentsService {
   async createTeamEnvironment(name: string, teamID: string, variables: string) {
     const jsonVariables = stringToJson(variables);
     if (E.isLeft(jsonVariables)) return E.left(jsonVariables.left);
+
+    const isTitleValid = isValidLength(name, this.TITLE_LENGTH);
+    if (!isTitleValid) return E.left(TEAM_ENVIRONMENT_SHORT_NAME);
 
     const result = await this.prisma.teamEnvironment.create({
       data: {
@@ -119,6 +128,9 @@ export class TeamEnvironmentsService {
     try {
       const jsonVariables = stringToJson(variables);
       if (E.isLeft(jsonVariables)) return E.left(jsonVariables.left);
+
+      const isTitleValid = isValidLength(name, this.TITLE_LENGTH);
+      if (!isTitleValid) return E.left(TEAM_ENVIRONMENT_SHORT_NAME);
 
       const result = await this.prisma.teamEnvironment.update({
         where: { id: id },

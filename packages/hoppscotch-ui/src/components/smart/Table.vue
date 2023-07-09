@@ -106,14 +106,12 @@ const props = defineProps<{
   /** The index of the column that needs to have a badge */
   badgeColName?: string
   /** The subtitles to be displayed for the columns */
-  subtitles?: [
-    {
-      /** The name of the column that needs to have a subtitle */
-      colName: string
-      /** The subtitle to be displayed for the column */
-      subtitle: string | string[]
-    }
-  ]
+  subtitles?: Array<{
+    /** The name of the column that needs to have a subtitle */
+    colName: string
+    /** The subtitle to be displayed for the column */
+    subtitle: string | string[]
+  }>
 }>()
 
 defineEmits<{

@@ -91,8 +91,8 @@
 import { computed } from "vue"
 
 const props = defineProps<{
-  xBorder: Boolean
-  list: []
+  xBorder: boolean
+  list: Record<string, unknown>[]
   headings: string[]
   cellStyles: string
   badgeName: string

@@ -178,15 +178,17 @@ const {
 const newUsersList = computed(() => {
   return usersList.value.map((user) => {
     return {
-      uid: user.uid || '',
-      name: user.displayName || '',
-      email: user.email || '',
-      createdOn: getCreatedDate(user.createdOn) || '',
+      uid: user.uid,
+      name: user.displayName ?? '',
+      email: user.email ?? '',
+      createdOn: getCreatedDate(user.createdOn),
     };
   });
 });
 
-const isUserAdmin = (selectedUser: UsersListQuery['admin']['allUsers']) => {
+const isUserAdmin = (
+  selectedUser: UsersListQuery['admin']['allUsers'][number]
+) => {
   return usersList.value.filter((user) => {
     return user.uid === selectedUser.uid;
   })[0].isAdmin;

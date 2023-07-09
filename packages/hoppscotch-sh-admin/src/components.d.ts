@@ -35,11 +35,8 @@ declare module '@vue/runtime-core' {
     TeamsInvite: typeof import('./components/teams/Invite.vue')['default']
     TeamsMembers: typeof import('./components/teams/Members.vue')['default']
     TeamsPendingInvites: typeof import('./components/teams/PendingInvites.vue')['default']
-    TeamsTable: typeof import('./components/teams/Table.vue')['default']
     Tippy: typeof import('vue-tippy')['Tippy']
     UsersInviteModal: typeof import('./components/users/InviteModal.vue')['default']
-    UsersTable: typeof import('./components/users/Table.vue')['default']
-    UsersTables: typeof import('./components/users/Tables.vue')['default']
   }
 
 }

@@ -145,6 +145,9 @@ function newUseArrowKeysForNavigation() {
   })
 
   const onArrowDown = () => {
+    // If no entries, do nothing
+    if (scoredResults.value.length === 0) return
+
     const [sectionIndex, entryIndex] = selectedEntry.value
 
     const [, section] = scoredResults.value[sectionIndex]
@@ -159,6 +162,9 @@ function newUseArrowKeysForNavigation() {
   }
 
   const onArrowUp = () => {
+    // If no entries, do nothing
+    if (scoredResults.value.length === 0) return
+
     const [sectionIndex, entryIndex] = selectedEntry.value
 
     if (entryIndex > 0) {

@@ -16,7 +16,7 @@
           v-for="(item, rowIndex) in list"
           :key="rowIndex"
           class="text-secondaryDark hover:bg-divider hover:cursor-pointer rounded-xl"
-          :class="xBorder ? 'divide-x divide-divider' : ''"
+          :class="yBorder ? 'divide-x divide-divider' : ''"
         >
           <td
             v-for="(data, colIndex) in item"
@@ -30,7 +30,7 @@
               <div
                 v-if="
                   colIndex.toString() === badgeColName &&
-                  badgeRowIndex.includes(rowIndex)
+                  badgeRowIndices?.includes(rowIndex)
                 "
               >
                 <div class="flex flex-col truncate">
@@ -87,27 +87,37 @@
   </div>
 </template>
 
-<script lang="ts" setup>
+<script lang="ts" setup generic="Item extends Record<string, unknown>">
 import { computed } from "vue"
 
 const props = defineProps<{
-  xBorder: boolean
-  list: Record<string, unknown>[]
+  /** Whether to show the vertical border between columns */
+  yBorder?: boolean
+  /**  The list of items to be displayed in the table */
+  list: Item[]
+  /** The headings of the table */
   headings: string[]
-  cellStyles: string
-  badgeName: string
-  badgeRowIndex: (number | undefined)[]
-  badgeColName: string
-  subtitles: [
+  /** The styles to be applied to the table cells */
+  cellStyles?: string
+  /** The name of the badge */
+  badgeName?: string
+  /** The indices of the rows that needs to have a badge */
+  badgeRowIndices?: (number | undefined)[]
+  /** The index of the column that needs to have a badge */
+  badgeColName?: string
+  /** The subtitles to be displayed for the columns */
+  subtitles?: [
     {
+      /** The name of the column that needs to have a subtitle */
       colName: string
+      /** The subtitle to be displayed for the column */
       subtitle: string | string[]
     }
   ]
 }>()
 
 defineEmits<{
-  (event: "goToDetails", uid: string): void
+  (event: "goToDetails", item: Item): void
 }>()
 
 // Returns all the columns that needs to have a subtitle

@@ -38,7 +38,7 @@
           :headings="headings"
           @goToDetails="goToUserDetails"
           :badge-name="t('users.admin')"
-          :badge-row-index="adminUsersIndexes"
+          :badge-row-indices="adminUsersIndices"
           badge-col-name="name"
           :subtitles="subtitles"
         >
@@ -195,13 +195,12 @@ const isUserAdmin = (
 };
 
 // Returns index of all the admin users
-const adminUsersIndexes = computed(() =>
-  usersList.value.map((user, index) => {
-    if (user.isAdmin) {
-      return index;
-    }
-  })
-);
+const adminUsersIndices = computed(() => {
+  const indices = [];
+  for (let index = 0; index < usersList.value.length; index++)
+    if (usersList.value[index].isAdmin) indices.push(index);
+  return indices;
+});
 
 // Returns created time of all the users
 const createdTime = computed(() =>
@@ -248,7 +247,8 @@ const sendInvite = async (email: string) => {
 // Go to Individual User Details Page
 const route = useRoute();
 const router = useRouter();
-const goToUserDetails = (user: any) => router.push('/users/' + user.uid);
+const goToUserDetails = (user: { uid: string }) =>
+  router.push('/users/' + user.uid);
 
 watch(
   () => route.params.id,
@@ -284,7 +284,7 @@ const userToAdmin = useMutation(MakeUserAdminDocument);
 const confirmUserToAdmin = ref(false);
 const userToAdminUID = ref<string | null>(null);
 
-const makeUserAdmin = (user: any) => {
+const makeUserAdmin = (user: { uid: string }) => {
   confirmUserToAdmin.value = true;
   userToAdminUID.value = user.uid;
 };
@@ -318,12 +318,12 @@ const adminToUser = useMutation(RemoveUserAsAdminDocument);
 const confirmAdminToUser = ref(false);
 const adminToUserUID = ref<string | null>(null);
 
-const makeAdminToUser = (user: any) => {
+const makeAdminToUser = (user: { uid: string }) => {
   confirmAdminToUser.value = true;
   adminToUserUID.value = user.uid;
 };
 
-const deleteUser = (user: any) => {
+const deleteUser = (user: { uid: string }) => {
   confirmDeletion.value = true;
   deleteUserUID.value = user.uid;
 };

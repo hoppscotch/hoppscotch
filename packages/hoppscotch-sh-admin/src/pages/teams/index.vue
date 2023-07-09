@@ -193,7 +193,8 @@ const createTeam = async (newTeamName: string, ownerEmail: string) => {
 
 // Go To Individual Team Details Page
 const router = useRouter();
-const goToTeamDetails = (team: any) => router.push('/teams/' + team.id);
+const goToTeamDetails = (team: { id: string }) =>
+  router.push('/teams/' + team.id);
 
 // Reload Teams Page when routed back to the teams page
 const route = useRoute();
@@ -207,7 +208,7 @@ const teamDeletion = useMutation(RemoveTeamDocument);
 const confirmDeletion = ref(false);
 const deleteTeamID = ref<string | null>(null);
 
-const deleteTeam = (team: any) => {
+const deleteTeam = (team: { id: string }) => {
   confirmDeletion.value = true;
   deleteTeamID.value = team.id;
 };

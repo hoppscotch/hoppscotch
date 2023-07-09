@@ -146,8 +146,8 @@ const {
 const newTeamsList = computed(() => {
   return teamsList.value.map((team) => {
     return {
-      id: team.id || '',
-      name: team.name || '',
+      id: team.id,
+      name: team.name,
       members: team.members.length,
     };
   });

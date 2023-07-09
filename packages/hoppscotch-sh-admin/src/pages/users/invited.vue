@@ -62,10 +62,10 @@ const invitedUsers = computed(() => data?.value?.admin.invitedUsers);
 const newInvitedUsersList = computed(() => {
   return invitedUsers.value?.map((user) => {
     return {
-      adminUid: user.adminUid || '',
-      adminEmail: user.adminEmail || '',
-      inviteeEmail: user.inviteeEmail || '',
-      invitedOn: getCreatedDate(user.invitedOn) || '',
+      adminUid: user.adminUid,
+      adminEmail: user.adminEmail,
+      inviteeEmail: user.inviteeEmail,
+      invitedOn: getCreatedDate(user.invitedOn),
     };
   });
 });

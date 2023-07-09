@@ -61,21 +61,21 @@
                         <HoppSmartItem
                           v-if="!isUserAdmin(item)"
                           :icon="IconUserCheck"
-                          :label="'Make Admin'"
+                          :label="t('users.make_admin')"
                           class="!hover:bg-emerald-600"
                           @click="makeUserAdmin(item)"
                         />
                         <HoppSmartItem
                           v-else
                           :icon="IconUserMinus"
-                          :label="'Remove Admin Status'"
+                          :label="t('users.remove_admin_status')"
                           class="!hover:bg-emerald-600"
                           @click="makeAdminToUser(item)"
                         />
                         <HoppSmartItem
                           v-if="!isUserAdmin(item)"
                           :icon="IconTrash"
-                          :label="'Delete User'"
+                          :label="t('users.delete_user')"
                           class="!hover:bg-red-600"
                           @click="deleteUser(item)"
                         />

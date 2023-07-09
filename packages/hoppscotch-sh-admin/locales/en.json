@@ -124,6 +124,7 @@
     "created_on": "Created On",
     "date": "Date",
     "delete": "Delete",
+    "delete_user": "Delete User",
     "email": "Email",
     "email_address": "Email Address",
     "id": "User ID",

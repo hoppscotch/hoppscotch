@@ -51,7 +51,7 @@
                     >
                       <HoppSmartItem
                         :icon="IconTrash"
-                        :label="'Delete Team'"
+                        :label="t('teams.delete_team')"
                         class="!hover:bg-red-600 w-full"
                         @click="deleteTeam(item)"
                       />

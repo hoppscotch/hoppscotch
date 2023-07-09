@@ -67,6 +67,7 @@
     "jsonpath-plus": "^7.0.0",
     "lodash-es": "^4.17.21",
     "lossless-json": "^2.0.8",
+    "minisearch": "^6.1.0",
     "nprogress": "^0.2.0",
     "paho-mqtt": "^1.1.0",
     "path": "^0.12.7",

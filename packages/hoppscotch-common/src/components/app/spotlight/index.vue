@@ -68,6 +68,14 @@
           />
         </div>
       </div>
+      <HoppSmartPlaceholder
+        v-if="scoredResults.length === 0 && search.length > 0"
+        :text="`${t('state.nothing_found')} ‟${search}”`"
+      >
+        <template #icon>
+          <icon-lucide-search class="pb-2 opacity-75 svg-icons" />
+        </template>
+      </HoppSmartPlaceholder>
     </template>
   </HoppSmartModal>
 </template>

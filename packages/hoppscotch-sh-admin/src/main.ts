@@ -3,10 +3,8 @@ import urql, { createClient } from '@urql/vue';
 import App from './App.vue';
 
 // STYLES
-import 'virtual:windi.css';
 import '@hoppscotch/ui/style.css';
-import '../assets/scss/themes.scss';
-import '../assets/scss/styles.scss';
+import '../assets/scss/tailwind.scss';
 // END STYLES
 
 import { HOPP_MODULES } from './modules';

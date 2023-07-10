@@ -7,7 +7,7 @@
   >
     <template #body>
       <div class="flex flex-col border-b transition border-dividerLight">
-        <div class="flex items-center p-6 space-x-2">
+        <div class="flex items-center">
           <input
             id="command"
             v-model="search"
@@ -16,39 +16,14 @@
             autocomplete="off"
             name="command"
             :placeholder="`${t('app.type_a_command_search')}`"
-            class="flex flex-1 text-base bg-transparent text-secondaryDark"
+            class="flex flex-1 text-base bg-transparent text-secondaryDark px-6 py-5"
           />
-
-          <icon-lucide-refresh-cw
-            v-if="searchSession?.loading"
-            class="animate-spin"
-          />
-        </div>
-        <div
-          class="flex flex-shrink-0 text-tiny text-secondaryLight px-4 pb-4 justify-between whitespace-nowrap overflow-auto <sm:hidden"
-        >
-          <div class="flex items-center">
-            <kbd class="shortcut-key">↑</kbd>
-            <kbd class="shortcut-key">↓</kbd>
-            <span class="ml-2 truncate">
-              {{ t("action.to_navigate") }}
-            </span>
-            <kbd class="shortcut-key">↩</kbd>
-            <span class="ml-2 truncate">
-              {{ t("action.to_select") }}
-            </span>
-          </div>
-          <div class="flex items-center">
-            <kbd class="shortcut-key">ESC</kbd>
-            <span class="ml-2 truncate">
-              {{ t("action.to_close") }}
-            </span>
-          </div>
+          <HoppSmartSpinner v-if="searchSession?.loading" class="mr-6" />
         </div>
       </div>
       <div
-        v-if="searchSession"
-        class="flex flex-col flex-1 overflow-auto space-y-4 divide-y divide-dividerLight"
+        v-if="searchSession && search.length > 0"
+        class="flex flex-col flex-1 overflow-y-auto border-b border-dividerLight space-y-4 divide-y divide-dividerLight"
       >
         <div
           v-for="([sectionID, sectionResult], sectionIndex) in scoredResults"
@@ -66,6 +41,40 @@
             @mouseover="selectedEntry = [sectionIndex, entryIndex]"
             @action="runAction(sectionID, result)"
           />
+        </div>
+        <HoppSmartPlaceholder
+          v-if="search.length > 0 && scoredResults.length === 0"
+          :text="`${t('state.nothing_found')} ‟${search}”`"
+        >
+          <template #icon>
+            <icon-lucide-search class="pb-2 opacity-75 svg-icons" />
+          </template>
+          <HoppButtonSecondary
+            :label="t('action.clear')"
+            outline
+            @click="search = ''"
+          />
+        </HoppSmartPlaceholder>
+      </div>
+      <div
+        class="flex flex-shrink-0 text-tiny text-secondaryLight p-4 justify-between whitespace-nowrap overflow-auto <sm:hidden"
+      >
+        <div class="flex items-center">
+          <kbd class="shortcut-key">↑</kbd>
+          <kbd class="shortcut-key">↓</kbd>
+          <span class="mx-2 truncate">
+            {{ t("action.to_navigate") }}
+          </span>
+          <kbd class="shortcut-key">↩</kbd>
+          <span class="ml-2 truncate">
+            {{ t("action.to_select") }}
+          </span>
+        </div>
+        <div class="flex items-center">
+          <kbd class="shortcut-key">ESC</kbd>
+          <span class="ml-2 truncate">
+            {{ t("action.to_close") }}
+          </span>
         </div>
       </div>
     </template>

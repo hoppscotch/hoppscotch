@@ -57,7 +57,7 @@
                   class="flex flex-col flex-1"
                 >
                   <HoppSmartItem
-                    v-for="environment in myEnvironments"
+                    v-for="(environment, index) in myEnvironments"
                     :key="environment.id"
                     :label="environment.name"
                     @click="
@@ -65,6 +65,7 @@
                         updateSelectedEnvironment({
                           type: 'my-environment',
                           environment,
+                          index,
                         })
                         hide()
                       }
@@ -144,13 +145,24 @@ import { Environment } from "@hoppscotch/data"
 import { computed, ref, watch } from "vue"
 import { useI18n } from "~/composables/i18n"
 import { useReadonlyStream } from "~/composables/stream"
+import { useToast } from "~/composables/toast"
 import { GQLError } from "~/helpers/backend/GQLClient"
+// import { currentActiveTab } from "~/helpers/rest/tab"
 import { TeamEnvironment } from "~/helpers/teams/TeamEnvironment"
 import TeamEnvironmentAdapter from "~/helpers/teams/TeamEnvironmentAdapter"
-import { environments$ } from "~/newstore/environments"
+// import { currentCMFocusInstance$ } from "~/newstore/codemirror"
+import {
+  addEnvironmentVariable,
+  addGlobalEnvVariable,
+  environments$,
+} from "~/newstore/environments"
 import { workspaceStatus$ } from "~/newstore/workspace"
+import * as TE from "fp-ts/TaskEither"
+import { pipe } from "fp-ts/function"
+import { updateTeamEnvironment } from "~/helpers/backend/mutations/TeamEnvironment"
 
 const t = useI18n()
+const toast = useToast()
 
 const props = defineProps<{
   show: boolean
@@ -196,6 +208,7 @@ watch(
         type: "global",
       }
       name.value = ""
+      replaceWithVaiable.value = false
     }
   }
 )
@@ -207,6 +220,7 @@ type Scope =
   | {
       type: "my-environment"
       environment: Environment
+      index: number
     }
   | {
       type: "team-environment"
@@ -234,12 +248,83 @@ const scopeLabel = computed(() => {
   }
 })
 
-const updateSelectedEnvironment = (newScope: any) => {
+const updateSelectedEnvironment = (newScope: Scope) => {
   scope.value = newScope
 }
 
-const addEnvironment = () => {
-  console.log("addEnvironment", scope.value, name.value)
+// const currentCMFocusInstance = useReadonlyStream(currentCMFocusInstance$, null)
+
+const addEnvironment = async () => {
+  if (!name.value) {
+    toast.error("Please enter a variable name")
+    return
+  }
+  if (scope.value.type === "global") {
+    addGlobalEnvVariable({
+      key: name.value,
+      value: props.value,
+    })
+    toast.success(`${t("environment.updated")}`)
+  } else if (scope.value.type === "my-environment") {
+    addEnvironmentVariable(scope.value.index, {
+      key: name.value,
+      value: props.value,
+    })
+    toast.success(`${t("environment.updated")}`)
+  } else {
+    const newVariables = [
+      ...scope.value.environment.environment.variables,
+      {
+        key: name.value,
+        value: props.value,
+      },
+    ]
+    await pipe(
+      updateTeamEnvironment(
+        JSON.stringify(newVariables),
+        scope.value.environment.id,
+        scope.value.environment.environment.name
+      ),
+      TE.match(
+        (err: GQLError<string>) => {
+          console.error(err)
+          toast.error(`${getErrorMessage(err)}`)
+        },
+        () => {
+          hideModal()
+          toast.success(`${t("environment.updated")}`)
+        }
+      )
+    )()
+  }
+  if (replaceWithVaiable.value) {
+    //replace the current tab endpoint with the variable name with << and >>
+    //const variableName = `<<${name.value}>>`
+    // console.log("cu-sm-editor", currentCMFocusInstance.value)
+    //replace the currenttab endpoint containing the value in the text with variablename
+    // currentActiveTab.value.document.request.endpoint =
+    //   currentActiveTab.value.document.request.endpoint.replace(
+    //     props.value,
+    //     variableName
+    //   )
+    // const editor = EditorView
+    //replace the text with the codemirror editor where current focus is
+    // const cursor = editor.view.state.selection.main.from
+    // const text = editor.view.state.doc.toString()
+    // const newText = `${text.substring(
+    //   0,
+    //   cursor
+    // )}${variableName}${text.substring(cursor)}`
+    // console.log("newText", newText)
+    // editor.view.dispatch({
+    //   changes: {
+    //     from: 0,
+    //     to: text.length,
+    //     insert: newText,
+    //   },
+    // })
+  }
+
   hideModal()
 }
 

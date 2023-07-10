@@ -37,14 +37,15 @@ export class TeamEnvironmentsResolver {
   async createTeamEnvironment(
     @Args() args: CreateTeamEnvironmentArgs,
   ): Promise<TeamEnvironment> {
-    const res = await this.teamEnvironmentsService.createTeamEnvironment(
-      args.name,
-      args.teamID,
-      args.variables,
-    );
+    const teamEnvironment =
+      await this.teamEnvironmentsService.createTeamEnvironment(
+        args.name,
+        args.teamID,
+        args.variables,
+      );
 
-    if (E.isLeft(res)) throwErr(res.left);
-    return res.right;
+    if (E.isLeft(teamEnvironment)) throwErr(teamEnvironment.left);
+    return teamEnvironment.right;
   }
 
   @Mutation(() => Boolean, {
@@ -60,10 +61,12 @@ export class TeamEnvironmentsResolver {
     })
     id: string,
   ): Promise<boolean> {
-    const res = await this.teamEnvironmentsService.deleteTeamEnvironment(id);
+    const isDeleted = await this.teamEnvironmentsService.deleteTeamEnvironment(
+      id,
+    );
 
-    if (E.isLeft(res)) throwErr(res.left);
-    return res.right;
+    if (E.isLeft(isDeleted)) throwErr(isDeleted.left);
+    return isDeleted.right;
   }
 
   @Mutation(() => TeamEnvironment, {
@@ -76,14 +79,15 @@ export class TeamEnvironmentsResolver {
     @Args()
     args: UpdateTeamEnvironmentArgs,
   ): Promise<TeamEnvironment> {
-    const res = await this.teamEnvironmentsService.updateTeamEnvironment(
-      args.id,
-      args.name,
-      args.variables,
-    );
+    const updatedTeamEnvironment =
+      await this.teamEnvironmentsService.updateTeamEnvironment(
+        args.id,
+        args.name,
+        args.variables,
+      );
 
-    if (E.isLeft(res)) throwErr(res.left);
-    return res.right;
+    if (E.isLeft(updatedTeamEnvironment)) throwErr(updatedTeamEnvironment.left);
+    return updatedTeamEnvironment.right;
   }
 
   @Mutation(() => TeamEnvironment, {
@@ -99,13 +103,13 @@ export class TeamEnvironmentsResolver {
     })
     id: string,
   ): Promise<TeamEnvironment> {
-    const res =
+    const teamEnvironment =
       await this.teamEnvironmentsService.deleteAllVariablesFromTeamEnvironment(
         id,
       );
 
-    if (E.isLeft(res)) throwErr(res.left);
-    return res.right;
+    if (E.isLeft(teamEnvironment)) throwErr(teamEnvironment.left);
+    return teamEnvironment.right;
   }
 
   @Mutation(() => TeamEnvironment, {

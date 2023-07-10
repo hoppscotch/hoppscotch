@@ -1,10 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { pipe } from 'fp-ts/function';
-import * as T from 'fp-ts/Task';
-import * as TO from 'fp-ts/TaskOption';
-import * as TE from 'fp-ts/TaskEither';
-import * as A from 'fp-ts/Array';
-import { Prisma, TeamEnvironment as DBTeamEnvironment } from '@prisma/client';
+import { TeamEnvironment as DBTeamEnvironment, Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { PubSubService } from 'src/pubsub/pubsub.service';
 import { TeamEnvironment } from './team-environments.model';
@@ -13,7 +8,7 @@ import {
   TEAM_ENVIRONMENT_SHORT_NAME,
 } from 'src/errors';
 import * as E from 'fp-ts/Either';
-import { isValidLength, stringToJson } from 'src/utils';
+import { isValidLength } from 'src/utils';
 @Injectable()
 export class TeamEnvironmentsService {
   constructor(
@@ -35,7 +30,7 @@ export class TeamEnvironmentsService {
    * @returns TeamEnvironment model
    */
   private cast(teamEnvironment: DBTeamEnvironment): TeamEnvironment {
-    return <TeamEnvironment>{
+    return {
       id: teamEnvironment.id,
       name: teamEnvironment.name,
       teamID: teamEnvironment.teamID,
@@ -188,11 +183,19 @@ export class TeamEnvironmentsService {
    */
   async createDuplicateEnvironment(id: string) {
     try {
-      const result = await this.prisma.teamEnvironment.findFirst({
+      const environment = await this.prisma.teamEnvironment.findFirst({
         where: {
           id: id,
         },
         rejectOnNotFound: true,
+      });
+
+      const result = await this.prisma.teamEnvironment.create({
+        data: {
+          name: environment.name,
+          teamID: environment.teamID,
+          variables: environment.variables as Prisma.JsonArray,
+        },
       });
 
       const duplicatedTeamEnvironment = this.cast(result);

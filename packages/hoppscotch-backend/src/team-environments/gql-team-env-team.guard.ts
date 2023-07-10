@@ -1,15 +1,5 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import * as TE from 'fp-ts/TaskEither';
-import * as O from 'fp-ts/Option';
-import * as S from 'fp-ts/string';
-import { pipe } from 'fp-ts/function';
-import {
-  getAnnotatedRequiredRoles,
-  getGqlArg,
-  getUserFromGQLContext,
-  throwErr,
-} from 'src/utils';
 import { TeamEnvironmentsService } from './team-environments.service';
 import {
   BUG_AUTH_NO_USER_CTX,
@@ -22,6 +12,7 @@ import { TeamService } from 'src/team/team.service';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import * as E from 'fp-ts/Either';
 import { TeamMemberRole } from '@prisma/client';
+import { throwErr } from 'src/utils';
 
 /**
  * A guard which checks whether the caller of a GQL Operation
@@ -49,17 +40,17 @@ export class GqlTeamEnvTeamGuard implements CanActivate {
     if (user == undefined) throw new Error(BUG_AUTH_NO_USER_CTX);
 
     const { id } = gqlExecCtx.getArgs<{ id: string }>();
-    if (!id) throw new Error(BUG_TEAM_ENV_GUARD_NO_ENV_ID);
+    if (!id) throwErr(BUG_TEAM_ENV_GUARD_NO_ENV_ID);
 
     const teamEnvironment =
       await this.teamEnvironmentService.getTeamEnvironment(id);
-    if (E.isLeft(teamEnvironment)) throw new Error(TEAM_ENVIRONMENT_NOT_FOUND);
+    if (E.isLeft(teamEnvironment)) throwErr(TEAM_ENVIRONMENT_NOT_FOUND);
 
     const member = await this.teamService.getTeamMember(
       teamEnvironment.right.teamID,
       user.uid,
     );
-    if (!member) throw new Error(TEAM_ENVIRONMENT_NOT_TEAM_MEMBER);
+    if (!member) throwErr(TEAM_ENVIRONMENT_NOT_TEAM_MEMBER);
 
     return requireRoles.includes(member.role);
   }

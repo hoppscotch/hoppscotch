@@ -84,6 +84,13 @@
       :show="savingRequest"
       @hide-modal="onSaveModalClose"
     />
+    <AppContextMenu
+      v-if="contextMenuSmallPopup.show"
+      v-model="contextMenuSmallPopup.show"
+      :show="contextMenuSmallPopup.show"
+      :position="contextMenuSmallPopup.position"
+      :text="contextMenuSmallPopup.text"
+    />
   </div>
 </template>
 
@@ -137,6 +144,24 @@ const reqName = ref<string>("")
 
 const t = useI18n()
 const toast = useToast()
+
+type PopupDetails = {
+  show: boolean
+  position: {
+    top: number
+    left: number
+  }
+  text: string | null
+}
+
+const contextMenuSmallPopup = ref<PopupDetails>({
+  show: false,
+  position: {
+    top: 0,
+    left: 0,
+  },
+  text: null,
+})
 
 const tabs = getActiveTabs()
 
@@ -364,6 +389,22 @@ function oAuthURL() {
     } catch (_) {}
   })
 }
+
+defineActionHandler("contextmenu.open", ({ position, text }) => {
+  if (text) {
+    contextMenuSmallPopup.value = {
+      show: true,
+      position,
+      text,
+    }
+  } else {
+    contextMenuSmallPopup.value = {
+      show: false,
+      position,
+      text,
+    }
+  }
+})
 
 setupTabStateSync()
 bindRequestToURLParams()

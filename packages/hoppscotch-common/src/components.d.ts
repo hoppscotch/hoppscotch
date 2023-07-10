@@ -9,6 +9,8 @@ declare module '@vue/runtime-core' {
   export interface GlobalComponents {
     AppActionHandler: typeof import('./components/app/ActionHandler.vue')['default']
     AppAnnouncement: typeof import('./components/app/Announcement.vue')['default']
+    AppContextMenu: typeof import('./components/app/ContextMenu.vue')['default']
+    AppContextMenuEnvironment: typeof import('./components/app/contextMenu/environment.vue')['default']
     AppDeveloperOptions: typeof import('./components/app/DeveloperOptions.vue')['default']
     AppFooter: typeof import('./components/app/Footer.vue')['default']
     AppGitHubStarButton: typeof import('./components/app/GitHubStarButton.vue')['default']
@@ -54,6 +56,7 @@ declare module '@vue/runtime-core' {
     CollectionsSaveRequest: typeof import('./components/collections/SaveRequest.vue')['default']
     CollectionsTeamCollections: typeof import('./components/collections/TeamCollections.vue')['default']
     Environments: typeof import('./components/environments/index.vue')['default']
+    EnvironmentsAdd: typeof import('./components/environments/Add.vue')['default']
     EnvironmentsImportExport: typeof import('./components/environments/ImportExport.vue')['default']
     EnvironmentsMy: typeof import('./components/environments/my/index.vue')['default']
     EnvironmentsMyDetails: typeof import('./components/environments/my/Details.vue')['default']

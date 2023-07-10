@@ -36,7 +36,7 @@ function extractParams(input: string): ExtractedParams {
   const params: Param = {}
 
   for (const match of matches) {
-    const [_, key, value] = match
+    const [, key, value] = match
     params[key] = value
   }
 
@@ -50,9 +50,6 @@ function addParameter(text: string) {
   for (const [key, value] of Object.entries(params)) {
     queryParams.push({ key, value, active: true })
   }
-
-  console.log("param-check", queryParams)
-  console.log("url", newURL)
 
   currentActiveTab.value.document.request.params = [
     ...currentActiveTab.value.document.request.params,

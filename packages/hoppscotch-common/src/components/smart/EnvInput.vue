@@ -62,6 +62,7 @@ import { AggregateEnvironment, aggregateEnvs$ } from "~/newstore/environments"
 import { platform } from "~/platform"
 import { useI18n } from "~/composables/i18n"
 import { onClickOutside } from "@vueuse/core"
+import { invokeAction } from "~/helpers/actions"
 
 const props = withDefaults(
   defineProps<{
@@ -299,6 +300,55 @@ const envVars = computed(() =>
 const envTooltipPlugin = new HoppReactiveEnvPlugin(envVars, view)
 
 const initView = (el: any) => {
+  // // event for text selection via mouse or keyboard for emiting text-selection event when mouse is released
+  let isMouseDown = false
+  let isKeyDown = false
+
+  el.addEventListener("mousedown", () => {
+    isMouseDown = true
+  })
+
+  el.addEventListener("mouseup", handleTextSelection)
+  el.addEventListener("keydown", (e: KeyboardEvent) => {
+    if (e.ctrlKey || e.metaKey || e.shiftKey) {
+      isKeyDown = true
+    }
+  })
+  el.addEventListener("keyup", handleTextSelection)
+
+  function handleTextSelection() {
+    if (isMouseDown || isKeyDown) {
+      const selection = view.value?.state.selection.main
+      if (selection) {
+        const from = selection.from
+        const to = selection.to
+        const text = view.value?.state.doc.sliceString(from, to)
+        const { top, left } = view.value?.coordsAtPos(from)
+
+        if (text) {
+          invokeAction("contextmenu.open", {
+            position: {
+              top: top,
+              left: left,
+            },
+            text: text,
+          })
+        } else {
+          invokeAction("contextmenu.open", {
+            position: {
+              top: top,
+              left: left,
+            },
+            text: null,
+          })
+        }
+      }
+    }
+
+    isMouseDown = false
+    isKeyDown = false
+  }
+
   const extensions: Extension = [
     EditorView.contentAttributes.of({ "aria-label": props.placeholder }),
     EditorView.updateListener.of((update) => {

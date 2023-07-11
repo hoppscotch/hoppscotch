@@ -115,21 +115,21 @@ export class TeamInvitationService {
     if (!team) return E.left(TEAM_INVALID_ID);
 
     // invitation creator should be a TeamMember
-    const teamMemberCreator = await this.teamService.getTeamMember(
+    const isTeamMember = await this.teamService.getTeamMember(
       team.id,
       creator.uid,
     );
-    if (!teamMemberCreator) return E.left(TEAM_MEMBER_NOT_FOUND);
+    if (!isTeamMember) return E.left(TEAM_MEMBER_NOT_FOUND);
 
     // Checking to see if the invitee is already part of the team or not
     const inviteeUser = await this.userService.findUserByEmail(inviteeEmail);
     if (O.isSome(inviteeUser)) {
       // invitee should not already a member
-      const teamMemberInvitee = await this.teamService.getTeamMember(
+      const isTeamMember = await this.teamService.getTeamMember(
         team.id,
         inviteeUser.value.uid,
       );
-      if (teamMemberInvitee) return E.left(TEAM_INVITE_ALREADY_MEMBER);
+      if (isTeamMember) return E.left(TEAM_INVITE_ALREADY_MEMBER);
     }
 
     // check invitee already invited earlier or not

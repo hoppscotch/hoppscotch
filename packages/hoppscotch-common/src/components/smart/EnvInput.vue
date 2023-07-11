@@ -1,19 +1,44 @@
 <template>
-  <div
-    class="relative flex items-center flex-1 flex-shrink-0 py-4 overflow-auto whitespace-nowrap"
-  >
-    <div class="absolute inset-0 flex flex-1">
+  <div class="autocomplete-wrapper">
+    <div class="absolute inset-0 flex flex-1 overflow-x-auto">
       <div
         ref="editor"
         :placeholder="placeholder"
         class="flex flex-1"
         :class="styles"
-        @keydown.enter.prevent="emit('enter', $event)"
-        @keyup="emit('keyup', $event)"
         @click="emit('click', $event)"
-        @keydown="emit('keydown', $event)"
+        @keydown="handleKeystroke"
+        @focusin="showSuggestionPopover = true"
       ></div>
     </div>
+    <ul
+      v-if="showSuggestionPopover && autoCompleteSource"
+      ref="suggestionsMenu"
+      class="suggestions"
+    >
+      <li
+        v-for="(suggestion, index) in suggestions"
+        :key="`suggestion-${index}`"
+        :class="{ active: currentSuggestionIndex === index }"
+        @click="updateModelValue(suggestion)"
+      >
+        <span class="truncate py-0.5">
+          {{ suggestion }}
+        </span>
+        <div
+          v-if="currentSuggestionIndex === index"
+          class="hidden md:flex text-secondary items-center"
+        >
+          <kbd class="shortcut-key">TAB</kbd>
+          <span class="ml-2 truncate">to select</span>
+        </div>
+      </li>
+      <li v-if="suggestions.length === 0" class="pointer-events-none">
+        <span class="truncate py-0.5">
+          {{ t("empty.history_suggestions") }}
+        </span>
+      </li>
+    </ul>
   </div>
 </template>
 
@@ -35,6 +60,8 @@ import { HoppReactiveEnvPlugin } from "~/helpers/editor/extensions/HoppEnvironme
 import { useReadonlyStream } from "@composables/stream"
 import { AggregateEnvironment, aggregateEnvs$ } from "~/newstore/environments"
 import { platform } from "~/platform"
+import { useI18n } from "~/composables/i18n"
+import { onClickOutside } from "@vueuse/core"
 
 const props = withDefaults(
   defineProps<{
@@ -46,6 +73,7 @@ const props = withDefaults(
     selectTextOnMount?: boolean
     environmentHighlights?: boolean
     readonly?: boolean
+    autoCompleteSource?: string[]
   }>(),
   {
     modelValue: "",
@@ -55,6 +83,7 @@ const props = withDefaults(
     focus: false,
     readonly: false,
     environmentHighlights: true,
+    autoCompleteSource: undefined,
   }
 )
 
@@ -68,11 +97,159 @@ const emit = defineEmits<{
   (e: "click", ev: any): void
 }>()
 
+const t = useI18n()
+
 const cachedValue = ref(props.modelValue)
 
 const view = ref<EditorView>()
 
 const editor = ref<any | null>(null)
+
+const currentSuggestionIndex = ref(-1)
+const showSuggestionPopover = ref(false)
+
+const suggestionsMenu = ref<any | null>(null)
+
+onClickOutside(suggestionsMenu, () => {
+  showSuggestionPopover.value = false
+})
+
+//filter autocompleteSource with unique values
+const uniqueAutoCompleteSource = computed(() => {
+  if (props.autoCompleteSource) {
+    return [...new Set(props.autoCompleteSource)]
+  } else {
+    return []
+  }
+})
+
+const suggestions = computed(() => {
+  if (
+    props.modelValue &&
+    props.modelValue.length > 0 &&
+    uniqueAutoCompleteSource.value &&
+    uniqueAutoCompleteSource.value.length > 0
+  ) {
+    return uniqueAutoCompleteSource.value.filter((suggestion) =>
+      suggestion.toLowerCase().includes(props.modelValue.toLowerCase())
+    )
+  } else {
+    return uniqueAutoCompleteSource.value ?? []
+  }
+})
+
+const updateModelValue = (value: string) => {
+  emit("update:modelValue", value)
+  emit("change", value)
+  showSuggestionPopover.value = false
+}
+
+const handleKeystroke = (ev: KeyboardEvent) => {
+  if (["ArrowDown", "ArrowUp", "Enter", "Tab", "Escape"].includes(ev.key)) {
+    ev.preventDefault()
+  }
+
+  showSuggestionPopover.value = true
+
+  if (
+    ["Enter", "Tab"].includes(ev.key) &&
+    suggestions.value.length > 0 &&
+    currentSuggestionIndex.value > -1
+  ) {
+    updateModelValue(suggestions.value[currentSuggestionIndex.value])
+    currentSuggestionIndex.value = -1
+
+    //used to set codemirror cursor at the end of the line after selecting a suggestion
+    nextTick(() => {
+      view.value?.dispatch({
+        selection: EditorSelection.create([
+          EditorSelection.range(
+            props.modelValue.length,
+            props.modelValue.length
+          ),
+        ]),
+      })
+    })
+  }
+
+  if (ev.key === "ArrowDown") {
+    scrollActiveElIntoView()
+
+    currentSuggestionIndex.value =
+      currentSuggestionIndex.value < suggestions.value.length - 1
+        ? currentSuggestionIndex.value + 1
+        : suggestions.value.length - 1
+
+    emit("keydown", ev)
+  }
+
+  if (ev.key === "ArrowUp") {
+    scrollActiveElIntoView()
+
+    currentSuggestionIndex.value =
+      currentSuggestionIndex.value - 1 >= 0
+        ? currentSuggestionIndex.value - 1
+        : 0
+
+    emit("keyup", ev)
+  }
+
+  if (ev.key === "Enter") {
+    emit("enter", ev)
+    showSuggestionPopover.value = false
+  }
+
+  if (ev.key === "Escape") {
+    showSuggestionPopover.value = false
+  }
+
+  // used to scroll to the first suggestion when left arrow is pressed
+  if (ev.key === "ArrowLeft") {
+    if (suggestions.value.length > 0) {
+      currentSuggestionIndex.value = 0
+      nextTick(() => {
+        scrollActiveElIntoView()
+      })
+    }
+  }
+
+  // used to scroll to the last suggestion when right arrow is pressed
+  if (ev.key === "ArrowRight") {
+    if (suggestions.value.length > 0) {
+      currentSuggestionIndex.value = suggestions.value.length - 1
+      nextTick(() => {
+        scrollActiveElIntoView()
+      })
+    }
+  }
+}
+
+// reset currentSuggestionIndex showSuggestionPopover is false
+watch(
+  () => showSuggestionPopover.value,
+  (newVal) => {
+    if (!newVal) {
+      currentSuggestionIndex.value = -1
+    }
+  }
+)
+
+/**
+ * Used to scroll the active suggestion into view
+ */
+const scrollActiveElIntoView = () => {
+  const suggestionsMenuEl = suggestionsMenu.value
+  if (suggestionsMenuEl) {
+    const activeSuggestionEl = suggestionsMenuEl.querySelector(".active")
+    if (activeSuggestionEl) {
+      activeSuggestionEl.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+        inline: "start",
+      })
+    }
+  }
+}
 
 watch(
   () => props.modelValue,
@@ -236,3 +413,49 @@ watch(editor, () => {
   }
 })
 </script>
+
+<style lang="scss" scoped>
+.autocomplete-wrapper {
+  @apply relative;
+  @apply flex;
+  @apply flex-1;
+  @apply flex-shrink-0;
+  @apply whitespace-nowrap;
+
+  .suggestions {
+    @apply absolute;
+    @apply bg-popover;
+    @apply z-50;
+    @apply shadow-lg;
+    @apply max-h-46;
+    @apply border-b border-x border-divider;
+    @apply overflow-y-auto;
+    @apply -left-[1px];
+    @apply right-0;
+
+    top: calc(100% + 1px);
+    border-radius: 0 0 8px 8px;
+
+    li {
+      @apply flex;
+      @apply items-center;
+      @apply justify-between;
+      @apply w-full;
+      @apply py-2 px-4;
+      @apply text-secondary;
+      @apply cursor-pointer;
+
+      &:last-child {
+        border-radius: 0 0 0 8px;
+      }
+
+      &:hover,
+      &.active {
+        @apply bg-primaryDark;
+        @apply text-secondaryDark;
+        @apply cursor-pointer;
+      }
+    }
+  }
+}
+</style>

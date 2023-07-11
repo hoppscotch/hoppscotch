@@ -1,6 +1,6 @@
 <template>
   <div
-    class="sticky top-0 z-20 flex-none flex-shrink-0 p-4 overflow-x-auto sm:flex sm:flex-shrink-0 sm:space-x-2 bg-primary"
+    class="sticky top-0 z-20 flex-none flex-shrink-0 p-4 sm:flex sm:flex-shrink-0 sm:space-x-2 bg-primary"
   >
     <div
       class="flex flex-1 border rounded min-w-52 border-divider whitespace-nowrap"
@@ -47,13 +47,14 @@
         </label>
       </div>
       <div
-        class="flex flex-1 overflow-auto transition border-l rounded-r border-divider bg-primaryLight whitespace-nowrap"
+        class="flex flex-1 transition border-l rounded-r border-divider bg-primaryLight whitespace-nowrap"
       >
         <SmartEnvInput
           v-model="tab.document.request.endpoint"
           :placeholder="`${t('request.url')}`"
-          @enter="newSendRequest()"
+          :auto-complete-source="userHistories"
           @paste="onPasteUrl($event)"
+          @enter="newSendRequest"
         />
       </div>
     </div>
@@ -228,7 +229,7 @@
 <script setup lang="ts">
 import { useI18n } from "@composables/i18n"
 import { useSetting } from "@composables/settings"
-import { useStreamSubscriber } from "@composables/stream"
+import { useReadonlyStream, useStreamSubscriber } from "@composables/stream"
 import { useToast } from "@composables/toast"
 import { refAutoReset, useVModel } from "@vueuse/core"
 import * as E from "fp-ts/Either"
@@ -259,6 +260,7 @@ import IconSave from "~icons/lucide/save"
 import IconShare2 from "~icons/lucide/share-2"
 import { HoppRESTTab } from "~/helpers/rest/tab"
 import { getDefaultRESTRequest } from "~/helpers/rest/default"
+import { RESTHistoryEntry, restHistory$ } from "~/newstore/history"
 import { platform } from "~/platform"
 import { getCurrentStrategyID } from "~/helpers/network"
 
@@ -312,6 +314,12 @@ const show = ref<any | null>(null)
 const clearAll = ref<any | null>(null)
 const copyRequestAction = ref<any | null>(null)
 const saveRequestAction = ref<any | null>(null)
+
+const history = useReadonlyStream<RESTHistoryEntry[]>(restHistory$, [])
+
+const userHistories = computed(() => {
+  return history.value.map((history) => history.request.endpoint).slice(0, 10)
+})
 
 const newSendRequest = async () => {
   if (newEndpoint.value === "" || /^\s+$/.test(newEndpoint.value)) {

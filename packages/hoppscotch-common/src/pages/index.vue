@@ -108,7 +108,7 @@ import {
   updateTabOrdering,
 } from "~/helpers/rest/tab"
 import { getDefaultRESTRequest } from "~/helpers/rest/default"
-import { invokeAction } from "~/helpers/actions"
+import { defineActionHandler, invokeAction } from "~/helpers/actions"
 import { onLoggedIn } from "~/composables/auth"
 import { platform } from "~/platform"
 import {
@@ -368,4 +368,8 @@ function oAuthURL() {
 setupTabStateSync()
 bindRequestToURLParams()
 oAuthURL()
+
+defineActionHandler("rest.request.open", ({ doc }) => {
+  createNewTab(doc)
+})
 </script>

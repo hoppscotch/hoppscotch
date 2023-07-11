@@ -17,7 +17,10 @@
 import { usePageHead } from "@composables/head"
 import { useI18n } from "@composables/i18n"
 import { GQLConnection } from "@helpers/GQLConnection"
+import { cloneDeep } from "lodash-es"
 import { computed, onBeforeUnmount } from "vue"
+import { defineActionHandler } from "~/helpers/actions"
+import { getGQLSession, setGQLSession } from "~/newstore/GQLSession"
 
 const t = useI18n()
 
@@ -31,5 +34,15 @@ onBeforeUnmount(() => {
   if (gqlConn.connected$.value) {
     gqlConn.disconnect()
   }
+})
+
+defineActionHandler("gql.request.open", ({ request }) => {
+  const session = getGQLSession()
+
+  setGQLSession({
+    request: cloneDeep(request),
+    schema: session.schema,
+    response: session.response,
+  })
 })
 </script>

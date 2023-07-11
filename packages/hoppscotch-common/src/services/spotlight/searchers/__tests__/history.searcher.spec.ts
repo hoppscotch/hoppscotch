@@ -3,8 +3,10 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import { HistorySpotlightSearcherService } from "../history.searcher"
 import { nextTick, ref } from "vue"
 import { SpotlightService } from "../.."
-import { RESTHistoryEntry } from "~/newstore/history"
+import { GQLHistoryEntry, RESTHistoryEntry } from "~/newstore/history"
 import { getDefaultRESTRequest } from "~/helpers/rest/default"
+import { HoppAction, HoppActionWithArgs } from "~/helpers/actions"
+import { defaultGQLSession } from "~/newstore/GQLSession"
 
 async function flushPromises() {
   return await new Promise((r) => setTimeout(r))
@@ -25,7 +27,7 @@ vi.mock("~/modules/i18n", () => ({
 }))
 
 const actionsMock = vi.hoisted(() => ({
-  value: [] as string[],
+  value: [] as (HoppAction | HoppActionWithArgs)[],
   invokeAction: vi.fn(),
 }))
 
@@ -40,14 +42,20 @@ vi.mock("~/helpers/actions", async () => {
 })
 
 const historyMock = vi.hoisted(() => ({
-  entries: [] as RESTHistoryEntry[],
+  restEntries: [] as RESTHistoryEntry[],
+  gqlEntries: [] as GQLHistoryEntry[],
 }))
 
 vi.mock("~/newstore/history", () => ({
   __esModule: true,
   restHistoryStore: {
     value: {
-      state: historyMock.entries,
+      state: historyMock.restEntries,
+    },
+  },
+  graphqlHistoryStore: {
+    value: {
+      state: historyMock.gqlEntries,
     },
   },
 }))
@@ -59,9 +67,9 @@ describe("HistorySpotlightSearcherService", () => {
       x = actionsMock.value.pop()
     }
 
-    let y = historyMock.entries.pop()
+    let y = historyMock.restEntries.pop()
     while (y) {
-      y = historyMock.entries.pop()
+      y = historyMock.restEntries.pop()
     }
 
     actionsMock.invokeAction.mockReset()
@@ -136,8 +144,10 @@ describe("HistorySpotlightSearcherService", () => {
     expect(actionsMock.invokeAction).toHaveBeenCalledWith("history.clear")
   })
 
-  it("returns all the valid history entries for the search term", async () => {
-    historyMock.entries.push({
+  it("returns all the valid rest history entries for the search term", async () => {
+    actionsMock.value.push("rest.request.open")
+
+    historyMock.restEntries.push({
       request: {
         ...getDefaultRESTRequest(),
         endpoint: "bla.com",
@@ -162,20 +172,146 @@ describe("HistorySpotlightSearcherService", () => {
 
     expect(result.value.results).toContainEqual(
       expect.objectContaining({
-        id: "0",
+        id: "rest-0",
         text: {
           type: "custom",
           component: expect.anything(),
           componentProps: expect.objectContaining({
-            historyEntry: historyMock.entries[0],
+            historyEntry: historyMock.restEntries[0],
           }),
         },
       })
     )
   })
 
-  it("selecting a history entry asks the tab system to open a new tab", async () => {
-    historyMock.entries.push({
+  it("selecting a rest history entry invokes action to open the rest request", async () => {
+    actionsMock.value.push("rest.request.open")
+
+    const historyEntry: RESTHistoryEntry = {
+      request: {
+        ...getDefaultRESTRequest(),
+        endpoint: "bla.com",
+      },
+      responseMeta: {
+        duration: null,
+        statusCode: null,
+      },
+      star: false,
+      v: 1,
+      updatedOn: new Date(),
+    }
+
+    historyMock.restEntries.push(historyEntry)
+
+    const container = new TestContainer()
+
+    const history = container.bind(HistorySpotlightSearcherService)
+    await flushPromises()
+
+    const query = ref("bla")
+    const [result] = history.createSearchSession(query)
+    await nextTick()
+
+    const doc = result.value.results[0]
+
+    history.onResultSelect(doc)
+
+    expect(actionsMock.invokeAction).toHaveBeenCalledOnce()
+    expect(actionsMock.invokeAction).toHaveBeenCalledWith("rest.request.open", {
+      doc: {
+        request: historyEntry.request,
+        isDirty: false,
+      },
+    })
+  })
+
+  it("returns all the valid graphql history entries for the search term", async () => {
+    actionsMock.value.push("gql.request.open")
+
+    historyMock.gqlEntries.push({
+      request: {
+        ...defaultGQLSession.request,
+        url: "bla.com",
+      },
+      response: "{}",
+      star: false,
+      v: 1,
+      updatedOn: new Date(),
+    })
+
+    const container = new TestContainer()
+
+    const history = container.bind(HistorySpotlightSearcherService)
+    await flushPromises()
+
+    const query = ref("bla")
+    const [result] = history.createSearchSession(query)
+    await nextTick()
+
+    expect(result.value.results).toContainEqual(
+      expect.objectContaining({
+        id: "gql-0",
+        text: {
+          type: "custom",
+          component: expect.anything(),
+          componentProps: expect.objectContaining({
+            historyEntry: historyMock.gqlEntries[0],
+          }),
+        },
+      })
+    )
+  })
+
+  it("selecting a graphql history entry invokes action to open the graphql request", async () => {
+    actionsMock.value.push("gql.request.open")
+
+    const historyEntry: GQLHistoryEntry = {
+      request: {
+        ...defaultGQLSession.request,
+        url: "bla.com",
+      },
+      response: "{}",
+      star: false,
+      v: 1,
+      updatedOn: new Date(),
+    }
+
+    historyMock.gqlEntries.push(historyEntry)
+
+    const container = new TestContainer()
+
+    const history = container.bind(HistorySpotlightSearcherService)
+    await flushPromises()
+
+    const query = ref("bla")
+    const [result] = history.createSearchSession(query)
+    await nextTick()
+
+    const doc = result.value.results[0]
+
+    history.onResultSelect(doc)
+
+    expect(actionsMock.invokeAction).toHaveBeenCalledOnce()
+    expect(actionsMock.invokeAction).toHaveBeenCalledWith("gql.request.open", {
+      request: historyEntry.request,
+    })
+  })
+
+  it("rest history entries are not shown when the rest open action is not registered", async () => {
+    actionsMock.value.push("gql.request.open")
+
+    historyMock.gqlEntries.push({
+      request: {
+        ...defaultGQLSession.request,
+        url: "bla.com",
+      },
+      response: "{}",
+      star: false,
+      v: 1,
+      updatedOn: new Date(),
+    })
+
+    historyMock.restEntries.push({
       request: {
         ...getDefaultRESTRequest(),
         endpoint: "bla.com",
@@ -198,14 +334,111 @@ describe("HistorySpotlightSearcherService", () => {
     const [result] = history.createSearchSession(query)
     await nextTick()
 
-    const doc = result.value.results[0]
+    expect(result.value.results).toContainEqual(
+      expect.objectContaining({
+        id: expect.stringMatching(/^gql/),
+      })
+    )
+    expect(result.value.results).not.toContainEqual(
+      expect.objectContaining({
+        id: expect.stringMatching(/^rest/),
+      })
+    )
+  })
 
-    history.onResultSelect(doc)
+  it("gql history entries are not shown when the gql open action is not registered", async () => {
+    actionsMock.value.push("rest.request.open")
 
-    expect(tabMock.createNewTab).toHaveBeenCalledOnce()
-    expect(tabMock.createNewTab).toHaveBeenCalledWith({
-      request: historyMock.entries[0].request,
-      isDirty: false,
+    historyMock.gqlEntries.push({
+      request: {
+        ...defaultGQLSession.request,
+        url: "bla.com",
+      },
+      response: "{}",
+      star: false,
+      v: 1,
+      updatedOn: new Date(),
     })
+
+    historyMock.restEntries.push({
+      request: {
+        ...getDefaultRESTRequest(),
+        endpoint: "bla.com",
+      },
+      responseMeta: {
+        duration: null,
+        statusCode: null,
+      },
+      star: false,
+      v: 1,
+      updatedOn: new Date(),
+    })
+
+    const container = new TestContainer()
+
+    const history = container.bind(HistorySpotlightSearcherService)
+    await flushPromises()
+
+    const query = ref("bla")
+    const [result] = history.createSearchSession(query)
+    await nextTick()
+
+    expect(result.value.results).toContainEqual(
+      expect.objectContaining({
+        id: expect.stringMatching(/^rest/),
+      })
+    )
+    expect(result.value.results).not.toContainEqual(
+      expect.objectContaining({
+        id: expect.stringMatching(/^gql/),
+      })
+    )
+  })
+
+  it("none of the history entries are show when neither of the open actions are registered", async () => {
+    historyMock.gqlEntries.push({
+      request: {
+        ...defaultGQLSession.request,
+        url: "bla.com",
+      },
+      response: "{}",
+      star: false,
+      v: 1,
+      updatedOn: new Date(),
+    })
+
+    historyMock.restEntries.push({
+      request: {
+        ...getDefaultRESTRequest(),
+        endpoint: "bla.com",
+      },
+      responseMeta: {
+        duration: null,
+        statusCode: null,
+      },
+      star: false,
+      v: 1,
+      updatedOn: new Date(),
+    })
+
+    const container = new TestContainer()
+
+    const history = container.bind(HistorySpotlightSearcherService)
+    await flushPromises()
+
+    const query = ref("bla")
+    const [result] = history.createSearchSession(query)
+    await nextTick()
+
+    expect(result.value.results).not.toContainEqual(
+      expect.objectContaining({
+        id: expect.stringMatching(/^rest/),
+      })
+    )
+    expect(result.value.results).not.toContainEqual(
+      expect.objectContaining({
+        id: expect.stringMatching(/^gql/),
+      })
+    )
   })
 })

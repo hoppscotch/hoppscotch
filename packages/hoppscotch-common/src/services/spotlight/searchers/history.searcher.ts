@@ -8,17 +8,18 @@ import {
 import { Ref, computed, effectScope, markRaw, ref, watch } from "vue"
 import { getI18n } from "~/modules/i18n"
 import MiniSearch from "minisearch"
-import { restHistoryStore } from "~/newstore/history"
+import { graphqlHistoryStore, restHistoryStore } from "~/newstore/history"
 import { useTimeAgo } from "@vueuse/core"
 import IconHistory from "~icons/lucide/history"
 import IconTrash2 from "~icons/lucide/trash-2"
-import SpotlightHistoryEntry from "~/components/app/spotlight/entry/History.vue"
-import { createNewTab } from "~/helpers/rest/tab"
+import SpotlightRESTHistoryEntry from "~/components/app/spotlight/entry/RESTHistory.vue"
+import SpotlightGQLHistoryEntry from "~/components/app/spotlight/entry/GQLHistory.vue"
 import { capitalize } from "lodash-es"
 import { shortDateTime } from "~/helpers/utils/date"
 import { useStreamStatic } from "~/composables/stream"
 import { activeActions$, invokeAction } from "~/helpers/actions"
 import { map } from "rxjs/operators"
+import { HoppRESTDocument } from "~/helpers/rest/document"
 
 /**
  * This searcher is responsible for searching through the history.
@@ -42,6 +43,24 @@ export class HistorySpotlightSearcherService
   private clearHistoryActionEnabled = useStreamStatic(
     activeActions$.pipe(map((actions) => actions.includes("history.clear"))),
     activeActions$.value.includes("history.clear"),
+    () => {
+      /* noop */
+    }
+  )[0]
+
+  private restHistoryEntryOpenable = useStreamStatic(
+    activeActions$.pipe(
+      map((actions) => actions.includes("rest.request.open"))
+    ),
+    activeActions$.value.includes("rest.request.open"),
+    () => {
+      /* noop */
+    }
+  )[0]
+
+  private gqlHistoryEntryOpenable = useStreamStatic(
+    activeActions$.pipe(map((actions) => actions.includes("gql.request.open"))),
+    activeActions$.value.includes("gql.request.open"),
     () => {
       /* noop */
     }
@@ -83,24 +102,47 @@ export class HistorySpotlightSearcherService
       { immediate: true }
     )
 
-    minisearch.addAll(
-      restHistoryStore.value.state
-        .filter((x) => !!x.updatedOn)
-        .map((entry, index) => {
-          const relTimeString = capitalize(
-            useTimeAgo(entry.updatedOn!, {
-              updateInterval: 0,
-            }).value
-          )
+    if (this.restHistoryEntryOpenable.value) {
+      minisearch.addAll(
+        restHistoryStore.value.state
+          .filter((x) => !!x.updatedOn)
+          .map((entry, index) => {
+            const relTimeString = capitalize(
+              useTimeAgo(entry.updatedOn!, {
+                updateInterval: 0,
+              }).value
+            )
 
-          return {
-            id: index.toString(),
-            url: entry.request.endpoint,
-            reltime: relTimeString,
-            date: shortDateTime(entry.updatedOn!),
-          }
-        })
-    )
+            return {
+              id: `rest-${index}`,
+              url: entry.request.endpoint,
+              reltime: relTimeString,
+              date: shortDateTime(entry.updatedOn!),
+            }
+          })
+      )
+    }
+
+    if (this.gqlHistoryEntryOpenable.value) {
+      minisearch.addAll(
+        graphqlHistoryStore.value.state
+          .filter((x) => !!x.updatedOn)
+          .map((entry, index) => {
+            const relTimeString = capitalize(
+              useTimeAgo(entry.updatedOn!, {
+                updateInterval: 0,
+              }).value
+            )
+
+            return {
+              id: `gql-${index}`,
+              url: entry.request.url,
+              reltime: relTimeString,
+              date: shortDateTime(entry.updatedOn!),
+            }
+          })
+      )
+    }
 
     const scopeHandle = effectScope()
 
@@ -121,8 +163,6 @@ export class HistorySpotlightSearcherService
               },
             })
             .map((x) => {
-              const entry = restHistoryStore.value.state[parseInt(x.id)]
-
               if (x.id === "clear-history") {
                 return {
                   id: "clear-history",
@@ -134,18 +174,39 @@ export class HistorySpotlightSearcherService
                   },
                 }
               }
+              if (x.id.startsWith("rest-")) {
+                const entry =
+                  restHistoryStore.value.state[parseInt(x.id.split("-")[1])]
 
-              return {
-                id: x.id,
-                icon: markRaw(IconHistory),
-                score: x.score,
-                text: {
-                  type: "custom",
-                  component: markRaw(SpotlightHistoryEntry),
-                  componentProps: {
-                    historyEntry: entry,
+                return {
+                  id: x.id,
+                  icon: markRaw(IconHistory),
+                  score: x.score,
+                  text: {
+                    type: "custom",
+                    component: markRaw(SpotlightRESTHistoryEntry),
+                    componentProps: {
+                      historyEntry: entry,
+                    },
                   },
-                },
+                }
+              } else {
+                // Assume gql
+                const entry =
+                  graphqlHistoryStore.value.state[parseInt(x.id.split("-")[1])]
+
+                return {
+                  id: x.id,
+                  icon: markRaw(IconHistory),
+                  score: x.score,
+                  text: {
+                    type: "custom",
+                    component: markRaw(SpotlightGQLHistoryEntry),
+                    componentProps: {
+                      historyEntry: entry,
+                    },
+                  },
+                }
               }
             })
         },
@@ -170,14 +231,25 @@ export class HistorySpotlightSearcherService
   onResultSelect(result: SpotlightSearcherResult): void {
     if (result.id === "clear-history") {
       invokeAction("history.clear")
-      return
+    } else if (result.id.startsWith("rest")) {
+      const req =
+        restHistoryStore.value.state[parseInt(result.id.split("-")[1])].request
+
+      invokeAction("rest.request.open", {
+        doc: <HoppRESTDocument>{
+          request: req,
+          isDirty: false,
+        },
+      })
+    } else {
+      // Assume gql
+      const req =
+        graphqlHistoryStore.value.state[parseInt(result.id.split("-")[1])]
+          .request
+
+      invokeAction("gql.request.open", {
+        request: req,
+      })
     }
-
-    const req = restHistoryStore.value.state[parseInt(result.id)].request
-
-    createNewTab({
-      request: req,
-      isDirty: false,
-    })
   }
 }

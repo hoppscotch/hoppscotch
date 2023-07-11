@@ -73,7 +73,7 @@ type HoppActionArgsMap = {
 /**
  * HoppActions which require arguments for their invocation
  */
-type HoppActionWithArgs = keyof HoppActionArgsMap
+export type HoppActionWithArgs = keyof HoppActionArgsMap
 
 /**
  * HoppActions which do not require arguments for their invocation
@@ -99,7 +99,9 @@ type BoundActionList = {
 
 const boundActions: BoundActionList = {}
 
-export const activeActions$ = new BehaviorSubject<HoppAction[]>([])
+export const activeActions$ = new BehaviorSubject<
+  (HoppAction | HoppActionWithArgs)[]
+>([])
 
 export function bindAction<A extends HoppAction | HoppActionWithArgs>(
   action: A,

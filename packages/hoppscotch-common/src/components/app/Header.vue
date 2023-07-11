@@ -20,7 +20,9 @@
       <div class="inline-flex items-center space-x-2">
         <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip', allowHTML: true }"
-          :title="`${t('app.search')} <kbd>/</kbd>`"
+          :title="`${t(
+            'app.search'
+          )} <kbd>${getPlatformSpecialKey()}</kbd> <kbd>K</kbd>`"
           :icon="IconSearch"
           class="rounded hover:bg-primaryDark focus-visible:bg-primaryDark"
           @click="invokeAction('modals.search.toggle')"
@@ -247,6 +249,7 @@ import { workspaceStatus$, updateWorkspaceTeamName } from "~/newstore/workspace"
 import TeamListAdapter from "~/helpers/teams/TeamListAdapter"
 import { onLoggedIn } from "~/composables/auth"
 import { GetMyTeamsQuery } from "~/helpers/backend/graphql"
+import { getPlatformSpecialKey } from "~/helpers/platformutils"
 
 const t = useI18n()
 

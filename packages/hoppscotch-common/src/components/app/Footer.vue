@@ -152,7 +152,7 @@
           v-tippy="{ theme: 'tooltip', allowHTML: true }"
           :title="`${t(
             'app.shortcuts'
-          )} <kbd>${getSpecialKey()}</kbd><kbd>K</kbd>`"
+          )} <kbd>${getSpecialKey()}</kbd><kbd>/</kbd>`"
           :icon="IconZap"
           @click="invokeAction('flyouts.keybinds.toggle')"
         />

@@ -25,11 +25,12 @@
   font-variant-ligatures: common-ligatures;
 
   // Colors
-  --info-response: #ec4899;
-  --success-response: #10b981;
-  --redir-response: #f59e0b;
-  --cl-error-response: #ef4444;
-  --sv-error-response: #dc2626;
+  --info-color: #ec4899;
+  --success-color: #10b981;
+  --blue-color: #3b82f6;
+  --warning-color: #f59e0b;
+  --cl-error-color: #ef4444;
+  --sv-error-color: #dc2626;
 }
 
 ::-webkit-scrollbar-track {
@@ -350,23 +351,23 @@ pre.ace_editor {
 }
 
 .info-response {
-  color: var(--info-response);
+  color: var(--info-color);
 }
 
 .success-response {
-  color: var(--success-response);
+  color: var(--success-color);
 }
 
 .redir-response {
-  color: var(--redir-response);
+  color: var(--warning-color);
 }
 
 .cl-error-response {
-  color: var(--cl-error-response);
+  color: var(--cl-error-color);
 }
 
 .sv-error-response {
-  color: var(--sv-error-response);
+  color: var(--sv-error-color);
 }
 
 .missing-data-response {

@@ -27,7 +27,9 @@
               >
                 <span
                   class="font-semibold text-tiny"
-                  :class="getMethodLabelColorClassOf(tab.document.request)"
+                  :style="{
+                    color: getMethodLabelColorClassOf(tab.document.request),
+                  }"
                 >
                   {{ tab.document.request.method }}
                 </span>

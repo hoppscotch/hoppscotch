@@ -13,6 +13,9 @@ import {
 import { throwErr } from 'src/utils';
 import { TeamMemberRole } from 'src/team/team.model';
 
+/**
+ * This guard only allows team owner to execute the resolver
+ */
 @Injectable()
 export class TeamInviteTeamOwnerGuard implements CanActivate {
   constructor(

@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import * as O from 'fp-ts/Option';
 import * as E from 'fp-ts/Either';
-import * as TE from 'fp-ts/TaskEither';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { TeamInvitation as DBTeamInvitation } from '@prisma/client';
 import { TeamMember, TeamMemberRole } from 'src/team/team.model';
@@ -15,13 +14,13 @@ import {
   TEAM_INVITE_MEMBER_HAS_INVITE,
   TEAM_INVITE_NO_INVITE_FOUND,
   TEAM_MEMBER_NOT_FOUND,
-  USER_NOT_FOUND,
 } from 'src/errors';
 import { TeamInvitation } from './team-invitation.model';
 import { MailerService } from 'src/mailer/mailer.service';
 import { UserService } from 'src/user/user.service';
 import { PubSubService } from 'src/pubsub/pubsub.service';
 import { validateEmail } from '../utils';
+import { AuthUser } from 'src/types/AuthUser';
 
 @Injectable()
 export class TeamInvitationService {
@@ -32,17 +31,25 @@ export class TeamInvitationService {
     private readonly mailerService: MailerService,
 
     private readonly pubsub: PubSubService,
-  ) {
-    this.getInvitation = this.getInvitation.bind(this);
-  }
+  ) {}
 
-  castToTeamInvitation(dbTeamInvitation: DBTeamInvitation): TeamInvitation {
+  /**
+   * Cast a DBTeamInvitation to a TeamInvitation
+   * @param dbTeamInvitation database TeamInvitation
+   * @returns TeamInvitation model
+   */
+  cast(dbTeamInvitation: DBTeamInvitation): TeamInvitation {
     return {
       ...dbTeamInvitation,
       inviteeRole: TeamMemberRole[dbTeamInvitation.inviteeRole],
     };
   }
 
+  /**
+   * Get the team invite
+   * @param inviteID invite id
+   * @returns an Option of team invitation or none
+   */
   async getInvitation(
     inviteID: string,
   ): Promise<O.None | O.Some<TeamInvitation>> {
@@ -53,7 +60,7 @@ export class TeamInvitationService {
         },
       });
 
-      return O.some(this.castToTeamInvitation(dbInvitation));
+      return O.some(this.cast(dbInvitation));
     } catch (e) {
       return O.none;
     }
@@ -85,8 +92,16 @@ export class TeamInvitationService {
     }
   }
 
+  /**
+   * Create a team invitation
+   * @param creator creator of the invitation
+   * @param teamID team id
+   * @param inviteeEmail invitee email
+   * @param inviteeRole invitee role
+   * @returns an Either of team invitation or error message
+   */
   async createInvitation(
-    creator: User,
+    creator: AuthUser,
     teamID: string,
     inviteeEmail: string,
     inviteeRole: TeamMemberRole,
@@ -106,7 +121,7 @@ export class TeamInvitationService {
     );
     if (!teamMemberCreator) return E.left(TEAM_MEMBER_NOT_FOUND);
 
-    // invitee email should be a infra user
+    // Checking to see if the invitee is already part of the team or not
     const inviteeUser = await this.userService.findUserByEmail(inviteeEmail);
     if (O.isSome(inviteeUser)) {
       // invitee should not already a member
@@ -143,12 +158,17 @@ export class TeamInvitationService {
       },
     });
 
-    const invitation = this.castToTeamInvitation(dbInvitation);
+    const invitation = this.cast(dbInvitation);
     this.pubsub.publish(`team/${invitation.teamID}/invite_added`, invitation);
 
     return E.right(invitation);
   }
 
+  /**
+   * Revoke a team invitation
+   * @param inviteID invite id
+   * @returns an Either of true or error message
+   */
   async revokeInvitation(
     inviteID: string,
   ): Promise<E.Left<string> | E.Right<boolean>> {
@@ -171,9 +191,15 @@ export class TeamInvitationService {
     return E.right(true);
   }
 
+  /**
+   * Accept a team invitation
+   * @param inviteID invite id
+   * @param acceptedBy user who accepted the invitation
+   * @returns an Either of team member or error message
+   */
   async acceptInvitation(
     inviteID: string,
-    acceptedBy: User,
+    acceptedBy: AuthUser,
   ): Promise<E.Left<string> | E.Right<TeamMember>> {
     // check if the invite exists
     const invitation = await this.getInvitation(inviteID);
@@ -224,7 +250,7 @@ export class TeamInvitationService {
     });
 
     const invitations: TeamInvitation[] = dbInvitations.map((dbInvitation) =>
-      this.castToTeamInvitation(dbInvitation),
+      this.cast(dbInvitation),
     );
 
     return invitations;

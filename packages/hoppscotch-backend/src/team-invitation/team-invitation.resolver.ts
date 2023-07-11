@@ -15,10 +15,7 @@ import * as TE from 'fp-ts/TaskEither';
 import * as E from 'fp-ts/Either';
 import * as O from 'fp-ts/Option';
 import { Team, TeamMember, TeamMemberRole } from 'src/team/team.model';
-import {
-  TEAM_INVITE_NO_INVITE_FOUND,
-  USER_NOT_FOUND,
-} from 'src/errors';
+import { TEAM_INVITE_NO_INVITE_FOUND, USER_NOT_FOUND } from 'src/errors';
 import { GqlUser } from 'src/decorators/gql-user.decorator';
 import { User } from 'src/user/user.model';
 import { UseGuards } from '@nestjs/common';
@@ -34,6 +31,7 @@ import { UserService } from 'src/user/user.service';
 import { PubSubService } from 'src/pubsub/pubsub.service';
 import { GqlThrottlerGuard } from 'src/guards/gql-throttler.guard';
 import { SkipThrottle } from '@nestjs/throttler';
+import { AuthUser } from 'src/types/AuthUser';
 
 @UseGuards(GqlThrottlerGuard)
 @Resolver(() => TeamInvitation)
@@ -78,7 +76,7 @@ export class TeamInvitationResolver {
   })
   @UseGuards(GqlAuthGuard, TeamInviteViewerGuard)
   async teamInvitation(
-    @GqlUser() user: User,
+    @GqlUser() user: AuthUser,
     @Args({
       name: 'inviteID',
       description: 'ID of the Team Invitation to lookup',
@@ -100,7 +98,7 @@ export class TeamInvitationResolver {
   @RequiresTeamRole(TeamMemberRole.OWNER)
   async createTeamInvitation(
     @GqlUser()
-    user: User,
+    user: AuthUser,
 
     @Args({
       name: 'teamID',
@@ -156,7 +154,7 @@ export class TeamInvitationResolver {
   })
   @UseGuards(GqlAuthGuard, TeamInviteeGuard)
   async acceptTeamInvitation(
-    @GqlUser() user: User,
+    @GqlUser() user: AuthUser,
     @Args({
       name: 'inviteID',
       type: () => ID,

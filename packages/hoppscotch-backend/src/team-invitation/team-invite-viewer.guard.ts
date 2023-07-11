@@ -11,6 +11,13 @@ import {
 import { throwErr } from 'src/utils';
 import { TeamService } from 'src/team/team.service';
 
+/**
+ * This guard only allows user to execute the resolver
+ * 1. If user is invitee, allow
+ * 2. Or else, if user is team member, allow
+ * 
+ * TLDR: Allow if user is invitee or team member
+ */
 @Injectable()
 export class TeamInviteViewerGuard implements CanActivate {
   constructor(
@@ -33,8 +40,7 @@ export class TeamInviteViewerGuard implements CanActivate {
     const invitation = await this.teamInviteService.getInvitation(inviteID);
     if (O.isNone(invitation)) throwErr(TEAM_INVITE_NO_INVITE_FOUND);
 
-    // Check if the user and the invite email match, else if we can resolver the user as a team member
-    // any better solution ?
+    // Check if the user and the invite email match, else if user is a team member
     if (
       user.email?.toLowerCase() !== invitation.value.inviteeEmail.toLowerCase()
     ) {

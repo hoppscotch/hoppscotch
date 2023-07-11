@@ -6,7 +6,7 @@
     @close="emit('hide-modal')"
   >
     <template #body>
-      <div class="flex flex-col border-b transition border-dividerLight">
+      <div class="flex flex-col border-b transition border-divider">
         <div class="flex items-center">
           <input
             id="command"
@@ -23,14 +23,16 @@
       </div>
       <div
         v-if="searchSession && search.length > 0"
-        class="flex flex-col flex-1 overflow-y-auto border-b border-dividerLight space-y-4 divide-y divide-dividerLight"
+        class="flex flex-col flex-1 overflow-y-auto border-b border-divider divide-y divide-dividerLight"
       >
         <div
           v-for="([sectionID, sectionResult], sectionIndex) in scoredResults"
           :key="`section-${sectionID}`"
           class="flex flex-col"
         >
-          <h5 class="px-6 py-2 my-2 text-secondaryLight">
+          <h5
+            class="px-6 py-2 bg-primaryContrast z-10 text-secondaryLight sticky top-0"
+          >
             {{ sectionResult.title }}
           </h5>
           <AppSpotlightEntry

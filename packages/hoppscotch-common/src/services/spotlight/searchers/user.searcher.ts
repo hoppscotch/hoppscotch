@@ -48,13 +48,13 @@ export class UserSpotlightSearcherService extends StaticSpotlightSearcherService
     login: {
       text: this.t("auth.login"),
       excludeFromSearch: computed(() => !this.hasLoginAction.value),
-      alternates: ["sign in"],
+      alternates: ["sign in", "log in"],
       icon: markRaw(IconLogin),
     },
     logout: {
       text: this.t("auth.logout"),
       excludeFromSearch: computed(() => !this.hasLogoutAction.value),
-      alternates: ["sign out"],
+      alternates: ["sign out", "log out"],
       icon: markRaw(IconLogOut),
     },
   })

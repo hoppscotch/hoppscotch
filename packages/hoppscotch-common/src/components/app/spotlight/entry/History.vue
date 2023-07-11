@@ -1,13 +1,14 @@
 <template>
-  <span class="flex flex-row space-x-2">
-    <span>{{ dateTimeText }}</span>
-    <icon-lucide-chevron-right class="inline" />
-    <span class="truncate" :class="entryStatus.className">
-      <span class="font-semibold truncate text-tiny">
-        {{ historyEntry.request.method }}
-      </span>
+  <span class="flex items-center space-x-2">
+    <span class="block truncate">{{ dateTimeText }}</span>
+    <icon-lucide-chevron-right class="flex flex-shrink-0" />
+    <span
+      class="font-semibold truncate text-tiny flex flex-shrink-0"
+      :class="entryStatus.className"
+    >
+      {{ historyEntry.request.method }}
     </span>
-    <span>
+    <span class="block truncate">
       {{ historyEntry.request.endpoint }}
     </span>
   </span>

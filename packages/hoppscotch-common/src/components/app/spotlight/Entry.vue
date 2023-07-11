@@ -1,48 +1,46 @@
 <template>
   <button
     ref="el"
-    class="flex items-center flex-1 px-6 py-3 font-medium transition cursor-pointer search-entry focus:outline-none"
-    :class="{ active: active }"
+    class="flex items-center flex-1 px-6 py-4 font-medium space-x-4 transition cursor-pointer relative search-entry focus:outline-none"
+    :class="{ 'active bg-primaryLight text-secondaryDark': active }"
     tabindex="-1"
     @click="emit('action')"
     @keydown.enter="emit('action')"
   >
     <component
       :is="entry.icon"
-      class="mr-4 transition opacity-50 svg-icons"
-      :class="{ 'opacity-100 text-secondaryDark': active }"
+      class="opacity-50 svg-icons"
+      :class="{ 'opacity-100': active }"
     />
     <span
       v-if="entry.text.type === 'text' && typeof entry.text.text === 'string'"
-      class="flex flex-1 mr-4 transition"
-      :class="{ 'text-secondaryDark': active }"
+      class="block truncate"
     >
       {{ entry.text.text }}
     </span>
     <span
       v-else-if="entry.text.type === 'text' && Array.isArray(entry.text.text)"
-      class="flex flex-1 mr-4 transition"
-      :class="{ 'text-secondaryDark': active }"
+      class="flex items-center"
     >
       <span
         v-for="(labelPart, labelPartIndex) in entry.text.text"
         :key="`label-${labelPart}-${labelPartIndex}`"
+        class="flex items-center space-x-2"
       >
         {{ labelPart }}
-
         <icon-lucide-chevron-right
           v-if="labelPartIndex < entry.text.text.length - 1"
-          class="inline"
+          class="block truncate"
         />
       </span>
     </span>
-    <span v-else-if="entry.text.type === 'custom'">
+    <span v-else-if="entry.text.type === 'custom'" class="block truncate">
       <component
         :is="entry.text.component"
         v-bind="entry.text.componentProps"
       />
     </span>
-    <span v-if="formattedShortcutKeys">
+    <span v-if="formattedShortcutKeys" class="block truncate">
       <kbd
         v-for="(key, keyIndex) in formattedShortcutKeys"
         :key="`key-${String(keyIndex)}`"
@@ -105,7 +103,6 @@ watch(
 
 <style lang="scss" scoped>
 .search-entry {
-  @apply relative;
   @apply after:absolute;
   @apply after:top-0;
   @apply after:left-0;
@@ -116,7 +113,6 @@ watch(
   @apply after:content-DEFAULT;
 
   &.active {
-    @apply bg-primaryLight;
     @apply after:bg-accentLight;
   }
 }

@@ -112,8 +112,8 @@
           </tippy>
         </div>
       </div>
-      <div class="flex space-x-2 mt-3">
-        <label for="scope" class="font-semibold min-w-18" />
+      <div v-if="replaceWithVariable" class="flex space-x-2 mt-3">
+        <div class="min-w-18" />
         <HoppSmartCheckbox
           :on="replaceWithVaiable"
           title="Replace with variable "
@@ -169,6 +169,7 @@ const props = defineProps<{
   position: { top: number; left: number }
   name: string
   value: string
+  replaceWithVariable: boolean
 }>()
 
 const emit = defineEmits<{

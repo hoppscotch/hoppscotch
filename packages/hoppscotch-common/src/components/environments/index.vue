@@ -249,12 +249,9 @@ watch(
   { deep: true }
 )
 
-defineActionHandler(
-  "modals.my.environment.add",
-  ({ envName, variableName }) => {
-    editingVariableName.value = envName
-    editingVariableValue.value = variableName
-    displayModalNew(true)
-  }
-)
+defineActionHandler("modals.environment.add", ({ envName, variableName }) => {
+  editingVariableName.value = envName
+  editingVariableValue.value = variableName
+  displayModalNew(true)
+})
 </script>

@@ -15,27 +15,6 @@
       />
     </div>
   </div>
-  <!-- <tippy
-    :to="modelValue"
-    interactive
-    theme="popover"
-    :arrow="false"
-    style="`top: ${position.top}px; left: ${position.left}px; `"
-    pos="absolute"
-  >
-    <button>sd</button>
-    <template #content>
-      <div v-if="contextMenu.options" class="flex flex-col space-y-2">
-        <HoppSmartItem
-          v-for="option in contextMenu.options"
-          :key="option.id"
-          :icon="option.icon"
-          :label="option.text"
-          @click="handleClick(option)"
-        />
-      </div>
-    </template>
-  </tippy> -->
 </template>
 
 <script lang="ts" setup>
@@ -46,16 +25,6 @@ import { ContextMenuResult, ContextMenuService } from "~/services/context-menu"
 import { EnvironmentMenuService } from "~/services/context-menu/menu/environment.menu"
 import { ParameterMenuService } from "~/services/context-menu/menu/parameter.menu"
 import { URLMenuService } from "~/services/context-menu/menu/url.menu"
-
-// const tippy = useTippy(() => document.body, {
-//   content: "Hello",
-//   placement: "right-start",
-//   trigger: "manual",
-//   interactive: true,
-//   arrow: false,
-//   theme: "popover",
-//   offset: [0, 0],
-// })
 
 const props = defineProps<{
   modelValue: boolean
@@ -74,7 +43,7 @@ const contextMenuRef = ref<any | null>(null)
 const contextMenuOptions = ref<ContextMenuResult[]>([])
 
 // onClickOutside(contextMenuRef, () => {
-//   if (props.modelValue && props.type !== "ENVIRONMENT_SETTING") {
+//   if (props.modelValue) {
 //     console.log("outside", props.modelValue)
 //     emit("update:modelValue", false)
 //   }
@@ -93,60 +62,12 @@ const handleClick = (option: { action: () => void }) => {
 watch(
   () => props.show,
   (val) => {
-    if (val) {
-      const options = contextMenuService.createMenuType(props.text)
+    if (val && props.text) {
+      const options = contextMenuService.getMenuFor(props.text)
       console.log("options", options)
       contextMenuOptions.value = options
     }
   },
   { immediate: true }
 )
-
-// const tippyActions = ref<TippyComponent | null>(null)
-
-// const ContextMenuComponent = {
-//   render: () =>
-//     h("div", [
-//       h("span", "Contenx menu"),
-//       h("hr"),
-//       h("button", { style: { display: "block" } }, props.type),
-//       h("button", { style: { display: "block" } }, "Button 2"),
-//       h("button", { style: { display: "block" } }, "Button 3"),
-//     ]),
-// }
-
-// //add onclick event to button
-
-// const { setProps, show, state, setContent } = useTippy(() => document.body, {
-//   content: ContextMenuComponent,
-//   placement: "right-start",
-//   trigger: "manual",
-//   interactive: true,
-//   arrow: false,
-//   theme: "popover",
-//   offset: [0, 0],
-// })
-
-// watch(
-//   () => props.showPopup,
-//   (val) => {
-//     if (val) {
-//       console.log("sdasd", val)
-//       nextTick(() => {
-//         setProps({
-//           getReferenceClientRect: () => ({
-//             width: 0,
-//             height: 0,
-//             top: props.position.top + 30,
-//             left: props.position.left,
-//             bottom: 0,
-//             right: 0,
-//           }),
-//         })
-//         show()
-//       })
-//     }
-//   },
-//   { immediate: true }
-// )
 </script>

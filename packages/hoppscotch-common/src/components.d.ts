@@ -10,7 +10,6 @@ declare module '@vue/runtime-core' {
     AppActionHandler: typeof import('./components/app/ActionHandler.vue')['default']
     AppAnnouncement: typeof import('./components/app/Announcement.vue')['default']
     AppContextMenu: typeof import('./components/app/ContextMenu.vue')['default']
-    AppContextMenuEnvironment: typeof import('./components/app/contextMenu/environment.vue')['default']
     AppDeveloperOptions: typeof import('./components/app/DeveloperOptions.vue')['default']
     AppFooter: typeof import('./components/app/Footer.vue')['default']
     AppGitHubStarButton: typeof import('./components/app/GitHubStarButton.vue')['default']

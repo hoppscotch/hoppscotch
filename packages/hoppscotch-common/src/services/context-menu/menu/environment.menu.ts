@@ -22,7 +22,7 @@ export class EnvironmentMenuService extends Service implements ContextMenu {
     this.contextMenu.registerMenu(this)
   }
 
-  createMenuType(text: Readonly<string>): ContextMenuState {
+  getMenuFor(text: Readonly<string>): ContextMenuState {
     const results = ref<ContextMenuResult[]>([])
 
     results.value = [
@@ -34,7 +34,7 @@ export class EnvironmentMenuService extends Service implements ContextMenu {
         },
         icon: markRaw(IconPlus),
         action: () => {
-          invokeAction("modals.my.environment.add", {
+          invokeAction("modals.environment.add", {
             envName: "test",
             variableName: text,
           })

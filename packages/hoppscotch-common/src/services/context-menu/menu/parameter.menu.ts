@@ -79,7 +79,7 @@ export class ParameterMenuService extends Service implements ContextMenu {
     this.contextMenu.registerMenu(this)
   }
 
-  createMenuType(text: Readonly<string>): ContextMenuState {
+  getMenuFor(text: Readonly<string>): ContextMenuState {
     const results = ref<ContextMenuResult[]>([])
 
     if (urlAndParameterRegex.test(text)) {

@@ -28,11 +28,11 @@ export type ContextMenuState = {
 
 export interface ContextMenu {
   menuID: string
-  createMenuType: (text: string) => ContextMenuState
+  getMenuFor: (text: string) => ContextMenuState
 }
 
 export class ContextMenuService extends Service {
-  private static readonly ID = "CONTEXT_MENU_SERVICE"
+  public static readonly ID = "CONTEXT_MENU_SERVICE"
 
   private menus: Map<string, ContextMenu> = new Map()
 
@@ -40,12 +40,10 @@ export class ContextMenuService extends Service {
     this.menus.set(menu.menuID, menu)
   }
 
-  public createMenuType(text: string): ContextMenuResult[] {
-    const menuSessions = Array.from(this.menus.values()).map((x) =>
-      x.createMenuType(text)
-    )
+  public getMenuFor(text: string): ContextMenuResult[] {
+    const menus = Array.from(this.menus.values()).map((x) => x.getMenuFor(text))
 
-    const result = menuSessions.flatMap((x) => x.results)
+    const result = menus.flatMap((x) => x.results)
 
     return result
   }

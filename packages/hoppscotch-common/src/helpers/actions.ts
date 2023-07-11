@@ -167,13 +167,16 @@ export function defineActionHandler<A extends HoppAction | HoppActionWithArgs>(
   isActive: Ref<boolean> | undefined = undefined
 ) {
   let mounted = false
-  let bound = true
+  let bound = false
 
   onMounted(() => {
     mounted = true
-    bound = true
 
-    bindAction(action, handler)
+    // Only bind if isActive is undefined or true
+    if (isActive === undefined || isActive.value === true) {
+      bound = true
+      bindAction(action, handler)
+    }
   })
 
   onBeforeUnmount(() => {
@@ -184,19 +187,23 @@ export function defineActionHandler<A extends HoppAction | HoppActionWithArgs>(
   })
 
   if (isActive) {
-    watch(isActive, (active) => {
-      if (mounted) {
-        if (active) {
-          if (!bound) {
-            bound = true
-            bindAction(action, handler)
-          }
-        } else if (bound) {
-          bound = false
+    watch(
+      isActive,
+      (active) => {
+        if (mounted) {
+          if (active) {
+            if (!bound) {
+              bound = true
+              bindAction(action, handler)
+            }
+          } else if (bound) {
+            bound = false
 
-          unbindAction(action, handler)
+            unbindAction(action, handler)
+          }
         }
-      }
-    })
+      },
+      { immediate: true }
+    )
   }
 }

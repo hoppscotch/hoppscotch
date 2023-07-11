@@ -32,6 +32,7 @@ import { PubSubService } from 'src/pubsub/pubsub.service';
 import { GqlThrottlerGuard } from 'src/guards/gql-throttler.guard';
 import { SkipThrottle } from '@nestjs/throttler';
 import { AuthUser } from 'src/types/AuthUser';
+import { CreateTeamInvitationArgs } from './input-type.args';
 
 @UseGuards(GqlThrottlerGuard)
 @Resolver(() => TeamInvitation)
@@ -97,32 +98,14 @@ export class TeamInvitationResolver {
   @UseGuards(GqlAuthGuard, GqlTeamMemberGuard)
   @RequiresTeamRole(TeamMemberRole.OWNER)
   async createTeamInvitation(
-    @GqlUser()
-    user: AuthUser,
-
-    @Args({
-      name: 'teamID',
-      description: 'ID of the Team ID to invite from',
-      type: () => ID,
-    })
-    teamID: string,
-    @Args({
-      name: 'inviteeEmail',
-      description: 'Email of the user to invite',
-    })
-    inviteeEmail: string,
-    @Args({
-      name: 'inviteeRole',
-      type: () => TeamMemberRole,
-      description: 'Role to be given to the user',
-    })
-    inviteeRole: TeamMemberRole,
+    @GqlUser() user: AuthUser,
+    @Args() args: CreateTeamInvitationArgs,
   ): Promise<TeamInvitation> {
     const teamInvitation = await this.teamInvitationService.createInvitation(
       user,
-      teamID,
-      inviteeEmail,
-      inviteeRole,
+      args.teamID,
+      args.inviteeEmail,
+      args.inviteeRole,
     );
 
     if (E.isLeft(teamInvitation)) throwErr(teamInvitation.left);

@@ -192,6 +192,17 @@ function newUseArrowKeysForNavigation() {
     }
   }
 
+  const onEnter = () => {
+    // If no entries, do nothing
+    if (scoredResults.value.length === 0) return
+
+    const [sectionIndex, entryIndex] = selectedEntry.value
+    const [sectionID, section] = scoredResults.value[sectionIndex]
+    const result = section.results[entryIndex]
+
+    runAction(sectionID, result)
+  }
+
   function handleKeyPress(e: KeyboardEvent) {
     if (e.key === "ArrowUp") {
       e.preventDefault()
@@ -207,11 +218,7 @@ function newUseArrowKeysForNavigation() {
       e.preventDefault()
       e.stopPropagation()
 
-      const [sectionIndex, entryIndex] = selectedEntry.value
-      const [sectionID, section] = scoredResults.value[sectionIndex]
-      const result = section.results[entryIndex]
-
-      runAction(sectionID, result)
+      onEnter()
     }
   }
 

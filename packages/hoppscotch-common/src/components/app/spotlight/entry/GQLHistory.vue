@@ -1,14 +1,15 @@
 <template>
-  <span class="flex items-center space-x-1">
+  <span class="flex flex-1 items-center space-x-2">
     <span class="block truncate">
       {{ dateTimeText }}
     </span>
-    :
+    <icon-lucide-chevron-right class="flex flex-shrink-0" />
     <span class="block truncate">
       {{ historyEntry.request.url }}
     </span>
-    <icon-lucide-chevron-right class="flex flex-shrink-0" />
-    <span class="block truncate opacity-60">
+    <span
+      class="font-semibold truncate text-tiny flex flex-shrink-0 border border-dividerDark rounded-md px-1"
+    >
       {{ historyEntry.request.query.split("\n")[0] }}
     </span>
   </span>

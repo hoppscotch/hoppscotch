@@ -20,7 +20,7 @@
     </span>
     <span
       v-else-if="entry.text.type === 'text' && Array.isArray(entry.text.text)"
-      class="flex items-center"
+      class="flex items-center flex-1"
     >
       <span
         v-for="(labelPart, labelPartIndex) in entry.text.text"
@@ -34,7 +34,10 @@
         />
       </span>
     </span>
-    <span v-else-if="entry.text.type === 'custom'" class="block truncate">
+    <span
+      v-else-if="entry.text.type === 'custom'"
+      class="block truncate w-full"
+    >
       <component
         :is="entry.text.component"
         v-bind="entry.text.componentProps"

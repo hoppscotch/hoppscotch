@@ -1,9 +1,11 @@
 <template>
-  <span class="flex items-center space-x-2">
-    <span class="block truncate">{{ dateTimeText }}</span>
+  <span class="flex flex-1 items-center space-x-2">
+    <span class="block truncate">
+      {{ dateTimeText }}
+    </span>
     <icon-lucide-chevron-right class="flex flex-shrink-0" />
     <span
-      class="font-semibold truncate text-tiny flex flex-shrink-0"
+      class="font-semibold truncate text-tiny flex flex-shrink-0 border border-dividerDark rounded-md px-1"
       :class="entryStatus.className"
     >
       {{ historyEntry.request.method }}

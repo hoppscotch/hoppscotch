@@ -5,14 +5,23 @@
     :style="`top: ${position.top}px; left: ${position.left}px; z-index: 1000;`"
     @blur="emit('update:modelValue', false)"
   >
-    <div v-if="contextMenuOptions" class="flex flex-col space-y-2">
-      <HoppSmartItem
+    <div v-if="contextMenuOptions" class="flex flex-col">
+      <div
         v-for="option in contextMenuOptions"
         :key="option.id"
-        :icon="option.icon"
-        :label="option.text.text"
-        @click="handleClick(option)"
-      />
+        class="flex flex-col space-y-2"
+      >
+        <HoppSmartItem
+          v-if="option.text.type === 'text' && option.text"
+          :icon="option.icon"
+          :label="option.text.text"
+          @click="handleClick(option)"
+        />
+        <component
+          :is="option.text.component"
+          v-else-if="option.text.type === 'custom'"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -43,8 +52,7 @@ const contextMenuRef = ref<any | null>(null)
 const contextMenuOptions = ref<ContextMenuResult[]>([])
 
 // onClickOutside(contextMenuRef, () => {
-//   if (props.modelValue) {
-//     console.log("outside", props.modelValue)
+//   if (props.modelValue && props.show && props.text) {
 //     emit("update:modelValue", false)
 //   }
 // })

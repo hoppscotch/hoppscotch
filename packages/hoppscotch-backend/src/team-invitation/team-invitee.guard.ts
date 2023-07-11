@@ -5,7 +5,6 @@ import * as O from 'fp-ts/Option';
 import * as T from 'fp-ts/Task';
 import * as TE from 'fp-ts/TaskEither';
 import { GqlExecutionContext } from '@nestjs/graphql';
-import { User } from 'src/user/user.model';
 import {
   BUG_AUTH_NO_USER_CTX,
   BUG_TEAM_INVITE_NO_INVITE_ID,
@@ -55,7 +54,8 @@ export class TeamInviteeGuard implements CanActivate {
       // Check if the emails match
       TE.chainW(
         TE.fromPredicate(
-          ({ user, invite }) => user.email === invite.inviteeEmail,
+          ({ user, invite }) =>
+            user.email.toLowerCase() === invite.inviteeEmail.toLowerCase(),
           () => TEAM_INVITE_EMAIL_DO_NOT_MATCH,
         ),
       ),

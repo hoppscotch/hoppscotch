@@ -380,6 +380,6 @@ defineActionHandler(
   () => {
     invokeAction("modals.login.toggle")
   },
-  computed(() => !currentUser.value)
+  computed(() => !!currentUser.value)
 )
 </script>

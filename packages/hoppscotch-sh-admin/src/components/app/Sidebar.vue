@@ -9,7 +9,7 @@
     <!-- End Backdrop -->
 
     <div
-      :class="isOpen ? '' : '!-translate-x-full ease-in'"
+      :class="isOpen ? '' : '-translate-x-full ease-in'"
       class="sidebar-container transform !md:translate-x-0 ease-out"
     >
       <div :class="isExpanded ? 'w-xs' : 'w-full'">

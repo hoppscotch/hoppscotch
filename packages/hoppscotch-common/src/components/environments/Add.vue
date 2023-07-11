@@ -160,6 +160,7 @@ import { workspaceStatus$ } from "~/newstore/workspace"
 import * as TE from "fp-ts/TaskEither"
 import { pipe } from "fp-ts/function"
 import { updateTeamEnvironment } from "~/helpers/backend/mutations/TeamEnvironment"
+import { currentActiveTab } from "~/helpers/rest/tab"
 
 const t = useI18n()
 const toast = useToast()
@@ -300,30 +301,13 @@ const addEnvironment = async () => {
   }
   if (replaceWithVaiable.value) {
     //replace the current tab endpoint with the variable name with << and >>
-    //const variableName = `<<${name.value}>>`
-    // console.log("cu-sm-editor", currentCMFocusInstance.value)
+    const variableName = `<<${name.value}>>`
     //replace the currenttab endpoint containing the value in the text with variablename
-    // currentActiveTab.value.document.request.endpoint =
-    //   currentActiveTab.value.document.request.endpoint.replace(
-    //     props.value,
-    //     variableName
-    //   )
-    // const editor = EditorView
-    //replace the text with the codemirror editor where current focus is
-    // const cursor = editor.view.state.selection.main.from
-    // const text = editor.view.state.doc.toString()
-    // const newText = `${text.substring(
-    //   0,
-    //   cursor
-    // )}${variableName}${text.substring(cursor)}`
-    // console.log("newText", newText)
-    // editor.view.dispatch({
-    //   changes: {
-    //     from: 0,
-    //     to: text.length,
-    //     insert: newText,
-    //   },
-    // })
+    currentActiveTab.value.document.request.endpoint =
+      currentActiveTab.value.document.request.endpoint.replace(
+        props.value,
+        variableName
+      )
   }
 
   hideModal()

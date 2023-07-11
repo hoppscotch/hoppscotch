@@ -1,12 +1,12 @@
 <template>
-  <div class="flex" @click="OpenLogoutModal()">
+  <div class="flex" @click="openLogoutModal()">
     <HoppSmartItem
       ref="logoutItem"
       :icon="IconLogOut"
       :label="`${t('auth.logout')}`"
       :outline="outline"
       :shortcut="shortcut"
-      @click="OpenLogoutModal()"
+      @click="openLogoutModal()"
     />
     <HoppSmartConfirmModal
       :show="confirmLogout"
@@ -23,6 +23,7 @@ import IconLogOut from "~icons/lucide/log-out"
 import { useToast } from "@composables/toast"
 import { useI18n } from "@composables/i18n"
 import { platform } from "~/platform"
+import { defineActionHandler } from "~/helpers/actions"
 
 defineProps({
   outline: {
@@ -55,8 +56,12 @@ const logout = async () => {
   }
 }
 
-const OpenLogoutModal = () => {
+const openLogoutModal = () => {
   emit("confirm-logout")
   confirmLogout.value = true
 }
+
+defineActionHandler("user.logout", () => {
+  openLogoutModal()
+})
 </script>

@@ -4,6 +4,7 @@
     "cancel": "Cancel",
     "choose_file": "Choose a file",
     "clear": "Clear",
+    "clear_history": "Clear All History",
     "clear_all": "Clear all",
     "close": "Close",
     "connect": "Connect",
@@ -582,6 +583,11 @@
     "events": "Events",
     "log": "Log",
     "url": "URL"
+  },
+  "spotlight": {
+    "section": {
+      "user": "User"
+    }
   },
   "sse": {
     "event_type": "Event type",

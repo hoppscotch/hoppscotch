@@ -30,108 +30,7 @@
           {{ t("environment.scope") }}
         </label>
         <div class="relative flex flex-1 flex-col">
-          <tippy interactive trigger="click" theme="popover" class="flex-1">
-            <span class="select-wrapper">
-              <HoppButtonSecondary
-                :label="scopeLabel"
-                class="flex-1 !justify-start pr-8 rounded-none"
-              />
-            </span>
-            <template #content="{ hide }">
-              <div
-                ref="methodTippyActions"
-                class="flex flex-col focus:outline-none flex-1"
-                :class="{
-                  'divide-y divide-divider':
-                    (workspace.type === 'personal' &&
-                      myEnvironments.length > 0) ||
-                    (workspace.type === 'team' &&
-                      teamEnvironmentList.length > 0),
-                }"
-                tabindex="0"
-                @keyup.escape="hide()"
-              >
-                <HoppSmartItem
-                  :label="t('environment.global')"
-                  :info-icon="scope.type === 'global' ? IconCheck : undefined"
-                  :active-info-icon="scope.type === 'global'"
-                  @click="
-                    () => {
-                      updateSelectedEnvironment({
-                        type: 'global',
-                      })
-                      hide()
-                    }
-                  "
-                />
-                <span
-                  v-if="workspace.type === 'personal'"
-                  class="flex flex-col flex-1"
-                >
-                  <HoppSmartItem
-                    v-for="(environment, index) in myEnvironments"
-                    :key="environment.id"
-                    :label="environment.name"
-                    :info-icon="
-                      scope.type === 'my-environment' &&
-                      scope.environment.id === environment.id
-                        ? IconCheck
-                        : undefined
-                    "
-                    :active-info-icon="
-                      scope.type === 'my-environment' &&
-                      scope.environment.id === environment.id
-                    "
-                    @click="
-                      () => {
-                        updateSelectedEnvironment({
-                          type: 'my-environment',
-                          environment,
-                          index,
-                        })
-                        hide()
-                      }
-                    "
-                  />
-                </span>
-                <span
-                  v-else-if="workspace.type === 'team'"
-                  class="flex flex-col flex-1"
-                >
-                  <div
-                    v-if="teamListLoading"
-                    class="flex flex-col items-center justify-center p-4"
-                  >
-                    <HoppSmartSpinner class="my-4" />
-                    <span class="text-secondaryLight">{{
-                      t("state.loading")
-                    }}</span>
-                  </div>
-                  <HoppSmartItem
-                    v-for="environment in teamEnvironmentList"
-                    :key="environment.id"
-                    :label="environment.environment.name"
-                    @click="
-                      () => {
-                        updateSelectedEnvironment({
-                          type: 'team-environment',
-                          environment,
-                        })
-                        hide()
-                      }
-                    "
-                  />
-                  <div
-                    v-if="!teamListLoading && teamAdapterError"
-                    class="flex flex-col items-center py-4"
-                  >
-                    <icon-lucide-help-circle class="mb-4 svg-icons" />
-                    {{ getErrorMessage(teamAdapterError) }}
-                  </div>
-                </span>
-              </div>
-            </template>
-          </tippy>
+          <EnvironmentsSelector v-model="scope" :is-scope-selector="true" />
         </div>
       </div>
       <div v-if="replaceWithVariable" class="flex space-x-2 mt-3">
@@ -166,25 +65,20 @@
 
 <script lang="ts" setup>
 import { Environment } from "@hoppscotch/data"
-import { computed, ref, watch } from "vue"
+import { ref, watch } from "vue"
 import { useI18n } from "~/composables/i18n"
-import { useReadonlyStream } from "~/composables/stream"
 import { useToast } from "~/composables/toast"
 import { GQLError } from "~/helpers/backend/GQLClient"
 // import { currentActiveTab } from "~/helpers/rest/tab"
 import { TeamEnvironment } from "~/helpers/teams/TeamEnvironment"
-import TeamEnvironmentAdapter from "~/helpers/teams/TeamEnvironmentAdapter"
 import {
   addEnvironmentVariable,
   addGlobalEnvVariable,
-  environments$,
 } from "~/newstore/environments"
-import { workspaceStatus$ } from "~/newstore/workspace"
 import * as TE from "fp-ts/TaskEither"
 import { pipe } from "fp-ts/function"
 import { updateTeamEnvironment } from "~/helpers/backend/mutations/TeamEnvironment"
 import { currentActiveTab } from "~/helpers/rest/tab"
-import IconCheck from "~icons/lucide/check"
 
 const t = useI18n()
 const toast = useToast()
@@ -204,27 +98,6 @@ const emit = defineEmits<{
 const hideModal = () => {
   emit("hide-modal")
 }
-
-const workspace = useReadonlyStream(workspaceStatus$, { type: "personal" })
-
-const myEnvironments = useReadonlyStream(environments$, [])
-
-const teamEnvListAdapter = new TeamEnvironmentAdapter(undefined)
-const teamListLoading = useReadonlyStream(teamEnvListAdapter.loading$, false)
-const teamAdapterError = useReadonlyStream(teamEnvListAdapter.error$, null)
-const teamEnvironmentList = useReadonlyStream(
-  teamEnvListAdapter.teamEnvironmentList$,
-  []
-)
-
-watch(
-  () => workspace.value,
-  (newVal) => {
-    if (newVal.type === "team" && newVal.teamID) {
-      teamEnvListAdapter.changeTeamID(newVal.teamID)
-    }
-  }
-)
 
 watch(
   () => props.show,
@@ -260,23 +133,6 @@ const scope = ref<Scope>({
 const replaceWithVaiable = ref(false)
 
 const name = ref("")
-
-const scopeLabel = computed(() => {
-  switch (scope.value.type) {
-    case "global":
-      return t("environment.global")
-    case "my-environment":
-      return scope.value.environment.name
-    case "team-environment":
-      return scope.value.environment.environment.name
-    default:
-      return "Global"
-  }
-})
-
-const updateSelectedEnvironment = (newScope: Scope) => {
-  scope.value = newScope
-}
 
 const addEnvironment = async () => {
   if (!name.value) {

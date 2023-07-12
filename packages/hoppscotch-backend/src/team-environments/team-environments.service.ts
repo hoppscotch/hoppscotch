@@ -62,7 +62,7 @@ export class TeamEnvironmentsService {
    * @param name name of new TeamEnvironment
    * @param teamID teamID of new TeamEnvironment
    * @param variables JSONified string of contents of new TeamEnvironment
-   * @returns TeamEnvironment object
+   * @returns Either of a TeamEnvironment or error message
    */
   async createTeamEnvironment(name: string, teamID: string, variables: string) {
     const isTitleValid = isValidLength(name, this.TITLE_LENGTH);

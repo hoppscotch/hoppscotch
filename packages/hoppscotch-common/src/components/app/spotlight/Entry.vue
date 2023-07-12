@@ -12,37 +12,37 @@
       class="opacity-50 svg-icons"
       :class="{ 'opacity-100': active }"
     />
-    <span
+    <template
       v-if="entry.text.type === 'text' && typeof entry.text.text === 'string'"
-      class="block truncate"
     >
-      {{ entry.text.text }}
-    </span>
-    <span
+      <span class="block truncate">
+        {{ entry.text.text }}
+      </span>
+    </template>
+    <template
       v-else-if="entry.text.type === 'text' && Array.isArray(entry.text.text)"
-      class="flex items-center flex-1"
     >
-      <span
+      <template
         v-for="(labelPart, labelPartIndex) in entry.text.text"
         :key="`label-${labelPart}-${labelPartIndex}`"
-        class="flex items-center space-x-2"
       >
-        {{ labelPart }}
+        <span class="block truncate">
+          {{ labelPart }}
+        </span>
         <icon-lucide-chevron-right
           v-if="labelPartIndex < entry.text.text.length - 1"
-          class="block truncate"
+          class="flex flex-shrink-0"
+        />
+      </template>
+    </template>
+    <template v-else-if="entry.text.type === 'custom'">
+      <span class="block truncate">
+        <component
+          :is="entry.text.component"
+          v-bind="entry.text.componentProps"
         />
       </span>
-    </span>
-    <span
-      v-else-if="entry.text.type === 'custom'"
-      class="block truncate w-full"
-    >
-      <component
-        :is="entry.text.component"
-        v-bind="entry.text.componentProps"
-      />
-    </span>
+    </template>
     <span v-if="formattedShortcutKeys" class="block truncate">
       <kbd
         v-for="(key, keyIndex) in formattedShortcutKeys"

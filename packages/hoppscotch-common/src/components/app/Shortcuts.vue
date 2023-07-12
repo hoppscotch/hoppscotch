@@ -15,7 +15,10 @@
         </div>
       </div>
       <div class="flex flex-col divide-y divide-dividerLight">
-        <HoppSmartPlaceholder v-if="isEmpty(shortcutsResults)">
+        <HoppSmartPlaceholder
+          v-if="isEmpty(shortcutsResults)"
+          :text="`${t('state.nothing_found')} ‟${filterText}”`"
+        >
           <icon-lucide-search class="pb-2 opacity-75 svg-icons" />
         </HoppSmartPlaceholder>
         <details

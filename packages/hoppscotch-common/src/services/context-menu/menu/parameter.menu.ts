@@ -8,6 +8,7 @@ import {
 import { markRaw, ref } from "vue"
 import IconArrowDownRight from "~icons/lucide/arrow-down-right"
 import { currentActiveTab } from "~/helpers/rest/tab"
+import { getI18n } from "~/modules/i18n"
 
 //regex containing both url and parameter
 const urlAndParameterRegex = new RegExp("[^&?]*?=[^&?]*")
@@ -69,6 +70,8 @@ function addParameter(text: string) {
 export class ParameterMenuService extends Service implements ContextMenu {
   public static readonly ID = "PARAMETER_CONTEXT_MENU_SERVICE"
 
+  private t = getI18n()
+
   public readonly menuID = "parameter"
 
   private readonly contextMenu = this.bind(ContextMenuService)
@@ -88,7 +91,7 @@ export class ParameterMenuService extends Service implements ContextMenu {
           id: "environment",
           text: {
             type: "text",
-            text: "Add to parameter",
+            text: this.t("context_menu.add_parameter"),
           },
           icon: markRaw(IconArrowDownRight),
           action: () => {

@@ -8,9 +8,12 @@ import {
 import { markRaw, ref } from "vue"
 import { invokeAction } from "~/helpers/actions"
 import IconPlus from "~icons/lucide/plus"
+import { getI18n } from "~/modules/i18n"
 
 export class EnvironmentMenuService extends Service implements ContextMenu {
   public static readonly ID = "ENVIRONMENT_CONTEXT_MENU_SERVICE"
+
+  private t = getI18n()
 
   public readonly menuID = "environment"
 
@@ -30,7 +33,7 @@ export class EnvironmentMenuService extends Service implements ContextMenu {
         id: "environment",
         text: {
           type: "text",
-          text: "Add to environment",
+          text: this.t("context_menu.set_environment_variable"),
         },
         icon: markRaw(IconPlus),
         action: () => {

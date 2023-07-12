@@ -10,6 +10,7 @@ import IconTabOpen from "~icons/lucide/file-symlink"
 import IconBrowserOpen from "~icons/lucide/external-link"
 import { createNewTab, currentTabID } from "~/helpers/rest/tab"
 import { getDefaultRESTRequest } from "~/helpers/rest/default"
+import { getI18n } from "~/modules/i18n"
 
 //regex containing both url
 const url = new RegExp(
@@ -38,6 +39,8 @@ function openInBrowser(url: string) {
 export class URLMenuService extends Service implements ContextMenu {
   public static readonly ID = "URL_CONTEXT_MENU_SERVICE"
 
+  private t = getI18n()
+
   public readonly menuID = "url"
 
   private readonly contextMenu = this.bind(ContextMenuService)
@@ -57,7 +60,7 @@ export class URLMenuService extends Service implements ContextMenu {
           id: "link-tab",
           text: {
             type: "text",
-            text: "Open Link in Hoppscotch tab",
+            text: this.t("context_menu.open_link_in_new_tab"),
           },
           icon: markRaw(IconTabOpen),
           action: () => {
@@ -68,7 +71,7 @@ export class URLMenuService extends Service implements ContextMenu {
           id: "link-browser",
           text: {
             type: "text",
-            text: "Open Link in browser window",
+            text: this.t("context_menu.open_link_in_browser"),
           },
           icon: markRaw(IconBrowserOpen),
           action: () => {

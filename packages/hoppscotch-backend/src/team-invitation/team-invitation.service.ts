@@ -4,7 +4,6 @@ import * as E from 'fp-ts/Either';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { TeamInvitation as DBTeamInvitation } from '@prisma/client';
 import { TeamMember, TeamMemberRole } from 'src/team/team.model';
-import { User } from 'src/user/user.model';
 import { TeamService } from 'src/team/team.service';
 import {
   INVALID_EMAIL,
@@ -50,9 +49,7 @@ export class TeamInvitationService {
    * @param inviteID invite id
    * @returns an Option of team invitation or none
    */
-  async getInvitation(
-    inviteID: string,
-  ): Promise<O.None | O.Some<TeamInvitation>> {
+  async getInvitation(inviteID: string) {
     try {
       const dbInvitation = await this.prisma.teamInvitation.findUniqueOrThrow({
         where: {
@@ -105,7 +102,7 @@ export class TeamInvitationService {
     teamID: string,
     inviteeEmail: string,
     inviteeRole: TeamMemberRole,
-  ): Promise<E.Left<string> | E.Right<TeamInvitation>> {
+  ) {
     // validate email
     const isEmailValid = validateEmail(inviteeEmail);
     if (!isEmailValid) return E.left(INVALID_EMAIL);
@@ -169,9 +166,7 @@ export class TeamInvitationService {
    * @param inviteID invite id
    * @returns an Either of true or error message
    */
-  async revokeInvitation(
-    inviteID: string,
-  ): Promise<E.Left<string> | E.Right<boolean>> {
+  async revokeInvitation(inviteID: string) {
     // check if the invite exists
     const invitation = await this.getInvitation(inviteID);
     if (O.isNone(invitation)) return E.left(TEAM_INVITE_NO_INVITE_FOUND);
@@ -197,10 +192,7 @@ export class TeamInvitationService {
    * @param acceptedBy user who accepted the invitation
    * @returns an Either of team member or error message
    */
-  async acceptInvitation(
-    inviteID: string,
-    acceptedBy: AuthUser,
-  ): Promise<E.Left<string> | E.Right<TeamMember>> {
+  async acceptInvitation(inviteID: string, acceptedBy: AuthUser) {
     // check if the invite exists
     const invitation = await this.getInvitation(inviteID);
     if (O.isNone(invitation)) return E.left(TEAM_INVITE_NO_INVITE_FOUND);

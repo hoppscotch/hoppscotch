@@ -17,25 +17,6 @@ const url = new RegExp(
   /^(?:(?:https?|ftp):\/\/)?(?:www\.)?(?:[A-Za-z0-9_-]+\.)*[A-Za-z0-9_-]+(?::\d+)?$/
 )
 
-function openNewTab(url: string) {
-  //create a new request object
-  const request = {
-    ...getDefaultRESTRequest(),
-    endpoint: url,
-  }
-
-  const tab = createNewTab({
-    request: request,
-    isDirty: false,
-  })
-
-  currentTabID.value = tab.id
-}
-
-function openInBrowser(url: string) {
-  window.open(url, "_blank", "noopener noreferrer")
-}
-
 export class URLMenuService extends Service implements ContextMenu {
   public static readonly ID = "URL_CONTEXT_MENU_SERVICE"
 
@@ -51,6 +32,25 @@ export class URLMenuService extends Service implements ContextMenu {
     this.contextMenu.registerMenu(this)
   }
 
+  private openNewTab(url: string) {
+    //create a new request object
+    const request = {
+      ...getDefaultRESTRequest(),
+      endpoint: url,
+    }
+
+    const tab = createNewTab({
+      request: request,
+      isDirty: false,
+    })
+
+    currentTabID.value = tab.id
+  }
+
+  private openInBrowser(url: string) {
+    window.open(url, "_blank", "noopener noreferrer")
+  }
+
   getMenuFor(text: Readonly<string>): ContextMenuState {
     const results = ref<ContextMenuResult[]>([])
 
@@ -64,7 +64,7 @@ export class URLMenuService extends Service implements ContextMenu {
           },
           icon: markRaw(IconTabOpen),
           action: () => {
-            openNewTab(text)
+            this.openNewTab(text)
           },
         },
         {
@@ -75,7 +75,7 @@ export class URLMenuService extends Service implements ContextMenu {
           },
           icon: markRaw(IconBrowserOpen),
           action: () => {
-            openInBrowser(text)
+            this.openInBrowser(text)
           },
         },
       ]

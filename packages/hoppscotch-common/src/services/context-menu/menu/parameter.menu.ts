@@ -22,51 +22,6 @@ interface ExtractedParams {
   newURL?: string
 }
 
-function extractParams(input: string): ExtractedParams {
-  let text = input
-  let newURL: string | undefined
-
-  if (text.startsWith("http")) {
-    const url = new URL(text)
-    newURL = url.origin + url.pathname
-    text = url.search.slice(1)
-  }
-
-  const regex = /(\w+)=(\w+)/g
-  const matches = text.matchAll(regex)
-  const params: Param = {}
-
-  for (const match of matches) {
-    const [, key, value] = match
-    params[key] = value
-  }
-
-  return { params, newURL }
-}
-
-function addParameter(text: string) {
-  const { params, newURL } = extractParams(text)
-
-  const queryParams = []
-  for (const [key, value] of Object.entries(params)) {
-    queryParams.push({ key, value, active: true })
-  }
-
-  currentActiveTab.value.document.request.params = [
-    ...currentActiveTab.value.document.request.params,
-    ...queryParams,
-  ]
-
-  if (newURL) {
-    currentActiveTab.value.document.request.endpoint = newURL
-  } else {
-    const textRegex = new RegExp(`\\b${text.replace(/\?/g, "")}\\b`, "gi")
-    const sanitizedWord = currentActiveTab.value.document.request.endpoint
-    const newURL = sanitizedWord.replace(textRegex, "")
-    currentActiveTab.value.document.request.endpoint = newURL
-  }
-}
-
 export class ParameterMenuService extends Service implements ContextMenu {
   public static readonly ID = "PARAMETER_CONTEXT_MENU_SERVICE"
 
@@ -82,6 +37,51 @@ export class ParameterMenuService extends Service implements ContextMenu {
     this.contextMenu.registerMenu(this)
   }
 
+  private extractParams(input: string): ExtractedParams {
+    let text = input
+    let newURL: string | undefined
+
+    if (text.startsWith("http")) {
+      const url = new URL(text)
+      newURL = url.origin + url.pathname
+      text = url.search.slice(1)
+    }
+
+    const regex = /(\w+)=(\w+)/g
+    const matches = text.matchAll(regex)
+    const params: Param = {}
+
+    for (const match of matches) {
+      const [, key, value] = match
+      params[key] = value
+    }
+
+    return { params, newURL }
+  }
+
+  private addParameter(text: string) {
+    const { params, newURL } = this.extractParams(text)
+
+    const queryParams = []
+    for (const [key, value] of Object.entries(params)) {
+      queryParams.push({ key, value, active: true })
+    }
+
+    currentActiveTab.value.document.request.params = [
+      ...currentActiveTab.value.document.request.params,
+      ...queryParams,
+    ]
+
+    if (newURL) {
+      currentActiveTab.value.document.request.endpoint = newURL
+    } else {
+      const textRegex = new RegExp(`\\b${text.replace(/\?/g, "")}\\b`, "gi")
+      const sanitizedWord = currentActiveTab.value.document.request.endpoint
+      const newURL = sanitizedWord.replace(textRegex, "")
+      currentActiveTab.value.document.request.endpoint = newURL
+    }
+  }
+
   getMenuFor(text: Readonly<string>): ContextMenuState {
     const results = ref<ContextMenuResult[]>([])
 
@@ -95,7 +95,7 @@ export class ParameterMenuService extends Service implements ContextMenu {
           },
           icon: markRaw(IconArrowDownRight),
           action: () => {
-            addParameter(text)
+            this.addParameter(text)
           },
         },
       ]

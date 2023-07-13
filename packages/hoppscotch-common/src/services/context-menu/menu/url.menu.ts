@@ -8,7 +8,7 @@ import {
 import { markRaw, ref } from "vue"
 import IconTabOpen from "~icons/lucide/file-symlink"
 import IconBrowserOpen from "~icons/lucide/external-link"
-import { createNewTab, currentTabID } from "~/helpers/rest/tab"
+import { createNewTab } from "~/helpers/rest/tab"
 import { getDefaultRESTRequest } from "~/helpers/rest/default"
 import { getI18n } from "~/modules/i18n"
 
@@ -39,12 +39,10 @@ export class URLMenuService extends Service implements ContextMenu {
       endpoint: url,
     }
 
-    const tab = createNewTab({
+    createNewTab({
       request: request,
       isDirty: false,
     })
-
-    currentTabID.value = tab.id
   }
 
   private openInBrowser(url: string) {

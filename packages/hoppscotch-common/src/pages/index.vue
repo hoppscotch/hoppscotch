@@ -87,7 +87,6 @@
     <AppContextMenu
       v-if="contextMenuSmallPopup.show"
       v-model="contextMenuSmallPopup.show"
-      :show="contextMenuSmallPopup.show"
       :position="contextMenuSmallPopup.position"
       :text="contextMenuSmallPopup.text"
     />

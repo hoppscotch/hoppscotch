@@ -38,7 +38,6 @@ import { URLMenuService } from "~/services/context-menu/menu/url.menu"
 const props = defineProps<{
   modelValue: boolean
   position: { top: number; left: number }
-  show: boolean
   text: string | null
 }>()
 
@@ -58,6 +57,7 @@ const contextMenuOptions = ref<ContextMenuResult[]>([])
 // })
 
 const contextMenuService = useService(ContextMenuService)
+
 useService(EnvironmentMenuService)
 useService(ParameterMenuService)
 useService(URLMenuService)
@@ -68,7 +68,7 @@ const handleClick = (option: { action: () => void }) => {
 }
 
 watch(
-  () => props.show,
+  () => props.modelValue,
   (val) => {
     if (val && props.text) {
       const options = contextMenuService.getMenuFor(props.text)

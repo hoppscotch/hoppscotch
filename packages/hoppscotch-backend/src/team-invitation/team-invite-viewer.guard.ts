@@ -1,20 +1,23 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { TeamInvitationService } from './team-invitation.service';
-import { pipe, flow } from 'fp-ts/function';
-import * as TE from 'fp-ts/TaskEither';
-import * as T from 'fp-ts/Task';
 import * as O from 'fp-ts/Option';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import {
   BUG_AUTH_NO_USER_CTX,
   BUG_TEAM_INVITE_NO_INVITE_ID,
-  TEAM_INVITE_NOT_VALID_VIEWER,
   TEAM_INVITE_NO_INVITE_FOUND,
+  TEAM_MEMBER_NOT_FOUND,
 } from 'src/errors';
-import { User } from 'src/user/user.model';
 import { throwErr } from 'src/utils';
 import { TeamService } from 'src/team/team.service';
 
+/**
+ * This guard only allows user to execute the resolver
+ * 1. If user is invitee, allow
+ * 2. Or else, if user is team member, allow
+ * 
+ * TLDR: Allow if user is invitee or team member
+ */
 @Injectable()
 export class TeamInviteViewerGuard implements CanActivate {
   constructor(
@@ -23,50 +26,32 @@ export class TeamInviteViewerGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    return pipe(
-      TE.Do,
+    // Get GQL context
+    const gqlExecCtx = GqlExecutionContext.create(context);
 
-      // Get GQL Context
-      TE.bindW('gqlCtx', () => TE.of(GqlExecutionContext.create(context))),
+    // Get user
+    const { user } = gqlExecCtx.getContext().req;
+    if (!user) throwErr(BUG_AUTH_NO_USER_CTX);
 
-      // Get user
-      TE.bindW('user', ({ gqlCtx }) =>
-        pipe(
-          O.fromNullable(gqlCtx.getContext().req.user),
-          TE.fromOption(() => BUG_AUTH_NO_USER_CTX),
-        ),
-      ),
+    // Get the invite
+    const { inviteID } = gqlExecCtx.getArgs<{ inviteID: string }>();
+    if (!inviteID) throwErr(BUG_TEAM_INVITE_NO_INVITE_ID);
 
-      // Get the invite
-      TE.bindW('invite', ({ gqlCtx }) =>
-        pipe(
-          O.fromNullable(gqlCtx.getArgs<{ inviteID?: string }>().inviteID),
-          TE.fromOption(() => BUG_TEAM_INVITE_NO_INVITE_ID),
-          TE.chainW(
-            flow(
-              this.teamInviteService.getInvitation,
-              TE.fromTaskOption(() => TEAM_INVITE_NO_INVITE_FOUND),
-            ),
-          ),
-        ),
-      ),
+    const invitation = await this.teamInviteService.getInvitation(inviteID);
+    if (O.isNone(invitation)) throwErr(TEAM_INVITE_NO_INVITE_FOUND);
 
-      // Check if the user and the invite email match, else if we can resolver the user as a team member
-      // any better solution ?
-      TE.chainW(({ user, invite }) =>
-        user.email?.toLowerCase() === invite.inviteeEmail.toLowerCase()
-          ? TE.of(true)
-          : pipe(
-              this.teamService.getTeamMemberTE(invite.teamID, user.uid),
-              TE.map(() => true),
-            ),
-      ),
+    // Check if the user and the invite email match, else if user is a team member
+    if (
+      user.email?.toLowerCase() !== invitation.value.inviteeEmail.toLowerCase()
+    ) {
+      const teamMember = await this.teamService.getTeamMember(
+        invitation.value.teamID,
+        user.uid,
+      );
 
-      TE.mapLeft((e) =>
-        e === 'team/member_not_found' ? TEAM_INVITE_NOT_VALID_VIEWER : e,
-      ),
+      if (!teamMember) throwErr(TEAM_MEMBER_NOT_FOUND);
+    }
 
-      TE.fold(throwErr, () => T.of(true)),
-    )();
+    return true;
   }
 }

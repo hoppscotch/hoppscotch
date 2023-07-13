@@ -1,27 +1,25 @@
 import { Injectable } from '@nestjs/common';
-import * as T from 'fp-ts/Task';
 import * as O from 'fp-ts/Option';
-import * as TO from 'fp-ts/TaskOption';
-import * as TE from 'fp-ts/TaskEither';
 import * as E from 'fp-ts/Either';
-import { pipe, flow, constVoid } from 'fp-ts/function';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { Team, TeamMemberRole } from 'src/team/team.model';
-import { Email } from 'src/types/Email';
-import { User } from 'src/user/user.model';
+import { TeamInvitation as DBTeamInvitation } from '@prisma/client';
+import { TeamMember, TeamMemberRole } from 'src/team/team.model';
 import { TeamService } from 'src/team/team.service';
 import {
   INVALID_EMAIL,
+  TEAM_INVALID_ID,
   TEAM_INVITE_ALREADY_MEMBER,
   TEAM_INVITE_EMAIL_DO_NOT_MATCH,
   TEAM_INVITE_MEMBER_HAS_INVITE,
   TEAM_INVITE_NO_INVITE_FOUND,
+  TEAM_MEMBER_NOT_FOUND,
 } from 'src/errors';
 import { TeamInvitation } from './team-invitation.model';
 import { MailerService } from 'src/mailer/mailer.service';
 import { UserService } from 'src/user/user.service';
 import { PubSubService } from 'src/pubsub/pubsub.service';
 import { validateEmail } from '../utils';
+import { AuthUser } from 'src/types/AuthUser';
 
 @Injectable()
 export class TeamInvitationService {
@@ -32,38 +30,37 @@ export class TeamInvitationService {
     private readonly mailerService: MailerService,
 
     private readonly pubsub: PubSubService,
-  ) {
-    this.getInvitation = this.getInvitation.bind(this);
+  ) {}
+
+  /**
+   * Cast a DBTeamInvitation to a TeamInvitation
+   * @param dbTeamInvitation database TeamInvitation
+   * @returns TeamInvitation model
+   */
+  cast(dbTeamInvitation: DBTeamInvitation): TeamInvitation {
+    return {
+      ...dbTeamInvitation,
+      inviteeRole: TeamMemberRole[dbTeamInvitation.inviteeRole],
+    };
   }
 
-  getInvitation(inviteID: string): TO.TaskOption<TeamInvitation> {
-    return pipe(
-      () =>
-        this.prisma.teamInvitation.findUnique({
-          where: {
-            id: inviteID,
-          },
-        }),
-      TO.fromTask,
-      TO.chain(flow(O.fromNullable, TO.fromOption)),
-      TO.map((x) => x as TeamInvitation),
-    );
-  }
+  /**
+   * Get the team invite
+   * @param inviteID invite id
+   * @returns an Option of team invitation or none
+   */
+  async getInvitation(inviteID: string) {
+    try {
+      const dbInvitation = await this.prisma.teamInvitation.findUniqueOrThrow({
+        where: {
+          id: inviteID,
+        },
+      });
 
-  getInvitationWithEmail(email: Email, team: Team) {
-    return pipe(
-      () =>
-        this.prisma.teamInvitation.findUnique({
-          where: {
-            teamID_inviteeEmail: {
-              inviteeEmail: email,
-              teamID: team.id,
-            },
-          },
-        }),
-      TO.fromTask,
-      TO.chain(flow(O.fromNullable, TO.fromOption)),
-    );
+      return O.some(this.cast(dbInvitation));
+    } catch (e) {
+      return O.none;
+    }
   }
 
   /**
@@ -92,212 +89,161 @@ export class TeamInvitationService {
     }
   }
 
-  createInvitation(
-    creator: User,
-    team: Team,
-    inviteeEmail: Email,
+  /**
+   * Create a team invitation
+   * @param creator creator of the invitation
+   * @param teamID team id
+   * @param inviteeEmail invitee email
+   * @param inviteeRole invitee role
+   * @returns an Either of team invitation or error message
+   */
+  async createInvitation(
+    creator: AuthUser,
+    teamID: string,
+    inviteeEmail: string,
     inviteeRole: TeamMemberRole,
   ) {
-    return pipe(
-      // Perform all validation checks
-      TE.sequenceArray([
-        // creator should be a TeamMember
-        pipe(
-          this.teamService.getTeamMemberTE(team.id, creator.uid),
-          TE.map(constVoid),
-        ),
+    // validate email
+    const isEmailValid = validateEmail(inviteeEmail);
+    if (!isEmailValid) return E.left(INVALID_EMAIL);
 
-        // Invitee should not be a team member
-        pipe(
-          async () => await this.userService.findUserByEmail(inviteeEmail),
-          TO.foldW(
-            () => TE.right(undefined), // If no user, short circuit to completion
-            (user) =>
-              pipe(
-                // If user is found, check if team member
-                this.teamService.getTeamMemberTE(team.id, user.uid),
-                TE.foldW(
-                  () => TE.right(undefined), // Not team-member, this is good
-                  () => TE.left(TEAM_INVITE_ALREADY_MEMBER), // Is team member, not good
-                ),
-              ),
-          ),
-          TE.map(constVoid),
-        ),
+    // team ID should valid
+    const team = await this.teamService.getTeamWithID(teamID);
+    if (!team) return E.left(TEAM_INVALID_ID);
 
-        // Should not have an existing invite
-        pipe(
-          this.getInvitationWithEmail(inviteeEmail, team),
-          TE.fromTaskOption(() => null),
-          TE.swap,
-          TE.map(constVoid),
-          TE.mapLeft(() => TEAM_INVITE_MEMBER_HAS_INVITE),
-        ),
-      ]),
-
-      // Create the invitation
-      TE.chainTaskK(
-        () => () =>
-          this.prisma.teamInvitation.create({
-            data: {
-              teamID: team.id,
-              inviteeEmail,
-              inviteeRole,
-              creatorUid: creator.uid,
-            },
-          }),
-      ),
-
-      // Send email, this is a side effect
-      TE.chainFirstTaskK((invitation) =>
-        pipe(
-          this.mailerService.sendMail(inviteeEmail, {
-            template: 'team-invitation',
-            variables: {
-              invitee: creator.displayName ?? 'A Hoppscotch User',
-              action_url: `${process.env.VITE_BASE_URL}/join-team?id=${invitation.id}`,
-              invite_team_name: team.name,
-            },
-          }),
-
-          TE.getOrElseW(() => T.of(undefined)), // This value doesn't matter as we don't mind the return value (chainFirst) as long as the task completes
-        ),
-      ),
-
-      // Send PubSub topic
-      TE.chainFirstTaskK((invitation) =>
-        TE.fromTask(async () => {
-          const inv: TeamInvitation = {
-            id: invitation.id,
-            teamID: invitation.teamID,
-            creatorUid: invitation.creatorUid,
-            inviteeEmail: invitation.inviteeEmail,
-            inviteeRole: TeamMemberRole[invitation.inviteeRole],
-          };
-
-          this.pubsub.publish(`team/${inv.teamID}/invite_added`, inv);
-        }),
-      ),
-
-      // Map to model type
-      TE.map((x) => x as TeamInvitation),
+    // invitation creator should be a TeamMember
+    const isTeamMember = await this.teamService.getTeamMember(
+      team.id,
+      creator.uid,
     );
-  }
+    if (!isTeamMember) return E.left(TEAM_MEMBER_NOT_FOUND);
 
-  revokeInvitation(inviteID: string) {
-    return pipe(
-      // Make sure invite exists
-      this.getInvitation(inviteID),
-      TE.fromTaskOption(() => TEAM_INVITE_NO_INVITE_FOUND),
+    // Checking to see if the invitee is already part of the team or not
+    const inviteeUser = await this.userService.findUserByEmail(inviteeEmail);
+    if (O.isSome(inviteeUser)) {
+      // invitee should not already a member
+      const isTeamMember = await this.teamService.getTeamMember(
+        team.id,
+        inviteeUser.value.uid,
+      );
+      if (isTeamMember) return E.left(TEAM_INVITE_ALREADY_MEMBER);
+    }
 
-      // Delete team invitation
-      TE.chainTaskK(
-        () => () =>
-          this.prisma.teamInvitation.delete({
-            where: {
-              id: inviteID,
-            },
-          }),
-      ),
-
-      // Emit Pubsub Event
-      TE.chainFirst((invitation) =>
-        TE.fromTask(() =>
-          this.pubsub.publish(
-            `team/${invitation.teamID}/invite_removed`,
-            invitation.id,
-          ),
-        ),
-      ),
-
-      // We are not returning anything
-      TE.map(constVoid),
+    // check invitee already invited earlier or not
+    const teamInvitation = await this.getTeamInviteByEmailAndTeamID(
+      inviteeEmail,
+      team.id,
     );
-  }
+    if (E.isRight(teamInvitation)) return E.left(TEAM_INVITE_MEMBER_HAS_INVITE);
 
-  getAllInvitationsInTeam(team: Team) {
-    return pipe(
-      () =>
-        this.prisma.teamInvitation.findMany({
-          where: {
-            teamID: team.id,
-          },
-        }),
-      T.map((x) => x as TeamInvitation[]),
-    );
-  }
+    // create the invitation
+    const dbInvitation = await this.prisma.teamInvitation.create({
+      data: {
+        teamID: team.id,
+        inviteeEmail,
+        inviteeRole,
+        creatorUid: creator.uid,
+      },
+    });
 
-  acceptInvitation(inviteID: string, acceptedBy: User) {
-    return pipe(
-      TE.Do,
+    await this.mailerService.sendEmail(inviteeEmail, {
+      template: 'team-invitation',
+      variables: {
+        invitee: creator.displayName ?? 'A Hoppscotch User',
+        action_url: `${process.env.VITE_BASE_URL}/join-team?id=${dbInvitation.id}`,
+        invite_team_name: team.name,
+      },
+    });
 
-      // First get the invitation
-      TE.bindW('invitation', () =>
-        pipe(
-          this.getInvitation(inviteID),
-          TE.fromTaskOption(() => TEAM_INVITE_NO_INVITE_FOUND),
-        ),
-      ),
+    const invitation = this.cast(dbInvitation);
+    this.pubsub.publish(`team/${invitation.teamID}/invite_added`, invitation);
 
-      // Validation checks
-      TE.chainFirstW(({ invitation }) =>
-        TE.sequenceArray([
-          // Make sure the invited user is not part of the team
-          pipe(
-            this.teamService.getTeamMemberTE(invitation.teamID, acceptedBy.uid),
-            TE.swap,
-            TE.bimap(
-              () => TEAM_INVITE_ALREADY_MEMBER,
-              constVoid, // The return type is ignored
-            ),
-          ),
-
-          // Make sure the invited user and accepting user has the same email
-          pipe(
-            undefined,
-            TE.fromPredicate(
-              () =>
-                acceptedBy.email.toLowerCase() ===
-                invitation.inviteeEmail.toLowerCase(),
-              () => TEAM_INVITE_EMAIL_DO_NOT_MATCH,
-            ),
-          ),
-        ]),
-      ),
-
-      // Add the team member
-      // TODO: Somehow bring subscriptions to this ?
-      TE.bindW('teamMember', ({ invitation }) =>
-        pipe(
-          TE.tryCatch(
-            () =>
-              this.teamService.addMemberToTeam(
-                invitation.teamID,
-                acceptedBy.uid,
-                invitation.inviteeRole,
-              ),
-            () => TEAM_INVITE_ALREADY_MEMBER, // Can only fail if Team Member already exists, which we checked, but due to async lets assert that here too
-          ),
-        ),
-      ),
-
-      TE.chainFirstW(({ invitation }) => this.revokeInvitation(invitation.id)),
-
-      TE.map(({ teamMember }) => teamMember),
-    );
+    return E.right(invitation);
   }
 
   /**
-   * Fetch the count invitations for a given team.
-   * @param teamID team id
-   * @returns a count team invitations for a team
+   * Revoke a team invitation
+   * @param inviteID invite id
+   * @returns an Either of true or error message
    */
-  async getAllTeamInvitations(teamID: string) {
-    const invitations = await this.prisma.teamInvitation.findMany({
+  async revokeInvitation(inviteID: string) {
+    // check if the invite exists
+    const invitation = await this.getInvitation(inviteID);
+    if (O.isNone(invitation)) return E.left(TEAM_INVITE_NO_INVITE_FOUND);
+
+    // delete the invite
+    await this.prisma.teamInvitation.delete({
+      where: {
+        id: inviteID,
+      },
+    });
+
+    this.pubsub.publish(
+      `team/${invitation.value.teamID}/invite_removed`,
+      invitation.value.id,
+    );
+
+    return E.right(true);
+  }
+
+  /**
+   * Accept a team invitation
+   * @param inviteID invite id
+   * @param acceptedBy user who accepted the invitation
+   * @returns an Either of team member or error message
+   */
+  async acceptInvitation(inviteID: string, acceptedBy: AuthUser) {
+    // check if the invite exists
+    const invitation = await this.getInvitation(inviteID);
+    if (O.isNone(invitation)) return E.left(TEAM_INVITE_NO_INVITE_FOUND);
+
+    // make sure the user is not already a member of the team
+    const teamMemberInvitee = await this.teamService.getTeamMember(
+      invitation.value.teamID,
+      acceptedBy.uid,
+    );
+    if (teamMemberInvitee) return E.left(TEAM_INVITE_ALREADY_MEMBER);
+
+    // make sure the user is the same as the invitee
+    if (
+      acceptedBy.email.toLowerCase() !==
+      invitation.value.inviteeEmail.toLowerCase()
+    )
+      return E.left(TEAM_INVITE_EMAIL_DO_NOT_MATCH);
+
+    // add the user to the team
+    let teamMember: TeamMember;
+    try {
+      teamMember = await this.teamService.addMemberToTeam(
+        invitation.value.teamID,
+        acceptedBy.uid,
+        invitation.value.inviteeRole,
+      );
+    } catch (e) {
+      return E.left(TEAM_INVITE_ALREADY_MEMBER);
+    }
+
+    // delete the invite
+    await this.revokeInvitation(inviteID);
+
+    return E.right(teamMember);
+  }
+
+  /**
+   * Fetch all team invitations for a given team.
+   * @param teamID team id
+   * @returns array of team invitations for a team
+   */
+  async getTeamInvitations(teamID: string) {
+    const dbInvitations = await this.prisma.teamInvitation.findMany({
       where: {
         teamID: teamID,
       },
     });
+
+    const invitations: TeamInvitation[] = dbInvitations.map((dbInvitation) =>
+      this.cast(dbInvitation),
+    );
 
     return invitations;
   }

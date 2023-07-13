@@ -150,6 +150,11 @@ const handleKeystroke = (ev: KeyboardEvent) => {
     ev.preventDefault()
   }
 
+  if (ev.shiftKey) {
+    showSuggestionPopover.value = false
+    return
+  }
+
   showSuggestionPopover.value = true
 
   if (
@@ -309,11 +314,7 @@ const initView = (el: any) => {
   })
 
   el.addEventListener("mouseup", handleTextSelection)
-  el.addEventListener("keydown", (e: KeyboardEvent) => {
-    if (e.ctrlKey || e.metaKey || e.shiftKey) {
-      isKeyDown = true
-    }
-  })
+  el.addEventListener("keydown", () => (isKeyDown = true))
   el.addEventListener("keyup", handleTextSelection)
 
   function handleTextSelection() {
@@ -324,7 +325,6 @@ const initView = (el: any) => {
         const to = selection.to
         const text = view.value?.state.doc.sliceString(from, to)
         const { top, left } = view.value?.coordsAtPos(from)
-
         if (text) {
           invokeAction("contextmenu.open", {
             position: {
@@ -351,6 +351,7 @@ const initView = (el: any) => {
   }
 
   const extensions: Extension = [
+    EditorView.lineWrapping,
     EditorView.contentAttributes.of({ "aria-label": props.placeholder }),
     EditorView.updateListener.of((update) => {
       if (props.readonly) {

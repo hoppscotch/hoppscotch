@@ -313,6 +313,13 @@ export const SHORTCODE_ALREADY_EXISTS = 'shortcode/already_exists' as const;
 export const TEAM_ENVIRONMENT_NOT_FOUND = 'team_environment/not_found' as const;
 
 /**
+ * Invalid TEAM ENVIRONMENT name
+ * (TeamEnvironmentsService)
+ */
+export const TEAM_ENVIRONMENT_SHORT_NAME =
+  'team_environment/short_name' as const;
+
+/**
  * The user is not a member of the team of the given environment
  * (GqlTeamEnvTeamGuard)
  */

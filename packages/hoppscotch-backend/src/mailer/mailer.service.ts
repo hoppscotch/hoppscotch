@@ -5,7 +5,6 @@ import {
   UserMagicLinkMailDescription,
 } from './MailDescriptions';
 import { throwErr } from 'src/utils';
-import * as TE from 'fp-ts/TaskEither';
 import { EMAIL_FAILED } from 'src/errors';
 import { MailerService as NestMailerService } from '@nestjs-modules/mailer';
 
@@ -35,33 +34,14 @@ export class MailerService {
 
   /**
    * Sends an email to the given email address given a mail description
-   * @param to The email address to be sent to (NOTE: this is not validated)
+   * @param to Receiver's email id
    * @param mailDesc Definition of what email to be sent
+   * @returns Response if email was send successfully or not
    */
-  sendMail(
+  async sendEmail(
     to: string,
     mailDesc: MailDescription | UserMagicLinkMailDescription,
   ) {
-    return TE.tryCatch(
-      async () => {
-        await this.nestMailerService.sendMail({
-          to,
-          template: mailDesc.template,
-          subject: this.resolveSubjectForMailDesc(mailDesc),
-          context: mailDesc.variables,
-        });
-      },
-      () => EMAIL_FAILED,
-    );
-  }
-
-  /**
-   *
-   * @param to Receiver's email id
-   * @param mailDesc Details of email to be sent for Magic-Link auth
-   * @returns Response if email was send successfully or not
-   */
-  async sendAuthEmail(to: string, mailDesc: UserMagicLinkMailDescription) {
     try {
       await this.nestMailerService.sendMail({
         to,

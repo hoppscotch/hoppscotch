@@ -228,7 +228,7 @@ export class AuthService {
         url = process.env.VITE_BASE_URL;
     }
 
-    await this.mailerService.sendAuthEmail(email, {
+    await this.mailerService.sendEmail(email, {
       template: 'code-your-own',
       variables: {
         inviteeEmail: email,

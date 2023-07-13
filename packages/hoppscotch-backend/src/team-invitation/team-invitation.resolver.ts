@@ -12,15 +12,10 @@ import { TeamInvitation } from './team-invitation.model';
 import { TeamInvitationService } from './team-invitation.service';
 import { pipe } from 'fp-ts/function';
 import * as TE from 'fp-ts/TaskEither';
+import * as E from 'fp-ts/Either';
 import * as O from 'fp-ts/Option';
 import { Team, TeamMember, TeamMemberRole } from 'src/team/team.model';
-import { EmailCodec } from 'src/types/Email';
-import {
-  INVALID_EMAIL,
-  TEAM_INVITE_EMAIL_DO_NOT_MATCH,
-  TEAM_INVITE_NO_INVITE_FOUND,
-  USER_NOT_FOUND,
-} from 'src/errors';
+import { TEAM_INVITE_NO_INVITE_FOUND, USER_NOT_FOUND } from 'src/errors';
 import { GqlUser } from 'src/decorators/gql-user.decorator';
 import { User } from 'src/user/user.model';
 import { UseGuards } from '@nestjs/common';
@@ -36,6 +31,8 @@ import { UserService } from 'src/user/user.service';
 import { PubSubService } from 'src/pubsub/pubsub.service';
 import { GqlThrottlerGuard } from 'src/guards/gql-throttler.guard';
 import { SkipThrottle } from '@nestjs/throttler';
+import { AuthUser } from 'src/types/AuthUser';
+import { CreateTeamInvitationArgs } from './input-type.args';
 
 @UseGuards(GqlThrottlerGuard)
 @Resolver(() => TeamInvitation)
@@ -79,8 +76,8 @@ export class TeamInvitationResolver {
       'Gets the Team Invitation with the given ID, or null if not exists',
   })
   @UseGuards(GqlAuthGuard, TeamInviteViewerGuard)
-  teamInvitation(
-    @GqlUser() user: User,
+  async teamInvitation(
+    @GqlUser() user: AuthUser,
     @Args({
       name: 'inviteID',
       description: 'ID of the Team Invitation to lookup',
@@ -88,17 +85,11 @@ export class TeamInvitationResolver {
     })
     inviteID: string,
   ): Promise<TeamInvitation> {
-    return pipe(
-      this.teamInvitationService.getInvitation(inviteID),
-      TE.fromTaskOption(() => TEAM_INVITE_NO_INVITE_FOUND),
-      TE.chainW(
-        TE.fromPredicate(
-          (a) => a.inviteeEmail.toLowerCase() === user.email?.toLowerCase(),
-          () => TEAM_INVITE_EMAIL_DO_NOT_MATCH,
-        ),
-      ),
-      TE.getOrElse(throwErr),
-    )();
+    const teamInvitation = await this.teamInvitationService.getInvitation(
+      inviteID,
+    );
+    if (O.isNone(teamInvitation)) throwErr(TEAM_INVITE_NO_INVITE_FOUND);
+    return teamInvitation.value;
   }
 
   @Mutation(() => TeamInvitation, {
@@ -106,56 +97,19 @@ export class TeamInvitationResolver {
   })
   @UseGuards(GqlAuthGuard, GqlTeamMemberGuard)
   @RequiresTeamRole(TeamMemberRole.OWNER)
-  createTeamInvitation(
-    @GqlUser()
-    user: User,
-
-    @Args({
-      name: 'teamID',
-      description: 'ID of the Team ID to invite from',
-      type: () => ID,
-    })
-    teamID: string,
-    @Args({
-      name: 'inviteeEmail',
-      description: 'Email of the user to invite',
-    })
-    inviteeEmail: string,
-    @Args({
-      name: 'inviteeRole',
-      type: () => TeamMemberRole,
-      description: 'Role to be given to the user',
-    })
-    inviteeRole: TeamMemberRole,
+  async createTeamInvitation(
+    @GqlUser() user: AuthUser,
+    @Args() args: CreateTeamInvitationArgs,
   ): Promise<TeamInvitation> {
-    return pipe(
-      TE.Do,
+    const teamInvitation = await this.teamInvitationService.createInvitation(
+      user,
+      args.teamID,
+      args.inviteeEmail,
+      args.inviteeRole,
+    );
 
-      // Validate email
-      TE.bindW('email', () =>
-        pipe(
-          EmailCodec.decode(inviteeEmail),
-          TE.fromEither,
-          TE.mapLeft(() => INVALID_EMAIL),
-        ),
-      ),
-
-      // Validate and get Team
-      TE.bindW('team', () => this.teamService.getTeamWithIDTE(teamID)),
-
-      // Create team
-      TE.chainW(({ email, team }) =>
-        this.teamInvitationService.createInvitation(
-          user,
-          team,
-          email,
-          inviteeRole,
-        ),
-      ),
-
-      // If failed, throw err (so the message is passed) else return value
-      TE.getOrElse(throwErr),
-    )();
+    if (E.isLeft(teamInvitation)) throwErr(teamInvitation.left);
+    return teamInvitation.right;
   }
 
   @Mutation(() => Boolean, {
@@ -163,7 +117,7 @@ export class TeamInvitationResolver {
   })
   @UseGuards(GqlAuthGuard, TeamInviteTeamOwnerGuard)
   @RequiresTeamRole(TeamMemberRole.OWNER)
-  revokeTeamInvitation(
+  async revokeTeamInvitation(
     @Args({
       name: 'inviteID',
       type: () => ID,
@@ -171,19 +125,19 @@ export class TeamInvitationResolver {
     })
     inviteID: string,
   ): Promise<true> {
-    return pipe(
-      this.teamInvitationService.revokeInvitation(inviteID),
-      TE.map(() => true as const),
-      TE.getOrElse(throwErr),
-    )();
+    const isRevoked = await this.teamInvitationService.revokeInvitation(
+      inviteID,
+    );
+    if (E.isLeft(isRevoked)) throwErr(isRevoked.left);
+    return true;
   }
 
   @Mutation(() => TeamMember, {
     description: 'Accept an Invitation',
   })
   @UseGuards(GqlAuthGuard, TeamInviteeGuard)
-  acceptTeamInvitation(
-    @GqlUser() user: User,
+  async acceptTeamInvitation(
+    @GqlUser() user: AuthUser,
     @Args({
       name: 'inviteID',
       type: () => ID,
@@ -191,10 +145,12 @@ export class TeamInvitationResolver {
     })
     inviteID: string,
   ): Promise<TeamMember> {
-    return pipe(
-      this.teamInvitationService.acceptInvitation(inviteID, user),
-      TE.getOrElse(throwErr),
-    )();
+    const teamMember = await this.teamInvitationService.acceptInvitation(
+      inviteID,
+      user,
+    );
+    if (E.isLeft(teamMember)) throwErr(teamMember.left);
+    return teamMember.right;
   }
 
   // Subscriptions

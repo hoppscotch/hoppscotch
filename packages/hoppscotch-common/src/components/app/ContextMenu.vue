@@ -1,7 +1,7 @@
 <template>
   <div
     ref="contextMenuRef"
-    class="fixed bg-popover border border-primaryLight shadow transform translate-y-8 border border-primaryLight shadow"
+    class="fixed bg-popover shadow transform translate-y-8 border border-primaryDark rounded"
     :style="`top: ${position.top}px; left: ${position.left}px; z-index: 1000;`"
     @blur="emit('update:modelValue', false)"
   >
@@ -72,7 +72,6 @@ watch(
   (val) => {
     if (val && props.text) {
       const options = contextMenuService.getMenuFor(props.text)
-      console.log("options", options)
       contextMenuOptions.value = options
     }
   },

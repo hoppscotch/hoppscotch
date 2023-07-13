@@ -333,6 +333,7 @@ const initView = (el: any) => {
             },
             text: text,
           })
+          showSuggestionPopover.value = false
         } else {
           invokeAction("contextmenu.open", {
             position: {

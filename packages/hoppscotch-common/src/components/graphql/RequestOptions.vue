@@ -748,7 +748,8 @@ const runQuery = async () => {
     console.error(e)
   }
 
-  platform.analytics?.logHoppRequestRunToAnalytics({
+  platform.analytics?.logEvent({
+    type: "HOPP_REQUEST_RUN",
     platform: "graphql-query",
     strategy: getCurrentStrategyID(),
   })

@@ -1,0 +1,42 @@
+name: Deploy to Netlify (ui)
+
+on:
+  push:
+    branches: [main]
+    # run this workflow only if an update is made to the ui package
+    paths:
+      - "packages/hoppscotch-ui/**"
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup environment
+        run: mv .env.example .env
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2.2.4
+        with:
+          version: 8
+          run_install: true
+
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node }}
+          cache: pnpm
+
+      - name: Build site
+        run: pnpm run generate-ui
+
+      # Deploy the ui site with netlify-cli
+      - name: Deploy to Netlify (ui)
+        run: npx netlify-cli deploy --dir=packages/hoppscotch-ui/.histoire/dist --prod
+        env:
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_UI_SITE_ID }}
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}

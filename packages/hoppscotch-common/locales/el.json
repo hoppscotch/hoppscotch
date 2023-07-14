@@ -432,6 +432,7 @@
     "view_my_links": "Προβολή των links μου"
   },
   "response": {
+    "audio": "Audio",
     "body": "Σώμα απόκρισης",
     "filter_response_body": "Filter JSON response body (uses JSONPath syntax)",
     "headers": "Κεφαλίδες",
@@ -445,6 +446,7 @@
     "status": "Κατάσταση",
     "time": "χρόνος",
     "title": "Απάντηση",
+    "video": "Video",
     "waiting_for_connection": "περιμένοντας τη σύνδεση",
     "xml": "XML"
   },

@@ -432,6 +432,7 @@
     "view_my_links": "View my links"
   },
   "response": {
+    "audio": "Audio",
     "body": "Svarskommitté",
     "filter_response_body": "Filter JSON response body (uses JSONPath syntax)",
     "headers": "Rubriker",
@@ -445,6 +446,7 @@
     "status": "Status",
     "time": "Tid",
     "title": "Svar",
+    "video": "Video",
     "waiting_for_connection": "väntar på anslutning",
     "xml": "XML"
   },

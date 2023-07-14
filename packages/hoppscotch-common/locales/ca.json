@@ -432,6 +432,7 @@
     "view_my_links": "Visualitzar els meus enllaços"
   },
   "response": {
+    "audio": "Audio",
     "body": "Cos de resposta",
     "filter_response_body": "Filtrar el cos de la resposta JSON (utilitza la sintaxi JSONPath)",
     "headers": "Capçaleres",
@@ -445,6 +446,7 @@
     "status": "Estat",
     "time": "Temps",
     "title": "Resposta",
+    "video": "Video",
     "waiting_for_connection": "esperant la connexió",
     "xml": "XML"
   },

@@ -115,7 +115,9 @@
         }"
         :style="[
           `--thumb-width: ${scrollThumb.width}px`,
-          `width: calc(100% - ${hasActions ? mdAndLarger ? '19rem' : '7rem' : '3rem'})`,
+          `width: calc(100% - ${
+            hasActions ? (mdAndLarger ? '19rem' : '7rem') : '3rem'
+          })`,
         ]"
         id="myRange"
       />
@@ -144,7 +146,11 @@ import {
   nextTick,
   useSlots,
 } from "vue"
-import { breakpointsTailwind, useBreakpoints, useElementSize } from "@vueuse/core"
+import {
+  breakpointsTailwind,
+  useBreakpoints,
+  useElementSize,
+} from "@vueuse/core"
 import type { Slot } from "vue"
 import draggable from "vuedraggable-es"
 import { HoppUIPluginOptions, HOPP_UI_OPTIONS } from "./../../index"
@@ -350,8 +356,8 @@ watch(
         rootMargin: "0px",
         threshold: 1.0,
       })
-      observer.observe(element!)
 
+      if (element) observer.observe(element)
       element?.scrollIntoView({ behavior: "smooth", inline: "center" })
     })
   },

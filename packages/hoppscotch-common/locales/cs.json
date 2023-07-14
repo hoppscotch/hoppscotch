@@ -432,6 +432,7 @@
     "view_my_links": "View my links"
   },
   "response": {
+    "audio": "Audio",
     "body": "Odpovědní orgán",
     "filter_response_body": "Filter JSON response body (uses JSONPath syntax)",
     "headers": "Záhlaví",
@@ -445,6 +446,7 @@
     "status": "Postavení",
     "time": "Čas",
     "title": "Odezva",
+    "video": "Video",
     "waiting_for_connection": "čekání na připojení",
     "xml": "XML"
   },

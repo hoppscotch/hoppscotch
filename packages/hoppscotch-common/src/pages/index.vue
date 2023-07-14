@@ -79,8 +79,9 @@
       @resolve="onResolveConfirmSaveTab"
     />
     <CollectionsSaveRequest
+      v-if="savingRequest"
+      mode="rest"
       :show="savingRequest"
-      :mode="'rest'"
       @hide-modal="onSaveModalClose"
     />
   </div>
@@ -153,8 +154,11 @@ function bindRequestToURLParams() {
     // If query params are empty, or contains code or error param (these are from Oauth Redirect)
     // We skip URL params parsing
     if (Object.keys(query).length === 0 || query.code || query.error) return
+
+    const request = currentActiveTab.value.document.request
+
     currentActiveTab.value.document.request = safelyExtractRESTRequest(
-      translateExtURLParams(query),
+      translateExtURLParams(query, request),
       getDefaultRESTRequest()
     )
   })

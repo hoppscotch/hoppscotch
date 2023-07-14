@@ -284,6 +284,14 @@ const importerAction = async (stepResults: StepReturnValue[]) => {
           emit("import-to-teams", result)
         } else {
           appendRESTCollections(result)
+
+          platform.analytics?.logEvent({
+            type: "HOPP_IMPORT_COLLECTION",
+            importer: importerModule.value!.name,
+            platform: "rest",
+            workspaceType: "personal",
+          })
+
           fileImported()
         }
       }

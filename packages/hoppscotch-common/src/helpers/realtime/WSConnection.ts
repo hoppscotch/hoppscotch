@@ -71,7 +71,8 @@ export class WSConnection {
       this.handleError(error as SyntaxError)
     }
 
-    platform.analytics?.logHoppRequestRunToAnalytics({
+    platform.analytics?.logEvent({
+      type: "HOPP_REQUEST_RUN",
       platform: "wss",
     })
   }

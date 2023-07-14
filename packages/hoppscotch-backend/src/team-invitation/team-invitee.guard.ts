@@ -33,7 +33,7 @@ export class TeamInviteeGuard implements CanActivate {
       // Get user
       TE.bindW('user', ({ gqlCtx }) =>
         pipe(
-          O.fromNullable(gqlCtx.getContext<{ user?: User }>().user),
+          O.fromNullable(gqlCtx.getContext().req.user),
           TE.fromOption(() => BUG_AUTH_NO_USER_CTX),
         ),
       ),

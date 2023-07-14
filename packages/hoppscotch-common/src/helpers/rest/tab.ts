@@ -6,6 +6,7 @@ import { refWithControl } from "@vueuse/core"
 import { HoppRESTResponse } from "../types/HoppRESTResponse"
 import { getDefaultRESTRequest } from "./default"
 import { HoppTestResult } from "../types/HoppTestResult"
+import { platform } from "~/platform"
 
 export type HoppRESTTab = {
   id: string
@@ -146,6 +147,10 @@ export function createNewTab(document: HoppRESTDocument, switchToIt = true) {
   if (switchToIt) {
     currentTabID.value = id
   }
+
+  platform.analytics?.logEvent({
+    type: "HOPP_REST_NEW_TAB_OPENED",
+  })
 
   return tab
 }

@@ -484,7 +484,7 @@ watch(editor, () => {
     @apply border-b border-x border-divider;
     @apply overflow-y-auto;
     @apply -left-[1px];
-    @apply right-0;
+    @apply -right-[1px];
 
     top: calc(100% + 1px);
     border-radius: 0 0 8px 8px;

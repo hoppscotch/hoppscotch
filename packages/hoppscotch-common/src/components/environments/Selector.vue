@@ -52,6 +52,7 @@
         <HoppSmartItem
           v-else-if="isScopeSelector && modelValue"
           :label="t('environment.global')"
+          :icon="IconGlobe"
           :info-icon="modelValue.type === 'global' ? IconCheck : undefined"
           :active-info-icon="modelValue.type === 'global'"
           @click="
@@ -148,6 +149,7 @@
 import { computed, onMounted, ref, watch } from "vue"
 import IconCheck from "~icons/lucide/check"
 import IconLayers from "~icons/lucide/layers"
+import IconGlobe from "~icons/lucide/globe"
 import { TippyComponent } from "vue-tippy"
 import { useI18n } from "~/composables/i18n"
 import { GQLError } from "~/helpers/backend/GQLClient"

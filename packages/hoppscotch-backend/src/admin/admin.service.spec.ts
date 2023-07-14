@@ -216,7 +216,7 @@ describe('AdminService', () => {
 
   describe('pendingInvitationCountInTeam', () => {
     test('should resolve right and return the count of pending invitations in a team', async () => {
-      mockTeamInvitationService.getAllTeamInvitations.mockResolvedValueOnce(
+      mockTeamInvitationService.getTeamInvitations.mockResolvedValueOnce(
         teamInvitations,
       );
 
@@ -224,7 +224,7 @@ describe('AdminService', () => {
 
       expect(result).toEqual(teamInvitations);
       expect(
-        mockTeamInvitationService.getAllTeamInvitations,
+        mockTeamInvitationService.getTeamInvitations,
       ).toHaveBeenCalledWith('team1');
     });
   });
@@ -383,6 +383,9 @@ describe('AdminService', () => {
       );
       mockTeamService.addMemberToTeamWithEmail.mockResolvedValueOnce(
         E.right(teamMembers[0]),
+      );
+      mockTeamInvitationService.getTeamInviteByEmailAndTeamID.mockResolvedValueOnce(
+        E.right(teamInvitations[0])
       );
 
       const result = await adminService.addUserToTeam(teamID, userEmail, role);

@@ -1,21 +1,21 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
-import { pipe } from 'fp-ts/function';
 import { TeamService } from 'src/team/team.service';
 import { TeamInvitationService } from './team-invitation.service';
 import * as O from 'fp-ts/Option';
-import * as T from 'fp-ts/Task';
-import * as TE from 'fp-ts/TaskEither';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import {
   BUG_AUTH_NO_USER_CTX,
   BUG_TEAM_INVITE_NO_INVITE_ID,
   TEAM_INVITE_NO_INVITE_FOUND,
+  TEAM_MEMBER_NOT_FOUND,
   TEAM_NOT_REQUIRED_ROLE,
 } from 'src/errors';
-import { User } from 'src/user/user.model';
 import { throwErr } from 'src/utils';
 import { TeamMemberRole } from 'src/team/team.model';
 
+/**
+ * This guard only allows team owner to execute the resolver
+ */
 @Injectable()
 export class TeamInviteTeamOwnerGuard implements CanActivate {
   constructor(
@@ -24,48 +24,30 @@ export class TeamInviteTeamOwnerGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    return pipe(
-      TE.Do,
+    // Get GQL context
+    const gqlExecCtx = GqlExecutionContext.create(context);
 
-      TE.bindW('gqlCtx', () => TE.of(GqlExecutionContext.create(context))),
+    // Get user
+    const { user } = gqlExecCtx.getContext().req;
+    if (!user) throwErr(BUG_AUTH_NO_USER_CTX);
 
-      // Get the invite
-      TE.bindW('invite', ({ gqlCtx }) =>
-        pipe(
-          O.fromNullable(gqlCtx.getArgs<{ inviteID?: string }>().inviteID),
-          TE.fromOption(() => BUG_TEAM_INVITE_NO_INVITE_ID),
-          TE.chainW((inviteID) =>
-            pipe(
-              this.teamInviteService.getInvitation(inviteID),
-              TE.fromTaskOption(() => TEAM_INVITE_NO_INVITE_FOUND),
-            ),
-          ),
-        ),
-      ),
+    // Get the invite
+    const { inviteID } = gqlExecCtx.getArgs<{ inviteID: string }>();
+    if (!inviteID) throwErr(BUG_TEAM_INVITE_NO_INVITE_ID);
 
-      TE.bindW('user', ({ gqlCtx }) =>
-        pipe(
-          gqlCtx.getContext().req.user,
-          O.fromNullable,
-          TE.fromOption(() => BUG_AUTH_NO_USER_CTX),
-        ),
-      ),
+    const invitation = await this.teamInviteService.getInvitation(inviteID);
+    if (O.isNone(invitation)) throwErr(TEAM_INVITE_NO_INVITE_FOUND);
 
-      TE.bindW('userMember', ({ invite, user }) =>
-        this.teamService.getTeamMemberTE(invite.teamID, user.uid),
-      ),
+    // Fetch team member details of this user
+    const teamMember = await this.teamService.getTeamMember(
+      invitation.value.teamID,
+      user.uid,
+    );
 
-      TE.chainW(
-        TE.fromPredicate(
-          ({ userMember }) => userMember.role === TeamMemberRole.OWNER,
-          () => TEAM_NOT_REQUIRED_ROLE,
-        ),
-      ),
+    if (!teamMember) throwErr(TEAM_MEMBER_NOT_FOUND);
+    if (teamMember.role !== TeamMemberRole.OWNER)
+      throwErr(TEAM_NOT_REQUIRED_ROLE);
 
-      TE.fold(
-        (err) => throwErr(err),
-        () => T.of(true),
-      ),
-    )();
+    return true;
   }
 }

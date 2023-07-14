@@ -63,7 +63,7 @@ import { GQLHistoryEntry } from "~/newstore/history"
 import { shortDateTime } from "~/helpers/utils/date"
 
 import IconStar from "~icons/lucide/star"
-import IconStarOff from "~icons/lucide/star-off"
+import IconStarOff from "~icons/hopp/star-off"
 import IconTrash from "~icons/lucide/trash"
 import IconMinimize2 from "~icons/lucide/minimize-2"
 import IconMaximize2 from "~icons/lucide/maximize-2"

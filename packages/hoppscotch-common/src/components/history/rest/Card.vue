@@ -55,7 +55,7 @@ import { RESTHistoryEntry } from "~/newstore/history"
 import { shortDateTime } from "~/helpers/utils/date"
 
 import IconStar from "~icons/lucide/star"
-import IconStarOff from "~icons/lucide/star-off"
+import IconStarOff from "~icons/hopp/star-off"
 import IconTrash from "~icons/lucide/trash"
 
 const props = defineProps<{

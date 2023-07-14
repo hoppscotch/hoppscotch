@@ -305,7 +305,7 @@ const envVars = computed(() =>
 const envTooltipPlugin = new HoppReactiveEnvPlugin(envVars, view)
 
 const initView = (el: any) => {
-  // // event for text selection via mouse or keyboard for emiting text-selection event when mouse is released
+  // event for text selection via mouse or keyboard for emiting text-selection event when mouse is released
   let isMouseDown = false
   let isKeyDown = false
 

@@ -11,10 +11,16 @@ import { createNewTab } from "~/helpers/rest/tab"
 import { getDefaultRESTRequest } from "~/helpers/rest/default"
 import { getI18n } from "~/modules/i18n"
 
-//regex containing both url
-const url = new RegExp(
-  /((([A-Za-z]{3,9}:(?:\/\/)?)(?:[\-;:&=\+\$,\w]+@)?[A-Za-z0-9\.\-]+|(?:www\.|[\-;:&=\+\$,\w]+@)[A-Za-z0-9\.\-]+)((?:\/[\+~%\/\.\w\-_]*)?\??(?:[\-\+=&;%@\.\w_]*)#?(?:[\.\!\/\\\w]*))?)/
-)
+function isValidURL(url: string) {
+  try {
+    new URL(url)
+    return true
+  } catch (error) {
+    // Fallback to regular expression check
+    const pattern = /^(https?:\/\/)?([\w.-]+)(\.[\w.-]+)+([/?].*)?$/
+    return pattern.test(url)
+  }
+}
 
 export class URLMenuService extends Service implements ContextMenu {
   public static readonly ID = "URL_CONTEXT_MENU_SERVICE"
@@ -47,7 +53,7 @@ export class URLMenuService extends Service implements ContextMenu {
   getMenuFor(text: Readonly<string>): ContextMenuState {
     const results = ref<ContextMenuResult[]>([])
 
-    if (url.test(text)) {
+    if (isValidURL(text)) {
       results.value = [
         {
           id: "link-tab",

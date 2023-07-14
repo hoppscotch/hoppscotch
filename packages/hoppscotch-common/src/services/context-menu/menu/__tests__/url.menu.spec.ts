@@ -36,9 +36,16 @@ describe("URLMenuService", () => {
 
   describe("getMenuFor", () => {
     it("validating if the text passes the regex and return the menu", () => {
-      const urlRegex = new RegExp(
-        /^(?:(?:https?|ftp):\/\/)?(?:www\.)?(?:[A-Za-z0-9_-]+\.)*[A-Za-z0-9_-]+(?::\d+)?$/
-      )
+      function isValidURL(url: string) {
+        try {
+          new URL(url)
+          return true
+        } catch (error) {
+          // Fallback to regular expression check
+          const pattern = /^(https?:\/\/)?([\w.-]+)(\.[\w.-]+)+([/?].*)?$/
+          return pattern.test(url)
+        }
+      }
 
       const container = new TestContainer()
       const url = container.bind(URLMenuService)
@@ -46,7 +53,7 @@ describe("URLMenuService", () => {
       const test = ""
       const result = url.getMenuFor(test)
 
-      if (urlRegex.test(test)) {
+      if (isValidURL(test)) {
         expect(result.results).toContainEqual(
           expect.objectContaining({ id: "link-tab" })
         )

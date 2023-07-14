@@ -89,7 +89,6 @@
     "util": "^0.12.4",
     "uuid": "^8.3.2",
     "vue": "^3.2.25",
-    "vue-github-button": "^3.0.3",
     "vue-i18n": "^9.2.2",
     "vue-pdf-embed": "^1.1.4",
     "vue-router": "^4.0.16",

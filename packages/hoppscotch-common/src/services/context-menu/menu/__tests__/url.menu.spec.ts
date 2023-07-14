@@ -75,28 +75,5 @@ describe("URLMenuService", () => {
         isDirty: false,
       })
     })
-
-    it("should call the openInBrowser function when action is called and a new browser tab is opened", () => {
-      const browserMock = vi.hoisted(() => ({
-        open: vi.fn(),
-      }))
-
-      window.open = browserMock.open
-
-      const container = new TestContainer()
-      const url = container.bind(URLMenuService)
-
-      const test = "https://hoppscotch.io"
-      const result = url.getMenuFor(test)
-
-      result.results[1].action(test)
-
-      expect(browserMock.open).toHaveBeenCalledOnce()
-      expect(browserMock.open).toHaveBeenCalledWith(
-        test,
-        "_blank",
-        "noopener noreferrer"
-      )
-    })
   })
 })

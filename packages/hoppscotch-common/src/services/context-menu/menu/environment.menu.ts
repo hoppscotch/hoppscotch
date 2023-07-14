@@ -7,7 +7,7 @@ import {
 } from "../"
 import { markRaw, ref } from "vue"
 import { invokeAction } from "~/helpers/actions"
-import IconPlus from "~icons/lucide/plus"
+import IconPlusCircle from "~icons/lucide/plus-circle"
 import { getI18n } from "~/modules/i18n"
 
 export class EnvironmentMenuService extends Service implements ContextMenu {
@@ -35,7 +35,7 @@ export class EnvironmentMenuService extends Service implements ContextMenu {
           type: "text",
           text: this.t("context_menu.set_environment_variable"),
         },
-        icon: markRaw(IconPlus),
+        icon: markRaw(IconPlusCircle),
         action: () => {
           invokeAction("modals.environment.add", {
             envName: "test",

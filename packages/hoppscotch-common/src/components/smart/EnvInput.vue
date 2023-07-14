@@ -353,6 +353,7 @@ const initView = (el: any) => {
   const extensions: Extension = [
     EditorView.lineWrapping,
     EditorView.contentAttributes.of({ "aria-label": props.placeholder }),
+    EditorView.contentAttributes.of({ "data-enable-grammarly": "false" }),
     EditorView.updateListener.of((update) => {
       if (props.readonly) {
         update.view.contentDOM.inputMode = "none"

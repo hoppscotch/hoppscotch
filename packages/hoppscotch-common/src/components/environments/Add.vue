@@ -5,8 +5,8 @@
     @close="hideModal"
   >
     <template #body>
-      <div class="flex space-y-4 py-2 flex-1 flex-col">
-        <div class="flex items-center space-x-8">
+      <div class="flex space-y-4 flex-1 flex-col">
+        <div class="flex items-center space-x-8 ml-2">
           <label for="name" class="font-semibold min-w-10">{{
             t("environment.name")
           }}</label>
@@ -17,32 +17,33 @@
             class="input"
           />
         </div>
-
-        <div class="flex items-center space-x-8">
+        <div class="flex items-center space-x-8 ml-2">
           <label for="value" class="font-semibold min-w-10">{{
             t("environment.value")
           }}</label>
           <input type="text" :value="value" class="input" />
         </div>
-      </div>
-      <div class="flex items-center space-x-8">
-        <label for="scope" class="font-semibold min-w-10">
-          {{ t("environment.scope") }}
-        </label>
-        <div class="relative flex flex-1 flex-col">
-          <EnvironmentsSelector v-model="scope" :is-scope-selector="true" />
+        <div class="flex items-center space-x-8 ml-2">
+          <label for="scope" class="font-semibold min-w-10">
+            {{ t("environment.scope") }}
+          </label>
+          <div
+            class="relative flex flex-1 flex-col border border-divider rounded focus-visible:border-dividerDark"
+          >
+            <EnvironmentsSelector v-model="scope" :is-scope-selector="true" />
+          </div>
         </div>
-      </div>
-      <div v-if="replaceWithVariable" class="flex space-x-2 mt-3">
-        <div class="min-w-18" />
-        <HoppSmartCheckbox
-          :on="replaceWithVaiable"
-          title="t('environment.replace_with_variable'))"
-          @change="replaceWithVaiable = !replaceWithVaiable"
-        />
-        <label for="replaceWithVariable">
-          {{ t("environment.replace_with_variable") }}</label
-        >
+        <div v-if="replaceWithVariable" class="flex space-x-2 mt-3">
+          <div class="min-w-18" />
+          <HoppSmartCheckbox
+            :on="replaceWithVaiable"
+            title="t('environment.replace_with_variable'))"
+            @change="replaceWithVaiable = !replaceWithVaiable"
+          />
+          <label for="replaceWithVariable">
+            {{ t("environment.replace_with_variable") }}</label
+          >
+        </div>
       </div>
     </template>
     <template #footer>
@@ -206,9 +207,3 @@ const getErrorMessage = (err: GQLError<string>) => {
   }
 }
 </script>
-
-<style lang="scss" scoped>
-.input {
-  @apply flex px-4 py-2 border rounded bg-primaryContrast border-divider hover:border-dividerDark focus-visible:border-dividerDark flex-1;
-}
-</style>

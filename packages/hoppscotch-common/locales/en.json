@@ -151,11 +151,10 @@
     "save_unsaved_tab": "Do you want to save changes made in this tab?",
     "sync": "Would you like to restore your workspace from cloud? This will discard your local progress."
   },
-  "context_menu":{
+  "context_menu": {
     "set_environment_variable": "Set as variable",
     "add_parameter": "Add to parameter",
-    "open_link_in_new_tab": "Open link in Hoppscotch tab",
-    "open_link_in_browser": "Open link in browser window"
+    "open_link_in_new_tab": "Open link in new tab"
   },
   "count": {
     "header": "Header {count}",

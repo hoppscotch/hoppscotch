@@ -47,7 +47,7 @@
     "@esbuild-plugins/node-globals-polyfill": "^0.1.1",
     "@esbuild-plugins/node-modules-polyfill": "^0.1.4",
     "@histoire/plugin-vue": "^0.12.4",
-    "@iconify-json/lucide": "^1.1.40",
+    "@iconify-json/lucide": "^1.1.109",
     "@intlify/vite-plugin-vue-i18n": "^6.0.1",
     "@rushstack/eslint-patch": "^1.1.4",
     "@types/lodash-es": "^4.17.6",

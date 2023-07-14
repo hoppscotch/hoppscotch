@@ -6,8 +6,7 @@ import {
   ContextMenuState,
 } from ".."
 import { markRaw, ref } from "vue"
-import IconTabOpen from "~icons/lucide/file-symlink"
-import IconBrowserOpen from "~icons/lucide/external-link"
+import IconCopyPlus from "~icons/lucide/copy-plus"
 import { createNewTab } from "~/helpers/rest/tab"
 import { getDefaultRESTRequest } from "~/helpers/rest/default"
 import { getI18n } from "~/modules/i18n"
@@ -45,10 +44,6 @@ export class URLMenuService extends Service implements ContextMenu {
     })
   }
 
-  private openInBrowser(url: string) {
-    window.open(url, "_blank", "noopener noreferrer")
-  }
-
   getMenuFor(text: Readonly<string>): ContextMenuState {
     const results = ref<ContextMenuResult[]>([])
 
@@ -60,20 +55,9 @@ export class URLMenuService extends Service implements ContextMenu {
             type: "text",
             text: this.t("context_menu.open_link_in_new_tab"),
           },
-          icon: markRaw(IconTabOpen),
+          icon: markRaw(IconCopyPlus),
           action: () => {
             this.openNewTab(text)
-          },
-        },
-        {
-          id: "link-browser",
-          text: {
-            type: "text",
-            text: this.t("context_menu.open_link_in_browser"),
-          },
-          icon: markRaw(IconBrowserOpen),
-          action: () => {
-            this.openInBrowser(text)
           },
         },
       ]

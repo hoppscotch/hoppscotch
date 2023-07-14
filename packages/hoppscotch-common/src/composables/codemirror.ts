@@ -324,6 +324,7 @@ export function useCodemirror(
           run: indentLess,
         },
       ]),
+      EditorView.contentAttributes.of({ "data-enable-grammarly": "false" }),
     ]
 
     if (environmentTooltip) extensions.push(environmentTooltip.extension)

@@ -1,7 +1,7 @@
 <template>
   <div
     ref="contextMenuRef"
-    class="fixed bg-popover shadow transform translate-y-8 border border-primaryDark rounded"
+    class="fixed bg-popover shadow-lg transform translate-y-8 border border-dividerDark p-2 rounded"
     :style="`top: ${position.top}px; left: ${position.left}px; z-index: 1000;`"
     @blur="emit('update:modelValue', false)"
   >

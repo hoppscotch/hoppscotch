@@ -73,6 +73,6 @@ watch(
       contextMenuOptions.value = options
     }
   },
-  { immediate: true, deep: true }
+  { immediate: true }
 )
 </script>

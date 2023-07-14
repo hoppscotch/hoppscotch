@@ -145,7 +145,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref, watch } from "vue"
+import { computed, onMounted, ref, watch } from "vue"
 import IconCheck from "~icons/lucide/check"
 import IconLayers from "~icons/lucide/layers"
 import { TippyComponent } from "vue-tippy"
@@ -369,6 +369,40 @@ const selectedEnv = computed(() => {
       }
     } else {
       return { type: "NO_ENV_SELECTED" }
+    }
+  }
+})
+
+// Set the selected environment as initial scope value
+onMounted(() => {
+  if (props.isScopeSelector) {
+    if (
+      selectedEnvironmentIndex.value.type === "MY_ENV" &&
+      selectedEnvironmentIndex.value.index !== undefined
+    ) {
+      emit("update:modelValue", {
+        type: "my-environment",
+        environment: myEnvironments.value[selectedEnvironmentIndex.value.index],
+        index: selectedEnvironmentIndex.value.index,
+      })
+    } else if (
+      selectedEnvironmentIndex.value.type === "TEAM_ENV" &&
+      selectedEnvironmentIndex.value.teamEnvID
+    ) {
+      const teamEnv = teamEnvironmentList.value.find(
+        (env) =>
+          env.id ===
+          (selectedEnvironmentIndex.value.type === "TEAM_ENV" &&
+            selectedEnvironmentIndex.value.teamEnvID)
+      )
+      emit("update:modelValue", {
+        type: "team-environment",
+        environment: teamEnv,
+      })
+    } else {
+      emit("update:modelValue", {
+        type: "global",
+      })
     }
   }
 })

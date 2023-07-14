@@ -2,9 +2,12 @@ FROM node:18 as base_builder
 
 WORKDIR /usr/src/app
 
-COPY . .
 RUN npm install -g pnpm
-RUN pnpm install --force
+COPY pnpm-lock.yaml .
+RUN pnpm fetch
+
+COPY . .
+RUN pnpm install --force --offline
 
 FROM base_builder as backend
 WORKDIR /usr/src/app/packages/hoppscotch-backend
@@ -19,9 +22,13 @@ RUN pnpm run generate
 
 FROM caddy:2-alpine as frontend
 WORKDIR /site
+COPY --from=fe_builder /usr/src/app/packages/hoppscotch-sh-admin/prod_run.mjs /usr
 COPY --from=fe_builder /usr/src/app/packages/hoppscotch-selfhost-web/Caddyfile /etc/caddy/Caddyfile
 COPY --from=fe_builder /usr/src/app/packages/hoppscotch-selfhost-web/dist/ .
+RUN apk add nodejs npm
+RUN npm install -g @import-meta-env/cli
 EXPOSE 8080
+CMD ["/bin/sh", "-c", "node /usr/prod_run.mjs && caddy run --config /etc/caddy/Caddyfile --adapter caddyfile"]
 
 FROM base_builder as sh_admin_builder
 WORKDIR /usr/src/app/packages/hoppscotch-sh-admin
@@ -29,6 +36,11 @@ RUN pnpm run build
 
 FROM caddy:2-alpine as sh_admin
 WORKDIR /site
+COPY --from=sh_admin_builder /usr/src/app/packages/hoppscotch-sh-admin/prod_run.mjs /usr
 COPY --from=sh_admin_builder /usr/src/app/packages/hoppscotch-sh-admin/Caddyfile /etc/caddy/Caddyfile
 COPY --from=sh_admin_builder /usr/src/app/packages/hoppscotch-sh-admin/dist/ .
+RUN apk add nodejs npm
+RUN npm install -g @import-meta-env/cli
 EXPOSE 8080
+CMD ["/bin/sh", "-c", "node /usr/prod_run.mjs && caddy run --config /etc/caddy/Caddyfile --adapter caddyfile"]
+

@@ -20,7 +20,7 @@ import { auth } from './helpers/auth';
   const app = createApp(App).use(
     urql,
     createClient({
-      url: import.meta.env.VITE_BACKEND_GQL_URL,
+      url: import.meta.env.APP_BACKEND_GQL_URL,
       requestPolicy: 'network-only',
       fetchOptions: () => {
         return {

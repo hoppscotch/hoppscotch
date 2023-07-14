@@ -28,9 +28,9 @@ import { platform } from "~/platform"
 // TODO: Implement caching
 
 const BACKEND_GQL_URL =
-  import.meta.env.VITE_BACKEND_GQL_URL ?? "https://api.hoppscotch.io/graphql"
+  import.meta.env.APP_BACKEND_GQL_URL ?? "https://api.hoppscotch.io/graphql"
 const BACKEND_WS_URL =
-  import.meta.env.VITE_BACKEND_WS_URL ?? "wss://api.hoppscotch.io/graphql"
+  import.meta.env.APP_BACKEND_WS_URL ?? "wss://api.hoppscotch.io/graphql"
 
 type GQLOpType = "query" | "mutation" | "subscription"
 /**

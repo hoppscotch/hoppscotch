@@ -52,17 +52,17 @@ function initSentry(dsn: string, router: Router, app: App) {
   Sentry.init({
     app,
     dsn,
-    release: import.meta.env.VITE_SENTRY_RELEASE_TAG ?? undefined,
+    release: import.meta.env.APP_SENTRY_RELEASE_TAG ?? undefined,
     environment: APP_IS_IN_DEV_MODE
       ? "dev"
-      : import.meta.env.VITE_SENTRY_ENVIRONMENT,
+      : import.meta.env.APP_SENTRY_ENVIRONMENT,
     integrations: [
       new BrowserTracing({
         routingInstrumentation: Sentry.vueRouterInstrumentation(
           getInstrumentationVueRouter(router)
         ),
         // TODO: We may want to limit this later on
-        tracingOrigins: [new URL(import.meta.env.VITE_BACKEND_GQL_URL).origin],
+        tracingOrigins: [new URL(import.meta.env.APP_BACKEND_GQL_URL).origin],
       }),
     ],
     tracesSampleRate: 0.8,
@@ -175,7 +175,7 @@ function subscribeForAppDataTags() {
 
 export default <HoppModule>{
   onRouterInit(app, router) {
-    if (!import.meta.env.VITE_SENTRY_DSN) {
+    if (!import.meta.env.APP_SENTRY_DSN) {
       console.log(
         "Sentry tracing is not enabled because 'VITE_SENTRY_DSN' env is not defined"
       )
@@ -183,14 +183,14 @@ export default <HoppModule>{
     }
 
     if (settingsStore.value.TELEMETRY_ENABLED) {
-      initSentry(import.meta.env.VITE_SENTRY_DSN, router, app)
+      initSentry(import.meta.env.APP_SENTRY_DSN, router, app)
     }
 
     settingsStore.subject$.subscribe(({ TELEMETRY_ENABLED }) => {
       if (!TELEMETRY_ENABLED && sentryActive) {
         deinitSentry()
       } else if (TELEMETRY_ENABLED && !sentryActive) {
-        initSentry(import.meta.env.VITE_SENTRY_DSN!, router, app)
+        initSentry(import.meta.env.APP_SENTRY_DSN!, router, app)
       }
     })
 

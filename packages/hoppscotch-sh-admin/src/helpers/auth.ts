@@ -55,27 +55,27 @@ const currentUser$ = new BehaviorSubject<HoppUser | null>(null);
 export const probableUser$ = new BehaviorSubject<HoppUser | null>(null);
 
 async function logout() {
-  await axios.get(`${import.meta.env.VITE_BACKEND_API_URL}/auth/logout`, {
+  await axios.get(`${import.meta.env.APP_BACKEND_API_URL}/auth/logout`, {
     withCredentials: true,
   });
 }
 
 async function signInUserWithGithubFB() {
   window.location.href = `${
-    import.meta.env.VITE_BACKEND_API_URL
-  }/auth/github?redirect_uri=${import.meta.env.VITE_ADMIN_URL}`;
+    import.meta.env.APP_BACKEND_API_URL
+  }/auth/github?redirect_uri=${import.meta.env.APP_ADMIN_URL}`;
 }
 
 async function signInUserWithGoogleFB() {
   window.location.href = `${
-    import.meta.env.VITE_BACKEND_API_URL
-  }/auth/google?redirect_uri=${import.meta.env.VITE_ADMIN_URL}`;
+    import.meta.env.APP_BACKEND_API_URL
+  }/auth/google?redirect_uri=${import.meta.env.APP_ADMIN_URL}`;
 }
 
 async function signInUserWithMicrosoftFB() {
   window.location.href = `${
-    import.meta.env.VITE_BACKEND_API_URL
-  }/auth/microsoft?redirect_uri=${import.meta.env.VITE_ADMIN_URL}`;
+    import.meta.env.APP_BACKEND_API_URL
+  }/auth/microsoft?redirect_uri=${import.meta.env.APP_ADMIN_URL}`;
 }
 
 async function getInitialUserDetails() {
@@ -95,7 +95,7 @@ async function getInitialUserDetails() {
       message: string;
     }>;
   }>(
-    `${import.meta.env.VITE_BACKEND_GQL_URL}`,
+    `${import.meta.env.APP_BACKEND_GQL_URL}`,
     {
       query: `query Me {
       me {
@@ -189,7 +189,7 @@ async function setInitialUser() {
 
 async function refreshToken() {
   const res = await axios.get(
-    `${import.meta.env.VITE_BACKEND_API_URL}/auth/refresh`,
+    `${import.meta.env.APP_BACKEND_API_URL}/auth/refresh`,
     {
       withCredentials: true,
     }
@@ -208,7 +208,7 @@ async function refreshToken() {
 
 async function elevateUser() {
   const res = await axios.get(
-    `${import.meta.env.VITE_BACKEND_API_URL}/auth/verify/admin`,
+    `${import.meta.env.APP_BACKEND_API_URL}/auth/verify/admin`,
     {
       withCredentials: true,
     }
@@ -219,7 +219,7 @@ async function elevateUser() {
 
 async function sendMagicLink(email: string) {
   const res = await axios.post(
-    `${import.meta.env.VITE_BACKEND_API_URL}/auth/signin?origin=admin`,
+    `${import.meta.env.APP_BACKEND_API_URL}/auth/signin?origin=admin`,
     {
       email,
     },
@@ -337,7 +337,7 @@ export const auth = {
     const deviceIdentifier = getLocalConfig('deviceIdentifier');
 
     await axios.post(
-      `${import.meta.env.VITE_BACKEND_API_URL}/auth/verify`,
+      `${import.meta.env.APP_BACKEND_API_URL}/auth/verify`,
       {
         token: token,
         deviceIdentifier,
@@ -383,7 +383,7 @@ export const auth = {
       await this.signInWithEmailLink(deviceIdentifier, window.location.href);
 
       removeLocalConfig('deviceIdentifier');
-      window.location.href = import.meta.env.VITE_ADMIN_URL;
+      window.location.href = import.meta.env.APP_ADMIN_URL;
     }
   },
 };

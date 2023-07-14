@@ -3,7 +3,6 @@
     ref="contextMenuRef"
     class="fixed bg-popover shadow-lg transform translate-y-8 border border-dividerDark p-2 rounded"
     :style="`top: ${position.top}px; left: ${position.left}px; z-index: 1000;`"
-    @blur="emit('update:modelValue', false)"
   >
     <div v-if="contextMenuOptions" class="flex flex-col">
       <div
@@ -36,14 +35,13 @@ import { ParameterMenuService } from "~/services/context-menu/menu/parameter.men
 import { URLMenuService } from "~/services/context-menu/menu/url.menu"
 
 const props = defineProps<{
-  modelValue: boolean
+  show: boolean
   position: { top: number; left: number }
   text: string | null
 }>()
 
 const emit = defineEmits<{
-  (e: "action"): void
-  (e: "update:modelValue", data: boolean): void
+  (e: "hide-modal"): void
 }>()
 
 const contextMenuRef = ref<any | null>(null)
@@ -52,7 +50,7 @@ const contextMenuOptions = ref<ContextMenuResult[]>([])
 
 // onClickOutside(contextMenuRef, () => {
 //   if (props.modelValue && props.show && props.text) {
-//     emit("update:modelValue", false)
+//     emit("hide-modal", false)
 //   }
 // })
 
@@ -64,17 +62,17 @@ useService(URLMenuService)
 
 const handleClick = (option: { action: () => void }) => {
   option.action()
-  emit("update:modelValue", false)
+  emit("hide-modal")
 }
 
 watch(
-  () => props.modelValue,
+  () => [props.show, props.text],
   (val) => {
     if (val && props.text) {
       const options = contextMenuService.getMenuFor(props.text)
       contextMenuOptions.value = options
     }
   },
-  { immediate: true }
+  { immediate: true, deep: true }
 )
 </script>

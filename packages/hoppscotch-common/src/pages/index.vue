@@ -85,10 +85,11 @@
       @hide-modal="onSaveModalClose"
     />
     <AppContextMenu
-      v-if="contextMenuSmallPopup.show"
-      v-model="contextMenuSmallPopup.show"
-      :position="contextMenuSmallPopup.position"
-      :text="contextMenuSmallPopup.text"
+      v-if="contextMenu.show"
+      :show="contextMenu.show"
+      :position="contextMenu.position"
+      :text="contextMenu.text"
+      @hide-modal="contextMenu.show = false"
     />
   </div>
 </template>
@@ -153,7 +154,7 @@ type PopupDetails = {
   text: string | null
 }
 
-const contextMenuSmallPopup = ref<PopupDetails>({
+const contextMenu = ref<PopupDetails>({
   show: false,
   position: {
     top: 0,
@@ -391,13 +392,13 @@ function oAuthURL() {
 
 defineActionHandler("contextmenu.open", ({ position, text }) => {
   if (text) {
-    contextMenuSmallPopup.value = {
+    contextMenu.value = {
       show: true,
       position,
       text,
     }
   } else {
-    contextMenuSmallPopup.value = {
+    contextMenu.value = {
       show: false,
       position,
       text,

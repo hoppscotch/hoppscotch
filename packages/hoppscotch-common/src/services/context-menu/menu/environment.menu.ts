@@ -27,7 +27,6 @@ export class EnvironmentMenuService extends Service implements ContextMenu {
 
   getMenuFor(text: Readonly<string>): ContextMenuState {
     const results = ref<ContextMenuResult[]>([])
-
     results.value = [
       {
         id: "environment",

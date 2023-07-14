@@ -96,7 +96,6 @@ declare module '@vue/runtime-core' {
     HoppSmartSpinner: typeof import('@hoppscotch/ui')['HoppSmartSpinner']
     HoppSmartTab: typeof import('@hoppscotch/ui')['HoppSmartTab']
     HoppSmartTabs: typeof import('@hoppscotch/ui')['HoppSmartTabs']
-    HoppSmartToggle: typeof import('@hoppscotch/ui')['HoppSmartToggle']
     HoppSmartWindow: typeof import('@hoppscotch/ui')['HoppSmartWindow']
     HoppSmartWindows: typeof import('@hoppscotch/ui')['HoppSmartWindows']
     HttpAuthorization: typeof import('./components/http/Authorization.vue')['default']
@@ -135,10 +134,7 @@ declare module '@vue/runtime-core' {
     IconLucideLayers: typeof import('~icons/lucide/layers')['default']
     IconLucideListEnd: typeof import('~icons/lucide/list-end')['default']
     IconLucideMinus: typeof import('~icons/lucide/minus')['default']
-<<<<<<< HEAD
     IconLucideRss: typeof import('~icons/lucide/rss')['default']
-=======
->>>>>>> 6db825779 (fix: firefox browser scrollbar issue)
     IconLucideSearch: typeof import('~icons/lucide/search')['default']
     IconLucideUsers: typeof import('~icons/lucide/users')['default']
     LensesHeadersRenderer: typeof import('./components/lenses/HeadersRenderer.vue')['default']

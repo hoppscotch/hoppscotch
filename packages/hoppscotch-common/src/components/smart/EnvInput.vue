@@ -328,17 +328,17 @@ const initView = (el: any) => {
         if (text) {
           invokeAction("contextmenu.open", {
             position: {
-              top: top,
-              left: left,
+              top,
+              left,
             },
-            text: text,
+            text,
           })
           showSuggestionPopover.value = false
         } else {
           invokeAction("contextmenu.open", {
             position: {
-              top: top,
-              left: left,
+              top,
+              left,
             },
             text: null,
           })

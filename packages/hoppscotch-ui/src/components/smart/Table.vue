@@ -127,9 +127,3 @@ const subtitleColumns = computed(() =>
 const itemSubtitle = (subtitle: string | string[], rowIndex: number) =>
   typeof subtitle === "object" ? subtitle[rowIndex] : subtitle
 </script>
-
-<style scoped>
-.tippy-box[data-theme~="popover"] .tippy-content {
-  padding: 0;
-}
-</style>

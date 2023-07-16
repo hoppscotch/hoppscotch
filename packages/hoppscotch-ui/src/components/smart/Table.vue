@@ -151,9 +151,3 @@ const cellStyle = (colName: string, rowIndex: number) => {
   return style ? style : ""
 }
 </script>
-
-<style scoped>
-.tippy-box[data-theme~="popover"] .tippy-content {
-  padding: 0;
-}
-</style>

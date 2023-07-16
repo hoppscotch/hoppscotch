@@ -67,11 +67,13 @@ services:
       - "5432:5432"
     user: postgres
     environment:
+      # The default user defined by the docker image
+      POSTGRES_USER: postgres
       # NOTE: Please UPDATE THIS PASSWORD!
       POSTGRES_PASSWORD: testpass
       POSTGRES_DB: hoppscotch
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready" ]
+      test: ["CMD-SHELL", "sh -c 'pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}'"]
       interval: 5s
       timeout: 5s
       retries: 10

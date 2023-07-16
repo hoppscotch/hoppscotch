@@ -19,36 +19,41 @@
       >
       </HoppSmartPlaceholder>
       <div v-else-if="!loading">
-        <div
-          class="hidden w-full border-t rounded-t bg-primaryLight lg:flex border-x border-dividerLight"
-        >
-          <div class="flex w-full overflow-y-scroll">
-            <div class="table-box">
-              {{ t("shortcodes.short_code") }}
-            </div>
-            <div class="table-box">
-              {{ t("shortcodes.method") }}
-            </div>
-            <div class="table-box">
-              {{ t("shortcodes.url") }}
-            </div>
-            <div class="table-box">
-              {{ t("shortcodes.created_on") }}
-            </div>
-            <div class="justify-center table-box">
-              {{ t("shortcodes.actions") }}
-            </div>
-          </div>
-        </div>
-        <div
-          class="flex flex-col items-center justify-between w-full overflow-y-scroll border rounded max-h-sm lg:rounded-t-none lg:divide-y border-dividerLight divide-dividerLight"
-        >
-          <ProfileShortcode
-            v-for="(shortcode, shortcodeIndex) in myShortcodes"
-            :key="`shortcode-${shortcodeIndex}`"
-            :shortcode="shortcode"
-            @delete-shortcode="deleteShortcode"
-          />
+        <div>
+          <HoppSmartTable
+            :cell-styles="requestMethodColors"
+            :list="shortcodeList"
+            :headings="headings"
+          >
+            <template #action="{ item }">
+              <div class="flex flex-1 items-end py-2 truncate">
+                <HoppButtonSecondary
+                  v-tippy="{ theme: 'tooltip' }"
+                  :title="t('action.open_workspace')"
+                  :to="`${shortcodeBaseURL}/r/${item.id}`"
+                  blank
+                  :icon="IconExternalLink"
+                  class="px-3 text-accent hover:text-accent"
+                />
+                <HoppButtonSecondary
+                  v-tippy="{ theme: 'tooltip' }"
+                  :title="t('action.copy')"
+                  color="green"
+                  :icon="copyIconRefs"
+                  class="px-3"
+                  @click="copyShortcode(item.id)"
+                />
+                <HoppButtonSecondary
+                  v-tippy="{ theme: 'tooltip' }"
+                  :title="t('action.delete')"
+                  :icon="IconTrash"
+                  color="red"
+                  class="px-3"
+                  @click="deleteShortcode(item.id)"
+                />
+              </div>
+            </template>
+          </HoppSmartTable>
           <HoppSmartIntersection
             v-if="hasMoreShortcodes && myShortcodes.length > 0"
             @intersecting="loadMoreShortcodes()"
@@ -74,6 +79,8 @@
 import { ref, watchEffect, computed } from "vue"
 import { pipe } from "fp-ts/function"
 import * as TE from "fp-ts/TaskEither"
+import * as RR from "fp-ts/ReadonlyRecord"
+import * as O from "fp-ts/Option"
 import { GQLError } from "~/helpers/backend/GQLClient"
 import { platform } from "~/platform"
 
@@ -83,9 +90,19 @@ import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
 import { useColorMode } from "@composables/theming"
 import { usePageHead } from "@composables/head"
+import { copyToClipboard } from "~/helpers/utils/clipboard"
+import { Shortcode } from "~/helpers/shortcodes/Shortcode"
+import { shortDateTime } from "~/helpers/utils/date"
+import { translateToNewRequest } from "@hoppscotch/data"
+import { refAutoReset } from "@vueuse/core"
 
 import ShortcodeListAdapter from "~/helpers/shortcodes/ShortcodeListAdapter"
 import { deleteShortcode as backendDeleteShortcode } from "~/helpers/backend/mutations/Shortcode"
+
+import IconTrash from "~icons/lucide/trash"
+import IconExternalLink from "~icons/lucide/external-link"
+import IconCopy from "~icons/lucide/copy"
+import IconCheck from "~icons/lucide/check"
 
 const t = useI18n()
 const toast = useToast()
@@ -129,8 +146,8 @@ onAuthEvent((ev) => {
   }
 })
 
-const deleteShortcode = (codeID: string) => {
-  pipe(
+const deleteShortcode = async (codeID: string) => {
+  await pipe(
     backendDeleteShortcode(codeID),
     TE.match(
       (err: GQLError<string>) => {
@@ -159,10 +176,70 @@ const getErrorMessage = (err: GQLError<string>) => {
     }
   }
 }
-</script>
 
-<style lang="scss" scoped>
-.table-box {
-  @apply flex flex-1 items-center px-4 py-2 truncate;
+const shortcodeBaseURL =
+  import.meta.env.VITE_SHORTCODE_BASE_URL ?? "https://hopp.sh"
+
+const copyShortcode = (codeID: string) => {
+  copyToClipboard(`${shortcodeBaseURL}/r/${codeID}`)
+  toast.success(`${t("state.copied_to_clipboard")}`)
+  copyIconRefs.value = IconCheck
 }
-</style>
+
+const copyIconRefs = refAutoReset<typeof IconCopy | typeof IconCheck>(
+  IconCopy,
+  1000
+)
+
+const dateStamp = (shortcode: Shortcode) => shortDateTime(shortcode.createdOn)
+
+const parseShortcodeRequestMethod = (shortcode: Shortcode) =>
+  pipe(shortcode.request, JSON.parse, translateToNewRequest).method
+
+const parseShortcodeRequestEndpoint = (shortcode: Shortcode) =>
+  pipe(shortcode.request, JSON.parse, translateToNewRequest).endpoint
+
+const headings = [
+  t("shortcodes.short_code"),
+  t("shortcodes.method"),
+  t("shortcodes.url"),
+  t("shortcodes.created_on"),
+  t("shortcodes.actions"),
+]
+
+const shortcodeList = computed(() => {
+  return myShortcodes.value?.map((shortcode) => {
+    return {
+      id: shortcode.id,
+      method: parseShortcodeRequestMethod(shortcode),
+      endpoint: parseShortcodeRequestEndpoint(shortcode),
+      createdOn: dateStamp(shortcode),
+    }
+  })
+})
+
+const requestMethodLabels = {
+  get: "text-green-500",
+  post: "text-yellow-500",
+  put: "text-blue-500",
+  delete: "text-red-500",
+  default: "text-gray-500",
+} as const
+
+const requestLabelColor = (shortcode: Shortcode) =>
+  pipe(
+    requestMethodLabels,
+    RR.lookup(parseShortcodeRequestMethod(shortcode).toLowerCase()),
+    O.getOrElseW(() => requestMethodLabels.default)
+  )
+
+const requestMethodColors = computed(() => {
+  return myShortcodes.value?.map((shortcode, index) => {
+    return {
+      colName: "method",
+      rowIndex: index,
+      style: requestLabelColor(shortcode),
+    }
+  })
+})
+</script>

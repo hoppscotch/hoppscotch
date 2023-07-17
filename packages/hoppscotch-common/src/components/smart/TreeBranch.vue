@@ -94,14 +94,16 @@ const props = defineProps<{
 const CHILD_SLOT_NAME = "default"
 const t = useI18n()
 
+const isOnlyRootChild = computed(() => props.rootNodesLength === 1)
+
 /**
  * Marks whether the children on this branch were ever rendered
  * See the usage inside '<template>' for more info
  */
-const childrenRendered = ref(props.rootNodesLength === 1 ? true : false)
+const childrenRendered = ref(isOnlyRootChild.value)
 
-const showChildren = ref(props.rootNodesLength === 1 ? true : false)
-const isNodeOpen = ref(props.rootNodesLength === 1 ? true : false)
+const showChildren = ref(isOnlyRootChild.value)
+const isNodeOpen = ref(isOnlyRootChild.value)
 
 const highlightNode = ref(false)
 

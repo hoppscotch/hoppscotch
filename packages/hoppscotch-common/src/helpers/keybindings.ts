@@ -14,7 +14,13 @@ let keybindingsEnabled = true
  * Alt is also regarded as macOS OPTION (⌥) key
  * Ctrl is also regarded as macOS COMMAND (⌘) key (NOTE: this differs from HTML Keyboard spec where COMMAND is Meta key!)
  */
-type ModifierKeys = "ctrl" | "alt" | "ctrl-shift" | "alt-shift"
+type ModifierKeys =
+  | "ctrl"
+  | "alt"
+  | "ctrl-shift"
+  | "alt-shift"
+  | "ctrl-alt"
+  | "ctrl-alt-shift"
 
 /* eslint-disable prettier/prettier */
 // prettier-ignore
@@ -143,18 +149,19 @@ function getPressedKey(ev: KeyboardEvent): Key | null {
 }
 
 function getActiveModifier(ev: KeyboardEvent): ModifierKeys | null {
-  const isShiftKey = ev.shiftKey
+  const modifierKeys = {
+    ctrl: isAppleDevice() ? ev.metaKey : ev.ctrlKey,
+    alt: ev.altKey,
+    shift: ev.shiftKey,
+  }
 
-  // We only allow one modifier key to be pressed (for now)
-  // Control key (+ Command) gets priority and if Alt is also pressed, it is ignored
-  if (isAppleDevice() && ev.metaKey) return isShiftKey ? "ctrl-shift" : "ctrl"
-  else if (!isAppleDevice() && ev.ctrlKey)
-    return isShiftKey ? "ctrl-shift" : "ctrl"
+  // active modifier: ctrl | alt | ctrl-alt | ctrl-shift | ctrl-alt-shift | alt-shift
+  // modiferKeys object's keys are sorted to match the above order
+  const activeModifier = Object.keys(modifierKeys)
+    .filter((key) => modifierKeys[key as keyof typeof modifierKeys])
+    .join("-")
 
-  // Test for Alt key
-  if (ev.altKey) return isShiftKey ? "alt-shift" : "alt"
-
-  return null
+  return activeModifier === "" ? null : (activeModifier as ModifierKeys)
 }
 
 /**

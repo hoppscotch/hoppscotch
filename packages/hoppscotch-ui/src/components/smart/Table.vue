@@ -1,12 +1,16 @@
 <template>
-  <div class="overflow-auto rounded-sm border border-dividerDark shadow-md m-5">
+  <div class="overflow-auto rounded-sm border border-dividerDark shadow-md">
     <table class="w-full">
       <thead class="bg-primaryLight">
         <tr
           class="text-secondary border-b border-dividerDark text-sm text-left"
-          :class="headingStyles"
         >
-          <th v-for="title in headings" scope="col" class="px-6 py-3">
+          <th
+            v-for="title in headings"
+            scope="col"
+            class="px-6 py-3"
+            :class="headingStyles"
+          >
             {{ title }}
           </th>
         </tr>

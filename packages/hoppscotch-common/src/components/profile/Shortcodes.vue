@@ -24,6 +24,7 @@
             :cell-styles="requestMethodColors"
             :list="shortcodeList"
             :headings="headings"
+            heading-styles="!py-2 text-xs"
           >
             <template #action="{ item }">
               <div class="flex flex-1 items-end py-2 truncate">

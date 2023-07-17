@@ -15,18 +15,21 @@
           :label="t('app.name')"
           to="/"
         />
-        <!-- <AppGitHubStarButton class="mt-1.5 transition" /> -->
       </div>
-      <div class="inline-flex items-center space-x-2">
-        <HoppButtonSecondary
-          v-tippy="{ theme: 'tooltip', allowHTML: true }"
-          :title="`${t(
-            'app.search'
-          )} <kbd>${getPlatformSpecialKey()}</kbd> <kbd>K</kbd>`"
-          :icon="IconSearch"
-          class="rounded hover:bg-primaryDark focus-visible:bg-primaryDark"
+      <div class="inline-flex items-center justify-center flex-1 space-x-2">
+        <button
+          class="flex flex-1 items-center justify-between px-2 py-1 bg-primaryDark transition text-secondaryLight cursor-text rounded border border-dividerDark max-w-xs hover:border-dividerDark hover:bg-primaryLight hover:text-secondary focus-visible:border-dividerDark focus-visible:bg-primaryLight focus-visible:text-secondary"
           @click="invokeAction('modals.search.toggle')"
-        />
+        >
+          <span class="inline-flex flex-1 items-center">
+            <icon-lucide-search class="mr-2 svg-icons" />
+            {{ t("app.search") }}
+          </span>
+          <span class="flex">
+            <kbd class="shortcut-key">{{ getPlatformSpecialKey() }}</kbd>
+            <kbd class="shortcut-key">K</kbd>
+          </span>
+        </button>
         <HoppButtonSecondary
           v-if="showInstallButton"
           v-tippy="{ theme: 'tooltip' }"
@@ -44,6 +47,8 @@
           class="rounded hover:bg-primaryDark focus-visible:bg-primaryDark"
           @click="invokeAction('modals.support.toggle')"
         />
+      </div>
+      <div class="inline-flex items-center justify-end flex-1 space-x-2">
         <div
           v-if="currentUser === null"
           class="inline-flex items-center space-x-2"
@@ -238,7 +243,6 @@ import IconDownload from "~icons/lucide/download"
 import IconUploadCloud from "~icons/lucide/upload-cloud"
 import IconUserPlus from "~icons/lucide/user-plus"
 import IconLifeBuoy from "~icons/lucide/life-buoy"
-import IconSearch from "~icons/lucide/search"
 import { breakpointsTailwind, useBreakpoints, useNetwork } from "@vueuse/core"
 import { pwaDefferedPrompt, installPWA } from "@modules/pwa"
 import { platform } from "~/platform"

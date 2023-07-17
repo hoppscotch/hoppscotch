@@ -1,5 +1,9 @@
-import { Team, TeamCollection as DBTeamCollection } from '@prisma/client';
-import { mock, mockDeep, mockReset } from 'jest-mock-extended';
+import {
+  Team,
+  TeamCollection as DBTeamCollection,
+  TeamRequest as DBTeamRequest,
+} from '@prisma/client';
+import { mockDeep, mockReset } from 'jest-mock-extended';
 import {
   TEAM_COLL_DEST_SAME,
   TEAM_COLL_INVALID_JSON,
@@ -17,9 +21,8 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { PubSubService } from 'src/pubsub/pubsub.service';
 import { AuthUser } from 'src/types/AuthUser';
 import { TeamCollectionService } from './team-collection.service';
-import { TeamCollection } from './team-collection.model';
-import { TeamCollectionModule } from './team-collection.module';
 import * as E from 'fp-ts/Either';
+import { CollectionFolder } from 'src/types/CollectionFolder';
 
 const mockPrisma = mockDeep<PrismaService>();
 const mockPubSub = mockDeep<PubSubService>();
@@ -276,9 +279,186 @@ const childTeamCollectionList: DBTeamCollection[] = [
   },
 ];
 
+const teamRequestList: DBTeamRequest[] = [
+  {
+    id: 'req1',
+    collectionID: childTeamCollection.id,
+    teamID: team.id,
+    title: 'request 1',
+    request: {},
+    orderIndex: 1,
+    createdOn: new Date(),
+    updatedOn: new Date(),
+  },
+];
+
 beforeEach(() => {
   mockReset(mockPrisma);
   mockPubSub.publish.mockClear();
+});
+
+describe('exportCollectionsToJSON', () => {
+  test('should export collections to JSON string successfully for structure-1', async () => {
+    /*
+    Assuming collection and request structure is as follows:
+
+    rootTeamCollection
+    |-> childTeamCollection
+    |   |-> <no request of child coll>
+    |-> <no request of root coll>
+
+     */
+
+    mockPrisma.teamCollection.findMany.mockResolvedValueOnce([
+      rootTeamCollection,
+    ]);
+
+    // RCV CALL 1: Inside exportCollectionsToJSON.exportCollectionToJSONObject for Root Collection
+    jest
+      .spyOn(teamCollectionService, 'getCollection')
+      .mockResolvedValueOnce(E.right(rootTeamCollection));
+    mockPrisma.teamCollection.findMany.mockResolvedValueOnce([
+      childTeamCollection,
+    ]);
+
+    // RCV CALL 2: Inside exportCollectionsToJSON.exportCollectionToJSONObject for Child Collection
+    jest
+      .spyOn(teamCollectionService, 'getCollection')
+      .mockResolvedValueOnce(E.right(childTeamCollection));
+    mockPrisma.teamCollection.findMany.mockResolvedValueOnce([]);
+    mockPrisma.teamRequest.findMany.mockResolvedValueOnce([]);
+    // return { name: childTeamCollection.title, folders: [], requests: [], };
+
+    // Back to RCV CALL 1
+    mockPrisma.teamRequest.findMany.mockResolvedValueOnce([]);
+
+    const returnedValue: CollectionFolder = {
+      name: rootTeamCollection.title,
+      folders: [
+        {
+          name: childTeamCollection.title,
+          folders: [],
+          requests: [],
+        },
+      ],
+      requests: [],
+    };
+
+    const result = await teamCollectionService.exportCollectionsToJSON(team.id);
+    expect(result).toEqualRight(JSON.stringify([returnedValue]));
+  });
+
+  test('should export collections to JSON string successfully for structure-2', async () => {
+    /*
+    Assuming collection and request structure is as follows:
+
+    rootTeamCollection
+    |-> childTeamCollection
+    |   |-> request1
+    |-> <no request of root coll>
+
+     */
+
+    mockPrisma.teamCollection.findMany.mockResolvedValueOnce([
+      rootTeamCollection,
+    ]);
+
+    // RCV CALL 1: Inside exportCollectionsToJSON.exportCollectionToJSONObject for Root Collection
+    jest
+      .spyOn(teamCollectionService, 'getCollection')
+      .mockResolvedValueOnce(E.right(rootTeamCollection));
+    mockPrisma.teamCollection.findMany.mockResolvedValueOnce([
+      childTeamCollection,
+    ]);
+
+    // RCV CALL 2: Inside exportCollectionsToJSON.exportCollectionToJSONObject for Child Collection
+    jest
+      .spyOn(teamCollectionService, 'getCollection')
+      .mockResolvedValueOnce(E.right(childTeamCollection));
+    mockPrisma.teamCollection.findMany.mockResolvedValueOnce([]);
+    mockPrisma.teamRequest.findMany.mockResolvedValueOnce(teamRequestList);
+    // return { name: childTeamCollection.title, folders: [], requests: teamRequestList, };
+
+    // Back to RCV CALL 1
+    mockPrisma.teamRequest.findMany.mockResolvedValueOnce([]);
+
+    const returnedValue: CollectionFolder = {
+      name: rootTeamCollection.title,
+      folders: [
+        {
+          name: childTeamCollection.title,
+          folders: [],
+          requests: teamRequestList.map((req) => req.request),
+        },
+      ],
+      requests: [],
+    };
+
+    const result = await teamCollectionService.exportCollectionsToJSON(team.id);
+    expect(result).toEqualRight(JSON.stringify([returnedValue]));
+  });
+
+  test('should export collections to JSON string successfully for structure-3', async () => {
+    /*
+    Assuming collection and request structure is as follows:
+
+    rootTeamCollection
+    |-> childTeamCollection
+    |   |-> child-request1
+    |-> root-request1
+
+     */
+
+    mockPrisma.teamCollection.findMany.mockResolvedValueOnce([
+      rootTeamCollection,
+    ]);
+
+    // RCV CALL 1: Inside exportCollectionsToJSON.exportCollectionToJSONObject for Root Collection
+    jest
+      .spyOn(teamCollectionService, 'getCollection')
+      .mockResolvedValueOnce(E.right(rootTeamCollection));
+    mockPrisma.teamCollection.findMany.mockResolvedValueOnce([
+      childTeamCollection,
+    ]);
+
+    // RCV CALL 2: Inside exportCollectionsToJSON.exportCollectionToJSONObject for Child Collection
+    jest
+      .spyOn(teamCollectionService, 'getCollection')
+      .mockResolvedValueOnce(E.right(childTeamCollection));
+    mockPrisma.teamCollection.findMany.mockResolvedValueOnce([]);
+    mockPrisma.teamRequest.findMany.mockResolvedValueOnce(teamRequestList);
+    // return { name: childTeamCollection.title, folders: [], requests: teamRequestList, };
+
+    // Back to RCV CALL 1
+    mockPrisma.teamRequest.findMany.mockResolvedValueOnce(teamRequestList);
+
+    const returnedValue: CollectionFolder = {
+      name: rootTeamCollection.title,
+      folders: [
+        {
+          name: childTeamCollection.title,
+          folders: [],
+          requests: teamRequestList.map((req) => req.request),
+        },
+      ],
+      requests: teamRequestList.map((req) => req.request),
+    };
+
+    const result = await teamCollectionService.exportCollectionsToJSON(team.id);
+    expect(result).toEqualRight(JSON.stringify([returnedValue]));
+  });
+});
+
+describe('getCollectionCount', () => {
+  test('should return the count of collections successfully', async () => {
+    const count = 10;
+
+    mockPrisma.teamCollection.count.mockResolvedValueOnce(count);
+    const result = await teamCollectionService.getCollectionCount(
+      rootTeamCollection.id,
+    );
+    expect(result).toEqual(count);
+  });
 });
 
 describe('getTeamOfCollection', () => {
@@ -1460,5 +1640,3 @@ describe('totalCollectionsInTeam', () => {
     });
   });
 });
-
-//ToDo: write test cases for exportCollectionsToJSON

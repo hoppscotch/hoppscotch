@@ -1,4 +1,4 @@
-import { UserCollection } from '@prisma/client';
+import { UserCollection, UserRequest as DbUserRequest } from '@prisma/client';
 import { mockDeep, mockReset } from 'jest-mock-extended';
 import {
   USER_COLL_DEST_SAME,
@@ -11,12 +11,17 @@ import {
   USER_COLL_SHORT_TITLE,
   USER_COLL_ALREADY_ROOT,
   USER_NOT_OWNER,
+  USER_NOT_FOUND,
+  USER_COLL_INVALID_JSON,
 } from 'src/errors';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { PubSubService } from 'src/pubsub/pubsub.service';
 import { AuthUser } from 'src/types/AuthUser';
 import { ReqType } from 'src/types/RequestTypes';
 import { UserCollectionService } from './user-collection.service';
+import * as E from 'fp-ts/Either';
+import { CollectionFolder } from 'src/types/CollectionFolder';
+import { UserCollectionExportJSONData } from './user-collections.model';
 
 const mockPrisma = mockDeep<PrismaService>();
 const mockPubSub = mockDeep<PubSubService>();
@@ -341,9 +346,483 @@ const rootGQLGQLUserCollectionList: UserCollection[] = [
   },
 ];
 
+const userRESTRequestList: DbUserRequest[] = [
+  {
+    id: '123',
+    collectionID: rootRESTUserCollection.id,
+    userUid: user.uid,
+    title: 'Request 1',
+    request: {},
+    type: ReqType.REST,
+    orderIndex: 1,
+    createdOn: new Date(),
+    updatedOn: new Date(),
+  },
+];
+
 beforeEach(() => {
   mockReset(mockPrisma);
   mockPubSub.publish.mockClear();
+});
+
+describe('importCollectionsFromJSON', () => {
+  test('should resolve left for invalid JSON string', async () => {
+    const result = await userCollectionService.importCollectionsFromJSON(
+      'invalidJSONString',
+      user.uid,
+      rootRESTUserCollection.id,
+      ReqType.REST,
+    );
+
+    expect(result).toEqual(E.left(USER_COLL_INVALID_JSON));
+  });
+  test('should resolve left if JSON string is not an array', async () => {
+    const result = await userCollectionService.importCollectionsFromJSON(
+      JSON.stringify({}),
+      user.uid,
+      rootRESTUserCollection.id,
+      ReqType.REST,
+    );
+
+    expect(result).toEqual(E.left(USER_COLL_INVALID_JSON));
+  });
+  test('should resolve left if destCollectionID is invalid', async () => {
+    jest
+      .spyOn(userCollectionService, 'getUserCollection')
+      .mockResolvedValueOnce(E.left(USER_COLL_NOT_FOUND));
+
+    const result = await userCollectionService.importCollectionsFromJSON(
+      JSON.stringify([]),
+      user.uid,
+      'invalidID',
+      ReqType.REST,
+    );
+    expect(result).toEqual(E.left(USER_COLL_NOT_FOUND));
+  });
+  test('should resolve left if destCollectionID is not owned by this user', async () => {
+    jest
+      .spyOn(userCollectionService, 'getUserCollection')
+      .mockResolvedValueOnce(E.right(rootRESTUserCollection));
+
+    const result = await userCollectionService.importCollectionsFromJSON(
+      JSON.stringify([]),
+      'anotherUserUid',
+      rootRESTUserCollection.id,
+      ReqType.REST,
+    );
+    expect(result).toEqual(E.left(USER_NOT_OWNER));
+  });
+  test('should resolve left if destCollection type miss match', async () => {
+    jest
+      .spyOn(userCollectionService, 'getUserCollection')
+      .mockResolvedValueOnce(E.right(rootRESTUserCollection));
+
+    const result = await userCollectionService.importCollectionsFromJSON(
+      JSON.stringify([]),
+      user.uid,
+      rootRESTUserCollection.id,
+      ReqType.GQL,
+    );
+    expect(result).toEqual(E.left(USER_COLL_NOT_SAME_TYPE));
+  });
+  test('should resolve right for valid JSON and destCollectionID provided', async () => {
+    jest
+      .spyOn(userCollectionService, 'getUserCollection')
+      .mockResolvedValueOnce(E.right(rootRESTUserCollection));
+
+    // private getChildCollectionsCount function call
+    mockPrisma.userCollection.findMany.mockResolvedValueOnce([]);
+
+    mockPrisma.$transaction.mockResolvedValueOnce([]);
+
+    const result = await userCollectionService.importCollectionsFromJSON(
+      JSON.stringify([]),
+      user.uid,
+      rootRESTUserCollection.id,
+      ReqType.REST,
+    );
+    expect(result).toEqual(E.right(true));
+  });
+  test('should resolve right for importing in root directory (destCollectionID == null)', async () => {
+    // private getChildCollectionsCount function call
+    mockPrisma.userCollection.findMany.mockResolvedValueOnce([]);
+
+    mockPrisma.$transaction.mockResolvedValueOnce([]);
+
+    const result = await userCollectionService.importCollectionsFromJSON(
+      JSON.stringify([
+        {
+          name: 'collection-name',
+          folders: [],
+          requests: [{ name: 'request-name' }],
+        },
+      ]),
+      user.uid,
+      null,
+      ReqType.REST,
+    );
+    expect(result).toEqual(E.right(true));
+  });
+  test('should resolve right and publish event', async () => {
+    jest
+      .spyOn(userCollectionService, 'getUserCollection')
+      .mockResolvedValueOnce(E.right(rootRESTUserCollection));
+
+    // private getChildCollectionsCount function call
+    mockPrisma.userCollection.findMany.mockResolvedValueOnce([]);
+
+    mockPrisma.$transaction.mockResolvedValueOnce([{}]);
+
+    const result = await userCollectionService.importCollectionsFromJSON(
+      JSON.stringify([
+        {
+          name: 'collection-name',
+          folders: [],
+          requests: [{ name: 'request-name' }],
+        },
+      ]),
+      user.uid,
+      rootRESTUserCollection.id,
+      ReqType.REST,
+    );
+    expect(result).toEqual(E.right(true));
+    expect(mockPubSub.publish).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('exportUserCollectionsToJSON', () => {
+  test('should return a list of user collections successfully for valid collectionID input and structure - 1', async () => {
+    /*
+    Assuming collection and request structure is as follows:
+
+    rootTeamCollection (id: 1 [exporting this collection])
+    |-> childTeamCollection
+    |   |-> <no request of root coll>
+    |-> <no request of root coll>
+    */
+
+    mockPrisma.userCollection.findMany.mockResolvedValueOnce([
+      childRESTUserCollection,
+    ]);
+
+    // RCV CALL 1: exportUserCollectionToJSONObject
+    jest
+      .spyOn(userCollectionService, 'getUserCollection')
+      .mockResolvedValueOnce(E.right(childRESTUserCollection));
+    mockPrisma.userCollection.findMany.mockResolvedValueOnce([]);
+    mockPrisma.userRequest.findMany.mockResolvedValueOnce([]);
+    const returnFromCallee: CollectionFolder = {
+      id: childRESTUserCollection.id,
+      name: childRESTUserCollection.title,
+      folders: [],
+      requests: [],
+    };
+
+    // Back to exportUserCollectionsToJSON
+    jest
+      .spyOn(userCollectionService, 'getUserCollection')
+      .mockResolvedValueOnce(E.right(rootRESTUserCollection));
+    mockPrisma.userRequest.findMany.mockResolvedValueOnce([]);
+
+    const returnedValue: UserCollectionExportJSONData = {
+      exportedCollection: JSON.stringify({
+        id: rootRESTUserCollection.id,
+        name: rootRESTUserCollection.title,
+        folders: [returnFromCallee],
+        requests: [],
+      }),
+      collectionType: ReqType.REST,
+    };
+
+    const result = await userCollectionService.exportUserCollectionsToJSON(
+      user.uid,
+      rootRESTUserCollection.id,
+      ReqType.REST,
+    );
+    expect(result).toEqualRight(returnedValue);
+  });
+
+  test('should return a list of user collections successfully for valid collectionID input and structure - 2', async () => {
+    /*
+    Assuming collection and request structure is as follows:
+
+    rootTeamCollection (id: 1 [exporting this collection])
+    |-> childTeamCollection
+    |   |-> request1
+    |-> <no request of root coll>
+    */
+
+    mockPrisma.userCollection.findMany.mockResolvedValueOnce([
+      childRESTUserCollection,
+    ]);
+
+    // RCV CALL 1: exportUserCollectionToJSONObject
+    jest
+      .spyOn(userCollectionService, 'getUserCollection')
+      .mockResolvedValueOnce(E.right(childRESTUserCollection));
+    mockPrisma.userCollection.findMany.mockResolvedValueOnce([]);
+    mockPrisma.userRequest.findMany.mockResolvedValueOnce(userRESTRequestList);
+    const returnFromCallee: CollectionFolder = {
+      id: childRESTUserCollection.id,
+      name: childRESTUserCollection.title,
+      folders: [],
+      requests: userRESTRequestList.map((r) => {
+        return {
+          id: r.id,
+          name: r.title,
+          ...(r.request as Record<string, unknown>),
+        };
+      }),
+    };
+
+    // Back to exportUserCollectionsToJSON
+    jest
+      .spyOn(userCollectionService, 'getUserCollection')
+      .mockResolvedValueOnce(E.right(rootRESTUserCollection));
+    mockPrisma.userRequest.findMany.mockResolvedValueOnce([]);
+
+    const returnedValue: UserCollectionExportJSONData = {
+      exportedCollection: JSON.stringify({
+        id: rootRESTUserCollection.id,
+        name: rootRESTUserCollection.title,
+        folders: [returnFromCallee],
+        requests: [],
+      }),
+      collectionType: ReqType.REST,
+    };
+
+    const result = await userCollectionService.exportUserCollectionsToJSON(
+      user.uid,
+      rootRESTUserCollection.id,
+      ReqType.REST,
+    );
+    expect(result).toEqualRight(returnedValue);
+  });
+  test('should return a list of user collections successfully for valid collectionID input and structure - 3', async () => {
+    /*
+    Assuming collection and request structure is as follows:
+
+    rootTeamCollection (id: 1 [exporting this collection])
+    |-> childTeamCollection
+    |   |-> request1
+    |-> request2
+    */
+
+    mockPrisma.userCollection.findMany.mockResolvedValueOnce([
+      childRESTUserCollection,
+    ]);
+
+    // RCV CALL 1: exportUserCollectionToJSONObject
+    jest
+      .spyOn(userCollectionService, 'getUserCollection')
+      .mockResolvedValueOnce(E.right(childRESTUserCollection));
+    mockPrisma.userCollection.findMany.mockResolvedValueOnce([]);
+    mockPrisma.userRequest.findMany.mockResolvedValueOnce(userRESTRequestList);
+    const returnFromCallee: CollectionFolder = {
+      id: childRESTUserCollection.id,
+      name: childRESTUserCollection.title,
+      folders: [],
+      requests: userRESTRequestList.map((r) => {
+        return {
+          id: r.id,
+          name: r.title,
+          ...(r.request as Record<string, unknown>),
+        };
+      }),
+    };
+
+    // Back to exportUserCollectionsToJSON
+    jest
+      .spyOn(userCollectionService, 'getUserCollection')
+      .mockResolvedValueOnce(E.right(rootRESTUserCollection));
+    mockPrisma.userRequest.findMany.mockResolvedValueOnce(userRESTRequestList);
+
+    const returnedValue: UserCollectionExportJSONData = {
+      exportedCollection: JSON.stringify({
+        id: rootRESTUserCollection.id,
+        name: rootRESTUserCollection.title,
+        folders: [returnFromCallee],
+        requests: userRESTRequestList.map((x) => {
+          return {
+            id: x.id,
+            name: x.title,
+            ...(x.request as Record<string, unknown>), // type casting x.request of type Prisma.JSONValue to an object to enable spread
+          };
+        }),
+      }),
+      collectionType: ReqType.REST,
+    };
+
+    const result = await userCollectionService.exportUserCollectionsToJSON(
+      user.uid,
+      rootRESTUserCollection.id,
+      ReqType.REST,
+    );
+    expect(result).toEqualRight(returnedValue);
+  });
+  test('should return a list of user collections successfully for collectionID == null', async () => {
+    /*
+    Assuming collection and request structure is as follows:
+
+    rootTeamCollection (id: 1 [exporting this collection])
+    |-> childTeamCollection
+    |   |-> request1
+    |-> request2
+    */
+
+    mockPrisma.userCollection.findMany.mockResolvedValueOnce([
+      childRESTUserCollection,
+    ]);
+
+    // RCV CALL 1: exportUserCollectionToJSONObject
+    jest
+      .spyOn(userCollectionService, 'getUserCollection')
+      .mockResolvedValueOnce(E.right(childRESTUserCollection));
+    mockPrisma.userCollection.findMany.mockResolvedValueOnce([]);
+    mockPrisma.userRequest.findMany.mockResolvedValueOnce(userRESTRequestList);
+    const returnFromCallee: CollectionFolder = {
+      id: childRESTUserCollection.id,
+      name: childRESTUserCollection.title,
+      folders: [],
+      requests: userRESTRequestList.map((r) => {
+        return {
+          id: r.id,
+          name: r.title,
+          ...(r.request as Record<string, unknown>),
+        };
+      }),
+    };
+
+    // Back to exportUserCollectionsToJSON
+
+    const returnedValue: UserCollectionExportJSONData = {
+      exportedCollection: JSON.stringify([returnFromCallee]),
+      collectionType: ReqType.REST,
+    };
+
+    const result = await userCollectionService.exportUserCollectionsToJSON(
+      user.uid,
+      null,
+      ReqType.REST,
+    );
+    expect(result).toEqualRight(returnedValue);
+  });
+  test('should return USER_COLL_NOT_FOUND if collectionID or its child not found in DB', async () => {
+    /*
+    Assuming collection and request structure is as follows:
+
+    rootTeamCollection (id: 1 [exporting this collection])
+    |-> childTeamCollection
+    |   |-> request1 <NOT FOUND IN DATABASE>
+    |-> request2
+    */
+
+    mockPrisma.userCollection.findMany.mockResolvedValueOnce([
+      childRESTUserCollection,
+    ]);
+
+    // RCV CALL 1: exportUserCollectionToJSONObject
+    jest
+      .spyOn(userCollectionService, 'getUserCollection')
+      .mockResolvedValueOnce(E.left(USER_COLL_NOT_FOUND));
+
+    // Back to exportUserCollectionsToJSON
+
+    const result = await userCollectionService.exportUserCollectionsToJSON(
+      user.uid,
+      null,
+      ReqType.REST,
+    );
+    expect(result).toEqualLeft(USER_COLL_NOT_FOUND);
+  });
+});
+
+describe('getUserOfCollection', () => {
+  test('should return a user successfully with valid collectionID', async () => {
+    mockPrisma.userCollection.findUniqueOrThrow.mockResolvedValueOnce({
+      ...rootRESTUserCollection,
+      user: user,
+    } as any);
+
+    const result = await userCollectionService.getUserOfCollection(
+      rootRESTUserCollection.id,
+    );
+    expect(result).toEqualRight(user);
+  });
+  test('should return null with invalid collectionID', async () => {
+    mockPrisma.userCollection.findUniqueOrThrow.mockRejectedValue('error');
+
+    const result = await userCollectionService.getUserOfCollection('invalidId');
+    expect(result).toEqualLeft(USER_NOT_FOUND);
+  });
+});
+
+describe('getUserChildCollections', () => {
+  test('should return a list of child collections successfully with valid collectionID and userID', async () => {
+    mockPrisma.userCollection.findMany.mockResolvedValueOnce(
+      childRESTUserCollectionList,
+    );
+
+    const result = await userCollectionService.getUserChildCollections(
+      user,
+      rootRESTUserCollection.id,
+      null,
+      10,
+      ReqType.REST,
+    );
+
+    expect(result).toEqual(childRESTUserCollectionList);
+    expect(mockPrisma.userCollection.findMany).toHaveBeenCalledWith({
+      where: {
+        userUid: user.uid,
+        parentID: rootRESTUserCollection.id,
+        type: ReqType.REST,
+      },
+      take: 10,
+      skip: 0,
+      cursor: undefined,
+    });
+  });
+  test('should return an empty list if no child collections found', async () => {
+    mockPrisma.userCollection.findMany.mockResolvedValueOnce([]);
+
+    const result = await userCollectionService.getUserChildCollections(
+      user,
+      rootRESTUserCollection.id,
+      null,
+      10,
+      ReqType.REST,
+    );
+
+    expect(result).toEqual([]);
+    expect(mockPrisma.userCollection.findMany).toHaveBeenCalledWith({
+      where: {
+        userUid: user.uid,
+        parentID: rootRESTUserCollection.id,
+        type: ReqType.REST,
+      },
+      take: 10,
+      skip: 0,
+      cursor: undefined,
+    });
+  });
+});
+
+describe('getCollectionCount', () => {
+  test('should return the count of collections', async () => {
+    const collectionID = 'collection123';
+    const count = 5;
+
+    mockPrisma.userCollection.count.mockResolvedValueOnce(count);
+
+    const result = await userCollectionService.getCollectionCount(collectionID);
+
+    expect(result).toEqual(count);
+    expect(mockPrisma.userCollection.count).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.userCollection.count).toHaveBeenCalledWith({
+      where: { parentID: collectionID },
+    });
+  });
 });
 
 describe('getParentOfUserCollection', () => {

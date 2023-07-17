@@ -159,10 +159,9 @@ function getActiveModifier(ev: KeyboardEvent): ModifierKeys | null {
   // modiferKeys object's keys are sorted to match the above order
   const activeModifier = Object.keys(modifierKeys)
     .filter((key) => modifierKeys[key as keyof typeof modifierKeys])
-    .join("-") as ModifierKeys
+    .join("-")
 
-  // activeModifier can be empty string which is falsy. otherwise we could have used nullish coalescing
-  return activeModifier || null
+  return activeModifier === "" ? null : (activeModifier as ModifierKeys)
 }
 
 /**

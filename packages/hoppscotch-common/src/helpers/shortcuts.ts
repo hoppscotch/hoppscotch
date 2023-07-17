@@ -16,12 +16,12 @@ export function getShortcuts(t: (x: string) => string): ShortcutDef[] {
     },
     {
       label: t("shortcut.general.command_menu"),
-      keys: ["/"],
+      keys: [getPlatformSpecialKey(), "K"],
       section: t("shortcut.general.title"),
     },
     {
       label: t("shortcut.general.show_all"),
-      keys: [getPlatformSpecialKey(), "K"],
+      keys: [getPlatformSpecialKey(), "/"],
       section: t("shortcut.general.title"),
     },
     {

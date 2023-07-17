@@ -150,7 +150,7 @@ export class TeamInvitationService {
       template: 'team-invitation',
       variables: {
         invitee: creator.displayName ?? 'A Hoppscotch User',
-        action_url: `${process.env.VITE_BASE_URL}/join-team?id=${dbInvitation.id}`,
+        action_url: `${process.env.APP_BASE_URL}/join-team?id=${dbInvitation.id}`,
         invite_team_name: team.name,
       },
     });

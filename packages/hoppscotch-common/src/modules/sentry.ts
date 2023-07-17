@@ -177,7 +177,7 @@ export default <HoppModule>{
   onRouterInit(app, router) {
     if (!import.meta.env.APP_SENTRY_DSN) {
       console.log(
-        "Sentry tracing is not enabled because 'VITE_SENTRY_DSN' env is not defined"
+        "Sentry tracing is not enabled because 'APP_SENTRY_DSN' env is not defined"
       )
       return
     }

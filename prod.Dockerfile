@@ -20,7 +20,7 @@ FROM base_builder as fe_builder
 WORKDIR /usr/src/app/packages/hoppscotch-selfhost-web
 RUN pnpm run generate
 
-FROM caddy:2-alpine as frontend
+FROM caddy:2-alpine as app
 WORKDIR /site
 COPY --from=fe_builder /usr/src/app/packages/hoppscotch-sh-admin/prod_run.mjs /usr
 COPY --from=fe_builder /usr/src/app/packages/hoppscotch-selfhost-web/Caddyfile /etc/caddy/Caddyfile

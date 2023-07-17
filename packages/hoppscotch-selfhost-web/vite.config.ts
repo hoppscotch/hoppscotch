@@ -85,9 +85,9 @@ export default defineConfig({
           nuxtStyle: true,
           allowRobots: true,
           dest: ".sitemap-gen",
-          hostname: ENV.VITE_BASE_URL,
+          hostname: ENV.APP_BASE_URL,
         })
-      }
+      },
     }),
     StaticCopy({
       targets: [

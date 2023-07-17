@@ -19,18 +19,23 @@
   </div>
 </template>
 
+<script lang="ts">
+/*
+  This inputIDCounter is tracked in the global scope in order to ensure that each input has a unique ID.
+  When we use this component multiple times on the same page, we need to ensure that each input has a unique ID.
+  This is because the label's for attribute needs to match the input's id attribute.
+
+  That's why we use a global counter that increments each time we use this component.
+*/
+let inputIDCounter = 564275
+</script>
+
 <script setup lang="ts">
 import { useVModel } from "@vueuse/core"
 import { defineProps } from "vue"
 
 // Unique ID for input
-const inputID = () => {
-  const s4 = () =>
-    Math.floor((1 + Math.random()) * 0x10000)
-      .toString(16)
-      .substring(1)
-  return `input-${s4()}${s4()}`
-}
+const inputID = `input-${inputIDCounter++}`
 
 const props = withDefaults(
   defineProps<{

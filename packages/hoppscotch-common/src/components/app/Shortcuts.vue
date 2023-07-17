@@ -19,6 +19,7 @@
         >
           <icon-lucide-search class="pb-2 opacity-75 svg-icons" />
         </HoppSmartPlaceholder>
+
         <details
           v-for="(sectionResults, sectionTitle) in shortcutsResults"
           v-else

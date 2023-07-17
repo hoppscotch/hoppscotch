@@ -78,15 +78,14 @@ export default defineConfig({
       routeStyle: "nuxt",
       dirs: "../hoppscotch-common/src/pages",
       importMode: "async",
-      onRoutesGenerated(routes) {
-        return generateSitemap({
+      onRoutesGenerated: (routes) =>
+        generateSitemap({
           routes,
           nuxtStyle: true,
           allowRobots: true,
           dest: ".sitemap-gen",
           hostname: ENV.VITE_BASE_URL,
-        })
-      },
+        }),
     }),
     StaticCopy({
       targets: [

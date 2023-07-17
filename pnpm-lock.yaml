@@ -749,8 +749,8 @@ importers:
         specifier: ^0.26.0
         version: 0.26.0(@vue/compiler-sfc@3.2.39)(vite@3.1.4)
       vite-plugin-pages-sitemap:
-        specifier: ^1.4.0
-        version: 1.4.0
+        specifier: ^1.4.5
+        version: 1.4.5
       vite-plugin-pwa:
         specifier: ^0.13.1
         version: 0.13.1(vite@3.1.4)(workbox-build@6.5.4)(workbox-window@6.5.4)
@@ -986,8 +986,8 @@ importers:
         specifier: ^0.26.0
         version: 0.26.0(vite@3.2.4)
       vite-plugin-pages-sitemap:
-        specifier: ^1.4.0
-        version: 1.4.0
+        specifier: ^1.4.5
+        version: 1.4.5
       vite-plugin-pwa:
         specifier: ^0.13.1
         version: 0.13.1(vite@3.2.4)(workbox-build@6.5.4)(workbox-window@6.5.4)
@@ -1327,8 +1327,8 @@ importers:
         specifier: ^0.26.0
         version: 0.26.0(@vue/compiler-sfc@3.2.45)(vite@3.2.4)
       vite-plugin-pages-sitemap:
-        specifier: ^1.4.0
-        version: 1.4.0
+        specifier: ^1.4.5
+        version: 1.4.5
       vite-plugin-pwa:
         specifier: ^0.13.1
         version: 0.13.1(vite@3.2.4)(workbox-build@6.5.4)(workbox-window@6.5.4)
@@ -21853,8 +21853,8 @@ packages:
       - supports-color
     dev: true
 
-  /vite-plugin-pages-sitemap@1.4.0:
-    resolution: {integrity: sha512-8GlmNSeObvDVUdmgutfWnGBZGsn3Zb8IXCjRODFB0tOhQqAQPZRwXrFha6ZLjvF4DgVJI3sW2FfiXa1wFxJvmg==}
+  /vite-plugin-pages-sitemap@1.4.5:
+    resolution: {integrity: sha512-AcEoJ+0D0P1CwR1LjzBznHs6yNQVP7ha7l6cl/VHrHFcQXbVyKc+QOmLi1a3eONy+aDA3K01pZVK8TzTIufq/w==}
     dev: true
 
   /vite-plugin-pages@0.26.0(@vue/compiler-sfc@3.2.39)(vite@3.1.4):

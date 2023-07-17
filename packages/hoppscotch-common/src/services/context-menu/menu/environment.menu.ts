@@ -10,6 +10,11 @@ import { invokeAction } from "~/helpers/actions"
 import IconPlusCircle from "~icons/lucide/plus-circle"
 import { getI18n } from "~/modules/i18n"
 
+/**
+ * This menu returns a single result that allows the user
+ * to add the selected text as an environment variable
+ * This menus is shown on all text selections
+ */
 export class EnvironmentMenuService extends Service implements ContextMenu {
   public static readonly ID = "ENVIRONMENT_CONTEXT_MENU_SERVICE"
 

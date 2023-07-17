@@ -11,8 +11,15 @@ import { createNewTab } from "~/helpers/rest/tab"
 import { getDefaultRESTRequest } from "~/helpers/rest/default"
 import { getI18n } from "~/modules/i18n"
 
+/**
+ * Used to check if a string is a valid URL
+ * @param url The string to check
+ * @returns Whether the string is a valid URL
+ */
 function isValidURL(url: string) {
   try {
+    // Try to create a URL object
+    // this will fail for endpoints like "localhost:3000", ie without a protocol
     new URL(url)
     return true
   } catch (error) {
@@ -37,6 +44,10 @@ export class URLMenuService extends Service implements ContextMenu {
     this.contextMenu.registerMenu(this)
   }
 
+  /**
+   * Opens a new tab with the provided URL
+   * @param url The URL to open
+   */
   private openNewTab(url: string) {
     //create a new request object
     const request = {

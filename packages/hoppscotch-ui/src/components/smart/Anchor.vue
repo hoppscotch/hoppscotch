@@ -26,7 +26,7 @@
 
 <script setup lang="ts">
 import HoppSmartLink from "./Link.vue"
-import { Component } from "vue"
+import type { Component } from "vue"
 
 withDefaults(
   defineProps<{

@@ -1,5 +1,5 @@
 <template>
-  <div class="overflow-auto rounded-md border border-dividerDark shadow-md m-5">
+  <div class="overflow-auto rounded-md border border-dividerDark shadow-md">
     <table class="w-full">
       <thead class="bg-primaryLight">
         <tr
@@ -25,57 +25,18 @@
             class="max-w-40"
             :class="cellStyles"
           >
+            <!-- Custom implementation of the particular column -->
             <div class="flex items-center">
-              <!-- Column with Badge -->
-              <div
-                v-if="
-                  colIndex.toString() === badgeColName &&
-                  badgeRowIndices?.includes(rowIndex)
-                "
-              >
-                <div class="flex flex-col truncate">
-                  <span v-if="data" class="mt-1 truncate whitespace-normal">
-                    {{ data }}
-                  </span>
-
-                  <span
-                    class="text-xs font-medium px-3 py-1 my-1 rounded-full bg-green-900 text-green-300 w-min"
-                  >
-                    {{ badgeName }}
-                  </span>
-                </div>
+              <div v-if="modifyColNames?.includes(colIndex.toString())">
+                <slot :name="colIndex.toString()" :item="item"></slot>
               </div>
 
-              <!-- Column with Subtitles -->
-              <div
-                v-else-if="subtitleColumns.includes(colIndex.toString())"
-                class="flex flex-col truncate"
-              >
+              <!-- Generic implementation of the column -->
+              <div v-else class="flex flex-col truncate text-center">
                 <span v-if="data" class="truncate">
                   {{ data }}
                 </span>
-                <span v-else> - </span>
-
-                <div v-for="item in subtitles">
-                  <div
-                    v-if="item.colName === colIndex.toString()"
-                    class="text-gray-400 text-tiny"
-                  >
-                    <span>
-                      <span>
-                        {{ itemSubtitle(item.subtitle, rowIndex) }}
-                      </span>
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Column with no subtitle or badge -->
-              <div v-else class="flex flex-col truncate">
-                <span v-if="data" class="truncate">
-                  {{ data }}
-                </span>
-                <span v-else> - </span>
+                <span v-else class=""> - </span>
               </div>
             </div>
           </td>
@@ -88,9 +49,7 @@
 </template>
 
 <script lang="ts" setup generic="Item extends Record<string, unknown>">
-import { computed } from "vue"
-
-const props = defineProps<{
+defineProps<{
   /** Whether to show the vertical border between columns */
   yBorder?: boolean
   /**  The list of items to be displayed in the table */
@@ -99,31 +58,11 @@ const props = defineProps<{
   headings: string[]
   /** The styles to be applied to the table cells */
   cellStyles?: string
-  /** The name of the badge */
-  badgeName?: string
-  /** The indices of the rows that needs to have a badge */
-  badgeRowIndices?: (number | undefined)[]
-  /** The index of the column that needs to have a badge */
-  badgeColName?: string
-  /** The subtitles to be displayed for the columns */
-  subtitles?: Array<{
-    /** The name of the column that needs to have a subtitle */
-    colName: string
-    /** The subtitle to be displayed for the column */
-    subtitle: string | string[]
-  }>
+  /** The names of the columns which have to modified using slots */
+  modifyColNames?: string[]
 }>()
 
 defineEmits<{
   (event: "goToDetails", item: Item): void
 }>()
-
-// Returns all the columns that needs to have a subtitle
-const subtitleColumns = computed(() =>
-  props.subtitles ? props.subtitles.map((item) => item.colName) : []
-)
-
-// Returns the subtitle for the given column and row
-const itemSubtitle = (subtitle: string | string[], rowIndex: number) =>
-  typeof subtitle === "object" ? subtitle[rowIndex] : subtitle
 </script>

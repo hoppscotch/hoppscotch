@@ -24,13 +24,33 @@
             <p class="text-xl">{{ t('users.no_invite') }}</p>
           </div>
 
-          <HoppSmartTable
-            v-else
-            cell-styles="px-6 py-2"
-            :list="newInvitedUsersList"
-            :headings="headings"
-            :subtitles="subtitles"
-          />
+          <div v-else class="m-5">
+            <HoppSmartTable
+              cell-styles="px-6 py-1"
+              :list="newInvitedUsersList"
+              :headings="headings"
+              :modify-col-names="colNames"
+            >
+              <template #invitedOn="{ item }">
+                <div class="flex flex-col truncate">
+                  <span v-if="item" class="truncate">
+                    {{ getCreatedDate(item.invitedOn) }}
+                  </span>
+                  <span v-else> - </span>
+
+                  <div>
+                    <div class="text-gray-400 text-tiny">
+                      <span>
+                        <span>
+                          {{ getCreatedTime(item.invitedOn) }}
+                        </span>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </template>
+            </HoppSmartTable>
+          </div>
         </div>
       </div>
     </div>
@@ -38,7 +58,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive } from 'vue';
+import { computed } from 'vue';
 import { useQuery } from '@urql/vue';
 import { InvitedUsersDocument } from '../../helpers/backend/graphql';
 import { format } from 'date-fns';
@@ -65,15 +85,8 @@ const newInvitedUsersList = computed(() => {
       adminUid: user.adminUid,
       adminEmail: user.adminEmail,
       inviteeEmail: user.inviteeEmail,
-      invitedOn: getCreatedDate(user.invitedOn),
+      invitedOn: user.invitedOn,
     };
-  });
-});
-
-// Returns the created time of all the invited user
-const createdTime = computed(() => {
-  return invitedUsers.value?.map((user) => {
-    return getCreatedTime(user.invitedOn);
   });
 });
 
@@ -85,11 +98,5 @@ const headings = [
   t('users.invited_on'),
 ];
 
-// Subtitles used in the table
-const subtitles = reactive([
-  {
-    colName: 'invitedOn',
-    subtitle: createdTime,
-  },
-]);
+const colNames = ['invitedOn'];
 </script>

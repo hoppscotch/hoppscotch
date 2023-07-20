@@ -27,41 +27,42 @@
           </p>
         </div>
 
-        <HoppSmartTable
-          v-else
-          :list="newTeamsList"
-          :headings="headings"
-          @goToDetails="goToTeamDetails"
-          cell-styles="px-6 py-3"
-        >
-          <template #action="{ item }">
-            <td>
-              <div class="relative">
-                <tippy interactive trigger="click" theme="popover">
-                  <HoppButtonSecondary
-                    v-tippy="{ theme: 'tooltip' }"
-                    :icon="IconMoreHorizontal"
-                  />
-                  <template #content="{ hide }">
-                    <div
-                      ref="tippyActions"
-                      class="flex flex-col focus:outline-none"
-                      tabindex="0"
-                      @keyup.escape="hide()"
-                    >
-                      <HoppSmartItem
-                        :icon="IconTrash"
-                        :label="t('teams.delete_team')"
-                        class="!hover:bg-red-600 w-full"
-                        @click="deleteTeam(item)"
-                      />
-                    </div>
-                  </template>
-                </tippy>
-              </div>
-            </td>
-          </template>
-        </HoppSmartTable>
+        <div v-else class="m-5">
+          <HoppSmartTable
+            :list="newTeamsList"
+            :headings="headings"
+            @goToDetails="goToTeamDetails"
+            cell-styles="px-6 py-3"
+          >
+            <template #action="{ item }">
+              <td>
+                <div class="relative">
+                  <tippy interactive trigger="click" theme="popover">
+                    <HoppButtonSecondary
+                      v-tippy="{ theme: 'tooltip' }"
+                      :icon="IconMoreHorizontal"
+                    />
+                    <template #content="{ hide }">
+                      <div
+                        ref="tippyActions"
+                        class="flex flex-col focus:outline-none"
+                        tabindex="0"
+                        @keyup.escape="hide()"
+                      >
+                        <HoppSmartItem
+                          :icon="IconTrash"
+                          :label="t('teams.delete_team')"
+                          class="!hover:bg-red-600 w-full"
+                          @click="deleteTeam(item)"
+                        />
+                      </div>
+                    </template>
+                  </tippy>
+                </div>
+              </td>
+            </template>
+          </HoppSmartTable>
+        </div>
 
         <div
           v-if="hasNextPage && teamsList.length >= teamsPerPage"

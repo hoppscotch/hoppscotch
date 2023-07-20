@@ -12,6 +12,7 @@
     >
       <div v-if="mode === 'sign-in'" class="flex flex-col space-y-2">
         <HoppSmartItem
+          v-if="showGithub === 'true'"
           :loading="signingInWithGitHub"
           :icon="IconGithub"
           :label="`Continue with GitHub`"
@@ -19,18 +20,21 @@
           @click="signInWithGithub"
         />
         <HoppSmartItem
+          v-if="showGoogle === 'true'"
           :loading="signingInWithGoogle"
           :icon="IconGoogle"
           :label="`Continue with Google`"
           @click="signInWithGoogle"
         />
         <HoppSmartItem
+          v-if="showMicrosoft === 'true'"
           :loading="signingInWithMicrosoft"
           :icon="IconMicrosoft"
           :label="`Continue with Microsoft`"
           @click="signInWithMicrosoft"
         />
         <HoppSmartItem
+          v-if="showEmail === 'true'"
           :icon="IconEmail"
           :label="`Continue with Email`"
           @click="mode = 'email'"
@@ -138,6 +142,10 @@ const toast = useToast();
 
 const tosLink = import.meta.env.VITE_APP_TOS_LINK;
 const privacyPolicyLink = import.meta.env.VITE_APP_PRIVACY_POLICY_LINK;
+const showGithub = import.meta.env.VITE_APP_SHOW_SIGNIN_GITHUB
+const showGoogle = import.meta.env.VITE_APP_SHOW_SIGNIN_GOOGLE
+const showMicrosoft = import.meta.env.VITE_APP_SHOW_SIGNIN_MICROSOFT
+const showEmail = import.meta.env.VITE_APP_SHOW_SIGNIN_EMAIL
 
 // DATA
 

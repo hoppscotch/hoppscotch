@@ -9,24 +9,28 @@
     <template #body>
       <div v-if="mode === 'sign-in'" class="flex flex-col space-y-2">
         <HoppSmartItem
+          v-if="showGithub === 'true'"
           :loading="signingInWithGitHub"
           :icon="IconGithub"
           :label="`${t('auth.continue_with_github')}`"
           @click="signInWithGithub"
         />
         <HoppSmartItem
+          v-if="showGoogle === 'true'"
           :loading="signingInWithGoogle"
           :icon="IconGoogle"
           :label="`${t('auth.continue_with_google')}`"
           @click="signInWithGoogle"
         />
         <HoppSmartItem
+          v-if="showMicrosoft === 'true'"
           :loading="signingInWithMicrosoft"
           :icon="IconMicrosoft"
           :label="`${t('auth.continue_with_microsoft')}`"
           @click="signInWithMicrosoft"
         />
         <HoppSmartItem
+          v-if="showEmail === 'true'"
           :icon="IconEmail"
           :label="`${t('auth.continue_with_email')}`"
           @click="mode = 'email'"
@@ -146,6 +150,11 @@ export default defineComponent({
 
     const tosLink = import.meta.env.VITE_APP_TOS_LINK
     const privacyPolicyLink = import.meta.env.VITE_APP_PRIVACY_POLICY_LINK
+    const showGithub = import.meta.env.VITE_APP_SHOW_SIGNIN_GITHUB
+    const showGoogle = import.meta.env.VITE_APP_SHOW_SIGNIN_GOOGLE
+    const showMicrosoft = import.meta.env.VITE_APP_SHOW_SIGNIN_MICROSOFT
+    const showEmail = import.meta.env.VITE_APP_SHOW_SIGNIN_EMAIL
+
 
     return {
       subscribeToStream,
@@ -158,6 +167,10 @@ export default defineComponent({
       IconArrowLeft,
       tosLink,
       privacyPolicyLink,
+      showGithub,
+      showGoogle,
+      showMicrosoft,
+      showEmail,
     }
   },
   data() {

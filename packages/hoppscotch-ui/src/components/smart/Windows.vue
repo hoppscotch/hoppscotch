@@ -1,10 +1,12 @@
 <template>
-  <div class="flex flex-col flex-1 h-auto overflow-y-hidden flex-nowrap">
+  <div
+    class="flex flex-col flex-1 h-auto overflow-y-hidden flex-nowrap hopp-windows"
+  >
     <div
       class="relative sticky top-0 z-10 flex-shrink-0 overflow-x-auto divide-x divide-dividerLight bg-primaryLight tabs group-tabs"
     >
       <div
-        class="flex flex-1 flex-shrink-0 w-0 overflow-x-auto"
+        class="flex flex-1 flex-shrink-0 w-0 scroll-container"
         ref="scrollContainer"
       >
         <div
@@ -366,6 +368,12 @@ watch(
 </script>
 
 <style scoped lang="scss">
+.hopp-windows {
+  .scroll-container {
+    overflow: hidden;
+  }
+}
+
 .tabs {
   @apply flex;
   @apply whitespace-nowrap;
@@ -455,6 +463,7 @@ $slider-height: 4px;
     @apply min-w-0;
     @apply bg-dividerDark;
     @apply hover:bg-secondaryLight;
+    @apply active:bg-secondaryLight;
 
     width: var(--thumb-width);
     height: $slider-height;
@@ -465,6 +474,7 @@ $slider-height: 4px;
     @apply min-w-0;
     @apply bg-dividerDark;
     @apply hover:bg-secondaryLight;
+    @apply active:bg-secondaryLight;
 
     width: var(--thumb-width);
     height: $slider-height;

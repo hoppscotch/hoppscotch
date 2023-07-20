@@ -37,7 +37,7 @@
             :list="newUsersList"
             :headings="headings"
             :modify-col-names="colNames"
-            @goToDetails="goToUserDetails"
+            @openRowContent="goToUserDetails"
           >
             <template #name="{ item }">
               <div>
@@ -49,9 +49,7 @@
                     {{ item.name }}
                   </span>
 
-                  <span
-                    v-if="item.name.length === 0 && !isUserAdmin(item)"
-                    class="mx-auto justify-center"
+                  <span v-if="item.name.length === 0 && !isUserAdmin(item)"
                     >-</span
                   >
 
@@ -85,48 +83,46 @@
             </template>
 
             <template #action="{ item }">
-              <td>
-                <div class="relative">
-                  <span>
-                    <tippy interactive trigger="click" theme="popover">
-                      <HoppButtonSecondary
-                        v-tippy="{ theme: 'tooltip' }"
-                        :icon="IconMoreHorizontal"
-                      />
-                      <template #content="{ hide }">
-                        <div
-                          ref="tippyActions"
-                          class="flex flex-col focus:outline-none"
-                          tabindex="0"
-                          @keyup.escape="hide()"
-                        >
-                          <HoppSmartItem
-                            v-if="!isUserAdmin(item)"
-                            :icon="IconUserCheck"
-                            :label="t('users.make_admin')"
-                            class="!hover:bg-emerald-600"
-                            @click="makeUserAdmin(item)"
-                          />
-                          <HoppSmartItem
-                            v-else
-                            :icon="IconUserMinus"
-                            :label="t('users.remove_admin_status')"
-                            class="!hover:bg-emerald-600"
-                            @click="makeAdminToUser(item)"
-                          />
-                          <HoppSmartItem
-                            v-if="!isUserAdmin(item)"
-                            :icon="IconTrash"
-                            :label="t('users.delete_user')"
-                            class="!hover:bg-red-600"
-                            @click="deleteUser(item)"
-                          />
-                        </div>
-                      </template>
-                    </tippy>
-                  </span>
-                </div>
-              </td>
+              <div class="relative">
+                <span>
+                  <tippy interactive trigger="click" theme="popover">
+                    <HoppButtonSecondary
+                      v-tippy="{ theme: 'tooltip' }"
+                      :icon="IconMoreHorizontal"
+                    />
+                    <template #content="{ hide }">
+                      <div
+                        ref="tippyActions"
+                        class="flex flex-col focus:outline-none"
+                        tabindex="0"
+                        @keyup.escape="hide()"
+                      >
+                        <HoppSmartItem
+                          v-if="!isUserAdmin(item)"
+                          :icon="IconUserCheck"
+                          :label="t('users.make_admin')"
+                          class="!hover:bg-emerald-600"
+                          @click="makeUserAdmin(item)"
+                        />
+                        <HoppSmartItem
+                          v-else
+                          :icon="IconUserMinus"
+                          :label="t('users.remove_admin_status')"
+                          class="!hover:bg-emerald-600"
+                          @click="makeAdminToUser(item)"
+                        />
+                        <HoppSmartItem
+                          v-if="!isUserAdmin(item)"
+                          :icon="IconTrash"
+                          :label="t('users.delete_user')"
+                          class="!hover:bg-red-600"
+                          @click="deleteUser(item)"
+                        />
+                      </div>
+                    </template>
+                  </tippy>
+                </span>
+              </div>
             </template>
           </HoppSmartTable>
         </div>
@@ -225,6 +221,7 @@ const newUsersList = computed(() => {
       name: user.displayName ?? '',
       email: user.email ?? '',
       createdOn: user.createdOn,
+      action: '',
     };
   });
 });
@@ -247,7 +244,7 @@ const headings = [
 ];
 
 //Names of the columns to be modified by this component
-const colNames = ['name', 'createdOn'];
+const colNames = ['name', 'createdOn', 'action'];
 
 // Send Invitation through Email
 const sendInvitation = useMutation(InviteNewUserDocument);

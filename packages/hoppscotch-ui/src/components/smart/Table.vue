@@ -21,27 +21,26 @@
           <td
             v-for="(data, colIndex) in item"
             :key="colIndex"
-            @click="$emit('goToDetails', item)"
+            @click="$emit('openRowContent', item)"
             class="max-w-40"
             :class="cellStyles"
           >
             <!-- Custom implementation of the particular column -->
-            <div class="flex items-center">
-              <div v-if="modifyColNames?.includes(colIndex.toString())">
-                <slot :name="colIndex.toString()" :item="item"></slot>
-              </div>
 
-              <!-- Generic implementation of the column -->
-              <div v-else class="flex flex-col truncate text-center">
-                <span v-if="data" class="truncate">
-                  {{ data }}
-                </span>
-                <span v-else class=""> - </span>
-              </div>
+            <div v-if="modifyColNames?.includes(colIndex.toString())">
+              <slot :name="colIndex.toString()" :item="item"></slot>
+            </div>
+
+            <!-- Generic implementation of the column -->
+            <div v-else class="flex flex-col truncate">
+              <span v-if="data" class="truncate">
+                {{ data }}
+              </span>
+              <span v-else class=""> - </span>
             </div>
           </td>
 
-          <slot name="action" :item="item"></slot>
+          <!-- <slot name="action" :item="item"></slot> -->
         </tr>
       </tbody>
     </table>
@@ -63,6 +62,6 @@ defineProps<{
 }>()
 
 defineEmits<{
-  (event: "goToDetails", item: Item): void
+  (event: "openRowContent", item: Item): void
 }>()
 </script>

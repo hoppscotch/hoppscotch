@@ -6,7 +6,7 @@
       class="relative sticky top-0 z-10 flex-shrink-0 overflow-x-auto divide-x divide-dividerLight bg-primaryLight tabs group-tabs"
     >
       <div
-        class="flex flex-1 flex-shrink-0 w-0 scroll-container"
+        class="flex flex-1 flex-shrink-0 w-0 scroll-container overflow-hidden"
         ref="scrollContainer"
       >
         <div
@@ -368,12 +368,6 @@ watch(
 </script>
 
 <style scoped lang="scss">
-.hopp-windows {
-  .scroll-container {
-    overflow: hidden;
-  }
-}
-
 .tabs {
   @apply flex;
   @apply whitespace-nowrap;

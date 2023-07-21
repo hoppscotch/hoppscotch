@@ -21,7 +21,7 @@
           <td
             v-for="cellHeading in headings"
             :key="cellHeading.key"
-            @click="onRowClicked(rowData)"
+            @click="!cellHeading.preventClick && onRowClicked(rowData)"
             class="max-w-40"
             :class="cellStyles"
           >
@@ -42,7 +42,11 @@
 </template>
 
 <script lang="ts" setup generic="Item extends Record<string, unknown>">
-export type CellHeading = { label?: string; key: string }
+export type CellHeading = {
+  key: string
+  label?: string
+  preventClick?: boolean
+}
 
 defineProps<{
   /** Whether to show the vertical border between columns */

@@ -279,6 +279,7 @@ const globalEnvVars = useReadonlyStream(globalEnv$, []) as Ref<
   Array<{
     key: string
     value: string
+    secret: boolean
   }>
 >
 

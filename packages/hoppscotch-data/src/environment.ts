@@ -7,6 +7,7 @@ export type Environment = {
   variables: {
     key: string
     value: string
+    secret: boolean
   }[]
 }
 

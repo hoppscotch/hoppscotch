@@ -71,6 +71,16 @@
                 @click="removeEnvironmentVariable(index)"
               />
             </div>
+            <div class="flex">
+              <HoppButtonSecondary
+                id="variable"
+                v-tippy="{ theme: 'tooltip' }"
+                :title="t('action.secret')"
+                :icon="IconLock"
+                :color="env.secret ? 'red' : ''"
+                @click="toggleEnvironmentSecret(index)"
+              />
+            </div>
           </div>
           <HoppSmartPlaceholder
             v-if="vars.length === 0"
@@ -110,6 +120,7 @@ import IconTrash2 from "~icons/lucide/trash-2"
 import IconDone from "~icons/lucide/check"
 import IconPlus from "~icons/lucide/plus"
 import IconTrash from "~icons/lucide/trash"
+import IconLock  from "~icons/lucide/lock"
 import { clone } from "lodash-es"
 import { computed, ref, watch } from "vue"
 import * as E from "fp-ts/Either"
@@ -140,6 +151,7 @@ type EnvironmentVariable = {
   env: {
     key: string
     value: string
+    secret: boolean
   }
 }
 
@@ -172,7 +184,7 @@ const idTicker = ref(0)
 
 const editingName = ref<string | null>(null)
 const vars = ref<EnvironmentVariable[]>([
-  { id: idTicker.value++, env: { key: "", value: "" } },
+  { id: idTicker.value++, env: { key: "", value: "", secret: false } },
 ])
 
 const clearIcon = refAutoReset<typeof IconTrash2 | typeof IconDone>(
@@ -262,12 +274,17 @@ const addEnvironmentVariable = () => {
     env: {
       key: "",
       value: "",
+      secret: false,
     },
   })
 }
 
 const removeEnvironmentVariable = (index: number) => {
   vars.value.splice(index, 1)
+}
+
+const toggleEnvironmentSecret = (index: number) => {
+  vars.value[index].env.secret = !vars.value[index].env.secret
 }
 
 const saveEnvironment = () => {

@@ -48,7 +48,8 @@
     "turn_off": "Ausschalten",
     "turn_on": "Einschalten",
     "undo": "Rückgängig machen",
-    "yes": "Ja"
+    "yes": "Ja",
+    "secret": "Als Secret speichern"
   },
   "add": {
     "new": "Neue hinzufügen",

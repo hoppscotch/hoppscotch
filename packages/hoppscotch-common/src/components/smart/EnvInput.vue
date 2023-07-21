@@ -72,7 +72,9 @@ const props = withDefaults(
     modelValue?: string
     placeholder?: string
     styles?: string
-    envs?: { key: string; value: string; source: string }[] | null
+    envs?:
+      | { key: string; value: string; secret: boolean; source: string }[]
+      | null
     focus?: boolean
     selectTextOnMount?: boolean
     environmentHighlights?: boolean
@@ -320,6 +322,7 @@ const envVars = computed(() =>
     ? props.envs.map((x) => ({
         key: x.key,
         value: x.value,
+        secret: x.secret,
         sourceEnv: x.source,
       }))
     : aggregateEnvs.value

@@ -48,6 +48,7 @@ type Props = {
   env: {
     key: string
     value: string
+    secret: boolean
     previousValue?: string
   }
   status: Status

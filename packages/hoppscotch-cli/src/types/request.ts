@@ -7,7 +7,7 @@ export type FormDataEntry = {
   value: string | Blob;
 };
 
-export type HoppEnvPair = { key: string; value: string };
+export type HoppEnvPair = { key: string; value: string; secret: boolean };
 
 export type HoppEnvs = {
   global: HoppEnvPair[];

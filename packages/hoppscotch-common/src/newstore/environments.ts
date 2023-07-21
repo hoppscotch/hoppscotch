@@ -186,14 +186,19 @@ const dispatchers = defineDispatchers({
   },
   addEnvironmentVariable(
     { environments }: EnvironmentStore,
-    { envIndex, key, value }: { envIndex: number; key: string; value: string }
+    {
+      envIndex,
+      key,
+      value,
+      secret,
+    }: { envIndex: number; key: string; value: string; secret: boolean }
   ) {
     return {
       environments: environments.map((env, index) =>
         index === envIndex
           ? {
               ...env,
-              variables: [...env.variables, { key, value }],
+              variables: [...env.variables, { key, value, secret }],
             }
           : env
       ),
@@ -221,7 +226,10 @@ const dispatchers = defineDispatchers({
     {
       envIndex,
       vars,
-    }: { envIndex: number; vars: { key: string; value: string }[] }
+    }: {
+      envIndex: number
+      vars: { key: string; value: string; secret: boolean }[]
+    }
   ) {
     return {
       environments: environments.map((env, index) =>
@@ -241,11 +249,13 @@ const dispatchers = defineDispatchers({
       variableIndex,
       updatedKey,
       updatedValue,
+      updatedSecret,
     }: {
       envIndex: number
       variableIndex: number
       updatedKey: string
       updatedValue: string
+      updatedSecret: boolean
     }
   ) {
     return {
@@ -255,7 +265,11 @@ const dispatchers = defineDispatchers({
               ...env,
               variables: env.variables.map((v, vIndex) =>
                 vIndex === variableIndex
-                  ? { key: updatedKey, value: updatedValue }
+                  ? {
+                      key: updatedKey,
+                      value: updatedValue,
+                      secret: updatedSecret,
+                    }
                   : v
               ),
             }
@@ -359,6 +373,7 @@ export const currentEnvironment$: Observable<Environment | undefined> =
 export type AggregateEnvironment = {
   key: string
   value: string
+  secret: boolean
   sourceEnv: string
 }
 
@@ -373,11 +388,11 @@ export const aggregateEnvs$: Observable<AggregateEnvironment[]> = combineLatest(
   map(([selectedEnv, globalVars]) => {
     const results: AggregateEnvironment[] = []
 
-    selectedEnv?.variables.forEach(({ key, value }) =>
-      results.push({ key, value, sourceEnv: selectedEnv.name })
+    selectedEnv?.variables.forEach(({ key, value, secret }) =>
+      results.push({ key, value, secret, sourceEnv: selectedEnv.name })
     )
-    globalVars.forEach(({ key, value }) =>
-      results.push({ key, value, sourceEnv: "Global" })
+    globalVars.forEach(({ key, value, secret }) =>
+      results.push({ key, value, secret, sourceEnv: "Global" })
     )
 
     return results
@@ -593,7 +608,7 @@ export function updateEnvironment(envIndex: number, updatedEnv: Environment) {
 
 export function setEnvironmentVariables(
   envIndex: number,
-  vars: { key: string; value: string }[]
+  vars: { key: string; value: string; secret: boolean }[]
 ) {
   environmentsStore.dispatch({
     dispatcher: "setEnvironmentVariables",
@@ -606,7 +621,7 @@ export function setEnvironmentVariables(
 
 export function addEnvironmentVariable(
   envIndex: number,
-  { key, value }: { key: string; value: string }
+  { key, value, secret }: { key: string; value: string; secret: boolean }
 ) {
   environmentsStore.dispatch({
     dispatcher: "addEnvironmentVariable",
@@ -614,6 +629,7 @@ export function addEnvironmentVariable(
       envIndex,
       key,
       value,
+      secret,
     },
   })
 }
@@ -634,7 +650,7 @@ export function removeEnvironmentVariable(
 export function updateEnvironmentVariable(
   envIndex: number,
   variableIndex: number,
-  { key, value }: { key: string; value: string }
+  { key, value, secret }: { key: string; value: string; secret: boolean }
 ) {
   environmentsStore.dispatch({
     dispatcher: "updateEnvironmentVariable",
@@ -643,6 +659,7 @@ export function updateEnvironmentVariable(
       variableIndex,
       updatedKey: key,
       updatedValue: value,
+      updatedSecret: secret,
     },
   })
 }

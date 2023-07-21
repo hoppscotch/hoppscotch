@@ -74,6 +74,16 @@
                 @click="removeEnvironmentVariable(index)"
               />
             </div>
+            <div class="flex">
+              <HoppButtonSecondary
+                id="variable"
+                v-tippy="{ theme: 'tooltip' }"
+                :title="t('action.secret')"
+                :icon="IconLock"
+                :color="env.secret ? 'red' : ''"
+                @click="toggleEnvironmentSecret(index)"
+              />
+            </div>
           </div>
           <HoppSmartPlaceholder
             v-if="vars.length === 0"
@@ -139,6 +149,7 @@ import IconTrash from "~icons/lucide/trash"
 import IconTrash2 from "~icons/lucide/trash-2"
 import IconDone from "~icons/lucide/check"
 import IconPlus from "~icons/lucide/plus"
+import IconLock  from "~icons/lucide/lock"
 import { platform } from "~/platform"
 
 type EnvironmentVariable = {
@@ -146,6 +157,7 @@ type EnvironmentVariable = {
   env: {
     key: string
     value: string
+    secret: boolean
   }
 }
 
@@ -182,7 +194,7 @@ const idTicker = ref(0)
 
 const editingName = ref<string | null>(null)
 const vars = ref<EnvironmentVariable[]>([
-  { id: idTicker.value++, env: { key: "", value: "" } },
+  { id: idTicker.value++, env: { key: "", value: "", secret: false } },
 ])
 
 const clearIcon = refAutoReset<typeof IconTrash2 | typeof IconDone>(
@@ -220,7 +232,7 @@ watch(
         editingName.value = null
         vars.value = pipe(
           props.envVars() ?? [],
-          A.map((e: { key: string; value: string }) => ({
+          A.map((e: { key: string; value: string; secret: boolean }) => ({
             id: idTicker.value++,
             env: clone(e),
           }))
@@ -229,7 +241,7 @@ watch(
         editingName.value = props.editingEnvironment.environment.name ?? null
         vars.value = pipe(
           props.editingEnvironment.environment.variables ?? [],
-          A.map((e: { key: string; value: string }) => ({
+          A.map((e: { key: string; value: string; secret: boolean }) => ({
             id: idTicker.value++,
             env: clone(e),
           }))
@@ -251,12 +263,17 @@ const addEnvironmentVariable = () => {
     env: {
       key: "",
       value: "",
+      secret: false,
     },
   })
 }
 
 const removeEnvironmentVariable = (index: number) => {
   vars.value.splice(index, 1)
+}
+
+const toggleEnvironmentSecret = (index: number) => {
+  vars.value[index].env.secret = !vars.value[index].env.secret
 }
 
 const isLoading = ref(false)

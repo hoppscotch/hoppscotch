@@ -66,7 +66,10 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
 
       const envName = tooltipEnv?.sourceEnv ?? "Choose an Environment"
 
-      const envValue = tooltipEnv?.value ?? "Not found"
+      let envValue = tooltipEnv?.value ?? "Not found"
+      if (tooltipEnv?.secret) {
+        envValue = "*".repeat(envValue.length)
+      }
 
       const result = parseTemplateStringE(envValue, aggregateEnvs)
 

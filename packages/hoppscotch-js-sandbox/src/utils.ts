@@ -50,6 +50,7 @@ export function getEnv(envName: string, envs: TestResult["envs"]) {
 export function setEnv(
   envName: string,
   envValue: string,
+  envSecret: boolean,
   envs: TestResult["envs"]
 ): TestResult["envs"] {
   const indexInSelected = envs.selected.findIndex((x) => x.key === envName)
@@ -80,6 +81,7 @@ export function setEnv(
   envs.selected.push({
     key: envName,
     value: envValue,
+    secret: envSecret,
   })
 
   return {

@@ -527,28 +527,32 @@ export const execTestScript = (
           }
         )
 
-        const envSetHandle = vm.newFunction("set", (keyHandle, valueHandle) => {
-          const key: unknown = vm.dump(keyHandle)
-          const value: unknown = vm.dump(valueHandle)
+        const envSetHandle = vm.newFunction(
+          "set",
+          (keyHandle, valueHandle, secretHandle) => {
+            const key: unknown = vm.dump(keyHandle)
+            const value: unknown = vm.dump(valueHandle)
+            const secret: boolean = vm.dump(secretHandle)
 
-          if (typeof key !== "string") {
+            if (typeof key !== "string") {
+              return {
+                error: vm.newString("Expected key to be a string"),
+              }
+            }
+
+            if (typeof value !== "string") {
+              return {
+                error: vm.newString("Expected value to be a string"),
+              }
+            }
+
+            currentEnvs = setEnv(key, value, secret, currentEnvs)
+
             return {
-              error: vm.newString("Expected key to be a string"),
+              value: vm.undefined,
             }
           }
-
-          if (typeof value !== "string") {
-            return {
-              error: vm.newString("Expected value to be a string"),
-            }
-          }
-
-          currentEnvs = setEnv(key, value, currentEnvs)
-
-          return {
-            value: vm.undefined,
-          }
-        })
+        )
 
         const envResolveHandle = vm.newFunction("resolve", (valueHandle) => {
           const value: unknown = vm.dump(valueHandle)

@@ -149,7 +149,7 @@ import IconTrash from "~icons/lucide/trash"
 import IconTrash2 from "~icons/lucide/trash-2"
 import IconDone from "~icons/lucide/check"
 import IconPlus from "~icons/lucide/plus"
-import IconLock  from "~icons/lucide/lock"
+import IconLock from "~icons/lucide/lock"
 import { platform } from "~/platform"
 
 type EnvironmentVariable = {

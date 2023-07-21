@@ -100,6 +100,12 @@ export const subscriptionContextCookieParser = (rawCookies: string) => {
 
 export class EmptyClassProvider {}
 
+/**
+ * Check to see if given auth provider is present in the ALLOWED_AUTH_PROVIDERS env variable
+ *
+ * @param provider Provider we want to check the presence of
+ * @returns Boolean if provider specified is present or not
+ */
 export function authProviderCheck(provider: string) {
   if (!provider) {
     throw new Error(AUTH_PROVIDER_NOT_SPECIFIED);

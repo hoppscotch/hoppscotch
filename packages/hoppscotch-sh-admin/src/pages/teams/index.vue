@@ -31,8 +31,7 @@
           <HoppSmartTable
             :list="newTeamsList"
             :headings="headings"
-            @openRowContent="goToTeamDetails"
-            :modify-col-names="['action']"
+            @on-row-clicked="goToTeamDetails"
             cell-styles="px-6 py-1"
           >
             <template #action="{ item }">
@@ -154,8 +153,13 @@ const newTeamsList = computed(() => {
   });
 });
 
-// Headers that are used in the table
-const headings = [t('teams.id'), t('teams.name'), t('teams.members'), ''];
+// Table Headings
+const headings = [
+  { key: 'id', label: t('teams.id') },
+  { key: 'name', label: t('teams.name') },
+  { key: 'members', label: t('teams.members') },
+  { key: 'action', label: '', preventClick: true },
+];
 
 // Create Team
 const createTeamMutation = useMutation(CreateTeamDocument);

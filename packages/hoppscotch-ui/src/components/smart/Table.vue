@@ -63,7 +63,5 @@ const emit = defineEmits<{
   (event: "onRowClicked", item: Item): void
 }>()
 
-const onRowClicked = (item: Item) => {
-  emit("onRowClicked", item)
-}
+const onRowClicked = (item: Item) => emit("onRowClicked", item)
 </script>

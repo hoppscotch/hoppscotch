@@ -36,8 +36,7 @@
             cell-styles="px-6 py-1"
             :list="newUsersList"
             :headings="headings"
-            :modify-col-names="colNames"
-            @openRowContent="goToUserDetails"
+            @on-row-clicked="goToUserDetails"
           >
             <template #name="{ item }">
               <div>
@@ -168,7 +167,7 @@
 
 <script setup lang="ts">
 import { format } from 'date-fns';
-import { computed, reactive, ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useMutation } from '@urql/vue';
 import {
   InviteNewUserDocument,
@@ -234,17 +233,14 @@ const isUserAdmin = (
   })[0].isAdmin;
 };
 
-// Headers that are used in the table
+// Table Headings
 const headings = [
-  t('users.id'),
-  t('users.name'),
-  t('users.email'),
-  t('users.date'),
-  '',
+  { key: 'uid', label: t('users.id') },
+  { key: 'name', label: t('users.name') },
+  { key: 'email', label: t('users.email') },
+  { key: 'createdOn', label: t('users.date') },
+  { key: 'action', label: '', preventClick: true },
 ];
-
-//Names of the columns to be modified by this component
-const colNames = ['name', 'createdOn', 'action'];
 
 // Send Invitation through Email
 const sendInvitation = useMutation(InviteNewUserDocument);

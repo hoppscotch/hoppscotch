@@ -29,7 +29,6 @@
               cell-styles="px-6 py-1"
               :list="newInvitedUsersList"
               :headings="headings"
-              :modify-col-names="colNames"
             >
               <template #invitedOn="{ item }">
                 <div class="flex flex-col truncate">
@@ -90,13 +89,11 @@ const newInvitedUsersList = computed(() => {
   });
 });
 
-// Headings used in the table
+// Table Headings
 const headings = [
-  t('users.admin_id'),
-  t('users.admin_email'),
-  t('users.invitee_email'),
-  t('users.invited_on'),
+  { key: 'adminUid', label: t('users.admin_id') },
+  { key: 'adminEmail', label: t('users.admin_email') },
+  { key: 'inviteeEmail', label: t('users.invitee_email') },
+  { key: 'invitedOn', label: t('users.invited_on') },
 ];
-
-const colNames = ['invitedOn'];
 </script>

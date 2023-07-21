@@ -24,7 +24,7 @@ export const JSON_INVALID = 'json_invalid';
 
 /**
  * Auth Provider not specified
- * (Utils)
+ * (Auth)
  */
 export const AUTH_PROVIDER_NOT_SPECIFIED = 'auth/provider_not_specified';
 

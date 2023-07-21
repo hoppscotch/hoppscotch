@@ -5,42 +5,36 @@
         <tr
           class="text-secondary border-b border-dividerDark text-sm text-left"
         >
-          <th v-for="title in headings" scope="col" class="px-6 py-3">
-            {{ title }}
+          <th v-for="th in headings" scope="col" class="px-6 py-3">
+            {{ th.label ?? th.key }}
           </th>
         </tr>
       </thead>
 
       <tbody class="divide-y divide-divider">
         <tr
-          v-for="(item, rowIndex) in list"
+          v-for="(rowData, rowIndex) in list"
           :key="rowIndex"
           class="text-secondaryDark hover:bg-divider hover:cursor-pointer rounded-xl"
           :class="yBorder ? 'divide-x divide-divider' : ''"
         >
           <td
-            v-for="(data, colIndex) in item"
-            :key="colIndex"
-            @click="$emit('openRowContent', item)"
+            v-for="cellHeading in headings"
+            :key="cellHeading.key"
+            @click="onRowClicked(rowData)"
             class="max-w-40"
             :class="cellStyles"
           >
-            <!-- Custom implementation of the particular column -->
-
-            <div v-if="modifyColNames?.includes(colIndex.toString())">
-              <slot :name="colIndex.toString()" :item="item"></slot>
-            </div>
-
-            <!-- Generic implementation of the column -->
-            <div v-else class="flex flex-col truncate">
-              <span v-if="data" class="truncate">
-                {{ data }}
-              </span>
-              <span v-else class=""> - </span>
-            </div>
+            <!-- Dynamic column slot -->
+            <slot :name="cellHeading.key" :item="rowData">
+              <!-- Generic implementation of the column -->
+              <div class="flex flex-col truncate">
+                <span class="truncate">
+                  {{ rowData[cellHeading.key] ?? "-" }}
+                </span>
+              </div>
+            </slot>
           </td>
-
-          <!-- <slot name="action" :item="item"></slot> -->
         </tr>
       </tbody>
     </table>
@@ -48,20 +42,24 @@
 </template>
 
 <script lang="ts" setup generic="Item extends Record<string, unknown>">
+export type CellHeading = { label?: string; key: string }
+
 defineProps<{
   /** Whether to show the vertical border between columns */
   yBorder?: boolean
   /**  The list of items to be displayed in the table */
   list: Item[]
   /** The headings of the table */
-  headings: string[]
+  headings: CellHeading[]
   /** The styles to be applied to the table cells */
   cellStyles?: string
-  /** The names of the columns which have to modified using slots */
-  modifyColNames?: string[]
 }>()
 
-defineEmits<{
-  (event: "openRowContent", item: Item): void
+const emit = defineEmits<{
+  (event: "onRowClicked", item: Item): void
 }>()
+
+const onRowClicked = (item: Item) => {
+  emit("onRowClicked", item)
+}
 </script>

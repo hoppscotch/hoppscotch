@@ -11,6 +11,7 @@ import { RTJwtStrategy } from './strategies/rt-jwt.strategy';
 import { GoogleStrategy } from './strategies/google.strategy';
 import { GithubStrategy } from './strategies/github.strategy';
 import { MicrosoftStrategy } from './strategies/microsoft.strategy';
+import { EmptyClassProvider, authProviderCheck } from './helper';
 
 @Module({
   imports: [
@@ -26,9 +27,9 @@ import { MicrosoftStrategy } from './strategies/microsoft.strategy';
     AuthService,
     JwtStrategy,
     RTJwtStrategy,
-    GoogleStrategy,
-    GithubStrategy,
-    MicrosoftStrategy,
+    authProviderCheck('GOOGLE') ? GoogleStrategy : EmptyClassProvider,
+    authProviderCheck('GITHUB') ? GithubStrategy : EmptyClassProvider,
+    authProviderCheck('MICROSOFT') ? MicrosoftStrategy : EmptyClassProvider,
   ],
   controllers: [AuthController],
 })

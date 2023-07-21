@@ -23,6 +23,12 @@ export const AUTH_FAIL = 'auth/fail';
 export const JSON_INVALID = 'json_invalid';
 
 /**
+ * Auth Provider not specified
+ * (Utils)
+ */
+export const AUTH_PROVIDER_NOT_SPECIFIED = 'auth/provider_not_specified';
+
+/**
  * Tried to delete a user data document from fb firestore but failed.
  * (FirebaseService)
  */

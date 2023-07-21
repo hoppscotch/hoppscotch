@@ -4,7 +4,7 @@ import { AuthError } from 'src/types/AuthError';
 import { AuthTokens } from 'src/types/AuthTokens';
 import { Response } from 'express';
 import * as cookie from 'cookie';
-import { COOKIES_NOT_FOUND } from 'src/errors';
+import { AUTH_PROVIDER_NOT_SPECIFIED, COOKIES_NOT_FOUND } from 'src/errors';
 
 enum AuthTokenType {
   ACCESS_TOKEN = 'access_token',
@@ -97,3 +97,19 @@ export const subscriptionContextCookieParser = (rawCookies: string) => {
     refresh_token: cookies[AuthTokenType.REFRESH_TOKEN],
   };
 };
+
+export class EmptyClassProvider {}
+
+export function authProviderCheck(provider: string) {
+  if (!provider) {
+    throw new Error(AUTH_PROVIDER_NOT_SPECIFIED);
+  }
+
+  const envVariables = process.env.ALLOWED_AUTH_PROVIDERS.split(',').map(
+    (provider) => provider.trim().toUpperCase(),
+  );
+
+  if (!envVariables.includes(provider.toUpperCase())) return false;
+
+  return true;
+}

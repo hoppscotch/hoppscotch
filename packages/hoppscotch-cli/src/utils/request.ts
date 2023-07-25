@@ -220,6 +220,7 @@ export const processRequest =
       effectiveFinalHeaders: [],
       effectiveFinalParams: [],
       effectiveFinalURL: "",
+      effectiveFinalMaskedURL:"",
     };
 
     // Executing pre-request-script
@@ -237,8 +238,8 @@ export const processRequest =
 
     // Creating request-config for request-runner.
     const requestConfig = createRequest(effectiveRequest);
-
-    printRequestRunner.start(requestConfig);
+    
+    printRequestRunner.start(requestConfig.method, effectiveRequest.effectiveFinalMaskedURL);
 
     // Default value for request-runner's response.
     let _requestRunnerRes: RequestRunnerResponse = {

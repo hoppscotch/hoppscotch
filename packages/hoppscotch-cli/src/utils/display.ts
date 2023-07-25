@@ -1,7 +1,7 @@
 import { bold } from "chalk";
 import { groupEnd, group, log } from "console";
 import { handleError } from "../handlers/error";
-import { RequestConfig } from "../interfaces/request";
+import { Method } from "axios";
 import { RequestRunnerResponse, TestReport } from "../interfaces/response";
 import { HoppCLIError } from "../types/errors";
 import {
@@ -172,11 +172,12 @@ export const printFailedTestsReport = (
 export const printRequestRunner = {
   /**
    * Request-runner starting message.
-   * @param requestConfig Provides request's method and url.
+   * @param requestMethod Provides request's method
+   * @param maskedURL Provides the URL with secrets masked with asterisks
    */
-  start: (requestConfig: RequestConfig) => {
-    const METHOD = BG_INFO(` ${requestConfig.method} `);
-    const ENDPOINT = requestConfig.url;
+  start: (requestMethod: Method | undefined, maskedURL: string) => {
+    const METHOD = BG_INFO(` ${requestMethod} `);
+    const ENDPOINT = maskedURL;
 
     process.stdout.write(`${METHOD} ${ENDPOINT}`);
   },

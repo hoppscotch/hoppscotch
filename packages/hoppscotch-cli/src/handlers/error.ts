@@ -51,6 +51,9 @@ export const handleError = <T extends HoppErrorCode>(error: HoppError<T>) => {
     case "MALFORMED_COLLECTION":
       ERROR_MSG = `${error.path}\n${parseErrorData(error.data)}`;
       break;
+    case "ENVIRONMENT_NAME_NOT_FOUND":
+      ERROR_MSG = `\n${parseErrorData(error.data)}`;
+      break;
     case "NO_FILE_PATH":
       ERROR_MSG = `Please provide a hoppscotch-collection file path.`;
       break;

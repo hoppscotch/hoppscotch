@@ -15,6 +15,7 @@ type HoppErrors = {
   FILE_NOT_FOUND: HoppErrorPath;
   UNKNOWN_COMMAND: HoppErrorCmd;
   MALFORMED_COLLECTION: HoppErrorPath & HoppErrorData;
+  ENVIRONMENT_NAME_NOT_FOUND: HoppErrorData;
   NO_FILE_PATH: {};
   PRE_REQUEST_SCRIPT_ERROR: HoppErrorData;
   PARSING_ERROR: HoppErrorData;

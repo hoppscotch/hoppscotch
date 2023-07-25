@@ -33,4 +33,5 @@ export interface EffectiveHoppRESTRequest extends HoppRESTRequest {
   effectiveFinalHeaders: { key: string; value: string; active: boolean }[];
   effectiveFinalParams: { key: string; value: string; active: boolean }[];
   effectiveFinalBody: FormData | string | null;
+  effectiveFinalMaskedURL: string;
 }

@@ -50,9 +50,9 @@ export const preRequestScriptRunner = (
       isHoppCLIError(reason)
         ? reason
         : error({
-            code: "PRE_REQUEST_SCRIPT_ERROR",
-            data: reason,
-          })
+          code: "PRE_REQUEST_SCRIPT_ERROR",
+          data: reason,
+        })
     )
   );
 
@@ -151,6 +151,12 @@ export function getEffectiveRESTRequest(
     request.endpoint,
     envVariables
   );
+
+  const maskedEnvVariables = setAllEnvironmentValuesToAsterisk(envVariables)
+  const _effectiveFinalMaskedURL = parseTemplateStringE(
+    request.endpoint,
+    maskedEnvVariables)
+
   if (E.isLeft(_effectiveFinalURL)) {
     return E.left(
       error({
@@ -160,6 +166,7 @@ export function getEffectiveRESTRequest(
     );
   }
   const effectiveFinalURL = _effectiveFinalURL.right;
+  const effectiveFinalMaskedURL = E.isLeft(_effectiveFinalMaskedURL) ? request.endpoint : _effectiveFinalMaskedURL.right;
 
   return E.right({
     ...request,
@@ -167,6 +174,7 @@ export function getEffectiveRESTRequest(
     effectiveFinalHeaders,
     effectiveFinalParams,
     effectiveFinalBody,
+    effectiveFinalMaskedURL,
   });
 }
 
@@ -242,15 +250,15 @@ function getFinalBodyFromRequest(
       arrayFlatMap((x) =>
         x.isFile
           ? x.value.map((v) => ({
-              key: parseTemplateString(x.key, envVariables),
-              value: v as string | Blob,
-            }))
+            key: parseTemplateString(x.key, envVariables),
+            value: v as string | Blob,
+          }))
           : [
-              {
-                key: parseTemplateString(x.key, envVariables),
-                value: parseTemplateString(x.value, envVariables),
-              },
-            ]
+            {
+              key: parseTemplateString(x.key, envVariables),
+              value: parseTemplateString(x.value, envVariables),
+            },
+          ]
       ),
       toFormData,
       E.right
@@ -287,3 +295,22 @@ export const getPreRequestMetrics = (
       hasPreReqErrors ? { failed: 1, passed: 0 } : { failed: 0, passed: 1 },
     (scripts) => <PreRequestMetrics>{ scripts, duration }
   );
+
+/**
+ * Mask all environment values with asterisks
+ * @param variables Environment variable array
+ * @returns Environment variable array with masked values
+ */
+const setAllEnvironmentValuesToAsterisk = (
+  variables: Environment["variables"]
+): Environment["variables"] => {
+  const envVariables: Environment["variables"] = [];
+  for (const variable of variables) {
+    let value = variable.value
+    if (variable.secret) {
+      value = "******"
+    }
+    envVariables.push({ key: variable.key, secret: variable.secret, value: value })
+  }
+  return envVariables
+}

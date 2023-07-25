@@ -50,6 +50,7 @@ program
     "path to a hoppscotch collection.json file for CI testing"
   )
   .option("-e, --env <file_path>", "path to an environment variables json file")
+  .option("-eN, --envName <environment_name>","Specific Name of the environment")
   .option(
     "-d, --delay <delay_in_ms>",
     "delay in milliseconds(ms) between consecutive requests within a collection"

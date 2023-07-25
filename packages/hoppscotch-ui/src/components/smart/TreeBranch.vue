@@ -25,7 +25,7 @@
         'bg-divider': highlightNode,
       }"
     >
-      <TreeBranch
+      <SmartTreeBranch
         v-for="childNode in childNodes.data"
         :key="childNode.id"
         :node-item="childNode"
@@ -51,15 +51,15 @@
         <template #emptyNode="{ node }">
           <slot name="emptyNode" :node="node"></slot>
         </template>
-      </TreeBranch>
+      </SmartTreeBranch>
     </div>
 
     <div
       v-if="childNodes.status === 'loading'"
       class="flex flex-col items-center justify-center flex-1 p-4"
     >
-      <HoppSmartSpinner class="my-4" />
-      <span class="text-secondaryLight">{{ t("state.loading") }}</span>
+      <SmartSpinner class="my-4" />
+      <span class="text-secondaryLight">{{ t?.("state.loading") }}</span>
     </div>
     <div
       v-if="childNodes.status === 'loaded' && childNodes.data.length === 0"
@@ -71,9 +71,12 @@
 </template>
 
 <script setup lang="ts" generic="T extends any">
-import { computed, ref } from "vue"
-import { useI18n } from "~/composables/i18n"
+import { computed, inject, ref } from "vue"
+import SmartTreeBranch from "./TreeBranch.vue"
+import SmartSpinner from "./Spinner.vue"
 import { SmartTreeAdapter, TreeNode } from "~/helpers/treeAdapter"
+import { HOPP_UI_OPTIONS, HoppUIPluginOptions } from "./../../plugin"
+const { t } = inject<HoppUIPluginOptions>(HOPP_UI_OPTIONS) ?? {}
 
 const props = defineProps<{
   /**
@@ -92,7 +95,6 @@ const props = defineProps<{
 }>()
 
 const CHILD_SLOT_NAME = "default"
-const t = useI18n()
 
 const isOnlyRootChild = computed(() => props.rootNodesLength === 1)
 

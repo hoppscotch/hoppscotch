@@ -46,7 +46,7 @@
       </span>
     </div>
     <div class="flex flex-col overflow-hidden">
-      <SmartTree :adapter="teamAdapter">
+      <HoppSmartTree :adapter="teamAdapter">
         <template
           #content="{ node, toggleChildren, isOpen, highlightChildren }"
         >
@@ -311,7 +311,7 @@
             </HoppSmartPlaceholder>
           </div>
         </template>
-      </SmartTree>
+      </HoppSmartTree>
     </div>
   </div>
 </template>
@@ -326,7 +326,10 @@ import { useI18n } from "@composables/i18n"
 import { useColorMode } from "@composables/theming"
 import { TeamCollection } from "~/helpers/teams/TeamCollection"
 import { TeamRequest } from "~/helpers/teams/TeamRequest"
-import { ChildrenResult, SmartTreeAdapter } from "~/helpers/treeAdapter"
+import {
+  ChildrenResult,
+  SmartTreeAdapter,
+} from "@hoppscotch/ui/dist/helpers/treeAdapter"
 import { cloneDeep } from "lodash-es"
 import { HoppRESTRequest } from "@hoppscotch/data"
 import { pipe } from "fp-ts/function"

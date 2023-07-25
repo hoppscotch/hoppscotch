@@ -97,6 +97,7 @@
   "main": "./dist/index.es.js",
   "exports": {
     ".": "./dist/index.es.js",
+    "./helpers/treeAdapter.ts": "./src/helpers/treeAdapter.ts",
     "./style.css": "./dist/style.css"
   },
   "types": "./dist/index.d.ts"

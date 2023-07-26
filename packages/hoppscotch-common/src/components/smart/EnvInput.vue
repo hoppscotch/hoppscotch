@@ -16,7 +16,9 @@
           v-if="
             inspector.isApplicable &&
             inspector.componentRefID === uniqueRef &&
-            (envIndex ? inspector.index === envIndex : true)
+            (typeof envIndex !== 'undefined'
+              ? inspector.index === envIndex
+              : true)
           "
           class="flex justify-center items-center"
         >
@@ -147,7 +149,7 @@ const props = withDefaults(
     readonly?: boolean
     autoCompleteSource?: string[]
     inspectorChecks?: InspectorChecks
-    envIndex?: number
+    envIndex?: number | undefined
   }>(),
   {
     modelValue: "",
@@ -159,7 +161,7 @@ const props = withDefaults(
     environmentHighlights: true,
     autoCompleteSource: undefined,
     inspectorChecks: undefined,
-    envIndex: 0,
+    envIndex: undefined,
   }
 )
 
@@ -251,7 +253,9 @@ watchDebounced(
 const updateModelValue = (value: string) => {
   emit("update:modelValue", value)
   emit("change", value)
-  showSuggestionPopover.value = false
+  nextTick(() => {
+    showSuggestionPopover.value = false
+  })
 }
 
 onMounted(() => {

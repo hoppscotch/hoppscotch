@@ -63,6 +63,7 @@
               :envs="liveEnvs"
               :name="'value' + index"
               :readonly="isViewer"
+              :secret="env.secret"
             />
             <div v-if="!isViewer" class="flex">
               <HoppButtonSecondary
@@ -197,6 +198,7 @@ const vars = ref<EnvironmentVariable[]>([
   { id: idTicker.value++, env: { key: "", value: "", secret: false } },
 ])
 
+const oldEnvironments = ref(props.envVars())
 const clearIcon = refAutoReset<typeof IconTrash2 | typeof IconDone>(
   IconTrash2,
   1000
@@ -221,6 +223,21 @@ const liveEnvs = computed(() => {
     return [
       ...vars.value.map((x) => ({ ...x.env, source: editingName.value! })),
     ]
+  }
+})
+
+watch(liveEnvs, (newLiveEnv, oldLiveEnv) => {
+  for (let i = 0; i < newLiveEnv.length; i++) {
+    const newVar = newLiveEnv[i]
+    const oldVar = oldLiveEnv[i]
+
+    if (!newVar.secret && newVar.value !== oldVar.value) {
+      const _oldEnvironments = oldEnvironments.value
+      if (_oldEnvironments) {
+        _oldEnvironments[i].value = newVar.value
+      }
+      oldEnvironments.value = _oldEnvironments
+    }
   }
 })
 
@@ -285,6 +302,15 @@ const saveEnvironment = async () => {
     toast.error(`${t("environment.invalid_name")}`)
     return
   }
+
+  const _vars = vars.value
+  for (let i = 0; i < vars.value.length; i++) {
+    const value = oldEnvironments.value[i].value
+    if (value) {
+      _vars[i].env.value = value
+    }
+  }
+  vars.value = _vars
 
   const filterdVariables = pipe(
     vars.value,

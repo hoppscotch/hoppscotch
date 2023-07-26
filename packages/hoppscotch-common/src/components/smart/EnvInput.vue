@@ -55,7 +55,12 @@ import {
   keymap,
   tooltips,
 } from "@codemirror/view"
-import { EditorSelection, EditorState, Extension } from "@codemirror/state"
+import {
+  EditorSelection,
+  EditorState,
+  Extension,
+  StateEffect,
+} from "@codemirror/state"
 import { clone } from "lodash-es"
 import { history, historyKeymap } from "@codemirror/commands"
 import { inputTheme } from "~/helpers/editor/themes/baseTheme"
@@ -81,6 +86,8 @@ const props = withDefaults(
     readonly?: boolean
     autoCompleteSource?: string[]
     inspectionResults?: InspectorResult[] | undefined
+    defaultValue?: string
+    secret?: boolean
   }>(),
   {
     modelValue: "",
@@ -93,6 +100,8 @@ const props = withDefaults(
     autoCompleteSource: undefined,
     inspectionResult: undefined,
     inspectionResults: undefined,
+    defaultValue: "",
+    secret: false,
   }
 )
 
@@ -105,6 +114,8 @@ const emit = defineEmits<{
   (e: "keydown", ev: any): void
   (e: "click", ev: any): void
 }>()
+
+const ASTERISK = "******"
 
 const cachedValue = ref(props.modelValue)
 
@@ -265,6 +276,23 @@ watch(
   }
 )
 
+const prevModelValue = ref(props.modelValue)
+watch(
+  () => props.secret,
+  (newValue, oldValue) => {
+    if (newValue !== oldValue) {
+      let visibleValue = ASTERISK
+      if (!newValue) {
+        visibleValue = prevModelValue.value
+      } else {
+        prevModelValue.value = props.modelValue
+      }
+      emit("update:modelValue", visibleValue)
+      updateEditorViewTheme(newValue)
+    }
+  }
+)
+
 /**
  * Used to scroll the active suggestion into view
  */
@@ -286,7 +314,6 @@ watch(
   () => props.modelValue,
   (newVal) => {
     const singleLinedText = newVal.replaceAll("\n", "")
-
     const currDoc = view.value?.state.doc
       .toJSON()
       .join(view.value.state.lineBreak)
@@ -357,6 +384,14 @@ function handleTextSelection() {
     }
   }
 }
+const updateEditorViewTheme = (readonly: boolean) => {
+  if (view.value) {
+    const extensions: Extension = getExtensions(readonly)
+    view.value.dispatch({
+      effects: [StateEffect.reconfigure.of(extensions)],
+    })
+  }
+}
 
 const initView = (el: any) => {
   // Debounce to prevent double click from selecting the word
@@ -367,17 +402,31 @@ const initView = (el: any) => {
   el.addEventListener("mouseup", debounceFn)
   el.addEventListener("keyup", debounceFn)
 
+  if (props.secret) {
+    emit("update:modelValue", ASTERISK)
+  }
+  const extensions: Extension = getExtensions(props.readonly || props.secret)
+  view.value = new EditorView({
+    parent: el,
+    state: EditorState.create({
+      doc: props.modelValue,
+      extensions,
+    }),
+  })
+}
+
+const getExtensions = (readonly: boolean): Extension => {
   const extensions: Extension = [
     EditorView.contentAttributes.of({ "aria-label": props.placeholder }),
     EditorView.contentAttributes.of({ "data-enable-grammarly": "false" }),
     EditorView.updateListener.of((update) => {
-      if (props.readonly) {
+      if (readonly) {
         update.view.contentDOM.inputMode = "none"
       }
     }),
-    EditorState.changeFilter.of(() => !props.readonly),
+    EditorState.changeFilter.of(() => !readonly),
     inputTheme,
-    props.readonly
+    readonly
       ? EditorView.theme({
           ".cm-content": {
             caretColor: "var(--secondary-dark-color)",
@@ -409,7 +458,7 @@ const initView = (el: any) => {
     ViewPlugin.fromClass(
       class {
         update(update: ViewUpdate) {
-          if (props.readonly) return
+          if (readonly) return
 
           if (update.docChanged) {
             const prevValue = clone(cachedValue.value)
@@ -448,14 +497,7 @@ const initView = (el: any) => {
     history(),
     keymap.of([...historyKeymap]),
   ]
-
-  view.value = new EditorView({
-    parent: el,
-    state: EditorState.create({
-      doc: props.modelValue,
-      extensions,
-    }),
-  })
+  return extensions
 }
 
 const triggerTextSelection = () => {

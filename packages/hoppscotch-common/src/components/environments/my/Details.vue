@@ -60,6 +60,7 @@
               :placeholder="`${t('count.value', { count: index + 1 })}`"
               :envs="liveEnvs"
               :name="'value' + index"
+              :secret="env.secret"
             />
             <div class="flex">
               <HoppButtonSecondary
@@ -215,6 +216,8 @@ const workingEnv = computed(() => {
   }
 })
 
+const oldEnvironments = ref<Environment | null>(workingEnv.value)
+
 const envList = useReadonlyStream(environments$, []) || props.envVars()
 
 const evnExpandError = computed(() => {
@@ -243,6 +246,21 @@ const liveEnvs = computed(() => {
       ...vars.value.map((x) => ({ ...x.env, source: editingName.value! })),
       ...globalVars.value.map((x) => ({ ...x, source: "Global" })),
     ]
+  }
+})
+
+watch(liveEnvs, (newLiveEnv, oldLiveEnv) => {
+  for (let i = 0; i < newLiveEnv.length; i++) {
+    const newVar = newLiveEnv[i]
+    const oldVar = oldLiveEnv[i]
+
+    if (!newVar.secret && newVar.value !== oldVar.value) {
+      const _oldEnvironments = oldEnvironments.value
+      if (_oldEnvironments) {
+        _oldEnvironments.variables[i].value = newVar.value
+      }
+      oldEnvironments.value = _oldEnvironments
+    }
   }
 })
 
@@ -292,7 +310,14 @@ const saveEnvironment = () => {
     toast.error(`${t("environment.invalid_name")}`)
     return
   }
-
+  const _vars = vars.value
+  for (let i = 0; i < vars.value.length; i++) {
+    const value = oldEnvironments.value?.variables[i].value
+    if (value) {
+      _vars[i].env.value = value
+    }
+  }
+  vars.value = _vars
   const filterdVariables = pipe(
     vars.value,
     A.filterMap(

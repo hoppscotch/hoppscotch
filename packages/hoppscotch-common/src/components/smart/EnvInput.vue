@@ -1,5 +1,5 @@
 <template>
-  <div class="autocomplete-wrapper">
+  <div :ref="uniqueRef" class="autocomplete-wrapper">
     <div class="absolute inset-0 flex flex-1 overflow-x-auto">
       <div
         ref="editor"
@@ -10,6 +10,67 @@
         @keydown="handleKeystroke"
         @focusin="showSuggestionPopover = true"
       ></div>
+
+      <div v-for="(inspector, index) in inspectors" :key="index">
+        <div
+          v-if="
+            inspector.isApplicable &&
+            inspector.componentRefID === uniqueRef &&
+            (envIndex ? inspector.index === envIndex : true)
+          "
+          class="flex justify-center items-center"
+        >
+          <tippy ref="options" interactive theme="popover">
+            <div class="flex justify-center items-center flex-1 felx-col">
+              <HoppButtonSecondary
+                :icon="inspector.icon"
+                :class="severityColor(inspector.severity)"
+              />
+            </div>
+            <template #content="{ hide }">
+              <div class="flex flex-col space-y-4 items-start p-2">
+                <span v-if="inspector.text.type === 'text'">
+                  {{ inspector.text.text }}
+                </span>
+                <span v-if="inspector.action">
+                  <HoppButtonPrimary
+                    :label="inspector.action.text"
+                    @click="
+                      () => {
+                        inspector.action?.apply()
+                        updateInspectorValue()
+                        hide()
+                      }
+                    "
+                  />
+                </span>
+              </div>
+            </template>
+          </tippy>
+        </div>
+      </div>
+
+      <!-- <div
+        v-if="inspectors && inspectors[0].isApplicable"
+        class="flex justify-center items-center"
+      >
+        <tippy ref="options" interactive theme="popover">
+          <div class="flex justify-center items-center flex-1 flex-col">
+            <HoppButtonSecondary
+              :icon="inspectors[0].icon"
+              :class="severityColor(inspectors[0].severity)"
+            />
+          </div>
+          <template #content="{ hide }">
+            <div class="flex flex-col">
+              <span v-for="(inspector, index) in inspectors" :key="index">
+                {{ inspector.text.text }}
+              </span>
+            </div>
+          </template>
+        </tippy>
+      </div>
+    </div> -->
     </div>
     <ul
       v-if="showSuggestionPopover && autoCompleteSource"
@@ -53,7 +114,7 @@ import {
   tooltips,
 } from "@codemirror/view"
 import { EditorSelection, EditorState, Extension } from "@codemirror/state"
-import { clone } from "lodash-es"
+import { clone, uniqueId } from "lodash-es"
 import { history, historyKeymap } from "@codemirror/commands"
 import { inputTheme } from "~/helpers/editor/themes/baseTheme"
 import { HoppReactiveEnvPlugin } from "~/helpers/editor/extensions/HoppEnvironment"
@@ -61,7 +122,17 @@ import { useReadonlyStream } from "@composables/stream"
 import { AggregateEnvironment, aggregateEnvs$ } from "~/newstore/environments"
 import { platform } from "~/platform"
 import { useI18n } from "~/composables/i18n"
-import { onClickOutside, useDebounceFn } from "@vueuse/core"
+import { onClickOutside, watchDebounced, useDebounceFn } from "@vueuse/core"
+import { useService } from "dioc/vue"
+import {
+  InspectionService,
+  InspectorChecks,
+  InspectorResult,
+} from "~/services/inspection"
+import { EnvironmentInspectorService } from "~/services/inspection/inspectors/environment.inspector"
+import { currentActiveTab } from "~/helpers/rest/tab"
+import { URLInspectorService } from "~/services/inspection/inspectors/url.inspector"
+import { HeaderInspectorService } from "~/services/inspection/inspectors/header.inspector"
 import { invokeAction } from "~/helpers/actions"
 
 const props = withDefaults(
@@ -75,6 +146,8 @@ const props = withDefaults(
     environmentHighlights?: boolean
     readonly?: boolean
     autoCompleteSource?: string[]
+    inspectorChecks?: InspectorChecks
+    envIndex?: number
   }>(),
   {
     modelValue: "",
@@ -85,6 +158,8 @@ const props = withDefaults(
     readonly: false,
     environmentHighlights: true,
     autoCompleteSource: undefined,
+    inspectorChecks: undefined,
+    envIndex: 0,
   }
 )
 
@@ -97,6 +172,8 @@ const emit = defineEmits<{
   (e: "keydown", ev: any): void
   (e: "click", ev: any): void
 }>()
+
+const uniqueRef = ref(uniqueId().toString())
 
 const t = useI18n()
 
@@ -139,10 +216,59 @@ const suggestions = computed(() => {
   }
 })
 
+const inspectors = ref<InspectorResult[] | null>(null)
+
+const inspectionService = useService(InspectionService)
+
+useService(EnvironmentInspectorService)
+useService(URLInspectorService)
+useService(HeaderInspectorService)
+
+const updateInspectorValue = () => {
+  const currentTab = currentActiveTab
+
+  const inspecResults = inspectionService.getInspectorFor(
+    currentTab.value.document.request,
+    currentActiveTab.value.response,
+    props.inspectorChecks ?? [],
+    uniqueRef
+  )
+  nextTick(() => {
+    inspectors.value = inspecResults
+  })
+}
+
+watchDebounced(
+  () => props.modelValue,
+  (value) => {
+    if (value) {
+      updateInspectorValue()
+    }
+  },
+  { immediate: true, debounce: 500 }
+)
+
 const updateModelValue = (value: string) => {
   emit("update:modelValue", value)
   emit("change", value)
   showSuggestionPopover.value = false
+}
+
+onMounted(() => {
+  updateInspectorValue()
+})
+
+const severityColor = (severity: number) => {
+  switch (severity) {
+    case 1:
+      return "text-green-500"
+    case 2:
+      return "text-yellow-500"
+    case 3:
+      return "text-red-500"
+    default:
+      return "text-gray-500"
+  }
 }
 
 const handleKeystroke = (ev: KeyboardEvent) => {

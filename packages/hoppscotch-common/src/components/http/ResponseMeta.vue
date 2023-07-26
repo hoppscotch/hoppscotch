@@ -1,7 +1,31 @@
 <template>
   <div
-    class="sticky top-0 z-10 flex items-start justify-center flex-shrink-0 p-4 overflow-auto overflow-x-auto bg-primary whitespace-nowrap"
+    class="sticky top-0 z-10 flex items-center justify-center flex-shrink-0 p-4 overflow-auto overflow-x-auto bg-primary whitespace-nowrap"
   >
+    <div
+      v-for="(inspector, index) in inspectors"
+      :key="index"
+      :class="[response === null ? 'absolute left-2 top-2' : 'mr-2']"
+    >
+      <div
+        v-if="inspector.isApplicable && inspector.componentRefID === uniqueRef"
+        class="flex justify-center items-center"
+      >
+        <tippy ref="options" interactive theme="popover">
+          <div class="flex justify-center items-center flex-1 felx-col">
+            <HoppButtonSecondary
+              :icon="inspector.icon"
+              :class="severityColor(inspector.severity)"
+            />
+          </div>
+          <template #content>
+            <span v-if="inspector.text.type === 'text'">
+              {{ inspector.text.text }}
+            </span>
+          </template>
+        </tippy>
+      </div>
+    </div>
     <AppShortcutsPrompt v-if="response == null" class="flex-1" />
     <div v-else class="flex flex-col flex-1">
       <div
@@ -74,12 +98,17 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue"
+import { computed, ref, watch } from "vue"
 import findStatusGroup from "@helpers/findStatusGroup"
 import type { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 import { useI18n } from "@composables/i18n"
 import { useColorMode } from "@composables/theming"
 import { getStatusCodeReasonPhrase } from "~/helpers/utils/statusCodes"
+import { useService } from "dioc/vue"
+import { InspectionService, InspectorResult } from "~/services/inspection"
+import { currentActiveTab } from "~/helpers/rest/tab"
+import { uniqueId } from "lodash-es"
+import { ResponseInspectorService } from "~/services/inspection/inspectors/response.interceptor"
 
 const t = useI18n()
 const colorMode = useColorMode()
@@ -128,4 +157,44 @@ const statusCategory = computed(() => {
     }
   return findStatusGroup(props.response.statusCode)
 })
+
+const inspectors = ref<InspectorResult[] | null>(null)
+
+const checks = ["response_errors"]
+
+const uniqueRef = ref(uniqueId().toString())
+
+const inspectionService = useService(InspectionService)
+useService(ResponseInspectorService)
+
+watch(
+  () => props.response,
+  (response) => {
+    const result = inspectionService.getInspectorFor(
+      currentActiveTab.value.document.request,
+      response,
+      checks,
+      uniqueRef
+    )
+
+    if (response?.type !== "loading") {
+      inspectors.value = result
+    } else {
+      inspectors.value = null
+    }
+  }
+)
+
+const severityColor = (severity: number) => {
+  switch (severity) {
+    case 1:
+      return "text-green-500"
+    case 2:
+      return "text-yellow-500"
+    case 3:
+      return "text-red-500"
+    default:
+      return "text-gray-500"
+  }
+}
 </script>

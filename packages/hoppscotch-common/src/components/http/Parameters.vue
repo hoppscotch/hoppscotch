@@ -82,6 +82,8 @@
             <SmartEnvInput
               v-model="param.key"
               :placeholder="`${t('count.parameter', { count: index + 1 })}`"
+              :inspector-checks="['parameter_key_environment_validation']"
+              :env-index="index"
               @change="
                 updateParam(index, {
                   id: param.id,
@@ -94,6 +96,8 @@
             <SmartEnvInput
               v-model="param.value"
               :placeholder="`${t('count.value', { count: index + 1 })}`"
+              :env-index="index"
+              :inspector-checks="['parameter_value_environment_validation']"
               @change="
                 updateParam(index, {
                   id: param.id,

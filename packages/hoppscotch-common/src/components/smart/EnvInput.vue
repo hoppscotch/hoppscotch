@@ -97,7 +97,7 @@
         </div>
       </li>
       <li v-if="suggestions.length === 0" class="pointer-events-none">
-        <div v-if="slots.empty">
+        <div v-if="slots.empty" class="truncate py-0.5">
           <slot name="empty"></slot>
         </div>
         <span v-else class="truncate py-0.5">

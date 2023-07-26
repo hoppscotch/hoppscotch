@@ -97,8 +97,11 @@
         </div>
       </li>
       <li v-if="suggestions.length === 0" class="pointer-events-none">
-        <span class="truncate py-0.5">
-          {{ t("empty.history_suggestions") }}
+        <div v-if="slots.empty">
+          <slot name="empty"></slot>
+        </div>
+        <span v-else class="truncate py-0.5">
+          {{ t("empty.suggestions") }}
         </span>
       </li>
     </ul>
@@ -106,7 +109,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch, nextTick, computed, Ref } from "vue"
+import { ref, onMounted, watch, nextTick, computed, Ref, useSlots } from "vue"
 import {
   EditorView,
   placeholder as placeholderExt,
@@ -175,6 +178,8 @@ const emit = defineEmits<{
   (e: "click", ev: any): void
 }>()
 
+const slots = useSlots()
+
 const uniqueRef = ref(uniqueId().toString())
 
 const t = useI18n()
@@ -242,10 +247,8 @@ const updateInspectorValue = () => {
 
 watchDebounced(
   () => props.modelValue,
-  (value) => {
-    if (value) {
-      updateInspectorValue()
-    }
+  () => {
+    updateInspectorValue()
   },
   { immediate: true, debounce: 500 }
 )

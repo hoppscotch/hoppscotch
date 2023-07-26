@@ -192,6 +192,7 @@
     "schema": "Connect to a GraphQL endpoint to view schema",
     "shortcodes": "Shortcodes are empty",
     "subscription": "Subscriptions are empty",
+    "suggestions": "No matching suggestions found",
     "team_name": "Team name empty",
     "teams": "You don't belong to any teams",
     "tests": "There are no tests for this request"

@@ -67,8 +67,5 @@ const props = defineProps<{
 /**
  * Fetch the root nodes from the adapter by passing the node id as null
  */
-const rootNodes = computed(() => {
-  // console.log(props.adapter.getChildren(null))
-  return props.adapter.getChildren(null).value
-})
+const rootNodes = computed(() => props.adapter.getChildren(null).value)
 </script>

@@ -11,7 +11,9 @@ import { RTJwtStrategy } from './strategies/rt-jwt.strategy';
 import { GoogleStrategy } from './strategies/google.strategy';
 import { GithubStrategy } from './strategies/github.strategy';
 import { MicrosoftStrategy } from './strategies/microsoft.strategy';
+import { OidcStrategy } from './strategies/oidc.strategy';
 import { AuthProvider, authProviderCheck } from './helper';
+
 
 @Module({
   imports: [
@@ -30,6 +32,7 @@ import { AuthProvider, authProviderCheck } from './helper';
     ...(authProviderCheck(AuthProvider.GOOGLE) ? [GoogleStrategy] : []),
     ...(authProviderCheck(AuthProvider.GITHUB) ? [GithubStrategy] : []),
     ...(authProviderCheck(AuthProvider.MICROSOFT) ? [MicrosoftStrategy] : []),
+    ...(authProviderCheck(AuthProvider.OIDC) ? [OidcStrategy] : []),
   ],
   controllers: [AuthController],
 })

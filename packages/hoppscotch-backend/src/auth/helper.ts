@@ -98,8 +98,6 @@ export const subscriptionContextCookieParser = (rawCookies: string) => {
   };
 };
 
-export class EmptyClassProvider {}
-
 /**
  * Check to see if given auth provider is present in the ALLOWED_AUTH_PROVIDERS env variable
  *

@@ -5,10 +5,8 @@ import {
   InternalServerErrorException,
   Post,
   Query,
-  Req,
   Request,
   Res,
-  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';

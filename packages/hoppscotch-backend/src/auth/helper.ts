@@ -1,10 +1,11 @@
-import { ForbiddenException, HttpException, HttpStatus } from '@nestjs/common';
+import { HttpException, HttpStatus } from '@nestjs/common';
 import { DateTime } from 'luxon';
 import { AuthError } from 'src/types/AuthError';
 import { AuthTokens } from 'src/types/AuthTokens';
 import { Response } from 'express';
 import * as cookie from 'cookie';
 import { AUTH_PROVIDER_NOT_SPECIFIED, COOKIES_NOT_FOUND } from 'src/errors';
+import { throwErr } from 'src/utils';
 
 enum AuthTokenType {
   ACCESS_TOKEN = 'access_token',
@@ -106,7 +107,7 @@ export const subscriptionContextCookieParser = (rawCookies: string) => {
  */
 export function authProviderCheck(provider: string) {
   if (!provider) {
-    throw new Error(AUTH_PROVIDER_NOT_SPECIFIED);
+    throwErr(AUTH_PROVIDER_NOT_SPECIFIED);
   }
 
   const envVariables = process.env.ALLOWED_AUTH_PROVIDERS.split(',').map(

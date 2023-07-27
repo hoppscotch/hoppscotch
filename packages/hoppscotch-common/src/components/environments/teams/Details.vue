@@ -198,7 +198,7 @@ const vars = ref<EnvironmentVariable[]>([
   { id: idTicker.value++, env: { key: "", value: "", secret: false } },
 ])
 
-const oldEnvironments = ref(props.envVars())
+const oldEnvironments = ref<string[]>([])
 const clearIcon = refAutoReset<typeof IconTrash2 | typeof IconDone>(
   IconTrash2,
   1000
@@ -227,17 +227,24 @@ const liveEnvs = computed(() => {
 })
 
 watch(liveEnvs, (newLiveEnv, oldLiveEnv) => {
-  for (let i = 0; i < newLiveEnv.length; i++) {
-    const newVar = newLiveEnv[i]
-    const oldVar = oldLiveEnv[i]
-
-    if (!newVar.secret && newVar.value !== oldVar.value) {
-      const _oldEnvironments = oldEnvironments.value
-      if (_oldEnvironments) {
-        _oldEnvironments[i].value = newVar.value
+  const oldEnvLength = oldLiveEnv.length
+  const newEnvLength = newLiveEnv.length
+  if (oldEnvLength === newEnvLength) {
+    const _oldEnvironments = []
+    for (let i = 0; i < newEnvLength; i++) {
+      const newVar = newLiveEnv[i]
+      const oldVar = oldLiveEnv[i]
+      let newValue = ""
+      if (!newVar.secret) {
+        newValue = newVar.value
+      } else if (!oldVar.secret) {
+        newValue = oldVar.value
+      } else {
+        newValue = oldEnvironments.value[i]
       }
-      oldEnvironments.value = _oldEnvironments
+      _oldEnvironments.push(newValue)
     }
+    oldEnvironments.value = _oldEnvironments
   }
 })
 
@@ -305,7 +312,7 @@ const saveEnvironment = async () => {
 
   const _vars = vars.value
   for (let i = 0; i < vars.value.length; i++) {
-    const value = oldEnvironments.value[i].value
+    const value = oldEnvironments.value[i]
     if (value) {
       _vars[i].env.value = value
     }

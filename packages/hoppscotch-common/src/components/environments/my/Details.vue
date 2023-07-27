@@ -216,7 +216,7 @@ const workingEnv = computed(() => {
   }
 })
 
-const oldEnvironments = ref<Environment | null>(workingEnv.value)
+const oldEnvironments = ref<string[]>([])
 
 const envList = useReadonlyStream(environments$, []) || props.envVars()
 
@@ -250,17 +250,24 @@ const liveEnvs = computed(() => {
 })
 
 watch(liveEnvs, (newLiveEnv, oldLiveEnv) => {
-  for (let i = 0; i < newLiveEnv.length; i++) {
-    const newVar = newLiveEnv[i]
-    const oldVar = oldLiveEnv[i]
-
-    if (!newVar.secret && newVar.value !== oldVar.value) {
-      const _oldEnvironments = oldEnvironments.value
-      if (_oldEnvironments) {
-        _oldEnvironments.variables[i].value = newVar.value
+  const oldEnvLength = oldLiveEnv.length
+  const newEnvLength = newLiveEnv.length
+  if (oldEnvLength === newEnvLength) {
+    const _oldEnvironments = []
+    for (let i = 0; i < newEnvLength; i++) {
+      const newVar = newLiveEnv[i]
+      const oldVar = oldLiveEnv[i]
+      let newValue = ""
+      if (!newVar.secret) {
+        newValue = newVar.value
+      } else if (!oldVar.secret) {
+        newValue = oldVar.value
+      } else {
+        newValue = oldEnvironments.value[i]
       }
-      oldEnvironments.value = _oldEnvironments
+      _oldEnvironments.push(newValue)
     }
+    oldEnvironments.value = _oldEnvironments
   }
 })
 
@@ -312,7 +319,7 @@ const saveEnvironment = () => {
   }
   const _vars = vars.value
   for (let i = 0; i < vars.value.length; i++) {
-    const value = oldEnvironments.value?.variables[i].value
+    const value = oldEnvironments.value[i]
     if (value) {
       _vars[i].env.value = value
     }

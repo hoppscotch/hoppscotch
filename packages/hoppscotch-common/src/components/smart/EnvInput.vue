@@ -61,7 +61,7 @@ import { useReadonlyStream } from "@composables/stream"
 import { AggregateEnvironment, aggregateEnvs$ } from "~/newstore/environments"
 import { platform } from "~/platform"
 import { useI18n } from "~/composables/i18n"
-import { onClickOutside } from "@vueuse/core"
+import { onClickOutside, useDebounceFn } from "@vueuse/core"
 import { invokeAction } from "~/helpers/actions"
 
 const props = withDefaults(
@@ -305,50 +305,41 @@ const envVars = computed(() =>
 const envTooltipPlugin = new HoppReactiveEnvPlugin(envVars, view)
 
 const initView = (el: any) => {
-  // event for text selection via mouse or keyboard for emiting text-selection event when mouse is released
-  let isMouseDown = false
-  let isKeyDown = false
-
-  el.addEventListener("mousedown", () => {
-    isMouseDown = true
-  })
-
-  el.addEventListener("mouseup", handleTextSelection)
-  el.addEventListener("keydown", () => (isKeyDown = true))
-  el.addEventListener("keyup", handleTextSelection)
-
   function handleTextSelection() {
-    if (isMouseDown || isKeyDown) {
-      const selection = view.value?.state.selection.main
-      if (selection) {
-        const from = selection.from
-        const to = selection.to
-        const text = view.value?.state.doc.sliceString(from, to)
-        const { top, left } = view.value?.coordsAtPos(from)
-        if (text) {
-          invokeAction("contextmenu.open", {
-            position: {
-              top,
-              left,
-            },
-            text,
-          })
-          showSuggestionPopover.value = false
-        } else {
-          invokeAction("contextmenu.open", {
-            position: {
-              top,
-              left,
-            },
-            text: null,
-          })
-        }
+    const selection = view.value?.state.selection.main
+    if (selection) {
+      const from = selection.from
+      const to = selection.to
+      const text = view.value?.state.doc.sliceString(from, to)
+      const { top, left } = view.value?.coordsAtPos(from)
+      if (text) {
+        invokeAction("contextmenu.open", {
+          position: {
+            top,
+            left,
+          },
+          text,
+        })
+        showSuggestionPopover.value = false
+      } else {
+        invokeAction("contextmenu.open", {
+          position: {
+            top,
+            left,
+          },
+          text: null,
+        })
       }
     }
-
-    isMouseDown = false
-    isKeyDown = false
   }
+
+  // Debounce to prevent double click from selecting the word
+  const debounceFn = useDebounceFn(() => {
+    handleTextSelection()
+  }, 140)
+
+  el.addEventListener("mouseup", debounceFn)
+  el.addEventListener("keyup", debounceFn)
 
   const extensions: Extension = [
     EditorView.lineWrapping,

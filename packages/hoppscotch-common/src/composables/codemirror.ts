@@ -41,6 +41,7 @@ import { HoppEnvironmentPlugin } from "@helpers/editor/extensions/HoppEnvironmen
 import xmlFormat from "xml-formatter"
 import { platform } from "~/platform"
 import { invokeAction } from "~/helpers/actions"
+import { useDebounceFn } from "@vueuse/core"
 // TODO: Migrate from legacy mode
 
 type ExtendedEditorConfig = {
@@ -219,53 +220,40 @@ export function useCodemirror(
       ViewPlugin.fromClass(
         class {
           update(update: ViewUpdate) {
-            let isMouseDown = false
-            let isKeyDown = false
-
-            el.addEventListener("mousedown", () => {
-              isMouseDown = true
-            })
-
-            el.addEventListener("mouseup", handleTextSelection)
-            el.addEventListener("keydown", (e: KeyboardEvent) => {
-              if (e.ctrlKey || e.metaKey || e.shiftKey) {
-                isKeyDown = true
-              }
-            })
-            el.addEventListener("keyup", handleTextSelection)
-
             function handleTextSelection() {
-              if (isMouseDown || isKeyDown) {
-                const selection = view.value?.state.selection.main
-                if (selection) {
-                  const from = selection.from
-                  const to = selection.to
-                  const text = view.value?.state.doc.sliceString(from, to)
-                  const { top, left } = view.value?.coordsAtPos(from)
-
-                  if (text) {
-                    invokeAction("contextmenu.open", {
-                      position: {
-                        top: top,
-                        left: left,
-                      },
-                      text: text,
-                    })
-                  } else {
-                    invokeAction("contextmenu.open", {
-                      position: {
-                        top: top,
-                        left: left,
-                      },
-                      text: null,
-                    })
-                  }
+              const selection = view.value?.state.selection.main
+              if (selection) {
+                const from = selection.from
+                const to = selection.to
+                const text = view.value?.state.doc.sliceString(from, to)
+                const { top, left } = view.value?.coordsAtPos(from)
+                if (text) {
+                  invokeAction("contextmenu.open", {
+                    position: {
+                      top,
+                      left,
+                    },
+                    text,
+                  })
+                } else {
+                  invokeAction("contextmenu.open", {
+                    position: {
+                      top,
+                      left,
+                    },
+                    text: null,
+                  })
                 }
               }
-
-              isMouseDown = false
-              isKeyDown = false
             }
+
+            // Debounce to prevent double click from selecting the word
+            const debounceFn = useDebounceFn(() => {
+              handleTextSelection()
+            }, 140)
+
+            el.addEventListener("mouseup", debounceFn)
+            el.addEventListener("keyup", debounceFn)
             const cursorPos = update.state.selection.main.head
             const line = update.state.doc.lineAt(cursorPos)
 

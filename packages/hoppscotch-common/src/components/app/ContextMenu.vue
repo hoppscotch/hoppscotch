@@ -26,7 +26,7 @@
 </template>
 
 <script lang="ts" setup>
-// import { onClickOutside } from "@vueuse/core"
+import { onClickOutside } from "@vueuse/core"
 import { useService } from "dioc/vue"
 import { ref, watch } from "vue"
 import { ContextMenuResult, ContextMenuService } from "~/services/context-menu"
@@ -48,11 +48,9 @@ const contextMenuRef = ref<any | null>(null)
 
 const contextMenuOptions = ref<ContextMenuResult[]>([])
 
-// onClickOutside(contextMenuRef, () => {
-//   if (props.modelValue && props.show && props.text) {
-//     emit("hide-modal", false)
-//   }
-// })
+onClickOutside(contextMenuRef, () => {
+  emit("hide-modal")
+})
 
 const contextMenuService = useService(ContextMenuService)
 

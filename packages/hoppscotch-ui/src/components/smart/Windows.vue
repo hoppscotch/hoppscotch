@@ -1,12 +1,10 @@
 <template>
-  <div
-    class="flex flex-col flex-1 h-auto overflow-y-hidden flex-nowrap hopp-windows"
-  >
+  <div class="flex flex-col flex-1 h-auto overflow-y-hidden flex-nowrap">
     <div
       class="relative sticky top-0 z-10 flex-shrink-0 overflow-x-auto divide-x divide-dividerLight bg-primaryLight tabs group-tabs"
     >
       <div
-        class="flex flex-1 flex-shrink-0 w-0 scroll-container overflow-hidden"
+        class="flex flex-1 flex-shrink-0 w-0 overflow-hidden"
         ref="scrollContainer"
       >
         <div

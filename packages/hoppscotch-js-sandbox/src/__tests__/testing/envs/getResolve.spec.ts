@@ -30,6 +30,7 @@ describe("pw.env.getResolve", () => {
             {
               key: "a",
               value: "b",
+              secret: false,
             },
           ],
         }
@@ -58,6 +59,7 @@ describe("pw.env.getResolve", () => {
             {
               key: "a",
               value: "b",
+              secret: false,
             },
           ],
           selected: [],
@@ -111,12 +113,14 @@ describe("pw.env.getResolve", () => {
             {
               key: "a",
               value: "global val",
+              secret: false,
             },
           ],
           selected: [
             {
               key: "a",
               value: "selected val",
+              secret: false,
             },
           ],
         }
@@ -146,10 +150,12 @@ describe("pw.env.getResolve", () => {
             {
               key: "a",
               value: "<<hello>>",
+              secret: false,
             },
             {
               key: "hello",
               value: "there",
+              secret: false,
             },
           ],
         }
@@ -179,10 +185,12 @@ describe("pw.env.getResolve", () => {
             {
               key: "a",
               value: "<<hello>>",
+              secret: false,
             },
             {
               key: "hello",
               value: "<<a>>",
+              secret: false,
             },
           ],
         }

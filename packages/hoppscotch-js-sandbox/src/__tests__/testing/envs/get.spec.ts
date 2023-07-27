@@ -30,6 +30,7 @@ describe("pw.env.get", () => {
             {
               key: "a",
               value: "b",
+              secret: false,
             },
           ],
         }
@@ -58,6 +59,7 @@ describe("pw.env.get", () => {
             {
               key: "a",
               value: "b",
+              secret: false,
             },
           ],
           selected: [],
@@ -111,12 +113,14 @@ describe("pw.env.get", () => {
             {
               key: "a",
               value: "global val",
+              secret: false,
             },
           ],
           selected: [
             {
               key: "a",
               value: "selected val",
+              secret: false,
             },
           ],
         }
@@ -146,6 +150,7 @@ describe("pw.env.get", () => {
             {
               key: "a",
               value: "<<hello>>",
+              secret: false,
             },
           ],
         }

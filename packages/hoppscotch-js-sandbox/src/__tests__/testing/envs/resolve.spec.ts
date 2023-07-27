@@ -41,6 +41,7 @@ describe("pw.env.resolve", () => {
             {
               key: "hello",
               value: "there",
+              secret: false,
             },
           ],
           selected: [],
@@ -71,6 +72,7 @@ describe("pw.env.resolve", () => {
             {
               key: "hello",
               value: "there",
+              secret: false,
             },
           ],
         }
@@ -99,12 +101,14 @@ describe("pw.env.resolve", () => {
             {
               key: "hello",
               value: "yo",
+              secret: false,
             },
           ],
           selected: [
             {
               key: "hello",
               value: "there",
+              secret: false,
             },
           ],
         }
@@ -134,10 +138,12 @@ describe("pw.env.resolve", () => {
             {
               key: "hello",
               value: "<<there>>",
+              secret: false,
             },
             {
               key: "there",
               value: "<<hello>>",
+              secret: false,
             },
           ],
         }

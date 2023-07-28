@@ -66,8 +66,6 @@ export const persistableTabState = computed<PersistableRESTTabState>(() => ({
   lastActiveTabID: currentTabID.value,
   orderedDocs: tabOrdering.value.map((tabID) => {
     const tab = tabMap.get(tabID)! // tab ordering is guaranteed to have value for this key
-    console.log("tab-check", tab, tabID)
-    console.log("all-tabs", Array.from(tabMap.values()))
     return {
       tabID: tab.id,
       doc: tab.document,
@@ -195,13 +193,11 @@ export function closeOtherTabs(tabID: string) {
     )
     return
   }
+  tabOrdering.value = [tabID]
 
   tabMap.forEach((_, id) => {
     if (id !== tabID) tabMap.delete(id)
   })
-
-  tabMap.set(tabID, currentActiveTab.value)
-  tabOrdering.value = [tabID]
 
   currentTabID.value = tabID
 }

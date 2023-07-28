@@ -142,6 +142,7 @@ const confirmingCloseAllTabs = ref(false)
 const showRenamingReqNameModal = ref(false)
 const reqName = ref<string>("")
 const unsavedTabsCount = ref(0)
+const exceptedTabID = ref<string | null>(null)
 
 const t = useI18n()
 const toast = useToast()
@@ -222,6 +223,7 @@ const closeOtherTabsAction = (tabID: string) => {
   if (dirtyTabCount > 0) {
     confirmingCloseAllTabs.value = true
     unsavedTabsCount.value = dirtyTabCount
+    exceptedTabID.value = tabID
   } else {
     closeOtherTabs(tabID)
   }
@@ -239,7 +241,7 @@ const duplicateTab = (tabID: string) => {
 }
 
 const onResolveConfirmSCloseAllTabs = () => {
-  closeOtherTabs(currentTabID.value)
+  if (exceptedTabID.value) closeOtherTabs(exceptedTabID.value)
   confirmingCloseAllTabs.value = false
 }
 

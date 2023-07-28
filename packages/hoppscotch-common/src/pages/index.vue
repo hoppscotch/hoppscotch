@@ -22,7 +22,7 @@
               <HttpTabHead
                 :tab="tab"
                 @open-rename-modal="openReqRenameModal(tab.id)"
-                @close-tab="closeTab(tab.id)"
+                @close-tab="removeTab(tab.id)"
                 @close-other-tabs="closeOtherTabsAction(tab.id)"
                 @duplicate-tab="duplicateTab(tab.id)"
               />

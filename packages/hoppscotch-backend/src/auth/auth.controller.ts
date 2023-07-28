@@ -19,7 +19,12 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { GqlUser } from 'src/decorators/gql-user.decorator';
 import { AuthUser } from 'src/types/AuthUser';
 import { RTCookie } from 'src/decorators/rt-cookie.decorator';
-import { authCookieHandler, authProviderCheck, throwHTTPErr } from './helper';
+import {
+  AuthProvider,
+  authCookieHandler,
+  authProviderCheck,
+  throwHTTPErr,
+} from './helper';
 import { GoogleSSOGuard } from './guards/google-sso.guard';
 import { GithubSSOGuard } from './guards/github-sso.guard';
 import { MicrosoftSSOGuard } from './guards/microsoft-sso-.guard';
@@ -39,7 +44,9 @@ export class AuthController {
     @Body() authData: SignInMagicDto,
     @Query('origin') origin: string,
   ) {
-    if (!authProviderCheck('EMAIL')) throw new InternalServerErrorException();
+    if (!authProviderCheck(AuthProvider.EMAIL))
+      throw new InternalServerErrorException();
+
     const deviceIdToken = await this.authService.signInMagicLink(
       authData.email,
       origin,

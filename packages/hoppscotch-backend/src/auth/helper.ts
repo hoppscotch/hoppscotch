@@ -17,6 +17,13 @@ export enum Origin {
   APP = 'app',
 }
 
+export enum AuthProvider {
+  GOOGLE = 'GOOGLE',
+  GITHUB = 'GITHUB',
+  MICROSOFT = 'MICROSOFT',
+  EMAIL = 'EMAIL',
+}
+
 /**
  * This function allows throw to be used as an expression
  * @param errMessage Message present in the error message

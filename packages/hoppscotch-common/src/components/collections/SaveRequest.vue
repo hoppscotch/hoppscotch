@@ -56,7 +56,7 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, reactive, ref, watch } from "vue"
+import { computed, nextTick, reactive, ref, watch } from "vue"
 import { cloneDeep } from "lodash-es"
 import {
   HoppGQLRequest,
@@ -101,10 +101,12 @@ const props = withDefaults(
   defineProps<{
     show: boolean
     mode: "rest" | "graphql"
+    request?: HoppRESTRequest | HoppGQLRequest | null
   }>(),
   {
     show: false,
     mode: "rest",
+    request: null,
   }
 )
 
@@ -126,9 +128,17 @@ const restRequestName = computedWithControl(
   () => currentActiveTab.value.document.request.name
 )
 
-const requestName = ref(
-  props.mode === "rest" ? restRequestName.value : gqlRequestName.value
-)
+const reqName = computed(() => {
+  if (props.request) {
+    return props.request.name
+  } else if (props.mode === "rest") {
+    return restRequestName.value
+  } else {
+    return gqlRequestName.value
+  }
+})
+
+const requestName = ref(reqName.value)
 
 watch(
   () => [currentActiveTab.value, gqlRequestName.value],
@@ -192,10 +202,15 @@ const saveRequestAs = async () => {
     return
   }
 
-  const requestUpdated =
-    props.mode === "rest"
-      ? cloneDeep(currentActiveTab.value.document.request)
-      : cloneDeep(getGQLSession().request)
+  let requestUpdated
+
+  if (props.request) {
+    requestUpdated = cloneDeep(props.request)
+  } else if (props.mode === "rest") {
+    requestUpdated = cloneDeep(currentActiveTab.value.document.request)
+  } else {
+    requestUpdated = cloneDeep(getGQLSession().request)
+  }
 
   requestUpdated.name = requestName.value
 

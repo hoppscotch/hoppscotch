@@ -7,6 +7,7 @@
     "clear_history": "Clear All History",
     "clear_all": "Clear all",
     "close": "Close",
+    "close_other_tabs": "Close other tabs",
     "connect": "Connect",
     "connecting": "Connecting",
     "copy": "Copy",
@@ -31,6 +32,7 @@
     "open_workspace": "Open workspace",
     "paste": "Paste",
     "prettify": "Prettify",
+    "rename": "Rename",
     "remove": "Remove",
     "restore": "Restore",
     "save": "Save",
@@ -118,6 +120,7 @@
     "username": "Username"
   },
   "collection": {
+    "add_to_collection": "Add to Collection",
     "created": "Collection created",
     "different_parent": "Cannot reorder collection with different parent",
     "edit": "Edit Collection",
@@ -149,6 +152,7 @@
     "remove_telemetry": "Are you sure you want to opt-out of Telemetry?",
     "request_change": "Are you sure you want to discard current request, unsaved changes will be lost.",
     "save_unsaved_tab": "Do you want to save changes made in this tab?",
+    "close_unsaved_tabs":"Are you sure you want to close all tabs? {count} unsaved tabs will be lost.",
     "sync": "Would you like to restore your workspace from cloud? This will discard your local progress."
   },
   "context_menu": {

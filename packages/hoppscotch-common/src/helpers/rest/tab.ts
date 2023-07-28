@@ -66,6 +66,8 @@ export const persistableTabState = computed<PersistableRESTTabState>(() => ({
   lastActiveTabID: currentTabID.value,
   orderedDocs: tabOrdering.value.map((tabID) => {
     const tab = tabMap.get(tabID)! // tab ordering is guaranteed to have value for this key
+    console.log("tab-check", tab, tabID)
+    console.log("all-tabs", Array.from(tabMap.values()))
     return {
       tabID: tab.id,
       doc: tab.document,
@@ -179,6 +181,39 @@ export function closeTab(tabID: string) {
   tabOrdering.value.splice(tabOrdering.value.indexOf(tabID), 1)
 
   tabMap.delete(tabID)
+}
+
+export function closeOtherTabs(tabID: string) {
+  if (!tabMap.has(tabID)) {
+    console.warn(`Tried to close a tab which does not exist (tab id: ${tabID})`)
+    return
+  }
+
+  if (tabOrdering.value.length === 1) {
+    console.warn(
+      `Tried to close the only tab open, which is not allowed. (tab id: ${tabID})`
+    )
+    return
+  }
+
+  tabMap.forEach((_, id) => {
+    if (id !== tabID) tabMap.delete(id)
+  })
+
+  tabMap.set(tabID, currentActiveTab.value)
+  tabOrdering.value = [tabID]
+
+  currentTabID.value = tabID
+}
+
+export function getDirtyTabsCount() {
+  let count = 0
+
+  for (const tab of tabMap.values()) {
+    if (tab.document.isDirty) count++
+  }
+
+  return count
 }
 
 export function getTabRefWithSaveContext(ctx: HoppRESTSaveContext) {

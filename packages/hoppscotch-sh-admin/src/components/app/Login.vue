@@ -35,6 +35,12 @@
           :label="`Continue with Email`"
           @click="mode = 'email'"
         />
+        <HoppSmartItem
+          :loading="signingInWithOidc"
+          :icon="IconOidc"
+          :label="`${oidcButtonText || 'Continue with OIDC'}`"
+          @click="signInWithOidc"
+        />
       </div>
       <form
         v-if="mode === 'email'"
@@ -126,6 +132,7 @@ import IconGithub from '~icons/auth/github';
 import IconGoogle from '~icons/auth/google';
 import IconEmail from '~icons/auth/email';
 import IconMicrosoft from '~icons/auth/microsoft';
+import IconOidc from '~icons/auth/oidc';
 import IconArrowLeft from '~icons/lucide/arrow-left';
 import { setLocalConfig } from '~/helpers/localpersistence';
 import { useStreamSubscriber } from '~/composables/stream';
@@ -141,6 +148,7 @@ const toast = useToast();
 
 const tosLink = import.meta.env.VITE_APP_TOS_LINK;
 const privacyPolicyLink = import.meta.env.VITE_APP_PRIVACY_POLICY_LINK;
+const oidcButtonText = import.meta.env.VITE_OIDC_TEXT;
 
 // DATA
 
@@ -151,6 +159,7 @@ const signingInWithGoogle = ref(false);
 const signingInWithGitHub = ref(false);
 const signingInWithMicrosoft = ref(false);
 const signingInWithEmail = ref(false);
+const signingInWithOidc = ref(false);
 const mode = ref('sign-in');
 
 const nonAdminUser = ref(false);
@@ -197,6 +206,23 @@ async function signInWithGithub() {
   }
 
   signingInWithGitHub.value = false;
+}
+
+async function signInWithOidc() {
+  signingInWithOidc.value = true;
+
+  try {
+    await auth.signInUserWithOidc();
+  } catch (e) {
+    console.error(e);
+    /*
+    A auth/account-exists-with-different-credential Firebase error wont happen between Google and any other providers
+    Seems Google account overwrites accounts of other providers https://github.com/firebase/firebase-android-sdk/issues/25
+    */
+    toast.error(`Failed to sign in with GitHub`);
+  }
+
+  signingInWithOidc.value = false;
 }
 
 async function signInWithMicrosoft() {

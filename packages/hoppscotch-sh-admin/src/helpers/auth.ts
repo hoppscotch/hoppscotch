@@ -66,6 +66,12 @@ async function signInUserWithGithubFB() {
   }/auth/github?redirect_uri=${import.meta.env.VITE_ADMIN_URL}`;
 }
 
+async function signInUserWithOidcFB() {
+  window.location.href = `${
+    import.meta.env.VITE_BACKEND_API_URL
+  }/auth/oidc?redirect_uri=${import.meta.env.VITE_ADMIN_URL}`;
+}
+
 async function signInUserWithGoogleFB() {
   window.location.href = `${
     import.meta.env.VITE_BACKEND_API_URL
@@ -325,6 +331,9 @@ export const auth = {
   async signInUserWithGithub() {
     await signInUserWithGithubFB();
     return undefined;
+  },
+  async signInUserWithOidc() {
+    await signInUserWithOidcFB();
   },
   async signInUserWithMicrosoft() {
     await signInUserWithMicrosoftFB();

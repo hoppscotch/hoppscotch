@@ -1,0 +1,36 @@
+
+<svg
+   xmlns="http://www.w3.org/2000/svg"
+   aria-label="OIDC"
+   viewBox="0 0 256 256" >
+  <g
+     id="layer1"
+     transform="translate(-373.642,-318.344)">
+    <rect
+       transform="scale(-1,1)"
+       ry="35.487503"
+       rx="35.487503"
+       y="328.34399"
+       x="-619.64203"
+       height="236"
+       width="236"
+       id="rect1942"
+       style="fill:#ebebee;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.5;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:0.5,1;stroke-dashoffset:0;stroke-opacity:1" />
+    <path
+       id="path1950"
+       d="M 557.29062,338.43314 L 445.99327,338.43314 C 416.53255,338.43314 392.81507,362.34527 392.81507,392.04777 L 392.81507,500.64007 C 393.76867,523.8254 397.43678,509.16812 404.41887,483.49194 C 412.53354,453.65102 438.96056,427.56963 471.144,408.02312 C 495.7086,393.10398 523.20395,383.5772 573.25282,382.6709 C 601.63697,382.15694 599.13112,345.83025 557.29062,338.43314 z"
+       style="opacity:0.98283262;fill:url(#linearGradient2449);fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:0.87500000000000000;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:0.87500000000000000, 1.75000000000000000;stroke-dashoffset:0;stroke-opacity:1" />
+    <path
+       style="fill:#ff8e00;fill-opacity:1;stroke:none"
+       d="m 488.0825,538.40564 26.93006,-19.41471 -1.2525,-154.06511 -25.67756,20.04099 0,153.43883 z"
+       id="path25468" />
+    <path
+       style="fill:#626262;fill-opacity:1;stroke:none"
+       d="M 488.39564,538.40564 C 387.66591,522.39153 384.79535,434.69468 487.76935,415.65457 l 0.31315,18.16215 c -73.04418,12.17854 -63.78999,77.70661 0,87.36619 l 0.31314,17.22273 z"
+       id="path25470" />
+    <path
+       style="fill:#626262;fill-opacity:1;stroke:none"
+       d="m 514.69946,433.19044 c 12.45669,0.0847 23.30841,5.78683 34.13233,11.58619 l -15.97017,11.89934 51.04191,0 0.3131,-34.75859 -15.97018,11.89934 c -16.16175,-8.16308 -31.01691,-17.95941 -53.54699,-18.16215 l 0,17.53587 z"
+       id="path25472" />
+  </g>
+</svg>

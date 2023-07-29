@@ -94,6 +94,7 @@
     "continue_with_github": "GitHub hesabı ile devam et",
     "continue_with_google": "Google hesabı ile devam et",
     "continue_with_microsoft": "Microsoft hesabı ile devam et",
+    "continue_with_oidc": "OIDC hesabı ile devam et",
     "email": "E-posta",
     "logged_out": "Çıkış yapıldı",
     "login": "Giriş yap",

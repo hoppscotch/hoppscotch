@@ -94,6 +94,7 @@
     "continue_with_github": "使用 GitHub 登录",
     "continue_with_google": "使用 Google 登录",
     "continue_with_microsoft": "使用 Microsoft 登录",
+    "continue_with_oidc": "使用 OIDC 登录",
     "email": "电子邮箱地址",
     "logged_out": "登出",
     "login": "登录",

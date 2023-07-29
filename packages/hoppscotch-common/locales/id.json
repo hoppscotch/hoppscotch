@@ -94,6 +94,7 @@
     "continue_with_github": "Lanjutkan dengan GitHub",
     "continue_with_google": "Lanjutkan dengan Google",
     "continue_with_microsoft": "Lanjutkan dengan Microsoft",
+    "continue_with_oidc": "Lanjutkan dengan OIDC",
     "email": "Surel",
     "logged_out": "Keluar",
     "login": "Masuk",

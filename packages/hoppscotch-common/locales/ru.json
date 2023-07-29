@@ -94,6 +94,7 @@
     "continue_with_github": "Продолжить с GitHub",
     "continue_with_google": "Продолжить с Google",
     "continue_with_microsoft": "Continue with Microsoft",
+    "continue_with_oidc": "Продолжить с OIDC",
     "email": "Электронное письмо",
     "logged_out": "Вышли из",
     "login": "Авторизоваться",

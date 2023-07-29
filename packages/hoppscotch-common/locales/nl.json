@@ -94,6 +94,7 @@
     "continue_with_github": "Ga verder met GitHub",
     "continue_with_google": "Ga verder met Google",
     "continue_with_microsoft": "Continue with Microsoft",
+    "continue_with_oidc": "Ga verder met OIDC",
     "email": "E-mail",
     "logged_out": "Uitgelogd",
     "login": "Log in",

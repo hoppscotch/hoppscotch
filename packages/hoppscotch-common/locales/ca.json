@@ -94,6 +94,7 @@
     "continue_with_github": "Continuar amb GitHub",
     "continue_with_google": "Continuar amb Google",
     "continue_with_microsoft": "Continuar amb Microsoft",
+    "continue_with_oidc": "Continuar amb OIDC",
     "email": "Correu electrònic",
     "logged_out": "Sessió tancada",
     "login": "Iniciar Sessió",

@@ -94,6 +94,7 @@
     "continue_with_github": "Folytatás GitHub használatával",
     "continue_with_google": "Folytatás Google használatával",
     "continue_with_microsoft": "Folytatás Microsoft használatával",
+    "continue_with_oidc": "Folytatás OIDC használatával",
     "email": "E-mail",
     "logged_out": "Kijelentkezett",
     "login": "Bejelentkezés",

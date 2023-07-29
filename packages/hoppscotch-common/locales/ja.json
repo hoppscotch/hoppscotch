@@ -94,6 +94,7 @@
     "continue_with_github": "GitHubアカウントで続行",
     "continue_with_google": "Googleアカウントで続行",
     "continue_with_microsoft": "Microsoftアカウントで続行",
+    "continue_with_oidc": "OIDCアカウントで続行",
     "email": "メールアドレス",
     "logged_out": "ログアウトしました",
     "login": "ログイン",

@@ -31,6 +31,11 @@
           :label="`${t('auth.continue_with_email')}`"
           @click="mode = 'email'"
         />
+        <HoppSmartItem
+          :icon="IconOidc"
+          :label="`${oidcButtonText || t('auth.continue_with_oidc')}`"
+          @click="signInWithOidc"
+        />
       </div>
       <form
         v-if="mode === 'email'"
@@ -130,6 +135,7 @@ import IconGithub from "~icons/auth/github"
 import IconGoogle from "~icons/auth/google"
 import IconEmail from "~icons/auth/email"
 import IconMicrosoft from "~icons/auth/microsoft"
+import IconOidc from "~icons/auth/oidc"
 import IconArrowLeft from "~icons/lucide/arrow-left"
 import { setLocalConfig } from "~/newstore/localpersistence"
 import { useStreamSubscriber } from "@composables/stream"
@@ -146,6 +152,7 @@ export default defineComponent({
 
     const tosLink = import.meta.env.VITE_APP_TOS_LINK
     const privacyPolicyLink = import.meta.env.VITE_APP_PRIVACY_POLICY_LINK
+    const oidcButtonText = import.meta.env.VITE_OIDC_TEXT
 
     return {
       subscribeToStream,
@@ -155,9 +162,11 @@ export default defineComponent({
       IconGoogle,
       IconEmail,
       IconMicrosoft,
+      IconOidc,
       IconArrowLeft,
       tosLink,
       privacyPolicyLink,
+      oidcButtonText,
     }
   },
   data() {
@@ -169,6 +178,7 @@ export default defineComponent({
       signingInWithGitHub: false,
       signingInWithMicrosoft: false,
       signingInWithEmail: false,
+      signingInWithOidc: false,
       mode: "sign-in",
     }
   },
@@ -198,6 +208,22 @@ export default defineComponent({
       }
 
       this.signingInWithGoogle = false
+    },
+    async signInWithOidc() {
+      this.signingInWithOidc = true
+
+      try {
+        await platform.auth.signInUserWithOidc()
+      } catch (e) {
+        console.error(e)
+        /*
+        A auth/account-exists-with-different-credential Firebase error wont happen between Google and any other providers
+        Seems Google account overwrites accounts of other providers https://github.com/firebase/firebase-android-sdk/issues/25
+        */
+        this.toast.error(`${this.t("error.something_went_wrong")}`)
+      }
+
+      this.signingInWithOidc = false
     },
     async signInWithGithub() {
       this.signingInWithGitHub = true

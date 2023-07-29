@@ -94,6 +94,7 @@
     "continue_with_github": "GitHub के साथ जारी रखें",
     "continue_with_google": "Google के साथ जारी रखें",
     "continue_with_microsoft": "Microsoft के साथ जारी रखें",
+    "continue_with_oidc": "ओआईडीसी के साथ जारी रखें",
     "email": "ईमेल",
     "logged_out": "लॉग आउट",
     "login": "लॉग इन",

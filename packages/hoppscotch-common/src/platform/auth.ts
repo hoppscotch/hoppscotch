@@ -183,6 +183,11 @@ export type AuthPlatformDef = {
    */
   signInUserWithGoogle: () => Promise<void>
   /**
+   * Signs user in with Oidc.
+   * @returns A promise that resolves with the user info when auth is completed
+   */
+  signInUserWithOidc: () => Promise<void>
+  /**
    * Signs user in with Github.
    * @returns A promise that resolves with the auth status, giving an opportunity to link if or handle failures
    */

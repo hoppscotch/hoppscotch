@@ -15,6 +15,8 @@ interface ImportMetaEnv {
   readonly VITE_APP_ID: string
   readonly VITE_MEASUREMENT_ID: string
 
+  readonly VITE_OIDC_TEXT: string
+
   readonly VITE_BASE_URL: string
   readonly VITE_SHORTCODE_BASE_URL: string
 

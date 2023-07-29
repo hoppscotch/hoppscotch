@@ -94,6 +94,7 @@
     "continue_with_github": "Pokračujte na GitHubu",
     "continue_with_google": "Pokračovat s Google",
     "continue_with_microsoft": "Continue with Microsoft",
+    "continue_with_oidc": "Pokračujte s OIDC",
     "email": "E-mailem",
     "logged_out": "Odhlásit",
     "login": "Přihlásit se",

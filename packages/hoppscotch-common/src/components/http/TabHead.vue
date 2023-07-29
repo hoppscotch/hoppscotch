@@ -29,15 +29,15 @@
           class="flex flex-col focus:outline-none"
           tabindex="0"
           @keyup.r="renameAction?.$el.click()"
-          @keyup.c="closeAction?.$el.click()"
-          @keyup.a="closeOthersAction?.$el.click()"
           @keyup.d="duplicateAction?.$el.click()"
+          @keyup.w="closeAction?.$el.click()"
+          @keyup.x="closeOthersAction?.$el.click()"
           @keyup.escape="hide()"
         >
           <HoppSmartItem
             ref="renameAction"
             :icon="IconFileEdit"
-            :label="t('action.rename')"
+            :label="t('request.rename')"
             :shortcut="['R']"
             @click="
               () => {
@@ -49,7 +49,7 @@
           <HoppSmartItem
             ref="duplicateAction"
             :icon="IconCopy"
-            :label="t('action.duplicate_tab')"
+            :label="t('tab.duplicate')"
             :shortcut="['D']"
             @click="
               () => {
@@ -60,9 +60,9 @@
           />
           <HoppSmartItem
             ref="closeAction"
-            :icon="IconX"
-            :label="t('action.close')"
-            :shortcut="['C']"
+            :icon="IconXCircle"
+            :label="t('tab.close')"
+            :shortcut="['W']"
             @click="
               () => {
                 emit('close-tab')
@@ -73,8 +73,8 @@
           <HoppSmartItem
             ref="closeOthersAction"
             :icon="IconXSquare"
-            :label="t('action.close_other_tabs')"
-            :shortcut="['A']"
+            :label="t('tab.close_others')"
+            :shortcut="['X']"
             @click="
               () => {
                 emit('close-other-tabs')
@@ -94,7 +94,7 @@ import { TippyComponent } from "vue-tippy"
 import { getMethodLabelColorClassOf } from "~/helpers/rest/labelColoring"
 import { useI18n } from "~/composables/i18n"
 import { HoppRESTTab } from "~/helpers/rest/tab"
-import IconX from "~icons/lucide/x"
+import IconXCircle from "~icons/lucide/x-circle"
 import IconXSquare from "~icons/lucide/x-square"
 import IconFileEdit from "~icons/lucide/file-edit"
 import IconCopy from "~icons/lucide/copy"

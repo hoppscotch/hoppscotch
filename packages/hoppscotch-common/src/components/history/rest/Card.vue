@@ -43,14 +43,14 @@
             class="flex flex-col focus:outline-none"
             tabindex="0"
             role="menu"
-            @keyup.a="addToCollectionAction?.$el.click()"
+            @keyup.s="addToCollectionAction?.$el.click()"
             @keyup.escape="hide()"
           >
             <HoppSmartItem
               ref="addToCollectionAction"
-              :icon="IconPlus"
-              :label="`${t('collection.add_to_collection')}`"
-              :shortcut="['A']"
+              :icon="IconSave"
+              :label="`${t('collection.save_to_collection')}`"
+              :shortcut="['S']"
               @click="
                 () => {
                   emit('add-to-collection')
@@ -89,7 +89,7 @@ import findStatusGroup from "~/helpers/findStatusGroup"
 import { useI18n } from "@composables/i18n"
 import { RESTHistoryEntry } from "~/newstore/history"
 import { shortDateTime } from "~/helpers/utils/date"
-import IconPlus from "~icons/lucide/plus"
+import IconSave from "~icons/lucide/save"
 import IconStar from "~icons/lucide/star"
 import IconStarOff from "~icons/hopp/star-off"
 import IconTrash from "~icons/lucide/trash"

@@ -1,14 +1,17 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthProvider, authProviderCheck, throwHTTPErr } from '../helper';
+import { Observable } from 'rxjs';
 
 @Injectable()
 export class GoogleSSOGuard extends AuthGuard('google') implements CanActivate {
-  canActivate(context: ExecutionContext): boolean {
+  canActivate(
+    context: ExecutionContext,
+  ): boolean | Promise<boolean> | Observable<boolean> {
     if (!authProviderCheck(AuthProvider.GOOGLE))
       throwHTTPErr({ message: 'Google auth is not enabled', statusCode: 404 });
 
-    return true;
+    return super.canActivate(context);
   }
 
   getAuthenticateOptions(context: ExecutionContext) {

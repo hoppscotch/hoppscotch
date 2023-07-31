@@ -11,68 +11,50 @@
         @focusin="showSuggestionPopover = true"
       ></div>
 
-      <div v-for="(inspector, index) in inspectors" :key="index">
-        <div
-          v-if="
-            inspector.isApplicable &&
-            inspector.componentRefID === uniqueRef &&
-            (typeof envIndex !== 'undefined'
-              ? inspector.index === envIndex
-              : true)
-          "
-          class="flex justify-center items-center"
-        >
-          <tippy ref="options" interactive theme="popover">
-            <div class="flex justify-center items-center flex-1 felx-col">
-              <HoppButtonSecondary
-                :icon="inspector.icon"
-                :class="severityColor(inspector.severity)"
-              />
-            </div>
-            <template #content="{ hide }">
-              <div class="flex flex-col space-y-4 items-start p-2">
-                <span v-if="inspector.text.type === 'text'">
-                  {{ inspector.text.text }}
-                </span>
-                <span v-if="inspector.action">
-                  <HoppButtonPrimary
-                    :label="inspector.action.text"
-                    @click="
-                      () => {
-                        inspector.action?.apply()
-                        updateInspectorValue()
-                        hide()
-                      }
-                    "
-                  />
-                </span>
-              </div>
-            </template>
-          </tippy>
-        </div>
-      </div>
-
-      <!-- <div
-        v-if="inspectors && inspectors[0].isApplicable"
-        class="flex justify-center items-center"
-      >
-        <tippy ref="options" interactive theme="popover">
-          <div class="flex justify-center items-center flex-1 flex-col">
+      <div v-if="hasApplicableInspector">
+        <tippy interactive theme="popover">
+          <div class="flex justify-center items-center flex-1 felx-col">
             <HoppButtonSecondary
-              :icon="inspectors[0].icon"
-              :class="severityColor(inspectors[0].severity)"
+              :icon="IconAlertTriangle"
+              :class="severityColor(getHighestSeverity.severity)"
             />
           </div>
           <template #content="{ hide }">
-            <div class="flex flex-col">
-              <span v-for="(inspector, index) in inspectors" :key="index">
-                {{ inspector.text.text }}
-              </span>
+            <div class="flex flex-col items-start space-y-2">
+              <div v-for="(inspector, index) in inspectors" :key="index">
+                <div
+                  v-if="
+                    inspector.isApplicable &&
+                    inspector.componentRefID === uniqueRef &&
+                    (typeof envIndex !== 'undefined'
+                      ? inspector.index === envIndex
+                      : true)
+                  "
+                  class="flex justify-center items-center"
+                >
+                  <div class="flex space-x-4 items-center p-2">
+                    <span v-if="inspector.text.type === 'text'" class="flex-1">
+                      {{ inspector.text.text }}
+                    </span>
+                    <span v-if="inspector.action">
+                      <HoppButtonPrimary
+                        :label="inspector.action.text"
+                        @click="
+                          () => {
+                            inspector.action?.apply()
+                            updateInspectorValue()
+                            hide()
+                          }
+                        "
+                      />
+                    </span>
+                  </div>
+                </div>
+              </div>
             </div>
           </template>
         </tippy>
       </div>
-    </div> -->
     </div>
     <ul
       v-if="showSuggestionPopover && autoCompleteSource"
@@ -138,6 +120,7 @@ import { EnvironmentInspectorService } from "~/services/inspection/inspectors/en
 import { currentActiveTab } from "~/helpers/rest/tab"
 import { URLInspectorService } from "~/services/inspection/inspectors/url.inspector"
 import { HeaderInspectorService } from "~/services/inspection/inspectors/header.inspector"
+import IconAlertTriangle from "~icons/lucide/alert-triangle"
 import { invokeAction } from "~/helpers/actions"
 
 const props = withDefaults(
@@ -244,6 +227,43 @@ const updateInspectorValue = () => {
     inspectors.value = inspecResults
   })
 }
+
+const hasApplicableInspector = computed(() => {
+  if (inspectors.value) {
+    if (typeof props.envIndex !== "undefined") {
+      return inspectors.value.some(
+        (inspector) =>
+          inspector.isApplicable && inspector.index === props.envIndex
+      )
+    }
+    return inspectors.value.some((inspector) => inspector.isApplicable)
+  } else {
+    return false
+  }
+})
+
+const getHighestSeverity = computed(() => {
+  if (inspectors.value) {
+    if (typeof props.envIndex !== "undefined") {
+      return inspectors.value
+        .filter((inspector) => inspector.index === props.envIndex)
+        .reduce(
+          (prev, curr) => {
+            return prev.severity > curr.severity ? prev : curr
+          },
+          { severity: 0 }
+        )
+    }
+    return inspectors.value.reduce(
+      (prev, curr) => {
+        return prev.severity > curr.severity ? prev : curr
+      },
+      { severity: 0 }
+    )
+  } else {
+    return { severity: 0 }
+  }
+})
 
 watchDebounced(
   () => props.modelValue,

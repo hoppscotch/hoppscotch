@@ -62,13 +62,7 @@ export class HeaderInspectorService extends Service implements Inspector {
               type: "text",
               text: this.t("inspections.header.cookie"),
             },
-            // action: {
-            //   text: this.t("context_menu.set_environment_variable"),
-            //   apply: () => {
-            //     console.log("apply")
-            //   },
-            // },
-            severity: 3,
+            severity: 2,
             isApplicable: true,
             index: index,
           })

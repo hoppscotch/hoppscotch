@@ -11,10 +11,6 @@ import { Ref, markRaw, ref } from "vue"
 import IconAlertTriangle from "~icons/lucide/alert-triangle"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 
-// interface ResponseErrors {
-//   errors: "NO_NETWORK" | "401_STATUS"
-// }
-
 export class ResponseInspectorService extends Service implements Inspector {
   public static readonly ID = "RESPONSE_INSPECTOR_SERVICE"
 
@@ -70,12 +66,6 @@ export class ResponseInspectorService extends Service implements Inspector {
           type: "text",
           text: text,
         },
-        // action: {
-        //   text: this.t("context_menu.set_environment_variable"),
-        //   apply: () => {
-        //     console.log("apply")
-        //   },
-        // },
         severity: 2,
         isApplicable: true,
       })

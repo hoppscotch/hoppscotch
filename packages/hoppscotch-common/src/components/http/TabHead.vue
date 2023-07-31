@@ -5,6 +5,7 @@
     class="truncate px-2 flex items-center"
     @dblclick="emit('open-rename-modal')"
     @contextmenu.prevent="options?.tippy.show()"
+    @click.middle="emit('close-tab')"
   >
     <span
       class="font-semibold text-tiny"

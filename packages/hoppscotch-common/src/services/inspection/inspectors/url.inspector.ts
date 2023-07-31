@@ -1,6 +1,5 @@
 import { Service } from "dioc"
 import {
-  Check,
   InspectionService,
   Inspector,
   InspectorChecks,
@@ -10,7 +9,6 @@ import { getI18n } from "~/modules/i18n"
 import { HoppRESTRequest } from "@hoppscotch/data"
 import { Ref, computed, markRaw, ref } from "vue"
 import IconAlertTriangle from "~icons/lucide/alert-triangle"
-import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 import { useReadonlyStream } from "~/composables/stream"
 import { extensionStatus$ } from "~/newstore/HoppExtension"
 import { useSetting } from "~/composables/settings"
@@ -33,7 +31,6 @@ export class URLInspectorService extends Service implements Inspector {
 
   getInspectorFor(
     req: HoppRESTRequest,
-    res: HoppRESTResponse,
     checks: InspectorChecks,
     componentRefID: Ref<string>
   ): InspectorResult[] {
@@ -48,8 +45,8 @@ export class URLInspectorService extends Service implements Inspector {
 
     const results = ref<InspectorResult[]>([])
 
-    const isCheckContains = (check: Check) => {
-      return checks.includes(check)
+    const isCheckContains = (checksArray: InspectorChecks) => {
+      return checks.some((check) => checksArray.includes(check))
     }
 
     const url = req.endpoint
@@ -58,7 +55,7 @@ export class URLInspectorService extends Service implements Inspector {
 
     if (
       isContainLocalhost &&
-      isCheckContains("url_validation") &&
+      isCheckContains(["url_validation", "all_validation"]) &&
       (!EXTENSIONS_ENABLED.value || !isExtensionInstalled.value)
     ) {
       let text

@@ -10,7 +10,6 @@ import { Ref, markRaw, ref } from "vue"
 import IconPlusCircle from "~icons/lucide/plus-circle"
 import { HoppRESTRequest } from "@hoppscotch/data"
 import { getAggregateEnvs } from "~/newstore/environments"
-import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 
 const HOPP_ENVIRONMENT_REGEX = /(<<[a-zA-Z0-9-_]+>>)/g
 
@@ -76,7 +75,6 @@ export class EnvironmentInspectorService extends Service implements Inspector {
 
   getInspectorFor(
     req: HoppRESTRequest,
-    res: HoppRESTResponse,
     checks: InspectorChecks,
     componentRefID: Ref<string>
   ): InspectorResult[] {
@@ -86,21 +84,46 @@ export class EnvironmentInspectorService extends Service implements Inspector {
 
     const params = req.params
 
-    if (checks.includes("url_environment_validation")) {
+    const isCheckContains = (checksArray: InspectorChecks) => {
+      return checks.some((check) => checksArray.includes(check))
+    }
+
+    if (
+      checks.includes("url_environment_validation") &&
+      checks.includes("all_validation")
+    ) {
       this.validateEnvironmentVariables([req.endpoint], results, componentRefID)
-    } else if (checks.includes("header_key_environment_validation")) {
+    }
+    if (
+      isCheckContains(["header_key_environment_validation", "all_validation"])
+    ) {
       const headerKeys = Object.values(headers).map((header) => header.key)
 
       this.validateEnvironmentVariables(headerKeys, results, componentRefID)
-    } else if (checks.includes("header_value_environment_validation")) {
+    }
+    if (
+      isCheckContains(["header_value_environment_validation", "all_validation"])
+    ) {
       const headerValues = Object.values(headers).map((header) => header.value)
 
       this.validateEnvironmentVariables(headerValues, results, componentRefID)
-    } else if (checks.includes("parameter_key_environment_validation")) {
+    }
+    if (
+      isCheckContains([
+        "parameter_key_environment_validation",
+        "all_validation",
+      ])
+    ) {
       const paramsKeys = Object.values(params).map((param) => param.key)
 
       this.validateEnvironmentVariables(paramsKeys, results, componentRefID)
-    } else if (checks.includes("parameter_value_environment_validation")) {
+    }
+    if (
+      isCheckContains([
+        "parameter_value_environment_validation",
+        "all_validation",
+      ])
+    ) {
       const paramsValues = Object.values(params).map((param) => param.value)
 
       this.validateEnvironmentVariables(paramsValues, results, componentRefID)

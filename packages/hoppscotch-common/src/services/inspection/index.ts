@@ -15,6 +15,7 @@ export type Check =
   | "header_validation"
   | "pre_request_script"
   | "response_errors"
+  | "all_validation"
 
 export type InspectorChecks = Array<Check>
 
@@ -51,9 +52,9 @@ export interface Inspector {
   inspectorID: string
   getInspectorFor: (
     req: HoppRESTRequest,
-    res: HoppRESTResponse,
     checks: InspectorChecks,
-    componentRefID: Ref<string>
+    componentRefID: Ref<string>,
+    res?: HoppRESTResponse
   ) => InspectorResult[]
 }
 
@@ -78,16 +79,16 @@ export class InspectionService extends Service {
 
   public getInspectorFor(
     req: HoppRESTRequest,
-    res: HoppRESTResponse,
     checks: InspectorChecks,
-    componentRefID: Ref<string>
+    componentRefID: Ref<string>,
+    res?: HoppRESTResponse
   ): InspectorResult[] {
     if (!currentTabID.value) {
       return []
     }
 
     const inspectors = Array.from(this.inspectors.values()).map((x) =>
-      x.getInspectorFor(req, res, checks, componentRefID)
+      x.getInspectorFor(req, checks, componentRefID, res)
     )
 
     const result = inspectors.flatMap((x) => {

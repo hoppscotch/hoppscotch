@@ -236,9 +236,9 @@ const updateInspectorValue = () => {
 
   const inspecResults = inspectionService.getInspectorFor(
     currentTab.value.document.request,
-    currentActiveTab.value.response,
     props.inspectorChecks ?? [],
-    uniqueRef
+    uniqueRef,
+    currentActiveTab.value.response ?? undefined
   )
   nextTick(() => {
     inspectors.value = inspecResults

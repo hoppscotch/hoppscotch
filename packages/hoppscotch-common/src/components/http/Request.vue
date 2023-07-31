@@ -53,7 +53,7 @@
           v-model="tab.document.request.endpoint"
           :placeholder="`${t('request.url')}`"
           :auto-complete-source="userHistories"
-          :inspector-checks="['url_environment_validation', 'url_validation']"
+          :inspector-checks="['all_validation', 'url_environment_validation']"
           @paste="onPasteUrl($event)"
           @enter="newSendRequest"
         >

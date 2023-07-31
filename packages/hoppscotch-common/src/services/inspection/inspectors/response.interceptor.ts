@@ -1,6 +1,5 @@
 import { Service } from "dioc"
 import {
-  Check,
   InspectionService,
   Inspector,
   InspectorChecks,
@@ -33,17 +32,17 @@ export class ResponseInspectorService extends Service implements Inspector {
 
   getInspectorFor(
     req: HoppRESTRequest,
-    res: HoppRESTResponse,
     checks: InspectorChecks,
-    componentRefID: Ref<string>
+    componentRefID: Ref<string>,
+    res: HoppRESTResponse | undefined
   ): InspectorResult[] {
     const results = ref<InspectorResult[]>([])
     if (!res) return results.value
 
     console.log("response-errors", res)
 
-    const isCheckContains = (check: Check) => {
-      return checks.includes(check)
+    const isCheckContains = (checksArray: InspectorChecks) => {
+      return checks.some((check) => checksArray.includes(check))
     }
 
     const hasErrors = res && (res.type !== "success" || res.statusCode !== 200)
@@ -62,7 +61,7 @@ export class ResponseInspectorService extends Service implements Inspector {
       text = this.t("inspections.response.success")
     }
 
-    if (isCheckContains("response_errors") && hasErrors) {
+    if (isCheckContains(["response_errors", "all_validation"]) && hasErrors) {
       results.value.push({
         id: "url",
         componentRefID: componentRefID.value,

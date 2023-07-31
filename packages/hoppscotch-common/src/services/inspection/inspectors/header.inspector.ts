@@ -1,6 +1,5 @@
 import { Service } from "dioc"
 import {
-  Check,
   InspectionService,
   Inspector,
   InspectorChecks,
@@ -10,7 +9,6 @@ import { getI18n } from "~/modules/i18n"
 import { HoppRESTRequest } from "@hoppscotch/data"
 import { Ref, markRaw, ref } from "vue"
 import IconAlertTriangle from "~icons/lucide/alert-triangle"
-import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 
 export class HeaderInspectorService extends Service implements Inspector {
   public static readonly ID = "Header_INSPECTOR_SERVICE"
@@ -29,7 +27,6 @@ export class HeaderInspectorService extends Service implements Inspector {
 
   getInspectorFor(
     req: HoppRESTRequest,
-    res: HoppRESTResponse,
     checks: InspectorChecks,
     componentRefID: Ref<string>
   ): InspectorResult[] {
@@ -41,8 +38,8 @@ export class HeaderInspectorService extends Service implements Inspector {
       return cookieKeywords.includes(headerKey)
     }
 
-    const isCheckContains = (check: Check) => {
-      return checks.includes(check)
+    const isCheckContains = (checksArray: InspectorChecks) => {
+      return checks.some((check) => checksArray.includes(check))
     }
 
     const headers = req.headers
@@ -51,7 +48,10 @@ export class HeaderInspectorService extends Service implements Inspector {
 
     const isContainCookies = headerKeys.includes("Cookie")
 
-    if (isCheckContains("header_validation") && isContainCookies) {
+    if (
+      isCheckContains(["header_validation", "all_validation"]) &&
+      isContainCookies
+    ) {
       headerKeys.forEach((headerKey, index) => {
         if (cookiesCheck(headerKey)) {
           results.value.push({

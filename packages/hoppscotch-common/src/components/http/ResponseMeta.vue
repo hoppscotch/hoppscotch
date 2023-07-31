@@ -5,7 +5,11 @@
     <div
       v-for="(inspector, index) in inspectors"
       :key="index"
-      :class="[response === null ? 'absolute left-2 top-2' : 'mr-2']"
+      :class="[
+        response === null || response?.type === 'network_fail'
+          ? 'absolute left-2 top-2'
+          : 'mr-2',
+      ]"
     >
       <div
         v-if="inspector.isApplicable && inspector.componentRefID === uniqueRef"
@@ -177,9 +181,9 @@ watch(
     if (response) {
       const result = inspectionService.getInspectorFor(
         currentActiveTab.value.document.request,
-        response,
         checks,
-        uniqueRef
+        uniqueRef,
+        response
       )
 
       if (response?.type !== "loading") {

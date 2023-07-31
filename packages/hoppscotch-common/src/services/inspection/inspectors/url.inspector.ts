@@ -1,6 +1,6 @@
 import { Service } from "dioc"
 import {
-  Checks,
+  Check,
   InspectionService,
   Inspector,
   InspectorChecks,
@@ -48,7 +48,7 @@ export class URLInspectorService extends Service implements Inspector {
 
     const results = ref<InspectorResult[]>([])
 
-    const isCheckContains = (check: Checks) => {
+    const isCheckContains = (check: Check) => {
       return checks.includes(check)
     }
 

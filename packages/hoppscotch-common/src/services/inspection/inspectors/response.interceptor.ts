@@ -1,6 +1,6 @@
 import { Service } from "dioc"
 import {
-  Checks,
+  Check,
   InspectionService,
   Inspector,
   InspectorChecks,
@@ -40,7 +40,9 @@ export class ResponseInspectorService extends Service implements Inspector {
     const results = ref<InspectorResult[]>([])
     if (!res) return results.value
 
-    const isCheckContains = (check: Checks) => {
+    console.log("response-errors", res)
+
+    const isCheckContains = (check: Check) => {
       return checks.includes(check)
     }
 
@@ -49,13 +51,13 @@ export class ResponseInspectorService extends Service implements Inspector {
     let text
 
     if (res.type === "network_fail") {
-      text = this.t("inspections.response.network_fail")
+      text = this.t("inspections.response.network_error")
     } else if (res.type === "fail") {
-      text = this.t("inspections.response.fail")
+      text = this.t("inspections.response.default_error")
     } else if (res.type === "success" && res.statusCode === 404) {
-      text = this.t("inspections.response.success_404")
+      text = this.t("inspections.response.404_error")
     } else if (res.type === "success" && res.statusCode === 401) {
-      text = this.t("inspections.response.success_401")
+      text = this.t("inspections.response.404_error")
     } else {
       text = this.t("inspections.response.success")
     }
@@ -79,6 +81,8 @@ export class ResponseInspectorService extends Service implements Inspector {
         isApplicable: true,
       })
     }
+
+    console.log("response-errors", results.value)
 
     return results.value
   }

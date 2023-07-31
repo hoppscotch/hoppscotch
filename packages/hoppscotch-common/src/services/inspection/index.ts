@@ -4,7 +4,7 @@ import { Component, Ref, watch } from "vue"
 import { currentTabID } from "~/helpers/rest/tab"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 
-export type Checks =
+export type Check =
   | "url_environment_validation"
   | "header_key_environment_validation"
   | "header_value_environment_validation"
@@ -16,7 +16,7 @@ export type Checks =
   | "pre_request_script"
   | "response_errors"
 
-export type InspectorChecks = Array<Checks>
+export type InspectorChecks = Array<Check>
 
 export type InspectorTextType<T extends object | Component = never> =
   | {

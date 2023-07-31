@@ -312,6 +312,13 @@
     "header":{
       "cookie": "Cookie is not supported in Hoppscotch. Use Authorization header instead."
     },
+    "response": {
+      "401_error": "Please check your credentials",
+      "404_error": "Please check your URL",
+      "network_error": "Please check your network connection",
+      "cors_error": "Please check your CORS configuration",
+      "default_error": "Please check your request"
+    },
     "url":{
       "extension_not_installed": "Extension not installed",
       "extention_not_enabled": "Extension not enabled",

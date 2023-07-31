@@ -1,6 +1,6 @@
 import { Service } from "dioc"
 import {
-  Checks,
+  Check,
   InspectionService,
   Inspector,
   InspectorChecks,
@@ -41,7 +41,7 @@ export class HeaderInspectorService extends Service implements Inspector {
       return cookieKeywords.includes(headerKey)
     }
 
-    const isCheckContains = (check: Checks) => {
+    const isCheckContains = (check: Check) => {
       return checks.includes(check)
     }
 

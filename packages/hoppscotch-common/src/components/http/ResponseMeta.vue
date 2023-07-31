@@ -105,7 +105,11 @@ import { useI18n } from "@composables/i18n"
 import { useColorMode } from "@composables/theming"
 import { getStatusCodeReasonPhrase } from "~/helpers/utils/statusCodes"
 import { useService } from "dioc/vue"
-import { InspectionService, InspectorResult } from "~/services/inspection"
+import {
+  InspectionService,
+  InspectorChecks,
+  InspectorResult,
+} from "~/services/inspection"
 import { currentActiveTab } from "~/helpers/rest/tab"
 import { uniqueId } from "lodash-es"
 import { ResponseInspectorService } from "~/services/inspection/inspectors/response.interceptor"
@@ -160,7 +164,7 @@ const statusCategory = computed(() => {
 
 const inspectors = ref<InspectorResult[] | null>(null)
 
-const checks = ["response_errors"]
+const checks: InspectorChecks = ["response_errors"]
 
 const uniqueRef = ref(uniqueId().toString())
 
@@ -170,17 +174,19 @@ useService(ResponseInspectorService)
 watch(
   () => props.response,
   (response) => {
-    const result = inspectionService.getInspectorFor(
-      currentActiveTab.value.document.request,
-      response,
-      checks,
-      uniqueRef
-    )
+    if (response) {
+      const result = inspectionService.getInspectorFor(
+        currentActiveTab.value.document.request,
+        response,
+        checks,
+        uniqueRef
+      )
 
-    if (response?.type !== "loading") {
-      inspectors.value = result
-    } else {
-      inspectors.value = null
+      if (response?.type !== "loading") {
+        inspectors.value = result
+      } else {
+        inspectors.value = null
+      }
     }
   }
 )

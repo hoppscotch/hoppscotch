@@ -21,6 +21,7 @@
             <template #tabhead>
               <HttpTabHead
                 :tab="tab"
+                :is-removable="tabs.length > 1"
                 @open-rename-modal="openReqRenameModal(tab.id)"
                 @close-tab="removeTab(tab.id)"
                 @close-other-tabs="closeOtherTabsAction(tab.id)"

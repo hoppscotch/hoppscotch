@@ -59,6 +59,7 @@
             "
           />
           <HoppSmartItem
+            v-if="isRemovable"
             ref="closeAction"
             :icon="IconXCircle"
             :label="t('tab.close')"
@@ -71,6 +72,7 @@
             "
           />
           <HoppSmartItem
+            v-if="isRemovable"
             ref="closeOthersAction"
             :icon="IconXSquare"
             :label="t('tab.close_others')"
@@ -103,6 +105,7 @@ const t = useI18n()
 
 defineProps<{
   tab: HoppRESTTab
+  isRemovable: boolean
 }>()
 
 const emit = defineEmits<{

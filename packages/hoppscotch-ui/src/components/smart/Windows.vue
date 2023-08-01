@@ -29,7 +29,11 @@
                   :aria-label="tabMeta.label || ''"
                   role="button"
                   @keyup.enter="selectTab(tabID)"
-                  @click="selectTab(tabID)"
+                  @click="
+                    tabMeta.isRemovable && $event.button === 1
+                      ? emit('removeTab', tabID)
+                      : selectTab(tabID)
+                  "
                 >
                   <span
                     v-if="tabMeta.icon"

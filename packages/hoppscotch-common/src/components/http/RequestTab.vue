@@ -2,7 +2,7 @@
   <AppPaneLayout layout-id="rest-primary">
     <template #primary>
       <HttpRequest v-model="tab" />
-      <HttpRequestOptions v-model="tab.document.request" />
+      <HttpRequestOptions :tabId="tab.id" v-model="tab.document.request" />
     </template>
     <template #secondary>
       <HttpResponse v-model:tab="tab" />

@@ -1,6 +1,6 @@
 <template>
   <HoppSmartTabs
-    v-model="selectedRealtimeTab"
+    v-model="selectedHTTPTab"
     styles="sticky overflow-x-auto flex-shrink-0 bg-primary top-upperMobilePrimaryStickyFold sm:top-upperPrimaryStickyFold z-10"
     render-inactive-tabs
   >
@@ -51,11 +51,15 @@
   </HoppSmartTabs>
 </template>
 
+<script lang="ts">
+const selectedTabs = new Map<string, RequestOptionTabs>()
+</script>
+
 <script setup lang="ts">
 import { useI18n } from "@composables/i18n"
 import { HoppRESTRequest } from "@hoppscotch/data"
 import { useVModel } from "@vueuse/core"
-import { computed, ref } from "vue"
+import { computed, ref, watch } from "vue"
 
 export type RequestOptionTabs =
   | "params"
@@ -66,17 +70,23 @@ export type RequestOptionTabs =
 const t = useI18n()
 
 // v-model integration with props and emit
-const props = defineProps<{ modelValue: HoppRESTRequest }>()
+const props = defineProps<{ tabId: string; modelValue: HoppRESTRequest }>()
 const emit = defineEmits<{
   (e: "update:modelValue", value: HoppRESTRequest): void
 }>()
 
 const request = useVModel(props, "modelValue", emit)
 
-const selectedRealtimeTab = ref<RequestOptionTabs>("params")
+const selectedHTTPTab = ref<RequestOptionTabs>(
+  selectedTabs.get(props.tabId) || "params"
+)
+
+watch(selectedHTTPTab, (HTTPTab) => {
+  selectedTabs.set(props.tabId, HTTPTab)
+})
 
 const changeTab = (e: RequestOptionTabs) => {
-  selectedRealtimeTab.value = e
+  selectedHTTPTab.value = e
 }
 
 const newActiveParamsCount$ = computed(() => {

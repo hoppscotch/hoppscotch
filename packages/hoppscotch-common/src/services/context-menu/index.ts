@@ -64,10 +64,24 @@ export type ContextMenuState = {
  * Defines a context menu
  */
 export interface ContextMenu {
+  /**
+   * The unique ID of the context menu
+   * This is used to identify the context menu
+   */
   menuID: string
+  /**
+   * Gets the context menu for the given text
+   * @param text The text to get the context menu for
+   * @returns The context menu state
+   */
   getMenuFor: (text: string) => ContextMenuState
 }
 
+/**
+ * Defines the context menu service
+ * This service is used to register context menus and get context menus for text
+ * This service is used by the context menu UI
+ */
 export class ContextMenuService extends Service {
   public static readonly ID = "CONTEXT_MENU_SERVICE"
 

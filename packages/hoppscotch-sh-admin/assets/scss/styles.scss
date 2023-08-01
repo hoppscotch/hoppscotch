@@ -4,6 +4,7 @@
   @apply after:backface-hidden;
   @apply selection:bg-accentDark;
   @apply selection:text-accentContrast;
+  @apply overscroll-none;
 }
 
 :root {

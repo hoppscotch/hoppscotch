@@ -10,8 +10,12 @@
     <div
       class="p-6 bg-primaryLight rounded-lg border border-primaryDark shadow"
     >
-      <div v-if="mode === 'sign-in'" class="flex flex-col space-y-2">
+      <div
+        v-if="mode === 'sign-in' && allowedAuthProviders"
+        class="flex flex-col space-y-2"
+      >
         <HoppSmartItem
+          v-if="allowedAuthProviders?.includes('GITHUB')"
           :loading="signingInWithGitHub"
           :icon="IconGithub"
           :label="`Continue with GitHub`"
@@ -19,25 +23,28 @@
           @click="signInWithGithub"
         />
         <HoppSmartItem
+          v-if="allowedAuthProviders?.includes('GOOGLE')"
           :loading="signingInWithGoogle"
           :icon="IconGoogle"
           :label="`Continue with Google`"
           @click="signInWithGoogle"
         />
         <HoppSmartItem
+          v-if="allowedAuthProviders?.includes('MICROSOFT')"
           :loading="signingInWithMicrosoft"
           :icon="IconMicrosoft"
           :label="`Continue with Microsoft`"
           @click="signInWithMicrosoft"
         />
         <HoppSmartItem
+          v-if="allowedAuthProviders?.includes('EMAIL')"
           :icon="IconEmail"
           :label="`Continue with Email`"
           @click="mode = 'email'"
         />
       </div>
       <form
-        v-if="mode === 'email'"
+        v-if="mode === 'email' && allowedAuthProviders"
         class="flex flex-col space-y-4"
         @submit.prevent="signInWithEmail"
       >
@@ -55,6 +62,23 @@
           :label="`Send magic link`"
         />
       </form>
+      <div v-if="!allowedAuthProviders">
+        <p>You need at least one authentication provider to log in.</p>
+        <p>Check out the documentation to configure auth providers.</p>
+        <div class="mt-5">
+          <a
+            href="https://docs.hoppscotch.io/documentation/self-host/getting-started"
+          >
+            <HoppButtonSecondary
+              outline
+              filled
+              blank
+              :icon="IconFileText"
+              label="Self Host Documentation"
+            />
+          </a>
+        </div>
+      </div>
       <div v-if="mode === 'email-sent'" class="flex flex-col px-4">
         <div class="flex flex-col items-center justify-center max-w-md">
           <icon-lucide-inbox class="w-6 h-6 text-accent" />
@@ -71,7 +95,12 @@
 
     <section class="mt-15">
       <div
-        v-if="mode === 'sign-in' && tosLink && privacyPolicyLink"
+        v-if="
+          mode === 'sign-in' &&
+          tosLink &&
+          privacyPolicyLink &&
+          allowedAuthProviders
+        "
         class="text-secondaryLight text-tiny"
       >
         By signing in, you are agreeing to our
@@ -119,13 +148,12 @@ import IconGoogle from '~icons/auth/google';
 import IconEmail from '~icons/auth/email';
 import IconMicrosoft from '~icons/auth/microsoft';
 import IconArrowLeft from '~icons/lucide/arrow-left';
+import IconFileText from '~icons/lucide/file-text';
 import { setLocalConfig } from '~/helpers/localpersistence';
 import { useStreamSubscriber } from '~/composables/stream';
 import { useToast } from '~/composables/toast';
 import { auth } from '~/helpers/auth';
-import { useI18n } from '~/composables/i18n';
-
-const t = useI18n();
+import { HoppButtonPrimary, HoppButtonSecondary } from '@hoppscotch/ui';
 
 const { subscribeToStream } = useStreamSubscriber();
 
@@ -133,6 +161,8 @@ const toast = useToast();
 
 const tosLink = import.meta.env.VITE_APP_TOS_LINK;
 const privacyPolicyLink = import.meta.env.VITE_APP_PRIVACY_POLICY_LINK;
+
+const allowedAuthProviders = import.meta.env.ALLOWED_AUTH_PROVIDERS;
 
 // DATA
 
@@ -153,7 +183,7 @@ onMounted(() => {
   subscribeToStream(currentUser$, (user) => {
     if (user && !user.isAdmin) {
       nonAdminUser.value = true;
-      toast.error(`${t('state.non_admin_login')}`);
+      toast.error(`You are logged in. But you're not an admin`);
     }
   });
 });
@@ -169,7 +199,7 @@ async function signInWithGoogle() {
     A auth/account-exists-with-different-credential Firebase error wont happen between Google and any other providers
     Seems Google account overwrites accounts of other providers https://github.com/firebase/firebase-android-sdk/issues/25
     */
-    toast.error(`${t('state.google_signin_failure')}`);
+    toast.error(`Failed to sign in with Google`);
   }
 
   signingInWithGoogle.value = false;
@@ -185,7 +215,7 @@ async function signInWithGithub() {
     A auth/account-exists-with-different-credential Firebase error wont happen between Google and any other providers
     Seems Google account overwrites accounts of other providers https://github.com/firebase/firebase-android-sdk/issues/25
     */
-    toast.error(`${t('state.github_signin_failure')}`);
+    toast.error(`Failed to sign in with GitHub`);
   }
 
   signingInWithGitHub.value = false;
@@ -206,7 +236,7 @@ async function signInWithMicrosoft() {
         @firebase/auth: Auth (9.6.11): INTERNAL ASSERTION FAILED: Pending promise was never set
     They may be related to https://github.com/firebase/firebaseui-web/issues/947
     */
-    toast.error(`${t('state.error')}`);
+    toast.error(`Something went wrong`);
   }
 
   signingInWithMicrosoft.value = false;
@@ -234,10 +264,10 @@ const logout = async () => {
   try {
     await auth.signOutUser();
     window.location.reload();
-    toast.success(`${t('state.logged_out')}`);
+    toast.success(`Logged out`);
   } catch (e) {
     console.error(e);
-    toast.error(`${t('state.error')}`);
+    toast.error(`Something went wrong`);
   }
 };
 </script>

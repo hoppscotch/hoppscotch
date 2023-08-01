@@ -20,7 +20,24 @@
             />
           </div>
           <template #content="{ hide }">
-            <div class="flex flex-col items-start space-y-2">
+            <div
+              class="flex flex-col items-start flex-1 px-2 divide-y divide-divider"
+            >
+              <span class="flex justify-between flex-1 w-full">
+                <span class="flex items-center flex-1">
+                  <icon-lucide-activity class="mr-2 svg-icons text-accent" />
+                  <span class="font-bold">
+                    {{ t("inspections.title") }}
+                  </span>
+                </span>
+                <HoppButtonSecondary
+                  v-tippy="{ theme: 'tooltip' }"
+                  to="https://docs.hoppscotch.io/documentation/features/inspections"
+                  blank
+                  :title="t('app.wiki')"
+                  :icon="IconHelpCircle"
+                />
+              </span>
               <div v-for="(inspector, index) in inspectors" :key="index">
                 <div
                   v-if="
@@ -30,9 +47,9 @@
                       ? inspector.index === envIndex
                       : true)
                   "
-                  class="flex justify-center items-center"
+                  class="flex justify-center items-center w-full py-3"
                 >
-                  <div class="flex space-x-4 items-center p-2">
+                  <div class="flex space-x-4 items-center">
                     <span v-if="inspector.text.type === 'text'" class="flex-1">
                       {{ inspector.text.text }}
                     </span>
@@ -121,6 +138,7 @@ import { currentActiveTab } from "~/helpers/rest/tab"
 import { URLInspectorService } from "~/services/inspection/inspectors/url.inspector"
 import { HeaderInspectorService } from "~/services/inspection/inspectors/header.inspector"
 import IconAlertTriangle from "~icons/lucide/alert-triangle"
+import IconHelpCircle from "~icons/lucide/help-circle"
 import { invokeAction } from "~/helpers/actions"
 
 const props = withDefaults(

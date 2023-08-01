@@ -76,9 +76,15 @@ type HoppActionArgsMap = {
   "rest.request.open": {
     doc: HoppRESTDocument
   }
-  "request.save-as": {
-    request: HoppRESTRequest | HoppGQLRequest
-  }
+  "request.save-as":
+    | {
+        requestType: "rest"
+        request: HoppRESTRequest
+      }
+    | {
+        requestType: "gql"
+        request: HoppGQLRequest
+      }
   "gql.request.open": {
     request: HoppGQLRequest
   }

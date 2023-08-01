@@ -580,7 +580,7 @@ const saveRequest = () => {
   }
 }
 
-const request = ref<HoppRESTRequest | HoppGQLRequest | null>(null)
+const request = ref<HoppRESTRequest | null>(null)
 
 onBeforeUnmount(() => {
   if (loading.value) cancelRequest()
@@ -597,9 +597,19 @@ defineActionHandler("request.method.prev", cycleUpMethod)
 defineActionHandler("request.save", saveRequest)
 defineActionHandler(
   "request.save-as",
-  (req: { request: HoppRESTRequest | HoppGQLRequest }) => {
+  (
+    req:
+      | {
+          requestType: "rest"
+          request: HoppRESTRequest
+        }
+      | {
+          requestType: "gql"
+          request: HoppGQLRequest
+        }
+  ) => {
     showSaveRequestModal.value = true
-    if (req) {
+    if (req && req.requestType === "rest") {
       request.value = req.request
     }
   }

@@ -75,7 +75,7 @@
       :confirm="t('modal.close_unsaved_tab')"
       :title="t('confirm.close_unsaved_tabs', { count: unsavedTabsCount })"
       @hide-modal="confirmingCloseAllTabs = false"
-      @resolve="onResolveConfirmSCloseAllTabs"
+      @resolve="onResolveConfirmCloseAllTabs"
     />
     <CollectionsSaveRequest
       v-if="savingRequest"
@@ -241,7 +241,7 @@ const duplicateTab = (tabID: string) => {
   }
 }
 
-const onResolveConfirmSCloseAllTabs = () => {
+const onResolveConfirmCloseAllTabs = () => {
   if (exceptedTabID.value) closeOtherTabs(exceptedTabID.value)
   confirmingCloseAllTabs.value = false
 }

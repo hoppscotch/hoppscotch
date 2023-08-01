@@ -36,9 +36,9 @@
         <div v-if="replaceWithVariable" class="flex space-x-2 mt-3">
           <div class="min-w-18" />
           <HoppSmartCheckbox
-            :on="replaceWithVaiable"
+            :on="replaceWithVariable"
             title="t('environment.replace_with_variable'))"
-            @change="replaceWithVaiable = !replaceWithVaiable"
+            @change="replaceWithVariable = !replaceWithVariable"
           />
           <label for="replaceWithVariable">
             {{ t("environment.replace_with_variable") }}</label
@@ -70,7 +70,6 @@ import { ref, watch } from "vue"
 import { useI18n } from "~/composables/i18n"
 import { useToast } from "~/composables/toast"
 import { GQLError } from "~/helpers/backend/GQLClient"
-// import { currentActiveTab } from "~/helpers/rest/tab"
 import { TeamEnvironment } from "~/helpers/teams/TeamEnvironment"
 import {
   addEnvironmentVariable,
@@ -108,7 +107,7 @@ watch(
         type: "global",
       }
       name.value = ""
-      replaceWithVaiable.value = false
+      replaceWithVariable.value = false
     }
   }
 )
@@ -131,7 +130,7 @@ const scope = ref<Scope>({
   type: "global",
 })
 
-const replaceWithVaiable = ref(false)
+const replaceWithVariable = ref(false)
 
 const name = ref("")
 
@@ -178,7 +177,7 @@ const addEnvironment = async () => {
       )
     )()
   }
-  if (replaceWithVaiable.value) {
+  if (replaceWithVariable.value) {
     //replace the current tab endpoint with the variable name with << and >>
     const variableName = `<<${name.value}>>`
     //replace the currenttab endpoint containing the value in the text with variablename

@@ -183,16 +183,12 @@ export function closeTab(tabID: string) {
 
 export function closeOtherTabs(tabID: string) {
   if (!tabMap.has(tabID)) {
-    console.warn(`Tried to close a tab which does not exist (tab id: ${tabID})`)
-    return
-  }
-
-  if (tabOrdering.value.length === 1) {
     console.warn(
-      `Tried to close the only tab open, which is not allowed. (tab id: ${tabID})`
+      `The tab to close other tabs does not exist (tab id: ${tabID})`
     )
     return
   }
+
   tabOrdering.value = [tabID]
 
   tabMap.forEach((_, id) => {

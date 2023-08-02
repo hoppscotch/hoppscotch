@@ -85,19 +85,25 @@ const props = defineProps<{
    *  The node item that will be used to render the tree branch content
    */
   nodeItem: TreeNode<T>
+  /**
+   *  Total number of rootNode
+   */
+  rootNodesLength?: number
 }>()
 
 const CHILD_SLOT_NAME = "default"
 const t = useI18n()
 
+const isOnlyRootChild = computed(() => props.rootNodesLength === 1)
+
 /**
  * Marks whether the children on this branch were ever rendered
  * See the usage inside '<template>' for more info
  */
-const childrenRendered = ref(false)
+const childrenRendered = ref(isOnlyRootChild.value)
 
-const showChildren = ref(false)
-const isNodeOpen = ref(false)
+const showChildren = ref(isOnlyRootChild.value)
+const isNodeOpen = ref(isOnlyRootChild.value)
 
 const highlightNode = ref(false)
 

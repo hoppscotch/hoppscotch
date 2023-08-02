@@ -8,6 +8,7 @@ import { HoppRESTDocument } from "./rest/document"
 import { HoppGQLRequest } from "@hoppscotch/data"
 
 export type HoppAction =
+  | "contextmenu.open" // Send/Cancel a Hoppscotch Request
   | "request.send-cancel" // Send/Cancel a Hoppscotch Request
   | "request.reset" // Clear request data
   | "request.copy-link" // Copy Request Link
@@ -24,6 +25,9 @@ export type HoppAction =
   | "modals.search.toggle" // Shows the search modal
   | "modals.support.toggle" // Shows the support modal
   | "modals.share.toggle" // Shows the share modal
+  | "modals.environment.add" // Show add environment modal via context menu
+  | "modals.my.environment.edit" // Edit current personal environment
+  | "modals.team.environment.edit" // Edit current team environment
   | "navigation.jump.rest" // Jump to REST page
   | "navigation.jump.graphql" // Jump to GraphQL page
   | "navigation.jump.realtime" // Jump to realtime page
@@ -54,6 +58,13 @@ export type HoppAction =
  * will know if you got something wrong if there is a type error in this file
  */
 type HoppActionArgsMap = {
+  "contextmenu.open": {
+    position: {
+      top: number
+      left: number
+    }
+    text: string | null
+  }
   "modals.my.environment.edit": {
     envName: string
     variableName: string
@@ -67,6 +78,10 @@ type HoppActionArgsMap = {
   }
   "gql.request.open": {
     request: HoppGQLRequest
+  }
+  "modals.environment.add": {
+    envName: string
+    variableName: string
   }
 }
 

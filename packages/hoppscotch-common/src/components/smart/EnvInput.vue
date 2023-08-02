@@ -61,7 +61,8 @@ import { useReadonlyStream } from "@composables/stream"
 import { AggregateEnvironment, aggregateEnvs$ } from "~/newstore/environments"
 import { platform } from "~/platform"
 import { useI18n } from "~/composables/i18n"
-import { onClickOutside } from "@vueuse/core"
+import { onClickOutside, useDebounceFn } from "@vueuse/core"
+import { invokeAction } from "~/helpers/actions"
 
 const props = withDefaults(
   defineProps<{
@@ -147,6 +148,11 @@ const updateModelValue = (value: string) => {
 const handleKeystroke = (ev: KeyboardEvent) => {
   if (["ArrowDown", "ArrowUp", "Enter", "Tab", "Escape"].includes(ev.key)) {
     ev.preventDefault()
+  }
+
+  if (ev.shiftKey) {
+    showSuggestionPopover.value = false
+    return
   }
 
   showSuggestionPopover.value = true
@@ -299,8 +305,46 @@ const envVars = computed(() =>
 const envTooltipPlugin = new HoppReactiveEnvPlugin(envVars, view)
 
 const initView = (el: any) => {
+  function handleTextSelection() {
+    const selection = view.value?.state.selection.main
+    if (selection) {
+      const from = selection.from
+      const to = selection.to
+      const text = view.value?.state.doc.sliceString(from, to)
+      const { top, left } = view.value?.coordsAtPos(from)
+      if (text) {
+        invokeAction("contextmenu.open", {
+          position: {
+            top,
+            left,
+          },
+          text,
+        })
+        showSuggestionPopover.value = false
+      } else {
+        invokeAction("contextmenu.open", {
+          position: {
+            top,
+            left,
+          },
+          text: null,
+        })
+      }
+    }
+  }
+
+  // Debounce to prevent double click from selecting the word
+  const debounceFn = useDebounceFn(() => {
+    handleTextSelection()
+  }, 140)
+
+  el.addEventListener("mouseup", debounceFn)
+  el.addEventListener("keyup", debounceFn)
+
   const extensions: Extension = [
+    EditorView.lineWrapping,
     EditorView.contentAttributes.of({ "aria-label": props.placeholder }),
+    EditorView.contentAttributes.of({ "data-enable-grammarly": "false" }),
     EditorView.updateListener.of((update) => {
       if (props.readonly) {
         update.view.contentDOM.inputMode = "none"
@@ -431,7 +475,7 @@ watch(editor, () => {
     @apply border-b border-x border-divider;
     @apply overflow-y-auto;
     @apply -left-[1px];
-    @apply right-0;
+    @apply -right-[1px];
 
     top: calc(100% + 1px);
     border-radius: 0 0 8px 8px;

@@ -14,6 +14,11 @@ import { extensionStatus$ } from "~/newstore/HoppExtension"
 import { useSetting } from "~/composables/settings"
 import { applySetting, toggleSetting } from "~/newstore/settings"
 
+/**
+ * This inspector is responsible for inspecting the URL of a request.
+ * It checks if the URL contains localhost and if the extension is installed.
+ * It also provides an action to enable the extension.
+ */
 export class URLInspectorService extends Service implements Inspector {
   public static readonly ID = "URL_INSPECTOR_SERVICE"
 

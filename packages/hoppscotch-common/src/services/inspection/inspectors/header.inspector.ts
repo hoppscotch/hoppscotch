@@ -10,6 +10,10 @@ import { HoppRESTRequest } from "@hoppscotch/data"
 import { Ref, markRaw, ref } from "vue"
 import IconAlertTriangle from "~icons/lucide/alert-triangle"
 
+/**
+ * This inspector is responsible for inspecting the header of a request.
+ * It checks if the header contains cookies.
+ */
 export class HeaderInspectorService extends Service implements Inspector {
   public static readonly ID = "Header_INSPECTOR_SERVICE"
 

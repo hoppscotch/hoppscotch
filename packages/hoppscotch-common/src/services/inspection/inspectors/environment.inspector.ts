@@ -17,6 +17,11 @@ const isENVInString = (str: string) => {
   return HOPP_ENVIRONMENT_REGEX.test(str)
 }
 
+/**
+ * This inspector is responsible for inspecting the environment variables of a input.
+ * It checks if the environment variables are defined in the environment.
+ * It also provides an action to add the environment variable.
+ */
 export class EnvironmentInspectorService extends Service implements Inspector {
   public static readonly ID = "ENVIRONMENT_INSPECTOR_SERVICE"
 
@@ -32,7 +37,13 @@ export class EnvironmentInspectorService extends Service implements Inspector {
     this.inspection.registerInspector(this)
   }
 
-  // Helper function to validate environment variables
+  /**
+   * Validates the environment variables in the target array
+   * @param target The target array to validate
+   * @param results The results array to push the results to
+   * @param componentRefID The component reference ID
+   * @returns The results array
+   */
   private validateEnvironmentVariables = (
     target: any[],
     results: Ref<InspectorResult[]>,
@@ -73,6 +84,15 @@ export class EnvironmentInspectorService extends Service implements Inspector {
     })
   }
 
+  /**
+   * Returns the inspector results for the request
+   * It checks if any env is used in the request ie, url, headers, params
+   * and checks if the env is defined in the environment using the validateEnvironmentVariables function
+   * @param req The request to inspect
+   * @param checks The checks to perform
+   * @param componentRefID The component reference ID
+   * @returns The inspector results
+   */
   getInspectorFor(
     req: HoppRESTRequest,
     checks: InspectorChecks,

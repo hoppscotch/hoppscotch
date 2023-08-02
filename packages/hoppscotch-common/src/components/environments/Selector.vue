@@ -82,7 +82,10 @@
               :active-info-icon="isEnvActive(index)"
               @click="
                 () => {
-                  handleEnvironmentChange('my-environments', index, gen)
+                  handleEnvironmentChange(index, {
+                    type: 'my-environment',
+                    environment: gen,
+                  })
                   hide()
                 }
               "
@@ -117,7 +120,10 @@
                 :active-info-icon="isEnvActive(gen.id)"
                 @click="
                   () => {
-                    handleEnvironmentChange('team-environments', index, gen)
+                    handleEnvironmentChange(index, {
+                      type: 'team-environment',
+                      environment: gen,
+                    })
                     hide()
                   }
                 "
@@ -190,7 +196,7 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  (e: "update:modelValue", data: any): void
+  (e: "update:modelValue", data: Scope): void
 }>()
 
 const breakpoints = useBreakpoints(breakpointsTailwind)
@@ -206,6 +212,39 @@ const myEnvironments = useReadonlyStream(environments$, [])
 
 const workspace = useReadonlyStream(workspaceStatus$, { type: "personal" })
 
+// TeamList-Adapter
+const teamListAdapter = new TeamListAdapter(true)
+const myTeams = useReadonlyStream(teamListAdapter.teamList$, null)
+const teamListFetched = ref(false)
+const REMEMBERED_TEAM_ID = useLocalState("REMEMBERED_TEAM_ID")
+
+onLoggedIn(() => {
+  !teamListAdapter.isInitialized && teamListAdapter.initialize()
+})
+
+const switchToTeamWorkspace = (team: GetMyTeamsQuery["myTeams"][number]) => {
+  REMEMBERED_TEAM_ID.value = team.id
+  changeWorkspace({
+    teamID: team.id,
+    teamName: team.name,
+    type: "team",
+  })
+}
+
+watch(
+  () => myTeams.value,
+  (newTeams) => {
+    if (newTeams && !teamListFetched.value) {
+      teamListFetched.value = true
+      if (REMEMBERED_TEAM_ID.value) {
+        const team = newTeams.find((t) => t.id === REMEMBERED_TEAM_ID.value)
+        if (team) switchToTeamWorkspace(team)
+      }
+    }
+  }
+)
+
+// TeamEnv List Adapter
 const teamEnvListAdapter = new TeamEnvironmentAdapter(undefined)
 const teamListLoading = useReadonlyStream(teamEnvListAdapter.loading$, false)
 const teamAdapterError = useReadonlyStream(teamEnvListAdapter.error$, null)
@@ -240,68 +279,43 @@ watch(
   }
 )
 
-// TeamList-Adapter
-const teamListAdapter = new TeamListAdapter(true)
-const myTeams = useReadonlyStream(teamListAdapter.teamList$, null)
-const teamListFetched = ref(false)
-const REMEMBERED_TEAM_ID = useLocalState("REMEMBERED_TEAM_ID")
-
-onLoggedIn(() => {
-  !teamListAdapter.isInitialized && teamListAdapter.initialize()
-})
-
-const switchToTeamWorkspace = (team: GetMyTeamsQuery["myTeams"][number]) => {
-  REMEMBERED_TEAM_ID.value = team.id
-  changeWorkspace({
-    teamID: team.id,
-    teamName: team.name,
-    type: "team",
-  })
-}
-
-watch(
-  () => myTeams.value,
-  (newTeams) => {
-    if (newTeams && !teamListFetched.value) {
-      teamListFetched.value = true
-      if (REMEMBERED_TEAM_ID.value) {
-        const team = newTeams.find((t) => t.id === REMEMBERED_TEAM_ID.value)
-        if (team) switchToTeamWorkspace(team)
-      }
-    }
-  }
-)
-
 const handleEnvironmentChange = (
-  type: "my-environments" | "team-environments",
   index: number,
-  environment?: TeamEnvironment | Environment
+  env?:
+    | {
+        type: "my-environment"
+        environment: Environment
+      }
+    | {
+        type: "team-environment"
+        environment: TeamEnvironment
+      }
 ) => {
-  if (props.isScopeSelector) {
-    if (type === "my-environments") {
+  if (props.isScopeSelector && env) {
+    if (env.type === "my-environment") {
       emit("update:modelValue", {
         type: "my-environment",
-        environment,
+        environment: env.environment,
         index,
       })
-    } else {
+    } else if (env.type === "team-environment") {
       emit("update:modelValue", {
         type: "team-environment",
-        environment,
+        environment: env.environment,
       })
     }
   } else {
-    if (type === "my-environments") {
+    if (env && env.type === "my-environment") {
       selectedEnvironmentIndex.value = {
         type: "MY_ENV",
         index,
       }
-    } else if (type === "team-environments" && environment) {
+    } else if (env && env.type === "team-environment") {
       selectedEnvironmentIndex.value = {
         type: "TEAM_ENV",
-        teamEnvID: environment.id,
-        teamID: environment.teamID,
-        environment: environment.environment,
+        teamEnvID: env.environment.id,
+        teamID: env.environment.teamID,
+        environment: env.environment.environment,
       }
     }
   }
@@ -311,9 +325,10 @@ const isEnvActive = (id: string | number) => {
   if (props.isScopeSelector) {
     if (props.modelValue?.type === "my-environment") {
       return props.modelValue.index === id
-    } else {
+    } else if (props.modelValue?.type === "team-environment") {
       return (
         props.modelValue?.type === "team-environment" &&
+        props.modelValue.environment &&
         props.modelValue.environment.id === id
       )
     }
@@ -389,7 +404,9 @@ onMounted(() => {
       })
     } else if (
       selectedEnvironmentIndex.value.type === "TEAM_ENV" &&
-      selectedEnvironmentIndex.value.teamEnvID
+      selectedEnvironmentIndex.value.teamEnvID &&
+      teamEnvironmentList.value &&
+      teamEnvironmentList.value.length > 0
     ) {
       const teamEnv = teamEnvironmentList.value.find(
         (env) =>
@@ -397,10 +414,12 @@ onMounted(() => {
           (selectedEnvironmentIndex.value.type === "TEAM_ENV" &&
             selectedEnvironmentIndex.value.teamEnvID)
       )
-      emit("update:modelValue", {
-        type: "team-environment",
-        environment: teamEnv,
-      })
+      if (teamEnv) {
+        emit("update:modelValue", {
+          type: "team-environment",
+          environment: teamEnv,
+        })
+      }
     } else {
       emit("update:modelValue", {
         type: "global",

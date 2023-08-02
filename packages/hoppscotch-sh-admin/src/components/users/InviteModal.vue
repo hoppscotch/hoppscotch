@@ -8,7 +8,7 @@
     <template #body>
       <HoppSmartInput
         v-model="email"
-        label="Email Address"
+        :label="t('users.email_address')"
         input-styles="floating-input"
       />
     </template>

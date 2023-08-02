@@ -245,8 +245,6 @@ const updatingDisplayName = ref(false)
 watchEffect(() => (displayName.value = currentUser.value?.displayName || ""))
 
 const updateDisplayName = () => {
-  console.log(displayName.value)
-
   updatingDisplayName.value = true
   platform.auth
     .setDisplayName(displayName.value as string)

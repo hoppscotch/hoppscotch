@@ -5,35 +5,7 @@ import * as cookieParser from 'cookie-parser';
 import { VersioningType } from '@nestjs/common';
 import * as session from 'express-session';
 import { emitGQLSchemaFile } from './gql-schema';
-import { AuthProvider } from './auth/helper';
-
-function checkEnvironmentAuthProvider() {
-  if (!process.env.hasOwnProperty('ALLOWED_AUTH_PROVIDERS')) {
-    console.log(`"ALLOWED_AUTH_PROVIDERS" is not present in .env file`);
-    process.exit(1);
-  }
-
-  if (process.env.ALLOWED_AUTH_PROVIDERS === '') {
-    console.log(`"ALLOWED_AUTH_PROVIDERS" is empty in .env file`);
-    process.exit(1);
-  }
-
-  const givenAuthProviders = process.env.ALLOWED_AUTH_PROVIDERS.split(',').map(
-    (provider) => provider.toLocaleUpperCase(),
-  );
-  const supportedAuthProviders = Object.values(AuthProvider).map(
-    (provider: string) => provider.toLocaleUpperCase(),
-  );
-
-  for (const givenAuthProvider of givenAuthProviders) {
-    if (!supportedAuthProviders.includes(givenAuthProvider)) {
-      console.error(
-        `Environment variable "ALLOWED_AUTH_PROVIDERS" contains an unsupported auth provider "${givenAuthProvider}".`,
-      );
-      process.exit(1);
-    }
-  }
-}
+import { checkEnvironmentAuthProvider } from './utils';
 
 async function bootstrap() {
   console.log(`Running in production: ${process.env.PRODUCTION}`);

@@ -30,6 +30,7 @@ import { GithubSSOGuard } from './guards/github-sso.guard';
 import { MicrosoftSSOGuard } from './guards/microsoft-sso-.guard';
 import { ThrottlerBehindProxyGuard } from 'src/guards/throttler-behind-proxy.guard';
 import { SkipThrottle } from '@nestjs/throttler';
+import { AUTH_PROVIDER_NOT_SPECIFIED } from 'src/errors';
 
 @UseGuards(ThrottlerBehindProxyGuard)
 @Controller({ path: 'auth', version: '1' })
@@ -45,7 +46,7 @@ export class AuthController {
     @Query('origin') origin: string,
   ) {
     if (!authProviderCheck(AuthProvider.EMAIL))
-      throw new InternalServerErrorException();
+      throwHTTPErr({ message: AUTH_PROVIDER_NOT_SPECIFIED, statusCode: 404 });
 
     const deviceIdToken = await this.authService.signInMagicLink(
       authData.email,

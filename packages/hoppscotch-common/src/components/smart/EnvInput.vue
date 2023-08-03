@@ -342,7 +342,6 @@ const initView = (el: any) => {
   el.addEventListener("keyup", debounceFn)
 
   const extensions: Extension = [
-    EditorView.lineWrapping,
     EditorView.contentAttributes.of({ "aria-label": props.placeholder }),
     EditorView.contentAttributes.of({ "data-enable-grammarly": "false" }),
     EditorView.updateListener.of((update) => {

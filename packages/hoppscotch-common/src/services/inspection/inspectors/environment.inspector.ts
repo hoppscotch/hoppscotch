@@ -10,6 +10,7 @@ import { Ref, markRaw, ref } from "vue"
 import IconPlusCircle from "~icons/lucide/plus-circle"
 import { HoppRESTRequest } from "@hoppscotch/data"
 import { getAggregateEnvs } from "~/newstore/environments"
+import { invokeAction } from "~/helpers/actions"
 
 const HOPP_ENVIRONMENT_REGEX = /(<<[a-zA-Z0-9-_]+>>)/g
 
@@ -70,7 +71,10 @@ export class EnvironmentInspectorService extends Service implements Inspector {
                 action: {
                   text: this.t("inspections.environment.add_environment"),
                   apply: () => {
-                    console.log("apply")
+                    invokeAction("modals.environment.add", {
+                      envName: "test",
+                      variableName: formattedExEnv,
+                    })
                   },
                 },
                 severity: 3,

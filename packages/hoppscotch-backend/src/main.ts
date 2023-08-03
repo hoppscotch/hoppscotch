@@ -5,12 +5,32 @@ import * as cookieParser from 'cookie-parser';
 import { VersioningType } from '@nestjs/common';
 import * as session from 'express-session';
 import { emitGQLSchemaFile } from './gql-schema';
+import { AuthProvider } from './auth/helper';
 
-function checkRequiredEnvVars(requiredEnvVariables: string[]) {
-  for (const envVar of requiredEnvVariables) {
-    if (!process.env[envVar]) {
-      console.error(`Environment variable "${envVar}" is missing or not set.`);
-      process.exit(1); // Exit the application with a non-zero status code to indicate an error
+function checkEnvironmentAuthProvider() {
+  if (!process.env.hasOwnProperty('ALLOWED_AUTH_PROVIDERS')) {
+    console.log(`"ALLOWED_AUTH_PROVIDERS" is not present in .env file`);
+    process.exit(1);
+  }
+
+  if (process.env.ALLOWED_AUTH_PROVIDERS === '') {
+    console.log(`"ALLOWED_AUTH_PROVIDERS" is empty in .env file`);
+    process.exit(1);
+  }
+
+  const givenAuthProviders = process.env.ALLOWED_AUTH_PROVIDERS.split(',').map(
+    (provider) => provider.toLocaleUpperCase(),
+  );
+  const supportedAuthProviders = Object.values(AuthProvider).map(
+    (provider: string) => provider.toLocaleUpperCase(),
+  );
+
+  for (const givenAuthProvider of givenAuthProviders) {
+    if (!supportedAuthProviders.includes(givenAuthProvider)) {
+      console.error(
+        `Environment variable "ALLOWED_AUTH_PROVIDERS" contains an unsupported auth provider "${givenAuthProvider}".`,
+      );
+      process.exit(1);
     }
   }
 }
@@ -19,7 +39,7 @@ async function bootstrap() {
   console.log(`Running in production: ${process.env.PRODUCTION}`);
   console.log(`Port: ${process.env.PORT}`);
 
-  checkRequiredEnvVars(['ALLOWED_AUTH_PROVIDERS']);
+  checkEnvironmentAuthProvider();
 
   const app = await NestFactory.create(AppModule);
 

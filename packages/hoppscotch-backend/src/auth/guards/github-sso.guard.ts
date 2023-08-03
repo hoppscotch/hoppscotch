@@ -2,6 +2,7 @@ import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthProvider, authProviderCheck, throwHTTPErr } from '../helper';
 import { Observable } from 'rxjs';
+import { AUTH_PROVIDER_NOT_SPECIFIED } from 'src/errors';
 
 @Injectable()
 export class GithubSSOGuard extends AuthGuard('github') implements CanActivate {
@@ -9,7 +10,7 @@ export class GithubSSOGuard extends AuthGuard('github') implements CanActivate {
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
     if (!authProviderCheck(AuthProvider.GITHUB))
-      throwHTTPErr({ message: 'GitHub auth is not enabled', statusCode: 404 });
+      throwHTTPErr({ message: AUTH_PROVIDER_NOT_SPECIFIED, statusCode: 404 });
 
     return super.canActivate(context);
   }

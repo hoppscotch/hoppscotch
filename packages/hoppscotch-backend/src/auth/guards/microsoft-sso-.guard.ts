@@ -2,6 +2,7 @@ import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthProvider, authProviderCheck, throwHTTPErr } from '../helper';
 import { Observable } from 'rxjs';
+import { AUTH_PROVIDER_NOT_SPECIFIED } from 'src/errors';
 
 @Injectable()
 export class MicrosoftSSOGuard
@@ -13,7 +14,7 @@ export class MicrosoftSSOGuard
   ): boolean | Promise<boolean> | Observable<boolean> {
     if (!authProviderCheck(AuthProvider.MICROSOFT))
       throwHTTPErr({
-        message: 'Microsoft auth is not enabled',
+        message: AUTH_PROVIDER_NOT_SPECIFIED,
         statusCode: 404,
       });
 

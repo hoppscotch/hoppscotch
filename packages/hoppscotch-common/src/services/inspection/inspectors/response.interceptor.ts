@@ -39,8 +39,6 @@ export class ResponseInspectorService extends Service implements Inspector {
     const results = ref<InspectorResult[]>([])
     if (!res) return results.value
 
-    console.log("response-errors", res)
-
     const isCheckContains = (checksArray: InspectorChecks) => {
       return checks.some((check) => checksArray.includes(check))
     }
@@ -56,7 +54,7 @@ export class ResponseInspectorService extends Service implements Inspector {
     } else if (res.type === "success" && res.statusCode === 404) {
       text = this.t("inspections.response.404_error")
     } else if (res.type === "success" && res.statusCode === 401) {
-      text = this.t("inspections.response.404_error")
+      text = this.t("inspections.response.401_error")
     } else {
       text = this.t("inspections.response.success")
     }
@@ -74,8 +72,6 @@ export class ResponseInspectorService extends Service implements Inspector {
         isApplicable: true,
       })
     }
-
-    console.log("response-errors", results.value)
 
     return results.value
   }

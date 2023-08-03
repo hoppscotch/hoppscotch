@@ -1,0 +1,179 @@
+import { TestContainer } from "dioc/testing"
+import { describe, expect, it, vi } from "vitest"
+import { ResponseInspectorService } from "../response.interceptor"
+import { InspectionService } from "../../index"
+import { ref } from "vue"
+
+vi.mock("~/modules/i18n", () => ({
+  __esModule: true,
+  getI18n: () => (x: string) => x,
+}))
+
+describe("ResponseInspectorService", () => {
+  it("registers with the inspection service upon initialization", () => {
+    const container = new TestContainer()
+
+    const registerInspectorFn = vi.fn()
+
+    container.bindMock(InspectionService, {
+      registerInspector: registerInspectorFn,
+    })
+
+    const responseInspector = container.bind(ResponseInspectorService)
+
+    expect(registerInspectorFn).toHaveBeenCalledOnce()
+    expect(registerInspectorFn).toHaveBeenCalledWith(responseInspector)
+  })
+
+  describe("getInspectorFor", () => {
+    it("should return an empty array when response is undefined", () => {
+      const container = new TestContainer()
+      const responseInspector = container.bind(ResponseInspectorService)
+
+      const req = { endpoint: "http://example.com/api/data" }
+      const checks = ["response_errors"]
+      const componentRefID = { value: "some-id" }
+
+      const result = responseInspector.getInspectorFor(
+        req,
+        checks,
+        componentRefID,
+        undefined
+      )
+
+      expect(result).toHaveLength(0)
+    })
+
+    it("should return an inspector result when response type is not success or status code is not 200", () => {
+      const container = new TestContainer()
+      const responseInspector = container.bind(ResponseInspectorService)
+
+      const req = { endpoint: "http://example.com/api/data" }
+      const checks = ["response_errors"]
+      const componentRefID = { value: "some-id" }
+      const res = { type: "network_fail", statusCode: 400 }
+
+      const result = responseInspector.getInspectorFor(
+        req,
+        checks,
+        componentRefID,
+        res
+      )
+
+      expect(result).toContainEqual(
+        expect.objectContaining({ id: "url", isApplicable: true })
+      )
+    })
+
+    it("should handle network_fail responses", () => {
+      const container = new TestContainer()
+      const responseInspector = container.bind(ResponseInspectorService)
+
+      const req = { endpoint: "http://example.com/api/data" }
+      const checks = ["response_errors"]
+      const componentRefID = ref("ref-1")
+      const res = { type: "network_fail", statusCode: 500 }
+
+      const result = responseInspector.getInspectorFor(
+        req,
+        checks,
+        componentRefID,
+        res
+      )
+
+      expect(result).toContainEqual(
+        expect.objectContaining({
+          text: { type: "text", text: "inspections.response.network_error" },
+        })
+      )
+    })
+
+    it("should handle fail responses", () => {
+      const container = new TestContainer()
+      const responseInspector = container.bind(ResponseInspectorService)
+
+      const req = { endpoint: "http://example.com/api/data" }
+      const checks = ["response_errors"]
+      const componentRefID = ref("ref-1")
+      const res = { type: "fail", statusCode: 500 }
+
+      const result = responseInspector.getInspectorFor(
+        req,
+        checks,
+        componentRefID,
+        res
+      )
+
+      expect(result).toContainEqual(
+        expect.objectContaining({
+          text: { type: "text", text: "inspections.response.default_error" },
+        })
+      )
+    })
+
+    it("should handle 404 responses", () => {
+      const container = new TestContainer()
+      const responseInspector = container.bind(ResponseInspectorService)
+
+      const req = { endpoint: "http://example.com/api/data" }
+      const checks = ["response_errors"]
+      const componentRefID = ref("ref-1")
+      const res = { type: "success", statusCode: 404 }
+
+      const result = responseInspector.getInspectorFor(
+        req,
+        checks,
+        componentRefID,
+        res
+      )
+
+      expect(result).toContainEqual(
+        expect.objectContaining({
+          text: { type: "text", text: "inspections.response.404_error" },
+        })
+      )
+    })
+
+    it("should handle 401 responses", () => {
+      const container = new TestContainer()
+      const responseInspector = container.bind(ResponseInspectorService)
+
+      const req = { endpoint: "http://example.com/api/data" }
+      const checks = ["response_errors"]
+      const componentRefID = ref("ref-1")
+      const res = { type: "success", statusCode: 401 }
+
+      const result = responseInspector.getInspectorFor(
+        req,
+        checks,
+        componentRefID,
+        res
+      )
+
+      expect(result).toContainEqual(
+        expect.objectContaining({
+          text: { type: "text", text: "inspections.response.401_error" },
+        })
+      )
+    })
+
+    it("should handle successful responses", () => {
+      const container = new TestContainer()
+      const responseInspector = container.bind(ResponseInspectorService)
+
+      const req = { endpoint: "http://example.com/api/data" }
+      const checks = ["response_errors"]
+      const componentRefID = { value: "some-id" }
+      const res = { type: "success", statusCode: 200 }
+
+      const result = responseInspector.getInspectorFor(
+        req,
+        checks,
+        componentRefID,
+        res
+      )
+
+      expect(result).toHaveLength(0)
+    })
+  })
+})

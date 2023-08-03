@@ -7,6 +7,7 @@ import Components from 'unplugin-vue-components/vite';
 import WindiCSS from 'vite-plugin-windicss';
 import Pages from 'vite-plugin-pages';
 import Layouts from 'vite-plugin-vue-layouts';
+import VueI18n from '@intlify/vite-plugin-vue-i18n';
 import path from 'path';
 
 // https://vitejs.dev/config/
@@ -30,6 +31,11 @@ export default defineConfig({
     Layouts({
       defaultLayout: 'default',
       layoutsDirs: 'src/layouts',
+    }),
+    VueI18n({
+      runtimeOnly: false,
+      compositionOnly: true,
+      include: [path.resolve(__dirname, 'locales')],
     }),
     WindiCSS({
       root: path.resolve(__dirname),

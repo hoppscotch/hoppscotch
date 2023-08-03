@@ -30,12 +30,13 @@
     "io-ts": "^2.2.16",
     "lodash-es": "^4.17.21",
     "rxjs": "^7.8.0",
+    "tippy.js": "^6.3.7",
     "ts-node-dev": "^2.0.0",
     "unplugin-icons": "^0.14.9",
     "unplugin-vue-components": "^0.21.0",
     "vue": "^3.2.6",
+    "vue-i18n": "^9.2.2",
     "vue-router": "4",
-    "tippy.js": "^6.3.7",
     "vue-tippy": "6.0.0-alpha.58"
   },
   "devDependencies": {
@@ -47,6 +48,7 @@
     "@graphql-codegen/typescript-document-nodes": "3.0.0",
     "@graphql-codegen/typescript-operations": "3.0.0",
     "@graphql-codegen/urql-introspection": "2.2.1",
+    "@intlify/vite-plugin-vue-i18n": "^7.0.0",
     "@vitejs/plugin-vue": "^3.1.0",
     "@vue/compiler-sfc": "^3.2.6",
     "graphql-tag": "^2.12.6",

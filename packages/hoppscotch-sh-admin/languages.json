@@ -1,0 +1,195 @@
+[
+  {
+    "code": "af",
+    "file": "af.json",
+    "iso": "af-AF",
+    "name": "Afrikaans"
+  },
+  {
+    "code": "ar",
+    "dir": "rtl",
+    "file": "ar.json",
+    "iso": "ar-AR",
+    "name": "عربى"
+  },
+  {
+    "code": "ca",
+    "file": "ca.json",
+    "iso": "ca-CA",
+    "name": "Català"
+  },
+  {
+    "code": "cn",
+    "file": "cn.json",
+    "iso": "zh-CN",
+    "name": "简体中文"
+  },
+  {
+    "code": "cs",
+    "file": "cs.json",
+    "iso": "cs-CS",
+    "name": "Čeština"
+  },
+  {
+    "code": "da",
+    "file": "da.json",
+    "iso": "da-DA",
+    "name": "Dansk"
+  },
+  {
+    "code": "de",
+    "file": "de.json",
+    "iso": "de-DE",
+    "name": "Deutsch"
+  },
+  {
+    "code": "el",
+    "file": "el.json",
+    "iso": "el-EL",
+    "name": "Ελληνικά"
+  },
+  {
+    "code": "en",
+    "file": "en.json",
+    "iso": "en-US",
+    "name": "English"
+  },
+  {
+    "code": "es",
+    "file": "es.json",
+    "iso": "es-ES",
+    "name": "Español"
+  },
+  {
+    "code": "fi",
+    "file": "fi.json",
+    "iso": "fi-FI",
+    "name": "Suomalainen"
+  },
+  {
+    "code": "fr",
+    "file": "fr.json",
+    "iso": "fr-FR",
+    "name": "Français"
+  },
+  {
+    "code": "he",
+    "file": "he.json",
+    "iso": "he-HE",
+    "name": "עִברִית"
+  },
+  {
+    "code": "hi",
+    "file": "hi.json",
+    "iso": "hi-HI",
+    "name": "हिन्दी"
+  },
+  {
+    "code": "hu",
+    "file": "hu.json",
+    "iso": "hu-HU",
+    "name": "Magyar"
+  },
+  {
+    "code": "id",
+    "file": "id.json",
+    "iso": "id",
+    "name": "Indonesian"
+  },
+  {
+    "code": "it",
+    "file": "it.json",
+    "iso": "it",
+    "name": "Italiano"
+  },
+  {
+    "code": "ja",
+    "file": "ja.json",
+    "iso": "ja-JA",
+    "name": "日本語"
+  },
+  {
+    "code": "ko",
+    "file": "ko.json",
+    "iso": "ko-KO",
+    "name": "한국어"
+  },
+  {
+    "code": "nl",
+    "file": "nl.json",
+    "iso": "nl-NL",
+    "name": "Nederlands"
+  },
+  {
+    "code": "no",
+    "file": "no.json",
+    "iso": "no-NO",
+    "name": "Norsk"
+  },
+  {
+    "code": "pl",
+    "file": "pl.json",
+    "iso": "pl-PL",
+    "name": "Polskie"
+  },
+  {
+    "code": "pt-br",
+    "file": "pt-br.json",
+    "iso": "pt-BR",
+    "name": "Português Brasileiro"
+  },
+  {
+    "code": "pt",
+    "file": "pt.json",
+    "iso": "pt-PT",
+    "name": "Português"
+  },
+  {
+    "code": "ro",
+    "file": "ro.json",
+    "iso": "ro-RO",
+    "name": "Română"
+  },
+  {
+    "code": "ru",
+    "file": "ru.json",
+    "iso": "ru-RU",
+    "name": "Pусский"
+  },
+  {
+    "code": "sr",
+    "file": "sr.json",
+    "iso": "sr-SR",
+    "name": "Српски"
+  },
+  {
+    "code": "sv",
+    "file": "sv.json",
+    "iso": "sv-SV",
+    "name": "Svenska"
+  },
+  {
+    "code": "tr",
+    "file": "tr.json",
+    "iso": "tr-TR",
+    "name": "Türkçe"
+  },
+  {
+    "code": "tw",
+    "file": "tw.json",
+    "iso": "zh-TW",
+    "name": "繁體中文"
+  },
+  {
+    "code": "uk",
+    "file": "uk.json",
+    "iso": "uk-UK",
+    "name": "Українська"
+  },
+  {
+    "code": "vi",
+    "file": "vi.json",
+    "iso": "vi-VI",
+    "name": "Tiếng Việt"
+  }
+]

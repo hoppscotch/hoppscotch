@@ -24,25 +24,18 @@
       :icon="IconBookOpen"
       :label="`${t('tab.documentation')}`"
     >
-      <div
+      <HoppSmartPlaceholder
         v-if="
           queryFields.length === 0 &&
           mutationFields.length === 0 &&
           subscriptionFields.length === 0 &&
           graphqlTypes.length === 0
         "
-        class="flex flex-col items-center justify-center p-4 text-secondaryLight"
+        :src="`/images/states/${colorMode.value}/add_comment.svg`"
+        :alt="`${t('empty.documentation')}`"
+        :text="t('empty.documentation')"
       >
-        <img
-          :src="`/images/states/${colorMode.value}/add_comment.svg`"
-          loading="lazy"
-          class="inline-flex flex-col object-contain object-center w-16 h-16 my-4"
-          :alt="`${t('empty.documentation')}`"
-        />
-        <span class="mb-4 text-center">
-          {{ t("empty.documentation") }}
-        </span>
-      </div>
+      </HoppSmartPlaceholder>
       <div v-else>
         <div
           class="sticky top-0 z-10 flex flex-shrink-0 overflow-x-auto bg-primary"
@@ -172,20 +165,13 @@
         ref="schemaEditor"
         class="flex flex-col flex-1"
       ></div>
-      <div
+      <HoppSmartPlaceholder
         v-else
-        class="flex flex-col items-center justify-center p-4 text-secondaryLight"
+        :src="`/images/states/${colorMode.value}/blockchain.svg`"
+        :alt="`${t('empty.schema')}`"
+        :text="t('empty.schema')"
       >
-        <img
-          :src="`/images/states/${colorMode.value}/blockchain.svg`"
-          loading="lazy"
-          class="inline-flex flex-col object-contain object-center w-16 h-16 my-4"
-          :alt="`${t('empty.schema')}`"
-        />
-        <span class="mb-4 text-center">
-          {{ t("empty.schema") }}
-        </span>
-      </div>
+      </HoppSmartPlaceholder>
     </HoppSmartTab>
   </HoppSmartTabs>
 </template>

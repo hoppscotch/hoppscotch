@@ -4,30 +4,27 @@
       <div class="flex">
         <HoppButtonPrimary
           :icon="IconUserPlus"
-          label="Add Members"
+          :label="t('teams.add_members')"
           filled
           @click="showInvite = !showInvite"
         />
       </div>
 
       <div class="border rounded border-divider my-8">
-        <div
+        <HoppSmartPlaceholder
           v-if="team?.teamMembers?.length === 0"
-          class="flex flex-col items-center justify-center p-4 text-secondaryLight"
+          text="No members in this team. Add members to this team to collaborate"
         >
-          <span class="pb-4 text-center">
-            No members in this team. Add members to this team to collaborate
-          </span>
           <HoppButtonSecondary
             :icon="IconUserPlus"
-            label="Add Members"
+            :label="t('teams.add_members')"
             @click="
               () => {
                 showInvite = !showInvite;
               }
             "
           />
-        </div>
+        </HoppSmartPlaceholder>
         <div v-else class="divide-y divide-dividerLight">
           <div
             v-for="(member, index) in membersList"
@@ -122,7 +119,7 @@
               <HoppButtonSecondary
                 id="member"
                 v-tippy="{ theme: 'tooltip' }"
-                title="Remove"
+                :title="t('teams.remove')"
                 :icon="IconUserMinus"
                 color="red"
                 :loading="isLoadingIndex === index"
@@ -134,12 +131,16 @@
       </div>
       <div v-if="!fetching && !team" class="flex flex-col items-center">
         <icon-lucide-help-circle class="mb-4 svg-icons" />
-        Something went wrong. Please try again later.
+        {{ t('teams.error') }}
       </div>
     </div>
 
     <div class="flex">
-      <HoppButtonPrimary label="Save" outline @click="saveUpdatedTeam" />
+      <HoppButtonPrimary
+        :label="t('teams.save')"
+        outline
+        @click="saveUpdatedTeam"
+      />
     </div>
     <TeamsInvite
       :show="showInvite"
@@ -163,7 +164,7 @@ import IconChevronDown from '~icons/lucide/chevron-down';
 import { useClientHandle, useMutation } from '@urql/vue';
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
-import { useToast } from '../../composables/toast';
+import { useToast } from '~/composables/toast';
 import {
   ChangeUserRoleInTeamByAdminDocument,
   TeamInfoDocument,
@@ -172,6 +173,9 @@ import {
   TeamInfoQuery,
 } from '../../helpers/backend/graphql';
 import { HoppButtonPrimary, HoppButtonSecondary } from '@hoppscotch/ui';
+import { useI18n } from '~/composables/i18n';
+
+const t = useI18n();
 
 const toast = useToast();
 
@@ -195,7 +199,7 @@ const getTeamInfo = async () => {
     .toPromise();
 
   if (result.error) {
-    return toast.error('Unable to Load Team Info..');
+    return toast.error(`${t('teams.load_info_error')}`);
   }
   if (result.data?.admin.teamInfo) {
     team.value = result.data.admin.teamInfo;
@@ -301,10 +305,10 @@ const saveUpdatedTeam = async () => {
       update.role
     );
     if (updateMemberRoleResult.error) {
-      toast.error('Role updation has failed!!');
+      toast.error(`${t('state.role_update_failed')}`);
       roleUpdates.value = [];
     } else {
-      toast.success('Roles updated successfully!!');
+      toast.success(`${t('state.role_update_success')}`);
       roleUpdates.value = [];
     }
     isLoading.value = false;
@@ -334,12 +338,12 @@ const removeExistingTeamMember = async (userID: string, index: number) => {
     team.value.id
   )();
   if (removeTeamMemberResult.error) {
-    toast.error(`Member couldn't be removed!!`);
+    toast.error(`${t('state.remove_member_failure')}`);
   } else {
     team.value.teamMembers = team.value.teamMembers?.filter(
       (member: any) => member.user.uid !== userID
     );
-    toast.success('Member removed successfully!!');
+    toast.success(`${t('state.remove_member_success')}`);
   }
   isLoadingIndex.value = null;
   emit('update-team');

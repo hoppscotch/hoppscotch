@@ -28,7 +28,7 @@
           <div class="flex">
             <HoppButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
-              title="Remove"
+              :title="t('teams.remove')"
               :icon="IconTrash"
               color="red"
               :loading="isLoadingIndex === index"
@@ -37,16 +37,15 @@
           </div>
         </div>
       </div>
-      <div
+      <HoppSmartPlaceholder
         v-if="team && pendingInvites?.length === 0"
-        class="flex flex-col items-center justify-center p-4 text-secondaryLight"
+        text="No pending invites"
       >
-        <span class="text-center"> No pending invites </span>
-      </div>
-      <div v-if="!fetching && error" class="flex flex-col items-center p-4">
-        <icon-lucide-help-circle class="mb-4 svg-icons" />
-        Something went wrong. Please try again later.
-      </div>
+        <div v-if="!fetching && error" class="flex flex-col items-center p-4">
+          <icon-lucide-help-circle class="mb-4 svg-icons" />
+          Something went wrong. Please try again later.
+        </div>
+      </HoppSmartPlaceholder>
     </div>
   </div>
 </template>
@@ -62,6 +61,9 @@ import {
 } from '~/helpers/backend/graphql';
 import { useToast } from '~/composables/toast';
 import { useRoute } from 'vue-router';
+import { useI18n } from '~/composables/i18n';
+
+const t = useI18n();
 
 const toast = useToast();
 
@@ -83,7 +85,7 @@ const getTeamInfo = async () => {
 
   if (result.error) {
     error.value = true;
-    return toast.error('Unable to load team details..');
+    return toast.error(`${t('teams.load_info_error')}`);
   }
 
   if (result.data?.admin.teamInfo) {
@@ -106,7 +108,7 @@ const removeInvitee = async (id: string, index: number) => {
   isLoadingIndex.value = index;
   const result = await revokeTeamInvitation(id);
   if (result.error) {
-    toast.error('Removal of invitee failed!!');
+    toast.error(`${t('state.remove_invitee_failure')}`);
   } else {
     if (pendingInvites.value) {
       pendingInvites.value = pendingInvites.value.filter(
@@ -114,7 +116,7 @@ const removeInvitee = async (id: string, index: number) => {
           return invite.id !== id;
         }
       );
-      toast.success('Removal of invitee is successfull!!');
+      toast.success(`${t('state.remove_invitee_success')}`);
     }
   }
   isLoadingIndex.value = null;

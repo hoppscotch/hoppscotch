@@ -160,25 +160,19 @@
           @duplicate-request="emit('duplicate-request', $event)"
           @select="emit('select', $event)"
         />
-        <div
+
+        <HoppSmartPlaceholder
           v-if="
             folder.folders &&
             folder.folders.length === 0 &&
             folder.requests &&
             folder.requests.length === 0
           "
-          class="flex flex-col items-center justify-center p-4 text-secondaryLight"
+          :src="`/images/states/${colorMode.value}/pack.svg`"
+          :alt="`${t('empty.folder')}`"
+          :text="t('empty.folder')"
         >
-          <img
-            :src="`/images/states/${colorMode.value}/pack.svg`"
-            loading="lazy"
-            class="inline-flex flex-col object-contain object-center w-16 h-16 mb-4"
-            :alt="`${t('empty.folder')}`"
-          />
-          <span class="text-center">
-            {{ t("empty.folder") }}
-          </span>
-        </div>
+        </HoppSmartPlaceholder>
       </div>
     </div>
     <HoppSmartConfirmModal

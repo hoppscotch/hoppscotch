@@ -193,7 +193,7 @@ import IconTrash2 from "~icons/lucide/trash-2"
 import IconEdit from "~icons/lucide/edit"
 import IconFolder from "~icons/lucide/folder"
 import IconFolderOpen from "~icons/lucide/folder-open"
-import { PropType, ref, computed, watch } from "vue"
+import { ref, computed, watch } from "vue"
 import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
 import { useI18n } from "@composables/i18n"
 import { TippyComponent } from "vue-tippy"
@@ -209,67 +209,36 @@ type FolderType = "collection" | "folder"
 
 const t = useI18n()
 
-const props = defineProps({
-  id: {
-    type: String,
-    default: "",
-    required: true,
-  },
-  parentID: {
-    type: String as PropType<string | null>,
-    default: null,
-    required: false,
-  },
-  data: {
-    type: Object as PropType<HoppCollection<HoppRESTRequest> | TeamCollection>,
-    default: () => ({}),
-    required: true,
-  },
-  collectionsType: {
-    type: String as PropType<CollectionType>,
-    default: "my-collections",
-    required: true,
-  },
-  /**
-   * Collection component can be used for both collections and folders.
-   * folderType is used to determine which one it is.
-   */
-  folderType: {
-    type: String as PropType<FolderType>,
-    default: "collection",
-    required: true,
-  },
-  isOpen: {
-    type: Boolean,
-    default: false,
-    required: true,
-  },
-  isSelected: {
-    type: Boolean as PropType<boolean | null>,
-    default: false,
-    required: false,
-  },
-  exportLoading: {
-    type: Boolean,
-    default: false,
-    required: false,
-  },
-  hasNoTeamAccess: {
-    type: Boolean,
-    default: false,
-    required: false,
-  },
-  collectionMoveLoading: {
-    type: Array as PropType<string[]>,
-    default: () => [],
-    required: false,
-  },
-  isLastItem: {
-    type: Boolean,
-    default: false,
-    required: false,
-  },
-})
+const props = withDefaults(
+  defineProps<{
+    id: string
+    parentID?: string | null
+    data: HoppCollection<HoppRESTRequest> | TeamCollection
+    /**
+     * Collection component can be used for both collections and folders.
+     * folderType is used to determine which one it is.
+     */
+    collectionsType: CollectionType
+    folderType: FolderType
+    isOpen: boolean
+    isSelected?: boolean | null
+    exportLoading?: boolean
+    hasNoTeamAccess?: boolean
+    collectionMoveLoading?: string[]
+    isLastItem?: boolean
+  }>(),
+  {
+    id: "",
+    parentID: null,
+    collectionsType: "my-collections",
+    folderType: "collection",
+    isOpen: false,
+    isSelected: false,
+    exportLoading: false,
+    hasNoTeamAccess: false,
+    isLastItem: false,
+  }
+)
 
 const emit = defineEmits<{
   (event: "toggle-children"): void
@@ -448,8 +417,13 @@ const notSameDestination = computed(() => {
 })
 
 const isCollLoading = computed(() => {
-  if (props.collectionMoveLoading.length > 0 && props.data.id) {
-    return props.collectionMoveLoading.includes(props.data.id)
+  const { collectionMoveLoading } = props
+  if (
+    collectionMoveLoading &&
+    collectionMoveLoading.length > 0 &&
+    props.data.id
+  ) {
+    return collectionMoveLoading.includes(props.data.id)
   } else {
     return false
   }

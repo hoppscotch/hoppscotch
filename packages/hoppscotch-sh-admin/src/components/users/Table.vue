@@ -2,10 +2,10 @@
   <table class="w-full">
     <thead>
       <tr class="text-secondary border-b border-dividerDark text-sm text-left">
-        <th class="px-3 pb-3">User ID</th>
-        <th class="px-3 pb-3">Name</th>
-        <th class="px-3 pb-3">Email</th>
-        <th class="px-3 pb-3">Date</th>
+        <th class="px-3 pb-3">{{ t('users.id') }}</th>
+        <th class="px-3 pb-3">{{ t('users.name') }}</th>
+        <th class="px-3 pb-3">{{ t('users.email') }}</th>
+        <th class="px-3 pb-3">{{ t('users.date') }}</th>
         <th class="px-3 pb-3"></th>
       </tr>
     </thead>
@@ -36,16 +36,16 @@
               v-if="user.isAdmin"
               class="text-xs font-medium px-3 py-0.5 rounded-full bg-green-900 text-green-300"
             >
-              Admin
+              {{ t('users.admin') }}
             </span>
           </div>
           <div v-else class="flex items-center space-x-3">
-            <span> (Unnamed user) </span>
+            <span> {{ t('users.unnamed') }} </span>
             <span
               v-if="user.isAdmin"
               class="text-xs font-medium px-3 py-0.5 rounded-full bg-green-900 text-green-300"
             >
-              Admin
+              {{ t('users.admin') }}
             </span>
           </div>
         </td>
@@ -138,6 +138,9 @@ import IconUserCheck from '~icons/lucide/user-check';
 import IconMoreHorizontal from '~icons/lucide/more-horizontal';
 import { UsersListQuery } from '~/helpers/backend/graphql';
 import { TippyComponent } from 'vue-tippy';
+import { useI18n } from '~/composables/i18n';
+
+const t = useI18n();
 
 defineProps<{
   usersList: UsersListQuery['admin']['allUsers'];

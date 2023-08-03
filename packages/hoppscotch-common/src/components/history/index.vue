@@ -108,31 +108,23 @@
         />
       </details>
     </div>
-    <div
+    <HoppSmartPlaceholder
       v-if="history.length === 0"
-      class="flex flex-col items-center justify-center p-4 text-secondaryLight"
+      :src="`/images/states/${colorMode.value}/history.svg`"
+      :alt="`${t('empty.history')}`"
+      :text="t('empty.history')"
     >
-      <img
-        :src="`/images/states/${colorMode.value}/history.svg`"
-        loading="lazy"
-        class="inline-flex flex-col object-contain object-center w-16 h-16 my-4"
-        :alt="`${t('empty.history')}`"
-      />
-      <span class="mb-4 text-center">
-        {{ t("empty.history") }}
-      </span>
-    </div>
-    <div
+    </HoppSmartPlaceholder>
+    <HoppSmartPlaceholder
       v-else-if="
         Object.keys(filteredHistoryGroups).length === 0 ||
         filteredHistory.length === 0
       "
-      class="flex flex-col items-center justify-center p-4 text-secondaryLight"
+      :text="`${t('state.nothing_found')} ‟${filterText || filterSelection}”`"
     >
-      <icon-lucide-search class="pb-2 opacity-75 svg-icons" />
-      <span class="mt-2 mb-4 text-center">
-        {{ t("state.nothing_found") }} "{{ filterText || filterSelection }}"
-      </span>
+      <template #icon>
+        <icon-lucide-search class="pb-2 opacity-75 svg-icons" />
+      </template>
       <HoppButtonSecondary
         :label="t('action.clear')"
         outline
@@ -143,7 +135,7 @@
           }
         "
       />
-    </div>
+    </HoppSmartPlaceholder>
     <HoppSmartConfirmModal
       :show="confirmRemove"
       :title="`${t('confirm.remove_history')}`"
@@ -184,6 +176,7 @@ import {
 import HistoryRestCard from "./rest/Card.vue"
 import HistoryGraphqlCard from "./graphql/Card.vue"
 import { createNewTab } from "~/helpers/rest/tab"
+import { defineActionHandler } from "~/helpers/actions"
 
 type HistoryEntry = GQLHistoryEntry | RESTHistoryEntry
 
@@ -337,4 +330,8 @@ const toggleStar = (entry: HistoryEntry) => {
     toggleRESTHistoryEntryStar(entry as RESTHistoryEntry)
   else toggleGraphqlHistoryEntryStar(entry as GQLHistoryEntry)
 }
+
+defineActionHandler("history.clear", () => {
+  confirmRemove.value = true
+})
 </script>

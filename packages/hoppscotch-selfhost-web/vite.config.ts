@@ -78,16 +78,14 @@ export default defineConfig({
       routeStyle: "nuxt",
       dirs: "../hoppscotch-common/src/pages",
       importMode: "async",
-      onRoutesGenerated(routes) {
-        // HACK: See: https://github.com/jbaubree/vite-plugin-pages-sitemap/issues/173
-        return ((generateSitemap as any).default as typeof generateSitemap)({
+      onRoutesGenerated: (routes) =>
+        generateSitemap({
           routes,
           nuxtStyle: true,
           allowRobots: true,
           dest: ".sitemap-gen",
           hostname: ENV.VITE_BASE_URL,
-        })
-      },
+        }),
     }),
     StaticCopy({
       targets: [

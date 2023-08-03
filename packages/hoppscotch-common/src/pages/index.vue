@@ -84,6 +84,13 @@
       :show="savingRequest"
       @hide-modal="onSaveModalClose"
     />
+    <AppContextMenu
+      v-if="contextMenu.show"
+      :show="contextMenu.show"
+      :position="contextMenu.position"
+      :text="contextMenu.text"
+      @hide-modal="contextMenu.show = false"
+    />
   </div>
 </template>
 
@@ -108,7 +115,7 @@ import {
   updateTabOrdering,
 } from "~/helpers/rest/tab"
 import { getDefaultRESTRequest } from "~/helpers/rest/default"
-import { invokeAction } from "~/helpers/actions"
+import { defineActionHandler, invokeAction } from "~/helpers/actions"
 import { onLoggedIn } from "~/composables/auth"
 import { platform } from "~/platform"
 import {
@@ -137,6 +144,24 @@ const reqName = ref<string>("")
 
 const t = useI18n()
 const toast = useToast()
+
+type PopupDetails = {
+  show: boolean
+  position: {
+    top: number
+    left: number
+  }
+  text: string | null
+}
+
+const contextMenu = ref<PopupDetails>({
+  show: false,
+  position: {
+    top: 0,
+    left: 0,
+  },
+  text: null,
+})
 
 const tabs = getActiveTabs()
 
@@ -365,7 +390,27 @@ function oAuthURL() {
   })
 }
 
+defineActionHandler("contextmenu.open", ({ position, text }) => {
+  if (text) {
+    contextMenu.value = {
+      show: true,
+      position,
+      text,
+    }
+  } else {
+    contextMenu.value = {
+      show: false,
+      position,
+      text,
+    }
+  }
+})
+
 setupTabStateSync()
 bindRequestToURLParams()
 oAuthURL()
+
+defineActionHandler("rest.request.open", ({ doc }) => {
+  createNewTab(doc)
+})
 </script>

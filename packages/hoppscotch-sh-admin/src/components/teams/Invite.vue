@@ -111,18 +111,14 @@
               />
             </div>
           </div>
-          <div
+          <HoppSmartPlaceholder
             v-if="newMembersList.length === 0"
-            class="flex flex-col items-center justify-center p-4 text-secondaryLight"
+            :src="`/images/states/dark/add_group.svg`"
+            alt="No invites"
+            text="No invites"
           >
-            <img
-              :src="`/images/states/dark/add_group.svg`"
-              loading="lazy"
-              class="inline-flex flex-col object-contain object-center w-16 h-16 mb-4"
-            />
-            <span class="pb-4 text-center"> No invites </span>
             <HoppButtonSecondary label="Add new" filled @click="addNewMember" />
-          </div>
+          </HoppSmartPlaceholder>
         </div>
         <div
           v-if="newMembersList.length"
@@ -131,7 +127,9 @@
           <span
             class="flex items-center justify-center px-2 py-1 mb-4 font-semibold border rounded-full bg-primaryDark border-divider"
           >
-            <icon-lucide-help-circle class="mr-2 text-secondaryLight svg-icons" />
+            <icon-lucide-help-circle
+              class="mr-2 text-secondaryLight svg-icons"
+            />
             Roles
           </span>
           <p>
@@ -209,6 +207,9 @@ import IconCircleDot from '~icons/lucide/circle-dot';
 import IconCircle from '~icons/lucide/circle';
 import { computed } from 'vue';
 import { usePagedQuery } from '~/composables/usePagedQuery';
+import { useI18n } from '~/composables/i18n';
+
+const t = useI18n();
 
 // Get Users List
 const { data } = useQuery({ query: MetricsDocument });
@@ -286,7 +287,7 @@ const addUserasTeamMember = async () => {
 
   if (O.isNone(validationResult)) {
     // Error handling for no validation
-    toast.error('Invalid User!!');
+    toast.error(`${t('users.invalid_user')}`);
     addingUserToTeam.value = false;
     return;
   }
@@ -318,12 +319,12 @@ const addUserToTeam = async (
     .then((result) => {
       if (result.error) {
         if (result.error.toString() == '[GraphQL] user/not_found') {
-          toast.error('User not found in the infra!!');
+          toast.error(`${t('state.user_not_found')}`);
         } else {
-          toast.error('Failed to add user to the team!!');
+          toast.error(`${t('state.add_user_failure')}`);
         }
       } else {
-        toast.success('User is now a member of the team!!');
+        toast.success(`${t('state.add_user_success')}`);
         emit('member');
       }
     });

@@ -11,6 +11,7 @@ import {
   INVALID_EMAIL,
   ONLY_ONE_ADMIN_ACCOUNT,
   TEAM_INVITE_ALREADY_MEMBER,
+  TEAM_INVITE_NO_INVITE_FOUND,
   USER_ALREADY_INVITED,
   USER_IS_ADMIN,
   USER_NOT_FOUND,
@@ -415,5 +416,20 @@ export class AdminService {
     const team = await this.teamService.getTeamWithIDTE(teamID)();
     if (E.isLeft(team)) return E.left(team.left);
     return E.right(team.right);
+  }
+
+  /**
+   * Revoke a team invite by ID
+   * @param inviteID Team Invite ID
+   * @returns an Either of boolean or error
+   */
+  async revokeTeamInviteByID(inviteID: string) {
+    const teamInvite = await this.teamInvitationService.revokeInvitation(
+      inviteID,
+    );
+
+    if (E.isLeft(teamInvite)) return E.left(teamInvite.left);
+
+    return E.right(teamInvite.right);
   }
 }

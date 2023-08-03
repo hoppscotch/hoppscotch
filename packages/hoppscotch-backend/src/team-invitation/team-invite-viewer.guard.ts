@@ -15,7 +15,7 @@ import { TeamService } from 'src/team/team.service';
  * This guard only allows user to execute the resolver
  * 1. If user is invitee, allow
  * 2. Or else, if user is team member, allow
- * 
+ *
  * TLDR: Allow if user is invitee or team member
  */
 @Injectable()

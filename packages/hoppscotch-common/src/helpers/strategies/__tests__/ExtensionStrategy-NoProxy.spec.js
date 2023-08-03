@@ -1,3 +1,4 @@
+import { vi, describe, expect, test, beforeEach } from "vitest"
 import extensionStrategy, {
   hasExtensionInstalled,
   hasChromeExtensionInstalled,
@@ -5,12 +6,12 @@ import extensionStrategy, {
   cancelRunningExtensionRequest,
 } from "../ExtensionStrategy"
 
-jest.mock("../../utils/b64", () => ({
+vi.mock("../../utils/b64", () => ({
   __esModule: true,
-  decodeB64StringToArrayBuffer: jest.fn((data) => `${data}-converted`),
+  decodeB64StringToArrayBuffer: vi.fn((data) => `${data}-converted`),
 }))
 
-jest.mock("~/newstore/settings", () => {
+vi.mock("~/newstore/settings", () => {
   return {
     __esModule: true,
     settingsStore: {
@@ -39,32 +40,32 @@ describe("hasExtensionInstalled", () => {
 describe("hasChromeExtensionInstalled", () => {
   test("returns true if extension is hooked and browser is chrome", () => {
     global.__POSTWOMAN_EXTENSION_HOOK__ = {}
-    jest.spyOn(navigator, "userAgent", "get").mockReturnValue("Chrome")
-    jest.spyOn(navigator, "vendor", "get").mockReturnValue("Google")
+    vi.spyOn(navigator, "userAgent", "get").mockReturnValue("Chrome")
+    vi.spyOn(navigator, "vendor", "get").mockReturnValue("Google")
 
     expect(hasChromeExtensionInstalled()).toEqual(true)
   })
 
   test("returns false if extension is hooked and browser is not chrome", () => {
     global.__POSTWOMAN_EXTENSION_HOOK__ = {}
-    jest.spyOn(navigator, "userAgent", "get").mockReturnValue("Firefox")
-    jest.spyOn(navigator, "vendor", "get").mockReturnValue("Google")
+    vi.spyOn(navigator, "userAgent", "get").mockReturnValue("Firefox")
+    vi.spyOn(navigator, "vendor", "get").mockReturnValue("Google")
 
     expect(hasChromeExtensionInstalled()).toEqual(false)
   })
 
   test("returns false if extension not installed and browser is chrome", () => {
     global.__POSTWOMAN_EXTENSION_HOOK__ = undefined
-    jest.spyOn(navigator, "userAgent", "get").mockReturnValue("Chrome")
-    jest.spyOn(navigator, "vendor", "get").mockReturnValue("Google")
+    vi.spyOn(navigator, "userAgent", "get").mockReturnValue("Chrome")
+    vi.spyOn(navigator, "vendor", "get").mockReturnValue("Google")
 
     expect(hasChromeExtensionInstalled()).toEqual(false)
   })
 
   test("returns false if extension not installed and browser is not chrome", () => {
     global.__POSTWOMAN_EXTENSION_HOOK__ = undefined
-    jest.spyOn(navigator, "userAgent", "get").mockReturnValue("Firefox")
-    jest.spyOn(navigator, "vendor", "get").mockReturnValue("Google")
+    vi.spyOn(navigator, "userAgent", "get").mockReturnValue("Firefox")
+    vi.spyOn(navigator, "vendor", "get").mockReturnValue("Google")
 
     expect(hasChromeExtensionInstalled()).toEqual(false)
   })
@@ -73,35 +74,35 @@ describe("hasChromeExtensionInstalled", () => {
 describe("hasFirefoxExtensionInstalled", () => {
   test("returns true if extension is hooked and browser is firefox", () => {
     global.__POSTWOMAN_EXTENSION_HOOK__ = {}
-    jest.spyOn(navigator, "userAgent", "get").mockReturnValue("Firefox")
+    vi.spyOn(navigator, "userAgent", "get").mockReturnValue("Firefox")
 
     expect(hasFirefoxExtensionInstalled()).toEqual(true)
   })
 
   test("returns false if extension is hooked and browser is not firefox", () => {
     global.__POSTWOMAN_EXTENSION_HOOK__ = {}
-    jest.spyOn(navigator, "userAgent", "get").mockReturnValue("Chrome")
+    vi.spyOn(navigator, "userAgent", "get").mockReturnValue("Chrome")
 
     expect(hasFirefoxExtensionInstalled()).toEqual(false)
   })
 
   test("returns false if extension not installed and browser is firefox", () => {
     global.__POSTWOMAN_EXTENSION_HOOK__ = undefined
-    jest.spyOn(navigator, "userAgent", "get").mockReturnValue("Firefox")
+    vi.spyOn(navigator, "userAgent", "get").mockReturnValue("Firefox")
 
     expect(hasFirefoxExtensionInstalled()).toEqual(false)
   })
 
   test("returns false if extension not installed and browser is not firefox", () => {
     global.__POSTWOMAN_EXTENSION_HOOK__ = undefined
-    jest.spyOn(navigator, "userAgent", "get").mockReturnValue("Chrome")
+    vi.spyOn(navigator, "userAgent", "get").mockReturnValue("Chrome")
 
     expect(hasFirefoxExtensionInstalled()).toEqual(false)
   })
 })
 
 describe("cancelRunningExtensionRequest", () => {
-  const cancelFunc = jest.fn()
+  const cancelFunc = vi.fn()
 
   beforeEach(() => {
     cancelFunc.mockClear()
@@ -109,7 +110,7 @@ describe("cancelRunningExtensionRequest", () => {
 
   test("cancels request if extension installed and function present in hook", () => {
     global.__POSTWOMAN_EXTENSION_HOOK__ = {
-      cancelRunningRequest: cancelFunc,
+      cancelRequest: cancelFunc,
     }
 
     cancelRunningExtensionRequest()
@@ -125,7 +126,7 @@ describe("cancelRunningExtensionRequest", () => {
 })
 
 describe("extensionStrategy", () => {
-  const sendReqFunc = jest.fn()
+  const sendReqFunc = vi.fn()
 
   beforeEach(() => {
     sendReqFunc.mockClear()

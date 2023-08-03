@@ -1,12 +1,13 @@
 <template>
   <div class="flex flex-col flex-1 overflow-auto whitespace-nowrap">
-    <div
+    <HoppSmartPlaceholder
       v-if="responseString === 'loading'"
-      class="flex flex-col items-center justify-center p-4 text-secondaryLight"
+      :text="t('state.loading')"
     >
-      <HoppSmartSpinner class="my-4" />
-      <span class="text-secondaryLight">{{ t("state.loading") }}</span>
-    </div>
+      <template #icon>
+        <HoppSmartSpinner class="my-4" />
+      </template>
+    </HoppSmartPlaceholder>
     <div v-else-if="responseString" class="flex flex-col flex-1">
       <div
         class="sticky top-0 z-10 flex items-center justify-between flex-shrink-0 pl-4 overflow-x-auto border-b bg-primary border-dividerLight"

@@ -1,10 +1,11 @@
-import { ForbiddenException, HttpException, HttpStatus } from '@nestjs/common';
+import { HttpException, HttpStatus } from '@nestjs/common';
 import { DateTime } from 'luxon';
 import { AuthError } from 'src/types/AuthError';
 import { AuthTokens } from 'src/types/AuthTokens';
 import { Response } from 'express';
 import * as cookie from 'cookie';
-import { COOKIES_NOT_FOUND } from 'src/errors';
+import { AUTH_PROVIDER_NOT_SPECIFIED, COOKIES_NOT_FOUND } from 'src/errors';
+import { throwErr } from 'src/utils';
 
 enum AuthTokenType {
   ACCESS_TOKEN = 'access_token',
@@ -14,6 +15,13 @@ enum AuthTokenType {
 export enum Origin {
   ADMIN = 'admin',
   APP = 'app',
+}
+
+export enum AuthProvider {
+  GOOGLE = 'GOOGLE',
+  GITHUB = 'GITHUB',
+  MICROSOFT = 'MICROSOFT',
+  EMAIL = 'EMAIL',
 }
 
 /**
@@ -97,3 +105,25 @@ export const subscriptionContextCookieParser = (rawCookies: string) => {
     refresh_token: cookies[AuthTokenType.REFRESH_TOKEN],
   };
 };
+
+/**
+ * Check to see if given auth provider is present in the ALLOWED_AUTH_PROVIDERS env variable
+ *
+ * @param provider Provider we want to check the presence of
+ * @returns Boolean if provider specified is present or not
+ */
+export function authProviderCheck(provider: string) {
+  if (!provider) {
+    throwErr(AUTH_PROVIDER_NOT_SPECIFIED);
+  }
+
+  const envVariables = process.env.ALLOWED_AUTH_PROVIDERS
+    ? process.env.ALLOWED_AUTH_PROVIDERS.split(',').map((provider) =>
+        provider.trim().toUpperCase(),
+      )
+    : [];
+
+  if (!envVariables.includes(provider.toUpperCase())) return false;
+
+  return true;
+}

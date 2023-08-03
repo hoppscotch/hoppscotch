@@ -5,10 +5,13 @@ import * as cookieParser from 'cookie-parser';
 import { VersioningType } from '@nestjs/common';
 import * as session from 'express-session';
 import { emitGQLSchemaFile } from './gql-schema';
+import { checkEnvironmentAuthProvider } from './utils';
 
 async function bootstrap() {
   console.log(`Running in production: ${process.env.PRODUCTION}`);
   console.log(`Port: ${process.env.PORT}`);
+
+  checkEnvironmentAuthProvider();
 
   const app = await NestFactory.create(AppModule);
 

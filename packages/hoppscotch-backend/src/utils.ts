@@ -9,7 +9,8 @@ import * as E from 'fp-ts/Either';
 import * as A from 'fp-ts/Array';
 import { TeamMemberRole } from './team/team.model';
 import { User } from './user/user.model';
-import { JSON_INVALID } from './errors';
+import { ENV_EMPTY_AUTH_PROVIDERS, ENV_NOT_FOUND_KEY_AUTH_PROVIDERS, ENV_NOT_SUPPORT_AUTH_PROVIDERS, JSON_INVALID } from './errors';
+import { AuthProvider } from './auth/helper';
 
 /**
  * A workaround to throw an exception in an expression.
@@ -151,4 +152,32 @@ export function isValidLength(title: string, length: number) {
   }
 
   return true;
+}
+
+/**
+ * This function is called by bootstrap() in main.ts
+ *  It checks if the "ALLOWED_AUTH_PROVIDERS" environment variable is properly set or not.
+ * If not, it throws an error.
+ */
+export function checkEnvironmentAuthProvider() {
+  if (!process.env.hasOwnProperty('ALLOWED_AUTH_PROVIDERS')) {
+    throw new Error(ENV_NOT_FOUND_KEY_AUTH_PROVIDERS);
+  }
+
+  if (process.env.ALLOWED_AUTH_PROVIDERS === '') {
+    throw new Error(ENV_EMPTY_AUTH_PROVIDERS);
+  }
+
+  const givenAuthProviders = process.env.ALLOWED_AUTH_PROVIDERS.split(',').map(
+    (provider) => provider.toLocaleUpperCase(),
+  );
+  const supportedAuthProviders = Object.values(AuthProvider).map(
+    (provider: string) => provider.toLocaleUpperCase(),
+  );
+
+  for (const givenAuthProvider of givenAuthProviders) {
+    if (!supportedAuthProviders.includes(givenAuthProvider)) {
+      throw new Error(ENV_NOT_SUPPORT_AUTH_PROVIDERS);
+    }
+  }
 }

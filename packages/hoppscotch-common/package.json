@@ -1,7 +1,7 @@
 {
   "name": "@hoppscotch/common",
   "private": true,
-  "version": "2023.4.7",
+  "version": "2023.4.8",
   "scripts": {
     "dev": "pnpm exec npm-run-all -p -l dev:*",
     "dev:vite": "vite",

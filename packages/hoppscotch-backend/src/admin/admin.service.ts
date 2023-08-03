@@ -181,7 +181,7 @@ export class AdminService {
    * @returns an array team invitations
    */
   async pendingInvitationCountInTeam(teamID: string) {
-    const invitations = await this.teamInvitationService.getAllTeamInvitations(
+    const invitations = await this.teamInvitationService.getTeamInvitations(
       teamID,
     );
 
@@ -257,7 +257,7 @@ export class AdminService {
       if (E.isRight(userInvitation)) {
         await this.teamInvitationService.revokeInvitation(
           userInvitation.right.id,
-        )();
+        );
       }
 
       return E.right(addedUser.right);

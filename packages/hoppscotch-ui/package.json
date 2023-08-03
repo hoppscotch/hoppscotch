@@ -71,7 +71,7 @@
     "unplugin-vue-components": "^0.21.0",
     "vite": "^3.2.3",
     "vite-plugin-checker": "^0.5.1",
-    "vite-plugin-dts": "2.0.0-beta.3",
+    "vite-plugin-dts": "3.2.0",
     "vite-plugin-fonts": "^0.6.0",
     "vite-plugin-html-config": "^1.0.10",
     "vite-plugin-inspect": "^0.7.4",

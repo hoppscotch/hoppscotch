@@ -13,6 +13,11 @@ import { throwErr } from 'src/utils';
 import { GqlTeamEnvTeamGuard } from './gql-team-env-team.guard';
 import { TeamEnvironment } from './team-environments.model';
 import { TeamEnvironmentsService } from './team-environments.service';
+import * as E from 'fp-ts/Either';
+import {
+  CreateTeamEnvironmentArgs,
+  UpdateTeamEnvironmentArgs,
+} from './input-type.args';
 
 @UseGuards(GqlThrottlerGuard)
 @Resolver(() => 'TeamEnvironment')
@@ -29,29 +34,18 @@ export class TeamEnvironmentsResolver {
   })
   @UseGuards(GqlAuthGuard, GqlTeamMemberGuard)
   @RequiresTeamRole(TeamMemberRole.OWNER, TeamMemberRole.EDITOR)
-  createTeamEnvironment(
-    @Args({
-      name: 'name',
-      description: 'Name of the Team Environment',
-    })
-    name: string,
-    @Args({
-      name: 'teamID',
-      description: 'ID of the Team',
-      type: () => ID,
-    })
-    teamID: string,
-    @Args({
-      name: 'variables',
-      description: 'JSON string of the variables object',
-    })
-    variables: string,
+  async createTeamEnvironment(
+    @Args() args: CreateTeamEnvironmentArgs,
   ): Promise<TeamEnvironment> {
-    return this.teamEnvironmentsService.createTeamEnvironment(
-      name,
-      teamID,
-      variables,
-    )();
+    const teamEnvironment =
+      await this.teamEnvironmentsService.createTeamEnvironment(
+        args.name,
+        args.teamID,
+        args.variables,
+      );
+
+    if (E.isLeft(teamEnvironment)) throwErr(teamEnvironment.left);
+    return teamEnvironment.right;
   }
 
   @Mutation(() => Boolean, {
@@ -59,7 +53,7 @@ export class TeamEnvironmentsResolver {
   })
   @UseGuards(GqlAuthGuard, GqlTeamEnvTeamGuard)
   @RequiresTeamRole(TeamMemberRole.OWNER, TeamMemberRole.EDITOR)
-  deleteTeamEnvironment(
+  async deleteTeamEnvironment(
     @Args({
       name: 'id',
       description: 'ID of the Team Environment',
@@ -67,10 +61,12 @@ export class TeamEnvironmentsResolver {
     })
     id: string,
   ): Promise<boolean> {
-    return pipe(
-      this.teamEnvironmentsService.deleteTeamEnvironment(id),
-      TE.getOrElse(throwErr),
-    )();
+    const isDeleted = await this.teamEnvironmentsService.deleteTeamEnvironment(
+      id,
+    );
+
+    if (E.isLeft(isDeleted)) throwErr(isDeleted.left);
+    return isDeleted.right;
   }
 
   @Mutation(() => TeamEnvironment, {
@@ -79,28 +75,19 @@ export class TeamEnvironmentsResolver {
   })
   @UseGuards(GqlAuthGuard, GqlTeamEnvTeamGuard)
   @RequiresTeamRole(TeamMemberRole.OWNER, TeamMemberRole.EDITOR)
-  updateTeamEnvironment(
-    @Args({
-      name: 'id',
-      description: 'ID of the Team Environment',
-      type: () => ID,
-    })
-    id: string,
-    @Args({
-      name: 'name',
-      description: 'Name of the Team Environment',
-    })
-    name: string,
-    @Args({
-      name: 'variables',
-      description: 'JSON string of the variables object',
-    })
-    variables: string,
+  async updateTeamEnvironment(
+    @Args()
+    args: UpdateTeamEnvironmentArgs,
   ): Promise<TeamEnvironment> {
-    return pipe(
-      this.teamEnvironmentsService.updateTeamEnvironment(id, name, variables),
-      TE.getOrElse(throwErr),
-    )();
+    const updatedTeamEnvironment =
+      await this.teamEnvironmentsService.updateTeamEnvironment(
+        args.id,
+        args.name,
+        args.variables,
+      );
+
+    if (E.isLeft(updatedTeamEnvironment)) throwErr(updatedTeamEnvironment.left);
+    return updatedTeamEnvironment.right;
   }
 
   @Mutation(() => TeamEnvironment, {
@@ -108,7 +95,7 @@ export class TeamEnvironmentsResolver {
   })
   @UseGuards(GqlAuthGuard, GqlTeamEnvTeamGuard)
   @RequiresTeamRole(TeamMemberRole.OWNER, TeamMemberRole.EDITOR)
-  deleteAllVariablesFromTeamEnvironment(
+  async deleteAllVariablesFromTeamEnvironment(
     @Args({
       name: 'id',
       description: 'ID of the Team Environment',
@@ -116,10 +103,13 @@ export class TeamEnvironmentsResolver {
     })
     id: string,
   ): Promise<TeamEnvironment> {
-    return pipe(
-      this.teamEnvironmentsService.deleteAllVariablesFromTeamEnvironment(id),
-      TE.getOrElse(throwErr),
-    )();
+    const teamEnvironment =
+      await this.teamEnvironmentsService.deleteAllVariablesFromTeamEnvironment(
+        id,
+      );
+
+    if (E.isLeft(teamEnvironment)) throwErr(teamEnvironment.left);
+    return teamEnvironment.right;
   }
 
   @Mutation(() => TeamEnvironment, {
@@ -127,7 +117,7 @@ export class TeamEnvironmentsResolver {
   })
   @UseGuards(GqlAuthGuard, GqlTeamEnvTeamGuard)
   @RequiresTeamRole(TeamMemberRole.OWNER, TeamMemberRole.EDITOR)
-  createDuplicateEnvironment(
+  async createDuplicateEnvironment(
     @Args({
       name: 'id',
       description: 'ID of the Team Environment',
@@ -135,10 +125,12 @@ export class TeamEnvironmentsResolver {
     })
     id: string,
   ): Promise<TeamEnvironment> {
-    return pipe(
-      this.teamEnvironmentsService.createDuplicateEnvironment(id),
-      TE.getOrElse(throwErr),
-    )();
+    const res = await this.teamEnvironmentsService.createDuplicateEnvironment(
+      id,
+    );
+
+    if (E.isLeft(res)) throwErr(res.left);
+    return res.right;
   }
 
   /* Subscriptions */

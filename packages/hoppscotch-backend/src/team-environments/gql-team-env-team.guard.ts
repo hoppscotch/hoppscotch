@@ -1,15 +1,5 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import * as TE from 'fp-ts/TaskEither';
-import * as O from 'fp-ts/Option';
-import * as S from 'fp-ts/string';
-import { pipe } from 'fp-ts/function';
-import {
-  getAnnotatedRequiredRoles,
-  getGqlArg,
-  getUserFromGQLContext,
-  throwErr,
-} from 'src/utils';
 import { TeamEnvironmentsService } from './team-environments.service';
 import {
   BUG_AUTH_NO_USER_CTX,
@@ -19,6 +9,10 @@ import {
   TEAM_ENVIRONMENT_NOT_FOUND,
 } from 'src/errors';
 import { TeamService } from 'src/team/team.service';
+import { GqlExecutionContext } from '@nestjs/graphql';
+import * as E from 'fp-ts/Either';
+import { TeamMemberRole } from '@prisma/client';
+import { throwErr } from 'src/utils';
 
 /**
  * A guard which checks whether the caller of a GQL Operation
@@ -33,50 +27,31 @@ export class GqlTeamEnvTeamGuard implements CanActivate {
     private readonly teamService: TeamService,
   ) {}
 
-  canActivate(context: ExecutionContext): Promise<boolean> {
-    return pipe(
-      TE.Do,
+  async canActivate(context: ExecutionContext): Promise<boolean> {
+    const requireRoles = this.reflector.get<TeamMemberRole[]>(
+      'requiresTeamRole',
+      context.getHandler(),
+    );
+    if (!requireRoles) throw new Error(BUG_TEAM_ENV_GUARD_NO_REQUIRE_ROLES);
 
-      TE.bindW('requiredRoles', () =>
-        pipe(
-          getAnnotatedRequiredRoles(this.reflector, context),
-          TE.fromOption(() => BUG_TEAM_ENV_GUARD_NO_REQUIRE_ROLES),
-        ),
-      ),
+    const gqlExecCtx = GqlExecutionContext.create(context);
 
-      TE.bindW('user', () =>
-        pipe(
-          getUserFromGQLContext(context),
-          TE.fromOption(() => BUG_AUTH_NO_USER_CTX),
-        ),
-      ),
+    const { user } = gqlExecCtx.getContext().req;
+    if (user == undefined) throw new Error(BUG_AUTH_NO_USER_CTX);
 
-      TE.bindW('envID', () =>
-        pipe(
-          getGqlArg('id', context),
-          O.fromPredicate(S.isString),
-          TE.fromOption(() => BUG_TEAM_ENV_GUARD_NO_ENV_ID),
-        ),
-      ),
+    const { id } = gqlExecCtx.getArgs<{ id: string }>();
+    if (!id) throwErr(BUG_TEAM_ENV_GUARD_NO_ENV_ID);
 
-      TE.bindW('membership', ({ envID, user }) =>
-        pipe(
-          this.teamEnvironmentService.getTeamEnvironment(envID),
-          TE.fromTaskOption(() => TEAM_ENVIRONMENT_NOT_FOUND),
-          TE.chainW((env) =>
-            pipe(
-              this.teamService.getTeamMemberTE(env.teamID, user.uid),
-              TE.mapLeft(() => TEAM_ENVIRONMENT_NOT_TEAM_MEMBER),
-            ),
-          ),
-        ),
-      ),
+    const teamEnvironment =
+      await this.teamEnvironmentService.getTeamEnvironment(id);
+    if (E.isLeft(teamEnvironment)) throwErr(TEAM_ENVIRONMENT_NOT_FOUND);
 
-      TE.map(({ membership, requiredRoles }) =>
-        requiredRoles.includes(membership.role),
-      ),
+    const member = await this.teamService.getTeamMember(
+      teamEnvironment.right.teamID,
+      user.uid,
+    );
+    if (!member) throwErr(TEAM_ENVIRONMENT_NOT_TEAM_MEMBER);
 
-      TE.getOrElse(throwErr),
-    )();
+    return requireRoles.includes(member.role);
   }
 }

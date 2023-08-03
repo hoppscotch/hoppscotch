@@ -411,6 +411,23 @@ export class AdminResolver {
     return deletedTeam.right;
   }
 
+  @Mutation(() => Boolean, {
+    description: 'Revoke a team Invite by Invite ID',
+  })
+  @UseGuards(GqlAuthGuard, GqlAdminGuard)
+  async revokeTeamInviteByAdmin(
+    @Args({
+      name: 'inviteID',
+      description: 'Team Invite ID',
+      type: () => ID,
+    })
+    inviteID: string,
+  ): Promise<boolean> {
+    const invite = await this.adminService.revokeTeamInviteByID(inviteID);
+    if (E.isLeft(invite)) throwErr(invite.left);
+    return true;
+  }
+
   /* Subscriptions */
 
   @Subscription(() => InvitedUser, {

@@ -9,6 +9,7 @@ declare module '@vue/runtime-core' {
   export interface GlobalComponents {
     AppActionHandler: typeof import('./components/app/ActionHandler.vue')['default']
     AppAnnouncement: typeof import('./components/app/Announcement.vue')['default']
+    AppContextMenu: typeof import('./components/app/ContextMenu.vue')['default']
     AppDeveloperOptions: typeof import('./components/app/DeveloperOptions.vue')['default']
     AppFooter: typeof import('./components/app/Footer.vue')['default']
     AppGitHubStarButton: typeof import('./components/app/GitHubStarButton.vue')['default']
@@ -54,6 +55,7 @@ declare module '@vue/runtime-core' {
     CollectionsSaveRequest: typeof import('./components/collections/SaveRequest.vue')['default']
     CollectionsTeamCollections: typeof import('./components/collections/TeamCollections.vue')['default']
     Environments: typeof import('./components/environments/index.vue')['default']
+    EnvironmentsAdd: typeof import('./components/environments/Add.vue')['default']
     EnvironmentsImportExport: typeof import('./components/environments/ImportExport.vue')['default']
     EnvironmentsMy: typeof import('./components/environments/my/index.vue')['default']
     EnvironmentsMyDetails: typeof import('./components/environments/my/Details.vue')['default']
@@ -94,7 +96,6 @@ declare module '@vue/runtime-core' {
     HoppSmartSpinner: typeof import('@hoppscotch/ui')['HoppSmartSpinner']
     HoppSmartTab: typeof import('@hoppscotch/ui')['HoppSmartTab']
     HoppSmartTabs: typeof import('@hoppscotch/ui')['HoppSmartTabs']
-    HoppSmartToggle: typeof import('@hoppscotch/ui')['HoppSmartToggle']
     HoppSmartWindow: typeof import('@hoppscotch/ui')['HoppSmartWindow']
     HoppSmartWindows: typeof import('@hoppscotch/ui')['HoppSmartWindows']
     HttpAuthorization: typeof import('./components/http/Authorization.vue')['default']

@@ -4,7 +4,7 @@
       class="relative sticky top-0 z-10 flex-shrink-0 overflow-x-auto divide-x divide-dividerLight bg-primaryLight tabs group-tabs"
     >
       <div
-        class="flex flex-1 flex-shrink-0 w-0 overflow-x-auto"
+        class="flex flex-1 flex-shrink-0 w-0 overflow-hidden"
         ref="scrollContainer"
       >
         <div
@@ -455,6 +455,7 @@ $slider-height: 4px;
     @apply min-w-0;
     @apply bg-dividerDark;
     @apply hover:bg-secondaryLight;
+    @apply active:bg-secondaryLight;
 
     width: var(--thumb-width);
     height: $slider-height;
@@ -465,6 +466,7 @@ $slider-height: 4px;
     @apply min-w-0;
     @apply bg-dividerDark;
     @apply hover:bg-secondaryLight;
+    @apply active:bg-secondaryLight;
 
     width: var(--thumb-width);
     height: $slider-height;

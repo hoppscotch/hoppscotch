@@ -151,6 +151,11 @@
     "save_unsaved_tab": "Do you want to save changes made in this tab?",
     "sync": "Would you like to restore your workspace from cloud? This will discard your local progress."
   },
+  "context_menu": {
+    "set_environment_variable": "Set as variable",
+    "add_parameter": "Add to parameter",
+    "open_link_in_new_tab": "Open link in new tab"
+  },
   "count": {
     "header": "Header {count}",
     "message": "Message {count}",
@@ -195,16 +200,23 @@
     "created": "Environment created",
     "deleted": "Environment deletion",
     "edit": "Edit Environment",
+    "global": "Global",
     "invalid_name": "Please provide a name for the environment",
     "my_environments": "My Environments",
+    "name": "Name",
     "nested_overflow": "nested environment variables are limited to 10 levels",
     "new": "New Environment",
     "no_environment": "No environment",
     "no_environment_description": "No environments were selected. Choose what to do with the following variables.",
+    "replace_with_variable": "Replace with variable",
+    "scope": "Scope",
     "select": "Select environment",
+    "set_as_environment": "Set as environment",
     "team_environments": "Team Environments",
     "title": "Environments",
     "updated": "Environment updated",
+    "value": "Value",
+    "variable": "Variable",
     "variable_list": "Variable List"
   },
   "error": {

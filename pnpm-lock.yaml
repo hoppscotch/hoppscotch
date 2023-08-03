@@ -638,8 +638,8 @@ importers:
         specifier: ^3.1.1
         version: 3.1.1(graphql@15.8.0)
       '@iconify-json/lucide':
-        specifier: ^1.1.40
-        version: 1.1.40
+        specifier: ^1.1.109
+        version: 1.1.109
       '@intlify/vite-plugin-vue-i18n':
         specifier: ^7.0.0
         version: 7.0.0(vite@3.1.4)(vue-i18n@9.2.2)
@@ -1240,8 +1240,8 @@ importers:
         specifier: ^0.12.4
         version: 0.12.4(histoire@0.12.4)(vite@3.2.4)(vue@3.2.45)
       '@iconify-json/lucide':
-        specifier: ^1.1.40
-        version: 1.1.40
+        specifier: ^1.1.109
+        version: 1.1.109
       '@intlify/vite-plugin-vue-i18n':
         specifier: ^6.0.1
         version: 6.0.1(vite@3.2.4)
@@ -5809,10 +5809,10 @@ packages:
   /@iarna/toml@2.2.5:
     resolution: {integrity: sha512-trnsAYxU3xnS1gPHPyU961coFyLkh4gAD/0zQ5mymY4yOZ+CYvsPqUbOFSw0aDM4y0tV7tiFxL/1XfXPNC6IPg==}
 
-  /@iconify-json/lucide@1.1.40:
-    resolution: {integrity: sha512-4GeQtaiv3mJ+b0sn/c2KL8Tgf4XQvsX1AHDOseuGRhgoLCWG+ZdNRFxF5sp1I6T/VcQccegLPOp5XHn3NC1mmA==}
+  /@iconify-json/lucide@1.1.109:
+    resolution: {integrity: sha512-1+zYieiKUAjN1x66kvcRmmtgBJaDbD7i4To8mhB6+3bEm/i61un76nspJ45LOSGovzBMvYZFIJpqJrGMipWPzw==}
     dependencies:
-      '@iconify/types': 1.1.0
+      '@iconify/types': 2.0.0
     dev: true
 
   /@iconify/types@1.1.0:

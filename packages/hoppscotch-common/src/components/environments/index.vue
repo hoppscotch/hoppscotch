@@ -26,6 +26,13 @@
       :editing-variable-name="editingVariableName"
       @hide-modal="displayModalEdit(false)"
     />
+    <EnvironmentsAdd
+      :show="showModalNew"
+      :name="editingVariableName"
+      :value="editingVariableValue"
+      :position="position"
+      @hide-modal="displayModalNew(false)"
+    />
   </div>
 </template>
 
@@ -161,10 +168,18 @@ watch(
   }
 )
 
+const showModalNew = ref(false)
 const showModalDetails = ref(false)
 const action = ref<"new" | "edit">("edit")
 const editingEnvironmentIndex = ref<"Global" | null>(null)
 const editingVariableName = ref("")
+const editingVariableValue = ref("")
+
+const position = ref({ top: 0, left: 0 })
+
+const displayModalNew = (shouldDisplay: boolean) => {
+  showModalNew.value = shouldDisplay
+}
 
 const displayModalEdit = (shouldDisplay: boolean) => {
   action.value = "edit"
@@ -233,4 +248,10 @@ watch(
   },
   { deep: true }
 )
+
+defineActionHandler("modals.environment.add", ({ envName, variableName }) => {
+  editingVariableName.value = envName
+  editingVariableValue.value = variableName
+  displayModalNew(true)
+})
 </script>

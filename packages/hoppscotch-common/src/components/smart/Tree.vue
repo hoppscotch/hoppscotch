@@ -10,6 +10,7 @@
         class="flex flex-col flex-1"
       >
         <SmartTreeBranch
+          :root-nodes-length="rootNodes.data.length"
           :node-item="rootNode"
           :adapter="adapter as SmartTreeAdapter<T>"
         >

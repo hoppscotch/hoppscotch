@@ -40,6 +40,8 @@ import {
 import { HoppEnvironmentPlugin } from "@helpers/editor/extensions/HoppEnvironment"
 import xmlFormat from "xml-formatter"
 import { platform } from "~/platform"
+import { invokeAction } from "~/helpers/actions"
+import { useDebounceFn } from "@vueuse/core"
 // TODO: Migrate from legacy mode
 
 type ExtendedEditorConfig = {
@@ -218,6 +220,40 @@ export function useCodemirror(
       ViewPlugin.fromClass(
         class {
           update(update: ViewUpdate) {
+            function handleTextSelection() {
+              const selection = view.value?.state.selection.main
+              if (selection) {
+                const from = selection.from
+                const to = selection.to
+                const text = view.value?.state.doc.sliceString(from, to)
+                const { top, left } = view.value?.coordsAtPos(from)
+                if (text) {
+                  invokeAction("contextmenu.open", {
+                    position: {
+                      top,
+                      left,
+                    },
+                    text,
+                  })
+                } else {
+                  invokeAction("contextmenu.open", {
+                    position: {
+                      top,
+                      left,
+                    },
+                    text: null,
+                  })
+                }
+              }
+            }
+
+            // Debounce to prevent double click from selecting the word
+            const debounceFn = useDebounceFn(() => {
+              handleTextSelection()
+            }, 140)
+
+            el.addEventListener("mouseup", debounceFn)
+            el.addEventListener("keyup", debounceFn)
             const cursorPos = update.state.selection.main.head
             const line = update.state.doc.lineAt(cursorPos)
 
@@ -276,6 +312,7 @@ export function useCodemirror(
           run: indentLess,
         },
       ]),
+      EditorView.contentAttributes.of({ "data-enable-grammarly": "false" }),
     ]
 
     if (environmentTooltip) extensions.push(environmentTooltip.extension)

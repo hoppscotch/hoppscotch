@@ -13,6 +13,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@fontsource-variable/inter": "^5.0.5",
+    "@fontsource-variable/material-symbols-rounded": "^5.0.5",
+    "@fontsource-variable/roboto-mono": "^5.0.6",
     "@graphql-typed-document-node/core": "^3.1.1",
     "@hoppscotch/ui": "workspace:^",
     "@hoppscotch/vue-toasted": "^0.1.0",
@@ -56,6 +59,7 @@
     "sass": "^1.57.1",
     "ts-node": "^10.9.1",
     "typescript": "^4.9.3",
+    "unplugin-fonts": "^1.0.3",
     "vite": "^3.1.4",
     "vite-plugin-pages": "^0.26.0",
     "vite-plugin-vue-layouts": "^0.7.0",

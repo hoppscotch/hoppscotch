@@ -1,7 +1,7 @@
 @mixin base-theme {
-  --font-sans: "Inter", sans-serif;
-  --font-mono: "Roboto Mono", monospace;
-  --font-icon: "Material Icons";
+  --font-sans: "Inter Variable", sans-serif;
+  --font-icon: "Material Symbols Rounded Variable";
+  --font-mono: "Roboto Mono Variable", monospace;
   --font-size-tiny: calc(var(--font-size-body) - 0.062rem);
 }
 

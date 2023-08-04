@@ -2,6 +2,7 @@ import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import { FileSystemIconLoader } from 'unplugin-icons/loaders';
 import Icons from 'unplugin-icons/vite';
+import Unfonts from "unplugin-fonts/vite";
 import IconResolver from 'unplugin-icons/resolver';
 import Components from 'unplugin-vue-components/vite';
 import WindiCSS from 'vite-plugin-windicss';
@@ -66,6 +67,24 @@ export default defineConfig({
       compiler: 'vue3',
       customCollections: {
         auth: FileSystemIconLoader('../hoppscotch-sh-admin/assets/icons/auth'),
+      },
+    }),
+    Unfonts({
+      fontsource: {
+        families: [
+          {
+            name: "Inter Variable",
+            variables: ["variable-full"],
+          },
+          {
+            name: "Material Symbols Rounded Variable",
+            variables: ["variable-full"],
+          },
+          {
+            name: "Roboto Mono Variable",
+            variables: ["variable-full"],
+          },
+        ],
       },
     }),
   ],

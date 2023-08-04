@@ -7,6 +7,9 @@ import 'virtual:windi.css';
 import '@hoppscotch/ui/style.css';
 import '../assets/scss/themes.scss';
 import '../assets/scss/styles.scss';
+import '@fontsource-variable/inter';
+import '@fontsource-variable/material-symbols-rounded';
+import '@fontsource-variable/roboto-mono';
 // END STYLES
 
 import { HOPP_MODULES } from './modules';

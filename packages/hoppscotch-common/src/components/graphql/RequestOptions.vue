@@ -373,7 +373,6 @@ import { commonHeaders } from "~/helpers/headers"
 import { GQLConnection } from "~/helpers/GQLConnection"
 import { makeGQLHistoryEntry, addGraphqlHistoryEntry } from "~/newstore/history"
 import { platform } from "~/platform"
-import { getCurrentStrategyID } from "~/helpers/network"
 import { useCodemirror } from "@composables/codemirror"
 import jsonLinter from "~/helpers/editor/linting/json"
 import { createGQLQueryLinter } from "~/helpers/editor/linting/gqlQuery"
@@ -381,6 +380,8 @@ import queryCompleter from "~/helpers/editor/completion/gqlQuery"
 import { defineActionHandler } from "~/helpers/actions"
 import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
 import { objRemoveKey } from "~/helpers/functional/object"
+import { useService } from "dioc/vue"
+import { InterceptorService } from "~/services/interceptor.service"
 
 type OptionTabs = "query" | "headers" | "variables" | "authorization"
 
@@ -389,6 +390,8 @@ const colorMode = useColorMode()
 const selectedOptionTab = ref<OptionTabs>("query")
 
 const t = useI18n()
+
+const interceptorService = useService(InterceptorService)
 
 const props = defineProps<{
   conn: GQLConnection
@@ -744,7 +747,7 @@ const runQuery = async () => {
   platform.analytics?.logEvent({
     type: "HOPP_REQUEST_RUN",
     platform: "graphql-query",
-    strategy: getCurrentStrategyID(),
+    strategy: interceptorService.currentInterceptorID.value!,
   })
 }
 

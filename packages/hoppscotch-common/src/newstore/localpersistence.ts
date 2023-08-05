@@ -9,10 +9,11 @@ import {
 import {
   settingsStore,
   bulkApplySettings,
-  defaultSettings,
+  getDefaultSettings,
   applySetting,
   HoppAccentColor,
   HoppBgColor,
+  performSettingsDataMigrations,
 } from "./settings"
 import {
   restHistoryStore,
@@ -80,7 +81,7 @@ function checkAndMigrateOldSettings() {
   const { postwoman } = vuexData
 
   if (!isEmpty(postwoman?.settings)) {
-    const settingsData = assign(clone(defaultSettings), postwoman.settings)
+    const settingsData = assign(clone(getDefaultSettings()), postwoman.settings)
 
     window.localStorage.setItem("settings", JSON.stringify(settingsData))
 
@@ -150,8 +151,12 @@ function setupSettingsPersistence() {
     window.localStorage.getItem("settings") || "{}"
   )
 
-  if (settingsData) {
-    bulkApplySettings(settingsData)
+  const updatedSettings = settingsData
+    ? performSettingsDataMigrations(settingsData)
+    : settingsData
+
+  if (updatedSettings) {
+    bulkApplySettings(updatedSettings)
   }
 
   settingsStore.subject$.subscribe((settings) => {

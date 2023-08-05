@@ -23,6 +23,9 @@
     "postinstall": "pnpm run gql-codegen"
   },
   "dependencies": {
+    "@fontsource-variable/inter": "^5.0.5",
+    "@fontsource-variable/material-symbols-rounded": "^5.0.5",
+    "@fontsource-variable/roboto-mono": "^5.0.6",
     "@hoppscotch/common": "workspace:^",
     "@hoppscotch/data": "workspace:^",
     "axios": "^0.21.4",
@@ -59,10 +62,10 @@
     "eslint-plugin-vue": "^9.5.1",
     "npm-run-all": "^4.1.5",
     "typescript": "^4.6.4",
+    "unplugin-fonts": "^1.0.3",
     "unplugin-icons": "^0.14.9",
     "unplugin-vue-components": "^0.21.0",
     "vite": "^3.2.3",
-    "vite-plugin-fonts": "^0.6.0",
     "vite-plugin-html-config": "^1.0.10",
     "vite-plugin-inspect": "^0.7.4",
     "vite-plugin-pages": "^0.26.0",

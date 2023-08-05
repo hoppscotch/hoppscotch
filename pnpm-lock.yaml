@@ -407,6 +407,15 @@ importers:
       '@codemirror/view':
         specifier: ^6.0.2
         version: 6.0.2
+      '@fontsource-variable/inter':
+        specifier: ^5.0.5
+        version: 5.0.5
+      '@fontsource-variable/material-symbols-rounded':
+        specifier: ^5.0.5
+        version: 5.0.5
+      '@fontsource-variable/roboto-mono':
+        specifier: ^5.0.6
+        version: 5.0.6
       '@hoppscotch/codemirror-lang-graphql':
         specifier: workspace:^
         version: link:../codemirror-lang-graphql
@@ -720,6 +729,9 @@ importers:
       typescript:
         specifier: ^4.5.4
         version: 4.7.4
+      unplugin-fonts:
+        specifier: ^1.0.3
+        version: 1.0.3(vite@3.1.4)
       unplugin-icons:
         specifier: ^0.14.9
         version: 0.14.9(@vue/compiler-sfc@3.2.39)(esbuild@0.17.19)(rollup@2.79.1)(vite@3.1.4)
@@ -732,9 +744,6 @@ importers:
       vite-plugin-checker:
         specifier: ^0.5.1
         version: 0.5.1(eslint@8.24.0)(typescript@4.7.4)(vite@3.1.4)
-      vite-plugin-fonts:
-        specifier: ^0.6.0
-        version: 0.6.0(vite@3.1.4)
       vite-plugin-html-config:
         specifier: ^1.0.10
         version: 1.0.10(vite@3.1.4)
@@ -857,6 +866,15 @@ importers:
 
   packages/hoppscotch-selfhost-web:
     dependencies:
+      '@fontsource-variable/inter':
+        specifier: ^5.0.5
+        version: 5.0.5
+      '@fontsource-variable/material-symbols-rounded':
+        specifier: ^5.0.5
+        version: 5.0.5
+      '@fontsource-variable/roboto-mono':
+        specifier: ^5.0.6
+        version: 5.0.6
       '@hoppscotch/common':
         specifier: workspace:^
         version: link:../hoppscotch-common
@@ -960,6 +978,9 @@ importers:
       typescript:
         specifier: ^4.6.4
         version: 4.9.3
+      unplugin-fonts:
+        specifier: ^1.0.3
+        version: 1.0.3(vite@3.2.4)
       unplugin-icons:
         specifier: ^0.14.9
         version: 0.14.9(@vue/compiler-sfc@3.2.39)(esbuild@0.17.19)(rollup@2.79.1)(vite@3.1.4)
@@ -969,9 +990,6 @@ importers:
       vite:
         specifier: ^3.2.3
         version: 3.2.4(@types/node@17.0.45)(sass@1.53.0)(terser@5.14.1)
-      vite-plugin-fonts:
-        specifier: ^0.6.0
-        version: 0.6.0(vite@3.2.4)
       vite-plugin-html-config:
         specifier: ^1.0.10
         version: 1.0.10(vite@3.2.4)
@@ -1008,6 +1026,15 @@ importers:
 
   packages/hoppscotch-sh-admin:
     dependencies:
+      '@fontsource-variable/inter':
+        specifier: ^5.0.5
+        version: 5.0.5
+      '@fontsource-variable/material-symbols-rounded':
+        specifier: ^5.0.5
+        version: 5.0.5
+      '@fontsource-variable/roboto-mono':
+        specifier: ^5.0.6
+        version: 5.0.6
       '@graphql-typed-document-node/core':
         specifier: ^3.1.1
         version: 3.1.1(graphql@16.6.0)
@@ -1132,6 +1159,9 @@ importers:
       typescript:
         specifier: ^4.9.3
         version: 4.9.3
+      unplugin-fonts:
+        specifier: ^1.0.3
+        version: 1.0.3(vite@3.2.4)
       vite:
         specifier: ^3.1.4
         version: 3.2.4(@types/node@17.0.45)(sass@1.53.0)(terser@5.14.1)
@@ -1153,6 +1183,15 @@ importers:
 
   packages/hoppscotch-ui:
     dependencies:
+      '@fontsource-variable/inter':
+        specifier: ^5.0.5
+        version: 5.0.5
+      '@fontsource-variable/material-symbols-rounded':
+        specifier: ^5.0.5
+        version: 5.0.5
+      '@fontsource-variable/roboto-mono':
+        specifier: ^5.0.6
+        version: 5.0.6
       '@hoppscotch/vue-toasted':
         specifier: ^0.1.0
         version: 0.1.0(vue@3.2.45)
@@ -1295,6 +1334,9 @@ importers:
       typescript:
         specifier: ^4.5.4
         version: 4.9.3
+      unplugin-fonts:
+        specifier: ^1.0.3
+        version: 1.0.3(vite@3.2.4)
       unplugin-icons:
         specifier: ^0.15.3
         version: 0.15.3(@vue/compiler-sfc@3.2.45)
@@ -1310,9 +1352,6 @@ importers:
       vite-plugin-dts:
         specifier: 2.0.0-beta.3
         version: 2.0.0-beta.3(@types/node@17.0.45)(rollup@2.79.1)(vite@3.2.4)
-      vite-plugin-fonts:
-        specifier: ^0.6.0
-        version: 0.6.0(vite@3.2.4)
       vite-plugin-html-config:
         specifier: ^1.0.10
         version: 1.0.10(vite@3.2.4)
@@ -4276,6 +4315,18 @@ packages:
     resolution: {integrity: sha512-zThUKcqIU6utWzM93uEvhlh8qj8A5LMPFJPvk/ODb+8GSSif19xM2Lw1M2ijyBy8+6skSkQBbavPzOU5Oh/8tQ==}
     dev: false
 
+  /@fontsource-variable/inter@5.0.5:
+    resolution: {integrity: sha512-hmj/jffr+1tabEPmvm+/b89MtbO6hd5PVbQ6HoMGTO7RMF5eD2C9UcprCgZTOF3OWh5uC21C9HZGN0O9wxe+UQ==}
+    dev: false
+
+  /@fontsource-variable/material-symbols-rounded@5.0.5:
+    resolution: {integrity: sha512-HSCzawb0Vq0f4UYwLdlYsSCjfNw6LUwXKG8pgc0f8dIpG+NapWVfGFObIVL0to4byKmvvGueXC8GjljSn73HMA==}
+    dev: false
+
+  /@fontsource-variable/roboto-mono@5.0.6:
+    resolution: {integrity: sha512-n2TfINPd+mycq6husov36SWO6v1/dKDhxNf6LtB7mKrCtBjWyTAJiC1qjiRmYT4I69/cNQZhlu3Jd+f+JQIR6g==}
+    dev: false
+
   /@graphql-codegen/add@3.2.0(graphql@15.8.0):
     resolution: {integrity: sha512-8hyr5XvTDGnpiT4nH2yH8PP4SWtUEIUdkFaZbkpkFkU0Ud9dplvSviOCdxdArffZ1FHy0XYLTMa2it+UJOtszg==}
     peerDependencies:
@@ -5855,7 +5906,7 @@ packages:
     dependencies:
       '@intlify/message-compiler': 9.3.0-beta.20
       '@intlify/shared': 9.3.0-beta.20
-      acorn: 8.8.2
+      acorn: 8.10.0
       escodegen: 2.0.0
       estree-walker: 2.0.2
       jsonc-eslint-parser: 1.4.1
@@ -6008,6 +6059,7 @@ packages:
 
   /@ioredis/commands@1.2.0:
     resolution: {integrity: sha512-Sx1pU8EM64o2BrqNpEO1CNLtKQwyhuXuqyfH7oGKCk+1a33d2r5saW8zNwm3j6BTExtjrv2BxTgzzkMwts6vGg==}
+    requiresBuild: true
     dev: false
     optional: true
 
@@ -9429,7 +9481,7 @@ packages:
   /acorn-globals@7.0.1:
     resolution: {integrity: sha512-umOSDSDrfHbTNPuNpC2NSnnA3LUrqpevPb4T9jRx4MagXNS0rs+gwiTcAvqCRmsD6utzsrzNt+ebm00SNWiC3Q==}
     dependencies:
-      acorn: 8.8.2
+      acorn: 8.10.0
       acorn-walk: 8.2.0
     dev: true
 
@@ -9448,20 +9500,20 @@ packages:
       acorn: 7.4.1
     dev: true
 
+  /acorn-jsx@5.3.2(acorn@8.10.0):
+    resolution: {integrity: sha512-rq9s+JNhf0IChjtDXxllJ7g41oZk5SlXtp0LHwyA5cejwn7vKmKp4pPri6YEePv2PU65sAsegbXtIinmDFDXgQ==}
+    peerDependencies:
+      acorn: ^6.0.0 || ^7.0.0 || ^8.0.0
+    dependencies:
+      acorn: 8.10.0
+    dev: true
+
   /acorn-jsx@5.3.2(acorn@8.8.0):
     resolution: {integrity: sha512-rq9s+JNhf0IChjtDXxllJ7g41oZk5SlXtp0LHwyA5cejwn7vKmKp4pPri6YEePv2PU65sAsegbXtIinmDFDXgQ==}
     peerDependencies:
       acorn: ^6.0.0 || ^7.0.0 || ^8.0.0
     dependencies:
       acorn: 8.8.0
-
-  /acorn-jsx@5.3.2(acorn@8.8.2):
-    resolution: {integrity: sha512-rq9s+JNhf0IChjtDXxllJ7g41oZk5SlXtp0LHwyA5cejwn7vKmKp4pPri6YEePv2PU65sAsegbXtIinmDFDXgQ==}
-    peerDependencies:
-      acorn: ^6.0.0 || ^7.0.0 || ^8.0.0
-    dependencies:
-      acorn: 8.8.2
-    dev: true
 
   /acorn-loose@6.1.0:
     resolution: {integrity: sha512-FHhXoiF0Uch3IqsrnPpWwCtiv5PYvipTpT1k9lDMgQVVYc9iDuSl5zdJV358aI8twfHCYMFBRVYvAVki9wC/ng==}
@@ -9492,6 +9544,11 @@ packages:
 
   /acorn@7.4.1:
     resolution: {integrity: sha512-nQyp0o1/mNdbTO1PO6kHkwSrmgZ0MT/jCCpNiwbUjGoRN4dlBhqJtoQuCnEOKzgTVwg0ZWiCoQy6SxMebQVh8A==}
+    engines: {node: '>=0.4.0'}
+    hasBin: true
+
+  /acorn@8.10.0:
+    resolution: {integrity: sha512-F0SAmZ8iUtS//m8DmCTA0jlh6TDKkHQyK6xc6V4KDTyZKA9dnvX9/3sRTVQrWm79glUAZbnmmNcdYwUIHWVybw==}
     engines: {node: '>=0.4.0'}
     hasBin: true
 
@@ -9876,6 +9933,7 @@ packages:
 
   /async@3.2.4:
     resolution: {integrity: sha512-iAB+JbDEGXhyIUavoDl9WP/Jj106Kz9DEn1DPgYw5ruDn0e3Wgi3sKFm55sASdGBNOQB8F59d9qQ7deqrHA8wQ==}
+    requiresBuild: true
 
   /asynckit@0.4.0:
     resolution: {integrity: sha512-Oei9OH4tRh0YqU3GxhX79dM/mwVgvbZJaSNaRk+bshkj0S5cfHcgYakreBjrHwatXKbz+IoIdYLxrKim2MjW0Q==}
@@ -10661,6 +10719,7 @@ packages:
   /cluster-key-slot@1.1.2:
     resolution: {integrity: sha512-RMr0FhtfXemyinomL4hrWcYJxmX6deFdCxpJzhDttxgO1+bcCnkk+9drydLVDmAMG7NE6aN/fl4F7ucU/90gAA==}
     engines: {node: '>=0.10.0'}
+    requiresBuild: true
     dev: false
     optional: true
 
@@ -11369,6 +11428,7 @@ packages:
   /denque@2.1.0:
     resolution: {integrity: sha512-HVQE3AAb/pxF8fQAoiqpvg9i3evqug3hoiwakOyZAwJm+6vZehbkYXZ0l4JxS+I3QxM97v5aaRNhj8v5oBhekw==}
     engines: {node: '>=0.10'}
+    requiresBuild: true
     dev: false
     optional: true
 
@@ -12793,8 +12853,8 @@ packages:
     resolution: {integrity: sha512-D211tC7ZwouTIuY5x9XnS0E9sWNChB7IYKX/Xp5eQj3nFXhqmiUDB9q27y76oFl8jTg3pXcQx/bpxMfs3CIZbA==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     dependencies:
-      acorn: 8.8.2
-      acorn-jsx: 5.3.2(acorn@8.8.2)
+      acorn: 8.10.0
+      acorn-jsx: 5.3.2(acorn@8.10.0)
       eslint-visitor-keys: 3.4.1
     dev: true
 
@@ -12810,8 +12870,8 @@ packages:
     resolution: {integrity: sha512-7OASN1Wma5fum5SrNhFMAMJxOUAbhyfQ8dQ//PJaJbNw0URTPWqIghHWt1MmAANKhHZIYOHruW4Kw4ruUWOdGw==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     dependencies:
-      acorn: 8.8.2
-      acorn-jsx: 5.3.2(acorn@8.8.2)
+      acorn: 8.10.0
+      acorn-jsx: 5.3.2(acorn@8.10.0)
       eslint-visitor-keys: 3.4.1
     dev: true
 
@@ -13208,6 +13268,7 @@ packages:
 
   /filelist@1.0.4:
     resolution: {integrity: sha512-w1cEuf3S+DrLCQL7ET6kz+gmlJdbq9J7yXCSjK/OZCPA+qEN1WyF4ZAf0YYJa4/shHJra2t/d/r8SV4Ji+x+8Q==}
+    requiresBuild: true
     dependencies:
       minimatch: 5.1.0
 
@@ -14980,6 +15041,7 @@ packages:
     resolution: {integrity: sha512-sVpxYeuAhWt0OTWITwT98oyV0GsXyMlXCF+3L1SuafBVUIr/uILGRB+NqwkzhgXKvoJpDIpQvqkUALgdmQsQxw==}
     engines: {node: '>=10'}
     hasBin: true
+    requiresBuild: true
     dependencies:
       async: 3.2.4
       chalk: 4.1.2
@@ -16104,7 +16166,7 @@ packages:
         optional: true
     dependencies:
       abab: 2.0.6
-      acorn: 8.8.2
+      acorn: 8.10.0
       acorn-globals: 6.0.0
       cssom: 0.4.4
       cssstyle: 2.3.0
@@ -16146,7 +16208,7 @@ packages:
         optional: true
     dependencies:
       abab: 2.0.6
-      acorn: 8.8.2
+      acorn: 8.10.0
       acorn-globals: 7.0.1
       cssom: 0.5.0
       cssstyle: 2.3.0
@@ -16576,6 +16638,7 @@ packages:
 
   /lodash.defaults@4.2.0:
     resolution: {integrity: sha512-qjxPLHd3r5DnsdGacqOMU6pb/avJzdh9tFX2ymgoZE27BmjXrNy/y4LoaiTeAb+O3gL8AfpJGtqfX/ae2leYYQ==}
+    requiresBuild: true
     dev: false
     optional: true
 
@@ -16588,6 +16651,7 @@ packages:
 
   /lodash.isarguments@3.1.0:
     resolution: {integrity: sha512-chi4NHZlZqZD18a0imDHnZPrDeBbTtVN7GXMwuGdRH9qotxAjYs3aVLKc7zNOG9eddR5Ksd8rvFEBc9SsggPpg==}
+    requiresBuild: true
     dev: false
     optional: true
 
@@ -17440,7 +17504,7 @@ packages:
   /mlly@1.2.0:
     resolution: {integrity: sha512-+c7A3CV0KGdKcylsI6khWyts/CYrGTrRVo4R/I7u/cUsy0Conxa6LUhiEzVKIw14lc2L5aiO4+SeVe4TeGRKww==}
     dependencies:
-      acorn: 8.8.2
+      acorn: 8.10.0
       pathe: 1.1.0
       pkg-types: 1.0.2
       ufo: 1.1.1
@@ -18812,12 +18876,14 @@ packages:
   /redis-errors@1.2.0:
     resolution: {integrity: sha512-1qny3OExCf0UvUV/5wpYKf2YwPcOqXzkwKKSmKHiE6ZMQs5heeE/c8eXK+PNllPvmjgAbfnsbpkGZWy8cBpn9w==}
     engines: {node: '>=4'}
+    requiresBuild: true
     dev: false
     optional: true
 
   /redis-parser@3.0.0:
     resolution: {integrity: sha512-DJnGAeenTdpMEH6uAJRK/uiyEIH9WVsUmoLwzudwGJUwZPp80PDBWPHXSAGNPwNvIXAbe7MSUB1zQFugFml66A==}
     engines: {node: '>=4'}
+    requiresBuild: true
     dependencies:
       redis-errors: 1.2.0
     dev: false
@@ -19710,6 +19776,7 @@ packages:
 
   /standard-as-callback@2.1.0:
     resolution: {integrity: sha512-qoRRSyROncaz1z0mvYqIE4lCd9p2R90i6GxW3uZv5ucSu8tU7B5HXUP1gG8pVZsYNVaXjk8ClXHPttLyxAL48A==}
+    requiresBuild: true
     dev: false
     optional: true
 
@@ -20162,7 +20229,7 @@ packages:
     hasBin: true
     dependencies:
       '@jridgewell/source-map': 0.3.2
-      acorn: 8.8.2
+      acorn: 8.10.0
       commander: 2.20.3
       source-map-support: 0.5.21
 
@@ -20525,7 +20592,7 @@ packages:
       '@tsconfig/node14': 1.0.3
       '@tsconfig/node16': 1.0.3
       '@types/node': 18.16.17
-      acorn: 8.8.2
+      acorn: 8.10.0
       acorn-walk: 8.2.0
       arg: 4.1.3
       create-require: 1.1.1
@@ -20929,6 +20996,34 @@ packages:
     resolution: {integrity: sha512-pjy2bYhSsufwWlKwPc+l3cN7+wuJlK6uz0YdJEOlQDbl6jo/YlPi4mb8agUkVC8BF7V8NuzeyPNqRksA3hztKQ==}
     engines: {node: '>= 0.8'}
 
+  /unplugin-fonts@1.0.3(vite@3.1.4):
+    resolution: {integrity: sha512-6Wq0SMhMznUx7DTkqr/ogCvWg2vFSCApHmhUcUISxqfnuME2B/KRLa6+bWyX3sbPNhYsW4zI7jvUkkmIumwenw==}
+    peerDependencies:
+      '@nuxt/kit': ^3.0.0
+      vite: ^2.0.0 || ^3.0.0 || ^4.0.0
+    peerDependenciesMeta:
+      '@nuxt/kit':
+        optional: true
+    dependencies:
+      fast-glob: 3.2.12
+      unplugin: 1.4.0
+      vite: 3.1.4(sass@1.53.0)(terser@5.14.1)
+    dev: true
+
+  /unplugin-fonts@1.0.3(vite@3.2.4):
+    resolution: {integrity: sha512-6Wq0SMhMznUx7DTkqr/ogCvWg2vFSCApHmhUcUISxqfnuME2B/KRLa6+bWyX3sbPNhYsW4zI7jvUkkmIumwenw==}
+    peerDependencies:
+      '@nuxt/kit': ^3.0.0
+      vite: ^2.0.0 || ^3.0.0 || ^4.0.0
+    peerDependenciesMeta:
+      '@nuxt/kit':
+        optional: true
+    dependencies:
+      fast-glob: 3.2.12
+      unplugin: 1.4.0
+      vite: 3.2.4(@types/node@17.0.45)(sass@1.53.0)(terser@5.14.1)
+    dev: true
+
   /unplugin-icons@0.14.9(@vue/compiler-sfc@3.2.39)(esbuild@0.17.19)(rollup@2.79.1)(vite@3.1.4):
     resolution: {integrity: sha512-vPyVfNREH88dP6gszdaoGkAEFPpiScXj1A8eWN905jQgT53A3tsiPEiqJjCHOUVcsUaREt2JSudzumFOsCA78A==}
     peerDependencies:
@@ -21061,7 +21156,7 @@ packages:
       webpack:
         optional: true
     dependencies:
-      acorn: 8.8.2
+      acorn: 8.10.0
       chokidar: 3.5.3
       esbuild: 0.17.19
       rollup: 2.79.1
@@ -21072,7 +21167,16 @@ packages:
   /unplugin@1.1.0:
     resolution: {integrity: sha512-I8obQ8Rs/hnkxokRV6g8JKOQFgYNnTd9DL58vcSt5IJ9AkK8wbrtsnzD5hi4BJlvcY536JzfEXj9L6h7j559/A==}
     dependencies:
-      acorn: 8.8.2
+      acorn: 8.10.0
+      chokidar: 3.5.3
+      webpack-sources: 3.2.3
+      webpack-virtual-modules: 0.5.0
+    dev: true
+
+  /unplugin@1.4.0:
+    resolution: {integrity: sha512-5x4eIEL6WgbzqGtF9UV8VEC/ehKptPXDS6L2b0mv4FRMkJxRtjaJfOWDd6a8+kYbqsjklix7yWP0N3SUepjXcg==}
+    dependencies:
+      acorn: 8.10.0
       chokidar: 3.5.3
       webpack-sources: 3.2.3
       webpack-virtual-modules: 0.5.0
@@ -21404,24 +21508,6 @@ packages:
       rollup: 2.79.1
       vite: 3.2.4(@types/node@17.0.45)(sass@1.53.0)(terser@5.14.1)
     dev: false
-
-  /vite-plugin-fonts@0.6.0(vite@3.1.4):
-    resolution: {integrity: sha512-dV6nnLEju8k5EmvlBH6egxkVZ+rgc5zWsJr9+cNRXBMEDnpRGHcZPI260UEDNg2yB99wSTNER2eduEvZFbMIGw==}
-    peerDependencies:
-      vite: ^2.0.0 || ^3.0.0
-    dependencies:
-      fast-glob: 3.2.11
-      vite: 3.1.4(sass@1.53.0)(terser@5.14.1)
-    dev: true
-
-  /vite-plugin-fonts@0.6.0(vite@3.2.4):
-    resolution: {integrity: sha512-dV6nnLEju8k5EmvlBH6egxkVZ+rgc5zWsJr9+cNRXBMEDnpRGHcZPI260UEDNg2yB99wSTNER2eduEvZFbMIGw==}
-    peerDependencies:
-      vite: ^2.0.0 || ^3.0.0
-    dependencies:
-      fast-glob: 3.2.11
-      vite: 3.2.4(@types/node@17.0.45)(sass@1.53.0)(terser@5.14.1)
-    dev: true
 
   /vite-plugin-html-config@1.0.10(vite@3.1.4):
     resolution: {integrity: sha512-qJCVKC/mR4BIy4EG7AHQ3nGo1BF+3fOjVIka0kXKQMlxT12dl9G5YKmjhLohDzySijOb03R2PzYiAdavwKkqQQ==}
@@ -21939,7 +22025,7 @@ packages:
     engines: {node: '>=6.0'}
     hasBin: true
     dependencies:
-      acorn: 8.8.2
+      acorn: 8.10.0
       acorn-walk: 8.2.0
     dev: false
 

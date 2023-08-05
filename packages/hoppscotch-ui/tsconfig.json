@@ -11,47 +11,26 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "esModuleInterop": true,
-    "lib": [
-      "ESNext",
-      "DOM"
-    ],
+    "lib": ["ESNext", "DOM"],
     "skipLibCheck": true,
     "noUnusedLocals": true,
     "paths": {
-      "~/*": [
-        "./src/*"
-      ],
-      "@composables/*": [
-        "./src/composables/*"
-      ],
-      "@components/*": [
-        "./src/components/*"
-      ],
-      "@helpers/*": [
-        "./src/helpers/*"
-      ],
-      "@modules/*": [
-        "./src/modules/*"
-      ],
-      "@workers/*": [
-        "./src/workers/*"
-      ],
-      "@functional/*": [
-        "./src/helpers/functional/*"
-      ]
+      "~/*": ["./src/*"],
+      "@composables/*": ["./src/composables/*"],
+      "@components/*": ["./src/components/*"],
+      "@helpers/*": ["./src/helpers/*"],
+      "@modules/*": ["./src/modules/*"],
+      "@workers/*": ["./src/workers/*"],
+      "@functional/*": ["./src/helpers/functional/*"]
     },
     "types": [
       "vite/client",
       "unplugin-icons/types/vue",
+      "unplugin-fonts/client",
       "vite-plugin-pages/client",
       "vite-plugin-vue-layouts/client",
       "vite-plugin-pwa/client"
     ]
   },
-  "include": [
-    "src/**/*.ts",
-    "src/**/*.d.ts",
-    "src/**/*.tsx",
-    "src/**/*.vue"
-  ]
+  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"]
 }

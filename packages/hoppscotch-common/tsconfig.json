@@ -15,17 +15,18 @@
     "skipLibCheck": true,
     "noUnusedLocals": true,
     "paths": {
-      "~/*": [ "./src/*" ],
-      "@composables/*": [ "./src/composables/*" ],
-      "@components/*": [ "./src/components/*" ],
-      "@helpers/*": [ "./src/helpers/*" ],
-      "@modules/*": [ "./src/modules/*" ],
-      "@workers/*": [ "./src/workers/*" ],
-      "@functional/*": [ "./src/helpers/functional/*" ]
+      "~/*": ["./src/*"],
+      "@composables/*": ["./src/composables/*"],
+      "@components/*": ["./src/components/*"],
+      "@helpers/*": ["./src/helpers/*"],
+      "@modules/*": ["./src/modules/*"],
+      "@workers/*": ["./src/workers/*"],
+      "@functional/*": ["./src/helpers/functional/*"]
     },
     "types": [
       "vite/client",
       "unplugin-icons/types/vue",
+      "unplugin-fonts/client",
       "vite-plugin-pages/client",
       "vite-plugin-vue-layouts/client",
       "vite-plugin-pwa/client"

@@ -6,21 +6,13 @@
     @close="hideModal"
   >
     <template #body>
-      <div class="flex flex-col">
-        <input
-          id="selectLabelGqlEdit"
-          v-model="name"
-          v-focus
-          class="input floating-input"
-          placeholder=" "
-          type="text"
-          autocomplete="off"
-          @keyup.enter="saveCollection"
-        />
-        <label for="selectLabelGqlEdit">
-          {{ t("action.label") }}
-        </label>
-      </div>
+      <HoppSmartInput
+        v-model="name"
+        placeholder=" "
+        :label="t('action.label')"
+        input-styles="floating-input"
+        @submit="saveCollection"
+      />
     </template>
     <template #footer>
       <span class="flex space-x-2">

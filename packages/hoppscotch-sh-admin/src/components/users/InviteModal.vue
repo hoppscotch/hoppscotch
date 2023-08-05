@@ -6,19 +6,11 @@
     @close="$emit('hide-modal')"
   >
     <template #body>
-      <div class="flex flex-col">
-        <input
-          id="inviteUserEmail"
-          v-model="email"
-          v-focus
-          class="input floating-input"
-          placeholder=" "
-          type="text"
-          autocomplete="off"
-          @keyup.enter="sendInvite"
-        />
-        <label for="inviteUserEmail">{{ t('users.email_address') }}</label>
-      </div>
+      <HoppSmartInput
+        v-model="email"
+        :label="t('users.email_address')"
+        input-styles="floating-input"
+      />
     </template>
     <template #footer>
       <span class="flex space-x-2">

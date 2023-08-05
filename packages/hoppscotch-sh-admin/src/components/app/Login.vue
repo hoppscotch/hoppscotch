@@ -41,22 +41,14 @@
         class="flex flex-col space-y-4"
         @submit.prevent="signInWithEmail"
       >
-        <div class="flex flex-col">
-          <input
-            id="email"
-            v-model="form.email"
-            class="input floating-input"
-            placeholder=" "
-            type="email"
-            name="email"
-            autocomplete="off"
-            required
-            spellcheck="false"
-            v-focus
-            autofocus
-          />
-          <label for="email"> Email </label>
-        </div>
+        <HoppSmartInput
+          v-model="form.email"
+          type="email"
+          placeholder=" "
+          input-styles="floating-input"
+          label="Email"
+        />
+
         <HoppButtonPrimary
           :loading="signingInWithEmail"
           type="submit"

@@ -6,10 +6,15 @@ import {
 import { getI18n } from "~/modules/i18n"
 import { Component, computed, markRaw, reactive } from "vue"
 import { useStreamStatic } from "~/composables/stream"
-import IconLanguages from "~icons/lucide/languages"
 import { activeActions$, invokeAction } from "~/helpers/actions"
 import { useSetting } from "~/composables/settings"
-import { HoppFontSizes } from "~/newstore/settings"
+import { HoppBgColor, HoppFontSizes, applySetting } from "~/newstore/settings"
+
+import IconLanguages from "~icons/lucide/languages"
+import IconMonitor from "~icons/lucide/monitor"
+import IconSun from "~icons/lucide/sun"
+import IconCloud from "~icons/lucide/cloud"
+import IconMoon from "~icons/lucide/moon"
 
 type Doc = {
   text: string
@@ -31,6 +36,14 @@ export class SettingsSpotlightSearcherService extends StaticSpotlightSearcherSer
 
   fontSizes = HoppFontSizes
   activeFontSize = useSetting("FONT_SIZE")
+  isLargeFontSize = computed(
+    () =>
+      this.fontSizes.indexOf(this.activeFontSize.value) ===
+      this.fontSizes.length - 1
+  )
+  isSmallFontSize = computed(
+    () => this.fontSizes.indexOf(this.activeFontSize.value) === 0
+  )
 
   public readonly searcherID = "settings"
   public searcherSectionTitle = this.t("spotlight.section.user")
@@ -42,13 +55,29 @@ export class SettingsSpotlightSearcherService extends StaticSpotlightSearcherSer
   })[0]
 
   private documents: Record<string, Doc> = reactive({
-    change_theme: {
-      text: this.t("settings.change_theme"),
+    change_theme_to_system: {
+      text: this.t("settings.change_theme_to_system"),
       alternates: ["theme"],
-      icon: markRaw(IconLanguages),
+      icon: markRaw(IconMonitor),
+    },
+    change_theme_to_light: {
+      text: this.t("settings.change_theme_to_light"),
+      alternates: ["theme"],
+      icon: markRaw(IconSun),
+    },
+    change_theme_to_dark: {
+      text: this.t("settings.change_theme_to_dark"),
+      alternates: ["theme"],
+      icon: markRaw(IconCloud),
+    },
+    change_theme_to_black: {
+      text: this.t("settings.change_theme_to_black"),
+      alternates: ["theme"],
+      icon: markRaw(IconMoon),
     },
     increase_font_size: {
       text: this.t("settings.increase_font_size"),
+      excludeFromSearch: computed(() => this.isLargeFontSize.value),
       alternates: [
         "font size",
         "change font size",
@@ -59,6 +88,7 @@ export class SettingsSpotlightSearcherService extends StaticSpotlightSearcherSer
     },
     decrease_font_size: {
       text: this.t("settings.decrease_font_size"),
+      excludeFromSearch: computed(() => this.isSmallFontSize.value),
       alternates: [
         "font size",
         "change font size",
@@ -108,15 +138,34 @@ export class SettingsSpotlightSearcherService extends StaticSpotlightSearcherSer
     }
   }
 
+  changeTheme(theme: HoppBgColor) {
+    applySetting("BG_COLOR", theme)
+  }
+
   changeFontSize(increase = false) {
     const index = this.fontSizes.indexOf(this.activeFontSize.value)
     const newIndex = index + (increase ? 1 : -1)
-    if (newIndex < 0 || newIndex >= this.fontSizes.length) return
+    // if (newIndex < 0 || newIndex >= this.fontSizes.length) return
     this.activeFontSize.value = this.fontSizes[newIndex]
   }
 
   public onDocSelected(id: string): void {
     switch (id) {
+      // theme actions
+      case "change_theme_to_system":
+        this.changeTheme("system")
+        break
+      case "change_theme_to_light":
+        this.changeTheme("light")
+        break
+      case "change_theme_to_dark":
+        this.changeTheme("dark")
+        break
+      case "change_theme_to_black":
+        this.changeTheme("black")
+        break
+
+      // font size actions
       case "increase_font_size":
         this.changeFontSize(true)
         break

@@ -8,6 +8,8 @@ import { Component, computed, markRaw, reactive } from "vue"
 import { useStreamStatic } from "~/composables/stream"
 import IconLanguages from "~icons/lucide/languages"
 import { activeActions$, invokeAction } from "~/helpers/actions"
+import { useSetting } from "~/composables/settings"
+import { HoppFontSizes } from "~/newstore/settings"
 
 type Doc = {
   text: string
@@ -27,6 +29,9 @@ export class SettingsSpotlightSearcherService extends StaticSpotlightSearcherSer
 
   private t = getI18n()
 
+  fontSizes = HoppFontSizes
+  activeFontSize = useSetting("FONT_SIZE")
+
   public readonly searcherID = "settings"
   public searcherSectionTitle = this.t("spotlight.section.user")
 
@@ -37,9 +42,44 @@ export class SettingsSpotlightSearcherService extends StaticSpotlightSearcherSer
   })[0]
 
   private documents: Record<string, Doc> = reactive({
-    change_font_size: {
-      text: this.t("settings.change_font_size"),
-      alternates: ["font size", "change font size", "change font"],
+    change_theme: {
+      text: this.t("settings.change_theme"),
+      alternates: ["theme"],
+      icon: markRaw(IconLanguages),
+    },
+    increase_font_size: {
+      text: this.t("settings.increase_font_size"),
+      alternates: [
+        "font size",
+        "change font size",
+        "change font",
+        "increase font",
+      ],
+      icon: markRaw(IconLanguages),
+    },
+    decrease_font_size: {
+      text: this.t("settings.decrease_font_size"),
+      alternates: [
+        "font size",
+        "change font size",
+        "change font",
+        "increase font",
+      ],
+      icon: markRaw(IconLanguages),
+    },
+    change_interceptor: {
+      text: this.t("settings.change_interceptor"),
+      alternates: ["interceptor", "change interceptor"],
+      icon: markRaw(IconLanguages),
+    },
+    change_lang: {
+      text: this.t("settings.change_language"),
+      alternates: ["language", "lang"],
+      icon: markRaw(IconLanguages),
+    },
+    install_ext: {
+      text: this.t("settings.install_extension"),
+      alternates: ["install extension", "extension"],
       icon: markRaw(IconLanguages),
     },
   })
@@ -68,11 +108,20 @@ export class SettingsSpotlightSearcherService extends StaticSpotlightSearcherSer
     }
   }
 
+  changeFontSize(increase = false) {
+    const index = this.fontSizes.indexOf(this.activeFontSize.value)
+    const newIndex = index + (increase ? 1 : -1)
+    if (newIndex < 0 || newIndex >= this.fontSizes.length) return
+    this.activeFontSize.value = this.fontSizes[newIndex]
+  }
+
   public onDocSelected(id: string): void {
     switch (id) {
-      case "change_font_size":
-        console.log("hello hunny bunny")
-        // invokeAction("user.login")
+      case "increase_font_size":
+        this.changeFontSize(true)
+        break
+      case "decrease_font_size":
+        this.changeFontSize()
         break
     }
   }

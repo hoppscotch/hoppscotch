@@ -25,6 +25,7 @@
     "types": [
       "vite/client",
       "unplugin-icons/types/vue",
+      "unplugin-fonts/client",
       "vite-plugin-pages/client",
       "vite-plugin-vue-layouts/client"
     ]

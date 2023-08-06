@@ -13,12 +13,11 @@
     "skipLibCheck": true,
     "noEmit": true,
     "paths": {
-      "@hoppscotch/common": [ "../hoppscotch-common/src/index.ts" ],
-      "@hoppscotch/common/*": [ "../hoppscotch-common/src/*" ],
+      "@hoppscotch/common": ["../hoppscotch-common/src/index.ts"],
+      "@hoppscotch/common/*": ["../hoppscotch-common/src/*"],
       "@platform/*": ["./src/platform/*"],
-      "@lib/*": ["./src/lib/*"],
+      "@lib/*": ["./src/lib/*"]
     }
-
   },
   "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"],
   "references": [{ "path": "./tsconfig.node.json" }]

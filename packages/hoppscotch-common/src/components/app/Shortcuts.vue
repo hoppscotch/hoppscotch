@@ -4,15 +4,13 @@
       <div
         class="sticky top-0 z-10 flex flex-col flex-shrink-0 overflow-x-auto bg-primary"
       >
-        <div class="flex flex-col px-6 py-4 border-b border-dividerLight">
-          <input
-            v-model="filterText"
-            type="search"
-            autocomplete="off"
-            class="flex px-4 py-2 border rounded bg-primaryContrast border-divider hover:border-dividerDark focus-visible:border-dividerDark"
-            :placeholder="`${t('action.search')}`"
-          />
-        </div>
+        <HoppSmartInput
+          v-model="filterText"
+          type="search"
+          styles="px-6 py-4 border-b border-dividerLight"
+          :placeholder="`${t('action.search')}`"
+          input-styles="flex px-4 py-2 border rounded bg-primaryContrast border-divider hover:border-dividerDark focus-visible:border-dividerDark"
+        />
       </div>
       <div class="flex flex-col divide-y divide-dividerLight">
         <HoppSmartPlaceholder
@@ -21,6 +19,7 @@
         >
           <icon-lucide-search class="pb-2 opacity-75 svg-icons" />
         </HoppSmartPlaceholder>
+
         <details
           v-for="(sectionResults, sectionTitle) in shortcutsResults"
           v-else

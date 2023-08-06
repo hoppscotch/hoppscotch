@@ -417,6 +417,15 @@ importers:
       '@codemirror/view':
         specifier: ^6.0.2
         version: 6.0.2
+      '@fontsource-variable/inter':
+        specifier: ^5.0.5
+        version: 5.0.5
+      '@fontsource-variable/material-symbols-rounded':
+        specifier: ^5.0.5
+        version: 5.0.5
+      '@fontsource-variable/roboto-mono':
+        specifier: ^5.0.6
+        version: 5.0.6
       '@hoppscotch/codemirror-lang-graphql':
         specifier: workspace:^
         version: link:../codemirror-lang-graphql
@@ -730,6 +739,9 @@ importers:
       typescript:
         specifier: ^4.5.4
         version: 4.9.4
+      unplugin-fonts:
+        specifier: ^1.0.3
+        version: 1.0.3(vite@3.2.3)
       unplugin-icons:
         specifier: ^0.14.9
         version: 0.14.9(@vue/compiler-sfc@3.2.39)
@@ -742,9 +754,6 @@ importers:
       vite-plugin-checker:
         specifier: ^0.5.1
         version: 0.5.1(eslint@8.29.0)(typescript@4.9.4)(vite@3.2.3)
-      vite-plugin-fonts:
-        specifier: ^0.6.0
-        version: 0.6.0(vite@3.2.3)
       vite-plugin-html-config:
         specifier: ^1.0.10
         version: 1.0.10(vite@3.2.3)
@@ -867,6 +876,15 @@ importers:
 
   packages/hoppscotch-selfhost-web:
     dependencies:
+      '@fontsource-variable/inter':
+        specifier: ^5.0.5
+        version: 5.0.5
+      '@fontsource-variable/material-symbols-rounded':
+        specifier: ^5.0.5
+        version: 5.0.5
+      '@fontsource-variable/roboto-mono':
+        specifier: ^5.0.6
+        version: 5.0.6
       '@hoppscotch/common':
         specifier: workspace:^
         version: link:../hoppscotch-common
@@ -970,6 +988,9 @@ importers:
       typescript:
         specifier: ^4.6.4
         version: 4.9.4
+      unplugin-fonts:
+        specifier: ^1.0.3
+        version: 1.0.3(vite@3.2.3)
       unplugin-icons:
         specifier: ^0.14.9
         version: 0.14.9(@vue/compiler-sfc@3.2.39)
@@ -979,9 +1000,6 @@ importers:
       vite:
         specifier: ^3.2.3
         version: 3.2.3(@types/node@17.0.24)(sass@1.57.1)(terser@5.19.2)
-      vite-plugin-fonts:
-        specifier: ^0.6.0
-        version: 0.6.0(vite@3.2.3)
       vite-plugin-html-config:
         specifier: ^1.0.10
         version: 1.0.10(vite@3.2.3)
@@ -1018,6 +1036,15 @@ importers:
 
   packages/hoppscotch-sh-admin:
     dependencies:
+      '@fontsource-variable/inter':
+        specifier: ^5.0.5
+        version: 5.0.5
+      '@fontsource-variable/material-symbols-rounded':
+        specifier: ^5.0.5
+        version: 5.0.5
+      '@fontsource-variable/roboto-mono':
+        specifier: ^5.0.6
+        version: 5.0.6
       '@graphql-typed-document-node/core':
         specifier: ^3.1.1
         version: 3.1.1(graphql@16.6.0)
@@ -1142,6 +1169,9 @@ importers:
       typescript:
         specifier: ^4.9.3
         version: 4.9.4
+      unplugin-fonts:
+        specifier: ^1.0.3
+        version: 1.0.3(vite@3.2.3)
       vite:
         specifier: ^3.1.4
         version: 3.2.3(@types/node@18.17.3)(sass@1.57.1)(terser@5.19.2)
@@ -1163,6 +1193,15 @@ importers:
 
   packages/hoppscotch-ui:
     dependencies:
+      '@fontsource-variable/inter':
+        specifier: ^5.0.5
+        version: 5.0.5
+      '@fontsource-variable/material-symbols-rounded':
+        specifier: ^5.0.5
+        version: 5.0.5
+      '@fontsource-variable/roboto-mono':
+        specifier: ^5.0.6
+        version: 5.0.6
       '@hoppscotch/vue-toasted':
         specifier: ^0.1.0
         version: 0.1.0(vue@3.2.41)
@@ -1305,6 +1344,9 @@ importers:
       typescript:
         specifier: ^4.5.4
         version: 4.9.4
+      unplugin-fonts:
+        specifier: ^1.0.3
+        version: 1.0.3(vite@3.2.3)
       unplugin-icons:
         specifier: ^0.15.3
         version: 0.15.3(@vue/compiler-sfc@3.2.39)
@@ -1320,9 +1362,6 @@ importers:
       vite-plugin-dts:
         specifier: 2.0.0-beta.3
         version: 2.0.0-beta.3(@types/node@17.0.24)(rollup@2.79.1)(vite@3.2.3)
-      vite-plugin-fonts:
-        specifier: ^0.6.0
-        version: 0.6.0(vite@3.2.3)
       vite-plugin-html-config:
         specifier: ^1.0.10
         version: 1.0.10(vite@3.2.3)
@@ -4251,6 +4290,18 @@ packages:
 
   /@firebase/webchannel-wrapper@0.6.2:
     resolution: {integrity: sha512-zThUKcqIU6utWzM93uEvhlh8qj8A5LMPFJPvk/ODb+8GSSif19xM2Lw1M2ijyBy8+6skSkQBbavPzOU5Oh/8tQ==}
+    dev: false
+
+  /@fontsource-variable/inter@5.0.5:
+    resolution: {integrity: sha512-hmj/jffr+1tabEPmvm+/b89MtbO6hd5PVbQ6HoMGTO7RMF5eD2C9UcprCgZTOF3OWh5uC21C9HZGN0O9wxe+UQ==}
+    dev: false
+
+  /@fontsource-variable/material-symbols-rounded@5.0.5:
+    resolution: {integrity: sha512-HSCzawb0Vq0f4UYwLdlYsSCjfNw6LUwXKG8pgc0f8dIpG+NapWVfGFObIVL0to4byKmvvGueXC8GjljSn73HMA==}
+    dev: false
+
+  /@fontsource-variable/roboto-mono@5.0.6:
+    resolution: {integrity: sha512-n2TfINPd+mycq6husov36SWO6v1/dKDhxNf6LtB7mKrCtBjWyTAJiC1qjiRmYT4I69/cNQZhlu3Jd+f+JQIR6g==}
     dev: false
 
   /@graphql-codegen/add@3.2.0(graphql@15.8.0):
@@ -20086,6 +20137,20 @@ packages:
     resolution: {integrity: sha512-pjy2bYhSsufwWlKwPc+l3cN7+wuJlK6uz0YdJEOlQDbl6jo/YlPi4mb8agUkVC8BF7V8NuzeyPNqRksA3hztKQ==}
     engines: {node: '>= 0.8'}
 
+  /unplugin-fonts@1.0.3(vite@3.2.3):
+    resolution: {integrity: sha512-6Wq0SMhMznUx7DTkqr/ogCvWg2vFSCApHmhUcUISxqfnuME2B/KRLa6+bWyX3sbPNhYsW4zI7jvUkkmIumwenw==}
+    peerDependencies:
+      '@nuxt/kit': ^3.0.0
+      vite: ^2.0.0 || ^3.0.0 || ^4.0.0
+    peerDependenciesMeta:
+      '@nuxt/kit':
+        optional: true
+    dependencies:
+      fast-glob: 3.3.1
+      unplugin: 1.4.0
+      vite: 3.2.3(@types/node@17.0.24)(sass@1.57.1)(terser@5.19.2)
+    dev: true
+
   /unplugin-icons@0.14.9(@vue/compiler-sfc@3.2.39):
     resolution: {integrity: sha512-vPyVfNREH88dP6gszdaoGkAEFPpiScXj1A8eWN905jQgT53A3tsiPEiqJjCHOUVcsUaREt2JSudzumFOsCA78A==}
     peerDependencies:
@@ -20630,16 +20695,6 @@ packages:
       rollup: 2.79.1
       vite: 3.2.3(@types/node@17.0.24)(sass@1.57.1)(terser@5.19.2)
     dev: false
-
-  /vite-plugin-fonts@0.6.0(vite@3.2.3):
-    resolution: {integrity: sha512-dV6nnLEju8k5EmvlBH6egxkVZ+rgc5zWsJr9+cNRXBMEDnpRGHcZPI260UEDNg2yB99wSTNER2eduEvZFbMIGw==}
-    deprecated: renamed to `unplugin-fonts`, see https://github.com/cssninjaStudio/unplugin-fonts/releases/tag/v1.0.0
-    peerDependencies:
-      vite: ^2.0.0 || ^3.0.0
-    dependencies:
-      fast-glob: 3.3.1
-      vite: 3.2.3(@types/node@17.0.24)(sass@1.57.1)(terser@5.19.2)
-    dev: true
 
   /vite-plugin-html-config@1.0.10(vite@3.2.3):
     resolution: {integrity: sha512-qJCVKC/mR4BIy4EG7AHQ3nGo1BF+3fOjVIka0kXKQMlxT12dl9G5YKmjhLohDzySijOb03R2PzYiAdavwKkqQQ==}

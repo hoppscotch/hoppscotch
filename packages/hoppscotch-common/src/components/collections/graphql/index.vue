@@ -11,7 +11,7 @@
         type="search"
         autocomplete="off"
         :placeholder="t('action.search')"
-        class="py-2 pl-4 pr-2 bg-transparent"
+        class="py-2 pl-4 pr-2 bg-transparent !border-0"
       />
       <div
         class="flex justify-between flex-1 flex-shrink-0 border-y bg-primary border-dividerLight"

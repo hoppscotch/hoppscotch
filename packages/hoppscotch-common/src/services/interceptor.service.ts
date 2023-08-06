@@ -71,6 +71,11 @@ export class InterceptorService extends Service {
     null as string | null,
     {
       onBeforeChange: (value) => {
+        if (!value) {
+          // Only allow `null` if there are no interceptors
+          return this.availableInterceptors.value.length === 0
+        }
+
         if (value && !this.interceptors.has(value)) {
           console.warn(
             "Attempt to set current interceptor ID to unknown ID is ignored"

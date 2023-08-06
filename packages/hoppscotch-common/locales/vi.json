@@ -101,10 +101,10 @@
     "login_to_hoppscotch": "Đăng nhập vào Hoppscotch",
     "logout": "Đăng xuất",
     "re_enter_email": "Nhập lại email",
-    "send_magic_link": "Gửi liên kết phép thuật",
+    "send_magic_link": "Gửi magic link",
     "sync": "Đồng bộ",
-    "we_sent_magic_link": "Chúng tôi đã gửi cho bạn một liên kết phép thuật!",
-    "we_sent_magic_link_description": "Kiểm tra hộp thư đến - chúng tôi đã gửi một email đến {email}. Nó chứa một liên kết phép thuật sẽ giúp bạn đăng nhập."
+    "we_sent_magic_link": "Chúng tôi đã gửi cho bạn một magic link!",
+    "we_sent_magic_link_description": "Kiểm tra hộp thư đến - chúng tôi đã gửi một email đến {email}. Nó chứa một magic link sẽ giúp bạn đăng nhập."
   },
   "authorization": {
     "generate_token": "Tạo token",

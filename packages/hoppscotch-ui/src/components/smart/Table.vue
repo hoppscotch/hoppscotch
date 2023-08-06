@@ -2,7 +2,9 @@
   <div class="overflow-auto rounded-md border border-dividerDark shadow-md">
     <table class="w-full">
       <thead class="bg-primaryLight">
+        <slot v-if="!headings" name="head" />
         <tr
+          v-else
           class="text-secondary border-b border-dividerDark text-sm text-left"
         >
           <th v-for="th in headings" scope="col" class="px-6 py-3">
@@ -12,7 +14,9 @@
       </thead>
 
       <tbody class="divide-y divide-divider">
+        <slot v-if="!list" name="body" />
         <tr
+          v-else
           v-for="(rowData, rowIndex) in list"
           :key="rowIndex"
           class="text-secondaryDark hover:bg-divider hover:cursor-pointer rounded-xl"

@@ -109,7 +109,7 @@
   "authorization": {
     "generate_token": "Tạo token",
     "include_in_url": "Bao gồm trong URL",
-    "learn": "Tìm hiểu cách",
+    "learn": "Tìm hiểu thêm",
     "pass_key_by": "Truyền qua",
     "password": "Mật khẩu",
     "token": "Token",

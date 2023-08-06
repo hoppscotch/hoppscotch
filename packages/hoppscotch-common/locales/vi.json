@@ -119,7 +119,7 @@
   "collection": {
     "created": "Tạo bộ sưu tập thành công",
     "different_parent": "Không thể sắp xếp lại bộ sưu tập với cha khác",
-    "edit": "Chỉnh sửa Bộ sưu tập",
+    "edit": "Chỉnh sửa bộ sưu tập",
     "invalid_name": "Vui lòng cung cấp tên cho bộ sưu tập",
     "invalid_root_move": "Bộ sưu tập đã nằm trong thư mục gốc",
     "moved": "Di chuyển thành công",
@@ -247,7 +247,7 @@
     "edit": "Chỉnh sửa Thư mục",
     "invalid_name": "Vui lòng cung cấp tên cho thư mục",
     "name_length_insufficient": "Tên thư mục phải có ít nhất 3 ký tự",
-    "new": "Thư mục Mới",
+    "new": "Thư mục mới",
     "renamed": "Thư mục đã đổi tên"
   },
   "graphql": {
@@ -262,7 +262,7 @@
   "header": {
     "install_pwa": "Cài đặt ứng dụng",
     "login": "Đăng nhập",
-    "save_workspace": "Lưu Không gian làm việc Của Tôi"
+    "save_workspace": "Lưu Không gian làm việc của tôi"
   },
   "helpers": {
     "authorization": "Tiêu đề ủy quyền sẽ được tự động tạo khi bạn gửi request.",
@@ -292,8 +292,8 @@
     "from_insomnia_description": "Nhập từ bộ sưu tập Insomnia",
     "from_json": "Nhập từ Hoppscotch",
     "from_json_description": "Nhập từ tệp bộ sưu tập Hoppscotch",
-    "from_my_collections": "Nhập từ Bộ sưu tập Của Tôi",
-    "from_my_collections_description": "Nhập từ tệp Bộ sưu tập Của Tôi",
+    "from_my_collections": "Nhập từ bộ sưu tập của tôi",
+    "from_my_collections_description": "Nhập từ tệp bộ sưu tập của tôi",
     "from_openapi": "Nhập từ OpenAPI",
     "from_openapi_description": "Nhập từ tệp đặc tả OpenAPI (YML/JSON)",
     "from_postman": "Nhập từ Postman",
@@ -551,7 +551,7 @@
       "previous_method": "Chọn phương thức trước đó",
       "put_method": "Chọn phương thức PUT",
       "reset_request": "Đặt lại request",
-      "save_to_collections": "Lưu vào Bộ sưu tập",
+      "save_to_collections": "Lưu vào bộ sưu tập",
       "send_request": "Gửi request",
       "title": "Request"
     },
@@ -570,7 +570,7 @@
   },
   "show": {
     "code": "Hiển thị mã",
-    "collection": "Mở rộng bảng điều khiển Bộ sưu tập",
+    "collection": "Mở rộng bảng điều khiển bộ sưu tập",
     "more": "Hiển thị thêm",
     "sidebar": "Mở rộng thanh bên"
   },
@@ -693,9 +693,9 @@
     "more_members": "+{count} người khác",
     "name_length_insufficient": "Tên nhóm phải có ít nhất 6 ký tự",
     "name_updated": "Tên nhóm đã được cập nhật",
-    "new": "Nhóm Mới",
+    "new": "Nhóm mới",
     "new_created": "Đã tạo nhóm mới",
-    "new_name": "Nhóm Mới Của Tôi",
+    "new_name": "Nhóm mới của tôi",
     "no_access": "Bạn không có quyền chỉnh sửa các bộ sưu tập này",
     "no_invite_found": "Không tìm thấy lời mời. Liên hệ với chủ sở hữu nhóm.",
     "no_request_found": "Không tìm thấy request.",

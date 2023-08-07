@@ -82,7 +82,6 @@
             <SmartEnvInput
               v-model="param.key"
               :placeholder="`${t('count.parameter', { count: index + 1 })}`"
-              :env-index="index"
               :inspection-results="
                 getInspectorResult(parameterKeyResults, index)
               "
@@ -98,7 +97,6 @@
             <SmartEnvInput
               v-model="param.value"
               :placeholder="`${t('count.value', { count: index + 1 })}`"
-              :env-index="index"
               :inspection-results="
                 getInspectorResult(parameterValueResults, index)
               "
@@ -441,6 +439,10 @@ watch(
 )
 
 const getInspectorResult = (results: InspectorResult[], index: number) => {
-  return results.filter((result) => result.locations.index === index)
+  return results.filter((result) => {
+    if (result.locations.type === "url" || result.locations.type === "response")
+      return
+    return result.locations.index === index
+  })
 }
 </script>

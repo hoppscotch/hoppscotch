@@ -93,8 +93,8 @@ export interface Inspector {
 }
 
 /**
- * The inspection service is used to perform checks on a request and return the results
- * It is based on the tab request and the checks provided by the component
+ * Defines the inspection service
+ * The service watches the current active tab and returns the inspector results for the request and response
  */
 export class InspectionService extends Service {
   public static readonly ID = "INSPECTION_SERVICE"
@@ -126,7 +126,7 @@ export class InspectionService extends Service {
     )
   }
 
-  public getTabInspectorState(tabID: string) {
-    return this.tabs.value.get(tabID)
+  public deleteTabInspectorResult(tabID: string) {
+    this.tabs.value.delete(tabID)
   }
 }

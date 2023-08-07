@@ -221,6 +221,7 @@ const removeTab = (tabID: string) => {
     confirmingCloseForTabID.value = tabID
   } else {
     closeTab(tab.value.id)
+    inspectionService.deleteTabInspectorResult(tab.value.id)
   }
 }
 
@@ -277,6 +278,7 @@ const renameReqName = () => {
 const onCloseConfirmSaveTab = () => {
   if (!savingRequest.value && confirmingCloseForTabID.value) {
     closeTab(confirmingCloseForTabID.value)
+    inspectionService.deleteTabInspectorResult(confirmingCloseForTabID.value)
     confirmingCloseForTabID.value = null
   }
 }

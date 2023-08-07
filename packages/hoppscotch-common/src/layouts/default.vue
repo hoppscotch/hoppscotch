@@ -160,6 +160,14 @@ defineActionHandler("modals.support.toggle", () => {
   showSupport.value = !showSupport.value
 })
 
+defineActionHandler("navigation.jump.back", () => {
+  router.back()
+})
+
+defineActionHandler("navigation.jump.forward", () => {
+  router.forward()
+})
+
 defineActionHandler("navigation.jump.rest", () => {
   router.push({ path: "/" })
 })

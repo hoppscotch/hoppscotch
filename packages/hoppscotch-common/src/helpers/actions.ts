@@ -28,6 +28,8 @@ export type HoppAction =
   | "modals.environment.add" // Show add environment modal via context menu
   | "modals.my.environment.edit" // Edit current personal environment
   | "modals.team.environment.edit" // Edit current team environment
+  | "navigation.jump.back" // Jump to previous page
+  | "navigation.jump.forward" // Jump to forward page
   | "navigation.jump.rest" // Jump to REST page
   | "navigation.jump.graphql" // Jump to GraphQL page
   | "navigation.jump.realtime" // Jump to realtime page

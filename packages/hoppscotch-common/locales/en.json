@@ -309,7 +309,7 @@
     "title": "Inspector",
     "description": "Inspect possible errors",
     "environment": {
-      "add_environment": "Add to environment."
+      "add_environment": "Add to environment"
     },
     "header": {
       "cookie": "Browser doesn't allow you to set cookie. Use Authorization Header instead."

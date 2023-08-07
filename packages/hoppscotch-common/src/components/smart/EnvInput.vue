@@ -58,6 +58,7 @@
                   >
                     {{ inspector.text.text }}
                     <HoppSmartLink
+                      blank
                       exact
                       :to="inspector.doc.link"
                       class="text-accent underline"

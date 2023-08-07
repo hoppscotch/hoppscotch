@@ -141,7 +141,7 @@ import { InspectionService } from "~/services/inspection"
 import { HeaderInspectorService } from "~/services/inspection/inspectors/header.inspector"
 import { EnvironmentInspectorService } from "~/services/inspection/inspectors/environment.inspector"
 import { URLInspectorService } from "~/services/inspection/inspectors/url.inspector"
-import { ResponseInspectorService } from "~/services/inspection/inspectors/response.interceptor"
+import { ResponseInspectorService } from "~/services/inspection/inspectors/response.inspector"
 
 const savingRequest = ref(false)
 const confirmingCloseForTabID = ref<string | null>(null)

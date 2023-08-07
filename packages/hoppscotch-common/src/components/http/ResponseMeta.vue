@@ -3,6 +3,7 @@
     class="sticky top-0 z-10 flex items-center justify-center flex-shrink-0 p-4 overflow-auto overflow-x-auto bg-primary whitespace-nowrap"
   >
     <AppInspection
+      v-if="response?.type !== 'loading'"
       :inspection-results="tabResults"
       :class="[
         response === null || response?.type === 'network_fail'

@@ -155,6 +155,13 @@ export class SettingsSpotlightSearcherService extends StaticSpotlightSearcherSer
     this.activeFontSize.value = this.fontSizes[newIndex]
   }
 
+  installExtension() {
+    const url = navigator.userAgent.includes("Firefox")
+      ? "https://addons.mozilla.org/en-US/firefox/addon/hoppscotch"
+      : "https://chrome.google.com/webstore/detail/hoppscotch-browser-extens/amknoiejhlmhancpahfcfcfhllgkpbld"
+    window.open(url, "_blank")
+  }
+
   public onDocSelected(id: string): void {
     switch (id) {
       case "nav_settings":
@@ -167,6 +174,10 @@ export class SettingsSpotlightSearcherService extends StaticSpotlightSearcherSer
 
       case "change_lang":
         invokeAction("navigation.jump.settings")
+        break
+
+      case "install_ext":
+        this.installExtension()
         break
 
       // theme actions

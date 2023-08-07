@@ -305,26 +305,27 @@
     "preview": "Hide Preview",
     "sidebar": "Collapse sidebar"
   },
-  "inspections":{
+  "inspections": {
     "title": "Inspector",
-    "environment":{
-      "add_environment": "Add to environment"
+    "description": "Inspect possible errors",
+    "environment": {
+      "add_environment": "Add to environment."
     },
-    "header":{
-      "cookie": "Cookie is not supported in Hoppscotch. Use Authorization header instead."
+    "header": {
+      "cookie": "Browser doesn't allow you to set cookie. Use Authorization Header instead."
     },
     "response": {
-      "401_error": "Please check your credentials",
-      "404_error": "Please check your URL",
-      "network_error": "Please check your network connection",
-      "cors_error": "Please check your CORS configuration",
-      "default_error": "Please check your request"
+      "401_error": "Please check your credentials.",
+      "404_error": "Please check your URL.",
+      "network_error": "Please check your network connection.",
+      "cors_error": "Please check your CORS configuration.",
+      "default_error": "Please check your request."
     },
-    "url":{
-      "extension_not_installed": "Extension not installed",
-      "extention_not_enabled": "Extension not enabled",
+    "url": {
+      "extension_not_installed": "Extension not installed.",
+      "extention_not_enabled": "Extension not enabled.",
       "extention_enable_action": "Enable extension",
-      "extension_unknown_origin": "Please add this origin to the extension"
+      "extension_unknown_origin": "Please add this origin to the extension."
     }
   },
   "import": {

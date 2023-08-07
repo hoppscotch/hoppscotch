@@ -92,6 +92,7 @@ const props = withDefaults(
     environmentHighlights: true,
     autoCompleteSource: undefined,
     inspectionResult: undefined,
+    inspectionResults: undefined,
   }
 )
 

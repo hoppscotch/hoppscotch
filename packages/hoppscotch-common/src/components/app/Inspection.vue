@@ -43,11 +43,11 @@
                 {{ inspector.text.text }}
                 <HoppSmartLink
                   blank
-                  exact
                   :to="inspector.doc.link"
-                  class="text-accent underline"
+                  class="text-accent hover:text-accentDark transition"
                 >
-                  {{ inspector.doc.text }} <icon-lucide-arrow-up-right />
+                  {{ inspector.doc.text }}
+                  <icon-lucide-arrow-up-right class="svg-icons" />
                 </HoppSmartLink>
               </span>
               <span v-if="inspector.action" class="flex p-2 space-x-2">

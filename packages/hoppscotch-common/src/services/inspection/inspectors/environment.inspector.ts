@@ -85,7 +85,9 @@ export class EnvironmentInspectorService extends Service implements Inspector {
                 id: "environment",
                 text: {
                   type: "text",
-                  text: "Environment variable " + exEnv + " not found",
+                  text: this.t("inspections.environment.not_found", {
+                    environment: exEnv,
+                  }),
                 },
                 icon: markRaw(IconPlusCircle),
                 action: {

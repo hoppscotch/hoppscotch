@@ -309,13 +309,14 @@
     "title": "Inspector",
     "description": "Inspect possible errors",
     "environment": {
-      "add_environment": "Add to environment"
+      "add_environment": "Add to Environment",
+      "not_found": "Environment variable “{environment}” not found."
     },
     "header": {
-      "cookie": "Browser doesn't allow you to set cookie. Use Authorization Header instead."
+      "cookie": "The browser doesn't allow Hoppscotch to set the Cookie Header. While we're working on the Hoppscotch Desktop App (coming soon), please use the Authorization Header instead."
     },
     "response": {
-      "401_error": "Please check your credentials.",
+      "401_error": "Please check your authentication credentials.",
       "404_error": "Please check your URL.",
       "network_error": "Please check your network connection.",
       "cors_error": "Please check your CORS configuration.",
@@ -324,8 +325,8 @@
     "url": {
       "extension_not_installed": "Extension not installed.",
       "extention_not_enabled": "Extension not enabled.",
-      "extention_enable_action": "Enable extension",
-      "extension_unknown_origin": "Please add this origin to the extension."
+      "extention_enable_action": "Enable Browser Extension",
+      "extension_unknown_origin": "Make sure you've added the API endpoint's origin to the Hoppscotch Browser Extension list."
     }
   },
   "import": {

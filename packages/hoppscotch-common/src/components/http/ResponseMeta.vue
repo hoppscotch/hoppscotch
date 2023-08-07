@@ -7,11 +7,10 @@
       :inspection-results="tabResults"
       :class="[
         response === null || response?.type === 'network_fail'
-          ? 'absolute left-2 top-2'
+          ? 'absolute right-0 top-0'
           : 'mr-2',
       ]"
     />
-
     <AppShortcutsPrompt v-if="response == null" class="flex-1" />
     <div v-else class="flex flex-col flex-1">
       <div

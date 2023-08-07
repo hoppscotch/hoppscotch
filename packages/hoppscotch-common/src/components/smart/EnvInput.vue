@@ -1,5 +1,5 @@
 <template>
-  <div :ref="uniqueRef" class="autocomplete-wrapper">
+  <div class="autocomplete-wrapper">
     <div class="absolute inset-0 flex flex-1 overflow-x-auto">
       <div
         ref="editor"
@@ -129,7 +129,7 @@ import {
   tooltips,
 } from "@codemirror/view"
 import { EditorSelection, EditorState, Extension } from "@codemirror/state"
-import { clone, uniqueId } from "lodash-es"
+import { clone } from "lodash-es"
 import { history, historyKeymap } from "@codemirror/commands"
 import { inputTheme } from "~/helpers/editor/themes/baseTheme"
 import { HoppReactiveEnvPlugin } from "~/helpers/editor/extensions/HoppEnvironment"
@@ -184,8 +184,6 @@ const emit = defineEmits<{
 }>()
 
 const slots = useSlots()
-
-const uniqueRef = ref(uniqueId().toString())
 
 const t = useI18n()
 

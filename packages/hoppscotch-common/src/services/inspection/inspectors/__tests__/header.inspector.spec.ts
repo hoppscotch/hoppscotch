@@ -2,7 +2,6 @@ import { TestContainer } from "dioc/testing"
 import { describe, expect, it, vi } from "vitest"
 import { HeaderInspectorService } from "../header.inspector"
 import { InspectionService } from "../../index"
-import { ref } from "vue"
 
 vi.mock("~/modules/i18n", () => ({
   __esModule: true,
@@ -34,16 +33,8 @@ describe("HeaderInspectorService", () => {
         endpoint: "http://example.com/api/data",
         headers: [{ key: "Cookie", value: "some-cookie" }],
       }
-      const checks = ["header_validation"]
-      const componentRefID = ref("ref-1")
 
-      const result = headerInspector.getInspectorFor(
-        req,
-        checks,
-        componentRefID
-      )
-
-      console.log("result", result)
+      const result = headerInspector.getInspectorFor(req)
 
       expect(result).toContainEqual(
         expect.objectContaining({ id: "header", isApplicable: true })
@@ -58,14 +49,8 @@ describe("HeaderInspectorService", () => {
         endpoint: "http://example.com/api/data",
         headers: [{ key: "Authorization", value: "Bearer abcd" }],
       }
-      const checks = ["header_validation"]
-      const componentRefID = ref("ref-1")
 
-      const result = headerInspector.getInspectorFor(
-        req,
-        checks,
-        componentRefID
-      )
+      const result = headerInspector.getInspectorFor(req)
 
       expect(result).toHaveLength(0)
     })

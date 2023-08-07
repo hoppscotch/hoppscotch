@@ -24,6 +24,11 @@ export class HeaderInspectorService extends Service implements Inspector {
     this.inspection.registerInspector(this)
   }
 
+  /**
+   * Checks if the header contains cookies
+   * @param req The request to inspect
+   * @returns The inspector results
+   */
   getInspectorFor(req: HoppRESTRequest): InspectorResult[] {
     const results = ref<InspectorResult[]>([])
 

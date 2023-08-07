@@ -5,11 +5,6 @@ import { currentActiveTab, currentTabID } from "~/helpers/rest/tab"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 
 /**
- * Checks that can be performed by the inspector service as an array provided by the specific component
- */
-export type InspectorChecks = Array<Check>
-
-/**
  * Defines how to render the text in an Inspector Result
  */
 export type InspectorTextType<T extends object | Component = never> =

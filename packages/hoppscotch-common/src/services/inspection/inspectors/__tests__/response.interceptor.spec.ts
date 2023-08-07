@@ -2,7 +2,6 @@ import { TestContainer } from "dioc/testing"
 import { describe, expect, it, vi } from "vitest"
 import { ResponseInspectorService } from "../response.interceptor"
 import { InspectionService } from "../../index"
-import { ref } from "vue"
 
 vi.mock("~/modules/i18n", () => ({
   __esModule: true,
@@ -31,15 +30,8 @@ describe("ResponseInspectorService", () => {
       const responseInspector = container.bind(ResponseInspectorService)
 
       const req = { endpoint: "http://example.com/api/data" }
-      const checks = ["response_errors"]
-      const componentRefID = { value: "some-id" }
 
-      const result = responseInspector.getInspectorFor(
-        req,
-        checks,
-        componentRefID,
-        undefined
-      )
+      const result = responseInspector.getInspectorFor(req, undefined)
 
       expect(result).toHaveLength(0)
     })
@@ -49,16 +41,9 @@ describe("ResponseInspectorService", () => {
       const responseInspector = container.bind(ResponseInspectorService)
 
       const req = { endpoint: "http://example.com/api/data" }
-      const checks = ["response_errors"]
-      const componentRefID = { value: "some-id" }
       const res = { type: "network_fail", statusCode: 400 }
 
-      const result = responseInspector.getInspectorFor(
-        req,
-        checks,
-        componentRefID,
-        res
-      )
+      const result = responseInspector.getInspectorFor(req, res)
 
       expect(result).toContainEqual(
         expect.objectContaining({ id: "url", isApplicable: true })
@@ -70,16 +55,9 @@ describe("ResponseInspectorService", () => {
       const responseInspector = container.bind(ResponseInspectorService)
 
       const req = { endpoint: "http://example.com/api/data" }
-      const checks = ["response_errors"]
-      const componentRefID = ref("ref-1")
       const res = { type: "network_fail", statusCode: 500 }
 
-      const result = responseInspector.getInspectorFor(
-        req,
-        checks,
-        componentRefID,
-        res
-      )
+      const result = responseInspector.getInspectorFor(req, res)
 
       expect(result).toContainEqual(
         expect.objectContaining({
@@ -93,16 +71,9 @@ describe("ResponseInspectorService", () => {
       const responseInspector = container.bind(ResponseInspectorService)
 
       const req = { endpoint: "http://example.com/api/data" }
-      const checks = ["response_errors"]
-      const componentRefID = ref("ref-1")
       const res = { type: "fail", statusCode: 500 }
 
-      const result = responseInspector.getInspectorFor(
-        req,
-        checks,
-        componentRefID,
-        res
-      )
+      const result = responseInspector.getInspectorFor(req, res)
 
       expect(result).toContainEqual(
         expect.objectContaining({
@@ -116,16 +87,9 @@ describe("ResponseInspectorService", () => {
       const responseInspector = container.bind(ResponseInspectorService)
 
       const req = { endpoint: "http://example.com/api/data" }
-      const checks = ["response_errors"]
-      const componentRefID = ref("ref-1")
       const res = { type: "success", statusCode: 404 }
 
-      const result = responseInspector.getInspectorFor(
-        req,
-        checks,
-        componentRefID,
-        res
-      )
+      const result = responseInspector.getInspectorFor(req, res)
 
       expect(result).toContainEqual(
         expect.objectContaining({
@@ -139,16 +103,9 @@ describe("ResponseInspectorService", () => {
       const responseInspector = container.bind(ResponseInspectorService)
 
       const req = { endpoint: "http://example.com/api/data" }
-      const checks = ["response_errors"]
-      const componentRefID = ref("ref-1")
       const res = { type: "success", statusCode: 401 }
 
-      const result = responseInspector.getInspectorFor(
-        req,
-        checks,
-        componentRefID,
-        res
-      )
+      const result = responseInspector.getInspectorFor(req, res)
 
       expect(result).toContainEqual(
         expect.objectContaining({
@@ -162,16 +119,9 @@ describe("ResponseInspectorService", () => {
       const responseInspector = container.bind(ResponseInspectorService)
 
       const req = { endpoint: "http://example.com/api/data" }
-      const checks = ["response_errors"]
-      const componentRefID = { value: "some-id" }
       const res = { type: "success", statusCode: 200 }
 
-      const result = responseInspector.getInspectorFor(
-        req,
-        checks,
-        componentRefID,
-        res
-      )
+      const result = responseInspector.getInspectorFor(req, res)
 
       expect(result).toHaveLength(0)
     })

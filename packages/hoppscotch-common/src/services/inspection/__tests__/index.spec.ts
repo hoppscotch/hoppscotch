@@ -1,7 +1,6 @@
 import { describe, it, expect } from "vitest"
 import { Inspector, InspectionService, InspectorResult } from "../"
 import { TestContainer } from "dioc/testing"
-import { Ref, ref } from "vue"
 
 const inspectorResultMock: InspectorResult[] = [
   {
@@ -10,7 +9,12 @@ const inspectorResultMock: InspectorResult[] = [
     icon: {},
     isApplicable: true,
     severity: 2,
-    componentRefID: "ref-1",
+    locations: { type: "url" },
+    action: {
+      text: "Sample Action",
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
+      apply: () => {},
+    },
   },
 ]
 
@@ -27,57 +31,23 @@ describe("InspectionService", () => {
 
       service.registerInspector(testInspector)
 
-      const req = {
-        endpoint: "http://example.com/api/data",
-        headers: {},
-        params: {},
-      }
-      const checks = ["all_validation"]
-      const componentRefID: Ref<string> = ref("ref-1")
-
-      const result = service.getInspectorFor(req, checks, componentRefID)
-
-      expect(result).toContainEqual(expect.objectContaining({ id: "result1" }))
+      expect(service.inspectors.has(testInspector.inspectorID)).toBe(true)
     })
   })
 
-  describe("getInspectorFor", () => {
-    it("should get the inspection results", () => {
-      const sampleResults = inspectorResultMock
-
+  describe("deleteTabInspectorResult", () => {
+    it("should delete a tab's inspector results", () => {
       const container = new TestContainer()
       const service = container.bind(InspectionService)
 
-      service.registerInspector(testInspector)
+      const tabID = "testTab"
+      service.tabs.value.set(tabID, inspectorResultMock)
 
-      const req = {
-        endpoint: "http://example.com/api/data",
-        headers: {},
-        params: {},
-      }
-      const checks = ["all_validation"]
-      const componentRefID: Ref<string> = ref("ref-1")
+      expect(service.tabs.value.has(tabID)).toBe(true)
 
-      const results = service.getInspectorFor(req, checks, componentRefID)
+      service.deleteTabInspectorResult(tabID)
 
-      expect(results).toEqual(sampleResults)
-    })
-
-    it("should return empty array if no inspectors are registered", () => {
-      const container = new TestContainer()
-      const service = container.bind(InspectionService)
-
-      const req = {
-        endpoint: "http://example.com/api/data",
-        headers: {},
-        params: {},
-      }
-      const checks = ["all_validation"]
-      const componentRefID: Ref<string> = ref("ref-1")
-
-      const results = service.getInspectorFor(req, checks, componentRefID)
-
-      expect(results).toEqual([])
+      expect(service.tabs.value.has(tabID)).toBe(false)
     })
   })
 })

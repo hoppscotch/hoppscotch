@@ -42,7 +42,7 @@ export class EnvironmentInspectorService extends Service implements Inspector {
    * Validates the environment variables in the target array
    * @param target The target array to validate
    * @param results The results array to push the results to
-   * @param componentRefID The component reference ID
+   * @param locations The location where results are to be displayed
    * @returns The results array
    */
   private validateEnvironmentVariables = (
@@ -113,8 +113,6 @@ export class EnvironmentInspectorService extends Service implements Inspector {
    * It checks if any env is used in the request ie, url, headers, params
    * and checks if the env is defined in the environment using the validateEnvironmentVariables function
    * @param req The request to inspect
-   * @param checks The checks to perform
-   * @param componentRefID The component reference ID
    * @returns The inspector results
    */
   getInspectorFor(req: HoppRESTRequest): InspectorResult[] {

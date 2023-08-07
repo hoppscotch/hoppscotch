@@ -83,10 +83,6 @@
               v-model="header.key"
               :placeholder="`${t('count.header', { count: index + 1 })}`"
               :auto-complete-source="commonHeaders"
-              :inspector-checks="[
-                'header_validation',
-                'header_key_environment_validation',
-              ]"
               :env-index="index"
               :inspection-results="headerKeyResults"
               @change="

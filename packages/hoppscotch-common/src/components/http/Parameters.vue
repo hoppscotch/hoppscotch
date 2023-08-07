@@ -420,13 +420,13 @@ watch(
 
     const tabResult = results.get(tabID)
     if (tabResult) {
-      parameterKeyResults.value = tabResult?.filter(
+      parameterKeyResults.value = tabResult.filter(
         (result) =>
           result.locations.type === "parameter" &&
           result.locations.position === "key"
       )
 
-      parameterValueResults.value = tabResult?.filter(
+      parameterValueResults.value = tabResult.filter(
         (result) =>
           result.locations.type === "parameter" &&
           result.locations.position === "value"

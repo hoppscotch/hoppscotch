@@ -2,7 +2,6 @@ import { TestContainer } from "dioc/testing"
 import { describe, expect, it, vi } from "vitest"
 import { EnvironmentInspectorService } from "../environment.inspector"
 import { InspectionService } from "../../index"
-import { ref } from "vue"
 
 vi.mock("~/modules/i18n", () => ({
   __esModule: true,
@@ -36,10 +35,8 @@ describe("EnvironmentInspectorService", () => {
       const envInspector = container.bind(EnvironmentInspectorService)
 
       const req = { endpoint: "<<UNDEFINED_ENV_VAR>>", headers: {}, params: {} }
-      const checks = ["url_environment_validation", "all_validation"]
-      const componentRefID = ref("ref-1")
 
-      const result = envInspector.getInspectorFor(req, checks, componentRefID)
+      const result = envInspector.getInspectorFor(req)
 
       expect(result).toContainEqual(
         expect.objectContaining({
@@ -58,10 +55,8 @@ describe("EnvironmentInspectorService", () => {
       const envInspector = container.bind(EnvironmentInspectorService)
 
       const req = { endpoint: "<<EXISTING_ENV_VAR>>", headers: {}, params: {} }
-      const checks = ["url_environment_validation", "all_validation"]
-      const componentRefID = { value: "some-id" }
 
-      const result = envInspector.getInspectorFor(req, checks, componentRefID)
+      const result = envInspector.getInspectorFor(req)
 
       expect(result).toHaveLength(0)
     })
@@ -75,10 +70,8 @@ describe("EnvironmentInspectorService", () => {
         headers: [{ key: "<<UNDEFINED_ENV_VAR>>", value: "some-value" }],
         params: {},
       }
-      const checks = ["header_environment_validation", "all_validation"]
-      const componentRefID = ref("ref-1")
 
-      const result = envInspector.getInspectorFor(req, checks, componentRefID)
+      const result = envInspector.getInspectorFor(req)
 
       expect(result).toContainEqual(
         expect.objectContaining({
@@ -101,10 +94,8 @@ describe("EnvironmentInspectorService", () => {
         headers: [{ key: "<<EXISTING_ENV_VAR>>", value: "some-value" }],
         params: {},
       }
-      const checks = ["header_environment_validation", "all_validation"]
-      const componentRefID = ref("ref-1")
 
-      const result = envInspector.getInspectorFor(req, checks, componentRefID)
+      const result = envInspector.getInspectorFor(req)
 
       expect(result).toHaveLength(0)
     })
@@ -118,10 +109,8 @@ describe("EnvironmentInspectorService", () => {
         headers: [],
         params: [{ key: "<<UNDEFINED_ENV_VAR>>", value: "some-value" }],
       }
-      const checks = ["param_environment_validation", "all_validation"]
-      const componentRefID = ref("ref-1")
 
-      const result = envInspector.getInspectorFor(req, checks, componentRefID)
+      const result = envInspector.getInspectorFor(req)
 
       expect(result).toContainEqual(
         expect.objectContaining({
@@ -144,10 +133,8 @@ describe("EnvironmentInspectorService", () => {
         headers: [],
         params: [{ key: "<<EXISTING_ENV_VAR>>", value: "some-value" }],
       }
-      const checks = ["param_environment_validation", "all_validation"]
-      const componentRefID = ref("ref-1")
 
-      const result = envInspector.getInspectorFor(req, checks, componentRefID)
+      const result = envInspector.getInspectorFor(req)
 
       expect(result).toHaveLength(0)
     })

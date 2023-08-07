@@ -1,20 +1,25 @@
+import { Component, computed, markRaw, reactive } from "vue"
+import { useSetting } from "~/composables/settings"
+import { invokeAction } from "~/helpers/actions"
+import { getI18n } from "~/modules/i18n"
+import { HoppBgColor, HoppFontSizes, applySetting } from "~/newstore/settings"
 import { SpotlightSearcherResult, SpotlightService } from ".."
 import {
   SearchResult,
   StaticSpotlightSearcherService,
 } from "./base/static.searcher"
-import { getI18n } from "~/modules/i18n"
-import { Component, computed, markRaw, reactive } from "vue"
-import { useStreamStatic } from "~/composables/stream"
-import { activeActions$, invokeAction } from "~/helpers/actions"
-import { useSetting } from "~/composables/settings"
-import { HoppBgColor, HoppFontSizes, applySetting } from "~/newstore/settings"
 
+import IconCloud from "~icons/lucide/cloud"
 import IconLanguages from "~icons/lucide/languages"
 import IconMonitor from "~icons/lucide/monitor"
-import IconSun from "~icons/lucide/sun"
-import IconCloud from "~icons/lucide/cloud"
 import IconMoon from "~icons/lucide/moon"
+import IconSettings from "~icons/lucide/settings"
+import IconSun from "~icons/lucide/sun"
+import {
+  default as IconCable,
+  default as IconExtension,
+  default as IconType,
+} from "~icons/lucide/type"
 
 type Doc = {
   text: string
@@ -50,33 +55,34 @@ export class SettingsSpotlightSearcherService extends StaticSpotlightSearcherSer
 
   private readonly spotlight = this.bind(SpotlightService)
 
-  private activeActions = useStreamStatic(activeActions$, [], () => {
-    /* noop */
-  })[0]
-
   private documents: Record<string, Doc> = reactive({
-    change_theme_to_system: {
-      text: this.t("settings.change_theme_to_system"),
+    nav_settings: {
+      text: this.t("navigation.settings"),
+      alternates: ["settings", "preferences"],
+      icon: markRaw(IconSettings),
+    },
+    theme_system: {
+      text: this.t("shortcut.theme.system"),
       alternates: ["theme"],
       icon: markRaw(IconMonitor),
     },
-    change_theme_to_light: {
-      text: this.t("settings.change_theme_to_light"),
+    theme_light: {
+      text: this.t("shortcut.theme.light"),
       alternates: ["theme"],
       icon: markRaw(IconSun),
     },
-    change_theme_to_dark: {
-      text: this.t("settings.change_theme_to_dark"),
+    theme_dark: {
+      text: this.t("shortcut.theme.dark"),
       alternates: ["theme"],
       icon: markRaw(IconCloud),
     },
-    change_theme_to_black: {
-      text: this.t("settings.change_theme_to_black"),
+    theme_black: {
+      text: this.t("shortcut.theme.black"),
       alternates: ["theme"],
       icon: markRaw(IconMoon),
     },
     increase_font_size: {
-      text: this.t("settings.increase_font_size"),
+      text: this.t("spotlight.increase_font_size"),
       excludeFromSearch: computed(() => this.isLargeFontSize.value),
       alternates: [
         "font size",
@@ -84,10 +90,10 @@ export class SettingsSpotlightSearcherService extends StaticSpotlightSearcherSer
         "change font",
         "increase font",
       ],
-      icon: markRaw(IconLanguages),
+      icon: markRaw(IconType),
     },
     decrease_font_size: {
-      text: this.t("settings.decrease_font_size"),
+      text: this.t("spotlight.decrease_font_size"),
       excludeFromSearch: computed(() => this.isSmallFontSize.value),
       alternates: [
         "font size",
@@ -95,22 +101,22 @@ export class SettingsSpotlightSearcherService extends StaticSpotlightSearcherSer
         "change font",
         "increase font",
       ],
-      icon: markRaw(IconLanguages),
+      icon: markRaw(IconType),
     },
     change_interceptor: {
-      text: this.t("settings.change_interceptor"),
+      text: this.t("spotlight.change_interceptor"),
       alternates: ["interceptor", "change interceptor"],
-      icon: markRaw(IconLanguages),
+      icon: markRaw(IconCable),
     },
     change_lang: {
-      text: this.t("settings.change_language"),
+      text: this.t("spotlight.change_language"),
       alternates: ["language", "lang"],
       icon: markRaw(IconLanguages),
     },
     install_ext: {
-      text: this.t("settings.install_extension"),
+      text: this.t("spotlight.install_extension"),
       alternates: ["install extension", "extension"],
-      icon: markRaw(IconLanguages),
+      icon: markRaw(IconExtension),
     },
   })
 
@@ -151,18 +157,30 @@ export class SettingsSpotlightSearcherService extends StaticSpotlightSearcherSer
 
   public onDocSelected(id: string): void {
     switch (id) {
+      case "nav_settings":
+        invokeAction("navigation.jump.settings")
+        break
+
+      case "change_interceptor":
+        invokeAction("navigation.jump.settings")
+        break
+
+      case "change_lang":
+        invokeAction("navigation.jump.settings")
+        break
+
       // theme actions
-      case "change_theme_to_system":
-        this.changeTheme("system")
+      case "theme_system":
+        invokeAction("settings.theme.system")
         break
-      case "change_theme_to_light":
-        this.changeTheme("light")
+      case "theme_light":
+        invokeAction("settings.theme.light")
         break
-      case "change_theme_to_dark":
-        this.changeTheme("dark")
+      case "theme_dark":
+        invokeAction("settings.theme.dark")
         break
-      case "change_theme_to_black":
-        this.changeTheme("black")
+      case "theme_black":
+        invokeAction("settings.theme.black")
         break
 
       // font size actions

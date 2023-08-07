@@ -187,7 +187,9 @@ watch(
     const filteredInspections = tabResult?.filter(
       (result) => result.locations.type === "response"
     )
-    tabResults.value = filteredInspections
+    if (filteredInspections) {
+      tabResults.value = filteredInspections
+    }
   },
   { immediate: true, deep: true }
 )

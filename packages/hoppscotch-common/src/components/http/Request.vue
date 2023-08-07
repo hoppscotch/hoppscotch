@@ -649,7 +649,9 @@ watch(
   (results) => {
     const tabID = currentTabID.value
     const tabResult = results.get(tabID)
-    tabResults.value = tabResult
+    if (tabResult) {
+      tabResults.value = tabResult
+    }
   },
   { immediate: true, deep: true }
 )

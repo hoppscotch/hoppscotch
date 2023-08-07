@@ -82,7 +82,6 @@
             <SmartEnvInput
               v-model="param.key"
               :placeholder="`${t('count.parameter', { count: index + 1 })}`"
-              :inspector-checks="['parameter_key_environment_validation']"
               :env-index="index"
               :inspection-results="parameterKeyResults"
               @change="
@@ -420,17 +419,19 @@ watch(
     const tabID = currentTabID.value
 
     const tabResult = results.get(tabID)
-    parameterKeyResults.value = tabResult?.filter(
-      (result) =>
-        result.locations.type === "parameter" &&
-        result.locations.position === "key"
-    )
+    if (tabResult) {
+      parameterKeyResults.value = tabResult?.filter(
+        (result) =>
+          result.locations.type === "parameter" &&
+          result.locations.position === "key"
+      )
 
-    parameterValueResults.value = tabResult?.filter(
-      (result) =>
-        result.locations.type === "parameter" &&
-        result.locations.position === "value"
-    )
+      parameterValueResults.value = tabResult?.filter(
+        (result) =>
+          result.locations.type === "parameter" &&
+          result.locations.position === "value"
+      )
+    }
   },
   { immediate: true, deep: true }
 )

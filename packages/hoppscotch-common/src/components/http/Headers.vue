@@ -522,17 +522,19 @@ watch(
     const tabID = currentTabID.value
 
     const tabResult = results.get(tabID)
-    headerKeyResults.value = tabResult?.filter(
-      (result) =>
-        result.locations.type === "header" &&
-        result.locations.position === "key"
-    )
+    if (tabResult) {
+      headerKeyResults.value = tabResult.filter(
+        (result) =>
+          result.locations.type === "header" &&
+          result.locations.position === "key"
+      )
 
-    headerValueResults.value = tabResult?.filter(
-      (result) =>
-        result.locations.type === "header" &&
-        result.locations.position === "value"
-    )
+      headerValueResults.value = tabResult.filter(
+        (result) =>
+          result.locations.type === "header" &&
+          result.locations.position === "value"
+      )
+    }
   },
   { immediate: true, deep: true }
 )

@@ -584,10 +584,10 @@
       "title": "Response"
     },
     "theme": {
-      "black": "Switch Theme to Black Mode",
-      "dark": "Switch Theme to Dark Mode",
-      "light": "Switch Theme to Light Mode",
-      "system": "Switch Theme to System Mode",
+      "black": "Switch theme to Black Mode",
+      "dark": "Switch theme to Dark Mode",
+      "light": "Switch theme to Light Mode",
+      "system": "Switch theme to System Mode",
       "title": "Theme"
     }
   },
@@ -607,14 +607,25 @@
   },
   "spotlight": {
     "section": {
-      "user": "User"
+      "user": "User",
+      "theme": "Theme",
+      "interface": "Interface",
+      "interceptor": "Interceptor"
     },
-    "font_size_sm": "Change Font Size to Small",
-    "font_size_md": "Change Font Size to Medium",
-    "font_size_lg": "Change Font Size to Large",
-    "change_interceptor": "Change Interceptor",
-    "change_language": "Change Language",
-    "install_extension": "Install Browser Extension"
+    "settings": {
+      "theme": {
+        "black": "Black Mode",
+        "dark": "Dark Mode",
+        "light": "Light Mode",
+        "system": "System Mode"
+      },
+      "font_size_sm": "Change Font Size to Small",
+      "font_size_md": "Change Font Size to Medium",
+      "font_size_lg": "Change Font Size to Large",
+      "change_interceptor": "Change Interceptor",
+      "change_language": "Change Language",
+      "install_extension": "Install Browser Extension"
+    }
   },
   "sse": {
     "event_type": "Event type",

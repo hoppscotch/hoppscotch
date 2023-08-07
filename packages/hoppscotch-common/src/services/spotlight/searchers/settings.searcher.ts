@@ -10,15 +10,12 @@ import {
 } from "./base/static.searcher"
 
 import IconCloud from "~icons/lucide/cloud"
-import IconLanguages from "~icons/lucide/languages"
 import IconMonitor from "~icons/lucide/monitor"
 import IconMoon from "~icons/lucide/moon"
 import IconSun from "~icons/lucide/sun"
-import {
-  default as IconCable,
-  default as IconExtension,
-  default as IconType,
-} from "~icons/lucide/type"
+import IconGlobe from "~icons/lucide/globe"
+import IconShieldCheck from "~icons/lucide/shield-check"
+import IconType from "~icons/lucide/type"
 
 type Doc = {
   text: string
@@ -47,22 +44,34 @@ export class SettingsSpotlightSearcherService extends StaticSpotlightSearcherSer
 
   private documents: Record<string, Doc> = reactive({
     theme_system: {
-      text: this.t("shortcut.theme.system"),
+      text: [
+        this.t("spotlight.section.theme"),
+        this.t("spotlight.settings.theme.system"),
+      ],
       alternates: ["theme"],
       icon: markRaw(IconMonitor),
     },
     theme_light: {
-      text: this.t("shortcut.theme.light"),
+      text: [
+        this.t("spotlight.section.theme"),
+        this.t("spotlight.settings.theme.light"),
+      ],
       alternates: ["theme"],
       icon: markRaw(IconSun),
     },
     theme_dark: {
-      text: this.t("shortcut.theme.dark"),
+      text: [
+        this.t("spotlight.section.theme"),
+        this.t("spotlight.settings.theme.dark"),
+      ],
       alternates: ["theme"],
       icon: markRaw(IconCloud),
     },
     theme_black: {
-      text: this.t("shortcut.theme.black"),
+      text: [
+        this.t("spotlight.section.theme"),
+        this.t("spotlight.settings.theme.black"),
+      ],
       alternates: ["theme"],
       icon: markRaw(IconMoon),
     },
@@ -102,20 +111,29 @@ export class SettingsSpotlightSearcherService extends StaticSpotlightSearcherSer
       ],
       icon: markRaw(IconType),
     },
-    change_interceptor: {
-      text: this.t("spotlight.change_interceptor"),
-      alternates: ["interceptor", "change interceptor"],
-      icon: markRaw(IconCable),
-    },
     change_lang: {
-      text: this.t("spotlight.change_language"),
-      alternates: ["language", "lang"],
-      icon: markRaw(IconLanguages),
+      text: [
+        this.t("spotlight.section.interface"),
+        this.t("spotlight.settings.change_language"),
+      ],
+      alternates: ["language", "change language"],
+      icon: markRaw(IconGlobe),
+    },
+    change_interceptor: {
+      text: [
+        this.t("spotlight.section.interceptor"),
+        this.t("spotlight.settings.change_interceptor"),
+      ],
+      alternates: ["interceptor", "change interceptor"],
+      icon: markRaw(IconShieldCheck),
     },
     install_ext: {
-      text: this.t("spotlight.install_extension"),
-      alternates: ["install extension", "extension"],
-      icon: markRaw(IconExtension),
+      text: [
+        this.t("spotlight.section.interceptor"),
+        this.t("spotlight.settings.install_extension"),
+      ],
+      alternates: ["install extension", "extension", "interceptor"],
+      icon: markRaw(IconShieldCheck),
     },
   })
 

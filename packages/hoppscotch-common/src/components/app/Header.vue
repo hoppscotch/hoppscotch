@@ -70,6 +70,12 @@
             @handle-click="handleTeamEdit()"
           />
           <div
+            v-if="
+              '// Only allow Owner to invite other' &&
+              workspace.type === 'team' &&
+              selectedTeam &&
+              selectedTeam?.myRole === 'OWNER'
+            "
             class="flex border divide-x rounded bg-green-500/15 divide-green-600/25 border-green-600/25 focus-within:bg-green-400/10 focus-within:border-green-800/50 focus-within:divide-green-800/50 hover:bg-green-400/10 hover:border-green-800/50 hover:divide-green-800/50"
           >
             <HoppButtonSecondary
@@ -80,11 +86,6 @@
               @click="handleInvite()"
             />
             <HoppButtonSecondary
-              v-if="
-                workspace.type === 'team' &&
-                selectedTeam &&
-                selectedTeam?.myRole === 'OWNER'
-              "
               v-tippy="{ theme: 'tooltip' }"
               :title="t('team.edit')"
               :icon="IconSettings"
@@ -97,6 +98,10 @@
             trigger="click"
             theme="popover"
             :on-shown="() => accountActions.focus()"
+            :on-create="
+              (instance) =>
+                instance.popper.classList.add('header-ws-tippy-popper')
+            "
           >
             <HoppButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
@@ -375,3 +380,14 @@ const settings = ref<any | null>(null)
 const logout = ref<any | null>(null)
 const accountActions = ref<any | null>(null)
 </script>
+
+<style>
+.header-ws-tippy-popper {
+  .tippy-box {
+    max-width: none !important;
+  }
+  .tippy-box[data-theme~="popover"] .tippy-content {
+    max-height: none;
+  }
+}
+</style>

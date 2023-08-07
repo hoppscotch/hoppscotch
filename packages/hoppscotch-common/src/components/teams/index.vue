@@ -2,6 +2,7 @@
   <div>
     <div class="space-y-4">
       <HoppButtonSecondary
+        v-if="false && '// Team creation should be handled at Admin Site only'"
         :label="`${t('team.create_new')}`"
         outline
         @click="displayModalAdd(true)"
@@ -23,7 +24,13 @@
         <span class="mb-4 text-center">
           {{ t("empty.teams") }}
         </span>
+        <span class="mb-4 text-center">
+          {{ t("empty.teams_ask_admin") }}
+        </span>
         <HoppButtonSecondary
+          v-if="
+            false && '// Team creation should be handled at Admin Site only'
+          "
           :label="`${t('team.create_new')}`"
           filled
           @click="displayModalAdd(true)"
@@ -51,7 +58,11 @@
         {{ t("error.something_went_wrong") }}
       </div>
     </div>
-    <TeamsAdd :show="showModalAdd" @hide-modal="displayModalAdd(false)" />
+    <TeamsAdd
+      v-if="false && '// Team creation should be handled at Admin Site only'"
+      :show="showModalAdd"
+      @hide-modal="displayModalAdd(false)"
+    />
     <!-- ¯\_(ツ)_/¯ -->
     <TeamsEdit
       v-if="!loading && myTeams.length > 0"

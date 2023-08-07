@@ -130,7 +130,10 @@
                       />
                     </form>
                   </div>
-                  <div class="py-4">
+                  <div
+                    v-if="false && '//Dont allow user to change email'"
+                    class="py-4"
+                  >
                     <label for="emailAddress">
                       {{ t("settings.profile_email") }}
                     </label>
@@ -159,7 +162,9 @@
                   </div>
                 </section>
 
-                <ProfileUserDelete />
+                <ProfileUserDelete
+                  v-if="false && '//Dont allow user to self-delete account'"
+                />
 
                 <section class="p-4">
                   <h4 class="font-semibold text-secondaryDark">

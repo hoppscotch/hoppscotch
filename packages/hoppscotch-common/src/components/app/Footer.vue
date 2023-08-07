@@ -77,6 +77,7 @@
                 "
               />
               <HoppSmartItem
+                v-if="false && 'dont need to show this menu'"
                 ref="chat"
                 :icon="IconMessageCircle"
                 :label="`${t('app.chat_with_us')}`"
@@ -89,6 +90,7 @@
                 "
               />
               <HoppSmartItem
+                v-if="false && 'dont need to show this menu'"
                 :icon="IconGift"
                 :label="`${t('app.whats_new')}`"
                 to="https://docs.hoppscotch.io/documentation/changelog"
@@ -96,6 +98,7 @@
                 @click="hide()"
               />
               <HoppSmartItem
+                v-if="false && 'dont need to show this menu'"
                 :icon="IconActivity"
                 :label="t('app.status')"
                 to="https://status.hoppscotch.io"
@@ -104,6 +107,7 @@
               />
               <hr />
               <HoppSmartItem
+                v-if="false && 'dont need to show this menu'"
                 :icon="IconGithub"
                 :label="`${t('app.github')}`"
                 to="https://github.com/hoppscotch/hoppscotch"
@@ -111,6 +115,7 @@
                 @click="hide()"
               />
               <HoppSmartItem
+                v-if="false && 'dont need to show this menu'"
                 :icon="IconTwitter"
                 :label="`${t('app.twitter')}`"
                 to="https://hoppscotch.io/twitter"
@@ -118,6 +123,7 @@
                 @click="hide()"
               />
               <HoppSmartItem
+                v-if="false && 'dont need to show this menu'"
                 :icon="IconUserPlus"
                 :label="`${t('app.invite')}`"
                 @click="
@@ -128,6 +134,7 @@
                 "
               />
               <HoppSmartItem
+                v-if="false && 'dont need to show this menu'"
                 :icon="IconLock"
                 :label="`${t('app.terms_and_privacy')}`"
                 to="https://docs.hoppscotch.io/support/privacy"

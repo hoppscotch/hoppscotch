@@ -80,7 +80,11 @@
                   : null
               "
               @keyup.delete="
-                team.myRole === 'OWNER' ? deleteAction.$el.click() : null
+                false &&
+                '//dont allow to delete team at frontend site' &&
+                team.myRole === 'OWNER'
+                  ? deleteAction.$el.click()
+                  : null
               "
               @keyup.escape="hide()"
             >
@@ -111,7 +115,11 @@
                 "
               />
               <HoppSmartItem
-                v-if="team.myRole === 'OWNER'"
+                v-if="
+                  false &&
+                  '//dont allow to delete team at frontend site' &&
+                  team.myRole === 'OWNER'
+                "
                 ref="deleteAction"
                 :icon="IconTrash2"
                 :label="t('action.delete')"
@@ -129,6 +137,7 @@
       </span>
     </div>
     <HoppSmartConfirmModal
+      v-if="false && '//dont allow to delete team at frontend site'"
       :show="confirmRemove"
       :title="t('confirm.remove_team')"
       @hide-modal="confirmRemove = false"
@@ -149,7 +158,7 @@ import { pipe } from "fp-ts/function"
 import * as TE from "fp-ts/TaskEither"
 import { GetMyTeamsQuery } from "~/helpers/backend/graphql"
 import {
-  deleteTeam as backendDeleteTeam,
+  // deleteTeam as backendDeleteTeam,
   leaveTeam,
 } from "~/helpers/backend/mutations/Team"
 
@@ -181,6 +190,7 @@ const confirmRemove = ref(false)
 const confirmExit = ref(false)
 
 const deleteTeam = () => {
+  /* Update: Don't allow to delete team at frontend site
   pipe(
     backendDeleteTeam(props.teamID),
     TE.match(
@@ -194,6 +204,7 @@ const deleteTeam = () => {
       }
     )
   )() // Tasks (and TEs) are lazy, so call the function returned
+  */
 }
 
 const exitTeam = () => {

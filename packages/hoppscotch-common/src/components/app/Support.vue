@@ -27,6 +27,7 @@
           @click="showShortcuts()"
         />
         <HoppSmartItem
+          v-if="false && 'dont need to show this menu'"
           :icon="IconGift"
           :label="t('app.whats_new')"
           to="https://docs.hoppscotch.io/documentation/changelog"
@@ -37,6 +38,7 @@
           @click="hideModal()"
         />
         <HoppSmartItem
+          v-if="false && 'dont need to show this menu'"
           :icon="IconMessageCircle"
           :label="t('app.chat_with_us')"
           :description="t('support.chat')"
@@ -45,6 +47,7 @@
           @click="chatWithUs()"
         />
         <HoppSmartItem
+          v-if="false && 'dont need to show this menu'"
           :icon="IconGitHub"
           :label="t('app.github')"
           to="https://hoppscotch.io/github"
@@ -55,6 +58,7 @@
           @click="hideModal()"
         />
         <HoppSmartItem
+          v-if="false && 'dont need to show this menu'"
           :icon="IconDiscord"
           :label="t('app.join_discord_community')"
           to="https://hoppscotch.io/discord"
@@ -65,6 +69,7 @@
           @click="hideModal()"
         />
         <HoppSmartItem
+          v-if="false && 'dont need to show this menu'"
           :icon="IconTwitter"
           :label="t('app.twitter')"
           to="https://hoppscotch.io/twitter"

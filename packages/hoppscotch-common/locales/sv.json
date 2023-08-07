@@ -69,7 +69,7 @@
     "invite_your_friends": "Bjud in dina vänner",
     "join_discord_community": "Gå med i vår Discord -community",
     "keyboard_shortcuts": "Tangentbordsgenvägar",
-    "name": "Hoppscotch",
+    "name": "IKEA Hoppscotch",
     "new_version_found": "Ny version hittades. Uppdatera för att uppdatera.",
     "options": "Options",
     "proxy_privacy_policy": "Sekretesspolicy för proxy",
@@ -184,6 +184,7 @@
     "subscription": "Subscriptions are empty",
     "team_name": "Lagets namn är tomt",
     "teams": "Lag är tomma",
+    "teams_ask_admin": "Kontakta din teamadministratör eller Test Enablement.",
     "tests": "Det finns inga tester för denna begäran"
   },
   "environment": {

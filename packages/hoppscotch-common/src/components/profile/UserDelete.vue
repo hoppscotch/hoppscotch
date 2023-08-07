@@ -14,7 +14,9 @@
       @click="showDeleteAccountModal = true"
     />
     <HoppSmartModal
-      v-if="showDeleteAccountModal"
+      v-if="
+        false && '//never show delete account modal' && showDeleteAccountModal
+      "
       dialog
       :title="t('settings.delete_account')"
       @close="showDeleteAccountModal = false"

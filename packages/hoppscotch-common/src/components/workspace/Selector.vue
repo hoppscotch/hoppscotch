@@ -28,7 +28,13 @@
         <span class="mb-4 text-center">
           {{ t("empty.teams") }}
         </span>
+        <span class="text-center">
+          {{ t("empty.teams_ask_admin") }}
+        </span>
         <HoppButtonSecondary
+          v-if="
+            false && '// Team creation should be handled at Admin Site only'
+          "
           :label="t('team.create_new')"
           filled
           outline
@@ -44,6 +50,9 @@
             {{ t("team.title") }}
           </div>
           <HoppButtonSecondary
+            v-if="
+              false && '// Team creation should be handled at Admin Site only'
+            "
             v-tippy="{ theme: 'tooltip' }"
             :icon="IconPlus"
             :title="`${t('team.create_new')}`"
@@ -157,8 +166,10 @@ watch(
   }
 )
 
-const displayModalAdd = (shouldDisplay: boolean) => {
+const displayModalAdd = (/*shouldDisplay: boolean*/) => {
+  /* Update: Team creation should be handled at Admin Site only
   showModalAdd.value = shouldDisplay
   teamListadapter.fetchList()
+  */
 }
 </script>

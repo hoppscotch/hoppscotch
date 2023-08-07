@@ -237,10 +237,12 @@ export default defineComponent({
     },
   },
   methods: {
-    displayModalAdd(shouldDisplay) {
-      this.showModalAdd = shouldDisplay
+    displayModalAdd(/*shouldDisplay*/) {
+      // never allow to show the "Add team model" at frontend app
+      return
+      // this.showModalAdd = shouldDisplay
     },
-    displayModalEdit(shouldDisplay) {
+    displayModalEdit(shouldDisplay: boolean) {
       this.showModalEdit = shouldDisplay
 
       if (!shouldDisplay) this.resetSelectedData()

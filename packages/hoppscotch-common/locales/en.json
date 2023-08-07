@@ -69,7 +69,7 @@
     "invite_your_friends": "Invite your friends",
     "join_discord_community": "Join our Discord community",
     "keyboard_shortcuts": "Keyboard shortcuts",
-    "name": "Hoppscotch",
+    "name": "IKEA Hoppscotch",
     "new_version_found": "New version found. Refresh to update.",
     "options": "Options",
     "proxy_privacy_policy": "Proxy privacy policy",
@@ -183,7 +183,8 @@
     "shortcodes": "Shortcodes are empty",
     "subscription": "Subscriptions are empty",
     "team_name": "Team name empty",
-    "teams": "You don't belong to any teams",
+    "teams": "You don't belong to any teams!",
+    "teams_ask_admin": "Please contact your team admin or Test Enablement.",
     "tests": "There are no tests for this request"
   },
   "environment": {

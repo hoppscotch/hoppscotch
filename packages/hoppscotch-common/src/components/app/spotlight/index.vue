@@ -95,6 +95,7 @@ import {
 import { isEqual } from "lodash-es"
 import { HistorySpotlightSearcherService } from "~/services/spotlight/searchers/history.searcher"
 import { UserSpotlightSearcherService } from "~/services/spotlight/searchers/user.searcher"
+import { NavigationSpotlightSearcherService } from "~/services/spotlight/searchers/navigation.searcher"
 
 const t = useI18n()
 
@@ -110,6 +111,7 @@ const spotlightService = useService(SpotlightService)
 
 useService(HistorySpotlightSearcherService)
 useService(UserSpotlightSearcherService)
+useService(NavigationSpotlightSearcherService)
 
 const search = ref("")
 

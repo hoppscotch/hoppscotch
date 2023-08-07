@@ -10,7 +10,6 @@
         @keydown="handleKeystroke"
         @focusin="showSuggestionPopover = true"
       ></div>
-
       <div v-if="hasApplicableInspector">
         <tippy interactive trigger="click" theme="popover">
           <div class="flex justify-center items-center flex-1 felx-col">
@@ -24,7 +23,7 @@
           <template #content="{ hide }">
             <div class="flex flex-col space-y-2 items-start flex-1">
               <div
-                class="flex justify-between border rounded pl-2 border-divider bg-popover sticky top-0 flex-1 w-full"
+                class="flex justify-between border rounded pl-2 border-divider bg-popover sticky top-0 self-stretch"
               >
                 <span class="flex items-center flex-1">
                   <icon-lucide-activity class="mr-2 svg-icons text-accent" />
@@ -40,34 +39,44 @@
                   :icon="IconHelpCircle"
                 />
               </div>
-
-              <div v-for="(inspector, index) in inspectionResults" :key="index">
+              <div
+                v-for="(inspector, index) in inspectionResults"
+                :key="index"
+                class="flex self-stretch"
+              >
                 <div
                   v-if="
                     typeof envIndex !== 'undefined'
                       ? inspector.locations.index === envIndex
                       : true
                   "
-                  class="flex items-center p-2 border rounded border-dividerDark border-dashed items-center w-full"
+                  class="flex flex-col flex-1 rounded border border-dashed border-dividerDark divide-y divide-dashed divide-dividerDark"
                 >
-                  <div class="flex space-x-4 items-center">
-                    <span v-if="inspector.text.type === 'text'" class="flex-1">
-                      {{ inspector.text.text }}
-                    </span>
-                    <span v-if="inspector.action">
-                      <HoppButtonSecondary
-                        :label="inspector.action.text"
-                        outline
-                        filled
-                        @click="
-                          () => {
-                            inspector.action?.apply()
-                            hide()
-                          }
-                        "
-                      />
-                    </span>
-                  </div>
+                  <span
+                    v-if="inspector.text.type === 'text'"
+                    class="flex-1 px-3 py-2"
+                  >
+                    {{ inspector.text.text }}
+                    <RouterLink
+                      :to="inspector.doc.link"
+                      class="text-accent underline"
+                    >
+                      {{ inspector.doc.text }} <icon-lucide-arrow-up-right />
+                    </RouterLink>
+                  </span>
+                  <span v-if="inspector.action" class="flex p-2 space-x-2">
+                    <HoppButtonSecondary
+                      :label="inspector.action.text"
+                      outline
+                      filled
+                      @click="
+                        () => {
+                          inspector.action?.apply()
+                          hide()
+                        }
+                      "
+                    />
+                  </span>
                 </div>
               </div>
             </div>

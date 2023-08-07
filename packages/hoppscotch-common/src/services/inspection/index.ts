@@ -61,6 +61,10 @@ export interface InspectorResult {
     text: string
     apply: () => void
   }
+  doc: {
+    text: string
+    link: string
+  }
   locations: InspectorLocation
 }
 

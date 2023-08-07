@@ -83,7 +83,9 @@
               v-model="param.key"
               :placeholder="`${t('count.parameter', { count: index + 1 })}`"
               :env-index="index"
-              :inspection-results="parameterKeyResults"
+              :inspection-results="
+                getInspectorResult(parameterKeyResults, index)
+              "
               @change="
                 updateParam(index, {
                   id: param.id,
@@ -97,7 +99,9 @@
               v-model="param.value"
               :placeholder="`${t('count.value', { count: index + 1 })}`"
               :env-index="index"
-              :inspection-results="parameterValueResults"
+              :inspection-results="
+                getInspectorResult(parameterValueResults, index)
+              "
               @change="
                 updateParam(index, {
                   id: param.id,
@@ -435,4 +439,8 @@ watch(
   },
   { immediate: true, deep: true }
 )
+
+const getInspectorResult = (results: InspectorResult[], index: number) => {
+  return results.filter((result) => result.locations.index === index)
+}
 </script>

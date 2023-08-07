@@ -84,6 +84,7 @@
               :placeholder="`${t('count.parameter', { count: index + 1 })}`"
               :inspector-checks="['parameter_key_environment_validation']"
               :env-index="index"
+              :inspection-results="parameterKeyResults"
               @change="
                 updateParam(index, {
                   id: param.id,
@@ -97,7 +98,7 @@
               v-model="param.value"
               :placeholder="`${t('count.value', { count: index + 1 })}`"
               :env-index="index"
-              :inspector-checks="['parameter_value_environment_validation']"
+              :inspection-results="parameterValueResults"
               @change="
                 updateParam(index, {
                   id: param.id,
@@ -199,6 +200,9 @@ import { useToast } from "@composables/toast"
 import { throwError } from "@functional/error"
 import { objRemoveKey } from "@functional/object"
 import { useVModel } from "@vueuse/core"
+import { useService } from "dioc/vue"
+import { InspectionService, InspectorResult } from "~/services/inspection"
+import { currentTabID } from "~/helpers/rest/tab"
 
 const colorMode = useColorMode()
 
@@ -402,4 +406,32 @@ const clearContent = () => {
 
   bulkParams.value = ""
 }
+
+const inspectionService = useService(InspectionService)
+
+const allTabResults = inspectionService.tabs
+
+const parameterKeyResults = ref<InspectorResult[]>([])
+const parameterValueResults = ref<InspectorResult[]>([])
+
+watch(
+  allTabResults,
+  (results) => {
+    const tabID = currentTabID.value
+
+    const tabResult = results.get(tabID)
+    parameterKeyResults.value = tabResult?.filter(
+      (result) =>
+        result.locations.type === "parameter" &&
+        result.locations.position === "key"
+    )
+
+    parameterValueResults.value = tabResult?.filter(
+      (result) =>
+        result.locations.type === "parameter" &&
+        result.locations.position === "value"
+    )
+  },
+  { immediate: true, deep: true }
+)
 </script>

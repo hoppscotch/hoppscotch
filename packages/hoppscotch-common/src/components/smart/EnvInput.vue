@@ -40,18 +40,13 @@
                   :icon="IconHelpCircle"
                 />
               </div>
-              <div
-                v-for="(inspector, index) in inspectors"
-                :key="index"
-                class="flex w-full"
-              >
+
+              <div v-for="(inspector, index) in inspectionResults" :key="index">
                 <div
                   v-if="
-                    inspector.isApplicable &&
-                    inspector.componentRefID === uniqueRef &&
-                    (typeof envIndex !== 'undefined'
-                      ? inspector.index === envIndex
-                      : true)
+                    typeof envIndex !== 'undefined'
+                      ? inspector.locations.index === envIndex
+                      : true
                   "
                   class="flex items-center p-2 border rounded border-dividerDark border-dashed items-center w-full"
                 >
@@ -67,7 +62,6 @@
                         @click="
                           () => {
                             inspector.action?.apply()
-                            updateInspectorValue()
                             hide()
                           }
                         "
@@ -134,17 +128,8 @@ import { useReadonlyStream } from "@composables/stream"
 import { AggregateEnvironment, aggregateEnvs$ } from "~/newstore/environments"
 import { platform } from "~/platform"
 import { useI18n } from "~/composables/i18n"
-import { onClickOutside, watchDebounced, useDebounceFn } from "@vueuse/core"
-import { useService } from "dioc/vue"
-import {
-  InspectionService,
-  InspectorChecks,
-  InspectorResult,
-} from "~/services/inspection"
-import { EnvironmentInspectorService } from "~/services/inspection/inspectors/environment.inspector"
-import { currentActiveTab } from "~/helpers/rest/tab"
-import { URLInspectorService } from "~/services/inspection/inspectors/url.inspector"
-import { HeaderInspectorService } from "~/services/inspection/inspectors/header.inspector"
+import { onClickOutside, useDebounceFn } from "@vueuse/core"
+import { InspectorChecks, InspectorResult } from "~/services/inspection"
 import IconAlertTriangle from "~icons/lucide/alert-triangle"
 import IconHelpCircle from "~icons/lucide/help-circle"
 import { invokeAction } from "~/helpers/actions"
@@ -162,6 +147,7 @@ const props = withDefaults(
     autoCompleteSource?: string[]
     inspectorChecks?: InspectorChecks
     envIndex?: number | undefined
+    inspectionResults?: InspectorResult[] | undefined
   }>(),
   {
     modelValue: "",
@@ -174,6 +160,7 @@ const props = withDefaults(
     autoCompleteSource: undefined,
     inspectorChecks: undefined,
     envIndex: undefined,
+    inspectionResult: undefined,
   }
 )
 
@@ -232,47 +219,25 @@ const suggestions = computed(() => {
   }
 })
 
-const inspectors = ref<InspectorResult[] | null>(null)
-
-const inspectionService = useService(InspectionService)
-
-useService(EnvironmentInspectorService)
-useService(URLInspectorService)
-useService(HeaderInspectorService)
-
-const updateInspectorValue = () => {
-  const currentTab = currentActiveTab
-
-  const inspecResults = inspectionService.getInspectorFor(
-    currentTab.value.document.request,
-    props.inspectorChecks ?? [],
-    uniqueRef,
-    currentActiveTab.value.response ?? undefined
-  )
-  nextTick(() => {
-    inspectors.value = inspecResults
-  })
-}
-
 const hasApplicableInspector = computed(() => {
-  if (inspectors.value) {
+  if (props.inspectionResults) {
     if (typeof props.envIndex !== "undefined") {
-      return inspectors.value.some(
+      return props.inspectionResults.some(
         (inspector) =>
-          inspector.isApplicable && inspector.index === props.envIndex
+          inspector.isApplicable && inspector.locations.index === props.envIndex
       )
     }
-    return inspectors.value.some((inspector) => inspector.isApplicable)
+    return props.inspectionResults.some((inspector) => inspector.isApplicable)
   } else {
     return false
   }
 })
 
 const getHighestSeverity = computed(() => {
-  if (inspectors.value) {
+  if (props.inspectionResults) {
     if (typeof props.envIndex !== "undefined") {
-      return inspectors.value
-        .filter((inspector) => inspector.index === props.envIndex)
+      return props.inspectionResults
+        .filter((inspector) => inspector.locations.index === props.envIndex)
         .reduce(
           (prev, curr) => {
             return prev.severity > curr.severity ? prev : curr
@@ -280,7 +245,7 @@ const getHighestSeverity = computed(() => {
           { severity: 0 }
         )
     }
-    return inspectors.value.reduce(
+    return props.inspectionResults.reduce(
       (prev, curr) => {
         return prev.severity > curr.severity ? prev : curr
       },
@@ -289,26 +254,6 @@ const getHighestSeverity = computed(() => {
   } else {
     return { severity: 0 }
   }
-})
-
-watchDebounced(
-  () => props.modelValue,
-  () => {
-    updateInspectorValue()
-  },
-  { immediate: true, debounce: 500 }
-)
-
-const updateModelValue = (value: string) => {
-  emit("update:modelValue", value)
-  emit("change", value)
-  nextTick(() => {
-    showSuggestionPopover.value = false
-  })
-}
-
-onMounted(() => {
-  updateInspectorValue()
 })
 
 const severityColor = (severity: number) => {
@@ -322,6 +267,14 @@ const severityColor = (severity: number) => {
     default:
       return "text-gray-500 hover:text-gray-600"
   }
+}
+
+const updateModelValue = (value: string) => {
+  emit("update:modelValue", value)
+  emit("change", value)
+  nextTick(() => {
+    showSuggestionPopover.value = false
+  })
 }
 
 const handleKeystroke = (ev: KeyboardEvent) => {

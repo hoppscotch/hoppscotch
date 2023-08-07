@@ -2,7 +2,7 @@ import { getI18n } from "~/modules/i18n"
 import {
   InspectionService,
   Inspector,
-  InspectorChecks,
+  InspectorLocation,
   InspectorResult,
 } from ".."
 import { Service } from "dioc"
@@ -48,7 +48,7 @@ export class EnvironmentInspectorService extends Service implements Inspector {
   private validateEnvironmentVariables = (
     target: any[],
     results: Ref<InspectorResult[]>,
-    componentRefID: Ref<string>
+    locations: InspectorLocation
   ) => {
     const env = getAggregateEnvs()
     const envKeys = env.map((e) => e.key)
@@ -56,13 +56,33 @@ export class EnvironmentInspectorService extends Service implements Inspector {
     target.forEach((element, index) => {
       if (isENVInString(element)) {
         const extractedEnv = element.match(HOPP_ENVIRONMENT_REGEX)
+
         if (extractedEnv) {
           extractedEnv.forEach((exEnv: string) => {
             const formattedExEnv = exEnv.slice(2, -2)
+            let itemLocation: InspectorLocation
+            if (locations.type === "header") {
+              itemLocation = {
+                type: "header",
+                position: locations.position,
+                index: index,
+                key: element,
+              }
+            } else if (locations.type === "parameter") {
+              itemLocation = {
+                type: "parameter",
+                position: locations.position,
+                index: index,
+                key: element,
+              }
+            } else {
+              itemLocation = {
+                type: "url",
+              }
+            }
             if (!envKeys.includes(formattedExEnv)) {
               results.value.push({
                 id: "environment",
-                componentRefID: componentRefID.value,
                 text: {
                   type: "text",
                   text: "Environment variable " + exEnv + " not found",
@@ -79,7 +99,7 @@ export class EnvironmentInspectorService extends Service implements Inspector {
                 },
                 severity: 3,
                 isApplicable: true,
-                index: index,
+                locations: itemLocation,
               })
             }
           })
@@ -97,61 +117,44 @@ export class EnvironmentInspectorService extends Service implements Inspector {
    * @param componentRefID The component reference ID
    * @returns The inspector results
    */
-  getInspectorFor(
-    req: HoppRESTRequest,
-    checks: InspectorChecks,
-    componentRefID: Ref<string>
-  ): InspectorResult[] {
+  getInspectorFor(req: HoppRESTRequest): InspectorResult[] {
     const results = ref<InspectorResult[]>([])
 
     const headers = req.headers
 
     const params = req.params
 
-    const isCheckContains = (checksArray: InspectorChecks) => {
-      return checks.some((check) => checksArray.includes(check))
-    }
+    this.validateEnvironmentVariables([req.endpoint], results, {
+      type: "url",
+    })
 
-    if (
-      checks.includes("url_environment_validation") &&
-      checks.includes("all_validation")
-    ) {
-      this.validateEnvironmentVariables([req.endpoint], results, componentRefID)
-    }
-    if (
-      isCheckContains(["header_key_environment_validation", "all_validation"])
-    ) {
-      const headerKeys = Object.values(headers).map((header) => header.key)
+    const headerKeys = Object.values(headers).map((header) => header.key)
 
-      this.validateEnvironmentVariables(headerKeys, results, componentRefID)
-    }
-    if (
-      isCheckContains(["header_value_environment_validation", "all_validation"])
-    ) {
-      const headerValues = Object.values(headers).map((header) => header.value)
+    this.validateEnvironmentVariables(headerKeys, results, {
+      type: "header",
+      position: "key",
+    })
 
-      this.validateEnvironmentVariables(headerValues, results, componentRefID)
-    }
-    if (
-      isCheckContains([
-        "parameter_key_environment_validation",
-        "all_validation",
-      ])
-    ) {
-      const paramsKeys = Object.values(params).map((param) => param.key)
+    const headerValues = Object.values(headers).map((header) => header.value)
 
-      this.validateEnvironmentVariables(paramsKeys, results, componentRefID)
-    }
-    if (
-      isCheckContains([
-        "parameter_value_environment_validation",
-        "all_validation",
-      ])
-    ) {
-      const paramsValues = Object.values(params).map((param) => param.value)
+    this.validateEnvironmentVariables(headerValues, results, {
+      type: "header",
+      position: "value",
+    })
 
-      this.validateEnvironmentVariables(paramsValues, results, componentRefID)
-    }
+    const paramsKeys = Object.values(params).map((param) => param.key)
+
+    this.validateEnvironmentVariables(paramsKeys, results, {
+      type: "parameter",
+      position: "key",
+    })
+
+    const paramsValues = Object.values(params).map((param) => param.value)
+
+    this.validateEnvironmentVariables(paramsValues, results, {
+      type: "parameter",
+      position: "value",
+    })
 
     return results.value
   }

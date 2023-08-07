@@ -88,6 +88,7 @@
                 'header_key_environment_validation',
               ]"
               :env-index="index"
+              :inspection-results="headerKeyResults"
               @change="
                 updateHeader(index, {
                   id: header.id,
@@ -100,7 +101,7 @@
             <SmartEnvInput
               v-model="header.value"
               :placeholder="`${t('count.value', { count: index + 1 })}`"
-              :inspector-checks="['header_value_environment_validation']"
+              :inspection-results="headerValueResults"
               :env-index="index"
               @change="
                 updateHeader(index, {
@@ -267,6 +268,9 @@ import {
 } from "~/helpers/utils/EffectiveURL"
 import { aggregateEnvs$, getAggregateEnvs } from "~/newstore/environments"
 import { useVModel } from "@vueuse/core"
+import { useService } from "dioc/vue"
+import { InspectionService, InspectorResult } from "~/services/inspection"
+import { currentTabID } from "~/helpers/rest/tab"
 
 const t = useI18n()
 const toast = useToast()
@@ -504,4 +508,32 @@ const changeTab = (tab: ComputedHeader["source"]) => {
   if (tab === "auth") emit("change-tab", "authorization")
   else emit("change-tab", "bodyParams")
 }
+
+const inspectionService = useService(InspectionService)
+
+const allTabResults = inspectionService.tabs
+
+const headerKeyResults = ref<InspectorResult[]>([])
+const headerValueResults = ref<InspectorResult[]>([])
+
+watch(
+  allTabResults,
+  (results) => {
+    const tabID = currentTabID.value
+
+    const tabResult = results.get(tabID)
+    headerKeyResults.value = tabResult?.filter(
+      (result) =>
+        result.locations.type === "header" &&
+        result.locations.position === "key"
+    )
+
+    headerValueResults.value = tabResult?.filter(
+      (result) =>
+        result.locations.type === "header" &&
+        result.locations.position === "value"
+    )
+  },
+  { immediate: true, deep: true }
+)
 </script>

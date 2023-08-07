@@ -3,7 +3,7 @@
     class="sticky top-0 z-10 flex items-center justify-center flex-shrink-0 p-4 overflow-auto overflow-x-auto bg-primary whitespace-nowrap"
   >
     <div
-      v-for="(inspector, index) in inspectors"
+      v-for="(inspector, index) in tabResults"
       :key="index"
       :class="[
         response === null || response?.type === 'network_fail'
@@ -12,7 +12,7 @@
       ]"
     >
       <div
-        v-if="inspector.isApplicable && inspector.componentRefID === uniqueRef"
+        v-if="inspector.isApplicable"
         class="flex justify-center items-center"
       >
         <tippy ref="options" interactive theme="popover">
@@ -109,14 +109,8 @@ import { useI18n } from "@composables/i18n"
 import { useColorMode } from "@composables/theming"
 import { getStatusCodeReasonPhrase } from "~/helpers/utils/statusCodes"
 import { useService } from "dioc/vue"
-import {
-  InspectionService,
-  InspectorChecks,
-  InspectorResult,
-} from "~/services/inspection"
-import { currentActiveTab } from "~/helpers/rest/tab"
-import { uniqueId } from "lodash-es"
-import { ResponseInspectorService } from "~/services/inspection/inspectors/response.interceptor"
+import { InspectionService, InspectorResult } from "~/services/inspection"
+import { currentTabID } from "~/helpers/rest/tab"
 
 const t = useI18n()
 const colorMode = useColorMode()
@@ -166,35 +160,6 @@ const statusCategory = computed(() => {
   return findStatusGroup(props.response.statusCode)
 })
 
-const inspectors = ref<InspectorResult[] | null>(null)
-
-const checks: InspectorChecks = ["response_errors"]
-
-const uniqueRef = ref(uniqueId().toString())
-
-const inspectionService = useService(InspectionService)
-useService(ResponseInspectorService)
-
-watch(
-  () => props.response,
-  (response) => {
-    if (response) {
-      const result = inspectionService.getInspectorFor(
-        currentActiveTab.value.document.request,
-        checks,
-        uniqueRef,
-        response
-      )
-
-      if (response?.type !== "loading") {
-        inspectors.value = result
-      } else {
-        inspectors.value = null
-      }
-    }
-  }
-)
-
 const severityColor = (severity: number) => {
   switch (severity) {
     case 1:
@@ -207,4 +172,23 @@ const severityColor = (severity: number) => {
       return "text-gray-500"
   }
 }
+const inspectionService = useService(InspectionService)
+
+const allTabResults = inspectionService.tabs
+
+const tabResults = ref<InspectorResult[]>([])
+
+watch(
+  allTabResults,
+  (results) => {
+    const tabID = currentTabID.value
+
+    const tabResult = results.get(tabID)
+    const filteredInspections = tabResult?.filter(
+      (result) => result.locations.type === "response"
+    )
+    tabResults.value = filteredInspections
+  },
+  { immediate: true, deep: true }
+)
 </script>

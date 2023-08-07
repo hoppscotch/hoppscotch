@@ -1,13 +1,8 @@
 import { Service } from "dioc"
-import {
-  InspectionService,
-  Inspector,
-  InspectorChecks,
-  InspectorResult,
-} from ".."
+import { InspectionService, Inspector, InspectorResult } from ".."
 import { getI18n } from "~/modules/i18n"
 import { HoppRESTRequest } from "@hoppscotch/data"
-import { Ref, markRaw, ref } from "vue"
+import { markRaw, ref } from "vue"
 import IconAlertTriangle from "~icons/lucide/alert-triangle"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 
@@ -32,16 +27,10 @@ export class ResponseInspectorService extends Service implements Inspector {
 
   getInspectorFor(
     req: HoppRESTRequest,
-    checks: InspectorChecks,
-    componentRefID: Ref<string>,
     res: HoppRESTResponse | undefined
   ): InspectorResult[] {
     const results = ref<InspectorResult[]>([])
     if (!res) return results.value
-
-    const isCheckContains = (checksArray: InspectorChecks) => {
-      return checks.some((check) => checksArray.includes(check))
-    }
 
     const hasErrors = res && (res.type !== "success" || res.statusCode !== 200)
 
@@ -59,10 +48,9 @@ export class ResponseInspectorService extends Service implements Inspector {
       text = this.t("inspections.response.success")
     }
 
-    if (isCheckContains(["response_errors", "all_validation"]) && hasErrors) {
+    if (hasErrors) {
       results.value.push({
         id: "url",
-        componentRefID: componentRefID.value,
         icon: markRaw(IconAlertTriangle),
         text: {
           type: "text",
@@ -70,6 +58,9 @@ export class ResponseInspectorService extends Service implements Inspector {
         },
         severity: 2,
         isApplicable: true,
+        locations: {
+          type: "response",
+        },
       })
     }
 

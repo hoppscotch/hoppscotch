@@ -53,7 +53,7 @@
           v-model="tab.document.request.endpoint"
           :placeholder="`${t('request.url')}`"
           :auto-complete-source="userHistories"
-          :inspector-checks="['all_validation', 'url_environment_validation']"
+          :inspection-results="tabResults"
           @paste="onPasteUrl($event)"
           @enter="newSendRequest"
         >
@@ -242,7 +242,7 @@ import { useToast } from "@composables/toast"
 import { refAutoReset, useVModel } from "@vueuse/core"
 import * as E from "fp-ts/Either"
 import { isLeft, isRight } from "fp-ts/lib/Either"
-import { computed, onBeforeUnmount, ref } from "vue"
+import { computed, onBeforeUnmount, ref, watch } from "vue"
 import { defineActionHandler } from "~/helpers/actions"
 import { runMutation } from "~/helpers/backend/GQLClient"
 import { UpdateRequestDocument } from "~/helpers/backend/graphql"
@@ -266,12 +266,14 @@ import IconLink2 from "~icons/lucide/link-2"
 import IconRotateCCW from "~icons/lucide/rotate-ccw"
 import IconSave from "~icons/lucide/save"
 import IconShare2 from "~icons/lucide/share-2"
-import { HoppRESTTab } from "~/helpers/rest/tab"
+import { HoppRESTTab, currentTabID } from "~/helpers/rest/tab"
 import { getDefaultRESTRequest } from "~/helpers/rest/default"
 import { RESTHistoryEntry, restHistory$ } from "~/newstore/history"
 import { platform } from "~/platform"
 import { getCurrentStrategyID } from "~/helpers/network"
 import { HoppGQLRequest, HoppRESTRequest } from "@hoppscotch/data"
+import { useService } from "dioc/vue"
+import { InspectionService, InspectorResult } from "~/services/inspection"
 
 const t = useI18n()
 
@@ -635,4 +637,20 @@ const isCustomMethod = computed(() => {
 })
 
 const COLUMN_LAYOUT = useSetting("COLUMN_LAYOUT")
+
+const inspectionService = useService(InspectionService)
+
+const allTabResults = inspectionService.tabs
+
+const tabResults = ref<InspectorResult[]>([])
+
+watch(
+  allTabResults,
+  (results) => {
+    const tabID = currentTabID.value
+    const tabResult = results.get(tabID)
+    tabResults.value = tabResult
+  },
+  { immediate: true, deep: true }
+)
 </script>

@@ -1,13 +1,8 @@
 import { Service } from "dioc"
-import {
-  InspectionService,
-  Inspector,
-  InspectorChecks,
-  InspectorResult,
-} from ".."
+import { InspectionService, Inspector, InspectorResult } from ".."
 import { getI18n } from "~/modules/i18n"
 import { HoppRESTRequest } from "@hoppscotch/data"
-import { Ref, computed, markRaw, ref } from "vue"
+import { computed, markRaw, ref } from "vue"
 import IconAlertTriangle from "~icons/lucide/alert-triangle"
 import { useReadonlyStream } from "~/composables/stream"
 import { extensionStatus$ } from "~/newstore/HoppExtension"
@@ -34,11 +29,7 @@ export class URLInspectorService extends Service implements Inspector {
     this.inspection.registerInspector(this)
   }
 
-  getInspectorFor(
-    req: HoppRESTRequest,
-    checks: InspectorChecks,
-    componentRefID: Ref<string>
-  ): InspectorResult[] {
+  getInspectorFor(req: HoppRESTRequest): InspectorResult[] {
     const PROXY_ENABLED = useSetting("PROXY_ENABLED")
 
     const currentExtensionStatus = useReadonlyStream(extensionStatus$, null)
@@ -50,17 +41,12 @@ export class URLInspectorService extends Service implements Inspector {
 
     const results = ref<InspectorResult[]>([])
 
-    const isCheckContains = (checksArray: InspectorChecks) => {
-      return checks.some((check) => checksArray.includes(check))
-    }
-
     const url = req.endpoint
 
     const isContainLocalhost = url.includes("localhost")
 
     if (
       isContainLocalhost &&
-      isCheckContains(["url_validation", "all_validation"]) &&
       (!EXTENSIONS_ENABLED.value || !isExtensionInstalled.value)
     ) {
       let text
@@ -79,7 +65,6 @@ export class URLInspectorService extends Service implements Inspector {
 
       results.value.push({
         id: "url",
-        componentRefID: componentRefID.value,
         icon: markRaw(IconAlertTriangle),
         text: {
           type: "text",
@@ -88,13 +73,15 @@ export class URLInspectorService extends Service implements Inspector {
         action: {
           text: this.t("inspections.url.extention_enable_action"),
           apply: () => {
-            console.log("apply")
             applySetting("EXTENSIONS_ENABLED", true)
             if (PROXY_ENABLED.value) toggleSetting("PROXY_ENABLED")
           },
         },
         severity: 2,
         isApplicable: true,
+        locations: {
+          type: "url",
+        },
       })
     }
 

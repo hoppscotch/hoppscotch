@@ -6,6 +6,9 @@ import type { getI18n } from "~/modules/i18n"
 import { throwError } from "~/helpers/functional/error"
 import { Component, Ref, computed, reactive, watch, unref, markRaw } from "vue"
 
+/**
+ * Defines the response data from an interceptor request run.
+ */
 export type NetworkResponse = AxiosResponse<unknown> & {
   config?: {
     timeData?: {
@@ -15,6 +18,9 @@ export type NetworkResponse = AxiosResponse<unknown> & {
   }
 }
 
+/**
+ * Defines the errors that can occur during interceptor request run.
+ */
 export type InterceptorError =
   | "cancellation"
   | {
@@ -25,12 +31,25 @@ export type InterceptorError =
       error?: unknown
     }
 
+/**
+ * Defines the result of an interceptor request run.
+ */
 export type RequestRunResult<Err extends InterceptorError = InterceptorError> =
   {
+    /**
+     * Cancels the interceptor request run.
+     */
     cancel: () => void
+
+    /**
+     * Promise that resolves when the interceptor request run is finished.
+     */
     response: Promise<E.Either<Err, NetworkResponse>>
   }
 
+/**
+ * Defines whether an interceptor is selectable or not
+ */
 export type InterceptorSelectableStatus<CustomComponentProps = any> =
   | { type: "selectable" }
   | {
@@ -51,23 +70,69 @@ export type InterceptorSelectableStatus<CustomComponentProps = any> =
           }
     }
 
+/**
+ * An interceptor is an object that defines how to run a Hoppscotch request.
+ */
 export type Interceptor<Err extends InterceptorError = InterceptorError> = {
+  /**
+   * The ID of the interceptor. This should be unique across all registered interceptors.
+   */
   interceptorID: string
+
+  /**
+   * The function that returns the name of the interceptor.
+   * @param t The i18n function.
+   */
   name: (t: ReturnType<typeof getI18n>) => MaybeRef<string>
+
+  /**
+   * Defines what to render in the Interceptor section of the Settings page.
+   * Use this space to define interceptor specific settings.
+   * Not setting this will lead to nothing being rendered about this interceptor in the settings page.
+   */
   settingsPageEntry?: {
+    /**
+     * The title of the interceptor entry in the settings page.
+     */
     entryTitle: (t: ReturnType<typeof getI18n>) => string
+
+    /**
+     * The component to render in the settings page.
+     */
     component: Component
   }
+
+  /**
+   * Defines what to render under the entry for the interceptor in the Interceptor selector.
+   */
   selectorSubtitle?: Component
+
+  /**
+   * Defines whether the interceptor is selectable or not.
+   */
   selectable: MaybeRef<InterceptorSelectableStatus<unknown>>
+
+  /**
+   * Runs the interceptor on the given request.
+   * NOTE: Make sure this function doesn't throw, instead when an error occurs, return a Left Either with the error.
+   * @param request The request to run the interceptor on.
+   */
   runRequest: (request: AxiosRequestConfig) => RequestRunResult<Err>
 }
 
+/**
+ * This service deals with the registration and execution of
+ * interceptors for request execution.
+ */
 export class InterceptorService extends Service {
   public static readonly ID = "INTERCEPTOR_SERVICE"
 
   private interceptors: Map<string, Interceptor> = reactive(new Map())
 
+  /**
+   * The ID of the currently selected interceptor.
+   * If `null`, there are no interceptors registered or none can be selected.
+   */
   public currentInterceptorID: Ref<string | null> = refWithControl(
     null as string | null,
     {
@@ -89,6 +154,9 @@ export class InterceptorService extends Service {
     }
   )
 
+  /**
+   * List of interceptors that are registered with the service.
+   */
   public availableInterceptors = computed(() =>
     Array.from(this.interceptors.values())
   )
@@ -96,6 +164,7 @@ export class InterceptorService extends Service {
   constructor() {
     super()
 
+    // If the current interceptor is unselectable, select the first selectable one, else null
     watch([() => this.interceptors, this.currentInterceptorID], () => {
       if (!this.currentInterceptorID.value) return
 
@@ -115,6 +184,10 @@ export class InterceptorService extends Service {
     })
   }
 
+  /**
+   * Register an interceptor with the service.
+   * @param interceptor The interceptor to register
+   */
   public registerInterceptor(interceptor: Interceptor) {
     // markRaw so that interceptor state by itself is not fully marked reactive
     this.interceptors.set(interceptor.interceptorID, markRaw(interceptor))
@@ -124,6 +197,11 @@ export class InterceptorService extends Service {
     }
   }
 
+  /**
+   * Runs a request through the currently selected interceptor.
+   * @param req The request to run
+   * @throws If no interceptor is selected
+   */
   public runRequest(req: AxiosRequestConfig): RequestRunResult {
     if (!this.currentInterceptorID.value) {
       throw new Error("No interceptor selected")

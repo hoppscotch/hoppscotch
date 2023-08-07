@@ -48,6 +48,7 @@ export const defineSubscribableObject = <T extends object>(obj: T) => {
   })
 }
 
+// TODO: Rework this to deal with individual requests rather than cancel all
 export const cancelRunningExtensionRequest = () => {
   window.__POSTWOMAN_EXTENSION_HOOK__?.cancelRequest()
 }
@@ -79,6 +80,9 @@ const preProcessRequest = (req: AxiosRequestConfig): AxiosRequestConfig => {
 
 export type ExtensionStatus = "available" | "unknown-origin" | "waiting"
 
+/**
+ * This service is responsible for defining the extension interceptor.
+ */
 export class ExtensionInterceptorService
   extends Service
   implements Interceptor
@@ -86,8 +90,15 @@ export class ExtensionInterceptorService
   public static readonly ID = "EXTENSION_INTERCEPTOR_SERVICE"
 
   private _extensionStatus = ref<ExtensionStatus>("waiting")
+
+  /**
+   * The status of the extension, whether it's available, or not.
+   */
   public extensionStatus = readonly(this._extensionStatus)
 
+  /**
+   * The version of the extension, if available.
+   */
   public extensionVersion = computed(() => {
     if (this.extensionStatus.value === "available") {
       return window.__POSTWOMAN_EXTENSION_HOOK__?.getVersion()
@@ -96,10 +107,16 @@ export class ExtensionInterceptorService
     }
   })
 
+  /**
+   * Whether the extension is installed in Chrome or not.
+   */
   public chromeExtensionInstalled = computed(
     () => this.extensionStatus.value === "available" && browserIsChrome()
   )
 
+  /**
+   * Whether the extension is installed in Firefox or not.
+   */
   public firefoxExtensionInstalled = computed(
     () => this.extensionStatus.value === "available" && browserIsFirefox()
   )

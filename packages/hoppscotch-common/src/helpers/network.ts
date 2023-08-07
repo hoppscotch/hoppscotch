@@ -1,4 +1,4 @@
-import { AxiosResponse, AxiosRequestConfig } from "axios"
+import { AxiosRequestConfig } from "axios"
 import { BehaviorSubject, Observable } from "rxjs"
 import { cloneDeep } from "lodash-es"
 import * as E from "fp-ts/Either"
@@ -6,16 +6,10 @@ import * as TE from "fp-ts/TaskEither"
 import { HoppRESTResponse } from "./types/HoppRESTResponse"
 import { EffectiveHoppRESTRequest } from "./utils/EffectiveURL"
 import { getService } from "~/modules/dioc"
-import { InterceptorService } from "~/services/interceptor.service"
-
-export type NetworkResponse = AxiosResponse<any> & {
-  config?: {
-    timeData?: {
-      startTime: number
-      endTime: number
-    }
-  }
-}
+import {
+  InterceptorService,
+  NetworkResponse,
+} from "~/services/interceptor.service"
 
 export type NetworkStrategy = (
   req: AxiosRequestConfig

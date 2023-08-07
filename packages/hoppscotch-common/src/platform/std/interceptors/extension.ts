@@ -11,6 +11,7 @@ import { cloneDeep } from "lodash-es"
 import { computed, readonly, ref } from "vue"
 import { browserIsChrome, browserIsFirefox } from "~/helpers/utils/userAgent"
 import SettingsExtension from "~/components/settings/Extension.vue"
+import InterceptorsExtensionSubtitle from "~/components/interceptors/ExtensionSubtitle.vue"
 
 export const defineSubscribableObject = <T extends object>(obj: T) => {
   const proxyObject = {
@@ -110,6 +111,8 @@ export class ExtensionInterceptorService
     component: SettingsExtension,
   }
 
+  public selectorSubtitle = InterceptorsExtensionSubtitle
+
   public selectable = { type: "selectable" as const }
 
   constructor() {
@@ -175,9 +178,11 @@ export class ExtensionInterceptorService
 
       if (this.extensionStatus.value === "available" && version) {
         const { major, minor } = version
-        return `${t("settings.extensions")} v${major}.${minor}`
+        return `${t("settings.extensions")}: v${major}.${minor}`
       } else {
-        return t("settings.extensions")
+        return `${t("settings.extensions")}: ${t(
+          "settings.extension_ver_not_reported"
+        )}`
       }
     })
   }

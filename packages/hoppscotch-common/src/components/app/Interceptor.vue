@@ -8,17 +8,33 @@
         {{ t("settings.interceptor_description") }}
       </p>
     </div>
-    <HoppSmartRadioGroup
-      v-model="interceptorSelection"
-      :radios="interceptors"
-    />
+
+    <div>
+      <div
+        v-for="interceptor in interceptors"
+        :key="interceptor.interceptorID"
+        class="flex flex-col"
+      >
+        <HoppSmartRadio
+          :value="interceptor.interceptorID"
+          :label="unref(interceptor.name(t))"
+          :selected="interceptorSelection === interceptor.interceptorID"
+          @change="interceptorSelection = interceptor.interceptorID"
+        />
+
+        <component
+          :is="interceptor.selectorSubtitle"
+          v-if="interceptor.selectorSubtitle"
+        />
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { useI18n } from "@composables/i18n"
 import { useService } from "dioc/vue"
-import { Ref, computed, unref } from "vue"
+import { Ref, unref } from "vue"
 import { InterceptorService } from "~/services/interceptor.service"
 
 const t = useI18n()
@@ -28,10 +44,5 @@ const interceptorService = useService(InterceptorService)
 const interceptorSelection =
   interceptorService.currentInterceptorID as Ref<string>
 
-const interceptors = computed(() =>
-  interceptorService.availableInterceptors.value.map((interceptor) => ({
-    value: interceptor.interceptorID,
-    label: unref(interceptor.name(t)),
-  }))
-)
+const interceptors = interceptorService.availableInterceptors
 </script>

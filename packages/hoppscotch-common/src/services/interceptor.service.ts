@@ -58,6 +58,7 @@ export type Interceptor<Err extends InterceptorError = InterceptorError> = {
     entryTitle: (t: ReturnType<typeof getI18n>) => string
     component: Component
   }
+  selectorSubtitle?: Component
   selectable: MaybeRef<InterceptorSelectableStatus<unknown>>
   runRequest: (request: AxiosRequestConfig) => RequestRunResult<Err>
 }

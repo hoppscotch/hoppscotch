@@ -13,7 +13,6 @@ import IconCloud from "~icons/lucide/cloud"
 import IconLanguages from "~icons/lucide/languages"
 import IconMonitor from "~icons/lucide/monitor"
 import IconMoon from "~icons/lucide/moon"
-import IconSettings from "~icons/lucide/settings"
 import IconSun from "~icons/lucide/sun"
 import {
   default as IconCable,
@@ -51,16 +50,11 @@ export class SettingsSpotlightSearcherService extends StaticSpotlightSearcherSer
   )
 
   public readonly searcherID = "settings"
-  public searcherSectionTitle = this.t("spotlight.section.user")
+  public searcherSectionTitle = this.t("navigation.settings")
 
   private readonly spotlight = this.bind(SpotlightService)
 
   private documents: Record<string, Doc> = reactive({
-    nav_settings: {
-      text: this.t("navigation.settings"),
-      alternates: ["settings", "preferences"],
-      icon: markRaw(IconSettings),
-    },
     theme_system: {
       text: this.t("shortcut.theme.system"),
       alternates: ["theme"],
@@ -164,10 +158,6 @@ export class SettingsSpotlightSearcherService extends StaticSpotlightSearcherSer
 
   public onDocSelected(id: string): void {
     switch (id) {
-      case "nav_settings":
-        invokeAction("navigation.jump.settings")
-        break
-
       case "change_interceptor":
         invokeAction("navigation.jump.settings")
         break

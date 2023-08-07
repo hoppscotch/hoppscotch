@@ -98,7 +98,6 @@ const getHighestSeverity = computed(() => {
 })
 
 const severityColor = (severity: number) => {
-  console.log(severity)
   switch (severity) {
     case 1:
       return "!text-green-500 hover:!text-green-600"

@@ -82,6 +82,10 @@ export class URLInspectorService extends Service implements Inspector {
         locations: {
           type: "url",
         },
+        doc: {
+          text: this.t("action.learn_more"),
+          link: "https://docs.hoppscotch.io/",
+        },
       })
     }
 

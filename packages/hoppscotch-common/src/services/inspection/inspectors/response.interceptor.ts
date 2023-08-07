@@ -61,6 +61,10 @@ export class ResponseInspectorService extends Service implements Inspector {
         locations: {
           type: "response",
         },
+        doc: {
+          text: this.t("action.learn_more"),
+          link: "https://docs.hoppscotch.io/",
+        },
       })
     }
 

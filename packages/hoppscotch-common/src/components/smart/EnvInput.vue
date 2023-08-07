@@ -57,12 +57,13 @@
                     class="flex-1 px-3 py-2"
                   >
                     {{ inspector.text.text }}
-                    <RouterLink
+                    <HoppSmartLink
+                      exact
                       :to="inspector.doc.link"
                       class="text-accent underline"
                     >
                       {{ inspector.doc.text }} <icon-lucide-arrow-up-right />
-                    </RouterLink>
+                    </HoppSmartLink>
                   </span>
                   <span v-if="inspector.action" class="flex p-2 space-x-2">
                     <HoppButtonSecondary
@@ -138,7 +139,7 @@ import { AggregateEnvironment, aggregateEnvs$ } from "~/newstore/environments"
 import { platform } from "~/platform"
 import { useI18n } from "~/composables/i18n"
 import { onClickOutside, useDebounceFn } from "@vueuse/core"
-import { InspectorChecks, InspectorResult } from "~/services/inspection"
+import { InspectorResult } from "~/services/inspection"
 import IconAlertTriangle from "~icons/lucide/alert-triangle"
 import IconHelpCircle from "~icons/lucide/help-circle"
 import { invokeAction } from "~/helpers/actions"
@@ -154,7 +155,6 @@ const props = withDefaults(
     environmentHighlights?: boolean
     readonly?: boolean
     autoCompleteSource?: string[]
-    inspectorChecks?: InspectorChecks
     envIndex?: number | undefined
     inspectionResults?: InspectorResult[] | undefined
   }>(),
@@ -167,7 +167,6 @@ const props = withDefaults(
     readonly: false,
     environmentHighlights: true,
     autoCompleteSource: undefined,
-    inspectorChecks: undefined,
     envIndex: undefined,
     inspectionResult: undefined,
   }

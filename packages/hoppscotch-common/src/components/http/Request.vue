@@ -221,6 +221,7 @@
       v-if="showSaveRequestModal"
       mode="rest"
       :show="showSaveRequestModal"
+      :request="request"
       @hide-modal="showSaveRequestModal = false"
     />
   </div>
@@ -263,6 +264,7 @@ import { getDefaultRESTRequest } from "~/helpers/rest/default"
 import { RESTHistoryEntry, restHistory$ } from "~/newstore/history"
 import { platform } from "~/platform"
 import { getCurrentStrategyID } from "~/helpers/network"
+import { HoppGQLRequest, HoppRESTRequest } from "@hoppscotch/data"
 
 const t = useI18n()
 
@@ -578,6 +580,8 @@ const saveRequest = () => {
   }
 }
 
+const request = ref<HoppRESTRequest | null>(null)
+
 onBeforeUnmount(() => {
   if (loading.value) cancelRequest()
 })
@@ -593,7 +597,22 @@ defineActionHandler("request.method.prev", cycleUpMethod)
 defineActionHandler("request.save", saveRequest)
 defineActionHandler(
   "request.save-as",
-  () => (showSaveRequestModal.value = true)
+  (
+    req:
+      | {
+          requestType: "rest"
+          request: HoppRESTRequest
+        }
+      | {
+          requestType: "gql"
+          request: HoppGQLRequest
+        }
+  ) => {
+    showSaveRequestModal.value = true
+    if (req && req.requestType === "rest") {
+      request.value = req.request
+    }
+  }
 )
 defineActionHandler("request.method.get", () => updateMethod("GET"))
 defineActionHandler("request.method.post", () => updateMethod("POST"))

@@ -31,6 +31,7 @@
     "open_workspace": "Open workspace",
     "paste": "Paste",
     "prettify": "Prettify",
+    "rename": "Rename",
     "remove": "Remove",
     "restore": "Restore",
     "save": "Save",
@@ -132,6 +133,7 @@
     "renamed": "Collection renamed",
     "request_in_use": "Request in use",
     "save_as": "Save as",
+    "save_to_collection": "Save to Collection",
     "select": "Select a Collection",
     "select_location": "Select location",
     "select_team": "Select a team",
@@ -149,6 +151,7 @@
     "remove_telemetry": "Are you sure you want to opt-out of Telemetry?",
     "request_change": "Are you sure you want to discard current request, unsaved changes will be lost.",
     "save_unsaved_tab": "Do you want to save changes made in this tab?",
+    "close_unsaved_tabs": "Are you sure you want to close all tabs? {count} unsaved tabs will be lost.",
     "sync": "Would you like to restore your workspace from cloud? This will discard your local progress."
   },
   "context_menu": {
@@ -432,6 +435,7 @@
     "payload": "Payload",
     "query": "Query",
     "raw_body": "Raw Request Body",
+    "rename": "Rename Request",
     "renamed": "Request renamed",
     "run": "Run",
     "save": "Save",
@@ -658,8 +662,11 @@
   "tab": {
     "authorization": "Authorization",
     "body": "Body",
+    "close": "Close Tab",
+    "close_others": "Close other Tabs",
     "collections": "Collections",
     "documentation": "Documentation",
+    "duplicate": "Duplicate Tab",
     "environments": "Environments",
     "headers": "Headers",
     "history": "History",

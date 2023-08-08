@@ -19,22 +19,14 @@
             :close-visibility="'hover'"
           >
             <template #tabhead>
-              <div
-                v-tippy="{ theme: 'tooltip', delay: [500, 20] }"
-                :title="tab.document.request.name"
-                class="truncate px-2"
-                @dblclick="openReqRenameModal()"
-              >
-                <span
-                  class="font-semibold text-tiny"
-                  :class="getMethodLabelColorClassOf(tab.document.request)"
-                >
-                  {{ tab.document.request.method }}
-                </span>
-                <span class="leading-8 px-2">
-                  {{ tab.document.request.name }}
-                </span>
-              </div>
+              <HttpTabHead
+                :tab="tab"
+                :is-removable="tabs.length > 1"
+                @open-rename-modal="openReqRenameModal(tab.id)"
+                @close-tab="removeTab(tab.id)"
+                @close-other-tabs="closeOtherTabsAction(tab.id)"
+                @duplicate-tab="duplicateTab(tab.id)"
+              />
             </template>
             <template #suffix>
               <span
@@ -78,6 +70,13 @@
       @hide-modal="onCloseConfirmSaveTab"
       @resolve="onResolveConfirmSaveTab"
     />
+    <HoppSmartConfirmModal
+      :show="confirmingCloseAllTabs"
+      :confirm="t('modal.close_unsaved_tab')"
+      :title="t('confirm.close_unsaved_tabs', { count: unsavedTabsCount })"
+      @hide-modal="confirmingCloseAllTabs = false"
+      @resolve="onResolveConfirmCloseAllTabs"
+    />
     <CollectionsSaveRequest
       v-if="savingRequest"
       mode="rest"
@@ -99,10 +98,10 @@ import { ref, onMounted, onBeforeUnmount, onBeforeMount } from "vue"
 import { safelyExtractRESTRequest } from "@hoppscotch/data"
 import { translateExtURLParams } from "~/helpers/RESTExtURLParams"
 import { useRoute } from "vue-router"
-import { getMethodLabelColorClassOf } from "~/helpers/rest/labelColoring"
 import { useI18n } from "@composables/i18n"
 import {
   closeTab,
+  closeOtherTabs,
   createNewTab,
   currentActiveTab,
   currentTabID,
@@ -113,6 +112,7 @@ import {
   persistableTabState,
   updateTab,
   updateTabOrdering,
+  getDirtyTabsCount,
 } from "~/helpers/rest/tab"
 import { getDefaultRESTRequest } from "~/helpers/rest/default"
 import { defineActionHandler, invokeAction } from "~/helpers/actions"
@@ -139,8 +139,11 @@ import {
 
 const savingRequest = ref(false)
 const confirmingCloseForTabID = ref<string | null>(null)
+const confirmingCloseAllTabs = ref(false)
 const showRenamingReqNameModal = ref(false)
 const reqName = ref<string>("")
+const unsavedTabsCount = ref(0)
+const exceptedTabID = ref<string | null>(null)
 
 const t = useI18n()
 const toast = useToast()
@@ -215,9 +218,42 @@ const removeTab = (tabID: string) => {
   }
 }
 
-const openReqRenameModal = () => {
+const closeOtherTabsAction = (tabID: string) => {
+  const dirtyTabCount = getDirtyTabsCount()
+  // If there are dirty tabs, show the confirm modal
+  if (dirtyTabCount > 0) {
+    confirmingCloseAllTabs.value = true
+    unsavedTabsCount.value = dirtyTabCount
+    exceptedTabID.value = tabID
+  } else {
+    closeOtherTabs(tabID)
+  }
+}
+
+const duplicateTab = (tabID: string) => {
+  const tab = getTabRef(tabID)
+  if (tab.value) {
+    const newTab = createNewTab({
+      request: tab.value.document.request,
+      isDirty: true,
+    })
+    currentTabID.value = newTab.id
+  }
+}
+
+const onResolveConfirmCloseAllTabs = () => {
+  if (exceptedTabID.value) closeOtherTabs(exceptedTabID.value)
+  confirmingCloseAllTabs.value = false
+}
+
+const openReqRenameModal = (tabID?: string) => {
+  if (tabID) {
+    const tab = getTabRef(tabID)
+    reqName.value = tab.value.document.request.name
+  } else {
+    reqName.value = currentActiveTab.value.document.request.name
+  }
   showRenamingReqNameModal.value = true
-  reqName.value = currentActiveTab.value.document.request.name
 }
 
 const renameReqName = () => {

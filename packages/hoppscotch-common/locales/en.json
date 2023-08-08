@@ -609,8 +609,9 @@
     "section": {
       "user": "User"
     },
-    "increase_font_size": "Increase Font Size",
-    "decrease_font_size": "Decrease Font Size",
+    "font_size_sm": "Change Font Size to Small",
+    "font_size_md": "Change Font Size to Medium",
+    "font_size_lg": "Change Font Size to Large",
     "change_interceptor": "Change Interceptor",
     "change_language": "Change Language",
     "install_extension": "Install Browser Extension"

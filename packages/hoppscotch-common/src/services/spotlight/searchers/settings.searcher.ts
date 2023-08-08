@@ -2,7 +2,7 @@ import { Component, computed, markRaw, reactive } from "vue"
 import { useSetting } from "~/composables/settings"
 import { invokeAction } from "~/helpers/actions"
 import { getI18n } from "~/modules/i18n"
-import { HoppBgColor, HoppFontSizes, applySetting } from "~/newstore/settings"
+import { HoppBgColor, applySetting } from "~/newstore/settings"
 import { SpotlightSearcherResult, SpotlightService } from ".."
 import {
   SearchResult,
@@ -29,7 +29,7 @@ type Doc = {
 
 /**
  *
- * This searcher is responsible for providing user related actions on the spotlight results.
+ * This searcher is responsible for providing settings related actions on the spotlight results.
  *
  * NOTE: Initializing this service registers it as a searcher with the Spotlight Service.
  */
@@ -38,16 +38,7 @@ export class SettingsSpotlightSearcherService extends StaticSpotlightSearcherSer
 
   private t = getI18n()
 
-  fontSizes = HoppFontSizes
-  activeFontSize = useSetting("FONT_SIZE")
-  isLargeFontSize = computed(
-    () =>
-      this.fontSizes.indexOf(this.activeFontSize.value) ===
-      this.fontSizes.length - 1
-  )
-  isSmallFontSize = computed(
-    () => this.fontSizes.indexOf(this.activeFontSize.value) === 0
-  )
+  private activeFontSize = useSetting("FONT_SIZE")
 
   public readonly searcherID = "settings"
   public searcherSectionTitle = this.t("navigation.settings")
@@ -75,9 +66,12 @@ export class SettingsSpotlightSearcherService extends StaticSpotlightSearcherSer
       alternates: ["theme"],
       icon: markRaw(IconMoon),
     },
-    increase_font_size: {
-      text: this.t("spotlight.increase_font_size"),
-      excludeFromSearch: computed(() => this.isLargeFontSize.value),
+    font_size_sm: {
+      text: this.t("spotlight.font_size_sm"),
+      onClick: () => {
+        console.log("clicked")
+      },
+      excludeFromSearch: computed(() => this.activeFontSize.value === "small"),
       alternates: [
         "font size",
         "change font size",
@@ -86,9 +80,20 @@ export class SettingsSpotlightSearcherService extends StaticSpotlightSearcherSer
       ],
       icon: markRaw(IconType),
     },
-    decrease_font_size: {
-      text: this.t("spotlight.decrease_font_size"),
-      excludeFromSearch: computed(() => this.isSmallFontSize.value),
+    font_size_md: {
+      text: this.t("spotlight.font_size_md"),
+      excludeFromSearch: computed(() => this.activeFontSize.value === "medium"),
+      alternates: [
+        "font size",
+        "change font size",
+        "change font",
+        "increase font",
+      ],
+      icon: markRaw(IconType),
+    },
+    font_size_lg: {
+      text: this.t("spotlight.font_size_lg"),
+      excludeFromSearch: computed(() => this.activeFontSize.value === "large"),
       alternates: [
         "font size",
         "change font size",
@@ -142,13 +147,6 @@ export class SettingsSpotlightSearcherService extends StaticSpotlightSearcherSer
     applySetting("BG_COLOR", theme)
   }
 
-  changeFontSize(increase = false) {
-    const index = this.fontSizes.indexOf(this.activeFontSize.value)
-    const newIndex = index + (increase ? 1 : -1)
-    // if (newIndex < 0 || newIndex >= this.fontSizes.length) return
-    this.activeFontSize.value = this.fontSizes[newIndex]
-  }
-
   installExtension() {
     const url = navigator.userAgent.includes("Firefox")
       ? "https://addons.mozilla.org/en-US/firefox/addon/hoppscotch"
@@ -185,11 +183,14 @@ export class SettingsSpotlightSearcherService extends StaticSpotlightSearcherSer
         break
 
       // font size actions
-      case "increase_font_size":
-        this.changeFontSize(true)
+      case "font_size_sm":
+        this.activeFontSize.value = "small"
         break
-      case "decrease_font_size":
-        this.changeFontSize()
+      case "font_size_md":
+        this.activeFontSize.value = "medium"
+        break
+      case "font_size_lg":
+        this.activeFontSize.value = "large"
         break
     }
   }

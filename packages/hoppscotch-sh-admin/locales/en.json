@@ -63,7 +63,7 @@
     "remove_member_success": "Member removed successfully!!",
     "rename_team_failure": "Failed to rename team!!",
     "rename_team_success": "Team renamed successfully!",
-    "require_auth_provider": "You need at least one authentication provider to log in.",
+    "require_auth_provider": "You need to set atleast one authentication provider to log in.",
     "role_update_failed": "Roles updation has failed!!",
     "role_update_success": "Roles updated successfully!!",
     "send_magic_link": "Send magic link",

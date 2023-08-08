@@ -29,22 +29,22 @@ export const JSON_INVALID = 'json_invalid';
 export const AUTH_PROVIDER_NOT_SPECIFIED = 'auth/provider_not_specified';
 
 /**
- * Environment variable "ALLOWED_AUTH_PROVIDERS" is not present in .env file
+ * Environment variable "VITE_ALLOWED_AUTH_PROVIDERS" is not present in .env file
  */
 export const ENV_NOT_FOUND_KEY_AUTH_PROVIDERS =
-  '"ALLOWED_AUTH_PROVIDERS" is not present in .env file';
+  '"VITE_ALLOWED_AUTH_PROVIDERS" is not present in .env file';
 
 /**
- * Environment variable "ALLOWED_AUTH_PROVIDERS" is empty in .env file
+ * Environment variable "VITE_ALLOWED_AUTH_PROVIDERS" is empty in .env file
  */
 export const ENV_EMPTY_AUTH_PROVIDERS =
-  '"ALLOWED_AUTH_PROVIDERS" is empty in .env file';
+  '"VITE_ALLOWED_AUTH_PROVIDERS" is empty in .env file';
 
 /**
- * Environment variable "ALLOWED_AUTH_PROVIDERS" contains unsupported provider in .env file
+ * Environment variable "VITE_ALLOWED_AUTH_PROVIDERS" contains unsupported provider in .env file
  */
 export const ENV_NOT_SUPPORT_AUTH_PROVIDERS =
-  '"ALLOWED_AUTH_PROVIDERS" contains an unsupported auth provider in .env file';
+  '"VITE_ALLOWED_AUTH_PROVIDERS" contains an unsupported auth provider in .env file';
 
 /**
  * Tried to delete a user data document from fb firestore but failed.

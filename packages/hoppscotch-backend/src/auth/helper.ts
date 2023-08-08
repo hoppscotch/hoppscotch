@@ -107,7 +107,7 @@ export const subscriptionContextCookieParser = (rawCookies: string) => {
 };
 
 /**
- * Check to see if given auth provider is present in the ALLOWED_AUTH_PROVIDERS env variable
+ * Check to see if given auth provider is present in the VITE_ALLOWED_AUTH_PROVIDERS env variable
  *
  * @param provider Provider we want to check the presence of
  * @returns Boolean if provider specified is present or not
@@ -117,8 +117,8 @@ export function authProviderCheck(provider: string) {
     throwErr(AUTH_PROVIDER_NOT_SPECIFIED);
   }
 
-  const envVariables = process.env.ALLOWED_AUTH_PROVIDERS
-    ? process.env.ALLOWED_AUTH_PROVIDERS.split(',').map((provider) =>
+  const envVariables = process.env.VITE_ALLOWED_AUTH_PROVIDERS
+    ? process.env.VITE_ALLOWED_AUTH_PROVIDERS.split(',').map((provider) =>
         provider.trim().toUpperCase(),
       )
     : [];

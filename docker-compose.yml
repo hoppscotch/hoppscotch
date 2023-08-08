@@ -19,10 +19,12 @@ services:
       - DATABASE_URL=postgresql://postgres:testpass@hoppscotch-db:5432/hoppscotch?connect_timeout=300
       - PORT=3000
     volumes:
-      - ./packages/hoppscotch-backend/:/usr/src/app
+      # Uncomment the line below when modifying code. Only applicable when using the "dev" target.
+      # - ./packages/hoppscotch-backend/:/usr/src/app
       - /usr/src/app/node_modules/
     depends_on:
-      - hoppscotch-db
+      hoppscotch-db:
+        condition: service_healthy
     ports:
       - "3170:3000"
 
@@ -60,12 +62,20 @@ services:
   # you are using an external postgres instance
   # This will be exposed at port 5432
   hoppscotch-db:
-    image: postgres
+    image: postgres:15
     ports:
       - "5432:5432"
+    user: postgres
     environment:
+      # The default user defined by the docker image
+      POSTGRES_USER: postgres
       # NOTE: Please UPDATE THIS PASSWORD!
       POSTGRES_PASSWORD: testpass
       POSTGRES_DB: hoppscotch
+    healthcheck:
+      test: ["CMD-SHELL", "sh -c 'pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}'"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
 

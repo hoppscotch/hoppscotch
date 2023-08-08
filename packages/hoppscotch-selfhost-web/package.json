@@ -1,13 +1,13 @@
 {
   "name": "@hoppscotch/selfhost-web",
   "private": true,
-  "version": "2023.4.7",
+  "version": "2023.4.8",
   "type": "module",
   "scripts": {
     "dev:vite": "vite",
     "dev:gql-codegen": "graphql-codegen --require dotenv/config --config gql-codegen.yml dotenv_config_path=\"../../.env\" --watch",
     "dev": "pnpm exec npm-run-all -p -l dev:*",
-    "build": "node --max_old_space_size=16384 ./node_modules/vite/bin/vite.js build",
+    "build": "node --max_old_space_size=4096 ./node_modules/vite/bin/vite.js build",
     "preview": "vite preview",
     "lint": "eslint src --ext .ts,.js,.vue --ignore-path .gitignore .",
     "lint:ts": "vue-tsc --noEmit",

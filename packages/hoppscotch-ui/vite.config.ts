@@ -11,14 +11,13 @@ export default defineConfig({
     vue(),
     dts({
       insertTypesEntry: true,
-      skipDiagnostics: true,
-      outputDir: ['dist']
+      outDir: ["dist"],
     }),
     WindiCSS({
       root: path.resolve(__dirname),
     }),
     Icons({
-      compiler: "vue3"
+      compiler: "vue3",
     }),
     Unfonts({
       fontsource: {
@@ -54,6 +53,6 @@ export default defineConfig({
         exports: "named",
       },
     },
-    emptyOutDir: true
+    emptyOutDir: true,
   },
 })

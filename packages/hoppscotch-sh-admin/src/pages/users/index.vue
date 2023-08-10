@@ -33,7 +33,6 @@
 
         <div v-else-if="usersList.length > 0" class="m-5">
           <HoppSmartTable
-            cell-styles="px-6 py-1"
             :list="newUsersList"
             :headings="headings"
             @on-row-clicked="goToUserDetails"

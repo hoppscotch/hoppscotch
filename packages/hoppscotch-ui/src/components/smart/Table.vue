@@ -1,45 +1,44 @@
 <template>
   <div class="overflow-auto rounded-md border border-dividerDark shadow-md">
     <table class="w-full">
-      <thead class="bg-primaryLight">
-        <slot v-if="!headings" name="head" />
-        <tr
-          v-else
-          class="text-secondary border-b border-dividerDark text-sm text-left"
-        >
-          <th v-for="th in headings" scope="col" class="px-6 py-3">
-            {{ th.label ?? th.key }}
-          </th>
-        </tr>
+      <thead>
+        <slot name="head">
+          <tr
+            class="text-secondary border-b border-dividerDark text-sm text-left bg-primaryLight"
+          >
+            <th v-for="th in headings" scope="col" class="px-6 py-3">
+              {{ th.label ?? th.key }}
+            </th>
+          </tr>
+        </slot>
       </thead>
 
       <tbody class="divide-y divide-divider">
-        <slot v-if="!list" name="body" />
-        <tr
-          v-else
-          v-for="(rowData, rowIndex) in list"
-          :key="rowIndex"
-          class="text-secondaryDark hover:bg-divider hover:cursor-pointer rounded-xl"
-          :class="yBorder ? 'divide-x divide-divider' : ''"
-        >
-          <td
-            v-for="cellHeading in headings"
-            :key="cellHeading.key"
-            @click="!cellHeading.preventClick && onRowClicked(rowData)"
-            class="max-w-40"
-            :class="cellStyles"
+        <slot name="body">
+          <tr
+            v-for="(rowData, rowIndex) in list"
+            :key="rowIndex"
+            class="text-secondaryDark hover:bg-divider hover:cursor-pointer rounded-xl"
+            :class="yBorder ? 'divide-x divide-divider' : ''"
           >
-            <!-- Dynamic column slot -->
-            <slot :name="cellHeading.key" :item="rowData">
-              <!-- Generic implementation of the column -->
-              <div class="flex flex-col truncate">
-                <span class="truncate">
-                  {{ rowData[cellHeading.key] ?? "-" }}
-                </span>
-              </div>
-            </slot>
-          </td>
-        </tr>
+            <td
+              v-for="cellHeading in headings"
+              :key="cellHeading.key"
+              @click="!cellHeading.preventClick && onRowClicked(rowData)"
+              class="max-w-40 px-6 py-1"
+            >
+              <!-- Dynamic column slot -->
+              <slot :name="cellHeading.key" :item="rowData">
+                <!-- Generic implementation of the column -->
+                <div class="flex flex-col truncate">
+                  <span class="truncate">
+                    {{ rowData[cellHeading.key] ?? "-" }}
+                  </span>
+                </div>
+              </slot>
+            </td>
+          </tr>
+        </slot>
       </tbody>
     </table>
   </div>
@@ -59,8 +58,6 @@ defineProps<{
   list: Item[]
   /** The headings of the table */
   headings: CellHeading[]
-  /** The styles to be applied to the table cells */
-  cellStyles?: string
 }>()
 
 const emit = defineEmits<{

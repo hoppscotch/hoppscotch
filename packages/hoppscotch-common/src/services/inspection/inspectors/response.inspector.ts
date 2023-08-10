@@ -44,11 +44,9 @@ export class ResponseInspectorService extends Service implements Inspector {
       text = this.t("inspections.response.404_error")
     } else if (res.type === "success" && res.statusCode === 401) {
       text = this.t("inspections.response.401_error")
-    } else {
-      text = this.t("inspections.response.success")
     }
 
-    if (hasErrors) {
+    if (hasErrors && text) {
       results.value.push({
         id: "url",
         icon: markRaw(IconAlertTriangle),

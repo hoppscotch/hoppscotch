@@ -1,6 +1,6 @@
 import { TestContainer } from "dioc/testing"
 import { describe, expect, it, vi } from "vitest"
-import { ResponseInspectorService } from "../response.interceptor"
+import { ResponseInspectorService } from "../response.inspector"
 import { InspectionService } from "../../index"
 
 vi.mock("~/modules/i18n", () => ({

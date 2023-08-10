@@ -44,7 +44,7 @@ describe("EnvironmentInspectorService", () => {
           isApplicable: true,
           text: {
             type: "text",
-            text: "Environment variable <<UNDEFINED_ENV_VAR>> not found",
+            text: "inspections.environment.not_found",
           },
         })
       )
@@ -79,7 +79,7 @@ describe("EnvironmentInspectorService", () => {
           isApplicable: true,
           text: {
             type: "text",
-            text: "Environment variable <<UNDEFINED_ENV_VAR>> not found",
+            text: "inspections.environment.not_found",
           },
         })
       )
@@ -118,7 +118,7 @@ describe("EnvironmentInspectorService", () => {
           isApplicable: true,
           text: {
             type: "text",
-            text: "Environment variable <<UNDEFINED_ENV_VAR>> not found",
+            text: "inspections.environment.not_found",
           },
         })
       )

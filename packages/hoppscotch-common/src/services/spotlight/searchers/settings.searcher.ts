@@ -18,7 +18,7 @@ import IconShieldCheck from "~icons/lucide/shield-check"
 import IconType from "~icons/lucide/type"
 
 type Doc = {
-  text: string
+  text: string | string[]
   excludeFromSearch?: boolean
   alternates: string[]
   icon: object | Component
@@ -76,7 +76,7 @@ export class SettingsSpotlightSearcherService extends StaticSpotlightSearcherSer
       icon: markRaw(IconMoon),
     },
     font_size_sm: {
-      text: this.t("spotlight.font_size_sm"),
+      text: this.t("spotlight.font.size_sm"),
       onClick: () => {
         console.log("clicked")
       },
@@ -90,7 +90,7 @@ export class SettingsSpotlightSearcherService extends StaticSpotlightSearcherSer
       icon: markRaw(IconType),
     },
     font_size_md: {
-      text: this.t("spotlight.font_size_md"),
+      text: this.t("spotlight.font.size_md"),
       excludeFromSearch: computed(() => this.activeFontSize.value === "medium"),
       alternates: [
         "font size",
@@ -101,7 +101,7 @@ export class SettingsSpotlightSearcherService extends StaticSpotlightSearcherSer
       icon: markRaw(IconType),
     },
     font_size_lg: {
-      text: this.t("spotlight.font_size_lg"),
+      text: this.t("spotlight.font.size_lg"),
       excludeFromSearch: computed(() => this.activeFontSize.value === "large"),
       alternates: [
         "font size",

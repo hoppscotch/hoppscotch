@@ -58,6 +58,7 @@
     "esprima": "^4.0.1",
     "events": "^3.3.0",
     "fp-ts": "^2.12.1",
+    "fractional-indexing": "^3.2.0",
     "fuse.js": "^6.6.2",
     "globalthis": "^1.0.3",
     "graphql": "^15.5.0",
@@ -105,6 +106,7 @@
   "devDependencies": {
     "@esbuild-plugins/node-globals-polyfill": "^0.1.1",
     "@esbuild-plugins/node-modules-polyfill": "^0.1.4",
+    "@faker-js/faker": "^8.0.2",
     "@graphql-codegen/add": "^3.2.0",
     "@graphql-codegen/cli": "^2.8.0",
     "@graphql-codegen/typed-document-node": "^2.3.1",

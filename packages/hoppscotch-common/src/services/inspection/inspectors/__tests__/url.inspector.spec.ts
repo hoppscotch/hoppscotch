@@ -2,6 +2,7 @@ import { TestContainer } from "dioc/testing"
 import { describe, expect, it, vi } from "vitest"
 import { URLInspectorService } from "../url.inspector"
 import { InspectionService } from "../../index"
+import { getDefaultRESTRequest } from "~/helpers/rest/default"
 
 vi.mock("~/modules/i18n", () => ({
   __esModule: true,
@@ -29,7 +30,10 @@ describe("URLInspectorService", () => {
       const container = new TestContainer()
       const urlInspector = container.bind(URLInspectorService)
 
-      const req = { endpoint: "http://localhost:8000/api/data" }
+      const req = {
+        ...getDefaultRESTRequest(),
+        endpoint: "http://localhost:8000/api/data",
+      }
 
       const result = urlInspector.getInspectorFor(req)
 
@@ -42,7 +46,10 @@ describe("URLInspectorService", () => {
       const container = new TestContainer()
       const urlInspector = container.bind(URLInspectorService)
 
-      const req = { endpoint: "http://example.com/api/data" }
+      const req = {
+        ...getDefaultRESTRequest(),
+        endpoint: "http://example.com/api/data",
+      }
 
       const result = urlInspector.getInspectorFor(req)
 
@@ -61,7 +68,10 @@ describe("URLInspectorService", () => {
       const container = new TestContainer()
       const urlInspector = container.bind(URLInspectorService)
 
-      const req = { endpoint: "http://localhost:8000/api/data" }
+      const req = {
+        ...getDefaultRESTRequest(),
+        endpoint: "http://localhost:8000/api/data",
+      }
 
       const result = urlInspector.getInspectorFor(req)
 

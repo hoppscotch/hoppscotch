@@ -2,6 +2,7 @@ import { TestContainer } from "dioc/testing"
 import { describe, expect, it, vi } from "vitest"
 import { EnvironmentInspectorService } from "../environment.inspector"
 import { InspectionService } from "../../index"
+import { getDefaultRESTRequest } from "~/helpers/rest/default"
 
 vi.mock("~/modules/i18n", () => ({
   __esModule: true,
@@ -34,7 +35,10 @@ describe("EnvironmentInspectorService", () => {
       const container = new TestContainer()
       const envInspector = container.bind(EnvironmentInspectorService)
 
-      const req = { endpoint: "<<UNDEFINED_ENV_VAR>>", headers: {}, params: {} }
+      const req = {
+        ...getDefaultRESTRequest(),
+        endpoint: "<<UNDEFINED_ENV_VAR>>",
+      }
 
       const result = envInspector.getInspectorFor(req)
 
@@ -54,7 +58,10 @@ describe("EnvironmentInspectorService", () => {
       const container = new TestContainer()
       const envInspector = container.bind(EnvironmentInspectorService)
 
-      const req = { endpoint: "<<EXISTING_ENV_VAR>>", headers: {}, params: {} }
+      const req = {
+        ...getDefaultRESTRequest(),
+        endpoint: "<<EXISTING_ENV_VAR>>",
+      }
 
       const result = envInspector.getInspectorFor(req)
 
@@ -66,9 +73,11 @@ describe("EnvironmentInspectorService", () => {
       const envInspector = container.bind(EnvironmentInspectorService)
 
       const req = {
+        ...getDefaultRESTRequest(),
         endpoint: "http://example.com/api/data",
-        headers: [{ key: "<<UNDEFINED_ENV_VAR>>", value: "some-value" }],
-        params: {},
+        headers: [
+          { key: "<<UNDEFINED_ENV_VAR>>", value: "some-value", active: true },
+        ],
       }
 
       const result = envInspector.getInspectorFor(req)
@@ -90,9 +99,11 @@ describe("EnvironmentInspectorService", () => {
       const envInspector = container.bind(EnvironmentInspectorService)
 
       const req = {
+        ...getDefaultRESTRequest(),
         endpoint: "http://example.com/api/data",
-        headers: [{ key: "<<EXISTING_ENV_VAR>>", value: "some-value" }],
-        params: {},
+        headers: [
+          { key: "<<EXISTING_ENV_VAR>>", value: "some-value", active: true },
+        ],
       }
 
       const result = envInspector.getInspectorFor(req)
@@ -105,9 +116,11 @@ describe("EnvironmentInspectorService", () => {
       const envInspector = container.bind(EnvironmentInspectorService)
 
       const req = {
+        ...getDefaultRESTRequest(),
         endpoint: "http://example.com/api/data",
-        headers: [],
-        params: [{ key: "<<UNDEFINED_ENV_VAR>>", value: "some-value" }],
+        params: [
+          { key: "<<UNDEFINED_ENV_VAR>>", value: "some-value", active: true },
+        ],
       }
 
       const result = envInspector.getInspectorFor(req)
@@ -129,9 +142,12 @@ describe("EnvironmentInspectorService", () => {
       const envInspector = container.bind(EnvironmentInspectorService)
 
       const req = {
+        ...getDefaultRESTRequest(),
         endpoint: "http://example.com/api/data",
         headers: [],
-        params: [{ key: "<<EXISTING_ENV_VAR>>", value: "some-value" }],
+        params: [
+          { key: "<<EXISTING_ENV_VAR>>", value: "some-value", active: true },
+        ],
       }
 
       const result = envInspector.getInspectorFor(req)

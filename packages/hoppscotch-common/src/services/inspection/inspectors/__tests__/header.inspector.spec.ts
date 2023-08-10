@@ -2,6 +2,7 @@ import { TestContainer } from "dioc/testing"
 import { describe, expect, it, vi } from "vitest"
 import { HeaderInspectorService } from "../header.inspector"
 import { InspectionService } from "../../index"
+import { getDefaultRESTRequest } from "~/helpers/rest/default"
 
 vi.mock("~/modules/i18n", () => ({
   __esModule: true,
@@ -30,8 +31,9 @@ describe("HeaderInspectorService", () => {
       const headerInspector = container.bind(HeaderInspectorService)
 
       const req = {
+        ...getDefaultRESTRequest(),
         endpoint: "http://example.com/api/data",
-        headers: [{ key: "Cookie", value: "some-cookie" }],
+        headers: [{ key: "Cookie", value: "some-cookie", active: true }],
       }
 
       const result = headerInspector.getInspectorFor(req)
@@ -46,8 +48,9 @@ describe("HeaderInspectorService", () => {
       const headerInspector = container.bind(HeaderInspectorService)
 
       const req = {
+        ...getDefaultRESTRequest(),
         endpoint: "http://example.com/api/data",
-        headers: [{ key: "Authorization", value: "Bearer abcd" }],
+        headers: [{ key: "Authorization", value: "Bearer abcd", active: true }],
       }
 
       const result = headerInspector.getInspectorFor(req)

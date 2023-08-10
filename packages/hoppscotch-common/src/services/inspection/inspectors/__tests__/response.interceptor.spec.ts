@@ -2,6 +2,7 @@ import { TestContainer } from "dioc/testing"
 import { describe, expect, it, vi } from "vitest"
 import { ResponseInspectorService } from "../response.inspector"
 import { InspectionService } from "../../index"
+import { getDefaultRESTRequest } from "~/helpers/rest/default"
 
 vi.mock("~/modules/i18n", () => ({
   __esModule: true,
@@ -29,7 +30,10 @@ describe("ResponseInspectorService", () => {
       const container = new TestContainer()
       const responseInspector = container.bind(ResponseInspectorService)
 
-      const req = { endpoint: "http://example.com/api/data" }
+      const req = {
+        ...getDefaultRESTRequest(),
+        endpoint: "http://example.com/api/data",
+      }
 
       const result = responseInspector.getInspectorFor(req, undefined)
 
@@ -40,7 +44,10 @@ describe("ResponseInspectorService", () => {
       const container = new TestContainer()
       const responseInspector = container.bind(ResponseInspectorService)
 
-      const req = { endpoint: "http://example.com/api/data" }
+      const req = {
+        ...getDefaultRESTRequest(),
+        endpoint: "http://example.com/api/data",
+      }
       const res = { type: "network_fail", statusCode: 400 }
 
       const result = responseInspector.getInspectorFor(req, res)
@@ -54,7 +61,10 @@ describe("ResponseInspectorService", () => {
       const container = new TestContainer()
       const responseInspector = container.bind(ResponseInspectorService)
 
-      const req = { endpoint: "http://example.com/api/data" }
+      const req = {
+        ...getDefaultRESTRequest(),
+        endpoint: "http://example.com/api/data",
+      }
       const res = { type: "network_fail", statusCode: 500 }
 
       const result = responseInspector.getInspectorFor(req, res)
@@ -70,7 +80,10 @@ describe("ResponseInspectorService", () => {
       const container = new TestContainer()
       const responseInspector = container.bind(ResponseInspectorService)
 
-      const req = { endpoint: "http://example.com/api/data" }
+      const req = {
+        ...getDefaultRESTRequest(),
+        endpoint: "http://example.com/api/data",
+      }
       const res = { type: "fail", statusCode: 500 }
 
       const result = responseInspector.getInspectorFor(req, res)
@@ -86,7 +99,10 @@ describe("ResponseInspectorService", () => {
       const container = new TestContainer()
       const responseInspector = container.bind(ResponseInspectorService)
 
-      const req = { endpoint: "http://example.com/api/data" }
+      const req = {
+        ...getDefaultRESTRequest(),
+        endpoint: "http://example.com/api/data",
+      }
       const res = { type: "success", statusCode: 404 }
 
       const result = responseInspector.getInspectorFor(req, res)
@@ -102,7 +118,10 @@ describe("ResponseInspectorService", () => {
       const container = new TestContainer()
       const responseInspector = container.bind(ResponseInspectorService)
 
-      const req = { endpoint: "http://example.com/api/data" }
+      const req = {
+        ...getDefaultRESTRequest(),
+        endpoint: "http://example.com/api/data",
+      }
       const res = { type: "success", statusCode: 401 }
 
       const result = responseInspector.getInspectorFor(req, res)
@@ -118,7 +137,10 @@ describe("ResponseInspectorService", () => {
       const container = new TestContainer()
       const responseInspector = container.bind(ResponseInspectorService)
 
-      const req = { endpoint: "http://example.com/api/data" }
+      const req = {
+        ...getDefaultRESTRequest(),
+        endpoint: "http://example.com/api/data",
+      }
       const res = { type: "success", statusCode: 200 }
 
       const result = responseInspector.getInspectorFor(req, res)

@@ -34,16 +34,6 @@ export class NavigationSpotlightSearcherService extends StaticSpotlightSearcherS
 
   // All keys prefixed with "nav_" are reserved for navigation actions and satisfy HoppActionWithNoArgs type with the key being the action name.
   private documents: Record<string, Doc> = reactive({
-    nav_back: {
-      text: this.t("shortcut.navigation.back"),
-      alternates: ["navigation", "back", "previous"],
-      icon: markRaw(IconArrowLeft),
-    },
-    nav_forward: {
-      text: this.t("shortcut.navigation.forward"),
-      alternates: ["navigation", "forward", "next"],
-      icon: markRaw(IconArrowRight),
-    },
     nav_settings: {
       text: this.t("shortcut.navigation.settings"),
       alternates: ["navigation", "settings", "preferences"],

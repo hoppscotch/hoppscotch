@@ -31,34 +31,33 @@ export class NavigationSpotlightSearcherService extends StaticSpotlightSearcherS
 
   private readonly spotlight = this.bind(SpotlightService)
 
-  // All keys prefixed with "nav_" are reserved for navigation actions and satisfy HoppActionWithNoArgs type with the key being the action name.
   private documents: Record<string, Doc> = reactive({
-    nav_settings: {
+    settings: {
       text: this.t("shortcut.navigation.settings"),
       alternates: ["navigation", "settings", "preferences"],
       icon: markRaw(IconArrowRight),
     },
-    nav_rest: {
+    rest: {
       text: this.t("shortcut.navigation.rest"),
       alternates: ["navigation", "rest", "request", "http"],
       icon: markRaw(IconArrowRight),
     },
-    nav_graphql: {
+    graphql: {
       text: this.t("shortcut.navigation.graphql"),
       alternates: ["navigation", "graphql", "gql"],
       icon: markRaw(IconArrowRight),
     },
-    nav_realtime: {
+    realtime: {
       text: this.t("shortcut.navigation.realtime"),
       alternates: ["navigation", "realtime", "socket", "ws"],
       icon: markRaw(IconArrowRight),
     },
-    nav_documentation: {
+    documentation: {
       text: this.t("shortcut.navigation.documentation"),
       alternates: ["navigation", "documentation", "docs"],
       icon: markRaw(IconArrowRight),
     },
-    nav_profile: {
+    profile: {
       text: this.t("shortcut.navigation.profile"),
       alternates: ["navigation", "profile", "account"],
       icon: markRaw(IconArrowRight),
@@ -90,8 +89,6 @@ export class NavigationSpotlightSearcherService extends StaticSpotlightSearcherS
   }
 
   public onDocSelected(id: string): void {
-    const key = id.replace("nav_", "")
-    const action = ("navigation.jump." + key) as HoppActionWithNoArgs
-    invokeAction(action)
+    invokeAction(`navigation.jump.${id}` as HoppActionWithNoArgs)
   }
 }

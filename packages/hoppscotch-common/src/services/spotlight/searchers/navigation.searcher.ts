@@ -8,7 +8,6 @@ import {
 } from "./base/static.searcher"
 
 import IconArrowRight from "~icons/lucide/arrow-right"
-import IconArrowLeft from "~icons/lucide/arrow-left"
 
 type Doc = {
   text: string

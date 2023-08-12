@@ -632,6 +632,10 @@
     "url": "URL"
   },
   "spotlight": {
+    "miscellaneous": {
+      "invite": "Invite people to Hoppscotch",
+      "title": "Miscellaneous"
+    },
     "section": {
       "user": "User",
       "theme": "Theme",

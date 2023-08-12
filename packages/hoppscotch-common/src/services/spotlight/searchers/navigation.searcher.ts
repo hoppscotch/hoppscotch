@@ -64,6 +64,8 @@ export class NavigationSpotlightSearcherService extends StaticSpotlightSearcherS
     },
   })
 
+  private docKeys = Object.keys(this.documents)
+
   constructor() {
     super({
       searchFields: ["text", "alternates"],
@@ -89,6 +91,8 @@ export class NavigationSpotlightSearcherService extends StaticSpotlightSearcherS
   }
 
   public onDocSelected(id: string): void {
+    if (this.docKeys.includes(id) === false) return
+
     invokeAction(`navigation.jump.${id}` as HoppActionWithNoArgs)
   }
 }

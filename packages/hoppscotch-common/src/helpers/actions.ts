@@ -67,11 +67,11 @@ type HoppActionArgsMap = {
   }
   "modals.my.environment.edit": {
     envName: string
-    variableName: string
+    variableName?: string
   }
   "modals.team.environment.edit": {
     envName: string
-    variableName: string
+    variableName?: string
   }
   "rest.request.open": {
     doc: HoppRESTDocument

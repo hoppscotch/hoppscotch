@@ -636,6 +636,12 @@
       "invite": "Invite people to Hoppscotch",
       "title": "Miscellaneous"
     },
+    "tab": {
+      "close_current": "Close current tab",
+      "close_others": "Close others tab",
+      "new_tab": "Open a new tab",
+      "title": "Tabs"
+    },
     "section": {
       "user": "User",
       "theme": "Theme",

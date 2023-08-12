@@ -99,6 +99,7 @@ import { NavigationSpotlightSearcherService } from "~/services/spotlight/searche
 import { SettingsSpotlightSearcherService } from "~/services/spotlight/searchers/settings.searcher"
 import { CollectionsSpotlightSearcherService } from "~/services/spotlight/searchers/collections.searcher"
 import { MiscellaneousSpotlightSearcherService } from "~/services/spotlight/searchers/miscellaneous.searcher"
+import { TabSpotlightSearcherService } from "~/services/spotlight/searchers/tab.searcher"
 
 const t = useI18n()
 
@@ -118,6 +119,7 @@ useService(NavigationSpotlightSearcherService)
 useService(SettingsSpotlightSearcherService)
 useService(CollectionsSpotlightSearcherService)
 useService(MiscellaneousSpotlightSearcherService)
+useService(TabSpotlightSearcherService)
 
 const search = ref("")
 

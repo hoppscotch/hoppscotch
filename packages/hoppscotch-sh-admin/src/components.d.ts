@@ -23,7 +23,7 @@ declare module '@vue/runtime-core' {
     HoppSmartModal: typeof import('@hoppscotch/ui')['HoppSmartModal']
     HoppSmartPicture: typeof import('@hoppscotch/ui')['HoppSmartPicture']
     HoppSmartSpinner: typeof import('@hoppscotch/ui')['HoppSmartSpinner']
-    HoppSmartTable: typeof import('@hoppscotch/ui')['HoppSmartTable']
+    HoppSmartTab: typeof import('@hoppscotch/ui')['HoppSmartTab']
     IconLucideArrowLeft: typeof import('~icons/lucide/arrow-left')['default']
     IconLucideChevronDown: typeof import('~icons/lucide/chevron-down')['default']
     IconLucideInbox: typeof import('~icons/lucide/inbox')['default']

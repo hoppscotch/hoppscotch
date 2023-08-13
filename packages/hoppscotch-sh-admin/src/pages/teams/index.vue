@@ -32,7 +32,6 @@
             :list="newTeamsList"
             :headings="headings"
             @on-row-clicked="goToTeamDetails"
-            cell-styles="px-6 py-1"
           >
             <template #action="{ item }">
               <div class="relative">

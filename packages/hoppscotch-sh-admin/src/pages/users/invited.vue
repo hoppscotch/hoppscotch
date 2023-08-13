@@ -25,11 +25,7 @@
           </div>
 
           <div v-else class="m-5">
-            <HoppSmartTable
-              cell-styles="px-6 py-1"
-              :list="newInvitedUsersList"
-              :headings="headings"
-            >
+            <HoppSmartTable :list="newInvitedUsersList" :headings="headings">
               <template #invitedOn="{ item }">
                 <div class="flex flex-col truncate">
                   <span v-if="item" class="truncate">

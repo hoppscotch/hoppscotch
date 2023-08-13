@@ -55,9 +55,9 @@ defineProps<{
   /** Whether to show the vertical border between columns */
   yBorder?: boolean
   /**  The list of items to be displayed in the table */
-  list: Item[]
+  list?: Item[]
   /** The headings of the table */
-  headings: CellHeading[]
+  headings?: CellHeading[]
 }>()
 
 const emit = defineEmits<{

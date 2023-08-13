@@ -1,29 +1,31 @@
 <template>
   <Story title="Table">
-    <Variant title="Basic">
-      <HoppSmartTable
-        cell-styles="px-6 py-2"
-        :list="list"
-        :headings="headings"
-      />
+    <Variant title="General">
+      <HoppSmartTable :list="list" :headings="headings" />
     </Variant>
-    <Variant title="Badges">
-      <HoppSmartTable
-        cell-styles="px-6 py-2"
-        :list="list"
-        :headings="headings"
-        badge-col-name="name"
-        badge-name="Admin"
-        :badge-row-indices="[0, 1]"
-      />
-    </Variant>
-    <Variant title="Subtitles">
-      <HoppSmartTable
-        cell-styles="px-6 py-2"
-        :list="list"
-        :headings="headings"
-        :subtitles="subtitles"
-      />
+    <Variant title="Custom">
+      <HoppSmartTable>
+        <template #head>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Members</th>
+          <th>Role</th>
+        </template>
+        <template #body>
+          <tr>
+            <td>123454</td>
+            <td>Joel</td>
+            <td>10</td>
+            <td>Frontend Engineer</td>
+          </tr>
+          <tr>
+            <td>123456</td>
+            <td>Anwar</td>
+            <td>12</td>
+            <td>Frontend Engineer</td>
+          </tr>
+        </template>
+      </HoppSmartTable>
     </Variant>
   </Story>
 </template>
@@ -31,27 +33,26 @@
 <script setup lang="ts">
 import { HoppSmartTable } from "../components/smart"
 
-const headings = ["UID", "Name", "Email", "Role"]
+// Table Headings
+const headings = [
+  { key: "id", label: "ID" },
+  { key: "name", label: "Name" },
+  { key: "members", label: "Members" },
+  { key: "role", label: "Role" },
+]
 
 const list = [
   {
-    uid: "123455",
+    id: "123455",
     name: "Joel",
-    email: "joel@gmail.com",
+    members: 10,
     role: "Frontend Engineer",
   },
   {
-    uid: "123456",
+    id: "123456",
     name: "Anwar",
-    email: "anwar@gmail.com",
+    members: 12,
     role: "Frontend Engineer",
-  },
-]
-
-const subtitles = [
-  {
-    colName: "role",
-    subtitle: "FE",
   },
 ]
 </script>

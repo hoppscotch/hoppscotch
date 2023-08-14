@@ -1,5 +1,7 @@
 import { ClientOptions } from "@urql/core"
 import { Observable } from "rxjs"
+import { Component } from "vue"
+import { getI18n } from "~/modules/i18n"
 
 /**
  * A common (and required) set of fields that describe a user.
@@ -38,6 +40,13 @@ export type GithubSignInResult =
   | { type: "success"; user: HoppUser } // The authentication was a success
   | { type: "account-exists-with-different-cred"; link: () => Promise<void> } // We authenticated correctly, but the provider didn't match, so we give the user the opportunity to link to continue completing auth
   | { type: "error"; err: unknown } // Auth failed completely and we don't know why
+
+export type LoginItemDef = {
+  id: string
+  icon: Component
+  text: (t: ReturnType<typeof getI18n>) => string
+  onClick: () => Promise<void> | void
+}
 
 export type AuthPlatformDef = {
   /**
@@ -212,4 +221,9 @@ export type AuthPlatformDef = {
    * @returns An empty promise that is resolved when the operation is complete
    */
   setDisplayName: (name: string) => Promise<void>
+
+  /**
+   * Defines the additional login items that should be shown in the login screen
+   */
+  additionalLoginItems?: LoginItemDef[]
 }

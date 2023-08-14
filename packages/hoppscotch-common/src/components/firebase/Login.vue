@@ -31,6 +31,14 @@
           :label="`${t('auth.continue_with_email')}`"
           @click="mode = 'email'"
         />
+
+        <HoppSmartItem
+          v-for="loginItem in additonalLoginItems"
+          :key="loginItem.id"
+          :icon="loginItem.icon"
+          :label="loginItem.text(t)"
+          @click="doAdditionalLoginItemClickAction(loginItem)"
+        />
       </div>
       <form
         v-if="mode === 'email'"
@@ -114,7 +122,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue"
+import { defineComponent, computed } from "vue"
 import { platform } from "~/platform"
 import IconGithub from "~icons/auth/github"
 import IconGoogle from "~icons/auth/google"
@@ -125,6 +133,7 @@ import { setLocalConfig } from "~/newstore/localpersistence"
 import { useStreamSubscriber } from "@composables/stream"
 import { useToast } from "@composables/toast"
 import { useI18n } from "@composables/i18n"
+import { LoginItemDef } from "~/platform/auth"
 
 export default defineComponent({
   props: {
@@ -140,6 +149,9 @@ export default defineComponent({
     return {
       subscribeToStream,
       t: useI18n(),
+      additonalLoginItems: computed(
+        () => platform.auth.additionalLoginItems ?? []
+      ),
       toast: useToast(),
       IconGithub,
       IconGoogle,
@@ -170,6 +182,10 @@ export default defineComponent({
     })
   },
   methods: {
+    async doAdditionalLoginItemClickAction(item: LoginItemDef) {
+      await item.onClick()
+      this.$emit("hide-modal")
+    },
     showLoginSuccess() {
       this.toast.success(`${this.t("auth.login_success")}`)
     },

@@ -182,7 +182,7 @@ export class CollectionsService extends Service {
     const reorder = reorderItems(
       sourceCollectionID,
       destinationCollectionID,
-      this.collections.value,
+      this.orderedCollections.value,
       "parentCollectionID"
     )
 
@@ -212,7 +212,7 @@ export class CollectionsService extends Service {
     })
 }
 
-function makeCollectionTree(
+export function makeCollectionTree(
   collections: UpdatedHoppCollection[],
   requests: UpdatedHoppRESTRequest[]
 ) {
@@ -237,6 +237,7 @@ function makeCollectionTree(
       uniqueParentCollectionIDs.add(collection.parentCollectionID)
     } else {
       collectionsTree.push(collection)
+      uniqueParentCollectionIDs.add(collection.id)
     }
 
     collectionsMap.set(collection.id, collection)
@@ -264,7 +265,7 @@ function makeCollectionTree(
   return collectionsTree
 }
 
-function reorderItems<
+export function reorderItems<
   ParentIDKey extends string,
   Reorderable extends { id: string; order: string } & {
     [key in ParentIDKey]: string | null

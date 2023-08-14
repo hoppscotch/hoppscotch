@@ -1,5 +1,4 @@
 import { beforeEach, describe, expect, it } from "vitest"
-import { beforeAll } from "vitest"
 import { dummyHopp, selectARandomCollection } from "~/helpers/dummyHopp"
 
 import { TestContainer } from "dioc/testing"

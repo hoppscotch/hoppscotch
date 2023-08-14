@@ -16,6 +16,16 @@ export function selectARandomCollection(
   return faker.helpers.arrayElement(collections)
 }
 
+// the function body here is duplicated, keeping it because i might add extra options specific to selecting requests here
+export function selectARandomRequest(
+  requests: UpdatedHoppRESTRequest[],
+  seed?: number
+) {
+  faker.seed(seed)
+
+  return faker.helpers.arrayElement(requests)
+}
+
 export function dummyHopp() {
   const dummyHoppAPI = {
     seed,
@@ -134,11 +144,17 @@ export function dummyHopp() {
 
 function makeDummyRequest(
   parentCollectionID: string,
-  previousOrder: string | null
+  previousOrder: string | null,
+  parentRequestNameString?: string
 ) {
+  const name =
+    parentRequestNameString != undefined
+      ? `Request ${parentRequestNameString}`
+      : faker.lorem.words(2)
+
   const request: UpdatedHoppRESTRequest = {
     id: faker.string.uuid(),
-    name: faker.lorem.words(2),
+    name: name,
     method: faker.helpers.arrayElement([
       "GET",
       "POST",
@@ -191,7 +207,8 @@ function makeDummyCollection(
 function generateChildRequests(
   requestCountMinValue: number,
   requestCountMaxValue: number,
-  parentCollectionID: string
+  parentCollectionID: string,
+  parentCollectionNameString?: string
 ) {
   const childCount = faker.number.int({
     min: requestCountMinValue,
@@ -203,7 +220,11 @@ function generateChildRequests(
   const requests: UpdatedHoppRESTRequest[] = []
 
   for (let i = 0; i < childCount; i++) {
-    const request = makeDummyRequest(parentCollectionID, previousOrder)
+    const request = makeDummyRequest(
+      parentCollectionID,
+      previousOrder,
+      makeCollectionName(parentCollectionNameString, i)
+    )
     previousOrder = request.order
 
     requests.push(request)
@@ -268,7 +289,8 @@ function generateCollectionsRecursively(
   const requests: UpdatedHoppRESTRequest[] = generateChildRequests(
     requestCountMinValue,
     requestCountMixValue,
-    parentCollectionID
+    parentCollectionID,
+    parentCollectionNameString
   )
 
   if (!depth) {

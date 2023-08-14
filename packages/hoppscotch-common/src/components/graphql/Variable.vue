@@ -48,6 +48,13 @@
       />
       <HoppButtonSecondary
         v-tippy="{ theme: 'tooltip' }"
+        :title="t('state.linewrap')"
+        :class="{ '!text-accent': linewrapEnabled }"
+        :icon="IconWrapText"
+        @click.prevent="linewrapEnabled = !linewrapEnabled"
+      />
+      <HoppButtonSecondary
+        v-tippy="{ theme: 'tooltip' }"
         :title="t('action.prettify')"
         :icon="prettifyVariablesIcon"
         @click="prettifyVariableString"
@@ -72,6 +79,7 @@ import IconCopy from "~icons/lucide/copy"
 import IconCheck from "~icons/lucide/check"
 import IconInfo from "~icons/lucide/info"
 import IconWand from "~icons/lucide/wand"
+import IconWrapText from "~icons/lucide/wrap-text"
 import { computed, reactive, ref } from "vue"
 import jsonLinter from "~/helpers/editor/linting/json"
 import { copyToClipboard } from "@helpers/utils/clipboard"
@@ -106,6 +114,8 @@ const variableString = useVModel(props, "modelValue", emit)
 
 const variableEditor = ref<any | null>(null)
 
+const linewrapEnabled = ref(false)
+
 const copyVariablesIcon = refAutoReset<typeof IconCopy | typeof IconCheck>(
   IconCopy,
   1000
@@ -121,6 +131,7 @@ useCodemirror(
     extendedEditorConfig: {
       mode: "application/ld+json",
       placeholder: `${t("request.variables")}`,
+      lineWrapping: linewrapEnabled,
     },
     linter: computed(() =>
       variableString.value.length > 0 ? jsonLinter : null

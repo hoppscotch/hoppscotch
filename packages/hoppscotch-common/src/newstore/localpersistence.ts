@@ -1,6 +1,6 @@
 /* eslint-disable no-restricted-globals, no-restricted-syntax */
 
-import { clone, assign, isEmpty } from "lodash-es"
+import { clone, assign, isEmpty, cloneDeep } from "lodash-es"
 import {
   translateToNewRESTCollection,
   translateToNewGQLCollection,
@@ -47,8 +47,7 @@ import {
   loadTabsFromPersistedState,
   persistableTabState,
 } from "~/helpers/rest/tab"
-import { debounceTime } from "rxjs"
-import { gqlSessionStore, setGQLSession } from "./GQLSession"
+import { HoppGQLTab } from "~/helpers/graphql/tab"
 
 function checkAndMigrateOldSettings() {
   if (window.localStorage.getItem("selectedEnvIndex")) {
@@ -335,22 +334,22 @@ export function setupRESTTabsPersistence() {
   )
 }
 
-function setupGQLRequestPersistence() {
+function setupGQLTabsPersistence() {
   const localRequest = JSON.parse(
     window.localStorage.getItem("gqlSession") || "null"
   )
 
-  if (localRequest) {
-    const tabs = getTabsForRestoration(localRequest)
-    setGQLCurrentTabId(tabs[0].id)
-    setGQLTabs(tabs)
-  }
+  // if (localRequest) {
+  //   const tabs = getTabsForRestoration(localRequest)
+  //   setGQLCurrentTabId(tabs[0].id)
+  //   setGQLTabs(tabs)
+  // }
 
-  gqlSession$.subscribe((req) => {
-    const restSession = cloneDeep(req)
-    const session = getGQLSessionForPersistence(restSession.tabs)
-    window.localStorage.setItem("gqlSession", JSON.stringify(session))
-  })
+  // gqlSession$.subscribe((req) => {
+  //   const restSession = cloneDeep(req)
+  //   const session = getGQLSessionForPersistence(restSession.tabs)
+  //   window.localStorage.setItem("gqlSession", JSON.stringify(session))
+  // })
 }
 
 export function getTabsForRestoration(tabs: unknown[]) {
@@ -360,32 +359,32 @@ export function getTabsForRestoration(tabs: unknown[]) {
 
   // TODO: Refactor and add proper validation
 
-  const restoredTabs = tabs.map((x) => {
-    const tab: GQLTab = {
-      id: x.id || v4(),
-      request: safelyExtractGQLRequest(x.request, getDefaultGQLRequest()),
-      response: x.response || [],
-      unseen: x.unseen || false,
-    }
+  // const restoredTabs = tabs.map((x) => {
+  //   const tab: HoppGQLTab = {
+  //     id: x.id || v4(),
+  //     request: safelyExtractGQLRequest(x.request, getDefaultGQLRequest()),
+  //     response: x.response || [],
+  //     unseen: x.unseen || false,
+  //   }
 
-    return tab
-  })
+  //   return tab
+  // })
 
-  !restoredTabs.length &&
-    restoredTabs.push({
-      id: v4(),
-      request: getDefaultGQLRequest(),
-      response: [],
-      unseen: false,
-    })
+  // !restoredTabs.length &&
+  //   restoredTabs.push({
+  //     id: v4(),
+  //     request: getDefaultGQLRequest(),
+  //     response: [],
+  //     unseen: false,
+  //   })
 
-  return restoredTabs
+  // return restoredTabs
 }
 
-export function getGQLSessionForPersistence(allTabs: GQLTab[]) {
+export function getGQLSessionForPersistence(allTabs: HoppGQLTab[]) {
   const tabs = cloneDeep(allTabs)
   return tabs.map((tab) => {
-    const req = tab.request
+    const req = tab.document.request
     return {
       ...tab,
       request: req,
@@ -399,7 +398,9 @@ export function setupLocalPersistence() {
   setupLocalStatePersistence()
   setupSettingsPersistence()
   setupRESTTabsPersistence()
-  setupGQLPersistence()
+
+  setupGQLTabsPersistence()
+
   setupHistoryPersistence()
   setupCollectionsPersistence()
   setupGlobalEnvsPersistence()

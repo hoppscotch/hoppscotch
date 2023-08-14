@@ -47,7 +47,7 @@
       />
       <HoppButtonSecondary
         v-tippy="{ theme: 'tooltip' }"
-        to="https://docs.hoppscotch.io/graphql"
+        to="https://docs.hoppscotch.io/documentation/features/graphql-api-testing"
         blank
         :title="t('app.wiki')"
         :icon="IconHelpCircle"
@@ -57,6 +57,13 @@
         :title="t('action.clear_all')"
         :icon="IconTrash2"
         @click="clearGQLQuery()"
+      />
+      <HoppButtonSecondary
+        v-tippy="{ theme: 'tooltip' }"
+        :title="t('state.linewrap')"
+        :class="{ '!text-accent': linewrapEnabled }"
+        :icon="IconWrapText"
+        @click.prevent="linewrapEnabled = !linewrapEnabled"
       />
       <HoppButtonSecondary
         v-tippy="{ theme: 'tooltip' }"
@@ -85,6 +92,7 @@ import IconCopy from "~icons/lucide/copy"
 import IconCheck from "~icons/lucide/check"
 import IconInfo from "~icons/lucide/info"
 import IconWand from "~icons/lucide/wand"
+import IconWrapText from "~icons/lucide/wrap-text"
 import { onMounted, ref } from "vue"
 import { copyToClipboard } from "@helpers/utils/clipboard"
 import { useCodemirror } from "@composables/codemirror"
@@ -128,6 +136,8 @@ const copyQueryIcon = refAutoReset<typeof IconCopy | typeof IconCheck>(
 const prettifyQueryIcon = refAutoReset<
   typeof IconWand | typeof IconCheck | typeof IconInfo
 >(IconWand, 1000)
+
+const linewrapEnabled = ref(true)
 
 const selectedOperation = ref<gql.OperationDefinitionNode | null>(null)
 
@@ -173,11 +183,12 @@ useCodemirror(queryEditor, gqlQueryString, {
   extendedEditorConfig: {
     mode: "graphql",
     placeholder: `${t("request.query")}`,
+    lineWrapping: linewrapEnabled.value,
   },
   linter: createGQLQueryLinter(schema),
   completer: queryCompleter(schema),
-  additionalExts: [selectedGQLOpHighlight],
   environmentHighlights: false,
+  additionalExts: [selectedGQLOpHighlight],
   onUpdate: debouncedOnUpdateQueryState,
 })
 

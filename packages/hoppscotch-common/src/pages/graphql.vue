@@ -66,6 +66,7 @@
 import { usePageHead } from "@composables/head"
 import { useI18n } from "@composables/i18n"
 import { computed, onBeforeUnmount } from "vue"
+import { defineActionHandler } from "~/helpers/actions"
 import { connection, disconnect } from "~/helpers/graphql/connection"
 import { getDefaultGQLRequest } from "~/helpers/graphql/default"
 import {
@@ -121,13 +122,10 @@ onBeforeUnmount(() => {
   }
 })
 
-// defineActionHandler("gql.request.open", ({ request }) => {
-//   const session = getGQLSession()
-
-//   setGQLSession({
-//     request: cloneDeep(request),
-//     schema: session.schema,
-//     response: session.response,
-//   })
-// })
+defineActionHandler("gql.request.open", ({ request }) => {
+  createNewTab({
+    request: request,
+    isDirty: false,
+  })
+})
 </script>

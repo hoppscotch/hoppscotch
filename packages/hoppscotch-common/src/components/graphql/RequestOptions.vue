@@ -138,7 +138,6 @@ const runQuery = async (
     )
     console.error(e)
   }
-
   platform.analytics?.logEvent({
     type: "HOPP_REQUEST_RUN",
     platform: "graphql-query",

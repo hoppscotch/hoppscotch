@@ -21,6 +21,13 @@
       />
       <HoppButtonSecondary
         v-tippy="{ theme: 'tooltip' }"
+        :title="t('state.linewrap')"
+        :class="{ '!text-accent': linewrapEnabled }"
+        :icon="IconWrapText"
+        @click.prevent="linewrapEnabled = !linewrapEnabled"
+      />
+      <HoppButtonSecondary
+        v-tippy="{ theme: 'tooltip' }"
         :title="t('state.bulk_mode')"
         :icon="IconEdit"
         :class="{ '!text-accent': bulkMode }"
@@ -182,7 +189,8 @@ import IconGripVertical from "~icons/lucide/grip-vertical"
 import IconCheckCircle from "~icons/lucide/check-circle"
 import IconTrash from "~icons/lucide/trash"
 import IconCircle from "~icons/lucide/circle"
-import { ref, watch } from "vue"
+import IconWrapText from "~icons/lucide/wrap-text"
+import { reactive, ref, watch } from "vue"
 import * as E from "fp-ts/Either"
 import * as O from "fp-ts/Option"
 import * as A from "fp-ts/Array"
@@ -220,6 +228,7 @@ const request = useVModel(props, "modelValue", emit)
 
 const idTicker = ref(0)
 
+const linewrapEnabled = ref(false)
 const bulkMode = ref(false)
 const bulkHeaders = ref("")
 
@@ -227,15 +236,20 @@ const deletionToast = ref<{ goAway: (delay: number) => void } | null>(null)
 
 const bulkEditor = ref<any | null>(null)
 
-useCodemirror(bulkEditor, bulkHeaders, {
-  extendedEditorConfig: {
-    mode: "text/x-yaml",
-    placeholder: `${t("state.bulk_mode_placeholder")}`,
-  },
-  linter: null,
-  completer: null,
-  environmentHighlights: false,
-})
+useCodemirror(
+  bulkEditor,
+  bulkHeaders,
+  reactive({
+    extendedEditorConfig: {
+      mode: "text/x-yaml",
+      placeholder: `${t("state.bulk_mode_placeholder")}`,
+      lineWrapping: linewrapEnabled,
+    },
+    linter: null,
+    completer: null,
+    environmentHighlights: false,
+  })
+)
 
 // The UI representation of the headers list (has the empty end header)
 const workingHeaders = ref<Array<GQLHeader & { id: number }>>([

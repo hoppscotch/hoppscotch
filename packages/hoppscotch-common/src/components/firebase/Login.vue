@@ -32,6 +32,8 @@
           @click="mode = 'email'"
         />
 
+        <hr v-if="additonalLoginItems.length > 0" />
+
         <HoppSmartItem
           v-for="loginItem in additonalLoginItems"
           :key="loginItem.id"

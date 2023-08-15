@@ -18,14 +18,14 @@
       </div>
       <div class="inline-flex items-center justify-center flex-1 space-x-2">
         <button
-          class="flex flex-1 items-center justify-between px-2 py-1 bg-primaryDark transition text-secondaryLight cursor-text rounded border border-dividerDark max-w-xs hover:border-dividerDark hover:bg-primaryLight hover:text-secondary focus-visible:border-dividerDark focus-visible:bg-primaryLight focus-visible:text-secondary"
+          class="flex flex-1 items-center justify-between px-2 py-1 self-stretch bg-primaryDark transition text-secondaryLight cursor-text rounded border border-dividerDark max-w-60 hover:border-dividerDark hover:bg-primaryLight hover:text-secondary focus-visible:border-dividerDark focus-visible:bg-primaryLight focus-visible:text-secondary"
           @click="invokeAction('modals.search.toggle')"
         >
           <span class="inline-flex flex-1 items-center">
             <icon-lucide-search class="mr-2 svg-icons" />
             {{ t("app.search") }}
           </span>
-          <span class="flex">
+          <span class="flex space-x-1">
             <kbd class="shortcut-key">{{ getPlatformSpecialKey() }}</kbd>
             <kbd class="shortcut-key">K</kbd>
           </span>

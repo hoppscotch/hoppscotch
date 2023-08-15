@@ -11,9 +11,9 @@
         @edit-environment="editEnvironment('Global')"
       />
     </div>
-    <EnvironmentsMy v-if="environmentType.type === 'my-environments'" />
+    <EnvironmentsMy v-show="environmentType.type === 'my-environments'" />
     <EnvironmentsTeams
-      v-if="environmentType.type === 'team-environments'"
+      v-show="environmentType.type === 'team-environments'"
       :team="environmentType.selectedTeam"
       :team-environments="teamEnvironmentList"
       :loading="loading"
@@ -201,7 +201,7 @@ const resetSelectedData = () => {
 defineActionHandler(
   "modals.my.environment.edit",
   ({ envName, variableName }) => {
-    editingVariableName.value = variableName
+    if (variableName) editingVariableName.value = variableName
     envName === "Global" && editEnvironment("Global")
   }
 )

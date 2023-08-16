@@ -7,7 +7,11 @@ import {
   StaticSpotlightSearcherService,
 } from "./base/static.searcher"
 
-import IconShare from "~icons/lucide/share"
+import IconBook from "~icons/lucide/book"
+import IconGithub from "~icons/lucide/github"
+import IconLifeBuoy from "~icons/lucide/life-buoy"
+import IconMessageCircle from "~icons/lucide/message-circle"
+import IconZap from "~icons/lucide/zap"
 
 type Doc = {
   text: string
@@ -35,27 +39,27 @@ export class GeneralSpotlightSearcherService extends StaticSpotlightSearcherServ
     open_help: {
       text: this.t("spotlight.general.help_menu"),
       alternates: ["help", "hoppscotch"],
-      icon: markRaw(IconShare),
+      icon: markRaw(IconLifeBuoy),
     },
     chat_with_support: {
       text: this.t("spotlight.general.chat"),
       alternates: ["chat", "support", "hoppscotch"],
-      icon: markRaw(IconShare),
+      icon: markRaw(IconMessageCircle),
     },
     open_docs: {
       text: this.t("spotlight.general.open_docs"),
       alternates: ["docs", "documentation", "hoppscotch"],
-      icon: markRaw(IconShare),
+      icon: markRaw(IconBook),
     },
     open_keybindings: {
       text: this.t("spotlight.general.open_keybindings"),
       alternates: ["key", "shortcuts", "binding"],
-      icon: markRaw(IconShare),
+      icon: markRaw(IconZap),
     },
     social_links: {
       text: this.t("spotlight.general.social"),
       alternates: ["social", "github", "binding"],
-      icon: markRaw(IconShare),
+      icon: markRaw(IconGithub),
     },
   })
 

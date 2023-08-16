@@ -644,6 +644,11 @@
       "invite": "Invite people to Hoppscotch",
       "title": "Miscellaneous"
     },
+    "response": {
+      "copy": "Copy response as JSON",
+      "download": "Download response as file",
+      "title": "Response"
+    },
     "tab": {
       "close_current": "Close current tab",
       "close_others": "Close others tab",

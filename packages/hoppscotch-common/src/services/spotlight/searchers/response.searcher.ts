@@ -7,7 +7,8 @@ import {
   StaticSpotlightSearcherService,
 } from "./base/static.searcher"
 
-import IconShare from "~icons/lucide/share"
+import IconDownload from "~icons/lucide/download"
+import IconCopy from "~icons/lucide/copy"
 
 type Doc = {
   text: string
@@ -17,25 +18,30 @@ type Doc = {
 
 /**
  *
- * This searcher is responsible for providing miscellaneous related actions on the spotlight results.
+ * This searcher is responsible for providing response related actions on the spotlight results.
  *
  * NOTE: Initializing this service registers it as a searcher with the Spotlight Service.
  */
-export class MiscellaneousSpotlightSearcherService extends StaticSpotlightSearcherService<Doc> {
-  public static readonly ID = "MISCELLANEOUS_SPOTLIGHT_SEARCHER_SERVICE"
+export class ResponseSpotlightSearcherService extends StaticSpotlightSearcherService<Doc> {
+  public static readonly ID = "RESPONSE_SPOTLIGHT_SEARCHER_SERVICE"
 
   private t = getI18n()
 
-  public readonly searcherID = "miscellaneous"
-  public searcherSectionTitle = this.t("spotlight.miscellaneous.title")
+  public readonly searcherID = "response"
+  public searcherSectionTitle = this.t("spotlight.response.title")
 
   private readonly spotlight = this.bind(SpotlightService)
 
   private documents: Record<string, Doc> = reactive({
-    invite_hoppscotch: {
-      text: this.t("spotlight.miscellaneous.invite"),
-      alternates: ["invite", "share", "hoppscotch"],
-      icon: markRaw(IconShare),
+    copy_response: {
+      text: this.t("spotlight.response.copy"),
+      alternates: ["copy", "response"],
+      icon: markRaw(IconCopy),
+    },
+    download_response: {
+      text: this.t("spotlight.response.download"),
+      alternates: ["download", "response"],
+      icon: markRaw(IconDownload),
     },
   })
 
@@ -64,6 +70,7 @@ export class MiscellaneousSpotlightSearcherService extends StaticSpotlightSearch
   }
 
   public onDocSelected(id: string): void {
-    if (id === "invite_hoppscotch") invokeAction(`modals.share.toggle`)
+    if (id === "copy_response") invokeAction(`response.copy`)
+    if (id === "download_response") invokeAction(`response.file.download`)
   }
 }

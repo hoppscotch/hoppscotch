@@ -192,6 +192,7 @@
     "schema": "Connect to a GraphQL endpoint to view schema",
     "shortcodes": "Shortcodes are empty",
     "subscription": "Subscriptions are empty",
+    "suggestions": "No matching suggestions found",
     "team_name": "Team name empty",
     "teams": "You don't belong to any teams",
     "tests": "There are no tests for this request"
@@ -303,6 +304,30 @@
     "more": "Hide more",
     "preview": "Hide Preview",
     "sidebar": "Collapse sidebar"
+  },
+  "inspections": {
+    "title": "Inspector",
+    "description": "Inspect possible errors",
+    "environment": {
+      "add_environment": "Add to Environment",
+      "not_found": "Environment variable “{environment}” not found."
+    },
+    "header": {
+      "cookie": "The browser doesn't allow Hoppscotch to set the Cookie Header. While we're working on the Hoppscotch Desktop App (coming soon), please use the Authorization Header instead."
+    },
+    "response": {
+      "401_error": "Please check your authentication credentials.",
+      "404_error": "Please check your request URL and method type.",
+      "network_error": "Please check your network connection.",
+      "cors_error": "Please check your Cross-Origin Resource Sharing configuration.",
+      "default_error": "Please check your request."
+    },
+    "url": {
+      "extension_not_installed": "Extension not installed.",
+      "extention_not_enabled": "Extension not enabled.",
+      "extention_enable_action": "Enable Browser Extension",
+      "extension_unknown_origin": "Make sure you've added the API endpoint's origin to the Hoppscotch Browser Extension list."
+    }
   },
   "import": {
     "collections": "Import collections",

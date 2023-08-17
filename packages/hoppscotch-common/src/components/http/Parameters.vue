@@ -82,6 +82,9 @@
             <SmartEnvInput
               v-model="param.key"
               :placeholder="`${t('count.parameter', { count: index + 1 })}`"
+              :inspection-results="
+                getInspectorResult(parameterKeyResults, index)
+              "
               @change="
                 updateParam(index, {
                   id: param.id,
@@ -94,6 +97,9 @@
             <SmartEnvInput
               v-model="param.value"
               :placeholder="`${t('count.value', { count: index + 1 })}`"
+              :inspection-results="
+                getInspectorResult(parameterValueResults, index)
+              "
               @change="
                 updateParam(index, {
                   id: param.id,
@@ -173,7 +179,7 @@ import IconCheckCircle from "~icons/lucide/check-circle"
 import IconCircle from "~icons/lucide/circle"
 import IconTrash from "~icons/lucide/trash"
 import IconWrapText from "~icons/lucide/wrap-text"
-import { reactive, ref, watch } from "vue"
+import { computed, reactive, ref, watch } from "vue"
 import { flow, pipe } from "fp-ts/function"
 import * as O from "fp-ts/Option"
 import * as A from "fp-ts/Array"
@@ -195,6 +201,9 @@ import { useToast } from "@composables/toast"
 import { throwError } from "@functional/error"
 import { objRemoveKey } from "@functional/object"
 import { useVModel } from "@vueuse/core"
+import { useService } from "dioc/vue"
+import { InspectionService, InspectorResult } from "~/services/inspection"
+import { currentTabID } from "~/helpers/rest/tab"
 
 const colorMode = useColorMode()
 
@@ -397,5 +406,40 @@ const clearContent = () => {
   ]
 
   bulkParams.value = ""
+}
+
+const inspectionService = useService(InspectionService)
+
+const allTabResults = inspectionService.tabs
+
+const parameterKeyResults = computed(() => {
+  return (
+    allTabResults.value
+      .get(currentTabID.value)
+      .filter(
+        (result) =>
+          result.locations.type === "parameter" &&
+          result.locations.position === "key"
+      ) ?? []
+  )
+})
+const parameterValueResults = computed(() => {
+  return (
+    allTabResults.value
+      .get(currentTabID.value)
+      .filter(
+        (result) =>
+          result.locations.type === "parameter" &&
+          result.locations.position === "value"
+      ) ?? []
+  )
+})
+
+const getInspectorResult = (results: InspectorResult[], index: number) => {
+  return results.filter((result) => {
+    if (result.locations.type === "url" || result.locations.type === "response")
+      return
+    return result.locations.index === index
+  })
 }
 </script>

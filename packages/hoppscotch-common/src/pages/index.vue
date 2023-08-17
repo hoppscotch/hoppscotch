@@ -94,7 +94,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, onBeforeUnmount, onBeforeMount } from "vue"
+import { ref, onMounted, onBeforeUnmount, onBeforeMount, watch } from "vue"
 import { safelyExtractRESTRequest } from "@hoppscotch/data"
 import { translateExtURLParams } from "~/helpers/RESTExtURLParams"
 import { useRoute } from "vue-router"
@@ -136,6 +136,12 @@ import {
   changeCurrentSyncStatus,
   currentSyncingStatus$,
 } from "~/newstore/syncing"
+import { useService } from "dioc/vue"
+import { InspectionService } from "~/services/inspection"
+import { HeaderInspectorService } from "~/services/inspection/inspectors/header.inspector"
+import { EnvironmentInspectorService } from "~/services/inspection/inspectors/environment.inspector"
+import { URLInspectorService } from "~/services/inspection/inspectors/url.inspector"
+import { ResponseInspectorService } from "~/services/inspection/inspectors/response.inspector"
 
 const savingRequest = ref(false)
 const confirmingCloseForTabID = ref<string | null>(null)
@@ -215,6 +221,7 @@ const removeTab = (tabID: string) => {
     confirmingCloseForTabID.value = tabID
   } else {
     closeTab(tab.value.id)
+    inspectionService.deleteTabInspectorResult(tab.value.id)
   }
 }
 
@@ -271,6 +278,7 @@ const renameReqName = () => {
 const onCloseConfirmSaveTab = () => {
   if (!savingRequest.value && confirmingCloseForTabID.value) {
     closeTab(confirmingCloseForTabID.value)
+    inspectionService.deleteTabInspectorResult(confirmingCloseForTabID.value)
     confirmingCloseForTabID.value = null
   }
 }
@@ -449,4 +457,18 @@ oAuthURL()
 defineActionHandler("rest.request.open", ({ doc }) => {
   createNewTab(doc)
 })
+
+const inspectionService = useService(InspectionService)
+useService(HeaderInspectorService)
+useService(EnvironmentInspectorService)
+useService(URLInspectorService)
+useService(ResponseInspectorService)
+
+watch(
+  () => currentTabID.value,
+  () => {
+    inspectionService.initializeTabInspectors()
+  },
+  { immediate: true }
+)
 </script>

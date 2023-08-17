@@ -10,6 +10,7 @@ const inspectorResultMock: InspectorResult[] = [
     isApplicable: true,
     severity: 2,
     locations: { type: "url" },
+    doc: { text: "Sample Doc", link: "https://example.com" },
     action: {
       text: "Sample Action",
       // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -31,7 +32,7 @@ describe("InspectionService", () => {
 
       service.registerInspector(testInspector)
 
-      expect(service.inspectors.has(testInspector.inspectorID)).toBe(true)
+      expect(service.inspectors.has(testInspector.inspectorID)).toEqual(true)
     })
   })
 
@@ -43,11 +44,11 @@ describe("InspectionService", () => {
       const tabID = "testTab"
       service.tabs.value.set(tabID, inspectorResultMock)
 
-      expect(service.tabs.value.has(tabID)).toBe(true)
+      expect(service.tabs.value.has(tabID)).toEqual(true)
 
       service.deleteTabInspectorResult(tabID)
 
-      expect(service.tabs.value.has(tabID)).toBe(false)
+      expect(service.tabs.value.has(tabID)).toEqual(false)
     })
   })
 })

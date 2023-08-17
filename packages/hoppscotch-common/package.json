@@ -44,7 +44,7 @@
     "@lezer/highlight": "^1.1.6",
     "@sentry/tracing": "^7.64.0",
     "@sentry/vue": "^7.64.0",
-    "@urql/core": "^2.5.0",
+    "@urql/core": "^4.1.1",
     "@urql/devtools": "^2.0.3",
     "@urql/exchange-auth": "^0.1.7",
     "@urql/exchange-graphcache": "^4.4.3",

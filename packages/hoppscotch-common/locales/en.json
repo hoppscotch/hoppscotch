@@ -482,9 +482,9 @@
     "account_name_description": "This is your display name.",
     "background": "Background",
     "black_mode": "Black",
+    "dark_mode": "Dark",
     "change_font_size": "Change font size",
     "choose_language": "Choose language",
-    "dark_mode": "Dark",
     "delete_account": "Delete account",
     "delete_account_description": "Once you delete your account, all your data will be permanently deleted. This action cannot be undone.",
     "expand_navigation": "Expand navigation",
@@ -584,10 +584,10 @@
       "title": "Response"
     },
     "theme": {
-      "black": "Switch  theme to black mode",
-      "dark": "Switch  theme to  dark mode",
-      "light": "Switch  theme to light mode",
-      "system": "Switch  theme to system mode",
+      "black": "Switch theme to Black Mode",
+      "dark": "Switch theme to Dark Mode",
+      "light": "Switch theme to Light Mode",
+      "system": "Switch theme to System Mode",
       "title": "Theme"
     }
   },
@@ -607,7 +607,29 @@
   },
   "spotlight": {
     "section": {
-      "user": "User"
+      "user": "User",
+      "theme": "Theme",
+      "interface": "Interface",
+      "interceptor": "Interceptor"
+    },
+    "change_interceptor": "Change Interceptor",
+    "change_language": "Change Language",
+    "install_extension": "Install Browser Extension",
+    "settings": {
+      "theme": {
+        "black": "Black Mode",
+        "dark": "Dark Mode",
+        "light": "Light Mode",
+        "system": "System Mode"
+      },
+      "font": {
+        "size_sm": "Change Font Size to Small",
+        "size_md": "Change Font Size to Medium",
+        "size_lg": "Change Font Size to Large"
+      },
+      "change_interceptor": "Change Interceptor",
+      "change_language": "Change Language",
+      "install_extension": "Install Browser Extension"
     }
   },
   "sse": {

@@ -77,6 +77,8 @@ declare module '@vue/runtime-core' {
     History: typeof import('./components/history/index.vue')['default']
     HistoryGraphqlCard: typeof import('./components/history/graphql/Card.vue')['default']
     HistoryRestCard: typeof import('./components/history/rest/Card.vue')['default']
+    HoppButtonSecondary: typeof import('@hoppscotch/ui')['HoppButtonSecondary']
+    HoppSmartSpinner: typeof import('@hoppscotch/ui')['HoppSmartSpinner']
     HttpAuthorization: typeof import('./components/http/Authorization.vue')['default']
     HttpAuthorizationApiKey: typeof import('./components/http/authorization/ApiKey.vue')['default']
     HttpAuthorizationBasic: typeof import('./components/http/authorization/Basic.vue')['default']

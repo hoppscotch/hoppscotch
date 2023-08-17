@@ -14,7 +14,7 @@ import {
   OperationResult,
   Client,
 } from "@urql/core"
-import { authExchange } from "@urql/exchange-auth"
+import { AuthConfig, authExchange } from "@urql/exchange-auth"
 import { devtoolsExchange } from "@urql/devtools"
 import { SubscriptionClient } from "subscriptions-transport-ws"
 import * as E from "fp-ts/Either"
@@ -69,41 +69,41 @@ const createHoppClient = () => {
   const exchanges = [
     devtoolsExchange,
     dedupExchange,
-    authExchange({
-      addAuthToOperation({ authState, operation }) {
-        if (!authState) {
-          return operation
-        }
+    authExchange(async (): Promise<AuthConfig> => {
+      const probableUser = platform.auth.getProbableUser()
+      if (probableUser !== null)
+        await platform.auth.waitProbableLoginToConfirm()
 
-        const fetchOptions =
-          typeof operation.context.fetchOptions === "function"
-            ? operation.context.fetchOptions()
-            : operation.context.fetchOptions || {}
+      return {
+        addAuthToOperation(operation) {
+          const fetchOptions =
+            typeof operation.context.fetchOptions === "function"
+              ? operation.context.fetchOptions()
+              : operation.context.fetchOptions || {}
 
-        const authHeaders = platform.auth.getBackendHeaders()
+          const authHeaders = platform.auth.getBackendHeaders()
 
-        return makeOperation(operation.kind, operation, {
-          ...operation.context,
-          fetchOptions: {
-            ...fetchOptions,
-            headers: {
-              ...fetchOptions.headers,
-              ...authHeaders,
+          return makeOperation(operation.kind, operation, {
+            ...operation.context,
+            fetchOptions: {
+              ...fetchOptions,
+              headers: {
+                ...fetchOptions.headers,
+                ...authHeaders,
+              },
             },
-          },
-        })
-      },
-      willAuthError() {
-        return platform.auth.willBackendHaveAuthError()
-      },
-      getAuth: async () => {
-        const probableUser = platform.auth.getProbableUser()
-
-        if (probableUser !== null)
-          await platform.auth.waitProbableLoginToConfirm()
-
-        return {}
-      },
+          })
+        },
+        willAuthError() {
+          return platform.auth.willBackendHaveAuthError()
+        },
+        didAuthError() {
+          return false
+        },
+        async refreshAuth() {
+          // TODO
+        },
+      }
     }),
     fetchExchange,
     errorExchange({

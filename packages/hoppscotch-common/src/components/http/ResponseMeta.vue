@@ -83,14 +83,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from "vue"
+import { computed } from "vue"
 import findStatusGroup from "@helpers/findStatusGroup"
 import type { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 import { useI18n } from "@composables/i18n"
 import { useColorMode } from "@composables/theming"
 import { getStatusCodeReasonPhrase } from "~/helpers/utils/statusCodes"
 import { useService } from "dioc/vue"
-import { InspectionService, InspectorResult } from "~/services/inspection"
+import { InspectionService } from "~/services/inspection"
 import { currentTabID } from "~/helpers/rest/tab"
 
 const t = useI18n()
@@ -145,21 +145,11 @@ const inspectionService = useService(InspectionService)
 
 const allTabResults = inspectionService.tabs
 
-const tabResults = ref<InspectorResult[]>([])
-
-watch(
-  allTabResults,
-  (results) => {
-    const tabID = currentTabID.value
-
-    const tabResult = results.get(tabID)
-    const filteredInspections = tabResult?.filter(
-      (result) => result.locations.type === "response"
-    )
-    if (filteredInspections) {
-      tabResults.value = filteredInspections
-    }
-  },
-  { immediate: true, deep: true }
-)
+const tabResults = computed(() => {
+  return (
+    allTabResults.value
+      .get(currentTabID.value)
+      ?.filter((result) => result.locations.type === "response") ?? []
+  )
+})
 </script>

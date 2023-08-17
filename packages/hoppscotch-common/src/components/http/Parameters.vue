@@ -179,7 +179,7 @@ import IconCheckCircle from "~icons/lucide/check-circle"
 import IconCircle from "~icons/lucide/circle"
 import IconTrash from "~icons/lucide/trash"
 import IconWrapText from "~icons/lucide/wrap-text"
-import { reactive, ref, watch } from "vue"
+import { computed, reactive, ref, watch } from "vue"
 import { flow, pipe } from "fp-ts/function"
 import * as O from "fp-ts/Option"
 import * as A from "fp-ts/Array"
@@ -412,31 +412,28 @@ const inspectionService = useService(InspectionService)
 
 const allTabResults = inspectionService.tabs
 
-const parameterKeyResults = ref<InspectorResult[]>([])
-const parameterValueResults = ref<InspectorResult[]>([])
-
-watch(
-  allTabResults,
-  (results) => {
-    const tabID = currentTabID.value
-
-    const tabResult = results.get(tabID)
-    if (tabResult) {
-      parameterKeyResults.value = tabResult.filter(
+const parameterKeyResults = computed(() => {
+  return (
+    allTabResults.value
+      .get(currentTabID.value)
+      .filter(
         (result) =>
           result.locations.type === "parameter" &&
           result.locations.position === "key"
-      )
-
-      parameterValueResults.value = tabResult.filter(
+      ) ?? []
+  )
+})
+const parameterValueResults = computed(() => {
+  return (
+    allTabResults.value
+      .get(currentTabID.value)
+      .filter(
         (result) =>
           result.locations.type === "parameter" &&
           result.locations.position === "value"
-      )
-    }
-  },
-  { immediate: true, deep: true }
-)
+      ) ?? []
+  )
+})
 
 const getInspectorResult = (results: InspectorResult[], index: number) => {
   return results.filter((result) => {

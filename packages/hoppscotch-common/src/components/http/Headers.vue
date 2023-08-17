@@ -511,31 +511,28 @@ const inspectionService = useService(InspectionService)
 
 const allTabResults = inspectionService.tabs
 
-const headerKeyResults = ref<InspectorResult[]>([])
-const headerValueResults = ref<InspectorResult[]>([])
-
-watch(
-  allTabResults,
-  (results) => {
-    const tabID = currentTabID.value
-
-    const tabResult = results.get(tabID)
-    if (tabResult) {
-      headerKeyResults.value = tabResult.filter(
+const headerKeyResults = computed(() => {
+  return (
+    allTabResults.value
+      .get(currentTabID.value)
+      .filter(
         (result) =>
           result.locations.type === "header" &&
           result.locations.position === "key"
-      )
-
-      headerValueResults.value = tabResult.filter(
+      ) ?? []
+  )
+})
+const headerValueResults = computed(() => {
+  return (
+    allTabResults.value
+      .get(currentTabID.value)
+      .filter(
         (result) =>
           result.locations.type === "header" &&
           result.locations.position === "value"
-      )
-    }
-  },
-  { immediate: true, deep: true }
-)
+      ) ?? []
+  )
+})
 
 const getInspectorResult = (results: InspectorResult[], index: number) => {
   return results.filter((result) => {

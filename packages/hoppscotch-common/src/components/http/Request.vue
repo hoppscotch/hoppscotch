@@ -242,7 +242,7 @@ import { useToast } from "@composables/toast"
 import { refAutoReset, useVModel } from "@vueuse/core"
 import * as E from "fp-ts/Either"
 import { isLeft, isRight } from "fp-ts/lib/Either"
-import { computed, onBeforeUnmount, ref, watch } from "vue"
+import { computed, onBeforeUnmount, ref } from "vue"
 import { defineActionHandler } from "~/helpers/actions"
 import { runMutation } from "~/helpers/backend/GQLClient"
 import { UpdateRequestDocument } from "~/helpers/backend/graphql"
@@ -273,7 +273,7 @@ import { platform } from "~/platform"
 import { getCurrentStrategyID } from "~/helpers/network"
 import { HoppGQLRequest, HoppRESTRequest } from "@hoppscotch/data"
 import { useService } from "dioc/vue"
-import { InspectionService, InspectorResult } from "~/services/inspection"
+import { InspectionService } from "~/services/inspection"
 
 const t = useI18n()
 
@@ -642,17 +642,7 @@ const inspectionService = useService(InspectionService)
 
 const allTabResults = inspectionService.tabs
 
-const tabResults = ref<InspectorResult[]>([])
-
-watch(
-  allTabResults,
-  (results) => {
-    const tabID = currentTabID.value
-    const tabResult = results.get(tabID)
-    if (tabResult) {
-      tabResults.value = tabResult
-    }
-  },
-  { immediate: true, deep: true }
-)
+const tabResults = computed(() => {
+  return allTabResults.value.get(currentTabID.value) ?? []
+})
 </script>

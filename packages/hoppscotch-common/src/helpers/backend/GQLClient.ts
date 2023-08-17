@@ -13,6 +13,7 @@ import {
   Operation,
   OperationResult,
   Client,
+  AnyVariables,
 } from "@urql/core"
 import { AuthConfig, authExchange } from "@urql/exchange-auth"
 import { devtoolsExchange } from "@urql/devtools"
@@ -165,9 +166,9 @@ export function initBackendGQLClient() {
   })
 }
 
-type RunQueryOptions<T = any, V = object> = {
+type RunQueryOptions<T = any, V = AnyVariables> = {
   query: TypedDocumentNode<T, V>
-  variables?: V
+  variables: V
 }
 
 /**
@@ -183,7 +184,11 @@ export type GQLError<T extends string> =
       error: T
     }
 
-export const runGQLQuery = <DocType, DocVarType, DocErrorType extends string>(
+export const runGQLQuery = <
+  DocType,
+  DocVarType extends AnyVariables,
+  DocErrorType extends string
+>(
   args: RunQueryOptions<DocType, DocVarType>
 ): Promise<E.Either<GQLError<DocErrorType>, DocType>> => {
   const request = createRequest<DocType, DocVarType>(args.query, args.variables)
@@ -245,7 +250,7 @@ export const runGQLQuery = <DocType, DocVarType, DocErrorType extends string>(
 // Make sure to handle cases if the subscription fires with the same update multiple times
 export const runGQLSubscription = <
   DocType,
-  DocVarType,
+  DocVarType extends AnyVariables,
   DocErrorType extends string
 >(
   args: RunQueryOptions<DocType, DocVarType>
@@ -338,7 +343,7 @@ export const runMutation = <
   DocErrors extends string
 >(
   mutation: TypedDocumentNode<DocType, DocVariables>,
-  variables?: DocVariables,
+  variables: DocVariables,
   additionalConfig?: Partial<OperationContext>
 ): TE.TaskEither<GQLError<DocErrors>, DocType> =>
   pipe(

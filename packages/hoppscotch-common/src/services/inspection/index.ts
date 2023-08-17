@@ -102,6 +102,10 @@ export class InspectionService extends Service {
 
   public tabs: Ref<Map<string, InspectorResult[]>> = ref(new Map())
 
+  /**
+   * Registers a inspector with the inspection service
+   * @param inspector The inspector instance to register
+   */
   public registerInspector(inspector: Inspector) {
     this.inspectors.set(inspector.inspectorID, inspector)
   }

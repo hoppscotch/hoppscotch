@@ -9,6 +9,8 @@ import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 /**
  * This inspector is responsible for inspecting the response of a request.
  * It checks if the response is successful and if it contains errors.
+ *
+ * NOTE: Initializing this service registers it as a inspector with the Inspection Service.
  */
 export class ResponseInspectorService extends Service implements Inspector {
   public static readonly ID = "RESPONSE_INSPECTOR_SERVICE"

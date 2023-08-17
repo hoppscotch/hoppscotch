@@ -13,6 +13,8 @@ import { applySetting, toggleSetting } from "~/newstore/settings"
  * This inspector is responsible for inspecting the URL of a request.
  * It checks if the URL contains localhost and if the extension is installed.
  * It also provides an action to enable the extension.
+ *
+ * NOTE: Initializing this service registers it as a inspector with the Inspection Service.
  */
 export class URLInspectorService extends Service implements Inspector {
   public static readonly ID = "URL_INSPECTOR_SERVICE"

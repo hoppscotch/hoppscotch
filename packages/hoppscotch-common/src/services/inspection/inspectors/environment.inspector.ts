@@ -22,6 +22,8 @@ const isENVInString = (str: string) => {
  * This inspector is responsible for inspecting the environment variables of a input.
  * It checks if the environment variables are defined in the environment.
  * It also provides an action to add the environment variable.
+ *
+ * NOTE: Initializing this service registers it as a inspector with the Inspection Service.
  */
 export class EnvironmentInspectorService extends Service implements Inspector {
   public static readonly ID = "ENVIRONMENT_INSPECTOR_SERVICE"

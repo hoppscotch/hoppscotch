@@ -8,6 +8,8 @@ import IconAlertTriangle from "~icons/lucide/alert-triangle"
 /**
  * This inspector is responsible for inspecting the header of a request.
  * It checks if the header contains cookies.
+ *
+ * NOTE: Initializing this service registers it as a inspector with the Inspection Service.
  */
 export class HeaderInspectorService extends Service implements Inspector {
   public static readonly ID = "HEADER_INSPECTOR_SERVICE"

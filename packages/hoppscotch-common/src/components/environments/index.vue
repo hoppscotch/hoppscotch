@@ -198,6 +198,11 @@ const resetSelectedData = () => {
   editingEnvironmentIndex.value = null
 }
 
+defineActionHandler("modals.environment.new", () => {
+  action.value = "new"
+  showModalDetails.value = true
+})
+
 defineActionHandler(
   "modals.my.environment.edit",
   ({ envName, variableName }) => {

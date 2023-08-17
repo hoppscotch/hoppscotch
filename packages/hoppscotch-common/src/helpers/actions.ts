@@ -26,6 +26,7 @@ export type HoppAction =
   | "modals.support.toggle" // Shows the support modal
   | "modals.share.toggle" // Shows the share modal
   | "modals.environment.add" // Show add environment modal via context menu
+  | "modals.environment.new" // Show add environment modal via context menu
   | "modals.my.environment.edit" // Edit current personal environment
   | "modals.team.environment.edit" // Edit current team environment
   | "navigation.jump.rest" // Jump to REST page

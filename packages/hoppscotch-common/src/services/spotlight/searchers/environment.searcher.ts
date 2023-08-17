@@ -1,218 +1,130 @@
-import { Service } from "dioc"
-import {
-  SpotlightSearcher,
-  SpotlightSearcherResult,
-  SpotlightSearcherSessionState,
-  SpotlightService,
-} from ".."
-import { Ref, computed, effectScope, markRaw, ref, watch } from "vue"
+import { Component, markRaw, reactive } from "vue"
+import { invokeAction } from "~/helpers/actions"
 import { getI18n } from "~/modules/i18n"
-import MiniSearch from "minisearch"
-import { graphqlHistoryStore, restHistoryStore } from "~/newstore/history"
-import { useTimeAgo } from "@vueuse/core"
-import IconHistory from "~icons/lucide/history"
-import IconTrash2 from "~icons/lucide/trash-2"
-import SpotlightRESTHistoryEntry from "~/components/app/spotlight/entry/RESTHistory.vue"
-import SpotlightGQLHistoryEntry from "~/components/app/spotlight/entry/GQLHistory.vue"
-import { capitalize } from "lodash-es"
-import { shortDateTime } from "~/helpers/utils/date"
-import { useStreamStatic } from "~/composables/stream"
-import { activeActions$, invokeAction } from "~/helpers/actions"
-import { map } from "rxjs/operators"
-import { HoppRESTDocument } from "~/helpers/rest/document"
+import { SpotlightSearcherResult, SpotlightService } from ".."
+import {
+  SearchResult,
+  StaticSpotlightSearcherService,
+} from "./base/static.searcher"
+
+import IconShare from "~icons/lucide/share"
+
+type Doc = {
+  text: string
+  alternates: string[]
+  icon: object | Component
+}
 
 /**
- * This searcher is responsible for searching through the environments.
- * It also provides environment related actions.
+ *
+ * This searcher is responsible for providing environments related actions on the spotlight results.
  *
  * NOTE: Initializing this service registers it as a searcher with the Spotlight Service.
  */
-export class EnvironmentsSpotlightSearcherService
-  extends Service
-  implements SpotlightSearcher
-{
+export class EnvironmentsSpotlightSearcherService extends StaticSpotlightSearcherService<Doc> {
   public static readonly ID = "ENVIRONMENTS_SPOTLIGHT_SEARCHER_SERVICE"
 
   private t = getI18n()
 
-  public searcherID = "environments"
-  public searcherSectionTitle = this.t("tab.environments")
+  public readonly searcherID = "environments"
+  public searcherSectionTitle = this.t("spotlight.environments.title")
 
   private readonly spotlight = this.bind(SpotlightService)
 
-  private clearHistoryActionEnabled = useStreamStatic(
-    activeActions$.pipe(map((actions) => actions.includes("history.clear"))),
-    activeActions$.value.includes("history.clear"),
-    () => {
-      /* noop */
-    }
-  )[0]
+  // [ ] Create a new environment
+  // [ ] Create a new environment variable, auto-fill key if a text is selected
+  // [ ] Edit selected environment
+  // [ ] Delete selected environment
+  // [ ] Duplicate selected environment
+  // [ ] Edit Global environments
+  // [ ] Duplicate Global environments
+  // [ ] Search and switch environment
 
-  private restHistoryEntryOpenable = useStreamStatic(
-    activeActions$.pipe(
-      map((actions) => actions.includes("rest.request.open"))
-    ),
-    activeActions$.value.includes("rest.request.open"),
-    () => {
-      /* noop */
-    }
-  )[0]
+  private documents: Record<string, Doc> = reactive({
+    new_environment: {
+      text: this.t("spotlight.environments.new"),
+      alternates: ["new", "environment"],
+      icon: markRaw(IconShare),
+    },
+    new_environment_variable: {
+      text: this.t("spotlight.environments.new_variable"),
+      alternates: ["new", "environment", "variable"],
+      icon: markRaw(IconShare),
+    },
+    edit_selected_env: {
+      text: this.t("spotlight.environments.edit"),
+      alternates: ["edit", "environment"],
+      icon: markRaw(IconShare),
+    },
+    delete_selected_env: {
+      text: this.t("spotlight.environments.delete"),
+      alternates: ["delete", "environment"],
+      icon: markRaw(IconShare),
+    },
+    duplicate_selected_env: {
+      text: this.t("spotlight.environments.duplicate"),
+      alternates: ["duplicate", "environment"],
+      icon: markRaw(IconShare),
+    },
+    edit_global_env: {
+      text: this.t("spotlight.environments.edit_global"),
+      alternates: ["edit", "global", "environment"],
+      icon: markRaw(IconShare),
+    },
+    duplicate_global_env: {
+      text: this.t("spotlight.environments.duplicate_global"),
+      alternates: ["duplicate", "global", "environment"],
+      icon: markRaw(IconShare),
+    },
+  })
 
   constructor() {
-    super()
+    super({
+      searchFields: ["text", "alternates"],
+      fieldWeights: {
+        text: 2,
+        alternates: 1,
+      },
+    })
 
+    this.setDocuments(this.documents)
     this.spotlight.registerSearcher(this)
   }
 
-  createSearchSession(
-    query: Readonly<Ref<string>>
-  ): [Ref<SpotlightSearcherSessionState>, () => void] {
-    const loading = ref(false)
-    const results = ref<SpotlightSearcherResult[]>([])
-
-    const minisearch = new MiniSearch({
-      fields: ["url", "title", "reltime", "date"],
-      storeFields: ["url"],
-    })
-
-    const stopWatchHandle = watch(
-      this.clearHistoryActionEnabled,
-      (enabled) => {
-        if (enabled) {
-          if (minisearch.has("clear-history")) return
-
-          minisearch.add({
-            id: "clear-history",
-            title: this.t("action.clear_history"),
-          })
-        } else {
-          if (!minisearch.has("clear-history")) return
-
-          minisearch.discard("clear-history")
-        }
-      },
-      { immediate: true }
-    )
-
-    if (this.restHistoryEntryOpenable.value) {
-      console.log(this.restHistoryEntryOpenable)
-      minisearch.addAll(
-        restHistoryStore.value.state
-          .filter((x) => !!x.updatedOn)
-          .map((entry, index) => {
-            const relTimeString = capitalize(
-              useTimeAgo(entry.updatedOn!, {
-                updateInterval: 0,
-              }).value
-            )
-
-            return {
-              id: `rest-${index}`,
-              url: entry.request.endpoint,
-              reltime: relTimeString,
-              date: shortDateTime(entry.updatedOn!),
-            }
-          })
-      )
+  protected getSearcherResultForSearchResult(
+    result: SearchResult<Doc>
+  ): SpotlightSearcherResult {
+    return {
+      id: result.id,
+      icon: result.doc.icon,
+      text: { type: "text", text: result.doc.text },
+      score: result.score,
     }
-
-    const scopeHandle = effectScope()
-
-    scopeHandle.run(() => {
-      watch(
-        [query, this.clearHistoryActionEnabled],
-        ([query]) => {
-          results.value = minisearch
-            .search(query, {
-              prefix: true,
-              fuzzy: true,
-              boost: {
-                reltime: 2,
-              },
-              weights: {
-                fuzzy: 0.2,
-                prefix: 0.8,
-              },
-            })
-            .map((x) => {
-              if (x.id === "clear-history") {
-                return {
-                  id: "clear-history",
-                  icon: markRaw(IconTrash2),
-                  score: x.score,
-                  text: {
-                    type: "text",
-                    text: this.t("action.clear_history"),
-                  },
-                }
-              }
-              if (x.id.startsWith("rest-")) {
-                const entry =
-                  restHistoryStore.value.state[parseInt(x.id.split("-")[1])]
-
-                return {
-                  id: x.id,
-                  icon: markRaw(IconHistory),
-                  score: x.score,
-                  text: {
-                    type: "custom",
-                    component: markRaw(SpotlightRESTHistoryEntry),
-                    componentProps: {
-                      historyEntry: entry,
-                    },
-                  },
-                }
-              } else {
-                // Assume gql
-                const entry =
-                  graphqlHistoryStore.value.state[parseInt(x.id.split("-")[1])]
-
-                return {
-                  id: x.id,
-                  icon: markRaw(IconHistory),
-                  score: x.score,
-                  text: {
-                    type: "custom",
-                    component: markRaw(SpotlightGQLHistoryEntry),
-                    componentProps: {
-                      historyEntry: entry,
-                    },
-                  },
-                }
-              }
-            })
-        },
-        { immediate: true }
-      )
-    })
-
-    const onSessionEnd = () => {
-      scopeHandle.stop()
-      stopWatchHandle()
-      minisearch.removeAll()
-    }
-
-    const resultObj = computed<SpotlightSearcherSessionState>(() => ({
-      loading: loading.value,
-      results: results.value,
-    }))
-
-    return [resultObj, onSessionEnd]
   }
 
-  onResultSelect(result: SpotlightSearcherResult): void {
-    if (result.id === "clear-history") {
-      invokeAction("history.clear")
-    } else {
-      const req =
-        restHistoryStore.value.state[parseInt(result.id.split("-")[1])].request
-
-      invokeAction("rest.request.open", {
-        doc: <HoppRESTDocument>{
-          request: req,
-          isDirty: false,
-        },
-      })
+  public onDocSelected(id: string): void {
+    switch (id) {
+      case "new_environment":
+        invokeAction(`modals.environment.new`)
+        break
+      case "new_environment_variable":
+        invokeAction(`modals.environment.new`)
+        break
+      case "edit_selected_env":
+        // invokeAction(`modals.environment.edit`)
+        break
+      case "delete_selected_env":
+        // invokeAction(`modals.environment.delete`)
+        break
+      case "duplicate_selected_env":
+        // invokeAction(`modals.environment.duplicate`)
+        break
+      case "edit_global_env":
+        // invokeAction(`modals.environment.edit`)
+        break
+      case "duplicate_global_env":
+        // invokeAction(`modals.environment.duplicate`)
+        break
     }
   }
 }

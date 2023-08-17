@@ -447,8 +447,8 @@ importers:
         specifier: ^2.0.3
         version: 2.0.3(@urql/core@4.1.1)(graphql@15.8.0)
       '@urql/exchange-auth':
-        specifier: ^0.1.7
-        version: 0.1.7(graphql@15.8.0)
+        specifier: ^2.1.6
+        version: 2.1.6(graphql@15.8.0)
       '@urql/exchange-graphcache':
         specifier: ^4.4.3
         version: 4.4.3(graphql@15.8.0)
@@ -600,8 +600,8 @@ importers:
         specifier: ^4.1.1
         version: 4.1.1(vue@3.2.45)
       wonka:
-        specifier: ^4.0.15
-        version: 4.0.15
+        specifier: ^6.3.4
+        version: 6.3.4
       workbox-window:
         specifier: ^6.5.4
         version: 6.6.0
@@ -6238,11 +6238,11 @@ packages:
       https-proxy-agent: 5.0.1
       isomorphic-fetch: 3.0.0
       js-yaml: 4.1.0
-      json-stable-stringify: 1.0.1
+      json-stable-stringify: 1.0.2
       jsonwebtoken: 9.0.0
       lodash: 4.17.21
       scuid: 1.1.0
-      tslib: 2.4.1
+      tslib: 2.6.2
       yaml-ast-parser: 0.0.43
     transitivePeerDependencies:
       - '@types/node'
@@ -10012,17 +10012,16 @@ packages:
     dependencies:
       '@urql/core': 4.1.1(graphql@15.8.0)
       graphql: 15.8.0
-      wonka: 4.0.15
+      wonka: 6.3.4
     dev: false
 
-  /@urql/exchange-auth@0.1.7(graphql@15.8.0):
-    resolution: {integrity: sha512-4Bmmi6YMW1YjZnTdr0Gfp9IoIY1fpNGq/fo1XHWEFEYe+IEOEDQhKT1CyhztyvvKpFw2C46D32MJRWJHQUPo/g==}
-    peerDependencies:
-      graphql: ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0
+  /@urql/exchange-auth@2.1.6(graphql@15.8.0):
+    resolution: {integrity: sha512-snOlt7p5kYq0KnPDuXkKe2qW3/BucQZOElvTeo3svLQuk9JiNJVnm6ffQ6QGiGO+G3AtMrctnno1+X44fLtDuQ==}
     dependencies:
       '@urql/core': 4.1.1(graphql@15.8.0)
-      graphql: 15.8.0
-      wonka: 4.0.15
+      wonka: 6.3.4
+    transitivePeerDependencies:
+      - graphql
     dev: false
 
   /@urql/exchange-graphcache@4.4.3(graphql@15.8.0):
@@ -12713,14 +12712,6 @@ packages:
     hasBin: true
     dependencies:
       cross-spawn: 7.0.3
-    dev: true
-
-  /cross-fetch@3.1.5:
-    resolution: {integrity: sha512-lvb1SBsI0Z7GDwmuid+mU3kWVBwTVUbe7S0H52yaaAdQOXq2YktTCZdlAcNKFzE6QtRz0snpw9bNiPeOIkkQvw==}
-    dependencies:
-      node-fetch: 2.6.7
-    transitivePeerDependencies:
-      - encoding
     dev: true
 
   /cross-fetch@3.1.8:
@@ -15640,7 +15631,7 @@ packages:
       graphql: 14 - 16
     dependencies:
       '@graphql-typed-document-node/core': 3.2.0(graphql@16.6.0)
-      cross-fetch: 3.1.5
+      cross-fetch: 3.1.8
       extract-files: 9.0.0
       form-data: 3.0.1
       graphql: 16.6.0
@@ -18093,12 +18084,6 @@ packages:
   /json-stable-stringify-without-jsonify@1.0.1:
     resolution: {integrity: sha512-Bdboy+l7tA3OGW6FjyFHWkP5LuByj1Tk33Ljyq0axyzdk9//JSi2u3fP1QSmd1KNwq6VOKYGlAu87CisVir6Pw==}
 
-  /json-stable-stringify@1.0.1:
-    resolution: {integrity: sha512-i/J297TW6xyj7sDFa7AmBPkQvLIxWr2kKPWI26tXydnZrzVAocNqn5DMNT1Mzk0vit1V5UkRM7C1KdVNp7Lmcg==}
-    dependencies:
-      jsonify: 0.0.0
-    dev: true
-
   /json-stable-stringify@1.0.2:
     resolution: {integrity: sha512-eunSSaEnxV12z+Z73y/j5N37/In40GK4GmsSy+tEHJMxknvqnA7/djeYtAgW0GsWHUfg+847WJjKaEylk2y09g==}
     dependencies:
@@ -18159,10 +18144,6 @@ packages:
       universalify: 2.0.0
     optionalDependencies:
       graceful-fs: 4.2.11
-    dev: true
-
-  /jsonify@0.0.0:
-    resolution: {integrity: sha512-trvBk1ki43VZptdBI5rIlG4YOzyeH/WefQt5rj1grasPn4iiZWKet8nkgc4GlsAylaztn0qZfUYOiTsASJFdNA==}
     dev: true
 
   /jsonify@0.0.1:
@@ -25622,7 +25603,3 @@ packages:
     optionalDependencies:
       commander: 9.5.0
     dev: true
-
-settings:
-  autoInstallPeers: true
-  excludeLinksFromLockfile: false

@@ -46,7 +46,7 @@
     "@sentry/vue": "^7.64.0",
     "@urql/core": "^4.1.1",
     "@urql/devtools": "^2.0.3",
-    "@urql/exchange-auth": "^0.1.7",
+    "@urql/exchange-auth": "^2.1.6",
     "@urql/exchange-graphcache": "^4.4.3",
     "@vitejs/plugin-legacy": "^2.3.0",
     "@vueuse/core": "^8.9.4",
@@ -97,7 +97,7 @@
     "vue-router": "^4.0.16",
     "vue-tippy": "6.0.0-alpha.58",
     "vuedraggable-es": "^4.1.1",
-    "wonka": "^4.0.15",
+    "wonka": "^6.3.4",
     "workbox-window": "^6.5.4",
     "xml-formatter": "^3.4.1",
     "yargs-parser": "^21.1.1"

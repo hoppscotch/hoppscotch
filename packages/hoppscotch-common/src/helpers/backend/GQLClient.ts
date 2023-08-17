@@ -16,7 +16,7 @@ import {
   AnyVariables,
 } from "@urql/core"
 import { AuthConfig, authExchange } from "@urql/exchange-auth"
-import { devtoolsExchange } from "@urql/devtools"
+// import { devtoolsExchange } from "@urql/devtools"
 import { SubscriptionClient } from "subscriptions-transport-ws"
 import * as E from "fp-ts/Either"
 import * as TE from "fp-ts/TaskEither"
@@ -68,7 +68,7 @@ const createSubscriptionClient = () => {
 
 const createHoppClient = () => {
   const exchanges = [
-    devtoolsExchange,
+    // devtoolsExchange,
     dedupExchange,
     authExchange(async (): Promise<AuthConfig> => {
       const probableUser = platform.auth.getProbableUser()

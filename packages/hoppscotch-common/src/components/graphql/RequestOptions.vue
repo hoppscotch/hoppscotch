@@ -757,7 +757,11 @@ const hideRequestModal = () => {
 
 const prettifyQuery = () => {
   try {
-    gqlQueryString.value = gql.print(gql.parse(gqlQueryString.value))
+    gqlQueryString.value = gql.print(
+      gql.parse(gqlQueryString.value, {
+        allowLegacyFragmentVariables: true,
+      })
+    )
     prettifyQueryIcon.value = IconCheck
   } catch (e) {
     toast.error(`${t("error.gql_prettify_invalid_query")}`)

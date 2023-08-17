@@ -9,7 +9,7 @@
       <span
         v-tippy="{ theme: 'tooltip' }"
         :title="`${t('environment.select')}`"
-        class="bg-transparent border-b border-dividerLight select-wrapper"
+        class="select-wrapper"
       >
         <HoppButtonSecondary
           :icon="IconLayers"
@@ -50,7 +50,11 @@
           />
           <HoppSmartTabs
             v-model="selectedEnvTab"
-            styles="sticky overflow-x-auto my-2 border border-divider rounded flex-shrink-0 z-0 top-0 bg-primary"
+            :styles="`sticky overflow-x-auto my-2 border border-divider rounded flex-shrink-0 z-0 top-0 bg-primary ${
+              !isTeamSelected || workspace.type === 'personal'
+                ? 'bg-primaryLight'
+                : ''
+            }`"
             render-inactive-tabs
           >
             <HoppSmartTab
@@ -189,12 +193,12 @@
                 "
               />
             </div>
-            <div class="my-2 flex flex-col flex-1 space-y-2 pl-4">
+            <div class="my-2 flex flex-col flex-1 space-y-2 pl-4 pr-2">
               <div class="flex flex-1 space-x-4">
-                <span class="w-20 truncate text-tiny font-semibold">
+                <span class="w-1/4 min-w-32 truncate text-tiny font-semibold">
                   {{ t("environment.name") }}
                 </span>
-                <span class="w-36 truncate text-tiny font-semibold">
+                <span class="w-full min-w-32 truncate text-tiny font-semibold">
                   {{ t("environment.value") }}
                 </span>
               </div>
@@ -203,10 +207,10 @@
                 :key="index"
                 class="flex flex-1 space-x-4"
               >
-                <span class="text-secondaryLight w-20 truncate">
+                <span class="text-secondaryLight w-1/4 min-w-32 truncate">
                   {{ variable.key }}
                 </span>
-                <span class="text-secondaryLight w-36 truncate">
+                <span class="text-secondaryLight w-full min-w-32 truncate">
                   {{ variable.value }}
                 </span>
               </div>
@@ -215,15 +219,15 @@
               </div>
             </div>
             <div
-              class="sticky top-0 font-semibold truncate flex items-center justify-between text-secondaryDark bg-primary border border-divider rounded pl-4"
+              class="sticky top-0 mt-2 font-semibold truncate flex items-center justify-between text-secondaryDark bg-primary border border-divider rounded pl-4"
               :class="{
-                'py-2 pr-4': !selectedEnv.variables,
+                'bg-primaryLight': !selectedEnv.variables,
               }"
             >
               {{ t("environment.list") }}
               <HoppButtonSecondary
-                v-if="selectedEnv.variables"
                 v-tippy="{ theme: 'tooltip' }"
+                :disabled="!selectedEnv.variables"
                 :title="t('action.edit')"
                 :icon="IconEdit"
                 @click="
@@ -240,12 +244,12 @@
             >
               {{ t("environment.no_active_environment") }}
             </div>
-            <div v-else class="my-2 flex flex-col flex-1 space-y-2 pl-4">
+            <div v-else class="my-2 flex flex-col flex-1 space-y-2 pl-4 pr-2">
               <div class="flex flex-1 space-x-4">
-                <span class="w-20 truncate text-tiny font-semibold">
+                <span class="w-1/4 min-w-32 truncate text-tiny font-semibold">
                   {{ t("environment.name") }}
                 </span>
-                <span class="w-36 truncate text-tiny font-semibold">
+                <span class="w-full min-w-32 truncate text-tiny font-semibold">
                   {{ t("environment.value") }}
                 </span>
               </div>
@@ -254,10 +258,10 @@
                 :key="index"
                 class="flex flex-1 space-x-4"
               >
-                <span class="text-secondaryLight w-20 truncate">
+                <span class="text-secondaryLight w-1/4 min-w-32 truncate">
                   {{ variable.key }}
                 </span>
-                <span class="text-secondaryLight w-36 truncate">
+                <span class="text-secondaryLight w-full min-w-32 truncate">
                   {{ variable.value }}
                 </span>
               </div>

@@ -50,12 +50,13 @@ CMD ["/bin/sh", "-c", "node /usr/prod_run.mjs && caddy run --config /etc/caddy/C
 
 FROM backend as aio
 RUN apt-get update
-RUN apt-get install -y caddy
+RUN apt-get install -y caddy tini
 RUN npm install -g @import-meta-env/cli
 COPY --from=fe_builder /usr/src/app/packages/hoppscotch-selfhost-web/dist /site/selfhost-web
 COPY --from=sh_admin_builder /usr/src/app/packages/hoppscotch-sh-admin/dist /site/sh-admin
 COPY aio.Caddyfile /etc/caddy/Caddyfile
-CMD ["/bin/sh", "-c", "node /usr/src/app/aio_run.mjs"]
+ENTRYPOINT [ "/usr/bin/tini", "--" ]
+CMD ["node", "/usr/src/app/aio_run.mjs"]
 EXPOSE 3170
 EXPOSE 3000
 EXPOSE 3100

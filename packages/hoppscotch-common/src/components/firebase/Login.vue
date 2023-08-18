@@ -9,27 +9,12 @@
     <template #body>
       <div v-if="mode === 'sign-in'" class="flex flex-col space-y-2">
         <HoppSmartItem
-          :loading="signingInWithGitHub"
-          :icon="IconGithub"
-          :label="`${t('auth.continue_with_github')}`"
+          v-for="provider in allowedAuthProviders"
+          :key="provider.id"
+          :loading="provider.isLoading.value"
+          :icon="provider.icon"
+          :label="provider.label"
           @click="signInWithGithub"
-        />
-        <HoppSmartItem
-          :loading="signingInWithGoogle"
-          :icon="IconGoogle"
-          :label="`${t('auth.continue_with_google')}`"
-          @click="signInWithGoogle"
-        />
-        <HoppSmartItem
-          :loading="signingInWithMicrosoft"
-          :icon="IconMicrosoft"
-          :label="`${t('auth.continue_with_microsoft')}`"
-          @click="signInWithMicrosoft"
-        />
-        <HoppSmartItem
-          :icon="IconEmail"
-          :label="`${t('auth.continue_with_email')}`"
-          @click="mode = 'email'"
         />
 
         <hr v-if="additonalLoginItems.length > 0" />
@@ -124,7 +109,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from "vue"
+import { Ref, computed, onMounted, ref } from "vue"
 
 import { useStreamSubscriber } from "@composables/stream"
 import { useToast } from "@composables/toast"
@@ -166,6 +151,14 @@ const mode = ref("sign-in")
 const tosLink = import.meta.env.VITE_APP_TOS_LINK
 const privacyPolicyLink = import.meta.env.VITE_APP_PRIVACY_POLICY_LINK
 
+type AuthProviderItem = {
+  id: string
+  icon: typeof IconGithub
+  label: string
+  action: (...args: any[]) => any
+  isLoading: Ref<boolean>
+}
+
 const additonalLoginItems = computed(
   () => platform.auth.additionalLoginItems ?? []
 )
@@ -174,6 +167,7 @@ const doAdditionalLoginItemClickAction = async (item: LoginItemDef) => {
   await item.onClick()
   emit("hide-modal")
 }
+
 onMounted(() => {
   const currentUser$ = platform.auth.getCurrentUserStream()
 
@@ -284,4 +278,51 @@ const hideModal = () => {
 
   emit("hide-modal")
 }
+
+const authProviders: AuthProviderItem[] = [
+  {
+    id: "GITHUB",
+    icon: IconGithub,
+    label: t("auth.continue_with_github"),
+    action: signInWithGithub,
+    isLoading: signingInWithGitHub,
+  },
+  {
+    id: "GOOGLE",
+    icon: IconGoogle,
+    label: t("auth.continue_with_google"),
+    action: signInWithGoogle,
+    isLoading: signingInWithGoogle,
+  },
+  {
+    id: "MICROSOFT",
+    icon: IconMicrosoft,
+    label: t("auth.continue_with_microsoft"),
+    action: signInWithMicrosoft,
+    isLoading: signingInWithMicrosoft,
+  },
+  {
+    id: "EMAIL",
+    icon: IconEmail,
+    label: t("auth.continue_with_email"),
+    action: () => {
+      mode.value = "email"
+    },
+    isLoading: signingInWithEmail,
+  },
+]
+
+const allowedAuthProvidersIDsString: string | undefined = import.meta.env
+  .VITE_ALLOWED_AUTH_PROVIDERS
+
+const allowedAuthProvidersIDs = allowedAuthProvidersIDsString
+  ? allowedAuthProvidersIDsString.split(",")
+  : []
+
+const allowedAuthProviders =
+  allowedAuthProvidersIDs.length > 0
+    ? authProviders.filter((provider) =>
+        allowedAuthProvidersIDs.includes(provider.id)
+      )
+    : authProviders
 </script>

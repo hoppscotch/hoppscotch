@@ -32,4 +32,5 @@ export const getCurrentRestSession = () =>
     ""
   >({
     query: GetCurrentRestSessionDocument,
+    variables: {},
   })

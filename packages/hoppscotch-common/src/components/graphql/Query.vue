@@ -93,7 +93,7 @@ import IconCheck from "~icons/lucide/check"
 import IconInfo from "~icons/lucide/info"
 import IconWand from "~icons/lucide/wand"
 import IconWrapText from "~icons/lucide/wrap-text"
-import { onMounted, ref } from "vue"
+import { onMounted, reactive, ref } from "vue"
 import { copyToClipboard } from "@helpers/utils/clipboard"
 import { useCodemirror } from "@composables/codemirror"
 import { useI18n } from "@composables/i18n"
@@ -179,18 +179,23 @@ onMounted(() => {
   } catch (error) {}
 })
 
-useCodemirror(queryEditor, gqlQueryString, {
-  extendedEditorConfig: {
-    mode: "graphql",
-    placeholder: `${t("request.query")}`,
-    lineWrapping: linewrapEnabled.value,
-  },
-  linter: createGQLQueryLinter(schema),
-  completer: queryCompleter(schema),
-  environmentHighlights: false,
-  additionalExts: [selectedGQLOpHighlight],
-  onUpdate: debouncedOnUpdateQueryState,
-})
+// @ts-ignore - codemirror is not typed
+const codemirror = useCodemirror(
+  queryEditor,
+  gqlQueryString,
+  reactive({
+    extendedEditorConfig: {
+      mode: "graphql",
+      placeholder: `${t("request.query")}`,
+      lineWrapping: linewrapEnabled,
+    },
+    linter: createGQLQueryLinter(schema),
+    completer: queryCompleter(schema),
+    environmentHighlights: false,
+    additionalExts: [selectedGQLOpHighlight],
+    onUpdate: debouncedOnUpdateQueryState,
+  })
+)
 
 // operations on graphql query string
 // const operations = useReadonlyStream(props.request.operations$, [])

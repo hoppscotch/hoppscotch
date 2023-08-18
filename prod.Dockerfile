@@ -15,6 +15,8 @@ FROM base_builder as backend
 WORKDIR /usr/src/app/packages/hoppscotch-backend
 RUN pnpm exec prisma generate
 RUN pnpm run build
+ENV PRODUCTION="true"
+ENV PORT=3170
 CMD ["pnpm", "run", "start:prod"]
 EXPOSE 3170
 

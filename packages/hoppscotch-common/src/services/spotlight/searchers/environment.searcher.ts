@@ -31,15 +31,6 @@ export class EnvironmentsSpotlightSearcherService extends StaticSpotlightSearche
 
   private readonly spotlight = this.bind(SpotlightService)
 
-  // [ ] Create a new environment
-  // [ ] Create a new environment variable, auto-fill key if a text is selected
-  // [ ] Edit selected environment
-  // [ ] Delete selected environment
-  // [ ] Duplicate selected environment
-  // [ ] Edit Global environments
-  // [ ] Duplicate Global environments
-  // [ ] Search and switch environment
-
   private documents: Record<string, Doc> = reactive({
     new_environment: {
       text: this.t("spotlight.environments.new"),

@@ -649,6 +649,16 @@
       "download": "Download response as file",
       "title": "Response"
     },
+    "environments": {
+      "new": "Create new environment",
+      "new_variable": "Create a new environment variable",
+      "edit": "Edit selected environment",
+      "delete": "Delete selected environment",
+      "duplicate": "Duplicate selected environment",
+      "edit_global": "Edit global environment",
+      "duplicate_global": "Duplicate global environment",
+      "title": "Environments"
+    },
     "tab": {
       "close_current": "Close current tab",
       "close_others": "Close others tab",

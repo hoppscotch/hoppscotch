@@ -1,0 +1,69 @@
+import { Component, markRaw, reactive } from "vue"
+import { invokeAction } from "~/helpers/actions"
+import { getI18n } from "~/modules/i18n"
+import { SpotlightSearcherResult, SpotlightService } from ".."
+import {
+  SearchResult,
+  StaticSpotlightSearcherService,
+} from "./base/static.searcher"
+
+import IconShare from "~icons/lucide/share"
+
+type Doc = {
+  text: string
+  alternates: string[]
+  icon: object | Component
+}
+
+/**
+ *
+ * This searcher is responsible for providing team related actions on the spotlight results.
+ *
+ * NOTE: Initializing this service registers it as a searcher with the Spotlight Service.
+ */
+export class TeamSpotlightSearcherService extends StaticSpotlightSearcherService<Doc> {
+  public static readonly ID = "TEAM_SPOTLIGHT_SEARCHER_SERVICE"
+
+  private t = getI18n()
+
+  public readonly searcherID = "team"
+  public searcherSectionTitle = this.t("spotlight.team.title")
+
+  private readonly spotlight = this.bind(SpotlightService)
+
+  private documents: Record<string, Doc> = reactive({
+    new_team: {
+      text: this.t("spotlight.team.new"),
+      alternates: ["new", "team", "workspace"],
+      icon: markRaw(IconShare),
+    },
+  })
+
+  constructor() {
+    super({
+      searchFields: ["text", "alternates"],
+      fieldWeights: {
+        text: 2,
+        alternates: 1,
+      },
+    })
+
+    this.setDocuments(this.documents)
+    this.spotlight.registerSearcher(this)
+  }
+
+  protected getSearcherResultForSearchResult(
+    result: SearchResult<Doc>
+  ): SpotlightSearcherResult {
+    return {
+      id: result.id,
+      icon: result.doc.icon,
+      text: { type: "text", text: result.doc.text },
+      score: result.score,
+    }
+  }
+
+  public onDocSelected(id: string): void {
+    if (id === "new_team") invokeAction(`modals.team.new`)
+  }
+}

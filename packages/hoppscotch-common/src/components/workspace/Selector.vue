@@ -82,6 +82,7 @@ import { changeWorkspace, workspaceStatus$ } from "~/newstore/workspace"
 import { GetMyTeamsQuery } from "~/helpers/backend/graphql"
 import IconDone from "~icons/lucide/check"
 import { useLocalState } from "~/newstore/localstate"
+import { defineActionHandler } from "~/helpers/actions"
 
 const t = useI18n()
 const colorMode = useColorMode()
@@ -154,4 +155,8 @@ const displayModalAdd = (shouldDisplay: boolean) => {
   showModalAdd.value = shouldDisplay
   teamListadapter.fetchList()
 }
+
+defineActionHandler("modals.team.new", () => {
+  displayModalAdd(true)
+})
 </script>

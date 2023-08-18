@@ -104,6 +104,7 @@ import { GeneralSpotlightSearcherService } from "~/services/spotlight/searchers/
 import { ResponseSpotlightSearcherService } from "~/services/spotlight/searchers/response.searcher"
 import { RequestSpotlightSearcherService } from "~/services/spotlight/searchers/request.searcher"
 import { EnvironmentsSpotlightSearcherService } from "~/services/spotlight/searchers/environment.searcher"
+import { TeamSpotlightSearcherService } from "~/services/spotlight/searchers/team.searcher"
 
 const t = useI18n()
 
@@ -128,6 +129,7 @@ useService(GeneralSpotlightSearcherService)
 useService(ResponseSpotlightSearcherService)
 useService(RequestSpotlightSearcherService)
 useService(EnvironmentsSpotlightSearcherService)
+useService(TeamSpotlightSearcherService)
 
 const search = ref("")
 

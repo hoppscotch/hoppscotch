@@ -42,7 +42,7 @@ export class CollectionsSpotlightSearcherService
   private t = getI18n()
 
   public searcherID = "collections"
-  public searcherSectionTitle = this.t("tab.collections")
+  public searcherSectionTitle = this.t("collection.my_collections")
 
   private readonly spotlight = this.bind(SpotlightService)
 

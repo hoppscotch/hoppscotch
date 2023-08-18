@@ -14,7 +14,7 @@
           :loading="provider.isLoading.value"
           :icon="provider.icon"
           :label="provider.label"
-          @click="signInWithGithub"
+          @click="provider.action"
         />
 
         <hr v-if="additonalLoginItems.length > 0" />

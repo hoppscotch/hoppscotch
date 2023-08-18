@@ -12,7 +12,7 @@ import {
   graphqlCollectionStore,
   restCollectionStore,
 } from "~/newstore/collections"
-import IconFile from "~icons/lucide/file"
+import IconFolder from "~icons/lucide/folder"
 import RESTRequestSpotlightEntry from "~/components/app/spotlight/entry/RESTRequest.vue"
 import GQLRequestSpotlightEntry from "~/components/app/spotlight/entry/GQLRequest.vue"
 import { createNewTab } from "~/helpers/rest/tab"
@@ -173,7 +173,7 @@ export class CollectionsSpotlightSearcherService
                 folderPath: result.id.split("rest-")[1],
               },
             },
-            icon: markRaw(IconFile),
+            icon: markRaw(IconFolder),
             score: result.score,
           }))
         } else {
@@ -188,7 +188,7 @@ export class CollectionsSpotlightSearcherService
                 folderPath: result.id.split("gql-")[1],
               },
             },
-            icon: markRaw(IconFile),
+            icon: markRaw(IconFolder),
             score: result.score,
           }))
         }

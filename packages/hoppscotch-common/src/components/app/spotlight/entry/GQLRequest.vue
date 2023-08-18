@@ -1,13 +1,12 @@
 <template>
-  <span class="flex space-x-2 items-center">
+  <span class="flex flex-1 space-x-2 items-center">
     <template v-for="(folder, index) in pathFolders" :key="index">
-      <span class="block" :class="{ truncate: index !== 0 }">{{
-        folder.name
-      }}</span>
-      <icon-lucide-chevron-right class="flex flex-shrink-0 items-center" />
+      <span class="block" :class="{ truncate: index !== 0 }">
+        {{ folder.name }}
+      </span>
+      <icon-lucide-chevron-right class="flex flex-shrink-0" />
     </template>
-
-    <span v-if="request">
+    <span v-if="request" class="block">
       {{ request.name }}
     </span>
   </span>

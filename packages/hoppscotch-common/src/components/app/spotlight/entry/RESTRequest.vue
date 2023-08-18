@@ -1,5 +1,11 @@
 <template>
-  <span class="flex space-x-2 items-center">
+  <span class="flex flex-1 items-center space-x-2">
+    <template v-for="(folder, index) in pathFolders" :key="index">
+      <span class="block" :class="{ truncate: index !== 0 }">
+        {{ folder.name }}
+      </span>
+      <icon-lucide-chevron-right class="flex flex-shrink-0" />
+    </template>
     <span
       v-if="request"
       class="font-semibold truncate text-tiny flex flex-shrink-0 border border-dividerDark rounded-md px-1"
@@ -7,15 +13,7 @@
     >
       {{ request.method.toUpperCase() }}
     </span>
-
-    <template v-for="(folder, index) in pathFolders" :key="index">
-      <span class="block" :class="{ truncate: index !== 0 }">{{
-        folder.name
-      }}</span>
-      <icon-lucide-chevron-right class="flex flex-shrink-0 items-center" />
-    </template>
-
-    <span v-if="request">
+    <span v-if="request" class="block">
       {{ request.name }}
     </span>
   </span>

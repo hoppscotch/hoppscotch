@@ -12,7 +12,7 @@ import {
   createNewTab,
   currentTabID,
 } from "~/helpers/rest/tab"
-import IconShare from "~icons/lucide/app-window"
+import IconWindow from "~icons/lucide/app-window"
 import { getDefaultRESTRequest } from "~/helpers/rest/default"
 
 type Doc = {
@@ -41,17 +41,17 @@ export class TabSpotlightSearcherService extends StaticSpotlightSearcherService<
     close_current_tab: {
       text: this.t("spotlight.tab.close_current"),
       alternates: ["tab", "close", "close tab"],
-      icon: markRaw(IconShare),
+      icon: markRaw(IconWindow),
     },
     close_others_tab: {
       text: this.t("spotlight.tab.close_others"),
       alternates: ["tab", "close", "close all"],
-      icon: markRaw(IconShare),
+      icon: markRaw(IconWindow),
     },
     open_new_tab: {
       text: this.t("spotlight.tab.new_tab"),
       alternates: ["tab", "new", "open tab"],
-      icon: markRaw(IconShare),
+      icon: markRaw(IconWindow),
     },
   })
 

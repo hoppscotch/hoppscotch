@@ -158,5 +158,7 @@ const duplicateEnvironments = () => {
       cloneDeep(getGlobalVariables())
     )
   } else duplicateEnvironment(props.environmentIndex)
+
+  toast.success(`${t("environment.duplicated")}`)
 }
 </script>

@@ -203,6 +203,7 @@
     "create_new": "Create new environment",
     "created": "Environment created",
     "deleted": "Environment deletion",
+    "duplicated": "Environment duplicated",
     "edit": "Edit Environment",
     "global": "Global",
     "empty_variables": "No variables",

@@ -1,4 +1,4 @@
-import { Component, markRaw, reactive } from "vue"
+import { Component, computed, markRaw, reactive } from "vue"
 import { invokeAction } from "~/helpers/actions"
 import { getI18n } from "~/modules/i18n"
 import { SpotlightSearcherResult, SpotlightService } from ".."
@@ -8,11 +8,25 @@ import {
 } from "./base/static.searcher"
 
 import IconShare from "~icons/lucide/share"
+import { useStreamStatic } from "~/composables/stream"
+import {
+  createEnvironment,
+  deleteEnvironment,
+  duplicateEnvironment,
+  getGlobalVariables,
+  selectedEnvironmentIndex$,
+} from "~/newstore/environments"
+import { pipe } from "fp-ts/function"
+import * as TE from "fp-ts/TaskEither"
+import { deleteTeamEnvironment } from "~/helpers/backend/mutations/TeamEnvironment"
+import { GQLError } from "~/helpers/backend/GQLClient"
+import { cloneDeep } from "lodash-es"
 
 type Doc = {
   text: string
   alternates: string[]
   icon: object | Component
+  excludeFromSearch?: boolean
 }
 
 /**
@@ -31,6 +45,14 @@ export class EnvironmentsSpotlightSearcherService extends StaticSpotlightSearche
 
   private readonly spotlight = this.bind(SpotlightService)
 
+  private selectedEnv = useStreamStatic(selectedEnvironmentIndex$, null, () => {
+    /* noop */
+  })[0]
+
+  private hasSelectedEnv = computed(
+    () => this.selectedEnv.value?.type !== "NO_ENV_SELECTED"
+  )
+
   private documents: Record<string, Doc> = reactive({
     new_environment: {
       text: this.t("spotlight.environments.new"),
@@ -46,16 +68,19 @@ export class EnvironmentsSpotlightSearcherService extends StaticSpotlightSearche
       text: this.t("spotlight.environments.edit"),
       alternates: ["edit", "environment"],
       icon: markRaw(IconShare),
+      // excludeFromSearch: computed(() => this.hasSelectedEnv.value),
     },
     delete_selected_env: {
       text: this.t("spotlight.environments.delete"),
       alternates: ["delete", "environment"],
       icon: markRaw(IconShare),
+      // excludeFromSearch: computed(() => this.hasSelectedEnv.value),
     },
     duplicate_selected_env: {
       text: this.t("spotlight.environments.duplicate"),
       alternates: ["duplicate", "environment"],
       icon: markRaw(IconShare),
+      // excludeFromSearch: computed(() => this.hasSelectedEnv.value),
     },
     edit_global_env: {
       text: this.t("spotlight.environments.edit_global"),
@@ -93,28 +118,94 @@ export class EnvironmentsSpotlightSearcherService extends StaticSpotlightSearche
     }
   }
 
+  private getSelectedText() {
+    const selection = window.getSelection()
+    return selection?.toString() ?? ""
+  }
+
+  duplicateGlobalEnv() {
+    createEnvironment(
+      `Global - ${this.t("action.duplicate")}`,
+      cloneDeep(getGlobalVariables())
+    )
+    // this.toast.success(`${t("environment.duplicated")}`)
+  }
+
+  duplicateSelectedEnv() {
+    if (this.selectedEnv.value?.type === "NO_ENV_SELECTED") return
+
+    if (this.selectedEnv.value?.type === "MY_ENV") {
+      duplicateEnvironment(this.selectedEnv.value.index)
+      // this.toast.success(`${t("environment.duplicated")}`)
+    }
+
+    if (this.selectedEnv.value?.type === "TEAM_ENV") {
+      pipe(
+        deleteTeamEnvironment(this.selectedEnv.value.teamEnvID),
+        TE.match(
+          (err: GQLError<string>) => {
+            console.error(err)
+          },
+          () => {
+            // this.toast.success(`${this.t("environment.duplicated")}`)
+          }
+        )
+      )()
+    }
+  }
+
+  removeSelectedEnvironment = () => {
+    if (this.selectedEnv.value?.type === "NO_ENV_SELECTED") return
+
+    if (this.selectedEnv.value?.type === "MY_ENV") {
+      deleteEnvironment(this.selectedEnv.value.index)
+      // this.toast.success(`${t("state.deleted")}`)
+    }
+
+    if (this.selectedEnv.value?.type === "TEAM_ENV") {
+      pipe(
+        deleteTeamEnvironment(this.selectedEnv.value.teamEnvID),
+        TE.match(
+          (err: GQLError<string>) => {
+            console.error(err)
+          },
+          () => {
+            // this.toast.success(`${this.t("team_environment.deleted")}`)
+          }
+        )
+      )()
+    }
+  }
+
   public onDocSelected(id: string): void {
     switch (id) {
       case "new_environment":
         invokeAction(`modals.environment.new`)
         break
       case "new_environment_variable":
-        invokeAction(`modals.environment.new`)
+        invokeAction(`modals.environment.add`, {
+          envName: "",
+          variableName: this.getSelectedText(),
+        })
         break
       case "edit_selected_env":
-        // invokeAction(`modals.environment.edit`)
+        invokeAction(`modals.my.environment.edit`, {
+          envName: "test",
+        })
         break
       case "delete_selected_env":
-        // invokeAction(`modals.environment.delete`)
+        this.removeSelectedEnvironment()
         break
       case "duplicate_selected_env":
-        // invokeAction(`modals.environment.duplicate`)
+        this.duplicateSelectedEnv()
         break
       case "edit_global_env":
-        // invokeAction(`modals.environment.edit`)
+        invokeAction(`modals.my.environment.edit`, {
+          envName: "Global",
+        })
         break
       case "duplicate_global_env":
-        // invokeAction(`modals.environment.duplicate`)
+        this.duplicateGlobalEnv()
         break
     }
   }

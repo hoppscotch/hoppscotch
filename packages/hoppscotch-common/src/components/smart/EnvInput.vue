@@ -1,6 +1,8 @@
 <template>
   <div class="autocomplete-wrapper">
-    <div class="absolute inset-0 flex flex-1 overflow-x-auto">
+    <div
+      class="absolute inset-0 flex flex-1 divide-x divide-dividerLight overflow-x-auto"
+    >
       <div
         ref="editor"
         :placeholder="placeholder"
@@ -10,7 +12,10 @@
         @keydown="handleKeystroke"
         @focusin="showSuggestionPopover = true"
       ></div>
-      <AppInspection :inspection-results="inspectionResults" />
+      <AppInspection
+        :inspection-results="inspectionResults"
+        class="sticky inset-y-0 right-0 bg-primary rounded-r"
+      />
     </div>
     <ul
       v-if="showSuggestionPopover && autoCompleteSource"

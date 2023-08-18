@@ -52,6 +52,16 @@ fs.rmSync("build.env")
 const caddyProcess = runChildProcessWithPrefix("caddy", ["run", "--config", "/etc/caddy/Caddyfile", "--adapter", "caddyfile"], "App/Admin Dashboard Caddy")
 const backendProcess = runChildProcessWithPrefix("pnpm", ["run", "start:prod"], "Backend Server")
 
+caddyProcess.on("exit", (code) => {
+  console.log(`Exiting process because Caddy Server exited with code ${code}`)
+  process.exit(code)
+})
+
+backendProcess.on("exit", (code) => {
+  console.log(`Exiting process because Backend Server exited with code ${code}`)
+  process.exit(code)
+})
+
 process.on('SIGINT', () => {
   console.log("SIGINT received, exiting...")
 

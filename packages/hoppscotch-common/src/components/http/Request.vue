@@ -485,7 +485,7 @@ const copyRequest = async () => {
 
 const copyShareLink = (shareLink: string) => {
   const link = `${
-    import.meta.env.APP_SHORTCODE_BASE_URL ?? "https://hopp.sh"
+    import.meta.env.VITE_SHORTCODE_BASE_URL ?? "https://hopp.sh"
   }/r${shareLink}`
   if (navigator.share) {
     const time = new Date().toLocaleTimeString()

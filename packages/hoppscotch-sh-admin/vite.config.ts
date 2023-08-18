@@ -14,6 +14,10 @@ import ImportMetaEnv from "@import-meta-env/unplugin"
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  envPrefix:
+    process.env.HOPP_ALLOW_RUNTIME_ENV
+      ? "VITE_BUILDTIME_"
+      : "VITE_",
   server: {
     port: 3100,
   },

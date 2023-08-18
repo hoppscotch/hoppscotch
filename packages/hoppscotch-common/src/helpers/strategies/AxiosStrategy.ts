@@ -29,7 +29,7 @@ const getProxyPayload = (
   let payload: ProxyPayloadType = {
     ...req,
     wantsBinary: true,
-    accessToken: import.meta.env.APP_PROXYSCOTCH_ACCESS_TOKEN ?? "",
+    accessToken: import.meta.env.VITE_PROXYSCOTCH_ACCESS_TOKEN ?? "",
   }
 
   if (payload.data instanceof FormData) {

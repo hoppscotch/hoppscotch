@@ -77,7 +77,7 @@ export class AdminService {
         template: 'code-your-own',
         variables: {
           inviteeEmail: inviteeEmail,
-          magicLink: `${process.env.APP_BASE_URL}`,
+          magicLink: `${process.env.VITE_BASE_URL}`,
         },
       });
     } catch (e) {

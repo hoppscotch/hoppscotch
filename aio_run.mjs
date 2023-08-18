@@ -35,7 +35,7 @@ function runChildProcessWithPrefix(command, args, prefix) {
 }
 
 const envFileContent = Object.entries(process.env)
-  .filter(([env]) => env.startsWith("APP_"))
+  .filter(([env]) => env.startsWith("VITE_"))
   .map(([env, val]) => `${env}=${
     (val.startsWith("\"") && val.endsWith("\""))
       ? val

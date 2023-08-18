@@ -17,21 +17,23 @@ const currentUser$ = new BehaviorSubject<HoppUser | null>(null)
 export const probableUser$ = new BehaviorSubject<HoppUser | null>(null)
 
 async function logout() {
-  await axios.get(`${import.meta.env.APP_BACKEND_API_URL}/auth/logout`, {
+  await axios.get(`${import.meta.env.VITE_BACKEND_API_URL}/auth/logout`, {
     withCredentials: true,
   })
 }
 
 async function signInUserWithGithubFB() {
-  window.location.href = `${import.meta.env.APP_BACKEND_API_URL}/auth/github`
+  window.location.href = `${import.meta.env.VITE_BACKEND_API_URL}/auth/github`
 }
 
 async function signInUserWithGoogleFB() {
-  window.location.href = `${import.meta.env.APP_BACKEND_API_URL}/auth/google`
+  window.location.href = `${import.meta.env.VITE_BACKEND_API_URL}/auth/google`
 }
 
 async function signInUserWithMicrosoftFB() {
-  window.location.href = `${import.meta.env.APP_BACKEND_API_URL}/auth/microsoft`
+  window.location.href = `${
+    import.meta.env.VITE_BACKEND_API_URL
+  }/auth/microsoft`
 }
 
 async function getInitialUserDetails() {
@@ -51,7 +53,7 @@ async function getInitialUserDetails() {
       message: string
     }>
   }>(
-    `${import.meta.env.APP_BACKEND_GQL_URL}`,
+    `${import.meta.env.VITE_BACKEND_GQL_URL}`,
     {
       query: `query Me {
       me {
@@ -145,7 +147,7 @@ async function setInitialUser() {
 
 async function refreshToken() {
   const res = await axios.get(
-    `${import.meta.env.APP_BACKEND_API_URL}/auth/refresh`,
+    `${import.meta.env.VITE_BACKEND_API_URL}/auth/refresh`,
     {
       withCredentials: true,
     }
@@ -164,7 +166,7 @@ async function refreshToken() {
 
 async function sendMagicLink(email: string) {
   const res = await axios.post(
-    `${import.meta.env.APP_BACKEND_API_URL}/auth/signin`,
+    `${import.meta.env.VITE_BACKEND_API_URL}/auth/signin`,
     {
       email,
     },
@@ -282,7 +284,7 @@ export const def: AuthPlatformDef = {
     const deviceIdentifier = getLocalConfig("deviceIdentifier")
 
     await axios.post(
-      `${import.meta.env.APP_BACKEND_API_URL}/auth/verify`,
+      `${import.meta.env.VITE_BACKEND_API_URL}/auth/verify`,
       {
         token: token,
         deviceIdentifier,

@@ -19,9 +19,10 @@ import Unfonts from "unplugin-fonts/vite"
 import legacy from "@vitejs/plugin-legacy"
 import ImportMetaEnv from "@import-meta-env/unplugin"
 
-const ENV = loadEnv("development", path.resolve(__dirname, "../../"), ["APP_"])
+const ENV = loadEnv("development", path.resolve(__dirname, "../../"), ["VITE_"])
 
 export default defineConfig({
+  envPrefix: process.env.HOPP_ALLOW_RUNTIME_ENV ? "VITE_BUILDTIME_" : "VITE_",
   envDir: path.resolve(__dirname, "../../"),
   // TODO: Migrate @hoppscotch/data to full ESM
   define: {
@@ -85,7 +86,7 @@ export default defineConfig({
           nuxtStyle: true,
           allowRobots: true,
           dest: ".sitemap-gen",
-          hostname: ENV.APP_BASE_URL,
+          hostname: ENV.VITE_BASE_URL,
         })
       },
     }),

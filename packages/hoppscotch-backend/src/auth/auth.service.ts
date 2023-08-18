@@ -95,9 +95,9 @@ export class AuthService {
    */
   private async generateRefreshToken(userUid: string) {
     const refreshTokenPayload: RefreshTokenPayload = {
-      iss: process.env.APP_BASE_URL,
+      iss: process.env.VITE_BASE_URL,
       sub: userUid,
-      aud: [process.env.APP_BASE_URL],
+      aud: [process.env.VITE_BASE_URL],
     };
 
     const refreshToken = await this.jwtService.sign(refreshTokenPayload, {
@@ -127,9 +127,9 @@ export class AuthService {
    */
   async generateAuthTokens(userUid: string) {
     const accessTokenPayload: AccessTokenPayload = {
-      iss: process.env.APP_BASE_URL,
+      iss: process.env.VITE_BASE_URL,
       sub: userUid,
-      aud: [process.env.APP_BASE_URL],
+      aud: [process.env.VITE_BASE_URL],
     };
 
     const refreshToken = await this.generateRefreshToken(userUid);
@@ -218,14 +218,14 @@ export class AuthService {
     let url: string;
     switch (origin) {
       case Origin.ADMIN:
-        url = process.env.APP_ADMIN_URL;
+        url = process.env.VITE_ADMIN_URL;
         break;
       case Origin.APP:
-        url = process.env.APP_BASE_URL;
+        url = process.env.VITE_BASE_URL;
         break;
       default:
         // if origin is invalid by default set URL to Hoppscotch-App
-        url = process.env.APP_BASE_URL;
+        url = process.env.VITE_BASE_URL;
     }
 
     await this.mailerService.sendEmail(email, {

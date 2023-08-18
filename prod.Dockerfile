@@ -2,6 +2,8 @@ FROM node:18-bookworm as base_builder
 
 WORKDIR /usr/src/app
 
+ENV HOPP_ALLOW_RUNTIME_ENV=true
+
 RUN npm install -g pnpm
 COPY pnpm-lock.yaml .
 RUN pnpm fetch

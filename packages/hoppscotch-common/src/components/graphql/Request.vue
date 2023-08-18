@@ -17,7 +17,7 @@
       <HoppButtonPrimary
         id="get"
         name="get"
-        :loading="isLoading"
+        :loading="connection.state === 'CONNECTING'"
         :label="!connected ? t('action.connect') : t('action.disconnect')"
         class="w-32"
         @click="onConnectClick"

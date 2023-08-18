@@ -475,7 +475,7 @@ watch(editor, () => {
   @apply flex;
   @apply flex-1;
   @apply flex-shrink-0;
-  @apply whitespace-nowrap;
+  @apply whitespace-nowrap py-4;
 
   .suggestions {
     @apply absolute;

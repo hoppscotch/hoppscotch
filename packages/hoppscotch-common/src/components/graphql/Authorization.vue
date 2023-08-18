@@ -165,7 +165,7 @@
               placeholder="Token"
             />
           </div>
-          <HttpOAuth2Authorization />
+          <HttpOAuth2Authorization v-model="(auth as HoppGQLAuthOAuth2)" />
         </div>
         <div v-if="authType === 'api-key'">
           <div class="flex flex-1 border-b border-dividerLight">

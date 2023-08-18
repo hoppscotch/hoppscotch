@@ -31,7 +31,7 @@
           <div
             v-for="(inspector, index) in inspectionResults"
             :key="index"
-            class="flex self-stretch"
+            class="flex self-stretch max-w-md w-full"
           >
             <div
               class="flex flex-col flex-1 rounded border border-dashed border-dividerDark divide-y divide-dashed divide-dividerDark"

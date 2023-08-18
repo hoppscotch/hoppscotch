@@ -21,7 +21,7 @@
       theme="popover"
       :on-shown="() => tippyActions!.focus()"
     >
-      <span class="leading-8 px-2">
+      <span class="leading-8 px-2 truncate">
         {{ tab.document.request.name }}
       </span>
       <template #content="{ hide }">

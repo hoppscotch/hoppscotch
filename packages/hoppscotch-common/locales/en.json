@@ -660,6 +660,13 @@
       "duplicate_global": "Duplicate global environment",
       "title": "Environments"
     },
+    "team": {
+      "new": "Create new team",
+      "edit": "Edit selected team",
+      "delete": "Delete selected team",
+      "invite": "Invite people to team",
+      "title": "Teams"
+    },
     "tab": {
       "close_current": "Close current tab",
       "close_others": "Close others tab",

@@ -382,6 +382,26 @@ const settings = ref<any | null>(null)
 const logout = ref<any | null>(null)
 const accountActions = ref<any | null>(null)
 
+defineActionHandler("modals.team.edit", () => {
+  if (
+    selectedTeam.value?.myRole === "OWNER" ||
+    selectedTeam.value?.myRole === "EDITOR"
+  ) {
+    editingTeamID.value = selectedTeam.value.id
+    editingTeamName.value = { name: selectedTeam.value.name }
+    displayModalEdit(true)
+  }
+})
+
+defineActionHandler("modals.team.invite", () => {
+  if (
+    selectedTeam.value?.myRole === "OWNER" ||
+    selectedTeam.value?.myRole === "EDITOR"
+  ) {
+    inviteTeam({ name: selectedTeam.value.name }, selectedTeam.value.id)
+  }
+})
+
 defineActionHandler(
   "user.login",
   () => {

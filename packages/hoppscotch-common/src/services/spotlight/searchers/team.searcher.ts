@@ -7,7 +7,10 @@ import {
   StaticSpotlightSearcherService,
 } from "./base/static.searcher"
 
-import IconShare from "~icons/lucide/share"
+import IconEdit from "~icons/lucide/edit"
+import IconTrash2 from "~icons/lucide/trash-2"
+import IconUserPlus from "~icons/lucide/user-plus"
+import IconUsers from "~icons/lucide/users"
 
 type Doc = {
   text: string
@@ -35,7 +38,22 @@ export class TeamSpotlightSearcherService extends StaticSpotlightSearcherService
     new_team: {
       text: this.t("spotlight.team.new"),
       alternates: ["new", "team", "workspace"],
-      icon: markRaw(IconShare),
+      icon: markRaw(IconUsers),
+    },
+    edit_team: {
+      text: this.t("spotlight.team.edit"),
+      alternates: ["edit", "team", "workspace"],
+      icon: markRaw(IconEdit),
+    },
+    invite_members: {
+      text: this.t("spotlight.team.invite"),
+      alternates: ["invite", "members", "workspace"],
+      icon: markRaw(IconUserPlus),
+    },
+    delete_team: {
+      text: this.t("spotlight.team.delete"),
+      alternates: ["delete", "team", "workspace"],
+      icon: markRaw(IconTrash2),
     },
   })
 
@@ -65,5 +83,8 @@ export class TeamSpotlightSearcherService extends StaticSpotlightSearcherService
 
   public onDocSelected(id: string): void {
     if (id === "new_team") invokeAction(`modals.team.new`)
+    else if (id === "edit_team") invokeAction(`modals.team.edit`)
+    else if (id === "invite_members") invokeAction(`modals.team.invite`)
+    else if (id === "delete_team") invokeAction(`modals.team.delete`)
   }
 }

@@ -7,7 +7,11 @@ import {
   StaticSpotlightSearcherService,
 } from "./base/static.searcher"
 
-import IconShare from "~icons/lucide/share"
+import IconEdit from "~icons/lucide/edit"
+import IconTrash2 from "~icons/lucide/trash-2"
+import IconCopy from "~icons/lucide/copy"
+import IconLayers from "~icons/lucide/layers"
+
 import { useStreamStatic } from "~/composables/stream"
 import {
   createEnvironment,
@@ -57,40 +61,40 @@ export class EnvironmentsSpotlightSearcherService extends StaticSpotlightSearche
     new_environment: {
       text: this.t("spotlight.environments.new"),
       alternates: ["new", "environment"],
-      icon: markRaw(IconShare),
+      icon: markRaw(IconLayers),
     },
     new_environment_variable: {
       text: this.t("spotlight.environments.new_variable"),
       alternates: ["new", "environment", "variable"],
-      icon: markRaw(IconShare),
+      icon: markRaw(IconLayers),
     },
     edit_selected_env: {
       text: this.t("spotlight.environments.edit"),
       alternates: ["edit", "environment"],
-      icon: markRaw(IconShare),
+      icon: markRaw(IconEdit),
       // excludeFromSearch: computed(() => this.hasSelectedEnv.value),
     },
     delete_selected_env: {
       text: this.t("spotlight.environments.delete"),
       alternates: ["delete", "environment"],
-      icon: markRaw(IconShare),
+      icon: markRaw(IconTrash2),
       // excludeFromSearch: computed(() => this.hasSelectedEnv.value),
     },
     duplicate_selected_env: {
       text: this.t("spotlight.environments.duplicate"),
       alternates: ["duplicate", "environment"],
-      icon: markRaw(IconShare),
+      icon: markRaw(IconCopy),
       // excludeFromSearch: computed(() => this.hasSelectedEnv.value),
     },
     edit_global_env: {
       text: this.t("spotlight.environments.edit_global"),
       alternates: ["edit", "global", "environment"],
-      icon: markRaw(IconShare),
+      icon: markRaw(IconEdit),
     },
     duplicate_global_env: {
       text: this.t("spotlight.environments.duplicate_global"),
       alternates: ["duplicate", "global", "environment"],
-      icon: markRaw(IconShare),
+      icon: markRaw(IconCopy),
     },
   })
 

@@ -97,6 +97,7 @@ import { HistorySpotlightSearcherService } from "~/services/spotlight/searchers/
 import { UserSpotlightSearcherService } from "~/services/spotlight/searchers/user.searcher"
 import { NavigationSpotlightSearcherService } from "~/services/spotlight/searchers/navigation.searcher"
 import { SettingsSpotlightSearcherService } from "~/services/spotlight/searchers/settings.searcher"
+import { CollectionsSpotlightSearcherService } from "~/services/spotlight/searchers/collections.searcher"
 
 const t = useI18n()
 
@@ -114,6 +115,7 @@ useService(HistorySpotlightSearcherService)
 useService(UserSpotlightSearcherService)
 useService(NavigationSpotlightSearcherService)
 useService(SettingsSpotlightSearcherService)
+useService(CollectionsSpotlightSearcherService)
 
 const search = ref("")
 

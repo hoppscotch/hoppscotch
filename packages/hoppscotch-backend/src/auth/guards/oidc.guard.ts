@@ -1,11 +1,14 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Observable } from 'rxjs';
-import { AuthProvider, authProviderCheck, throwHTTPErr } from '../helper';
 import { AUTH_PROVIDER_NOT_SPECIFIED } from 'src/errors';
+import { AuthProvider, authProviderCheck, throwHTTPErr } from '../helper';
 
 @Injectable()
-export class OidcSSOGuard extends AuthGuard('openidconnect') implements CanActivate {
+export class OidcSSOGuard
+  extends AuthGuard('openidconnect')
+  implements CanActivate
+{
   canActivate(
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {

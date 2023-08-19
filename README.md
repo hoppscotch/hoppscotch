@@ -205,6 +205,7 @@ _Add-ons are developed and maintained under **[Hoppscotch Organization](https://
 - GitHub
 - Google
 - Microsoft
+- OIDC
 - Email
 
 **Synchronize your data**

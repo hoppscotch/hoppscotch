@@ -1,10 +1,10 @@
-import { Profile, Strategy, VerifyCallback } from 'passport-openidconnect';
-import { PassportStrategy } from '@nestjs/passport';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { UserService } from 'src/user/user.service';
-import * as O from 'fp-ts/Option';
-import { AuthService } from '../auth.service';
+import { PassportStrategy } from '@nestjs/passport';
 import * as E from 'fp-ts/Either';
+import * as O from 'fp-ts/Option';
+import { Profile, Strategy, VerifyCallback } from 'passport-openidconnect';
+import { UserService } from 'src/user/user.service';
+import { AuthService } from '../auth.service';
 
 @Injectable()
 export class OidcStrategy extends PassportStrategy(Strategy) {
@@ -20,7 +20,9 @@ export class OidcStrategy extends PassportStrategy(Strategy) {
       clientID: process.env.OIDC_CLIENT_ID,
       clientSecret: process.env.OIDC_CLIENT_SECRET,
       callbackURL: process.env.OIDC_CALLBACK_URL,
-      scope: process.env.OIDC_SCOPE,
+      scope: process.env.OIDC_SCOPE
+        ? process.env.OIDC_SCOPE.split(',')
+        : ['openid'],
     });
   }
 

@@ -9,6 +9,7 @@ import {
 
 import IconShare from "~icons/lucide/share"
 import { currentActiveTab } from "~/helpers/rest/tab"
+import { RequestOptionTabs } from "~/components/http/RequestOptions.vue"
 
 type Doc = {
   text: string
@@ -63,6 +64,17 @@ export class RequestSpotlightSearcherService extends StaticSpotlightSearcherServ
       alternates: ["reset", "request"],
       icon: markRaw(IconShare),
     },
+    import_curl: {
+      text: this.t("shortcut.request.import_curl"),
+      alternates: ["import", "curl"],
+      icon: markRaw(IconShare),
+    },
+    show_code: {
+      text: this.t("shortcut.request.show_code"),
+      alternates: ["show", "code"],
+      icon: markRaw(IconShare),
+    },
+    // Change request method
     next_method: {
       text: this.t("shortcut.request.next_method"),
       alternates: ["next", "method"],
@@ -98,14 +110,35 @@ export class RequestSpotlightSearcherService extends StaticSpotlightSearcherServ
       alternates: ["delete", "method"],
       icon: markRaw(IconShare),
     },
-    import_curl: {
-      text: this.t("shortcut.request.import_curl"),
-      alternates: ["import", "curl"],
+    // Change sub tabs
+    tab_parameters: {
+      text: this.t("spotlight.request.tab_parameters"),
+      alternates: ["parameters", "tab"],
       icon: markRaw(IconShare),
     },
-    show_code: {
-      text: this.t("shortcut.request.show_code"),
-      alternates: ["show", "code"],
+    tab_body: {
+      text: this.t("spotlight.request.tab_body"),
+      alternates: ["body", "tab"],
+      icon: markRaw(IconShare),
+    },
+    tab_headers: {
+      text: this.t("spotlight.request.tab_headers"),
+      alternates: ["headers", "tab"],
+      icon: markRaw(IconShare),
+    },
+    tab_authorization: {
+      text: this.t("spotlight.request.tab_authorization"),
+      alternates: ["authorization", "tab"],
+      icon: markRaw(IconShare),
+    },
+    tab_pre_request_script: {
+      text: this.t("spotlight.request.tab_pre_request_script"),
+      alternates: ["pre-request", "script", "tab"],
+      icon: markRaw(IconShare),
+    },
+    tab_tests: {
+      text: this.t("spotlight.request.tab_tests"),
+      alternates: ["tests", "tab"],
       icon: markRaw(IconShare),
     },
   })
@@ -132,6 +165,12 @@ export class RequestSpotlightSearcherService extends StaticSpotlightSearcherServ
       text: { type: "text", text: result.doc.text },
       score: result.score,
     }
+  }
+
+  private openRequestTab(tab: RequestOptionTabs): void {
+    invokeAction("request.open-tab", {
+      tab,
+    })
   }
 
   public onDocSelected(id: string): void {
@@ -183,6 +222,24 @@ export class RequestSpotlightSearcherService extends StaticSpotlightSearcherServ
         break
       case "show_code":
         invokeAction("request.show-code")
+        break
+      case "tab_parameters":
+        this.openRequestTab("params")
+        break
+      case "tab_body":
+        this.openRequestTab("bodyParams")
+        break
+      case "tab_headers":
+        this.openRequestTab("headers")
+        break
+      case "tab_authorization":
+        this.openRequestTab("authorization")
+        break
+      case "tab_pre_request_script":
+        this.openRequestTab("preRequestScript")
+        break
+      case "tab_tests":
+        this.openRequestTab("tests")
         break
     }
   }

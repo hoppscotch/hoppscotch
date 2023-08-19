@@ -606,6 +606,7 @@
       "reset_request": "Reset Request",
       "save_to_collections": "Save to Collections",
       "send_request": "Send Request",
+      "save_request": "Save Request",
       "title": "Request"
     },
     "response": {
@@ -647,6 +648,14 @@
     "miscellaneous": {
       "invite": "Invite people to Hoppscotch",
       "title": "Miscellaneous"
+    },
+    "request": {
+      "tab_parameters": "Open parameters tab",
+      "tab_body": "Open body tab",
+      "tab_headers": "Open headers tab",
+      "tab_authorization": "Open authorization tab",
+      "tab_pre_request_script": "Open pre-request script tab",
+      "tab_tests": "Open tests tab"
     },
     "response": {
       "copy": "Copy response as JSON",

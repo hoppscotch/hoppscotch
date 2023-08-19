@@ -6,6 +6,7 @@ import { Ref, onBeforeUnmount, onMounted, watch } from "vue"
 import { BehaviorSubject } from "rxjs"
 import { HoppRESTDocument } from "./rest/document"
 import { HoppGQLRequest, HoppRESTRequest } from "@hoppscotch/data"
+import { RequestOptionTabs } from "~/components/http/RequestOptions.vue"
 
 export type HoppAction =
   | "contextmenu.open" // Send/Cancel a Hoppscotch Request
@@ -93,6 +94,10 @@ type HoppActionArgsMap = {
         requestType: "gql"
         request: HoppGQLRequest
       }
+  "request.open-tab": {
+    tab: RequestOptionTabs
+  }
+
   "gql.request.open": {
     request: HoppGQLRequest
   }

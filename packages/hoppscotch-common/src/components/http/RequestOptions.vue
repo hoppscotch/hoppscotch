@@ -1,6 +1,6 @@
 <template>
   <HoppSmartTabs
-    v-model="selectedRealtimeTab"
+    v-model="selectedOptionsTab"
     styles="sticky overflow-x-auto flex-shrink-0 bg-primary top-upperMobilePrimaryStickyFold sm:top-upperPrimaryStickyFold z-10"
     render-inactive-tabs
   >
@@ -56,12 +56,15 @@ import { useI18n } from "@composables/i18n"
 import { HoppRESTRequest } from "@hoppscotch/data"
 import { useVModel } from "@vueuse/core"
 import { computed, ref } from "vue"
+import { defineActionHandler } from "~/helpers/actions"
 
 export type RequestOptionTabs =
   | "params"
   | "bodyParams"
   | "headers"
   | "authorization"
+  | "preRequestScript"
+  | "tests"
 
 const t = useI18n()
 
@@ -73,10 +76,10 @@ const emit = defineEmits<{
 
 const request = useVModel(props, "modelValue", emit)
 
-const selectedRealtimeTab = ref<RequestOptionTabs>("params")
+const selectedOptionsTab = ref<RequestOptionTabs>("params")
 
 const changeTab = (e: RequestOptionTabs) => {
-  selectedRealtimeTab.value = e
+  selectedOptionsTab.value = e
 }
 
 const newActiveParamsCount$ = computed(() => {
@@ -95,5 +98,9 @@ const newActiveHeadersCount$ = computed(() => {
 
   if (e === 0) return null
   return `${e}`
+})
+
+defineActionHandler("request.open-tab", ({ tab }) => {
+  selectedOptionsTab.value = tab
 })
 </script>

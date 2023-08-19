@@ -105,6 +105,7 @@
           @toggle-star="toggleStar(entry.entry)"
           @delete-entry="deleteHistory(entry.entry)"
           @use-entry="useHistory(toRaw(entry.entry))"
+          @add-to-collection="addToCollection(entry.entry)"
         />
       </details>
     </div>
@@ -176,7 +177,7 @@ import {
 import HistoryRestCard from "./rest/Card.vue"
 import HistoryGraphqlCard from "./graphql/Card.vue"
 import { createNewTab } from "~/helpers/rest/tab"
-import { defineActionHandler } from "~/helpers/actions"
+import { defineActionHandler, invokeAction } from "~/helpers/actions"
 
 type HistoryEntry = GQLHistoryEntry | RESTHistoryEntry
 
@@ -322,6 +323,14 @@ const deleteHistory = (entry: HistoryEntry) => {
   if (props.page === "rest") deleteRESTHistoryEntry(entry as RESTHistoryEntry)
   else deleteGraphqlHistoryEntry(entry as GQLHistoryEntry)
   toast.success(`${t("state.deleted")}`)
+}
+
+const addToCollection = (entry: HistoryEntry) => {
+  if (props.page === "rest") {
+    invokeAction("request.save-as", {
+      request: entry.request,
+    })
+  }
 }
 
 const toggleStar = (entry: HistoryEntry) => {

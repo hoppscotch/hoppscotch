@@ -53,9 +53,16 @@
           v-model="tab.document.request.endpoint"
           :placeholder="`${t('request.url')}`"
           :auto-complete-source="userHistories"
+          :inspection-results="tabResults"
           @paste="onPasteUrl($event)"
           @enter="newSendRequest"
-        />
+        >
+          <template #empty>
+            <span>
+              {{ t("empty.history_suggestions") }}
+            </span>
+          </template>
+        </SmartEnvInput>
       </div>
     </div>
     <div class="flex mt-2 sm:mt-0">
@@ -221,6 +228,7 @@
       v-if="showSaveRequestModal"
       mode="rest"
       :show="showSaveRequestModal"
+      :request="request"
       @hide-modal="showSaveRequestModal = false"
     />
   </div>
@@ -258,11 +266,14 @@ import IconLink2 from "~icons/lucide/link-2"
 import IconRotateCCW from "~icons/lucide/rotate-ccw"
 import IconSave from "~icons/lucide/save"
 import IconShare2 from "~icons/lucide/share-2"
-import { HoppRESTTab } from "~/helpers/rest/tab"
+import { HoppRESTTab, currentTabID } from "~/helpers/rest/tab"
 import { getDefaultRESTRequest } from "~/helpers/rest/default"
 import { RESTHistoryEntry, restHistory$ } from "~/newstore/history"
 import { platform } from "~/platform"
 import { getCurrentStrategyID } from "~/helpers/network"
+import { HoppGQLRequest, HoppRESTRequest } from "@hoppscotch/data"
+import { useService } from "dioc/vue"
+import { InspectionService } from "~/services/inspection"
 
 const t = useI18n()
 
@@ -578,6 +589,8 @@ const saveRequest = () => {
   }
 }
 
+const request = ref<HoppRESTRequest | null>(null)
+
 onBeforeUnmount(() => {
   if (loading.value) cancelRequest()
 })
@@ -593,7 +606,22 @@ defineActionHandler("request.method.prev", cycleUpMethod)
 defineActionHandler("request.save", saveRequest)
 defineActionHandler(
   "request.save-as",
-  () => (showSaveRequestModal.value = true)
+  (
+    req:
+      | {
+          requestType: "rest"
+          request: HoppRESTRequest
+        }
+      | {
+          requestType: "gql"
+          request: HoppGQLRequest
+        }
+  ) => {
+    showSaveRequestModal.value = true
+    if (req && req.requestType === "rest") {
+      request.value = req.request
+    }
+  }
 )
 defineActionHandler("request.method.get", () => updateMethod("GET"))
 defineActionHandler("request.method.post", () => updateMethod("POST"))
@@ -609,4 +637,12 @@ const isCustomMethod = computed(() => {
 })
 
 const COLUMN_LAYOUT = useSetting("COLUMN_LAYOUT")
+
+const inspectionService = useService(InspectionService)
+
+const allTabResults = inspectionService.tabs
+
+const tabResults = computed(() => {
+  return allTabResults.value.get(currentTabID.value) ?? []
+})
 </script>

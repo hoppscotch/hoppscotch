@@ -1,6 +1,8 @@
 <template>
   <div class="autocomplete-wrapper">
-    <div class="absolute inset-0 flex flex-1 overflow-x-auto">
+    <div
+      class="absolute inset-0 flex flex-1 divide-x divide-dividerLight overflow-x-auto"
+    >
       <div
         ref="editor"
         :placeholder="placeholder"
@@ -10,6 +12,10 @@
         @keydown="handleKeystroke"
         @focusin="showSuggestionPopover = true"
       ></div>
+      <AppInspection
+        :inspection-results="inspectionResults"
+        class="sticky inset-y-0 right-0 bg-primary rounded-r"
+      />
     </div>
     <ul
       v-if="showSuggestionPopover && autoCompleteSource"
@@ -34,8 +40,11 @@
         </div>
       </li>
       <li v-if="suggestions.length === 0" class="pointer-events-none">
-        <span class="truncate py-0.5">
-          {{ t("empty.history_suggestions") }}
+        <div v-if="slots.empty" class="truncate py-0.5">
+          <slot name="empty"></slot>
+        </div>
+        <span v-else class="truncate py-0.5">
+          {{ t("empty.suggestions") }}
         </span>
       </li>
     </ul>
@@ -43,7 +52,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch, nextTick, computed, Ref } from "vue"
+import { ref, onMounted, watch, nextTick, computed, Ref, useSlots } from "vue"
 import {
   EditorView,
   placeholder as placeholderExt,
@@ -62,6 +71,7 @@ import { AggregateEnvironment, aggregateEnvs$ } from "~/newstore/environments"
 import { platform } from "~/platform"
 import { useI18n } from "~/composables/i18n"
 import { onClickOutside, useDebounceFn } from "@vueuse/core"
+import { InspectorResult } from "~/services/inspection"
 import { invokeAction } from "~/helpers/actions"
 
 const props = withDefaults(
@@ -75,6 +85,7 @@ const props = withDefaults(
     environmentHighlights?: boolean
     readonly?: boolean
     autoCompleteSource?: string[]
+    inspectionResults?: InspectorResult[] | undefined
   }>(),
   {
     modelValue: "",
@@ -85,6 +96,8 @@ const props = withDefaults(
     readonly: false,
     environmentHighlights: true,
     autoCompleteSource: undefined,
+    inspectionResult: undefined,
+    inspectionResults: undefined,
   }
 )
 
@@ -97,6 +110,8 @@ const emit = defineEmits<{
   (e: "keydown", ev: any): void
   (e: "click", ev: any): void
 }>()
+
+const slots = useSlots()
 
 const t = useI18n()
 
@@ -142,7 +157,9 @@ const suggestions = computed(() => {
 const updateModelValue = (value: string) => {
   emit("update:modelValue", value)
   emit("change", value)
-  showSuggestionPopover.value = false
+  nextTick(() => {
+    showSuggestionPopover.value = false
+  })
 }
 
 const handleKeystroke = (ev: KeyboardEvent) => {

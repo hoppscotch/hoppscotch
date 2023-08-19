@@ -306,8 +306,8 @@ describe('TeamEnvironmentsService', () => {
       );
 
       mockPrisma.teamEnvironment.create.mockResolvedValueOnce({
-        ...teamEnvironment,
         id: 'newid',
+        ...teamEnvironment,
       });
 
       const result = await teamEnvironmentsService.createDuplicateEnvironment(
@@ -337,8 +337,8 @@ describe('TeamEnvironmentsService', () => {
       );
 
       mockPrisma.teamEnvironment.create.mockResolvedValueOnce({
-        ...teamEnvironment,
         id: 'newid',
+        ...teamEnvironment,
       });
 
       const result = await teamEnvironmentsService.createDuplicateEnvironment(

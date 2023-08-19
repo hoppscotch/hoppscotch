@@ -100,7 +100,7 @@
         </div>
       </div>
 
-      <div v-if="hasActions" :class="mdAndLarger ? 'w-64' : 'w-16'">
+      <div v-if="hasActions" :class="mdAndLarger ? 'w-64' : 'w-28'">
         <slot name="actions" />
       </div>
 
@@ -116,7 +116,7 @@
         :style="[
           `--thumb-width: ${scrollThumb.width}px`,
           `width: calc(100% - ${
-            hasActions ? (mdAndLarger ? '19rem' : '7rem') : '3rem'
+            hasActions ? (mdAndLarger ? '19rem' : '10rem') : '3rem'
           })`,
         ]"
         id="myRange"

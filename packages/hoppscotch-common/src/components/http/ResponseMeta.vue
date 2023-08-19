@@ -1,6 +1,6 @@
 <template>
   <div
-    class="sticky top-0 z-10 flex items-start justify-center flex-shrink-0 p-4 overflow-auto overflow-x-auto bg-primary whitespace-nowrap"
+    class="sticky top-0 z-10 flex items-center justify-center flex-shrink-0 p-4 overflow-auto overflow-x-auto bg-primary whitespace-nowrap"
   >
     <AppShortcutsPrompt v-if="response == null" class="flex-1" />
     <div v-else class="flex flex-col flex-1">
@@ -17,6 +17,7 @@
         :alt="`${t('error.network_fail')}`"
         :heading="t('error.network_fail')"
         :text="t('helpers.network_fail')"
+        large
       >
         <AppInterceptor class="p-2 border rounded border-dividerLight" />
       </HoppSmartPlaceholder>
@@ -26,6 +27,7 @@
         :alt="`${t('error.script_fail')}`"
         :label="t('error.script_fail')"
         :text="t('helpers.script_fail')"
+        large
       >
         <div
           class="mt-2 w-full px-4 py-2 overflow-auto font-mono text-red-400 whitespace-normal rounded bg-primaryLight"
@@ -70,6 +72,15 @@
         </div>
       </div>
     </div>
+    <AppInspection
+      v-if="response?.type !== 'loading'"
+      :inspection-results="tabResults"
+      :class="[
+        response === null || response?.type === 'network_fail'
+          ? 'absolute right-2 top-2'
+          : 'ml-2 -m-2',
+      ]"
+    />
   </div>
 </template>
 
@@ -80,6 +91,9 @@ import type { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 import { useI18n } from "@composables/i18n"
 import { useColorMode } from "@composables/theming"
 import { getStatusCodeReasonPhrase } from "~/helpers/utils/statusCodes"
+import { useService } from "dioc/vue"
+import { InspectionService } from "~/services/inspection"
+import { currentTabID } from "~/helpers/rest/tab"
 
 const t = useI18n()
 const colorMode = useColorMode()
@@ -127,5 +141,17 @@ const statusCategory = computed(() => {
       className: "text-red-500",
     }
   return findStatusGroup(props.response.statusCode)
+})
+
+const inspectionService = useService(InspectionService)
+
+const allTabResults = inspectionService.tabs
+
+const tabResults = computed(() => {
+  return (
+    allTabResults.value
+      .get(currentTabID.value)
+      ?.filter((result) => result.locations.type === "response") ?? []
+  )
 })
 </script>

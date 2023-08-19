@@ -1,5 +1,8 @@
 <template>
-  <div class="flex items-stretch group">
+  <div
+    class="flex items-stretch group"
+    @contextmenu.prevent="options!.tippy.show()"
+  >
     <span
       v-tippy="{ theme: 'tooltip', delay: [500, 20] }"
       class="flex items-center justify-center w-16 px-2 truncate cursor-pointer"
@@ -26,6 +29,39 @@
         {{ entry.request.endpoint }}
       </span>
     </span>
+    <span>
+      <tippy
+        ref="options"
+        interactive
+        trigger="click"
+        theme="popover"
+        :on-shown="() => tippyActions!.focus()"
+      >
+        <template #content="{ hide }">
+          <div
+            ref="tippyActions"
+            class="flex flex-col focus:outline-none"
+            tabindex="0"
+            role="menu"
+            @keyup.s="addToCollectionAction?.$el.click()"
+            @keyup.escape="hide()"
+          >
+            <HoppSmartItem
+              ref="addToCollectionAction"
+              :icon="IconSave"
+              :label="`${t('collection.save_to_collection')}`"
+              :shortcut="['S']"
+              @click="
+                () => {
+                  emit('add-to-collection')
+                  hide()
+                }
+              "
+            />
+          </div>
+        </template>
+      </tippy>
+    </span>
     <HoppButtonSecondary
       v-tippy="{ theme: 'tooltip' }"
       :icon="IconTrash"
@@ -48,15 +84,16 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue"
+import { computed, ref } from "vue"
 import findStatusGroup from "~/helpers/findStatusGroup"
 import { useI18n } from "@composables/i18n"
 import { RESTHistoryEntry } from "~/newstore/history"
 import { shortDateTime } from "~/helpers/utils/date"
-
+import IconSave from "~icons/lucide/save"
 import IconStar from "~icons/lucide/star"
 import IconStarOff from "~icons/hopp/star-off"
 import IconTrash from "~icons/lucide/trash"
+import { TippyComponent } from "vue-tippy"
 
 const props = defineProps<{
   entry: RESTHistoryEntry
@@ -67,7 +104,12 @@ const emit = defineEmits<{
   (e: "use-entry"): void
   (e: "delete-entry"): void
   (e: "toggle-star"): void
+  (e: "add-to-collection"): void
 }>()
+
+const tippyActions = ref<TippyComponent | null>(null)
+const options = ref<TippyComponent | null>(null)
+const addToCollectionAction = ref<HTMLButtonElement | null>(null)
 
 const t = useI18n()
 

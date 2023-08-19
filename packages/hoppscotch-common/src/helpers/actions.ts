@@ -5,7 +5,7 @@
 import { Ref, onBeforeUnmount, onMounted, watch } from "vue"
 import { BehaviorSubject } from "rxjs"
 import { HoppRESTDocument } from "./rest/document"
-import { HoppGQLRequest } from "@hoppscotch/data"
+import { HoppGQLRequest, HoppRESTRequest } from "@hoppscotch/data"
 
 export type HoppAction =
   | "contextmenu.open" // Send/Cancel a Hoppscotch Request
@@ -67,15 +67,24 @@ type HoppActionArgsMap = {
   }
   "modals.my.environment.edit": {
     envName: string
-    variableName: string
+    variableName?: string
   }
   "modals.team.environment.edit": {
     envName: string
-    variableName: string
+    variableName?: string
   }
   "rest.request.open": {
     doc: HoppRESTDocument
   }
+  "request.save-as":
+    | {
+        requestType: "rest"
+        request: HoppRESTRequest
+      }
+    | {
+        requestType: "gql"
+        request: HoppGQLRequest
+      }
   "gql.request.open": {
     request: HoppGQLRequest
   }

@@ -633,6 +633,9 @@ defineActionHandler("request.method.head", () => updateMethod("HEAD"))
 defineActionHandler("request.import-curl", () => {
   showCurlImportModal.value = true
 })
+defineActionHandler("request.show-code", () => {
+  showCodegenModal.value = true
+})
 
 const isCustomMethod = computed(() => {
   return (

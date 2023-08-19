@@ -23,6 +23,7 @@ export type HoppAction =
   | "request.method.put" // Select PUT Method
   | "request.method.delete" // Select DELETE Method
   | "request.import-curl" // Import cURL
+  | "request.show-code" // Show generated code
   | "flyouts.keybinds.toggle" // Shows the keybinds flyout
   | "modals.search.toggle" // Shows the search modal
   | "modals.support.toggle" // Shows the support modal

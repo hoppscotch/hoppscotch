@@ -103,6 +103,11 @@ export class RequestSpotlightSearcherService extends StaticSpotlightSearcherServ
       alternates: ["import", "curl"],
       icon: markRaw(IconShare),
     },
+    show_code: {
+      text: this.t("shortcut.request.show_code"),
+      alternates: ["show", "code"],
+      icon: markRaw(IconShare),
+    },
   })
 
   constructor() {
@@ -175,6 +180,9 @@ export class RequestSpotlightSearcherService extends StaticSpotlightSearcherServ
         break
       case "import_curl":
         invokeAction("request.import-curl")
+        break
+      case "show_code":
+        invokeAction("request.show-code")
         break
     }
   }

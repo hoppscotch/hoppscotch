@@ -595,6 +595,7 @@
       "delete_method": "Select DELETE method",
       "get_method": "Select GET method",
       "head_method": "Select HEAD method",
+      "rename": "Rename Current Request",
       "method": "Method",
       "next_method": "Select Next method",
       "post_method": "Select POST method",

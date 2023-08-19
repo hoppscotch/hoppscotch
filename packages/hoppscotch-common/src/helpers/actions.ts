@@ -14,6 +14,7 @@ export type HoppAction =
   | "request.copy-link" // Copy Request Link
   | "request.save" // Save to Collections
   | "request.save-as" // Save As
+  | "rest.request.rename" // Rename
   | "request.method.next" // Select Next Method
   | "request.method.prev" // Select Previous Method
   | "request.method.get" // Select GET Method

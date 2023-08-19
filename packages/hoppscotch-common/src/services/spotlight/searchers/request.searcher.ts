@@ -98,6 +98,11 @@ export class RequestSpotlightSearcherService extends StaticSpotlightSearcherServ
       alternates: ["delete", "method"],
       icon: markRaw(IconShare),
     },
+    import_curl: {
+      text: this.t("shortcut.request.import_curl"),
+      alternates: ["import", "curl"],
+      icon: markRaw(IconShare),
+    },
   })
 
   constructor() {
@@ -167,6 +172,9 @@ export class RequestSpotlightSearcherService extends StaticSpotlightSearcherServ
         break
       case "delete_method":
         invokeAction("request.method.delete")
+        break
+      case "import_curl":
+        invokeAction("request.import-curl")
         break
     }
   }

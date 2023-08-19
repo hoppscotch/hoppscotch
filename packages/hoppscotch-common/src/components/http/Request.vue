@@ -630,6 +630,10 @@ defineActionHandler("request.method.put", () => updateMethod("PUT"))
 defineActionHandler("request.method.delete", () => updateMethod("DELETE"))
 defineActionHandler("request.method.head", () => updateMethod("HEAD"))
 
+defineActionHandler("request.import-curl", () => {
+  showCurlImportModal.value = true
+})
+
 const isCustomMethod = computed(() => {
   return (
     tab.value.document.request.method === "CUSTOM" ||

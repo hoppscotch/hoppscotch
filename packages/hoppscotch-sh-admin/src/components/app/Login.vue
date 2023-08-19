@@ -239,7 +239,7 @@ async function signInWithOidc() {
     await auth.signInUserWithOidc();
   } catch (e) {
     console.error(e);
-    toast.error(`Failed to sign in with GitHub`);
+    toast.error(`Failed to sign in with OIDC`);
   }
 
   signingInWithOidc.value = false;

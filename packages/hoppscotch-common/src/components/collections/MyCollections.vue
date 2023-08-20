@@ -32,7 +32,7 @@
       </span>
     </div>
     <div class="flex flex-col flex-1">
-      <SmartTree :adapter="myAdapter">
+      <HoppSmartTree :adapter="myAdapter">
         <template
           #content="{ node, toggleChildren, isOpen, highlightChildren }"
         >
@@ -291,7 +291,7 @@
           >
           </HoppSmartPlaceholder>
         </template>
-      </SmartTree>
+      </HoppSmartTree>
     </div>
   </div>
 </template>
@@ -303,7 +303,10 @@ import IconHelpCircle from "~icons/lucide/help-circle"
 import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
 import { computed, PropType, Ref, toRef } from "vue"
 import { GetMyTeamsQuery } from "~/helpers/backend/graphql"
-import { ChildrenResult, SmartTreeAdapter } from "~/helpers/treeAdapter"
+import {
+  ChildrenResult,
+  SmartTreeAdapter,
+} from "@hoppscotch/ui/dist/helpers/treeAdapter"
 import { useI18n } from "@composables/i18n"
 import { useColorMode } from "@composables/theming"
 import { pipe } from "fp-ts/function"

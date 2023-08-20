@@ -704,9 +704,9 @@
         "system": "System Mode"
       },
       "font": {
-        "size_sm": "Change Font Size to Small",
-        "size_md": "Change Font Size to Medium",
-        "size_lg": "Change Font Size to Large"
+        "size_sm": "Change to Small",
+        "size_md": "Change to Medium",
+        "size_lg": "Change to Large"
       },
       "change_interceptor": "Change Interceptor",
       "change_language": "Change Language",

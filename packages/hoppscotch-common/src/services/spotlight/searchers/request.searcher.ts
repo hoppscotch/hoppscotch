@@ -12,7 +12,7 @@ import { currentActiveTab } from "~/helpers/rest/tab"
 import { RequestOptionTabs } from "~/components/http/RequestOptions.vue"
 
 type Doc = {
-  text: string
+  text: string | string[]
   alternates: string[]
   icon: object | Component
 }
@@ -40,7 +40,10 @@ export class RequestSpotlightSearcherService extends StaticSpotlightSearcherServ
       icon: markRaw(IconShare),
     },
     save_to_collections: {
-      text: this.t("shortcut.request.save_to_collections"),
+      text: [
+        this.t("request.save_as"),
+        this.t("shortcut.request.save_to_collections"),
+      ],
       alternates: ["save", "collections"],
       icon: markRaw(IconShare),
     },

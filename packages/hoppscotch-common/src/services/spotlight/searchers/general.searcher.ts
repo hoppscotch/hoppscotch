@@ -1,5 +1,5 @@
 import { Component, markRaw, reactive } from "vue"
-import { HoppActionWithNoArgs, invokeAction } from "~/helpers/actions"
+import { invokeAction } from "~/helpers/actions"
 import { getI18n } from "~/modules/i18n"
 import { SpotlightSearcherResult, SpotlightService } from ".."
 import {
@@ -87,15 +87,21 @@ export class GeneralSpotlightSearcherService extends StaticSpotlightSearcherServ
     }
   }
 
+  private openDocs() {
+    const url = "https://docs.hoppscotch.io"
+    window.open(url, "_blank")
+  }
+
   public onDocSelected(id: string): void {
     switch (id) {
       case "open_help":
-        let url = "https://docs.hoppscotch.io"
-
+        invokeAction("modals.support.toggle")
         break
       case "chat_with_support":
+        invokeAction("flyouts.chat.open")
         break
       case "open_docs":
+        this.openDocs()
         break
       case "open_keybindings":
         invokeAction("flyouts.keybinds.toggle")

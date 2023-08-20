@@ -8,6 +8,7 @@
 <script setup lang="ts">
 import { ref } from "vue"
 import { defineActionHandler } from "~/helpers/actions"
+import { showChat } from "~/modules/crisp"
 
 const showShortcuts = ref(false)
 const showShare = ref(false)
@@ -28,5 +29,9 @@ defineActionHandler("modals.social.toggle", () => {
 
 defineActionHandler("modals.login.toggle", () => {
   showLogin.value = !showLogin.value
+})
+
+defineActionHandler("flyouts.chat.open", () => {
+  showChat()
 })
 </script>

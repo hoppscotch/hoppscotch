@@ -49,6 +49,7 @@ import IconReddit from "~icons/brands/reddit"
 import IconTwitter from "~icons/brands/twitter"
 import IconCheck from "~icons/lucide/check"
 import IconCopy from "~icons/lucide/copy"
+import IconGitHub from "~icons/lucide/github"
 
 const t = useI18n()
 
@@ -70,6 +71,11 @@ const copyIcon = refAutoReset<typeof IconCopy | typeof IconCheck>(
 )
 
 const platforms = [
+  {
+    name: "GitHub",
+    icon: IconGitHub,
+    link: `https://hoppscotch.io/github`,
+  },
   {
     name: "Twitter",
     icon: IconTwitter,

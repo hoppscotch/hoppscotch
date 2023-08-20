@@ -1,5 +1,5 @@
-import { Component, markRaw, reactive } from "vue"
-import { invokeAction } from "~/helpers/actions"
+import { Component, computed, markRaw, reactive } from "vue"
+import { activeActions$, invokeAction } from "~/helpers/actions"
 import { getI18n } from "~/modules/i18n"
 import { SpotlightSearcherResult, SpotlightService } from ".."
 import {
@@ -9,11 +9,14 @@ import {
 
 import IconDownload from "~icons/lucide/download"
 import IconCopy from "~icons/lucide/copy"
+import { map } from "rxjs"
+import { useStreamStatic } from "~/composables/stream"
 
 type Doc = {
   text: string
   alternates: string[]
   icon: object | Component
+  excludeFromSearch?: boolean
 }
 
 /**
@@ -32,16 +35,34 @@ export class ResponseSpotlightSearcherService extends StaticSpotlightSearcherSer
 
   private readonly spotlight = this.bind(SpotlightService)
 
+  private copyResponseActionEnabled = useStreamStatic(
+    activeActions$.pipe(map((actions) => actions.includes("response.copy"))),
+    activeActions$.value.includes("response.copy"),
+    () => {}
+  )[0]
+
+  private downloadResponseActionEnabled = useStreamStatic(
+    activeActions$.pipe(
+      map((actions) => actions.includes("response.file.download"))
+    ),
+    activeActions$.value.includes("response.file.download"),
+    () => {}
+  )[0]
+
   private documents: Record<string, Doc> = reactive({
     copy_response: {
       text: this.t("spotlight.response.copy"),
       alternates: ["copy", "response"],
       icon: markRaw(IconCopy),
+      excludeFromSearch: computed(() => !this.copyResponseActionEnabled.value),
     },
     download_response: {
       text: this.t("spotlight.response.download"),
       alternates: ["download", "response"],
       icon: markRaw(IconDownload),
+      excludeFromSearch: computed(
+        () => !this.downloadResponseActionEnabled.value
+      ),
     },
   })
 

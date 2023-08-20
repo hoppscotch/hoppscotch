@@ -72,19 +72,19 @@ export class EnvironmentsSpotlightSearcherService extends StaticSpotlightSearche
       text: this.t("spotlight.environments.edit"),
       alternates: ["edit", "environment"],
       icon: markRaw(IconEdit),
-      // excludeFromSearch: computed(() => this.hasSelectedEnv.value),
+      excludeFromSearch: computed(() => !this.hasSelectedEnv.value),
     },
     delete_selected_env: {
       text: this.t("spotlight.environments.delete"),
       alternates: ["delete", "environment"],
       icon: markRaw(IconTrash2),
-      // excludeFromSearch: computed(() => this.hasSelectedEnv.value),
+      excludeFromSearch: computed(() => !this.hasSelectedEnv.value),
     },
     duplicate_selected_env: {
       text: this.t("spotlight.environments.duplicate"),
       alternates: ["duplicate", "environment"],
       icon: markRaw(IconCopy),
-      // excludeFromSearch: computed(() => this.hasSelectedEnv.value),
+      excludeFromSearch: computed(() => !this.hasSelectedEnv.value),
     },
     edit_global_env: {
       text: this.t("spotlight.environments.edit_global"),

@@ -674,7 +674,7 @@
       "duplicate_global": "Duplicate global environment",
       "title": "Environments"
     },
-    "team": {
+    "workspace": {
       "new": "Create new team",
       "edit": "Edit selected team",
       "delete": "Delete selected team",

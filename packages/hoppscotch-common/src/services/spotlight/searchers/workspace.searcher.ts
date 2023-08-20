@@ -24,34 +24,34 @@ type Doc = {
  *
  * NOTE: Initializing this service registers it as a searcher with the Spotlight Service.
  */
-export class TeamSpotlightSearcherService extends StaticSpotlightSearcherService<Doc> {
-  public static readonly ID = "TEAM_SPOTLIGHT_SEARCHER_SERVICE"
+export class WorkspaceSpotlightSearcherService extends StaticSpotlightSearcherService<Doc> {
+  public static readonly ID = "WORKSPACE_SPOTLIGHT_SEARCHER_SERVICE"
 
   private t = getI18n()
 
-  public readonly searcherID = "team"
-  public searcherSectionTitle = this.t("spotlight.team.title")
+  public readonly searcherID = "workspace"
+  public searcherSectionTitle = this.t("spotlight.workspace.title")
 
   private readonly spotlight = this.bind(SpotlightService)
 
   private documents: Record<string, Doc> = reactive({
     new_team: {
-      text: this.t("spotlight.team.new"),
+      text: this.t("spotlight.workspace.new"),
       alternates: ["new", "team", "workspace"],
       icon: markRaw(IconUsers),
     },
     edit_team: {
-      text: this.t("spotlight.team.edit"),
+      text: this.t("spotlight.workspace.edit"),
       alternates: ["edit", "team", "workspace"],
       icon: markRaw(IconEdit),
     },
     invite_members: {
-      text: this.t("spotlight.team.invite"),
+      text: this.t("spotlight.workspace.invite"),
       alternates: ["invite", "members", "workspace"],
       icon: markRaw(IconUserPlus),
     },
     delete_team: {
-      text: this.t("spotlight.team.delete"),
+      text: this.t("spotlight.workspace.delete"),
       alternates: ["delete", "team", "workspace"],
       icon: markRaw(IconTrash2),
     },

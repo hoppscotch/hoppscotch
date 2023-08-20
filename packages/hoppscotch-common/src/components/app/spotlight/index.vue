@@ -104,7 +104,7 @@ import { GeneralSpotlightSearcherService } from "~/services/spotlight/searchers/
 import { ResponseSpotlightSearcherService } from "~/services/spotlight/searchers/response.searcher"
 import { RequestSpotlightSearcherService } from "~/services/spotlight/searchers/request.searcher"
 import { EnvironmentsSpotlightSearcherService } from "~/services/spotlight/searchers/environment.searcher"
-import { TeamSpotlightSearcherService } from "~/services/spotlight/searchers/team.searcher"
+import { WorkspaceSpotlightSearcherService } from "~/services/spotlight/searchers/workspace.searcher"
 
 const t = useI18n()
 
@@ -129,7 +129,7 @@ useService(GeneralSpotlightSearcherService)
 useService(ResponseSpotlightSearcherService)
 useService(RequestSpotlightSearcherService)
 useService(EnvironmentsSpotlightSearcherService)
-useService(TeamSpotlightSearcherService)
+useService(WorkspaceSpotlightSearcherService)
 
 const search = ref("")
 
@@ -256,3 +256,4 @@ function newUseArrowKeysForNavigation() {
   return { selectedEntry }
 }
 </script>
+~/services/spotlight/searchers/workspace.searcher

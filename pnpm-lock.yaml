@@ -486,6 +486,9 @@ importers:
       fp-ts:
         specifier: ^2.12.1
         version: 2.12.1
+      fractional-indexing:
+        specifier: ^3.2.0
+        version: 3.2.0
       fuse.js:
         specifier: ^6.6.2
         version: 6.6.2
@@ -622,6 +625,9 @@ importers:
       '@esbuild-plugins/node-modules-polyfill':
         specifier: ^0.1.4
         version: 0.1.4(esbuild@0.17.19)
+      '@faker-js/faker':
+        specifier: ^8.0.2
+        version: 8.0.2
       '@graphql-codegen/add':
         specifier: ^3.2.0
         version: 3.2.0(graphql@15.8.0)
@@ -3884,6 +3890,11 @@ packages:
   /@faker-js/faker@5.5.3:
     resolution: {integrity: sha512-R11tGE6yIFwqpaIqcfkcg7AICXzFg14+5h5v0TfF/9+RMDL6jhzCy/pxHVOfbALGdtVYdt6JdR21tuxEgl34dw==}
     dev: false
+
+  /@faker-js/faker@8.0.2:
+    resolution: {integrity: sha512-Uo3pGspElQW91PCvKSIAXoEgAUlRnH29sX2/p89kg7sP1m2PzCufHINd0FhTXQf6DYGiUlVncdSPa2F9wxed2A==}
+    engines: {node: ^14.17.0 || ^16.13.0 || >=18.0.0, npm: '>=6.14.13'}
+    dev: true
 
   /@firebase/analytics-compat@0.1.12(@firebase/app-compat@0.1.28)(@firebase/app@0.7.27):
     resolution: {integrity: sha512-mXR02p/4C9Xx07prhzr9nwocH6Xn3vpcO7DMGUMNB0qKdJADOaBow6LDlDY3u8ILhmHqNS8qPY3sKnhoTWzz8A==}
@@ -13636,6 +13647,11 @@ packages:
 
   /fp-ts@2.13.1:
     resolution: {integrity: sha512-0eu5ULPS2c/jsa1lGFneEFFEdTbembJv8e4QKXeVJ3lm/5hyve06dlKZrpxmMwJt6rYen7sxmHHK2CLaXvWuWQ==}
+
+  /fractional-indexing@3.2.0:
+    resolution: {integrity: sha512-PcOxmqwYCW7O2ovKRU8OoQQj2yqTfEB/yeTYk4gPid6dN5ODRfU1hXd9tTVZzax/0NkO7AxpHykvZnT1aYp/BQ==}
+    engines: {node: ^14.13.1 || >=16.0.0}
+    dev: false
 
   /fresh@0.5.2:
     resolution: {integrity: sha512-zJ2mQYM18rEFOudeV4GShTGIQ7RbzA7ozbU9I/XBpm7kqgMywgmylMwXHxZJmkVoYkna9d2pVXVXPdYTP9ej8Q==}

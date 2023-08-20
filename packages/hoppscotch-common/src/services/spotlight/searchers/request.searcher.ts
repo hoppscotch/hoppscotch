@@ -7,9 +7,19 @@ import {
   StaticSpotlightSearcherService,
 } from "./base/static.searcher"
 
-import IconShare from "~icons/lucide/share"
-import { currentActiveTab } from "~/helpers/rest/tab"
 import { RequestOptionTabs } from "~/components/http/RequestOptions.vue"
+import { currentActiveTab } from "~/helpers/rest/tab"
+import IconWindow from "~icons/lucide/app-window"
+import IconCheck from "~icons/lucide/check"
+import IconChevronLeft from "~icons/lucide/chevron-left"
+import IconChevronRight from "~icons/lucide/chevron-right"
+import IconCode2 from "~icons/lucide/code-2"
+import IconCopy from "~icons/lucide/copy"
+import IconFileCode from "~icons/lucide/file-code"
+import IconRename from "~icons/lucide/file-edit"
+import IconPlay from "~icons/lucide/play"
+import IconRotateCCW from "~icons/lucide/rotate-ccw"
+import IconSave from "~icons/lucide/save"
 
 type Doc = {
   text: string | string[]
@@ -37,7 +47,7 @@ export class RequestSpotlightSearcherService extends StaticSpotlightSearcherServ
     send_request: {
       text: this.t("shortcut.request.send_request"),
       alternates: ["request", "send"],
-      icon: markRaw(IconShare),
+      icon: markRaw(IconPlay),
     },
     save_to_collections: {
       text: [
@@ -45,104 +55,104 @@ export class RequestSpotlightSearcherService extends StaticSpotlightSearcherServ
         this.t("shortcut.request.save_to_collections"),
       ],
       alternates: ["save", "collections"],
-      icon: markRaw(IconShare),
+      icon: markRaw(IconSave),
     },
     save_request: {
       text: this.t("shortcut.request.save_request"),
       alternates: ["save", "request"],
-      icon: markRaw(IconShare),
+      icon: markRaw(IconSave),
     },
     rename_request: {
       text: this.t("shortcut.request.rename"),
       alternates: ["rename", "request"],
-      icon: markRaw(IconShare),
+      icon: markRaw(IconRename),
     },
     copy_request_link: {
       text: this.t("shortcut.request.copy_request_link"),
       alternates: ["copy", "link"],
-      icon: markRaw(IconShare),
+      icon: markRaw(IconCopy),
     },
     reset_request: {
       text: this.t("shortcut.request.reset_request"),
       alternates: ["reset", "request"],
-      icon: markRaw(IconShare),
+      icon: markRaw(IconRotateCCW),
     },
     import_curl: {
       text: this.t("shortcut.request.import_curl"),
       alternates: ["import", "curl"],
-      icon: markRaw(IconShare),
+      icon: markRaw(IconFileCode),
     },
     show_code: {
       text: this.t("shortcut.request.show_code"),
       alternates: ["show", "code"],
-      icon: markRaw(IconShare),
+      icon: markRaw(IconCode2),
     },
     // Change request method
     next_method: {
       text: this.t("shortcut.request.next_method"),
       alternates: ["next", "method"],
-      icon: markRaw(IconShare),
+      icon: markRaw(IconChevronRight),
     },
     previous_method: {
       text: this.t("shortcut.request.previous_method"),
       alternates: ["previous", "method"],
-      icon: markRaw(IconShare),
+      icon: markRaw(IconChevronLeft),
     },
     get_method: {
       text: this.t("shortcut.request.get_method"),
       alternates: ["get", "method"],
-      icon: markRaw(IconShare),
+      icon: markRaw(IconCheck),
     },
     head_method: {
       text: this.t("shortcut.request.head_method"),
       alternates: ["head", "method"],
-      icon: markRaw(IconShare),
+      icon: markRaw(IconCheck),
     },
     post_method: {
       text: this.t("shortcut.request.post_method"),
       alternates: ["post", "method"],
-      icon: markRaw(IconShare),
+      icon: markRaw(IconCheck),
     },
     put_method: {
       text: this.t("shortcut.request.put_method"),
       alternates: ["put", "method"],
-      icon: markRaw(IconShare),
+      icon: markRaw(IconCheck),
     },
     delete_method: {
       text: this.t("shortcut.request.delete_method"),
       alternates: ["delete", "method"],
-      icon: markRaw(IconShare),
+      icon: markRaw(IconCheck),
     },
     // Change sub tabs
     tab_parameters: {
       text: this.t("spotlight.request.tab_parameters"),
       alternates: ["parameters", "tab"],
-      icon: markRaw(IconShare),
+      icon: markRaw(IconWindow),
     },
     tab_body: {
       text: this.t("spotlight.request.tab_body"),
       alternates: ["body", "tab"],
-      icon: markRaw(IconShare),
+      icon: markRaw(IconWindow),
     },
     tab_headers: {
       text: this.t("spotlight.request.tab_headers"),
       alternates: ["headers", "tab"],
-      icon: markRaw(IconShare),
+      icon: markRaw(IconWindow),
     },
     tab_authorization: {
       text: this.t("spotlight.request.tab_authorization"),
       alternates: ["authorization", "tab"],
-      icon: markRaw(IconShare),
+      icon: markRaw(IconWindow),
     },
     tab_pre_request_script: {
       text: this.t("spotlight.request.tab_pre_request_script"),
       alternates: ["pre-request", "script", "tab"],
-      icon: markRaw(IconShare),
+      icon: markRaw(IconWindow),
     },
     tab_tests: {
       text: this.t("spotlight.request.tab_tests"),
       alternates: ["tests", "tab"],
-      icon: markRaw(IconShare),
+      icon: markRaw(IconWindow),
     },
   })
 

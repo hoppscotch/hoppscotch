@@ -88,7 +88,21 @@ export class GeneralSpotlightSearcherService extends StaticSpotlightSearcherServ
   }
 
   public onDocSelected(id: string): void {
-    if (id === "invite_hoppscotch")
-      invokeAction(`modals.share.toggle` as HoppActionWithNoArgs)
+    switch (id) {
+      case "open_help":
+        let url = "https://docs.hoppscotch.io"
+
+        break
+      case "chat_with_support":
+        break
+      case "open_docs":
+        break
+      case "open_keybindings":
+        invokeAction("flyouts.keybinds.toggle")
+        break
+      case "social_links":
+        invokeAction("modals.social.toggle")
+        break
+    }
   }
 }

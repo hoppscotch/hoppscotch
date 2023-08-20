@@ -1,7 +1,21 @@
-import { Component, computed, markRaw, reactive } from "vue"
-import { invokeAction } from "~/helpers/actions"
+import {
+  Component,
+  Ref,
+  computed,
+  effectScope,
+  markRaw,
+  reactive,
+  ref,
+  watch,
+} from "vue"
+import { activeActions$, invokeAction } from "~/helpers/actions"
 import { getI18n } from "~/modules/i18n"
-import { SpotlightSearcherResult, SpotlightService } from ".."
+import {
+  SpotlightSearcher,
+  SpotlightSearcherResult,
+  SpotlightSearcherSessionState,
+  SpotlightService,
+} from ".."
 import {
   SearchResult,
   StaticSpotlightSearcherService,
@@ -17,14 +31,19 @@ import {
   createEnvironment,
   deleteEnvironment,
   duplicateEnvironment,
+  environmentsStore,
   getGlobalVariables,
   selectedEnvironmentIndex$,
+  setSelectedEnvironmentIndex,
 } from "~/newstore/environments"
 import { pipe } from "fp-ts/function"
 import * as TE from "fp-ts/TaskEither"
 import { deleteTeamEnvironment } from "~/helpers/backend/mutations/TeamEnvironment"
 import { GQLError } from "~/helpers/backend/GQLClient"
 import { cloneDeep } from "lodash-es"
+import { Service } from "dioc"
+import MiniSearch from "minisearch"
+import { map } from "rxjs"
 
 type Doc = {
   text: string
@@ -212,5 +231,116 @@ export class EnvironmentsSpotlightSearcherService extends StaticSpotlightSearche
         this.duplicateGlobalEnv()
         break
     }
+  }
+}
+
+/**
+ * This searcher is responsible for searching through the environment.
+ * And switching between them.
+ */
+export class SwitchEnvSpotlightSearcherService
+  extends Service
+  implements SpotlightSearcher
+{
+  public static readonly ID = "SWITCH_ENV_SPOTLIGHT_SEARCHER_SERVICE"
+
+  private t = getI18n()
+
+  public searcherID = "switch_env"
+  public searcherSectionTitle = this.t("tab.environments")
+
+  private readonly spotlight = this.bind(SpotlightService)
+
+  constructor() {
+    super()
+
+    this.spotlight.registerSearcher(this)
+  }
+
+  private environmentSearchable = useStreamStatic(
+    activeActions$.pipe(
+      map((actions) => actions.includes("modals.environment.add"))
+    ),
+    activeActions$.value.includes("modals.environment.add"),
+    () => {
+      /* noop */
+    }
+  )[0]
+
+  createSearchSession(
+    query: Readonly<Ref<string>>
+  ): [Ref<SpotlightSearcherSessionState>, () => void] {
+    const loading = ref(false)
+    const results = ref<SpotlightSearcherResult[]>([])
+
+    const minisearch = new MiniSearch({
+      fields: ["name"],
+      storeFields: ["name"],
+    })
+
+    if (this.environmentSearchable.value) {
+      minisearch.addAll(
+        environmentsStore.value.environments.map((entry, index) => {
+          return {
+            id: `environment-${index}`,
+            name: entry.name,
+          }
+        })
+      )
+    }
+
+    const scopeHandle = effectScope()
+
+    scopeHandle.run(() => {
+      watch(
+        [query],
+        ([query]) => {
+          results.value = minisearch
+            .search(query, {
+              prefix: true,
+              fuzzy: true,
+              boost: {
+                reltime: 2,
+              },
+              weights: {
+                fuzzy: 0.2,
+                prefix: 0.8,
+              },
+            })
+            .map((x) => {
+              return {
+                id: x.id,
+                icon: markRaw(IconLayers),
+                score: x.score,
+                text: {
+                  type: "text",
+                  text: [this.t("environment.set"), x.name],
+                },
+              }
+            })
+        },
+        { immediate: true }
+      )
+    })
+
+    const onSessionEnd = () => {
+      scopeHandle.stop()
+      minisearch.removeAll()
+    }
+
+    const resultObj = computed<SpotlightSearcherSessionState>(() => ({
+      loading: loading.value,
+      results: results.value,
+    }))
+
+    return [resultObj, onSessionEnd]
+  }
+
+  onResultSelect(result: SpotlightSearcherResult): void {
+    const selectedEnvIndex = Number(result.id.split("-")[1])
+    setSelectedEnvironmentIndex({
+      type: "MY_ENV",
+      index: selectedEnvIndex,
+    })
   }
 }

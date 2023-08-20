@@ -223,6 +223,7 @@
     "replace_with_variable": "Replace with variable",
     "scope": "Scope",
     "select": "Select environment",
+    "set": "Set environment",
     "set_as_environment": "Set as environment",
     "team_environments": "Team Environments",
     "title": "Environments",

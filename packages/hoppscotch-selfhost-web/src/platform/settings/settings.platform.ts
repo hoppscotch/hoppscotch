@@ -10,7 +10,7 @@ import * as E from "fp-ts/Either"
 import { runGQLSubscription } from "@hoppscotch/common/helpers/backend/GQLClient"
 import {
   bulkApplySettings,
-  defaultSettings,
+  getDefaultSettings,
 } from "@hoppscotch/common/newstore/settings"
 import { runDispatchWithOutSyncing } from "@lib/sync"
 
@@ -47,7 +47,7 @@ async function loadUserSettings() {
   // create user settings if it doesn't exist
   E.isLeft(res) &&
     res.left.error == "user_settings/not_found" &&
-    (await createUserSettings(JSON.stringify(defaultSettings)))
+    (await createUserSettings(JSON.stringify(getDefaultSettings())))
 
   if (E.isRight(res)) {
     runDispatchWithOutSyncing(() => {

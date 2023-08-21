@@ -29,7 +29,6 @@
 <script setup lang="ts">
 import { platform } from "~/platform"
 import { GQLConnection } from "~/helpers/GQLConnection"
-import { getCurrentStrategyID } from "~/helpers/network"
 import { useReadonlyStream, useStream } from "@composables/stream"
 import { useI18n } from "@composables/i18n"
 import {
@@ -38,8 +37,12 @@ import {
   gqlURL$,
   setGQLURL,
 } from "~/newstore/GQLSession"
+import { useService } from "dioc/vue"
+import { InterceptorService } from "~/services/interceptor.service"
 
 const t = useI18n()
+
+const interceptorService = useService(InterceptorService)
 
 const props = defineProps<{
   conn: GQLConnection
@@ -62,7 +65,7 @@ const onConnectClick = () => {
     platform.analytics?.logEvent({
       type: "HOPP_REQUEST_RUN",
       platform: "graphql-schema",
-      strategy: getCurrentStrategyID(),
+      strategy: interceptorService.currentInterceptorID.value!,
     })
   } else {
     props.conn.disconnect()

@@ -1,3 +1,4 @@
+import * as E from "fp-ts/Either"
 import { BehaviorSubject } from "rxjs"
 import {
   getIntrospectionQuery,
@@ -11,7 +12,8 @@ import {
 } from "graphql"
 import { distinctUntilChanged, map } from "rxjs/operators"
 import { GQLHeader, HoppGQLAuth } from "@hoppscotch/data"
-import { sendNetworkRequest } from "./network"
+import { getService } from "~/modules/dioc"
+import { InterceptorService } from "~/services/interceptor.service"
 
 const GQL_SCHEMA_POLL_INTERVAL = 7000
 
@@ -181,7 +183,7 @@ export class GQLConnection {
       headers.forEach((x) => (finalHeaders[x.key] = x.value))
 
       const reqOptions = {
-        method: "POST",
+        method: "POST" as const,
         url,
         headers: {
           ...finalHeaders,
@@ -190,11 +192,20 @@ export class GQLConnection {
         data: introspectionQuery,
       }
 
-      const data = await sendNetworkRequest(reqOptions)
+      const interceptorService = getService(InterceptorService)
+
+      const res = await interceptorService.runRequest(reqOptions).response
+
+      if (E.isLeft(res)) {
+        console.error(res.left)
+        throw new Error(res.left.toString())
+      }
+
+      const data = res.right
 
       // HACK : Temporary trailing null character issue from the extension fix
       const response = new TextDecoder("utf-8")
-        .decode(data.data)
+        .decode(data.data as any)
         .replace(/\0+$/, "")
 
       const introspectResponse = JSON.parse(response)
@@ -245,7 +256,7 @@ export class GQLConnection {
       .forEach(({ key, value }) => (finalHeaders[key] = value))
 
     const reqOptions = {
-      method: "POST",
+      method: "POST" as const,
       url,
       headers: {
         ...finalHeaders,
@@ -260,11 +271,19 @@ export class GQLConnection {
       },
     }
 
-    const res = await sendNetworkRequest(reqOptions)
+    const interceptorService = getService(InterceptorService)
+    const result = await interceptorService.runRequest(reqOptions).response
+
+    if (E.isLeft(result)) {
+      console.error(result.left)
+      throw new Error(result.left.toString())
+    }
+
+    const res = result.right
 
     // HACK: Temporary trailing null character issue from the extension fix
     const responseText = new TextDecoder("utf-8")
-      .decode(res.data)
+      .decode(res.data as any)
       .replace(/\0+$/, "")
 
     return responseText

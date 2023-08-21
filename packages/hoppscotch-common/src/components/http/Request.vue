@@ -241,17 +241,12 @@ import { useReadonlyStream, useStreamSubscriber } from "@composables/stream"
 import { useToast } from "@composables/toast"
 import { refAutoReset, useVModel } from "@vueuse/core"
 import * as E from "fp-ts/Either"
-import { isLeft, isRight } from "fp-ts/lib/Either"
-import { computed, onBeforeUnmount, ref } from "vue"
+import { Ref, computed, onBeforeUnmount, ref } from "vue"
 import { defineActionHandler } from "~/helpers/actions"
 import { runMutation } from "~/helpers/backend/GQLClient"
 import { UpdateRequestDocument } from "~/helpers/backend/graphql"
 import { createShortcode } from "~/helpers/backend/mutations/Shortcode"
 import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
-import {
-  cancelRunningExtensionRequest,
-  hasExtensionInstalled,
-} from "~/helpers/strategies/ExtensionStrategy"
 import { runRESTRequest$ } from "~/helpers/RequestRunner"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
@@ -270,12 +265,13 @@ import { HoppRESTTab, currentTabID } from "~/helpers/rest/tab"
 import { getDefaultRESTRequest } from "~/helpers/rest/default"
 import { RESTHistoryEntry, restHistory$ } from "~/newstore/history"
 import { platform } from "~/platform"
-import { getCurrentStrategyID } from "~/helpers/network"
 import { HoppGQLRequest, HoppRESTRequest } from "@hoppscotch/data"
 import { useService } from "dioc/vue"
 import { InspectionService } from "~/services/inspection"
+import { InterceptorService } from "~/services/interceptor.service"
 
 const t = useI18n()
+const interceptorService = useService(InterceptorService)
 
 const methods = [
   "GET",
@@ -328,6 +324,8 @@ const saveRequestAction = ref<any | null>(null)
 
 const history = useReadonlyStream<RESTHistoryEntry[]>(restHistory$, [])
 
+const requestCancelFunc: Ref<(() => void) | null> = ref(null)
+
 const userHistories = computed(() => {
   return history.value.map((history) => history.request.endpoint).slice(0, 10)
 })
@@ -346,13 +344,15 @@ const newSendRequest = async () => {
   platform.analytics?.logEvent({
     type: "HOPP_REQUEST_RUN",
     platform: "rest",
-    strategy: getCurrentStrategyID(),
+    strategy: interceptorService.currentInterceptorID.value!,
   })
 
-  // Double calling is because the function returns a TaskEither than should be executed
-  const streamResult = await runRESTRequest$(tab)()
+  const [cancel, streamPromise] = runRESTRequest$(tab)
+  const streamResult = await streamPromise
 
-  if (isRight(streamResult)) {
+  requestCancelFunc.value = cancel
+
+  if (E.isRight(streamResult)) {
     subscribeToStream(
       streamResult.right,
       (responseState) => {
@@ -369,7 +369,7 @@ const newSendRequest = async () => {
         loading.value = false
       }
     )
-  } else if (isLeft(streamResult)) {
+  } else {
     loading.value = false
     toast.error(`${t("error.script_fail")}`)
     let error: Error
@@ -419,9 +419,8 @@ function isCURL(curl: string) {
 
 const cancelRequest = () => {
   loading.value = false
-  if (hasExtensionInstalled()) {
-    cancelRunningExtensionRequest()
-  }
+  requestCancelFunc.value?.()
+
   updateRESTResponse(null)
 }
 

@@ -130,13 +130,12 @@
           @click="nativeShare()"
         />
       </div>
-      <AppShare :show="showShare" @hide-modal="showShare = false" />
     </template>
   </HoppSmartModal>
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from "vue"
+import { watch } from "vue"
 import IconSidebar from "~icons/lucide/sidebar"
 import IconSidebarOpen from "~icons/lucide/sidebar-open"
 import IconBook from "~icons/lucide/book"
@@ -151,13 +150,12 @@ import IconUserPlus from "~icons/lucide/user-plus"
 import IconShare2 from "~icons/lucide/share-2"
 import IconChevronRight from "~icons/lucide/chevron-right"
 import { useSetting } from "@composables/settings"
-import { defineActionHandler } from "~/helpers/actions"
+import { invokeAction } from "~/helpers/actions"
 import { showChat } from "@modules/crisp"
 import { useI18n } from "@composables/i18n"
 
 const t = useI18n()
 const navigatorShare = !!navigator.share
-const showShare = ref(false)
 
 const ZEN_MODE = useSetting("ZEN_MODE")
 const EXPAND_NAVIGATION = useSetting("EXPAND_NAVIGATION")
@@ -173,10 +171,6 @@ watch(
 defineProps<{
   show: boolean
 }>()
-
-defineActionHandler("modals.share.toggle", () => {
-  showShare.value = !showShare.value
-})
 
 const emit = defineEmits<{
   (e: "hide-modal"): void
@@ -198,7 +192,7 @@ const expandCollection = () => {
 }
 
 const expandInvite = () => {
-  showShare.value = true
+  invokeAction("modals.share.toggle")
 }
 
 const nativeShare = () => {

@@ -69,6 +69,8 @@
     "invite": "Invite",
     "invite_description": "Hoppscotch is an open source API development ecosystem. We designed a simple and intuitive interface for creating and managing your APIs. Hoppscotch is a tool that helps you build, test, document and share your APIs.",
     "invite_your_friends": "Invite your friends",
+    "social_links": "Social links",
+    "social_description": "Follow us on social media to stay updated with the latest news, updates and releases.",
     "join_discord_community": "Join our Discord community",
     "keyboard_shortcuts": "Keyboard shortcuts",
     "name": "Hoppscotch",
@@ -203,6 +205,7 @@
     "create_new": "Create new environment",
     "created": "Environment created",
     "deleted": "Environment deletion",
+    "duplicated": "Environment duplicated",
     "edit": "Edit Environment",
     "global": "Global",
     "empty_variables": "No variables",
@@ -220,6 +223,7 @@
     "replace_with_variable": "Replace with variable",
     "scope": "Scope",
     "select": "Select environment",
+    "set": "Set environment",
     "set_as_environment": "Set as environment",
     "team_environments": "Team Environments",
     "title": "Environments",
@@ -594,6 +598,9 @@
       "delete_method": "Select DELETE method",
       "get_method": "Select GET method",
       "head_method": "Select HEAD method",
+      "rename": "Rename Current Request",
+      "import_curl": "Import cURL",
+      "show_code": "Show generated code",
       "method": "Method",
       "next_method": "Select Next method",
       "post_method": "Select POST method",
@@ -602,6 +609,7 @@
       "reset_request": "Reset Request",
       "save_to_collections": "Save to Collections",
       "send_request": "Send Request",
+      "save_request": "Save Request",
       "title": "Request"
     },
     "response": {
@@ -632,6 +640,55 @@
     "url": "URL"
   },
   "spotlight": {
+    "general": {
+      "help_menu": "Open help and support menu",
+      "chat": "Chat with support",
+      "open_docs": "Open documentation",
+      "open_keybindings": "Open keyboard shortcuts",
+      "social": "Social links and GitHub",
+      "title": "General"
+    },
+    "miscellaneous": {
+      "invite": "Invite people to Hoppscotch",
+      "title": "Miscellaneous"
+    },
+    "request": {
+      "tab_parameters": "Open parameters tab",
+      "tab_body": "Open body tab",
+      "tab_headers": "Open headers tab",
+      "tab_authorization": "Open authorization tab",
+      "tab_pre_request_script": "Open pre-request script tab",
+      "tab_tests": "Open tests tab"
+    },
+    "response": {
+      "copy": "Copy response as JSON",
+      "download": "Download response as file",
+      "title": "Response"
+    },
+    "environments": {
+      "new": "Create new environment",
+      "new_variable": "Create a new environment variable",
+      "edit": "Edit selected environment",
+      "delete": "Delete selected environment",
+      "duplicate": "Duplicate selected environment",
+      "edit_global": "Edit global environment",
+      "duplicate_global": "Duplicate global environment",
+      "title": "Environments"
+    },
+    "workspace": {
+      "new": "Create new team",
+      "edit": "Edit selected team",
+      "delete": "Delete selected team",
+      "invite": "Invite people to team",
+      "switch_to_personal": "Switch to personal workspace",
+      "title": "Teams"
+    },
+    "tab": {
+      "close_current": "Close current tab",
+      "close_others": "Close others tab",
+      "new_tab": "Open a new tab",
+      "title": "Tabs"
+    },
     "section": {
       "user": "User",
       "theme": "Theme",
@@ -649,9 +706,9 @@
         "system": "System Mode"
       },
       "font": {
-        "size_sm": "Change Font Size to Small",
-        "size_md": "Change Font Size to Medium",
-        "size_lg": "Change Font Size to Large"
+        "size_sm": "Change to Small",
+        "size_md": "Change to Medium",
+        "size_lg": "Change to Large"
       },
       "change_interceptor": "Change Interceptor",
       "change_language": "Change Language",

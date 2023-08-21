@@ -76,7 +76,10 @@ export class SettingsSpotlightSearcherService extends StaticSpotlightSearcherSer
       icon: markRaw(IconMoon),
     },
     font_size_sm: {
-      text: this.t("spotlight.font.size_sm"),
+      text: [
+        this.t("settings.font_size"),
+        this.t("spotlight.settings.font.size_sm"),
+      ],
       onClick: () => {
         console.log("clicked")
       },
@@ -90,7 +93,10 @@ export class SettingsSpotlightSearcherService extends StaticSpotlightSearcherSer
       icon: markRaw(IconType),
     },
     font_size_md: {
-      text: this.t("spotlight.font.size_md"),
+      text: [
+        this.t("settings.font_size"),
+        this.t("spotlight.settings.font.size_md"),
+      ],
       excludeFromSearch: computed(() => this.activeFontSize.value === "medium"),
       alternates: [
         "font size",
@@ -101,7 +107,10 @@ export class SettingsSpotlightSearcherService extends StaticSpotlightSearcherSer
       icon: markRaw(IconType),
     },
     font_size_lg: {
-      text: this.t("spotlight.font.size_lg"),
+      text: [
+        this.t("settings.font_size"),
+        this.t("spotlight.settings.font.size_lg"),
+      ],
       excludeFromSearch: computed(() => this.activeFontSize.value === "large"),
       alternates: [
         "font size",

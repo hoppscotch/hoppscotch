@@ -98,6 +98,19 @@ import { UserSpotlightSearcherService } from "~/services/spotlight/searchers/use
 import { NavigationSpotlightSearcherService } from "~/services/spotlight/searchers/navigation.searcher"
 import { SettingsSpotlightSearcherService } from "~/services/spotlight/searchers/settings.searcher"
 import { CollectionsSpotlightSearcherService } from "~/services/spotlight/searchers/collections.searcher"
+import { MiscellaneousSpotlightSearcherService } from "~/services/spotlight/searchers/miscellaneous.searcher"
+import { TabSpotlightSearcherService } from "~/services/spotlight/searchers/tab.searcher"
+import { GeneralSpotlightSearcherService } from "~/services/spotlight/searchers/general.searcher"
+import { ResponseSpotlightSearcherService } from "~/services/spotlight/searchers/response.searcher"
+import { RequestSpotlightSearcherService } from "~/services/spotlight/searchers/request.searcher"
+import {
+  EnvironmentsSpotlightSearcherService,
+  SwitchEnvSpotlightSearcherService,
+} from "~/services/spotlight/searchers/environment.searcher"
+import {
+  SwitchWorkspaceSpotlightSearcherService,
+  WorkspaceSpotlightSearcherService,
+} from "~/services/spotlight/searchers/workspace.searcher"
 
 const t = useI18n()
 
@@ -116,6 +129,15 @@ useService(UserSpotlightSearcherService)
 useService(NavigationSpotlightSearcherService)
 useService(SettingsSpotlightSearcherService)
 useService(CollectionsSpotlightSearcherService)
+useService(MiscellaneousSpotlightSearcherService)
+useService(TabSpotlightSearcherService)
+useService(GeneralSpotlightSearcherService)
+useService(ResponseSpotlightSearcherService)
+useService(RequestSpotlightSearcherService)
+useService(EnvironmentsSpotlightSearcherService)
+useService(SwitchEnvSpotlightSearcherService)
+useService(WorkspaceSpotlightSearcherService)
+useService(SwitchWorkspaceSpotlightSearcherService)
 
 const search = ref("")
 
@@ -242,3 +264,4 @@ function newUseArrowKeysForNavigation() {
   return { selectedEntry }
 }
 </script>
+~/services/spotlight/searchers/workspace.searcher

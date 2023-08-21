@@ -47,7 +47,11 @@ import {
   loadTabsFromPersistedState,
   persistableTabState,
 } from "~/helpers/rest/tab"
-import { HoppGQLTab } from "~/helpers/graphql/tab"
+import {
+  HoppGQLTab,
+  loadTabsFromPersistedState as loadGQLTabsFromPersistedState,
+  persistableTabState as persistableGQLTabState,
+} from "~/helpers/graphql/tab"
 
 function checkAndMigrateOldSettings() {
   if (window.localStorage.getItem("selectedEnvIndex")) {
@@ -335,61 +339,26 @@ export function setupRESTTabsPersistence() {
 }
 
 function setupGQLTabsPersistence() {
-  const localRequest = JSON.parse(
-    window.localStorage.getItem("gqlSession") || "null"
-  )
-
-  // if (localRequest) {
-  //   const tabs = getTabsForRestoration(localRequest)
-  //   setGQLCurrentTabId(tabs[0].id)
-  //   setGQLTabs(tabs)
-  // }
-
-  // gqlSession$.subscribe((req) => {
-  //   const restSession = cloneDeep(req)
-  //   const session = getGQLSessionForPersistence(restSession.tabs)
-  //   window.localStorage.setItem("gqlSession", JSON.stringify(session))
-  // })
-}
-
-export function getTabsForRestoration(tabs: unknown[]) {
-  if (!Array.isArray(tabs) || tabs.length === 0) {
-    return []
+  try {
+    const state = window.localStorage.getItem("gqlTabState")
+    if (state) {
+      const data = JSON.parse(state)
+      loadGQLTabsFromPersistedState(data)
+    }
+  } catch (e) {
+    console.error(
+      `Failed parsing persisted tab state, state:`,
+      window.localStorage.getItem("gqlTabState")
+    )
   }
 
-  // TODO: Refactor and add proper validation
-
-  // const restoredTabs = tabs.map((x) => {
-  //   const tab: HoppGQLTab = {
-  //     id: x.id || v4(),
-  //     request: safelyExtractGQLRequest(x.request, getDefaultGQLRequest()),
-  //     response: x.response || [],
-  //     unseen: x.unseen || false,
-  //   }
-
-  //   return tab
-  // })
-
-  // !restoredTabs.length &&
-  //   restoredTabs.push({
-  //     id: v4(),
-  //     request: getDefaultGQLRequest(),
-  //     response: [],
-  //     unseen: false,
-  //   })
-
-  // return restoredTabs
-}
-
-export function getGQLSessionForPersistence(allTabs: HoppGQLTab[]) {
-  const tabs = cloneDeep(allTabs)
-  return tabs.map((tab) => {
-    const req = tab.document.request
-    return {
-      ...tab,
-      request: req,
-    }
-  })
+  watchDebounced(
+    persistableGQLTabState,
+    (state) => {
+      window.localStorage.setItem("gqlTabState", JSON.stringify(state))
+    },
+    { debounce: 500, deep: true }
+  )
 }
 
 export function setupLocalPersistence() {

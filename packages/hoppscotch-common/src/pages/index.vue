@@ -254,7 +254,6 @@ const onResolveConfirmCloseAllTabs = () => {
 }
 
 const openReqRenameModal = (tabID?: string) => {
-  console.log("openReqRenameModal")
   if (tabID) {
     const tab = getTabRef(tabID)
     reqName.value = tab.value.document.request.name

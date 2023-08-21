@@ -113,13 +113,13 @@ const emit = defineEmits<{
 }>()
 
 const QoS = ref<(typeof QOS_VALUES)[number]>(2)
-const name = ref("")
+const editingName = ref("")
 const color = ref("#f58290")
 
 watch(
   () => props.show,
   () => {
-    name.value = ""
+    editingName.value = ""
     QoS.value = 2
     const randomColor = Math.floor(Math.random() * 16777215).toString(16)
     color.value = `#${randomColor}`
@@ -127,18 +127,18 @@ watch(
 )
 
 const addNewSubscription = () => {
-  if (!name.value) {
+  if (!editingName.value) {
     toastr.error(t("mqtt.invalid_topic").toString())
     return
   }
   emit("submit", {
-    name: name.value,
+    name: editingName.value,
     qos: QoS.value,
     color: color.value,
   })
 }
 const hideModal = () => {
-  name.value = ""
+  editingName.value = ""
   QoS.value = 2
   emit("hide-modal")
 }

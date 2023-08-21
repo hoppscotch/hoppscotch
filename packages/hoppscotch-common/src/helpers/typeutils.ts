@@ -6,7 +6,7 @@ export type FieldEquals<T, K extends keyof T, Vals extends T[K][]> = {
 export const objectFieldIncludes = <
   T,
   K extends keyof T,
-  V extends readonly T[K][]
+  V extends readonly T[K][],
 >(
   obj: T,
   field: K,

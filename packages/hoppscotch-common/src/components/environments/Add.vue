@@ -11,7 +11,7 @@
             t("environment.name")
           }}</label>
           <input
-            v-model="name"
+            v-model="editingName"
             type="text"
             :placeholder="t('environment.variable')"
             class="input"
@@ -88,7 +88,6 @@ const props = defineProps<{
   position: { top: number; left: number }
   name: string
   value: string
-  replaceWithVariable: boolean
 }>()
 
 const emit = defineEmits<{
@@ -106,7 +105,7 @@ watch(
       scope.value = {
         type: "global",
       }
-      name.value = ""
+      editingName.value = ""
       replaceWithVariable.value = false
     }
   }
@@ -132,22 +131,22 @@ const scope = ref<Scope>({
 
 const replaceWithVariable = ref(false)
 
-const name = ref("")
+const editingName = ref(props.name)
 
 const addEnvironment = async () => {
-  if (!name.value) {
+  if (!editingName.value) {
     toast.error(`${t("environment.invalid_name")}`)
     return
   }
   if (scope.value.type === "global") {
     addGlobalEnvVariable({
-      key: name.value,
+      key: editingName.value,
       value: props.value,
     })
     toast.success(`${t("environment.updated")}`)
   } else if (scope.value.type === "my-environment") {
     addEnvironmentVariable(scope.value.index, {
-      key: name.value,
+      key: editingName.value,
       value: props.value,
     })
     toast.success(`${t("environment.updated")}`)
@@ -155,7 +154,7 @@ const addEnvironment = async () => {
     const newVariables = [
       ...scope.value.environment.environment.variables,
       {
-        key: name.value,
+        key: editingName.value,
         value: props.value,
       },
     ]
@@ -179,7 +178,7 @@ const addEnvironment = async () => {
   }
   if (replaceWithVariable.value) {
     //replace the current tab endpoint with the variable name with << and >>
-    const variableName = `<<${name.value}>>`
+    const variableName = `<<${editingName.value}>>`
     //replace the currenttab endpoint containing the value in the text with variablename
     currentActiveTab.value.document.request.endpoint =
       currentActiveTab.value.document.request.endpoint.replace(

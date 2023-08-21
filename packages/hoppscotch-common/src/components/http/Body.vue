@@ -28,7 +28,9 @@
             >
               <HoppSmartItem
                 :label="t('state.none')"
-                :info-icon="(body.contentType === null ? IconDone : null) as any"
+                :info-icon="
+                  (body.contentType === null ? IconDone : null) as any
+                "
                 :active-info-icon="body.contentType === null"
                 @click="
                   () => {

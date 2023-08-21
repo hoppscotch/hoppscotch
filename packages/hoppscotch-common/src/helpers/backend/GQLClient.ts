@@ -187,7 +187,7 @@ export type GQLError<T extends string> =
 export const runGQLQuery = <
   DocType,
   DocVarType extends AnyVariables,
-  DocErrorType extends string
+  DocErrorType extends string,
 >(
   args: RunQueryOptions<DocType, DocVarType>
 ): Promise<E.Either<GQLError<DocErrorType>, DocType>> => {
@@ -251,7 +251,7 @@ export const runGQLQuery = <
 export const runGQLSubscription = <
   DocType,
   DocVarType extends AnyVariables,
-  DocErrorType extends string
+  DocErrorType extends string,
 >(
   args: RunQueryOptions<DocType, DocVarType>
 ) => {
@@ -340,7 +340,7 @@ export const parseGQLErrorString = (s: string) =>
 export const runMutation = <
   DocType,
   DocVariables extends object | undefined,
-  DocErrors extends string
+  DocErrors extends string,
 >(
   mutation: TypedDocumentNode<DocType, DocVariables>,
   variables: DocVariables,

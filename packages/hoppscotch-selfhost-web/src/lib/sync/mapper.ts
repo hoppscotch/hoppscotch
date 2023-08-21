@@ -1,6 +1,6 @@
 export const createMapper = <
   LocalIDType extends string | number,
-  BackendIDType extends string | number
+  BackendIDType extends string | number,
 >() => {
   const backendIDByLocalIDMap = new Map<
     LocalIDType,

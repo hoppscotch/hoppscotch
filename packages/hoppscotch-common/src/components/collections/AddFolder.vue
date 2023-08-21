@@ -57,27 +57,27 @@ const emit = defineEmits<{
   (e: "add-folder", name: string): void
 }>()
 
-const name = ref("")
+const editingName = ref("")
 
 watch(
   () => props.show,
   (show) => {
     if (!show) {
-      name.value = ""
+      editingName.value = ""
     }
   }
 )
 
 const addFolder = () => {
-  if (name.value.trim() === "") {
+  if (editingName.value.trim() === "") {
     toast.error(t("folder.invalid_name"))
     return
   }
-  emit("add-folder", name.value)
+  emit("add-folder", editingName.value)
 }
 
 const hideModal = () => {
-  name.value = ""
+  editingName.value = ""
   emit("hide-modal")
 }
 </script>

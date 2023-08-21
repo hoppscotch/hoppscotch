@@ -57,28 +57,28 @@ const emit = defineEmits<{
   (e: "hide-modal"): void
 }>()
 
-const name = ref("")
+const editingName = ref("")
 
 watch(
   () => props.show,
   (show) => {
     if (!show) {
-      name.value = ""
+      editingName.value = ""
     }
   }
 )
 
 const addNewCollection = () => {
-  if (!name.value) {
+  if (!editingName.value) {
     toast.error(t("collection.invalid_name"))
     return
   }
 
-  emit("submit", name.value)
+  emit("submit", editingName.value)
 }
 
 const hideModal = () => {
-  name.value = ""
+  editingName.value = ""
   emit("hide-modal")
 }
 </script>

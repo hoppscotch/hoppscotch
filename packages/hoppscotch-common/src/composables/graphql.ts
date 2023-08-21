@@ -39,7 +39,7 @@ type UseQueryOptions<T = any, V = object> = {
 export const useGQLQuery = <
   DocType,
   DocVarType extends AnyVariables,
-  DocErrorType extends string
+  DocErrorType extends string,
 >(
   _args: UseQueryOptions<DocType, DocVarType>
 ) => {

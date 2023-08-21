@@ -1318,7 +1318,7 @@ export function moveGraphqlRequest(
 }
 
 function removeDuplicateCollectionsFromPath<
-  T extends HoppRESTRequest | HoppGQLRequest
+  T extends HoppRESTRequest | HoppGQLRequest,
 >(
   idToRemove: string,
   collectionPath: string | null,

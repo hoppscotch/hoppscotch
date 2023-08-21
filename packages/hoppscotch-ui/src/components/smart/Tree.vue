@@ -22,7 +22,7 @@
               :node="node as TreeNode<T>"
               :toggle-children="toggleChildren as () => void"
               :is-open="isOpen as boolean"
-              :highlight-children="(id:string|null) => highlightChildren(id)"
+              :highlight-children="(id: string | null) => highlightChildren(id)"
             ></slot>
           </template>
 
@@ -43,7 +43,8 @@
       v-if="rootNodes.status === 'loaded' && rootNodes.data.length === 0"
       class="flex flex-col flex-1"
     >
-      <slot name="emptyNode" :node="(null as TreeNode<T> | null)"></slot>
+      <!-- eslint-disable-next-line vue/no-deprecated-filter -->
+      <slot name="emptyNode" :node="null as TreeNode<T> | null"></slot>
     </div>
   </div>
 </template>

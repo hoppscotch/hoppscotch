@@ -260,8 +260,7 @@ export function useCodemirror(
 
             el.addEventListener("mouseup", debounceFn)
             el.addEventListener("keyup", debounceFn)
-            const cursorPos = update.state.selection.main.head
-            const line = update.state.doc.lineAt(cursorPos)
+
             if (options.onUpdate) {
               options.onUpdate(update)
             }

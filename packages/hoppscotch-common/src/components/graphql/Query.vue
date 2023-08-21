@@ -179,8 +179,7 @@ onMounted(() => {
   } catch (error) {}
 })
 
-// @ts-ignore - codemirror is not typed
-const codemirror = useCodemirror(
+useCodemirror(
   queryEditor,
   gqlQueryString,
   reactive({

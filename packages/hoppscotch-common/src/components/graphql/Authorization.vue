@@ -165,7 +165,8 @@
               placeholder="Token"
             />
           </div>
-          <HttpOAuth2Authorization v-model="(auth as HoppGQLAuthOAuth2)" />
+          <!-- eslint-disable-next-line vue/valid-v-model -->
+          <HttpOAuth2Authorization v-model="auth as HoppGQLAuthOAuth2" />
         </div>
         <div v-if="authType === 'api-key'">
           <div class="flex flex-1 border-b border-dividerLight">

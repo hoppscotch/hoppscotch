@@ -1,6 +1,6 @@
 /* eslint-disable no-restricted-globals, no-restricted-syntax */
 
-import { clone, assign, isEmpty, cloneDeep } from "lodash-es"
+import { clone, assign, isEmpty } from "lodash-es"
 import {
   translateToNewRESTCollection,
   translateToNewGQLCollection,
@@ -48,7 +48,6 @@ import {
   persistableTabState,
 } from "~/helpers/rest/tab"
 import {
-  HoppGQLTab,
   loadTabsFromPersistedState as loadGQLTabsFromPersistedState,
   persistableTabState as persistableGQLTabState,
 } from "~/helpers/graphql/tab"

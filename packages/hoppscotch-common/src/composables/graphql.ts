@@ -17,6 +17,7 @@ import {
   parseGQLErrorString,
 } from "@helpers/backend/GQLClient"
 import {
+  AnyVariables,
   createRequest,
   GraphQLRequest,
   OperationResult,
@@ -35,7 +36,11 @@ type UseQueryOptions<T = any, V = object> = {
   pollDuration?: number | undefined
 }
 
-export const useGQLQuery = <DocType, DocVarType, DocErrorType extends string>(
+export const useGQLQuery = <
+  DocType,
+  DocVarType extends AnyVariables,
+  DocErrorType extends string,
+>(
   _args: UseQueryOptions<DocType, DocVarType>
 ) => {
   const stops: WatchStopHandle[] = []

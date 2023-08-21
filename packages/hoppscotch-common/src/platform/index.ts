@@ -6,6 +6,7 @@ import { SettingsPlatformDef } from "./settings"
 import { HistoryPlatformDef } from "./history"
 import { TabStatePlatformDef } from "./tab"
 import { AnalyticsPlatformDef } from "./analytics"
+import { InterceptorsPlatformDef } from "./interceptors"
 
 export type PlatformDef = {
   ui?: UIPlatformDef
@@ -18,6 +19,7 @@ export type PlatformDef = {
     history: HistoryPlatformDef
     tabState: TabStatePlatformDef
   }
+  interceptors: InterceptorsPlatformDef
   platformFeatureFlags: {
     exportAsGIST: boolean
   }

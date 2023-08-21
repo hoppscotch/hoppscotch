@@ -63,15 +63,18 @@
 
 <script setup lang="ts">
 import { platform } from "~/platform"
-import { getCurrentStrategyID } from "~/helpers/network"
 import { useI18n } from "@composables/i18n"
 import { currentActiveTab } from "~/helpers/graphql/tab"
 import { computed, ref, watch } from "vue"
 import { connection } from "~/helpers/graphql/connection"
 import { connect } from "~/helpers/graphql/connection"
 import { disconnect } from "~/helpers/graphql/connection"
+import { InterceptorService } from "~/services/interceptor.service"
+import { useService } from "dioc/vue"
 
 const t = useI18n()
+
+const interceptorService = useService(InterceptorService)
 
 const connectionSwitchModal = ref(false)
 
@@ -100,7 +103,7 @@ const gqlConnect = () => {
   platform.analytics?.logEvent({
     type: "HOPP_REQUEST_RUN",
     platform: "graphql-schema",
-    strategy: getCurrentStrategyID(),
+    strategy: interceptorService.currentInterceptorID.value!,
   })
 }
 

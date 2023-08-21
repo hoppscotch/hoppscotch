@@ -154,7 +154,7 @@ const duplicateEnvironments = () => {
         toast.error(`${getErrorMessage(err)}`)
       },
       () => {
-        toast.success(`${t("team_environment.duplicate")}`)
+        toast.success(`${t("environment.duplicated")}`)
       }
     )
   )()

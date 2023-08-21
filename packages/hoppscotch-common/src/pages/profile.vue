@@ -23,7 +23,7 @@
         <div v-else class="space-y-8">
           <div
             class="h-24 rounded bg-primaryLight -mb-11 md:h-32"
-            style="background-image: url('/images/cover.svg')"
+            style="background-image: url(&quot;/images/cover.svg&quot;)"
           ></div>
           <div class="flex flex-col justify-between px-4 space-y-8 md:flex-row">
             <div class="flex items-end">

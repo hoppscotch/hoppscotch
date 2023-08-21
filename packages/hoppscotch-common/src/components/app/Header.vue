@@ -382,6 +382,22 @@ const settings = ref<any | null>(null)
 const logout = ref<any | null>(null)
 const accountActions = ref<any | null>(null)
 
+defineActionHandler("modals.team.edit", () => {
+  // TODO: Remove this hack
+  setTimeout(() => {
+    handleTeamEdit()
+  }, 100)
+})
+
+defineActionHandler("modals.team.invite", () => {
+  if (
+    selectedTeam.value?.myRole === "OWNER" ||
+    selectedTeam.value?.myRole === "EDITOR"
+  ) {
+    inviteTeam({ name: selectedTeam.value.name }, selectedTeam.value.id)
+  }
+})
+
 defineActionHandler(
   "user.login",
   () => {

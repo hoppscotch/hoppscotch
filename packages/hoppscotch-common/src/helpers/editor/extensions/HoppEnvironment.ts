@@ -71,9 +71,9 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
 
       const selectedEnvType = getSelectedEnvironmentType()
 
-      const envTypeIcon = `<i class="inline-flex -my-1 -mx-0.5 opacity-65 items-center text-base material-icons border-secondary">${
-        selectedEnvType === "TEAM_ENV" ? "people" : "person"
-      }</i>`
+      const envTypeIcon = `<span class="inline-flex -my-2 -mx-0.5 opacity-65 items-center text-base font-icon">${
+        selectedEnvType === "TEAM_ENV" ? "group" : "person"
+      }</span>`
 
       const appendEditAction = (tooltip: HTMLElement) => {
         const editIcon = document.createElement("span")
@@ -88,7 +88,7 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
             variableName: parsedEnvKey,
           })
         })
-        editIcon.innerHTML = `<i class="inline-flex items-center px-1 -mx-1 -my-1 text-base material-icons border-secondary">drive_file_rename_outline</i>`
+        editIcon.innerHTML = `<span class="inline-flex items-center px-1 -mx-1 -my-2 text-base font-icon">edit</span>`
         tooltip.appendChild(editIcon)
       }
 

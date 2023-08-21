@@ -1,5 +1,5 @@
 import { pluck, distinctUntilChanged } from "rxjs/operators"
-import { has } from "lodash-es"
+import { cloneDeep, defaultsDeep, has } from "lodash-es"
 import { Observable } from "rxjs"
 
 import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
@@ -32,9 +32,10 @@ export type SettingsDef = {
   syncHistory: boolean
   syncEnvironments: boolean
 
-  PROXY_ENABLED: boolean
   PROXY_URL: string
-  EXTENSIONS_ENABLED: boolean
+
+  CURRENT_INTERCEPTOR_ID: string
+
   URL_EXCLUDES: {
     auth: boolean
     httpUser: boolean
@@ -53,14 +54,15 @@ export type SettingsDef = {
   COLUMN_LAYOUT: boolean
 }
 
-export const defaultSettings: SettingsDef = {
+export const getDefaultSettings = (): SettingsDef => ({
   syncCollections: true,
   syncHistory: true,
   syncEnvironments: true,
 
-  PROXY_ENABLED: false,
+  CURRENT_INTERCEPTOR_ID: "browser", // TODO: Allow the platform definition to take this place
+
+  // TODO: Interceptor related settings should move under the interceptor systems
   PROXY_URL: "https://proxy.hoppscotch.io/",
-  EXTENSIONS_ENABLED: false,
   URL_EXCLUDES: {
     auth: true,
     httpUser: true,
@@ -77,7 +79,7 @@ export const defaultSettings: SettingsDef = {
   ZEN_MODE: false,
   FONT_SIZE: "small",
   COLUMN_LAYOUT: true,
-}
+})
 
 type ApplySettingPayload = {
   [K in keyof SettingsDef]: {
@@ -85,8 +87,6 @@ type ApplySettingPayload = {
     value: SettingsDef[K]
   }
 }[keyof SettingsDef]
-
-const validKeys = Object.keys(defaultSettings)
 
 const dispatchers = defineDispatchers({
   bulkApplySettings(_currentState: SettingsDef, payload: Partial<SettingsDef>) {
@@ -112,13 +112,6 @@ const dispatchers = defineDispatchers({
     _currentState: SettingsDef,
     { settingKey, value }: ApplySettingPayload
   ) {
-    if (!validKeys.includes(settingKey)) {
-      // console.log(
-      //   `Ignoring non-existent setting key '${settingKey}' assignment`
-      // )
-      return {}
-    }
-
     const result: Partial<SettingsDef> = {
       [settingKey]: value,
     }
@@ -127,7 +120,10 @@ const dispatchers = defineDispatchers({
   },
 })
 
-export const settingsStore = new DispatchingStore(defaultSettings, dispatchers)
+export const settingsStore = new DispatchingStore(
+  getDefaultSettings(),
+  dispatchers
+)
 
 /**
  * An observable value to make avail all the state information at once
@@ -156,16 +152,39 @@ export function toggleSetting(settingKey: KeysMatching<SettingsDef, boolean>) {
   })
 }
 
-export function applySetting<K extends ApplySettingPayload>(
-  settingKey: K["settingKey"],
-  value: K["value"]
+export function applySetting<K extends keyof SettingsDef>(
+  settingKey: K,
+  value: SettingsDef[K]
 ) {
   settingsStore.dispatch({
     dispatcher: "applySetting",
-    // @ts-expect-error TS is not able to understand the type semantics here
     payload: {
+      // @ts-expect-error TS is not able to understand the type semantics here
       settingKey,
+      // @ts-expect-error TS is not able to understand the type semantics here
       value,
     },
   })
+}
+
+export function performSettingsDataMigrations(data: any): SettingsDef {
+  const source = cloneDeep(data)
+
+  if (source["EXTENSIONS_ENABLED"]) {
+    const result = JSON.parse(source["EXTENSIONS_ENABLED"])
+
+    if (result) source["CURRENT_INTERCEPTOR_ID"] = "extension"
+    delete source["EXTENSIONS_ENABLED"]
+  }
+
+  if (source["PROXY_ENABLED"]) {
+    const result = JSON.parse(source["PROXY_ENABLED"])
+
+    if (result) source["CURRENT_INTERCEPTOR_ID"] = "proxy"
+    delete source["PROXY_ENABLED"]
+  }
+
+  const final = defaultsDeep(source, getDefaultSettings())
+
+  return final
 }

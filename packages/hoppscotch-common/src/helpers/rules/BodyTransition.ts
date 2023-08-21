@@ -25,7 +25,7 @@ type BodyType<T extends ValidContentTypes | null | ANY_TYPE> =
 
 type TransitionDefinition<
   FromType extends ValidContentTypes | null | ANY_TYPE,
-  ToType extends ValidContentTypes | null | ANY_TYPE
+  ToType extends ValidContentTypes | null | ANY_TYPE,
 > = {
   from: FromType
   to: ToType
@@ -37,7 +37,7 @@ type TransitionDefinition<
 
 const rule = <
   FromType extends ValidContentTypes | null | ANY_TYPE,
-  ToType extends ValidContentTypes | null | ANY_TYPE
+  ToType extends ValidContentTypes | null | ANY_TYPE,
 >(
   input: TransitionDefinition<FromType, ToType>
 ) => input

@@ -7,7 +7,7 @@
   >
     <template #body>
       <HoppSmartInput
-        v-model="name"
+        v-model="editingName"
         placeholder=" "
         :label="t('action.label')"
         input-styles="floating-input"
@@ -57,24 +57,24 @@ const emit = defineEmits<{
   ): void
 }>()
 
-const name = ref("")
+const editingName = ref("")
 
 watch(
   () => props.show,
   (show) => {
     if (show) {
-      name.value = currentActiveTab.value?.document.request.name
+      editingName.value = currentActiveTab.value?.document.request.name
     }
   }
 )
 
 const addRequest = () => {
-  if (!name.value) {
+  if (!editingName.value) {
     toast.error(`${t("error.empty_req_name")}`)
     return
   }
   emit("add-request", {
-    name: name.value,
+    name: editingName.value,
     path: props.folderPath,
   })
   hideModal()

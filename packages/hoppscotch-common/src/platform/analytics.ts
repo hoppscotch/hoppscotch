@@ -1,7 +1,7 @@
 export type HoppRequestEvent =
   | {
       platform: "rest" | "graphql-query" | "graphql-schema"
-      strategy: "normal" | "proxy" | "extension"
+      strategy: string
     }
   | { platform: "wss" | "sse" | "socketio" | "mqtt" }
 

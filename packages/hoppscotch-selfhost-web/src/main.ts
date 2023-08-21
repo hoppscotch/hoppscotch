@@ -5,6 +5,9 @@ import { def as collectionsDef } from "./platform/collections/collections.platfo
 import { def as settingsDef } from "./platform/settings/settings.platform"
 import { def as historyDef } from "./platform/history/history.platform"
 import { def as tabStateDef } from "./platform/tabState/tabState.platform"
+import { browserInterceptor } from "@hoppscotch/common/platform/std/interceptors/browser"
+import { proxyInterceptor } from "@hoppscotch/common/platform/std/interceptors/proxy"
+import { ExtensionInterceptorService } from "@hoppscotch/common/platform/std/interceptors/extension"
 
 createHoppApp("#app", {
   auth: authDef,
@@ -14,6 +17,14 @@ createHoppApp("#app", {
     settings: settingsDef,
     history: historyDef,
     tabState: tabStateDef,
+  },
+  interceptors: {
+    default: "browser",
+    interceptors: [
+      { type: "standalone", interceptor: browserInterceptor },
+      { type: "standalone", interceptor: proxyInterceptor },
+      { type: "service", service: ExtensionInterceptorService },
+    ],
   },
   platformFeatureFlags: {
     exportAsGIST: false,

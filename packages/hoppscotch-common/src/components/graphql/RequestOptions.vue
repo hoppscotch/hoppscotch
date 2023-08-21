@@ -56,7 +56,6 @@ import * as gql from "graphql"
 import { clone } from "lodash-es"
 import { computed, ref, watch } from "vue"
 import { defineActionHandler } from "~/helpers/actions"
-import { getCurrentStrategyID } from "~/helpers/network"
 import { HoppGQLRequest } from "@hoppscotch/data"
 import { platform } from "~/platform"
 import { currentActiveTab } from "~/helpers/graphql/tab"
@@ -66,9 +65,12 @@ import {
   runGQLOperation,
   gqlMessageEvent,
 } from "~/helpers/graphql/connection"
+import { useService } from "dioc/vue"
+import { InterceptorService } from "~/services/interceptor.service"
 
 type OptionTabs = "query" | "headers" | "variables" | "authorization"
 const selectedOptionTab = ref<OptionTabs>("query")
+const interceptorService = useService(InterceptorService)
 
 const t = useI18n()
 const toast = useToast()
@@ -146,7 +148,7 @@ const runQuery = async (
   platform.analytics?.logEvent({
     type: "HOPP_REQUEST_RUN",
     platform: "graphql-query",
-    strategy: getCurrentStrategyID(),
+    strategy: interceptorService.currentInterceptorID.value!,
   })
 }
 

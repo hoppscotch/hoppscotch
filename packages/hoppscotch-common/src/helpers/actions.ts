@@ -6,6 +6,7 @@ import { Ref, onBeforeUnmount, onMounted, watch } from "vue"
 import { BehaviorSubject } from "rxjs"
 import { HoppRESTDocument } from "./rest/document"
 import { HoppGQLRequest, HoppRESTRequest } from "@hoppscotch/data"
+import { RequestOptionTabs } from "~/components/http/RequestOptions.vue"
 
 export type HoppAction =
   | "contextmenu.open" // Send/Cancel a Hoppscotch Request
@@ -14,6 +15,7 @@ export type HoppAction =
   | "request.copy-link" // Copy Request Link
   | "request.save" // Save to Collections
   | "request.save-as" // Save As
+  | "rest.request.rename" // Rename
   | "request.method.next" // Select Next Method
   | "request.method.prev" // Select Previous Method
   | "request.method.get" // Select GET Method
@@ -21,13 +23,22 @@ export type HoppAction =
   | "request.method.post" // Select POST Method
   | "request.method.put" // Select PUT Method
   | "request.method.delete" // Select DELETE Method
+  | "request.import-curl" // Import cURL
+  | "request.show-code" // Show generated code
+  | "flyouts.chat.open" // Shows the keybinds flyout
   | "flyouts.keybinds.toggle" // Shows the keybinds flyout
   | "modals.search.toggle" // Shows the search modal
   | "modals.support.toggle" // Shows the support modal
   | "modals.share.toggle" // Shows the share modal
+  | "modals.social.toggle" // Shows the social links modal
   | "modals.environment.add" // Show add environment modal via context menu
+  | "modals.environment.new" // Add new environment
   | "modals.my.environment.edit" // Edit current personal environment
   | "modals.team.environment.edit" // Edit current team environment
+  | "modals.team.new" // Add new team
+  | "modals.team.edit" // Edit selected team
+  | "modals.team.invite" // Invite selected team
+  | "workspace.switch.personal" // Switch to personal workspace
   | "navigation.jump.rest" // Jump to REST page
   | "navigation.jump.graphql" // Jump to GraphQL page
   | "navigation.jump.realtime" // Jump to realtime page
@@ -74,6 +85,12 @@ type HoppActionArgsMap = {
     envName: string
     variableName?: string
   }
+  "modals.team.delete": {
+    teamId: string
+  }
+  "workspace.switch": {
+    teamId: string
+  }
   "rest.request.open": {
     doc: HoppRESTDocument
   }
@@ -86,6 +103,10 @@ type HoppActionArgsMap = {
         requestType: "gql"
         request: HoppGQLRequest
       }
+  "request.open-tab": {
+    tab: RequestOptionTabs
+  }
+
   "gql.request.open": {
     request: HoppGQLRequest
   }
@@ -154,7 +175,7 @@ type InvokeActionFunc = {
  * @param args The argument passed to the action handler. Optional if action has no args required
  */
 export const invokeAction: InvokeActionFunc = <
-  A extends HoppAction | HoppActionWithArgs
+  A extends HoppAction | HoppActionWithArgs,
 >(
   action: A,
   args: ArgOfHoppAction<A>

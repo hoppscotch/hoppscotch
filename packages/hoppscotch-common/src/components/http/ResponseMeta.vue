@@ -17,6 +17,7 @@
         :alt="`${t('error.network_fail')}`"
         :heading="t('error.network_fail')"
         :text="t('helpers.network_fail')"
+        large
       >
         <AppInterceptor class="p-2 border rounded border-dividerLight" />
       </HoppSmartPlaceholder>
@@ -26,6 +27,7 @@
         :alt="`${t('error.script_fail')}`"
         :label="t('error.script_fail')"
         :text="t('helpers.script_fail')"
+        large
       >
         <div
           class="mt-2 w-full px-4 py-2 overflow-auto font-mono text-red-400 whitespace-normal rounded bg-primaryLight"

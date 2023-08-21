@@ -221,6 +221,7 @@ a {
 
 [data-v-tippy] {
   @apply flex flex-1;
+  @apply truncate;
 }
 
 [interactive] > div {

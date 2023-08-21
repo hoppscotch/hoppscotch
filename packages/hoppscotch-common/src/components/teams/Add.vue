@@ -50,14 +50,14 @@ const emit = defineEmits<{
   (e: "hide-modal"): void
 }>()
 
-const name = ref<string | null>(null)
+const editingName = ref<string | null>(null)
 
 const isLoading = ref(false)
 
 const addNewTeam = async () => {
   isLoading.value = true
   await pipe(
-    TeamNameCodec.decode(name.value),
+    TeamNameCodec.decode(editingName.value),
     TE.fromEither,
     TE.mapLeft(() => "invalid_name" as const),
     TE.chainW(createTeam),
@@ -86,7 +86,7 @@ const addNewTeam = async () => {
 }
 
 const hideModal = () => {
-  name.value = null
+  editingName.value = null
   emit("hide-modal")
 }
 </script>

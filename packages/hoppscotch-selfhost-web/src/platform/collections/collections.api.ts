@@ -248,6 +248,7 @@ export const getUserRootCollections = () =>
     ""
   >({
     query: GetUserRootCollectionsDocument,
+    variables: {},
   })
 
 export const getGQLRootUserCollections = () =>
@@ -257,6 +258,7 @@ export const getGQLRootUserCollections = () =>
     ""
   >({
     query: GetGqlRootUserCollectionsDocument,
+    variables: {},
   })
 
 export const exportUserCollectionsToJSON = (
@@ -273,30 +275,31 @@ export const exportUserCollectionsToJSON = (
   })
 
 export const runUserCollectionCreatedSubscription = () =>
-  runGQLSubscription({ query: UserCollectionCreatedDocument })
+  runGQLSubscription({ query: UserCollectionCreatedDocument, variables: {} })
 
 export const runUserCollectionUpdatedSubscription = () =>
-  runGQLSubscription({ query: UserCollectionUpdatedDocument })
+  runGQLSubscription({ query: UserCollectionUpdatedDocument, variables: {} })
 
 export const runUserCollectionRemovedSubscription = () =>
-  runGQLSubscription({ query: UserCollectionRemovedDocument })
+  runGQLSubscription({ query: UserCollectionRemovedDocument, variables: {} })
 
 export const runUserCollectionMovedSubscription = () =>
-  runGQLSubscription({ query: UserCollectionMovedDocument })
+  runGQLSubscription({ query: UserCollectionMovedDocument, variables: {} })
 
 export const runUserCollectionOrderUpdatedSubscription = () =>
   runGQLSubscription({
     query: UserCollectionOrderUpdatedDocument,
+    variables: {},
   })
 
 export const runUserRequestCreatedSubscription = () =>
-  runGQLSubscription({ query: UserRequestCreatedDocument })
+  runGQLSubscription({ query: UserRequestCreatedDocument, variables: {} })
 
 export const runUserRequestUpdatedSubscription = () =>
-  runGQLSubscription({ query: UserRequestUpdatedDocument })
+  runGQLSubscription({ query: UserRequestUpdatedDocument, variables: {} })
 
 export const runUserRequestMovedSubscription = () =>
-  runGQLSubscription({ query: UserRequestMovedDocument })
+  runGQLSubscription({ query: UserRequestMovedDocument, variables: {} })
 
 export const runUserRequestDeletedSubscription = () =>
-  runGQLSubscription({ query: UserRequestDeletedDocument })
+  runGQLSubscription({ query: UserRequestDeletedDocument, variables: {} })

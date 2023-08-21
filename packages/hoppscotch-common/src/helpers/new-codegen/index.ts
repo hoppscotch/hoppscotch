@@ -1,4 +1,4 @@
-import HTTPSnippet from "httpsnippet"
+import { HTTPSnippet } from "httpsnippet"
 import { HoppRESTRequest } from "@hoppscotch/data"
 import * as O from "fp-ts/Option"
 import * as E from "fp-ts/Either"

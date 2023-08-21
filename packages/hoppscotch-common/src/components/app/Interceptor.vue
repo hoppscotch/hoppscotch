@@ -8,91 +8,41 @@
         {{ t("settings.interceptor_description") }}
       </p>
     </div>
-    <HoppSmartRadioGroup
-      v-model="interceptorSelection"
-      :radios="interceptors"
-    />
-    <div
-      v-if="interceptorSelection == 'EXTENSIONS_ENABLED' && !extensionVersion"
-      class="flex space-x-2"
-    >
-      <HoppButtonSecondary
-        to="https://chrome.google.com/webstore/detail/hoppscotch-browser-extens/amknoiejhlmhancpahfcfcfhllgkpbld"
-        blank
-        :icon="IconChrome"
-        label="Chrome"
-        outline
-        class="!flex-1"
-      />
-      <HoppButtonSecondary
-        to="https://addons.mozilla.org/en-US/firefox/addon/hoppscotch"
-        blank
-        :icon="IconFirefox"
-        label="Firefox"
-        outline
-        class="!flex-1"
-      />
+
+    <div>
+      <div
+        v-for="interceptor in interceptors"
+        :key="interceptor.interceptorID"
+        class="flex flex-col"
+      >
+        <HoppSmartRadio
+          :value="interceptor.interceptorID"
+          :label="unref(interceptor.name(t))"
+          :selected="interceptorSelection === interceptor.interceptorID"
+          @change="interceptorSelection = interceptor.interceptorID"
+        />
+
+        <component
+          :is="interceptor.selectorSubtitle"
+          v-if="interceptor.selectorSubtitle"
+        />
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import IconChrome from "~icons/brands/chrome"
-import IconFirefox from "~icons/brands/firefox"
-import { computed } from "vue"
-import { applySetting, toggleSetting } from "~/newstore/settings"
-import { useSetting } from "@composables/settings"
 import { useI18n } from "@composables/i18n"
-import { useReadonlyStream } from "@composables/stream"
-import { extensionStatus$ } from "~/newstore/HoppExtension"
+import { useService } from "dioc/vue"
+import { Ref, unref } from "vue"
+import { InterceptorService } from "~/services/interceptor.service"
 
 const t = useI18n()
 
-const PROXY_ENABLED = useSetting("PROXY_ENABLED")
-const EXTENSIONS_ENABLED = useSetting("EXTENSIONS_ENABLED")
+const interceptorService = useService(InterceptorService)
 
-const currentExtensionStatus = useReadonlyStream(extensionStatus$, null)
+const interceptorSelection =
+  interceptorService.currentInterceptorID as Ref<string>
 
-const extensionVersion = computed(() => {
-  return currentExtensionStatus.value === "available"
-    ? window.__POSTWOMAN_EXTENSION_HOOK__?.getVersion() ?? null
-    : null
-})
-
-const interceptors = computed(() => [
-  { value: "BROWSER_ENABLED" as const, label: t("state.none") },
-  { value: "PROXY_ENABLED" as const, label: t("settings.proxy") },
-  {
-    value: "EXTENSIONS_ENABLED" as const,
-    label:
-      `${t("settings.extensions")}: ` +
-      (extensionVersion.value !== null
-        ? `v${extensionVersion.value.major}.${extensionVersion.value.minor}`
-        : t("settings.extension_ver_not_reported")),
-  },
-])
-
-type InterceptorMode = (typeof interceptors)["value"][number]["value"]
-
-const interceptorSelection = computed<InterceptorMode>({
-  get() {
-    if (PROXY_ENABLED.value) return "PROXY_ENABLED"
-    if (EXTENSIONS_ENABLED.value) return "EXTENSIONS_ENABLED"
-    return "BROWSER_ENABLED"
-  },
-  set(val) {
-    if (val === "EXTENSIONS_ENABLED") {
-      applySetting("EXTENSIONS_ENABLED", true)
-      if (PROXY_ENABLED.value) toggleSetting("PROXY_ENABLED")
-    }
-    if (val === "PROXY_ENABLED") {
-      applySetting("PROXY_ENABLED", true)
-      if (EXTENSIONS_ENABLED.value) toggleSetting("EXTENSIONS_ENABLED")
-    }
-    if (val === "BROWSER_ENABLED") {
-      applySetting("PROXY_ENABLED", false)
-      applySetting("EXTENSIONS_ENABLED", false)
-    }
-  },
-})
+const interceptors = interceptorService.availableInterceptors
 </script>

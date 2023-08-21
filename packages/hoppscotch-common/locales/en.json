@@ -680,6 +680,7 @@
       "edit": "Edit selected team",
       "delete": "Delete selected team",
       "invite": "Invite people to team",
+      "switch_to_personal": "Switch to personal workspace",
       "title": "Teams"
     },
     "tab": {

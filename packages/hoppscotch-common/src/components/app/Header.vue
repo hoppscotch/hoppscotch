@@ -383,14 +383,10 @@ const logout = ref<any | null>(null)
 const accountActions = ref<any | null>(null)
 
 defineActionHandler("modals.team.edit", () => {
-  if (
-    selectedTeam.value?.myRole === "OWNER" ||
-    selectedTeam.value?.myRole === "EDITOR"
-  ) {
-    editingTeamID.value = selectedTeam.value.id
-    editingTeamName.value = { name: selectedTeam.value.name }
-    displayModalEdit(true)
-  }
+  // TODO: Remove this hack
+  setTimeout(() => {
+    handleTeamEdit()
+  }, 100)
 })
 
 defineActionHandler("modals.team.invite", () => {

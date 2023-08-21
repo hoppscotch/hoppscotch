@@ -38,7 +38,7 @@ export type HoppAction =
   | "modals.team.new" // Add new team
   | "modals.team.edit" // Edit selected team
   | "modals.team.invite" // Invite selected team
-  | "modals.team.delete" // Delete selected team
+  | "workspace.switch.personal" // Switch to personal workspace
   | "navigation.jump.rest" // Jump to REST page
   | "navigation.jump.graphql" // Jump to GraphQL page
   | "navigation.jump.realtime" // Jump to realtime page
@@ -83,6 +83,9 @@ type HoppActionArgsMap = {
   "modals.team.environment.edit": {
     envName: string
     variableName?: string
+  }
+  "modals.team.delete": {
+    teamId: string
   }
   "rest.request.open": {
     doc: HoppRESTDocument

@@ -159,4 +159,6 @@ const displayModalAdd = (shouldDisplay: boolean) => {
 defineActionHandler("modals.team.new", () => {
   displayModalAdd(true)
 })
+
+defineActionHandler("workspace.switch.personal", switchToPersonalWorkspace)
 </script>

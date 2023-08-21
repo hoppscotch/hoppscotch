@@ -93,7 +93,7 @@ import IconCheck from "~icons/lucide/check"
 import IconInfo from "~icons/lucide/info"
 import IconWand from "~icons/lucide/wand"
 import IconWrapText from "~icons/lucide/wrap-text"
-import { onMounted, reactive, ref } from "vue"
+import { onMounted, reactive, ref, markRaw } from "vue"
 import { copyToClipboard } from "@helpers/utils/clipboard"
 import { useCodemirror } from "@composables/codemirror"
 import { useI18n } from "@composables/i18n"
@@ -192,7 +192,7 @@ const codemirror = useCodemirror(
     linter: createGQLQueryLinter(schema),
     completer: queryCompleter(schema),
     environmentHighlights: false,
-    additionalExts: [selectedGQLOpHighlight],
+    additionalExts: [markRaw(selectedGQLOpHighlight)],
     onUpdate: debouncedOnUpdateQueryState,
   })
 )

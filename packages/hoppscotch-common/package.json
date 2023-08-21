@@ -63,7 +63,7 @@
     "graphql": "^16.8.0",
     "graphql-language-service-interface": "^2.9.1",
     "graphql-tag": "^2.12.6",
-    "httpsnippet": "^3.0.1",
+    "httpsnippet": "^2.0.0",
     "insomnia-importers": "^3.6.0",
     "io-ts": "^2.2.20",
     "js-yaml": "^4.1.0",

@@ -161,4 +161,8 @@ defineActionHandler("modals.team.new", () => {
 })
 
 defineActionHandler("workspace.switch.personal", switchToPersonalWorkspace)
+defineActionHandler("workspace.switch", ({ teamId }) => {
+  const team = myTeams.value.find((t) => t.id === teamId)
+  if (team) switchToTeamWorkspace(team)
+})
 </script>

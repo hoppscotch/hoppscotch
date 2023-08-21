@@ -87,6 +87,9 @@ type HoppActionArgsMap = {
   "modals.team.delete": {
     teamId: string
   }
+  "workspace.switch": {
+    teamId: string
+  }
   "rest.request.open": {
     doc: HoppRESTDocument
   }

@@ -107,7 +107,10 @@ import {
   EnvironmentsSpotlightSearcherService,
   SwitchEnvSpotlightSearcherService,
 } from "~/services/spotlight/searchers/environment.searcher"
-import { WorkspaceSpotlightSearcherService } from "~/services/spotlight/searchers/workspace.searcher"
+import {
+  SwitchWorkspaceSpotlightSearcherService,
+  WorkspaceSpotlightSearcherService,
+} from "~/services/spotlight/searchers/workspace.searcher"
 
 const t = useI18n()
 
@@ -134,6 +137,7 @@ useService(RequestSpotlightSearcherService)
 useService(EnvironmentsSpotlightSearcherService)
 useService(SwitchEnvSpotlightSearcherService)
 useService(WorkspaceSpotlightSearcherService)
+useService(SwitchWorkspaceSpotlightSearcherService)
 
 const search = ref("")
 

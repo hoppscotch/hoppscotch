@@ -27,16 +27,20 @@
   <HoppSmartModal
     v-if="connectionSwitchModal"
     dialog
-    :title="t('modal.edit_request')"
+    :dimissible="false"
+    :title="t('graphql.switch_connection')"
     @close="connectionSwitchModal = false"
   >
     <template #body>
-      {{
-        t("graphql.connection_switch_description", {
-          url,
-          strategy: getCurrentStrategyID(),
-        })
-      }}
+      <p class="mb-4">
+        {{ t("graphql.connection_switch_url") }}:
+        <kbd class="shortcut-key !ml-0"> {{ oldUrl }} </kbd>
+      </p>
+      <p class="mb-4">
+        {{ t("graphql.connection_switch_new_url") }}:
+        <kbd class="shortcut-key !ml-0"> {{ url }} </kbd>
+      </p>
+      <p>{{ t("graphql.connection_switch_confirm") }}</p>
     </template>
     <template #footer>
       <span class="flex space-x-2">
@@ -61,7 +65,6 @@
 import { platform } from "~/platform"
 import { getCurrentStrategyID } from "~/helpers/network"
 import { useI18n } from "@composables/i18n"
-import { computedWithControl } from "@vueuse/core"
 import { currentActiveTab } from "~/helpers/graphql/tab"
 import { computed, ref, watch } from "vue"
 import { connection } from "~/helpers/graphql/connection"
@@ -75,26 +78,23 @@ const connectionSwitchModal = ref(false)
 const connected = computed(() => connection.state === "CONNECTED")
 
 const oldUrl = ref("")
-const url = computedWithControl(
-  () => currentActiveTab.value,
-  () => currentActiveTab.value?.document.request.url
-)
+
+const url = computed({
+  get: () => currentActiveTab.value?.document.request.url ?? "",
+  set: (value) => {
+    currentActiveTab.value!.document.request.url = value
+  },
+})
 
 const onConnectClick = () => {
   if (!connected.value) {
-    connect(url.value, currentActiveTab.value?.document.request.headers)
-
-    platform.analytics?.logEvent({
-      type: "HOPP_REQUEST_RUN",
-      platform: "graphql-schema",
-      strategy: getCurrentStrategyID(),
-    })
+    gqlConnect()
   } else {
     disconnect()
   }
 }
 
-const switchConnection = () => {
+const gqlConnect = () => {
   connect(url.value, currentActiveTab.value?.document.request.headers)
 
   platform.analytics?.logEvent({
@@ -102,19 +102,23 @@ const switchConnection = () => {
     platform: "graphql-schema",
     strategy: getCurrentStrategyID(),
   })
+}
+
+const switchConnection = () => {
+  gqlConnect()
   connectionSwitchModal.value = false
 }
 
-watch(currentActiveTab, (oldVal, newVal) => {
+watch(currentActiveTab, (newVal, oldVal) => {
   oldUrl.value = oldVal.document.request.url
-  if (oldUrl.value !== newVal.document.request.url) {
+  if (oldUrl.value !== newVal.document.request.url && connected.value) {
     disconnect()
     connectionSwitchModal.value = true
   }
 })
 
 const cancelSwitch = () => {
-  disconnect()
+  if (connected.value) disconnect()
   connectionSwitchModal.value = false
 }
 </script>

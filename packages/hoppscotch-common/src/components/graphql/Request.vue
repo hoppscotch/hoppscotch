@@ -31,10 +31,12 @@
     @close="connectionSwitchModal = false"
   >
     <template #body>
-      Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptatibus
-      provident architecto perspiciatis maxime quis ratione labore ipsum
-      voluptas laborum, suscipit culpa sapiente deleniti omnis, rerum tenetur?
-      Odit deleniti magnam earum.
+      {{
+        t("graphql.connection_switch_description", {
+          url,
+          strategy: getCurrentStrategyID(),
+        })
+      }}
     </template>
     <template #footer>
       <span class="flex space-x-2">
@@ -72,6 +74,7 @@ const connectionSwitchModal = ref(false)
 
 const connected = computed(() => connection.state === "CONNECTED")
 
+const oldUrl = ref("")
 const url = computedWithControl(
   () => currentActiveTab.value,
   () => currentActiveTab.value?.document.request.url
@@ -103,7 +106,8 @@ const switchConnection = () => {
 }
 
 watch(currentActiveTab, (oldVal, newVal) => {
-  if (oldVal.document.request.url !== newVal.document.request.url) {
+  oldUrl.value = oldVal.document.request.url
+  if (oldUrl.value !== newVal.document.request.url) {
     disconnect()
     connectionSwitchModal.value = true
   }

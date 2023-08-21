@@ -276,6 +276,7 @@
   "graphql": {
     "mutations": "Mutations",
     "schema": "Schema",
+    "connection_switch_description": "You're currently connected to {current} GraphQL endpoint. Switching to a tab with {latest} will disconnected you from the active GraphQL connection. Do you want to connect with the latest GraphQL endpoint?",
     "subscriptions": "Subscriptions"
   },
   "group": {

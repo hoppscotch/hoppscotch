@@ -5,10 +5,7 @@ datasource db {
 
 generator client {
   provider      = "prisma-client-js"
-  binaryTargets = ["native", "debian-openssl-1.1.x"]
-
-  // Implemented as part of a fix, see: https://github.com/prisma/prisma/issues/10649
-  engineType = "binary"
+  binaryTargets = ["native", "debian-openssl-1.1.x", "debian-openssl-3.0.x"]
 }
 
 model Team {

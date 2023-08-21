@@ -1,4 +1,4 @@
-FROM node:18-bookworm as base_builder
+FROM node:18-alpine3.16 as base_builder
 
 WORKDIR /usr/src/app
 
@@ -49,13 +49,12 @@ EXPOSE 8080
 CMD ["/bin/sh", "-c", "node /usr/prod_run.mjs && caddy run --config /etc/caddy/Caddyfile --adapter caddyfile"]
 
 FROM backend as aio
-RUN apt-get update
-RUN apt-get install -y caddy tini
+RUN apk add caddy tini
 RUN npm install -g @import-meta-env/cli
 COPY --from=fe_builder /usr/src/app/packages/hoppscotch-selfhost-web/dist /site/selfhost-web
 COPY --from=sh_admin_builder /usr/src/app/packages/hoppscotch-sh-admin/dist /site/sh-admin
 COPY aio.Caddyfile /etc/caddy/Caddyfile
-ENTRYPOINT [ "/usr/bin/tini", "--" ]
+ENTRYPOINT [ "tini", "--" ]
 CMD ["node", "/usr/src/app/aio_run.mjs"]
 EXPOSE 3170
 EXPOSE 3000

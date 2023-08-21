@@ -29,6 +29,7 @@ import IconLayers from "~icons/lucide/layers"
 import { useStreamStatic } from "~/composables/stream"
 import {
   createEnvironment,
+  currentEnvironment$,
   deleteEnvironment,
   duplicateEnvironment,
   environmentsStore,
@@ -68,12 +69,20 @@ export class EnvironmentsSpotlightSearcherService extends StaticSpotlightSearche
 
   private readonly spotlight = this.bind(SpotlightService)
 
-  private selectedEnv = useStreamStatic(selectedEnvironmentIndex$, null, () => {
+  private selectedEnvIndex = useStreamStatic(
+    selectedEnvironmentIndex$,
+    null,
+    () => {
+      /* noop */
+    }
+  )[0]
+
+  private selectedEnv = useStreamStatic(currentEnvironment$, null, () => {
     /* noop */
   })[0]
 
   private hasSelectedEnv = computed(
-    () => this.selectedEnv.value?.type !== "NO_ENV_SELECTED"
+    () => this.selectedEnvIndex.value?.type !== "NO_ENV_SELECTED"
   )
 
   private documents: Record<string, Doc> = reactive({
@@ -155,16 +164,16 @@ export class EnvironmentsSpotlightSearcherService extends StaticSpotlightSearche
   }
 
   duplicateSelectedEnv() {
-    if (this.selectedEnv.value?.type === "NO_ENV_SELECTED") return
+    if (this.selectedEnvIndex.value?.type === "NO_ENV_SELECTED") return
 
-    if (this.selectedEnv.value?.type === "MY_ENV") {
-      duplicateEnvironment(this.selectedEnv.value.index)
+    if (this.selectedEnvIndex.value?.type === "MY_ENV") {
+      duplicateEnvironment(this.selectedEnvIndex.value.index)
       // this.toast.success(`${t("environment.duplicated")}`)
     }
 
-    if (this.selectedEnv.value?.type === "TEAM_ENV") {
+    if (this.selectedEnvIndex.value?.type === "TEAM_ENV") {
       pipe(
-        deleteTeamEnvironment(this.selectedEnv.value.teamEnvID),
+        deleteTeamEnvironment(this.selectedEnvIndex.value.teamEnvID),
         TE.match(
           (err: GQLError<string>) => {
             console.error(err)
@@ -178,16 +187,16 @@ export class EnvironmentsSpotlightSearcherService extends StaticSpotlightSearche
   }
 
   removeSelectedEnvironment = () => {
-    if (this.selectedEnv.value?.type === "NO_ENV_SELECTED") return
+    if (this.selectedEnvIndex.value?.type === "NO_ENV_SELECTED") return
 
-    if (this.selectedEnv.value?.type === "MY_ENV") {
-      deleteEnvironment(this.selectedEnv.value.index)
+    if (this.selectedEnvIndex.value?.type === "MY_ENV") {
+      deleteEnvironment(this.selectedEnvIndex.value.index)
       // this.toast.success(`${t("state.deleted")}`)
     }
 
-    if (this.selectedEnv.value?.type === "TEAM_ENV") {
+    if (this.selectedEnvIndex.value?.type === "TEAM_ENV") {
       pipe(
-        deleteTeamEnvironment(this.selectedEnv.value.teamEnvID),
+        deleteTeamEnvironment(this.selectedEnvIndex.value.teamEnvID),
         TE.match(
           (err: GQLError<string>) => {
             console.error(err)
@@ -212,9 +221,10 @@ export class EnvironmentsSpotlightSearcherService extends StaticSpotlightSearche
         })
         break
       case "edit_selected_env":
-        invokeAction(`modals.my.environment.edit`, {
-          envName: "test",
-        })
+        if (this.selectedEnv.value)
+          invokeAction(`modals.my.environment.edit`, {
+            envName: this.selectedEnv.value.name,
+          })
         break
       case "delete_selected_env":
         this.removeSelectedEnvironment()

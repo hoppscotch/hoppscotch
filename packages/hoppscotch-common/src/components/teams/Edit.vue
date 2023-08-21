@@ -3,7 +3,7 @@
     <template #body>
       <div class="flex flex-col">
         <HoppSmartInput
-          v-model="name"
+          v-model="editingName"
           placeholder=" "
           :label="t('action.label')"
           input-styles="floating-input"
@@ -177,7 +177,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, toRef, watch } from "vue"
+import { computed, ref, watch } from "vue"
 import * as E from "fp-ts/Either"
 import {
   GetTeamDocument,
@@ -228,7 +228,7 @@ const props = defineProps<{
 
 const toast = useToast()
 
-const editingName = toRef(props.editingTeam, "name")
+const editingName = ref(props.editingTeam.name)
 
 watch(
   () => props.editingTeam.name,

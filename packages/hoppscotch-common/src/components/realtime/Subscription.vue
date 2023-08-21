@@ -35,7 +35,7 @@
       <div class="relative flex flex-col">
         <input
           id="selectLabelAdd"
-          v-model="name"
+          v-model="editingName"
           v-focus
           class="input floating-input"
           placeholder=" "

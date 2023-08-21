@@ -8,7 +8,7 @@
     <template #body>
       <div class="flex flex-col px-2">
         <HoppSmartInput
-          v-model="name"
+          v-model="editingName"
           placeholder=" "
           :input-styles="['floating-input', isViewer && 'opacity-25']"
           :label="t('action.label')"

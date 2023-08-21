@@ -38,7 +38,9 @@ export class ResponseSpotlightSearcherService extends StaticSpotlightSearcherSer
   private copyResponseActionEnabled = useStreamStatic(
     activeActions$.pipe(map((actions) => actions.includes("response.copy"))),
     activeActions$.value.includes("response.copy"),
-    () => {}
+    () => {
+      /* noop */
+    }
   )[0]
 
   private downloadResponseActionEnabled = useStreamStatic(
@@ -46,7 +48,9 @@ export class ResponseSpotlightSearcherService extends StaticSpotlightSearcherSer
       map((actions) => actions.includes("response.file.download"))
     ),
     activeActions$.value.includes("response.file.download"),
-    () => {}
+    () => {
+      /* noop */
+    }
   )[0]
 
   private documents: Record<string, Doc> = reactive({

@@ -8,7 +8,7 @@ import {
   ref,
   watch,
 } from "vue"
-import { activeActions$, invokeAction } from "~/helpers/actions"
+import { invokeAction } from "~/helpers/actions"
 import { getI18n } from "~/modules/i18n"
 import {
   SpotlightSearcher,
@@ -61,7 +61,9 @@ export class WorkspaceSpotlightSearcherService extends StaticSpotlightSearcherSe
   private workspace = useStreamStatic(
     workspaceStatus$,
     { type: "personal" },
-    () => {}
+    () => {
+      /* noop */
+    }
   )[0]
 
   private isTeamSelected = computed(
@@ -167,7 +169,7 @@ export class SwitchWorkspaceSpotlightSearcherService
   }
 
   private fetchMyTeams(): Promise<GetMyTeamsQuery["myTeams"]> {
-    return new Promise(async (resolve, reject) => {
+    return new Promise(async (resolve) => {
       const currentUser = platform.auth.getCurrentUser()
       if (!currentUser) return resolve([])
 

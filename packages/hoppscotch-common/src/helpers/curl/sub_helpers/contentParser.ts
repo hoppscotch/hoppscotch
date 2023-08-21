@@ -126,7 +126,7 @@ const multipartFunctions = {
             (nameArr) =>
               [nameArr[1], pair[0].includes("filename") ? "" : pair[1]] as [
                 string,
-                string
+                string,
               ]
           )
         )

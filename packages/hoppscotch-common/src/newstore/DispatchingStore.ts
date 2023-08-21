@@ -15,7 +15,7 @@ type DispatcherFunc<StoreType, PayloadType> = (
  */
 export const defineDispatchers = <
   StoreType,
-  T extends { [x: string]: DispatcherFunc<StoreType, any> }
+  T extends { [x: string]: DispatcherFunc<StoreType, any> },
 >(
   // eslint-disable-next-line no-unused-vars
   dispatchers: T
@@ -23,7 +23,7 @@ export const defineDispatchers = <
 
 type Dispatch<
   StoreType,
-  DispatchersType extends { [x: string]: DispatcherFunc<StoreType, any> }
+  DispatchersType extends { [x: string]: DispatcherFunc<StoreType, any> },
 > = {
   [Dispatcher in keyof DispatchersType]: {
     dispatcher: Dispatcher
@@ -33,7 +33,7 @@ type Dispatch<
 
 export default class DispatchingStore<
   StoreType,
-  DispatchersType extends { [x: string]: DispatcherFunc<StoreType, any> }
+  DispatchersType extends { [x: string]: DispatcherFunc<StoreType, any> },
 > {
   #state$: BehaviorSubject<StoreType>
   #dispatchers: DispatchersType

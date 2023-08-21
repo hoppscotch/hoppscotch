@@ -169,7 +169,7 @@
     <template #secondary>
       <RealtimeLog
         :title="t('websocket.log')"
-        :log="(log as LogEntryData[])"
+        :log="log as LogEntryData[]"
         @delete="clearLogEntries()"
       />
     </template>

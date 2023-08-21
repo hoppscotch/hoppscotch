@@ -30,6 +30,7 @@ import {
 export const getUserHistoryEntries = () =>
   runGQLQuery<GetRestUserHistoryQuery, GetRestUserHistoryQueryVariables, "">({
     query: GetRestUserHistoryDocument,
+    variables: {},
   })
 
 export const createUserHistory = (
@@ -77,19 +78,23 @@ export const deleteAllUserHistory = (reqType: ReqType) =>
 export const runUserHistoryCreatedSubscription = () =>
   runGQLSubscription({
     query: UserHistoryCreatedDocument,
+    variables: {},
   })
 
 export const runUserHistoryUpdatedSubscription = () =>
   runGQLSubscription({
     query: UserHistoryUpdatedDocument,
+    variables: {},
   })
 
 export const runUserHistoryDeletedSubscription = () =>
   runGQLSubscription({
     query: UserHistoryDeletedDocument,
+    variables: {},
   })
 
 export const runUserHistoryDeletedManySubscription = () =>
   runGQLSubscription({
     query: UserHistoryDeletedManyDocument,
+    variables: {},
   })

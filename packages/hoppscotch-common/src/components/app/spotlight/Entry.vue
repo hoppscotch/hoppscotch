@@ -80,10 +80,11 @@ const props = defineProps<{
   active: boolean
 }>()
 
-const formattedShortcutKeys = computed(() =>
-  props.entry.meta?.keyboardShortcut?.map((key) => {
-    return SPECIAL_KEY_CHARS[key] ?? capitalize(key)
-  })
+const formattedShortcutKeys = computed(
+  () =>
+    props.entry.meta?.keyboardShortcut?.map((key) => {
+      return SPECIAL_KEY_CHARS[key] ?? capitalize(key)
+    })
 )
 
 const emit = defineEmits<{

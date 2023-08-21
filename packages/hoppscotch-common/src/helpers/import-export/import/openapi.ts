@@ -195,7 +195,7 @@ const parseOpenAPIV3Body = (
   // We only take the first definition
   const [contentType, media]: [
     string,
-    OpenAPIV3.MediaTypeObject | OpenAPIV31.MediaTypeObject
+    OpenAPIV3.MediaTypeObject | OpenAPIV31.MediaTypeObject,
   ] = objs[0]
 
   return contentType in knownContentTypes

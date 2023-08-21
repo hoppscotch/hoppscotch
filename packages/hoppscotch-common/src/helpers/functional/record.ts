@@ -8,7 +8,7 @@
  */
 export const tupleToRecord = <
   KeyType extends string | number | symbol,
-  ValueType
+  ValueType,
 >(
   tuples: [KeyType, ValueType][]
 ): Record<KeyType, ValueType> =>
@@ -25,7 +25,7 @@ export const tupleToRecord = <
  */
 export const tupleWithSameKeysToRecord = <
   KeyType extends string | number | symbol,
-  ValueType
+  ValueType,
 >(
   tuples: [KeyType, ValueType][]
 ): Record<KeyType, ValueType[]> => {

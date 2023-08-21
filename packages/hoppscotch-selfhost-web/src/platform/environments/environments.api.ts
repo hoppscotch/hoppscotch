@@ -76,6 +76,7 @@ export const clearGlobalEnvironmentVariables = (id: string) =>
 export const getUserEnvironments = () =>
   runGQLQuery({
     query: GetUserEnvironmentsDocument,
+    variables: {},
   })
 
 export const getGlobalEnvironments = () =>
@@ -85,6 +86,7 @@ export const getGlobalEnvironments = () =>
     "user_environment/user_env_does_not_exists"
   >({
     query: GetGlobalEnvironmentsDocument,
+    variables: {},
   })
 
 export const createUserGlobalEnvironment = (variables: string) =>
@@ -99,14 +101,17 @@ export const createUserGlobalEnvironment = (variables: string) =>
 export const runUserEnvironmentCreatedSubscription = () =>
   runGQLSubscription({
     query: UserEnvironmentCreatedDocument,
+    variables: {},
   })
 
 export const runUserEnvironmentUpdatedSubscription = () =>
   runGQLSubscription({
     query: UserEnvironmentUpdatedDocument,
+    variables: {},
   })
 
 export const runUserEnvironmentDeletedSubscription = () =>
   runGQLSubscription({
     query: UserEnvironmentDeletedDocument,
+    variables: {},
   })

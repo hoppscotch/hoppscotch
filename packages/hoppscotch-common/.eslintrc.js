@@ -29,8 +29,18 @@ module.exports = {
     "import/named": "off", // because, named import issue with typescript see: https://github.com/typescript-eslint/typescript-eslint/issues/154
     "no-console": "off",
     "no-debugger": process.env.HOPP_LINT_FOR_PROD === "true" ? "error" : "warn",
-    "prettier/prettier":
+    "prettier/prettier": [
       process.env.HOPP_LINT_FOR_PROD === "true" ? "error" : "warn",
+      {},
+      {
+        semi: false,
+        trailingComma: "es5",
+        singleQuote: false,
+        printWidth: 80,
+        useTabs: false,
+        tabWidth: 2,
+      },
+    ],
     "vue/multi-word-component-names": "off",
     "vue/no-side-effects-in-computed-properties": "off",
     "import/no-named-as-default": "off",

@@ -90,7 +90,8 @@ const getHoppReqParams = (item: Item): HoppRESTParam[] => {
 }
 
 type PMRequestAuthDef<
-  AuthType extends RequestAuthDefinition["type"] = RequestAuthDefinition["type"]
+  AuthType extends
+    RequestAuthDefinition["type"] = RequestAuthDefinition["type"],
 > = AuthType extends RequestAuthDefinition["type"] & string
   ? // eslint-disable-next-line no-unused-vars
     { type: AuthType } & { [x in AuthType]: VariableDefinition[] }

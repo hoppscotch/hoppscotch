@@ -23,6 +23,7 @@ export const getUserSettings = () =>
     "user_settings/not_found"
   >({
     query: GetUserSettingsDocument,
+    variables: {},
   })
 
 export const createUserSettings = (properties: string) =>
@@ -46,4 +47,5 @@ export const updateUserSettings = (properties: string) =>
 export const runUserSettingsUpdatedSubscription = () =>
   runGQLSubscription({
     query: UserSettingsUpdatedDocument,
+    variables: {},
   })

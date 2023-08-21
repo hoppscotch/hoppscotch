@@ -228,12 +228,12 @@ const props = defineProps<{
 
 const toast = useToast()
 
-const name = toRef(props.editingTeam, "name")
+const editingName = toRef(props.editingTeam, "name")
 
 watch(
   () => props.editingTeam.name,
   (newName: string) => {
-    name.value = newName
+    editingName.value = newName
   }
 )
 
@@ -381,11 +381,11 @@ const isLoading = ref(false)
 
 const saveTeam = async () => {
   isLoading.value = true
-  if (name.value !== "") {
-    if (TeamNameCodec.is(name.value)) {
+  if (editingName.value !== "") {
+    if (TeamNameCodec.is(editingName.value)) {
       const updateTeamNameResult = await renameTeam(
         props.editingTeamID,
-        name.value
+        editingName.value
       )()
       if (E.isLeft(updateTeamNameResult)) {
         toast.error(`${t("error.something_went_wrong")}`)

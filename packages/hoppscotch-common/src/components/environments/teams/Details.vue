@@ -182,7 +182,7 @@ const emit = defineEmits<{
 
 const idTicker = ref(0)
 
-const name = ref<string | null>(null)
+const editingName = ref<string | null>(null)
 const vars = ref<EnvironmentVariable[]>([
   { id: idTicker.value++, env: { key: "", value: "" } },
 ])
@@ -208,7 +208,9 @@ const liveEnvs = computed(() => {
   if (evnExpandError.value) {
     return []
   } else {
-    return [...vars.value.map((x) => ({ ...x.env, source: name.value! }))]
+    return [
+      ...vars.value.map((x) => ({ ...x.env, source: editingName.value! })),
+    ]
   }
 })
 
@@ -217,7 +219,7 @@ watch(
   (show) => {
     if (show) {
       if (props.action === "new") {
-        name.value = null
+        editingName.value = null
         vars.value = pipe(
           props.envVars() ?? [],
           A.map((e: { key: string; value: string }) => ({
@@ -226,7 +228,7 @@ watch(
           }))
         )
       } else if (props.editingEnvironment !== null) {
-        name.value = props.editingEnvironment.environment.name ?? null
+        editingName.value = props.editingEnvironment.environment.name ?? null
         vars.value = pipe(
           props.editingEnvironment.environment.variables ?? [],
           A.map((e: { key: string; value: string }) => ({
@@ -264,7 +266,7 @@ const isLoading = ref(false)
 const saveEnvironment = async () => {
   isLoading.value = true
 
-  if (!name.value) {
+  if (!editingName.value) {
     toast.error(`${t("environment.invalid_name")}`)
     return
   }
@@ -289,7 +291,7 @@ const saveEnvironment = async () => {
       createTeamEnvironment(
         JSON.stringify(filterdVariables),
         props.editingTeamId,
-        name.value
+        editingName.value
       ),
       TE.match(
         (err: GQLError<string>) => {
@@ -312,7 +314,7 @@ const saveEnvironment = async () => {
       updateTeamEnvironment(
         JSON.stringify(filterdVariables),
         props.editingEnvironment.id,
-        name.value
+        editingName.value
       ),
       TE.match(
         (err: GQLError<string>) => {
@@ -331,7 +333,7 @@ const saveEnvironment = async () => {
 }
 
 const hideModal = () => {
-  name.value = null
+  editingName.value = null
   emit("hide-modal")
 }
 

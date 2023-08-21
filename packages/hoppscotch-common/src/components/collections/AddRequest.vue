@@ -58,23 +58,23 @@ const emit = defineEmits<{
   (event: "add-request", name: string): void
 }>()
 
-const name = ref("")
+const editingName = ref("")
 
 watch(
   () => props.show,
   (show) => {
     if (show) {
-      name.value = currentActiveTab.value.document.request.name
+      editingName.value = currentActiveTab.value.document.request.name
     }
   }
 )
 
 const addRequest = () => {
-  if (name.value.trim() === "") {
+  if (editingName.value.trim() === "") {
     toast.error(`${t("error.empty_req_name")}`)
     return
   }
-  emit("add-request", name.value)
+  emit("add-request", editingName.value)
 }
 
 const hideModal = () => {

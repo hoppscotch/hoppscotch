@@ -31,9 +31,7 @@ export class GQLConnection {
     map((schema) => {
       if (!schema) return null
 
-      return printSchema(schema, {
-        commentDescriptions: true,
-      })
+      return printSchema(schema)
     })
   )
 

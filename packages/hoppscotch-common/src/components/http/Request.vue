@@ -69,7 +69,9 @@
       <HoppButtonPrimary
         id="send"
         v-tippy="{ theme: 'tooltip', delay: [500, 20], allowHTML: true }"
-        :title="`${t('action.send')} <kbd>${getSpecialKey()}</kbd><kbd>↩</kbd>`"
+        :title="`${t(
+          'action.send'
+        )} <kbd>${getSpecialKey()}</kbd><kbd>↩</kbd>`"
         :label="`${!loading ? t('action.send') : t('action.cancel')}`"
         class="flex-1 rounded-r-none min-w-20"
         @click="!loading ? newSendRequest() : cancelRequest()"

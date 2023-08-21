@@ -57,24 +57,24 @@ const emit = defineEmits<{
   ): void
 }>()
 
-const name = ref("")
+const editingName = ref("")
 
 watch(
   () => props.show,
   (show) => {
     if (show) {
-      name.value = getGQLSession().request.name
+      editingName.value = getGQLSession().request.name
     }
   }
 )
 
 const addRequest = () => {
-  if (!name.value) {
+  if (!editingName.value) {
     toast.error(`${t("error.empty_req_name")}`)
     return
   }
   emit("add-request", {
-    name: name.value,
+    name: editingName.value,
     path: props.folderPath,
   })
   hideModal()

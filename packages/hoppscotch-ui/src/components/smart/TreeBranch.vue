@@ -3,7 +3,7 @@
     :node="nodeItem"
     :toggle-children="toggleNodeChildren"
     :is-open="isNodeOpen"
-    :highlight-children="(id:string|null) => highlightNodeChildren(id)"
+    :highlight-children="(id: string | null) => highlightNodeChildren(id)"
   ></slot>
 
   <!-- This is a performance optimization trick -->
@@ -45,7 +45,9 @@
             :node="node as TreeNode<T>"
             :toggle-children="toggleChildren as () => void"
             :is-open="isOpen as boolean"
-            :highlight-children="(id:string|null) => highlightChildren(id) as void"
+            :highlight-children="
+              (id: string | null) => highlightChildren(id) as void
+            "
           ></slot>
         </template>
         <template #emptyNode="{ node }">

@@ -60,19 +60,19 @@ const emit = defineEmits<{
   (e: "update:modelValue", value: string): void
 }>()
 
-const name = useVModel(props, "modelValue")
+const editingName = useVModel(props, "modelValue")
 
 const editRequest = () => {
-  if (name.value.trim() === "") {
+  if (editingName.value.trim() === "") {
     toast.error(t("request.invalid_name"))
     return
   }
 
-  emit("submit", name.value)
+  emit("submit", editingName.value)
 }
 
 const hideModal = () => {
-  name.value = ""
+  editingName.value = ""
   emit("hide-modal")
 }
 </script>

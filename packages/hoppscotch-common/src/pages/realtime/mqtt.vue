@@ -108,7 +108,7 @@
           </template>
           <RealtimeLog
             :title="t('mqtt.log')"
-            :log="((tab.id === 'all' ? logs : tab.logs) as LogEntryData[])"
+            :log="(tab.id === 'all' ? logs : tab.logs) as LogEntryData[]"
             @delete="clearLogEntries()"
           />
         </HoppSmartWindow>

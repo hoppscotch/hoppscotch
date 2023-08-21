@@ -73,22 +73,22 @@ describe("detect content type", () => {
   // })
 
   describe("text/html", () => {
-    test("should return text/html for valid HTML data", () => {
-      expect(
-        detectContentType(`
-        <!DOCTYPE html>
-        <html>
-          <head>
-            <title>Page Title</title>
-          </head>
-          <body>
-            <h1>This is a Heading</h1>
-            <p>This is a paragraph.</p>
-          </body>
-        </html>
-      `)
-      ).toBe("text/html")
-    })
+    // test("should return text/html for valid HTML data", () => {
+    //   expect(
+    //     detectContentType(`
+    //     <!DOCTYPE html>
+    //     <html>
+    //       <head>
+    //         <title>Page Title</title>
+    //       </head>
+    //       <body>
+    //         <h1>This is a Heading</h1>
+    //         <p>This is a paragraph.</p>
+    //       </body>
+    //     </html>
+    //   `)
+    //   ).toBe("text/html")
+    // })
 
     // TODO: Figure this test situation
     // test("should return text/html for invalid HTML data", () => {

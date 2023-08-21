@@ -28,7 +28,7 @@ type RunQueryOptions = {
   operationType: OperationType
 }
 
-export type GQLEvent = {
+export type GQLResponseEvent = {
   time: number
   operationName: string | undefined
   operationType: OperationType
@@ -71,7 +71,7 @@ export const subscriptionState = computed(() => {
   return connection.subscriptionState.get(currentTabID.value)
 })
 
-export const gqlMessageEvent = ref<GQLEvent | "reset">()
+export const gqlMessageEvent = ref<GQLResponseEvent | "reset">()
 
 export const schemaString = computed(() => {
   if (!connection.schema) return ""

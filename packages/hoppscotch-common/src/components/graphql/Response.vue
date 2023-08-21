@@ -35,7 +35,10 @@
       </div>
       <div ref="schemaEditor" class="flex flex-col flex-1"></div>
     </div>
-    <div v-else-if="response?.length > 1" class="flex flex-col flex-1">
+    <div
+      v-else-if="response && response?.length > 1"
+      class="flex flex-col flex-1"
+    >
       <GraphqlSubscriptionLog :log="response" />
     </div>
     <AppShortcutsPrompt v-else class="p-4" />
@@ -55,14 +58,19 @@ import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
 import { defineActionHandler } from "~/helpers/actions"
 import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
-import { GQLEvent } from "~/helpers/graphql/connection"
+import { GQLResponseEvent } from "~/helpers/graphql/connection"
 
 const t = useI18n()
 const toast = useToast()
 
-const props = defineProps<{
-  response: GQLEvent[]
-}>()
+const props = withDefaults(
+  defineProps<{
+    response: GQLResponseEvent[] | null
+  }>(),
+  {
+    response: null,
+  }
+)
 
 const responseString = computed(() => {
   if (props.response?.length === 1) {

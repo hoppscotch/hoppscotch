@@ -1,16 +1,16 @@
-import { v4 as uuidV4 } from "uuid"
-import { isEqual } from "lodash-es"
-import { reactive, watch, computed, ref, shallowReadonly } from "vue"
-import { HoppGQLDocument, HoppGQLSaveContext } from "./document"
 import { refWithControl } from "@vueuse/core"
-import { HoppRESTResponse } from "../types/HoppRESTResponse"
-import { getDefaultGQLRequest } from "./default"
+import { isEqual } from "lodash-es"
+import { v4 as uuidV4 } from "uuid"
+import { computed, reactive, ref, shallowReadonly, watch } from "vue"
 import { HoppTestResult } from "../types/HoppTestResult"
+import { GQLResponseEvent } from "./connection"
+import { getDefaultGQLRequest } from "./default"
+import { HoppGQLDocument, HoppGQLSaveContext } from "./document"
 
 export type HoppGQLTab = {
   id: string
   document: HoppGQLDocument
-  response?: HoppRESTResponse | null
+  response?: GQLResponseEvent[] | null
   testResults?: HoppTestResult | null
 }
 

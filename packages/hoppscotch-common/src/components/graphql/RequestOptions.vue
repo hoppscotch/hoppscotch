@@ -62,7 +62,7 @@ import { platform } from "~/platform"
 import { currentActiveTab } from "~/helpers/graphql/tab"
 import { computedWithControl } from "@vueuse/core"
 import {
-  GQLEvent,
+  GQLResponseEvent,
   runGQLOperation,
   gqlMessageEvent,
 } from "~/helpers/graphql/connection"
@@ -74,11 +74,16 @@ const t = useI18n()
 const toast = useToast()
 
 // v-model integration with props and emit
-const props = defineProps<{
-  modelValue: HoppGQLRequest
-  response: GQLEvent[]
-  tabId: string
-}>()
+const props = withDefaults(
+  defineProps<{
+    modelValue: HoppGQLRequest
+    response?: GQLResponseEvent[] | null
+    tabId: string
+  }>(),
+  {
+    response: null,
+  }
+)
 const emit = defineEmits(["update:modelValue", "update:response"])
 
 const request = ref(props.modelValue)
@@ -158,7 +163,7 @@ watch(
         // response.value = [event]
         emit("update:response", [event])
       } else {
-        emit("update:response", [...props.response, event])
+        emit("update:response", [...(props.response ?? []), event])
 
         // TODO: subscription indicator??
       }

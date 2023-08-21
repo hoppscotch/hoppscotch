@@ -17,6 +17,7 @@
 import { useVModel } from "@vueuse/core"
 import { cloneDeep } from "lodash-es"
 import { watch } from "vue"
+import { isEqualHoppGQLRequest } from "~/helpers/graphql"
 import { HoppGQLTab } from "~/helpers/graphql/tab"
 
 // TODO: Move Response and Request execution code to over here
@@ -35,9 +36,13 @@ watch(
   () => tab.value.document.request,
   (updatedValue) => {
     // TODO: Check equality of request
-    if (!tab.value.document.isDirty) {
+    if (
+      !tab.value.document.isDirty &&
+      !isEqualHoppGQLRequest(oldRequest, updatedValue)
+    ) {
       tab.value.document.isDirty = true
     }
+
     oldRequest = cloneDeep(updatedValue)
   },
   { deep: true }

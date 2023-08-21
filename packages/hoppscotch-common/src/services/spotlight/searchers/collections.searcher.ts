@@ -16,6 +16,7 @@ import IconFolder from "~icons/lucide/folder"
 import RESTRequestSpotlightEntry from "~/components/app/spotlight/entry/RESTRequest.vue"
 import GQLRequestSpotlightEntry from "~/components/app/spotlight/entry/GQLRequest.vue"
 import { createNewTab } from "~/helpers/rest/tab"
+import { createNewTab as createNewGQLTab } from "~/helpers/graphql/tab"
 import { getTabRefWithSaveContext } from "~/helpers/rest/tab"
 import { currentTabID } from "~/helpers/rest/tab"
 import {
@@ -23,8 +24,6 @@ import {
   HoppGQLRequest,
   HoppRESTRequest,
 } from "@hoppscotch/data"
-import { setGQLSession } from "~/newstore/GQLSession"
-import { cloneDeep } from "lodash-es"
 import { hoppWorkspaceStore } from "~/newstore/workspace"
 import { changeWorkspace } from "~/newstore/workspace"
 
@@ -305,11 +304,13 @@ export class CollectionsSpotlightSearcherService
 
       if (!req) return
 
-      setGQLSession({
-        request: cloneDeep(req),
-        schema: "",
-        response: "",
-      })
+      createNewGQLTab(
+        {
+          request: req,
+          isDirty: false,
+        },
+        true
+      )
     }
   }
 }

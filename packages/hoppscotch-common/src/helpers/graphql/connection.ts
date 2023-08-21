@@ -12,8 +12,10 @@ import {
 } from "graphql"
 import { computed, reactive, ref } from "vue"
 import { addGraphqlHistoryEntry, makeGQLHistoryEntry } from "~/newstore/history"
-import { sendNetworkRequest } from "../network"
 import { currentTabID } from "./tab"
+import { getService } from "~/modules/dioc"
+import { InterceptorService } from "~/services/interceptor.service"
+import * as E from "fp-ts/Either"
 
 const GQL_SCHEMA_POLL_INTERVAL = 7000
 
@@ -190,11 +192,20 @@ const getSchema = async (url: string, headers: GQLHeader[]) => {
       data: introspectionQuery,
     }
 
-    const data = await sendNetworkRequest(reqOptions)
+    const interceptorService = getService(InterceptorService)
+
+    const res = await interceptorService.runRequest(reqOptions).response
+
+    if (E.isLeft(res)) {
+      console.error(res.left)
+      throw new Error(res.left.toString())
+    }
+
+    const data = res.right
 
     // HACK : Temporary trailing null character issue from the extension fix
     const response = new TextDecoder("utf-8")
-      .decode(data.data)
+      .decode(data.data as any)
       .replace(/\0+$/, "")
 
     const introspectResponse = JSON.parse(response)
@@ -260,11 +271,19 @@ export const runGQLOperation = async (options: RunQueryOptions) => {
     return runSubscription(options)
   }
 
-  const res = await sendNetworkRequest(reqOptions)
+  const interceptorService = getService(InterceptorService)
+  const result = await interceptorService.runRequest(reqOptions).response
+
+  if (E.isLeft(result)) {
+    console.error(result.left)
+    throw new Error(result.left.toString())
+  }
+
+  const res = result.right
 
   // HACK: Temporary trailing null character issue from the extension fix
   const responseText = new TextDecoder("utf-8")
-    .decode(res.data)
+    .decode(res.data as any)
     .replace(/\0+$/, "")
 
   gqlMessageEvent.value = {

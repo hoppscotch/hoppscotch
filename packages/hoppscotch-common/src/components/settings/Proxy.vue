@@ -24,15 +24,10 @@
       :autofocus="false"
       styles="flex-1"
       placeholder=" "
+      :label="t('settings.proxy_url')"
       input-styles="input floating-input"
       :disabled="!proxyEnabled"
-    >
-      <template #label>
-        <label for="url">
-          {{ t("settings.proxy_url") }}
-        </label>
-      </template>
-    </HoppSmartInput>
+    />
     <HoppButtonSecondary
       v-tippy="{ theme: 'tooltip' }"
       :title="t('settings.reset_default')"

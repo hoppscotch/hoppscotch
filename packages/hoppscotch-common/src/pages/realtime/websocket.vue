@@ -7,6 +7,7 @@
         <HoppSmartInput
           v-model="url"
           type="url"
+          :autofocus="false"
           styles="!inline-flex flex-1 space-x-2"
           input-styles="w-full px-4 py-2 border rounded !bg-primaryLight border-divider text-secondaryDark"
           :placeholder="`${t('websocket.url')}`"

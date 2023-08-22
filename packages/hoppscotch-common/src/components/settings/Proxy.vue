@@ -21,6 +21,7 @@
   <div class="flex items-center py-4 space-x-2">
     <HoppSmartInput
       v-model="PROXY_URL"
+      :autofocus="false"
       styles="flex-1"
       placeholder=" "
       input-styles="input floating-input"

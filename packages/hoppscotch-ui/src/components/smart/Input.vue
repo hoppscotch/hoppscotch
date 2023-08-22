@@ -3,12 +3,12 @@
     <input
       :id="inputID"
       class="input"
+      ref="inputRef"
       :class="inputStyles"
       v-model="inputText"
       v-focus
       :placeholder="placeholder"
       :type="type"
-      @keyup.enter="emit('submit')"
       autocomplete="off"
       required
       :disabled="disabled"
@@ -31,8 +31,8 @@ let inputIDCounter = 564275
 </script>
 
 <script setup lang="ts">
-import { useVModel } from "@vueuse/core"
-import { defineProps } from "vue"
+import { onKeyStroke, useVModel } from "@vueuse/core"
+import { defineProps, ref } from "vue"
 
 // Unique ID for input
 const inputID = `input-${inputIDCounter++}`
@@ -65,5 +65,13 @@ const emit = defineEmits<{
   (e: "update:modelValue", v: string): void
 }>()
 
+const inputRef = ref()
+
 const inputText = useVModel(props, "modelValue", emit)
+
+onKeyStroke("Enter", (e) => {
+  if (!e.repeat) {
+    return emit("submit")
+  }
+}, { target: inputRef, eventName: "keydown" })
 </script>

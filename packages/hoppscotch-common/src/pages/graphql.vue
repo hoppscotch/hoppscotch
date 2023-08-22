@@ -59,13 +59,22 @@
         <GraphqlSidebar />
       </template>
     </AppPaneLayout>
+
+    <HoppSmartConfirmModal
+      :show="confirmingCloseForTabID !== null"
+      :confirm="t('modal.close_unsaved_tab')"
+      :title="t('confirm.close_unsaved_tab')"
+      @hide-modal="onCloseConfirm"
+      @resolve="onResolveConfirm"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { usePageHead } from "@composables/head"
 import { useI18n } from "@composables/i18n"
-import { computed, onBeforeUnmount } from "vue"
+import { useService } from "dioc/vue"
+import { computed, onBeforeUnmount, ref } from "vue"
 import { defineActionHandler } from "~/helpers/actions"
 import { connection, disconnect } from "~/helpers/graphql/connection"
 import { getDefaultGQLRequest } from "~/helpers/graphql/default"
@@ -79,9 +88,13 @@ import {
   updateTab,
   updateTabOrdering,
 } from "~/helpers/graphql/tab"
+import { InspectionService } from "~/services/inspection"
 
-// const confirmingCloseForTabID = ref<string | null>(null)
 const t = useI18n()
+
+const inspectionService = useService(InspectionService)
+
+const confirmingCloseForTabID = ref<string | null>(null)
 
 usePageHead({
   title: computed(() => t("navigation.graphql")),
@@ -102,14 +115,31 @@ const sortTabs = (e: { oldIndex: number; newIndex: number }) => {
 }
 
 const removeTab = (tabID: string) => {
-  const tab = getTabRef(tabID)
-  closeTab(tab.value.id)
+  const tabState = getTabRef(tabID).value
 
-  // TODO: Confirm close??
-  // if (tab.value.document.isDirty) {
-  //   confirmingCloseForTabID.value = tabID
-  // } else {
-  // }
+  if (tabState.document.isDirty) {
+    confirmingCloseForTabID.value = tabID
+  } else {
+    closeTab(tabState.id)
+    inspectionService.deleteTabInspectorResult(tabState.id)
+  }
+}
+
+/**
+ * This function is closed when the confirm tab is closed by some means (even saving triggers close)
+ */
+const onCloseConfirm = () => {
+  confirmingCloseForTabID.value = null
+}
+
+/**
+ * Called when the user confirms they want to save the tab
+ */
+const onResolveConfirm = () => {
+  if (confirmingCloseForTabID.value) {
+    closeTab(confirmingCloseForTabID.value)
+    confirmingCloseForTabID.value = null
+  }
 }
 
 const onTabUpdate = (tab: HoppGQLTab) => {

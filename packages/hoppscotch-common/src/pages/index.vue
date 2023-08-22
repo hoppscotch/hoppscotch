@@ -215,13 +215,13 @@ const sortTabs = (e: { oldIndex: number; newIndex: number }) => {
 }
 
 const removeTab = (tabID: string) => {
-  const tab = getTabRef(tabID)
+  const tabState = getTabRef(tabID).value
 
-  if (tab.value.document.isDirty) {
+  if (tabState.document.isDirty) {
     confirmingCloseForTabID.value = tabID
   } else {
-    closeTab(tab.value.id)
-    inspectionService.deleteTabInspectorResult(tab.value.id)
+    closeTab(tabState.id)
+    inspectionService.deleteTabInspectorResult(tabState.id)
   }
 }
 

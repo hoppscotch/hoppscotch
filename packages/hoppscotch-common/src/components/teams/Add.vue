@@ -2,7 +2,7 @@
   <HoppSmartModal v-if="show" dialog :title="t('team.new')" @close="hideModal">
     <template #body>
       <HoppSmartInput
-        v-model="name"
+        v-model="editingName"
         :label="t('action.label')"
         placeholder=" "
         input-styles="floating-input"

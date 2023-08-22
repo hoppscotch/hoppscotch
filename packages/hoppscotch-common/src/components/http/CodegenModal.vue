@@ -20,7 +20,7 @@
           <span class="select-wrapper">
             <HoppButtonSecondary
               :label="
-                CodegenDefinitions.find((x) => x.name === codegenType).caption
+                CodegenDefinitions.find((x) => x.name === codegenType)!.caption
               "
               outline
               class="flex-1 pr-8"
@@ -57,12 +57,7 @@
                   "
                 />
                 <HoppSmartPlaceholder
-                  v-if="
-                    !(
-                      filteredCodegenDefinitions.length !== 0 ||
-                      CodegenDefinitions.length === 0
-                    )
-                  "
+                  v-if="filteredCodegenDefinitions.length === 0"
                   :text="`${t('state.nothing_found')} ‟${searchQuery}”`"
                 >
                   <template #icon>

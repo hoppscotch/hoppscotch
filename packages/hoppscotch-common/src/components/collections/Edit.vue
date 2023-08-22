@@ -7,7 +7,7 @@
   >
     <template #body>
       <HoppSmartInput
-        v-model="name"
+        v-model="editingName"
         placeholder=" "
         input-styles="floating-input"
         :label="t('action.label')"

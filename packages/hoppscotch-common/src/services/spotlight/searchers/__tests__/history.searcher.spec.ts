@@ -6,7 +6,7 @@ import { SpotlightService } from "../.."
 import { GQLHistoryEntry, RESTHistoryEntry } from "~/newstore/history"
 import { getDefaultRESTRequest } from "~/helpers/rest/default"
 import { HoppAction, HoppActionWithArgs } from "~/helpers/actions"
-import { defaultGQLSession } from "~/newstore/GQLSession"
+import { getDefaultGQLRequest } from "~/helpers/graphql/default"
 
 async function flushPromises() {
   return await new Promise((r) => setTimeout(r))
@@ -230,7 +230,7 @@ describe("HistorySpotlightSearcherService", () => {
 
     historyMock.gqlEntries.push({
       request: {
-        ...defaultGQLSession.request,
+        ...getDefaultGQLRequest(),
         url: "bla.com",
       },
       response: "{}",
@@ -267,7 +267,7 @@ describe("HistorySpotlightSearcherService", () => {
 
     const historyEntry: GQLHistoryEntry = {
       request: {
-        ...defaultGQLSession.request,
+        ...getDefaultGQLRequest(),
         url: "bla.com",
       },
       response: "{}",
@@ -302,7 +302,7 @@ describe("HistorySpotlightSearcherService", () => {
 
     historyMock.gqlEntries.push({
       request: {
-        ...defaultGQLSession.request,
+        ...getDefaultGQLRequest(),
         url: "bla.com",
       },
       response: "{}",
@@ -351,7 +351,7 @@ describe("HistorySpotlightSearcherService", () => {
 
     historyMock.gqlEntries.push({
       request: {
-        ...defaultGQLSession.request,
+        ...getDefaultGQLRequest(),
         url: "bla.com",
       },
       response: "{}",
@@ -398,7 +398,7 @@ describe("HistorySpotlightSearcherService", () => {
   it("none of the history entries are show when neither of the open actions are registered", async () => {
     historyMock.gqlEntries.push({
       request: {
-        ...defaultGQLSession.request,
+        ...getDefaultGQLRequest(),
         url: "bla.com",
       },
       response: "{}",

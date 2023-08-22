@@ -71,7 +71,9 @@ export class EnvironmentsSpotlightSearcherService extends StaticSpotlightSearche
 
   private selectedEnvIndex = useStreamStatic(
     selectedEnvironmentIndex$,
-    null,
+    {
+      type: "NO_ENV_SELECTED",
+    },
     () => {
       /* noop */
     }
@@ -210,6 +212,7 @@ export class EnvironmentsSpotlightSearcherService extends StaticSpotlightSearche
   }
 
   public onDocSelected(id: string): void {
+    console.log(this.selectedEnv.value)
     switch (id) {
       case "new_environment":
         invokeAction(`modals.environment.new`)

@@ -458,12 +458,7 @@ defineActionHandler("rest.request.open", ({ doc }) => {
   createNewTab(doc)
 })
 
-defineActionHandler("rest.request.rename", () => {
-  // TODO: Fix this hack to open the modal
-  setTimeout(() => {
-    openReqRenameModal()
-  }, 100)
-})
+defineActionHandler("rest.request.rename", openReqRenameModal)
 
 const inspectionService = useService(InspectionService)
 useService(HeaderInspectorService)

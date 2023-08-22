@@ -386,12 +386,7 @@ const settings = ref<any | null>(null)
 const logout = ref<any | null>(null)
 const accountActions = ref<any | null>(null)
 
-defineActionHandler("modals.team.edit", () => {
-  // TODO: Remove this hack
-  setTimeout(() => {
-    handleTeamEdit()
-  }, 100)
-})
+defineActionHandler("modals.team.edit", handleTeamEdit)
 
 defineActionHandler("modals.team.invite", () => {
   if (

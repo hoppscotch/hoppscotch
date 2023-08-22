@@ -33,6 +33,7 @@ export type HoppAction =
   | "modals.share.toggle" // Shows the share modal
   | "modals.environment.add" // Show add environment modal via context menu
   | "modals.environment.new" // Add new environment
+  | "modals.environment.delete-selected" // Delete Selected Environment
   | "modals.my.environment.edit" // Edit current personal environment
   | "modals.team.environment.edit" // Edit current team environment
   | "modals.team.new" // Add new team

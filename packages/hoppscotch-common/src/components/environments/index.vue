@@ -34,6 +34,13 @@
       @hide-modal="displayModalNew(false)"
     />
   </div>
+
+  <HoppSmartConfirmModal
+    :show="showConfirmRemoveEnvModal"
+    :title="t('confirm.remove_team')"
+    @hide-modal="showConfirmRemoveEnvModal = false"
+    @resolve="removeSelectedEnvironment()"
+  />
 </template>
 
 <script setup lang="ts">
@@ -44,6 +51,7 @@ import { GetMyTeamsQuery } from "~/helpers/backend/graphql"
 import { useReadonlyStream, useStream } from "@composables/stream"
 import { useI18n } from "~/composables/i18n"
 import {
+  getSelectedEnvironmentIndex,
   globalEnv$,
   selectedEnvironmentIndex$,
   setSelectedEnvironmentIndex,
@@ -54,8 +62,15 @@ import { workspaceStatus$ } from "~/newstore/workspace"
 import TeamListAdapter from "~/helpers/teams/TeamListAdapter"
 import { useLocalState } from "~/newstore/localstate"
 import { onLoggedIn } from "~/composables/auth"
+import { pipe } from "fp-ts/function"
+import * as TE from "fp-ts/TaskEither"
+import { GQLError } from "~/helpers/backend/GQLClient"
+import { deleteEnvironment } from "~/newstore/environments"
+import { deleteTeamEnvironment } from "~/helpers/backend/mutations/TeamEnvironment"
+import { useToast } from "~/composables/toast"
 
 const t = useI18n()
+const toast = useToast()
 
 type EnvironmentType = "my-environments" | "team-environments"
 
@@ -168,6 +183,7 @@ watch(
   }
 )
 
+const showConfirmRemoveEnvModal = ref(false)
 const showModalNew = ref(false)
 const showModalDetails = ref(false)
 const action = ref<"new" | "edit">("edit")
@@ -194,6 +210,30 @@ const editEnvironment = (environmentIndex: "Global") => {
   displayModalEdit(true)
 }
 
+const removeSelectedEnvironment = () => {
+  const selectedEnvIndex = getSelectedEnvironmentIndex()
+  if (selectedEnvIndex?.type === "NO_ENV_SELECTED") return
+
+  if (selectedEnvIndex?.type === "MY_ENV") {
+    deleteEnvironment(selectedEnvIndex.index)
+    toast.success(`${t("state.deleted")}`)
+  }
+
+  if (selectedEnvIndex?.type === "TEAM_ENV") {
+    pipe(
+      deleteTeamEnvironment(selectedEnvIndex.teamEnvID),
+      TE.match(
+        (err: GQLError<string>) => {
+          console.error(err)
+        },
+        () => {
+          toast.success(`${t("team_environment.deleted")}`)
+        }
+      )
+    )()
+  }
+}
+
 const resetSelectedData = () => {
   editingEnvironmentIndex.value = null
 }
@@ -201,6 +241,10 @@ const resetSelectedData = () => {
 defineActionHandler("modals.environment.new", () => {
   action.value = "new"
   showModalDetails.value = true
+})
+
+defineActionHandler("modals.environment.delete-selected", () => {
+  showConfirmRemoveEnvModal.value = true
 })
 
 defineActionHandler(

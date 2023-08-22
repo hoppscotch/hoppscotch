@@ -19,11 +19,12 @@
     >
       <WorkspaceCurrent :section="t('tab.collections')" />
 
-      <input
+      <HoppSmartInput
         v-model="filterTexts"
         :placeholder="t('action.search')"
-        class="py-2 pl-4 pr-2 bg-transparent !border-0"
+        input-styles="py-2 pl-4 pr-2 bg-transparent !border-0"
         type="search"
+        :autofocus="false"
         :disabled="collectionsType.type === 'team-collections'"
       />
     </div>

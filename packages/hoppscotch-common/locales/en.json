@@ -695,7 +695,7 @@
     },
     "tab": {
       "close_current": "Close current tab",
-      "close_others": "Close others tab",
+      "close_others": "Close other tabs",
       "new_tab": "Open a new tab",
       "title": "Tabs"
     },

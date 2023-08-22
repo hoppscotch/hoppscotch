@@ -43,7 +43,7 @@ export class TabSpotlightSearcherService extends StaticSpotlightSearcherService<
       alternates: ["tab", "close", "close tab"],
       icon: markRaw(IconWindow),
     },
-    close_others_tab: {
+    close_other_tabs: {
       text: this.t("spotlight.tab.close_others"),
       alternates: ["tab", "close", "close all"],
       icon: markRaw(IconWindow),
@@ -81,7 +81,7 @@ export class TabSpotlightSearcherService extends StaticSpotlightSearcherService<
 
   public onDocSelected(id: string): void {
     if (id === "close_current_tab") closeTab(currentTabID.value)
-    if (id === "close_others_tab") closeOtherTabs(currentTabID.value)
+    if (id === "close_other_tabs") closeOtherTabs(currentTabID.value)
     if (id === "open_new_tab")
       createNewTab({
         request: getDefaultRESTRequest(),

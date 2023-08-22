@@ -34,11 +34,11 @@
     <template #body>
       <p class="mb-4">
         {{ t("graphql.connection_switch_url") }}:
-        <kbd class="shortcut-key !ml-0"> {{ oldUrl }} </kbd>
+        <kbd class="shortcut-key !ml-0"> {{ lastTwoUrls.at(0) }} </kbd>
       </p>
       <p class="mb-4">
         {{ t("graphql.connection_switch_new_url") }}:
-        <kbd class="shortcut-key !ml-0"> {{ url }} </kbd>
+        <kbd class="shortcut-key !ml-0"> {{ lastTwoUrls.at(1) }} </kbd>
       </p>
       <p>{{ t("graphql.connection_switch_confirm") }}</p>
     </template>
@@ -80,8 +80,6 @@ const connectionSwitchModal = ref(false)
 
 const connected = computed(() => connection.state === "CONNECTED")
 
-const oldUrl = ref("")
-
 const url = computed({
   get: () => currentActiveTab.value?.document.request.url ?? "",
   set: (value) => {
@@ -112,16 +110,31 @@ const switchConnection = () => {
   connectionSwitchModal.value = false
 }
 
-watch(currentActiveTab, (newVal, oldVal) => {
-  if (
-    connected.value &&
-    oldVal?.document.request.url !== newVal?.document.request.url
-  ) {
-    oldUrl.value = oldVal?.document.request.url
-    disconnect()
-    connectionSwitchModal.value = true
+const lastTwoUrls = ref<string[]>([])
+
+watch(
+  currentActiveTab,
+  (newVal) => {
+    if (newVal) {
+      lastTwoUrls.value.push(newVal.document.request.url)
+      if (lastTwoUrls.value.length > 2) {
+        lastTwoUrls.value.shift()
+      }
+    }
+
+    if (
+      connected.value &&
+      lastTwoUrls.value.length === 2 &&
+      lastTwoUrls.value.at(0) !== lastTwoUrls.value.at(1)
+    ) {
+      disconnect()
+      connectionSwitchModal.value = true
+    }
+  },
+  {
+    immediate: true,
   }
-})
+)
 
 const cancelSwitch = () => {
   if (connected.value) disconnect()

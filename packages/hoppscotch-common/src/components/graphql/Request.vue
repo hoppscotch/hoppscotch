@@ -113,8 +113,11 @@ const switchConnection = () => {
 }
 
 watch(currentActiveTab, (newVal, oldVal) => {
-  oldUrl.value = oldVal.document.request.url
-  if (oldUrl.value !== newVal.document.request.url && connected.value) {
+  if (
+    connected.value &&
+    oldVal?.document.request.url !== newVal?.document.request.url
+  ) {
+    oldUrl.value = oldVal?.document.request.url
     disconnect()
     connectionSwitchModal.value = true
   }

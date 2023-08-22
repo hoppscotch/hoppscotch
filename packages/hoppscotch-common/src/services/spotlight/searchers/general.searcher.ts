@@ -7,14 +7,17 @@ import {
   StaticSpotlightSearcherService,
 } from "./base/static.searcher"
 
+import IconLinkedIn from "~icons/brands/linkedin"
+import IconTwitter from "~icons/brands/twitter"
 import IconBook from "~icons/lucide/book"
-import IconGithub from "~icons/lucide/github"
+import IconDiscord from "~icons/lucide/link"
+import IconGitHub from "~icons/lucide/github"
 import IconLifeBuoy from "~icons/lucide/life-buoy"
 import IconMessageCircle from "~icons/lucide/message-circle"
 import IconZap from "~icons/lucide/zap"
 
 type Doc = {
-  text: string
+  text: string | string[]
   alternates: string[]
   icon: object | Component
 }
@@ -56,10 +59,25 @@ export class GeneralSpotlightSearcherService extends StaticSpotlightSearcherServ
       alternates: ["key", "shortcuts", "binding"],
       icon: markRaw(IconZap),
     },
-    social_links: {
-      text: this.t("spotlight.general.social"),
-      alternates: ["social", "github", "binding"],
-      icon: markRaw(IconGithub),
+    link_github: {
+      text: [this.t("spotlight.general.social"), "GitHub"],
+      alternates: ["social", "github", "link"],
+      icon: markRaw(IconGitHub),
+    },
+    link_twitter: {
+      text: [this.t("spotlight.general.social"), "Twitter"],
+      alternates: ["social", "twitter", "link"],
+      icon: markRaw(IconTwitter),
+    },
+    link_discord: {
+      text: [this.t("spotlight.general.social"), "Discord"],
+      alternates: ["social", "discord", "link"],
+      icon: markRaw(IconDiscord),
+    },
+    link_linkedin: {
+      text: [this.t("spotlight.general.social"), "LinkedIn"],
+      alternates: ["social", "linkedin", "link"],
+      icon: markRaw(IconLinkedIn),
     },
   })
 
@@ -87,8 +105,7 @@ export class GeneralSpotlightSearcherService extends StaticSpotlightSearcherServ
     }
   }
 
-  private openDocs() {
-    const url = "https://docs.hoppscotch.io"
+  private openURL(url: string) {
     window.open(url, "_blank")
   }
 
@@ -101,13 +118,22 @@ export class GeneralSpotlightSearcherService extends StaticSpotlightSearcherServ
         invokeAction("flyouts.chat.open")
         break
       case "open_docs":
-        this.openDocs()
+        this.openURL("https://docs.hoppscotch.io")
         break
       case "open_keybindings":
         invokeAction("flyouts.keybinds.toggle")
         break
-      case "social_links":
-        invokeAction("modals.social.toggle")
+      case "link_github":
+        this.openURL("https://hoppscotch.io/github")
+        break
+      case "link_twitter":
+        this.openURL("https://twitter.com/hoppscotch_io")
+        break
+      case "link_discord":
+        this.openURL("https://hoppscotch.io/discord")
+        break
+      case "link_linkedin":
+        this.openURL("https://www.linkedin.com/company/hoppscotch/")
         break
     }
   }

@@ -31,7 +31,6 @@ export type HoppAction =
   | "modals.search.toggle" // Shows the search modal
   | "modals.support.toggle" // Shows the support modal
   | "modals.share.toggle" // Shows the share modal
-  | "modals.social.toggle" // Shows the social links modal
   | "modals.environment.add" // Show add environment modal via context menu
   | "modals.environment.new" // Add new environment
   | "modals.my.environment.edit" // Edit current personal environment
@@ -177,7 +176,7 @@ type InvokeActionFunc = {
  * @param args The argument passed to the action handler. Optional if action has no args required
  */
 export const invokeAction: InvokeActionFunc = <
-  A extends HoppAction | HoppActionWithArgs,
+  A extends HoppAction | HoppActionWithArgs
 >(
   action: A,
   args: ArgOfHoppAction<A>

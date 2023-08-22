@@ -127,7 +127,6 @@
         blank
         :icon="IconExternalLink"
         reverse
-        class="mb-4"
       />
     </HoppSmartPlaceholder>
     <div v-else class="flex flex-1 border-b border-dividerLight">

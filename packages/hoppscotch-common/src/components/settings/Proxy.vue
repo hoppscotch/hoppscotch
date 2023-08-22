@@ -19,19 +19,20 @@
     </div>
   </div>
   <div class="flex items-center py-4 space-x-2">
-    <HoppSmartInput
-      v-model="PROXY_URL"
-      styles="flex-1"
-      placeholder=" "
-      input-styles="input floating-input"
-      :disabled="!proxyEnabled"
-    >
-      <template #label>
-        <label for="url">
-          {{ t("settings.proxy_url") }}
-        </label>
-      </template>
-    </HoppSmartInput>
+    <div class="relative flex flex-col flex-1">
+      <input
+        id="url"
+        v-model="PROXY_URL"
+        class="input floating-input"
+        placeholder=" "
+        type="url"
+        autocomplete="off"
+        :disabled="!proxyEnabled"
+      />
+      <label for="url">
+        {{ t("settings.proxy_url") }}
+      </label>
+    </div>
     <HoppButtonSecondary
       v-tippy="{ theme: 'tooltip' }"
       :title="t('settings.reset_default')"

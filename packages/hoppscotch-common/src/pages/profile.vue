@@ -16,14 +16,13 @@
         >
           <HoppButtonPrimary
             :label="t('auth.login')"
-            class="mb-4"
             @click="invokeAction('modals.login.toggle')"
           />
         </HoppSmartPlaceholder>
         <div v-else class="space-y-8">
           <div
             class="h-24 rounded bg-primaryLight -mb-11 md:h-32"
-            style="background-image: url(&quot;/images/cover.svg&quot;)"
+            style="background-image: url(/images/cover.svg)"
           ></div>
           <div class="flex flex-col justify-between px-4 space-y-8 md:flex-row">
             <div class="flex items-end">
@@ -55,8 +54,10 @@
                   {{ currentUser.email }}
                   <icon-lucide-verified
                     v-if="currentUser.emailVerified"
-                    v-tippy="{ theme: 'tooltip' }"
-                    :title="t('settings.verified_email')"
+                    v-tippy="{
+                      theme: 'tooltip',
+                      content: t('settings.verified_email'),
+                    }"
                     class="ml-2 text-green-500 svg-icons focus:outline-none cursor-help"
                   />
                   <HoppButtonSecondary
@@ -100,45 +101,55 @@
                     <label for="displayName">
                       {{ t("settings.profile_name") }}
                     </label>
-                    <HoppSmartInput
-                      v-model="displayName"
-                      styles="mt-2 md:max-w-sm"
-                      :placeholder="`${t('settings.profile_name')}`"
+                    <form
+                      class="flex mt-2 md:max-w-sm"
+                      @submit.prevent="updateDisplayName"
                     >
-                      <template #button>
-                        <HoppButtonSecondary
-                          filled
-                          outline
-                          :label="t('action.save')"
-                          class="ml-2 min-w-16"
-                          type="submit"
-                          :loading="updatingDisplayName"
-                          @click="updateDisplayName"
-                        />
-                      </template>
-                    </HoppSmartInput>
+                      <input
+                        id="displayName"
+                        v-model="displayName"
+                        class="input"
+                        :placeholder="`${t('settings.profile_name')}`"
+                        type="text"
+                        autocomplete="off"
+                        required
+                      />
+                      <HoppButtonSecondary
+                        filled
+                        outline
+                        :label="t('action.save')"
+                        class="ml-2 min-w-16"
+                        type="submit"
+                        :loading="updatingDisplayName"
+                      />
+                    </form>
                   </div>
                   <div class="py-4">
                     <label for="emailAddress">
                       {{ t("settings.profile_email") }}
                     </label>
-                    <HoppSmartInput
-                      v-model="emailAddress"
-                      styles="flex mt-2 md:max-w-sm"
-                      :placeholder="`${t('settings.profile_name')}`"
+                    <form
+                      class="flex mt-2 md:max-w-sm"
+                      @submit.prevent="updateEmailAddress"
                     >
-                      <template #button>
-                        <HoppButtonSecondary
-                          filled
-                          outline
-                          :label="t('action.save')"
-                          class="ml-2 min-w-16"
-                          type="submit"
-                          :loading="updatingEmailAddress"
-                          @click="updateEmailAddress"
-                        />
-                      </template>
-                    </HoppSmartInput>
+                      <input
+                        id="emailAddress"
+                        v-model="emailAddress"
+                        class="input"
+                        :placeholder="`${t('settings.profile_name')}`"
+                        type="email"
+                        autocomplete="off"
+                        required
+                      />
+                      <HoppButtonSecondary
+                        filled
+                        outline
+                        :label="t('action.save')"
+                        class="ml-2 min-w-16"
+                        type="submit"
+                        :loading="updatingEmailAddress"
+                      />
+                    </form>
                   </div>
                 </section>
 

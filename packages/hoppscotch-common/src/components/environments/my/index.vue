@@ -42,7 +42,6 @@
         :label="`${t('add.new')}`"
         filled
         outline
-        class="mb-4"
         @click="displayModalAdd(true)"
       />
     </HoppSmartPlaceholder>

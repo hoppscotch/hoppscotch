@@ -610,7 +610,7 @@
       "head_method": "Select HEAD method",
       "rename": "Rename Current Request",
       "import_curl": "Import cURL",
-      "show_code": "Show generated code",
+      "show_code": "Generate code snippet",
       "method": "Method",
       "next_method": "Select Next method",
       "post_method": "Select POST method",
@@ -695,7 +695,7 @@
     },
     "tab": {
       "close_current": "Close current tab",
-      "close_others": "Close others tab",
+      "close_others": "Close other tabs",
       "new_tab": "Open a new tab",
       "title": "Tabs"
     },

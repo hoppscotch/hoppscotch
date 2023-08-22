@@ -8,7 +8,7 @@ import {
   ref,
   watch,
 } from "vue"
-import { invokeAction } from "~/helpers/actions"
+import { activeActions$, invokeAction } from "~/helpers/actions"
 import { getI18n } from "~/modules/i18n"
 import {
   SpotlightSearcher,
@@ -66,6 +66,14 @@ export class WorkspaceSpotlightSearcherService extends StaticSpotlightSearcherSe
     }
   )[0]
 
+  private activeActions = useStreamStatic(activeActions$, [], () => {
+    /* noop */
+  })[0]
+
+  private isLoggedInUser = computed(() =>
+    this.activeActions.value.includes("user.logout")
+  )
+
   private isTeamSelected = computed(
     () =>
       this.workspace.value.type === "team" &&
@@ -77,6 +85,7 @@ export class WorkspaceSpotlightSearcherService extends StaticSpotlightSearcherSe
       text: this.t("spotlight.workspace.new"),
       alternates: ["new", "team", "workspace"],
       icon: markRaw(IconUsers),
+      excludeFromSearch: computed(() => !this.isLoggedInUser.value),
     },
     edit_team: {
       text: this.t("spotlight.workspace.edit"),

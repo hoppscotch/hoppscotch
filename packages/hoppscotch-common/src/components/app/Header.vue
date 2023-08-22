@@ -254,8 +254,10 @@ import TeamListAdapter from "~/helpers/teams/TeamListAdapter"
 import { onLoggedIn } from "~/composables/auth"
 import { GetMyTeamsQuery } from "~/helpers/backend/graphql"
 import { getPlatformSpecialKey } from "~/helpers/platformutils"
+import { useToast } from "~/composables/toast"
 
 const t = useI18n()
+const toast = useToast()
 
 /**
  * Once the PWA code is initialized, this holds a method
@@ -372,6 +374,8 @@ const handleTeamEdit = () => {
     editingTeamID.value = workspace.value.teamID
     editingTeamName.value = { name: selectedTeam.value.name }
     displayModalEdit(true)
+  } else {
+    noPermission()
   }
 }
 
@@ -382,12 +386,7 @@ const settings = ref<any | null>(null)
 const logout = ref<any | null>(null)
 const accountActions = ref<any | null>(null)
 
-defineActionHandler("modals.team.edit", () => {
-  // TODO: Remove this hack
-  setTimeout(() => {
-    handleTeamEdit()
-  }, 100)
-})
+defineActionHandler("modals.team.edit", handleTeamEdit)
 
 defineActionHandler("modals.team.invite", () => {
   if (
@@ -395,6 +394,8 @@ defineActionHandler("modals.team.invite", () => {
     selectedTeam.value?.myRole === "EDITOR"
   ) {
     inviteTeam({ name: selectedTeam.value.name }, selectedTeam.value.id)
+  } else {
+    noPermission()
   }
 })
 
@@ -405,4 +406,8 @@ defineActionHandler(
   },
   computed(() => !currentUser.value)
 )
+
+const noPermission = () => {
+  toast.error(`${t("profile.no_permission")}`)
+}
 </script>

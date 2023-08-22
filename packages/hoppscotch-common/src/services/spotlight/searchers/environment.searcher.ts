@@ -71,7 +71,9 @@ export class EnvironmentsSpotlightSearcherService extends StaticSpotlightSearche
 
   private selectedEnvIndex = useStreamStatic(
     selectedEnvironmentIndex$,
-    null,
+    {
+      type: "NO_ENV_SELECTED",
+    },
     () => {
       /* noop */
     }

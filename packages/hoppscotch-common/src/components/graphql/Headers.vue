@@ -166,7 +166,6 @@
         :label="`${t('add.new')}`"
         filled
         :icon="IconPlus"
-        class="mb-4"
         @click="addHeader"
       />
     </HoppSmartPlaceholder>

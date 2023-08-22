@@ -86,13 +86,11 @@
               disabled
               :label="`${t('add.new')}`"
               filled
-              class="mb-4"
             />
             <HoppButtonSecondary
               v-else
               :label="`${t('add.new')}`"
               filled
-              class="mb-4"
               @click="addEnvironmentVariable"
             />
           </HoppSmartPlaceholder>

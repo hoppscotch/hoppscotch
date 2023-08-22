@@ -161,7 +161,6 @@
           :label="`${t('add.new')}`"
           :icon="IconPlus"
           filled
-          class="mb-4"
           @click="addParam"
         />
       </HoppSmartPlaceholder>

@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col items-center justify-center text-secondaryLight">
-    <div class="flex pb-4 my-4 space-x-2">
+    <div class="flex mb-4 space-x-2">
       <div class="flex flex-col items-end space-y-4 text-right">
         <span class="flex items-center flex-1">
           {{ t("shortcut.request.send_request") }}

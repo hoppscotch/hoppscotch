@@ -4,7 +4,7 @@
       v-if="src"
       :src="src"
       loading="lazy"
-      class="inline-flex flex-col object-contain object-center my-4"
+      class="inline-flex flex-col object-contain object-center mb-4"
       :class="large ? 'w-32 h-32' : 'w-16 h-16'"
       :alt="alt"
     />

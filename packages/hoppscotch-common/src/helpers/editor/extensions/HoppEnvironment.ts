@@ -71,7 +71,7 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
 
       const selectedEnvType = getSelectedEnvironmentType()
 
-      const envTypeIcon = `<span class="inline-flex -my-2 -mx-0.5 opacity-65 items-center text-base font-icon">${
+      const envTypeIcon = `<span class="inline-flex items-center opacity-65 -mx-0.5 text-base font-icon">${
         selectedEnvType === "TEAM_ENV" ? "group" : "person"
       }</span>`
 
@@ -88,7 +88,7 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
             variableName: parsedEnvKey,
           })
         })
-        editIcon.innerHTML = `<span class="inline-flex items-center px-1 -mx-1 -my-2 text-base font-icon">edit</span>`
+        editIcon.innerHTML = `<span class="inline-flex items-center px-1 -mx-1 text-base font-icon">edit</span>`
         tooltip.appendChild(editIcon)
       }
 

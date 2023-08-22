@@ -81,7 +81,6 @@
             <HoppButtonSecondary
               :label="`${t('add.new')}`"
               filled
-              class="mb-4"
               @click="addEnvironmentVariable"
             />
           </HoppSmartPlaceholder>

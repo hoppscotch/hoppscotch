@@ -203,7 +203,6 @@
               blank
               :icon="IconExternalLink"
               reverse
-              class="mb-4"
             />
           </HoppSmartPlaceholder>
           <div

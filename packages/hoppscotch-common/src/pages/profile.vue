@@ -16,7 +16,6 @@
         >
           <HoppButtonPrimary
             :label="t('auth.login')"
-            class="mb-4"
             @click="invokeAction('modals.login.toggle')"
           />
         </HoppSmartPlaceholder>

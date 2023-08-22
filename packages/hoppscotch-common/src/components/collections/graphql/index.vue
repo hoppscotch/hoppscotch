@@ -137,7 +137,6 @@ import {
   addGraphqlFolder,
   saveGraphqlRequestAs,
 } from "~/newstore/collections"
-import { getGQLSession, setGQLSession } from "~/newstore/GQLSession"
 
 import IconPlus from "~icons/lucide/plus"
 import IconHelpCircle from "~icons/lucide/help-circle"
@@ -146,6 +145,7 @@ import { useI18n } from "@composables/i18n"
 import { useReadonlyStream } from "@composables/stream"
 import { useColorMode } from "@composables/theming"
 import { platform } from "~/platform"
+import { createNewTab, currentActiveTab } from "~/helpers/graphql/tab"
 
 export default defineComponent({
   props: {
@@ -267,15 +267,15 @@ export default defineComponent({
     },
     onAddRequest({ name, path }) {
       const newRequest = {
-        ...getGQLSession().request,
+        ...currentActiveTab.value.document.request,
         name,
       }
 
       saveGraphqlRequestAs(path, newRequest)
-      setGQLSession({
+
+      createNewTab({
         request: newRequest,
-        schema: "",
-        response: "",
+        isDirty: false,
       })
 
       platform.analytics?.logEvent({

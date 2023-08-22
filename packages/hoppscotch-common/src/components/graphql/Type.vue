@@ -55,51 +55,48 @@
   </div>
 </template>
 
-<script>
-// TODO: TypeScript + Setup Script this at some point :)
-
-import { defineComponent } from "vue"
+<script setup lang="ts">
 import {
   GraphQLEnumType,
   GraphQLInputObjectType,
   GraphQLInterfaceType,
 } from "graphql"
+import { computed } from "vue"
 
-export default defineComponent({
-  props: {
-    // eslint-disable-next-line vue/require-default-prop, vue/require-prop-types
-    gqlType: {},
-    gqlTypes: { type: Array, default: () => [] },
-    jumpTypeCallback: { type: Function, default: () => ({}) },
-    isHighlighted: { type: Boolean, default: false },
-    highlightedFields: { type: Array, default: () => [] },
+const props = defineProps({
+  gqlType: {
+    type: Object,
+    required: true,
   },
-  computed: {
-    isInput() {
-      return this.gqlType instanceof GraphQLInputObjectType
-    },
-    isInterface() {
-      return this.gqlType instanceof GraphQLInterfaceType
-    },
-    isEnum() {
-      return this.gqlType instanceof GraphQLEnumType
-    },
-    interfaces() {
-      return (this.gqlType.getInterfaces && this.gqlType.getInterfaces()) || []
-    },
-    children() {
-      return this.gqlTypes.filter(
-        (type) =>
-          type.getInterfaces && type.getInterfaces().includes(this.gqlType)
-      )
-    },
-  },
-  methods: {
-    isFieldHighlighted({ field }) {
-      return !!this.highlightedFields.find(({ name }) => name === field.name)
-    },
-  },
+  gqlTypes: { type: Array, default: () => [] },
+  jumpTypeCallback: { type: Function, default: () => ({}) },
+  isHighlighted: { type: Boolean, default: false },
+  highlightedFields: { type: Array, default: () => [] },
 })
+
+const isInput = computed(() => {
+  return props.gqlType instanceof GraphQLInputObjectType
+})
+
+const isInterface = computed(() => {
+  return props.gqlType instanceof GraphQLInterfaceType
+})
+const isEnum = computed(() => {
+  return props.gqlType instanceof GraphQLEnumType
+})
+const interfaces = computed(() => {
+  return (props.gqlType.getInterfaces && props.gqlType.getInterfaces()) || []
+})
+
+const children = computed(() => {
+  return props.gqlTypes.filter(
+    (type) => type.getInterfaces && type.getInterfaces().includes(props.gqlType)
+  )
+})
+
+const isFieldHighlighted = ({ field }) => {
+  return !!props.highlightedFields.find(({ name }) => name === field.name)
+}
 </script>
 
 <style lang="scss" scoped>

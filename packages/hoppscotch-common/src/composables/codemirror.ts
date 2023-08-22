@@ -58,6 +58,11 @@ type CodeMirrorOptions = {
 
   // NOTE: This property is not reactive
   environmentHighlights: boolean
+
+  additionalExts?: Extension[]
+
+  // callback on editor update
+  onUpdate?: (view: ViewUpdate) => void
 }
 
 const hoppCompleterExt = (completer: Completer): Extension => {
@@ -189,6 +194,7 @@ export function useCodemirror(
 ): { cursor: Ref<{ line: number; ch: number }> } {
   const { subscribeToStream } = useStreamSubscriber()
 
+  const additionalExts = new Compartment()
   const language = new Compartment()
   const lineWrapping = new Compartment()
   const placeholderConfig = new Compartment()
@@ -254,12 +260,24 @@ export function useCodemirror(
 
             el.addEventListener("mouseup", debounceFn)
             el.addEventListener("keyup", debounceFn)
-            const cursorPos = update.state.selection.main.head
-            const line = update.state.doc.lineAt(cursorPos)
 
-            cachedCursor.value = {
-              line: line.number - 1,
-              ch: cursorPos - line.from,
+            if (options.onUpdate) {
+              options.onUpdate(update)
+            }
+
+            if (update.selectionSet) {
+              const cursorPos = update.state.selection.main.head
+              const line = update.state.doc.lineAt(cursorPos)
+
+              cachedCursor.value = {
+                line: line.number - 1,
+                ch: cursorPos - line.from,
+              }
+
+              cursor.value = {
+                line: cachedCursor.value.line,
+                ch: cachedCursor.value.ch,
+              }
             }
 
             cursor.value = {
@@ -313,6 +331,7 @@ export function useCodemirror(
         },
       ]),
       EditorView.contentAttributes.of({ "data-enable-grammarly": "false" }),
+      additionalExts.of(options.additionalExts ?? []),
     ]
 
     if (environmentTooltip) extensions.push(environmentTooltip.extension)
@@ -384,6 +403,15 @@ export function useCodemirror(
             options.completer ?? undefined
           )
         ),
+      })
+    }
+  )
+
+  watch(
+    () => options.additionalExts,
+    (newExts) => {
+      view.value?.dispatch({
+        effects: additionalExts.reconfigure(newExts ?? []),
       })
     }
   )

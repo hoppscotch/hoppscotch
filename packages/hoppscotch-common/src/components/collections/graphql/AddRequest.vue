@@ -36,7 +36,7 @@
 import { ref, watch } from "vue"
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
-import { getGQLSession } from "~/newstore/GQLSession"
+import { currentActiveTab } from "~/helpers/graphql/tab"
 
 const toast = useToast()
 const t = useI18n()
@@ -63,7 +63,7 @@ watch(
   () => props.show,
   (show) => {
     if (show) {
-      editingName.value = getGQLSession().request.name
+      editingName.value = currentActiveTab.value?.document.request.name
     }
   }
 )

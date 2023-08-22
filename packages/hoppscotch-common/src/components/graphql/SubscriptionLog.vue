@@ -1,13 +1,12 @@
 <template>
-  <div class="flex flex-col flex-1 overflow-auto whitespace-nowrap">
+  <div ref="container" class="flex flex-col flex-1">
     <div
-      v-if="log.length !== 0"
-      class="sticky top-0 z-10 flex items-center justify-between flex-shrink-0 pl-4 overflow-x-auto border-b bg-primary border-dividerLight"
+      class="sticky top-0 z-10 flex items-center justify-between flex-none pl-4 border-b bg-primary border-dividerLight"
     >
-      <label for="log" class="font-semibold truncate text-secondaryLight">
-        {{ title }}
+      <label for="log" class="py-2 font-semibold text-secondaryLight">
+        {{ "Subscription Log" }}
       </label>
-      <div class="flex">
+      <div>
         <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           :title="t('action.delete')"
@@ -31,9 +30,7 @@
         <HoppButtonSecondary
           id="bottompage"
           v-tippy="{ theme: 'tooltip' }"
-          :title="`${t('action.autoscroll')}: ${
-            autoScrollEnabled ? t('action.turn_off') : t('action.turn_on')
-          }`"
+          :title="t('action.autoscroll')"
           :icon="IconChevronsDown"
           :class="toggleAutoscrollColor"
           @click="toggleAutoscroll()"
@@ -43,19 +40,19 @@
     <div
       v-if="log.length !== 0"
       ref="logs"
-      class="flex flex-col flex-1 overflow-y-auto"
+      class="overflow-y-auto border-b border-dividerLight"
     >
-      <div class="border-b border-dividerLight">
-        <div class="flex flex-col divide-y divide-dividerLight">
-          <RealtimeLogEntry
-            v-for="(entry, index) in log"
-            :key="`entry-${index}`"
-            :entry="entry"
-          />
-        </div>
+      <div
+        class="flex flex-col h-auto h-full border-r divide-y divide-dividerLight border-dividerLight"
+      >
+        <RealtimeLogEntry
+          v-for="(entry, index) in log"
+          :key="`entry-${index}`"
+          :is-open="log.length - 1 === index"
+          :entry="{ ts: entry.time, source: 'info', payload: entry.data }"
+        />
       </div>
     </div>
-    <AppShortcutsPrompt v-else class="p-4" />
   </div>
 </template>
 
@@ -67,17 +64,10 @@ import IconArrowDown from "~icons/lucide/arrow-down"
 import IconChevronsDown from "~icons/lucide/chevron-down"
 import { useThrottleFn, useScroll } from "@vueuse/core"
 import { useI18n } from "@composables/i18n"
-
-export type LogEntryData = {
-  prefix?: string
-  ts: number | undefined
-  source: "info" | "client" | "server" | "disconnected"
-  payload: string
-  event?: "connecting" | "connected" | "disconnected" | "error"
-}
+import { GQLResponseEvent } from "~/helpers/graphql/connection"
 
 const props = defineProps({
-  log: { type: Array as PropType<LogEntryData[]>, default: () => [] },
+  log: { type: Array as PropType<GQLResponseEvent[]>, default: () => [] },
   title: {
     type: String,
     default: "",
@@ -90,7 +80,8 @@ const emit = defineEmits<{
 
 const t = useI18n()
 
-const logs = ref<HTMLElement>()
+const container = ref<HTMLElement | null>(null)
+const logs = ref<HTMLElement | null>(null)
 
 const autoScrollEnabled = ref(true)
 

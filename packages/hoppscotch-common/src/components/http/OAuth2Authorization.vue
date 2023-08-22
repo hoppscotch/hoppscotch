@@ -33,7 +33,11 @@
 
 <script setup lang="ts">
 import { ref, watch } from "vue"
-import { HoppRESTAuthOAuth2, parseTemplateString } from "@hoppscotch/data"
+import {
+  HoppGQLAuthOAuth2,
+  HoppRESTAuthOAuth2,
+  parseTemplateString,
+} from "@hoppscotch/data"
 import { pluckRef } from "@composables/ref"
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
@@ -44,7 +48,7 @@ const t = useI18n()
 const toast = useToast()
 
 const props = defineProps<{
-  modelValue: HoppRESTAuthOAuth2
+  modelValue: HoppRESTAuthOAuth2 | HoppGQLAuthOAuth2
 }>()
 
 const emit = defineEmits<{

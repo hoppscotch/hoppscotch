@@ -56,6 +56,7 @@ export type HoppAction =
   | "history.clear" // Clear REST History
   | "user.login" // Login to Hoppscotch
   | "user.logout" // Log out of Hoppscotch
+  | "editor.format" // Format editor content
 
 /**
  * Defines the arguments, if present for a given type that is required to be passed on

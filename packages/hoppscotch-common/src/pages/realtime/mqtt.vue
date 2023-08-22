@@ -98,7 +98,7 @@
           :label="tab.name"
           :is-removable="tab.removable"
         >
-          <template #icon>
+          <template #prefix>
             <icon-lucide-rss
               :style="{
                 color: tab.color,

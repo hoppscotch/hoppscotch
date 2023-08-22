@@ -153,6 +153,7 @@
     "remove_telemetry": "Are you sure you want to opt-out of Telemetry?",
     "request_change": "Are you sure you want to discard current request, unsaved changes will be lost.",
     "save_unsaved_tab": "Do you want to save changes made in this tab?",
+    "close_unsaved_tab": "Are you sure you want to close this tab?",
     "close_unsaved_tabs": "Are you sure you want to close all tabs? {count} unsaved tabs will be lost.",
     "sync": "Would you like to restore your workspace from cloud? This will discard your local progress."
   },
@@ -281,6 +282,10 @@
   "graphql": {
     "mutations": "Mutations",
     "schema": "Schema",
+    "switch_connection": "Switch connection",
+    "connection_switch_url": "You're connected to a GraphQL endpoint the connection URL is",
+    "connection_switch_new_url": "Switching to a tab will disconnected you from the active GraphQL connection. New connection URL is",
+    "connection_switch_confirm": "Do you want to connect with the latest GraphQL endpoint?",
     "subscriptions": "Subscriptions"
   },
   "group": {
@@ -473,6 +478,7 @@
     "rename": "Rename Request",
     "renamed": "Request renamed",
     "run": "Run",
+    "stop": "Stop",
     "save": "Save",
     "save_as": "Save as",
     "saved": "Request saved",
@@ -577,6 +583,10 @@
       "help_menu": "Help menu",
       "show_all": "Keyboard shortcuts",
       "title": "General"
+    },
+    "others": {
+      "title": "Others",
+      "prettify": "Prettify Editor's Content"
     },
     "miscellaneous": {
       "invite": "Invite people to Hoppscotch",

@@ -1,4 +1,4 @@
-import { Component, markRaw, reactive } from "vue"
+import { Component, computed, markRaw, reactive } from "vue"
 import { invokeAction } from "~/helpers/actions"
 import { getI18n } from "~/modules/i18n"
 import { SpotlightSearcherResult, SpotlightService } from ".."
@@ -20,11 +20,13 @@ import IconRename from "~icons/lucide/file-edit"
 import IconPlay from "~icons/lucide/play"
 import IconRotateCCW from "~icons/lucide/rotate-ccw"
 import IconSave from "~icons/lucide/save"
+import { useRoute } from "vue-router"
 
 type Doc = {
   text: string | string[]
   alternates: string[]
   icon: object | Component
+  excludeFromSearch?: boolean
 }
 
 /**
@@ -42,6 +44,9 @@ export class RequestSpotlightSearcherService extends StaticSpotlightSearcherServ
   public searcherSectionTitle = this.t("shortcut.request.title")
 
   private readonly spotlight = this.bind(SpotlightService)
+
+  private route = useRoute()
+  private isRESTPage = computed(() => this.route.name === "index")
 
   private documents: Record<string, Doc> = reactive({
     send_request: {
@@ -81,6 +86,7 @@ export class RequestSpotlightSearcherService extends StaticSpotlightSearcherServ
       text: this.t("shortcut.request.import_curl"),
       alternates: ["import", "curl"],
       icon: markRaw(IconFileCode),
+      excludeFromSearch: computed(() => !this.isRESTPage.value),
     },
     show_code: {
       text: this.t("shortcut.request.show_code"),

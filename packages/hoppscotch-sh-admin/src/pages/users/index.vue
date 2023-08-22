@@ -32,7 +32,7 @@
         <div v-else-if="error">{{ t('users.load_list_error') }}</div>
 
         <div v-else-if="usersList.length > 0">
-          <HoppSmartTable>
+          <HoppSmartTable :list="usersList">
             <template #head>
               <tr
                 class="text-secondary border-b border-dividerDark text-sm text-left bg-primaryLight"
@@ -45,9 +45,9 @@
               </tr>
             </template>
 
-            <template #body>
+            <template #body="{ list }">
               <tr
-                v-for="user in usersList"
+                v-for="user in list"
                 :key="user.uid"
                 class="text-secondaryDark hover:bg-divider hover:cursor-pointer rounded-xl"
               >

@@ -28,7 +28,7 @@
         </div>
 
         <div v-else>
-          <HoppSmartTable>
+          <HoppSmartTable :list="teamsList">
             <template #head>
               <tr
                 class="text-secondary border-b border-dividerDark text-sm text-left bg-primaryLight"
@@ -39,9 +39,9 @@
                 <th class="px-6 py-2"></th>
               </tr>
             </template>
-            <template #body>
+            <template #body="{ list }">
               <tr
-                v-for="team in teamsList"
+                v-for="team in list"
                 :key="team.id"
                 class="text-secondaryDark hover:bg-divider hover:cursor-pointer rounded-xl"
               >

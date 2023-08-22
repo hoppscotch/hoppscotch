@@ -14,7 +14,7 @@
       </thead>
 
       <tbody class="divide-y divide-divider">
-        <slot name="body">
+        <slot name="body" :list="list">
           <tr
             v-for="(rowData, rowIndex) in list"
             :key="rowIndex"

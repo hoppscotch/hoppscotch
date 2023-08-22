@@ -27,36 +27,87 @@
           </p>
         </div>
 
-        <div v-else class="m-5">
-          <HoppSmartTable
-            :list="newTeamsList"
-            :headings="headings"
-            @on-row-clicked="goToTeamDetails"
-          >
-            <template #action="{ item }">
-              <div class="relative">
-                <tippy interactive trigger="click" theme="popover">
-                  <HoppButtonSecondary
-                    v-tippy="{ theme: 'tooltip' }"
-                    :icon="IconMoreHorizontal"
-                  />
-                  <template #content="{ hide }">
-                    <div
-                      ref="tippyActions"
-                      class="flex flex-col focus:outline-none"
-                      tabindex="0"
-                      @keyup.escape="hide()"
-                    >
-                      <HoppSmartItem
-                        :icon="IconTrash"
-                        :label="t('teams.delete_team')"
-                        class="!hover:bg-red-600 w-full"
-                        @click="deleteTeam(item)"
+        <div v-else>
+          <HoppSmartTable>
+            <template #head>
+              <tr
+                class="text-secondary border-b border-dividerDark text-sm text-left bg-primaryLight"
+              >
+                <th class="px-6 py-2">{{ t('teams.id') }}</th>
+                <th class="px-6 py-3">{{ t('teams.name') }}</th>
+                <th class="px-6 py-2">{{ t('teams.members') }}</th>
+                <th class="px-6 py-2"></th>
+              </tr>
+            </template>
+            <template #body>
+              <tr
+                v-for="team in teamsList"
+                :key="team.id"
+                class="text-secondaryDark hover:bg-divider hover:cursor-pointer rounded-xl"
+              >
+                <td
+                  @click="goToTeamDetails(team.id)"
+                  class="py-4 px-3 max-w-50"
+                >
+                  <div class="flex">
+                    <span class="truncate">
+                      {{ team.id }}
+                    </span>
+                  </div>
+                </td>
+
+                <td
+                  @click="goToTeamDetails(team.id)"
+                  class="py-4 px-3 min-w-80"
+                >
+                  <span
+                    v-if="team.name"
+                    class="flex items-center ml-4 truncate"
+                  >
+                    {{ team.name }}
+                  </span>
+                  <span v-else class="flex items-center ml-4">
+                    {{ t('teams.unnamed') }}
+                  </span>
+                </td>
+
+                <td @click="goToTeamDetails(team.id)" class="py-4 px-3">
+                  <span class="ml-7">
+                    {{ team.members?.length }}
+                  </span>
+                </td>
+
+                <td>
+                  <div class="relative">
+                    <tippy interactive trigger="click" theme="popover">
+                      <HoppButtonSecondary
+                        v-tippy="{ theme: 'tooltip' }"
+                        :icon="IconMoreHorizontal"
                       />
-                    </div>
-                  </template>
-                </tippy>
-              </div>
+                      <template #content="{ hide }">
+                        <div
+                          ref="tippyActions"
+                          class="flex flex-col focus:outline-none"
+                          tabindex="0"
+                          @keyup.escape="hide()"
+                        >
+                          <HoppSmartItem
+                            :icon="IconTrash"
+                            :label="t('teams.delete_team')"
+                            class="!hover:bg-red-600 w-full"
+                            @click="
+                              () => {
+                                deleteTeam(team.id);
+                                hide();
+                              }
+                            "
+                          />
+                        </div>
+                      </template>
+                    </tippy>
+                  </div>
+                </td>
+              </tr>
             </template>
           </HoppSmartTable>
         </div>
@@ -140,26 +191,6 @@ const {
   { cursor: undefined, take: teamsPerPage }
 );
 
-// The new teams list that is used in the table
-const newTeamsList = computed(() => {
-  return teamsList.value.map((team) => {
-    return {
-      id: team.id,
-      name: team.name,
-      members: team.members.length,
-      action: '',
-    };
-  });
-});
-
-// Table Headings
-const headings = [
-  { key: 'id', label: t('teams.id') },
-  { key: 'name', label: t('teams.name') },
-  { key: 'members', label: t('teams.members') },
-  { key: 'action', label: '', preventClick: true },
-];
-
 // Create Team
 const createTeamMutation = useMutation(CreateTeamDocument);
 const showCreateTeamModal = ref(false);
@@ -197,8 +228,7 @@ const createTeam = async (newTeamName: string, ownerEmail: string) => {
 
 // Go To Individual Team Details Page
 const router = useRouter();
-const goToTeamDetails = (team: { id: string }) =>
-  router.push('/teams/' + team.id);
+const goToTeamDetails = (teamId: string) => router.push('/teams/' + teamId);
 
 // Reload Teams Page when routed back to the teams page
 const route = useRoute();
@@ -212,9 +242,9 @@ const teamDeletion = useMutation(RemoveTeamDocument);
 const confirmDeletion = ref(false);
 const deleteTeamID = ref<string | null>(null);
 
-const deleteTeam = (team: { id: string }) => {
+const deleteTeam = (id: string) => {
   confirmDeletion.value = true;
-  deleteTeamID.value = team.id;
+  deleteTeamID.value = id;
 };
 
 const deleteTeamMutation = async (id: string | null) => {

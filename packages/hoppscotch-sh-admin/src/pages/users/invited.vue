@@ -24,7 +24,7 @@
             <p class="text-xl">{{ t('users.no_invite') }}</p>
           </div>
 
-          <div v-else class="m-5">
+          <div v-else>
             <HoppSmartTable :list="newInvitedUsersList" :headings="headings">
               <template #invitedOn="{ item }">
                 <div class="flex flex-col truncate">

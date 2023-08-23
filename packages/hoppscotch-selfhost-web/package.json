@@ -29,6 +29,7 @@
     "@hoppscotch/common": "workspace:^",
     "@hoppscotch/data": "workspace:^",
     "axios": "^1.4.0",
+    "@import-meta-env/unplugin": "^0.4.8",
     "buffer": "^6.0.3",
     "fp-ts": "^2.16.1",
     "process": "^0.11.10",
@@ -74,6 +75,7 @@
     "vite-plugin-windicss": "^1.9.1",
     "vitest": "^0.34.2",
     "vue-tsc": "^1.8.8",
+    "vite-plugin-fonts": "^0.6.0",
     "windicss": "^3.5.6"
   }
 }

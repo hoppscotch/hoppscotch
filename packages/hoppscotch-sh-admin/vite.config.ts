@@ -10,10 +10,14 @@ import Pages from 'vite-plugin-pages';
 import Layouts from 'vite-plugin-vue-layouts';
 import VueI18n from '@intlify/vite-plugin-vue-i18n';
 import path from 'path';
+import ImportMetaEnv from "@import-meta-env/unplugin"
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  envDir: path.resolve(__dirname, '../../'),
+  envPrefix:
+    process.env.HOPP_ALLOW_RUNTIME_ENV
+      ? "VITE_BUILDTIME_"
+      : "VITE_",
   server: {
     port: 3100,
   },
@@ -85,7 +89,11 @@ export default defineConfig({
             variables: ["variable-full"],
           },
         ],
-      },
+      }
+    }),
+    ImportMetaEnv.vite({
+      example: "../../.env.example",
+      env: "../../.env",
     }),
   ],
 });

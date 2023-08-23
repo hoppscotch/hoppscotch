@@ -36,7 +36,7 @@ export const META_TAGS = (env: Record<string, string>): IHTMLTag[] => [
   },
   {
     name: "image",
-    content: `${env.VITE_BASE_URL}/banner.png`,
+    content: `${env.APP_BASE_URL}/banner.png`,
   },
   // Open Graph tags
   {
@@ -49,7 +49,7 @@ export const META_TAGS = (env: Record<string, string>): IHTMLTag[] => [
   },
   {
     name: "og:image",
-    content: `${env.VITE_BASE_URL}/banner.png`,
+    content: `${env.APP_BASE_URL}/banner.png`,
   },
   // Twitter tags
   {
@@ -74,7 +74,7 @@ export const META_TAGS = (env: Record<string, string>): IHTMLTag[] => [
   },
   {
     name: "twitter:image",
-    content: `${env.VITE_BASE_URL}/banner.png`,
+    content: `${env.APP_BASE_URL}/banner.png`,
   },
   // Add to homescreen for Chrome on Android. Fallback for PWA (handled by nuxt)
   {
@@ -84,7 +84,7 @@ export const META_TAGS = (env: Record<string, string>): IHTMLTag[] => [
   // Windows phone tile icon
   {
     name: "msapplication-TileImage",
-    content: `${env.VITE_BASE_URL}/icon.png`,
+    content: `${env.APP_BASE_URL}/icon.png`,
   },
   {
     name: "msapplication-TileColor",

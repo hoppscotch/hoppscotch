@@ -33,7 +33,7 @@
     "@nestjs/passport": "^9.0.0",
     "@nestjs/platform-express": "^9.2.1",
     "@nestjs/throttler": "^4.0.0",
-    "@prisma/client": "^4.7.1",
+    "@prisma/client": "^4.16.2",
     "apollo-server-express": "^3.11.1",
     "apollo-server-plugin-base": "^3.7.1",
     "argon2": "^0.30.3",
@@ -57,7 +57,7 @@
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",
     "passport-microsoft": "^1.0.0",
-    "prisma": "^4.7.1",
+    "prisma": "^4.16.2",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^7.6.0"

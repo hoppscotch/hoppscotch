@@ -11,12 +11,15 @@ RUN pnpm fetch
 COPY . .
 RUN pnpm install -f --offline
 
+
 FROM base_builder as backend
 WORKDIR /usr/src/app/packages/hoppscotch-backend
 RUN pnpm exec prisma generate
 RUN pnpm run build
 ENV PRODUCTION="true"
 ENV PORT=3170
+ENV APP_PORT=${PORT}
+ENV DB_URL=${DATABASE_URL}
 CMD ["pnpm", "run", "start:prod"]
 EXPOSE 3170
 

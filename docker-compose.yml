@@ -8,6 +8,103 @@ services:
   hoppscotch-backend:
     container_name: hoppscotch-backend
     build:
+      dockerfile: prod.Dockerfile
+      context: .
+      target: backend
+    env_file:
+      - ./.env
+    restart: always
+    environment:
+      # Edit the below line to match your PostgresDB URL if you have an outside DB (make sure to update the .env file as well)
+      - DATABASE_URL=postgresql://postgres:testpass@hoppscotch-db:5432/hoppscotch?connect_timeout=300
+      - PORT=3170
+    volumes:
+      # Uncomment the line below when modifying code. Only applicable when using the "dev" target.
+      # - ./packages/hoppscotch-backend/:/usr/src/app
+      - /usr/src/app/node_modules/
+    depends_on:
+      hoppscotch-db:
+        condition: service_healthy
+    ports:
+      - "3170:3170"
+
+  # The main hoppscotch app. This will be hosted at port 3000
+  # NOTE: To do TLS or play around with how the app is hosted, you can look into the Caddyfile for
+  #       the SH admin dashboard server at packages/hoppscotch-selfhost-web/Caddyfile
+  hoppscotch-app:
+    container_name: hoppscotch-app
+    build:
+      dockerfile: prod.Dockerfile
+      context: .
+      target: app
+    env_file:
+      - ./.env
+    depends_on:
+      - hoppscotch-backend
+    ports:
+      - "3000:8080"
+
+  # The Self Host dashboard for managing the app. This will be hosted at port 3100
+  # NOTE: To do TLS or play around with how the app is hosted, you can look into the Caddyfile for
+  #       the SH admin dashboard server at packages/hoppscotch-sh-admin/Caddyfile
+  hoppscotch-sh-admin:
+    container_name: hoppscotch-sh-admin
+    build:
+      dockerfile: prod.Dockerfile
+      context: .
+      target: sh_admin
+    env_file:
+      - ./.env
+    depends_on:
+      - hoppscotch-backend
+    ports:
+      - "3100:8080"
+
+  # The service that spins up all 3 services at once in one container
+  hoppscotch-aio:
+    container_name: hoppscotch-aio
+    build:
+      dockerfile: prod.Dockerfile
+      context: .
+      target: aio
+    env_file:
+      - ./.env
+    depends_on:
+      hoppscotch-db:
+        condition: service_healthy
+    ports:
+      - "3000:3000"
+      - "3100:3100"
+      - "3170:3170"
+
+  # The preset DB service, you can delete/comment the below lines if
+  # you are using an external postgres instance
+  # This will be exposed at port 5432
+  hoppscotch-db:
+    image: postgres:15
+    ports:
+      - "5432:5432"
+    user: postgres
+    environment:
+      # The default user defined by the docker image
+      POSTGRES_USER: postgres
+      # NOTE: Please UPDATE THIS PASSWORD!
+      POSTGRES_PASSWORD: testpass
+      POSTGRES_DB: hoppscotch
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "sh -c 'pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}'"
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # All the services listed below are deprececated
+  hoppscotch-old-backend:
+    container_name: hoppscotch-old-backend
+    build:
       dockerfile: packages/hoppscotch-backend/Dockerfile
       context: .
       target: prod
@@ -28,54 +125,26 @@ services:
     ports:
       - "3170:3000"
 
-  # The main hoppscotch app. This will be hosted at port 3000
-  # NOTE: To do TLS or play around with how the app is hosted, you can look into the Caddyfile for
-  #       the SH admin dashboard server at packages/hoppscotch-selfhost-web/Caddyfile
-  hoppscotch-app:
-    container_name: hoppscotch-app
+  hoppscotch-old-app:
+    container_name: hoppscotch-old-app
     build:
       dockerfile: packages/hoppscotch-selfhost-web/Dockerfile
       context: .
     env_file:
       - ./.env
     depends_on:
-      - hoppscotch-backend
+      - hoppscotch-old-backend
     ports:
       - "3000:8080"
 
-  # The Self Host dashboard for managing the app. This will be hosted at port 3100
-  # NOTE: To do TLS or play around with how the app is hosted, you can look into the Caddyfile for
-  #       the SH admin dashboard server at packages/hoppscotch-sh-admin/Caddyfile
-  hoppscotch-sh-admin:
-    container_name: hoppscotch-sh-admin
+  hoppscotch-old-sh-admin:
+    container_name: hoppscotch-old-sh-admin
     build:
       dockerfile: packages/hoppscotch-sh-admin/Dockerfile
       context: .
     env_file:
       - ./.env
     depends_on:
-      - hoppscotch-backend
+      - hoppscotch-old-backend
     ports:
       - "3100:8080"
-
-  # The preset DB service, you can delete/comment the below lines if
-  # you are using an external postgres instance
-  # This will be exposed at port 5432
-  hoppscotch-db:
-    image: postgres:15
-    ports:
-      - "5432:5432"
-    user: postgres
-    environment:
-      # The default user defined by the docker image
-      POSTGRES_USER: postgres
-      # NOTE: Please UPDATE THIS PASSWORD!
-      POSTGRES_PASSWORD: testpass
-      POSTGRES_DB: hoppscotch
-    healthcheck:
-      test: ["CMD-SHELL", "sh -c 'pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}'"]
-      interval: 5s
-      timeout: 5s
-      retries: 10
-
-

@@ -1,5 +1,5 @@
 <template>
-  <div class="autocomplete-wrapper">
+  <div ref="autoCompleteWrapper" class="autocomplete-wrapper">
     <div
       class="absolute inset-0 flex flex-1 divide-x divide-dividerLight overflow-x-auto"
     >
@@ -125,8 +125,9 @@ const currentSuggestionIndex = ref(-1)
 const showSuggestionPopover = ref(false)
 
 const suggestionsMenu = ref<any | null>(null)
+const autoCompleteWrapper = ref<any | null>(null)
 
-onClickOutside(suggestionsMenu, () => {
+onClickOutside(autoCompleteWrapper, () => {
   showSuggestionPopover.value = false
 })
 

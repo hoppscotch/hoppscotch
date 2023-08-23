@@ -17,6 +17,9 @@ import {
   getSelectedEnvironmentType,
 } from "~/newstore/environments"
 import { invokeAction } from "~/helpers/actions"
+import IconUser from "~icons/lucide/user?raw"
+import IconUsers from "~icons/lucide/users?raw"
+import IconEdit from "~icons/lucide/edit?raw"
 
 const HOPP_ENVIRONMENT_REGEX = /(<<[a-zA-Z0-9-_]+>>)/g
 
@@ -71,14 +74,14 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
 
       const selectedEnvType = getSelectedEnvironmentType()
 
-      const envTypeIcon = `<span class="inline-flex items-center opacity-65 -mx-0.5 text-base font-icon">${
-        selectedEnvType === "TEAM_ENV" ? "group" : "person"
+      const envTypeIcon = `<span class="inline-flex items-center justify-center my-1">${
+        selectedEnvType === "TEAM_ENV" ? IconUsers : IconUser
       }</span>`
 
       const appendEditAction = (tooltip: HTMLElement) => {
-        const editIcon = document.createElement("span")
+        const editIcon = document.createElement("button")
         editIcon.className =
-          "ml-2 cursor-pointer env-icon text-accent hover:text-accentDark"
+          "ml-2 cursor-pointer text-accent hover:text-accentDark"
         editIcon.addEventListener("click", () => {
           const isPersonalEnv =
             envName === "Global" || selectedEnvType !== "TEAM_ENV"
@@ -88,7 +91,7 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
             variableName: parsedEnvKey,
           })
         })
-        editIcon.innerHTML = `<span class="inline-flex items-center px-1 -mx-1 text-base font-icon">edit</span>`
+        editIcon.innerHTML = `<span class="inline-flex items-center justify-center my-1">${IconEdit}</span>`
         tooltip.appendChild(editIcon)
       }
 
@@ -103,7 +106,7 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
           const kbd = document.createElement("kbd")
           const icon = document.createElement("span")
           icon.innerHTML = envTypeIcon
-          icon.className = "mr-2 env-icon"
+          icon.className = "mr-2"
           kbd.textContent = finalEnv
           tooltipContainer.appendChild(icon)
           tooltipContainer.appendChild(document.createTextNode(`${envName} `))

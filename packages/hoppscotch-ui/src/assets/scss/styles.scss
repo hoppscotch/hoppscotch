@@ -166,12 +166,6 @@ a {
       @apply truncate;
       @apply sm:inline-flex;
     }
-
-    .env-icon {
-      @apply transition;
-      @apply inline-flex;
-      @apply items-center;
-    }
   }
 
   .tippy-svg-arrow {
@@ -332,7 +326,7 @@ pre.ace_editor {
   @apply after:font-icon;
   @apply after:text-current;
   @apply after:right-3;
-  @apply after:content-["\e313"];
+  @apply after:content-["\e5cf"];
   @apply after:text-lg;
 }
 
@@ -577,4 +571,12 @@ details[open] summary .indicator {
 .color-picker[type="color"]::-webkit-color-swatch {
   @apply rounded;
   @apply border-0;
+}
+
+.gql-operation-not-highlight {
+  @apply opacity-50;
+}
+
+.gql-operation-highlight {
+  @apply opacity-100;
 }

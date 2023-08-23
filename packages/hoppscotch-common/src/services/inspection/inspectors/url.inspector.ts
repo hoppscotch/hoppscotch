@@ -45,7 +45,9 @@ export class URLInspectorService extends Service implements Inspector {
 
     const url = req.endpoint
 
-    const isContainLocalhost = url.includes("localhost")
+    const localHostURLs = ["localhost", "127.0.0.1"]
+
+    const isContainLocalhost = localHostURLs.some((host) => url.includes(host))
 
     if (
       isContainLocalhost &&

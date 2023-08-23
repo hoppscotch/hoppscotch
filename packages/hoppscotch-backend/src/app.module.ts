@@ -19,7 +19,7 @@ import { UserCollectionModule } from './user-collection/user-collection.module';
 import { ShortcodeModule } from './shortcode/shortcode.module';
 import { COOKIES_NOT_FOUND } from './errors';
 import { ThrottlerModule } from '@nestjs/throttler';
-import { AppController } from './app/app.controller';
+import { AppController } from './app.controller';
 
 @Module({
   imports: [

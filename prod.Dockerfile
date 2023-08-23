@@ -55,6 +55,9 @@ COPY --from=fe_builder /usr/src/app/packages/hoppscotch-selfhost-web/dist /site/
 COPY --from=sh_admin_builder /usr/src/app/packages/hoppscotch-sh-admin/dist /site/sh-admin
 COPY aio.Caddyfile /etc/caddy/Caddyfile
 ENTRYPOINT [ "tini", "--" ]
+RUN apk --no-cache add curl
+COPY --chmod=755 healthcheck.sh .
+HEALTHCHECK --interval=2s CMD /bin/sh ./healthcheck.sh
 CMD ["node", "/usr/src/app/aio_run.mjs"]
 EXPOSE 3170
 EXPOSE 3000

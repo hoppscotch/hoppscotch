@@ -672,7 +672,7 @@
       "tab_tests": "Tests tab"
     },
     "response": {
-      "copy": "Copy response as JSON",
+      "copy": "Copy response",
       "download": "Download response as file",
       "title": "Response"
     },

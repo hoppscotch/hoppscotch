@@ -129,9 +129,7 @@ const downloadResponse = (str: string) => {
 }
 
 defineActionHandler("response.file.download", () =>
-  downloadResponse.bind(responseString.value)
+  downloadResponse(responseString.value)
 )
-defineActionHandler("response.copy", () =>
-  copyResponse.bind(responseString.value)
-)
+defineActionHandler("response.copy", () => copyResponse(responseString.value))
 </script>

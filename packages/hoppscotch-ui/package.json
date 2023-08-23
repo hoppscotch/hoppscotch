@@ -14,8 +14,7 @@
     "do-build-ui": "pnpm run story:build"
   },
   "peerDependencies": {
-    "vue": "^3.2.25",
-    "vue-router": "^4.0.16"
+    "vue": "^3.2.25"
   },
   "dependencies": {
     "@fontsource-variable/inter": "^5.0.5",
@@ -25,25 +24,10 @@
     "@lezer/highlight": "^1.0.0",
     "@vitejs/plugin-legacy": "^2.3.0",
     "@vueuse/core": "^8.7.5",
-    "@vueuse/head": "^0.7.9",
-    "acorn-walk": "^8.2.0",
-    "esprima": "^4.0.1",
-    "events": "^3.3.0",
     "fp-ts": "^2.12.1",
-    "globalthis": "^1.0.3",
     "lodash-es": "^4.17.21",
     "path": "^0.12.7",
-    "rxjs": "^7.5.5",
-    "splitpanes": "^3.1.1",
-    "tern": "^0.24.3",
-    "timers": "^0.1.1",
-    "tippy.js": "^6.3.7",
-    "url": "^0.11.0",
-    "util": "^0.12.4",
     "vite-plugin-eslint": "^1.8.1",
-    "vue-github-button": "^3.0.3",
-    "vue-router": "^4.0.16",
-    "vue-tippy": "6.0.0-alpha.58",
     "vuedraggable-es": "^4.1.1"
   },
   "devDependencies": {
@@ -61,12 +45,10 @@
     "@vue/compiler-sfc": "^3.2.39",
     "@vue/eslint-config-typescript": "^11.0.1",
     "@vue/runtime-core": "^3.2.39",
-    "cross-env": "^7.0.3",
     "eslint": "^8.24.0",
     "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-vue": "^9.5.1",
     "histoire": "^0.12.4",
-    "npm-run-all": "^4.1.5",
     "rollup-plugin-polyfill-node": "^0.10.1",
     "sass": "^1.53.0",
     "typescript": "^4.5.4",
@@ -85,8 +67,6 @@
     "vite-plugin-vue-layouts": "^0.7.0",
     "vite-plugin-windicss": "^1.8.8",
     "vue": "^3.2.25",
-    "vue-loader": "^16.8.3",
-    "vue-router": "^4.0.16",
     "vue-tsc": "^0.38.2",
     "windicss": "^3.5.6"
   },

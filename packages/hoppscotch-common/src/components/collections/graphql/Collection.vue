@@ -219,6 +219,7 @@ import {
   moveGraphqlRequest,
 } from "~/newstore/collections"
 import { Picked } from "~/helpers/types/HoppPicked"
+import { getTabsRefTo } from "~/helpers/graphql/tab"
 
 const props = defineProps({
   picked: { type: Object, default: null },
@@ -291,6 +292,22 @@ const removeCollection = () => {
     props.picked?.collectionIndex === props.collectionIndex
   ) {
     emit("select", null)
+  }
+
+  const possibleTabs = getTabsRefTo((tab) => {
+    const ctx = tab.document.saveContext
+
+    if (!ctx) return false
+
+    return (
+      ctx.originLocation === "user-collection" &&
+      ctx.folderPath.startsWith(props.collectionIndex.toString())
+    )
+  })
+
+  for (const tab of possibleTabs) {
+    tab.value.document.saveContext = undefined
+    tab.value.document.isDirty = true
   }
 
   removeGraphqlCollection(props.collectionIndex, props.collection.id)

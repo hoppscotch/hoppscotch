@@ -114,7 +114,7 @@ export class ParameterMenuService extends Service implements ContextMenu {
           id: "environment",
           text: {
             type: "text",
-            text: this.t("context_menu.add_parameter"),
+            text: this.t("context_menu.add_parameters"),
           },
           icon: markRaw(IconArrowDownRight),
           action: () => {

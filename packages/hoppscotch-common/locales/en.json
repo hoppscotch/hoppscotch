@@ -649,11 +649,11 @@
   },
   "spotlight": {
     "general": {
-      "help_menu": "Open help and support menu",
+      "help_menu": "Help and support",
       "chat": "Chat with support",
       "open_docs": "Read Documentation",
-      "open_keybindings": "Open keyboard shortcuts",
-      "social": "Social link",
+      "open_keybindings": "Keyboard shortcuts",
+      "social": "Social",
       "title": "General"
     },
     "miscellaneous": {

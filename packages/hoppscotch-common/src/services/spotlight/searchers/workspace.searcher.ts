@@ -8,7 +8,7 @@ import {
   ref,
   watch,
 } from "vue"
-import { activeActions$, invokeAction } from "~/helpers/actions"
+import { invokeAction } from "~/helpers/actions"
 import { getI18n } from "~/modules/i18n"
 import {
   SpotlightSearcher,
@@ -24,6 +24,7 @@ import {
 import { Service } from "dioc"
 import * as E from "fp-ts/Either"
 import MiniSearch from "minisearch"
+import IconCheckCircle from "~/components/app/spotlight/entry/IconSelected.vue"
 import { useStreamStatic } from "~/composables/stream"
 import { runGQLQuery } from "~/helpers/backend/GQLClient"
 import { GetMyTeamsDocument, GetMyTeamsQuery } from "~/helpers/backend/graphql"
@@ -34,7 +35,6 @@ import IconTrash2 from "~icons/lucide/trash-2"
 import IconUser from "~icons/lucide/user"
 import IconUserPlus from "~icons/lucide/user-plus"
 import IconUsers from "~icons/lucide/users"
-import IconCheckCircle from "~/components/app/spotlight/entry/IconSelected.vue"
 
 type Doc = {
   text: string | string[]

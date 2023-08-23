@@ -308,7 +308,7 @@ import {
   selectedEnvironmentIndex$,
   setSelectedEnvironmentIndex,
 } from "~/newstore/environments"
-import { workspaceStatus$ } from "~/newstore/workspace"
+import { changeWorkspace, workspaceStatus$ } from "~/newstore/workspace"
 import TeamEnvironmentAdapter from "~/helpers/teams/TeamEnvironmentAdapter"
 import { useColorMode } from "@composables/theming"
 import { breakpointsTailwind, useBreakpoints } from "@vueuse/core"
@@ -316,6 +316,10 @@ import { invokeAction } from "~/helpers/actions"
 import { TeamEnvironment } from "~/helpers/teams/TeamEnvironment"
 import { Environment } from "@hoppscotch/data"
 import { onMounted } from "vue"
+import { onLoggedIn } from "~/composables/auth"
+import TeamListAdapter from "~/helpers/teams/TeamListAdapter"
+import { useLocalState } from "~/newstore/localstate"
+import { GetMyTeamsQuery } from "~/helpers/backend/graphql"
 
 type Scope =
   | {
@@ -351,6 +355,38 @@ const myEnvironments = useReadonlyStream(environments$, [])
 
 const workspace = useReadonlyStream(workspaceStatus$, { type: "personal" })
 
+// TeamList-Adapter
+const teamListAdapter = new TeamListAdapter(true)
+const myTeams = useReadonlyStream(teamListAdapter.teamList$, null)
+const teamListFetched = ref(false)
+const REMEMBERED_TEAM_ID = useLocalState("REMEMBERED_TEAM_ID")
+
+onLoggedIn(() => {
+  !teamListAdapter.isInitialized && teamListAdapter.initialize()
+})
+
+const switchToTeamWorkspace = (team: GetMyTeamsQuery["myTeams"][number]) => {
+  REMEMBERED_TEAM_ID.value = team.id
+  changeWorkspace({
+    teamID: team.id,
+    teamName: team.name,
+    type: "team",
+  })
+}
+watch(
+  () => myTeams.value,
+  (newTeams) => {
+    if (newTeams && !teamListFetched.value) {
+      teamListFetched.value = true
+      if (REMEMBERED_TEAM_ID.value) {
+        const team = newTeams.find((t) => t.id === REMEMBERED_TEAM_ID.value)
+        if (team) switchToTeamWorkspace(team)
+      }
+    }
+  }
+)
+
+// TeamEnv List Adapter
 const teamEnvListAdapter = new TeamEnvironmentAdapter(undefined)
 const teamListLoading = useReadonlyStream(teamEnvListAdapter.loading$, false)
 const teamAdapterError = useReadonlyStream(teamEnvListAdapter.error$, null)

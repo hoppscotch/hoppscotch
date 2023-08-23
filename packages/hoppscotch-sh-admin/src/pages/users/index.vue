@@ -50,11 +50,9 @@
                 v-for="user in list"
                 :key="user.uid"
                 class="text-secondaryDark hover:bg-divider hover:cursor-pointer rounded-xl"
+                @click="goToUserDetails(user.uid)"
               >
-                <td
-                  @click="goToUserDetails(user.uid)"
-                  class="py-2 px-3 max-w-30"
-                >
+                <td class="py-2 px-3 max-w-30">
                   <div class="flex">
                     <span class="truncate">
                       {{ user.uid }}
@@ -62,7 +60,7 @@
                   </div>
                 </td>
 
-                <td @click="goToUserDetails(user.uid)" class="py-2 px-3">
+                <td class="py-2 px-3">
                   <div
                     v-if="user.displayName"
                     class="flex items-center space-x-3"
@@ -88,13 +86,13 @@
                   </div>
                 </td>
 
-                <td @click="goToUserDetails(user.uid)" class="py-2 px-3">
+                <td class="py-2 px-3">
                   <span>
                     {{ user.email }}
                   </span>
                 </td>
 
-                <td @click="goToUserDetails(user.uid)" class="py-2 px-3">
+                <td class="py-2 px-3">
                   <div class="flex items-center">
                     <div class="flex flex-col">
                       {{ getCreatedDate(user.createdOn) }}
@@ -105,7 +103,7 @@
                   </div>
                 </td>
 
-                <td>
+                <td @click.stop>
                   <div class="relative">
                     <span>
                       <tippy interactive trigger="click" theme="popover">

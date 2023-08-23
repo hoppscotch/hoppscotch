@@ -44,11 +44,9 @@
                 v-for="team in list"
                 :key="team.id"
                 class="text-secondaryDark hover:bg-divider hover:cursor-pointer rounded-xl"
+                @click="goToTeamDetails(team.id)"
               >
-                <td
-                  @click="goToTeamDetails(team.id)"
-                  class="py-4 px-3 max-w-50"
-                >
+                <td class="py-4 px-3 max-w-50">
                   <div class="flex">
                     <span class="truncate">
                       {{ team.id }}
@@ -56,10 +54,7 @@
                   </div>
                 </td>
 
-                <td
-                  @click="goToTeamDetails(team.id)"
-                  class="py-4 px-3 min-w-80"
-                >
+                <td class="py-4 px-3 min-w-80">
                   <span
                     v-if="team.name"
                     class="flex items-center ml-4 truncate"
@@ -71,13 +66,13 @@
                   </span>
                 </td>
 
-                <td @click="goToTeamDetails(team.id)" class="py-4 px-3">
+                <td class="py-4 px-3">
                   <span class="ml-7">
                     {{ team.members?.length }}
                   </span>
                 </td>
 
-                <td>
+                <td @click.stop>
                   <div class="relative">
                     <tippy interactive trigger="click" theme="popover">
                       <HoppButtonSecondary

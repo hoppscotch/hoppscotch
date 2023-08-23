@@ -487,6 +487,10 @@ pre.ace_editor {
   }
 }
 
+.cm-scroller {
+  @apply overscroll-y-auto;
+}
+
 .cm-editor {
   .cm-line::selection {
     @apply bg-accentDark #{!important};

@@ -7,6 +7,7 @@ import { BehaviorSubject } from "rxjs"
 import { HoppRESTDocument } from "./rest/document"
 import { HoppGQLRequest, HoppRESTRequest } from "@hoppscotch/data"
 import { RequestOptionTabs } from "~/components/http/RequestOptions.vue"
+import { HoppGQLSaveContext } from "./graphql/document"
 
 export type HoppAction =
   | "contextmenu.open" // Send/Cancel a Hoppscotch Request
@@ -109,6 +110,7 @@ type HoppActionArgsMap = {
 
   "gql.request.open": {
     request: HoppGQLRequest
+    saveContext?: HoppGQLSaveContext
   }
   "modals.environment.add": {
     envName: string

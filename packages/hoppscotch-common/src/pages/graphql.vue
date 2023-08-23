@@ -152,8 +152,9 @@ onBeforeUnmount(() => {
   }
 })
 
-defineActionHandler("gql.request.open", ({ request }) => {
+defineActionHandler("gql.request.open", ({ request, saveContext }) => {
   createNewTab({
+    saveContext,
     request: request,
     isDirty: false,
   })

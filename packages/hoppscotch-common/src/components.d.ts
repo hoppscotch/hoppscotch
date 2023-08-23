@@ -29,6 +29,7 @@ declare module 'vue' {
     AppSpotlightEntry: typeof import('./components/app/spotlight/Entry.vue')['default']
     AppSpotlightEntryGQLHistory: typeof import('./components/app/spotlight/entry/GQLHistory.vue')['default']
     AppSpotlightEntryGQLRequest: typeof import('./components/app/spotlight/entry/GQLRequest.vue')['default']
+    AppSpotlightEntryIconSelected: typeof import('./components/app/spotlight/entry/IconSelected.vue')['default']
     AppSpotlightEntryRESTHistory: typeof import('./components/app/spotlight/entry/RESTHistory.vue')['default']
     AppSpotlightEntryRESTRequest: typeof import('./components/app/spotlight/entry/RESTRequest.vue')['default']
     AppSupport: typeof import('./components/app/Support.vue')['default']

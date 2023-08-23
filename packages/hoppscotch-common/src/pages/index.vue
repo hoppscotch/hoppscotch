@@ -461,6 +461,9 @@ defineActionHandler("rest.request.open", ({ doc }) => {
 })
 
 defineActionHandler("rest.request.rename", openReqRenameModal)
+defineActionHandler("request.duplicate-tab", ({ tabID }) => {
+  duplicateTab(tabID)
+})
 
 const inspectionService = useService(InspectionService)
 useService(HeaderInspectorService)

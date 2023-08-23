@@ -108,6 +108,10 @@ type HoppActionArgsMap = {
     tab: RequestOptionTabs
   }
 
+  "request.duplicate-tab": {
+    tabID: string
+  }
+
   "gql.request.open": {
     request: HoppGQLRequest
     saveContext?: HoppGQLSaveContext

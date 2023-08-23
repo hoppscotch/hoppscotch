@@ -1,4 +1,4 @@
-import { Component, markRaw, reactive } from "vue"
+import { Component, computed, markRaw, reactive } from "vue"
 import { getI18n } from "~/modules/i18n"
 import { SpotlightSearcherResult, SpotlightService } from ".."
 import {
@@ -6,19 +6,23 @@ import {
   StaticSpotlightSearcherService,
 } from "./base/static.searcher"
 
+import { useRoute } from "vue-router"
+import { getDefaultRESTRequest } from "~/helpers/rest/default"
 import {
   closeOtherTabs,
   closeTab,
   createNewTab,
   currentTabID,
+  getActiveTabs,
 } from "~/helpers/rest/tab"
 import IconWindow from "~icons/lucide/app-window"
-import { getDefaultRESTRequest } from "~/helpers/rest/default"
+import { invokeAction } from "~/helpers/actions"
 
 type Doc = {
   text: string
   alternates: string[]
   icon: object | Component
+  excludeFromSearch?: boolean
 }
 
 /**
@@ -37,21 +41,39 @@ export class TabSpotlightSearcherService extends StaticSpotlightSearcherService<
 
   private readonly spotlight = this.bind(SpotlightService)
 
+  private route = useRoute()
+  private showAction = computed(
+    () => this.route.name === "index" ?? this.route.name === "graphql"
+  )
+
   private documents: Record<string, Doc> = reactive({
+    duplicate_tab: {
+      text: this.t("spotlight.tab.duplicate"),
+      alternates: ["tab", "duplicate", "duplicate tab"],
+      icon: markRaw(IconWindow),
+      excludeFromSearch: computed(() => !this.showAction.value),
+    },
     close_current_tab: {
       text: this.t("spotlight.tab.close_current"),
       alternates: ["tab", "close", "close tab"],
       icon: markRaw(IconWindow),
+      excludeFromSearch: computed(
+        () => !this.showAction.value ?? getActiveTabs().value.length === 1
+      ),
     },
     close_other_tabs: {
       text: this.t("spotlight.tab.close_others"),
       alternates: ["tab", "close", "close all"],
       icon: markRaw(IconWindow),
+      excludeFromSearch: computed(
+        () => !this.showAction.value ?? getActiveTabs().value.length < 2
+      ),
     },
     open_new_tab: {
       text: this.t("spotlight.tab.new_tab"),
       alternates: ["tab", "new", "open tab"],
       icon: markRaw(IconWindow),
+      excludeFromSearch: computed(() => !this.showAction.value),
     },
   })
 
@@ -80,6 +102,10 @@ export class TabSpotlightSearcherService extends StaticSpotlightSearcherService<
   }
 
   public onDocSelected(id: string): void {
+    if (id === "duplicate_tab")
+      invokeAction("request.duplicate-tab", {
+        tabID: currentTabID.value,
+      })
     if (id === "close_current_tab") closeTab(currentTabID.value)
     if (id === "close_other_tabs") closeOtherTabs(currentTabID.value)
     if (id === "open_new_tab")

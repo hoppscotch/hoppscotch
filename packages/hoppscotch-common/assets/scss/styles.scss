@@ -488,7 +488,7 @@ pre.ace_editor {
 }
 
 .cm-scroller {
-  overscroll-behavior: auto;
+  @apply overscroll-y-auto;
 }
 
 .cm-editor {

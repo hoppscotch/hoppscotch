@@ -7,13 +7,6 @@
     @contextmenu.prevent="options?.tippy?.show()"
     @click.middle="emit('close-tab')"
   >
-    <span
-      class="font-semibold text-tiny"
-      :class="getMethodLabelColorClassOf(tab.document.request)"
-    >
-      {{ tab.document.request.method }}
-    </span>
-
     <tippy
       ref="options"
       trigger="manual"
@@ -94,18 +87,17 @@
 <script setup lang="ts">
 import { ref } from "vue"
 import { TippyComponent } from "vue-tippy"
-import { getMethodLabelColorClassOf } from "~/helpers/rest/labelColoring"
 import { useI18n } from "~/composables/i18n"
-import { HoppRESTTab } from "~/helpers/rest/tab"
 import IconXCircle from "~icons/lucide/x-circle"
 import IconXSquare from "~icons/lucide/x-square"
 import IconFileEdit from "~icons/lucide/file-edit"
 import IconCopy from "~icons/lucide/copy"
+import { HoppGQLTab } from "~/helpers/graphql/tab"
 
 const t = useI18n()
 
 defineProps<{
-  tab: HoppRESTTab
+  tab: HoppGQLTab
   isRemovable: boolean
 }>()
 

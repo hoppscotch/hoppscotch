@@ -21,7 +21,12 @@
           <label for="value" class="font-semibold min-w-10">{{
             t("environment.value")
           }}</label>
-          <input type="text" :value="value" class="input" />
+          <input
+            v-model="editingValue"
+            type="text"
+            class="input"
+            :placeholder="t('environment.value')"
+          />
         </div>
         <div class="flex items-center space-x-8 ml-2">
           <label for="scope" class="font-semibold min-w-10">
@@ -105,9 +110,12 @@ watch(
       scope.value = {
         type: "global",
       }
-      editingName.value = ""
       replaceWithVariable.value = false
+      editingName.value = ""
+      editingValue.value = ""
     }
+    editingName.value = props.name
+    editingValue.value = props.value
   }
 )
 
@@ -132,6 +140,7 @@ const scope = ref<Scope>({
 const replaceWithVariable = ref(false)
 
 const editingName = ref(props.name)
+const editingValue = ref(props.value)
 
 const addEnvironment = async () => {
   if (!editingName.value) {
@@ -141,13 +150,13 @@ const addEnvironment = async () => {
   if (scope.value.type === "global") {
     addGlobalEnvVariable({
       key: editingName.value,
-      value: props.value,
+      value: editingValue.value,
     })
     toast.success(`${t("environment.updated")}`)
   } else if (scope.value.type === "my-environment") {
     addEnvironmentVariable(scope.value.index, {
       key: editingName.value,
-      value: props.value,
+      value: editingValue.value,
     })
     toast.success(`${t("environment.updated")}`)
   } else {
@@ -155,7 +164,7 @@ const addEnvironment = async () => {
       ...scope.value.environment.environment.variables,
       {
         key: editingName.value,
-        value: props.value,
+        value: editingValue.value,
       },
     ]
     await pipe(
@@ -182,7 +191,7 @@ const addEnvironment = async () => {
     //replace the currenttab endpoint containing the value in the text with variablename
     currentActiveTab.value.document.request.endpoint =
       currentActiveTab.value.document.request.endpoint.replace(
-        props.value,
+        editingValue.value,
         variableName
       )
   }

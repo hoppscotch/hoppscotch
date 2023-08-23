@@ -96,8 +96,8 @@ export class EnvironmentInspectorService extends Service implements Inspector {
                   text: this.t("inspections.environment.add_environment"),
                   apply: () => {
                     invokeAction("modals.environment.add", {
-                      envName: "test",
-                      variableName: formattedExEnv,
+                      envName: formattedExEnv,
+                      variableName: "",
                     })
                   },
                 },

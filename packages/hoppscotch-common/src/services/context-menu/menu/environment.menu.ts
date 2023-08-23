@@ -42,7 +42,7 @@ export class EnvironmentMenuService extends Service implements ContextMenu {
         icon: markRaw(IconPlusCircle),
         action: () => {
           invokeAction("modals.environment.add", {
-            envName: "test",
+            envName: "",
             variableName: text,
           })
         },

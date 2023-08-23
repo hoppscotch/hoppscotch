@@ -28,14 +28,6 @@
         </span>
       </span>
       <div class="flex">
-        <HoppButtonSecondary
-          v-if="!saveRequest"
-          v-tippy="{ theme: 'tooltip' }"
-          :icon="IconRotateCCW"
-          :title="t('action.restore')"
-          class="hidden group-hover:inline-flex"
-          @click="selectRequest()"
-        />
         <span>
           <tippy
             ref="options"
@@ -121,7 +113,6 @@
 <script setup lang="ts">
 import IconCheckCircle from "~icons/lucide/check-circle"
 import IconFile from "~icons/lucide/file"
-import IconRotateCCW from "~icons/lucide/rotate-ccw"
 import IconMoreVertical from "~icons/lucide/more-vertical"
 import IconEdit from "~icons/lucide/edit"
 import IconCopy from "~icons/lucide/copy"
@@ -132,7 +123,11 @@ import { useToast } from "@composables/toast"
 import { HoppGQLRequest, makeGQLRequest } from "@hoppscotch/data"
 import { cloneDeep } from "lodash-es"
 import { removeGraphqlRequest } from "~/newstore/collections"
-import { createNewTab } from "~/helpers/graphql/tab"
+import {
+  createNewTab,
+  getTabRefWithSaveContext,
+  currentTabID,
+} from "~/helpers/graphql/tab"
 
 // Template refs
 const tippyActions = ref<any | null>(null)
@@ -179,7 +174,24 @@ const selectRequest = () => {
   if (props.saveRequest) {
     pick()
   } else {
+    const possibleTab = getTabRefWithSaveContext({
+      originLocation: "user-collection",
+      folderPath: props.folderPath,
+      requestIndex: props.requestIndex,
+    })
+
+    // Switch to that request if that request is open
+    if (possibleTab) {
+      currentTabID.value = possibleTab.value.id
+      return
+    }
+
     createNewTab({
+      saveContext: {
+        originLocation: "user-collection",
+        folderPath: props.folderPath,
+        requestIndex: props.requestIndex,
+      },
       request: cloneDeep(
         makeGQLRequest({
           name: props.request.name,
@@ -211,6 +223,18 @@ const removeRequest = () => {
     props.picked.requestIndex === props.requestIndex
   ) {
     emit("select", null)
+  }
+
+  // Detach the request from any of the tabs
+  const possibleTab = getTabRefWithSaveContext({
+    originLocation: "user-collection",
+    folderPath: props.folderPath,
+    requestIndex: props.requestIndex,
+  })
+
+  if (possibleTab) {
+    possibleTab.value.document.saveContext = undefined
+    possibleTab.value.document.isDirty = true
   }
 
   removeGraphqlRequest(props.folderPath, props.requestIndex, props.request.id)

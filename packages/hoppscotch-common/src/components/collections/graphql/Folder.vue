@@ -34,7 +34,12 @@
           :icon="IconFilePlus"
           :title="t('request.new')"
           class="hidden group-hover:inline-flex"
-          @click="emit('add-request', { path: folderPath })"
+          @click="
+            emit('add-request', {
+              path: folderPath,
+              index: folder.requests.length,
+            })
+          "
         />
         <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
@@ -238,8 +243,8 @@ const confirmRemove = ref(false)
 
 const isSelected = computed(
   () =>
-    props.picked.pickedType === "gql-my-folder" &&
-    props.picked.folderPath === props.folderPath
+    props.picked?.pickedType === "gql-my-folder" &&
+    props.picked?.folderPath === props.folderPath
 )
 const collectionIcon = computed(() => {
   if (isSelected.value) return IconCheckCircle

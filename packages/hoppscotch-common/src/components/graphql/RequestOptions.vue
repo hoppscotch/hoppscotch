@@ -202,5 +202,8 @@ const clearGQLQuery = () => {
 }
 defineActionHandler("request.send-cancel", runQuery)
 defineActionHandler("request.save", saveRequest)
+defineActionHandler("request.save-as", () => {
+  showSaveRequestModal.value = true
+})
 defineActionHandler("request.reset", clearGQLQuery)
 </script>

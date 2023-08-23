@@ -265,7 +265,7 @@ export default defineComponent({
       this.$data.editingCollectionIndex = collectionIndex
       this.displayModalEdit(true)
     },
-    onAddRequest({ name, path }) {
+    onAddRequest({ name, path, index }) {
       const newRequest = {
         ...currentActiveTab.value.document.request,
         name,
@@ -274,6 +274,11 @@ export default defineComponent({
       saveGraphqlRequestAs(path, newRequest)
 
       createNewTab({
+        saveContext: {
+          originLocation: "user-collection",
+          folderPath: path,
+          requestIndex: index,
+        },
         request: newRequest,
         isDirty: false,
       })

@@ -37,6 +37,7 @@
           @click="
             emit('add-request', {
               path: `${collectionIndex}`,
+              index: collection.requests.length,
             })
           "
         />

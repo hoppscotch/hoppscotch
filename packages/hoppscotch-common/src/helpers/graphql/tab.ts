@@ -197,3 +197,30 @@ export function getTabsRefTo(func: (tab: HoppGQLTab) => boolean) {
     .filter(func)
     .map((tab) => getTabRef(tab.id))
 }
+
+export function closeOtherTabs(tabID: string) {
+  if (!tabMap.has(tabID)) {
+    console.warn(
+      `The tab to close other tabs does not exist (tab id: ${tabID})`
+    )
+    return
+  }
+
+  tabOrdering.value = [tabID]
+
+  tabMap.forEach((_, id) => {
+    if (id !== tabID) tabMap.delete(id)
+  })
+
+  currentTabID.value = tabID
+}
+
+export function getDirtyTabsCount() {
+  let count = 0
+
+  for (const tab of tabMap.values()) {
+    if (tab.document.isDirty) count++
+  }
+
+  return count
+}

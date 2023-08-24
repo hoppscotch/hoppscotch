@@ -21,15 +21,14 @@
             :close-visibility="'hover'"
           >
             <template #tabhead>
-              <div
-                v-tippy="{ theme: 'tooltip', delay: [500, 20] }"
-                :title="tab.document.request.name"
-                class="truncate px-2"
-              >
-                <span class="leading-8 px-2">
-                  {{ tab.document.request.name }}
-                </span>
-              </div>
+              <GraphqlTabHead
+                :tab="tab"
+                :is-removable="tabs.length > 1"
+                @open-rename-modal="openReqRenameModal(tab)"
+                @close-tab="removeTab(tab.id)"
+                @close-other-tabs="closeOtherTabsAction(tab.id)"
+                @duplicate-tab="duplicateTab(tab)"
+              />
             </template>
 
             <template #suffix>
@@ -59,13 +58,25 @@
         <GraphqlSidebar />
       </template>
     </AppPaneLayout>
-
+    <CollectionsEditRequest
+      v-model="editReqModalReqName"
+      :show="showRenamingReqNameModalForTabID !== undefined"
+      @submit="renameReqName"
+      @hide-modal="showRenamingReqNameModalForTabID = undefined"
+    />
     <HoppSmartConfirmModal
       :show="confirmingCloseForTabID !== null"
       :confirm="t('modal.close_unsaved_tab')"
       :title="t('confirm.close_unsaved_tab')"
       @hide-modal="onCloseConfirm"
       @resolve="onResolveConfirm"
+    />
+    <HoppSmartConfirmModal
+      :show="confirmingCloseAllTabs"
+      :confirm="t('modal.close_unsaved_tab')"
+      :title="t('confirm.close_unsaved_tabs', { count: unsavedTabsCount })"
+      @hide-modal="confirmingCloseAllTabs = false"
+      @resolve="onResolveConfirmCloseAllTabs"
     />
   </div>
 </template>
@@ -80,10 +91,12 @@ import { connection, disconnect } from "~/helpers/graphql/connection"
 import { getDefaultGQLRequest } from "~/helpers/graphql/default"
 import {
   HoppGQLTab,
+  closeOtherTabs,
   closeTab,
   createNewTab,
   currentTabID,
   getActiveTabs,
+  getDirtyTabsCount,
   getTabRef,
   updateTab,
   updateTabOrdering,
@@ -142,6 +155,27 @@ const onResolveConfirm = () => {
   }
 }
 
+const confirmingCloseAllTabs = ref(false)
+const unsavedTabsCount = ref(0)
+const exceptedTabID = ref<string | null>(null)
+
+const closeOtherTabsAction = (tabID: string) => {
+  const dirtyTabCount = getDirtyTabsCount()
+  // If there are dirty tabs, show the confirm modal
+  if (dirtyTabCount > 0) {
+    confirmingCloseAllTabs.value = true
+    unsavedTabsCount.value = dirtyTabCount
+    exceptedTabID.value = tabID
+  } else {
+    closeOtherTabs(tabID)
+  }
+}
+
+const onResolveConfirmCloseAllTabs = () => {
+  if (exceptedTabID.value) closeOtherTabs(exceptedTabID.value)
+  confirmingCloseAllTabs.value = false
+}
+
 const onTabUpdate = (tab: HoppGQLTab) => {
   updateTab(tab)
 }
@@ -152,8 +186,34 @@ onBeforeUnmount(() => {
   }
 })
 
-defineActionHandler("gql.request.open", ({ request }) => {
+const editReqModalReqName = ref("")
+const showRenamingReqNameModalForTabID = ref<string>()
+
+const openReqRenameModal = (tab: HoppGQLTab) => {
+  editReqModalReqName.value = tab.document.request.name
+  showRenamingReqNameModalForTabID.value = tab.id
+}
+
+const renameReqName = () => {
+  const tab = getTabRef(showRenamingReqNameModalForTabID.value!)
+  if (tab.value) {
+    tab.value.document.request.name = editReqModalReqName.value
+    updateTab(tab.value)
+  }
+  showRenamingReqNameModalForTabID.value = undefined
+}
+
+const duplicateTab = (tab: HoppGQLTab) => {
+  const newTab = createNewTab({
+    request: tab.document.request,
+    isDirty: true,
+  })
+  currentTabID.value = newTab.id
+}
+
+defineActionHandler("gql.request.open", ({ request, saveContext }) => {
   createNewTab({
+    saveContext,
     request: request,
     isDirty: false,
   })

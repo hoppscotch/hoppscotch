@@ -34,7 +34,12 @@
           :icon="IconFilePlus"
           :title="t('request.new')"
           class="hidden group-hover:inline-flex"
-          @click="emit('add-request', { path: folderPath })"
+          @click="
+            emit('add-request', {
+              path: folderPath,
+              index: folder.requests.length,
+            })
+          "
         />
         <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
@@ -198,6 +203,7 @@ import { useI18n } from "@composables/i18n"
 import { useColorMode } from "@composables/theming"
 import { removeGraphqlFolder, moveGraphqlRequest } from "~/newstore/collections"
 import { computed, ref } from "vue"
+import { getTabsRefTo } from "~/helpers/graphql/tab"
 
 const toast = useToast()
 const t = useI18n()
@@ -249,10 +255,8 @@ const collectionIcon = computed(() => {
 
 const pick = () => {
   emit("select", {
-    picked: {
-      pickedType: "gql-my-folder",
-      folderPath: props.folderPath,
-    },
+    pickedType: "gql-my-folder",
+    folderPath: props.folderPath,
   })
 }
 
@@ -271,6 +275,22 @@ const removeFolder = () => {
     props.picked?.folderPath === props.folderPath
   ) {
     emit("select", { picked: null })
+  }
+
+  const possibleTabs = getTabsRefTo((tab) => {
+    const ctx = tab.document.saveContext
+
+    if (!ctx) return false
+
+    return (
+      ctx.originLocation === "user-collection" &&
+      ctx.folderPath.startsWith(props.folderPath)
+    )
+  })
+
+  for (const tab of possibleTabs) {
+    tab.value.document.saveContext = undefined
+    tab.value.document.isDirty = true
   }
 
   removeGraphqlFolder(props.folderPath, props.folder.id)

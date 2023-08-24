@@ -304,13 +304,15 @@ export class CollectionsSpotlightSearcherService
 
       if (!req) return
 
-      createNewGQLTab(
-        {
-          request: req,
-          isDirty: false,
+      createNewGQLTab({
+        saveContext: {
+          originLocation: "user-collection",
+          folderPath: folderPath.join("/"),
+          requestIndex: reqIndex,
         },
-        true
-      )
+        request: req,
+        isDirty: false,
+      })
     }
   }
 }

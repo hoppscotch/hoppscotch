@@ -2,7 +2,7 @@
   <div class="flex flex-col flex-1 h-full">
     <HoppSmartTabs
       v-model="selectedOptionTab"
-      styles="sticky bg-primary z-10"
+      styles="sticky top-0 bg-primary z-10 border-b-0"
       :render-inactive-tabs="true"
     >
       <HoppSmartTab
@@ -67,6 +67,7 @@ import {
 } from "~/helpers/graphql/connection"
 import { useService } from "dioc/vue"
 import { InterceptorService } from "~/services/interceptor.service"
+import { editGraphqlRequest } from "~/newstore/collections"
 
 type OptionTabs = "query" | "headers" | "variables" | "authorization"
 const selectedOptionTab = ref<OptionTabs>("query")
@@ -180,12 +181,29 @@ const hideRequestModal = () => {
   showSaveRequestModal.value = false
 }
 const saveRequest = () => {
-  showSaveRequestModal.value = true
+  if (
+    currentActiveTab.value.document.saveContext &&
+    currentActiveTab.value.document.saveContext.originLocation ===
+      "user-collection"
+  ) {
+    editGraphqlRequest(
+      currentActiveTab.value.document.saveContext.folderPath,
+      currentActiveTab.value.document.saveContext.requestIndex,
+      currentActiveTab.value.document.request
+    )
+
+    currentActiveTab.value.document.isDirty = false
+  } else {
+    showSaveRequestModal.value = true
+  }
 }
 const clearGQLQuery = () => {
   request.value.query = ""
 }
 defineActionHandler("request.send-cancel", runQuery)
 defineActionHandler("request.save", saveRequest)
+defineActionHandler("request.save-as", () => {
+  showSaveRequestModal.value = true
+})
 defineActionHandler("request.reset", clearGQLQuery)
 </script>

@@ -20,22 +20,28 @@
         />
       </span>
       <span
-        class="flex flex-1 min-w-0 py-2 pr-2 cursor-pointer transition group-hover:text-secondaryDark"
+        class="flex items-center flex-1 min-w-0 py-2 pr-2 cursor-pointer transition group-hover:text-secondaryDark"
         @click="selectRequest()"
       >
         <span class="truncate" :class="{ 'text-accent': isSelected }">
           {{ request.name }}
         </span>
+        <span
+          v-if="isActive"
+          v-tippy="{ theme: 'tooltip' }"
+          class="relative h-1.5 w-1.5 flex flex-shrink-0 mx-3"
+          :title="`${t('collection.request_in_use')}`"
+        >
+          <span
+            class="absolute inline-flex flex-shrink-0 w-full h-full bg-green-500 rounded-full opacity-75 animate-ping"
+          >
+          </span>
+          <span
+            class="relative inline-flex flex-shrink-0 rounded-full h-1.5 w-1.5 bg-green-500"
+          ></span>
+        </span>
       </span>
       <div class="flex">
-        <HoppButtonSecondary
-          v-if="!saveRequest"
-          v-tippy="{ theme: 'tooltip' }"
-          :icon="IconRotateCCW"
-          :title="t('action.restore')"
-          class="hidden group-hover:inline-flex"
-          @click="selectRequest()"
-        />
         <span>
           <tippy
             ref="options"
@@ -121,7 +127,6 @@
 <script setup lang="ts">
 import IconCheckCircle from "~icons/lucide/check-circle"
 import IconFile from "~icons/lucide/file"
-import IconRotateCCW from "~icons/lucide/rotate-ccw"
 import IconMoreVertical from "~icons/lucide/more-vertical"
 import IconEdit from "~icons/lucide/edit"
 import IconCopy from "~icons/lucide/copy"
@@ -132,7 +137,12 @@ import { useToast } from "@composables/toast"
 import { HoppGQLRequest, makeGQLRequest } from "@hoppscotch/data"
 import { cloneDeep } from "lodash-es"
 import { removeGraphqlRequest } from "~/newstore/collections"
-import { createNewTab } from "~/helpers/graphql/tab"
+import {
+  createNewTab,
+  getTabRefWithSaveContext,
+  currentTabID,
+  currentActiveTab,
+} from "~/helpers/graphql/tab"
 
 // Template refs
 const tippyActions = ref<any | null>(null)
@@ -152,6 +162,18 @@ const props = defineProps({
   request: { type: Object as PropType<HoppGQLRequest>, default: () => ({}) },
   folderPath: { type: String, default: null },
   requestIndex: { type: Number, default: null },
+})
+
+const isActive = computed(() => {
+  const saveCtx = currentActiveTab.value?.document.saveContext
+
+  if (!saveCtx) return false
+
+  return (
+    saveCtx.originLocation === "user-collection" &&
+    saveCtx.folderPath === props.folderPath &&
+    saveCtx.requestIndex === props.requestIndex
+  )
 })
 
 // TODO: Better types please
@@ -179,7 +201,24 @@ const selectRequest = () => {
   if (props.saveRequest) {
     pick()
   } else {
+    const possibleTab = getTabRefWithSaveContext({
+      originLocation: "user-collection",
+      folderPath: props.folderPath,
+      requestIndex: props.requestIndex,
+    })
+
+    // Switch to that request if that request is open
+    if (possibleTab) {
+      currentTabID.value = possibleTab.value.id
+      return
+    }
+
     createNewTab({
+      saveContext: {
+        originLocation: "user-collection",
+        folderPath: props.folderPath,
+        requestIndex: props.requestIndex,
+      },
       request: cloneDeep(
         makeGQLRequest({
           name: props.request.name,
@@ -211,6 +250,18 @@ const removeRequest = () => {
     props.picked.requestIndex === props.requestIndex
   ) {
     emit("select", null)
+  }
+
+  // Detach the request from any of the tabs
+  const possibleTab = getTabRefWithSaveContext({
+    originLocation: "user-collection",
+    folderPath: props.folderPath,
+    requestIndex: props.requestIndex,
+  })
+
+  if (possibleTab) {
+    possibleTab.value.document.saveContext = undefined
+    possibleTab.value.document.isDirty = true
   }
 
   removeGraphqlRequest(props.folderPath, props.requestIndex, props.request.id)

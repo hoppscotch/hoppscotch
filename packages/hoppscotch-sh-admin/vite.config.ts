@@ -18,6 +18,7 @@ export default defineConfig({
     process.env.HOPP_ALLOW_RUNTIME_ENV
       ? "VITE_BUILDTIME_"
       : "VITE_",
+  envDir: path.resolve(__dirname, "../.."),
   server: {
     port: 3100,
   },

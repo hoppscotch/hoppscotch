@@ -707,9 +707,7 @@
       "interface": "Interface",
       "interceptor": "Interceptor"
     },
-    "change_interceptor": "Change Interceptor",
     "change_language": "Change Language",
-    "install_extension": "Install Browser Extension",
     "settings": {
       "theme": {
         "black": "Black Mode",
@@ -723,8 +721,7 @@
         "size_lg": "Change to Large"
       },
       "change_interceptor": "Change Interceptor",
-      "change_language": "Change Language",
-      "install_extension": "Install Browser Extension"
+      "change_language": "Change Language"
     }
   },
   "sse": {

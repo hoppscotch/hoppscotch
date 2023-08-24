@@ -56,13 +56,7 @@
           :inspection-results="tabResults"
           @paste="onPasteUrl($event)"
           @enter="newSendRequest"
-        >
-          <template #empty>
-            <span>
-              {{ t("empty.history_suggestions") }}
-            </span>
-          </template>
-        </SmartEnvInput>
+        />
       </div>
     </div>
     <div class="flex mt-2 sm:mt-0">

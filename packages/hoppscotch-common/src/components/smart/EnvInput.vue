@@ -18,7 +18,9 @@
       />
     </div>
     <ul
-      v-if="showSuggestionPopover && autoCompleteSource"
+      v-if="
+        showSuggestionPopover && autoCompleteSource && suggestions.length > 0
+      "
       ref="suggestionsMenu"
       class="suggestions"
     >
@@ -39,20 +41,12 @@
           <span class="ml-2 truncate">to select</span>
         </div>
       </li>
-      <li v-if="suggestions.length === 0" class="pointer-events-none">
-        <div v-if="slots.empty" class="truncate py-0.5">
-          <slot name="empty"></slot>
-        </div>
-        <span v-else class="truncate py-0.5">
-          {{ t("empty.suggestions") }}
-        </span>
-      </li>
     </ul>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch, nextTick, computed, Ref, useSlots } from "vue"
+import { ref, onMounted, watch, nextTick, computed, Ref } from "vue"
 import {
   EditorView,
   placeholder as placeholderExt,
@@ -69,7 +63,6 @@ import { HoppReactiveEnvPlugin } from "~/helpers/editor/extensions/HoppEnvironme
 import { useReadonlyStream } from "@composables/stream"
 import { AggregateEnvironment, aggregateEnvs$ } from "~/newstore/environments"
 import { platform } from "~/platform"
-import { useI18n } from "~/composables/i18n"
 import { onClickOutside, useDebounceFn } from "@vueuse/core"
 import { InspectorResult } from "~/services/inspection"
 import { invokeAction } from "~/helpers/actions"
@@ -110,10 +103,6 @@ const emit = defineEmits<{
   (e: "keydown", ev: any): void
   (e: "click", ev: any): void
 }>()
-
-const slots = useSlots()
-
-const t = useI18n()
 
 const cachedValue = ref(props.modelValue)
 

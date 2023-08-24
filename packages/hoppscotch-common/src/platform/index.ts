@@ -7,9 +7,11 @@ import { HistoryPlatformDef } from "./history"
 import { TabStatePlatformDef } from "./tab"
 import { AnalyticsPlatformDef } from "./analytics"
 import { InterceptorsPlatformDef } from "./interceptors"
+import { HoppModule } from "~/modules"
 
 export type PlatformDef = {
   ui?: UIPlatformDef
+  addedHoppModules?: HoppModule[]
   auth: AuthPlatformDef
   analytics?: AnalyticsPlatformDef
   sync: {

@@ -26,6 +26,7 @@ export type HoppAction =
   | "request.method.delete" // Select DELETE Method
   | "request.import-curl" // Import cURL
   | "request.show-code" // Show generated code
+  | "collection.new" // Create root collection
   | "flyouts.chat.open" // Shows the keybinds flyout
   | "flyouts.keybinds.toggle" // Shows the keybinds flyout
   | "modals.search.toggle" // Shows the search modal

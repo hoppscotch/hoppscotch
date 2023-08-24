@@ -1,4 +1,4 @@
-import { HTTPSnippet } from "httpsnippet"
+import * as HTTPSnippet from "httpsnippet"
 import { HoppRESTRequest } from "@hoppscotch/data"
 import * as O from "fp-ts/Option"
 import * as E from "fp-ts/Either"
@@ -208,7 +208,10 @@ export const generateCode = (
         }).convert(codegenInfo.lang, codegenInfo.mode, {
           indent: "  ",
         }),
-      (e) => e
+      (e) => {
+        console.error(e)
+        return e
+      }
     ),
 
     // Only allow string output to pass through, else none

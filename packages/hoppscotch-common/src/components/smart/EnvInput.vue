@@ -18,7 +18,9 @@
       />
     </div>
     <ul
-      v-if="showSuggestionPopover && autoCompleteSource"
+      v-if="
+        showSuggestionPopover && autoCompleteSource && suggestions.length > 0
+      "
       ref="suggestionsMenu"
       class="suggestions"
     >

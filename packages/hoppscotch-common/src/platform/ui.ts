@@ -27,7 +27,7 @@ export type UIPlatformDef = {
    * Additonal menu items shown in the "Help and Feedback" menu
    * in the app footer.
    */
-  additonalFooterMenuItems?: HoppFooterMenuItem[]
+  additionalFooterMenuItems?: HoppFooterMenuItem[]
 
   /**
    * Additional Support Options menu items shown in the app header

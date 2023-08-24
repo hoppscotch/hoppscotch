@@ -185,7 +185,6 @@
     "folder": "Folder is empty",
     "headers": "This request does not have any headers",
     "history": "History is empty",
-    "history_suggestions": "History does not have any matching entries",
     "invites": "Invite list is empty",
     "members": "Team is empty",
     "parameters": "This request does not have any parameters",
@@ -195,7 +194,6 @@
     "schema": "Connect to a GraphQL endpoint to view schema",
     "shortcodes": "Shortcodes are empty",
     "subscription": "Subscriptions are empty",
-    "suggestions": "No matching suggestions found",
     "team_name": "Team name empty",
     "teams": "You don't belong to any teams",
     "tests": "There are no tests for this request"

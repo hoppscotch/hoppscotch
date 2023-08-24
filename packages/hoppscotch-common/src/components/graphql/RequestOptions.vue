@@ -2,7 +2,7 @@
   <div class="flex flex-col flex-1 h-full">
     <HoppSmartTabs
       v-model="selectedOptionTab"
-      styles="sticky bg-primary z-10"
+      styles="sticky top-0 bg-primary z-10 border-b-0"
       :render-inactive-tabs="true"
     >
       <HoppSmartTab

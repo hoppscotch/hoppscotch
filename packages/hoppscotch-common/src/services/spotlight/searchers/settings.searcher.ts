@@ -10,11 +10,10 @@ import {
 } from "./base/static.searcher"
 
 import IconCloud from "~icons/lucide/cloud"
+import IconGlobe from "~icons/lucide/globe"
 import IconMonitor from "~icons/lucide/monitor"
 import IconMoon from "~icons/lucide/moon"
 import IconSun from "~icons/lucide/sun"
-import IconGlobe from "~icons/lucide/globe"
-import IconShieldCheck from "~icons/lucide/shield-check"
 import IconType from "~icons/lucide/type"
 
 type Doc = {
@@ -128,22 +127,6 @@ export class SettingsSpotlightSearcherService extends StaticSpotlightSearcherSer
       alternates: ["language", "change language"],
       icon: markRaw(IconGlobe),
     },
-    change_interceptor: {
-      text: [
-        this.t("spotlight.section.interceptor"),
-        this.t("spotlight.settings.change_interceptor"),
-      ],
-      alternates: ["interceptor", "change interceptor"],
-      icon: markRaw(IconShieldCheck),
-    },
-    install_ext: {
-      text: [
-        this.t("spotlight.section.interceptor"),
-        this.t("spotlight.settings.install_extension"),
-      ],
-      alternates: ["install extension", "extension", "interceptor"],
-      icon: markRaw(IconShieldCheck),
-    },
   })
 
   constructor() {
@@ -174,25 +157,10 @@ export class SettingsSpotlightSearcherService extends StaticSpotlightSearcherSer
     applySetting("BG_COLOR", theme)
   }
 
-  installExtension() {
-    const url = navigator.userAgent.includes("Firefox")
-      ? "https://addons.mozilla.org/en-US/firefox/addon/hoppscotch"
-      : "https://chrome.google.com/webstore/detail/hoppscotch-browser-extens/amknoiejhlmhancpahfcfcfhllgkpbld"
-    window.open(url, "_blank")
-  }
-
   public onDocSelected(id: string): void {
     switch (id) {
-      case "change_interceptor":
-        invokeAction("navigation.jump.settings")
-        break
-
       case "change_lang":
         invokeAction("navigation.jump.settings")
-        break
-
-      case "install_ext":
-        this.installExtension()
         break
 
       // theme actions

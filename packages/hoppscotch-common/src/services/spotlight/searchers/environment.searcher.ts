@@ -21,30 +21,29 @@ import {
   StaticSpotlightSearcherService,
 } from "./base/static.searcher"
 
-import IconEdit from "~icons/lucide/edit"
-import IconTrash2 from "~icons/lucide/trash-2"
 import IconCopy from "~icons/lucide/copy"
+import IconEdit from "~icons/lucide/edit"
 import IconLayers from "~icons/lucide/layers"
+import IconTrash2 from "~icons/lucide/trash-2"
 
+import { Service } from "dioc"
+import * as TE from "fp-ts/TaskEither"
+import { pipe } from "fp-ts/function"
+import { cloneDeep } from "lodash-es"
+import MiniSearch from "minisearch"
+import { map } from "rxjs"
 import { useStreamStatic } from "~/composables/stream"
+import { GQLError } from "~/helpers/backend/GQLClient"
+import { deleteTeamEnvironment } from "~/helpers/backend/mutations/TeamEnvironment"
 import {
   createEnvironment,
   currentEnvironment$,
-  deleteEnvironment,
   duplicateEnvironment,
   environmentsStore,
   getGlobalVariables,
   selectedEnvironmentIndex$,
   setSelectedEnvironmentIndex,
 } from "~/newstore/environments"
-import { pipe } from "fp-ts/function"
-import * as TE from "fp-ts/TaskEither"
-import { deleteTeamEnvironment } from "~/helpers/backend/mutations/TeamEnvironment"
-import { GQLError } from "~/helpers/backend/GQLClient"
-import { cloneDeep } from "lodash-es"
-import { Service } from "dioc"
-import MiniSearch from "minisearch"
-import { map } from "rxjs"
 
 type Doc = {
   text: string
@@ -188,29 +187,6 @@ export class EnvironmentsSpotlightSearcherService extends StaticSpotlightSearche
     }
   }
 
-  removeSelectedEnvironment = () => {
-    if (this.selectedEnvIndex.value?.type === "NO_ENV_SELECTED") return
-
-    if (this.selectedEnvIndex.value?.type === "MY_ENV") {
-      deleteEnvironment(this.selectedEnvIndex.value.index)
-      // this.toast.success(`${t("state.deleted")}`)
-    }
-
-    if (this.selectedEnvIndex.value?.type === "TEAM_ENV") {
-      pipe(
-        deleteTeamEnvironment(this.selectedEnvIndex.value.teamEnvID),
-        TE.match(
-          (err: GQLError<string>) => {
-            console.error(err)
-          },
-          () => {
-            // this.toast.success(`${this.t("team_environment.deleted")}`)
-          }
-        )
-      )()
-    }
-  }
-
   public onDocSelected(id: string): void {
     switch (id) {
       case "new_environment":
@@ -229,7 +205,7 @@ export class EnvironmentsSpotlightSearcherService extends StaticSpotlightSearche
           })
         break
       case "delete_selected_env":
-        this.removeSelectedEnvironment()
+        invokeAction(`modals.environment.delete-selected`)
         break
       case "duplicate_selected_env":
         this.duplicateSelectedEnv()

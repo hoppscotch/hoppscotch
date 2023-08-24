@@ -239,6 +239,7 @@ import {
   resetTeamRequestsContext,
 } from "~/helpers/collection/collection"
 import { currentReorderingStatus$ } from "~/newstore/reordering"
+import { defineActionHandler } from "~/helpers/actions"
 
 const t = useI18n()
 const toast = useToast()
@@ -2067,4 +2068,8 @@ const getErrorMessage = (err: GQLError<string>) => {
     }
   }
 }
+
+defineActionHandler("collection.new", () => {
+  displayModalAdd(true)
+})
 </script>

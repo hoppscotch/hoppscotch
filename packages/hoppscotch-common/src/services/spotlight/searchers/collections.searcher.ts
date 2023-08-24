@@ -1,5 +1,6 @@
 import { Service } from "dioc"
 import {
+  SpotlightResultTextType,
   SpotlightSearcher,
   SpotlightSearcherResult,
   SpotlightSearcherSessionState,
@@ -26,6 +27,7 @@ import {
 } from "@hoppscotch/data"
 import { hoppWorkspaceStore } from "~/newstore/workspace"
 import { changeWorkspace } from "~/newstore/workspace"
+import { invokeAction } from "~/helpers/actions"
 
 /**
  * A spotlight searcher that searches through the user's collections
@@ -143,6 +145,13 @@ export class CollectionsSpotlightSearcherService
       },
     })
 
+    if (pageCategory === "rest" || pageCategory === "graphql") {
+      minisearch.add({
+        id: `create-collection`,
+        name: this.t("collection.new"),
+      })
+    }
+
     if (pageCategory === "rest") {
       this.loadRESTDocsIntoMinisearch(minisearch)
     } else if (pageCategory === "graphql") {
@@ -152,6 +161,11 @@ export class CollectionsSpotlightSearcherService
     const results = ref<SpotlightSearcherResult[]>([])
 
     const scopeHandle = effectScope()
+
+    const newCollectionText: SpotlightResultTextType<any> = {
+      type: "text",
+      text: this.t("collection.new"),
+    }
 
     scopeHandle.run(() => {
       watch(query, (query) => {
@@ -165,28 +179,34 @@ export class CollectionsSpotlightSearcherService
 
           results.value = searchResults.map((result) => ({
             id: result.id,
-            text: {
-              type: "custom",
-              component: markRaw(RESTRequestSpotlightEntry),
-              componentProps: {
-                folderPath: result.id.split("rest-")[1],
-              },
-            },
+            text:
+              result.id === "create-collection"
+                ? newCollectionText
+                : {
+                    type: "custom",
+                    component: markRaw(RESTRequestSpotlightEntry),
+                    componentProps: {
+                      folderPath: result.id.split("rest-")[1],
+                    },
+                  },
             icon: markRaw(IconFolder),
             score: result.score,
           }))
-        } else {
+        } else if (pageCategory === "graphql") {
           const searchResults = minisearch.search(query).slice(0, 10)
 
           results.value = searchResults.map((result) => ({
             id: result.id,
-            text: {
-              type: "custom",
-              component: markRaw(GQLRequestSpotlightEntry),
-              componentProps: {
-                folderPath: result.id.split("gql-")[1],
-              },
-            },
+            text:
+              result.id === "create-collection"
+                ? newCollectionText
+                : {
+                    type: "custom",
+                    component: markRaw(GQLRequestSpotlightEntry),
+                    componentProps: {
+                      folderPath: result.id.split("gql-")[1],
+                    },
+                  },
             icon: markRaw(IconFolder),
             score: result.score,
           }))
@@ -256,6 +276,8 @@ export class CollectionsSpotlightSearcherService
   }
 
   public onResultSelect(result: SpotlightSearcherResult): void {
+    if (result.id === "create-collection") return invokeAction("collection.new")
+
     const [type, path] = result.id.split("-")
 
     if (type === "rest") {

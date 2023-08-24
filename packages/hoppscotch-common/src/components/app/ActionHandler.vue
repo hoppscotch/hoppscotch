@@ -1,7 +1,6 @@
 <template>
   <AppShortcuts :show="showShortcuts" @close="showShortcuts = false" />
   <AppShare :show="showShare" @hide-modal="showShare = false" />
-  <AppSocial :show="showSocial" @hide-modal="showSocial = false" />
   <FirebaseLogin :show="showLogin" @hide-modal="showLogin = false" />
 
   <HoppSmartConfirmModal
@@ -27,7 +26,6 @@ const t = useI18n()
 
 const showShortcuts = ref(false)
 const showShare = ref(false)
-const showSocial = ref(false)
 const showLogin = ref(false)
 
 const confirmRemove = ref(false)
@@ -58,10 +56,6 @@ defineActionHandler("flyouts.keybinds.toggle", () => {
 
 defineActionHandler("modals.share.toggle", () => {
   showShare.value = !showShare.value
-})
-
-defineActionHandler("modals.social.toggle", () => {
-  showSocial.value = !showSocial.value
 })
 
 defineActionHandler("modals.login.toggle", () => {

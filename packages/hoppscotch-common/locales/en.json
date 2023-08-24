@@ -606,7 +606,7 @@
       "delete_method": "Select DELETE method",
       "get_method": "Select GET method",
       "head_method": "Select HEAD method",
-      "rename": "Rename Current Request",
+      "rename": "Rename Request",
       "import_curl": "Import cURL",
       "show_code": "Generate code snippet",
       "method": "Method",
@@ -649,11 +649,11 @@
   },
   "spotlight": {
     "general": {
-      "help_menu": "Open help and support menu",
+      "help_menu": "Help and support",
       "chat": "Chat with support",
       "open_docs": "Read Documentation",
-      "open_keybindings": "Open keyboard shortcuts",
-      "social": "Social links and GitHub",
+      "open_keybindings": "Keyboard shortcuts",
+      "social": "Social",
       "title": "General"
     },
     "miscellaneous": {
@@ -661,15 +661,18 @@
       "title": "Miscellaneous"
     },
     "request": {
-      "tab_parameters": "Open parameters tab",
-      "tab_body": "Open body tab",
-      "tab_headers": "Open headers tab",
-      "tab_authorization": "Open authorization tab",
-      "tab_pre_request_script": "Open pre-request script tab",
-      "tab_tests": "Open tests tab"
+      "switch_to": "Switch to",
+      "select_method": "Select method",
+      "save_as_new": "Save as new request",
+      "tab_parameters": "Parameters tab",
+      "tab_body": "Body tab",
+      "tab_headers": "Headers tab",
+      "tab_authorization": "Authorization tab",
+      "tab_pre_request_script": "Pre-request script tab",
+      "tab_tests": "Tests tab"
     },
     "response": {
-      "copy": "Copy response as JSON",
+      "copy": "Copy response",
       "download": "Download response as file",
       "title": "Response"
     },
@@ -692,6 +695,7 @@
       "title": "Teams"
     },
     "tab": {
+      "duplicate": "Duplicate tab",
       "close_current": "Close current tab",
       "close_others": "Close other tabs",
       "new_tab": "Open a new tab",
@@ -703,9 +707,7 @@
       "interface": "Interface",
       "interceptor": "Interceptor"
     },
-    "change_interceptor": "Change Interceptor",
     "change_language": "Change Language",
-    "install_extension": "Install Browser Extension",
     "settings": {
       "theme": {
         "black": "Black Mode",
@@ -719,8 +721,7 @@
         "size_lg": "Change to Large"
       },
       "change_interceptor": "Change Interceptor",
-      "change_language": "Change Language",
-      "install_extension": "Install Browser Extension"
+      "change_language": "Change Language"
     }
   },
   "sse": {

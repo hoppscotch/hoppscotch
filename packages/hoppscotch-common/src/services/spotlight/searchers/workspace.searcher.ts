@@ -8,7 +8,7 @@ import {
   ref,
   watch,
 } from "vue"
-import { activeActions$, invokeAction } from "~/helpers/actions"
+import { invokeAction } from "~/helpers/actions"
 import { getI18n } from "~/modules/i18n"
 import {
   SpotlightSearcher,
@@ -24,6 +24,7 @@ import {
 import { Service } from "dioc"
 import * as E from "fp-ts/Either"
 import MiniSearch from "minisearch"
+import IconCheckCircle from "~/components/app/spotlight/entry/IconSelected.vue"
 import { useStreamStatic } from "~/composables/stream"
 import { runGQLQuery } from "~/helpers/backend/GQLClient"
 import { GetMyTeamsDocument, GetMyTeamsQuery } from "~/helpers/backend/graphql"
@@ -36,7 +37,7 @@ import IconUserPlus from "~icons/lucide/user-plus"
 import IconUsers from "~icons/lucide/users"
 
 type Doc = {
-  text: string
+  text: string | string[]
   alternates: string[]
   icon: object | Component
   excludeFromSearch?: boolean
@@ -66,14 +67,6 @@ export class WorkspaceSpotlightSearcherService extends StaticSpotlightSearcherSe
     }
   )[0]
 
-  private activeActions = useStreamStatic(activeActions$, [], () => {
-    /* noop */
-  })[0]
-
-  private isLoggedInUser = computed(() =>
-    this.activeActions.value.includes("user.logout")
-  )
-
   private isTeamSelected = computed(
     () =>
       this.workspace.value.type === "team" &&
@@ -82,31 +75,33 @@ export class WorkspaceSpotlightSearcherService extends StaticSpotlightSearcherSe
 
   private documents: Record<string, Doc> = reactive({
     new_team: {
-      text: this.t("spotlight.workspace.new"),
+      text: [this.t("team.title"), this.t("spotlight.workspace.new")],
       alternates: ["new", "team", "workspace"],
       icon: markRaw(IconUsers),
-      excludeFromSearch: computed(() => !this.isLoggedInUser.value),
     },
     edit_team: {
-      text: this.t("spotlight.workspace.edit"),
+      text: [this.t("team.title"), this.t("spotlight.workspace.edit")],
       alternates: ["edit", "team", "workspace"],
       icon: markRaw(IconEdit),
       excludeFromSearch: computed(() => !this.isTeamSelected.value),
     },
     invite_members: {
-      text: this.t("spotlight.workspace.invite"),
+      text: [this.t("team.title"), this.t("spotlight.workspace.invite")],
       alternates: ["invite", "members", "workspace"],
       icon: markRaw(IconUserPlus),
       excludeFromSearch: computed(() => !this.isTeamSelected.value),
     },
     delete_team: {
-      text: this.t("spotlight.workspace.delete"),
+      text: [this.t("team.title"), this.t("spotlight.workspace.delete")],
       alternates: ["delete", "team", "workspace"],
       icon: markRaw(IconTrash2),
       excludeFromSearch: computed(() => !this.isTeamSelected.value),
     },
     switch_to_personal: {
-      text: this.t("spotlight.workspace.switch_to_personal"),
+      text: [
+        this.t("team.title"),
+        this.t("spotlight.workspace.switch_to_personal"),
+      ],
       alternates: ["switch", "team", "workspace", "personal"],
       icon: markRaw(IconUser),
       excludeFromSearch: computed(() => !this.isTeamSelected.value),
@@ -145,8 +140,13 @@ export class WorkspaceSpotlightSearcherService extends StaticSpotlightSearcherSe
   }
 
   public onDocSelected(id: string): void {
-    if (id === "new_team") invokeAction(`modals.team.new`)
-    else if (id === "edit_team") invokeAction(`modals.team.edit`)
+    if (id === "new_team") {
+      if (platform.auth.getCurrentUser()) {
+        invokeAction(`modals.team.new`)
+      } else {
+        invokeAction(`modals.login.toggle`)
+      }
+    } else if (id === "edit_team") invokeAction(`modals.team.edit`)
     else if (id === "invite_members") invokeAction(`modals.team.invite`)
     else if (id === "delete_team") this.deleteTeam()
     else if (id === "switch_to_personal")
@@ -197,6 +197,14 @@ export class SwitchWorkspaceSpotlightSearcherService
     })
   }
 
+  private workspace = useStreamStatic(
+    workspaceStatus$,
+    { type: "personal" },
+    () => {
+      /* noop */
+    }
+  )[0]
+
   createSearchSession(
     query: Readonly<Ref<string>>
   ): [Ref<SpotlightSearcherSessionState>, () => void] {
@@ -211,8 +219,16 @@ export class SwitchWorkspaceSpotlightSearcherService
     this.fetchMyTeams().then((teams) => {
       minisearch.addAll(
         teams.map((entry) => {
+          let id = `workspace-${entry.id}`
+          // if id matches add -selected to it
+          if (
+            this.workspace.value.type === "team" &&
+            this.workspace.value.teamID === entry.id
+          ) {
+            id += "-selected"
+          }
           return {
-            id: `workspace-${entry.id}`,
+            id,
             name: entry.name,
             alternates: ["team", "workspace", "change", "switch"],
           }
@@ -241,7 +257,9 @@ export class SwitchWorkspaceSpotlightSearcherService
             .map((x) => {
               return {
                 id: x.id,
-                icon: markRaw(IconUsers),
+                icon: markRaw(
+                  x.id.endsWith("-selected") ? IconCheckCircle : IconUsers
+                ),
                 score: x.score,
                 text: {
                   type: "text",

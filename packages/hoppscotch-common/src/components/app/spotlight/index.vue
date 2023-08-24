@@ -111,6 +111,7 @@ import {
   SwitchWorkspaceSpotlightSearcherService,
   WorkspaceSpotlightSearcherService,
 } from "~/services/spotlight/searchers/workspace.searcher"
+import { InterceptorSpotlightSearcherService } from "~/services/spotlight/searchers/interceptor.searcher"
 
 const t = useI18n()
 
@@ -138,6 +139,7 @@ useService(EnvironmentsSpotlightSearcherService)
 useService(SwitchEnvSpotlightSearcherService)
 useService(WorkspaceSpotlightSearcherService)
 useService(SwitchWorkspaceSpotlightSearcherService)
+useService(InterceptorSpotlightSearcherService)
 
 const search = ref("")
 
@@ -264,4 +266,3 @@ function newUseArrowKeysForNavigation() {
   return { selectedEntry }
 }
 </script>
-~/services/spotlight/searchers/workspace.searcher

@@ -26,14 +26,15 @@ export type HoppAction =
   | "request.method.delete" // Select DELETE Method
   | "request.import-curl" // Import cURL
   | "request.show-code" // Show generated code
+  | "collection.new" // Create root collection
   | "flyouts.chat.open" // Shows the keybinds flyout
   | "flyouts.keybinds.toggle" // Shows the keybinds flyout
   | "modals.search.toggle" // Shows the search modal
   | "modals.support.toggle" // Shows the support modal
   | "modals.share.toggle" // Shows the share modal
-  | "modals.social.toggle" // Shows the social links modal
   | "modals.environment.add" // Show add environment modal via context menu
   | "modals.environment.new" // Add new environment
+  | "modals.environment.delete-selected" // Delete Selected Environment
   | "modals.my.environment.edit" // Edit current personal environment
   | "modals.team.environment.edit" // Edit current team environment
   | "modals.team.new" // Add new team
@@ -108,6 +109,10 @@ type HoppActionArgsMap = {
     tab: RequestOptionTabs
   }
 
+  "request.duplicate-tab": {
+    tabID: string
+  }
+
   "gql.request.open": {
     request: HoppGQLRequest
     saveContext?: HoppGQLSaveContext
@@ -177,7 +182,7 @@ type InvokeActionFunc = {
  * @param args The argument passed to the action handler. Optional if action has no args required
  */
 export const invokeAction: InvokeActionFunc = <
-  A extends HoppAction | HoppActionWithArgs,
+  A extends HoppAction | HoppActionWithArgs
 >(
   action: A,
   args: ArgOfHoppAction<A>

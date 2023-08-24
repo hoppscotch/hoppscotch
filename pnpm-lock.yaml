@@ -1330,7 +1330,7 @@ importers:
         version: 0.13.1(vite@3.2.4)(workbox-build@6.6.0)(workbox-window@6.6.0)
       vite-plugin-vue-layouts:
         specifier: ^0.7.0
-        version: 0.7.0(vite@3.2.4)(vue-router@4.1.0)(vue@3.2.45)
+        version: 0.7.0(vite@3.2.4)(vue-router@4.2.4)(vue@3.2.45)
       vite-plugin-windicss:
         specifier: ^1.8.8
         version: 1.8.8(vite@3.2.4)
@@ -19698,7 +19698,6 @@ packages:
     resolution: {integrity: sha512-vYl3iOX+4CKUWuxGi9Ukhie6fsqXqS9FE2Zaic4tNFD2N2QQaXOMFbuKK4QmDHC0JO6B1Zp41J0LpT0oR68amQ==}
     dependencies:
       safe-buffer: 5.2.1
-    dev: true
 
   /range-parser@1.2.1:
     resolution: {integrity: sha512-Hrgsx+orqoygnmhFbKaHE6c296J+HTAQXoxEF6gNupROmmGJRoyzfG3ccAveqCBrwr/2yxQ5BVd/GTl5agOwSg==}
@@ -20397,7 +20396,6 @@ packages:
     resolution: {integrity: sha512-owoXEFjWRllis8/M1Q+Cw5k8ZH40e3zhp/ovX+Xr/vi1qj6QesbyXXViFbpNvWvPNAD62SutwEXavefrLJWj7w==}
     dependencies:
       randombytes: 2.1.0
-    dev: true
 
   /serve-static@1.15.0:
     resolution: {integrity: sha512-XGuRDNjXUijsUL0vl6nSD7cwURuzEgglbOaFuZM9g3kwDXOWVTck0jLzjPzGD+TazWbboZYu52/9/XPdUgne9g==}
@@ -23006,6 +23004,23 @@ packages:
       - supports-color
     dev: true
 
+  /vite-plugin-vue-layouts@0.7.0(vite@3.2.4)(vue-router@4.2.4)(vue@3.2.45):
+    resolution: {integrity: sha512-k5XDmRNFo4M/GmUjhbRXj2WmJiFcGoVI8l/uZ72RHyRDQr4wE/6Zq/KFq0lqXomWQxTSzakQRUswzNwtvZLE8A==}
+    peerDependencies:
+      vite: ^2.5.0 || ^3.0.0-0
+      vue: ^2.6.12 || ^3.2.4
+      vue-router: ^3.5.1 || ^ 4.0.11
+    dependencies:
+      '@vue/compiler-sfc': 3.3.4
+      debug: 4.3.4(supports-color@9.2.2)
+      fast-glob: 3.3.1
+      vite: 3.2.4(@types/node@17.0.45)(sass@1.53.0)(terser@5.19.2)
+      vue: 3.2.45
+      vue-router: 4.2.4(vue@3.2.45)
+    transitivePeerDependencies:
+      - supports-color
+    dev: true
+
   /vite-plugin-vue-layouts@0.8.0(vite@4.4.9)(vue-router@4.2.4)(vue@3.3.4):
     resolution: {integrity: sha512-UZW2nSV2LraTSe7gsAL46hfdi7a0X1RvkGGoJVtA2O8beu7anzpXFwQLou8+kHy31CzVycT4gIPySBsHhtBN5g==}
     peerDependencies:
@@ -23674,6 +23689,15 @@ packages:
     dependencies:
       '@vue/devtools-api': 6.5.0
       vue: 3.2.45
+
+  /vue-router@4.2.4(vue@3.2.45):
+    resolution: {integrity: sha512-9PISkmaCO02OzPVOMq2w82ilty6+xJmQrarYZDkjZBfl4RvYAlt4PKnEX21oW4KTtWfa9OuO/b3qk1Od3AEdCQ==}
+    peerDependencies:
+      vue: ^3.2.0
+    dependencies:
+      '@vue/devtools-api': 6.5.0
+      vue: 3.2.45
+    dev: true
 
   /vue-router@4.2.4(vue@3.3.4):
     resolution: {integrity: sha512-9PISkmaCO02OzPVOMq2w82ilty6+xJmQrarYZDkjZBfl4RvYAlt4PKnEX21oW4KTtWfa9OuO/b3qk1Od3AEdCQ==}

@@ -20,11 +20,25 @@
         />
       </span>
       <span
-        class="flex flex-1 min-w-0 py-2 pr-2 cursor-pointer transition group-hover:text-secondaryDark"
+        class="flex items-center flex-1 min-w-0 py-2 pr-2 cursor-pointer transition group-hover:text-secondaryDark"
         @click="selectRequest()"
       >
         <span class="truncate" :class="{ 'text-accent': isSelected }">
           {{ request.name }}
+        </span>
+        <span
+          v-if="isActive"
+          v-tippy="{ theme: 'tooltip' }"
+          class="relative h-1.5 w-1.5 flex flex-shrink-0 mx-3"
+          :title="`${t('collection.request_in_use')}`"
+        >
+          <span
+            class="absolute inline-flex flex-shrink-0 w-full h-full bg-green-500 rounded-full opacity-75 animate-ping"
+          >
+          </span>
+          <span
+            class="relative inline-flex flex-shrink-0 rounded-full h-1.5 w-1.5 bg-green-500"
+          ></span>
         </span>
       </span>
       <div class="flex">
@@ -127,6 +141,7 @@ import {
   createNewTab,
   getTabRefWithSaveContext,
   currentTabID,
+  currentActiveTab,
 } from "~/helpers/graphql/tab"
 
 // Template refs
@@ -147,6 +162,18 @@ const props = defineProps({
   request: { type: Object as PropType<HoppGQLRequest>, default: () => ({}) },
   folderPath: { type: String, default: null },
   requestIndex: { type: Number, default: null },
+})
+
+const isActive = computed(() => {
+  const saveCtx = currentActiveTab.value?.document.saveContext
+
+  if (!saveCtx) return false
+
+  return (
+    saveCtx.originLocation === "user-collection" &&
+    saveCtx.folderPath === props.folderPath &&
+    saveCtx.requestIndex === props.requestIndex
+  )
 })
 
 // TODO: Better types please

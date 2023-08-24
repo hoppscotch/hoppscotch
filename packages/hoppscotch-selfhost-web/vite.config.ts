@@ -242,9 +242,11 @@ export default defineConfig({
       modernPolyfills: ["es.string.replace-all"],
       renderLegacyChunks: false,
     }),
-    ImportMetaEnv.vite({
-      example: "../../.env.example",
-      env: "../../.env",
-    }),
+    process.env.HOPP_ALLOW_RUNTIME_ENV
+      ? ImportMetaEnv.vite({
+          example: "../../.env.example",
+          env: "../../.env",
+        })
+      : [],
   ],
 })

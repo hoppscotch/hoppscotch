@@ -91,9 +91,11 @@ export default defineConfig({
         ],
       }
     }),
-    ImportMetaEnv.vite({
-      example: "../../.env.example",
-      env: "../../.env",
-    }),
+    process.env.HOPP_ALLOW_RUNTIME_ENV
+      ?  ImportMetaEnv.vite({
+          example: "../../.env.example",
+          env: "../../.env",
+        })
+      : [],
   ],
 });

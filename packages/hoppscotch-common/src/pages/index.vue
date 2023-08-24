@@ -150,6 +150,7 @@ const showRenamingReqNameModal = ref(false)
 const reqName = ref<string>("")
 const unsavedTabsCount = ref(0)
 const exceptedTabID = ref<string | null>(null)
+const renameTabID = ref<string | null>(null)
 
 const t = useI18n()
 const toast = useToast()
@@ -257,6 +258,7 @@ const openReqRenameModal = (tabID?: string) => {
   if (tabID) {
     const tab = getTabRef(tabID)
     reqName.value = tab.value.document.request.name
+    renameTabID.value = tabID
   } else {
     reqName.value = currentActiveTab.value.document.request.name
   }
@@ -264,7 +266,7 @@ const openReqRenameModal = (tabID?: string) => {
 }
 
 const renameReqName = () => {
-  const tab = getTabRef(currentTabID.value)
+  const tab = getTabRef(renameTabID.value ?? currentTabID.value)
   if (tab.value) {
     tab.value.document.request.name = reqName.value
     updateTab(tab.value)

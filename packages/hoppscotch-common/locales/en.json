@@ -159,8 +159,8 @@
   },
   "context_menu": {
     "set_environment_variable": "Set as variable",
-    "add_parameter": "Add to parameter",
-    "open_link_in_new_tab": "Open link in new tab"
+    "add_parameters": "Add to parameters",
+    "open_request_in_new_tab": "Open request in new tab"
   },
   "count": {
     "header": "Header {count}",

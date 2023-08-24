@@ -70,7 +70,7 @@ export class URLMenuService extends Service implements ContextMenu {
           id: "link-tab",
           text: {
             type: "text",
-            text: this.t("context_menu.open_link_in_new_tab"),
+            text: this.t("context_menu.open_request_in_new_tab"),
           },
           icon: markRaw(IconCopyPlus),
           action: () => {

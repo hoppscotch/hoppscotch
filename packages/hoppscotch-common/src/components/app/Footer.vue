@@ -76,6 +76,7 @@
                   }
                 "
               />
+              <!--
               <HoppSmartItem
                 ref="chat"
                 :icon="IconMessageCircle"
@@ -88,20 +89,34 @@
                   }
                 "
               />
-              <HoppSmartItem
-                :icon="IconGift"
-                :label="`${t('app.whats_new')}`"
-                to="https://docs.hoppscotch.io/documentation/changelog"
-                blank
-                @click="hide()"
-              />
-              <HoppSmartItem
-                :icon="IconActivity"
-                :label="t('app.status')"
-                to="https://status.hoppscotch.io"
-                blank
-                @click="hide()"
-              />
+              -->
+              <template
+                v-for="footerItem in platform.ui?.additonalFooterMenuItems"
+                :key="footerItem.id"
+              >
+                <template v-if="footerItem.action.type === 'link'">
+                  <HoppSmartItem
+                    :icon="footerItem.icon"
+                    :label="footerItem.text(t)"
+                    :to="footerItem.action.href"
+                    blank
+                    @click="hide()"
+                  />
+                </template>
+                <HoppSmartItem
+                  v-else
+                  :icon="footerItem.icon"
+                  :label="footerItem.text(t)"
+                  blank
+                  @click="
+                    () => {
+                      // @ts-expect-error TypeScript not understanding the type
+                      footerItem.action.do()
+                      hide()
+                    }
+                  "
+                />
+              </template>
               <hr />
               <HoppSmartItem
                 :icon="IconGithub"
@@ -207,15 +222,11 @@ import IconColumns from "~icons/lucide/columns"
 import IconSidebarOpen from "~icons/lucide/sidebar-open"
 import IconShieldCheck from "~icons/lucide/shield-check"
 import IconBook from "~icons/lucide/book"
-import IconMessageCircle from "~icons/lucide/message-circle"
-import IconGift from "~icons/lucide/gift"
-import IconActivity from "~icons/lucide/activity"
 import IconGithub from "~icons/lucide/github"
 import IconTwitter from "~icons/lucide/twitter"
 import IconUserPlus from "~icons/lucide/user-plus"
 import IconLock from "~icons/lucide/lock"
 import IconLifeBuoy from "~icons/lucide/life-buoy"
-import { showChat } from "@modules/crisp"
 import { useSetting } from "@composables/settings"
 import { useI18n } from "@composables/i18n"
 import { useReadonlyStream } from "@composables/stream"
@@ -260,10 +271,6 @@ const nativeShare = () => {
   } else {
     // fallback
   }
-}
-
-const chatWithUs = () => {
-  showChat()
 }
 
 const showDeveloperOptionModal = () => {

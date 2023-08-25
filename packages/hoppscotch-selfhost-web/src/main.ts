@@ -8,8 +8,14 @@ import { def as tabStateDef } from "./platform/tabState/tabState.platform"
 import { browserInterceptor } from "@hoppscotch/common/platform/std/interceptors/browser"
 import { proxyInterceptor } from "@hoppscotch/common/platform/std/interceptors/proxy"
 import { ExtensionInterceptorService } from "@hoppscotch/common/platform/std/interceptors/extension"
+import { stdFooterItems } from "@hoppscotch/common/platform/std/ui/footerItem"
+import { stdSupportOptionItems } from "@hoppscotch/common/platform/std/ui/supportOptionsItem"
 
 createHoppApp("#app", {
+  ui: {
+    additonalFooterMenuItems: stdFooterItems,
+    additionalSupportOptionsMenuItems: stdSupportOptionItems,
+  },
   auth: authDef,
   sync: {
     environments: environmentsDef,

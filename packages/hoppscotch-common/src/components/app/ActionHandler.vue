@@ -17,7 +17,6 @@ import { pipe } from "fp-ts/function"
 import * as TE from "fp-ts/TaskEither"
 import { deleteTeam as backendDeleteTeam } from "~/helpers/backend/mutations/Team"
 import { defineActionHandler, invokeAction } from "~/helpers/actions"
-import { showChat } from "~/modules/crisp"
 import { useToast } from "~/composables/toast"
 import { useI18n } from "~/composables/i18n"
 
@@ -60,10 +59,6 @@ defineActionHandler("modals.share.toggle", () => {
 
 defineActionHandler("modals.login.toggle", () => {
   showLogin.value = !showLogin.value
-})
-
-defineActionHandler("flyouts.chat.open", () => {
-  showChat()
 })
 
 defineActionHandler("modals.team.delete", ({ teamId }) => {

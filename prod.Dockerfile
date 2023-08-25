@@ -16,6 +16,8 @@ FROM base_builder as backend
 WORKDIR /usr/src/app/packages/hoppscotch-backend
 RUN pnpm exec prisma generate
 RUN pnpm run build
+# Remove the env file to avoid backend copying it in and using it
+RUN rm "../../.env"
 ENV PRODUCTION="true"
 ENV PORT=3170
 ENV APP_PORT=${PORT}

@@ -1,7 +1,9 @@
 import { HoppRESTRequest } from "@hoppscotch/data"
+import { refDebounced } from "@vueuse/core"
 import { Service } from "dioc"
+import { computed } from "vue"
 import { Component, Ref, ref, watch } from "vue"
-import { currentActiveTab, currentTabID } from "~/helpers/rest/tab"
+import { currentActiveTab } from "~/helpers/rest/tab"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 
 /**
@@ -80,15 +82,16 @@ export interface Inspector {
    */
   inspectorID: string
   /**
-   * Returns the inspector results for the request
-   * @param req The request to inspect
-   * @param res The response to inspect
-   * @returns The inspector results
+   * Returns the inspector results for the request.
+   * NOTE: The refs passed down are readonly and are debounced to avoid performance issues
+   * @param req The ref to the request to inspect
+   * @param res The ref to the response to inspect
+   * @returns The ref to the inspector results
    */
-  getInspectorFor: (
-    req: HoppRESTRequest,
-    res?: HoppRESTResponse
-  ) => InspectorResult[]
+  getInspections?: (
+    req: Readonly<Ref<HoppRESTRequest>>,
+    res: Readonly<Ref<HoppRESTResponse | null | undefined>>
+  ) => Ref<InspectorResult[]>
 }
 
 /**
@@ -111,25 +114,56 @@ export class InspectionService extends Service {
   }
 
   public initializeTabInspectors() {
+    this.initializeListeners()
+  }
+
+  private initializeListeners() {
+    const debouncedReq = refDebounced(
+      computed(() => currentActiveTab.value.document.request),
+      1000,
+      { maxWait: 2000 }
+    )
+
+    const debouncedRes = refDebounced(
+      computed(() => currentActiveTab.value.response),
+      1000,
+      { maxWait: 2000 }
+    )
+
     watch(
-      currentActiveTab.value,
-      (tab) => {
-        if (!tab) return
-        const req = currentActiveTab.value.document.request
-        const res = currentActiveTab.value.response
-        const inspectors = Array.from(this.inspectors.values()).map((x) =>
-          x.getInspectorFor(req, res)
+      () => this.inspectors,
+      () => {
+        const inspectorRefs = Array.from(this.inspectors.values())
+          .map((x) => {
+            if (x.getInspections) {
+              return x.getInspections(debouncedReq, debouncedRes)
+            }
+
+            return null
+          })
+          .filter((x) => x !== null)
+
+        const activeInspections = computed(() =>
+          inspectorRefs.flatMap((x) => x!.value)
         )
-        this.tabs.value.set(
-          currentTabID.value,
-          inspectors.flatMap((x) => x)
+
+        watch(
+          () => [...inspectorRefs.flatMap((x) => x!.value)],
+          () => {
+            this.tabs.value.set(
+              currentActiveTab.value.id,
+              activeInspections.value
+            )
+          },
+          { immediate: true }
         )
       },
-      { immediate: true, deep: true }
+      { immediate: true }
     )
   }
 
   public deleteTabInspectorResult(tabID: string) {
+    // TODO: Move Tabs into a service and implement this with an event instead
     this.tabs.value.delete(tabID)
   }
 }

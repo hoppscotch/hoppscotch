@@ -3,6 +3,8 @@ import { describe, expect, it, vi } from "vitest"
 import { ResponseInspectorService } from "../response.inspector"
 import { InspectionService } from "../../index"
 import { getDefaultRESTRequest } from "~/helpers/rest/default"
+import { ref } from "vue"
+import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 
 vi.mock("~/modules/i18n", () => ({
   __esModule: true,
@@ -30,29 +32,33 @@ describe("ResponseInspectorService", () => {
       const container = new TestContainer()
       const responseInspector = container.bind(ResponseInspectorService)
 
-      const req = {
+      const req = ref({
         ...getDefaultRESTRequest(),
         endpoint: "http://example.com/api/data",
-      }
+      })
 
-      const result = responseInspector.getInspectorFor(req, undefined)
+      const result = responseInspector.getInspections(req, ref(undefined))
 
-      expect(result).toHaveLength(0)
+      expect(result.value).toHaveLength(0)
     })
 
     it("should return an inspector result when response type is not success or status code is not 200", () => {
       const container = new TestContainer()
       const responseInspector = container.bind(ResponseInspectorService)
 
-      const req = {
+      const req = ref({
         ...getDefaultRESTRequest(),
         endpoint: "http://example.com/api/data",
-      }
-      const res = { type: "network_fail", statusCode: 400 }
+      })
+      const res = ref<HoppRESTResponse>({
+        type: "network_fail",
+        error: new Error("test"),
+        req: req.value,
+      })
 
-      const result = responseInspector.getInspectorFor(req, res)
+      const result = responseInspector.getInspections(req, res)
 
-      expect(result).toContainEqual(
+      expect(result.value).toContainEqual(
         expect.objectContaining({ id: "url", isApplicable: true })
       )
     })
@@ -61,15 +67,19 @@ describe("ResponseInspectorService", () => {
       const container = new TestContainer()
       const responseInspector = container.bind(ResponseInspectorService)
 
-      const req = {
+      const req = ref({
         ...getDefaultRESTRequest(),
         endpoint: "http://example.com/api/data",
-      }
-      const res = { type: "network_fail", statusCode: 500 }
+      })
+      const res = ref<HoppRESTResponse>({
+        type: "network_fail",
+        error: new Error("test"),
+        req: req.value,
+      })
 
-      const result = responseInspector.getInspectorFor(req, res)
+      const result = responseInspector.getInspections(req, res)
 
-      expect(result).toContainEqual(
+      expect(result.value).toContainEqual(
         expect.objectContaining({
           text: { type: "text", text: "inspections.response.network_error" },
         })
@@ -80,15 +90,22 @@ describe("ResponseInspectorService", () => {
       const container = new TestContainer()
       const responseInspector = container.bind(ResponseInspectorService)
 
-      const req = {
+      const req = ref({
         ...getDefaultRESTRequest(),
         endpoint: "http://example.com/api/data",
-      }
-      const res = { type: "fail", statusCode: 500 }
+      })
+      const res = ref<HoppRESTResponse>({
+        type: "fail",
+        statusCode: 500,
+        body: Uint8Array.from([]),
+        headers: [],
+        meta: { responseDuration: 0, responseSize: 0 },
+        req: req.value,
+      })
 
-      const result = responseInspector.getInspectorFor(req, res)
+      const result = responseInspector.getInspections(req, res)
 
-      expect(result).toContainEqual(
+      expect(result.value).toContainEqual(
         expect.objectContaining({
           text: { type: "text", text: "inspections.response.default_error" },
         })
@@ -99,15 +116,22 @@ describe("ResponseInspectorService", () => {
       const container = new TestContainer()
       const responseInspector = container.bind(ResponseInspectorService)
 
-      const req = {
+      const req = ref({
         ...getDefaultRESTRequest(),
         endpoint: "http://example.com/api/data",
-      }
-      const res = { type: "success", statusCode: 404 }
+      })
+      const res = ref<HoppRESTResponse>({
+        type: "success",
+        statusCode: 404,
+        body: Uint8Array.from([]),
+        headers: [],
+        meta: { responseDuration: 0, responseSize: 0 },
+        req: req.value,
+      })
 
-      const result = responseInspector.getInspectorFor(req, res)
+      const result = responseInspector.getInspections(req, res)
 
-      expect(result).toContainEqual(
+      expect(result.value).toContainEqual(
         expect.objectContaining({
           text: { type: "text", text: "inspections.response.404_error" },
         })
@@ -118,15 +142,22 @@ describe("ResponseInspectorService", () => {
       const container = new TestContainer()
       const responseInspector = container.bind(ResponseInspectorService)
 
-      const req = {
+      const req = ref({
         ...getDefaultRESTRequest(),
         endpoint: "http://example.com/api/data",
-      }
-      const res = { type: "success", statusCode: 401 }
+      })
+      const res = ref<HoppRESTResponse>({
+        type: "success",
+        statusCode: 401,
+        body: Uint8Array.from([]),
+        headers: [],
+        meta: { responseDuration: 0, responseSize: 0 },
+        req: req.value,
+      })
 
-      const result = responseInspector.getInspectorFor(req, res)
+      const result = responseInspector.getInspections(req, res)
 
-      expect(result).toContainEqual(
+      expect(result.value).toContainEqual(
         expect.objectContaining({
           text: { type: "text", text: "inspections.response.401_error" },
         })
@@ -137,15 +168,22 @@ describe("ResponseInspectorService", () => {
       const container = new TestContainer()
       const responseInspector = container.bind(ResponseInspectorService)
 
-      const req = {
+      const req = ref({
         ...getDefaultRESTRequest(),
         endpoint: "http://example.com/api/data",
-      }
-      const res = { type: "success", statusCode: 200 }
+      })
+      const res = ref<HoppRESTResponse>({
+        type: "success",
+        statusCode: 200,
+        body: Uint8Array.from([]),
+        headers: [],
+        meta: { responseDuration: 0, responseSize: 0 },
+        req: req.value,
+      })
 
-      const result = responseInspector.getInspectorFor(req, res)
+      const result = responseInspector.getInspections(req, res)
 
-      expect(result).toHaveLength(0)
+      expect(result.value).toHaveLength(0)
     })
   })
 })

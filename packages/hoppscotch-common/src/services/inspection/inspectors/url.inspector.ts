@@ -2,12 +2,11 @@ import { Service } from "dioc"
 import { InspectionService, Inspector, InspectorResult } from ".."
 import { getI18n } from "~/modules/i18n"
 import { HoppRESTRequest } from "@hoppscotch/data"
-import { computed, markRaw, ref } from "vue"
+import { computed, markRaw } from "vue"
 import IconAlertTriangle from "~icons/lucide/alert-triangle"
-import { useReadonlyStream } from "~/composables/stream"
-import { extensionStatus$ } from "~/newstore/HoppExtension"
-import { useSetting } from "~/composables/settings"
-import { applySetting, toggleSetting } from "~/newstore/settings"
+import { Ref } from "vue"
+import { InterceptorService } from "~/services/interceptor.service"
+import { ExtensionInterceptorService } from "~/platform/std/interceptors/extension"
 
 /**
  * This inspector is responsible for inspecting the URL of a request.
@@ -23,6 +22,9 @@ export class URLInspectorService extends Service implements Inspector {
 
   public readonly inspectorID = "url"
 
+  private readonly interceptorService = this.bind(InterceptorService)
+  private readonly extensionService = this.bind(ExtensionInterceptorService)
+
   private readonly inspection = this.bind(InspectionService)
 
   constructor() {
@@ -31,68 +33,71 @@ export class URLInspectorService extends Service implements Inspector {
     this.inspection.registerInspector(this)
   }
 
-  getInspectorFor(req: HoppRESTRequest): InspectorResult[] {
-    const PROXY_ENABLED = useSetting("PROXY_ENABLED")
+  getInspections(req: Readonly<Ref<HoppRESTRequest>>) {
+    const currentExtensionStatus = this.extensionService.extensionStatus
 
-    const currentExtensionStatus = useReadonlyStream(extensionStatus$, null)
+    const isExtensionInstalled = computed(
+      () => currentExtensionStatus.value === "available"
+    )
 
-    const isExtensionInstalled = computed(() => {
-      return currentExtensionStatus.value === "available"
-    })
-    const EXTENSIONS_ENABLED = useSetting("EXTENSIONS_ENABLED")
+    const EXTENSIONS_ENABLED = computed(
+      () => this.interceptorService.currentInterceptorID.value === "extension"
+    )
 
-    const results = ref<InspectorResult[]>([])
+    return computed(() => {
+      const results: InspectorResult[] = []
 
-    const url = req.endpoint
+      const url = req.value.endpoint
+      const localHostURLs = ["localhost", "127.0.0.1"]
 
-    const localHostURLs = ["localhost", "127.0.0.1"]
+      const isContainLocalhost = localHostURLs.some((host) =>
+        url.includes(host)
+      )
 
-    const isContainLocalhost = localHostURLs.some((host) => url.includes(host))
+      if (
+        isContainLocalhost &&
+        (!EXTENSIONS_ENABLED.value || !isExtensionInstalled.value)
+      ) {
+        let text
 
-    if (
-      isContainLocalhost &&
-      (!EXTENSIONS_ENABLED.value || !isExtensionInstalled.value)
-    ) {
-      let text
-
-      if (!isExtensionInstalled.value) {
-        if (currentExtensionStatus.value === "unknown-origin") {
-          text = this.t("inspections.url.extension_unknown_origin")
+        if (!isExtensionInstalled.value) {
+          if (currentExtensionStatus.value === "unknown-origin") {
+            text = this.t("inspections.url.extension_unknown_origin")
+          } else {
+            text = this.t("inspections.url.extension_not_installed")
+          }
+        } else if (!EXTENSIONS_ENABLED.value) {
+          text = this.t("inspections.url.extention_not_enabled")
         } else {
-          text = this.t("inspections.url.extension_not_installed")
+          text = this.t("inspections.url.localhost")
         }
-      } else if (!EXTENSIONS_ENABLED.value) {
-        text = this.t("inspections.url.extention_not_enabled")
-      } else {
-        text = this.t("inspections.url.localhost")
+
+        results.push({
+          id: "url",
+          icon: markRaw(IconAlertTriangle),
+          text: {
+            type: "text",
+            text: text,
+          },
+          action: {
+            text: this.t("inspections.url.extention_enable_action"),
+            apply: () => {
+              this.interceptorService.currentInterceptorID.value = "extension"
+            },
+          },
+          severity: 2,
+          isApplicable: true,
+          locations: {
+            type: "url",
+          },
+          doc: {
+            text: this.t("action.learn_more"),
+            link: "https://docs.hoppscotch.io/documentation/features/interceptor#browser-extension",
+          },
+        })
       }
 
-      results.value.push({
-        id: "url",
-        icon: markRaw(IconAlertTriangle),
-        text: {
-          type: "text",
-          text: text,
-        },
-        action: {
-          text: this.t("inspections.url.extention_enable_action"),
-          apply: () => {
-            applySetting("EXTENSIONS_ENABLED", true)
-            if (PROXY_ENABLED.value) toggleSetting("PROXY_ENABLED")
-          },
-        },
-        severity: 2,
-        isApplicable: true,
-        locations: {
-          type: "url",
-        },
-        doc: {
-          text: this.t("action.learn_more"),
-          link: "https://docs.hoppscotch.io/documentation/features/interceptor#browser-extension",
-        },
-      })
-    }
-
-    return results.value
+      return results
+    })
   }
 }

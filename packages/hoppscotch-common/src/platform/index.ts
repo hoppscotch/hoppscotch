@@ -8,6 +8,7 @@ import { TabStatePlatformDef } from "./tab"
 import { AnalyticsPlatformDef } from "./analytics"
 import { InterceptorsPlatformDef } from "./interceptors"
 import { HoppModule } from "~/modules"
+import { InspectorsPlatformDef } from "./inspectors"
 
 export type PlatformDef = {
   ui?: UIPlatformDef
@@ -22,6 +23,7 @@ export type PlatformDef = {
     tabState: TabStatePlatformDef
   }
   interceptors: InterceptorsPlatformDef
+  additionalInspectors?: InspectorsPlatformDef
   platformFeatureFlags: {
     exportAsGIST: boolean
   }

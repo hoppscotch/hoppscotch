@@ -1,5 +1,9 @@
 import { Service } from "dioc"
-import { InspectionService, Inspector, InspectorResult } from ".."
+import {
+  InspectionService,
+  Inspector,
+  InspectorResult,
+} from "~/services/inspection"
 import { getI18n } from "~/modules/i18n"
 import { HoppRESTRequest } from "@hoppscotch/data"
 import { computed, markRaw } from "vue"
@@ -15,12 +19,12 @@ import { ExtensionInterceptorService } from "~/platform/std/interceptors/extensi
  *
  * NOTE: Initializing this service registers it as a inspector with the Inspection Service.
  */
-export class URLInspectorService extends Service implements Inspector {
-  public static readonly ID = "URL_INSPECTOR_SERVICE"
+export class ExtensionInspectorService extends Service implements Inspector {
+  public static readonly ID = "EXTENSION_INSPECTOR_SERVICE"
 
   private t = getI18n()
 
-  public readonly inspectorID = "url"
+  public readonly inspectorID = "extension"
 
   private readonly interceptorService = this.bind(InterceptorService)
   private readonly extensionService = this.bind(ExtensionInterceptorService)

@@ -1,7 +1,7 @@
 import { TestContainer } from "dioc/testing"
 import { describe, expect, it, vi } from "vitest"
-import { URLInspectorService } from "../url.inspector"
-import { InspectionService } from "../../index"
+import { ExtensionInspectorService } from "../extension.inspector"
+import { InspectionService } from "~/services/inspection"
 import { getDefaultRESTRequest } from "~/helpers/rest/default"
 import { ref } from "vue"
 import { ExtensionInterceptorService } from "~/platform/std/interceptors/extension"
@@ -11,7 +11,7 @@ vi.mock("~/modules/i18n", () => ({
   getI18n: () => (x: string) => x,
 }))
 
-describe("URLInspectorService", () => {
+describe("ExtensionInspectorService", () => {
   it("registers with the inspection service upon initialization", () => {
     const container = new TestContainer()
 
@@ -21,7 +21,7 @@ describe("URLInspectorService", () => {
       registerInspector: registerInspectorFn,
     })
 
-    const urlInspector = container.bind(URLInspectorService)
+    const urlInspector = container.bind(ExtensionInspectorService)
 
     expect(registerInspectorFn).toHaveBeenCalledOnce()
     expect(registerInspectorFn).toHaveBeenCalledWith(urlInspector)
@@ -30,7 +30,7 @@ describe("URLInspectorService", () => {
   describe("getInspectorFor", () => {
     it("should return an inspector result when localhost is in URL and extension is not available", () => {
       const container = new TestContainer()
-      const urlInspector = container.bind(URLInspectorService)
+      const urlInspector = container.bind(ExtensionInspectorService)
 
       const req = ref({
         ...getDefaultRESTRequest(),
@@ -51,7 +51,7 @@ describe("URLInspectorService", () => {
         extensionStatus: ref("unknown-origin" as const),
       })
 
-      const urlInspector = container.bind(URLInspectorService)
+      const urlInspector = container.bind(ExtensionInspectorService)
 
       const req = ref({
         ...getDefaultRESTRequest(),
@@ -70,7 +70,7 @@ describe("URLInspectorService", () => {
         extensionStatus: ref("waiting" as const),
       })
 
-      const urlInspector = container.bind(URLInspectorService)
+      const urlInspector = container.bind(ExtensionInspectorService)
 
       const req = ref({
         ...getDefaultRESTRequest(),

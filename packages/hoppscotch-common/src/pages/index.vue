@@ -140,7 +140,6 @@ import { useService } from "dioc/vue"
 import { InspectionService } from "~/services/inspection"
 import { HeaderInspectorService } from "~/services/inspection/inspectors/header.inspector"
 import { EnvironmentInspectorService } from "~/services/inspection/inspectors/environment.inspector"
-import { URLInspectorService } from "~/services/inspection/inspectors/url.inspector"
 import { ResponseInspectorService } from "~/services/inspection/inspectors/response.inspector"
 
 const savingRequest = ref(false)
@@ -469,6 +468,8 @@ defineActionHandler("request.duplicate-tab", ({ tabID }) => {
 
 useService(HeaderInspectorService)
 useService(EnvironmentInspectorService)
-useService(URLInspectorService)
 useService(ResponseInspectorService)
+for (const inspectorDef of platform.additonalInspectors ?? []) {
+  useService(inspectorDef.service)
+}
 </script>

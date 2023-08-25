@@ -88,7 +88,7 @@ export interface Inspector {
    * @param res The ref to the response to inspect
    * @returns The ref to the inspector results
    */
-  getInspections?: (
+  getInspections: (
     req: Readonly<Ref<HoppRESTRequest>>,
     res: Readonly<Ref<HoppRESTResponse | null | undefined>>
   ) => Ref<InspectorResult[]>
@@ -105,6 +105,12 @@ export class InspectionService extends Service {
 
   public tabs: Ref<Map<string, InspectorResult[]>> = ref(new Map())
 
+  constructor() {
+    super()
+
+    this.initializeListeners()
+  }
+
   /**
    * Registers a inspector with the inspection service
    * @param inspector The inspector instance to register
@@ -113,35 +119,25 @@ export class InspectionService extends Service {
     this.inspectors.set(inspector.inspectorID, inspector)
   }
 
-  public initializeTabInspectors() {
-    this.initializeListeners()
-  }
-
   private initializeListeners() {
-    const debouncedReq = refDebounced(
-      computed(() => currentActiveTab.value.document.request),
-      1000,
-      { maxWait: 2000 }
-    )
-
-    const debouncedRes = refDebounced(
-      computed(() => currentActiveTab.value.response),
-      1000,
-      { maxWait: 2000 }
-    )
-
     watch(
-      () => this.inspectors,
+      () => [this.inspectors, currentActiveTab.value.id],
       () => {
-        const inspectorRefs = Array.from(this.inspectors.values())
-          .map((x) => {
-            if (x.getInspections) {
-              return x.getInspections(debouncedReq, debouncedRes)
-            }
+        const debouncedReq = refDebounced(
+          computed(() => currentActiveTab.value.document.request),
+          1000,
+          { maxWait: 2000 }
+        )
 
-            return null
-          })
-          .filter((x) => x !== null)
+        const debouncedRes = refDebounced(
+          computed(() => currentActiveTab.value.response),
+          1000,
+          { maxWait: 2000 }
+        )
+
+        const inspectorRefs = Array.from(this.inspectors.values()).map((x) =>
+          x.getInspections(debouncedReq, debouncedRes)
+        )
 
         const activeInspections = computed(() =>
           inspectorRefs.flatMap((x) => x!.value)
@@ -158,7 +154,7 @@ export class InspectionService extends Service {
           { immediate: true }
         )
       },
-      { immediate: true }
+      { immediate: true, flush: "pre" }
     )
   }
 

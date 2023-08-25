@@ -94,7 +94,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, onBeforeUnmount, onBeforeMount, watch } from "vue"
+import { ref, onMounted, onBeforeUnmount, onBeforeMount } from "vue"
 import { safelyExtractRESTRequest } from "@hoppscotch/data"
 import { translateExtURLParams } from "~/helpers/RESTExtURLParams"
 import { useRoute } from "vue-router"
@@ -214,6 +214,8 @@ const addNewTab = () => {
 const sortTabs = (e: { oldIndex: number; newIndex: number }) => {
   updateTabOrdering(e.oldIndex, e.newIndex)
 }
+
+const inspectionService = useService(InspectionService)
 
 const removeTab = (tabID: string) => {
   const tabState = getTabRef(tabID).value
@@ -465,17 +467,8 @@ defineActionHandler("request.duplicate-tab", ({ tabID }) => {
   duplicateTab(tabID)
 })
 
-const inspectionService = useService(InspectionService)
 useService(HeaderInspectorService)
 useService(EnvironmentInspectorService)
 useService(URLInspectorService)
 useService(ResponseInspectorService)
-
-watch(
-  () => currentTabID.value,
-  () => {
-    inspectionService.initializeTabInspectors()
-  },
-  { immediate: true }
-)
 </script>

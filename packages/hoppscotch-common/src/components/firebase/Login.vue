@@ -312,8 +312,10 @@ const authProviders: AuthProviderItem[] = [
   },
 ]
 
-const allowedAuthProvidersIDsString: string | undefined = import.meta.env
-  .VITE_ALLOWED_AUTH_PROVIDERS
+// Do not format the `import.meta.env.VITE_ALLOWED_AUTH_PROVIDERS` call into multiple lines!
+// prettier-ignore
+const allowedAuthProvidersIDsString =
+  import.meta.env.VITE_ALLOWED_AUTH_PROVIDERS
 
 const allowedAuthProvidersIDs = allowedAuthProvidersIDsString
   ? allowedAuthProvidersIDsString.split(",")

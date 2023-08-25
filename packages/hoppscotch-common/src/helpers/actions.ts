@@ -182,7 +182,7 @@ type InvokeActionFunc = {
  * @param args The argument passed to the action handler. Optional if action has no args required
  */
 export const invokeAction: InvokeActionFunc = <
-  A extends HoppAction | HoppActionWithArgs
+  A extends HoppAction | HoppActionWithArgs,
 >(
   action: A,
   args: ArgOfHoppAction<A>

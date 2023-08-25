@@ -150,7 +150,7 @@ export class ShortcodeService implements UserDataHandler, OnModuleInit {
       orderBy: {
         createdOn: 'desc',
       },
-      skip: 1,
+      skip: args.cursor ? 1 : 0,
       take: args.take,
       cursor: args.cursor ? { id: args.cursor } : undefined,
     });

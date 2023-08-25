@@ -15,7 +15,10 @@ import {
   currentTabID,
   getActiveTabs,
 } from "~/helpers/rest/tab"
-import IconWindow from "~icons/lucide/app-window"
+import IconCopy from "~icons/lucide/copy"
+import IconCopyPlus from "~icons/lucide/copy-plus"
+import IconXCircle from "~icons/lucide/x-circle"
+import IconXSquare from "~icons/lucide/x-square"
 import { invokeAction } from "~/helpers/actions"
 
 type Doc = {
@@ -50,29 +53,29 @@ export class TabSpotlightSearcherService extends StaticSpotlightSearcherService<
     duplicate_tab: {
       text: this.t("spotlight.tab.duplicate"),
       alternates: ["tab", "duplicate", "duplicate tab"],
-      icon: markRaw(IconWindow),
+      icon: markRaw(IconCopy),
       excludeFromSearch: computed(() => !this.showAction.value),
     },
     close_current_tab: {
       text: this.t("spotlight.tab.close_current"),
       alternates: ["tab", "close", "close tab"],
-      icon: markRaw(IconWindow),
+      icon: markRaw(IconXCircle),
       excludeFromSearch: computed(
-        () => !this.showAction.value ?? getActiveTabs().value.length === 1
+        () => !this.showAction.value || getActiveTabs().value.length === 1
       ),
     },
     close_other_tabs: {
       text: this.t("spotlight.tab.close_others"),
       alternates: ["tab", "close", "close all"],
-      icon: markRaw(IconWindow),
+      icon: markRaw(IconXSquare),
       excludeFromSearch: computed(
-        () => !this.showAction.value ?? getActiveTabs().value.length < 2
+        () => !this.showAction.value || getActiveTabs().value.length < 2
       ),
     },
     open_new_tab: {
       text: this.t("spotlight.tab.new_tab"),
       alternates: ["tab", "new", "open tab"],
-      icon: markRaw(IconWindow),
+      icon: markRaw(IconCopyPlus),
       excludeFromSearch: computed(() => !this.showAction.value),
     },
   })

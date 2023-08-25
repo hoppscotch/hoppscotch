@@ -13,7 +13,7 @@ import { stdSupportOptionItems } from "@hoppscotch/common/platform/std/ui/suppor
 
 createHoppApp("#app", {
   ui: {
-    additonalFooterMenuItems: stdFooterItems,
+    additionalFooterMenuItems: stdFooterItems,
     additionalSupportOptionsMenuItems: stdSupportOptionItems,
   },
   auth: authDef,

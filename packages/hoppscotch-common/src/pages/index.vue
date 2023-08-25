@@ -469,7 +469,7 @@ defineActionHandler("request.duplicate-tab", ({ tabID }) => {
 useService(HeaderInspectorService)
 useService(EnvironmentInspectorService)
 useService(ResponseInspectorService)
-for (const inspectorDef of platform.additonalInspectors ?? []) {
+for (const inspectorDef of platform.additionalInspectors ?? []) {
   useService(inspectorDef.service)
 }
 </script>

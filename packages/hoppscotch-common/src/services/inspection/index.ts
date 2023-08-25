@@ -1,7 +1,7 @@
 import { HoppRESTRequest } from "@hoppscotch/data"
 import { refDebounced } from "@vueuse/core"
 import { Service } from "dioc"
-import { computed } from "vue"
+import { computed, markRaw, reactive } from "vue"
 import { Component, Ref, ref, watch } from "vue"
 import { currentActiveTab } from "~/helpers/rest/tab"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
@@ -101,7 +101,7 @@ export interface Inspector {
 export class InspectionService extends Service {
   public static readonly ID = "INSPECTION_SERVICE"
 
-  private inspectors: Map<string, Inspector> = new Map()
+  private inspectors: Map<string, Inspector> = reactive(new Map())
 
   private tabs: Ref<Map<string, InspectorResult[]>> = ref(new Map())
 
@@ -116,24 +116,19 @@ export class InspectionService extends Service {
    * @param inspector The inspector instance to register
    */
   public registerInspector(inspector: Inspector) {
-    this.inspectors.set(inspector.inspectorID, inspector)
+    // markRaw is required here so that the inspector is not made reactive
+    this.inspectors.set(inspector.inspectorID, markRaw(inspector))
   }
 
   private initializeListeners() {
     watch(
-      () => [this.inspectors, currentActiveTab.value.id],
+      () => [this.inspectors.entries(), currentActiveTab.value.id],
       () => {
-        const debouncedReq = refDebounced(
-          computed(() => currentActiveTab.value.document.request),
-          1000,
-          { maxWait: 2000 }
-        )
+        const reqRef = computed(() => currentActiveTab.value.document.request)
+        const resRef = computed(() => currentActiveTab.value.response)
 
-        const debouncedRes = refDebounced(
-          computed(() => currentActiveTab.value.response),
-          1000,
-          { maxWait: 2000 }
-        )
+        const debouncedReq = refDebounced(reqRef, 1000, { maxWait: 2000 })
+        const debouncedRes = refDebounced(resRef, 1000, { maxWait: 2000 })
 
         const inspectorRefs = Array.from(this.inspectors.values()).map((x) =>
           x.getInspections(debouncedReq, debouncedRes)

@@ -103,7 +103,7 @@ export class InspectionService extends Service {
 
   private inspectors: Map<string, Inspector> = new Map()
 
-  public tabs: Ref<Map<string, InspectorResult[]>> = ref(new Map())
+  private tabs: Ref<Map<string, InspectorResult[]>> = ref(new Map())
 
   constructor() {
     super()
@@ -161,5 +161,18 @@ export class InspectionService extends Service {
   public deleteTabInspectorResult(tabID: string) {
     // TODO: Move Tabs into a service and implement this with an event instead
     this.tabs.value.delete(tabID)
+  }
+
+  /**
+   * Returns a reactive view into the inspector results for a specific tab
+   * @param tabID The ID of the tab to get the results for
+   * @param filter The filter to apply to the results.
+   * @returns The ref into the inspector results, if the tab doesn't exist, a ref into an empty array is returned
+   */
+  public getResultViewFor(
+    tabID: string,
+    filter: (x: InspectorResult) => boolean = () => true
+  ) {
+    return computed(() => this.tabs.value.get(tabID)?.filter(filter) ?? [])
   }
 }

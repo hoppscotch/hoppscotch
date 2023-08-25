@@ -91,7 +91,7 @@
               />
               -->
               <template
-                v-for="footerItem in platform.ui?.additonalFooterMenuItems"
+                v-for="footerItem in platform.ui?.additionalFooterMenuItems"
                 :key="footerItem.id"
               >
                 <template v-if="footerItem.action.type === 'link'">

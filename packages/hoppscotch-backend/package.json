@@ -5,6 +5,11 @@
   "author": "",
   "private": true,
   "license": "UNLICENSED",
+  "files": [
+    "dist",
+    "prisma",
+    "prod_run.mjs"
+  ],
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "nest build",

@@ -670,7 +670,13 @@
       "tab_headers": "Headers tab",
       "tab_authorization": "Authorization tab",
       "tab_pre_request_script": "Pre-request script tab",
-      "tab_tests": "Tests tab"
+      "tab_tests": "Tests tab",
+      "tab_query": "Query tab",
+      "tab_variables": "Variables tab"
+    },
+    "graphql": {
+      "connect": "Connect to server",
+      "disconnect": "Disconnect from server"
     },
     "response": {
       "copy": "Copy response",

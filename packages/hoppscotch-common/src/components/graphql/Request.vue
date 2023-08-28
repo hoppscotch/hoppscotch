@@ -71,6 +71,7 @@ import { connect } from "~/helpers/graphql/connection"
 import { disconnect } from "~/helpers/graphql/connection"
 import { InterceptorService } from "~/services/interceptor.service"
 import { useService } from "dioc/vue"
+import { defineActionHandler } from "~/helpers/actions"
 
 const t = useI18n()
 
@@ -140,4 +141,12 @@ const cancelSwitch = () => {
   if (connected.value) disconnect()
   connectionSwitchModal.value = false
 }
+
+defineActionHandler(
+  "gql.connect",
+  gqlConnect,
+  computed(() => !connected.value)
+)
+
+defineActionHandler("gql.disconnect", disconnect, connected)
 </script>

@@ -7,22 +7,16 @@ import {
 } from "./base/static.searcher"
 
 import { useRoute } from "vue-router"
-import { getDefaultRESTRequest } from "~/helpers/rest/default"
-import {
-  closeOtherTabs,
-  closeTab,
-  createNewTab,
-  currentTabID,
-  getActiveTabs,
-} from "~/helpers/rest/tab"
 import IconCopy from "~icons/lucide/copy"
 import IconCopyPlus from "~icons/lucide/copy-plus"
 import IconXCircle from "~icons/lucide/x-circle"
 import IconXSquare from "~icons/lucide/x-square"
 import { invokeAction } from "~/helpers/actions"
+import { getActiveTabs as getRESTActiveTabs } from "~/helpers/rest/tab"
+import { getActiveTabs as getGQLActiveTabs } from "~/helpers/graphql/tab"
 
 type Doc = {
-  text: string
+  text: string | string[]
   alternates: string[]
   icon: object | Component
   excludeFromSearch?: boolean
@@ -46,34 +40,47 @@ export class TabSpotlightSearcherService extends StaticSpotlightSearcherService<
 
   private route = useRoute()
   private showAction = computed(
-    () => this.route.name === "index" ?? this.route.name === "graphql"
+    () => this.route.name === "index" || this.route.name === "graphql"
+  )
+  private gqlActiveTabs = getGQLActiveTabs()
+  private restActiveTabs = getRESTActiveTabs()
+  private isOnlyTab = computed(() =>
+    this.route.name === "graphql"
+      ? this.gqlActiveTabs.value.length === 1
+      : this.restActiveTabs.value.length === 1
   )
 
   private documents: Record<string, Doc> = reactive({
     duplicate_tab: {
-      text: this.t("spotlight.tab.duplicate"),
+      text: [this.t("spotlight.tab.title"), this.t("spotlight.tab.duplicate")],
       alternates: ["tab", "duplicate", "duplicate tab"],
       icon: markRaw(IconCopy),
       excludeFromSearch: computed(() => !this.showAction.value),
     },
     close_current_tab: {
-      text: this.t("spotlight.tab.close_current"),
+      text: [
+        this.t("spotlight.tab.title"),
+        this.t("spotlight.tab.close_current"),
+      ],
       alternates: ["tab", "close", "close tab"],
       icon: markRaw(IconXCircle),
       excludeFromSearch: computed(
-        () => !this.showAction.value || getActiveTabs().value.length === 1
+        () => !this.showAction.value || this.isOnlyTab.value
       ),
     },
     close_other_tabs: {
-      text: this.t("spotlight.tab.close_others"),
+      text: [
+        this.t("spotlight.tab.title"),
+        this.t("spotlight.tab.close_others"),
+      ],
       alternates: ["tab", "close", "close all"],
       icon: markRaw(IconXSquare),
       excludeFromSearch: computed(
-        () => !this.showAction.value || getActiveTabs().value.length < 2
+        () => !this.showAction.value || this.isOnlyTab.value
       ),
     },
     open_new_tab: {
-      text: this.t("spotlight.tab.new_tab"),
+      text: [this.t("spotlight.tab.title"), this.t("spotlight.tab.new_tab")],
       alternates: ["tab", "new", "open tab"],
       icon: markRaw(IconCopyPlus),
       excludeFromSearch: computed(() => !this.showAction.value),
@@ -105,16 +112,9 @@ export class TabSpotlightSearcherService extends StaticSpotlightSearcherService<
   }
 
   public onDocSelected(id: string): void {
-    if (id === "duplicate_tab")
-      invokeAction("request.duplicate-tab", {
-        tabID: currentTabID.value,
-      })
-    if (id === "close_current_tab") closeTab(currentTabID.value)
-    if (id === "close_other_tabs") closeOtherTabs(currentTabID.value)
-    if (id === "open_new_tab")
-      createNewTab({
-        request: getDefaultRESTRequest(),
-        isDirty: false,
-      })
+    if (id === "duplicate_tab") invokeAction("tab.duplicate-tab", {})
+    if (id === "close_current_tab") invokeAction("tab.close-current")
+    if (id === "close_other_tabs") invokeAction("tab.close-other")
+    if (id === "open_new_tab") invokeAction("tab.open-new")
   }
 }

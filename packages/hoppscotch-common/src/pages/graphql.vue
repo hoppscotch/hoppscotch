@@ -27,7 +27,7 @@
                 @open-rename-modal="openReqRenameModal(tab)"
                 @close-tab="removeTab(tab.id)"
                 @close-other-tabs="closeOtherTabsAction(tab.id)"
-                @duplicate-tab="duplicateTab(tab)"
+                @duplicate-tab="duplicateTab(tab.id)"
               />
             </template>
 
@@ -203,12 +203,15 @@ const renameReqName = () => {
   showRenamingReqNameModalForTabID.value = undefined
 }
 
-const duplicateTab = (tab: HoppGQLTab) => {
-  const newTab = createNewTab({
-    request: tab.document.request,
-    isDirty: true,
-  })
-  currentTabID.value = newTab.id
+const duplicateTab = (tabID: string) => {
+  const tab = getTabRef(tabID)
+  if (tab.value) {
+    const newTab = createNewTab({
+      request: tab.value.document.request,
+      isDirty: true,
+    })
+    currentTabID.value = newTab.id
+  }
 }
 
 defineActionHandler("gql.request.open", ({ request, saveContext }) => {
@@ -218,4 +221,19 @@ defineActionHandler("gql.request.open", ({ request, saveContext }) => {
     isDirty: false,
   })
 })
+
+defineActionHandler("request.rename", () => {
+  openReqRenameModal(getTabRef(currentTabID.value).value!)
+})
+
+defineActionHandler("tab.duplicate-tab", ({ tabID }) => {
+  duplicateTab(tabID ?? currentTabID.value)
+})
+defineActionHandler("tab.close-current", () => {
+  removeTab(currentTabID.value)
+})
+defineActionHandler("tab.close-other", () => {
+  closeOtherTabs(currentTabID.value)
+})
+defineActionHandler("tab.open-new", addNewTab)
 </script>

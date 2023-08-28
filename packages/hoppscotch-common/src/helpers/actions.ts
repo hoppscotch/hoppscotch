@@ -2,12 +2,14 @@
  * For example, sending a request.
  */
 
-import { Ref, onBeforeUnmount, onMounted, watch } from "vue"
+import { Ref, onBeforeUnmount, onMounted, reactive, watch } from "vue"
 import { BehaviorSubject } from "rxjs"
 import { HoppRESTDocument } from "./rest/document"
 import { HoppGQLRequest, HoppRESTRequest } from "@hoppscotch/data"
 import { RequestOptionTabs } from "~/components/http/RequestOptions.vue"
 import { HoppGQLSaveContext } from "./graphql/document"
+import { GQLOptionTabs } from "~/components/graphql/RequestOptions.vue"
+import { computed } from "vue"
 
 export type HoppAction =
   | "contextmenu.open" // Send/Cancel a Hoppscotch Request
@@ -16,7 +18,7 @@ export type HoppAction =
   | "request.copy-link" // Copy Request Link
   | "request.save" // Save to Collections
   | "request.save-as" // Save As
-  | "rest.request.rename" // Rename
+  | "request.rename" // Rename request on REST or GraphQL
   | "request.method.next" // Select Next Method
   | "request.method.prev" // Select Previous Method
   | "request.method.get" // Select GET Method
@@ -26,6 +28,11 @@ export type HoppAction =
   | "request.method.delete" // Select DELETE Method
   | "request.import-curl" // Import cURL
   | "request.show-code" // Show generated code
+  | "gql.connect" // Connect to GraphQL endpoint given
+  | "gql.disconnect" // Disconnect from GraphQL endpoint given
+  | "tab.close-current" // Close current tab
+  | "tab.close-other" // Close other tabs
+  | "tab.open-new" // Open new tab
   | "collection.new" // Create root collection
   | "flyouts.chat.open" // Shows the keybinds flyout
   | "flyouts.keybinds.toggle" // Shows the keybinds flyout
@@ -106,11 +113,11 @@ type HoppActionArgsMap = {
         request: HoppGQLRequest
       }
   "request.open-tab": {
-    tab: RequestOptionTabs
+    tab: RequestOptionTabs | GQLOptionTabs
   }
 
-  "request.duplicate-tab": {
-    tabID: string
+  "tab.duplicate-tab": {
+    tabID?: string
   }
 
   "gql.request.open": {
@@ -150,7 +157,7 @@ type BoundActionList = {
   [A in HoppAction | HoppActionWithArgs]?: Array<ActionFunc<A>>
 }
 
-const boundActions: BoundActionList = {}
+const boundActions: BoundActionList = reactive({})
 
 export const activeActions$ = new BehaviorSubject<
   (HoppAction | HoppActionWithArgs)[]
@@ -204,6 +211,15 @@ export function unbindAction<A extends HoppAction | HoppActionWithArgs>(
   }
 
   activeActions$.next(Object.keys(boundActions) as HoppAction[])
+}
+
+/**
+ * Returns a ref that indicates whether a given action is bound at a given time
+ *
+ * @param action The action to check
+ */
+export function isActionBound(action: HoppAction): Ref<boolean> {
+  return computed(() => !!boundActions[action])
 }
 
 /**

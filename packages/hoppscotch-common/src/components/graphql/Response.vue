@@ -128,8 +128,14 @@ const downloadResponse = (str: string) => {
   }, 1000)
 }
 
-defineActionHandler("response.file.download", () =>
-  downloadResponse(responseString.value)
+defineActionHandler(
+  "response.file.download",
+  () => downloadResponse(responseString.value),
+  computed(() => !!props.response && props.response.length > 0)
 )
-defineActionHandler("response.copy", () => copyResponse(responseString.value))
+defineActionHandler(
+  "response.copy",
+  () => copyResponse(responseString.value),
+  computed(() => !!props.response && props.response.length > 0)
+)
 </script>

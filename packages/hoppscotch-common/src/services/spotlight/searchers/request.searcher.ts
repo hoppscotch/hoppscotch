@@ -1,5 +1,5 @@
 import { Component, computed, markRaw, reactive } from "vue"
-import { invokeAction } from "~/helpers/actions"
+import { invokeAction, isActionBound } from "~/helpers/actions"
 import { getI18n } from "~/modules/i18n"
 import { SpotlightSearcherResult, SpotlightService } from ".."
 import {
@@ -19,6 +19,7 @@ import IconRename from "~icons/lucide/file-edit"
 import IconPlay from "~icons/lucide/play"
 import IconRotateCCW from "~icons/lucide/rotate-ccw"
 import IconSave from "~icons/lucide/save"
+import { GQLOptionTabs } from "~/components/graphql/RequestOptions.vue"
 
 type Doc = {
   text: string | string[]
@@ -46,39 +47,51 @@ export class RequestSpotlightSearcherService extends StaticSpotlightSearcherServ
   private route = useRoute()
   private isRESTPage = computed(() => this.route.name === "index")
   private isGQLPage = computed(() => this.route.name === "graphql")
+  private isRESTOrGQLPage = computed(
+    () => this.isRESTPage.value || this.isGQLPage.value
+  )
+  private isGQLConnectBound = isActionBound("gql.connect")
+  private isGQLDisconnectBound = isActionBound("gql.disconnect")
 
   private documents: Record<string, Doc> = reactive({
     send_request: {
       text: this.t("shortcut.request.send_request"),
       alternates: ["request", "send"],
       icon: markRaw(IconPlay),
-      excludeFromSearch: computed(
-        () => !this.isRESTPage.value ?? !this.isGQLPage.value
-      ),
+      excludeFromSearch: computed(() => !this.isRESTOrGQLPage.value),
+    },
+    gql_connect: {
+      text: [this.t("navigation.graphql"), this.t("spotlight.graphql.connect")],
+      alternates: ["connect", "server", "graphql"],
+      icon: markRaw(IconPlay),
+      excludeFromSearch: computed(() => !this.isGQLConnectBound.value),
+    },
+    gql_disconnect: {
+      text: [
+        this.t("navigation.graphql"),
+        this.t("spotlight.graphql.disconnect"),
+      ],
+      alternates: ["disconnect", "stop", "graphql"],
+      icon: markRaw(IconPlay),
+      excludeFromSearch: computed(() => !this.isGQLDisconnectBound.value),
     },
     save_to_collections: {
       text: this.t("spotlight.request.save_as_new"),
       alternates: ["save", "collections"],
       icon: markRaw(IconSave),
-      excludeFromSearch: computed(
-        () => !this.isRESTPage.value ?? !this.isGQLPage.value
-      ),
+      excludeFromSearch: computed(() => !this.isRESTOrGQLPage.value),
     },
     save_request: {
       text: this.t("shortcut.request.save_request"),
       alternates: ["save", "request"],
       icon: markRaw(IconSave),
-      excludeFromSearch: computed(
-        () => !this.isRESTPage.value ?? !this.isGQLPage.value
-      ),
+      excludeFromSearch: computed(() => !this.isRESTOrGQLPage.value),
     },
     rename_request: {
       text: this.t("shortcut.request.rename"),
       alternates: ["rename", "request"],
       icon: markRaw(IconRename),
-      excludeFromSearch: computed(
-        () => !this.isRESTPage.value ?? !this.isGQLPage.value
-      ),
+      excludeFromSearch: computed(() => !this.isRESTOrGQLPage.value),
     },
     copy_request_link: {
       text: this.t("shortcut.request.copy_request_link"),
@@ -90,7 +103,7 @@ export class RequestSpotlightSearcherService extends StaticSpotlightSearcherServ
       text: this.t("shortcut.request.reset_request"),
       alternates: ["reset", "request"],
       icon: markRaw(IconRotateCCW),
-      excludeFromSearch: computed(() => !this.isRESTPage.value),
+      excludeFromSearch: computed(() => !this.isRESTOrGQLPage.value),
     },
     import_curl: {
       text: this.t("shortcut.request.import_curl"),
@@ -143,9 +156,7 @@ export class RequestSpotlightSearcherService extends StaticSpotlightSearcherServ
       ],
       alternates: ["parameters", "tab"],
       icon: markRaw(IconWindow),
-      excludeFromSearch: computed(
-        () => !this.isRESTPage.value ?? !this.isGQLPage.value
-      ),
+      excludeFromSearch: computed(() => !this.isRESTOrGQLPage.value),
     },
     tab_body: {
       text: [
@@ -154,9 +165,7 @@ export class RequestSpotlightSearcherService extends StaticSpotlightSearcherServ
       ],
       alternates: ["body", "tab"],
       icon: markRaw(IconWindow),
-      excludeFromSearch: computed(
-        () => !this.isRESTPage.value ?? !this.isGQLPage.value
-      ),
+      excludeFromSearch: computed(() => !this.isRESTOrGQLPage.value),
     },
     tab_headers: {
       text: [
@@ -165,9 +174,7 @@ export class RequestSpotlightSearcherService extends StaticSpotlightSearcherServ
       ],
       alternates: ["headers", "tab"],
       icon: markRaw(IconWindow),
-      excludeFromSearch: computed(
-        () => !this.isRESTPage.value ?? !this.isGQLPage.value
-      ),
+      excludeFromSearch: computed(() => !this.isRESTOrGQLPage.value),
     },
     tab_authorization: {
       text: [
@@ -176,9 +183,7 @@ export class RequestSpotlightSearcherService extends StaticSpotlightSearcherServ
       ],
       alternates: ["authorization", "tab"],
       icon: markRaw(IconWindow),
-      excludeFromSearch: computed(
-        () => !this.isRESTPage.value ?? !this.isGQLPage.value
-      ),
+      excludeFromSearch: computed(() => !this.isRESTOrGQLPage.value),
     },
     tab_pre_request_script: {
       text: [
@@ -197,6 +202,24 @@ export class RequestSpotlightSearcherService extends StaticSpotlightSearcherServ
       alternates: ["tests", "tab"],
       icon: markRaw(IconWindow),
       excludeFromSearch: computed(() => !this.isRESTPage.value),
+    },
+    tab_query: {
+      text: [
+        this.t("spotlight.request.switch_to"),
+        this.t("spotlight.request.tab_query"),
+      ],
+      alternates: ["query", "tab"],
+      icon: markRaw(IconWindow),
+      excludeFromSearch: computed(() => !this.isGQLPage.value),
+    },
+    tab_variables: {
+      text: [
+        this.t("spotlight.request.switch_to"),
+        this.t("spotlight.request.tab_variables"),
+      ],
+      alternates: ["variables", "tab"],
+      icon: markRaw(IconWindow),
+      excludeFromSearch: computed(() => !this.isGQLPage.value),
     },
   })
 
@@ -224,7 +247,7 @@ export class RequestSpotlightSearcherService extends StaticSpotlightSearcherServ
     }
   }
 
-  private openRequestTab(tab: RequestOptionTabs): void {
+  private openRequestTab(tab: RequestOptionTabs | GQLOptionTabs): void {
     invokeAction("request.open-tab", {
       tab,
     })
@@ -234,6 +257,12 @@ export class RequestSpotlightSearcherService extends StaticSpotlightSearcherServ
     switch (id) {
       case "send_request":
         invokeAction("request.send-cancel")
+        break
+      case "gql_connect":
+        invokeAction("gql.connect")
+        break
+      case "gql_disconnect":
+        invokeAction("gql.disconnect")
         break
       case "save_to_collections":
         invokeAction("request.save-as", {
@@ -245,7 +274,7 @@ export class RequestSpotlightSearcherService extends StaticSpotlightSearcherServ
         invokeAction("request.save")
         break
       case "rename_request":
-        invokeAction("rest.request.rename")
+        invokeAction("request.rename")
         break
       case "copy_request_link":
         invokeAction("request.copy-link")
@@ -291,6 +320,12 @@ export class RequestSpotlightSearcherService extends StaticSpotlightSearcherServ
         break
       case "tab_tests":
         this.openRequestTab("tests")
+        break
+      case "tab_query":
+        this.openRequestTab("query")
+        break
+      case "tab_variables":
+        this.openRequestTab("variables")
         break
     }
   }

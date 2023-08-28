@@ -101,6 +101,6 @@ const newActiveHeadersCount$ = computed(() => {
 })
 
 defineActionHandler("request.open-tab", ({ tab }) => {
-  selectedOptionsTab.value = tab
+  selectedOptionsTab.value = tab as RequestOptionTabs
 })
 </script>

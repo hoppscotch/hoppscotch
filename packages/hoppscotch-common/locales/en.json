@@ -114,7 +114,10 @@
     "password": "Password",
     "token": "Token",
     "type": "Authorization Type",
-    "username": "Username"
+    "username": "Username",
+    "grant_type": "Grant Type",
+    "code": "Authorization Code",
+    "client_credentials": "Client Credentials"
   },
   "collection": {
     "created": "Collection created",

@@ -1,9 +1,10 @@
+import qs from "qs"
+import { sendNetworkRequest } from "~/helpers/network"
 import {
   getLocalConfig,
   setLocalConfig,
   removeLocalConfig,
 } from "~/newstore/localpersistence"
-
 const redirectUri = `${window.location.origin}/`
 
 // GENERAL HELPER FUNCTIONS
@@ -145,6 +146,7 @@ const pkceChallengeFromVerifier = async (v) => {
 const tokenRequest = async ({
   oidcDiscoveryUrl,
   grantType,
+  clientCredentialsIn,
   authUrl,
   accessTokenUrl,
   clientId,
@@ -152,7 +154,7 @@ const tokenRequest = async ({
   scope,
 }) => {
   // Check oauth configuration
-  if (oidcDiscoveryUrl !== "") {
+  if (oidcDiscoveryUrl !== "" && grantType === "code") {
     // eslint-disable-next-line camelcase
     const { authorization_endpoint, token_endpoint } =
       await getTokenConfiguration(oidcDiscoveryUrl)
@@ -161,10 +163,44 @@ const tokenRequest = async ({
     // eslint-disable-next-line camelcase
     accessTokenUrl = token_endpoint
   }
+
   // Store oauth information
   setLocalConfig("tokenEndpoint", accessTokenUrl)
   setLocalConfig("client_id", clientId)
   setLocalConfig("client_secret", clientSecret)
+
+  if (grantType === "client_credentials") {
+    console.log(
+      accessTokenUrl +
+        `grant_type=client_credentials&scope=${scope}&client_id=${clientId}&client_secret=${clientSecret}`
+    )
+
+    const request = {
+      url: accessTokenUrl,
+      method: "POST",
+      headers: {
+        "content-type": "application/x-www-form-urlencoded",
+        authorization:
+          clientCredentialsIn === "header"
+            ? `Basic ${window.btoa(`${clientId}:${clientSecret}`)}`
+            : undefined,
+      },
+
+      data: qs.stringify({
+        grant_type: grantType,
+        client_id: clientCredentialsIn === "body" ? clientId : undefined,
+        client_secret:
+          clientCredentialsIn === "body" ? clientSecret : undefined,
+        scope,
+      }),
+    }
+    const response = await sendNetworkRequest(request)
+    const responseText = new TextDecoder("utf-8")
+      .decode(response.data)
+      .replace(/\0+$/, "")
+
+    return JSON.parse(responseText).access_token
+  }
 
   // Create and store a random state value
   const state = generateRandomString()
@@ -222,7 +258,6 @@ const oauthRedirect = () => {
           grant_type: "authorization_code",
           code: q.code,
           client_id: getLocalConfig("client_id"),
-          client_secret: getLocalConfig("client_secret"),
           redirect_uri: redirectUri,
           code_verifier: getLocalConfig("pkce_codeVerifier"),
         })
@@ -236,7 +271,6 @@ const oauthRedirect = () => {
     removeLocalConfig("pkce_codeVerifier")
     removeLocalConfig("tokenEndpoint")
     removeLocalConfig("client_id")
-    removeLocalConfig("client_secret")
     return tokenResponse
   }
   return Promise.reject(tokenResponse)

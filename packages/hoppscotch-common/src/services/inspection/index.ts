@@ -1,7 +1,9 @@
 import { HoppRESTRequest } from "@hoppscotch/data"
+import { refDebounced } from "@vueuse/core"
 import { Service } from "dioc"
+import { computed, markRaw, reactive } from "vue"
 import { Component, Ref, ref, watch } from "vue"
-import { currentActiveTab, currentTabID } from "~/helpers/rest/tab"
+import { currentActiveTab } from "~/helpers/rest/tab"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 
 /**
@@ -80,15 +82,16 @@ export interface Inspector {
    */
   inspectorID: string
   /**
-   * Returns the inspector results for the request
-   * @param req The request to inspect
-   * @param res The response to inspect
-   * @returns The inspector results
+   * Returns the inspector results for the request.
+   * NOTE: The refs passed down are readonly and are debounced to avoid performance issues
+   * @param req The ref to the request to inspect
+   * @param res The ref to the response to inspect
+   * @returns The ref to the inspector results
    */
-  getInspectorFor: (
-    req: HoppRESTRequest,
-    res?: HoppRESTResponse
-  ) => InspectorResult[]
+  getInspections: (
+    req: Readonly<Ref<HoppRESTRequest>>,
+    res: Readonly<Ref<HoppRESTResponse | null | undefined>>
+  ) => Ref<InspectorResult[]>
 }
 
 /**
@@ -98,38 +101,73 @@ export interface Inspector {
 export class InspectionService extends Service {
   public static readonly ID = "INSPECTION_SERVICE"
 
-  private inspectors: Map<string, Inspector> = new Map()
+  private inspectors: Map<string, Inspector> = reactive(new Map())
 
-  public tabs: Ref<Map<string, InspectorResult[]>> = ref(new Map())
+  private tabs: Ref<Map<string, InspectorResult[]>> = ref(new Map())
+
+  constructor() {
+    super()
+
+    this.initializeListeners()
+  }
 
   /**
    * Registers a inspector with the inspection service
    * @param inspector The inspector instance to register
    */
   public registerInspector(inspector: Inspector) {
-    this.inspectors.set(inspector.inspectorID, inspector)
+    // markRaw is required here so that the inspector is not made reactive
+    this.inspectors.set(inspector.inspectorID, markRaw(inspector))
   }
 
-  public initializeTabInspectors() {
+  private initializeListeners() {
     watch(
-      currentActiveTab.value,
-      (tab) => {
-        if (!tab) return
-        const req = currentActiveTab.value.document.request
-        const res = currentActiveTab.value.response
-        const inspectors = Array.from(this.inspectors.values()).map((x) =>
-          x.getInspectorFor(req, res)
+      () => [this.inspectors.entries(), currentActiveTab.value.id],
+      () => {
+        const reqRef = computed(() => currentActiveTab.value.document.request)
+        const resRef = computed(() => currentActiveTab.value.response)
+
+        const debouncedReq = refDebounced(reqRef, 1000, { maxWait: 2000 })
+        const debouncedRes = refDebounced(resRef, 1000, { maxWait: 2000 })
+
+        const inspectorRefs = Array.from(this.inspectors.values()).map((x) =>
+          x.getInspections(debouncedReq, debouncedRes)
         )
-        this.tabs.value.set(
-          currentTabID.value,
-          inspectors.flatMap((x) => x)
+
+        const activeInspections = computed(() =>
+          inspectorRefs.flatMap((x) => x!.value)
+        )
+
+        watch(
+          () => [...inspectorRefs.flatMap((x) => x!.value)],
+          () => {
+            this.tabs.value.set(
+              currentActiveTab.value.id,
+              activeInspections.value
+            )
+          },
+          { immediate: true }
         )
       },
-      { immediate: true, deep: true }
+      { immediate: true, flush: "pre" }
     )
   }
 
   public deleteTabInspectorResult(tabID: string) {
+    // TODO: Move Tabs into a service and implement this with an event instead
     this.tabs.value.delete(tabID)
+  }
+
+  /**
+   * Returns a reactive view into the inspector results for a specific tab
+   * @param tabID The ID of the tab to get the results for
+   * @param filter The filter to apply to the results.
+   * @returns The ref into the inspector results, if the tab doesn't exist, a ref into an empty array is returned
+   */
+  public getResultViewFor(
+    tabID: string,
+    filter: (x: InspectorResult) => boolean = () => true
+  ) {
+    return computed(() => this.tabs.value.get(tabID)?.filter(filter) ?? [])
   }
 }

@@ -178,7 +178,7 @@ import IconCheckCircle from "~icons/lucide/check-circle"
 import IconCircle from "~icons/lucide/circle"
 import IconTrash from "~icons/lucide/trash"
 import IconWrapText from "~icons/lucide/wrap-text"
-import { computed, reactive, ref, watch } from "vue"
+import { reactive, ref, watch } from "vue"
 import { flow, pipe } from "fp-ts/function"
 import * as O from "fp-ts/Option"
 import * as A from "fp-ts/Array"
@@ -409,30 +409,18 @@ const clearContent = () => {
 
 const inspectionService = useService(InspectionService)
 
-const allTabResults = inspectionService.tabs
+const parameterKeyResults = inspectionService.getResultViewFor(
+  currentTabID.value,
+  (result) =>
+    result.locations.type === "parameter" && result.locations.position === "key"
+)
 
-const parameterKeyResults = computed(() => {
-  return (
-    allTabResults.value
-      .get(currentTabID.value)
-      .filter(
-        (result) =>
-          result.locations.type === "parameter" &&
-          result.locations.position === "key"
-      ) ?? []
-  )
-})
-const parameterValueResults = computed(() => {
-  return (
-    allTabResults.value
-      .get(currentTabID.value)
-      .filter(
-        (result) =>
-          result.locations.type === "parameter" &&
-          result.locations.position === "value"
-      ) ?? []
-  )
-})
+const parameterValueResults = inspectionService.getResultViewFor(
+  currentTabID.value,
+  (result) =>
+    result.locations.type === "parameter" &&
+    result.locations.position === "value"
+)
 
 const getInspectorResult = (results: InspectorResult[], index: number) => {
   return results.filter((result) => {

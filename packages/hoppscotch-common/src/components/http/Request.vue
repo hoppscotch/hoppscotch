@@ -642,9 +642,5 @@ const COLUMN_LAYOUT = useSetting("COLUMN_LAYOUT")
 
 const inspectionService = useService(InspectionService)
 
-const allTabResults = inspectionService.tabs
-
-const tabResults = computed(() => {
-  return allTabResults.value.get(currentTabID.value) ?? []
-})
+const tabResults = inspectionService.getResultViewFor(currentTabID.value)
 </script>

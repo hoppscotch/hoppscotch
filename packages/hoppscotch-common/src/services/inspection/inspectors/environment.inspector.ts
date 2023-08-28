@@ -6,11 +6,13 @@ import {
   InspectorResult,
 } from ".."
 import { Service } from "dioc"
-import { Ref, markRaw, ref } from "vue"
+import { Ref, markRaw } from "vue"
 import IconPlusCircle from "~icons/lucide/plus-circle"
 import { HoppRESTRequest } from "@hoppscotch/data"
-import { getAggregateEnvs } from "~/newstore/environments"
+import { aggregateEnvs$ } from "~/newstore/environments"
 import { invokeAction } from "~/helpers/actions"
+import { computed } from "vue"
+import { useStreamStatic } from "~/composables/stream"
 
 const HOPP_ENVIRONMENT_REGEX = /(<<[a-zA-Z0-9-_]+>>)/g
 
@@ -34,6 +36,10 @@ export class EnvironmentInspectorService extends Service implements Inspector {
 
   private readonly inspection = this.bind(InspectionService)
 
+  private aggregateEnvs = useStreamStatic(aggregateEnvs$, [], () => {
+    /* noop */
+  })[0]
+
   constructor() {
     super()
 
@@ -49,11 +55,11 @@ export class EnvironmentInspectorService extends Service implements Inspector {
    */
   private validateEnvironmentVariables = (
     target: any[],
-    results: Ref<InspectorResult[]>,
     locations: InspectorLocation
   ) => {
-    const env = getAggregateEnvs()
-    const envKeys = env.map((e) => e.key)
+    const newErrors: InspectorResult[] = []
+
+    const envKeys = this.aggregateEnvs.value.map((e) => e.key)
 
     target.forEach((element, index) => {
       if (isENVInString(element)) {
@@ -83,7 +89,7 @@ export class EnvironmentInspectorService extends Service implements Inspector {
               }
             }
             if (!envKeys.includes(formattedExEnv)) {
-              results.value.push({
+              newErrors.push({
                 id: "environment",
                 text: {
                   type: "text",
@@ -96,8 +102,8 @@ export class EnvironmentInspectorService extends Service implements Inspector {
                   text: this.t("inspections.environment.add_environment"),
                   apply: () => {
                     invokeAction("modals.environment.add", {
-                      envName: "test",
-                      variableName: formattedExEnv,
+                      envName: formattedExEnv,
+                      variableName: "",
                     })
                   },
                 },
@@ -114,54 +120,61 @@ export class EnvironmentInspectorService extends Service implements Inspector {
         }
       }
     })
+
+    return newErrors
   }
 
-  /**
-   * Returns the inspector results for the request
-   * It checks if any env is used in the request ie, url, headers, params
-   * and checks if the env is defined in the environment using the validateEnvironmentVariables function
-   * @param req The request to inspect
-   * @returns The inspector results
-   */
-  getInspectorFor(req: HoppRESTRequest): InspectorResult[] {
-    const results = ref<InspectorResult[]>([])
+  getInspections(req: Readonly<Ref<HoppRESTRequest>>) {
+    return computed(() => {
+      const results: InspectorResult[] = []
 
-    const headers = req.headers
+      const headers = req.value.headers
 
-    const params = req.params
+      const params = req.value.params
 
-    this.validateEnvironmentVariables([req.endpoint], results, {
-      type: "url",
+      results.push(
+        ...this.validateEnvironmentVariables([req.value.endpoint], {
+          type: "url",
+        })
+      )
+
+      const headerKeys = Object.values(headers).map((header) => header.key)
+
+      results.push(
+        ...this.validateEnvironmentVariables(headerKeys, {
+          type: "header",
+          position: "key",
+        })
+      )
+
+      const headerValues = Object.values(headers).map((header) => header.value)
+
+      results.push(
+        ...this.validateEnvironmentVariables(headerValues, {
+          type: "header",
+          position: "value",
+        })
+      )
+
+      const paramsKeys = Object.values(params).map((param) => param.key)
+
+      results.push(
+        ...this.validateEnvironmentVariables(paramsKeys, {
+          type: "parameter",
+          position: "key",
+        })
+      )
+
+      const paramsValues = Object.values(params).map((param) => param.value)
+
+      results.push(
+        ...this.validateEnvironmentVariables(paramsValues, {
+          type: "parameter",
+          position: "value",
+        })
+      )
+
+      return results
     })
-
-    const headerKeys = Object.values(headers).map((header) => header.key)
-
-    this.validateEnvironmentVariables(headerKeys, results, {
-      type: "header",
-      position: "key",
-    })
-
-    const headerValues = Object.values(headers).map((header) => header.value)
-
-    this.validateEnvironmentVariables(headerValues, results, {
-      type: "header",
-      position: "value",
-    })
-
-    const paramsKeys = Object.values(params).map((param) => param.key)
-
-    this.validateEnvironmentVariables(paramsKeys, results, {
-      type: "parameter",
-      position: "key",
-    })
-
-    const paramsValues = Object.values(params).map((param) => param.value)
-
-    this.validateEnvironmentVariables(paramsValues, results, {
-      type: "parameter",
-      position: "value",
-    })
-
-    return results.value
   }
 }

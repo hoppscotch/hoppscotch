@@ -94,7 +94,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, onBeforeUnmount, onBeforeMount, watch } from "vue"
+import { ref, onMounted, onBeforeUnmount, onBeforeMount } from "vue"
 import { safelyExtractRESTRequest } from "@hoppscotch/data"
 import { translateExtURLParams } from "~/helpers/RESTExtURLParams"
 import { useRoute } from "vue-router"
@@ -140,7 +140,6 @@ import { useService } from "dioc/vue"
 import { InspectionService } from "~/services/inspection"
 import { HeaderInspectorService } from "~/services/inspection/inspectors/header.inspector"
 import { EnvironmentInspectorService } from "~/services/inspection/inspectors/environment.inspector"
-import { URLInspectorService } from "~/services/inspection/inspectors/url.inspector"
 import { ResponseInspectorService } from "~/services/inspection/inspectors/response.inspector"
 
 const savingRequest = ref(false)
@@ -214,6 +213,8 @@ const addNewTab = () => {
 const sortTabs = (e: { oldIndex: number; newIndex: number }) => {
   updateTabOrdering(e.oldIndex, e.newIndex)
 }
+
+const inspectionService = useService(InspectionService)
 
 const removeTab = (tabID: string) => {
   const tabState = getTabRef(tabID).value
@@ -465,17 +466,10 @@ defineActionHandler("request.duplicate-tab", ({ tabID }) => {
   duplicateTab(tabID)
 })
 
-const inspectionService = useService(InspectionService)
 useService(HeaderInspectorService)
 useService(EnvironmentInspectorService)
-useService(URLInspectorService)
 useService(ResponseInspectorService)
-
-watch(
-  () => currentTabID.value,
-  () => {
-    inspectionService.initializeTabInspectors()
-  },
-  { immediate: true }
-)
+for (const inspectorDef of platform.additionalInspectors ?? []) {
+  useService(inspectorDef.service)
+}
 </script>

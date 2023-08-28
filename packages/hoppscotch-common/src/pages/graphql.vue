@@ -222,6 +222,10 @@ defineActionHandler("gql.request.open", ({ request, saveContext }) => {
   })
 })
 
+defineActionHandler("request.rename", () => {
+  openReqRenameModal(getTabRef(currentTabID.value).value!)
+})
+
 defineActionHandler("tab.duplicate-tab", ({ tabID }) => {
   duplicateTab(tabID ?? currentTabID.value)
 })

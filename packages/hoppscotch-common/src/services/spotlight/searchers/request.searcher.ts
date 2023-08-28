@@ -46,39 +46,34 @@ export class RequestSpotlightSearcherService extends StaticSpotlightSearcherServ
   private route = useRoute()
   private isRESTPage = computed(() => this.route.name === "index")
   private isGQLPage = computed(() => this.route.name === "graphql")
+  private isRESTOrGQLPage = computed(
+    () => this.isRESTPage.value || this.isGQLPage.value
+  )
 
   private documents: Record<string, Doc> = reactive({
     send_request: {
       text: this.t("shortcut.request.send_request"),
       alternates: ["request", "send"],
       icon: markRaw(IconPlay),
-      excludeFromSearch: computed(
-        () => !this.isRESTPage.value ?? !this.isGQLPage.value
-      ),
+      excludeFromSearch: computed(() => !this.isRESTOrGQLPage.value),
     },
     save_to_collections: {
       text: this.t("spotlight.request.save_as_new"),
       alternates: ["save", "collections"],
       icon: markRaw(IconSave),
-      excludeFromSearch: computed(
-        () => !this.isRESTPage.value ?? !this.isGQLPage.value
-      ),
+      excludeFromSearch: computed(() => !this.isRESTOrGQLPage.value),
     },
     save_request: {
       text: this.t("shortcut.request.save_request"),
       alternates: ["save", "request"],
       icon: markRaw(IconSave),
-      excludeFromSearch: computed(
-        () => !this.isRESTPage.value ?? !this.isGQLPage.value
-      ),
+      excludeFromSearch: computed(() => !this.isRESTOrGQLPage.value),
     },
     rename_request: {
       text: this.t("shortcut.request.rename"),
       alternates: ["rename", "request"],
       icon: markRaw(IconRename),
-      excludeFromSearch: computed(
-        () => !this.isRESTPage.value ?? !this.isGQLPage.value
-      ),
+      excludeFromSearch: computed(() => !this.isRESTOrGQLPage.value),
     },
     copy_request_link: {
       text: this.t("shortcut.request.copy_request_link"),
@@ -90,7 +85,7 @@ export class RequestSpotlightSearcherService extends StaticSpotlightSearcherServ
       text: this.t("shortcut.request.reset_request"),
       alternates: ["reset", "request"],
       icon: markRaw(IconRotateCCW),
-      excludeFromSearch: computed(() => !this.isRESTPage.value),
+      excludeFromSearch: computed(() => !this.isRESTOrGQLPage.value),
     },
     import_curl: {
       text: this.t("shortcut.request.import_curl"),
@@ -143,9 +138,7 @@ export class RequestSpotlightSearcherService extends StaticSpotlightSearcherServ
       ],
       alternates: ["parameters", "tab"],
       icon: markRaw(IconWindow),
-      excludeFromSearch: computed(
-        () => !this.isRESTPage.value ?? !this.isGQLPage.value
-      ),
+      excludeFromSearch: computed(() => !this.isRESTOrGQLPage.value),
     },
     tab_body: {
       text: [
@@ -154,9 +147,7 @@ export class RequestSpotlightSearcherService extends StaticSpotlightSearcherServ
       ],
       alternates: ["body", "tab"],
       icon: markRaw(IconWindow),
-      excludeFromSearch: computed(
-        () => !this.isRESTPage.value ?? !this.isGQLPage.value
-      ),
+      excludeFromSearch: computed(() => !this.isRESTOrGQLPage.value),
     },
     tab_headers: {
       text: [
@@ -165,9 +156,7 @@ export class RequestSpotlightSearcherService extends StaticSpotlightSearcherServ
       ],
       alternates: ["headers", "tab"],
       icon: markRaw(IconWindow),
-      excludeFromSearch: computed(
-        () => !this.isRESTPage.value ?? !this.isGQLPage.value
-      ),
+      excludeFromSearch: computed(() => !this.isRESTOrGQLPage.value),
     },
     tab_authorization: {
       text: [
@@ -176,9 +165,7 @@ export class RequestSpotlightSearcherService extends StaticSpotlightSearcherServ
       ],
       alternates: ["authorization", "tab"],
       icon: markRaw(IconWindow),
-      excludeFromSearch: computed(
-        () => !this.isRESTPage.value ?? !this.isGQLPage.value
-      ),
+      excludeFromSearch: computed(() => !this.isRESTOrGQLPage.value),
     },
     tab_pre_request_script: {
       text: [
@@ -245,7 +232,7 @@ export class RequestSpotlightSearcherService extends StaticSpotlightSearcherServ
         invokeAction("request.save")
         break
       case "rename_request":
-        invokeAction("rest.request.rename")
+        invokeAction("request.rename")
         break
       case "copy_request_link":
         invokeAction("request.copy-link")

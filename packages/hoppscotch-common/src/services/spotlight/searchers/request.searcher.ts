@@ -1,5 +1,5 @@
 import { Component, computed, markRaw, reactive } from "vue"
-import { invokeAction } from "~/helpers/actions"
+import { invokeAction, isActionBound } from "~/helpers/actions"
 import { getI18n } from "~/modules/i18n"
 import { SpotlightSearcherResult, SpotlightService } from ".."
 import {
@@ -50,6 +50,8 @@ export class RequestSpotlightSearcherService extends StaticSpotlightSearcherServ
   private isRESTOrGQLPage = computed(
     () => this.isRESTPage.value || this.isGQLPage.value
   )
+  private isGQLConnectBound = isActionBound("gql.connect")
+  private isGQLDisconnectBound = isActionBound("gql.disconnect")
 
   private documents: Record<string, Doc> = reactive({
     send_request: {
@@ -62,7 +64,16 @@ export class RequestSpotlightSearcherService extends StaticSpotlightSearcherServ
       text: [this.t("navigation.graphql"), this.t("spotlight.graphql.connect")],
       alternates: ["connect", "server", "graphql"],
       icon: markRaw(IconPlay),
-      excludeFromSearch: computed(() => !this.isGQLPage.value),
+      excludeFromSearch: computed(() => !this.isGQLConnectBound.value),
+    },
+    gql_disconnect: {
+      text: [
+        this.t("navigation.graphql"),
+        this.t("spotlight.graphql.disconnect"),
+      ],
+      alternates: ["disconnect", "stop", "graphql"],
+      icon: markRaw(IconPlay),
+      excludeFromSearch: computed(() => !this.isGQLDisconnectBound.value),
     },
     save_to_collections: {
       text: this.t("spotlight.request.save_as_new"),
@@ -249,6 +260,9 @@ export class RequestSpotlightSearcherService extends StaticSpotlightSearcherServ
         break
       case "gql_connect":
         invokeAction("gql.connect")
+        break
+      case "gql_disconnect":
+        invokeAction("gql.disconnect")
         break
       case "save_to_collections":
         invokeAction("request.save-as", {

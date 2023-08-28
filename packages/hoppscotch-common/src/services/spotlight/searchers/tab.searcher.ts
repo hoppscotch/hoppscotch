@@ -42,10 +42,12 @@ export class TabSpotlightSearcherService extends StaticSpotlightSearcherService<
   private showAction = computed(
     () => this.route.name === "index" || this.route.name === "graphql"
   )
+  private gqlActiveTabs = getGQLActiveTabs()
+  private restActiveTabs = getRESTActiveTabs()
   private isOnlyTab = computed(() =>
     this.route.name === "graphql"
-      ? getGQLActiveTabs().value.length === 1
-      : getRESTActiveTabs().value.length === 1
+      ? this.gqlActiveTabs.value.length === 1
+      : this.restActiveTabs.value.length === 1
   )
 
   private documents: Record<string, Doc> = reactive({

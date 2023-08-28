@@ -40,7 +40,6 @@ import {
   currentEnvironment$,
   duplicateEnvironment,
   environmentsStore,
-  getCurrentEnvironment,
   getGlobalVariables,
   selectedEnvironmentIndex$,
   setSelectedEnvironmentIndex,

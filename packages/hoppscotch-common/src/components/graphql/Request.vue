@@ -142,5 +142,11 @@ const cancelSwitch = () => {
   connectionSwitchModal.value = false
 }
 
-defineActionHandler("gql.connect", gqlConnect)
+defineActionHandler(
+  "gql.connect",
+  gqlConnect,
+  computed(() => !connected.value)
+)
+
+defineActionHandler("gql.disconnect", disconnect, connected)
 </script>

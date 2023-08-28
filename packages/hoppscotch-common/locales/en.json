@@ -675,7 +675,8 @@
       "tab_variables": "Variables tab"
     },
     "graphql": {
-      "connect": "Connect to server"
+      "connect": "Connect to server",
+      "disconnect": "Disconnect from server"
     },
     "response": {
       "copy": "Copy response",

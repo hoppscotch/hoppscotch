@@ -98,7 +98,11 @@ const buildHarPostData = (req: HoppRESTRequest): Har.PostData | undefined => {
   }
 }
 
-export const buildHarRequest = (req: HoppRESTRequest): Har.Request => {
+export const buildHarRequest = (
+  req: HoppRESTRequest
+): Har.Request & {
+  postData: Har.PostData & Exclude<Har.PostData, undefined>
+} => {
   return {
     bodySize: -1, // TODO: It would be cool if we can calculate the body size
     headersSize: -1, // TODO: It would be cool if we can calculate the header size
@@ -108,6 +112,9 @@ export const buildHarRequest = (req: HoppRESTRequest): Har.Request => {
     method: req.method,
     queryString: buildHarQueryStrings(req),
     url: req.endpoint,
-    postData: buildHarPostData(req),
+    postData: buildHarPostData(req) ?? {
+      mimeType: "x-unknown",
+      params: [],
+    },
   }
 }

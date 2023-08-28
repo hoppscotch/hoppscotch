@@ -144,8 +144,6 @@ const selectedOperation = ref<gql.OperationDefinitionNode | null>(null)
 const gqlQueryString = useVModel(props, "modelValue", emit)
 
 const debouncedOnUpdateQueryState = debounce((update: ViewUpdate) => {
-  if (!update.selectionSet) return
-
   const selectedPos = update.state.selection.main.head
   const queryString = update.state.doc.toJSON().join(update.state.lineBreak)
 

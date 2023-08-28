@@ -69,8 +69,8 @@ import { useService } from "dioc/vue"
 import { InterceptorService } from "~/services/interceptor.service"
 import { editGraphqlRequest } from "~/newstore/collections"
 
-type OptionTabs = "query" | "headers" | "variables" | "authorization"
-const selectedOptionTab = ref<OptionTabs>("query")
+export type GQLOptionTabs = "query" | "headers" | "variables" | "authorization"
+const selectedOptionTab = ref<GQLOptionTabs>("query")
 const interceptorService = useService(InterceptorService)
 
 const t = useI18n()
@@ -206,4 +206,8 @@ defineActionHandler("request.save-as", () => {
   showSaveRequestModal.value = true
 })
 defineActionHandler("request.reset", clearGQLQuery)
+
+defineActionHandler("request.open-tab", ({ tab }) => {
+  selectedOptionTab.value = tab as GQLOptionTabs
+})
 </script>

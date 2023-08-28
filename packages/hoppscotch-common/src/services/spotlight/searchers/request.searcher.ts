@@ -19,6 +19,7 @@ import IconRename from "~icons/lucide/file-edit"
 import IconPlay from "~icons/lucide/play"
 import IconRotateCCW from "~icons/lucide/rotate-ccw"
 import IconSave from "~icons/lucide/save"
+import { GQLOptionTabs } from "~/components/graphql/RequestOptions.vue"
 
 type Doc = {
   text: string | string[]
@@ -56,6 +57,12 @@ export class RequestSpotlightSearcherService extends StaticSpotlightSearcherServ
       alternates: ["request", "send"],
       icon: markRaw(IconPlay),
       excludeFromSearch: computed(() => !this.isRESTOrGQLPage.value),
+    },
+    gql_connect: {
+      text: [this.t("navigation.graphql"), this.t("spotlight.graphql.connect")],
+      alternates: ["connect", "server", "graphql"],
+      icon: markRaw(IconPlay),
+      excludeFromSearch: computed(() => !this.isGQLPage.value),
     },
     save_to_collections: {
       text: this.t("spotlight.request.save_as_new"),
@@ -185,6 +192,24 @@ export class RequestSpotlightSearcherService extends StaticSpotlightSearcherServ
       icon: markRaw(IconWindow),
       excludeFromSearch: computed(() => !this.isRESTPage.value),
     },
+    tab_query: {
+      text: [
+        this.t("spotlight.request.switch_to"),
+        this.t("spotlight.request.tab_query"),
+      ],
+      alternates: ["query", "tab"],
+      icon: markRaw(IconWindow),
+      excludeFromSearch: computed(() => !this.isGQLPage.value),
+    },
+    tab_variables: {
+      text: [
+        this.t("spotlight.request.switch_to"),
+        this.t("spotlight.request.tab_variables"),
+      ],
+      alternates: ["variables", "tab"],
+      icon: markRaw(IconWindow),
+      excludeFromSearch: computed(() => !this.isGQLPage.value),
+    },
   })
 
   constructor() {
@@ -211,7 +236,7 @@ export class RequestSpotlightSearcherService extends StaticSpotlightSearcherServ
     }
   }
 
-  private openRequestTab(tab: RequestOptionTabs): void {
+  private openRequestTab(tab: RequestOptionTabs | GQLOptionTabs): void {
     invokeAction("request.open-tab", {
       tab,
     })
@@ -221,6 +246,9 @@ export class RequestSpotlightSearcherService extends StaticSpotlightSearcherServ
     switch (id) {
       case "send_request":
         invokeAction("request.send-cancel")
+        break
+      case "gql_connect":
+        invokeAction("gql.connect")
         break
       case "save_to_collections":
         invokeAction("request.save-as", {
@@ -278,6 +306,12 @@ export class RequestSpotlightSearcherService extends StaticSpotlightSearcherServ
         break
       case "tab_tests":
         this.openRequestTab("tests")
+        break
+      case "tab_query":
+        this.openRequestTab("query")
+        break
+      case "tab_variables":
+        this.openRequestTab("variables")
         break
     }
   }

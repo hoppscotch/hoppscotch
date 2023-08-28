@@ -8,6 +8,7 @@ import { HoppRESTDocument } from "./rest/document"
 import { HoppGQLRequest, HoppRESTRequest } from "@hoppscotch/data"
 import { RequestOptionTabs } from "~/components/http/RequestOptions.vue"
 import { HoppGQLSaveContext } from "./graphql/document"
+import { GQLOptionTabs } from "~/components/graphql/RequestOptions.vue"
 
 export type HoppAction =
   | "contextmenu.open" // Send/Cancel a Hoppscotch Request
@@ -26,6 +27,7 @@ export type HoppAction =
   | "request.method.delete" // Select DELETE Method
   | "request.import-curl" // Import cURL
   | "request.show-code" // Show generated code
+  | "gql.connect" // Show generated code
   | "tab.close-current" // Close current tab
   | "tab.close-other" // Close other tabs
   | "tab.open-new" // Open new tab
@@ -109,7 +111,7 @@ type HoppActionArgsMap = {
         request: HoppGQLRequest
       }
   "request.open-tab": {
-    tab: RequestOptionTabs
+    tab: RequestOptionTabs | GQLOptionTabs
   }
 
   "tab.duplicate-tab": {

@@ -1,5 +1,5 @@
 import { TestContainer } from "dioc/testing"
-import { describe, expect, it, vi } from "vitest"
+import { describe, expect, it, beforeEach, afterEach, vi } from "vitest"
 import { ResponseInspectorService } from "../response.inspector"
 import { InspectionService } from "../../index"
 import { getDefaultRESTRequest } from "~/helpers/rest/default"
@@ -12,6 +12,16 @@ vi.mock("~/modules/i18n", () => ({
 }))
 
 describe("ResponseInspectorService", () => {
+  beforeEach(() => {
+    vi.stubGlobal("navigator", {
+      onLine: true,
+    })
+  })
+
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
   it("registers with the inspection service upon initialization", () => {
     const container = new TestContainer()
 
@@ -42,7 +52,7 @@ describe("ResponseInspectorService", () => {
       expect(result.value).toHaveLength(0)
     })
 
-    it("should return an inspector result when response type is not success or status code is not 200", () => {
+    it("should return an inspector result when response type is not success or status code is not 200 and if the network is not available", () => {
       const container = new TestContainer()
       const responseInspector = container.bind(ResponseInspectorService)
 
@@ -54,6 +64,10 @@ describe("ResponseInspectorService", () => {
         type: "network_fail",
         error: new Error("test"),
         req: req.value,
+      })
+
+      vi.stubGlobal("navigator", {
+        onLine: false,
       })
 
       const result = responseInspector.getInspections(req, res)
@@ -63,7 +77,7 @@ describe("ResponseInspectorService", () => {
       )
     })
 
-    it("should handle network_fail responses", () => {
+    it("should return no inspector result when response type is not success or status code is not 200 and if the network is not available", () => {
       const container = new TestContainer()
       const responseInspector = container.bind(ResponseInspectorService)
 
@@ -79,11 +93,53 @@ describe("ResponseInspectorService", () => {
 
       const result = responseInspector.getInspections(req, res)
 
+      expect(result.value).toHaveLength(0)
+    })
+
+    it("should handle network_fail responses and return nothing when no network is present", () => {
+      const container = new TestContainer()
+      const responseInspector = container.bind(ResponseInspectorService)
+
+      const req = ref({
+        ...getDefaultRESTRequest(),
+        endpoint: "http://example.com/api/data",
+      })
+      const res = ref<HoppRESTResponse>({
+        type: "network_fail",
+        error: new Error("test"),
+        req: req.value,
+      })
+
+      vi.stubGlobal("navigator", {
+        onLine: false,
+      })
+
+      const result = responseInspector.getInspections(req, res)
+
       expect(result.value).toContainEqual(
         expect.objectContaining({
           text: { type: "text", text: "inspections.response.network_error" },
         })
       )
+    })
+
+    it("should handle network_fail responses and return nothing when network is present", () => {
+      const container = new TestContainer()
+      const responseInspector = container.bind(ResponseInspectorService)
+
+      const req = ref({
+        ...getDefaultRESTRequest(),
+        endpoint: "http://example.com/api/data",
+      })
+      const res = ref<HoppRESTResponse>({
+        type: "network_fail",
+        error: new Error("test"),
+        req: req.value,
+      })
+
+      const result = responseInspector.getInspections(req, res)
+
+      expect(result.value).toHaveLength(0)
     })
 
     it("should handle fail responses", () => {

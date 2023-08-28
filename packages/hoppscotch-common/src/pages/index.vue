@@ -462,9 +462,16 @@ defineActionHandler("rest.request.open", ({ doc }) => {
 })
 
 defineActionHandler("rest.request.rename", openReqRenameModal)
-defineActionHandler("request.duplicate-tab", ({ tabID }) => {
-  duplicateTab(tabID)
+defineActionHandler("tab.duplicate-tab", ({ tabID }) => {
+  duplicateTab(tabID ?? currentTabID.value)
 })
+defineActionHandler("tab.close-current", () => {
+  removeTab(currentTabID.value)
+})
+defineActionHandler("tab.close-other", () => {
+  closeOtherTabs(currentTabID.value)
+})
+defineActionHandler("tab.open-new", addNewTab)
 
 useService(HeaderInspectorService)
 useService(EnvironmentInspectorService)

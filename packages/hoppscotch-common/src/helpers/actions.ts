@@ -26,6 +26,9 @@ export type HoppAction =
   | "request.method.delete" // Select DELETE Method
   | "request.import-curl" // Import cURL
   | "request.show-code" // Show generated code
+  | "tab.close-current" // Close current tab
+  | "tab.close-other" // Close other tabs
+  | "tab.open-new" // Open new tab
   | "collection.new" // Create root collection
   | "flyouts.chat.open" // Shows the keybinds flyout
   | "flyouts.keybinds.toggle" // Shows the keybinds flyout
@@ -109,8 +112,8 @@ type HoppActionArgsMap = {
     tab: RequestOptionTabs
   }
 
-  "request.duplicate-tab": {
-    tabID: string
+  "tab.duplicate-tab": {
+    tabID?: string
   }
 
   "gql.request.open": {
@@ -182,7 +185,7 @@ type InvokeActionFunc = {
  * @param args The argument passed to the action handler. Optional if action has no args required
  */
 export const invokeAction: InvokeActionFunc = <
-  A extends HoppAction | HoppActionWithArgs,
+  A extends HoppAction | HoppActionWithArgs
 >(
   action: A,
   args: ArgOfHoppAction<A>

@@ -40,9 +40,9 @@ export class ResponseInspectorService extends Service implements Inspector {
       const hasErrors =
         res && (res.value.type !== "success" || res.value.statusCode !== 200)
 
-      let text
+      let text: string | undefined = undefined
 
-      if (res.value.type === "network_fail") {
+      if (res.value.type === "network_fail" && !navigator.onLine) {
         text = this.t("inspections.response.network_error")
       } else if (res.value.type === "fail") {
         text = this.t("inspections.response.default_error")

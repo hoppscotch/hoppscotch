@@ -653,11 +653,12 @@
       "chat": "Chat with support",
       "open_docs": "Read Documentation",
       "open_keybindings": "Keyboard shortcuts",
+      "open_github": "Open GitHub repository",
       "social": "Social",
       "title": "General"
     },
     "miscellaneous": {
-      "invite": "Invite people to Hoppscotch",
+      "invite": "Invite your friends to Hoppscotch",
       "title": "Miscellaneous"
     },
     "request": {
@@ -679,25 +680,25 @@
     "environments": {
       "new": "Create new environment",
       "new_variable": "Create a new environment variable",
-      "edit": "Edit selected environment",
-      "delete": "Delete selected environment",
-      "duplicate": "Duplicate selected environment",
+      "edit": "Edit current environment",
+      "delete": "Delete current environment",
+      "duplicate": "Duplicate current environment",
       "edit_global": "Edit global environment",
       "duplicate_global": "Duplicate global environment",
       "title": "Environments"
     },
     "workspace": {
       "new": "Create new team",
-      "edit": "Edit selected team",
-      "delete": "Delete selected team",
+      "edit": "Edit current team",
+      "delete": "Delete current team",
       "invite": "Invite people to team",
-      "switch_to_personal": "Switch to personal workspace",
+      "switch_to_personal": "Switch to your personal workspace",
       "title": "Teams"
     },
     "tab": {
-      "duplicate": "Duplicate tab",
+      "duplicate": "Duplicate current tab",
       "close_current": "Close current tab",
-      "close_others": "Close other tabs",
+      "close_others": "Close all other tabs",
       "new_tab": "Open a new tab",
       "title": "Tabs"
     },
@@ -710,15 +711,15 @@
     "change_language": "Change Language",
     "settings": {
       "theme": {
-        "black": "Black Mode",
-        "dark": "Dark Mode",
-        "light": "Light Mode",
-        "system": "System Mode"
+        "black": "Black",
+        "dark": "Dark",
+        "light": "Light",
+        "system": "System preference"
       },
       "font": {
-        "size_sm": "Change to Small",
-        "size_md": "Change to Medium",
-        "size_lg": "Change to Large"
+        "size_sm": "Small",
+        "size_md": "Medium",
+        "size_lg": "Large"
       },
       "change_interceptor": "Change Interceptor",
       "change_language": "Change Language"

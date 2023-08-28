@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest"
 import { Inspector, InspectionService, InspectorResult } from "../"
 import { TestContainer } from "dioc/testing"
+import { ref } from "vue"
 
 const inspectorResultMock: InspectorResult[] = [
   {
@@ -21,7 +22,7 @@ const inspectorResultMock: InspectorResult[] = [
 
 const testInspector: Inspector = {
   inspectorID: "inspector1",
-  getInspectorFor: () => inspectorResultMock,
+  getInspections: () => ref(inspectorResultMock),
 }
 
 describe("InspectionService", () => {

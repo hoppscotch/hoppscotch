@@ -9,9 +9,9 @@ import {
 
 import IconLinkedIn from "~icons/brands/linkedin"
 import IconTwitter from "~icons/brands/twitter"
-import IconBook from "~icons/lucide/book"
-import IconDiscord from "~icons/lucide/link"
+import IconDiscord from "~icons/brands/discord"
 import IconGitHub from "~icons/lucide/github"
+import IconBook from "~icons/lucide/book"
 import IconLifeBuoy from "~icons/lucide/life-buoy"
 import IconZap from "~icons/lucide/zap"
 
@@ -61,9 +61,9 @@ export class GeneralSpotlightSearcherService extends StaticSpotlightSearcherServ
         invokeAction("flyouts.keybinds.toggle")
       },
     },
-    link_github: {
-      text: [this.t("spotlight.general.social"), "GitHub"],
-      alternates: ["social", "github", "link"],
+    open_github: {
+      text: this.t("spotlight.general.open_github"),
+      alternates: ["repository", "github", "documentation", "hoppscotch"],
       icon: markRaw(IconGitHub),
       action: () => this.openURL("https://hoppscotch.io/github"),
     },

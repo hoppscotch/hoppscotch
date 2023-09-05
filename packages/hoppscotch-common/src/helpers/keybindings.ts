@@ -56,7 +56,7 @@ export const bindings: {
   "alt-x": "request.method.delete",
   "ctrl-k": "modals.search.toggle",
   "ctrl-/": "flyouts.keybinds.toggle",
-  "?": "modals.support.toggle",
+  "shift-?": "modals.support.toggle",
   "ctrl-m": "modals.share.toggle",
   "alt-r": "navigation.jump.rest",
   "alt-q": "navigation.jump.graphql",

@@ -5,11 +5,9 @@ import {
   HoppRealtimeLogLine,
 } from "~/helpers/types/HoppRealtimeLog"
 import { WSConnection } from "~/helpers/realtime/WSConnection"
+import { HoppWSProtocol } from "@hoppscotch/data"
 
-export type HoppWSProtocol = {
-  value: string
-  active: boolean
-}
+export type { HoppWSProtocol }
 
 type HoppWSRequest = {
   endpoint: string

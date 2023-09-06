@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col group">
+  <div class="flex flex-col group" @click="emit('use-entry')">
     <div class="flex items-center">
       <span
         v-tippy="{
@@ -7,14 +7,19 @@
           delay: [500, 20],
           content: entry.updatedOn ? shortDateTime(entry.updatedOn) : null,
         }"
-        class="flex flex-1 min-w-0 py-2 pl-4 pr-2 cursor-pointer transition group-hover:text-secondaryDark"
+        class="flex flex-col min-w-0 py-2 pl-4 pr-2 cursor-pointer transition group-hover:text-secondaryDark"
         data-testid="restore_history_entry"
-        @click="emit('use-entry')"
       >
-        <span class="truncate">
-          {{ entry.request.url }}
+        <span
+          v-for="(line, index) in payload"
+          :key="`line-${index}`"
+          class="font-mono truncate whitespace-pre cursor-pointer"
+          data-testid="restore_history_entry"
+        >
+          {{ line }}
         </span>
       </span>
+      <span class="flex-grow" />
       <HoppButtonSecondary
         v-tippy="{ theme: 'tooltip' }"
         :icon="IconTrash"
@@ -25,6 +30,7 @@
         @click="emit('delete-entry')"
       />
       <HoppButtonSecondary
+        v-if="hasOverflow"
         v-tippy="{ theme: 'tooltip' }"
         :title="expand ? t('hide.more') : t('show.more')"
         :icon="expand ? IconMinimize2 : IconMaximize2"
@@ -41,22 +47,17 @@
         @click="emit('toggle-star')"
       />
     </div>
-    <div class="flex flex-col text-tiny">
-      <span
-        v-for="(line, index) in query"
-        :key="`line-${index}`"
-        class="px-4 font-mono truncate whitespace-pre cursor-pointer text-secondaryLight"
-        data-testid="restore_history_entry"
-        @click="emit('use-entry')"
-        >{{ line }}</span
-      >
+    <div class="flex flex-col text-tiny text-secondaryLight">
+      <span class="px-4 truncate">
+        {{ entry.command.url }}
+      </span>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, ref } from "vue"
-import { GQLHistoryEntry } from "~/newstore/history"
+import { WSHistoryEntry } from "~/newstore/history"
 import { shortDateTime } from "~/helpers/utils/date"
 
 import IconStar from "~icons/lucide/star"
@@ -70,7 +71,7 @@ import { useI18n } from "@composables/i18n"
 const t = useI18n()
 
 const props = defineProps<{
-  entry: GQLHistoryEntry
+  entry: WSHistoryEntry
   showMore: boolean
 }>()
 
@@ -82,12 +83,14 @@ const emit = defineEmits<{
 
 const expand = ref(false)
 
-const query = computed(() =>
-  expand.value
-    ? (props.entry.request.query.split("\n") as string[])
-    : (props.entry.request.query
-        .split("\n")
-        .slice(0, 2)
-        .concat(["..."]) as string[])
-)
+const hasOverflow = computed(() => {
+  return props.entry.command.payload.body.split("\n").length > 3
+})
+
+const payload = computed(() => {
+  const lines = props.entry.command.payload.body.split("\n") as string[]
+  return expand.value || !hasOverflow.value
+    ? lines
+    : (lines.slice(0, 2).concat(["..."]) as string[])
+})
 </script>

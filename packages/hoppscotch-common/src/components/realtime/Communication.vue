@@ -44,7 +44,7 @@
               @keyup.escape="hide()"
             >
               <HoppSmartItem
-                v-for="(contentTypeItem, index) in validContentTypes"
+                v-for="(contentTypeItem, index) in validRealtimeContentTypes"
                 :key="`contentTypeItem-${index}`"
                 :label="contentTypeItem"
                 :info-icon="
@@ -53,7 +53,7 @@
                 :active-info-icon="contentTypeItem === contentType"
                 @click="
                   () => {
-                    contentType = contentTypeItem
+                    contentType = contentTypeItem as ValidRealtimeContentTypes
                     hide()
                   }
                 "
@@ -94,7 +94,7 @@
           v-tippy="{ theme: 'tooltip' }"
           :title="t('action.clear')"
           :icon="IconTrash2"
-          @click="clearContent"
+          @click="clearContent(true)"
         />
         <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
@@ -131,7 +131,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { Component, computed, reactive, ref } from "vue"
+import { Component, computed, PropType, reactive, ref } from "vue"
 import IconSend from "~icons/lucide/send"
 import IconHelpCircle from "~icons/lucide/help-circle"
 import IconWrapText from "~icons/lucide/wrap-text"
@@ -154,7 +154,13 @@ import { isJSONContentType } from "@helpers/utils/contenttypes"
 import { defineActionHandler } from "~/helpers/actions"
 import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
 
-defineProps({
+import {
+  knownRealtimeContentTypes,
+  validRealtimeContentTypes,
+  ValidRealtimeContentTypes,
+} from "@hoppscotch/data"
+
+const props = defineProps({
   showEventField: {
     type: Boolean,
     default: false,
@@ -171,6 +177,14 @@ defineProps({
     type: Boolean,
     default: false,
   },
+  contentType: {
+    type: String as PropType<ValidRealtimeContentTypes>,
+    default: null,
+  },
+  body: {
+    type: String,
+    default: undefined,
+  },
 })
 
 const emit = defineEmits<{
@@ -179,9 +193,39 @@ const emit = defineEmits<{
     body: {
       eventName: string
       message: string
+      contentType: string
     }
   ): void
+  (e: "update:contentType", value: string): void
+  (e: "update:body", value: string): void
 }>()
+
+// NOTE: Used internally when the v-model contentType property is not specified.
+// This allows for making the binding for content type optional, which is useful for
+// screens that do not care about the content type but where it would still be beneficial
+// for the Communication partial to allow content type selection and linting.
+//
+// DO NOT MODIFY _internalContentType DIRECTLY. USE contentType INSTEAD!!
+const _internalContentType = ref<ValidRealtimeContentTypes>("JSON")
+const contentType = computed({
+  get() {
+    return props.contentType ?? _internalContentType.value
+  },
+  set(value) {
+    emit("update:contentType", (_internalContentType.value = value))
+  },
+})
+
+// (as above)
+const _internalCommunicationBody = ref("")
+const communicationBody = computed({
+  get() {
+    return props.body ?? _internalCommunicationBody.value
+  },
+  set(value) {
+    emit("update:body", (_internalCommunicationBody.value = value))
+  },
+})
 
 const t = useI18n()
 const toast = useToast()
@@ -192,21 +236,14 @@ const linewrapEnabled = ref(true)
 const wsCommunicationBody = ref<HTMLElement>()
 const payload = ref<HTMLInputElement>()
 
-const prettifyIcon = refAutoReset<Component>(IconWand2, 1000)
+const prettifyIcon = refAutoReset<Component>(IconWand2 as Component, 1000)
 const clearInputOnSend = ref(false)
 
-const knownContentTypes = {
-  JSON: "application/ld+json",
-  Raw: "text/plain",
-} as const
-
-const validContentTypes = Object.keys(knownContentTypes) as ["JSON", "Raw"]
-
-const contentType = ref<keyof typeof knownContentTypes>("JSON")
 const eventName = ref("")
-const communicationBody = ref("")
 
-const rawInputEditorLang = computed(() => knownContentTypes[contentType.value])
+const rawInputEditorLang = computed(
+  () => knownRealtimeContentTypes[contentType.value]
+)
 const langLinter = computed(() =>
   isJSONContentType(contentType.value) ? jsonLinter : null
 )
@@ -226,8 +263,8 @@ useCodemirror(
   })
 )
 
-const clearContent = () => {
-  if (clearInputOnSend.value) {
+const clearContent = (force = false) => {
+  if (clearInputOnSend.value || force) {
     communicationBody.value = ""
     eventName.value = ""
   }
@@ -238,6 +275,7 @@ const sendMessage = () => {
 
   emit("send-message", {
     eventName: eventName.value,
+    contentType: contentType.value,
     message: communicationBody.value,
   })
   clearContent()
@@ -261,10 +299,10 @@ const prettifyRequestBody = () => {
   try {
     const jsonObj = JSON.parse(communicationBody.value)
     communicationBody.value = JSON.stringify(jsonObj, null, 2)
-    prettifyIcon.value = IconCheck
+    prettifyIcon.value = IconCheck as Component
   } catch (e) {
     console.error(e)
-    prettifyIcon.value = IconInfo
+    prettifyIcon.value = IconInfo as Component
     toast.error(`${t("error.json_prettify_invalid_body")}`)
   }
 }

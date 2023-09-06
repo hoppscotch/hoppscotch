@@ -45,6 +45,8 @@
           :label="`${t('websocket.communication')}`"
         >
           <RealtimeCommunication
+            v-model:body="body"
+            v-model:content-type="contentType"
             :is-connected="connectionState === 'CONNECTED'"
             sticky-header-styles="top-upperSecondaryStickyFold"
             @send-message="sendMessage($event)"
@@ -174,6 +176,9 @@
         @delete="clearLogEntries()"
       />
     </template>
+    <template #sidebar>
+      <History :page="'websocket'" :use-history-item="useHistoryItem" />
+    </template>
   </AppPaneLayout>
 </template>
 <script setup lang="ts">
@@ -198,7 +203,6 @@ import {
   addWSLogLine,
   WSLog$,
   setWSLog,
-  HoppWSProtocol,
   setWSSocket,
   WSSocket$,
 } from "~/newstore/WebSocketSession"
@@ -213,6 +217,20 @@ import { useColorMode } from "@composables/theming"
 import { WSConnection, WSErrorMessage } from "@helpers/realtime/WSConnection"
 import RegexWorker from "@workers/regex?worker"
 import { LogEntryData } from "~/components/realtime/Log.vue"
+
+import {
+  HoppWSCommand,
+  HoppWSProtocol,
+  ValidRealtimeContentTypes,
+  makeWSCommand,
+} from "@hoppscotch/data"
+
+import {
+  WSHistoryEntry,
+  addWebSocketHistoryEntry,
+  makeWSHistoryEntry,
+} from "~/newstore/history"
+import { setCompareArrays } from "~/helpers/utils/list"
 
 const t = useI18n()
 const toast = useToast()
@@ -246,10 +264,14 @@ const connectionState = useReadonlyStream(
 )
 
 const log = useStream(WSLog$, [], setWSLog)
+
 // DATA
 const isUrlValid = ref(true)
 
 const activeProtocols = ref<string[]>([])
+
+const body = ref<string>("")
+const contentType = ref<ValidRealtimeContentTypes>("JSON")
 
 let worker: Worker
 
@@ -371,12 +393,43 @@ const toggleConnection = () => {
   socket.value.disconnect()
 }
 
-const sendMessage = (event: { message: string; eventName: string }) => {
-  socket.value.sendMessage(event)
+const addCommandToHistory = (command: Omit<HoppWSCommand, "v">) => {
+  addWebSocketHistoryEntry(
+    makeWSHistoryEntry({
+      command: makeWSCommand(command),
+      star: false,
+    })
+  )
 }
+
+const sendMessage = (event: {
+  message: string
+  eventName: string
+  contentType: string
+}) => {
+  // If there is no socket initialized, do nothing.
+  // (This is necessary to ensure addCommandToHistory adds the correct socket URL,
+  //  it's not good enough to grab the URL from the 'url' ref as this will be confusing
+  //  and inconsistent if the user modifies the URL without disconnecting and reconnecting,
+  //  before sending the message).
+  if (socket.value.socket == null) return
+
+  // Send the socket message and commit the command to history.
+  socket.value.sendMessage(event)
+  addCommandToHistory({
+    url: socket.value.socket!.url,
+    protocols: protocols.value,
+    payload: {
+      contentType: event.contentType as ValidRealtimeContentTypes,
+      body: event.message,
+    },
+  })
+}
+
 const addProtocol = () => {
   addWSProtocol({ value: "", active: true })
 }
+
 const deleteProtocol = (index: number) => {
   const oldProtocols = protocols.value.slice()
   deleteWSProtocol(index)
@@ -391,10 +444,97 @@ const deleteProtocol = (index: number) => {
     },
   })
 }
+
 const updateProtocol = (index: number, updated: HoppWSProtocol) => {
   updateWSProtocol(index, updated)
 }
+
 const clearLogEntries = () => {
   log.value = []
+}
+
+const useHistoryItem = async (entry: WSHistoryEntry) => {
+  // Stage 1: Set the current page state to reflect the history entry
+  url.value = entry.command.url
+  protocols.value = entry.command.protocols
+  body.value = entry.command.payload.body
+  contentType.value = entry.command.payload.contentType
+
+  // Stage 2: Connect to the endpoint and send the command from the history entry.
+
+  // Sanitize the entry URL
+  if (entry.command.url === undefined || entry.command.url === null) return
+
+  // If the socket is currently connecting, do nothing.
+  if (connectionState.value === "CONNECTING") return
+
+  const needsReconnect =
+    socket.value.socket?.url !== entry.command.url ||
+    !setCompareArrays(
+      activeProtocols.value,
+      entry.command.protocols
+        .filter((entry) => entry.active)
+        .map((entry) => entry.value)
+    )
+
+  // Otherwise, if the socket is disconnected, connect it to the endpoint from the
+  // history entry. (Do the same if we need to reconnect)
+  if (connectionState.value === "DISCONNECTED" || needsReconnect) {
+    // If we're here and the socket is connected, it's because it's connected to the
+    // wrong host. So disconnect it first, and then we can treat it like a disconnected
+    // socket.
+    if (connectionState.value === "CONNECTED") {
+      socket.value.disconnect()
+    }
+
+    // Set up a promise to wait for the socket to connect.
+    const connectionPromise = new Promise<void>((resolve, reject) => {
+      const subscription = socket.value.event$.subscribe({
+        next(event) {
+          if (event?.type === "CONNECTED") {
+            subscription.unsubscribe()
+            resolve()
+          }
+        },
+        // On error or completion of the stream, we'll simply unsubscribe and
+        // reject the promise.
+        error() {
+          subscription.unsubscribe()
+          reject()
+        },
+        complete() {
+          subscription.unsubscribe()
+          reject()
+        },
+      })
+    })
+
+    // Then, connect to the intended host. Specify any protocols that are marked as
+    // active.
+    socket.value.connect(
+      entry.command.url,
+      entry.command.protocols
+        ?.filter((entry) => entry.active)
+        ?.map((entry) => entry.value) ?? []
+    )
+
+    // Now that we should have connected, try waiting for the connection promise to resolve.
+    // If it errors out, we'll do nothing and exit.
+    try {
+      await connectionPromise
+    } catch (ex) {
+      toast.error(t("error.something_went_wrong"))
+      return
+    }
+  }
+
+  // Stage 3: Send the message
+
+  // We can just re-use sendMessage (as we want to commit this to history too!)
+  sendMessage({
+    message: entry.command.payload.body,
+    contentType: entry.command.payload.contentType,
+    eventName: "",
+  })
 }
 </script>

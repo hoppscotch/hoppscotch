@@ -195,7 +195,7 @@ const parseOpenAPIV3Body = (
   // We only take the first definition
   const [contentType, media]: [
     string,
-    OpenAPIV3.MediaTypeObject | OpenAPIV31.MediaTypeObject,
+    OpenAPIV3.MediaTypeObject | OpenAPIV31.MediaTypeObject
   ] = objs[0]
 
   return contentType in knownContentTypes
@@ -514,6 +514,17 @@ const parseOpenAPIAuth = (
     ? parseOpenAPIV3Auth(doc as OpenAPIV3.Document | OpenAPIV31.Document, op)
     : parseOpenAPIV2Auth(doc as OpenAPIV2.Document, op)
 
+const parseOpenAPIUrl = (doc: OpenAPI.Document): string => {
+  let url = ""
+  if (objectHasProperty(doc, "host")) {
+    url += doc.host
+  }
+  if (objectHasProperty(doc, "basePath")) {
+    url += doc.basePath
+  }
+  return url
+}
+
 const convertPathToHoppReqs = (
   doc: OpenAPI.Document,
   pathName: string,
@@ -535,7 +546,9 @@ const convertPathToHoppReqs = (
       makeRESTRequest({
         name: info.operationId ?? info.summary ?? "Untitled Request",
         method: method.toUpperCase(),
-        endpoint: `<<baseUrl>>${replaceOpenApiPathTemplating(pathName)}`, // TODO: Make this proper
+        endpoint: `${parseOpenAPIUrl(doc)}${replaceOpenApiPathTemplating(
+          pathName
+        )}`,
 
         // We don't need to worry about reference types as the Dereferencing pass should remove them
         params: parseOpenAPIParams(

@@ -204,16 +204,8 @@ function newUseArrowKeysForNavigation() {
   })
 
   const onArrowDown = () => {
-    // If no entries or last entry, do nothing
-    if (
-      scoredResults.value.length === 0 ||
-      isEqual(selectedEntry.value, [
-        scoredResults.value.length - 1,
-        scoredResults.value[scoredResults.value.length - 1][1].results.length -
-          1,
-      ])
-    )
-      return
+    // If no entries, do nothing
+    if (scoredResults.value.length === 0) return
 
     const [sectionIndex, entryIndex] = selectedEntry.value
 
@@ -229,12 +221,8 @@ function newUseArrowKeysForNavigation() {
   }
 
   const onArrowUp = () => {
-    // If no entries or first entry, do nothing
-    if (
-      scoredResults.value.length === 0 ||
-      isEqual(selectedEntry.value, [0, 0])
-    )
-      return
+    // If no entries, do nothing
+    if (scoredResults.value.length === 0) return
 
     const [sectionIndex, entryIndex] = selectedEntry.value
 

@@ -49,7 +49,6 @@ export type SettingsDef = {
   EXPAND_NAVIGATION: boolean
   SIDEBAR: boolean
   SIDEBAR_ON_LEFT: boolean
-  ZEN_MODE: boolean
   FONT_SIZE: HoppFontSize
   COLUMN_LAYOUT: boolean
 }
@@ -76,7 +75,6 @@ export const getDefaultSettings = (): SettingsDef => ({
   EXPAND_NAVIGATION: true,
   SIDEBAR: true,
   SIDEBAR_ON_LEFT: true,
-  ZEN_MODE: false,
   FONT_SIZE: "small",
   COLUMN_LAYOUT: true,
 })

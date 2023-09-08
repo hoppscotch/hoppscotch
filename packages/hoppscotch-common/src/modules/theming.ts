@@ -68,23 +68,9 @@ const applyAccentColor = (_app: App) => {
   )
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const applyFontSize = (_app: App) => {
-  const [pref] = useSettingStatic("FONT_SIZE")
-
-  watch(
-    pref,
-    (newPref) => {
-      document.documentElement.setAttribute("data-font-size", newPref)
-    },
-    { immediate: true }
-  )
-}
-
 export default <HoppModule>{
   onVueAppInit(app) {
     applyColorMode(app)
     applyAccentColor(app)
-    applyFontSize(app)
   },
 }

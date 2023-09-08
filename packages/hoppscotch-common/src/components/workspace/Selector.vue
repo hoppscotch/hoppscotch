@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div ref="rootEl">
     <div class="flex flex-col">
       <div class="flex flex-col">
         <HoppSmartItem
@@ -69,9 +69,7 @@
 </template>
 <script setup lang="ts">
 import { computed, ref, watch } from "vue"
-import { onLoggedIn } from "~/composables/auth"
 import { useReadonlyStream } from "~/composables/stream"
-import TeamListAdapter from "~/helpers/teams/TeamListAdapter"
 import { platform } from "~/platform"
 import { useI18n } from "@composables/i18n"
 import IconUser from "~icons/lucide/user"
@@ -83,6 +81,9 @@ import { GetMyTeamsQuery } from "~/helpers/backend/graphql"
 import IconDone from "~icons/lucide/check"
 import { useLocalState } from "~/newstore/localstate"
 import { defineActionHandler } from "~/helpers/actions"
+import { WorkspaceService } from "~/services/workspace"
+import { useService } from "dioc/vue"
+import { useElementVisibility, useIntervalFn } from "@vueuse/core"
 
 const t = useI18n()
 const colorMode = useColorMode()
@@ -94,12 +95,36 @@ const currentUser = useReadonlyStream(
   platform.auth.getProbableUser()
 )
 
-const teamListadapter = new TeamListAdapter(true)
+const workspaceService = useService(WorkspaceService)
+const teamListadapter = workspaceService.acquireTeamListAdapter(null)
 const myTeams = useReadonlyStream(teamListadapter.teamList$, [])
 const isTeamListLoading = useReadonlyStream(teamListadapter.loading$, false)
 const teamListAdapterError = useReadonlyStream(teamListadapter.error$, null)
 const REMEMBERED_TEAM_ID = useLocalState("REMEMBERED_TEAM_ID")
 const teamListFetched = ref(false)
+
+const rootEl = ref<HTMLElement>()
+const elVisible = useElementVisibility(rootEl)
+
+const { pause: pauseListPoll, resume: resumeListPoll } = useIntervalFn(() => {
+  if (teamListadapter.isInitialized) {
+    teamListadapter.fetchList()
+  }
+}, 10000)
+
+watch(
+  elVisible,
+  () => {
+    if (elVisible.value) {
+      teamListadapter.fetchList()
+
+      resumeListPoll()
+    } else {
+      pauseListPoll()
+    }
+  },
+  { immediate: true }
+)
 
 watch(myTeams, (teams) => {
   if (teams && !teamListFetched.value) {
@@ -137,10 +162,6 @@ const switchToPersonalWorkspace = () => {
     type: "personal",
   })
 }
-
-onLoggedIn(() => {
-  teamListadapter.initialize()
-})
 
 watch(
   () => currentUser.value,

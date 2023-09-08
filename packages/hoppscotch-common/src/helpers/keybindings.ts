@@ -56,7 +56,7 @@ export const bindings: {
   "alt-x": "request.method.delete",
   "ctrl-k": "modals.search.toggle",
   "ctrl-/": "flyouts.keybinds.toggle",
-  "?": "modals.support.toggle",
+  "shift-/": "modals.support.toggle",
   "ctrl-m": "modals.share.toggle",
   "alt-r": "navigation.jump.rest",
   "alt-q": "navigation.jump.graphql",
@@ -120,7 +120,8 @@ function generateKeybindingString(ev: KeyboardEvent): ShortcutKey | null {
 }
 
 function getPressedKey(ev: KeyboardEvent): Key | null {
-  const val = ev.key.toLowerCase()
+  const val = ev.code.toLowerCase()
+
   // Check arrow keys
   if (val === "arrowup") return "up"
   else if (val === "arrowdown") return "down"
@@ -128,21 +129,20 @@ function getPressedKey(ev: KeyboardEvent): Key | null {
   else if (val === "arrowright") return "right"
 
   // Check letter keys
-  const isLetter = ev.code.toLowerCase().startsWith("key")
-  if (isLetter) return ev.code.toLowerCase().substring(3) as Key
+  const isLetter = val.startsWith("key")
+  if (isLetter) return val.substring(3) as Key
 
   // Check if number keys
-  if (val.length === 1 && !isNaN(val as any)) return val as Key
+  const isDigit = val.startsWith("digit")
+  if (isDigit) return val.substring(5) as Key
 
-  // Check if question mark
-  if (val === "?") return "?"
-
-  // Check if question mark
-  if (val === "/") return "/"
+  // Check if slash
+  if (val === "slash") return "/"
 
   // Check if period
-  if (val === ".") return "."
+  if (val === "period") return "."
 
+  // Check if enter
   if (val === "enter") return "enter"
 
   // If no other cases match, this is not a valid key

@@ -10,18 +10,6 @@
           :class="{ '-rotate-180': !EXPAND_NAVIGATION }"
           @click="EXPAND_NAVIGATION = !EXPAND_NAVIGATION"
         />
-        <HoppButtonSecondary
-          v-tippy="{ theme: 'tooltip' }"
-          :title="`${ZEN_MODE ? t('action.turn_off') : t('action.turn_on')} ${t(
-            'layout.zen_mode'
-          )}`"
-          :icon="ZEN_MODE ? IconMinimize : IconMaximize"
-          :class="{
-            '!text-accent !focus-visible:text-accentDark !hover:text-accentDark':
-              ZEN_MODE,
-          }"
-          @click="ZEN_MODE = !ZEN_MODE"
-        />
         <tippy interactive trigger="click" theme="popover">
           <HoppButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
@@ -211,11 +199,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from "vue"
+import { ref } from "vue"
 import { version } from "~/../package.json"
 import IconSidebar from "~icons/lucide/sidebar"
-import IconMinimize from "~icons/lucide/minimize"
-import IconMaximize from "~icons/lucide/maximize"
 import IconZap from "~icons/lucide/zap"
 import IconShare2 from "~icons/lucide/share-2"
 import IconColumns from "~icons/lucide/columns"
@@ -241,7 +227,6 @@ const showDeveloperOptions = ref(false)
 
 const EXPAND_NAVIGATION = useSetting("EXPAND_NAVIGATION")
 const SIDEBAR = useSetting("SIDEBAR")
-const ZEN_MODE = useSetting("ZEN_MODE")
 const COLUMN_LAYOUT = useSetting("COLUMN_LAYOUT")
 const SIDEBAR_ON_LEFT = useSetting("SIDEBAR_ON_LEFT")
 
@@ -250,13 +235,6 @@ const navigatorShare = !!navigator.share
 const currentUser = useReadonlyStream(
   platform.auth.getCurrentUserStream(),
   platform.auth.getCurrentUser()
-)
-
-watch(
-  () => ZEN_MODE.value,
-  () => {
-    EXPAND_NAVIGATION.value = !ZEN_MODE.value
-  }
 )
 
 const nativeShare = () => {

@@ -14,7 +14,6 @@ import IconGlobe from "~icons/lucide/globe"
 import IconMonitor from "~icons/lucide/monitor"
 import IconMoon from "~icons/lucide/moon"
 import IconSun from "~icons/lucide/sun"
-import IconCircle from "~icons/lucide/circle"
 import IconCheckCircle from "~icons/lucide/check-circle"
 
 type Doc = {
@@ -34,7 +33,6 @@ export class SettingsSpotlightSearcherService extends StaticSpotlightSearcherSer
 
   private t = getI18n()
 
-  private activeFontSize = useSetting("FONT_SIZE")
   private activeTheme = useSetting("BG_COLOR")
 
   public readonly searcherID = "settings"
@@ -91,60 +89,7 @@ export class SettingsSpotlightSearcherService extends StaticSpotlightSearcherSer
           : markRaw(IconMoon)
       ),
     },
-    font_size_sm: {
-      text: [
-        this.t("settings.font_size"),
-        this.t("spotlight.settings.font.size_sm"),
-      ],
-      onClick: () => {
-        console.log("clicked")
-      },
-      alternates: [
-        "font size",
-        "change font size",
-        "change font",
-        "increase font",
-      ],
-      icon: computed(() =>
-        this.activeFontSize.value === "small"
-          ? markRaw(IconCheckCircle)
-          : markRaw(IconCircle)
-      ),
-    },
-    font_size_md: {
-      text: [
-        this.t("settings.font_size"),
-        this.t("spotlight.settings.font.size_md"),
-      ],
-      alternates: [
-        "font size",
-        "change font size",
-        "change font",
-        "increase font",
-      ],
-      icon: computed(() =>
-        this.activeFontSize.value === "medium"
-          ? markRaw(IconCheckCircle)
-          : markRaw(IconCircle)
-      ),
-    },
-    font_size_lg: {
-      text: [
-        this.t("settings.font_size"),
-        this.t("spotlight.settings.font.size_lg"),
-      ],
-      alternates: [
-        "font size",
-        "change font size",
-        "change font",
-        "increase font",
-      ],
-      icon: computed(() =>
-        this.activeFontSize.value === "large"
-          ? markRaw(IconCheckCircle)
-          : markRaw(IconCircle)
-      ),
-    },
+
     change_lang: {
       text: [
         this.t("spotlight.section.interface"),
@@ -201,17 +146,6 @@ export class SettingsSpotlightSearcherService extends StaticSpotlightSearcherSer
         break
       case "theme_black":
         invokeAction("settings.theme.black")
-        break
-
-      // font size actions
-      case "font_size_sm":
-        this.activeFontSize.value = "small"
-        break
-      case "font_size_md":
-        this.activeFontSize.value = "medium"
-        break
-      case "font_size_lg":
-        this.activeFontSize.value = "large"
         break
     }
   }

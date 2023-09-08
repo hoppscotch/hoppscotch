@@ -129,12 +129,12 @@ function getPressedKey(ev: KeyboardEvent): Key | null {
   else if (val === "arrowright") return "right"
 
   // Check letter keys
-  const isLetter = ev.code.toLowerCase().startsWith("key")
-  if (isLetter) return ev.code.toLowerCase().substring(3) as Key
+  const isLetter = val.startsWith("key")
+  if (isLetter) return val.substring(3) as Key
 
   // Check if number keys
-  const isDigit = ev.code.toLowerCase().startsWith("digit")
-  if (isDigit) return ev.code.toLowerCase().substring(5) as Key
+  const isDigit = val.startsWith("digit")
+  if (isDigit) return val.substring(5) as Key
 
   // Check if slash
   if (val === "slash") return "/"

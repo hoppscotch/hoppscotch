@@ -216,6 +216,33 @@ export function useCodemirror(
     ? new HoppEnvironmentPlugin(subscribeToStream, view)
     : null
 
+  function handleTextSelection() {
+    const selection = view.value?.state.selection.main
+    if (selection) {
+      const from = selection.from
+      const to = selection.to
+      const text = view.value?.state.doc.sliceString(from, to)
+      const { top, left } = view.value?.coordsAtPos(from)
+      if (text) {
+        invokeAction("contextmenu.open", {
+          position: {
+            top,
+            left,
+          },
+          text,
+        })
+      } else {
+        invokeAction("contextmenu.open", {
+          position: {
+            top,
+            left,
+          },
+          text: null,
+        })
+      }
+    }
+  }
+
   const initView = (el: any) => {
     if (el) platform.ui?.onCodemirrorInstanceMount?.(el)
 
@@ -226,33 +253,6 @@ export function useCodemirror(
       ViewPlugin.fromClass(
         class {
           update(update: ViewUpdate) {
-            function handleTextSelection() {
-              const selection = view.value?.state.selection.main
-              if (selection) {
-                const from = selection.from
-                const to = selection.to
-                const text = view.value?.state.doc.sliceString(from, to)
-                const { top, left } = view.value?.coordsAtPos(from)
-                if (text) {
-                  invokeAction("contextmenu.open", {
-                    position: {
-                      top,
-                      left,
-                    },
-                    text,
-                  })
-                } else {
-                  invokeAction("contextmenu.open", {
-                    position: {
-                      top,
-                      left,
-                    },
-                    text: null,
-                  })
-                }
-              }
-            }
-
             // Debounce to prevent double click from selecting the word
             const debounceFn = useDebounceFn(() => {
               handleTextSelection()
@@ -296,6 +296,13 @@ export function useCodemirror(
           }
         }
       ),
+      EditorView.domEventHandlers({
+        scroll(event) {
+          if (event.target) {
+            handleTextSelection()
+          }
+        },
+      }),
       EditorView.updateListener.of((update) => {
         if (options.extendedEditorConfig.readOnly) {
           update.view.contentDOM.inputMode = "none"

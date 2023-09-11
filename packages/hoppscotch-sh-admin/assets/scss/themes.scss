@@ -1,8 +1,21 @@
 @mixin base-theme {
-  --font-sans: "Inter Variable", sans-serif;
-  --font-icon: "Material Symbols Rounded Variable";
-  --font-mono: "Roboto Mono Variable", monospace;
-  --font-size-tiny: calc(var(--font-size-body) - 0.062rem);
+  --font-sans: 'Inter Variable', sans-serif;
+  --font-icon: 'Material Symbols Rounded Variable';
+  --font-mono: 'Roboto Mono Variable', monospace;
+  --font-size-body: 0.75rem;
+  --font-size-tiny: 0.688rem;
+  --line-height-body: 1rem;
+  --upper-primary-sticky-fold: 4.125rem;
+  --upper-secondary-sticky-fold: 6.188rem;
+  --upper-tertiary-sticky-fold: 8.25rem;
+  --upper-mobile-primary-sticky-fold: 6.625rem;
+  --upper-mobile-secondary-sticky-fold: 8.688rem;
+  --upper-mobile-sticky-fold: 10.75rem;
+  --upper-mobile-tertiary-sticky-fold: 8.25rem;
+  --lower-primary-sticky-fold: 3rem;
+  --lower-secondary-sticky-fold: 5.063rem;
+  --lower-tertiary-sticky-fold: 7.125rem;
+  --sidebar-primary-sticky-fold: 2rem;
 }
 
 @mixin dark-theme {
@@ -200,8 +213,8 @@
 :root {
   @include base-theme;
   @include dark-theme;
-  @include green-theme;
   @include dark-editor-theme;
+  @include green-theme;
 }
 
 :root.light {
@@ -256,64 +269,4 @@
 
 :root[data-accent='yellow'] {
   @include yellow-theme;
-}
-
-@mixin font-small {
-  --font-size-body: 0.75rem;
-  --line-height-body: 1rem;
-  --upper-primary-sticky-fold: 4.125rem;
-  --upper-secondary-sticky-fold: 6.188rem;
-  --upper-tertiary-sticky-fold: 8.25rem;
-  --upper-mobile-primary-sticky-fold: 6.625rem;
-  --upper-mobile-secondary-sticky-fold: 8.688rem;
-  --upper-mobile-sticky-fold: 10.75rem;
-  --upper-mobile-tertiary-sticky-fold: 8.25rem;
-  --lower-primary-sticky-fold: 3rem;
-  --lower-secondary-sticky-fold: 5.063rem;
-  --lower-tertiary-sticky-fold: 7.125rem;
-  --sidebar-primary-sticky-fold: 2rem;
-}
-
-@mixin font-medium {
-  --font-size-body: 0.875rem;
-  --line-height-body: 1.25rem;
-  --upper-primary-sticky-fold: 4.375rem;
-  --upper-secondary-sticky-fold: 6.688rem;
-  --upper-tertiary-sticky-fold: 9rem;
-  --upper-mobile-primary-sticky-fold: 7.125rem;
-  --upper-mobile-secondary-sticky-fold: 9.438rem;
-  --upper-mobile-sticky-fold: 11.75rem;
-  --upper-mobile-tertiary-sticky-fold: 9rem;
-  --lower-primary-sticky-fold: 3.25rem;
-  --lower-secondary-sticky-fold: 5.563rem;
-  --lower-tertiary-sticky-fold: 7.875rem;
-  --sidebar-primary-sticky-fold: 2.25rem;
-}
-
-@mixin font-large {
-  --font-size-body: 1rem;
-  --line-height-body: 1.5rem;
-  --upper-primary-sticky-fold: 4.625rem;
-  --upper-secondary-sticky-fold: 7.188rem;
-  --upper-tertiary-sticky-fold: 9.75rem;
-  --upper-mobile-primary-sticky-fold: 7.625rem;
-  --upper-mobile-secondary-sticky-fold: 10.188rem;
-  --upper-mobile-sticky-fold: 12.75rem;
-  --upper-mobile-tertiary-sticky-fold: 9.75rem;
-  --lower-primary-sticky-fold: 3.5rem;
-  --lower-secondary-sticky-fold: 6.063rem;
-  --lower-tertiary-sticky-fold: 8.625rem;
-  --sidebar-primary-sticky-fold: 2.5rem;
-}
-
-:root[data-font-size='small'] {
-  @include font-small;
-}
-
-:root[data-font-size='medium'] {
-  @include font-medium;
-}
-
-:root[data-font-size='large'] {
-  @include font-large;
 }

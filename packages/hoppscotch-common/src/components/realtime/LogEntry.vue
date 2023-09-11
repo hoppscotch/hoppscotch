@@ -17,7 +17,7 @@
             <span
               v-tippy="{ theme: 'tooltip' }"
               :title="relativeTime"
-              class="mx-auto truncate ts-font text-secondaryLight hover:text-secondary hover:text-center"
+              class="mx-auto truncate text-tiny text-secondaryLight hover:text-secondary hover:text-center"
             >
               {{ shortDateTime(entry.ts) }}
             </span>
@@ -405,9 +405,5 @@ const icon = computed(() => markRaw(ICONS[props.entry.source].icon))
   @apply py-1;
   @apply transition;
   @apply hover: text-secondary;
-}
-
-.ts-font {
-  font-size: 0.6rem;
 }
 </style>

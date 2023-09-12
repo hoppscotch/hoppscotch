@@ -67,7 +67,6 @@
 </template>
 
 <script setup lang="ts">
-import { watch } from "vue"
 import IconSidebar from "~icons/lucide/sidebar"
 import IconSidebarOpen from "~icons/lucide/sidebar-open"
 import IconChevronRight from "~icons/lucide/chevron-right"
@@ -77,16 +76,8 @@ import { platform } from "~/platform"
 
 const t = useI18n()
 
-const ZEN_MODE = useSetting("ZEN_MODE")
 const EXPAND_NAVIGATION = useSetting("EXPAND_NAVIGATION")
 const SIDEBAR = useSetting("SIDEBAR")
-
-watch(
-  () => ZEN_MODE.value,
-  () => {
-    EXPAND_NAVIGATION.value = !ZEN_MODE.value
-  }
-)
 
 defineProps<{
   show: boolean

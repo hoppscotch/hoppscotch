@@ -90,14 +90,6 @@
                   {{ t("settings.sidebar_on_left") }}
                 </HoppSmartToggle>
               </div>
-              <div class="flex items-center">
-                <HoppSmartToggle
-                  :on="ZEN_MODE"
-                  @change="toggleSetting('ZEN_MODE')"
-                >
-                  {{ t("layout.zen_mode") }}
-                </HoppSmartToggle>
-              </div>
             </div>
           </section>
         </div>
@@ -178,17 +170,12 @@ const PROXY_URL = useSetting("PROXY_URL")
 const TELEMETRY_ENABLED = useSetting("TELEMETRY_ENABLED")
 const EXPAND_NAVIGATION = useSetting("EXPAND_NAVIGATION")
 const SIDEBAR_ON_LEFT = useSetting("SIDEBAR_ON_LEFT")
-const ZEN_MODE = useSetting("ZEN_MODE")
 
 const confirmRemove = ref(false)
 
 const proxySettings = computed(() => ({
   url: PROXY_URL.value,
 }))
-
-watch(ZEN_MODE, (mode) => {
-  applySetting("EXPAND_NAVIGATION", !mode)
-})
 
 watch(
   proxySettings,

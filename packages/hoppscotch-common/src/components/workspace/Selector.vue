@@ -80,7 +80,7 @@ import { GetMyTeamsQuery } from "~/helpers/backend/graphql"
 import IconDone from "~icons/lucide/check"
 import { useLocalState } from "~/newstore/localstate"
 import { defineActionHandler } from "~/helpers/actions"
-import { WorkspaceService } from "~/services/workspace"
+import { WorkspaceService } from "~/services/workspace.service"
 import { useService } from "dioc/vue"
 import { useElementVisibility, useIntervalFn } from "@vueuse/core"
 

@@ -237,7 +237,7 @@ import {
 } from "~/helpers/collection/collection"
 import { currentReorderingStatus$ } from "~/newstore/reordering"
 import { defineActionHandler } from "~/helpers/actions"
-import { WorkspaceService } from "~/services/workspace"
+import { WorkspaceService } from "~/services/workspace.service"
 import { useService } from "dioc/vue"
 
 const t = useI18n()

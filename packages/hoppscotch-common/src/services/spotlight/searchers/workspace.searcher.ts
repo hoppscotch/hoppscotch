@@ -33,7 +33,7 @@ import IconTrash2 from "~icons/lucide/trash-2"
 import IconUser from "~icons/lucide/user"
 import IconUserPlus from "~icons/lucide/user-plus"
 import IconUsers from "~icons/lucide/users"
-import { WorkspaceService } from "~/services/workspace"
+import { WorkspaceService } from "~/services/workspace.service"
 
 type Doc = {
   text: string | string[]

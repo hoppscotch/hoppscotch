@@ -25,7 +25,7 @@ import {
   HoppGQLRequest,
   HoppRESTRequest,
 } from "@hoppscotch/data"
-import { WorkspaceService } from "~/services/workspace"
+import { WorkspaceService } from "~/services/workspace.service"
 import { invokeAction } from "~/helpers/actions"
 
 /**

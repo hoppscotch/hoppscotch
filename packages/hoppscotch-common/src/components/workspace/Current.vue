@@ -18,7 +18,7 @@
 import { computed } from "vue"
 import { useI18n } from "~/composables/i18n"
 import { useService } from "dioc/vue"
-import { WorkspaceService } from "~/services/workspace"
+import { WorkspaceService } from "~/services/workspace.service"
 
 defineProps<{
   section?: string

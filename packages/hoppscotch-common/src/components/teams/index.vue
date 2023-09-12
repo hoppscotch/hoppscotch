@@ -72,7 +72,7 @@ import { computed, ref } from "vue"
 import { useI18n } from "@composables/i18n"
 import { useReadonlyStream } from "@composables/stream"
 import { useColorMode } from "@composables/theming"
-import { WorkspaceService } from "~/services/workspace"
+import { WorkspaceService } from "~/services/workspace.service"
 import { useService } from "dioc/vue"
 
 const t = useI18n()

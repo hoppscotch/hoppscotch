@@ -217,7 +217,7 @@ import IconClose from "~icons/lucide/x"
 import { useColorMode } from "~/composables/theming"
 import { useVModel } from "@vueuse/core"
 import { useService } from "dioc/vue"
-import { WorkspaceService } from "~/services/workspace"
+import { WorkspaceService } from "~/services/workspace.service"
 
 const props = defineProps<{
   modelValue: HoppTestResult | null | undefined

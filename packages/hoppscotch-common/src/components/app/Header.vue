@@ -252,7 +252,7 @@ import { defineActionHandler, invokeAction } from "@helpers/actions"
 import { GetMyTeamsQuery } from "~/helpers/backend/graphql"
 import { getPlatformSpecialKey } from "~/helpers/platformutils"
 import { useToast } from "~/composables/toast"
-import { WorkspaceService } from "~/services/workspace"
+import { WorkspaceService } from "~/services/workspace.service"
 import { useService } from "dioc/vue"
 
 const t = useI18n()

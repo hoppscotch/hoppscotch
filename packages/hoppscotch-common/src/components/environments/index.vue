@@ -65,7 +65,7 @@ import { GQLError } from "~/helpers/backend/GQLClient"
 import { deleteEnvironment } from "~/newstore/environments"
 import { deleteTeamEnvironment } from "~/helpers/backend/mutations/TeamEnvironment"
 import { useToast } from "~/composables/toast"
-import { WorkspaceService } from "~/services/workspace"
+import { WorkspaceService } from "~/services/workspace.service"
 import { useService } from "dioc/vue"
 
 const t = useI18n()

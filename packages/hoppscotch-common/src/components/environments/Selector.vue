@@ -318,7 +318,7 @@ import { onMounted } from "vue"
 import { useLocalState } from "~/newstore/localstate"
 import { GetMyTeamsQuery } from "~/helpers/backend/graphql"
 import { useService } from "dioc/vue"
-import { WorkspaceService } from "~/services/workspace"
+import { WorkspaceService } from "~/services/workspace.service"
 
 type Scope =
   | {

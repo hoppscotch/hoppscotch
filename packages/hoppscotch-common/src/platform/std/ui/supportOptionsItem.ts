@@ -72,7 +72,7 @@ export const twitter: HoppSupportOptionsMenuItem = {
   icon: IconTwitter,
   action: {
     type: "link",
-    href: "https://hoppscotch.io/discord",
+    href: "https://hoppscotch.io/twitter",
   },
 }
 
@@ -84,17 +84,7 @@ export const invite: HoppSupportOptionsMenuItem = {
   action: {
     type: "custom",
     do() {
-      if (navigator.share) {
-        navigator
-          .share({
-            title: "Hoppscotch",
-            text: "Hoppscotch • Open source API development ecosystem - Helps you create requests faster, saving precious time on development.",
-            url: "https://hoppscotch.io",
-          })
-          .catch(console.error)
-      } else {
-        // fallback
-      }
+      invokeAction("modals.share.toggle")
     },
   },
 }

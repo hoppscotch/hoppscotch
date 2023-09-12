@@ -311,35 +311,36 @@ const envVars = computed(() =>
 
 const envTooltipPlugin = new HoppReactiveEnvPlugin(envVars, view)
 
-const initView = (el: any) => {
-  function handleTextSelection() {
-    const selection = view.value?.state.selection.main
-    if (selection) {
-      const from = selection.from
-      const to = selection.to
-      const text = view.value?.state.doc.sliceString(from, to)
-      const { top, left } = view.value?.coordsAtPos(from)
-      if (text) {
-        invokeAction("contextmenu.open", {
-          position: {
-            top,
-            left,
-          },
-          text,
-        })
-        showSuggestionPopover.value = false
-      } else {
-        invokeAction("contextmenu.open", {
-          position: {
-            top,
-            left,
-          },
-          text: null,
-        })
-      }
+function handleTextSelection() {
+  const selection = view.value?.state.selection.main
+  if (selection) {
+    const from = selection.from
+    const to = selection.to
+    if (from === to) return
+    const text = view.value?.state.doc.sliceString(from, to)
+    const { top, left } = view.value?.coordsAtPos(from)
+    if (text) {
+      invokeAction("contextmenu.open", {
+        position: {
+          top,
+          left,
+        },
+        text,
+      })
+      showSuggestionPopover.value = false
+    } else {
+      invokeAction("contextmenu.open", {
+        position: {
+          top,
+          left,
+        },
+        text: null,
+      })
     }
   }
+}
 
+const initView = (el: any) => {
   // Debounce to prevent double click from selecting the word
   const debounceFn = useDebounceFn(() => {
     handleTextSelection()
@@ -380,6 +381,11 @@ const initView = (el: any) => {
       },
       drop(ev) {
         ev.preventDefault()
+      },
+      scroll(event) {
+        if (event.target) {
+          handleTextSelection()
+        }
       },
     }),
     ViewPlugin.fromClass(

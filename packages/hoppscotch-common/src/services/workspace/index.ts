@@ -14,14 +14,21 @@ type WorkspaceServiceEvent = {
   type: "managed-team-list-adapter-polled"
 }
 
+/**
+ * This services manages workspace related data and actions in Hoppscotch.
+ */
 export class WorkspaceService extends Service<WorkspaceServiceEvent> {
   public static readonly ID = "WORKSPACE_SERVICE"
 
   private _currentWorkspace = ref<Workspace>({ type: "personal" })
+
+  /**
+   * A readonly reference to the currently selected workspace
+   */
   public currentWorkspace = readonly(this._currentWorkspace)
 
   private teamListAdapterLocks = reactive(new Map<number, number | null>())
-  private teamListAdapterLockTicker = 0
+  private teamListAdapterLockTicker = 0 // Used to generate unique lock IDs
   private managedTeamListAdapter = new TeamListAdapter(true, false)
 
   private currentUser = useStreamStatic(
@@ -41,6 +48,8 @@ export class WorkspaceService extends Service<WorkspaceServiceEvent> {
   constructor() {
     super()
 
+    // Dispose the managed team list adapter when the user logs out
+    // and initialize it when the user logs in
     watch(
       this.currentUser,
       (user) => {
@@ -55,6 +64,7 @@ export class WorkspaceService extends Service<WorkspaceServiceEvent> {
       { immediate: true }
     )
 
+    // Poll the managed team list adapter if the polling time is defined
     const { pause: pauseListPoll, resume: resumeListPoll } = useIntervalFn(
       () => {
         if (this.managedTeamListAdapter.isInitialized) {
@@ -67,6 +77,7 @@ export class WorkspaceService extends Service<WorkspaceServiceEvent> {
       { immediate: true }
     )
 
+    // Pause and resume the polling when the polling time changes
     watch(
       this.pollingTime,
       (pollingTime) => {
@@ -80,6 +91,11 @@ export class WorkspaceService extends Service<WorkspaceServiceEvent> {
     )
   }
 
+  // TODO: Update this function, its existence is pretty weird
+  /**
+   * Updates the name of the current workspace if it is a team workspace.
+   * @param newTeamName The new name of the team
+   */
   public updateWorkspaceTeamName(newTeamName: string) {
     if (this._currentWorkspace.value.type === "team") {
       this._currentWorkspace.value = {
@@ -89,10 +105,20 @@ export class WorkspaceService extends Service<WorkspaceServiceEvent> {
     }
   }
 
+  /**
+   * Changes the current workspace to the given workspace.
+   * @param workspace The new workspace
+   */
   public changeWorkspace(workspace: Workspace) {
     this._currentWorkspace.value = workspace
   }
 
+  /**
+   * Acquires a team list adapter that is managed by the workspace service.
+   * The team list adapter is associated with a Vue Scope and will be disposed
+   * when the scope is disposed.
+   * @param pollDuration The duration between polls in milliseconds. If null, the team list adapter will not poll.
+   */
   public acquireTeamListAdapter(pollDuration: number | null) {
     const lockID = this.teamListAdapterLockTicker++
 

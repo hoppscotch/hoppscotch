@@ -219,7 +219,6 @@ import {
 import * as E from "fp-ts/Either"
 import { platform } from "~/platform"
 import { createCollectionGists } from "~/helpers/gist"
-import { workspaceStatus$ } from "~/newstore/workspace"
 import {
   createNewTab,
   currentActiveTab,
@@ -375,13 +374,18 @@ const updateSelectedTeam = (team: SelectedTeam) => {
   }
 }
 
-const workspace = useReadonlyStream(workspaceStatus$, { type: "personal" })
+const workspace = workspaceService.currentWorkspace
 
 // Used to switch collection type and team when user switch workspace in the global workspace switcher
 // Check if there is a teamID in the workspace, if yes, switch to team collection and select the team
 // If there is no teamID, switch to my environment
 watch(
-  () => workspace.value.teamID,
+  () => {
+    const space = workspace.value
+
+    if (space.type === "personal") return undefined
+    else return space.teamID
+  },
   (teamID) => {
     if (!teamID) {
       switchToMyCollections()

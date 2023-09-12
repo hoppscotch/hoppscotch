@@ -308,7 +308,6 @@ import {
   selectedEnvironmentIndex$,
   setSelectedEnvironmentIndex,
 } from "~/newstore/environments"
-import { changeWorkspace, workspaceStatus$ } from "~/newstore/workspace"
 import TeamEnvironmentAdapter from "~/helpers/teams/TeamEnvironmentAdapter"
 import { useColorMode } from "@composables/theming"
 import { breakpointsTailwind, useBreakpoints } from "@vueuse/core"
@@ -353,10 +352,10 @@ type EnvironmentType = "my-environments" | "team-environments"
 
 const myEnvironments = useReadonlyStream(environments$, [])
 
-const workspace = useReadonlyStream(workspaceStatus$, { type: "personal" })
+const workspaceService = useService(WorkspaceService)
+const workspace = workspaceService.currentWorkspace
 
 // TeamList-Adapter
-const workspaceService = useService(WorkspaceService)
 const teamListAdapter = workspaceService.acquireTeamListAdapter(null)
 const myTeams = useReadonlyStream(teamListAdapter.teamList$, null)
 const teamListFetched = ref(false)
@@ -364,7 +363,7 @@ const REMEMBERED_TEAM_ID = useLocalState("REMEMBERED_TEAM_ID")
 
 const switchToTeamWorkspace = (team: GetMyTeamsQuery["myTeams"][number]) => {
   REMEMBERED_TEAM_ID.value = team.id
-  changeWorkspace({
+  workspaceService.changeWorkspace({
     teamID: team.id,
     teamName: team.name,
     type: "team",

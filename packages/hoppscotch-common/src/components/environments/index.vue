@@ -58,7 +58,6 @@ import {
 } from "~/newstore/environments"
 import TeamEnvironmentAdapter from "~/helpers/teams/TeamEnvironmentAdapter"
 import { defineActionHandler } from "~/helpers/actions"
-import { workspaceStatus$ } from "~/newstore/workspace"
 import { useLocalState } from "~/newstore/localstate"
 import { pipe } from "fp-ts/function"
 import * as TE from "fp-ts/TaskEither"
@@ -153,7 +152,7 @@ watch(
   }
 )
 
-const workspace = useReadonlyStream(workspaceStatus$, { type: "personal" })
+const workspace = workspaceService.currentWorkspace
 
 // Switch to my environments if workspace is personal and to team environments if workspace is team
 // also resets selected environment if workspace is personal and the previous selected environment was a team environment

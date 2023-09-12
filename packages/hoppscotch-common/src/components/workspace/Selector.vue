@@ -76,7 +76,6 @@ import IconUser from "~icons/lucide/user"
 import IconUsers from "~icons/lucide/users"
 import IconPlus from "~icons/lucide/plus"
 import { useColorMode } from "@composables/theming"
-import { changeWorkspace, workspaceStatus$ } from "~/newstore/workspace"
 import { GetMyTeamsQuery } from "~/helpers/backend/graphql"
 import IconDone from "~icons/lucide/check"
 import { useLocalState } from "~/newstore/localstate"
@@ -140,7 +139,7 @@ const loading = computed(
   () => isTeamListLoading.value && myTeams.value.length === 0
 )
 
-const workspace = useReadonlyStream(workspaceStatus$, { type: "personal" })
+const workspace = workspaceService.currentWorkspace
 
 const isActiveWorkspace = computed(() => (id: string) => {
   if (workspace.value.type === "personal") return false
@@ -149,7 +148,7 @@ const isActiveWorkspace = computed(() => (id: string) => {
 
 const switchToTeamWorkspace = (team: GetMyTeamsQuery["myTeams"][number]) => {
   REMEMBERED_TEAM_ID.value = team.id
-  changeWorkspace({
+  workspaceService.changeWorkspace({
     teamID: team.id,
     teamName: team.name,
     type: "team",
@@ -158,7 +157,7 @@ const switchToTeamWorkspace = (team: GetMyTeamsQuery["myTeams"][number]) => {
 
 const switchToPersonalWorkspace = () => {
   REMEMBERED_TEAM_ID.value = undefined
-  changeWorkspace({
+  workspaceService.changeWorkspace({
     type: "personal",
   })
 }

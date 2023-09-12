@@ -1,6 +1,6 @@
 import { tryOnScopeDispose, useIntervalFn } from "@vueuse/core"
 import { Service } from "dioc"
-import { computed, reactive, ref, watch } from "vue"
+import { computed, reactive, ref, watch, readonly } from "vue"
 import { useStreamStatic } from "~/composables/stream"
 import TeamListAdapter from "~/helpers/teams/TeamListAdapter"
 import { platform } from "~/platform"
@@ -17,8 +17,8 @@ type WorkspaceServiceEvent = {
 export class WorkspaceService extends Service<WorkspaceServiceEvent> {
   public static readonly ID = "WORKSPACE_SERVICE"
 
-  // TODO: Control and validate writes into this (refWithControl ?)
-  public currentWorkspace = ref<Workspace>({ type: "personal" })
+  private _currentWorkspace = ref<Workspace>({ type: "personal" })
+  public currentWorkspace = readonly(this._currentWorkspace)
 
   private teamListAdapterLocks = reactive(new Map<number, number | null>())
   private teamListAdapterLockTicker = 0
@@ -78,6 +78,19 @@ export class WorkspaceService extends Service<WorkspaceServiceEvent> {
       },
       { immediate: true }
     )
+  }
+
+  public updateWorkspaceTeamName(newTeamName: string) {
+    if (this._currentWorkspace.value.type === "team") {
+      this._currentWorkspace.value = {
+        ...this._currentWorkspace.value,
+        teamName: newTeamName,
+      }
+    }
+  }
+
+  public changeWorkspace(workspace: Workspace) {
+    this._currentWorkspace.value = workspace
   }
 
   public acquireTeamListAdapter(pollDuration: number | null) {

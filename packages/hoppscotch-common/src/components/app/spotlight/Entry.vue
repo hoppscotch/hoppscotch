@@ -80,11 +80,10 @@ const props = defineProps<{
   active: boolean
 }>()
 
-const formattedShortcutKeys = computed(
-  () =>
-    props.entry.meta?.keyboardShortcut?.map((key) => {
-      return SPECIAL_KEY_CHARS[key] ?? capitalize(key)
-    })
+const formattedShortcutKeys = computed(() =>
+  props.entry.meta?.keyboardShortcut?.map((key) => {
+    return SPECIAL_KEY_CHARS[key] ?? capitalize(key)
+  })
 )
 
 const emit = defineEmits<{
@@ -119,5 +118,8 @@ watch(
   &.active {
     @apply after:bg-accentLight;
   }
+
+  scroll-padding: 4rem !important;
+  scroll-margin: 4rem !important;
 }
 </style>

@@ -40,7 +40,7 @@
             :key="`result-${result.id}`"
             :entry="result"
             :active="isEqual(selectedEntry, [sectionIndex, entryIndex])"
-            @mouseover="selectedEntry = [sectionIndex, entryIndex]"
+            @mouseover="onMouseOver($event, sectionIndex, entryIndex)"
             @action="runAction(sectionID, result)"
           />
         </div>
@@ -176,6 +176,24 @@ watch(
 function runAction(searcherID: string, result: SpotlightSearcherResult) {
   spotlightService.selectSearchResult(searcherID, result)
   emit("hide-modal")
+}
+
+let lastMousePosition: { x: number; y: number }
+
+const onMouseOver = (
+  e: MouseEvent,
+  sectionIndex: number,
+  entryIndex: number
+) => {
+  const mousePosition = {
+    x: e.clientX,
+    y: e.clientY,
+  }
+
+  // if the position is same, do nothing
+  if (isEqual(lastMousePosition, mousePosition)) return
+  selectedEntry.value = [sectionIndex, entryIndex]
+  lastMousePosition = mousePosition
 }
 
 function newUseArrowKeysForNavigation() {

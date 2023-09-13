@@ -6,11 +6,14 @@ import TeamListAdapter from "~/helpers/teams/TeamListAdapter"
 import { platform } from "~/platform"
 import { min } from "lodash-es"
 
-type Workspace =
+/**
+ * Defines a workspace and its information
+ */
+export type Workspace =
   | { type: "personal" }
   | { type: "team"; teamID: string; teamName: string }
 
-type WorkspaceServiceEvent = {
+export type WorkspaceServiceEvent = {
   type: "managed-team-list-adapter-polled"
 }
 

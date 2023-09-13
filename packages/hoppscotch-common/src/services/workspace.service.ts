@@ -47,7 +47,6 @@ export class WorkspaceService extends Service<WorkspaceServiceEvent> {
 
   constructor() {
     super()
-
     // Dispose the managed team list adapter when the user logs out
     // and initialize it when the user logs in
     watch(

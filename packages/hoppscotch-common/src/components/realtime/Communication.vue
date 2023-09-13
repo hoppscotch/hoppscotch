@@ -277,9 +277,14 @@ defineActionHandler("request.send-cancel", sendMessage)
 
 <style lang="scss" scoped>
 :deep(.cm-panels) {
-  top: var(--upper-secondary-sticky-fold) !important;
+  @apply top-upperSecondaryStickyFold #{!important};
 }
-.eventFeildShown :deep(.cm-panels) {
-  top: var(--upper-tertiary-sticky-fold) !important;
+.eventFeildShown :deep(.cm-panels),
+.cmResponsePrimaryStickyFold :deep(.cm-panels) {
+  @apply top-upperTertiaryStickyFold #{!important};
+}
+
+.cmResponseSecondaryStickyFold :deep(.cm-panels) {
+  @apply top-upperFourthStickyFold #{!important};
 }
 </style>

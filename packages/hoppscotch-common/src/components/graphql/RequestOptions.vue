@@ -214,6 +214,6 @@ defineActionHandler("request.open-tab", ({ tab }) => {
 
 <style lang="scss" scoped>
 :deep(.cm-panels) {
-  top: var(--upper-primary-sticky-fold) !important;
+  @apply top-upperPrimaryStickyFold #{!important};
 }
 </style>

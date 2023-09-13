@@ -531,6 +531,6 @@ const getInspectorResult = (results: InspectorResult[], index: number) => {
 
 <style lang="scss" scoped>
 :deep(.cm-panels) {
-  top: var(--upper-tertiary-sticky-fold) !important;
+  @apply top-upperTertiaryStickyFold #{!important};
 }
 </style>

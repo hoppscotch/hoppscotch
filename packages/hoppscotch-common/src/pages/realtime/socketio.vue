@@ -106,8 +106,9 @@
           <RealtimeCommunication
             :show-event-field="true"
             :is-connected="connectionState === 'CONNECTED'"
+            class="cmResponseSecondaryStickyFold"
             event-field-styles="top-upperSecondaryStickyFold"
-            sticky-header-styles="top-upperTertiaryStickyFold"
+            sticky-header-styles="top-upperTertiaryStickyFold "
             @send-message="sendMessage($event)"
           />
         </HoppSmartTab>
@@ -453,9 +454,3 @@ const clearContent = () => {
   // TODO: Implementation ?
 }
 </script>
-
-<style lang="scss" scoped>
-:deep(.cm-panels) {
-  top: var(--upper-fourth-sticky-fold) !important;
-}
-</style>

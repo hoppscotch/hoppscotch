@@ -427,6 +427,6 @@ const clearContent = () => {
 
 <style lang="scss" scoped>
 :deep(.cm-panels) {
-  top: var(--upper-fourth-sticky-fold) !important;
+  @apply top-upperFourthStickyFold #{!important};
 }
 </style>

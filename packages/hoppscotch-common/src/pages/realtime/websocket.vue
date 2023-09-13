@@ -37,7 +37,7 @@
       </div>
       <HoppSmartTabs
         v-model="selectedTab"
-        styles="sticky overflow-x-auto flex-shrink-0 bg-primary top-upperPrimaryStickyFold z-10"
+        styles="sticky overflow-x-auto flex-shrink-0 bg-primary top-upperPrimaryStickyFold z-10 "
         render-inactive-tabs
       >
         <HoppSmartTab
@@ -46,7 +46,8 @@
         >
           <RealtimeCommunication
             :is-connected="connectionState === 'CONNECTED'"
-            sticky-header-styles="top-upperSecondaryStickyFold"
+            class="cmResponsePrimaryStickyFold"
+            sticky-header-styles="top-upperSecondaryStickyFold "
             @send-message="sendMessage($event)"
           />
         </HoppSmartTab>

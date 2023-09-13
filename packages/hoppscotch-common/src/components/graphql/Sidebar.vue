@@ -399,6 +399,6 @@ const copySchema = () => {
 
 <style lang="scss" scoped>
 :deep(.cm-panels) {
-  top: var(--sidebar-primary-sticky-fold) !important;
+  @apply top-sidebarPrimaryStickyFold #{!important};
 }
 </style>

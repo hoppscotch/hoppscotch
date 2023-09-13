@@ -79,7 +79,6 @@ const router = useRouter()
 const showSearch = ref(false)
 const showSupport = ref(false)
 
-const fontSize = useSetting("FONT_SIZE")
 const expandNavigation = useSetting("EXPAND_NAVIGATION")
 const rightSidebar = useSetting("SIDEBAR")
 const columnLayout = useSetting("COLUMN_LAYOUT")
@@ -132,24 +131,9 @@ watch(mdAndLarger, () => {
     columnLayout.value = true
   }
 })
-
-const spacerClass = computed(() => {
-  if (fontSize.value === "small" && expandNavigation.value)
-    return "spacer-small"
-  if (fontSize.value === "medium" && expandNavigation.value)
-    return "spacer-medium"
-  if (fontSize.value === "large" && expandNavigation.value)
-    return "spacer-large"
-  if (
-    (fontSize.value === "small" ||
-      fontSize.value === "medium" ||
-      fontSize.value === "large") &&
-    !expandNavigation.value
-  )
-    return "spacer-expand"
-
-  return ""
-})
+const spacerClass = computed(() =>
+  expandNavigation.value ? "spacer-small" : "spacer-expand"
+)
 
 defineActionHandler("modals.search.toggle", () => {
   showSearch.value = !showSearch.value

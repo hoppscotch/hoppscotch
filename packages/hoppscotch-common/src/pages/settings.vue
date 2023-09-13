@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="container space-y-8 divide-y divide-dividerLight">
+    <div class="container divide-y divide-dividerLight">
       <div class="md:grid md:gap-4 md:grid-cols-3">
         <div class="p-8 md:col-span-1">
           <h3 class="heading">
@@ -34,14 +34,6 @@
             </div>
             <div class="mt-4">
               <SmartAccentModePicker />
-            </div>
-          </section>
-          <section>
-            <h4 class="font-semibold text-secondaryDark">
-              {{ t("settings.font_size") }}
-            </h4>
-            <div class="mt-4">
-              <SmartFontSizePicker />
             </div>
           </section>
           <section>

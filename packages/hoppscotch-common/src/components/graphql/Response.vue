@@ -139,3 +139,9 @@ defineActionHandler(
   computed(() => !!props.response && props.response.length > 0)
 )
 </script>
+
+<style lang="scss" scoped>
+:deep(.cm-panels) {
+  top: var(--sidebar-primary-sticky-fold) !important;
+}
+</style>

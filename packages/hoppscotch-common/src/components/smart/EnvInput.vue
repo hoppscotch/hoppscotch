@@ -152,6 +152,22 @@ const updateModelValue = (value: string) => {
   })
 }
 
+// close the context menu when the input is empty
+watch(
+  () => props.modelValue,
+  (newVal) => {
+    if (!newVal) {
+      invokeAction("contextmenu.open", {
+        position: {
+          top: 0,
+          left: 0,
+        },
+        text: null,
+      })
+    }
+  }
+)
+
 const handleKeystroke = (ev: KeyboardEvent) => {
   if (["ArrowDown", "ArrowUp", "Enter", "Tab", "Escape"].includes(ev.key)) {
     ev.preventDefault()

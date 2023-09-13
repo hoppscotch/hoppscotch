@@ -1,5 +1,8 @@
 <template>
-  <div class="flex flex-col flex-1">
+  <div
+    class="flex flex-col flex-1"
+    :class="{ eventFeildShown: showEventField }"
+  >
     <div
       v-if="showEventField"
       class="sticky z-10 flex items-center justify-center flex-shrink-0 overflow-x-auto border-b bg-primary border-dividerLight"
@@ -271,3 +274,12 @@ const prettifyRequestBody = () => {
 
 defineActionHandler("request.send-cancel", sendMessage)
 </script>
+
+<style lang="scss" scoped>
+:deep(.cm-panels) {
+  top: var(--upper-secondary-sticky-fold) !important;
+}
+.eventFeildShown :deep(.cm-panels) {
+  top: var(--upper-tertiary-sticky-fold) !important;
+}
+</style>

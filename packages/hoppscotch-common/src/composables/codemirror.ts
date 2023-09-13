@@ -221,6 +221,7 @@ export function useCodemirror(
     if (selection) {
       const from = selection.from
       const to = selection.to
+      if (from === to) return
       const text = view.value?.state.doc.sliceString(from, to)
       const { top, left } = view.value?.coordsAtPos(from)
       if (text) {

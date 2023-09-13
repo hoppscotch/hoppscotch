@@ -110,3 +110,9 @@ const clearContent = () => {
   preRequestScript.value = ""
 }
 </script>
+
+<style lang="scss" scoped>
+:deep(.cm-panels) {
+  top: var(--upper-tertiary-sticky-fold) !important;
+}
+</style>

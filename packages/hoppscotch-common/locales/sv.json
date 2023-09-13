@@ -5,6 +5,7 @@
     "choose_file": "Välj en fil",
     "clear": "Klar",
     "clear_all": "Rensa alla",
+    "clear_history": "Clear all History",
     "close": "Close",
     "connect": "Ansluta",
     "connecting": "Connecting",
@@ -31,6 +32,7 @@
     "paste": "Paste",
     "prettify": "Försköna",
     "remove": "Avlägsna",
+    "rename": "Rename",
     "restore": "Återställ",
     "save": "Spara",
     "scroll_to_bottom": "Scroll to bottom",
@@ -77,6 +79,8 @@
     "search": "Sök",
     "share": "Dela med sig",
     "shortcuts": "Genvägar",
+    "social_description": "Follow us on social media to stay updated with the latest news, updates and releases.",
+    "social_links": "Social links",
     "spotlight": "Strålkastare",
     "status": "Status",
     "status_description": "Check the status of the website",
@@ -131,12 +135,15 @@
     "renamed": "Samling bytt namn",
     "request_in_use": "Request in use",
     "save_as": "Spara som",
+    "save_to_collection": "Save to Collection",
     "select": "Välj en samling",
     "select_location": "Välj plats",
     "select_team": "Välj ett lag",
     "team_collections": "Lagsamlingar"
   },
   "confirm": {
+    "close_unsaved_tab": "Are you sure you want to close this tab?",
+    "close_unsaved_tabs": "Are you sure you want to close all tabs? {count} unsaved tabs will be lost.",
     "exit_team": "Are you sure you want to leave this team?",
     "logout": "Är du säker på att du vill logga ut?",
     "remove_collection": "Är du säker på att du vill radera denna samling permanent?",
@@ -149,6 +156,11 @@
     "request_change": "Are you sure you want to discard current request, unsaved changes will be lost.",
     "save_unsaved_tab": "Do you want to save changes made in this tab?",
     "sync": "Är du säker på att du vill synkronisera den här arbetsytan?"
+  },
+  "context_menu": {
+    "add_parameters": "Add to parameters",
+    "open_request_in_new_tab": "Open request in new tab",
+    "set_environment_variable": "Set as variable"
   },
   "count": {
     "header": "Rubrik {count}",
@@ -192,17 +204,31 @@
     "create_new": "Skapa ny miljö",
     "created": "Environment created",
     "deleted": "Environment deletion",
+    "duplicated": "Environment duplicated",
     "edit": "Redigera miljö",
+    "empty_variables": "No variables",
+    "global": "Global",
+    "global_variables": "Global variables",
     "invalid_name": "Ange ett giltigt namn på miljön",
+    "list": "Environment variables",
     "my_environments": "My Environments",
+    "name": "Name",
     "nested_overflow": "nested environment variables are limited to 10 levels",
     "new": "Ny miljö",
+    "no_active_environment": "No active environment",
     "no_environment": "Ingen miljö",
     "no_environment_description": "No environments were selected. Choose what to do with the following variables.",
+    "quick_peek": "Environment Quick Peek",
+    "replace_with_variable": "Replace with variable",
+    "scope": "Scope",
     "select": "Välj miljö",
+    "set": "Set environment",
+    "set_as_environment": "Set as environment",
     "team_environments": "Team Environments",
     "title": "Miljöer",
     "updated": "Environment updation",
+    "value": "Value",
+    "variable": "Variable",
     "variable_list": "Variabel lista"
   },
   "error": {
@@ -226,6 +252,7 @@
     "no_duration": "Ingen varaktighet",
     "no_results_found": "No matches found",
     "page_not_found": "This page could not be found",
+    "proxy_error": "Proxy error",
     "script_fail": "Det gick inte att köra skriptet för förhandsbegäran",
     "something_went_wrong": "Något gick fel",
     "test_script_fail": "Could not execute post-request script"
@@ -251,9 +278,13 @@
     "renamed": "Mappen har bytt namn"
   },
   "graphql": {
+    "connection_switch_confirm": "Do you want to connect with the latest GraphQL endpoint?",
+    "connection_switch_new_url": "Switching to a tab will disconnected you from the active GraphQL connection. New connection URL is",
+    "connection_switch_url": "You're connected to a GraphQL endpoint the connection URL is",
     "mutations": "Mutationer",
     "schema": "Schema",
-    "subscriptions": "Prenumerationer"
+    "subscriptions": "Prenumerationer",
+    "switch_connection": "Switch connection"
   },
   "group": {
     "time": "Time",
@@ -307,13 +338,36 @@
     "json_description": "Import collections from a Hoppscotch Collections JSON file",
     "title": "Importera"
   },
+  "inspections": {
+    "description": "Inspect possible errors",
+    "environment": {
+      "add_environment": "Add to Environment",
+      "not_found": "Environment variable “{environment}” not found."
+    },
+    "header": {
+      "cookie": "The browser doesn't allow Hoppscotch to set the Cookie Header. While we're working on the Hoppscotch Desktop App (coming soon), please use the Authorization Header instead."
+    },
+    "response": {
+      "401_error": "Please check your authentication credentials.",
+      "404_error": "Please check your request URL and method type.",
+      "cors_error": "Please check your Cross-Origin Resource Sharing configuration.",
+      "default_error": "Please check your request.",
+      "network_error": "Please check your network connection."
+    },
+    "title": "Inspector",
+    "url": {
+      "extension_not_installed": "Extension not installed.",
+      "extension_unknown_origin": "Make sure you've added the API endpoint's origin to the Hoppscotch Browser Extension list.",
+      "extention_enable_action": "Enable Browser Extension",
+      "extention_not_enabled": "Extension not enabled."
+    }
+  },
   "layout": {
     "collapse_collection": "Collapse or Expand Collections",
     "collapse_sidebar": "Collapse or Expand the sidebar",
     "column": "Vertical layout",
     "name": "Layout",
-    "row": "Horizontal layout",
-    "zen_mode": "Zen -läge"
+    "row": "Horizontal layout"
   },
   "modal": {
     "close_unsaved_tab": "You have unsaved changes",
@@ -418,6 +472,7 @@
     "payload": "Nyttolast",
     "query": "Fråga",
     "raw_body": "Raw Request Body",
+    "rename": "Rename Request",
     "renamed": "Begäran bytt namn",
     "run": "Springa",
     "save": "Spara",
@@ -425,6 +480,7 @@
     "saved": "Begäran sparad",
     "share": "Dela med sig",
     "share_description": "Share Hoppscotch with your friends",
+    "stop": "Stop",
     "title": "Begäran",
     "type": "Typ av förfrågan",
     "url": "URL",
@@ -459,7 +515,6 @@
     "account_name_description": "Detta är ditt visningsnamn.",
     "background": "Bakgrund",
     "black_mode": "Svart",
-    "change_font_size": "Ändra typsnittsstorlek",
     "choose_language": "Välj språk",
     "dark_mode": "Mörk",
     "delete_account": "Delete account",
@@ -472,10 +527,6 @@
     "extensions": "Tillägg",
     "extensions_use_toggle": "Använd webbläsartillägget för att skicka förfrågningar (om sådana finns)",
     "follow": "Follow Us",
-    "font_size": "Textstorlek",
-    "font_size_large": "Stor",
-    "font_size_medium": "Medium",
-    "font_size_small": "Små",
     "interceptor": "Jaktplan",
     "interceptor_description": "Mellanprogram mellan applikation och API: er.",
     "language": "Språk",
@@ -540,19 +591,27 @@
       "settings": "Gå till sidan Inställningar",
       "title": "Navigering"
     },
+    "others": {
+      "prettify": "Prettify Editor's Content",
+      "title": "Others"
+    },
     "request": {
       "copy_request_link": "Kopiera begäran länk",
       "delete_method": "Välj DELETE method",
       "get_method": "Välj GET -metod",
       "head_method": "Välj HEAD -metod",
+      "import_curl": "Import cURL",
       "method": "Metod",
       "next_method": "Välj Nästa metod",
       "post_method": "Välj POST -metod",
       "previous_method": "Välj föregående metod",
       "put_method": "Välj PUT -metod",
+      "rename": "Rename Request",
       "reset_request": "Återställ begäran",
+      "save_request": "Save Request",
       "save_to_collections": "Spara i samlingar",
       "send_request": "Skicka förfrågan",
+      "show_code": "Generate code snippet",
       "title": "Begäran"
     },
     "response": {
@@ -581,6 +640,85 @@
     "events": "evenemang",
     "log": "Logga",
     "url": "URL"
+  },
+  "spotlight": {
+    "change_language": "Change Language",
+    "environments": {
+      "delete": "Delete current environment",
+      "duplicate": "Duplicate current environment",
+      "duplicate_global": "Duplicate global environment",
+      "edit": "Edit current environment",
+      "edit_global": "Edit global environment",
+      "new": "Create new environment",
+      "new_variable": "Create a new environment variable",
+      "title": "Environments"
+    },
+    "general": {
+      "chat": "Chat with support",
+      "help_menu": "Help and support",
+      "open_docs": "Read Documentation",
+      "open_github": "Open GitHub repository",
+      "open_keybindings": "Keyboard shortcuts",
+      "social": "Social",
+      "title": "General"
+    },
+    "graphql": {
+      "connect": "Connect to server",
+      "disconnect": "Disconnect from server"
+    },
+    "miscellaneous": {
+      "invite": "Invite your friends to Hoppscotch",
+      "title": "Miscellaneous"
+    },
+    "request": {
+      "save_as_new": "Save as new request",
+      "select_method": "Select method",
+      "switch_to": "Switch to",
+      "tab_authorization": "Authorization tab",
+      "tab_body": "Body tab",
+      "tab_headers": "Headers tab",
+      "tab_parameters": "Parameters tab",
+      "tab_pre_request_script": "Pre-request script tab",
+      "tab_query": "Query tab",
+      "tab_tests": "Tests tab",
+      "tab_variables": "Variables tab"
+    },
+    "response": {
+      "copy": "Copy response",
+      "download": "Download response as file",
+      "title": "Response"
+    },
+    "section": {
+      "interceptor": "Interceptor",
+      "interface": "Interface",
+      "theme": "Theme",
+      "user": "User"
+    },
+    "settings": {
+      "change_interceptor": "Change Interceptor",
+      "change_language": "Change Language",
+      "theme": {
+        "black": "Black",
+        "dark": "Dark",
+        "light": "Light",
+        "system": "System preference"
+      }
+    },
+    "tab": {
+      "close_current": "Close current tab",
+      "close_others": "Close all other tabs",
+      "duplicate": "Duplicate current tab",
+      "new_tab": "Open a new tab",
+      "title": "Tabs"
+    },
+    "workspace": {
+      "delete": "Delete current team",
+      "edit": "Edit current team",
+      "invite": "Invite people to team",
+      "new": "Create new team",
+      "switch_to_personal": "Switch to your personal workspace",
+      "title": "Teams"
+    }
   },
   "sse": {
     "event_type": "Event typ",
@@ -639,8 +777,11 @@
   "tab": {
     "authorization": "Tillstånd",
     "body": "Kropp",
+    "close": "Close Tab",
+    "close_others": "Close other Tabs",
     "collections": "Samlingar",
     "documentation": "Dokumentation",
+    "duplicate": "Duplicate Tab",
     "environments": "Environments",
     "headers": "Rubriker",
     "history": "Historia",

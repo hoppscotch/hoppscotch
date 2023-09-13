@@ -5,6 +5,7 @@
     "choose_file": "Pilih file",
     "clear": "Bersihkan",
     "clear_all": "Bersihkan semua",
+    "clear_history": "Clear all History",
     "close": "Tutup",
     "connect": "Sambungkan",
     "connecting": "Menyambungkan",
@@ -31,6 +32,7 @@
     "paste": "Tempel",
     "prettify": "Prettify",
     "remove": "Hapus",
+    "rename": "Rename",
     "restore": "Pulihkan",
     "save": "Simpan",
     "scroll_to_bottom": "Gulir ke bawah",
@@ -77,6 +79,8 @@
     "search": "Mencari",
     "share": "Membagikan",
     "shortcuts": "Jalan pintas",
+    "social_description": "Follow us on social media to stay updated with the latest news, updates and releases.",
+    "social_links": "Social links",
     "spotlight": "Menyoroti",
     "status": "Status",
     "status_description": "Periksa status situs web",
@@ -131,12 +135,15 @@
     "renamed": "Koleksi berganti nama",
     "request_in_use": "Permintaan sedang digunakan",
     "save_as": "Simpan Sebagai",
+    "save_to_collection": "Save to Collection",
     "select": "Pilih Koleksi",
     "select_location": "Pilih lokasi",
     "select_team": "Pilih tim",
     "team_collections": "Koleksi Tim"
   },
   "confirm": {
+    "close_unsaved_tab": "Are you sure you want to close this tab?",
+    "close_unsaved_tabs": "Are you sure you want to close all tabs? {count} unsaved tabs will be lost.",
     "exit_team": "Apakah Anda yakin ingin keluar dari tim ini?",
     "logout": "Apakah Anda yakin ingin keluar?",
     "remove_collection": "Apakah Anda yakin ingin menghapus koleksi ini secara permanen?",
@@ -149,6 +156,11 @@
     "request_change": "Apakah Anda yakin ingin membuang permintaan saat ini, perubahan yang belum disimpan akan hilang.",
     "save_unsaved_tab": "Apakah Anda ingin menyimpan perubahan yang dibuat di tab ini?",
     "sync": "Apakah Anda ingin memulihkan ruang kerja Anda dari cloud? Ini akan membuang kemajuan lokal Anda."
+  },
+  "context_menu": {
+    "add_parameters": "Add to parameters",
+    "open_request_in_new_tab": "Open request in new tab",
+    "set_environment_variable": "Set as variable"
   },
   "count": {
     "header": "Header {count}",
@@ -192,17 +204,31 @@
     "create_new": "Membuat environment baru",
     "created": "Environment dibuat",
     "deleted": "Environment dihapus",
+    "duplicated": "Environment duplicated",
     "edit": "Sunting Environment",
+    "empty_variables": "No variables",
+    "global": "Global",
+    "global_variables": "Global variables",
     "invalid_name": "Tolong beri nama untuk environment",
+    "list": "Environment variables",
     "my_environments": "Environment Saya",
+    "name": "Name",
     "nested_overflow": "Variabel environment bersarang dibatasi hingga 10 level",
     "new": "Environment Baru",
+    "no_active_environment": "No active environment",
     "no_environment": "No environment",
     "no_environment_description": "Tidak ada environment yang dipilih. Pilih apa yang harus dilakukan dengan variabel berikut.",
+    "quick_peek": "Environment Quick Peek",
+    "replace_with_variable": "Replace with variable",
+    "scope": "Scope",
     "select": "Pilih environment",
+    "set": "Set environment",
+    "set_as_environment": "Set as environment",
     "team_environments": "Environment Tim",
     "title": "Environment",
     "updated": "Environment diperbarui",
+    "value": "Value",
+    "variable": "Variable",
     "variable_list": "Daftar Variable"
   },
   "error": {
@@ -226,6 +252,7 @@
     "no_duration": "Tidak ada durasi",
     "no_results_found": "Tidak ada kecocokan yang ditemukan",
     "page_not_found": "Halaman ini tidak dapat ditemukan",
+    "proxy_error": "Proxy error",
     "script_fail": "Tidak dapat menjalankan pre-request script",
     "something_went_wrong": "Ada yang salah",
     "test_script_fail": "Tidak dapat mengeksekusi post-request script"
@@ -251,9 +278,13 @@
     "renamed": "Folder berganti nama"
   },
   "graphql": {
+    "connection_switch_confirm": "Do you want to connect with the latest GraphQL endpoint?",
+    "connection_switch_new_url": "Switching to a tab will disconnected you from the active GraphQL connection. New connection URL is",
+    "connection_switch_url": "You're connected to a GraphQL endpoint the connection URL is",
     "mutations": "Mutations",
     "schema": "Schema",
-    "subscriptions": "Subscriptions"
+    "subscriptions": "Subscriptions",
+    "switch_connection": "Switch connection"
   },
   "group": {
     "time": "Time",
@@ -307,13 +338,36 @@
     "json_description": "Impor Koleksi dari berkas JSON Koleksi Hoppscotch",
     "title": "Impor"
   },
+  "inspections": {
+    "description": "Inspect possible errors",
+    "environment": {
+      "add_environment": "Add to Environment",
+      "not_found": "Environment variable “{environment}” not found."
+    },
+    "header": {
+      "cookie": "The browser doesn't allow Hoppscotch to set the Cookie Header. While we're working on the Hoppscotch Desktop App (coming soon), please use the Authorization Header instead."
+    },
+    "response": {
+      "401_error": "Please check your authentication credentials.",
+      "404_error": "Please check your request URL and method type.",
+      "cors_error": "Please check your Cross-Origin Resource Sharing configuration.",
+      "default_error": "Please check your request.",
+      "network_error": "Please check your network connection."
+    },
+    "title": "Inspector",
+    "url": {
+      "extension_not_installed": "Extension not installed.",
+      "extension_unknown_origin": "Make sure you've added the API endpoint's origin to the Hoppscotch Browser Extension list.",
+      "extention_enable_action": "Enable Browser Extension",
+      "extention_not_enabled": "Extension not enabled."
+    }
+  },
   "layout": {
     "collapse_collection": "Ciutkan atau Perluas Collections",
     "collapse_sidebar": "Ciutkan atau Perluas sidebar",
     "column": "Vertikal layout",
     "name": "Layout",
-    "row": "Horisontal layout",
-    "zen_mode": "Zen mode"
+    "row": "Horisontal layout"
   },
   "modal": {
     "close_unsaved_tab": "Anda memiliki perubahan yang belum disimpan",
@@ -418,6 +472,7 @@
     "payload": "Payload",
     "query": "Query",
     "raw_body": "Raw Request Body",
+    "rename": "Rename Request",
     "renamed": "Request berganti nama",
     "run": "Jalankan",
     "save": "Menyimpan",
@@ -425,6 +480,7 @@
     "saved": "Request disimpan",
     "share": "Membagikan",
     "share_description": "Bagikan Hoppscotch dengan teman-teman Anda",
+    "stop": "Stop",
     "title": "Request",
     "type": "Tipe Request",
     "url": "URL",
@@ -459,7 +515,6 @@
     "account_name_description": "Ini adalah nama tampilan Anda.",
     "background": "Latar belakang",
     "black_mode": "Hitam",
-    "change_font_size": "Ubah ukuran font",
     "choose_language": "Pilih bahasa",
     "dark_mode": "Gelap",
     "delete_account": "Delete account",
@@ -472,10 +527,6 @@
     "extensions": "Ekstensi Peramban",
     "extensions_use_toggle": "Gunakan ekstensi peramban untuk mengirim permintaan (jika ada)",
     "follow": "Ikuti kami",
-    "font_size": "Ukuran huruf",
-    "font_size_large": "Besar",
-    "font_size_medium": "Sedang",
-    "font_size_small": "Kecil",
     "interceptor": "Pencegat",
     "interceptor_description": "Middleware antara aplikasi dan API.",
     "language": "Bahasa",
@@ -540,19 +591,27 @@
       "settings": "Pergi ke halaman Pengaturan",
       "title": "Navigasi"
     },
+    "others": {
+      "prettify": "Prettify Editor's Content",
+      "title": "Others"
+    },
     "request": {
       "copy_request_link": "Salin Tautan Permintaan",
       "delete_method": "Pilih metode DELETE",
       "get_method": "Pilih metode GET",
       "head_method": "Pilih metode HEAD",
+      "import_curl": "Import cURL",
       "method": "metode",
       "next_method": "Pilih metode Next",
       "post_method": "Pilih metode POST",
       "previous_method": "Pilih metode Previous",
       "put_method": "Pilih metode PUT",
+      "rename": "Rename Request",
       "reset_request": "Mengatur ulang Request",
+      "save_request": "Save Request",
       "save_to_collections": "Menyimpan ke Collections",
       "send_request": "Kirim Request",
+      "show_code": "Generate code snippet",
       "title": "Request"
     },
     "response": {
@@ -581,6 +640,85 @@
     "events": "Events",
     "log": "Log",
     "url": "URL"
+  },
+  "spotlight": {
+    "change_language": "Change Language",
+    "environments": {
+      "delete": "Delete current environment",
+      "duplicate": "Duplicate current environment",
+      "duplicate_global": "Duplicate global environment",
+      "edit": "Edit current environment",
+      "edit_global": "Edit global environment",
+      "new": "Create new environment",
+      "new_variable": "Create a new environment variable",
+      "title": "Environments"
+    },
+    "general": {
+      "chat": "Chat with support",
+      "help_menu": "Help and support",
+      "open_docs": "Read Documentation",
+      "open_github": "Open GitHub repository",
+      "open_keybindings": "Keyboard shortcuts",
+      "social": "Social",
+      "title": "General"
+    },
+    "graphql": {
+      "connect": "Connect to server",
+      "disconnect": "Disconnect from server"
+    },
+    "miscellaneous": {
+      "invite": "Invite your friends to Hoppscotch",
+      "title": "Miscellaneous"
+    },
+    "request": {
+      "save_as_new": "Save as new request",
+      "select_method": "Select method",
+      "switch_to": "Switch to",
+      "tab_authorization": "Authorization tab",
+      "tab_body": "Body tab",
+      "tab_headers": "Headers tab",
+      "tab_parameters": "Parameters tab",
+      "tab_pre_request_script": "Pre-request script tab",
+      "tab_query": "Query tab",
+      "tab_tests": "Tests tab",
+      "tab_variables": "Variables tab"
+    },
+    "response": {
+      "copy": "Copy response",
+      "download": "Download response as file",
+      "title": "Response"
+    },
+    "section": {
+      "interceptor": "Interceptor",
+      "interface": "Interface",
+      "theme": "Theme",
+      "user": "User"
+    },
+    "settings": {
+      "change_interceptor": "Change Interceptor",
+      "change_language": "Change Language",
+      "theme": {
+        "black": "Black",
+        "dark": "Dark",
+        "light": "Light",
+        "system": "System preference"
+      }
+    },
+    "tab": {
+      "close_current": "Close current tab",
+      "close_others": "Close all other tabs",
+      "duplicate": "Duplicate current tab",
+      "new_tab": "Open a new tab",
+      "title": "Tabs"
+    },
+    "workspace": {
+      "delete": "Delete current team",
+      "edit": "Edit current team",
+      "invite": "Invite people to team",
+      "new": "Create new team",
+      "switch_to_personal": "Switch to your personal workspace",
+      "title": "Teams"
+    }
   },
   "sse": {
     "event_type": "Tipe Event",
@@ -639,8 +777,11 @@
   "tab": {
     "authorization": "Authorization",
     "body": "Body",
+    "close": "Close Tab",
+    "close_others": "Close other Tabs",
     "collections": "Collections",
     "documentation": "Dokumentasi",
+    "duplicate": "Duplicate Tab",
     "environments": "Environments",
     "headers": "Headers",
     "history": "Riwayat",

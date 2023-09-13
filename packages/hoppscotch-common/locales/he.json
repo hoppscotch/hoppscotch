@@ -5,6 +5,7 @@
     "choose_file": "בחר קובץ",
     "clear": "ברור",
     "clear_all": "נקה הכל",
+    "clear_history": "Clear all History",
     "close": "Close",
     "connect": "לְחַבֵּר",
     "connecting": "Connecting",
@@ -31,6 +32,7 @@
     "paste": "Paste",
     "prettify": "לְיַפּוֹת",
     "remove": "לְהַסִיר",
+    "rename": "Rename",
     "restore": "לשחזר",
     "save": "להציל",
     "scroll_to_bottom": "Scroll to bottom",
@@ -77,6 +79,8 @@
     "search": "לחפש",
     "share": "לַחֲלוֹק",
     "shortcuts": "קיצורי דרך",
+    "social_description": "Follow us on social media to stay updated with the latest news, updates and releases.",
+    "social_links": "Social links",
     "spotlight": "זַרקוֹר",
     "status": "סטָטוּס",
     "status_description": "Check the status of the website",
@@ -131,12 +135,15 @@
     "renamed": "שם האוסף שונה",
     "request_in_use": "Request in use",
     "save_as": "שמור כ",
+    "save_to_collection": "Save to Collection",
     "select": "בחר אוסף",
     "select_location": "תבחר מיקום",
     "select_team": "בחר צוות",
     "team_collections": "אוספי צוות"
   },
   "confirm": {
+    "close_unsaved_tab": "Are you sure you want to close this tab?",
+    "close_unsaved_tabs": "Are you sure you want to close all tabs? {count} unsaved tabs will be lost.",
     "exit_team": "Are you sure you want to leave this team?",
     "logout": "האם אתה בטוח שאתה רוצה להתנתק?",
     "remove_collection": "האם אתה בטוח שברצונך למחוק את האוסף הזה לצמיתות?",
@@ -149,6 +156,11 @@
     "request_change": "Are you sure you want to discard current request, unsaved changes will be lost.",
     "save_unsaved_tab": "Do you want to save changes made in this tab?",
     "sync": "האם אתה בטוח שברצונך לסנכרן את סביבת העבודה הזו?"
+  },
+  "context_menu": {
+    "add_parameters": "Add to parameters",
+    "open_request_in_new_tab": "Open request in new tab",
+    "set_environment_variable": "Set as variable"
   },
   "count": {
     "header": "כותרת {count}",
@@ -192,17 +204,31 @@
     "create_new": "צור סביבה חדשה",
     "created": "Environment created",
     "deleted": "Environment deletion",
+    "duplicated": "Environment duplicated",
     "edit": "ערוך את הסביבה",
+    "empty_variables": "No variables",
+    "global": "Global",
+    "global_variables": "Global variables",
     "invalid_name": "אנא ספק שם חוקי לסביבה",
+    "list": "Environment variables",
     "my_environments": "My Environments",
+    "name": "Name",
     "nested_overflow": "nested environment variables are limited to 10 levels",
     "new": "סביבה חדשה",
+    "no_active_environment": "No active environment",
     "no_environment": "אין סביבה",
     "no_environment_description": "No environments were selected. Choose what to do with the following variables.",
+    "quick_peek": "Environment Quick Peek",
+    "replace_with_variable": "Replace with variable",
+    "scope": "Scope",
     "select": "בחר סביבה",
+    "set": "Set environment",
+    "set_as_environment": "Set as environment",
     "team_environments": "Team Environments",
     "title": "סביבות",
     "updated": "Environment updation",
+    "value": "Value",
+    "variable": "Variable",
     "variable_list": "רשימת משתנים"
   },
   "error": {
@@ -226,6 +252,7 @@
     "no_duration": "אין משך זמן",
     "no_results_found": "No matches found",
     "page_not_found": "This page could not be found",
+    "proxy_error": "Proxy error",
     "script_fail": "לא ניתן להפעיל סקריפט של בקשה מראש",
     "something_went_wrong": "משהו השתבש",
     "test_script_fail": "Could not execute post-request script"
@@ -251,9 +278,13 @@
     "renamed": "שם התיקייה שונה"
   },
   "graphql": {
+    "connection_switch_confirm": "Do you want to connect with the latest GraphQL endpoint?",
+    "connection_switch_new_url": "Switching to a tab will disconnected you from the active GraphQL connection. New connection URL is",
+    "connection_switch_url": "You're connected to a GraphQL endpoint the connection URL is",
     "mutations": "מוטציות",
     "schema": "סכֵימָה",
-    "subscriptions": "מנויים"
+    "subscriptions": "מנויים",
+    "switch_connection": "Switch connection"
   },
   "group": {
     "time": "Time",
@@ -307,13 +338,36 @@
     "json_description": "Import collections from a Hoppscotch Collections JSON file",
     "title": "יְבוּא"
   },
+  "inspections": {
+    "description": "Inspect possible errors",
+    "environment": {
+      "add_environment": "Add to Environment",
+      "not_found": "Environment variable “{environment}” not found."
+    },
+    "header": {
+      "cookie": "The browser doesn't allow Hoppscotch to set the Cookie Header. While we're working on the Hoppscotch Desktop App (coming soon), please use the Authorization Header instead."
+    },
+    "response": {
+      "401_error": "Please check your authentication credentials.",
+      "404_error": "Please check your request URL and method type.",
+      "cors_error": "Please check your Cross-Origin Resource Sharing configuration.",
+      "default_error": "Please check your request.",
+      "network_error": "Please check your network connection."
+    },
+    "title": "Inspector",
+    "url": {
+      "extension_not_installed": "Extension not installed.",
+      "extension_unknown_origin": "Make sure you've added the API endpoint's origin to the Hoppscotch Browser Extension list.",
+      "extention_enable_action": "Enable Browser Extension",
+      "extention_not_enabled": "Extension not enabled."
+    }
+  },
   "layout": {
     "collapse_collection": "Collapse or Expand Collections",
     "collapse_sidebar": "Collapse or Expand the sidebar",
     "column": "Vertical layout",
     "name": "Layout",
-    "row": "Horizontal layout",
-    "zen_mode": "מצב זן"
+    "row": "Horizontal layout"
   },
   "modal": {
     "close_unsaved_tab": "You have unsaved changes",
@@ -418,6 +472,7 @@
     "payload": "מטען",
     "query": "שאילתא",
     "raw_body": "גוף בקשה גולמית",
+    "rename": "Rename Request",
     "renamed": "שם הבקשה שונה",
     "run": "לָרוּץ",
     "save": "להציל",
@@ -425,6 +480,7 @@
     "saved": "הבקשה נשמרה",
     "share": "לַחֲלוֹק",
     "share_description": "Share Hoppscotch with your friends",
+    "stop": "Stop",
     "title": "בַּקָשָׁה",
     "type": "סוג בקשה",
     "url": "כתובת URL",
@@ -459,7 +515,6 @@
     "account_name_description": "זהו שם התצוגה שלך.",
     "background": "רקע כללי",
     "black_mode": "שָׁחוֹר",
-    "change_font_size": "שנה גודל פונט",
     "choose_language": "בחר שפה",
     "dark_mode": "אפל",
     "delete_account": "Delete account",
@@ -472,10 +527,6 @@
     "extensions": "הרחבות",
     "extensions_use_toggle": "השתמש בתוסף הדפדפן כדי לשלוח בקשות (אם קיימות)",
     "follow": "Follow Us",
-    "font_size": "גודל גופן",
-    "font_size_large": "גָדוֹל",
-    "font_size_medium": "בינוני",
-    "font_size_small": "קָטָן",
     "interceptor": "מיירט",
     "interceptor_description": "תוכנת ביניים בין יישום לממשקי API.",
     "language": "שפה",
@@ -540,19 +591,27 @@
       "settings": "עבור אל דף ההגדרות",
       "title": "ניווט"
     },
+    "others": {
+      "prettify": "Prettify Editor's Content",
+      "title": "Others"
+    },
     "request": {
       "copy_request_link": "העתק קישור לבקשה",
       "delete_method": "בחר שיטת DELETE",
       "get_method": "בחר שיטת GET",
       "head_method": "בחר שיטת HEAD",
+      "import_curl": "Import cURL",
       "method": "שיטה",
       "next_method": "בחר בשיטה הבאה",
       "post_method": "בחר שיטת POST",
       "previous_method": "בחר שיטה קודמת",
       "put_method": "בחר שיטת PUT",
+      "rename": "Rename Request",
       "reset_request": "איפוס הבקשה",
+      "save_request": "Save Request",
       "save_to_collections": "שמור באוספים",
       "send_request": "שלח בקשה",
+      "show_code": "Generate code snippet",
       "title": "בַּקָשָׁה"
     },
     "response": {
@@ -581,6 +640,85 @@
     "events": "אירועים",
     "log": "עֵץ",
     "url": "כתובת URL"
+  },
+  "spotlight": {
+    "change_language": "Change Language",
+    "environments": {
+      "delete": "Delete current environment",
+      "duplicate": "Duplicate current environment",
+      "duplicate_global": "Duplicate global environment",
+      "edit": "Edit current environment",
+      "edit_global": "Edit global environment",
+      "new": "Create new environment",
+      "new_variable": "Create a new environment variable",
+      "title": "Environments"
+    },
+    "general": {
+      "chat": "Chat with support",
+      "help_menu": "Help and support",
+      "open_docs": "Read Documentation",
+      "open_github": "Open GitHub repository",
+      "open_keybindings": "Keyboard shortcuts",
+      "social": "Social",
+      "title": "General"
+    },
+    "graphql": {
+      "connect": "Connect to server",
+      "disconnect": "Disconnect from server"
+    },
+    "miscellaneous": {
+      "invite": "Invite your friends to Hoppscotch",
+      "title": "Miscellaneous"
+    },
+    "request": {
+      "save_as_new": "Save as new request",
+      "select_method": "Select method",
+      "switch_to": "Switch to",
+      "tab_authorization": "Authorization tab",
+      "tab_body": "Body tab",
+      "tab_headers": "Headers tab",
+      "tab_parameters": "Parameters tab",
+      "tab_pre_request_script": "Pre-request script tab",
+      "tab_query": "Query tab",
+      "tab_tests": "Tests tab",
+      "tab_variables": "Variables tab"
+    },
+    "response": {
+      "copy": "Copy response",
+      "download": "Download response as file",
+      "title": "Response"
+    },
+    "section": {
+      "interceptor": "Interceptor",
+      "interface": "Interface",
+      "theme": "Theme",
+      "user": "User"
+    },
+    "settings": {
+      "change_interceptor": "Change Interceptor",
+      "change_language": "Change Language",
+      "theme": {
+        "black": "Black",
+        "dark": "Dark",
+        "light": "Light",
+        "system": "System preference"
+      }
+    },
+    "tab": {
+      "close_current": "Close current tab",
+      "close_others": "Close all other tabs",
+      "duplicate": "Duplicate current tab",
+      "new_tab": "Open a new tab",
+      "title": "Tabs"
+    },
+    "workspace": {
+      "delete": "Delete current team",
+      "edit": "Edit current team",
+      "invite": "Invite people to team",
+      "new": "Create new team",
+      "switch_to_personal": "Switch to your personal workspace",
+      "title": "Teams"
+    }
   },
   "sse": {
     "event_type": "סוג אירוע",
@@ -639,8 +777,11 @@
   "tab": {
     "authorization": "הרשאה",
     "body": "גוּף",
+    "close": "Close Tab",
+    "close_others": "Close other Tabs",
     "collections": "אוספים",
     "documentation": "תיעוד",
+    "duplicate": "Duplicate Tab",
     "environments": "Environments",
     "headers": "כותרות",
     "history": "הִיסטוֹרִיָה",

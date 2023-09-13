@@ -497,6 +497,22 @@ pre.ace_editor {
   }
 }
 
+.cm-panel.cm-search [name="close"] {
+  @apply flex;
+  @apply items-center;
+  @apply justify-center;
+  @apply min-h-5;
+  @apply min-w-5;
+  @apply bg-primaryDark #{!important};
+  @apply sticky #{!important};
+  @apply right-0 #{!important};
+  @apply ml-auto #{!important};
+  @apply my-auto #{!important};
+  @apply rounded #{!important};
+  @apply outline #{!important};
+  @apply outline-divider #{!important};
+}
+
 .shortcut-key {
   @apply inline-flex;
   @apply font-sans;

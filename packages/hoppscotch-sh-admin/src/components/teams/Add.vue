@@ -10,7 +10,7 @@
         <div class="flex flex-col relaive">
           <label for="teamName" class="py-2"> {{ t('teams.email') }} </label>
           <HoppSmartAutoComplete
-            styles="w-full p-2 bg-transparent border border-divider rounded-md "
+            styles="w-full p-2 bg-transparent border border-divider rounded-md"
             class="flex-1 !flex"
             :source="allUsersEmail"
             :spellcheck="true"

@@ -141,6 +141,7 @@ import { InspectionService } from "~/services/inspection"
 import { HeaderInspectorService } from "~/services/inspection/inspectors/header.inspector"
 import { EnvironmentInspectorService } from "~/services/inspection/inspectors/environment.inspector"
 import { ResponseInspectorService } from "~/services/inspection/inspectors/response.inspector"
+import { cloneDeep } from "lodash-es"
 
 const savingRequest = ref(false)
 const confirmingCloseForTabID = ref<string | null>(null)
@@ -243,7 +244,7 @@ const duplicateTab = (tabID: string) => {
   const tab = getTabRef(tabID)
   if (tab.value) {
     const newTab = createNewTab({
-      request: tab.value.document.request,
+      request: cloneDeep(tab.value.document.request),
       isDirty: true,
     })
     currentTabID.value = newTab.id

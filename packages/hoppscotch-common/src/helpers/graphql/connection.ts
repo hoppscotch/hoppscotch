@@ -268,7 +268,7 @@ export const runGQLOperation = async (options: RunQueryOptions) => {
   }
 
   if (operationType === "subscription") {
-    return runSubscription(options)
+    return runSubscription(options, finalHeaders)
   }
 
   const interceptorService = getService(InterceptorService)
@@ -299,9 +299,14 @@ export const runGQLOperation = async (options: RunQueryOptions) => {
   return responseText
 }
 
-export const runSubscription = (options: RunQueryOptions) => {
+export const runSubscription = (
+  options: RunQueryOptions,
+  headers: Record<string, string>
+) => {
   const { url, query, operationName } = options
   const wsUrl = url.replace(/^http/, "ws")
+
+  console.log("Headers", headers)
 
   connection.subscriptionState.set(currentTabID.value, "SUBSCRIBING")
 
@@ -312,7 +317,7 @@ export const runSubscription = (options: RunQueryOptions) => {
     connection.socket?.send(
       JSON.stringify({
         type: GQL.CONNECTION_INIT,
-        payload: {},
+        payload: { ...headers },
       })
     )
 

@@ -20,6 +20,7 @@ import { ShortcodeModule } from './shortcode/shortcode.module';
 import { COOKIES_NOT_FOUND } from './errors';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { AppController } from './app.controller';
+import { DbModule } from './db/db.module';
 
 @Module({
   imports: [
@@ -66,6 +67,7 @@ import { AppController } from './app.controller';
       ttl: +process.env.RATE_LIMIT_TTL,
       limit: +process.env.RATE_LIMIT_MAX,
     }),
+    DbModule,
     UserModule,
     AuthModule,
     AdminModule,

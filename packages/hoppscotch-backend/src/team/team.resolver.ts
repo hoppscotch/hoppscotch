@@ -22,6 +22,7 @@ import { throwErr } from 'src/utils';
 import { AuthUser } from 'src/types/AuthUser';
 import { GqlThrottlerGuard } from 'src/guards/gql-throttler.guard';
 import { SkipThrottle } from '@nestjs/throttler';
+import { cons } from 'fp-ts/lib/ReadonlyNonEmptyArray';
 
 @UseGuards(GqlThrottlerGuard)
 @Resolver(() => Team)
@@ -55,8 +56,13 @@ export class TeamResolver {
     description: 'Returns the list of members of a team',
     complexity: 10,
   })
-  teamMembers(@Parent() team: Team): Promise<TeamMember[]> {
-    return this.teamService.getTeamMembers(team.id);
+  async teamMembers(@Parent() team: Team): Promise<TeamMember[]> {
+    const startR = Date.now();
+    const members = await this.teamService.getTeamMembers(team.id);
+    const endR = Date.now();
+    console.log('response generation: (teamMembers)', endR - startR, 'ms');
+
+    return members;
   }
 
   @ResolveField(() => TeamMemberRole, {
@@ -64,41 +70,61 @@ export class TeamResolver {
     nullable: true,
   })
   @UseGuards(GqlAuthGuard)
-  myRole(
+  async myRole(
     @Parent() team: Team,
     @GqlUser() user: AuthUser,
   ): Promise<TeamMemberRole | null> {
-    return this.teamService.getRoleOfUserInTeam(team.id, user.uid);
+    const startR = Date.now();
+    const role = await this.teamService.getRoleOfUserInTeam(team.id, user.uid);
+    const endR = Date.now();
+    console.log('response generation: (myRole)', endR - startR, 'ms');
+
+    return role;
   }
 
   @ResolveField(() => Int, {
     description: 'The number of users with the OWNER role in the team',
   })
-  ownersCount(@Parent() team: Team): Promise<number> {
-    return this.teamService.getCountOfUsersWithRoleInTeam(
+  async ownersCount(@Parent() team: Team): Promise<number> {
+    const startR = Date.now();
+    const count = await this.teamService.getCountOfUsersWithRoleInTeam(
       team.id,
       TeamMemberRole.OWNER,
     );
+    const endR = Date.now();
+    console.log('response generation: (ownersCount)', endR - startR, 'ms');
+
+    return count;
   }
 
   @ResolveField(() => Int, {
     description: 'The number of users with the EDITOR role in the team',
   })
-  editorsCount(@Parent() team: Team): Promise<number> {
-    return this.teamService.getCountOfUsersWithRoleInTeam(
+  async editorsCount(@Parent() team: Team): Promise<number> {
+    const startR = Date.now();
+    const count = await this.teamService.getCountOfUsersWithRoleInTeam(
       team.id,
       TeamMemberRole.EDITOR,
     );
+    const endR = Date.now();
+    console.log('response generation: (editorsCount)', endR - startR, 'ms');
+
+    return count;
   }
 
   @ResolveField(() => Int, {
     description: 'The number of users with the VIEWER role in the team',
   })
-  viewersCount(@Parent() team: Team): Promise<number> {
-    return this.teamService.getCountOfUsersWithRoleInTeam(
+  async viewersCount(@Parent() team: Team): Promise<number> {
+    const startR = Date.now();
+    const count = await this.teamService.getCountOfUsersWithRoleInTeam(
       team.id,
       TeamMemberRole.VIEWER,
     );
+    const endR = Date.now();
+    console.log('response generation: (viewersCount)', endR - startR, 'ms');
+
+    return count;
   }
 
   // Query
@@ -106,7 +132,7 @@ export class TeamResolver {
     description: 'List of teams that the executing user belongs to.',
   })
   @UseGuards(GqlAuthGuard)
-  myTeams(
+  async myTeams(
     @GqlUser() user: AuthUser,
     @Args({
       name: 'cursor',
@@ -117,7 +143,15 @@ export class TeamResolver {
     })
     cursor?: string,
   ): Promise<Team[]> {
-    return this.teamService.getTeamsOfUser(user.uid, cursor ?? null);
+    const startR = Date.now();
+    const teams = await this.teamService.getTeamsOfUser(
+      user.uid,
+      cursor ?? null,
+    );
+    const endR = Date.now();
+    console.log('response generation: (myTeams)', endR - startR, 'ms');
+
+    return teams;
   }
 
   @Query(() => Team, {
@@ -130,7 +164,7 @@ export class TeamResolver {
     TeamMemberRole.EDITOR,
     TeamMemberRole.OWNER,
   )
-  team(
+  async team(
     @Args({
       name: 'teamID',
       type: () => ID,
@@ -138,7 +172,12 @@ export class TeamResolver {
     })
     teamID: string,
   ): Promise<Team | null> {
-    return this.teamService.getTeamWithID(teamID);
+    const startR = Date.now();
+    const team = await this.teamService.getTeamWithID(teamID);
+    const endR = Date.now();
+    console.log('response generation: (team)', endR - startR, 'ms');
+
+    return team;
   }
 
   // Mutation
@@ -151,7 +190,11 @@ export class TeamResolver {
     @Args({ name: 'name', description: 'Displayed name of the team' })
     name: string,
   ): Promise<Team> {
+    const startR = Date.now();
     const team = await this.teamService.createTeam(name, user.uid);
+    const endR = Date.now();
+    console.log('response generation: (createTeam)', endR - startR, 'ms');
+
     if (E.isLeft(team)) throwErr(team.left);
     return team.right;
   }
@@ -169,7 +212,11 @@ export class TeamResolver {
     })
     teamID: string,
   ): Promise<boolean> {
+    const startR = Date.now();
     const isUserLeft = await this.teamService.leaveTeam(teamID, user.uid);
+    const endR = Date.now();
+    console.log('response generation: (leaveTeam)', endR - startR, 'ms');
+
     if (E.isLeft(isUserLeft)) throwErr(isUserLeft.left);
     return isUserLeft.right;
   }
@@ -194,7 +241,11 @@ export class TeamResolver {
     })
     userUid: string,
   ): Promise<boolean> {
+    const startR = Date.now();
     const isRemoved = await this.teamService.leaveTeam(teamID, userUid);
+    const endR = Date.now();
+    console.log('response generation: (removeTeamMember)', endR - startR, 'ms');
+
     if (E.isLeft(isRemoved)) throwErr(isRemoved.left);
     return isRemoved.right;
   }
@@ -210,7 +261,11 @@ export class TeamResolver {
     @Args({ name: 'newName', description: 'The updated name of the team' })
     newName: string,
   ): Promise<Team> {
+    const startR = Date.now();
     const team = await this.teamService.renameTeam(teamID, newName);
+    const endR = Date.now();
+    console.log('response generation: (renameTeam)', endR - startR, 'ms');
+
     if (E.isLeft(team)) throwErr(team.left);
     return team.right;
   }
@@ -224,7 +279,11 @@ export class TeamResolver {
     @Args({ name: 'teamID', description: 'ID of the team', type: () => ID })
     teamID: string,
   ): Promise<boolean> {
+    const startR = Date.now();
     const isDeleted = await this.teamService.deleteTeam(teamID);
+    const endR = Date.now();
+    console.log('response generation: (deleteTeam)', endR - startR, 'ms');
+
     if (E.isLeft(isDeleted)) throwErr(isDeleted.left);
     return isDeleted.right;
   }
@@ -254,11 +313,19 @@ export class TeamResolver {
     })
     newRole: TeamMemberRole,
   ): Promise<TeamMember> {
+    const startR = Date.now();
     const teamMember = await this.teamService.updateTeamMemberRole(
       teamID,
       userUid,
       newRole,
     );
+    const endR = Date.now();
+    console.log(
+      'response generation: (updateTeamMemberRole)',
+      endR - startR,
+      'ms',
+    );
+
     if (E.isLeft(teamMember)) throwErr(teamMember.left);
     return teamMember.right;
   }

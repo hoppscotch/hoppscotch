@@ -18,11 +18,11 @@ RUN pnpm exec prisma generate
 RUN pnpm run build
 # Remove the env file to avoid backend copying it in and using it
 RUN rm "../../.env"
-ENV PRODUCTION="true"
+ENV PRODUCTION="false"
 ENV PORT=3170
 ENV APP_PORT=${PORT}
 ENV DB_URL=${DATABASE_URL}
-CMD ["pnpm", "run", "start:prod"]
+CMD ["pnpm", "run", "start:dev"]
 EXPOSE 3170
 
 FROM base_builder as fe_builder

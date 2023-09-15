@@ -21,7 +21,8 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "do-test": "pnpm run test"
+    "do-test": "pnpm run test",
+    "seed": "node --loader ts-node/esm prisma/seed.ts"
   },
   "dependencies": {
     "@nestjs-modules/mailer": "^1.8.1",
@@ -57,6 +58,7 @@
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",
     "passport-microsoft": "^1.0.0",
+    "pg": "^8.11.3",
     "prisma": "^4.16.2",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",

@@ -1,4 +1,4 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { TeamMember, TeamMemberRole, Team } from './team.model';
 import { PrismaService } from '../prisma/prisma.service';
 import { TeamMember as DbTeamMember } from '@prisma/client';
@@ -23,6 +23,8 @@ import * as T from 'fp-ts/Task';
 import * as A from 'fp-ts/Array';
 import { throwErr } from 'src/utils';
 import { AuthUser } from '../types/AuthUser';
+import { PG_CONNECTION } from 'src/constants';
+import { Client } from 'pg';
 
 @Injectable()
 export class TeamService implements UserDataHandler, OnModuleInit {
@@ -30,7 +32,10 @@ export class TeamService implements UserDataHandler, OnModuleInit {
     private readonly prisma: PrismaService,
     private readonly userService: UserService,
     private readonly pubsub: PubSubService,
+    @Inject(PG_CONNECTION) private conn: Client,
   ) {}
+
+  enableRawSql: boolean = false;
 
   onModuleInit() {
     this.userService.registerUserDataHandler(this);
@@ -52,12 +57,37 @@ export class TeamService implements UserDataHandler, OnModuleInit {
     teamID: string,
     role: TeamMemberRole,
   ): Promise<number> {
-    return await this.prisma.teamMember.count({
+    if (this.enableRawSql) {
+      const startQ = Date.now();
+      const count = await this.conn.query(
+        `SELECT COUNT(*) FROM "TeamMember" WHERE "teamID" = '${teamID}' AND "role" = '${role}';`,
+      );
+      const endQ = Date.now();
+      console.log(
+        'getCountOfUsersWithRoleInTeam >>>>>>>>>>',
+        endQ - startQ,
+        'ms >>>>>',
+        count.rows,
+      );
+      return count.rows[0].count;
+    }
+
+    const startQ = Date.now();
+    const count = await this.prisma.teamMember.count({
       where: {
         teamID,
         role,
       },
     });
+    const endQ = Date.now();
+    console.log(
+      'getCountOfUsersWithRoleInTeam >>>>>>>>>>',
+      endQ - startQ,
+      'ms >>>>>',
+      count,
+    );
+
+    return count;
   }
 
   async addMemberToTeamWithEmail(
@@ -77,6 +107,11 @@ export class TeamService implements UserDataHandler, OnModuleInit {
     uid: string,
     role: TeamMemberRole,
   ): Promise<TeamMember> {
+    const tm = await this.conn.query(
+      `INSERT INTO "TeamMember" (id, userUid, teamID, role) VALUES ('${new Date().toISOString()}', '${uid}', '${teamID}', '${role}') RETURNING *;`,
+    );
+    console.log('addMemberToTeam >>>>>>>>>>', tm.rows[0]);
+
     const teamMember = await this.prisma.teamMember.create({
       data: {
         userUid: uid,
@@ -101,6 +136,31 @@ export class TeamService implements UserDataHandler, OnModuleInit {
   }
 
   async deleteTeam(teamID: string): Promise<E.Left<string> | E.Right<boolean>> {
+    if (this.enableRawSql) {
+      const startQ = Date.now();
+      const t = await this.conn.query(
+        `SELECT * FROM "Team" WHERE "id" = '${teamID}'`,
+      );
+      if (t.rows.length === 0) return E.left(TEAM_INVALID_ID);
+
+      await this.conn.query(
+        `DELETE FROM "TeamMember" WHERE "teamID" = '${teamID}' RETURNING *`,
+      );
+
+      await this.conn.query(`DELETE FROM "Team" WHERE "id" = '${teamID}'`);
+      const endQ = Date.now();
+      console.log(
+        'deleteTeam >>>>>>>>>>',
+        endQ - startQ,
+        'ms',
+        '>>>>>',
+        t.rows[0],
+      );
+
+      return E.right(true);
+    }
+
+    const startQ = Date.now();
     const team = await this.prisma.team.findUnique({
       where: {
         id: teamID,
@@ -119,6 +179,8 @@ export class TeamService implements UserDataHandler, OnModuleInit {
         id: teamID,
       },
     });
+    const endQ = Date.now();
+    console.log('deleteTeam >>>>>>>>>>', endQ - startQ, 'ms', '>>>>>', team);
 
     return E.right(true);
   }
@@ -134,6 +196,26 @@ export class TeamService implements UserDataHandler, OnModuleInit {
   ): Promise<E.Left<string> | E.Right<Team>> {
     const isValidTitle = this.validateTeamName(newName);
     if (E.isLeft(isValidTitle)) return isValidTitle;
+
+    if (this.enableRawSql) {
+      const startQ = Date.now();
+      const ut = await this.conn.query(
+        `UPDATE "Team" SET "name" = '${newName}' WHERE "id" = '${teamID}' RETURNING *`,
+      );
+      const endQ = Date.now();
+      console.log(
+        'renameTeam >>>>>>>>>>',
+        endQ - startQ,
+        'ms',
+        '>>>>>',
+        ut.rows[0],
+      );
+
+      return E.right(<Team>{
+        id: ut.rows[0].id,
+        name: ut.rows[0].name,
+      });
+    }
 
     try {
       const updatedTeam = await this.prisma.team.update({
@@ -156,6 +238,48 @@ export class TeamService implements UserDataHandler, OnModuleInit {
     userUid: string,
     newRole: TeamMemberRole,
   ): Promise<E.Left<string> | E.Right<TeamMember>> {
+    if (this.enableRawSql) {
+      const startQ = Date.now();
+      const oc = await this.conn.query(
+        `SELECT COUNT(*) FROM "TeamMember" WHERE "teamID" = '${teamID}' AND "role" = '${TeamMemberRole.OWNER}';`,
+      );
+      const tm = await this.conn.query(
+        `SELECT * FROM "TeamMember" WHERE "teamID" = '${teamID}' AND "userUid" = '${userUid}'`,
+      );
+      if (tm.rows.length === 0) return E.left(TEAM_MEMBER_NOT_FOUND);
+
+      const ownerCount = oc.rows[0].count;
+      if (
+        tm.rows[0].role === TeamMemberRole.OWNER &&
+        newRole != TeamMemberRole.OWNER &&
+        ownerCount === 1
+      ) {
+        return E.left(TEAM_ONLY_ONE_OWNER);
+      }
+
+      const utm = await this.conn.query(
+        `UPDATE "teamMember" SET "role" = '${newRole}' WHERE "teamID" = '${teamID}' AND "userUid" = '${userUid}'`,
+      );
+      const endQ = Date.now();
+      console.log(
+        'updateTeamMemberRole >>>>>>>>>>',
+        endQ - startQ,
+        'ms',
+        '>>>>>',
+        utm.rows[0],
+      );
+
+      const updatedMember: TeamMember = {
+        membershipID: utm.rows[0].id,
+        userUid: utm.rows[0].userUid,
+        role: TeamMemberRole[utm.rows[0].role],
+      };
+      this.pubsub.publish(`team/${teamID}/member_updated`, updatedMember);
+
+      return E.right(updatedMember);
+    }
+
+    const startQ = Date.now();
     const ownerCount = await this.prisma.teamMember.count({
       where: {
         teamID,
@@ -192,6 +316,14 @@ export class TeamService implements UserDataHandler, OnModuleInit {
         role: newRole,
       },
     });
+    const endQ = Date.now();
+    console.log(
+      'updateTeamMemberRole >>>>>>>>>>',
+      endQ - startQ,
+      'ms',
+      '>>>>>',
+      result,
+    );
 
     const updatedMember: TeamMember = {
       membershipID: result.id,
@@ -208,6 +340,30 @@ export class TeamService implements UserDataHandler, OnModuleInit {
     teamID: string,
     userUid: string,
   ): Promise<E.Left<string> | E.Right<boolean>> {
+    if (this.enableRawSql) {
+      const oc = await this.conn.query(
+        `SELECT COUNT(*) FROM "TeamMember" WHERE "teamID" = '${teamID}' AND "role" = '${TeamMemberRole.OWNER}';`,
+      );
+      const ownerCount = oc.rows[0].count;
+      console.log('leaveTeam >>>>>>>>>>', oc.rows);
+
+      const member = await this.getTeamMember(teamID, userUid);
+      if (!member) return E.left(TEAM_INVALID_ID_OR_USER);
+
+      if (ownerCount === 1 && member.role === TeamMemberRole.OWNER) {
+        return E.left(TEAM_ONLY_ONE_OWNER);
+      }
+
+      const dtm = await this.conn.query(
+        `DELETE FROM "TeamMember" WHERE "teamID" = '${teamID}' AND "userUid" = '${userUid}'`,
+      );
+      console.log('leaveTeam >>>>>>>>>>', dtm);
+
+      this.pubsub.publish(`team/${teamID}/member_removed`, userUid);
+
+      return E.right(true);
+    }
+
     const ownerCount = await this.prisma.teamMember.count({
       where: {
         teamID,
@@ -248,6 +404,34 @@ export class TeamService implements UserDataHandler, OnModuleInit {
     const isValidName = this.validateTeamName(name);
     if (E.isLeft(isValidName)) return isValidName;
 
+    if (this.enableRawSql) {
+      const startQ = Date.now();
+      const t = await this.conn.query(
+        `INSERT INTO "Team" (id, name) VALUES ('${new Date().toISOString()}', '${name}') RETURNING *`,
+      );
+      const tm = await this.conn.query(
+        `INSERT INTO "TeamMember" ("id", "userUid", "teamID", "role") VALUES ('${new Date().toISOString()}', '${creatorUid}' , '${
+          t.rows[0].id
+        }', '${TeamMemberRole.OWNER}') RETURNING *`,
+      );
+      const endQ = Date.now();
+      ``;
+      console.log(
+        'createTeam >>>>>>>>>>',
+        endQ - startQ,
+        'ms',
+        '>>>>>',
+        t.rows[0],
+        tm.rows[0],
+      );
+
+      return E.right(<Team>{
+        id: t.rows[0].id,
+        name: t.rows[0].name,
+      });
+    }
+
+    const startQ = Date.now();
     const team = await this.prisma.team.create({
       data: {
         name: name,
@@ -259,12 +443,42 @@ export class TeamService implements UserDataHandler, OnModuleInit {
         },
       },
     });
+    const endQ = Date.now();
+    console.log('createTeam >>>>>>>>>> ', endQ - startQ, 'ms', '>>>>>', team);
 
     return E.right(team);
   }
 
   async getTeamsOfUser(uid: string, cursor: string | null): Promise<Team[]> {
+    if (this.enableRawSql) {
+      const startQ = Date.now();
+      let users;
+      if (cursor) {
+        users = await this.conn.query(
+          `SELECT * FROM "TeamMember" LEFT JOIN "Team" ON "TeamMember"."teamID" = "Team"."id" WHERE "TeamMember"."userUid" = '${uid}' and "TeamMember"."teamID" > '${cursor}' LIMIT 10`,
+        );
+      } else {
+        users = await this.conn.query(
+          `SELECT * FROM "TeamMember" LEFT JOIN "Team" ON "TeamMember"."teamID" = "Team"."id" WHERE "TeamMember"."userUid" = '${uid}' LIMIT 10`,
+        );
+      }
+      const endQ = Date.now();
+      console.log(
+        'getTeamsOfUser >>>>>>>>>>',
+        endQ - startQ,
+        'ms',
+        '>>>>>',
+        users.rows,
+      );
+
+      return users.rows.map((entry) => ({
+        id: entry.teamID,
+        name: entry.name,
+      }));
+    }
+
     if (!cursor) {
+      const startQ = Date.now();
       const entries = await this.prisma.teamMember.findMany({
         take: 10,
         where: {
@@ -274,9 +488,18 @@ export class TeamService implements UserDataHandler, OnModuleInit {
           team: true,
         },
       });
+      const endQ = Date.now();
+      console.log(
+        'getTeamsOfUser >>>>>>>>>>',
+        endQ - startQ,
+        'ms',
+        '>>>>>',
+        entries,
+      );
 
       return entries.map((entry) => entry.team);
     } else {
+      const startQ = Date.now();
       const entries = await this.prisma.teamMember.findMany({
         take: 10,
         skip: 1,
@@ -293,17 +516,56 @@ export class TeamService implements UserDataHandler, OnModuleInit {
           team: true,
         },
       });
+      const endQ = Date.now();
+      console.log(
+        'getTeamsOfUser >>>>>>>>>>',
+        endQ - startQ,
+        'ms',
+        '>>>>>',
+        entries,
+      );
+
       return entries.map((entry) => entry.team);
     }
   }
 
   async getTeamWithID(teamID: string): Promise<Team | null> {
+    if (this.enableRawSql) {
+      const startQ = Date.now();
+      const team = await this.conn.query(
+        `SELECT * FROM "Team" WHERE "id" = '${teamID}'`,
+      );
+      const endQ = Date.now();
+      console.log(
+        'getTeamWithID >>>>>>>>>>',
+        endQ - startQ,
+        'ms',
+        '>>>>>',
+        team.rows,
+      );
+
+      if (team.rows.length === 0) return null;
+      return <Team>{
+        id: team.rows[0].id,
+        name: team.rows[0].name,
+      };
+    }
+
     try {
+      const startQ = Date.now();
       const team = await this.prisma.team.findUnique({
         where: {
           id: teamID,
         },
       });
+      const endQ = Date.now();
+      console.log(
+        'getTeamWithID >>>>>>>>>>',
+        endQ - startQ,
+        'ms',
+        '>>>>>',
+        team,
+      );
 
       return team;
     } catch (_e) {
@@ -353,7 +615,30 @@ export class TeamService implements UserDataHandler, OnModuleInit {
     teamID: string,
     userUid: string,
   ): Promise<TeamMember | null> {
+    if (this.enableRawSql) {
+      const startQ = Date.now();
+      const member = await this.conn.query(
+        `SELECT * FROM "TeamMember" WHERE "teamID" = '${teamID}' AND "userUid" = '${userUid}'`,
+      );
+      const endQ = Date.now();
+      console.log(
+        'getTeamMember >>>>>>>>>>',
+        endQ - startQ,
+        'ms',
+        '>>>>>',
+        member.rows,
+      );
+
+      if (member.rows.length === 0) return null;
+      return <TeamMember>{
+        membershipID: member.rows[0].id,
+        userUid: member.rows[0].userUid,
+        role: TeamMemberRole[member.rows[0].role],
+      };
+    }
+
     try {
+      const startQ = Date.now();
       const teamMember = await this.prisma.teamMember.findUnique({
         where: {
           teamID_userUid: {
@@ -362,6 +647,14 @@ export class TeamService implements UserDataHandler, OnModuleInit {
           },
         },
       });
+      const endQ = Date.now();
+      console.log(
+        'getTeamMember >>>>>>>>>>',
+        endQ - startQ,
+        'ms',
+        '>>>>>',
+        teamMember,
+      );
 
       if (!teamMember) return null;
 
@@ -433,11 +726,44 @@ export class TeamService implements UserDataHandler, OnModuleInit {
   }
 
   async getTeamMembers(teamID: string): Promise<TeamMember[]> {
+    if (this.enableRawSql) {
+      const startQ = Date.now();
+      const members = await this.conn.query(
+        `SELECT * FROM "TeamMember" WHERE "teamID" = '${teamID}'`,
+      );
+      const endQ = Date.now();
+
+      console.log(
+        'getTeamMembers >>>>>>>>>>',
+        endQ - startQ,
+        'ms',
+        '>>>>>',
+        members.rows,
+      );
+
+      return members.rows.map((entry) => {
+        return {
+          membershipID: entry.id,
+          userUid: entry.userUid,
+          role: TeamMemberRole[entry.role],
+        };
+      });
+    }
+
+    const startQ = Date.now();
     const dbTeamMembers = await this.prisma.teamMember.findMany({
       where: {
         teamID,
       },
     });
+    const endQ = Date.now();
+    console.log(
+      'getTeamMembers >>>>>>>>>>',
+      endQ - startQ,
+      'ms',
+      '>>>>>',
+      dbTeamMembers,
+    );
 
     const members = dbTeamMembers.map(
       (entry) =>
@@ -470,8 +796,39 @@ export class TeamService implements UserDataHandler, OnModuleInit {
     teamID: string,
     cursor: string | null,
   ): Promise<TeamMember[]> {
+    if (this.enableRawSql) {
+      const startQ = Date.now();
+      let members;
+      if (cursor) {
+        members = await this.conn.query(
+          `SELECT * FROM "TeamMember" WHERE "teamID" = '${teamID}' AND "id" > '${cursor}' LIMIT 10`,
+        );
+      }
+      members = await this.conn.query(
+        `SELECT * FROM "TeamMember" WHERE "teamID" = '${teamID}' LIMIT 10`,
+      );
+      const endQ = Date.now();
+      console.log(
+        'getMembersOfTeam >>>>>>>>>>',
+        endQ - startQ,
+        'ms',
+        '>>>>>',
+        members.rows,
+      );
+
+      return members.rows.map(
+        (entry) =>
+          <TeamMember>{
+            membershipID: entry.id,
+            userUid: entry.userUid,
+            role: TeamMemberRole[entry.role],
+          },
+      );
+    }
+
     let teamMembers: DbTeamMember[];
 
+    const startQ = Date.now();
     if (!cursor) {
       teamMembers = await this.prisma.teamMember.findMany({
         take: 10,
@@ -491,6 +848,14 @@ export class TeamService implements UserDataHandler, OnModuleInit {
         },
       });
     }
+    const endQ = Date.now();
+    console.log(
+      'getMembersOfTeam >>>>>>>>>>',
+      endQ - startQ,
+      'ms',
+      '>>>>>',
+      teamMembers,
+    );
 
     const members = teamMembers.map(
       (entry) =>

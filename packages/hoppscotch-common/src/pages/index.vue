@@ -232,7 +232,7 @@ const closeOtherTabsAction = (tabID: string) => {
   const isTabDirty = getTabRef(tabID).value?.document.isDirty
   const dirtyTabCount = getDirtyTabsCount()
   // If current tab is dirty, so we need to subtract 1 from the dirty tab count
-  const balanceDirtyTabCount = dirtyTabCount - (isTabDirty ? 1 : 0)
+  const balanceDirtyTabCount = isTabDirty ? dirtyTabCount - 1 : dirtyTabCount
   // If there are dirty tabs, show the confirm modal
   if (balanceDirtyTabCount > 0) {
     confirmingCloseAllTabs.value = true

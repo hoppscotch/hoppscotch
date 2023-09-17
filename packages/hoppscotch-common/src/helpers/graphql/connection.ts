@@ -301,7 +301,7 @@ export const runGQLOperation = async (options: RunQueryOptions) => {
 
 export const runSubscription = (
   options: RunQueryOptions,
-  headers: Record<string, string>
+  headers?: Record<string, string>
 ) => {
   const { url, query, operationName } = options
   const wsUrl = url.replace(/^http/, "ws")
@@ -312,12 +312,21 @@ export const runSubscription = (
 
   connection.socket.onopen = (event) => {
     console.log("WebSocket is open now.", event)
-    connection.socket?.send(
-      JSON.stringify({
-        type: GQL.CONNECTION_INIT,
-        payload: { ...headers },
-      })
-    )
+    if (headers) {
+      connection.socket?.send(
+        JSON.stringify({
+          type: GQL.CONNECTION_INIT,
+          payload: { ...headers },
+        })
+      )
+    } else {
+      connection.socket?.send(
+        JSON.stringify({
+          type: GQL.CONNECTION_INIT,
+          payload: {},
+        })
+      )
+    }
 
     connection.socket?.send(
       JSON.stringify({

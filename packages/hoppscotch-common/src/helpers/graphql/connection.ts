@@ -306,8 +306,6 @@ export const runSubscription = (
   const { url, query, operationName } = options
   const wsUrl = url.replace(/^http/, "ws")
 
-  console.log("Headers", headers)
-
   connection.subscriptionState.set(currentTabID.value, "SUBSCRIBING")
 
   connection.socket = new WebSocket(wsUrl, "graphql-ws")

@@ -89,10 +89,7 @@
     <div
       ref="jsonResponse"
       class="flex flex-col flex-1 h-auto h-full"
-      :class="{
-        responseToggleOff: !toggleFilter,
-        responseToggleOn: toggleFilter,
-      }"
+      :class="toggleFilter ? 'responseToggleOn' : 'responseToggleOff'"
     ></div>
     <div
       v-if="outlinePath"

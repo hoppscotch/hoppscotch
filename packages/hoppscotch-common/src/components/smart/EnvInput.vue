@@ -330,8 +330,7 @@ const envTooltipPlugin = new HoppReactiveEnvPlugin(envVars, view)
 function handleTextSelection() {
   const selection = view.value?.state.selection.main
   if (selection) {
-    const from = selection.from
-    const to = selection.to
+    const { from, to } = selection
     if (from === to) return
     const text = view.value?.state.doc.sliceString(from, to)
     const { top, left } = view.value?.coordsAtPos(from)

@@ -117,10 +117,10 @@ export const baseTheme = EditorView.theme({
     color: "var(--tooltip-color)",
   },
   ".cm-tooltip-arrow:after": {
-    borderTopColor: "inherit !important",
+    borderTopColor: "currentColor !important",
   },
   ".cm-tooltip-arrow:before": {
-    borderTopColor: "inherit !important",
+    borderTopColor: "currentColor !important",
   },
   ".cm-tooltip.cm-tooltip-autocomplete > ul": {
     fontFamily: "var(--font-mono)",
@@ -165,8 +165,8 @@ export const baseTheme = EditorView.theme({
     textAlign: "center",
   },
   ".cm-line": {
-    paddingLeft: "0.5em",
-    paddingRight: "0.5em",
+    paddingLeft: "0.5rem",
+    paddingRight: "0.5rem",
   },
   ".cm-activeLineGutter": {
     backgroundColor: "transparent",
@@ -193,6 +193,7 @@ export const inputTheme = EditorView.theme({
     fontFamily: "var(--font-sans)",
     color: "var(--secondary-dark-color)",
     backgroundColor: "transparent",
+    height: "100%",
   },
   ".cm-cursor": {
     borderColor: "var(--secondary-color)",
@@ -204,6 +205,17 @@ export const inputTheme = EditorView.theme({
     backgroundColor: "var(--accent-dark-color)",
     color: "var(--accent-contrast-color)",
     borderRadius: "2px",
+  },
+  ".cm-panels": {
+    backgroundColor: "var(--primary-light-color)",
+    color: "var(--secondary-light-color)",
+    zIndex: "1",
+  },
+  ".cm-panels.cm-panels-top": {
+    borderBottom: "1px solid var(--divider-light-color)",
+  },
+  ".cm-panels.cm-panels-bottom": {
+    borderTop: "1px solid var(--divider-light-color)",
   },
   ".cm-search": {
     display: "flex",
@@ -299,10 +311,11 @@ export const inputTheme = EditorView.theme({
     textAlign: "center",
   },
   ".cm-line": {
+    lineHeight: "1rem",
     paddingLeft: "1rem",
     paddingRight: "1rem",
-    paddingTop: "0.2rem",
-    paddingBottom: "0.2rem",
+    paddingTop: "0.25rem",
+    paddingBottom: "0.25rem",
   },
   ".cm-activeLineGutter": {
     backgroundColor: "transparent",

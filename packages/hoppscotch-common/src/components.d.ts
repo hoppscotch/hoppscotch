@@ -24,7 +24,6 @@ declare module 'vue' {
     AppShortcutsEntry: typeof import('./components/app/ShortcutsEntry.vue')['default']
     AppShortcutsPrompt: typeof import('./components/app/ShortcutsPrompt.vue')['default']
     AppSidenav: typeof import('./components/app/Sidenav.vue')['default']
-    AppSocial: typeof import('./components/app/Social.vue')['default']
     AppSpotlight: typeof import('./components/app/spotlight/index.vue')['default']
     AppSpotlightEntry: typeof import('./components/app/spotlight/Entry.vue')['default']
     AppSpotlightEntryGQLHistory: typeof import('./components/app/spotlight/entry/GQLHistory.vue')['default']

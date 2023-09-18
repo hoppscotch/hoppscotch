@@ -1,7 +1,7 @@
 <template>
   <div ref="autoCompleteWrapper" class="autocomplete-wrapper">
     <div
-      class="absolute inset-0 flex flex-1 divide-x divide-dividerLight overflow-x-auto"
+      class="absolute inset-0 flex flex-1 divide-x divide-dividerLight overflow-x-auto no-scrollbar"
     >
       <div
         ref="editor"

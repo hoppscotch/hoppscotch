@@ -31,6 +31,10 @@
   @apply h-0;
 }
 
+.no-scrollbar {
+  scrollbar-width: none;
+}
+
 input::placeholder,
 textarea::placeholder,
 .cm-placeholder {

@@ -172,7 +172,7 @@
       :icon="IconClock"
       :label="`${t('tab.history')}`"
     >
-      <History :page="'graphql'" />
+      <History :page="'graphql'" :use-history-item="useHistoryItem" />
     </HoppSmartTab>
   </HoppSmartTabs>
 </template>
@@ -202,6 +202,9 @@ import {
   schemaString,
   subscriptionFields,
 } from "~/helpers/graphql/connection"
+import { GQLHistoryEntry } from "~/newstore/history"
+import { makeGQLRequest } from "@hoppscotch/data"
+import { createNewTab } from "~/helpers/graphql/tab"
 
 type NavigationTabs = "history" | "collection" | "docs" | "schema"
 type GqlTabs = "queries" | "mutations" | "subscriptions" | "types"
@@ -395,6 +398,19 @@ const copySchema = () => {
   copyToClipboard(schemaString.value)
   copySchemaIcon.value = IconCheck
 }
+
+const useHistoryItem = (entry: GQLHistoryEntry) =>
+  createNewTab({
+    request: makeGQLRequest({
+      name: entry.request.name,
+      url: entry.request.url,
+      headers: entry.request.headers,
+      query: entry.request.query,
+      variables: entry.request.variables,
+      auth: entry.request.auth,
+    }),
+    isDirty: false,
+  })
 </script>
 
 <style lang="scss" scoped>

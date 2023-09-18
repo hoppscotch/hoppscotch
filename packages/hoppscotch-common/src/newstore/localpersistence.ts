@@ -22,6 +22,9 @@ import {
   setGraphqlHistoryEntries,
   translateToNewRESTHistory,
   translateToNewGQLHistory,
+  translateToNewWSHistory,
+  setWebSocketHistoryEntries,
+  wsHistoryStore,
 } from "./history"
 import {
   restCollectionStore,
@@ -175,8 +178,13 @@ function setupHistoryPersistence() {
     window.localStorage.getItem("graphqlHistory") || "[]"
   ).map(translateToNewGQLHistory)
 
+  const websocketHistoryData = JSON.parse(
+    window.localStorage.getItem("websocketHistory") || "[]"
+  ).map(translateToNewWSHistory)
+
   setRESTHistoryEntries(restHistoryData)
   setGraphqlHistoryEntries(graphqlHistoryData)
+  setWebSocketHistoryEntries(websocketHistoryData)
 
   restHistoryStore.subject$.subscribe(({ state }) => {
     window.localStorage.setItem("history", JSON.stringify(state))
@@ -184,6 +192,10 @@ function setupHistoryPersistence() {
 
   graphqlHistoryStore.subject$.subscribe(({ state }) => {
     window.localStorage.setItem("graphqlHistory", JSON.stringify(state))
+  })
+
+  wsHistoryStore.subject$.subscribe(({ state }) => {
+    window.localStorage.setItem("websocketHistory", JSON.stringify(state))
   })
 }
 

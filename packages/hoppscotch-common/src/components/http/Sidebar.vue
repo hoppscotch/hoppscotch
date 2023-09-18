@@ -24,7 +24,7 @@
       :icon="IconClock"
       :label="`${t('tab.history')}`"
     >
-      <History :page="'rest'" />
+      <History :page="'rest'" :use-history-item="useHistoryItem" />
     </HoppSmartTab>
   </HoppSmartTabs>
 </template>
@@ -35,10 +35,18 @@ import IconLayers from "~icons/lucide/layers"
 import IconFolder from "~icons/lucide/folder"
 import { ref } from "vue"
 import { useI18n } from "@composables/i18n"
+import { RESTHistoryEntry } from "~/newstore/history"
+import { createNewTab } from "~/helpers/rest/tab"
 
 const t = useI18n()
 
 type RequestOptionTabs = "history" | "collections" | "env"
 
 const selectedNavigationTab = ref<RequestOptionTabs>("collections")
+
+const useHistoryItem = (entry: RESTHistoryEntry) =>
+  createNewTab({
+    request: entry.request,
+    isDirty: false,
+  })
 </script>

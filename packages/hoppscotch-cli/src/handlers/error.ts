@@ -42,7 +42,7 @@ export const handleError = <T extends HoppErrorCode>(error: HoppError<T>) => {
 
   switch (error.code) {
     case "FILE_NOT_FOUND":
-      ERROR_MSG = `File doesn't exists: ${error.path}`;
+      ERROR_MSG = `File doesn't exist: ${error.path}`;
       break;
     case "UNKNOWN_COMMAND":
       ERROR_MSG = `Unavailable command: ${error.command}`;

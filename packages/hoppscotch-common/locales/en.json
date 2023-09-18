@@ -843,6 +843,8 @@
     "not_found": "Team not found. Contact your team owner.",
     "not_valid_viewer": "You are not a valid viewer. Contact your team owner.",
     "parent_coll_move": "Cannot move collection to a child collection",
+    "success_invites": "Success invites",
+    "failed_invites": "Failed invites",
     "pending_invites": "Pending invites",
     "permissions": "Permissions",
     "same_target_destination": "Same target and destination",

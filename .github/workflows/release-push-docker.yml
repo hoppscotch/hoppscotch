@@ -15,52 +15,67 @@ jobs:
       - name: Setup environment
         run: cp .env.example .env
 
+      - name: Setup QEMU
+        uses: docker/setup-qemu-action@v3
+
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build and push `${{ secrets.DOCKER_BACKEND_CONTAINER_NAME }}`
+      - name: Build and push the backend container
         uses: docker/build-push-action@v4
         with:
           context: .
           file: ./prod.Dockerfile
           target: backend
           push: true
+          platforms: |
+            linux/amd64
+            linux/arm64
           tags: |
             ${{ secrets.DOCKER_ORG_NAME }}/${{ secrets.DOCKER_BACKEND_CONTAINER_NAME }}:latest
             ${{ secrets.DOCKER_ORG_NAME }}/${{ secrets.DOCKER_BACKEND_CONTAINER_NAME }}:${{ github.ref_name }}
 
-      - name: Build and push `${{ secrets.DOCKER_FRONTEND_CONTAINER_NAME }}`
+      - name: Build and push the frontend container
         uses: docker/build-push-action@v4
         with:
           context: .
           file: ./prod.Dockerfile
           target: app
           push: true
+          platforms: |
+            linux/amd64
+            linux/arm64
           tags: |
             ${{ secrets.DOCKER_ORG_NAME }}/${{ secrets.DOCKER_FRONTEND_CONTAINER_NAME }}:latest
             ${{ secrets.DOCKER_ORG_NAME }}/${{ secrets.DOCKER_FRONTEND_CONTAINER_NAME }}:${{ github.ref_name }}
 
-      - name: Build and push `${{ secrets.DOCKER_SH_ADMIN_CONTAINER_NAME }}`
+      - name: Build and push the admin dashboard container
         uses: docker/build-push-action@v4
         with:
           context: .
           file: ./prod.Dockerfile
           target: sh_admin
           push: true
+          platforms: |
+            linux/amd64
+            linux/arm64
           tags: |
             ${{ secrets.DOCKER_ORG_NAME }}/${{ secrets.DOCKER_SH_ADMIN_CONTAINER_NAME }}:latest
             ${{ secrets.DOCKER_ORG_NAME }}/${{ secrets.DOCKER_SH_ADMIN_CONTAINER_NAME }}:${{ github.ref_name }}
 
-      - name: Build and push `${{ secrets.DOCKER_AIO_CONTAINER_NAME }}`
+      - name: Build and push the AIO container
         uses: docker/build-push-action@v4
         with:
           context: .
           file: ./prod.Dockerfile
           target: aio
           push: true
+          platforms: |
+            linux/amd64
+            linux/arm64
           tags: |
             ${{ secrets.DOCKER_ORG_NAME }}/${{ secrets.DOCKER_AIO_CONTAINER_NAME }}:latest
             ${{ secrets.DOCKER_ORG_NAME }}/${{ secrets.DOCKER_AIO_CONTAINER_NAME }}:${{ github.ref_name }}

@@ -312,21 +312,13 @@ export const runSubscription = (
 
   connection.socket.onopen = (event) => {
     console.log("WebSocket is open now.", event)
-    if (headers) {
-      connection.socket?.send(
-        JSON.stringify({
-          type: GQL.CONNECTION_INIT,
-          payload: { ...headers },
-        })
-      )
-    } else {
-      connection.socket?.send(
-        JSON.stringify({
-          type: GQL.CONNECTION_INIT,
-          payload: {},
-        })
-      )
-    }
+
+    connection.socket?.send(
+      JSON.stringify({
+        type: GQL.CONNECTION_INIT,
+        payload: headers ?? {},
+      })
+    )
 
     connection.socket?.send(
       JSON.stringify({

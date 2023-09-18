@@ -25,8 +25,7 @@ import {
   HoppGQLRequest,
   HoppRESTRequest,
 } from "@hoppscotch/data"
-import { hoppWorkspaceStore } from "~/newstore/workspace"
-import { changeWorkspace } from "~/newstore/workspace"
+import { WorkspaceService } from "~/services/workspace.service"
 import { invokeAction } from "~/helpers/actions"
 
 /**
@@ -46,6 +45,7 @@ export class CollectionsSpotlightSearcherService
   public searcherSectionTitle = this.t("collection.my_collections")
 
   private readonly spotlight = this.bind(SpotlightService)
+  private readonly workspaceService = this.bind(WorkspaceService)
 
   constructor() {
     super()
@@ -284,8 +284,8 @@ export class CollectionsSpotlightSearcherService
       const folderPath = path.split("/").map((x) => parseInt(x))
       const reqIndex = folderPath.pop()!
 
-      if (hoppWorkspaceStore.value.workspace.type !== "personal") {
-        changeWorkspace({
+      if (this.workspaceService.currentWorkspace.value.type !== "personal") {
+        this.workspaceService.changeWorkspace({
           type: "personal",
         })
       }

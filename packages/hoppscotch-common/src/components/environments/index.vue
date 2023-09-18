@@ -58,16 +58,15 @@ import {
 } from "~/newstore/environments"
 import TeamEnvironmentAdapter from "~/helpers/teams/TeamEnvironmentAdapter"
 import { defineActionHandler } from "~/helpers/actions"
-import { workspaceStatus$ } from "~/newstore/workspace"
-import TeamListAdapter from "~/helpers/teams/TeamListAdapter"
 import { useLocalState } from "~/newstore/localstate"
-import { onLoggedIn } from "~/composables/auth"
 import { pipe } from "fp-ts/function"
 import * as TE from "fp-ts/TaskEither"
 import { GQLError } from "~/helpers/backend/GQLClient"
 import { deleteEnvironment } from "~/newstore/environments"
 import { deleteTeamEnvironment } from "~/helpers/backend/mutations/TeamEnvironment"
 import { useToast } from "~/composables/toast"
+import { WorkspaceService } from "~/services/workspace.service"
+import { useService } from "dioc/vue"
 
 const t = useI18n()
 const toast = useToast()
@@ -99,7 +98,8 @@ const currentUser = useReadonlyStream(
 )
 
 // TeamList-Adapter
-const teamListAdapter = new TeamListAdapter(true)
+const workspaceService = useService(WorkspaceService)
+const teamListAdapter = workspaceService.acquireTeamListAdapter(null)
 const myTeams = useReadonlyStream(teamListAdapter.teamList$, null)
 const teamListFetched = ref(false)
 const REMEMBERED_TEAM_ID = useLocalState("REMEMBERED_TEAM_ID")
@@ -152,11 +152,7 @@ watch(
   }
 )
 
-onLoggedIn(() => {
-  !teamListAdapter.isInitialized && teamListAdapter.initialize()
-})
-
-const workspace = useReadonlyStream(workspaceStatus$, { type: "personal" })
+const workspace = workspaceService.currentWorkspace
 
 // Switch to my environments if workspace is personal and to team environments if workspace is team
 // also resets selected environment if workspace is personal and the previous selected environment was a team environment

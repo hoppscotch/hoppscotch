@@ -216,7 +216,8 @@ import IconClose from "~icons/lucide/x"
 
 import { useColorMode } from "~/composables/theming"
 import { useVModel } from "@vueuse/core"
-import { workspaceStatus$ } from "~/newstore/workspace"
+import { useService } from "dioc/vue"
+import { WorkspaceService } from "~/services/workspace.service"
 
 const props = defineProps<{
   modelValue: HoppTestResult | null | undefined
@@ -231,7 +232,8 @@ const testResults = useVModel(props, "modelValue", emit)
 const t = useI18n()
 const colorMode = useColorMode()
 
-const workspace = useReadonlyStream(workspaceStatus$, { type: "personal" })
+const workspaceService = useService(WorkspaceService)
+const workspace = workspaceService.currentWorkspace
 
 const showMyEnvironmentDetailsModal = ref(false)
 const showTeamEnvironmentDetailsModal = ref(false)

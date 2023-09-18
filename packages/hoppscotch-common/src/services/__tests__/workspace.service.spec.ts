@@ -84,6 +84,8 @@ describe("WorkspaceService", () => {
         type: "personal",
       })
 
+      service.updateWorkspaceTeamName("test")
+
       expect(service.currentWorkspace.value).toEqual({ type: "personal" })
     })
   })

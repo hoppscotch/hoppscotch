@@ -31,8 +31,8 @@
     "open_workspace": "Открыть пространство",
     "paste": "Вставить",
     "prettify": "Форматировать",
-    "rename": "Переименовать",
     "remove": "Удалить",
+    "rename": "Переименовать",
     "restore": "Восстановить",
     "save": "Сохранить",
     "scroll_to_bottom": "Вниз",
@@ -69,8 +69,6 @@
     "invite": "Пригласить",
     "invite_description": "В Hoppscotch мы разработали простой и интуитивно понятный интерфейс для создания и управления вашими API. Hoppscotch - это инструмент, который помогает создавать, тестировать, документировать и делиться своими API.",
     "invite_your_friends": "Пригласить своих друзей",
-    "social_links": "Социальные сети",
-    "social_description": "Подписывайся на наши соц. сети и оставайся всегда в курсе последних новостей, обновлений и релизов.",
     "join_discord_community": "Присоединяйтесь к нашему сообществу Discord",
     "keyboard_shortcuts": "Горячие клавиши",
     "name": "Hoppscotch",
@@ -81,6 +79,8 @@
     "search": "Поиск",
     "share": "Поделиться",
     "shortcuts": "Ярлыки",
+    "social_description": "Подписывайся на наши соц. сети и оставайся всегда в курсе последних новостей, обновлений и релизов.",
+    "social_links": "Социальные сети",
     "spotlight": "Прожектор",
     "status": "Статус",
     "status_description": "Проверить состояние сайта",
@@ -142,6 +142,8 @@
     "team_collections": "Коллекции команд"
   },
   "confirm": {
+    "close_unsaved_tab": "Вы уверены что хотите закрыть эту вкладку?",
+    "close_unsaved_tabs": "ВЫ уверены что хотите закрыть все эти вкладки? Несохранённые данные {count} вкладок будут утеряны.",
     "exit_team": "Вы точно хотите покинуть эту команду?",
     "logout": "Вы действительно хотите выйти?",
     "remove_collection": "Вы уверены, что хотите навсегда удалить эту коллекцию?",
@@ -153,14 +155,12 @@
     "remove_telemetry": "Вы действительно хотите отказаться от телеметрии?",
     "request_change": "Вы уверены что хотите сбросить текущий запрос, все не сохранённые данные будт утеряны?",
     "save_unsaved_tab": "Вы хотите сохранить изменения в этой вкладке?",
-    "close_unsaved_tab": "Вы уверены что хотите закрыть эту вкладку?",
-    "close_unsaved_tabs": "ВЫ уверены что хотите закрыть все эти вкладки? Несохранённые данные {count} вкладок будут утеряны.",
     "sync": "Вы уверены, что хотите синхронизировать это рабочее пространство?"
   },
   "context_menu": {
-    "set_environment_variable": "Назначить как переменную",
-    "add_parameters": "Добавить в параметры",
-    "open_request_in_new_tab": "Открыть в новой вкладке"
+    "add_parameters": "Add to parameters",
+    "open_request_in_new_tab": "Open request in new tab",
+    "set_environment_variable": "Set as variable"
   },
   "count": {
     "header": "Заголовок {count}",
@@ -204,31 +204,31 @@
     "create_new": "Создать новое окружение",
     "created": "Окружение создано",
     "deleted": "Окружение удалено",
-    "duplicated": "Окружение скопировано",
-    "global": "Глобальное окружение",
-    "empty_variables": "Нет переменных",
-    "global_variables": "Глобальные переменные",
+    "duplicated": "Environment duplicated",
     "edit": "Редактировать окружение",
+    "empty_variables": "No variables",
+    "global": "Global",
+    "global_variables": "Global variables",
     "invalid_name": "Укажите допустимое имя для окружения",
-    "list": "Переменные окружения",
+    "list": "Environment variables",
     "my_environments": "Мои окружения",
-    "name": "Название",
+    "name": "Name",
     "nested_overflow": "максимальный уровень вложения переменных окружения - 10",
     "new": "Новая среда",
-    "no_active_environment": "Нет активных окружений",
+    "no_active_environment": "No active environment",
     "no_environment": "Нет окружения",
     "no_environment_description": "Не выбрано окружение, выберите что делать с переменными.",
-    "quick_peek": "Быстрый просмотр окружения",
-    "replace_with_variable": "Заменить переменной",
+    "quick_peek": "Environment Quick Peek",
+    "replace_with_variable": "Replace with variable",
     "scope": "Scope",
     "select": "Выберите среду",
-    "set": "Выбрать окружение",
-    "set_as_environment": "Установить как окружение",
+    "set": "Set environment",
+    "set_as_environment": "Set as environment",
     "team_environments": "Окружения команды",
     "title": "Окружения",
     "updated": "Окружение обновлено",
-    "value": "Значение",
-    "variable": "Переменная",
+    "value": "Value",
+    "variable": "Variable",
     "variable_list": "Список переменных"
   },
   "error": {
@@ -252,7 +252,7 @@
     "no_duration": "Без продолжительности",
     "no_results_found": "Совпадения не найдены",
     "page_not_found": "Эта страница не найдена",
-    "proxy_error": "Ошибка прокси",
+    "proxy_error": "Proxy error",
     "script_fail": "Не удалось выполнить сценарий предварительного запроса",
     "something_went_wrong": "Что-то пошло не так",
     "test_script_fail": "Не удалось выполнить тестирование запроса"
@@ -278,13 +278,13 @@
     "renamed": "Папка переименована"
   },
   "graphql": {
+    "connection_switch_confirm": "Вы желаете соединиться с последним GraphQL сервером?",
+    "connection_switch_new_url": "Смена вкладки разорвёт текущее GraphQL соединение. Новый URL соединения будет",
+    "connection_switch_url": "Вы присоединились к GraphQL, URL соединения",
     "mutations": "Мутации",
     "schema": "Схема",
     "subscriptions": "Подписки",
-    "switch_connection": "Изменить соединение",
-    "connection_switch_url": "Вы присоединились к GraphQL, URL соединения",
-    "connection_switch_new_url": "Смена вкладки разорвёт текущее GraphQL соединение. Новый URL соединения будет",
-    "connection_switch_confirm": "Вы желаете соединиться с последним GraphQL сервером?"
+    "switch_connection": "Изменить соединение"
   },
   "group": {
     "time": "Время",
@@ -339,27 +339,27 @@
     "title": "Импортировать"
   },
   "inspections": {
-    "title": "Инспектор",
-    "description": "Помогает обноружить возможные проблемы",
+    "description": "Inspect possible errors",
     "environment": {
-      "add_environment": "Добавить в окружение",
-      "not_found": "Переменная окружения “{environment}” не найдена."
+      "add_environment": "Add to Environment",
+      "not_found": "Environment variable “{environment}” not found."
     },
     "header": {
-      "cookie": "Браузерная версия Hoppscotch не может использовать Cookie Header. Пока мы работаем над созданием десктоп версии Hoppscotch, пожалуйста используйте Authorization Header."
+      "cookie": "The browser doesn't allow Hoppscotch to set the Cookie Header. While we're working on the Hoppscotch Desktop App (coming soon), please use the Authorization Header instead."
     },
     "response": {
-      "401_error": "Пожалуйста проверьте ваши параметры авторизации",
-      "404_error": "Пожалуйста проверьте URL и Метод вашего запроса",
-      "network_error": "Пожалуйста проверьте соединение",
-      "cors_error": "Пожалуйста проверьте вашу Cross-Origin Resource Sharing настройку сервера.",
-      "default_error": "Проверьте ваш запрос."
+      "401_error": "Please check your authentication credentials.",
+      "404_error": "Please check your request URL and method type.",
+      "cors_error": "Please check your Cross-Origin Resource Sharing configuration.",
+      "default_error": "Please check your request.",
+      "network_error": "Please check your network connection."
     },
+    "title": "Inspector",
     "url": {
-      "extension_not_installed": "Расширение не установлено",
-      "extention_not_enabled": "Расширение не включено",
-      "extention_enable_action": "Включить расширение браузера",
-      "extension_unknown_origin": "Убедитесь что вы добавили адрес сервера в Hoppscotch расширение."
+      "extension_not_installed": "Extension not installed.",
+      "extension_unknown_origin": "Make sure you've added the API endpoint's origin to the Hoppscotch Browser Extension list.",
+      "extention_enable_action": "Enable Browser Extension",
+      "extention_not_enabled": "Extension not enabled."
     }
   },
   "layout": {
@@ -367,8 +367,7 @@
     "collapse_sidebar": "Свернуть или развернуть боковую панель",
     "column": "Вертикальная развёртка",
     "name": "Развёртка",
-    "row": "Горизонтальная развертка",
-    "zen_mode": "Спокойный режим"
+    "row": "Горизонтальная развертка"
   },
   "modal": {
     "close_unsaved_tab": "У вас есть не сохранённые изменения",
@@ -473,6 +472,7 @@
     "payload": "Полезная нагрузка",
     "query": "Запрос",
     "raw_body": "Необработанное тело запроса",
+    "rename": "Rename Request",
     "renamed": "Запрос переименован",
     "run": "Запустить",
     "save": "Сохранить",
@@ -480,6 +480,7 @@
     "saved": "Запрос сохранен",
     "share": "Делиться",
     "share_description": "Поделиться Hoppscotch с друзьями",
+    "stop": "Stop",
     "title": "Запрос",
     "type": "Тип запроса",
     "url": "URL",
@@ -514,7 +515,6 @@
     "account_name_description": "Это ваше отображаемое имя.",
     "background": "Задний фон",
     "black_mode": "Темная тема",
-    "change_font_size": "Изменить размер шрифта",
     "choose_language": "Выберите язык",
     "dark_mode": "Темный",
     "delete_account": "Удалить аккаунт",
@@ -527,10 +527,6 @@
     "extensions": "Расширения",
     "extensions_use_toggle": "Используйте расширение браузера для отправки запросов (если есть)",
     "follow": "Follow Us",
-    "font_size": "Размер шрифта",
-    "font_size_large": "Большой",
-    "font_size_medium": "Середина",
-    "font_size_small": "Небольшой",
     "interceptor": "Перехватчик",
     "interceptor_description": "Промежуточное ПО между приложением и API.",
     "language": "Язык",
@@ -580,10 +576,6 @@
       "show_all": "Горячие клавиши",
       "title": "Общий"
     },
-    "others": {
-      "title": "Другие",
-      "prettify": "Прекрасные редакторы"
-    },
     "miscellaneous": {
       "invite": "Пригласите людей в Hoppscotch",
       "title": "Разное"
@@ -599,23 +591,27 @@
       "settings": "Перейти на страницу настроек",
       "title": "Навигация"
     },
+    "others": {
+      "prettify": "Prettify Editor's Content",
+      "title": "Others"
+    },
     "request": {
       "copy_request_link": "Копировать ссылку на запрос",
       "delete_method": "Выберите метод DELETE",
       "get_method": "Выберите метод GET",
       "head_method": "Выберите метод HEAD",
-      "rename": "Переименовать запрос",
-      "import_curl": "Импорт из cURL",
-      "show_code": "Сгенерировать готовый код",
+      "import_curl": "Import cURL",
       "method": "Методика",
       "next_method": "Выберите следующий метод",
       "post_method": "Выберите метод POST",
       "previous_method": "Выбрать предыдущий метод",
       "put_method": "Выберите метод PUT",
+      "rename": "Rename Request",
       "reset_request": "Сбросить запрос",
+      "save_request": "Сохарнить запрос",
       "save_to_collections": "Сохранить в коллекции",
       "send_request": "Послать запрос",
-      "save_request": "Сохарнить запрос",
+      "show_code": "Generate code snippet",
       "title": "Запрос"
     },
     "response": {
@@ -646,87 +642,82 @@
     "url": "URL"
   },
   "spotlight": {
+    "change_language": "Change Language",
+    "environments": {
+      "delete": "Delete current environment",
+      "duplicate": "Duplicate current environment",
+      "duplicate_global": "Duplicate global environment",
+      "edit": "Edit current environment",
+      "edit_global": "Edit global environment",
+      "new": "Create new environment",
+      "new_variable": "Create a new environment variable",
+      "title": "Environments"
+    },
     "general": {
-      "help_menu": "Помощь и поддержка",
-      "chat": "Чат с поддержкой",
-      "open_docs": "Прочитать документацию",
-      "open_keybindings": "Горячие клавиши",
-      "open_github": "Открыть GitHub репозиторий",
-      "social": "Соц. сети",
-      "title": "Основное"
-    },
-    "miscellaneous": {
-      "invite": "Пригласите друзей в Hoppscotch",
-      "title": "Разное"
-    },
-    "request": {
-      "switch_to": "Перейти к",
-      "select_method": "Выбрать метод",
-      "save_as_new": "Сохранить как новый запрос",
-      "tab_parameters": "Параметры",
-      "tab_body": "Тело",
-      "tab_headers": "Заголовки",
-      "tab_authorization": "Авторизация",
-      "tab_pre_request_script": "Пред-скрипт",
-      "tab_tests": "Тесты",
-      "tab_query": "Запрос",
-      "tab_variables": "Переменные"
+      "chat": "Chat with support",
+      "help_menu": "Help and support",
+      "open_docs": "Read Documentation",
+      "open_github": "Open GitHub repository",
+      "open_keybindings": "Keyboard shortcuts",
+      "social": "Social",
+      "title": "General"
     },
     "graphql": {
-      "connect": "Соединиться",
-      "disconnect": "Разъединить"
+      "connect": "Connect to server",
+      "disconnect": "Disconnect from server"
+    },
+    "miscellaneous": {
+      "invite": "Invite your friends to Hoppscotch",
+      "title": "Miscellaneous"
+    },
+    "request": {
+      "save_as_new": "Save as new request",
+      "select_method": "Select method",
+      "switch_to": "Switch to",
+      "tab_authorization": "Authorization tab",
+      "tab_body": "Body tab",
+      "tab_headers": "Headers tab",
+      "tab_parameters": "Parameters tab",
+      "tab_pre_request_script": "Pre-request script tab",
+      "tab_query": "Query tab",
+      "tab_tests": "Tests tab",
+      "tab_variables": "Variables tab"
     },
     "response": {
-      "copy": "Копировать ответ",
-      "download": "Скачать ответ",
-      "title": "Ответ"
-    },
-    "environments": {
-      "new": "Создать новое окружение",
-      "new_variable": "Создать новую переменную в окружении",
-      "edit": "Изменить текущее окружение",
-      "delete": "Удалить текущее окружение",
-      "duplicate": "Скопировать текущее окружение",
-      "edit_global": "Изменить глобальное окружение",
-      "duplicate_global": "Скопировать глобальное окружение",
-      "title": "Окружения"
-    },
-    "workspace": {
-      "new": "Создать новую команду",
-      "edit": "Изменить текущую команду",
-      "delete": "Удалить текущую команду",
-      "invite": "Пригласить людей в команду",
-      "switch_to_personal": "Переключиться на личное пространство",
-      "title": "Команды"
-    },
-    "tab": {
-      "duplicate": "Скопировать вкладку",
-      "close_current": "Закрыть вкладку",
-      "close_others": "Закрыть все кроме этой",
-      "new_tab": "Открыть в новой вкладке",
-      "title": "Вкладки"
+      "copy": "Copy response",
+      "download": "Download response as file",
+      "title": "Response"
     },
     "section": {
-      "user": "Пользователь",
-      "theme": "Тема",
-      "interface": "Интерфейс",
-      "interceptor": "Перехватчик"
+      "interceptor": "Interceptor",
+      "interface": "Interface",
+      "theme": "Theme",
+      "user": "User"
     },
-    "change_language": "Изменить язык",
     "settings": {
+      "change_interceptor": "Change Interceptor",
+      "change_language": "Change Language",
       "theme": {
-        "black": "Чёрная",
-        "dark": "Тёмная",
-        "light": "Светлая",
-        "system": "Определяется системой"
-      },
-      "font": {
-        "size_sm": "Маленький",
-        "size_md": "Средний",
-        "size_lg": "Большой"
-      },
-      "change_interceptor": "Изменить перехватчик",
-      "change_language": "Изменить язык"
+        "black": "Black",
+        "dark": "Dark",
+        "light": "Light",
+        "system": "System preference"
+      }
+    },
+    "tab": {
+      "close_current": "Close current tab",
+      "close_others": "Close all other tabs",
+      "duplicate": "Duplicate current tab",
+      "new_tab": "Open a new tab",
+      "title": "Tabs"
+    },
+    "workspace": {
+      "delete": "Delete current team",
+      "edit": "Edit current team",
+      "invite": "Invite people to team",
+      "new": "Create new team",
+      "switch_to_personal": "Switch to your personal workspace",
+      "title": "Teams"
     }
   },
   "sse": {
@@ -786,8 +777,11 @@
   "tab": {
     "authorization": "Авторизация",
     "body": "Тело",
+    "close": "Close Tab",
+    "close_others": "Close other Tabs",
     "collections": "Коллекции",
     "documentation": "Документация",
+    "duplicate": "Duplicate Tab",
     "environments": "Окружения",
     "headers": "Заголовки",
     "history": "История",

@@ -4,8 +4,8 @@
     "cancel": "Cancel",
     "choose_file": "Choose a file",
     "clear": "Clear",
-    "clear_history": "Clear All History",
     "clear_all": "Clear all",
+    "clear_history": "Clear all History",
     "close": "Close",
     "connect": "Connect",
     "connecting": "Connecting",
@@ -31,8 +31,8 @@
     "open_workspace": "Open workspace",
     "paste": "Paste",
     "prettify": "Prettify",
-    "rename": "Rename",
     "remove": "Remove",
+    "rename": "Rename",
     "restore": "Restore",
     "save": "Save",
     "scroll_to_bottom": "Scroll to bottom",
@@ -69,8 +69,6 @@
     "invite": "Invite",
     "invite_description": "Hoppscotch is an open source API development ecosystem. We designed a simple and intuitive interface for creating and managing your APIs. Hoppscotch is a tool that helps you build, test, document and share your APIs.",
     "invite_your_friends": "Invite your friends",
-    "social_links": "Social links",
-    "social_description": "Follow us on social media to stay updated with the latest news, updates and releases.",
     "join_discord_community": "Join our Discord community",
     "keyboard_shortcuts": "Keyboard shortcuts",
     "name": "Hoppscotch",
@@ -81,6 +79,8 @@
     "search": "Search",
     "share": "Share",
     "shortcuts": "Shortcuts",
+    "social_description": "Follow us on social media to stay updated with the latest news, updates and releases.",
+    "social_links": "Social links",
     "spotlight": "Spotlight",
     "status": "Status",
     "status_description": "Check the status of the website",
@@ -142,6 +142,8 @@
     "team_collections": "Team Collections"
   },
   "confirm": {
+    "close_unsaved_tab": "Are you sure you want to close this tab?",
+    "close_unsaved_tabs": "Are you sure you want to close all tabs? {count} unsaved tabs will be lost.",
     "exit_team": "Are you sure you want to leave this team?",
     "logout": "Are you sure you want to logout?",
     "remove_collection": "Are you sure you want to permanently delete this collection?",
@@ -153,14 +155,12 @@
     "remove_telemetry": "Are you sure you want to opt-out of Telemetry?",
     "request_change": "Are you sure you want to discard current request, unsaved changes will be lost.",
     "save_unsaved_tab": "Do you want to save changes made in this tab?",
-    "close_unsaved_tab": "Are you sure you want to close this tab?",
-    "close_unsaved_tabs": "Are you sure you want to close all tabs? {count} unsaved tabs will be lost.",
     "sync": "Would you like to restore your workspace from cloud? This will discard your local progress."
   },
   "context_menu": {
-    "set_environment_variable": "Set as variable",
     "add_parameters": "Add to parameters",
-    "open_request_in_new_tab": "Open request in new tab"
+    "open_request_in_new_tab": "Open request in new tab",
+    "set_environment_variable": "Set as variable"
   },
   "count": {
     "header": "Header {count}",
@@ -206,8 +206,8 @@
     "deleted": "Environment deletion",
     "duplicated": "Environment duplicated",
     "edit": "Edit Environment",
-    "global": "Global",
     "empty_variables": "No variables",
+    "global": "Global",
     "global_variables": "Global variables",
     "invalid_name": "Please provide a name for the environment",
     "list": "Environment variables",
@@ -278,13 +278,13 @@
     "renamed": "Folder renamed"
   },
   "graphql": {
+    "connection_switch_confirm": "Do you want to connect with the latest GraphQL endpoint?",
+    "connection_switch_new_url": "Switching to a tab will disconnected you from the active GraphQL connection. New connection URL is",
+    "connection_switch_url": "You're connected to a GraphQL endpoint the connection URL is",
     "mutations": "Mutations",
     "schema": "Schema",
-    "switch_connection": "Switch connection",
-    "connection_switch_url": "You're connected to a GraphQL endpoint the connection URL is",
-    "connection_switch_new_url": "Switching to a tab will disconnected you from the active GraphQL connection. New connection URL is",
-    "connection_switch_confirm": "Do you want to connect with the latest GraphQL endpoint?",
-    "subscriptions": "Subscriptions"
+    "subscriptions": "Subscriptions",
+    "switch_connection": "Switch connection"
   },
   "group": {
     "time": "Time",
@@ -313,30 +313,6 @@
     "preview": "Hide Preview",
     "sidebar": "Collapse sidebar"
   },
-  "inspections": {
-    "title": "Inspector",
-    "description": "Inspect possible errors",
-    "environment": {
-      "add_environment": "Add to Environment",
-      "not_found": "Environment variable “{environment}” not found."
-    },
-    "header": {
-      "cookie": "The browser doesn't allow Hoppscotch to set the Cookie Header. While we're working on the Hoppscotch Desktop App (coming soon), please use the Authorization Header instead."
-    },
-    "response": {
-      "401_error": "Please check your authentication credentials.",
-      "404_error": "Please check your request URL and method type.",
-      "network_error": "Please check your network connection.",
-      "cors_error": "Please check your Cross-Origin Resource Sharing configuration.",
-      "default_error": "Please check your request."
-    },
-    "url": {
-      "extension_not_installed": "Extension not installed.",
-      "extention_not_enabled": "Extension not enabled.",
-      "extention_enable_action": "Enable Browser Extension",
-      "extension_unknown_origin": "Make sure you've added the API endpoint's origin to the Hoppscotch Browser Extension list."
-    }
-  },
   "import": {
     "collections": "Import collections",
     "curl": "Import cURL",
@@ -362,13 +338,36 @@
     "json_description": "Import collections from a Hoppscotch Collections JSON file",
     "title": "Import"
   },
+  "inspections": {
+    "description": "Inspect possible errors",
+    "environment": {
+      "add_environment": "Add to Environment",
+      "not_found": "Environment variable “{environment}” not found."
+    },
+    "header": {
+      "cookie": "The browser doesn't allow Hoppscotch to set the Cookie Header. While we're working on the Hoppscotch Desktop App (coming soon), please use the Authorization Header instead."
+    },
+    "response": {
+      "401_error": "Please check your authentication credentials.",
+      "404_error": "Please check your request URL and method type.",
+      "cors_error": "Please check your Cross-Origin Resource Sharing configuration.",
+      "default_error": "Please check your request.",
+      "network_error": "Please check your network connection."
+    },
+    "title": "Inspector",
+    "url": {
+      "extension_not_installed": "Extension not installed.",
+      "extension_unknown_origin": "Make sure you've added the API endpoint's origin to the Hoppscotch Browser Extension list.",
+      "extention_enable_action": "Enable Browser Extension",
+      "extention_not_enabled": "Extension not enabled."
+    }
+  },
   "layout": {
     "collapse_collection": "Collapse or Expand Collections",
     "collapse_sidebar": "Collapse or Expand the sidebar",
     "column": "Vertical layout",
     "name": "Layout",
-    "row": "Horizontal layout",
-    "zen_mode": "Zen mode"
+    "row": "Horizontal layout"
   },
   "modal": {
     "close_unsaved_tab": "You have unsaved changes",
@@ -476,12 +475,12 @@
     "rename": "Rename Request",
     "renamed": "Request renamed",
     "run": "Run",
-    "stop": "Stop",
     "save": "Save",
     "save_as": "Save as",
     "saved": "Request saved",
     "share": "Share",
     "share_description": "Share Hoppscotch with your friends",
+    "stop": "Stop",
     "title": "Request",
     "type": "Request type",
     "url": "URL",
@@ -516,9 +515,8 @@
     "account_name_description": "This is your display name.",
     "background": "Background",
     "black_mode": "Black",
-    "dark_mode": "Dark",
-    "change_font_size": "Change font size",
     "choose_language": "Choose language",
+    "dark_mode": "Dark",
     "delete_account": "Delete account",
     "delete_account_description": "Once you delete your account, all your data will be permanently deleted. This action cannot be undone.",
     "expand_navigation": "Expand navigation",
@@ -529,10 +527,6 @@
     "extensions": "Browser extension",
     "extensions_use_toggle": "Use the browser extension to send requests (if present)",
     "follow": "Follow us",
-    "font_size": "Font size",
-    "font_size_large": "Large",
-    "font_size_medium": "Medium",
-    "font_size_small": "Small",
     "interceptor": "Interceptor",
     "interceptor_description": "Middleware between application and APIs.",
     "language": "Language",
@@ -582,10 +576,6 @@
       "show_all": "Keyboard shortcuts",
       "title": "General"
     },
-    "others": {
-      "title": "Others",
-      "prettify": "Prettify Editor's Content"
-    },
     "miscellaneous": {
       "invite": "Invite people to Hoppscotch",
       "title": "Miscellaneous"
@@ -601,23 +591,27 @@
       "settings": "Go to Settings page",
       "title": "Navigation"
     },
+    "others": {
+      "prettify": "Prettify Editor's Content",
+      "title": "Others"
+    },
     "request": {
       "copy_request_link": "Copy Request Link",
       "delete_method": "Select DELETE method",
       "get_method": "Select GET method",
       "head_method": "Select HEAD method",
-      "rename": "Rename Request",
       "import_curl": "Import cURL",
-      "show_code": "Generate code snippet",
       "method": "Method",
       "next_method": "Select Next method",
       "post_method": "Select POST method",
       "previous_method": "Select Previous method",
       "put_method": "Select PUT method",
+      "rename": "Rename Request",
       "reset_request": "Reset Request",
+      "save_request": "Save Request",
       "save_to_collections": "Save to Collections",
       "send_request": "Send Request",
-      "save_request": "Save Request",
+      "show_code": "Generate code snippet",
       "title": "Request"
     },
     "response": {
@@ -648,87 +642,82 @@
     "url": "URL"
   },
   "spotlight": {
+    "change_language": "Change Language",
+    "environments": {
+      "delete": "Delete current environment",
+      "duplicate": "Duplicate current environment",
+      "duplicate_global": "Duplicate global environment",
+      "edit": "Edit current environment",
+      "edit_global": "Edit global environment",
+      "new": "Create new environment",
+      "new_variable": "Create a new environment variable",
+      "title": "Environments"
+    },
     "general": {
-      "help_menu": "Help and support",
       "chat": "Chat with support",
+      "help_menu": "Help and support",
       "open_docs": "Read Documentation",
-      "open_keybindings": "Keyboard shortcuts",
       "open_github": "Open GitHub repository",
+      "open_keybindings": "Keyboard shortcuts",
       "social": "Social",
       "title": "General"
+    },
+    "graphql": {
+      "connect": "Connect to server",
+      "disconnect": "Disconnect from server"
     },
     "miscellaneous": {
       "invite": "Invite your friends to Hoppscotch",
       "title": "Miscellaneous"
     },
     "request": {
-      "switch_to": "Switch to",
-      "select_method": "Select method",
       "save_as_new": "Save as new request",
-      "tab_parameters": "Parameters tab",
+      "select_method": "Select method",
+      "switch_to": "Switch to",
+      "tab_authorization": "Authorization tab",
       "tab_body": "Body tab",
       "tab_headers": "Headers tab",
-      "tab_authorization": "Authorization tab",
+      "tab_parameters": "Parameters tab",
       "tab_pre_request_script": "Pre-request script tab",
-      "tab_tests": "Tests tab",
       "tab_query": "Query tab",
+      "tab_tests": "Tests tab",
       "tab_variables": "Variables tab"
-    },
-    "graphql": {
-      "connect": "Connect to server",
-      "disconnect": "Disconnect from server"
     },
     "response": {
       "copy": "Copy response",
       "download": "Download response as file",
       "title": "Response"
     },
-    "environments": {
-      "new": "Create new environment",
-      "new_variable": "Create a new environment variable",
-      "edit": "Edit current environment",
-      "delete": "Delete current environment",
-      "duplicate": "Duplicate current environment",
-      "edit_global": "Edit global environment",
-      "duplicate_global": "Duplicate global environment",
-      "title": "Environments"
-    },
-    "workspace": {
-      "new": "Create new team",
-      "edit": "Edit current team",
-      "delete": "Delete current team",
-      "invite": "Invite people to team",
-      "switch_to_personal": "Switch to your personal workspace",
-      "title": "Teams"
-    },
-    "tab": {
-      "duplicate": "Duplicate current tab",
-      "close_current": "Close current tab",
-      "close_others": "Close all other tabs",
-      "new_tab": "Open a new tab",
-      "title": "Tabs"
-    },
     "section": {
-      "user": "User",
-      "theme": "Theme",
+      "interceptor": "Interceptor",
       "interface": "Interface",
-      "interceptor": "Interceptor"
+      "theme": "Theme",
+      "user": "User"
     },
-    "change_language": "Change Language",
     "settings": {
+      "change_interceptor": "Change Interceptor",
+      "change_language": "Change Language",
       "theme": {
         "black": "Black",
         "dark": "Dark",
         "light": "Light",
         "system": "System preference"
-      },
-      "font": {
-        "size_sm": "Small",
-        "size_md": "Medium",
-        "size_lg": "Large"
-      },
-      "change_interceptor": "Change Interceptor",
-      "change_language": "Change Language"
+      }
+    },
+    "tab": {
+      "close_current": "Close current tab",
+      "close_others": "Close all other tabs",
+      "duplicate": "Duplicate current tab",
+      "new_tab": "Open a new tab",
+      "title": "Tabs"
+    },
+    "workspace": {
+      "delete": "Delete current team",
+      "edit": "Edit current team",
+      "invite": "Invite people to team",
+      "new": "Create new team",
+      "switch_to_personal": "Switch to your personal workspace",
+      "title": "Teams"
     }
   },
   "sse": {
@@ -776,7 +765,7 @@
   "support": {
     "changelog": "Read more about latest releases",
     "chat": "Questions? Chat with us!",
-    "community": "Ask questions and help others",
+    "community": "Ask questions and help others",
     "documentation": "Read more about Hoppscotch",
     "forum": "Ask questions and get answers",
     "github": "Follow us on Github",

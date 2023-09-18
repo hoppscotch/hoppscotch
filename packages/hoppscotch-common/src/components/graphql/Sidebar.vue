@@ -396,3 +396,9 @@ const copySchema = () => {
   copySchemaIcon.value = IconCheck
 }
 </script>
+
+<style lang="scss" scoped>
+:deep(.cm-panels) {
+  @apply top-sidebarPrimaryStickyFold #{!important};
+}
+</style>

@@ -86,7 +86,11 @@
         />
       </div>
     </div>
-    <div ref="jsonResponse" class="flex flex-col flex-1 h-auto h-full"></div>
+    <div
+      ref="jsonResponse"
+      class="flex flex-col flex-1 h-auto h-full"
+      :class="toggleFilter ? 'responseToggleOn' : 'responseToggleOff'"
+    ></div>
     <div
       v-if="outlinePath"
       class="sticky bottom-0 z-10 flex flex-shrink-0 px-2 overflow-auto overflow-x-auto border-t bg-primaryLight border-dividerLight flex-nowrap"
@@ -380,5 +384,13 @@ defineActionHandler("response.copy", () => copyResponse())
   @apply py-1;
   @apply transition;
   @apply hover: text-secondary;
+}
+
+:deep(.responseToggleOff .cm-panels) {
+  @apply top-lowerTertiaryStickyFold #{!important};
+}
+
+:deep(.responseToggleOn .cm-panels) {
+  @apply top-lowerFourthStickyFold #{!important};
 }
 </style>

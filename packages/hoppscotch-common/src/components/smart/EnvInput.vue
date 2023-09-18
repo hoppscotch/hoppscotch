@@ -152,6 +152,22 @@ const updateModelValue = (value: string) => {
   })
 }
 
+// close the context menu when the input is empty
+watch(
+  () => props.modelValue,
+  (newVal) => {
+    if (!newVal) {
+      invokeAction("contextmenu.open", {
+        position: {
+          top: 0,
+          left: 0,
+        },
+        text: null,
+      })
+    }
+  }
+)
+
 const handleKeystroke = (ev: KeyboardEvent) => {
   if (["ArrowDown", "ArrowUp", "Enter", "Tab", "Escape"].includes(ev.key)) {
     ev.preventDefault()
@@ -314,8 +330,7 @@ const envTooltipPlugin = new HoppReactiveEnvPlugin(envVars, view)
 function handleTextSelection() {
   const selection = view.value?.state.selection.main
   if (selection) {
-    const from = selection.from
-    const to = selection.to
+    const { from, to } = selection
     if (from === to) return
     const text = view.value?.state.doc.sliceString(from, to)
     const { top, left } = view.value?.coordsAtPos(from)

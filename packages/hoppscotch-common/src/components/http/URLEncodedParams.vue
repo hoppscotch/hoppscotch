@@ -424,3 +424,9 @@ const clearContent = () => {
   bulkUrlEncodedParams.value = ""
 }
 </script>
+
+<style lang="scss" scoped>
+:deep(.cm-panels) {
+  @apply top-upperFourthStickyFold #{!important};
+}
+</style>

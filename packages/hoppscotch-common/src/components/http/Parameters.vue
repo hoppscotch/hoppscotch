@@ -430,3 +430,9 @@ const getInspectorResult = (results: InspectorResult[], index: number) => {
   })
 }
 </script>
+
+<style lang="scss" scoped>
+:deep(.cm-panels) {
+  @apply top-upperTertiaryStickyFold #{!important};
+}
+</style>

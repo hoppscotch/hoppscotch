@@ -211,3 +211,9 @@ defineActionHandler("request.open-tab", ({ tab }) => {
   selectedOptionTab.value = tab as GQLOptionTabs
 })
 </script>
+
+<style lang="scss" scoped>
+:deep(.cm-panels) {
+  @apply top-upperPrimaryStickyFold #{!important};
+}
+</style>

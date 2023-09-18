@@ -308,6 +308,7 @@ import {
   selectedEnvironmentIndex$,
   setSelectedEnvironmentIndex,
 } from "~/newstore/environments"
+import { changeWorkspace, workspaceStatus$ } from "~/newstore/workspace"
 import TeamEnvironmentAdapter from "~/helpers/teams/TeamEnvironmentAdapter"
 import { useColorMode } from "@composables/theming"
 import { breakpointsTailwind, useBreakpoints } from "@vueuse/core"
@@ -315,10 +316,10 @@ import { invokeAction } from "~/helpers/actions"
 import { TeamEnvironment } from "~/helpers/teams/TeamEnvironment"
 import { Environment } from "@hoppscotch/data"
 import { onMounted } from "vue"
+import { onLoggedIn } from "~/composables/auth"
+import TeamListAdapter from "~/helpers/teams/TeamListAdapter"
 import { useLocalState } from "~/newstore/localstate"
 import { GetMyTeamsQuery } from "~/helpers/backend/graphql"
-import { useService } from "dioc/vue"
-import { WorkspaceService } from "~/services/workspace.service"
 
 type Scope =
   | {
@@ -352,18 +353,21 @@ type EnvironmentType = "my-environments" | "team-environments"
 
 const myEnvironments = useReadonlyStream(environments$, [])
 
-const workspaceService = useService(WorkspaceService)
-const workspace = workspaceService.currentWorkspace
+const workspace = useReadonlyStream(workspaceStatus$, { type: "personal" })
 
 // TeamList-Adapter
-const teamListAdapter = workspaceService.acquireTeamListAdapter(null)
+const teamListAdapter = new TeamListAdapter(true)
 const myTeams = useReadonlyStream(teamListAdapter.teamList$, null)
 const teamListFetched = ref(false)
 const REMEMBERED_TEAM_ID = useLocalState("REMEMBERED_TEAM_ID")
 
+onLoggedIn(() => {
+  !teamListAdapter.isInitialized && teamListAdapter.initialize()
+})
+
 const switchToTeamWorkspace = (team: GetMyTeamsQuery["myTeams"][number]) => {
   REMEMBERED_TEAM_ID.value = team.id
-  workspaceService.changeWorkspace({
+  changeWorkspace({
     teamID: team.id,
     teamName: team.name,
     type: "team",

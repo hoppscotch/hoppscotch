@@ -17,10 +17,7 @@ export default class TeamListAdapter {
 
   public isInitialized: boolean
 
-  constructor(
-    deferInit = false,
-    private doPolling = true
-  ) {
+  constructor(deferInit = false) {
     this.error$ = new BehaviorSubject<GQLError<string> | null>(null)
     this.loading$ = new BehaviorSubject<boolean>(false)
     this.teamList$ = new BehaviorSubject<GetMyTeamsQuery["myTeams"]>([])
@@ -41,7 +38,7 @@ export default class TeamListAdapter {
     const func = async () => {
       await this.fetchList()
 
-      if (!this.isDispose && this.doPolling) {
+      if (!this.isDispose) {
         this.timeoutHandle = setTimeout(() => func(), POLL_DURATION)
       }
     }

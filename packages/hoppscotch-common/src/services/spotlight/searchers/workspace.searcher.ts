@@ -25,15 +25,16 @@ import { Service } from "dioc"
 import * as E from "fp-ts/Either"
 import MiniSearch from "minisearch"
 import IconCheckCircle from "~/components/app/spotlight/entry/IconSelected.vue"
+import { useStreamStatic } from "~/composables/stream"
 import { runGQLQuery } from "~/helpers/backend/GQLClient"
 import { GetMyTeamsDocument, GetMyTeamsQuery } from "~/helpers/backend/graphql"
+import { workspaceStatus$ } from "~/newstore/workspace"
 import { platform } from "~/platform"
 import IconEdit from "~icons/lucide/edit"
 import IconTrash2 from "~icons/lucide/trash-2"
 import IconUser from "~icons/lucide/user"
 import IconUserPlus from "~icons/lucide/user-plus"
 import IconUsers from "~icons/lucide/users"
-import { WorkspaceService } from "~/services/workspace.service"
 
 type Doc = {
   text: string | string[]
@@ -57,9 +58,14 @@ export class WorkspaceSpotlightSearcherService extends StaticSpotlightSearcherSe
   public searcherSectionTitle = this.t("spotlight.workspace.title")
 
   private readonly spotlight = this.bind(SpotlightService)
-  private readonly workspaceService = this.bind(WorkspaceService)
 
-  private workspace = this.workspaceService.currentWorkspace
+  private workspace = useStreamStatic(
+    workspaceStatus$,
+    { type: "personal" },
+    () => {
+      /* noop */
+    }
+  )[0]
 
   private isTeamSelected = computed(
     () =>
@@ -164,7 +170,6 @@ export class SwitchWorkspaceSpotlightSearcherService
   public searcherSectionTitle = this.t("workspace.title")
 
   private readonly spotlight = this.bind(SpotlightService)
-  private readonly workspaceService = this.bind(WorkspaceService)
 
   constructor() {
     super()
@@ -192,7 +197,13 @@ export class SwitchWorkspaceSpotlightSearcherService
     })
   }
 
-  private workspace = this.workspaceService.currentWorkspace
+  private workspace = useStreamStatic(
+    workspaceStatus$,
+    { type: "personal" },
+    () => {
+      /* noop */
+    }
+  )[0]
 
   createSearchSession(
     query: Readonly<Ref<string>>

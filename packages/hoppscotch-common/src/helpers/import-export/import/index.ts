@@ -58,7 +58,7 @@ type HoppImporterDefinition<T, Y, E> = {
 export const defineImporter = <ReturnType, StepType, Errors>(input: {
   id: string
   name: string
-  icon: Component
+  icon: object | Component
   importer: HoppImporter<ReturnType, StepType, Errors>
   applicableTo: HoppImporterApplicableTo
   steps: StepType

@@ -1,11 +1,14 @@
 <template>
-  <HoppSmartLink :to="to" :blank="blank"
-    class="relative inline-flex items-center justify-center py-2 font-bold transition focus:outline-none focus-visible:bg-accentDark"
+  <HoppSmartLink
+    :to="to"
+    :exact="exact"
+    :blank="blank"
+    class="inline-flex items-center justify-center font-semibold transition whitespace-nowrap focus:outline-none"
     :class="[
       color
         ? `text-${color}-800 bg-${color}-200 hover:(text-${color}-900 bg-${color}-300) focus-visible:(text-${color}-900 bg-${color}-300)`
         : `text-accentContrast bg-accent hover:bg-accentDark focus-visible:bg-accentDark`,
-      label ? 'px-4' : 'px-2',
+      label ? 'px-4 py-2' : 'p-2',
       rounded ? 'rounded-full' : 'rounded',
       { 'opacity-75 cursor-not-allowed': disabled },
       { 'pointer-events-none': loading },
@@ -41,13 +44,19 @@
         {{ label }}
       </div>
       <div v-if="shortcut.length" class="<sm:hidden">
-        <kbd v-for="(key, index) in shortcut" :key="`key-${index}`"
-          class="shortcut-key !bg-accentDark !border-accentLight">
+        <kbd
+          v-for="(key, index) in shortcut"
+          :key="`key-${index}`"
+          class="shortcut-key !bg-accentDark !border-accentLight"
+        >
           {{ key }}
         </kbd>
       </div>
     </span>
-    <span v-if="loading" class="absolute inset-0 flex items-center justify-center">
+    <span
+      v-if="loading"
+      class="absolute inset-0 flex items-center justify-center"
+    >
       <HoppSmartSpinner />
     </span>
   </HoppSmartLink>

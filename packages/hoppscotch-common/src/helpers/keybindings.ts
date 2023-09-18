@@ -17,6 +17,7 @@ let keybindingsEnabled = true
 type ModifierKeys =
   | "ctrl"
   | "alt"
+  | "shift"
   | "ctrl-shift"
   | "alt-shift"
   | "ctrl-alt"
@@ -39,7 +40,6 @@ type SingleCharacterShortcutKey = `${Key}`
 type ShortcutKey = ModifierBasedShortcutKey | SingleCharacterShortcutKey
 
 export const bindings: {
-  // eslint-disable-next-line no-unused-vars
   [_ in ShortcutKey]?: HoppActionWithNoArgs
 } = {
   "ctrl-enter": "request.send-cancel",
@@ -100,6 +100,8 @@ function handleKeyDown(ev: KeyboardEvent) {
 }
 
 function generateKeybindingString(ev: KeyboardEvent): ShortcutKey | null {
+  const target = ev.target
+
   // We may or may not have a modifier key
   const modifierKey = getActiveModifier(ev)
 
@@ -108,9 +110,18 @@ function generateKeybindingString(ev: KeyboardEvent): ShortcutKey | null {
   if (!key) return null
 
   // All key combos backed by modifiers are valid shortcuts (whether currently typing or not)
-  if (modifierKey) return `${modifierKey}-${key}`
+  if (modifierKey) {
+    // If the modifier is shift and the target is an input, we ignore
+    if (
+      modifierKey === "shift" &&
+      isDOMElement(target) &&
+      isTypableElement(target)
+    ) {
+      return null
+    }
 
-  const target = ev.target
+    return `${modifierKey}-${key}`
+  }
 
   // no modifier key here then we do not do anything while on input
   if (isDOMElement(target) && isTypableElement(target)) return null

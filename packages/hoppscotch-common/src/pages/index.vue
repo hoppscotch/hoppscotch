@@ -5,23 +5,24 @@
         <HoppSmartWindows
           v-if="currentTabID"
           :id="'rest_windows'"
-          v-model="currentTabID"
+          :model-value="currentTabID"
+          @update:model-value="(tabID) => tabs.setActiveTab(tabID)"
           @remove-tab="removeTab"
           @add-tab="addNewTab"
           @sort="sortTabs"
         >
           <HoppSmartWindow
-            v-for="tab in tabs"
+            v-for="tab in activeTabs"
             :id="tab.id"
             :key="tab.id"
             :label="tab.document.request.name"
-            :is-removable="tabs.length > 1"
+            :is-removable="activeTabs.length > 1"
             :close-visibility="'hover'"
           >
             <template #tabhead>
               <HttpTabHead
                 :tab="tab"
-                :is-removable="tabs.length > 1"
+                :is-removable="activeTabs.length > 1"
                 @open-rename-modal="openReqRenameModal(tab.id)"
                 @close-tab="removeTab(tab.id)"
                 @close-other-tabs="closeOtherTabsAction(tab.id)"
@@ -99,21 +100,7 @@ import { safelyExtractRESTRequest } from "@hoppscotch/data"
 import { translateExtURLParams } from "~/helpers/RESTExtURLParams"
 import { useRoute } from "vue-router"
 import { useI18n } from "@composables/i18n"
-import {
-  closeTab,
-  closeOtherTabs,
-  createNewTab,
-  currentActiveTab,
-  currentTabID,
-  getActiveTabs,
-  getTabRef,
-  HoppRESTTab,
-  loadTabsFromPersistedState,
-  persistableTabState,
-  updateTab,
-  updateTabOrdering,
-  getDirtyTabsCount,
-} from "~/helpers/rest/tab"
+import { HoppRESTTab } from "~/helpers/rest/tab"
 import { getDefaultRESTRequest } from "~/helpers/rest/default"
 import { defineActionHandler, invokeAction } from "~/helpers/actions"
 import { onLoggedIn } from "~/composables/auth"
@@ -142,6 +129,8 @@ import { HeaderInspectorService } from "~/services/inspection/inspectors/header.
 import { EnvironmentInspectorService } from "~/services/inspection/inspectors/environment.inspector"
 import { ResponseInspectorService } from "~/services/inspection/inspectors/response.inspector"
 import { cloneDeep } from "lodash-es"
+import { RESTTabService } from "~/services/tab/rest"
+import { computed } from "vue"
 
 const savingRequest = ref(false)
 const confirmingCloseForTabID = ref<string | null>(null)
@@ -154,6 +143,10 @@ const renameTabID = ref<string | null>(null)
 
 const t = useI18n()
 const toast = useToast()
+
+const tabs = useService(RESTTabService)
+
+const currentTabID = computed(() => tabs.currentTabID.value)
 
 type PopupDetails = {
   show: boolean
@@ -173,7 +166,7 @@ const contextMenu = ref<PopupDetails>({
   text: null,
 })
 
-const tabs = getActiveTabs()
+const activeTabs = tabs.getActiveTabs()
 
 const confirmSync = useReadonlyStream(currentSyncingStatus$, {
   isInitialSync: false,
@@ -190,9 +183,9 @@ function bindRequestToURLParams() {
     // We skip URL params parsing
     if (Object.keys(query).length === 0 || query.code || query.error) return
 
-    const request = currentActiveTab.value.document.request
+    const request = tabs.currentActiveTab.value.document.request
 
-    currentActiveTab.value.document.request = safelyExtractRESTRequest(
+    tabs.currentActiveTab.value.document.request = safelyExtractRESTRequest(
       translateExtURLParams(query, request),
       getDefaultRESTRequest()
     )
@@ -200,81 +193,82 @@ function bindRequestToURLParams() {
 }
 
 const onTabUpdate = (tab: HoppRESTTab) => {
-  updateTab(tab)
+  tabs.updateTab(tab)
 }
 
 const addNewTab = () => {
-  const tab = createNewTab({
+  const tab = tabs.createNewTab({
     request: getDefaultRESTRequest(),
     isDirty: false,
   })
 
-  currentTabID.value = tab.id
+  tabs.setActiveTab(tab.id)
 }
 const sortTabs = (e: { oldIndex: number; newIndex: number }) => {
-  updateTabOrdering(e.oldIndex, e.newIndex)
+  tabs.updateTabOrdering(e.oldIndex, e.newIndex)
 }
 
 const inspectionService = useService(InspectionService)
 
 const removeTab = (tabID: string) => {
-  const tabState = getTabRef(tabID).value
+  const tabState = tabs.getTabRef(tabID).value
 
   if (tabState.document.isDirty) {
     confirmingCloseForTabID.value = tabID
   } else {
-    closeTab(tabState.id)
+    tabs.closeTab(tabState.id)
     inspectionService.deleteTabInspectorResult(tabState.id)
   }
 }
 
 const closeOtherTabsAction = (tabID: string) => {
-  const isTabDirty = getTabRef(tabID).value?.document.isDirty
-  const dirtyTabCount = getDirtyTabsCount()
+  const isTabDirty = tabs.getTabRef(tabID).value?.document.isDirty
+  const dirtyTabCount = tabs.getDirtyTabsCount()
   // If current tab is dirty, so we need to subtract 1 from the dirty tab count
   const balanceDirtyTabCount = isTabDirty ? dirtyTabCount - 1 : dirtyTabCount
+
   // If there are dirty tabs, show the confirm modal
   if (balanceDirtyTabCount > 0) {
     confirmingCloseAllTabs.value = true
     unsavedTabsCount.value = balanceDirtyTabCount
     exceptedTabID.value = tabID
   } else {
-    closeOtherTabs(tabID)
+    tabs.closeOtherTabs(tabID)
   }
 }
 
 const duplicateTab = (tabID: string) => {
-  const tab = getTabRef(tabID)
+  const tab = tabs.getTabRef(tabID)
   if (tab.value) {
-    const newTab = createNewTab({
+    const newTab = tabs.createNewTab({
       request: cloneDeep(tab.value.document.request),
       isDirty: true,
     })
-    currentTabID.value = newTab.id
+    tabs.setActiveTab(newTab.id)
   }
 }
 
 const onResolveConfirmCloseAllTabs = () => {
-  if (exceptedTabID.value) closeOtherTabs(exceptedTabID.value)
+  if (exceptedTabID.value) tabs.closeOtherTabs(exceptedTabID.value)
   confirmingCloseAllTabs.value = false
 }
 
 const openReqRenameModal = (tabID?: string) => {
   if (tabID) {
-    const tab = getTabRef(tabID)
+    const tab = tabs.getTabRef(tabID)
     reqName.value = tab.value.document.request.name
     renameTabID.value = tabID
   } else {
-    reqName.value = currentActiveTab.value.document.request.name
+    reqName.value = tabs.currentActiveTab.value.document.request.name
   }
   showRenamingReqNameModal.value = true
 }
 
 const renameReqName = () => {
-  const tab = getTabRef(renameTabID.value ?? currentTabID.value)
+  const tab = tabs.getTabRef(renameTabID.value ?? currentTabID.value)
   if (tab.value) {
     tab.value.document.request.name = reqName.value
-    updateTab(tab.value)
+    tabs.updateTab(tab.value)
   }
   showRenamingReqNameModal.value = false
 }
@@ -284,7 +278,7 @@ const renameReqName = () => {
  */
 const onCloseConfirmSaveTab = () => {
   if (!savingRequest.value && confirmingCloseForTabID.value) {
-    closeTab(confirmingCloseForTabID.value)
+    tabs.closeTab(confirmingCloseForTabID.value)
     inspectionService.deleteTabInspectorResult(confirmingCloseForTabID.value)
     confirmingCloseForTabID.value = null
   }
@@ -294,11 +288,11 @@ const onCloseConfirmSaveTab = () => {
  * Called when the user confirms they want to save the tab
  */
 const onResolveConfirmSaveTab = () => {
-  if (currentActiveTab.value.document.saveContext) {
+  if (tabs.currentActiveTab.value.document.saveContext) {
     invokeAction("request.save")
 
     if (confirmingCloseForTabID.value) {
-      closeTab(confirmingCloseForTabID.value)
+      tabs.closeTab(confirmingCloseForTabID.value)
       confirmingCloseForTabID.value = null
     }
   } else {
@@ -312,13 +306,14 @@ const onResolveConfirmSaveTab = () => {
 const onSaveModalClose = () => {
   savingRequest.value = false
   if (confirmingCloseForTabID.value) {
-    closeTab(confirmingCloseForTabID.value)
+    tabs.closeTab(confirmingCloseForTabID.value)
     confirmingCloseForTabID.value = null
   }
 }
 
 const syncTabState = () => {
-  if (tabStateForSync.value) loadTabsFromPersistedState(tabStateForSync.value)
+  if (tabStateForSync.value)
+    tabs.loadTabsFromPersistedState(tabStateForSync.value)
 }
 
 /**
@@ -332,7 +327,7 @@ function startTabStateSync(): Subscription {
   const tabState$ = new BehaviorSubject<PersistableRESTTabState | null>(null)
 
   watchDebounced(
-    persistableTabState,
+    tabs.persistableTabState,
     (state) => {
       tabState$.next(state)
     },
@@ -429,9 +424,10 @@ function oAuthURL() {
         tokenInfo.hasOwnProperty("access_token")
       ) {
         if (
-          currentActiveTab.value.document.request.auth.authType === "oauth-2"
+          tabs.currentActiveTab.value.document.request.auth.authType ===
+          "oauth-2"
         ) {
-          currentActiveTab.value.document.request.auth.token =
+          tabs.currentActiveTab.value.document.request.auth.token =
             tokenInfo.access_token
         }
       }
@@ -462,7 +458,7 @@ bindRequestToURLParams()
 oAuthURL()
 
 defineActionHandler("rest.request.open", ({ doc }) => {
-  createNewTab(doc)
+  tabs.createNewTab(doc)
 })
 
 defineActionHandler("request.rename", openReqRenameModal)
@@ -473,7 +469,7 @@ defineActionHandler("tab.close-current", () => {
   removeTab(currentTabID.value)
 })
 defineActionHandler("tab.close-other", () => {
-  closeOtherTabs(currentTabID.value)
+  tabs.closeOtherTabs(currentTabID.value)
 })
 defineActionHandler("tab.open-new", addNewTab)
 

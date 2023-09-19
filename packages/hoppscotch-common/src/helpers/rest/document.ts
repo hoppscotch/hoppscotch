@@ -1,4 +1,6 @@
 import { HoppRESTRequest } from "@hoppscotch/data"
+import { HoppRESTResponse } from "../types/HoppRESTResponse"
+import { HoppTestResult } from "../types/HoppTestResult"
 
 export type HoppRESTSaveContext =
   | {
@@ -55,4 +57,16 @@ export type HoppRESTDocument = {
    * This contains where the request is originated from basically.
    */
   saveContext?: HoppRESTSaveContext
+
+  /**
+   * The response as it is in the document
+   * (if any)
+   */
+  response?: HoppRESTResponse
+
+  /**
+   * The test results as it is in the document
+   * (if any)
+   */
+  testResults?: HoppTestResult | null
 }

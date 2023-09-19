@@ -5,30 +5,23 @@ import {
   ComputedRef,
   computed,
   nextTick,
+  reactive,
   ref,
   shallowReadonly,
   watch,
 } from "vue"
-import { HoppTestResult } from "~/helpers/types/HoppTestResult"
 import { platform } from "~/platform"
+import {
+  HoppTab,
+  PersistableTabState,
+  TabService as TabServiceInterface,
+} from "."
 
-export type HoppTab<Doc> = {
-  id: string
-  document: Doc
-  response?: any | null
-  testResults?: HoppTestResult | null
-}
-
-export type PersistableTabState<Doc> = {
-  lastActiveTabID: string
-  orderedDocs: Array<{
-    tabID: string
-    doc: Doc
-  }>
-}
-
-export abstract class TabService<Doc extends object> extends Service {
-  protected tabMap: Map<string, HoppTab<Doc>> = new Map()
+export abstract class TabService<Doc extends object>
+  extends Service
+  implements TabServiceInterface<Doc>
+{
+  protected tabMap = reactive(new Map<string, HoppTab<Doc>>())
   protected tabOrdering = ref<string[]>(["test"])
 
   public currentTabID = refWithControl("test", {
@@ -56,7 +49,7 @@ export abstract class TabService<Doc extends object> extends Service {
           !this.currentTabID.value ||
           !newOrdering.includes(this.currentTabID.value)
         ) {
-          this.currentTabID.value = newOrdering[newOrdering.length - 1] // newOrdering should always be non-empty
+          this.setActiveTab(newOrdering[newOrdering.length - 1]) // newOrdering should always be non-empty
         }
       },
       { deep: true }
@@ -71,7 +64,7 @@ export abstract class TabService<Doc extends object> extends Service {
     this.tabMap.set(id, tab)
     this.tabOrdering.value.push(id)
 
-    this.currentTabID.value = id
+    this.setActiveTab(id)
 
     platform.analytics?.logEvent({
       type: "HOPP_REST_NEW_TAB_OPENED",
@@ -109,7 +102,7 @@ export abstract class TabService<Doc extends object> extends Service {
         this.tabOrdering.value.push(doc.tabID)
       }
 
-      this.currentTabID.value = data.lastActiveTabID
+      this.setActiveTab(data.lastActiveTabID)
     }
   }
 

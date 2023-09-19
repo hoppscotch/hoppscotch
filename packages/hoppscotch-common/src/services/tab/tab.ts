@@ -1,62 +1,35 @@
+import { refWithControl } from "@vueuse/core"
+import { Service } from "dioc"
 import { v4 as uuidV4 } from "uuid"
-import { isEqual } from "lodash-es"
 import {
-  reactive,
+  ComputedRef,
   computed,
+  nextTick,
   ref,
   shallowReadonly,
-  ComputedRef,
   watch,
 } from "vue"
-import { refWithControl } from "@vueuse/core"
-import { platform } from "~/platform"
-import { nextTick } from "vue"
-import { HoppRESTDocument, HoppRESTSaveContext } from "~/helpers/rest/document"
-import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 import { HoppTestResult } from "~/helpers/types/HoppTestResult"
-import { getDefaultRESTRequest } from "~/helpers/rest/default"
-import { Service } from "dioc"
+import { platform } from "~/platform"
 
-export type HoppRESTTab = {
+export type HoppTab<Doc> = {
   id: string
-  document: HoppRESTDocument
-  response?: HoppRESTResponse | null
+  document: Doc
+  response?: any | null
   testResults?: HoppTestResult | null
 }
 
-export type PersistableRESTTabState = {
+export type PersistableTabState<Doc> = {
   lastActiveTabID: string
   orderedDocs: Array<{
     tabID: string
-    doc: HoppRESTDocument
+    doc: Doc
   }>
 }
 
-export class RESTTabService extends Service {
-  public static readonly ID = "REST_TAB_SERVICE"
-
-  constructor() {
-    super()
-
-    this.watchCurrentTabID()
-  }
-
-  private tabMap = reactive(
-    new Map<string, HoppRESTTab>([
-      [
-        "test",
-        {
-          id: "test",
-          document: {
-            request: getDefaultRESTRequest(),
-            isDirty: false,
-          },
-        },
-      ],
-    ])
-  )
-
-  private tabOrdering = ref<string[]>(["test"])
+export abstract class TabService<Doc extends object> extends Service {
+  protected tabMap: Map<string, HoppTab<Doc>> = new Map()
+  protected tabOrdering = ref<string[]>(["test"])
 
   public currentTabID = refWithControl("test", {
     onBeforeChange: (newTabID) => {
@@ -71,7 +44,11 @@ export class RESTTabService extends Service {
     },
   })
 
-  private watchCurrentTabID() {
+  public currentActiveTab = computed(
+    () => this.tabMap.get(this.currentTabID.value)!
+  ) // Guaranteed to not be undefined
+
+  protected watchCurrentTabID() {
     watch(
       this.tabOrdering,
       (newOrdering) => {
@@ -86,10 +63,10 @@ export class RESTTabService extends Service {
     )
   }
 
-  public createTab(document: HoppRESTDocument): HoppRESTTab {
+  public createNewTab(document: Doc): HoppTab<Doc> {
     const id = this.generateNewTabID()
 
-    const tab: HoppRESTTab = { id, document }
+    const tab: HoppTab<Doc> = { id, document }
 
     this.tabMap.set(id, tab)
     this.tabOrdering.value.push(id)
@@ -103,11 +80,11 @@ export class RESTTabService extends Service {
     return tab
   }
 
-  public getTabs(): HoppRESTTab[] {
+  public getTabs(): HoppTab<Doc>[] {
     return Array.from(this.tabMap.values())
   }
 
-  public getActiveTab(): HoppRESTTab | null {
+  public getActiveTab(): HoppTab<Doc> | null {
     if (!this.currentTabID.value) {
       return null
     }
@@ -118,15 +95,7 @@ export class RESTTabService extends Service {
     this.currentTabID.value = tabID
   }
 
-  public saveTab(tab: HoppRESTTab, context: HoppRESTSaveContext): void {
-    // Save the tab using the provided context
-  }
-
-  public async sendRequest(tab: HoppRESTTab): Promise<void> {
-    // Send the request and update the tab's response and test results
-  }
-
-  public loadTabsFromPersistedState(data: PersistableRESTTabState): void {
+  public loadTabsFromPersistedState(data: PersistableTabState<Doc>): void {
     if (data) {
       this.tabMap.clear()
       this.tabOrdering.value = []
@@ -144,7 +113,7 @@ export class RESTTabService extends Service {
     }
   }
 
-  public getActiveTabs(): Readonly<ComputedRef<HoppRESTTab[]>> {
+  public getActiveTabs(): Readonly<ComputedRef<HoppTab<Doc>[]>> {
     return shallowReadonly(
       computed(() => this.tabOrdering.value.map((x) => this.tabMap.get(x)!))
     )
@@ -165,7 +134,7 @@ export class RESTTabService extends Service {
     })
   }
 
-  public updateTab(tabUpdate: HoppRESTTab) {
+  public updateTab(tabUpdate: HoppTab<Doc>) {
     if (!this.tabMap.has(tabUpdate.id)) {
       console.warn(
         `Cannot update tab as tab with that tab id does not exist (id: ${tabUpdate.id})`
@@ -222,35 +191,18 @@ export class RESTTabService extends Service {
     this.currentTabID.value = tabID
   }
 
-  public getDirtyTabsCount() {
-    let count = 0
-
-    for (const tab of this.tabMap.values()) {
-      if (tab.document.isDirty) count++
-    }
-
-    return count
-  }
-
-  public getTabRefWithSaveContext(ctx: HoppRESTSaveContext) {
-    for (const tab of this.tabMap.values()) {
-      // For `team-collection` request id can be considered unique
-      if (ctx && ctx.originLocation === "team-collection") {
-        if (
-          tab.document.saveContext?.originLocation === "team-collection" &&
-          tab.document.saveContext.requestID === ctx.requestID
-        ) {
-          return this.getTabRef(tab.id)
-        }
-      } else if (isEqual(ctx, tab.document.saveContext)) {
-        return this.getTabRef(tab.id)
+  public persistableTabState = computed<PersistableTabState<Doc>>(() => ({
+    lastActiveTabID: this.currentTabID.value,
+    orderedDocs: this.tabOrdering.value.map((tabID) => {
+      const tab = this.tabMap.get(tabID)! // tab ordering is guaranteed to have value for this key
+      return {
+        tabID: tab.id,
+        doc: tab.document,
       }
-    }
+    }),
+  }))
 
-    return null
-  }
-
-  public getTabsRefTo(func: (tab: HoppRESTTab) => boolean) {
+  public getTabsRefTo(func: (tab: HoppTab<Doc>) => boolean) {
     return Array.from(this.tabMap.values())
       .filter(func)
       .map((tab) => this.getTabRef(tab.id))

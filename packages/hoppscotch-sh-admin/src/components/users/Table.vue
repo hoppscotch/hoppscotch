@@ -160,9 +160,3 @@ const getCreatedTime = (date: string) => format(new Date(date), 'hh:mm a');
 // Template refs
 const tippyActions = ref<TippyComponent | null>(null);
 </script>
-
-<style scoped>
-.tippy-box[data-theme~='popover'] .tippy-content {
-  padding: 0;
-}
-</style>

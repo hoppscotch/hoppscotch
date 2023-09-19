@@ -11,7 +11,8 @@ export default defineConfig({
     vue(),
     dts({
       insertTypesEntry: true,
-      outDir: ["dist"],
+      skipDiagnostics: true,
+      outputDir: ["dist"],
     }),
     WindiCSS({
       root: path.resolve(__dirname),
@@ -48,7 +49,7 @@ export default defineConfig({
       fileName: (format, entry) => `${entry}.${format}.js`,
     },
     rollupOptions: {
-      external: ["vue", "vue-router"],
+      external: ["vue"],
       output: {
         exports: "named",
       },

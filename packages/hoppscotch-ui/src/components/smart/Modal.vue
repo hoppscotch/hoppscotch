@@ -44,7 +44,6 @@
               </h3>
               <span class="flex items-center">
                 <slot name="actions"></slot>
-                <kbd class="mr-2 shortcut-key">ESC</kbd>
                 <HoppButtonSecondary
                   v-if="dimissible"
                   v-tippy="{ theme: 'tooltip', delay: [500, 20] }"
@@ -109,21 +108,22 @@ const { t, onModalOpen, onModalClose } =
 
 withDefaults(
   defineProps<{
-    dialog: boolean,
-    title: string,
-    dimissible: boolean,
-    placement: string,
-    fullWidth: boolean,
-    styles: string,
-    closeText: string | null,
-  }>(), {
+    dialog: boolean
+    title: string
+    dimissible: boolean
+    placement: string
+    fullWidth: boolean
+    styles: string
+    closeText: string | null
+  }>(),
+  {
     dialog: false,
     title: "",
     dimissible: true,
     placement: "top",
     fullWidth: false,
     styles: "sm:max-w-lg",
-    closeText: null
+    closeText: null,
   }
 )
 

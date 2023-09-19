@@ -13,6 +13,7 @@ export default defineConfig({
         upperPrimaryStickyFold: "var(--upper-primary-sticky-fold)",
         upperSecondaryStickyFold: "var(--upper-secondary-sticky-fold)",
         upperTertiaryStickyFold: "var(--upper-tertiary-sticky-fold)",
+        upperFourthStickyFold: "var(--upper-fourth-sticky-fold)",
         upperMobilePrimaryStickyFold: "var(--upper-mobile-primary-sticky-fold)",
         upperMobileSecondaryStickyFold:
           "var(--upper-mobile-secondary-sticky-fold)",
@@ -22,6 +23,7 @@ export default defineConfig({
         lowerPrimaryStickyFold: "var(--lower-primary-sticky-fold)",
         lowerSecondaryStickyFold: "var(--lower-secondary-sticky-fold)",
         lowerTertiaryStickyFold: "var(--lower-tertiary-sticky-fold)",
+        lowerFourthStickyFold: "var(--lower-fourth-sticky-fold)",
         sidebarPrimaryStickyFold: "var(--sidebar-primary-sticky-fold)",
         sidebarSecondaryStickyFold: "var(--line-height-body)",
       },

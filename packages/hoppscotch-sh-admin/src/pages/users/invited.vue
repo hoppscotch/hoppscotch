@@ -44,8 +44,8 @@
                 :key="index"
                 class="text-secondaryDark hover:bg-zinc-800 hover:cursor-pointer rounded-xl"
               >
-                <td class="py-2 px-3 max-w-30">
-                  <div>
+                <td class="py-2 px-3 max-w-36">
+                  <div class="flex">
                     <span class="truncate">
                       {{ user?.adminUid }}
                     </span>
@@ -56,10 +56,12 @@
                     {{ user?.adminEmail }}
                   </span>
                 </td>
-                <td class="py-2 px-3">
-                  <span>
-                    {{ user?.inviteeEmail }}
-                  </span>
+                <td class="py-2 px-3 max-w-52">
+                  <div class="flex">
+                    <span class="truncate">
+                      {{ user?.inviteeEmail }}
+                    </span>
+                  </div>
                 </td>
                 <td class="py-2 px-3">
                   <div class="flex items-center">

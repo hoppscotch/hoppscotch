@@ -17,6 +17,7 @@ let keybindingsEnabled = true
 type ModifierKeys =
   | "ctrl"
   | "alt"
+  | "shift"
   | "ctrl-shift"
   | "alt-shift"
   | "ctrl-alt"
@@ -39,7 +40,6 @@ type SingleCharacterShortcutKey = `${Key}`
 type ShortcutKey = ModifierBasedShortcutKey | SingleCharacterShortcutKey
 
 export const bindings: {
-  // eslint-disable-next-line no-unused-vars
   [_ in ShortcutKey]?: HoppActionWithNoArgs
 } = {
   "ctrl-enter": "request.send-cancel",
@@ -56,7 +56,7 @@ export const bindings: {
   "alt-x": "request.method.delete",
   "ctrl-k": "modals.search.toggle",
   "ctrl-/": "flyouts.keybinds.toggle",
-  "?": "modals.support.toggle",
+  "shift-/": "modals.support.toggle",
   "ctrl-m": "modals.share.toggle",
   "alt-r": "navigation.jump.rest",
   "alt-q": "navigation.jump.graphql",
@@ -67,6 +67,7 @@ export const bindings: {
   "ctrl-shift-p": "response.preview.toggle",
   "ctrl-j": "response.file.download",
   "ctrl-.": "response.copy",
+  "ctrl-shift-l": "editor.format",
 }
 
 /**
@@ -99,6 +100,8 @@ function handleKeyDown(ev: KeyboardEvent) {
 }
 
 function generateKeybindingString(ev: KeyboardEvent): ShortcutKey | null {
+  const target = ev.target
+
   // We may or may not have a modifier key
   const modifierKey = getActiveModifier(ev)
 
@@ -107,9 +110,18 @@ function generateKeybindingString(ev: KeyboardEvent): ShortcutKey | null {
   if (!key) return null
 
   // All key combos backed by modifiers are valid shortcuts (whether currently typing or not)
-  if (modifierKey) return `${modifierKey}-${key}`
+  if (modifierKey) {
+    // If the modifier is shift and the target is an input, we ignore
+    if (
+      modifierKey === "shift" &&
+      isDOMElement(target) &&
+      isTypableElement(target)
+    ) {
+      return null
+    }
 
-  const target = ev.target
+    return `${modifierKey}-${key}`
+  }
 
   // no modifier key here then we do not do anything while on input
   if (isDOMElement(target) && isTypableElement(target)) return null
@@ -119,7 +131,8 @@ function generateKeybindingString(ev: KeyboardEvent): ShortcutKey | null {
 }
 
 function getPressedKey(ev: KeyboardEvent): Key | null {
-  const val = ev.key.toLowerCase()
+  const val = ev.code.toLowerCase()
+
   // Check arrow keys
   if (val === "arrowup") return "up"
   else if (val === "arrowdown") return "down"
@@ -127,21 +140,20 @@ function getPressedKey(ev: KeyboardEvent): Key | null {
   else if (val === "arrowright") return "right"
 
   // Check letter keys
-  const isLetter = ev.code.toLowerCase().startsWith("key")
-  if (isLetter) return ev.code.toLowerCase().substring(3) as Key
+  const isLetter = val.startsWith("key")
+  if (isLetter) return val.substring(3) as Key
 
   // Check if number keys
-  if (val.length === 1 && !isNaN(val as any)) return val as Key
+  const isDigit = val.startsWith("digit")
+  if (isDigit) return val.substring(5) as Key
 
-  // Check if question mark
-  if (val === "?") return "?"
-
-  // Check if question mark
-  if (val === "/") return "/"
+  // Check if slash
+  if (val === "slash") return "/"
 
   // Check if period
-  if (val === ".") return "."
+  if (val === "period") return "."
 
+  // Check if enter
   if (val === "enter") return "enter"
 
   // If no other cases match, this is not a valid key

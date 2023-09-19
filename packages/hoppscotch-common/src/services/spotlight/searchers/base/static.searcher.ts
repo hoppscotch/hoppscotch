@@ -22,7 +22,7 @@ export type SearchResult<Doc extends object & { excludeFromSearch?: boolean }> =
  * Options for StaticSpotlightSearcher initialization
  */
 export type StaticSpotlightSearcherOptions<
-  Doc extends object & { excludeFromSearch?: boolean }
+  Doc extends object & { excludeFromSearch?: boolean },
 > = {
   /**
    * The array of field names in the given documents to search against
@@ -53,7 +53,7 @@ export type StaticSpotlightSearcherOptions<
  * that can optionally be toggled against (via the `excludeFromSearch` property in the Doc)
  */
 export abstract class StaticSpotlightSearcherService<
-    Doc extends object & { excludeFromSearch?: boolean }
+    Doc extends object & { excludeFromSearch?: boolean },
   >
   extends Service
   implements SpotlightSearcher
@@ -91,8 +91,9 @@ export abstract class StaticSpotlightSearcherService<
   private async addDocsToSearchIndex() {
     this.loading.value = true
 
-    this.minisearch.removeAll()
-    this.minisearch.vacuum()
+    this.minisearch = new MiniSearch({
+      fields: this.opts.searchFields as string[],
+    })
 
     await this.minisearch.addAllAsync(
       Object.entries(this._documents).map(([id, doc]) => ({

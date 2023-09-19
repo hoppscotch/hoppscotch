@@ -52,11 +52,6 @@ export class NavigationSpotlightSearcherService extends StaticSpotlightSearcherS
       alternates: ["navigation", "realtime", "socket", "ws"],
       icon: markRaw(IconArrowRight),
     },
-    documentation: {
-      text: this.t("shortcut.navigation.documentation"),
-      alternates: ["navigation", "documentation", "docs"],
-      icon: markRaw(IconArrowRight),
-    },
     profile: {
       text: this.t("shortcut.navigation.profile"),
       alternates: ["navigation", "profile", "account"],

@@ -94,7 +94,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, onBeforeUnmount, onBeforeMount, watch } from "vue"
+import { ref, onMounted, onBeforeUnmount, onBeforeMount } from "vue"
 import { safelyExtractRESTRequest } from "@hoppscotch/data"
 import { translateExtURLParams } from "~/helpers/RESTExtURLParams"
 import { useRoute } from "vue-router"
@@ -140,8 +140,8 @@ import { useService } from "dioc/vue"
 import { InspectionService } from "~/services/inspection"
 import { HeaderInspectorService } from "~/services/inspection/inspectors/header.inspector"
 import { EnvironmentInspectorService } from "~/services/inspection/inspectors/environment.inspector"
-import { URLInspectorService } from "~/services/inspection/inspectors/url.inspector"
 import { ResponseInspectorService } from "~/services/inspection/inspectors/response.inspector"
+import { cloneDeep } from "lodash-es"
 
 const savingRequest = ref(false)
 const confirmingCloseForTabID = ref<string | null>(null)
@@ -150,6 +150,7 @@ const showRenamingReqNameModal = ref(false)
 const reqName = ref<string>("")
 const unsavedTabsCount = ref(0)
 const exceptedTabID = ref<string | null>(null)
+const renameTabID = ref<string | null>(null)
 
 const t = useI18n()
 const toast = useToast()
@@ -214,23 +215,28 @@ const sortTabs = (e: { oldIndex: number; newIndex: number }) => {
   updateTabOrdering(e.oldIndex, e.newIndex)
 }
 
-const removeTab = (tabID: string) => {
-  const tab = getTabRef(tabID)
+const inspectionService = useService(InspectionService)
 
-  if (tab.value.document.isDirty) {
+const removeTab = (tabID: string) => {
+  const tabState = getTabRef(tabID).value
+
+  if (tabState.document.isDirty) {
     confirmingCloseForTabID.value = tabID
   } else {
-    closeTab(tab.value.id)
-    inspectionService.deleteTabInspectorResult(tab.value.id)
+    closeTab(tabState.id)
+    inspectionService.deleteTabInspectorResult(tabState.id)
   }
 }
 
 const closeOtherTabsAction = (tabID: string) => {
+  const isTabDirty = getTabRef(tabID).value?.document.isDirty
   const dirtyTabCount = getDirtyTabsCount()
+  // If current tab is dirty, so we need to subtract 1 from the dirty tab count
+  const balanceDirtyTabCount = isTabDirty ? dirtyTabCount - 1 : dirtyTabCount
   // If there are dirty tabs, show the confirm modal
-  if (dirtyTabCount > 0) {
+  if (balanceDirtyTabCount > 0) {
     confirmingCloseAllTabs.value = true
-    unsavedTabsCount.value = dirtyTabCount
+    unsavedTabsCount.value = balanceDirtyTabCount
     exceptedTabID.value = tabID
   } else {
     closeOtherTabs(tabID)
@@ -241,7 +247,7 @@ const duplicateTab = (tabID: string) => {
   const tab = getTabRef(tabID)
   if (tab.value) {
     const newTab = createNewTab({
-      request: tab.value.document.request,
+      request: cloneDeep(tab.value.document.request),
       isDirty: true,
     })
     currentTabID.value = newTab.id
@@ -257,6 +263,7 @@ const openReqRenameModal = (tabID?: string) => {
   if (tabID) {
     const tab = getTabRef(tabID)
     reqName.value = tab.value.document.request.name
+    renameTabID.value = tabID
   } else {
     reqName.value = currentActiveTab.value.document.request.name
   }
@@ -264,7 +271,7 @@ const openReqRenameModal = (tabID?: string) => {
 }
 
 const renameReqName = () => {
-  const tab = getTabRef(currentTabID.value)
+  const tab = getTabRef(renameTabID.value ?? currentTabID.value)
   if (tab.value) {
     tab.value.document.request.name = reqName.value
     updateTab(tab.value)
@@ -458,17 +465,22 @@ defineActionHandler("rest.request.open", ({ doc }) => {
   createNewTab(doc)
 })
 
-const inspectionService = useService(InspectionService)
+defineActionHandler("request.rename", openReqRenameModal)
+defineActionHandler("tab.duplicate-tab", ({ tabID }) => {
+  duplicateTab(tabID ?? currentTabID.value)
+})
+defineActionHandler("tab.close-current", () => {
+  removeTab(currentTabID.value)
+})
+defineActionHandler("tab.close-other", () => {
+  closeOtherTabs(currentTabID.value)
+})
+defineActionHandler("tab.open-new", addNewTab)
+
 useService(HeaderInspectorService)
 useService(EnvironmentInspectorService)
-useService(URLInspectorService)
 useService(ResponseInspectorService)
-
-watch(
-  () => currentTabID.value,
-  () => {
-    inspectionService.initializeTabInspectors()
-  },
-  { immediate: true }
-)
+for (const inspectorDef of platform.additionalInspectors ?? []) {
+  useService(inspectorDef.service)
+}
 </script>

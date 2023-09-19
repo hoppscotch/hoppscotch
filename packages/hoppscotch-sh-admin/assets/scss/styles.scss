@@ -31,6 +31,10 @@
   @apply h-0;
 }
 
+.no-scrollbar {
+  scrollbar-width: none;
+}
+
 input::placeholder,
 textarea::placeholder,
 .cm-placeholder {
@@ -165,12 +169,6 @@ a {
       @apply my-0 ml-1;
       @apply truncate;
       @apply sm:inline-flex;
-    }
-
-    .env-icon {
-      @apply transition;
-      @apply inline-flex;
-      @apply items-center;
     }
   }
 
@@ -332,7 +330,7 @@ pre.ace_editor {
   @apply after:font-icon;
   @apply after:text-current;
   @apply after:right-3;
-  @apply after:content-["\e313"];
+  @apply after:content-["\e5cf"];
   @apply after:text-lg;
 }
 
@@ -487,6 +485,10 @@ pre.ace_editor {
   }
 }
 
+.cm-scroller {
+  @apply overscroll-y-auto;
+}
+
 .cm-editor {
   .cm-line::selection {
     @apply bg-accentDark #{!important};
@@ -573,4 +575,12 @@ details[open] summary .indicator {
 .color-picker[type="color"]::-webkit-color-swatch {
   @apply rounded;
   @apply border-0;
+}
+
+.gql-operation-not-highlight {
+  @apply opacity-50;
+}
+
+.gql-operation-highlight {
+  @apply opacity-100;
 }

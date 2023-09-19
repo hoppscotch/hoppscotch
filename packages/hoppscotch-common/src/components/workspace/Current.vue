@@ -16,9 +16,9 @@
 
 <script setup lang="ts">
 import { computed } from "vue"
-import { useReadonlyStream } from "~/composables/stream"
-import { workspaceStatus$ } from "~/newstore/workspace"
 import { useI18n } from "~/composables/i18n"
+import { useService } from "dioc/vue"
+import { WorkspaceService } from "~/services/workspace.service"
 
 defineProps<{
   section?: string
@@ -26,7 +26,8 @@ defineProps<{
 
 const t = useI18n()
 
-const workspace = useReadonlyStream(workspaceStatus$, { type: "personal" })
+const workspaceService = useService(WorkspaceService)
+const workspace = workspaceService.currentWorkspace
 
 const teamWorkspaceName = computed(() => {
   if (workspace.value.type === "team" && workspace.value.teamName) {

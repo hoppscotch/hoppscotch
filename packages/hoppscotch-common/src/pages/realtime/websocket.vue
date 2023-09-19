@@ -7,6 +7,7 @@
         <HoppSmartInput
           v-model="url"
           type="url"
+          :autofocus="false"
           styles="!inline-flex flex-1 space-x-2"
           input-styles="w-full px-4 py-2 border rounded !bg-primaryLight border-divider text-secondaryDark"
           :placeholder="`${t('websocket.url')}`"
@@ -45,6 +46,7 @@
         >
           <RealtimeCommunication
             :is-connected="connectionState === 'CONNECTED'"
+            class="cmResponsePrimaryStickyFold"
             sticky-header-styles="top-upperSecondaryStickyFold"
             @send-message="sendMessage($event)"
           />
@@ -169,7 +171,7 @@
     <template #secondary>
       <RealtimeLog
         :title="t('websocket.log')"
-        :log="(log as LogEntryData[])"
+        :log="log as LogEntryData[]"
         @delete="clearLogEntries()"
       />
     </template>

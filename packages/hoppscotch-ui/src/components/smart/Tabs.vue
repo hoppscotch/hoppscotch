@@ -233,7 +233,6 @@ const selectTab = (id: string) => {
 
     &.vertical {
       @apply p-2;
-      @apply rounded;
       @apply focus: after: hidden;
 
       &.active {

@@ -249,13 +249,14 @@ import { platform } from "~/platform"
 import { useI18n } from "@composables/i18n"
 import { useReadonlyStream } from "@composables/stream"
 import { defineActionHandler, invokeAction } from "@helpers/actions"
-import { workspaceStatus$, updateWorkspaceTeamName } from "~/newstore/workspace"
-import TeamListAdapter from "~/helpers/teams/TeamListAdapter"
-import { onLoggedIn } from "~/composables/auth"
 import { GetMyTeamsQuery } from "~/helpers/backend/graphql"
 import { getPlatformSpecialKey } from "~/helpers/platformutils"
+import { useToast } from "~/composables/toast"
+import { WorkspaceService } from "~/services/workspace.service"
+import { useService } from "dioc/vue"
 
 const t = useI18n()
+const toast = useToast()
 
 /**
  * Once the PWA code is initialized, this holds a method
@@ -280,10 +281,11 @@ const currentUser = useReadonlyStream(
 const selectedTeam = ref<GetMyTeamsQuery["myTeams"][number] | undefined>()
 
 // TeamList-Adapter
-const teamListAdapter = new TeamListAdapter(true)
+const workspaceService = useService(WorkspaceService)
+const teamListAdapter = workspaceService.acquireTeamListAdapter(null)
 const myTeams = useReadonlyStream(teamListAdapter.teamList$, null)
 
-const workspace = useReadonlyStream(workspaceStatus$, { type: "personal" })
+const workspace = workspaceService.currentWorkspace
 
 const workspaceName = computed(() =>
   workspace.value.type === "personal"
@@ -295,20 +297,18 @@ const refetchTeams = () => {
   teamListAdapter.fetchList()
 }
 
-onLoggedIn(() => {
-  !teamListAdapter.isInitialized && teamListAdapter.initialize()
-})
-
 watch(
   () => myTeams.value,
   (newTeams) => {
-    if (newTeams && workspace.value.type === "team" && workspace.value.teamID) {
-      const team = newTeams.find((team) => team.id === workspace.value.teamID)
+    const space = workspace.value
+
+    if (newTeams && space.type === "team" && space.teamID) {
+      const team = newTeams.find((team) => team.id === space.teamID)
       if (team) {
         selectedTeam.value = team
         // Update the workspace name if it's not the same as the updated team name
-        if (team.name !== workspace.value.teamName) {
-          updateWorkspaceTeamName(workspace.value, team.name)
+        if (team.name !== space.teamName) {
+          workspaceService.updateWorkspaceTeamName(team.name)
         }
       }
     }
@@ -372,6 +372,8 @@ const handleTeamEdit = () => {
     editingTeamID.value = workspace.value.teamID
     editingTeamName.value = { name: selectedTeam.value.name }
     displayModalEdit(true)
+  } else {
+    noPermission()
   }
 }
 
@@ -382,6 +384,19 @@ const settings = ref<any | null>(null)
 const logout = ref<any | null>(null)
 const accountActions = ref<any | null>(null)
 
+defineActionHandler("modals.team.edit", handleTeamEdit)
+
+defineActionHandler("modals.team.invite", () => {
+  if (
+    selectedTeam.value?.myRole === "OWNER" ||
+    selectedTeam.value?.myRole === "EDITOR"
+  ) {
+    inviteTeam({ name: selectedTeam.value.name }, selectedTeam.value.id)
+  } else {
+    noPermission()
+  }
+})
+
 defineActionHandler(
   "user.login",
   () => {
@@ -389,4 +404,8 @@ defineActionHandler(
   },
   computed(() => !currentUser.value)
 )
+
+const noPermission = () => {
+  toast.error(`${t("profile.no_permission")}`)
+}
 </script>

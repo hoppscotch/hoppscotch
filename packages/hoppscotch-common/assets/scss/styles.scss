@@ -31,6 +31,10 @@
   @apply h-0;
 }
 
+.no-scrollbar {
+  scrollbar-width: none;
+}
+
 input::placeholder,
 textarea::placeholder,
 .cm-placeholder {
@@ -165,12 +169,6 @@ a {
       @apply my-0 ml-1;
       @apply truncate;
       @apply sm:inline-flex;
-    }
-
-    .env-icon {
-      @apply transition;
-      @apply inline-flex;
-      @apply items-center;
     }
   }
 
@@ -332,7 +330,7 @@ pre.ace_editor {
   @apply after:font-icon;
   @apply after:text-current;
   @apply after:right-3;
-  @apply after:content-["\e313"];
+  @apply after:content-["\e5cf"];
   @apply after:text-lg;
 }
 
@@ -487,6 +485,10 @@ pre.ace_editor {
   }
 }
 
+.cm-scroller {
+  @apply overscroll-y-auto;
+}
+
 .cm-editor {
   .cm-line::selection {
     @apply bg-accentDark #{!important};
@@ -497,6 +499,22 @@ pre.ace_editor {
     @apply bg-accentDark #{!important};
     @apply text-accentContrast #{!important};
   }
+}
+
+.cm-panel.cm-search [name="close"] {
+  @apply flex;
+  @apply items-center;
+  @apply justify-center;
+  @apply min-h-5;
+  @apply min-w-5;
+  @apply bg-primaryDark #{!important};
+  @apply sticky #{!important};
+  @apply right-0 #{!important};
+  @apply ml-auto #{!important};
+  @apply my-auto #{!important};
+  @apply rounded #{!important};
+  @apply outline #{!important};
+  @apply outline-divider #{!important};
 }
 
 .shortcut-key {
@@ -573,4 +591,12 @@ details[open] summary .indicator {
 .color-picker[type="color"]::-webkit-color-swatch {
   @apply rounded;
   @apply border-0;
+}
+
+.gql-operation-not-highlight {
+  @apply opacity-50;
+}
+
+.gql-operation-highlight {
+  @apply opacity-100;
 }

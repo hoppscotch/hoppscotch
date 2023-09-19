@@ -7,7 +7,7 @@
   >
     <template #body>
       <div v-if="sendInvitesResult.length" class="flex flex-col px-4">
-        <div class="flex flex-col items-center justify-center max-w-md">
+        <div class="flex flex-col items-center justify-center max-w-md mb-8">
           <icon-lucide-users class="w-6 h-6 text-accent" />
           <h3 class="my-2 text-lg text-center">
             {{ t("team.we_sent_invite_link") }}
@@ -16,28 +16,49 @@
             {{ t("team.we_sent_invite_link_description") }}
           </p>
         </div>
-        <div
-          class="flex flex-col p-4 mt-8 border rounded space-y-6 border-dividerLight"
-        >
+        <div v-if="successInvites.length">
+          <label class="mb-4 block">
+            {{ t("team.success_invites") }}
+          </label>
           <div
-            v-for="(invitee, index) in sendInvitesResult"
-            :key="`invitee-${index}`"
+            class="flex flex-col p-4 border rounded space-y-6 border-dividerLight"
           >
-            <p class="flex items-center">
-              <component
-                :is="
-                  invitee.status === 'error' ? IconAlertTriangle : IconMailCheck
-                "
-                class="mr-4 svg-icons"
-                :class="
-                  invitee.status === 'error' ? 'text-red-500' : 'text-green-500'
-                "
-              />
-              <span class="truncate">{{ invitee.email }}</span>
-            </p>
-            <p v-if="invitee.status === 'error'" class="mt-2 ml-8 text-red-500">
-              {{ getErrorMessage(invitee.error) }}
-            </p>
+            <div
+              v-for="(invitee, index) in successInvites"
+              :key="`invitee-${index}`"
+            >
+              <p class="flex items-center">
+                <component
+                  :is="IconMailCheck"
+                  class="mr-4 svg-icons text-green-500"
+                />
+                <span class="truncate">{{ invitee.email }}</span>
+              </p>
+            </div>
+          </div>
+        </div>
+        <div v-if="failedInvites.length" class="mt-6">
+          <label class="mb-4 block">
+            {{ t("team.failed_invites") }}
+          </label>
+          <div
+            class="flex flex-col p-4 border rounded space-y-6 border-dividerLight"
+          >
+            <div
+              v-for="(invitee, index) in failedInvites"
+              :key="`invitee-${index}`"
+            >
+              <p class="flex items-center">
+                <component
+                  :is="IconAlertTriangle"
+                  class="mr-4 svg-icons text-red-500"
+                />
+                <span class="truncate">{{ invitee.email }}</span>
+              </p>
+              <p class="mt-2 ml-8 text-red-500">
+                {{ getErrorMessage(invitee.error) }}
+              </p>
+            </div>
           </div>
         </div>
       </div>
@@ -172,7 +193,7 @@
                       :active="invitee.value === 'OWNER'"
                       @click="
                         () => {
-                          updateNewInviteeRole(index, 'OWNER')
+                          updateNewInviteeRole(index, TeamMemberRole.Owner)
                           hide()
                         }
                       "
@@ -185,7 +206,7 @@
                       :active="invitee.value === 'EDITOR'"
                       @click="
                         () => {
-                          updateNewInviteeRole(index, 'EDITOR')
+                          updateNewInviteeRole(index, TeamMemberRole.Editor)
                           hide()
                         }
                       "
@@ -198,7 +219,7 @@
                       :active="invitee.value === 'VIEWER'"
                       @click="
                         () => {
-                          updateNewInviteeRole(index, 'VIEWER')
+                          updateNewInviteeRole(index, TeamMemberRole.Viewer)
                           hide()
                         }
                       "
@@ -484,6 +505,12 @@ type SendInvitesErrorType =
     }
 
 const sendInvitesResult = ref<Array<SendInvitesErrorType>>([])
+const successInvites = computed(() =>
+  sendInvitesResult.value.filter((invitee) => invitee.status === "success")
+)
+const failedInvites = computed(() =>
+  sendInvitesResult.value.filter((invitee) => invitee.status === "error")
+)
 
 const sendingInvites = ref<boolean>(false)
 

@@ -40,7 +40,7 @@
             :key="`result-${result.id}`"
             :entry="result"
             :active="isEqual(selectedEntry, [sectionIndex, entryIndex])"
-            @mouseover="selectedEntry = [sectionIndex, entryIndex]"
+            @mouseover="onMouseOver($event, sectionIndex, entryIndex)"
             @action="runAction(sectionID, result)"
           />
         </div>
@@ -98,6 +98,20 @@ import { UserSpotlightSearcherService } from "~/services/spotlight/searchers/use
 import { NavigationSpotlightSearcherService } from "~/services/spotlight/searchers/navigation.searcher"
 import { SettingsSpotlightSearcherService } from "~/services/spotlight/searchers/settings.searcher"
 import { CollectionsSpotlightSearcherService } from "~/services/spotlight/searchers/collections.searcher"
+import { MiscellaneousSpotlightSearcherService } from "~/services/spotlight/searchers/miscellaneous.searcher"
+import { TabSpotlightSearcherService } from "~/services/spotlight/searchers/tab.searcher"
+import { GeneralSpotlightSearcherService } from "~/services/spotlight/searchers/general.searcher"
+import { ResponseSpotlightSearcherService } from "~/services/spotlight/searchers/response.searcher"
+import { RequestSpotlightSearcherService } from "~/services/spotlight/searchers/request.searcher"
+import {
+  EnvironmentsSpotlightSearcherService,
+  SwitchEnvSpotlightSearcherService,
+} from "~/services/spotlight/searchers/environment.searcher"
+import {
+  SwitchWorkspaceSpotlightSearcherService,
+  WorkspaceSpotlightSearcherService,
+} from "~/services/spotlight/searchers/workspace.searcher"
+import { InterceptorSpotlightSearcherService } from "~/services/spotlight/searchers/interceptor.searcher"
 
 const t = useI18n()
 
@@ -116,6 +130,16 @@ useService(UserSpotlightSearcherService)
 useService(NavigationSpotlightSearcherService)
 useService(SettingsSpotlightSearcherService)
 useService(CollectionsSpotlightSearcherService)
+useService(MiscellaneousSpotlightSearcherService)
+useService(TabSpotlightSearcherService)
+useService(GeneralSpotlightSearcherService)
+useService(ResponseSpotlightSearcherService)
+useService(RequestSpotlightSearcherService)
+useService(EnvironmentsSpotlightSearcherService)
+useService(SwitchEnvSpotlightSearcherService)
+useService(WorkspaceSpotlightSearcherService)
+useService(SwitchWorkspaceSpotlightSearcherService)
+useService(InterceptorSpotlightSearcherService)
 
 const search = ref("")
 
@@ -152,6 +176,24 @@ watch(
 function runAction(searcherID: string, result: SpotlightSearcherResult) {
   spotlightService.selectSearchResult(searcherID, result)
   emit("hide-modal")
+}
+
+let lastMousePosition: { x: number; y: number }
+
+const onMouseOver = (
+  e: MouseEvent,
+  sectionIndex: number,
+  entryIndex: number
+) => {
+  const mousePosition = {
+    x: e.clientX,
+    y: e.clientY,
+  }
+
+  // if the position is same, do nothing
+  if (isEqual(lastMousePosition, mousePosition)) return
+  selectedEntry.value = [sectionIndex, entryIndex]
+  lastMousePosition = mousePosition
 }
 
 function newUseArrowKeysForNavigation() {

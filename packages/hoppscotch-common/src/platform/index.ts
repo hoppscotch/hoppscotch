@@ -6,9 +6,13 @@ import { SettingsPlatformDef } from "./settings"
 import { HistoryPlatformDef } from "./history"
 import { TabStatePlatformDef } from "./tab"
 import { AnalyticsPlatformDef } from "./analytics"
+import { InterceptorsPlatformDef } from "./interceptors"
+import { HoppModule } from "~/modules"
+import { InspectorsPlatformDef } from "./inspectors"
 
 export type PlatformDef = {
   ui?: UIPlatformDef
+  addedHoppModules?: HoppModule[]
   auth: AuthPlatformDef
   analytics?: AnalyticsPlatformDef
   sync: {
@@ -18,6 +22,8 @@ export type PlatformDef = {
     history: HistoryPlatformDef
     tabState: TabStatePlatformDef
   }
+  interceptors: InterceptorsPlatformDef
+  additionalInspectors?: InspectorsPlatformDef
   platformFeatureFlags: {
     exportAsGIST: boolean
   }

@@ -145,13 +145,8 @@ const statusCategory = computed(() => {
 
 const inspectionService = useService(InspectionService)
 
-const allTabResults = inspectionService.tabs
-
-const tabResults = computed(() => {
-  return (
-    allTabResults.value
-      .get(currentTabID.value)
-      ?.filter((result) => result.locations.type === "response") ?? []
-  )
-})
+const tabResults = inspectionService.getResultViewFor(
+  currentTabID.value,
+  (result) => result.locations.type === "response"
+)
 </script>

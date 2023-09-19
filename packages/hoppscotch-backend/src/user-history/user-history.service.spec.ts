@@ -24,6 +24,8 @@ beforeEach(() => {
   mockPubSub.publish.mockClear();
 });
 
+const date = new Date();
+
 describe('UserHistoryService', () => {
   describe('fetchUserHistory', () => {
     test('Should return a list of users REST history if exists', async () => {
@@ -400,7 +402,7 @@ describe('UserHistoryService', () => {
         request: [{}],
         responseMetadata: [{}],
         reqType: ReqType.REST,
-        executedOn: new Date(),
+        executedOn: date,
         isStarred: false,
       });
 
@@ -410,7 +412,7 @@ describe('UserHistoryService', () => {
         request: JSON.stringify([{}]),
         responseMetadata: JSON.stringify([{}]),
         reqType: ReqType.REST,
-        executedOn: new Date(),
+        executedOn: date,
         isStarred: false,
       };
 

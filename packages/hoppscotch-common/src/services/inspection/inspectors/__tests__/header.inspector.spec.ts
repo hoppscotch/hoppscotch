@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from "vitest"
 import { HeaderInspectorService } from "../header.inspector"
 import { InspectionService } from "../../index"
 import { getDefaultRESTRequest } from "~/helpers/rest/default"
+import { ref } from "vue"
 
 vi.mock("~/modules/i18n", () => ({
   __esModule: true,
@@ -30,15 +31,15 @@ describe("HeaderInspectorService", () => {
       const container = new TestContainer()
       const headerInspector = container.bind(HeaderInspectorService)
 
-      const req = {
+      const req = ref({
         ...getDefaultRESTRequest(),
         endpoint: "http://example.com/api/data",
         headers: [{ key: "Cookie", value: "some-cookie", active: true }],
-      }
+      })
 
-      const result = headerInspector.getInspectorFor(req)
+      const result = headerInspector.getInspections(req)
 
-      expect(result).toContainEqual(
+      expect(result.value).toContainEqual(
         expect.objectContaining({ id: "header", isApplicable: true })
       )
     })
@@ -47,15 +48,15 @@ describe("HeaderInspectorService", () => {
       const container = new TestContainer()
       const headerInspector = container.bind(HeaderInspectorService)
 
-      const req = {
+      const req = ref({
         ...getDefaultRESTRequest(),
         endpoint: "http://example.com/api/data",
         headers: [{ key: "Authorization", value: "Bearer abcd", active: true }],
-      }
+      })
 
-      const result = headerInspector.getInspectorFor(req)
+      const result = headerInspector.getInspections(req)
 
-      expect(result).toHaveLength(0)
+      expect(result.value).toHaveLength(0)
     })
   })
 })

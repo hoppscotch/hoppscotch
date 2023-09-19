@@ -213,7 +213,6 @@
           filled
           :label="`${t('add.new')}`"
           :icon="IconPlus"
-          class="mb-4"
           @click="addHeader"
         />
       </HoppSmartPlaceholder>
@@ -509,30 +508,17 @@ const changeTab = (tab: ComputedHeader["source"]) => {
 
 const inspectionService = useService(InspectionService)
 
-const allTabResults = inspectionService.tabs
+const headerKeyResults = inspectionService.getResultViewFor(
+  currentTabID.value,
+  (result) =>
+    result.locations.type === "header" && result.locations.position === "key"
+)
 
-const headerKeyResults = computed(() => {
-  return (
-    allTabResults.value
-      .get(currentTabID.value)
-      .filter(
-        (result) =>
-          result.locations.type === "header" &&
-          result.locations.position === "key"
-      ) ?? []
-  )
-})
-const headerValueResults = computed(() => {
-  return (
-    allTabResults.value
-      .get(currentTabID.value)
-      .filter(
-        (result) =>
-          result.locations.type === "header" &&
-          result.locations.position === "value"
-      ) ?? []
-  )
-})
+const headerValueResults = inspectionService.getResultViewFor(
+  currentTabID.value,
+  (result) =>
+    result.locations.type === "header" && result.locations.position === "value"
+)
 
 const getInspectorResult = (results: InspectorResult[], index: number) => {
   return results.filter((result) => {
@@ -542,3 +528,9 @@ const getInspectorResult = (results: InspectorResult[], index: number) => {
   })
 }
 </script>
+
+<style lang="scss" scoped>
+:deep(.cm-panels) {
+  @apply top-upperTertiaryStickyFold #{!important};
+}
+</style>

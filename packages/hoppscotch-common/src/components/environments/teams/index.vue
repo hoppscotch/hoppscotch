@@ -54,7 +54,6 @@
         v-tippy="{ theme: 'tooltip' }"
         disabled
         filled
-        class="mb-4"
         :icon="IconPlus"
         :title="t('team.no_access')"
         :label="t('action.new')"
@@ -64,7 +63,6 @@
         :label="`${t('add.new')}`"
         filled
         outline
-        class="mb-4"
         @click="displayModalAdd(true)"
       />
     </HoppSmartPlaceholder>

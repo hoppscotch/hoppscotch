@@ -17,10 +17,12 @@ import { FileSystemIconLoader } from "unplugin-icons/loaders"
 import * as path from "path"
 import Unfonts from "unplugin-fonts/vite"
 import legacy from "@vitejs/plugin-legacy"
+import ImportMetaEnv from "@import-meta-env/unplugin"
 
-const ENV = loadEnv("development", path.resolve(__dirname, "../../"))
+const ENV = loadEnv("development", path.resolve(__dirname, "../../"), ["VITE_"])
 
 export default defineConfig({
+  envPrefix: process.env.HOPP_ALLOW_RUNTIME_ENV ? "VITE_BUILDTIME_" : "VITE_",
   envDir: path.resolve(__dirname, "../../"),
   // TODO: Migrate @hoppscotch/data to full ESM
   define: {
@@ -65,6 +67,7 @@ export default defineConfig({
       "@lib": path.resolve(__dirname, "./src/lib"),
       stream: "stream-browserify",
       util: "util",
+      querystring: "qs",
     },
     dedupe: ["vue"],
   },
@@ -78,14 +81,15 @@ export default defineConfig({
       routeStyle: "nuxt",
       dirs: "../hoppscotch-common/src/pages",
       importMode: "async",
-      onRoutesGenerated: (routes) =>
+      onRoutesGenerated(routes) {
         generateSitemap({
           routes,
           nuxtStyle: true,
           allowRobots: true,
           dest: ".sitemap-gen",
           hostname: ENV.VITE_BASE_URL,
-        }),
+        })
+      },
     }),
     StaticCopy({
       targets: [
@@ -239,5 +243,11 @@ export default defineConfig({
       modernPolyfills: ["es.string.replace-all"],
       renderLegacyChunks: false,
     }),
+    process.env.HOPP_ALLOW_RUNTIME_ENV
+      ? ImportMetaEnv.vite({
+          example: "../../.env.example",
+          env: "../../.env",
+        })
+      : [],
   ],
 })

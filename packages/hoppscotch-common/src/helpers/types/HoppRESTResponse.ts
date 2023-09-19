@@ -19,7 +19,7 @@ export type HoppRESTResponse =
     }
   | {
       type: "network_fail"
-      error: Error
+      error: unknown
 
       req: HoppRESTRequest
     }

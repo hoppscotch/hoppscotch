@@ -10,18 +10,6 @@
           :class="{ '-rotate-180': !EXPAND_NAVIGATION }"
           @click="EXPAND_NAVIGATION = !EXPAND_NAVIGATION"
         />
-        <HoppButtonSecondary
-          v-tippy="{ theme: 'tooltip' }"
-          :title="`${ZEN_MODE ? t('action.turn_off') : t('action.turn_on')} ${t(
-            'layout.zen_mode'
-          )}`"
-          :icon="ZEN_MODE ? IconMinimize : IconMaximize"
-          :class="{
-            '!text-accent !focus-visible:text-accentDark !hover:text-accentDark':
-              ZEN_MODE,
-          }"
-          @click="ZEN_MODE = !ZEN_MODE"
-        />
         <tippy interactive trigger="click" theme="popover">
           <HoppButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
@@ -76,6 +64,7 @@
                   }
                 "
               />
+              <!--
               <HoppSmartItem
                 ref="chat"
                 :icon="IconMessageCircle"
@@ -88,20 +77,34 @@
                   }
                 "
               />
-              <HoppSmartItem
-                :icon="IconGift"
-                :label="`${t('app.whats_new')}`"
-                to="https://docs.hoppscotch.io/documentation/changelog"
-                blank
-                @click="hide()"
-              />
-              <HoppSmartItem
-                :icon="IconActivity"
-                :label="t('app.status')"
-                to="https://status.hoppscotch.io"
-                blank
-                @click="hide()"
-              />
+              -->
+              <template
+                v-for="footerItem in platform.ui?.additionalFooterMenuItems"
+                :key="footerItem.id"
+              >
+                <template v-if="footerItem.action.type === 'link'">
+                  <HoppSmartItem
+                    :icon="footerItem.icon"
+                    :label="footerItem.text(t)"
+                    :to="footerItem.action.href"
+                    blank
+                    @click="hide()"
+                  />
+                </template>
+                <HoppSmartItem
+                  v-else
+                  :icon="footerItem.icon"
+                  :label="footerItem.text(t)"
+                  blank
+                  @click="
+                    () => {
+                      // @ts-expect-error TypeScript not understanding the type
+                      footerItem.action.do()
+                      hide()
+                    }
+                  "
+                />
+              </template>
               <hr />
               <HoppSmartItem
                 :icon="IconGithub"
@@ -196,26 +199,20 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from "vue"
+import { ref } from "vue"
 import { version } from "~/../package.json"
 import IconSidebar from "~icons/lucide/sidebar"
-import IconMinimize from "~icons/lucide/minimize"
-import IconMaximize from "~icons/lucide/maximize"
 import IconZap from "~icons/lucide/zap"
 import IconShare2 from "~icons/lucide/share-2"
 import IconColumns from "~icons/lucide/columns"
 import IconSidebarOpen from "~icons/lucide/sidebar-open"
 import IconShieldCheck from "~icons/lucide/shield-check"
 import IconBook from "~icons/lucide/book"
-import IconMessageCircle from "~icons/lucide/message-circle"
-import IconGift from "~icons/lucide/gift"
-import IconActivity from "~icons/lucide/activity"
 import IconGithub from "~icons/lucide/github"
 import IconTwitter from "~icons/lucide/twitter"
 import IconUserPlus from "~icons/lucide/user-plus"
 import IconLock from "~icons/lucide/lock"
 import IconLifeBuoy from "~icons/lucide/life-buoy"
-import { showChat } from "@modules/crisp"
 import { useSetting } from "@composables/settings"
 import { useI18n } from "@composables/i18n"
 import { useReadonlyStream } from "@composables/stream"
@@ -230,7 +227,6 @@ const showDeveloperOptions = ref(false)
 
 const EXPAND_NAVIGATION = useSetting("EXPAND_NAVIGATION")
 const SIDEBAR = useSetting("SIDEBAR")
-const ZEN_MODE = useSetting("ZEN_MODE")
 const COLUMN_LAYOUT = useSetting("COLUMN_LAYOUT")
 const SIDEBAR_ON_LEFT = useSetting("SIDEBAR_ON_LEFT")
 
@@ -239,13 +235,6 @@ const navigatorShare = !!navigator.share
 const currentUser = useReadonlyStream(
   platform.auth.getCurrentUserStream(),
   platform.auth.getCurrentUser()
-)
-
-watch(
-  () => ZEN_MODE.value,
-  () => {
-    EXPAND_NAVIGATION.value = !ZEN_MODE.value
-  }
 )
 
 const nativeShare = () => {
@@ -260,10 +249,6 @@ const nativeShare = () => {
   } else {
     // fallback
   }
-}
-
-const chatWithUs = () => {
-  showChat()
 }
 
 const showDeveloperOptionModal = () => {

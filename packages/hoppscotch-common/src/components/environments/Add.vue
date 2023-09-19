@@ -11,7 +11,7 @@
             t("environment.name")
           }}</label>
           <input
-            v-model="name"
+            v-model="editingName"
             type="text"
             :placeholder="t('environment.variable')"
             class="input"
@@ -21,7 +21,12 @@
           <label for="value" class="font-semibold min-w-10">{{
             t("environment.value")
           }}</label>
-          <input type="text" :value="value" class="input" />
+          <input
+            v-model="editingValue"
+            type="text"
+            class="input"
+            :placeholder="t('environment.value')"
+          />
         </div>
         <div class="flex items-center space-x-8 ml-2">
           <label for="scope" class="font-semibold min-w-10">
@@ -88,7 +93,6 @@ const props = defineProps<{
   position: { top: number; left: number }
   name: string
   value: string
-  replaceWithVariable: boolean
 }>()
 
 const emit = defineEmits<{
@@ -106,9 +110,12 @@ watch(
       scope.value = {
         type: "global",
       }
-      name.value = ""
       replaceWithVariable.value = false
+      editingName.value = ""
+      editingValue.value = ""
     }
+    editingName.value = props.name
+    editingValue.value = props.value
   }
 )
 
@@ -132,31 +139,32 @@ const scope = ref<Scope>({
 
 const replaceWithVariable = ref(false)
 
-const name = ref("")
+const editingName = ref(props.name)
+const editingValue = ref(props.value)
 
 const addEnvironment = async () => {
-  if (!name.value) {
+  if (!editingName.value) {
     toast.error(`${t("environment.invalid_name")}`)
     return
   }
   if (scope.value.type === "global") {
     addGlobalEnvVariable({
-      key: name.value,
-      value: props.value,
+      key: editingName.value,
+      value: editingValue.value,
     })
     toast.success(`${t("environment.updated")}`)
   } else if (scope.value.type === "my-environment") {
     addEnvironmentVariable(scope.value.index, {
-      key: name.value,
-      value: props.value,
+      key: editingName.value,
+      value: editingValue.value,
     })
     toast.success(`${t("environment.updated")}`)
   } else {
     const newVariables = [
       ...scope.value.environment.environment.variables,
       {
-        key: name.value,
-        value: props.value,
+        key: editingName.value,
+        value: editingValue.value,
       },
     ]
     await pipe(
@@ -179,11 +187,11 @@ const addEnvironment = async () => {
   }
   if (replaceWithVariable.value) {
     //replace the current tab endpoint with the variable name with << and >>
-    const variableName = `<<${name.value}>>`
+    const variableName = `<<${editingName.value}>>`
     //replace the currenttab endpoint containing the value in the text with variablename
     currentActiveTab.value.document.request.endpoint =
       currentActiveTab.value.document.request.endpoint.replace(
-        props.value,
+        editingValue.value,
         variableName
       )
   }

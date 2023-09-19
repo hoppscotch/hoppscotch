@@ -28,6 +28,7 @@ export function createHoppApp(el: string | Element, platformDef: PlatformDef) {
   performMigrations()
 
   HOPP_MODULES.forEach((mod) => mod.onVueAppInit?.(app))
+  platformDef.addedHoppModules?.forEach((mod) => mod.onVueAppInit?.(app))
 
   app.mount(el)
 

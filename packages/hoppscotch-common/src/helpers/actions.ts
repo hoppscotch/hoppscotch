@@ -2,10 +2,14 @@
  * For example, sending a request.
  */
 
-import { Ref, onBeforeUnmount, onMounted, watch } from "vue"
+import { Ref, onBeforeUnmount, onMounted, reactive, watch } from "vue"
 import { BehaviorSubject } from "rxjs"
 import { HoppRESTDocument } from "./rest/document"
 import { HoppGQLRequest, HoppRESTRequest } from "@hoppscotch/data"
+import { RequestOptionTabs } from "~/components/http/RequestOptions.vue"
+import { HoppGQLSaveContext } from "./graphql/document"
+import { GQLOptionTabs } from "~/components/graphql/RequestOptions.vue"
+import { computed } from "vue"
 
 export type HoppAction =
   | "contextmenu.open" // Send/Cancel a Hoppscotch Request
@@ -14,6 +18,7 @@ export type HoppAction =
   | "request.copy-link" // Copy Request Link
   | "request.save" // Save to Collections
   | "request.save-as" // Save As
+  | "request.rename" // Rename request on REST or GraphQL
   | "request.method.next" // Select Next Method
   | "request.method.prev" // Select Previous Method
   | "request.method.get" // Select GET Method
@@ -21,13 +26,28 @@ export type HoppAction =
   | "request.method.post" // Select POST Method
   | "request.method.put" // Select PUT Method
   | "request.method.delete" // Select DELETE Method
+  | "request.import-curl" // Import cURL
+  | "request.show-code" // Show generated code
+  | "gql.connect" // Connect to GraphQL endpoint given
+  | "gql.disconnect" // Disconnect from GraphQL endpoint given
+  | "tab.close-current" // Close current tab
+  | "tab.close-other" // Close other tabs
+  | "tab.open-new" // Open new tab
+  | "collection.new" // Create root collection
+  | "flyouts.chat.open" // Shows the keybinds flyout
   | "flyouts.keybinds.toggle" // Shows the keybinds flyout
   | "modals.search.toggle" // Shows the search modal
   | "modals.support.toggle" // Shows the support modal
   | "modals.share.toggle" // Shows the share modal
   | "modals.environment.add" // Show add environment modal via context menu
+  | "modals.environment.new" // Add new environment
+  | "modals.environment.delete-selected" // Delete Selected Environment
   | "modals.my.environment.edit" // Edit current personal environment
   | "modals.team.environment.edit" // Edit current team environment
+  | "modals.team.new" // Add new team
+  | "modals.team.edit" // Edit selected team
+  | "modals.team.invite" // Invite selected team
+  | "workspace.switch.personal" // Switch to personal workspace
   | "navigation.jump.rest" // Jump to REST page
   | "navigation.jump.graphql" // Jump to GraphQL page
   | "navigation.jump.realtime" // Jump to realtime page
@@ -45,6 +65,7 @@ export type HoppAction =
   | "history.clear" // Clear REST History
   | "user.login" // Login to Hoppscotch
   | "user.logout" // Log out of Hoppscotch
+  | "editor.format" // Format editor content
 
 /**
  * Defines the arguments, if present for a given type that is required to be passed on
@@ -73,6 +94,12 @@ type HoppActionArgsMap = {
     envName: string
     variableName?: string
   }
+  "modals.team.delete": {
+    teamId: string
+  }
+  "workspace.switch": {
+    teamId: string
+  }
   "rest.request.open": {
     doc: HoppRESTDocument
   }
@@ -85,8 +112,17 @@ type HoppActionArgsMap = {
         requestType: "gql"
         request: HoppGQLRequest
       }
+  "request.open-tab": {
+    tab: RequestOptionTabs | GQLOptionTabs
+  }
+
+  "tab.duplicate-tab": {
+    tabID?: string
+  }
+
   "gql.request.open": {
     request: HoppGQLRequest
+    saveContext?: HoppGQLSaveContext
   }
   "modals.environment.add": {
     envName: string
@@ -121,7 +157,7 @@ type BoundActionList = {
   [A in HoppAction | HoppActionWithArgs]?: Array<ActionFunc<A>>
 }
 
-const boundActions: BoundActionList = {}
+const boundActions: BoundActionList = reactive({})
 
 export const activeActions$ = new BehaviorSubject<
   (HoppAction | HoppActionWithArgs)[]
@@ -153,7 +189,7 @@ type InvokeActionFunc = {
  * @param args The argument passed to the action handler. Optional if action has no args required
  */
 export const invokeAction: InvokeActionFunc = <
-  A extends HoppAction | HoppActionWithArgs
+  A extends HoppAction | HoppActionWithArgs,
 >(
   action: A,
   args: ArgOfHoppAction<A>
@@ -175,6 +211,15 @@ export function unbindAction<A extends HoppAction | HoppActionWithArgs>(
   }
 
   activeActions$.next(Object.keys(boundActions) as HoppAction[])
+}
+
+/**
+ * Returns a ref that indicates whether a given action is bound at a given time
+ *
+ * @param action The action to check
+ */
+export function isActionBound(action: HoppAction): Ref<boolean> {
+  return computed(() => !!boundActions[action])
 }
 
 /**

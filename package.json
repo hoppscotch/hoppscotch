@@ -32,5 +32,14 @@
     "@types/node": "^17.0.24",
     "cross-env": "^7.0.3",
     "http-server": "^14.1.1"
+  },
+  "pnpm": {
+    "packageExtensions": {
+      "httpsnippet@^3.0.1": {
+        "peerDependencies": {
+          "ajv": "6.12.3"
+        }
+      }
+    }
   }
 }

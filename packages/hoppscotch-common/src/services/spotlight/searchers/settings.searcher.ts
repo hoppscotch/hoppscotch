@@ -10,16 +10,14 @@ import {
 } from "./base/static.searcher"
 
 import IconCloud from "~icons/lucide/cloud"
+import IconGlobe from "~icons/lucide/globe"
 import IconMonitor from "~icons/lucide/monitor"
 import IconMoon from "~icons/lucide/moon"
 import IconSun from "~icons/lucide/sun"
-import IconGlobe from "~icons/lucide/globe"
-import IconShieldCheck from "~icons/lucide/shield-check"
-import IconType from "~icons/lucide/type"
+import IconCheckCircle from "~icons/lucide/check-circle"
 
 type Doc = {
   text: string | string[]
-  excludeFromSearch?: boolean
   alternates: string[]
   icon: object | Component
 }
@@ -35,7 +33,7 @@ export class SettingsSpotlightSearcherService extends StaticSpotlightSearcherSer
 
   private t = getI18n()
 
-  private activeFontSize = useSetting("FONT_SIZE")
+  private activeTheme = useSetting("BG_COLOR")
 
   public readonly searcherID = "settings"
   public searcherSectionTitle = this.t("navigation.settings")
@@ -49,7 +47,11 @@ export class SettingsSpotlightSearcherService extends StaticSpotlightSearcherSer
         this.t("spotlight.settings.theme.system"),
       ],
       alternates: ["theme"],
-      icon: markRaw(IconMonitor),
+      icon: computed(() =>
+        this.activeTheme.value === "system"
+          ? markRaw(IconCheckCircle)
+          : markRaw(IconMonitor)
+      ),
     },
     theme_light: {
       text: [
@@ -57,7 +59,11 @@ export class SettingsSpotlightSearcherService extends StaticSpotlightSearcherSer
         this.t("spotlight.settings.theme.light"),
       ],
       alternates: ["theme"],
-      icon: markRaw(IconSun),
+      icon: computed(() =>
+        this.activeTheme.value === "light"
+          ? markRaw(IconCheckCircle)
+          : markRaw(IconSun)
+      ),
     },
     theme_dark: {
       text: [
@@ -65,7 +71,11 @@ export class SettingsSpotlightSearcherService extends StaticSpotlightSearcherSer
         this.t("spotlight.settings.theme.dark"),
       ],
       alternates: ["theme"],
-      icon: markRaw(IconCloud),
+      icon: computed(() =>
+        this.activeTheme.value === "dark"
+          ? markRaw(IconCheckCircle)
+          : markRaw(IconCloud)
+      ),
     },
     theme_black: {
       text: [
@@ -73,44 +83,13 @@ export class SettingsSpotlightSearcherService extends StaticSpotlightSearcherSer
         this.t("spotlight.settings.theme.black"),
       ],
       alternates: ["theme"],
-      icon: markRaw(IconMoon),
+      icon: computed(() =>
+        this.activeTheme.value === "black"
+          ? markRaw(IconCheckCircle)
+          : markRaw(IconMoon)
+      ),
     },
-    font_size_sm: {
-      text: this.t("spotlight.font.size_sm"),
-      onClick: () => {
-        console.log("clicked")
-      },
-      excludeFromSearch: computed(() => this.activeFontSize.value === "small"),
-      alternates: [
-        "font size",
-        "change font size",
-        "change font",
-        "increase font",
-      ],
-      icon: markRaw(IconType),
-    },
-    font_size_md: {
-      text: this.t("spotlight.font.size_md"),
-      excludeFromSearch: computed(() => this.activeFontSize.value === "medium"),
-      alternates: [
-        "font size",
-        "change font size",
-        "change font",
-        "increase font",
-      ],
-      icon: markRaw(IconType),
-    },
-    font_size_lg: {
-      text: this.t("spotlight.font.size_lg"),
-      excludeFromSearch: computed(() => this.activeFontSize.value === "large"),
-      alternates: [
-        "font size",
-        "change font size",
-        "change font",
-        "increase font",
-      ],
-      icon: markRaw(IconType),
-    },
+
     change_lang: {
       text: [
         this.t("spotlight.section.interface"),
@@ -118,22 +97,6 @@ export class SettingsSpotlightSearcherService extends StaticSpotlightSearcherSer
       ],
       alternates: ["language", "change language"],
       icon: markRaw(IconGlobe),
-    },
-    change_interceptor: {
-      text: [
-        this.t("spotlight.section.interceptor"),
-        this.t("spotlight.settings.change_interceptor"),
-      ],
-      alternates: ["interceptor", "change interceptor"],
-      icon: markRaw(IconShieldCheck),
-    },
-    install_ext: {
-      text: [
-        this.t("spotlight.section.interceptor"),
-        this.t("spotlight.settings.install_extension"),
-      ],
-      alternates: ["install extension", "extension", "interceptor"],
-      icon: markRaw(IconShieldCheck),
     },
   })
 
@@ -165,25 +128,10 @@ export class SettingsSpotlightSearcherService extends StaticSpotlightSearcherSer
     applySetting("BG_COLOR", theme)
   }
 
-  installExtension() {
-    const url = navigator.userAgent.includes("Firefox")
-      ? "https://addons.mozilla.org/en-US/firefox/addon/hoppscotch"
-      : "https://chrome.google.com/webstore/detail/hoppscotch-browser-extens/amknoiejhlmhancpahfcfcfhllgkpbld"
-    window.open(url, "_blank")
-  }
-
   public onDocSelected(id: string): void {
     switch (id) {
-      case "change_interceptor":
-        invokeAction("navigation.jump.settings")
-        break
-
       case "change_lang":
         invokeAction("navigation.jump.settings")
-        break
-
-      case "install_ext":
-        this.installExtension()
         break
 
       // theme actions
@@ -198,17 +146,6 @@ export class SettingsSpotlightSearcherService extends StaticSpotlightSearcherSer
         break
       case "theme_black":
         invokeAction("settings.theme.black")
-        break
-
-      // font size actions
-      case "font_size_sm":
-        this.activeFontSize.value = "small"
-        break
-      case "font_size_md":
-        this.activeFontSize.value = "medium"
-        break
-      case "font_size_lg":
-        this.activeFontSize.value = "large"
         break
     }
   }

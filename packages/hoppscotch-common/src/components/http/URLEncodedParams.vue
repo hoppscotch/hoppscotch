@@ -153,7 +153,6 @@
           filled
           :label="`${t('add.new')}`"
           :icon="IconPlus"
-          class="mb-4"
           @click="addUrlEncodedParam"
         />
       </HoppSmartPlaceholder>
@@ -425,3 +424,9 @@ const clearContent = () => {
   bulkUrlEncodedParams.value = ""
 }
 </script>
+
+<style lang="scss" scoped>
+:deep(.cm-panels) {
+  @apply top-upperFourthStickyFold #{!important};
+}
+</style>

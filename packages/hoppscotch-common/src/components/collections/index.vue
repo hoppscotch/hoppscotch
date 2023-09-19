@@ -24,6 +24,7 @@
         :placeholder="t('action.search')"
         input-styles="py-2 pl-4 pr-2 bg-transparent !border-0"
         type="search"
+        :autofocus="false"
         :disabled="collectionsType.type === 'team-collections'"
       />
     </div>
@@ -161,10 +162,8 @@ import { computed, nextTick, PropType, ref, watch } from "vue"
 import { useToast } from "@composables/toast"
 import { useI18n } from "@composables/i18n"
 import { Picked } from "~/helpers/types/HoppPicked"
-import TeamListAdapter from "~/helpers/teams/TeamListAdapter"
 import { useReadonlyStream } from "~/composables/stream"
 import { useLocalState } from "~/newstore/localstate"
-import { onLoggedIn } from "~/composables/auth"
 import { GetMyTeamsQuery } from "~/helpers/backend/graphql"
 import { pipe } from "fp-ts/function"
 import * as TE from "fp-ts/TaskEither"
@@ -220,7 +219,6 @@ import {
 import * as E from "fp-ts/Either"
 import { platform } from "~/platform"
 import { createCollectionGists } from "~/helpers/gist"
-import { workspaceStatus$ } from "~/newstore/workspace"
 import {
   createNewTab,
   currentActiveTab,
@@ -238,6 +236,9 @@ import {
   resetTeamRequestsContext,
 } from "~/helpers/collection/collection"
 import { currentReorderingStatus$ } from "~/newstore/reordering"
+import { defineActionHandler } from "~/helpers/actions"
+import { WorkspaceService } from "~/services/workspace.service"
+import { useService } from "dioc/vue"
 
 const t = useI18n()
 const toast = useToast()
@@ -314,7 +315,8 @@ const creatingGistCollection = ref(false)
 const importingMyCollections = ref(false)
 
 // TeamList-Adapter
-const teamListAdapter = new TeamListAdapter(true)
+const workspaceService = useService(WorkspaceService)
+const teamListAdapter = workspaceService.acquireTeamListAdapter(null)
 const myTeams = useReadonlyStream(teamListAdapter.teamList$, null)
 const REMEMBERED_TEAM_ID = useLocalState("REMEMBERED_TEAM_ID")
 const teamListFetched = ref(false)
@@ -372,17 +374,18 @@ const updateSelectedTeam = (team: SelectedTeam) => {
   }
 }
 
-onLoggedIn(() => {
-  !teamListAdapter.isInitialized && teamListAdapter.initialize()
-})
-
-const workspace = useReadonlyStream(workspaceStatus$, { type: "personal" })
+const workspace = workspaceService.currentWorkspace
 
 // Used to switch collection type and team when user switch workspace in the global workspace switcher
 // Check if there is a teamID in the workspace, if yes, switch to team collection and select the team
 // If there is no teamID, switch to my environment
 watch(
-  () => workspace.value.teamID,
+  () => {
+    const space = workspace.value
+
+    if (space.type === "personal") return undefined
+    else return space.teamID
+  },
   (teamID) => {
     if (!teamID) {
       switchToMyCollections()
@@ -2066,4 +2069,8 @@ const getErrorMessage = (err: GQLError<string>) => {
     }
   }
 }
+
+defineActionHandler("collection.new", () => {
+  displayModalAdd(true)
+})
 </script>

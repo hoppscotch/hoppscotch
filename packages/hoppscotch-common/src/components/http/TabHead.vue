@@ -4,7 +4,7 @@
     :title="tab.document.request.name"
     class="truncate px-2 flex items-center"
     @dblclick="emit('open-rename-modal')"
-    @contextmenu.prevent="options?.tippy.show()"
+    @contextmenu.prevent="options?.tippy?.show()"
     @click.middle="emit('close-tab')"
   >
     <span

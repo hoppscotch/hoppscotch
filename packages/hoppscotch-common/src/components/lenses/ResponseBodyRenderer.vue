@@ -1,6 +1,6 @@
 <template>
   <HoppSmartTabs
-    v-if="tab.response"
+    v-if="document.response"
     v-model="selectedLensTab"
     styles="sticky overflow-x-auto flex-shrink-0 z-10 bg-primary top-lowerPrimaryStickyFold"
   >
@@ -13,7 +13,7 @@
     >
       <component
         :is="lensRendererFor(lens.renderer)"
-        :response="tab.response"
+        :response="document.response"
       />
     </HoppSmartTab>
     <HoppSmartTab
@@ -29,18 +29,18 @@
       id="results"
       :label="t('test.results')"
       :indicator="
-        tab.testResults &&
-        (tab.testResults.expectResults.length ||
-          tab.testResults.tests.length ||
-          tab.testResults.envDiff.selected.additions.length ||
-          tab.testResults.envDiff.selected.updations.length ||
-          tab.testResults.envDiff.global.updations.length)
+        document.testResults &&
+        (document.testResults.expectResults.length ||
+          document.testResults.tests.length ||
+          document.testResults.envDiff.selected.additions.length ||
+          document.testResults.envDiff.selected.updations.length ||
+          document.testResults.envDiff.global.updations.length)
           ? true
           : false
       "
       class="flex flex-col flex-1"
     >
-      <HttpTestResult v-model="tab.testResults" />
+      <HttpTestResult v-model="document.testResults" />
     </HoppSmartTab>
   </HoppSmartTabs>
 </template>
@@ -55,9 +55,10 @@ import {
 import { useI18n } from "@composables/i18n"
 import { useVModel } from "@vueuse/core"
 import { HoppRESTTab } from "~/helpers/rest/tab"
+import { HoppRESTDocument } from "~/helpers/rest/document"
 
 const props = defineProps<{
-  tab: HoppRESTTab
+  document: HoppRESTDocument
   selectedTabPreference: string | null
 }>()
 
@@ -66,7 +67,7 @@ const emit = defineEmits<{
   (e: "update:selectedTabPreference", newTab: string): void
 }>()
 
-const tab = useVModel(props, "tab", emit)
+const tab = useVModel(props, "document", emit)
 const selectedTabPreference = useVModel(props, "selectedTabPreference", emit)
 
 const allLensRenderers = getLensRenderers()

@@ -62,7 +62,7 @@ export type HoppRESTDocument = {
    * The response as it is in the document
    * (if any)
    */
-  response?: HoppRESTResponse
+  response?: HoppRESTResponse | null
 
   /**
    * The test results as it is in the document

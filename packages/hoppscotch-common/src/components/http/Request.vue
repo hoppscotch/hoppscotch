@@ -63,9 +63,7 @@
       <HoppButtonPrimary
         id="send"
         v-tippy="{ theme: 'tooltip', delay: [500, 20], allowHTML: true }"
-        :title="`${t(
-          'action.send'
-        )} <kbd>${getSpecialKey()}</kbd><kbd>↩</kbd>`"
+        :title="`${t('action.send')} <kbd>${getSpecialKey()}</kbd><kbd>↩</kbd>`"
         :label="`${!loading ? t('action.send') : t('action.cancel')}`"
         class="flex-1 rounded-r-none min-w-20"
         @click="!loading ? newSendRequest() : cancelRequest()"
@@ -257,7 +255,6 @@ import IconLink2 from "~icons/lucide/link-2"
 import IconRotateCCW from "~icons/lucide/rotate-ccw"
 import IconSave from "~icons/lucide/save"
 import IconShare2 from "~icons/lucide/share-2"
-import { HoppRESTTab, currentTabID } from "~/helpers/rest/tab"
 import { getDefaultRESTRequest } from "~/helpers/rest/default"
 import { RESTHistoryEntry, restHistory$ } from "~/newstore/history"
 import { platform } from "~/platform"
@@ -265,6 +262,9 @@ import { HoppGQLRequest, HoppRESTRequest } from "@hoppscotch/data"
 import { useService } from "dioc/vue"
 import { InspectionService } from "~/services/inspection"
 import { InterceptorService } from "~/services/interceptor.service"
+import { HoppTab } from "~/services/tab"
+import { HoppRESTDocument } from "~/helpers/rest/document"
+import { RESTTabService } from "~/services/tab/rest"
 
 const t = useI18n()
 const interceptorService = useService(InterceptorService)
@@ -286,7 +286,7 @@ const toast = useToast()
 
 const { subscribeToStream } = useStreamSubscriber()
 
-const props = defineProps<{ modelValue: HoppRESTTab }>()
+const props = defineProps<{ modelValue: HoppTab<HoppRESTDocument> }>()
 const emit = defineEmits(["update:modelValue"])
 
 const tab = useVModel(props, "modelValue", emit)
@@ -434,7 +434,7 @@ const clearContent = () => {
 }
 
 const updateRESTResponse = (response: HoppRESTResponse | null) => {
-  tab.value.response = response
+  tab.value.document.response = response
 }
 
 const copyLinkIcon = refAutoReset<
@@ -642,5 +642,6 @@ const COLUMN_LAYOUT = useSetting("COLUMN_LAYOUT")
 
 const inspectionService = useService(InspectionService)
 
-const tabResults = inspectionService.getResultViewFor(currentTabID.value)
+const tabs = useService(RESTTabService)
+const tabResults = inspectionService.getResultViewFor(tabs.currentTabID.value)
 </script>

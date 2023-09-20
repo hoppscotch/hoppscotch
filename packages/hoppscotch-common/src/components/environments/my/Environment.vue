@@ -46,6 +46,7 @@
             role="menu"
             @keyup.e="edit!.$el.click()"
             @keyup.d="duplicate!.$el.click()"
+            @keyup.j="exportAsJson!.$el.click()"
             @keyup.delete="
               !(environmentIndex === 'Global')
                 ? deleteAction!.$el.click()
@@ -73,6 +74,18 @@
               @click="
                 () => {
                   duplicateEnvironments()
+                  hide()
+                }
+              "
+            />
+            <HoppSmartItem
+              ref="exportAsJson"
+              :icon="IconEdit"
+              :label="`${t('export.as_json')}`"
+              :shortcut="['J']"
+              @click="
+                () => {
+                  exportJSON()
                   hide()
                 }
               "
@@ -140,6 +153,7 @@ const tippyActions = ref<TippyComponent | null>(null)
 const options = ref<TippyComponent | null>(null)
 const edit = ref<typeof HoppSmartItem>()
 const duplicate = ref<typeof HoppSmartItem>()
+const exportAsJson = ref<typeof HoppSmartItem>()
 const deleteAction = ref<typeof HoppSmartItem>()
 
 const removeEnvironment = () => {
@@ -148,6 +162,31 @@ const removeEnvironment = () => {
     deleteEnvironment(props.environmentIndex, props.environment.id)
   }
   toast.success(`${t("state.deleted")}`)
+}
+
+const environmentJson = () => {
+  return props.environmentIndex !== null
+    ? JSON.stringify(props.environment.variables, null, 2)
+    : undefined
+}
+
+const exportJSON = () => {
+  const dataToWrite = environmentJson()
+  if (!dataToWrite) return
+  const file = new Blob([dataToWrite], { type: "application/json" })
+  const a = document.createElement("a")
+  const url = URL.createObjectURL(file)
+  a.href = url
+
+  // TODO: get uri from meta
+  a.download = `${url.split("/").pop()!.split("#")[0].split("?")[0]}.json`
+  document.body.appendChild(a)
+  a.click()
+  toast.success(t("state.download_started").toString())
+  setTimeout(() => {
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  }, 1000)
 }
 
 const duplicateEnvironments = () => {

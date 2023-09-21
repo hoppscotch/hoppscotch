@@ -39,6 +39,21 @@
   </p>
 </div>
 
+#Run Hopscotch (Blueman) Locally Guide
+##Prerequisites
+- Install `pnpm`: `npm install -g pnpm`
+
+##Steps
+1. Git clone from [here]
+2. Open the repo in your IDE
+3. Rename `example-env` to `.env`
+4. pnpm i
+5. cd packages/hoppscotch-selfhost-web
+	- Do this when repo is your terminal’s working directory
+6. pnpm run do-dev
+
+----
+
 _We highly recommend you take a look at the [**Hoppscotch Documentation**](https://docs.hoppscotch.io) to learn more about the app._
 
 #### **Support**

@@ -1,5 +1,10 @@
 import { error } from "../../types/errors";
-import { HoppEnvs, HoppEnvPair, HoppEnvObject } from "../../types/request";
+import {
+  HoppEnvs,
+  HoppEnvPair,
+  HoppEnvArray,
+  HoppEnvObject,
+} from "../../types/request";
 import { readJsonFile } from "../../utils/mutators";
 /**
  * Parses env json file for given path and validates the parsed env json object.
@@ -9,15 +14,15 @@ import { readJsonFile } from "../../utils/mutators";
 export async function parseEnvsData(path: string) {
   const contents = await readJsonFile(path);
   const envPairs: Array<HoppEnvPair> = [];
-  const HoppEnvPairResult = HoppEnvPair.safeParse(contents);
+  const HoppEnvArrayResult = HoppEnvArray.safeParse(contents);
   const HoppEnvObjectResult = HoppEnvObject.safeParse(contents);
 
-  if (!(HoppEnvPairResult.success || HoppEnvObjectResult.success)) {
+  if (!(HoppEnvArrayResult.success || HoppEnvObjectResult.success)) {
     throw error({ code: "MALFORMED_ENV_FILE", path, data: error });
   }
 
-  if (HoppEnvPairResult.success) {
-    for (const [key, value] of Object.entries(HoppEnvPairResult.data)) {
+  if (HoppEnvArrayResult.success) {
+    for (const [key, value] of Object.entries(HoppEnvArrayResult.data)) {
       envPairs.push({ key, value });
     }
   } else if (HoppEnvObjectResult.success) {

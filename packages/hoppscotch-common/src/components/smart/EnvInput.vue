@@ -115,7 +115,7 @@ const emit = defineEmits<{
   (e: "click", ev: any): void
 }>()
 
-const ASTERISK = "******"
+const asterikedText = computed(() => "*".repeat(props.modelValue.length))
 
 const cachedValue = ref(props.modelValue)
 
@@ -277,19 +277,18 @@ watch(
 )
 
 const prevModelValue = ref(props.modelValue)
+
 watch(
   () => props.secret,
-  (newValue, oldValue) => {
-    if (newValue !== oldValue) {
-      let visibleValue = ASTERISK
-      if (!newValue) {
-        visibleValue = prevModelValue.value
-      } else {
-        prevModelValue.value = props.modelValue
-      }
-      emit("update:modelValue", visibleValue)
-      updateEditorViewTheme(newValue)
+  (newValue) => {
+    let visibleValue = asterikedText.value
+    if (!newValue) {
+      visibleValue = prevModelValue.value
+    } else {
+      prevModelValue.value = props.modelValue
     }
+    emit("update:modelValue", visibleValue)
+    updateEditorViewTheme(newValue)
   }
 )
 
@@ -403,7 +402,7 @@ const initView = (el: any) => {
   el.addEventListener("keyup", debounceFn)
 
   if (props.secret) {
-    emit("update:modelValue", ASTERISK)
+    emit("update:modelValue", asterikedText.value)
   }
   const extensions: Extension = getExtensions(props.readonly || props.secret)
   view.value = new EditorView({
@@ -470,9 +469,14 @@ const getExtensions = (readonly: boolean): Extension => {
             // We do not update the cache directly in this case (to trigger value watcher to dispatch)
             // So, we desync cachedValue a bit so we can trigger updates
             const value = clone(cachedValue.value).replaceAll("\n", "")
-
-            emit("update:modelValue", value)
-            emit("change", value)
+            if (props.secret) {
+              const asterikedValue = "*".repeat(value.length)
+              emit("update:modelValue", asterikedValue)
+              emit("change", asterikedValue)
+            } else {
+              emit("update:modelValue", value)
+              emit("change", value)
+            }
 
             const pasted = !!update.transactions.find((txn) =>
               txn.isUserEvent("input.paste")

@@ -92,12 +92,13 @@ import IconXCircle from "~icons/lucide/x-circle"
 import IconXSquare from "~icons/lucide/x-square"
 import IconFileEdit from "~icons/lucide/file-edit"
 import IconCopy from "~icons/lucide/copy"
-import { HoppGQLTab } from "~/helpers/graphql/tab"
+import { HoppTab } from "~/services/tab"
+import { HoppGQLDocument } from "~/helpers/graphql/document"
 
 const t = useI18n()
 
 defineProps<{
-  tab: HoppGQLTab
+  tab: HoppTab<HoppGQLDocument>
   isRemovable: boolean
 }>()
 

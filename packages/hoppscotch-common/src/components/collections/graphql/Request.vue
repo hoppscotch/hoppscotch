@@ -137,12 +137,8 @@ import { useToast } from "@composables/toast"
 import { HoppGQLRequest, makeGQLRequest } from "@hoppscotch/data"
 import { cloneDeep } from "lodash-es"
 import { removeGraphqlRequest } from "~/newstore/collections"
-import {
-  createNewTab,
-  getTabRefWithSaveContext,
-  currentTabID,
-  currentActiveTab,
-} from "~/helpers/graphql/tab"
+import { useService } from "dioc/vue"
+import { GQLTabService } from "~/services/tab/graphql"
 
 // Template refs
 const tippyActions = ref<any | null>(null)
@@ -153,6 +149,8 @@ const deleteAction = ref<any | null>(null)
 
 const t = useI18n()
 const toast = useToast()
+
+const tabs = useService(GQLTabService)
 
 const props = defineProps({
   // Whether the object is selected (show the tick mark)
@@ -165,7 +163,7 @@ const props = defineProps({
 })
 
 const isActive = computed(() => {
-  const saveCtx = currentActiveTab.value?.document.saveContext
+  const saveCtx = tabs.currentActiveTab.value?.document.saveContext
 
   if (!saveCtx) return false
 
@@ -201,7 +199,7 @@ const selectRequest = () => {
   if (props.saveRequest) {
     pick()
   } else {
-    const possibleTab = getTabRefWithSaveContext({
+    const possibleTab = tabs.getTabRefWithSaveContext({
       originLocation: "user-collection",
       folderPath: props.folderPath,
       requestIndex: props.requestIndex,
@@ -209,11 +207,11 @@ const selectRequest = () => {
 
     // Switch to that request if that request is open
     if (possibleTab) {
-      currentTabID.value = possibleTab.value.id
+      tabs.setActiveTab(possibleTab.value.id)
       return
     }
 
-    createNewTab({
+    tabs.createNewTab({
       saveContext: {
         originLocation: "user-collection",
         folderPath: props.folderPath,
@@ -253,7 +251,7 @@ const removeRequest = () => {
   }
 
   // Detach the request from any of the tabs
-  const possibleTab = getTabRefWithSaveContext({
+  const possibleTab = tabs.getTabRefWithSaveContext({
     originLocation: "user-collection",
     folderPath: props.folderPath,
     requestIndex: props.requestIndex,

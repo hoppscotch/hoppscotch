@@ -1,4 +1,5 @@
 import { HoppGQLRequest } from "@hoppscotch/data"
+import { GQLResponseEvent } from "./connection"
 
 export type HoppGQLSaveContext =
   | {
@@ -55,4 +56,10 @@ export type HoppGQLDocument = {
    * This contains where the request is originated from basically.
    */
   saveContext?: HoppGQLSaveContext
+
+  /**
+   * The response as it is in the document
+   * (if any)
+   */
+  response?: GQLResponseEvent[] | null
 }

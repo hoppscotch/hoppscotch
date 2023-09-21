@@ -58,7 +58,6 @@ import { computed, ref, watch } from "vue"
 import { defineActionHandler } from "~/helpers/actions"
 import { HoppGQLRequest } from "@hoppscotch/data"
 import { platform } from "~/platform"
-import { currentActiveTab } from "~/helpers/graphql/tab"
 import { computedWithControl } from "@vueuse/core"
 import {
   GQLResponseEvent,
@@ -68,6 +67,7 @@ import {
 import { useService } from "dioc/vue"
 import { InterceptorService } from "~/services/interceptor.service"
 import { editGraphqlRequest } from "~/newstore/collections"
+import { GQLTabService } from "~/services/tab/graphql"
 
 export type GQLOptionTabs = "query" | "headers" | "variables" | "authorization"
 const selectedOptionTab = ref<GQLOptionTabs>("query")
@@ -75,6 +75,8 @@ const interceptorService = useService(InterceptorService)
 
 const t = useI18n()
 const toast = useToast()
+
+const tabs = useService(GQLTabService)
 
 // v-model integration with props and emit
 const props = withDefaults(
@@ -100,8 +102,8 @@ watch(
 )
 
 const url = computedWithControl(
-  () => currentActiveTab.value,
-  () => currentActiveTab.value.document.request.url
+  () => tabs.currentActiveTab.value,
+  () => tabs.currentActiveTab.value.document.request.url
 )
 
 const activeGQLHeadersCount = computed(
@@ -185,17 +187,17 @@ const hideRequestModal = () => {
 }
 const saveRequest = () => {
   if (
-    currentActiveTab.value.document.saveContext &&
-    currentActiveTab.value.document.saveContext.originLocation ===
+    tabs.currentActiveTab.value.document.saveContext &&
+    tabs.currentActiveTab.value.document.saveContext.originLocation ===
       "user-collection"
   ) {
     editGraphqlRequest(
-      currentActiveTab.value.document.saveContext.folderPath,
-      currentActiveTab.value.document.saveContext.requestIndex,
-      currentActiveTab.value.document.request
+      tabs.currentActiveTab.value.document.saveContext.folderPath,
+      tabs.currentActiveTab.value.document.saveContext.requestIndex,
+      tabs.currentActiveTab.value.document.request
     )
 
-    currentActiveTab.value.document.isDirty = false
+    tabs.currentActiveTab.value.document.isDirty = false
   } else {
     showSaveRequestModal.value = true
   }

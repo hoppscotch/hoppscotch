@@ -220,7 +220,8 @@ import {
   moveGraphqlRequest,
 } from "~/newstore/collections"
 import { Picked } from "~/helpers/types/HoppPicked"
-import { getTabsRefTo } from "~/helpers/graphql/tab"
+import { useService } from "dioc/vue"
+import { GQLTabService } from "~/services/tab/graphql"
 
 const props = defineProps({
   picked: { type: Object, default: null },
@@ -234,6 +235,8 @@ const props = defineProps({
 const colorMode = useColorMode()
 const toast = useToast()
 const t = useI18n()
+
+const tabs = useService(GQLTabService)
 
 // TODO: improve types plz
 const emit = defineEmits<{
@@ -295,7 +298,7 @@ const removeCollection = () => {
     emit("select", null)
   }
 
-  const possibleTabs = getTabsRefTo((tab) => {
+  const possibleTabs = tabs.getTabsRefTo((tab) => {
     const ctx = tab.document.saveContext
 
     if (!ctx) return false

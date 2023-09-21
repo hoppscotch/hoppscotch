@@ -36,10 +36,13 @@
 import { ref, watch } from "vue"
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
-import { currentActiveTab } from "~/helpers/graphql/tab"
+import { useService } from "dioc/vue"
+import { GQLTabService } from "~/services/tab/graphql"
 
 const toast = useToast()
 const t = useI18n()
+
+const tabs = useService(GQLTabService)
 
 const props = defineProps<{
   show: boolean
@@ -63,7 +66,7 @@ watch(
   () => props.show,
   (show) => {
     if (show) {
-      editingName.value = currentActiveTab.value?.document.request.name
+      editingName.value = tabs.currentActiveTab.value?.document.request.name
     }
   }
 )

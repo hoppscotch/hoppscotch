@@ -176,8 +176,9 @@ import {
 
 import HistoryRestCard from "./rest/Card.vue"
 import HistoryGraphqlCard from "./graphql/Card.vue"
-import { createNewTab } from "~/helpers/rest/tab"
 import { defineActionHandler, invokeAction } from "~/helpers/actions"
+import { useService } from "dioc/vue"
+import { RESTTabService } from "~/services/tab/rest"
 
 type HistoryEntry = GQLHistoryEntry | RESTHistoryEntry
 
@@ -293,8 +294,9 @@ const clearHistory = () => {
 
 // NOTE: For GQL, the HistoryGraphqlCard component already implements useEntry
 // (That is not a really good behaviour tho ¯\_(ツ)_/¯)
+const tabs = useService(RESTTabService)
 const useHistory = (entry: RESTHistoryEntry) => {
-  createNewTab({
+  tabs.createNewTab({
     request: entry.request,
     isDirty: false,
   })

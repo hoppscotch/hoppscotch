@@ -37,7 +37,8 @@
 import { ref, watch } from "vue"
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
-import { currentActiveTab } from "~/helpers/rest/tab"
+import { useService } from "dioc/vue"
+import { RESTTabService } from "~/services/tab/rest"
 
 const toast = useToast()
 const t = useI18n()
@@ -60,11 +61,12 @@ const emit = defineEmits<{
 
 const editingName = ref("")
 
+const tabs = useService(RESTTabService)
 watch(
   () => props.show,
   (show) => {
     if (show) {
-      editingName.value = currentActiveTab.value.document.request.name
+      editingName.value = tabs.currentActiveTab.value.document.request.name
     }
   }
 )

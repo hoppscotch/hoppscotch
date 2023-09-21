@@ -82,14 +82,17 @@ import {
 
 import IconHome from "~icons/lucide/home"
 import IconRefreshCW from "~icons/lucide/refresh-cw"
-import { createNewTab } from "~/helpers/rest/tab"
 import { getDefaultRESTRequest } from "~/helpers/rest/default"
 import { platform } from "~/platform"
+import { RESTTabService } from "~/services/tab/rest"
+import { useService } from "dioc/vue"
 
 const route = useRoute()
 const router = useRouter()
 
 const t = useI18n()
+
+const tabs = useService(RESTTabService)
 
 const invalidLink = ref(false)
 const shortcodeID = ref("")
@@ -127,7 +130,7 @@ const addRequestToTab = () => {
 
     const request: unknown = JSON.parse(data.right.shortcode?.request as string)
 
-    createNewTab({
+    tabs.createNewTab({
       request: safelyExtractRESTRequest(request, getDefaultRESTRequest()),
       isDirty: false,
     })

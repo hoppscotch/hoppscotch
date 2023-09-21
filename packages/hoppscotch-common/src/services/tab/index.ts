@@ -1,7 +1,13 @@
 import { ComputedRef, WritableComputedRef } from "vue"
 
+/**
+ * Represents a tab in HoppScotch.
+ * @template Doc The type of the document associated with the tab.
+ */
 export type HoppTab<Doc> = {
+  /** The unique identifier of the tab. */
   id: string
+  /** The document associated with the tab. */
   document: Doc
 }
 

@@ -202,12 +202,13 @@ import { objRemoveKey } from "@functional/object"
 import { useVModel } from "@vueuse/core"
 import { useService } from "dioc/vue"
 import { InspectionService, InspectorResult } from "~/services/inspection"
-import { currentTabID } from "~/helpers/rest/tab"
+import { RESTTabService } from "~/services/tab/rest"
 
 const colorMode = useColorMode()
 
 const t = useI18n()
 const toast = useToast()
+const tabs = useService(RESTTabService)
 
 const idTicker = ref(0)
 
@@ -410,13 +411,13 @@ const clearContent = () => {
 const inspectionService = useService(InspectionService)
 
 const parameterKeyResults = inspectionService.getResultViewFor(
-  currentTabID.value,
+  tabs.currentTabID.value,
   (result) =>
     result.locations.type === "parameter" && result.locations.position === "key"
 )
 
 const parameterValueResults = inspectionService.getResultViewFor(
-  currentTabID.value,
+  tabs.currentTabID.value,
   (result) =>
     result.locations.type === "parameter" &&
     result.locations.position === "value"

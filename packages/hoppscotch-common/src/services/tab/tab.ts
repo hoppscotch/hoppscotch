@@ -17,7 +17,7 @@ import {
   TabService as TabServiceInterface,
 } from "."
 
-export abstract class TabService<Doc extends object>
+export abstract class TabService<Doc>
   extends Service
   implements TabServiceInterface<Doc>
 {

@@ -157,9 +157,10 @@ import {
 import IconCopy from "~icons/lucide/copy"
 import IconCheck from "~icons/lucide/check"
 import IconWrapText from "~icons/lucide/wrap-text"
-import { currentActiveTab } from "~/helpers/rest/tab"
 import cloneDeep from "lodash-es/cloneDeep"
 import { platform } from "~/platform"
+import { RESTTabService } from "~/services/tab/rest"
+import { useService } from "dioc/vue"
 
 const t = useI18n()
 
@@ -173,7 +174,8 @@ const emit = defineEmits<{
 
 const toast = useToast()
 
-const request = ref(cloneDeep(currentActiveTab.value.document.request))
+const tabs = useService(RESTTabService)
+const request = ref(cloneDeep(tabs.currentActiveTab.value.document.request))
 const codegenType = ref<CodegenName>("shell-curl")
 const errorState = ref(false)
 
@@ -242,7 +244,7 @@ watch(
   () => props.show,
   (goingToShow) => {
     if (goingToShow) {
-      request.value = cloneDeep(currentActiveTab.value.document.request)
+      request.value = cloneDeep(tabs.currentActiveTab.value.document.request)
 
       platform.analytics?.logEvent({
         type: "HOPP_REST_CODEGEN_OPENED",

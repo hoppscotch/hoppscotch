@@ -100,7 +100,6 @@ import { safelyExtractRESTRequest } from "@hoppscotch/data"
 import { translateExtURLParams } from "~/helpers/RESTExtURLParams"
 import { useRoute } from "vue-router"
 import { useI18n } from "@composables/i18n"
-import { HoppRESTTab } from "~/helpers/rest/tab"
 import { getDefaultRESTRequest } from "~/helpers/rest/default"
 import { defineActionHandler, invokeAction } from "~/helpers/actions"
 import { onLoggedIn } from "~/composables/auth"
@@ -115,7 +114,6 @@ import {
   Subscription,
 } from "rxjs"
 import { useToast } from "~/composables/toast"
-import { PersistableRESTTabState } from "~/helpers/rest/tab"
 import { watchDebounced } from "@vueuse/core"
 import { oauthRedirect } from "~/helpers/oauth"
 import { useReadonlyStream } from "~/composables/stream"
@@ -131,6 +129,8 @@ import { ResponseInspectorService } from "~/services/inspection/inspectors/respo
 import { cloneDeep } from "lodash-es"
 import { RESTTabService } from "~/services/tab/rest"
 import { computed } from "vue"
+import { HoppTab, PersistableTabState } from "~/services/tab"
+import { HoppRESTDocument } from "~/helpers/rest/document"
 
 const savingRequest = ref(false)
 const confirmingCloseForTabID = ref<string | null>(null)
@@ -172,7 +172,7 @@ const confirmSync = useReadonlyStream(currentSyncingStatus$, {
   isInitialSync: false,
   shouldSync: true,
 })
-const tabStateForSync = ref<PersistableRESTTabState | null>(null)
+const tabStateForSync = ref<PersistableTabState<HoppRESTDocument> | null>(null)
 
 function bindRequestToURLParams() {
   const route = useRoute()
@@ -192,7 +192,7 @@ function bindRequestToURLParams() {
   })
 }
 
-const onTabUpdate = (tab: HoppRESTTab) => {
+const onTabUpdate = (tab: HoppTab<HoppRESTDocument>) => {
   tabs.updateTab(tab)
 }
 
@@ -324,7 +324,8 @@ const syncTabState = () => {
  */
 function startTabStateSync(): Subscription {
   const currentUser$ = platform.auth.getCurrentUserStream()
-  const tabState$ = new BehaviorSubject<PersistableRESTTabState | null>(null)
+  const tabState$ =
+    new BehaviorSubject<PersistableTabState<HoppRESTDocument> | null>(null)
 
   watchDebounced(
     tabs.persistableTabState,

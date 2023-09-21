@@ -54,7 +54,6 @@ import {
 } from "~/helpers/lenses/lenses"
 import { useI18n } from "@composables/i18n"
 import { useVModel } from "@vueuse/core"
-import { HoppRESTTab } from "~/helpers/rest/tab"
 import { HoppRESTDocument } from "~/helpers/rest/document"
 
 const props = defineProps<{
@@ -63,7 +62,7 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  (e: "update:tab", val: HoppRESTTab): void
+  (e: "update:tab", document: HoppRESTDocument): void
   (e: "update:selectedTabPreference", newTab: string): void
 }>()
 

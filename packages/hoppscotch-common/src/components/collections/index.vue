@@ -220,12 +220,6 @@ import * as E from "fp-ts/Either"
 import { platform } from "~/platform"
 import { createCollectionGists } from "~/helpers/gist"
 import {
-  createNewTab,
-  currentActiveTab,
-  currentTabID,
-  getTabRefWithSaveContext,
-} from "~/helpers/rest/tab"
-import {
   getRequestsByPath,
   resolveSaveContextOnRequestReorder,
 } from "~/helpers/collection/request"
@@ -239,9 +233,11 @@ import { currentReorderingStatus$ } from "~/newstore/reordering"
 import { defineActionHandler } from "~/helpers/actions"
 import { WorkspaceService } from "~/services/workspace.service"
 import { useService } from "dioc/vue"
+import { RESTTabService } from "~/services/tab/rest"
 
 const t = useI18n()
 const toast = useToast()
+const tabs = useService(RESTTabService)
 
 const props = defineProps({
   saveRequest: {
@@ -654,7 +650,7 @@ const addRequest = (payload: {
 
 const onAddRequest = (requestName: string) => {
   const newRequest = {
-    ...cloneDeep(currentActiveTab.value.document.request),
+    ...cloneDeep(tabs.currentActiveTab.value.document.request),
     name: requestName,
   }
 
@@ -663,7 +659,7 @@ const onAddRequest = (requestName: string) => {
     if (!path) return
     const insertionIndex = saveRESTRequestAs(path, newRequest)
 
-    createNewTab({
+    tabs.createNewTab({
       request: newRequest,
       isDirty: false,
       saveContext: {
@@ -712,7 +708,7 @@ const onAddRequest = (requestName: string) => {
         (result) => {
           const { createRequestInCollection } = result
 
-          createNewTab({
+          tabs.createNewTab({
             request: newRequest,
             isDirty: false,
             saveContext: {
@@ -935,7 +931,7 @@ const updateEditingRequest = (newName: string) => {
 
     if (folderPath === null || requestIndex === null) return
 
-    const possibleActiveTab = getTabRefWithSaveContext({
+    const possibleActiveTab = tabs.getTabRefWithSaveContext({
       originLocation: "user-collection",
       requestIndex,
       folderPath,
@@ -979,7 +975,7 @@ const updateEditingRequest = (newName: string) => {
       )
     )()
 
-    const possibleTab = getTabRefWithSaveContext({
+    const possibleTab = tabs.getTabRefWithSaveContext({
       originLocation: "team-collection",
       requestID,
     })
@@ -1215,7 +1211,7 @@ const onRemoveRequest = () => {
       emit("select", null)
     }
 
-    const possibleTab = getTabRefWithSaveContext({
+    const possibleTab = tabs.getTabRefWithSaveContext({
       originLocation: "user-collection",
       folderPath,
       requestIndex,
@@ -1275,7 +1271,7 @@ const onRemoveRequest = () => {
     )()
 
     // If there is a tab attached to this request, dissociate its state and mark it dirty
-    const possibleTab = getTabRefWithSaveContext({
+    const possibleTab = tabs.getTabRefWithSaveContext({
       originLocation: "team-collection",
       requestID,
     })
@@ -1308,14 +1304,14 @@ const selectRequest = (selectedRequest: {
   let possibleTab = null
 
   if (collectionsType.value.type === "team-collections") {
-    possibleTab = getTabRefWithSaveContext({
+    possibleTab = tabs.getTabRefWithSaveContext({
       originLocation: "team-collection",
       requestID: requestIndex,
     })
     if (possibleTab) {
-      currentTabID.value = possibleTab.value.id
+      tabs.setActiveTab(possibleTab.value.id)
     } else {
-      createNewTab({
+      tabs.createNewTab({
         request: cloneDeep(request),
         isDirty: false,
         saveContext: {
@@ -1325,16 +1321,16 @@ const selectRequest = (selectedRequest: {
       })
     }
   } else {
-    possibleTab = getTabRefWithSaveContext({
+    possibleTab = tabs.getTabRefWithSaveContext({
       originLocation: "user-collection",
       requestIndex: parseInt(requestIndex),
       folderPath: folderPath!,
     })
     if (possibleTab) {
-      currentTabID.value = possibleTab.value.id
+      tabs.setActiveTab(possibleTab.value.id)
     } else {
       // If not, open the request in a new tab
-      createNewTab({
+      tabs.createNewTab({
         request: cloneDeep(request),
         isDirty: false,
         saveContext: {
@@ -1377,7 +1373,7 @@ const dropRequest = (payload: {
       destinationCollectionIndex
     )
 
-    const possibleTab = getTabRefWithSaveContext({
+    const possibleTab = tabs.getTabRefWithSaveContext({
       originLocation: "user-collection",
       folderPath,
       requestIndex: pathToLastIndex(requestIndex),
@@ -1426,7 +1422,7 @@ const dropRequest = (payload: {
             1
           )
 
-          const possibleTab = getTabRefWithSaveContext({
+          const possibleTab = tabs.getTabRefWithSaveContext({
             originLocation: "team-collection",
             requestID: requestIndex,
           })

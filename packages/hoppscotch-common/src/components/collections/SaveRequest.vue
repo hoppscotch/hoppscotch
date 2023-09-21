@@ -82,11 +82,15 @@ import {
 import { GQLError } from "~/helpers/backend/GQLClient"
 import { computedWithControl } from "@vueuse/core"
 import { platform } from "~/platform"
-import { currentActiveTab as activeRESTTab } from "~/helpers/rest/tab"
-import { currentActiveTab as activeGQLTab } from "~/helpers/graphql/tab"
+import { useService } from "dioc/vue"
+import { RESTTabService } from "~/services/tab/rest"
+import { GQLTabService } from "~/services/tab/graphql"
 
 const t = useI18n()
 const toast = useToast()
+
+const RESTTabs = useService(RESTTabService)
+const GQLTabs = useService(GQLTabService)
 
 type SelectedTeam = GetMyTeamsQuery["myTeams"][number] | undefined
 
@@ -123,13 +127,13 @@ const emit = defineEmits<{
 }>()
 
 const gqlRequestName = computedWithControl(
-  () => activeGQLTab.value,
-  () => activeGQLTab.value.document.request.name
+  () => GQLTabs.currentActiveTab.value,
+  () => GQLTabs.currentActiveTab.value.document.request.name
 )
 
 const restRequestName = computedWithControl(
-  () => activeRESTTab.value,
-  () => activeRESTTab.value.document.request.name
+  () => RESTTabs.currentActiveTab.value,
+  () => RESTTabs.currentActiveTab.value.document.request.name
 )
 
 const reqName = computed(() => {
@@ -145,12 +149,14 @@ const reqName = computed(() => {
 const requestName = ref(reqName.value)
 
 watch(
-  () => [activeRESTTab.value, activeGQLTab.value],
+  () => [RESTTabs.currentActiveTab.value, GQLTabs.currentActiveTab.value],
   () => {
     if (props.mode === "rest") {
-      requestName.value = activeRESTTab.value?.document.request.name ?? ""
+      requestName.value =
+        RESTTabs.currentActiveTab.value?.document.request.name ?? ""
     } else {
-      requestName.value = activeGQLTab.value?.document.request.name ?? ""
+      requestName.value =
+        GQLTabs.currentActiveTab.value?.document.request.name ?? ""
     }
   }
 )
@@ -210,8 +216,8 @@ const saveRequestAs = async () => {
 
   const requestUpdated =
     props.mode === "rest"
-      ? cloneDeep(activeRESTTab.value.document.request)
-      : cloneDeep(activeGQLTab.value.document.request)
+      ? cloneDeep(RESTTabs.currentActiveTab.value.document.request)
+      : cloneDeep(GQLTabs.currentActiveTab.value.document.request)
 
   requestUpdated.name = requestName.value
 
@@ -224,7 +230,7 @@ const saveRequestAs = async () => {
       requestUpdated
     )
 
-    activeRESTTab.value.document = {
+    RESTTabs.currentActiveTab.value.document = {
       request: requestUpdated,
       isDirty: false,
       saveContext: {
@@ -251,7 +257,7 @@ const saveRequestAs = async () => {
       requestUpdated
     )
 
-    activeRESTTab.value.document = {
+    RESTTabs.currentActiveTab.value.document = {
       request: requestUpdated,
       isDirty: false,
       saveContext: {
@@ -279,7 +285,7 @@ const saveRequestAs = async () => {
       requestUpdated
     )
 
-    activeRESTTab.value.document = {
+    RESTTabs.currentActiveTab.value.document = {
       request: requestUpdated,
       isDirty: false,
       saveContext: {
@@ -439,7 +445,7 @@ const updateTeamCollectionOrFolder = (
       (result) => {
         const { createRequestInCollection } = result
 
-        activeRESTTab.value.document = {
+        RESTTabs.currentActiveTab.value.document = {
           request: requestUpdated,
           isDirty: false,
           saveContext: {
@@ -460,7 +466,7 @@ const updateTeamCollectionOrFolder = (
 const requestSaved = () => {
   toast.success(`${t("request.added")}`)
   nextTick(() => {
-    activeRESTTab.value.document.isDirty = false
+    RESTTabs.currentActiveTab.value.document.isDirty = false
   })
   hideModal()
 }

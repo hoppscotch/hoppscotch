@@ -66,20 +66,19 @@
               <HoppButtonSecondary
                 id="variable"
                 v-tippy="{ theme: 'tooltip' }"
-                :title="t('action.remove')"
-                :icon="IconTrash"
-                color="red"
-                @click="removeEnvironmentVariable(index)"
+                :title="t('action.secret')"
+                :icon="env.secret ? IconEyeOff : IconEye"
+                @click="toggleEnvironmentSecret(index)"
               />
             </div>
             <div class="flex">
               <HoppButtonSecondary
                 id="variable"
                 v-tippy="{ theme: 'tooltip' }"
-                :title="t('action.secret')"
-                :icon="IconLock"
-                :color="env.secret ? 'red' : ''"
-                @click="toggleEnvironmentSecret(index)"
+                :title="t('action.remove')"
+                :icon="IconTrash"
+                color="red"
+                @click="removeEnvironmentVariable(index)"
               />
             </div>
           </div>
@@ -121,7 +120,8 @@ import IconTrash2 from "~icons/lucide/trash-2"
 import IconDone from "~icons/lucide/check"
 import IconPlus from "~icons/lucide/plus"
 import IconTrash from "~icons/lucide/trash"
-import IconLock from "~icons/lucide/lock"
+import IconEye from "~icons/lucide/eye"
+import IconEyeOff from "~icons/lucide/eye-off"
 import { clone } from "lodash-es"
 import { computed, ref, watch } from "vue"
 import * as E from "fp-ts/Either"

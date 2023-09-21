@@ -10,7 +10,6 @@ import {
   shallowReadonly,
   watch,
 } from "vue"
-import { platform } from "~/platform"
 import {
   HoppTab,
   PersistableTabState,
@@ -65,10 +64,6 @@ export abstract class TabService<Doc>
     this.tabOrdering.value.push(id)
 
     this.setActiveTab(id)
-
-    platform.analytics?.logEvent({
-      type: "HOPP_REST_NEW_TAB_OPENED",
-    })
 
     return tab
   }
@@ -143,6 +138,8 @@ export abstract class TabService<Doc>
       0,
       this.tabOrdering.value.splice(fromIndex, 1)[0]
     )
+
+    return this.tabOrdering.value
   }
 
   public closeTab(tabID: string) {

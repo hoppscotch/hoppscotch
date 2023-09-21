@@ -60,18 +60,18 @@
     "copy": "Copy",
     "copy_user_id": "Copy User Auth Token",
     "developer_option": "Developer options",
-    "developer_option_description": "Developer tools which helps in development and maintenance of Hoppscotch.",
+    "developer_option_description": "Developer tools which helps in development and maintenance of Blueman.",
     "discord": "Discord",
     "documentation": "Documentation",
     "github": "GitHub",
     "help": "Help & feedback",
     "home": "Home",
     "invite": "Invite",
-    "invite_description": "Hoppscotch is an open source API development ecosystem. We designed a simple and intuitive interface for creating and managing your APIs. Hoppscotch is a tool that helps you build, test, document and share your APIs.",
+    "invite_description": "Blueman is an open source API development ecosystem. We designed a simple and intuitive interface for creating and managing your APIs. Blueman is a tool that helps you build, test, document and share your APIs.",
     "invite_your_friends": "Invite your friends",
     "join_discord_community": "Join our Discord community",
     "keyboard_shortcuts": "Keyboard shortcuts",
-    "name": "Hoppscotch",
+    "name": "Blueman",
     "new_version_found": "New version found. Refresh to update.",
     "options": "Options",
     "proxy_privacy_policy": "Proxy privacy policy",
@@ -102,7 +102,7 @@
     "logged_out": "Logged out",
     "login": "Login",
     "login_success": "Successfully logged in",
-    "login_to_hoppscotch": "Login to Hoppscotch",
+    "login_to_hoppscotch": "Login to Blueman",
     "logout": "Logout",
     "re_enter_email": "Re-enter email",
     "send_magic_link": "Send a magic link",
@@ -172,7 +172,7 @@
   },
   "documentation": {
     "generate": "Generate documentation",
-    "generate_message": "Import any Hoppscotch collection to generate API documentation on-the-go."
+    "generate_message": "Import any Blueman collection to generate API documentation on-the-go."
   },
   "empty": {
     "authorization": "This request does not use any authorization",
@@ -321,8 +321,8 @@
     "from_gist_description": "Import from Gist URL",
     "from_insomnia": "Import from Insomnia",
     "from_insomnia_description": "Import from Insomnia collection",
-    "from_json": "Import from Hoppscotch",
-    "from_json_description": "Import from Hoppscotch collection file",
+    "from_json": "Import from Blueman",
+    "from_json_description": "Import from Blueman collection file",
     "from_my_collections": "Import from My Collections",
     "from_my_collections_description": "Import from My Collections file",
     "from_openapi": "Import from OpenAPI",
@@ -333,9 +333,9 @@
     "gist_url": "Enter Gist URL",
     "import_from_url_invalid_fetch": "Couldn't get data from the url",
     "import_from_url_invalid_file_format": "Error while importing collections",
-    "import_from_url_invalid_type": "Unsupported type. accepted values are 'hoppscotch', 'openapi', 'postman', 'insomnia'",
+    "import_from_url_invalid_type": "Unsupported type. accepted values are 'blueman', 'openapi', 'postman', 'insomnia'",
     "import_from_url_success": "Collections Imported",
-    "json_description": "Import collections from a Hoppscotch Collections JSON file",
+    "json_description": "Import collections from a Blueman Collections JSON file",
     "title": "Import"
   },
   "inspections": {
@@ -345,7 +345,7 @@
       "not_found": "Environment variable “{environment}” not found."
     },
     "header": {
-      "cookie": "The browser doesn't allow Hoppscotch to set the Cookie Header. While we're working on the Hoppscotch Desktop App (coming soon), please use the Authorization Header instead."
+      "cookie": "The browser doesn't allow Blueman to set the Cookie Header. While we're working on the Blueman Desktop App (coming soon), please use the Authorization Header instead."
     },
     "response": {
       "401_error": "Please check your authentication credentials.",
@@ -357,7 +357,7 @@
     "title": "Inspector",
     "url": {
       "extension_not_installed": "Extension not installed.",
-      "extension_unknown_origin": "Make sure you've added the API endpoint's origin to the Hoppscotch Browser Extension list.",
+      "extension_unknown_origin": "Make sure you've added the API endpoint's origin to the Blueman Browser Extension list.",
       "extention_enable_action": "Enable Browser Extension",
       "extention_not_enabled": "Extension not enabled."
     }
@@ -479,7 +479,7 @@
     "save_as": "Save as",
     "saved": "Request saved",
     "share": "Share",
-    "share_description": "Share Hoppscotch with your friends",
+    "share_description": "Share Blueman with your friends",
     "stop": "Stop",
     "title": "Request",
     "type": "Request type",
@@ -531,7 +531,7 @@
     "interceptor_description": "Middleware between application and APIs.",
     "language": "Language",
     "light_mode": "Light",
-    "official_proxy_hosting": "Official Proxy is hosted by Hoppscotch.",
+    "official_proxy_hosting": "Official Proxy is hosted by Blueman.",
     "profile": "Profile",
     "profile_description": "Update your profile details",
     "profile_email": "Email address",
@@ -577,7 +577,7 @@
       "title": "General"
     },
     "miscellaneous": {
-      "invite": "Invite people to Hoppscotch",
+      "invite": "Invite people to Blueman",
       "title": "Miscellaneous"
     },
     "navigation": {
@@ -667,7 +667,7 @@
       "disconnect": "Disconnect from server"
     },
     "miscellaneous": {
-      "invite": "Invite your friends to Hoppscotch",
+      "invite": "Invite your friends to Blueman",
       "title": "Miscellaneous"
     },
     "request": {
@@ -766,7 +766,7 @@
     "changelog": "Read more about latest releases",
     "chat": "Questions? Chat with us!",
     "community": "Ask questions and help others",
-    "documentation": "Read more about Hoppscotch",
+    "documentation": "Read more about Blueman",
     "forum": "Ask questions and get answers",
     "github": "Follow us on Github",
     "shortcuts": "Browse app faster",

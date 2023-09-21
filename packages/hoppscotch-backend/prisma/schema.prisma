@@ -26,6 +26,7 @@ model TeamMember {
   team    Team           @relation(fields: [teamID], references: [id], onDelete: Cascade)
 
   @@unique([teamID, userUid])
+  @@index([userUid])
 }
 
 model TeamInvitation {

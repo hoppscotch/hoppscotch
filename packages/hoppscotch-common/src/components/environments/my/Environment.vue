@@ -165,11 +165,13 @@ const removeEnvironment = () => {
 }
 
 const environmentJson = () => {
+  const { ...newEnvironment } = props.environment
+  delete newEnvironment.id
+
   return props.environmentIndex !== null
-    ? JSON.stringify(props.environment.variables, null, 2)
+    ? JSON.stringify(newEnvironment, null, 2)
     : undefined
 }
-
 const exportJSON = () => {
   const dataToWrite = environmentJson()
   if (!dataToWrite) return

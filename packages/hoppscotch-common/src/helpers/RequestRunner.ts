@@ -29,8 +29,9 @@ import {
   setGlobalEnvVariables,
   updateEnvironment,
 } from "~/newstore/environments"
-import { HoppRESTTab } from "./rest/tab"
 import { Ref } from "vue"
+import { HoppTab } from "~/services/tab"
+import { HoppRESTDocument } from "./rest/document"
 
 const getTestableBody = (
   res: HoppRESTResponse & { type: "success" | "fail" }
@@ -69,13 +70,13 @@ export const executedResponses$ = new Subject<
 >()
 
 export function runRESTRequest$(
-  tab: Ref<HoppRESTTab>
+  tab: Ref<HoppTab<HoppRESTDocument>>
 ): [
   () => void,
   Promise<
     | E.Left<"script_fail" | "cancellation">
     | E.Right<Observable<HoppRESTResponse>>
-  >,
+  >
 ] {
   let cancelCalled = false
   let cancelFunc: (() => void) | null = null
@@ -127,7 +128,7 @@ export function runRESTRequest$(
           )()
 
           if (E.isRight(runResult)) {
-            tab.value.testResults = translateToSandboxTestResults(
+            tab.value.document.testResults = translateToSandboxTestResults(
               runResult.right
             )
 
@@ -163,7 +164,7 @@ export function runRESTRequest$(
               )()
             }
           } else {
-            tab.value.testResults = {
+            tab.value.document.testResults = {
               description: "",
               expectResults: [],
               tests: [],

@@ -3,8 +3,8 @@ import { refDebounced } from "@vueuse/core"
 import { Service } from "dioc"
 import { computed, markRaw, reactive } from "vue"
 import { Component, Ref, ref, watch } from "vue"
-import { currentActiveTab } from "~/helpers/rest/tab"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
+import { RESTTabService } from "../tab/rest"
 
 /**
  * Defines how to render the text in an Inspector Result
@@ -105,6 +105,8 @@ export class InspectionService extends Service {
 
   private tabs: Ref<Map<string, InspectorResult[]>> = ref(new Map())
 
+  private readonly restTab = this.bind(RESTTabService)
+
   constructor() {
     super()
 
@@ -122,10 +124,14 @@ export class InspectionService extends Service {
 
   private initializeListeners() {
     watch(
-      () => [this.inspectors.entries(), currentActiveTab.value.id],
+      () => [this.inspectors.entries(), this.restTab.currentActiveTab.value.id],
       () => {
-        const reqRef = computed(() => currentActiveTab.value.document.request)
-        const resRef = computed(() => currentActiveTab.value.response)
+        const reqRef = computed(
+          () => this.restTab.currentActiveTab.value.document.request
+        )
+        const resRef = computed(
+          () => this.restTab.currentActiveTab.value.document.response
+        )
 
         const debouncedReq = refDebounced(reqRef, 1000, { maxWait: 2000 })
         const debouncedRes = refDebounced(resRef, 1000, { maxWait: 2000 })
@@ -142,7 +148,7 @@ export class InspectionService extends Service {
           () => [...inspectorRefs.flatMap((x) => x!.value)],
           () => {
             this.tabs.value.set(
-              currentActiveTab.value.id,
+              this.restTab.currentActiveTab.value.id,
               activeInspections.value
             )
           },

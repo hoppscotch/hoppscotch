@@ -1,6 +1,7 @@
 import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
-import { getTabsRefTo } from "../rest/tab"
 import { getAffectedIndexes } from "./affectedIndex"
+import { RESTTabService } from "~/services/tab/rest"
+import { getService } from "~/modules/dioc"
 
 /**
  * Resolve save context on reorder
@@ -32,7 +33,8 @@ export function resolveSaveContextOnRequestReorder(payload: {
   // if (newIndex === -1) remove it from the map because it will be deleted
   if (newIndex === -1) affectedIndexes.delete(lastIndex)
 
-  const tabs = getTabsRefTo((tab) => {
+  const tabService = getService(RESTTabService)
+  const tabs = tabService.getTabsRefTo((tab) => {
     return (
       tab.document.saveContext?.originLocation === "user-collection" &&
       tab.document.saveContext.folderPath === folderPath &&

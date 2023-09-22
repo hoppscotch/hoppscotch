@@ -7,9 +7,10 @@ import {
 } from ".."
 import { markRaw, ref } from "vue"
 import IconCopyPlus from "~icons/lucide/copy-plus"
-import { createNewTab } from "~/helpers/rest/tab"
 import { getDefaultRESTRequest } from "~/helpers/rest/default"
 import { getI18n } from "~/modules/i18n"
+import { RESTTabService } from "~/services/tab/rest"
+import { getService } from "~/modules/dioc"
 
 /**
  * Used to check if a string is a valid URL
@@ -55,7 +56,8 @@ export class URLMenuService extends Service implements ContextMenu {
       endpoint: url,
     }
 
-    createNewTab({
+    const tabService = getService(RESTTabService)
+    tabService.createNewTab({
       request: request,
       isDirty: false,
     })

@@ -55,7 +55,7 @@ export abstract class TabService<Doc>
     )
   }
 
-  public createNewTab(document: Doc): HoppTab<Doc> {
+  public createNewTab(document: Doc, switchToIt = true): HoppTab<Doc> {
     const id = this.generateNewTabID()
 
     const tab: HoppTab<Doc> = { id, document }
@@ -63,7 +63,9 @@ export abstract class TabService<Doc>
     this.tabMap.set(id, tab)
     this.tabOrdering.value.push(id)
 
-    this.setActiveTab(id)
+    if (switchToIt) {
+      this.setActiveTab(id)
+    }
 
     return tab
   }

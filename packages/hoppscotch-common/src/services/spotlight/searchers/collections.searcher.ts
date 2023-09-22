@@ -16,10 +16,6 @@ import {
 import IconFolder from "~icons/lucide/folder"
 import RESTRequestSpotlightEntry from "~/components/app/spotlight/entry/RESTRequest.vue"
 import GQLRequestSpotlightEntry from "~/components/app/spotlight/entry/GQLRequest.vue"
-import { createNewTab } from "~/helpers/rest/tab"
-import { createNewTab as createNewGQLTab } from "~/helpers/graphql/tab"
-import { getTabRefWithSaveContext } from "~/helpers/rest/tab"
-import { currentTabID } from "~/helpers/rest/tab"
 import {
   HoppCollection,
   HoppGQLRequest,
@@ -27,6 +23,8 @@ import {
 } from "@hoppscotch/data"
 import { WorkspaceService } from "~/services/workspace.service"
 import { invokeAction } from "~/helpers/actions"
+import { RESTTabService } from "~/services/tab/rest"
+import { GQLTabService } from "~/services/tab/graphql"
 
 /**
  * A spotlight searcher that searches through the user's collections
@@ -43,6 +41,9 @@ export class CollectionsSpotlightSearcherService
 
   public searcherID = "collections"
   public searcherSectionTitle = this.t("collection.my_collections")
+
+  private readonly restTab = this.bind(RESTTabService)
+  private readonly gqlTab = this.bind(GQLTabService)
 
   private readonly spotlight = this.bind(SpotlightService)
   private readonly workspaceService = this.bind(WorkspaceService)
@@ -290,21 +291,21 @@ export class CollectionsSpotlightSearcherService
         })
       }
 
-      const possibleTab = getTabRefWithSaveContext({
+      const possibleTab = this.restTab.getTabRefWithSaveContext({
         originLocation: "user-collection",
         folderPath: folderPath.join("/"),
         requestIndex: reqIndex,
       })
 
       if (possibleTab) {
-        currentTabID.value = possibleTab.value.id
+        this.restTab.setActiveTab(possibleTab.value.id)
       } else {
         const req = this.getRESTFolderFromFolderPath(folderPath.join("/"))
           ?.requests[reqIndex]
 
         if (!req) return
 
-        createNewTab(
+        this.restTab.createNewTab(
           {
             request: req,
             isDirty: false,
@@ -326,7 +327,7 @@ export class CollectionsSpotlightSearcherService
 
       if (!req) return
 
-      createNewGQLTab({
+      this.gqlTab.createNewTab({
         saveContext: {
           originLocation: "user-collection",
           folderPath: folderPath.join("/"),

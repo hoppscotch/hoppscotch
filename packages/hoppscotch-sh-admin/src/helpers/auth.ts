@@ -60,6 +60,17 @@ async function logout() {
   });
 }
 
+const signOut = async () => {
+  await logout();
+  probableUser$.next(null);
+  currentUser$.next(null);
+  removeLocalConfig('login_state');
+
+  authEvents$.next({
+    event: 'logout',
+  });
+};
+
 async function signInUserWithGithubFB() {
   window.location.href = `${
     import.meta.env.VITE_BACKEND_API_URL
@@ -137,6 +148,7 @@ async function setInitialUser() {
   // no cookies sent. so the user is not logged in
   if (error && error.message === 'auth/cookies_not_found') {
     setUser(null);
+    await signOut();
     isGettingInitialUser.value = false;
     return;
   }
@@ -149,6 +161,7 @@ async function setInitialUser() {
       setInitialUser();
     } else {
       setUser(null);
+      await signOut();
       isGettingInitialUser.value = false;
     }
 
@@ -359,15 +372,7 @@ export const auth = {
   async signOutUser() {
     // if (!currentUser$.value) throw new Error("No user has logged in")
 
-    await logout();
-
-    probableUser$.next(null);
-    currentUser$.next(null);
-    removeLocalConfig('login_state');
-
-    authEvents$.next({
-      event: 'logout',
-    });
+    await signOut();
   },
 
   async processMagicLink() {

@@ -211,7 +211,7 @@ const refreshToken = async () => {
     authEvents$.next({
       event: 'token_refresh',
     });
-    res.status === 200 ? true : false;
+    return res.status === 200;
   } catch {
     return false;
   }

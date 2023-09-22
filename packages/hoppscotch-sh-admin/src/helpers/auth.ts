@@ -200,24 +200,22 @@ async function setInitialUser() {
   }
 }
 
-async function refreshToken() {
-  const res = await axios.get(
-    `${import.meta.env.VITE_BACKEND_API_URL}/auth/refresh`,
-    {
-      withCredentials: true,
-    }
-  );
-
-  const isSuccessful = res.status === 200;
-
-  if (isSuccessful) {
+const refreshToken = async () => {
+  try {
+    const res = await axios.get(
+      `${import.meta.env.VITE_BACKEND_API_URL}/auth/refresh`,
+      {
+        withCredentials: true,
+      }
+    );
     authEvents$.next({
       event: 'token_refresh',
     });
+    res.status === 200 ? true : false;
+  } catch {
+    return false;
   }
-
-  return isSuccessful;
-}
+};
 
 async function elevateUser() {
   const res = await axios.get(

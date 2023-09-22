@@ -61,15 +61,17 @@
               :envs="liveEnvs"
               :name="'value' + index"
               :secret="env.secret"
+              :is-secret-to-be-toggled="env.secret"
             />
             <div class="flex">
-              <HoppButtonSecondary
+              <HoppSmartCheckbox
                 id="variable"
-                v-tippy="{ theme: 'tooltip' }"
-                :title="t('action.secret')"
-                :icon="env.secret ? IconEyeOff : IconEye"
-                @click="toggleEnvironmentSecret(index)"
-              />
+                class="px-2"
+                :on="vars[index].env.secret"
+                @change="toggleEnvironmentSecret(index)"
+              >
+                {{ t("action.secret") }}
+              </HoppSmartCheckbox>
             </div>
             <div class="flex">
               <HoppButtonSecondary
@@ -120,8 +122,6 @@ import IconTrash2 from "~icons/lucide/trash-2"
 import IconDone from "~icons/lucide/check"
 import IconPlus from "~icons/lucide/plus"
 import IconTrash from "~icons/lucide/trash"
-import IconEye from "~icons/lucide/eye"
-import IconEyeOff from "~icons/lucide/eye-off"
 import { clone } from "lodash-es"
 import { computed, ref, watch } from "vue"
 import * as E from "fp-ts/Either"

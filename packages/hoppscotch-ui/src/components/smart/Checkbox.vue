@@ -16,6 +16,7 @@
     <label
       for="checkbox"
       class="pl-0 font-semibold truncate align-middle cursor-pointer"
+      :class="slots.default ? 'before:mr-2' : ''"
     >
       <slot></slot>
     </label>
@@ -23,6 +24,8 @@
 </template>
 
 <script setup lang="ts">
+import { useSlots } from "vue"
+
 defineProps({
   on: {
     type: Boolean,
@@ -33,6 +36,8 @@ defineProps({
 const emit = defineEmits<{
   (e: "change"): void
 }>()
+
+const slots = useSlots()
 </script>
 
 <style lang="scss" scoped>
@@ -55,7 +60,6 @@ const emit = defineEmits<{
       @apply h-4;
       @apply w-4;
       @apply font-icon;
-      @apply mr-2;
       @apply transition;
       @apply content-["\e5ca"];
     }

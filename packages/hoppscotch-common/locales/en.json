@@ -22,6 +22,7 @@
     "go_back": "Go back",
     "go_forward": "Go forward",
     "group_by": "Group by",
+    "hide_secret": "Hide secret",
     "label": "Label",
     "learn_more": "Learn more",
     "less": "Less",
@@ -38,7 +39,9 @@
     "scroll_to_bottom": "Scroll to bottom",
     "scroll_to_top": "Scroll to top",
     "search": "Search",
+    "secret": "Secret",
     "send": "Send",
+    "show_secret": "Show secret",
     "start": "Start",
     "starting": "Starting",
     "stop": "Stop",
@@ -48,8 +51,7 @@
     "turn_off": "Turn off",
     "turn_on": "Turn on",
     "undo": "Undo",
-    "yes": "Yes",
-    "secret": "Save as secret"
+    "yes": "Yes"
   },
   "add": {
     "new": "Add new",

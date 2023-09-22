@@ -64,15 +64,19 @@
               :name="'value' + index"
               :readonly="isViewer"
               :secret="env.secret"
+              :is-secret-to-be-toggled="env.secret && !isViewer"
             />
             <div v-if="!isViewer" class="flex">
-              <HoppButtonSecondary
+              <HoppSmartCheckbox
                 id="variable"
                 v-tippy="{ theme: 'tooltip' }"
                 :title="t('action.secret')"
-                :icon="env.secret ? IconEyeOff : IconEye"
-                @click="toggleEnvironmentSecret(index)"
-              />
+                :on="vars[index].env.secret"
+                class="px-2"
+                @change="toggleEnvironmentSecret(index)"
+              >
+                {{ t("action.secret") }}
+              </HoppSmartCheckbox>
             </div>
             <div v-if="!isViewer" class="flex">
               <HoppButtonSecondary
@@ -149,8 +153,6 @@ import IconTrash from "~icons/lucide/trash"
 import IconTrash2 from "~icons/lucide/trash-2"
 import IconDone from "~icons/lucide/check"
 import IconPlus from "~icons/lucide/plus"
-import IconEye from "~icons/lucide/eye"
-import IconEyeOff from "~icons/lucide/eye-off"
 import { platform } from "~/platform"
 
 type EnvironmentVariable = {

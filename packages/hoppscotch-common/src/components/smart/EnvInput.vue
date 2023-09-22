@@ -12,6 +12,13 @@
         @keydown="handleKeystroke"
         @focusin="showSuggestionPopover = true"
       ></div>
+      <HoppButtonSecondary
+        v-if="secret && isSecretToBeToggled"
+        v-tippy="{ theme: 'tooltip' }"
+        :title="isSecret ? t('action.show_secret') : t('action.hide_secret')"
+        :icon="isSecret ? IconEyeOff : IconEye"
+        @click="toggleSecret"
+      />
       <AppInspection
         :inspection-results="inspectionResults"
         class="sticky inset-y-0 right-0 bg-primary rounded-r"
@@ -71,6 +78,11 @@ import { platform } from "~/platform"
 import { onClickOutside, useDebounceFn } from "@vueuse/core"
 import { InspectorResult } from "~/services/inspection"
 import { invokeAction } from "~/helpers/actions"
+import { useI18n } from "~/composables/i18n"
+import IconEye from "~icons/lucide/eye"
+import IconEyeOff from "~icons/lucide/eye-off"
+
+const t = useI18n()
 
 const props = withDefaults(
   defineProps<{
@@ -88,6 +100,7 @@ const props = withDefaults(
     inspectionResults?: InspectorResult[] | undefined
     defaultValue?: string
     secret?: boolean
+    isSecretToBeToggled?: boolean
   }>(),
   {
     modelValue: "",
@@ -102,6 +115,7 @@ const props = withDefaults(
     inspectionResults: undefined,
     defaultValue: "",
     secret: false,
+    isSecretToBeToggled: false,
   }
 )
 
@@ -128,6 +142,37 @@ const showSuggestionPopover = ref(false)
 
 const suggestionsMenu = ref<any | null>(null)
 const autoCompleteWrapper = ref<any | null>(null)
+
+const isSecret = ref(props.secret)
+
+// used to store the previous value of the modelValue when secret is toggled
+const prevModelValue = ref(props.modelValue)
+
+const toggleSecret = () => {
+  if (isSecret.value) {
+    emit("update:modelValue", prevModelValue.value)
+    isSecret.value = false
+  } else {
+    emit("update:modelValue", asterikedText.value)
+    isSecret.value = true
+  }
+}
+
+watch(
+  () => props.secret,
+  (newValue) => {
+    let visibleValue = asterikedText.value
+    if (!newValue) {
+      visibleValue = prevModelValue.value
+      isSecret.value = false
+    } else {
+      prevModelValue.value = props.modelValue
+      isSecret.value = true
+    }
+    emit("update:modelValue", visibleValue)
+    updateEditorViewTheme(newValue)
+  }
+)
 
 onClickOutside(autoCompleteWrapper, () => {
   showSuggestionPopover.value = false
@@ -273,22 +318,6 @@ watch(
     if (!newVal) {
       currentSuggestionIndex.value = -1
     }
-  }
-)
-
-const prevModelValue = ref(props.modelValue)
-
-watch(
-  () => props.secret,
-  (newValue) => {
-    let visibleValue = asterikedText.value
-    if (!newValue) {
-      visibleValue = prevModelValue.value
-    } else {
-      prevModelValue.value = props.modelValue
-    }
-    emit("update:modelValue", visibleValue)
-    updateEditorViewTheme(newValue)
   }
 )
 

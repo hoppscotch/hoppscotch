@@ -1,6 +1,6 @@
 <template>
   <HoppSmartTabs
-    v-if="document.response"
+    v-if="doc.response"
     v-model="selectedLensTab"
     styles="sticky overflow-x-auto flex-shrink-0 z-10 bg-primary top-lowerPrimaryStickyFold"
   >
@@ -13,7 +13,7 @@
     >
       <component
         :is="lensRendererFor(lens.renderer)"
-        :response="document.response"
+        :response="doc.response"
       />
     </HoppSmartTab>
     <HoppSmartTab
@@ -29,18 +29,18 @@
       id="results"
       :label="t('test.results')"
       :indicator="
-        document.testResults &&
-        (document.testResults.expectResults.length ||
-          document.testResults.tests.length ||
-          document.testResults.envDiff.selected.additions.length ||
-          document.testResults.envDiff.selected.updations.length ||
-          document.testResults.envDiff.global.updations.length)
+        doc.testResults &&
+        (doc.testResults.expectResults.length ||
+          doc.testResults.tests.length ||
+          doc.testResults.envDiff.selected.additions.length ||
+          doc.testResults.envDiff.selected.updations.length ||
+          doc.testResults.envDiff.global.updations.length)
           ? true
           : false
       "
       class="flex flex-col flex-1"
     >
-      <HttpTestResult v-model="document.testResults" />
+      <HttpTestResult v-model="doc.testResults" />
     </HoppSmartTab>
   </HoppSmartTabs>
 </template>
@@ -58,16 +58,13 @@ import { HoppRESTDocument } from "~/helpers/rest/document"
 
 const props = defineProps<{
   document: HoppRESTDocument
-  selectedTabPreference: string | null
 }>()
 
 const emit = defineEmits<{
-  (e: "update:tab", document: HoppRESTDocument): void
-  (e: "update:selectedTabPreference", newTab: string): void
+  (e: "update:document", document: HoppRESTDocument): void
 }>()
 
-const tab = useVModel(props, "document", emit)
-const selectedTabPreference = useVModel(props, "selectedTabPreference", emit)
+const doc = useVModel(props, "document", emit)
 
 const allLensRenderers = getLensRenderers()
 
@@ -81,19 +78,19 @@ const selectedLensTab = ref("")
 
 const maybeHeaders = computed(() => {
   if (
-    !tab.value.response ||
+    !doc.value.response ||
     !(
-      tab.value.response.type === "success" ||
-      tab.value.response.type === "fail"
+      doc.value.response.type === "success" ||
+      doc.value.response.type === "fail"
     )
   )
     return null
-  return tab.value.response.headers
+  return doc.value.response.headers
 })
 
 const validLenses = computed(() => {
-  if (!tab.value.response) return []
-  return getSuitableLenses(tab.value.response)
+  if (!doc.value.response) return []
+  return getSuitableLenses(doc.value.response)
 })
 
 watch(
@@ -107,11 +104,13 @@ watch(
       "results",
     ]
 
+    const { responseTabPreference } = doc.value
+
     if (
-      selectedTabPreference.value &&
-      validRenderers.includes(selectedTabPreference.value)
+      responseTabPreference &&
+      validRenderers.includes(responseTabPreference)
     ) {
-      selectedLensTab.value = selectedTabPreference.value
+      selectedLensTab.value = responseTabPreference
     } else {
       selectedLensTab.value = newLenses[0].renderer
     }
@@ -120,6 +119,6 @@ watch(
 )
 
 watch(selectedLensTab, (newLensID) => {
-  selectedTabPreference.value = newLensID
+  doc.value.responseTabPreference = newLensID
 })
 </script>

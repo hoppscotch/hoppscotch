@@ -1,17 +1,16 @@
 <template>
   <div class="flex flex-col flex-1 relative">
-    <HttpResponseMeta :response="document.response" />
+    <HttpResponseMeta :response="doc.response" />
     <LensesResponseBodyRenderer
       v-if="!loading && hasResponse"
-      v-model:selected-tab-preference="selectedTabPreference"
-      v-model:document="document"
+      v-model:document="doc"
     />
   </div>
 </template>
 
 <script setup lang="ts">
 import { useVModel } from "@vueuse/core"
-import { computed, ref } from "vue"
+import { computed } from "vue"
 import { HoppRESTDocument } from "~/helpers/rest/document"
 
 const props = defineProps<{
@@ -22,15 +21,13 @@ const emit = defineEmits<{
   (e: "update:tab", val: HoppRESTDocument): void
 }>()
 
-const document = useVModel(props, "document", emit)
-
-const selectedTabPreference = ref<string | null>(null)
+const doc = useVModel(props, "document", emit)
 
 const hasResponse = computed(
   () =>
-    document.value.response?.type === "success" ||
-    document.value.response?.type === "fail"
+    doc.value.response?.type === "success" ||
+    doc.value.response?.type === "fail"
 )
 
-const loading = computed(() => document.value.response?.type === "loading")
+const loading = computed(() => doc.value.response?.type === "loading")
 </script>

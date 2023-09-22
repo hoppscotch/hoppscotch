@@ -1,5 +1,6 @@
 import { HoppGQLRequest } from "@hoppscotch/data"
 import { GQLResponseEvent } from "./connection"
+import { GQLOptionTabs } from "~/components/graphql/RequestOptions.vue"
 
 export type HoppGQLSaveContext =
   | {
@@ -62,4 +63,14 @@ export type HoppGQLDocument = {
    * (if any)
    */
   response?: GQLResponseEvent[] | null
+
+  /**
+   * Response tab preference for the current tab's document
+   */
+  responseTabPreference?: string
+
+  /**
+   * Options tab preference for the current tab's document
+   */
+  optionTabPreference?: GQLOptionTabs
 }

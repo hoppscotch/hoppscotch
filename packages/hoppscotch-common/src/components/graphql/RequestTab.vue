@@ -4,6 +4,7 @@
       <GraphqlRequestOptions
         v-model="tab.document.request"
         v-model:response="tab.document.response"
+        v-model:option-tab="tab.document.optionTabPreference"
         :tab-id="tab.id"
       />
     </template>

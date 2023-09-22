@@ -1,5 +1,4 @@
 import { isEqual } from "lodash-es"
-import { reactive } from "vue"
 import { getDefaultGQLRequest } from "~/helpers/graphql/default"
 import { HoppGQLDocument, HoppGQLSaveContext } from "~/helpers/graphql/document"
 import { TabService } from "./tab"
@@ -10,20 +9,14 @@ export class GQLTabService extends TabService<HoppGQLDocument> {
   constructor() {
     super()
 
-    this.tabMap = reactive(
-      new Map([
-        [
-          "test",
-          {
-            id: "test",
-            document: {
-              request: getDefaultGQLRequest(),
-              isDirty: false,
-            },
-          },
-        ],
-      ])
-    )
+    this.tabMap.set("test", {
+      id: "test",
+      document: {
+        request: getDefaultGQLRequest(),
+        isDirty: false,
+        optionTabPreference: "query",
+      },
+    })
 
     this.watchCurrentTabID()
   }

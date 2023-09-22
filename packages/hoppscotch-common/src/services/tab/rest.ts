@@ -1,5 +1,4 @@
 import { isEqual } from "lodash-es"
-import { reactive } from "vue"
 import { getDefaultRESTRequest } from "~/helpers/rest/default"
 import { HoppRESTDocument, HoppRESTSaveContext } from "~/helpers/rest/document"
 import { TabService } from "./tab"
@@ -10,20 +9,14 @@ export class RESTTabService extends TabService<HoppRESTDocument> {
   constructor() {
     super()
 
-    this.tabMap = reactive(
-      new Map([
-        [
-          "test",
-          {
-            id: "test",
-            document: {
-              request: getDefaultRESTRequest(),
-              isDirty: false,
-            },
-          },
-        ],
-      ])
-    )
+    this.tabMap.set("test", {
+      id: "test",
+      document: {
+        request: getDefaultRESTRequest(),
+        isDirty: false,
+        optionTabPreference: "params",
+      },
+    })
 
     this.watchCurrentTabID()
   }

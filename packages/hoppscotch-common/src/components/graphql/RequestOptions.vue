@@ -58,7 +58,7 @@ import { computed, ref, watch } from "vue"
 import { defineActionHandler } from "~/helpers/actions"
 import { HoppGQLRequest } from "@hoppscotch/data"
 import { platform } from "~/platform"
-import { computedWithControl } from "@vueuse/core"
+import { computedWithControl, useVModel } from "@vueuse/core"
 import {
   GQLResponseEvent,
   runGQLOperation,
@@ -69,8 +69,15 @@ import { InterceptorService } from "~/services/interceptor.service"
 import { editGraphqlRequest } from "~/newstore/collections"
 import { GQLTabService } from "~/services/tab/graphql"
 
-export type GQLOptionTabs = "query" | "headers" | "variables" | "authorization"
-const selectedOptionTab = ref<GQLOptionTabs>("query")
+const VALID_GQL_OPERATIONS = [
+  "query",
+  "headers",
+  "variables",
+  "authorization",
+] as const
+
+export type GQLOptionTabs = (typeof VALID_GQL_OPERATIONS)[number]
+
 const interceptorService = useService(InterceptorService)
 
 const t = useI18n()
@@ -83,13 +90,16 @@ const props = withDefaults(
   defineProps<{
     modelValue: HoppGQLRequest
     response?: GQLResponseEvent[] | null
+    optionTab?: GQLOptionTabs
     tabId: string
   }>(),
   {
     response: null,
+    optionTab: "query",
   }
 )
 const emit = defineEmits(["update:modelValue", "update:response"])
+const selectedOptionTab = useVModel(props, "optionTab", emit)
 
 const request = ref(props.modelValue)
 

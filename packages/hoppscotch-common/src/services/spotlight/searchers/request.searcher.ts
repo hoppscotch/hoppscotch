@@ -8,7 +8,7 @@ import {
 } from "./base/static.searcher"
 
 import { useRoute } from "vue-router"
-import { RequestOptionTabs } from "~/components/http/RequestOptions.vue"
+import { RESTOptionTabs } from "~/components/http/RequestOptions.vue"
 import { currentActiveTab } from "~/helpers/rest/tab"
 import IconWindow from "~icons/lucide/app-window"
 import IconCheckCircle from "~icons/lucide/check-circle"
@@ -247,7 +247,7 @@ export class RequestSpotlightSearcherService extends StaticSpotlightSearcherServ
     }
   }
 
-  private openRequestTab(tab: RequestOptionTabs | GQLOptionTabs): void {
+  private openRequestTab(tab: RESTOptionTabs | GQLOptionTabs): void {
     invokeAction("request.open-tab", {
       tab,
     })

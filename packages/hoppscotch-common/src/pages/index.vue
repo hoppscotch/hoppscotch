@@ -5,8 +5,7 @@
         <HoppSmartWindows
           v-if="currentTabID"
           :id="'rest_windows'"
-          :model-value="currentTabID"
-          @update:model-value="(tabID) => tabs.setActiveTab(tabID)"
+          v-model="currentTabID"
           @remove-tab="removeTab"
           @add-tab="addNewTab"
           @sort="sortTabs"
@@ -128,7 +127,6 @@ import { EnvironmentInspectorService } from "~/services/inspection/inspectors/en
 import { ResponseInspectorService } from "~/services/inspection/inspectors/response.inspector"
 import { cloneDeep } from "lodash-es"
 import { RESTTabService } from "~/services/tab/rest"
-import { computed } from "vue"
 import { HoppTab, PersistableTabState } from "~/services/tab"
 import { HoppRESTDocument } from "~/helpers/rest/document"
 
@@ -146,7 +144,7 @@ const toast = useToast()
 
 const tabs = useService(RESTTabService)
 
-const currentTabID = computed(() => tabs.currentTabID.value)
+const currentTabID = tabs.currentTabID
 
 type PopupDetails = {
   show: boolean

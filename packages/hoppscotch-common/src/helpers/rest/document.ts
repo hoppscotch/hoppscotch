@@ -1,6 +1,7 @@
 import { HoppRESTRequest } from "@hoppscotch/data"
 import { HoppRESTResponse } from "../types/HoppRESTResponse"
 import { HoppTestResult } from "../types/HoppTestResult"
+import { RESTOptionTabs } from "~/components/http/RequestOptions.vue"
 
 export type HoppRESTSaveContext =
   | {
@@ -69,4 +70,14 @@ export type HoppRESTDocument = {
    * (if any)
    */
   testResults?: HoppTestResult | null
+
+  /**
+   * Response tab preference for the current tab's document
+   */
+  responseTabPreference?: string
+
+  /**
+   * Options tab preference for the current tab's document
+   */
+  optionTabPreference?: RESTOptionTabs
 }

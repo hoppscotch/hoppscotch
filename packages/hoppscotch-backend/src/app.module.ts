@@ -27,12 +27,7 @@ import { AppController } from './app.controller';
       buildSchemaOptions: {
         numberScalarMode: 'integer',
       },
-      cors: {
-        origin: process.env.WHITELISTED_ORIGINS.split(','),
-        credentials: true,
-      },
       playground: process.env.PRODUCTION !== 'true',
-      debug: process.env.PRODUCTION !== 'true',
       autoSchemaFile: true,
       installSubscriptionHandlers: true,
       subscriptions: {
@@ -62,10 +57,12 @@ import { AppController } from './app.controller';
       }),
       driver: ApolloDriver,
     }),
-    ThrottlerModule.forRoot({
-      ttl: +process.env.RATE_LIMIT_TTL,
-      limit: +process.env.RATE_LIMIT_MAX,
-    }),
+    ThrottlerModule.forRoot([
+      {
+        ttl: +process.env.RATE_LIMIT_TTL,
+        limit: +process.env.RATE_LIMIT_MAX,
+      },
+    ]),
     UserModule,
     AuthModule,
     AdminModule,

@@ -1,8 +1,9 @@
 import { GraphQLSchemaHost } from '@nestjs/graphql';
 import {
   ApolloServerPlugin,
+  BaseContext,
   GraphQLRequestListener,
-} from 'apollo-server-plugin-base';
+} from '@apollo/server';
 import { Plugin } from '@nestjs/apollo';
 import { GraphQLError } from 'graphql';
 import {
@@ -17,7 +18,7 @@ const COMPLEXITY_LIMIT = 50;
 export class GQLComplexityPlugin implements ApolloServerPlugin {
   constructor(private gqlSchemaHost: GraphQLSchemaHost) {}
 
-  async requestDidStart(): Promise<GraphQLRequestListener> {
+  async requestDidStart(): Promise<GraphQLRequestListener<BaseContext>> {
     const { schema } = this.gqlSchemaHost;
 
     return {

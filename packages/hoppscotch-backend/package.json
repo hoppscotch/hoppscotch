@@ -35,7 +35,6 @@
     "@nestjs/platform-express": "^10.2.6",
     "@nestjs/throttler": "^5.0.0",
     "@prisma/client": "^4.16.2",
-    "apollo-server-plugin-base": "^3.7.1",
     "argon2": "^0.30.3",
     "bcrypt": "^5.1.0",
     "cookie": "^0.5.0",

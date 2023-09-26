@@ -10,6 +10,7 @@ import {
   WatchStopHandle,
   watchSyncEffect,
   watch,
+  nextTick,
 } from "vue"
 import {
   client,
@@ -101,7 +102,7 @@ export const useGQLQuery = <
 
   const rerunQuery = () => {
     source.value = !isPaused.value
-      ? client.value.executeQuery<DocType, DocVarType>(request.value, {
+      ? client.value?.executeQuery<DocType, DocVarType>(request.value, {
           requestPolicy: "network-only",
         })
       : undefined
@@ -126,7 +127,7 @@ export const useGQLQuery = <
 
       const invalidateStops = args.updateSubs!.map((sub) => {
         return wonkaPipe(
-          client.value.executeSubscription(sub),
+          client.value!.executeSubscription(sub),
           onEnd(() => {
             if (source.value) execute()
           }),
@@ -194,7 +195,8 @@ export const useGQLQuery = <
     }
 
     isPaused.value = false
-    rerunQuery()
+
+    nextTick(rerunQuery)
   }
 
   const pause = () => {

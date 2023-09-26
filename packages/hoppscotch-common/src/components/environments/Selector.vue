@@ -274,7 +274,11 @@
                   {{ variable.key }}
                 </span>
                 <span class="text-secondaryLight w-full min-w-32 truncate">
-                  {{ variable.value }}
+                  {{
+                    variable.secret
+                      ? getAsteriskValue(variable.value)
+                      : variable.value
+                  }}
                 </span>
               </div>
               <div
@@ -480,6 +484,10 @@ watch(
     }
   }
 )
+
+const getAsteriskValue = (value: string) => {
+  return value.replace(/./g, "*")
+}
 
 const selectedEnv = computed(() => {
   if (props.isScopeSelector) {

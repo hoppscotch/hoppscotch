@@ -393,7 +393,8 @@ watch(
       const team = myTeams.value?.find((t) => t.id === teamID)
       if (team) updateSelectedTeam(team)
     }
-  }, {
+  },
+  {
     immediate: true,
   }
 )

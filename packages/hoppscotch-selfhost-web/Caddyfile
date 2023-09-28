@@ -1,4 +1,4 @@
-:8080 {
+:3000 {
   try_files {path} /
   root * /site
   file_server

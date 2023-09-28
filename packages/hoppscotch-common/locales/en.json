@@ -112,6 +112,7 @@
   },
   "authorization": {
     "generate_token": "Generate Token",
+    "graphql_headers": "Authorization Headers are sent as part of the payload to connection_init",
     "include_in_url": "Include in URL",
     "learn": "Learn how",
     "pass_key_by": "Pass by",

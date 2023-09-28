@@ -136,6 +136,9 @@ const runQuery = async (
     const duration = Date.now() - startTime
     completePageProgress()
     toast.success(`${t("state.finished_in", { duration })}`)
+    if (definition?.operation === "subscription" && request.value.auth) {
+      toast.success(t("authorization.graphql_headers"))
+    }
   } catch (e: any) {
     console.log(e)
     // response.value = [`${e}`]

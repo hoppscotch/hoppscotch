@@ -632,7 +632,6 @@ defineActionHandler("request.show-code", () => {
 })
 
 const isCustomMethod = computed(() => {
-  console.log("Custom method", newMethod.value)
   return (
     tab.value.document.request.method === "CUSTOM" ||
     !methods.includes(newMethod.value)

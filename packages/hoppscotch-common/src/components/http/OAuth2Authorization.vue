@@ -1,6 +1,50 @@
 <template>
   <div class="flex flex-col">
     <div class="flex flex-1 border-b border-dividerLight">
+      <span class="flex flex-1 px-4 bg-transparent items-center">
+        <label class="text-secondaryLight">
+          {{ t("authorization.grant_type") }}
+        </label>
+        <div class="flex flex-row" role="menu">
+          <HoppSmartItem
+            :label="t('authorization.code')"
+            :icon="
+              grantType === 'client_credentials' ? IconCircle : IconCheckCircle
+            "
+            @click="() => (grantType = 'code')"
+          />
+          <HoppSmartItem
+            :label="t('authorization.client_credentials')"
+            :icon="
+              grantType === 'client_credentials' ? IconCheckCircle : IconCircle
+            "
+            @click="() => (grantType = 'client_credentials')"
+          />
+        </div>
+      </span>
+    </div>
+    <div class="flex flex-1 border-b border-dividerLight">
+      <span class="flex flex-1 px-4 bg-transparent items-center">
+        <label class="text-secondaryLight"> Place client credentials </label>
+        <div class="flex flex-row" role="menu">
+          <HoppSmartItem
+            label="Body"
+            :icon="
+              clientCredentialsIn === 'header' ? IconCircle : IconCheckCircle
+            "
+            @click="() => (clientCredentialsIn = 'body')"
+          />
+          <HoppSmartItem
+            label="Header"
+            :icon="
+              clientCredentialsIn === 'header' ? IconCheckCircle : IconCircle
+            "
+            @click="() => (clientCredentialsIn = 'header')"
+          />
+        </div>
+      </span>
+    </div>
+    <div class="flex flex-1 border-b border-dividerLight">
       <SmartEnvInput
         v-model="oidcDiscoveryURL"
         placeholder="OpenID Connect Discovery URL"
@@ -43,6 +87,8 @@ import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
 import { tokenRequest } from "~/helpers/oauth"
 import { getCombinedEnvVariables } from "~/helpers/preRequest"
+import IconCheckCircle from "~icons/lucide/check-circle"
+import IconCircle from "~icons/lucide/circle"
 
 const t = useI18n()
 const toast = useToast()
@@ -56,6 +102,10 @@ const emit = defineEmits<{
 }>()
 
 const auth = ref(props.modelValue)
+
+const grantType = pluckRef(auth, "grantType")
+const clientCredentialsIn = pluckRef(auth, "clientCredentialsIn")
+const oauth2Token = pluckRef(auth, "token")
 
 watch(
   () => auth.value,
@@ -90,7 +140,8 @@ const handleAccessTokenRequest = async () => {
 
   try {
     const tokenReqParams = {
-      grantType: "code",
+      grantType: grantType.value || "code",
+      clientCredentialsIn: clientCredentialsIn.value || "body",
       oidcDiscoveryUrl: parseTemplateString(oidcDiscoveryURL.value, envVars),
       authUrl: parseTemplateString(authURL.value, envVars),
       accessTokenUrl: parseTemplateString(accessTokenURL.value, envVars),
@@ -98,7 +149,10 @@ const handleAccessTokenRequest = async () => {
       clientSecret: parseTemplateString(clientSecret.value, envVars),
       scope: parseTemplateString(scope.value, envVars),
     }
-    await tokenRequest(tokenReqParams)
+    const token = await tokenRequest(tokenReqParams)
+    if (grantType.value === "client_credentials" && typeof token === "string") {
+      oauth2Token.value = token
+    }
   } catch (e) {
     toast.error(`${e}`)
   }

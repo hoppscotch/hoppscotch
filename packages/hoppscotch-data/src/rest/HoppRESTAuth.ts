@@ -18,6 +18,8 @@ export type HoppRESTAuthBearer = {
 export type HoppRESTAuthOAuth2 = {
   authType: "oauth-2"
 
+  grantType: "code" | "client_credentials"
+  clientCredentialsIn: "body" | "header"
   token: string
   oidcDiscoveryURL: string
   authURL: string

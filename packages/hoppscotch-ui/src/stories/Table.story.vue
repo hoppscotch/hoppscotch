@@ -6,23 +6,33 @@
     <Variant title="Custom">
       <HoppSmartTable>
         <template #head>
-          <th>ID</th>
-          <th>Name</th>
-          <th>Members</th>
-          <th>Role</th>
-        </template>
-        <template #body>
-          <tr>
-            <td>123454</td>
-            <td>Joel</td>
-            <td>10</td>
-            <td>Frontend Engineer</td>
+          <tr
+            class="text-secondary border-b border-dividerDark text-sm text-left bg-primaryLight"
+          >
+            <th
+              v-for="heading in headings"
+              :key="heading.key"
+              scope="col"
+              class="px-6 py-3"
+            >
+              {{ heading.label }}
+            </th>
           </tr>
-          <tr>
-            <td>123456</td>
-            <td>Anwar</td>
-            <td>12</td>
-            <td>Frontend Engineer</td>
+        </template>
+
+        <template #body>
+          <tr
+            v-for="item in list"
+            :key="item.id"
+            class="text-secondaryDark hover:bg-divider hover:cursor-pointer rounded-xl"
+          >
+            <td
+              v-for="cellHeading in headings"
+              :key="cellHeading.key"
+              class="max-w-40 pl-6 py-1"
+            >
+              {{ item[cellHeading.key] ?? "-" }}
+            </td>
           </tr>
         </template>
       </HoppSmartTable>
@@ -32,16 +42,17 @@
 
 <script setup lang="ts">
 import { HoppSmartTable } from "../components/smart"
+import { CellHeading } from "~/components/smart/Table.vue"
 
 // Table Headings
-const headings = [
+const headings: CellHeading[] = [
   { key: "id", label: "ID" },
   { key: "name", label: "Name" },
   { key: "members", label: "Members" },
   { key: "role", label: "Role" },
 ]
 
-const list = [
+const list: Record<string, string | number>[] = [
   {
     id: "123455",
     name: "Joel",

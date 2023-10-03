@@ -14,12 +14,13 @@
       </thead>
 
       <tbody class="divide-y divide-divider">
+        <!-- We are using slot props for future proofing so that in future, we can implement features like filtering -->
         <slot name="body" :list="list">
           <tr
             v-for="(rowData, rowIndex) in list"
             :key="rowIndex"
             class="text-secondaryDark hover:bg-divider hover:cursor-pointer rounded-xl"
-            :class="yBorder ? 'divide-x divide-divider' : ''"
+            :class="{ 'divide-x divide-divider': yBorder }"
           >
             <td
               v-for="cellHeading in headings"

@@ -296,10 +296,6 @@ importers:
         version: 4.9.3
 
   packages/hoppscotch-cli:
-    dependencies:
-      zod:
-        specifier: ^3.22.2
-        version: 3.22.2
     devDependencies:
       '@hoppscotch/data':
         specifier: workspace:^
@@ -361,6 +357,9 @@ importers:
       typescript:
         specifier: ^4.6.4
         version: 4.7.4
+      zod:
+        specifier: ^3.22.2
+        version: 3.22.2
 
   packages/hoppscotch-common:
     dependencies:
@@ -24762,4 +24761,4 @@ packages:
 
   /zod@3.22.2:
     resolution: {integrity: sha512-wvWkphh5WQsJbVk1tbx1l1Ly4yg+XecD+Mq280uBGt9wa5BKSWf4Mhp6GmrkPixhMxmabYY7RbzlwVP32pbGCg==}
-    dev: false
+    dev: true

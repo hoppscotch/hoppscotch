@@ -39,6 +39,7 @@
             role="menu"
             @keyup.e="edit!.$el.click()"
             @keyup.d="duplicate!.$el.click()"
+            @keyup.j="exportAsJson!.$el.click()"
             @keyup.delete="deleteAction!.$el.click()"
             @keyup.escape="options!.tippy().hide()"
           >
@@ -50,6 +51,19 @@
               @click="
                 () => {
                   emit('edit-environment')
+                  hide()
+                }
+              "
+            />
+
+            <HoppSmartItem
+              ref="exportAsJson"
+              :icon="IconEdit"
+              :label="`${t('export.as_json')}`"
+              :shortcut="['J']"
+              @click="
+                () => {
+                  exportJSON()
                   hide()
                 }
               "
@@ -129,6 +143,7 @@ const options = ref<TippyComponent | null>(null)
 const edit = ref<typeof HoppSmartItem>()
 const duplicate = ref<typeof HoppSmartItem>()
 const deleteAction = ref<typeof HoppSmartItem>()
+const exportAsJson = ref<typeof HoppSmartItem>()
 
 const removeEnvironment = () => {
   pipe(
@@ -143,6 +158,34 @@ const removeEnvironment = () => {
       }
     )
   )()
+}
+
+const environmentJson = () => {
+  const { ...newEnvironment } = props.environment.environment
+  delete newEnvironment.id
+
+  return props.environment.id !== null
+    ? JSON.stringify(newEnvironment, null, 2)
+    : undefined
+}
+
+const exportJSON = () => {
+  const dataToWrite = environmentJson()
+  if (!dataToWrite) return
+  const file = new Blob([dataToWrite], { type: "application/json" })
+  const a = document.createElement("a")
+  const url = URL.createObjectURL(file)
+  a.href = url
+
+  // TODO: get uri from meta
+  a.download = `${url.split("/").pop()!.split("#")[0].split("?")[0]}.json`
+  document.body.appendChild(a)
+  a.click()
+  toast.success(t("state.download_started").toString())
+  setTimeout(() => {
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  }, 1000)
 }
 
 const duplicateEnvironments = () => {

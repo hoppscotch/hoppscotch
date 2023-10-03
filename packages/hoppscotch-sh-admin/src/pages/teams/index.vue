@@ -18,13 +18,7 @@
 
         <div v-else-if="error">{{ t('teams.load_list_error') }}</div>
 
-        <div v-else-if="teamsList.length === 0" class="px-2">
-          <p class="text-lg">
-            {{ t('teams.no_teams') }}
-          </p>
-        </div>
-
-        <div v-else>
+        <div v-else-if="teamsList.length">
           <HoppSmartTable :list="teamsList">
             <template #head>
               <tr
@@ -33,6 +27,7 @@
                 <th class="px-6 py-2">{{ t('teams.id') }}</th>
                 <th class="px-6 py-3">{{ t('teams.name') }}</th>
                 <th class="px-6 py-2">{{ t('teams.members') }}</th>
+                <!-- Empty Heading for the Action Button -->
                 <th class="px-6 py-2"></th>
               </tr>
             </template>
@@ -97,6 +92,12 @@
               </tr>
             </template>
           </HoppSmartTable>
+        </div>
+
+        <div v-else class="px-2">
+          <p class="text-lg">
+            {{ t('teams.no_teams') }}
+          </p>
         </div>
 
         <div

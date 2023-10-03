@@ -28,11 +28,7 @@
 
         <div v-else-if="error">{{ t('users.load_list_error') }}</div>
 
-        <div v-else-if="usersList.length === 0" class="flex justify-center">
-          {{ t('users.no_users') }}
-        </div>
-
-        <div v-else>
+        <div v-else-if="usersList.length">
           <HoppSmartTable :list="usersList">
             <template #head>
               <tr
@@ -42,6 +38,7 @@
                 <th class="px-6 py-2">{{ t('users.name') }}</th>
                 <th class="px-6 py-2">{{ t('users.email') }}</th>
                 <th class="px-6 py-2">{{ t('users.date') }}</th>
+                <!-- Empty header for Action Button -->
                 <th class="px-6 py-2"></th>
               </tr>
             </template>
@@ -159,6 +156,10 @@
               </tr>
             </template>
           </HoppSmartTable>
+        </div>
+
+        <div v-else-if="usersList.length === 0" class="flex justify-center">
+          {{ t('users.no_users') }}
         </div>
 
         <div

@@ -137,6 +137,7 @@
     "load_info_error": "Unable to load user info",
     "load_list_error": "Unable to Load Users List",
     "make_admin": "Make admin",
+    "invite_load_list_error": "Unable to Load Invited Users List",
     "name": "Name",
     "no_invite": "No invited users found",
     "no_users": "No users found",

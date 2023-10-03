@@ -12,16 +12,13 @@
       </div>
 
       <div class="overflow-x-auto">
-        <div
-          v-if="fetching && !error && teamsList.length === 0"
-          class="flex justify-center"
-        >
+        <div v-if="fetching" class="flex justify-center">
           <HoppSmartSpinner />
         </div>
 
         <div v-else-if="error">{{ t('teams.load_list_error') }}</div>
 
-        <div v-else-if="teamsList.length == 0" class="px-2">
+        <div v-else-if="teamsList.length === 0" class="px-2">
           <p class="text-lg">
             {{ t('teams.no_teams') }}
           </p>
@@ -46,23 +43,18 @@
                 class="text-secondaryDark hover:bg-divider hover:cursor-pointer rounded-xl"
                 @click="goToTeamDetails(team.id)"
               >
-                <td class="py-4 px-3 max-w-50">
-                  <div class="flex">
-                    <span class="truncate">
-                      {{ team.id }}
-                    </span>
-                  </div>
+                <td class="flex py-4 px-3 max-w-50">
+                  <span class="truncate">
+                    {{ team.id }}
+                  </span>
                 </td>
 
                 <td class="py-4 px-3 min-w-80">
                   <span
-                    v-if="team.name"
                     class="flex items-center ml-4 truncate"
+                    :class="{ truncate: team.name }"
                   >
-                    {{ team.name }}
-                  </span>
-                  <span v-else class="flex items-center ml-4">
-                    {{ t('teams.unnamed') }}
+                    {{ team.name ?? t('teams.unnamed') }}
                   </span>
                 </td>
 

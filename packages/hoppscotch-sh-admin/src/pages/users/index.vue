@@ -22,16 +22,17 @@
         </div>
       </div>
       <div class="overflow-x-auto">
-        <div
-          v-if="fetching && !error && usersList.length === 0"
-          class="flex justify-center"
-        >
+        <div v-if="fetching" class="flex justify-center">
           <HoppSmartSpinner />
         </div>
 
         <div v-else-if="error">{{ t('users.load_list_error') }}</div>
 
-        <div v-else-if="usersList.length > 0">
+        <div v-else-if="usersList.length === 0" class="flex justify-center">
+          {{ t('users.no_users') }}
+        </div>
+
+        <div v-else>
           <HoppSmartTable :list="usersList">
             <template #head>
               <tr
@@ -61,16 +62,13 @@
                 </td>
 
                 <td class="py-2 px-3">
-                  <div
-                    v-if="user.displayName"
-                    class="flex items-center space-x-3"
-                  >
+                  <div v-if="user.displayName" class="flex items-center">
                     <span>
                       {{ user.displayName }}
                     </span>
                     <span
                       v-if="user.isAdmin"
-                      class="text-xs font-medium px-3 py-0.5 rounded-full bg-green-900 text-green-300"
+                      class="text-xs font-medium ml-2 px-3 py-0.5 rounded-full bg-green-900 text-green-300"
                     >
                       {{ t('users.admin') }}
                     </span>
@@ -93,12 +91,10 @@
                 </td>
 
                 <td class="py-2 px-3">
-                  <div class="flex items-center">
-                    <div class="flex flex-col">
-                      {{ getCreatedDate(user.createdOn) }}
-                      <div class="text-gray-400 text-tiny">
-                        {{ getCreatedTime(user.createdOn) }}
-                      </div>
+                  <div class="flex flex-col">
+                    {{ getCreatedDate(user.createdOn) }}
+                    <div class="text-gray-400 text-tiny">
+                      {{ getCreatedTime(user.createdOn) }}
                     </div>
                   </div>
                 </td>
@@ -164,8 +160,6 @@
             </template>
           </HoppSmartTable>
         </div>
-
-        <div v-else class="flex justify-center">{{ t('users.no_users') }}</div>
 
         <div
           v-if="hasNextPage && usersList.length >= usersPerPage"

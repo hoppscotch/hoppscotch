@@ -152,8 +152,8 @@ const confirmRemove = ref(false)
 
 const exportEnvironmentAsJSON = () =>
   exportJSON(props.environment, props.environmentIndex)
-    ? toast.success(t("state.download_started").toString())
-    : toast.error(t("state.download_failed").toString())
+    ? toast.success(t("state.download_started"))
+    : toast.error(t("state.download_failed"))
 
 const tippyActions = ref<TippyComponent | null>(null)
 const options = ref<TippyComponent | null>(null)

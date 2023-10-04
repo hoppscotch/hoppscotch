@@ -12,38 +12,34 @@
 
     <div class="flex flex-col">
       <div class="py-2 overflow-x-auto">
-        <div>
-          <div v-if="fetching" class="flex justify-center">
-            <HoppSmartSpinner />
-          </div>
-          <div v-else-if="error">
-            <p class="text-xl">
-              {{ t('users.invite_load_list_error') }}
-            </p>
-          </div>
-          <div v-if="invitedUsersListToRender.length">
-            <HoppSmartTable
-              :list="invitedUsersListToRender"
-              :headings="headings"
-            >
-              <template #invitedOn="{ item }">
-                <div v-if="item" class="pr-2 truncate">
-                  <span class="truncate">
-                    {{ getCreatedDate(item.invitedOn) }}
-                  </span>
-
-                  <div class="text-gray-400 text-tiny">
-                    {{ getCreatedTime(item.invitedOn) }}
-                  </div>
-                </div>
-                <span v-else> - </span>
-              </template>
-            </HoppSmartTable>
-          </div>
-          <div v-else>
-            <p class="text-xl">{{ t('users.no_invite') }}</p>
-          </div>
+        <div v-if="fetching" class="flex justify-center">
+          <HoppSmartSpinner />
         </div>
+
+        <p v-else-if="error" class="text-xl">
+          {{ t('users.invite_load_list_error') }}
+        </p>
+
+        <HoppSmartTable
+          v-if="invitedUsers?.length"
+          :list="invitedUsers"
+          :headings="headings"
+        >
+          <template #invitedOn="{ item }">
+            <div v-if="item" class="pr-2 truncate">
+              <span class="truncate">
+                {{ getCreatedDate(item.invitedOn) }}
+              </span>
+
+              <div class="text-gray-400 text-tiny">
+                {{ getCreatedTime(item.invitedOn) }}
+              </div>
+            </div>
+            <span v-else> - </span>
+          </template>
+        </HoppSmartTable>
+
+        <p v-else class="text-lg">{{ t('users.no_invite') }}</p>
       </div>
     </div>
   </div>
@@ -69,22 +65,6 @@ const getCreatedTime = (date: string) => format(new Date(date), 'hh:mm a');
 // Get Invited Users
 const { fetching, error, data } = useQuery({ query: InvitedUsersDocument });
 const invitedUsers = computed(() => data?.value?.admin.invitedUsers);
-
-// The new invited users list that is used in the table
-const invitedUsersListToRender = computed(() => {
-  return invitedUsers.value
-    ? invitedUsers.value.map(
-        ({ adminUid, adminEmail, inviteeEmail, invitedOn }) => {
-          return {
-            adminUid,
-            adminEmail,
-            inviteeEmail,
-            invitedOn,
-          };
-        }
-      )
-    : [];
-});
 
 // Table Headings
 const headings = [

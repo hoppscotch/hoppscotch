@@ -82,9 +82,7 @@
                 </td>
 
                 <td class="py-2 px-3">
-                  <span>
-                    {{ user.email }}
-                  </span>
+                  {{ user.email }}
                 </td>
 
                 <td class="py-2 px-3">
@@ -98,59 +96,57 @@
 
                 <td @click.stop>
                   <div class="relative">
-                    <span>
-                      <tippy interactive trigger="click" theme="popover">
-                        <HoppButtonSecondary
-                          v-tippy="{ theme: 'tooltip' }"
-                          :icon="IconMoreHorizontal"
-                        />
-                        <template #content="{ hide }">
-                          <div
-                            ref="tippyActions"
-                            class="flex flex-col focus:outline-none"
-                            tabindex="0"
-                            @keyup.escape="hide()"
-                          >
-                            <HoppSmartItem
-                              v-if="!user.isAdmin"
-                              :icon="IconUserCheck"
-                              :label="t('users.make_admin')"
-                              class="!hover:bg-emerald-600"
-                              @click="
-                                () => {
-                                  makeUserAdmin(user.uid);
-                                  hide();
-                                }
-                              "
-                            />
-                            <HoppSmartItem
-                              v-else
-                              :icon="IconUserMinus"
-                              :label="t('users.remove_admin_status')"
-                              class="!hover:bg-emerald-600"
-                              @click="
-                                () => {
-                                  makeAdminToUser(user.uid);
-                                  hide();
-                                }
-                              "
-                            />
-                            <HoppSmartItem
-                              v-if="!user.isAdmin"
-                              :icon="IconTrash"
-                              :label="t('users.delete_user')"
-                              class="!hover:bg-red-600"
-                              @click="
-                                () => {
-                                  deleteUser(user.uid);
-                                  hide();
-                                }
-                              "
-                            />
-                          </div>
-                        </template>
-                      </tippy>
-                    </span>
+                    <tippy interactive trigger="click" theme="popover">
+                      <HoppButtonSecondary
+                        v-tippy="{ theme: 'tooltip' }"
+                        :icon="IconMoreHorizontal"
+                      />
+                      <template #content="{ hide }">
+                        <div
+                          ref="tippyActions"
+                          class="flex flex-col focus:outline-none"
+                          tabindex="0"
+                          @keyup.escape="hide()"
+                        >
+                          <HoppSmartItem
+                            v-if="!user.isAdmin"
+                            :icon="IconUserCheck"
+                            :label="t('users.make_admin')"
+                            class="!hover:bg-emerald-600"
+                            @click="
+                              () => {
+                                makeUserAdmin(user.uid);
+                                hide();
+                              }
+                            "
+                          />
+                          <HoppSmartItem
+                            v-else
+                            :icon="IconUserMinus"
+                            :label="t('users.remove_admin_status')"
+                            class="!hover:bg-emerald-600"
+                            @click="
+                              () => {
+                                makeAdminToUser(user.uid);
+                                hide();
+                              }
+                            "
+                          />
+                          <HoppSmartItem
+                            v-if="!user.isAdmin"
+                            :icon="IconTrash"
+                            :label="t('users.delete_user')"
+                            class="!hover:bg-red-600"
+                            @click="
+                              () => {
+                                deleteUser(user.uid);
+                                hide();
+                              }
+                            "
+                          />
+                        </div>
+                      </template>
+                    </tippy>
                   </div>
                 </td>
               </tr>

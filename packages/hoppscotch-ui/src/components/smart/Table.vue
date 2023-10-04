@@ -20,7 +20,7 @@
             v-for="(rowData, rowIndex) in list"
             :key="rowIndex"
             class="text-secondaryDark hover:bg-divider hover:cursor-pointer rounded-xl"
-            :class="{ 'divide-x divide-divider': yBorder }"
+            :class="{ 'divide-x divide-divider': showYBorder }"
           >
             <td
               v-for="cellHeading in headings"
@@ -54,7 +54,7 @@ export type CellHeading = {
 
 defineProps<{
   /** Whether to show the vertical border between columns */
-  yBorder?: boolean
+  showYBorder?: boolean
   /**  The list of items to be displayed in the table */
   list?: Item[]
   /** The headings of the table */

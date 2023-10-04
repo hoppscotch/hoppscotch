@@ -21,14 +21,11 @@
               {{ t('users.invite_load_list_error') }}
             </p>
           </div>
-          <div
-            v-else-if="invitedUsers === undefined || invitedUsers.length === 0"
-          >
-            <p class="text-xl">{{ t('users.no_invite') }}</p>
-          </div>
-
-          <div v-else>
-            <HoppSmartTable :list="newInvitedUsersList" :headings="headings">
+          <div v-if="invitedUsersListToRender.length">
+            <HoppSmartTable
+              :list="invitedUsersListToRender"
+              :headings="headings"
+            >
               <template #invitedOn="{ item }">
                 <div v-if="item" class="pr-2 truncate">
                   <span class="truncate">
@@ -42,6 +39,9 @@
                 <span v-else> - </span>
               </template>
             </HoppSmartTable>
+          </div>
+          <div v-else>
+            <p class="text-xl">{{ t('users.no_invite') }}</p>
           </div>
         </div>
       </div>
@@ -71,17 +71,19 @@ const { fetching, error, data } = useQuery({ query: InvitedUsersDocument });
 const invitedUsers = computed(() => data?.value?.admin.invitedUsers);
 
 // The new invited users list that is used in the table
-const newInvitedUsersList = computed(() => {
-  return invitedUsers.value?.map(
-    ({ adminUid, adminEmail, inviteeEmail, invitedOn }) => {
-      return {
-        adminUid,
-        adminEmail,
-        inviteeEmail,
-        invitedOn,
-      };
-    }
-  );
+const invitedUsersListToRender = computed(() => {
+  return invitedUsers.value
+    ? invitedUsers.value.map(
+        ({ adminUid, adminEmail, inviteeEmail, invitedOn }) => {
+          return {
+            adminUid,
+            adminEmail,
+            inviteeEmail,
+            invitedOn,
+          };
+        }
+      )
+    : [];
 });
 
 // Table Headings

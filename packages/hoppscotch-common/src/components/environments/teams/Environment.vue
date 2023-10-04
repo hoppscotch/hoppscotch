@@ -57,18 +57,6 @@
             />
 
             <HoppSmartItem
-              ref="exportAsJson"
-              :icon="IconEdit"
-              :label="`${t('export.as_json')}`"
-              :shortcut="['J']"
-              @click="
-                () => {
-                  exportEnvironmentAsJSON()
-                  hide()
-                }
-              "
-            />
-            <HoppSmartItem
               ref="duplicate"
               :icon="IconCopy"
               :label="`${t('action.duplicate')}`"
@@ -76,6 +64,18 @@
               @click="
                 () => {
                   duplicateEnvironments()
+                  hide()
+                }
+              "
+            />
+            <HoppSmartItem
+              ref="exportAsJson"
+              :icon="IconEdit"
+              :label="`${t('export.as_json')}`"
+              :shortcut="['J']"
+              @click="
+                () => {
+                  exportEnvironmentAsJSON()
                   hide()
                 }
               "

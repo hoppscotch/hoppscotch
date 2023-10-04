@@ -85,7 +85,7 @@
               :shortcut="['J']"
               @click="
                 () => {
-                  exportJSON()
+                  exportEnvironmentAsJSON()
                   hide()
                 }
               "
@@ -134,6 +134,7 @@ import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
 import { TippyComponent } from "vue-tippy"
 import { HoppSmartItem } from "@hoppscotch/ui"
+import { exportJSON } from "~/helpers/import-export/export/envToJson"
 
 const t = useI18n()
 const toast = useToast()
@@ -149,6 +150,11 @@ const emit = defineEmits<{
 
 const confirmRemove = ref(false)
 
+const exportEnvironmentAsJSON = () =>
+  exportJSON(props.environment, props.environmentIndex)
+    ? toast.success(t("state.download_started").toString())
+    : toast.error(t("state.download_failed").toString())
+
 const tippyActions = ref<TippyComponent | null>(null)
 const options = ref<TippyComponent | null>(null)
 const edit = ref<typeof HoppSmartItem>()
@@ -162,33 +168,6 @@ const removeEnvironment = () => {
     deleteEnvironment(props.environmentIndex, props.environment.id)
   }
   toast.success(`${t("state.deleted")}`)
-}
-
-const environmentJson = () => {
-  const { ...newEnvironment } = props.environment
-  delete newEnvironment.id
-
-  return props.environmentIndex !== null
-    ? JSON.stringify(newEnvironment, null, 2)
-    : undefined
-}
-const exportJSON = () => {
-  const dataToWrite = environmentJson()
-  if (!dataToWrite) return
-  const file = new Blob([dataToWrite], { type: "application/json" })
-  const a = document.createElement("a")
-  const url = URL.createObjectURL(file)
-  a.href = url
-
-  // TODO: get uri from meta
-  a.download = `${url.split("/").pop()!.split("#")[0].split("?")[0]}.json`
-  document.body.appendChild(a)
-  a.click()
-  toast.success(t("state.download_started").toString())
-  setTimeout(() => {
-    document.body.removeChild(a)
-    URL.revokeObjectURL(url)
-  }, 1000)
 }
 
 const duplicateEnvironments = () => {

@@ -4,6 +4,7 @@ import {
   HoppEnvPair,
   HoppEnvArray,
   HoppEnvObject,
+  HoppBulkEnvObject,
 } from "../../types/request";
 import { readJsonFile } from "../../utils/mutators";
 /**
@@ -16,7 +17,16 @@ export async function parseEnvsData(path: string) {
   const envPairs: Array<HoppEnvPair> = [];
   const HoppEnvArrayResult = HoppEnvArray.safeParse(contents);
   const HoppEnvObjectResult = HoppEnvObject.safeParse(contents);
+  const HoppBulkEnvObjectResult = HoppBulkEnvObject.safeParse(contents);
 
+  // CLI doesnt support bulk environments export.
+  // Hence we check for this case and throw an error if it matches the format.
+  if (HoppBulkEnvObjectResult.success) {
+    throw error({ code: "MALFORMED_BULK_ENV_FILE", path, data: error });
+  }
+
+  //  Checks if the environment file is of the correct format.
+  // If it doesnt match either of them, we throw an error.
   if (!(HoppEnvArrayResult.success || HoppEnvObjectResult.success)) {
     throw error({ code: "MALFORMED_ENV_FILE", path, data: error });
   }

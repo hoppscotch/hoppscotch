@@ -24,7 +24,20 @@ export const HoppEnvObject = z.object({
   ),
 });
 
+export const HoppBulkEnvObject = z.array(
+  z.object({
+    name: z.string(),
+    variables: z.array(
+      z.object({
+        key: z.string(),
+        value: z.string(),
+      })
+    ),
+  })
+);
+
 export type HoppEnvObject = z.infer<typeof HoppEnvObject>;
+export type HoppBulkEnvObject = z.infer<typeof HoppBulkEnvObject>;
 
 export type HoppEnvs = {
   global: HoppEnvPair[];

@@ -1,5 +1,5 @@
 import { Team, TeamCollection as DBTeamCollection } from '@prisma/client';
-import { mock, mockDeep, mockReset } from 'jest-mock-extended';
+import { mockDeep, mockReset } from 'jest-mock-extended';
 import {
   TEAM_COLL_DEST_SAME,
   TEAM_COLL_INVALID_JSON,
@@ -17,9 +17,6 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { PubSubService } from 'src/pubsub/pubsub.service';
 import { AuthUser } from 'src/types/AuthUser';
 import { TeamCollectionService } from './team-collection.service';
-import { TeamCollection } from './team-collection.model';
-import { TeamCollectionModule } from './team-collection.module';
-import * as E from 'fp-ts/Either';
 
 const mockPrisma = mockDeep<PrismaService>();
 const mockPubSub = mockDeep<PubSubService>();

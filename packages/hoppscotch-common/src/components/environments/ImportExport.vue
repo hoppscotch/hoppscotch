@@ -377,6 +377,13 @@ const importFromPostman = ({
 
 const exportJSON = () => {
   const dataToWrite = environmentJson.value
+
+  const parsedCollections = JSON.parse(dataToWrite)
+
+  if (!parsedCollections.length) {
+    return toast.error(t("error.no_environments_to_export"))
+  }
+
   const file = new Blob([dataToWrite], { type: "application/json" })
   const a = document.createElement("a")
   const url = URL.createObjectURL(file)

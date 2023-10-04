@@ -1938,6 +1938,12 @@ const exportJSONCollection = async () => {
 
   await getJSONCollection()
 
+  const parsedCollections = JSON.parse(collectionJSON.value)
+
+  if (!parsedCollections.length) {
+    return toast.error(t("error.no_collections_to_export"))
+  }
+
   initializeDownloadCollection(collectionJSON.value, null)
 }
 

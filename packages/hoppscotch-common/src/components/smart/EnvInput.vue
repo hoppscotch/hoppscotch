@@ -4,6 +4,7 @@
       class="absolute inset-0 flex flex-1 divide-x divide-dividerLight overflow-x-auto no-scrollbar"
     >
       <div
+        v-if="!props.secret"
         ref="editor"
         :placeholder="placeholder"
         class="flex flex-1"
@@ -12,6 +13,15 @@
         @keydown="handleKeystroke"
         @focusin="showSuggestionPopover = true"
       ></div>
+      <input
+        v-if="props.secret"
+        id="secret"
+        v-model="asterikedText"
+        name="secret"
+        disabled
+        class="flex flex-1 bg-transparent px-4 opacity-50"
+        :class="styles"
+      />
       <HoppButtonSecondary
         v-if="secret && isSecretToBeToggled"
         v-tippy="{ theme: 'tooltip' }"
@@ -62,12 +72,7 @@ import {
   keymap,
   tooltips,
 } from "@codemirror/view"
-import {
-  EditorSelection,
-  EditorState,
-  Extension,
-  StateEffect,
-} from "@codemirror/state"
+import { EditorSelection, EditorState, Extension } from "@codemirror/state"
 import { clone } from "lodash-es"
 import { history, historyKeymap } from "@codemirror/commands"
 import { inputTheme } from "~/helpers/editor/themes/baseTheme"
@@ -129,7 +134,11 @@ const emit = defineEmits<{
   (e: "click", ev: any): void
 }>()
 
-const asterikedText = computed(() => "*".repeat(props.modelValue.length))
+const getAsterikedText = (text: string) => {
+  return "*".repeat(text.length)
+}
+
+const asterikedText = ref(getAsterikedText(props.modelValue))
 
 const cachedValue = ref(props.modelValue)
 
@@ -145,32 +154,26 @@ const autoCompleteWrapper = ref<any | null>(null)
 
 const isSecret = ref(props.secret)
 
-// used to store the previous value of the modelValue when secret is toggled
-const prevModelValue = ref(props.modelValue)
-
 const toggleSecret = () => {
   if (isSecret.value) {
-    emit("update:modelValue", prevModelValue.value)
+    asterikedText.value = props.modelValue
     isSecret.value = false
   } else {
-    emit("update:modelValue", asterikedText.value)
+    asterikedText.value = getAsterikedText(props.modelValue)
     isSecret.value = true
   }
 }
 
 watch(
   () => props.secret,
-  (newValue) => {
-    let visibleValue = asterikedText.value
-    if (!newValue) {
-      visibleValue = prevModelValue.value
-      isSecret.value = false
-    } else {
-      prevModelValue.value = props.modelValue
+  (newVal) => {
+    if (newVal) {
+      asterikedText.value = getAsterikedText(props.modelValue)
       isSecret.value = true
+    } else {
+      asterikedText.value = props.modelValue
+      isSecret.value = false
     }
-    emit("update:modelValue", visibleValue)
-    updateEditorViewTheme(newValue)
   }
 )
 
@@ -410,14 +413,6 @@ function handleTextSelection() {
         text: null,
       })
     }
-  }
-}
-const updateEditorViewTheme = (readonly: boolean) => {
-  if (view.value) {
-    const extensions: Extension = getExtensions(readonly)
-    view.value.dispatch({
-      effects: [StateEffect.reconfigure.of(extensions)],
-    })
   }
 }
 

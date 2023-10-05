@@ -382,17 +382,18 @@ const workspace = workspaceService.currentWorkspace
 watch(
   () => {
     const space = workspace.value
-
-    if (space.type === "personal") return undefined
-    else return space.teamID
+    return space.type === "personal" ? undefined : space.teamID
   },
   (teamID) => {
-    if (!teamID) {
-      switchToMyCollections()
-    } else if (teamID) {
+    if (teamID) {
       const team = myTeams.value?.find((t) => t.id === teamID)
-      if (team) updateSelectedTeam(team)
+      if (team) {
+        updateSelectedTeam(team)
+      }
+      return
     }
+
+    return switchToMyCollections()
   },
   {
     immediate: true,

@@ -216,7 +216,7 @@ const workingEnv = computed(() => {
   }
 })
 
-const oldEnvironments = ref<string[]>([])
+const oldEnvironments = ref<Map<number, string>>(new Map())
 
 const envList = useReadonlyStream(environments$, []) || props.envVars()
 
@@ -249,25 +249,20 @@ const liveEnvs = computed(() => {
   }
 })
 
-watch(liveEnvs, (newLiveEnv, oldLiveEnv) => {
-  const oldEnvLength = oldLiveEnv.length
-  const newEnvLength = newLiveEnv.length
-  if (oldEnvLength === newEnvLength) {
-    const _oldEnvironments = []
-    for (let i = 0; i < newEnvLength; i++) {
-      const newVar = newLiveEnv[i]
-      const oldVar = oldLiveEnv[i]
-      let newValue = ""
-      if (!newVar.secret) {
-        newValue = newVar.value
-      } else if (!oldVar.secret) {
-        newValue = oldVar.value
+watch(liveEnvs, (newLiveEnvs, oldLiveEnvs) => {
+  if (newLiveEnvs.length === oldLiveEnvs.length) {
+    for (let i = 0; i < newLiveEnvs.length; i++) {
+      const newValue = newLiveEnvs[i].value
+      const oldValue = oldLiveEnvs[i].value
+
+      if (newLiveEnvs[i].secret && !oldEnvironments.value.get(i)) {
+        oldEnvironments.value.set(i, oldValue)
+      } else if (newLiveEnvs[i].secret && oldLiveEnvs[i].secret) {
+        oldEnvironments.value.set(i, oldEnvironments.value.get(i) ?? "")
       } else {
-        newValue = oldEnvironments.value[i]
+        oldEnvironments.value.set(i, newValue)
       }
-      _oldEnvironments.push(newValue)
     }
-    oldEnvironments.value = _oldEnvironments
   }
 })
 
@@ -305,6 +300,7 @@ const addEnvironmentVariable = () => {
 }
 
 const removeEnvironmentVariable = (index: number) => {
+  oldEnvironments.value.delete(vars.value[index].id)
   vars.value.splice(index, 1)
 }
 
@@ -317,14 +313,13 @@ const saveEnvironment = () => {
     toast.error(`${t("environment.invalid_name")}`)
     return
   }
-  const _vars = vars.value
+
   for (let i = 0; i < vars.value.length; i++) {
-    const value = oldEnvironments.value[i]
-    if (value) {
-      _vars[i].env.value = value
+    if (vars.value[i]) {
+      vars.value[i].env.value = oldEnvironments.value.get(i) ?? ""
     }
   }
-  vars.value = _vars
+
   const filterdVariables = pipe(
     vars.value,
     A.filterMap(

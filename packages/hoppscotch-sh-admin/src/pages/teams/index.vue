@@ -37,25 +37,23 @@
               class="text-secondaryDark hover:bg-divider hover:cursor-pointer rounded-xl"
               @click="goToTeamDetails(team.id)"
             >
-              <td class="flex py-4 px-3 max-w-50">
+              <td class="flex py-4 px-7 max-w-50">
                 <span class="truncate">
                   {{ team.id }}
                 </span>
               </td>
 
-              <td class="py-4 px-3 min-w-80">
+              <td class="py-4 px-7 min-w-80">
                 <span
-                  class="flex items-center ml-4 truncate"
+                  class="flex items-center truncate"
                   :class="{ truncate: team.name }"
                 >
                   {{ team.name ?? t('teams.unnamed') }}
                 </span>
               </td>
 
-              <td class="py-4 px-3">
-                <span class="ml-7">
-                  {{ team.members?.length }}
-                </span>
+              <td class="py-4 px-7">
+                {{ team.members?.length }}
               </td>
 
               <td @click.stop>

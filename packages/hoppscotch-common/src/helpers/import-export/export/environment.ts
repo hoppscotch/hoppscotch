@@ -1,34 +1,33 @@
 import { Environment } from "@hoppscotch/data"
 import { TeamEnvironment } from "~/helpers/teams/TeamEnvironment"
+import { cloneDeep } from "lodash-es"
 
 const getEnvironmentJson = (
-  environment: TeamEnvironment | Environment,
+  environmentObj: TeamEnvironment | Environment,
   environmentIndex?: number | "Global" | null
 ) => {
-  if ("environment" in environment) {
-    const { ...newEnvironment } = environment.environment
-    delete newEnvironment.id
+  const newEnvironment =
+    "environment" in environmentObj
+      ? cloneDeep(environmentObj.environment)
+      : cloneDeep(environmentObj)
 
-    return environment.id !== null
-      ? JSON.stringify(newEnvironment, null, 2)
-      : undefined
-  } else {
-    const { ...newEnvironment } = environment
-    delete newEnvironment.id
+  delete newEnvironment.id
 
-    return environmentIndex !== null
-      ? JSON.stringify(newEnvironment, null, 2)
-      : undefined
-  }
+  const environmentId =
+    environmentIndex || environmentIndex === 0
+      ? environmentIndex
+      : environmentObj.id
+
+  return environmentId !== null
+    ? JSON.stringify(newEnvironment, null, 2)
+    : undefined
 }
 
-export const exportJSON = (
-  environment: Environment | TeamEnvironment,
+export const exportAsJSON = (
+  environmentObj: Environment | TeamEnvironment,
   environmentIndex?: number | "Global" | null
 ): boolean => {
-  const dataToWrite = environmentIndex
-    ? getEnvironmentJson(environment, environmentIndex)
-    : getEnvironmentJson(environment)
+  const dataToWrite = getEnvironmentJson(environmentObj, environmentIndex)
 
   if (!dataToWrite) return false
 

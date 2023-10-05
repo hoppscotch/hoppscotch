@@ -10,11 +10,10 @@ export type FormDataEntry = {
 
 export type HoppEnvPair = { key: string; value: string };
 
-export const HoppEnvArray = z.record(z.string(), z.string());
+export const HoppEnvKeyPairObject = z.record(z.string(), z.string());
 
-export type HoppEnvArray = z.infer<typeof HoppEnvArray>;
-
-export const HoppEnvObject = z.object({
+// Shape of the single environment export object that is exported from the app.
+export const HoppEnvExportObject = z.object({
   name: z.string(),
   variables: z.array(
     z.object({
@@ -24,7 +23,8 @@ export const HoppEnvObject = z.object({
   ),
 });
 
-export const HoppBulkEnvObject = z.array(
+// Shape of the bulk environment export object that is exported from the app.
+export const HoppBulkEnvExportObject = z.array(
   z.object({
     name: z.string(),
     variables: z.array(
@@ -35,9 +35,6 @@ export const HoppBulkEnvObject = z.array(
     ),
   })
 );
-
-export type HoppEnvObject = z.infer<typeof HoppEnvObject>;
-export type HoppBulkEnvObject = z.infer<typeof HoppBulkEnvObject>;
 
 export type HoppEnvs = {
   global: HoppEnvPair[];

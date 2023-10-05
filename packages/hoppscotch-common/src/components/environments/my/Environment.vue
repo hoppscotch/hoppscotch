@@ -134,7 +134,7 @@ import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
 import { TippyComponent } from "vue-tippy"
 import { HoppSmartItem } from "@hoppscotch/ui"
-import { exportJSON } from "~/helpers/import-export/export/envToJson"
+import { exportAsJSON } from "~/helpers/import-export/export/environment"
 
 const t = useI18n()
 const toast = useToast()
@@ -150,10 +150,12 @@ const emit = defineEmits<{
 
 const confirmRemove = ref(false)
 
-const exportEnvironmentAsJSON = () =>
-  exportJSON(props.environment, props.environmentIndex)
+const exportEnvironmentAsJSON = () => {
+  const { environment, environmentIndex } = props
+  exportAsJSON(environment, environmentIndex)
     ? toast.success(t("state.download_started"))
     : toast.error(t("state.download_failed"))
+}
 
 const tippyActions = ref<TippyComponent | null>(null)
 const options = ref<TippyComponent | null>(null)

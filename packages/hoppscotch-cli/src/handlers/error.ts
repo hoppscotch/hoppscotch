@@ -50,8 +50,8 @@ export const handleError = <T extends HoppErrorCode>(error: HoppError<T>) => {
     case "MALFORMED_ENV_FILE":
       ERROR_MSG = `The environment file is not of the correct format.`;
       break;
-    case "MALFORMED_BULK_ENV_FILE":
-      ERROR_MSG = `CLI doesnt support bulk environments export.`;
+    case "BULK_ENV_FILE":
+      ERROR_MSG = `CLI doesn't support bulk environments export.`;
       break;
     case "MALFORMED_COLLECTION":
       ERROR_MSG = `${error.path}\n${parseErrorData(error.data)}`;

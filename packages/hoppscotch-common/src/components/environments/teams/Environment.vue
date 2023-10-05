@@ -123,7 +123,7 @@ import IconTrash2 from "~icons/lucide/trash-2"
 import IconMoreVertical from "~icons/lucide/more-vertical"
 import { TippyComponent } from "vue-tippy"
 import { HoppSmartItem } from "@hoppscotch/ui"
-import { exportJSON } from "~/helpers/import-export/export/envToJson"
+import { exportAsJSON } from "~/helpers/import-export/export/environment"
 
 const t = useI18n()
 const toast = useToast()
@@ -140,7 +140,7 @@ const emit = defineEmits<{
 const confirmRemove = ref(false)
 
 const exportEnvironmentAsJSON = () =>
-  exportJSON(props.environment)
+  exportAsJSON(props.environment)
     ? toast.success(t("state.download_started"))
     : toast.error(t("state.download_failed"))
 

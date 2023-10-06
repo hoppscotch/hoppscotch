@@ -236,7 +236,7 @@
       :show="confirmRemove"
       :title="t('confirm.remove_team')"
       @hide-modal="confirmRemove = false"
-      @resolve="deleteTeam()"
+      @resolve="deleteTeam"
     />
   </div>
 </template>

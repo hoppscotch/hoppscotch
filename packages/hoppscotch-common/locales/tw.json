@@ -5,7 +5,7 @@
     "choose_file": "選擇一個檔案",
     "clear": "清除",
     "clear_all": "全部清除",
-    "clear_history": "Clear all History",
+    "clear_history": "清除所有歷史記錄",
     "close": "關閉",
     "connect": "連線",
     "connecting": "正在連接",
@@ -79,8 +79,8 @@
     "search": "搜尋",
     "share": "分享",
     "shortcuts": "快捷方式",
-    "social_description": "Follow us on social media to stay updated with the latest news, updates and releases.",
-    "social_links": "Social links",
+    "social_description": "在社交媒體上追蹤我們即可在第一時間得知新聞、更新、以及新版本的消息。",
+    "social_links": "社群連結",
     "spotlight": "聚光燈",
     "status": "狀態",
     "status_description": "檢查網站狀態",
@@ -135,15 +135,15 @@
     "renamed": "集合已重新命名",
     "request_in_use": "請求正在使用中",
     "save_as": "另存為",
-    "save_to_collection": "Save to Collection",
+    "save_to_collection": "儲存到集合",
     "select": "選擇一個集合",
     "select_location": "選擇位置",
     "select_team": "選擇一個團隊",
     "team_collections": "團隊集合"
   },
   "confirm": {
-    "close_unsaved_tab": "Are you sure you want to close this tab?",
-    "close_unsaved_tabs": "Are you sure you want to close all tabs? {count} unsaved tabs will be lost.",
+    "close_unsaved_tab": "您確定要關閉此分頁嗎？",
+    "close_unsaved_tabs": "您確定要關閉所有分頁嗎？{count} 個未儲存的分頁將會遺失。",
     "exit_team": "您確定要離開此團隊嗎？",
     "logout": "您確定要登出嗎？",
     "remove_collection": "您確定要永久刪除該集合嗎？",
@@ -158,9 +158,9 @@
     "sync": "您想從雲端恢復您的工作區嗎？這將丟棄您的本地進度。"
   },
   "context_menu": {
-    "add_parameters": "Add to parameters",
-    "open_request_in_new_tab": "Open request in new tab",
-    "set_environment_variable": "Set as variable"
+    "add_parameters": "新增至參數",
+    "open_request_in_new_tab": "在新分頁開啟請求",
+    "set_environment_variable": "設為變數"
   },
   "count": {
     "header": "請求標頭 {count}",
@@ -204,31 +204,31 @@
     "create_new": "建立新環境",
     "created": "已建立環境",
     "deleted": "刪除環境",
-    "duplicated": "Environment duplicated",
+    "duplicated": "已複製環境",
     "edit": "編輯環境",
-    "empty_variables": "No variables",
-    "global": "Global",
-    "global_variables": "Global variables",
+    "empty_variables": "無變數",
+    "global": "全域",
+    "global_variables": "全域變數",
     "invalid_name": "請提供有效的環境名稱",
-    "list": "Environment variables",
+    "list": "環境變數",
     "my_environments": "我的環境",
-    "name": "Name",
+    "name": "名稱",
     "nested_overflow": "巢狀環境變數不得大於 10 層",
     "new": "建立環境",
-    "no_active_environment": "No active environment",
+    "no_active_environment": "無使用中的環境",
     "no_environment": "無環境",
     "no_environment_description": "未選取任何環境。請選擇要對以下變數進行的動作。",
-    "quick_peek": "Environment Quick Peek",
-    "replace_with_variable": "Replace with variable",
-    "scope": "Scope",
+    "quick_peek": "快速預覽環境",
+    "replace_with_variable": "以變數替代",
+    "scope": "範圍",
     "select": "選擇環境",
-    "set": "Set environment",
-    "set_as_environment": "Set as environment",
+    "set": "設定環境",
+    "set_as_environment": "設為環境",
     "team_environments": "團隊環境",
     "title": "環境",
     "updated": "更新環境",
-    "value": "Value",
-    "variable": "Variable",
+    "value": "數值",
+    "variable": "變數",
     "variable_list": "變數列表"
   },
   "error": {
@@ -252,7 +252,7 @@
     "no_duration": "無持續時間",
     "no_results_found": "找不到結果",
     "page_not_found": "找不到此頁面",
-    "proxy_error": "Proxy error",
+    "proxy_error": "Proxy 錯誤",
     "script_fail": "無法執行預請求指令碼",
     "something_went_wrong": "發生了一些錯誤",
     "test_script_fail": "無法執行測試指令碼"
@@ -278,13 +278,13 @@
     "renamed": "資料夾已重新命名"
   },
   "graphql": {
-    "connection_switch_confirm": "Do you want to connect with the latest GraphQL endpoint?",
-    "connection_switch_new_url": "Switching to a tab will disconnected you from the active GraphQL connection. New connection URL is",
-    "connection_switch_url": "You're connected to a GraphQL endpoint the connection URL is",
+    "connection_switch_confirm": "您要使用最新的 GraphQL 端點連線嗎？",
+    "connection_switch_new_url": "切換至分頁將斷開使用中的 GraphQL 連線。新的連線網址為 ",
+    "connection_switch_url": "您已連接至 GraphQL 端點。連線網址為 ",
     "mutations": "變體",
     "schema": "綱要",
     "subscriptions": "訂閱",
-    "switch_connection": "Switch connection"
+    "switch_connection": "切換連線"
   },
   "group": {
     "time": "時間",
@@ -339,27 +339,27 @@
     "title": "匯入"
   },
   "inspections": {
-    "description": "Inspect possible errors",
+    "description": "檢查潛在錯誤",
     "environment": {
-      "add_environment": "Add to Environment",
-      "not_found": "Environment variable “{environment}” not found."
+      "add_environment": "新增至環境",
+      "not_found": "找不到環境變數 “{environment}”。"
     },
     "header": {
-      "cookie": "The browser doesn't allow Hoppscotch to set the Cookie Header. While we're working on the Hoppscotch Desktop App (coming soon), please use the Authorization Header instead."
+      "cookie": "瀏覽器不允許 Hoppscotch 設定 Cookie 標頭。在我們推出 Hoppscotch 桌面版前，請先使用 Authorization 標頭。"
     },
     "response": {
-      "401_error": "Please check your authentication credentials.",
-      "404_error": "Please check your request URL and method type.",
-      "cors_error": "Please check your Cross-Origin Resource Sharing configuration.",
-      "default_error": "Please check your request.",
-      "network_error": "Please check your network connection."
+      "401_error": "請檢查您的授權認證。",
+      "404_error": "請檢查您的請求網址和方式類型。",
+      "cors_error": "請檢查您的跨來源資源共用設定。",
+      "default_error": "請檢查您的請求。",
+      "network_error": "請檢查您的網路連線。"
     },
-    "title": "Inspector",
+    "title": "檢查工具",
     "url": {
-      "extension_not_installed": "Extension not installed.",
-      "extension_unknown_origin": "Make sure you've added the API endpoint's origin to the Hoppscotch Browser Extension list.",
-      "extention_enable_action": "Enable Browser Extension",
-      "extention_not_enabled": "Extension not enabled."
+      "extension_not_installed": "未安裝擴充套件。",
+      "extension_unknown_origin": "請確認您是否已將 API 端點的來源加入 Hoppscotch 擴充套件的清單。",
+      "extention_enable_action": "啟用瀏覽器擴充套件",
+      "extention_not_enabled": "未啟用擴充套件。"
     }
   },
   "layout": {
@@ -472,7 +472,7 @@
     "payload": "負載",
     "query": "查詢",
     "raw_body": "原始請求本體",
-    "rename": "Rename Request",
+    "rename": "重新命名請求",
     "renamed": "請求已重新命名",
     "run": "執行",
     "save": "儲存",
@@ -510,7 +510,7 @@
     "accent_color": "強調色",
     "account": "帳號",
     "account_deleted": "已刪除您的帳號",
-    "account_description": "自定義您的帳號設定。",
+    "account_description": "自訂您的帳號設定。",
     "account_email_description": "您的主要電子郵件地址。",
     "account_name_description": "這是您的顯示名稱。",
     "background": "背景",
@@ -542,7 +542,7 @@
     "read_the": "閱讀",
     "reset_default": "重置為預設",
     "short_codes": "快捷碼",
-    "short_codes_description": "我們為您打造的快捷碼。",
+    "short_codes_description": "您建立的快捷碼。",
     "sidebar_on_left": "左側邊欄",
     "sync": "同步",
     "sync_collections": "集合",
@@ -551,9 +551,9 @@
     "sync_history": "歷史",
     "system_mode": "系統",
     "telemetry": "遙測服務",
-    "telemetry_helps_us": "遙測服務幫助我們進行個性化操作，為您提供最佳體驗。",
+    "telemetry_helps_us": "遙測服務能夠幫助我們進行個人化操作，為您提供最佳體驗。",
     "theme": "主題",
-    "theme_description": "自定義您的應用程式主題。",
+    "theme_description": "自訂您的應用程式主題。",
     "use_experimental_url_bar": "使用帶有環境醒目標示的實驗性網址欄",
     "user": "使用者",
     "verified_email": "已確認電子郵件地址",
@@ -592,26 +592,26 @@
       "title": "導航"
     },
     "others": {
-      "prettify": "Prettify Editor's Content",
-      "title": "Others"
+      "prettify": "美化編輯器的內容",
+      "title": "其他"
     },
     "request": {
       "copy_request_link": "複製請求連結",
       "delete_method": "選擇 DELETE 方法",
       "get_method": "選擇 GET 方法",
       "head_method": "選擇 HEAD 方法",
-      "import_curl": "Import cURL",
+      "import_curl": "匯入 cURL",
       "method": "方法",
       "next_method": "選擇下一個方法",
       "post_method": "選擇 POST 方法",
       "previous_method": "選擇上一個方法",
       "put_method": "選擇 PUT 方法",
-      "rename": "Rename Request",
+      "rename": "重新命名請求",
       "reset_request": "重置請求",
-      "save_request": "Save Request",
+      "save_request": "儲存請求",
       "save_to_collections": "儲存到集合",
       "send_request": "傳送請求",
-      "show_code": "Generate code snippet",
+      "show_code": "產生程式碼片段",
       "title": "請求"
     },
     "response": {
@@ -642,82 +642,82 @@
     "url": "網址"
   },
   "spotlight": {
-    "change_language": "Change Language",
+    "change_language": "變更語言",
     "environments": {
-      "delete": "Delete current environment",
-      "duplicate": "Duplicate current environment",
-      "duplicate_global": "Duplicate global environment",
-      "edit": "Edit current environment",
-      "edit_global": "Edit global environment",
-      "new": "Create new environment",
-      "new_variable": "Create a new environment variable",
-      "title": "Environments"
+      "delete": "刪除目前環境",
+      "duplicate": "複製目前環境",
+      "duplicate_global": "複製全域環境",
+      "edit": "編輯目前環境",
+      "edit_global": "編輯全域環境",
+      "new": "建立新環境",
+      "new_variable": "建立新環境變數",
+      "title": "環境"
     },
     "general": {
-      "chat": "Chat with support",
-      "help_menu": "Help and support",
-      "open_docs": "Read Documentation",
-      "open_github": "Open GitHub repository",
-      "open_keybindings": "Keyboard shortcuts",
-      "social": "Social",
-      "title": "General"
+      "chat": "與客服對話",
+      "help_menu": "幫助與支援",
+      "open_docs": "閱讀說明文件",
+      "open_github": "開啟 GitHub 儲存庫",
+      "open_keybindings": "鍵盤快捷鍵",
+      "social": "社交",
+      "title": "一般"
     },
     "graphql": {
-      "connect": "Connect to server",
-      "disconnect": "Disconnect from server"
+      "connect": "連接至伺服器",
+      "disconnect": "斷開與伺服器的連線"
     },
     "miscellaneous": {
-      "invite": "Invite your friends to Hoppscotch",
-      "title": "Miscellaneous"
+      "invite": "邀請您的朋友使用 Hoppscotch",
+      "title": "雜項"
     },
     "request": {
-      "save_as_new": "Save as new request",
-      "select_method": "Select method",
-      "switch_to": "Switch to",
-      "tab_authorization": "Authorization tab",
-      "tab_body": "Body tab",
-      "tab_headers": "Headers tab",
-      "tab_parameters": "Parameters tab",
-      "tab_pre_request_script": "Pre-request script tab",
-      "tab_query": "Query tab",
-      "tab_tests": "Tests tab",
-      "tab_variables": "Variables tab"
+      "save_as_new": "儲存為新請求",
+      "select_method": "選擇方法",
+      "switch_to": "切換至",
+      "tab_authorization": "授權分頁",
+      "tab_body": "本體分頁",
+      "tab_headers": "標頭分頁",
+      "tab_parameters": "參數分頁",
+      "tab_pre_request_script": "預請求腳本分頁",
+      "tab_query": "查詢分頁",
+      "tab_tests": "測試分頁",
+      "tab_variables": "變數分頁"
     },
     "response": {
-      "copy": "Copy response",
-      "download": "Download response as file",
-      "title": "Response"
+      "copy": "複製回應",
+      "download": "下載回應",
+      "title": "回應"
     },
     "section": {
-      "interceptor": "Interceptor",
-      "interface": "Interface",
-      "theme": "Theme",
-      "user": "User"
+      "interceptor": "攔截器",
+      "interface": "介面",
+      "theme": "主題",
+      "user": "使用者"
     },
     "settings": {
-      "change_interceptor": "Change Interceptor",
-      "change_language": "Change Language",
+      "change_interceptor": "變更攔截器",
+      "change_language": "變更語言",
       "theme": {
-        "black": "Black",
-        "dark": "Dark",
-        "light": "Light",
-        "system": "System preference"
+        "black": "黑色",
+        "dark": "暗色",
+        "light": "亮色",
+        "system": "跟隨系統"
       }
     },
     "tab": {
-      "close_current": "Close current tab",
-      "close_others": "Close all other tabs",
-      "duplicate": "Duplicate current tab",
-      "new_tab": "Open a new tab",
-      "title": "Tabs"
+      "close_current": "關閉目前分頁",
+      "close_others": "關閉所有其他分頁",
+      "duplicate": "複製目前分頁",
+      "new_tab": "開啟新分頁",
+      "title": "分頁"
     },
     "workspace": {
-      "delete": "Delete current team",
-      "edit": "Edit current team",
-      "invite": "Invite people to team",
-      "new": "Create new team",
-      "switch_to_personal": "Switch to your personal workspace",
-      "title": "Teams"
+      "delete": "刪除目前團隊",
+      "edit": "編輯目前團隊",
+      "invite": "邀請他人加入團隊",
+      "new": "建立新團隊",
+      "switch_to_personal": "切換至您的個人工作區",
+      "title": "團隊"
     }
   },
   "sse": {
@@ -777,11 +777,11 @@
   "tab": {
     "authorization": "授權",
     "body": "請求本體",
-    "close": "Close Tab",
-    "close_others": "Close other Tabs",
+    "close": "關閉分頁",
+    "close_others": "關閉其他分頁",
     "collections": "集合",
     "documentation": "幫助文件",
-    "duplicate": "Duplicate Tab",
+    "duplicate": "複製分頁",
     "environments": "環境",
     "headers": "請求標頭",
     "history": "歷史記錄",

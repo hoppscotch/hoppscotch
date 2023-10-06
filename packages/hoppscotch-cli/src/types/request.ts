@@ -24,17 +24,7 @@ export const HoppEnvExportObject = z.object({
 });
 
 // Shape of the bulk environment export object that is exported from the app.
-export const HoppBulkEnvExportObject = z.array(
-  z.object({
-    name: z.string(),
-    variables: z.array(
-      z.object({
-        key: z.string(),
-        value: z.string(),
-      })
-    ),
-  })
-);
+export const HoppBulkEnvExportObject = z.array(HoppEnvExportObject);
 
 export type HoppEnvs = {
   global: HoppEnvPair[];

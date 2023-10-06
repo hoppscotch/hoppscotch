@@ -39,7 +39,7 @@
             role="menu"
             @keyup.e="edit!.$el.click()"
             @keyup.d="duplicate!.$el.click()"
-            @keyup.j="exportAsJson!.$el.click()"
+            @keyup.j="exportAsJsonEl!.$el.click()"
             @keyup.delete="deleteAction!.$el.click()"
             @keyup.escape="options!.tippy().hide()"
           >
@@ -69,7 +69,7 @@
               "
             />
             <HoppSmartItem
-              ref="exportAsJson"
+              ref="exportAsJsonEl"
               :icon="IconEdit"
               :label="`${t('export.as_json')}`"
               :shortcut="['J']"
@@ -149,7 +149,7 @@ const options = ref<TippyComponent | null>(null)
 const edit = ref<typeof HoppSmartItem>()
 const duplicate = ref<typeof HoppSmartItem>()
 const deleteAction = ref<typeof HoppSmartItem>()
-const exportAsJson = ref<typeof HoppSmartItem>()
+const exportAsJsonEl = ref<typeof HoppSmartItem>()
 
 const removeEnvironment = () => {
   pipe(

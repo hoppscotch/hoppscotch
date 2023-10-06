@@ -46,6 +46,7 @@
             role="menu"
             @keyup.e="edit!.$el.click()"
             @keyup.d="duplicate!.$el.click()"
+            @keyup.j="exportAsJsonEl!.$el.click()"
             @keyup.delete="
               !(environmentIndex === 'Global')
                 ? deleteAction!.$el.click()
@@ -73,6 +74,18 @@
               @click="
                 () => {
                   duplicateEnvironments()
+                  hide()
+                }
+              "
+            />
+            <HoppSmartItem
+              ref="exportAsJsonEl"
+              :icon="IconEdit"
+              :label="`${t('export.as_json')}`"
+              :shortcut="['J']"
+              @click="
+                () => {
+                  exportEnvironmentAsJSON()
                   hide()
                 }
               "
@@ -121,6 +134,7 @@ import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
 import { TippyComponent } from "vue-tippy"
 import { HoppSmartItem } from "@hoppscotch/ui"
+import { exportAsJSON } from "~/helpers/import-export/export/environment"
 
 const t = useI18n()
 const toast = useToast()
@@ -136,10 +150,18 @@ const emit = defineEmits<{
 
 const confirmRemove = ref(false)
 
+const exportEnvironmentAsJSON = () => {
+  const { environment, environmentIndex } = props
+  exportAsJSON(environment, environmentIndex)
+    ? toast.success(t("state.download_started"))
+    : toast.error(t("state.download_failed"))
+}
+
 const tippyActions = ref<TippyComponent | null>(null)
 const options = ref<TippyComponent | null>(null)
 const edit = ref<typeof HoppSmartItem>()
 const duplicate = ref<typeof HoppSmartItem>()
+const exportAsJsonEl = ref<typeof HoppSmartItem>()
 const deleteAction = ref<typeof HoppSmartItem>()
 
 const removeEnvironment = () => {

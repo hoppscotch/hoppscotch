@@ -39,6 +39,7 @@
             role="menu"
             @keyup.e="edit!.$el.click()"
             @keyup.d="duplicate!.$el.click()"
+            @keyup.j="exportAsJsonEl!.$el.click()"
             @keyup.delete="deleteAction!.$el.click()"
             @keyup.escape="options!.tippy().hide()"
           >
@@ -54,6 +55,7 @@
                 }
               "
             />
+
             <HoppSmartItem
               ref="duplicate"
               :icon="IconCopy"
@@ -62,6 +64,18 @@
               @click="
                 () => {
                   duplicateEnvironments()
+                  hide()
+                }
+              "
+            />
+            <HoppSmartItem
+              ref="exportAsJsonEl"
+              :icon="IconEdit"
+              :label="`${t('export.as_json')}`"
+              :shortcut="['J']"
+              @click="
+                () => {
+                  exportEnvironmentAsJSON()
                   hide()
                 }
               "
@@ -109,6 +123,7 @@ import IconTrash2 from "~icons/lucide/trash-2"
 import IconMoreVertical from "~icons/lucide/more-vertical"
 import { TippyComponent } from "vue-tippy"
 import { HoppSmartItem } from "@hoppscotch/ui"
+import { exportAsJSON } from "~/helpers/import-export/export/environment"
 
 const t = useI18n()
 const toast = useToast()
@@ -124,11 +139,17 @@ const emit = defineEmits<{
 
 const confirmRemove = ref(false)
 
+const exportEnvironmentAsJSON = () =>
+  exportAsJSON(props.environment)
+    ? toast.success(t("state.download_started"))
+    : toast.error(t("state.download_failed"))
+
 const tippyActions = ref<TippyComponent | null>(null)
 const options = ref<TippyComponent | null>(null)
 const edit = ref<typeof HoppSmartItem>()
 const duplicate = ref<typeof HoppSmartItem>()
 const deleteAction = ref<typeof HoppSmartItem>()
+const exportAsJsonEl = ref<typeof HoppSmartItem>()
 
 const removeEnvironment = () => {
   pipe(

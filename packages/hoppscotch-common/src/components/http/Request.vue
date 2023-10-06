@@ -426,7 +426,7 @@ const updateMethod = (method: string) => {
 
 const onSelectMethod = (e: Event | any) => {
   // type any because of value property not being recognized by TS in the event.target object. It is a valid property though.
-  updateMethod(e.value)
+  updateMethod(e.target.value)
 }
 
 const clearContent = () => {

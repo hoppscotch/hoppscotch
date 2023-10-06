@@ -6,7 +6,7 @@ import {
   setLocalConfig,
 } from './localpersistence';
 import { Ref, ref, watch } from 'vue';
-
+import * as O from 'fp-ts/Option';
 /**
  * A common (and required) set of fields that describe a user.
  */
@@ -62,6 +62,7 @@ async function logout() {
 
 const signOut = async () => {
   await logout();
+  window.location.reload();
   probableUser$.next(null);
   currentUser$.next(null);
   removeLocalConfig('login_state');
@@ -367,9 +368,20 @@ export const auth = {
     return;
   },
 
-  async signOutUser() {
-    // if (!currentUser$.value) throw new Error("No user has logged in")
+  async performAuthRefresh() {
+    const isRefreshSuccess = await refreshToken();
 
+    if (isRefreshSuccess) {
+      setInitialUser();
+      return O.some(true);
+    } else {
+      setUser(null);
+      isGettingInitialUser.value = false;
+      return O.none;
+    }
+  },
+
+  async signOutUser() {
     await signOut();
   },
 

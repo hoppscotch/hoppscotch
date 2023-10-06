@@ -90,9 +90,9 @@
           </template>
         </HoppSmartTable>
 
-        <p v-else class="px-2 text-lg">
+        <div v-else class="px-2 text-lg">
           {{ t('teams.no_teams') }}
-        </p>
+        </div>
 
         <div
           v-if="hasNextPage && teamsList.length >= teamsPerPage"

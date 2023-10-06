@@ -60,9 +60,15 @@ async function logout() {
   });
 }
 
-const signOut = async () => {
+const signOut = async (reloadWindow = false) => {
   await logout();
-  window.location.reload();
+
+  // Reload the window if both `access_token` and `refresh_token`is invalid
+  // there by the user is taken to the login page
+  if (reloadWindow) {
+    window.location.reload();
+  }
+
   probableUser$.next(null);
   currentUser$.next(null);
   removeLocalConfig('login_state');
@@ -149,7 +155,6 @@ async function setInitialUser() {
   // no cookies sent. so the user is not logged in
   if (error && error.message === 'auth/cookies_not_found') {
     setUser(null);
-    await signOut();
     isGettingInitialUser.value = false;
     return;
   }
@@ -162,7 +167,7 @@ async function setInitialUser() {
       setInitialUser();
     } else {
       setUser(null);
-      await signOut();
+      await signOut(true);
       isGettingInitialUser.value = false;
     }
 
@@ -381,8 +386,8 @@ export const auth = {
     }
   },
 
-  async signOutUser() {
-    await signOut();
+  async signOutUser(reloadWindow = false) {
+    await signOut(reloadWindow);
   },
 
   async processMagicLink() {

@@ -40,7 +40,7 @@ import * as O from 'fp-ts/Option';
             async refreshAuth() {
               pipe(
                 await auth.performAuthRefresh(),
-                O.getOrElseW(async () => await auth.signOutUser())
+                O.getOrElseW(async () => await auth.signOutUser(true))
               );
             },
 

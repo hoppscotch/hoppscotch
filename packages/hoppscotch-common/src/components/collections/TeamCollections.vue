@@ -39,7 +39,7 @@
             collectionsType.type === 'team-collections' &&
             collectionsType.selectedTeam === undefined
           "
-          :icon="IconArchive"
+          :icon="IconImport"
           :title="t('modal.import_export')"
           @click="emit('display-modal-import-export')"
         />
@@ -271,7 +271,7 @@
                 {{ t("collection.import_or_create") }}
               </span>
               <div class="flex">
-                <div v-if="hasNoTeamAccess">
+                <div v-if="hasNoTeamAccess" class="flex space-x-4">
                   <HoppButtonPrimary
                     :icon="IconImport"
                     :label="t('import.title')"
@@ -356,7 +356,6 @@
 </template>
 
 <script setup lang="ts">
-import IconArchive from "~icons/lucide/archive"
 import IconPlus from "~icons/lucide/plus"
 import IconHelpCircle from "~icons/lucide/help-circle"
 import IconImport from "~icons/lucide/folder-down"

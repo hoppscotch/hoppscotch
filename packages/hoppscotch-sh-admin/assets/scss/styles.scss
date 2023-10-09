@@ -137,14 +137,14 @@ a {
 
 .cm-tooltip {
   .tippy-box {
-    @apply shadow-none;
+    @apply shadow-none #{!important};
     @apply fixed;
     @apply inline-flex;
-    @apply -mt-8;
+    @apply -mt-7.5;
   }
 }
 
-.tippy-box[data-theme~="tooltip"] {
+.tippy-box[data-theme~='tooltip'] {
   @apply bg-tooltip;
   @apply border-solid border-tooltip;
   @apply rounded;
@@ -183,7 +183,7 @@ a {
   }
 }
 
-.tippy-box[data-theme~="popover"] {
+.tippy-box[data-theme~='popover'] {
   @apply bg-popover;
   @apply border-solid border-dividerDark;
   @apply rounded;
@@ -263,8 +263,8 @@ button {
   @apply disabled:cursor-not-allowed;
 }
 
-.input[type="file"],
-.input[type="radio"],
+.input[type='file'],
+.input[type='radio'],
 #installPWA {
   @apply hidden;
 }
@@ -563,16 +563,16 @@ details[open] summary .indicator {
   @apply bg-accent #{!important};
 }
 
-.color-picker[type="color"] {
+.color-picker[type='color'] {
   @apply appearance-none;
 }
 
-.color-picker[type="color"]::-webkit-color-swatch-wrapper {
+.color-picker[type='color']::-webkit-color-swatch-wrapper {
   @apply rounded;
   @apply p-0;
 }
 
-.color-picker[type="color"]::-webkit-color-swatch {
+.color-picker[type='color']::-webkit-color-swatch {
   @apply rounded;
   @apply border-0;
 }

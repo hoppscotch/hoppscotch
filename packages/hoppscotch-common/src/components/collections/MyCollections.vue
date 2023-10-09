@@ -286,7 +286,6 @@
             :src="`/images/states/${colorMode.value}/pack.svg`"
             :alt="`${t('empty.collections')}`"
             :text="t('empty.collections')"
-            class="flex flex-col space-y-4"
           >
             <HoppButtonSecondary
               :label="t('add.new')"

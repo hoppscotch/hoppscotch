@@ -6,7 +6,7 @@ import {
   setLocalConfig,
 } from './localpersistence';
 import { Ref, ref, watch } from 'vue';
-
+import * as O from 'fp-ts/Option';
 /**
  * A common (and required) set of fields that describe a user.
  */
@@ -59,6 +59,24 @@ async function logout() {
     withCredentials: true,
   });
 }
+
+const signOut = async (reloadWindow = false) => {
+  await logout();
+
+  // Reload the window if both `access_token` and `refresh_token`is invalid
+  // there by the user is taken to the login page
+  if (reloadWindow) {
+    window.location.reload();
+  }
+
+  probableUser$.next(null);
+  currentUser$.next(null);
+  removeLocalConfig('login_state');
+
+  authEvents$.next({
+    event: 'logout',
+  });
+};
 
 async function signInUserWithGithubFB() {
   window.location.href = `${
@@ -149,6 +167,7 @@ async function setInitialUser() {
       setInitialUser();
     } else {
       setUser(null);
+      await signOut(true);
       isGettingInitialUser.value = false;
     }
 
@@ -187,24 +206,22 @@ async function setInitialUser() {
   }
 }
 
-async function refreshToken() {
-  const res = await axios.get(
-    `${import.meta.env.VITE_BACKEND_API_URL}/auth/refresh`,
-    {
-      withCredentials: true,
-    }
-  );
-
-  const isSuccessful = res.status === 200;
-
-  if (isSuccessful) {
+const refreshToken = async () => {
+  try {
+    const res = await axios.get(
+      `${import.meta.env.VITE_BACKEND_API_URL}/auth/refresh`,
+      {
+        withCredentials: true,
+      }
+    );
     authEvents$.next({
       event: 'token_refresh',
     });
+    return res.status === 200;
+  } catch {
+    return false;
   }
-
-  return isSuccessful;
-}
+};
 
 async function elevateUser() {
   const res = await axios.get(
@@ -356,18 +373,21 @@ export const auth = {
     return;
   },
 
-  async signOutUser() {
-    // if (!currentUser$.value) throw new Error("No user has logged in")
+  async performAuthRefresh() {
+    const isRefreshSuccess = await refreshToken();
 
-    await logout();
+    if (isRefreshSuccess) {
+      setInitialUser();
+      return O.some(true);
+    } else {
+      setUser(null);
+      isGettingInitialUser.value = false;
+      return O.none;
+    }
+  },
 
-    probableUser$.next(null);
-    currentUser$.next(null);
-    removeLocalConfig('login_state');
-
-    authEvents$.next({
-      event: 'logout',
-    });
+  async signOutUser(reloadWindow = false) {
+    await signOut(reloadWindow);
   },
 
   async processMagicLink() {

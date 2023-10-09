@@ -231,29 +231,39 @@
       @invite-team="inviteTeam(editingTeamName, editingTeamID)"
       @refetch-teams="refetchTeams"
     />
+
+    <HoppSmartConfirmModal
+      :show="confirmRemove"
+      :title="t('confirm.remove_team')"
+      @hide-modal="confirmRemove = false"
+      @resolve="deleteTeam"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref, watch } from "vue"
-import IconUser from "~icons/lucide/user"
-import IconUsers from "~icons/lucide/users"
-import IconSettings from "~icons/lucide/settings"
-import IconDownload from "~icons/lucide/download"
-import IconUploadCloud from "~icons/lucide/upload-cloud"
-import IconUserPlus from "~icons/lucide/user-plus"
-import IconLifeBuoy from "~icons/lucide/life-buoy"
-import { breakpointsTailwind, useBreakpoints, useNetwork } from "@vueuse/core"
-import { pwaDefferedPrompt, installPWA } from "@modules/pwa"
-import { platform } from "~/platform"
 import { useI18n } from "@composables/i18n"
 import { useReadonlyStream } from "@composables/stream"
 import { defineActionHandler, invokeAction } from "@helpers/actions"
-import { GetMyTeamsQuery } from "~/helpers/backend/graphql"
-import { getPlatformSpecialKey } from "~/helpers/platformutils"
-import { useToast } from "~/composables/toast"
 import { WorkspaceService } from "~/services/workspace.service"
 import { useService } from "dioc/vue"
+import { installPWA, pwaDefferedPrompt } from "@modules/pwa"
+import { breakpointsTailwind, useBreakpoints, useNetwork } from "@vueuse/core"
+import { computed, reactive, ref, watch } from "vue"
+import { useToast } from "~/composables/toast"
+import { GetMyTeamsQuery, TeamMemberRole } from "~/helpers/backend/graphql"
+import { getPlatformSpecialKey } from "~/helpers/platformutils"
+import { platform } from "~/platform"
+import IconDownload from "~icons/lucide/download"
+import IconLifeBuoy from "~icons/lucide/life-buoy"
+import IconSettings from "~icons/lucide/settings"
+import IconUploadCloud from "~icons/lucide/upload-cloud"
+import IconUser from "~icons/lucide/user"
+import IconUserPlus from "~icons/lucide/user-plus"
+import IconUsers from "~icons/lucide/users"
+import { pipe } from "fp-ts/function"
+import * as TE from "fp-ts/TaskEither"
+import { deleteTeam as backendDeleteTeam } from "~/helpers/backend/mutations/Team"
 
 const t = useI18n()
 const toast = useToast()
@@ -277,6 +287,9 @@ const currentUser = useReadonlyStream(
   platform.auth.getProbableUserStream(),
   platform.auth.getProbableUser()
 )
+
+const confirmRemove = ref(false)
+const teamID = ref<string | null>(null)
 
 const selectedTeam = ref<GetMyTeamsQuery["myTeams"][number] | undefined>()
 
@@ -377,6 +390,24 @@ const handleTeamEdit = () => {
   }
 }
 
+const deleteTeam = () => {
+  if (!teamID.value) return
+  pipe(
+    backendDeleteTeam(teamID.value),
+    TE.match(
+      (err) => {
+        // TODO: Better errors ? We know the possible errors now
+        toast.error(`${t("error.something_went_wrong")}`)
+        console.error(err)
+      },
+      () => {
+        invokeAction("workspace.switch.personal")
+        toast.success(`${t("team.deleted")}`)
+      }
+    )
+  )() // Tasks (and TEs) are lazy, so call the function returned
+}
+
 // Template refs
 const tippyActions = ref<any | null>(null)
 const profile = ref<any | null>(null)
@@ -404,6 +435,12 @@ defineActionHandler(
   },
   computed(() => !currentUser.value)
 )
+
+defineActionHandler("modals.team.delete", ({ teamId }) => {
+  if (selectedTeam.value?.myRole !== TeamMemberRole.Owner) return noPermission()
+  teamID.value = teamId
+  confirmRemove.value = true
+})
 
 const noPermission = () => {
   toast.error(`${t("profile.no_permission")}`)

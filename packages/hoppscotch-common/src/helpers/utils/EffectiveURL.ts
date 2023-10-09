@@ -201,7 +201,7 @@ export const resolvesEnvsInBody = (
   } else {
     return {
       contentType: body.contentType,
-      body: parseTemplateString(body.body, env.variables),
+      body: parseTemplateString(body.body ?? "", env.variables),
     }
   }
 }
@@ -280,7 +280,10 @@ function getFinalBodyFromRequest(
       ),
       toFormData
     )
-  } else return parseBodyEnvVariables(request.body.body, envVariables)
+  } else {
+    // body can be null if the content-type is not set
+    return parseBodyEnvVariables(request.body.body ?? "", envVariables)
+  }
 }
 
 /**

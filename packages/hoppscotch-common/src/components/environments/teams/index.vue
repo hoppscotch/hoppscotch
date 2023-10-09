@@ -43,29 +43,62 @@
         />
       </div>
     </div>
-    <HoppSmartPlaceholder
+    <div
       v-if="!loading && teamEnvironments.length === 0 && !adapterError"
-      :src="`/images/states/${colorMode.value}/blockchain.svg`"
-      :alt="`${t('empty.environments')}`"
-      :text="t('empty.environments')"
+      class="p-5 space-y-25 flex flex-col"
     >
-      <HoppButtonSecondary
-        v-if="team === undefined || team.myRole === 'VIEWER'"
-        v-tippy="{ theme: 'tooltip' }"
-        disabled
-        filled
-        :icon="IconPlus"
-        :title="t('team.no_access')"
-        :label="t('action.new')"
-      />
-      <HoppButtonSecondary
-        v-else
-        :label="`${t('add.new')}`"
-        filled
-        outline
-        @click="displayModalAdd(true)"
-      />
-    </HoppSmartPlaceholder>
+      <div class="flex flex-col items-center space-y-4">
+        <span class="text-secondaryLight">
+          {{ t("environment.import_or_create") }}
+        </span>
+        <div class="flex">
+          <div
+            v-if="team === undefined || team.myRole === 'VIEWER'"
+            class="flex space-x-4"
+          >
+            <HoppButtonPrimary
+              :icon="IconImport"
+              :label="t('import.title')"
+              filled
+              outline
+              disabled
+              :title="t('team.no_access')"
+            />
+            <HoppButtonSecondary
+              v-tippy="{ theme: 'tooltip' }"
+              disabled
+              filled
+              :icon="IconPlus"
+              :title="t('team.no_access')"
+              :label="t('add.new')"
+            />
+          </div>
+          <div v-else class="flex space-x-4">
+            <HoppButtonPrimary
+              :icon="IconImport"
+              :label="t('import.title')"
+              filled
+              outline
+              @click="displayModalImportExport(true)"
+            />
+            <HoppButtonSecondary
+              :label="`${t('add.new')}`"
+              filled
+              outline
+              :icon="IconPlus"
+              @click="displayModalAdd(true)"
+            />
+          </div>
+        </div>
+      </div>
+      <HoppSmartPlaceholder
+        :src="`/images/states/${colorMode.value}/blockchain.svg`"
+        :alt="`${t('empty.environments')}`"
+        :text="t('empty.environments')"
+      >
+      </HoppSmartPlaceholder>
+    </div>
+
     <div v-else-if="!loading">
       <EnvironmentsTeamsEnvironment
         v-for="(environment, index) in JSON.parse(
@@ -116,6 +149,7 @@ import { useColorMode } from "~/composables/theming"
 import IconPlus from "~icons/lucide/plus"
 import IconArchive from "~icons/lucide/archive"
 import IconHelpCircle from "~icons/lucide/help-circle"
+import IconImport from "~icons/lucide/folder-down"
 import { defineActionHandler } from "~/helpers/actions"
 import { GetMyTeamsQuery } from "~/helpers/backend/graphql"
 

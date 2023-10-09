@@ -15,12 +15,12 @@
         class="!rounded-none"
         :icon="IconPlus"
         :title="t('team.no_access')"
-        :label="t('action.new')"
+        :label="t('add.new')"
       />
       <HoppButtonSecondary
         v-else
         :icon="IconPlus"
-        :label="t('action.new')"
+        :label="t('add.new')"
         class="!rounded-none"
         @click="emit('display-modal-add')"
       />
@@ -261,32 +261,59 @@
           />
         </template>
         <template #emptyNode="{ node }">
-          <div v-if="node === null">
-            <div @drop="(e) => e.stopPropagation()">
-              <HoppSmartPlaceholder
-                :src="`/images/states/${colorMode.value}/pack.svg`"
-                :alt="`${t('empty.collections')}`"
-                :text="t('empty.collections')"
-              >
-                <HoppButtonSecondary
-                  v-if="hasNoTeamAccess"
-                  v-tippy="{ theme: 'tooltip' }"
-                  disabled
-                  filled
-                  outline
-                  :title="t('team.no_access')"
-                  :label="t('action.new')"
-                />
-                <HoppButtonSecondary
-                  v-else
-                  :icon="IconPlus"
-                  :label="t('action.new')"
-                  filled
-                  outline
-                  @click="emit('display-modal-add')"
-                />
-              </HoppSmartPlaceholder>
+          <div
+            v-if="node === null"
+            class="flex flex-col space-y-25 py-5"
+            @drop="(e) => e.stopPropagation()"
+          >
+            <div class="flex flex-col items-center space-y-4">
+              <span class="text-secondaryLight">
+                {{ t("collection.import_or_create") }}
+              </span>
+              <div class="flex">
+                <div v-if="hasNoTeamAccess">
+                  <HoppButtonPrimary
+                    :icon="IconImport"
+                    :label="t('import.title')"
+                    filled
+                    outline
+                    disabled
+                    :title="t('team.no_access')"
+                  />
+                  <HoppButtonSecondary
+                    v-tippy="{ theme: 'tooltip' }"
+                    disabled
+                    filled
+                    outline
+                    :title="t('team.no_access')"
+                    :label="t('add.new')"
+                    :icon="IconPlus"
+                  />
+                </div>
+                <div v-else class="flex space-x-4">
+                  <HoppButtonPrimary
+                    :icon="IconImport"
+                    :label="t('import.title')"
+                    filled
+                    outline
+                    @click="emit('display-modal-import-export')"
+                  />
+                  <HoppButtonSecondary
+                    :icon="IconPlus"
+                    :label="t('add.new')"
+                    filled
+                    outline
+                    @click="emit('display-modal-add')"
+                  />
+                </div>
+              </div>
             </div>
+            <HoppSmartPlaceholder
+              :src="`/images/states/${colorMode.value}/pack.svg`"
+              :alt="`${t('empty.collections')}`"
+              :text="t('empty.collections')"
+            >
+            </HoppSmartPlaceholder>
           </div>
           <div
             v-else-if="node.data.type === 'collections'"
@@ -297,6 +324,18 @@
               :alt="`${t('empty.collections')}`"
               :text="t('empty.collections')"
             >
+              <HoppButtonSecondary
+                :label="t('add.new')"
+                filled
+                outline
+                @click="
+                  node.data.type === 'collections' &&
+                    emit('add-folder', {
+                      path: node.id,
+                      folder: node.data.data.data,
+                    })
+                "
+              />
             </HoppSmartPlaceholder>
           </div>
           <div
@@ -320,6 +359,7 @@
 import IconArchive from "~icons/lucide/archive"
 import IconPlus from "~icons/lucide/plus"
 import IconHelpCircle from "~icons/lucide/help-circle"
+import IconImport from "~icons/lucide/folder-down"
 import { computed, PropType, Ref, toRef } from "vue"
 import { GetMyTeamsQuery } from "~/helpers/backend/graphql"
 import { useI18n } from "@composables/i18n"

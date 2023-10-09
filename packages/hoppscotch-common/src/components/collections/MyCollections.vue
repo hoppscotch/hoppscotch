@@ -243,7 +243,15 @@
           />
         </template>
         <template #emptyNode="{ node }">
-          <div v-if="node === null" class="flex flex-col space-y-25 py-5">
+          <HoppSmartPlaceholder
+            v-if="filterText.length !== 0 && filteredCollections.length === 0"
+            :text="`${t('state.nothing_found')} ‟${filterText}”`"
+          >
+            <template #icon>
+              <icon-lucide-search class="pb-2 opacity-75 svg-icons" />
+            </template>
+          </HoppSmartPlaceholder>
+          <div v-else-if="node === null" class="flex flex-col space-y-25 py-5">
             <div class="flex flex-col items-center space-y-4">
               <span class="text-secondaryLight">
                 {{ t("collection.import_or_create") }}
@@ -272,16 +280,6 @@
             >
             </HoppSmartPlaceholder>
           </div>
-          <HoppSmartPlaceholder
-            v-else-if="
-              filterText.length !== 0 && filteredCollections.length === 0
-            "
-            :text="`${t('state.nothing_found')} ‟${filterText}”`"
-          >
-            <template #icon>
-              <icon-lucide-search class="pb-2 opacity-75 svg-icons" />
-            </template>
-          </HoppSmartPlaceholder>
 
           <HoppSmartPlaceholder
             v-else-if="node.data.type === 'collections'"

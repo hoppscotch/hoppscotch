@@ -271,45 +271,30 @@
                 {{ t("collection.import_or_create") }}
               </span>
               <div class="flex">
-                <div
-                  v-if="hasNoTeamAccess"
-                  class="flex gap-4 xl:flex-row flex-col items-center"
-                >
+                <div class="flex gap-4 flex-col items-center">
                   <HoppButtonPrimary
                     :icon="IconImport"
                     :label="t('import.title')"
                     filled
                     outline
-                    disabled
-                    :title="t('team.no_access')"
-                  />
-                  <HoppButtonSecondary
-                    v-tippy="{ theme: 'tooltip' }"
-                    disabled
-                    filled
-                    outline
-                    :title="t('team.no_access')"
-                    :label="t('add.new')"
-                    :icon="IconPlus"
-                  />
-                </div>
-                <div
-                  v-else
-                  class="flex gap-4 xl:flex-row flex-col items-center"
-                >
-                  <HoppButtonPrimary
-                    :icon="IconImport"
-                    :label="t('import.title')"
-                    filled
-                    outline
-                    @click="emit('display-modal-import-export')"
+                    :disabled="hasNoTeamAccess"
+                    :title="hasNoTeamAccess ? t('team.no_access') : ''"
+                    @click="
+                      hasNoTeamAccess
+                        ? () => {}
+                        : emit('display-modal-import-export')
+                    "
                   />
                   <HoppButtonSecondary
                     :icon="IconPlus"
                     :label="t('add.new')"
                     filled
                     outline
-                    @click="emit('display-modal-add')"
+                    :disabled="hasNoTeamAccess"
+                    :title="hasNoTeamAccess ? t('team.no_access') : ''"
+                    @click="
+                      hasNoTeamAccess ? () => {} : emit('display-modal-add')
+                    "
                   />
                 </div>
               </div>

@@ -52,41 +52,24 @@
           {{ t("environment.import_or_create") }}
         </span>
         <div class="flex">
-          <div
-            v-if="team === undefined || team.myRole === 'VIEWER'"
-            class="flex gap-4 xl:flex-row flex-col items-center"
-          >
+          <div class="flex gap-4 flex-col items-center">
             <HoppButtonPrimary
               :icon="IconImport"
               :label="t('import.title')"
               filled
               outline
-              disabled
-              :title="t('team.no_access')"
-            />
-            <HoppButtonSecondary
-              v-tippy="{ theme: 'tooltip' }"
-              disabled
-              filled
-              :icon="IconPlus"
-              :title="t('team.no_access')"
-              :label="t('add.new')"
-            />
-          </div>
-          <div v-else class="flex gap-4 xl:flex-row flex-col items-center">
-            <HoppButtonPrimary
-              :icon="IconImport"
-              :label="t('import.title')"
-              filled
-              outline
-              @click="displayModalImportExport(true)"
+              :title="isTeamViewer ? t('team.no_access') : ''"
+              :disabled="isTeamViewer"
+              @click="isTeamViewer ? () => {} : displayModalImportExport(true)"
             />
             <HoppButtonSecondary
               :label="`${t('add.new')}`"
               filled
               outline
               :icon="IconPlus"
-              @click="displayModalAdd(true)"
+              :title="isTeamViewer ? t('team.no_access') : ''"
+              :disabled="isTeamViewer"
+              @click="isTeamViewer ? () => {} : displayModalAdd(true)"
             />
           </div>
         </div>
@@ -141,7 +124,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue"
+import { computed, ref } from "vue"
 import { GQLError } from "~/helpers/backend/GQLClient"
 import { TeamEnvironment } from "~/helpers/teams/TeamEnvironment"
 import { useI18n } from "~/composables/i18n"
@@ -170,6 +153,10 @@ const showModalDetails = ref(false)
 const action = ref<"new" | "edit">("edit")
 const editingEnvironment = ref<TeamEnvironment | null>(null)
 const editingVariableName = ref("")
+
+const isTeamViewer = computed(
+  () => props.team && props.team.myRole === "VIEWER"
+)
 
 const displayModalAdd = (shouldDisplay: boolean) => {
   action.value = "new"

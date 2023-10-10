@@ -253,7 +253,7 @@
           </HoppSmartPlaceholder>
           <div v-else-if="node === null" class="flex flex-col space-y-25 py-5">
             <div class="flex flex-col items-center space-y-4">
-              <span class="text-secondaryLight">
+              <span class="text-secondaryLight text-center">
                 {{ t("collection.import_or_create") }}
               </span>
               <div class="flex gap-4 xl:flex-row flex-col items-center">

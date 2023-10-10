@@ -251,7 +251,7 @@
               <icon-lucide-search class="pb-2 opacity-75 svg-icons" />
             </template>
           </HoppSmartPlaceholder>
-          <div v-else-if="node === null" class="flex flex-col space-y-25 py-5">
+          <div v-else-if="node === null" class="space-y-25 py-5">
             <div class="flex flex-col items-center space-y-4">
               <span class="text-secondaryLight text-center">
                 {{ t("collection.import_or_create") }}
@@ -277,8 +277,7 @@
               :src="`/images/states/${colorMode.value}/pack.svg`"
               :alt="`${t('empty.collections')}`"
               :text="t('empty.collections')"
-            >
-            </HoppSmartPlaceholder>
+            />
           </div>
 
           <HoppSmartPlaceholder
@@ -305,8 +304,7 @@
             :src="`/images/states/${colorMode.value}/pack.svg`"
             :alt="`${t('empty.folder')}`"
             :text="t('empty.folder')"
-          >
-          </HoppSmartPlaceholder>
+          />
         </template>
       </HoppSmartTree>
     </div>

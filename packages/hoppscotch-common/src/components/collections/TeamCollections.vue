@@ -270,41 +270,34 @@
               <span class="text-secondaryLight text-center">
                 {{ t("collection.import_or_create") }}
               </span>
-              <div class="flex">
-                <div class="flex gap-4 flex-col items-center">
-                  <HoppButtonPrimary
-                    :icon="IconImport"
-                    :label="t('import.title')"
-                    filled
-                    outline
-                    :disabled="hasNoTeamAccess"
-                    :title="hasNoTeamAccess ? t('team.no_access') : ''"
-                    @click="
-                      hasNoTeamAccess
-                        ? () => {}
-                        : emit('display-modal-import-export')
-                    "
-                  />
-                  <HoppButtonSecondary
-                    :icon="IconPlus"
-                    :label="t('add.new')"
-                    filled
-                    outline
-                    :disabled="hasNoTeamAccess"
-                    :title="hasNoTeamAccess ? t('team.no_access') : ''"
-                    @click="
-                      hasNoTeamAccess ? () => {} : emit('display-modal-add')
-                    "
-                  />
-                </div>
+              <div class="flex gap-4 flex-col items-center">
+                <HoppButtonPrimary
+                  :icon="IconImport"
+                  :label="t('import.title')"
+                  filled
+                  outline
+                  :disabled="hasNoTeamAccess"
+                  :title="hasNoTeamAccess ? t('team.no_access') : ''"
+                  @click="
+                    hasNoTeamAccess ? null : emit('display-modal-import-export')
+                  "
+                />
+                <HoppButtonSecondary
+                  :icon="IconPlus"
+                  :label="t('add.new')"
+                  filled
+                  outline
+                  :disabled="hasNoTeamAccess"
+                  :title="hasNoTeamAccess ? t('team.no_access') : ''"
+                  @click="hasNoTeamAccess ? null : emit('display-modal-add')"
+                />
               </div>
             </div>
             <HoppSmartPlaceholder
               :src="`/images/states/${colorMode.value}/pack.svg`"
               :alt="`${t('empty.collections')}`"
               :text="t('empty.collections')"
-            >
-            </HoppSmartPlaceholder>
+            />
           </div>
           <div
             v-else-if="node.data.type === 'collections'"
@@ -337,8 +330,7 @@
               :src="`/images/states/${colorMode.value}/pack.svg`"
               :alt="`${t('empty.folder')}`"
               :text="t('empty.folder')"
-            >
-            </HoppSmartPlaceholder>
+            />
           </div>
         </template>
       </HoppSmartTree>

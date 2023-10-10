@@ -32,7 +32,7 @@
       :environment="environment"
       @edit-environment="editEnvironment(index)"
     />
-    <div v-if="environments.length === 0" class="p-5 space-y-25 flex flex-col">
+    <div v-if="!environments.length" class="p-5 space-y-25 flex flex-col">
       <div class="flex flex-col items-center space-y-4">
         <span class="text-secondaryLight text-center">
           {{ t("environment.import_or_create") }}
@@ -58,8 +58,7 @@
         :src="`/images/states/${colorMode.value}/blockchain.svg`"
         :alt="`${t('empty.environments')}`"
         :text="t('empty.environments')"
-      >
-      </HoppSmartPlaceholder>
+      />
     </div>
 
     <EnvironmentsMyDetails

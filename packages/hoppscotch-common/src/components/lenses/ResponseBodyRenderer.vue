@@ -58,12 +58,15 @@ const emit = defineEmits<{
 const doc = useVModel(props, "document", emit)
 
 const showIndicator = computed(() => {
-  return !!(
-    doc.value.testResults?.expectResults.length ||
-    doc.value.testResults?.tests.length ||
-    doc.value.testResults?.envDiff.selected.additions.length ||
-    doc.value.testResults?.envDiff.selected.updations.length ||
-    doc.value.testResults?.envDiff.global.updations.length
+  if (!doc.value.testResults) return false
+
+  const { expectResults, tests, envDiff } = doc.value.testResults
+  return Boolean(
+    expectResults.length ||
+      tests.length ||
+      envDiff.selected.additions.length ||
+      envDiff.selected.updations.length ||
+      envDiff.global.updations.length
   )
 })
 

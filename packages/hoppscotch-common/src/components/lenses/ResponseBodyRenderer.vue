@@ -28,15 +28,7 @@
     <HoppSmartTab
       id="results"
       :label="t('test.results')"
-      :indicator="
-        !!(
-          doc.testResults?.expectResults.length ||
-          doc.testResults?.tests.length ||
-          doc.testResults?.envDiff.selected.additions.length ||
-          doc.testResults?.envDiff.selected.updations.length ||
-          doc.testResults?.envDiff.global.updations.length
-        )
-      "
+      :indicator="showIndicator"
       class="flex flex-col flex-1"
     >
       <HttpTestResult v-model="doc.testResults" />
@@ -64,6 +56,16 @@ const emit = defineEmits<{
 }>()
 
 const doc = useVModel(props, "document", emit)
+
+const showIndicator = computed(() => {
+  return !!(
+    doc.value.testResults?.expectResults.length ||
+    doc.value.testResults?.tests.length ||
+    doc.value.testResults?.envDiff.selected.additions.length ||
+    doc.value.testResults?.envDiff.selected.updations.length ||
+    doc.value.testResults?.envDiff.global.updations.length
+  )
+})
 
 const allLensRenderers = getLensRenderers()
 

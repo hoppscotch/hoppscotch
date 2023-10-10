@@ -75,10 +75,7 @@ export abstract class TabService<Doc>
   }
 
   public getActiveTab(): HoppTab<Doc> | null {
-    if (!this.currentTabID.value) {
-      return null
-    }
-    return this.tabMap.get(this.currentTabID.value) || null
+    return this.tabMap.get(this.currentTabID.value) ?? null
   }
 
   public setActiveTab(tabID: string): void {

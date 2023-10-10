@@ -76,7 +76,7 @@ export function runRESTRequest$(
   Promise<
     | E.Left<"script_fail" | "cancellation">
     | E.Right<Observable<HoppRESTResponse>>
-  >
+  >,
 ] {
   let cancelCalled = false
   let cancelFunc: (() => void) | null = null

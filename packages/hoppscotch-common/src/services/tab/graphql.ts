@@ -2,6 +2,7 @@ import { isEqual } from "lodash-es"
 import { getDefaultGQLRequest } from "~/helpers/graphql/default"
 import { HoppGQLDocument, HoppGQLSaveContext } from "~/helpers/graphql/document"
 import { TabService } from "./tab"
+import { computed } from "vue"
 
 export class GQLTabService extends TabService<HoppGQLDocument> {
   public static readonly ID = "GQL_TAB_SERVICE"
@@ -20,6 +21,21 @@ export class GQLTabService extends TabService<HoppGQLDocument> {
 
     this.watchCurrentTabID()
   }
+
+  // override persistableTabState to remove response from the document
+  public override persistableTabState = computed(() => ({
+    lastActiveTabID: this.currentTabID.value,
+    orderedDocs: this.tabOrdering.value.map((tabID) => {
+      const tab = this.tabMap.get(tabID)! // tab ordering is guaranteed to have value for this key
+      return {
+        tabID: tab.id,
+        doc: {
+          ...tab.document,
+          response: null,
+        },
+      }
+    }),
+  }))
 
   public getTabRefWithSaveContext(ctx: HoppGQLSaveContext) {
     for (const tab of this.tabMap.values()) {

@@ -37,7 +37,7 @@
         <span class="text-secondaryLight">
           {{ t("environment.import_or_create") }}
         </span>
-        <div class="flex items-center space-x-4">
+        <div class="flex gap-4 xl:flex-row flex-col items-center">
           <HoppButtonPrimary
             :icon="IconImport"
             :label="t('import.title')"

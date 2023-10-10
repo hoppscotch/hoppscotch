@@ -271,7 +271,10 @@
                 {{ t("collection.import_or_create") }}
               </span>
               <div class="flex">
-                <div v-if="hasNoTeamAccess" class="flex space-x-4">
+                <div
+                  v-if="hasNoTeamAccess"
+                  class="flex gap-4 xl:flex-row flex-col items-center"
+                >
                   <HoppButtonPrimary
                     :icon="IconImport"
                     :label="t('import.title')"
@@ -290,7 +293,10 @@
                     :icon="IconPlus"
                   />
                 </div>
-                <div v-else class="flex space-x-4">
+                <div
+                  v-else
+                  class="flex gap-4 xl:flex-row flex-col items-center"
+                >
                   <HoppButtonPrimary
                     :icon="IconImport"
                     :label="t('import.title')"

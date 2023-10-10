@@ -54,7 +54,7 @@
         <div class="flex">
           <div
             v-if="team === undefined || team.myRole === 'VIEWER'"
-            class="flex space-x-4"
+            class="flex gap-4 xl:flex-row flex-col items-center"
           >
             <HoppButtonPrimary
               :icon="IconImport"
@@ -73,7 +73,7 @@
               :label="t('add.new')"
             />
           </div>
-          <div v-else class="flex space-x-4">
+          <div v-else class="flex gap-4 xl:flex-row flex-col items-center">
             <HoppButtonPrimary
               :icon="IconImport"
               :label="t('import.title')"

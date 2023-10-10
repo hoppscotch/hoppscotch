@@ -24,7 +24,7 @@ export class GQLTabService extends TabService<HoppGQLDocument> {
   public getTabRefWithSaveContext(ctx: HoppGQLSaveContext) {
     for (const tab of this.tabMap.values()) {
       // For `team-collection` request id can be considered unique
-      if (ctx && ctx.originLocation === "team-collection") {
+      if (ctx?.originLocation === "team-collection") {
         if (
           tab.document.saveContext?.originLocation === "team-collection" &&
           tab.document.saveContext.requestID === ctx.requestID

@@ -29,14 +29,13 @@
       id="results"
       :label="t('test.results')"
       :indicator="
-        doc.testResults &&
-        (doc.testResults.expectResults.length ||
-          doc.testResults.tests.length ||
-          doc.testResults.envDiff.selected.additions.length ||
-          doc.testResults.envDiff.selected.updations.length ||
-          doc.testResults.envDiff.global.updations.length)
-          ? true
-          : false
+        !!(
+          doc.testResults?.expectResults.length ||
+          doc.testResults?.tests.length ||
+          doc.testResults?.envDiff.selected.additions.length ||
+          doc.testResults?.envDiff.selected.updations.length ||
+          doc.testResults?.envDiff.global.updations.length
+        )
       "
       class="flex flex-col flex-1"
     >

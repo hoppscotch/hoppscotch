@@ -40,7 +40,7 @@ type UseQueryOptions<T = any, V = object> = {
 export const useGQLQuery = <
   DocType,
   DocVarType extends AnyVariables,
-  DocErrorType extends string,
+  DocErrorType extends string
 >(
   _args: UseQueryOptions<DocType, DocVarType>
 ) => {
@@ -192,11 +192,10 @@ export const useGQLQuery = <
       } else {
         args.variables = updatedVars
       }
+      nextTick(rerunQuery)
     }
 
     isPaused.value = false
-
-    nextTick(rerunQuery)
   }
 
   const pause = () => {

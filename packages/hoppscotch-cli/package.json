@@ -1,6 +1,6 @@
 {
   "name": "@hoppscotch/cli",
-  "version": "0.3.3",
+  "version": "0.4.0",
   "description": "A CLI to run Hoppscotch test scripts in CI environments.",
   "homepage": "https://hoppscotch.io",
   "main": "dist/index.js",
@@ -9,6 +9,9 @@
   },
   "publishConfig": {
     "access": "public"
+  },
+  "engines": {
+    "node": ">=18"
   },
   "scripts": {
     "build": "pnpm exec tsup",

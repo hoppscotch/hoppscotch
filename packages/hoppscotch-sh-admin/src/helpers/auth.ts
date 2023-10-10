@@ -1,4 +1,3 @@
-import axios from 'axios';
 import { BehaviorSubject, Subject } from 'rxjs';
 import {
   getLocalConfig,
@@ -7,6 +6,8 @@ import {
 } from './localpersistence';
 import { Ref, ref, watch } from 'vue';
 import * as O from 'fp-ts/Option';
+import authQuery from './backend/rest/authQuery';
+
 /**
  * A common (and required) set of fields that describe a user.
  */
@@ -33,7 +34,6 @@ export type HoppUser = {
   /** Access Token for the auth of the user against the given `provider`. */
   accessToken?: string;
   emailVerified: boolean;
-
   isAdmin: boolean;
 };
 
@@ -51,14 +51,13 @@ export type GithubSignInResult =
 export const authEvents$ = new Subject<
   AuthEvent | { event: 'token_refresh' }
 >();
+
 const currentUser$ = new BehaviorSubject<HoppUser | null>(null);
 export const probableUser$ = new BehaviorSubject<HoppUser | null>(null);
 
-async function logout() {
-  await axios.get(`${import.meta.env.VITE_BACKEND_API_URL}/auth/logout`, {
-    withCredentials: true,
-  });
-}
+const logout = async () => {
+  await authQuery.logout();
+};
 
 const signOut = async (reloadWindow = false) => {
   await logout();
@@ -78,104 +77,54 @@ const signOut = async (reloadWindow = false) => {
   });
 };
 
-async function signInUserWithGithubFB() {
+const signInUserWithGithubFB = async () => {
   window.location.href = `${
     import.meta.env.VITE_BACKEND_API_URL
   }/auth/github?redirect_uri=${import.meta.env.VITE_ADMIN_URL}`;
-}
+};
 
-async function signInUserWithGoogleFB() {
+const signInUserWithGoogleFB = async () => {
   window.location.href = `${
     import.meta.env.VITE_BACKEND_API_URL
   }/auth/google?redirect_uri=${import.meta.env.VITE_ADMIN_URL}`;
-}
+};
 
-async function signInUserWithMicrosoftFB() {
+const signInUserWithMicrosoftFB = async () => {
   window.location.href = `${
     import.meta.env.VITE_BACKEND_API_URL
   }/auth/microsoft?redirect_uri=${import.meta.env.VITE_ADMIN_URL}`;
-}
+};
 
-async function getInitialUserDetails() {
-  const res = await axios.post<{
-    data?: {
-      me?: {
-        uid: string;
-        displayName: string;
-        email: string;
-        photoURL: string;
-        isAdmin: boolean;
-        createdOn: string;
-        // emailVerified: boolean
-      };
-    };
-    errors?: Array<{
-      message: string;
-    }>;
-  }>(
-    `${import.meta.env.VITE_BACKEND_GQL_URL}`,
-    {
-      query: `query Me {
-      me {
-        uid
-        displayName
-        email
-        photoURL
-        isAdmin
-        createdOn
-      }
-    }`,
-    },
-    {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      withCredentials: true,
-    }
-  );
-
-  return res.data;
-}
+const getInitialUserDetails = async () => (await authQuery.getMe()).data;
 
 const isGettingInitialUser: Ref<null | boolean> = ref(null);
 
-function setUser(user: HoppUser | null) {
+const setUser = (user: HoppUser | null) => {
   currentUser$.next(user);
   probableUser$.next(user);
-
   setLocalConfig('login_state', JSON.stringify(user));
-}
+};
 
-async function setInitialUser() {
+const setInitialUser = async () => {
   isGettingInitialUser.value = true;
   const res = await getInitialUserDetails();
 
-  const error = res.errors && res.errors[0];
+  if (res.errors && res.errors[0]) {
+    const error = res.errors[0];
 
-  // no cookies sent. so the user is not logged in
-  if (error && error.message === 'auth/cookies_not_found') {
-    setUser(null);
-    isGettingInitialUser.value = false;
-    return;
-  }
-
-  // cookies sent, but it is expired, we need to refresh the token
-  if (error && error.message === 'Unauthorized') {
-    const isRefreshSuccess = await refreshToken();
-
-    if (isRefreshSuccess) {
-      setInitialUser();
-    } else {
+    if (error.message === 'auth/cookies_not_found') {
       setUser(null);
-      await signOut(true);
-      isGettingInitialUser.value = false;
+    } else if (error.message === 'Unauthorized') {
+      const isRefreshSuccess = await refreshToken();
+
+      if (isRefreshSuccess) {
+        setInitialUser();
+      } else {
+        setUser(null);
+        await signOut(true);
+      }
     }
-
-    return;
-  }
-
-  // no errors, we have a valid user
-  if (res.data && res.data.me) {
+  } else if (res.data?.me) {
     const hoppBackendUser = res.data.me;
 
     const hoppUser: HoppUser = {
@@ -183,37 +132,28 @@ async function setInitialUser() {
       displayName: hoppBackendUser.displayName,
       email: hoppBackendUser.email,
       photoURL: hoppBackendUser.photoURL,
-      // all our signin methods currently guarantees the email is verified
       emailVerified: true,
       isAdmin: hoppBackendUser.isAdmin,
     };
 
     if (!hoppUser.isAdmin) {
-      const isAdmin = await elevateUser();
-      hoppUser.isAdmin = isAdmin;
+      hoppUser.isAdmin = await elevateUser();
     }
 
     setUser(hoppUser);
-
-    isGettingInitialUser.value = false;
 
     authEvents$.next({
       event: 'login',
       user: hoppUser,
     });
-
-    return;
   }
-}
+
+  isGettingInitialUser.value = false;
+};
 
 const refreshToken = async () => {
   try {
-    const res = await axios.get(
-      `${import.meta.env.VITE_BACKEND_API_URL}/auth/refresh`,
-      {
-        withCredentials: true,
-      }
-    );
+    const res = await authQuery.refreshToken();
     authEvents$.next({
       event: 'token_refresh',
     });
@@ -223,27 +163,10 @@ const refreshToken = async () => {
   }
 };
 
-async function elevateUser() {
-  const res = await axios.get(
-    `${import.meta.env.VITE_BACKEND_API_URL}/auth/verify/admin`,
-    {
-      withCredentials: true,
-    }
-  );
-
-  return !!res.data?.isAdmin;
-}
+const elevateUser = async () => !!(await authQuery.elevateUser()).data?.isAdmin;
 
 async function sendMagicLink(email: string) {
-  const res = await axios.post(
-    `${import.meta.env.VITE_BACKEND_API_URL}/auth/signin?origin=admin`,
-    {
-      email,
-    },
-    {
-      withCredentials: true,
-    }
-  );
+  const res = await authQuery.sendMagicLink(email);
 
   if (res.data && res.data.deviceIdentifier) {
     setLocalConfig('deviceIdentifier', res.data.deviceIdentifier);
@@ -353,16 +276,7 @@ export const auth = {
     const token = searchParams.get('token');
     const deviceIdentifier = getLocalConfig('deviceIdentifier');
 
-    await axios.post(
-      `${import.meta.env.VITE_BACKEND_API_URL}/auth/verify`,
-      {
-        token: token,
-        deviceIdentifier,
-      },
-      {
-        withCredentials: true,
-      }
-    );
+    await authQuery.signInWithEmailLink(token, deviceIdentifier);
   },
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async setEmailAddress(_email: string) {

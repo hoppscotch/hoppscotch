@@ -11,15 +11,6 @@ vi.mock("~/modules/i18n", () => ({
   getI18n: () => (x: string) => x,
 }))
 
-const tabMock = vi.hoisted(() => ({
-  currentActiveTab: vi.fn(),
-}))
-
-vi.mock("~/helpers/rest/tab", () => ({
-  __esModule: true,
-  currentActiveTab: tabMock.currentActiveTab,
-}))
-
 describe("ParameterMenuService", () => {
   it("registers with the contextmenu service upon initialization", () => {
     const container = new TestContainer()

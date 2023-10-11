@@ -91,9 +91,12 @@ const signInUserWithMicrosoftFB = async () => {
   }/auth/microsoft?redirect_uri=${import.meta.env.VITE_ADMIN_URL}`;
 };
 
-const getInitialUserDetails = async () =>
-  (await authQuery.getUserDetails()).data;
 
+
+const getInitialUserDetails = async () => {
+  const res = await authQuery.getUserDetails();
+    return res.data;
+  }
 const isGettingInitialUser: Ref<null | boolean> = ref(null);
 
 const setUser = (user: HoppUser | null) => {
@@ -160,7 +163,11 @@ const refreshToken = async () => {
   }
 };
 
-const elevateUser = async () => !!(await authQuery.elevateUser()).data?.isAdmin;
+
+const elevateUser = async () => {
+  const res = await authQuery.elevateUser();
+  return !!res.data?.isAdmin;
+}
 
 async function sendMagicLink(email: string) {
   const res = await authQuery.sendMagicLink(email);

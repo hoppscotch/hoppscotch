@@ -478,7 +478,8 @@ watch(
         teamEnvListAdapter.changeTeamID(newVal.teamID)
       }
     }
-  }
+  },
+  { immediate: true }
 )
 
 const selectedEnv = computed(() => {

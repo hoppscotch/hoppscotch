@@ -19,7 +19,7 @@
         />
         <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
-          :icon="IconArchive"
+          :icon="IconImport"
           :title="t('modal.import_export')"
           @click="displayModalImportExport(true)"
         />
@@ -32,19 +32,35 @@
       :environment="environment"
       @edit-environment="editEnvironment(index)"
     />
-    <HoppSmartPlaceholder
-      v-if="environments.length === 0"
-      :src="`/images/states/${colorMode.value}/blockchain.svg`"
-      :alt="`${t('empty.environments')}`"
-      :text="t('empty.environments')"
-    >
-      <HoppButtonSecondary
-        :label="`${t('add.new')}`"
-        filled
-        outline
-        @click="displayModalAdd(true)"
+    <div v-if="!environments.length" class="p-5 space-y-25 flex flex-col">
+      <div class="flex flex-col items-center space-y-4">
+        <span class="text-secondaryLight text-center">
+          {{ t("environment.import_or_create") }}
+        </span>
+        <div class="flex gap-4 flex-col items-center">
+          <HoppButtonPrimary
+            :icon="IconImport"
+            :label="t('import.title')"
+            filled
+            outline
+            @click="displayModalImportExport(true)"
+          />
+          <HoppButtonSecondary
+            :icon="IconPlus"
+            :label="`${t('add.new')}`"
+            filled
+            outline
+            @click="displayModalAdd(true)"
+          />
+        </div>
+      </div>
+      <HoppSmartPlaceholder
+        :src="`/images/states/${colorMode.value}/blockchain.svg`"
+        :alt="`${t('empty.environments')}`"
+        :text="t('empty.environments')"
       />
-    </HoppSmartPlaceholder>
+    </div>
+
     <EnvironmentsMyDetails
       :show="showModalDetails"
       :action="action"
@@ -66,8 +82,8 @@ import { environments$ } from "~/newstore/environments"
 import { useColorMode } from "~/composables/theming"
 import { useReadonlyStream } from "@composables/stream"
 import { useI18n } from "~/composables/i18n"
-import IconArchive from "~icons/lucide/archive"
 import IconPlus from "~icons/lucide/plus"
+import IconImport from "~icons/lucide/folder-down"
 import IconHelpCircle from "~icons/lucide/help-circle"
 import { Environment } from "@hoppscotch/data"
 import { defineActionHandler } from "~/helpers/actions"

@@ -25,7 +25,7 @@
         <HoppButtonSecondary
           v-if="!saveRequest"
           v-tippy="{ theme: 'tooltip' }"
-          :icon="IconArchive"
+          :icon="IconImport"
           :title="t('modal.import_export')"
           @click="emit('display-modal-import-export')"
         />
@@ -251,19 +251,35 @@
               <icon-lucide-search class="pb-2 opacity-75 svg-icons" />
             </template>
           </HoppSmartPlaceholder>
-          <HoppSmartPlaceholder
-            v-else-if="node === null"
-            :src="`/images/states/${colorMode.value}/pack.svg`"
-            :alt="`${t('empty.collections')}`"
-            :text="t('empty.collections')"
-          >
-            <HoppButtonSecondary
-              :label="t('add.new')"
-              filled
-              outline
-              @click="emit('display-modal-add')"
+          <div v-else-if="node === null" class="flex flex-col space-y-25 py-5">
+            <div class="flex flex-col items-center space-y-4">
+              <span class="text-secondaryLight text-center">
+                {{ t("collection.import_or_create") }}
+              </span>
+              <div class="flex gap-4 flex-col items-center">
+                <HoppButtonPrimary
+                  :icon="IconImport"
+                  :label="t('import.title')"
+                  filled
+                  outline
+                  @click="emit('display-modal-import-export')"
+                />
+                <HoppButtonSecondary
+                  :icon="IconPlus"
+                  :label="t('add.new')"
+                  filled
+                  outline
+                  @click="emit('display-modal-add')"
+                />
+              </div>
+            </div>
+            <HoppSmartPlaceholder
+              :src="`/images/states/${colorMode.value}/pack.svg`"
+              :alt="`${t('empty.collections')}`"
+              :text="t('empty.collections')"
             />
-          </HoppSmartPlaceholder>
+          </div>
+
           <HoppSmartPlaceholder
             v-else-if="node.data.type === 'collections'"
             :src="`/images/states/${colorMode.value}/pack.svg`"
@@ -288,8 +304,7 @@
             :src="`/images/states/${colorMode.value}/pack.svg`"
             :alt="`${t('empty.folder')}`"
             :text="t('empty.folder')"
-          >
-          </HoppSmartPlaceholder>
+          />
         </template>
       </HoppSmartTree>
     </div>
@@ -297,9 +312,9 @@
 </template>
 
 <script setup lang="ts">
-import IconArchive from "~icons/lucide/archive"
 import IconPlus from "~icons/lucide/plus"
 import IconHelpCircle from "~icons/lucide/help-circle"
+import IconImport from "~icons/lucide/folder-down"
 import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
 import { computed, PropType, Ref, toRef } from "vue"
 import { GetMyTeamsQuery } from "~/helpers/backend/graphql"

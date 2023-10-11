@@ -15,12 +15,12 @@
         class="!rounded-none"
         :icon="IconPlus"
         :title="t('team.no_access')"
-        :label="t('action.new')"
+        :label="t('add.new')"
       />
       <HoppButtonSecondary
         v-else
         :icon="IconPlus"
-        :label="t('action.new')"
+        :label="t('add.new')"
         class="!rounded-none"
         @click="emit('display-modal-add')"
       />
@@ -39,7 +39,7 @@
             collectionsType.type === 'team-collections' &&
             collectionsType.selectedTeam === undefined
           "
-          :icon="IconArchive"
+          :icon="IconImport"
           :title="t('modal.import_export')"
           @click="emit('display-modal-import-export')"
         />
@@ -261,32 +261,43 @@
           />
         </template>
         <template #emptyNode="{ node }">
-          <div v-if="node === null">
-            <div @drop="(e) => e.stopPropagation()">
-              <HoppSmartPlaceholder
-                :src="`/images/states/${colorMode.value}/pack.svg`"
-                :alt="`${t('empty.collections')}`"
-                :text="t('empty.collections')"
-              >
-                <HoppButtonSecondary
-                  v-if="hasNoTeamAccess"
-                  v-tippy="{ theme: 'tooltip' }"
-                  disabled
+          <div
+            v-if="node === null"
+            class="flex flex-col space-y-25 py-5"
+            @drop="(e) => e.stopPropagation()"
+          >
+            <div class="flex flex-col items-center space-y-4">
+              <span class="text-secondaryLight text-center">
+                {{ t("collection.import_or_create") }}
+              </span>
+              <div class="flex gap-4 flex-col items-center">
+                <HoppButtonPrimary
+                  :icon="IconImport"
+                  :label="t('import.title')"
                   filled
                   outline
-                  :title="t('team.no_access')"
-                  :label="t('action.new')"
+                  :disabled="hasNoTeamAccess"
+                  :title="hasNoTeamAccess ? t('team.no_access') : ''"
+                  @click="
+                    hasNoTeamAccess ? null : emit('display-modal-import-export')
+                  "
                 />
                 <HoppButtonSecondary
-                  v-else
                   :icon="IconPlus"
-                  :label="t('action.new')"
+                  :label="t('add.new')"
                   filled
                   outline
-                  @click="emit('display-modal-add')"
+                  :disabled="hasNoTeamAccess"
+                  :title="hasNoTeamAccess ? t('team.no_access') : ''"
+                  @click="hasNoTeamAccess ? null : emit('display-modal-add')"
                 />
-              </HoppSmartPlaceholder>
+              </div>
             </div>
+            <HoppSmartPlaceholder
+              :src="`/images/states/${colorMode.value}/pack.svg`"
+              :alt="`${t('empty.collections')}`"
+              :text="t('empty.collections')"
+            />
           </div>
           <div
             v-else-if="node.data.type === 'collections'"
@@ -297,6 +308,18 @@
               :alt="`${t('empty.collections')}`"
               :text="t('empty.collections')"
             >
+              <HoppButtonSecondary
+                :label="t('add.new')"
+                filled
+                outline
+                @click="
+                  node.data.type === 'collections' &&
+                    emit('add-folder', {
+                      path: node.id,
+                      folder: node.data.data.data,
+                    })
+                "
+              />
             </HoppSmartPlaceholder>
           </div>
           <div
@@ -307,8 +330,7 @@
               :src="`/images/states/${colorMode.value}/pack.svg`"
               :alt="`${t('empty.folder')}`"
               :text="t('empty.folder')"
-            >
-            </HoppSmartPlaceholder>
+            />
           </div>
         </template>
       </HoppSmartTree>
@@ -317,9 +339,9 @@
 </template>
 
 <script setup lang="ts">
-import IconArchive from "~icons/lucide/archive"
 import IconPlus from "~icons/lucide/plus"
 import IconHelpCircle from "~icons/lucide/help-circle"
+import IconImport from "~icons/lucide/folder-down"
 import { computed, PropType, Ref, toRef } from "vue"
 import { GetMyTeamsQuery } from "~/helpers/backend/graphql"
 import { useI18n } from "@composables/i18n"

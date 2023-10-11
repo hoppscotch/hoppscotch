@@ -192,11 +192,12 @@ export const useGQLQuery = <
       } else {
         args.variables = updatedVars
       }
+      nextTick(rerunQuery)
+    } else {
+      rerunQuery()
     }
 
     isPaused.value = false
-
-    nextTick(rerunQuery)
   }
 
   const pause = () => {

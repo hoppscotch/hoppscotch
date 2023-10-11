@@ -4,7 +4,7 @@ import {
   removeLocalConfig,
   setLocalConfig,
 } from './localpersistence';
-import { Ref, ref, watch } from 'vue';
+import { Ref, ref } from 'vue';
 import * as O from 'fp-ts/Option';
 import authQuery from './backend/rest/authQuery';
 
@@ -24,16 +24,12 @@ export type HoppUser = {
   /** URL to the profile picture of the user */
   photoURL: string | null;
 
-  // Regarding `provider` and `accessToken`:
-  // The current implementation and use case for these 2 fields are super weird due to legacy.
-  // Currrently these fields are only basically populated for Github Auth as we need the access token issued
-  // by it to implement Gist submission. I would really love refactor to make this thing more sane.
-
   /** Name of the provider authenticating (NOTE: See notes on `platform/auth.ts`) */
   provider?: string;
   /** Access Token for the auth of the user against the given `provider`. */
   accessToken?: string;
   emailVerified: boolean;
+  /** Flag to check for admin status */
   isAdmin: boolean;
 };
 
@@ -95,7 +91,8 @@ const signInUserWithMicrosoftFB = async () => {
   }/auth/microsoft?redirect_uri=${import.meta.env.VITE_ADMIN_URL}`;
 };
 
-const getInitialUserDetails = async () => (await authQuery.getMe()).data;
+const getInitialUserDetails = async () =>
+  (await authQuery.getUserDetails()).data;
 
 const isGettingInitialUser: Ref<null | boolean> = ref(null);
 
@@ -167,13 +164,11 @@ const elevateUser = async () => !!(await authQuery.elevateUser()).data?.isAdmin;
 
 async function sendMagicLink(email: string) {
   const res = await authQuery.sendMagicLink(email);
-
   if (res.data && res.data.deviceIdentifier) {
     setLocalConfig('deviceIdentifier', res.data.deviceIdentifier);
   } else {
     throw new Error('test: does not get device identifier');
   }
-
   return res.data;
 }
 
@@ -185,91 +180,37 @@ export const auth = {
   getCurrentUser: () => currentUser$.value,
   getProbableUser: () => probableUser$.value,
 
-  getBackendHeaders() {
-    return {};
-  },
-  getGQLClientOptions() {
-    return {
-      fetchOptions: {
-        credentials: 'include',
-      },
-    };
-  },
-
-  /**
-   * it is not possible for us to know if the current cookie is expired because we cannot access http-only cookies from js
-   * hence just returning if the currentUser$ has a value associated with it
-   */
-  willBackendHaveAuthError() {
-    return !currentUser$.value;
-  },
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  onBackendGQLClientShouldReconnect(func: () => void) {
-    authEvents$.subscribe((event) => {
-      if (
-        event.event == 'login' ||
-        event.event == 'logout' ||
-        event.event == 'token_refresh'
-      ) {
-        func();
-      }
-    });
-  },
-
-  /**
-   * we cannot access our auth cookies from javascript, so leaving this as null
-   */
-  getDevOptsBackendIDToken() {
-    return null;
-  },
-  async performAuthInit() {
+  performAuthInit: async () => {
     const probableUser = JSON.parse(getLocalConfig('login_state') ?? 'null');
     probableUser$.next(probableUser);
     await setInitialUser();
   },
 
-  waitProbableLoginToConfirm() {
-    return new Promise<void>((resolve, reject) => {
-      if (this.getCurrentUser()) {
-        resolve();
-      }
-
-      if (!probableUser$.value) reject(new Error('no_probable_user'));
-
-      const unwatch = watch(isGettingInitialUser, (val) => {
-        if (val === true || val === false) {
-          resolve();
-          unwatch();
-        }
-      });
-    });
-  },
-
-  async signInWithEmail(email: string) {
+  signInWithEmail: async (email: string) => {
     await sendMagicLink(email);
   },
 
-  isSignInWithEmailLink(url: string) {
+  isSignInWithEmailLink: (url: string) => {
     const urlObject = new URL(url);
     const searchParams = new URLSearchParams(urlObject.search);
 
     return !!searchParams.get('token');
   },
 
-  async verifyEmailAddress() {
-    return;
-  },
-  async signInUserWithGoogle() {
+  signInUserWithGoogle: async () => {
     await signInUserWithGoogleFB();
   },
-  async signInUserWithGithub() {
+
+  signInUserWithGithub: async () => {
     await signInUserWithGithubFB();
     return undefined;
   },
-  async signInUserWithMicrosoft() {
+
+  signInUserWithMicrosoft: async () => {
     await signInUserWithMicrosoftFB();
   },
-  async signInWithEmailLink(email: string, url: string) {
+
+  signInWithEmailLink: async (email: string, url: string) => {
     const urlObject = new URL(url);
     const searchParams = new URLSearchParams(urlObject.search);
 
@@ -278,16 +219,8 @@ export const auth = {
 
     await authQuery.signInWithEmailLink(token, deviceIdentifier);
   },
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async setEmailAddress(_email: string) {
-    return;
-  },
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async setDisplayName(name: string) {
-    return;
-  },
 
-  async performAuthRefresh() {
+  performAuthRefresh: async () => {
     const isRefreshSuccess = await refreshToken();
 
     if (isRefreshSuccess) {
@@ -300,12 +233,12 @@ export const auth = {
     }
   },
 
-  async signOutUser(reloadWindow = false) {
+  signOutUser: async (reloadWindow = false) => {
     await signOut(reloadWindow);
   },
 
-  async processMagicLink() {
-    if (this.isSignInWithEmailLink(window.location.href)) {
+  processMagicLink: async () => {
+    if (auth.isSignInWithEmailLink(window.location.href)) {
       const deviceIdentifier = getLocalConfig('deviceIdentifier');
 
       if (!deviceIdentifier) {
@@ -314,7 +247,7 @@ export const auth = {
         );
       }
 
-      await this.signInWithEmailLink(deviceIdentifier, window.location.href);
+      await auth.signInWithEmailLink(deviceIdentifier, window.location.href);
 
       removeLocalConfig('deviceIdentifier');
       window.location.href = import.meta.env.VITE_ADMIN_URL;

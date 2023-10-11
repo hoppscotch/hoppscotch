@@ -252,7 +252,6 @@ async function signInWithEmail() {
       setLocalConfig('emailForSignIn', form.value.email);
     })
     .catch((e: any) => {
-      console.error(e);
       toast.error(e.message);
       signingInWithEmail.value = false;
     })

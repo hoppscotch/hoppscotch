@@ -1,0 +1,5 @@
+subscription UserEnvironmentDeleted {
+  userEnvironmentDeleted {
+    id
+  }
+}

@@ -1,0 +1,13 @@
+mutation CreateRESTUserRequest(
+  $collectionID: ID!
+  $title: String!
+  $request: String!
+) {
+  createRESTUserRequest(
+    collectionID: $collectionID
+    title: $title
+    request: $request
+  ) {
+    id
+  }
+}

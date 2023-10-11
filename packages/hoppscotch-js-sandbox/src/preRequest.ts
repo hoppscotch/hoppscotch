@@ -147,6 +147,54 @@ export const execPreRequestScript = (
       vm.setProp(pwHandle, "env", envHandle)
       envHandle.dispose()
 
+      const exploranceHandle = vm.newObject()
+
+      const requestHandle = vm.newFunction("request", (url: string, method: string, params: Object, headers: Object = {'Content-type': 'application/json'}, token?: string) => {
+        const dMethod: unknown = vm.dump(method)
+        const dParams: unknown = vm.dump(params)
+        let dUrl: unknown = vm.dump(url)
+        const dHeaders: unknown = vm.dump(headers)
+        const dToken: unknown = vm.dump(token || '')
+
+        if (!!dToken) {
+          dHeaders['Authorization'] = `Bearer ${dToken}`
+        }
+
+        const request = new XMLHttpRequest()
+        if (['get', 'delete'].includes(dMethod.toLowerCase())) {
+          dUrl = dUrl.split('?')[0] + '?' + new URLSearchParams(dParams).toString()
+        }
+
+        request.open(dMethod.toUpperCase(), dUrl, false)
+        Object.keys(dHeaders).forEach(key => {
+          request.setRequestHeader(key, dHeaders[key])
+        })
+        request.send(Object.keys(dParams).length ? JSON.stringify(dParams) : null)
+
+        return {
+          value: vm.newString(request.responseText)
+        }
+      })
+
+      vm.setProp(exploranceHandle, "request", requestHandle)
+      requestHandle.dispose()
+
+      const logHandle = vm.newFunction("log", (value: any) => {
+        const dValue: unknown = vm.dump(value)
+
+        console.log(dValue)
+
+        return {
+          value: vm.undefined
+        }
+      })
+
+      vm.setProp(exploranceHandle, "log", logHandle)
+      logHandle.dispose()
+
+      vm.setProp(vm.global, "exp", exploranceHandle)
+      exploranceHandle.dispose()
+
       vm.setProp(vm.global, "pw", pwHandle)
       pwHandle.dispose()
 

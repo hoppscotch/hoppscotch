@@ -10,14 +10,14 @@
         :class="styles"
         @click="emit('click', $event)"
         @keydown="handleKeystroke"
-        @focusin="showSuggestionPopover = true"
-      ></div>
+        ></div>
+        <!-- @focusin="showSuggestionPopover = true" -->
       <AppInspection
         :inspection-results="inspectionResults"
         class="sticky inset-y-0 right-0 bg-primary rounded-r"
       />
     </div>
-    <ul
+    <!-- <ul
       v-if="
         showSuggestionPopover && autoCompleteSource && suggestions.length > 0
       "
@@ -41,7 +41,7 @@
           <span class="ml-2 truncate">to select</span>
         </div>
       </li>
-    </ul>
+    </ul> -->
   </div>
 </template>
 

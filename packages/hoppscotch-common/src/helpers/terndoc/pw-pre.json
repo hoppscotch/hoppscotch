@@ -7,5 +7,9 @@
       "getResolve": "fn(key: string) -> string",
       "resolve": "fn(value: string) -> string"
     }
+  },
+  "exp": {
+    "request": "fn(url: string, method: string, params: Object, headers: Object, token?: string) -> XMLHttpRequest",
+    "log": "fn(value: any) -> void"
   }
 }

@@ -9,6 +9,7 @@ import {
   Subscription,
 } from '@nestjs/graphql';
 import { Admin } from './admin.model';
+import { Infra } from './infra.model';
 import { UseGuards } from '@nestjs/common';
 import { GqlAuthGuard } from '../guards/gql-auth.guard';
 import { GqlAdminGuard } from './guards/gql-admin.guard';
@@ -32,7 +33,7 @@ import { GqlThrottlerGuard } from 'src/guards/gql-throttler.guard';
 import { SkipThrottle } from '@nestjs/throttler';
 
 @UseGuards(GqlThrottlerGuard)
-@Resolver(() => Admin)
+@Resolver(() => Infra)
 export class AdminResolver {
   constructor(
     private adminService: AdminService,
@@ -41,11 +42,11 @@ export class AdminResolver {
 
   /* Query */
 
-  @Query(() => Admin, {
+  @Query(() => Infra, {
     description: 'Gives details of the admin executing this query',
   })
   @UseGuards(GqlAuthGuard, GqlAdminGuard)
-  admin(@GqlAdmin() admin: Admin) {
+  infra(@GqlAdmin() admin: Admin) {
     return admin;
   }
 

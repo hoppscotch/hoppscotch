@@ -140,17 +140,12 @@
       @hide-modal="showConfirmModal = false"
       @resolve="resolveConfirmModal"
     />
+
     <CollectionsImportExport
-      :show="showModalImportExport"
-      :collections-type="collectionsType.type"
-      :exporting-team-collections="exportingTeamCollections"
-      :creating-gist-collection="creatingGistCollection"
-      :importing-my-collections="importingMyCollections"
-      @export-json-collection="exportJSONCollection"
-      @create-collection-gist="createCollectionGist"
-      @import-to-teams="importToTeams"
+      v-if="showModalImportExport"
       @hide-modal="displayModalImportExport(false)"
-    />
+    ></CollectionsImportExport>
+
     <TeamsAdd
       :show="showTeamModalAdd"
       @hide-modal="displayTeamModalAdd(false)"
@@ -199,7 +194,6 @@ import {
   createChildCollection,
   renameCollection,
   deleteCollection,
-  importJSONToTeam,
   moveRESTTeamCollection,
   updateOrderRESTTeamCollection,
 } from "~/helpers/backend/mutations/TeamCollection"
@@ -214,12 +208,9 @@ import { TeamCollection } from "~/helpers/teams/TeamCollection"
 import { Collection as NodeCollection } from "./MyCollections.vue"
 import {
   getCompleteCollectionTree,
-  getTeamCollectionJSON,
   teamCollToHoppRESTColl,
 } from "~/helpers/backend/helpers"
-import * as E from "fp-ts/Either"
 import { platform } from "~/platform"
-import { createCollectionGists } from "~/helpers/gist"
 import {
   getRequestsByPath,
   resolveSaveContextOnRequestReorder,
@@ -304,12 +295,6 @@ const myCollections = useReadonlyStream(restCollections$, [], "deep")
 const draggingToRoot = ref(false)
 const collectionMoveLoading = ref<string[]>([])
 const requestMoveLoading = ref<string[]>([])
-
-// Export - Import refs
-const collectionJSON = ref("")
-const exportingTeamCollections = ref(false)
-const creatingGistCollection = ref(false)
-const importingMyCollections = ref(false)
 
 // TeamList-Adapter
 const workspaceService = useService(WorkspaceService)
@@ -413,16 +398,12 @@ const currentReorderingStatus = useReadonlyStream(currentReorderingStatus$, {
   parentID: "",
 })
 
-const hasTeamWriteAccess = computed(() => {
-  if (!collectionsType.value.selectedTeam) return false
-
-  if (
-    collectionsType.value.type === "team-collections" &&
-    collectionsType.value.selectedTeam.myRole !== "VIEWER"
-  )
-    return true
-  else return false
-})
+const hasTeamWriteAccess = computed(() =>
+  collectionsType.value.type == "team-collections"
+    ? collectionsType.value.selectedTeam?.myRole == "EDITOR" ||
+      collectionsType.value.selectedTeam?.myRole == "OWNER"
+    : false
+)
 
 const filteredCollections = computed(() => {
   const collections =
@@ -1835,33 +1816,6 @@ const updateCollectionOrder = (payload: {
   }
 }
 // Import - Export Collection functions
-/**
- * Export the whole my collection or specific team collection to JSON
- */
-const getJSONCollection = async () => {
-  if (collectionsType.value.type === "my-collections") {
-    collectionJSON.value = JSON.stringify(myCollections.value, null, 2)
-  } else {
-    if (!collectionsType.value.selectedTeam) return
-    exportingTeamCollections.value = true
-    pipe(
-      await getTeamCollectionJSON(collectionsType.value.selectedTeam.id),
-      E.match(
-        (err) => {
-          toast.error(`${getErrorMessage(err)}`)
-          exportingTeamCollections.value = false
-        },
-        (result) => {
-          const { exportCollectionsToJSON } = result
-          collectionJSON.value = exportCollectionsToJSON
-          exportingTeamCollections.value = false
-        }
-      )
-    )
-  }
-
-  return collectionJSON.value
-}
 
 /**
  * Create a downloadable file from a collection and prompts the user to download it.
@@ -1928,90 +1882,6 @@ const exportData = async (
       )
     )()
   }
-}
-
-const exportJSONCollection = async () => {
-  platform.analytics?.logEvent({
-    type: "HOPP_EXPORT_COLLECTION",
-    exporter: "json",
-    platform: "rest",
-  })
-
-  await getJSONCollection()
-
-  const parsedCollections = JSON.parse(collectionJSON.value)
-
-  if (!parsedCollections.length) {
-    return toast.error(t("error.no_collections_to_export"))
-  }
-
-  initializeDownloadCollection(collectionJSON.value, null)
-}
-
-const createCollectionGist = async () => {
-  if (!currentUser.value || !currentUser.value.accessToken) {
-    toast.error(t("profile.no_permission").toString())
-    return
-  }
-
-  platform.analytics?.logEvent({
-    type: "HOPP_EXPORT_COLLECTION",
-    exporter: "gist",
-    platform: "rest",
-  })
-
-  creatingGistCollection.value = true
-  await getJSONCollection()
-
-  pipe(
-    createCollectionGists(collectionJSON.value, currentUser.value.accessToken),
-    TE.match(
-      (err) => {
-        toast.error(t("error.something_went_wrong").toString())
-        console.error(err)
-        creatingGistCollection.value = false
-      },
-      (result) => {
-        toast.success(t("export.gist_created").toString())
-        creatingGistCollection.value = false
-        window.open(result.data.html_url)
-      }
-    )
-  )()
-}
-
-const importToTeams = async (collection: HoppCollection<HoppRESTRequest>[]) => {
-  if (!hasTeamWriteAccess.value) {
-    toast.error(t("team.no_access").toString())
-    return
-  }
-
-  if (!collectionsType.value.selectedTeam) return
-
-  importingMyCollections.value = true
-
-  platform.analytics?.logEvent({
-    type: "HOPP_EXPORT_COLLECTION",
-    exporter: "import-to-teams",
-    platform: "rest",
-  })
-
-  pipe(
-    importJSONToTeam(
-      JSON.stringify(collection),
-      collectionsType.value.selectedTeam.id
-    ),
-    TE.match(
-      (err: GQLError<string>) => {
-        toast.error(`${getErrorMessage(err)}`)
-        importingMyCollections.value = false
-      },
-      () => {
-        importingMyCollections.value = false
-        displayModalImportExport(false)
-      }
-    )
-  )()
 }
 
 const shareRequest = ({ request }: { request: HoppRESTRequest }) => {

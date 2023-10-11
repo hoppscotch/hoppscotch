@@ -1,361 +1,440 @@
 <template>
-  <HoppSmartModal
-    v-if="show"
-    dialog
-    :title="t('modal.collections')"
-    styles="sm:max-w-md"
-    @close="hideModal"
-  >
-    <template #actions>
-      <HoppButtonSecondary
-        v-if="importerType !== null"
-        v-tippy="{ theme: 'tooltip' }"
-        :title="t('action.go_back')"
-        :icon="IconArrowLeft"
-        @click="resetImport"
-      />
-    </template>
-    <template #body>
-      <div v-if="importerType !== null" class="flex flex-col">
-        <div class="flex flex-col pb-4">
-          <div
-            v-for="(step, index) in importerSteps"
-            :key="`step-${index}`"
-            class="flex flex-col space-y-8"
-          >
-            <div v-if="step.name === 'FILE_IMPORT'" class="space-y-4">
-              <p class="flex items-center">
-                <span
-                  class="mr-4 inline-flex flex-shrink-0 items-center justify-center rounded-full border-4 border-primary text-dividerDark"
-                  :class="{
-                    '!text-green-500': hasFile,
-                  }"
-                >
-                  <icon-lucide-check-circle class="svg-icons" />
-                </span>
-                <span>
-                  {{ t(`${step.metadata.caption}`) }}
-                </span>
-              </p>
-              <p
-                class="ml-10 flex flex-col rounded border border-dashed border-dividerDark"
-              >
-                <input
-                  id="inputChooseFileToImportFrom"
-                  ref="inputChooseFileToImportFrom"
-                  name="inputChooseFileToImportFrom"
-                  type="file"
-                  class="cursor-pointer p-4 text-secondary transition file:mr-2 file:cursor-pointer file:rounded file:border-0 file:bg-primaryLight file:px-4 file:py-2 file:text-secondary file:transition hover:text-secondaryDark hover:file:bg-primaryDark hover:file:text-secondaryDark"
-                  :accept="step.metadata.acceptedFileTypes"
-                  @change="onFileChange"
-                />
-              </p>
-            </div>
-            <div v-else-if="step.name === 'URL_IMPORT'" class="space-y-4">
-              <p class="flex items-center">
-                <span
-                  class="mr-4 inline-flex flex-shrink-0 items-center justify-center rounded-full border-4 border-primary text-dividerDark"
-                  :class="{
-                    '!text-green-500': hasGist,
-                  }"
-                >
-                  <icon-lucide-check-circle class="svg-icons" />
-                </span>
-                <span>
-                  {{ t(`${step.metadata.caption}`) }}
-                </span>
-              </p>
-              <p class="ml-10 flex flex-col">
-                <input
-                  v-model="inputChooseGistToImportFrom"
-                  type="url"
-                  class="input"
-                  :placeholder="`${t('import.gist_url')}`"
-                />
-              </p>
-            </div>
-            <div
-              v-else-if="step.name === 'TARGET_MY_COLLECTION'"
-              class="flex flex-col"
-            >
-              <HoppSmartSelectWrapper>
-                <select
-                  v-model="mySelectedCollectionID"
-                  autocomplete="off"
-                  class="select"
-                  autofocus
-                >
-                  <option :key="undefined" :value="undefined" disabled selected>
-                    {{ t("collection.select") }}
-                  </option>
-                  <option
-                    v-for="(collection, collectionIndex) in myCollections"
-                    :key="`collection-${collectionIndex}`"
-                    :value="collectionIndex"
-                    class="bg-primary"
-                  >
-                    {{ collection.name }}
-                  </option>
-                </select>
-              </HoppSmartSelectWrapper>
-            </div>
-          </div>
-        </div>
-        <HoppButtonPrimary
-          :label="t('import.title')"
-          :disabled="enableImportButton"
-          :loading="importingMyCollections"
-          @click="finishImport"
-        />
-      </div>
-      <div v-else class="flex flex-col">
-        <HoppSmartExpand>
-          <template #body>
-            <HoppSmartItem
-              v-for="(importer, index) in importerModules"
-              :key="`importer-${index}`"
-              :icon="importer.icon"
-              :label="t(`${importer.name}`)"
-              @click="importerType = index"
-            />
-          </template>
-        </HoppSmartExpand>
-        <hr />
-        <div class="flex flex-col space-y-2">
-          <HoppSmartItem
-            v-tippy="{ theme: 'tooltip' }"
-            :title="t('action.download_file')"
-            :icon="IconDownload"
-            :loading="exportingTeamCollections"
-            :label="t('export.as_json')"
-            @click="emit('export-json-collection')"
-          />
-          <span
-            v-if="platform.platformFeatureFlags.exportAsGIST"
-            v-tippy="{ theme: 'tooltip' }"
-            :title="
-              !currentUser
-                ? `${t('export.require_github')}`
-                : currentUser.provider !== 'github.com'
-                  ? `${t('export.require_github')}`
-                  : undefined
-            "
-            class="flex"
-          >
-            <HoppSmartItem
-              :disabled="
-                !currentUser
-                  ? true
-                  : currentUser.provider !== 'github.com'
-                    ? true
-                    : false
-              "
-              :icon="IconGithub"
-              :loading="creatingGistCollection"
-              :label="t('export.create_secret_gist')"
-              @click="emit('create-collection-gist')"
-            />
-          </span>
-        </div>
-      </div>
-    </template>
-  </HoppSmartModal>
+  <ImportexportImportExport
+    ref="collections-import-export"
+    modal-title="modal.collections"
+    :importer-modules="importerModules"
+    :exporter-modules="exporterModules"
+    @hide-modal="emit('hide-modal')"
+  ></ImportexportImportExport>
 </template>
 
 <script setup lang="ts">
-import IconArrowLeft from "~icons/lucide/arrow-left"
-import IconDownload from "~icons/lucide/download"
-import IconGithub from "~icons/lucide/github"
-import { computed, PropType, ref, watch } from "vue"
-import { pipe } from "fp-ts/function"
 import * as E from "fp-ts/Either"
-import { HoppRESTRequest, HoppCollection } from "@hoppscotch/data"
-import { useI18n } from "@composables/i18n"
-import { useReadonlyStream } from "@composables/stream"
-import { useToast } from "@composables/toast"
-import { platform } from "~/platform"
+import { FileSource } from "~/helpers/import-export/import/import-sources/FileSource"
+import { UrlSource } from "~/helpers/import-export/import/import-sources/UrlSource"
+
+import IconFile from "~icons/lucide/file"
+
+import {
+  hoppRESTImporter,
+  hoppInsomniaImporter,
+  hoppPostmanImporter,
+  toTeamsImporter,
+  hoppOpenAPIImporter,
+} from "~/helpers/import-export/import/importers"
+
+import { defineStep } from "~/composables/step-components"
+import { PropType, computed, ref } from "vue"
+
+import { useI18n } from "~/composables/i18n"
+import { useToast } from "~/composables/toast"
+import { HoppCollection } from "@hoppscotch/data"
+import { HoppRESTRequest } from "@hoppscotch/data"
 import { appendRESTCollections, restCollections$ } from "~/newstore/collections"
-import { RESTCollectionImporters } from "~/helpers/import-export/import/importers"
-import { StepReturnValue } from "~/helpers/import-export/steps"
+import MyCollectionImport from "~/components/importexport/ImportExportSteps/MyCollectionImport.vue"
+import { GetMyTeamsQuery } from "~/helpers/backend/graphql"
 
-const toast = useToast()
+import IconFolderPlus from "~icons/lucide/folder-plus"
+import IconOpenAPI from "~icons/lucide/file"
+import IconPostman from "~icons/hopp/postman"
+import IconInsomnia from "~icons/hopp/insomnia"
+import IconGithub from "~icons/lucide/github"
+
+import IconUser from "~icons/lucide/user"
+import { useReadonlyStream } from "~/composables/stream"
+
+import { getTeamCollectionJSON } from "~/helpers/backend/helpers"
+
+import { platform } from "~/platform"
+
+import { initializeDownloadCollection } from "~/helpers/import-export/export"
+import { collectionsGistExporter } from "~/helpers/import-export/export/gistExport"
+import { myCollectionsExporter } from "~/helpers/import-export/export/myCollections"
+import { teamCollectionsExporter } from "~/helpers/import-export/export/teamCollections"
+
+import { GistSource } from "~/helpers/import-export/import/import-sources/GistSource"
+import { ImporterOrExporter } from "~/components/importexport/types"
+
 const t = useI18n()
+const toast = useToast()
 
-type CollectionType = "team-collections" | "my-collections"
+type SelectedTeam = GetMyTeamsQuery["myTeams"][number] | undefined
+
+type CollectionType =
+  | {
+      type: "team-collections"
+      selectedTeam: SelectedTeam
+    }
+  | { type: "my-collections" }
 
 const props = defineProps({
-  show: {
-    type: Boolean,
-    default: false,
-    required: true,
-  },
   collectionsType: {
-    type: String as PropType<CollectionType>,
-    default: "my-collections",
+    type: Object as PropType<CollectionType>,
+    default: () => ({
+      type: "my-collections",
+      selectedTeam: undefined,
+    }),
     required: true,
   },
-  exportingTeamCollections: {
-    type: Boolean,
-    default: false,
-    required: false,
-  },
-  creatingGistCollection: {
-    type: Boolean,
-    default: false,
-    required: false,
-  },
-  importingMyCollections: {
-    type: Boolean,
-    default: false,
-    required: false,
-  },
 })
 
-const emit = defineEmits<{
-  (e: "hide-modal"): void
-  (e: "update-team-collections"): void
-  (e: "export-json-collection"): void
-  (e: "create-collection-gist"): void
-  (e: "import-to-teams", payload: HoppCollection<HoppRESTRequest>[]): void
-}>()
-
-const hasFile = ref(false)
-const hasGist = ref(false)
-
-const importerType = ref<number | null>(null)
-
-const stepResults = ref<StepReturnValue[]>([])
-
-const inputChooseFileToImportFrom = ref<HTMLInputElement | any>()
-const mySelectedCollectionID = ref<number | undefined>(undefined)
-const inputChooseGistToImportFrom = ref<string>("")
-
-const importerModules = computed(() =>
-  RESTCollectionImporters.filter(
-    (i) => i.applicableTo?.includes(props.collectionsType) ?? true
-  )
-)
-
-const importerModule = computed(() => {
-  if (importerType.value === null) return null
-  return importerModules.value[importerType.value]
-})
-
-const importerSteps = computed(() => importerModule.value?.steps ?? null)
-
-const enableImportButton = computed(
-  () => !(stepResults.value.length === importerSteps.value?.length)
-)
-
-watch(mySelectedCollectionID, (newValue) => {
-  if (newValue === undefined) return
-  stepResults.value = []
-  stepResults.value.push(newValue)
-})
-
-watch(inputChooseGistToImportFrom, (url) => {
-  stepResults.value = []
-  if (url === "") {
-    hasGist.value = false
-  } else {
-    hasGist.value = true
-    stepResults.value.push(inputChooseGistToImportFrom.value)
-  }
-})
-
-const myCollections = useReadonlyStream(restCollections$, [])
 const currentUser = useReadonlyStream(
   platform.auth.getCurrentUserStream(),
   platform.auth.getCurrentUser()
 )
 
-const importerAction = async (stepResults: StepReturnValue[]) => {
-  if (!importerModule.value) return
-
-  pipe(
-    await importerModule.value.importer(stepResults as any)(),
-    E.match(
-      (err) => {
-        failedImport()
-        console.error("error", err)
-      },
-      (result) => {
-        if (props.collectionsType === "team-collections") {
-          emit("import-to-teams", result)
-        } else {
-          appendRESTCollections(result)
-
-          platform.analytics?.logEvent({
-            type: "HOPP_IMPORT_COLLECTION",
-            importer: importerModule.value!.name,
-            platform: "rest",
-            workspaceType: "personal",
-          })
-
-          fileImported()
-        }
-      }
-    )
-  )
-}
-
-const finishImport = async () => {
-  await importerAction(stepResults.value)
-}
-
-const onFileChange = () => {
-  stepResults.value = []
-
-  const inputFileToImport = inputChooseFileToImportFrom.value[0]
-
-  if (!inputFileToImport) {
-    hasFile.value = false
-    return
-  }
-
-  if (!inputFileToImport.files || inputFileToImport.files.length === 0) {
-    inputChooseFileToImportFrom.value[0].value = ""
-    hasFile.value = false
-    toast.show(t("action.choose_file").toString())
-    return
-  }
-
-  const reader = new FileReader()
-
-  reader.onload = ({ target }) => {
-    const content = target!.result as string | null
-    if (!content) {
-      hasFile.value = false
-      toast.show(t("action.choose_file").toString())
-      return
-    }
-
-    stepResults.value.push(content)
-    hasFile.value = !!content?.length
-  }
-
-  reader.readAsText(inputFileToImport.files[0])
-}
-
-const fileImported = () => {
-  toast.success(t("state.file_imported").toString())
-  hideModal()
-}
 const failedImport = () => {
   toast.error(t("import.failed").toString())
 }
-const hideModal = () => {
-  resetImport()
-  emit("hide-modal")
+
+const importSuccessful = (collections: HoppCollection<HoppRESTRequest>[]) => {
+  appendRESTCollections(collections)
+  toast.success(t("import.success").toString())
 }
 
-const resetImport = () => {
-  importerType.value = null
-  hasFile.value = false
-  hasGist.value = false
-  stepResults.value = []
-  inputChooseFileToImportFrom.value = ""
-  inputChooseGistToImportFrom.value = ""
-  mySelectedCollectionID.value = undefined
+const emit = defineEmits<{
+  (e: "hide-modal"): () => void
+}>()
+
+const isHoppMyCollectionExporterInProgress = ref(false)
+const isHoppTeamCollectionExporterInProgress = ref(false)
+const isHoppGistCollectionExporterInProgress = ref(false)
+
+const HoppRESTImporter: ImporterOrExporter = {
+  metadata: {
+    id: "hopp_rest",
+    name: "import.from_json",
+    title: "import.from_json_description",
+    icon: IconFolderPlus,
+    disabled: false,
+    applicableTo: ["personal-workspace", "team-workspace", "url-import"],
+  },
+  component: FileSource({
+    caption: "import.from_file",
+    acceptedFileTypes: ".json",
+    onImportFromFile: async (content) => {
+      const res = await hoppRESTImporter(content)()
+
+      if (E.isRight(res)) {
+        importSuccessful(res.right)
+      } else {
+        failedImport()
+      }
+    },
+  }),
+}
+
+const HoppMyCollectionImporter: ImporterOrExporter = {
+  metadata: {
+    id: "hopp_my_collection",
+    name: "import.from_my_collections",
+    title: "import.from_my_collections_description",
+    icon: IconUser,
+    disabled: false,
+    applicableTo: ["team-workspace"],
+  },
+  component: defineStep("my_collection_import", MyCollectionImport, () => ({
+    async onImportFromMyCollection(content) {
+      const collectionsType = props.collectionsType
+
+      const isTeamCollection = collectionsType.type === "team-collections"
+
+      const hasTeamWriteAccess = isTeamCollection
+        ? collectionsType.selectedTeam?.myRole == "EDITOR" ||
+          collectionsType.selectedTeam?.myRole == "OWNER"
+        : false
+
+      if (!hasTeamWriteAccess) {
+        failedImport()
+        return
+      }
+
+      isTeamCollection &&
+        collectionsType.selectedTeam?.id &&
+        toTeamsImporter(content, collectionsType.selectedTeam?.id)()
+    },
+  })),
+}
+
+const HoppOpenAPIImporter: ImporterOrExporter = {
+  metadata: {
+    id: "hopp_openapi",
+    name: "import.from_openapi",
+    title: "import.from_openapi_description",
+    icon: IconOpenAPI,
+    disabled: false,
+    applicableTo: ["personal-workspace", "url-import"],
+  },
+  supported_sources: [
+    {
+      id: "file_import",
+      name: "import.from_file",
+      icon: IconFile,
+      step: FileSource({
+        caption: "import.from_file",
+        acceptedFileTypes: ".json",
+        onImportFromFile: async (content) => {
+          const res = await hoppOpenAPIImporter(content)()
+
+          if (E.isRight(res)) {
+            importSuccessful(res.right)
+          } else {
+            failedImport()
+          }
+        },
+      }),
+    },
+    {
+      id: "url_import",
+      name: "import.from_url",
+      icon: IconFile,
+      step: UrlSource({
+        caption: "import.from_url",
+        onImportFromURL: async (content) => {
+          const res = await hoppOpenAPIImporter(content)()
+
+          if (E.isRight(res)) {
+            importSuccessful(res.right)
+          } else {
+            failedImport()
+          }
+        },
+      }),
+    },
+  ],
+}
+
+const HoppPostmanImporter: ImporterOrExporter = {
+  metadata: {
+    id: "hopp_postman",
+    name: "import.from_postman",
+    title: "import.from_postman_description",
+    icon: IconPostman,
+    disabled: false,
+    applicableTo: ["personal-workspace", "url-import"],
+  },
+  component: FileSource({
+    caption: "import.from_file",
+    acceptedFileTypes: ".json",
+    onImportFromFile: async (content) => {
+      const res = await hoppPostmanImporter(content)()
+
+      if (E.isRight(res)) {
+        console.group("Import From: Postman")
+        console.log(res.right)
+        console.groupEnd()
+
+        importSuccessful(res.right)
+      } else {
+        failedImport()
+      }
+    },
+  }),
+}
+
+const HoppInsomniaImporter: ImporterOrExporter = {
+  metadata: {
+    id: "hopp_insomnia",
+    name: "import.from_insomnia",
+    title: "import.from_insomnia_description",
+    icon: IconInsomnia,
+    disabled: true,
+    applicableTo: ["personal-workspace", "url-import"],
+  },
+  component: FileSource({
+    caption: "import.from_file",
+    acceptedFileTypes: ".json",
+    onImportFromFile: async (content) => {
+      const res = await hoppInsomniaImporter(content)()
+
+      if (E.isRight(res)) {
+        importSuccessful(res.right)
+      } else {
+        failedImport()
+      }
+    },
+  }),
+}
+
+const HoppGistImporter: ImporterOrExporter = {
+  metadata: {
+    id: "hopp_gist",
+    name: "import.from_gist",
+    title: "import.from_gist_description",
+    icon: IconGithub,
+    disabled: true,
+    applicableTo: ["personal-workspace", "url-import"],
+  },
+  component: GistSource({
+    caption: "import.from_url",
+    onImportFromGist: async (content) => {
+      const res = await hoppRESTImporter(content)()
+
+      if (E.isRight(res)) {
+        importSuccessful(res.right)
+      } else {
+        failedImport()
+      }
+    },
+  }),
+}
+
+const HoppMyCollectionsExporter: ImporterOrExporter = {
+  metadata: {
+    id: "hopp_my_collections",
+    name: "export.as_json",
+    title: "export.as_json_description",
+    icon: IconUser,
+    disabled: false,
+    applicableTo: ["personal-workspace"],
+    isLoading: isHoppMyCollectionExporterInProgress,
+  },
+  action: async () => {
+    isHoppMyCollectionExporterInProgress.value = true
+
+    const message = initializeDownloadCollection(
+      myCollectionsExporter(myCollections.value),
+      "Collections.json"
+    )
+
+    if (E.isRight(message)) {
+      toast.success(message.right)
+    }
+
+    isHoppMyCollectionExporterInProgress.value = false
+  },
+}
+
+const HoppTeamCollectionsExporter: ImporterOrExporter = {
+  metadata: {
+    id: "hopp_team_collections",
+    name: "export.as_json",
+    title: "export.as_json_description",
+    icon: IconUser,
+    disabled: false,
+    applicableTo: ["team-workspace"],
+    isLoading: isHoppTeamCollectionExporterInProgress,
+  },
+  action: async () => {
+    isHoppTeamCollectionExporterInProgress.value = true
+
+    if (
+      props.collectionsType.type == "team-collections" &&
+      props.collectionsType.selectedTeam
+    ) {
+      const res = await teamCollectionsExporter(
+        props.collectionsType.selectedTeam.id
+      )
+
+      if (E.isRight(res)) {
+        initializeDownloadCollection(
+          res.right.exportCollectionsToJSON,
+          "team-collections.json"
+        )
+      } else {
+        toast.error(res.left.error.toString())
+      }
+    }
+
+    isHoppTeamCollectionExporterInProgress.value = false
+  },
+}
+
+const HoppGistCollectionsExporter: ImporterOrExporter = {
+  metadata: {
+    id: "create_secret_gist",
+    name: "export.create_secret_gist",
+    icon: IconGithub,
+    disabled: !currentUser.value
+      ? true
+      : currentUser.value.provider !== "github.com"
+        ? true
+        : false,
+    title: t("export.create_secret_gist"),
+    applicableTo: ["personal-workspace"],
+    isLoading: isHoppGistCollectionExporterInProgress,
+  },
+  action: async () => {
+    isHoppGistCollectionExporterInProgress.value = true
+
+    const collectionJSON = await getCollectionJSON()
+    const accessToken = currentUser.value?.accessToken
+
+    if (!accessToken) {
+      toast.error(t("error.something_went_wrong").toString())
+      isHoppGistCollectionExporterInProgress.value = false
+      return
+    }
+
+    if (E.isRight(collectionJSON))
+      collectionsGistExporter(collectionJSON.right, accessToken)
+
+    isHoppGistCollectionExporterInProgress.value = false
+  },
+}
+
+const importerModules = computed(() => {
+  const enabledImporters = [
+    HoppRESTImporter,
+    HoppMyCollectionImporter,
+    HoppOpenAPIImporter,
+    HoppPostmanImporter,
+    HoppInsomniaImporter,
+    HoppGistImporter,
+  ]
+
+  const isTeams = props.collectionsType.type === "team-collections"
+
+  return enabledImporters.filter((importer) => {
+    return isTeams
+      ? importer.metadata.applicableTo.includes("team-workspace")
+      : importer.metadata.applicableTo.includes("personal-workspace")
+  })
+})
+
+const exporterModules = computed(() => {
+  const enabledExporters = [
+    HoppMyCollectionsExporter,
+    HoppTeamCollectionsExporter,
+  ]
+
+  if (platform.platformFeatureFlags.exportAsGIST) {
+    enabledExporters.push(HoppGistCollectionsExporter)
+  }
+
+  return enabledExporters.filter((exporter) => {
+    return exporter.metadata.applicableTo.includes(
+      props.collectionsType.type == "my-collections"
+        ? "personal-workspace"
+        : "team-workspace"
+    )
+  })
+})
+
+const myCollections = useReadonlyStream(restCollections$, [])
+
+const getCollectionJSON = async () => {
+  let collections
+
+  if (
+    props.collectionsType.type == "team-collections" &&
+    props.collectionsType.selectedTeam?.id
+  ) {
+    const res = await getTeamCollectionJSON(
+      props.collectionsType.selectedTeam?.id
+    )
+
+    if (E.isRight(res)) {
+      collections = res.right.exportCollectionsToJSON
+
+      return E.right(collections)
+    } else {
+      return E.left(res.left)
+    }
+  } else {
+    collections = JSON.stringify(myCollections.value, null, 2)
+
+    return E.right(collections)
+  }
 }
 </script>

@@ -1,4 +1,3 @@
-import IconOpenAPI from "~icons/lucide/file"
 import {
   OpenAPI,
   OpenAPIV2,
@@ -25,8 +24,7 @@ import * as S from "fp-ts/string"
 import * as O from "fp-ts/Option"
 import * as TE from "fp-ts/TaskEither"
 import * as RA from "fp-ts/ReadonlyArray"
-import { step } from "../steps"
-import { defineImporter, IMPORTER_INVALID_FILE_FORMAT } from "."
+import { IMPORTER_INVALID_FILE_FORMAT } from "."
 
 export const OPENAPI_DEREF_ERROR = "openapi/deref_error" as const
 
@@ -614,44 +612,29 @@ const parseOpenAPIDocContent = (str: string) =>
     )
   )
 
-export default defineImporter({
-  id: "openapi",
-  name: "import.from_openapi",
-  applicableTo: ["my-collections", "team-collections", "url-import"],
-  icon: IconOpenAPI,
-  steps: [
-    step({
-      stepName: "FILE_IMPORT",
-      metadata: {
-        caption: "import.from_openapi_description",
-        acceptedFileTypes: ".json, .yaml, .yml",
-      },
-    }),
-  ] as const,
-  importer: ([fileContent]) =>
-    pipe(
-      // See if we can parse JSON properly
-      fileContent,
-      parseOpenAPIDocContent,
-      TE.fromOption(() => IMPORTER_INVALID_FILE_FORMAT),
-      // Try validating, else the importer is invalid file format
-      TE.chainW((obj) =>
-        pipe(
-          TE.tryCatch(
-            () => SwaggerParser.validate(obj),
-            () => IMPORTER_INVALID_FILE_FORMAT
-          )
+export const hoppOpenAPIImporter = (fileContent: string) =>
+  pipe(
+    // See if we can parse JSON properly
+    fileContent,
+    parseOpenAPIDocContent,
+    TE.fromOption(() => IMPORTER_INVALID_FILE_FORMAT),
+    // Try validating, else the importer is invalid file format
+    TE.chainW((obj) =>
+      pipe(
+        TE.tryCatch(
+          () => SwaggerParser.validate(obj),
+          () => IMPORTER_INVALID_FILE_FORMAT
         )
-      ),
-      // Deference the references
-      TE.chainW((obj) =>
-        pipe(
-          TE.tryCatch(
-            () => SwaggerParser.dereference(obj),
-            () => OPENAPI_DEREF_ERROR
-          )
-        )
-      ),
-      TE.chainW(convertOpenApiDocToHopp)
+      )
     ),
-})
+    // Deference the references
+    TE.chainW((obj) =>
+      pipe(
+        TE.tryCatch(
+          () => SwaggerParser.dereference(obj),
+          () => OPENAPI_DEREF_ERROR
+        )
+      )
+    ),
+    TE.chainW(convertOpenApiDocToHopp)
+  )

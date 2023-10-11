@@ -1,23 +1,24 @@
-import api from '~/helpers/api';
+import api from '~/helpers/axiosConfig';
 
 export default {
   getUserDetails: () =>
-    api().post<{
-      data?: {
-        me?: {
-          uid: string;
-          displayName: string;
-          email: string;
-          photoURL: string;
-          isAdmin: boolean;
-          createdOn: string;
-        };
+  api.post<{
+    data?: {
+      me?: {
+        uid: string;
+        displayName: string;
+        email: string;
+        photoURL: string;
+        isAdmin: boolean;
+        createdOn: string;
       };
-      errors?: Array<{
-        message: string;
-      }>;
-    }>(`${import.meta.env.VITE_BACKEND_GQL_URL}`, {
-      query: `query Me {
+    };
+    errors?: Array<{
+      message: string;
+    }>;
+  }>(import.meta.env.VITE_BACKEND_GQL_URL,
+  {
+    query: `query Me {
       me {
         uid
         displayName
@@ -27,20 +28,20 @@ export default {
         createdOn
       }
     }`,
-    }),
-  refreshToken: () => api().get('/auth/refresh'),
-  elevateUser: () => api().get('/auth/verify/admin'),
+  }),
+  refreshToken: () => api.get('/auth/refresh'),
+  elevateUser: () => api.get('/auth/verify/admin'),
   sendMagicLink: (email: string) =>
-    api().post('/auth/signin?origin=admin', {
+    api.post('/auth/signin?origin=admin', {
       email,
     }),
   signInWithEmailLink: (
     token: string | null,
     deviceIdentifier: string | null
   ) =>
-    api().post('/auth/verify', {
+    api.post('/auth/verify', {
       token: token,
       deviceIdentifier,
     }),
-  logout: () => api().get('/auth/logout'),
+  logout: () => api.get('/auth/logout'),
 };

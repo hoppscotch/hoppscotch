@@ -3,7 +3,7 @@ import {
   Interceptor,
   InterceptorError,
   RequestRunResult,
-} from "../../../services/interceptor.service"
+} from "@hoppscotch/common/services/interceptor.service"
 import axios, { AxiosRequestConfig, CancelToken } from "axios"
 import { cloneDeep } from "lodash-es"
 import { Body, HttpVerb, ResponseType, getClient } from '@tauri-apps/api/http'
@@ -56,12 +56,12 @@ async function runRequest(
       let body_data = {}
       for (const entry of processedReq.data.entries()) {
         const [name, value] = entry;
-      
+
         if (value instanceof File) {
           let file_data = await value.arrayBuffer()
 
           body_data[name] = {
-              file: new Uint8Array(file_data as number[]),
+              file: new Uint8Array(file_data),
               fileName: value.name
           }
         }
@@ -123,9 +123,9 @@ async function runRequest(
   }
 }
 
-export const localclientInterceptor: Interceptor = {
-  interceptorID: "localclient",
-  name: () => "localclient",
+export const nativeInterceptor: Interceptor = {
+  interceptorID: "native",
+  name: () => "Native",
   selectable: { type: "selectable" },
   runRequest(req) {
     const processedReq = preProcessRequest(req)

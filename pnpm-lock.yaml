@@ -947,6 +947,9 @@ importers:
       '@rushstack/eslint-patch':
         specifier: ^1.1.4
         version: 1.3.3
+      '@types/lodash-es':
+        specifier: ^4.17.9
+        version: 4.17.10
       '@types/node':
         specifier: ^18.7.10
         version: 18.18.8
@@ -10244,6 +10247,12 @@ packages:
     resolution: {integrity: sha512-R+zTeVUKDdfoRxpAryaQNRKk3105Rrgx2CFRClIgRGaqDTdjsm8h6IYA8ir584W3ePzkZfst5xIgDwYrlh9HLg==}
     dependencies:
       '@types/lodash': 4.14.200
+    dev: true
+
+  /@types/lodash-es@4.17.10:
+    resolution: {integrity: sha512-YJP+w/2khSBwbUSFdGsSqmDvmnN3cCKoPOL7Zjle6s30ZtemkkqhjVfFqGwPN7ASil5VyjE2GtyU/yqYY6mC0A==}
+    dependencies:
+      '@types/lodash': 4.14.199
     dev: true
 
   /@types/lodash-es@4.17.8:

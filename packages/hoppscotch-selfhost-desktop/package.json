@@ -34,6 +34,7 @@
   "devDependencies": {
     "@intlify/vite-plugin-vue-i18n": "^6.0.1",
     "@rushstack/eslint-patch": "^1.1.4",
+    "@types/lodash-es": "^4.17.9",
     "@types/node": "^18.7.10",
     "@typescript-eslint/eslint-plugin": "^5.19.0",
     "@typescript-eslint/parser": "^5.19.0",

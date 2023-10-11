@@ -15,7 +15,6 @@ import { open } from '@tauri-apps/api/shell'
 import { Body, getClient } from '@tauri-apps/api/http'
 import { listen } from '@tauri-apps/api/event'
 import { Store } from "tauri-plugin-store-api";
-import { P } from "@tauri-apps/api/event-41a9edf5"
 
 export const authEvents$ = new Subject<AuthEvent | { event: "token_refresh" }>()
 const currentUser$ = new BehaviorSubject<HoppUser | null>(null)
@@ -25,7 +24,7 @@ async function logout() {
   let client = await getClient();
   await client.get(`${import.meta.env.VITE_BACKEND_API_URL}/auth/logout`)
 
-  const store = new Store("/Users/vivek/.creds.dat") 
+  const store = new Store("/Users/vivek/.creds.dat")
   await store.set("refresh_token", {})
   await store.set("access_token", {})
   await store.save()
@@ -337,7 +336,7 @@ export const def: AuthPlatformDef = {
     let verifyToken = getLocalConfig("verifyToken")
 
     const client = await getClient();
-    let res = await client.post(`${import.meta.env.VITE_BACKEND_API_URL}/auth/verify`, Body.json({ 
+    let res = await client.post(`${import.meta.env.VITE_BACKEND_API_URL}/auth/verify`, Body.json({
       token: verifyToken,
       deviceIdentifier
     }));

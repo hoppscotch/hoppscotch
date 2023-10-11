@@ -35,7 +35,7 @@ fn main() {
             tauri_plugin_deep_link::register(
                 "hoppscotch",
                 move |request| {
-                    println!("{:?}", request);                    
+                    println!("{:?}", request);
                     handle.emit_all("scheme-request-received", request).unwrap();
                 },
             ).unwrap();

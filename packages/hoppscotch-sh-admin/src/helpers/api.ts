@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-export default (url = import.meta.env.VITE_BACKEND_GQL_URL) => {
+export default (url = import.meta.env.VITE_BACKEND_API_URL) => {
   return axios.create({
     baseURL: url,
     headers: {

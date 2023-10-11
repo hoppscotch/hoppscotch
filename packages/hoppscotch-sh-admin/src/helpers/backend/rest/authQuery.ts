@@ -1,7 +1,7 @@
 import api from '~/helpers/api';
 
 export default {
-  getMe: () =>
+  getUserDetails: () =>
     api().post<{
       data?: {
         me?: {
@@ -11,7 +11,6 @@ export default {
           photoURL: string;
           isAdmin: boolean;
           createdOn: string;
-          // emailVerified: boolean
         };
       };
       errors?: Array<{

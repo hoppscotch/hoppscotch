@@ -1,9 +1,10 @@
 import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
-import { getTabsRefTo } from "../rest/tab"
 import { getAffectedIndexes } from "./affectedIndex"
 import { GetSingleRequestDocument } from "../backend/graphql"
 import { runGQLQuery } from "../backend/GQLClient"
 import * as E from "fp-ts/Either"
+import { getService } from "~/modules/dioc"
+import { RESTTabService } from "~/services/tab/rest"
 
 /**
  * Resolve save context on reorder
@@ -56,7 +57,9 @@ export function resolveSaveContextOnCollectionReorder(
     }
   }
 
-  const tabs = getTabsRefTo((tab) => {
+  const tabService = getService(RESTTabService)
+
+  const tabs = tabService.getTabsRefTo((tab) => {
     return (
       tab.document.saveContext?.originLocation === "user-collection" &&
       affectedPaths.has(tab.document.saveContext.folderPath)
@@ -84,7 +87,8 @@ export function updateSaveContextForAffectedRequests(
   oldFolderPath: string,
   newFolderPath: string
 ) {
-  const tabs = getTabsRefTo((tab) => {
+  const tabService = getService(RESTTabService)
+  const tabs = tabService.getTabsRefTo((tab) => {
     return (
       tab.document.saveContext?.originLocation === "user-collection" &&
       tab.document.saveContext.folderPath.startsWith(oldFolderPath)
@@ -105,7 +109,8 @@ export function updateSaveContextForAffectedRequests(
 }
 
 function resetSaveContextForAffectedRequests(folderPath: string) {
-  const tabs = getTabsRefTo((tab) => {
+  const tabService = getService(RESTTabService)
+  const tabs = tabService.getTabsRefTo((tab) => {
     return (
       tab.document.saveContext?.originLocation === "user-collection" &&
       tab.document.saveContext.folderPath.startsWith(folderPath)
@@ -124,7 +129,8 @@ function resetSaveContextForAffectedRequests(folderPath: string) {
  */
 
 export async function resetTeamRequestsContext() {
-  const tabs = getTabsRefTo((tab) => {
+  const tabService = getService(RESTTabService)
+  const tabs = tabService.getTabsRefTo((tab) => {
     return tab.document.saveContext?.originLocation === "team-collection"
   })
 

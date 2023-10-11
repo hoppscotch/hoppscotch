@@ -7,8 +7,9 @@ import {
 } from "../"
 import { markRaw, ref } from "vue"
 import IconArrowDownRight from "~icons/lucide/arrow-down-right"
-import { currentActiveTab } from "~/helpers/rest/tab"
 import { getI18n } from "~/modules/i18n"
+import { RESTTabService } from "~/services/tab/rest"
+import { getService } from "~/modules/dioc"
 
 //regex containing both url and parameter
 const urlAndParameterRegex = new RegExp("[^&?]*?=[^&?]*")
@@ -88,20 +89,23 @@ export class ParameterMenuService extends Service implements ContextMenu {
       queryParams.push({ key, value, active: true })
     }
 
+    const tabService = getService(RESTTabService)
+
     // add the parameters to the current request parameters
-    currentActiveTab.value.document.request.params = [
-      ...currentActiveTab.value.document.request.params,
+    tabService.currentActiveTab.value.document.request.params = [
+      ...tabService.currentActiveTab.value.document.request.params,
       ...queryParams,
     ]
 
     if (newURL) {
-      currentActiveTab.value.document.request.endpoint = newURL
+      tabService.currentActiveTab.value.document.request.endpoint = newURL
     } else {
       // remove the parameter from the URL
       const textRegex = new RegExp(`\\b${text.replace(/\?/g, "")}\\b`, "gi")
-      const sanitizedWord = currentActiveTab.value.document.request.endpoint
+      const sanitizedWord =
+        tabService.currentActiveTab.value.document.request.endpoint
       const newURL = sanitizedWord.replace(textRegex, "")
-      currentActiveTab.value.document.request.endpoint = newURL
+      tabService.currentActiveTab.value.document.request.endpoint = newURL
     }
   }
 

@@ -7,19 +7,11 @@ import { GQLHistoryEntry, RESTHistoryEntry } from "~/newstore/history"
 import { getDefaultRESTRequest } from "~/helpers/rest/default"
 import { HoppAction, HoppActionWithArgs } from "~/helpers/actions"
 import { getDefaultGQLRequest } from "~/helpers/graphql/default"
+import { RESTTabService } from "~/services/tab/rest"
 
 async function flushPromises() {
   return await new Promise((r) => setTimeout(r))
 }
-
-const tabMock = vi.hoisted(() => ({
-  createNewTab: vi.fn(),
-}))
-
-vi.mock("~/helpers/rest/tab", () => ({
-  __esModule: true,
-  createNewTab: tabMock.createNewTab,
-}))
 
 vi.mock("~/modules/i18n", () => ({
   __esModule: true,
@@ -72,8 +64,16 @@ describe("HistorySpotlightSearcherService", () => {
       y = historyMock.restEntries.pop()
     }
 
+    const container = new TestContainer()
+
+    const createNewTabFn = vi.fn()
+
+    container.bindMock(RESTTabService, {
+      createNewTab: createNewTabFn,
+    })
+
     actionsMock.invokeAction.mockReset()
-    tabMock.createNewTab.mockReset()
+    createNewTabFn.mockReset()
   })
 
   it("registers with the spotlight service upon initialization", async () => {

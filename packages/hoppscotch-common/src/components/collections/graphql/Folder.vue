@@ -203,11 +203,14 @@ import { useI18n } from "@composables/i18n"
 import { useColorMode } from "@composables/theming"
 import { removeGraphqlFolder, moveGraphqlRequest } from "~/newstore/collections"
 import { computed, ref } from "vue"
-import { getTabsRefTo } from "~/helpers/graphql/tab"
+import { useService } from "dioc/vue"
+import { GQLTabService } from "~/services/tab/graphql"
 
 const toast = useToast()
 const t = useI18n()
 const colorMode = useColorMode()
+
+const tabs = useService(GQLTabService)
 
 const props = defineProps({
   picked: { type: Object, default: null },
@@ -277,7 +280,7 @@ const removeFolder = () => {
     emit("select", { picked: null })
   }
 
-  const possibleTabs = getTabsRefTo((tab) => {
+  const possibleTabs = tabs.getTabsRefTo((tab) => {
     const ctx = tab.document.saveContext
 
     if (!ctx) return false

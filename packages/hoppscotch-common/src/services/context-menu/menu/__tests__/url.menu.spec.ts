@@ -1,5 +1,6 @@
 import { TestContainer } from "dioc/testing"
 import { describe, expect, it, vi } from "vitest"
+import { RESTTabService } from "~/services/tab/rest"
 import { ContextMenuService } from "../.."
 import { URLMenuService } from "../url.menu"
 import { getDefaultRESTRequest } from "~/helpers/rest/default"
@@ -7,15 +8,6 @@ import { getDefaultRESTRequest } from "~/helpers/rest/default"
 vi.mock("~/modules/i18n", () => ({
   __esModule: true,
   getI18n: () => (x: string) => x,
-}))
-
-const tabMock = vi.hoisted(() => ({
-  createNewTab: vi.fn(),
-}))
-
-vi.mock("~/helpers/rest/tab", () => ({
-  __esModule: true,
-  createNewTab: tabMock.createNewTab,
 }))
 
 describe("URLMenuService", () => {
@@ -64,6 +56,10 @@ describe("URLMenuService", () => {
 
     it("should call the openNewTab function when action is called and a new hoppscotch tab is opened", () => {
       const container = new TestContainer()
+      const createNewTabFn = vi.fn()
+      container.bindMock(RESTTabService, {
+        createNewTab: createNewTabFn,
+      })
       const url = container.bind(URLMenuService)
 
       const test = "https://hoppscotch.io"
@@ -76,8 +72,8 @@ describe("URLMenuService", () => {
         endpoint: test,
       }
 
-      expect(tabMock.createNewTab).toHaveBeenCalledOnce()
-      expect(tabMock.createNewTab).toHaveBeenCalledWith({
+      expect(createNewTabFn).toHaveBeenCalledOnce()
+      expect(createNewTabFn).toHaveBeenCalledWith({
         request: request,
         isDirty: false,
       })

@@ -83,10 +83,13 @@ import {
 import * as TE from "fp-ts/TaskEither"
 import { pipe } from "fp-ts/function"
 import { updateTeamEnvironment } from "~/helpers/backend/mutations/TeamEnvironment"
-import { currentActiveTab } from "~/helpers/rest/tab"
+import { RESTTabService } from "~/services/tab/rest"
+import { useService } from "dioc/vue"
 
 const t = useI18n()
 const toast = useToast()
+
+const tabs = useService(RESTTabService)
 
 const props = defineProps<{
   show: boolean
@@ -189,8 +192,8 @@ const addEnvironment = async () => {
     //replace the current tab endpoint with the variable name with << and >>
     const variableName = `<<${editingName.value}>>`
     //replace the currenttab endpoint containing the value in the text with variablename
-    currentActiveTab.value.document.request.endpoint =
-      currentActiveTab.value.document.request.endpoint.replace(
+    tabs.currentActiveTab.value.document.request.endpoint =
+      tabs.currentActiveTab.value.document.request.endpoint.replace(
         editingValue.value,
         variableName
       )

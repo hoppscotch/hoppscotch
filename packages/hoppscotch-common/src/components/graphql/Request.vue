@@ -64,7 +64,6 @@
 <script setup lang="ts">
 import { platform } from "~/platform"
 import { useI18n } from "@composables/i18n"
-import { currentActiveTab } from "~/helpers/graphql/tab"
 import { computed, ref, watch } from "vue"
 import { connection } from "~/helpers/graphql/connection"
 import { connect } from "~/helpers/graphql/connection"
@@ -72,8 +71,10 @@ import { disconnect } from "~/helpers/graphql/connection"
 import { InterceptorService } from "~/services/interceptor.service"
 import { useService } from "dioc/vue"
 import { defineActionHandler } from "~/helpers/actions"
+import { GQLTabService } from "~/services/tab/graphql"
 
 const t = useI18n()
+const tabs = useService(GQLTabService)
 
 const interceptorService = useService(InterceptorService)
 
@@ -82,9 +83,9 @@ const connectionSwitchModal = ref(false)
 const connected = computed(() => connection.state === "CONNECTED")
 
 const url = computed({
-  get: () => currentActiveTab.value?.document.request.url ?? "",
+  get: () => tabs.currentActiveTab.value?.document.request.url ?? "",
   set: (value) => {
-    currentActiveTab.value!.document.request.url = value
+    tabs.currentActiveTab.value!.document.request.url = value
   },
 })
 
@@ -97,7 +98,7 @@ const onConnectClick = () => {
 }
 
 const gqlConnect = () => {
-  connect(url.value, currentActiveTab.value?.document.request.headers)
+  connect(url.value, tabs.currentActiveTab.value?.document.request.headers)
 
   platform.analytics?.logEvent({
     type: "HOPP_REQUEST_RUN",
@@ -114,7 +115,7 @@ const switchConnection = () => {
 const lastTwoUrls = ref<string[]>([])
 
 watch(
-  currentActiveTab,
+  tabs.currentActiveTab,
   (newVal) => {
     if (newVal) {
       lastTwoUrls.value.push(newVal.document.request.url)

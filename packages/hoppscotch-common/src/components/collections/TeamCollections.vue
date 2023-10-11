@@ -357,10 +357,12 @@ import { HoppRESTRequest } from "@hoppscotch/data"
 import { pipe } from "fp-ts/function"
 import * as O from "fp-ts/Option"
 import { Picked } from "~/helpers/types/HoppPicked.js"
-import { currentActiveTab } from "~/helpers/rest/tab"
+import { RESTTabService } from "~/services/tab/rest"
+import { useService } from "dioc/vue"
 
 const t = useI18n()
 const colorMode = useColorMode()
+const tabs = useService(RESTTabService)
 
 type SelectedTeam = GetMyTeamsQuery["myTeams"][number] | undefined
 
@@ -558,7 +560,7 @@ const isSelected = ({
   }
 }
 
-const active = computed(() => currentActiveTab.value.document.saveContext)
+const active = computed(() => tabs.currentActiveTab.value.document.saveContext)
 
 const isActiveRequest = (requestID: string) => {
   return pipe(

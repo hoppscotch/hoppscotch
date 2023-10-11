@@ -7,8 +7,9 @@ import {
 } from "@hoppscotch/data"
 import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
 import { cloneDeep } from "lodash-es"
-import { getTabRefWithSaveContext } from "~/helpers/rest/tab"
 import { resolveSaveContextOnRequestReorder } from "~/helpers/collection/request"
+import { getService } from "~/modules/dioc"
+import { RESTTabService } from "~/services/tab/rest"
 
 const defaultRESTCollectionState = {
   state: [
@@ -454,7 +455,10 @@ const restCollectionDispatchers = defineDispatchers({
 
     // Deal with situations where a tab with the given thing is deleted
     // We are just going to dissociate the save context of the tab and mark it dirty
-    const tab = getTabRefWithSaveContext({
+
+    const tabService = getService(RESTTabService)
+
+    const tab = tabService.getTabRefWithSaveContext({
       originLocation: "user-collection",
       folderPath: path,
       requestIndex: requestIndex,
@@ -512,7 +516,8 @@ const restCollectionDispatchers = defineDispatchers({
     destLocation.requests.push(req)
     targetLocation.requests.splice(requestIndex, 1)
 
-    const possibleTab = getTabRefWithSaveContext({
+    const tabService = getService(RESTTabService)
+    const possibleTab = tabService.getTabRefWithSaveContext({
       originLocation: "user-collection",
       folderPath: path,
       requestIndex,

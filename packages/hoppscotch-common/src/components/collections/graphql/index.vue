@@ -145,7 +145,8 @@ import { useI18n } from "@composables/i18n"
 import { useReadonlyStream } from "@composables/stream"
 import { useColorMode } from "@composables/theming"
 import { platform } from "~/platform"
-import { createNewTab, currentActiveTab } from "~/helpers/graphql/tab"
+import { useService } from "dioc/vue"
+import { GQLTabService } from "~/services/tab/graphql"
 
 export default defineComponent({
   props: {
@@ -158,11 +159,13 @@ export default defineComponent({
     const collections = useReadonlyStream(graphqlCollections$, [], "deep")
     const colorMode = useColorMode()
     const t = useI18n()
+    const tabs = useService(GQLTabService)
 
     return {
       collections,
       colorMode,
       t,
+      tabs,
       IconPlus,
       IconHelpCircle,
       IconArchive,
@@ -267,13 +270,13 @@ export default defineComponent({
     },
     onAddRequest({ name, path, index }) {
       const newRequest = {
-        ...currentActiveTab.value.document.request,
+        ...this.tabs.currentActiveTab.value.document.request,
         name,
       }
 
       saveGraphqlRequestAs(path, newRequest)
 
-      createNewTab({
+      this.tabs.createNewTab({
         saveContext: {
           originLocation: "user-collection",
           folderPath: path,

@@ -8,8 +8,7 @@ import {
 } from "./base/static.searcher"
 
 import { useRoute } from "vue-router"
-import { RequestOptionTabs } from "~/components/http/RequestOptions.vue"
-import { currentActiveTab } from "~/helpers/rest/tab"
+import { RESTOptionTabs } from "~/components/http/RequestOptions.vue"
 import IconWindow from "~icons/lucide/app-window"
 import IconCheckCircle from "~icons/lucide/check-circle"
 import IconCode2 from "~icons/lucide/code-2"
@@ -20,6 +19,7 @@ import IconPlay from "~icons/lucide/play"
 import IconRotateCCW from "~icons/lucide/rotate-ccw"
 import IconSave from "~icons/lucide/save"
 import { GQLOptionTabs } from "~/components/graphql/RequestOptions.vue"
+import { RESTTabService } from "~/services/tab/rest"
 
 type Doc = {
   text: string | string[]
@@ -43,6 +43,7 @@ export class RequestSpotlightSearcherService extends StaticSpotlightSearcherServ
   public searcherSectionTitle = this.t("shortcut.request.title")
 
   private readonly spotlight = this.bind(SpotlightService)
+  private readonly restTab = this.bind(RESTTabService)
 
   private route = useRoute()
   private isRESTPage = computed(() => this.route.name === "index")
@@ -247,7 +248,7 @@ export class RequestSpotlightSearcherService extends StaticSpotlightSearcherServ
     }
   }
 
-  private openRequestTab(tab: RequestOptionTabs | GQLOptionTabs): void {
+  private openRequestTab(tab: RESTOptionTabs | GQLOptionTabs): void {
     invokeAction("request.open-tab", {
       tab,
     })
@@ -267,7 +268,7 @@ export class RequestSpotlightSearcherService extends StaticSpotlightSearcherServ
       case "save_to_collections":
         invokeAction("request.save-as", {
           requestType: "rest",
-          request: currentActiveTab.value?.document.request,
+          request: this.restTab.currentActiveTab.value?.document.request,
         })
         break
       case "save_request":

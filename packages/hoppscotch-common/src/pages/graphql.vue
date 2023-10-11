@@ -7,23 +7,24 @@
         <HoppSmartWindows
           v-if="currentTabID"
           :id="'gql_windows'"
-          v-model="currentTabID"
+          :model-value="currentTabID"
+          @update:model-value="(tabID) => tabs.setActiveTab(tabID)"
           @remove-tab="removeTab"
           @add-tab="addNewTab"
           @sort="sortTabs"
         >
           <HoppSmartWindow
-            v-for="tab in tabs"
+            v-for="tab in activeTabs"
             :id="tab.id"
             :key="'removable_tab_' + tab.id"
             :label="tab.document.request.name"
-            :is-removable="tabs.length > 1"
+            :is-removable="activeTabs.length > 1"
             :close-visibility="'hover'"
           >
             <template #tabhead>
               <GraphqlTabHead
                 :tab="tab"
-                :is-removable="tabs.length > 1"
+                :is-removable="activeTabs.length > 1"
                 @open-rename-modal="openReqRenameModal(tab)"
                 @close-tab="removeTab(tab.id)"
                 @close-other-tabs="closeOtherTabsAction(tab.id)"
@@ -89,21 +90,15 @@ import { computed, onBeforeUnmount, ref } from "vue"
 import { defineActionHandler } from "~/helpers/actions"
 import { connection, disconnect } from "~/helpers/graphql/connection"
 import { getDefaultGQLRequest } from "~/helpers/graphql/default"
-import {
-  HoppGQLTab,
-  closeOtherTabs,
-  closeTab,
-  createNewTab,
-  currentTabID,
-  getActiveTabs,
-  getDirtyTabsCount,
-  getTabRef,
-  updateTab,
-  updateTabOrdering,
-} from "~/helpers/graphql/tab"
+import { HoppGQLDocument } from "~/helpers/graphql/document"
 import { InspectionService } from "~/services/inspection"
+import { HoppTab } from "~/services/tab"
+import { GQLTabService } from "~/services/tab/graphql"
 
 const t = useI18n()
+const tabs = useService(GQLTabService)
+
+const currentTabID = computed(() => tabs.currentTabID.value)
 
 const inspectionService = useService(InspectionService)
 
@@ -113,27 +108,27 @@ usePageHead({
   title: computed(() => t("navigation.graphql")),
 })
 
-const tabs = getActiveTabs()
+const activeTabs = tabs.getActiveTabs()
 
 const addNewTab = () => {
-  const tab = createNewTab({
+  const tab = tabs.createNewTab({
     request: getDefaultGQLRequest(),
     isDirty: false,
   })
 
-  currentTabID.value = tab.id
+  tabs.setActiveTab(tab.id)
 }
 const sortTabs = (e: { oldIndex: number; newIndex: number }) => {
-  updateTabOrdering(e.oldIndex, e.newIndex)
+  tabs.updateTabOrdering(e.oldIndex, e.newIndex)
 }
 
 const removeTab = (tabID: string) => {
-  const tabState = getTabRef(tabID).value
+  const tabState = tabs.getTabRef(tabID).value
 
   if (tabState.document.isDirty) {
     confirmingCloseForTabID.value = tabID
   } else {
-    closeTab(tabState.id)
+    tabs.closeTab(tabState.id)
     inspectionService.deleteTabInspectorResult(tabState.id)
   }
 }
@@ -150,7 +145,7 @@ const onCloseConfirm = () => {
  */
 const onResolveConfirm = () => {
   if (confirmingCloseForTabID.value) {
-    closeTab(confirmingCloseForTabID.value)
+    tabs.closeTab(confirmingCloseForTabID.value)
     confirmingCloseForTabID.value = null
   }
 }
@@ -160,24 +155,24 @@ const unsavedTabsCount = ref(0)
 const exceptedTabID = ref<string | null>(null)
 
 const closeOtherTabsAction = (tabID: string) => {
-  const dirtyTabCount = getDirtyTabsCount()
+  const dirtyTabCount = tabs.getDirtyTabsCount()
   // If there are dirty tabs, show the confirm modal
   if (dirtyTabCount > 0) {
     confirmingCloseAllTabs.value = true
     unsavedTabsCount.value = dirtyTabCount
     exceptedTabID.value = tabID
   } else {
-    closeOtherTabs(tabID)
+    tabs.closeOtherTabs(tabID)
   }
 }
 
 const onResolveConfirmCloseAllTabs = () => {
-  if (exceptedTabID.value) closeOtherTabs(exceptedTabID.value)
+  if (exceptedTabID.value) tabs.closeOtherTabs(exceptedTabID.value)
   confirmingCloseAllTabs.value = false
 }
 
-const onTabUpdate = (tab: HoppGQLTab) => {
-  updateTab(tab)
+const onTabUpdate = (tab: HoppTab<HoppGQLDocument>) => {
+  tabs.updateTab(tab)
 }
 
 onBeforeUnmount(() => {
@@ -189,33 +184,33 @@ onBeforeUnmount(() => {
 const editReqModalReqName = ref("")
 const showRenamingReqNameModalForTabID = ref<string>()
 
-const openReqRenameModal = (tab: HoppGQLTab) => {
+const openReqRenameModal = (tab: HoppTab<HoppGQLDocument>) => {
   editReqModalReqName.value = tab.document.request.name
   showRenamingReqNameModalForTabID.value = tab.id
 }
 
 const renameReqName = () => {
-  const tab = getTabRef(showRenamingReqNameModalForTabID.value!)
+  const tab = tabs.getTabRef(showRenamingReqNameModalForTabID.value!)
   if (tab.value) {
     tab.value.document.request.name = editReqModalReqName.value
-    updateTab(tab.value)
+    tabs.updateTab(tab.value)
   }
   showRenamingReqNameModalForTabID.value = undefined
 }
 
 const duplicateTab = (tabID: string) => {
-  const tab = getTabRef(tabID)
+  const tab = tabs.getTabRef(tabID)
   if (tab.value) {
-    const newTab = createNewTab({
+    const newTab = tabs.createNewTab({
       request: tab.value.document.request,
       isDirty: true,
     })
-    currentTabID.value = newTab.id
+    tabs.setActiveTab(newTab.id)
   }
 }
 
 defineActionHandler("gql.request.open", ({ request, saveContext }) => {
-  createNewTab({
+  tabs.createNewTab({
     saveContext,
     request: request,
     isDirty: false,
@@ -223,7 +218,7 @@ defineActionHandler("gql.request.open", ({ request, saveContext }) => {
 })
 
 defineActionHandler("request.rename", () => {
-  openReqRenameModal(getTabRef(currentTabID.value).value!)
+  openReqRenameModal(tabs.getTabRef(currentTabID.value).value!)
 })
 
 defineActionHandler("tab.duplicate-tab", ({ tabID }) => {
@@ -233,7 +228,7 @@ defineActionHandler("tab.close-current", () => {
   removeTab(currentTabID.value)
 })
 defineActionHandler("tab.close-other", () => {
-  closeOtherTabs(currentTabID.value)
+  tabs.closeOtherTabs(currentTabID.value)
 })
 defineActionHandler("tab.open-new", addNewTab)
 </script>

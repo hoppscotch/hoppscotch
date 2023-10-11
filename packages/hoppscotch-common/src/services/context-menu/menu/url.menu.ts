@@ -1,15 +1,15 @@
 import { Service } from "dioc"
+import { markRaw, ref } from "vue"
+import { getDefaultRESTRequest } from "~/helpers/rest/default"
+import { getI18n } from "~/modules/i18n"
+import { RESTTabService } from "~/services/tab/rest"
+import IconCopyPlus from "~icons/lucide/copy-plus"
 import {
   ContextMenu,
   ContextMenuResult,
   ContextMenuService,
   ContextMenuState,
 } from ".."
-import { markRaw, ref } from "vue"
-import IconCopyPlus from "~icons/lucide/copy-plus"
-import { createNewTab } from "~/helpers/rest/tab"
-import { getDefaultRESTRequest } from "~/helpers/rest/default"
-import { getI18n } from "~/modules/i18n"
 
 /**
  * Used to check if a string is a valid URL
@@ -37,6 +37,7 @@ export class URLMenuService extends Service implements ContextMenu {
   public readonly menuID = "url"
 
   private readonly contextMenu = this.bind(ContextMenuService)
+  private readonly restTab = this.bind(RESTTabService)
 
   constructor() {
     super()
@@ -55,7 +56,7 @@ export class URLMenuService extends Service implements ContextMenu {
       endpoint: url,
     }
 
-    createNewTab({
+    this.restTab.createNewTab({
       request: request,
       isDirty: false,
     })

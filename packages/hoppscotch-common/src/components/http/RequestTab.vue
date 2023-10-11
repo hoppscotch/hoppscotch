@@ -2,10 +2,13 @@
   <AppPaneLayout layout-id="rest-primary">
     <template #primary>
       <HttpRequest v-model="tab" />
-      <HttpRequestOptions v-model="tab.document.request" />
+      <HttpRequestOptions
+        v-model="tab.document.request"
+        v-model:option-tab="tab.document.optionTabPreference"
+      />
     </template>
     <template #secondary>
-      <HttpResponse v-model:tab="tab" />
+      <HttpResponse v-model:document="tab.document" />
     </template>
   </AppPaneLayout>
 </template>
@@ -13,16 +16,17 @@
 <script setup lang="ts">
 import { watch } from "vue"
 import { useVModel } from "@vueuse/core"
-import { HoppRESTTab } from "~/helpers/rest/tab"
 import { cloneDeep } from "lodash-es"
 import { isEqualHoppRESTRequest } from "@hoppscotch/data"
+import { HoppTab } from "~/services/tab"
+import { HoppRESTDocument } from "~/helpers/rest/document"
 
 // TODO: Move Response and Request execution code to over here
 
-const props = defineProps<{ modelValue: HoppRESTTab }>()
+const props = defineProps<{ modelValue: HoppTab<HoppRESTDocument> }>()
 
 const emit = defineEmits<{
-  (e: "update:modelValue", val: HoppRESTTab): void
+  (e: "update:modelValue", val: HoppTab<HoppRESTDocument>): void
 }>()
 
 const tab = useVModel(props, "modelValue", emit)

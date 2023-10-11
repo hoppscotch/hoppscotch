@@ -93,12 +93,15 @@ import IconWrapText from "~icons/lucide/wrap-text"
 import IconClipboard from "~icons/lucide/clipboard"
 import IconCheck from "~icons/lucide/check"
 import IconTrash2 from "~icons/lucide/trash-2"
-import { currentActiveTab } from "~/helpers/rest/tab"
 import { platform } from "~/platform"
+import { RESTTabService } from "~/services/tab/rest"
+import { useService } from "dioc/vue"
 
 const t = useI18n()
 
 const toast = useToast()
+
+const tabs = useService(RESTTabService)
 
 const curl = ref("")
 
@@ -149,7 +152,7 @@ const handleImport = () => {
       type: "HOPP_REST_IMPORT_CURL",
     })
 
-    currentActiveTab.value.document.request = req
+    tabs.currentActiveTab.value.document.request = req
   } catch (e) {
     console.error(e)
     toast.error(`${t("error.curl_invalid_format")}`)

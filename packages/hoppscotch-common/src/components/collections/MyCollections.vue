@@ -327,7 +327,8 @@ import { useColorMode } from "@composables/theming"
 import { pipe } from "fp-ts/function"
 import * as O from "fp-ts/Option"
 import { Picked } from "~/helpers/types/HoppPicked.js"
-import { currentActiveTab } from "~/helpers/rest/tab"
+import { useService } from "dioc/vue"
+import { RESTTabService } from "~/services/tab/rest"
 
 export type Collection = {
   type: "collections"
@@ -535,7 +536,8 @@ const isSelected = ({
   }
 }
 
-const active = computed(() => currentActiveTab.value.document.saveContext)
+const tabs = useService(RESTTabService)
+const active = computed(() => tabs.currentActiveTab.value.document.saveContext)
 
 const isActiveRequest = (folderPath: string, requestIndex: number) => {
   return pipe(

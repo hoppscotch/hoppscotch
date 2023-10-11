@@ -198,11 +198,11 @@ export const resolvesEnvsInBody = (
           }
       ),
     }
-  } else {
-    return {
-      contentType: body.contentType,
-      body: parseTemplateString(body.body, env.variables),
-    }
+  }
+
+  return {
+    contentType: body.contentType,
+    body: parseTemplateString(body.body ?? "", env.variables),
   }
 }
 
@@ -210,9 +210,7 @@ function getFinalBodyFromRequest(
   request: HoppRESTRequest,
   envVariables: Environment["variables"]
 ): FormData | string | null {
-  if (request.body.contentType === null) {
-    return null
-  }
+  if (request.body.contentType === null) return null
 
   if (request.body.contentType === "application/x-www-form-urlencoded") {
     const parsedBodyRecord = pipe(
@@ -280,7 +278,10 @@ function getFinalBodyFromRequest(
       ),
       toFormData
     )
-  } else return parseBodyEnvVariables(request.body.body, envVariables)
+  }
+
+  // body can be null if the content-type is not set
+  return parseBodyEnvVariables(request.body.body ?? "", envVariables)
 }
 
 /**

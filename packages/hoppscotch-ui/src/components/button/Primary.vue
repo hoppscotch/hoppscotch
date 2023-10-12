@@ -2,12 +2,13 @@
   <HoppSmartLink
     :to="to"
     :blank="blank"
-    class="button-primary relative inline-flex items-center justify-center py-2 font-bold transition focus:outline-none focus-visible:bg-accentDark"
+    class="button-primary relative inline-flex items-center justify-center whitespace-nowrap py-2 font-semibold transition focus:outline-none focus-visible:bg-accentDark"
+    :exact="exact"
     :class="[
       color
         ? `text-${color}-800 bg-${color}-200 hover:(text-${color}-900 bg-${color}-300) focus-visible:(text-${color}-900 bg-${color}-300)`
         : `bg-accent text-accentContrast hover:bg-accentDark focus-visible:bg-accentDark`,
-      label ? 'px-4' : 'px-2',
+      label ? 'px-4 py-2' : 'p-2',
       rounded ? 'rounded-full' : 'rounded',
       { 'cursor-not-allowed opacity-75': disabled },
       { 'pointer-events-none': loading },

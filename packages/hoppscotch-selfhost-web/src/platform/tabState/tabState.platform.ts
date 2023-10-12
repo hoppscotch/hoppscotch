@@ -1,4 +1,5 @@
-import { PersistableRESTTabState } from "@hoppscotch/common/helpers/rest/tab"
+import { PersistableTabState } from "@hoppscotch/common/services/tab"
+import { HoppRESTDocument } from "@hoppscotch/common/helpers/rest/document"
 import { HoppUser } from "@hoppscotch/common/platform/auth"
 import { TabStatePlatformDef } from "@hoppscotch/common/platform/tab"
 import { def as platformAuth } from "@platform/auth"
@@ -8,12 +9,12 @@ import * as E from "fp-ts/Either"
 
 async function writeCurrentTabState(
   _: HoppUser,
-  persistableTabState: PersistableRESTTabState
+  persistableTabState: PersistableTabState<HoppRESTDocument>
 ) {
   await updateUserSession(JSON.stringify(persistableTabState), SessionType.Rest)
 }
 
-async function loadTabStateFromSync(): Promise<PersistableRESTTabState | null> {
+async function loadTabStateFromSync(): Promise<PersistableTabState<HoppRESTDocument> | null> {
   const currentUser = platformAuth.getCurrentUser()
 
   if (!currentUser)

@@ -5,6 +5,7 @@
     "choose_file": "파일 선택",
     "clear": "지우기",
     "clear_all": "모두 지우기",
+    "clear_history": "Clear all History",
     "close": "닫기",
     "connect": "연결",
     "connecting": "Connecting",
@@ -31,6 +32,7 @@
     "paste": "붙여넣기",
     "prettify": "구문 강조",
     "remove": "제거",
+    "rename": "Rename",
     "restore": "복원",
     "save": "저장",
     "scroll_to_bottom": "Scroll to bottom",
@@ -77,6 +79,8 @@
     "search": "찾기",
     "share": "공유하기",
     "shortcuts": "바로가기",
+    "social_description": "Follow us on social media to stay updated with the latest news, updates and releases.",
+    "social_links": "Social links",
     "spotlight": "스포트라이트",
     "status": "상태",
     "status_description": "Check the status of the website",
@@ -131,12 +135,15 @@
     "renamed": "모음집 이름이 변경됨",
     "request_in_use": "사용 중인 요청",
     "save_as": "다른 이름으로 저장",
+    "save_to_collection": "Save to Collection",
     "select": "모음집 선택",
     "select_location": "위치 선택",
     "select_team": "팀 선택",
     "team_collections": "팀 모음집"
   },
   "confirm": {
+    "close_unsaved_tab": "Are you sure you want to close this tab?",
+    "close_unsaved_tabs": "Are you sure you want to close all tabs? {count} unsaved tabs will be lost.",
     "exit_team": "이 팀을 떠나겠습니까?",
     "logout": "로그아웃하겠습니까?",
     "remove_collection": "이 모음집을 영구적으로 삭제하겠습니까?",
@@ -149,6 +156,11 @@
     "request_change": "현재 요청을 취소하시겠습니까? 저장되지 않은 변경사항은 삭제됩니다.",
     "save_unsaved_tab": "Do you want to save changes made in this tab?",
     "sync": "이 작업 공간을 동기화하겠습니까?"
+  },
+  "context_menu": {
+    "add_parameters": "Add to parameters",
+    "open_request_in_new_tab": "Open request in new tab",
+    "set_environment_variable": "Set as variable"
   },
   "count": {
     "header": "헤더 {count}",
@@ -192,17 +204,31 @@
     "create_new": "새 환경 만들기",
     "created": "Environment created",
     "deleted": "Environment deletion",
+    "duplicated": "Environment duplicated",
     "edit": "환경 편집",
+    "empty_variables": "No variables",
+    "global": "Global",
+    "global_variables": "Global variables",
     "invalid_name": "환경 이름을 바르게 입력하세요.",
+    "list": "Environment variables",
     "my_environments": "My Environments",
+    "name": "Name",
     "nested_overflow": "환경 변수는 열 단계까지만 중첩될 수 있습니다.",
     "new": "새 환경",
+    "no_active_environment": "No active environment",
     "no_environment": "환경 없음",
     "no_environment_description": "선택한 환경이 없습니다. 선택해주세요.",
+    "quick_peek": "Environment Quick Peek",
+    "replace_with_variable": "Replace with variable",
+    "scope": "Scope",
     "select": "환경 선택",
+    "set": "Set environment",
+    "set_as_environment": "Set as environment",
     "team_environments": "Team Environments",
     "title": "환경",
     "updated": "환경 수정됨",
+    "value": "Value",
+    "variable": "Variable",
     "variable_list": "변수 목록"
   },
   "error": {
@@ -226,6 +252,7 @@
     "no_duration": "소요 시간 없음",
     "no_results_found": "No matches found",
     "page_not_found": "해당 페이지를 찾을 수 없습니다.",
+    "proxy_error": "Proxy error",
     "script_fail": "사전 요청 스크립트를 실행할 수 없습니다.",
     "something_went_wrong": "문제가 발생했습니다.",
     "test_script_fail": "테스트 스크립트를 실행할 수 없습니다."
@@ -251,9 +278,13 @@
     "renamed": "폴더 이름이 변경됨"
   },
   "graphql": {
+    "connection_switch_confirm": "Do you want to connect with the latest GraphQL endpoint?",
+    "connection_switch_new_url": "Switching to a tab will disconnected you from the active GraphQL connection. New connection URL is",
+    "connection_switch_url": "You're connected to a GraphQL endpoint the connection URL is",
     "mutations": "뮤테이션",
     "schema": "스키마",
-    "subscriptions": "섭스크립션"
+    "subscriptions": "섭스크립션",
+    "switch_connection": "Switch connection"
   },
   "group": {
     "time": "Time",
@@ -307,13 +338,36 @@
     "json_description": "호프스카치 모음집 JSON 파일을 가져옵니다.",
     "title": "가져오기"
   },
+  "inspections": {
+    "description": "Inspect possible errors",
+    "environment": {
+      "add_environment": "Add to Environment",
+      "not_found": "Environment variable “{environment}” not found."
+    },
+    "header": {
+      "cookie": "The browser doesn't allow Hoppscotch to set the Cookie Header. While we're working on the Hoppscotch Desktop App (coming soon), please use the Authorization Header instead."
+    },
+    "response": {
+      "401_error": "Please check your authentication credentials.",
+      "404_error": "Please check your request URL and method type.",
+      "cors_error": "Please check your Cross-Origin Resource Sharing configuration.",
+      "default_error": "Please check your request.",
+      "network_error": "Please check your network connection."
+    },
+    "title": "Inspector",
+    "url": {
+      "extension_not_installed": "Extension not installed.",
+      "extension_unknown_origin": "Make sure you've added the API endpoint's origin to the Hoppscotch Browser Extension list.",
+      "extention_enable_action": "Enable Browser Extension",
+      "extention_not_enabled": "Extension not enabled."
+    }
+  },
   "layout": {
     "collapse_collection": "Collapse or Expand Collections",
     "collapse_sidebar": "Collapse or Expand the sidebar",
     "column": "가로형 레이아웃",
     "name": "Layout",
-    "row": "세로형 레이아웃",
-    "zen_mode": "전체화면"
+    "row": "세로형 레이아웃"
   },
   "modal": {
     "close_unsaved_tab": "You have unsaved changes",
@@ -418,6 +472,7 @@
     "payload": "페이로드",
     "query": "쿼리",
     "raw_body": "원시 요청 본문",
+    "rename": "Rename Request",
     "renamed": "요청 이름이 변경됨",
     "run": "실행",
     "save": "저장",
@@ -425,6 +480,7 @@
     "saved": "요청이 저장됨",
     "share": "공유하기",
     "share_description": "Share Hoppscotch with your friends",
+    "stop": "Stop",
     "title": "제목",
     "type": "요청 유형",
     "url": "URL",
@@ -459,7 +515,6 @@
     "account_name_description": "디스플레이 이름입니다.",
     "background": "배경",
     "black_mode": "검은 테마",
-    "change_font_size": "글자 크기 변경",
     "choose_language": "언어 선택",
     "dark_mode": "어두운 테마",
     "delete_account": "Delete account",
@@ -472,10 +527,6 @@
     "extensions": "익스텐션",
     "extensions_use_toggle": "브라우저 익스텐션을 사용하여 요청 보내기(있는 경우)",
     "follow": "Follow Us",
-    "font_size": "글꼴 크기",
-    "font_size_large": "크게",
-    "font_size_medium": "중간",
-    "font_size_small": "작게",
     "interceptor": "인터셉터",
     "interceptor_description": "애플리케이션과 API 간의 미들웨어.",
     "language": "언어",
@@ -540,19 +591,27 @@
       "settings": "설정 페이지로 이동",
       "title": "내비게이션"
     },
+    "others": {
+      "prettify": "Prettify Editor's Content",
+      "title": "Others"
+    },
     "request": {
       "copy_request_link": "요청 링크 복사",
       "delete_method": "DELETE 메서드 선택",
       "get_method": "GET 메서드 선택",
       "head_method": "HEAD 메서드 선택",
+      "import_curl": "Import cURL",
       "method": "메서드",
       "next_method": "다음 메서드 선택",
       "post_method": "POST 메서드 선택",
       "previous_method": "이전 메서드 선택",
       "put_method": "PUT 메서드 선택",
+      "rename": "Rename Request",
       "reset_request": "요청 초기화",
+      "save_request": "Save Request",
       "save_to_collections": "모음집에 저장",
       "send_request": "요청 보내기",
+      "show_code": "Generate code snippet",
       "title": "요청"
     },
     "response": {
@@ -581,6 +640,85 @@
     "events": "이벤트",
     "log": "로그",
     "url": "URL"
+  },
+  "spotlight": {
+    "change_language": "Change Language",
+    "environments": {
+      "delete": "Delete current environment",
+      "duplicate": "Duplicate current environment",
+      "duplicate_global": "Duplicate global environment",
+      "edit": "Edit current environment",
+      "edit_global": "Edit global environment",
+      "new": "Create new environment",
+      "new_variable": "Create a new environment variable",
+      "title": "Environments"
+    },
+    "general": {
+      "chat": "Chat with support",
+      "help_menu": "Help and support",
+      "open_docs": "Read Documentation",
+      "open_github": "Open GitHub repository",
+      "open_keybindings": "Keyboard shortcuts",
+      "social": "Social",
+      "title": "General"
+    },
+    "graphql": {
+      "connect": "Connect to server",
+      "disconnect": "Disconnect from server"
+    },
+    "miscellaneous": {
+      "invite": "Invite your friends to Hoppscotch",
+      "title": "Miscellaneous"
+    },
+    "request": {
+      "save_as_new": "Save as new request",
+      "select_method": "Select method",
+      "switch_to": "Switch to",
+      "tab_authorization": "Authorization tab",
+      "tab_body": "Body tab",
+      "tab_headers": "Headers tab",
+      "tab_parameters": "Parameters tab",
+      "tab_pre_request_script": "Pre-request script tab",
+      "tab_query": "Query tab",
+      "tab_tests": "Tests tab",
+      "tab_variables": "Variables tab"
+    },
+    "response": {
+      "copy": "Copy response",
+      "download": "Download response as file",
+      "title": "Response"
+    },
+    "section": {
+      "interceptor": "Interceptor",
+      "interface": "Interface",
+      "theme": "Theme",
+      "user": "User"
+    },
+    "settings": {
+      "change_interceptor": "Change Interceptor",
+      "change_language": "Change Language",
+      "theme": {
+        "black": "Black",
+        "dark": "Dark",
+        "light": "Light",
+        "system": "System preference"
+      }
+    },
+    "tab": {
+      "close_current": "Close current tab",
+      "close_others": "Close all other tabs",
+      "duplicate": "Duplicate current tab",
+      "new_tab": "Open a new tab",
+      "title": "Tabs"
+    },
+    "workspace": {
+      "delete": "Delete current team",
+      "edit": "Edit current team",
+      "invite": "Invite people to team",
+      "new": "Create new team",
+      "switch_to_personal": "Switch to your personal workspace",
+      "title": "Teams"
+    }
   },
   "sse": {
     "event_type": "이벤트 유형",
@@ -639,8 +777,11 @@
   "tab": {
     "authorization": "인증",
     "body": "본문",
+    "close": "Close Tab",
+    "close_others": "Close other Tabs",
     "collections": "모음집",
     "documentation": "문서",
+    "duplicate": "Duplicate Tab",
     "environments": "Environments",
     "headers": "헤더",
     "history": "이력",

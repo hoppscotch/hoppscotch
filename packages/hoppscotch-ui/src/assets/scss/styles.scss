@@ -17,6 +17,7 @@
 
   @apply selection:bg-accentDark;
   @apply selection:text-accentContrast;
+  @apply overscroll-none;
 }
 
 :root {
@@ -49,6 +50,10 @@
 ::-webkit-scrollbar {
   @apply w-4;
   @apply h-0;
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
 }
 
 input::placeholder,
@@ -153,7 +158,7 @@ a {
 
 .cm-tooltip {
   .tippy-box {
-    @apply shadow-none;
+    @apply shadow-none #{!important};
     @apply fixed;
     @apply inline-flex;
     @apply -mt-8;
@@ -210,10 +215,11 @@ a {
   @apply border-solid border-dividerDark;
   @apply rounded;
   @apply shadow-lg;
+  @apply max-w-[45vw] #{!important};
 
   .tippy-content {
     @apply flex flex-col;
-    @apply max-h-56;
+    @apply max-h-[45vh];
     @apply items-stretch;
     @apply overflow-y-auto;
     @apply text-body text-secondary;
@@ -221,6 +227,10 @@ a {
     @apply leading-normal;
     @apply focus:outline-none;
     scroll-behavior: smooth;
+
+    & > span {
+      @apply block #{!important};
+    }
   }
 
   .tippy-svg-arrow {
@@ -236,6 +246,7 @@ a {
 
 [data-v-tippy] {
   @apply flex flex-1;
+  @apply truncate;
 }
 
 [interactive] > div {
@@ -346,28 +357,28 @@ pre.ace_editor {
   @apply after:font-icon;
   @apply after:text-current;
   @apply after:right-3;
-  @apply after:content-["\e313"];
+  @apply after:content-["\e5cf"];
   @apply after:text-lg;
 }
 
 .info-response {
-  color: var(--info-color);
+  @apply text-pink-500;
 }
 
 .success-response {
-  color: var(--success-color);
+  @apply text-green-500;
 }
 
 .redir-response {
-  color: var(--warning-color);
+  @apply text-yellow-500;
 }
 
 .cl-error-response {
-  color: var(--cl-error-color);
+  @apply text-red-500;
 }
 
 .sv-error-response {
-  color: var(--sv-error-color);
+  @apply text-red-600;
 }
 
 .missing-data-response {
@@ -501,6 +512,10 @@ pre.ace_editor {
   }
 }
 
+.cm-scroller {
+  @apply overscroll-y-auto;
+}
+
 .cm-editor {
   .cm-line::selection {
     @apply bg-accentDark #{!important};
@@ -587,4 +602,12 @@ details[open] summary .indicator {
 .color-picker[type="color"]::-webkit-color-swatch {
   @apply rounded;
   @apply border-0;
+}
+
+.gql-operation-not-highlight {
+  @apply opacity-50;
+}
+
+.gql-operation-highlight {
+  @apply opacity-100;
 }

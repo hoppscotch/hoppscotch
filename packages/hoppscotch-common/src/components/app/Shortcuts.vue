@@ -4,57 +4,26 @@
       <div
         class="sticky top-0 z-10 flex flex-col flex-shrink-0 overflow-x-auto bg-primary"
       >
-        <div class="flex flex-col px-6 py-4 border-b border-dividerLight">
-          <input
-            v-model="filterText"
-            type="search"
-            autocomplete="off"
-            class="flex px-4 py-2 border rounded bg-primaryContrast border-divider hover:border-dividerDark focus-visible:border-dividerDark"
-            :placeholder="`${t('action.search')}`"
-          />
-        </div>
+        <HoppSmartInput
+          v-model="filterText"
+          type="search"
+          styles="px-6 py-4 border-b border-dividerLight"
+          :placeholder="`${t('action.search')}`"
+          input-styles="flex px-4 py-2 border rounded bg-primaryContrast border-divider hover:border-dividerDark focus-visible:border-dividerDark"
+        />
       </div>
-      <div v-if="filterText" class="flex flex-col divide-y divide-dividerLight">
-        <details
-          v-for="(map, mapIndex) in searchResults"
-          :key="`map-${mapIndex}`"
-          class="flex flex-col"
-          open
-        >
-          <summary
-            class="flex items-center flex-1 min-w-0 px-6 py-4 font-semibold transition cursor-pointer focus:outline-none text-secondaryLight hover:text-secondaryDark"
-          >
-            <icon-lucide-chevron-right class="mr-2 indicator" />
-            <span
-              class="font-semibold truncate capitalize-first text-secondaryDark"
-            >
-              {{ t(map.item.section) }}
-            </span>
-          </summary>
-          <div class="flex flex-col px-6 pb-4 space-y-2">
-            <AppShortcutsEntry
-              v-for="(shortcut, index) in map.item.shortcuts"
-              :key="`shortcut-${index}`"
-              :shortcut="shortcut"
-            />
-          </div>
-        </details>
-
+      <div class="flex flex-col divide-y divide-dividerLight">
         <HoppSmartPlaceholder
-          v-if="searchResults.length === 0"
+          v-if="isEmpty(shortcutsResults)"
           :text="`${t('state.nothing_found')} ‟${filterText}”`"
         >
           <icon-lucide-search class="pb-2 opacity-75 svg-icons" />
-          <span class="my-2 text-center flex flex-col">
-            {{ t("state.nothing_found") }}
-            <span class="break-all">"{{ filterText }}"</span>
-          </span>
         </HoppSmartPlaceholder>
-      </div>
-      <div v-else class="flex flex-col divide-y divide-dividerLight">
+
         <details
-          v-for="(map, mapIndex) in mappings"
-          :key="`map-${mapIndex}`"
+          v-for="(sectionResults, sectionTitle) in shortcutsResults"
+          v-else
+          :key="`section-${sectionTitle}`"
           class="flex flex-col"
           open
         >
@@ -65,13 +34,13 @@
             <span
               class="font-semibold truncate capitalize-first text-secondaryDark"
             >
-              {{ t(map.section) }}
+              {{ sectionTitle }}
             </span>
           </summary>
           <div class="flex flex-col px-6 pb-4 space-y-2">
             <AppShortcutsEntry
-              v-for="(shortcut, shortcutIndex) in map.shortcuts"
-              :key="`map-${mapIndex}-shortcut-${shortcutIndex}`"
+              v-for="(shortcut, index) in sectionResults"
+              :key="`shortcut-${index}`"
               :shortcut="shortcut"
             />
           </div>
@@ -82,10 +51,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue"
-import Fuse from "fuse.js"
-import mappings from "~/helpers/shortcuts"
+import { computed, onBeforeMount, ref } from "vue"
+import { ShortcutDef, getShortcuts } from "~/helpers/shortcuts"
+import MiniSearch from "minisearch"
 import { useI18n } from "@composables/i18n"
+import { groupBy, isEmpty } from "lodash-es"
 
 const t = useI18n()
 
@@ -93,15 +63,33 @@ defineProps<{
   show: boolean
 }>()
 
-const options = {
-  keys: ["shortcuts.label"],
-}
+const minisearch = new MiniSearch({
+  fields: ["label", "keys", "section"],
+  idField: "label",
+  storeFields: ["label", "keys", "section"],
+  searchOptions: {
+    fuzzy: true,
+    prefix: true,
+  },
+})
 
-const fuse = new Fuse(mappings, options)
+const shortcuts = getShortcuts(t)
+
+onBeforeMount(() => {
+  minisearch.addAllAsync(shortcuts)
+})
 
 const filterText = ref("")
 
-const searchResults = computed(() => fuse.search(filterText.value))
+const shortcutsResults = computed(() => {
+  // If there are no search text, return all the shortcuts
+  const results =
+    filterText.value.length > 0
+      ? minisearch.search(filterText.value)
+      : shortcuts
+
+  return groupBy(results, "section") as Record<string, ShortcutDef[]>
+})
 
 const emit = defineEmits<{
   (e: "close"): void

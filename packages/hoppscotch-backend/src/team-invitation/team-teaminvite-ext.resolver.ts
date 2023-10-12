@@ -12,6 +12,6 @@ export class TeamTeamInviteExtResolver {
     complexity: 10,
   })
   teamInvitations(@Parent() team: Team): Promise<TeamInvitation[]> {
-    return this.teamInviteService.getAllInvitationsInTeam(team)();
+    return this.teamInviteService.getTeamInvitations(team.id);
   }
 }

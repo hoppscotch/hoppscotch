@@ -2,21 +2,13 @@
   <HoppSmartModal v-if="show" dialog :title="t('team.edit')" @close="hideModal">
     <template #body>
       <div class="flex flex-col">
-        <div class="relative flex">
-          <input
-            id="selectLabelTeamEdit"
-            v-model="name"
-            v-focus
-            class="input floating-input"
-            placeholder=" "
-            type="text"
-            autocomplete="off"
-            @keyup.enter="saveTeam"
-          />
-          <label for="selectLabelTeamEdit">
-            {{ t("action.label") }}
-          </label>
-        </div>
+        <HoppSmartInput
+          v-model="editingName"
+          placeholder=" "
+          :label="t('action.label')"
+          input-styles="floating-input"
+          @submit="saveTeam"
+        />
         <div class="flex items-center justify-between flex-1 pt-4">
           <label for="memberList" class="p-4">
             {{ t("team.members") }}
@@ -185,7 +177,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, toRef, watch } from "vue"
+import { computed, ref, watch } from "vue"
 import * as E from "fp-ts/Either"
 import {
   GetTeamDocument,
@@ -236,12 +228,12 @@ const props = defineProps<{
 
 const toast = useToast()
 
-const name = toRef(props.editingTeam, "name")
+const editingName = ref(props.editingTeam.name)
 
 watch(
   () => props.editingTeam.name,
   (newName: string) => {
-    name.value = newName
+    editingName.value = newName
   }
 )
 
@@ -389,11 +381,11 @@ const isLoading = ref(false)
 
 const saveTeam = async () => {
   isLoading.value = true
-  if (name.value !== "") {
-    if (TeamNameCodec.is(name.value)) {
+  if (editingName.value !== "") {
+    if (TeamNameCodec.is(editingName.value)) {
       const updateTeamNameResult = await renameTeam(
         props.editingTeamID,
-        name.value
+        editingName.value
       )()
       if (E.isLeft(updateTeamNameResult)) {
         toast.error(`${t("error.something_went_wrong")}`)

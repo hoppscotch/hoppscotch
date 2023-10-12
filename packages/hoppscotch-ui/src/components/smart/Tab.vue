@@ -52,6 +52,7 @@ const {
   addTabEntry,
   updateTabEntry,
   removeTabEntry,
+  isUnmounting,
 } = inject<TabProvider>("tabs-system")!
 
 const active = computed(() => activeTabID.value === props.id)
@@ -73,6 +74,7 @@ watch(tabMeta, (newMeta) => {
 })
 
 onBeforeUnmount(() => {
+  if (isUnmounting.value) return
   removeTabEntry(props.id)
 })
 </script>

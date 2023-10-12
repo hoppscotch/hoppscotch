@@ -205,3 +205,9 @@ const prettifyXML = (xml: string) => {
   })
 }
 </script>
+
+<style lang="scss" scoped>
+:deep(.cm-panels) {
+  @apply top-upperFourthStickyFold #{!important};
+}
+</style>

@@ -31,43 +31,54 @@
           v-if="team !== undefined && team.myRole === 'VIEWER'"
           v-tippy="{ theme: 'tooltip' }"
           disabled
-          :icon="IconArchive"
+          :icon="IconImport"
           :title="t('modal.import_export')"
         />
         <HoppButtonSecondary
           v-else
           v-tippy="{ theme: 'tooltip' }"
-          :icon="IconArchive"
+          :icon="IconImport"
           :title="t('modal.import_export')"
           @click="displayModalImportExport(true)"
         />
       </div>
     </div>
-    <HoppSmartPlaceholder
-      v-if="!loading && teamEnvironments.length === 0 && !adapterError"
-      :src="`/images/states/${colorMode.value}/blockchain.svg`"
-      :alt="`${t('empty.environments')}`"
-      :text="t('empty.environments')"
+    <div
+      v-if="!loading && !teamEnvironments.length && !adapterError"
+      class="p-5 space-y-25 flex flex-col"
     >
-      <HoppButtonSecondary
-        v-if="team === undefined || team.myRole === 'VIEWER'"
-        v-tippy="{ theme: 'tooltip' }"
-        disabled
-        filled
-        class="mb-4"
-        :icon="IconPlus"
-        :title="t('team.no_access')"
-        :label="t('action.new')"
+      <div class="flex flex-col items-center space-y-4">
+        <span class="text-secondaryLight text-center">
+          {{ t("environment.import_or_create") }}
+        </span>
+        <div class="flex gap-4 flex-col items-center">
+          <HoppButtonPrimary
+            :icon="IconImport"
+            :label="t('import.title')"
+            filled
+            outline
+            :title="isTeamViewer ? t('team.no_access') : ''"
+            :disabled="isTeamViewer"
+            @click="isTeamViewer ? null : displayModalImportExport(true)"
+          />
+          <HoppButtonSecondary
+            :label="`${t('add.new')}`"
+            filled
+            outline
+            :icon="IconPlus"
+            :title="isTeamViewer ? t('team.no_access') : ''"
+            :disabled="isTeamViewer"
+            @click="isTeamViewer ? null : displayModalAdd(true)"
+          />
+        </div>
+      </div>
+      <HoppSmartPlaceholder
+        :src="`/images/states/${colorMode.value}/blockchain.svg`"
+        :alt="`${t('empty.environments')}`"
+        :text="t('empty.environments')"
       />
-      <HoppButtonSecondary
-        v-else
-        :label="`${t('add.new')}`"
-        filled
-        outline
-        class="mb-4"
-        @click="displayModalAdd(true)"
-      />
-    </HoppSmartPlaceholder>
+    </div>
+
     <div v-else-if="!loading">
       <EnvironmentsTeamsEnvironment
         v-for="(environment, index) in JSON.parse(
@@ -110,14 +121,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue"
+import { computed, ref } from "vue"
 import { GQLError } from "~/helpers/backend/GQLClient"
 import { TeamEnvironment } from "~/helpers/teams/TeamEnvironment"
 import { useI18n } from "~/composables/i18n"
 import { useColorMode } from "~/composables/theming"
 import IconPlus from "~icons/lucide/plus"
-import IconArchive from "~icons/lucide/archive"
 import IconHelpCircle from "~icons/lucide/help-circle"
+import IconImport from "~icons/lucide/folder-down"
 import { defineActionHandler } from "~/helpers/actions"
 import { GetMyTeamsQuery } from "~/helpers/backend/graphql"
 
@@ -139,6 +150,8 @@ const showModalDetails = ref(false)
 const action = ref<"new" | "edit">("edit")
 const editingEnvironment = ref<TeamEnvironment | null>(null)
 const editingVariableName = ref("")
+
+const isTeamViewer = computed(() => props.team?.myRole === "VIEWER")
 
 const displayModalAdd = (shouldDisplay: boolean) => {
   action.value = "new"
@@ -178,7 +191,7 @@ const getErrorMessage = (err: GQLError<string>) => {
 defineActionHandler(
   "modals.team.environment.edit",
   ({ envName, variableName }) => {
-    editingVariableName.value = variableName
+    if (variableName) editingVariableName.value = variableName
     const teamEnvToEdit = props.teamEnvironments.find(
       (environment) => environment.environment.name === envName
     )

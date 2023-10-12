@@ -57,7 +57,7 @@ const emit = defineEmits<{
       @apply font-icon;
       @apply mr-2;
       @apply transition;
-      @apply content-["\e876"];
+      @apply content-["\e5ca"];
     }
   }
 

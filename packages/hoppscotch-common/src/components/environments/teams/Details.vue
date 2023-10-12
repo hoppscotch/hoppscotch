@@ -7,23 +7,15 @@
   >
     <template #body>
       <div class="flex flex-col px-2">
-        <div class="relative flex">
-          <input
-            id="selectLabelEnvEdit"
-            v-model="name"
-            v-focus
-            class="input floating-input"
-            :class="isViewer && 'opacity-25'"
-            placeholder=""
-            type="text"
-            autocomplete="off"
-            :disabled="isViewer"
-            @keyup.enter="saveEnvironment"
-          />
-          <label for="selectLabelEnvEdit">
-            {{ t("action.label") }}
-          </label>
-        </div>
+        <HoppSmartInput
+          v-model="editingName"
+          placeholder=" "
+          :input-styles="['floating-input', isViewer && 'opacity-25']"
+          :label="t('action.label')"
+          :disabled="isViewer"
+          @submit="saveEnvironment"
+        />
+
         <div class="flex items-center justify-between flex-1">
           <label for="variableList" class="p-4">
             {{ t("environment.variable_list") }}
@@ -94,13 +86,11 @@
               disabled
               :label="`${t('add.new')}`"
               filled
-              class="mb-4"
             />
             <HoppButtonSecondary
               v-else
               :label="`${t('add.new')}`"
               filled
-              class="mb-4"
               @click="addEnvironmentVariable"
             />
           </HoppSmartPlaceholder>
@@ -190,7 +180,7 @@ const emit = defineEmits<{
 
 const idTicker = ref(0)
 
-const name = ref<string | null>(null)
+const editingName = ref<string | null>(null)
 const vars = ref<EnvironmentVariable[]>([
   { id: idTicker.value++, env: { key: "", value: "" } },
 ])
@@ -216,7 +206,9 @@ const liveEnvs = computed(() => {
   if (evnExpandError.value) {
     return []
   } else {
-    return [...vars.value.map((x) => ({ ...x.env, source: name.value! }))]
+    return [
+      ...vars.value.map((x) => ({ ...x.env, source: editingName.value! })),
+    ]
   }
 })
 
@@ -225,7 +217,7 @@ watch(
   (show) => {
     if (show) {
       if (props.action === "new") {
-        name.value = null
+        editingName.value = null
         vars.value = pipe(
           props.envVars() ?? [],
           A.map((e: { key: string; value: string }) => ({
@@ -234,7 +226,7 @@ watch(
           }))
         )
       } else if (props.editingEnvironment !== null) {
-        name.value = props.editingEnvironment.environment.name ?? null
+        editingName.value = props.editingEnvironment.environment.name ?? null
         vars.value = pipe(
           props.editingEnvironment.environment.variables ?? [],
           A.map((e: { key: string; value: string }) => ({
@@ -272,7 +264,7 @@ const isLoading = ref(false)
 const saveEnvironment = async () => {
   isLoading.value = true
 
-  if (!name.value) {
+  if (!editingName.value) {
     toast.error(`${t("environment.invalid_name")}`)
     return
   }
@@ -297,7 +289,7 @@ const saveEnvironment = async () => {
       createTeamEnvironment(
         JSON.stringify(filterdVariables),
         props.editingTeamId,
-        name.value
+        editingName.value
       ),
       TE.match(
         (err: GQLError<string>) => {
@@ -320,7 +312,7 @@ const saveEnvironment = async () => {
       updateTeamEnvironment(
         JSON.stringify(filterdVariables),
         props.editingEnvironment.id,
-        name.value
+        editingName.value
       ),
       TE.match(
         (err: GQLError<string>) => {
@@ -339,7 +331,7 @@ const saveEnvironment = async () => {
 }
 
 const hideModal = () => {
-  name.value = null
+  editingName.value = null
   emit("hide-modal")
 }
 

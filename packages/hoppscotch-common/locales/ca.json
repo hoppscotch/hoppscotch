@@ -5,6 +5,7 @@
     "choose_file": "Triar un fitxer",
     "clear": "Netejar",
     "clear_all": "Neteja-ho tot",
+    "clear_history": "Clear all History",
     "close": "Close",
     "connect": "Connectar",
     "connecting": "Connecting",
@@ -31,6 +32,7 @@
     "paste": "Enganxar",
     "prettify": "Fes-ho bonic",
     "remove": "Eliminar",
+    "rename": "Rename",
     "restore": "Restaurar",
     "save": "Guardar",
     "scroll_to_bottom": "Desplaceu-vos cap avall",
@@ -77,6 +79,8 @@
     "search": "Cercar",
     "share": "Compartir",
     "shortcuts": "Dreceres",
+    "social_description": "Follow us on social media to stay updated with the latest news, updates and releases.",
+    "social_links": "Social links",
     "spotlight": "Destacar",
     "status": "Estat",
     "status_description": "Comproveu l'estat de la web",
@@ -131,12 +135,15 @@
     "renamed": "S'ha canviat el nom de la col·lecció",
     "request_in_use": "Request in use",
     "save_as": "Guardar com",
+    "save_to_collection": "Save to Collection",
     "select": "Seleccionar una col·lecció",
     "select_location": "Seleccionar la ubicació",
     "select_team": "Seleccionar un equip",
     "team_collections": "Col·leccions per equips"
   },
   "confirm": {
+    "close_unsaved_tab": "Are you sure you want to close this tab?",
+    "close_unsaved_tabs": "Are you sure you want to close all tabs? {count} unsaved tabs will be lost.",
     "exit_team": "Està segur que vol deixar aquest equip?",
     "logout": "Està segur que vol tancar la sessió?",
     "remove_collection": "Està segur que vol suprimir permanentment aquesta col·lecció?",
@@ -149,6 +156,11 @@
     "request_change": "Està segur que vol descartar la sol·licitud actual, els canvis no desats es perdran.",
     "save_unsaved_tab": "Do you want to save changes made in this tab?",
     "sync": "Està segur que vol sincronitzar aquest espai de treball?"
+  },
+  "context_menu": {
+    "add_parameters": "Add to parameters",
+    "open_request_in_new_tab": "Open request in new tab",
+    "set_environment_variable": "Set as variable"
   },
   "count": {
     "header": "Capçalera {count}",
@@ -192,17 +204,31 @@
     "create_new": "Crea un entorn nou",
     "created": "Etorn creat",
     "deleted": "Entorn eliminat",
+    "duplicated": "Environment duplicated",
     "edit": "Editar l'entorn",
+    "empty_variables": "No variables",
+    "global": "Global",
+    "global_variables": "Global variables",
     "invalid_name": "Proporcioneu un nom vàlid per a l'entorn",
+    "list": "Environment variables",
     "my_environments": "My Environments",
+    "name": "Name",
     "nested_overflow": "Les variables d'entorn niuades estan limitades a 10 nivells",
     "new": "Nou entorn",
+    "no_active_environment": "No active environment",
     "no_environment": "Sense entorn",
     "no_environment_description": "No s'ha seleccionat cap entorn. Trieu què voleu fer amb les variables següents.",
+    "quick_peek": "Environment Quick Peek",
+    "replace_with_variable": "Replace with variable",
+    "scope": "Scope",
     "select": "Seleccioneu un entorn",
+    "set": "Set environment",
+    "set_as_environment": "Set as environment",
     "team_environments": "Team Environments",
     "title": "Entorns",
     "updated": "Entorn actualitzat",
+    "value": "Value",
+    "variable": "Variable",
     "variable_list": "Llista de variables"
   },
   "error": {
@@ -226,6 +252,7 @@
     "no_duration": "Sense durada",
     "no_results_found": "No s'ha trobat cap coincidència",
     "page_not_found": "This page could not be found",
+    "proxy_error": "Proxy error",
     "script_fail": "No s'ha pogut executar l'script de sol·licitud prèvia",
     "something_went_wrong": "Alguna cosa ha anat malament",
     "test_script_fail": "No s'ha pogut executar l'script posterior a la sol·licitud"
@@ -251,9 +278,13 @@
     "renamed": "S'ha canviat el nom de la carpeta"
   },
   "graphql": {
+    "connection_switch_confirm": "Do you want to connect with the latest GraphQL endpoint?",
+    "connection_switch_new_url": "Switching to a tab will disconnected you from the active GraphQL connection. New connection URL is",
+    "connection_switch_url": "You're connected to a GraphQL endpoint the connection URL is",
     "mutations": "Mutacions",
     "schema": "Esquema",
-    "subscriptions": "Subscripcions"
+    "subscriptions": "Subscripcions",
+    "switch_connection": "Switch connection"
   },
   "group": {
     "time": "Time",
@@ -307,13 +338,36 @@
     "json_description": "Importar col·leccions des d'un fitxer JSON de col·leccions Hoppscotch",
     "title": "Importació"
   },
+  "inspections": {
+    "description": "Inspect possible errors",
+    "environment": {
+      "add_environment": "Add to Environment",
+      "not_found": "Environment variable “{environment}” not found."
+    },
+    "header": {
+      "cookie": "The browser doesn't allow Hoppscotch to set the Cookie Header. While we're working on the Hoppscotch Desktop App (coming soon), please use the Authorization Header instead."
+    },
+    "response": {
+      "401_error": "Please check your authentication credentials.",
+      "404_error": "Please check your request URL and method type.",
+      "cors_error": "Please check your Cross-Origin Resource Sharing configuration.",
+      "default_error": "Please check your request.",
+      "network_error": "Please check your network connection."
+    },
+    "title": "Inspector",
+    "url": {
+      "extension_not_installed": "Extension not installed.",
+      "extension_unknown_origin": "Make sure you've added the API endpoint's origin to the Hoppscotch Browser Extension list.",
+      "extention_enable_action": "Enable Browser Extension",
+      "extention_not_enabled": "Extension not enabled."
+    }
+  },
   "layout": {
     "collapse_collection": "Amagar o Ampliar Col·leccions",
     "collapse_sidebar": "Amagar o Ampliar la barra lateral",
     "column": "Distribució vertical",
     "name": "Distribució",
-    "row": "Distribució horitzontal",
-    "zen_mode": "Mode Zen"
+    "row": "Distribució horitzontal"
   },
   "modal": {
     "close_unsaved_tab": "You have unsaved changes",
@@ -418,6 +472,7 @@
     "payload": "Payload",
     "query": "Consulta",
     "raw_body": "Cos de sol·licitud sense processar",
+    "rename": "Rename Request",
     "renamed": "S'ha canviat el nom de la sol·licitud",
     "run": "Executar",
     "save": "Guardar",
@@ -425,6 +480,7 @@
     "saved": "S'ha desat la sol·licitud",
     "share": "Compartir",
     "share_description": "Comparteix Hoppscotch amb els teus amics",
+    "stop": "Stop",
     "title": "Sol·licitud",
     "type": "Tipus de sol·licitud",
     "url": "URL",
@@ -459,7 +515,6 @@
     "account_name_description": "Aquest és el vostre nom d'exposició",
     "background": "Fons",
     "black_mode": "Negre",
-    "change_font_size": "Canvia la mida de la lletra",
     "choose_language": "Tria l'idioma",
     "dark_mode": "Fosc",
     "delete_account": "Delete account",
@@ -472,10 +527,6 @@
     "extensions": "Extensions",
     "extensions_use_toggle": "Utilitzeu l'extensió del navegador per enviar sol·licituds (si n'hi ha)",
     "follow": "Segueix-nos",
-    "font_size": "Mida de la font",
-    "font_size_large": "Gran",
-    "font_size_medium": "Mitjà",
-    "font_size_small": "Petit",
     "interceptor": "Interceptor",
     "interceptor_description": "Middleware entre aplicació i APIs.",
     "language": "Llenguatge",
@@ -540,19 +591,27 @@
       "settings": "Anar a la pàgina de Configuració",
       "title": "Navegació"
     },
+    "others": {
+      "prettify": "Prettify Editor's Content",
+      "title": "Others"
+    },
     "request": {
       "copy_request_link": "Copiar l'enllaç de la sol·licitud",
       "delete_method": "Seleccionar el mètode DELETE",
       "get_method": "Seleccionar el mètode GET",
       "head_method": "Seleccionar el mètode HEAD",
+      "import_curl": "Import cURL",
       "method": "Mètode",
       "next_method": "Seleccionar mètode Següent",
       "post_method": "Seleccionar mètode POST",
       "previous_method": "Seleccionar mètode Anterior",
       "put_method": "Seleccionar mètode PUT",
+      "rename": "Rename Request",
       "reset_request": "Sol·licitud de restabliment",
+      "save_request": "Save Request",
       "save_to_collections": "Guardar a les col·leccions",
       "send_request": "Enviar sol.licitud",
+      "show_code": "Generate code snippet",
       "title": "Sol·licitud"
     },
     "response": {
@@ -581,6 +640,85 @@
     "events": "Esdeveniments",
     "log": "Registre",
     "url": "URL"
+  },
+  "spotlight": {
+    "change_language": "Change Language",
+    "environments": {
+      "delete": "Delete current environment",
+      "duplicate": "Duplicate current environment",
+      "duplicate_global": "Duplicate global environment",
+      "edit": "Edit current environment",
+      "edit_global": "Edit global environment",
+      "new": "Create new environment",
+      "new_variable": "Create a new environment variable",
+      "title": "Environments"
+    },
+    "general": {
+      "chat": "Chat with support",
+      "help_menu": "Help and support",
+      "open_docs": "Read Documentation",
+      "open_github": "Open GitHub repository",
+      "open_keybindings": "Keyboard shortcuts",
+      "social": "Social",
+      "title": "General"
+    },
+    "graphql": {
+      "connect": "Connect to server",
+      "disconnect": "Disconnect from server"
+    },
+    "miscellaneous": {
+      "invite": "Invite your friends to Hoppscotch",
+      "title": "Miscellaneous"
+    },
+    "request": {
+      "save_as_new": "Save as new request",
+      "select_method": "Select method",
+      "switch_to": "Switch to",
+      "tab_authorization": "Authorization tab",
+      "tab_body": "Body tab",
+      "tab_headers": "Headers tab",
+      "tab_parameters": "Parameters tab",
+      "tab_pre_request_script": "Pre-request script tab",
+      "tab_query": "Query tab",
+      "tab_tests": "Tests tab",
+      "tab_variables": "Variables tab"
+    },
+    "response": {
+      "copy": "Copy response",
+      "download": "Download response as file",
+      "title": "Response"
+    },
+    "section": {
+      "interceptor": "Interceptor",
+      "interface": "Interface",
+      "theme": "Theme",
+      "user": "User"
+    },
+    "settings": {
+      "change_interceptor": "Change Interceptor",
+      "change_language": "Change Language",
+      "theme": {
+        "black": "Black",
+        "dark": "Dark",
+        "light": "Light",
+        "system": "System preference"
+      }
+    },
+    "tab": {
+      "close_current": "Close current tab",
+      "close_others": "Close all other tabs",
+      "duplicate": "Duplicate current tab",
+      "new_tab": "Open a new tab",
+      "title": "Tabs"
+    },
+    "workspace": {
+      "delete": "Delete current team",
+      "edit": "Edit current team",
+      "invite": "Invite people to team",
+      "new": "Create new team",
+      "switch_to_personal": "Switch to your personal workspace",
+      "title": "Teams"
+    }
   },
   "sse": {
     "event_type": "Tipus d'esdeveniment",
@@ -639,8 +777,11 @@
   "tab": {
     "authorization": "Autorització",
     "body": "Cos",
+    "close": "Close Tab",
+    "close_others": "Close other Tabs",
     "collections": "Col·leccions",
     "documentation": "Documentació",
+    "duplicate": "Duplicate Tab",
     "environments": "Environments",
     "headers": "Capçaleres",
     "history": "Historial",

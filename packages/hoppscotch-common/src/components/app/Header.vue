@@ -15,16 +15,21 @@
           :label="t('app.name')"
           to="/"
         />
-        <!-- <AppGitHubStarButton class="mt-1.5 transition" /> -->
       </div>
-      <div class="inline-flex items-center space-x-2">
-        <HoppButtonSecondary
-          v-tippy="{ theme: 'tooltip', allowHTML: true }"
-          :title="`${t('app.search')} <kbd>/</kbd>`"
-          :icon="IconSearch"
-          class="rounded hover:bg-primaryDark focus-visible:bg-primaryDark"
+      <div class="inline-flex items-center justify-center flex-1 space-x-2">
+        <button
+          class="flex flex-1 items-center justify-between px-2 py-1 self-stretch bg-primaryDark transition text-secondaryLight cursor-text rounded border border-dividerDark max-w-60 hover:border-dividerDark hover:bg-primaryLight hover:text-secondary focus-visible:border-dividerDark focus-visible:bg-primaryLight focus-visible:text-secondary"
           @click="invokeAction('modals.search.toggle')"
-        />
+        >
+          <span class="inline-flex flex-1 items-center">
+            <icon-lucide-search class="mr-2 svg-icons" />
+            {{ t("app.search") }}
+          </span>
+          <span class="flex space-x-1">
+            <kbd class="shortcut-key">{{ getPlatformSpecialKey() }}</kbd>
+            <kbd class="shortcut-key">K</kbd>
+          </span>
+        </button>
         <HoppButtonSecondary
           v-if="showInstallButton"
           v-tippy="{ theme: 'tooltip' }"
@@ -42,6 +47,8 @@
           class="rounded hover:bg-primaryDark focus-visible:bg-primaryDark"
           @click="invokeAction('modals.support.toggle')"
         />
+      </div>
+      <div class="inline-flex items-center justify-end flex-1 space-x-2">
         <div
           v-if="currentUser === null"
           class="inline-flex items-center space-x-2"
@@ -224,31 +231,42 @@
       @invite-team="inviteTeam(editingTeamName, editingTeamID)"
       @refetch-teams="refetchTeams"
     />
+
+    <HoppSmartConfirmModal
+      :show="confirmRemove"
+      :title="t('confirm.remove_team')"
+      @hide-modal="confirmRemove = false"
+      @resolve="deleteTeam"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref, watch } from "vue"
-import IconUser from "~icons/lucide/user"
-import IconUsers from "~icons/lucide/users"
-import IconSettings from "~icons/lucide/settings"
-import IconDownload from "~icons/lucide/download"
-import IconUploadCloud from "~icons/lucide/upload-cloud"
-import IconUserPlus from "~icons/lucide/user-plus"
-import IconLifeBuoy from "~icons/lucide/life-buoy"
-import IconSearch from "~icons/lucide/search"
-import { breakpointsTailwind, useBreakpoints, useNetwork } from "@vueuse/core"
-import { pwaDefferedPrompt, installPWA } from "@modules/pwa"
-import { platform } from "~/platform"
 import { useI18n } from "@composables/i18n"
 import { useReadonlyStream } from "@composables/stream"
-import { invokeAction } from "@helpers/actions"
-import { workspaceStatus$, updateWorkspaceTeamName } from "~/newstore/workspace"
-import TeamListAdapter from "~/helpers/teams/TeamListAdapter"
-import { onLoggedIn } from "~/composables/auth"
-import { GetMyTeamsQuery } from "~/helpers/backend/graphql"
+import { defineActionHandler, invokeAction } from "@helpers/actions"
+import { WorkspaceService } from "~/services/workspace.service"
+import { useService } from "dioc/vue"
+import { installPWA, pwaDefferedPrompt } from "@modules/pwa"
+import { breakpointsTailwind, useBreakpoints, useNetwork } from "@vueuse/core"
+import { computed, reactive, ref, watch } from "vue"
+import { useToast } from "~/composables/toast"
+import { GetMyTeamsQuery, TeamMemberRole } from "~/helpers/backend/graphql"
+import { getPlatformSpecialKey } from "~/helpers/platformutils"
+import { platform } from "~/platform"
+import IconDownload from "~icons/lucide/download"
+import IconLifeBuoy from "~icons/lucide/life-buoy"
+import IconSettings from "~icons/lucide/settings"
+import IconUploadCloud from "~icons/lucide/upload-cloud"
+import IconUser from "~icons/lucide/user"
+import IconUserPlus from "~icons/lucide/user-plus"
+import IconUsers from "~icons/lucide/users"
+import { pipe } from "fp-ts/function"
+import * as TE from "fp-ts/TaskEither"
+import { deleteTeam as backendDeleteTeam } from "~/helpers/backend/mutations/Team"
 
 const t = useI18n()
+const toast = useToast()
 
 /**
  * Once the PWA code is initialized, this holds a method
@@ -270,13 +288,17 @@ const currentUser = useReadonlyStream(
   platform.auth.getProbableUser()
 )
 
+const confirmRemove = ref(false)
+const teamID = ref<string | null>(null)
+
 const selectedTeam = ref<GetMyTeamsQuery["myTeams"][number] | undefined>()
 
 // TeamList-Adapter
-const teamListAdapter = new TeamListAdapter(true)
+const workspaceService = useService(WorkspaceService)
+const teamListAdapter = workspaceService.acquireTeamListAdapter(null)
 const myTeams = useReadonlyStream(teamListAdapter.teamList$, null)
 
-const workspace = useReadonlyStream(workspaceStatus$, { type: "personal" })
+const workspace = workspaceService.currentWorkspace
 
 const workspaceName = computed(() =>
   workspace.value.type === "personal"
@@ -288,20 +310,18 @@ const refetchTeams = () => {
   teamListAdapter.fetchList()
 }
 
-onLoggedIn(() => {
-  !teamListAdapter.isInitialized && teamListAdapter.initialize()
-})
-
 watch(
   () => myTeams.value,
   (newTeams) => {
-    if (newTeams && workspace.value.type === "team" && workspace.value.teamID) {
-      const team = newTeams.find((team) => team.id === workspace.value.teamID)
+    const space = workspace.value
+
+    if (newTeams && space.type === "team" && space.teamID) {
+      const team = newTeams.find((team) => team.id === space.teamID)
       if (team) {
         selectedTeam.value = team
         // Update the workspace name if it's not the same as the updated team name
-        if (team.name !== workspace.value.teamName) {
-          updateWorkspaceTeamName(workspace.value, team.name)
+        if (team.name !== space.teamName) {
+          workspaceService.updateWorkspaceTeamName(team.name)
         }
       }
     }
@@ -365,7 +385,27 @@ const handleTeamEdit = () => {
     editingTeamID.value = workspace.value.teamID
     editingTeamName.value = { name: selectedTeam.value.name }
     displayModalEdit(true)
+  } else {
+    noPermission()
   }
+}
+
+const deleteTeam = () => {
+  if (!teamID.value) return
+  pipe(
+    backendDeleteTeam(teamID.value),
+    TE.match(
+      (err) => {
+        // TODO: Better errors ? We know the possible errors now
+        toast.error(`${t("error.something_went_wrong")}`)
+        console.error(err)
+      },
+      () => {
+        invokeAction("workspace.switch.personal")
+        toast.success(`${t("team.deleted")}`)
+      }
+    )
+  )() // Tasks (and TEs) are lazy, so call the function returned
 }
 
 // Template refs
@@ -374,4 +414,35 @@ const profile = ref<any | null>(null)
 const settings = ref<any | null>(null)
 const logout = ref<any | null>(null)
 const accountActions = ref<any | null>(null)
+
+defineActionHandler("modals.team.edit", handleTeamEdit)
+
+defineActionHandler("modals.team.invite", () => {
+  if (
+    selectedTeam.value?.myRole === "OWNER" ||
+    selectedTeam.value?.myRole === "EDITOR"
+  ) {
+    inviteTeam({ name: selectedTeam.value.name }, selectedTeam.value.id)
+  } else {
+    noPermission()
+  }
+})
+
+defineActionHandler(
+  "user.login",
+  () => {
+    invokeAction("modals.login.toggle")
+  },
+  computed(() => !currentUser.value)
+)
+
+defineActionHandler("modals.team.delete", ({ teamId }) => {
+  if (selectedTeam.value?.myRole !== TeamMemberRole.Owner) return noPermission()
+  teamID.value = teamId
+  confirmRemove.value = true
+})
+
+const noPermission = () => {
+  toast.error(`${t("profile.no_permission")}`)
+}
 </script>

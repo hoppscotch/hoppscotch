@@ -427,6 +427,10 @@ export function getCurrentEnvironment(): Environment {
   }
 }
 
+export function getSelectedEnvironmentIndex() {
+  return environmentsStore.value.selectedEnvironmentIndex
+}
+
 export function getSelectedEnvironmentType() {
   return environmentsStore.value.selectedEnvironmentIndex.type
 }

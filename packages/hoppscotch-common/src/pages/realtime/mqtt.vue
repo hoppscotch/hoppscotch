@@ -98,7 +98,7 @@
           :label="tab.name"
           :is-removable="tab.removable"
         >
-          <template #icon>
+          <template #prefix>
             <icon-lucide-rss
               :style="{
                 color: tab.color,
@@ -108,7 +108,7 @@
           </template>
           <RealtimeLog
             :title="t('mqtt.log')"
-            :log="((tab.id === 'all' ? logs : tab.logs) as LogEntryData[])"
+            :log="(tab.id === 'all' ? logs : tab.logs) as LogEntryData[]"
             @delete="clearLogEntries()"
           />
         </HoppSmartWindow>

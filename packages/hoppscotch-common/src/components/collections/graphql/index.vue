@@ -11,7 +11,7 @@
         type="search"
         autocomplete="off"
         :placeholder="t('action.search')"
-        class="py-2 pl-4 pr-2 bg-transparent"
+        class="py-2 pl-4 pr-2 bg-transparent !border-0"
       />
       <div
         class="flex justify-between flex-1 flex-shrink-0 border-y bg-primary border-dividerLight"
@@ -137,7 +137,6 @@ import {
   addGraphqlFolder,
   saveGraphqlRequestAs,
 } from "~/newstore/collections"
-import { getGQLSession, setGQLSession } from "~/newstore/GQLSession"
 
 import IconPlus from "~icons/lucide/plus"
 import IconHelpCircle from "~icons/lucide/help-circle"
@@ -146,6 +145,8 @@ import { useI18n } from "@composables/i18n"
 import { useReadonlyStream } from "@composables/stream"
 import { useColorMode } from "@composables/theming"
 import { platform } from "~/platform"
+import { useService } from "dioc/vue"
+import { GQLTabService } from "~/services/tab/graphql"
 
 export default defineComponent({
   props: {
@@ -158,11 +159,13 @@ export default defineComponent({
     const collections = useReadonlyStream(graphqlCollections$, [], "deep")
     const colorMode = useColorMode()
     const t = useI18n()
+    const tabs = useService(GQLTabService)
 
     return {
       collections,
       colorMode,
       t,
+      tabs,
       IconPlus,
       IconHelpCircle,
       IconArchive,
@@ -265,17 +268,22 @@ export default defineComponent({
       this.$data.editingCollectionIndex = collectionIndex
       this.displayModalEdit(true)
     },
-    onAddRequest({ name, path }) {
+    onAddRequest({ name, path, index }) {
       const newRequest = {
-        ...getGQLSession().request,
+        ...this.tabs.currentActiveTab.value.document.request,
         name,
       }
 
       saveGraphqlRequestAs(path, newRequest)
-      setGQLSession({
+
+      this.tabs.createNewTab({
+        saveContext: {
+          originLocation: "user-collection",
+          folderPath: path,
+          requestIndex: index,
+        },
         request: newRequest,
-        schema: "",
-        response: "",
+        isDirty: false,
       })
 
       platform.analytics?.logEvent({

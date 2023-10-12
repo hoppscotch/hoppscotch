@@ -5,6 +5,7 @@
     "choose_file": "選擇一個檔案",
     "clear": "清除",
     "clear_all": "全部清除",
+    "clear_history": "清除所有歷史記錄",
     "close": "關閉",
     "connect": "連線",
     "connecting": "正在連接",
@@ -19,7 +20,7 @@
     "edit": "編輯",
     "filter": "篩選回應",
     "go_back": "返回",
-    "go_forward": "Go forward",
+    "go_forward": "向前",
     "group_by": "分組方式",
     "label": "標籤",
     "learn_more": "瞭解更多",
@@ -31,6 +32,7 @@
     "paste": "貼上",
     "prettify": "美化",
     "remove": "移除",
+    "rename": "Rename",
     "restore": "還原",
     "save": "儲存",
     "scroll_to_bottom": "捲動至底部",
@@ -77,6 +79,8 @@
     "search": "搜尋",
     "share": "分享",
     "shortcuts": "快捷方式",
+    "social_description": "在社交媒體上追蹤我們即可在第一時間得知新聞、更新、以及新版本的消息。",
+    "social_links": "社群連結",
     "spotlight": "聚光燈",
     "status": "狀態",
     "status_description": "檢查網站狀態",
@@ -117,38 +121,46 @@
     "username": "使用者名稱"
   },
   "collection": {
-    "created": "組合已建立",
-    "different_parent": "Cannot reorder collection with different parent",
-    "edit": "編輯組合",
-    "invalid_name": "請提供有效的組合名稱",
-    "invalid_root_move": "Collection already in the root",
-    "moved": "Moved Successfully",
-    "my_collections": "我的組合",
-    "name": "我的新組合",
-    "name_length_insufficient": "組合名稱至少要有 3 個字元。",
-    "new": "建立組合",
-    "order_changed": "Collection Order Updated",
-    "renamed": "組合已重新命名",
+    "created": "集合已建立",
+    "different_parent": "無法為父集合不同的集合重新排序",
+    "edit": "編輯集合",
+    "invalid_name": "請提供有效的集合名稱",
+    "invalid_root_move": "集合已在根目錄",
+    "moved": "移動成功",
+    "my_collections": "我的集合",
+    "name": "我的新集合",
+    "name_length_insufficient": "集合名稱至少要有 3 個字元。",
+    "new": "建立集合",
+    "order_changed": "集合順序已更新",
+    "renamed": "集合已重新命名",
     "request_in_use": "請求正在使用中",
     "save_as": "另存為",
-    "select": "選擇一個組合",
+    "save_to_collection": "儲存到集合",
+    "select": "選擇一個集合",
     "select_location": "選擇位置",
     "select_team": "選擇一個團隊",
-    "team_collections": "團隊組合"
+    "team_collections": "團隊集合"
   },
   "confirm": {
+    "close_unsaved_tab": "您確定要關閉此分頁嗎？",
+    "close_unsaved_tabs": "您確定要關閉所有分頁嗎？{count} 個未儲存的分頁將會遺失。",
     "exit_team": "您確定要離開此團隊嗎？",
     "logout": "您確定要登出嗎？",
-    "remove_collection": "您確定要永久刪除該組合嗎？",
+    "remove_collection": "您確定要永久刪除該集合嗎？",
     "remove_environment": "您確定要永久刪除該環境嗎？",
     "remove_folder": "您確定要永久刪除該資料夾嗎？",
     "remove_history": "您確定要永久刪除全部歷史記錄嗎？",
     "remove_request": "您確定要永久刪除該請求嗎？",
     "remove_team": "您確定要刪除該團隊嗎？",
     "remove_telemetry": "您確定要退出遙測服務嗎？",
-    "request_change": "您確定要捨棄當前請求嗎？未儲存的變更將遺失。",
-    "save_unsaved_tab": "Do you want to save changes made in this tab?",
+    "request_change": "您確定要捨棄目前的請求嗎？未儲存的變更將遺失。",
+    "save_unsaved_tab": "您要儲存在此分頁做出的改動嗎？",
     "sync": "您想從雲端恢復您的工作區嗎？這將丟棄您的本地進度。"
+  },
+  "context_menu": {
+    "add_parameters": "新增至參數",
+    "open_request_in_new_tab": "在新分頁開啟請求",
+    "set_environment_variable": "設為變數"
   },
   "count": {
     "header": "請求標頭 {count}",
@@ -160,13 +172,13 @@
   },
   "documentation": {
     "generate": "產生文件",
-    "generate_message": "匯入 Hoppscotch 組合以隨時隨地產生 API 文件。"
+    "generate_message": "匯入 Hoppscotch 集合以隨時隨地產生 API 文件。"
   },
   "empty": {
     "authorization": "該請求沒有使用任何授權",
     "body": "該請求沒有任何請求主體",
-    "collection": "組合為空",
-    "collections": "組合為空",
+    "collection": "集合為空",
+    "collections": "集合為空",
     "documentation": "連線到 GraphQL 端點以檢視文件",
     "endpoint": "端點不能留空",
     "environments": "環境為空",
@@ -192,24 +204,38 @@
     "create_new": "建立新環境",
     "created": "已建立環境",
     "deleted": "刪除環境",
+    "duplicated": "已複製環境",
     "edit": "編輯環境",
+    "empty_variables": "無變數",
+    "global": "全域",
+    "global_variables": "全域變數",
     "invalid_name": "請提供有效的環境名稱",
+    "list": "環境變數",
     "my_environments": "我的環境",
+    "name": "名稱",
     "nested_overflow": "巢狀環境變數不得大於 10 層",
     "new": "建立環境",
+    "no_active_environment": "無使用中的環境",
     "no_environment": "無環境",
     "no_environment_description": "未選取任何環境。請選擇要對以下變數進行的動作。",
+    "quick_peek": "快速預覽環境",
+    "replace_with_variable": "以變數替代",
+    "scope": "範圍",
     "select": "選擇環境",
+    "set": "設定環境",
+    "set_as_environment": "設為環境",
     "team_environments": "團隊環境",
     "title": "環境",
     "updated": "更新環境",
+    "value": "數值",
+    "variable": "變數",
     "variable_list": "變數列表"
   },
   "error": {
     "browser_support_sse": "此瀏覽器似乎不支援 SSE。",
     "check_console_details": "檢查控制台日誌以獲悉詳情",
     "curl_invalid_format": "cURL 格式不正確",
-    "danger_zone": "Danger zone",
+    "danger_zone": "危險地帶",
     "delete_account": "您的帳號目前為這些團隊的擁有者：",
     "delete_account_description": "您在刪除帳號前必須先將您自己從團隊中移除、轉移擁有權，或是刪除團隊。",
     "empty_req_name": "空請求名稱",
@@ -226,6 +252,7 @@
     "no_duration": "無持續時間",
     "no_results_found": "找不到結果",
     "page_not_found": "找不到此頁面",
+    "proxy_error": "Proxy 錯誤",
     "script_fail": "無法執行預請求指令碼",
     "something_went_wrong": "發生了一些錯誤",
     "test_script_fail": "無法執行測試指令碼"
@@ -251,9 +278,13 @@
     "renamed": "資料夾已重新命名"
   },
   "graphql": {
+    "connection_switch_confirm": "您要使用最新的 GraphQL 端點連線嗎？",
+    "connection_switch_new_url": "切換至分頁將斷開使用中的 GraphQL 連線。新的連線網址為 ",
+    "connection_switch_url": "您已連接至 GraphQL 端點。連線網址為 ",
     "mutations": "變體",
     "schema": "綱要",
-    "subscriptions": "訂閱"
+    "subscriptions": "訂閱",
+    "switch_connection": "切換連線"
   },
   "group": {
     "time": "時間",
@@ -277,47 +308,70 @@
     "tests": "編寫測試指令碼以自動除錯。"
   },
   "hide": {
-    "collection": "隱藏組合面板",
+    "collection": "隱藏集合面板",
     "more": "隱藏更多",
     "preview": "隱藏預覽",
     "sidebar": "隱藏側邊欄"
   },
   "import": {
-    "collections": "匯入組合",
+    "collections": "匯入集合",
     "curl": "匯入 cURL",
     "failed": "匯入失敗",
     "from_gist": "從 Gist 匯入",
     "from_gist_description": "從 Gist 網址匯入",
     "from_insomnia": "從 Insomnia 匯入",
-    "from_insomnia_description": "從 Insomnia 組合匯入",
+    "from_insomnia_description": "從 Insomnia 集合匯入",
     "from_json": "從 Hoppscotch 匯入",
-    "from_json_description": "從 Hoppscotch 組合檔匯入",
-    "from_my_collections": "從我的組合匯入",
-    "from_my_collections_description": "從我的組合檔匯入",
+    "from_json_description": "從 Hoppscotch 集合檔匯入",
+    "from_my_collections": "從我的集合匯入",
+    "from_my_collections_description": "從我的集合檔匯入",
     "from_openapi": "從 OpenAPI 匯入",
     "from_openapi_description": "從 OpenAPI 規格檔 (YML/JSON) 匯入",
     "from_postman": "從 Postman 匯入",
-    "from_postman_description": "從 Postman 組合匯入",
+    "from_postman_description": "從 Postman 集合匯入",
     "from_url": "從網址匯入",
     "gist_url": "輸入 Gist 網址",
     "import_from_url_invalid_fetch": "無法從網址取得資料",
-    "import_from_url_invalid_file_format": "匯入組合時發生錯誤",
+    "import_from_url_invalid_file_format": "匯入集合時發生錯誤",
     "import_from_url_invalid_type": "不支援此類型。可接受的值為 'hoppscotch'、'openapi'、'postman'、'insomnia'",
-    "import_from_url_success": "已匯入組合",
-    "json_description": "從 Hoppscotch 組合 JSON 檔匯入組合",
+    "import_from_url_success": "已匯入集合",
+    "json_description": "從 Hoppscotch 集合 JSON 檔匯入集合",
     "title": "匯入"
   },
+  "inspections": {
+    "description": "檢查潛在錯誤",
+    "environment": {
+      "add_environment": "新增至環境",
+      "not_found": "找不到環境變數 “{environment}”。"
+    },
+    "header": {
+      "cookie": "瀏覽器不允許 Hoppscotch 設定 Cookie 標頭。在我們推出 Hoppscotch 桌面版前，請先使用 Authorization 標頭。"
+    },
+    "response": {
+      "401_error": "請檢查您的授權認證。",
+      "404_error": "請檢查您的請求網址和方式類型。",
+      "cors_error": "請檢查您的跨來源資源共用設定。",
+      "default_error": "請檢查您的請求。",
+      "network_error": "請檢查您的網路連線。"
+    },
+    "title": "檢查工具",
+    "url": {
+      "extension_not_installed": "未安裝擴充套件。",
+      "extension_unknown_origin": "請確認您是否已將 API 端點的來源加入 Hoppscotch 擴充套件的清單。",
+      "extention_enable_action": "啟用瀏覽器擴充套件",
+      "extention_not_enabled": "未啟用擴充套件。"
+    }
+  },
   "layout": {
-    "collapse_collection": "隱藏或顯示組合",
+    "collapse_collection": "隱藏或顯示集合",
     "collapse_sidebar": "隱藏或顯示側邊欄",
     "column": "垂直版面",
     "name": "配置",
-    "row": "水平版面",
-    "zen_mode": "專注模式"
+    "row": "水平版面"
   },
   "modal": {
-    "close_unsaved_tab": "You have unsaved changes",
-    "collections": "組合",
+    "close_unsaved_tab": "您有未儲存的改動",
+    "collections": "集合",
     "confirm": "確認",
     "edit_request": "編輯請求",
     "import_export": "匯入／匯出"
@@ -374,9 +428,9 @@
     "email_verification_mail": "已將驗證信寄送至您的電子郵件地址。請點擊信中連結以驗證您的電子郵件地址。",
     "no_permission": "您沒有權限執行此操作。",
     "owner": "擁有者",
-    "owner_description": "擁有者可以新增、編輯和刪除請求、組合和團隊成員。",
+    "owner_description": "擁有者可以新增、編輯和刪除請求、集合和團隊成員。",
     "roles": "角色",
-    "roles_description": "角色用來控制對共用組合的存取權。",
+    "roles_description": "角色用來控制對共用集合的存取權。",
     "updated": "已更新個人檔案",
     "viewer": "檢視者",
     "viewer_description": "檢視者只能檢視和使用請求。"
@@ -396,8 +450,8 @@
       "text": "文字"
     },
     "copy_link": "複製連結",
-    "different_collection": "Cannot reorder requests from different collections",
-    "duplicated": "Request duplicated",
+    "different_collection": "無法重新排列來自不同集合的請求",
+    "duplicated": "已複製請求",
     "duration": "持續時間",
     "enter_curl": "輸入 cURL",
     "generate_code": "產生程式碼",
@@ -405,10 +459,10 @@
     "header_list": "請求標頭列表",
     "invalid_name": "請提供請求名稱",
     "method": "方法",
-    "moved": "Request moved",
+    "moved": "已移動請求",
     "name": "請求名稱",
     "new": "新請求",
-    "order_changed": "Request Order Updated",
+    "order_changed": "已更新請求順序",
     "override": "覆寫",
     "override_help": "在標頭設置 <kbd>Content-Type</kbd>",
     "overriden": "已覆寫",
@@ -418,6 +472,7 @@
     "payload": "負載",
     "query": "查詢",
     "raw_body": "原始請求本體",
+    "rename": "重新命名請求",
     "renamed": "請求已重新命名",
     "run": "執行",
     "save": "儲存",
@@ -425,6 +480,7 @@
     "saved": "請求已儲存",
     "share": "分享",
     "share_description": "與您的朋友分享 Hoppscotch",
+    "stop": "Stop",
     "title": "請求",
     "type": "請求類型",
     "url": "網址",
@@ -432,7 +488,7 @@
     "view_my_links": "檢視我的連結"
   },
   "response": {
-    "audio": "Audio",
+    "audio": "音訊",
     "body": "回應本體",
     "filter_response_body": "篩選 JSON 回應本體 (使用 JSONPath 語法)",
     "headers": "回應標頭",
@@ -446,7 +502,7 @@
     "status": "狀態",
     "time": "時間",
     "title": "回應",
-    "video": "Video",
+    "video": "視訊",
     "waiting_for_connection": "等待連線",
     "xml": "XML"
   },
@@ -454,12 +510,11 @@
     "accent_color": "強調色",
     "account": "帳號",
     "account_deleted": "已刪除您的帳號",
-    "account_description": "自定義您的帳號設定。",
+    "account_description": "自訂您的帳號設定。",
     "account_email_description": "您的主要電子郵件地址。",
     "account_name_description": "這是您的顯示名稱。",
     "background": "背景",
     "black_mode": "黑色",
-    "change_font_size": "更改字型大小",
     "choose_language": "選擇語言",
     "dark_mode": "暗色",
     "delete_account": "刪除帳號",
@@ -472,10 +527,6 @@
     "extensions": "擴充套件",
     "extensions_use_toggle": "使用瀏覽器擴充套件傳送請求（如果存在）",
     "follow": "關注我們",
-    "font_size": "字型大小",
-    "font_size_large": "大",
-    "font_size_medium": "中",
-    "font_size_small": "小",
     "interceptor": "攔截器",
     "interceptor_description": "應用程式和 API 之間的中介軟體。",
     "language": "語言",
@@ -491,18 +542,18 @@
     "read_the": "閱讀",
     "reset_default": "重置為預設",
     "short_codes": "快捷碼",
-    "short_codes_description": "我們為您打造的快捷碼。",
+    "short_codes_description": "您建立的快捷碼。",
     "sidebar_on_left": "左側邊欄",
     "sync": "同步",
-    "sync_collections": "組合",
+    "sync_collections": "集合",
     "sync_description": "這些設定會同步到雲端。",
     "sync_environments": "環境",
     "sync_history": "歷史",
     "system_mode": "系統",
     "telemetry": "遙測服務",
-    "telemetry_helps_us": "遙測服務幫助我們進行個性化操作，為您提供最佳體驗。",
+    "telemetry_helps_us": "遙測服務能夠幫助我們進行個人化操作，為您提供最佳體驗。",
     "theme": "主題",
-    "theme_description": "自定義您的應用程式主題。",
+    "theme_description": "自訂您的應用程式主題。",
     "use_experimental_url_bar": "使用帶有環境醒目標示的實驗性網址欄",
     "user": "使用者",
     "verified_email": "已確認電子郵件地址",
@@ -540,19 +591,27 @@
       "settings": "前往設定頁面",
       "title": "導航"
     },
+    "others": {
+      "prettify": "美化編輯器的內容",
+      "title": "其他"
+    },
     "request": {
       "copy_request_link": "複製請求連結",
       "delete_method": "選擇 DELETE 方法",
       "get_method": "選擇 GET 方法",
       "head_method": "選擇 HEAD 方法",
+      "import_curl": "匯入 cURL",
       "method": "方法",
       "next_method": "選擇下一個方法",
       "post_method": "選擇 POST 方法",
       "previous_method": "選擇上一個方法",
       "put_method": "選擇 PUT 方法",
+      "rename": "重新命名請求",
       "reset_request": "重置請求",
-      "save_to_collections": "儲存到組合",
+      "save_request": "儲存請求",
+      "save_to_collections": "儲存到集合",
       "send_request": "傳送請求",
+      "show_code": "產生程式碼片段",
       "title": "請求"
     },
     "response": {
@@ -570,7 +629,7 @@
   },
   "show": {
     "code": "顯示程式碼",
-    "collection": "顯示組合面板",
+    "collection": "顯示集合面板",
     "more": "顯示更多",
     "sidebar": "顯示側邊欄"
   },
@@ -581,6 +640,85 @@
     "events": "事件",
     "log": "日誌",
     "url": "網址"
+  },
+  "spotlight": {
+    "change_language": "變更語言",
+    "environments": {
+      "delete": "刪除目前環境",
+      "duplicate": "複製目前環境",
+      "duplicate_global": "複製全域環境",
+      "edit": "編輯目前環境",
+      "edit_global": "編輯全域環境",
+      "new": "建立新環境",
+      "new_variable": "建立新環境變數",
+      "title": "環境"
+    },
+    "general": {
+      "chat": "與客服對話",
+      "help_menu": "幫助與支援",
+      "open_docs": "閱讀說明文件",
+      "open_github": "開啟 GitHub 儲存庫",
+      "open_keybindings": "鍵盤快捷鍵",
+      "social": "社交",
+      "title": "一般"
+    },
+    "graphql": {
+      "connect": "連接至伺服器",
+      "disconnect": "斷開與伺服器的連線"
+    },
+    "miscellaneous": {
+      "invite": "邀請您的朋友使用 Hoppscotch",
+      "title": "雜項"
+    },
+    "request": {
+      "save_as_new": "儲存為新請求",
+      "select_method": "選擇方法",
+      "switch_to": "切換至",
+      "tab_authorization": "授權分頁",
+      "tab_body": "本體分頁",
+      "tab_headers": "標頭分頁",
+      "tab_parameters": "參數分頁",
+      "tab_pre_request_script": "預請求腳本分頁",
+      "tab_query": "查詢分頁",
+      "tab_tests": "測試分頁",
+      "tab_variables": "變數分頁"
+    },
+    "response": {
+      "copy": "複製回應",
+      "download": "下載回應",
+      "title": "回應"
+    },
+    "section": {
+      "interceptor": "攔截器",
+      "interface": "介面",
+      "theme": "主題",
+      "user": "使用者"
+    },
+    "settings": {
+      "change_interceptor": "變更攔截器",
+      "change_language": "變更語言",
+      "theme": {
+        "black": "黑色",
+        "dark": "暗色",
+        "light": "亮色",
+        "system": "跟隨系統"
+      }
+    },
+    "tab": {
+      "close_current": "關閉目前分頁",
+      "close_others": "關閉所有其他分頁",
+      "duplicate": "複製目前分頁",
+      "new_tab": "開啟新分頁",
+      "title": "分頁"
+    },
+    "workspace": {
+      "delete": "刪除目前團隊",
+      "edit": "編輯目前團隊",
+      "invite": "邀請他人加入團隊",
+      "new": "建立新團隊",
+      "switch_to_personal": "切換至您的個人工作區",
+      "title": "團隊"
+    }
   },
   "sse": {
     "event_type": "事件類型",
@@ -639,9 +777,12 @@
   "tab": {
     "authorization": "授權",
     "body": "請求本體",
-    "collections": "組合",
+    "close": "關閉分頁",
+    "close_others": "關閉其他分頁",
+    "collections": "集合",
     "documentation": "幫助文件",
-    "environments": "Environments",
+    "duplicate": "複製分頁",
+    "environments": "環境",
     "headers": "請求標頭",
     "history": "歷史記錄",
     "mqtt": "MQTT",
@@ -666,7 +807,7 @@
     "email_do_not_match": "電子信箱與您的帳號資料不一致。請聯絡您的團隊擁有者。",
     "exit": "退出團隊",
     "exit_disabled": "團隊擁有者無法退出團隊",
-    "invalid_coll_id": "Invalid collection ID",
+    "invalid_coll_id": "集合 ID 無效",
     "invalid_email_format": "電子信箱格式無效",
     "invalid_id": "團隊 ID 無效。請聯絡您的團隊擁有者。",
     "invalid_invite_link": "邀請連結無效",
@@ -690,21 +831,21 @@
     "member_removed": "使用者已移除",
     "member_role_updated": "使用者角色已更新",
     "members": "成員",
-    "more_members": "+{count} more",
+    "more_members": "還有 {count} 位",
     "name_length_insufficient": "團隊名稱至少為 6 個字元",
     "name_updated": "團隊名稱已更新",
     "new": "新團隊",
     "new_created": "已建立新團隊",
     "new_name": "我的新團隊",
-    "no_access": "您沒有編輯組合的許可權",
+    "no_access": "您沒有編輯集合的許可權",
     "no_invite_found": "未找到邀請。請聯絡您的團隊擁有者。",
-    "no_request_found": "Request not found.",
+    "no_request_found": "找不到請求。",
     "not_found": "找不到團隊。請聯絡您的團隊擁有者。",
     "not_valid_viewer": "您不是一個有效的檢視者。請聯絡您的團隊擁有者。",
-    "parent_coll_move": "Cannot move collection to a child collection",
+    "parent_coll_move": "無法將集合移動至子集合",
     "pending_invites": "待定邀請",
     "permissions": "許可權",
-    "same_target_destination": "Same target and destination",
+    "same_target_destination": "目標和目的地相同",
     "saved": "團隊已儲存",
     "select_a_team": "選擇團隊",
     "title": "團隊",
@@ -734,9 +875,9 @@
     "url": "網址"
   },
   "workspace": {
-    "change": "Change workspace",
-    "personal": "My Workspace",
-    "team": "Team Workspace",
-    "title": "Workspaces"
+    "change": "切換工作區",
+    "personal": "我的工作區",
+    "team": "團隊工作區",
+    "title": "工作區"
   }
 }

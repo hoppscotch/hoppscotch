@@ -60,7 +60,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, PropType, computed, watch } from "vue"
+import { ref, PropType, computed, watch, Ref } from "vue"
 import IconTrash from "~icons/lucide/trash"
 import IconArrowUp from "~icons/lucide/arrow-up"
 import IconArrowDown from "~icons/lucide/arrow-down"
@@ -73,7 +73,7 @@ export type LogEntryData = {
   ts: number | undefined
   source: "info" | "client" | "server" | "disconnected"
   payload: string
-  event: "connecting" | "connected" | "disconnected" | "error"
+  event?: "connecting" | "connected" | "disconnected" | "error"
 }
 
 const props = defineProps({
@@ -94,7 +94,7 @@ const logs = ref<HTMLElement>()
 
 const autoScrollEnabled = ref(true)
 
-const logListScroll = useScroll(logs)
+const logListScroll = useScroll(logs as Ref<HTMLElement>)
 
 // Disable autoscroll when scrolling to top
 watch(logListScroll.isScrolling, (isScrolling) => {

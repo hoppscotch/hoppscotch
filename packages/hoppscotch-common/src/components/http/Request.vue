@@ -1,6 +1,6 @@
 <template>
   <div
-    class="sticky top-0 z-20 flex-none flex-shrink-0 p-4 overflow-x-auto sm:flex sm:flex-shrink-0 sm:space-x-2 bg-primary"
+    class="sticky top-0 z-20 flex-none flex-shrink-0 p-4 sm:flex sm:flex-shrink-0 sm:space-x-2 bg-primary"
   >
     <div
       class="flex flex-1 border rounded min-w-52 border-divider whitespace-nowrap"
@@ -47,13 +47,15 @@
         </label>
       </div>
       <div
-        class="flex flex-1 overflow-auto transition border-l rounded-r border-divider bg-primaryLight whitespace-nowrap"
+        class="flex flex-1 transition border-l rounded-r border-divider bg-primaryLight whitespace-nowrap"
       >
         <SmartEnvInput
           v-model="tab.document.request.endpoint"
           :placeholder="`${t('request.url')}`"
-          @enter="newSendRequest()"
+          :auto-complete-source="userHistories"
+          :inspection-results="tabResults"
           @paste="onPasteUrl($event)"
+          @enter="newSendRequest"
         />
       </div>
     </div>
@@ -61,7 +63,9 @@
       <HoppButtonPrimary
         id="send"
         v-tippy="{ theme: 'tooltip', delay: [500, 20], allowHTML: true }"
-        :title="`${t('action.send')} <kbd>${getSpecialKey()}</kbd><kbd>↩</kbd>`"
+        :title="`${t(
+          'action.send'
+        )} <kbd>${getSpecialKey()}</kbd><kbd>↩</kbd>`"
         :label="`${!loading ? t('action.send') : t('action.cancel')}`"
         class="flex-1 rounded-r-none min-w-20"
         @click="!loading ? newSendRequest() : cancelRequest()"
@@ -213,6 +217,7 @@
       @hide-modal="showCurlImportModal = false"
     />
     <HttpCodegenModal
+      v-if="showCodegenModal"
       :show="showCodegenModal"
       @hide-modal="showCodegenModal = false"
     />
@@ -220,6 +225,7 @@
       v-if="showSaveRequestModal"
       mode="rest"
       :show="showSaveRequestModal"
+      :request="request"
       @hide-modal="showSaveRequestModal = false"
     />
   </div>
@@ -228,21 +234,16 @@
 <script setup lang="ts">
 import { useI18n } from "@composables/i18n"
 import { useSetting } from "@composables/settings"
-import { useStreamSubscriber } from "@composables/stream"
+import { useReadonlyStream, useStreamSubscriber } from "@composables/stream"
 import { useToast } from "@composables/toast"
 import { refAutoReset, useVModel } from "@vueuse/core"
 import * as E from "fp-ts/Either"
-import { isLeft, isRight } from "fp-ts/lib/Either"
-import { computed, onBeforeUnmount, ref } from "vue"
+import { Ref, computed, onBeforeUnmount, ref } from "vue"
 import { defineActionHandler } from "~/helpers/actions"
 import { runMutation } from "~/helpers/backend/GQLClient"
 import { UpdateRequestDocument } from "~/helpers/backend/graphql"
 import { createShortcode } from "~/helpers/backend/mutations/Shortcode"
 import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
-import {
-  cancelRunningExtensionRequest,
-  hasExtensionInstalled,
-} from "~/helpers/strategies/ExtensionStrategy"
 import { runRESTRequest$ } from "~/helpers/RequestRunner"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
@@ -257,12 +258,19 @@ import IconLink2 from "~icons/lucide/link-2"
 import IconRotateCCW from "~icons/lucide/rotate-ccw"
 import IconSave from "~icons/lucide/save"
 import IconShare2 from "~icons/lucide/share-2"
-import { HoppRESTTab } from "~/helpers/rest/tab"
 import { getDefaultRESTRequest } from "~/helpers/rest/default"
+import { RESTHistoryEntry, restHistory$ } from "~/newstore/history"
 import { platform } from "~/platform"
-import { getCurrentStrategyID } from "~/helpers/network"
+import { HoppGQLRequest, HoppRESTRequest } from "@hoppscotch/data"
+import { useService } from "dioc/vue"
+import { InspectionService } from "~/services/inspection"
+import { InterceptorService } from "~/services/interceptor.service"
+import { HoppTab } from "~/services/tab"
+import { HoppRESTDocument } from "~/helpers/rest/document"
+import { RESTTabService } from "~/services/tab/rest"
 
 const t = useI18n()
+const interceptorService = useService(InterceptorService)
 
 const methods = [
   "GET",
@@ -281,7 +289,7 @@ const toast = useToast()
 
 const { subscribeToStream } = useStreamSubscriber()
 
-const props = defineProps<{ modelValue: HoppRESTTab }>()
+const props = defineProps<{ modelValue: HoppTab<HoppRESTDocument> }>()
 const emit = defineEmits(["update:modelValue"])
 
 const tab = useVModel(props, "modelValue", emit)
@@ -313,6 +321,14 @@ const clearAll = ref<any | null>(null)
 const copyRequestAction = ref<any | null>(null)
 const saveRequestAction = ref<any | null>(null)
 
+const history = useReadonlyStream<RESTHistoryEntry[]>(restHistory$, [])
+
+const requestCancelFunc: Ref<(() => void) | null> = ref(null)
+
+const userHistories = computed(() => {
+  return history.value.map((history) => history.request.endpoint).slice(0, 10)
+})
+
 const newSendRequest = async () => {
   if (newEndpoint.value === "" || /^\s+$/.test(newEndpoint.value)) {
     toast.error(`${t("empty.endpoint")}`)
@@ -327,13 +343,15 @@ const newSendRequest = async () => {
   platform.analytics?.logEvent({
     type: "HOPP_REQUEST_RUN",
     platform: "rest",
-    strategy: getCurrentStrategyID(),
+    strategy: interceptorService.currentInterceptorID.value!,
   })
 
-  // Double calling is because the function returns a TaskEither than should be executed
-  const streamResult = await runRESTRequest$(tab)()
+  const [cancel, streamPromise] = runRESTRequest$(tab)
+  const streamResult = await streamPromise
 
-  if (isRight(streamResult)) {
+  requestCancelFunc.value = cancel
+
+  if (E.isRight(streamResult)) {
     subscribeToStream(
       streamResult.right,
       (responseState) => {
@@ -350,7 +368,7 @@ const newSendRequest = async () => {
         loading.value = false
       }
     )
-  } else if (isLeft(streamResult)) {
+  } else {
     loading.value = false
     toast.error(`${t("error.script_fail")}`)
     let error: Error
@@ -400,9 +418,8 @@ function isCURL(curl: string) {
 
 const cancelRequest = () => {
   loading.value = false
-  if (hasExtensionInstalled()) {
-    cancelRunningExtensionRequest()
-  }
+  requestCancelFunc.value?.()
+
   updateRESTResponse(null)
 }
 
@@ -412,7 +429,7 @@ const updateMethod = (method: string) => {
 
 const onSelectMethod = (e: Event | any) => {
   // type any because of value property not being recognized by TS in the event.target object. It is a valid property though.
-  updateMethod(e.value)
+  updateMethod(e.target.value)
 }
 
 const clearContent = () => {
@@ -420,7 +437,7 @@ const clearContent = () => {
 }
 
 const updateRESTResponse = (response: HoppRESTResponse | null) => {
-  tab.value.response = response
+  tab.value.document.response = response
 }
 
 const copyLinkIcon = refAutoReset<
@@ -570,6 +587,8 @@ const saveRequest = () => {
   }
 }
 
+const request = ref<HoppRESTRequest | null>(null)
+
 onBeforeUnmount(() => {
   if (loading.value) cancelRequest()
 })
@@ -585,13 +604,35 @@ defineActionHandler("request.method.prev", cycleUpMethod)
 defineActionHandler("request.save", saveRequest)
 defineActionHandler(
   "request.save-as",
-  () => (showSaveRequestModal.value = true)
+  (
+    req:
+      | {
+          requestType: "rest"
+          request: HoppRESTRequest
+        }
+      | {
+          requestType: "gql"
+          request: HoppGQLRequest
+        }
+  ) => {
+    showSaveRequestModal.value = true
+    if (req && req.requestType === "rest") {
+      request.value = req.request
+    }
+  }
 )
 defineActionHandler("request.method.get", () => updateMethod("GET"))
 defineActionHandler("request.method.post", () => updateMethod("POST"))
 defineActionHandler("request.method.put", () => updateMethod("PUT"))
 defineActionHandler("request.method.delete", () => updateMethod("DELETE"))
 defineActionHandler("request.method.head", () => updateMethod("HEAD"))
+
+defineActionHandler("request.import-curl", () => {
+  showCurlImportModal.value = true
+})
+defineActionHandler("request.show-code", () => {
+  showCodegenModal.value = true
+})
 
 const isCustomMethod = computed(() => {
   return (
@@ -601,4 +642,9 @@ const isCustomMethod = computed(() => {
 })
 
 const COLUMN_LAYOUT = useSetting("COLUMN_LAYOUT")
+
+const inspectionService = useService(InspectionService)
+
+const tabs = useService(RESTTabService)
+const tabResults = inspectionService.getResultViewFor(tabs.currentTabID.value)
 </script>

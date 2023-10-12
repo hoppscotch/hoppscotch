@@ -6,21 +6,13 @@
     @close="hideModal"
   >
     <template #body>
-      <div class="flex flex-col">
-        <input
-          id="selectLabelGqlEdit"
-          v-model="name"
-          v-focus
-          class="input floating-input"
-          placeholder=" "
-          type="text"
-          autocomplete="off"
-          @keyup.enter="saveCollection"
-        />
-        <label for="selectLabelGqlEdit">
-          {{ t("action.label") }}
-        </label>
-      </div>
+      <HoppSmartInput
+        v-model="editingName"
+        placeholder=" "
+        :label="t('action.label')"
+        input-styles="floating-input"
+        @submit="saveCollection"
+      />
     </template>
     <template #footer>
       <span class="flex space-x-2">
@@ -60,17 +52,17 @@ const emit = defineEmits<{
 const t = useI18n()
 const toast = useToast()
 
-const name = ref<string | null>()
+const editingName = ref<string | null>()
 
 watch(
   () => props.editingCollectionName,
   (val) => {
-    name.value = val
+    editingName.value = val
   }
 )
 
 const saveCollection = () => {
-  if (!name.value) {
+  if (!editingName.value) {
     toast.error(`${t("collection.invalid_name")}`)
     return
   }
@@ -78,7 +70,7 @@ const saveCollection = () => {
   // TODO: Better typechecking here ?
   const collectionUpdated = {
     ...(props.editingCollection as any),
-    name: name.value,
+    name: editingName.value,
   }
 
   editGraphqlCollection(props.editingCollectionIndex, collectionUpdated)
@@ -86,7 +78,7 @@ const saveCollection = () => {
 }
 
 const hideModal = () => {
-  name.value = null
+  editingName.value = null
   emit("hide-modal")
 }
 </script>

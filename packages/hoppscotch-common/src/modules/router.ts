@@ -53,6 +53,9 @@ export default <HoppModule>{
       HOPP_MODULES.forEach((mod) => {
         mod.onBeforeRouteChange?.(to, from, router)
       })
+      platform.addedHoppModules?.forEach((mod) => {
+        mod.onBeforeRouteChange?.(to, from, router)
+      })
     })
 
     // Instead of this a better architecture is for the router
@@ -66,10 +69,14 @@ export default <HoppModule>{
       HOPP_MODULES.forEach((mod) => {
         mod.onAfterRouteChange?.(to, router)
       })
+      platform.addedHoppModules?.forEach((mod) => {
+        mod.onAfterRouteChange?.(to, router)
+      })
     })
 
     app.use(router)
 
     HOPP_MODULES.forEach((mod) => mod.onRouterInit?.(app, router))
+    platform.addedHoppModules?.forEach((mod) => mod.onRouterInit?.(app, router))
   },
 }

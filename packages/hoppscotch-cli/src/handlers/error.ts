@@ -42,12 +42,17 @@ export const handleError = <T extends HoppErrorCode>(error: HoppError<T>) => {
 
   switch (error.code) {
     case "FILE_NOT_FOUND":
-      ERROR_MSG = `File doesn't exists: ${error.path}`;
+      ERROR_MSG = `File doesn't exist: ${error.path}`;
       break;
     case "UNKNOWN_COMMAND":
       ERROR_MSG = `Unavailable command: ${error.command}`;
       break;
     case "MALFORMED_ENV_FILE":
+      ERROR_MSG = `The environment file is not of the correct format.`;
+      break;
+    case "BULK_ENV_FILE":
+      ERROR_MSG = `CLI doesn't support bulk environments export.`;
+      break;
     case "MALFORMED_COLLECTION":
       ERROR_MSG = `${error.path}\n${parseErrorData(error.data)}`;
       break;

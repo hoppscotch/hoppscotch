@@ -56,21 +56,22 @@
 
 <script setup lang="ts">
 import { computed, ref } from "vue"
-import { makeGQLRequest } from "@hoppscotch/data"
-import { cloneDeep } from "lodash-es"
-import { setGQLSession } from "~/newstore/GQLSession"
 import { GQLHistoryEntry } from "~/newstore/history"
 import { shortDateTime } from "~/helpers/utils/date"
 
 import IconStar from "~icons/lucide/star"
-import IconStarOff from "~icons/lucide/star-off"
+import IconStarOff from "~icons/hopp/star-off"
 import IconTrash from "~icons/lucide/trash"
 import IconMinimize2 from "~icons/lucide/minimize-2"
 import IconMaximize2 from "~icons/lucide/maximize-2"
 
 import { useI18n } from "@composables/i18n"
+import { makeGQLRequest } from "@hoppscotch/data"
+import { useService } from "dioc/vue"
+import { GQLTabService } from "~/services/tab/graphql"
 
 const t = useI18n()
+const tabs = useService(GQLTabService)
 
 const props = defineProps<{
   entry: GQLHistoryEntry
@@ -94,19 +95,16 @@ const query = computed(() =>
 )
 
 const useEntry = () => {
-  setGQLSession({
-    request: cloneDeep(
-      makeGQLRequest({
-        name: props.entry.request.name,
-        url: props.entry.request.url,
-        headers: props.entry.request.headers,
-        query: props.entry.request.query,
-        variables: props.entry.request.variables,
-        auth: props.entry.request.auth,
-      })
-    ),
-    schema: "",
-    response: props.entry.response,
+  tabs.createNewTab({
+    request: makeGQLRequest({
+      name: props.entry.request.name,
+      url: props.entry.request.url,
+      headers: props.entry.request.headers,
+      query: props.entry.request.query,
+      variables: props.entry.request.variables,
+      auth: props.entry.request.auth,
+    }),
+    isDirty: false,
   })
 }
 </script>

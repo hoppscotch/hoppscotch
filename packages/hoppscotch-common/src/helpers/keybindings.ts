@@ -14,7 +14,14 @@ let keybindingsEnabled = true
  * Alt is also regarded as macOS OPTION (⌥) key
  * Ctrl is also regarded as macOS COMMAND (⌘) key (NOTE: this differs from HTML Keyboard spec where COMMAND is Meta key!)
  */
-type ModifierKeys = "ctrl" | "alt" | "ctrl-shift" | "alt-shift"
+type ModifierKeys =
+  | "ctrl"
+  | "alt"
+  | "shift"
+  | "ctrl-shift"
+  | "alt-shift"
+  | "ctrl-alt"
+  | "ctrl-alt-shift"
 
 /* eslint-disable prettier/prettier */
 // prettier-ignore
@@ -33,7 +40,6 @@ type SingleCharacterShortcutKey = `${Key}`
 type ShortcutKey = ModifierBasedShortcutKey | SingleCharacterShortcutKey
 
 export const bindings: {
-  // eslint-disable-next-line no-unused-vars
   [_ in ShortcutKey]?: HoppActionWithNoArgs
 } = {
   "ctrl-enter": "request.send-cancel",
@@ -48,9 +54,9 @@ export const bindings: {
   "alt-p": "request.method.post",
   "alt-u": "request.method.put",
   "alt-x": "request.method.delete",
-  "ctrl-k": "flyouts.keybinds.toggle",
-  "/": "modals.search.toggle",
-  "?": "modals.support.toggle",
+  "ctrl-k": "modals.search.toggle",
+  "ctrl-/": "flyouts.keybinds.toggle",
+  "shift-/": "modals.support.toggle",
   "ctrl-m": "modals.share.toggle",
   "alt-r": "navigation.jump.rest",
   "alt-q": "navigation.jump.graphql",
@@ -61,6 +67,7 @@ export const bindings: {
   "ctrl-shift-p": "response.preview.toggle",
   "ctrl-j": "response.file.download",
   "ctrl-.": "response.copy",
+  "ctrl-shift-l": "editor.format",
 }
 
 /**
@@ -93,6 +100,8 @@ function handleKeyDown(ev: KeyboardEvent) {
 }
 
 function generateKeybindingString(ev: KeyboardEvent): ShortcutKey | null {
+  const target = ev.target
+
   // We may or may not have a modifier key
   const modifierKey = getActiveModifier(ev)
 
@@ -101,9 +110,18 @@ function generateKeybindingString(ev: KeyboardEvent): ShortcutKey | null {
   if (!key) return null
 
   // All key combos backed by modifiers are valid shortcuts (whether currently typing or not)
-  if (modifierKey) return `${modifierKey}-${key}`
+  if (modifierKey) {
+    // If the modifier is shift and the target is an input, we ignore
+    if (
+      modifierKey === "shift" &&
+      isDOMElement(target) &&
+      isTypableElement(target)
+    ) {
+      return null
+    }
 
-  const target = ev.target
+    return `${modifierKey}-${key}`
+  }
 
   // no modifier key here then we do not do anything while on input
   if (isDOMElement(target) && isTypableElement(target)) return null
@@ -113,7 +131,9 @@ function generateKeybindingString(ev: KeyboardEvent): ShortcutKey | null {
 }
 
 function getPressedKey(ev: KeyboardEvent): Key | null {
-  const val = ev.key.toLowerCase()
+  // Sometimes the property code is not available on the KeyboardEvent object
+  const val = (ev.code ?? "").toLowerCase()
+
   // Check arrow keys
   if (val === "arrowup") return "up"
   else if (val === "arrowdown") return "down"
@@ -121,21 +141,20 @@ function getPressedKey(ev: KeyboardEvent): Key | null {
   else if (val === "arrowright") return "right"
 
   // Check letter keys
-  const isLetter = ev.code.toLowerCase().startsWith("key")
-  if (isLetter) return ev.code.toLowerCase().substring(3) as Key
+  const isLetter = val.startsWith("key")
+  if (isLetter) return val.substring(3) as Key
 
   // Check if number keys
-  if (val.length === 1 && !isNaN(val as any)) return val as Key
+  const isDigit = val.startsWith("digit")
+  if (isDigit) return val.substring(5) as Key
 
-  // Check if question mark
-  if (val === "?") return "?"
-
-  // Check if question mark
-  if (val === "/") return "/"
+  // Check if slash
+  if (val === "slash") return "/"
 
   // Check if period
-  if (val === ".") return "."
+  if (val === "period") return "."
 
+  // Check if enter
   if (val === "enter") return "enter"
 
   // If no other cases match, this is not a valid key
@@ -143,18 +162,19 @@ function getPressedKey(ev: KeyboardEvent): Key | null {
 }
 
 function getActiveModifier(ev: KeyboardEvent): ModifierKeys | null {
-  const isShiftKey = ev.shiftKey
+  const modifierKeys = {
+    ctrl: isAppleDevice() ? ev.metaKey : ev.ctrlKey,
+    alt: ev.altKey,
+    shift: ev.shiftKey,
+  }
 
-  // We only allow one modifier key to be pressed (for now)
-  // Control key (+ Command) gets priority and if Alt is also pressed, it is ignored
-  if (isAppleDevice() && ev.metaKey) return isShiftKey ? "ctrl-shift" : "ctrl"
-  else if (!isAppleDevice() && ev.ctrlKey)
-    return isShiftKey ? "ctrl-shift" : "ctrl"
+  // active modifier: ctrl | alt | ctrl-alt | ctrl-shift | ctrl-alt-shift | alt-shift
+  // modiferKeys object's keys are sorted to match the above order
+  const activeModifier = Object.keys(modifierKeys)
+    .filter((key) => modifierKeys[key as keyof typeof modifierKeys])
+    .join("-")
 
-  // Test for Alt key
-  if (ev.altKey) return isShiftKey ? "alt-shift" : "alt"
-
-  return null
+  return activeModifier === "" ? null : (activeModifier as ModifierKeys)
 }
 
 /**

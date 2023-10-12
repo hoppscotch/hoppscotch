@@ -6,19 +6,13 @@
     @close="$emit('hide-modal')"
   >
     <template #body>
-      <div class="flex flex-col">
-        <input
-          id="selectLabelAddRequest"
-          v-model="name"
-          v-focus
-          class="input floating-input"
-          placeholder=" "
-          type="text"
-          autocomplete="off"
-          @keyup.enter="addRequest"
-        />
-        <label for="selectLabelAddRequest">{{ t("action.label") }}</label>
-      </div>
+      <HoppSmartInput
+        v-model="editingName"
+        placeholder=" "
+        :label="t('action.label')"
+        input-styles="floating-input"
+        @submit="addRequest"
+      />
     </template>
     <template #footer>
       <span class="flex space-x-2">
@@ -43,7 +37,8 @@
 import { ref, watch } from "vue"
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
-import { currentActiveTab } from "~/helpers/rest/tab"
+import { useService } from "dioc/vue"
+import { RESTTabService } from "~/services/tab/rest"
 
 const toast = useToast()
 const t = useI18n()
@@ -64,23 +59,24 @@ const emit = defineEmits<{
   (event: "add-request", name: string): void
 }>()
 
-const name = ref("")
+const editingName = ref("")
 
+const tabs = useService(RESTTabService)
 watch(
   () => props.show,
   (show) => {
     if (show) {
-      name.value = currentActiveTab.value.document.request.name
+      editingName.value = tabs.currentActiveTab.value.document.request.name
     }
   }
 )
 
 const addRequest = () => {
-  if (name.value.trim() === "") {
+  if (editingName.value.trim() === "") {
     toast.error(`${t("error.empty_req_name")}`)
     return
   }
-  emit("add-request", name.value)
+  emit("add-request", editingName.value)
 }
 
 const hideModal = () => {

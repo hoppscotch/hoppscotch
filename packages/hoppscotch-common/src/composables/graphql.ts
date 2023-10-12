@@ -10,6 +10,7 @@ import {
   WatchStopHandle,
   watchSyncEffect,
   watch,
+  nextTick,
 } from "vue"
 import {
   client,
@@ -17,6 +18,7 @@ import {
   parseGQLErrorString,
 } from "@helpers/backend/GQLClient"
 import {
+  AnyVariables,
   createRequest,
   GraphQLRequest,
   OperationResult,
@@ -35,7 +37,11 @@ type UseQueryOptions<T = any, V = object> = {
   pollDuration?: number | undefined
 }
 
-export const useGQLQuery = <DocType, DocVarType, DocErrorType extends string>(
+export const useGQLQuery = <
+  DocType,
+  DocVarType extends AnyVariables,
+  DocErrorType extends string,
+>(
   _args: UseQueryOptions<DocType, DocVarType>
 ) => {
   const stops: WatchStopHandle[] = []
@@ -96,7 +102,7 @@ export const useGQLQuery = <DocType, DocVarType, DocErrorType extends string>(
 
   const rerunQuery = () => {
     source.value = !isPaused.value
-      ? client.value.executeQuery<DocType, DocVarType>(request.value, {
+      ? client.value?.executeQuery<DocType, DocVarType>(request.value, {
           requestPolicy: "network-only",
         })
       : undefined
@@ -121,7 +127,7 @@ export const useGQLQuery = <DocType, DocVarType, DocErrorType extends string>(
 
       const invalidateStops = args.updateSubs!.map((sub) => {
         return wonkaPipe(
-          client.value.executeSubscription(sub),
+          client.value!.executeSubscription(sub),
           onEnd(() => {
             if (source.value) execute()
           }),
@@ -186,10 +192,12 @@ export const useGQLQuery = <DocType, DocVarType, DocErrorType extends string>(
       } else {
         args.variables = updatedVars
       }
+      nextTick(rerunQuery)
+    } else {
+      rerunQuery()
     }
 
     isPaused.value = false
-    rerunQuery()
   }
 
   const pause = () => {

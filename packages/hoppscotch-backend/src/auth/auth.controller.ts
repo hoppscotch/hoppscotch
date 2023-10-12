@@ -2,9 +2,9 @@ import {
   Body,
   Controller,
   Get,
+  InternalServerErrorException,
   Post,
   Query,
-  Req,
   Request,
   Res,
   UseGuards,
@@ -19,12 +19,18 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { GqlUser } from 'src/decorators/gql-user.decorator';
 import { AuthUser } from 'src/types/AuthUser';
 import { RTCookie } from 'src/decorators/rt-cookie.decorator';
-import { authCookieHandler, throwHTTPErr } from './helper';
+import {
+  AuthProvider,
+  authCookieHandler,
+  authProviderCheck,
+  throwHTTPErr,
+} from './helper';
 import { GoogleSSOGuard } from './guards/google-sso.guard';
 import { GithubSSOGuard } from './guards/github-sso.guard';
 import { MicrosoftSSOGuard } from './guards/microsoft-sso-.guard';
 import { ThrottlerBehindProxyGuard } from 'src/guards/throttler-behind-proxy.guard';
 import { SkipThrottle } from '@nestjs/throttler';
+import { AUTH_PROVIDER_NOT_SPECIFIED } from 'src/errors';
 
 @UseGuards(ThrottlerBehindProxyGuard)
 @Controller({ path: 'auth', version: '1' })
@@ -39,6 +45,9 @@ export class AuthController {
     @Body() authData: SignInMagicDto,
     @Query('origin') origin: string,
   ) {
+    if (!authProviderCheck(AuthProvider.EMAIL))
+      throwHTTPErr({ message: AUTH_PROVIDER_NOT_SPECIFIED, statusCode: 404 });
+
     const deviceIdToken = await this.authService.signInMagicLink(
       authData.email,
       origin,

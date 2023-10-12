@@ -39,7 +39,7 @@
             <TeamsMembers @update-team="updateTeam()" class="py-8 px-4" />
           </HoppSmartTab>
           <HoppSmartTab :id="'invites'" :label="t('teams.invites')">
-            <TeamsPendingInvites :editingTeamID="team.id" class="py-8 px-4" />
+            <TeamsPendingInvites :editingTeamID="team.id" />
           </HoppSmartTab>
         </HoppSmartTabs>
 

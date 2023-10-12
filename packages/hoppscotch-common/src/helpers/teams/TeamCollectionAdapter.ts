@@ -902,36 +902,16 @@ export default class NewTeamCollectionAdapter {
     )
   }
 
-  /**
-   * Expands a collection on the tree
-   *
-   * When a collection is loaded initially in the adapter, children and requests are not loaded (they will be set to null)
-   * Upon expansion those two fields will be populated
-   *
-   * @param {string} collectionID - The ID of the collection to expand
-   */
-  async expandCollection(collectionID: string): Promise<void> {
-    // TODO: While expanding one collection, block (or queue) the expansion of the other, to avoid race conditions
-    const tree = this.collections$.value
-
-    const collection = findCollInTree(tree, collectionID)
-
-    if (!collection) return
-
-    if (collection.children != null) return
-
+  private async getCollectionChildren(
+    collection: TeamCollection
+  ): Promise<TeamCollection[]> {
     const collections: TeamCollection[] = []
-
-    this.loadingCollections$.next([
-      ...this.loadingCollections$.getValue(),
-      collectionID,
-    ])
 
     while (true) {
       const data = await runGQLQuery({
         query: GetCollectionChildrenDocument,
         variables: {
-          collectionID,
+          collectionID: collection.id,
           cursor:
             collections.length > 0
               ? collections[collections.length - 1].id
@@ -940,12 +920,8 @@ export default class NewTeamCollectionAdapter {
       })
 
       if (E.isLeft(data)) {
-        this.loadingCollections$.next(
-          this.loadingCollections$.getValue().filter((x) => x !== collectionID)
-        )
-
         throw new Error(
-          `Child Collection Fetch Error for ${collectionID}: ${data.left}`
+          `Child Collection Fetch Error for ${collection.id}: ${data.left}`
         )
       }
 
@@ -965,23 +941,25 @@ export default class NewTeamCollectionAdapter {
         break
     }
 
+    return collections
+  }
+
+  private async getCollectionRequests(
+    collection: TeamCollection
+  ): Promise<TeamRequest[]> {
     const requests: TeamRequest[] = []
 
     while (true) {
       const data = await runGQLQuery({
         query: GetCollectionRequestsDocument,
         variables: {
-          collectionID,
+          collectionID: collection.id,
           cursor:
             requests.length > 0 ? requests[requests.length - 1].id : undefined,
         },
       })
 
       if (E.isLeft(data)) {
-        this.loadingCollections$.next(
-          this.loadingCollections$.getValue().filter((x) => x !== collectionID)
-        )
-
         throw new Error(`Child Request Fetch Error for ${data}: ${data.left}`)
       }
 
@@ -989,7 +967,7 @@ export default class NewTeamCollectionAdapter {
         ...data.right.requestsInCollection.map<TeamRequest>((el) => {
           return {
             id: el.id,
-            collectionID,
+            collectionID: collection.id,
             title: el.title,
             request: translateToNewRequest(JSON.parse(el.request)),
           }
@@ -1000,17 +978,50 @@ export default class NewTeamCollectionAdapter {
         break
     }
 
-    collection.children = collections
-    collection.requests = requests
+    return requests
+  }
 
-    // Add to the entity ids set
-    collections.forEach((coll) => this.entityIDs.add(`collection-${coll.id}`))
-    requests.forEach((req) => this.entityIDs.add(`request-${req.id}`))
+  /**
+   * Expands a collection on the tree
+   *
+   * When a collection is loaded initially in the adapter, children and requests are not loaded (they will be set to null)
+   * Upon expansion those two fields will be populated
+   *
+   * @param {string} collectionID - The ID of the collection to expand
+   */
+  async expandCollection(collectionID: string): Promise<void> {
+    // TODO: While expanding one collection, block (or queue) the expansion of the other, to avoid race conditions
+    const tree = this.collections$.value
 
-    this.loadingCollections$.next(
-      this.loadingCollections$.getValue().filter((x) => x !== collectionID)
-    )
+    const collection = findCollInTree(tree, collectionID)
 
-    this.collections$.next(tree)
+    if (!collection) return
+
+    if (collection.children != null) return
+
+    this.loadingCollections$.next([
+      ...this.loadingCollections$.getValue(),
+      collectionID,
+    ])
+
+    try {
+      const [collections, requests] = await Promise.all([
+        this.getCollectionChildren(collection),
+        this.getCollectionRequests(collection),
+      ])
+
+      collection.children = collections
+      collection.requests = requests
+
+      // Add to the entity ids set
+      collections.forEach((coll) => this.entityIDs.add(`collection-${coll.id}`))
+      requests.forEach((req) => this.entityIDs.add(`request-${req.id}`))
+
+      this.collections$.next(tree)
+    } finally {
+      this.loadingCollections$.next(
+        this.loadingCollections$.getValue().filter((x) => x !== collectionID)
+      )
+    }
   }
 }

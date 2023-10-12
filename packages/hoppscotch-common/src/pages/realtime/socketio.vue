@@ -106,6 +106,7 @@
           <RealtimeCommunication
             :show-event-field="true"
             :is-connected="connectionState === 'CONNECTED'"
+            class="cmResponseSecondaryStickyFold"
             event-field-styles="top-upperSecondaryStickyFold"
             sticky-header-styles="top-upperTertiaryStickyFold"
             @send-message="sendMessage($event)"
@@ -203,7 +204,6 @@
               blank
               :icon="IconExternalLink"
               reverse
-              class="mb-4"
             />
           </HoppSmartPlaceholder>
           <div
@@ -239,7 +239,7 @@
     <template #secondary>
       <RealtimeLog
         :title="t('socketio.log')"
-        :log="(log as LogEntryData[])"
+        :log="log as LogEntryData[]"
         @delete="clearLogEntries()"
       />
     </template>

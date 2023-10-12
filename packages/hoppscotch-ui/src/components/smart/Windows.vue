@@ -4,7 +4,7 @@
       class="sticky top-0 z-10 flex-shrink-0 overflow-x-auto divide-x divide-dividerLight bg-primaryLight tabs group-tabs"
     >
       <div
-        class="flex flex-1 flex-shrink-0 w-0 overflow-x-auto"
+        class="flex flex-1 flex-shrink-0 w-0 overflow-hidden"
         ref="scrollContainer"
       >
         <div
@@ -100,7 +100,7 @@
         </div>
       </div>
 
-      <div v-if="hasActions" :class="mdAndLarger ? 'w-64' : 'w-16'">
+      <div v-if="hasActions" :class="mdAndLarger ? 'w-64' : 'w-28'">
         <slot name="actions" />
       </div>
 
@@ -116,7 +116,7 @@
         :style="[
           `--thumb-width: ${scrollThumb.width}px`,
           `width: calc(100% - ${
-            hasActions ? (mdAndLarger ? '19rem' : '7rem') : '3rem'
+            hasActions ? (mdAndLarger ? '19rem' : '10rem') : '3rem'
           })`,
         ]"
         id="myRange"
@@ -455,6 +455,7 @@ $slider-height: 4px;
     @apply min-w-0;
     @apply bg-dividerDark;
     @apply hover:bg-secondaryLight;
+    @apply active:bg-secondaryLight;
 
     width: var(--thumb-width);
     height: $slider-height;
@@ -465,6 +466,7 @@ $slider-height: 4px;
     @apply min-w-0;
     @apply bg-dividerDark;
     @apply hover:bg-secondaryLight;
+    @apply active:bg-secondaryLight;
 
     width: var(--thumb-width);
     height: $slider-height;

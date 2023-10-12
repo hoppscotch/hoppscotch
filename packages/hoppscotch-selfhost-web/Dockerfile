@@ -6,7 +6,7 @@ WORKDIR /usr/src/app
 RUN npm i -g pnpm
 
 COPY . .
-RUN pnpm install
+RUN pnpm install --force --frozen-lockfile
 
 WORKDIR /usr/src/app/packages/hoppscotch-selfhost-web/
 RUN pnpm run build

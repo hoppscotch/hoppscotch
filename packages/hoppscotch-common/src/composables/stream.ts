@@ -14,7 +14,7 @@ type CloneMode = "noclone" | "shallow" | "deep"
  */
 export function useReadonlyStream<T>(
   stream$: Observable<T>,
-  initialValue: T,
+  initialValue?: T,
   cloneMode: CloneMode = "shallow"
 ): Ref<T> {
   let sub: Subscription | null = null

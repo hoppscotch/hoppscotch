@@ -23,6 +23,30 @@ export const AUTH_FAIL = 'auth/fail';
 export const JSON_INVALID = 'json_invalid';
 
 /**
+ * Auth Provider not specified
+ * (Auth)
+ */
+export const AUTH_PROVIDER_NOT_SPECIFIED = 'auth/provider_not_specified';
+
+/**
+ * Environment variable "VITE_ALLOWED_AUTH_PROVIDERS" is not present in .env file
+ */
+export const ENV_NOT_FOUND_KEY_AUTH_PROVIDERS =
+  '"VITE_ALLOWED_AUTH_PROVIDERS" is not present in .env file';
+
+/**
+ * Environment variable "VITE_ALLOWED_AUTH_PROVIDERS" is empty in .env file
+ */
+export const ENV_EMPTY_AUTH_PROVIDERS =
+  '"VITE_ALLOWED_AUTH_PROVIDERS" is empty in .env file';
+
+/**
+ * Environment variable "VITE_ALLOWED_AUTH_PROVIDERS" contains unsupported provider in .env file
+ */
+export const ENV_NOT_SUPPORT_AUTH_PROVIDERS =
+  '"VITE_ALLOWED_AUTH_PROVIDERS" contains an unsupported auth provider in .env file';
+
+/**
  * Tried to delete a user data document from fb firestore but failed.
  * (FirebaseService)
  */
@@ -311,6 +335,13 @@ export const SHORTCODE_ALREADY_EXISTS = 'shortcode/already_exists' as const;
  * (TeamEnvironmentsService)
  */
 export const TEAM_ENVIRONMENT_NOT_FOUND = 'team_environment/not_found' as const;
+
+/**
+ * Invalid TEAM ENVIRONMENT name
+ * (TeamEnvironmentsService)
+ */
+export const TEAM_ENVIRONMENT_SHORT_NAME =
+  'team_environment/short_name' as const;
 
 /**
  * The user is not a member of the team of the given environment

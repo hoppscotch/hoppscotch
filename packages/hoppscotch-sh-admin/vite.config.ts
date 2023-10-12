@@ -2,16 +2,19 @@ import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import { FileSystemIconLoader } from 'unplugin-icons/loaders';
 import Icons from 'unplugin-icons/vite';
+import Unfonts from 'unplugin-fonts/vite';
 import IconResolver from 'unplugin-icons/resolver';
 import Components from 'unplugin-vue-components/vite';
 import Pages from 'vite-plugin-pages';
 import Layouts from 'vite-plugin-vue-layouts';
-import VueI18n from '@intlify/vite-plugin-vue-i18n';
 import path from 'path';
+import ImportMetaEnv from '@import-meta-env/unplugin';
+import VueI18nPlugin from '@intlify/unplugin-vue-i18n/vite';
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  envDir: path.resolve(__dirname, '../../'),
+  envPrefix: process.env.HOPP_ALLOW_RUNTIME_ENV ? 'VITE_BUILDTIME_' : 'VITE_',
+  envDir: path.resolve(__dirname, '../..'),
   server: {
     port: 3100,
   },
@@ -31,10 +34,10 @@ export default defineConfig({
       defaultLayout: 'default',
       layoutsDirs: 'src/layouts',
     }),
-    VueI18n({
+    VueI18nPlugin({
       runtimeOnly: false,
       compositionOnly: true,
-      include: [path.resolve(__dirname, 'locales')],
+      include: [path.resolve(__dirname, './locales/**')],
     }),
     Components({
       dts: './src/components.d.ts',
@@ -64,5 +67,29 @@ export default defineConfig({
         auth: FileSystemIconLoader('../hoppscotch-sh-admin/assets/icons/auth'),
       },
     }),
+    Unfonts({
+      fontsource: {
+        families: [
+          {
+            name: 'Inter Variable',
+            variables: ['variable-full'],
+          },
+          {
+            name: 'Material Symbols Rounded Variable',
+            variables: ['variable-full'],
+          },
+          {
+            name: 'Roboto Mono Variable',
+            variables: ['variable-full'],
+          },
+        ],
+      },
+    }),
+    process.env.HOPP_ALLOW_RUNTIME_ENV
+      ? ImportMetaEnv.vite({
+          example: '../../.env.example',
+          env: '../../.env',
+        })
+      : [],
   ],
 });

@@ -6,21 +6,13 @@
     @close="emit('hide-modal')"
   >
     <template #body>
-      <div class="flex flex-col">
-        <input
-          id="selectLabelGqlAddRequest"
-          v-model="name"
-          v-focus
-          class="input floating-input"
-          placeholder=" "
-          type="text"
-          autocomplete="off"
-          @keyup.enter="addRequest"
-        />
-        <label for="selectLabelGqlAddRequest">
-          {{ t("action.label") }}
-        </label>
-      </div>
+      <HoppSmartInput
+        v-model="editingName"
+        placeholder=" "
+        :label="t('action.label')"
+        input-styles="floating-input"
+        @submit="addRequest"
+      />
     </template>
     <template #footer>
       <span class="flex space-x-2">
@@ -44,10 +36,13 @@
 import { ref, watch } from "vue"
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
-import { getGQLSession } from "~/newstore/GQLSession"
+import { useService } from "dioc/vue"
+import { GQLTabService } from "~/services/tab/graphql"
 
 const toast = useToast()
 const t = useI18n()
+
+const tabs = useService(GQLTabService)
 
 const props = defineProps<{
   show: boolean
@@ -65,24 +60,24 @@ const emit = defineEmits<{
   ): void
 }>()
 
-const name = ref("")
+const editingName = ref("")
 
 watch(
   () => props.show,
   (show) => {
     if (show) {
-      name.value = getGQLSession().request.name
+      editingName.value = tabs.currentActiveTab.value?.document.request.name
     }
   }
 )
 
 const addRequest = () => {
-  if (!name.value) {
+  if (!editingName.value) {
     toast.error(`${t("error.empty_req_name")}`)
     return
   }
   emit("add-request", {
-    name: name.value,
+    name: editingName.value,
     path: props.folderPath,
   })
   hideModal()

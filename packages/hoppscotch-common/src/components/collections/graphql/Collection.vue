@@ -37,6 +37,7 @@
           @click="
             emit('add-request', {
               path: `${collectionIndex}`,
+              index: collection.requests.length,
             })
           "
         />
@@ -219,6 +220,8 @@ import {
   moveGraphqlRequest,
 } from "~/newstore/collections"
 import { Picked } from "~/helpers/types/HoppPicked"
+import { useService } from "dioc/vue"
+import { GQLTabService } from "~/services/tab/graphql"
 
 const props = defineProps({
   picked: { type: Object, default: null },
@@ -232,6 +235,8 @@ const props = defineProps({
 const colorMode = useColorMode()
 const toast = useToast()
 const t = useI18n()
+
+const tabs = useService(GQLTabService)
 
 // TODO: improve types plz
 const emit = defineEmits<{
@@ -291,6 +296,22 @@ const removeCollection = () => {
     props.picked?.collectionIndex === props.collectionIndex
   ) {
     emit("select", null)
+  }
+
+  const possibleTabs = tabs.getTabsRefTo((tab) => {
+    const ctx = tab.document.saveContext
+
+    if (!ctx) return false
+
+    return (
+      ctx.originLocation === "user-collection" &&
+      ctx.folderPath.startsWith(props.collectionIndex.toString())
+    )
+  })
+
+  for (const tab of possibleTabs) {
+    tab.value.document.saveContext = undefined
+    tab.value.document.isDirty = true
   }
 
   removeGraphqlCollection(props.collectionIndex, props.collection.id)

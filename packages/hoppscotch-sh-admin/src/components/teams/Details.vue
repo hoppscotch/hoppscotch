@@ -20,24 +20,26 @@
             '!border-accent': showRenameInput,
           }"
         >
-          <input
-            class="bg-transparent flex-1 p-3 rounded-md !rounded-r-none disabled:select-none border-r-0 disabled:cursor-default disabled:opacity-50"
-            type="text"
+          <HoppSmartInput
             v-model="newTeamName"
+            styles="bg-transparent flex-1 rounded-md !rounded-r-none disabled:select-none border-r-0 disabled:cursor-default disabled:opacity-50"
             placeholder="Team Name"
-            autofocus
             :disabled="!showRenameInput"
-            v-focus
-          />
-          <HoppButtonPrimary
-            class="!rounded-l-none"
-            filled
-            :icon="showRenameInput ? IconSave : IconEdit"
-            :label="
-              showRenameInput ? `${t('teams.rename')}` : `${t('teams.edit')}`
-            "
-            @click="handleNameEdit()"
-          />
+          >
+            <template #button>
+              <HoppButtonPrimary
+                class="!rounded-l-none"
+                filled
+                :icon="showRenameInput ? IconSave : IconEdit"
+                :label="
+                  showRenameInput
+                    ? `${t('teams.rename')}`
+                    : `${t('teams.edit')}`
+                "
+                @click="handleNameEdit()"
+              />
+            </template>
+          </HoppSmartInput>
         </div>
       </div>
 

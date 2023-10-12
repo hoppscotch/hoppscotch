@@ -14,12 +14,14 @@ import Layouts from "vite-plugin-vue-layouts"
 import IconResolver from "unplugin-icons/resolver"
 import { FileSystemIconLoader } from "unplugin-icons/loaders"
 import * as path from "path"
-import { VitePluginFonts } from "vite-plugin-fonts"
+import Unfonts from "unplugin-fonts/vite"
 import legacy from "@vitejs/plugin-legacy"
+import ImportMetaEnv from "@import-meta-env/unplugin"
 
-const ENV = loadEnv("development", path.resolve(__dirname, "../../"))
+const ENV = loadEnv("development", path.resolve(__dirname, "../../"), ["VITE_"])
 
 export default defineConfig({
+  envPrefix: process.env.HOPP_ALLOW_RUNTIME_ENV ? "VITE_BUILDTIME_" : "VITE_",
   envDir: path.resolve(__dirname, "../../"),
   // TODO: Migrate @hoppscotch/data to full ESM
   define: {
@@ -73,6 +75,7 @@ export default defineConfig({
       "@lib": path.resolve(__dirname, "./src/lib"),
       stream: "stream-browserify",
       util: "util",
+      querystring: "qs",
     },
     dedupe: ["vue"],
   },
@@ -90,8 +93,7 @@ export default defineConfig({
       dirs: "../hoppscotch-common/src/pages",
       importMode: "async",
       onRoutesGenerated(routes) {
-        // HACK: See: https://github.com/jbaubree/vite-plugin-pages-sitemap/issues/173
-        return ((generateSitemap as any).default as typeof generateSitemap)({
+        generateSitemap({
           routes,
           nuxtStyle: true,
           allowRobots: true,
@@ -227,12 +229,21 @@ export default defineConfig({
         ],
       },
     }),
-    VitePluginFonts({
-      google: {
+    Unfonts({
+      fontsource: {
         families: [
-          "Inter:wght@400;500;600;700;800",
-          "Roboto+Mono:wght@400;500",
-          "Material+Icons",
+          {
+            name: "Inter Variable",
+            variables: ["variable-full"],
+          },
+          {
+            name: "Material Symbols Rounded Variable",
+            variables: ["variable-full"],
+          },
+          {
+            name: "Roboto Mono Variable",
+            variables: ["variable-full"],
+          },
         ],
       },
     }),
@@ -240,5 +251,11 @@ export default defineConfig({
       modernPolyfills: ["es.string.replace-all"],
       renderLegacyChunks: false,
     }),
+    process.env.HOPP_ALLOW_RUNTIME_ENV
+      ? ImportMetaEnv.vite({
+          example: "../../.env.example",
+          env: "../../.env",
+        })
+      : [],
   ],
 })

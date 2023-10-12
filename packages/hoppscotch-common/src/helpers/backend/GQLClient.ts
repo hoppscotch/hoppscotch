@@ -13,9 +13,10 @@ import {
   Operation,
   OperationResult,
   Client,
+  AnyVariables,
 } from "@urql/core"
-import { authExchange } from "@urql/exchange-auth"
-import { devtoolsExchange } from "@urql/devtools"
+import { AuthConfig, authExchange } from "@urql/exchange-auth"
+// import { devtoolsExchange } from "@urql/devtools"
 import { SubscriptionClient } from "subscriptions-transport-ws"
 import * as E from "fp-ts/Either"
 import * as TE from "fp-ts/TaskEither"
@@ -67,43 +68,43 @@ const createSubscriptionClient = () => {
 
 const createHoppClient = () => {
   const exchanges = [
-    devtoolsExchange,
+    // devtoolsExchange,
     dedupExchange,
-    authExchange({
-      addAuthToOperation({ authState, operation }) {
-        if (!authState) {
-          return operation
-        }
+    authExchange(async (): Promise<AuthConfig> => {
+      const probableUser = platform.auth.getProbableUser()
+      if (probableUser !== null)
+        await platform.auth.waitProbableLoginToConfirm()
 
-        const fetchOptions =
-          typeof operation.context.fetchOptions === "function"
-            ? operation.context.fetchOptions()
-            : operation.context.fetchOptions || {}
+      return {
+        addAuthToOperation(operation) {
+          const fetchOptions =
+            typeof operation.context.fetchOptions === "function"
+              ? operation.context.fetchOptions()
+              : operation.context.fetchOptions || {}
 
-        const authHeaders = platform.auth.getBackendHeaders()
+          const authHeaders = platform.auth.getBackendHeaders()
 
-        return makeOperation(operation.kind, operation, {
-          ...operation.context,
-          fetchOptions: {
-            ...fetchOptions,
-            headers: {
-              ...fetchOptions.headers,
-              ...authHeaders,
+          return makeOperation(operation.kind, operation, {
+            ...operation.context,
+            fetchOptions: {
+              ...fetchOptions,
+              headers: {
+                ...fetchOptions.headers,
+                ...authHeaders,
+              },
             },
-          },
-        })
-      },
-      willAuthError() {
-        return platform.auth.willBackendHaveAuthError()
-      },
-      getAuth: async () => {
-        const probableUser = platform.auth.getProbableUser()
-
-        if (probableUser !== null)
-          await platform.auth.waitProbableLoginToConfirm()
-
-        return {}
-      },
+          })
+        },
+        willAuthError() {
+          return platform.auth.willBackendHaveAuthError()
+        },
+        didAuthError() {
+          return false
+        },
+        async refreshAuth() {
+          // TODO
+        },
+      }
     }),
     fetchExchange,
     errorExchange({
@@ -165,9 +166,9 @@ export function initBackendGQLClient() {
   })
 }
 
-type RunQueryOptions<T = any, V = object> = {
+type RunQueryOptions<T = any, V = AnyVariables> = {
   query: TypedDocumentNode<T, V>
-  variables?: V
+  variables: V
 }
 
 /**
@@ -183,7 +184,11 @@ export type GQLError<T extends string> =
       error: T
     }
 
-export const runGQLQuery = <DocType, DocVarType, DocErrorType extends string>(
+export const runGQLQuery = <
+  DocType,
+  DocVarType extends AnyVariables,
+  DocErrorType extends string,
+>(
   args: RunQueryOptions<DocType, DocVarType>
 ): Promise<E.Either<GQLError<DocErrorType>, DocType>> => {
   const request = createRequest<DocType, DocVarType>(args.query, args.variables)
@@ -245,8 +250,8 @@ export const runGQLQuery = <DocType, DocVarType, DocErrorType extends string>(
 // Make sure to handle cases if the subscription fires with the same update multiple times
 export const runGQLSubscription = <
   DocType,
-  DocVarType,
-  DocErrorType extends string
+  DocVarType extends AnyVariables,
+  DocErrorType extends string,
 >(
   args: RunQueryOptions<DocType, DocVarType>
 ) => {
@@ -335,10 +340,10 @@ export const parseGQLErrorString = (s: string) =>
 export const runMutation = <
   DocType,
   DocVariables extends object | undefined,
-  DocErrors extends string
+  DocErrors extends string,
 >(
   mutation: TypedDocumentNode<DocType, DocVariables>,
-  variables?: DocVariables,
+  variables: DocVariables,
   additionalConfig?: Partial<OperationContext>
 ): TE.TaskEither<GQLError<DocErrors>, DocType> =>
   pipe(

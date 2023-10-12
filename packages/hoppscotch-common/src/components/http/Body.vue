@@ -28,7 +28,9 @@
             >
               <HoppSmartItem
                 :label="t('state.none')"
-                :info-icon="(body.contentType === null ? IconDone : null) as any"
+                :info-icon="
+                  (body.contentType === null ? IconDone : null) as any
+                "
                 :active-info-icon="body.contentType === null"
                 @click="
                   () => {
@@ -57,7 +59,9 @@
                     :key="`contentTypeItem-${contentTypeIndex}`"
                     :label="contentTypeItem"
                     :info-icon="
-                      contentTypeItem === body.contentType ? IconDone : null
+                      contentTypeItem === body.contentType
+                        ? IconDone
+                        : undefined
                     "
                     :active-info-icon="contentTypeItem === body.contentType"
                     @click="
@@ -115,7 +119,6 @@
         blank
         :icon="IconExternalLink"
         reverse
-        class="mb-4"
       />
     </HoppSmartPlaceholder>
   </div>
@@ -135,7 +138,7 @@ import IconDone from "~icons/lucide/check"
 import IconExternalLink from "~icons/lucide/external-link"
 import IconInfo from "~icons/lucide/info"
 import IconRefreshCW from "~icons/lucide/refresh-cw"
-import { RequestOptionTabs } from "./RequestOptions.vue"
+import { RESTOptionTabs } from "./RequestOptions.vue"
 
 const colorMode = useColorMode()
 const t = useI18n()
@@ -146,7 +149,7 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  (e: "change-tab", value: RequestOptionTabs): void
+  (e: "change-tab", value: RESTOptionTabs): void
   (e: "update:headers", value: HoppRESTHeader[]): void
   (e: "update:body", value: HoppRESTReqBody): void
 }>()
@@ -163,7 +166,7 @@ const overridenContentType = computed(() =>
   )
 )
 
-const contentTypeOverride = (tab: RequestOptionTabs) => {
+const contentTypeOverride = (tab: RESTOptionTabs) => {
   emit("change-tab", tab)
   if (!isContentTypeAlreadyExist()) {
     // TODO: Fix this

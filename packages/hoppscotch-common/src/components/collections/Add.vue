@@ -6,21 +6,13 @@
     @close="hideModal"
   >
     <template #body>
-      <div class="flex flex-col">
-        <input
-          id="selectLabelAdd"
-          v-model="name"
-          v-focus
-          class="input floating-input"
-          placeholder=" "
-          type="text"
-          autocomplete="off"
-          @keyup.enter="addNewCollection"
-        />
-        <label for="selectLabelAdd">
-          {{ t("action.label") }}
-        </label>
-      </div>
+      <HoppSmartInput
+        v-model="editingName"
+        placeholder=" "
+        :label="t('action.label')"
+        input-styles="floating-input"
+        @submit="addNewCollection"
+      />
     </template>
     <template #footer>
       <span class="flex space-x-2">
@@ -65,28 +57,28 @@ const emit = defineEmits<{
   (e: "hide-modal"): void
 }>()
 
-const name = ref("")
+const editingName = ref("")
 
 watch(
   () => props.show,
   (show) => {
     if (!show) {
-      name.value = ""
+      editingName.value = ""
     }
   }
 )
 
 const addNewCollection = () => {
-  if (!name.value) {
+  if (!editingName.value) {
     toast.error(t("collection.invalid_name"))
     return
   }
 
-  emit("submit", name.value)
+  emit("submit", editingName.value)
 }
 
 const hideModal = () => {
-  name.value = ""
+  editingName.value = ""
   emit("hide-modal")
 }
 </script>

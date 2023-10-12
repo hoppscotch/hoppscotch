@@ -7,22 +7,15 @@
   >
     <template #body>
       <div class="flex flex-col">
-        <div class="relative flex">
-          <input
-            id="selectLabelEnvEdit"
-            v-model="name"
-            v-focus
-            class="input floating-input"
-            placeholder=" "
-            type="text"
-            autocomplete="off"
-            :disabled="editingEnvironmentIndex === 'Global'"
-            @keyup.enter="saveEnvironment"
-          />
-          <label for="selectLabelEnvEdit">
-            {{ t("action.label") }}
-          </label>
-        </div>
+        <HoppSmartInput
+          v-model="editingName"
+          placeholder=" "
+          :label="t('action.label')"
+          input-styles="floating-input"
+          :disabled="editingEnvironmentIndex === 'Global'"
+          @submit="saveEnvironment"
+        />
+
         <div class="flex items-center justify-between flex-1">
           <label for="variableList" class="p-4">
             {{ t("environment.variable_list") }}
@@ -88,7 +81,6 @@
             <HoppButtonSecondary
               :label="`${t('add.new')}`"
               filled
-              class="mb-4"
               @click="addEnvironmentVariable"
             />
           </HoppSmartPlaceholder>
@@ -178,7 +170,7 @@ const emit = defineEmits<{
 
 const idTicker = ref(0)
 
-const name = ref<string | null>(null)
+const editingName = ref<string | null>(null)
 const vars = ref<EnvironmentVariable[]>([
   { id: idTicker.value++, env: { key: "", value: "" } },
 ])
@@ -231,10 +223,12 @@ const liveEnvs = computed(() => {
   }
 
   if (props.editingEnvironmentIndex === "Global") {
-    return [...vars.value.map((x) => ({ ...x.env, source: name.value! }))]
+    return [
+      ...vars.value.map((x) => ({ ...x.env, source: editingName.value! })),
+    ]
   } else {
     return [
-      ...vars.value.map((x) => ({ ...x.env, source: name.value! })),
+      ...vars.value.map((x) => ({ ...x.env, source: editingName.value! })),
       ...globalVars.value.map((x) => ({ ...x, source: "Global" })),
     ]
   }
@@ -244,7 +238,7 @@ watch(
   () => props.show,
   (show) => {
     if (show) {
-      name.value = workingEnv.value?.name ?? null
+      editingName.value = workingEnv.value?.name ?? null
       vars.value = pipe(
         workingEnv.value?.variables ?? [],
         A.map((e) => ({
@@ -277,7 +271,7 @@ const removeEnvironmentVariable = (index: number) => {
 }
 
 const saveEnvironment = () => {
-  if (!name.value) {
+  if (!editingName.value) {
     toast.error(`${t("environment.invalid_name")}`)
     return
   }
@@ -293,13 +287,13 @@ const saveEnvironment = () => {
   )
 
   const environmentUpdated: Environment = {
-    name: name.value,
+    name: editingName.value,
     variables: filterdVariables,
   }
 
   if (props.action === "new") {
     // Creating a new environment
-    createEnvironment(name.value, environmentUpdated.variables)
+    createEnvironment(editingName.value, environmentUpdated.variables)
     setSelectedEnvironmentIndex({
       type: "MY_ENV",
       index: envList.value.length - 1,
@@ -337,7 +331,7 @@ const saveEnvironment = () => {
 }
 
 const hideModal = () => {
-  name.value = null
+  editingName.value = null
   emit("hide-modal")
 }
 </script>

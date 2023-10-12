@@ -1,9 +1,8 @@
 import vue from "@vitejs/plugin-vue"
-import path from "path"
 import Icons from "unplugin-icons/vite"
 import { defineConfig } from "vite"
 import dts from "vite-plugin-dts"
-import { VitePluginFonts } from "vite-plugin-fonts"
+import Unfonts from "unplugin-fonts/vite"
 
 export default defineConfig({
   plugins: [
@@ -16,12 +15,21 @@ export default defineConfig({
     Icons({
       compiler: "vue3",
     }),
-    VitePluginFonts({
-      google: {
+    Unfonts({
+      fontsource: {
         families: [
-          "Inter:wght@400;500;600;700;800",
-          "Roboto+Mono:wght@400;500",
-          "Material+Icons",
+          {
+            name: "Inter Variable",
+            variables: ["variable-full"],
+          },
+          {
+            name: "Material Symbols Rounded Variable",
+            variables: ["variable-full"],
+          },
+          {
+            name: "Roboto Mono Variable",
+            variables: ["variable-full"],
+          },
         ],
       },
     }),
@@ -38,7 +46,7 @@ export default defineConfig({
       formats: ["es"],
     },
     rollupOptions: {
-      external: ["vue", "vue-router"],
+      external: ["vue"],
       output: {
         exports: "named",
       },

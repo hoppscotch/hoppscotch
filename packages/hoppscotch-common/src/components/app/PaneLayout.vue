@@ -18,13 +18,18 @@
         :horizontal="COLUMN_LAYOUT"
         @resize="setPaneEvent($event, 'horizontal')"
       >
-        <Pane :size="PANE_MAIN_TOP_SIZE" class="flex flex-col !overflow-auto">
+        <Pane
+          :size="PANE_MAIN_TOP_SIZE"
+          class="flex flex-col !overflow-auto"
+          min-size="25"
+        >
           <slot name="primary" />
         </Pane>
         <Pane
           v-if="hasSecondary"
           :size="PANE_MAIN_BOTTOM_SIZE"
           class="flex flex-col !overflow-auto"
+          min-size="25"
         >
           <slot name="secondary" />
         </Pane>
@@ -33,7 +38,7 @@
     <Pane
       v-if="SIDEBAR && hasSidebar"
       :size="PANE_SIDEBAR_SIZE"
-      min-size="20"
+      min-size="25"
       class="flex flex-col !overflow-auto bg-primaryContrast"
     >
       <slot name="sidebar" />
@@ -78,10 +83,10 @@ type PaneEvent = {
   size: number
 }
 
-const PANE_MAIN_SIZE = ref(74)
-const PANE_SIDEBAR_SIZE = ref(26)
-const PANE_MAIN_TOP_SIZE = ref(42)
-const PANE_MAIN_BOTTOM_SIZE = ref(58)
+const PANE_MAIN_SIZE = ref(70)
+const PANE_SIDEBAR_SIZE = ref(30)
+const PANE_MAIN_TOP_SIZE = ref(35)
+const PANE_MAIN_BOTTOM_SIZE = ref(65)
 
 if (!COLUMN_LAYOUT.value) {
   PANE_MAIN_TOP_SIZE.value = 50

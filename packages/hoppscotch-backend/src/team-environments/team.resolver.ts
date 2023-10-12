@@ -11,6 +11,6 @@ export class TeamEnvsTeamResolver {
     description: 'Returns all Team Environments for the given Team',
   })
   teamEnvironments(@Parent() team: Team): Promise<TeamEnvironment[]> {
-    return this.teamEnvironmentService.fetchAllTeamEnvironments(team.id)();
+    return this.teamEnvironmentService.fetchAllTeamEnvironments(team.id);
   }
 }

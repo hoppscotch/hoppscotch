@@ -1,21 +1,13 @@
 <template>
   <HoppSmartModal v-if="show" dialog :title="t('team.new')" @close="hideModal">
     <template #body>
-      <div class="flex flex-col">
-        <input
-          id="selectLabelTeamAdd"
-          v-model="name"
-          v-focus
-          class="input floating-input"
-          placeholder=" "
-          type="text"
-          autocomplete="off"
-          @keyup.enter="addNewTeam"
-        />
-        <label for="selectLabelTeamAdd">
-          {{ t("action.label") }}
-        </label>
-      </div>
+      <HoppSmartInput
+        v-model="editingName"
+        :label="t('action.label')"
+        placeholder=" "
+        input-styles="floating-input"
+        @submit="addNewTeam"
+      />
     </template>
     <template #footer>
       <span class="flex space-x-2">
@@ -58,14 +50,14 @@ const emit = defineEmits<{
   (e: "hide-modal"): void
 }>()
 
-const name = ref<string | null>(null)
+const editingName = ref<string | null>(null)
 
 const isLoading = ref(false)
 
 const addNewTeam = async () => {
   isLoading.value = true
   await pipe(
-    TeamNameCodec.decode(name.value),
+    TeamNameCodec.decode(editingName.value),
     TE.fromEither,
     TE.mapLeft(() => "invalid_name" as const),
     TE.chainW(createTeam),
@@ -94,7 +86,7 @@ const addNewTeam = async () => {
 }
 
 const hideModal = () => {
-  name.value = null
+  editingName.value = null
   emit("hide-modal")
 }
 </script>

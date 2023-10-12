@@ -79,16 +79,13 @@
                 tabindex="-1"
               />
             </span>
-            <HoppSmartAutoComplete
+            <SmartEnvInput
+              v-model="header.key"
               :placeholder="`${t('count.header', { count: index + 1 })}`"
-              :source="commonHeaders"
-              :spellcheck="false"
-              :value="header.key"
-              autofocus
-              styles=" bg-transparent flex flex-1
-            py-1 px-4 truncate "
-              class="flex-1 !flex"
-              @input="
+              :auto-complete-source="commonHeaders"
+              :env-index="index"
+              :inspection-results="getInspectorResult(headerKeyResults, index)"
+              @change="
                 updateHeader(index, {
                   id: header.id,
                   key: $event,
@@ -100,6 +97,10 @@
             <SmartEnvInput
               v-model="header.value"
               :placeholder="`${t('count.value', { count: index + 1 })}`"
+              :inspection-results="
+                getInspectorResult(headerValueResults, index)
+              "
+              :env-index="index"
               @change="
                 updateHeader(index, {
                   id: header.id,
@@ -184,18 +185,24 @@
             <span>
               <HoppButtonSecondary
                 v-if="header.source === 'auth'"
+                v-tippy="{ theme: 'tooltip' }"
+                :title="t(masking ? 'state.show' : 'state.hide')"
                 :icon="masking ? IconEye : IconEyeOff"
                 @click="toggleMask()"
               />
               <HoppButtonSecondary
                 v-else
+                v-tippy="{ theme: 'tooltip' }"
                 :icon="IconArrowUpRight"
+                :title="t('request.go_to_authorization_tab')"
                 class="cursor-auto text-primary hover:text-primary"
               />
             </span>
             <span>
               <HoppButtonSecondary
+                v-tippy="{ theme: 'tooltip' }"
                 :icon="IconArrowUpRight"
+                :title="t('request.go_to_authorization_tab')"
                 @click="changeTab(header.source)"
               />
             </span>
@@ -212,7 +219,6 @@
           filled
           :label="`${t('add.new')}`"
           :icon="IconPlus"
-          class="mb-4"
           @click="addHeader"
         />
       </HoppSmartPlaceholder>
@@ -265,9 +271,15 @@ import {
 } from "~/helpers/utils/EffectiveURL"
 import { aggregateEnvs$, getAggregateEnvs } from "~/newstore/environments"
 import { useVModel } from "@vueuse/core"
+import { useService } from "dioc/vue"
+import { InspectionService, InspectorResult } from "~/services/inspection"
+import { RESTTabService } from "~/services/tab/rest"
 
 const t = useI18n()
 const toast = useToast()
+
+const tabs = useService(RESTTabService)
+
 const colorMode = useColorMode()
 
 const idTicker = ref(0)
@@ -502,4 +514,32 @@ const changeTab = (tab: ComputedHeader["source"]) => {
   if (tab === "auth") emit("change-tab", "authorization")
   else emit("change-tab", "bodyParams")
 }
+
+const inspectionService = useService(InspectionService)
+
+const headerKeyResults = inspectionService.getResultViewFor(
+  tabs.currentTabID.value,
+  (result) =>
+    result.locations.type === "header" && result.locations.position === "key"
+)
+
+const headerValueResults = inspectionService.getResultViewFor(
+  tabs.currentTabID.value,
+  (result) =>
+    result.locations.type === "header" && result.locations.position === "value"
+)
+
+const getInspectorResult = (results: InspectorResult[], index: number) => {
+  return results.filter((result) => {
+    if (result.locations.type === "url" || result.locations.type === "response")
+      return
+    return result.locations.index === index
+  })
+}
 </script>
+
+<style lang="scss" scoped>
+:deep(.cm-panels) {
+  @apply top-upperTertiaryStickyFold #{!important};
+}
+</style>

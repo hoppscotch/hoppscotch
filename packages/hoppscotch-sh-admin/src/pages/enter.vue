@@ -20,7 +20,7 @@ onBeforeMount(() => {
 onMounted(async () => {
   signingInWithEmail.value = true;
   try {
-    await auth.processMagicLink();
+    auth.processMagicLink();
   } catch (e: any) {
     error.value = e.message;
   } finally {

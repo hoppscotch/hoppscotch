@@ -7,6 +7,7 @@ import {
 import { Ref, ref } from 'vue';
 import * as O from 'fp-ts/Option';
 import authQuery from './backend/rest/authQuery';
+import { COOKIES_NOT_FOUND, UNAUTHORIZED } from './errors';
 
 /**
  * A common (and required) set of fields that describe a user.
@@ -85,12 +86,12 @@ const setInitialUser = async () => {
   isGettingInitialUser.value = true;
   const res = await getInitialUserDetails();
 
-  if (res.errors && res.errors[0]) {
-    const error = res.errors[0];
+  if (res.errors?.[0]) {
+    const [error] = res.errors;
 
-    if (error.message === 'auth/cookies_not_found') {
+    if (error.message === COOKIES_NOT_FOUND) {
       setUser(null);
-    } else if (error.message === 'Unauthorized') {
+    } else if (error.message === UNAUTHORIZED) {
       const isRefreshSuccess = await refreshToken();
 
       if (isRefreshSuccess) {

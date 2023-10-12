@@ -50,12 +50,8 @@ export const authEvents$ = new Subject<
 
 const currentUser$ = new BehaviorSubject<HoppUser | null>(null);
 
-const logout = async () => {
+const signOut = async (reloadWindow = false) => {
   await authQuery.logout();
-};
-
-const signOut = (reloadWindow = false) => {
-  logout();
 
   // Reload the window if both `access_token` and `refresh_token`is invalid
   // there by the user is taken to the login page
@@ -102,15 +98,15 @@ const setInitialUser = async () => {
       }
     }
   } else if (res.data?.me) {
-    const hoppBackendUser = res.data.me;
+    const { uid, displayName, email, photoURL, isAdmin } = res.data.me;
 
     const hoppUser: HoppUser = {
-      uid: hoppBackendUser.uid,
-      displayName: hoppBackendUser.displayName,
-      email: hoppBackendUser.email,
-      photoURL: hoppBackendUser.photoURL,
+      uid,
+      displayName,
+      email,
+      photoURL,
       emailVerified: true,
-      isAdmin: hoppBackendUser.isAdmin,
+      isAdmin,
     };
 
     if (!hoppUser.isAdmin) {
@@ -159,15 +155,13 @@ export const auth = {
   getAuthEventsStream: () => authEvents$,
   getCurrentUser: () => currentUser$.value,
 
-  performAuthInit: async () => {
+  performAuthInit: () => {
     const currentUser = JSON.parse(getLocalConfig('login_state') ?? 'null');
     currentUser$.next(currentUser);
-    await setInitialUser();
+    return setInitialUser();
   },
 
-  signInWithEmail: (email: string) => {
-    sendMagicLink(email);
-  },
+  signInWithEmail: (email: string) => sendMagicLink(email),
 
   isSignInWithEmailLink: (url: string) => {
     const urlObject = new URL(url);
@@ -193,13 +187,13 @@ export const auth = {
     }/auth/microsoft?redirect_uri=${import.meta.env.VITE_ADMIN_URL}`;
   },
 
-  signInWithEmailLink: async (url: string) => {
+  signInWithEmailLink: (url: string) => {
     const urlObject = new URL(url);
     const searchParams = new URLSearchParams(urlObject.search);
     const token = searchParams.get('token');
     const deviceIdentifier = getLocalConfig('deviceIdentifier');
 
-    await authQuery.signInWithEmailLink(token, deviceIdentifier);
+    return authQuery.signInWithEmailLink(token, deviceIdentifier);
   },
 
   performAuthRefresh: async () => {
@@ -215,11 +209,9 @@ export const auth = {
     }
   },
 
-  signOutUser: (reloadWindow = false) => {
-    signOut(reloadWindow);
-  },
+  signOutUser: (reloadWindow = false) => signOut(reloadWindow),
 
-  processMagicLink: () => {
+  processMagicLink: async () => {
     if (auth.isSignInWithEmailLink(window.location.href)) {
       const deviceIdentifier = getLocalConfig('deviceIdentifier');
 
@@ -229,7 +221,7 @@ export const auth = {
         );
       }
 
-      auth.signInWithEmailLink(window.location.href);
+      await auth.signInWithEmailLink(window.location.href);
 
       removeLocalConfig('deviceIdentifier');
       window.location.href = import.meta.env.VITE_ADMIN_URL;

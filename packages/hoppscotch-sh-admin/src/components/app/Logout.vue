@@ -47,9 +47,9 @@ const confirmLogout = ref(false);
 
 const toast = useToast();
 
-const logout = () => {
+const logout = async () => {
   try {
-    auth.signOutUser();
+    await auth.signOutUser();
     router.push(`/`);
     toast.success(`${t('state.logged_out')}`);
   } catch (e) {

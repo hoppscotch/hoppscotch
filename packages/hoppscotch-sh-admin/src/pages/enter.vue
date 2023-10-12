@@ -13,14 +13,14 @@ import { auth } from '~/helpers/auth';
 const signingInWithEmail = ref(false);
 const error = ref(null);
 
-onBeforeMount(() => {
-  auth.performAuthInit();
+onBeforeMount(async () => {
+  await auth.performAuthInit();
 });
 
 onMounted(async () => {
   signingInWithEmail.value = true;
   try {
-    auth.processMagicLink();
+    await auth.processMagicLink();
   } catch (e: any) {
     error.value = e.message;
   } finally {

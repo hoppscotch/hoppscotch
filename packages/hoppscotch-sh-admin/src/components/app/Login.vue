@@ -228,19 +228,19 @@ const signInWithMicrosoft = () => {
   signingInWithMicrosoft.value = false;
 };
 
-const signInWithEmail = () => {
+const signInWithEmail = async () => {
   signingInWithEmail.value = true;
 
-  auth.signInWithEmail(form.value.email);
+  await auth.signInWithEmail(form.value.email);
   mode.value = 'email-sent';
   setLocalConfig('emailForSignIn', form.value.email);
 
   signingInWithEmail.value = false;
 };
 
-const logout = () => {
+const logout = async () => {
   try {
-    auth.signOutUser();
+    await auth.signOutUser();
     window.location.reload();
     toast.success(`${t('state.logged_out')}`);
   } catch (e) {

@@ -189,60 +189,45 @@ onMounted(() => {
   });
 });
 
-async function signInWithGoogle() {
+const signInWithGoogle = () => {
   signingInWithGoogle.value = true;
 
   try {
-    await auth.signInUserWithGoogle();
+    auth.signInUserWithGoogle();
   } catch (e) {
     console.error(e);
-    /*
-    A auth/account-exists-with-different-credential Firebase error wont happen between Google and any other providers
-    Seems Google account overwrites accounts of other providers https://github.com/firebase/firebase-android-sdk/issues/25
-    */
     toast.error(`${t('state.google_signin_failure')}`);
   }
 
   signingInWithGoogle.value = false;
-}
+};
 
-function signInWithGithub() {
+const signInWithGithub = () => {
   signingInWithGitHub.value = true;
 
   try {
     auth.signInUserWithGithub();
   } catch (e) {
     console.error(e);
-    /*
-    A auth/account-exists-with-different-credential Firebase error wont happen between Google and any other providers
-    Seems Google account overwrites accounts of other providers https://github.com/firebase/firebase-android-sdk/issues/25
-    */
     toast.error(`${t('state.github_signin_failure')}`);
   }
 
   signingInWithGitHub.value = false;
-}
+};
 
-async function signInWithMicrosoft() {
+const signInWithMicrosoft = () => {
   signingInWithMicrosoft.value = true;
 
   try {
     auth.signInUserWithMicrosoft();
   } catch (e) {
     console.error(e);
-    /*
-    A auth/account-exists-with-different-credential Firebase error wont happen between MS with Google or Github
-    If a Github account exists and user then logs in with MS email we get a "Something went wrong toast" and console errors and MS replaces GH as only provider.
-    The error messages are as follows:
-        FirebaseError: Firebase: Error (auth/popup-closed-by-user).
-        @firebase/auth: Auth (9.6.11): INTERNAL ASSERTION FAILED: Pending promise was never set
-    They may be related to https://github.com/firebase/firebaseui-web/issues/947
-    */
-    toast.error(`${t('state.error')}`);
+    toast.error(`${t('state.microsoft_signin_failure')}`);
   }
 
   signingInWithMicrosoft.value = false;
-}
+};
+
 const signInWithEmail = () => {
   signingInWithEmail.value = true;
 

@@ -145,16 +145,12 @@ const elevateUser = async () => {
 };
 
 const sendMagicLink = async (email: string) => {
-  try {
-    const res = await authQuery.sendMagicLink(email);
-    if (!res.data?.deviceIdentifier) {
-      throw new Error('test: does not get device identifier');
-    }
-    setLocalConfig('deviceIdentifier', res.data.deviceIdentifier);
-    return res.data;
-  } catch (e) {
-    console.error(e);
+  const res = await authQuery.sendMagicLink(email);
+  if (!res.data?.deviceIdentifier) {
+    throw new Error('test: does not get device identifier');
   }
+  setLocalConfig('deviceIdentifier', res.data.deviceIdentifier);
+  return res.data;
 };
 
 export const auth = {

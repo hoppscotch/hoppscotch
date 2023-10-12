@@ -1,24 +1,9 @@
-import api from '~/helpers/axiosConfig';
+import { gqlApi, restApi } from '~/helpers/axiosConfig';
 
 export default {
   getUserDetails: () =>
-  api.post<{
-    data?: {
-      me?: {
-        uid: string;
-        displayName: string;
-        email: string;
-        photoURL: string;
-        isAdmin: boolean;
-        createdOn: string;
-      };
-    };
-    errors?: Array<{
-      message: string;
-    }>;
-  }>(import.meta.env.VITE_BACKEND_GQL_URL,
-  {
-    query: `query Me {
+    gqlApi.post('', {
+      query: `query Me {
       me {
         uid
         displayName
@@ -28,20 +13,20 @@ export default {
         createdOn
       }
     }`,
-  }),
-  refreshToken: () => api.get('/auth/refresh'),
-  elevateUser: () => api.get('/auth/verify/admin'),
+    }),
+  refreshToken: () => restApi.get('/auth/refresh'),
+  elevateUser: () => restApi.get('/auth/verify/admin'),
   sendMagicLink: (email: string) =>
-    api.post('/auth/signin?origin=admin', {
+    restApi.post('/auth/signin?origin=admin', {
       email,
     }),
   signInWithEmailLink: (
     token: string | null,
     deviceIdentifier: string | null
   ) =>
-    api.post('/auth/verify', {
+    restApi.post('/auth/verify', {
       token: token,
       deviceIdentifier,
     }),
-  logout: () => api.get('/auth/logout'),
+  logout: () => restApi.get('/auth/logout'),
 };

@@ -1,14 +1,20 @@
 import axios from 'axios';
 
-const instance = axios.create({
-  baseURL: import.meta.env.VITE_BACKEND_API_URL,
+const baseConfig = {
   headers: {
     'Content-type': 'application/json',
   },
   withCredentials: true,
+};
+
+const gqlApi = axios.create({
+  ...baseConfig,
+  baseURL: import.meta.env.VITE_BACKEND_GQL_URL,
 });
 
-export default instance;
+const restApi = axios.create({
+  ...baseConfig,
+  baseURL: import.meta.env.VITE_BACKEND_API_URL,
+});
 
-
-
+export { gqlApi, restApi };

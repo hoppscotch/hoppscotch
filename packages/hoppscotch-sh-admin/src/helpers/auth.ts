@@ -138,7 +138,7 @@ const refreshToken = async () => {
 
 const elevateUser = async () => {
   const res = await authQuery.elevateUser();
-  return !!res.data?.isAdmin;
+  return Boolean(res.data?.isAdmin);
 };
 
 const sendMagicLink = async (email: string) => {
@@ -166,7 +166,7 @@ export const auth = {
   isSignInWithEmailLink: (url: string) => {
     const urlObject = new URL(url);
     const searchParams = new URLSearchParams(urlObject.search);
-    return !!searchParams.get('token');
+    return Boolean(searchParams.get('token'));
   },
 
   signInUserWithGoogle: () => {

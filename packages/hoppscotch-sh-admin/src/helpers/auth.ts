@@ -34,7 +34,6 @@ export type HoppUser = {
 };
 
 export type AuthEvent =
-  | { event: 'probable_login'; user: HoppUser } // We have previous login state, but the app is waiting for authentication
   | { event: 'login'; user: HoppUser } // We are authenticated
   | { event: 'logout' } // No authentication and we have no previous state
   | { event: 'token_refresh' }; // We have previous login state, but the app is waiting for authentication
@@ -49,9 +48,10 @@ export const authEvents$ = new Subject<
 >();
 
 const currentUser$ = new BehaviorSubject<HoppUser | null>(null);
-export const probableUser$ = new BehaviorSubject<HoppUser | null>(null);
 
-const logout = async () => await authQuery.logout();
+const logout = async () => {
+  await authQuery.logout();
+};
 
 const signOut = (reloadWindow = false) => {
   logout();
@@ -62,7 +62,6 @@ const signOut = (reloadWindow = false) => {
     window.location.reload();
   }
 
-  probableUser$.next(null);
   currentUser$.next(null);
   removeLocalConfig('login_state');
 
@@ -79,7 +78,6 @@ const isGettingInitialUser: Ref<null | boolean> = ref(null);
 
 const setUser = (user: HoppUser | null) => {
   currentUser$.next(user);
-  probableUser$.next(user);
   setLocalConfig('login_state', JSON.stringify(user));
 };
 
@@ -162,14 +160,11 @@ const sendMagicLink = async (email: string) => {
 export const auth = {
   getCurrentUserStream: () => currentUser$,
   getAuthEventsStream: () => authEvents$,
-  getProbableUserStream: () => probableUser$,
-
   getCurrentUser: () => currentUser$.value,
-  getProbableUser: () => probableUser$.value,
 
   performAuthInit: async () => {
-    const probableUser = JSON.parse(getLocalConfig('login_state') ?? 'null');
-    probableUser$.next(probableUser);
+    const currentUser = JSON.parse(getLocalConfig('login_state') ?? 'null');
+    currentUser$.next(currentUser);
     await setInitialUser();
   },
 

@@ -51,12 +51,10 @@ export const authEvents$ = new Subject<
 const currentUser$ = new BehaviorSubject<HoppUser | null>(null);
 export const probableUser$ = new BehaviorSubject<HoppUser | null>(null);
 
-const logout = async () => {
-  await authQuery.logout();
-};
+const logout = async () => await authQuery.logout();
 
-const signOut = async (reloadWindow = false) => {
-  await logout();
+const signOut = (reloadWindow = false) => {
+  logout();
 
   // Reload the window if both `access_token` and `refresh_token`is invalid
   // there by the user is taken to the login page
@@ -73,30 +71,10 @@ const signOut = async (reloadWindow = false) => {
   });
 };
 
-const signInUserWithGithubFB = async () => {
-  window.location.href = `${
-    import.meta.env.VITE_BACKEND_API_URL
-  }/auth/github?redirect_uri=${import.meta.env.VITE_ADMIN_URL}`;
-};
-
-const signInUserWithGoogleFB = async () => {
-  window.location.href = `${
-    import.meta.env.VITE_BACKEND_API_URL
-  }/auth/google?redirect_uri=${import.meta.env.VITE_ADMIN_URL}`;
-};
-
-const signInUserWithMicrosoftFB = async () => {
-  window.location.href = `${
-    import.meta.env.VITE_BACKEND_API_URL
-  }/auth/microsoft?redirect_uri=${import.meta.env.VITE_ADMIN_URL}`;
-};
-
-
-
 const getInitialUserDetails = async () => {
   const res = await authQuery.getUserDetails();
-    return res.data;
-  }
+  return res.data;
+};
 const isGettingInitialUser: Ref<null | boolean> = ref(null);
 
 const setUser = (user: HoppUser | null) => {
@@ -121,7 +99,7 @@ const setInitialUser = async () => {
         setInitialUser();
       } else {
         setUser(null);
-        await signOut(true);
+        signOut(true);
       }
     }
   } else if (res.data?.me) {
@@ -163,21 +141,23 @@ const refreshToken = async () => {
   }
 };
 
-
 const elevateUser = async () => {
   const res = await authQuery.elevateUser();
   return !!res.data?.isAdmin;
-}
+};
 
-async function sendMagicLink(email: string) {
-  const res = await authQuery.sendMagicLink(email);
-  if (res.data && res.data.deviceIdentifier) {
+const sendMagicLink = async (email: string) => {
+  try {
+    const res = await authQuery.sendMagicLink(email);
+    if (!res.data?.deviceIdentifier) {
+      throw new Error('test: does not get device identifier');
+    }
     setLocalConfig('deviceIdentifier', res.data.deviceIdentifier);
-  } else {
-    throw new Error('test: does not get device identifier');
+    return res.data;
+  } catch (e) {
+    console.error(e);
   }
-  return res.data;
-}
+};
 
 export const auth = {
   getCurrentUserStream: () => currentUser$,
@@ -193,34 +173,37 @@ export const auth = {
     await setInitialUser();
   },
 
-  signInWithEmail: async (email: string) => {
-    await sendMagicLink(email);
+  signInWithEmail: (email: string) => {
+    sendMagicLink(email);
   },
 
   isSignInWithEmailLink: (url: string) => {
     const urlObject = new URL(url);
     const searchParams = new URLSearchParams(urlObject.search);
-
     return !!searchParams.get('token');
   },
 
-  signInUserWithGoogle: async () => {
-    await signInUserWithGoogleFB();
+  signInUserWithGoogle: () => {
+    window.location.href = `${
+      import.meta.env.VITE_BACKEND_API_URL
+    }/auth/google?redirect_uri=${import.meta.env.VITE_ADMIN_URL}`;
   },
 
-  signInUserWithGithub: async () => {
-    await signInUserWithGithubFB();
-    return undefined;
+  signInUserWithGithub: () => {
+    window.location.href = `${
+      import.meta.env.VITE_BACKEND_API_URL
+    }/auth/github?redirect_uri=${import.meta.env.VITE_ADMIN_URL}`;
   },
 
-  signInUserWithMicrosoft: async () => {
-    await signInUserWithMicrosoftFB();
+  signInUserWithMicrosoft: () => {
+    window.location.href = `${
+      import.meta.env.VITE_BACKEND_API_URL
+    }/auth/microsoft?redirect_uri=${import.meta.env.VITE_ADMIN_URL}`;
   },
 
-  signInWithEmailLink: async (email: string, url: string) => {
+  signInWithEmailLink: async (url: string) => {
     const urlObject = new URL(url);
     const searchParams = new URLSearchParams(urlObject.search);
-
     const token = searchParams.get('token');
     const deviceIdentifier = getLocalConfig('deviceIdentifier');
 
@@ -240,11 +223,11 @@ export const auth = {
     }
   },
 
-  signOutUser: async (reloadWindow = false) => {
-    await signOut(reloadWindow);
+  signOutUser: (reloadWindow = false) => {
+    signOut(reloadWindow);
   },
 
-  processMagicLink: async () => {
+  processMagicLink: () => {
     if (auth.isSignInWithEmailLink(window.location.href)) {
       const deviceIdentifier = getLocalConfig('deviceIdentifier');
 
@@ -254,7 +237,7 @@ export const auth = {
         );
       }
 
-      await auth.signInWithEmailLink(deviceIdentifier, window.location.href);
+      auth.signInWithEmailLink(window.location.href);
 
       removeLocalConfig('deviceIdentifier');
       window.location.href = import.meta.env.VITE_ADMIN_URL;

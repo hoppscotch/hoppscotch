@@ -205,11 +205,12 @@ async function signInWithGoogle() {
 
   signingInWithGoogle.value = false;
 }
-async function signInWithGithub() {
+
+function signInWithGithub() {
   signingInWithGitHub.value = true;
 
   try {
-    await auth.signInUserWithGithub();
+    auth.signInUserWithGithub();
   } catch (e) {
     console.error(e);
     /*
@@ -226,7 +227,7 @@ async function signInWithMicrosoft() {
   signingInWithMicrosoft.value = true;
 
   try {
-    await auth.signInUserWithMicrosoft();
+    auth.signInUserWithMicrosoft();
   } catch (e) {
     console.error(e);
     /*
@@ -242,27 +243,19 @@ async function signInWithMicrosoft() {
 
   signingInWithMicrosoft.value = false;
 }
-async function signInWithEmail() {
+const signInWithEmail = () => {
   signingInWithEmail.value = true;
 
-  await auth
-    .signInWithEmail(form.value.email)
-    .then(() => {
-      mode.value = 'email-sent';
-      setLocalConfig('emailForSignIn', form.value.email);
-    })
-    .catch((e: any) => {
-      toast.error(e.message);
-      signingInWithEmail.value = false;
-    })
-    .finally(() => {
-      signingInWithEmail.value = false;
-    });
-}
+  auth.signInWithEmail(form.value.email);
+  mode.value = 'email-sent';
+  setLocalConfig('emailForSignIn', form.value.email);
 
-const logout = async () => {
+  signingInWithEmail.value = false;
+};
+
+const logout = () => {
   try {
-    await auth.signOutUser();
+    auth.signOutUser();
     window.location.reload();
     toast.success(`${t('state.logged_out')}`);
   } catch (e) {

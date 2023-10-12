@@ -25,7 +25,7 @@ export default {
     deviceIdentifier: string | null
   ) =>
     restApi.post('/auth/verify', {
-      token: token,
+      token,
       deviceIdentifier,
     }),
   logout: () => restApi.get('/auth/logout'),

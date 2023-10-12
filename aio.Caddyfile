@@ -1,11 +1,13 @@
 :3000 {
-  try_files {path} /
   root * /site/selfhost-web
   file_server
-}
 
-:3100 {
-  try_files {path} /
-  root * /site/sh-admin
-  file_server
+  handle_path /admin* {
+    root * /site/sh-admin
+    file_server
+  }
+
+  handle_path /backend* {
+    reverse_proxy localhost:3170
+  }
 }

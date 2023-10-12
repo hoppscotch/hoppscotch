@@ -60,6 +60,7 @@
             <div class="py-4 space-y-4">
               <div class="flex items-center">
                 <HoppSmartToggle
+                  v-if="isSentryEnabled"
                   :on="TELEMETRY_ENABLED"
                   @change="showConfirmModal"
                 >
@@ -162,6 +163,8 @@ const PROXY_URL = useSetting("PROXY_URL")
 const TELEMETRY_ENABLED = useSetting("TELEMETRY_ENABLED")
 const EXPAND_NAVIGATION = useSetting("EXPAND_NAVIGATION")
 const SIDEBAR_ON_LEFT = useSetting("SIDEBAR_ON_LEFT")
+
+const isSentryEnabled = Boolean(import.meta.env.VITE_SENTRY_DSN)
 
 const confirmRemove = ref(false)
 

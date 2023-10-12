@@ -8,21 +8,22 @@ export default {
     },
     extend: {
       inset: {
-        "upper-primary-sticky-fold": "var(--upper-primary-sticky-fold)",
-        "upper-secondary-sticky-fold": "var(--upper-secondary-sticky-fold)",
-        "upper-tertiary-sticky-fold": "var(--upper-tertiary-sticky-fold)",
-        "upper-mobile-primary-sticky-fold":
-          "var(--upper-mobile-primary-sticky-fold)",
-        "upper-mobile-secondary-sticky-fold":
+        upperPrimaryStickyFold: "var(--upper-primary-sticky-fold)",
+        upperSecondaryStickyFold: "var(--upper-secondary-sticky-fold)",
+        upperTertiaryStickyFold: "var(--upper-tertiary-sticky-fold)",
+        upperFourthStickyFold: "var(--upper-fourth-sticky-fold)",
+        upperMobilePrimaryStickyFold: "var(--upper-mobile-primary-sticky-fold)",
+        upperMobileSecondaryStickyFold:
           "var(--upper-mobile-secondary-sticky-fold)",
-        "upper-mobile-sticky-fold": "var(--upper-mobile-sticky-fold)",
-        "upper-mobile-tertiary-sticky-fold":
+        upperMobileStickyFold: "var(--upper-mobile-sticky-fold)",
+        upperMobileTertiaryStickyFold:
           "var(--upper-mobile-tertiary-sticky-fold)",
-        "lower-primary-sticky-fold": "var(--lower-primary-sticky-fold)",
-        "lower-secondary-sticky-fold": "var(--lower-secondary-sticky-fold)",
-        "lower-tertiary-sticky-fold": "var(--lower-tertiary-sticky-fold)",
-        "sidebar-primary-sticky-fold": "var(--sidebar-primary-sticky-fold)",
-        "sidebar-secondary-sticky-fold": "var(--line-height-body)",
+        lowerPrimaryStickyFold: "var(--lower-primary-sticky-fold)",
+        lowerSecondaryStickyFold: "var(--lower-secondary-sticky-fold)",
+        lowerTertiaryStickyFold: "var(--lower-tertiary-sticky-fold)",
+        lowerFourthStickyFold: "var(--lower-fourth-sticky-fold)",
+        sidebarPrimaryStickyFold: "var(--sidebar-primary-sticky-fold)",
+        sidebarSecondaryStickyFold: "var(--line-height-body)",
       },
       colors: {
         primary: "var(--primary-color)",

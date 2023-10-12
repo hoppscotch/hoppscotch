@@ -112,9 +112,9 @@ watch(
   @apply after:left-0;
   @apply after:bottom-0;
   @apply after:bg-transparent;
-  @apply after:z-2;
+  @apply after:z-10;
   @apply after:w-0.5;
-  @apply after:content-DEFAULT;
+  @apply after:content-[''];
 
   &.active {
     @apply after:bg-accentLight;

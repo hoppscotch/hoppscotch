@@ -39,6 +39,7 @@
     "delete_user_success": "User deleted successfully!!",
     "email": "Email",
     "email_failure": "Failed to send invitation",
+    "email_signin_failure": "Failed to login with Email",
     "email_success": "Email invitation sent successfully",
     "enter_team_email": "Please enter email of team owner!!",
     "error": "Something went wrong",

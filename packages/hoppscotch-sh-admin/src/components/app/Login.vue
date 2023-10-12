@@ -184,7 +184,7 @@ onMounted(() => {
   subscribeToStream(currentUser$, (user) => {
     if (user && !user.isAdmin) {
       nonAdminUser.value = true;
-      toast.error(`${t('state.non_admin_login')}`);
+      toast.error(t('state.non_admin_login'));
     }
   });
 });
@@ -196,7 +196,7 @@ const signInWithGoogle = () => {
     auth.signInUserWithGoogle();
   } catch (e) {
     console.error(e);
-    toast.error(`${t('state.google_signin_failure')}`);
+    toast.error(t('state.google_signin_failure'));
   }
 
   signingInWithGoogle.value = false;
@@ -209,7 +209,7 @@ const signInWithGithub = () => {
     auth.signInUserWithGithub();
   } catch (e) {
     console.error(e);
-    toast.error(`${t('state.github_signin_failure')}`);
+    toast.error(t('state.github_signin_failure'));
   }
 
   signingInWithGitHub.value = false;
@@ -222,7 +222,7 @@ const signInWithMicrosoft = () => {
     auth.signInUserWithMicrosoft();
   } catch (e) {
     console.error(e);
-    toast.error(`${t('state.microsoft_signin_failure')}`);
+    toast.error(t('state.microsoft_signin_failure'));
   }
 
   signingInWithMicrosoft.value = false;
@@ -230,11 +230,14 @@ const signInWithMicrosoft = () => {
 
 const signInWithEmail = async () => {
   signingInWithEmail.value = true;
-
-  await auth.signInWithEmail(form.value.email);
-  mode.value = 'email-sent';
-  setLocalConfig('emailForSignIn', form.value.email);
-
+  try {
+    await auth.signInWithEmail(form.value.email);
+    mode.value = 'email-sent';
+    setLocalConfig('emailForSignIn', form.value.email);
+  } catch (e) {
+    console.error(e);
+    toast.error(t('state.email_signin_failure'));
+  }
   signingInWithEmail.value = false;
 };
 
@@ -242,10 +245,10 @@ const logout = async () => {
   try {
     await auth.signOutUser();
     window.location.reload();
-    toast.success(`${t('state.logged_out')}`);
+    toast.success(t('state.logged_out'));
   } catch (e) {
     console.error(e);
-    toast.error(`${t('state.error')}`);
+    toast.error(t('state.error'));
   }
 };
 </script>

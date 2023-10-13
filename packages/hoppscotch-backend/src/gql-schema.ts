@@ -93,9 +93,7 @@ export async function emitGQLSchemaFile() {
       numberScalarMode: 'integer',
     });
 
-    const schemaString = printSchema(schema, {
-      commentDescriptions: true,
-    });
+    const schemaString = printSchema(schema);
 
     logger.log(`Writing schema to GQL_SCHEMA_EMIT_LOCATION (${destination})`);
 

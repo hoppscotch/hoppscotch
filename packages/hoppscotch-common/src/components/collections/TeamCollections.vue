@@ -266,7 +266,7 @@
             :src="`/images/states/${colorMode.value}/pack.svg`"
             :alt="`${t('empty.collections')}`"
             :text="t('empty.collections')"
-            @drop="(e) => e.stopPropagation()"
+            @drop.stop
           >
             <div class="flex flex-col items-center space-y-4">
               <span class="text-secondaryLight text-center">
@@ -301,7 +301,7 @@
             :src="`/images/states/${colorMode.value}/pack.svg`"
             :alt="`${t('empty.collections')}`"
             :text="t('empty.collections')"
-            @drop="(e) => e.stopPropagation()"
+            @drop.stop
           >
             <HoppButtonSecondary
               :label="t('add.new')"
@@ -321,7 +321,7 @@
             :src="`/images/states/${colorMode.value}/pack.svg`"
             :alt="`${t('empty.folder')}`"
             :text="t('empty.folder')"
-            @drop="(e) => e.stopPropagation()"
+            @drop.stop
           />
         </template>
       </HoppSmartTree>

@@ -82,6 +82,7 @@
             :label="t('add.new')"
             filled
             outline
+            :icon="IconPlus"
             @click="displayModalAdd(true)"
           />
         </div>

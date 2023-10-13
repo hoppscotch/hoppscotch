@@ -29,7 +29,7 @@ export class InfraResolver {
   constructor(private adminService: AdminService) {}
 
   @Query(() => Infra, {
-    description: 'Gives details of the admin executing this query',
+    description: 'Gives details of the infra executing this query',
   })
   @UseGuards(GqlAuthGuard, GqlAdminGuard)
   infra(@GqlAdmin() admin: Admin) {
@@ -66,10 +66,7 @@ export class InfraResolver {
     description: 'Returns a list of all the users in infra',
   })
   @UseGuards(GqlAuthGuard, GqlAdminGuard)
-  async allUsers(
-    @Parent() infra: Infra,
-    @Args() args: PaginationArgs,
-  ): Promise<AuthUser[]> {
+  async allUsers(@Args() args: PaginationArgs): Promise<AuthUser[]> {
     const users = await this.adminService.fetchUsers(args.cursor, args.take);
     return users;
   }
@@ -77,7 +74,7 @@ export class InfraResolver {
   @ResolveField(() => [InvitedUser], {
     description: 'Returns a list of all the invited users',
   })
-  async invitedUsers(@Parent() infra: Infra): Promise<InvitedUser[]> {
+  async invitedUsers(): Promise<InvitedUser[]> {
     const users = await this.adminService.fetchInvitedUsers();
     return users;
   }
@@ -85,10 +82,7 @@ export class InfraResolver {
   @ResolveField(() => [Team], {
     description: 'Returns a list of all the teams in the infra',
   })
-  async allTeams(
-    @Parent() infra: Infra,
-    @Args() args: PaginationArgs,
-  ): Promise<Team[]> {
+  async allTeams(@Args() args: PaginationArgs): Promise<Team[]> {
     const teams = await this.adminService.fetchAllTeams(args.cursor, args.take);
     return teams;
   }
@@ -97,7 +91,6 @@ export class InfraResolver {
     description: 'Returns a team info by ID when requested by Admin',
   })
   async teamInfo(
-    @Parent() infra: Infra,
     @Args({
       name: 'teamID',
       type: () => ID,
@@ -114,7 +107,6 @@ export class InfraResolver {
     description: 'Return count of all the members in a team',
   })
   async membersCountInTeam(
-    @Parent() infra: Infra,
     @Args({
       name: 'teamID',
       type: () => ID,
@@ -131,7 +123,6 @@ export class InfraResolver {
     description: 'Return count of all the stored collections in a team',
   })
   async collectionCountInTeam(
-    @Parent() infra: Infra,
     @Args({
       name: 'teamID',
       type: () => ID,
@@ -147,7 +138,6 @@ export class InfraResolver {
     description: 'Return count of all the stored requests in a team',
   })
   async requestCountInTeam(
-    @Parent() infra: Infra,
     @Args({
       name: 'teamID',
       type: () => ID,
@@ -163,7 +153,6 @@ export class InfraResolver {
     description: 'Return count of all the stored environments in a team',
   })
   async environmentCountInTeam(
-    @Parent() infra: Infra,
     @Args({
       name: 'teamID',
       type: () => ID,
@@ -179,7 +168,6 @@ export class InfraResolver {
     description: 'Return all the pending invitations in a team',
   })
   async pendingInvitationCountInTeam(
-    @Parent() infra: Infra,
     @Args({
       name: 'teamID',
       type: () => ID,

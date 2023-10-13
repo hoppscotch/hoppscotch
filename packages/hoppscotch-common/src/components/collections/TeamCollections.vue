@@ -261,16 +261,18 @@
           />
         </template>
         <template #emptyNode="{ node }">
-          <div
+          <HoppSmartPlaceholder
             v-if="node === null"
-            class="flex flex-col space-y-25 py-5"
-            @drop="(e) => e.stopPropagation()"
+            :src="`/images/states/${colorMode.value}/pack.svg`"
+            :alt="`${t('empty.collections')}`"
+            :text="t('empty.collections')"
+            @drop.stop
           >
             <div class="flex flex-col items-center space-y-4">
               <span class="text-secondaryLight text-center">
                 {{ t("collection.import_or_create") }}
               </span>
-              <div class="flex gap-4 flex-col items-center">
+              <div class="flex gap-4 flex-col items-stretch">
                 <HoppButtonPrimary
                   :icon="IconImport"
                   :label="t('import.title')"
@@ -293,45 +295,34 @@
                 />
               </div>
             </div>
-            <HoppSmartPlaceholder
-              :src="`/images/states/${colorMode.value}/pack.svg`"
-              :alt="`${t('empty.collections')}`"
-              :text="t('empty.collections')"
-            />
-          </div>
-          <div
+          </HoppSmartPlaceholder>
+          <HoppSmartPlaceholder
             v-else-if="node.data.type === 'collections'"
-            @drop="(e) => e.stopPropagation()"
+            :src="`/images/states/${colorMode.value}/pack.svg`"
+            :alt="`${t('empty.collections')}`"
+            :text="t('empty.collections')"
+            @drop.stop
           >
-            <HoppSmartPlaceholder
-              :src="`/images/states/${colorMode.value}/pack.svg`"
-              :alt="`${t('empty.collections')}`"
-              :text="t('empty.collections')"
-            >
-              <HoppButtonSecondary
-                :label="t('add.new')"
-                filled
-                outline
-                @click="
-                  node.data.type === 'collections' &&
-                    emit('add-folder', {
-                      path: node.id,
-                      folder: node.data.data.data,
-                    })
-                "
-              />
-            </HoppSmartPlaceholder>
-          </div>
-          <div
-            v-else-if="node.data.type === 'folders'"
-            @drop="(e) => e.stopPropagation()"
-          >
-            <HoppSmartPlaceholder
-              :src="`/images/states/${colorMode.value}/pack.svg`"
-              :alt="`${t('empty.folder')}`"
-              :text="t('empty.folder')"
+            <HoppButtonSecondary
+              :label="t('add.new')"
+              filled
+              outline
+              @click="
+                node.data.type === 'collections' &&
+                  emit('add-folder', {
+                    path: node.id,
+                    folder: node.data.data.data,
+                  })
+              "
             />
-          </div>
+          </HoppSmartPlaceholder>
+          <HoppSmartPlaceholder
+            v-else-if="node.data.type === 'folders'"
+            :src="`/images/states/${colorMode.value}/pack.svg`"
+            :alt="`${t('empty.folder')}`"
+            :text="t('empty.folder')"
+            @drop.stop
+          />
         </template>
       </HoppSmartTree>
     </div>

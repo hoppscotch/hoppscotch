@@ -34,7 +34,7 @@
             v-if="!saveRequest"
             v-tippy="{ theme: 'tooltip' }"
             :title="t('modal.import_export')"
-            :icon="IconArchive"
+            :icon="IconImport"
             @click="displayModalImportExport(true)"
           />
         </div>
@@ -66,12 +66,27 @@
       :alt="`${t('empty.collections')}`"
       :text="t('empty.collections')"
     >
-      <HoppButtonSecondary
-        :label="t('add.new')"
-        filled
-        outline
-        @click="displayModalAdd(true)"
-      />
+      <div class="flex flex-col items-center space-y-4">
+        <span class="text-secondaryLight text-center">
+          {{ t("collection.import_or_create") }}
+        </span>
+        <div class="flex gap-4 flex-col items-stretch">
+          <HoppButtonPrimary
+            :icon="IconImport"
+            :label="t('import.title')"
+            filled
+            outline
+            @click="displayModalImportExport(true)"
+          />
+          <HoppButtonSecondary
+            :label="t('add.new')"
+            filled
+            outline
+            :icon="IconPlus"
+            @click="displayModalAdd(true)"
+          />
+        </div>
+      </div>
     </HoppSmartPlaceholder>
     <HoppSmartPlaceholder
       v-if="!(filteredCollections.length !== 0 || collections.length === 0)"
@@ -140,7 +155,7 @@ import {
 
 import IconPlus from "~icons/lucide/plus"
 import IconHelpCircle from "~icons/lucide/help-circle"
-import IconArchive from "~icons/lucide/archive"
+import IconImport from "~icons/lucide/folder-down"
 import { useI18n } from "@composables/i18n"
 import { useReadonlyStream } from "@composables/stream"
 import { useColorMode } from "@composables/theming"
@@ -168,7 +183,7 @@ export default defineComponent({
       tabs,
       IconPlus,
       IconHelpCircle,
-      IconArchive,
+      IconImport,
     }
   },
   data() {

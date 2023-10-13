@@ -24,7 +24,7 @@
     "do-test": "pnpm run test"
   },
   "dependencies": {
-    "@apollo/server": "^4.9.3",
+    "@apollo/server": "^4.9.4",
     "@nestjs-modules/mailer": "^1.9.1",
     "@nestjs/apollo": "^12.0.9",
     "@nestjs/common": "^10.2.6",
@@ -42,7 +42,7 @@
     "express": "^4.17.1",
     "express-session": "^1.17.3",
     "fp-ts": "^2.13.1",
-    "graphql": "^16.6.0",
+    "graphql": "^16.8.1",
     "graphql-query-complexity": "^0.12.0",
     "graphql-redis-subscriptions": "^2.6.0",
     "graphql-subscriptions": "^2.0.0",

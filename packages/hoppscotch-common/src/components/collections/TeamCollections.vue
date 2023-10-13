@@ -261,43 +261,42 @@
           />
         </template>
         <template #emptyNode="{ node }">
-          <div
-            v-if="node === null"
-            class="flex flex-col space-y-25 py-5"
-            @drop="(e) => e.stopPropagation()"
-          >
-            <div class="flex flex-col items-center space-y-4">
-              <span class="text-secondaryLight text-center">
-                {{ t("collection.import_or_create") }}
-              </span>
-              <div class="flex gap-4 flex-col items-center">
-                <HoppButtonPrimary
-                  :icon="IconImport"
-                  :label="t('import.title')"
-                  filled
-                  outline
-                  :disabled="hasNoTeamAccess"
-                  :title="hasNoTeamAccess ? t('team.no_access') : ''"
-                  @click="
-                    hasNoTeamAccess ? null : emit('display-modal-import-export')
-                  "
-                />
-                <HoppButtonSecondary
-                  :icon="IconPlus"
-                  :label="t('add.new')"
-                  filled
-                  outline
-                  :disabled="hasNoTeamAccess"
-                  :title="hasNoTeamAccess ? t('team.no_access') : ''"
-                  @click="hasNoTeamAccess ? null : emit('display-modal-add')"
-                />
-              </div>
-            </div>
+          <div v-if="node === null" @drop="(e) => e.stopPropagation()">
             <HoppSmartPlaceholder
               :src="`/images/states/${colorMode.value}/pack.svg`"
               :alt="`${t('empty.collections')}`"
               :text="t('empty.collections')"
-            />
+            >
+              <div class="flex flex-col items-center space-y-4">
+                <span class="text-secondaryLight text-center">
+                  {{ t("collection.import_or_create") }}
+                </span>
+                <div class="flex gap-4 flex-col items-stretch">
+                  <HoppButtonPrimary
+                    :icon="IconImport"
+                    :label="t('import.title')"
+                    filled
+                    outline
+                    :disabled="hasNoTeamAccess"
+                    :title="hasNoTeamAccess ? t('team.no_access') : ''"
+                    @click="
+                      hasNoTeamAccess
+                        ? null
+                        : emit('display-modal-import-export')
+                    "
+                  />
+                  <HoppButtonSecondary
+                    :icon="IconPlus"
+                    :label="t('add.new')"
+                    filled
+                    outline
+                    :disabled="hasNoTeamAccess"
+                    :title="hasNoTeamAccess ? t('team.no_access') : ''"
+                    @click="hasNoTeamAccess ? null : emit('display-modal-add')"
+                  />
+                </div>
+              </div>
+            </HoppSmartPlaceholder>
           </div>
           <div
             v-else-if="node.data.type === 'collections'"

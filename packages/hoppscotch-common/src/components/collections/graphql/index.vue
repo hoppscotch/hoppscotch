@@ -34,7 +34,7 @@
             v-if="!saveRequest"
             v-tippy="{ theme: 'tooltip' }"
             :title="t('modal.import_export')"
-            :icon="IconArchive"
+            :icon="IconImport"
             @click="displayModalImportExport(true)"
           />
         </div>
@@ -140,7 +140,7 @@ import {
 
 import IconPlus from "~icons/lucide/plus"
 import IconHelpCircle from "~icons/lucide/help-circle"
-import IconArchive from "~icons/lucide/archive"
+import IconImport from "~icons/lucide/folder-down"
 import { useI18n } from "@composables/i18n"
 import { useReadonlyStream } from "@composables/stream"
 import { useColorMode } from "@composables/theming"
@@ -168,7 +168,7 @@ export default defineComponent({
       tabs,
       IconPlus,
       IconHelpCircle,
-      IconArchive,
+      IconImport,
     }
   },
   data() {

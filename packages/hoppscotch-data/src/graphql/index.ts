@@ -1,49 +1,74 @@
-import { HoppGQLAuth } from "./HoppGQLAuth"
+import { InferredEntity, createVersionedEntity } from "verzod"
+import V1_VERSION from "./v/1"
+import V2_VERSION from "./v/2"
 
-export * from "./HoppGQLAuth"
+export { GQLHeader } from "./v/1"
+export {
+  HoppGQLAuth,
+  HoppGQLAuthAPIKey,
+  HoppGQLAuthBasic,
+  HoppGQLAuthBearer,
+  HoppGQLAuthNone,
+  HoppGQLAuthOAuth2
+} from "./v/2"
 
 export const GQL_REQ_SCHEMA_VERSION = 2
 
-export type GQLHeader = {
-  key: string
-  value: string
-  active: boolean
-}
-
-export type HoppGQLRequest = {
-  id?: string
-  v: number
-  name: string
-  url: string
-  headers: GQLHeader[]
-  query: string
-  variables: string
-  auth: HoppGQLAuth
-}
-
-export function translateToGQLRequest(x: any): HoppGQLRequest {
-  if (x.v && x.v === GQL_REQ_SCHEMA_VERSION) return x
-
-  // Old request
-  const name = x.name ?? "Untitled"
-  const url = x.url ?? ""
-  const headers = x.headers ?? []
-  const query = x.query ?? ""
-  const variables = x.variables ?? []
-  const auth = x.auth ?? {
-    authType: "none",
-    authActive: true,
+export const HoppGQLRequest = createVersionedEntity({
+  latestVersion: 2,
+  versionMap: {
+    1: V1_VERSION,
+    2: V2_VERSION
+  },
+  getVersion(x) {
+    return typeof x === "object"
+      && x !== null
+      && "v" in x
+      && typeof x.v === "number"
+        ? x.v
+        : 0
   }
+})
 
+export type HoppGQLRequest = InferredEntity<typeof HoppGQLRequest>
+
+const DEFAULT_QUERY = `
+query Request {
+  method
+  url
+  headers {
+    key
+    value
+  }
+}`.trim()
+
+export function getDefaultGQLRequest(): HoppGQLRequest {
   return {
     v: GQL_REQ_SCHEMA_VERSION,
-    name,
-    url,
-    headers,
-    query,
-    variables,
-    auth
+    name: "Untitled",
+    url: "https://echo.hoppscotch.io/graphql",
+    headers: [],
+    variables: `
+{
+  "id": "1"
+}`.trim(),
+    query: DEFAULT_QUERY,
+    auth: {
+      authType: "none",
+      authActive: true,
+    },
   }
+}
+
+/**
+ * @deprecated This function is deprecated. Use `HoppGQLRequest` instead.
+ */
+export function translateToGQLRequest(x: unknown): HoppGQLRequest {
+  const result = HoppGQLRequest.safeParse(x)
+
+  if (result.type === "ok") return result.value
+
+  return getDefaultGQLRequest()
 }
 
 export function makeGQLRequest(x: Omit<HoppGQLRequest, "v">): HoppGQLRequest {

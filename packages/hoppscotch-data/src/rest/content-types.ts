@@ -11,3 +11,5 @@ export const knownContentTypes = {
 }
 
 export type ValidContentTypes = keyof typeof knownContentTypes
+
+export const ValidContentTypesList = Object.keys(knownContentTypes) as ValidContentTypes[]

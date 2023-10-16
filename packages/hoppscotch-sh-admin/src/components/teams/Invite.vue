@@ -213,11 +213,11 @@ const t = useI18n();
 
 // Get Users List
 const { data } = useQuery({ query: MetricsDocument });
-const usersPerPage = computed(() => data.value?.admin.usersCount || 10000);
+const usersPerPage = computed(() => data.value?.infra.usersCount || 10000);
 
 const { list: usersList } = usePagedQuery(
   UsersListDocument,
-  (x) => x.admin.allUsers,
+  (x) => x.infra.allUsers,
   (x) => x.uid,
   usersPerPage.value,
   { cursor: undefined, take: usersPerPage.value }

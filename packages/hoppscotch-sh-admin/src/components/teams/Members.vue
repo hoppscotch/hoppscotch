@@ -187,7 +187,7 @@ const emit = defineEmits<{
 const showInvite = ref(false);
 
 // Get Team Details
-const team = ref<TeamInfoQuery['admin']['teamInfo'] | undefined>();
+const team = ref<TeamInfoQuery['infra']['teamInfo'] | undefined>();
 const fetching = ref(true);
 const route = useRoute();
 const { client } = useClientHandle();
@@ -201,8 +201,8 @@ const getTeamInfo = async () => {
   if (result.error) {
     return toast.error(`${t('teams.load_info_error')}`);
   }
-  if (result.data?.admin.teamInfo) {
-    team.value = result.data.admin.teamInfo;
+  if (result.data?.infra.teamInfo) {
+    team.value = result.data.infra.teamInfo;
   }
   fetching.value = false;
 };

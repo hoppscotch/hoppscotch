@@ -143,7 +143,7 @@ import { useI18n } from '~/composables/i18n';
 const t = useI18n();
 
 defineProps<{
-  usersList: UsersListQuery['admin']['allUsers'];
+  usersList: UsersListQuery['infra']['allUsers'];
 }>();
 
 defineEmits<{

@@ -179,7 +179,7 @@ onMounted(async () => {
   if (result.error) {
     toast.error(`${t('users.load_info_error')}`);
   }
-  user.value = result.data?.admin.userInfo ?? {};
+  user.value = result.data?.infra.userInfo ?? {};
   fetching.value = false;
 });
 

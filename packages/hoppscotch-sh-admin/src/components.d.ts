@@ -23,9 +23,14 @@ declare module '@vue/runtime-core' {
     HoppSmartItem: typeof import('@hoppscotch/ui')['HoppSmartItem'];
     HoppSmartModal: typeof import('@hoppscotch/ui')['HoppSmartModal'];
     HoppSmartPicture: typeof import('@hoppscotch/ui')['HoppSmartPicture'];
+    HoppSmartPlaceholder: typeof import('@hoppscotch/ui')['HoppSmartPlaceholder'];
     HoppSmartSpinner: typeof import('@hoppscotch/ui')['HoppSmartSpinner'];
+    HoppSmartTab: typeof import('@hoppscotch/ui')['HoppSmartTab'];
+    IconLucideArrowLeft: typeof import('~icons/lucide/arrow-left')['default'];
     IconLucideChevronDown: typeof import('~icons/lucide/chevron-down')['default'];
+    IconLucideHelpCircle: typeof import('~icons/lucide/help-circle')['default'];
     IconLucideInbox: typeof import('~icons/lucide/inbox')['default'];
+    IconLucideUser: typeof import('~icons/lucide/user')['default'];
     TeamsAdd: typeof import('./components/teams/Add.vue')['default'];
     TeamsDetails: typeof import('./components/teams/Details.vue')['default'];
     TeamsInvite: typeof import('./components/teams/Invite.vue')['default'];

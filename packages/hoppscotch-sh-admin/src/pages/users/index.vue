@@ -112,7 +112,7 @@ const {
   hasNextPage,
 } = usePagedQuery(
   UsersListDocument,
-  (x) => x.admin.allUsers,
+  (x) => x.infra.allUsers,
   (x) => x.uid,
   usersPerPage,
   { cursor: undefined, take: usersPerPage }

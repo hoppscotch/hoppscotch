@@ -27,7 +27,7 @@ export const HoppRESTReqBodyFormData = z.object({
 
 export type HoppRESTReqBodyFormData = z.infer<typeof HoppRESTReqBodyFormData>
 
-export const HoppRESTReqBody = z.discriminatedUnion("contentType", [
+export const HoppRESTReqBody = z.union([
   z.object({
     contentType: z.literal(null),
     body: z.literal(null)

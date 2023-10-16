@@ -184,91 +184,71 @@ onMounted(() => {
   subscribeToStream(currentUser$, (user) => {
     if (user && !user.isAdmin) {
       nonAdminUser.value = true;
-      toast.error(`${t('state.non_admin_login')}`);
+      toast.error(t('state.non_admin_login'));
     }
   });
 });
 
-async function signInWithGoogle() {
+const signInWithGoogle = () => {
   signingInWithGoogle.value = true;
 
   try {
-    await auth.signInUserWithGoogle();
+    auth.signInUserWithGoogle();
   } catch (e) {
     console.error(e);
-    /*
-    A auth/account-exists-with-different-credential Firebase error wont happen between Google and any other providers
-    Seems Google account overwrites accounts of other providers https://github.com/firebase/firebase-android-sdk/issues/25
-    */
-    toast.error(`${t('state.google_signin_failure')}`);
+    toast.error(t('state.google_signin_failure'));
   }
 
   signingInWithGoogle.value = false;
-}
-async function signInWithGithub() {
+};
+
+const signInWithGithub = () => {
   signingInWithGitHub.value = true;
 
   try {
-    await auth.signInUserWithGithub();
+    auth.signInUserWithGithub();
   } catch (e) {
     console.error(e);
-    /*
-    A auth/account-exists-with-different-credential Firebase error wont happen between Google and any other providers
-    Seems Google account overwrites accounts of other providers https://github.com/firebase/firebase-android-sdk/issues/25
-    */
-    toast.error(`${t('state.github_signin_failure')}`);
+    toast.error(t('state.github_signin_failure'));
   }
 
   signingInWithGitHub.value = false;
-}
+};
 
-async function signInWithMicrosoft() {
+const signInWithMicrosoft = () => {
   signingInWithMicrosoft.value = true;
 
   try {
-    await auth.signInUserWithMicrosoft();
+    auth.signInUserWithMicrosoft();
   } catch (e) {
     console.error(e);
-    /*
-    A auth/account-exists-with-different-credential Firebase error wont happen between MS with Google or Github
-    If a Github account exists and user then logs in with MS email we get a "Something went wrong toast" and console errors and MS replaces GH as only provider.
-    The error messages are as follows:
-        FirebaseError: Firebase: Error (auth/popup-closed-by-user).
-        @firebase/auth: Auth (9.6.11): INTERNAL ASSERTION FAILED: Pending promise was never set
-    They may be related to https://github.com/firebase/firebaseui-web/issues/947
-    */
-    toast.error(`${t('state.error')}`);
+    toast.error(t('state.microsoft_signin_failure'));
   }
 
   signingInWithMicrosoft.value = false;
-}
-async function signInWithEmail() {
-  signingInWithEmail.value = true;
+};
 
-  await auth
-    .signInWithEmail(form.value.email)
-    .then(() => {
-      mode.value = 'email-sent';
-      setLocalConfig('emailForSignIn', form.value.email);
-    })
-    .catch((e: any) => {
-      console.error(e);
-      toast.error(e.message);
-      signingInWithEmail.value = false;
-    })
-    .finally(() => {
-      signingInWithEmail.value = false;
-    });
-}
+const signInWithEmail = async () => {
+  signingInWithEmail.value = true;
+  try {
+    await auth.signInWithEmail(form.value.email);
+    mode.value = 'email-sent';
+    setLocalConfig('emailForSignIn', form.value.email);
+  } catch (e) {
+    console.error(e);
+    toast.error(t('state.email_signin_failure'));
+  }
+  signingInWithEmail.value = false;
+};
 
 const logout = async () => {
   try {
     await auth.signOutUser();
     window.location.reload();
-    toast.success(`${t('state.logged_out')}`);
+    toast.success(t('state.logged_out'));
   } catch (e) {
     console.error(e);
-    toast.error(`${t('state.error')}`);
+    toast.error(t('state.error'));
   }
 };
 </script>

@@ -183,11 +183,10 @@ export class TeamEnvironmentsService {
    */
   async createDuplicateEnvironment(id: string) {
     try {
-      const environment = await this.prisma.teamEnvironment.findFirst({
+      const environment = await this.prisma.teamEnvironment.findFirstOrThrow({
         where: {
           id: id,
         },
-        rejectOnNotFound: true,
       });
 
       const result = await this.prisma.teamEnvironment.create({

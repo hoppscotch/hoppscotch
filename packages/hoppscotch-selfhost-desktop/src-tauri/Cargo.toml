@@ -26,7 +26,7 @@ cocoa = "0.25.0"
 objc = "0.2.7"
 
 [target.'cfg(target_os = "windows")'.dependencies]
-# windows = { version = "0.51.1", features = ["Win32_Graphics_Dwm", "Win32_Foundation", "Win32_UI_Controls"] }
+windows = { version = "0.51.1", features = ["Win32_Graphics_Dwm", "Win32_Foundation", "Win32_UI_Controls"] }
 hex_color = "2.0.0"
 
 [features]

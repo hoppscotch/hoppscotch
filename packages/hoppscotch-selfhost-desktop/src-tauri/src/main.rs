@@ -13,7 +13,7 @@ extern crate objc;
 mod mac;
 
 #[cfg(target_os = "windows")]
-mod windows;
+mod win;
 
 use tauri::Manager;
 
@@ -23,10 +23,14 @@ fn main() {
     tauri::Builder::default()
         .setup(|app| {
             if cfg!(target_os = "macos") {
+                #[cfg(target_os = "macos")]
                 use mac::window::setup_mac_window;
 
+                #[cfg(target_os = "macos")]
                 setup_mac_window(app);
             } else if cfg!(target_os = "windows") {
+                use win::window::setup_win_window;
+
                 #[cfg(target_os = "windows")]
                 setup_win_window(app);
             }

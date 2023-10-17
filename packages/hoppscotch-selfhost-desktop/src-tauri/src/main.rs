@@ -29,6 +29,7 @@ fn main() {
                 #[cfg(target_os = "macos")]
                 setup_mac_window(app);
             } else if cfg!(target_os = "windows") {
+                #[cfg(target_os = "windows")]
                 use win::window::setup_win_window;
 
                 #[cfg(target_os = "windows")]

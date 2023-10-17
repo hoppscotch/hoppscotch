@@ -1,7 +1,6 @@
 @import "./base-themes.scss";
 @import "./editor-themes.scss";
 @import "./accent-themes.scss";
-@import "./font-sizes.scss";
 
 :root {
   @include base-theme;
@@ -62,16 +61,4 @@
 
 :root[data-accent="yellow"] {
   @include yellow-theme;
-}
-
-:root[data-font-size="small"] {
-  @include font-small;
-}
-
-:root[data-font-size="medium"] {
-  @include font-medium;
-}
-
-:root[data-font-size="large"] {
-  @include font-large;
 }

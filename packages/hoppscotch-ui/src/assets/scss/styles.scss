@@ -362,23 +362,23 @@ pre.ace_editor {
 }
 
 .info-response {
-  @apply text-pink-500;
+  color: var(--info-color);
 }
 
 .success-response {
-  @apply text-green-500;
+  color: var(--success-color);
 }
 
 .redir-response {
-  @apply text-yellow-500;
+  color: var(--warning-color);
 }
 
 .cl-error-response {
-  @apply text-red-500;
+  color: var(--cl-error-color);
 }
 
 .sv-error-response {
-  @apply text-red-600;
+  color: var(--sv-error-color);
 }
 
 .missing-data-response {

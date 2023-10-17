@@ -320,7 +320,7 @@ button {
 
 .floating-input ~ .end-actions {
   @apply absolute;
-  @apply right-[0.2];
+  @apply right-[.05rem];
   @apply inset-y-0;
   @apply flex;
   @apply items-center;

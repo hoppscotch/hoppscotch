@@ -29,6 +29,7 @@
         <span
           class="flex items-center justify-center w-16 px-2 truncate pointer-events-none"
           :class="requestLabelColor"
+          :style="{ color: requestLabelColor }"
         >
           <component
             :is="IconCheckCircle"

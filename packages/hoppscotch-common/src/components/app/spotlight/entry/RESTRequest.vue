@@ -9,7 +9,7 @@
     <span
       v-if="request"
       class="font-semibold truncate text-tiny flex flex-shrink-0 border border-dividerDark rounded-md px-1"
-      :class="getMethodLabelColorClassOf(request)"
+      :style="{ color: getMethodLabelColorClassOf(request) }"
     >
       {{ request.method.toUpperCase() }}
     </span>

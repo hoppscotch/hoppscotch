@@ -131,15 +131,10 @@ export function runRESTRequest$(
             tab.value.document.testResults = translateToSandboxTestResults(
               runResult.right
             )
+
+            setGlobalEnvVariables([...runResult.right.envs.global])
+
             if (
-              environmentsStore.value.selectedEnvironmentIndex.type ===
-              "NO_ENV_SELECTED"
-            ) {
-              setGlobalEnvVariables([
-                ...runResult.right.envs.global,
-                ...runResult.right.envs.selected,
-              ])
-            } else if (
               environmentsStore.value.selectedEnvironmentIndex.type === "MY_ENV"
             ) {
               const env = getEnvironment({

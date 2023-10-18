@@ -147,6 +147,7 @@ export default defineConfig({
       },
     }),
     VitePWA({
+      useCredentials: true,
       manifest: {
         name: APP_INFO.name,
         short_name: APP_INFO.name,

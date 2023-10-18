@@ -6,10 +6,8 @@ import { def as settingsDef } from "./platform/settings/settings.platform"
 import { def as historyDef } from "./platform/history/history.platform"
 import { def as tabStateDef } from "./platform/tabState/tabState.platform"
 import { nativeInterceptor } from "./platform/interceptors/native"
-import { browserInterceptor } from "@hoppscotch/common/platform/std/interceptors/browser"
 import { proxyInterceptor } from "@hoppscotch/common/platform/std/interceptors/proxy"
 import { ExtensionInspectorService } from "@hoppscotch/common/platform/std/inspections/extension.inspector"
-import { ExtensionInterceptorService } from "@hoppscotch/common/platform/std/interceptors/extension"
 import { nextTick, ref, watch } from "vue"
 import { emit, listen } from "@tauri-apps/api/event"
 import { type } from "@tauri-apps/api/os"
@@ -43,9 +41,7 @@ createHoppApp("#app", {
     default: "native",
     interceptors: [
       { type: "standalone", interceptor: nativeInterceptor },
-      { type: "standalone", interceptor: browserInterceptor },
       { type: "standalone", interceptor: proxyInterceptor },
-      { type: "service", service: ExtensionInterceptorService },
     ],
   },
   additionalInspectors: [

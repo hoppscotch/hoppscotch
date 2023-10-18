@@ -20,11 +20,13 @@ export const authEvents$ = new Subject<AuthEvent | { event: "token_refresh" }>()
 const currentUser$ = new BehaviorSubject<HoppUser | null>(null)
 export const probableUser$ = new BehaviorSubject<HoppUser | null>(null)
 
+const APP_DATA_PATH = "~/.hopp-desktop-app-data.dat"
+
 async function logout() {
   let client = await getClient();
   await client.get(`${import.meta.env.VITE_BACKEND_API_URL}/auth/logout`)
 
-  const store = new Store("/Users/vivek/.creds.dat")
+  const store = new Store(APP_DATA_PATH)
   await store.set("refresh_token", {})
   await store.set("access_token", {})
   await store.save()
@@ -43,7 +45,7 @@ async function signInUserWithMicrosoftFB() {
 }
 
 async function getInitialUserDetails() {
-  const store = new Store("/Users/vivek/.creds.dat");
+  const store = new Store(APP_DATA_PATH);
 
   try {
     const accessToken = await store.get("access_token")
@@ -147,7 +149,7 @@ async function setInitialUser() {
 }
 
 async function refreshToken() {
-  const store = new Store("/Users/vivek/.creds.dat");
+  const store = new Store(APP_DATA_PATH);
   try {
     const refreshToken = await store.get("refresh_token")
 
@@ -193,7 +195,7 @@ async function setAuthCookies(rawHeaders: Array<String>) {
   const accessTokenMatch = cookies.match(/access_token=([^;]+)/);
   const refreshTokenMatch = cookies.match(/refresh_token=([^;]+)/);
 
-  const store = new Store("/Users/vivek/.creds.dat")
+  const store = new Store(APP_DATA_PATH)
 
   if (accessTokenMatch) {
     const accessToken = accessTokenMatch[1];
@@ -272,7 +274,7 @@ export const def: AuthPlatformDef = {
       }
 
       if (isNotNullOrUndefined(accessToken) && isNotNullOrUndefined(refreshToken)) {
-        const store = new Store("/Users/vivek/.creds.dat")
+        const store = new Store(APP_DATA_PATH)
 
         await store.set("access_token", { value: accessToken });
         await store.set("refresh_token", { value: refreshToken } );

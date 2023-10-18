@@ -1,12 +1,5 @@
 import { UseGuards } from '@nestjs/common';
-import {
-  Args,
-  ID,
-  Parent,
-  Query,
-  ResolveField,
-  Resolver,
-} from '@nestjs/graphql';
+import { Args, ID, Query, ResolveField, Resolver } from '@nestjs/graphql';
 import { GqlThrottlerGuard } from 'src/guards/gql-throttler.guard';
 import { Infra } from './infra.model';
 import { AdminService } from './admin.service';
@@ -29,11 +22,12 @@ export class InfraResolver {
   constructor(private adminService: AdminService) {}
 
   @Query(() => Infra, {
-    description: 'Gives details of the infra executing this query',
+    description: 'Fetch details of the Infrastructure',
   })
   @UseGuards(GqlAuthGuard, GqlAdminGuard)
   infra(@GqlAdmin() admin: Admin) {
-    return admin;
+    const infra: Infra = { executedBy: admin };
+    return infra;
   }
 
   @ResolveField(() => [User], {

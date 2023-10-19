@@ -1,7 +1,11 @@
 import { Config } from "tailwindcss"
 
 export default {
-  content: ["**/*.vue"],
+  content: [
+    "../hoppscotch-ui/src/**/*.vue",
+    "../hoppscotch-sh-admin/src/**/*.vue",
+    "../hoppscotch-common/src/**/*.vue",
+  ],
   theme: {
     container: {
       center: true,
@@ -96,6 +100,9 @@ export default {
       },
       maxHeight: {
         46: "11.5rem",
+      },
+      backgroundOpacity: {
+        15: "0.15",
       },
     },
     screens: {

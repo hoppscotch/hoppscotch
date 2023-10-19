@@ -89,8 +89,8 @@ const t = useI18n();
 const { isOpen, isExpanded } = useSidebar();
 
 const currentUser = useReadonlyStream(
-  auth.getProbableUserStream(),
-  auth.getProbableUser()
+  auth.getCurrentUserStream(),
+  auth.getCurrentUser()
 );
 
 const expandSidebar = () => {

@@ -1,4 +1,4 @@
-import { ObjectType, OmitType, PartialType } from '@nestjs/graphql';
+import { ObjectType, OmitType } from '@nestjs/graphql';
 import { User } from 'src/user/user.model';
 
 @ObjectType()

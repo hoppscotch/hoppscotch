@@ -29,10 +29,11 @@ function processResponse(
   const contentLength = res.headers["content-length"]
     ? parseInt(res.headers["content-length"])
     : (res.data as ArrayBuffer).byteLength
-
+  console.log("stuff", res)
   return <HoppRESTResponse>{
     type: successState,
     statusCode: res.status,
+    statusText: res.statusText,
     body: res.data,
     headers: Object.keys(res.headers).map((x) => ({
       key: x,

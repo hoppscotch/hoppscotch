@@ -460,6 +460,9 @@ importers:
       buffer:
         specifier: ^6.0.3
         version: 6.0.3
+      cookie-es:
+        specifier: ^1.0.0
+        version: 1.0.0
       dioc:
         specifier: workspace:^
         version: link:../dioc
@@ -532,6 +535,12 @@ importers:
       rxjs:
         specifier: ^7.8.1
         version: 7.8.1
+      set-cookie-parser:
+        specifier: ^2.6.0
+        version: 2.6.0
+      set-cookie-parser-es:
+        specifier: ^1.0.5
+        version: 1.0.5
       socket.io-client-v2:
         specifier: npm:socket.io-client@^2.4.0
         version: /socket.io-client@2.4.0
@@ -800,7 +809,7 @@ importers:
         version: 5.2.2
       vite:
         specifier: ^4.5.0
-        version: 4.5.0(@types/node@17.0.27)
+        version: 4.5.0(@types/node@17.0.27)(sass@1.53.0)(terser@5.24.0)
 
   packages/hoppscotch-js-sandbox:
     dependencies:
@@ -13329,6 +13338,10 @@ packages:
     resolution: {integrity: sha512-Kvp459HrV2FEJ1CAsi1Ku+MY3kasH19TFykTz2xWmMeq6bk2NU3XXvfJ+Q61m0xktWwt+1HSYf3JZsTms3aRJg==}
     dev: true
 
+  /cookie-es@1.0.0:
+    resolution: {integrity: sha512-mWYvfOLrfEc996hlKcdABeIiPHUPC6DM2QYZdGGOvhOTbA3tjm2eBwqlJpoFdjC89NI4Qt6h0Pu06Mp+1Pj5OQ==}
+    dev: false
+
   /cookie-parser@1.4.6:
     resolution: {integrity: sha512-z3IzaNjdwUC2olLIB5/ITd0/setiaFMLYiZJle7xg5Fe9KWAceil7xszYfHHBtDFYLSgJduS2Ty0P1uJdPDJeA==}
     engines: {node: '>= 0.8.0'}
@@ -22306,6 +22319,14 @@ packages:
   /set-blocking@2.0.0:
     resolution: {integrity: sha512-KiKBS8AnWGEyLzofFfmvKwpdPzqiy16LvQfK3yv/fVH7Bj13/wl3JSR1J+rfgRE9q7xUJK4qvgS8raSOeLUehw==}
 
+  /set-cookie-parser-es@1.0.5:
+    resolution: {integrity: sha512-nU27kVj4O6+a1wOOWB6uezxB9SWLCjEmYJr6eRBmkAZfOx/TBg2p0jkCl1dMgeYtmFRAJSGe4u9VN7dwPu9PRQ==}
+    dev: false
+
+  /set-cookie-parser@2.6.0:
+    resolution: {integrity: sha512-RVnVQxTXuerk653XfuliOxBP81Sf0+qfQE73LIYKcyMYHG94AuH0kgrQpRDuTZnSmjpysHmzxJXKNfa6PjFhyQ==}
+    dev: false
+
   /set-function-length@1.1.1:
     resolution: {integrity: sha512-VoaqjbBJKiWtg4yRcKBQ7g7wnGnLV3M8oLvVWwOk2PdYY6PEFegR1vezXR0tw6fZGF9csVakIRjrJiy2veSBFQ==}
     engines: {node: '>= 0.4'}
@@ -25308,7 +25329,7 @@ packages:
       fsevents: 2.3.3
     dev: true
 
-  /vite@4.5.0(@types/node@17.0.27):
+  /vite@4.5.0(@types/node@17.0.27)(sass@1.53.0)(terser@5.24.0):
     resolution: {integrity: sha512-ulr8rNLA6rkyFAlVWw2q5YJ91v098AFQ2R0PRFwPzREXOUJQPtFUG0t+/ZikhaOCDqFoDhN6/v8Sq0o4araFAw==}
     engines: {node: ^14.18.0 || >=16.0.0}
     hasBin: true
@@ -25340,48 +25361,11 @@ packages:
       esbuild: 0.18.20
       postcss: 8.4.31
       rollup: 3.29.4
-    optionalDependencies:
-      fsevents: 2.3.3
-    dev: true
-
-  /vite@4.5.0(@types/node@17.0.27)(sass@1.53.0)(terser@5.24.0):
-    resolution: {integrity: sha512-ulr8rNLA6rkyFAlVWw2q5YJ91v098AFQ2R0PRFwPzREXOUJQPtFUG0t+/ZikhaOCDqFoDhN6/v8Sq0o4araFAw==}
-    engines: {node: ^14.18.0 || >=16.0.0}
-    hasBin: true
-    peerDependencies:
-      '@types/node': '>= 14'
-      less: '*'
-      lightningcss: ^1.21.0
-      sass: '*'
-      stylus: '*'
-      sugarss: '*'
-      terser: ^5.4.0
-    peerDependenciesMeta:
-      '@types/node':
-        optional: true
-      less:
-        optional: true
-      lightningcss:
-        optional: true
-      sass:
-        optional: true
-      stylus:
-        optional: true
-      sugarss:
-        optional: true
-      terser:
-        optional: true
-    dependencies:
-      '@types/node': 17.0.27
-      esbuild: 0.18.20
-      postcss: 8.4.28
-      rollup: 3.29.4
       sass: 1.53.0
       terser: 5.24.0
     optionalDependencies:
       fsevents: 2.3.3
     dev: true
-    optional: true
 
   /vitest@0.29.8:
     resolution: {integrity: sha512-JIAVi2GK5cvA6awGpH0HvH/gEG9PZ0a/WoxdiV3PmqK+3CjQMf8c+J/Vhv4mdZ2nRyXFw66sAg6qz7VNkaHfDQ==}

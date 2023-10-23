@@ -20,6 +20,11 @@
             <AppInterceptor />
           </template>
         </tippy>
+        <HoppButtonSecondary
+          :label="t('app.cookies')"
+          :icon="IconCookie"
+          @click="showCookiesModal = true"
+        />
       </div>
       <div class="flex">
         <tippy
@@ -195,12 +200,17 @@
       :show="showDeveloperOptions"
       @hide-modal="showDeveloperOptions = false"
     />
+    <CookiesAllModal
+      :show="showCookiesModal"
+      @hide-modal="showCookiesModal = false"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from "vue"
 import { version } from "~/../package.json"
+import IconCookie from "~icons/lucide/cookie"
 import IconSidebar from "~icons/lucide/sidebar"
 import IconZap from "~icons/lucide/zap"
 import IconShare2 from "~icons/lucide/share-2"
@@ -223,7 +233,9 @@ import { invokeAction } from "@helpers/actions"
 import { HoppSmartItem } from "@hoppscotch/ui"
 
 const t = useI18n()
+
 const showDeveloperOptions = ref(false)
+const showCookiesModal = ref(false)
 
 const EXPAND_NAVIGATION = useSetting("EXPAND_NAVIGATION")
 const SIDEBAR = useSetting("SIDEBAR")

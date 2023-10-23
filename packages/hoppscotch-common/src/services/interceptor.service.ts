@@ -86,6 +86,12 @@ export type Interceptor<Err extends InterceptorError = InterceptorError> = {
   name: (t: ReturnType<typeof getI18n>) => MaybeRef<string>
 
   /**
+   * Defines whether the interceptor has support for cookies.
+   * If this field is undefined, it is assumed as not supporting cookies.
+   */
+  supportsCookies?: boolean
+
+  /**
    * Defines what to render in the Interceptor section of the Settings page.
    * Use this space to define interceptor specific settings.
    * Not setting this will lead to nothing being rendered about this interceptor in the settings page.

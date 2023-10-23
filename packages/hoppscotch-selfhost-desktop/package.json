@@ -10,6 +10,7 @@
     "tauri": "tauri"
   },
   "dependencies": {
+    "dioc": "workspace:^",
     "@hoppscotch/common": "workspace:^",
     "@platform/auth": "^0.1.106",
     "@tauri-apps/api": "^1.3.0",

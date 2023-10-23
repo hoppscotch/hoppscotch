@@ -4,9 +4,11 @@ import {
   InterceptorError,
   RequestRunResult,
 } from "@hoppscotch/common/services/interceptor.service"
+import { CookieJarService } from "@hoppscotch/common/services/cookie-jar.service"
 import axios, { AxiosRequestConfig, CancelToken } from "axios"
 import { cloneDeep } from "lodash-es"
-import { Body, HttpVerb, ResponseType, getClient } from '@tauri-apps/api/http'
+import { Body, HttpVerb, ResponseType, getClient } from "@tauri-apps/api/http"
+import { Service } from "dioc"
 
 export const preProcessRequest = (
   req: AxiosRequestConfig
@@ -55,19 +57,19 @@ async function runRequest(
     if (processedReq.data instanceof FormData) {
       let body_data = {}
       for (const entry of processedReq.data.entries()) {
-        const [name, value] = entry;
+        const [name, value] = entry
 
         if (value instanceof File) {
           let file_data = await value.arrayBuffer()
 
           body_data[name] = {
-              file: new Uint8Array(file_data),
-              fileName: value.name
+            file: new Uint8Array(file_data),
+            fileName: value.name,
           }
         }
       }
 
-      body = Body.form(body_data);
+      body = Body.form(body_data)
     }
 
     const res = await client.request({
@@ -75,15 +77,15 @@ async function runRequest(
       url: processedReq.url ?? "",
       responseType: ResponseType.Binary,
       headers: processedReq.headers,
-      body: body
-    });
+      body: body,
+    })
 
     if (cancelled()) {
       client.drop()
       return E.left("cancellation")
     }
 
-    res.data = new Uint8Array(res.data as number[]).buffer;
+    res.data = new Uint8Array(res.data as number[]).buffer
 
     const timeEnd = Date.now()
 
@@ -123,20 +125,45 @@ async function runRequest(
   }
 }
 
-export const nativeInterceptor: Interceptor = {
-  interceptorID: "native",
-  name: () => "Native",
-  selectable: { type: "selectable" },
-  runRequest(req) {
+export class NativeInterceptorService extends Service implements Interceptor {
+  public static readonly ID = "NATIVE_INTERCEPTOR_SERVICE"
+
+  public interceptorID = "native" // TODO: i18n this
+
+  public name = () => "Native"
+
+  public selectable = { type: "selectable" as const }
+
+  public supportsCookies = true
+
+  public cookieJarService = this.bind(CookieJarService)
+
+  constructor() {
+    super()
+  }
+
+  public runRequest(req: any) {
     const processedReq = preProcessRequest(req)
+
+    const relevantCookies = this.cookieJarService.getCookiesForURL(
+      new URL(processedReq.url!)
+    )
+
+    processedReq.headers["Cookie"] = relevantCookies
+      .map((cookie) => `${cookie.name!}=${cookie.value!}`)
+      .join(";")
 
     let cancelled = false
 
-    const checkCancelled = () => { return cancelled }
+    const checkCancelled = () => {
+      return cancelled
+    }
 
     return {
-      cancel: () => { cancelled = true },
+      cancel: () => {
+        cancelled = true
+      },
       response: runRequest(processedReq, checkCancelled),
     }
-  },
+  }
 }

@@ -901,6 +901,9 @@ importers:
       buffer:
         specifier: ^6.0.3
         version: 6.0.3
+      dioc:
+        specifier: workspace:^
+        version: link:../dioc
       environments.api:
         specifier: link:@platform/environments/environments.api
         version: link:@platform/environments/environments.api

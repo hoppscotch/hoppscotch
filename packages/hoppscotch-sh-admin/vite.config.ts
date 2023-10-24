@@ -15,7 +15,6 @@ import VueI18nPlugin from '@intlify/unplugin-vue-i18n/vite';
 export default defineConfig({
   envPrefix: process.env.HOPP_ALLOW_RUNTIME_ENV ? 'VITE_BUILDTIME_' : 'VITE_',
   envDir: path.resolve(__dirname, '../..'),
-  base: '/admin/',
   server: {
     port: 3100,
   },

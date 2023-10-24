@@ -6,7 +6,7 @@
     :class="{ 'min-h-screen': statusCode !== 404 }"
   >
     <img
-      :src="`/images/youre_lost.svg`"
+      :src="imgUrl"
       loading="lazy"
       class="inline-flex flex-col object-contain object-center mb-2 h-46 w-46"
       :alt="message"
@@ -43,6 +43,9 @@ const props = defineProps({
     default: null,
   },
 });
+
+const imgPrefix = import.meta.env.PROD && import.meta.env.VITE_INCLUDE_ADMIN_PREFIX === 'true' ? '/admin' : ''
+const imgUrl = `${imgPrefix}/images/youre_lost.svg`
 
 const statusCode = computed(() => props.error?.statusCode ?? 404);
 

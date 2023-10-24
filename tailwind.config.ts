@@ -1,3 +1,6 @@
-// this file is necessary to make tailwindcss intellisense work in code editors
+import preset from "./packages/hoppscotch-ui/ui-preset"
 
-module.exports = require("./packages/hoppscotch-ui/tailwind.config.ts")
+export default {
+  content: ["packages/**/src/**/*.{vue,html}"],
+  presets: [preset],
+}

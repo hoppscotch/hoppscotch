@@ -1,0 +1,81 @@
+@mixin base-theme {
+  --font-sans: "Inter Variable", sans-serif;
+  --font-icon: "Material Symbols Rounded Variable";
+  --font-mono: "Roboto Mono Variable", monospace;
+  --font-size-body: 0.75rem;
+  --font-size-tiny: 0.688rem;
+  --line-height-body: 1rem;
+  --upper-primary-sticky-fold: 4.125rem;
+  --upper-secondary-sticky-fold: 6.188rem;
+  --upper-tertiary-sticky-fold: 8.25rem;
+  --upper-fourth-sticky-fold: 10.2rem;
+  --upper-mobile-primary-sticky-fold: 6.625rem;
+  --upper-mobile-secondary-sticky-fold: 8.688rem;
+  --upper-mobile-sticky-fold: 10.75rem;
+  --upper-mobile-tertiary-sticky-fold: 8.25rem;
+  --lower-primary-sticky-fold: 3rem;
+  --lower-secondary-sticky-fold: 5.063rem;
+  --lower-tertiary-sticky-fold: 7.125rem;
+  --lower-fourth-sticky-fold: 9.188rem;
+  --sidebar-primary-sticky-fold: 2rem;
+}
+
+@mixin dark-theme {
+  --primary-color: #181818;
+  --primary-light-color: #1c1c1e;
+  --primary-dark-color: #262626;
+  --primary-contrast-color: #171717;
+
+  --secondary-color: #a3a3a3;
+  --secondary-light-color: #737373;
+  --secondary-dark-color: #fafafa;
+
+  --divider-color: #262626;
+  --divider-light-color: #1f1f1f;
+  --divider-dark-color: #2d2d2d;
+
+  --error-color: #292524;
+  --tooltip-color: #f5f5f5;
+  --popover-color: #1b1b1b;
+  --editor-theme: "merbivore_soft";
+}
+
+@mixin light-theme {
+  --primary-color: #ffffff;
+  --primary-light-color: #f9fafb;
+  --primary-dark-color: #f3f4f6;
+  --primary-contrast-color: #fdfdfd;
+
+  --secondary-color: #6b7280;
+  --secondary-light-color: #9ca3af;
+  --secondary-dark-color: #111827;
+
+  --divider-color: #f3f4f6;
+  --divider-light-color: #f3f4f6;
+  --divider-dark-color: #d1d5db;
+
+  --error-color: #fef3c7;
+  --tooltip-color: #262626;
+  --popover-color: #ffffff;
+  --editor-theme: "textmate";
+}
+
+@mixin black-theme {
+  --primary-color: #0f0f0f;
+  --primary-light-color: #171717;
+  --primary-dark-color: #181818;
+  --primary-contrast-color: #0f0f0f;
+
+  --secondary-color: #a3a3a3;
+  --secondary-light-color: #737373;
+  --secondary-dark-color: #f5f5f5;
+
+  --divider-color: #1c1c1e;
+  --divider-light-color: #181818;
+  --divider-dark-color: #323232;
+
+  --error-color: #1c1917;
+  --tooltip-color: #f5f5f5;
+  --popover-color: #0f0f0f;
+  --editor-theme: "twilight";
+}

@@ -40,7 +40,7 @@ export default defineConfig({
     lib: {
       entry: {
         index: "./src/index.ts",
-        "tailwind.config": "./tailwind.config.ts",
+        "ui-preset": "./ui-preset.ts",
         "postcss.config": "./postcss.config.cjs",
       },
       formats: ["es"],

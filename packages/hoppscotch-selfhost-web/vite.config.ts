@@ -52,7 +52,6 @@ export default defineConfig({
         __dirname,
         "../hoppscotch-common/postcss.config.cjs"
       ),
-      // tailwindcss: path.resolve(__dirname, "node_modules/tailwindcss"),
       // TODO: Maybe leave ~ only for individual apps and not use on common
       "~": path.resolve(__dirname, "../hoppscotch-common/src"),
       "@hoppscotch/common": "@hoppscotch/common/src",
@@ -78,9 +77,6 @@ export default defineConfig({
       querystring: "qs",
     },
     dedupe: ["vue"],
-  },
-  optimizeDeps: {
-    include: ["tailwind.config.js"],
   },
   plugins: [
     Inspect(), // go to url -> /__inspect

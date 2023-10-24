@@ -1,6 +1,7 @@
-import { Config } from "tailwindcss"
-import tailwindConfig from "@hoppscotch/ui/tailwind.config"
+import { Config } from 'tailwindcss';
+import preset from '@hoppscotch/ui/ui-preset';
 
 export default {
-  ...tailwindConfig,
-} satisfies Config
+  content: ['src/**/*.{vue,html}', '../hoppscotch-ui/src/**/*.{vue,html}'],
+  presets: [preset],
+} satisfies Config;

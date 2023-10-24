@@ -86,13 +86,14 @@
   "exports": {
     ".": "./dist/index.js",
     "./style.css": "./dist/style.css",
+    "./themes.scss": "./dist/themes.scss",
     "./postcss.config": {
       "import": "./postcss.config.cjs",
       "require": "./postcss.config.cjs"
     },
-    "./tailwind.config": {
-      "import": "./dist/tailwind.config.js",
-      "require": "./dist/tailwind.config.js"
+    "./ui-preset": {
+      "import": "./dist/ui-preset.js",
+      "require": "./dist/ui-preset.js"
     },
     "./helpers/treeAdapter.ts": "./src/helpers/treeAdapter.ts"
   },

@@ -41,10 +41,8 @@ export const isLoadingInitialRoute = readonly(_isLoadingInitialRoute);
 
 export default <HoppModule>{
   onVueAppInit(app) {
-    const basePath = import.meta.env.PROD && import.meta.env.VITE_INCLUDE_ADMIN_PREFIX === 'true' ? '/admin' : undefined
-
     const router = createRouter({
-      history: createWebHistory(basePath),
+      history: createWebHistory(import.meta.env.BASE_URL),
       routes,
     });
 

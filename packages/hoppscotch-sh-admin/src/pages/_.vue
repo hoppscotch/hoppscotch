@@ -44,8 +44,7 @@ const props = defineProps({
   },
 });
 
-const imgPrefix = import.meta.env.PROD && import.meta.env.VITE_INCLUDE_ADMIN_PREFIX === 'true' ? '/admin' : ''
-const imgUrl = `${imgPrefix}/images/youre_lost.svg`
+const imgUrl = `${import.meta.env.BASE_URL}images/youre_lost.svg`
 
 const statusCode = computed(() => props.error?.statusCode ?? 404);
 

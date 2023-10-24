@@ -17,7 +17,7 @@
     "postinstall": "pnpm run gql-codegen",
     "do-test": "pnpm run test",
     "do-lint": "pnpm run prod-lint",
-    "do-typecheck": "pnpm run lint",
+    "do-typecheck": "node type-check.js",
     "do-lintfix": "pnpm run lintfix"
   },
   "dependencies": {

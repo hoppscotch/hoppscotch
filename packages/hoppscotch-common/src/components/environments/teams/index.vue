@@ -43,15 +43,17 @@
         />
       </div>
     </div>
-    <div
+    <HoppSmartPlaceholder
       v-if="!loading && !teamEnvironments.length && !adapterError"
-      class="p-5 space-y-25 flex flex-col"
+      :src="`/images/states/${colorMode.value}/blockchain.svg`"
+      :alt="`${t('empty.environments')}`"
+      :text="t('empty.environments')"
     >
       <div class="flex flex-col items-center space-y-4">
         <span class="text-secondaryLight text-center">
           {{ t("environment.import_or_create") }}
         </span>
-        <div class="flex gap-4 flex-col items-center">
+        <div class="flex gap-4 flex-col items-stretch">
           <HoppButtonPrimary
             :icon="IconImport"
             :label="t('import.title')"
@@ -72,13 +74,7 @@
           />
         </div>
       </div>
-      <HoppSmartPlaceholder
-        :src="`/images/states/${colorMode.value}/blockchain.svg`"
-        :alt="`${t('empty.environments')}`"
-        :text="t('empty.environments')"
-      />
-    </div>
-
+    </HoppSmartPlaceholder>
     <div v-else-if="!loading">
       <EnvironmentsTeamsEnvironment
         v-for="(environment, index) in JSON.parse(

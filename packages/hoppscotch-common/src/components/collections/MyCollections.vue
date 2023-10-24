@@ -251,12 +251,17 @@
               <icon-lucide-search class="pb-2 opacity-75 svg-icons" />
             </template>
           </HoppSmartPlaceholder>
-          <div v-else-if="node === null" class="flex flex-col space-y-25 py-5">
+          <HoppSmartPlaceholder
+            v-else-if="node === null"
+            :src="`/images/states/${colorMode.value}/pack.svg`"
+            :alt="`${t('empty.collections')}`"
+            :text="t('empty.collections')"
+          >
             <div class="flex flex-col items-center space-y-4">
               <span class="text-secondaryLight text-center">
                 {{ t("collection.import_or_create") }}
               </span>
-              <div class="flex gap-4 flex-col items-center">
+              <div class="flex gap-4 flex-col items-stretch">
                 <HoppButtonPrimary
                   :icon="IconImport"
                   :label="t('import.title')"
@@ -273,13 +278,7 @@
                 />
               </div>
             </div>
-            <HoppSmartPlaceholder
-              :src="`/images/states/${colorMode.value}/pack.svg`"
-              :alt="`${t('empty.collections')}`"
-              :text="t('empty.collections')"
-            />
-          </div>
-
+          </HoppSmartPlaceholder>
           <HoppSmartPlaceholder
             v-else-if="node.data.type === 'collections'"
             :src="`/images/states/${colorMode.value}/pack.svg`"

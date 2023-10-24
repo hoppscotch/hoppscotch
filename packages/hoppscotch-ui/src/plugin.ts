@@ -1,8 +1,7 @@
 import type { Plugin, App } from "vue"
 
-import "./assets/themes/themes.scss"
-import "./assets/scss/tailwind.scss"
 import "./assets/scss/styles.scss"
+import "./assets/scss/tailwind.scss"
 
 /**
 @constant HOPP_UI_OPTIONS

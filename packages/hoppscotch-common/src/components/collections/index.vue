@@ -41,6 +41,7 @@
       @export-data="exportData"
       @remove-collection="removeCollection"
       @remove-folder="removeFolder"
+      @share-request="shareRequest"
       @drop-collection="dropCollection"
       @update-request-order="updateRequestOrder"
       @update-collection-order="updateCollectionOrder"
@@ -71,6 +72,7 @@
       @export-data="exportData"
       @remove-collection="removeCollection"
       @remove-folder="removeFolder"
+      @share-request="shareRequest"
       @edit-request="editRequest"
       @duplicate-request="duplicateRequest"
       @remove-request="removeRequest"
@@ -229,7 +231,7 @@ import {
   resetTeamRequestsContext,
 } from "~/helpers/collection/collection"
 import { currentReorderingStatus$ } from "~/newstore/reordering"
-import { defineActionHandler } from "~/helpers/actions"
+import { defineActionHandler, invokeAction } from "~/helpers/actions"
 import { WorkspaceService } from "~/services/workspace.service"
 import { useService } from "dioc/vue"
 import { RESTTabService } from "~/services/tab/rest"
@@ -2010,6 +2012,25 @@ const importToTeams = async (collection: HoppCollection<HoppRESTRequest>[]) => {
       }
     )
   )()
+}
+
+const shareRequest = ({ request }: { request: HoppRESTRequest }) => {
+  invokeAction("share.request", {
+    request,
+  })
+  // const shortcodeResult = await createShortcode(tab.value.document.request)()
+
+  //   platform.analytics?.logEvent({
+  //     type: "HOPP_SHORTCODE_CREATED",
+  //   })
+
+  //   if (E.isLeft(shortcodeResult)) {
+  //     toast.error(`${shortcodeResult.left.error}`)
+  //     shareLink.value = `${t("error.something_went_wrong")}`
+  //   } else if (E.isRight(shortcodeResult)) {
+  //     shareLink.value = `/${shortcodeResult.right.createShortcode.id}`
+  //     copyShareLink(shareLink.value)
+  //   }
 }
 
 const resolveConfirmModal = (title: string | null) => {

@@ -240,6 +240,12 @@
                   requestIndex: node.data.data.data.id,
                 })
             "
+            @share-request="
+              node.data.type === 'requests' &&
+                emit('share-request', {
+                  request: node.data.data.data.request,
+                })
+            "
             @drag-request="
               dragRequest($event, {
                 folderPath: node.data.data.parentIndex,
@@ -471,6 +477,12 @@ const emit = defineEmits<{
       requestIndex: string
       isActive: boolean
       folderPath?: string | undefined
+    }
+  ): void
+  (
+    event: "share-request",
+    payload: {
+      request: HoppRESTRequest
     }
   ): void
   (

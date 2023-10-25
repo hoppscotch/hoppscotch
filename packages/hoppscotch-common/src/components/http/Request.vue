@@ -179,19 +179,15 @@
                 />
                 <HoppSmartItem
                   ref="copyRequestAction"
-                  :label="shareButtonText"
-                  :icon="copyLinkIcon"
+                  :label="t('request.share_request')"
+                  :icon="IconShare2"
                   :loading="fetchingShareLink"
                   @click="
                     () => {
-                      copyRequest()
+                      shareRequest()
+                      hide()
                     }
                   "
-                />
-                <HoppSmartItem
-                  :icon="IconLink2"
-                  :label="`${t('request.view_my_links')}`"
-                  to="/profile"
                 />
                 <hr />
                 <HoppSmartItem
@@ -239,7 +235,7 @@ import { useToast } from "@composables/toast"
 import { refAutoReset, useVModel } from "@vueuse/core"
 import * as E from "fp-ts/Either"
 import { Ref, computed, onBeforeUnmount, ref } from "vue"
-import { defineActionHandler } from "~/helpers/actions"
+import { defineActionHandler, invokeAction } from "~/helpers/actions"
 import { runMutation } from "~/helpers/backend/GQLClient"
 import { UpdateRequestDocument } from "~/helpers/backend/graphql"
 import { createShortcode } from "~/helpers/backend/mutations/Shortcode"
@@ -254,7 +250,6 @@ import IconCode2 from "~icons/lucide/code-2"
 import IconCopy from "~icons/lucide/copy"
 import IconFileCode from "~icons/lucide/file-code"
 import IconFolderPlus from "~icons/lucide/folder-plus"
-import IconLink2 from "~icons/lucide/link-2"
 import IconRotateCCW from "~icons/lucide/rotate-ccw"
 import IconSave from "~icons/lucide/save"
 import IconShare2 from "~icons/lucide/share-2"
@@ -457,18 +452,23 @@ const copyLinkIcon = refAutoReset<
   typeof IconShare2 | typeof IconCopy | typeof IconCheck
 >(hasNavigatorShare ? IconShare2 : IconCopy, 1000)
 
+const currentUser = useReadonlyStream(
+  platform.auth.getCurrentUserStream(),
+  platform.auth.getCurrentUser()
+)
+
 const shareLink = ref<string | null>("")
 const fetchingShareLink = ref(false)
 
-const shareButtonText = computed(() => {
-  if (shareLink.value) {
-    return shareLink.value
-  } else if (fetchingShareLink.value) {
-    return t("state.loading")
+const shareRequest = () => {
+  if (currentUser.value) {
+    invokeAction("share.request", {
+      request: tab.value.document.request,
+    })
   } else {
-    return t("request.copy_link")
+    invokeAction("modals.login.toggle")
   }
-})
+}
 
 const copyRequest = async () => {
   if (shareLink.value) {

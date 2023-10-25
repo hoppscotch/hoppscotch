@@ -115,7 +115,9 @@ type HoppActionArgsMap = {
   "request.open-tab": {
     tab: RESTOptionTabs | GQLOptionTabs
   }
-
+  "share.request": {
+    request: HoppRESTRequest
+  }
   "tab.duplicate-tab": {
     tabID?: string
   }

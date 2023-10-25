@@ -47,6 +47,9 @@ import { StorageLike, watchDebounced } from "@vueuse/core"
 import { getService } from "~/modules/dioc"
 import { RESTTabService } from "~/services/tab/rest"
 import { GQLTabService } from "~/services/tab/graphql"
+import { z } from "zod"
+import { CookieJarService } from "~/services/cookie-jar.service"
+import { watch } from "vue"
 
 function checkAndMigrateOldSettings() {
   if (window.localStorage.getItem("selectedEnvIndex")) {
@@ -179,6 +182,35 @@ function setupHistoryPersistence() {
 
   graphqlHistoryStore.subject$.subscribe(({ state }) => {
     window.localStorage.setItem("graphqlHistory", JSON.stringify(state))
+  })
+}
+
+const cookieSchema = z.record(z.array(z.string()))
+
+function setupCookiesPersistence() {
+  const cookieJarService = getService(CookieJarService)
+
+  try {
+    const cookieData = JSON.parse(
+      window.localStorage.getItem("cookieJar") || "{}"
+    )
+
+    const parseResult = cookieSchema.safeParse(cookieData)
+
+    if (parseResult.success) {
+      for (const domain in parseResult.data) {
+        cookieJarService.bulkApplyCookiesToDomain(
+          parseResult.data[domain],
+          domain
+        )
+      }
+    }
+  } catch (e) {}
+
+  watch(cookieJarService.cookieJar, (cookieJar) => {
+    const data = JSON.stringify(Object.fromEntries(cookieJar.entries()))
+
+    window.localStorage.setItem("cookieJar", data)
   })
 }
 
@@ -382,6 +414,8 @@ export function setupLocalPersistence() {
   setupSocketIOPersistence()
   setupSSEPersistence()
   setupMQTTPersistence()
+
+  setupCookiesPersistence()
 }
 
 /**

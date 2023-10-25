@@ -22,23 +22,17 @@ export class CookieJarService extends Service {
 
   constructor() {
     super()
-
-    // TODO: Remove this, only for testing
-    this.cookieJar.value.set("hoppscotch.io", [
-      "cookie1=value1;",
-      "cookie2=value2;",
-      "cookie6=value6; Expires=Mon, 23 Oct 2023 14:53:22 GMT",
-    ])
-
-    this.cookieJar.value.set("echo.hoppscotch.io", [
-      "cookie3=value3;",
-      "cookie4=value4; Path=/test",
-      "cookie5=value5; Expires=Mon, 23 Oct 2023 12:23:22 GMT",
-    ])
   }
 
   public parseSetCookieString(setCookieString: string) {
     return setCookieParse(setCookieString)
+  }
+
+  public bulkApplyCookiesToDomain(cookies: string[], domain: string) {
+    const existingDomainEntries = this.cookieJar.value.get(domain) ?? []
+    existingDomainEntries.push(...cookies)
+
+    this.cookieJar.value.set(domain, existingDomainEntries)
   }
 
   public getCookiesForURL(url: URL) {

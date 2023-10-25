@@ -38,7 +38,7 @@ const program = vueTsc.createProgram({
 const diagnostics = ts
   .getPreEmitDiagnostics(program)
   // Filter diagnostics to include only errors from files in the specified directory
-  .filter(({ file }) => file.fileName.includes(directoryPath))
+  .filter(({ file }) => path.resolve(file.fileName).includes(directoryPath))
 
 if (!diagnostics.length) {
   console.log("Type checking passed.")

@@ -627,3 +627,17 @@ export const MAILER_FROM_ADDRESS_UNDEFINED =
  * (SharedRequestService)
  */
 export const SHARED_REQUEST_NOT_FOUND = 'shared_request/not_found' as const;
+
+/**
+ * SharedRequest invalid request JSON formal
+ * (SharedRequestService)
+ */
+export const SHARED_REQUEST_INVALID_REQUEST_JSON =
+  'shared_request/request_invalid_format' as const;
+
+/**
+ * SharedRequest invalid properties JSON formal
+ * (SharedRequestService)
+ */
+export const SHARED_REQUEST_INVALID_PROPERTIES_JSON =
+  'shared_request/properties_invalid_format' as const;

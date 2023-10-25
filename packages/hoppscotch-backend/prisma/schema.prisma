@@ -77,7 +77,7 @@ model TeamRequest {
 // }
 
 model Shortcode {
-  id         String   @id
+  id         String   @id @unique
   request    Json
   properties Json? // if properties is null, SharedRequest is an embed else shortcode
   creatorUid String?

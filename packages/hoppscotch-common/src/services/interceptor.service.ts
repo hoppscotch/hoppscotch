@@ -167,6 +167,16 @@ export class InterceptorService extends Service {
     Array.from(this.interceptors.values())
   )
 
+  /**
+   * Gives an instance to the current interceptor.
+   *  NOTE: Do not update from here, this is only for reading.
+   */
+  public currentInterceptor = computed(() => {
+    if (this.currentInterceptorID.value === null) return null
+
+    return this.interceptors.get(this.currentInterceptorID.value)
+  })
+
   constructor() {
     super()
 

@@ -7,10 +7,12 @@
     @close="hideModal"
   >
     <template #body>
-      <HoppSmartInput
-        v-model="rawCookieString"
-        :placeholder="t('cookies.modal.cookie_string')"
-      />
+      <div class="h-46 border rounded border-dividerLight">
+        <div
+          ref="cookieEditor"
+          class="h-full border-t rounded-b border-dividerLight"
+        ></div>
+      </div>
     </template>
 
     <template #footer>
@@ -28,21 +30,46 @@
           @click="cancelCookieChange"
         />
       </div>
+      <span class="flex">
+        <HoppButtonSecondary
+          :icon="pasteIcon"
+          :label="`${t('action.paste')}`"
+          filled
+          outline
+          @click="handlePaste"
+          class="self-end"
+        />
+      </span>
     </template>
   </HoppSmartModal>
 </template>
 
+<script lang="ts">
+export type EditCookieConfig =
+  | { type: "create"; domain: string }
+  | {
+      type: "edit"
+      domain: string
+      entryIndex: number
+      currentCookieEntry: string
+    }
+</script>
+
 <script setup lang="ts">
 import { useI18n } from "@composables/i18n"
+import { useCodemirror } from "~/composables/codemirror"
 import { watch, ref } from "vue"
+import { refAutoReset } from "@vueuse/core"
+import IconClipboard from "~icons/lucide/clipboard"
+import IconCheck from "~icons/lucide/check"
+import { useToast } from "~/composables/toast"
 
 // TODO: Build Managed Mode!
 
 const props = defineProps<{
   show: boolean
 
-  // Tuple of [domain, entryIndex, cookieEntry]
-  entry: [string, number, string] | null
+  entry: EditCookieConfig | null
 }>()
 
 const emit = defineEmits<{
@@ -52,16 +79,33 @@ const emit = defineEmits<{
 
 const t = useI18n()
 
+const toast = useToast()
+
+const cookieEditor = ref<HTMLElement>()
 const rawCookieString = ref("")
+
+useCodemirror(cookieEditor, rawCookieString, {
+  extendedEditorConfig: {
+    mode: "text/plain",
+    placeholder: `${t("cookies.modal.cookie_string")}`,
+    lineWrapping: true,
+  },
+  linter: null,
+  completer: null,
+  environmentHighlights: false,
+})
+
+const pasteIcon = refAutoReset<typeof IconClipboard | typeof IconCheck>(
+  IconClipboard,
+  1000
+)
 
 watch(
   () => props.entry,
   () => {
-    if (!props.entry) return
+    if (props.entry?.type !== "edit") return
 
-    const cookieEntry = props.entry[2]
-
-    rawCookieString.value = cookieEntry
+    rawCookieString.value = props.entry.currentCookieEntry
   }
 )
 
@@ -71,6 +115,19 @@ function hideModal() {
 
 function cancelCookieChange() {
   hideModal()
+}
+
+async function handlePaste() {
+  try {
+    const text = await navigator.clipboard.readText()
+    if (text) {
+      rawCookieString.value = text
+      pasteIcon.value = IconCheck
+    }
+  } catch (e) {
+    console.error("Failed to copy: ", e)
+    toast.error(t("profile.no_permission").toString())
+  }
 }
 
 function saveCookieChange() {

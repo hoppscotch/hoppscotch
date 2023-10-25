@@ -59,13 +59,16 @@
     "modal": {
       "new_domain_name": "New domain name",
       "set": "Set a cookie",
-      "cookie_string": "Cookie string",
+      "cookie_string": "Set-Cookie string",
       "cookie_name": "Name",
       "cookie_value": "Value",
       "cookie_path": "Path",
       "cookie_expires": "Expires",
       "managed_tab": "Managed",
-      "raw_tab": "Raw"
+      "raw_tab": "Raw",
+      "interceptor_no_support": "Your currently selected interceptor does not support cookies.",
+      "no_domains": "No domains defined",
+      "no_cookies_in_domain": "No cookies set for this domain"
     }
   },
   "app": {

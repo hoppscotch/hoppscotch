@@ -72,6 +72,61 @@ describe("InterceptorService", () => {
     expect(service.currentInterceptorID.value).not.toEqual("unknown")
   })
 
+  it("currentInterceptor points to the instance of the currently selected interceptor", () => {
+    const container = new TestContainer()
+
+    const service = container.bind(InterceptorService)
+
+    const interceptor = {
+      interceptorID: "test",
+      name: () => "test interceptor",
+      selectable: { type: "selectable" as const },
+      runRequest: () => {
+        throw new Error("not implemented")
+      },
+    }
+
+    service.registerInterceptor(interceptor)
+    service.currentInterceptorID.value = "test"
+
+    expect(service.currentInterceptor.value).toBe(interceptor)
+  })
+
+  it("currentInterceptor updates when the currentInterceptorID changes", () => {
+    const container = new TestContainer()
+
+    const service = container.bind(InterceptorService)
+
+    const interceptor = {
+      interceptorID: "test",
+      name: () => "test interceptor",
+      selectable: { type: "selectable" as const },
+      runRequest: () => {
+        throw new Error("not implemented")
+      },
+    }
+
+    const interceptor_2 = {
+      interceptorID: "test2",
+      name: () => "test interceptor",
+      selectable: { type: "selectable" as const },
+      runRequest: () => {
+        throw new Error("not implemented")
+      },
+    }
+
+    service.registerInterceptor(interceptor)
+    service.registerInterceptor(interceptor_2)
+
+    service.currentInterceptorID.value = "test"
+
+    expect(service.currentInterceptor.value).toBe(interceptor)
+
+    service.currentInterceptorID.value = "test2"
+    expect(service.currentInterceptor.value).not.toBe(interceptor)
+    expect(service.currentInterceptor.value).toBe(interceptor_2)
+  })
+
   describe("registerInterceptor", () => {
     it("should register the interceptor", () => {
       const container = new TestContainer()

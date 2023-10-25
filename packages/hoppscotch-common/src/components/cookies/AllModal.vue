@@ -7,6 +7,14 @@
     @close="hideModal"
   >
     <template #body>
+      <div
+        v-if="!currentInterceptorSupportsCookies"
+        class="flex flex-col gap-2 p-5 items-center"
+      >
+        <icon-lucide-info />
+        {{ t("cookies.modal.interceptor_no_support") }}
+      </div>
+
       <div class="flex gap-x-2 border-b border-dividerLight pb-3">
         <HoppSmartInput
           v-model="newDomainText"
@@ -22,6 +30,14 @@
       </div>
       <div class="pt-3 flex flex-col gap-y-6">
         <div
+          v-if="workingCookieJar.size === 0"
+          class="flex flex-col items-center p-5 gap-2"
+        >
+          <icon-lucide-info />
+          {{ t("cookies.modal.no_domains") }}
+        </div>
+        <div
+          v-else
           v-for="[domain, entries] in workingCookieJar.entries()"
           :key="domain"
           class="flex flex-col gap-y-2"
@@ -43,6 +59,14 @@
           <div class="border rounded border-divider">
             <div class="divide-y divide-dividerLight">
               <div
+                v-if="entries.length === 0"
+                class="flex flex-col items-center p-5 gap-2"
+              >
+                <icon-lucide-info />
+                {{ t("cookies.modal.no_cookies_in_domain") }}
+              </div>
+              <div
+                v-else
                 v-for="(entry, entryIndex) in entries"
                 :key="`${entry}-${entryIndex}`"
                 class="flex divide-x divide-dividerLight"
@@ -93,7 +117,7 @@
   <CookiesEditCookie
     :show="!!showEditModalFor"
     :entry="showEditModalFor"
-    @save-cookie="saveCookieUpdate"
+    @save-cookie="saveCookie"
     @hide-modal="showEditModalFor = null"
   />
 </template>
@@ -107,7 +131,9 @@ import IconEdit from "~icons/lucide/edit"
 import IconTrash2 from "~icons/lucide/trash-2"
 import IconPlus from "~icons/lucide/plus"
 import { cloneDeep } from "lodash-es"
-import { ref, watch } from "vue"
+import { ref, watch, computed } from "vue"
+import { InterceptorService } from "~/services/interceptor.service"
+import { EditCookieConfig } from "./EditCookie.vue"
 
 const props = defineProps<{
   show: boolean
@@ -121,9 +147,18 @@ const t = useI18n()
 
 const newDomainText = ref("")
 
+const interceptorService = useService(InterceptorService)
 const cookieJarService = useService(CookieJarService)
 
 const workingCookieJar = ref(cloneDeep(cookieJarService.cookieJar.value))
+
+const currentInterceptorSupportsCookies = computed(() => {
+  const currentInterceptor = interceptorService.currentInterceptor.value
+
+  if (!currentInterceptor) return true
+
+  return currentInterceptor.supportsCookies ?? false
+})
 
 function addNewDomain() {
   workingCookieJar.value.set(newDomainText.value, [])
@@ -135,11 +170,7 @@ function deleteDomain(domain: string) {
 }
 
 function addCookieToDomain(domain: string) {
-  const entry = workingCookieJar.value.get(domain)
-
-  if (entry) {
-    entry.push("")
-  }
+  showEditModalFor.value = { type: "create", domain }
 }
 
 watch(
@@ -151,8 +182,7 @@ watch(
   }
 )
 
-// Tuple of [domain, entryIndex]
-const showEditModalFor = ref<[string, number, string] | null>(null)
+const showEditModalFor = ref<EditCookieConfig | null>(null)
 
 function saveCookieChanges() {
   cookieJarService.cookieJar.value = workingCookieJar.value
@@ -164,7 +194,12 @@ function cancelCookieChanges() {
 }
 
 function editCookie(domain: string, entryIndex: number, cookieEntry: string) {
-  showEditModalFor.value = [domain, entryIndex, cookieEntry]
+  showEditModalFor.value = {
+    type: "edit",
+    domain,
+    entryIndex,
+    currentCookieEntry: cookieEntry,
+  }
 }
 
 function deleteCookie(domain: string, entryIndex: number) {
@@ -175,10 +210,21 @@ function deleteCookie(domain: string, entryIndex: number) {
   }
 }
 
-function saveCookieUpdate(cookie: string) {
-  if (!showEditModalFor.value) return
+function saveCookie(cookie: string) {
+  if (showEditModalFor.value?.type === "create") {
+    const { domain } = showEditModalFor.value
 
-  const [domain, entryIndex] = showEditModalFor.value!
+    const entry = workingCookieJar.value.get(domain)!
+    entry.push(cookie)
+
+    showEditModalFor.value = null
+
+    return
+  }
+
+  if (showEditModalFor.value?.type !== "edit") return
+
+  const { domain, entryIndex } = showEditModalFor.value!
 
   const entry = workingCookieJar.value.get(domain)
 

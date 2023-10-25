@@ -621,3 +621,9 @@ export const MAILER_SMTP_URL_UNDEFINED = 'mailer/smtp_url_undefined' as const;
  */
 export const MAILER_FROM_ADDRESS_UNDEFINED =
   'mailer/from_address_undefined' as const;
+
+/**
+ * SharedRequest not found in DB
+ * (SharedRequestService)
+ */
+export const SHARED_REQUEST_NOT_FOUND = 'shared_request/not_found' as const;

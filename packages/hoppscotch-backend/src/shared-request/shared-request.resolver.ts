@@ -18,6 +18,7 @@ import { throwErr } from 'src/utils';
 import { GqlUser } from 'src/decorators/gql-user.decorator';
 import { AuthUser } from 'src/types/AuthUser';
 import { SkipThrottle } from '@nestjs/throttler';
+import { PaginationArgs } from 'src/types/input-types.args';
 
 @UseGuards(GqlThrottlerGuard)
 @Resolver(() => SharedRequest)
@@ -45,6 +46,17 @@ export class SharedRequestResolver {
 
     if (E.isLeft(result)) throwErr(result.left);
     return result.right;
+  }
+
+  @Query(() => [SharedRequest], {
+    description: 'List all shared-request the current user has generated',
+  })
+  @UseGuards(GqlAuthGuard)
+  async mySharedRequest(
+    @GqlUser() user: AuthUser,
+    @Args() args: PaginationArgs,
+  ) {
+    return this.sharedRequestService.fetchUserSharedRequests(user.uid, args);
   }
 
   /* Mutations */

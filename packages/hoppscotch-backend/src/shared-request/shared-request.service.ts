@@ -12,6 +12,7 @@ import {
 } from 'src/errors';
 import { stringToJson } from 'src/utils';
 import { AuthUser } from 'src/types/AuthUser';
+import { PaginationArgs } from 'src/types/input-types.args';
 
 const SHORT_CODE_LENGTH = 12;
 const SHORT_CODE_CHARS =
@@ -124,5 +125,32 @@ export class SharedRequestService {
     );
 
     return E.right(this.cast(createdSharedRequest));
+  }
+
+  /**
+   * Fetch SharedRequest created by a User
+   *
+   * @param uid User Uid
+   * @param args Pagination arguments
+   * @returns Array of SharedRequest
+   */
+  async fetchUserSharedRequests(uid: string, args: PaginationArgs) {
+    const sharedRequests = await this.prisma.shortcode.findMany({
+      where: {
+        creatorUid: uid,
+      },
+      orderBy: {
+        createdOn: 'desc',
+      },
+      skip: args.cursor ? 1 : 0,
+      take: args.take,
+      cursor: args.cursor ? { id: args.cursor } : undefined,
+    });
+
+    const fetchedSharedRequests: SharedRequest[] = sharedRequests.map((code) =>
+      this.cast(code),
+    );
+
+    return fetchedSharedRequests;
   }
 }

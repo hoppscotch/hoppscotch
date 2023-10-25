@@ -124,6 +124,6 @@ defineActionHandler("response.copy", () => copyResponse())
   @apply w-full;
   @apply border;
   @apply border-dividerLight;
-  @apply z-5;
+  @apply z-10;
 }
 </style>

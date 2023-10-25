@@ -1,6 +1,9 @@
 import preset from "./packages/hoppscotch-ui/ui-preset"
 
 export default {
-  content: ["packages/**/src/**/*.{vue,html}"],
+  content: [
+    "packages/hoppscotch-common/src/**/*.{vue,html}",
+    "packages/hoppscotch-sh-admin/src/**/*.{vue,html}",
+  ],
   presets: [preset],
 }

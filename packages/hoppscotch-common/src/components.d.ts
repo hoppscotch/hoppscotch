@@ -9,6 +9,7 @@ declare module "vue" {
   export interface GlobalComponents {
     AppActionHandler: typeof import('./components/app/ActionHandler.vue')['default']
     AppAnnouncement: typeof import('./components/app/Announcement.vue')['default']
+    AppBanner: typeof import('./components/app/Banner.vue')['default']
     AppContextMenu: typeof import('./components/app/ContextMenu.vue')['default']
     AppDeveloperOptions: typeof import('./components/app/DeveloperOptions.vue')['default']
     AppFooter: typeof import('./components/app/Footer.vue')['default']

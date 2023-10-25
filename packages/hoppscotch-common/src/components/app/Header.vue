@@ -215,7 +215,7 @@
         </div>
       </div>
     </header>
-    <AppAnnouncement v-if="!network.isOnline" />
+    <AppBanner v-if="banner" :banner="banner" />
     <TeamsModal :show="showTeamsModal" @hide-modal="showTeamsModal = false" />
     <TeamsInvite
       v-if="workspace.type === 'team' && workspace.teamID"
@@ -264,6 +264,7 @@ import IconUsers from "~icons/lucide/users"
 import { pipe } from "fp-ts/function"
 import * as TE from "fp-ts/TaskEither"
 import { deleteTeam as backendDeleteTeam } from "~/helpers/backend/mutations/Team"
+import { BannerService } from "~/services/banner.service"
 
 const t = useI18n()
 const toast = useToast()
@@ -281,7 +282,21 @@ const showTeamsModal = ref(false)
 const breakpoints = useBreakpoints(breakpointsTailwind)
 const mdAndLarger = breakpoints.greater("md")
 
+const bannerService = useService(BannerService)
+const banner = bannerService.content
 const network = reactive(useNetwork())
+
+watch(
+  network,
+  () =>
+    (banner.value = network.isOnline
+      ? undefined
+      : {
+          type: "info",
+          text: () => t("helpers.offline"),
+          alternateText: () => t("helpers.offline_short"),
+        })
+)
 
 const currentUser = useReadonlyStream(
   platform.auth.getProbableUserStream(),

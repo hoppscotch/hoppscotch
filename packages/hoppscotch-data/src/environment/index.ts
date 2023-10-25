@@ -1,7 +1,7 @@
-import { InferredEntity, createVersionedEntity } from "verzod"
 import * as E from "fp-ts/Either"
 import { pipe } from "fp-ts/function"
-import { V0_SCHEMA } from "./v/0"
+import { InferredEntity, createVersionedEntity } from "verzod"
+
 import V0_VERSION from "./v/0"
 
 export const Environment = createVersionedEntity({
@@ -10,7 +10,7 @@ export const Environment = createVersionedEntity({
     0: V0_VERSION
   },
   getVersion(x) {
-    return V0_SCHEMA.safeParse(x).success
+    return V0_VERSION.schema.safeParse(x).success
       ? 0
       : null
   }

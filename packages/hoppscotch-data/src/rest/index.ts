@@ -1,12 +1,11 @@
+import * as Eq from "fp-ts/Eq";
+import * as S from "fp-ts/string";
+import cloneDeep from "lodash/cloneDeep";
 import { createVersionedEntity, InferredEntity } from "verzod";
-import * as Eq from "fp-ts/Eq"
-import * as S from "fp-ts/string"
-import { V0_SCHEMA } from "./v/0"
-import V0_VERSION from "./v/0"
-import V1_VERSION from "./v/1"
+
 import { lodashIsEqualEq, mapThenEq, undefinedEq } from "../utils/eq";
-import cloneDeep from "lodash/cloneDeep"
-import { HoppRESTAuth, HoppRESTReqBody, HoppRESTHeaders, HoppRESTParams } from "./v/1"
+import V0_VERSION from "./v/0";
+import V1_VERSION, { HoppRESTAuth, HoppRESTHeaders, HoppRESTParams, HoppRESTReqBody } from "./v/1";
 
 export * from "./content-types"
 export {
@@ -40,7 +39,7 @@ export const HoppRESTRequest = createVersionedEntity({
     }
 
     // For V0 we have to check the schema
-    const result = V0_SCHEMA.safeParse(data)
+    const result = V0_VERSION.schema.safeParse(data)
 
     return result.success ? 0 : null
   },
@@ -197,8 +196,5 @@ export function isHoppRESTRequest(x: unknown): x is HoppRESTRequest {
  */
 export function translateToNewRequest(x: unknown): HoppRESTRequest {
   const result = HoppRESTRequest.safeParse(x)
-
-  if (result.type === "ok") return result.value
-
-  return getDefaultRESTRequest()
+  return result.type === "ok" ? result.value : getDefaultRESTRequest()
 }

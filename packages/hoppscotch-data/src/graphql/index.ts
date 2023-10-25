@@ -65,10 +65,7 @@ export function getDefaultGQLRequest(): HoppGQLRequest {
  */
 export function translateToGQLRequest(x: unknown): HoppGQLRequest {
   const result = HoppGQLRequest.safeParse(x)
-
-  if (result.type === "ok") return result.value
-
-  return getDefaultGQLRequest()
+  return result.type === "ok" ? result.value : getDefaultGQLRequest()
 }
 
 export function makeGQLRequest(x: Omit<HoppGQLRequest, "v">): HoppGQLRequest {

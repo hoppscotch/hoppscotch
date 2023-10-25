@@ -1,5 +1,6 @@
 import { defineVersion } from "verzod"
 import { z } from "zod"
+
 import { V0_SCHEMA } from "./0"
 
 export const FormDataKeyValue = z.object({
@@ -147,16 +148,9 @@ const V1_SCHEMA = z.object({
 })
 
 function parseRequestBody(x: z.infer<typeof V0_SCHEMA>): z.infer<typeof V1_SCHEMA>["body"] {
-  if (x.contentType === "application/json") {
-    return {
-      contentType: "application/json",
-      body: x.rawParams ?? "",
-    }
-  }
-
   return {
     contentType: "application/json",
-    body: "",
+    body: x.contentType === "application/json" ? x.rawParams ?? "" : "",
   }
 }
 
@@ -189,13 +183,9 @@ export default defineVersion({
   initial: false,
   schema: V1_SCHEMA,
   up(old: z.infer<typeof V0_SCHEMA>) {
-    const endpoint = `${old.url}${old.path}`
-    const headers = old.headers
-    const params = old.params
-    const name = old.name
-    const method = old.method
-    const preRequestScript = old.preRequestScript
-    const testScript = old.testScript
+    const { url, path, headers, params, name, method, preRequestScript, testScript } = old
+
+    const endpoint = `${url}${path}`
     const body = parseRequestBody(old)
     const auth = parseOldAuth(old)
 

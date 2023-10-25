@@ -7,7 +7,7 @@
         v-tippy="{ theme: 'tooltip' }"
         :title="t('app.open_navigation')"
         :icon="IconMenu"
-        class="transform !md:hidden mr-2"
+        class="transform md:hidden mr-2"
         @click="isOpen = true"
       />
       <HoppButtonSecondary
@@ -18,7 +18,7 @@
             : `${t('app.expand_sidebar')}`
         "
         :icon="isExpanded ? IconSidebarClose : IconSidebarOpen"
-        class="transform"
+        class="transform hidden md:block"
         @click="expandSidebar"
       />
     </div>

@@ -153,4 +153,33 @@ export class SharedRequestService {
 
     return fetchedSharedRequests;
   }
+
+  /**
+   * Delete a SharedRequest
+   *
+   * @param sharedRequestID SharedRequest
+   * @param uid User Uid
+   * @returns Boolean on successful deletion
+   */
+  async revokeSharedRequest(sharedRequestID: string, uid: string) {
+    try {
+      const deletedSharedRequest = await this.prisma.shortcode.delete({
+        where: {
+          creator_uid_shortcode_unique: {
+            creatorUid: uid,
+            id: sharedRequestID,
+          },
+        },
+      });
+
+      this.pubsub.publish(
+        `shared_request/${deletedSharedRequest.creatorUid}/revoked`,
+        this.cast(deletedSharedRequest),
+      );
+
+      return E.right(true);
+    } catch (error) {
+      return E.left(SHARED_REQUEST_NOT_FOUND);
+    }
+  }
 }

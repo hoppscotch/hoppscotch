@@ -88,6 +88,28 @@ export class SharedRequestResolver {
     return result.right;
   }
 
+  @Mutation(() => Boolean, {
+    description: 'Revoke a user generated shared-request',
+  })
+  @UseGuards(GqlAuthGuard)
+  async revokeSharedRequest(
+    @GqlUser() user: AuthUser,
+    @Args({
+      name: 'code',
+      type: () => ID,
+      description: 'The shared-request to resolve',
+    })
+    code: string,
+  ) {
+    const result = await this.sharedRequestService.revokeSharedRequest(
+      code,
+      user.uid,
+    );
+
+    if (E.isLeft(result)) throwErr(result.left);
+    return result.right;
+  }
+
   /* Subscriptions */
   @Subscription(() => SharedRequest, {
     description: 'Listen for shortcode creation',

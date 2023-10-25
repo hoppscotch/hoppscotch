@@ -50,6 +50,7 @@ createHoppApp("#app", {
   platformFeatureFlags: {
     exportAsGIST: false,
     hasTelemetry: false,
+    cookiesEnabled: true,
   },
 })
 
@@ -84,27 +85,27 @@ watch(
     headerPaddingTop.value = "2px"
     headerPaddingLeft.value = "70px"
   }
-})()
 
-const { pressed } = useMousePressed()
+  const { pressed } = useMousePressed()
 
-document.addEventListener("mousemove", (ev) => {
-  const { clientX, clientY } = ev
+  document.addEventListener("mousemove", (ev) => {
+    const { clientX, clientY } = ev
 
-  const el = document.querySelector("header")
+    const el = document.querySelector("header")
 
-  if (!el) return
+    if (!el) return
 
-  const { left, top, width, height } = el.getBoundingClientRect()
+    const { left, top, width, height } = el.getBoundingClientRect()
 
-  if (
-    clientX >= left &&
-    clientX <= left + width &&
-    clientY >= top &&
-    clientY <= top + height
-  ) {
-    if (pressed.value) {
-      appWindow.startDragging()
+    if (
+      clientX >= left &&
+      clientX <= left + width &&
+      clientY >= top &&
+      clientY <= top + height
+    ) {
+      if (pressed.value) {
+        appWindow.startDragging()
+      }
     }
-  }
-})
+  })
+})()

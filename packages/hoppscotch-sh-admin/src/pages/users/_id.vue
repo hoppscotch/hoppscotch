@@ -16,17 +16,17 @@
           <img class="object-cover rounded-3xl mb-3" :src="user.photoURL" />
           <span
             v-if="user.isAdmin"
-            class="absolute left-17 bottom-0 text-xs font-medium px-3 py-0.5 rounded-full bg-green-900 text-green-300"
+            class="absolute left-16 bottom-0 text-xs font-medium px-3 py-0.5 rounded-full bg-green-900 text-green-300"
           >
             {{ t('users.admin') }}
           </span>
         </div>
 
-        <div v-else class="bg-primaryDark w-17 p-3 rounded-2xl mb-3 relative">
+        <div v-else class="bg-primaryDark w-16 p-3 rounded-2xl mb-3 relative">
           <icon-lucide-user class="text-4xl" />
           <span
             v-if="user.isAdmin"
-            class="absolute left-15 bottom-0 text-xs font-medium px-3 py-0.5 rounded-full bg-green-900 text-green-300"
+            class="absolute left-16 bottom-0 text-xs font-medium px-3 py-0.5 rounded-full bg-green-900 text-green-300"
           >
             {{ t('users.admin') }}
           </span>

@@ -12,7 +12,7 @@
       :class="isOpen ? '' : '-translate-x-full ease-in'"
       class="sidebar-container transform !md:translate-x-0 ease-out"
     >
-      <div :class="isExpanded ? 'w-xs' : 'w-full'">
+      <div :class="isExpanded ? 'w-80' : 'w-full'">
         <div class="flex items-center justify-start px-4 my-4">
           <div class="flex items-center">
             <HoppSmartLink class="flex items-center space-x-4" to="/dashboard">

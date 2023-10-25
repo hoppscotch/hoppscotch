@@ -112,12 +112,22 @@ export class SharedRequestResolver {
 
   /* Subscriptions */
   @Subscription(() => SharedRequest, {
-    description: 'Listen for shortcode creation',
+    description: 'Listen for shared-request creation',
     resolve: (value) => value,
   })
   @SkipThrottle()
   @UseGuards(GqlAuthGuard)
   mySharedRequestCreated(@GqlUser() user: AuthUser) {
     return this.pubsub.asyncIterator(`shared_request/${user.uid}/created`);
+  }
+
+  @Subscription(() => SharedRequest, {
+    description: 'Listen for shared-request deletion',
+    resolve: (value) => value,
+  })
+  @SkipThrottle()
+  @UseGuards(GqlAuthGuard)
+  mySharedRequestRevoked(@GqlUser() user: AuthUser) {
+    return this.pubsub.asyncIterator(`shared_request/${user.uid}/revoked`);
   }
 }

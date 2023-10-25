@@ -1,6 +1,6 @@
 <template>
   <div
-    class="relative flex items-center px-4 py-2 transition bg-error text-tiny group"
+    class="group relative flex items-center bg-error px-4 py-2 text-tiny transition"
     role="alert"
   >
     <icon-lucide-info class="mr-2" />

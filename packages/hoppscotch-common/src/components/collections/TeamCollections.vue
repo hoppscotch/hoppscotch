@@ -1,7 +1,7 @@
 <template>
-  <div class="flex flex-col flex-1">
+  <div class="flex flex-1 flex-col">
     <div
-      class="sticky z-10 flex justify-between flex-1 border-b bg-primary border-dividerLight"
+      class="sticky z-10 flex flex-1 justify-between border-b border-dividerLight bg-primary"
       :style="
         saveRequest
           ? 'top: calc(var(--upper-primary-sticky-fold) - var(--line-height-body))'
@@ -269,10 +269,10 @@
             @drop.stop
           >
             <div class="flex flex-col items-center space-y-4">
-              <span class="text-secondaryLight text-center">
+              <span class="text-center text-secondaryLight">
                 {{ t("collection.import_or_create") }}
               </span>
-              <div class="flex gap-4 flex-col items-stretch">
+              <div class="flex flex-col items-stretch gap-4">
                 <HoppButtonPrimary
                   :icon="IconImport"
                   :label="t('import.title')"

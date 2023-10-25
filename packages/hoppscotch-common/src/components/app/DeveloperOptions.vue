@@ -6,7 +6,7 @@
     @close="hideModal"
   >
     <template #body>
-      <p class="px-2 mb-4 text-secondaryLight">
+      <p class="mb-4 px-2 text-secondaryLight">
         {{ t("app.developer_option_description") }}
       </p>
       <div class="flex flex-1">

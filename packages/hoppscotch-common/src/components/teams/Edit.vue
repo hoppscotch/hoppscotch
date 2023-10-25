@@ -9,7 +9,7 @@
           input-styles="floating-input"
           @submit="saveTeam"
         />
-        <div class="flex items-center justify-between flex-1 pt-4">
+        <div class="flex flex-1 items-center justify-between pt-4">
           <label for="memberList" class="p-4">
             {{ t("team.members") }}
           </label>
@@ -26,7 +26,7 @@
             />
           </div>
         </div>
-        <div v-if="teamDetails.loading" class="border rounded border-divider">
+        <div v-if="teamDetails.loading" class="rounded border border-divider">
           <div class="flex items-center justify-center p-4">
             <HoppSmartSpinner />
           </div>
@@ -37,7 +37,7 @@
             E.isRight(teamDetails.data) &&
             teamDetails.data.right.team.teamMembers
           "
-          class="border rounded border-divider"
+          class="rounded border border-divider"
         >
           <HoppSmartPlaceholder
             v-if="teamDetails.data.right.team.teamMembers === 0"
@@ -62,7 +62,7 @@
               class="flex divide-x divide-dividerLight"
             >
               <input
-                class="flex flex-1 px-4 py-2 bg-transparent"
+                class="flex flex-1 bg-transparent px-4 py-2"
                 :placeholder="`${t('team.email')}`"
                 :name="'param' + index"
                 :value="member.email"
@@ -77,7 +77,7 @@
                 >
                   <span class="select-wrapper">
                     <input
-                      class="flex flex-1 px-4 py-2 bg-transparent cursor-pointer"
+                      class="flex flex-1 cursor-pointer bg-transparent px-4 py-2"
                       :placeholder="`${t('team.permissions')}`"
                       :name="'value' + index"
                       :value="member.role"
@@ -152,7 +152,7 @@
           v-if="!teamDetails.loading && E.isLeft(teamDetails.data)"
           class="flex flex-col items-center"
         >
-          <icon-lucide-help-circle class="mb-4 svg-icons" />
+          <icon-lucide-help-circle class="svg-icons mb-4" />
           {{ t("error.something_went_wrong") }}
         </div>
       </div>

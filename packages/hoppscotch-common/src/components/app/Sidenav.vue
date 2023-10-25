@@ -1,6 +1,6 @@
 <template>
-  <aside class="flex justify-between h-full md:flex-col">
-    <nav class="flex flex-1 flex-nowrap md:flex-col md:flex-none bg-primary">
+  <aside class="flex h-full justify-between md:flex-col">
+    <nav class="flex flex-1 flex-nowrap bg-primary md:flex-none md:flex-col">
       <HoppSmartLink
         v-for="(navigation, index) in primaryNavigation"
         :key="`navigation-${index}`"
@@ -73,7 +73,7 @@ const primaryNavigation = [
 .nav-link {
   @apply relative;
   @apply p-4;
-  @apply flex flex-col flex-1;
+  @apply flex flex-1 flex-col;
   @apply items-center;
   @apply justify-center;
   @apply hover:bg-primaryDark hover:text-secondaryDark;

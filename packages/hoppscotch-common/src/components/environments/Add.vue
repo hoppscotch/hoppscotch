@@ -5,9 +5,9 @@
     @close="hideModal"
   >
     <template #body>
-      <div class="flex space-y-4 flex-1 flex-col">
-        <div class="flex items-center space-x-8 ml-2">
-          <label for="name" class="font-semibold min-w-10">{{
+      <div class="flex flex-1 flex-col space-y-4">
+        <div class="ml-2 flex items-center space-x-8">
+          <label for="name" class="min-w-10 font-semibold">{{
             t("environment.name")
           }}</label>
           <input
@@ -17,8 +17,8 @@
             class="input"
           />
         </div>
-        <div class="flex items-center space-x-8 ml-2">
-          <label for="value" class="font-semibold min-w-10">{{
+        <div class="ml-2 flex items-center space-x-8">
+          <label for="value" class="min-w-10 font-semibold">{{
             t("environment.value")
           }}</label>
           <input
@@ -28,17 +28,17 @@
             :placeholder="t('environment.value')"
           />
         </div>
-        <div class="flex items-center space-x-8 ml-2">
-          <label for="scope" class="font-semibold min-w-10">
+        <div class="ml-2 flex items-center space-x-8">
+          <label for="scope" class="min-w-10 font-semibold">
             {{ t("environment.scope") }}
           </label>
           <div
-            class="relative flex flex-1 flex-col border border-divider rounded focus-visible:border-dividerDark"
+            class="relative flex flex-1 flex-col rounded border border-divider focus-visible:border-dividerDark"
           >
             <EnvironmentsSelector v-model="scope" :is-scope-selector="true" />
           </div>
         </div>
-        <div v-if="replaceWithVariable" class="flex space-x-2 mt-3">
+        <div v-if="replaceWithVariable" class="mt-3 flex space-x-2">
           <div class="min-w-18" />
           <HoppSmartCheckbox
             :on="replaceWithVariable"

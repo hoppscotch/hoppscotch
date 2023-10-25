@@ -5,7 +5,7 @@
     </span>
     <icon-lucide-chevron-right class="flex flex-shrink-0" />
     <span
-      class="font-semibold truncate text-tiny flex flex-shrink-0 border border-dividerDark rounded-md px-1"
+      class="flex flex-shrink-0 truncate rounded-md border border-dividerDark px-1 text-tiny font-semibold"
       :class="entryStatus.className"
     >
       {{ historyEntry.request.method }}

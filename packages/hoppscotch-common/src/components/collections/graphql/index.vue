@@ -1,7 +1,7 @@
 <template>
   <div :class="{ 'rounded border border-divider': saveRequest }">
     <div
-      class="sticky z-10 flex flex-col flex-shrink-0 overflow-x-auto rounded-t bg-primary"
+      class="sticky z-10 flex flex-shrink-0 flex-col overflow-x-auto rounded-t bg-primary"
       :style="
         saveRequest ? 'top: calc(-1 * var(--line-height-body))' : 'top: 0'
       "
@@ -11,10 +11,10 @@
         type="search"
         autocomplete="off"
         :placeholder="t('action.search')"
-        class="py-2 pl-4 pr-2 bg-transparent !border-0"
+        class="!border-0 bg-transparent py-2 pl-4 pr-2"
       />
       <div
-        class="flex justify-between flex-1 flex-shrink-0 border-y bg-primary border-dividerLight"
+        class="flex flex-1 flex-shrink-0 justify-between border-y border-dividerLight bg-primary"
       >
         <HoppButtonSecondary
           :icon="IconPlus"
@@ -67,10 +67,10 @@
       :text="t('empty.collections')"
     >
       <div class="flex flex-col items-center space-y-4">
-        <span class="text-secondaryLight text-center">
+        <span class="text-center text-secondaryLight">
           {{ t("collection.import_or_create") }}
         </span>
-        <div class="flex gap-4 flex-col items-stretch">
+        <div class="flex flex-col items-stretch gap-4">
           <HoppButtonPrimary
             :icon="IconImport"
             :label="t('import.title')"
@@ -93,7 +93,7 @@
       :text="`${t('state.nothing_found')} ‟${filterText}”`"
     >
       <template #icon>
-        <icon-lucide-search class="pb-2 opacity-75 svg-icons" />
+        <icon-lucide-search class="svg-icons pb-2 opacity-75" />
       </template>
     </HoppSmartPlaceholder>
     <CollectionsGraphqlAdd

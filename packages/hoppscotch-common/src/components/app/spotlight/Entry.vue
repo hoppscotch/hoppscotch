@@ -1,7 +1,7 @@
 <template>
   <button
     ref="el"
-    class="flex items-center flex-1 px-6 py-4 font-medium space-x-4 transition cursor-pointer relative search-entry focus:outline-none"
+    class="search-entry relative flex flex-1 cursor-pointer items-center space-x-4 px-6 py-4 font-medium transition focus:outline-none"
     :class="{ 'active bg-primaryLight text-secondaryDark': active }"
     tabindex="-1"
     @click="emit('action')"
@@ -9,7 +9,7 @@
   >
     <component
       :is="entry.icon"
-      class="opacity-50 svg-icons"
+      class="svg-icons opacity-50"
       :class="{ 'opacity-100': active }"
     />
     <template

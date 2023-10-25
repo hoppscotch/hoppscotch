@@ -11,7 +11,7 @@
         :url="member.user.photoURL"
         :title="getUserName(member)"
         :alt="getUserName(member)"
-        class="ring-primary ring-2"
+        class="ring-2 ring-primary"
         @click="handleClick()"
       />
       <HoppSmartPicture
@@ -19,7 +19,7 @@
         v-tippy="{ theme: 'tooltip' }"
         :title="getUserName(member)"
         :initial="getUserName(member)"
-        class="ring-primary ring-2"
+        class="ring-2 ring-primary"
         @click="handleClick()"
       />
     </div>
@@ -27,7 +27,7 @@
       v-if="props.showCount && props.teamMembers.length > maxMembersSoftLimit"
       v-tippy="{ theme: 'tooltip', allowHTML: true }"
       :title="remainingSlicedMembers"
-      class="z-10 inline-flex items-center justify-center w-5 h-5 rounded-full cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primaryDark font- text-8px text-secondaryDark bg-dividerDark ring-2 ring-primary"
+      class="font- text-8px z-10 inline-flex h-5 w-5 cursor-pointer items-center justify-center rounded-full bg-dividerDark text-secondaryDark ring-2 ring-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-primaryDark"
       tabindex="0"
       @click="handleClick()"
     >

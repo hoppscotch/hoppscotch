@@ -26,7 +26,7 @@
         v-else-if="!loading"
         class="grid gap-4"
         :class="
-          modal ? 'grid-cols-1' : 'sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4'
+          modal ? 'grid-cols-1' : 'lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2'
         "
       >
         <TeamsTeam
@@ -40,7 +40,7 @@
         />
       </div>
       <div v-if="!loading && adapterError" class="flex flex-col items-center">
-        <icon-lucide-help-circle class="mb-4 svg-icons" />
+        <icon-lucide-help-circle class="svg-icons mb-4" />
         {{ t("error.something_went_wrong") }}
       </div>
     </div>

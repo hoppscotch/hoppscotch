@@ -1,7 +1,7 @@
 <template>
   <div>
     <div
-      class="sticky z-10 flex justify-between flex-1 flex-shrink-0 overflow-x-auto border-b top-upperPrimaryStickyFold border-dividerLight bg-primary"
+      class="sticky top-upperPrimaryStickyFold z-10 flex flex-1 flex-shrink-0 justify-between overflow-x-auto border-b border-dividerLight bg-primary"
     >
       <HoppButtonSecondary
         v-if="team === undefined || team.myRole === 'VIEWER'"
@@ -50,10 +50,10 @@
       :text="t('empty.environments')"
     >
       <div class="flex flex-col items-center space-y-4">
-        <span class="text-secondaryLight text-center">
+        <span class="text-center text-secondaryLight">
           {{ t("environment.import_or_create") }}
         </span>
-        <div class="flex gap-4 flex-col items-stretch">
+        <div class="flex flex-col items-stretch gap-4">
           <HoppButtonPrimary
             :icon="IconImport"
             :label="t('import.title')"
@@ -94,7 +94,7 @@
       v-if="!loading && adapterError"
       class="flex flex-col items-center py-4"
     >
-      <icon-lucide-help-circle class="mb-4 svg-icons" />
+      <icon-lucide-help-circle class="svg-icons mb-4" />
       {{ getErrorMessage(adapterError) }}
     </div>
     <EnvironmentsTeamsDetails

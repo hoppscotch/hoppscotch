@@ -26,7 +26,7 @@
             <div v-if="step.name === 'FILE_IMPORT'" class="space-y-4">
               <p class="flex items-center">
                 <span
-                  class="inline-flex items-center justify-center flex-shrink-0 mr-4 border-4 rounded-full border-primary text-dividerDark"
+                  class="mr-4 inline-flex flex-shrink-0 items-center justify-center rounded-full border-4 border-primary text-dividerDark"
                   :class="{
                     '!text-green-500': hasFile,
                   }"
@@ -38,14 +38,14 @@
                 </span>
               </p>
               <p
-                class="flex flex-col ml-10 border border-dashed rounded border-dividerDark"
+                class="ml-10 flex flex-col rounded border border-dashed border-dividerDark"
               >
                 <input
                   id="inputChooseFileToImportFrom"
                   ref="inputChooseFileToImportFrom"
                   name="inputChooseFileToImportFrom"
                   type="file"
-                  class="p-4 cursor-pointer transition file:transition file:cursor-pointer text-secondary hover:text-secondaryDark file:mr-2 file:py-2 file:px-4 file:rounded file:border-0 file:text-secondary hover:file:text-secondaryDark file:bg-primaryLight hover:file:bg-primaryDark"
+                  class="cursor-pointer p-4 text-secondary transition file:mr-2 file:cursor-pointer file:rounded file:border-0 file:bg-primaryLight file:px-4 file:py-2 file:text-secondary file:transition hover:text-secondaryDark hover:file:bg-primaryDark hover:file:text-secondaryDark"
                   :accept="step.metadata.acceptedFileTypes"
                   @change="onFileChange"
                 />
@@ -54,7 +54,7 @@
             <div v-else-if="step.name === 'URL_IMPORT'" class="space-y-4">
               <p class="flex items-center">
                 <span
-                  class="inline-flex items-center justify-center flex-shrink-0 mr-4 border-4 rounded-full border-primary text-dividerDark"
+                  class="mr-4 inline-flex flex-shrink-0 items-center justify-center rounded-full border-4 border-primary text-dividerDark"
                   :class="{
                     '!text-green-500': hasGist,
                   }"
@@ -65,7 +65,7 @@
                   {{ t(`${step.metadata.caption}`) }}
                 </span>
               </p>
-              <p class="flex flex-col ml-10">
+              <p class="ml-10 flex flex-col">
                 <input
                   v-model="inputChooseGistToImportFrom"
                   type="url"

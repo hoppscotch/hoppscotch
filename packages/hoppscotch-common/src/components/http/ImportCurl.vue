@@ -6,10 +6,10 @@
     @close="hideModal"
   >
     <template #body>
-      <div class="border rounded border-dividerLight">
+      <div class="rounded border border-dividerLight">
         <div class="flex flex-col">
           <div class="flex items-center justify-between pl-4">
-            <label class="font-semibold truncate text-secondaryLight">
+            <label class="truncate font-semibold text-secondaryLight">
               cURL
             </label>
             <div class="flex items-center">
@@ -43,7 +43,7 @@
           <div class="h-46">
             <div
               ref="curlEditor"
-              class="h-full border-t rounded-b border-dividerLight"
+              class="h-full rounded-b border-t border-dividerLight"
             ></div>
           </div>
         </div>

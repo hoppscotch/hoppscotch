@@ -1,6 +1,6 @@
 <template>
   <div
-    class="sticky top-sidebarPrimaryStickyFold z-10 flex items-center justify-between pl-4 border-y bg-primary border-dividerLight"
+    class="sticky top-sidebarPrimaryStickyFold z-10 flex items-center justify-between border-y border-dividerLight bg-primary pl-4"
   >
     <label class="font-semibold text-secondaryLight">
       {{ t("tab.headers") }}
@@ -42,7 +42,7 @@
       />
     </div>
   </div>
-  <div v-if="bulkMode" ref="bulkEditor" class="flex flex-col flex-1"></div>
+  <div v-if="bulkMode" ref="bulkEditor" class="flex flex-1 flex-col"></div>
   <div v-else>
     <draggable
       v-model="workingHeaders"
@@ -56,7 +56,7 @@
     >
       <template #item="{ element: header, index }">
         <div
-          class="flex border-b divide-x divide-dividerLight border-dividerLight draggable-content group"
+          class="draggable-content group flex divide-x divide-dividerLight border-b border-dividerLight"
         >
           <span>
             <HoppButtonSecondary
@@ -71,7 +71,7 @@
               :icon="IconGripVertical"
               class="cursor-auto text-primary hover:text-primary"
               :class="{
-                'draggable-handle group-hover:text-secondaryLight !cursor-grab':
+                'draggable-handle !cursor-grab group-hover:text-secondaryLight':
                   index !== workingHeaders?.length - 1,
               }"
               tabindex="-1"
@@ -91,7 +91,7 @@
                 px-4
                 truncate
               "
-            class="flex-1 !flex"
+            class="!flex flex-1"
             @input="
               updateHeader(index, {
                 id: header.id,
@@ -102,7 +102,7 @@
             "
           />
           <input
-            class="flex flex-1 px-4 py-2 bg-transparent"
+            class="flex flex-1 bg-transparent px-4 py-2"
             :placeholder="`${t('count.value', { count: index + 1 })}`"
             :name="`value ${String(index)}`"
             :value="header.value"

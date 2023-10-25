@@ -1,5 +1,5 @@
 <template>
-  <div class="flex w-screen h-screen">
+  <div class="flex h-screen w-screen">
     <Splitpanes class="no-splitter" :dbl-click-splitter="false" horizontal>
       <Pane style="height: auto">
         <AppHeader />
@@ -12,7 +12,7 @@
         >
           <Pane
             style="width: auto; height: auto"
-            class="!overflow-auto hidden md:flex md:flex-col"
+            class="hidden !overflow-auto md:flex md:flex-col"
           >
             <AppSidenav />
           </Pane>
@@ -23,10 +23,10 @@
               horizontal
             >
               <Pane class="flex flex-1 !overflow-auto">
-                <main class="flex flex-1 w-full" role="main">
+                <main class="flex w-full flex-1" role="main">
                   <RouterView
                     v-slot="{ Component }"
-                    class="flex flex-1 min-w-0"
+                    class="flex min-w-0 flex-1"
                   >
                     <Transition name="fade" mode="out-in" appear>
                       <component :is="Component" />
@@ -44,7 +44,7 @@
       <Pane
         v-else
         style="height: auto"
-        class="!overflow-auto flex flex-col fixed inset-x-0 bottom-0 z-10"
+        class="fixed inset-x-0 bottom-0 z-10 flex flex-col !overflow-auto"
       >
         <AppSidenav />
       </Pane>

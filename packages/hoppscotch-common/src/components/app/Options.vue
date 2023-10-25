@@ -8,7 +8,7 @@
   >
     <template #body>
       <div class="flex flex-col space-y-2">
-        <h2 class="p-4 font-semibold font-bold text-secondaryDark">
+        <h2 class="p-4 font-bold font-semibold text-secondaryDark">
           {{ t("layout.name") }}
         </h2>
         <HoppSmartItem
@@ -27,7 +27,7 @@
           active
           @click="expandCollection"
         />
-        <h2 class="p-4 font-semibold font-bold text-secondaryDark">
+        <h2 class="p-4 font-bold font-semibold text-secondaryDark">
           {{ t("support.title") }}
         </h2>
         <template

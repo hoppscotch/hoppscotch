@@ -1,7 +1,7 @@
 <template>
   <div>
     <div
-      class="sticky top-0 z-10 flex flex-col flex-shrink-0 overflow-x-auto border-b bg-primary border-dividerLight"
+      class="sticky top-0 z-10 flex flex-shrink-0 flex-col overflow-x-auto border-b border-dividerLight bg-primary"
     >
       <WorkspaceCurrent :section="t('tab.history')" />
       <div class="flex">
@@ -9,7 +9,7 @@
           v-model="filterText"
           type="search"
           autocomplete="off"
-          class="flex flex-1 p-4 py-2 bg-transparent"
+          class="flex flex-1 bg-transparent p-4 py-2"
           :placeholder="`${t('action.search')}`"
         />
         <div class="flex">
@@ -69,13 +69,13 @@
         open
       >
         <summary
-          class="flex items-center justify-between flex-1 min-w-0 transition cursor-pointer focus:outline-none text-secondaryLight text-tiny group"
+          class="group flex min-w-0 flex-1 cursor-pointer items-center justify-between text-tiny text-secondaryLight transition focus:outline-none"
         >
           <span
-            class="inline-flex items-center justify-center px-4 py-2 transition group-hover:text-secondary truncate"
+            class="inline-flex items-center justify-center truncate px-4 py-2 transition group-hover:text-secondary"
           >
             <icon-lucide-chevron-right
-              class="mr-2 indicator flex flex-shrink-0"
+              class="indicator mr-2 flex flex-shrink-0"
             />
             <span
               :class="[
@@ -124,7 +124,7 @@
       :text="`${t('state.nothing_found')} ‟${filterText || filterSelection}”`"
     >
       <template #icon>
-        <icon-lucide-search class="pb-2 opacity-75 svg-icons" />
+        <icon-lucide-search class="svg-icons pb-2 opacity-75" />
       </template>
       <HoppButtonSecondary
         :label="t('action.clear')"

@@ -12,7 +12,7 @@
       {{ t("settings.extension_ver_not_reported") }}
     </span>
   </div>
-  <div class="flex flex-col py-4 space-y-2">
+  <div class="flex flex-col space-y-2 py-4">
     <span>
       <HoppSmartItem
         to="https://chrome.google.com/webstore/detail/hoppscotch-browser-extens/amknoiejhlmhancpahfcfcfhllgkpbld"
@@ -36,7 +36,7 @@
       />
     </span>
   </div>
-  <div class="py-4 space-y-4">
+  <div class="space-y-4 py-4">
     <div class="flex items-center">
       <HoppSmartToggle
         :on="extensionEnabled"

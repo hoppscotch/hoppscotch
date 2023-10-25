@@ -20,6 +20,7 @@ import { ShortcodeModule } from './shortcode/shortcode.module';
 import { COOKIES_NOT_FOUND } from './errors';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { AppController } from './app.controller';
+import { SharedRequestModule } from './shared-request/shared-request.module';
 
 @Module({
   imports: [
@@ -77,6 +78,7 @@ import { AppController } from './app.controller';
     TeamInvitationModule,
     UserCollectionModule,
     ShortcodeModule,
+    SharedRequestModule,
   ],
   providers: [GQLComplexityPlugin],
   controllers: [AppController],

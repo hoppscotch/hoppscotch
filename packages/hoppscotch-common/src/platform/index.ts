@@ -27,6 +27,12 @@ export type PlatformDef = {
   platformFeatureFlags: {
     exportAsGIST: boolean
     hasTelemetry: boolean
+
+    /**
+     *  Whether the platform supports cookies (affects whether the cookies footer item is shown)
+     *  If a value is not given, then the value is assumed to be false
+     */
+    cookiesEnabled?: boolean
   }
 }
 

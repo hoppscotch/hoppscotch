@@ -21,6 +21,7 @@
           </template>
         </tippy>
         <HoppButtonSecondary
+          v-if="platform.platformFeatureFlags.cookiesEnabled ?? false"
           :label="t('app.cookies')"
           :icon="IconCookie"
           @click="showCookiesModal = true"

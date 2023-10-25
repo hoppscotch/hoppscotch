@@ -1,4 +1,11 @@
-import { Args, ID, Resolver, Query, Mutation } from '@nestjs/graphql';
+import {
+  Args,
+  ID,
+  Resolver,
+  Query,
+  Mutation,
+  Subscription,
+} from '@nestjs/graphql';
 import { SharedRequest } from './shared-requests.model';
 import { GqlThrottlerGuard } from 'src/guards/gql-throttler.guard';
 import { UseGuards } from '@nestjs/common';
@@ -10,6 +17,7 @@ import { GqlAuthGuard } from 'src/guards/gql-auth.guard';
 import { throwErr } from 'src/utils';
 import { GqlUser } from 'src/decorators/gql-user.decorator';
 import { AuthUser } from 'src/types/AuthUser';
+import { SkipThrottle } from '@nestjs/throttler';
 
 @UseGuards(GqlThrottlerGuard)
 @Resolver(() => SharedRequest)
@@ -66,5 +74,16 @@ export class SharedRequestResolver {
 
     if (E.isLeft(result)) throwErr(result.left);
     return result.right;
+  }
+
+  /* Subscriptions */
+  @Subscription(() => SharedRequest, {
+    description: 'Listen for shortcode creation',
+    resolve: (value) => value,
+  })
+  @SkipThrottle()
+  @UseGuards(GqlAuthGuard)
+  mySharedRequestCreated(@GqlUser() user: AuthUser) {
+    return this.pubsub.asyncIterator(`shared_request/${user.uid}/created`);
   }
 }

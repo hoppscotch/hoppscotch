@@ -119,7 +119,7 @@ export class SharedRequestService {
     });
 
     this.pubsub.publish(
-      `shortcode/${createdSharedRequest.creatorUid}/created`,
+      `shared_request/${createdSharedRequest.creatorUid}/created`,
       this.cast(createdSharedRequest),
     );
 

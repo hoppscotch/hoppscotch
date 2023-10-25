@@ -5,6 +5,7 @@ import App from './App.vue';
 
 // STYLES
 import '@hoppscotch/ui/style.css';
+import '../assets/scss/styles.scss';
 import '../assets/scss/tailwind.scss';
 import '@fontsource-variable/inter';
 import '@fontsource-variable/material-symbols-rounded';

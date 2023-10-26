@@ -37,6 +37,7 @@ export class ShortcodeResolver {
   @Query(() => Shortcode, {
     description: 'Resolves and returns a shortcode data',
     nullable: true,
+    deprecationReason: 'Use SharedRequests instead',
   })
   async shortcode(
     @Args({
@@ -54,6 +55,7 @@ export class ShortcodeResolver {
 
   @Query(() => [Shortcode], {
     description: 'List all shortcodes the current user has generated',
+    deprecationReason: 'Use SharedRequests instead',
   })
   @UseGuards(GqlAuthGuard)
   async myShortcodes(@GqlUser() user: AuthUser, @Args() args: PaginationArgs) {
@@ -63,6 +65,7 @@ export class ShortcodeResolver {
   /* Mutations */
   @Mutation(() => Shortcode, {
     description: 'Create a shortcode for the given request.',
+    deprecationReason: 'Use SharedRequests instead',
   })
   async createShortcode(
     @Args({
@@ -86,6 +89,7 @@ export class ShortcodeResolver {
 
   @Mutation(() => Boolean, {
     description: 'Revoke a user generated shortcode',
+    deprecationReason: 'Use SharedRequests instead',
   })
   @UseGuards(GqlAuthGuard)
   async revokeShortcode(
@@ -107,6 +111,7 @@ export class ShortcodeResolver {
   @Subscription(() => Shortcode, {
     description: 'Listen for shortcode creation',
     resolve: (value) => value,
+    deprecationReason: 'Use SharedRequests instead',
   })
   @SkipThrottle()
   @UseGuards(GqlAuthGuard)
@@ -117,6 +122,7 @@ export class ShortcodeResolver {
   @Subscription(() => Shortcode, {
     description: 'Listen for shortcode deletion',
     resolve: (value) => value,
+    deprecationReason: 'Use SharedRequests instead',
   })
   @SkipThrottle()
   @UseGuards(GqlAuthGuard)

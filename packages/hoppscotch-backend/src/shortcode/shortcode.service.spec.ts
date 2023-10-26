@@ -41,6 +41,7 @@ const createdOn = new Date();
 const shortCodeWithOutUser = {
   id: '123',
   request: '{}',
+  properties: null,
   createdOn: createdOn,
   creatorUid: null,
 };
@@ -48,6 +49,7 @@ const shortCodeWithOutUser = {
 const shortCodeWithUser = {
   id: '123',
   request: '{}',
+  properties: null,
   createdOn: createdOn,
   creatorUid: 'user_uid_1',
 };
@@ -58,6 +60,9 @@ const shortcodes = [
     request: {
       hello: 'there',
     },
+    properties: {
+      foo: 'bar',
+    },
     creatorUid: 'testuser',
     createdOn: new Date(),
   },
@@ -65,6 +70,9 @@ const shortcodes = [
     id: 'blablabla1',
     request: {
       hello: 'there',
+    },
+    properties: {
+      foo: 'bar',
     },
     creatorUid: 'testuser',
     createdOn: new Date(),

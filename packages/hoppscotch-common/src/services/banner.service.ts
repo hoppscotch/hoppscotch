@@ -1,14 +1,13 @@
 import { Service } from "dioc"
 import { ref } from "vue"
-import { getI18n } from "~/modules/i18n"
 
 export type BannerType = "info" | "warning" | "error"
 
 export type BannerContent = {
   type: BannerType
-  text: (t: ReturnType<typeof getI18n>) => string
+  text: string
   // Can be used to display an alternate text when display size is small
-  alternateText?: (t: ReturnType<typeof getI18n>) => string
+  alternateText?: string
 }
 
 export class BannerService extends Service {
@@ -17,5 +16,5 @@ export class BannerService extends Service {
     super()
   }
 
-  public content = ref<BannerContent>()
+  public content = ref<BannerContent | undefined>(undefined)
 }

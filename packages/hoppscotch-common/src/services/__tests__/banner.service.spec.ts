@@ -13,7 +13,7 @@ describe("BannerService", () => {
   it("should be able to set and retrieve banner content", () => {
     const sampleBanner: BannerContent = {
       type: "info",
-      text: () => "Info Banner",
+      text: "Info Banner",
     }
 
     const banner = service.content
@@ -26,8 +26,8 @@ describe("BannerService", () => {
   it("should be able to update the banner content", () => {
     const updatedBanner: BannerContent = {
       type: "warning",
-      text: () => "Updated Banner Content",
-      alternateText: () => "Updated Banner",
+      text: "Updated Banner Content",
+      alternateText: "Updated Banner",
     }
 
     service.content.value = updatedBanner

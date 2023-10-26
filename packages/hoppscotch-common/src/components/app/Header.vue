@@ -282,8 +282,7 @@ const showTeamsModal = ref(false)
 const breakpoints = useBreakpoints(breakpointsTailwind)
 const mdAndLarger = breakpoints.greater("md")
 
-const bannerService = useService(BannerService)
-const banner = bannerService.content
+const { content: banner } = useService(BannerService)
 const network = reactive(useNetwork())
 
 watch(
@@ -293,8 +292,8 @@ watch(
       ? undefined
       : {
           type: "info",
-          text: () => t("helpers.offline"),
-          alternateText: () => t("helpers.offline_short"),
+          text: t("helpers.offline"),
+          alternateText: t("helpers.offline_short"),
         })
 )
 

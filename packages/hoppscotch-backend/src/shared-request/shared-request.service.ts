@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { PubSubService } from 'src/pubsub/pubsub.service';
 import { Shortcode as DBSharedRequest } from '@prisma/client';
-import { UserService } from 'src/user/user.service';
 import * as E from 'fp-ts/Either';
 import { SharedRequest } from './shared-requests.model';
 import {
@@ -22,7 +21,6 @@ export class SharedRequestService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly pubsub: PubSubService,
-    private readonly userService: UserService,
   ) {}
 
   /**

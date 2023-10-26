@@ -10,7 +10,6 @@ import { SharedRequest } from './shared-requests.model';
 import { GqlThrottlerGuard } from 'src/guards/gql-throttler.guard';
 import { UseGuards } from '@nestjs/common';
 import { SharedRequestService } from './shared-request.service';
-import { UserService } from 'src/user/user.service';
 import { PubSubService } from 'src/pubsub/pubsub.service';
 import * as E from 'fp-ts/Either';
 import { GqlAuthGuard } from 'src/guards/gql-auth.guard';
@@ -25,7 +24,6 @@ import { PaginationArgs } from 'src/types/input-types.args';
 export class SharedRequestResolver {
   constructor(
     private readonly sharedRequestService: SharedRequestService,
-    private readonly userService: UserService,
     private readonly pubsub: PubSubService,
   ) {}
 
@@ -33,7 +31,6 @@ export class SharedRequestResolver {
   @Query(() => SharedRequest, {
     description: 'Resolves and returns a shared-request data',
   })
-  @UseGuards(GqlAuthGuard)
   async sharedRequest(
     @Args({
       name: 'code',

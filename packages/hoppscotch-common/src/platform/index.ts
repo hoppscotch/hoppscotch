@@ -14,7 +14,7 @@ import { Service } from "dioc"
 export type PlatformDef = {
   ui?: UIPlatformDef
   addedHoppModules?: HoppModule[]
-  addedServices?: Array<typeof Service<unknown>>
+  addedServices?: Array<typeof Service<unknown> & { ID: string }>
   auth: AuthPlatformDef
   analytics?: AnalyticsPlatformDef
   sync: {

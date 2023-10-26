@@ -1,8 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { PubSubService } from 'src/pubsub/pubsub.service';
 import { Shortcode as DBSharedRequest } from '@prisma/client';
 import * as E from 'fp-ts/Either';
+import * as TO from 'fp-ts/TaskOption';
+import * as T from 'fp-ts/Task';
 import { SharedRequest } from './shared-requests.model';
 import {
   SHARED_REQUEST_INVALID_PROPERTIES_JSON,
@@ -12,16 +14,48 @@ import {
 import { stringToJson } from 'src/utils';
 import { AuthUser } from 'src/types/AuthUser';
 import { PaginationArgs } from 'src/types/input-types.args';
+import { UserDataHandler } from 'src/user/user.data.handler';
+import { UserService } from 'src/user/user.service';
 
 const SHORT_CODE_LENGTH = 12;
 const SHORT_CODE_CHARS =
   'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
 @Injectable()
-export class SharedRequestService {
+export class SharedRequestService implements UserDataHandler, OnModuleInit {
   constructor(
     private readonly prisma: PrismaService,
     private readonly pubsub: PubSubService,
+    private readonly userService: UserService,
   ) {}
+
+  onModuleInit() {
+    this.userService.registerUserDataHandler(this);
+  }
+
+  canAllowUserDeletion(user: AuthUser): TO.TaskOption<string> {
+    return TO.none;
+  }
+
+  onUserDelete(user: AuthUser): T.Task<void> {
+    return async () => {
+      await this.deleteUserSharedRequests(user.uid);
+    };
+  }
+
+  /**
+   * Delete all the Users SharedRequests
+   * @param uid User Uid
+   * @returns number of all deleted user SharedRequests
+   */
+  async deleteUserSharedRequests(uid: string) {
+    const deletedShortCodes = await this.prisma.shortcode.deleteMany({
+      where: {
+        creatorUid: uid,
+      },
+    });
+
+    return deletedShortCodes.count;
+  }
 
   /**
    * Converts a Prisma SharedRequest type into the SharedRequest model

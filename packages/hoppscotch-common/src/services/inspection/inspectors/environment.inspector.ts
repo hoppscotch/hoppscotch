@@ -93,7 +93,6 @@ export class EnvironmentInspectorService extends Service implements Inspector {
                 id: "environment",
                 text: {
                   type: "text",
-                  // @ts-expect-error TODO: Look into the type issues here
                   text: this.t("inspections.environment.not_found", {
                     environment: exEnv,
                   }),

@@ -596,7 +596,9 @@ details[open] summary .indicator {
 .gql-operation-not-highlight {
   @apply opacity-50;
 }
-
+.gql-operation-highlight-moderate {
+  @apply opacity-50;
+}
 .gql-operation-highlight {
   @apply opacity-100;
 }

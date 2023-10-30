@@ -240,6 +240,10 @@ Help us to translate Hoppscotch. Please read [`TRANSLATIONS`](TRANSLATIONS.md) f
 📦 **Add-ons:** Official add-ons for hoppscotch.
 
 - **[Hoppscotch CLI](https://github.com/hoppscotch/hopp-cli)** - Command-line interface for Hoppscotch.
+
+  > This project is now archived. If you want to use Hoppscotch as a CLI client for CI/CD purposes, please use the new Hoppscotch CLI.
+
+- [Hoppscotch CLI Docs](https://docs.hoppscotch.io/documentation/clients/cli) - Command-line interface documentation for Hoppscotch.
 - **[Proxy](https://github.com/hoppscotch/proxyscotch)** - A simple proxy server created for Hoppscotch.
 - **[Browser Extensions](https://github.com/hoppscotch/hoppscotch-extension)** - Browser extensions that enhance your Hoppscotch experience.
 

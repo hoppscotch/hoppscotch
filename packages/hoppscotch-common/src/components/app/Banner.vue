@@ -1,8 +1,5 @@
 <template>
-  <div
-    class="relative flex items-center px-4 py-2 transition text-tiny group"
-    :class="bannerColor"
-  >
+  <div class="flex items-center px-4 py-2 text-tiny" :class="bannerColor">
     <icon-lucide-info class="mr-2 text-white" />
     <span class="text-secondaryDark">
       <span v-if="banner.alternateText" class="md:hidden">
@@ -27,7 +24,7 @@ const bannerColor = computed(() => {
   const bgColors: Record<BannerType, string> = {
     error: "bg-red-700",
     warning: "bg-yellow-700",
-    info: "bg-error",
+    info: "bg-stone-800",
   }
   return bgColors[props.banner.type]
 })

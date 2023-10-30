@@ -1,7 +1,7 @@
 <template>
   <div
     class="relative flex items-center px-4 py-2 transition text-tiny group"
-    :class="getBannerColor"
+    :class="bannerColor"
   >
     <icon-lucide-info class="mr-2 text-white" />
     <span class="text-secondaryDark">
@@ -23,7 +23,7 @@ const props = defineProps<{
   banner: BannerContent
 }>()
 
-const getBannerColor = computed(() => {
+const bannerColor = computed(() => {
   const bgColors: Record<BannerType, string> = {
     error: "bg-red-700",
     warning: "bg-yellow-700",

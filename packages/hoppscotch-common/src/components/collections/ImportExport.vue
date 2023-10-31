@@ -5,7 +5,7 @@
     :importer-modules="importerModules"
     :exporter-modules="exporterModules"
     @hide-modal="emit('hide-modal')"
-  ></ImportexportImportExport>
+  />
 </template>
 
 <script setup lang="ts">
@@ -83,13 +83,13 @@ const currentUser = useReadonlyStream(
   platform.auth.getCurrentUser()
 )
 
-const failedImport = () => {
-  toast.error(t("import.failed").toString())
+const showImportFailedError = () => {
+  toast.error(t("import.failed"))
 }
 
-const importSuccessful = (collections: HoppCollection<HoppRESTRequest>[]) => {
+const onSuccessfulImport = (collections: HoppCollection<HoppRESTRequest>[]) => {
   appendRESTCollections(collections)
-  toast.success(t("import.success").toString())
+  toast.success(t("import.success"))
 }
 
 const emit = defineEmits<{
@@ -116,9 +116,9 @@ const HoppRESTImporter: ImporterOrExporter = {
       const res = await hoppRESTImporter(content)()
 
       if (E.isRight(res)) {
-        importSuccessful(res.right)
+        onSuccessfulImport(res.right)
       } else {
-        failedImport()
+        showImportFailedError()
       }
     },
   }),
@@ -135,7 +135,7 @@ const HoppMyCollectionImporter: ImporterOrExporter = {
   },
   component: defineStep("my_collection_import", MyCollectionImport, () => ({
     async onImportFromMyCollection(content) {
-      const collectionsType = props.collectionsType
+      const { collectionsType } = props
 
       const isTeamCollection = collectionsType.type === "team-collections"
 
@@ -145,7 +145,7 @@ const HoppMyCollectionImporter: ImporterOrExporter = {
         : false
 
       if (!hasTeamWriteAccess) {
-        failedImport()
+        showImportFailedError()
         return
       }
 
@@ -177,9 +177,9 @@ const HoppOpenAPIImporter: ImporterOrExporter = {
           const res = await hoppOpenAPIImporter(content)()
 
           if (E.isRight(res)) {
-            importSuccessful(res.right)
+            onSuccessfulImport(res.right)
           } else {
-            failedImport()
+            showImportFailedError()
           }
         },
       }),
@@ -194,9 +194,9 @@ const HoppOpenAPIImporter: ImporterOrExporter = {
           const res = await hoppOpenAPIImporter(content)()
 
           if (E.isRight(res)) {
-            importSuccessful(res.right)
+            onSuccessfulImport(res.right)
           } else {
-            failedImport()
+            showImportFailedError()
           }
         },
       }),
@@ -220,13 +220,9 @@ const HoppPostmanImporter: ImporterOrExporter = {
       const res = await hoppPostmanImporter(content)()
 
       if (E.isRight(res)) {
-        console.group("Import From: Postman")
-        console.log(res.right)
-        console.groupEnd()
-
-        importSuccessful(res.right)
+        onSuccessfulImport(res.right)
       } else {
-        failedImport()
+        showImportFailedError()
       }
     },
   }),
@@ -248,9 +244,9 @@ const HoppInsomniaImporter: ImporterOrExporter = {
       const res = await hoppInsomniaImporter(content)()
 
       if (E.isRight(res)) {
-        importSuccessful(res.right)
+        onSuccessfulImport(res.right)
       } else {
-        failedImport()
+        showImportFailedError()
       }
     },
   }),
@@ -271,9 +267,9 @@ const HoppGistImporter: ImporterOrExporter = {
       const res = await hoppRESTImporter(content)()
 
       if (E.isRight(res)) {
-        importSuccessful(res.right)
+        onSuccessfulImport(res.right)
       } else {
-        failedImport()
+        showImportFailedError()
       }
     },
   }),
@@ -347,9 +343,7 @@ const HoppGistCollectionsExporter: ImporterOrExporter = {
     icon: IconGithub,
     disabled: !currentUser.value
       ? true
-      : currentUser.value.provider !== "github.com"
-        ? true
-        : false,
+      : currentUser.value.provider !== "github.com",
     title: t("export.create_secret_gist"),
     applicableTo: ["personal-workspace"],
     isLoading: isHoppGistCollectionExporterInProgress,
@@ -361,7 +355,7 @@ const HoppGistCollectionsExporter: ImporterOrExporter = {
     const accessToken = currentUser.value?.accessToken
 
     if (!accessToken) {
-      toast.error(t("error.something_went_wrong").toString())
+      toast.error(t("error.something_went_wrong"))
       isHoppGistCollectionExporterInProgress.value = false
       return
     }
@@ -424,13 +418,9 @@ const getCollectionJSON = async () => {
       props.collectionsType.selectedTeam?.id
     )
 
-    if (E.isRight(res)) {
-      collections = res.right.exportCollectionsToJSON
-
-      return E.right(collections)
-    } else {
-      return E.left(res.left)
-    }
+    return E.isRight(res)
+      ? E.right(res.right.exportCollectionsToJSON)
+      : E.left(res.left)
   } else {
     collections = JSON.stringify(myCollections.value, null, 2)
 

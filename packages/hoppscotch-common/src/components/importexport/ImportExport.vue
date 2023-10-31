@@ -15,10 +15,7 @@
       />
     </template>
     <template #body>
-      <component
-        :is="currentStep.component"
-        v-bind="currentStep.props()"
-      ></component>
+      <component :is="currentStep.component" v-bind="currentStep.props()" />
     </template>
   </HoppSmartModal>
 </template>

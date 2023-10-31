@@ -5,7 +5,7 @@
     :importer-modules="importerModules"
     :exporter-modules="exporterModules"
     @hide-modal="emit('hide-modal')"
-  ></ImportexportImportExport>
+  />
 </template>
 
 <script setup lang="ts">
@@ -61,9 +61,9 @@ const environmentJson = computed(() => {
       (x) => x.environment as Environment
     )
     return teamEnvironments
-  } else {
-    return myEnvironments.value
   }
+
+  return myEnvironments.value
 })
 
 const HoppEnvironmentsImport: ImporterOrExporter = {
@@ -84,10 +84,9 @@ const HoppEnvironmentsImport: ImporterOrExporter = {
       if (E.isLeft(res)) {
         failedImport()
         return
-      } else {
-        importSuccessful(res.right)
       }
 
+      importSuccessful(res.right)
       emit("hide-modal")
     },
   }),
@@ -111,9 +110,9 @@ const PostmanEnvironmentsImport: ImporterOrExporter = {
       if (E.isLeft(res)) {
         failedImport()
         return
-      } else {
-        importSuccessful(res.right)
       }
+
+      importSuccessful(res.right)
 
       emit("hide-modal")
     },
@@ -137,10 +136,9 @@ const EnvironmentsImportFromGIST: ImporterOrExporter = {
       if (E.isLeft(res)) {
         failedImport()
         return
-      } else {
-        importSuccessful(res.right)
       }
 
+      importSuccessful(res.right)
       emit("hide-modal")
     },
   }),
@@ -161,11 +159,9 @@ const HoppEnvironmentsExport: ImporterOrExporter = {
       "Environments"
     )
 
-    if (E.isRight(message)) {
-      toast.success(message.right)
-    } else {
-      toast.error(t("export.failed").toString())
-    }
+    E.isRight(message)
+      ? toast.success(message.right)
+      : toast.error(t("export.failed"))
   },
 }
 
@@ -173,24 +169,21 @@ const HoppEnvironmentsGistExporter: ImporterOrExporter = {
   metadata: {
     id: "export.as_gist",
     name: "export.create_secret_gist",
-    title: !currentUser
-      ? "export.require_github"
-      : // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        currentUser.provider !== "github.com"
-        ? `export.require_github`
-        : "export.create_secret_gist",
+    title:
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      currentUser && currentUser.provider == "github.com"
+        ? "export.create_secret_gist"
+        : "export.require_github",
     icon: IconUser,
     disabled: !currentUser.value
       ? true
-      : currentUser.value.provider !== "github.com"
-        ? true
-        : false,
+      : currentUser.value.provider !== "github.com",
     applicableTo: ["personal-workspace", "team-workspace"],
   },
   action: async () => {
     if (!currentUser.value) {
-      toast.error(t("profile.no_permission").toString())
+      toast.error(t("profile.no_permission"))
       return
     }
 
@@ -203,9 +196,9 @@ const HoppEnvironmentsGistExporter: ImporterOrExporter = {
       )
 
       if (E.isLeft(res)) {
-        toast.error(t("export.failed").toString())
+        toast.error(t("export.failed"))
       } else {
-        toast.success(t("export.success").toString())
+        toast.success(t("export.success"))
         window.open(res.right, "_blank")
       }
     }
@@ -227,7 +220,7 @@ const failedImport = () => {
 const importSuccessful = async (environments: Environment[]) => {
   if (props.environmentType === "MY_ENV") {
     appendEnvironments(environments)
-    toast.success(t("import.success").toString())
+    toast.success(t("import.success"))
   } else {
     await importToTeams(environments)
   }
@@ -253,16 +246,13 @@ const importToTeams = async (content: Environment[]) => {
   const failedImports = res.some((r) => E.isLeft(r))
 
   if (failedImports) {
-    toast.error(t("import.failed").toString())
+    toast.error(t("import.failed"))
   } else {
-    toast.success(t("import.success").toString())
+    toast.success(t("import.success"))
   }
 }
 
 const emit = defineEmits<{
   (e: "hide-modal"): () => void
 }>()
-
-// looking into implementing the collections export for environments
-// check here /Users/akash/hoppscotch/packages/hoppscotch-common/src/helpers/import-export/export/gistExport.ts
 </script>

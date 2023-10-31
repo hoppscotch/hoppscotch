@@ -15,34 +15,33 @@
     <div class="flex flex-col space-y-2">
       <template v-for="exporter in exporters" :key="exporter.id">
         <!-- adding the title to a span if the item is visible, otherwise the title won't be shown -->
-        <template v-if="exporter.disabled && exporter.title">
-          <span
-            v-tippy="{ theme: 'tooltip' }"
-            :title="t(`${exporter.title}`)"
-            class="flex"
-          >
-            <HoppSmartItem
-              v-tippy="{ theme: 'tooltip' }"
-              :icon="exporter.icon"
-              :label="t(`${exporter.name}`)"
-              :disabled="exporter.disabled"
-              :loading="exporter.loading"
-              @click="emit('exporter-selected', exporter.id)"
-            ></HoppSmartItem>
-          </span>
-        </template>
 
-        <template v-else>
+        <span
+          v-if="exporter.disabled && exporter.title"
+          v-tippy="{ theme: 'tooltip' }"
+          :title="t(`${exporter.title}`)"
+          class="flex"
+        >
           <HoppSmartItem
             v-tippy="{ theme: 'tooltip' }"
             :icon="exporter.icon"
-            :title="t(`${exporter.title}`)"
             :label="t(`${exporter.name}`)"
-            :loading="exporter.loading"
             :disabled="exporter.disabled"
+            :loading="exporter.loading"
             @click="emit('exporter-selected', exporter.id)"
-          ></HoppSmartItem>
-        </template>
+          />
+        </span>
+
+        <HoppSmartItem
+          v-else
+          v-tippy="{ theme: 'tooltip' }"
+          :icon="exporter.icon"
+          :title="t(`${exporter.title}`)"
+          :label="t(`${exporter.name}`)"
+          :loading="exporter.loading"
+          :disabled="exporter.disabled"
+          @click="emit('exporter-selected', exporter.id)"
+        />
       </template>
     </div>
   </div>

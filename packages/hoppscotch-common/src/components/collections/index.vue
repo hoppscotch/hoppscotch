@@ -144,7 +144,7 @@
     <CollectionsImportExport
       v-if="showModalImportExport"
       @hide-modal="displayModalImportExport(false)"
-    ></CollectionsImportExport>
+    />
 
     <TeamsAdd
       :show="showTeamModalAdd"
@@ -398,12 +398,14 @@ const currentReorderingStatus = useReadonlyStream(currentReorderingStatus$, {
   parentID: "",
 })
 
-const hasTeamWriteAccess = computed(() =>
-  collectionsType.value.type == "team-collections"
-    ? collectionsType.value.selectedTeam?.myRole == "EDITOR" ||
-      collectionsType.value.selectedTeam?.myRole == "OWNER"
-    : false
-)
+const hasTeamWriteAccess = computed(() => {
+  if (collectionsType.value.type !== "team-collections") {
+    return false
+  }
+
+  const role = collectionsType.value.selectedTeam?.myRole
+  return role == "OWNER" || role == "EDITOR"
+})
 
 const filteredCollections = computed(() => {
   const collections =

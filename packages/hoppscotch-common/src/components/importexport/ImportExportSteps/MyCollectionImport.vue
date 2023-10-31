@@ -6,7 +6,7 @@
       class="select"
       autofocus
     >
-      <option :key="undefined" :value="undefined" disabled selected>
+      <option value="" disabled selected>
         {{ t("collection.select") }}
       </option>
       <option
@@ -20,14 +20,14 @@
     </select>
   </div>
 
-  <p class="my-4">
+  <div class="my-4">
     <HoppButtonPrimary
       class="w-full"
       :label="t('import.title')"
       :disabled="!hasSelectedCollectionID"
       @click="fetchCollectionFromMyCollections"
     />
-  </p>
+  </div>
 </template>
 
 <script setup lang="ts">

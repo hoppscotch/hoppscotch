@@ -1,5 +1,4 @@
 <template>
-  <!-- v-else-if="step.name === 'URL_IMPORT'" -->
   <div class="space-y-4">
     <p class="flex items-center">
       <span
@@ -23,7 +22,7 @@
       />
     </p>
 
-    <p>
+    <div>
       <HoppButtonPrimary
         class="w-full"
         :label="t('import.title')"
@@ -31,7 +30,7 @@
         :loading="isFetchingUrl"
         @click="fetchUrlData"
       />
-    </p>
+    </div>
   </div>
 </template>
 
@@ -60,11 +59,7 @@ const hasURL = ref(false)
 const isFetchingUrl = ref(false)
 
 watch(inputChooseGistToImportFrom, (url) => {
-  if (url === "") {
-    hasURL.value = false
-  } else {
-    hasURL.value = true
-  }
+  hasURL.value = !!url
 })
 
 const urlFetchLogic =

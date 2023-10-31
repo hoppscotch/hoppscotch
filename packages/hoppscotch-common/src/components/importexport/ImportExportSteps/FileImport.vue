@@ -27,16 +27,14 @@
       />
     </p>
 
-    <p>
+    <div>
       <HoppButtonPrimary
         class="w-full"
         :label="t('import.title')"
         :disabled="!hasFile"
         @click="emit('importFromFile', fileContent)"
       />
-    </p>
-
-    <!-- :loading="importingMyCollections" -->
+    </div>
   </div>
 </template>
 

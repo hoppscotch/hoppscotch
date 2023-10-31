@@ -5,7 +5,7 @@
     :importer-modules="importerModules"
     :exporter-modules="exporterModules"
     @hide-modal="emit('hide-modal')"
-  ></ImportexportImportExport>
+  />
 </template>
 
 <script setup lang="ts">
@@ -58,10 +58,9 @@ const GqlCollectionsHoppImporter: ImporterOrExporter = {
       if (E.isLeft(res)) {
         failedImport()
         return
-      } else {
-        importSuccessful(res.right)
       }
 
+      importSuccessful(res.right)
       emit("hide-modal")
     },
   }),
@@ -110,11 +109,9 @@ const GqlCollectionsHoppExporter: ImporterOrExporter = {
       "GQLCollections.json"
     )
 
-    if (E.isRight(message)) {
-      toast.success(message.right)
-    } else {
-      toast.error(t("export.failed").toString())
-    }
+    E.isRight(message)
+      ? toast.success(message.right)
+      : toast.error(t("export.failed"))
   },
 }
 
@@ -132,14 +129,12 @@ const GqlCollectionsGistExporter: ImporterOrExporter = {
     icon: IconUser,
     disabled: !currentUser.value
       ? true
-      : currentUser.value.provider !== "github.com"
-        ? true
-        : false,
+      : currentUser.value.provider !== "github.com",
     applicableTo: ["personal-workspace"],
   },
   action: async () => {
     if (!currentUser.value) {
-      toast.error(t("profile.no_permission").toString())
+      toast.error(t("profile.no_permission"))
       return
     }
 
@@ -152,9 +147,9 @@ const GqlCollectionsGistExporter: ImporterOrExporter = {
       )
 
       if (E.isLeft(res)) {
-        toast.error(t("export.failed").toString())
+        toast.error(t("export.failed"))
       } else {
-        toast.success(t("export.success").toString())
+        toast.success(t("export.success"))
         window.open(res.right, "_blank")
       }
     }
@@ -166,14 +161,14 @@ const importerModules = [GqlCollectionsHoppImporter, GqlCollectionsGistImporter]
 const exporterModules = [GqlCollectionsHoppExporter, GqlCollectionsGistExporter]
 
 const failedImport = () => {
-  toast.error(t("import.failed").toString())
+  toast.error(t("import.failed"))
 }
 
 const importSuccessful = async (
   gqlCollections: HoppCollection<HoppGQLRequest>[]
 ) => {
   setGraphqlCollections(gqlCollections)
-  toast.success(t("import.success").toString())
+  toast.success(t("import.success"))
 }
 
 const emit = defineEmits<{

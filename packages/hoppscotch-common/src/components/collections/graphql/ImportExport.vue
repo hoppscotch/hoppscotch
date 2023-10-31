@@ -1,5 +1,5 @@
 <template>
-  <ImportexportImportExport
+  <ImportExportBase
     ref="collections-import-export"
     modal-title="graphql_collections.title"
     :importer-modules="importerModules"

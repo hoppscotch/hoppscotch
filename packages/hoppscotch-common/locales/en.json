@@ -392,9 +392,9 @@
     "hoppscotch_environment_description": "Import Hoppscotch Environment JSON file",
     "postman_environment": "Postman Environment",
     "postman_environment_description": "Import Postman Environment JSON file",
-    "environments_from_gist": "Import From GIST",
-    "environments_from_gist_description": "Import Hoppscotch Environments From GIST",
-    "gql_collections_from_gist_description": "Import GraphQL Collections From GIST"
+    "environments_from_gist": "Import From Gist",
+    "environments_from_gist_description": "Import Hoppscotch Environments From Gist",
+    "gql_collections_from_gist_description": "Import GraphQL Collections From Gist"
   },
   "inspections": {
     "description": "Inspect possible errors",

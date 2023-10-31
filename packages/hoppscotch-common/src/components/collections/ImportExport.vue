@@ -1,5 +1,5 @@
 <template>
-  <ImportexportImportExport
+  <ImportExportBase
     ref="collections-import-export"
     modal-title="modal.collections"
     :importer-modules="importerModules"

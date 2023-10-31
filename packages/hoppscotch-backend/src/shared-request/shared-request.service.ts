@@ -67,7 +67,10 @@ export class SharedRequestService implements UserDataHandler, OnModuleInit {
     return <SharedRequest>{
       id: sharedRequestInfo.id,
       request: JSON.stringify(sharedRequestInfo.request),
-      properties: JSON.stringify(sharedRequestInfo.properties),
+      properties:
+        sharedRequestInfo.properties != null
+          ? JSON.stringify(sharedRequestInfo.properties)
+          : null,
       createdOn: sharedRequestInfo.createdOn,
     };
   }
@@ -125,19 +128,23 @@ export class SharedRequestService implements UserDataHandler, OnModuleInit {
    */
   async createSharedRequest(
     request: string,
-    properties: string | null,
+    properties: string | null = null,
     userInfo: AuthUser,
   ) {
     const requestData = stringToJson(request);
     if (E.isLeft(requestData))
       return E.left(SHARED_REQUEST_INVALID_REQUEST_JSON);
 
-    let propertiesData;
-    if (!properties) propertiesData = undefined;
+    // let propertiesData;
+    // if (!properties) propertiesData = undefined;
+    // const parsedProperties = stringToJson(properties);
+    // if (E.isLeft(parsedProperties))
+    //   return E.left(SHARED_REQUEST_INVALID_PROPERTIES_JSON);
+    // propertiesData = parsedProperties.right;
+
     const parsedProperties = stringToJson(properties);
     if (E.isLeft(parsedProperties))
       return E.left(SHARED_REQUEST_INVALID_PROPERTIES_JSON);
-    propertiesData = parsedProperties.right;
 
     const generatedShortCode = await this.generateUniqueShortCodeID();
     if (E.isLeft(generatedShortCode)) return E.left(generatedShortCode.left);
@@ -146,7 +153,7 @@ export class SharedRequestService implements UserDataHandler, OnModuleInit {
       data: {
         id: generatedShortCode.right,
         request: requestData.right,
-        properties: propertiesData != null ? propertiesData : undefined,
+        properties: parsedProperties.right ?? undefined,
         creatorUid: userInfo.uid,
       },
     });

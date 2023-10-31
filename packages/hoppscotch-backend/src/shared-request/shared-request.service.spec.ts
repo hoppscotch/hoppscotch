@@ -4,9 +4,6 @@ import {
   SHARED_REQUEST_INVALID_PROPERTIES_JSON,
   SHARED_REQUEST_INVALID_REQUEST_JSON,
   SHARED_REQUEST_NOT_FOUND,
-  SHORTCODE_ALREADY_EXISTS,
-  SHORTCODE_INVALID_JSON,
-  SHORTCODE_NOT_FOUND,
 } from 'src/errors';
 import { UserService } from 'src/user/user.service';
 import { SharedRequestService } from './shared-request.service';
@@ -169,7 +166,7 @@ describe('SharedRequestService', () => {
         id: mockShortcode.id,
         createdOn: mockShortcode.createdOn,
         request: JSON.stringify(mockShortcode.request),
-        properties: JSON.stringify(mockShortcode.properties),
+        properties: mockShortcode.properties,
       });
     });
 
@@ -192,7 +189,7 @@ describe('SharedRequestService', () => {
           id: mockShortcode.id,
           createdOn: mockShortcode.createdOn,
           request: JSON.stringify(mockShortcode.request),
-          properties: JSON.stringify(mockShortcode.properties),
+          properties: mockShortcode.properties,
         },
       );
     });

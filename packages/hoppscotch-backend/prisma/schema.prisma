@@ -67,19 +67,10 @@ model TeamRequest {
   updatedOn    DateTime       @updatedAt @db.Timestamp(3)
 }
 
-// model Shortcode {
-//   id         String   @id
-//   request    Json
-//   creatorUid String?
-//   createdOn  DateTime @default(now())
-
-//   @@unique(fields: [id, creatorUid], name: "creator_uid_shortcode_unique")
-// }
-
 model Shortcode {
   id         String   @id @unique
   request    Json
-  properties Json? // if properties is null, SharedRequest is an embed else shortcode
+  properties Json? // if properties is null, SharedRequest is an shortcode else embed
   creatorUid String?
   User       User?    @relation(fields: [creatorUid], references: [uid])
   createdOn  DateTime @default(now())

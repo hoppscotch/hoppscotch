@@ -49,7 +49,7 @@ export class SharedRequestResolver {
     description: 'List all shared-request the current user has generated',
   })
   @UseGuards(GqlAuthGuard)
-  async mySharedRequest(
+  async mySharedRequests(
     @GqlUser() user: AuthUser,
     @Args() args: PaginationArgs,
   ) {

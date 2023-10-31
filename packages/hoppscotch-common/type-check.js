@@ -3,9 +3,13 @@ const ts = require("typescript")
 const vueTsc = require("vue-tsc")
 const glob = require("glob")
 
-const tsConfigFileName = "tsconfig.json"
+const tsConfigFileName = path.resolve(__dirname, "tsconfig.json")
 const tsConfig = ts.readConfigFile(tsConfigFileName, ts.sys.readFile)
-const { options } = ts.parseJsonConfigFileContent(tsConfig.config, ts.sys, "./")
+const { options } = ts.parseJsonConfigFileContent(
+  tsConfig.config,
+  ts.sys,
+  __dirname
+)
 
 const findTypeScriptFiles = (directoryPath, filePattern) => {
   const files = glob.sync(filePattern, {
@@ -39,6 +43,9 @@ const diagnostics = ts
   .getPreEmitDiagnostics(program)
   // Filter diagnostics to include only errors from files in the specified directory
   .filter(({ file }) => {
+    if (!file) {
+      return false
+    }
     return path.resolve(file.fileName).includes(directoryPath)
   })
 

@@ -10,6 +10,7 @@ import {
   SHARED_REQUEST_INVALID_PROPERTIES_JSON,
   SHARED_REQUEST_INVALID_REQUEST_JSON,
   SHARED_REQUEST_NOT_FOUND,
+  SHARED_REQUEST_PROPERTIES_NOT_FOUND,
 } from 'src/errors';
 import { stringToJson } from 'src/utils';
 import { AuthUser } from 'src/types/AuthUser';
@@ -135,13 +136,6 @@ export class SharedRequestService implements UserDataHandler, OnModuleInit {
     if (E.isLeft(requestData))
       return E.left(SHARED_REQUEST_INVALID_REQUEST_JSON);
 
-    // let propertiesData;
-    // if (!properties) propertiesData = undefined;
-    // const parsedProperties = stringToJson(properties);
-    // if (E.isLeft(parsedProperties))
-    //   return E.left(SHARED_REQUEST_INVALID_PROPERTIES_JSON);
-    // propertiesData = parsedProperties.right;
-
     const parsedProperties = stringToJson(properties);
     if (E.isLeft(parsedProperties))
       return E.left(SHARED_REQUEST_INVALID_PROPERTIES_JSON);
@@ -196,7 +190,7 @@ export class SharedRequestService implements UserDataHandler, OnModuleInit {
   /**
    * Delete a SharedRequest
    *
-   * @param sharedRequestID SharedRequest
+   * @param sharedRequestID SharedRequest ID
    * @param uid User Uid
    * @returns Boolean on successful deletion
    */
@@ -217,6 +211,47 @@ export class SharedRequestService implements UserDataHandler, OnModuleInit {
       );
 
       return E.right(true);
+    } catch (error) {
+      return E.left(SHARED_REQUEST_NOT_FOUND);
+    }
+  }
+
+  /**
+   * Update a created SharedRequest
+   * @param sharedRequestID SharedRequest ID
+   * @param uid User Uid
+   * @returns Updated SharedRequest
+   */
+  async updateSharedRequest(
+    sharedRequestID: string,
+    uid: string,
+    updatedProps: string,
+  ) {
+    if (!updatedProps) return E.left(SHARED_REQUEST_PROPERTIES_NOT_FOUND);
+
+    const parsedProperties = stringToJson(updatedProps);
+    if (E.isLeft(parsedProperties))
+      return E.left(SHARED_REQUEST_INVALID_PROPERTIES_JSON);
+
+    try {
+      const updatedSharedRequest = await this.prisma.shortcode.update({
+        where: {
+          creator_uid_shortcode_unique: {
+            creatorUid: uid,
+            id: sharedRequestID,
+          },
+        },
+        data: {
+          properties: updatedProps,
+        },
+      });
+
+      this.pubsub.publish(
+        `shared_request/${updatedSharedRequest.creatorUid}/updated`,
+        this.cast(updatedSharedRequest),
+      );
+
+      return E.right(this.cast(updatedSharedRequest));
     } catch (error) {
       return E.left(SHARED_REQUEST_NOT_FOUND);
     }

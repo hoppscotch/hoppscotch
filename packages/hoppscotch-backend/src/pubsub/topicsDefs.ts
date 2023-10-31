@@ -71,5 +71,7 @@ export type TopicDef = {
   [topic: `team/${string}/invite_added`]: TeamInvitation;
   [topic: `team/${string}/invite_removed`]: string;
   [topic: `shortcode/${string}/${'created' | 'revoked'}`]: Shortcode;
-  [topic: `shared_request/${string}/${'created' | 'revoked'}`]: SharedRequest;
+  [
+    topic: `shared_request/${string}/${'created' | 'revoked' | 'updated'}`
+  ]: SharedRequest;
 };

@@ -85,6 +85,34 @@ export class SharedRequestResolver {
     return result.right;
   }
 
+  @Mutation(() => SharedRequest, {
+    description: 'Update a user generated shared-request',
+  })
+  @UseGuards(GqlAuthGuard)
+  async updateSharedRequest(
+    @GqlUser() user: AuthUser,
+    @Args({
+      name: 'code',
+      type: () => ID,
+      description: 'The shared-request to update',
+    })
+    code: string,
+    @Args({
+      name: 'properties',
+      description: 'JSON string of the properties of the embed',
+    })
+    properties: string,
+  ) {
+    const result = await this.sharedRequestService.updateSharedRequest(
+      code,
+      user.uid,
+      properties,
+    );
+
+    if (E.isLeft(result)) throwErr(result.left);
+    return result.right;
+  }
+
   @Mutation(() => Boolean, {
     description: 'Revoke a user generated shared-request',
   })
@@ -116,6 +144,16 @@ export class SharedRequestResolver {
   @UseGuards(GqlAuthGuard)
   mySharedRequestCreated(@GqlUser() user: AuthUser) {
     return this.pubsub.asyncIterator(`shared_request/${user.uid}/created`);
+  }
+
+  @Subscription(() => SharedRequest, {
+    description: 'Listen for shared-request updates',
+    resolve: (value) => value,
+  })
+  @SkipThrottle()
+  @UseGuards(GqlAuthGuard)
+  mySharedRequestUpdated(@GqlUser() user: AuthUser) {
+    return this.pubsub.asyncIterator(`shared_request/${user.uid}/updated`);
   }
 
   @Subscription(() => SharedRequest, {

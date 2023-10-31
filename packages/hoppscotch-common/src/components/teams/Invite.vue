@@ -87,8 +87,7 @@
               class="divide-y divide-dividerLight"
             >
               <div
-                v-for="(invitee, index) in pendingInvites.data.right.team
-                  .teamInvitations"
+                v-for="(invitee, index) in pendingInvites.data.right.team?.teamInvitations"
                 :key="`invitee-${index}`"
                 class="flex divide-x divide-dividerLight"
               >
@@ -122,7 +121,7 @@
             <HoppSmartPlaceholder
               v-if="
                 E.isRight(pendingInvites.data) &&
-                pendingInvites.data.right.team.teamInvitations.length === 0
+                pendingInvites.data.right.team?.teamInvitations.length === 0
               "
               :text="t('empty.pending_invites')"
             >

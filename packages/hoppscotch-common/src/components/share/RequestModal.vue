@@ -28,15 +28,17 @@
           <div class="p-4 flex flex-col space-y-4">
             <div
               v-for="widget in widgets"
-              :key="widget.id"
+              :key="widget.value"
               class="flex flex-col border border-divider rounded px-4 py-3 space-y-2 cursor-pointer hover:bg-dividerLight h"
-              :class="{ 'border-accentLight': selectedWidget.id === widget.id }"
+              :class="{
+                'border-accentLight': selectedWidget.value === widget.value,
+              }"
               @click="selectedWidget = widget"
             >
               <span class="font-bold text-md">
-                {{ widget.name }}
+                {{ widget.label }}
               </span>
-              <span>
+              <span class="text-tiny">
                 {{ widget.info }}
               </span>
             </div>
@@ -46,52 +48,18 @@
             <div
               class="py-10 px-4 flex flex-col flex justify-center items-center"
             >
-              <div
-                class="border border-dotted px-4 py-3 border-dividerDark rounded flex justify-center items-center"
-              >
-                <div v-if="selectedWidget.id === 'embed'" class="flex flex-col">
-                  <div
-                    class="flex items-stretch divide-x border divide-divider rounded border-divider"
-                  >
-                    <span
-                      class="flex items-center justify-center py-2 px-3 flex-1"
-                    >
-                      {{ request?.method }}
-                    </span>
-                    <span class="flex items-center p-2 max-w-40">
-                      <span class="truncate min-w-0">
-                        {{ request?.endpoint }}
-                      </span>
-                    </span>
-                    <button
-                      class="flex items-center justify-center bg-primaryDark px-3 py-2 rounded border border-dividerDark text-secondary font-semibold"
-                    >
-                      {{ t("action.send") }}
-                    </button>
-                  </div>
-                  <div class="flex pt-2 border-b border-divider">
-                    <span class="px-2 py-2 border-b border-dividerDark">
-                      {{ t("tab.parameters") }}
-                    </span>
-                    <span class="px-2 py-2">
-                      {{ t("tab.body") }}
-                    </span>
-                    <span class="px-2 py-2">
-                      {{ t("tab.headers") }}
-                    </span>
-                    <span class="px-2 py-2">
-                      {{ t("tab.authorization") }}
-                    </span>
-                  </div>
-                </div>
-                <button
-                  v-else-if="selectedWidget.id === 'button'"
-                  class="flex items-center bg-primaryDark px-3 py-2 rounded border border-dividerDark text-secondary font-semibold"
-                >
-                  <icon-lucide-play class="mr-2 svg-icons" />
-                  <span>Run in Hoppscotch</span>
-                </button>
-                <span v-else> hopp.sh/r/XXXX </span>
+              <div class="px-4 py-3 rounded flex justify-center items-center">
+                <ShareTemplatesEmbeds
+                  v-if="selectedWidget.value === 'embed'"
+                  :endpoint="request?.endpoint"
+                  :method="request?.method"
+                  :model-value="embedOption"
+                />
+                <ShareTemplatesButton
+                  v-else-if="selectedWidget.value === 'button'"
+                  img="badge.svg"
+                />
+                <ShareTemplatesLink v-else />
               </div>
             </div>
           </div>
@@ -118,7 +86,7 @@
 <script lang="ts" setup>
 import { HoppRESTRequest } from "@hoppscotch/data"
 import { useVModel } from "@vueuse/core"
-import { PropType } from "vue"
+import { PropType, ref } from "vue"
 import { useI18n } from "~/composables/i18n"
 
 const t = useI18n()
@@ -154,28 +122,67 @@ const selectedWidget = useVModel(props, "modelValue")
 type WidgetID = "embed" | "button" | "link"
 
 type Widget = {
-  id: WidgetID
-  name: string
+  value: WidgetID
+  label: string
   info: string
 }
 
 const widgets: Widget[] = [
   {
-    id: "embed",
-    name: t("shared_requests.embed"),
+    value: "embed",
+    label: t("shared_requests.embed"),
     info: t("shared_requests.embed_info"),
   },
   {
-    id: "button",
-    name: t("shared_requests.button"),
+    value: "button",
+    label: t("shared_requests.button"),
     info: t("shared_requests.button_info"),
   },
   {
-    id: "link",
-    name: t("shared_requests.link"),
+    value: "link",
+    label: t("shared_requests.link"),
     info: t("shared_requests.link_info"),
   },
 ]
+
+type Tabs = "parameters" | "body" | "headers" | "authorization"
+
+type EmbedOption = {
+  selectedTab: Tabs
+  tabs: {
+    value: Tabs
+    label: string
+    enabled: boolean
+  }[]
+  theme: "light" | "dark" | "system"
+}
+
+const embedOption = ref<EmbedOption>({
+  selectedTab: "parameters",
+  tabs: [
+    {
+      value: "parameters",
+      label: t("tab.parameters"),
+      enabled: true,
+    },
+    {
+      value: "body",
+      label: t("tab.body"),
+      enabled: true,
+    },
+    {
+      value: "headers",
+      label: t("tab.headers"),
+      enabled: true,
+    },
+    {
+      value: "authorization",
+      label: t("tab.authorization"),
+      enabled: true,
+    },
+  ],
+  theme: "system",
+})
 
 const createSharedRequest = () => {
   emit("create-shared-request", props.request)

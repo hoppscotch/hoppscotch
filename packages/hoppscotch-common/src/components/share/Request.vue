@@ -124,7 +124,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: "delete-shared-request", codeID: string): void
-  (e: "customize-shared-request", codeID: string): void
+  (e: "customize-shared-request", request: Shortcode): void
 }>()
 
 const restTab = useService(RESTTabService)
@@ -150,7 +150,7 @@ const openInNewTab = () => {
 }
 
 const customizeSharedRequest = () => {
-  emit("customize-shared-request", props.request.id)
+  emit("customize-shared-request", props.request)
 }
 
 const deleteSharedRequest = () => {

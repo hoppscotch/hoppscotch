@@ -11,15 +11,9 @@
     <div
       class="sticky z-10 flex justify-end flex-1 flex-shrink-0 overflow-x-auto border-b top-sidebarPrimaryStickyFold border-dividerLight bg-primary"
     >
-      <!-- <HoppButtonSecondary
-        :icon="IconPlus"
-        :label="`${t('action.new')}`"
-        class="!rounded-none"
-        @click="shareRequest()"
-      /> -->
       <HoppButtonSecondary
         v-tippy="{ theme: 'tooltip' }"
-        to="https://docs.hoppscotch.io/documentation/features/environments"
+        to="https://docs.hoppscotch.io/documentation/features/shared-request"
         blank
         :title="t('app.wiki')"
         :icon="IconHelpCircle"
@@ -27,31 +21,39 @@
       />
     </div>
     <div class="flex flex-col">
-      <div v-if="loading"></div>
-      <div v-if="myShortcodes && myShortcodes.length > 0">
-        <ShareRequest
-          v-for="request in myShortcodes"
-          :key="request.id"
-          :request="request"
-          @delete-shared-request="deleteSharedRequest"
-          @customize-shared-request="customizeSharedRequest"
-        />
+      <div v-if="loading" class="flex flex-col items-center justify-center">
+        <HoppSmartSpinner class="mb-4" />
+        <span class="text-secondaryLight">{{ t("state.loading") }}</span>
       </div>
       <HoppSmartPlaceholder
-        v-else
+        v-if="!loading && myShortcodes.length === 0"
         :src="`/images/states/${colorMode.value}/add_files.svg`"
         :alt="`${t('empty.shared_requests')}`"
         :text="t('empty.shared_requests')"
         @drop.stop
+      />
+      <ShareRequest
+        v-for="request in myShortcodes"
+        :key="request.id"
+        :request="request"
+        @delete-shared-request="deleteSharedRequest"
+        @customize-shared-request="customizeSharedRequest"
+      />
+      <HoppSmartIntersection
+        v-if="hasMoreShortcodes && myShortcodes.length > 0"
+        @intersecting="loadMoreShortcodes()"
       >
-        <!-- <HoppButtonSecondary
-          :icon="IconPlus"
-          :label="t('add.new')"
-          filled
-          outline
-          @click="shareRequest()"
-        /> -->
-      </HoppSmartPlaceholder>
+        <div v-if="adapterLoading" class="flex flex-col items-center py-3">
+          <HoppSmartSpinner />
+        </div>
+      </HoppSmartIntersection>
+      <div
+        v-if="!loading && adapterError"
+        class="flex flex-col items-center py-4"
+      >
+        <icon-lucide-help-circle class="mb-4 svg-icons" />
+        {{ getErrorMessage(adapterError) }}
+      </div>
     </div>
   </div>
   <HoppSmartConfirmModal
@@ -68,6 +70,14 @@
     :loading="shareRequestCreatingLoading"
     @hide-modal="displayShareRequestModal(false)"
     @create-shared-request="createSharedRequest"
+  />
+  <ShareCustomizeModal
+    v-model="selectedWidget"
+    :request="requestToCustomize"
+    :show="showCustomizeRequestModal"
+    :loading="shareRequestCreatingLoading"
+    @hide-modal="displayCustomizeRequestModal(false)"
+    @copy-shared-request="copySharedRequest"
   />
 </template>
 
@@ -93,6 +103,7 @@ import { ref } from "vue"
 import { HoppRESTRequest } from "@hoppscotch/data"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
 import * as E from "fp-ts/Either"
+import { Shortcode } from "~/helpers/backend/graphql"
 
 const t = useI18n()
 const colorMode = useColorMode()
@@ -103,44 +114,33 @@ const confirmModalTitle = ref("")
 const modalLoadingState = ref(false)
 
 const showSharedRequestModal = ref(false)
+const showCustomizeRequestModal = ref(false)
 
 const sharedRequestID = ref("")
 const shareRequestCreatingLoading = ref(false)
 
 const requestToCreate = ref<HoppRESTRequest | null>(null)
+const requestToCustomize = ref<Shortcode | null>(null)
+
 type WidgetID = "embed" | "button" | "link"
 
 type Widget = {
-  id: WidgetID
-  name: string
+  value: WidgetID
+  label: string
   info: string
 }
 
 const selectedWidget = ref<Widget>({
-  id: "embed",
-  name: t("shared_requests.embed"),
-  info: "Embed is the best way to share your request",
+  value: "embed",
+  label: t("shared_requests.embed"),
+  info: t("shared_requests.embed_info"),
 })
-
-// const currentUser = useReadonlyStream(
-//   platform.auth.getCurrentUserStream(),
-//   platform.auth.getCurrentUser()
-// )
-
-// const shareRequest = () => {
-//   if (currentUser.value) {
-//     console.log("shareRequest")
-//     displayShareRequestModal(true)
-//   } else {
-//     invokeAction("modals.login.toggle")
-//   }
-// }
 
 const adapter = new ShortcodeListAdapter(true)
 const adapterLoading = useReadonlyStream(adapter.loading$, false)
-// const adapterError = useReadonlyStream(adapter.error$, null)
+const adapterError = useReadonlyStream(adapter.error$, null)
 const myShortcodes = useReadonlyStream(adapter.shortcodes$, [])
-// const hasMoreShortcodes = useReadonlyStream(adapter.hasMoreShortcodes$, true)
+const hasMoreShortcodes = useReadonlyStream(adapter.hasMoreShortcodes$, true)
 
 const loading = computed(
   () => adapterLoading.value && myShortcodes.value.length === 0
@@ -184,17 +184,24 @@ const onDeleteSharedRequest = () => {
   )()
 }
 
-const customizeSharedRequest = () => {
-  console.log("customizeSharedRequest")
+const loadMoreShortcodes = () => {
+  adapter.loadMore()
+}
+
+const customizeSharedRequest = (request: Shortcode) => {
+  requestToCustomize.value = request
+  displayCustomizeRequestModal(true)
 }
 
 const displayShareRequestModal = (show: boolean) => {
   showSharedRequestModal.value = show
 }
+const displayCustomizeRequestModal = (show: boolean) => {
+  showCustomizeRequestModal.value = show
+}
 
 const createSharedRequest = async (request: HoppRESTRequest | null) => {
   if (request && selectedWidget.value) {
-    console.log("createSharedRequest", request, selectedWidget.value.id)
     shareRequestCreatingLoading.value = true
     const shortcodeResult = await createShortcode(request)()
 
@@ -207,7 +214,7 @@ const createSharedRequest = async (request: HoppRESTRequest | null) => {
       toast.error(`${t("error.something_went_wrong")}`)
     } else if (E.isRight(shortcodeResult)) {
       const shareLink = getWidgetCopyLink(
-        selectedWidget.value.id,
+        selectedWidget.value.value,
         shortcodeResult.right.createShortcode.id
       )
       if (shareLink) copyShareLink(shareLink)
@@ -218,7 +225,7 @@ const createSharedRequest = async (request: HoppRESTRequest | null) => {
   }
 }
 
-const getWidgetCopyLink = (type: Widget["id"], id: string) => {
+const getWidgetCopyLink = (type: Widget["value"], id: string) => {
   const baseURL = import.meta.env.VITE_SHORTCODE_BASE_URL ?? "https://hopp.sh"
   if (type === "embed") {
     return `<iframe src="${baseURL}/e/${id}" style={{
@@ -227,7 +234,7 @@ const getWidgetCopyLink = (type: Widget["id"], id: string) => {
     outline: "1px solid #252525",
   }}></iframe>`
   } else if (type === "button") {
-    return `<a href="${baseURL}/r/${id}" target="_blank"><img src="${baseURL}/images/button.svg" alt="Run in Hoppscotch" /></a>`
+    return `<a href="${baseURL}/r/${id}" target="_blank"><img src="${baseURL}/badge.svg" alt="Run in Hoppscotch" /></a>`
   } else if (type === "link") {
     return `${baseURL}/r/${id}`
   } else {
@@ -240,6 +247,16 @@ const copyShareLink = (shareLink: string) => {
 
   copyToClipboard(shareLink)
   toast.success(`${t("state.copied_to_clipboard")}`)
+}
+
+const copySharedRequest = (request: {
+  sharedRequestID: string | undefined
+  content: string | undefined
+}) => {
+  if (request.content) {
+    copyToClipboard(request.content)
+    toast.success(`${t("state.copied_to_clipboard")}`)
+  }
 }
 
 const resolveConfirmModal = (title: string | null) => {

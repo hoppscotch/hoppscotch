@@ -11,47 +11,192 @@
         v-if="selectedWidget"
         class="rounded divide-y border border-divider divide-divider"
       >
-        <div class="py-2 px-4">
-          {{ t("shared_requests.description") }}
+        <div v-if="loading" class="py-2 px-4">
+          {{ t("shared_requests.creating_widget") }}
         </div>
-        <div class="p-4 flex flex-col space-y-4">
-          <div
-            v-for="widget in widgets"
-            :key="widget.id"
-            class="flex flex-col border border-divider rounded px-4 py-3 space-y-2 cursor-pointer hover:bg-dividerLight h"
-            :class="{ 'border-accentLight': selectedWidget.id === widget.id }"
-            @click="selectedWidget = widget"
-          >
-            <span class="font-bold text-md">
-              {{ widget.name }}
-            </span>
-            <span>
-              {{ widget.info }}
-            </span>
+        <div v-else class="py-2 px-4">
+          {{ t("shared_requests.customize") }}
+        </div>
+        <div
+          v-if="loading"
+          class="flex flex-col items-center justify-center p-4"
+        >
+          <HoppSmartSpinner class="my-4" />
+          <span class="text-secondaryLight">{{ t("state.loading") }}</span>
+        </div>
+        <div v-else class="flex flex-col divide-y divide-divider">
+          <div class="p-4 flex flex-col space-y-4">
+            <HoppSmartRadioGroup
+              v-model="selectedWidget.value"
+              :radios="widgets"
+              class="flex !flex-row"
+            />
           </div>
-        </div>
-        <div class="flex flex-col divide-y divide-divider">
-          <div class="py-3 px-4">{{ t("shared_requests.preview") }}</div>
-          <div
-            class="py-10 px-4 flex flex-col flex justify-center items-center"
-          >
-            <div v-if="selectedWidget.id === 'embed'">Embed</div>
+          <div class="flex flex-col divide-y divide-divider">
             <div
-              v-else-if="selectedWidget.id === 'button'"
-              class="border border-dotted px-4 py-3 border-dividerDark rounded flex justify-center items-center"
+              class="py-8 px-4 flex flex-col flex justify-center items-center"
             >
-              <button
-                class="flex items-center bg-primaryDark px-3 py-2 rounded border border-dividerDark text-secondary font-semibold"
-              >
-                <icon-lucide-play class="mr-2 svg-icons" />
-                <span>Run in Hoppscotch</span>
-              </button>
-            </div>
-            <div
-              v-else
-              class="border border-dotted px-4 py-3 border-dividerDark rounded flex justify-center items-center"
-            >
-              <span> hopp.sh/r/XXXX </span>
+              <div class="px-4 py-3 flex justify-center items-center">
+                <div v-if="selectedWidget.value === 'embed'">
+                  <div class="flex flex-col pb-8">
+                    <div
+                      v-for="option in embedOptions.tabs"
+                      :key="option.value"
+                      class="flex justify-between py-2"
+                    >
+                      <span class="capitalize">
+                        {{ option.label }}
+                      </span>
+                      <HoppSmartCheckbox
+                        :on="option.enabled"
+                        @change="removeEmbedOption(option.value)"
+                      />
+                    </div>
+                    <div class="flex justify-between items-center">
+                      <span>
+                        {{ t("shared_requests.theme.title") }}
+                      </span>
+                      <div>
+                        <tippy
+                          interactive
+                          trigger="click"
+                          theme="popover"
+                          :on-shown="() => tippyActions!.focus()"
+                        >
+                          <span class="select-wrapper">
+                            <HoppButtonSecondary
+                              class="pr-8 ml-2 rounded-none capitalize"
+                              :label="embedOptions.theme"
+                              :icon="
+                                embedOptions.theme === 'system'
+                                  ? IconMonitor
+                                  : embedOptions.theme === 'light'
+                                  ? IconSun
+                                  : IconMoon
+                              "
+                            />
+                          </span>
+                          <template #content="{ hide }">
+                            <div
+                              ref="tippyActions"
+                              class="flex flex-col focus:outline-none"
+                              tabindex="0"
+                              @keyup.escape="hide()"
+                            >
+                              <HoppSmartItem
+                                :label="t('shared_requests.theme.system')"
+                                :icon="IconMonitor"
+                                :active="embedOptions.theme === 'system'"
+                                @click="
+                                  () => {
+                                    embedOptions.theme = 'system'
+                                    hide()
+                                  }
+                                "
+                              />
+                              <HoppSmartItem
+                                :label="t('shared_requests.theme.light')"
+                                :icon="IconSun"
+                                :active="embedOptions.theme === 'light'"
+                                @click="
+                                  () => {
+                                    embedOptions.theme = 'light'
+                                    hide()
+                                  }
+                                "
+                              />
+                              <HoppSmartItem
+                                :label="t('shared_requests.theme.dark')"
+                                :icon="IconMoon"
+                                :active="embedOptions.theme === 'dark'"
+                                @click="
+                                  () => {
+                                    embedOptions.theme = 'dark'
+                                    hide()
+                                  }
+                                "
+                              />
+                            </div>
+                          </template>
+                        </tippy>
+                      </div>
+                    </div>
+                  </div>
+                  <ShareTemplatesEmbeds
+                    :endpoint="parsedRequest.endpoint"
+                    :method="parsedRequest.method"
+                    :model-value="embedOptions"
+                  />
+                  <div class="py-4 flex justify-center items-center">
+                    <HoppButtonSecondary
+                      :label="t('shared_requests.copy_html')"
+                      @click="
+                        copyContent({
+                          widget: 'embed',
+                          type: 'html',
+                        })
+                      "
+                    />
+                  </div>
+                </div>
+                <div
+                  v-else-if="selectedWidget.value === 'button'"
+                  class="flex flex-col space-y-8"
+                >
+                  <div
+                    v-for="variant in buttonVariants"
+                    :key="variant.id"
+                    class="flex flex-col space-y-4"
+                  >
+                    <ShareTemplatesButton :img="variant.img" />
+                    <div class="flex items-center justify-between">
+                      <HoppButtonSecondary
+                        :label="t('shared_requests.copy_html')"
+                        @click="
+                          copyContent({
+                            widget: 'button',
+                            type: 'html',
+                            id: variant.id,
+                          })
+                        "
+                      />
+                      <HoppButtonSecondary
+                        :label="t('shared_requests.copy_markdown')"
+                        @click="
+                          copyContent({
+                            widget: 'button',
+                            type: 'markdown',
+                            id: variant.id,
+                          })
+                        "
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div v-else class="flex flex-col space-y-8">
+                  <div
+                    v-for="variant in linkVariants"
+                    :key="variant.type"
+                    class="flex justify-center flex-col items-center space-y-2"
+                  >
+                    <ShareTemplatesLink
+                      :link="variant.link"
+                      :label="variant.label"
+                    />
+
+                    <HoppButtonSecondary
+                      :label="t(`shared_requests.copy_${variant.type}`)"
+                      @click="
+                        copyContent({
+                          widget: 'link',
+                          type: variant.type,
+                          id: variant.id,
+                        })
+                      "
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -59,31 +204,28 @@
     </template>
     <template #footer>
       <div class="flex justify-end">
-        <HoppButtonPrimary
-          :label="t('action.create')"
-          @click="createSharedRequest"
-        />
-        <HoppButtonSecondary
-          :label="t('action.cancel')"
-          class="mr-2"
-          @click="hideModal"
-        />
+        <HoppButtonPrimary :label="t('action.cancel')" @click="hideModal" />
       </div>
     </template>
   </HoppSmartModal>
 </template>
 
 <script lang="ts" setup>
-import { HoppRESTRequest } from "@hoppscotch/data"
 import { useVModel } from "@vueuse/core"
+import { computed, ref } from "vue"
 import { PropType } from "vue"
 import { useI18n } from "~/composables/i18n"
+import { Shortcode } from "~/helpers/backend/graphql"
+import IconMonitor from "~icons/lucide/monitor"
+import IconSun from "~icons/lucide/sun"
+import IconMoon from "~icons/lucide/moon"
+import { TippyComponent } from "vue-tippy"
 
 const t = useI18n()
 
 const props = defineProps({
   request: {
-    type: Object as PropType<HoppRESTRequest | null>,
+    type: Object as PropType<Shortcode | null>,
     required: true,
   },
   show: {
@@ -95,10 +237,20 @@ const props = defineProps({
     type: Object as PropType<Widget | null>,
     default: null,
   },
+  loading: {
+    type: Boolean,
+    default: false,
+  },
 })
 
 const emit = defineEmits<{
-  (e: "create-shared-request", request: HoppRESTRequest | null): void
+  (
+    e: "copy-shared-request",
+    request: {
+      sharedRequestID: string | undefined
+      content: string | undefined
+    }
+  ): void
   (e: "hide-modal"): void
   (e: "update:modelValue", value: string): void
 }>()
@@ -108,34 +260,204 @@ const selectedWidget = useVModel(props, "modelValue")
 type WidgetID = "embed" | "button" | "link"
 
 type Widget = {
-  id: WidgetID
-  name: string
-  info: string
+  value: WidgetID
+  label: string
 }
 
 const widgets: Widget[] = [
   {
-    id: "embed",
-    name: t("shared_requests.embed"),
-    info: "Embed is the best way to share your request",
+    value: "embed",
+    label: t("shared_requests.embed"),
   },
   {
-    id: "button",
-    name: t("shared_requests.button"),
-    info: "Button is the best way to share your request",
+    value: "button",
+    label: t("shared_requests.button"),
   },
   {
-    id: "link",
-    name: t("shared_requests.link"),
-    info: "Link is the best way to share your request",
+    value: "link",
+    label: t("shared_requests.link"),
   },
 ]
 
-const createSharedRequest = () => {
-  emit("create-shared-request", props.request)
+const parsedRequest = computed(() => {
+  if (!props.request) return null
+  return JSON.parse(props.request.request)
+})
+
+type EmbedTabs = "parameters" | "body" | "headers" | "authorization"
+
+type EmbedOption = {
+  selectedTab: EmbedTabs
+  tabs: {
+    value: EmbedTabs
+    label: string
+    enabled: boolean
+  }[]
+  theme: "light" | "dark" | "system"
+}
+
+const embedOptions = ref<EmbedOption>({
+  selectedTab: "parameters",
+  tabs: [
+    {
+      value: "parameters",
+      label: t("tab.parameters"),
+      enabled: true,
+    },
+    {
+      value: "body",
+      label: t("tab.body"),
+      enabled: true,
+    },
+    {
+      value: "headers",
+      label: t("tab.headers"),
+      enabled: true,
+    },
+    {
+      value: "authorization",
+      label: t("tab.authorization"),
+      enabled: true,
+    },
+  ],
+  theme: "system",
+})
+
+const removeEmbedOption = (option: EmbedTabs) => {
+  const index = embedOptions.value.tabs.findIndex((tab) => tab.value === option)
+  if (index === -1) return
+
+  //if removed tab is the selected tab, select the next tab with enabled true
+  if (embedOptions.value.selectedTab === option) {
+    const nextTab = embedOptions.value.tabs.find((tab) => tab.enabled)
+    if (nextTab) {
+      embedOptions.value.selectedTab = nextTab.value
+    }
+  }
+
+  embedOptions.value.tabs[index].enabled =
+    !embedOptions.value.tabs[index].enabled
+}
+
+type ButtonVariant = {
+  id: string
+  img: string
+}
+const buttonVariants: ButtonVariant[] = [
+  {
+    id: "button1",
+    img: "badge.svg",
+  },
+  {
+    id: "button2",
+    img: "badge-light.svg",
+  },
+  {
+    id: "button3",
+    img: "badge-dark.svg",
+  },
+]
+
+type LinkVariant = {
+  id: string
+  link?: string
+  label?: string
+  type: "html" | "markdown" | "link"
+}
+
+const linkVariants: LinkVariant[] = [
+  {
+    id: "link1",
+    link: props.request?.id,
+    type: "link",
+  },
+  {
+    id: "link2",
+    label: "shared_requests.run_in_hoppscotch",
+    type: "html",
+  },
+  {
+    id: "link3",
+    label: "shared_requests.run_in_hoppscotch",
+    type: "markdown",
+  },
+]
+
+const baseURL = import.meta.env.VITE_SHORTCODE_BASE_URL ?? "https://hopp.sh"
+
+const copyEmbed = () => {
+  const options = embedOptions.value
+  const enabledEmbedOptions = options.tabs
+    .filter((tab) => tab.enabled)
+    .map((tab) => tab.value)
+    .toString()
+
+  const embed = `<iframe src=${baseURL}/e/${props.request?.id}/${enabledEmbedOptions}' style='width: 100%; height: 500px; border: 0; border-radius: 4px; overflow: hidden;'></iframe>`
+  return embed
+}
+
+const copyButton = (
+  variationID: string,
+  type: "html" | "markdown" | "link"
+) => {
+  if (variationID === "button1") {
+    if (type === "markdown") {
+      return `[![Run in Hoppscotch](${baseURL}/badge.svg)](${baseURL}/r/${props.request?.id})`
+    } else {
+      return `<a href="${baseURL}/r/${props.request?.id}"><img src="${baseURL}/badge.svg" alt="Run in Hoppscotch" /></a>`
+    }
+  } else if (variationID === "button2") {
+    if (type === "markdown") {
+      return `[![Run in Hoppscotch](${baseURL}/badge-light.svg)](${baseURL}/r/${props.request?.id})`
+    } else {
+      return `<a href="${baseURL}/r/${props.request?.id}"><img src="${baseURL}/badge-light.svg" alt="Run in Hoppscotch" /></a>`
+    }
+  } else {
+    if (type === "markdown") {
+      return `[![Run in Hoppscotch](${baseURL}/badge-dark.svg)](${baseURL}/r/${props.request?.id})`
+    } else {
+      return `<a href="${baseURL}/r/${props.request?.id}"><img src="${baseURL}/badge-dark.svg" alt="Run in Hoppscotch" /></a>`
+    }
+  }
+}
+
+const copyLink = (variationID: string) => {
+  if (variationID === "link1") {
+    return `${baseURL}/r/${props.request?.id}`
+  } else if (variationID === "link2") {
+    return `<a href="${baseURL}/r/${props.request?.id}">Run in Hoppscotch</a>`
+  } else {
+    return `[Run in Hoppscotch](${baseURL}/r/${props.request?.id})`
+  }
+}
+
+const copyContent = ({
+  id,
+  widget,
+  type,
+}: {
+  id?: string
+  widget: WidgetID
+  type: "html" | "markdown" | "link"
+}) => {
+  let content = ""
+  if (widget === "button") {
+    content = copyButton(id!, type)
+  } else if (widget === "link") {
+    content = copyLink(id!)
+  } else {
+    content = copyEmbed()
+  }
+  const copyContent = {
+    sharedRequestID: props.request?.id,
+    content,
+  }
+  emit("copy-shared-request", copyContent)
 }
 
 const hideModal = () => {
   emit("hide-modal")
 }
+
+const tippyActions = ref<TippyComponent | null>(null)
 </script>

@@ -614,6 +614,9 @@
     "button_info": "Create a 'Run in Hoppscotch' button for your website, blog or a README.",
     "customize": "Customize",
     "creating_widget": "Creating widget",
+    "copy_html": "Copy HTML",
+    "copy_link": "Copy Link",
+    "copy_markdown": "Copy Markdown",
     "deleted":"Shared request deleted",
     "description": "Select a widget, you can change and customize this later",
     "embed":"Embed",
@@ -621,7 +624,14 @@
     "link":"Link",
     "link_info": "Create a shareable link to share with anyone on the internet with view access.",
     "open_new_tab": "Open in new tab",
-    "preview":"Preview"
+    "preview":"Preview",
+    "run_in_hoppscotch":"Run in Hoppscotch",
+    "theme":{
+      "dark":"Dark",
+      "light":"Light",
+      "system" :"System",
+      "title":"Theme"
+    }
   },
   "shortcodes": {
     "actions": "Actions",

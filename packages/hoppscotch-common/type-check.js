@@ -22,7 +22,7 @@ const findTypeScriptFiles = (directoryPath, filePattern) => {
   return fileList
 }
 
-const directoryPath = path.resolve("src", "services")
+const directoryPath = path.resolve(__dirname, "src", "services")
 const filePattern = "**/*.ts"
 
 const tsFiles = findTypeScriptFiles(directoryPath, filePattern)
@@ -38,7 +38,9 @@ const program = vueTsc.createProgram({
 const diagnostics = ts
   .getPreEmitDiagnostics(program)
   // Filter diagnostics to include only errors from files in the specified directory
-  .filter(({ file }) => path.resolve(file.fileName).includes(directoryPath))
+  .filter(({ file }) => {
+    return path.resolve(file.fileName).includes(directoryPath)
+  })
 
 if (!diagnostics.length) {
   console.log("Type checking passed.")

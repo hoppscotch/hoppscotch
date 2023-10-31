@@ -42,7 +42,7 @@
             :title="`${t('team.create_new')}`"
             outline
             filled
-            class="!p-0.75 ml-8 rounded"
+            class="ml-8 rounded !p-0.75"
             @click="displayModalAdd(true)"
           />
         </div>

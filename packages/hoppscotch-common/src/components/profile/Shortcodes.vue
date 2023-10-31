@@ -41,7 +41,7 @@
           </div>
         </div>
         <div
-          class="max-h-sm flex w-full flex-col items-center justify-between divide-dividerLight overflow-y-scroll rounded border border-dividerLight lg:divide-y lg:rounded-t-none"
+          class="flex max-h-sm w-full flex-col items-center justify-between divide-dividerLight overflow-y-scroll rounded border border-dividerLight lg:divide-y lg:rounded-t-none"
         >
           <ProfileShortcode
             v-for="(shortcode, shortcodeIndex) in myShortcodes"

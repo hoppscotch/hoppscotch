@@ -88,9 +88,50 @@ const showImportFailedError = () => {
   toast.error(t("import.failed"))
 }
 
-const onSuccessfulImport = (collections: HoppCollection<HoppRESTRequest>[]) => {
+const handleImportToStore = async (
+  collections: HoppCollection<HoppRESTRequest>[]
+) => {
+  const importResult =
+    props.collectionsType.type == "my-collections"
+      ? await importToPersonalWorkspace(collections)
+      : await importToTeamsWorkspace(collections)
+
+  if (E.isRight(importResult)) {
+    toast.success(t("state.file_imported"))
+    emit("hide-modal")
+  } else {
+    toast.error(t("import.failed"))
+  }
+}
+
+const importToPersonalWorkspace = (
+  collections: HoppCollection<HoppRESTRequest>[]
+) => {
   appendRESTCollections(collections)
-  toast.success(t("state.file_imported"))
+  return E.right({
+    success: true,
+  })
+}
+
+const importToTeamsWorkspace = async (
+  collections: HoppCollection<HoppRESTRequest>[]
+) => {
+  if (!hasTeamWriteAccess.value || !selectedTeamID.value) {
+    return E.left({
+      success: false,
+    })
+  }
+
+  const res = await toTeamsImporter(
+    JSON.stringify(collections),
+    selectedTeamID.value
+  )()
+
+  return E.isRight(res)
+    ? E.right({ success: true })
+    : E.left({
+        success: false,
+      })
 }
 
 const emit = defineEmits<{
@@ -117,8 +158,7 @@ const HoppRESTImporter: ImporterOrExporter = {
       const res = await hoppRESTImporter(content)()
 
       if (E.isRight(res)) {
-        onSuccessfulImport(res.right)
-        emit("hide-modal")
+        handleImportToStore(res.right)
       } else {
         showImportFailedError()
       }
@@ -137,23 +177,7 @@ const HoppMyCollectionImporter: ImporterOrExporter = {
   },
   component: defineStep("my_collection_import", MyCollectionImport, () => ({
     async onImportFromMyCollection(content) {
-      const { collectionsType } = props
-
-      const isTeamCollection = collectionsType.type === "team-collections"
-
-      const hasTeamWriteAccess = isTeamCollection
-        ? collectionsType.selectedTeam?.myRole == "EDITOR" ||
-          collectionsType.selectedTeam?.myRole == "OWNER"
-        : false
-
-      if (!hasTeamWriteAccess) {
-        showImportFailedError()
-        return
-      }
-
-      isTeamCollection &&
-        collectionsType.selectedTeam?.id &&
-        toTeamsImporter(content, collectionsType.selectedTeam?.id)()
+      handleImportToStore([content])
     },
   })),
 }
@@ -165,7 +189,7 @@ const HoppOpenAPIImporter: ImporterOrExporter = {
     title: "import.from_openapi_description",
     icon: IconOpenAPI,
     disabled: false,
-    applicableTo: ["personal-workspace", "url-import"],
+    applicableTo: ["personal-workspace", "team-workspace", "url-import"],
   },
   supported_sources: [
     {
@@ -179,7 +203,7 @@ const HoppOpenAPIImporter: ImporterOrExporter = {
           const res = await hoppOpenAPIImporter(content)()
 
           if (E.isRight(res)) {
-            onSuccessfulImport(res.right)
+            handleImportToStore(res.right)
           } else {
             showImportFailedError()
           }
@@ -196,7 +220,7 @@ const HoppOpenAPIImporter: ImporterOrExporter = {
           const res = await hoppOpenAPIImporter(content)()
 
           if (E.isRight(res)) {
-            onSuccessfulImport(res.right)
+            handleImportToStore(res.right)
           } else {
             showImportFailedError()
           }
@@ -213,7 +237,7 @@ const HoppPostmanImporter: ImporterOrExporter = {
     title: "import.from_postman_description",
     icon: IconPostman,
     disabled: false,
-    applicableTo: ["personal-workspace", "url-import"],
+    applicableTo: ["personal-workspace", "team-workspace", "url-import"],
   },
   component: FileSource({
     caption: "import.from_file",
@@ -222,7 +246,7 @@ const HoppPostmanImporter: ImporterOrExporter = {
       const res = await hoppPostmanImporter(content)()
 
       if (E.isRight(res)) {
-        onSuccessfulImport(res.right)
+        handleImportToStore(res.right)
       } else {
         showImportFailedError()
       }
@@ -237,7 +261,7 @@ const HoppInsomniaImporter: ImporterOrExporter = {
     title: "import.from_insomnia_description",
     icon: IconInsomnia,
     disabled: true,
-    applicableTo: ["personal-workspace", "url-import"],
+    applicableTo: ["personal-workspace", "team-workspace", "url-import"],
   },
   component: FileSource({
     caption: "import.from_file",
@@ -246,7 +270,7 @@ const HoppInsomniaImporter: ImporterOrExporter = {
       const res = await hoppInsomniaImporter(content)()
 
       if (E.isRight(res)) {
-        onSuccessfulImport(res.right)
+        handleImportToStore(res.right)
       } else {
         showImportFailedError()
       }
@@ -261,7 +285,7 @@ const HoppGistImporter: ImporterOrExporter = {
     title: "import.from_gist_description",
     icon: IconGithub,
     disabled: true,
-    applicableTo: ["personal-workspace", "url-import"],
+    applicableTo: ["personal-workspace", "team-workspace", "url-import"],
   },
   component: GistSource({
     caption: "import.from_url",
@@ -269,7 +293,7 @@ const HoppGistImporter: ImporterOrExporter = {
       const res = await hoppRESTImporter(content)()
 
       if (E.isRight(res)) {
-        onSuccessfulImport(res.right)
+        handleImportToStore(res.right)
       } else {
         showImportFailedError()
       }
@@ -347,7 +371,7 @@ const HoppGistCollectionsExporter: ImporterOrExporter = {
       ? true
       : currentUser.value.provider !== "github.com",
     title: t("export.create_secret_gist"),
-    applicableTo: ["personal-workspace"],
+    applicableTo: ["personal-workspace", "team-workspace"],
     isLoading: isHoppGistCollectionExporterInProgress,
   },
   action: async () => {
@@ -405,6 +429,25 @@ const exporterModules = computed(() => {
         : "team-workspace"
     )
   })
+})
+
+const hasTeamWriteAccess = computed(() => {
+  const { collectionsType } = props
+
+  const isTeamCollection = collectionsType.type === "team-collections"
+
+  return isTeamCollection
+    ? collectionsType.selectedTeam?.myRole == "EDITOR" ||
+        collectionsType.selectedTeam?.myRole == "OWNER"
+    : false
+})
+
+const selectedTeamID = computed(() => {
+  const { collectionsType } = props
+
+  return collectionsType.type == "team-collections"
+    ? collectionsType.selectedTeam?.id
+    : undefined
 })
 
 const myCollections = useReadonlyStream(restCollections$, [])

@@ -36,8 +36,9 @@
         v-for="request in myShortcodes"
         :key="request.id"
         :request="request"
-        @delete-shared-request="deleteSharedRequest"
         @customize-shared-request="customizeSharedRequest"
+        @delete-shared-request="deleteSharedRequest"
+        @open-new-tab="openInNewTab"
       />
       <HoppSmartIntersection
         v-if="hasMoreShortcodes && myShortcodes.length > 0"
@@ -104,6 +105,8 @@ import { HoppRESTRequest } from "@hoppscotch/data"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
 import * as E from "fp-ts/Either"
 import { Shortcode } from "~/helpers/backend/graphql"
+import { RESTTabService } from "~/services/tab/rest"
+import { useService } from "dioc/vue"
 
 const t = useI18n()
 const colorMode = useColorMode()
@@ -121,6 +124,8 @@ const shareRequestCreatingLoading = ref(false)
 
 const requestToCreate = ref<HoppRESTRequest | null>(null)
 const requestToCustomize = ref<Shortcode | null>(null)
+
+const restTab = useService(RESTTabService)
 
 type WidgetID = "embed" | "button" | "link"
 
@@ -231,6 +236,13 @@ const copySharedRequest = (request: {
     copyToClipboard(request.content)
     toast.success(t("state.copied_to_clipboard"))
   }
+}
+
+const openInNewTab = (request: HoppRESTRequest) => {
+  restTab.createNewTab({
+    isDirty: false,
+    request,
+  })
 }
 
 const resolveConfirmModal = (title: string | null) => {

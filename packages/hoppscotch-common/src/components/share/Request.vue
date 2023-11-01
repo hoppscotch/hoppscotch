@@ -100,7 +100,7 @@
 </template>
 
 <script lang="ts" setup>
-import { translateToNewRequest } from "@hoppscotch/data"
+import { HoppRESTRequest, translateToNewRequest } from "@hoppscotch/data"
 import { pipe } from "fp-ts/lib/function"
 import { ref } from "vue"
 import { computed } from "vue"
@@ -112,8 +112,6 @@ import IconArrowUpRight from "~icons/lucide/arrow-up-right-square"
 import IconMoreVertical from "~icons/lucide/more-vertical"
 import IconFileEdit from "~icons/lucide/file-edit"
 import IconTrash2 from "~icons/lucide/trash-2"
-import { useService } from "dioc/vue"
-import { RESTTabService } from "~/services/tab/rest"
 import { shortDateTime } from "~/helpers/utils/date"
 
 const t = useI18n()
@@ -123,11 +121,10 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  (e: "delete-shared-request", codeID: string): void
   (e: "customize-shared-request", request: Shortcode): void
+  (e: "delete-shared-request", codeID: string): void
+  (e: "open-new-tab", request: HoppRESTRequest): void
 }>()
-
-const restTab = useService(RESTTabService)
 
 const tippyActions = ref<TippyComponent | null>(null)
 const openInNewTabAction = ref<HTMLButtonElement | null>(null)
@@ -143,10 +140,7 @@ const requestLabelColor = computed(() =>
 )
 
 const openInNewTab = () => {
-  restTab.createNewTab({
-    request: parseRequest.value,
-    isDirty: false,
-  })
+  emit("open-new-tab", parseRequest.value)
 }
 
 const customizeSharedRequest = () => {

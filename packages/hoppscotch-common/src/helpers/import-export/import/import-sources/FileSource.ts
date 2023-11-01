@@ -1,4 +1,4 @@
-import FileImportVue from "~/components/importexport/ImportExportSteps/FileImport.vue"
+import FileImportVue from "~/components/importExport/ImportExportSteps/FileImport.vue"
 import { defineStep } from "~/composables/step-components"
 
 import { v4 as uuidv4 } from "uuid"

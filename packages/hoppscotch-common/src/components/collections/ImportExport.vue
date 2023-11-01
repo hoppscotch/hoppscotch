@@ -31,7 +31,7 @@ import { useToast } from "~/composables/toast"
 import { HoppCollection } from "@hoppscotch/data"
 import { HoppRESTRequest } from "@hoppscotch/data"
 import { appendRESTCollections, restCollections$ } from "~/newstore/collections"
-import MyCollectionImport from "~/components/importexport/ImportExportSteps/MyCollectionImport.vue"
+import MyCollectionImport from "~/components/importExport/ImportExportSteps/MyCollectionImport.vue"
 import { GetMyTeamsQuery } from "~/helpers/backend/graphql"
 
 import IconFolderPlus from "~icons/lucide/folder-plus"

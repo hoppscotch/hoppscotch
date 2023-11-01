@@ -29,7 +29,7 @@ import { useSteps, defineStep } from "~/composables/step-components"
 import ImportExportList from "./ImportExportList.vue"
 
 import ImportExportSourcesList from "./ImportExportSourcesList.vue"
-import { ImporterOrExporter } from "~/components/importexport/types"
+import { ImporterOrExporter } from "~/components/importExport/types"
 
 const t = useI18n()
 

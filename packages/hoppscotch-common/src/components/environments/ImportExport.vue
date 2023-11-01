@@ -12,7 +12,7 @@
 import { useI18n } from "~/composables/i18n"
 import { useToast } from "~/composables/toast"
 import { Environment } from "@hoppscotch/data"
-import { ImporterOrExporter } from "~/components/importexport/types"
+import { ImporterOrExporter } from "~/components/importExport/types"
 import { FileSource } from "~/helpers/import-export/import/import-sources/FileSource"
 import { GistSource } from "~/helpers/import-export/import/import-sources/GistSource"
 import { hoppEnvImporter } from "~/helpers/import-export/import/hoppEnv"

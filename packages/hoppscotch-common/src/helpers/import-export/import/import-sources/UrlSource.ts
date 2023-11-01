@@ -1,4 +1,4 @@
-import UrlImport from "~/components/importexport/ImportExportSteps/UrlImport.vue"
+import UrlImport from "~/components/importExport/ImportExportSteps/UrlImport.vue"
 import { defineStep } from "~/composables/step-components"
 
 import { v4 as uuidv4 } from "uuid"

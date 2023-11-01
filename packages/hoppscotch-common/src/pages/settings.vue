@@ -60,7 +60,7 @@
             <div class="py-4 space-y-4">
               <div class="flex items-center">
                 <HoppSmartToggle
-                  v-if="isSentryEnabled"
+                  v-if="hasPlatformTelemetry"
                   :on="TELEMETRY_ENABLED"
                   @change="showConfirmModal"
                 >
@@ -135,6 +135,7 @@ import { InterceptorService } from "~/services/interceptor.service"
 import { pipe } from "fp-ts/function"
 import * as O from "fp-ts/Option"
 import * as A from "fp-ts/Array"
+import { platform } from "~/platform"
 
 const t = useI18n()
 const colorMode = useColorMode()
@@ -164,7 +165,7 @@ const TELEMETRY_ENABLED = useSetting("TELEMETRY_ENABLED")
 const EXPAND_NAVIGATION = useSetting("EXPAND_NAVIGATION")
 const SIDEBAR_ON_LEFT = useSetting("SIDEBAR_ON_LEFT")
 
-const isSentryEnabled = Boolean(import.meta.env.VITE_SENTRY_DSN)
+const hasPlatformTelemetry = Boolean(platform.platformFeatureFlags.hasTelemetry)
 
 const confirmRemove = ref(false)
 

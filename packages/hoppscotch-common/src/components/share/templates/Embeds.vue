@@ -42,25 +42,12 @@
       </button>
     </div>
     <div
-      class="flex pt-2 border-b border-divider"
+      class="flex border-divider"
       :class="{
         'bg-accentContrast text-primary': embedOptions.theme === 'light',
-        'border-b-0 pt-0': noActiveTab,
+        'pt-2 border-b ': !noActiveTab,
       }"
     >
-      <!-- <HoppSmartTabs
-        v-model="embedOptions.selectedTab"
-        class="flex-1"
-        render-inactive-tabs
-      >
-        <HoppSmartTab
-          v-for="tab in embedOptions.tabs"
-          v-show="tab.enabled"
-          :id="tab.value"
-          :key="tab.value"
-          :label="t(tab.label)"
-        />
-      </HoppSmartTabs> -->
       <span
         v-for="option in embedOptions.tabs"
         v-show="option.enabled"

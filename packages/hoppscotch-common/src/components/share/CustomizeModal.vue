@@ -203,9 +203,7 @@
       </div>
     </template>
     <template #footer>
-      <div class="flex justify-end">
-        <HoppButtonPrimary :label="t('action.cancel')" @click="hideModal" />
-      </div>
+      <HoppButtonPrimary :label="t('action.close')" @click="hideModal" />
     </template>
   </HoppSmartModal>
 </template>
@@ -391,33 +389,26 @@ const copyEmbed = () => {
     .filter((tab) => tab.enabled)
     .map((tab) => tab.value)
     .toString()
-
-  const embed = `<iframe src=${baseURL}/e/${props.request?.id}/${enabledEmbedOptions}' style='width: 100%; height: 500px; border: 0; border-radius: 4px; overflow: hidden;'></iframe>`
-  return embed
+  return `<iframe src="${baseURL}/e/${props.request?.id}/${enabledEmbedOptions}' style='width: 100%; height: 500px; border: 0; border-radius: 4px; overflow: hidden;'></iframe>`
 }
 
 const copyButton = (
   variationID: string,
   type: "html" | "markdown" | "link"
 ) => {
+  let badge = ""
   if (variationID === "button1") {
-    if (type === "markdown") {
-      return `[![Run in Hoppscotch](${baseURL}/badge.svg)](${baseURL}/r/${props.request?.id})`
-    } else {
-      return `<a href="${baseURL}/r/${props.request?.id}"><img src="${baseURL}/badge.svg" alt="Run in Hoppscotch" /></a>`
-    }
+    badge = "badge.svg"
   } else if (variationID === "button2") {
-    if (type === "markdown") {
-      return `[![Run in Hoppscotch](${baseURL}/badge-light.svg)](${baseURL}/r/${props.request?.id})`
-    } else {
-      return `<a href="${baseURL}/r/${props.request?.id}"><img src="${baseURL}/badge-light.svg" alt="Run in Hoppscotch" /></a>`
-    }
+    badge = "badge-light.svg"
   } else {
-    if (type === "markdown") {
-      return `[![Run in Hoppscotch](${baseURL}/badge-dark.svg)](${baseURL}/r/${props.request?.id})`
-    } else {
-      return `<a href="${baseURL}/r/${props.request?.id}"><img src="${baseURL}/badge-dark.svg" alt="Run in Hoppscotch" /></a>`
-    }
+    badge = "badge-dark.svg"
+  }
+
+  if (type === "markdown") {
+    return `[![Run in Hoppscotch](${baseURL}/${badge})](${baseURL}/r/${props.request?.id})`
+  } else {
+    return `<a href="${baseURL}/r/${props.request?.id}"><img src="${baseURL}/${badge}" alt="Run in Hoppscotch" /></a>`
   }
 }
 
@@ -436,7 +427,7 @@ const copyContent = ({
   widget,
   type,
 }: {
-  id?: string
+  id?: string | undefined
   widget: WidgetID
   type: "html" | "markdown" | "link"
 }) => {
@@ -448,10 +439,7 @@ const copyContent = ({
   } else {
     content = copyEmbed()
   }
-  const copyContent = {
-    sharedRequestID: props.request?.id,
-    content,
-  }
+  const copyContent = { sharedRequestID: props.request?.id, content }
   emit("copy-shared-request", copyContent)
 }
 

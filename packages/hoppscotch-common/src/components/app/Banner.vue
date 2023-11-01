@@ -1,6 +1,10 @@
 <template>
-  <div class="flex items-center px-4 py-2 text-tiny" :class="bannerColor">
-    <icon-lucide-info class="mr-2 text-white" />
+  <div
+    class="flex items-center px-4 py-2 text-tiny"
+    :class="bannerColor"
+    :role="bannerRole"
+  >
+    <icon-lucide-info class="mr-2 text-secondaryDark" />
     <span class="text-secondaryDark">
       <span v-if="banner.alternateText" class="md:hidden">
         {{ banner.alternateText }}
@@ -27,5 +31,14 @@ const bannerColor = computed(() => {
     info: "bg-stone-800",
   }
   return bgColors[props.banner.type]
+})
+
+const bannerRole = computed(() => {
+  const role: Record<BannerType, string> = {
+    error: "alert",
+    warning: "status",
+    info: "status",
+  }
+  return role[props.banner.type]
 })
 </script>

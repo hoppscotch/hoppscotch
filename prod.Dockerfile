@@ -41,7 +41,9 @@ CMD ["/bin/sh", "-c", "node /usr/prod_run.mjs && caddy run --config /etc/caddy/C
 
 FROM base_builder as sh_admin_builder
 WORKDIR /usr/src/app/packages/hoppscotch-sh-admin
+# Generate two builds for `sh-admin`, one based on subpath-access and the regular build
 RUN pnpm run build
+RUN pnpm run build --outDir dist-subpath-access --base /admin/
 
 FROM caddy:2-alpine as sh_admin
 WORKDIR /site
@@ -58,6 +60,7 @@ RUN apk add caddy tini
 RUN npm install -g @import-meta-env/cli
 COPY --from=fe_builder /usr/src/app/packages/hoppscotch-selfhost-web/dist /site/selfhost-web
 COPY --from=sh_admin_builder /usr/src/app/packages/hoppscotch-sh-admin/dist /site/sh-admin
+COPY --from=sh_admin_builder /usr/src/app/packages/hoppscotch-sh-admin/dist-subpath-access /site/sh-admin-subpath-access
 COPY aio.Caddyfile /etc/caddy/Caddyfile
 ENTRYPOINT [ "tini", "--" ]
 RUN apk --no-cache add curl
@@ -67,3 +70,4 @@ CMD ["node", "/usr/src/app/aio_run.mjs"]
 EXPOSE 3170
 EXPOSE 3000
 EXPOSE 3100
+EXPOSE 3500

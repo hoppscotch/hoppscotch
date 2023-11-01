@@ -1,6 +1,4 @@
-import "./src/assets/scss/main.scss"
-import "./src/assets/scss/styles.scss"
-import "./src/assets/themes/themes.scss"
+import "./src/assets/scss/histoire.scss"
 
 import "@fontsource-variable/inter"
 import "@fontsource-variable/material-symbols-rounded"

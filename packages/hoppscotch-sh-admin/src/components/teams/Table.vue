@@ -92,7 +92,7 @@ import { TeamListQuery } from '~/helpers/backend/graphql';
 const tippyActions = ref<TippyComponent | null>(null);
 
 defineProps<{
-  teamList: TeamListQuery['admin']['allTeams'];
+  teamList: TeamListQuery['infra']['allTeams'];
 }>();
 
 defineEmits<{

@@ -200,7 +200,7 @@ import {
 } from '../../helpers/backend/graphql';
 import { useToast } from '~/composables/toast';
 import { useMutation, useQuery } from '@urql/vue';
-import { Email, EmailCodec } from '~/helpers/backend/Email';
+import { Email, EmailCodec } from '~/helpers/Email';
 import IconTrash from '~icons/lucide/trash';
 import IconPlus from '~icons/lucide/plus';
 import IconCircleDot from '~icons/lucide/circle-dot';

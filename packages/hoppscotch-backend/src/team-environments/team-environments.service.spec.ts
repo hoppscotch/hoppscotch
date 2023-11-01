@@ -301,7 +301,7 @@ describe('TeamEnvironmentsService', () => {
 
   describe('createDuplicateEnvironment', () => {
     test('should successfully duplicate an existing team environment', async () => {
-      mockPrisma.teamEnvironment.findFirst.mockResolvedValueOnce(
+      mockPrisma.teamEnvironment.findFirstOrThrow.mockResolvedValueOnce(
         teamEnvironment,
       );
 
@@ -322,7 +322,9 @@ describe('TeamEnvironmentsService', () => {
     });
 
     test('should throw TEAM_ENVIRONMMENT_NOT_FOUND if provided id is invalid', async () => {
-      mockPrisma.teamEnvironment.findFirst.mockRejectedValue('NotFoundError');
+      mockPrisma.teamEnvironment.findFirstOrThrow.mockRejectedValue(
+        'NotFoundError',
+      );
 
       const result = await teamEnvironmentsService.createDuplicateEnvironment(
         teamEnvironment.id,
@@ -332,7 +334,7 @@ describe('TeamEnvironmentsService', () => {
     });
 
     test('should send pubsub message to "team_environment/<teamID>/created" if team environment is updated successfully', async () => {
-      mockPrisma.teamEnvironment.findFirst.mockResolvedValueOnce(
+      mockPrisma.teamEnvironment.findFirstOrThrow.mockResolvedValueOnce(
         teamEnvironment,
       );
 

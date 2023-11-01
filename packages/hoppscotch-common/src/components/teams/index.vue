@@ -26,7 +26,7 @@
         v-else-if="!loading"
         class="grid gap-4"
         :class="
-          modal ? 'grid-cols-1' : 'lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2'
+          modal ? 'grid-cols-1' : 'sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4'
         "
       >
         <TeamsTeam

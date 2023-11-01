@@ -1,4 +1,5 @@
 import { Config } from "tailwindcss";
+import { theme } from 'tailwindcss/defaultConfig'
 
 export default {
   content: [],
@@ -111,16 +112,13 @@ export default {
       },
     },
     screens: {
-      "2xl": { min: "1535px" },
-      xl: { min: "1279px" },
-      lg: { min: "1023px" },
-      md: { min: "767px" },
-      sm: { min: "639px" },
-      "<2xl": { max: "1535px" },
-      "<xl": { max: "1279px" },
-      "<lg": { max: "1023px" },
-      "<md": { max: "767px" },
-      "<sm": { max: "639px" },
+      sm: "639px",
+      "<2xl": { max: "1536px" },
+      "<xl": { max: "1280px" },
+      "<lg": { max: "1024px" },
+      "<md": { max: "768px" },
+      "<sm": { max: "640px" },
+      ...theme?.screens,
     },
   },
 } satisfies Config

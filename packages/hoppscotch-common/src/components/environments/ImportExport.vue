@@ -86,7 +86,7 @@ const HoppEnvironmentsImport: ImporterOrExporter = {
         return
       }
 
-      importSuccessful(res.right)
+      handleImportToStore(res.right)
       emit("hide-modal")
     },
   }),
@@ -112,7 +112,7 @@ const PostmanEnvironmentsImport: ImporterOrExporter = {
         return
       }
 
-      importSuccessful(res.right)
+      handleImportToStore(res.right)
 
       emit("hide-modal")
     },
@@ -138,7 +138,7 @@ const EnvironmentsImportFromGIST: ImporterOrExporter = {
         return
       }
 
-      importSuccessful(res.right)
+      handleImportToStore(res.right)
       emit("hide-modal")
     },
   }),
@@ -217,7 +217,7 @@ const failedImport = () => {
   toast.error(t("import.failed").toString())
 }
 
-const importSuccessful = async (environments: Environment[]) => {
+const handleImportToStore = async (environments: Environment[]) => {
   if (props.environmentType === "MY_ENV") {
     appendEnvironments(environments)
     toast.success(t("state.file_imported"))

@@ -60,7 +60,7 @@ const GqlCollectionsHoppImporter: ImporterOrExporter = {
         return
       }
 
-      importSuccessful(res.right)
+      handleImportToStore(res.right)
       emit("hide-modal")
     },
   }),
@@ -84,7 +84,7 @@ const GqlCollectionsGistImporter: ImporterOrExporter = {
         failedImport()
         return
       } else {
-        importSuccessful(res.right)
+        handleImportToStore(res.right)
       }
 
       emit("hide-modal")
@@ -164,7 +164,7 @@ const failedImport = () => {
   toast.error(t("import.failed"))
 }
 
-const importSuccessful = async (
+const handleImportToStore = async (
   gqlCollections: HoppCollection<HoppGQLRequest>[]
 ) => {
   setGraphqlCollections(gqlCollections)

@@ -67,13 +67,7 @@
                             <HoppButtonSecondary
                               class="pr-8 ml-2 rounded-none capitalize"
                               :label="embedOptions.theme"
-                              :icon="
-                                embedOptions.theme === 'system'
-                                  ? IconMonitor
-                                  : embedOptions.theme === 'light'
-                                  ? IconSun
-                                  : IconMoon
-                              "
+                              :icon="embedThemeIcon"
                             />
                           </span>
                           <template #content="{ hide }">
@@ -319,6 +313,16 @@ const embedOptions = ref<EmbedOption>({
     },
   ],
   theme: "system",
+})
+
+const embedThemeIcon = computed(() => {
+  if (embedOptions.value.theme === "system") {
+    return IconMonitor
+  } else if (embedOptions.value.theme === "light") {
+    return IconSun
+  } else {
+    return IconMoon
+  }
 })
 
 const removeEmbedOption = (option: EmbedTabs) => {

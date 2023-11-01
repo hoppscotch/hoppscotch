@@ -4,7 +4,16 @@
     :class="bannerColor"
     :role="bannerRole"
   >
-    <icon-lucide-info class="mr-2 text-secondaryDark" />
+    <icon-lucide-info
+      v-if="banner.type === 'info'"
+      class="mr-2 text-secondaryDark"
+    />
+    <icon-lucide-alert-circle
+      v-else-if="banner.type === 'warning'"
+      class="mr-2 text-secondaryDark"
+    />
+    <icon-lucide-alert-triangle v-else class="mr-2 text-secondaryDark" />
+
     <span class="text-secondaryDark">
       <span v-if="banner.alternateText" class="md:hidden">
         {{ banner.alternateText }}
@@ -24,21 +33,18 @@ const props = defineProps<{
   banner: BannerContent
 }>()
 
-const bannerColor = computed(() => {
-  const bgColors: Record<BannerType, string> = {
-    error: "bg-red-700",
-    warning: "bg-yellow-700",
-    info: "bg-stone-800",
-  }
-  return bgColors[props.banner.type]
-})
+const bgColors: Record<BannerType, string> = {
+  error: "bg-red-700",
+  warning: "bg-yellow-700",
+  info: "bg-stone-800",
+}
 
-const bannerRole = computed(() => {
-  const role: Record<BannerType, string> = {
-    error: "alert",
-    warning: "status",
-    info: "status",
-  }
-  return role[props.banner.type]
-})
+const role: Record<BannerType, string> = {
+  error: "alert",
+  warning: "status",
+  info: "status",
+}
+
+const bannerColor = computed(() => bgColors[props.banner.type])
+const bannerRole = computed(() => role[props.banner.type])
 </script>

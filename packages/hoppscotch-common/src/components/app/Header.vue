@@ -285,17 +285,15 @@ const mdAndLarger = breakpoints.greater("md")
 const { content: banner } = useService(BannerService)
 const network = reactive(useNetwork())
 
-watch(
-  network,
-  () =>
-    (banner.value = network.isOnline
-      ? undefined
-      : {
-          type: "info",
-          text: t("helpers.offline"),
-          alternateText: t("helpers.offline_short"),
-        })
-)
+watch(network, () => {
+  if (!network.isOnline) {
+    banner.value = {
+      type: "info",
+      text: t("helpers.offline"),
+      alternateText: t("helpers.offline_short"),
+    }
+  } else banner.value = undefined
+})
 
 const currentUser = useReadonlyStream(
   platform.auth.getProbableUserStream(),

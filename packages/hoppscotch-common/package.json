@@ -42,8 +42,6 @@
     "@hoppscotch/ui": "workspace:^",
     "@hoppscotch/vue-toasted": "^0.1.0",
     "@lezer/highlight": "^1.1.6",
-    "@sentry/tracing": "^7.64.0",
-    "@sentry/vue": "^7.64.0",
     "@urql/core": "^4.1.1",
     "@urql/devtools": "^2.0.3",
     "@urql/exchange-auth": "^2.1.6",

@@ -87,7 +87,8 @@
               class="divide-y divide-dividerLight"
             >
               <div
-                v-for="(invitee, index) in pendingInvites.data.right.team?.teamInvitations"
+                v-for="(invitee, index) in pendingInvites.data.right.team
+                  ?.teamInvitations"
                 :key="`invitee-${index}`"
                 class="flex divide-x divide-dividerLight"
               >

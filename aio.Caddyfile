@@ -1,40 +1,47 @@
-# TODO: Uncomment the below lines and update the subpath-based implementation to use standard HTTP/HTTPS ports
-
-# :3000 {
-#   try_files {path} /
-#   root * /site/selfhost-web
-#   file_server
-# }
-
-# :3100 {
-#   try_files {path} /
-#   root * /site/sh-admin
-#   file_server
-# }
+# TODO: Update the subpath-based implementation to use standard HTTP(S) ports
 
 :3000 {
-    # Serve the `selfhost-web` SPA by default
-    root * /site/selfhost-web
-    file_server
+	try_files {path} /
+	root * /site/selfhost-web
+	file_server
+}
 
-    # Handle requests under `/admin*`
-    handle_path /admin* {
-        root * /site/sh-admin
-        file_server
+:3100 {
+	try_files {path} /
+	root * /site/sh-admin
+	file_server
+}
 
-        # Ensures any non-existent file in the server is routed to the SPA
-        try_files {path} /
-    }
+:8080 {
+	# Serve the `selfhost-web` SPA by default
+	root * /site/selfhost-web
+	file_server
 
-    # Handle requests under `/backend*` path
-    handle_path /backend* {
-        reverse_proxy localhost:3170
-    }
+	handle_path /admin* {
+		# Check the ENABLE_SUBPATH_BASED_ACCESS environment variable
+		@enabledSubpathBasedAccess {
+			expression {env.ENABLE_SUBPATH_BASED_ACCESS} == "true"
+		}
 
-    # Catch-all route for unknown paths, serves `selfhost-web` SPA
-    handle {
-        root * /site/selfhost-web
-        file_server
-        try_files {path} /
-    }
+		# Conditionally serve /site/sh-admin-subpath-access if ENABLE_SUBPATH_BASED_ACCESS is true
+		handle @enabledSubpathBasedAccess {
+			root * /site/sh-admin-subpath-access
+			file_server
+
+			# Ensures any non-existent file in the server is routed to the SPA
+			try_files {path} /
+		}
+	}
+
+	# Handle requests under `/backend*` path
+	handle_path /backend* {
+		reverse_proxy localhost:3170
+	}
+
+	# Catch-all route for unknown paths, serves `selfhost-web` SPA
+	handle {
+		root * /site/selfhost-web
+		file_server
+		try_files {path} /
+	}
 }

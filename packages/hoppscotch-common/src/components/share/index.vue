@@ -171,11 +171,11 @@ const onDeleteSharedRequest = () => {
     backendDeleteShortcode(sharedRequestID.value),
     TE.match(
       (err: GQLError<string>) => {
-        toast.error(`${getErrorMessage(err)}`)
+        toast.error(getErrorMessage(err))
         showConfirmModal.value = false
       },
       () => {
-        toast.success(`${t("shared_requests.deleted")}`)
+        toast.success(t("shared_requests.deleted"))
         sharedRequestID.value = ""
         modalLoadingState.value = false
         showConfirmModal.value = false
@@ -211,42 +211,16 @@ const createSharedRequest = async (request: HoppRESTRequest | null) => {
 
     if (E.isLeft(shortcodeResult)) {
       toast.error(`${shortcodeResult.left.error}`)
-      toast.error(`${t("error.something_went_wrong")}`)
+      toast.error(t("error.something_went_wrong"))
     } else if (E.isRight(shortcodeResult)) {
-      const shareLink = getWidgetCopyLink(
-        selectedWidget.value.value,
-        shortcodeResult.right.createShortcode.id
-      )
-      if (shareLink) copyShareLink(shareLink)
+      if (shortcodeResult.right.createShortcode) {
+        customizeSharedRequest(shortcodeResult.right.createShortcode)
+      }
 
       shareRequestCreatingLoading.value = false
       displayShareRequestModal(false)
     }
   }
-}
-
-const getWidgetCopyLink = (type: Widget["value"], id: string) => {
-  const baseURL = import.meta.env.VITE_SHORTCODE_BASE_URL ?? "https://hopp.sh"
-  if (type === "embed") {
-    return `<iframe src="${baseURL}/e/${id}" style={{
-    width: "100%",
-    height: 900,
-    outline: "1px solid #252525",
-  }}></iframe>`
-  } else if (type === "button") {
-    return `<a href="${baseURL}/r/${id}" target="_blank"><img src="${baseURL}/badge.svg" alt="Run in Hoppscotch" /></a>`
-  } else if (type === "link") {
-    return `${baseURL}/r/${id}`
-  } else {
-    return ""
-  }
-}
-
-const copyShareLink = (shareLink: string) => {
-  console.log("copied-to-clipboard", shareLink)
-
-  copyToClipboard(shareLink)
-  toast.success(`${t("state.copied_to_clipboard")}`)
 }
 
 const copySharedRequest = (request: {
@@ -255,7 +229,7 @@ const copySharedRequest = (request: {
 }) => {
   if (request.content) {
     copyToClipboard(request.content)
-    toast.success(`${t("state.copied_to_clipboard")}`)
+    toast.success(t("state.copied_to_clipboard"))
   }
 }
 
@@ -285,7 +259,6 @@ const getErrorMessage = (err: GQLError<string>) => {
 }
 
 defineActionHandler("share.request", ({ request }) => {
-  console.log("open-modal-req", request)
   requestToCreate.value = request
   displayShareRequestModal(true)
 })

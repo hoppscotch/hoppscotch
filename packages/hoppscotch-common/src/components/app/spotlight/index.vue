@@ -6,7 +6,7 @@
     @close="emit('hide-modal')"
   >
     <template #body>
-      <div class="flex flex-col border-b transition border-divider">
+      <div class="flex flex-col border-b border-divider transition">
         <div class="flex items-center">
           <input
             id="command"
@@ -16,14 +16,14 @@
             autocomplete="off"
             name="command"
             :placeholder="`${t('app.type_a_command_search')}`"
-            class="flex flex-1 text-base bg-transparent text-secondaryDark px-6 py-5"
+            class="flex flex-1 bg-transparent px-6 py-5 text-base text-secondaryDark"
           />
           <HoppSmartSpinner v-if="searchSession?.loading" class="mr-6" />
         </div>
       </div>
       <div
         v-if="searchSession && search.length > 0"
-        class="flex flex-col flex-1 overflow-y-auto border-b border-divider divide-y divide-dividerLight"
+        class="flex flex-1 flex-col divide-y divide-dividerLight overflow-y-auto border-b border-divider"
       >
         <div
           v-for="([sectionID, sectionResult], sectionIndex) in scoredResults"
@@ -31,7 +31,7 @@
           class="flex flex-col"
         >
           <h5
-            class="px-6 py-2 bg-primaryContrast z-10 text-secondaryLight sticky top-0"
+            class="sticky top-0 z-10 bg-primaryContrast px-6 py-2 text-secondaryLight"
           >
             {{ sectionResult.title }}
           </h5>
@@ -49,7 +49,7 @@
           :text="`${t('state.nothing_found')} ‟${search}”`"
         >
           <template #icon>
-            <icon-lucide-search class="pb-2 opacity-75 svg-icons" />
+            <icon-lucide-search class="svg-icons pb-2 opacity-75" />
           </template>
           <HoppButtonSecondary
             :label="t('action.clear')"
@@ -59,7 +59,7 @@
         </HoppSmartPlaceholder>
       </div>
       <div
-        class="flex flex-shrink-0 text-tiny text-secondaryLight p-4 justify-between whitespace-nowrap overflow-auto <sm:hidden"
+        class="flex flex-shrink-0 justify-between overflow-auto whitespace-nowrap p-4 text-tiny text-secondaryLight <sm:hidden"
       >
         <div class="flex items-center">
           <kbd class="shortcut-key">↑</kbd>

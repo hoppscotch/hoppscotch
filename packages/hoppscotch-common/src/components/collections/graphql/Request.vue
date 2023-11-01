@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col" :class="[{ 'bg-primaryLight': dragging }]">
     <div
-      class="flex items-stretch group"
+      class="group flex items-stretch"
       draggable="true"
       @dragstart="dragStart"
       @dragover.stop
@@ -10,7 +10,7 @@
       @contextmenu.prevent="options.tippy.show()"
     >
       <span
-        class="flex items-center justify-center w-16 px-2 truncate cursor-pointer"
+        class="flex w-16 cursor-pointer items-center justify-center truncate px-2"
         @click="selectRequest()"
       >
         <component
@@ -20,7 +20,7 @@
         />
       </span>
       <span
-        class="flex items-center flex-1 min-w-0 py-2 pr-2 cursor-pointer transition group-hover:text-secondaryDark"
+        class="flex min-w-0 flex-1 cursor-pointer items-center py-2 pr-2 transition group-hover:text-secondaryDark"
         @click="selectRequest()"
       >
         <span class="truncate" :class="{ 'text-accent': isSelected }">
@@ -29,15 +29,15 @@
         <span
           v-if="isActive"
           v-tippy="{ theme: 'tooltip' }"
-          class="relative h-1.5 w-1.5 flex flex-shrink-0 mx-3"
+          class="relative mx-3 flex h-1.5 w-1.5 flex-shrink-0"
           :title="`${t('collection.request_in_use')}`"
         >
           <span
-            class="absolute inline-flex flex-shrink-0 w-full h-full bg-green-500 rounded-full opacity-75 animate-ping"
+            class="absolute inline-flex h-full w-full flex-shrink-0 animate-ping rounded-full bg-green-500 opacity-75"
           >
           </span>
           <span
-            class="relative inline-flex flex-shrink-0 rounded-full h-1.5 w-1.5 bg-green-500"
+            class="relative inline-flex h-1.5 w-1.5 flex-shrink-0 rounded-full bg-green-500"
           ></span>
         </span>
       </span>

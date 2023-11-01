@@ -40,6 +40,8 @@
     "workbox-window": "^7.0.0"
   },
   "devDependencies": {
+    "@hoppscotch/ui": "workspace:^",
+    "autoprefixer": "^10.4.14",
     "@graphql-codegen/add": "^5.0.0",
     "@graphql-codegen/cli": "^5.0.0",
     "@graphql-codegen/typed-document-node": "^5.0.1",
@@ -60,6 +62,9 @@
     "eslint-plugin-prettier": "^5.0.0",
     "eslint-plugin-vue": "^9.17.0",
     "npm-run-all": "^4.1.5",
+    "postcss": "^8.4.23",
+    "prettier-plugin-tailwindcss": "^0.5.6",
+    "tailwindcss": "^3.3.2",
     "typescript": "^5.1.6",
     "unplugin-fonts": "^1.0.3",
     "unplugin-icons": "^0.16.5",
@@ -73,9 +78,7 @@
     "vite-plugin-pwa": "^0.16.4",
     "vite-plugin-static-copy": "^0.17.0",
     "vite-plugin-vue-layouts": "^0.8.0",
-    "vite-plugin-windicss": "^1.9.1",
     "vitest": "^0.34.2",
-    "vue-tsc": "^1.8.8",
-    "windicss": "^3.5.6"
+    "vue-tsc": "^1.8.8"
   }
 }

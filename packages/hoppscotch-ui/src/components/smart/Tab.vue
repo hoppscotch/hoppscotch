@@ -1,5 +1,5 @@
 <template>
-  <div v-if="shouldRender" v-show="active" class="flex flex-col flex-1">
+  <div v-if="shouldRender" v-show="active" class="flex flex-1 flex-col">
     <slot></slot>
   </div>
 </template>

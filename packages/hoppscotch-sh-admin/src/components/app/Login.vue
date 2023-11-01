@@ -93,7 +93,7 @@
       </div>
     </div>
 
-    <section class="mt-15">
+    <section class="mt-16">
       <div
         v-if="
           mode === 'sign-in' &&

@@ -34,7 +34,10 @@
     "graphql": "^16.6.0",
     "io-ts": "^2.2.16",
     "lodash-es": "^4.17.21",
+    "postcss": "^8.4.23",
+    "prettier-plugin-tailwindcss": "^0.5.6",
     "rxjs": "^7.8.0",
+    "tailwindcss": "^3.3.2",
     "tippy.js": "^6.3.7",
     "ts-node-dev": "^2.0.0",
     "unplugin-icons": "^0.14.9",
@@ -67,9 +70,7 @@
     "vite": "^3.1.4",
     "vite-plugin-pages": "^0.26.0",
     "vite-plugin-vue-layouts": "^0.7.0",
-    "vite-plugin-windicss": "^1.8.8",
-    "vue-tsc": "^0.3.0",
-    "windicss": "^3.5.6"
+    "vue-tsc": "^0.3.0"
   },
   "prettier": {
     "singleQuote": true,

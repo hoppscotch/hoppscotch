@@ -189,7 +189,6 @@ declare module 'vue' {
     SmartEnvInput: typeof import('./components/smart/EnvInput.vue')['default']
     SmartExpand: typeof import('./../../hoppscotch-ui/src/components/smart/Expand.vue')['default']
     SmartFileChip: typeof import('./../../hoppscotch-ui/src/components/smart/FileChip.vue')['default']
-    SmartFontSizePicker: typeof import('./components/smart/FontSizePicker.vue')['default']
     SmartInput: typeof import('./../../hoppscotch-ui/src/components/smart/Input.vue')['default']
     SmartIntersection: typeof import('./../../hoppscotch-ui/src/components/smart/Intersection.vue')['default']
     SmartItem: typeof import('./../../hoppscotch-ui/src/components/smart/Item.vue')['default']

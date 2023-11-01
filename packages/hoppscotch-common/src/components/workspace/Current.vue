@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex items-center px-4 py-2 overflow-x-auto border-b whitespace-nowrap border-dividerLight text-tiny text-secondaryLight"
+    class="flex items-center overflow-x-auto whitespace-nowrap border-b border-dividerLight px-4 py-2 text-tiny text-secondaryLight"
   >
     <span class="truncate">
       {{

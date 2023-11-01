@@ -1,10 +1,10 @@
 <template>
-  <div class="flex flex-col flex-1 overflow-auto whitespace-nowrap">
-    <div v-if="response?.length === 1" class="flex flex-col flex-1">
+  <div class="flex flex-1 flex-col overflow-auto whitespace-nowrap">
+    <div v-if="response?.length === 1" class="flex flex-1 flex-col">
       <div
-        class="sticky top-0 z-10 flex items-center justify-between flex-shrink-0 pl-4 overflow-x-auto border-b bg-primary border-dividerLight"
+        class="sticky top-0 z-10 flex flex-shrink-0 items-center justify-between overflow-x-auto border-b border-dividerLight bg-primary pl-4"
       >
-        <label class="font-semibold truncate text-secondaryLight">
+        <label class="truncate font-semibold text-secondaryLight">
           {{ t("response.title") }}
         </label>
         <div class="flex items-center">
@@ -33,11 +33,11 @@
           />
         </div>
       </div>
-      <div ref="schemaEditor" class="flex flex-col flex-1"></div>
+      <div ref="schemaEditor" class="flex flex-1 flex-col"></div>
     </div>
     <div
       v-else-if="response && response?.length > 1"
-      class="flex flex-col flex-1"
+      class="flex flex-1 flex-col"
     >
       <GraphqlSubscriptionLog :log="response" />
     </div>

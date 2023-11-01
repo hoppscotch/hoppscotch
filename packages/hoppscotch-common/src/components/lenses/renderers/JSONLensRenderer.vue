@@ -1,12 +1,12 @@
 <template>
   <div
     v-if="response.type === 'success' || response.type === 'fail'"
-    class="flex flex-col flex-1"
+    class="flex flex-1 flex-col"
   >
     <div
-      class="sticky z-10 flex items-center justify-between flex-shrink-0 pl-4 overflow-x-auto border-b bg-primary border-dividerLight top-lowerSecondaryStickyFold"
+      class="sticky top-lowerSecondaryStickyFold z-10 flex flex-shrink-0 items-center justify-between overflow-x-auto border-b border-dividerLight bg-primary pl-4"
     >
-      <label class="font-semibold truncate text-secondaryLight">
+      <label class="truncate font-semibold text-secondaryLight">
         {{ t("response.body") }}
       </label>
       <div class="flex items-center">
@@ -48,13 +48,13 @@
     </div>
     <div
       v-if="toggleFilter"
-      class="sticky z-10 flex flex-shrink-0 overflow-x-auto border-b bg-primary top-lowerTertiaryStickyFold border-dividerLight"
+      class="sticky top-lowerTertiaryStickyFold z-10 flex flex-shrink-0 overflow-x-auto border-b border-dividerLight bg-primary"
     >
       <div
-        class="inline-flex items-center flex-1 bg-primaryLight border-divider text-secondaryDark"
+        class="inline-flex flex-1 items-center border-divider bg-primaryLight text-secondaryDark"
       >
-        <span class="inline-flex items-center flex-1 px-4">
-          <icon-lucide-search class="w-4 h-4 text-secondaryLight" />
+        <span class="inline-flex flex-1 items-center px-4">
+          <icon-lucide-search class="h-4 w-4 text-secondaryLight" />
           <input
             v-model="filterQueryText"
             v-focus
@@ -65,7 +65,7 @@
         </span>
         <div
           v-if="filterResponseError"
-          class="flex items-center justify-center px-2 py-1 rounded text-tiny text-accentContrast"
+          class="flex items-center justify-center rounded px-2 py-1 text-tiny text-accentContrast"
           :class="{
             'bg-red-500':
               filterResponseError.type === 'JSON_PARSE_FAILED' ||
@@ -88,12 +88,12 @@
     </div>
     <div
       ref="jsonResponse"
-      class="flex flex-col flex-1 h-auto h-full"
+      class="flex h-auto h-full flex-1 flex-col"
       :class="toggleFilter ? 'responseToggleOn' : 'responseToggleOff'"
     ></div>
     <div
       v-if="outlinePath"
-      class="sticky bottom-0 z-10 flex flex-shrink-0 px-2 overflow-auto overflow-x-auto border-t bg-primaryLight border-dividerLight flex-nowrap"
+      class="sticky bottom-0 z-10 flex flex-shrink-0 flex-nowrap overflow-auto overflow-x-auto border-t border-dividerLight bg-primaryLight px-2"
     >
       <div
         v-for="(item, index) in outlinePath"
@@ -191,7 +191,7 @@
         </tippy>
         <icon-lucide-chevron-right
           v-if="index + 1 !== outlinePath.length"
-          class="opacity-50 text-secondaryLight svg-icons"
+          class="svg-icons text-secondaryLight opacity-50"
         />
       </div>
     </div>
@@ -376,14 +376,14 @@ defineActionHandler("response.copy", () => copyResponse())
 <style lang="scss" scoped>
 .outline-item {
   @apply cursor-pointer;
-  @apply flex-grow-0 flex-shrink-0;
+  @apply flex-shrink-0 flex-grow-0;
   @apply text-secondaryLight;
   @apply inline-flex;
   @apply items-center;
   @apply px-2;
   @apply py-1;
   @apply transition;
-  @apply hover: text-secondary;
+  @apply hover:text-secondary;
 }
 
 :deep(.responseToggleOff .cm-panels) {

@@ -1,7 +1,7 @@
 import type { Plugin, App } from "vue"
 
 import "./assets/scss/styles.scss"
-import "virtual:windi.css"
+import "./assets/scss/tailwind.scss"
 
 /**
 @constant HOPP_UI_OPTIONS

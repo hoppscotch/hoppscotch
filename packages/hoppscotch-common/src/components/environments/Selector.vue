@@ -20,7 +20,7 @@
                 : `${t('environment.select')}`
               : ''
           "
-          class="flex-1 !justify-start pr-8 rounded-none"
+          class="flex-1 !justify-start rounded-none pr-8"
         />
       </span>
       <template #content="{ hide }">
@@ -101,7 +101,7 @@
                 <img
                   :src="`/images/states/${colorMode.value}/blockchain.svg`"
                   loading="lazy"
-                  class="inline-flex flex-col object-contain object-center w-16 h-16 mb-2"
+                  class="mb-2 inline-flex h-16 w-16 flex-col object-contain object-center"
                   :alt="`${t('empty.environments')}`"
                 />
                 <span class="pb-2 text-center">
@@ -148,7 +148,7 @@
                   <img
                     :src="`/images/states/${colorMode.value}/blockchain.svg`"
                     loading="lazy"
-                    class="inline-flex flex-col object-contain object-center w-16 h-16 mb-2"
+                    class="mb-2 inline-flex h-16 w-16 flex-col object-contain object-center"
                     :alt="`${t('empty.environments')}`"
                   />
                   <span class="pb-2 text-center">
@@ -160,7 +160,7 @@
                 v-if="!teamListLoading && teamAdapterError"
                 class="flex flex-col items-center py-4"
               >
-                <icon-lucide-help-circle class="mb-4 svg-icons" />
+                <icon-lucide-help-circle class="svg-icons mb-4" />
                 {{ getErrorMessage(teamAdapterError) }}
               </div>
             </HoppSmartTab>
@@ -190,7 +190,7 @@
             @keyup.escape="hide()"
           >
             <div
-              class="sticky top-0 font-semibold truncate flex items-center justify-between text-secondaryDark bg-primary border border-divider rounded pl-4"
+              class="sticky top-0 flex items-center justify-between truncate rounded border border-divider bg-primary pl-4 font-semibold text-secondaryDark"
             >
               {{ t("environment.global_variables") }}
               <HoppButtonSecondary
@@ -205,12 +205,12 @@
                 "
               />
             </div>
-            <div class="my-2 flex flex-col flex-1 space-y-2 pl-4 pr-2">
+            <div class="my-2 flex flex-1 flex-col space-y-2 pl-4 pr-2">
               <div class="flex flex-1 space-x-4">
-                <span class="w-1/4 min-w-32 truncate text-tiny font-semibold">
+                <span class="min-w-32 w-1/4 truncate text-tiny font-semibold">
                   {{ t("environment.name") }}
                 </span>
-                <span class="w-full min-w-32 truncate text-tiny font-semibold">
+                <span class="min-w-32 w-full truncate text-tiny font-semibold">
                   {{ t("environment.value") }}
                 </span>
               </div>
@@ -219,10 +219,10 @@
                 :key="index"
                 class="flex flex-1 space-x-4"
               >
-                <span class="text-secondaryLight w-1/4 min-w-32 truncate">
+                <span class="min-w-32 w-1/4 truncate text-secondaryLight">
                   {{ variable.key }}
                 </span>
-                <span class="text-secondaryLight w-full min-w-32 truncate">
+                <span class="min-w-32 w-full truncate text-secondaryLight">
                   {{ variable.value }}
                 </span>
               </div>
@@ -231,7 +231,7 @@
               </div>
             </div>
             <div
-              class="sticky top-0 mt-2 font-semibold truncate flex items-center justify-between text-secondaryDark bg-primary border border-divider rounded pl-4"
+              class="sticky top-0 mt-2 flex items-center justify-between truncate rounded border border-divider bg-primary pl-4 font-semibold text-secondaryDark"
               :class="{
                 'bg-primaryLight': !selectedEnv.variables,
               }"
@@ -252,16 +252,16 @@
             </div>
             <div
               v-if="selectedEnv.type === 'NO_ENV_SELECTED'"
-              class="text-secondaryLight my-2 flex flex-col flex-1 pl-4"
+              class="my-2 flex flex-1 flex-col pl-4 text-secondaryLight"
             >
               {{ t("environment.no_active_environment") }}
             </div>
-            <div v-else class="my-2 flex flex-col flex-1 space-y-2 pl-4 pr-2">
+            <div v-else class="my-2 flex flex-1 flex-col space-y-2 pl-4 pr-2">
               <div class="flex flex-1 space-x-4">
-                <span class="w-1/4 min-w-32 truncate text-tiny font-semibold">
+                <span class="min-w-32 w-1/4 truncate text-tiny font-semibold">
                   {{ t("environment.name") }}
                 </span>
-                <span class="w-full min-w-32 truncate text-tiny font-semibold">
+                <span class="min-w-32 w-full truncate text-tiny font-semibold">
                   {{ t("environment.value") }}
                 </span>
               </div>
@@ -270,10 +270,10 @@
                 :key="index"
                 class="flex flex-1 space-x-4"
               >
-                <span class="text-secondaryLight w-1/4 min-w-32 truncate">
+                <span class="min-w-32 w-1/4 truncate text-secondaryLight">
                   {{ variable.key }}
                 </span>
-                <span class="text-secondaryLight w-full min-w-32 truncate">
+                <span class="min-w-32 w-full truncate text-secondaryLight">
                   {{ variable.value }}
                 </span>
               </div>

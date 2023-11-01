@@ -1,10 +1,10 @@
 <template>
-  <div class="flex flex-col flex-1">
+  <div class="flex flex-1 flex-col">
     <div
-      class="sticky top-sidebarPrimaryStickyFold z-10 flex items-center justify-between pl-4 border-y bg-primary border-dividerLight"
+      class="sticky top-sidebarPrimaryStickyFold z-10 flex items-center justify-between border-y border-dividerLight bg-primary pl-4"
     >
       <span class="flex items-center">
-        <label class="font-semibold truncate text-secondaryLight">
+        <label class="truncate font-semibold text-secondaryLight">
           {{ t("authorization.type") }}
         </label>
         <tippy
@@ -15,7 +15,7 @@
         >
           <span class="select-wrapper">
             <HoppButtonSecondary
-              class="pr-8 ml-2 rounded-none"
+              class="ml-2 rounded-none pr-8"
               :label="authName"
             />
           </span>
@@ -171,7 +171,7 @@
         </div>
       </div>
       <div
-        class="sticky flex-shrink-0 h-full p-4 overflow-auto overflow-x-auto bg-primary top-upperTertiaryStickyFold min-w-46 max-w-1/3 z-9"
+        class="z-9 sticky top-upperTertiaryStickyFold h-full min-w-46 max-w-1/3 flex-shrink-0 overflow-auto overflow-x-auto bg-primary p-4"
       >
         <div class="pb-2 text-secondaryLight">
           {{ t("helpers.authorization") }}

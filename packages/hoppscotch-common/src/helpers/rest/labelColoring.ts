@@ -4,11 +4,11 @@ import * as RR from "fp-ts/ReadonlyRecord"
 import { HoppRESTRequest } from "@hoppscotch/data"
 
 export const REQUEST_METHOD_LABEL_COLORS = {
-  get: "text-green-500",
-  post: "text-yellow-500",
-  put: "text-blue-500",
-  delete: "text-red-500",
-  default: "text-gray-500",
+  get: "var(--success-color)",
+  post: "var(--warning-color)",
+  put: "var(--blue-color)",
+  delete: "var(--cl-error-color)",
+  default: "#6b7280",
 } as const
 
 /**

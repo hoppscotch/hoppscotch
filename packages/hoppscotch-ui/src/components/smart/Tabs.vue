@@ -1,15 +1,15 @@
 <template>
   <div
-    class="flex flex-1 h-full flex-nowrap"
-    :class="{ 'flex-col h-auto': !vertical }"
+    class="flex h-full flex-1 flex-nowrap"
+    :class="{ 'h-auto flex-col': !vertical }"
   >
     <div
-      class="relative tabs border-dividerLight"
+      class="tabs relative border-dividerLight"
       :class="[vertical ? 'border-r' : 'border-b', styles]"
     >
       <div class="flex flex-1">
         <div
-          class="flex justify-between flex-1"
+          class="flex flex-1 justify-between"
           :class="{ 'flex-col': vertical }"
         >
           <div class="flex" :class="{ 'flex-col space-y-2 p-2': vertical }">
@@ -25,7 +25,7 @@
               :class="[
                 { active: modelValue === tabID },
                 { vertical: vertical },
-                { 'opacity-75 !cursor-not-allowed': tabMeta.disabled },
+                { '!cursor-not-allowed opacity-75': tabMeta.disabled },
               ]"
               :aria-label="tabMeta.label || ''"
               :disabled="tabMeta.disabled"
@@ -47,7 +47,7 @@
               </span>
               <span
                 v-if="tabMeta.indicator"
-                class="w-1 h-1 ml-2 rounded-full bg-accentLight"
+                class="ml-2 h-1 w-1 rounded-full bg-accentLight"
               ></span>
             </button>
           </div>
@@ -58,10 +58,10 @@
       </div>
     </div>
     <div
-      class="w-full h-full contents"
+      class="contents h-full w-full"
       :class="[
         {
-          '!flex flex-col flex-1 overflow-y-auto': vertical,
+          '!flex flex-1 flex-col overflow-y-auto': vertical,
         },
         contentStyles,
       ]"
@@ -199,31 +199,32 @@ const selectTab = (id: string) => {
     @apply flex-shrink-0;
     @apply items-center;
     @apply justify-center;
-    @apply py-2 px-4;
+    @apply px-4 py-2;
     @apply text-secondary;
     @apply font-semibold;
     @apply cursor-pointer;
-    @apply hover: text-secondaryDark;
-    @apply focus: outline-none;
-    @apply focus-visible: text-secondaryDark;
+    @apply hover:text-secondaryDark;
+    @apply focus:outline-none;
+    @apply focus-visible:text-secondaryDark;
     @apply after:absolute;
     @apply after:left-4;
     @apply after:right-4;
     @apply after:bottom-0;
     @apply after:bg-transparent;
-    @apply after:z-2;
+    @apply after:z-[2];
     @apply after:h-0.5;
-    @apply after:content-DEFAULT;
-    @apply focus: after: bg-divider;
+    @apply after:content-[''];
+    @apply focus:after:bg-divider;
 
     .tab-info {
       @apply inline-flex;
       @apply items-center;
       @apply justify-center;
-      @apply px-1 py-0.75;
+      @apply px-1;
+      @apply leading-[15px];
       @apply min-w-4;
       @apply ml-2;
-      @apply text-8px;
+      @apply text-[8px];
       @apply border border-divider;
       @apply rounded;
       @apply text-secondaryLight;
@@ -241,7 +242,8 @@ const selectTab = (id: string) => {
 
     &.vertical {
       @apply p-2;
-      @apply focus: after: hidden;
+      @apply rounded;
+      @apply focus:after:hidden;
 
       &.active {
         @apply text-accent;

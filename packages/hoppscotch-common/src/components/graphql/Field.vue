@@ -21,19 +21,19 @@
     </div>
     <div
       v-if="gqlField.description"
-      class="py-2 text-secondaryLight field-desc"
+      class="field-desc py-2 text-secondaryLight"
     >
       {{ gqlField.description }}
     </div>
     <div
       v-if="gqlField.isDeprecated"
-      class="inline-block px-2 py-1 my-1 text-black bg-yellow-200 rounded field-deprecated"
+      class="field-deprecated my-1 inline-block rounded bg-yellow-200 px-2 py-1 text-black"
     >
       {{ t("state.deprecated") }}
     </div>
     <div v-if="fieldArgs.length > 0">
       <h5 class="my-2">Arguments:</h5>
-      <div class="pl-4 border-l-2 border-divider">
+      <div class="border-l-2 border-divider pl-4">
         <div v-for="(field, index) in fieldArgs" :key="`field-${index}`">
           <span>
             {{ field.name }}:
@@ -44,7 +44,7 @@
           </span>
           <div
             v-if="field.description"
-            class="py-2 text-secondaryLight field-desc"
+            class="field-desc py-2 text-secondaryLight"
           >
             {{ field.description }}
           </div>
@@ -84,7 +84,7 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 .field-highlighted {
-  @apply border-accent border-b-2;
+  @apply border-b-2 border-accent;
 }
 
 .field-title {

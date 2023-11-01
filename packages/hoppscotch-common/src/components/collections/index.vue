@@ -11,7 +11,7 @@
     @dragend="draggingToRoot = false"
   >
     <div
-      class="sticky z-10 flex flex-col flex-shrink-0 overflow-x-auto border-b bg-primary border-dividerLight"
+      class="sticky z-10 flex flex-shrink-0 flex-col overflow-x-auto border-b border-dividerLight bg-primary"
       :class="{ 'rounded-t': saveRequest }"
       :style="
         saveRequest ? 'top: calc(-1 * var(--line-height-body))' : 'top: 0'
@@ -86,12 +86,12 @@
       @display-modal-import-export="displayModalImportExport(true)"
     />
     <div
-      class="hidden bg-primaryDark flex-col flex-1 items-center py-15 justify-center px-4 text-secondaryLight"
+      class="py-15 hidden flex-1 flex-col items-center justify-center bg-primaryDark px-4 text-secondaryLight"
       :class="{
         '!flex': draggingToRoot && currentReorderingStatus.type !== 'request',
       }"
     >
-      <icon-lucide-list-end class="svg-icons !w-8 !h-8" />
+      <icon-lucide-list-end class="svg-icons !h-8 !w-8" />
     </div>
     <CollectionsAdd
       :show="showModalAdd"

@@ -175,7 +175,7 @@
           @click="COLUMN_LAYOUT = !COLUMN_LAYOUT"
         />
         <span
-          class="transition transform"
+          class="transform transition"
           :class="{
             'rotate-180': SIDEBAR_ON_LEFT,
           }"

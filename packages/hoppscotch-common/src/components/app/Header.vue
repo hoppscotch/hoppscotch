@@ -1,28 +1,28 @@
 <template>
   <div>
     <header
-      class="flex items-center justify-between flex-1 flex-shrink-0 px-2 py-2 space-x-2 overflow-x-auto overflow-y-hidden"
+      class="flex flex-1 flex-shrink-0 items-center justify-between space-x-2 overflow-x-auto overflow-y-hidden px-2 py-2"
     >
       <div
-        class="inline-flex items-center justify-start flex-1 space-x-2"
+        class="inline-flex flex-1 items-center justify-start space-x-2"
         :style="{
           paddingTop: platform.ui?.appHeader?.paddingTop?.value,
           paddingLeft: platform.ui?.appHeader?.paddingLeft?.value,
         }"
       >
         <HoppButtonSecondary
-          class="tracking-wide !font-bold !text-secondaryDark hover:bg-primaryDark focus-visible:bg-primaryDark uppercase"
+          class="!font-bold uppercase tracking-wide !text-secondaryDark hover:bg-primaryDark focus-visible:bg-primaryDark"
           :label="t('app.name')"
           to="/"
         />
       </div>
-      <div class="inline-flex items-center justify-center flex-1 space-x-2">
+      <div class="inline-flex flex-1 items-center justify-center space-x-2">
         <button
-          class="flex flex-1 items-center justify-between px-2 py-1 self-stretch bg-primaryDark transition text-secondaryLight cursor-text rounded border border-dividerDark max-w-60 hover:border-dividerDark hover:bg-primaryLight hover:text-secondary focus-visible:border-dividerDark focus-visible:bg-primaryLight focus-visible:text-secondary"
+          class="flex max-w-[15rem] flex-1 cursor-text items-center justify-between self-stretch rounded border border-dividerDark bg-primaryDark px-2 py-1 text-secondaryLight transition hover:border-dividerDark hover:bg-primaryLight hover:text-secondary focus-visible:border-dividerDark focus-visible:bg-primaryLight focus-visible:text-secondary"
           @click="invokeAction('modals.search.toggle')"
         >
           <span class="inline-flex flex-1 items-center">
-            <icon-lucide-search class="mr-2 svg-icons" />
+            <icon-lucide-search class="svg-icons mr-2" />
             {{ t("app.search") }}
           </span>
           <span class="flex space-x-1">
@@ -48,7 +48,7 @@
           @click="invokeAction('modals.support.toggle')"
         />
       </div>
-      <div class="inline-flex items-center justify-end flex-1 space-x-2">
+      <div class="inline-flex flex-1 items-center justify-end space-x-2">
         <div
           v-if="currentUser === null"
           class="inline-flex items-center space-x-2"
@@ -56,7 +56,7 @@
           <HoppButtonSecondary
             :icon="IconUploadCloud"
             :label="t('header.save_workspace')"
-            class="hidden md:flex bg-green-500/15 py-1.75 border border-green-600/25 !text-green-500 hover:bg-green-400/10 focus-visible:bg-green-400/10 focus-visible:border-green-800/50 !focus-visible:text-green-600 hover:border-green-800/50 !hover:text-green-600"
+            class="py-1.75 !focus-visible:text-green-600 !hover:text-green-600 hidden border border-green-600/25 bg-green-500/[.15] !text-green-500 hover:border-green-800/50 hover:bg-green-400/10 focus-visible:border-green-800/50 focus-visible:bg-green-400/10 md:flex"
             @click="invokeAction('modals.login.toggle')"
           />
           <HoppButtonPrimary
@@ -77,13 +77,13 @@
             @handle-click="handleTeamEdit()"
           />
           <div
-            class="flex border divide-x rounded bg-green-500/15 divide-green-600/25 border-green-600/25 focus-within:bg-green-400/10 focus-within:border-green-800/50 focus-within:divide-green-800/50 hover:bg-green-400/10 hover:border-green-800/50 hover:divide-green-800/50"
+            class="flex divide-x divide-green-600/25 rounded border border-green-600/25 bg-green-500/[.15] focus-within:divide-green-800/50 focus-within:border-green-800/50 focus-within:bg-green-400/10 hover:divide-green-800/50 hover:border-green-800/50 hover:bg-green-400/10"
           >
             <HoppButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
               :title="t('team.invite_tooltip')"
               :icon="IconUserPlus"
-              class="py-1.75 !text-green-500 !focus-visible:text-green-600 !hover:text-green-600"
+              class="py-1.75 !focus-visible:text-green-600 !hover:text-green-600 !text-green-500"
               @click="handleInvite()"
             />
             <HoppButtonSecondary
@@ -95,7 +95,7 @@
               v-tippy="{ theme: 'tooltip' }"
               :title="t('team.edit')"
               :icon="IconSettings"
-              class="py-1.75 !text-green-500 !focus-visible:text-green-600 !hover:text-green-600"
+              class="py-1.75 !focus-visible:text-green-600 !hover:text-green-600 !text-green-500"
               @click="handleTeamEdit()"
             />
           </div>
@@ -110,7 +110,7 @@
               :title="t('workspace.change')"
               :label="mdAndLarger ? workspaceName : ``"
               :icon="workspace.type === 'personal' ? IconUser : IconUsers"
-              class="pr-8 select-wrapper rounded bg-blue-500/15 py-1.75 border border-blue-600/25 !text-blue-500 focus-visible:bg-blue-400/10 focus-visible:border-blue-800/50 !focus-visible:text-blue-600 hover:bg-blue-400/10 hover:border-blue-800/50 !hover:text-blue-600"
+              class="select-wrapper !focus-visible:text-blue-600 !hover:text-blue-600 rounded border border-blue-600/25 bg-blue-500/[.15] py-[0.4375rem] pr-8 !text-blue-500 hover:border-blue-800/50 hover:bg-blue-400/10 focus-visible:border-blue-800/50 focus-visible:bg-blue-400/10"
             />
             <template #content="{ hide }">
               <div
@@ -176,7 +176,7 @@
                   @keyup.escape="hide()"
                 >
                   <div class="flex flex-col px-2 text-tiny">
-                    <span class="inline-flex font-semibold truncate">
+                    <span class="inline-flex truncate font-semibold">
                       {{
                         currentUser.displayName ||
                         t("profile.default_hopp_displayname")

@@ -31,7 +31,7 @@
       </HoppSmartPlaceholder>
       <div v-else-if="!loading" class="flex flex-col">
         <div
-          class="sticky top-0 z-10 flex items-center justify-between py-2 pl-2 mb-2 -top-2 bg-popover"
+          class="sticky -top-2 top-0 z-10 mb-2 flex items-center justify-between bg-popover py-2 pl-2"
         >
           <div class="flex items-center px-2 font-semibold text-secondaryLight">
             {{ t("team.title") }}
@@ -42,7 +42,7 @@
             :title="`${t('team.create_new')}`"
             outline
             filled
-            class="!p-0.75 rounded ml-8"
+            class="ml-8 rounded !p-0.75"
             @click="displayModalAdd(true)"
           />
         </div>
@@ -60,7 +60,7 @@
         v-if="!loading && teamListAdapterError"
         class="flex flex-col items-center py-4"
       >
-        <icon-lucide-help-circle class="mb-4 svg-icons" />
+        <icon-lucide-help-circle class="svg-icons mb-4" />
         {{ t("error.something_went_wrong") }}
       </div>
     </div>

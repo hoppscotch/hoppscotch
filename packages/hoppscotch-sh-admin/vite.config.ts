@@ -5,7 +5,6 @@ import Icons from 'unplugin-icons/vite';
 import Unfonts from 'unplugin-fonts/vite';
 import IconResolver from 'unplugin-icons/resolver';
 import Components from 'unplugin-vue-components/vite';
-import WindiCSS from 'vite-plugin-windicss';
 import Pages from 'vite-plugin-pages';
 import Layouts from 'vite-plugin-vue-layouts';
 import path from 'path';
@@ -40,12 +39,9 @@ export default defineConfig({
       compositionOnly: true,
       include: [path.resolve(__dirname, './locales/**')],
     }),
-    WindiCSS({
-      root: path.resolve(__dirname),
-    }),
     Components({
       dts: './src/components.d.ts',
-      dirs: ['./src/components'],
+      dirs: ['./src/components', '../hoppscotch-ui/src/components'],
       directoryAsNamespace: true,
       resolvers: [
         IconResolver({

@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col flex-1 h-full">
+  <div class="flex h-full flex-1 flex-col">
     <HoppSmartTabs
       v-model="selectedOptionTab"
       styles="sticky top-0 bg-primary z-10 border-b-0"

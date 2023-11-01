@@ -8,7 +8,7 @@
       {{ historyEntry.request.url }}
     </span>
     <span
-      class="font-semibold truncate text-tiny flex flex-shrink-0 border border-dividerDark rounded-md px-1"
+      class="flex flex-shrink-0 truncate rounded-md border border-dividerDark px-1 text-tiny font-semibold"
     >
       {{ historyEntry.request.query.split("\n")[0] }}
     </span>

@@ -1,6 +1,6 @@
 <template>
   <div
-    class="sticky top-0 z-10 flex flex-shrink-0 p-4 overflow-x-auto space-x-2 bg-primary"
+    class="sticky top-0 z-10 flex flex-shrink-0 space-x-2 overflow-x-auto bg-primary p-4"
   >
     <div class="inline-flex flex-1 space-x-2">
       <input
@@ -9,7 +9,7 @@
         type="url"
         autocomplete="off"
         spellcheck="false"
-        class="w-full px-4 py-2 border rounded bg-primaryLight border-divider text-secondaryDark"
+        class="w-full rounded border border-divider bg-primaryLight px-4 py-2 text-secondaryDark"
         :placeholder="`${t('request.url')}`"
         :disabled="connected"
         @keyup.enter="onConnectClick"

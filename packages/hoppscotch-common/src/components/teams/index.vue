@@ -40,7 +40,7 @@
         />
       </div>
       <div v-if="!loading && adapterError" class="flex flex-col items-center">
-        <icon-lucide-help-circle class="mb-4 svg-icons" />
+        <icon-lucide-help-circle class="svg-icons mb-4" />
         {{ t("error.something_went_wrong") }}
       </div>
     </div>

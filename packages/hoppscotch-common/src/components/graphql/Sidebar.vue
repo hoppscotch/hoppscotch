@@ -31,7 +31,7 @@
             type="search"
             autocomplete="off"
             :placeholder="`${t('action.search')}`"
-            class="flex flex-1 p-4 py-2 bg-transparent"
+            class="flex flex-1 bg-transparent p-4 py-2"
           />
           <div class="flex">
             <HoppButtonSecondary
@@ -112,9 +112,9 @@
     <HoppSmartTab :id="'schema'" :icon="IconBox" :label="`${t('tab.schema')}`">
       <div
         v-if="schemaString"
-        class="sticky top-0 z-10 flex items-center justify-between flex-shrink-0 pl-4 overflow-x-auto border-b bg-primary border-dividerLight"
+        class="sticky top-0 z-10 flex flex-shrink-0 items-center justify-between overflow-x-auto border-b border-dividerLight bg-primary pl-4"
       >
-        <label class="font-semibold truncate text-secondaryLight">
+        <label class="truncate font-semibold text-secondaryLight">
           {{ t("graphql.schema") }}
         </label>
         <div class="flex">
@@ -149,7 +149,7 @@
       <div
         v-if="schemaString"
         ref="schemaEditor"
-        class="flex flex-col flex-1"
+        class="flex flex-1 flex-col"
       ></div>
       <HoppSmartPlaceholder
         v-else

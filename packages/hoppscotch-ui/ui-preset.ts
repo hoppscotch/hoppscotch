@@ -1,6 +1,8 @@
-import { defineConfig } from "windicss/helpers"
+import { Config } from "tailwindcss";
+import { theme } from 'tailwindcss/defaultConfig'
 
-export default defineConfig({
+export default {
+  content: [],
   theme: {
     container: {
       center: true,
@@ -10,15 +12,15 @@ export default defineConfig({
         upperPrimaryStickyFold: "var(--upper-primary-sticky-fold)",
         upperSecondaryStickyFold: "var(--upper-secondary-sticky-fold)",
         upperTertiaryStickyFold: "var(--upper-tertiary-sticky-fold)",
+        upperFourthStickyFold: "var(--upper-fourth-sticky-fold)",
         upperMobilePrimaryStickyFold: "var(--upper-mobile-primary-sticky-fold)",
-        upperMobileSecondaryStickyFold:
-          "var(--upper-mobile-secondary-sticky-fold)",
+        upperMobileSecondaryStickyFold: "var(--upper-mobile-secondary-sticky-fold)",
         upperMobileStickyFold: "var(--upper-mobile-sticky-fold)",
-        upperMobileTertiaryStickyFold:
-          "var(--upper-mobile-tertiary-sticky-fold)",
+        upperMobileTertiaryStickyFold: "var(--upper-mobile-tertiary-sticky-fold)",
         lowerPrimaryStickyFold: "var(--lower-primary-sticky-fold)",
         lowerSecondaryStickyFold: "var(--lower-secondary-sticky-fold)",
         lowerTertiaryStickyFold: "var(--lower-tertiary-sticky-fold)",
+        lowerFourthStickyFold: "var(--lower-fourth-sticky-fold)",
         sidebarPrimaryStickyFold: "var(--sidebar-primary-sticky-fold)",
         sidebarSecondaryStickyFold: "var(--line-height-body)",
       },
@@ -43,6 +45,21 @@ export default defineConfig({
         gradientFrom: "var(--gradient-from-color)",
         gradientVia: "var(--gradient-via-color)",
         gradientTo: "var(--gradient-to-color)",
+        dark: {
+          50: "#4a4a4a",
+          100: "#3c3c3c",
+          200: "#323232",
+          300: "#2d2d2d",
+          400: "#222222",
+          500: "#1f1f1f",
+          600: "#1c1c1e",
+          700: "#1b1b1b",
+          800: "#181818",
+          900: "#0f0f0f",
+        },
+        light: {
+          50: "#fdfdfd",
+        },
       },
       fontFamily: {
         sans: "var(--font-sans)",
@@ -61,6 +78,47 @@ export default defineConfig({
         grab: "grab",
         grabbing: "grabbing",
       },
+      spacing: {
+        0.25: "0.0625rem",
+        0.75: "0.1875rem",
+        20: "5rem",
+        26: "6.5rem",
+        46: "11.5rem",
+      },
+      minWidth: {
+        4: "1rem",
+        5: "1.25rem",
+        20: "5rem",
+        46: "11.5rem",
+      },
+      minHeight: {
+        5: "1.25rem",
+        46: "11.5rem",
+      },
+      maxWidth: {
+        '1/2': '50%',
+        '1/3': '33%',
+        '3/4': '75%',
+        46: "11.5rem",
+      },
+      maxHeight: {
+        46: "11.5rem",
+        sm: "24rem",
+        md: "28rem",
+        lg: "32rem",
+      },
+      backgroundOpacity: {
+        15: "0.15",
+      },
+    },
+    screens: {
+      sm: "639px",
+      "<2xl": { max: "1536px" },
+      "<xl": { max: "1280px" },
+      "<lg": { max: "1024px" },
+      "<md": { max: "768px" },
+      "<sm": { max: "640px" },
+      ...theme?.screens,
     },
   },
-})
+} satisfies Config

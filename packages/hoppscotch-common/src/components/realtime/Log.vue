@@ -1,10 +1,10 @@
 <template>
-  <div class="flex flex-col flex-1 overflow-auto whitespace-nowrap">
+  <div class="flex flex-1 flex-col overflow-auto whitespace-nowrap">
     <div
       v-if="log.length !== 0"
-      class="sticky top-0 z-10 flex items-center justify-between flex-shrink-0 pl-4 overflow-x-auto border-b bg-primary border-dividerLight"
+      class="sticky top-0 z-10 flex flex-shrink-0 items-center justify-between overflow-x-auto border-b border-dividerLight bg-primary pl-4"
     >
-      <label for="log" class="font-semibold truncate text-secondaryLight">
+      <label for="log" class="truncate font-semibold text-secondaryLight">
         {{ title }}
       </label>
       <div class="flex">
@@ -43,7 +43,7 @@
     <div
       v-if="log.length !== 0"
       ref="logs"
-      class="flex flex-col flex-1 overflow-y-auto"
+      class="flex flex-1 flex-col overflow-y-auto"
     >
       <div class="border-b border-dividerLight">
         <div class="flex flex-col divide-y divide-dividerLight">

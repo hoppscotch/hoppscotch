@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col flex-1 h-auto overflow-y-hidden flex-nowrap">
     <div
-      class="relative sticky top-0 z-10 flex-shrink-0 overflow-x-auto divide-x divide-dividerLight bg-primaryLight tabs group-tabs"
+      class="sticky top-0 z-10 flex-shrink-0 overflow-x-auto divide-x divide-dividerLight bg-primaryLight tabs group-tabs"
     >
       <div
         class="flex flex-1 flex-shrink-0 w-0 overflow-hidden"
@@ -371,13 +371,13 @@ watch(
   @apply whitespace-nowrap;
   @apply overflow-auto;
   @apply flex-shrink-0;
-  @apply after: absolute;
-  @apply after: inset-x-0;
-  @apply after: bottom-0;
-  @apply after: bg-dividerLight;
-  @apply after: z-10;
-  @apply after: h-0.25;
-  @apply after: content-DEFAULT;
+  @apply after:absolute;
+  @apply after:inset-x-0;
+  @apply after:bottom-0;
+  @apply after:bg-dividerLight;
+  @apply after:z-10;
+  @apply after:h-0.25;
+  @apply after:content-[""];
 
   .tab {
     @apply relative;
@@ -390,30 +390,30 @@ watch(
     @apply items-center;
     @apply justify-between;
     @apply text-secondaryLight;
-    @apply hover: bg-primaryDark;
-    @apply hover: text-secondary;
-    @apply focus-visible: text-secondaryDark;
-    @apply before: absolute;
-    @apply before: left-0;
-    @apply before: right-0;
-    @apply before: top-0;
-    @apply before: bg-transparent;
-    @apply before: z-2;
-    @apply before: h-0.5;
-    @apply before: content-DEFAULT;
-    @apply focus: before: bg-divider;
+    @apply hover:bg-primaryDark;
+    @apply hover:text-secondary;
+    @apply focus-visible:text-secondaryDark;
+    @apply before:absolute;
+    @apply before:left-0;
+    @apply before:right-0;
+    @apply before:top-0;
+    @apply before:bg-transparent;
+    @apply before:z-[2];
+    @apply before:h-0.5;
+    @apply before:content-[""];
+    @apply focus:before:bg-divider;
 
     &.active {
       @apply text-secondaryDark;
       @apply bg-primary;
-      @apply before: bg-accent;
-      @apply after: absolute;
-      @apply after: inset-x-0;
-      @apply after: bottom-0;
-      @apply after: bg-primary;
-      @apply after: z-12;
-      @apply after: h-0.25;
-      @apply after: content-DEFAULT;
+      @apply before:bg-accent;
+      @apply after:absolute;
+      @apply after:inset-x-0;
+      @apply after:bottom-0;
+      @apply after:bg-primary;
+      @apply after:z-[12];
+      @apply after:h-0.25;
+      @apply after:content-[""];
     }
 
     .close {
@@ -427,13 +427,13 @@ watch(
 }
 
 .create-new-tab {
-  @apply after: absolute;
-  @apply after: inset-x-0;
-  @apply after: bottom-0;
-  @apply after: bg-dividerLight;
-  @apply after: z-14;
-  @apply after: h-0.25;
-  @apply after: content-DEFAULT;
+  @apply after:absolute;
+  @apply after:inset-x-0;
+  @apply after:bottom-0;
+  @apply after:bg-dividerLight;
+  @apply after:z-[14];
+  @apply after:h-0.25;
+  @apply after:content-[""];
 }
 
 $slider-height: 4px;

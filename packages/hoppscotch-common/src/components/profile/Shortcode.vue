@@ -1,8 +1,8 @@
 <template>
   <div
-    class="block w-full my-6 border divide-y lg:flex lg:my-0 lg:border-0 lg:divide-y-0 lg:divide-x divide-dividerLight border-dividerLight"
+    class="my-6 block w-full divide-y divide-dividerLight border border-dividerLight lg:my-0 lg:flex lg:divide-x lg:divide-y-0 lg:border-0"
   >
-    <div class="font-mono text-tiny table-box">
+    <div class="table-box font-mono text-tiny">
       {{ shortcode.id }}
     </div>
     <div class="table-box" :class="requestLabelColor">
@@ -14,7 +14,7 @@
     <div ref="timeStampRef" class="table-box">
       {{ dateStamp }}
     </div>
-    <div class="justify-center table-box">
+    <div class="table-box justify-center">
       <HoppButtonSecondary
         v-tippy="{ theme: 'tooltip' }"
         :title="t('action.open_workspace')"
@@ -117,6 +117,6 @@ const copyShortcode = (codeID: string) => {
 
 <style lang="scss" scoped>
 .table-box {
-  @apply flex flex-1 items-center px-4 py-1 truncate;
+  @apply flex flex-1 items-center truncate px-4 py-1;
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <span class="flex flex-1 space-x-2 items-center">
+  <span class="flex flex-1 items-center space-x-2">
     <template v-for="(folder, index) in pathFolders" :key="index">
       <span class="block" :class="{ truncate: index !== 0 }">
         {{ folder.name }}

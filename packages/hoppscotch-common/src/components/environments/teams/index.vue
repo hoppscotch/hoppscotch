@@ -107,7 +107,7 @@
       @hide-modal="displayModalEdit(false)"
     />
     <EnvironmentsImportExport
-      :v-if="showModalImportExport"
+      v-if="showModalImportExport"
       :team-environments="teamEnvironments"
       :team-id="team?.id"
       environment-type="TEAM_ENV"

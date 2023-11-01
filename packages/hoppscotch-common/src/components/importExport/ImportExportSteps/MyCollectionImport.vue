@@ -6,7 +6,7 @@
       class="select"
       autofocus
     >
-      <option value="" disabled selected>
+      <option :key="undefined" :value="undefined" disabled selected>
         {{ t("collection.select") }}
       </option>
       <option
@@ -31,6 +31,7 @@
 </template>
 
 <script setup lang="ts">
+import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
 import { computed, ref } from "vue"
 import { useI18n } from "~/composables/i18n"
 import { useReadonlyStream } from "~/composables/stream"
@@ -47,18 +48,18 @@ const hasSelectedCollectionID = computed(() => {
 const myCollections = useReadonlyStream(restCollections$, [])
 
 const emit = defineEmits<{
-  (e: "importFromMyCollection", content: string): void
+  (e: "importFromMyCollection", content: HoppCollection<HoppRESTRequest>): void
 }>()
 
 const fetchCollectionFromMyCollections = async () => {
-  if (!mySelectedCollectionID.value) {
+  if (mySelectedCollectionID.value === undefined) {
     return
   }
 
   const collection = getRESTCollection(mySelectedCollectionID.value)
 
   if (collection) {
-    emit("importFromMyCollection", JSON.stringify(collection))
+    emit("importFromMyCollection", collection)
   }
 }
 </script>

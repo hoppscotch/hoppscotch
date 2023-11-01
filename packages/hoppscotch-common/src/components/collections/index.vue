@@ -143,6 +143,7 @@
 
     <CollectionsImportExport
       v-if="showModalImportExport"
+      :collections-type="collectionsType"
       @hide-modal="displayModalImportExport(false)"
     />
 

@@ -2015,22 +2015,10 @@ const importToTeams = async (collection: HoppCollection<HoppRESTRequest>[]) => {
 }
 
 const shareRequest = ({ request }: { request: HoppRESTRequest }) => {
+  // opens the share request modal
   invokeAction("share.request", {
     request,
   })
-  // const shortcodeResult = await createShortcode(tab.value.document.request)()
-
-  //   platform.analytics?.logEvent({
-  //     type: "HOPP_SHORTCODE_CREATED",
-  //   })
-
-  //   if (E.isLeft(shortcodeResult)) {
-  //     toast.error(`${shortcodeResult.left.error}`)
-  //     shareLink.value = `${t("error.something_went_wrong")}`
-  //   } else if (E.isRight(shortcodeResult)) {
-  //     shareLink.value = `/${shortcodeResult.right.createShortcode.id}`
-  //     copyShareLink(shareLink.value)
-  //   }
 }
 
 const resolveConfirmModal = (title: string | null) => {

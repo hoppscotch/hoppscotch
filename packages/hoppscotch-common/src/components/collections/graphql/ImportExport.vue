@@ -106,7 +106,7 @@ const GqlCollectionsHoppExporter: ImporterOrExporter = {
   action: async () => {
     const message = initializeDownloadCollection(
       gqlCollectionsExporter(gqlCollections.value),
-      "GQLCollections.json"
+      "GQLCollections"
     )
 
     E.isRight(message)

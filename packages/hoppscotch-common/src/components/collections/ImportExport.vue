@@ -39,6 +39,7 @@ import IconOpenAPI from "~icons/lucide/file"
 import IconPostman from "~icons/hopp/postman"
 import IconInsomnia from "~icons/hopp/insomnia"
 import IconGithub from "~icons/lucide/github"
+import IconLink from "~icons/lucide/link"
 
 import IconUser from "~icons/lucide/user"
 import { useReadonlyStream } from "~/composables/stream"
@@ -53,7 +54,7 @@ import { myCollectionsExporter } from "~/helpers/import-export/export/myCollecti
 import { teamCollectionsExporter } from "~/helpers/import-export/export/teamCollections"
 
 import { GistSource } from "~/helpers/import-export/import/import-sources/GistSource"
-import { ImporterOrExporter } from "~/components/importexport/types"
+import { ImporterOrExporter } from "~/components/importExport/types"
 
 const t = useI18n()
 const toast = useToast()
@@ -89,7 +90,7 @@ const showImportFailedError = () => {
 
 const onSuccessfulImport = (collections: HoppCollection<HoppRESTRequest>[]) => {
   appendRESTCollections(collections)
-  toast.success(t("import.success"))
+  toast.success(t("state.file_imported"))
 }
 
 const emit = defineEmits<{
@@ -117,6 +118,7 @@ const HoppRESTImporter: ImporterOrExporter = {
 
       if (E.isRight(res)) {
         onSuccessfulImport(res.right)
+        emit("hide-modal")
       } else {
         showImportFailedError()
       }
@@ -187,7 +189,7 @@ const HoppOpenAPIImporter: ImporterOrExporter = {
     {
       id: "url_import",
       name: "import.from_url",
-      icon: IconFile,
+      icon: IconLink,
       step: UrlSource({
         caption: "import.from_url",
         onImportFromURL: async (content) => {
@@ -279,7 +281,7 @@ const HoppMyCollectionsExporter: ImporterOrExporter = {
   metadata: {
     id: "hopp_my_collections",
     name: "export.as_json",
-    title: "export.as_json_description",
+    title: "action.download_file",
     icon: IconUser,
     disabled: false,
     applicableTo: ["personal-workspace"],
@@ -290,11 +292,11 @@ const HoppMyCollectionsExporter: ImporterOrExporter = {
 
     const message = initializeDownloadCollection(
       myCollectionsExporter(myCollections.value),
-      "Collections.json"
+      "Collections"
     )
 
     if (E.isRight(message)) {
-      toast.success(message.right)
+      toast.success(t(message.right))
     }
 
     isHoppMyCollectionExporterInProgress.value = false
@@ -325,7 +327,7 @@ const HoppTeamCollectionsExporter: ImporterOrExporter = {
       if (E.isRight(res)) {
         initializeDownloadCollection(
           res.right.exportCollectionsToJSON,
-          "team-collections.json"
+          "team-collections"
         )
       } else {
         toast.error(res.left.error.toString())

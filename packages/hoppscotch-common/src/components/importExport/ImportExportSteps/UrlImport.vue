@@ -86,7 +86,7 @@ async function fetchUrlData() {
       emit("importFromURL", res.data)
     }
   } catch (e) {
-    toast.error(t("import.error"))
+    toast.error(t("import.failed"))
     console.log(e)
   } finally {
     isFetchingUrl.value = false

@@ -160,7 +160,7 @@ const HoppEnvironmentsExport: ImporterOrExporter = {
     )
 
     E.isRight(message)
-      ? toast.success(message.right)
+      ? toast.success(t(message.right))
       : toast.error(t("export.failed"))
   },
 }
@@ -220,7 +220,7 @@ const failedImport = () => {
 const importSuccessful = async (environments: Environment[]) => {
   if (props.environmentType === "MY_ENV") {
     appendEnvironments(environments)
-    toast.success(t("import.success"))
+    toast.success(t("state.file_imported"))
   } else {
     await importToTeams(environments)
   }

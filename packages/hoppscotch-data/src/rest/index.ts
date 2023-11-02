@@ -1,11 +1,17 @@
-import * as Eq from "fp-ts/Eq";
-import * as S from "fp-ts/string";
-import cloneDeep from "lodash/cloneDeep";
-import { createVersionedEntity, InferredEntity } from "verzod";
-
-import { lodashIsEqualEq, mapThenEq, undefinedEq } from "../utils/eq";
-import V0_VERSION from "./v/0";
-import V1_VERSION, { HoppRESTAuth, HoppRESTHeaders, HoppRESTParams, HoppRESTReqBody } from "./v/1";
+import * as Eq from "fp-ts/Eq"
+import * as S from "fp-ts/string"
+import cloneDeep from "lodash/cloneDeep"
+import V0_VERSION from "./v/0"
+import V1_VERSION from "./v/1"
+import { createVersionedEntity, InferredEntity } from "verzod"
+import { lodashIsEqualEq, mapThenEq, undefinedEq } from "../utils/eq"
+import {
+  HoppRESTAuth,
+  HoppRESTReqBody,
+  HoppRESTHeaders,
+  HoppRESTParams,
+} from "./v/1"
+import { z } from "zod"
 
 export * from "./content-types"
 export {
@@ -17,26 +23,25 @@ export {
   HoppRESTAuthBearer,
   HoppRESTAuthNone,
   HoppRESTAuthOAuth2,
-  HoppRESTReqBody
+  HoppRESTReqBody,
 } from "./v/1"
+
+const versionedObject = z.object({
+  // v is a stringified number
+  v: z.string().regex(/^\d+$/).transform(Number),
+})
 
 export const HoppRESTRequest = createVersionedEntity({
   latestVersion: 1,
   versionMap: {
     0: V0_VERSION,
-    1: V1_VERSION
+    1: V1_VERSION,
   },
   getVersion(data) {
     // For V1 onwards we have the v string storing the number
-    if (
-      typeof data === "object"
-      && data !== null
-      && "v" in data
-      && typeof data.v === "string"
-      && !Number.isNaN(parseInt(data.v))
-    ) {
-      return parseInt(data.v)
-    }
+    const versionCheck = versionedObject.safeParse(data)
+
+    if (versionCheck.success) return versionCheck.data.v
 
     // For V0 we have to check the schema
     const result = V0_VERSION.schema.safeParse(data)
@@ -90,15 +95,11 @@ export function safelyExtractRESTRequest(
   const req = cloneDeep(defaultReq)
 
   if (!!x && typeof x === "object") {
+    if ("id" in x && typeof x.id === "string") req.id = x.id
 
-    if ("id" in x && typeof x.id === "string")
-      req.id = x.id
+    if ("name" in x && typeof x.name === "string") req.name = x.name
 
-    if ("name" in x && typeof x.name === "string")
-      req.name = x.name
-
-    if ("method" in x && typeof x.method === "string")
-      req.method = x.method
+    if ("method" in x && typeof x.method === "string") req.method = x.method
 
     if ("endpoint" in x && typeof x.endpoint === "string")
       req.endpoint = x.endpoint
@@ -171,10 +172,9 @@ export function getDefaultRESTRequest(): HoppRESTRequest {
     body: {
       contentType: null,
       body: null,
-    }
+    },
   }
 }
-
 
 /**
  * Checks if the given value is a HoppRESTRequest

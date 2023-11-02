@@ -9,7 +9,7 @@ export const GQLHeader = z.object({
 
 export type GQLHeader = z.infer<typeof GQLHeader>
 
-export const V0_SCHEMA = z.object({
+export const V1_SCHEMA = z.object({
   v: z.literal(1),
   name: z.string(),
   url: z.string(),
@@ -20,5 +20,5 @@ export const V0_SCHEMA = z.object({
 
 export default defineVersion({
   initial: true,
-  schema: V0_SCHEMA
+  schema: V1_SCHEMA
 })

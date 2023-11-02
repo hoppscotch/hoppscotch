@@ -1,6 +1,6 @@
 import { z } from "zod"
 import { defineVersion } from "verzod"
-import { GQLHeader, V0_SCHEMA } from "./1"
+import { GQLHeader, V1_SCHEMA } from "./1"
 
 export const HoppGQLAuthNone = z.object({
   authType: z.literal("none")
@@ -62,7 +62,7 @@ export const HoppGQLAuth = z.discriminatedUnion("authType", [
 
 export type HoppGQLAuth = z.infer<typeof HoppGQLAuth>
 
-const V1_SCHEMA = z.object({
+const V2_SCHEMA = z.object({
   id: z.optional(z.string()),
   v: z.literal(2),
 
@@ -77,9 +77,9 @@ const V1_SCHEMA = z.object({
 
 export default defineVersion({
   initial: false,
-  schema: V1_SCHEMA,
-  up(old: z.infer<typeof V0_SCHEMA>) {
-    return <z.infer<typeof V1_SCHEMA>>{
+  schema: V2_SCHEMA,
+  up(old: z.infer<typeof V1_SCHEMA>) {
+    return <z.infer<typeof V2_SCHEMA>>{
       ...old,
       v: 2,
       auth: {

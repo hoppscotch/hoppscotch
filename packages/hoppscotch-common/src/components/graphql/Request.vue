@@ -1,6 +1,6 @@
 <template>
   <div
-    class="sticky top-0 z-10 flex flex-shrink-0 p-4 overflow-x-auto space-x-2 bg-primary"
+    class="sticky top-0 z-10 flex flex-shrink-0 space-x-2 overflow-x-auto bg-primary p-4"
   >
     <div class="inline-flex flex-1 space-x-2">
       <input
@@ -9,7 +9,7 @@
         type="url"
         autocomplete="off"
         spellcheck="false"
-        class="w-full px-4 py-2 border rounded bg-primaryLight border-divider text-secondaryDark"
+        class="w-full rounded border border-divider bg-primaryLight px-4 py-2 text-secondaryDark"
         :placeholder="`${t('request.url')}`"
         :disabled="connected"
         @keyup.enter="onConnectClick"
@@ -64,15 +64,17 @@
 <script setup lang="ts">
 import { platform } from "~/platform"
 import { useI18n } from "@composables/i18n"
-import { currentActiveTab } from "~/helpers/graphql/tab"
 import { computed, ref, watch } from "vue"
 import { connection } from "~/helpers/graphql/connection"
 import { connect } from "~/helpers/graphql/connection"
 import { disconnect } from "~/helpers/graphql/connection"
 import { InterceptorService } from "~/services/interceptor.service"
 import { useService } from "dioc/vue"
+import { defineActionHandler } from "~/helpers/actions"
+import { GQLTabService } from "~/services/tab/graphql"
 
 const t = useI18n()
+const tabs = useService(GQLTabService)
 
 const interceptorService = useService(InterceptorService)
 
@@ -81,9 +83,9 @@ const connectionSwitchModal = ref(false)
 const connected = computed(() => connection.state === "CONNECTED")
 
 const url = computed({
-  get: () => currentActiveTab.value?.document.request.url ?? "",
+  get: () => tabs.currentActiveTab.value?.document.request.url ?? "",
   set: (value) => {
-    currentActiveTab.value!.document.request.url = value
+    tabs.currentActiveTab.value!.document.request.url = value
   },
 })
 
@@ -96,7 +98,7 @@ const onConnectClick = () => {
 }
 
 const gqlConnect = () => {
-  connect(url.value, currentActiveTab.value?.document.request.headers)
+  connect(url.value, tabs.currentActiveTab.value?.document.request.headers)
 
   platform.analytics?.logEvent({
     type: "HOPP_REQUEST_RUN",
@@ -113,7 +115,7 @@ const switchConnection = () => {
 const lastTwoUrls = ref<string[]>([])
 
 watch(
-  currentActiveTab,
+  tabs.currentActiveTab,
   (newVal) => {
     if (newVal) {
       lastTwoUrls.value.push(newVal.document.request.url)
@@ -140,4 +142,12 @@ const cancelSwitch = () => {
   if (connected.value) disconnect()
   connectionSwitchModal.value = false
 }
+
+defineActionHandler(
+  "gql.connect",
+  gqlConnect,
+  computed(() => !connected.value)
+)
+
+defineActionHandler("gql.disconnect", disconnect, connected)
 </script>

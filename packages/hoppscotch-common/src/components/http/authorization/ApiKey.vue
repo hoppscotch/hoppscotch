@@ -19,7 +19,7 @@
         <span class="select-wrapper">
           <HoppButtonSecondary
             :label="auth.addTo || t('state.none')"
-            class="pr-8 ml-2 rounded-none"
+            class="ml-2 rounded-none pr-8"
           />
         </span>
         <template #content="{ hide }">

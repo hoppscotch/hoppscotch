@@ -5,9 +5,9 @@
     @close="hideModal"
   >
     <template #body>
-      <div class="flex space-y-4 flex-1 flex-col">
-        <div class="flex items-center space-x-8 ml-2">
-          <label for="name" class="font-semibold min-w-10">{{
+      <div class="flex flex-1 flex-col space-y-4">
+        <div class="ml-2 flex items-center space-x-8">
+          <label for="name" class="min-w-10 font-semibold">{{
             t("environment.name")
           }}</label>
           <input
@@ -17,23 +17,28 @@
             class="input"
           />
         </div>
-        <div class="flex items-center space-x-8 ml-2">
-          <label for="value" class="font-semibold min-w-10">{{
+        <div class="ml-2 flex items-center space-x-8">
+          <label for="value" class="min-w-10 font-semibold">{{
             t("environment.value")
           }}</label>
-          <input type="text" :value="value" class="input" />
+          <input
+            v-model="editingValue"
+            type="text"
+            class="input"
+            :placeholder="t('environment.value')"
+          />
         </div>
-        <div class="flex items-center space-x-8 ml-2">
-          <label for="scope" class="font-semibold min-w-10">
+        <div class="ml-2 flex items-center space-x-8">
+          <label for="scope" class="min-w-10 font-semibold">
             {{ t("environment.scope") }}
           </label>
           <div
-            class="relative flex flex-1 flex-col border border-divider rounded focus-visible:border-dividerDark"
+            class="relative flex flex-1 flex-col rounded border border-divider focus-visible:border-dividerDark"
           >
             <EnvironmentsSelector v-model="scope" :is-scope-selector="true" />
           </div>
         </div>
-        <div v-if="replaceWithVariable" class="flex space-x-2 mt-3">
+        <div v-if="replaceWithVariable" class="mt-3 flex space-x-2">
           <div class="min-w-18" />
           <HoppSmartCheckbox
             :on="replaceWithVariable"
@@ -78,10 +83,13 @@ import {
 import * as TE from "fp-ts/TaskEither"
 import { pipe } from "fp-ts/function"
 import { updateTeamEnvironment } from "~/helpers/backend/mutations/TeamEnvironment"
-import { currentActiveTab } from "~/helpers/rest/tab"
+import { RESTTabService } from "~/services/tab/rest"
+import { useService } from "dioc/vue"
 
 const t = useI18n()
 const toast = useToast()
+
+const tabs = useService(RESTTabService)
 
 const props = defineProps<{
   show: boolean
@@ -105,9 +113,12 @@ watch(
       scope.value = {
         type: "global",
       }
-      editingName.value = ""
       replaceWithVariable.value = false
+      editingName.value = ""
+      editingValue.value = ""
     }
+    editingName.value = props.name
+    editingValue.value = props.value
   }
 )
 
@@ -132,6 +143,7 @@ const scope = ref<Scope>({
 const replaceWithVariable = ref(false)
 
 const editingName = ref(props.name)
+const editingValue = ref(props.value)
 
 const addEnvironment = async () => {
   if (!editingName.value) {
@@ -141,13 +153,13 @@ const addEnvironment = async () => {
   if (scope.value.type === "global") {
     addGlobalEnvVariable({
       key: editingName.value,
-      value: props.value,
+      value: editingValue.value,
     })
     toast.success(`${t("environment.updated")}`)
   } else if (scope.value.type === "my-environment") {
     addEnvironmentVariable(scope.value.index, {
       key: editingName.value,
-      value: props.value,
+      value: editingValue.value,
     })
     toast.success(`${t("environment.updated")}`)
   } else {
@@ -155,7 +167,7 @@ const addEnvironment = async () => {
       ...scope.value.environment.environment.variables,
       {
         key: editingName.value,
-        value: props.value,
+        value: editingValue.value,
       },
     ]
     await pipe(
@@ -180,9 +192,9 @@ const addEnvironment = async () => {
     //replace the current tab endpoint with the variable name with << and >>
     const variableName = `<<${editingName.value}>>`
     //replace the currenttab endpoint containing the value in the text with variablename
-    currentActiveTab.value.document.request.endpoint =
-      currentActiveTab.value.document.request.endpoint.replace(
-        props.value,
+    tabs.currentActiveTab.value.document.request.endpoint =
+      tabs.currentActiveTab.value.document.request.endpoint.replace(
+        editingValue.value,
         variableName
       )
   }

@@ -1,5 +1,6 @@
 import { GQLHeader, HoppGQLAuth, makeGQLRequest } from "@hoppscotch/data"
 import { OperationType } from "@urql/core"
+import * as E from "fp-ts/Either"
 import {
   GraphQLEnumType,
   GraphQLInputObjectType,
@@ -11,11 +12,12 @@ import {
   printSchema,
 } from "graphql"
 import { computed, reactive, ref } from "vue"
-import { addGraphqlHistoryEntry, makeGQLHistoryEntry } from "~/newstore/history"
-import { currentTabID } from "./tab"
 import { getService } from "~/modules/dioc"
+
+import { addGraphqlHistoryEntry, makeGQLHistoryEntry } from "~/newstore/history"
+
 import { InterceptorService } from "~/services/interceptor.service"
-import * as E from "fp-ts/Either"
+import { GQLTabService } from "~/services/tab/graphql"
 
 const GQL_SCHEMA_POLL_INTERVAL = 7000
 
@@ -60,6 +62,9 @@ type Connection = {
   socket: WebSocket | undefined
   schema: GraphQLSchema | null
 }
+
+const tabs = getService(GQLTabService)
+const currentTabID = computed(() => tabs.currentTabID.value)
 
 export const connection = reactive<Connection>({
   state: "DISCONNECTED",
@@ -268,7 +273,7 @@ export const runGQLOperation = async (options: RunQueryOptions) => {
   }
 
   if (operationType === "subscription") {
-    return runSubscription(options)
+    return runSubscription(options, finalHeaders)
   }
 
   const interceptorService = getService(InterceptorService)
@@ -299,7 +304,10 @@ export const runGQLOperation = async (options: RunQueryOptions) => {
   return responseText
 }
 
-export const runSubscription = (options: RunQueryOptions) => {
+export const runSubscription = (
+  options: RunQueryOptions,
+  headers?: Record<string, string>
+) => {
   const { url, query, operationName } = options
   const wsUrl = url.replace(/^http/, "ws")
 
@@ -309,10 +317,11 @@ export const runSubscription = (options: RunQueryOptions) => {
 
   connection.socket.onopen = (event) => {
     console.log("WebSocket is open now.", event)
+
     connection.socket?.send(
       JSON.stringify({
         type: GQL.CONNECTION_INIT,
-        payload: {},
+        payload: headers ?? {},
       })
     )
 

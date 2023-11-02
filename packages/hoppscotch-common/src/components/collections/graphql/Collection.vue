@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col" :class="[{ 'bg-primaryLight': dragging }]">
     <div
-      class="flex items-stretch group"
+      class="group flex items-stretch"
       @dragover.prevent
       @drop.prevent="dropEvent"
       @dragover="dragging = true"
@@ -11,7 +11,7 @@
       @contextmenu.prevent="options.tippy.show()"
     >
       <span
-        class="flex items-center justify-center px-4 cursor-pointer"
+        class="flex cursor-pointer items-center justify-center px-4"
         @click="toggleShowChildren()"
       >
         <component
@@ -21,7 +21,7 @@
         />
       </span>
       <span
-        class="flex flex-1 min-w-0 py-2 pr-2 cursor-pointer transition group-hover:text-secondaryDark"
+        class="flex min-w-0 flex-1 cursor-pointer py-2 pr-2 transition group-hover:text-secondaryDark"
         @click="toggleShowChildren()"
       >
         <span class="truncate" :class="{ 'text-accent': isSelected }">
@@ -37,6 +37,7 @@
           @click="
             emit('add-request', {
               path: `${collectionIndex}`,
+              index: collection.requests.length,
             })
           "
         />
@@ -135,10 +136,10 @@
     </div>
     <div v-if="showChildren || isFiltered" class="flex">
       <div
-        class="bg-dividerLight cursor-nsResize flex ml-5.5 transform transition w-0.5 hover:bg-dividerDark hover:scale-x-125"
+        class="ml-[1.375rem] flex w-0.5 transform cursor-nsResize bg-dividerLight transition hover:scale-x-125 hover:bg-dividerDark"
         @click="toggleShowChildren()"
       ></div>
-      <div class="flex flex-col flex-1 truncate">
+      <div class="flex flex-1 flex-col truncate">
         <CollectionsGraphqlFolder
           v-for="(folder, index) in collection.folders"
           :key="`folder-${String(index)}`"
@@ -219,6 +220,8 @@ import {
   moveGraphqlRequest,
 } from "~/newstore/collections"
 import { Picked } from "~/helpers/types/HoppPicked"
+import { useService } from "dioc/vue"
+import { GQLTabService } from "~/services/tab/graphql"
 
 const props = defineProps({
   picked: { type: Object, default: null },
@@ -232,6 +235,8 @@ const props = defineProps({
 const colorMode = useColorMode()
 const toast = useToast()
 const t = useI18n()
+
+const tabs = useService(GQLTabService)
 
 // TODO: improve types plz
 const emit = defineEmits<{
@@ -291,6 +296,22 @@ const removeCollection = () => {
     props.picked?.collectionIndex === props.collectionIndex
   ) {
     emit("select", null)
+  }
+
+  const possibleTabs = tabs.getTabsRefTo((tab) => {
+    const ctx = tab.document.saveContext
+
+    if (!ctx) return false
+
+    return (
+      ctx.originLocation === "user-collection" &&
+      ctx.folderPath.startsWith(props.collectionIndex.toString())
+    )
+  })
+
+  for (const tab of possibleTabs) {
+    tab.value.document.saveContext = undefined
+    tab.value.document.isDirty = true
   }
 
   removeGraphqlCollection(props.collectionIndex, props.collection.id)

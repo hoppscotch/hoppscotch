@@ -27,6 +27,7 @@ import { UserRequestUserCollectionResolver } from './user-request/resolvers/user
 import { UserEnvsUserResolver } from './user-environment/user.resolver';
 import { UserHistoryUserResolver } from './user-history/user.resolver';
 import { UserSettingsUserResolver } from './user-settings/user.resolver';
+import { InfraResolver } from './admin/infra.resolver';
 
 /**
  * All the resolvers present in the application.
@@ -34,6 +35,7 @@ import { UserSettingsUserResolver } from './user-settings/user.resolver';
  * NOTE: This needs to be KEPT UP-TO-DATE to keep the schema accurate
  */
 const RESOLVERS = [
+  InfraResolver,
   AdminResolver,
   ShortcodeResolver,
   TeamResolver,
@@ -93,9 +95,7 @@ export async function emitGQLSchemaFile() {
       numberScalarMode: 'integer',
     });
 
-    const schemaString = printSchema(schema, {
-      commentDescriptions: true,
-    });
+    const schemaString = printSchema(schema);
 
     logger.log(`Writing schema to GQL_SCHEMA_EMIT_LOCATION (${destination})`);
 

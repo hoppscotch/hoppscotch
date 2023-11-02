@@ -5,6 +5,7 @@
     "choose_file": "फ़ाइल चुनें",
     "clear": "साफ़",
     "clear_all": "सभी साफ करें",
+    "clear_history": "Clear all History",
     "close": "बंद करे",
     "connect": "कनेक्ट करें",
     "connecting": "Connecting",
@@ -31,6 +32,7 @@
     "paste": "पेस्ट",
     "prettify": "सुंदर करे",
     "remove": "हटाओ",
+    "rename": "Rename",
     "restore": "पुनर्स्थापित करें",
     "save": "बचाएं",
     "scroll_to_bottom": "नीचे स्क्रॉल करें",
@@ -77,6 +79,8 @@
     "search": "खोज",
     "share": "बाँट",
     "shortcuts": "शॉर्टकट",
+    "social_description": "Follow us on social media to stay updated with the latest news, updates and releases.",
+    "social_links": "Social links",
     "spotlight": "स्पॉटलाइट",
     "status": "स्थिति",
     "status_description": "वेबसाइट की स्थिति जांचें",
@@ -131,12 +135,15 @@
     "renamed": "संग्रह का नाम बदला गया",
     "request_in_use": "रिक्वेस्ट इन यूज़",
     "save_as": "इस रूप में सेव करें",
+    "save_to_collection": "Save to Collection",
     "select": "एक संग्रह का चयन करें",
     "select_location": "स्थान चुनें",
     "select_team": "एक टीम चुनें",
     "team_collections": "टीम संग्रह"
   },
   "confirm": {
+    "close_unsaved_tab": "Are you sure you want to close this tab?",
+    "close_unsaved_tabs": "Are you sure you want to close all tabs? {count} unsaved tabs will be lost.",
     "exit_team": "क्या आप वाकई इस टीम को छोड़ना चाहते हैं?",
     "logout": "क्या आप वाकई लॉगआउट करना चाहते हैं?",
     "remove_collection": "क्या आप वाकई इस संग्रह को स्थायी रूप से हटाना चाहते हैं?",
@@ -149,6 +156,11 @@
     "request_change": "क्या आप वाकई वर्तमान अनुरोध को छोड़ना चाहते हैं, सहेजे नहीं गए परिवर्तन खो जाएंगे।",
     "save_unsaved_tab": "Do you want to save changes made in this tab?",
     "sync": "क्या आप अपने कार्यक्षेत्र को क्लाउड से पुनर्स्थापित करना चाहेंगे? यह आपकी स्थानीय प्रगति को त्याग देगा।"
+  },
+  "context_menu": {
+    "add_parameters": "Add to parameters",
+    "open_request_in_new_tab": "Open request in new tab",
+    "set_environment_variable": "Set as variable"
   },
   "count": {
     "header": "हेडर {count}",
@@ -192,17 +204,31 @@
     "create_new": " नया वातावरण बनाएं",
     "created": " पर्यावरण बनाया",
     "deleted": " पर्यावरण विलोपन",
+    "duplicated": "Environment duplicated",
     "edit": " पर्यावरण संपादित करें",
+    "empty_variables": "No variables",
+    "global": "Global",
+    "global_variables": "Global variables",
     "invalid_name": " कृपया पर्यावरण के लिए एक नाम प्रदान करें",
+    "list": "Environment variables",
     "my_environments": "My Environments",
+    "name": "Name",
     "nested_overflow": " नेस्टेड पर्यावरण चर 10 स्तरों तक सीमित हैं",
     "new": " नया वातावरण",
+    "no_active_environment": "No active environment",
     "no_environment": " कोई वातावरण नहीं",
     "no_environment_description": " कोई परिवेश नहीं चुना गया था. चुनें कि निम्नलिखित चर के साथ क्या करना है।",
+    "quick_peek": "Environment Quick Peek",
+    "replace_with_variable": "Replace with variable",
+    "scope": "Scope",
     "select": " पर्यावरण का चयन करें",
+    "set": "Set environment",
+    "set_as_environment": "Set as environment",
     "team_environments": "Team Environments",
     "title": " वातावरण",
     "updated": " पर्यावरण अद्यतन",
+    "value": "Value",
+    "variable": "Variable",
     "variable_list": " परिवर्तनीय सूची"
   },
   "error": {
@@ -226,6 +252,7 @@
     "no_duration": " कोई अवधि नहीं",
     "no_results_found": " कोई मेल नहीं मिले",
     "page_not_found": " यह पृष्ठ नहीं मिल सका",
+    "proxy_error": "Proxy error",
     "script_fail": " पूर्व-अनुरोध स्क्रिप्ट निष्पादित नहीं कर सका",
     "something_went_wrong": " कुछ गलत हो गया",
     "test_script_fail": " अनुरोध के बाद स्क्रिप्ट निष्पादित नहीं कर सका"
@@ -251,9 +278,13 @@
     "renamed": " फ़ोल्डर का नाम बदला"
   },
   "graphql": {
+    "connection_switch_confirm": "Do you want to connect with the latest GraphQL endpoint?",
+    "connection_switch_new_url": "Switching to a tab will disconnected you from the active GraphQL connection. New connection URL is",
+    "connection_switch_url": "You're connected to a GraphQL endpoint the connection URL is",
     "mutations": " उत्परिवर्तन",
     "schema": " योजना",
-    "subscriptions": " सदस्यता"
+    "subscriptions": " सदस्यता",
+    "switch_connection": "Switch connection"
   },
   "group": {
     "time": "Time",
@@ -274,8 +305,7 @@
     "pre_request_script": " पूर्व-अनुरोध स्क्रिप्ट जावास्क्रिप्ट में लिखी जाती हैं, और अनुरोध भेजे जाने से पहले चलाई जाती हैं।",
     "script_fail": " ऐसा लगता है कि प्री-रिक्वेस्ट स्क्रिप्ट में गड़बड़ है। नीचे दी गई त्रुटि की जाँच करें और उसके अनुसार स्क्रिप्ट को ठीक करें।",
     "test_script_fail": " ऐसा लगता है कि परीक्षण स्क्रिप्ट में कोई त्रुटि है। कृपया त्रुटियों को ठीक करें और फिर से परीक्षण चलाएं",
-    "tests": "Write a test script to automate debugging.",
-    "test": "डिबगिंग को स्वचालित करने के लिए एक परीक्षण स्क्रिप्ट लिखें"
+    "tests": "Write a test script to automate debugging."
   },
   "hide": {
     "collection": "संग्रह पैनल संक्षिप्त करें",
@@ -308,13 +338,36 @@
     "json_description": "Hoppscotch Collections JSON फ़ाइल से संग्रह आयात करें",
     "title": "आयात करें"
   },
+  "inspections": {
+    "description": "Inspect possible errors",
+    "environment": {
+      "add_environment": "Add to Environment",
+      "not_found": "Environment variable “{environment}” not found."
+    },
+    "header": {
+      "cookie": "The browser doesn't allow Hoppscotch to set the Cookie Header. While we're working on the Hoppscotch Desktop App (coming soon), please use the Authorization Header instead."
+    },
+    "response": {
+      "401_error": "Please check your authentication credentials.",
+      "404_error": "Please check your request URL and method type.",
+      "cors_error": "Please check your Cross-Origin Resource Sharing configuration.",
+      "default_error": "Please check your request.",
+      "network_error": "Please check your network connection."
+    },
+    "title": "Inspector",
+    "url": {
+      "extension_not_installed": "Extension not installed.",
+      "extension_unknown_origin": "Make sure you've added the API endpoint's origin to the Hoppscotch Browser Extension list.",
+      "extention_enable_action": "Enable Browser Extension",
+      "extention_not_enabled": "Extension not enabled."
+    }
+  },
   "layout": {
     "collapse_collection": "संग्रह को संक्षिप्त या विस्तृत करें",
     "collapse_sidebar": "साइडबार को संक्षिप्त या विस्तृत करें",
     "column": "लंबवत लेआउट",
     "name": "लेआउट",
-    "row": "क्षैतिज लेआउट",
-    "zen_mode": "ज़ेन मोड"
+    "row": "क्षैतिज लेआउट"
   },
   "modal": {
     "close_unsaved_tab": "You have unsaved changes",
@@ -419,6 +472,7 @@
     "payload": "पेलोड",
     "query": "सवाल",
     "raw_body": "कच्चे अनुरोध निकाय",
+    "rename": "Rename Request",
     "renamed": "अनुरोध नाम दिया गया",
     "run": "दौड़ना",
     "save": "बचाना",
@@ -426,6 +480,7 @@
     "saved": "अनुरोध सहेजा गया",
     "share": "शेयर करना",
     "share_description": "अपने दोस्तों के साथ hoppscotch साझा करें",
+    "stop": "Stop",
     "title": "प्रार्थना",
     "type": "अनुरोध का प्रकार",
     "url": "यूआरएल",
@@ -460,7 +515,6 @@
     "account_name_description": "यह आपका प्रदर्शन नाम है।",
     "background": "पार्श्वभूमि",
     "black_mode": "काला",
-    "change_font_size": "फॉण्ट आकार बदलें",
     "choose_language": "भाषा चुनें",
     "dark_mode": "अँधेरा",
     "delete_account": "Delete account",
@@ -473,10 +527,6 @@
     "extensions": "ब्राउज़र विस्तार",
     "extensions_use_toggle": "अनुरोध भेजने के लिए ब्राउज़र एक्सटेंशन का उपयोग करें (यदि मौजूद है)",
     "follow": "हमारे पर का पालन करें",
-    "font_size": "फ़ॉन्ट आकार",
-    "font_size_large": "विशाल",
-    "font_size_medium": "मध्यम",
-    "font_size_small": "छोटा",
     "interceptor": "इंटरसेप्टर",
     "interceptor_description": "एप्लिकेशन और एपीआई के बीच मिडलवेयर।",
     "language": "भाषा",
@@ -541,19 +591,27 @@
       "settings": "सेटिंग्स पृष्ठ पर जाएं",
       "title": "मार्गदर्शन"
     },
+    "others": {
+      "prettify": "Prettify Editor's Content",
+      "title": "Others"
+    },
     "request": {
       "copy_request_link": "कॉपी अनुरोध लिंक",
       "delete_method": "हटाएं विधि का चयन करें",
       "get_method": "गेट विधि का चयन करें",
       "head_method": "हेड विधि का चयन करें",
+      "import_curl": "Import cURL",
       "method": "तरीका",
       "next_method": "अगली विधि का चयन करें",
       "post_method": "पोस्ट विधि का चयन करें",
       "previous_method": "पिछली विधि का चयन करें",
       "put_method": "पुट विधि का चयन करें",
+      "rename": "Rename Request",
       "reset_request": "रीसेट अनुरोध",
+      "save_request": "Save Request",
       "save_to_collections": "संग्रह के लिए सहेजें",
       "send_request": "अनुरोध भेजा",
+      "show_code": "Generate code snippet",
       "title": "प्रार्थना"
     },
     "response": {
@@ -582,6 +640,85 @@
     "events": "आयोजन",
     "log": "लकड़ी का लट्ठा",
     "url": "यूआरएल"
+  },
+  "spotlight": {
+    "change_language": "Change Language",
+    "environments": {
+      "delete": "Delete current environment",
+      "duplicate": "Duplicate current environment",
+      "duplicate_global": "Duplicate global environment",
+      "edit": "Edit current environment",
+      "edit_global": "Edit global environment",
+      "new": "Create new environment",
+      "new_variable": "Create a new environment variable",
+      "title": "Environments"
+    },
+    "general": {
+      "chat": "Chat with support",
+      "help_menu": "Help and support",
+      "open_docs": "Read Documentation",
+      "open_github": "Open GitHub repository",
+      "open_keybindings": "Keyboard shortcuts",
+      "social": "Social",
+      "title": "General"
+    },
+    "graphql": {
+      "connect": "Connect to server",
+      "disconnect": "Disconnect from server"
+    },
+    "miscellaneous": {
+      "invite": "Invite your friends to Hoppscotch",
+      "title": "Miscellaneous"
+    },
+    "request": {
+      "save_as_new": "Save as new request",
+      "select_method": "Select method",
+      "switch_to": "Switch to",
+      "tab_authorization": "Authorization tab",
+      "tab_body": "Body tab",
+      "tab_headers": "Headers tab",
+      "tab_parameters": "Parameters tab",
+      "tab_pre_request_script": "Pre-request script tab",
+      "tab_query": "Query tab",
+      "tab_tests": "Tests tab",
+      "tab_variables": "Variables tab"
+    },
+    "response": {
+      "copy": "Copy response",
+      "download": "Download response as file",
+      "title": "Response"
+    },
+    "section": {
+      "interceptor": "Interceptor",
+      "interface": "Interface",
+      "theme": "Theme",
+      "user": "User"
+    },
+    "settings": {
+      "change_interceptor": "Change Interceptor",
+      "change_language": "Change Language",
+      "theme": {
+        "black": "Black",
+        "dark": "Dark",
+        "light": "Light",
+        "system": "System preference"
+      }
+    },
+    "tab": {
+      "close_current": "Close current tab",
+      "close_others": "Close all other tabs",
+      "duplicate": "Duplicate current tab",
+      "new_tab": "Open a new tab",
+      "title": "Tabs"
+    },
+    "workspace": {
+      "delete": "Delete current team",
+      "edit": "Edit current team",
+      "invite": "Invite people to team",
+      "new": "Create new team",
+      "switch_to_personal": "Switch to your personal workspace",
+      "title": "Teams"
+    }
   },
   "sse": {
     "event_type": "घटना प्रकार",
@@ -640,8 +777,11 @@
   "tab": {
     "authorization": "प्राधिकार",
     "body": "शरीर",
+    "close": "Close Tab",
+    "close_others": "Close other Tabs",
     "collections": "संग्रह",
     "documentation": "प्रलेखन",
+    "duplicate": "Duplicate Tab",
     "environments": "Environments",
     "headers": "हेडर",
     "history": "इतिहास",

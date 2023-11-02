@@ -24,6 +24,8 @@ beforeEach(() => {
   mockPubSub.publish.mockClear();
 });
 
+const date = new Date();
+
 describe('UserHistoryService', () => {
   describe('fetchUserHistory', () => {
     test('Should return a list of users REST history if exists', async () => {
@@ -140,13 +142,15 @@ describe('UserHistoryService', () => {
   });
   describe('createUserHistory', () => {
     test('Should resolve right and create a REST request to users history and return a `UserHistory` object', async () => {
+      const executedOn = new Date();
+
       mockPrisma.userHistory.create.mockResolvedValueOnce({
         userUid: 'abc',
         id: '1',
         request: [{}],
         responseMetadata: [{}],
         reqType: ReqType.REST,
-        executedOn: new Date(),
+        executedOn,
         isStarred: false,
       });
 
@@ -156,7 +160,7 @@ describe('UserHistoryService', () => {
         request: JSON.stringify([{}]),
         responseMetadata: JSON.stringify([{}]),
         reqType: ReqType.REST,
-        executedOn: new Date(),
+        executedOn,
         isStarred: false,
       };
 
@@ -170,13 +174,15 @@ describe('UserHistoryService', () => {
       ).toEqualRight(userHistory);
     });
     test('Should resolve right and create a GQL request to users history and return a `UserHistory` object', async () => {
+      const executedOn = new Date();
+
       mockPrisma.userHistory.create.mockResolvedValueOnce({
         userUid: 'abc',
         id: '1',
         request: [{}],
         responseMetadata: [{}],
         reqType: ReqType.GQL,
-        executedOn: new Date(),
+        executedOn,
         isStarred: false,
       });
 
@@ -186,7 +192,7 @@ describe('UserHistoryService', () => {
         request: JSON.stringify([{}]),
         responseMetadata: JSON.stringify([{}]),
         reqType: ReqType.GQL,
-        executedOn: new Date(),
+        executedOn,
         isStarred: false,
       };
 
@@ -210,13 +216,15 @@ describe('UserHistoryService', () => {
       ).toEqualLeft(USER_HISTORY_INVALID_REQ_TYPE);
     });
     test('Should create a GQL request to users history and publish a created subscription', async () => {
+      const executedOn = new Date();
+
       mockPrisma.userHistory.create.mockResolvedValueOnce({
         userUid: 'abc',
         id: '1',
         request: [{}],
         responseMetadata: [{}],
         reqType: ReqType.GQL,
-        executedOn: new Date(),
+        executedOn,
         isStarred: false,
       });
 
@@ -226,7 +234,7 @@ describe('UserHistoryService', () => {
         request: JSON.stringify([{}]),
         responseMetadata: JSON.stringify([{}]),
         reqType: ReqType.GQL,
-        executedOn: new Date(),
+        executedOn,
         isStarred: false,
       };
 
@@ -243,13 +251,15 @@ describe('UserHistoryService', () => {
       );
     });
     test('Should create a REST request to users history and publish a created subscription', async () => {
+      const executedOn = new Date();
+
       mockPrisma.userHistory.create.mockResolvedValueOnce({
         userUid: 'abc',
         id: '1',
         request: [{}],
         responseMetadata: [{}],
         reqType: ReqType.REST,
-        executedOn: new Date(),
+        executedOn,
         isStarred: false,
       });
 
@@ -259,7 +269,7 @@ describe('UserHistoryService', () => {
         request: JSON.stringify([{}]),
         responseMetadata: JSON.stringify([{}]),
         reqType: ReqType.REST,
-        executedOn: new Date(),
+        executedOn,
         isStarred: false,
       };
 
@@ -321,13 +331,15 @@ describe('UserHistoryService', () => {
       ).toEqualLeft(USER_HISTORY_NOT_FOUND);
     });
     test('Should star/unstar a request in the history and publish a updated subscription', async () => {
+      const executedOn = new Date();
+
       mockPrisma.userHistory.findFirst.mockResolvedValueOnce({
         userUid: 'abc',
         id: '1',
         request: [{}],
         responseMetadata: [{}],
         reqType: ReqType.REST,
-        executedOn: new Date(),
+        executedOn,
         isStarred: false,
       });
 
@@ -337,7 +349,7 @@ describe('UserHistoryService', () => {
         request: [{}],
         responseMetadata: [{}],
         reqType: ReqType.REST,
-        executedOn: new Date(),
+        executedOn,
         isStarred: true,
       });
 
@@ -347,7 +359,7 @@ describe('UserHistoryService', () => {
         request: JSON.stringify([{}]),
         responseMetadata: JSON.stringify([{}]),
         reqType: ReqType.REST,
-        executedOn: new Date(),
+        executedOn,
         isStarred: true,
       };
 
@@ -400,7 +412,7 @@ describe('UserHistoryService', () => {
         request: [{}],
         responseMetadata: [{}],
         reqType: ReqType.REST,
-        executedOn: new Date(),
+        executedOn: date,
         isStarred: false,
       });
 
@@ -410,7 +422,7 @@ describe('UserHistoryService', () => {
         request: JSON.stringify([{}]),
         responseMetadata: JSON.stringify([{}]),
         reqType: ReqType.REST,
-        executedOn: new Date(),
+        executedOn: date,
         isStarred: false,
       };
 

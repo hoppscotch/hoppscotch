@@ -1,9 +1,9 @@
 <template>
-  <div class="flex flex-col flex-1">
+  <div class="flex flex-1 flex-col">
     <div
-      class="sticky z-10 flex items-center justify-between flex-shrink-0 pl-4 overflow-x-auto border-b bg-primary border-dividerLight top-upperMobileSecondaryStickyFold sm:top-upperSecondaryStickyFold"
+      class="sticky top-upperMobileSecondaryStickyFold z-10 flex flex-shrink-0 items-center justify-between overflow-x-auto border-b border-dividerLight bg-primary pl-4 sm:top-upperSecondaryStickyFold"
     >
-      <label class="font-semibold truncate text-secondaryLight">
+      <label class="truncate font-semibold text-secondaryLight">
         {{ t("request.header_list") }}
       </label>
       <div class="flex">
@@ -44,7 +44,7 @@
         />
       </div>
     </div>
-    <div v-if="bulkMode" ref="bulkEditor" class="flex flex-col flex-1"></div>
+    <div v-if="bulkMode" ref="bulkEditor" class="flex flex-1 flex-col"></div>
     <div v-else>
       <draggable
         v-model="workingHeaders"
@@ -58,7 +58,7 @@
       >
         <template #item="{ element: header, index }">
           <div
-            class="flex border-b divide-x divide-dividerLight border-dividerLight draggable-content group"
+            class="draggable-content group flex divide-x divide-dividerLight border-b border-dividerLight"
           >
             <span>
               <HoppButtonSecondary
@@ -73,7 +73,7 @@
                 :icon="IconGripVertical"
                 class="cursor-auto text-primary hover:text-primary"
                 :class="{
-                  'draggable-handle group-hover:text-secondaryLight !cursor-grab':
+                  'draggable-handle !cursor-grab group-hover:text-secondaryLight':
                     index !== workingHeaders?.length - 1,
                 }"
                 tabindex="-1"
@@ -163,12 +163,12 @@
       >
         <template #item="{ element: header, index }">
           <div
-            class="flex border-b divide-x divide-dividerLight border-dividerLight draggable-content group"
+            class="draggable-content group flex divide-x divide-dividerLight border-b border-dividerLight"
           >
             <span>
               <HoppButtonSecondary
                 :icon="IconLock"
-                class="opacity-25 cursor-auto text-secondaryLight bg-divider"
+                class="cursor-auto bg-divider text-secondaryLight opacity-25"
                 tabindex="-1"
               />
             </span>
@@ -185,18 +185,24 @@
             <span>
               <HoppButtonSecondary
                 v-if="header.source === 'auth'"
+                v-tippy="{ theme: 'tooltip' }"
+                :title="t(masking ? 'state.show' : 'state.hide')"
                 :icon="masking ? IconEye : IconEyeOff"
                 @click="toggleMask()"
               />
               <HoppButtonSecondary
                 v-else
+                v-tippy="{ theme: 'tooltip' }"
                 :icon="IconArrowUpRight"
+                :title="t('request.go_to_authorization_tab')"
                 class="cursor-auto text-primary hover:text-primary"
               />
             </span>
             <span>
               <HoppButtonSecondary
+                v-tippy="{ theme: 'tooltip' }"
                 :icon="IconArrowUpRight"
+                :title="t('request.go_to_authorization_tab')"
                 @click="changeTab(header.source)"
               />
             </span>
@@ -267,10 +273,13 @@ import { aggregateEnvs$, getAggregateEnvs } from "~/newstore/environments"
 import { useVModel } from "@vueuse/core"
 import { useService } from "dioc/vue"
 import { InspectionService, InspectorResult } from "~/services/inspection"
-import { currentTabID } from "~/helpers/rest/tab"
+import { RESTTabService } from "~/services/tab/rest"
 
 const t = useI18n()
 const toast = useToast()
+
+const tabs = useService(RESTTabService)
+
 const colorMode = useColorMode()
 
 const idTicker = ref(0)
@@ -508,30 +517,17 @@ const changeTab = (tab: ComputedHeader["source"]) => {
 
 const inspectionService = useService(InspectionService)
 
-const allTabResults = inspectionService.tabs
+const headerKeyResults = inspectionService.getResultViewFor(
+  tabs.currentTabID.value,
+  (result) =>
+    result.locations.type === "header" && result.locations.position === "key"
+)
 
-const headerKeyResults = computed(() => {
-  return (
-    allTabResults.value
-      .get(currentTabID.value)
-      .filter(
-        (result) =>
-          result.locations.type === "header" &&
-          result.locations.position === "key"
-      ) ?? []
-  )
-})
-const headerValueResults = computed(() => {
-  return (
-    allTabResults.value
-      .get(currentTabID.value)
-      .filter(
-        (result) =>
-          result.locations.type === "header" &&
-          result.locations.position === "value"
-      ) ?? []
-  )
-})
+const headerValueResults = inspectionService.getResultViewFor(
+  tabs.currentTabID.value,
+  (result) =>
+    result.locations.type === "header" && result.locations.position === "value"
+)
 
 const getInspectorResult = (results: InspectorResult[], index: number) => {
   return results.filter((result) => {
@@ -541,3 +537,9 @@ const getInspectorResult = (results: InspectorResult[], index: number) => {
   })
 }
 </script>
+
+<style lang="scss" scoped>
+:deep(.cm-panels) {
+  @apply top-upperTertiaryStickyFold #{!important};
+}
+</style>

@@ -1,5 +1,5 @@
 query InvitedUsers {
-  admin {
+  infra {
     invitedUsers {
       adminUid
       adminEmail

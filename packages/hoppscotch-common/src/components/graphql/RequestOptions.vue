@@ -1,8 +1,8 @@
 <template>
-  <div class="flex flex-col flex-1 h-full">
+  <div class="flex h-full flex-1 flex-col">
     <HoppSmartTabs
       v-model="selectedOptionTab"
-      styles="sticky bg-primary z-10"
+      styles="sticky top-0 bg-primary z-10 border-b-0"
       :render-inactive-tabs="true"
     >
       <HoppSmartTab
@@ -58,8 +58,7 @@ import { computed, ref, watch } from "vue"
 import { defineActionHandler } from "~/helpers/actions"
 import { HoppGQLRequest } from "@hoppscotch/data"
 import { platform } from "~/platform"
-import { currentActiveTab } from "~/helpers/graphql/tab"
-import { computedWithControl } from "@vueuse/core"
+import { computedWithControl, useVModel } from "@vueuse/core"
 import {
   GQLResponseEvent,
   runGQLOperation,
@@ -67,26 +66,40 @@ import {
 } from "~/helpers/graphql/connection"
 import { useService } from "dioc/vue"
 import { InterceptorService } from "~/services/interceptor.service"
+import { editGraphqlRequest } from "~/newstore/collections"
+import { GQLTabService } from "~/services/tab/graphql"
 
-type OptionTabs = "query" | "headers" | "variables" | "authorization"
-const selectedOptionTab = ref<OptionTabs>("query")
+const VALID_GQL_OPERATIONS = [
+  "query",
+  "headers",
+  "variables",
+  "authorization",
+] as const
+
+export type GQLOptionTabs = (typeof VALID_GQL_OPERATIONS)[number]
+
 const interceptorService = useService(InterceptorService)
 
 const t = useI18n()
 const toast = useToast()
+
+const tabs = useService(GQLTabService)
 
 // v-model integration with props and emit
 const props = withDefaults(
   defineProps<{
     modelValue: HoppGQLRequest
     response?: GQLResponseEvent[] | null
+    optionTab?: GQLOptionTabs
     tabId: string
   }>(),
   {
     response: null,
+    optionTab: "query",
   }
 )
 const emit = defineEmits(["update:modelValue", "update:response"])
+const selectedOptionTab = useVModel(props, "optionTab", emit)
 
 const request = ref(props.modelValue)
 
@@ -99,8 +112,8 @@ watch(
 )
 
 const url = computedWithControl(
-  () => currentActiveTab.value,
-  () => currentActiveTab.value.document.request.url
+  () => tabs.currentActiveTab.value,
+  () => tabs.currentActiveTab.value.document.request.url
 )
 
 const activeGQLHeadersCount = computed(
@@ -135,6 +148,9 @@ const runQuery = async (
     const duration = Date.now() - startTime
     completePageProgress()
     toast.success(`${t("state.finished_in", { duration })}`)
+    if (definition?.operation === "subscription" && request.value.auth) {
+      toast.success(t("authorization.graphql_headers"))
+    }
   } catch (e: any) {
     console.log(e)
     // response.value = [`${e}`]
@@ -180,12 +196,39 @@ const hideRequestModal = () => {
   showSaveRequestModal.value = false
 }
 const saveRequest = () => {
-  showSaveRequestModal.value = true
+  if (
+    tabs.currentActiveTab.value.document.saveContext &&
+    tabs.currentActiveTab.value.document.saveContext.originLocation ===
+      "user-collection"
+  ) {
+    editGraphqlRequest(
+      tabs.currentActiveTab.value.document.saveContext.folderPath,
+      tabs.currentActiveTab.value.document.saveContext.requestIndex,
+      tabs.currentActiveTab.value.document.request
+    )
+
+    tabs.currentActiveTab.value.document.isDirty = false
+  } else {
+    showSaveRequestModal.value = true
+  }
 }
 const clearGQLQuery = () => {
   request.value.query = ""
 }
 defineActionHandler("request.send-cancel", runQuery)
 defineActionHandler("request.save", saveRequest)
+defineActionHandler("request.save-as", () => {
+  showSaveRequestModal.value = true
+})
 defineActionHandler("request.reset", clearGQLQuery)
+
+defineActionHandler("request.open-tab", ({ tab }) => {
+  selectedOptionTab.value = tab as GQLOptionTabs
+})
 </script>
+
+<style lang="scss" scoped>
+:deep(.cm-panels) {
+  @apply top-upperPrimaryStickyFold #{!important};
+}
+</style>

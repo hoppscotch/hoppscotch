@@ -1,4 +1,4 @@
-import { Component, markRaw, reactive } from "vue"
+import { Component, computed, markRaw, reactive } from "vue"
 import { getI18n } from "~/modules/i18n"
 import { SpotlightSearcherResult, SpotlightService } from ".."
 import {
@@ -6,19 +6,20 @@ import {
   StaticSpotlightSearcherService,
 } from "./base/static.searcher"
 
-import {
-  closeOtherTabs,
-  closeTab,
-  createNewTab,
-  currentTabID,
-} from "~/helpers/rest/tab"
-import IconWindow from "~icons/lucide/app-window"
-import { getDefaultRESTRequest } from "~/helpers/rest/default"
+import { useRoute } from "vue-router"
+import IconCopy from "~icons/lucide/copy"
+import IconCopyPlus from "~icons/lucide/copy-plus"
+import IconXCircle from "~icons/lucide/x-circle"
+import IconXSquare from "~icons/lucide/x-square"
+import { invokeAction } from "~/helpers/actions"
+import { RESTTabService } from "~/services/tab/rest"
+import { GQLTabService } from "~/services/tab/graphql"
 
 type Doc = {
-  text: string
+  text: string | string[]
   alternates: string[]
   icon: object | Component
+  excludeFromSearch?: boolean
 }
 
 /**
@@ -37,21 +38,54 @@ export class TabSpotlightSearcherService extends StaticSpotlightSearcherService<
 
   private readonly spotlight = this.bind(SpotlightService)
 
+  private route = useRoute()
+  private showAction = computed(
+    () => this.route.name === "index" || this.route.name === "graphql"
+  )
+
+  private readonly restTab = this.bind(RESTTabService)
+  private readonly gqlTab = this.bind(GQLTabService)
+
+  private isOnlyTab = computed(() =>
+    this.route.name === "graphql"
+      ? this.gqlTab.getActiveTabs().value.length === 1
+      : this.restTab.getActiveTabs().value.length === 1
+  )
+
   private documents: Record<string, Doc> = reactive({
+    duplicate_tab: {
+      text: [this.t("spotlight.tab.title"), this.t("spotlight.tab.duplicate")],
+      alternates: ["tab", "duplicate", "duplicate tab"],
+      icon: markRaw(IconCopy),
+      excludeFromSearch: computed(() => !this.showAction.value),
+    },
     close_current_tab: {
-      text: this.t("spotlight.tab.close_current"),
+      text: [
+        this.t("spotlight.tab.title"),
+        this.t("spotlight.tab.close_current"),
+      ],
       alternates: ["tab", "close", "close tab"],
-      icon: markRaw(IconWindow),
+      icon: markRaw(IconXCircle),
+      excludeFromSearch: computed(
+        () => !this.showAction.value || this.isOnlyTab.value
+      ),
     },
     close_other_tabs: {
-      text: this.t("spotlight.tab.close_others"),
+      text: [
+        this.t("spotlight.tab.title"),
+        this.t("spotlight.tab.close_others"),
+      ],
       alternates: ["tab", "close", "close all"],
-      icon: markRaw(IconWindow),
+      icon: markRaw(IconXSquare),
+      excludeFromSearch: computed(
+        () => !this.showAction.value || this.isOnlyTab.value
+      ),
     },
     open_new_tab: {
-      text: this.t("spotlight.tab.new_tab"),
+      text: [this.t("spotlight.tab.title"), this.t("spotlight.tab.new_tab")],
       alternates: ["tab", "new", "open tab"],
-      icon: markRaw(IconWindow),
+      icon: markRaw(IconCopyPlus),
+      excludeFromSearch: computed(() => !this.showAction.value),
     },
   })
 
@@ -80,12 +114,9 @@ export class TabSpotlightSearcherService extends StaticSpotlightSearcherService<
   }
 
   public onDocSelected(id: string): void {
-    if (id === "close_current_tab") closeTab(currentTabID.value)
-    if (id === "close_other_tabs") closeOtherTabs(currentTabID.value)
-    if (id === "open_new_tab")
-      createNewTab({
-        request: getDefaultRESTRequest(),
-        isDirty: false,
-      })
+    if (id === "duplicate_tab") invokeAction("tab.duplicate-tab", {})
+    if (id === "close_current_tab") invokeAction("tab.close-current")
+    if (id === "close_other_tabs") invokeAction("tab.close-other")
+    if (id === "open_new_tab") invokeAction("tab.open-new")
   }
 }

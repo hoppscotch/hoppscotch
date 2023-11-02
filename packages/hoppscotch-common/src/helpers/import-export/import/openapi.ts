@@ -514,6 +514,32 @@ const parseOpenAPIAuth = (
     ? parseOpenAPIV3Auth(doc as OpenAPIV3.Document | OpenAPIV31.Document, op)
     : parseOpenAPIV2Auth(doc as OpenAPIV2.Document, op)
 
+const parseOpenAPIUrl = (
+  doc: OpenAPI.Document | OpenAPIV2.Document | OpenAPIV3.Document
+): string => {
+  /**
+   * OpenAPI V2 has version as a string in the document's swagger property.
+   * And host and basePath are in the document's host and basePath properties.
+   * Relevant v2 reference: https://swagger.io/specification/v2/#:~:text=to%20be%20obscured.-,Schema,-Swagger%20Object
+   **/
+
+  if (objectHasProperty(doc, "swagger")) {
+    return `${doc.host}${doc.basePath}`
+  }
+
+  /**
+   * OpenAPI V3 has version as a string in the document's openapi property.
+   * And host and basePath are in the document's servers property.
+   * Relevant v3 reference: https://swagger.io/specification/#server-object
+   **/
+  if (objectHasProperty(doc, "servers")) {
+    return doc.servers?.[0].url ?? "<<baseUrl>>"
+  }
+
+  // If the document is neither v2 nor v3 then return a env variable as placeholder
+  return "<<baseUrl>>"
+}
+
 const convertPathToHoppReqs = (
   doc: OpenAPI.Document,
   pathName: string,
@@ -535,7 +561,9 @@ const convertPathToHoppReqs = (
       makeRESTRequest({
         name: info.operationId ?? info.summary ?? "Untitled Request",
         method: method.toUpperCase(),
-        endpoint: `<<baseUrl>>${replaceOpenApiPathTemplating(pathName)}`, // TODO: Make this proper
+        endpoint: `${parseOpenAPIUrl(doc)}${replaceOpenApiPathTemplating(
+          pathName
+        )}`,
 
         // We don't need to worry about reference types as the Dereferencing pass should remove them
         params: parseOpenAPIParams(

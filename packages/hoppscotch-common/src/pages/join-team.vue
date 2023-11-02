@@ -1,11 +1,11 @@
 <template>
-  <div class="flex flex-col items-center justify-between min-h-screen">
+  <div class="flex min-h-screen flex-col items-center justify-between">
     <div
       v-if="invalidLink"
-      class="flex flex-col items-center justify-center flex-1"
+      class="flex flex-1 flex-col items-center justify-center"
     >
-      <icon-lucide-alert-triangle class="mb-2 opacity-75 svg-icons" />
-      <h1 class="text-center heading">
+      <icon-lucide-alert-triangle class="svg-icons mb-2 opacity-75" />
+      <h1 class="heading text-center">
         {{ t("team.invalid_invite_link") }}
       </h1>
       <p class="mt-2 text-center">
@@ -14,13 +14,13 @@
     </div>
     <div
       v-else-if="loadingCurrentUser"
-      class="flex flex-col items-center justify-center flex-1 p-4"
+      class="flex flex-1 flex-col items-center justify-center p-4"
     >
       <HoppSmartSpinner />
     </div>
     <div
       v-else-if="currentUser === null"
-      class="flex flex-col items-center justify-center flex-1 p-4"
+      class="flex flex-1 flex-col items-center justify-center p-4"
     >
       <h1 class="heading">{{ t("team.login_to_continue") }}</h1>
       <p class="mt-2">{{ t("team.login_to_continue_description") }}</p>
@@ -30,10 +30,10 @@
         @click="invokeAction('modals.login.toggle')"
       />
     </div>
-    <div v-else class="flex flex-col items-center justify-center flex-1 p-4">
+    <div v-else class="flex flex-1 flex-col items-center justify-center p-4">
       <div
         v-if="inviteDetails.loading"
-        class="flex flex-col items-center justify-center flex-1 p-4"
+        class="flex flex-1 flex-col items-center justify-center p-4"
       >
         <HoppSmartSpinner />
       </div>
@@ -42,12 +42,12 @@
           v-if="!inviteDetails.loading && E.isLeft(inviteDetails.data)"
           class="flex flex-col items-center p-4"
         >
-          <icon-lucide-alert-triangle class="mb-4 svg-icons" />
+          <icon-lucide-alert-triangle class="svg-icons mb-4" />
           <p>
             {{ getErrorMessage(inviteDetails.data.left) }}
           </p>
           <p
-            class="flex flex-col items-center p-4 mt-8 border rounded border-dividerLight"
+            class="mt-8 flex flex-col items-center rounded border border-dividerLight p-4"
           >
             <span class="mb-4">
               {{ t("team.logout_and_try_again") }}
@@ -66,7 +66,7 @@
             E.isRight(inviteDetails.data) &&
             !joinTeamSuccess
           "
-          class="flex flex-col items-center justify-center flex-1 p-4"
+          class="flex flex-1 flex-col items-center justify-center p-4"
         >
           <h1 class="heading">
             {{
@@ -104,7 +104,7 @@
             E.isRight(inviteDetails.data) &&
             joinTeamSuccess
           "
-          class="flex flex-col items-center justify-center flex-1 p-4"
+          class="flex flex-1 flex-col items-center justify-center p-4"
         >
           <h1 class="heading">
             {{
@@ -133,7 +133,7 @@
     </div>
     <div class="p-4">
       <HoppButtonSecondary
-        class="tracking-wide !font-bold !text-secondaryDark"
+        class="!font-bold tracking-wide !text-secondaryDark"
         label="HOPPSCOTCH"
         to="/"
       />

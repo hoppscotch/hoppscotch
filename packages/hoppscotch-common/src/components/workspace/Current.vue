@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex items-center px-4 py-2 overflow-x-auto border-b whitespace-nowrap border-dividerLight text-tiny text-secondaryLight"
+    class="flex items-center overflow-x-auto whitespace-nowrap border-b border-dividerLight px-4 py-2 text-tiny text-secondaryLight"
   >
     <span class="truncate">
       {{
@@ -16,9 +16,9 @@
 
 <script setup lang="ts">
 import { computed } from "vue"
-import { useReadonlyStream } from "~/composables/stream"
-import { workspaceStatus$ } from "~/newstore/workspace"
 import { useI18n } from "~/composables/i18n"
+import { useService } from "dioc/vue"
+import { WorkspaceService } from "~/services/workspace.service"
 
 defineProps<{
   section?: string
@@ -26,7 +26,8 @@ defineProps<{
 
 const t = useI18n()
 
-const workspace = useReadonlyStream(workspaceStatus$, { type: "personal" })
+const workspaceService = useService(WorkspaceService)
+const workspace = workspaceService.currentWorkspace
 
 const teamWorkspaceName = computed(() => {
   if (workspace.value.type === "team" && workspace.value.teamName) {

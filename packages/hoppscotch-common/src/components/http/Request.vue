@@ -1,9 +1,9 @@
 <template>
   <div
-    class="sticky top-0 z-20 flex-none flex-shrink-0 p-4 sm:flex sm:flex-shrink-0 sm:space-x-2 bg-primary"
+    class="sticky top-0 z-20 flex-none flex-shrink-0 bg-primary p-4 sm:flex sm:flex-shrink-0 sm:space-x-2"
   >
     <div
-      class="flex flex-1 border rounded min-w-52 border-divider whitespace-nowrap"
+      class="min-w-52 flex flex-1 whitespace-nowrap rounded border border-divider"
     >
       <div class="relative flex">
         <label for="method">
@@ -16,7 +16,7 @@
             <span class="select-wrapper">
               <input
                 id="method"
-                class="flex px-4 py-2 font-semibold transition rounded-l cursor-pointer text-secondaryDark w-26 bg-primaryLight"
+                class="flex w-26 cursor-pointer rounded-l bg-primaryLight px-4 py-2 font-semibold text-secondaryDark transition"
                 :value="tab.document.request.method"
                 :readonly="!isCustomMethod"
                 :placeholder="`${t('request.method')}`"
@@ -47,7 +47,7 @@
         </label>
       </div>
       <div
-        class="flex flex-1 transition border-l rounded-r border-divider bg-primaryLight whitespace-nowrap"
+        class="flex flex-1 whitespace-nowrap rounded-r border-l border-divider bg-primaryLight transition"
       >
         <SmartEnvInput
           v-model="tab.document.request.endpoint"
@@ -56,16 +56,10 @@
           :inspection-results="tabResults"
           @paste="onPasteUrl($event)"
           @enter="newSendRequest"
-        >
-          <template #empty>
-            <span>
-              {{ t("empty.history_suggestions") }}
-            </span>
-          </template>
-        </SmartEnvInput>
+        />
       </div>
     </div>
-    <div class="flex mt-2 sm:mt-0">
+    <div class="mt-2 flex sm:mt-0">
       <HoppButtonPrimary
         id="send"
         v-tippy="{ theme: 'tooltip', delay: [500, 20], allowHTML: true }"
@@ -73,7 +67,7 @@
           'action.send'
         )} <kbd>${getSpecialKey()}</kbd><kbd>↩</kbd>`"
         :label="`${!loading ? t('action.send') : t('action.cancel')}`"
-        class="flex-1 rounded-r-none min-w-20"
+        class="min-w-20 flex-1 rounded-r-none"
         @click="!loading ? newSendRequest() : cancelRequest()"
       />
       <span class="flex">
@@ -140,7 +134,7 @@
           </template>
         </tippy>
       </span>
-      <span class="flex ml-2 transition border rounded border-divider">
+      <span class="ml-2 flex rounded border border-divider transition">
         <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip', delay: [500, 20], allowHTML: true }"
           :title="`${t(
@@ -180,7 +174,7 @@
                   name="request-name"
                   type="text"
                   autocomplete="off"
-                  class="mb-2 input !bg-primaryContrast"
+                  class="input mb-2 !bg-primaryContrast"
                   @keyup.enter="hide()"
                 />
                 <HoppSmartItem
@@ -223,6 +217,7 @@
       @hide-modal="showCurlImportModal = false"
     />
     <HttpCodegenModal
+      v-if="showCodegenModal"
       :show="showCodegenModal"
       @hide-modal="showCodegenModal = false"
     />
@@ -263,7 +258,6 @@ import IconLink2 from "~icons/lucide/link-2"
 import IconRotateCCW from "~icons/lucide/rotate-ccw"
 import IconSave from "~icons/lucide/save"
 import IconShare2 from "~icons/lucide/share-2"
-import { HoppRESTTab, currentTabID } from "~/helpers/rest/tab"
 import { getDefaultRESTRequest } from "~/helpers/rest/default"
 import { RESTHistoryEntry, restHistory$ } from "~/newstore/history"
 import { platform } from "~/platform"
@@ -271,6 +265,9 @@ import { HoppGQLRequest, HoppRESTRequest } from "@hoppscotch/data"
 import { useService } from "dioc/vue"
 import { InspectionService } from "~/services/inspection"
 import { InterceptorService } from "~/services/interceptor.service"
+import { HoppTab } from "~/services/tab"
+import { HoppRESTDocument } from "~/helpers/rest/document"
+import { RESTTabService } from "~/services/tab/rest"
 
 const t = useI18n()
 const interceptorService = useService(InterceptorService)
@@ -292,7 +289,7 @@ const toast = useToast()
 
 const { subscribeToStream } = useStreamSubscriber()
 
-const props = defineProps<{ modelValue: HoppRESTTab }>()
+const props = defineProps<{ modelValue: HoppTab<HoppRESTDocument> }>()
 const emit = defineEmits(["update:modelValue"])
 
 const tab = useVModel(props, "modelValue", emit)
@@ -432,7 +429,7 @@ const updateMethod = (method: string) => {
 
 const onSelectMethod = (e: Event | any) => {
   // type any because of value property not being recognized by TS in the event.target object. It is a valid property though.
-  updateMethod(e.value)
+  updateMethod(e.target.value)
 }
 
 const clearContent = () => {
@@ -440,7 +437,7 @@ const clearContent = () => {
 }
 
 const updateRESTResponse = (response: HoppRESTResponse | null) => {
-  tab.value.response = response
+  tab.value.document.response = response
 }
 
 const copyLinkIcon = refAutoReset<
@@ -648,9 +645,6 @@ const COLUMN_LAYOUT = useSetting("COLUMN_LAYOUT")
 
 const inspectionService = useService(InspectionService)
 
-const allTabResults = inspectionService.tabs
-
-const tabResults = computed(() => {
-  return allTabResults.value.get(currentTabID.value) ?? []
-})
+const tabs = useService(RESTTabService)
+const tabResults = inspectionService.getResultViewFor(tabs.currentTabID.value)
 </script>

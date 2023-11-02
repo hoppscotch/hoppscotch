@@ -1,24 +1,24 @@
 <template>
   <div
-    class="flex items-stretch group"
+    class="group flex items-stretch"
     @contextmenu.prevent="options!.tippy.show()"
   >
     <span
       v-if="environmentIndex === 'Global'"
-      class="flex items-center justify-center px-4 cursor-pointer"
+      class="flex cursor-pointer items-center justify-center px-4"
       @click="emit('edit-environment')"
     >
       <icon-lucide-globe class="svg-icons" />
     </span>
     <span
       v-else
-      class="flex items-center justify-center px-4 cursor-pointer"
+      class="flex cursor-pointer items-center justify-center px-4"
       @click="emit('edit-environment')"
     >
       <icon-lucide-layers class="svg-icons" />
     </span>
     <span
-      class="flex flex-1 min-w-0 py-2 pr-2 cursor-pointer transition group-hover:text-secondaryDark"
+      class="flex min-w-0 flex-1 cursor-pointer py-2 pr-2 transition group-hover:text-secondaryDark"
       @click="emit('edit-environment')"
     >
       <span class="truncate">
@@ -46,6 +46,7 @@
             role="menu"
             @keyup.e="edit!.$el.click()"
             @keyup.d="duplicate!.$el.click()"
+            @keyup.j="exportAsJsonEl!.$el.click()"
             @keyup.delete="
               !(environmentIndex === 'Global')
                 ? deleteAction!.$el.click()
@@ -73,6 +74,18 @@
               @click="
                 () => {
                   duplicateEnvironments()
+                  hide()
+                }
+              "
+            />
+            <HoppSmartItem
+              ref="exportAsJsonEl"
+              :icon="IconEdit"
+              :label="`${t('export.as_json')}`"
+              :shortcut="['J']"
+              @click="
+                () => {
+                  exportEnvironmentAsJSON()
                   hide()
                 }
               "
@@ -121,6 +134,7 @@ import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
 import { TippyComponent } from "vue-tippy"
 import { HoppSmartItem } from "@hoppscotch/ui"
+import { exportAsJSON } from "~/helpers/import-export/export/environment"
 
 const t = useI18n()
 const toast = useToast()
@@ -136,10 +150,18 @@ const emit = defineEmits<{
 
 const confirmRemove = ref(false)
 
+const exportEnvironmentAsJSON = () => {
+  const { environment, environmentIndex } = props
+  exportAsJSON(environment, environmentIndex)
+    ? toast.success(t("state.download_started"))
+    : toast.error(t("state.download_failed"))
+}
+
 const tippyActions = ref<TippyComponent | null>(null)
 const options = ref<TippyComponent | null>(null)
 const edit = ref<typeof HoppSmartItem>()
 const duplicate = ref<typeof HoppSmartItem>()
+const exportAsJsonEl = ref<typeof HoppSmartItem>()
 const deleteAction = ref<typeof HoppSmartItem>()
 
 const removeEnvironment = () => {

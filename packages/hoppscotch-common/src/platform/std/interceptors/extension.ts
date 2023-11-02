@@ -228,6 +228,11 @@ export class ExtensionInterceptorService
 
       return E.right(result)
     } catch (e) {
+      // TODO: improve type checking
+      if ((e as any).response) {
+        return E.right((e as any).response)
+      }
+
       return E.left(<InterceptorError>{
         // TODO: i18n this
         humanMessage: {

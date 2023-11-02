@@ -5,6 +5,7 @@
     "choose_file": "Επιλέξτε ένα αρχείο",
     "clear": "Σαφή",
     "clear_all": "Τα καθαρίζω όλα",
+    "clear_history": "Clear all History",
     "close": "Close",
     "connect": "Συνδέω-συωδεομαι",
     "connecting": "Connecting",
@@ -31,6 +32,7 @@
     "paste": "Paste",
     "prettify": "Ωραιοποιώ",
     "remove": "Αφαιρώ",
+    "rename": "Rename",
     "restore": "Επαναφέρω",
     "save": "Αποθηκεύσετε",
     "scroll_to_bottom": "Scroll to bottom",
@@ -77,6 +79,8 @@
     "search": "Αναζήτηση",
     "share": "Μερίδιο",
     "shortcuts": "Συντομεύσεις",
+    "social_description": "Follow us on social media to stay updated with the latest news, updates and releases.",
+    "social_links": "Social links",
     "spotlight": "Προβολέας θέατρου",
     "status": "Κατάσταση",
     "status_description": "Ελέγξτε το status της Ιστοσελίδας",
@@ -131,12 +135,15 @@
     "renamed": "Η συλλογή μετονομάστηκε",
     "request_in_use": "Request in use",
     "save_as": "Αποθήκευση ως",
+    "save_to_collection": "Save to Collection",
     "select": "Επιλέξτε μια Συλλογή",
     "select_location": "Επιλέξτε τοποθεσία",
     "select_team": "Επιλέξτε μια ομάδα",
     "team_collections": "Συλλογές ομάδων"
   },
   "confirm": {
+    "close_unsaved_tab": "Are you sure you want to close this tab?",
+    "close_unsaved_tabs": "Are you sure you want to close all tabs? {count} unsaved tabs will be lost.",
     "exit_team": "Are you sure you want to leave this team?",
     "logout": "Είστε βέβαιοι ότι θέλετε να αποσυνδεθείτε?",
     "remove_collection": "Είστε βέβαιοι ότι θέλετε να διαγράψετε οριστικά αυτήν τη συλλογή;",
@@ -149,6 +156,11 @@
     "request_change": "Are you sure you want to discard current request, unsaved changes will be lost.",
     "save_unsaved_tab": "Do you want to save changes made in this tab?",
     "sync": "Είστε βέβαιοι ότι θέλετε να συγχρονίσετε αυτόν τον χώρο εργασίας;"
+  },
+  "context_menu": {
+    "add_parameters": "Add to parameters",
+    "open_request_in_new_tab": "Open request in new tab",
+    "set_environment_variable": "Set as variable"
   },
   "count": {
     "header": "Κεφαλίδα {count}",
@@ -192,17 +204,31 @@
     "create_new": "Δημιουργήστε νέο περιβάλλον",
     "created": "Το Περιβάλλον δημιουργήθηκε",
     "deleted": "Διαγραφή Περιβάλλοντος",
+    "duplicated": "Environment duplicated",
     "edit": "Επεξεργασία Περιβάλλοντος",
+    "empty_variables": "No variables",
+    "global": "Global",
+    "global_variables": "Global variables",
     "invalid_name": "Καταχωρίστε ένα έγκυρο όνομα για το περιβάλλον",
+    "list": "Environment variables",
     "my_environments": "Τα Περιβάλλοντα μου",
+    "name": "Name",
     "nested_overflow": "Οι 'φωλιασμένες' μεταβλητές περιβάλλοντος είναι περιορισμένες σε 10 επίπεδα",
     "new": "Νέο Περιβάλλον",
+    "no_active_environment": "No active environment",
     "no_environment": "Χωρίς περιβάλλον",
     "no_environment_description": "Δέν επιλέχθηκε κάποιο περιβάλλον. Διαλέξτε τι θέλετε να κάνετε με τις παρακάτω μεταβλητές.",
+    "quick_peek": "Environment Quick Peek",
+    "replace_with_variable": "Replace with variable",
+    "scope": "Scope",
     "select": "Επιλέξτε περιβάλλον",
+    "set": "Set environment",
+    "set_as_environment": "Set as environment",
     "team_environments": "Περιβάλλοντα Ομάδας",
     "title": "Περιβάλλοντα",
     "updated": "Αναβάθμιση Περιβάλλοντος",
+    "value": "Value",
+    "variable": "Variable",
     "variable_list": "Λίστα μεταβλητών"
   },
   "error": {
@@ -226,6 +252,7 @@
     "no_duration": "Χωρίς διάρκεια",
     "no_results_found": "Δεν βρέθηκαν αντιστοιχίες",
     "page_not_found": "Αυτή η σελίδα δεν βρέθηκε",
+    "proxy_error": "Proxy error",
     "script_fail": "Δεν ήταν δυνατή η εκτέλεση του σεναρίου πριν από το αίτημα",
     "something_went_wrong": "Κάτι πήγε στραβά",
     "test_script_fail": "Δεν μπορεσε να εκτελεστεί το post-request script"
@@ -251,9 +278,13 @@
     "renamed": "Ο φάκελος μετονομάστηκε"
   },
   "graphql": {
+    "connection_switch_confirm": "Do you want to connect with the latest GraphQL endpoint?",
+    "connection_switch_new_url": "Switching to a tab will disconnected you from the active GraphQL connection. New connection URL is",
+    "connection_switch_url": "You're connected to a GraphQL endpoint the connection URL is",
     "mutations": "Μεταλλάξεις",
     "schema": "Σχήμα",
-    "subscriptions": "Συνδρομές"
+    "subscriptions": "Συνδρομές",
+    "switch_connection": "Switch connection"
   },
   "group": {
     "time": "Time",
@@ -307,13 +338,36 @@
     "json_description": "Εισαγωγή συλλογών αρχείο JSON Hoppscotch Collections",
     "title": "Εισαγωγή"
   },
+  "inspections": {
+    "description": "Inspect possible errors",
+    "environment": {
+      "add_environment": "Add to Environment",
+      "not_found": "Environment variable “{environment}” not found."
+    },
+    "header": {
+      "cookie": "The browser doesn't allow Hoppscotch to set the Cookie Header. While we're working on the Hoppscotch Desktop App (coming soon), please use the Authorization Header instead."
+    },
+    "response": {
+      "401_error": "Please check your authentication credentials.",
+      "404_error": "Please check your request URL and method type.",
+      "cors_error": "Please check your Cross-Origin Resource Sharing configuration.",
+      "default_error": "Please check your request.",
+      "network_error": "Please check your network connection."
+    },
+    "title": "Inspector",
+    "url": {
+      "extension_not_installed": "Extension not installed.",
+      "extension_unknown_origin": "Make sure you've added the API endpoint's origin to the Hoppscotch Browser Extension list.",
+      "extention_enable_action": "Enable Browser Extension",
+      "extention_not_enabled": "Extension not enabled."
+    }
+  },
   "layout": {
     "collapse_collection": "Σύμπτυξη ή επέκταση Συλλογών",
     "collapse_sidebar": "Σύμπτυξη ή επέκταση του sidebar",
     "column": "Κατακόρυφη Διάταξη",
     "name": "Διάταξη",
-    "row": "Οριζόντια Διάταξη",
-    "zen_mode": "Λειτουργία Zen"
+    "row": "Οριζόντια Διάταξη"
   },
   "modal": {
     "close_unsaved_tab": "You have unsaved changes",
@@ -418,6 +472,7 @@
     "payload": "Φορτίο επί πληρωμή",
     "query": "Ερώτηση",
     "raw_body": "Σώμα Ακατέργαστου Αιτήματος",
+    "rename": "Rename Request",
     "renamed": "Το αίτημα μετονομάστηκε",
     "run": "Τρέξιμο",
     "save": "Σώσει",
@@ -425,6 +480,7 @@
     "saved": "Το αίτημα αποθηκεύτηκε",
     "share": "Μερίδιο",
     "share_description": "Κοινοποίηση Hoppscotch στους φίλους σου",
+    "stop": "Stop",
     "title": "Αίτηση",
     "type": "Τύπος αιτήματος",
     "url": "URL",
@@ -459,7 +515,6 @@
     "account_name_description": "Αυτό είναι το εμφανιζόμενο όνομά σας.",
     "background": "Ιστορικό",
     "black_mode": "Μαύρος",
-    "change_font_size": "Αλλαγή μεγέθους γραμματοσειράς",
     "choose_language": "Διάλεξε γλώσσα",
     "dark_mode": "Σκοτάδι",
     "delete_account": "Delete account",
@@ -472,10 +527,6 @@
     "extensions": "Επεκτάσεις",
     "extensions_use_toggle": "Χρησιμοποιήστε την επέκταση του προγράμματος περιήγησης για να στείλετε αιτήματα (εάν υπάρχουν)",
     "follow": "Ακολούθησε Μας",
-    "font_size": "Μέγεθος γραμματοσειράς",
-    "font_size_large": "Μεγάλο",
-    "font_size_medium": "Μεσαίο",
-    "font_size_small": "Μικρό",
     "interceptor": "Αναχαιτιστής",
     "interceptor_description": "Middleware μεταξύ εφαρμογής και API.",
     "language": "Γλώσσα",
@@ -540,19 +591,27 @@
       "settings": "Μεταβείτε στη σελίδα Ρυθμίσεις",
       "title": "Πλοήγηση"
     },
+    "others": {
+      "prettify": "Prettify Editor's Content",
+      "title": "Others"
+    },
     "request": {
       "copy_request_link": "Αντιγραφή συνδέσμου αιτήματος",
       "delete_method": "Επιλέξτε ΔΙΑΓΡΑΦΗ μεθόδου",
       "get_method": "Επιλέξτε μέθοδο GET",
       "head_method": "Επιλέξτε μέθοδο HEAD",
+      "import_curl": "Import cURL",
       "method": "Μέθοδος",
       "next_method": "Επιλέξτε Επόμενη μέθοδος",
       "post_method": "Επιλέξτε μέθοδο POST",
       "previous_method": "Επιλέξτε Προηγούμενη μέθοδος",
       "put_method": "Επιλέξτε μέθοδο PUT",
+      "rename": "Rename Request",
       "reset_request": "Επαναφορά αιτήματος",
+      "save_request": "Save Request",
       "save_to_collections": "Αποθήκευση στις Συλλογές",
       "send_request": "Στείλε αίτημα",
+      "show_code": "Generate code snippet",
       "title": "Αίτηση"
     },
     "response": {
@@ -581,6 +640,85 @@
     "events": "Εκδηλώσεις",
     "log": "Logs",
     "url": "URL"
+  },
+  "spotlight": {
+    "change_language": "Change Language",
+    "environments": {
+      "delete": "Delete current environment",
+      "duplicate": "Duplicate current environment",
+      "duplicate_global": "Duplicate global environment",
+      "edit": "Edit current environment",
+      "edit_global": "Edit global environment",
+      "new": "Create new environment",
+      "new_variable": "Create a new environment variable",
+      "title": "Environments"
+    },
+    "general": {
+      "chat": "Chat with support",
+      "help_menu": "Help and support",
+      "open_docs": "Read Documentation",
+      "open_github": "Open GitHub repository",
+      "open_keybindings": "Keyboard shortcuts",
+      "social": "Social",
+      "title": "General"
+    },
+    "graphql": {
+      "connect": "Connect to server",
+      "disconnect": "Disconnect from server"
+    },
+    "miscellaneous": {
+      "invite": "Invite your friends to Hoppscotch",
+      "title": "Miscellaneous"
+    },
+    "request": {
+      "save_as_new": "Save as new request",
+      "select_method": "Select method",
+      "switch_to": "Switch to",
+      "tab_authorization": "Authorization tab",
+      "tab_body": "Body tab",
+      "tab_headers": "Headers tab",
+      "tab_parameters": "Parameters tab",
+      "tab_pre_request_script": "Pre-request script tab",
+      "tab_query": "Query tab",
+      "tab_tests": "Tests tab",
+      "tab_variables": "Variables tab"
+    },
+    "response": {
+      "copy": "Copy response",
+      "download": "Download response as file",
+      "title": "Response"
+    },
+    "section": {
+      "interceptor": "Interceptor",
+      "interface": "Interface",
+      "theme": "Theme",
+      "user": "User"
+    },
+    "settings": {
+      "change_interceptor": "Change Interceptor",
+      "change_language": "Change Language",
+      "theme": {
+        "black": "Black",
+        "dark": "Dark",
+        "light": "Light",
+        "system": "System preference"
+      }
+    },
+    "tab": {
+      "close_current": "Close current tab",
+      "close_others": "Close all other tabs",
+      "duplicate": "Duplicate current tab",
+      "new_tab": "Open a new tab",
+      "title": "Tabs"
+    },
+    "workspace": {
+      "delete": "Delete current team",
+      "edit": "Edit current team",
+      "invite": "Invite people to team",
+      "new": "Create new team",
+      "switch_to_personal": "Switch to your personal workspace",
+      "title": "Teams"
+    }
   },
   "sse": {
     "event_type": "Τύπος συμβάντος",
@@ -639,8 +777,11 @@
   "tab": {
     "authorization": "Εξουσιοδότηση",
     "body": "Σώμα",
+    "close": "Close Tab",
+    "close_others": "Close other Tabs",
     "collections": "Συλλογές",
     "documentation": "Τεκμηρίωση",
+    "duplicate": "Duplicate Tab",
     "environments": "Environments",
     "headers": "Κεφαλίδες",
     "history": "Ιστορία",

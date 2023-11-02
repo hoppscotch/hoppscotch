@@ -79,7 +79,7 @@ const t = useI18n();
 const toast = useToast();
 
 const props = defineProps<{
-  team: TeamInfoQuery['admin']['teamInfo'];
+  team: TeamInfoQuery['infra']['teamInfo'];
   teamName: string;
   showRenameInput: boolean;
 }>();

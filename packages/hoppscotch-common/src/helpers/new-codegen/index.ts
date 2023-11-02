@@ -208,7 +208,10 @@ export const generateCode = (
         }).convert(codegenInfo.lang, codegenInfo.mode, {
           indent: "  ",
         }),
-      (e) => e
+      (e) => {
+        console.error(e)
+        return e
+      }
     ),
 
     // Only allow string output to pass through, else none

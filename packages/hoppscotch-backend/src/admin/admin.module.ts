@@ -10,6 +10,7 @@ import { TeamInvitationModule } from '../team-invitation/team-invitation.module'
 import { TeamEnvironmentsModule } from '../team-environments/team-environments.module';
 import { TeamCollectionModule } from '../team-collection/team-collection.module';
 import { TeamRequestModule } from '../team-request/team-request.module';
+import { InfraResolver } from './infra.resolver';
 
 @Module({
   imports: [
@@ -23,7 +24,7 @@ import { TeamRequestModule } from '../team-request/team-request.module';
     TeamCollectionModule,
     TeamRequestModule,
   ],
-  providers: [AdminResolver, AdminService],
+  providers: [InfraResolver, AdminResolver, AdminService],
   exports: [AdminService],
 })
 export class AdminModule {}

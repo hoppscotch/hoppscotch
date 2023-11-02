@@ -2,8 +2,9 @@
 
 This document outlines security procedures and general policies for the Hoppscotch project.
 
-1. [Reporting a security vulnerability](#reporting-a-security-vulnerability)
-3. [Incident response process](#incident-response-process)
+- [Security Policy](#security-policy)
+  - [Reporting a security vulnerability](#reporting-a-security-vulnerability)
+  - [Incident response process](#incident-response-process)
 
 ## Reporting a security vulnerability
 

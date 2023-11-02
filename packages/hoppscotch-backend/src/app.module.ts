@@ -19,6 +19,7 @@ import { UserCollectionModule } from './user-collection/user-collection.module';
 import { ShortcodeModule } from './shortcode/shortcode.module';
 import { COOKIES_NOT_FOUND } from './errors';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { AppController } from './app.controller';
 
 @Module({
   imports: [
@@ -26,12 +27,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
       buildSchemaOptions: {
         numberScalarMode: 'integer',
       },
-      cors: {
-        origin: process.env.WHITELISTED_ORIGINS.split(','),
-        credentials: true,
-      },
       playground: process.env.PRODUCTION !== 'true',
-      debug: process.env.PRODUCTION !== 'true',
       autoSchemaFile: true,
       installSubscriptionHandlers: true,
       subscriptions: {
@@ -61,10 +57,12 @@ import { ThrottlerModule } from '@nestjs/throttler';
       }),
       driver: ApolloDriver,
     }),
-    ThrottlerModule.forRoot({
-      ttl: +process.env.RATE_LIMIT_TTL,
-      limit: +process.env.RATE_LIMIT_MAX,
-    }),
+    ThrottlerModule.forRoot([
+      {
+        ttl: +process.env.RATE_LIMIT_TTL,
+        limit: +process.env.RATE_LIMIT_MAX,
+      },
+    ]),
     UserModule,
     AuthModule,
     AdminModule,
@@ -81,5 +79,6 @@ import { ThrottlerModule } from '@nestjs/throttler';
     ShortcodeModule,
   ],
   providers: [GQLComplexityPlugin],
+  controllers: [AppController],
 })
 export class AppModule {}

@@ -5,6 +5,7 @@
     "choose_file": "Wybierz plik",
     "clear": "Wyczyść",
     "clear_all": "Wyczyść wszystko",
+    "clear_history": "Clear all History",
     "close": "Close",
     "connect": "Połącz",
     "connecting": "Connecting",
@@ -31,6 +32,7 @@
     "paste": "Paste",
     "prettify": "Popraw czytelność",
     "remove": "Usuń",
+    "rename": "Rename",
     "restore": "Przywróć",
     "save": "Zapisz",
     "scroll_to_bottom": "Scroll to bottom",
@@ -77,6 +79,8 @@
     "search": "Szukaj",
     "share": "Udostępnij",
     "shortcuts": "Skróty",
+    "social_description": "Follow us on social media to stay updated with the latest news, updates and releases.",
+    "social_links": "Social links",
     "spotlight": "Reflektor",
     "status": "Status",
     "status_description": "Check the status of the website",
@@ -131,12 +135,15 @@
     "renamed": "Zmieniono nazwę kolekcji",
     "request_in_use": "Request in use",
     "save_as": "Zapisz jako",
+    "save_to_collection": "Save to Collection",
     "select": "Wybierz kolekcję",
     "select_location": "Wybierz lokalizację",
     "select_team": "Wybierz zespół",
     "team_collections": "Kolekcje zespołowe"
   },
   "confirm": {
+    "close_unsaved_tab": "Are you sure you want to close this tab?",
+    "close_unsaved_tabs": "Are you sure you want to close all tabs? {count} unsaved tabs will be lost.",
     "exit_team": "Are you sure you want to leave this team?",
     "logout": "Czy na pewno chcesz się wylogować?",
     "remove_collection": "Czy na pewno chcesz trwale usunąć tę kolekcję?",
@@ -149,6 +156,11 @@
     "request_change": "Are you sure you want to discard current request, unsaved changes will be lost.",
     "save_unsaved_tab": "Do you want to save changes made in this tab?",
     "sync": "Czy na pewno chcesz zsynchronizować ten obszar roboczy?"
+  },
+  "context_menu": {
+    "add_parameters": "Add to parameters",
+    "open_request_in_new_tab": "Open request in new tab",
+    "set_environment_variable": "Set as variable"
   },
   "count": {
     "header": "Nagłówek {count}",
@@ -192,17 +204,31 @@
     "create_new": "Stwórz nowe środowisko",
     "created": "Environment created",
     "deleted": "Environment deletion",
+    "duplicated": "Environment duplicated",
     "edit": "Edytuj środowisko",
+    "empty_variables": "No variables",
+    "global": "Global",
+    "global_variables": "Global variables",
     "invalid_name": "Podaj prawidłową nazwę środowiska",
+    "list": "Environment variables",
     "my_environments": "My Environments",
+    "name": "Name",
     "nested_overflow": "nested environment variables are limited to 10 levels",
     "new": "Nowe środowisko",
+    "no_active_environment": "No active environment",
     "no_environment": "Brak środowiska",
     "no_environment_description": "No environments were selected. Choose what to do with the following variables.",
+    "quick_peek": "Environment Quick Peek",
+    "replace_with_variable": "Replace with variable",
+    "scope": "Scope",
     "select": "Wybierz środowisko",
+    "set": "Set environment",
+    "set_as_environment": "Set as environment",
     "team_environments": "Team Environments",
     "title": "Środowiska",
     "updated": "Environment updation",
+    "value": "Value",
+    "variable": "Variable",
     "variable_list": "Lista zmiennych"
   },
   "error": {
@@ -226,6 +252,7 @@
     "no_duration": "Brak czasu trwania",
     "no_results_found": "No matches found",
     "page_not_found": "This page could not be found",
+    "proxy_error": "Proxy error",
     "script_fail": "Nie można wykonać skryptu żądania wstępnego",
     "something_went_wrong": "Coś poszło nie tak",
     "test_script_fail": "Could not execute post-request script"
@@ -251,9 +278,13 @@
     "renamed": "Zmieniono nazwę folderu"
   },
   "graphql": {
+    "connection_switch_confirm": "Do you want to connect with the latest GraphQL endpoint?",
+    "connection_switch_new_url": "Switching to a tab will disconnected you from the active GraphQL connection. New connection URL is",
+    "connection_switch_url": "You're connected to a GraphQL endpoint the connection URL is",
     "mutations": "Mutacje",
     "schema": "Schemat",
-    "subscriptions": "Subskrypcje"
+    "subscriptions": "Subskrypcje",
+    "switch_connection": "Switch connection"
   },
   "group": {
     "time": "Time",
@@ -307,13 +338,36 @@
     "json_description": "Import collections from a Hoppscotch Collections JSON file",
     "title": "Import"
   },
+  "inspections": {
+    "description": "Inspect possible errors",
+    "environment": {
+      "add_environment": "Add to Environment",
+      "not_found": "Environment variable “{environment}” not found."
+    },
+    "header": {
+      "cookie": "The browser doesn't allow Hoppscotch to set the Cookie Header. While we're working on the Hoppscotch Desktop App (coming soon), please use the Authorization Header instead."
+    },
+    "response": {
+      "401_error": "Please check your authentication credentials.",
+      "404_error": "Please check your request URL and method type.",
+      "cors_error": "Please check your Cross-Origin Resource Sharing configuration.",
+      "default_error": "Please check your request.",
+      "network_error": "Please check your network connection."
+    },
+    "title": "Inspector",
+    "url": {
+      "extension_not_installed": "Extension not installed.",
+      "extension_unknown_origin": "Make sure you've added the API endpoint's origin to the Hoppscotch Browser Extension list.",
+      "extention_enable_action": "Enable Browser Extension",
+      "extention_not_enabled": "Extension not enabled."
+    }
+  },
   "layout": {
     "collapse_collection": "Collapse or Expand Collections",
     "collapse_sidebar": "Collapse or Expand the sidebar",
     "column": "Pionowy układ",
     "name": "Layout",
-    "row": "Poziomy układ",
-    "zen_mode": "Tryb Zen"
+    "row": "Poziomy układ"
   },
   "modal": {
     "close_unsaved_tab": "You have unsaved changes",
@@ -418,6 +472,7 @@
     "payload": "Dane żądania",
     "query": "Zapytanie",
     "raw_body": "Surowa treść żądania",
+    "rename": "Rename Request",
     "renamed": "Zmieniono nazwę żądania",
     "run": "Uruchom",
     "save": "Zapisz",
@@ -425,6 +480,7 @@
     "saved": "Żądanie zostało zapisane",
     "share": "Udostępnij",
     "share_description": "Share Hoppscotch with your friends",
+    "stop": "Stop",
     "title": "Żądanie",
     "type": "Typ żądania",
     "url": "URL",
@@ -459,7 +515,6 @@
     "account_name_description": "To jest Twoja nazwa wyświetlana.",
     "background": "Tło",
     "black_mode": "Czarny",
-    "change_font_size": "Zmień rozmiar czczionki",
     "choose_language": "Wybierz język",
     "dark_mode": "Ciemny",
     "delete_account": "Delete account",
@@ -472,10 +527,6 @@
     "extensions": "Rozszerzenia",
     "extensions_use_toggle": "Użyj rozszerzenia przeglądarki do wysyłania żądań (jeśli istnieje)",
     "follow": "Follow Us",
-    "font_size": "Rozmiar czcionki",
-    "font_size_large": "Wielki",
-    "font_size_medium": "Średni",
-    "font_size_small": "Mały",
     "interceptor": "Interceptor",
     "interceptor_description": "Oprogramowanie pośredniczące między aplikacją a interfejsami API.",
     "language": "Język",
@@ -540,19 +591,27 @@
       "settings": "Przejdź do strony Ustawienia",
       "title": "Nawigacja"
     },
+    "others": {
+      "prettify": "Prettify Editor's Content",
+      "title": "Others"
+    },
     "request": {
       "copy_request_link": "Kopiuj łącze żądania",
       "delete_method": "Wybierz metodę DELETE",
       "get_method": "Wybierz metodę GET",
       "head_method": "Wybierz metodę HEAD",
+      "import_curl": "Import cURL",
       "method": "metoda",
       "next_method": "Wybierz następną metodę",
       "post_method": "Wybierz metodę POST",
       "previous_method": "Wybierz poprzednią metodę",
       "put_method": "Wybierz metodę PUT",
+      "rename": "Rename Request",
       "reset_request": "Zresetuj żądanie",
+      "save_request": "Save Request",
       "save_to_collections": "Zapisz w kolekcjach",
       "send_request": "Wyślij żądanie",
+      "show_code": "Generate code snippet",
       "title": "Żądania"
     },
     "response": {
@@ -581,6 +640,85 @@
     "events": "Wydarzenia",
     "log": "Logi",
     "url": "URL"
+  },
+  "spotlight": {
+    "change_language": "Change Language",
+    "environments": {
+      "delete": "Delete current environment",
+      "duplicate": "Duplicate current environment",
+      "duplicate_global": "Duplicate global environment",
+      "edit": "Edit current environment",
+      "edit_global": "Edit global environment",
+      "new": "Create new environment",
+      "new_variable": "Create a new environment variable",
+      "title": "Environments"
+    },
+    "general": {
+      "chat": "Chat with support",
+      "help_menu": "Help and support",
+      "open_docs": "Read Documentation",
+      "open_github": "Open GitHub repository",
+      "open_keybindings": "Keyboard shortcuts",
+      "social": "Social",
+      "title": "General"
+    },
+    "graphql": {
+      "connect": "Connect to server",
+      "disconnect": "Disconnect from server"
+    },
+    "miscellaneous": {
+      "invite": "Invite your friends to Hoppscotch",
+      "title": "Miscellaneous"
+    },
+    "request": {
+      "save_as_new": "Save as new request",
+      "select_method": "Select method",
+      "switch_to": "Switch to",
+      "tab_authorization": "Authorization tab",
+      "tab_body": "Body tab",
+      "tab_headers": "Headers tab",
+      "tab_parameters": "Parameters tab",
+      "tab_pre_request_script": "Pre-request script tab",
+      "tab_query": "Query tab",
+      "tab_tests": "Tests tab",
+      "tab_variables": "Variables tab"
+    },
+    "response": {
+      "copy": "Copy response",
+      "download": "Download response as file",
+      "title": "Response"
+    },
+    "section": {
+      "interceptor": "Interceptor",
+      "interface": "Interface",
+      "theme": "Theme",
+      "user": "User"
+    },
+    "settings": {
+      "change_interceptor": "Change Interceptor",
+      "change_language": "Change Language",
+      "theme": {
+        "black": "Black",
+        "dark": "Dark",
+        "light": "Light",
+        "system": "System preference"
+      }
+    },
+    "tab": {
+      "close_current": "Close current tab",
+      "close_others": "Close all other tabs",
+      "duplicate": "Duplicate current tab",
+      "new_tab": "Open a new tab",
+      "title": "Tabs"
+    },
+    "workspace": {
+      "delete": "Delete current team",
+      "edit": "Edit current team",
+      "invite": "Invite people to team",
+      "new": "Create new team",
+      "switch_to_personal": "Switch to your personal workspace",
+      "title": "Teams"
+    }
   },
   "sse": {
     "event_type": "Typ wydarzenia",
@@ -639,8 +777,11 @@
   "tab": {
     "authorization": "Autoryzacja",
     "body": "Ciało",
+    "close": "Close Tab",
+    "close_others": "Close other Tabs",
     "collections": "Kolekcje",
     "documentation": "Dokumentacja",
+    "duplicate": "Duplicate Tab",
     "environments": "Environments",
     "headers": "Nagłówki",
     "history": "Historia",

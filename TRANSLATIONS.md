@@ -9,18 +9,16 @@ Before you start working on a new language, please look through the [open pull r
 if there is no existing translation, you can create a new one by following these steps:
 
 1. **[Fork the repository](https://github.com/hoppscotch/hoppscotch/fork).**
-2. **Checkout the `i18n` branch for latest translations.**
-3. **Create a new branch for your translation with base branch `i18n`.**
+2. **Checkout the `main` branch for latest translations.**
+3. **Create a new branch for your translation with base branch `main`.**
 4. **Create target language file in the [`/packages/hoppscotch-common/locales`](https://github.com/hoppscotch/hoppscotch/tree/main/packages/hoppscotch-common/locales) directory.**
 5. **Copy the contents of the source file [`/packages/hoppscotch-common/locales/en.json`](https://github.com/hoppscotch/hoppscotch/blob/main/packages/hoppscotch-common/locales/en.json) to the target language file.**
 6. **Translate the strings in the target language file.**
 7. **Add your language entry to [`/packages/hoppscotch-common/languages.json`](https://github.com/hoppscotch/hoppscotch/blob/main/packages/hoppscotch-common/languages.json).**
-8. **Save & commit changes.**
+8. **Save and commit changes.**
 9. **Send a pull request.**
 
 _You may send a pull request before all steps above are complete: e.g., you may want to ask for help with translations, or getting tests to pass. However, your pull request will not be merged until all steps above are complete._
-
-`i18n` branch will be merged into `main` branch once every week.
 
 Completing an initial translation of the whole site is a fairly large task. One way to break that task up is to work with other translators through pull requests on your fork. You can also [add collaborators to your fork](https://help.github.com/en/github/setting-up-and-managing-your-github-user-account/inviting-collaborators-to-a-personal-repository) if you'd like to invite other translators to commit directly to your fork and share responsibility for merging pull requests.
 
@@ -28,7 +26,7 @@ Completing an initial translation of the whole site is a fairly large task. One 
 
 ### Corrections
 
-If you notice spelling or grammar errors, typos, or opportunities for better phrasing, open a pull request with your suggested fix. If you see a problem that you aren't sure of or don't have time to fix, open an issue.
+If you notice spelling or grammar errors, typos, or opportunities for better phrasing, open a pull request with your suggested fix. If you see a problem that you aren't sure of or don't have time to fix, [open an issue](https://github.com/hoppscotch/hoppscotch/issues/new/choose).
 
 ### Broken links
 

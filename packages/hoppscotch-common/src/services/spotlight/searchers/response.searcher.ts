@@ -1,5 +1,5 @@
 import { Component, computed, markRaw, reactive } from "vue"
-import { activeActions$, invokeAction } from "~/helpers/actions"
+import { invokeAction, isActionBound } from "~/helpers/actions"
 import { getI18n } from "~/modules/i18n"
 import { SpotlightSearcherResult, SpotlightService } from ".."
 import {
@@ -9,8 +9,6 @@ import {
 
 import IconDownload from "~icons/lucide/download"
 import IconCopy from "~icons/lucide/copy"
-import { map } from "rxjs"
-import { useStreamStatic } from "~/composables/stream"
 
 type Doc = {
   text: string
@@ -35,23 +33,11 @@ export class ResponseSpotlightSearcherService extends StaticSpotlightSearcherSer
 
   private readonly spotlight = this.bind(SpotlightService)
 
-  private copyResponseActionEnabled = useStreamStatic(
-    activeActions$.pipe(map((actions) => actions.includes("response.copy"))),
-    activeActions$.value.includes("response.copy"),
-    () => {
-      /* noop */
-    }
-  )[0]
+  private copyResponseActionEnabled = isActionBound("response.copy")
 
-  private downloadResponseActionEnabled = useStreamStatic(
-    activeActions$.pipe(
-      map((actions) => actions.includes("response.file.download"))
-    ),
-    activeActions$.value.includes("response.file.download"),
-    () => {
-      /* noop */
-    }
-  )[0]
+  private downloadResponseActionEnabled = isActionBound(
+    "response.file.download"
+  )
 
   private documents: Record<string, Doc> = reactive({
     copy_response: {

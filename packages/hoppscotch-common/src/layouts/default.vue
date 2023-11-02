@@ -1,7 +1,7 @@
 <template>
-  <div class="flex w-screen h-screen">
+  <div class="flex h-screen w-screen">
     <Splitpanes class="no-splitter" :dbl-click-splitter="false" horizontal>
-      <Pane v-if="!zenMode" style="height: auto">
+      <Pane style="height: auto">
         <AppHeader />
       </Pane>
       <Pane :class="spacerClass" class="flex flex-1 !overflow-auto md:mb-0">
@@ -12,7 +12,7 @@
         >
           <Pane
             style="width: auto; height: auto"
-            class="!overflow-auto hidden md:flex md:flex-col"
+            class="hidden !overflow-auto md:flex md:flex-col"
           >
             <AppSidenav />
           </Pane>
@@ -23,10 +23,10 @@
               horizontal
             >
               <Pane class="flex flex-1 !overflow-auto">
-                <main class="flex flex-1 w-full" role="main">
+                <main class="flex w-full flex-1" role="main">
                   <RouterView
                     v-slot="{ Component }"
-                    class="flex flex-1 min-w-0"
+                    class="flex min-w-0 flex-1"
                   >
                     <Transition name="fade" mode="out-in" appear>
                       <component :is="Component" />
@@ -44,7 +44,7 @@
       <Pane
         v-else
         style="height: auto"
-        class="!overflow-auto flex flex-col fixed inset-x-0 bottom-0 z-10"
+        class="fixed inset-x-0 bottom-0 z-10 flex flex-col !overflow-auto"
       >
         <AppSidenav />
       </Pane>
@@ -79,9 +79,7 @@ const router = useRouter()
 const showSearch = ref(false)
 const showSupport = ref(false)
 
-const fontSize = useSetting("FONT_SIZE")
 const expandNavigation = useSetting("EXPAND_NAVIGATION")
-const zenMode = useSetting("ZEN_MODE")
 const rightSidebar = useSetting("SIDEBAR")
 const columnLayout = useSetting("COLUMN_LAYOUT")
 
@@ -133,24 +131,9 @@ watch(mdAndLarger, () => {
     columnLayout.value = true
   }
 })
-
-const spacerClass = computed(() => {
-  if (fontSize.value === "small" && expandNavigation.value)
-    return "spacer-small"
-  if (fontSize.value === "medium" && expandNavigation.value)
-    return "spacer-medium"
-  if (fontSize.value === "large" && expandNavigation.value)
-    return "spacer-large"
-  if (
-    (fontSize.value === "small" ||
-      fontSize.value === "medium" ||
-      fontSize.value === "large") &&
-    !expandNavigation.value
-  )
-    return "spacer-expand"
-
-  return ""
-})
+const spacerClass = computed(() =>
+  expandNavigation.value ? "spacer-small" : "spacer-expand"
+)
 
 defineActionHandler("modals.search.toggle", () => {
   showSearch.value = !showSearch.value

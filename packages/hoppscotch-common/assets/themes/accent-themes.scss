@@ -1,0 +1,89 @@
+@mixin green-theme {
+  --accent-color: #10b981;
+  --accent-light-color: #34d399;
+  --accent-dark-color: #059669;
+  --accent-contrast-color: #fff;
+  --gradient-from-color: #a7f3d0;
+  --gradient-via-color: #34d399;
+  --gradient-to-color: #059669;
+}
+
+@mixin teal-theme {
+  --accent-color: #14b8a6;
+  --accent-light-color: #2dd4bf;
+  --accent-dark-color: #0d9488;
+  --accent-contrast-color: #fff;
+  --gradient-from-color: #99f6e4;
+  --gradient-via-color: #2dd4bf;
+  --gradient-to-color: #0d9488;
+}
+
+@mixin blue-theme {
+  --accent-color: #3b82f6;
+  --accent-light-color: #60a5fa;
+  --accent-dark-color: #2563eb;
+  --accent-contrast-color: #fff;
+  --gradient-from-color: #bfdbfe;
+  --gradient-via-color: #60a5fa;
+  --gradient-to-color: #2563eb;
+}
+
+@mixin indigo-theme {
+  --accent-color: #6366f1;
+  --accent-light-color: #818cf8;
+  --accent-dark-color: #4f46e5;
+  --accent-contrast-color: #fff;
+  --gradient-from-color: #c7d2fe;
+  --gradient-via-color: #818cf8;
+  --gradient-to-color: #4f46e5;
+}
+
+@mixin purple-theme {
+  --accent-color: #8b5cf6;
+  --accent-light-color: #a78bfa;
+  --accent-dark-color: #7c3aed;
+  --accent-contrast-color: #fff;
+  --gradient-from-color: #ddd6fe;
+  --gradient-via-color: #a78bfa;
+  --gradient-to-color: #7c3aed;
+}
+
+@mixin yellow-theme {
+  --accent-color: #f59e0b;
+  --accent-light-color: #fbbf24;
+  --accent-dark-color: #d97706;
+  --accent-contrast-color: #fff;
+  --gradient-from-color: #fde68a;
+  --gradient-via-color: #fbbf24;
+  --gradient-to-color: #d97706;
+}
+
+@mixin orange-theme {
+  --accent-color: #f97316;
+  --accent-light-color: #fb923c;
+  --accent-dark-color: #ea580c;
+  --accent-contrast-color: #fff;
+  --gradient-from-color: #fed7aa;
+  --gradient-via-color: #fb923c;
+  --gradient-to-color: #ea580c;
+}
+
+@mixin red-theme {
+  --accent-color: #ef4444;
+  --accent-light-color: #f87171;
+  --accent-dark-color: #dc2626;
+  --accent-contrast-color: #fff;
+  --gradient-from-color: #fecaca;
+  --gradient-via-color: #f87171;
+  --gradient-to-color: #dc2626;
+}
+
+@mixin pink-theme {
+  --accent-color: #ec4899;
+  --accent-light-color: #f472b6;
+  --accent-dark-color: #db2777;
+  --accent-contrast-color: #fff;
+  --gradient-from-color: #fbcfe8;
+  --gradient-via-color: #f472b6;
+  --gradient-to-color: #db2777;
+}

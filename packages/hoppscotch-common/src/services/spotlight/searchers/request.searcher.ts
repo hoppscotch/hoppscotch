@@ -1,5 +1,5 @@
-import { Component, markRaw, reactive } from "vue"
-import { invokeAction } from "~/helpers/actions"
+import { Component, computed, markRaw, reactive } from "vue"
+import { invokeAction, isActionBound } from "~/helpers/actions"
 import { getI18n } from "~/modules/i18n"
 import { SpotlightSearcherResult, SpotlightService } from ".."
 import {
@@ -7,12 +7,10 @@ import {
   StaticSpotlightSearcherService,
 } from "./base/static.searcher"
 
-import { RequestOptionTabs } from "~/components/http/RequestOptions.vue"
-import { currentActiveTab } from "~/helpers/rest/tab"
+import { useRoute } from "vue-router"
+import { RESTOptionTabs } from "~/components/http/RequestOptions.vue"
 import IconWindow from "~icons/lucide/app-window"
-import IconCheck from "~icons/lucide/check"
-import IconChevronLeft from "~icons/lucide/chevron-left"
-import IconChevronRight from "~icons/lucide/chevron-right"
+import IconCheckCircle from "~icons/lucide/check-circle"
 import IconCode2 from "~icons/lucide/code-2"
 import IconCopy from "~icons/lucide/copy"
 import IconFileCode from "~icons/lucide/file-code"
@@ -20,11 +18,14 @@ import IconRename from "~icons/lucide/file-edit"
 import IconPlay from "~icons/lucide/play"
 import IconRotateCCW from "~icons/lucide/rotate-ccw"
 import IconSave from "~icons/lucide/save"
+import { GQLOptionTabs } from "~/components/graphql/RequestOptions.vue"
+import { RESTTabService } from "~/services/tab/rest"
 
 type Doc = {
   text: string | string[]
   alternates: string[]
   icon: object | Component
+  excludeFromSearch?: boolean
 }
 
 /**
@@ -42,117 +43,184 @@ export class RequestSpotlightSearcherService extends StaticSpotlightSearcherServ
   public searcherSectionTitle = this.t("shortcut.request.title")
 
   private readonly spotlight = this.bind(SpotlightService)
+  private readonly restTab = this.bind(RESTTabService)
+
+  private route = useRoute()
+  private isRESTPage = computed(() => this.route.name === "index")
+  private isGQLPage = computed(() => this.route.name === "graphql")
+  private isRESTOrGQLPage = computed(
+    () => this.isRESTPage.value || this.isGQLPage.value
+  )
+  private isGQLConnectBound = isActionBound("gql.connect")
+  private isGQLDisconnectBound = isActionBound("gql.disconnect")
 
   private documents: Record<string, Doc> = reactive({
     send_request: {
       text: this.t("shortcut.request.send_request"),
       alternates: ["request", "send"],
       icon: markRaw(IconPlay),
+      excludeFromSearch: computed(() => !this.isRESTOrGQLPage.value),
+    },
+    gql_connect: {
+      text: [this.t("navigation.graphql"), this.t("spotlight.graphql.connect")],
+      alternates: ["connect", "server", "graphql"],
+      icon: markRaw(IconPlay),
+      excludeFromSearch: computed(() => !this.isGQLConnectBound.value),
+    },
+    gql_disconnect: {
+      text: [
+        this.t("navigation.graphql"),
+        this.t("spotlight.graphql.disconnect"),
+      ],
+      alternates: ["disconnect", "stop", "graphql"],
+      icon: markRaw(IconPlay),
+      excludeFromSearch: computed(() => !this.isGQLDisconnectBound.value),
     },
     save_to_collections: {
-      text: [
-        this.t("request.save_as"),
-        this.t("shortcut.request.save_to_collections"),
-      ],
+      text: this.t("spotlight.request.save_as_new"),
       alternates: ["save", "collections"],
       icon: markRaw(IconSave),
+      excludeFromSearch: computed(() => !this.isRESTOrGQLPage.value),
     },
     save_request: {
       text: this.t("shortcut.request.save_request"),
       alternates: ["save", "request"],
       icon: markRaw(IconSave),
+      excludeFromSearch: computed(() => !this.isRESTOrGQLPage.value),
     },
     rename_request: {
       text: this.t("shortcut.request.rename"),
       alternates: ["rename", "request"],
       icon: markRaw(IconRename),
+      excludeFromSearch: computed(() => !this.isRESTOrGQLPage.value),
     },
     copy_request_link: {
       text: this.t("shortcut.request.copy_request_link"),
       alternates: ["copy", "link"],
       icon: markRaw(IconCopy),
+      excludeFromSearch: computed(() => !this.isRESTPage.value),
     },
     reset_request: {
       text: this.t("shortcut.request.reset_request"),
       alternates: ["reset", "request"],
       icon: markRaw(IconRotateCCW),
+      excludeFromSearch: computed(() => !this.isRESTOrGQLPage.value),
     },
     import_curl: {
       text: this.t("shortcut.request.import_curl"),
       alternates: ["import", "curl"],
       icon: markRaw(IconFileCode),
+      excludeFromSearch: computed(() => !this.isRESTPage.value),
     },
     show_code: {
       text: this.t("shortcut.request.show_code"),
       alternates: ["show", "code"],
       icon: markRaw(IconCode2),
+      excludeFromSearch: computed(() => !this.isRESTPage.value),
     },
     // Change request method
-    next_method: {
-      text: this.t("shortcut.request.next_method"),
-      alternates: ["next", "method"],
-      icon: markRaw(IconChevronRight),
-    },
-    previous_method: {
-      text: this.t("shortcut.request.previous_method"),
-      alternates: ["previous", "method"],
-      icon: markRaw(IconChevronLeft),
-    },
     get_method: {
-      text: this.t("shortcut.request.get_method"),
+      text: [this.t("spotlight.request.select_method"), "GET"],
       alternates: ["get", "method"],
-      icon: markRaw(IconCheck),
+      icon: markRaw(IconCheckCircle),
+      excludeFromSearch: computed(() => !this.isRESTPage.value),
     },
     head_method: {
-      text: this.t("shortcut.request.head_method"),
+      text: [this.t("spotlight.request.select_method"), "HEAD"],
       alternates: ["head", "method"],
-      icon: markRaw(IconCheck),
+      icon: markRaw(IconCheckCircle),
+      excludeFromSearch: computed(() => !this.isRESTPage.value),
     },
     post_method: {
-      text: this.t("shortcut.request.post_method"),
+      text: [this.t("spotlight.request.select_method"), "POST"],
       alternates: ["post", "method"],
-      icon: markRaw(IconCheck),
+      icon: markRaw(IconCheckCircle),
+      excludeFromSearch: computed(() => !this.isRESTPage.value),
     },
     put_method: {
-      text: this.t("shortcut.request.put_method"),
+      text: [this.t("spotlight.request.select_method"), "PUT"],
       alternates: ["put", "method"],
-      icon: markRaw(IconCheck),
+      icon: markRaw(IconCheckCircle),
+      excludeFromSearch: computed(() => !this.isRESTPage.value),
     },
     delete_method: {
-      text: this.t("shortcut.request.delete_method"),
+      text: [this.t("spotlight.request.select_method"), "DELETE"],
       alternates: ["delete", "method"],
-      icon: markRaw(IconCheck),
+      icon: markRaw(IconCheckCircle),
+      excludeFromSearch: computed(() => !this.isRESTPage.value),
     },
     // Change sub tabs
     tab_parameters: {
-      text: this.t("spotlight.request.tab_parameters"),
+      text: [
+        this.t("spotlight.request.switch_to"),
+        this.t("spotlight.request.tab_parameters"),
+      ],
       alternates: ["parameters", "tab"],
       icon: markRaw(IconWindow),
+      excludeFromSearch: computed(() => !this.isRESTOrGQLPage.value),
     },
     tab_body: {
-      text: this.t("spotlight.request.tab_body"),
+      text: [
+        this.t("spotlight.request.switch_to"),
+        this.t("spotlight.request.tab_body"),
+      ],
       alternates: ["body", "tab"],
       icon: markRaw(IconWindow),
+      excludeFromSearch: computed(() => !this.isRESTOrGQLPage.value),
     },
     tab_headers: {
-      text: this.t("spotlight.request.tab_headers"),
+      text: [
+        this.t("spotlight.request.switch_to"),
+        this.t("spotlight.request.tab_headers"),
+      ],
       alternates: ["headers", "tab"],
       icon: markRaw(IconWindow),
+      excludeFromSearch: computed(() => !this.isRESTOrGQLPage.value),
     },
     tab_authorization: {
-      text: this.t("spotlight.request.tab_authorization"),
+      text: [
+        this.t("spotlight.request.switch_to"),
+        this.t("spotlight.request.tab_authorization"),
+      ],
       alternates: ["authorization", "tab"],
       icon: markRaw(IconWindow),
+      excludeFromSearch: computed(() => !this.isRESTOrGQLPage.value),
     },
     tab_pre_request_script: {
-      text: this.t("spotlight.request.tab_pre_request_script"),
+      text: [
+        this.t("spotlight.request.switch_to"),
+        this.t("spotlight.request.tab_pre_request_script"),
+      ],
       alternates: ["pre-request", "script", "tab"],
       icon: markRaw(IconWindow),
+      excludeFromSearch: computed(() => !this.isRESTPage.value),
     },
     tab_tests: {
-      text: this.t("spotlight.request.tab_tests"),
+      text: [
+        this.t("spotlight.request.switch_to"),
+        this.t("spotlight.request.tab_tests"),
+      ],
       alternates: ["tests", "tab"],
       icon: markRaw(IconWindow),
+      excludeFromSearch: computed(() => !this.isRESTPage.value),
+    },
+    tab_query: {
+      text: [
+        this.t("spotlight.request.switch_to"),
+        this.t("spotlight.request.tab_query"),
+      ],
+      alternates: ["query", "tab"],
+      icon: markRaw(IconWindow),
+      excludeFromSearch: computed(() => !this.isGQLPage.value),
+    },
+    tab_variables: {
+      text: [
+        this.t("spotlight.request.switch_to"),
+        this.t("spotlight.request.tab_variables"),
+      ],
+      alternates: ["variables", "tab"],
+      icon: markRaw(IconWindow),
+      excludeFromSearch: computed(() => !this.isGQLPage.value),
     },
   })
 
@@ -180,7 +248,7 @@ export class RequestSpotlightSearcherService extends StaticSpotlightSearcherServ
     }
   }
 
-  private openRequestTab(tab: RequestOptionTabs): void {
+  private openRequestTab(tab: RESTOptionTabs | GQLOptionTabs): void {
     invokeAction("request.open-tab", {
       tab,
     })
@@ -191,29 +259,29 @@ export class RequestSpotlightSearcherService extends StaticSpotlightSearcherServ
       case "send_request":
         invokeAction("request.send-cancel")
         break
+      case "gql_connect":
+        invokeAction("gql.connect")
+        break
+      case "gql_disconnect":
+        invokeAction("gql.disconnect")
+        break
       case "save_to_collections":
         invokeAction("request.save-as", {
           requestType: "rest",
-          request: currentActiveTab.value?.document.request,
+          request: this.restTab.currentActiveTab.value?.document.request,
         })
         break
       case "save_request":
         invokeAction("request.save")
         break
       case "rename_request":
-        invokeAction("rest.request.rename")
+        invokeAction("request.rename")
         break
       case "copy_request_link":
         invokeAction("request.copy-link")
         break
       case "reset_request":
         invokeAction("request.reset")
-        break
-      case "next_method":
-        invokeAction("request.method.next")
-        break
-      case "previous_method":
-        invokeAction("request.method.prev")
         break
       case "get_method":
         invokeAction("request.method.get")
@@ -253,6 +321,12 @@ export class RequestSpotlightSearcherService extends StaticSpotlightSearcherServ
         break
       case "tab_tests":
         this.openRequestTab("tests")
+        break
+      case "tab_query":
+        this.openRequestTab("query")
+        break
+      case "tab_variables":
+        this.openRequestTab("variables")
         break
     }
   }

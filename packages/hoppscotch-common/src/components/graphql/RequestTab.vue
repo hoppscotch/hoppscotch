@@ -3,12 +3,13 @@
     <template #primary>
       <GraphqlRequestOptions
         v-model="tab.document.request"
-        v-model:response="tab.response"
+        v-model:response="tab.document.response"
+        v-model:option-tab="tab.document.optionTabPreference"
         :tab-id="tab.id"
       />
     </template>
     <template #secondary>
-      <GraphqlResponse :response="tab.response" />
+      <GraphqlResponse :response="tab.document.response" />
     </template>
   </AppPaneLayout>
 </template>
@@ -18,14 +19,15 @@ import { useVModel } from "@vueuse/core"
 import { cloneDeep } from "lodash-es"
 import { watch } from "vue"
 import { isEqualHoppGQLRequest } from "~/helpers/graphql"
-import { HoppGQLTab } from "~/helpers/graphql/tab"
+import { HoppGQLDocument } from "~/helpers/graphql/document"
+import { HoppTab } from "~/services/tab"
 
 // TODO: Move Response and Request execution code to over here
 
-const props = defineProps<{ modelValue: HoppGQLTab }>()
+const props = defineProps<{ modelValue: HoppTab<HoppGQLDocument> }>()
 
 const emit = defineEmits<{
-  (e: "update:modelValue", val: HoppGQLTab): void
+  (e: "update:modelValue", val: HoppTab<HoppGQLDocument>): void
 }>()
 
 const tab = useVModel(props, "modelValue", emit)

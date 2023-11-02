@@ -15,12 +15,12 @@
   -->
   <div v-if="childrenRendered" v-show="showChildren" class="flex">
     <div
-      class="bg-dividerLight cursor-nsResize flex ml-5.5 transform transition w-0.5 hover:bg-dividerDark hover:scale-x-125"
+      class="ml-[1.375rem] flex w-0.5 transform cursor-nsResize bg-dividerLight transition hover:scale-x-125 hover:bg-dividerDark"
       @click="toggleNodeChildren"
     ></div>
     <div
       v-if="childNodes.status === 'loaded' && childNodes.data.length > 0"
-      class="flex flex-col flex-1 truncate"
+      class="flex flex-1 flex-col truncate"
       :class="{
         'bg-divider': highlightNode,
       }"
@@ -58,14 +58,14 @@
 
     <div
       v-if="childNodes.status === 'loading'"
-      class="flex flex-col items-center justify-center flex-1 p-4"
+      class="flex flex-1 flex-col items-center justify-center p-4"
     >
       <SmartSpinner class="my-4" />
       <span class="text-secondaryLight">{{ t?.("state.loading") }}</span>
     </div>
     <div
       v-if="childNodes.status === 'loaded' && childNodes.data.length === 0"
-      class="flex flex-col flex-1"
+      class="flex flex-1 flex-col"
     >
       <slot name="emptyNode" :node="nodeItem"></slot>
     </div>

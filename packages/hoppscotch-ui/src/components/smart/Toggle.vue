@@ -52,9 +52,9 @@ $transition: all 0.2s ease-in-out;
   @apply cursor-pointer;
   @apply flex-shrink-0;
   @apply transition;
-  @apply group-hover: border-accentDark;
-  @apply focus: outline-none;
-  @apply focus-visible: border-accentDark;
+  @apply group-hover:border-accentDark;
+  @apply focus:outline-none;
+  @apply focus-visible:border-accentDark;
   width: $width;
   height: $height;
   border: if($useBorder, 2px solid $borderColor, none);
@@ -78,7 +78,7 @@ $transition: all 0.2s ease-in-out;
   &.on {
     // background-color: $activeColor;
     border-color: $activeColor;
-    @apply focus-visible: border-accentDark;
+    @apply focus-visible:border-accentDark;
 
     .handle {
       background-color: $activeHandleColor;

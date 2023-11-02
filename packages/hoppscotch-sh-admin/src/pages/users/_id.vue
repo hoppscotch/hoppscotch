@@ -16,17 +16,17 @@
           <img class="object-cover rounded-3xl mb-3" :src="user.photoURL" />
           <span
             v-if="user.isAdmin"
-            class="absolute left-17 bottom-0 text-xs font-medium px-3 py-0.5 rounded-full bg-green-900 text-green-300"
+            class="absolute left-16 bottom-0 text-xs font-medium px-3 py-0.5 rounded-full bg-green-900 text-green-300"
           >
             {{ t('users.admin') }}
           </span>
         </div>
 
-        <div v-else class="bg-primaryDark w-17 p-3 rounded-2xl mb-3 relative">
+        <div v-else class="bg-primaryDark w-16 p-3 rounded-2xl mb-3 relative">
           <icon-lucide-user class="text-4xl" />
           <span
             v-if="user.isAdmin"
-            class="absolute left-15 bottom-0 text-xs font-medium px-3 py-0.5 rounded-full bg-green-900 text-green-300"
+            class="absolute left-16 bottom-0 text-xs font-medium px-3 py-0.5 rounded-full bg-green-900 text-green-300"
           >
             {{ t('users.admin') }}
           </span>
@@ -60,7 +60,7 @@
             t('users.email')
           }}</label>
           <div
-            class="w-full p-3 mt-2 bg-divider border-gray-200 border-gray-600 rounded-md focus:border-emerald-600 focus:ring focus:ring-opacity-40 focus:ring-emerald-500"
+            class="w-full p-3 mt-2 bg-divider border-gray-600 rounded-md focus:border-emerald-600 focus:ring focus:ring-opacity-40 focus:ring-emerald-500"
           >
             {{ user.email }}
           </div>
@@ -99,7 +99,7 @@
         </span>
         <HoppButtonSecondary
           v-if="!user.isAdmin"
-          class="mr-4 !bg-red-600 !text-gray-300 !hover:text-gray-100"
+          class="mr-4 bg-red-600 text-white hover:text-gray-100"
           filled
           outline
           :label="t('users.delete')"
@@ -109,7 +109,7 @@
 
         <HoppButtonSecondary
           v-if="user.isAdmin"
-          class="mr-4 !bg-red-600 !text-gray-300 !hover:text-gray-100"
+          class="mr-4 bg-red-600 text-white hover:text-gray-100"
           filled
           outline
           :icon="IconTrash"
@@ -179,7 +179,7 @@ onMounted(async () => {
   if (result.error) {
     toast.error(`${t('users.load_info_error')}`);
   }
-  user.value = result.data?.admin.userInfo ?? {};
+  user.value = result.data?.infra.userInfo ?? {};
   fetching.value = false;
 });
 

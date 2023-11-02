@@ -1,5 +1,5 @@
 <template>
-  <div v-if="shouldRender" v-show="active" class="flex flex-col flex-1">
+  <div v-if="shouldRender" v-show="active" class="flex flex-1 flex-col">
     <slot></slot>
   </div>
 </template>
@@ -52,6 +52,7 @@ const {
   addTabEntry,
   updateTabEntry,
   removeTabEntry,
+  isUnmounting,
 } = inject<TabProvider>("tabs-system")!
 
 const active = computed(() => activeTabID.value === props.id)
@@ -73,6 +74,7 @@ watch(tabMeta, (newMeta) => {
 })
 
 onBeforeUnmount(() => {
+  if (isUnmounting.value) return
   removeTabEntry(props.id)
 })
 </script>

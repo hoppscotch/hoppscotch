@@ -21,33 +21,35 @@ import {
   StaticSpotlightSearcherService,
 } from "./base/static.searcher"
 
-import IconEdit from "~icons/lucide/edit"
-import IconTrash2 from "~icons/lucide/trash-2"
 import IconCopy from "~icons/lucide/copy"
+import IconEdit from "~icons/lucide/edit"
 import IconLayers from "~icons/lucide/layers"
+import IconTrash2 from "~icons/lucide/trash-2"
 
+import { Service } from "dioc"
+import * as TE from "fp-ts/TaskEither"
+import { pipe } from "fp-ts/function"
+import { cloneDeep } from "lodash-es"
+import MiniSearch from "minisearch"
+import { map } from "rxjs"
 import { useStreamStatic } from "~/composables/stream"
+import { GQLError } from "~/helpers/backend/GQLClient"
+import { deleteTeamEnvironment } from "~/helpers/backend/mutations/TeamEnvironment"
 import {
   createEnvironment,
   currentEnvironment$,
-  deleteEnvironment,
   duplicateEnvironment,
   environmentsStore,
   getGlobalVariables,
   selectedEnvironmentIndex$,
   setSelectedEnvironmentIndex,
 } from "~/newstore/environments"
-import { pipe } from "fp-ts/function"
-import * as TE from "fp-ts/TaskEither"
-import { deleteTeamEnvironment } from "~/helpers/backend/mutations/TeamEnvironment"
-import { GQLError } from "~/helpers/backend/GQLClient"
-import { cloneDeep } from "lodash-es"
-import { Service } from "dioc"
-import MiniSearch from "minisearch"
-import { map } from "rxjs"
+
+import IconCheckCircle from "~/components/app/spotlight/entry/IconSelected.vue"
+import IconCircle from "~icons/lucide/circle"
 
 type Doc = {
-  text: string
+  text: string | string[]
   alternates: string[]
   icon: object | Component
   excludeFromSearch?: boolean
@@ -89,40 +91,61 @@ export class EnvironmentsSpotlightSearcherService extends StaticSpotlightSearche
 
   private documents: Record<string, Doc> = reactive({
     new_environment: {
-      text: this.t("spotlight.environments.new"),
+      text: [
+        this.t("spotlight.environments.title"),
+        this.t("spotlight.environments.new"),
+      ],
       alternates: ["new", "environment"],
       icon: markRaw(IconLayers),
     },
     new_environment_variable: {
-      text: this.t("spotlight.environments.new_variable"),
+      text: [
+        this.t("spotlight.environments.title"),
+        this.t("spotlight.environments.new_variable"),
+      ],
       alternates: ["new", "environment", "variable"],
       icon: markRaw(IconLayers),
     },
     edit_selected_env: {
-      text: this.t("spotlight.environments.edit"),
+      text: [
+        this.t("spotlight.environments.title"),
+        this.t("spotlight.environments.edit"),
+      ],
       alternates: ["edit", "environment"],
       icon: markRaw(IconEdit),
       excludeFromSearch: computed(() => !this.hasSelectedEnv.value),
     },
     delete_selected_env: {
-      text: this.t("spotlight.environments.delete"),
+      text: [
+        this.t("spotlight.environments.title"),
+        this.t("spotlight.environments.delete"),
+      ],
       alternates: ["delete", "environment"],
       icon: markRaw(IconTrash2),
       excludeFromSearch: computed(() => !this.hasSelectedEnv.value),
     },
     duplicate_selected_env: {
-      text: this.t("spotlight.environments.duplicate"),
+      text: [
+        this.t("spotlight.environments.title"),
+        this.t("spotlight.environments.duplicate"),
+      ],
       alternates: ["duplicate", "environment"],
       icon: markRaw(IconCopy),
       excludeFromSearch: computed(() => !this.hasSelectedEnv.value),
     },
     edit_global_env: {
-      text: this.t("spotlight.environments.edit_global"),
+      text: [
+        this.t("spotlight.environments.title"),
+        this.t("spotlight.environments.edit_global"),
+      ],
       alternates: ["edit", "global", "environment"],
       icon: markRaw(IconEdit),
     },
     duplicate_global_env: {
-      text: this.t("spotlight.environments.duplicate_global"),
+      text: [
+        this.t("spotlight.environments.title"),
+        this.t("spotlight.environments.duplicate_global"),
+      ],
       alternates: ["duplicate", "global", "environment"],
       icon: markRaw(IconCopy),
     },
@@ -188,29 +211,6 @@ export class EnvironmentsSpotlightSearcherService extends StaticSpotlightSearche
     }
   }
 
-  removeSelectedEnvironment = () => {
-    if (this.selectedEnvIndex.value?.type === "NO_ENV_SELECTED") return
-
-    if (this.selectedEnvIndex.value?.type === "MY_ENV") {
-      deleteEnvironment(this.selectedEnvIndex.value.index)
-      // this.toast.success(`${t("state.deleted")}`)
-    }
-
-    if (this.selectedEnvIndex.value?.type === "TEAM_ENV") {
-      pipe(
-        deleteTeamEnvironment(this.selectedEnvIndex.value.teamEnvID),
-        TE.match(
-          (err: GQLError<string>) => {
-            console.error(err)
-          },
-          () => {
-            // this.toast.success(`${this.t("team_environment.deleted")}`)
-          }
-        )
-      )()
-    }
-  }
-
   public onDocSelected(id: string): void {
     switch (id) {
       case "new_environment":
@@ -229,7 +229,7 @@ export class EnvironmentsSpotlightSearcherService extends StaticSpotlightSearche
           })
         break
       case "delete_selected_env":
-        this.removeSelectedEnvironment()
+        invokeAction(`modals.environment.delete-selected`)
         break
       case "duplicate_selected_env":
         this.duplicateSelectedEnv()
@@ -269,6 +269,16 @@ export class SwitchEnvSpotlightSearcherService
     this.spotlight.registerSearcher(this)
   }
 
+  private selectedEnvIndex = useStreamStatic(
+    selectedEnvironmentIndex$,
+    {
+      type: "NO_ENV_SELECTED",
+    },
+    () => {
+      /* noop */
+    }
+  )[0]
+
   private environmentSearchable = useStreamStatic(
     activeActions$.pipe(
       map((actions) => actions.includes("modals.environment.add"))
@@ -286,16 +296,25 @@ export class SwitchEnvSpotlightSearcherService
     const results = ref<SpotlightSearcherResult[]>([])
 
     const minisearch = new MiniSearch({
-      fields: ["name"],
+      fields: ["name", "alternates"],
       storeFields: ["name"],
     })
 
     if (this.environmentSearchable.value) {
       minisearch.addAll(
         environmentsStore.value.environments.map((entry, index) => {
+          let id = `environment-${index}`
+
+          if (
+            this.selectedEnvIndex.value?.type === "MY_ENV" &&
+            this.selectedEnvIndex.value.index === index
+          ) {
+            id += "-selected"
+          }
           return {
-            id: `environment-${index}`,
+            id,
             name: entry.name,
+            alternates: ["environment", "change", entry.name],
           }
         })
       )
@@ -322,7 +341,9 @@ export class SwitchEnvSpotlightSearcherService
             .map((x) => {
               return {
                 id: x.id,
-                icon: markRaw(IconLayers),
+                icon: markRaw(
+                  x.id.endsWith("-selected") ? IconCheckCircle : IconCircle
+                ),
                 score: x.score,
                 text: {
                   type: "text",

@@ -1,5 +1,6 @@
 import { Service } from "dioc"
 import {
+  SpotlightResultTextType,
   SpotlightSearcher,
   SpotlightSearcherResult,
   SpotlightSearcherSessionState,
@@ -15,17 +16,15 @@ import {
 import IconFolder from "~icons/lucide/folder"
 import RESTRequestSpotlightEntry from "~/components/app/spotlight/entry/RESTRequest.vue"
 import GQLRequestSpotlightEntry from "~/components/app/spotlight/entry/GQLRequest.vue"
-import { createNewTab } from "~/helpers/rest/tab"
-import { createNewTab as createNewGQLTab } from "~/helpers/graphql/tab"
-import { getTabRefWithSaveContext } from "~/helpers/rest/tab"
-import { currentTabID } from "~/helpers/rest/tab"
 import {
   HoppCollection,
   HoppGQLRequest,
   HoppRESTRequest,
 } from "@hoppscotch/data"
-import { hoppWorkspaceStore } from "~/newstore/workspace"
-import { changeWorkspace } from "~/newstore/workspace"
+import { WorkspaceService } from "~/services/workspace.service"
+import { invokeAction } from "~/helpers/actions"
+import { RESTTabService } from "~/services/tab/rest"
+import { GQLTabService } from "~/services/tab/graphql"
 
 /**
  * A spotlight searcher that searches through the user's collections
@@ -43,7 +42,11 @@ export class CollectionsSpotlightSearcherService
   public searcherID = "collections"
   public searcherSectionTitle = this.t("collection.my_collections")
 
+  private readonly restTab = this.bind(RESTTabService)
+  private readonly gqlTab = this.bind(GQLTabService)
+
   private readonly spotlight = this.bind(SpotlightService)
+  private readonly workspaceService = this.bind(WorkspaceService)
 
   constructor() {
     super()
@@ -143,6 +146,13 @@ export class CollectionsSpotlightSearcherService
       },
     })
 
+    if (pageCategory === "rest" || pageCategory === "graphql") {
+      minisearch.add({
+        id: `create-collection`,
+        name: this.t("collection.new"),
+      })
+    }
+
     if (pageCategory === "rest") {
       this.loadRESTDocsIntoMinisearch(minisearch)
     } else if (pageCategory === "graphql") {
@@ -152,6 +162,11 @@ export class CollectionsSpotlightSearcherService
     const results = ref<SpotlightSearcherResult[]>([])
 
     const scopeHandle = effectScope()
+
+    const newCollectionText: SpotlightResultTextType<any> = {
+      type: "text",
+      text: this.t("collection.new"),
+    }
 
     scopeHandle.run(() => {
       watch(query, (query) => {
@@ -165,28 +180,34 @@ export class CollectionsSpotlightSearcherService
 
           results.value = searchResults.map((result) => ({
             id: result.id,
-            text: {
-              type: "custom",
-              component: markRaw(RESTRequestSpotlightEntry),
-              componentProps: {
-                folderPath: result.id.split("rest-")[1],
-              },
-            },
+            text:
+              result.id === "create-collection"
+                ? newCollectionText
+                : {
+                    type: "custom",
+                    component: markRaw(RESTRequestSpotlightEntry),
+                    componentProps: {
+                      folderPath: result.id.split("rest-")[1],
+                    },
+                  },
             icon: markRaw(IconFolder),
             score: result.score,
           }))
-        } else {
+        } else if (pageCategory === "graphql") {
           const searchResults = minisearch.search(query).slice(0, 10)
 
           results.value = searchResults.map((result) => ({
             id: result.id,
-            text: {
-              type: "custom",
-              component: markRaw(GQLRequestSpotlightEntry),
-              componentProps: {
-                folderPath: result.id.split("gql-")[1],
-              },
-            },
+            text:
+              result.id === "create-collection"
+                ? newCollectionText
+                : {
+                    type: "custom",
+                    component: markRaw(GQLRequestSpotlightEntry),
+                    componentProps: {
+                      folderPath: result.id.split("gql-")[1],
+                    },
+                  },
             icon: markRaw(IconFolder),
             score: result.score,
           }))
@@ -256,33 +277,35 @@ export class CollectionsSpotlightSearcherService
   }
 
   public onResultSelect(result: SpotlightSearcherResult): void {
+    if (result.id === "create-collection") return invokeAction("collection.new")
+
     const [type, path] = result.id.split("-")
 
     if (type === "rest") {
       const folderPath = path.split("/").map((x) => parseInt(x))
       const reqIndex = folderPath.pop()!
 
-      if (hoppWorkspaceStore.value.workspace.type !== "personal") {
-        changeWorkspace({
+      if (this.workspaceService.currentWorkspace.value.type !== "personal") {
+        this.workspaceService.changeWorkspace({
           type: "personal",
         })
       }
 
-      const possibleTab = getTabRefWithSaveContext({
+      const possibleTab = this.restTab.getTabRefWithSaveContext({
         originLocation: "user-collection",
         folderPath: folderPath.join("/"),
         requestIndex: reqIndex,
       })
 
       if (possibleTab) {
-        currentTabID.value = possibleTab.value.id
+        this.restTab.setActiveTab(possibleTab.value.id)
       } else {
         const req = this.getRESTFolderFromFolderPath(folderPath.join("/"))
           ?.requests[reqIndex]
 
         if (!req) return
 
-        createNewTab(
+        this.restTab.createNewTab(
           {
             request: req,
             isDirty: false,
@@ -304,13 +327,15 @@ export class CollectionsSpotlightSearcherService
 
       if (!req) return
 
-      createNewGQLTab(
-        {
-          request: req,
-          isDirty: false,
+      this.gqlTab.createNewTab({
+        saveContext: {
+          originLocation: "user-collection",
+          folderPath: folderPath.join("/"),
+          requestIndex: reqIndex,
         },
-        true
-      )
+        request: req,
+        isDirty: false,
+      })
     }
   }
 }

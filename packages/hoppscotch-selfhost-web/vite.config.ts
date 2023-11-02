@@ -8,7 +8,6 @@ import VueI18n from "@intlify/vite-plugin-vue-i18n"
 import Components from "unplugin-vue-components/vite"
 import Icons from "unplugin-icons/vite"
 import Inspect from "vite-plugin-inspect"
-import WindiCSS from "vite-plugin-windicss"
 import { VitePWA } from "vite-plugin-pwa"
 import Pages from "vite-plugin-pages"
 import Layouts from "vite-plugin-vue-layouts"
@@ -17,10 +16,12 @@ import { FileSystemIconLoader } from "unplugin-icons/loaders"
 import * as path from "path"
 import Unfonts from "unplugin-fonts/vite"
 import legacy from "@vitejs/plugin-legacy"
+import ImportMetaEnv from "@import-meta-env/unplugin"
 
-const ENV = loadEnv("development", path.resolve(__dirname, "../../"))
+const ENV = loadEnv("development", path.resolve(__dirname, "../../"), ["VITE_"])
 
 export default defineConfig({
+  envPrefix: process.env.HOPP_ALLOW_RUNTIME_ENV ? "VITE_BUILDTIME_" : "VITE_",
   envDir: path.resolve(__dirname, "../../"),
   // TODO: Migrate @hoppscotch/data to full ESM
   define: {
@@ -43,6 +44,14 @@ export default defineConfig({
   },
   resolve: {
     alias: {
+      "tailwind.config.cjs": path.resolve(
+        __dirname,
+        "../hoppscotch-common/tailwind.config.cjs"
+      ),
+      "postcss.config.cjs": path.resolve(
+        __dirname,
+        "../hoppscotch-common/postcss.config.cjs"
+      ),
       // TODO: Maybe leave ~ only for individual apps and not use on common
       "~": path.resolve(__dirname, "../hoppscotch-common/src"),
       "@hoppscotch/common": "@hoppscotch/common/src",
@@ -65,6 +74,7 @@ export default defineConfig({
       "@lib": path.resolve(__dirname, "./src/lib"),
       stream: "stream-browserify",
       util: "util",
+      querystring: "qs",
     },
     dedupe: ["vue"],
   },
@@ -78,14 +88,15 @@ export default defineConfig({
       routeStyle: "nuxt",
       dirs: "../hoppscotch-common/src/pages",
       importMode: "async",
-      onRoutesGenerated: (routes) =>
+      onRoutesGenerated(routes) {
         generateSitemap({
           routes,
           nuxtStyle: true,
           allowRobots: true,
           dest: ".sitemap-gen",
           hostname: ENV.VITE_BASE_URL,
-        }),
+        })
+      },
     }),
     StaticCopy({
       targets: [
@@ -103,9 +114,6 @@ export default defineConfig({
       runtimeOnly: false,
       compositionOnly: true,
       include: [path.resolve(__dirname, "locales")],
-    }),
-    WindiCSS({
-      root: path.resolve(__dirname, "../hoppscotch-common"),
     }),
     Components({
       dts: "../hoppscotch-common/src/components.d.ts",
@@ -239,5 +247,11 @@ export default defineConfig({
       modernPolyfills: ["es.string.replace-all"],
       renderLegacyChunks: false,
     }),
+    process.env.HOPP_ALLOW_RUNTIME_ENV
+      ? ImportMetaEnv.vite({
+          example: "../../.env.example",
+          env: "../../.env",
+        })
+      : [],
   ],
 })

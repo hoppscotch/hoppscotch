@@ -1,7 +1,7 @@
 <template>
   <div>
     <div
-      class="sticky z-10 flex justify-between flex-1 flex-shrink-0 overflow-x-auto border-b top-upperPrimaryStickyFold border-dividerLight bg-primary"
+      class="sticky top-upperPrimaryStickyFold z-10 flex flex-1 flex-shrink-0 justify-between overflow-x-auto border-b border-dividerLight bg-primary"
     >
       <HoppButtonSecondary
         v-if="team === undefined || team.myRole === 'VIEWER'"
@@ -31,40 +31,49 @@
           v-if="team !== undefined && team.myRole === 'VIEWER'"
           v-tippy="{ theme: 'tooltip' }"
           disabled
-          :icon="IconArchive"
+          :icon="IconImport"
           :title="t('modal.import_export')"
         />
         <HoppButtonSecondary
           v-else
           v-tippy="{ theme: 'tooltip' }"
-          :icon="IconArchive"
+          :icon="IconImport"
           :title="t('modal.import_export')"
           @click="displayModalImportExport(true)"
         />
       </div>
     </div>
     <HoppSmartPlaceholder
-      v-if="!loading && teamEnvironments.length === 0 && !adapterError"
+      v-if="!loading && !teamEnvironments.length && !adapterError"
       :src="`/images/states/${colorMode.value}/blockchain.svg`"
       :alt="`${t('empty.environments')}`"
       :text="t('empty.environments')"
     >
-      <HoppButtonSecondary
-        v-if="team === undefined || team.myRole === 'VIEWER'"
-        v-tippy="{ theme: 'tooltip' }"
-        disabled
-        filled
-        :icon="IconPlus"
-        :title="t('team.no_access')"
-        :label="t('action.new')"
-      />
-      <HoppButtonSecondary
-        v-else
-        :label="`${t('add.new')}`"
-        filled
-        outline
-        @click="displayModalAdd(true)"
-      />
+      <div class="flex flex-col items-center space-y-4">
+        <span class="text-center text-secondaryLight">
+          {{ t("environment.import_or_create") }}
+        </span>
+        <div class="flex flex-col items-stretch gap-4">
+          <HoppButtonPrimary
+            :icon="IconImport"
+            :label="t('import.title')"
+            filled
+            outline
+            :title="isTeamViewer ? t('team.no_access') : ''"
+            :disabled="isTeamViewer"
+            @click="isTeamViewer ? null : displayModalImportExport(true)"
+          />
+          <HoppButtonSecondary
+            :label="`${t('add.new')}`"
+            filled
+            outline
+            :icon="IconPlus"
+            :title="isTeamViewer ? t('team.no_access') : ''"
+            :disabled="isTeamViewer"
+            @click="isTeamViewer ? null : displayModalAdd(true)"
+          />
+        </div>
+      </div>
     </HoppSmartPlaceholder>
     <div v-else-if="!loading">
       <EnvironmentsTeamsEnvironment
@@ -85,7 +94,7 @@
       v-if="!loading && adapterError"
       class="flex flex-col items-center py-4"
     >
-      <icon-lucide-help-circle class="mb-4 svg-icons" />
+      <icon-lucide-help-circle class="svg-icons mb-4" />
       {{ getErrorMessage(adapterError) }}
     </div>
     <EnvironmentsTeamsDetails
@@ -108,14 +117,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue"
+import { computed, ref } from "vue"
 import { GQLError } from "~/helpers/backend/GQLClient"
 import { TeamEnvironment } from "~/helpers/teams/TeamEnvironment"
 import { useI18n } from "~/composables/i18n"
 import { useColorMode } from "~/composables/theming"
 import IconPlus from "~icons/lucide/plus"
-import IconArchive from "~icons/lucide/archive"
 import IconHelpCircle from "~icons/lucide/help-circle"
+import IconImport from "~icons/lucide/folder-down"
 import { defineActionHandler } from "~/helpers/actions"
 import { GetMyTeamsQuery } from "~/helpers/backend/graphql"
 
@@ -137,6 +146,8 @@ const showModalDetails = ref(false)
 const action = ref<"new" | "edit">("edit")
 const editingEnvironment = ref<TeamEnvironment | null>(null)
 const editingVariableName = ref("")
+
+const isTeamViewer = computed(() => props.team?.myRole === "VIEWER")
 
 const displayModalAdd = (shouldDisplay: boolean) => {
   action.value = "new"

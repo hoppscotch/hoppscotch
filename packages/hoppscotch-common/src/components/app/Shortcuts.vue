@@ -2,7 +2,7 @@
   <HoppSmartSlideOver :show="show" :title="t('app.shortcuts')" @close="close()">
     <template #content>
       <div
-        class="sticky top-0 z-10 flex flex-col flex-shrink-0 overflow-x-auto bg-primary"
+        class="sticky top-0 z-10 flex flex-shrink-0 flex-col overflow-x-auto bg-primary"
       >
         <HoppSmartInput
           v-model="filterText"
@@ -17,7 +17,7 @@
           v-if="isEmpty(shortcutsResults)"
           :text="`${t('state.nothing_found')} ‟${filterText}”`"
         >
-          <icon-lucide-search class="pb-2 opacity-75 svg-icons" />
+          <icon-lucide-search class="svg-icons pb-2 opacity-75" />
         </HoppSmartPlaceholder>
 
         <details
@@ -28,16 +28,16 @@
           open
         >
           <summary
-            class="flex items-center flex-1 min-w-0 px-6 py-4 font-semibold transition cursor-pointer focus:outline-none text-secondaryLight hover:text-secondaryDark"
+            class="flex min-w-0 flex-1 cursor-pointer items-center px-6 py-4 font-semibold text-secondaryLight transition hover:text-secondaryDark focus:outline-none"
           >
-            <icon-lucide-chevron-right class="mr-2 indicator" />
+            <icon-lucide-chevron-right class="indicator mr-2" />
             <span
-              class="font-semibold truncate capitalize-first text-secondaryDark"
+              class="capitalize-first truncate font-semibold text-secondaryDark"
             >
               {{ sectionTitle }}
             </span>
           </summary>
-          <div class="flex flex-col px-6 pb-4 space-y-2">
+          <div class="flex flex-col space-y-2 px-6 pb-4">
             <AppShortcutsEntry
               v-for="(shortcut, index) in sectionResults"
               :key="`shortcut-${index}`"

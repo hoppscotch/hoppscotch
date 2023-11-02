@@ -6,7 +6,7 @@
       role="dialog"
     >
       <div
-        class="flex items-end justify-center min-h-screen text-center sm:block"
+        class="flex min-h-screen items-end justify-center text-center sm:!block"
       >
         <Transition name="fade" appear>
           <div
@@ -17,7 +17,7 @@
             @mousedown="!dialog ? close() : null"
           >
             <div
-              class="absolute inset-0 opacity-80 bg-primaryLight focus:outline-none"
+              class="absolute inset-0 bg-primaryLight opacity-80 focus:outline-none"
               tabindex="0"
               @click="!dialog ? close() : null"
             ></div>
@@ -25,13 +25,13 @@
         </Transition>
         <span
           v-if="placement === 'center'"
-          class="sm:h-screen <sm:hidden sm:align-middle"
+          class="sm:h-screen sm:align-middle <sm:hidden"
           aria-hidden="true"
           >&#8203;</span
         >
         <Transition name="bounce" appear>
           <div
-            class="inline-block w-full overflow-hidden text-left align-bottom transition-all transform shadow-lg sm:border border-dividerDark bg-primary sm:rounded-xl sm:align-middle"
+            class="inline-block w-full transform overflow-hidden border-dividerDark bg-primary text-left align-bottom shadow-lg transition-all sm:rounded-xl sm:border sm:align-middle"
             :class="[{ 'mt-24 md:mb-8': placement === 'top' }, styles]"
           >
             <div
@@ -44,6 +44,7 @@
               </h3>
               <span class="flex items-center">
                 <slot name="actions"></slot>
+                <kbd class="shortcut-key mr-2">ESC</kbd>
                 <HoppButtonSecondary
                   v-if="dimissible"
                   v-tippy="{ theme: 'tooltip', delay: [500, 20] }"
@@ -54,14 +55,14 @@
               </span>
             </div>
             <div
-              class="flex flex-col overflow-y-auto max-h-lg"
+              class="max-h-lg flex flex-col overflow-y-auto"
               :class="{ 'p-4': !fullWidth }"
             >
               <slot name="body"></slot>
             </div>
             <div
               v-if="hasFooterSlot"
-              class="flex items-center justify-between flex-1 border-t border-dividerLight bg-primaryContrast"
+              class="flex flex-1 items-center justify-between border-t border-dividerLight bg-primaryContrast"
               :class="{ 'p-4': !fullWidth }"
             >
               <slot name="footer"></slot>

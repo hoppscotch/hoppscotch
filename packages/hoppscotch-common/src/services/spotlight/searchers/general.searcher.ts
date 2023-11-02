@@ -7,16 +7,19 @@ import {
   StaticSpotlightSearcherService,
 } from "./base/static.searcher"
 
+import IconLinkedIn from "~icons/brands/linkedin"
+import IconTwitter from "~icons/brands/twitter"
+import IconDiscord from "~icons/brands/discord"
+import IconGitHub from "~icons/lucide/github"
 import IconBook from "~icons/lucide/book"
-import IconGithub from "~icons/lucide/github"
 import IconLifeBuoy from "~icons/lucide/life-buoy"
-import IconMessageCircle from "~icons/lucide/message-circle"
 import IconZap from "~icons/lucide/zap"
 
 type Doc = {
-  text: string
+  text: string | string[]
   alternates: string[]
   icon: object | Component
+  action: () => void
 }
 
 /**
@@ -40,26 +43,48 @@ export class GeneralSpotlightSearcherService extends StaticSpotlightSearcherServ
       text: this.t("spotlight.general.help_menu"),
       alternates: ["help", "hoppscotch"],
       icon: markRaw(IconLifeBuoy),
-    },
-    chat_with_support: {
-      text: this.t("spotlight.general.chat"),
-      alternates: ["chat", "support", "hoppscotch"],
-      icon: markRaw(IconMessageCircle),
+      action() {
+        invokeAction("modals.support.toggle")
+      },
     },
     open_docs: {
       text: this.t("spotlight.general.open_docs"),
       alternates: ["docs", "documentation", "hoppscotch"],
       icon: markRaw(IconBook),
+      action: () => this.openURL("https://docs.hoppscotch.io"),
     },
     open_keybindings: {
       text: this.t("spotlight.general.open_keybindings"),
       alternates: ["key", "shortcuts", "binding"],
       icon: markRaw(IconZap),
+      action() {
+        invokeAction("flyouts.keybinds.toggle")
+      },
     },
-    social_links: {
-      text: this.t("spotlight.general.social"),
-      alternates: ["social", "github", "binding"],
-      icon: markRaw(IconGithub),
+    open_github: {
+      text: this.t("spotlight.general.open_github"),
+      alternates: ["repository", "github", "documentation", "hoppscotch"],
+      icon: markRaw(IconGitHub),
+      action: () => this.openURL("https://hoppscotch.io/github"),
+    },
+    link_twitter: {
+      text: [this.t("spotlight.general.social"), "Twitter"],
+      alternates: ["social", "twitter", "link"],
+      icon: markRaw(IconTwitter),
+      action: () => this.openURL("https://twitter.com/hoppscotch_io"),
+    },
+    link_discord: {
+      text: [this.t("spotlight.general.social"), "Discord"],
+      alternates: ["social", "discord", "link"],
+      icon: markRaw(IconDiscord),
+      action: () => this.openURL("https://hoppscotch.io/discord"),
+    },
+    link_linkedin: {
+      text: [this.t("spotlight.general.social"), "LinkedIn"],
+      alternates: ["social", "linkedin", "link"],
+      icon: markRaw(IconLinkedIn),
+      action: () =>
+        this.openURL("https://www.linkedin.com/company/hoppscotch/"),
     },
   })
 
@@ -87,28 +112,16 @@ export class GeneralSpotlightSearcherService extends StaticSpotlightSearcherServ
     }
   }
 
-  private openDocs() {
-    const url = "https://docs.hoppscotch.io"
+  private openURL(url: string) {
     window.open(url, "_blank")
   }
 
   public onDocSelected(id: string): void {
-    switch (id) {
-      case "open_help":
-        invokeAction("modals.support.toggle")
-        break
-      case "chat_with_support":
-        invokeAction("flyouts.chat.open")
-        break
-      case "open_docs":
-        this.openDocs()
-        break
-      case "open_keybindings":
-        invokeAction("flyouts.keybinds.toggle")
-        break
-      case "social_links":
-        invokeAction("modals.social.toggle")
-        break
-    }
+    this.documents[id]?.action()
+  }
+
+  public addCustomEntries(docs: Record<string, Doc>) {
+    this.documents = { ...this.documents, ...docs }
+    this.setDocuments(this.documents)
   }
 }

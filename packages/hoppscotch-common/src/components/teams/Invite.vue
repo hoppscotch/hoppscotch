@@ -7,37 +7,58 @@
   >
     <template #body>
       <div v-if="sendInvitesResult.length" class="flex flex-col px-4">
-        <div class="flex flex-col items-center justify-center max-w-md">
-          <icon-lucide-users class="w-6 h-6 text-accent" />
-          <h3 class="my-2 text-lg text-center">
+        <div class="mb-8 flex max-w-md flex-col items-center justify-center">
+          <icon-lucide-users class="h-6 w-6 text-accent" />
+          <h3 class="my-2 text-center text-lg">
             {{ t("team.we_sent_invite_link") }}
           </h3>
           <p class="text-center">
             {{ t("team.we_sent_invite_link_description") }}
           </p>
         </div>
-        <div
-          class="flex flex-col p-4 mt-8 border rounded space-y-6 border-dividerLight"
-        >
+        <div v-if="successInvites.length">
+          <label class="mb-4 block">
+            {{ t("team.success_invites") }}
+          </label>
           <div
-            v-for="(invitee, index) in sendInvitesResult"
-            :key="`invitee-${index}`"
+            class="flex flex-col space-y-6 rounded border border-dividerLight p-4"
           >
-            <p class="flex items-center">
-              <component
-                :is="
-                  invitee.status === 'error' ? IconAlertTriangle : IconMailCheck
-                "
-                class="mr-4 svg-icons"
-                :class="
-                  invitee.status === 'error' ? 'text-red-500' : 'text-green-500'
-                "
-              />
-              <span class="truncate">{{ invitee.email }}</span>
-            </p>
-            <p v-if="invitee.status === 'error'" class="mt-2 ml-8 text-red-500">
-              {{ getErrorMessage(invitee.error) }}
-            </p>
+            <div
+              v-for="(invitee, index) in successInvites"
+              :key="`invitee-${index}`"
+            >
+              <p class="flex items-center">
+                <component
+                  :is="IconMailCheck"
+                  class="svg-icons mr-4 text-green-500"
+                />
+                <span class="truncate">{{ invitee.email }}</span>
+              </p>
+            </div>
+          </div>
+        </div>
+        <div v-if="failedInvites.length" class="mt-6">
+          <label class="mb-4 block">
+            {{ t("team.failed_invites") }}
+          </label>
+          <div
+            class="flex flex-col space-y-6 rounded border border-dividerLight p-4"
+          >
+            <div
+              v-for="(invitee, index) in failedInvites"
+              :key="`invitee-${index}`"
+            >
+              <p class="flex items-center">
+                <component
+                  :is="IconAlertTriangle"
+                  class="svg-icons mr-4 text-red-500"
+                />
+                <span class="truncate">{{ invitee.email }}</span>
+              </p>
+              <p class="ml-8 mt-2 text-red-500">
+                {{ getErrorMessage(invitee.error) }}
+              </p>
+            </div>
           </div>
         </div>
       </div>
@@ -48,12 +69,12 @@
         <HoppSmartSpinner />
       </div>
       <div v-else class="flex flex-col">
-        <div class="flex items-center justify-between flex-1">
+        <div class="flex flex-1 items-center justify-between">
           <label for="memberList" class="px-4 pb-4">
             {{ t("team.pending_invites") }}
           </label>
         </div>
-        <div class="border rounded divide-y divide-dividerLight border-divider">
+        <div class="divide-y divide-dividerLight rounded border border-divider">
           <div
             v-if="pendingInvites.loading"
             class="flex items-center justify-center p-4"
@@ -73,14 +94,14 @@
               >
                 <input
                   v-if="invitee"
-                  class="flex flex-1 px-4 py-2 bg-transparent text-secondaryLight"
+                  class="flex flex-1 bg-transparent px-4 py-2 text-secondaryLight"
                   :placeholder="`${t('team.email')}`"
                   :name="'param' + index"
                   :value="invitee.inviteeEmail"
                   readonly
                 />
                 <input
-                  class="flex flex-1 px-4 py-2 bg-transparent text-secondaryLight"
+                  class="flex flex-1 bg-transparent px-4 py-2 text-secondaryLight"
                   :placeholder="`${t('team.permissions')}`"
                   :name="'value' + index"
                   :value="invitee.inviteeRole"
@@ -110,12 +131,12 @@
               v-if="!pendingInvites.loading && E.isLeft(pendingInvites.data)"
               class="flex flex-col items-center p-4"
             >
-              <icon-lucide-help-circle class="mb-4 svg-icons" />
+              <icon-lucide-help-circle class="svg-icons mb-4" />
               {{ t("error.something_went_wrong") }}
             </div>
           </div>
         </div>
-        <div class="flex items-center justify-between flex-1 pt-4">
+        <div class="flex flex-1 items-center justify-between pt-4">
           <label for="memberList" class="p-4">
             {{ t("team.invite_tooltip") }}
           </label>
@@ -128,7 +149,7 @@
             />
           </div>
         </div>
-        <div class="border rounded divide-y divide-dividerLight border-divider">
+        <div class="divide-y divide-dividerLight rounded border border-divider">
           <div
             v-for="(invitee, index) in newInvites"
             :key="`new-invitee-${index}`"
@@ -136,7 +157,7 @@
           >
             <input
               v-model="invitee.key"
-              class="flex flex-1 px-4 py-2 bg-transparent"
+              class="flex flex-1 bg-transparent px-4 py-2"
               :placeholder="`${t('team.email')}`"
               :name="'invitee' + index"
               autofocus
@@ -150,7 +171,7 @@
               >
                 <span class="select-wrapper">
                   <input
-                    class="flex flex-1 px-4 py-2 bg-transparent cursor-pointer"
+                    class="flex flex-1 cursor-pointer bg-transparent px-4 py-2"
                     :placeholder="`${t('team.permissions')}`"
                     :name="'value' + index"
                     :value="invitee.value"
@@ -172,7 +193,7 @@
                       :active="invitee.value === 'OWNER'"
                       @click="
                         () => {
-                          updateNewInviteeRole(index, 'OWNER')
+                          updateNewInviteeRole(index, TeamMemberRole.Owner)
                           hide()
                         }
                       "
@@ -185,7 +206,7 @@
                       :active="invitee.value === 'EDITOR'"
                       @click="
                         () => {
-                          updateNewInviteeRole(index, 'EDITOR')
+                          updateNewInviteeRole(index, TeamMemberRole.Editor)
                           hide()
                         }
                       "
@@ -198,7 +219,7 @@
                       :active="invitee.value === 'VIEWER'"
                       @click="
                         () => {
-                          updateNewInviteeRole(index, 'VIEWER')
+                          updateNewInviteeRole(index, TeamMemberRole.Viewer)
                           hide()
                         }
                       "
@@ -233,13 +254,13 @@
         </div>
         <div
           v-if="newInvites.length"
-          class="flex flex-col items-start px-4 py-4 mt-4 border rounded border-dividerLight"
+          class="mt-4 flex flex-col items-start rounded border border-dividerLight px-4 py-4"
         >
           <span
-            class="flex items-center justify-center px-2 py-1 mb-4 font-semibold border rounded-full bg-primaryDark border-divider"
+            class="mb-4 flex items-center justify-center rounded-full border border-divider bg-primaryDark px-2 py-1 font-semibold"
           >
             <icon-lucide-help-circle
-              class="mr-2 text-secondaryLight svg-icons"
+              class="svg-icons mr-2 text-secondaryLight"
             />
             {{ t("profile.roles") }}
           </span>
@@ -251,7 +272,7 @@
           <ul class="mt-4 space-y-4">
             <li class="flex">
               <span
-                class="w-1/4 font-semibold uppercase truncate text-secondaryDark max-w-16"
+                class="max-w-16 w-1/4 truncate font-semibold uppercase text-secondaryDark"
               >
                 {{ t("profile.owner") }}
               </span>
@@ -261,7 +282,7 @@
             </li>
             <li class="flex">
               <span
-                class="w-1/4 font-semibold uppercase truncate text-secondaryDark max-w-16"
+                class="max-w-16 w-1/4 truncate font-semibold uppercase text-secondaryDark"
               >
                 {{ t("profile.editor") }}
               </span>
@@ -271,7 +292,7 @@
             </li>
             <li class="flex">
               <span
-                class="w-1/4 font-semibold uppercase truncate text-secondaryDark max-w-16"
+                class="max-w-16 w-1/4 truncate font-semibold uppercase text-secondaryDark"
               >
                 {{ t("profile.viewer") }}
               </span>
@@ -286,7 +307,7 @@
     <template #footer>
       <p
         v-if="sendInvitesResult.length"
-        class="flex justify-between flex-1 text-secondaryLight"
+        class="flex flex-1 justify-between text-secondaryLight"
       >
         <HoppButtonSecondary
           class="link !p-0"
@@ -484,6 +505,12 @@ type SendInvitesErrorType =
     }
 
 const sendInvitesResult = ref<Array<SendInvitesErrorType>>([])
+const successInvites = computed(() =>
+  sendInvitesResult.value.filter((invitee) => invitee.status === "success")
+)
+const failedInvites = computed(() =>
+  sendInvitesResult.value.filter((invitee) => invitee.status === "error")
+)
 
 const sendingInvites = ref<boolean>(false)
 

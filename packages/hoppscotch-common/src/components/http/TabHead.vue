@@ -2,14 +2,14 @@
   <div
     v-tippy="{ theme: 'tooltip', delay: [500, 20] }"
     :title="tab.document.request.name"
-    class="truncate px-2 flex items-center"
+    class="flex items-center truncate px-2"
     @dblclick="emit('open-rename-modal')"
-    @contextmenu.prevent="options?.tippy.show()"
+    @contextmenu.prevent="options?.tippy?.show()"
     @click.middle="emit('close-tab')"
   >
     <span
-      class="font-semibold text-tiny"
-      :class="getMethodLabelColorClassOf(tab.document.request)"
+      class="text-tiny font-semibold"
+      :style="{ color: getMethodLabelColorClassOf(tab.document.request) }"
     >
       {{ tab.document.request.method }}
     </span>
@@ -21,7 +21,7 @@
       theme="popover"
       :on-shown="() => tippyActions!.focus()"
     >
-      <span class="leading-8 px-2 truncate">
+      <span class="truncate px-2 leading-8">
         {{ tab.document.request.name }}
       </span>
       <template #content="{ hide }">
@@ -96,16 +96,17 @@ import { ref } from "vue"
 import { TippyComponent } from "vue-tippy"
 import { getMethodLabelColorClassOf } from "~/helpers/rest/labelColoring"
 import { useI18n } from "~/composables/i18n"
-import { HoppRESTTab } from "~/helpers/rest/tab"
 import IconXCircle from "~icons/lucide/x-circle"
 import IconXSquare from "~icons/lucide/x-square"
 import IconFileEdit from "~icons/lucide/file-edit"
 import IconCopy from "~icons/lucide/copy"
+import { HoppTab } from "~/services/tab"
+import { HoppRESTDocument } from "~/helpers/rest/document"
 
 const t = useI18n()
 
 defineProps<{
-  tab: HoppRESTTab
+  tab: HoppTab<HoppRESTDocument>
   isRemovable: boolean
 }>()
 

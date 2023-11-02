@@ -63,6 +63,7 @@ export const baseTheme = EditorView.theme({
   ".cm-panels": {
     backgroundColor: "var(--primary-light-color)",
     color: "var(--secondary-light-color)",
+    zIndex: "1",
   },
   ".cm-panels.cm-panels-top": {
     borderBottom: "1px solid var(--divider-light-color)",
@@ -74,25 +75,34 @@ export const baseTheme = EditorView.theme({
     display: "flex",
     alignItems: "center",
     flexWrap: "nowrap",
-    flexShrink: 0,
+    flexShrink: "0",
     overflow: "auto",
+    padding: "0.25rem 0.5rem !important",
   },
   ".cm-search label": {
     display: "inline-flex",
     alignItems: "center",
   },
   ".cm-textfield": {
-    backgroundColor: "var(--primary-dark-color)",
+    backgroundColor: "var(--primary-color)",
     color: "var(--secondary-dark-color)",
     borderColor: "var(--divider-light-color)",
     borderRadius: "4px",
+    fontSize: "var(--font-size-tiny)",
+    fontWeight: "600",
+    flexShrink: "0",
+    border: "1px solid var(--divider-color)",
   },
   ".cm-button": {
-    backgroundColor: "var(--primary-dark-color)",
-    color: "var(--secondary-dark-color)",
+    backgroundColor: "var(--primary-color)",
+    color: "var(--secondary-light-color)",
     backgroundImage: "none",
-    border: "none",
     borderRadius: "4px",
+    fontSize: "var(--font-size-tiny)",
+    fontWeight: "600",
+    textTransform: "capitalize",
+    flexShrink: "0",
+    border: "1px solid var(--divider-color)",
   },
   ".cm-completionLabel": {
     color: "var(--secondary-color)",
@@ -107,10 +117,10 @@ export const baseTheme = EditorView.theme({
     color: "var(--tooltip-color)",
   },
   ".cm-tooltip-arrow:after": {
-    borderTopColor: "inherit !important",
+    borderTopColor: "currentColor !important",
   },
   ".cm-tooltip-arrow:before": {
-    borderTopColor: "inherit !important",
+    borderTopColor: "currentColor !important",
   },
   ".cm-tooltip.cm-tooltip-autocomplete > ul": {
     fontFamily: "var(--font-mono)",
@@ -155,8 +165,8 @@ export const baseTheme = EditorView.theme({
     textAlign: "center",
   },
   ".cm-line": {
-    paddingLeft: "0.5em",
-    paddingRight: "0.5em",
+    paddingLeft: "0.5rem",
+    paddingRight: "0.5rem",
   },
   ".cm-activeLineGutter": {
     backgroundColor: "transparent",
@@ -183,6 +193,7 @@ export const inputTheme = EditorView.theme({
     fontFamily: "var(--font-sans)",
     color: "var(--secondary-dark-color)",
     backgroundColor: "transparent",
+    height: "100%",
   },
   ".cm-cursor": {
     borderColor: "var(--secondary-color)",
@@ -198,6 +209,7 @@ export const inputTheme = EditorView.theme({
   ".cm-panels": {
     backgroundColor: "var(--primary-light-color)",
     color: "var(--secondary-light-color)",
+    zIndex: "1",
   },
   ".cm-panels.cm-panels-top": {
     borderBottom: "1px solid var(--divider-light-color)",
@@ -209,25 +221,34 @@ export const inputTheme = EditorView.theme({
     display: "flex",
     alignItems: "center",
     flexWrap: "nowrap",
-    flexShrink: 0,
+    flexShrink: "0",
     overflow: "auto",
+    padding: "0.25rem 0.5rem !important",
   },
   ".cm-search label": {
     display: "inline-flex",
     alignItems: "center",
   },
   ".cm-textfield": {
-    backgroundColor: "var(--primary-dark-color)",
+    backgroundColor: "var(--primary-color)",
     color: "var(--secondary-dark-color)",
     borderColor: "var(--divider-light-color)",
     borderRadius: "4px",
+    fontSize: "var(--font-size-tiny)",
+    fontWeight: "600",
+    flexShrink: "0",
+    border: "1px solid var(--divider-color)",
   },
   ".cm-button": {
-    backgroundColor: "var(--primary-dark-color)",
-    color: "var(--secondary-dark-color)",
+    backgroundColor: "var(--primary-color)",
+    color: "var(--secondary-light-color)",
     backgroundImage: "none",
-    border: "none",
     borderRadius: "4px",
+    fontSize: "var(--font-size-tiny)",
+    fontWeight: "600",
+    textTransform: "capitalize",
+    flexShrink: "0",
+    border: "1px solid var(--divider-color)",
   },
   ".cm-completionLabel": {
     color: "var(--secondary-color)",
@@ -290,10 +311,11 @@ export const inputTheme = EditorView.theme({
     textAlign: "center",
   },
   ".cm-line": {
+    lineHeight: "1rem",
     paddingLeft: "1rem",
     paddingRight: "1rem",
-    paddingTop: "0.2rem",
-    paddingBottom: "0.2rem",
+    paddingTop: "0.25rem",
+    paddingBottom: "0.25rem",
   },
   ".cm-activeLineGutter": {
     backgroundColor: "transparent",

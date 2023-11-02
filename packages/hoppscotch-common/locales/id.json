@@ -5,6 +5,7 @@
     "choose_file": "Pilih file",
     "clear": "Bersihkan",
     "clear_all": "Bersihkan semua",
+    "clear_history": "Clear all History",
     "close": "Tutup",
     "connect": "Sambungkan",
     "connecting": "Menyambungkan",
@@ -31,6 +32,7 @@
     "paste": "Tempel",
     "prettify": "Prettify",
     "remove": "Hapus",
+    "rename": "Rename",
     "restore": "Pulihkan",
     "save": "Simpan",
     "scroll_to_bottom": "Gulir ke bawah",
@@ -77,6 +79,8 @@
     "search": "Mencari",
     "share": "Membagikan",
     "shortcuts": "Jalan pintas",
+    "social_description": "Follow us on social media to stay updated with the latest news, updates and releases.",
+    "social_links": "Social links",
     "spotlight": "Menyoroti",
     "status": "Status",
     "status_description": "Periksa status situs web",
@@ -118,25 +122,28 @@
   },
   "collection": {
     "created": "Koleksi dibuat",
-    "different_parent": "Cannot reorder collection with different parent",
+    "different_parent": "Tidak dapat mengubah urutan koleksi dengan induk yang berbeda",
     "edit": "Mengubah Koleksi",
     "invalid_name": "Berikan nama untuk Koleksi",
-    "invalid_root_move": "Collection already in the root",
-    "moved": "Moved Successfully",
+    "invalid_root_move": "Koleksi sudah berada di akar direktori",
+    "moved": "Berhasil Dipindahkan",
     "my_collections": "Koleksi Saya",
     "name": "Koleksi Baru Saya",
     "name_length_insufficient": "Nama koleksi harus minimal 3 karakter",
     "new": "Koleksi baru",
-    "order_changed": "Collection Order Updated",
+    "order_changed": "Pembaruan Urutan Koleksi",
     "renamed": "Koleksi berganti nama",
     "request_in_use": "Permintaan sedang digunakan",
     "save_as": "Simpan Sebagai",
+    "save_to_collection": "Save to Collection",
     "select": "Pilih Koleksi",
     "select_location": "Pilih lokasi",
-    "select_team": "Pilih team",
+    "select_team": "Pilih tim",
     "team_collections": "Koleksi Tim"
   },
   "confirm": {
+    "close_unsaved_tab": "Are you sure you want to close this tab?",
+    "close_unsaved_tabs": "Are you sure you want to close all tabs? {count} unsaved tabs will be lost.",
     "exit_team": "Apakah Anda yakin ingin keluar dari tim ini?",
     "logout": "Apakah Anda yakin ingin keluar?",
     "remove_collection": "Apakah Anda yakin ingin menghapus koleksi ini secara permanen?",
@@ -147,8 +154,13 @@
     "remove_team": "Apakah Anda yakin ingin menghapus tim ini?",
     "remove_telemetry": "Apakah Anda yakin ingin menyisih dari Telemetri?",
     "request_change": "Apakah Anda yakin ingin membuang permintaan saat ini, perubahan yang belum disimpan akan hilang.",
-    "save_unsaved_tab": "Do you want to save changes made in this tab?",
+    "save_unsaved_tab": "Apakah Anda ingin menyimpan perubahan yang dibuat di tab ini?",
     "sync": "Apakah Anda ingin memulihkan ruang kerja Anda dari cloud? Ini akan membuang kemajuan lokal Anda."
+  },
+  "context_menu": {
+    "add_parameters": "Add to parameters",
+    "open_request_in_new_tab": "Open request in new tab",
+    "set_environment_variable": "Set as variable"
   },
   "count": {
     "header": "Header {count}",
@@ -180,8 +192,8 @@
     "profile": "Masuk untuk melihat profil Anda",
     "protocols": "Protokol kosong",
     "schema": "Hubungkan ke endpoint GraphQL untuk melihat skema",
-    "shortcodes": "Shortcodes are empty",
-    "subscription": "Subscriptions are empty",
+    "shortcodes": "Shortcodes kosong",
+    "subscription": "Langganan kosong",
     "team_name": "Nama team kosong",
     "teams": "Kamu bukan di team manapun",
     "tests": "Tidak ada tes untuk permintaan ini"
@@ -189,20 +201,34 @@
   "environment": {
     "add_to_global": "Tambahkan ke Global",
     "added": "Tambahan Environment",
-    "create_new": "Membuat baru environment",
+    "create_new": "Membuat environment baru",
     "created": "Environment dibuat",
     "deleted": "Environment dihapus",
+    "duplicated": "Environment duplicated",
     "edit": "Sunting Environment",
+    "empty_variables": "No variables",
+    "global": "Global",
+    "global_variables": "Global variables",
     "invalid_name": "Tolong beri nama untuk environment",
-    "my_environments": "My Environments",
-    "nested_overflow": "variabel environment bersarang dibatasi hingga 10 level",
+    "list": "Environment variables",
+    "my_environments": "Environment Saya",
+    "name": "Name",
+    "nested_overflow": "Variabel environment bersarang dibatasi hingga 10 level",
     "new": "Environment Baru",
+    "no_active_environment": "No active environment",
     "no_environment": "No environment",
     "no_environment_description": "Tidak ada environment yang dipilih. Pilih apa yang harus dilakukan dengan variabel berikut.",
+    "quick_peek": "Environment Quick Peek",
+    "replace_with_variable": "Replace with variable",
+    "scope": "Scope",
     "select": "Pilih environment",
-    "team_environments": "Team Environments",
-    "title": "Environments",
+    "set": "Set environment",
+    "set_as_environment": "Set as environment",
+    "team_environments": "Environment Tim",
+    "title": "Environment",
     "updated": "Environment diperbarui",
+    "value": "Value",
+    "variable": "Variable",
     "variable_list": "Daftar Variable"
   },
   "error": {
@@ -210,8 +236,8 @@
     "check_console_details": "Periksa console log untuk detailnya.",
     "curl_invalid_format": "cURL tidak diformat dengan benar",
     "danger_zone": "Danger zone",
-    "delete_account": "Your account is currently an owner in these teams:",
-    "delete_account_description": "You must either remove yourself, transfer ownership, or delete these teams before you can delete your account.",
+    "delete_account": "Akun Anda saat ini merupakan pemilik dalam tim-tim ini:",
+    "delete_account_description": "Anda harus menghapus diri Anda dari tim-tim ini, mentransfer kepemilikan, atau menghapus tim-tim ini sebelum Anda dapat menghapus akun Anda.",
     "empty_req_name": "Nama Permintaan Kosong",
     "f12_details": "(F12 untuk detailnya)",
     "gql_prettify_invalid_query": "Tidak dapat prettify kueri yang tidak valid, menyelesaikan kesalahan sintaksis kueri, dan coba lagi",
@@ -226,6 +252,7 @@
     "no_duration": "Tidak ada durasi",
     "no_results_found": "Tidak ada kecocokan yang ditemukan",
     "page_not_found": "Halaman ini tidak dapat ditemukan",
+    "proxy_error": "Proxy error",
     "script_fail": "Tidak dapat menjalankan pre-request script",
     "something_went_wrong": "Ada yang salah",
     "test_script_fail": "Tidak dapat mengeksekusi post-request script"
@@ -251,9 +278,13 @@
     "renamed": "Folder berganti nama"
   },
   "graphql": {
+    "connection_switch_confirm": "Do you want to connect with the latest GraphQL endpoint?",
+    "connection_switch_new_url": "Switching to a tab will disconnected you from the active GraphQL connection. New connection URL is",
+    "connection_switch_url": "You're connected to a GraphQL endpoint the connection URL is",
     "mutations": "Mutations",
     "schema": "Schema",
-    "subscriptions": "Subscriptions"
+    "subscriptions": "Subscriptions",
+    "switch_connection": "Switch connection"
   },
   "group": {
     "time": "Time",
@@ -294,7 +325,7 @@
     "from_json_description": "Impor dari Hoppscotch berkas koleksi",
     "from_my_collections": "Impor dari Koleksi Saya",
     "from_my_collections_description": "Impor dari Berkas Koleksi Saya",
-    "from_openapi": "Import dari OpenAPI",
+    "from_openapi": "Impor dari OpenAPI",
     "from_openapi_description": "Impor dari OpenAPI syarat berkas (YML/JSON)",
     "from_postman": "Impor dari Postman",
     "from_postman_description": "Impor dari Koleksi Postman",
@@ -307,32 +338,55 @@
     "json_description": "Impor Koleksi dari berkas JSON Koleksi Hoppscotch",
     "title": "Impor"
   },
+  "inspections": {
+    "description": "Inspect possible errors",
+    "environment": {
+      "add_environment": "Add to Environment",
+      "not_found": "Environment variable “{environment}” not found."
+    },
+    "header": {
+      "cookie": "The browser doesn't allow Hoppscotch to set the Cookie Header. While we're working on the Hoppscotch Desktop App (coming soon), please use the Authorization Header instead."
+    },
+    "response": {
+      "401_error": "Please check your authentication credentials.",
+      "404_error": "Please check your request URL and method type.",
+      "cors_error": "Please check your Cross-Origin Resource Sharing configuration.",
+      "default_error": "Please check your request.",
+      "network_error": "Please check your network connection."
+    },
+    "title": "Inspector",
+    "url": {
+      "extension_not_installed": "Extension not installed.",
+      "extension_unknown_origin": "Make sure you've added the API endpoint's origin to the Hoppscotch Browser Extension list.",
+      "extention_enable_action": "Enable Browser Extension",
+      "extention_not_enabled": "Extension not enabled."
+    }
+  },
   "layout": {
     "collapse_collection": "Ciutkan atau Perluas Collections",
     "collapse_sidebar": "Ciutkan atau Perluas sidebar",
     "column": "Vertikal layout",
     "name": "Layout",
-    "row": "Horisontal layout",
-    "zen_mode": "Zen mode"
+    "row": "Horisontal layout"
   },
   "modal": {
-    "close_unsaved_tab": "You have unsaved changes",
+    "close_unsaved_tab": "Anda memiliki perubahan yang belum disimpan",
     "collections": "Koleksi",
     "confirm": "Mengonfirmasi",
     "edit_request": "Edit Request",
     "import_export": "Impor / Ekspor"
   },
   "mqtt": {
-    "already_subscribed": "You are already subscribed to this topic.",
-    "clean_session": "Clean Session",
-    "clear_input": "Clear input",
-    "clear_input_on_send": "Clear input on send",
+    "already_subscribed": "Anda sudah berlangganan topik ini.",
+    "clean_session": "Sesi Bersih",
+    "clear_input": "Hapus input",
+    "clear_input_on_send": "Hapus input saat mengirim",
     "client_id": "Client ID",
-    "color": "Pick a color",
+    "color": "Pilih warna",
     "communication": "Komunikasi",
-    "connection_config": "Connection Config",
-    "connection_not_authorized": "This MQTT connection does not use any authentication.",
-    "invalid_topic": "Please provide a topic for the subscription",
+    "connection_config": "Konfigurasi Koneksi",
+    "connection_not_authorized": "Koneksi MQTT ini tidak menggunakan otentikasi",
+    "invalid_topic": "Harap berikan topik untuk langganan",
     "keep_alive": "Keep Alive",
     "log": "Log",
     "lw_message": "Last-Will Message",
@@ -340,8 +394,8 @@
     "lw_retain": "Last-Will Retain",
     "lw_topic": "Last-Will Topic",
     "message": "Pesan",
-    "new": "New Subscription",
-    "not_connected": "Please start a MQTT connection first.",
+    "new": "Langganan Baru",
+    "not_connected": "Mulai koneksi MQTT terlebih dahulu",
     "publish": "Menerbitkan",
     "qos": "QoS",
     "ssl": "SSL",
@@ -396,19 +450,19 @@
       "text": "Text"
     },
     "copy_link": "Salin tautan",
-    "different_collection": "Cannot reorder requests from different collections",
+    "different_collection": "Tidak dapat mengubah urutan permintaan dari koleksi yang berbeda",
     "duplicated": "Request duplicated",
     "duration": "Durasi",
     "enter_curl": "Masukkan cURL",
-    "generate_code": "Generate code",
-    "generated_code": "Generated code",
+    "generate_code": "Hasilkan kode",
+    "generated_code": "Hasilkan kode",
     "header_list": "Daftar Header",
     "invalid_name": "Harap berikan nama untuk request",
     "method": "Method",
     "moved": "Request moved",
     "name": "Request nama",
     "new": "Request baru",
-    "order_changed": "Request Order Updated",
+    "order_changed": "Urutan Request Diperbarui",
     "override": "Membatalkan",
     "override_help": "Set <kbd>Content-Type</kbd> in Headers",
     "overriden": "Diganti",
@@ -418,6 +472,7 @@
     "payload": "Payload",
     "query": "Query",
     "raw_body": "Raw Request Body",
+    "rename": "Rename Request",
     "renamed": "Request berganti nama",
     "run": "Jalankan",
     "save": "Menyimpan",
@@ -425,6 +480,7 @@
     "saved": "Request disimpan",
     "share": "Membagikan",
     "share_description": "Bagikan Hoppscotch dengan teman-teman Anda",
+    "stop": "Stop",
     "title": "Request",
     "type": "Tipe Request",
     "url": "URL",
@@ -453,13 +509,12 @@
   "settings": {
     "accent_color": "Accent color",
     "account": "Akun",
-    "account_deleted": "Your account has been deleted",
+    "account_deleted": "Akun Anda telah dihapus",
     "account_description": "Sesuaikan pengaturan akun Anda.",
     "account_email_description": "Alamat surel utama Anda.",
     "account_name_description": "Ini adalah nama tampilan Anda.",
     "background": "Latar belakang",
     "black_mode": "Hitam",
-    "change_font_size": "Ubah ukuran font",
     "choose_language": "Pilih bahasa",
     "dark_mode": "Gelap",
     "delete_account": "Delete account",
@@ -472,10 +527,6 @@
     "extensions": "Ekstensi Peramban",
     "extensions_use_toggle": "Gunakan ekstensi peramban untuk mengirim permintaan (jika ada)",
     "follow": "Ikuti kami",
-    "font_size": "Ukuran huruf",
-    "font_size_large": "Besar",
-    "font_size_medium": "Sedang",
-    "font_size_small": "Kecil",
     "interceptor": "Pencegat",
     "interceptor_description": "Middleware antara aplikasi dan API.",
     "language": "Bahasa",
@@ -540,19 +591,27 @@
       "settings": "Pergi ke halaman Pengaturan",
       "title": "Navigasi"
     },
+    "others": {
+      "prettify": "Prettify Editor's Content",
+      "title": "Others"
+    },
     "request": {
       "copy_request_link": "Salin Tautan Permintaan",
       "delete_method": "Pilih metode DELETE",
       "get_method": "Pilih metode GET",
       "head_method": "Pilih metode HEAD",
+      "import_curl": "Import cURL",
       "method": "metode",
       "next_method": "Pilih metode Next",
       "post_method": "Pilih metode POST",
       "previous_method": "Pilih metode Previous",
       "put_method": "Pilih metode PUT",
+      "rename": "Rename Request",
       "reset_request": "Mengatur ulang Request",
+      "save_request": "Save Request",
       "save_to_collections": "Menyimpan ke Collections",
       "send_request": "Kirim Request",
+      "show_code": "Generate code snippet",
       "title": "Request"
     },
     "response": {
@@ -582,6 +641,85 @@
     "log": "Log",
     "url": "URL"
   },
+  "spotlight": {
+    "change_language": "Change Language",
+    "environments": {
+      "delete": "Delete current environment",
+      "duplicate": "Duplicate current environment",
+      "duplicate_global": "Duplicate global environment",
+      "edit": "Edit current environment",
+      "edit_global": "Edit global environment",
+      "new": "Create new environment",
+      "new_variable": "Create a new environment variable",
+      "title": "Environments"
+    },
+    "general": {
+      "chat": "Chat with support",
+      "help_menu": "Help and support",
+      "open_docs": "Read Documentation",
+      "open_github": "Open GitHub repository",
+      "open_keybindings": "Keyboard shortcuts",
+      "social": "Social",
+      "title": "General"
+    },
+    "graphql": {
+      "connect": "Connect to server",
+      "disconnect": "Disconnect from server"
+    },
+    "miscellaneous": {
+      "invite": "Invite your friends to Hoppscotch",
+      "title": "Miscellaneous"
+    },
+    "request": {
+      "save_as_new": "Save as new request",
+      "select_method": "Select method",
+      "switch_to": "Switch to",
+      "tab_authorization": "Authorization tab",
+      "tab_body": "Body tab",
+      "tab_headers": "Headers tab",
+      "tab_parameters": "Parameters tab",
+      "tab_pre_request_script": "Pre-request script tab",
+      "tab_query": "Query tab",
+      "tab_tests": "Tests tab",
+      "tab_variables": "Variables tab"
+    },
+    "response": {
+      "copy": "Copy response",
+      "download": "Download response as file",
+      "title": "Response"
+    },
+    "section": {
+      "interceptor": "Interceptor",
+      "interface": "Interface",
+      "theme": "Theme",
+      "user": "User"
+    },
+    "settings": {
+      "change_interceptor": "Change Interceptor",
+      "change_language": "Change Language",
+      "theme": {
+        "black": "Black",
+        "dark": "Dark",
+        "light": "Light",
+        "system": "System preference"
+      }
+    },
+    "tab": {
+      "close_current": "Close current tab",
+      "close_others": "Close all other tabs",
+      "duplicate": "Duplicate current tab",
+      "new_tab": "Open a new tab",
+      "title": "Tabs"
+    },
+    "workspace": {
+      "delete": "Delete current team",
+      "edit": "Edit current team",
+      "invite": "Invite people to team",
+      "new": "Create new team",
+      "switch_to_personal": "Switch to your personal workspace",
+      "title": "Teams"
+    }
+  },
   "sse": {
     "event_type": "Tipe Event",
     "log": "Log",
@@ -609,7 +747,7 @@
     "file_imported": "File diimpor",
     "finished_in": "Selesai dalam {duration} ms",
     "history_deleted": "Riwayat dihapus",
-    "linewrap": "Wrap lines",
+    "linewrap": "Bungkus baris",
     "loading": "Memuat...",
     "message_received": "Pesan: {message} tiba di topik: {topic}",
     "mqtt_subscription_failed": "Terjadi masalah saat berlangganan topik: {topic}",
@@ -639,8 +777,11 @@
   "tab": {
     "authorization": "Authorization",
     "body": "Body",
+    "close": "Close Tab",
+    "close_others": "Close other Tabs",
     "collections": "Collections",
     "documentation": "Dokumentasi",
+    "duplicate": "Duplicate Tab",
     "environments": "Environments",
     "headers": "Headers",
     "history": "Riwayat",
@@ -666,7 +807,7 @@
     "email_do_not_match": "Surel tidak cocok dengan detail akun Anda. Hubungi pemilik tim Anda.",
     "exit": "Keluar dari Tim",
     "exit_disabled": "Hanya pemilik yang tidak dapat keluar dari tim",
-    "invalid_coll_id": "Invalid collection ID",
+    "invalid_coll_id": "ID koleksi tidak valid",
     "invalid_email_format": "Format surel tidak valid",
     "invalid_id": "ID tim tidak valid. Hubungi pemilik tim Anda.",
     "invalid_invite_link": "Tautan undangan tidak valid",
@@ -690,7 +831,7 @@
     "member_removed": "Pengguna dihapus",
     "member_role_updated": "Peran pengguna diperbarui",
     "members": "Anggota",
-    "more_members": "+{count} more",
+    "more_members": "+{count} lebih",
     "name_length_insufficient": "Nama tim harus setidaknya 6 karakter",
     "name_updated": "Nama tim diperbarui",
     "new": "Tim Baru",
@@ -698,13 +839,13 @@
     "new_name": "Tim baru saya",
     "no_access": "Anda tidak memiliki akses edit ke collections ini",
     "no_invite_found": "Undangan tidak ditemukan. Hubungi pemilik tim Anda.",
-    "no_request_found": "Request not found.",
+    "no_request_found": "Request tidak ditemukan.",
     "not_found": "Tim tidak ditemukan. Hubungi pemilik tim Anda.",
     "not_valid_viewer": "Anda bukan penonton yang valid. Hubungi pemilik tim Anda.",
-    "parent_coll_move": "Cannot move collection to a child collection",
+    "parent_coll_move": "Tidak dapat memindahkan koleksi ke dalam koleksi anak",
     "pending_invites": "Undangan tertunda",
     "permissions": "Izin",
-    "same_target_destination": "Same target and destination",
+    "same_target_destination": "Sama tujuan dan destinasi",
     "saved": "Tim disimpan",
     "select_a_team": "Pilih tim",
     "title": "tim",
@@ -712,9 +853,9 @@
     "we_sent_invite_link_description": "Minta semua undangan untuk memeriksa kotak masuk mereka. Klik tautan untuk bergabung dengan tim."
   },
   "team_environment": {
-    "deleted": "Environment Deleted",
-    "duplicate": "Environment Duplicated",
-    "not_found": "Environment not found."
+    "deleted": "Environment dihapus",
+    "duplicate": "Environment diduplikasi",
+    "not_found": "Environment tidak ditemukan."
   },
   "test": {
     "failed": "Tes gagal",
@@ -734,9 +875,9 @@
     "url": "URL"
   },
   "workspace": {
-    "change": "Change workspace",
-    "personal": "My Workspace",
-    "team": "Team Workspace",
+    "change": "Beralih workspace",
+    "personal": "Workspace Saya",
+    "team": "Workspace Tim",
     "title": "Workspaces"
   }
 }

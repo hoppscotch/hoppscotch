@@ -91,8 +91,9 @@ export abstract class StaticSpotlightSearcherService<
   private async addDocsToSearchIndex() {
     this.loading.value = true
 
-    this.minisearch.removeAll()
-    this.minisearch.vacuum()
+    this.minisearch = new MiniSearch({
+      fields: this.opts.searchFields as string[],
+    })
 
     await this.minisearch.addAllAsync(
       Object.entries(this._documents).map(([id, doc]) => ({

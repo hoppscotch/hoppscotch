@@ -260,6 +260,13 @@ const importFromJSON = () => {
 
 const exportJSON = () => {
   const dataToWrite = collectionJson.value
+
+  const parsedCollections = JSON.parse(dataToWrite)
+
+  if (!parsedCollections.length) {
+    return toast.error(t("error.no_collections_to_export"))
+  }
+
   const file = new Blob([dataToWrite], { type: "application/json" })
   const a = document.createElement("a")
   const url = URL.createObjectURL(file)

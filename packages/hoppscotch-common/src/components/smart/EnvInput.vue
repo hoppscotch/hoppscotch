@@ -1,7 +1,7 @@
 <template>
-  <div class="autocomplete-wrapper">
+  <div ref="autoCompleteWrapper" class="autocomplete-wrapper">
     <div
-      class="absolute inset-0 flex flex-1 divide-x divide-dividerLight overflow-x-auto"
+      class="no-scrollbar absolute inset-0 flex flex-1 divide-x divide-dividerLight overflow-x-auto"
     >
       <div
         ref="editor"
@@ -14,11 +14,13 @@
       ></div>
       <AppInspection
         :inspection-results="inspectionResults"
-        class="sticky inset-y-0 right-0 bg-primary rounded-r"
+        class="sticky inset-y-0 right-0 rounded-r bg-primary"
       />
     </div>
     <ul
-      v-if="showSuggestionPopover && autoCompleteSource"
+      v-if="
+        showSuggestionPopover && autoCompleteSource && suggestions.length > 0
+      "
       ref="suggestionsMenu"
       class="suggestions"
     >
@@ -33,26 +35,18 @@
         </span>
         <div
           v-if="currentSuggestionIndex === index"
-          class="hidden md:flex text-secondary items-center"
+          class="hidden items-center text-secondary md:flex"
         >
           <kbd class="shortcut-key">TAB</kbd>
           <span class="ml-2 truncate">to select</span>
         </div>
-      </li>
-      <li v-if="suggestions.length === 0" class="pointer-events-none">
-        <div v-if="slots.empty" class="truncate py-0.5">
-          <slot name="empty"></slot>
-        </div>
-        <span v-else class="truncate py-0.5">
-          {{ t("empty.suggestions") }}
-        </span>
       </li>
     </ul>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch, nextTick, computed, Ref, useSlots } from "vue"
+import { ref, onMounted, watch, nextTick, computed, Ref } from "vue"
 import {
   EditorView,
   placeholder as placeholderExt,
@@ -69,7 +63,6 @@ import { HoppReactiveEnvPlugin } from "~/helpers/editor/extensions/HoppEnvironme
 import { useReadonlyStream } from "@composables/stream"
 import { AggregateEnvironment, aggregateEnvs$ } from "~/newstore/environments"
 import { platform } from "~/platform"
-import { useI18n } from "~/composables/i18n"
 import { onClickOutside, useDebounceFn } from "@vueuse/core"
 import { InspectorResult } from "~/services/inspection"
 import { invokeAction } from "~/helpers/actions"
@@ -111,10 +104,6 @@ const emit = defineEmits<{
   (e: "click", ev: any): void
 }>()
 
-const slots = useSlots()
-
-const t = useI18n()
-
 const cachedValue = ref(props.modelValue)
 
 const view = ref<EditorView>()
@@ -125,8 +114,9 @@ const currentSuggestionIndex = ref(-1)
 const showSuggestionPopover = ref(false)
 
 const suggestionsMenu = ref<any | null>(null)
+const autoCompleteWrapper = ref<any | null>(null)
 
-onClickOutside(suggestionsMenu, () => {
+onClickOutside(autoCompleteWrapper, () => {
   showSuggestionPopover.value = false
 })
 
@@ -161,6 +151,22 @@ const updateModelValue = (value: string) => {
     showSuggestionPopover.value = false
   })
 }
+
+// close the context menu when the input is empty
+watch(
+  () => props.modelValue,
+  (newVal) => {
+    if (!newVal) {
+      invokeAction("contextmenu.open", {
+        position: {
+          top: 0,
+          left: 0,
+        },
+        text: null,
+      })
+    }
+  }
+)
 
 const handleKeystroke = (ev: KeyboardEvent) => {
   if (["ArrowDown", "ArrowUp", "Enter", "Tab", "Escape"].includes(ev.key)) {
@@ -321,35 +327,35 @@ const envVars = computed(() =>
 
 const envTooltipPlugin = new HoppReactiveEnvPlugin(envVars, view)
 
-const initView = (el: any) => {
-  function handleTextSelection() {
-    const selection = view.value?.state.selection.main
-    if (selection) {
-      const from = selection.from
-      const to = selection.to
-      const text = view.value?.state.doc.sliceString(from, to)
-      const { top, left } = view.value?.coordsAtPos(from)
-      if (text) {
-        invokeAction("contextmenu.open", {
-          position: {
-            top,
-            left,
-          },
-          text,
-        })
-        showSuggestionPopover.value = false
-      } else {
-        invokeAction("contextmenu.open", {
-          position: {
-            top,
-            left,
-          },
-          text: null,
-        })
-      }
+function handleTextSelection() {
+  const selection = view.value?.state.selection.main
+  if (selection) {
+    const { from, to } = selection
+    if (from === to) return
+    const text = view.value?.state.doc.sliceString(from, to)
+    const { top, left } = view.value?.coordsAtPos(from)
+    if (text) {
+      invokeAction("contextmenu.open", {
+        position: {
+          top,
+          left,
+        },
+        text,
+      })
+      showSuggestionPopover.value = false
+    } else {
+      invokeAction("contextmenu.open", {
+        position: {
+          top,
+          left,
+        },
+        text: null,
+      })
     }
   }
+}
 
+const initView = (el: any) => {
   // Debounce to prevent double click from selecting the word
   const debounceFn = useDebounceFn(() => {
     handleTextSelection()
@@ -390,6 +396,11 @@ const initView = (el: any) => {
       },
       drop(ev) {
         ev.preventDefault()
+      },
+      scroll(event) {
+        if (event.target) {
+          handleTextSelection()
+        }
       },
     }),
     ViewPlugin.fromClass(
@@ -488,7 +499,7 @@ watch(editor, () => {
     @apply z-50;
     @apply shadow-lg;
     @apply max-h-46;
-    @apply border-b border-x border-divider;
+    @apply border-x border-b border-divider;
     @apply overflow-y-auto;
     @apply -left-[1px];
     @apply -right-[1px];
@@ -501,7 +512,7 @@ watch(editor, () => {
       @apply items-center;
       @apply justify-between;
       @apply w-full;
-      @apply py-2 px-4;
+      @apply px-4 py-2;
       @apply text-secondary;
       @apply cursor-pointer;
 

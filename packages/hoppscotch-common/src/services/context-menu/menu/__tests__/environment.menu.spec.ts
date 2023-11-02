@@ -61,7 +61,7 @@ describe("EnvironmentMenuService", () => {
       expect(actionsMock.invokeAction).toHaveBeenCalledWith(
         "modals.environment.add",
         {
-          envName: "test",
+          envName: "",
           variableName: test,
         }
       )

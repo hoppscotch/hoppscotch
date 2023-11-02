@@ -6,7 +6,7 @@
     <div class="my-1 text-secondaryLight">
       {{ t("settings.short_codes_description") }}
     </div>
-    <div class="relative py-4 overflow-x-auto">
+    <div class="relative overflow-x-auto py-4">
       <div v-if="loading" class="flex flex-col items-center justify-center">
         <HoppSmartSpinner class="mb-4" />
         <span class="text-secondaryLight">{{ t("state.loading") }}</span>
@@ -20,7 +20,7 @@
       </HoppSmartPlaceholder>
       <div v-else-if="!loading">
         <div
-          class="hidden w-full border-t rounded-t bg-primaryLight lg:flex border-x border-dividerLight"
+          class="hidden w-full rounded-t border-x border-t border-dividerLight bg-primaryLight lg:flex"
         >
           <div class="flex w-full overflow-y-scroll">
             <div class="table-box">
@@ -35,13 +35,13 @@
             <div class="table-box">
               {{ t("shortcodes.created_on") }}
             </div>
-            <div class="justify-center table-box">
+            <div class="table-box justify-center">
               {{ t("shortcodes.actions") }}
             </div>
           </div>
         </div>
         <div
-          class="flex flex-col items-center justify-between w-full overflow-y-scroll border rounded max-h-sm lg:rounded-t-none lg:divide-y border-dividerLight divide-dividerLight"
+          class="flex max-h-sm w-full flex-col items-center justify-between divide-dividerLight overflow-y-scroll rounded border border-dividerLight lg:divide-y lg:rounded-t-none"
         >
           <ProfileShortcode
             v-for="(shortcode, shortcodeIndex) in myShortcodes"
@@ -63,7 +63,7 @@
         v-if="!loading && adapterError"
         class="flex flex-col items-center py-4"
       >
-        <icon-lucide-help-circle class="mb-4 svg-icons" />
+        <icon-lucide-help-circle class="svg-icons mb-4" />
         {{ getErrorMessage(adapterError) }}
       </div>
     </div>
@@ -163,6 +163,6 @@ const getErrorMessage = (err: GQLError<string>) => {
 
 <style lang="scss" scoped>
 .table-box {
-  @apply flex flex-1 items-center px-4 py-2 truncate;
+  @apply flex flex-1 items-center truncate px-4 py-2;
 }
 </style>

@@ -20,7 +20,7 @@
                 : `${t('environment.select')}`
               : ''
           "
-          class="flex-1 !justify-start pr-8 rounded-none"
+          class="flex-1 !justify-start rounded-none pr-8"
         />
       </span>
       <template #content="{ hide }">
@@ -32,6 +32,7 @@
           @keyup.escape="hide()"
         >
           <HoppSmartItem
+            v-if="!isScopeSelector"
             :label="`${t('environment.no_environment')}`"
             :info-icon="
               selectedEnvironmentIndex.type === 'NO_ENV_SELECTED'
@@ -44,6 +45,21 @@
             @click="
               () => {
                 selectedEnvironmentIndex = { type: 'NO_ENV_SELECTED' }
+                hide()
+              }
+            "
+          />
+          <HoppSmartItem
+            v-else-if="isScopeSelector && modelValue"
+            :label="t('environment.global')"
+            :icon="IconGlobe"
+            :info-icon="modelValue.type === 'global' ? IconCheck : undefined"
+            :active-info-icon="modelValue.type === 'global'"
+            @click="
+              () => {
+                $emit('update:modelValue', {
+                  type: 'global',
+                })
                 hide()
               }
             "
@@ -66,14 +82,14 @@
                 :key="`gen-${index}`"
                 :icon="IconLayers"
                 :label="gen.name"
-                :info-icon="index === selectedEnv.index ? IconCheck : undefined"
-                :active-info-icon="index === selectedEnv.index"
+                :info-icon="isEnvActive(index) ? IconCheck : undefined"
+                :active-info-icon="isEnvActive(index)"
                 @click="
                   () => {
-                    selectedEnvironmentIndex = {
-                      type: 'MY_ENV',
-                      index: index,
-                    }
+                    handleEnvironmentChange(index, {
+                      type: 'my-environment',
+                      environment: gen,
+                    })
                     hide()
                   }
                 "
@@ -85,7 +101,7 @@
                 <img
                   :src="`/images/states/${colorMode.value}/blockchain.svg`"
                   loading="lazy"
-                  class="inline-flex flex-col object-contain object-center w-16 h-16 mb-2"
+                  class="mb-2 inline-flex h-16 w-16 flex-col object-contain object-center"
                   :alt="`${t('empty.environments')}`"
                 />
                 <span class="pb-2 text-center">
@@ -113,18 +129,14 @@
                   :key="`gen-team-${index}`"
                   :icon="IconLayers"
                   :label="gen.environment.name"
-                  :info-icon="
-                    gen.id === selectedEnv.teamEnvID ? IconCheck : undefined
-                  "
-                  :active-info-icon="gen.id === selectedEnv.teamEnvID"
+                  :info-icon="isEnvActive(gen.id) ? IconCheck : undefined"
+                  :active-info-icon="isEnvActive(gen.id)"
                   @click="
                     () => {
-                      selectedEnvironmentIndex = {
-                        type: 'TEAM_ENV',
-                        teamEnvID: gen.id,
-                        teamID: gen.teamID,
-                        environment: gen.environment,
-                      }
+                      handleEnvironmentChange(index, {
+                        type: 'team-environment',
+                        environment: gen,
+                      })
                       hide()
                     }
                   "
@@ -136,7 +148,7 @@
                   <img
                     :src="`/images/states/${colorMode.value}/blockchain.svg`"
                     loading="lazy"
-                    class="inline-flex flex-col object-contain object-center w-16 h-16 mb-2"
+                    class="mb-2 inline-flex h-16 w-16 flex-col object-contain object-center"
                     :alt="`${t('empty.environments')}`"
                   />
                   <span class="pb-2 text-center">
@@ -148,7 +160,7 @@
                 v-if="!teamListLoading && teamAdapterError"
                 class="flex flex-col items-center py-4"
               >
-                <icon-lucide-help-circle class="mb-4 svg-icons" />
+                <icon-lucide-help-circle class="svg-icons mb-4" />
                 {{ getErrorMessage(teamAdapterError) }}
               </div>
             </HoppSmartTab>
@@ -178,7 +190,7 @@
             @keyup.escape="hide()"
           >
             <div
-              class="sticky top-0 font-semibold truncate flex items-center justify-between text-secondaryDark bg-primary border border-divider rounded pl-4"
+              class="sticky top-0 flex items-center justify-between truncate rounded border border-divider bg-primary pl-4 font-semibold text-secondaryDark"
             >
               {{ t("environment.global_variables") }}
               <HoppButtonSecondary
@@ -193,12 +205,12 @@
                 "
               />
             </div>
-            <div class="my-2 flex flex-col flex-1 space-y-2 pl-4 pr-2">
+            <div class="my-2 flex flex-1 flex-col space-y-2 pl-4 pr-2">
               <div class="flex flex-1 space-x-4">
-                <span class="w-1/4 min-w-32 truncate text-tiny font-semibold">
+                <span class="min-w-32 w-1/4 truncate text-tiny font-semibold">
                   {{ t("environment.name") }}
                 </span>
-                <span class="w-full min-w-32 truncate text-tiny font-semibold">
+                <span class="min-w-32 w-full truncate text-tiny font-semibold">
                   {{ t("environment.value") }}
                 </span>
               </div>
@@ -207,10 +219,10 @@
                 :key="index"
                 class="flex flex-1 space-x-4"
               >
-                <span class="text-secondaryLight w-1/4 min-w-32 truncate">
+                <span class="min-w-32 w-1/4 truncate text-secondaryLight">
                   {{ variable.key }}
                 </span>
-                <span class="text-secondaryLight w-full min-w-32 truncate">
+                <span class="min-w-32 w-full truncate text-secondaryLight">
                   {{ variable.value }}
                 </span>
               </div>
@@ -219,7 +231,7 @@
               </div>
             </div>
             <div
-              class="sticky top-0 mt-2 font-semibold truncate flex items-center justify-between text-secondaryDark bg-primary border border-divider rounded pl-4"
+              class="sticky top-0 mt-2 flex items-center justify-between truncate rounded border border-divider bg-primary pl-4 font-semibold text-secondaryDark"
               :class="{
                 'bg-primaryLight': !selectedEnv.variables,
               }"
@@ -240,16 +252,16 @@
             </div>
             <div
               v-if="selectedEnv.type === 'NO_ENV_SELECTED'"
-              class="text-secondaryLight my-2 flex flex-col flex-1 pl-4"
+              class="my-2 flex flex-1 flex-col pl-4 text-secondaryLight"
             >
               {{ t("environment.no_active_environment") }}
             </div>
-            <div v-else class="my-2 flex flex-col flex-1 space-y-2 pl-4 pr-2">
+            <div v-else class="my-2 flex flex-1 flex-col space-y-2 pl-4 pr-2">
               <div class="flex flex-1 space-x-4">
-                <span class="w-1/4 min-w-32 truncate text-tiny font-semibold">
+                <span class="min-w-32 w-1/4 truncate text-tiny font-semibold">
                   {{ t("environment.name") }}
                 </span>
-                <span class="w-full min-w-32 truncate text-tiny font-semibold">
+                <span class="min-w-32 w-full truncate text-tiny font-semibold">
                   {{ t("environment.value") }}
                 </span>
               </div>
@@ -258,10 +270,10 @@
                 :key="index"
                 class="flex flex-1 space-x-4"
               >
-                <span class="text-secondaryLight w-1/4 min-w-32 truncate">
+                <span class="min-w-32 w-1/4 truncate text-secondaryLight">
                   {{ variable.key }}
                 </span>
-                <span class="text-secondaryLight w-full min-w-32 truncate">
+                <span class="min-w-32 w-full truncate text-secondaryLight">
                   {{ variable.value }}
                 </span>
               </div>
@@ -285,6 +297,7 @@ import IconCheck from "~icons/lucide/check"
 import IconLayers from "~icons/lucide/layers"
 import IconEye from "~icons/lucide/eye"
 import IconEdit from "~icons/lucide/edit"
+import IconGlobe from "~icons/lucide/globe"
 import { TippyComponent } from "vue-tippy"
 import { useI18n } from "~/composables/i18n"
 import { GQLError } from "~/helpers/backend/GQLClient"
@@ -295,11 +308,38 @@ import {
   selectedEnvironmentIndex$,
   setSelectedEnvironmentIndex,
 } from "~/newstore/environments"
-import { workspaceStatus$ } from "~/newstore/workspace"
 import TeamEnvironmentAdapter from "~/helpers/teams/TeamEnvironmentAdapter"
 import { useColorMode } from "@composables/theming"
 import { breakpointsTailwind, useBreakpoints } from "@vueuse/core"
 import { invokeAction } from "~/helpers/actions"
+import { TeamEnvironment } from "~/helpers/teams/TeamEnvironment"
+import { Environment } from "@hoppscotch/data"
+import { onMounted } from "vue"
+import { useLocalState } from "~/newstore/localstate"
+import { GetMyTeamsQuery } from "~/helpers/backend/graphql"
+import { useService } from "dioc/vue"
+import { WorkspaceService } from "~/services/workspace.service"
+
+type Scope =
+  | {
+      type: "global"
+    }
+  | {
+      type: "my-environment"
+      environment: Environment
+      index: number
+    }
+  | {
+      type: "team-environment"
+      environment: TeamEnvironment
+    }
+const props = defineProps<{
+  isScopeSelector?: boolean
+  modelValue?: Scope
+}>()
+const emit = defineEmits<{
+  (e: "update:modelValue", data: Scope): void
+}>()
 
 const breakpoints = useBreakpoints(breakpointsTailwind)
 const mdAndLarger = breakpoints.greater("md")
@@ -312,8 +352,37 @@ type EnvironmentType = "my-environments" | "team-environments"
 
 const myEnvironments = useReadonlyStream(environments$, [])
 
-const workspace = useReadonlyStream(workspaceStatus$, { type: "personal" })
+const workspaceService = useService(WorkspaceService)
+const workspace = workspaceService.currentWorkspace
 
+// TeamList-Adapter
+const teamListAdapter = workspaceService.acquireTeamListAdapter(null)
+const myTeams = useReadonlyStream(teamListAdapter.teamList$, null)
+const teamListFetched = ref(false)
+const REMEMBERED_TEAM_ID = useLocalState("REMEMBERED_TEAM_ID")
+
+const switchToTeamWorkspace = (team: GetMyTeamsQuery["myTeams"][number]) => {
+  REMEMBERED_TEAM_ID.value = team.id
+  workspaceService.changeWorkspace({
+    teamID: team.id,
+    teamName: team.name,
+    type: "team",
+  })
+}
+watch(
+  () => myTeams.value,
+  (newTeams) => {
+    if (newTeams && !teamListFetched.value) {
+      teamListFetched.value = true
+      if (REMEMBERED_TEAM_ID.value) {
+        const team = newTeams.find((t) => t.id === REMEMBERED_TEAM_ID.value)
+        if (team) switchToTeamWorkspace(team)
+      }
+    }
+  }
+)
+
+// TeamEnv List Adapter
 const teamEnvListAdapter = new TeamEnvironmentAdapter(undefined)
 const teamListLoading = useReadonlyStream(teamEnvListAdapter.loading$, false)
 const teamAdapterError = useReadonlyStream(teamEnvListAdapter.error$, null)
@@ -321,6 +390,70 @@ const teamEnvironmentList = useReadonlyStream(
   teamEnvListAdapter.teamEnvironmentList$,
   []
 )
+
+const handleEnvironmentChange = (
+  index: number,
+  env?:
+    | {
+        type: "my-environment"
+        environment: Environment
+      }
+    | {
+        type: "team-environment"
+        environment: TeamEnvironment
+      }
+) => {
+  if (props.isScopeSelector && env) {
+    if (env.type === "my-environment") {
+      emit("update:modelValue", {
+        type: "my-environment",
+        environment: env.environment,
+        index,
+      })
+    } else if (env.type === "team-environment") {
+      emit("update:modelValue", {
+        type: "team-environment",
+        environment: env.environment,
+      })
+    }
+  } else {
+    if (env && env.type === "my-environment") {
+      selectedEnvironmentIndex.value = {
+        type: "MY_ENV",
+        index,
+      }
+    } else if (env && env.type === "team-environment") {
+      selectedEnvironmentIndex.value = {
+        type: "TEAM_ENV",
+        teamEnvID: env.environment.id,
+        teamID: env.environment.teamID,
+        environment: env.environment.environment,
+      }
+    }
+  }
+}
+const isEnvActive = (id: string | number) => {
+  if (props.isScopeSelector) {
+    if (props.modelValue?.type === "my-environment") {
+      return props.modelValue.index === id
+    } else if (props.modelValue?.type === "team-environment") {
+      return (
+        props.modelValue?.type === "team-environment" &&
+        props.modelValue.environment &&
+        props.modelValue.environment.id === id
+      )
+    }
+  } else {
+    if (selectedEnvironmentIndex.value.type === "MY_ENV") {
+      return selectedEnv.value.index === id
+    } else {
+      return (
+        selectedEnvironmentIndex.value.type === "TEAM_ENV" &&
+        selectedEnv.value.teamEnvID === id
+      )
+    }
+  }
+}
 
 const selectedEnvironmentIndex = useStream(
   selectedEnvironmentIndex$,
@@ -345,38 +478,95 @@ watch(
         teamEnvListAdapter.changeTeamID(newVal.teamID)
       }
     }
-  }
+  },
+  { immediate: true }
 )
 
 const selectedEnv = computed(() => {
-  if (selectedEnvironmentIndex.value.type === "MY_ENV") {
-    const environment =
-      myEnvironments.value[selectedEnvironmentIndex.value.index]
-    return {
-      type: "MY_ENV",
-      index: selectedEnvironmentIndex.value.index,
-      name: environment.name,
-      variables: environment.variables,
-    }
-  } else if (selectedEnvironmentIndex.value.type === "TEAM_ENV") {
-    const teamEnv = teamEnvironmentList.value.find(
-      (env) =>
-        env.id ===
-        (selectedEnvironmentIndex.value.type === "TEAM_ENV" &&
-          selectedEnvironmentIndex.value.teamEnvID)
-    )
-    if (teamEnv) {
+  if (props.isScopeSelector) {
+    if (props.modelValue?.type === "my-environment") {
+      return {
+        type: "MY_ENV",
+        index: props.modelValue.index,
+        name: props.modelValue.environment?.name,
+      }
+    } else if (props.modelValue?.type === "team-environment") {
       return {
         type: "TEAM_ENV",
-        name: teamEnv.environment.name,
-        teamEnvID: selectedEnvironmentIndex.value.teamEnvID,
-        variables: teamEnv.environment.variables,
+        name: props.modelValue.environment.environment.name,
+        teamEnvID: props.modelValue.environment.id,
+      }
+    } else {
+      return { type: "global", name: "Global" }
+    }
+  } else {
+    if (selectedEnvironmentIndex.value.type === "MY_ENV") {
+      const environment =
+        myEnvironments.value[selectedEnvironmentIndex.value.index]
+      return {
+        type: "MY_ENV",
+        index: selectedEnvironmentIndex.value.index,
+        name: environment.name,
+        variables: environment.variables,
+      }
+    } else if (selectedEnvironmentIndex.value.type === "TEAM_ENV") {
+      const teamEnv = teamEnvironmentList.value.find(
+        (env) =>
+          env.id ===
+          (selectedEnvironmentIndex.value.type === "TEAM_ENV" &&
+            selectedEnvironmentIndex.value.teamEnvID)
+      )
+      if (teamEnv) {
+        return {
+          type: "TEAM_ENV",
+          name: teamEnv.environment.name,
+          teamEnvID: selectedEnvironmentIndex.value.teamEnvID,
+          variables: teamEnv.environment.variables,
+        }
+      } else {
+        return { type: "NO_ENV_SELECTED" }
       }
     } else {
       return { type: "NO_ENV_SELECTED" }
     }
-  } else {
-    return { type: "NO_ENV_SELECTED" }
+  }
+})
+
+// Set the selected environment as initial scope value
+onMounted(() => {
+  if (props.isScopeSelector) {
+    if (
+      selectedEnvironmentIndex.value.type === "MY_ENV" &&
+      selectedEnvironmentIndex.value.index !== undefined
+    ) {
+      emit("update:modelValue", {
+        type: "my-environment",
+        environment: myEnvironments.value[selectedEnvironmentIndex.value.index],
+        index: selectedEnvironmentIndex.value.index,
+      })
+    } else if (
+      selectedEnvironmentIndex.value.type === "TEAM_ENV" &&
+      selectedEnvironmentIndex.value.teamEnvID &&
+      teamEnvironmentList.value &&
+      teamEnvironmentList.value.length > 0
+    ) {
+      const teamEnv = teamEnvironmentList.value.find(
+        (env) =>
+          env.id ===
+          (selectedEnvironmentIndex.value.type === "TEAM_ENV" &&
+            selectedEnvironmentIndex.value.teamEnvID)
+      )
+      if (teamEnv) {
+        emit("update:modelValue", {
+          type: "team-environment",
+          environment: teamEnv,
+        })
+      }
+    } else {
+      emit("update:modelValue", {
+        type: "global",
+      })
+    }
   }
 })
 

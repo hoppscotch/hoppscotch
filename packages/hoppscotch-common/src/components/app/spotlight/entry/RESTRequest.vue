@@ -8,8 +8,8 @@
     </template>
     <span
       v-if="request"
-      class="font-semibold truncate text-tiny flex flex-shrink-0 border border-dividerDark rounded-md px-1"
-      :class="getMethodLabelColorClassOf(request)"
+      class="flex flex-shrink-0 truncate rounded-md border border-dividerDark px-1 text-tiny font-semibold"
+      :style="{ color: getMethodLabelColorClassOf(request) }"
     >
       {{ request.method.toUpperCase() }}
     </span>

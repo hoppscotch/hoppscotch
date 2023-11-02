@@ -6,10 +6,10 @@
     @close="hideModal"
   >
     <template #body>
-      <div class="border rounded border-dividerLight">
+      <div class="rounded border border-dividerLight">
         <div class="flex flex-col">
           <div class="flex items-center justify-between pl-4">
-            <label class="font-semibold truncate text-secondaryLight">
+            <label class="truncate font-semibold text-secondaryLight">
               cURL
             </label>
             <div class="flex items-center">
@@ -43,7 +43,7 @@
           <div class="h-46">
             <div
               ref="curlEditor"
-              class="h-full border-t rounded-b border-dividerLight"
+              class="h-full rounded-b border-t border-dividerLight"
             ></div>
           </div>
         </div>
@@ -93,12 +93,15 @@ import IconWrapText from "~icons/lucide/wrap-text"
 import IconClipboard from "~icons/lucide/clipboard"
 import IconCheck from "~icons/lucide/check"
 import IconTrash2 from "~icons/lucide/trash-2"
-import { currentActiveTab } from "~/helpers/rest/tab"
 import { platform } from "~/platform"
+import { RESTTabService } from "~/services/tab/rest"
+import { useService } from "dioc/vue"
 
 const t = useI18n()
 
 const toast = useToast()
+
+const tabs = useService(RESTTabService)
 
 const curl = ref("")
 
@@ -149,7 +152,7 @@ const handleImport = () => {
       type: "HOPP_REST_IMPORT_CURL",
     })
 
-    currentActiveTab.value.document.request = req
+    tabs.currentActiveTab.value.document.request = req
   } catch (e) {
     console.error(e)
     toast.error(`${t("error.curl_invalid_format")}`)

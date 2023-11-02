@@ -1,6 +1,6 @@
 <template>
   <div
-    class="sticky z-10 flex items-center justify-between pl-4 border-b bg-primary border-dividerLight gqlRunQuery"
+    class="sticky top-sidebarPrimaryStickyFold z-10 flex items-center justify-between border-y border-dividerLight bg-primary pl-4"
   >
     <label class="font-semibold text-secondaryLight">
       {{ t("request.query") }}
@@ -16,7 +16,7 @@
         :title="`${t('request.stop')}`"
         :label="`${t('request.stop')}`"
         :icon="IconStop"
-        class="rounded-none !text-accent !hover:text-accentDark"
+        class="!hover:text-accentDark rounded-none !text-accent"
         @click="unsubscribe()"
       />
 
@@ -31,7 +31,7 @@
         :label="`${selectedOperation.name?.value ?? t('request.run')}`"
         :icon="IconPlay"
         :disabled="!selectedOperation"
-        class="rounded-none !text-accent !hover:text-accentDark"
+        class="!hover:text-accentDark rounded-none !text-accent"
         @click="runQuery(selectedOperation)"
       />
 
@@ -79,7 +79,7 @@
       />
     </div>
   </div>
-  <div ref="queryEditor" class="flex flex-col flex-1"></div>
+  <div ref="queryEditor" class="flex flex-1 flex-col"></div>
 </template>
 
 <script setup lang="ts">
@@ -144,8 +144,6 @@ const selectedOperation = ref<gql.OperationDefinitionNode | null>(null)
 const gqlQueryString = useVModel(props, "modelValue", emit)
 
 const debouncedOnUpdateQueryState = debounce((update: ViewUpdate) => {
-  if (!update.selectionSet) return
-
   const selectedPos = update.state.selection.main.head
   const queryString = update.state.doc.toJSON().join(update.state.lineBreak)
 

@@ -64,7 +64,7 @@ const getCreatedTime = (date: string) => format(new Date(date), 'hh:mm a');
 
 // Get Invited Users
 const { fetching, error, data } = useQuery({ query: InvitedUsersDocument });
-const invitedUsers = computed(() => data?.value?.admin.invitedUsers);
+const invitedUsers = computed(() => data?.value?.infra.invitedUsers);
 
 // Table Headings
 const headings = [

@@ -1,3 +1,4 @@
+import fs from "fs"
 import { glob } from "glob"
 import path from "path"
 import ts from "typescript"
@@ -5,9 +6,34 @@ import vueTsc from "vue-tsc"
 
 import { fileURLToPath } from "url"
 
+/**
+ * Helper functions
+ */
+const findTypeScriptFiles = (directoryPaths, filePattern) => {
+  return directoryPaths.reduce((tsFiles, directoryPath) => {
+    // Exit if the directory path does not exist
+    if (!fs.existsSync(directoryPath)) {
+      console.error(`Directory not found: ${directoryPath}`)
+      process.exit(1)
+    }
+
+    return tsFiles.concat(
+      glob.sync(filePattern, {
+        cwd: directoryPath,
+        ignore: "**/__tests__/**",
+        absolute: true,
+      })
+    )
+  }, [])
+}
+
 // Derive the current file's directory path `__dirname` from the URL of this module `__filename`
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
+
+// Define the directory path to perform type checking on
+const directoryPaths = [path.resolve(__dirname, "src", "services")]
+const filePattern = "**/*.ts"
 
 const tsConfigFileName = path.resolve(__dirname, "tsconfig.json")
 const tsConfig = ts.readConfigFile(tsConfigFileName, ts.sys.readFile)
@@ -17,25 +43,7 @@ const { options } = ts.parseJsonConfigFileContent(
   __dirname
 )
 
-const findTypeScriptFiles = (directoryPath, filePattern) => {
-  const files = glob.sync(filePattern, {
-    cwd: directoryPath,
-    ignore: "**/__tests__/**",
-  })
-
-  const fileList = files
-    // Narrow down to `TS` files
-    .filter((file) => file.endsWith(".ts"))
-    // Append the path
-    .map((file) => path.join(directoryPath, file))
-
-  return fileList
-}
-
-const directoryPath = path.resolve(__dirname, "src", "services")
-const filePattern = "**/*.ts"
-
-const tsFiles = findTypeScriptFiles(directoryPath, filePattern)
+const tsFiles = findTypeScriptFiles(directoryPaths, filePattern)
 
 const host = ts.createCompilerHost(options)
 const program = vueTsc.createProgram({
@@ -52,7 +60,9 @@ const diagnostics = ts
     if (!file) {
       return false
     }
-    return path.resolve(file.fileName).includes(directoryPath)
+    return directoryPaths.some((directoryPath) =>
+      path.resolve(file.fileName).includes(directoryPath)
+    )
   })
 
 if (!diagnostics.length) {

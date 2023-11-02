@@ -12,7 +12,7 @@ import { RESTOptionTabs } from "~/components/http/RequestOptions.vue"
 import IconWindow from "~icons/lucide/app-window"
 import IconCheckCircle from "~icons/lucide/check-circle"
 import IconCode2 from "~icons/lucide/code-2"
-import IconCopy from "~icons/lucide/copy"
+import IconShare2 from "~icons/lucide/share-2"
 import IconFileCode from "~icons/lucide/file-code"
 import IconRename from "~icons/lucide/file-edit"
 import IconPlay from "~icons/lucide/play"
@@ -97,7 +97,7 @@ export class RequestSpotlightSearcherService extends StaticSpotlightSearcherServ
     share_request: {
       text: this.t("shortcut.request.share_request"),
       alternates: ["share", "request", "copy"],
-      icon: markRaw(IconCopy),
+      icon: markRaw(IconShare2),
       excludeFromSearch: computed(() => !this.isRESTPage.value),
     },
     reset_request: {

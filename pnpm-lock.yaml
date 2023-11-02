@@ -1206,9 +1206,6 @@ importers:
       '@hoppscotch/vue-toasted':
         specifier: ^0.1.0
         version: 0.1.0(vue@3.2.45)
-      '@lezer/highlight':
-        specifier: ^1.0.0
-        version: 1.0.0
       '@vitejs/plugin-legacy':
         specifier: ^2.3.0
         version: 2.3.0(terser@5.21.0)(vite@3.2.4)
@@ -7350,10 +7347,10 @@ packages:
       '@types/ws': 8.5.5
       '@whatwg-node/fetch': 0.8.8
       graphql: 16.6.0
-      isomorphic-ws: 5.0.0(ws@8.13.0)
+      isomorphic-ws: 5.0.0(ws@8.14.2)
       tslib: 2.6.2
       value-or-promise: 1.0.12
-      ws: 8.13.0
+      ws: 8.14.2
     transitivePeerDependencies:
       - '@types/node'
       - bufferutil
@@ -8660,16 +8657,9 @@ packages:
     resolution: {integrity: sha512-4JQNk+3mVzK3xh2rqd6RB4J46qUR19azEHBneZyTZM+c456qOrbbM/5xcR8huNCCcbVt7+UmizG6GuUvPvKUYg==}
     dev: false
 
-  /@lezer/common@1.0.0:
-    resolution: {integrity: sha512-ohydQe+Hb+w4oMDvXzs8uuJd2NoA3D8YDcLiuDsLqH+yflDTPEpgCsWI3/6rH5C3BAedtH1/R51dxENldQceEA==}
-    dev: false
-
   /@lezer/common@1.0.3:
     resolution: {integrity: sha512-JH4wAXCgUOcCGNekQPLhVeUtIqjH0yPBs7vvUdSjyQama9618IOKFJwkv2kcqdhF0my8hQEgCTEJU0GIgnahvA==}
     dev: false
-
-  /@lezer/common@1.0.4:
-    resolution: {integrity: sha512-lZHlk8p67x4aIDtJl6UQrXSOP6oi7dQR3W/geFVrENdA1JDaAJWldnVqVjPMJupbTKbzDfFcePfKttqVidS/dg==}
 
   /@lezer/common@1.1.0:
     resolution: {integrity: sha512-XPIN3cYDXsoJI/oDWoR2tD++juVrhgIago9xyKhZ7IhGlzdDM9QgC8D8saKNCz5pindGcznFr2HBSsEQSWnSjw==}
@@ -8682,16 +8672,10 @@ packages:
       '@lezer/lr': 1.3.13
     dev: true
 
-  /@lezer/highlight@1.0.0:
-    resolution: {integrity: sha512-nsCnNtim90UKsB5YxoX65v3GEIw3iCHw9RM2DtdgkiqAbKh9pCdvi8AWNwkYf10Lu6fxNhXPpkpHbW6mihhvJA==}
-    dependencies:
-      '@lezer/common': 1.0.0
-    dev: false
-
   /@lezer/highlight@1.1.6:
     resolution: {integrity: sha512-cmSJYa2us+r3SePpRCjN5ymCqCPv+zyXmDl0ciWtVaNiORT/MxM7ZgOMQZADD0o51qOaOg24qc/zBViOIwAjJg==}
     dependencies:
-      '@lezer/common': 1.0.4
+      '@lezer/common': 1.1.0
 
   /@lezer/javascript@1.4.5:
     resolution: {integrity: sha512-FmBUHz8K1V22DgjTd6SrIG9owbzOYZ1t3rY6vGEmw+e2RVBd7sqjM8uXEVRFmfxKFn1Mx2ABJehHjrN3G2ZpmA==}

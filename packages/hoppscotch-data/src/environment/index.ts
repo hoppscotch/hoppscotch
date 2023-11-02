@@ -1,14 +1,22 @@
-import { pipe } from "fp-ts/function"
 import * as E from "fp-ts/Either"
+import { pipe } from "fp-ts/function"
+import { InferredEntity, createVersionedEntity } from "verzod"
 
-export type Environment = {
-  id?: string
-  name: string
-  variables: {
-    key: string
-    value: string
-  }[]
-}
+import V0_VERSION from "./v/0"
+
+export const Environment = createVersionedEntity({
+  latestVersion: 0,
+  versionMap: {
+    0: V0_VERSION
+  },
+  getVersion(x) {
+    return V0_VERSION.schema.safeParse(x).success
+      ? 0
+      : null
+  }
+})
+
+export type Environment = InferredEntity<typeof Environment>
 
 const REGEX_ENV_VAR = /<<([^>]*)>>/g // "<<myVariable>>"
 

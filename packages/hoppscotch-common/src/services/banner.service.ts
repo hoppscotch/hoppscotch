@@ -24,5 +24,5 @@ export class BannerService extends Service {
    * This is a reactive variable that can be used to set the contents of the banner
    * and use it to render the banner on components.
    */
-  public content = ref<BannerContent | undefined>(undefined)
+  public content = ref<BannerContent | null>(null)
 }

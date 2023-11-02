@@ -286,13 +286,15 @@ const { content: banner } = useService(BannerService)
 const network = reactive(useNetwork())
 
 watch(network, () => {
-  if (!network.isOnline) {
-    banner.value = {
-      type: "info",
-      text: t("helpers.offline"),
-      alternateText: t("helpers.offline_short"),
-    }
-  } else banner.value = undefined
+  if (network.isOnline) {
+    banner.value = null
+    return
+  }
+  banner.value = {
+    type: "info",
+    text: t("helpers.offline"),
+    alternateText: t("helpers.offline_short"),
+  }
 })
 
 const currentUser = useReadonlyStream(

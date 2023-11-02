@@ -7,7 +7,7 @@ describe("BannerService", () => {
   const service = container.bind(BannerService)
 
   it("initally there are no banners defined", () => {
-    expect(service.content.value).toEqual(undefined)
+    expect(service.content.value).toEqual(null)
   })
 
   it("should be able to set and retrieve banner content", () => {

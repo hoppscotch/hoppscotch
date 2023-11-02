@@ -1,7 +1,13 @@
-const path = require("path")
-const ts = require("typescript")
-const vueTsc = require("vue-tsc")
-const glob = require("glob")
+import { glob } from "glob"
+import path from "path"
+import ts from "typescript"
+import vueTsc from "vue-tsc"
+
+import { fileURLToPath } from "url"
+
+// Derive the current file's directory path `__dirname` from the URL of this module `__filename`
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 const tsConfigFileName = path.resolve(__dirname, "tsconfig.json")
 const tsConfig = ts.readConfigFile(tsConfigFileName, ts.sys.readFile)

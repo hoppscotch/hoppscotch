@@ -774,33 +774,33 @@ importers:
   packages/hoppscotch-data:
     dependencies:
       fp-ts:
-        specifier: ^2.11.10
+        specifier: ^2.16.1
         version: 2.16.1
       io-ts:
-        specifier: ^2.2.16
+        specifier: ^2.2.20
         version: 2.2.20(fp-ts@2.16.1)
       lodash:
         specifier: ^4.17.21
         version: 4.17.21
       parser-ts:
-        specifier: ^0.6.16
-        version: 0.6.16(fp-ts@2.16.1)
+        specifier: ^0.7.0
+        version: 0.7.0(fp-ts@2.16.1)
       verzod:
         specifier: ^0.1.1
         version: 0.1.1
       zod:
-        specifier: ^3.22.2
+        specifier: ^3.22.4
         version: 3.22.4
     devDependencies:
       '@types/lodash':
-        specifier: ^4.14.181
+        specifier: ^4.14.200
         version: 4.14.200
       typescript:
         specifier: ^5.2.2
         version: 5.2.2
       vite:
-        specifier: ^3.2.3
-        version: 3.2.4(@types/node@17.0.27)(sass@1.53.0)(terser@5.24.0)
+        specifier: ^4.5.0
+        version: 4.5.0(@types/node@17.0.27)
 
   packages/hoppscotch-js-sandbox:
     dependencies:
@@ -7358,10 +7358,10 @@ packages:
       '@types/ws': 8.5.5
       '@whatwg-node/fetch': 0.8.8
       graphql: 16.6.0
-      isomorphic-ws: 5.0.0(ws@8.14.2)
+      isomorphic-ws: 5.0.0(ws@8.13.0)
       tslib: 2.6.2
       value-or-promise: 1.0.12
-      ws: 8.14.2
+      ws: 8.13.0
     transitivePeerDependencies:
       - '@types/node'
       - bufferutil
@@ -8652,6 +8652,9 @@ packages:
     resolution: {integrity: sha512-JH4wAXCgUOcCGNekQPLhVeUtIqjH0yPBs7vvUdSjyQama9618IOKFJwkv2kcqdhF0my8hQEgCTEJU0GIgnahvA==}
     dev: false
 
+  /@lezer/common@1.0.4:
+    resolution: {integrity: sha512-lZHlk8p67x4aIDtJl6UQrXSOP6oi7dQR3W/geFVrENdA1JDaAJWldnVqVjPMJupbTKbzDfFcePfKttqVidS/dg==}
+
   /@lezer/common@1.1.0:
     resolution: {integrity: sha512-XPIN3cYDXsoJI/oDWoR2tD++juVrhgIago9xyKhZ7IhGlzdDM9QgC8D8saKNCz5pindGcznFr2HBSsEQSWnSjw==}
 
@@ -8666,7 +8669,7 @@ packages:
   /@lezer/highlight@1.1.6:
     resolution: {integrity: sha512-cmSJYa2us+r3SePpRCjN5ymCqCPv+zyXmDl0ciWtVaNiORT/MxM7ZgOMQZADD0o51qOaOg24qc/zBViOIwAjJg==}
     dependencies:
-      '@lezer/common': 1.1.0
+      '@lezer/common': 1.0.4
 
   /@lezer/javascript@1.4.5:
     resolution: {integrity: sha512-FmBUHz8K1V22DgjTd6SrIG9owbzOYZ1t3rY6vGEmw+e2RVBd7sqjM8uXEVRFmfxKFn1Mx2ABJehHjrN3G2ZpmA==}
@@ -9451,7 +9454,7 @@ packages:
   /@rushstack/rig-package@0.4.0:
     resolution: {integrity: sha512-FnM1TQLJYwSiurP6aYSnansprK5l8WUK8VG38CmAaZs29ZeL1msjK0AP1VS4ejD33G0kE/2cpsPsS9jDenBMxw==}
     dependencies:
-      resolve: 1.22.8
+      resolve: 1.22.6
       strip-json-comments: 3.1.1
     dev: true
 
@@ -15950,6 +15953,7 @@ packages:
 
   /function-bind@1.1.2:
     resolution: {integrity: sha512-7XHNxH7qX9xG5mIwxkhumTox/MIRNcOgDrxWsMt2pAr23WHp6MrRlN7FBSFpCpr+oVO0F744iUgR82nJMfG2SA==}
+    dev: true
 
   /function.prototype.name@1.1.5:
     resolution: {integrity: sha512-uN7m/BzVKQnCUF/iW8jYea67v++2u7m5UgENbHRtdDVclOUP+FMPlCNdmk0h/ysGyo2tavMJEDqJAkJdRa1vMA==}
@@ -16112,7 +16116,7 @@ packages:
     hasBin: true
     dependencies:
       foreground-child: 3.1.1
-      jackspeak: 2.3.6
+      jackspeak: 2.3.0
       minimatch: 9.0.3
       minipass: 6.0.2
       path-scurry: 1.10.1
@@ -16692,6 +16696,7 @@ packages:
     engines: {node: '>= 0.4'}
     dependencies:
       function-bind: 1.1.2
+    dev: true
 
   /he@1.2.0:
     resolution: {integrity: sha512-F/1DnUGPopORZi0ni+CvrCgHQ5FyEAHRLSApuYWMmrbSwoN2Mn/7k+Gl38gJnR7yyDZk6WLXwiGod1JOWNDKGw==}
@@ -16755,7 +16760,6 @@ packages:
       - bufferutil
       - canvas
       - less
-      - lightningcss
       - sass
       - stylus
       - sugarss
@@ -17323,6 +17327,7 @@ packages:
     resolution: {integrity: sha512-hHrIjvZsftOsvKSn2TRYl63zvxsgE0K+0mYMoH6gD4omR5IWB2KynivBQczo3+wF1cCkjzvptnI9Q0sPU66ilw==}
     dependencies:
       hasown: 2.0.0
+    dev: true
 
   /is-core-module@2.9.0:
     resolution: {integrity: sha512-+5FPy5PnwmO3lvfMb0AsoPaBG+5KHUI0wYFXOtYPnVVVspTFUuMZNfNaNVRt3FZadstu2c8x23vykRW/NBoU6A==}
@@ -17691,6 +17696,14 @@ packages:
   /iterare@1.2.1:
     resolution: {integrity: sha512-RKYVTCjAnRthyJes037NX/IiqeidgN1xc3j1RjFfECFp28A1GVwK9nA+i0rJPaHqSZwygLzRnFlzUuHFoWWy+Q==}
     engines: {node: '>=6'}
+
+  /jackspeak@2.3.0:
+    resolution: {integrity: sha512-uKmsITSsF4rUWQHzqaRUuyAir3fZfW3f202Ee34lz/gZCi970CPZwyQXLGNgWJvvZbvFyzeyGq0+4fcG/mBKZg==}
+    engines: {node: '>=14'}
+    dependencies:
+      '@isaacs/cliui': 8.0.2
+    optionalDependencies:
+      '@pkgjs/parseargs': 0.11.0
 
   /jackspeak@2.3.6:
     resolution: {integrity: sha512-N3yCS/NegsOBokc8GAdM8UcmfsKiSS8cipheD/nivzr700H+nsMOxJjQnvwOcRYVuFkdH0wGUvW2WbXGmrZGbQ==}
@@ -19779,9 +19792,16 @@ packages:
     dependencies:
       yallist: 4.0.0
 
+  /minipass@4.0.0:
+    resolution: {integrity: sha512-g2Uuh2jEKoht+zvO6vJqXmYpflPqzRBT+Th2h01DKh5z7wbY/AZ2gCQ78cP70YoHPyFdY30YBV5WxgLOEwOykw==}
+    engines: {node: '>=8'}
+    dependencies:
+      yallist: 4.0.0
+
   /minipass@4.2.8:
     resolution: {integrity: sha512-fNzuVyifolSLFL4NzpF+wEF4qrgqaaKX0haXPQEdQ7NKAN+WecoKMHV09YcuL/DHxrUsYQOK3MiuDf7Ip2OXfQ==}
     engines: {node: '>=8'}
+    dev: true
 
   /minipass@6.0.2:
     resolution: {integrity: sha512-MzWSV5nYVT7mVyWCwn2o7JH13w2TBRmmSqSRCKzTw+lmft9X4z+3wjvs06Tzijo5z4W/kahUCDpRXTF+ZrmF/w==}
@@ -20857,10 +20877,10 @@ packages:
     resolution: {integrity: sha512-jeAGzMDbfSHHA091hr0r31eYfTig+29g3GKKE/PPbEQ65X0lmMwlEoqmhzu0iztID5uJpZsFlUPDP8ThPL7M8w==}
     dev: false
 
-  /parser-ts@0.6.16(fp-ts@2.16.1):
-    resolution: {integrity: sha512-BC5HBg1UfaGKi/PKwUZKmFwQq56qVsMel1Gx0Lu2JeHf/J+XCqV9fahCil0GOMC+sH2ON3N6jdyIoI6RzCyQqw==}
+  /parser-ts@0.7.0(fp-ts@2.16.1):
+    resolution: {integrity: sha512-YBJYgQ6j2DiKryKkYUrw0a7WiUb2DGnanffFZNz5cRTaoTncSxjKCio6ocEBSAa26jFXr0XSNjaYXUrL61BISA==}
     peerDependencies:
-      fp-ts: ^2.0.0
+      fp-ts: ^2.14.0
     dependencies:
       '@babel/code-frame': 7.22.13
       fp-ts: 2.16.1
@@ -21162,6 +21182,7 @@ packages:
       nanoid: 3.3.6
       picocolors: 1.0.0
       source-map-js: 1.0.2
+    dev: true
 
   /postman-collection@4.2.0:
     resolution: {integrity: sha512-tvOLgN1h6Kab6dt43PmBoV5kYO/YUta3x0C2QqfmbzmHZe47VTpZ/+gIkGlbNhjKNPUUub5X6ehxYKoaTYdy1w==}
@@ -21394,7 +21415,7 @@ packages:
       jstransformer: 1.0.0
       pug-error: 2.0.0
       pug-walk: 2.0.0
-      resolve: 1.22.8
+      resolve: 1.22.4
 
   /pug-lexer@5.0.1:
     resolution: {integrity: sha512-0I6C62+keXlZPZkOJeVam9aBLVP2EnbeDw3An+k0/QlqdwH6rv8284nko14Na7c0TtqtogfWXcRoFE4O4Ff20w==}
@@ -21843,7 +21864,7 @@ packages:
   /resolve@1.19.0:
     resolution: {integrity: sha512-rArEXAgsBG4UgRGcynxWIWKFvh/XZCcS8UJdHhwy91zwAvCZIbcs+vAbflgBnNjYMs/i/i+/Ux6IZhML1yPvxg==}
     dependencies:
-      is-core-module: 2.13.1
+      is-core-module: 2.13.0
       path-parse: 1.0.7
     dev: true
 
@@ -21879,6 +21900,7 @@ packages:
       is-core-module: 2.13.1
       path-parse: 1.0.7
       supports-preserve-symlinks-flag: 1.0.0
+    dev: true
 
   /restore-cursor@3.1.0:
     resolution: {integrity: sha512-l+sSefzHpj5qimhFSE5a8nufZYAM3sBSVMAPtYkmC+4EH2anSGaEMXSD0izRQbu9nfyQ9y5JrVmp7E8oZrUjvA==}
@@ -23117,7 +23139,7 @@ packages:
     dependencies:
       chownr: 2.0.0
       fs-minipass: 2.1.0
-      minipass: 4.2.8
+      minipass: 4.0.0
       minizlib: 2.1.2
       mkdirp: 1.0.4
       yallist: 4.0.0
@@ -24582,11 +24604,10 @@ packages:
       pathe: 0.2.0
       source-map: 0.6.1
       source-map-support: 0.5.21
-      vite: 4.5.0(@types/node@17.0.27)(sass@1.53.0)(terser@5.24.0)
+      vite: 3.2.4(@types/node@17.0.27)(sass@1.53.0)(terser@5.24.0)
     transitivePeerDependencies:
       - '@types/node'
       - less
-      - lightningcss
       - sass
       - stylus
       - sugarss
@@ -24604,11 +24625,10 @@ packages:
       mlly: 1.2.0
       pathe: 1.1.0
       picocolors: 1.0.0
-      vite: 4.5.0(@types/node@18.17.6)(sass@1.66.0)(terser@5.24.0)
+      vite: 4.0.4(@types/node@18.17.6)
     transitivePeerDependencies:
       - '@types/node'
       - less
-      - lightningcss
       - sass
       - stylus
       - sugarss
@@ -24626,7 +24646,7 @@ packages:
       mlly: 1.4.0
       pathe: 1.1.1
       picocolors: 1.0.0
-      vite: 4.5.0(@types/node@18.17.6)(sass@1.66.0)(terser@5.24.0)
+      vite: 4.4.9(@types/node@18.17.6)(sass@1.66.0)(terser@5.24.0)
     transitivePeerDependencies:
       - '@types/node'
       - less
@@ -25103,8 +25123,8 @@ packages:
     dependencies:
       '@types/node': 17.0.27
       esbuild: 0.15.15
-      postcss: 8.4.31
-      resolve: 1.22.8
+      postcss: 8.4.28
+      resolve: 1.22.4
       rollup: 2.79.1
       sass: 1.53.0
       terser: 5.24.0
@@ -25288,7 +25308,7 @@ packages:
       fsevents: 2.3.3
     dev: true
 
-  /vite@4.5.0(@types/node@17.0.27)(sass@1.53.0)(terser@5.24.0):
+  /vite@4.5.0(@types/node@17.0.27):
     resolution: {integrity: sha512-ulr8rNLA6rkyFAlVWw2q5YJ91v098AFQ2R0PRFwPzREXOUJQPtFUG0t+/ZikhaOCDqFoDhN6/v8Sq0o4araFAw==}
     engines: {node: ^14.18.0 || >=16.0.0}
     hasBin: true
@@ -25320,13 +25340,11 @@ packages:
       esbuild: 0.18.20
       postcss: 8.4.31
       rollup: 3.29.4
-      sass: 1.53.0
-      terser: 5.24.0
     optionalDependencies:
       fsevents: 2.3.3
     dev: true
 
-  /vite@4.5.0(@types/node@18.17.6)(sass@1.66.0)(terser@5.24.0):
+  /vite@4.5.0(@types/node@17.0.27)(sass@1.53.0)(terser@5.24.0):
     resolution: {integrity: sha512-ulr8rNLA6rkyFAlVWw2q5YJ91v098AFQ2R0PRFwPzREXOUJQPtFUG0t+/ZikhaOCDqFoDhN6/v8Sq0o4araFAw==}
     engines: {node: ^14.18.0 || >=16.0.0}
     hasBin: true
@@ -25354,15 +25372,16 @@ packages:
       terser:
         optional: true
     dependencies:
-      '@types/node': 18.17.6
+      '@types/node': 17.0.27
       esbuild: 0.18.20
-      postcss: 8.4.31
+      postcss: 8.4.28
       rollup: 3.29.4
-      sass: 1.66.0
+      sass: 1.53.0
       terser: 5.24.0
     optionalDependencies:
       fsevents: 2.3.3
     dev: true
+    optional: true
 
   /vitest@0.29.8:
     resolution: {integrity: sha512-JIAVi2GK5cvA6awGpH0HvH/gEG9PZ0a/WoxdiV3PmqK+3CjQMf8c+J/Vhv4mdZ2nRyXFw66sAg6qz7VNkaHfDQ==}
@@ -25421,7 +25440,6 @@ packages:
       why-is-node-running: 2.2.2
     transitivePeerDependencies:
       - less
-      - lightningcss
       - sass
       - stylus
       - sugarss
@@ -25500,7 +25518,7 @@ packages:
     deprecated: The library contains critical security issues and should not be used for production! The maintenance of the project has been discontinued. Consider migrating your code to isolated-vm.
     hasBin: true
     dependencies:
-      acorn: 8.11.2
+      acorn: 8.10.0
       acorn-walk: 8.2.0
     dev: false
 

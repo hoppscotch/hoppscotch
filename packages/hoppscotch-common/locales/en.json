@@ -233,7 +233,6 @@
     "protocols": "Protocols are empty",
     "schema": "Connect to a GraphQL endpoint to view schema",
     "shared_requests": "Shared requests are empty",
-    "shortcodes": "Shortcodes are empty",
     "subscription": "Subscriptions are empty",
     "team_name": "Team name empty",
     "teams": "You don't belong to any teams",
@@ -623,6 +622,7 @@
     "embed_info": "Add a mini 'Hoppscotch API Playground' to your website, blog or documentation.",
     "link":"Link",
     "link_info": "Create a shareable link to share with anyone on the internet with view access.",
+    "not_found":"Shared request not found",
     "open_new_tab": "Open in new tab",
     "preview":"Preview",
     "run_in_hoppscotch":"Run in Hoppscotch",
@@ -632,15 +632,6 @@
       "system" :"System",
       "title":"Theme"
     }
-  },
-  "shortcodes": {
-    "actions": "Actions",
-    "created_on": "Created on",
-    "deleted": "Shortcode deleted",
-    "method": "Method",
-    "not_found": "Shortcode not found",
-    "short_code": "Short code",
-    "url": "URL"
   },
   "shortcut": {
     "general": {

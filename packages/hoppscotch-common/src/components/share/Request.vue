@@ -107,7 +107,7 @@ import { computed } from "vue"
 import { TippyComponent } from "vue-tippy"
 import { useI18n } from "~/composables/i18n"
 import { getMethodLabelColorClassOf } from "~/helpers/rest/labelColoring"
-import { Shortcode } from "~/helpers/shortcodes/Shortcode"
+import { SharedRequest } from "~/helpers/sharedRequest/SharedRequest"
 import IconArrowUpRight from "~icons/lucide/arrow-up-right-square"
 import IconMoreVertical from "~icons/lucide/more-vertical"
 import IconFileEdit from "~icons/lucide/file-edit"
@@ -117,11 +117,11 @@ import { shortDateTime } from "~/helpers/utils/date"
 const t = useI18n()
 
 const props = defineProps<{
-  request: Shortcode
+  request: SharedRequest
 }>()
 
 const emit = defineEmits<{
-  (e: "customize-shared-request", request: Shortcode): void
+  (e: "customize-shared-request", request: SharedRequest): void
   (e: "delete-shared-request", codeID: string): void
   (e: "open-new-tab", request: HoppRESTRequest): void
 }>()

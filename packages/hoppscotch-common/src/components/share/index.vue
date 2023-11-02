@@ -26,14 +26,14 @@
         <span class="text-secondaryLight">{{ t("state.loading") }}</span>
       </div>
       <HoppSmartPlaceholder
-        v-if="!loading && myShortcodes.length === 0"
+        v-if="!loading && sharedRequests.length === 0"
         :src="`/images/states/${colorMode.value}/add_files.svg`"
         :alt="`${t('empty.shared_requests')}`"
         :text="t('empty.shared_requests')"
         @drop.stop
       />
       <ShareRequest
-        v-for="request in myShortcodes"
+        v-for="request in sharedRequests"
         :key="request.id"
         :request="request"
         @customize-shared-request="customizeSharedRequest"
@@ -41,8 +41,8 @@
         @open-new-tab="openInNewTab"
       />
       <HoppSmartIntersection
-        v-if="hasMoreShortcodes && myShortcodes.length > 0"
-        @intersecting="loadMoreShortcodes()"
+        v-if="hasMoreSharedRequests && sharedRequests.length > 0"
+        @intersecting="loadMoreSharedRequests()"
       >
         <div v-if="adapterLoading" class="flex flex-col items-center py-3">
           <HoppSmartSpinner />
@@ -85,7 +85,7 @@
 <script lang="ts" setup>
 import IconHelpCircle from "~icons/lucide/help-circle"
 import { useI18n } from "~/composables/i18n"
-import ShortcodeListAdapter from "~/helpers/shortcodes/ShortcodeListAdapter"
+import SharedRequestListAdapter from "~/helpers/sharedRequest/SharedRequestListAdapter"
 import { useReadonlyStream } from "~/composables/stream"
 import { onAuthEvent, onLoggedIn } from "~/composables/auth"
 import { computed } from "vue"
@@ -104,7 +104,7 @@ import { ref } from "vue"
 import { HoppRESTRequest } from "@hoppscotch/data"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
 import * as E from "fp-ts/Either"
-import { Shortcode } from "~/helpers/backend/graphql"
+import { SharedRequest } from "~/helpers/sharedRequest/SharedRequest"
 import { RESTTabService } from "~/services/tab/rest"
 import { useService } from "dioc/vue"
 
@@ -123,7 +123,7 @@ const sharedRequestID = ref("")
 const shareRequestCreatingLoading = ref(false)
 
 const requestToCreate = ref<HoppRESTRequest | null>(null)
-const requestToCustomize = ref<Shortcode | null>(null)
+const requestToCustomize = ref<SharedRequest | null>(null)
 
 const restTab = useService(RESTTabService)
 
@@ -141,14 +141,17 @@ const selectedWidget = ref<Widget>({
   info: t("shared_requests.embed_info"),
 })
 
-const adapter = new ShortcodeListAdapter(true)
+const adapter = new SharedRequestListAdapter(true)
 const adapterLoading = useReadonlyStream(adapter.loading$, false)
 const adapterError = useReadonlyStream(adapter.error$, null)
-const myShortcodes = useReadonlyStream(adapter.shortcodes$, [])
-const hasMoreShortcodes = useReadonlyStream(adapter.hasMoreShortcodes$, true)
+const sharedRequests = useReadonlyStream(adapter.sharedRequest$, [])
+const hasMoreSharedRequests = useReadonlyStream(
+  adapter.hasMoreSharedRequest$,
+  true
+)
 
 const loading = computed(
-  () => adapterLoading.value && myShortcodes.value.length === 0
+  () => adapterLoading.value && sharedRequests.value.length === 0
 )
 
 onLoggedIn(() => {
@@ -189,11 +192,11 @@ const onDeleteSharedRequest = () => {
   )()
 }
 
-const loadMoreShortcodes = () => {
+const loadMoreSharedRequests = () => {
   adapter.loadMore()
 }
 
-const customizeSharedRequest = (request: Shortcode) => {
+const customizeSharedRequest = (request: SharedRequest) => {
   requestToCustomize.value = request
   displayCustomizeRequestModal(true)
 }
@@ -208,18 +211,18 @@ const displayCustomizeRequestModal = (show: boolean) => {
 const createSharedRequest = async (request: HoppRESTRequest | null) => {
   if (request && selectedWidget.value) {
     shareRequestCreatingLoading.value = true
-    const shortcodeResult = await createShortcode(request)()
+    const sharedRequestResult = await createShortcode(request)()
 
     platform.analytics?.logEvent({
       type: "HOPP_SHORTCODE_CREATED",
     })
 
-    if (E.isLeft(shortcodeResult)) {
-      toast.error(`${shortcodeResult.left.error}`)
+    if (E.isLeft(sharedRequestResult)) {
+      toast.error(`${sharedRequestResult.left.error}`)
       toast.error(t("error.something_went_wrong"))
-    } else if (E.isRight(shortcodeResult)) {
-      if (shortcodeResult.right.createShortcode) {
-        customizeSharedRequest(shortcodeResult.right.createShortcode)
+    } else if (E.isRight(sharedRequestResult)) {
+      if (sharedRequestResult.right.createShortcode) {
+        customizeSharedRequest(sharedRequestResult.right.createShortcode)
       }
 
       shareRequestCreatingLoading.value = false
@@ -263,7 +266,7 @@ const getErrorMessage = (err: GQLError<string>) => {
   } else {
     switch (err.error) {
       case "shortcode/not_found":
-        return t("shortcodes.not_found")
+        return t("shared_request.not_found")
       default:
         return t("error.something_went_wrong")
     }

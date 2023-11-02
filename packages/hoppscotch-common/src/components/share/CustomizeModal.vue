@@ -207,7 +207,7 @@ import { useVModel } from "@vueuse/core"
 import { computed, ref } from "vue"
 import { PropType } from "vue"
 import { useI18n } from "~/composables/i18n"
-import { Shortcode } from "~/helpers/backend/graphql"
+import { SharedRequest } from "~/helpers/sharedRequest/SharedRequest"
 import IconMonitor from "~icons/lucide/monitor"
 import IconSun from "~icons/lucide/sun"
 import IconMoon from "~icons/lucide/moon"
@@ -217,7 +217,7 @@ const t = useI18n()
 
 const props = defineProps({
   request: {
-    type: Object as PropType<Shortcode | null>,
+    type: Object as PropType<SharedRequest | null>,
     required: true,
   },
   show: {

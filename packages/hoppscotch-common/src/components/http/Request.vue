@@ -232,22 +232,18 @@ import { useI18n } from "@composables/i18n"
 import { useSetting } from "@composables/settings"
 import { useReadonlyStream, useStreamSubscriber } from "@composables/stream"
 import { useToast } from "@composables/toast"
-import { refAutoReset, useVModel } from "@vueuse/core"
+import { useVModel } from "@vueuse/core"
 import * as E from "fp-ts/Either"
 import { Ref, computed, onBeforeUnmount, ref } from "vue"
 import { defineActionHandler, invokeAction } from "~/helpers/actions"
 import { runMutation } from "~/helpers/backend/GQLClient"
 import { UpdateRequestDocument } from "~/helpers/backend/graphql"
-import { createShortcode } from "~/helpers/backend/mutations/Shortcode"
 import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
 import { runRESTRequest$ } from "~/helpers/RequestRunner"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
-import { copyToClipboard } from "~/helpers/utils/clipboard"
 import { editRESTRequest } from "~/newstore/collections"
-import IconCheck from "~icons/lucide/check"
 import IconChevronDown from "~icons/lucide/chevron-down"
 import IconCode2 from "~icons/lucide/code-2"
-import IconCopy from "~icons/lucide/copy"
 import IconFileCode from "~icons/lucide/file-code"
 import IconFolderPlus from "~icons/lucide/folder-plus"
 import IconRotateCCW from "~icons/lucide/rotate-ccw"
@@ -303,8 +299,6 @@ const loading = ref(false)
 const showCurlImportModal = ref(false)
 const showCodegenModal = ref(false)
 const showSaveRequestModal = ref(false)
-
-const hasNavigatorShare = !!navigator.share
 
 // Template refs
 const methodTippyActions = ref<any | null>(null)
@@ -448,16 +442,11 @@ const updateRESTResponse = (response: HoppRESTResponse | null) => {
   tab.value.document.response = response
 }
 
-const copyLinkIcon = refAutoReset<
-  typeof IconShare2 | typeof IconCopy | typeof IconCheck
->(hasNavigatorShare ? IconShare2 : IconCopy, 1000)
-
 const currentUser = useReadonlyStream(
   platform.auth.getCurrentUserStream(),
   platform.auth.getCurrentUser()
 )
 
-const shareLink = ref<string | null>("")
 const fetchingShareLink = ref(false)
 
 const shareRequest = () => {
@@ -467,48 +456,6 @@ const shareRequest = () => {
     })
   } else {
     invokeAction("modals.login.toggle")
-  }
-}
-
-const copyRequest = async () => {
-  if (shareLink.value) {
-    copyShareLink(shareLink.value)
-  } else {
-    shareLink.value = ""
-    fetchingShareLink.value = true
-    const shortcodeResult = await createShortcode(tab.value.document.request)()
-
-    platform.analytics?.logEvent({
-      type: "HOPP_SHORTCODE_CREATED",
-    })
-
-    if (E.isLeft(shortcodeResult)) {
-      toast.error(`${shortcodeResult.left.error}`)
-      shareLink.value = `${t("error.something_went_wrong")}`
-    } else if (E.isRight(shortcodeResult)) {
-      shareLink.value = `/${shortcodeResult.right.createShortcode.id}`
-      copyShareLink(shareLink.value)
-    }
-    fetchingShareLink.value = false
-  }
-}
-
-const copyShareLink = (shareLink: string) => {
-  const link = `${
-    import.meta.env.VITE_SHORTCODE_BASE_URL ?? "https://hopp.sh"
-  }/r${shareLink}`
-  if (navigator.share) {
-    const time = new Date().toLocaleTimeString()
-    const date = new Date().toLocaleDateString()
-    navigator.share({
-      title: "Hoppscotch",
-      text: `Hoppscotch • Open source API development ecosystem at ${time} on ${date}`,
-      url: link,
-    })
-  } else {
-    copyLinkIcon.value = IconCheck
-    copyToClipboard(link)
-    toast.success(`${t("state.copied_to_clipboard")}`)
   }
 }
 
@@ -611,7 +558,7 @@ defineActionHandler("request.send-cancel", () => {
   else cancelRequest()
 })
 defineActionHandler("request.reset", clearContent)
-defineActionHandler("request.copy-link", copyRequest)
+defineActionHandler("request.share-request", shareRequest)
 defineActionHandler("request.method.next", cycleDownMethod)
 defineActionHandler("request.method.prev", cycleUpMethod)
 defineActionHandler("request.save", saveRequest)

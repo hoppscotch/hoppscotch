@@ -94,9 +94,9 @@ export class RequestSpotlightSearcherService extends StaticSpotlightSearcherServ
       icon: markRaw(IconRename),
       excludeFromSearch: computed(() => !this.isRESTOrGQLPage.value),
     },
-    copy_request_link: {
-      text: this.t("shortcut.request.copy_request_link"),
-      alternates: ["copy", "link"],
+    share_request: {
+      text: this.t("shortcut.request.share_request"),
+      alternates: ["share", "request", "copy"],
       icon: markRaw(IconCopy),
       excludeFromSearch: computed(() => !this.isRESTPage.value),
     },
@@ -277,8 +277,8 @@ export class RequestSpotlightSearcherService extends StaticSpotlightSearcherServ
       case "rename_request":
         invokeAction("request.rename")
         break
-      case "copy_request_link":
-        invokeAction("request.copy-link")
+      case "share_request":
+        invokeAction("request.share-request")
         break
       case "reset_request":
         invokeAction("request.reset")

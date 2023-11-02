@@ -670,7 +670,6 @@
       "title": "Others"
     },
     "request": {
-      "copy_request_link": "Copy Request Link",
       "delete_method": "Select DELETE method",
       "get_method": "Select GET method",
       "head_method": "Select HEAD method",
@@ -686,6 +685,7 @@
       "save_to_collections": "Save to Collections",
       "send_request": "Send Request",
       "show_code": "Generate code snippet",
+      "share_request":"Share Request",
       "title": "Request"
     },
     "response": {

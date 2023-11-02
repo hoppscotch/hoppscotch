@@ -21,7 +21,7 @@
         </div>
 
         <HoppSmartTable
-          v-if="invitedUsers?.length"
+          v-else-if="invitedUsers?.length"
           :list="invitedUsers"
           :headings="headings"
         >

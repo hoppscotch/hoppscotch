@@ -7,33 +7,35 @@ import vueTsc from "vue-tsc"
 import { fileURLToPath } from "url"
 
 /**
- * Helper functions
+ * Helper function to find files to perform type check on
  */
-const findTypeScriptFiles = (directoryPaths, filePattern) => {
-  return directoryPaths.reduce((tsFiles, directoryPath) => {
-    // Exit if the directory path does not exist
+const findFilesToPerformTypeCheck = (directoryPaths, filePatterns) => {
+  const files = []
+
+  directoryPaths.forEach((directoryPath) => {
     if (!fs.existsSync(directoryPath)) {
       console.error(`Directory not found: ${directoryPath}`)
       process.exit(1)
     }
 
-    return tsFiles.concat(
-      glob.sync(filePattern, {
+    files.push(
+      ...glob.sync(filePatterns, {
         cwd: directoryPath,
-        ignore: "**/__tests__/**",
+        ignore: ["**/__tests__/**", "**/*.d.ts"],
         absolute: true,
       })
     )
-  }, [])
+  })
+  return files
 }
 
 // Derive the current file's directory path `__dirname` from the URL of this module `__filename`
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
-// Define the directory path to perform type checking on
+// Define the directory paths and file patterns to perform type checks on
 const directoryPaths = [path.resolve(__dirname, "src", "services")]
-const filePattern = "**/*.ts"
+const filePatterns = ["**/*.ts"]
 
 const tsConfigFileName = path.resolve(__dirname, "tsconfig.json")
 const tsConfig = ts.readConfigFile(tsConfigFileName, ts.sys.readFile)
@@ -43,11 +45,11 @@ const { options } = ts.parseJsonConfigFileContent(
   __dirname
 )
 
-const tsFiles = findTypeScriptFiles(directoryPaths, filePattern)
+const files = findFilesToPerformTypeCheck(directoryPaths, filePatterns)
 
 const host = ts.createCompilerHost(options)
 const program = vueTsc.createProgram({
-  rootNames: tsFiles,
+  rootNames: files,
   options: { ...options, noEmit: true },
   host,
 })

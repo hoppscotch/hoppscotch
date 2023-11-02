@@ -6,7 +6,7 @@
   >
     <component :is="bannerIcon" class="mr-2 text-white" />
 
-    <span class="text-secondaryDark">
+    <span class="text-white">
       <span v-if="banner.alternateText" class="md:hidden">
         {{ banner.alternateText }}
       </span>
@@ -19,19 +19,21 @@
 
 <script setup lang="ts">
 import { computed } from "vue"
+
 import { BannerContent, BannerType } from "~/services/banner.service"
-import IconInfo from "~icons/lucide/info"
+
 import IconAlertCircle from "~icons/lucide/alert-circle"
 import IconAlertTriangle from "~icons/lucide/alert-triangle"
+import IconInfo from "~icons/lucide/info"
 
 const props = defineProps<{
   banner: BannerContent
 }>()
 
-const icons = {
-  info: IconInfo,
-  warning: IconAlertCircle,
-  error: IconAlertTriangle,
+const ariaRoles: Record<BannerType, string> = {
+  error: "alert",
+  warning: "status",
+  info: "status",
 }
 
 const bgColors: Record<BannerType, string> = {
@@ -40,13 +42,13 @@ const bgColors: Record<BannerType, string> = {
   info: "bg-stone-800",
 }
 
-const ariaRoles: Record<BannerType, string> = {
-  error: "alert",
-  warning: "status",
-  info: "status",
+const icons = {
+  info: IconInfo,
+  warning: IconAlertCircle,
+  error: IconAlertTriangle,
 }
 
 const bannerColor = computed(() => bgColors[props.banner.type])
-const bannerRole = computed(() => ariaRoles[props.banner.type])
 const bannerIcon = computed(() => icons[props.banner.type])
+const bannerRole = computed(() => ariaRoles[props.banner.type])
 </script>

@@ -230,7 +230,7 @@ export class SharedRequestService implements UserDataHandler, OnModuleInit {
     if (!updatedProps) return E.left(SHARED_REQUEST_PROPERTIES_NOT_FOUND);
 
     const parsedProperties = stringToJson(updatedProps);
-    if (E.isLeft(parsedProperties))
+    if (E.isLeft(parsedProperties) || !parsedProperties.right)
       return E.left(SHARED_REQUEST_INVALID_PROPERTIES_JSON);
 
     try {

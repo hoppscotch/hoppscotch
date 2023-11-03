@@ -1,14 +1,15 @@
-import * as R from "fp-ts/Record"
 import * as A from "fp-ts/Array"
-import * as O from "fp-ts/Option"
 import { pipe } from "fp-ts/function"
+import * as O from "fp-ts/Option"
+import * as R from "fp-ts/Record"
 import { createI18n, I18n, I18nOptions } from "vue-i18n"
 import { HoppModule } from "."
 
 import languages from "../../languages.json"
 
 import { throwError } from "~/helpers/functional/error"
-import { getLocalConfig, setLocalConfig } from "~/newstore/localpersistence"
+import { PersistenceService } from "~/services/persistence.service"
+import { getService } from "./dioc"
 
 /*
   In context of this file, we have 2 main kinds of things.
@@ -57,6 +58,8 @@ export const FALLBACK_LANG = pipe(
   )
 )
 
+const persistenceServiceInstance = getService(PersistenceService)
+
 // A reference to the i18n instance
 let i18nInstance: I18n<
   Record<string, unknown>,
@@ -69,7 +72,7 @@ let i18nInstance: I18n<
 const resolveCurrentLocale = () =>
   pipe(
     // Resolve from locale and make sure it is in languages
-    getLocalConfig("locale"),
+    persistenceServiceInstance.getLocalConfig("locale"),
     O.fromNullable,
     O.filter((locale) =>
       pipe(
@@ -118,7 +121,7 @@ export const changeAppLanguage = async (locale: string) => {
   // TODO: Look into the type issues here
   i18nInstance.global.locale.value = locale
 
-  setLocalConfig("locale", locale)
+  persistenceServiceInstance.setLocalConfig("locale", locale)
 }
 
 /**
@@ -145,7 +148,7 @@ export default <HoppModule>{
     const currentLocale = resolveCurrentLocale()
     changeAppLanguage(currentLocale)
 
-    setLocalConfig("locale", currentLocale)
+    persistenceServiceInstance.setLocalConfig("locale", currentLocale)
   },
   onBeforeRouteChange(to, _, router) {
     // Convert old locale path format to new format

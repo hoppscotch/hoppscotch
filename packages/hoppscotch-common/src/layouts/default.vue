@@ -61,19 +61,21 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeMount, onMounted, ref, watch } from "vue"
-import { breakpointsTailwind, useBreakpoints } from "@vueuse/core"
-import { Splitpanes, Pane } from "splitpanes"
-import "splitpanes/dist/splitpanes.css"
-import { RouterView, useRouter } from "vue-router"
 import { useSetting } from "@composables/settings"
+import { breakpointsTailwind, useBreakpoints } from "@vueuse/core"
+import { useService } from "dioc/vue"
+import { Pane, Splitpanes } from "splitpanes"
+import "splitpanes/dist/splitpanes.css"
+import { computed, onBeforeMount, onMounted, ref, watch } from "vue"
+import { RouterView, useRouter } from "vue-router"
+
 import { defineActionHandler } from "~/helpers/actions"
 import { hookKeybindingsListener } from "~/helpers/keybindings"
 import { applySetting } from "~/newstore/settings"
-import { getLocalConfig, setLocalConfig } from "~/newstore/localpersistence"
 import { useToast } from "~/composables/toast"
 import { useI18n } from "~/composables/i18n"
 import { platform } from "~/platform"
+import { PersistenceService } from "~/services/persistence.service"
 
 const router = useRouter()
 
@@ -90,6 +92,8 @@ const mdAndLarger = breakpoints.greater("md")
 const toast = useToast()
 const t = useI18n()
 
+const persistenceServiceInstance = useService(PersistenceService)
+
 onBeforeMount(() => {
   if (!mdAndLarger.value) {
     rightSidebar.value = false
@@ -98,7 +102,7 @@ onBeforeMount(() => {
 })
 
 onMounted(() => {
-  const cookiesAllowed = getLocalConfig("cookiesAllowed") === "yes"
+  const cookiesAllowed = persistenceServiceInstance.getLocalConfig("cookiesAllowed") === "yes"
   const platformAllowsCookiePrompts =
     platform.platformFeatureFlags.promptAsUsingCookies ?? true
 
@@ -109,7 +113,7 @@ onMounted(() => {
         {
           text: `${t("action.learn_more")}`,
           onClick: (_, toastObject) => {
-            setLocalConfig("cookiesAllowed", "yes")
+            persistenceServiceInstance.setLocalConfig("cookiesAllowed", "yes")
             toastObject.goAway(0)
             window
               .open("https://docs.hoppscotch.io/support/privacy", "_blank")
@@ -119,7 +123,7 @@ onMounted(() => {
         {
           text: `${t("action.dismiss")}`,
           onClick: (_, toastObject) => {
-            setLocalConfig("cookiesAllowed", "yes")
+            persistenceServiceInstance.setLocalConfig("cookiesAllowed", "yes")
             toastObject.goAway(0)
           },
         },

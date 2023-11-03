@@ -242,7 +242,7 @@ export class SharedRequestService implements UserDataHandler, OnModuleInit {
           },
         },
         data: {
-          properties: updatedProps,
+          properties: parsedProperties.right,
         },
       });
 

@@ -1,4 +1,4 @@
-import { ForbiddenException, HttpException, Module } from '@nestjs/common';
+import { HttpException, Module } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { UserModule } from './user/user.module';
@@ -20,28 +20,35 @@ import { ShortcodeModule } from './shortcode/shortcode.module';
 import { COOKIES_NOT_FOUND } from './errors';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { AppController } from './app.controller';
+import { Context } from 'graphql-ws';
+import {
+  ApolloServerPluginLandingPageLocalDefault,
+  ApolloServerPluginLandingPageProductionDefault,
+} from '@apollo/server/plugin/landingPage/default';
 
 @Module({
   imports: [
     GraphQLModule.forRoot<ApolloDriverConfig>({
+      driver: ApolloDriver,
       buildSchemaOptions: {
         numberScalarMode: 'integer',
       },
-      playground: process.env.PRODUCTION !== 'true',
+      playground: false,
+      plugins: [
+        process.env.PRODUCTION !== 'true'
+          ? ApolloServerPluginLandingPageLocalDefault()
+          : ApolloServerPluginLandingPageProductionDefault(),
+      ],
       autoSchemaFile: true,
-      installSubscriptionHandlers: true,
       subscriptions: {
-        'subscriptions-transport-ws': {
+        'graphql-ws': {
           path: '/graphql',
-          onConnect: (_, websocket) => {
+          onConnect: (context: Context<any, any>) => {
             try {
               const cookies = subscriptionContextCookieParser(
-                websocket.upgradeReq.headers.cookie,
+                context.extra.request.headers.cookie,
               );
-
-              return {
-                headers: { ...websocket?.upgradeReq?.headers, cookies },
-              };
+              context['cookies'] = cookies;
             } catch (error) {
               throw new HttpException(COOKIES_NOT_FOUND, 400, {
                 cause: new Error(COOKIES_NOT_FOUND),
@@ -55,7 +62,6 @@ import { AppController } from './app.controller';
         res,
         connection,
       }),
-      driver: ApolloDriver,
     }),
     ThrottlerModule.forRoot([
       {

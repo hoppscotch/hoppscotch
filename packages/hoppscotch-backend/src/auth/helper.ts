@@ -60,13 +60,13 @@ export const authCookieHandler = (
   res.cookie(AuthTokenType.ACCESS_TOKEN, authTokens.access_token, {
     httpOnly: true,
     secure: true,
-    sameSite: 'lax',
+    sameSite: process.env.PRODUCTION !== 'true' ? 'none' : 'lax',
     maxAge: accessTokenValidity,
   });
   res.cookie(AuthTokenType.REFRESH_TOKEN, authTokens.refresh_token, {
     httpOnly: true,
     secure: true,
-    sameSite: 'lax',
+    sameSite: process.env.PRODUCTION !== 'true' ? 'none' : 'lax',
     maxAge: refreshTokenValidity,
   });
 

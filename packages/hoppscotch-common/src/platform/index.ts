@@ -26,6 +26,7 @@ export type PlatformDef = {
   additionalInspectors?: InspectorsPlatformDef
   platformFeatureFlags: {
     exportAsGIST: boolean
+    hasTelemetry: boolean
   }
 }
 

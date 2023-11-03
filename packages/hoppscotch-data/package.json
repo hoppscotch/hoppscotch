@@ -6,7 +6,9 @@
   "main": "dist/hoppscotch-data.cjs",
   "module": "dist/hoppscotch-data.js",
   "types": "./dist/index.d.ts",
-  "files": [ "dist/*" ],
+  "files": [
+    "dist/*"
+  ],
   "scripts": {
     "build:code": "vite build",
     "build:decl": "tsc --project tsconfig.decl.json",
@@ -32,14 +34,16 @@
   },
   "homepage": "https://github.com/hoppscotch/hoppscotch#readme",
   "devDependencies": {
-    "@types/lodash": "^4.14.181",
-    "typescript": "^4.6.3",
-    "vite": "^3.2.3"
+    "@types/lodash": "^4.14.200",
+    "typescript": "^5.2.2",
+    "vite": "^4.5.0"
   },
   "dependencies": {
-    "fp-ts": "^2.11.10",
-    "io-ts": "^2.2.16",
+    "fp-ts": "^2.16.1",
+    "io-ts": "^2.2.20",
     "lodash": "^4.17.21",
-    "parser-ts": "^0.6.16"
+    "parser-ts": "^0.7.0",
+    "verzod": "^0.1.1",
+    "zod": "^3.22.4"
   }
 }

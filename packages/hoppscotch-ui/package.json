@@ -21,7 +21,6 @@
     "@fontsource-variable/material-symbols-rounded": "^5.0.5",
     "@fontsource-variable/roboto-mono": "^5.0.6",
     "@hoppscotch/vue-toasted": "^0.1.0",
-    "@lezer/highlight": "^1.0.0",
     "@vitejs/plugin-legacy": "^2.3.0",
     "@vueuse/core": "^8.7.5",
     "fp-ts": "^2.12.1",

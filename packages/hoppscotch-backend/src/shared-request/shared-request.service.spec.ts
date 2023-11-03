@@ -4,6 +4,7 @@ import {
   SHARED_REQUEST_INVALID_PROPERTIES_JSON,
   SHARED_REQUEST_INVALID_REQUEST_JSON,
   SHARED_REQUEST_NOT_FOUND,
+  SHARED_REQUEST_PROPERTIES_NOT_FOUND,
 } from 'src/errors';
 import { UserService } from 'src/user/user.service';
 import { SharedRequestService } from './shared-request.service';
@@ -52,6 +53,7 @@ const mockEmbed = {
   properties: '{}',
   createdOn: createdOn,
   creatorUid: user.uid,
+  updatedOn: createdOn,
 };
 
 const mockShortcode = {
@@ -60,6 +62,7 @@ const mockShortcode = {
   properties: null,
   createdOn: createdOn,
   creatorUid: user.uid,
+  updatedOn: createdOn,
 };
 
 const sharedRequests = [
@@ -73,6 +76,7 @@ const sharedRequests = [
     },
     creatorUid: user.uid,
     createdOn: new Date(),
+    updatedOn: createdOn,
   },
   {
     id: 'blablabla1',
@@ -84,6 +88,7 @@ const sharedRequests = [
     },
     creatorUid: user.uid,
     createdOn: new Date(),
+    updatedOn: createdOn,
   },
 ];
 
@@ -391,6 +396,78 @@ describe('SharedRequestService', () => {
         mockEmbed.creatorUid,
       );
       expect(result).toEqual(0);
+    });
+  });
+
+  describe('updateSharedRequest', () => {
+    test('should return SHARED_REQUEST_PROPERTIES_NOT_FOUND error when updatedProps in invalid', async () => {
+      const result = await sharedRequestsService.updateSharedRequest(
+        mockEmbed.id,
+        user.uid,
+        '',
+      );
+      expect(result).toEqualLeft(SHARED_REQUEST_PROPERTIES_NOT_FOUND);
+    });
+
+    test('should return SHARED_REQUEST_PROPERTIES_NOT_FOUND error when updatedProps in invalid JSON format', async () => {
+      const result = await sharedRequestsService.updateSharedRequest(
+        mockEmbed.id,
+        user.uid,
+        '{kk',
+      );
+      expect(result).toEqualLeft(SHARED_REQUEST_INVALID_PROPERTIES_JSON);
+    });
+
+    test('should return SHARED_REQUEST_NOT_FOUND error when SharedRequest ID is invalid', async () => {
+      mockPrisma.shortcode.update.mockRejectedValue('RecordNotFound');
+      const result = await sharedRequestsService.updateSharedRequest(
+        'invalidID',
+        user.uid,
+        '{}',
+      );
+      expect(result).toEqualLeft(SHARED_REQUEST_NOT_FOUND);
+    });
+
+    test('should successfully update a SharedRequests with valid inputs', async () => {
+      mockPrisma.shortcode.update.mockResolvedValueOnce({
+        ...mockEmbed,
+        properties: '{"foo":"bar"}',
+      });
+
+      const result = await sharedRequestsService.updateSharedRequest(
+        mockEmbed.id,
+        user.uid,
+        '{"foo":"bar"}',
+      );
+      expect(result).toEqualRight({
+        id: mockEmbed.id,
+        createdOn: mockEmbed.createdOn,
+        request: JSON.stringify(mockEmbed.request),
+        properties: JSON.stringify('{"foo":"bar"}'),
+      });
+    });
+
+    test('should send pubsub message to `shared_request/{uid}/updated` on successful Update of SharedRequest', async () => {
+      mockPrisma.shortcode.update.mockResolvedValueOnce({
+        ...mockEmbed,
+        properties: '{"foo":"bar"}',
+      });
+
+      const result = await sharedRequestsService.updateSharedRequest(
+        mockEmbed.id,
+        user.uid,
+        '{"foo":"bar"}',
+      );
+
+      expect(mockPubSub.publish).toHaveBeenCalledWith(
+        `shared_request/${mockEmbed.creatorUid}/updated`,
+        {
+          id: mockEmbed.id,
+          createdOn: mockEmbed.createdOn,
+          request: JSON.stringify(mockEmbed.request),
+          properties: JSON.stringify('{"foo":"bar"}'),
+        },
+      );
     });
   });
 });

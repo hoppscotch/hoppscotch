@@ -1,0 +1,15 @@
+:3000 {
+	try_files {path} /
+	root * /site/selfhost-web
+	file_server
+}
+
+:3100 {
+	try_files {path} /
+	root * /site/sh-admin
+	file_server
+}
+
+:8080 {
+	respond 404
+}

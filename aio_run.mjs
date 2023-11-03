@@ -49,7 +49,8 @@ execSync(`npx import-meta-env -x build.env -e build.env -p "/site/**/*"`)
 
 fs.rmSync("build.env")
 
-const caddyProcess = runChildProcessWithPrefix("caddy", ["run", "--config", "/etc/caddy/Caddyfile", "--adapter", "caddyfile"], "App/Admin Dashboard Caddy")
+const caddyFileName = process.env.ENABLE_SUBPATH_BASED_ACCESS === 'true' ? 'aio-subpath-access.Caddyfile' : 'aio-multiport-setup.Caddyfile'
+const caddyProcess = runChildProcessWithPrefix("caddy", ["run", "--config", `/etc/caddy/${caddyFileName}`, "--adapter", "caddyfile"], "App/Admin Dashboard Caddy")
 const backendProcess = runChildProcessWithPrefix("pnpm", ["run", "start:prod"], "Backend Server")
 
 caddyProcess.on("exit", (code) => {

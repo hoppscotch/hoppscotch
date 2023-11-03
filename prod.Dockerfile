@@ -61,7 +61,8 @@ RUN npm install -g @import-meta-env/cli
 COPY --from=fe_builder /usr/src/app/packages/hoppscotch-selfhost-web/dist /site/selfhost-web
 COPY --from=sh_admin_builder /usr/src/app/packages/hoppscotch-sh-admin/dist /site/sh-admin
 COPY --from=sh_admin_builder /usr/src/app/packages/hoppscotch-sh-admin/dist-subpath-access /site/sh-admin-subpath-access
-COPY aio.Caddyfile /etc/caddy/Caddyfile
+COPY aio-multiport-setup.Caddyfile /etc/caddy/aio-multiport-setup.Caddyfile
+COPY aio-subpath-access.Caddyfile /etc/caddy/aio-subpath-access.Caddyfile
 ENTRYPOINT [ "tini", "--" ]
 RUN apk --no-cache add curl
 COPY --chmod=755 healthcheck.sh .

@@ -29,39 +29,43 @@ unsafe fn set_transparent_titlebar(id: cocoa::base::id) {
 
     id.setTitlebarAppearsTransparent_(cocoa::base::YES);
     id.setTitleVisibility_(cocoa::appkit::NSWindowTitleVisibility::NSWindowTitleHidden);
-
-
 }
 
 #[cfg(target_os = "macos")]
 fn set_window_controls_pos(window: cocoa::base::id, x: f64, y: f64) {
-    use cocoa::{appkit::{NSWindow, NSWindowButton, NSView}, foundation::NSRect};
+    use cocoa::{
+        appkit::{NSAppearance, NSAppearanceNameVibrantLight, NSView, NSWindow, NSWindowButton},
+        foundation::NSRect,
+    };
 
     unsafe {
-      let close = window.standardWindowButton_(NSWindowButton::NSWindowCloseButton);
-      let miniaturize =
-          window.standardWindowButton_(NSWindowButton::NSWindowMiniaturizeButton);
-      let zoom = window.standardWindowButton_(NSWindowButton::NSWindowZoomButton);
+        // Set appearance windows to be light for better visibility when on light theme
+        // TODO: Detect when on dark theme and set to dark and on light switch to light
+        NSWindow::setAppearance(window, NSAppearance(NSAppearanceNameVibrantLight));
 
-      let title_bar_container_view = close.superview().superview();
+        let close = window.standardWindowButton_(NSWindowButton::NSWindowCloseButton);
+        let miniaturize = window.standardWindowButton_(NSWindowButton::NSWindowMiniaturizeButton);
+        let zoom = window.standardWindowButton_(NSWindowButton::NSWindowZoomButton);
 
-      let close_rect: NSRect = msg_send![close, frame];
-      let button_height = close_rect.size.height;
+        let title_bar_container_view = close.superview().superview();
 
-      let title_bar_frame_height = button_height + y;
-      let mut title_bar_rect = NSView::frame(title_bar_container_view);
-      title_bar_rect.size.height = title_bar_frame_height;
-      title_bar_rect.origin.y = NSView::frame(window).size.height - title_bar_frame_height;
-      let _: () = msg_send![title_bar_container_view, setFrame: title_bar_rect];
+        let close_rect: NSRect = msg_send![close, frame];
+        let button_height = close_rect.size.height;
 
-      let window_buttons = vec![close, miniaturize, zoom];
-      let space_between = NSView::frame(miniaturize).origin.x - NSView::frame(close).origin.x;
+        let title_bar_frame_height = button_height + y;
+        let mut title_bar_rect = NSView::frame(title_bar_container_view);
+        title_bar_rect.size.height = title_bar_frame_height;
+        title_bar_rect.origin.y = NSView::frame(window).size.height - title_bar_frame_height;
+        let _: () = msg_send![title_bar_container_view, setFrame: title_bar_rect];
 
-      for (i, button) in window_buttons.into_iter().enumerate() {
-          let mut rect: NSRect = NSView::frame(button);
-          rect.origin.x = x + (i as f64 * space_between);
-          button.setFrameOrigin(rect.origin);
-      }
+        let window_buttons = vec![close, miniaturize, zoom];
+        let space_between = NSView::frame(miniaturize).origin.x - NSView::frame(close).origin.x;
+
+        for (i, button) in window_buttons.into_iter().enumerate() {
+            let mut rect: NSRect = NSView::frame(button);
+            rect.origin.x = x + (i as f64 * space_between);
+            button.setFrameOrigin(rect.origin);
+        }
     }
 }
 
@@ -122,9 +126,9 @@ pub fn setup_mac_window(app: &mut App) {
         extern "C" fn on_window_did_resize(this: &Object, _cmd: Sel, notification: id) {
             unsafe {
                 with_hopp_app(&*this, |state| {
-                  let id = state.window.ns_window().unwrap() as id;
+                    let id = state.window.ns_window().unwrap() as id;
 
-                  set_window_controls_pos(id, WINDOW_CONTROL_PAD_X, WINDOW_CONTROL_PAD_Y);
+                    set_window_controls_pos(id, WINDOW_CONTROL_PAD_X, WINDOW_CONTROL_PAD_Y);
                 });
 
                 let super_del: id = *this.get_ivar("super_delegate");
@@ -303,9 +307,7 @@ pub fn setup_mac_window(app: &mut App) {
         // }
 
         // Are we deallocing this properly ? (I miss safe Rust :(  )
-        let app_state = HoppAppState {
-            window,
-        };
+        let app_state = HoppAppState { window };
         let app_box = Box::into_raw(Box::new(app_state)) as *mut c_void;
 
         ns_win.setDelegate_(delegate!("MainWindowDelegate", {
@@ -339,7 +341,5 @@ pub fn setup_mac_window(app: &mut App) {
     }))
     }
 
-    app.get_window("main")
-        .unwrap()
-        .set_transparent_titlebar();
+    app.get_window("main").unwrap().set_transparent_titlebar();
 }

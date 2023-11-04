@@ -124,7 +124,7 @@
         :label="t('action.clear_all')"
         outline
         filled
-        @click="hideModal"
+        @click="clearAllDomains"
       />
     </template>
   </HoppSmartModal>
@@ -194,6 +194,11 @@ function deleteDomain(domain: string) {
 
 function addCookieToDomain(domain: string) {
   showEditModalFor.value = { type: "create", domain }
+}
+
+function clearAllDomains() {
+  workingCookieJar.value = new Map()
+  toast.success(`${t("state.cleared")}`)
 }
 
 watch(

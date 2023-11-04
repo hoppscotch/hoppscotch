@@ -3,18 +3,13 @@
     v-if="show"
     dialog
     :title="t('cookies.modal.set')"
-    aria-modal="true"
     @close="hideModal"
   >
     <template #body>
-      <div class="h-46 border rounded border-dividerLight">
-        <div
-          ref="cookieEditor"
-          class="h-full border-t rounded-b border-dividerLight"
-        ></div>
+      <div class="border h-46 rounded border-dividerLight">
+        <div ref="cookieEditor" class="h-full rounded"></div>
       </div>
     </template>
-
     <template #footer>
       <div class="flex space-x-2">
         <HoppButtonPrimary
@@ -37,7 +32,6 @@
           filled
           outline
           @click="handlePaste"
-          class="self-end"
         />
       </span>
     </template>

@@ -6,10 +6,9 @@
       theme="popover"
       :on-shown="() => envSelectorActions!.focus()"
     >
-      <span
+      <HoppSmartSelectWrapper
         v-tippy="{ theme: 'tooltip' }"
         :title="`${t('environment.select')}`"
-        class="select-wrapper"
       >
         <HoppButtonSecondary
           :icon="IconLayers"
@@ -22,7 +21,7 @@
           "
           class="flex-1 !justify-start rounded-none pr-8"
         />
-      </span>
+      </HoppSmartSelectWrapper>
       <template #content="{ hide }">
         <div
           ref="envSelectorActions"

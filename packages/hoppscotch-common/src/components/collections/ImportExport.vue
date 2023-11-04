@@ -78,7 +78,7 @@
               v-else-if="step.name === 'TARGET_MY_COLLECTION'"
               class="flex flex-col"
             >
-              <div class="select-wrapper">
+              <HoppSmartSelectWrapper>
                 <select
                   v-model="mySelectedCollectionID"
                   autocomplete="off"
@@ -97,7 +97,7 @@
                     {{ collection.name }}
                   </option>
                 </select>
-              </div>
+              </HoppSmartSelectWrapper>
             </div>
           </div>
         </div>

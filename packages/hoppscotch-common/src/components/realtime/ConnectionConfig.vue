@@ -62,12 +62,12 @@
               {{ t("mqtt.lw_qos") }}
             </label>
             <tippy interactive trigger="click" theme="popover">
-              <span class="select-wrapper">
+              <HoppSmartSelectWrapper>
                 <HoppButtonSecondary
                   class="ml-2 rounded-none pr-8"
                   :label="`${config.lwQos}`"
                 />
-              </span>
+              </HoppSmartSelectWrapper>
               <template #content="{ hide }">
                 <div class="flex flex-col" role="menu">
                   <HoppSmartItem

@@ -169,7 +169,7 @@
                 theme="popover"
                 :on-shown="() => tippyActions![index].focus()"
               >
-                <span class="select-wrapper">
+                <HoppSmartSelectWrapper>
                   <input
                     class="flex flex-1 cursor-pointer bg-transparent px-4 py-2"
                     :placeholder="`${t('team.permissions')}`"
@@ -177,7 +177,7 @@
                     :value="invitee.value"
                     readonly
                   />
-                </span>
+                </HoppSmartSelectWrapper>
                 <template #content="{ hide }">
                   <div
                     ref="tippyActions"

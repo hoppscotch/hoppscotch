@@ -13,7 +13,7 @@
                 theme="popover"
                 :on-shown="() => tippyActions.focus()"
               >
-                <span class="select-wrapper">
+                <HoppSmartSelectWrapper>
                   <input
                     id="client-version"
                     v-tippy="{ theme: 'tooltip' }"
@@ -26,7 +26,7 @@
                       connectionState === 'CONNECTING'
                     "
                   />
-                </span>
+                </HoppSmartSelectWrapper>
                 <template #content="{ hide }">
                   <div
                     ref="tippyActions"
@@ -129,12 +129,12 @@
                 theme="popover"
                 :on-shown="() => authTippyActions.focus()"
               >
-                <span class="select-wrapper">
+                <HoppSmartSelectWrapper>
                   <HoppButtonSecondary
                     class="ml-2 rounded-none pr-8"
                     :label="authType"
                   />
-                </span>
+                </HoppSmartSelectWrapper>
                 <template #content="{ hide }">
                   <div
                     ref="authTippyActions"

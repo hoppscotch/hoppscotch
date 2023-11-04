@@ -107,13 +107,18 @@
             theme="popover"
             :on-shown="() => accountActions.focus()"
           >
-            <HoppButtonSecondary
-              v-tippy="{ theme: 'tooltip' }"
-              :title="t('workspace.change')"
-              :label="mdAndLarger ? workspaceName : ``"
-              :icon="workspace.type === 'personal' ? IconUser : IconUsers"
-              class="select-wrapper !focus-visible:text-blue-600 !hover:text-blue-600 rounded border border-blue-600/25 bg-blue-500/[.15] py-[0.4375rem] pr-8 !text-blue-500 hover:border-blue-800/50 hover:bg-blue-400/10 focus-visible:border-blue-800/50 focus-visible:bg-blue-400/10"
-            />
+            <HoppSmartSelectWrapper
+              class="!text-blue-500 !focus-visible:text-blue-600 !hover:text-blue-600"
+            >
+              <HoppButtonSecondary
+                v-tippy="{ theme: 'tooltip' }"
+                :title="t('workspace.change')"
+                :label="mdAndLarger ? workspaceName : ``"
+                :icon="workspace.type === 'personal' ? IconUser : IconUsers"
+                class="!focus-visible:text-blue-600 !hover:text-blue-600 rounded border border-blue-600/25 bg-blue-500/[.15] py-[0.4375rem] pr-8 !text-blue-500 hover:border-blue-800/50 hover:bg-blue-400/10 focus-visible:border-blue-800/50 focus-visible:bg-blue-400/10"
+              />
+            </HoppSmartSelectWrapper>
+
             <template #content="{ hide }">
               <div
                 ref="accountActions"

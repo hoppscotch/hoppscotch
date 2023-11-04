@@ -13,12 +13,12 @@
           theme="popover"
           :on-shown="() => tippyActions.focus()"
         >
-          <span class="select-wrapper">
+          <HoppSmartSelectWrapper>
             <HoppButtonSecondary
               :label="body.contentType || t('state.none')"
               class="ml-2 rounded-none pr-8"
             />
-          </span>
+          </HoppSmartSelectWrapper>
           <template #content="{ hide }">
             <div
               ref="tippyActions"

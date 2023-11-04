@@ -17,7 +17,7 @@
           placement="bottom"
           :on-shown="() => tippyActions.focus()"
         >
-          <span class="select-wrapper">
+          <HoppSmartSelectWrapper>
             <HoppButtonSecondary
               :label="
                 CodegenDefinitions.find((x) => x.name === codegenType)!.caption
@@ -25,7 +25,7 @@
               outline
               class="flex-1 pr-8"
             />
-          </span>
+          </HoppSmartSelectWrapper>
           <template #content="{ hide }">
             <div class="flex flex-col space-y-2">
               <div class="sticky top-0 z-10 flex-shrink-0 overflow-x-auto">

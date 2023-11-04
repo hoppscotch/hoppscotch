@@ -13,7 +13,7 @@
             theme="popover"
             :on-shown="() => methodTippyActions.focus()"
           >
-            <span class="select-wrapper">
+            <HoppSmartSelectWrapper>
               <input
                 id="method"
                 class="flex w-26 cursor-pointer rounded-l bg-primaryLight px-4 py-2 font-semibold text-secondaryDark transition"
@@ -22,7 +22,8 @@
                 :placeholder="`${t('request.method')}`"
                 @input="onSelectMethod($event)"
               />
-            </span>
+            </HoppSmartSelectWrapper>
+
             <template #content="{ hide }">
               <div
                 ref="methodTippyActions"
@@ -63,9 +64,7 @@
       <HoppButtonPrimary
         id="send"
         v-tippy="{ theme: 'tooltip', delay: [500, 20], allowHTML: true }"
-        :title="`${t(
-          'action.send'
-        )} <kbd>${getSpecialKey()}</kbd><kbd>↩</kbd>`"
+        :title="`${t('action.send')} <kbd>${getSpecialKey()}</kbd><kbd>↩</kbd>`"
         :label="`${!loading ? t('action.send') : t('action.cancel')}`"
         class="min-w-20 flex-1 rounded-r-none"
         @click="!loading ? newSendRequest() : cancelRequest()"

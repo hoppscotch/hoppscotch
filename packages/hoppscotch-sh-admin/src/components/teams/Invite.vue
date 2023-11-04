@@ -41,7 +41,7 @@
                 theme="popover"
                 :on-shown="() => tippyActions![index].focus()"
               >
-                <span class="select-wrapper">
+                <HoppSmartSelectWrapper>
                   <input
                     class="flex flex-1 px-4 py-2 bg-transparent cursor-pointer"
                     placeholder="Permissions"
@@ -49,7 +49,7 @@
                     :value="member.value"
                     readonly
                   />
-                </span>
+                </HoppSmartSelectWrapper>
                 <template #content="{ hide }">
                   <div
                     ref="tippyActions"

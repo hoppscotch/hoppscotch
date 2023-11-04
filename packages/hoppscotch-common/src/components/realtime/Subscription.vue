@@ -9,9 +9,9 @@
             {{ t("mqtt.qos") }}
           </label>
           <tippy interactive trigger="click" theme="popover">
-            <span class="select-wrapper">
+            <HoppSmartSelectWrapper>
               <HoppButtonSecondary class="pr-8" :label="`${QoS}`" />
-            </span>
+            </HoppSmartSelectWrapper>
             <template #content="{ hide }">
               <div class="flex flex-col" role="menu">
                 <HoppSmartItem

@@ -60,6 +60,7 @@
       "new_domain_name": "New domain name",
       "set": "Set a cookie",
       "cookie_string": "Cookie string",
+      "enter_cookie_string": "Enter cookie string",
       "cookie_name": "Name",
       "cookie_value": "Value",
       "cookie_path": "Path",

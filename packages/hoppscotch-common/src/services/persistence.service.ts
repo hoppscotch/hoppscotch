@@ -344,6 +344,7 @@ export class PersistenceService extends Service {
         tabService.loadTabsFromPersistedState(data)
       }
     } catch (e) {
+      console.log("hit catch block")
       console.error(
         `Failed parsing persisted tab state, state:`,
         window.localStorage.getItem("gqlTabState")
@@ -406,7 +407,7 @@ export class PersistenceService extends Service {
   }
 
   /**
-   * Gets a value in LocalStorage.
+   * Gets a value from LocalStorage.
    *
    * NOTE: Use LocalStorage to only store non-reactive simple data
    * For more complex data, use stores and connect it to `PersistenceService`

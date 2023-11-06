@@ -27,7 +27,6 @@ import { UserRequestUserCollectionResolver } from './user-request/resolvers/user
 import { UserEnvsUserResolver } from './user-environment/user.resolver';
 import { UserHistoryUserResolver } from './user-history/user.resolver';
 import { UserSettingsUserResolver } from './user-settings/user.resolver';
-import { SharedRequestResolver } from './shared-request/shared-request.resolver';
 
 /**
  * All the resolvers present in the application.
@@ -57,7 +56,6 @@ const RESOLVERS = [
   UserRequestUserCollectionResolver,
   UserSettingsResolver,
   UserSettingsUserResolver,
-  SharedRequestResolver,
 ];
 
 /**

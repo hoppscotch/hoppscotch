@@ -37,7 +37,6 @@ export class ShortcodeResolver {
   @Query(() => Shortcode, {
     description: 'Resolves and returns a shortcode data',
     nullable: true,
-    deprecationReason: 'Use SharedRequests instead',
   })
   async shortcode(
     @Args({
@@ -55,7 +54,6 @@ export class ShortcodeResolver {
 
   @Query(() => [Shortcode], {
     description: 'List all shortcodes the current user has generated',
-    deprecationReason: 'Use SharedRequests instead',
   })
   @UseGuards(GqlAuthGuard)
   async myShortcodes(@GqlUser() user: AuthUser, @Args() args: PaginationArgs) {
@@ -65,22 +63,54 @@ export class ShortcodeResolver {
   /* Mutations */
   @Mutation(() => Shortcode, {
     description: 'Create a shortcode for the given request.',
-    deprecationReason: 'Use SharedRequests instead',
   })
+  @UseGuards(GqlAuthGuard)
   async createShortcode(
+    @GqlUser() user: AuthUser,
     @Args({
       name: 'request',
       description: 'JSON string of the request object',
     })
     request: string,
-    @Context() ctx: any,
+    @Args({
+      name: 'properties',
+      description: 'JSON string of the properties of the embed',
+      nullable: true,
+    })
+    properties: string,
   ) {
-    const decodedAccessToken = this.jwtService.verify(
-      ctx.req.cookies['access_token'],
-    );
     const result = await this.shortcodeService.createShortcode(
       request,
-      decodedAccessToken?.sub,
+      properties,
+      user,
+    );
+
+    if (E.isLeft(result)) throwErr(result.left);
+    return result.right;
+  }
+
+  @Mutation(() => Shortcode, {
+    description: 'Update a user generated Shortcode',
+  })
+  @UseGuards(GqlAuthGuard)
+  async updateShortcode(
+    @GqlUser() user: AuthUser,
+    @Args({
+      name: 'code',
+      type: () => ID,
+      description: 'The Shortcode to update',
+    })
+    code: string,
+    @Args({
+      name: 'properties',
+      description: 'JSON string of the properties of the embed',
+    })
+    properties: string,
+  ) {
+    const result = await this.shortcodeService.updateShortcode(
+      code,
+      user.uid,
+      properties,
     );
 
     if (E.isLeft(result)) throwErr(result.left);
@@ -89,7 +119,6 @@ export class ShortcodeResolver {
 
   @Mutation(() => Boolean, {
     description: 'Revoke a user generated shortcode',
-    deprecationReason: 'Use SharedRequests instead',
   })
   @UseGuards(GqlAuthGuard)
   async revokeShortcode(
@@ -111,7 +140,6 @@ export class ShortcodeResolver {
   @Subscription(() => Shortcode, {
     description: 'Listen for shortcode creation',
     resolve: (value) => value,
-    deprecationReason: 'Use SharedRequests instead',
   })
   @SkipThrottle()
   @UseGuards(GqlAuthGuard)
@@ -120,9 +148,18 @@ export class ShortcodeResolver {
   }
 
   @Subscription(() => Shortcode, {
+    description: 'Listen for Shortcode updates',
+    resolve: (value) => value,
+  })
+  @SkipThrottle()
+  @UseGuards(GqlAuthGuard)
+  myShortcodesUpdated(@GqlUser() user: AuthUser) {
+    return this.pubsub.asyncIterator(`shortcode/${user.uid}/updated`);
+  }
+
+  @Subscription(() => Shortcode, {
     description: 'Listen for shortcode deletion',
     resolve: (value) => value,
-    deprecationReason: 'Use SharedRequests instead',
   })
   @SkipThrottle()
   @UseGuards(GqlAuthGuard)

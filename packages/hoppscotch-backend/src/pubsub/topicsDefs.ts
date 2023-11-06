@@ -27,7 +27,6 @@ import {
   UserCollectionReorderData,
 } from 'src/user-collection/user-collections.model';
 import { Shortcode } from 'src/shortcode/shortcode.model';
-import { SharedRequest } from 'src/shared-request/shared-requests.model';
 
 // A custom message type that defines the topic and the corresponding payload.
 // For every module that publishes a subscription add its type def and the possible subscription type.
@@ -70,8 +69,7 @@ export type TopicDef = {
   [topic: `team_req/${string}/req_deleted`]: string;
   [topic: `team/${string}/invite_added`]: TeamInvitation;
   [topic: `team/${string}/invite_removed`]: string;
-  [topic: `shortcode/${string}/${'created' | 'revoked'}`]: Shortcode;
   [
-    topic: `shared_request/${string}/${'created' | 'revoked' | 'updated'}`
-  ]: SharedRequest;
+    topic: `shortcode/${string}/${'created' | 'revoked' | 'updated'}`
+  ]: Shortcode;
 };

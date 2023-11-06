@@ -623,28 +623,22 @@ export const MAILER_FROM_ADDRESS_UNDEFINED =
   'mailer/from_address_undefined' as const;
 
 /**
- * SharedRequest not found in DB
- * (SharedRequestService)
- */
-export const SHARED_REQUEST_NOT_FOUND = 'shared_request/not_found' as const;
-
-/**
  * SharedRequest invalid request JSON format
- * (SharedRequestService)
+ * (ShortcodeService)
  */
-export const SHARED_REQUEST_INVALID_REQUEST_JSON =
-  'shared_request/request_invalid_format' as const;
+export const SHORTCODE_INVALID_REQUEST_JSON =
+  'shortcode/request_invalid_format' as const;
 
 /**
  * SharedRequest invalid properties JSON format
- * (SharedRequestService)
+ * (ShortcodeService)
  */
-export const SHARED_REQUEST_INVALID_PROPERTIES_JSON =
-  'shared_request/properties_invalid_format' as const;
+export const SHORTCODE_INVALID_PROPERTIES_JSON =
+  'shortcode/properties_invalid_format' as const;
 
 /**
  * SharedRequest invalid properties not found
- * (SharedRequestService)
+ * (ShortcodeService)
  */
-export const SHARED_REQUEST_PROPERTIES_NOT_FOUND =
-  'shared_request/properties_not_found' as const;
+export const SHORTCODE_PROPERTIES_NOT_FOUND =
+  'shortcode/properties_not_found' as const;

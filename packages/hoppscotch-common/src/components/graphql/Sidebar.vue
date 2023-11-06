@@ -30,8 +30,8 @@
             v-model="graphqlFieldsFilterText"
             type="search"
             autocomplete="off"
+            class="flex h-8 w-full bg-transparent p-4 py-2"
             :placeholder="`${t('action.search')}`"
-            class="flex flex-1 bg-transparent p-4 py-2"
           />
           <div class="flex">
             <HoppButtonSecondary

@@ -4,7 +4,7 @@
   >
     <div class="flex flex-col justify-center text-center px-4">
       <div class="flex justify-center items-center py-6">
-        <img src="/cover.jpg" alt="hoppscotch-logo" class="h-15" />
+        <img src="/logo.svg" alt="hoppscotch-logo" class="h-15 w-15" />
       </div>
       <div class="flex flex-col items-center">
         <h1 class="text-2xl text-secondaryDark">Login to Admin Dashboard</h1>

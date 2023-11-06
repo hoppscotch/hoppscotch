@@ -3,18 +3,16 @@ import { defineConfig } from "histoire"
 
 export default defineConfig({
   theme: {
-    title: "Hoppscotch • UI",
+    title: "Hoppscotch Design • Hoppscotch",
     logo: {
-      square: "/logo.png",
-      light: "/logo.png",
-      dark: "/logo.png",
+      square: "/logo.svg",
+      light: "/logo.svg",
+      dark: "/logo.svg",
     },
-    logoHref: "https://ui.hoppscotch.io",
-    favicon: 'favicon.ico',
+    logoHref: "/",
+    favicon: "favicon.ico",
   },
   setupFile: "histoire.setup.ts",
   plugins: [HstVue()],
-  viteIgnorePlugins: [
-    'vite:dts'
-  ]
+  viteIgnorePlugins: ["vite:dts"],
 })

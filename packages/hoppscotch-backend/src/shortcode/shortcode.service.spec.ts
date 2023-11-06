@@ -1,8 +1,6 @@
 import { mockDeep, mockReset } from 'jest-mock-extended';
 import { PrismaService } from '../prisma/prisma.service';
 import {
-  SHORTCODE_ALREADY_EXISTS,
-  SHORTCODE_INVALID_JSON,
   SHORTCODE_INVALID_PROPERTIES_JSON,
   SHORTCODE_INVALID_REQUEST_JSON,
   SHORTCODE_NOT_FOUND,

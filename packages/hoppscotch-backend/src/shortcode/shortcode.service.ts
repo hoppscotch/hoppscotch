@@ -1,6 +1,5 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import * as T from 'fp-ts/Task';
-import * as O from 'fp-ts/Option';
 import * as TO from 'fp-ts/TaskOption';
 import * as E from 'fp-ts/Either';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -123,7 +122,8 @@ export class ShortcodeService implements UserDataHandler, OnModuleInit {
     userInfo: AuthUser,
   ) {
     const requestData = stringToJson(request);
-    if (E.isLeft(requestData)) return E.left(SHORTCODE_INVALID_REQUEST_JSON);
+    if (E.isLeft(requestData) || !requestData.right)
+      return E.left(SHORTCODE_INVALID_REQUEST_JSON);
 
     const parsedProperties = stringToJson(properties);
     if (E.isLeft(parsedProperties))

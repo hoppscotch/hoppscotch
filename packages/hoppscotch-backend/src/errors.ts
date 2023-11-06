@@ -319,18 +319,6 @@ export const TEAM_INVITATION_NOT_FOUND =
 export const SHORTCODE_NOT_FOUND = 'shortcode/not_found' as const;
 
 /**
- * Invalid ShortCode format
- * (ShortcodeService)
- */
-export const SHORTCODE_INVALID_JSON = 'shortcode/invalid_json' as const;
-
-/**
- * ShortCode already exists in DB
- * (ShortcodeService)
- */
-export const SHORTCODE_ALREADY_EXISTS = 'shortcode/already_exists' as const;
-
-/**
  * Invalid or non-existent TEAM ENVIRONMENT ID
  * (TeamEnvironmentsService)
  */

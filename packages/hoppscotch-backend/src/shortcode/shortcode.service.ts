@@ -126,7 +126,7 @@ export class ShortcodeService implements UserDataHandler, OnModuleInit {
       return E.left(SHORTCODE_INVALID_REQUEST_JSON);
 
     const parsedProperties = stringToJson(properties);
-    if (E.isLeft(parsedProperties) || !parsedProperties.right)
+    if (E.isLeft(parsedProperties))
       return E.left(SHORTCODE_INVALID_PROPERTIES_JSON);
 
     const generatedShortCode = await this.generateUniqueShortCodeID();

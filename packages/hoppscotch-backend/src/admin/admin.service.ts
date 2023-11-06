@@ -74,7 +74,7 @@ export class AdminService {
 
     try {
       await this.mailerService.sendUserInvitationEmail(inviteeEmail, {
-        template: 'code-your-own',
+        template: 'user-invitation',
         variables: {
           inviteeEmail: inviteeEmail,
           magicLink: `${process.env.VITE_BASE_URL}`,

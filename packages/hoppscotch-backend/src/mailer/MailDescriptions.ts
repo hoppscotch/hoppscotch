@@ -8,7 +8,7 @@ export type MailDescription = {
 };
 
 export type UserMagicLinkMailDescription = {
-  template: 'code-your-own';
+  template: 'user-invitation';
   variables: {
     inviteeEmail: string;
     magicLink: string;
@@ -16,7 +16,7 @@ export type UserMagicLinkMailDescription = {
 };
 
 export type AdminUserInvitationMailDescription = {
-  template: 'code-your-own';
+  template: 'user-invitation';
   variables: {
     inviteeEmail: string;
     magicLink: string;

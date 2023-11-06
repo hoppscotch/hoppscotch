@@ -6,7 +6,7 @@ import { Ref, onBeforeUnmount, onMounted, reactive, watch } from "vue"
 import { BehaviorSubject } from "rxjs"
 import { HoppRESTDocument } from "./rest/document"
 import { HoppGQLRequest, HoppRESTRequest } from "@hoppscotch/data"
-import { RequestOptionTabs } from "~/components/http/RequestOptions.vue"
+import { RESTOptionTabs } from "~/components/http/RequestOptions.vue"
 import { HoppGQLSaveContext } from "./graphql/document"
 import { GQLOptionTabs } from "~/components/graphql/RequestOptions.vue"
 import { computed } from "vue"
@@ -113,7 +113,7 @@ type HoppActionArgsMap = {
         request: HoppGQLRequest
       }
   "request.open-tab": {
-    tab: RequestOptionTabs | GQLOptionTabs
+    tab: RESTOptionTabs | GQLOptionTabs
   }
 
   "tab.duplicate-tab": {

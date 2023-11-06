@@ -11,6 +11,7 @@ import {
 import { Shortcode } from './shortcode.model';
 import { ShortcodeService } from './shortcode.service';
 import { UserService } from 'src/user/user.service';
+import { AuthUser } from 'src/types/AuthUser';
 
 const mockPrisma = mockDeep<PrismaService>();
 

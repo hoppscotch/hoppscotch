@@ -5,7 +5,6 @@ import * as TO from 'fp-ts/TaskOption';
 import * as E from 'fp-ts/Either';
 import { PrismaService } from 'src/prisma/prisma.service';
 import {
-  SHORTCODE_INVALID_JSON,
   SHORTCODE_INVALID_PROPERTIES_JSON,
   SHORTCODE_INVALID_REQUEST_JSON,
   SHORTCODE_NOT_FOUND,
@@ -57,8 +56,8 @@ export class ShortcodeService implements UserDataHandler, OnModuleInit {
       id: shortcodeInfo.id,
       request: JSON.stringify(shortcodeInfo.request),
       properties:
-        shortcodeInfo.properties != null
-          ? JSON.stringify(shortcodeInfo.properties)
+        shortcodeInfo.embedProperties != null
+          ? JSON.stringify(shortcodeInfo.embedProperties)
           : null,
       createdOn: shortcodeInfo.createdOn,
     };
@@ -137,7 +136,7 @@ export class ShortcodeService implements UserDataHandler, OnModuleInit {
       data: {
         id: generatedShortCode.right,
         request: requestData.right,
-        properties: parsedProperties.right ?? undefined,
+        embedProperties: parsedProperties.right ?? undefined,
         creatorUid: userInfo.uid,
       },
     });
@@ -250,7 +249,7 @@ export class ShortcodeService implements UserDataHandler, OnModuleInit {
           },
         },
         data: {
-          properties: parsedProperties.right,
+          embedProperties: parsedProperties.right,
         },
       });
 

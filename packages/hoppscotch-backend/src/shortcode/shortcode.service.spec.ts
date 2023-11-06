@@ -57,7 +57,7 @@ const user: AuthUser = {
 const mockEmbed = {
   id: '123',
   request: '{}',
-  properties: '{}',
+  embedProperties: '{}',
   createdOn: createdOn,
   creatorUid: user.uid,
   updatedOn: createdOn,
@@ -66,7 +66,7 @@ const mockEmbed = {
 const mockShortcode = {
   id: '123',
   request: '{}',
-  properties: null,
+  embedProperties: null,
   createdOn: createdOn,
   creatorUid: user.uid,
   updatedOn: createdOn,
@@ -78,7 +78,7 @@ const shortcodes = [
     request: {
       hello: 'there',
     },
-    properties: {
+    embedProperties: {
       foo: 'bar',
     },
     creatorUid: user.uid,
@@ -90,7 +90,7 @@ const shortcodes = [
     request: {
       hello: 'there',
     },
-    properties: {
+    embedProperties: {
       foo: 'bar',
     },
     creatorUid: user.uid,
@@ -109,7 +109,7 @@ describe('ShortcodeService', () => {
         id: mockEmbed.id,
         createdOn: mockEmbed.createdOn,
         request: JSON.stringify(mockEmbed.request),
-        properties: JSON.stringify(mockEmbed.properties),
+        properties: JSON.stringify(mockEmbed.embedProperties),
       });
     });
 
@@ -135,13 +135,13 @@ describe('ShortcodeService', () => {
         {
           id: shortcodes[0].id,
           request: JSON.stringify(shortcodes[0].request),
-          properties: JSON.stringify(shortcodes[0].properties),
+          properties: JSON.stringify(shortcodes[0].embedProperties),
           createdOn: shortcodes[0].createdOn,
         },
         {
           id: shortcodes[1].id,
           request: JSON.stringify(shortcodes[1].request),
-          properties: JSON.stringify(shortcodes[1].properties),
+          properties: JSON.stringify(shortcodes[1].embedProperties),
           createdOn: shortcodes[1].createdOn,
         },
       ]);
@@ -158,7 +158,7 @@ describe('ShortcodeService', () => {
         {
           id: shortcodes[1].id,
           request: JSON.stringify(shortcodes[1].request),
-          properties: JSON.stringify(shortcodes[1].properties),
+          properties: JSON.stringify(shortcodes[1].embedProperties),
           createdOn: shortcodes[1].createdOn,
         },
       ]);
@@ -229,7 +229,7 @@ describe('ShortcodeService', () => {
         id: mockEmbed.id,
         createdOn: mockEmbed.createdOn,
         request: JSON.stringify(mockEmbed.request),
-        properties: JSON.stringify(mockEmbed.properties),
+        properties: JSON.stringify(mockEmbed.embedProperties),
       });
     });
 
@@ -245,7 +245,7 @@ describe('ShortcodeService', () => {
         id: mockShortcode.id,
         createdOn: mockShortcode.createdOn,
         request: JSON.stringify(mockShortcode.request),
-        properties: mockShortcode.properties,
+        properties: mockShortcode.embedProperties,
       });
     });
 
@@ -264,7 +264,7 @@ describe('ShortcodeService', () => {
           id: mockShortcode.id,
           createdOn: mockShortcode.createdOn,
           request: JSON.stringify(mockShortcode.request),
-          properties: mockShortcode.properties,
+          properties: mockShortcode.embedProperties,
         },
       );
     });
@@ -284,7 +284,7 @@ describe('ShortcodeService', () => {
           id: mockEmbed.id,
           createdOn: mockEmbed.createdOn,
           request: JSON.stringify(mockEmbed.request),
-          properties: JSON.stringify(mockEmbed.properties),
+          properties: JSON.stringify(mockEmbed.embedProperties),
         },
       );
     });
@@ -346,7 +346,7 @@ describe('ShortcodeService', () => {
           id: mockEmbed.id,
           createdOn: mockEmbed.createdOn,
           request: JSON.stringify(mockEmbed.request),
-          properties: JSON.stringify(mockEmbed.properties),
+          properties: JSON.stringify(mockEmbed.embedProperties),
         },
       );
     });
@@ -404,7 +404,7 @@ describe('ShortcodeService', () => {
     test('should successfully update a Shortcodes with valid inputs', async () => {
       mockPrisma.shortcode.update.mockResolvedValueOnce({
         ...mockEmbed,
-        properties: '{"foo":"bar"}',
+        embedProperties: '{"foo":"bar"}',
       });
 
       const result = await shortcodeService.updateShortcode(
@@ -423,7 +423,7 @@ describe('ShortcodeService', () => {
     test('should send pubsub message to `shortcode/{uid}/updated` on successful Update of Shortcode', async () => {
       mockPrisma.shortcode.update.mockResolvedValueOnce({
         ...mockEmbed,
-        properties: '{"foo":"bar"}',
+        embedProperties: '{"foo":"bar"}',
       });
 
       const result = await shortcodeService.updateShortcode(

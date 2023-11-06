@@ -11,14 +11,12 @@ import * as E from 'fp-ts/Either';
 import { UseGuards } from '@nestjs/common';
 import { Shortcode } from './shortcode.model';
 import { ShortcodeService } from './shortcode.service';
-import { UserService } from 'src/user/user.service';
 import { throwErr } from 'src/utils';
 import { GqlUser } from 'src/decorators/gql-user.decorator';
 import { GqlAuthGuard } from 'src/guards/gql-auth.guard';
 import { User } from 'src/user/user.model';
 import { PubSubService } from 'src/pubsub/pubsub.service';
 import { AuthUser } from '../types/AuthUser';
-import { JwtService } from '@nestjs/jwt';
 import { PaginationArgs } from 'src/types/input-types.args';
 import { GqlThrottlerGuard } from 'src/guards/gql-throttler.guard';
 import { SkipThrottle } from '@nestjs/throttler';
@@ -28,9 +26,7 @@ import { SkipThrottle } from '@nestjs/throttler';
 export class ShortcodeResolver {
   constructor(
     private readonly shortcodeService: ShortcodeService,
-    private readonly userService: UserService,
     private readonly pubsub: PubSubService,
-    private jwtService: JwtService,
   ) {}
 
   /* Queries */

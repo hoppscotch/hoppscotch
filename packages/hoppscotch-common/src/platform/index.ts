@@ -9,12 +9,14 @@ import { AnalyticsPlatformDef } from "./analytics"
 import { InterceptorsPlatformDef } from "./interceptors"
 import { HoppModule } from "~/modules"
 import { InspectorsPlatformDef } from "./inspectors"
+import { IOPlatformDef } from "./io"
 
 export type PlatformDef = {
   ui?: UIPlatformDef
   addedHoppModules?: HoppModule[]
   auth: AuthPlatformDef
   analytics?: AnalyticsPlatformDef
+  io: IOPlatformDef
   sync: {
     environments: EnvironmentsPlatformDef
     collections: CollectionsPlatformDef

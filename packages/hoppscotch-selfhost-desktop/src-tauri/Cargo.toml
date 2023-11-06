@@ -13,7 +13,7 @@ edition = "2021"
 tauri-build = { version = "1.4.0", features = [] }
 
 [dependencies]
-tauri = { version = "1.4.1", features = ["http-all", "os-all", "shell-open", "window-start-dragging", "http-multipart"] }
+tauri = { version = "1.4.1", features = [ "dialog-save", "fs-write-file", "http-all", "os-all", "shell-open", "window-start-dragging", "http-multipart"] }
 tauri-plugin-store = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "v1" }
 tauri-plugin-deep-link = { git = "https://github.com/FabianLars/tauri-plugin-deep-link", branch = "main" }
 tauri-plugin-window-state = "0.1.0"

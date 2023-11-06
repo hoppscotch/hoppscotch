@@ -258,7 +258,7 @@ const importFromJSON = () => {
   inputChooseFileToImportFrom.value.value = ""
 }
 
-const exportJSON = () => {
+const exportJSON = async () => {
   const dataToWrite = collectionJson.value
 
   const parsedCollections = JSON.parse(dataToWrite)
@@ -268,24 +268,32 @@ const exportJSON = () => {
   }
 
   const file = new Blob([dataToWrite], { type: "application/json" })
-  const a = document.createElement("a")
   const url = URL.createObjectURL(file)
-  a.href = url
 
-  platform?.analytics?.logEvent({
-    type: "HOPP_EXPORT_COLLECTION",
-    exporter: "json",
-    platform: "gql",
+  const filename = `${url.split("/").pop()!.split("#")[0].split("?")[0]}.json`
+
+  URL.revokeObjectURL(url)
+
+  const result = await platform.io.saveFileWithDialog({
+    data: dataToWrite,
+    contentType: "application/json",
+    suggestedFilename: filename,
+    filters: [
+      {
+        name: "Hoppscotch Collection JSON file",
+        extensions: ["json"],
+      },
+    ],
   })
 
-  // TODO: get uri from meta
-  a.download = `${url.split("/").pop()!.split("#")[0].split("?")[0]}.json`
-  document.body.appendChild(a)
-  a.click()
-  toast.success(t("state.download_started").toString())
-  setTimeout(() => {
-    document.body.removeChild(a)
-    URL.revokeObjectURL(url)
-  }, 1000)
+  if (result.type === "unknown" || result.type === "saved") {
+    platform?.analytics?.logEvent({
+      type: "HOPP_EXPORT_COLLECTION",
+      exporter: "json",
+      platform: "gql",
+    })
+
+    toast.success(t("state.download_started").toString())
+  }
 }
 </script>

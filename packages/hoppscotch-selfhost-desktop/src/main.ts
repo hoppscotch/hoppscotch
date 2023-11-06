@@ -16,6 +16,7 @@ import { appWindow } from "@tauri-apps/api/window"
 import { stdFooterItems } from "@hoppscotch/common/platform/std/ui/footerItem"
 import { stdSupportOptionItems } from "@hoppscotch/common/platform/std/ui/supportOptionsItem"
 import { useMousePressed } from "@vueuse/core"
+import { ioDef } from "./platform/io"
 
 const headerPaddingLeft = ref("0px")
 const headerPaddingTop = ref("0px")
@@ -29,6 +30,7 @@ createHoppApp("#app", {
       paddingTop: headerPaddingTop,
     },
   },
+  io: ioDef,
   auth: authDef,
   sync: {
     environments: environmentsDef,

@@ -20,14 +20,16 @@
       "os": {
         "all": true
       },
+      "fs": {
+        "writeFile": true
+      },
+      "dialog": {
+        "save": true
+      },
       "http": {
         "all": true,
         "request": true,
-        "scope": [
-          "http://*",
-          "https://*",
-          "wss://*"
-        ]
+        "scope": ["http://*", "https://*", "wss://*"]
       },
       "window": {
         "startDragging": true

@@ -1,30 +1,30 @@
 <template>
   <div
-    class="flex flex-col border border-dotted border-divider p-5 rounded"
+    class="flex flex-col rounded border border-dotted border-divider p-5"
     :class="{
       'bg-accentContrast': embedOptions.theme === 'light',
     }"
   >
     <div
-      class="flex items-stretch rounded border-divider space-x-4"
+      class="flex items-stretch space-x-4 rounded border-divider"
       :class="{
         'bg-accentContrast': embedOptions.theme === 'light',
       }"
     >
       <span
-        class="flex items-center justify-center py-2 px-3 flex-1 rounded border border-divider"
+        class="flex flex-1 items-center justify-center rounded border border-divider px-3 py-2"
         :class="{
-          'bg-accentContrast text-primary !border-dividerLight':
+          '!border-dividerLight bg-accentContrast text-primary':
             embedOptions.theme === 'light',
         }"
       >
         {{ method }}
       </span>
       <span
-        class="flex items-center p-2 max-w-40 border border-divider rounded"
+        class="max-w-40 flex items-center rounded border border-divider p-2"
       >
         <span
-          class="truncate min-w-0"
+          class="min-w-0 truncate"
           :class="{
             'text-primary': embedOptions.theme === 'light',
           }"
@@ -33,7 +33,7 @@
         </span>
       </span>
       <button
-        class="flex items-center justify-center bg-primaryDark px-3 py-2 rounded border border-dividerDark text-secondary font-semibold"
+        class="flex items-center justify-center rounded border border-dividerDark bg-primaryDark px-3 py-2 font-semibold text-secondary"
         :class="{
           'bg-accentContrast text-primary': embedOptions.theme === 'light',
         }"
@@ -45,7 +45,7 @@
       class="flex border-divider"
       :class="{
         'bg-accentContrast text-primary': embedOptions.theme === 'light',
-        'pt-2 border-b ': !noActiveTab,
+        'border-b pt-2 ': !noActiveTab,
       }"
     >
       <span

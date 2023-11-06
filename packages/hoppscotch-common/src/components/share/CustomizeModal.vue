@@ -9,12 +9,12 @@
     <template #body>
       <div
         v-if="selectedWidget"
-        class="rounded divide-y border border-divider divide-divider"
+        class="divide-y divide-divider rounded border border-divider"
       >
-        <div v-if="loading" class="py-2 px-4">
+        <div v-if="loading" class="px-4 py-2">
           {{ t("shared_requests.creating_widget") }}
         </div>
-        <div v-else class="py-2 px-4">
+        <div v-else class="px-4 py-2">
           {{ t("shared_requests.customize") }}
         </div>
         <div
@@ -25,7 +25,7 @@
           <span class="text-secondaryLight">{{ t("state.loading") }}</span>
         </div>
         <div v-else class="flex flex-col divide-y divide-divider">
-          <div class="p-4 flex flex-col space-y-4">
+          <div class="flex flex-col space-y-4 p-4">
             <HoppSmartRadioGroup
               v-model="selectedWidget.value"
               :radios="widgets"
@@ -33,162 +33,161 @@
             />
           </div>
           <div class="flex flex-col divide-y divide-divider">
-            <div
-              class="py-8 px-4 flex flex-col flex justify-center items-center"
-            >
-              <div class="px-4 py-3 flex justify-center items-center">
-                <div v-if="selectedWidget.value === 'embed'">
-                  <div class="flex flex-col pb-8">
-                    <div
-                      v-for="option in embedOptions.tabs"
-                      :key="option.value"
-                      class="flex justify-between py-2"
-                    >
-                      <span class="capitalize">
-                        {{ option.label }}
-                      </span>
-                      <HoppSmartCheckbox
-                        :on="option.enabled"
-                        @change="removeEmbedOption(option.value)"
-                      />
-                    </div>
-                    <div class="flex justify-between items-center">
-                      <span>
-                        {{ t("shared_requests.theme.title") }}
-                      </span>
-                      <div>
-                        <tippy
-                          interactive
-                          trigger="click"
-                          theme="popover"
-                          :on-shown="() => tippyActions!.focus()"
-                        >
-                          <span class="select-wrapper">
-                            <HoppButtonSecondary
-                              class="pr-8 ml-2 rounded-none capitalize"
-                              :label="embedOptions.theme"
-                              :icon="embedThemeIcon"
+            <div class="flex items-center justify-center px-6 py-8">
+              <div
+                v-if="selectedWidget.value === 'embed'"
+                class="w-full flex-1"
+              >
+                <div class="flex flex-col pb-8">
+                  <div
+                    v-for="option in embedOptions.tabs"
+                    :key="option.value"
+                    class="flex justify-between py-2"
+                  >
+                    <span class="capitalize">
+                      {{ option.label }}
+                    </span>
+                    <HoppSmartCheckbox
+                      :on="option.enabled"
+                      @change="removeEmbedOption(option.value)"
+                    />
+                  </div>
+                  <div class="flex items-center justify-between">
+                    <span>
+                      {{ t("shared_requests.theme.title") }}
+                    </span>
+                    <div>
+                      <tippy
+                        interactive
+                        trigger="click"
+                        theme="popover"
+                        :on-shown="() => tippyActions!.focus()"
+                      >
+                        <span class="select-wrapper">
+                          <HoppButtonSecondary
+                            class="ml-2 rounded-none pr-8 capitalize"
+                            :label="embedOptions.theme"
+                            :icon="embedThemeIcon"
+                          />
+                        </span>
+                        <template #content="{ hide }">
+                          <div
+                            ref="tippyActions"
+                            class="flex flex-col focus:outline-none"
+                            tabindex="0"
+                            @keyup.escape="hide()"
+                          >
+                            <HoppSmartItem
+                              :label="t('shared_requests.theme.system')"
+                              :icon="IconMonitor"
+                              :active="embedOptions.theme === 'system'"
+                              @click="
+                                () => {
+                                  embedOptions.theme = 'system'
+                                  hide()
+                                }
+                              "
                             />
-                          </span>
-                          <template #content="{ hide }">
-                            <div
-                              ref="tippyActions"
-                              class="flex flex-col focus:outline-none"
-                              tabindex="0"
-                              @keyup.escape="hide()"
-                            >
-                              <HoppSmartItem
-                                :label="t('shared_requests.theme.system')"
-                                :icon="IconMonitor"
-                                :active="embedOptions.theme === 'system'"
-                                @click="
-                                  () => {
-                                    embedOptions.theme = 'system'
-                                    hide()
-                                  }
-                                "
-                              />
-                              <HoppSmartItem
-                                :label="t('shared_requests.theme.light')"
-                                :icon="IconSun"
-                                :active="embedOptions.theme === 'light'"
-                                @click="
-                                  () => {
-                                    embedOptions.theme = 'light'
-                                    hide()
-                                  }
-                                "
-                              />
-                              <HoppSmartItem
-                                :label="t('shared_requests.theme.dark')"
-                                :icon="IconMoon"
-                                :active="embedOptions.theme === 'dark'"
-                                @click="
-                                  () => {
-                                    embedOptions.theme = 'dark'
-                                    hide()
-                                  }
-                                "
-                              />
-                            </div>
-                          </template>
-                        </tippy>
-                      </div>
+                            <HoppSmartItem
+                              :label="t('shared_requests.theme.light')"
+                              :icon="IconSun"
+                              :active="embedOptions.theme === 'light'"
+                              @click="
+                                () => {
+                                  embedOptions.theme = 'light'
+                                  hide()
+                                }
+                              "
+                            />
+                            <HoppSmartItem
+                              :label="t('shared_requests.theme.dark')"
+                              :icon="IconMoon"
+                              :active="embedOptions.theme === 'dark'"
+                              @click="
+                                () => {
+                                  embedOptions.theme = 'dark'
+                                  hide()
+                                }
+                              "
+                            />
+                          </div>
+                        </template>
+                      </tippy>
                     </div>
                   </div>
-                  <ShareTemplatesEmbeds
-                    :endpoint="parsedRequest.endpoint"
-                    :method="parsedRequest.method"
-                    :model-value="embedOptions"
+                </div>
+                <ShareTemplatesEmbeds
+                  :endpoint="parsedRequest.endpoint"
+                  :method="parsedRequest.method"
+                  :model-value="embedOptions"
+                />
+                <div class="flex items-center justify-center py-4">
+                  <HoppButtonSecondary
+                    :label="t('shared_requests.copy_html')"
+                    @click="
+                      copyContent({
+                        widget: 'embed',
+                        type: 'html',
+                      })
+                    "
                   />
-                  <div class="py-4 flex justify-center items-center">
+                </div>
+              </div>
+              <div
+                v-else-if="selectedWidget.value === 'button'"
+                class="flex flex-col space-y-8"
+              >
+                <div
+                  v-for="variant in buttonVariants"
+                  :key="variant.id"
+                  class="flex flex-col space-y-4"
+                >
+                  <ShareTemplatesButton :img="variant.img" />
+                  <div class="flex items-center justify-between">
                     <HoppButtonSecondary
                       :label="t('shared_requests.copy_html')"
                       @click="
                         copyContent({
-                          widget: 'embed',
+                          widget: 'button',
                           type: 'html',
+                          id: variant.id,
                         })
                       "
                     />
-                  </div>
-                </div>
-                <div
-                  v-else-if="selectedWidget.value === 'button'"
-                  class="flex flex-col space-y-8"
-                >
-                  <div
-                    v-for="variant in buttonVariants"
-                    :key="variant.id"
-                    class="flex flex-col space-y-4"
-                  >
-                    <ShareTemplatesButton :img="variant.img" />
-                    <div class="flex items-center justify-between">
-                      <HoppButtonSecondary
-                        :label="t('shared_requests.copy_html')"
-                        @click="
-                          copyContent({
-                            widget: 'button',
-                            type: 'html',
-                            id: variant.id,
-                          })
-                        "
-                      />
-                      <HoppButtonSecondary
-                        :label="t('shared_requests.copy_markdown')"
-                        @click="
-                          copyContent({
-                            widget: 'button',
-                            type: 'markdown',
-                            id: variant.id,
-                          })
-                        "
-                      />
-                    </div>
-                  </div>
-                </div>
-                <div v-else class="flex flex-col space-y-8">
-                  <div
-                    v-for="variant in linkVariants"
-                    :key="variant.type"
-                    class="flex justify-center flex-col items-center space-y-2"
-                  >
-                    <ShareTemplatesLink
-                      :link="variant.link"
-                      :label="variant.label"
-                    />
-
                     <HoppButtonSecondary
-                      :label="t(`shared_requests.copy_${variant.type}`)"
+                      :label="t('shared_requests.copy_markdown')"
                       @click="
                         copyContent({
-                          widget: 'link',
-                          type: variant.type,
+                          widget: 'button',
+                          type: 'markdown',
                           id: variant.id,
                         })
                       "
                     />
                   </div>
+                </div>
+              </div>
+              <div v-else class="flex flex-col space-y-8">
+                <div
+                  v-for="variant in linkVariants"
+                  :key="variant.type"
+                  class="flex flex-col items-center justify-center space-y-2"
+                >
+                  <ShareTemplatesLink
+                    :link="variant.link"
+                    :label="variant.label"
+                  />
+
+                  <HoppButtonSecondary
+                    :label="t(`shared_requests.copy_${variant.type}`)"
+                    @click="
+                      copyContent({
+                        widget: 'link',
+                        type: variant.type,
+                        id: variant.id,
+                      })
+                    "
+                  />
                 </div>
               </div>
             </div>

@@ -9,12 +9,12 @@
     <template #body>
       <div
         v-if="selectedWidget"
-        class="rounded divide-y border border-divider divide-divider"
+        class="divide-y divide-divider rounded border border-divider"
       >
-        <div v-if="loading" class="py-2 px-4">
+        <div v-if="loading" class="px-4 py-2">
           {{ t("shared_requests.creating_widget") }}
         </div>
-        <div v-else class="py-2 px-4">
+        <div v-else class="px-4 py-2">
           {{ t("shared_requests.description") }}
         </div>
         <div
@@ -25,17 +25,17 @@
           <span class="text-secondaryLight">{{ t("state.loading") }}</span>
         </div>
         <div v-else class="flex flex-col divide-y divide-divider">
-          <div class="p-4 flex flex-col space-y-4">
+          <div class="flex flex-col space-y-4 p-4">
             <div
               v-for="widget in widgets"
               :key="widget.value"
-              class="flex flex-col border border-divider rounded px-4 py-3 space-y-2 cursor-pointer hover:bg-dividerLight h"
+              class="flex cursor-pointer flex-col space-y-2 rounded border border-divider px-4 py-3 hover:bg-dividerLight"
               :class="{
                 'border-accentLight': selectedWidget.value === widget.value,
               }"
               @click="selectedWidget = widget"
             >
-              <span class="font-bold text-md">
+              <span class="text-md font-bold">
                 {{ widget.label }}
               </span>
               <span class="text-tiny">
@@ -44,23 +44,19 @@
             </div>
           </div>
           <div class="flex flex-col divide-y divide-divider">
-            <div class="py-3 px-4">{{ t("shared_requests.preview") }}</div>
-            <div
-              class="py-10 px-4 flex flex-col flex justify-center items-center"
-            >
-              <div class="px-4 py-3 rounded flex justify-center items-center">
-                <ShareTemplatesEmbeds
-                  v-if="selectedWidget.value === 'embed'"
-                  :endpoint="request?.endpoint"
-                  :method="request?.method"
-                  :model-value="embedOption"
-                />
-                <ShareTemplatesButton
-                  v-else-if="selectedWidget.value === 'button'"
-                  img="badge.svg"
-                />
-                <ShareTemplatesLink v-else />
-              </div>
+            <div class="px-4 py-3">{{ t("shared_requests.preview") }}</div>
+            <div class="flex flex-col items-center justify-center px-4 py-10">
+              <ShareTemplatesEmbeds
+                v-if="selectedWidget.value === 'embed'"
+                :endpoint="request?.endpoint"
+                :method="request?.method"
+                :model-value="embedOption"
+              />
+              <ShareTemplatesButton
+                v-else-if="selectedWidget.value === 'button'"
+                img="badge.svg"
+              />
+              <ShareTemplatesLink v-else />
             </div>
           </div>
         </div>

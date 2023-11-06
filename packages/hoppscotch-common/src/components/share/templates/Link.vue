@@ -1,6 +1,6 @@
 <template>
   <div
-    class="border border-dotted p-5 border-dividerDark rounded flex justify-center items-center"
+    class="flex items-center justify-center rounded border border-dotted border-dividerDark p-5"
   >
     <span
       :class="{

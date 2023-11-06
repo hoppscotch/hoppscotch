@@ -23,7 +23,7 @@
     <div v-else class="flex flex-1 flex-col items-center justify-center p-4">
       <div
         v-if="sharedRequestDetails.loading"
-        class="flex flex-col items-center justify-center flex-1 p-4"
+        class="flex flex-1 flex-col items-center justify-center p-4"
       >
         <HoppSmartSpinner />
       </div>
@@ -61,7 +61,7 @@
             !sharedRequestDetails.loading &&
             E.isRight(sharedRequestDetails.data)
           "
-          class="flex flex-col items-center justify-center flex-1 p-4"
+          class="flex flex-1 flex-col items-center justify-center p-4"
         >
           <h1 class="heading">
             {{ t("state.loading") }}

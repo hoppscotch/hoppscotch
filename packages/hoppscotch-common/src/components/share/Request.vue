@@ -1,31 +1,31 @@
 <template>
   <div
-    class="items-stretch group flex"
+    class="group flex items-stretch"
     @contextmenu.prevent="options!.tippy.show()"
   >
     <div
       v-tippy="{ theme: 'tooltip', delay: [500, 20] }"
-      class="flex items-center justify-center flex-1 min-w-0 cursor-pointer pointer-events-auto py-2"
+      class="pointer-events-auto flex min-w-0 flex-1 cursor-pointer items-center justify-center py-2"
       :title="`${timeStamp}`"
       @click="openInNewTab"
     >
       <span
-        class="flex items-center justify-center w-16 px-2 truncate pointer-events-none"
-        :class="requestLabelColor"
+        class="pointer-events-none flex w-16 items-center justify-center truncate px-2"
+        :style="{ color: requestLabelColor }"
       >
-        <span class="font-semibold truncate text-tiny">
+        <span class="truncate text-tiny font-semibold">
           {{ parseRequest.method }}
         </span>
       </span>
       <span
-        class="flex items-center flex-1 min-w-0 pr-2 pointer-events-none transition group-hover:text-secondaryDark"
+        class="pointer-events-none flex min-w-0 flex-1 items-center pr-2 transition group-hover:text-secondaryDark"
       >
-        <span class="truncate flex-1">
+        <span class="flex-1 truncate">
           {{ parseRequest.endpoint }}
         </span>
       </span>
       <span
-        class="px-2 border-l border-dividerDark truncate text-secondaryLight flex-1 group-hover:text-secondaryDark"
+        class="flex-1 truncate border-l border-dividerDark px-2 text-secondaryLight group-hover:text-secondaryDark"
       >
         {{ parseRequest.name }}
       </span>

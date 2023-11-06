@@ -1,7 +1,7 @@
 <template>
   <div>
     <div
-      class="sticky top-0 z-10 flex flex-col flex-shrink-0 overflow-x-auto bg-primary"
+      class="sticky top-0 z-10 flex flex-shrink-0 flex-col overflow-x-auto bg-primary"
     >
       <WorkspaceCurrent
         :section="t('tab.shared_requests')"
@@ -9,7 +9,7 @@
       />
     </div>
     <div
-      class="sticky z-10 flex justify-end flex-1 flex-shrink-0 overflow-x-auto border-b top-sidebarPrimaryStickyFold border-dividerLight bg-primary"
+      class="sticky top-sidebarPrimaryStickyFold z-10 flex flex-1 flex-shrink-0 justify-end overflow-x-auto border-b border-dividerLight bg-primary"
     >
       <HoppButtonSecondary
         v-tippy="{ theme: 'tooltip' }"
@@ -52,7 +52,7 @@
         v-if="!loading && adapterError"
         class="flex flex-col items-center py-4"
       >
-        <icon-lucide-help-circle class="mb-4 svg-icons" />
+        <icon-lucide-help-circle class="svg-icons mb-4" />
         {{ getErrorMessage(adapterError) }}
       </div>
     </div>

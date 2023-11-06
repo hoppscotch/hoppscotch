@@ -1,6 +1,6 @@
 <template>
   <div
-    class="border border-dotted border-dividerDark rounded p-5 flex justify-center items-center"
+    class="flex items-center justify-center rounded border border-dotted border-dividerDark p-5"
   >
     <a href="/" target="_blank">
       <img :src="img" :alt="t('shared_requests.run_in_hoppscotch')" />

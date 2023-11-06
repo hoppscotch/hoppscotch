@@ -229,7 +229,7 @@ export class AuthService {
     }
 
     await this.mailerService.sendEmail(email, {
-      template: 'code-your-own',
+      template: 'user-invitation',
       variables: {
         inviteeEmail: email,
         magicLink: `${url}/enter?token=${generatedTokens.token}`,

@@ -35,12 +35,12 @@
           v-if="
             !teamDetails.loading &&
             E.isRight(teamDetails.data) &&
-            teamDetails.data.right.team.teamMembers
+            teamDetails.data.right.team?.teamMembers
           "
           class="border rounded border-divider"
         >
           <HoppSmartPlaceholder
-            v-if="teamDetails.data.right.team.teamMembers === 0"
+            v-if="teamDetails.data.right.team.teamMembers.length === 0"
             :src="`/images/states/${colorMode.value}/add_group.svg`"
             :alt="`${t('empty.members')}`"
             :text="t('empty.members')"

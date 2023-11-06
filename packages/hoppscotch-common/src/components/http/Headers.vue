@@ -256,7 +256,7 @@ import * as E from "fp-ts/Either"
 import * as O from "fp-ts/Option"
 import * as A from "fp-ts/Array"
 import draggable from "vuedraggable-es"
-import { RequestOptionTabs } from "./RequestOptions.vue"
+import { RESTOptionTabs } from "./RequestOptions.vue"
 import { useCodemirror } from "@composables/codemirror"
 import { commonHeaders } from "~/helpers/headers"
 import { useI18n } from "@composables/i18n"
@@ -295,7 +295,7 @@ const deletionToast = ref<{ goAway: (delay: number) => void } | null>(null)
 const props = defineProps<{ modelValue: HoppRESTRequest }>()
 
 const emit = defineEmits<{
-  (e: "change-tab", value: RequestOptionTabs): void
+  (e: "change-tab", value: RESTOptionTabs): void
   (e: "update:modelValue", value: HoppRESTRequest): void
 }>()
 

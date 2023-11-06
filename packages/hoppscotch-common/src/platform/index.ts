@@ -9,10 +9,12 @@ import { AnalyticsPlatformDef } from "./analytics"
 import { InterceptorsPlatformDef } from "./interceptors"
 import { HoppModule } from "~/modules"
 import { InspectorsPlatformDef } from "./inspectors"
+import { Service } from "dioc"
 
 export type PlatformDef = {
   ui?: UIPlatformDef
   addedHoppModules?: HoppModule[]
+  addedServices?: Array<typeof Service<unknown> & { ID: string }>
   auth: AuthPlatformDef
   analytics?: AnalyticsPlatformDef
   sync: {

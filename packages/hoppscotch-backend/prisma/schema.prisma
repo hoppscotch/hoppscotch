@@ -74,8 +74,7 @@ model Shortcode {
   creatorUid      String?
   User            User?    @relation(fields: [creatorUid], references: [uid])
   createdOn       DateTime @default(now())
-  updatedOn       DateTime @updatedAt
-
+  updatedOn       DateTime @updatedAt @default(now())
   @@unique(fields: [id, creatorUid], name: "creator_uid_shortcode_unique")
 }
 

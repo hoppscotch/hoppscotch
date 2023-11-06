@@ -19,7 +19,7 @@ export class Shortcode {
   properties: string;
 
   @Field({
-    description: 'Timestamp of when the SharedRequest was created',
+    description: 'Timestamp of when the Shortcode was created',
   })
   createdOn: Date;
 }

@@ -60,9 +60,8 @@ import {
 } from "./__mocks__/persistence.service.mocks"
 
 // Define modules that are shared across methods here
-vi.mock("@vueuse/core", async () => {
-  const actualModule: Record<string, unknown> =
-    await vi.importActual("@vueuse/core")
+vi.mock("@vueuse/core", async (importOriginal) => {
+  const actualModule: Record<string, unknown> = await importOriginal()
 
   return {
     ...actualModule,
@@ -70,13 +69,9 @@ vi.mock("@vueuse/core", async () => {
   }
 })
 
-vi.mock("~/newstore/environments", async () => {
-  const actualModule: Record<string, unknown> = await vi.importActual(
-    "~/newstore/environments"
-  )
-
+vi.mock("~/newstore/environments", () => {
   return {
-    ...actualModule,
+    // ...actualModule,
     addGlobalEnvVariable: vi.fn(),
     setGlobalEnvVariables: vi.fn(),
     replaceEnvironments: vi.fn(),
@@ -95,7 +90,7 @@ vi.mock("~/newstore/environments", async () => {
 
 describe("PersistenceService", () => {
   describe("checkAndMigrateOldSettings", () => {
-    it("sets the selected environment index type as `NO_ENV` in localstorage if the `selectedEnvIndex` retrieved is `-1`", () => {
+    it("sets the selected environment index type as `NO_ENV` in localStorage if the `selectedEnvIndex` retrieved is `-1`", () => {
       window.localStorage.setItem("selectedEnvIndex", "-1")
 
       const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
@@ -116,7 +111,7 @@ describe("PersistenceService", () => {
       )
     })
 
-    it("sets the selected environment index type as `MY_ENV` in localstorage if the `selectedEnvIndex` retrieved is greater than `0`", () => {
+    it("sets the selected environment index type as `MY_ENV` in localStorage if the `selectedEnvIndex` retrieved is greater than `0`", () => {
       window.localStorage.setItem("selectedEnvIndex", "1")
 
       const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
@@ -138,14 +133,9 @@ describe("PersistenceService", () => {
       )
     })
 
-    it("extracts individual properties from the key `vuex` and sets them in localstorage", () => {
-      vi.mock("~/newstore/settings", async () => {
-        const actualModule: Record<string, unknown> = await vi.importActual(
-          "~/newstore/settings"
-        )
-
+    it("extracts individual properties from the key `vuex` and sets them in localStorage", () => {
+      vi.mock("~/newstore/settings", () => {
         return {
-          ...actualModule,
           applySetting: vi.fn(),
         }
       })
@@ -230,13 +220,8 @@ describe("PersistenceService", () => {
   })
 
   it("`setupLocalStatePersistence` method reads the value for `localState` key from localStorage, invokes `bulkApplyLocalState` function if a value is yielded and subscribes to `localStateStore` updates", () => {
-    vi.mock("~/newstore/localstate", async () => {
-      const actualModule: Record<string, unknown> = await vi.importActual(
-        "~/newstore/localstate"
-      )
-
+    vi.mock("~/newstore/localstate", () => {
       return {
-        ...actualModule,
         bulkApplyLocalState: vi.fn(),
         localStateStore: {
           subject$: {
@@ -267,10 +252,8 @@ describe("PersistenceService", () => {
   })
 
   it("`setupSettingsPersistence` reads the value for `settings` from localStorage, invokes `performSettingsDataMigrations` and `bulkApplySettings` functions as required and subscribes to `settingsStore` updates", () => {
-    vi.mock("~/newstore/settings", async () => {
-      const actualModule: Record<string, unknown> = await vi.importActual(
-        "~/newstore/settings"
-      )
+    vi.mock("~/newstore/settings", async (importOriginal) => {
+      const actualModule: Record<string, unknown> = await importOriginal()
 
       return {
         ...actualModule,
@@ -309,12 +292,8 @@ describe("PersistenceService", () => {
   })
 
   it("`setupHistoryPersistence` method reads REST and GQL history entries from localStorage, translates them to the new format, writes back the updates and subscribes to the respective store for updates", () => {
-    vi.mock("~/newstore/history", async () => {
-      const actualModule: Record<string, unknown> =
-        await vi.importActual("~/newstore/history")
-
+    vi.mock("~/newstore/history", () => {
       return {
-        ...actualModule,
         setGraphqlHistoryEntries: vi.fn(),
         setRESTHistoryEntries: vi.fn(),
         translateToNewGQLHistory: vi
@@ -372,9 +351,8 @@ describe("PersistenceService", () => {
   })
 
   it("`setupCollectionsPersistence` method reads REST and GQL collection entries from localStorage, translates them to the new format, writes back the updates and subscribes to the respective store for updates", () => {
-    vi.mock("@hoppscotch/data", async () => {
-      const actualModule: Record<string, unknown> =
-        await vi.importActual("@hoppscotch/data")
+    vi.mock("@hoppscotch/data", async (importOriginal) => {
+      const actualModule: Record<string, unknown> = await importOriginal()
 
       return {
         ...actualModule,
@@ -387,13 +365,8 @@ describe("PersistenceService", () => {
       }
     })
 
-    vi.mock("~/newstore/collections", async () => {
-      const actualModule: Record<string, unknown> = await vi.importActual(
-        "~/newstore/collections"
-      )
-
+    vi.mock("~/newstore/collections", () => {
       return {
-        ...actualModule,
         setGraphqlCollections: vi.fn(),
         setRESTCollections: vi.fn(),
         graphqlCollectionStore: {
@@ -524,13 +497,8 @@ describe("PersistenceService", () => {
   })
 
   it("`setupWebsocketPersistence` method reads the `WebsocketRequest` entry from localStorage, sets it as the new request, subscribes to the `WSSessionStore` and updates localStorage entries", () => {
-    vi.mock("~/newstore/WebSocketSession", async () => {
-      const actualModule: Record<string, unknown> = await vi.importActual(
-        "~/newstore/WebSocketSession"
-      )
-
+    vi.mock("~/newstore/WebSocketSession", () => {
       return {
-        ...actualModule,
         setWSRequest: vi.fn(),
         WSRequest$: {
           subscribe: vi.fn(),
@@ -558,13 +526,8 @@ describe("PersistenceService", () => {
   })
 
   it("`setupSocketIOPersistence` method reads the `SocketIORequest` entry from localStorage, sets it as the new request, subscribes to the `SIOSessionStore` and updates localStorage entries", () => {
-    vi.mock("~/newstore/SocketIOSession", async () => {
-      const actualModule: Record<string, unknown> = await vi.importActual(
-        "~/newstore/SocketIOSession"
-      )
-
+    vi.mock("~/newstore/SocketIOSession", () => {
       return {
-        ...actualModule,
         setSIORequest: vi.fn(),
         SIORequest$: {
           subscribe: vi.fn(),
@@ -594,13 +557,8 @@ describe("PersistenceService", () => {
   })
 
   it("`setupSSEPersistence` method reads the `SSERequest` entry from localStorage, sets it as the new request, subscribes to the `SSESessionStore` and updates localStorage entries", () => {
-    vi.mock("~/newstore/SSESession", async () => {
-      const actualModule: Record<string, unknown> = await vi.importActual(
-        "~/newstore/SSESession"
-      )
-
+    vi.mock("~/newstore/SSESession", () => {
       return {
-        ...actualModule,
         setSSERequest: vi.fn(),
         SSERequest$: {
           subscribe: vi.fn(),
@@ -628,13 +586,8 @@ describe("PersistenceService", () => {
   })
 
   it("`setupMQTTPersistence` method reads the `MQTTRequest` entry from localStorage, sets it as the new request, subscribes to the `MQTTSessionStore` and updates localStorage entries", () => {
-    vi.mock("~/newstore/MQTTSession", async () => {
-      const actualModule: Record<string, unknown> = await vi.importActual(
-        "~/newstore/MQTTSession"
-      )
-
+    vi.mock("~/newstore/MQTTSession", () => {
       return {
-        ...actualModule,
         setMQTTRequest: vi.fn(),
         MQTTRequest$: {
           subscribe: vi.fn(),
@@ -681,7 +634,7 @@ describe("PersistenceService", () => {
   })
 
   describe("setupGQLTabsPersistence", () => {
-    it("loads tabs from the state persisted in localstorage and sets watcher for `persistableTabState`", () => {
+    it("loads tabs from the state persisted in localStorage and sets watcher for `persistableTabState`", () => {
       const tabState = GQL_TAB_STATE
       window.localStorage.setItem("gqlTabState", JSON.stringify(tabState))
 
@@ -740,7 +693,7 @@ describe("PersistenceService", () => {
   })
 
   describe("setupRESTTabsPersistence", () => {
-    it("loads tabs from the state persisted in localstorage and sets watcher for `persistableTabState`", () => {
+    it("loads tabs from the state persisted in localStorage and sets watcher for `persistableTabState`", () => {
       const tabState = REST_TAB_STATE
       window.localStorage.setItem("restTabState", JSON.stringify(tabState))
 

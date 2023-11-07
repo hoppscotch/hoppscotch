@@ -21,6 +21,8 @@ fn main() {
     tauri_plugin_deep_link::prepare("io.hoppscotch.desktop");
 
     tauri::Builder::default()
+        .plugin(tauri_plugin_window_state::Builder::default().build())
+        .plugin(tauri_plugin_store::Builder::default().build())
         .setup(|app| {
             if cfg!(target_os = "macos") {
                 #[cfg(target_os = "macos")]
@@ -37,17 +39,14 @@ fn main() {
             }
 
             let handle = app.handle();
-            tauri_plugin_deep_link::register(
-                "hoppscotch",
-                move |request| {
-                    println!("{:?}", request);
-                    handle.emit_all("scheme-request-received", request).unwrap();
-                },
-            ).unwrap();
+            tauri_plugin_deep_link::register("hoppscotch", move |request| {
+                println!("{:?}", request);
+                handle.emit_all("scheme-request-received", request).unwrap();
+            })
+            .unwrap();
 
             Ok(())
         })
-        .plugin(tauri_plugin_store::Builder::default().build())
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

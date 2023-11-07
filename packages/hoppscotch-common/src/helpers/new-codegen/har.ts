@@ -12,7 +12,7 @@ const splitHarQueryParams = (sep: string) => {
   return (s: string): Array<string> => {
     const out = pipe(s, S.split(sep))
     const [key, ...rest] = out
-    return out.length > 0 ? [key, rest.join(sep)] : [s] // Split by the first colon and join the rest
+    return [key, rest.join(sep)] // Split by the first colon and join the rest
   }
 }
 

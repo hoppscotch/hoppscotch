@@ -8,99 +8,19 @@ import {
 import { HoppGQLDocument } from "~/helpers/graphql/document"
 import { HoppRESTDocument } from "~/helpers/rest/document"
 import { GQLHistoryEntry, RESTHistoryEntry } from "~/newstore/history"
-import { getDefaultSettings } from "~/newstore/settings"
+import { SettingsDef, getDefaultSettings } from "~/newstore/settings"
 import { PersistableTabState } from "~/services/tab"
 
-const DEFAULT_SETTINGS = getDefaultSettings()
-
-export const VUEX_DATA = {
+type VUEX_DATAT = {
   postwoman: {
-    settings: { ...DEFAULT_SETTINGS, THEME_COLOR: "purple" },
-    collections: [
-      {
-        name: "Test Collection",
-        requests: [
-          {
-            name: "Test Request",
-            url: "https://echo.hoppscotch.io",
-            method: "GET",
-          },
-        ],
-      },
-    ],
-    collectionsGraphql: [
-      {
-        name: "Test GraphQL Collection",
-        requests: [
-          {
-            name: "Test GraphQL Request",
-            url: "https://echo.hoppscotch.io/graphql",
-            method: "POST",
-            headers: [
-              {
-                key: "Content-Type",
-                value: "application/json",
-              },
-            ],
-            body: {
-              query: "query Request { url }",
-            },
-          },
-        ],
-      },
-    ],
-    environments: [
-      {
-        name: "Test Environment",
-        variables: [
-          {
-            key: "test-key",
-            value: "test-value",
-          },
-        ],
-      },
-    ],
-  },
+    settings?: SettingsDef
+    collections?: HoppCollection<HoppRESTRequest>[]
+    collectionsGraphql?: HoppCollection<HoppGQLRequest>[]
+    environments?: Environment[]
+  }
 }
 
-export const REST_HISTORY: RESTHistoryEntry[] = [
-  {
-    v: 1,
-    request: {
-      auth: { authType: "none", authActive: true },
-      body: { contentType: null, body: null },
-      endpoint: "https://echo.hoppscotch.io",
-      headers: [],
-      method: "GET",
-      name: "Untitled",
-      params: [],
-      preRequestScript: "",
-      testScript: "",
-      v: "1",
-    },
-    responseMeta: { duration: 807, statusCode: 200 },
-    star: false,
-    updatedOn: new Date("2023-11-07T05:27:32.951Z"),
-  },
-]
-
-export const GQL_HISTORY: GQLHistoryEntry[] = [
-  {
-    v: 1,
-    request: {
-      v: 2,
-      name: "Untitled",
-      url: "https://echo.hoppscotch.io/graphql",
-      query: "query Request { url }",
-      headers: [],
-      variables: "",
-      auth: { authType: "none", authActive: true },
-    },
-    response: '{"data":{"url":"/graphql"}}',
-    star: false,
-    updatedOn: new Date("2023-11-07T05:28:21.073Z"),
-  },
-]
+const DEFAULT_SETTINGS = getDefaultSettings()
 
 export const REST_COLLECTIONS: HoppCollection<HoppRESTRequest>[] = [
   {
@@ -154,6 +74,54 @@ export const ENVIRONMENTS: Environment[] = [
     ],
   },
   { name: "Test", variables: [{ key: "test-key", value: "test-value" }] },
+]
+
+export const VUEX_DATA: VUEX_DATAT = {
+  postwoman: {
+    settings: { ...DEFAULT_SETTINGS, THEME_COLOR: "purple" },
+    collections: REST_COLLECTIONS,
+    collectionsGraphql: GQL_COLLECTIONS,
+    environments: ENVIRONMENTS,
+  },
+}
+
+export const REST_HISTORY: RESTHistoryEntry[] = [
+  {
+    v: 1,
+    request: {
+      auth: { authType: "none", authActive: true },
+      body: { contentType: null, body: null },
+      endpoint: "https://echo.hoppscotch.io",
+      headers: [],
+      method: "GET",
+      name: "Untitled",
+      params: [],
+      preRequestScript: "",
+      testScript: "",
+      v: "1",
+    },
+    responseMeta: { duration: 807, statusCode: 200 },
+    star: false,
+    updatedOn: new Date("2023-11-07T05:27:32.951Z"),
+  },
+]
+
+export const GQL_HISTORY: GQLHistoryEntry[] = [
+  {
+    v: 1,
+    request: {
+      v: 2,
+      name: "Untitled",
+      url: "https://echo.hoppscotch.io/graphql",
+      query: "query Request { url }",
+      headers: [],
+      variables: "",
+      auth: { authType: "none", authActive: true },
+    },
+    response: '{"data":{"url":"/graphql"}}',
+    star: false,
+    updatedOn: new Date("2023-11-07T05:28:21.073Z"),
+  },
 ]
 
 export const GQL_TAB_STATE: PersistableTabState<HoppGQLDocument> = {

@@ -167,8 +167,6 @@ describe("PersistenceService", () => {
       )
 
       const { postwoman } = vuexData
-
-      // @ts-expect-error Mocked data is not typed
       delete postwoman.settings
 
       expect(setItemSpy).toHaveBeenCalledWith("vuex", JSON.stringify(vuexData))
@@ -179,7 +177,6 @@ describe("PersistenceService", () => {
         JSON.stringify(postwoman.collections)
       )
 
-      // @ts-expect-error Mocked data is not typed
       delete postwoman.collections
 
       // Excluding `settings` & `collections`
@@ -190,7 +187,6 @@ describe("PersistenceService", () => {
         JSON.stringify(postwoman.collectionsGraphql)
       )
 
-      // @ts-expect-error Mocked data is not typed
       delete postwoman.collectionsGraphql
 
       // Excluding `settings, `collections` & `collectionsGraphql`
@@ -201,7 +197,6 @@ describe("PersistenceService", () => {
         JSON.stringify(postwoman.environments)
       )
 
-      // @ts-expect-error Mocked data is not typed
       delete postwoman.environments
 
       // Excluding `settings, `collections`, `collectionsGraphql` & `environments`

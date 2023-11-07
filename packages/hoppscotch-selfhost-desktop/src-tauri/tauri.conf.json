@@ -7,8 +7,8 @@
     "withGlobalTauri": false
   },
   "package": {
-    "productName": "hoppscotch-desktop",
-    "version": "0.0.0"
+    "productName": "Hoppscotch",
+    "version": "83.8.1-1"
   },
   "tauri": {
     "allowlist": {

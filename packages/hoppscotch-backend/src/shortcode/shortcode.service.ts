@@ -229,7 +229,7 @@ export class ShortcodeService implements UserDataHandler, OnModuleInit {
    * @param uid User Uid
    * @returns Updated Shortcode
    */
-  async updateShortcode(
+  async updateEmbedProperties(
     shortcodeID: string,
     uid: string,
     updatedProps: string,

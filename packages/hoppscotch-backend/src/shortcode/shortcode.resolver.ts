@@ -88,7 +88,7 @@ export class ShortcodeResolver {
     description: 'Update a user generated Shortcode',
   })
   @UseGuards(GqlAuthGuard)
-  async updateShortcode(
+  async updateEmbedProperties(
     @GqlUser() user: AuthUser,
     @Args({
       name: 'code',
@@ -102,7 +102,7 @@ export class ShortcodeResolver {
     })
     properties: string,
   ) {
-    const result = await this.shortcodeService.updateShortcode(
+    const result = await this.shortcodeService.updateEmbedProperties(
       code,
       user.uid,
       properties,

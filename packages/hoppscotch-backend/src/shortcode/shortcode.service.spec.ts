@@ -372,7 +372,7 @@ describe('ShortcodeService', () => {
 
   describe('updateShortcode', () => {
     test('should return SHORTCODE_PROPERTIES_NOT_FOUND error when updatedProps in invalid', async () => {
-      const result = await shortcodeService.updateShortcode(
+      const result = await shortcodeService.updateEmbedProperties(
         mockEmbed.id,
         user.uid,
         '',
@@ -381,7 +381,7 @@ describe('ShortcodeService', () => {
     });
 
     test('should return SHORTCODE_PROPERTIES_NOT_FOUND error when updatedProps in invalid JSON format', async () => {
-      const result = await shortcodeService.updateShortcode(
+      const result = await shortcodeService.updateEmbedProperties(
         mockEmbed.id,
         user.uid,
         '{kk',
@@ -391,7 +391,7 @@ describe('ShortcodeService', () => {
 
     test('should return SHORTCODE_NOT_FOUND error when Shortcode ID is invalid', async () => {
       mockPrisma.shortcode.update.mockRejectedValue('RecordNotFound');
-      const result = await shortcodeService.updateShortcode(
+      const result = await shortcodeService.updateEmbedProperties(
         'invalidID',
         user.uid,
         '{}',
@@ -405,7 +405,7 @@ describe('ShortcodeService', () => {
         embedProperties: '{"foo":"bar"}',
       });
 
-      const result = await shortcodeService.updateShortcode(
+      const result = await shortcodeService.updateEmbedProperties(
         mockEmbed.id,
         user.uid,
         '{"foo":"bar"}',
@@ -424,7 +424,7 @@ describe('ShortcodeService', () => {
         embedProperties: '{"foo":"bar"}',
       });
 
-      const result = await shortcodeService.updateShortcode(
+      const result = await shortcodeService.updateEmbedProperties(
         mockEmbed.id,
         user.uid,
         '{"foo":"bar"}',

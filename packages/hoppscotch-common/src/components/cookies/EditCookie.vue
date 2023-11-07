@@ -147,7 +147,12 @@ const pasteIcon = refAutoReset<typeof IconClipboard | typeof IconCheck>(
 watch(
   () => props.entry,
   () => {
-    if (props.entry?.type !== "edit") return
+    if (!props.entry) return
+
+    if (props.entry.type === "create") {
+      rawCookieString.value = ""
+      return
+    }
 
     rawCookieString.value = props.entry.currentCookieEntry
   }

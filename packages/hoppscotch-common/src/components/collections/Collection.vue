@@ -96,6 +96,7 @@
                   @keyup.e="edit?.$el.click()"
                   @keyup.delete="deleteAction?.$el.click()"
                   @keyup.x="exportAction?.$el.click()"
+                  @keyup.p="propertiesAction?.$el.click()"
                   @keyup.escape="hide()"
                 >
                   <HoppSmartItem
@@ -159,6 +160,19 @@
                       }
                     "
                   />
+                  <HoppSmartItem
+                    v-if="folderType === 'collection'"
+                    ref="propertiesAction"
+                    :icon="IconSettings2"
+                    :label="t('action.properties')"
+                    :shortcut="['P']"
+                    @click="
+                      () => {
+                        emit('edit-properties')
+                        hide()
+                      }
+                    "
+                  />
                 </div>
               </template>
             </tippy>
@@ -193,6 +207,7 @@ import IconTrash2 from "~icons/lucide/trash-2"
 import IconEdit from "~icons/lucide/edit"
 import IconFolder from "~icons/lucide/folder"
 import IconFolderOpen from "~icons/lucide/folder-open"
+import IconSettings2 from "~icons/lucide/settings-2"
 import { ref, computed, watch } from "vue"
 import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
 import { useI18n } from "@composables/i18n"
@@ -245,6 +260,7 @@ const emit = defineEmits<{
   (event: "add-request"): void
   (event: "add-folder"): void
   (event: "edit-collection"): void
+  (event: "edit-properties"): void
   (event: "export-data"): void
   (event: "remove-collection"): void
   (event: "drop-event", payload: DataTransfer): void
@@ -261,6 +277,7 @@ const edit = ref<HTMLButtonElement | null>(null)
 const deleteAction = ref<HTMLButtonElement | null>(null)
 const exportAction = ref<HTMLButtonElement | null>(null)
 const options = ref<TippyComponent | null>(null)
+const propertiesAction = ref<TippyComponent | null>(null)
 
 const dragging = ref(false)
 const ordering = ref(false)

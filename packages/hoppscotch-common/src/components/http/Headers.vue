@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-1 flex-col">
     <div
-      class="sticky top-upperMobileSecondaryStickyFold z-10 flex flex-shrink-0 items-center justify-between overflow-x-auto border-b border-dividerLight bg-primary pl-4 sm:top-upperSecondaryStickyFold"
+      class="sticky z-10 flex flex-shrink-0 items-center justify-between overflow-x-auto border-b border-dividerLight bg-primary pl-4"
     >
       <label class="truncate font-semibold text-secondaryLight">
         {{ t("request.header_list") }}
@@ -289,6 +289,8 @@ const deletionToast = ref<{ goAway: (delay: number) => void } | null>(null)
 
 // v-model integration with props and emit
 const props = defineProps<{ modelValue: HoppRESTRequest }>()
+
+console.log(props.modelValue)
 
 const emit = defineEmits<{
   (e: "change-tab", value: RESTOptionTabs): void

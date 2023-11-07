@@ -88,6 +88,13 @@
                   collection: node.data.data.data,
                 })
             "
+            @edit-properties="
+              node.data.type === 'collections' &&
+                emit('edit-properties', {
+                  collectionIndex: node.id,
+                  collection: node.data.data.data,
+                })
+            "
             @export-data="
               node.data.type === 'collections' &&
                 emit('export-data', node.data.data.data)
@@ -450,6 +457,13 @@ const emit = defineEmits<{
     event: "edit-folder",
     payload: {
       folder: TeamCollection
+    }
+  ): void
+  (
+    event: "edit-properties",
+    payload: {
+      collectionIndex: string
+      collection: TeamCollection
     }
   ): void
   (

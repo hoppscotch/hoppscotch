@@ -68,11 +68,13 @@ model TeamRequest {
 }
 
 model Shortcode {
-  id         String   @id
-  request    Json
-  creatorUid String?
-  createdOn  DateTime @default(now())
-
+  id              String   @id @unique
+  request         Json
+  embedProperties Json?
+  creatorUid      String?
+  User            User?    @relation(fields: [creatorUid], references: [uid])
+  createdOn       DateTime @default(now())
+  updatedOn       DateTime @updatedAt @default(now())
   @@unique(fields: [id, creatorUid], name: "creator_uid_shortcode_unique")
 }
 
@@ -102,6 +104,7 @@ model User {
   currentGQLSession  Json?
   createdOn          DateTime            @default(now()) @db.Timestamp(3)
   invitedUsers       InvitedUsers[]
+  shortcodes         Shortcode[]
 }
 
 model Account {

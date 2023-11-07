@@ -69,5 +69,7 @@ export type TopicDef = {
   [topic: `team_req/${string}/req_deleted`]: string;
   [topic: `team/${string}/invite_added`]: TeamInvitation;
   [topic: `team/${string}/invite_removed`]: string;
-  [topic: `shortcode/${string}/${'created' | 'revoked'}`]: Shortcode;
+  [
+    topic: `shortcode/${string}/${'created' | 'revoked' | 'updated'}`
+  ]: Shortcode;
 };

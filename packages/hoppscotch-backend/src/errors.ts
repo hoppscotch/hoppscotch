@@ -319,18 +319,6 @@ export const TEAM_INVITATION_NOT_FOUND =
 export const SHORTCODE_NOT_FOUND = 'shortcode/not_found' as const;
 
 /**
- * Invalid ShortCode format
- * (ShortcodeService)
- */
-export const SHORTCODE_INVALID_JSON = 'shortcode/invalid_json' as const;
-
-/**
- * ShortCode already exists in DB
- * (ShortcodeService)
- */
-export const SHORTCODE_ALREADY_EXISTS = 'shortcode/already_exists' as const;
-
-/**
  * Invalid or non-existent TEAM ENVIRONMENT ID
  * (TeamEnvironmentsService)
  */
@@ -621,3 +609,24 @@ export const MAILER_SMTP_URL_UNDEFINED = 'mailer/smtp_url_undefined' as const;
  */
 export const MAILER_FROM_ADDRESS_UNDEFINED =
   'mailer/from_address_undefined' as const;
+
+/**
+ * SharedRequest invalid request JSON format
+ * (ShortcodeService)
+ */
+export const SHORTCODE_INVALID_REQUEST_JSON =
+  'shortcode/request_invalid_format' as const;
+
+/**
+ * SharedRequest invalid properties JSON format
+ * (ShortcodeService)
+ */
+export const SHORTCODE_INVALID_PROPERTIES_JSON =
+  'shortcode/properties_invalid_format' as const;
+
+/**
+ * SharedRequest invalid properties not found
+ * (ShortcodeService)
+ */
+export const SHORTCODE_PROPERTIES_NOT_FOUND =
+  'shortcode/properties_not_found' as const;

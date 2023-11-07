@@ -59,21 +59,7 @@ import {
   VUEX_DATA,
 } from "./__mocks__/persistence.service.mocks"
 
-vi.mock("@hoppscotch/data", async () => {
-  const actualModule: Record<string, unknown> =
-    await vi.importActual("@hoppscotch/data")
-
-  return {
-    ...actualModule,
-    translateToNewGQLCollection: vi
-      .fn()
-      .mockImplementation((data: any) => data),
-    translateToNewRESTCollection: vi
-      .fn()
-      .mockImplementation((data: any) => data),
-  }
-})
-
+// Define modules that are shared across methods here
 vi.mock("@vueuse/core", async () => {
   const actualModule: Record<string, unknown> =
     await vi.importActual("@vueuse/core")
@@ -81,28 +67,6 @@ vi.mock("@vueuse/core", async () => {
   return {
     ...actualModule,
     watchDebounced: vi.fn(),
-  }
-})
-
-vi.mock("~/newstore/collections", async () => {
-  const actualModule: Record<string, unknown> = await vi.importActual(
-    "~/newstore/collections"
-  )
-
-  return {
-    ...actualModule,
-    setGraphqlCollections: vi.fn(),
-    setRESTCollections: vi.fn(),
-    graphqlCollectionStore: {
-      subject$: {
-        subscribe: vi.fn(),
-      },
-    },
-    restCollectionStore: {
-      subject$: {
-        subscribe: vi.fn(),
-      },
-    },
   }
 })
 
@@ -124,121 +88,6 @@ vi.mock("~/newstore/environments", async () => {
       subscribe: vi.fn(),
     },
     selectedEnvironmentIndex$: {
-      subscribe: vi.fn(),
-    },
-  }
-})
-
-vi.mock("~/newstore/history", async () => {
-  const actualModule: Record<string, unknown> =
-    await vi.importActual("~/newstore/history")
-
-  return {
-    ...actualModule,
-    setGraphqlHistoryEntries: vi.fn(),
-    setRESTHistoryEntries: vi.fn(),
-    translateToNewGQLHistory: vi.fn().mockImplementation((data: any) => data),
-    translateToNewRESTHistory: vi.fn().mockImplementation((data: any) => data),
-    graphqlHistoryStore: {
-      subject$: {
-        subscribe: vi.fn(),
-      },
-    },
-    restHistoryStore: {
-      subject$: {
-        subscribe: vi.fn(),
-      },
-    },
-  }
-})
-
-vi.mock("~/newstore/localstate", async () => {
-  const actualModule: Record<string, unknown> = await vi.importActual(
-    "~/newstore/localstate"
-  )
-
-  return {
-    ...actualModule,
-    bulkApplyLocalState: vi.fn(),
-    localStateStore: {
-      subject$: {
-        subscribe: vi.fn(),
-      },
-    },
-  }
-})
-
-vi.mock("~/newstore/MQTTSession", async () => {
-  const actualModule: Record<string, unknown> = await vi.importActual(
-    "~/newstore/MQTTSession"
-  )
-
-  return {
-    ...actualModule,
-    setMQTTRequest: vi.fn(),
-    MQTTRequest$: {
-      subscribe: vi.fn(),
-    },
-  }
-})
-
-vi.mock("~/newstore/settings", async () => {
-  const actualModule: Record<string, unknown> = await vi.importActual(
-    "~/newstore/settings"
-  )
-
-  return {
-    ...actualModule,
-    applySetting: vi.fn(),
-    bulkApplySettings: vi.fn(),
-    performSettingsDataMigrations: vi
-      .fn()
-      .mockImplementation((data: any) => data),
-    settingsStore: {
-      subject$: {
-        subscribe: vi.fn(),
-      },
-    },
-  }
-})
-
-vi.mock("~/newstore/SocketIOSession", async () => {
-  const actualModule: Record<string, unknown> = await vi.importActual(
-    "~/newstore/SocketIOSession"
-  )
-
-  return {
-    ...actualModule,
-    setSIORequest: vi.fn(),
-    SIORequest$: {
-      subscribe: vi.fn(),
-    },
-  }
-})
-
-vi.mock("~/newstore/SSESession", async () => {
-  const actualModule: Record<string, unknown> = await vi.importActual(
-    "~/newstore/SSESession"
-  )
-
-  return {
-    ...actualModule,
-    setSSERequest: vi.fn(),
-    SSERequest$: {
-      subscribe: vi.fn(),
-    },
-  }
-})
-
-vi.mock("~/newstore/WebSocketSession", async () => {
-  const actualModule: Record<string, unknown> = await vi.importActual(
-    "~/newstore/WebSocketSession"
-  )
-
-  return {
-    ...actualModule,
-    setWSRequest: vi.fn(),
-    WSRequest$: {
       subscribe: vi.fn(),
     },
   }
@@ -290,6 +139,17 @@ describe("PersistenceService", () => {
     })
 
     it("extracts individual properties from the key `vuex` and sets them in localstorage", () => {
+      vi.mock("~/newstore/settings", async () => {
+        const actualModule: Record<string, unknown> = await vi.importActual(
+          "~/newstore/settings"
+        )
+
+        return {
+          ...actualModule,
+          applySetting: vi.fn(),
+        }
+      })
+
       const vuexData = cloneDeep(VUEX_DATA)
 
       window.localStorage.setItem("vuex", JSON.stringify(vuexData))
@@ -370,6 +230,22 @@ describe("PersistenceService", () => {
   })
 
   it("`setupLocalStatePersistence` method reads the value for `localState` key from localStorage, invokes `bulkApplyLocalState` function if a value is yielded and subscribes to `localStateStore` updates", () => {
+    vi.mock("~/newstore/localstate", async () => {
+      const actualModule: Record<string, unknown> = await vi.importActual(
+        "~/newstore/localstate"
+      )
+
+      return {
+        ...actualModule,
+        bulkApplyLocalState: vi.fn(),
+        localStateStore: {
+          subject$: {
+            subscribe: vi.fn(),
+          },
+        },
+      }
+    })
+
     const localState = {
       REMEMBERED_TEAM_ID: "test-id",
     }
@@ -391,6 +267,26 @@ describe("PersistenceService", () => {
   })
 
   it("`setupSettingsPersistence` reads the value for `settings` from localStorage, invokes `performSettingsDataMigrations` and `bulkApplySettings` functions as required and subscribes to `settingsStore` updates", () => {
+    vi.mock("~/newstore/settings", async () => {
+      const actualModule: Record<string, unknown> = await vi.importActual(
+        "~/newstore/settings"
+      )
+
+      return {
+        ...actualModule,
+        applySetting: vi.fn(),
+        bulkApplySettings: vi.fn(),
+        performSettingsDataMigrations: vi
+          .fn()
+          .mockImplementation((data: any) => data),
+        settingsStore: {
+          subject$: {
+            subscribe: vi.fn(),
+          },
+        },
+      }
+    })
+
     const { settings } = VUEX_DATA.postwoman
     window.localStorage.setItem("settings", JSON.stringify(settings))
 
@@ -413,6 +309,33 @@ describe("PersistenceService", () => {
   })
 
   it("`setupHistoryPersistence` method reads REST and GQL history entries from localStorage, translates them to the new format, writes back the updates and subscribes to the respective store for updates", () => {
+    vi.mock("~/newstore/history", async () => {
+      const actualModule: Record<string, unknown> =
+        await vi.importActual("~/newstore/history")
+
+      return {
+        ...actualModule,
+        setGraphqlHistoryEntries: vi.fn(),
+        setRESTHistoryEntries: vi.fn(),
+        translateToNewGQLHistory: vi
+          .fn()
+          .mockImplementation((data: any) => data),
+        translateToNewRESTHistory: vi
+          .fn()
+          .mockImplementation((data: any) => data),
+        graphqlHistoryStore: {
+          subject$: {
+            subscribe: vi.fn(),
+          },
+        },
+        restHistoryStore: {
+          subject$: {
+            subscribe: vi.fn(),
+          },
+        },
+      }
+    })
+
     const stringifiedRestHistory = JSON.stringify(REST_HISTORY)
     const stringifiedGqlHistory = JSON.stringify(GQL_HISTORY)
 
@@ -449,6 +372,43 @@ describe("PersistenceService", () => {
   })
 
   it("`setupCollectionsPersistence` method reads REST and GQL collection entries from localStorage, translates them to the new format, writes back the updates and subscribes to the respective store for updates", () => {
+    vi.mock("@hoppscotch/data", async () => {
+      const actualModule: Record<string, unknown> =
+        await vi.importActual("@hoppscotch/data")
+
+      return {
+        ...actualModule,
+        translateToNewGQLCollection: vi
+          .fn()
+          .mockImplementation((data: any) => data),
+        translateToNewRESTCollection: vi
+          .fn()
+          .mockImplementation((data: any) => data),
+      }
+    })
+
+    vi.mock("~/newstore/collections", async () => {
+      const actualModule: Record<string, unknown> = await vi.importActual(
+        "~/newstore/collections"
+      )
+
+      return {
+        ...actualModule,
+        setGraphqlCollections: vi.fn(),
+        setRESTCollections: vi.fn(),
+        graphqlCollectionStore: {
+          subject$: {
+            subscribe: vi.fn(),
+          },
+        },
+        restCollectionStore: {
+          subject$: {
+            subscribe: vi.fn(),
+          },
+        },
+      }
+    })
+
     const restCollections = REST_COLLECTIONS
     const gqlCollections = GQL_COLLECTIONS
 
@@ -564,6 +524,20 @@ describe("PersistenceService", () => {
   })
 
   it("`setupWebsocketPersistence` method reads the `WebsocketRequest` entry from localStorage, sets it as the new request, subscribes to the `WSSessionStore` and updates localStorage entries", () => {
+    vi.mock("~/newstore/WebSocketSession", async () => {
+      const actualModule: Record<string, unknown> = await vi.importActual(
+        "~/newstore/WebSocketSession"
+      )
+
+      return {
+        ...actualModule,
+        setWSRequest: vi.fn(),
+        WSRequest$: {
+          subscribe: vi.fn(),
+        },
+      }
+    })
+
     const wsRequest = {
       endpoint: "wss://echo-websocket.hoppscotch.io",
       protocols: [],
@@ -584,6 +558,20 @@ describe("PersistenceService", () => {
   })
 
   it("`setupSocketIOPersistence` method reads the `SocketIORequest` entry from localStorage, sets it as the new request, subscribes to the `SIOSessionStore` and updates localStorage entries", () => {
+    vi.mock("~/newstore/SocketIOSession", async () => {
+      const actualModule: Record<string, unknown> = await vi.importActual(
+        "~/newstore/SocketIOSession"
+      )
+
+      return {
+        ...actualModule,
+        setSIORequest: vi.fn(),
+        SIORequest$: {
+          subscribe: vi.fn(),
+        },
+      }
+    })
+
     const sioRequest = {
       endpoint: "wss://echo-socketio.hoppscotch.io",
       path: "/socket.io",
@@ -606,6 +594,20 @@ describe("PersistenceService", () => {
   })
 
   it("`setupSSEPersistence` method reads the `SSERequest` entry from localStorage, sets it as the new request, subscribes to the `SSESessionStore` and updates localStorage entries", () => {
+    vi.mock("~/newstore/SSESession", async () => {
+      const actualModule: Record<string, unknown> = await vi.importActual(
+        "~/newstore/SSESession"
+      )
+
+      return {
+        ...actualModule,
+        setSSERequest: vi.fn(),
+        SSERequest$: {
+          subscribe: vi.fn(),
+        },
+      }
+    })
+
     const sseRequest = {
       endpoint: "https://express-eventsource.herokuapp.com/events",
       eventType: "data",
@@ -626,6 +628,20 @@ describe("PersistenceService", () => {
   })
 
   it("`setupMQTTPersistence` method reads the `MQTTRequest` entry from localStorage, sets it as the new request, subscribes to the `MQTTSessionStore` and updates localStorage entries", () => {
+    vi.mock("~/newstore/MQTTSession", async () => {
+      const actualModule: Record<string, unknown> = await vi.importActual(
+        "~/newstore/MQTTSession"
+      )
+
+      return {
+        ...actualModule,
+        setMQTTRequest: vi.fn(),
+        MQTTRequest$: {
+          subscribe: vi.fn(),
+        },
+      }
+    })
+
     const request = {
       endpoint: "wss://test.mosquitto.org:8081",
       clientID: "hoppscotch",

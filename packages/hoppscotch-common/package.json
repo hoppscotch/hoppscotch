@@ -27,7 +27,7 @@
     "@codemirror/lang-javascript": "^6.2.1",
     "@codemirror/lang-json": "^6.0.1",
     "@codemirror/lang-xml": "^6.0.2",
-    "@codemirror/language": "^6.9.2",
+    "@codemirror/language": "6.9.0",
     "@codemirror/legacy-modes": "^6.3.3",
     "@codemirror/lint": "^6.4.2",
     "@codemirror/search": "^6.5.4",

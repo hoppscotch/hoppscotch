@@ -11,7 +11,7 @@ import { GQLHistoryEntry, RESTHistoryEntry } from "~/newstore/history"
 import { SettingsDef, getDefaultSettings } from "~/newstore/settings"
 import { PersistableTabState } from "~/services/tab"
 
-type VUEX_DATAT = {
+type VUEX_DATA = {
   postwoman: {
     settings?: SettingsDef
     collections?: HoppCollection<HoppRESTRequest>[]
@@ -76,7 +76,7 @@ export const ENVIRONMENTS: Environment[] = [
   { name: "Test", variables: [{ key: "test-key", value: "test-value" }] },
 ]
 
-export const VUEX_DATA: VUEX_DATAT = {
+export const VUEX_DATA: VUEX_DATA = {
   postwoman: {
     settings: { ...DEFAULT_SETTINGS, THEME_COLOR: "purple" },
     collections: REST_COLLECTIONS,

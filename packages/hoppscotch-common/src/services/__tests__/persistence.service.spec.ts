@@ -11,6 +11,7 @@ import { cloneDeep } from "lodash-es"
 import { describe, expect, it, vi } from "vitest"
 
 import { getService } from "~/modules/dioc"
+
 import { MQTTRequest$, setMQTTRequest } from "~/newstore/MQTTSession"
 import { SSERequest$, setSSERequest } from "~/newstore/SSESession"
 import { SIORequest$, setSIORequest } from "~/newstore/SocketIOSession"
@@ -59,6 +60,13 @@ import {
   VUEX_DATA,
 } from "./__mocks__/persistence.service.mocks"
 
+vi.mock("~/modules/i18n", () => {
+  return {
+    __esModule: true,
+    getI18n: vi.fn().mockImplementation(() => () => "test"),
+  }
+})
+
 // Define modules that are shared across methods here
 vi.mock("@vueuse/core", async (importOriginal) => {
   const actualModule: Record<string, unknown> = await importOriginal()
@@ -90,6 +98,12 @@ vi.mock("~/newstore/environments", () => {
 
 describe("PersistenceService", () => {
   describe("checkAndMigrateOldSettings", () => {
+    vi.mock("~/newstore/settings", () => {
+      return {
+        applySetting: vi.fn(),
+      }
+    })
+
     it("sets the selected environment index type as `NO_ENV` in localStorage if the `selectedEnvIndex` retrieved is `-1`", () => {
       window.localStorage.setItem("selectedEnvIndex", "-1")
 
@@ -133,15 +147,135 @@ describe("PersistenceService", () => {
       )
     })
 
-    it("extracts individual properties from the key `vuex` and sets them in localStorage", () => {
-      vi.mock("~/newstore/settings", () => {
-        return {
-          applySetting: vi.fn(),
-        }
-      })
+    it.skip("shows an error and sets the entry as a backup in localStorage if `vuex` read from localStorage doesn't match the schema", () => {
+      // Invalid shape for `vuex`
+      // `postwoman.settings.CURRENT_INTERCEPTOR_ID` -> `string`
+      const vuexData = {
+        ...VUEX_DATA,
+        postwoman: {
+          ...VUEX_DATA.postwoman,
+          settings: {
+            ...VUEX_DATA.postwoman.settings,
+            CURRENT_INTERCEPTOR_ID: 1234,
+          },
+        },
+      }
 
+      window.localStorage.setItem("vuex", JSON.stringify(vuexData))
+
+      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
+      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
+
+      const container = new TestContainer()
+      const service = container.bind(PersistenceService)
+
+      // @ts-expect-error Spying on private member
+      const i18nSpy = vi.spyOn(service, "t")
+
+      // @ts-expect-error Testing private method
+      service.checkAndMigrateOldSettings()
+
+      expect(getItemSpy).toHaveBeenCalledWith("vuex")
+      expect(i18nSpy).toHaveBeenCalledWith(
+        "local_storage_read.vuex_schema_mismatch"
+      )
+      expect(setItemSpy).toHaveBeenCalledWith(
+        "vuex-backup",
+        JSON.stringify(vuexData)
+      )
+    })
+
+    it("skips schema parsing and setting other properties if vuex read from localStorage is an empty entity", () => {
+      window.localStorage.setItem("vuex", JSON.stringify({}))
+
+      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
+      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
+
+      const container = new TestContainer()
+      const persistenceService = container.bind(PersistenceService)
+
+      // @ts-expect-error Spying on private member
+      const i18nSpy = vi.spyOn(persistenceService, "t")
+
+      // @ts-expect-error Testing private method
+      persistenceService.checkAndMigrateOldSettings()
+
+      expect(getItemSpy).toHaveBeenCalledWith("vuex")
+
+      expect(i18nSpy).not.toHaveBeenCalled()
+      expect(setItemSpy).not.toHaveBeenCalled()
+    })
+
+    it("shows an error and sets the entry as a backup in localStorage if `THEME_COLOR` read from localStorage doesn't match the schema", () => {
       const vuexData = cloneDeep(VUEX_DATA)
+      window.localStorage.setItem("vuex", JSON.stringify(vuexData))
 
+      const invalidColor = "invalid-color"
+      window.localStorage.setItem("THEME_COLOR", invalidColor)
+
+      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
+      const removeItemSpy = vi.spyOn(Storage.prototype, "removeItem")
+      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
+
+      const container = new TestContainer()
+      const persistenceService = container.bind(PersistenceService)
+
+      // @ts-expect-error Spying on private member
+      const i18nSpy = vi.spyOn(persistenceService, "t")
+
+      // @ts-expect-error Testing private method
+      persistenceService.checkAndMigrateOldSettings()
+
+      expect(getItemSpy).toHaveBeenCalledWith("vuex")
+
+      expect(i18nSpy).toHaveBeenCalledWith(
+        "local_storage_read.theme_color_schema_mismatch"
+      )
+      expect(setItemSpy).toHaveBeenCalledWith(
+        "THEME_COLOR-backup",
+        invalidColor
+      )
+
+      expect(applySetting).toHaveBeenCalledWith("THEME_COLOR", invalidColor)
+      expect(removeItemSpy).toHaveBeenCalledWith("THEME_COLOR")
+    })
+
+    it("shows an error and sets the entry as a backup in localStorage if `nuxt-color-mode` read from localStorage doesn't match the schema", () => {
+      const vuexData = cloneDeep(VUEX_DATA)
+      window.localStorage.setItem("vuex", JSON.stringify(vuexData))
+
+      const invalidColor = "invalid-color"
+      window.localStorage.setItem("nuxt-color-mode", invalidColor)
+
+      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
+      const removeItemSpy = vi.spyOn(Storage.prototype, "removeItem")
+      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
+
+      const container = new TestContainer()
+      const persistenceService = container.bind(PersistenceService)
+
+      // @ts-expect-error Spying on private member
+      const i18nSpy = vi.spyOn(persistenceService, "t")
+
+      // @ts-expect-error Testing private method
+      persistenceService.checkAndMigrateOldSettings()
+
+      expect(getItemSpy).toHaveBeenCalledWith("vuex")
+
+      expect(i18nSpy).toHaveBeenCalledWith(
+        "local_storage_read.nuxt_color_mode_schema_mismatch"
+      )
+      expect(setItemSpy).toHaveBeenCalledWith(
+        "nuxt-color-mode-backup",
+        invalidColor
+      )
+
+      expect(applySetting).toHaveBeenCalledWith("BG_COLOR", invalidColor)
+      expect(removeItemSpy).toHaveBeenCalledWith("nuxt-color-mode")
+    })
+
+    it("extracts individual properties from the key `vuex` and sets them in localStorage", () => {
+      const vuexData = cloneDeep(VUEX_DATA)
       window.localStorage.setItem("vuex", JSON.stringify(vuexData))
 
       const themeColor = "red"
@@ -214,241 +348,683 @@ describe("PersistenceService", () => {
     })
   })
 
-  it("`setupLocalStatePersistence` method reads the value for `localState` key from localStorage, invokes `bulkApplyLocalState` function if a value is yielded and subscribes to `localStateStore` updates", () => {
-    vi.mock("~/newstore/localstate", () => {
-      return {
-        bulkApplyLocalState: vi.fn(),
-        localStateStore: {
-          subject$: {
-            subscribe: vi.fn(),
-          },
-        },
+  describe("setupLocalStatePersistence", () => {
+    it("shows an error and sets the entry as a backup in localStorage if `localState` read from localStorage has a value which is not a `string` or `undefined`", () => {
+      const localState = {
+        REMEMBERED_TEAM_ID: null,
       }
+      window.localStorage.setItem("localState", JSON.stringify(localState))
+
+      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
+      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
+
+      const container = new TestContainer()
+      const service = container.bind(PersistenceService)
+
+      // @ts-expect-error Spying on private member
+      const i18nSpy = vi.spyOn(service, "t")
+
+      // @ts-expect-error Testing private method
+      service.setupLocalStatePersistence()
+
+      expect(getItemSpy).toHaveBeenCalledWith("localState")
+      expect(i18nSpy).toHaveBeenCalledWith(
+        "local_storage_read.local_state_schema_mismatch"
+      )
+      expect(setItemSpy).toHaveBeenCalledWith(
+        "localState-backup",
+        JSON.stringify(localState)
+      )
     })
 
-    const localState = {
-      REMEMBERED_TEAM_ID: "test-id",
-    }
-    window.localStorage.setItem("localState", JSON.stringify(localState))
+    it("shows an error and sets the entry as a backup in localStorage if `localState` read from localStorage has an invalid key", () => {
+      const localState = {
+        INVALID_KEY: null,
+      }
+      window.localStorage.setItem("localState", JSON.stringify(localState))
 
-    const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
+      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
+      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
 
-    const container = new TestContainer()
-    const service = container.bind(PersistenceService)
+      const container = new TestContainer()
+      const service = container.bind(PersistenceService)
 
-    // @ts-expect-error Testing private method
-    service.setupLocalStatePersistence()
+      // @ts-expect-error Spying on private member
+      const i18nSpy = vi.spyOn(service, "t")
 
-    expect(getItemSpy).toHaveBeenCalledWith("localState")
-    expect(bulkApplyLocalState).toHaveBeenCalledWith(localState)
-    expect(localStateStore.subject$.subscribe).toHaveBeenCalledWith(
-      expect.any(Function)
-    )
+      // @ts-expect-error Testing private method
+      service.setupLocalStatePersistence()
+
+      expect(getItemSpy).toHaveBeenCalledWith("localState")
+      expect(i18nSpy).toHaveBeenCalledWith(
+        "local_storage_read.local_state_schema_mismatch"
+      )
+      expect(setItemSpy).toHaveBeenCalledWith(
+        "localState-backup",
+        JSON.stringify(localState)
+      )
+    })
+
+    it("schema parsing succeeds if there is no `localState` key present in localStorage where the fallback of `{}` is chosen", () => {
+      window.localStorage.removeItem("localState")
+
+      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
+      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
+
+      const container = new TestContainer()
+      const service = container.bind(PersistenceService)
+
+      // @ts-expect-error Spying on private member
+      const i18nSpy = vi.spyOn(service, "t")
+
+      // @ts-expect-error Testing private method
+      service.setupLocalStatePersistence()
+
+      expect(getItemSpy).toHaveBeenCalledWith("localState")
+      expect(i18nSpy).not.toHaveBeenCalled()
+      expect(setItemSpy).not.toHaveBeenCalled()
+    })
+
+    it("reads the value for `localState` key from localStorage, invokes `bulkApplyLocalState` function if a value is yielded and subscribes to `localStateStore` updates", () => {
+      vi.mock("~/newstore/localstate", () => {
+        return {
+          bulkApplyLocalState: vi.fn(),
+          localStateStore: {
+            subject$: {
+              subscribe: vi.fn(),
+            },
+          },
+        }
+      })
+
+      const localState = {
+        REMEMBERED_TEAM_ID: "test-id",
+      }
+      window.localStorage.setItem("localState", JSON.stringify(localState))
+
+      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
+
+      const container = new TestContainer()
+      const service = container.bind(PersistenceService)
+
+      // @ts-expect-error Testing private method
+      service.setupLocalStatePersistence()
+
+      expect(getItemSpy).toHaveBeenCalledWith("localState")
+      expect(bulkApplyLocalState).toHaveBeenCalledWith(localState)
+      expect(localStateStore.subject$.subscribe).toHaveBeenCalledWith(
+        expect.any(Function)
+      )
+    })
   })
 
-  it("`setupSettingsPersistence` reads the value for `settings` from localStorage, invokes `performSettingsDataMigrations` and `bulkApplySettings` functions as required and subscribes to `settingsStore` updates", () => {
-    vi.mock("~/newstore/settings", async (importOriginal) => {
-      const actualModule: Record<string, unknown> = await importOriginal()
-
-      return {
-        ...actualModule,
-        applySetting: vi.fn(),
-        bulkApplySettings: vi.fn(),
-        performSettingsDataMigrations: vi
-          .fn()
-          .mockImplementation((data: any) => data),
-        settingsStore: {
-          subject$: {
-            subscribe: vi.fn(),
-          },
-        },
+  describe("setupSettingsPersistence", () => {
+    it("shows an error and sets the entry as a backup in localStorage if `settings` read from localStorage doesn't match the schema", () => {
+      // Invalid shape for `settings`
+      // Expected value are booleans
+      const settings = {
+        EXTENSIONS_ENABLED: "true",
+        PROXY_ENABLED: "true",
       }
+      window.localStorage.setItem("settings", JSON.stringify(settings))
+
+      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
+      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
+
+      const container = new TestContainer()
+      const service = container.bind(PersistenceService)
+
+      // @ts-expect-error Spying on private member
+      const i18nSpy = vi.spyOn(service, "t")
+
+      // @ts-expect-error Testing private method
+      service.setupSettingsPersistence()
+
+      expect(getItemSpy).toHaveBeenCalledWith("settings")
+      expect(i18nSpy).toHaveBeenCalledWith(
+        "local_storage_read.settings_schema_mismatch"
+      )
+      expect(setItemSpy).toHaveBeenCalledWith(
+        "settings-backup",
+        JSON.stringify(settings)
+      )
     })
 
-    const { settings } = VUEX_DATA.postwoman
-    window.localStorage.setItem("settings", JSON.stringify(settings))
+    it("schema parsing succeeds if there is no `settings` key present in localStorage where the fallback of `{}` is chosen", () => {
+      window.localStorage.removeItem("settings")
 
-    const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
+      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
+      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
 
-    const container = new TestContainer()
-    const service = container.bind(PersistenceService)
+      const container = new TestContainer()
+      const service = container.bind(PersistenceService)
 
-    // @ts-expect-error Testing private method
-    service.setupSettingsPersistence()
+      // @ts-expect-error Spying on private member
+      const i18nSpy = vi.spyOn(service, "t")
 
-    expect(getItemSpy).toHaveBeenCalledWith("settings")
+      // @ts-expect-error Testing private method
+      service.setupSettingsPersistence()
 
-    expect(performSettingsDataMigrations).toHaveBeenCalledWith(settings)
-    expect(bulkApplySettings).toHaveBeenCalledWith(settings)
+      expect(getItemSpy).toHaveBeenCalledWith("settings")
+      expect(i18nSpy).not.toHaveBeenCalled()
+      expect(setItemSpy).not.toHaveBeenCalled()
+    })
 
-    expect(settingsStore.subject$.subscribe).toHaveBeenCalledWith(
-      expect.any(Function)
-    )
+    it("reads the value for `settings` from localStorage, invokes `performSettingsDataMigrations` and `bulkApplySettings` functions as required and subscribes to `settingsStore` updates", () => {
+      vi.mock("~/newstore/settings", async (importOriginal) => {
+        const actualModule: Record<string, unknown> = await importOriginal()
+
+        return {
+          ...actualModule,
+          applySetting: vi.fn(),
+          bulkApplySettings: vi.fn(),
+          performSettingsDataMigrations: vi
+            .fn()
+            .mockImplementation((data: any) => data),
+          settingsStore: {
+            subject$: {
+              subscribe: vi.fn(),
+            },
+          },
+        }
+      })
+
+      const { settings } = VUEX_DATA.postwoman
+      window.localStorage.setItem("settings", JSON.stringify(settings))
+
+      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
+      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
+
+      const container = new TestContainer()
+      const service = container.bind(PersistenceService)
+
+      // @ts-expect-error Spying on private member
+      const i18nSpy = vi.spyOn(service, "t")
+
+      // @ts-expect-error Testing private method
+      service.setupSettingsPersistence()
+
+      expect(getItemSpy).toHaveBeenCalledWith("settings")
+      expect(i18nSpy).not.toHaveBeenCalled()
+      expect(setItemSpy).not.toHaveBeenCalled()
+
+      expect(performSettingsDataMigrations).toHaveBeenCalledWith(settings)
+      expect(bulkApplySettings).toHaveBeenCalledWith(settings)
+
+      expect(settingsStore.subject$.subscribe).toHaveBeenCalledWith(
+        expect.any(Function)
+      )
+    })
   })
 
-  it("`setupHistoryPersistence` method reads REST and GQL history entries from localStorage, translates them to the new format, writes back the updates and subscribes to the respective store for updates", () => {
-    vi.mock("~/newstore/history", () => {
-      return {
-        setGraphqlHistoryEntries: vi.fn(),
-        setRESTHistoryEntries: vi.fn(),
-        translateToNewGQLHistory: vi
-          .fn()
-          .mockImplementation((data: any) => data),
-        translateToNewRESTHistory: vi
-          .fn()
-          .mockImplementation((data: any) => data),
-        graphqlHistoryStore: {
-          subject$: {
-            subscribe: vi.fn(),
-          },
-        },
-        restHistoryStore: {
-          subject$: {
-            subscribe: vi.fn(),
-          },
-        },
-      }
+  describe("setupHistoryPersistence", () => {
+    it.skip("shows an error and sets the entry as a backup in localStorage if `history` read from localStorage doesn't match the schema", () => {
+      // Invalid shape for `history`
+      // `v` -> `number`
+      const restHistoryData = { ...REST_HISTORY, v: "1" }
+      window.localStorage.setItem("history", JSON.stringify(restHistoryData))
+
+      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
+      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
+
+      const container = new TestContainer()
+      const service = container.bind(PersistenceService)
+
+      // @ts-expect-error Spying on private member
+      const i18nSpy = vi.spyOn(service, "t")
+
+      // @ts-expect-error Testing private method
+      service.setupHistoryPersistence()
+
+      expect(getItemSpy).toHaveBeenCalledWith("history")
+      expect(i18nSpy).toHaveBeenCalledWith(
+        "local_storage_read.rest_history_schema_mismatch"
+      )
+      expect(setItemSpy).toHaveBeenCalledWith(
+        "history-backup",
+        JSON.stringify(restHistoryData)
+      )
     })
 
-    const stringifiedRestHistory = JSON.stringify(REST_HISTORY)
-    const stringifiedGqlHistory = JSON.stringify(GQL_HISTORY)
+    it("REST history schema parsing succeeds if there is no `history` key present in localStorage where the fallback of `[]` is chosen", () => {
+      window.localStorage.removeItem("history")
 
-    window.localStorage.setItem("history", stringifiedRestHistory)
-    window.localStorage.setItem("graphqlHistory", stringifiedGqlHistory)
+      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
+      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
 
-    const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
+      const container = new TestContainer()
+      const service = container.bind(PersistenceService)
 
-    const container = new TestContainer()
-    const service = container.bind(PersistenceService)
+      // @ts-expect-error Spying on private member
+      const i18nSpy = vi.spyOn(service, "t")
 
-    // @ts-expect-error Testing private method
-    service.setupHistoryPersistence()
+      // @ts-expect-error Testing private method
+      service.setupHistoryPersistence()
 
-    expect(getItemSpy).toHaveBeenCalledWith("history")
-    expect(getItemSpy).toHaveBeenCalledWith("graphqlHistory")
+      expect(getItemSpy).toHaveBeenCalledWith("history")
 
-    expect(translateToNewRESTHistory).toHaveBeenCalled()
-    expect(translateToNewGQLHistory).toHaveBeenCalled()
+      expect(i18nSpy).not.toHaveBeenCalled()
+      expect(setItemSpy).not.toHaveBeenCalled()
+    })
 
-    // This ensures `updatedOn` field is treated as a `string`
-    const parsedRestHistory = JSON.parse(stringifiedRestHistory)
-    const parsedGqlHistory = JSON.parse(stringifiedGqlHistory)
+    it.skip("shows an error and sets the entry as a backup in localStorage if `graphqlHistory` read from localStorage doesn't match the schema", () => {
+      // Invalid shape for `graphqlHistory`
+      // `v` -> `number`
+      const graphqlHistoryData = { ...GQL_HISTORY, v: "1" }
+      window.localStorage.setItem(
+        "graphqlHistory",
+        JSON.stringify(graphqlHistoryData)
+      )
 
-    expect(setRESTHistoryEntries).toHaveBeenCalledWith(parsedRestHistory)
-    expect(setGraphqlHistoryEntries).toHaveBeenCalledWith(parsedGqlHistory)
+      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
+      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
 
-    expect(restHistoryStore.subject$.subscribe).toHaveBeenCalledWith(
-      expect.any(Function)
-    )
-    expect(graphqlHistoryStore.subject$.subscribe).toHaveBeenCalledWith(
-      expect.any(Function)
-    )
+      const container = new TestContainer()
+      const service = container.bind(PersistenceService)
+
+      // @ts-expect-error Spying on private member
+      const i18nSpy = vi.spyOn(service, "t")
+
+      // @ts-expect-error Testing private method
+      service.setupHistoryPersistence()
+
+      expect(getItemSpy).toHaveBeenCalledWith("graphqlHistory")
+      expect(i18nSpy).toHaveBeenCalledWith(
+        "local_storage_read.graphql_history_schema_mismatch"
+      )
+      expect(setItemSpy).toHaveBeenCalledWith(
+        "graphqlHistory-backup",
+        JSON.stringify(graphqlHistoryData)
+      )
+    })
+
+    it("GQL history schema parsing succeeds if there is no `graphqlHistory` key present in localStorage where the fallback of `[]` is chosen", () => {
+      window.localStorage.removeItem("graphqlHistory")
+
+      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
+      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
+
+      const container = new TestContainer()
+      const service = container.bind(PersistenceService)
+
+      // @ts-expect-error Spying on private member
+      const i18nSpy = vi.spyOn(service, "t")
+
+      // @ts-expect-error Testing private method
+      service.setupHistoryPersistence()
+
+      expect(getItemSpy).toHaveBeenCalledWith("graphqlHistory")
+
+      expect(i18nSpy).not.toHaveBeenCalled()
+      expect(setItemSpy).not.toHaveBeenCalled()
+    })
+
+    it("reads REST and GQL history entries from localStorage, translates them to the new format, writes back the updates and subscribes to the respective store for updates", () => {
+      vi.mock("~/newstore/history", () => {
+        return {
+          setGraphqlHistoryEntries: vi.fn(),
+          setRESTHistoryEntries: vi.fn(),
+          translateToNewGQLHistory: vi
+            .fn()
+            .mockImplementation((data: any) => data),
+          translateToNewRESTHistory: vi
+            .fn()
+            .mockImplementation((data: any) => data),
+          graphqlHistoryStore: {
+            subject$: {
+              subscribe: vi.fn(),
+            },
+          },
+          restHistoryStore: {
+            subject$: {
+              subscribe: vi.fn(),
+            },
+          },
+        }
+      })
+
+      const stringifiedRestHistory = JSON.stringify(REST_HISTORY)
+      const stringifiedGqlHistory = JSON.stringify(GQL_HISTORY)
+
+      window.localStorage.setItem("history", stringifiedRestHistory)
+      window.localStorage.setItem("graphqlHistory", stringifiedGqlHistory)
+
+      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
+
+      const container = new TestContainer()
+      const service = container.bind(PersistenceService)
+
+      // @ts-expect-error Testing private method
+      service.setupHistoryPersistence()
+
+      expect(getItemSpy).toHaveBeenCalledWith("history")
+      expect(getItemSpy).toHaveBeenCalledWith("graphqlHistory")
+
+      expect(translateToNewRESTHistory).toHaveBeenCalled()
+      expect(translateToNewGQLHistory).toHaveBeenCalled()
+
+      // This ensures `updatedOn` field is treated as a `string`
+      const parsedRestHistory = JSON.parse(stringifiedRestHistory)
+      const parsedGqlHistory = JSON.parse(stringifiedGqlHistory)
+
+      expect(setRESTHistoryEntries).toHaveBeenCalledWith(parsedRestHistory)
+      expect(setGraphqlHistoryEntries).toHaveBeenCalledWith(parsedGqlHistory)
+
+      expect(restHistoryStore.subject$.subscribe).toHaveBeenCalledWith(
+        expect.any(Function)
+      )
+      expect(graphqlHistoryStore.subject$.subscribe).toHaveBeenCalledWith(
+        expect.any(Function)
+      )
+    })
   })
 
-  it("`setupCollectionsPersistence` method reads REST and GQL collection entries from localStorage, translates them to the new format, writes back the updates and subscribes to the respective store for updates", () => {
-    vi.mock("@hoppscotch/data", async (importOriginal) => {
-      const actualModule: Record<string, unknown> = await importOriginal()
+  describe("", () => {
+    it.skip("shows an error and sets the entry as a backup in localStorage if `collections` read from localStorage doesn't match the schema", () => {
+      // Invalid shape for `collections`
+      // `v` -> `number`
+      const restCollectionsData = { ...REST_COLLECTIONS, v: "1" }
+      window.localStorage.setItem(
+        "collections",
+        JSON.stringify(restCollectionsData)
+      )
 
-      return {
-        ...actualModule,
-        translateToNewGQLCollection: vi
-          .fn()
-          .mockImplementation((data: any) => data),
-        translateToNewRESTCollection: vi
-          .fn()
-          .mockImplementation((data: any) => data),
-      }
+      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
+      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
+
+      const container = new TestContainer()
+      const service = container.bind(PersistenceService)
+
+      // @ts-expect-error Spying on private member
+      const i18nSpy = vi.spyOn(service, "t")
+
+      // @ts-expect-error Testing private method
+      service.setupCollectionsPersistence()
+
+      expect(getItemSpy).toHaveBeenCalledWith("collections")
+      expect(i18nSpy).toHaveBeenCalledWith(
+        "local_storage_read.rest_collections_schema_mismatch"
+      )
+      expect(setItemSpy).toHaveBeenCalledWith(
+        "collections-backup",
+        JSON.stringify(restCollectionsData)
+      )
     })
 
-    vi.mock("~/newstore/collections", () => {
-      return {
-        setGraphqlCollections: vi.fn(),
-        setRESTCollections: vi.fn(),
-        graphqlCollectionStore: {
-          subject$: {
-            subscribe: vi.fn(),
-          },
-        },
-        restCollectionStore: {
-          subject$: {
-            subscribe: vi.fn(),
-          },
-        },
-      }
+    it("REST collections schema parsing succeeds if there is no `collections` key present in localStorage where the fallback of `[]` is chosen", () => {
+      window.localStorage.removeItem("collections")
+
+      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
+      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
+
+      const container = new TestContainer()
+      const service = container.bind(PersistenceService)
+
+      // @ts-expect-error Spying on private member
+      const i18nSpy = vi.spyOn(service, "t")
+
+      // @ts-expect-error Testing private method
+      service.setupCollectionsPersistence()
+
+      expect(getItemSpy).toHaveBeenCalledWith("collections")
+
+      expect(i18nSpy).not.toHaveBeenCalled()
+      expect(setItemSpy).not.toHaveBeenCalled()
     })
 
-    const restCollections = REST_COLLECTIONS
-    const gqlCollections = GQL_COLLECTIONS
+    it.skip("shows an error and sets the entry as a backup in localStorage if `collectionsGraphql` read from localStorage doesn't match the schema", () => {
+      // Invalid shape for `collectionsGraphql`
+      // `v` -> `number`
+      const graphqlCollectionsData = { ...GQL_COLLECTIONS, v: "1" }
+      window.localStorage.setItem(
+        "collectionsGraphql",
+        JSON.stringify(graphqlCollectionsData)
+      )
 
-    window.localStorage.setItem("collections", JSON.stringify(restCollections))
+      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
+      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
 
-    window.localStorage.setItem(
-      "collectionsGraphql",
-      JSON.stringify(gqlCollections)
-    )
+      const container = new TestContainer()
+      const service = container.bind(PersistenceService)
 
-    const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
+      // @ts-expect-error Spying on private member
+      const i18nSpy = vi.spyOn(service, "t")
 
-    const container = new TestContainer()
-    const service = container.bind(PersistenceService)
+      // @ts-expect-error Testing private method
+      service.setupCollectionsPersistence()
 
-    // @ts-expect-error Testing private method
-    service.setupCollectionsPersistence()
+      expect(getItemSpy).toHaveBeenCalledWith("collectionsGraphql")
+      expect(i18nSpy).toHaveBeenCalledWith(
+        "local_storage_read.graphql_collections_schema_mismatch"
+      )
+      expect(setItemSpy).toHaveBeenCalledWith(
+        "collectionsGraphql-backup",
+        JSON.stringify(graphqlCollectionsData)
+      )
+    })
 
-    expect(getItemSpy).toHaveBeenCalledWith("collections")
-    expect(getItemSpy).toHaveBeenCalledWith("collectionsGraphql")
+    it("GQL history schema parsing succeeds if there is no `collectionsGraphql` key present in localStorage where the fallback of `[]` is chosen", () => {
+      window.localStorage.removeItem("collectionsGraphql")
 
-    expect(translateToNewGQLCollection).toHaveBeenCalled()
-    expect(translateToNewRESTCollection).toHaveBeenCalled()
+      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
+      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
 
-    expect(setRESTCollections).toHaveBeenCalledWith(restCollections)
-    expect(setGraphqlCollections).toHaveBeenCalledWith(gqlCollections)
+      const container = new TestContainer()
+      const service = container.bind(PersistenceService)
 
-    expect(graphqlCollectionStore.subject$.subscribe).toHaveBeenCalledWith(
-      expect.any(Function)
-    )
-    expect(restCollectionStore.subject$.subscribe).toHaveBeenCalledWith(
-      expect.any(Function)
-    )
+      // @ts-expect-error Spying on private member
+      const i18nSpy = vi.spyOn(service, "t")
+
+      // @ts-expect-error Testing private method
+      service.setupCollectionsPersistence()
+
+      expect(getItemSpy).toHaveBeenCalledWith("collectionsGraphql")
+
+      expect(i18nSpy).not.toHaveBeenCalled()
+      expect(setItemSpy).not.toHaveBeenCalled()
+    })
+
+    it("reads REST and GQL collection entries from localStorage, translates them to the new format, writes back the updates and subscribes to the respective store for updates", () => {
+      vi.mock("@hoppscotch/data", async (importOriginal) => {
+        const actualModule: Record<string, unknown> = await importOriginal()
+
+        return {
+          ...actualModule,
+          translateToNewGQLCollection: vi
+            .fn()
+            .mockImplementation((data: any) => data),
+          translateToNewRESTCollection: vi
+            .fn()
+            .mockImplementation((data: any) => data),
+        }
+      })
+
+      vi.mock("~/newstore/collections", () => {
+        return {
+          setGraphqlCollections: vi.fn(),
+          setRESTCollections: vi.fn(),
+          graphqlCollectionStore: {
+            subject$: {
+              subscribe: vi.fn(),
+            },
+          },
+          restCollectionStore: {
+            subject$: {
+              subscribe: vi.fn(),
+            },
+          },
+        }
+      })
+
+      const restCollections = REST_COLLECTIONS
+      const gqlCollections = GQL_COLLECTIONS
+
+      window.localStorage.setItem(
+        "collections",
+        JSON.stringify(restCollections)
+      )
+
+      window.localStorage.setItem(
+        "collectionsGraphql",
+        JSON.stringify(gqlCollections)
+      )
+
+      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
+
+      const container = new TestContainer()
+      const service = container.bind(PersistenceService)
+
+      // @ts-expect-error Testing private method
+      service.setupCollectionsPersistence()
+
+      expect(getItemSpy).toHaveBeenCalledWith("collections")
+      expect(getItemSpy).toHaveBeenCalledWith("collectionsGraphql")
+
+      expect(translateToNewGQLCollection).toHaveBeenCalled()
+      expect(translateToNewRESTCollection).toHaveBeenCalled()
+
+      expect(setRESTCollections).toHaveBeenCalledWith(restCollections)
+      expect(setGraphqlCollections).toHaveBeenCalledWith(gqlCollections)
+
+      expect(graphqlCollectionStore.subject$.subscribe).toHaveBeenCalledWith(
+        expect.any(Function)
+      )
+      expect(restCollectionStore.subject$.subscribe).toHaveBeenCalledWith(
+        expect.any(Function)
+      )
+    })
   })
 
-  it("`setupEnvironmentsPersistence` method separates `globals` entries from `environments`, subscribes to the `environmentStore` and updates localStorage entries", () => {
-    const environments = cloneDeep(ENVIRONMENTS)
-    window.localStorage.setItem("environments", JSON.stringify(environments))
+  describe("setupEnvironmentsPersistence", () => {
+    it("shows an error and sets the entry as a backup in localStorage if `environments` read from localStorage doesn't match the schema", () => {
+      // Invalid shape for `environments`
+      const environments = [
+        // `entries` -> `variables`
+        { name: "Test", entries: [{ key: "test-key", value: "test-value" }] },
+      ]
 
-    const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
-    const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
+      window.localStorage.setItem("environments", JSON.stringify(environments))
 
-    const container = new TestContainer()
-    const service = container.bind(PersistenceService)
+      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
+      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
 
-    // @ts-expect-error Testing private method
-    service.setupEnvironmentsPersistence()
+      const container = new TestContainer()
+      const service = container.bind(PersistenceService)
 
-    expect(getItemSpy).toHaveBeenCalledWith("environments")
-    expect(addGlobalEnvVariable).toHaveBeenCalledWith(
-      environments[0].variables[0]
-    )
+      // @ts-expect-error Spying on private member
+      const i18nSpy = vi.spyOn(service, "t")
 
-    // Removes `globals` from environments
-    environments.splice(0, 1)
+      // @ts-expect-error Testing private method
+      service.setupEnvironmentsPersistence()
 
-    expect(setItemSpy).toHaveBeenCalledWith(
-      "environments",
-      JSON.stringify(environments)
-    )
-    expect(replaceEnvironments).toBeCalledWith(environments)
-    expect(environments$.subscribe).toHaveBeenCalledWith(expect.any(Function))
+      expect(getItemSpy).toHaveBeenCalledWith("environments")
+      expect(i18nSpy).toHaveBeenCalledWith(
+        "local_storage_read.environments_schema_mismatch"
+      )
+      expect(setItemSpy).toHaveBeenCalledWith(
+        "environments-backup",
+        JSON.stringify(environments)
+      )
+    })
+
+    it("separates `globals` entries from `environments`, subscribes to the `environmentStore` and updates localStorage entries", () => {
+      const environments = cloneDeep(ENVIRONMENTS)
+      window.localStorage.setItem("environments", JSON.stringify(environments))
+
+      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
+      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
+
+      const container = new TestContainer()
+      const service = container.bind(PersistenceService)
+
+      // @ts-expect-error Spying on private member
+      const i18nSpy = vi.spyOn(service, "t")
+
+      // @ts-expect-error Testing private method
+      service.setupEnvironmentsPersistence()
+
+      expect(getItemSpy).toHaveBeenCalledWith("environments")
+      expect(i18nSpy).not.toHaveBeenCalled()
+      expect(setItemSpy).not.toHaveBeenCalledWith("environments-backup")
+      expect(addGlobalEnvVariable).toHaveBeenCalledWith(
+        environments[0].variables[0]
+      )
+
+      // Removes `globals` from environments
+      environments.splice(0, 1)
+
+      expect(setItemSpy).toHaveBeenCalledWith(
+        "environments",
+        JSON.stringify(environments)
+      )
+      expect(replaceEnvironments).toBeCalledWith(environments)
+      expect(environments$.subscribe).toHaveBeenCalledWith(expect.any(Function))
+    })
   })
 
   describe("setupSelectedEnvPersistence", () => {
-    it("sets it to the store if there is a selected env index", () => {
+    it.skip("shows an error and sets the entry as a backup in localStorage if `selectedEnvIndex` read from localStorage doesn't match the schema", () => {
+      // Invalid shape for `selectedEnvIndex`
+      const request = {
+        endpoint: "wss://echo-websocket.hoppscotch.io",
+        // `protocols` -> `[]`
+        protocols: {},
+      }
+
+      window.localStorage.setItem("selectedEnvIndex", JSON.stringify(request))
+
+      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
+      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
+
+      const container = new TestContainer()
+      const service = container.bind(PersistenceService)
+
+      // @ts-expect-error Spying on private member
+      const i18nSpy = vi.spyOn(service, "t")
+
+      // @ts-expect-error Testing private method
+      service.setupSelectedEnvPersistence()
+
+      expect(getItemSpy).toHaveBeenCalledWith("selectedEnvIndex")
+      expect(i18nSpy).toHaveBeenCalledWith(
+        "local_storage_read.selected_env_index_schema_mismatch"
+      )
+      expect(setItemSpy).toHaveBeenCalledWith(
+        "selectedEnvIndex-backup",
+        JSON.stringify(request)
+      )
+    })
+
+    it("schema parsing succeeds if there is no `selectedEnvIndex` key present in localStorage where the fallback of `null` is chosen", () => {
+      window.localStorage.removeItem("selectedEnvIndex")
+
+      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
+      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
+
+      const container = new TestContainer()
+      const service = container.bind(PersistenceService)
+
+      // @ts-expect-error Spying on private member
+      const i18nSpy = vi.spyOn(service, "t")
+
+      // @ts-expect-error Testing private method
+      service.setupSelectedEnvPersistence()
+
+      expect(getItemSpy).toHaveBeenCalledWith("selectedEnvIndex")
+
+      expect(i18nSpy).not.toHaveBeenCalled()
+      expect(setItemSpy).not.toHaveBeenCalled()
+    })
+
+    it("sets it to the store if there is a value associated with the `selectedEnvIndex` key in localStorage", () => {
+      const selectedEnvIndex = {
+        type: "MY_ENV",
+        index: 1,
+      }
+
       window.localStorage.setItem(
         "selectedEnvIndex",
-        JSON.stringify({
-          type: "MY_ENV",
-          index: 1,
-        })
+        JSON.stringify(selectedEnvIndex)
       )
 
       const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
@@ -460,16 +1036,13 @@ describe("PersistenceService", () => {
       service.setupSelectedEnvPersistence()
 
       expect(getItemSpy).toHaveBeenCalledWith("selectedEnvIndex")
-      expect(setSelectedEnvironmentIndex).toHaveBeenCalledWith({
-        type: "MY_ENV",
-        index: 1,
-      })
+      expect(setSelectedEnvironmentIndex).toHaveBeenCalledWith(selectedEnvIndex)
       expect(selectedEnvironmentIndex$.subscribe).toHaveBeenCalledWith(
         expect.any(Function)
       )
     })
 
-    it("sets it to null if there is no selected env index", () => {
+    it("sets it to `NO_ENV_SELECTED` if there is no value associated with the `selectedEnvIndex` in localStorage", () => {
       window.localStorage.removeItem("selectedEnvIndex")
 
       const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
@@ -482,8 +1055,7 @@ describe("PersistenceService", () => {
 
       expect(getItemSpy).toHaveBeenCalledWith("selectedEnvIndex")
       expect(setSelectedEnvironmentIndex).toHaveBeenCalledWith({
-        type: "MY_ENV",
-        index: 1,
+        type: "NO_ENV_SELECTED",
       })
       expect(selectedEnvironmentIndex$.subscribe).toHaveBeenCalledWith(
         expect.any(Function)
@@ -491,149 +1063,491 @@ describe("PersistenceService", () => {
     })
   })
 
-  it("`setupWebsocketPersistence` method reads the `WebsocketRequest` entry from localStorage, sets it as the new request, subscribes to the `WSSessionStore` and updates localStorage entries", () => {
-    vi.mock("~/newstore/WebSocketSession", () => {
-      return {
-        setWSRequest: vi.fn(),
-        WSRequest$: {
-          subscribe: vi.fn(),
-        },
+  describe("setupWebsocketPersistence", () => {
+    it("shows an error and sets the entry as a backup in localStorage if `WebsocketRequest` read from localStorage doesn't match the schema", () => {
+      // Invalid shape for `WebsocketRequest`
+      const request = {
+        endpoint: "wss://echo-websocket.hoppscotch.io",
+        // `protocols` -> `[]`
+        protocols: {},
       }
+
+      window.localStorage.setItem("WebsocketRequest", JSON.stringify(request))
+
+      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
+      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
+
+      const container = new TestContainer()
+      const service = container.bind(PersistenceService)
+
+      // @ts-expect-error Spying on private member
+      const i18nSpy = vi.spyOn(service, "t")
+
+      // @ts-expect-error Testing private method
+      service.setupWebsocketPersistence()
+
+      expect(getItemSpy).toHaveBeenCalledWith("WebsocketRequest")
+      expect(i18nSpy).toHaveBeenCalledWith(
+        "local_storage_read.websocket_request_schema_mismatch"
+      )
+      expect(setItemSpy).toHaveBeenCalledWith(
+        "WebsocketRequest-backup",
+        JSON.stringify(request)
+      )
     })
 
-    const wsRequest = {
-      endpoint: "wss://echo-websocket.hoppscotch.io",
-      protocols: [],
-    }
-    window.localStorage.setItem("WebsocketRequest", JSON.stringify(wsRequest))
+    it("schema parsing succeeds if there is no `WebsocketRequest` key present in localStorage where the fallback of `null` is chosen", () => {
+      window.localStorage.removeItem("WebsocketRequest")
 
-    const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
+      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
+      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
 
-    const container = new TestContainer()
-    const service = container.bind(PersistenceService)
+      const container = new TestContainer()
+      const service = container.bind(PersistenceService)
 
-    // @ts-expect-error Testing private method
-    service.setupWebsocketPersistence()
+      // @ts-expect-error Spying on private member
+      const i18nSpy = vi.spyOn(service, "t")
 
-    expect(getItemSpy).toHaveBeenCalledWith("WebsocketRequest")
-    expect(setWSRequest).toHaveBeenCalledWith(wsRequest)
-    expect(WSRequest$.subscribe).toHaveBeenCalledWith(expect.any(Function))
-  })
+      // @ts-expect-error Testing private method
+      service.setupWebsocketPersistence()
 
-  it("`setupSocketIOPersistence` method reads the `SocketIORequest` entry from localStorage, sets it as the new request, subscribes to the `SIOSessionStore` and updates localStorage entries", () => {
-    vi.mock("~/newstore/SocketIOSession", () => {
-      return {
-        setSIORequest: vi.fn(),
-        SIORequest$: {
-          subscribe: vi.fn(),
-        },
-      }
+      expect(getItemSpy).toHaveBeenCalledWith("WebsocketRequest")
+      expect(i18nSpy).not.toHaveBeenCalled()
+      expect(setItemSpy).not.toHaveBeenCalled()
     })
 
-    const sioRequest = {
-      endpoint: "wss://echo-socketio.hoppscotch.io",
-      path: "/socket.io",
-      version: "v4",
-    }
+    it("reads the `WebsocketRequest` entry from localStorage, sets it as the new request, subscribes to the `WSSessionStore` and updates localStorage entries", () => {
+      vi.mock("~/newstore/WebSocketSession", () => {
+        return {
+          setWSRequest: vi.fn(),
+          WSRequest$: {
+            subscribe: vi.fn(),
+          },
+        }
+      })
 
-    window.localStorage.setItem("SocketIORequest", JSON.stringify(sioRequest))
+      const request = {
+        endpoint: "wss://echo-websocket.hoppscotch.io",
+        protocols: [],
+      }
+      window.localStorage.setItem("WebsocketRequest", JSON.stringify(request))
 
-    const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
+      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
+      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
 
-    const container = new TestContainer()
-    const service = container.bind(PersistenceService)
+      const container = new TestContainer()
+      const service = container.bind(PersistenceService)
 
-    // @ts-expect-error Testing private method
-    service.setupSocketIOPersistence()
+      // @ts-expect-error Spying on private member
+      const i18nSpy = vi.spyOn(service, "t")
 
-    expect(getItemSpy).toHaveBeenCalledWith("SocketIORequest")
-    expect(setSIORequest).toHaveBeenCalledWith(sioRequest)
-    expect(SIORequest$.subscribe).toHaveBeenCalledWith(expect.any(Function))
+      // @ts-expect-error Testing private method
+      service.setupWebsocketPersistence()
+
+      expect(getItemSpy).toHaveBeenCalledWith("WebsocketRequest")
+
+      expect(i18nSpy).not.toHaveBeenCalled()
+      expect(setItemSpy).not.toHaveBeenCalled()
+
+      expect(setWSRequest).toHaveBeenCalledWith(request)
+      expect(WSRequest$.subscribe).toHaveBeenCalledWith(expect.any(Function))
+    })
   })
 
-  it("`setupSSEPersistence` method reads the `SSERequest` entry from localStorage, sets it as the new request, subscribes to the `SSESessionStore` and updates localStorage entries", () => {
-    vi.mock("~/newstore/SSESession", () => {
-      return {
-        setSSERequest: vi.fn(),
-        SSERequest$: {
-          subscribe: vi.fn(),
-        },
+  describe("setupSocketIOPersistence", () => {
+    it("shows an error and sets the entry as a backup in localStorage if `SocketIORequest` read from localStorage doesn't match the schema", () => {
+      // Invalid shape for `SocketIORequest`
+      const request = {
+        endpoint: "wss://echo-websocket.hoppscotch.io",
+        path: "/socket.io",
+        // `v` -> `version: v4`
+        v: "4",
       }
+
+      window.localStorage.setItem("SocketIORequest", JSON.stringify(request))
+
+      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
+      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
+
+      const container = new TestContainer()
+      const service = container.bind(PersistenceService)
+
+      // @ts-expect-error Spying on private member
+      const i18nSpy = vi.spyOn(service, "t")
+
+      // @ts-expect-error Testing private method
+      service.setupSocketIOPersistence()
+
+      expect(getItemSpy).toHaveBeenCalledWith("SocketIORequest")
+      expect(i18nSpy).toHaveBeenCalledWith(
+        "local_storage_read.socket_io_request_schema_mismatch"
+      )
+      expect(setItemSpy).toHaveBeenCalledWith(
+        "SocketIORequest-backup",
+        JSON.stringify(request)
+      )
     })
 
-    const sseRequest = {
-      endpoint: "https://express-eventsource.herokuapp.com/events",
-      eventType: "data",
-    }
-    window.localStorage.setItem("SSERequest", JSON.stringify(sseRequest))
+    it("schema parsing succeeds if there is no `SocketIORequest` key present in localStorage where the fallback of `null` is chosen", () => {
+      window.localStorage.removeItem("SocketIORequest")
 
-    const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
+      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
+      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
 
-    const container = new TestContainer()
-    const service = container.bind(PersistenceService)
+      const container = new TestContainer()
+      const service = container.bind(PersistenceService)
 
-    // @ts-expect-error Testing private method
-    service.setupSSEPersistence()
+      // @ts-expect-error Spying on private member
+      const i18nSpy = vi.spyOn(service, "t")
 
-    expect(getItemSpy).toHaveBeenCalledWith("SSERequest")
-    expect(setSSERequest).toHaveBeenCalledWith(sseRequest)
-    expect(SSERequest$.subscribe).toHaveBeenCalledWith(expect.any(Function))
-  })
+      // @ts-expect-error Testing private method
+      service.setupSocketIOPersistence()
 
-  it("`setupMQTTPersistence` method reads the `MQTTRequest` entry from localStorage, sets it as the new request, subscribes to the `MQTTSessionStore` and updates localStorage entries", () => {
-    vi.mock("~/newstore/MQTTSession", () => {
-      return {
-        setMQTTRequest: vi.fn(),
-        MQTTRequest$: {
-          subscribe: vi.fn(),
-        },
-      }
+      expect(getItemSpy).toHaveBeenCalledWith("SocketIORequest")
+      expect(i18nSpy).not.toHaveBeenCalled()
+      expect(setItemSpy).not.toHaveBeenCalled()
     })
 
-    const request = {
-      endpoint: "wss://test.mosquitto.org:8081",
-      clientID: "hoppscotch",
-    }
-    window.localStorage.setItem("MQTTRequest", JSON.stringify(request))
+    it("reads the `SocketIORequest` entry from localStorage, sets it as the new request, subscribes to the `SIOSessionStore` and updates localStorage entries", () => {
+      vi.mock("~/newstore/SocketIOSession", () => {
+        return {
+          setSIORequest: vi.fn(),
+          SIORequest$: {
+            subscribe: vi.fn(),
+          },
+        }
+      })
 
-    const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
+      const request = {
+        endpoint: "wss://echo-socketio.hoppscotch.io",
+        path: "/socket.io",
+        version: "v4",
+      }
 
-    const container = new TestContainer()
-    const service = container.bind(PersistenceService)
+      window.localStorage.setItem("SocketIORequest", JSON.stringify(request))
 
-    // @ts-expect-error Testing private method
-    service.setupMQTTPersistence()
+      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
+      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
 
-    expect(getItemSpy).toHaveBeenCalledWith("MQTTRequest")
-    expect(setMQTTRequest).toHaveBeenCalledWith(request)
-    expect(MQTTRequest$.subscribe).toHaveBeenCalledWith(expect.any(Function))
+      const container = new TestContainer()
+      const service = container.bind(PersistenceService)
+
+      // @ts-expect-error Spying on private member
+      const i18nSpy = vi.spyOn(service, "t")
+
+      // @ts-expect-error Testing private method
+      service.setupSocketIOPersistence()
+
+      expect(getItemSpy).toHaveBeenCalledWith("SocketIORequest")
+
+      expect(i18nSpy).not.toHaveBeenCalled()
+      expect(setItemSpy).not.toHaveBeenCalled()
+
+      expect(setSIORequest).toHaveBeenCalledWith(request)
+      expect(SIORequest$.subscribe).toHaveBeenCalledWith(expect.any(Function))
+    })
   })
 
-  it("`setupGlobalEnvsPersistence` method reads the `globalEnv` entry from localStorage, dispatches the new value, subscribes to the `environmentsStore` and updates localStorage entries", () => {
-    const globalEnv: Environment["variables"] = [
-      { key: "testKey", value: "testValue" },
-    ]
-    window.localStorage.setItem("globalEnv", JSON.stringify(globalEnv))
+  describe("setupSSEPersistence", () => {
+    it("shows an error and sets the entry as a backup in localStorage if `SSERequest` read from localStorage doesn't match the versioned schema", () => {
+      // Invalid shape for `SSERequest`
+      const request = {
+        // `url` -> `endpoint`
+        url: "https://express-eventsource.herokuapp.com/events",
+        eventType: "data",
+      }
 
-    const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
+      window.localStorage.setItem("SSERequest", JSON.stringify(request))
 
-    const container = new TestContainer()
-    const service = container.bind(PersistenceService)
+      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
+      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
 
-    // @ts-expect-error Testing private method
-    service.setupGlobalEnvsPersistence()
+      const container = new TestContainer()
+      const service = container.bind(PersistenceService)
 
-    expect(getItemSpy).toHaveBeenCalledWith("globalEnv")
-    expect(setGlobalEnvVariables).toHaveBeenCalledWith(globalEnv)
-    expect(globalEnv$.subscribe).toHaveBeenCalledWith(expect.any(Function))
+      // @ts-expect-error Spying on private member
+      const i18nSpy = vi.spyOn(service, "t")
+
+      // @ts-expect-error Testing private method
+      service.setupSSEPersistence()
+
+      expect(getItemSpy).toHaveBeenCalledWith("SSERequest")
+      expect(i18nSpy).toHaveBeenCalledWith(
+        "local_storage_read.sse_request_schema_mismatch"
+      )
+      expect(setItemSpy).toHaveBeenCalledWith(
+        "SSERequest-backup",
+        JSON.stringify(request)
+      )
+    })
+
+    it("schema parsing succeeds if there is no `SSERequest` key present in localStorage where the fallback of `null` is chosen", () => {
+      window.localStorage.removeItem("SSERequest")
+
+      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
+      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
+
+      const container = new TestContainer()
+      const service = container.bind(PersistenceService)
+
+      // @ts-expect-error Spying on private member
+      const i18nSpy = vi.spyOn(service, "t")
+
+      // @ts-expect-error Testing private method
+      service.setupSSEPersistence()
+
+      expect(getItemSpy).toHaveBeenCalledWith("SSERequest")
+      expect(i18nSpy).not.toHaveBeenCalled()
+      expect(setItemSpy).not.toHaveBeenCalled()
+    })
+
+    it("reads the `SSERequest` entry from localStorage, sets it as the new request, subscribes to the `SSESessionStore` and updates localStorage entries", () => {
+      vi.mock("~/newstore/SSESession", () => {
+        return {
+          setSSERequest: vi.fn(),
+          SSERequest$: {
+            subscribe: vi.fn(),
+          },
+        }
+      })
+
+      const request = {
+        endpoint: "https://express-eventsource.herokuapp.com/events",
+        eventType: "data",
+      }
+      window.localStorage.setItem("SSERequest", JSON.stringify(request))
+
+      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
+      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
+
+      const container = new TestContainer()
+      const service = container.bind(PersistenceService)
+
+      // @ts-expect-error Spying on private member
+      const i18nSpy = vi.spyOn(service, "t")
+
+      // @ts-expect-error Testing private method
+      service.setupSSEPersistence()
+
+      expect(getItemSpy).toHaveBeenCalledWith("SSERequest")
+
+      expect(i18nSpy).not.toHaveBeenCalled()
+      expect(setItemSpy).not.toHaveBeenCalled()
+
+      expect(setSSERequest).toHaveBeenCalledWith(request)
+      expect(SSERequest$.subscribe).toHaveBeenCalledWith(expect.any(Function))
+    })
+  })
+
+  describe("setupMQTTPersistence", () => {
+    it("shows an error and sets the entry as a backup in localStorage if `MQTTRequest` read from localStorage doesn't match the schema", () => {
+      // Invalid shape for `MQTTRequest`
+      const request = {
+        // `url` -> `endpoint`
+        url: "wss://test.mosquitto.org:8081",
+        clientID: "hoppscotch",
+      }
+
+      window.localStorage.setItem("MQTTRequest", JSON.stringify(request))
+
+      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
+      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
+
+      const container = new TestContainer()
+      const service = container.bind(PersistenceService)
+
+      // @ts-expect-error Spying on private member
+      const i18nSpy = vi.spyOn(service, "t")
+
+      // @ts-expect-error Testing private method
+      service.setupMQTTPersistence()
+
+      expect(getItemSpy).toHaveBeenCalledWith("MQTTRequest")
+      expect(i18nSpy).toHaveBeenCalledWith(
+        "local_storage_read.mqtt_request_schema_mismatch"
+      )
+      expect(setItemSpy).toHaveBeenCalledWith(
+        "MQTTRequest-backup",
+        JSON.stringify(request)
+      )
+    })
+
+    it("schema parsing succeeds if there is no `MQTTRequest` key present in localStorage where the fallback of `null` is chosen", () => {
+      window.localStorage.removeItem("MQTTRequest")
+
+      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
+      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
+
+      const container = new TestContainer()
+      const service = container.bind(PersistenceService)
+
+      // @ts-expect-error Spying on private member
+      const i18nSpy = vi.spyOn(service, "t")
+
+      // @ts-expect-error Testing private method
+      service.setupMQTTPersistence()
+
+      expect(getItemSpy).toHaveBeenCalledWith("MQTTRequest")
+      expect(i18nSpy).not.toHaveBeenCalled()
+      expect(setItemSpy).not.toHaveBeenCalled()
+    })
+
+    it("reads the `MQTTRequest` entry from localStorage, sets it as the new request, subscribes to the `MQTTSessionStore` and updates localStorage entries", () => {
+      vi.mock("~/newstore/MQTTSession", () => {
+        return {
+          setMQTTRequest: vi.fn(),
+          MQTTRequest$: {
+            subscribe: vi.fn(),
+          },
+        }
+      })
+
+      const request = {
+        endpoint: "wss://test.mosquitto.org:8081",
+        clientID: "hoppscotch",
+      }
+      window.localStorage.setItem("MQTTRequest", JSON.stringify(request))
+
+      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
+      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
+
+      const container = new TestContainer()
+      const service = container.bind(PersistenceService)
+
+      // @ts-expect-error Spying on private member
+      const i18nSpy = vi.spyOn(service, "t")
+
+      // @ts-expect-error Testing private method
+      service.setupMQTTPersistence()
+
+      expect(getItemSpy).toHaveBeenCalledWith("MQTTRequest")
+
+      expect(i18nSpy).not.toHaveBeenCalled()
+      expect(setItemSpy).not.toHaveBeenCalled()
+
+      expect(setMQTTRequest).toHaveBeenCalledWith(request)
+      expect(MQTTRequest$.subscribe).toHaveBeenCalledWith(expect.any(Function))
+    })
+  })
+
+  describe("setupGlobalEnvsPersistence", () => {
+    it("shows an error and sets the entry as a backup in localStorage if `globalEnv` read from localStorage doesn't match the schema", () => {
+      // Invalid shape for `globalEnv`
+      const globalEnv = [
+        {
+          // `key` -> `string`
+          key: 1,
+          value: "testValue",
+        },
+      ]
+
+      window.localStorage.setItem("globalEnv", JSON.stringify(globalEnv))
+
+      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
+      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
+
+      const container = new TestContainer()
+      const service = container.bind(PersistenceService)
+
+      // @ts-expect-error Spying on private member
+      const i18nSpy = vi.spyOn(service, "t")
+
+      // @ts-expect-error Testing private method
+      service.setupGlobalEnvsPersistence()
+
+      expect(getItemSpy).toHaveBeenCalledWith("globalEnv")
+      expect(i18nSpy).toHaveBeenCalledWith(
+        "local_storage_read.global_env_schema_mismatch"
+      )
+      expect(setItemSpy).toHaveBeenCalledWith(
+        "globalEnv-backup",
+        JSON.stringify(globalEnv)
+      )
+    })
+
+    it("schema parsing succeeds if there is no `globalEnv` key present in localStorage where the fallback of `[]` is chosen", () => {
+      window.localStorage.removeItem("globalEnv")
+
+      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
+      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
+
+      const container = new TestContainer()
+      const service = container.bind(PersistenceService)
+
+      // @ts-expect-error Spying on private member
+      const i18nSpy = vi.spyOn(service, "t")
+
+      // @ts-expect-error Testing private method
+      service.setupGlobalEnvsPersistence()
+
+      expect(getItemSpy).toHaveBeenCalledWith("globalEnv")
+      expect(i18nSpy).not.toHaveBeenCalled()
+      expect(setItemSpy).not.toHaveBeenCalled()
+    })
+
+    it("reads the `globalEnv` entry from localStorage, dispatches the new value, subscribes to the `environmentsStore` and updates localStorage entries", () => {
+      const globalEnv: Environment["variables"] = [
+        { key: "testKey", value: "testValue" },
+      ]
+      window.localStorage.setItem("globalEnv", JSON.stringify(globalEnv))
+
+      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
+      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
+
+      const container = new TestContainer()
+      const service = container.bind(PersistenceService)
+
+      // @ts-expect-error Spying on private member
+      const i18nSpy = vi.spyOn(service, "t")
+
+      // @ts-expect-error Testing private method
+      service.setupGlobalEnvsPersistence()
+
+      expect(getItemSpy).toHaveBeenCalledWith("globalEnv")
+
+      expect(i18nSpy).not.toHaveBeenCalled()
+      expect(setItemSpy).not.toHaveBeenCalled()
+
+      expect(setGlobalEnvVariables).toHaveBeenCalledWith(globalEnv)
+      expect(globalEnv$.subscribe).toHaveBeenCalledWith(expect.any(Function))
+    })
   })
 
   describe("setupGQLTabsPersistence", () => {
-    it("loads tabs from the state persisted in localStorage and sets watcher for `persistableTabState`", () => {
-      const tabState = GQL_TAB_STATE
-      window.localStorage.setItem("gqlTabState", JSON.stringify(tabState))
+    it.skip("shows an error and sets the entry as a backup in localStorage if `gqlTabState` read from localStorage doesn't match the schema", () => {
+      // Invalid shape for `gqlTabState`
+      // `lastActiveTabID` -> `string`
+      const gqlTabState = { ...GQL_TAB_STATE, lastActiveTabID: 1234 }
+
+      window.localStorage.setItem("gqlTabState", JSON.stringify(gqlTabState))
 
       const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
+      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
+
+      const container = new TestContainer()
+      const service = container.bind(PersistenceService)
+
+      // @ts-expect-error Spying on private member
+      const i18nSpy = vi.spyOn(service, "t")
+
+      // @ts-expect-error Testing private method
+      service.setupGQLTabsPersistence()
+
+      expect(getItemSpy).toHaveBeenCalledWith("gqlTabState")
+      expect(i18nSpy).toHaveBeenCalledWith(
+        "local_storage_read.global_env_schema_mismatch"
+      )
+      expect(setItemSpy).toHaveBeenCalledWith(
+        "gqlTabState-backup",
+        JSON.stringify(gqlTabState)
+      )
+    })
+
+    it("skips schema parsing and the loading of persisted tabs if there is no `gqlTabState` key present in localStorage", () => {
+      window.localStorage.removeItem("gqlTabState")
+
+      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
+      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
 
       const container = new TestContainer()
       const persistenceService = container.bind(PersistenceService)
@@ -643,14 +1557,50 @@ describe("PersistenceService", () => {
 
       gqlTabService.loadTabsFromPersistedState = vi.fn()
 
+      // @ts-expect-error Spying on private member
+      const i18nSpy = vi.spyOn(persistenceService, "t")
+
       // @ts-expect-error Testing private method
       persistenceService.setupGQLTabsPersistence()
 
       expect(getItemSpy).toHaveBeenCalledWith("gqlTabState")
+
+      expect(i18nSpy).not.toHaveBeenCalled()
+      expect(setItemSpy).not.toHaveBeenCalled()
+
+      expect(gqlTabService.loadTabsFromPersistedState).not.toHaveBeenCalled()
+      expect(watchDebounced).toHaveBeenCalled()
+    })
+
+    it("loads tabs from the state persisted in localStorage and sets watcher for `persistableTabState`", () => {
+      const tabState = GQL_TAB_STATE
+      window.localStorage.setItem("gqlTabState", JSON.stringify(tabState))
+
+      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
+      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
+
+      const container = new TestContainer()
+      const persistenceService = container.bind(PersistenceService)
+
+      // TODO: Bind this to the `TestContainer`
+      const gqlTabService = getService(GQLTabService)
+
+      gqlTabService.loadTabsFromPersistedState = vi.fn()
+
+      // @ts-expect-error Spying on private member
+      const i18nSpy = vi.spyOn(persistenceService, "t")
+
+      // @ts-expect-error Testing private method
+      persistenceService.setupGQLTabsPersistence()
+
+      expect(getItemSpy).toHaveBeenCalledWith("gqlTabState")
+
+      expect(i18nSpy).not.toHaveBeenCalled()
+      expect(setItemSpy).not.toHaveBeenCalled()
+
       expect(gqlTabService.loadTabsFromPersistedState).toHaveBeenCalledWith(
         tabState
       )
-
       expect(watchDebounced).toHaveBeenCalledWith(
         gqlTabService.persistableTabState,
         expect.any(Function),
@@ -663,6 +1613,7 @@ describe("PersistenceService", () => {
 
       console.error = vi.fn()
       const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
+      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
 
       const container = new TestContainer()
       const persistenceService = container.bind(PersistenceService)
@@ -670,15 +1621,21 @@ describe("PersistenceService", () => {
       // TODO: Bind this to the `TestContainer`
       const gqlTabService = getService(GQLTabService)
 
+      // @ts-expect-error Spying on private member
+      const i18nSpy = vi.spyOn(persistenceService, "t")
+
       // @ts-expect-error Testing private method
       persistenceService.setupGQLTabsPersistence()
 
       expect(getItemSpy).toHaveBeenCalledWith("gqlTabState")
+
+      expect(i18nSpy).not.toHaveBeenCalled()
+      expect(setItemSpy).not.toHaveBeenCalled()
+
       expect(console.error).toHaveBeenCalledWith(
         `Failed parsing persisted tab state, state:`,
         window.localStorage.getItem("gqlTabState")
       )
-
       expect(watchDebounced).toHaveBeenCalledWith(
         gqlTabService.persistableTabState,
         expect.any(Function),
@@ -688,11 +1645,39 @@ describe("PersistenceService", () => {
   })
 
   describe("setupRESTTabsPersistence", () => {
-    it("loads tabs from the state persisted in localStorage and sets watcher for `persistableTabState`", () => {
-      const tabState = REST_TAB_STATE
-      window.localStorage.setItem("restTabState", JSON.stringify(tabState))
+    it.skip("shows an error and sets the entry as a backup in localStorage if `restTabState` read from localStorage doesn't match the schema", () => {
+      // Invalid shape for `restTabState`
+      // `lastActiveTabID` -> `string`
+      const restTabState = { ...REST_TAB_STATE, lastActiveTabID: 1234 }
+
+      window.localStorage.setItem("restTabState", JSON.stringify(restTabState))
 
       const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
+      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
+
+      const container = new TestContainer()
+      const service = container.bind(PersistenceService)
+
+      // @ts-expect-error Spying on private member
+      const i18nSpy = vi.spyOn(service, "t")
+
+      service.setupRESTTabsPersistence()
+
+      expect(getItemSpy).toHaveBeenCalledWith("restTabState")
+      expect(i18nSpy).toHaveBeenCalledWith(
+        "local_storage_read.rest_tab_schema_mismatch"
+      )
+      expect(setItemSpy).toHaveBeenCalledWith(
+        "restTabState-backup",
+        JSON.stringify(restTabState)
+      )
+    })
+
+    it("skips schema parsing and the loading of persisted tabs if there is no `restTabState` key present in localStorage", () => {
+      window.localStorage.removeItem("restTabState")
+
+      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
+      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
 
       const container = new TestContainer()
       const persistenceService = container.bind(PersistenceService)
@@ -702,13 +1687,48 @@ describe("PersistenceService", () => {
 
       restTabService.loadTabsFromPersistedState = vi.fn()
 
+      // @ts-expect-error Spying on private member
+      const i18nSpy = vi.spyOn(persistenceService, "t")
+
       persistenceService.setupRESTTabsPersistence()
 
       expect(getItemSpy).toHaveBeenCalledWith("restTabState")
+
+      expect(i18nSpy).not.toHaveBeenCalled()
+      expect(setItemSpy).not.toHaveBeenCalled()
+
+      expect(restTabService.loadTabsFromPersistedState).not.toHaveBeenCalled()
+      expect(watchDebounced).toHaveBeenCalled()
+    })
+
+    it("loads tabs from the state persisted in localStorage and sets watcher for `persistableTabState`", () => {
+      const tabState = REST_TAB_STATE
+      window.localStorage.setItem("restTabState", JSON.stringify(tabState))
+
+      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
+      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
+
+      const container = new TestContainer()
+      const persistenceService = container.bind(PersistenceService)
+
+      // @ts-expect-error Spying on private member
+      const i18nSpy = vi.spyOn(persistenceService, "t")
+
+      // TODO: Bind this to the `TestContainer`
+      const restTabService = getService(RESTTabService)
+
+      restTabService.loadTabsFromPersistedState = vi.fn()
+
+      persistenceService.setupRESTTabsPersistence()
+
+      expect(getItemSpy).toHaveBeenCalledWith("restTabState")
+
+      expect(i18nSpy).not.toHaveBeenCalled()
+      expect(setItemSpy).not.toHaveBeenCalled()
+
       expect(restTabService.loadTabsFromPersistedState).toHaveBeenCalledWith(
         tabState
       )
-
       expect(watchDebounced).toHaveBeenCalledWith(
         restTabService.persistableTabState,
         expect.any(Function),
@@ -721,9 +1741,13 @@ describe("PersistenceService", () => {
 
       console.error = vi.fn()
       const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
+      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
 
       const container = new TestContainer()
       const persistenceService = container.bind(PersistenceService)
+
+      // @ts-expect-error Spying on private member
+      const i18nSpy = vi.spyOn(persistenceService, "t")
 
       // TODO: Bind this to the `TestContainer`
       const restTabService = getService(RESTTabService)
@@ -731,11 +1755,14 @@ describe("PersistenceService", () => {
       persistenceService.setupRESTTabsPersistence()
 
       expect(getItemSpy).toHaveBeenCalledWith("restTabState")
+
+      expect(i18nSpy).not.toHaveBeenCalled()
+      expect(setItemSpy).not.toHaveBeenCalled()
+
       expect(console.error).toHaveBeenCalledWith(
         `Failed parsing persisted tab state, state:`,
         window.localStorage.getItem("restTabState")
       )
-
       expect(watchDebounced).toHaveBeenCalledWith(
         restTabService.persistableTabState,
         expect.any(Function),

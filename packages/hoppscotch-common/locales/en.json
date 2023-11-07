@@ -927,5 +927,23 @@
     "personal": "My Workspace",
     "team": "Team Workspace",
     "title": "Workspaces"
+  },
+  "local_storage_read": {
+    "local_state_schema_mismatch": "There's a mismatch with the expected schema for the value corresponding to localState read from localStorage, keeping a backup in localState-backup",
+    "environments_schema_mismatch": "There's a mismatch with the expected schema for the value corresponding to environments read from localStorage, keeping a backup in environments-backup",
+    "selected_env_index_schema_mismatch": "There's a mismatch with the expected schema for the value corresponding to selectedEnvIndex read from localStorage, keeping a backup in selectedEnvIndex-backup",
+    "websocket_request_schema_mismatch": "There's a mismatch with the expected schema for the value corresponding to WebsocketRequest read from localStorage, keeping a backup in WebsocketRequest-backup",
+    "socket_io_request_schema_mismatch": "There's a mismatch with the expected schema for the value corresponding to SocketIORequest read from localStorage, keeping a backup in SocketIORequest-backup",
+    "sse_request_schema_mismatch": "There's a mismatch with the expected schema for the value corresponding to SSERequest read from localStorage, keeping a backup in SSERequest-backup",
+    "mqtt_request_schema_mismatch": "There's a mismatch with the expected schema for the value corresponding to MQTTRequest read from localStorage, keeping a backup in MQTTRequest-backup",
+    "global_env_schema_mismatch": "There's a mismatch with the expected schema for the value corresponding to globalEnv read from localStorage, keeping a backup in globalEnv-backup",
+    "gql_tab_state_schema_mismatch": "There's a mismatch with the expected schema for the value corresponding to gqlTabState read from localStorage, keeping a backup in gqlTabState-backup",
+    "rest_tab_state_schema_mismatch": "There's a mismatch with the expected schema for the value corresponding to restTabState read from localStorage, keeping a backup in restTabState-backup",
+    "vuex_schema_mismatch": "There's a mismatch with the expected schema for the value corresponding to vuex read from localStorage, keeping a backup in vuex-backup",
+    "settings_schema_mismatch": "There's a mismatch with the expected schema for the value corresponding to settings read from localStorage, keeping a backup in settings-backup",
+    "rest_history_schema_mismatch": "There's a mismatch with the expected schema for the value corresponding to history read from localStorage, keeping a backup in history-backup",
+    "graphql_history_schema_mismatch": "There's a mismatch with the expected schema for the value corresponding to graphqlHistory read from localStorage, keeping a backup in graphqlHistory-backup",
+    "rest_collections_schema_mismatch": "There's a mismatch with the expected schema for the value corresponding to collections read from localStorage, keeping a backup in collections-backup",
+    "graphql_collections_schema_mismatch": "There's a mismatch with the expected schema for the value corresponding to collectionsGraphql read from localStorage, keeping a backup in collectionsGraphql-backup"
   }
 }

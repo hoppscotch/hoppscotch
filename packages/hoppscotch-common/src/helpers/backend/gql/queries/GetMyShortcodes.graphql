@@ -3,5 +3,6 @@ query GetUserShortcodes($cursor: ID) {
     id
     request
     createdOn
+    properties
   }
 }

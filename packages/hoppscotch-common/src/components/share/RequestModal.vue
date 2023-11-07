@@ -31,7 +31,7 @@
               :key="widget.value"
               class="flex cursor-pointer flex-col space-y-2 rounded border border-divider px-4 py-3 hover:bg-dividerLight"
               :class="{
-                'border-accentLight': selectedWidget.value === widget.value,
+                '!border-accentLight': selectedWidget.value === widget.value,
               }"
               @click="selectedWidget = widget"
             >

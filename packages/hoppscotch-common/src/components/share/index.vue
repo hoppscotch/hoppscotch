@@ -85,7 +85,7 @@
 <script lang="ts" setup>
 import IconHelpCircle from "~icons/lucide/help-circle"
 import { useI18n } from "~/composables/i18n"
-import SharedRequestListAdapter from "~/helpers/sharedRequest/SharedRequestListAdapter"
+import ShortcodeListAdapter from "~/helpers/shortcode/ShortcodeListAdapter"
 import { useReadonlyStream } from "~/composables/stream"
 import { onAuthEvent, onLoggedIn } from "~/composables/auth"
 import { computed } from "vue"
@@ -104,7 +104,7 @@ import { ref } from "vue"
 import { HoppRESTRequest } from "@hoppscotch/data"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
 import * as E from "fp-ts/Either"
-import { SharedRequest } from "~/helpers/sharedRequest/SharedRequest"
+import { Shortcode } from "~/helpers/shortcode/Shortcode"
 import { RESTTabService } from "~/services/tab/rest"
 import { useService } from "dioc/vue"
 
@@ -123,7 +123,7 @@ const sharedRequestID = ref("")
 const shareRequestCreatingLoading = ref(false)
 
 const requestToCreate = ref<HoppRESTRequest | null>(null)
-const requestToCustomize = ref<SharedRequest | null>(null)
+const requestToCustomize = ref<Shortcode | null>(null)
 
 const restTab = useService(RESTTabService)
 
@@ -141,14 +141,11 @@ const selectedWidget = ref<Widget>({
   info: t("shared_requests.embed_info"),
 })
 
-const adapter = new SharedRequestListAdapter(true)
+const adapter = new ShortcodeListAdapter(true)
 const adapterLoading = useReadonlyStream(adapter.loading$, false)
 const adapterError = useReadonlyStream(adapter.error$, null)
-const sharedRequests = useReadonlyStream(adapter.sharedRequest$, [])
-const hasMoreSharedRequests = useReadonlyStream(
-  adapter.hasMoreSharedRequest$,
-  true
-)
+const sharedRequests = useReadonlyStream(adapter.shortcodes$, [])
+const hasMoreSharedRequests = useReadonlyStream(adapter.hasMoreShortcode$, true)
 
 const loading = computed(
   () => adapterLoading.value && sharedRequests.value.length === 0
@@ -196,7 +193,7 @@ const loadMoreSharedRequests = () => {
   adapter.loadMore()
 }
 
-const customizeSharedRequest = (request: SharedRequest) => {
+const customizeSharedRequest = (request: Shortcode) => {
   requestToCustomize.value = request
   displayCustomizeRequestModal(true)
 }
@@ -221,9 +218,8 @@ const createSharedRequest = async (request: HoppRESTRequest | null) => {
       toast.error(`${sharedRequestResult.left.error}`)
       toast.error(t("error.something_went_wrong"))
     } else if (E.isRight(sharedRequestResult)) {
-      if (sharedRequestResult.right.createShortcode) {
+      if (sharedRequestResult.right.createShortcode)
         customizeSharedRequest(sharedRequestResult.right.createShortcode)
-      }
 
       shareRequestCreatingLoading.value = false
       displayShareRequestModal(false)

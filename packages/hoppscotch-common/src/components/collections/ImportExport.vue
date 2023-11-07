@@ -341,7 +341,7 @@ const HoppTeamCollectionsExporter: ImporterOrExporter = {
     isHoppTeamCollectionExporterInProgress.value = true
 
     if (
-      props.collectionsType.type == "team-collections" &&
+      props.collectionsType.type === "team-collections" &&
       props.collectionsType.selectedTeam
     ) {
       const res = await teamCollectionsExporter(
@@ -424,7 +424,7 @@ const exporterModules = computed(() => {
 
   return enabledExporters.filter((exporter) => {
     return exporter.metadata.applicableTo.includes(
-      props.collectionsType.type == "my-collections"
+      props.collectionsType.type === "my-collections"
         ? "personal-workspace"
         : "team-workspace"
     )
@@ -436,16 +436,20 @@ const hasTeamWriteAccess = computed(() => {
 
   const isTeamCollection = collectionsType.type === "team-collections"
 
-  return isTeamCollection
-    ? collectionsType.selectedTeam?.myRole == "EDITOR" ||
-        collectionsType.selectedTeam?.myRole == "OWNER"
-    : false
+  if (!isTeamCollection || !collectionsType.selectedTeam) {
+    return false
+  }
+
+  return (
+    collectionsType.selectedTeam.myRole === "EDITOR" ||
+    collectionsType.selectedTeam.myRole === "OWNER"
+  )
 })
 
 const selectedTeamID = computed(() => {
   const { collectionsType } = props
 
-  return collectionsType.type == "team-collections"
+  return collectionsType.type === "team-collections"
     ? collectionsType.selectedTeam?.id
     : undefined
 })
@@ -453,10 +457,8 @@ const selectedTeamID = computed(() => {
 const myCollections = useReadonlyStream(restCollections$, [])
 
 const getCollectionJSON = async () => {
-  let collections
-
   if (
-    props.collectionsType.type == "team-collections" &&
+    props.collectionsType.type === "team-collections" &&
     props.collectionsType.selectedTeam?.id
   ) {
     const res = await getTeamCollectionJSON(
@@ -466,10 +468,12 @@ const getCollectionJSON = async () => {
     return E.isRight(res)
       ? E.right(res.right.exportCollectionsToJSON)
       : E.left(res.left)
-  } else {
-    collections = JSON.stringify(myCollections.value, null, 2)
-
-    return E.right(collections)
   }
+
+  if (props.collectionsType.type === "my-collections") {
+    return E.right(JSON.stringify(myCollections.value, null, 2))
+  }
+
+  return E.left("INVALID_SELECTED_TEAM_OR_INVALID_COLLECTION_TYPE")
 }
 </script>

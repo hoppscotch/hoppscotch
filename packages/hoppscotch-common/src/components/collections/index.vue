@@ -405,7 +405,7 @@ const hasTeamWriteAccess = computed(() => {
   }
 
   const role = collectionsType.value.selectedTeam?.myRole
-  return role == "OWNER" || role == "EDITOR"
+  return role === "OWNER" || role === "EDITOR"
 })
 
 const filteredCollections = computed(() => {

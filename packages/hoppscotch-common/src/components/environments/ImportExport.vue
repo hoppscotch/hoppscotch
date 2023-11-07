@@ -172,7 +172,7 @@ const HoppEnvironmentsGistExporter: ImporterOrExporter = {
     title:
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      currentUser && currentUser.provider == "github.com"
+      currentUser && currentUser.provider === "github.com"
         ? "export.create_secret_gist"
         : "export.require_github",
     icon: IconUser,

@@ -13,7 +13,7 @@
         {{ t(`${caption}`) }}
       </span>
     </p>
-    <p
+    <div
       class="flex flex-col ml-10 border border-dashed rounded border-dividerDark"
     >
       <input
@@ -25,7 +25,7 @@
         :accept="acceptedFileTypes"
         @change="onFileChange"
       />
-    </p>
+    </div>
 
     <div>
       <HoppButtonPrimary

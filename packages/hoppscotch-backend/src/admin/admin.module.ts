@@ -11,6 +11,7 @@ import { TeamEnvironmentsModule } from '../team-environments/team-environments.m
 import { TeamCollectionModule } from '../team-collection/team-collection.module';
 import { TeamRequestModule } from '../team-request/team-request.module';
 import { InfraResolver } from './infra.resolver';
+import { ShortcodeModule } from 'src/shortcode/shortcode.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { InfraResolver } from './infra.resolver';
     TeamEnvironmentsModule,
     TeamCollectionModule,
     TeamRequestModule,
+    ShortcodeModule,
   ],
   providers: [InfraResolver, AdminResolver, AdminService],
   exports: [AdminService],

@@ -15,6 +15,7 @@ import { InvitedUser } from './invited-user.model';
 import { Team } from 'src/team/team.model';
 import { TeamInvitation } from 'src/team-invitation/team-invitation.model';
 import { GqlAdmin } from './decorators/gql-admin.decorator';
+import { ShortcodeWithUserEmail } from 'src/shortcode/shortcode.model';
 
 @UseGuards(GqlThrottlerGuard)
 @Resolver(() => Infra)
@@ -201,5 +202,24 @@ export class InfraResolver {
   })
   async teamRequestsCount() {
     return this.adminService.getTeamRequestsCount();
+  }
+
+  @ResolveField(() => [ShortcodeWithUserEmail], {
+    description: 'Returns a list of all the shortcodes in the infra',
+  })
+  async allShortcodes(
+    @Args() args: PaginationArgs,
+    @Args({
+      name: 'userEmail',
+      nullable: true,
+      description: 'Users email to filter shortcodes by',
+    })
+    userEmail: string,
+  ) {
+    return await this.adminService.fetchAllShortcodes(
+      args.cursor,
+      args.take,
+      userEmail,
+    );
   }
 }

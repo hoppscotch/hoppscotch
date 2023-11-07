@@ -10,13 +10,14 @@ import {
   SHORTCODE_PROPERTIES_NOT_FOUND,
 } from 'src/errors';
 import { UserDataHandler } from 'src/user/user.data.handler';
-import { Shortcode } from './shortcode.model';
+import { Shortcode, ShortcodeWithUserEmail } from './shortcode.model';
 import { Shortcode as DBShortCode } from '@prisma/client';
 import { PubSubService } from 'src/pubsub/pubsub.service';
 import { UserService } from 'src/user/user.service';
 import { stringToJson } from 'src/utils';
 import { PaginationArgs } from 'src/types/input-types.args';
 import { AuthUser } from '../types/AuthUser';
+import { User } from 'src/user/user.model';
 
 const SHORT_CODE_LENGTH = 12;
 const SHORT_CODE_CHARS =
@@ -262,5 +263,54 @@ export class ShortcodeService implements UserDataHandler, OnModuleInit {
     } catch (error) {
       return E.left(SHORTCODE_NOT_FOUND);
     }
+  }
+
+  /**
+   * Fetch all created ShortCodes
+   *
+   * @param args Pagination arguments
+   * @param userEmail User email
+   * @returns ShortcodeWithUserEmail
+   */
+  async fetchAllShortcodes(
+    args: PaginationArgs,
+    userEmail: string | null = null,
+  ) {
+    const shortCodes = await this.prisma.shortcode.findMany({
+      where: userEmail
+        ? {
+            User: {
+              email: userEmail,
+            },
+          }
+        : undefined,
+      orderBy: {
+        createdOn: 'desc',
+      },
+      skip: args.cursor ? 1 : 0,
+      take: args.take,
+      cursor: args.cursor ? { id: args.cursor } : undefined,
+      include: {
+        User: true,
+      },
+    });
+
+    const fetchedShortCodes: ShortcodeWithUserEmail[] = shortCodes.map(
+      (code) => {
+        return <ShortcodeWithUserEmail>{
+          id: code.id,
+          request: JSON.stringify(code.request),
+          properties:
+            code.embedProperties != null
+              ? JSON.stringify(code.embedProperties)
+              : null,
+          createdOn: code.createdOn,
+          creatorUid: code.creatorUid,
+          creatorEmail: code.User.email,
+        };
+      },
+    );
+
+    return fetchedShortCodes;
   }
 }

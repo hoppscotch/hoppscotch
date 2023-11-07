@@ -145,7 +145,10 @@ const adapter = new ShortcodeListAdapter(true)
 const adapterLoading = useReadonlyStream(adapter.loading$, false)
 const adapterError = useReadonlyStream(adapter.error$, null)
 const sharedRequests = useReadonlyStream(adapter.shortcodes$, [])
-const hasMoreSharedRequests = useReadonlyStream(adapter.hasMoreShortcode$, true)
+const hasMoreSharedRequests = useReadonlyStream(
+  adapter.hasMoreShortcodes$,
+  true
+)
 
 const loading = computed(
   () => adapterLoading.value && sharedRequests.value.length === 0

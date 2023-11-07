@@ -15,11 +15,11 @@ import {
 import { BACKEND_PAGE_SIZE } from "../backend/helpers"
 import { Shortcode } from "./Shortcode"
 
-export default class SharedRequestListAdapter {
+export default class ShortcodeListAdapter {
   error$: BehaviorSubject<GQLError<string> | null>
   loading$: BehaviorSubject<boolean>
   shortcodes$: BehaviorSubject<GetUserShortcodesQuery["myShortcodes"]>
-  hasMoreShortcode$: BehaviorSubject<boolean>
+  hasMoreShortcodes$: BehaviorSubject<boolean>
 
   private isDispose: boolean
 
@@ -35,7 +35,7 @@ export default class SharedRequestListAdapter {
     this.shortcodes$ = new BehaviorSubject<
       GetUserShortcodesQuery["myShortcodes"]
     >([])
-    this.hasMoreShortcode$ = new BehaviorSubject<boolean>(true)
+    this.hasMoreShortcodes$ = new BehaviorSubject<boolean>(true)
     this.isDispose = true
     this.shortcodeCreated = null
     this.shortcodeRevoked = null
@@ -78,7 +78,7 @@ export default class SharedRequestListAdapter {
   }
 
   async loadMore(forcedAttempt = false) {
-    if (!this.hasMoreShortcode$.value && !forcedAttempt) return
+    if (!this.hasMoreShortcodes$.value && !forcedAttempt) return
 
     this.loading$.next(true)
 
@@ -98,7 +98,7 @@ export default class SharedRequestListAdapter {
       console.error(result.left)
       this.loading$.next(false)
 
-      throw new Error(`Failed fetching shortcode list: ${result.left}`)
+      throw new Error(`Failed fetching shortcodes list: ${result.left}`)
     }
 
     const fetchedResult = result.right.myShortcodes
@@ -106,7 +106,7 @@ export default class SharedRequestListAdapter {
     this.pushNewShortcode(fetchedResult)
 
     if (fetchedResult.length !== BACKEND_PAGE_SIZE) {
-      this.hasMoreShortcode$.next(false)
+      this.hasMoreShortcodes$.next(false)
     }
 
     this.loading$.next(false)
@@ -120,10 +120,10 @@ export default class SharedRequestListAdapter {
     this.shortcodes$.next(userShortcodes)
   }
 
-  private createShortcode(shortcodes: Shortcode) {
+  private createShortcode(shortcode: Shortcode) {
     const userShortcode = this.shortcodes$.value
 
-    userShortcode.unshift(shortcodes)
+    userShortcode.unshift(shortcode)
 
     this.shortcodes$.next(userShortcode)
   }

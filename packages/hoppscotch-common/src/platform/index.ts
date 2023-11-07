@@ -35,6 +35,14 @@ export type PlatformDef = {
      *  If a value is not given, then the value is assumed to be false
      */
     cookiesEnabled?: boolean
+
+    /**
+     * Whether the platform should prompt the user that cookies are being used.
+     * This will result in the user being notified a cookies advisory and is meant for web apps.
+     *
+     * If a value is not given, then the value is assumed to be true
+     */
+    promptAsUsingCookies?: boolean
   }
 }
 

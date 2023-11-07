@@ -53,6 +53,7 @@ createHoppApp("#app", {
     exportAsGIST: false,
     hasTelemetry: false,
     cookiesEnabled: true,
+    promptAsUsingCookies: false,
   },
 })
 

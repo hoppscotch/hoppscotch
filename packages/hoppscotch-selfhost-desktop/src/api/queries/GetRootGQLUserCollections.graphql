@@ -1,0 +1,13 @@
+query GetGQLRootUserCollections {
+  # the frontend doesnt paginate right now, so giving take a big enough value to get all collections at once
+  rootGQLUserCollections(take: 99999) {
+    id
+    title
+    type
+    childrenGQL {
+      id
+      title
+      type
+    }
+  }
+}

@@ -1,0 +1,5 @@
+mutation UpdateGQLUserRequest($id: ID!, $request: String!, $title: String) {
+  updateGQLUserRequest(id: $id, request: $request, title: $title) {
+    id
+  }
+}

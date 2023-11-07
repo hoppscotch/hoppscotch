@@ -1,0 +1,6 @@
+subscription userHistoryDeleted {
+  userHistoryDeleted {
+    id
+    reqType
+  }
+}

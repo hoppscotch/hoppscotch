@@ -1,5 +1,6 @@
 {
   "action": {
+    "add": "Add",
     "autoscroll": "Autoscroll",
     "cancel": "Cancel",
     "choose_file": "Choose a file",
@@ -54,9 +55,28 @@
     "new": "Add new",
     "star": "Add star"
   },
+  "cookies": {
+    "modal": {
+      "new_domain_name": "New domain name",
+      "set": "Set a cookie",
+      "cookie_string": "Cookie string",
+      "enter_cookie_string": "Enter cookie string",
+      "cookie_name": "Name",
+      "cookie_value": "Value",
+      "cookie_path": "Path",
+      "cookie_expires": "Expires",
+      "managed_tab": "Managed",
+      "raw_tab": "Raw",
+      "interceptor_no_support": "Your currently selected interceptor does not support cookies. Select a different Interceptor and try again.",
+      "empty_domains": "Domain list is empty",
+      "empty_domain": "Domain is empty",
+      "no_cookies_in_domain": "No cookies set for this domain"
+    }
+  },
   "app": {
     "chat_with_us": "Chat with us",
     "contact_us": "Contact us",
+    "cookies": "Cookies",
     "copy": "Copy",
     "copy_user_id": "Copy User Auth Token",
     "developer_option": "Developer options",
@@ -764,7 +784,7 @@
     "published_error": "Something went wrong while publishing msg: {topic} to topic: {message}",
     "published_message": "Published message: {message} to topic: {topic}",
     "reconnection_error": "Failed to reconnect",
-    "show":"Show",
+    "show": "Show",
     "subscribed_failed": "Failed to subscribe to topic: {topic}",
     "subscribed_success": "Successfully subscribed to topic: {topic}",
     "unsubscribed_failed": "Failed to unsubscribe from topic: {topic}",

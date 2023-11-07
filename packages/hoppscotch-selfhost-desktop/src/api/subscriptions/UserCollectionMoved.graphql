@@ -1,0 +1,9 @@
+subscription UserCollectionMoved {
+  userCollectionMoved {
+    id
+    parent {
+      id
+    }
+    type
+  }
+}

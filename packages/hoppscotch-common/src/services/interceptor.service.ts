@@ -86,6 +86,12 @@ export type Interceptor<Err extends InterceptorError = InterceptorError> = {
   name: (t: ReturnType<typeof getI18n>) => MaybeRef<string>
 
   /**
+   * Defines whether the interceptor has support for cookies.
+   * If this field is undefined, it is assumed as not supporting cookies.
+   */
+  supportsCookies?: boolean
+
+  /**
    * Defines what to render in the Interceptor section of the Settings page.
    * Use this space to define interceptor specific settings.
    * Not setting this will lead to nothing being rendered about this interceptor in the settings page.
@@ -160,6 +166,16 @@ export class InterceptorService extends Service {
   public availableInterceptors = computed(() =>
     Array.from(this.interceptors.values())
   )
+
+  /**
+   * Gives an instance to the current interceptor.
+   *  NOTE: Do not update from here, this is only for reading.
+   */
+  public currentInterceptor = computed(() => {
+    if (this.currentInterceptorID.value === null) return null
+
+    return this.interceptors.get(this.currentInterceptorID.value)
+  })
 
   constructor() {
     super()

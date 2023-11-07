@@ -10,6 +10,7 @@ import { useI18n } from "./i18n"
 import { refAutoReset } from "@vueuse/core"
 import { copyToClipboard } from "@helpers/utils/clipboard"
 import { HoppRESTResponse } from "@helpers/types/HoppRESTResponse"
+import { platform } from "~/platform"
 
 export function useCopyResponse(responseBodyText: Ref<any>) {
   const toast = useToast()
@@ -40,15 +41,14 @@ export function useDownloadResponse(
   const toast = useToast()
   const t = useI18n()
 
-  const downloadResponse = () => {
+  const downloadResponse = async () => {
     const dataToWrite = responseBody.value
-    const file = new Blob([dataToWrite], { type: contentType })
-    const a = document.createElement("a")
-    const url = URL.createObjectURL(file)
-    a.href = url
 
-    // TODO: get uri from meta
-    a.download = pipe(
+    // Guess extension and filename
+    const file = new Blob([dataToWrite], { type: contentType })
+    const url = URL.createObjectURL(file)
+
+    const filename = pipe(
       url,
       S.split("/"),
       RNEA.last,
@@ -58,15 +58,24 @@ export function useDownloadResponse(
       RNEA.head
     )
 
-    document.body.appendChild(a)
-    a.click()
-    downloadIcon.value = IconCheck
-    toast.success(`${t("state.download_started")}`)
-    setTimeout(() => {
-      document.body.removeChild(a)
-      URL.revokeObjectURL(url)
-    }, 1000)
+    URL.revokeObjectURL(url)
+
+    console.log(filename)
+
+    // TODO: Look at the mime type and determine extension ?
+    const result = await platform.io.saveFileWithDialog({
+      data: dataToWrite,
+      contentType: contentType,
+      suggestedFilename: filename,
+    })
+
+    // Assume success if unknown as we cannot determine
+    if (result.type === "unknown" || result.type === "saved") {
+      downloadIcon.value = IconCheck
+      toast.success(`${t("state.download_started")}`)
+    }
   }
+
   return {
     downloadIcon,
     downloadResponse,

@@ -17,7 +17,6 @@ import { UserService } from 'src/user/user.service';
 import { stringToJson } from 'src/utils';
 import { PaginationArgs } from 'src/types/input-types.args';
 import { AuthUser } from '../types/AuthUser';
-import { User } from 'src/user/user.model';
 
 const SHORT_CODE_LENGTH = 12;
 const SHORT_CODE_CHARS =

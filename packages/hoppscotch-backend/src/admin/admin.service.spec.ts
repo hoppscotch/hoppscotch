@@ -15,6 +15,7 @@ import {
   INVALID_EMAIL,
   USER_ALREADY_INVITED,
 } from '../errors';
+import { ShortcodeService } from 'src/shortcode/shortcode.service';
 
 const mockPrisma = mockDeep<PrismaService>();
 const mockPubSub = mockDeep<PubSubService>();
@@ -25,6 +26,7 @@ const mockTeamRequestService = mockDeep<TeamRequestService>();
 const mockTeamInvitationService = mockDeep<TeamInvitationService>();
 const mockTeamCollectionService = mockDeep<TeamCollectionService>();
 const mockMailerService = mockDeep<MailerService>();
+const mockShortcodeService = mockDeep<ShortcodeService>();
 
 const adminService = new AdminService(
   mockUserService,
@@ -36,6 +38,7 @@ const adminService = new AdminService(
   mockPubSub as any,
   mockPrisma as any,
   mockMailerService,
+  mockShortcodeService,
 );
 
 const invitedUsers: InvitedUsers[] = [

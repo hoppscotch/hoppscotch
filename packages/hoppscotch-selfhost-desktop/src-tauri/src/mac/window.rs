@@ -1,3 +1,4 @@
+use hex_color::HexColor;
 use tauri::{App, Manager, Runtime, Window};
 
 // If anything breaks on macOS, this should be the place which is broken
@@ -31,18 +32,48 @@ unsafe fn set_transparent_titlebar(id: cocoa::base::id) {
     id.setTitleVisibility_(cocoa::appkit::NSWindowTitleVisibility::NSWindowTitleHidden);
 }
 
+struct UnsafeWindowHandle(*mut std::ffi::c_void);
+unsafe impl Send for UnsafeWindowHandle {}
+unsafe impl Sync for UnsafeWindowHandle {}
+
+#[cfg(target_os = "macos")]
+fn update_window_theme(window: &tauri::Window, color: HexColor) {
+    use cocoa::appkit::{
+        NSAppearance, NSAppearanceNameVibrantDark, NSAppearanceNameVibrantLight, NSWindow,
+    };
+
+    let brightness = (color.r as u64 + color.g as u64 + color.b as u64) / 3;
+
+    unsafe {
+        let window_handle = UnsafeWindowHandle(window.ns_window().unwrap());
+
+        let _ = window.run_on_main_thread(move || {
+            let handle = window_handle;
+
+            let selected_appearance = if brightness >= 128 {
+                NSAppearance(NSAppearanceNameVibrantLight)
+            } else {
+                NSAppearance(NSAppearanceNameVibrantDark)
+            };
+
+            NSWindow::setAppearance(handle.0 as cocoa::base::id, selected_appearance);
+            set_window_controls_pos(
+                handle.0 as cocoa::base::id,
+                WINDOW_CONTROL_PAD_X,
+                WINDOW_CONTROL_PAD_Y,
+            );
+        });
+    }
+}
+
 #[cfg(target_os = "macos")]
 fn set_window_controls_pos(window: cocoa::base::id, x: f64, y: f64) {
     use cocoa::{
-        appkit::{NSAppearance, NSAppearanceNameVibrantLight, NSView, NSWindow, NSWindowButton},
+        appkit::{NSView, NSWindow, NSWindowButton},
         foundation::NSRect,
     };
 
     unsafe {
-        // Set appearance windows to be light for better visibility when on light theme
-        // TODO: Detect when on dark theme and set to dark and on light switch to light
-        NSWindow::setAppearance(window, NSAppearance(NSAppearanceNameVibrantLight));
-
         let close = window.standardWindowButton_(NSWindowButton::NSWindowCloseButton);
         let miniaturize = window.standardWindowButton_(NSWindowButton::NSWindowMiniaturizeButton);
         let zoom = window.standardWindowButton_(NSWindowButton::NSWindowZoomButton);
@@ -342,4 +373,18 @@ pub fn setup_mac_window(app: &mut App) {
     }
 
     app.get_window("main").unwrap().set_transparent_titlebar();
+
+    let window_handle = app.get_window("main").unwrap();
+    update_window_theme(&window_handle, HexColor::WHITE);
+
+    // Control window theme based on app update_window
+    app.listen_global("hopp-bg-changed", move |ev| {
+        let payload = serde_json::from_str::<&str>(ev.payload().unwrap())
+            .unwrap()
+            .trim();
+
+        let color = HexColor::parse_rgb(payload).unwrap();
+
+        update_window_theme(&window_handle, color);
+    });
 }

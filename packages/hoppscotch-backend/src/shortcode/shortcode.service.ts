@@ -181,7 +181,7 @@ export class ShortcodeService implements UserDataHandler, OnModuleInit {
   }
 
   /**
-   * Delete a ShortCode
+   * Delete a ShortCode created by User of uid
    *
    * @param shortcode ShortCode
    * @param uid User Uid
@@ -222,6 +222,26 @@ export class ShortcodeService implements UserDataHandler, OnModuleInit {
     });
 
     return deletedShortCodes.count;
+  }
+
+  /**
+   * Delete a Shortcode
+   *
+   * @param shortcodeID ID of Shortcode being deleted
+   * @returns Boolean on successful deletion
+   */
+  async deleteShortcode(shortcodeID: string) {
+    try {
+      await this.prisma.shortcode.delete({
+        where: {
+          id: shortcodeID,
+        },
+      });
+
+      return E.right(true);
+    } catch (error) {
+      return E.left(SHORTCODE_NOT_FOUND);
+    }
   }
 
   /**

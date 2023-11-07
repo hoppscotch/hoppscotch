@@ -447,4 +447,17 @@ export class AdminService {
       userEmail,
     );
   }
+
+  /**
+   * Delete a Shortcode
+   *
+   * @param shortcodeID ID of Shortcode being deleted
+   * @returns Boolean on successful deletion
+   */
+  async deleteShortcode(shortcodeID: string) {
+    const result = await this.shortcodeService.deleteShortcode(shortcodeID);
+
+    if (E.isLeft(result)) return E.left(result.left);
+    return E.right(result.right);
+  }
 }

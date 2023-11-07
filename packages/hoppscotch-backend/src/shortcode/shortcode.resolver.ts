@@ -122,7 +122,7 @@ export class ShortcodeResolver {
     @Args({
       name: 'code',
       type: () => ID,
-      description: 'The shortcode to resolve',
+      description: 'The shortcode to remove',
     })
     code: string,
   ) {

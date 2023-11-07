@@ -69,5 +69,6 @@ module.exports = {
           "Do not use 'localStorage' directly. Please use the PersistenceService",
       },
     ],
+    eqeqeq: 1,
   },
 }

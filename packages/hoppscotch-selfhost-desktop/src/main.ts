@@ -20,63 +20,66 @@ import { ioDef } from "./platform/io"
 const headerPaddingLeft = ref("0px")
 const headerPaddingTop = ref("0px")
 
-createHoppApp("#app", {
-  ui: {
-    additionalFooterMenuItems: stdFooterItems,
-    additionalSupportOptionsMenuItems: stdSupportOptionItems,
-    appHeader: {
-      paddingLeft: headerPaddingLeft,
-      paddingTop: headerPaddingTop,
-      onHeaderAreaClick() {
-        // Drag thw window when the user drags the header area
-        // TODO: Ignore click on headers and fields
-        appWindow.startDragging()
-      },
-    },
-  },
-  io: ioDef,
-  auth: authDef,
-  sync: {
-    environments: environmentsDef,
-    collections: collectionsDef,
-    settings: settingsDef,
-    history: historyDef,
-    tabState: tabStateDef,
-  },
-  interceptors: {
-    default: "native",
-    interceptors: [
-      { type: "service", service: NativeInterceptorService },
-      { type: "standalone", interceptor: proxyInterceptor },
-    ],
-  },
-  additionalInspectors: [
-    { type: "service", service: ExtensionInspectorService },
-  ],
-  platformFeatureFlags: {
-    exportAsGIST: false,
-    hasTelemetry: false,
-    cookiesEnabled: true,
-    promptAsUsingCookies: false,
-  },
-})
-
-watch(
-  useSettingStatic("BG_COLOR")[0],
-  async () => {
-    await nextTick()
-
-    await emit(
-      "hopp-bg-changed",
-      getComputedStyle(document.documentElement).getPropertyValue(
-        "--primary-color"
-      )
-    )
-  },
-  { immediate: true }
-)
 ;(async () => {
   const platform = await type()
+
+  createHoppApp("#app", {
+    ui: {
+      additionalFooterMenuItems: stdFooterItems,
+      additionalSupportOptionsMenuItems: stdSupportOptionItems,
+      appHeader: {
+        paddingLeft: headerPaddingLeft,
+        paddingTop: headerPaddingTop,
+        onHeaderAreaClick() {
+          if (platform === "Darwin") {
+            // Drag thw window when the user drags the header area
+            // TODO: Ignore click on headers and fields
+            appWindow.startDragging()
+          }
+        },
+      },
+    },
+    io: ioDef,
+    auth: authDef,
+    sync: {
+      environments: environmentsDef,
+      collections: collectionsDef,
+      settings: settingsDef,
+      history: historyDef,
+      tabState: tabStateDef,
+    },
+    interceptors: {
+      default: "native",
+      interceptors: [
+        { type: "service", service: NativeInterceptorService },
+        { type: "standalone", interceptor: proxyInterceptor },
+      ],
+    },
+    additionalInspectors: [
+      { type: "service", service: ExtensionInspectorService },
+    ],
+    platformFeatureFlags: {
+      exportAsGIST: false,
+      hasTelemetry: false,
+      cookiesEnabled: true,
+      promptAsUsingCookies: false,
+    },
+  })
+
+  watch(
+    useSettingStatic("BG_COLOR")[0],
+    async () => {
+      await nextTick()
+
+      await emit(
+        "hopp-bg-changed",
+        getComputedStyle(document.documentElement).getPropertyValue(
+          "--primary-color"
+        )
+      )
+    },
+    { immediate: true }
+  )
 
   if (platform === "Darwin") {
     listen("will-enter-fullscreen", () => {

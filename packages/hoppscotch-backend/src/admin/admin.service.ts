@@ -441,7 +441,11 @@ export class AdminService {
    * @param args Pagination arguments
    * @returns ShortcodeWithUserEmail
    */
-  async fetchAllShortcodes(cursorID: string, take: number, userEmail = null) {
+  async fetchAllShortcodes(
+    cursorID: string,
+    take: number,
+    userEmail: string = null,
+  ) {
     return this.shortcodeService.fetchAllShortcodes(
       { cursor: cursorID, take },
       userEmail,

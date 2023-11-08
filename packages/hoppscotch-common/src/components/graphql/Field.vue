@@ -1,50 +1,55 @@
 <template>
   <div>
-    <div class="field-title" :class="{ 'field-highlighted': isHighlighted }">
-      {{ fieldName }}
-      <span v-if="fieldArgs.length > 0">
-        (
-        <span v-for="(field, index) in fieldArgs" :key="`field-${index}`">
-          {{ field.name }}:
-          <GraphqlTypeLink
-            :gql-type="field.type"
-            :jump-type-callback="jumpTypeCallback"
-          />
-          <span v-if="index !== fieldArgs.length - 1">, </span>
+    <div class="flex justify-between gap-2">
+      <div
+        class="field-title flex-1"
+        :class="{ 'field-highlighted': isHighlighted }"
+      >
+        {{ fieldName }}
+        <span v-if="fieldArgs.length > 0">
+          (
+          <span v-for="(field, index) in fieldArgs" :key="`field-${index}`">
+            {{ field.name }}:
+            <GraphqlTypeLink
+              :gql-type="field.type"
+              @jump-to-type="jumpToType"
+            />
+            <span v-if="index !== fieldArgs.length - 1">, </span>
+          </span>
+          ) </span
+        >:
+        <GraphqlTypeLink :gql-type="gqlField.type" @jump-to-type="jumpToType" />
+      </div>
+      <div v-if="gqlField.deprecationReason">
+        <span
+          v-tippy="{ theme: 'tomato' }"
+          class="!text-red-500 hover:!text-red-600 text-xs flex items-center gap-2 cursor-pointer"
+          :title="gqlField.deprecationReason"
+        >
+          <IconAlertTriangle /> {{ t("state.deprecated") }}
         </span>
-        ) </span
-      >:
-      <GraphqlTypeLink
-        :gql-type="gqlField.type"
-        :jump-type-callback="jumpTypeCallback"
-      />
+      </div>
     </div>
     <div
       v-if="gqlField.description"
-      class="py-2 text-secondaryLight field-desc"
+      class="field-desc py-2 text-secondaryLight"
     >
       {{ gqlField.description }}
     </div>
-    <div
-      v-if="gqlField.isDeprecated"
-      class="inline-block px-2 py-1 my-1 text-black bg-yellow-200 rounded field-deprecated"
-    >
-      {{ t("state.deprecated") }}
-    </div>
     <div v-if="fieldArgs.length > 0">
       <h5 class="my-2">Arguments:</h5>
-      <div class="pl-4 border-l-2 border-divider">
+      <div class="border-l-2 border-divider pl-4">
         <div v-for="(field, index) in fieldArgs" :key="`field-${index}`">
           <span>
             {{ field.name }}:
             <GraphqlTypeLink
               :gql-type="field.type"
-              :jump-type-callback="jumpTypeCallback"
+              @jump-to-type="jumpToType"
             />
           </span>
           <div
             v-if="field.description"
-            class="py-2 text-secondaryLight field-desc"
+            class="field-desc py-2 text-secondaryLight"
           >
             {{ field.description }}
           </div>
@@ -54,37 +59,41 @@
   </div>
 </template>
 
-<script>
-// TypeScript + Script Setup this :)
-import { defineComponent } from "vue"
+<script setup lang="ts">
 import { useI18n } from "@composables/i18n"
+import { GraphQLType } from "graphql"
+import { computed } from "vue"
+import IconAlertTriangle from "~icons/lucide/alert-triangle"
 
-export default defineComponent({
-  props: {
-    gqlField: { type: Object, default: () => ({}) },
-    jumpTypeCallback: { type: Function, default: () => ({}) },
-    isHighlighted: { type: Boolean, default: false },
-  },
-  setup() {
-    return {
-      t: useI18n(),
-    }
-  },
-  computed: {
-    fieldName() {
-      return this.gqlField.name
-    },
+const t = useI18n()
 
-    fieldArgs() {
-      return this.gqlField.args || []
-    },
-  },
-})
+const props = withDefaults(
+  defineProps<{
+    gqlField: any
+    isHighlighted: boolean
+  }>(),
+  {
+    gqlField: {},
+    isHighlighted: false,
+  }
+)
+
+const emit = defineEmits<{
+  (e: "jump-to-type", type: GraphQLType): void
+}>()
+
+const fieldName = computed(() => props.gqlField.name)
+
+const fieldArgs = computed(() => props.gqlField.args || [])
+
+const jumpToType = (type: GraphQLType) => {
+  emit("jump-to-type", type)
+}
 </script>
 
 <style lang="scss" scoped>
 .field-highlighted {
-  @apply border-accent border-b-2;
+  @apply border-b-2 border-accent;
 }
 
 .field-title {

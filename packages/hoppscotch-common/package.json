@@ -59,7 +59,7 @@
     "fp-ts": "^2.16.1",
     "fuse.js": "^6.6.2",
     "globalthis": "^1.0.3",
-    "graphql": "^16.8.0",
+    "graphql": "^16.8.1",
     "graphql-language-service-interface": "^2.9.1",
     "graphql-tag": "^2.12.6",
     "httpsnippet": "^3.0.1",

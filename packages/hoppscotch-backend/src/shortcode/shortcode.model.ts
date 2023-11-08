@@ -63,6 +63,7 @@ export class ShortcodeWithUserEmail {
 
   @Field({
     description: 'Details of user who created the shortcode',
+    nullable: true,
   })
   creator: ShortcodeCreator;
 }

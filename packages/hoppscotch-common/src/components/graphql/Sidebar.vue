@@ -58,7 +58,7 @@
               v-for="(field, index) in filteredQueryFields"
               :key="`field-${index}`"
               :gql-field="field"
-              :jump-type-callback="handleJumpToType"
+              @jump-to-type="handleJumpToType"
               class="p-4"
             />
           </HoppSmartTab>
@@ -72,7 +72,7 @@
               v-for="(field, index) in filteredMutationFields"
               :key="`field-${index}`"
               :gql-field="field"
-              :jump-type-callback="handleJumpToType"
+              @jump-to-type="handleJumpToType"
               class="p-4"
             />
           </HoppSmartTab>
@@ -86,7 +86,7 @@
               v-for="(field, index) in filteredSubscriptionFields"
               :key="`field-${index}`"
               :gql-field="field"
-              :jump-type-callback="handleJumpToType"
+              @jump-to-type="handleJumpToType"
               class="p-4"
             />
           </HoppSmartTab>
@@ -103,7 +103,7 @@
               :gql-types="graphqlTypes"
               :is-highlighted="isGqlTypeHighlighted(type)"
               :highlighted-fields="getGqlTypeHighlightedFields(type)"
-              :jump-type-callback="handleJumpToType"
+              @jump-to-type="handleJumpToType"
             />
           </HoppSmartTab>
         </HoppSmartTabs>

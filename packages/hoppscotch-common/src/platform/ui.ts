@@ -20,6 +20,11 @@ export type UIPlatformDef = {
   appHeader?: {
     paddingTop?: Ref<string>
     paddingLeft?: Ref<string>
+
+    /**
+     * A function which is called when the header area of the app receives a click event
+     */
+    onHeaderAreaClick?: () => void
   }
   onCodemirrorInstanceMount?: (element: HTMLElement) => void
 

@@ -1,7 +1,9 @@
 <template>
   <div>
     <header
+      ref="headerRef"
       class="flex items-center justify-between flex-1 flex-shrink-0 px-2 py-2 space-x-2 overflow-x-auto overflow-y-hidden"
+      @mousedown.prevent="platform.ui?.appHeader?.onHeaderAreaClick?.()"
     >
       <div
         class="inline-flex items-center justify-start flex-1 space-x-2"

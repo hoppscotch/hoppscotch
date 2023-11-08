@@ -15,7 +15,6 @@ import { useSettingStatic } from "@hoppscotch/common/composables/settings"
 import { appWindow } from "@tauri-apps/api/window"
 import { stdFooterItems } from "@hoppscotch/common/platform/std/ui/footerItem"
 import { stdSupportOptionItems } from "@hoppscotch/common/platform/std/ui/supportOptionsItem"
-import { useMousePressed } from "@vueuse/core"
 import { ioDef } from "./platform/io"
 
 const headerPaddingLeft = ref("0px")
@@ -28,6 +27,11 @@ createHoppApp("#app", {
     appHeader: {
       paddingLeft: headerPaddingLeft,
       paddingTop: headerPaddingTop,
+      onHeaderAreaClick() {
+        // Drag thw window when the user drags the header area
+        // TODO: Ignore click on headers and fields
+        appWindow.startDragging()
+      },
     },
   },
   io: ioDef,
@@ -88,27 +92,4 @@ watch(
     headerPaddingTop.value = "2px"
     headerPaddingLeft.value = "70px"
   }
-
-  const { pressed } = useMousePressed()
-
-  document.addEventListener("mousemove", (ev) => {
-    const { clientX, clientY } = ev
-
-    const el = document.querySelector("header")
-
-    if (!el) return
-
-    const { left, top, width, height } = el.getBoundingClientRect()
-
-    if (
-      clientX >= left &&
-      clientX <= left + width &&
-      clientY >= top &&
-      clientY <= top + height
-    ) {
-      if (pressed.value) {
-        appWindow.startDragging()
-      }
-    }
-  })
 })()

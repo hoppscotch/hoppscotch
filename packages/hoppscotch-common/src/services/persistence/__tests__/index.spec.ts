@@ -46,9 +46,9 @@ import {
   performSettingsDataMigrations,
   settingsStore,
 } from "~/newstore/settings"
-import { PersistenceService } from "../persistence.service"
-import { GQLTabService } from "../tab/graphql"
-import { RESTTabService } from "../tab/rest"
+import { PersistenceService } from "../../persistence"
+import { GQLTabService } from "../../tab/graphql"
+import { RESTTabService } from "../../tab/rest"
 import {
   ENVIRONMENTS,
   GQL_COLLECTIONS,
@@ -58,7 +58,7 @@ import {
   REST_HISTORY,
   REST_TAB_STATE,
   VUEX_DATA,
-} from "./__mocks__/persistence.service.mocks"
+} from "./__mocks__"
 
 vi.mock("~/modules/i18n", () => {
   return {

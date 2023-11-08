@@ -10,25 +10,22 @@ import { Service } from "dioc"
 import { assign, clone, isEmpty } from "lodash-es"
 import { z } from "zod"
 
-// import { GQLOptionTabs } from "~/components/graphql/RequestOptions.vue"
-// import { RESTOptionTabs } from "~/components/http/RequestOptions.vue"
-
 import { getService } from "~/modules/dioc"
 
 import { GQLTabService } from "~/services/tab/graphql"
 import { RESTTabService } from "~/services/tab/rest"
 
 import { getI18n } from "~/modules/i18n"
-import { MQTTRequest$, setMQTTRequest } from "../newstore/MQTTSession"
-import { SSERequest$, setSSERequest } from "../newstore/SSESession"
-import { SIORequest$, setSIORequest } from "../newstore/SocketIOSession"
-import { WSRequest$, setWSRequest } from "../newstore/WebSocketSession"
+import { MQTTRequest$, setMQTTRequest } from "../../newstore/MQTTSession"
+import { SSERequest$, setSSERequest } from "../../newstore/SSESession"
+import { SIORequest$, setSIORequest } from "../../newstore/SocketIOSession"
+import { WSRequest$, setWSRequest } from "../../newstore/WebSocketSession"
 import {
   graphqlCollectionStore,
   restCollectionStore,
   setGraphqlCollections,
   setRESTCollections,
-} from "../newstore/collections"
+} from "../../newstore/collections"
 import {
   addGlobalEnvVariable,
   environments$,
@@ -37,7 +34,7 @@ import {
   selectedEnvironmentIndex$,
   setGlobalEnvVariables,
   setSelectedEnvironmentIndex,
-} from "../newstore/environments"
+} from "../../newstore/environments"
 import {
   graphqlHistoryStore,
   restHistoryStore,
@@ -45,8 +42,8 @@ import {
   setRESTHistoryEntries,
   translateToNewGQLHistory,
   translateToNewRESTHistory,
-} from "../newstore/history"
-import { bulkApplyLocalState, localStateStore } from "../newstore/localstate"
+} from "../../newstore/history"
+import { bulkApplyLocalState, localStateStore } from "../../newstore/localstate"
 import {
   HoppAccentColor,
   HoppAccentColors,
@@ -57,7 +54,14 @@ import {
   getDefaultSettings,
   performSettingsDataMigrations,
   settingsStore,
-} from "../newstore/settings"
+} from "../../newstore/settings"
+import {
+  GLOBAL_ENV_SCHEMA,
+  MQTT_REQUEST_SCHEMA,
+  SOCKET_IO_REQUEST_SCHEMA,
+  SSE_REQUEST_SCHEMA,
+  WEBSOCKET_REQUEST_SCHEMA,
+} from "./validation-schemas"
 
 /**
  * This service compiles persistence logic across the codebase
@@ -100,54 +104,8 @@ export class PersistenceService extends Service {
 
     if (isEmpty(vuexData)) return
 
-    // // TODO: Enable once the support for using versioned entity schemas within other schemas is added to verzod
-    // const themeColorSchema = z.enum([
-    //   "green",
-    //   "teal",
-    //   "blue",
-    //   "indigo",
-    //   "purple",
-    //   "yellow",
-    //   "orange",
-    //   "red",
-    //   "pink",
-    // ])
-
-    // const bgColorSchema = z.enum(["system", "light", "dark", "black"])
-
-    // const SettingsDefSchema = z.object({
-    //   syncCollections: z.boolean(),
-    //   syncHistory: z.boolean(),
-    //   syncEnvironments: z.boolean(),
-    //   PROXY_URL: z.string(),
-    //   CURRENT_INTERCEPTOR_ID: z.string(),
-    //   URL_EXCLUDES: z.object({
-    //     auth: z.boolean(),
-    //     httpUser: z.boolean(),
-    //     httpPassword: z.boolean(),
-    //     bearerToken: z.boolean(),
-    //     oauth2Token: z.boolean(),
-    //   }),
-    //   THEME_COLOR: themeColorSchema,
-    //   BG_COLOR: bgColorSchema,
-    //   TELEMETRY_ENABLED: z.boolean(),
-    //   EXPAND_NAVIGATION: z.boolean(),
-    //   SIDEBAR: z.boolean(),
-    //   SIDEBAR_ON_LEFT: z.boolean(),
-    //   COLUMN_LAYOUT: z.boolean(),
-    // });
-
-    // const schema = z.object({
-    //   postwoman: z.optional(z.object({
-    //     settings: z.optional(SettingsDefSchema),
-    //     // Versioned entities
-    //     // collections: z.optional(z.array(HoppCollectionSchema)),
-    //     // collectionsGraphql: z.optional(z.array(HoppCollectionSchema)),
-    //     // environments: z.optional(z.array(EnvironmentSchema)),
-    //   })),
-    // });
-
-    // const result = schema.safeParse(vuexData)
+    // TODO: Enable once the support for using versioned entity schemas within other schemas is added to verzod
+    // const result = VUEX_SCHEMA.safeParse(vuexData)
     // if (!result.success) {
     //   this.t("local_storage_read.vuex_schema_mismatch")
     //   window.localStorage.setItem(
@@ -300,30 +258,7 @@ export class PersistenceService extends Service {
     )
 
     // TODO: Enable once the support for using versioned entity schemas within other schemas is added to verzod
-    // const RESTHistoryEntrySchema = z.object({
-    //   v: z.number(),
-    //   //! Versioned entity
-    //   // request: HoppRESTRequestSchema,
-    //   responseMeta: z.object({
-    //     duration: z.number().nullable(),
-    //     statusCode: z.number().nullable(),
-    //   }).strict(),
-    //   star: z.boolean(),
-    //   id: z.string().optional(),
-    //   updatedOn: z.date().optional(),
-    // }).strict();
-
-    // const GQLHistoryEntrySchema = z.object({
-    //   v: z.number(),
-    //   //! Versioned entity
-    //   // request: HoppGQLRequestSchema,
-    //   response: z.string(),
-    //   star: z.boolean(),
-    //   id: z.string().optional(),
-    //   updatedOn: z.date().optional(),
-    // }).strict();
-
-    // const restHistorySchemaParsedresult = z.array(RESTHistoryEntrySchema).safeParse(restHistoryData)
+    // const restHistorySchemaParsedresult = z.array(REST_HISTORY_ENTRY_SCHEMA).safeParse(restHistoryData)
     // if (!restHistorySchemaParsedresult.success) {
     //   this.t("local_storage_read.rest_history_schema_mismatch")
     //   window.localStorage.setItem(
@@ -332,7 +267,7 @@ export class PersistenceService extends Service {
     //   )
     // }
 
-    // const gqlHistorySchemaParsedresult = z.array(GQLHistoryEntrySchema).safeParse(graphqlHistoryData)
+    // const gqlHistorySchemaParsedresult = z.array(GQL_HISTORY_ENTRY_SCHEMA).safeParse(graphqlHistoryData)
     // if (!gqlHistorySchemaParsedresult.success) {
     //   this.t("local_storage_read.graphql_history_schema_mismatch")
     //   window.localStorage.setItem(
@@ -369,25 +304,7 @@ export class PersistenceService extends Service {
     )
 
     // TODO: Enable once the support for using versioned entity schemas within other schemas is added to verzod
-    // const RESTCollectionSchema = z.object({
-    //   v: z.number(),
-    //   name: z.string(),
-    //   folders: z.lazy(() => z.array(RESTCollectionSchema)),
-    //   //! Versioned entity
-    //   // requests: z.array(HoppRESTRequestSchema),
-    //   id: z.string().optional(),
-    // });
-
-    // const GQLCollectionSchema = z.object({
-    //   v: z.number(),
-    //   name: z.string(),
-    //   folders: z.lazy(() => z.array(GQLCollectionSchema)),
-    //   //! Versioned entity
-    //   // requests: z.array(HoppGQLRequestSchema),
-    //   id: z.string().optional(),
-    // });
-
-    // const restCollectionsSchemaParsedresult = z.array(RESTCollectionSchema).safeParse(restCollectionData)
+    // const restCollectionsSchemaParsedresult = z.array(REST_COLLECTION_SCHEMA).safeParse(restCollectionData)
     // if (!restCollectionsSchemaParsedresult.success) {
     //   this.t("local_storage_read.rest_collections_schema_mismatch")
     //   window.localStorage.setItem(
@@ -396,7 +313,7 @@ export class PersistenceService extends Service {
     //   )
     // }
 
-    // const gqlCollectionsSchemaParsedresult = z.array(GQLCollectionSchema).safeParse(graphqlCollectionData)
+    // const gqlCollectionsSchemaParsedresult = z.array(GQL_COLLECTION_SCHEMA).safeParse(graphqlCollectionData)
     // if (!gqlCollectionsSchemaParsedresult.success) {
     //   this.t("local_storage_read.graphql_collections_schema_mismatch")
     //   window.localStorage.setItem(
@@ -473,24 +390,7 @@ export class PersistenceService extends Service {
     )
 
     // TODO: Enable once the support for using versioned entity schemas within other schemas is added to verzod
-    // const schema = z.nullable(z.union([
-    //   z.object({
-    //     type: z.literal("NO_ENV_SELECTED"),
-    //   }).strict(),
-    //   z.object({
-    //     type: z.literal("MY_ENV"),
-    //     index: z.number(),
-    //   }).strict(),
-    //   z.object({
-    //     type: z.literal("MY_ENV"),
-    //     teamID: z.string(),
-    //     teamEnvID: z.string(),
-    //! Versioned entity
-    //     environment: Environment
-    //   })
-    // ]))
-
-    // const result = schema.safeParse(selectedEnvIndex)
+    // const result = SELECTED_ENV_INDEX_SCHEMA.safeParse(selectedEnvIndex)
     // if (!result.success) {
     //   this.t("local_storage_read.selected_env_index_schema_mismatch")
     //   window.localStorage.setItem(
@@ -518,23 +418,7 @@ export class PersistenceService extends Service {
       window.localStorage.getItem("WebsocketRequest") || "null"
     )
 
-    const schema = z.nullable(
-      z
-        .object({
-          endpoint: z.string(),
-          protocols: z.array(
-            z
-              .object({
-                value: z.string(),
-                active: z.boolean(),
-              })
-              .strict()
-          ),
-        })
-        .strict()
-    )
-
-    const result = schema.safeParse(request)
+    const result = WEBSOCKET_REQUEST_SCHEMA.safeParse(request)
     if (!result.success) {
       this.t("local_storage_read.websocket_request_schema_mismatch")
       window.localStorage.setItem(
@@ -555,16 +439,7 @@ export class PersistenceService extends Service {
       window.localStorage.getItem("SocketIORequest") || "null"
     )
 
-    const schema = z.nullable(
-      z
-        .object({
-          endpoint: z.string(),
-          path: z.string(),
-          version: z.union([z.literal("v4"), z.literal("v3"), z.literal("v2")]),
-        })
-        .strict()
-    )
-    const result = schema.safeParse(request)
+    const result = SOCKET_IO_REQUEST_SCHEMA.safeParse(request)
     if (!result.success) {
       this.t("local_storage_read.socket_io_request_schema_mismatch")
       window.localStorage.setItem(
@@ -585,16 +460,7 @@ export class PersistenceService extends Service {
       window.localStorage.getItem("SSERequest") || "null"
     )
 
-    const schema = z.nullable(
-      z
-        .object({
-          endpoint: z.string(),
-          eventType: z.string(),
-        })
-        .strict()
-    )
-
-    const result = schema.safeParse(request)
+    const result = SSE_REQUEST_SCHEMA.safeParse(request)
     if (!result.success) {
       this.t("local_storage_read.sse_request_schema_mismatch")
       window.localStorage.setItem("SSERequest-backup", JSON.stringify(request))
@@ -612,16 +478,7 @@ export class PersistenceService extends Service {
       window.localStorage.getItem("MQTTRequest") || "null"
     )
 
-    const schema = z.nullable(
-      z
-        .object({
-          endpoint: z.string(),
-          clientID: z.string(),
-        })
-        .strict()
-    )
-
-    const result = schema.safeParse(request)
+    const result = MQTT_REQUEST_SCHEMA.safeParse(request)
     if (!result.success) {
       this.t("local_storage_read.mqtt_request_schema_mismatch")
       window.localStorage.setItem("MQTTRequest-backup", JSON.stringify(request))
@@ -639,19 +496,7 @@ export class PersistenceService extends Service {
       window.localStorage.getItem("globalEnv") || "[]"
     )
 
-    const schema = z.union([
-      z.array(z.never()),
-      z.array(
-        z
-          .object({
-            key: z.string(),
-            value: z.string(),
-          })
-          .strict()
-      ),
-    ])
-
-    const result = schema.safeParse(globals)
+    const result = GLOBAL_ENV_SCHEMA.safeParse(globals)
     if (!result.success) {
       this.t("local_storage_read.global_env_schema_mismatch")
       window.localStorage.setItem("globalEnv-backup", JSON.stringify(globals))
@@ -673,81 +518,7 @@ export class PersistenceService extends Service {
         const data = JSON.parse(state)
 
         // TODO: Enable once the support for using versioned entity schemas within other schemas is added to verzod
-        // const OperationTypeSchema = z.enum([
-        //   "subscription",
-        //   "query",
-        //   "mutation",
-        //   "teardown",
-        // ])
-
-        // const RunQueryOptionsSchema = z
-        //   .object({
-        //     name: z.optional(z.string()),
-        //     url: z.string(),
-        //     headers: z.array(GQLHeader),
-        //     query: z.string(),
-        //     variables: z.string(),
-        //     auth: HoppGQLAuth,
-        //     operationName: z.optional(z.string()),
-        //     operationType: OperationTypeSchema,
-        //   })
-        //   .strict()
-
-        // const HoppGQLSaveContextSchema = z.nullable(
-        //   z.discriminatedUnion("originLocation", [
-        //     z
-        //       .object({
-        //         originLocation: z.literal("user-collection"),
-        //         folderPath: z.string(),
-        //         requestIndex: z.number(),
-        //       })
-        //       .strict(),
-        //     z
-        //       .object({
-        //         originLocation: z.literal("team-collection"),
-        //         requestID: z.string(),
-        //         teamID: z.optional(z.string()),
-        //         collectionID: z.optional(z.string()),
-        //       })
-        //       .strict(),
-        //   ])
-        // )
-
-        // const GQLResponseEventSchema = z.array(
-        //   z
-        //     .object({
-        //       time: z.number(),
-        //       operationName: z.optional(z.string()),
-        //       operationType: OperationTypeSchema,
-        //       data: z.string(),
-        //       rawQuery: z.optional(RunQueryOptionsSchema),
-        //     })
-        //     .strict()
-        // )
-
-        // const schema = z
-        //   .object({
-        //     lastActiveTabID: z.string(),
-        //     orderedDocs: z.array(
-        //       z.object({
-        //         tabID: z.string(),
-        //         doc: z
-        //           .object({
-        //             // Versioned entity
-        //             // request: HoppGQLRequest
-        //             isDirty: z.boolean(),
-        //             saveContext: z.optional(HoppGQLSaveContextSchema),
-        //             response: z.optional(z.nullable(GQLResponseEventSchema)),
-        //             responseTabPreference: z.optional(z.string()),
-        //             optionTabPreference: z.optional(OperationTypeSchema),
-        //           })
-        //           .strict(),
-        //       })
-        //     ),
-        //   })
-        //   .strict()
-
-        // const result = schema.safeParse(state)
+        // const result = GQL_TAB_STATE_SCHEMA.safeParse(state)
         // if (!result.success) {
         //   this.t("local_storage_read.gql_tab_state_schema_mismatch")
         //   window.localStorage.setItem(
@@ -783,124 +554,7 @@ export class PersistenceService extends Service {
         const data = JSON.parse(state)
 
         // TODO: Enable once the support for using versioned entity schemas within other schemas is added to verzod
-        // const HoppTestExpectResultSchema = z.object({
-        //   status: z.enum(["fail", "pass", "error"]),
-        //   message: z.string(),
-        // }).strict();
-
-        // const HoppTestDataSchema = z.lazy(() =>
-        //   z.object({
-        //     description: z.string(),
-        //     expectResults: z.array(HoppTestExpectResultSchema),
-        //     tests: z.array(HoppTestDataSchema),
-        //   }).strict()
-        // );
-
-        // const EnvironmentVariablesSchema = z.object({
-        //   key: z.string(),
-        //   value: z.string(),
-        // }).strict();
-
-        // const HoppTestResultSchema = z.object({
-        //   tests: z.array(HoppTestDataSchema),
-        //   expectResults: z.array(HoppTestExpectResultSchema),
-        //   description: z.string(),
-        //   scriptError: z.boolean(),
-        //   envDiff: z.object({
-        //     global: z.object({
-        //       additions: z.array(EnvironmentVariablesSchema),
-        //       updations: z.array(EnvironmentVariablesSchema.extend({ previousValue: z.string() })),
-        //       deletions: z.array(EnvironmentVariablesSchema),
-        //     }).strict(),
-        //     selected: z.object({
-        //       additions: z.array(EnvironmentVariablesSchema),
-        //       updations: z.array(EnvironmentVariablesSchema.extend({ previousValue: z.string() })),
-        //       deletions: z.array(EnvironmentVariablesSchema),
-        //     }).strict(),
-        //   }).strict(),
-        // }).strict();
-
-        // const HoppRESTResponseHeaderSchema = z.object({
-        //   key: z.string(),
-        //   value: z.string(),
-        // }).strict();
-
-        // const HoppRESTResponseSchema = z.discriminatedUnion("type", [
-        //   z.object({
-        //     type: z.literal("loading"),
-        //! Versioned entity
-        //     // req: HoppRESTRequestSchema,
-        //   }).strict(),
-        //   z.object({
-        //     type: z.literal("fail"),
-        //     headers: z.array(HoppRESTResponseHeaderSchema),
-        //     body: z.instanceof(ArrayBuffer),
-        //     statusCode: z.number(),
-        //     meta: z.object({
-        //       responseSize: z.number(),
-        //       responseDuration: z.number(),
-        //     }).strict(),
-        //! Versioned entity
-        //     // req: HoppRESTRequestSchema,
-        //   }).strict(),
-        //   z.object({
-        //     type: z.literal("network_fail"),
-        //     error: z.unknown(),
-        //! Versioned entity
-        //     // req: HoppRESTRequestSchema,
-        //   }).strict(),
-        //   z.object({
-        //     type: z.literal("script_fail"),
-        //     error: z.instanceof(Error),
-        //   }).strict(),
-        //   z.object({
-        //     type: z.literal("success"),
-        //     headers: z.array(HoppRESTResponseHeaderSchema),
-        //     body: z.instanceof(ArrayBuffer),
-        //     statusCode: z.number(),
-        //     meta: z.object({
-        //       responseSize: z.number(),
-        //       responseDuration: z.number(),
-        //     }).strict(),
-        //! Versioned entity
-        //     // req: HoppRESTRequestSchema,
-        //   }).strict(),
-        // ]);
-
-        // const HoppRESTSaveContextSchema = z.nullable(z.discriminatedUnion("originLocation", [
-        //   z.object({
-        //     originLocation: z.literal("user-collection"),
-        //     folderPath: z.string(),
-        //     requestIndex: z.number(),
-        //   }).strict(),
-        //   z.object({
-        //     originLocation: z.literal("team-collection"),
-        //     requestID: z.string(),
-        //     teamID: z.optional(z.string()),
-        //     collectionID: z.optional(z.string()),
-        //   }).strict()
-        // ]));
-
-        // const schema = z.object({
-        //   lastActiveTabID: z.string(),
-        //   orderedDocs: z.array(
-        //     z.object({
-        //       tabID: z.string(),
-        //       doc: z.object({
-        // ! Versioned entity
-        //         // request: HoppRESTRequest,
-        //         isDirty: z.boolean(),
-        //         saveContext: z.optional(HoppRESTSaveContextSchema),
-        //         response: z.optional(z.nullable(HoppRESTResponseSchema)),
-        //         testResults: z.nullable(HoppTestResultSchema),
-        //         responseTabPreference: z.optional(z.string()),
-        //         optionTabPreference: z.enum(RESTOptionTabs),
-        //       }).strict()
-        //     })
-        //   )
-        // }).strict()
-
-        // const result = schema.safeParse(state)
+        // const result = REST_TAB_STATE_SCHEMA.safeParse(state)
         // if (!result.success) {
         //   this.t("local_storage_read.rest_tab_state_schema_mismatch")
         //   window.localStorage.setItem("restTabState-backup", JSON.stringify(state))

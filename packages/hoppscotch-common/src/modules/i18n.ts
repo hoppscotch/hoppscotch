@@ -8,7 +8,7 @@ import { HoppModule } from "."
 import languages from "../../languages.json"
 
 import { throwError } from "~/helpers/functional/error"
-import { PersistenceService } from "~/services/persistence.service"
+import { PersistenceService } from "~/services/persistence"
 import { getService } from "./dioc"
 
 /*

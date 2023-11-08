@@ -16,7 +16,7 @@ import "../assets/themes/themes.scss"
 import App from "./App.vue"
 
 import { getService } from "./modules/dioc"
-import { PersistenceService } from "./services/persistence.service"
+import { PersistenceService } from "./services/persistence"
 
 const persistenceServiceInstance = getService(PersistenceService)
 

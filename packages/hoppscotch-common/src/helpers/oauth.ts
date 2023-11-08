@@ -1,5 +1,5 @@
 import { getService } from "~/modules/dioc"
-import { PersistenceService } from "~/services/persistence.service"
+import { PersistenceService } from "~/services/persistence"
 
 import * as E from "fp-ts/Either"
 import { z } from "zod"

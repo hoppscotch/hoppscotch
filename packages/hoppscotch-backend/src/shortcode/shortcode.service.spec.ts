@@ -508,16 +508,20 @@ describe('ShortcodeService', () => {
           request: JSON.stringify(shortcodes[0].request),
           properties: JSON.stringify(shortcodes[0].embedProperties),
           createdOn: shortcodes[0].createdOn,
-          creatorUid: user.uid,
-          creatorEmail: user.email,
+          creator: {
+            uid: user.uid,
+            email: user.email,
+          },
         },
         {
           id: shortcodes[1].id,
           request: JSON.stringify(shortcodes[1].request),
           properties: JSON.stringify(shortcodes[1].embedProperties),
           createdOn: shortcodes[1].createdOn,
-          creatorUid: user.uid,
-          creatorEmail: user.email,
+          creator: {
+            uid: user.uid,
+            email: user.email,
+          },
         },
       ]);
     });
@@ -540,8 +544,10 @@ describe('ShortcodeService', () => {
           request: JSON.stringify(shortcodes[1].request),
           properties: JSON.stringify(shortcodes[1].embedProperties),
           createdOn: shortcodes[1].createdOn,
-          creatorUid: user.uid,
-          creatorEmail: user.email,
+          creator: {
+            uid: user.uid,
+            email: user.email,
+          },
         },
       ]);
     });

@@ -324,8 +324,10 @@ export class ShortcodeService implements UserDataHandler, OnModuleInit {
               ? JSON.stringify(code.embedProperties)
               : null,
           createdOn: code.createdOn,
-          creatorUid: code.creatorUid,
-          creatorEmail: code.User.email,
+          creator: {
+            uid: code.User.uid,
+            email: code.User.email,
+          },
         };
       },
     );

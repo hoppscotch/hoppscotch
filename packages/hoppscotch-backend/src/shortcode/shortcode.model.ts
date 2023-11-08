@@ -1,4 +1,5 @@
 import { Field, ID, ObjectType } from '@nestjs/graphql';
+import { User } from 'src/user/user.model';
 
 @ObjectType()
 export class Shortcode {
@@ -25,6 +26,19 @@ export class Shortcode {
 }
 
 @ObjectType()
+export class ShortcodeCreator {
+  @Field({
+    description: 'Uid of user who created the shortcode',
+  })
+  uid: string;
+
+  @Field({
+    description: 'Email of user who created the shortcode',
+  })
+  email: string;
+}
+
+@ObjectType()
 export class ShortcodeWithUserEmail {
   @Field(() => ID, {
     description: 'The 12 digit alphanumeric code',
@@ -48,12 +62,7 @@ export class ShortcodeWithUserEmail {
   createdOn: Date;
 
   @Field({
-    description: 'Uid of user who created the shortcode',
+    description: 'Details of user who created the shortcode',
   })
-  creatorUid: string;
-
-  @Field({
-    description: 'Email of user who created the shortcode',
-  })
-  creatorEmail: string;
+  creator: ShortcodeCreator;
 }

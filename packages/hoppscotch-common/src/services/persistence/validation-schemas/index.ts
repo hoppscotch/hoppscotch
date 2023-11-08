@@ -1,10 +1,7 @@
 import { GQLHeader, HoppGQLAuth } from "@hoppscotch/data"
 import { z } from "zod"
 
-// import { GQLOptionTabs } from "~/components/graphql/RequestOptions.vue";
-// import { RESTOptionTabs } from "~/components/http/RequestOptions.vue";
-
-const themeColorSchema = z.enum([
+const ThemeColorSchema = z.enum([
   "green",
   "teal",
   "blue",
@@ -16,9 +13,9 @@ const themeColorSchema = z.enum([
   "pink",
 ])
 
-const bgColorSchema = z.enum(["system", "light", "dark", "black"])
+const BgColorSchema = z.enum(["system", "light", "dark", "black"])
 
-const settingsDefSchema = z.object({
+const SettingsDefSchema = z.object({
   syncCollections: z.boolean(),
   syncHistory: z.boolean(),
   syncEnvironments: z.boolean(),
@@ -31,8 +28,8 @@ const settingsDefSchema = z.object({
     bearerToken: z.boolean(),
     oauth2Token: z.boolean(),
   }),
-  THEME_COLOR: themeColorSchema,
-  BG_COLOR: bgColorSchema,
+  THEME_COLOR: ThemeColorSchema,
+  BG_COLOR: BgColorSchema,
   TELEMETRY_ENABLED: z.boolean(),
   EXPAND_NAVIGATION: z.boolean(),
   SIDEBAR: z.boolean(),
@@ -43,7 +40,7 @@ const settingsDefSchema = z.object({
 export const VUEX_SCHEMA = z.object({
   postwoman: z.optional(
     z.object({
-      settings: z.optional(settingsDefSchema),
+      settings: z.optional(SettingsDefSchema),
       //! Versioned entities
       // collections: z.optional(z.array(HoppCollectionSchema)),
       // collectionsGraphql: z.optional(z.array(HoppCollectionSchema)),
@@ -232,6 +229,13 @@ const GQLResponseEventSchema = z.array(
     .strict()
 )
 
+const validGqlOperations = [
+  "query",
+  "headers",
+  "variables",
+  "authorization",
+] as const
+
 export const GQL_TAB_STATE_SCHEMA = z
   .object({
     lastActiveTabID: z.string(),
@@ -246,7 +250,7 @@ export const GQL_TAB_STATE_SCHEMA = z
             saveContext: z.optional(HoppGQLSaveContextSchema),
             response: z.optional(z.nullable(GQLResponseEventSchema)),
             responseTabPreference: z.optional(z.string()),
-            // optionTabPreference: z.optional(z.enum(GQLOptionTabs)),
+            optionTabPreference: z.optional(z.enum(validGqlOperations)),
           })
           .strict(),
       })
@@ -393,6 +397,15 @@ const HoppRESTSaveContextSchema = z.nullable(
   ])
 )
 
+const validRestOperations = [
+  "params",
+  "bodyParams",
+  "headers",
+  "authorization",
+  "preRequestScript",
+  "tests",
+] as const
+
 export const REST_TAB_STATE_SCHEMA = z
   .object({
     lastActiveTabID: z.string(),
@@ -408,7 +421,7 @@ export const REST_TAB_STATE_SCHEMA = z
             response: z.optional(z.nullable(HoppRESTResponseSchema)),
             testResults: z.nullable(HoppTestResultSchema),
             responseTabPreference: z.optional(z.string()),
-            // optionTabPreference: z.enum(RESTOptionTabs),
+            optionTabPreference: z.optional(z.enum(validRestOperations)),
           })
           .strict(),
       })

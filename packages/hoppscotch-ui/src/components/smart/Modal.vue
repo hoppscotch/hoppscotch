@@ -59,7 +59,7 @@
             </div>
             <div
               class="flex flex-col overflow-y-auto max-h-[55vh]"
-              :class="{ 'p-4': !fullWidth }"
+              :class="{ 'p-4': !fullWidth && !fullWidthBody }"
             >
               <slot name="body"></slot>
             </div>
@@ -117,6 +117,7 @@ withDefaults(
     dimissible: boolean
     placement: string
     fullWidth: boolean
+    fullWidthBody: boolean
     styles: string
     closeText: string | null
   }>(),
@@ -126,6 +127,7 @@ withDefaults(
     dimissible: true,
     placement: "top",
     fullWidth: false,
+    fullWidthBody: false,
     styles: "sm:max-w-lg",
     closeText: null,
   }

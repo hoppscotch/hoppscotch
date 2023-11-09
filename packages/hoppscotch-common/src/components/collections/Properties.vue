@@ -3,18 +3,43 @@
     v-if="show"
     dialog
     :title="t('collection.properties')"
+    :full-width-body="true"
     @close="hideModal"
   >
     <template #body>
       <HoppSmartTabs
         v-model="selectedOptionTab"
-        styles="sticky overflow-x-auto flex-shrink-0 bg-primary  z-10"
+        styles="sticky overflow-x-auto flex-shrink-0 bg-primary top-0 z-10 !-py-4"
         render-inactive-tabs
       >
         <HoppSmartTab :id="'headers'" :label="`${t('tab.headers')}`">
           <HttpHeaders
             v-model="editableCollection"
+            :is-collection-property="true"
             @change-tab="changeOptionTab"
+          />
+          <AppBanner
+            :banner="{
+              type: 'info',
+              alternateText: 'This is an alternate text',
+            }"
+            class="sticky bottom-0 z-10"
+          >
+            <span>
+              {{ t("helpers.collection_properties_header") }}
+              <a href="hopp.sh" target="_blank" class="underline">{{
+                t("action.learn_more")
+              }}</a>
+            </span>
+          </AppBanner>
+        </HoppSmartTab>
+        <HoppSmartTab
+          :id="'authorization'"
+          :label="`${t('tab.authorization')}`"
+        >
+          <HttpAuthorization
+            v-model="editableCollection.auth"
+            :is-collection-property="true"
           />
           <AppBanner
             :banner="{
@@ -23,26 +48,10 @@
             }"
           >
             <span>
-              This header will be set for every request in this collection.
-              <a href="hopp.sh" class="underline">Learn More</a>
-            </span>
-          </AppBanner>
-        </HoppSmartTab>
-        <HoppSmartTab
-          :id="'authorization'"
-          :label="`${t('tab.authorization')}`"
-        >
-          <HttpAuthorization v-model="editableCollection.auth" />
-          <AppBanner
-            :banner="{
-              type: 'info',
-              alternateText: 'This is an alternate text',
-            }"
-          >
-            <span>
-              This authorization will be set for every request in this
-              collection.
-              <a href="hopp.sh" class="underline">Learn More</a>
+              {{ t("helpers.collection_properties_authorization") }}
+              <a href="hopp.sh" target="_blank" class="underline">{{
+                t("action.learn_more")
+              }}</a>
             </span>
           </AppBanner>
         </HoppSmartTab>
@@ -72,6 +81,7 @@ import { watch, ref } from "vue"
 import { useI18n } from "@composables/i18n"
 import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
 import { TeamCollection } from "~/helpers/backend/graphql"
+import { RESTOptionTabs } from "../http/RequestOptions.vue"
 
 const t = useI18n()
 
@@ -103,13 +113,11 @@ const editableCollection = ref({
     authType: "none",
     authActive: false,
   },
-})
-
-type Tab = "headers" | "authorization"
+}) as any
 
 const selectedOptionTab = ref("headers")
 
-const changeOptionTab = (tab: Tab) => {
+const changeOptionTab = (tab: RESTOptionTabs) => {
   selectedOptionTab.value = tab
 }
 

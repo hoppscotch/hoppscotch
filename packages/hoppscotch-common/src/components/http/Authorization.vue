@@ -2,6 +2,11 @@
   <div class="flex flex-1 flex-col">
     <div
       class="sticky z-10 flex flex-shrink-0 items-center justify-between overflow-x-auto border-b border-dividerLight bg-primary pl-4"
+      :class="{
+        'top-upperMobileSecondaryStickyFold sm:top-upperSecondaryStickyFold':
+          !isCollectionProperty,
+        'top-propertiesPrimaryStickyFold': isCollectionProperty,
+      }"
     >
       <span class="flex items-center">
         <label class="truncate font-semibold text-secondaryLight">
@@ -188,6 +193,7 @@ const colorMode = useColorMode()
 
 const props = defineProps<{
   modelValue: HoppRESTAuth
+  isCollectionProperty?: boolean
 }>()
 
 const emit = defineEmits<{

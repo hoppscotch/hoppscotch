@@ -356,6 +356,8 @@
     "offline_short": "You're using Hoppscotch offline.",
     "post_request_tests": "Test scripts are written in JavaScript, and are run after the response is received.",
     "pre_request_script": "Pre-request scripts are written in JavaScript, and are run before the request is sent.",
+    "collection_properties_authorization": " This authorization will be set for every request in this collection.",
+    "collection_properties_header": "This header will be set for every request in this collection.",
     "script_fail": "It seems there is a glitch in the pre-request script. Check the error below and fix the script accordingly.",
     "test_script_fail": "There seems to be an error with test script. Please fix the errors and run tests again",
     "tests": "Write a test script to automate debugging."

@@ -2,6 +2,11 @@
   <div class="flex flex-1 flex-col">
     <div
       class="sticky z-10 flex flex-shrink-0 items-center justify-between overflow-x-auto border-b border-dividerLight bg-primary pl-4"
+      :class="{
+        'top-upperMobileSecondaryStickyFold sm:top-upperSecondaryStickyFold':
+          !isCollectionProperty,
+        'top-propertiesPrimaryStickyFold': isCollectionProperty,
+      }"
     >
       <label class="truncate font-semibold text-secondaryLight">
         {{ t("request.header_list") }}
@@ -288,9 +293,10 @@ const linewrapEnabled = ref(true)
 const deletionToast = ref<{ goAway: (delay: number) => void } | null>(null)
 
 // v-model integration with props and emit
-const props = defineProps<{ modelValue: HoppRESTRequest }>()
-
-console.log(props.modelValue)
+const props = defineProps<{
+  modelValue: HoppRESTRequest
+  isCollectionProperty?: boolean
+}>()
 
 const emit = defineEmits<{
   (e: "change-tab", value: RESTOptionTabs): void

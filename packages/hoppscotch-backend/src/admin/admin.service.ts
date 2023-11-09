@@ -439,6 +439,7 @@ export class AdminService {
    * Fetch all created ShortCodes
    *
    * @param args Pagination arguments
+   * @param userEmail User email
    * @returns ShortcodeWithUserEmail
    */
   async fetchAllShortcodes(

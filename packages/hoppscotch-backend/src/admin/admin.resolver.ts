@@ -444,7 +444,7 @@ export class AdminResolver {
   }
 
   @Mutation(() => Boolean, {
-    description: 'Revoke a team Invite by Invite ID',
+    description: 'Revoke Shortcode by ID',
   })
   @UseGuards(GqlAuthGuard, GqlAdminGuard)
   async revokeShortcodeByAdmin(

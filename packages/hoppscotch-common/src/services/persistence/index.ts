@@ -10,8 +10,6 @@ import { Service } from "dioc"
 import { assign, clone, isEmpty } from "lodash-es"
 import { z } from "zod"
 
-import { getService } from "~/modules/dioc"
-
 import { GQLTabService } from "~/services/tab/graphql"
 import { RESTTabService } from "~/services/tab/rest"
 
@@ -69,9 +67,12 @@ import {
 export class PersistenceService extends Service {
   public static readonly ID = "PERSISTENCE_SERVICE"
 
-  public hoppLocalConfigStorage: StorageLike = localStorage
+  private readonly restTabService = this.bind(RESTTabService)
+  private readonly gqlTabService = this.bind(GQLTabService)
 
   private t = getI18n()
+
+  public hoppLocalConfigStorage: StorageLike = localStorage
 
   constructor() {
     super()
@@ -510,8 +511,6 @@ export class PersistenceService extends Service {
   }
 
   private setupGQLTabsPersistence() {
-    const tabService = getService(GQLTabService)
-
     try {
       const state = window.localStorage.getItem("gqlTabState")
       if (state) {
@@ -527,7 +526,7 @@ export class PersistenceService extends Service {
         //   )
         // }
 
-        tabService.loadTabsFromPersistedState(data)
+        this.gqlTabService.loadTabsFromPersistedState(data)
       }
     } catch (e) {
       console.error(
@@ -537,7 +536,7 @@ export class PersistenceService extends Service {
     }
 
     watchDebounced(
-      tabService.persistableTabState,
+      this.gqlTabService.persistableTabState,
       (state) => {
         window.localStorage.setItem("gqlTabState", JSON.stringify(state))
       },
@@ -546,8 +545,6 @@ export class PersistenceService extends Service {
   }
 
   public setupRESTTabsPersistence() {
-    const tabService = getService(RESTTabService)
-
     try {
       const state = window.localStorage.getItem("restTabState")
       if (state) {
@@ -560,7 +557,7 @@ export class PersistenceService extends Service {
         //   window.localStorage.setItem("restTabState-backup", JSON.stringify(state))
         // }
 
-        tabService.loadTabsFromPersistedState(data)
+        this.restTabService.loadTabsFromPersistedState(data)
       }
     } catch (e) {
       console.error(
@@ -570,7 +567,7 @@ export class PersistenceService extends Service {
     }
 
     watchDebounced(
-      tabService.persistableTabState,
+      this.restTabService.persistableTabState,
       (state) => {
         window.localStorage.setItem("restTabState", JSON.stringify(state))
       },

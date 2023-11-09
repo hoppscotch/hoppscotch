@@ -8,9 +8,7 @@ import {
 import { watchDebounced } from "@vueuse/core"
 import { TestContainer } from "dioc/testing"
 import { cloneDeep } from "lodash-es"
-import { describe, expect, it, vi } from "vitest"
-
-import { getService } from "~/modules/dioc"
+import { afterAll, describe, expect, it, vi } from "vitest"
 
 import { MQTTRequest$, setMQTTRequest } from "~/newstore/MQTTSession"
 import { SSERequest$, setSSERequest } from "~/newstore/SSESession"
@@ -47,8 +45,6 @@ import {
   settingsStore,
 } from "~/newstore/settings"
 import { PersistenceService } from "../../persistence"
-import { GQLTabService } from "../../tab/graphql"
-import { RESTTabService } from "../../tab/rest"
 import {
   ENVIRONMENTS,
   GQL_COLLECTIONS,
@@ -79,7 +75,6 @@ vi.mock("@vueuse/core", async (importOriginal) => {
 
 vi.mock("~/newstore/environments", () => {
   return {
-    // ...actualModule,
     addGlobalEnvVariable: vi.fn(),
     setGlobalEnvVariables: vi.fn(),
     replaceEnvironments: vi.fn(),
@@ -96,7 +91,28 @@ vi.mock("~/newstore/environments", () => {
   }
 })
 
+/**
+ * Helper functions
+ */
+const spyOnGetItem = () => vi.spyOn(Storage.prototype, "getItem")
+const spyOnRemoveItem = () => vi.spyOn(Storage.prototype, "removeItem")
+const spyOnSetItem = () => vi.spyOn(Storage.prototype, "setItem")
+
+const getServiceInstance = () => {
+  const container = new TestContainer()
+  const service = container.bind(PersistenceService)
+  return service
+}
+
 describe("PersistenceService", () => {
+  afterAll(() => {
+    // Clear all mocks
+    vi.clearAllMocks()
+
+    // Restore the original implementation for any spied functions
+    vi.restoreAllMocks()
+  })
+
   describe("checkAndMigrateOldSettings", () => {
     vi.mock("~/newstore/settings", () => {
       return {
@@ -107,11 +123,10 @@ describe("PersistenceService", () => {
     it("sets the selected environment index type as `NO_ENV` in localStorage if the `selectedEnvIndex` retrieved is `-1`", () => {
       window.localStorage.setItem("selectedEnvIndex", "-1")
 
-      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
-      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
+      const getItemSpy = spyOnGetItem()
+      const setItemSpy = spyOnSetItem()
 
-      const container = new TestContainer()
-      const service = container.bind(PersistenceService)
+      const service = getServiceInstance()
 
       // @ts-expect-error Testing private method
       service.checkAndMigrateOldSettings()
@@ -128,8 +143,8 @@ describe("PersistenceService", () => {
     it("sets the selected environment index type as `MY_ENV` in localStorage if the `selectedEnvIndex` retrieved is greater than `0`", () => {
       window.localStorage.setItem("selectedEnvIndex", "1")
 
-      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
-      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
+      const getItemSpy = spyOnGetItem()
+      const setItemSpy = spyOnSetItem()
 
       const container = new TestContainer()
       const service = container.bind(PersistenceService)
@@ -163,11 +178,10 @@ describe("PersistenceService", () => {
 
       window.localStorage.setItem("vuex", JSON.stringify(vuexData))
 
-      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
-      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
+      const getItemSpy = spyOnGetItem()
+      const setItemSpy = spyOnSetItem()
 
-      const container = new TestContainer()
-      const service = container.bind(PersistenceService)
+      const service = getServiceInstance()
 
       // @ts-expect-error Spying on private member
       const i18nSpy = vi.spyOn(service, "t")
@@ -188,17 +202,16 @@ describe("PersistenceService", () => {
     it("skips schema parsing and setting other properties if vuex read from localStorage is an empty entity", () => {
       window.localStorage.setItem("vuex", JSON.stringify({}))
 
-      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
-      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
+      const getItemSpy = spyOnGetItem()
+      const setItemSpy = spyOnSetItem()
 
-      const container = new TestContainer()
-      const persistenceService = container.bind(PersistenceService)
+      const service = getServiceInstance()
 
       // @ts-expect-error Spying on private member
-      const i18nSpy = vi.spyOn(persistenceService, "t")
+      const i18nSpy = vi.spyOn(service, "t")
 
       // @ts-expect-error Testing private method
-      persistenceService.checkAndMigrateOldSettings()
+      service.checkAndMigrateOldSettings()
 
       expect(getItemSpy).toHaveBeenCalledWith("vuex")
 
@@ -213,18 +226,17 @@ describe("PersistenceService", () => {
       const invalidColor = "invalid-color"
       window.localStorage.setItem("THEME_COLOR", invalidColor)
 
-      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
-      const removeItemSpy = vi.spyOn(Storage.prototype, "removeItem")
-      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
+      const getItemSpy = spyOnGetItem()
+      const removeItemSpy = spyOnRemoveItem()
+      const setItemSpy = spyOnSetItem()
 
-      const container = new TestContainer()
-      const persistenceService = container.bind(PersistenceService)
+      const service = getServiceInstance()
 
       // @ts-expect-error Spying on private member
-      const i18nSpy = vi.spyOn(persistenceService, "t")
+      const i18nSpy = vi.spyOn(service, "t")
 
       // @ts-expect-error Testing private method
-      persistenceService.checkAndMigrateOldSettings()
+      service.checkAndMigrateOldSettings()
 
       expect(getItemSpy).toHaveBeenCalledWith("vuex")
 
@@ -247,18 +259,17 @@ describe("PersistenceService", () => {
       const invalidColor = "invalid-color"
       window.localStorage.setItem("nuxt-color-mode", invalidColor)
 
-      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
-      const removeItemSpy = vi.spyOn(Storage.prototype, "removeItem")
-      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
+      const getItemSpy = spyOnGetItem()
+      const removeItemSpy = spyOnRemoveItem()
+      const setItemSpy = spyOnSetItem()
 
-      const container = new TestContainer()
-      const persistenceService = container.bind(PersistenceService)
+      const service = getServiceInstance()
 
       // @ts-expect-error Spying on private member
-      const i18nSpy = vi.spyOn(persistenceService, "t")
+      const i18nSpy = vi.spyOn(service, "t")
 
       // @ts-expect-error Testing private method
-      persistenceService.checkAndMigrateOldSettings()
+      service.checkAndMigrateOldSettings()
 
       expect(getItemSpy).toHaveBeenCalledWith("vuex")
 
@@ -284,12 +295,11 @@ describe("PersistenceService", () => {
       window.localStorage.setItem("THEME_COLOR", themeColor)
       window.localStorage.setItem("nuxt-color-mode", nuxtColorMode)
 
-      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
-      const removeItemSpy = vi.spyOn(Storage.prototype, "removeItem")
-      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
+      const getItemSpy = spyOnGetItem()
+      const removeItemSpy = spyOnRemoveItem()
+      const setItemSpy = spyOnSetItem()
 
-      const container = new TestContainer()
-      const service = container.bind(PersistenceService)
+      const service = getServiceInstance()
 
       // @ts-expect-error Testing private method
       service.checkAndMigrateOldSettings()
@@ -355,11 +365,10 @@ describe("PersistenceService", () => {
       }
       window.localStorage.setItem("localState", JSON.stringify(localState))
 
-      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
-      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
+      const getItemSpy = spyOnGetItem()
+      const setItemSpy = spyOnSetItem()
 
-      const container = new TestContainer()
-      const service = container.bind(PersistenceService)
+      const service = getServiceInstance()
 
       // @ts-expect-error Spying on private member
       const i18nSpy = vi.spyOn(service, "t")
@@ -383,11 +392,10 @@ describe("PersistenceService", () => {
       }
       window.localStorage.setItem("localState", JSON.stringify(localState))
 
-      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
-      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
+      const getItemSpy = spyOnGetItem()
+      const setItemSpy = spyOnSetItem()
 
-      const container = new TestContainer()
-      const service = container.bind(PersistenceService)
+      const service = getServiceInstance()
 
       // @ts-expect-error Spying on private member
       const i18nSpy = vi.spyOn(service, "t")
@@ -408,11 +416,10 @@ describe("PersistenceService", () => {
     it("schema parsing succeeds if there is no `localState` key present in localStorage where the fallback of `{}` is chosen", () => {
       window.localStorage.removeItem("localState")
 
-      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
-      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
+      const getItemSpy = spyOnGetItem()
+      const setItemSpy = spyOnSetItem()
 
-      const container = new TestContainer()
-      const service = container.bind(PersistenceService)
+      const service = getServiceInstance()
 
       // @ts-expect-error Spying on private member
       const i18nSpy = vi.spyOn(service, "t")
@@ -421,6 +428,7 @@ describe("PersistenceService", () => {
       service.setupLocalStatePersistence()
 
       expect(getItemSpy).toHaveBeenCalledWith("localState")
+
       expect(i18nSpy).not.toHaveBeenCalled()
       expect(setItemSpy).not.toHaveBeenCalled()
     })
@@ -442,10 +450,9 @@ describe("PersistenceService", () => {
       }
       window.localStorage.setItem("localState", JSON.stringify(localState))
 
-      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
+      const getItemSpy = spyOnGetItem()
 
-      const container = new TestContainer()
-      const service = container.bind(PersistenceService)
+      const service = getServiceInstance()
 
       // @ts-expect-error Testing private method
       service.setupLocalStatePersistence()
@@ -468,11 +475,10 @@ describe("PersistenceService", () => {
       }
       window.localStorage.setItem("settings", JSON.stringify(settings))
 
-      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
-      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
+      const getItemSpy = spyOnGetItem()
+      const setItemSpy = spyOnSetItem()
 
-      const container = new TestContainer()
-      const service = container.bind(PersistenceService)
+      const service = getServiceInstance()
 
       // @ts-expect-error Spying on private member
       const i18nSpy = vi.spyOn(service, "t")
@@ -493,11 +499,10 @@ describe("PersistenceService", () => {
     it("schema parsing succeeds if there is no `settings` key present in localStorage where the fallback of `{}` is chosen", () => {
       window.localStorage.removeItem("settings")
 
-      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
-      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
+      const getItemSpy = spyOnGetItem()
+      const setItemSpy = spyOnSetItem()
 
-      const container = new TestContainer()
-      const service = container.bind(PersistenceService)
+      const service = getServiceInstance()
 
       // @ts-expect-error Spying on private member
       const i18nSpy = vi.spyOn(service, "t")
@@ -506,6 +511,7 @@ describe("PersistenceService", () => {
       service.setupSettingsPersistence()
 
       expect(getItemSpy).toHaveBeenCalledWith("settings")
+
       expect(i18nSpy).not.toHaveBeenCalled()
       expect(setItemSpy).not.toHaveBeenCalled()
     })
@@ -532,11 +538,10 @@ describe("PersistenceService", () => {
       const { settings } = VUEX_DATA.postwoman
       window.localStorage.setItem("settings", JSON.stringify(settings))
 
-      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
-      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
+      const getItemSpy = spyOnGetItem()
+      const setItemSpy = spyOnSetItem()
 
-      const container = new TestContainer()
-      const service = container.bind(PersistenceService)
+      const service = getServiceInstance()
 
       // @ts-expect-error Spying on private member
       const i18nSpy = vi.spyOn(service, "t")
@@ -545,6 +550,7 @@ describe("PersistenceService", () => {
       service.setupSettingsPersistence()
 
       expect(getItemSpy).toHaveBeenCalledWith("settings")
+
       expect(i18nSpy).not.toHaveBeenCalled()
       expect(setItemSpy).not.toHaveBeenCalled()
 
@@ -564,11 +570,10 @@ describe("PersistenceService", () => {
       const restHistoryData = { ...REST_HISTORY, v: "1" }
       window.localStorage.setItem("history", JSON.stringify(restHistoryData))
 
-      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
-      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
+      const getItemSpy = spyOnGetItem()
+      const setItemSpy = spyOnSetItem()
 
-      const container = new TestContainer()
-      const service = container.bind(PersistenceService)
+      const service = getServiceInstance()
 
       // @ts-expect-error Spying on private member
       const i18nSpy = vi.spyOn(service, "t")
@@ -589,11 +594,10 @@ describe("PersistenceService", () => {
     it("REST history schema parsing succeeds if there is no `history` key present in localStorage where the fallback of `[]` is chosen", () => {
       window.localStorage.removeItem("history")
 
-      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
-      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
+      const getItemSpy = spyOnGetItem()
+      const setItemSpy = spyOnSetItem()
 
-      const container = new TestContainer()
-      const service = container.bind(PersistenceService)
+      const service = getServiceInstance()
 
       // @ts-expect-error Spying on private member
       const i18nSpy = vi.spyOn(service, "t")
@@ -616,11 +620,10 @@ describe("PersistenceService", () => {
         JSON.stringify(graphqlHistoryData)
       )
 
-      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
-      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
+      const getItemSpy = spyOnGetItem()
+      const setItemSpy = spyOnSetItem()
 
-      const container = new TestContainer()
-      const service = container.bind(PersistenceService)
+      const service = getServiceInstance()
 
       // @ts-expect-error Spying on private member
       const i18nSpy = vi.spyOn(service, "t")
@@ -641,11 +644,10 @@ describe("PersistenceService", () => {
     it("GQL history schema parsing succeeds if there is no `graphqlHistory` key present in localStorage where the fallback of `[]` is chosen", () => {
       window.localStorage.removeItem("graphqlHistory")
 
-      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
-      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
+      const getItemSpy = spyOnGetItem()
+      const setItemSpy = spyOnSetItem()
 
-      const container = new TestContainer()
-      const service = container.bind(PersistenceService)
+      const service = getServiceInstance()
 
       // @ts-expect-error Spying on private member
       const i18nSpy = vi.spyOn(service, "t")
@@ -689,10 +691,9 @@ describe("PersistenceService", () => {
       window.localStorage.setItem("history", stringifiedRestHistory)
       window.localStorage.setItem("graphqlHistory", stringifiedGqlHistory)
 
-      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
+      const getItemSpy = spyOnGetItem()
 
-      const container = new TestContainer()
-      const service = container.bind(PersistenceService)
+      const service = getServiceInstance()
 
       // @ts-expect-error Testing private method
       service.setupHistoryPersistence()
@@ -729,11 +730,10 @@ describe("PersistenceService", () => {
         JSON.stringify(restCollectionsData)
       )
 
-      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
-      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
+      const getItemSpy = spyOnGetItem()
+      const setItemSpy = spyOnSetItem()
 
-      const container = new TestContainer()
-      const service = container.bind(PersistenceService)
+      const service = getServiceInstance()
 
       // @ts-expect-error Spying on private member
       const i18nSpy = vi.spyOn(service, "t")
@@ -754,11 +754,10 @@ describe("PersistenceService", () => {
     it("REST collections schema parsing succeeds if there is no `collections` key present in localStorage where the fallback of `[]` is chosen", () => {
       window.localStorage.removeItem("collections")
 
-      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
-      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
+      const getItemSpy = spyOnGetItem()
+      const setItemSpy = spyOnSetItem()
 
-      const container = new TestContainer()
-      const service = container.bind(PersistenceService)
+      const service = getServiceInstance()
 
       // @ts-expect-error Spying on private member
       const i18nSpy = vi.spyOn(service, "t")
@@ -781,11 +780,10 @@ describe("PersistenceService", () => {
         JSON.stringify(graphqlCollectionsData)
       )
 
-      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
-      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
+      const getItemSpy = spyOnGetItem()
+      const setItemSpy = spyOnSetItem()
 
-      const container = new TestContainer()
-      const service = container.bind(PersistenceService)
+      const service = getServiceInstance()
 
       // @ts-expect-error Spying on private member
       const i18nSpy = vi.spyOn(service, "t")
@@ -806,11 +804,10 @@ describe("PersistenceService", () => {
     it("GQL history schema parsing succeeds if there is no `collectionsGraphql` key present in localStorage where the fallback of `[]` is chosen", () => {
       window.localStorage.removeItem("collectionsGraphql")
 
-      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
-      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
+      const getItemSpy = spyOnGetItem()
+      const setItemSpy = spyOnSetItem()
 
-      const container = new TestContainer()
-      const service = container.bind(PersistenceService)
+      const service = getServiceInstance()
 
       // @ts-expect-error Spying on private member
       const i18nSpy = vi.spyOn(service, "t")
@@ -869,10 +866,9 @@ describe("PersistenceService", () => {
         JSON.stringify(gqlCollections)
       )
 
-      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
+      const getItemSpy = spyOnGetItem()
 
-      const container = new TestContainer()
-      const service = container.bind(PersistenceService)
+      const service = getServiceInstance()
 
       // @ts-expect-error Testing private method
       service.setupCollectionsPersistence()
@@ -905,11 +901,10 @@ describe("PersistenceService", () => {
 
       window.localStorage.setItem("environments", JSON.stringify(environments))
 
-      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
-      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
+      const getItemSpy = spyOnGetItem()
+      const setItemSpy = spyOnSetItem()
 
-      const container = new TestContainer()
-      const service = container.bind(PersistenceService)
+      const service = getServiceInstance()
 
       // @ts-expect-error Spying on private member
       const i18nSpy = vi.spyOn(service, "t")
@@ -931,11 +926,10 @@ describe("PersistenceService", () => {
       const environments = cloneDeep(ENVIRONMENTS)
       window.localStorage.setItem("environments", JSON.stringify(environments))
 
-      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
-      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
+      const getItemSpy = spyOnGetItem()
+      const setItemSpy = spyOnSetItem()
 
-      const container = new TestContainer()
-      const service = container.bind(PersistenceService)
+      const service = getServiceInstance()
 
       // @ts-expect-error Spying on private member
       const i18nSpy = vi.spyOn(service, "t")
@@ -944,8 +938,10 @@ describe("PersistenceService", () => {
       service.setupEnvironmentsPersistence()
 
       expect(getItemSpy).toHaveBeenCalledWith("environments")
+
       expect(i18nSpy).not.toHaveBeenCalled()
       expect(setItemSpy).not.toHaveBeenCalledWith("environments-backup")
+
       expect(addGlobalEnvVariable).toHaveBeenCalledWith(
         environments[0].variables[0]
       )
@@ -973,11 +969,10 @@ describe("PersistenceService", () => {
 
       window.localStorage.setItem("selectedEnvIndex", JSON.stringify(request))
 
-      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
-      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
+      const getItemSpy = spyOnGetItem()
+      const setItemSpy = spyOnSetItem()
 
-      const container = new TestContainer()
-      const service = container.bind(PersistenceService)
+      const service = getServiceInstance()
 
       // @ts-expect-error Spying on private member
       const i18nSpy = vi.spyOn(service, "t")
@@ -998,11 +993,10 @@ describe("PersistenceService", () => {
     it("schema parsing succeeds if there is no `selectedEnvIndex` key present in localStorage where the fallback of `null` is chosen", () => {
       window.localStorage.removeItem("selectedEnvIndex")
 
-      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
-      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
+      const getItemSpy = spyOnGetItem()
+      const setItemSpy = spyOnSetItem()
 
-      const container = new TestContainer()
-      const service = container.bind(PersistenceService)
+      const service = getServiceInstance()
 
       // @ts-expect-error Spying on private member
       const i18nSpy = vi.spyOn(service, "t")
@@ -1027,10 +1021,9 @@ describe("PersistenceService", () => {
         JSON.stringify(selectedEnvIndex)
       )
 
-      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
+      const getItemSpy = spyOnGetItem()
 
-      const container = new TestContainer()
-      const service = container.bind(PersistenceService)
+      const service = getServiceInstance()
 
       // @ts-expect-error Testing private method
       service.setupSelectedEnvPersistence()
@@ -1045,10 +1038,9 @@ describe("PersistenceService", () => {
     it("sets it to `NO_ENV_SELECTED` if there is no value associated with the `selectedEnvIndex` in localStorage", () => {
       window.localStorage.removeItem("selectedEnvIndex")
 
-      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
+      const getItemSpy = spyOnGetItem()
 
-      const container = new TestContainer()
-      const service = container.bind(PersistenceService)
+      const service = getServiceInstance()
 
       // @ts-expect-error Testing private method
       service.setupSelectedEnvPersistence()
@@ -1074,11 +1066,10 @@ describe("PersistenceService", () => {
 
       window.localStorage.setItem("WebsocketRequest", JSON.stringify(request))
 
-      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
-      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
+      const getItemSpy = spyOnGetItem()
+      const setItemSpy = spyOnSetItem()
 
-      const container = new TestContainer()
-      const service = container.bind(PersistenceService)
+      const service = getServiceInstance()
 
       // @ts-expect-error Spying on private member
       const i18nSpy = vi.spyOn(service, "t")
@@ -1099,11 +1090,10 @@ describe("PersistenceService", () => {
     it("schema parsing succeeds if there is no `WebsocketRequest` key present in localStorage where the fallback of `null` is chosen", () => {
       window.localStorage.removeItem("WebsocketRequest")
 
-      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
-      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
+      const getItemSpy = spyOnGetItem()
+      const setItemSpy = spyOnSetItem()
 
-      const container = new TestContainer()
-      const service = container.bind(PersistenceService)
+      const service = getServiceInstance()
 
       // @ts-expect-error Spying on private member
       const i18nSpy = vi.spyOn(service, "t")
@@ -1112,6 +1102,7 @@ describe("PersistenceService", () => {
       service.setupWebsocketPersistence()
 
       expect(getItemSpy).toHaveBeenCalledWith("WebsocketRequest")
+
       expect(i18nSpy).not.toHaveBeenCalled()
       expect(setItemSpy).not.toHaveBeenCalled()
     })
@@ -1132,11 +1123,10 @@ describe("PersistenceService", () => {
       }
       window.localStorage.setItem("WebsocketRequest", JSON.stringify(request))
 
-      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
-      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
+      const getItemSpy = spyOnGetItem()
+      const setItemSpy = spyOnSetItem()
 
-      const container = new TestContainer()
-      const service = container.bind(PersistenceService)
+      const service = getServiceInstance()
 
       // @ts-expect-error Spying on private member
       const i18nSpy = vi.spyOn(service, "t")
@@ -1166,11 +1156,10 @@ describe("PersistenceService", () => {
 
       window.localStorage.setItem("SocketIORequest", JSON.stringify(request))
 
-      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
-      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
+      const getItemSpy = spyOnGetItem()
+      const setItemSpy = spyOnSetItem()
 
-      const container = new TestContainer()
-      const service = container.bind(PersistenceService)
+      const service = getServiceInstance()
 
       // @ts-expect-error Spying on private member
       const i18nSpy = vi.spyOn(service, "t")
@@ -1191,11 +1180,10 @@ describe("PersistenceService", () => {
     it("schema parsing succeeds if there is no `SocketIORequest` key present in localStorage where the fallback of `null` is chosen", () => {
       window.localStorage.removeItem("SocketIORequest")
 
-      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
-      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
+      const getItemSpy = spyOnGetItem()
+      const setItemSpy = spyOnSetItem()
 
-      const container = new TestContainer()
-      const service = container.bind(PersistenceService)
+      const service = getServiceInstance()
 
       // @ts-expect-error Spying on private member
       const i18nSpy = vi.spyOn(service, "t")
@@ -1204,6 +1192,7 @@ describe("PersistenceService", () => {
       service.setupSocketIOPersistence()
 
       expect(getItemSpy).toHaveBeenCalledWith("SocketIORequest")
+
       expect(i18nSpy).not.toHaveBeenCalled()
       expect(setItemSpy).not.toHaveBeenCalled()
     })
@@ -1226,11 +1215,10 @@ describe("PersistenceService", () => {
 
       window.localStorage.setItem("SocketIORequest", JSON.stringify(request))
 
-      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
-      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
+      const getItemSpy = spyOnGetItem()
+      const setItemSpy = spyOnSetItem()
 
-      const container = new TestContainer()
-      const service = container.bind(PersistenceService)
+      const service = getServiceInstance()
 
       // @ts-expect-error Spying on private member
       const i18nSpy = vi.spyOn(service, "t")
@@ -1259,11 +1247,10 @@ describe("PersistenceService", () => {
 
       window.localStorage.setItem("SSERequest", JSON.stringify(request))
 
-      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
-      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
+      const getItemSpy = spyOnGetItem()
+      const setItemSpy = spyOnSetItem()
 
-      const container = new TestContainer()
-      const service = container.bind(PersistenceService)
+      const service = getServiceInstance()
 
       // @ts-expect-error Spying on private member
       const i18nSpy = vi.spyOn(service, "t")
@@ -1284,11 +1271,10 @@ describe("PersistenceService", () => {
     it("schema parsing succeeds if there is no `SSERequest` key present in localStorage where the fallback of `null` is chosen", () => {
       window.localStorage.removeItem("SSERequest")
 
-      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
-      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
+      const getItemSpy = spyOnGetItem()
+      const setItemSpy = spyOnSetItem()
 
-      const container = new TestContainer()
-      const service = container.bind(PersistenceService)
+      const service = getServiceInstance()
 
       // @ts-expect-error Spying on private member
       const i18nSpy = vi.spyOn(service, "t")
@@ -1297,6 +1283,7 @@ describe("PersistenceService", () => {
       service.setupSSEPersistence()
 
       expect(getItemSpy).toHaveBeenCalledWith("SSERequest")
+
       expect(i18nSpy).not.toHaveBeenCalled()
       expect(setItemSpy).not.toHaveBeenCalled()
     })
@@ -1317,11 +1304,10 @@ describe("PersistenceService", () => {
       }
       window.localStorage.setItem("SSERequest", JSON.stringify(request))
 
-      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
-      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
+      const getItemSpy = spyOnGetItem()
+      const setItemSpy = spyOnSetItem()
 
-      const container = new TestContainer()
-      const service = container.bind(PersistenceService)
+      const service = getServiceInstance()
 
       // @ts-expect-error Spying on private member
       const i18nSpy = vi.spyOn(service, "t")
@@ -1350,11 +1336,10 @@ describe("PersistenceService", () => {
 
       window.localStorage.setItem("MQTTRequest", JSON.stringify(request))
 
-      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
-      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
+      const getItemSpy = spyOnGetItem()
+      const setItemSpy = spyOnSetItem()
 
-      const container = new TestContainer()
-      const service = container.bind(PersistenceService)
+      const service = getServiceInstance()
 
       // @ts-expect-error Spying on private member
       const i18nSpy = vi.spyOn(service, "t")
@@ -1375,11 +1360,10 @@ describe("PersistenceService", () => {
     it("schema parsing succeeds if there is no `MQTTRequest` key present in localStorage where the fallback of `null` is chosen", () => {
       window.localStorage.removeItem("MQTTRequest")
 
-      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
-      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
+      const getItemSpy = spyOnGetItem()
+      const setItemSpy = spyOnSetItem()
 
-      const container = new TestContainer()
-      const service = container.bind(PersistenceService)
+      const service = getServiceInstance()
 
       // @ts-expect-error Spying on private member
       const i18nSpy = vi.spyOn(service, "t")
@@ -1388,6 +1372,7 @@ describe("PersistenceService", () => {
       service.setupMQTTPersistence()
 
       expect(getItemSpy).toHaveBeenCalledWith("MQTTRequest")
+
       expect(i18nSpy).not.toHaveBeenCalled()
       expect(setItemSpy).not.toHaveBeenCalled()
     })
@@ -1408,11 +1393,10 @@ describe("PersistenceService", () => {
       }
       window.localStorage.setItem("MQTTRequest", JSON.stringify(request))
 
-      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
-      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
+      const getItemSpy = spyOnGetItem()
+      const setItemSpy = spyOnSetItem()
 
-      const container = new TestContainer()
-      const service = container.bind(PersistenceService)
+      const service = getServiceInstance()
 
       // @ts-expect-error Spying on private member
       const i18nSpy = vi.spyOn(service, "t")
@@ -1443,11 +1427,10 @@ describe("PersistenceService", () => {
 
       window.localStorage.setItem("globalEnv", JSON.stringify(globalEnv))
 
-      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
-      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
+      const getItemSpy = spyOnGetItem()
+      const setItemSpy = spyOnSetItem()
 
-      const container = new TestContainer()
-      const service = container.bind(PersistenceService)
+      const service = getServiceInstance()
 
       // @ts-expect-error Spying on private member
       const i18nSpy = vi.spyOn(service, "t")
@@ -1468,11 +1451,10 @@ describe("PersistenceService", () => {
     it("schema parsing succeeds if there is no `globalEnv` key present in localStorage where the fallback of `[]` is chosen", () => {
       window.localStorage.removeItem("globalEnv")
 
-      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
-      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
+      const getItemSpy = spyOnGetItem()
+      const setItemSpy = spyOnSetItem()
 
-      const container = new TestContainer()
-      const service = container.bind(PersistenceService)
+      const service = getServiceInstance()
 
       // @ts-expect-error Spying on private member
       const i18nSpy = vi.spyOn(service, "t")
@@ -1481,6 +1463,7 @@ describe("PersistenceService", () => {
       service.setupGlobalEnvsPersistence()
 
       expect(getItemSpy).toHaveBeenCalledWith("globalEnv")
+
       expect(i18nSpy).not.toHaveBeenCalled()
       expect(setItemSpy).not.toHaveBeenCalled()
     })
@@ -1491,11 +1474,10 @@ describe("PersistenceService", () => {
       ]
       window.localStorage.setItem("globalEnv", JSON.stringify(globalEnv))
 
-      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
-      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
+      const getItemSpy = spyOnGetItem()
+      const setItemSpy = spyOnSetItem()
 
-      const container = new TestContainer()
-      const service = container.bind(PersistenceService)
+      const service = getServiceInstance()
 
       // @ts-expect-error Spying on private member
       const i18nSpy = vi.spyOn(service, "t")
@@ -1521,11 +1503,10 @@ describe("PersistenceService", () => {
 
       window.localStorage.setItem("gqlTabState", JSON.stringify(gqlTabState))
 
-      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
-      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
+      const getItemSpy = spyOnGetItem()
+      const setItemSpy = spyOnSetItem()
 
-      const container = new TestContainer()
-      const service = container.bind(PersistenceService)
+      const service = getServiceInstance()
 
       // @ts-expect-error Spying on private member
       const i18nSpy = vi.spyOn(service, "t")
@@ -1546,29 +1527,29 @@ describe("PersistenceService", () => {
     it("skips schema parsing and the loading of persisted tabs if there is no `gqlTabState` key present in localStorage", () => {
       window.localStorage.removeItem("gqlTabState")
 
-      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
-      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
+      const getItemSpy = spyOnGetItem()
+      const setItemSpy = spyOnSetItem()
 
-      const container = new TestContainer()
-      const persistenceService = container.bind(PersistenceService)
-
-      // TODO: Bind this to the `TestContainer`
-      const gqlTabService = getService(GQLTabService)
-
-      gqlTabService.loadTabsFromPersistedState = vi.fn()
+      const service = getServiceInstance()
 
       // @ts-expect-error Spying on private member
-      const i18nSpy = vi.spyOn(persistenceService, "t")
+      service.gqlTabService.loadTabsFromPersistedState = vi.fn()
+
+      // @ts-expect-error Spying on private member
+      const i18nSpy = vi.spyOn(service, "t")
 
       // @ts-expect-error Testing private method
-      persistenceService.setupGQLTabsPersistence()
+      service.setupGQLTabsPersistence()
 
       expect(getItemSpy).toHaveBeenCalledWith("gqlTabState")
 
       expect(i18nSpy).not.toHaveBeenCalled()
       expect(setItemSpy).not.toHaveBeenCalled()
+      expect(
+        // @ts-expect-error Testing private member
+        service.gqlTabService.loadTabsFromPersistedState
+      ).not.toHaveBeenCalled()
 
-      expect(gqlTabService.loadTabsFromPersistedState).not.toHaveBeenCalled()
       expect(watchDebounced).toHaveBeenCalled()
     })
 
@@ -1576,33 +1557,32 @@ describe("PersistenceService", () => {
       const tabState = GQL_TAB_STATE
       window.localStorage.setItem("gqlTabState", JSON.stringify(tabState))
 
-      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
-      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
+      const getItemSpy = spyOnGetItem()
+      const setItemSpy = spyOnSetItem()
 
-      const container = new TestContainer()
-      const persistenceService = container.bind(PersistenceService)
-
-      // TODO: Bind this to the `TestContainer`
-      const gqlTabService = getService(GQLTabService)
-
-      gqlTabService.loadTabsFromPersistedState = vi.fn()
+      const service = getServiceInstance()
 
       // @ts-expect-error Spying on private member
-      const i18nSpy = vi.spyOn(persistenceService, "t")
+      service.gqlTabService.loadTabsFromPersistedState = vi.fn()
 
-      // @ts-expect-error Testing private method
-      persistenceService.setupGQLTabsPersistence()
+      // @ts-expect-error Spying on private member
+      const i18nSpy = vi.spyOn(service, "t")
+
+      // @ts-expect-error Testing private member
+      service.setupGQLTabsPersistence()
 
       expect(getItemSpy).toHaveBeenCalledWith("gqlTabState")
 
       expect(i18nSpy).not.toHaveBeenCalled()
       expect(setItemSpy).not.toHaveBeenCalled()
 
-      expect(gqlTabService.loadTabsFromPersistedState).toHaveBeenCalledWith(
-        tabState
-      )
+      expect(
+        // @ts-expect-error Testing private member
+        service.gqlTabService.loadTabsFromPersistedState
+      ).toHaveBeenCalledWith(tabState)
       expect(watchDebounced).toHaveBeenCalledWith(
-        gqlTabService.persistableTabState,
+        // @ts-expect-error Testing private member
+        service.gqlTabService.persistableTabState,
         expect.any(Function),
         { debounce: 500, deep: true }
       )
@@ -1612,20 +1592,16 @@ describe("PersistenceService", () => {
       window.localStorage.setItem("gqlTabState", "invalid-json")
 
       console.error = vi.fn()
-      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
-      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
+      const getItemSpy = spyOnGetItem()
+      const setItemSpy = spyOnSetItem()
 
-      const container = new TestContainer()
-      const persistenceService = container.bind(PersistenceService)
-
-      // TODO: Bind this to the `TestContainer`
-      const gqlTabService = getService(GQLTabService)
+      const service = getServiceInstance()
 
       // @ts-expect-error Spying on private member
-      const i18nSpy = vi.spyOn(persistenceService, "t")
+      const i18nSpy = vi.spyOn(service, "t")
 
       // @ts-expect-error Testing private method
-      persistenceService.setupGQLTabsPersistence()
+      service.setupGQLTabsPersistence()
 
       expect(getItemSpy).toHaveBeenCalledWith("gqlTabState")
 
@@ -1637,7 +1613,8 @@ describe("PersistenceService", () => {
         window.localStorage.getItem("gqlTabState")
       )
       expect(watchDebounced).toHaveBeenCalledWith(
-        gqlTabService.persistableTabState,
+        // @ts-expect-error Testing private member
+        service.gqlTabService.persistableTabState,
         expect.any(Function),
         { debounce: 500, deep: true }
       )
@@ -1652,11 +1629,10 @@ describe("PersistenceService", () => {
 
       window.localStorage.setItem("restTabState", JSON.stringify(restTabState))
 
-      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
-      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
+      const getItemSpy = spyOnGetItem()
+      const setItemSpy = spyOnSetItem()
 
-      const container = new TestContainer()
-      const service = container.bind(PersistenceService)
+      const service = getServiceInstance()
 
       // @ts-expect-error Spying on private member
       const i18nSpy = vi.spyOn(service, "t")
@@ -1676,28 +1652,28 @@ describe("PersistenceService", () => {
     it("skips schema parsing and the loading of persisted tabs if there is no `restTabState` key present in localStorage", () => {
       window.localStorage.removeItem("restTabState")
 
-      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
-      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
+      const getItemSpy = spyOnGetItem()
+      const setItemSpy = spyOnSetItem()
 
-      const container = new TestContainer()
-      const persistenceService = container.bind(PersistenceService)
-
-      // TODO: Bind this to the `TestContainer`
-      const restTabService = getService(RESTTabService)
-
-      restTabService.loadTabsFromPersistedState = vi.fn()
+      const service = getServiceInstance()
 
       // @ts-expect-error Spying on private member
-      const i18nSpy = vi.spyOn(persistenceService, "t")
+      service.restTabService.loadTabsFromPersistedState = vi.fn()
 
-      persistenceService.setupRESTTabsPersistence()
+      // @ts-expect-error Spying on private member
+      const i18nSpy = vi.spyOn(service, "t")
+
+      service.setupRESTTabsPersistence()
 
       expect(getItemSpy).toHaveBeenCalledWith("restTabState")
 
       expect(i18nSpy).not.toHaveBeenCalled()
       expect(setItemSpy).not.toHaveBeenCalled()
+      expect(
+        // @ts-expect-error Testing private member
+        service.restTabService.loadTabsFromPersistedState
+      ).not.toHaveBeenCalled()
 
-      expect(restTabService.loadTabsFromPersistedState).not.toHaveBeenCalled()
       expect(watchDebounced).toHaveBeenCalled()
     })
 
@@ -1705,32 +1681,31 @@ describe("PersistenceService", () => {
       const tabState = REST_TAB_STATE
       window.localStorage.setItem("restTabState", JSON.stringify(tabState))
 
-      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
-      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
+      const getItemSpy = spyOnGetItem()
+      const setItemSpy = spyOnSetItem()
 
-      const container = new TestContainer()
-      const persistenceService = container.bind(PersistenceService)
+      const service = getServiceInstance()
 
       // @ts-expect-error Spying on private member
-      const i18nSpy = vi.spyOn(persistenceService, "t")
+      const i18nSpy = vi.spyOn(service, "t")
 
-      // TODO: Bind this to the `TestContainer`
-      const restTabService = getService(RESTTabService)
+      // @ts-expect-error Spying on private member
+      service.restTabService.loadTabsFromPersistedState = vi.fn()
 
-      restTabService.loadTabsFromPersistedState = vi.fn()
-
-      persistenceService.setupRESTTabsPersistence()
+      service.setupRESTTabsPersistence()
 
       expect(getItemSpy).toHaveBeenCalledWith("restTabState")
 
       expect(i18nSpy).not.toHaveBeenCalled()
       expect(setItemSpy).not.toHaveBeenCalled()
 
-      expect(restTabService.loadTabsFromPersistedState).toHaveBeenCalledWith(
-        tabState
-      )
+      expect(
+        // @ts-expect-error Testing private member
+        service.restTabService.loadTabsFromPersistedState
+      ).toHaveBeenCalledWith(tabState)
       expect(watchDebounced).toHaveBeenCalledWith(
-        restTabService.persistableTabState,
+        // @ts-expect-error Testing private member
+        service.restTabService.persistableTabState,
         expect.any(Function),
         { debounce: 500, deep: true }
       )
@@ -1740,19 +1715,15 @@ describe("PersistenceService", () => {
       window.localStorage.setItem("restTabState", "invalid-json")
 
       console.error = vi.fn()
-      const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
-      const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
+      const getItemSpy = spyOnGetItem()
+      const setItemSpy = spyOnSetItem()
 
-      const container = new TestContainer()
-      const persistenceService = container.bind(PersistenceService)
+      const service = getServiceInstance()
 
       // @ts-expect-error Spying on private member
-      const i18nSpy = vi.spyOn(persistenceService, "t")
+      const i18nSpy = vi.spyOn(service, "t")
 
-      // TODO: Bind this to the `TestContainer`
-      const restTabService = getService(RESTTabService)
-
-      persistenceService.setupRESTTabsPersistence()
+      service.setupRESTTabsPersistence()
 
       expect(getItemSpy).toHaveBeenCalledWith("restTabState")
 
@@ -1764,56 +1735,56 @@ describe("PersistenceService", () => {
         window.localStorage.getItem("restTabState")
       )
       expect(watchDebounced).toHaveBeenCalledWith(
-        restTabService.persistableTabState,
+        // @ts-expect-error Testing private member
+        service.restTabService.persistableTabState,
         expect.any(Function),
         { debounce: 500, deep: true }
       )
     })
   })
 
-  it("setupLocalPersistence", () => {
-    const container = new TestContainer()
-    const service = container.bind(PersistenceService)
+  it("`setupLocalPersistence` method sets up entries in localStorage by invoking other methods as necessary", () => {
+    const service = getServiceInstance()
 
-    // @ts-expect-error Testing private method
+    // @ts-expect-error Spying on private method
     service.checkAndMigrateOldSettings = vi.fn()
 
-    // @ts-expect-error Testing private method
+    // @ts-expect-error Spying on private method
     service.setupLocalStatePersistence = vi.fn()
 
-    // @ts-expect-error Testing private method
+    // @ts-expect-error Spying on private method
     service.setupSettingsPersistence = vi.fn()
 
     service.setupRESTTabsPersistence = vi.fn()
 
-    // @ts-expect-error Testing private method
+    // @ts-expect-error Spying on private method
     service.setupGQLTabsPersistence = vi.fn()
 
-    // @ts-expect-error Testing private method
+    // @ts-expect-error Spying on private method
     service.setupHistoryPersistence = vi.fn()
 
-    // @ts-expect-error Testing private method
+    // @ts-expect-error Spying on private method
     service.setupCollectionsPersistence = vi.fn()
 
-    // @ts-expect-error Testing private method
+    // @ts-expect-error Spying on private method
     service.setupGlobalEnvsPersistence = vi.fn()
 
-    // @ts-expect-error Testing private method
+    // @ts-expect-error Spying on private method
     service.setupEnvironmentsPersistence = vi.fn()
 
-    // @ts-expect-error Testing private method
+    // @ts-expect-error Spying on private method
     service.setupSelectedEnvPersistence = vi.fn()
 
-    // @ts-expect-error Testing private method
+    // @ts-expect-error Spying on private method
     service.setupWebsocketPersistence = vi.fn()
 
-    // @ts-expect-error Testing private method
+    // @ts-expect-error Spying on private method
     service.setupSocketIOPersistence = vi.fn()
 
-    // @ts-expect-error Testing private method
+    // @ts-expect-error Spying on private method
     service.setupSSEPersistence = vi.fn()
 
-    // @ts-expect-error Testing private method
+    // @ts-expect-error Spying on private method
     service.setupMQTTPersistence = vi.fn()
 
     service.setupLocalPersistence()
@@ -1863,10 +1834,9 @@ describe("PersistenceService", () => {
     const testKey = "test-key"
     const testValue = "test-value"
 
-    const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
+    const setItemSpy = spyOnSetItem()
 
-    const container = new TestContainer()
-    const service = container.bind(PersistenceService)
+    const service = getServiceInstance()
 
     service.setLocalConfig(testKey, testValue)
     expect(setItemSpy).toHaveBeenCalledWith(testKey, testValue)
@@ -1876,11 +1846,10 @@ describe("PersistenceService", () => {
     const testKey = "test-key"
     const testValue = "test-value"
 
-    const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
-    const getItemSpy = vi.spyOn(Storage.prototype, "getItem")
+    const setItemSpy = spyOnSetItem()
+    const getItemSpy = spyOnGetItem()
 
-    const container = new TestContainer()
-    const service = container.bind(PersistenceService)
+    const service = getServiceInstance()
 
     service.setLocalConfig(testKey, testValue)
     const retrievedValue = service.getLocalConfig(testKey)
@@ -1894,14 +1863,14 @@ describe("PersistenceService", () => {
     const testKey = "test-key"
     const testValue = "test-value"
 
-    const setItemSpy = vi.spyOn(Storage.prototype, "setItem")
-    const removeItemSpy = vi.spyOn(Storage.prototype, "removeItem")
+    const setItemSpy = spyOnSetItem()
+    const removeItemSpy = spyOnRemoveItem()
 
-    const container = new TestContainer()
-    const service = container.bind(PersistenceService)
+    const service = getServiceInstance()
 
     service.setLocalConfig(testKey, testValue)
     service.removeLocalConfig(testKey)
+
     expect(setItemSpy).toHaveBeenCalledWith(testKey, testValue)
     expect(removeItemSpy).toHaveBeenCalledWith(testKey)
   })

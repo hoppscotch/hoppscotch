@@ -58,7 +58,7 @@ export const FALLBACK_LANG = pipe(
   )
 )
 
-const getPersistenceService = () => getService(PersistenceService)
+const persistenceService = getService(PersistenceService)
 
 // A reference to the i18n instance
 let i18nInstance: I18n<
@@ -69,10 +69,8 @@ let i18nInstance: I18n<
   true
 > | null = null
 
-const resolveCurrentLocale = () => {
-  const persistenceService = getPersistenceService()
-
-  return pipe(
+const resolveCurrentLocale = () =>
+  pipe(
     // Resolve from locale and make sure it is in languages
     persistenceService.getLocalConfig("locale"),
     O.fromNullable,
@@ -95,7 +93,6 @@ const resolveCurrentLocale = () => {
     // Else load fallback
     O.getOrElse(() => FALLBACK_LANG_CODE)
   )
-}
 
 /**
  * Changes the application language. This function returns a promise as
@@ -124,7 +121,7 @@ export const changeAppLanguage = async (locale: string) => {
   // TODO: Look into the type issues here
   i18nInstance.global.locale.value = locale
 
-  persistenceService?.setLocalConfig("locale", locale)
+  persistenceService.setLocalConfig("locale", locale)
 }
 
 /**

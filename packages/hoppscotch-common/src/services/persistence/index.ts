@@ -13,7 +13,7 @@ import { z } from "zod"
 import { GQLTabService } from "~/services/tab/graphql"
 import { RESTTabService } from "~/services/tab/rest"
 
-import { getI18n } from "~/modules/i18n"
+import { useToast } from "~/composables/toast"
 import { MQTTRequest$, setMQTTRequest } from "../../newstore/MQTTSession"
 import { SSERequest$, setSSERequest } from "../../newstore/SSESession"
 import { SIORequest$, setSIORequest } from "../../newstore/SocketIOSession"
@@ -67,8 +67,6 @@ import {
 export class PersistenceService extends Service {
   public static readonly ID = "PERSISTENCE_SERVICE"
 
-  private t = getI18n()
-
   private readonly restTabService = this.bind(RESTTabService)
   private readonly gqlTabService = this.bind(GQLTabService)
 
@@ -76,6 +74,13 @@ export class PersistenceService extends Service {
 
   constructor() {
     super()
+  }
+
+  private showErrorToast(localStorageKey: string) {
+    const toast = useToast()
+    toast.error(
+      `There's a mismatch with the expected schema for the value corresponding to ${localStorageKey} read from localStorage, keeping a backup in ${localStorageKey}-backup`
+    )
   }
 
   private checkAndMigrateOldSettings() {
@@ -101,16 +106,17 @@ export class PersistenceService extends Service {
       }
     }
 
-    const vuexData = JSON.parse(window.localStorage.getItem("vuex") || "{}")
+    const vuexKey = "vuex"
+    const vuexData = JSON.parse(window.localStorage.getItem(vuexKey) || "{}")
 
-    if (isEmpty(vuexData)) return
+    // if (isEmpty(vuexData)) return
 
     // TODO: Enable once the support for using versioned entity schemas within other schemas is added to verzod
     // const result = VUEX_SCHEMA.safeParse(vuexData)
     // if (!result.success) {
-    //   this.t("local_storage_read.vuex_schema_mismatch")
+    // this.showErrorToast(vuexKey)
     //   window.localStorage.setItem(
-    //     "vuex-backup",
+    // `${vuexKey}-backup`,
     //     JSON.stringify(vuexData)
     //   )
     // }
@@ -126,7 +132,7 @@ export class PersistenceService extends Service {
       window.localStorage.setItem("settings", JSON.stringify(settingsData))
 
       delete postwoman.settings
-      window.localStorage.setItem("vuex", JSON.stringify(vuexData))
+      window.localStorage.setItem(vuexKey, JSON.stringify(vuexData))
     }
 
     if (postwoman?.collections) {
@@ -136,7 +142,7 @@ export class PersistenceService extends Service {
       )
 
       delete postwoman.collections
-      window.localStorage.setItem("vuex", JSON.stringify(vuexData))
+      window.localStorage.setItem(vuexKey, JSON.stringify(vuexData))
     }
 
     if (postwoman?.collectionsGraphql) {
@@ -146,7 +152,7 @@ export class PersistenceService extends Service {
       )
 
       delete postwoman.collectionsGraphql
-      window.localStorage.setItem("vuex", JSON.stringify(vuexData))
+      window.localStorage.setItem(vuexKey, JSON.stringify(vuexData))
     }
 
     if (postwoman?.environments) {
@@ -156,38 +162,43 @@ export class PersistenceService extends Service {
       )
 
       delete postwoman.environments
-      window.localStorage.setItem("vuex", JSON.stringify(vuexData))
+      window.localStorage.setItem(vuexKey, JSON.stringify(vuexData))
     }
 
-    const themeColor = window.localStorage.getItem("THEME_COLOR")
-    if (themeColor) {
-      const result = z.enum(HoppAccentColors).safeParse(themeColor)
-      console.log(result)
+    const themeColorKey = "THEME_COLOR"
+    const themeColorValue = window.localStorage.getItem(themeColorKey)
+    if (themeColorValue) {
+      const result = z.enum(HoppAccentColors).safeParse(themeColorValue)
       if (!result.success) {
-        this.t("local_storage_read.theme_color_schema_mismatch")
-        window.localStorage.setItem("THEME_COLOR-backup", themeColor)
+        this.showErrorToast(themeColorKey)
+        window.localStorage.setItem(`${themeColorKey}-backup`, themeColorValue)
       }
 
-      applySetting("THEME_COLOR", themeColor as HoppAccentColor)
-      window.localStorage.removeItem("THEME_COLOR")
+      applySetting(themeColorKey, themeColorValue as HoppAccentColor)
+      window.localStorage.removeItem(themeColorKey)
     }
 
-    const color = window.localStorage.getItem("nuxt-color-mode")
-    if (color) {
-      const result = z.enum(HoppBgColors).safeParse(color)
+    const nuxtColorModeKey = "nuxt-color-mode"
+    const nuxtColorModeValue = window.localStorage.getItem(nuxtColorModeKey)
+    if (nuxtColorModeValue) {
+      const result = z.enum(HoppBgColors).safeParse(nuxtColorModeValue)
       if (!result.success) {
-        this.t("local_storage_read.nuxt_color_mode_schema_mismatch")
-        window.localStorage.setItem("nuxt-color-mode-backup", color)
+        this.showErrorToast(nuxtColorModeKey)
+        window.localStorage.setItem(
+          `${nuxtColorModeKey}-backup`,
+          nuxtColorModeValue
+        )
       }
 
-      applySetting("BG_COLOR", color as HoppBgColor)
-      window.localStorage.removeItem("nuxt-color-mode")
+      applySetting("BG_COLOR", nuxtColorModeValue as HoppBgColor)
+      window.localStorage.removeItem(nuxtColorModeKey)
     }
   }
 
   private setupLocalStatePersistence() {
+    const localStateKey = "localState"
     const localStateData = JSON.parse(
-      window.localStorage.getItem("localState") ?? "{}"
+      window.localStorage.getItem(localStateKey) ?? "{}"
     )
 
     const schema = z.union([
@@ -201,9 +212,9 @@ export class PersistenceService extends Service {
 
     const result = schema.safeParse(localStateData)
     if (!result.success) {
-      this.t("local_storage_read.local_state_schema_mismatch")
+      this.showErrorToast(localStateKey)
       window.localStorage.setItem(
-        "localState-backup",
+        `${localStateKey}-backup`,
         JSON.stringify(localStateData)
       )
     }
@@ -211,13 +222,14 @@ export class PersistenceService extends Service {
     if (localStateData) bulkApplyLocalState(localStateData)
 
     localStateStore.subject$.subscribe((state) => {
-      window.localStorage.setItem("localState", JSON.stringify(state))
+      window.localStorage.setItem(localStateKey, JSON.stringify(state))
     })
   }
 
   private setupSettingsPersistence() {
+    const settingsKey = "settings"
     const settingsData = JSON.parse(
-      window.localStorage.getItem("settings") || "{}"
+      window.localStorage.getItem(settingsKey) || "{}"
     )
 
     const schema = z.union([
@@ -230,9 +242,9 @@ export class PersistenceService extends Service {
 
     const result = schema.safeParse(settingsData)
     if (!result.success) {
-      this.t("local_storage_read.settings_schema_mismatch")
+      this.showErrorToast(settingsKey)
       window.localStorage.setItem(
-        "settings-backup",
+        `${settingsKey}-backup`,
         JSON.stringify(settingsData)
       )
     }
@@ -246,33 +258,36 @@ export class PersistenceService extends Service {
     }
 
     settingsStore.subject$.subscribe((settings) => {
-      window.localStorage.setItem("settings", JSON.stringify(settings))
+      window.localStorage.setItem(settingsKey, JSON.stringify(settings))
     })
   }
 
   private setupHistoryPersistence() {
+    const restHistoryKey = "history"
     const restHistoryData = JSON.parse(
-      window.localStorage.getItem("history") || "[]"
+      window.localStorage.getItem(restHistoryKey) || "[]"
     )
+
+    const graphqlHistoryKey = "graphqlHistory"
     const graphqlHistoryData = JSON.parse(
-      window.localStorage.getItem("graphqlHistory") || "[]"
+      window.localStorage.getItem(graphqlHistoryKey) || "[]"
     )
 
     // TODO: Enable once the support for using versioned entity schemas within other schemas is added to verzod
     // const restHistorySchemaParsedresult = z.array(REST_HISTORY_ENTRY_SCHEMA).safeParse(restHistoryData)
     // if (!restHistorySchemaParsedresult.success) {
-    //   this.t("local_storage_read.rest_history_schema_mismatch")
+    //   this.showErrorToast(restHistoryKey)
     //   window.localStorage.setItem(
-    //     "history-backup",
+    //     `${restHistoryKey}-backup`,
     //     JSON.stringify(restHistoryData)
     //   )
     // }
 
     // const gqlHistorySchemaParsedresult = z.array(GQL_HISTORY_ENTRY_SCHEMA).safeParse(graphqlHistoryData)
     // if (!gqlHistorySchemaParsedresult.success) {
-    //   this.t("local_storage_read.graphql_history_schema_mismatch")
+    //   this.showErrorToast(graphqlHistoryKey)
     //   window.localStorage.setItem(
-    //     "graphqlHistory-backup",
+    //     `${graphqlHistoryKey}-backup`,
     //     JSON.stringify(graphqlHistoryData)
     //   )
     // }
@@ -288,63 +303,67 @@ export class PersistenceService extends Service {
     setGraphqlHistoryEntries(translatedGraphqlHistoryData)
 
     restHistoryStore.subject$.subscribe(({ state }) => {
-      window.localStorage.setItem("history", JSON.stringify(state))
+      window.localStorage.setItem(restHistoryKey, JSON.stringify(state))
     })
 
     graphqlHistoryStore.subject$.subscribe(({ state }) => {
-      window.localStorage.setItem("graphqlHistory", JSON.stringify(state))
+      window.localStorage.setItem(graphqlHistoryKey, JSON.stringify(state))
     })
   }
 
   private setupCollectionsPersistence() {
-    const restCollectionData = JSON.parse(
-      window.localStorage.getItem("collections") || "[]"
+    const restCollectionsKey = "collections"
+    const restCollectionsData = JSON.parse(
+      window.localStorage.getItem(restCollectionsKey) || "[]"
     )
-    const graphqlCollectionData = JSON.parse(
-      window.localStorage.getItem("collectionsGraphql") || "[]"
+
+    const graphqlCollectionsKey = "collectionsGraphql"
+    const graphqlCollectionsData = JSON.parse(
+      window.localStorage.getItem(graphqlCollectionsKey) || "[]"
     )
 
     // TODO: Enable once the support for using versioned entity schemas within other schemas is added to verzod
-    // const restCollectionsSchemaParsedresult = z.array(REST_COLLECTION_SCHEMA).safeParse(restCollectionData)
+    // const restCollectionsSchemaParsedresult = z.array(REST_COLLECTION_SCHEMA).safeParse(restCollectionsData)
     // if (!restCollectionsSchemaParsedresult.success) {
-    //   this.t("local_storage_read.rest_collections_schema_mismatch")
+    //   this.showErrorToast(restCollectionsKey)
     //   window.localStorage.setItem(
-    //     "collections-backup",
-    //     JSON.stringify(restCollectionData)
+    //     `${restCollectionsKey}-backup`,
+    //     JSON.stringify(restCollectionsData)
     //   )
     // }
 
-    // const gqlCollectionsSchemaParsedresult = z.array(GQL_COLLECTION_SCHEMA).safeParse(graphqlCollectionData)
+    // const gqlCollectionsSchemaParsedresult = z.array(GQL_COLLECTION_SCHEMA).safeParse(graphqlCollectionsData)
     // if (!gqlCollectionsSchemaParsedresult.success) {
-    //   this.t("local_storage_read.graphql_collections_schema_mismatch")
+    //   this.showErrorToast(graphqlCollectionsKey)
     //   window.localStorage.setItem(
-    //     "collectionsGraphql-backup",
-    //     JSON.stringify(graphqlCollectionData)
+    //     `${graphqlCollectionsKey}-backup`,
+    //     JSON.stringify(graphqlCollectionsData)
     //   )
     // }
 
-    const translatedRestCollectionData = restCollectionData.map(
+    const translatedRestCollectionsData = restCollectionsData.map(
       translateToNewRESTCollection
     )
-    const translatedGraphqlCollectionData = graphqlCollectionData.map(
+    const translatedGraphqlCollectionsData = graphqlCollectionsData.map(
       translateToNewGQLCollection
     )
 
-    setRESTCollections(translatedRestCollectionData)
-    setGraphqlCollections(translatedGraphqlCollectionData)
+    setRESTCollections(translatedRestCollectionsData)
+    setGraphqlCollections(translatedGraphqlCollectionsData)
 
     restCollectionStore.subject$.subscribe(({ state }) => {
-      window.localStorage.setItem("collections", JSON.stringify(state))
+      window.localStorage.setItem(restCollectionsKey, JSON.stringify(state))
     })
 
     graphqlCollectionStore.subject$.subscribe(({ state }) => {
-      window.localStorage.setItem("collectionsGraphql", JSON.stringify(state))
+      window.localStorage.setItem(graphqlCollectionsKey, JSON.stringify(state))
     })
   }
 
   private setupEnvironmentsPersistence() {
+    const environmentsKey = "environments"
     const environmentsData: Environment[] = JSON.parse(
-      window.localStorage.getItem("environments") || "[]"
+      window.localStorage.getItem(environmentsKey) || "[]"
     )
 
     const isValidationSuccessful = environmentsData.every((env) => {
@@ -352,9 +371,9 @@ export class PersistenceService extends Service {
       return result.type === "ok"
     })
     if (!isValidationSuccessful) {
-      this.t("local_storage_read.environments_schema_mismatch")
+      this.showErrorToast(environmentsKey)
       window.localStorage.setItem(
-        "environments-backup",
+        `${environmentsKey}-backup`,
         JSON.stringify(environmentsData)
       )
     }
@@ -373,7 +392,7 @@ export class PersistenceService extends Service {
 
       // Just sync the changes manually
       window.localStorage.setItem(
-        "environments",
+        environmentsKey,
         JSON.stringify(environmentsData)
       )
     }
@@ -381,28 +400,29 @@ export class PersistenceService extends Service {
     replaceEnvironments(environmentsData)
 
     environments$.subscribe((envs) => {
-      window.localStorage.setItem("environments", JSON.stringify(envs))
+      window.localStorage.setItem(environmentsKey, JSON.stringify(envs))
     })
   }
 
   private setupSelectedEnvPersistence() {
-    const selectedEnvIndex = JSON.parse(
-      window.localStorage.getItem("selectedEnvIndex") ?? "null"
+    const selectedEnvIndexKey = "selectedEnvIndex"
+    const selectedEnvIndexValue = JSON.parse(
+      window.localStorage.getItem(selectedEnvIndexKey) ?? "null"
     )
 
     // TODO: Enable once the support for using versioned entity schemas within other schemas is added to verzod
-    // const result = SELECTED_ENV_INDEX_SCHEMA.safeParse(selectedEnvIndex)
+    // const result = SELECTED_ENV_INDEX_SCHEMA.safeParse(selectedEnvIndexValue)
     // if (!result.success) {
-    //   this.t("local_storage_read.selected_env_index_schema_mismatch")
+    //   this.showErrorToast(selectedEnvIndexKey)
     //   window.localStorage.setItem(
-    //     "selectedEnvIndex-backup",
-    //     JSON.stringify(selectedEnvIndex)
+    //     `${selectedEnvIndexKey}-backup`,
+    //     JSON.stringify(selectedEnvIndexValue)
     //   )
     // }
 
     // If there is a selected env index, set it to the store else set it to null
-    if (selectedEnvIndex) {
-      setSelectedEnvironmentIndex(selectedEnvIndex)
+    if (selectedEnvIndexValue) {
+      setSelectedEnvironmentIndex(selectedEnvIndexValue)
     } else {
       setSelectedEnvironmentIndex({
         type: "NO_ENV_SELECTED",
@@ -410,119 +430,134 @@ export class PersistenceService extends Service {
     }
 
     selectedEnvironmentIndex$.subscribe((envIndex) => {
-      window.localStorage.setItem("selectedEnvIndex", JSON.stringify(envIndex))
+      window.localStorage.setItem(selectedEnvIndexKey, JSON.stringify(envIndex))
     })
   }
 
   private setupWebsocketPersistence() {
-    const request = JSON.parse(
-      window.localStorage.getItem("WebsocketRequest") || "null"
+    const wsRequestKey = "WebsocketRequest"
+    const wsRequestData = JSON.parse(
+      window.localStorage.getItem(wsRequestKey) || "null"
     )
 
-    const result = WEBSOCKET_REQUEST_SCHEMA.safeParse(request)
+    const result = WEBSOCKET_REQUEST_SCHEMA.safeParse(wsRequestData)
     if (!result.success) {
-      this.t("local_storage_read.websocket_request_schema_mismatch")
+      this.showErrorToast(wsRequestKey)
       window.localStorage.setItem(
-        "WebsocketRequest-backup",
-        JSON.stringify(request)
+        `${wsRequestKey}-backup`,
+        JSON.stringify(wsRequestData)
       )
     }
 
-    setWSRequest(request)
+    setWSRequest(wsRequestData)
 
     WSRequest$.subscribe((req) => {
-      window.localStorage.setItem("WebsocketRequest", JSON.stringify(req))
+      window.localStorage.setItem(wsRequestKey, JSON.stringify(req))
     })
   }
 
   private setupSocketIOPersistence() {
-    const request = JSON.parse(
-      window.localStorage.getItem("SocketIORequest") || "null"
+    const sioRequestKey = "SocketIORequest"
+    const sioRequestData = JSON.parse(
+      window.localStorage.getItem(sioRequestKey) || "null"
     )
 
-    const result = SOCKET_IO_REQUEST_SCHEMA.safeParse(request)
+    const result = SOCKET_IO_REQUEST_SCHEMA.safeParse(sioRequestData)
     if (!result.success) {
-      this.t("local_storage_read.socket_io_request_schema_mismatch")
+      this.showErrorToast(sioRequestKey)
       window.localStorage.setItem(
-        "SocketIORequest-backup",
-        JSON.stringify(request)
+        `${sioRequestKey}-backup`,
+        JSON.stringify(sioRequestData)
       )
     }
 
-    setSIORequest(request)
+    setSIORequest(sioRequestData)
 
     SIORequest$.subscribe((req) => {
-      window.localStorage.setItem("SocketIORequest", JSON.stringify(req))
+      window.localStorage.setItem(sioRequestKey, JSON.stringify(req))
     })
   }
 
   private setupSSEPersistence() {
-    const request = JSON.parse(
-      window.localStorage.getItem("SSERequest") || "null"
+    const sseRequestKey = "SSERequest"
+    const sseRequestData = JSON.parse(
+      window.localStorage.getItem(sseRequestKey) || "null"
     )
 
-    const result = SSE_REQUEST_SCHEMA.safeParse(request)
+    const result = SSE_REQUEST_SCHEMA.safeParse(sseRequestData)
     if (!result.success) {
-      this.t("local_storage_read.sse_request_schema_mismatch")
-      window.localStorage.setItem("SSERequest-backup", JSON.stringify(request))
+      this.showErrorToast(sseRequestKey)
+      window.localStorage.setItem(
+        `${sseRequestKey}-backup`,
+        JSON.stringify(sseRequestData)
+      )
     }
 
-    setSSERequest(request)
+    setSSERequest(sseRequestData)
 
     SSERequest$.subscribe((req) => {
-      window.localStorage.setItem("SSERequest", JSON.stringify(req))
+      window.localStorage.setItem(sseRequestKey, JSON.stringify(req))
     })
   }
 
   private setupMQTTPersistence() {
-    const request = JSON.parse(
-      window.localStorage.getItem("MQTTRequest") || "null"
+    const mqttRequestKey = "MQTTRequest"
+    const mqttRequestData = JSON.parse(
+      window.localStorage.getItem(mqttRequestKey) || "null"
     )
 
-    const result = MQTT_REQUEST_SCHEMA.safeParse(request)
+    const result = MQTT_REQUEST_SCHEMA.safeParse(mqttRequestData)
     if (!result.success) {
-      this.t("local_storage_read.mqtt_request_schema_mismatch")
-      window.localStorage.setItem("MQTTRequest-backup", JSON.stringify(request))
+      this.showErrorToast(mqttRequestKey)
+      window.localStorage.setItem(
+        `${mqttRequestKey}-backup`,
+        JSON.stringify(mqttRequestData)
+      )
     }
 
-    setMQTTRequest(request)
+    setMQTTRequest(mqttRequestData)
 
     MQTTRequest$.subscribe((req) => {
-      window.localStorage.setItem("MQTTRequest", JSON.stringify(req))
+      window.localStorage.setItem(mqttRequestKey, JSON.stringify(req))
     })
   }
 
   private setupGlobalEnvsPersistence() {
-    const globals: Environment["variables"] = JSON.parse(
-      window.localStorage.getItem("globalEnv") || "[]"
+    const globalEnvKey = "globalEnv"
+    const globalEnvData: Environment["variables"] = JSON.parse(
+      window.localStorage.getItem(globalEnvKey) || "[]"
     )
 
-    const result = GLOBAL_ENV_SCHEMA.safeParse(globals)
+    const result = GLOBAL_ENV_SCHEMA.safeParse(globalEnvData)
     if (!result.success) {
-      this.t("local_storage_read.global_env_schema_mismatch")
-      window.localStorage.setItem("globalEnv-backup", JSON.stringify(globals))
+      this.showErrorToast(globalEnvKey)
+      window.localStorage.setItem(
+        `${globalEnvKey}-backup`,
+        JSON.stringify(globalEnvData)
+      )
     }
 
-    setGlobalEnvVariables(globals)
+    setGlobalEnvVariables(globalEnvData)
 
     globalEnv$.subscribe((vars) => {
-      window.localStorage.setItem("globalEnv", JSON.stringify(vars))
+      window.localStorage.setItem(globalEnvKey, JSON.stringify(vars))
     })
   }
 
   private setupGQLTabsPersistence() {
+    const gqlTabStateKey = "gqlTabState"
     try {
-      const state = window.localStorage.getItem("gqlTabState")
-      if (state) {
-        const data = JSON.parse(state)
+      const gqlTabStateData = window.localStorage.getItem(gqlTabStateKey)
+      if (gqlTabStateData) {
+        const data = JSON.parse(gqlTabStateData)
 
         // TODO: Enable once the support for using versioned entity schemas within other schemas is added to verzod
-        // const result = GQL_TAB_STATE_SCHEMA.safeParse(state)
+        // const result = GQL_TAB_STATE_SCHEMA.safeParse(gqlTabStateData)
         // if (!result.success) {
-        //   this.t("local_storage_read.gql_tab_state_schema_mismatch")
+        //   this.showErrorToast(gqlTabStateKey)
         //   window.localStorage.setItem(
-        //     "gqlTabState-backup",
-        //     JSON.stringify(state)
+        //     `${gqlTabStateKey}-backup`,
+        //     JSON.stringify(gqlTabStateData)
         //   )
         // }
 
@@ -531,30 +566,34 @@ export class PersistenceService extends Service {
     } catch (e) {
       console.error(
         `Failed parsing persisted tab state, state:`,
-        window.localStorage.getItem("gqlTabState")
+        window.localStorage.getItem(gqlTabStateKey)
       )
     }
 
     watchDebounced(
       this.gqlTabService.persistableTabState,
-      (state) => {
-        window.localStorage.setItem("gqlTabState", JSON.stringify(state))
+      (newGqlTabStateData) => {
+        window.localStorage.setItem(
+          gqlTabStateKey,
+          JSON.stringify(newGqlTabStateData)
+        )
       },
       { debounce: 500, deep: true }
     )
   }
 
   public setupRESTTabsPersistence() {
+    const restTabStateKey = "restTabState"
     try {
-      const state = window.localStorage.getItem("restTabState")
-      if (state) {
-        const data = JSON.parse(state)
+      const restTabStateData = window.localStorage.getItem(restTabStateKey)
+      if (restTabStateData) {
+        const data = JSON.parse(restTabStateData)
 
         // TODO: Enable once the support for using versioned entity schemas within other schemas is added to verzod
-        // const result = REST_TAB_STATE_SCHEMA.safeParse(state)
+        // const result = REST_TAB_STATE_SCHEMA.safeParse(restTabStateData)
         // if (!result.success) {
-        //   this.t("local_storage_read.rest_tab_state_schema_mismatch")
-        //   window.localStorage.setItem("restTabState-backup", JSON.stringify(state))
+        //   this.showErrorToast(restTabStateKey)
+        //   window.localStorage.setItem(`${restTabStateKey}-backup`, JSON.stringify(restTabStateData))
         // }
 
         this.restTabService.loadTabsFromPersistedState(data)
@@ -562,14 +601,17 @@ export class PersistenceService extends Service {
     } catch (e) {
       console.error(
         `Failed parsing persisted tab state, state:`,
-        window.localStorage.getItem("restTabState")
+        window.localStorage.getItem(restTabStateKey)
       )
     }
 
     watchDebounced(
       this.restTabService.persistableTabState,
-      (state) => {
-        window.localStorage.setItem("restTabState", JSON.stringify(state))
+      (newRestTabStateData) => {
+        window.localStorage.setItem(
+          restTabStateKey,
+          JSON.stringify(newRestTabStateData)
+        )
       },
       { debounce: 500, deep: true }
     )

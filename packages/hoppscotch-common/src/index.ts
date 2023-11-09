@@ -27,13 +27,13 @@ export function createHoppApp(el: string | Element, platformDef: PlatformDef) {
   initBackendGQLClient()
   initializeApp()
 
+  HOPP_MODULES.forEach((mod) => mod.onVueAppInit?.(app))
+  platformDef.addedHoppModules?.forEach((mod) => mod.onVueAppInit?.(app))
+
   const persistenceService = getService(PersistenceService)
   persistenceService.setupLocalPersistence()
 
   performMigrations()
-
-  HOPP_MODULES.forEach((mod) => mod.onVueAppInit?.(app))
-  platformDef.addedHoppModules?.forEach((mod) => mod.onVueAppInit?.(app))
 
   app.mount(el)
 

@@ -9,7 +9,7 @@ import axios from "axios"
 import { BehaviorSubject, Subject } from "rxjs"
 import { Ref, ref, watch } from "vue"
 
-const getPersistenceService = () => getService(PersistenceService)
+const persistenceService = getService(PersistenceService)
 
 export const authEvents$ = new Subject<AuthEvent | { event: "token_refresh" }>()
 const currentUser$ = new BehaviorSubject<HoppUser | null>(null)
@@ -82,7 +82,6 @@ function setUser(user: HoppUser | null) {
   currentUser$.next(user)
   probableUser$.next(user)
 
-  const persistenceService = getPersistenceService()
   persistenceService.setLocalConfig("login_state", JSON.stringify(user))
 }
 
@@ -176,7 +175,6 @@ async function sendMagicLink(email: string) {
   )
 
   if (res.data && res.data.deviceIdentifier) {
-    const persistenceService = getPersistenceService()
     persistenceService.setLocalConfig(
       "deviceIdentifier",
       res.data.deviceIdentifier
@@ -234,7 +232,6 @@ export const def: AuthPlatformDef = {
     return null
   },
   async performAuthInit() {
-    const persistenceService = getPersistenceService()
     const probableUser = JSON.parse(
       persistenceService.getLocalConfig("login_state") ?? "null"
     )
@@ -289,7 +286,6 @@ export const def: AuthPlatformDef = {
 
     const token = searchParams.get("token")
 
-    const persistenceService = getPersistenceService()
     const deviceIdentifier =
       persistenceService.getLocalConfig("deviceIdentifier")
 
@@ -321,7 +317,6 @@ export const def: AuthPlatformDef = {
     probableUser$.next(null)
     currentUser$.next(null)
 
-    const persistenceService = getPersistenceService()
     persistenceService.removeLocalConfig("login_state")
 
     authEvents$.next({
@@ -331,7 +326,6 @@ export const def: AuthPlatformDef = {
 
   async processMagicLink() {
     if (this.isSignInWithEmailLink(window.location.href)) {
-      const persistenceService = getPersistenceService()
       const deviceIdentifier =
         persistenceService.getLocalConfig("deviceIdentifier")
 

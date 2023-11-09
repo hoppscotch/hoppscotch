@@ -6,7 +6,7 @@ import { z } from "zod"
 
 const redirectUri = `${window.location.origin}/oauth`
 
-const persistenceServiceInstance = getService(PersistenceService)
+const persistenceService = getService(PersistenceService)
 
 // GENERAL HELPER FUNCTIONS
 
@@ -189,17 +189,17 @@ const tokenRequest = async ({
     accessTokenUrl = parsedOIDCConfiguration.data.token_endpoint
   }
   // Store oauth information
-  persistenceServiceInstance.setLocalConfig("tokenEndpoint", accessTokenUrl)
-  persistenceServiceInstance.setLocalConfig("client_id", clientId)
-  persistenceServiceInstance.setLocalConfig("client_secret", clientSecret)
+  persistenceService.setLocalConfig("tokenEndpoint", accessTokenUrl)
+  persistenceService.setLocalConfig("client_id", clientId)
+  persistenceService.setLocalConfig("client_secret", clientSecret)
 
   // Create and store a random state value
   const state = generateRandomString()
-  persistenceServiceInstance.setLocalConfig("pkce_state", state)
+  persistenceService.setLocalConfig("pkce_state", state)
 
   // Create and store a new PKCE codeVerifier (the plaintext random secret)
   const codeVerifier = generateRandomString()
-  persistenceServiceInstance.setLocalConfig("pkce_codeVerifier", codeVerifier)
+  persistenceService.setLocalConfig("pkce_codeVerifier", codeVerifier)
 
   // Hash and base64-urlencode the secret to use as the challenge
   const codeChallenge = await pkceChallengeFromVerifier(codeVerifier)
@@ -243,14 +243,14 @@ const handleOAuthRedirect = async () => {
 
   // If the server returned an authorization code, attempt to exchange it for an access token
   // Verify state matches what we set at the beginning
-  if (persistenceServiceInstance.getLocalConfig("pkce_state") !== queryParams.state) {
+  if (persistenceService.getLocalConfig("pkce_state") !== queryParams.state) {
     return E.left("INVALID_STATE" as const)
   }
 
-  const tokenEndpoint = persistenceServiceInstance.getLocalConfig("tokenEndpoint")
-  const clientID = persistenceServiceInstance.getLocalConfig("client_id")
-  const clientSecret = persistenceServiceInstance.getLocalConfig("client_secret")
-  const codeVerifier = persistenceServiceInstance.getLocalConfig("pkce_codeVerifier")
+  const tokenEndpoint = persistenceService.getLocalConfig("tokenEndpoint")
+  const clientID = persistenceService.getLocalConfig("client_id")
+  const clientSecret = persistenceService.getLocalConfig("client_secret")
+  const codeVerifier = persistenceService.getLocalConfig("pkce_codeVerifier")
 
   if (!tokenEndpoint) {
     return E.left("NO_TOKEN_ENDPOINT" as const)
@@ -302,11 +302,11 @@ const handleOAuthRedirect = async () => {
 }
 
 const clearPKCEState = () => {
-  persistenceServiceInstance.removeLocalConfig("pkce_state")
-  persistenceServiceInstance.removeLocalConfig("pkce_codeVerifier")
-  persistenceServiceInstance.removeLocalConfig("tokenEndpoint")
-  persistenceServiceInstance.removeLocalConfig("client_id")
-  persistenceServiceInstance.removeLocalConfig("client_secret")
+  persistenceService.removeLocalConfig("pkce_state")
+  persistenceService.removeLocalConfig("pkce_codeVerifier")
+  persistenceService.removeLocalConfig("tokenEndpoint")
+  persistenceService.removeLocalConfig("client_id")
+  persistenceService.removeLocalConfig("client_secret")
 }
 
 export { tokenRequest, handleOAuthRedirect }

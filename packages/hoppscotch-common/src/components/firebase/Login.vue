@@ -125,7 +125,7 @@ import IconArrowLeft from "~icons/lucide/arrow-left"
 
 import { useService } from "dioc/vue"
 import { LoginItemDef } from "~/platform/auth"
-import { PersistenceService } from "~/services/persistence.service"
+import { PersistenceService } from "~/services/persistence"
 
 defineProps<{
   show: boolean
@@ -139,7 +139,7 @@ const { subscribeToStream } = useStreamSubscriber()
 const t = useI18n()
 const toast = useToast()
 
-const persistenceServiceInstance = useService(PersistenceService)
+const persistenceService = useService(PersistenceService)
 
 const form = {
   email: "",
@@ -263,7 +263,7 @@ const signInWithEmail = async () => {
     .signInWithEmail(form.email)
     .then(() => {
       mode.value = "email-sent"
-      persistenceServiceInstance.setLocalConfig("emailForSignIn", form.email)
+      persistenceService.setLocalConfig("emailForSignIn", form.email)
     })
     .catch((e) => {
       console.error(e)

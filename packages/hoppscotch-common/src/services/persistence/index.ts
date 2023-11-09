@@ -67,10 +67,10 @@ import {
 export class PersistenceService extends Service {
   public static readonly ID = "PERSISTENCE_SERVICE"
 
+  private t = getI18n()
+
   private readonly restTabService = this.bind(RESTTabService)
   private readonly gqlTabService = this.bind(GQLTabService)
-
-  private t = getI18n()
 
   public hoppLocalConfigStorage: StorageLike = localStorage
 

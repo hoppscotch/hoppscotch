@@ -92,7 +92,7 @@ const mdAndLarger = breakpoints.greater("md")
 const toast = useToast()
 const t = useI18n()
 
-const persistenceServiceInstance = useService(PersistenceService)
+const persistenceService = useService(PersistenceService)
 
 onBeforeMount(() => {
   if (!mdAndLarger.value) {
@@ -102,7 +102,7 @@ onBeforeMount(() => {
 })
 
 onMounted(() => {
-  const cookiesAllowed = persistenceServiceInstance.getLocalConfig("cookiesAllowed") === "yes"
+  const cookiesAllowed = persistenceService.getLocalConfig("cookiesAllowed") === "yes"
   const platformAllowsCookiePrompts =
     platform.platformFeatureFlags.promptAsUsingCookies ?? true
 
@@ -113,7 +113,7 @@ onMounted(() => {
         {
           text: `${t("action.learn_more")}`,
           onClick: (_, toastObject) => {
-            persistenceServiceInstance.setLocalConfig("cookiesAllowed", "yes")
+            persistenceService.setLocalConfig("cookiesAllowed", "yes")
             toastObject.goAway(0)
             window
               .open("https://docs.hoppscotch.io/support/privacy", "_blank")
@@ -123,7 +123,7 @@ onMounted(() => {
         {
           text: `${t("action.dismiss")}`,
           onClick: (_, toastObject) => {
-            persistenceServiceInstance.setLocalConfig("cookiesAllowed", "yes")
+            persistenceService.setLocalConfig("cookiesAllowed", "yes")
             toastObject.goAway(0)
           },
         },

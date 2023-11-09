@@ -18,8 +18,6 @@ import App from "./App.vue"
 import { getService } from "./modules/dioc"
 import { PersistenceService } from "./services/persistence"
 
-const persistenceServiceInstance = getService(PersistenceService)
-
 export function createHoppApp(el: string | Element, platformDef: PlatformDef) {
   setPlatformDef(platformDef)
 
@@ -28,7 +26,10 @@ export function createHoppApp(el: string | Element, platformDef: PlatformDef) {
   // Some basic work that needs to be done before module inits even
   initBackendGQLClient()
   initializeApp()
-  persistenceServiceInstance.setupLocalPersistence()
+
+  const persistenceService = getService(PersistenceService)
+  persistenceService.setupLocalPersistence()
+
   performMigrations()
 
   HOPP_MODULES.forEach((mod) => mod.onVueAppInit?.(app))

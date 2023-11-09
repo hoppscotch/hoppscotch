@@ -53,9 +53,9 @@ import "splitpanes/dist/splitpanes.css"
 
 import { useSetting } from "@composables/settings"
 import { breakpointsTailwind, useBreakpoints } from "@vueuse/core"
+import { useService } from "dioc/vue"
 import { computed, ref, useSlots } from "vue"
-import { getService } from "~/modules/dioc"
-import { PersistenceService } from "~/services/persistence.service"
+import { PersistenceService } from "~/services/persistence"
 
 const SIDEBAR_ON_LEFT = useSetting("SIDEBAR_ON_LEFT")
 
@@ -68,7 +68,7 @@ const SIDEBAR = useSetting("SIDEBAR")
 
 const slots = useSlots()
 
-const persistenceServiceInstance = getService(PersistenceService)
+const persistenceService = useService(PersistenceService)
 
 const hasSidebar = computed(() => !!slots.sidebar)
 const hasSecondary = computed(() => !!slots.secondary)
@@ -99,7 +99,7 @@ if (!COLUMN_LAYOUT.value) {
 function setPaneEvent(event: PaneEvent[], type: "vertical" | "horizontal") {
   if (!props.layoutId) return
   const storageKey = `${props.layoutId}-pane-config-${type}`
-  persistenceServiceInstance.setLocalConfig(storageKey, JSON.stringify(event))
+  persistenceService.setLocalConfig(storageKey, JSON.stringify(event))
 }
 
 function populatePaneEvent() {
@@ -122,7 +122,7 @@ function populatePaneEvent() {
 
 function getPaneData(type: "vertical" | "horizontal"): PaneEvent[] | null {
   const storageKey = `${props.layoutId}-pane-config-${type}`
-  const paneEvent = persistenceServiceInstance.getLocalConfig(storageKey)
+  const paneEvent = persistenceService.getLocalConfig(storageKey)
   if (!paneEvent) return null
   return JSON.parse(paneEvent)
 }

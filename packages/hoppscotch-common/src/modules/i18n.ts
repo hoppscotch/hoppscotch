@@ -58,7 +58,7 @@ export const FALLBACK_LANG = pipe(
   )
 )
 
-const persistenceServiceInstance = getService(PersistenceService)
+const getPersistenceService = () => getService(PersistenceService)
 
 // A reference to the i18n instance
 let i18nInstance: I18n<
@@ -69,10 +69,12 @@ let i18nInstance: I18n<
   true
 > | null = null
 
-const resolveCurrentLocale = () =>
-  pipe(
+const resolveCurrentLocale = () => {
+  const persistenceService = getPersistenceService()
+
+  return pipe(
     // Resolve from locale and make sure it is in languages
-    persistenceServiceInstance.getLocalConfig("locale"),
+    persistenceService.getLocalConfig("locale"),
     O.fromNullable,
     O.filter((locale) =>
       pipe(
@@ -93,6 +95,7 @@ const resolveCurrentLocale = () =>
     // Else load fallback
     O.getOrElse(() => FALLBACK_LANG_CODE)
   )
+}
 
 /**
  * Changes the application language. This function returns a promise as
@@ -121,7 +124,7 @@ export const changeAppLanguage = async (locale: string) => {
   // TODO: Look into the type issues here
   i18nInstance.global.locale.value = locale
 
-  persistenceServiceInstance.setLocalConfig("locale", locale)
+  persistenceService?.setLocalConfig("locale", locale)
 }
 
 /**
@@ -148,7 +151,7 @@ export default <HoppModule>{
     const currentLocale = resolveCurrentLocale()
     changeAppLanguage(currentLocale)
 
-    persistenceServiceInstance.setLocalConfig("locale", currentLocale)
+    persistenceService.setLocalConfig("locale", currentLocale)
   },
   onBeforeRouteChange(to, _, router) {
     // Convert old locale path format to new format

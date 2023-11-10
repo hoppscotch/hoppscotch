@@ -53,12 +53,6 @@
               </span>
             </td>
 
-            <!-- <td class="py-4 px-7 w-5">
-                <span class="flex items-center overflow-hidden truncate">
-                  {{ request.request }}
-                </span>
-              </td> -->
-
             <td class="py-4 px-7 max-w-30">
               {{ endpoint(request) }}
             </td>
@@ -119,13 +113,6 @@
     </div>
   </div>
 
-  <!-- <TeamsAdd
-    :show="showCreateTeamModal"
-    :allUsersEmail="allUsersEmail"
-    :loading-state="createTeamLoading"
-    @hide-modal="showCreateTeamModal = false"
-    @create-team="createTeam"
-  /> -->
   <HoppSmartConfirmModal
     :show="confirmDeletion"
     :title="t('teams.confirm_team_deletion')"

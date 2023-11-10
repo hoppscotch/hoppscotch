@@ -65,6 +65,7 @@ import { useSidebar } from '~/composables/useSidebar';
 import IconDashboard from '~icons/lucide/layout-dashboard';
 import IconUser from '~icons/lucide/user';
 import IconUsers from '~icons/lucide/users';
+import IconFolderOpen from '~icons/lucide/folder-open';
 import { useI18n } from '~/composables/i18n';
 
 const t = useI18n();
@@ -88,6 +89,12 @@ const primaryNavigations = [
     label: t('teams.teams'),
     icon: IconUsers,
     to: '/teams',
+    exact: false,
+  },
+  {
+    label: t('sharedRequests.title'),
+    icon: IconFolderOpen,
+    to: '/sharedRequests',
     exact: false,
   },
 ];

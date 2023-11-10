@@ -19,6 +19,21 @@
     "owner": "OWNER",
     "viewer": "VIEWER"
   },
+  "sharedRequests": {
+    "email": "Email",
+    "id": "ID",
+    "properties": "Properties",
+    "request": "Request",
+    "title": "Shared Requests",
+    "url": "URL",
+    "created_on":"Created On",
+    "copy":"Copy",
+    "open_request":"Open Request",
+    "delete":"Delete",
+    "filter":"Filter",
+		"load_list_error": "Unable to Load Shared Requests List",
+		"no_requests":"No shared requests found"
+  },
   "state": {
     "add_user_failure": "Failed to add user to the team!!",
     "add_user_success": "User is now a member of the team!!",

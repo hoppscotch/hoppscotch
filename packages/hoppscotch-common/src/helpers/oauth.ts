@@ -4,7 +4,10 @@ import {
   removeLocalConfig,
 } from "~/newstore/localpersistence"
 
-const redirectUri = `${window.location.origin}/`
+import * as E from "fp-ts/Either"
+import { z } from "zod"
+
+const redirectUri = `${window.location.origin}/oauth`
 
 // GENERAL HELPER FUNCTIONS
 
@@ -16,7 +19,7 @@ const redirectUri = `${window.location.origin}/`
  * @returns {Object}
  */
 
-const sendPostRequest = async (url, params) => {
+const sendPostRequest = async (url: string, params: Record<string, string>) => {
   const body = Object.keys(params)
     .map((key) => `${key}=${params[key]}`)
     .join("&")
@@ -30,9 +33,9 @@ const sendPostRequest = async (url, params) => {
   try {
     const response = await fetch(url, options)
     const data = await response.json()
-    return data
+    return E.right(data)
   } catch (e) {
-    console.error(e)
+    return E.left("AUTH_TOKEN_REQUEST_FAILED")
   }
 }
 
@@ -43,7 +46,7 @@ const sendPostRequest = async (url, params) => {
  * @returns {Object}
  */
 
-const parseQueryString = (searchQuery) => {
+const parseQueryString = (searchQuery: string): Record<string, string> => {
   if (searchQuery === "") {
     return {}
   }
@@ -61,7 +64,7 @@ const parseQueryString = (searchQuery) => {
  * @returns {Object}
  */
 
-const getTokenConfiguration = async (endpoint) => {
+const getTokenConfiguration = async (endpoint: string) => {
   const options = {
     method: "GET",
     headers: {
@@ -71,9 +74,9 @@ const getTokenConfiguration = async (endpoint) => {
   try {
     const response = await fetch(endpoint, options)
     const config = await response.json()
-    return config
+    return E.right(config)
   } catch (e) {
-    console.error(e)
+    return E.left("OIDC_DISCOVERY_FAILED")
   }
 }
 
@@ -97,7 +100,7 @@ const generateRandomString = () => {
  * @returns {Promise<ArrayBuffer>}
  */
 
-const sha256 = (plain) => {
+const sha256 = (plain: string) => {
   const encoder = new TextEncoder()
   const data = encoder.encode(plain)
   return window.crypto.subtle.digest("SHA-256", data)
@@ -111,15 +114,18 @@ const sha256 = (plain) => {
  */
 
 const base64urlencode = (
-  str // Converts the ArrayBuffer to string using Uint8 array to convert to what btoa accepts.
-) =>
+  str: ArrayBuffer // Converts the ArrayBuffer to string using Uint8 array to convert to what btoa accepts.
+) => {
+  const hashArray = Array.from(new Uint8Array(str))
+
   // btoa accepts chars only within ascii 0-255 and base64 encodes them.
   // Then convert the base64 encoded to base64url encoded
   //   (replace + with -, replace / with _, trim trailing =)
-  btoa(String.fromCharCode.apply(null, new Uint8Array(str)))
+  return btoa(String.fromCharCode.apply(null, hashArray))
     .replace(/\+/g, "-")
     .replace(/\//g, "_")
     .replace(/=+$/, "")
+}
 
 /**
  * Return the base64-urlencoded sha256 hash for the PKCE challenge
@@ -128,12 +134,22 @@ const base64urlencode = (
  * @returns {String}
  */
 
-const pkceChallengeFromVerifier = async (v) => {
+const pkceChallengeFromVerifier = async (v: string) => {
   const hashed = await sha256(v)
   return base64urlencode(hashed)
 }
 
 // OAUTH REQUEST
+
+type TokenRequestParams = {
+  oidcDiscoveryUrl: string
+  grantType: string
+  authUrl: string
+  accessTokenUrl: string
+  clientId: string
+  clientSecret: string
+  scope: string
+}
 
 /**
  * Initiates PKCE Auth Code flow when requested
@@ -150,16 +166,28 @@ const tokenRequest = async ({
   clientId,
   clientSecret,
   scope,
-}) => {
+}: TokenRequestParams) => {
   // Check oauth configuration
   if (oidcDiscoveryUrl !== "") {
-    // eslint-disable-next-line camelcase
-    const { authorization_endpoint, token_endpoint } =
-      await getTokenConfiguration(oidcDiscoveryUrl)
-    // eslint-disable-next-line camelcase
-    authUrl = authorization_endpoint
-    // eslint-disable-next-line camelcase
-    accessTokenUrl = token_endpoint
+    const res = await getTokenConfiguration(oidcDiscoveryUrl)
+
+    const OIDCConfigurationSchema = z.object({
+      authorization_endpoint: z.string(),
+      token_endpoint: z.string(),
+    })
+
+    if (E.isLeft(res)) {
+      return E.left("OIDC_DISCOVERY_FAILED" as const)
+    }
+
+    const parsedOIDCConfiguration = OIDCConfigurationSchema.safeParse(res.right)
+
+    if (!parsedOIDCConfiguration.success) {
+      return E.left("OIDC_DISCOVERY_FAILED" as const)
+    }
+
+    authUrl = parsedOIDCConfiguration.data.authorization_endpoint
+    accessTokenUrl = parsedOIDCConfiguration.data.token_endpoint
   }
   // Store oauth information
   setLocalConfig("tokenEndpoint", accessTokenUrl)
@@ -190,7 +218,7 @@ const tokenRequest = async ({
     )}&code_challenge_method=S256`
 
   // Redirect to the authorization server
-  window.location = buildUrl()
+  window.location.assign(buildUrl())
 }
 
 // OAUTH REDIRECT HANDLING
@@ -202,44 +230,84 @@ const tokenRequest = async ({
  * @returns {Promise<any | void>}
  */
 
-const oauthRedirect = () => {
-  let tokenResponse = ""
-  const q = parseQueryString(window.location.search.substring(1))
+const handleOAuthRedirect = async () => {
+  const queryParams = parseQueryString(window.location.search.substring(1))
+
   // Check if the server returned an error string
-  if (q.error) {
-    alert(`Error returned from authorization server: ${q.error}`)
+  if (queryParams.error) {
+    return E.left("AUTH_SERVER_RETURNED_ERROR" as const)
   }
+
+  if (!queryParams.code) {
+    return E.left("NO_AUTH_CODE" as const)
+  }
+
   // If the server returned an authorization code, attempt to exchange it for an access token
-  if (q.code) {
-    // Verify state matches what we set at the beginning
-    if (getLocalConfig("pkce_state") !== q.state) {
-      alert("Invalid state")
-      Promise.reject(tokenResponse)
-    } else {
-      try {
-        // Exchange the authorization code for an access token
-        tokenResponse = sendPostRequest(getLocalConfig("tokenEndpoint"), {
-          grant_type: "authorization_code",
-          code: q.code,
-          client_id: getLocalConfig("client_id"),
-          client_secret: getLocalConfig("client_secret"),
-          redirect_uri: redirectUri,
-          code_verifier: getLocalConfig("pkce_codeVerifier"),
-        })
-      } catch (e) {
-        console.error(e)
-        return Promise.reject(tokenResponse)
-      }
-    }
-    // Clean these up since we don't need them anymore
-    removeLocalConfig("pkce_state")
-    removeLocalConfig("pkce_codeVerifier")
-    removeLocalConfig("tokenEndpoint")
-    removeLocalConfig("client_id")
-    removeLocalConfig("client_secret")
-    return tokenResponse
+  // Verify state matches what we set at the beginning
+  if (getLocalConfig("pkce_state") !== queryParams.state) {
+    return E.left("INVALID_STATE" as const)
   }
-  return Promise.reject(tokenResponse)
+
+  const tokenEndpoint = getLocalConfig("tokenEndpoint")
+  const clientID = getLocalConfig("client_id")
+  const clientSecret = getLocalConfig("client_secret")
+  const codeVerifier = getLocalConfig("pkce_codeVerifier")
+
+  if (!tokenEndpoint) {
+    return E.left("NO_TOKEN_ENDPOINT" as const)
+  }
+
+  if (!clientID) {
+    return E.left("NO_CLIENT_ID" as const)
+  }
+
+  if (!clientSecret) {
+    return E.left("NO_CLIENT_SECRET" as const)
+  }
+
+  if (!codeVerifier) {
+    return E.left("NO_CODE_VERIFIER" as const)
+  }
+
+  // Exchange the authorization code for an access token
+  const tokenResponse: E.Either<string, any> = await sendPostRequest(
+    tokenEndpoint,
+    {
+      grant_type: "authorization_code",
+      code: queryParams.code,
+      client_id: clientID,
+      client_secret: clientSecret,
+      redirect_uri: redirectUri,
+      code_verifier: codeVerifier,
+    }
+  )
+
+  // Clean these up since we don't need them anymore
+  clearPKCEState()
+
+  if (E.isLeft(tokenResponse)) {
+    return E.left("AUTH_TOKEN_REQUEST_FAILED" as const)
+  }
+
+  const withAccessTokenSchema = z.object({
+    access_token: z.string(),
+  })
+
+  const parsedTokenResponse = withAccessTokenSchema.safeParse(
+    tokenResponse.right
+  )
+
+  return parsedTokenResponse.success
+    ? E.right(parsedTokenResponse.data)
+    : E.left("AUTH_TOKEN_REQUEST_INVALID_RESPONSE" as const)
 }
 
-export { tokenRequest, oauthRedirect }
+const clearPKCEState = () => {
+  removeLocalConfig("pkce_state")
+  removeLocalConfig("pkce_codeVerifier")
+  removeLocalConfig("tokenEndpoint")
+  removeLocalConfig("client_id")
+  removeLocalConfig("client_secret")
+}
+
+export { tokenRequest, handleOAuthRedirect }

@@ -94,7 +94,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, onBeforeUnmount, onBeforeMount } from "vue"
+import { ref, onMounted, onBeforeUnmount } from "vue"
 import { safelyExtractRESTRequest } from "@hoppscotch/data"
 import { translateExtURLParams } from "~/helpers/RESTExtURLParams"
 import { useRoute } from "vue-router"
@@ -114,7 +114,6 @@ import {
 } from "rxjs"
 import { useToast } from "~/composables/toast"
 import { watchDebounced } from "@vueuse/core"
-import { oauthRedirect } from "~/helpers/oauth"
 import { useReadonlyStream } from "~/composables/stream"
 import {
   changeCurrentSyncStatus,
@@ -414,28 +413,6 @@ function setupTabStateSync() {
   })
 }
 
-function oAuthURL() {
-  onBeforeMount(async () => {
-    try {
-      const tokenInfo = await oauthRedirect()
-      if (
-        typeof tokenInfo === "object" &&
-        tokenInfo.hasOwnProperty("access_token")
-      ) {
-        if (
-          tabs.currentActiveTab.value.document.request.auth.authType ===
-          "oauth-2"
-        ) {
-          tabs.currentActiveTab.value.document.request.auth.token =
-            tokenInfo.access_token
-        }
-      }
-
-      // eslint-disable-next-line no-empty
-    } catch (_) {}
-  })
-}
-
 defineActionHandler("contextmenu.open", ({ position, text }) => {
   if (text) {
     contextMenu.value = {
@@ -454,7 +431,6 @@ defineActionHandler("contextmenu.open", ({ position, text }) => {
 
 setupTabStateSync()
 bindRequestToURLParams()
-oAuthURL()
 
 defineActionHandler("rest.request.open", ({ doc }) => {
   tabs.createNewTab(doc)

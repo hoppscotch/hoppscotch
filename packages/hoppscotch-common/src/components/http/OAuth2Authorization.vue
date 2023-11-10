@@ -43,6 +43,7 @@ import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
 import { tokenRequest } from "~/helpers/oauth"
 import { getCombinedEnvVariables } from "~/helpers/preRequest"
+import * as E from "fp-ts/Either"
 
 const t = useI18n()
 const toast = useToast()
@@ -98,7 +99,11 @@ const handleAccessTokenRequest = async () => {
       clientSecret: parseTemplateString(clientSecret.value, envVars),
       scope: parseTemplateString(scope.value, envVars),
     }
-    await tokenRequest(tokenReqParams)
+    const res = await tokenRequest(tokenReqParams)
+
+    if (res && E.isLeft(res)) {
+      toast.error(res.left)
+    }
   } catch (e) {
     toast.error(`${e}`)
   }

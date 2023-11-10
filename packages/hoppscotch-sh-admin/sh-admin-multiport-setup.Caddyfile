@@ -1,5 +1,5 @@
 :8080 {
   try_files {path} /
-  root * /site
+  root * /site/sh-admin-multiport-setup
   file_server
 }

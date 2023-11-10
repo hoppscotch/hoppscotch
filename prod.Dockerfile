@@ -48,8 +48,10 @@ RUN pnpm run build --outDir dist-subpath-access --base /admin/
 FROM caddy:2-alpine as sh_admin
 WORKDIR /site
 COPY --from=sh_admin_builder /usr/src/app/packages/hoppscotch-sh-admin/prod_run.mjs /usr
-COPY --from=sh_admin_builder /usr/src/app/packages/hoppscotch-sh-admin/Caddyfile /etc/caddy/Caddyfile
-COPY --from=sh_admin_builder /usr/src/app/packages/hoppscotch-sh-admin/dist/ .
+COPY --from=sh_admin_builder /usr/src/app/packages/hoppscotch-sh-admin/sh-admin-multiport-setup.Caddyfile /etc/caddy/sh-admin-multiport-setup.Caddyfile
+COPY --from=sh_admin_builder /usr/src/app/packages/hoppscotch-sh-admin/sh-admin-subpath-access.Caddyfile /etc/caddy/sh-admin-subpath-access.Caddyfile
+COPY --from=sh_admin_builder /usr/src/app/packages/hoppscotch-sh-admin/dist /site/sh-admin-multiport-setup
+COPY --from=sh_admin_builder /usr/src/app/packages/hoppscotch-sh-admin/dist-subpath-access /site/sh-admin-subpath-access
 RUN apk add nodejs npm
 RUN npm install -g @import-meta-env/cli
 EXPOSE 8080

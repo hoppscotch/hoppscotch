@@ -1,12 +1,13 @@
 import { mockDeep, mockReset } from 'jest-mock-extended';
 import { PrismaService } from '../prisma/prisma.service';
 import {
+  INVALID_EMAIL,
   SHORTCODE_INVALID_PROPERTIES_JSON,
   SHORTCODE_INVALID_REQUEST_JSON,
   SHORTCODE_NOT_FOUND,
   SHORTCODE_PROPERTIES_NOT_FOUND,
 } from 'src/errors';
-import { Shortcode } from './shortcode.model';
+import { Shortcode, ShortcodeWithUserEmail } from './shortcode.model';
 import { ShortcodeService } from './shortcode.service';
 import { UserService } from 'src/user/user.service';
 import { AuthUser } from 'src/types/AuthUser';
@@ -94,6 +95,35 @@ const shortcodes = [
     creatorUid: user.uid,
     createdOn: new Date(),
     updatedOn: createdOn,
+  },
+];
+
+const shortcodesWithUserEmail = [
+  {
+    id: 'blablabla',
+    request: {
+      hello: 'there',
+    },
+    embedProperties: {
+      foo: 'bar',
+    },
+    creatorUid: user.uid,
+    createdOn: new Date(),
+    updatedOn: createdOn,
+    User: user,
+  },
+  {
+    id: 'blablabla1',
+    request: {
+      hello: 'there',
+    },
+    embedProperties: {
+      foo: 'bar',
+    },
+    creatorUid: user.uid,
+    createdOn: new Date(),
+    updatedOn: createdOn,
+    User: user,
   },
 ];
 
@@ -439,6 +469,101 @@ describe('ShortcodeService', () => {
           properties: JSON.stringify('{"foo":"bar"}'),
         },
       );
+    });
+  });
+
+  describe('deleteShortcode', () => {
+    test('should return true on successful deletion of Shortcode with valid inputs', async () => {
+      mockPrisma.shortcode.delete.mockResolvedValueOnce(mockEmbed);
+
+      const result = await shortcodeService.deleteShortcode(mockEmbed.id);
+      expect(result).toEqualRight(true);
+    });
+
+    test('should return SHORTCODE_NOT_FOUND error when Shortcode is invalid', async () => {
+      mockPrisma.shortcode.delete.mockRejectedValue('RecordNotFound');
+
+      expect(shortcodeService.deleteShortcode('invalid')).resolves.toEqualLeft(
+        SHORTCODE_NOT_FOUND,
+      );
+    });
+  });
+
+  describe('fetchAllShortcodes', () => {
+    test('should return list of Shortcodes with valid inputs and no cursor', async () => {
+      mockPrisma.shortcode.findMany.mockResolvedValueOnce(
+        shortcodesWithUserEmail,
+      );
+
+      const result = await shortcodeService.fetchAllShortcodes(
+        {
+          cursor: null,
+          take: 10,
+        },
+        user.email,
+      );
+      expect(result).toEqual(<ShortcodeWithUserEmail[]>[
+        {
+          id: shortcodes[0].id,
+          request: JSON.stringify(shortcodes[0].request),
+          properties: JSON.stringify(shortcodes[0].embedProperties),
+          createdOn: shortcodes[0].createdOn,
+          creator: {
+            uid: user.uid,
+            email: user.email,
+          },
+        },
+        {
+          id: shortcodes[1].id,
+          request: JSON.stringify(shortcodes[1].request),
+          properties: JSON.stringify(shortcodes[1].embedProperties),
+          createdOn: shortcodes[1].createdOn,
+          creator: {
+            uid: user.uid,
+            email: user.email,
+          },
+        },
+      ]);
+    });
+
+    test('should return list of Shortcode with valid inputs and cursor', async () => {
+      mockPrisma.shortcode.findMany.mockResolvedValue([
+        shortcodesWithUserEmail[1],
+      ]);
+
+      const result = await shortcodeService.fetchAllShortcodes(
+        {
+          cursor: 'blablabla',
+          take: 10,
+        },
+        user.email,
+      );
+      expect(result).toEqual(<ShortcodeWithUserEmail[]>[
+        {
+          id: shortcodes[1].id,
+          request: JSON.stringify(shortcodes[1].request),
+          properties: JSON.stringify(shortcodes[1].embedProperties),
+          createdOn: shortcodes[1].createdOn,
+          creator: {
+            uid: user.uid,
+            email: user.email,
+          },
+        },
+      ]);
+    });
+
+    test('should return an empty array for an invalid cursor', async () => {
+      mockPrisma.shortcode.findMany.mockResolvedValue([]);
+
+      const result = await shortcodeService.fetchAllShortcodes(
+        {
+          cursor: 'invalidcursor',
+          take: 10,
+        },
+        user.email,
+      );
+
+      expect(result).toHaveLength(0);
     });
   });
 });

@@ -443,6 +443,23 @@ export class AdminResolver {
     return true;
   }
 
+  @Mutation(() => Boolean, {
+    description: 'Revoke Shortcode by ID',
+  })
+  @UseGuards(GqlAuthGuard, GqlAdminGuard)
+  async revokeShortcodeByAdmin(
+    @Args({
+      name: 'code',
+      description: 'The shortcode to delete',
+      type: () => ID,
+    })
+    code: string,
+  ): Promise<boolean> {
+    const res = await this.adminService.deleteShortcode(code);
+    if (E.isLeft(res)) throwErr(res.left);
+    return true;
+  }
+
   /* Subscriptions */
 
   @Subscription(() => InvitedUser, {

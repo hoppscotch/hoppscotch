@@ -10,7 +10,7 @@ import {
   SHORTCODE_PROPERTIES_NOT_FOUND,
 } from 'src/errors';
 import { UserDataHandler } from 'src/user/user.data.handler';
-import { Shortcode } from './shortcode.model';
+import { Shortcode, ShortcodeWithUserEmail } from './shortcode.model';
 import { Shortcode as DBShortCode } from '@prisma/client';
 import { PubSubService } from 'src/pubsub/pubsub.service';
 import { UserService } from 'src/user/user.service';
@@ -180,7 +180,7 @@ export class ShortcodeService implements UserDataHandler, OnModuleInit {
   }
 
   /**
-   * Delete a ShortCode
+   * Delete a ShortCode created by User of uid
    *
    * @param shortcode ShortCode
    * @param uid User Uid
@@ -224,6 +224,26 @@ export class ShortcodeService implements UserDataHandler, OnModuleInit {
   }
 
   /**
+   * Delete a Shortcode
+   *
+   * @param shortcodeID ID of Shortcode being deleted
+   * @returns Boolean on successful deletion
+   */
+  async deleteShortcode(shortcodeID: string) {
+    try {
+      await this.prisma.shortcode.delete({
+        where: {
+          id: shortcodeID,
+        },
+      });
+
+      return E.right(true);
+    } catch (error) {
+      return E.left(SHORTCODE_NOT_FOUND);
+    }
+  }
+
+  /**
    * Update a created Shortcode
    * @param shortcodeID Shortcode ID
    * @param uid User Uid
@@ -262,5 +282,58 @@ export class ShortcodeService implements UserDataHandler, OnModuleInit {
     } catch (error) {
       return E.left(SHORTCODE_NOT_FOUND);
     }
+  }
+
+  /**
+   * Fetch all created ShortCodes
+   *
+   * @param args Pagination arguments
+   * @param userEmail User email
+   * @returns ShortcodeWithUserEmail
+   */
+  async fetchAllShortcodes(
+    args: PaginationArgs,
+    userEmail: string | null = null,
+  ) {
+    const shortCodes = await this.prisma.shortcode.findMany({
+      where: userEmail
+        ? {
+            User: {
+              email: userEmail,
+            },
+          }
+        : undefined,
+      orderBy: {
+        createdOn: 'desc',
+      },
+      skip: args.cursor ? 1 : 0,
+      take: args.take,
+      cursor: args.cursor ? { id: args.cursor } : undefined,
+      include: {
+        User: true,
+      },
+    });
+
+    const fetchedShortCodes: ShortcodeWithUserEmail[] = shortCodes.map(
+      (code) => {
+        return <ShortcodeWithUserEmail>{
+          id: code.id,
+          request: JSON.stringify(code.request),
+          properties:
+            code.embedProperties != null
+              ? JSON.stringify(code.embedProperties)
+              : null,
+          createdOn: code.createdOn,
+          creator: code.User
+            ? {
+                uid: code.User.uid,
+                email: code.User.email,
+              }
+            : null,
+        };
+      },
+    );
+
+    return fetchedShortCodes;
   }
 }

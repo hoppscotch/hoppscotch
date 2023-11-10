@@ -24,6 +24,7 @@ import { TeamRequestService } from '../team-request/team-request.service';
 import { TeamEnvironmentsService } from '../team-environments/team-environments.service';
 import { TeamInvitationService } from '../team-invitation/team-invitation.service';
 import { TeamMemberRole } from '../team/team.model';
+import { ShortcodeService } from 'src/shortcode/shortcode.service';
 
 @Injectable()
 export class AdminService {
@@ -37,6 +38,7 @@ export class AdminService {
     private readonly pubsub: PubSubService,
     private readonly prisma: PrismaService,
     private readonly mailerService: MailerService,
+    private readonly shortcodeService: ShortcodeService,
   ) {}
 
   /**
@@ -431,5 +433,36 @@ export class AdminService {
     if (E.isLeft(teamInvite)) return E.left(teamInvite.left);
 
     return E.right(teamInvite.right);
+  }
+
+  /**
+   * Fetch all created ShortCodes
+   *
+   * @param args Pagination arguments
+   * @param userEmail User email
+   * @returns ShortcodeWithUserEmail
+   */
+  async fetchAllShortcodes(
+    cursorID: string,
+    take: number,
+    userEmail: string = null,
+  ) {
+    return this.shortcodeService.fetchAllShortcodes(
+      { cursor: cursorID, take },
+      userEmail,
+    );
+  }
+
+  /**
+   * Delete a Shortcode
+   *
+   * @param shortcodeID ID of Shortcode being deleted
+   * @returns Boolean on successful deletion
+   */
+  async deleteShortcode(shortcodeID: string) {
+    const result = await this.shortcodeService.deleteShortcode(shortcodeID);
+
+    if (E.isLeft(result)) return E.left(result.left);
+    return E.right(result.right);
   }
 }

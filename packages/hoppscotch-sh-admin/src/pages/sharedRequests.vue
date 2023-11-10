@@ -10,7 +10,7 @@
 
     <div v-else-if="error">{{ t('sharedRequests.load_list_error') }}</div>
 
-    <div v-else-if="sharedRequests?.length">
+    <div v-else-if="sharedRequests?.length >= 0">
       <div class="flex justify-end my-3">
         <HoppSmartInput
           :autofocus="false"
@@ -20,11 +20,23 @@
         />
 
         <HoppButtonSecondary
+          v-if="filter"
+          :disabled="!email"
           outline
           filled
           :label="t('sharedRequests.filter')"
           :icon="IconFilter"
           class="rounded-l-none"
+          @click="filterRequest"
+        />
+        <HoppButtonSecondary
+          v-else
+          outline
+          filled
+          label="Clear Filter"
+          :icon="IconFilterX"
+          class="rounded-l-none"
+          @click="clearFilter"
         />
       </div>
 
@@ -136,6 +148,7 @@ import IconTrash from '~icons/lucide/trash';
 import IconCopy from '~icons/lucide/copy';
 import IconCheck from '~icons/lucide/check';
 import IconFilter from '~icons/lucide/filter';
+import IconFilterX from '~icons/lucide/filter-x';
 import IconExternalLink from '~icons/lucide/external-link';
 import { useI18n } from '~/composables/i18n';
 import { HoppButtonSecondary } from '@hoppscotch/ui';
@@ -190,6 +203,32 @@ const {
   sharedRequestsPerPage,
   { cursor: undefined, take: sharedRequestsPerPage }
 );
+
+// Define a reactive reference to a boolean value set to true
+const filter = ref(true);
+
+// Define a function that sets the filter value to false and calls the refetch function with the current value of the email reference
+const filterRequest = () => {
+  filter.value = false;
+  refetch(email.value);
+};
+
+// Define a function that sets the filter value to true, sets the email value to an empty string, and calls the refetch function
+const clearFilter = () => {
+  filter.value = true;
+  email.value = '';
+  refetch();
+};
+
+// Define a watcher on the email reference that sets the filter value to true if it is currently false
+watch(email, () => {
+  if (email.value.length === 0) {
+    refetch();
+  }
+  if (!filter.value) {
+    filter.value = true;
+  }
+});
 
 // Shared Request Deletion
 const sharedRequestDeletion = useMutation(RevokeShortcodeByAdminDocument);

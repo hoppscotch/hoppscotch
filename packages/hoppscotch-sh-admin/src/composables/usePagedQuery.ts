@@ -21,18 +21,22 @@ export function usePagedQuery<
   const currentPage = ref(0);
   const hasNextPage = ref(true);
 
-  const fetchNextPage = async () => {
+  const fetchNextPage = async (email?: string) => {
     fetching.value = true;
-    try {
-      const result = await client
-        .query(query, {
-          ...variables,
-          take: itemsPerPage,
-          cursor:
-            list.value.length > 0 ? getCursor(list.value.at(-1)) : undefined,
-        })
-        .toPromise();
 
+    try {
+      const cursor =
+        list.value.length > 0 ? getCursor(list.value.at(-1)) : undefined;
+      const variablesWithPagination = {
+        ...variables,
+        take: itemsPerPage,
+        cursor,
+        email,
+      };
+
+      const result = await client
+        .query(query, variablesWithPagination)
+        .toPromise();
       const resultList = getList(result.data!);
 
       if (resultList.length < itemsPerPage) {
@@ -43,8 +47,9 @@ export function usePagedQuery<
       currentPage.value++;
     } catch (e) {
       error.value = true;
+    } finally {
+      fetching.value = false;
     }
-    fetching.value = false;
   };
 
   onMounted(async () => {
@@ -57,11 +62,11 @@ export function usePagedQuery<
     }
   };
 
-  const refetch = async () => {
+  const refetch = async (email?: string) => {
     currentPage.value = 0;
     hasNextPage.value = true;
     list.value = [];
-    await fetchNextPage();
+    await fetchNextPage(email);
   };
 
   return {

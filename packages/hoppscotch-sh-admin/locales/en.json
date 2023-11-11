@@ -32,7 +32,9 @@
     "delete":"Delete",
     "filter":"Filter",
 		"load_list_error": "Unable to Load Shared Requests List",
-		"no_requests":"No shared requests found"
+		"no_requests":"No shared requests found",
+    "confirm_request_deletion": "Confirm Deletion of the selected shared request?",
+    "show_more": "Show more"
   },
   "state": {
     "add_user_failure": "Failed to add user to the team!!",
@@ -48,10 +50,13 @@
     "continue_microsoft": "Continue with Microsoft",
     "create_team_failure": "Failed to create team!!",
     "create_team_success": "Team created successfully!!",
+    "copied_to_clipboard": "Copied to clipboard",
     "delete_team_failure": "Team deletion failed!!",
     "delete_team_success": "Team deleted successfully!!",
     "delete_user_failure": "User deletion failed!!",
     "delete_user_success": "User deleted successfully!!",
+    "delete_request_failure": "Shared Request deletion failed!!",
+    "delete_request_success": "Shared Request deleted successfully!!",
     "email": "Email",
     "email_failure": "Failed to send invitation",
     "email_signin_failure": "Failed to login with Email",

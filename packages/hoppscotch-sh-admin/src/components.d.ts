@@ -33,6 +33,7 @@ declare module '@vue/runtime-core' {
     IconLucideChevronDown: typeof import('~icons/lucide/chevron-down')['default']
     IconLucideHelpCircle: typeof import('~icons/lucide/help-circle')['default']
     IconLucideInbox: typeof import('~icons/lucide/inbox')['default']
+    IconLucideUser: typeof import('~icons/lucide/user')['default']
     SmartAnchor: typeof import('./../../hoppscotch-ui/src/components/smart/Anchor.vue')['default']
     SmartAutoComplete: typeof import('./../../hoppscotch-ui/src/components/smart/AutoComplete.vue')['default']
     SmartCheckbox: typeof import('./../../hoppscotch-ui/src/components/smart/Checkbox.vue')['default']

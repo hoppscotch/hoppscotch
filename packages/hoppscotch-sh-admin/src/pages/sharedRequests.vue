@@ -112,10 +112,10 @@
 
       <div
         v-if="hasNextPage && sharedRequests.length >= sharedRequestsPerPage"
-        class="flex justify-center my-5 px-3 py-2 cursor-pointer font-semibold rounded-3xl bg-dividerDark hover:bg-divider transition mx-auto w-38 text-secondaryDark"
+        class="flex justify-center my-5 px-3 py-2 cursor-pointer font-semibold rounded-3xl bg-dividerDark hover:bg-divider transition text-secondaryDark w-30"
         @click="fetchNextSharedRequests"
       >
-        <span>{{ t('teams.show_more') }}</span>
+        <span>{{ t('sharedRequests.show_more') }}</span>
         <icon-lucide-chevron-down class="ml-2 text-lg" />
       </div>
     </div>
@@ -127,7 +127,7 @@
 
   <HoppSmartConfirmModal
     :show="confirmDeletion"
-    :title="t('teams.confirm_team_deletion')"
+    :title="t('sharedRequests.confirm_request_deletion')"
     @hide-modal="confirmDeletion = false"
     @resolve="deleteSharedRequestMutation(deleteSharedRequestID)"
   />
@@ -140,7 +140,7 @@ import {
   RevokeShortcodeByAdminDocument,
 } from '../helpers/backend/graphql';
 import { usePagedQuery } from '~/composables/usePagedQuery';
-import { computed, ref, watch } from 'vue';
+import { ref, watch } from 'vue';
 import { refAutoReset } from '@vueuse/core';
 import { useMutation } from '@urql/vue';
 import { useToast } from '~/composables/toast';
@@ -162,13 +162,9 @@ const t = useI18n();
 
 const toast = useToast();
 
-const sharedRequestsPerPage = 20;
+const sharedRequestsPerPage = 2;
 
 const email = ref('');
-
-// Get Metrics Data
-// const { fetching, error, data } = useQuery({ query: SharedRequestsDocument });
-// const sharedRequests = computed(() => data?.value?.infra.allShortcodes);
 
 const endpoint = (request: any) => {
   const parsedRequest = JSON.parse(request.request);
@@ -243,18 +239,18 @@ const deleteSharedRequest = (id: string) => {
 const deleteSharedRequestMutation = async (id: string | null) => {
   if (!id) {
     confirmDeletion.value = false;
-    toast.error(`${t('state.delete_team_failure')}`);
+    toast.error(`${t('state.delete_request_failure')}`);
     return;
   }
   const variables = { codeID: id };
   await sharedRequestDeletion.executeMutation(variables).then((result) => {
     if (result.error) {
-      toast.error(`${t('state.delete_team_failure')}`);
+      toast.error(`${t('state.delete_request_failure')}`);
     } else {
       sharedRequests.value = sharedRequests.value.filter(
         (request) => request.id !== id
       );
-      toast.success(`${t('state.delete_team_success')}`);
+      toast.success(`${t('state.delete_request_success')}`);
     }
   });
   confirmDeletion.value = false;

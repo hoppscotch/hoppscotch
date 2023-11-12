@@ -161,7 +161,7 @@ const getCreatedDate = (date: string) => format(new Date(date), 'dd-MM-yyyy');
 const getCreatedTime = (date: string) => format(new Date(date), 'hh:mm a');
 
 //Fetch Shared Requests
-const sharedRequestsPerPage = 3;
+const sharedRequestsPerPage = 30;
 
 const {
   fetching,

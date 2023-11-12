@@ -18,4 +18,5 @@ WORKDIR /site
 COPY packages/hoppscotch-selfhost-web/Caddyfile /etc/caddy/Caddyfile
 COPY --from=builder /usr/src/app/packages/hoppscotch-selfhost-web/dist/ .
 
-EXPOSE 8080
+EXPOSE 80
+EXPOSE 3000

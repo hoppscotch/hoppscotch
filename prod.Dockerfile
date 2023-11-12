@@ -31,12 +31,13 @@ RUN pnpm run generate
 
 FROM caddy:2-alpine as app
 WORKDIR /site
-COPY --from=fe_builder /usr/src/app/packages/hoppscotch-sh-admin/prod_run.mjs /usr
+COPY --from=fe_builder /usr/src/app/packages/hoppscotch-selfhost-web/prod_run.mjs /usr
 COPY --from=fe_builder /usr/src/app/packages/hoppscotch-selfhost-web/Caddyfile /etc/caddy/Caddyfile
 COPY --from=fe_builder /usr/src/app/packages/hoppscotch-selfhost-web/dist/ .
 RUN apk add nodejs npm
 RUN npm install -g @import-meta-env/cli
-EXPOSE 8080
+EXPOSE 80
+EXPOSE 3000
 CMD ["/bin/sh", "-c", "node /usr/prod_run.mjs && caddy run --config /etc/caddy/Caddyfile --adapter caddyfile"]
 
 FROM base_builder as sh_admin_builder

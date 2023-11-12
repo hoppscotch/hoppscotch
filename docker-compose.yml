@@ -42,7 +42,8 @@ services:
     depends_on:
       - hoppscotch-backend
     ports:
-      - "3000:8080"
+      - "3080:80"
+      - "3000:3000"
 
   # The Self Host dashboard for managing the app. This will be hosted at port 3100
   # NOTE: To do TLS or play around with how the app is hosted, you can look into the Caddyfile for
@@ -136,7 +137,8 @@ services:
     depends_on:
       - hoppscotch-old-backend
     ports:
-      - "3000:8080"
+      - "3080:80"
+      - "3000:3000"
 
   hoppscotch-old-sh-admin:
     container_name: hoppscotch-old-sh-admin

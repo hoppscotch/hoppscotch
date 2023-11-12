@@ -55,7 +55,8 @@ COPY --from=sh_admin_builder /usr/src/app/packages/hoppscotch-sh-admin/dist /sit
 COPY --from=sh_admin_builder /usr/src/app/packages/hoppscotch-sh-admin/dist-subpath-access /site/sh-admin-subpath-access
 RUN apk add nodejs npm
 RUN npm install -g @import-meta-env/cli
-EXPOSE 8080
+EXPOSE 80
+EXPOSE 3100
 CMD ["/bin/sh", "-c", "node /usr/prod_run.mjs && caddy run --config /etc/caddy/Caddyfile --adapter caddyfile"]
 
 FROM backend as aio

@@ -59,7 +59,8 @@ services:
     depends_on:
       - hoppscotch-backend
     ports:
-      - "3100:8080"
+      - "3180:80"
+      - "3100:3100"
 
   # The service that spins up all 3 services at once in one container
   hoppscotch-aio:
@@ -150,4 +151,5 @@ services:
     depends_on:
       - hoppscotch-old-backend
     ports:
-      - "3100:8080"
+      - "3180:80"
+      - "3100:3100"

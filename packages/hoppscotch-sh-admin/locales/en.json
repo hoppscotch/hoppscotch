@@ -34,7 +34,9 @@
 		"load_list_error": "Unable to Load Shared Requests List",
 		"no_requests":"No shared requests found",
     "confirm_request_deletion": "Confirm Deletion of the selected shared request?",
-    "show_more": "Show more"
+    "show_more": "Show more",
+    "filter_by_email": "Filter by email",
+    "clear_filter": "Clear Filter"
   },
   "state": {
     "add_user_failure": "Failed to add user to the team!!",

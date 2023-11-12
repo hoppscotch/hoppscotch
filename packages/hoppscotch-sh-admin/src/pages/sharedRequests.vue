@@ -15,12 +15,12 @@
         <HoppSmartInput
           :autofocus="false"
           v-model="email"
-          label="Filter By Email"
+          :label="t('sharedRequests.filter_by_email')"
           input-styles="floating-input rounded-r-none w-64"
         />
 
         <HoppButtonSecondary
-          v-if="filter"
+          v-if="showFilterButton"
           :disabled="!email"
           outline
           filled
@@ -33,10 +33,10 @@
           v-else
           outline
           filled
-          label="Clear Filter"
           :icon="IconFilterX"
+          :label="t('sharedRequests.clear_filter')"
           class="rounded-l-none"
-          @click="clearFilter"
+          @click="clearAppliedFilters"
         />
       </div>
 
@@ -66,7 +66,7 @@
             </td>
 
             <td class="py-4 px-7 max-w-30">
-              {{ endpoint(request) }}
+              {{ sharedRequestURL(request.request) }}
             </td>
 
             <td class="py-4 px-7 max-w-30">
@@ -135,24 +135,23 @@
 
 <script setup lang="ts">
 import { format } from 'date-fns';
+import { ref, watch } from 'vue';
+import { useMutation } from '@urql/vue';
+import { refAutoReset } from '@vueuse/core';
 import {
   SharedRequestsDocument,
   RevokeShortcodeByAdminDocument,
 } from '../helpers/backend/graphql';
 import { usePagedQuery } from '~/composables/usePagedQuery';
-import { ref, watch } from 'vue';
-import { refAutoReset } from '@vueuse/core';
-import { useMutation } from '@urql/vue';
 import { useToast } from '~/composables/toast';
+import { useI18n } from '~/composables/i18n';
+import { copyToClipboard } from '~/helpers/utils/clipboard';
 import IconTrash from '~icons/lucide/trash';
 import IconCopy from '~icons/lucide/copy';
 import IconCheck from '~icons/lucide/check';
 import IconFilter from '~icons/lucide/filter';
 import IconFilterX from '~icons/lucide/filter-x';
 import IconExternalLink from '~icons/lucide/external-link';
-import { useI18n } from '~/composables/i18n';
-import { HoppButtonSecondary } from '@hoppscotch/ui';
-import { copyToClipboard } from '~/helpers/utils/clipboard';
 
 // Get Proper Date Formats
 const getCreatedDate = (date: string) => format(new Date(date), 'dd-MM-yyyy');
@@ -162,12 +161,12 @@ const t = useI18n();
 
 const toast = useToast();
 
-const sharedRequestsPerPage = 2;
+const sharedRequestsPerPage = 3;
 
 const email = ref('');
 
-const endpoint = (request: any) => {
-  const parsedRequest = JSON.parse(request.request);
+const sharedRequestURL = (request: string) => {
+  const parsedRequest = JSON.parse(request);
   return parsedRequest.endpoint;
 };
 
@@ -201,18 +200,18 @@ const {
 );
 
 // Define a reactive reference to a boolean value set to true
-const filter = ref(true);
+const showFilterButton = ref(true);
 
 // Define a function that sets the filter value to false and calls the refetch function with the current value of the email reference
 const filterRequest = () => {
-  filter.value = false;
+  showFilterButton.value = false;
   refetch(email.value);
 };
 
 // Define a function that sets the filter value to true, sets the email value to an empty string, and calls the refetch function
-const clearFilter = () => {
-  filter.value = true;
+const clearAppliedFilters = () => {
   email.value = '';
+  showFilterButton.value = true;
   refetch();
 };
 
@@ -221,8 +220,8 @@ watch(email, () => {
   if (email.value.length === 0) {
     refetch();
   }
-  if (!filter.value) {
-    filter.value = true;
+  if (!showFilterButton.value) {
+    showFilterButton.value = true;
   }
 });
 

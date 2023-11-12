@@ -31,9 +31,9 @@
     "open_request":"Open Request",
     "delete":"Delete",
     "filter":"Filter",
-		"load_list_error": "Unable to Load Shared Requests List",
+		"load_list_error": "Unable to load shared requests list",
 		"no_requests":"No shared requests found",
-    "confirm_request_deletion": "Confirm Deletion of the selected shared request?",
+    "confirm_request_deletion": "Confirm deletion of the selected shared request?",
     "show_more": "Show more",
     "filter_by_email": "Filter by email",
     "clear_filter": "Clear Filter"

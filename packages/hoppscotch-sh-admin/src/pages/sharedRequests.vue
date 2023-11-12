@@ -53,9 +53,9 @@
             <th class="px-6 py-2">Actions</th>
           </tr>
         </template>
-        <template #body="{ list }">
+        <template #body="{ list: sharedRequests }">
           <tr
-            v-for="request in list"
+            v-for="request in sharedRequests"
             :key="request.id"
             class="text-secondaryDark hover:bg-divider hover:cursor-pointer rounded-xl"
           >
@@ -80,11 +80,10 @@
               </div>
             </td>
 
-            <td class="w-30">
+            <td>
               <HoppButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"
                 :title="t('sharedRequests.open_request')"
-                blank
                 :to="`${shortcodeBaseURL}/r/${request.id}`"
                 :icon="IconExternalLink"
                 class="px-3 text-emerald-500 hover:text-accent"
@@ -112,11 +111,11 @@
 
       <div
         v-if="hasNextPage && sharedRequests.length >= sharedRequestsPerPage"
-        class="flex justify-center my-5 px-3 py-2 cursor-pointer font-semibold rounded-3xl bg-dividerDark hover:bg-divider transition text-secondaryDark w-30"
+        class="flex items-center w-28 px-3 py-2 mt-5 mx-auto font-semibold text-secondaryDark bg-divider hover:bg-dividerDark rounded-3xl cursor-pointer"
         @click="fetchNextSharedRequests"
       >
-        <span>{{ t('sharedRequests.show_more') }}</span>
-        <icon-lucide-chevron-down class="ml-2 text-lg" />
+        <span class="mr-2">{{ t('sharedRequests.show_more') }}</span>
+        <icon-lucide-chevron-down />
       </div>
     </div>
 
@@ -153,36 +152,16 @@ import IconFilter from '~icons/lucide/filter';
 import IconFilterX from '~icons/lucide/filter-x';
 import IconExternalLink from '~icons/lucide/external-link';
 
-// Get Proper Date Formats
+const t = useI18n();
+const toast = useToast();
+const email = ref('');
+
+// Get Desired Date Formats
 const getCreatedDate = (date: string) => format(new Date(date), 'dd-MM-yyyy');
 const getCreatedTime = (date: string) => format(new Date(date), 'hh:mm a');
 
-const t = useI18n();
-
-const toast = useToast();
-
+//Fetch Shared Requests
 const sharedRequestsPerPage = 3;
-
-const email = ref('');
-
-const sharedRequestURL = (request: string) => {
-  const parsedRequest = JSON.parse(request);
-  return parsedRequest.endpoint;
-};
-
-const shortcodeBaseURL =
-  import.meta.env.VITE_SHORTCODE_BASE_URL ?? 'https://hopp.sh';
-
-const copyIconRefs = refAutoReset<typeof IconCopy | typeof IconCheck>(
-  IconCopy,
-  1000
-);
-
-const copySharedRequest = (requestID: string) => {
-  copyToClipboard(`${shortcodeBaseURL}/r/${requestID}`);
-  toast.success(`${t('state.copied_to_clipboard')}`);
-  copyIconRefs.value = IconCheck;
-};
 
 const {
   fetching,
@@ -199,23 +178,20 @@ const {
   { cursor: undefined, take: sharedRequestsPerPage }
 );
 
-// Define a reactive reference to a boolean value set to true
+// Filter Shared Requests
 const showFilterButton = ref(true);
 
-// Define a function that sets the filter value to false and calls the refetch function with the current value of the email reference
 const filterRequest = () => {
   showFilterButton.value = false;
   refetch(email.value);
 };
 
-// Define a function that sets the filter value to true, sets the email value to an empty string, and calls the refetch function
 const clearAppliedFilters = () => {
   email.value = '';
   showFilterButton.value = true;
   refetch();
 };
 
-// Define a watcher on the email reference that sets the filter value to true if it is currently false
 watch(email, () => {
   if (email.value.length === 0) {
     refetch();
@@ -225,10 +201,32 @@ watch(email, () => {
   }
 });
 
+// Return request endpoint from the request object
+const sharedRequestURL = (request: string) => {
+  const parsedRequest = JSON.parse(request);
+  return parsedRequest.endpoint;
+};
+
+// Shortcode Base URL
+const shortcodeBaseURL =
+  import.meta.env.VITE_SHORTCODE_BASE_URL ?? 'https://hopp.sh';
+
+// Copy Shared Request
+const copyIconRefs = refAutoReset<typeof IconCopy | typeof IconCheck>(
+  IconCopy,
+  1000
+);
+
+const copySharedRequest = (requestID: string) => {
+  copyToClipboard(`${shortcodeBaseURL}/r/${requestID}`);
+  toast.success(`${t('state.copied_to_clipboard')}`);
+  copyIconRefs.value = IconCheck;
+};
+
 // Shared Request Deletion
-const sharedRequestDeletion = useMutation(RevokeShortcodeByAdminDocument);
 const confirmDeletion = ref(false);
 const deleteSharedRequestID = ref<string | null>(null);
+const sharedRequestDeletion = useMutation(RevokeShortcodeByAdminDocument);
 
 const deleteSharedRequest = (id: string) => {
   confirmDeletion.value = true;
@@ -249,6 +247,7 @@ const deleteSharedRequestMutation = async (id: string | null) => {
       sharedRequests.value = sharedRequests.value.filter(
         (request) => request.id !== id
       );
+      refetch(email.value);
       toast.success(`${t('state.delete_request_success')}`);
     }
   });

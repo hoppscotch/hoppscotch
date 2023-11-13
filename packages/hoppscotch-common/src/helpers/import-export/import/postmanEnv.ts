@@ -25,26 +25,22 @@ export const postmanEnvImporter = (content: string) => {
     return TE.left(IMPORTER_INVALID_FILE_FORMAT)
   }
 
-  const validationResult = z
-    .array(postmanEnvSchema)
-    .safeParse(parsedContent.value)
+  const validationResult = postmanEnvSchema.safeParse(parsedContent.value)
 
   if (!validationResult.success) {
     return TE.left(IMPORTER_INVALID_FILE_FORMAT)
   }
 
-  const postmanEnvironments = validationResult.data.map((postmanEnv) => {
-    const environment: Environment = {
-      name: postmanEnv.name,
-      variables: [],
-    }
+  const postmanEnv = validationResult.data
 
-    postmanEnv.values.forEach(({ key, value }) =>
-      environment.variables.push({ key, value })
-    )
+  const environment: Environment = {
+    name: postmanEnv.name,
+    variables: [],
+  }
 
-    return environment
-  })
+  postmanEnv.values.forEach(({ key, value }) =>
+    environment.variables.push({ key, value })
+  )
 
-  return TE.right(postmanEnvironments)
+  return TE.right(environment)
 }

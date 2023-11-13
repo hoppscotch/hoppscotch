@@ -112,7 +112,7 @@ const PostmanEnvironmentsImport: ImporterOrExporter = {
         return
       }
 
-      handleImportToStore(res.right)
+      handleImportToStore([res.right])
 
       emit("hide-modal")
     },

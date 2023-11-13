@@ -78,8 +78,8 @@ services:
     ports:
       - "3000:3000"
       - "3100:3100"
-      - "3170:3170"
-      - "3500:8080"
+      - "3170:8080"
+      - "3080:80"
 
   # The preset DB service, you can delete/comment the below lines if
   # you are using an external postgres instance

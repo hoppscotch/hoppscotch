@@ -10,6 +10,6 @@
 	file_server
 }
 
-:8080 {
+:80 {
 	respond 404
 }

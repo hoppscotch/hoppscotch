@@ -45,8 +45,8 @@
           <tr
             class="text-secondary border-b border-dividerDark text-sm text-left bg-primaryLight"
           >
-            <th class="px-6 py-2">{{ t('sharedRequests.id') }}</th>
             <th class="px-6 py-3 w-30">{{ t('sharedRequests.url') }}</th>
+            <th class="px-6 py-2">{{ t('sharedRequests.id') }}</th>
             <th class="px-6 py-2">{{ t('sharedRequests.email') }}</th>
             <th class="px-6 py-2">{{ t('sharedRequests.created_on') }}</th>
             <!-- Empty Heading for the Action Button -->
@@ -59,14 +59,14 @@
             :key="request.id"
             class="text-secondaryDark hover:bg-divider hover:cursor-pointer rounded-xl"
           >
+            <td class="py-4 px-7 max-w-30">
+              {{ sharedRequestURL(request.request) }}
+            </td>
+
             <td class="flex py-4 px-7 max-w-50">
               <span class="truncate">
                 {{ request.id }}
               </span>
-            </td>
-
-            <td class="py-4 px-7 max-w-30">
-              {{ sharedRequestURL(request.request) }}
             </td>
 
             <td class="py-4 px-7 max-w-30">
@@ -85,6 +85,7 @@
                 v-tippy="{ theme: 'tooltip' }"
                 :title="t('sharedRequests.open_request')"
                 :to="`${shortcodeBaseURL}/r/${request.id}`"
+                :blank="true"
                 :icon="IconExternalLink"
                 class="px-3 text-emerald-500 hover:text-accent"
               />
@@ -187,9 +188,8 @@ const filterRequest = () => {
 };
 
 const clearAppliedFilters = () => {
-  email.value = '';
+  email.value = ''; // The watcher will automatically call the refetch function
   showFilterButton.value = true;
-  refetch();
 };
 
 watch(email, () => {

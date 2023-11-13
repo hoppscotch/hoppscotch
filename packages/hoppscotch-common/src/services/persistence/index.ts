@@ -55,9 +55,17 @@ import {
 } from "../../newstore/settings"
 import {
   GLOBAL_ENV_SCHEMA,
+  GQL_COLLECTION_SCHEMA,
+  GQL_HISTORY_ENTRY_SCHEMA,
+  GQL_TAB_STATE_SCHEMA,
   MQTT_REQUEST_SCHEMA,
+  REST_COLLECTION_SCHEMA,
+  REST_HISTORY_ENTRY_SCHEMA,
+  REST_TAB_STATE_SCHEMA,
+  SELECTED_ENV_INDEX_SCHEMA,
   SOCKET_IO_REQUEST_SCHEMA,
   SSE_REQUEST_SCHEMA,
+  VUEX_SCHEMA,
   WEBSOCKET_REQUEST_SCHEMA,
 } from "./validation-schemas"
 
@@ -109,17 +117,14 @@ export class PersistenceService extends Service {
     const vuexKey = "vuex"
     const vuexData = JSON.parse(window.localStorage.getItem(vuexKey) || "{}")
 
-    // if (isEmpty(vuexData)) return
+    if (isEmpty(vuexData)) return
 
     // TODO: Enable once the support for using versioned entity schemas within other schemas is added to verzod
-    // const result = VUEX_SCHEMA.safeParse(vuexData)
-    // if (!result.success) {
-    // this.showErrorToast(vuexKey)
-    //   window.localStorage.setItem(
-    // `${vuexKey}-backup`,
-    //     JSON.stringify(vuexData)
-    //   )
-    // }
+    const result = VUEX_SCHEMA.safeParse(vuexData)
+    if (!result.success) {
+      this.showErrorToast(vuexKey)
+      window.localStorage.setItem(`${vuexKey}-backup`, JSON.stringify(vuexData))
+    }
 
     const { postwoman } = vuexData
 
@@ -273,24 +278,28 @@ export class PersistenceService extends Service {
       window.localStorage.getItem(graphqlHistoryKey) || "[]"
     )
 
-    // TODO: Enable once the support for using versioned entity schemas within other schemas is added to verzod
-    // const restHistorySchemaParsedresult = z.array(REST_HISTORY_ENTRY_SCHEMA).safeParse(restHistoryData)
-    // if (!restHistorySchemaParsedresult.success) {
-    //   this.showErrorToast(restHistoryKey)
-    //   window.localStorage.setItem(
-    //     `${restHistoryKey}-backup`,
-    //     JSON.stringify(restHistoryData)
-    //   )
-    // }
+    // Validate data read from localStorage
+    const restHistorySchemaParsedresult = z
+      .array(REST_HISTORY_ENTRY_SCHEMA)
+      .safeParse(restHistoryData)
+    if (!restHistorySchemaParsedresult.success) {
+      this.showErrorToast(restHistoryKey)
+      window.localStorage.setItem(
+        `${restHistoryKey}-backup`,
+        JSON.stringify(restHistoryData)
+      )
+    }
 
-    // const gqlHistorySchemaParsedresult = z.array(GQL_HISTORY_ENTRY_SCHEMA).safeParse(graphqlHistoryData)
-    // if (!gqlHistorySchemaParsedresult.success) {
-    //   this.showErrorToast(graphqlHistoryKey)
-    //   window.localStorage.setItem(
-    //     `${graphqlHistoryKey}-backup`,
-    //     JSON.stringify(graphqlHistoryData)
-    //   )
-    // }
+    const gqlHistorySchemaParsedresult = z
+      .array(GQL_HISTORY_ENTRY_SCHEMA)
+      .safeParse(graphqlHistoryData)
+    if (!gqlHistorySchemaParsedresult.success) {
+      this.showErrorToast(graphqlHistoryKey)
+      window.localStorage.setItem(
+        `${graphqlHistoryKey}-backup`,
+        JSON.stringify(graphqlHistoryData)
+      )
+    }
 
     const translatedRestHistoryData = restHistoryData.map(
       translateToNewRESTHistory
@@ -322,24 +331,27 @@ export class PersistenceService extends Service {
       window.localStorage.getItem(graphqlCollectionsKey) || "[]"
     )
 
-    // TODO: Enable once the support for using versioned entity schemas within other schemas is added to verzod
-    // const restCollectionsSchemaParsedresult = z.array(REST_COLLECTION_SCHEMA).safeParse(restCollectionsData)
-    // if (!restCollectionsSchemaParsedresult.success) {
-    //   this.showErrorToast(restCollectionsKey)
-    //   window.localStorage.setItem(
-    //     `${restCollectionsKey}-backup`,
-    //     JSON.stringify(restCollectionsData)
-    //   )
-    // }
+    const restCollectionsSchemaParsedresult = z
+      .array(REST_COLLECTION_SCHEMA)
+      .safeParse(restCollectionsData)
+    if (!restCollectionsSchemaParsedresult.success) {
+      this.showErrorToast(restCollectionsKey)
+      window.localStorage.setItem(
+        `${restCollectionsKey}-backup`,
+        JSON.stringify(restCollectionsData)
+      )
+    }
 
-    // const gqlCollectionsSchemaParsedresult = z.array(GQL_COLLECTION_SCHEMA).safeParse(graphqlCollectionsData)
-    // if (!gqlCollectionsSchemaParsedresult.success) {
-    //   this.showErrorToast(graphqlCollectionsKey)
-    //   window.localStorage.setItem(
-    //     `${graphqlCollectionsKey}-backup`,
-    //     JSON.stringify(graphqlCollectionsData)
-    //   )
-    // }
+    const gqlCollectionsSchemaParsedresult = z
+      .array(GQL_COLLECTION_SCHEMA)
+      .safeParse(graphqlCollectionsData)
+    if (!gqlCollectionsSchemaParsedresult.success) {
+      this.showErrorToast(graphqlCollectionsKey)
+      window.localStorage.setItem(
+        `${graphqlCollectionsKey}-backup`,
+        JSON.stringify(graphqlCollectionsData)
+      )
+    }
 
     const translatedRestCollectionsData = restCollectionsData.map(
       translateToNewRESTCollection
@@ -410,15 +422,14 @@ export class PersistenceService extends Service {
       window.localStorage.getItem(selectedEnvIndexKey) ?? "null"
     )
 
-    // TODO: Enable once the support for using versioned entity schemas within other schemas is added to verzod
-    // const result = SELECTED_ENV_INDEX_SCHEMA.safeParse(selectedEnvIndexValue)
-    // if (!result.success) {
-    //   this.showErrorToast(selectedEnvIndexKey)
-    //   window.localStorage.setItem(
-    //     `${selectedEnvIndexKey}-backup`,
-    //     JSON.stringify(selectedEnvIndexValue)
-    //   )
-    // }
+    const result = SELECTED_ENV_INDEX_SCHEMA.safeParse(selectedEnvIndexValue)
+    if (!result.success) {
+      this.showErrorToast(selectedEnvIndexKey)
+      window.localStorage.setItem(
+        `${selectedEnvIndexKey}-backup`,
+        JSON.stringify(selectedEnvIndexValue)
+      )
+    }
 
     // If there is a selected env index, set it to the store else set it to null
     if (selectedEnvIndexValue) {
@@ -551,15 +562,14 @@ export class PersistenceService extends Service {
       if (gqlTabStateData) {
         const data = JSON.parse(gqlTabStateData)
 
-        // TODO: Enable once the support for using versioned entity schemas within other schemas is added to verzod
-        // const result = GQL_TAB_STATE_SCHEMA.safeParse(gqlTabStateData)
-        // if (!result.success) {
-        //   this.showErrorToast(gqlTabStateKey)
-        //   window.localStorage.setItem(
-        //     `${gqlTabStateKey}-backup`,
-        //     JSON.stringify(gqlTabStateData)
-        //   )
-        // }
+        const result = GQL_TAB_STATE_SCHEMA.safeParse(data)
+        if (!result.success) {
+          this.showErrorToast(gqlTabStateKey)
+          window.localStorage.setItem(
+            `${gqlTabStateKey}-backup`,
+            JSON.stringify(data)
+          )
+        }
 
         this.gqlTabService.loadTabsFromPersistedState(data)
       }
@@ -590,11 +600,14 @@ export class PersistenceService extends Service {
         const data = JSON.parse(restTabStateData)
 
         // TODO: Enable once the support for using versioned entity schemas within other schemas is added to verzod
-        // const result = REST_TAB_STATE_SCHEMA.safeParse(restTabStateData)
-        // if (!result.success) {
-        //   this.showErrorToast(restTabStateKey)
-        //   window.localStorage.setItem(`${restTabStateKey}-backup`, JSON.stringify(restTabStateData))
-        // }
+        const result = REST_TAB_STATE_SCHEMA.safeParse(data)
+        if (!result.success) {
+          this.showErrorToast(restTabStateKey)
+          window.localStorage.setItem(
+            `${restTabStateKey}-backup`,
+            JSON.stringify(data)
+          )
+        }
 
         this.restTabService.loadTabsFromPersistedState(data)
       }

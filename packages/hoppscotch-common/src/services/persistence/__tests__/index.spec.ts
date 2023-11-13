@@ -193,7 +193,7 @@ describe("PersistenceService", () => {
       )
     })
 
-    it.skip(`shows an error and sets the entry as a backup in localStorage if "${vuexKey}" read from localStorage doesn't match the schema`, () => {
+    it(`shows an error and sets the entry as a backup in localStorage if "${vuexKey}" read from localStorage doesn't match the schema`, () => {
       // Invalid shape for `vuex`
       // `postwoman.settings.CURRENT_INTERCEPTOR_ID` -> `string`
       const vuexData = {
@@ -624,10 +624,10 @@ describe("PersistenceService", () => {
     const historyKey = "history"
     const graphqlHistoryKey = "graphqlHistory"
 
-    it.skip(`shows an error and sets the entry as a backup in localStorage if "${historyKey}" read from localStorage doesn't match the schema`, () => {
+    it(`shows an error and sets the entry as a backup in localStorage if "${historyKey}" read from localStorage doesn't match the schema`, () => {
       // Invalid shape for `history`
       // `v` -> `number`
-      const restHistoryData = { ...REST_HISTORY, v: "1" }
+      const restHistoryData = [{ ...REST_HISTORY, v: "1" }]
       window.localStorage.setItem(historyKey, JSON.stringify(restHistoryData))
 
       const getItemSpy = spyOnGetItem()
@@ -672,10 +672,10 @@ describe("PersistenceService", () => {
       expect(setItemSpy).not.toHaveBeenCalled()
     })
 
-    it.skip(`shows an error and sets the entry as a backup in localStorage if "${graphqlHistoryKey}" read from localStorage doesn't match the schema`, () => {
+    it(`shows an error and sets the entry as a backup in localStorage if "${graphqlHistoryKey}" read from localStorage doesn't match the schema`, () => {
       // Invalid shape for `graphqlHistory`
       // `v` -> `number`
-      const graphqlHistoryData = { ...GQL_HISTORY, v: "1" }
+      const graphqlHistoryData = [{ ...GQL_HISTORY, v: "1" }]
       window.localStorage.setItem(
         graphqlHistoryKey,
         JSON.stringify(graphqlHistoryData)
@@ -795,10 +795,10 @@ describe("PersistenceService", () => {
     const collectionsKey = "collections"
     const collectionsGraphqlKey = "collectionsGraphql"
 
-    it.skip(`shows an error and sets the entry as a backup in localStorage if "${collectionsKey}" read from localStorage doesn't match the schema`, () => {
+    it(`shows an error and sets the entry as a backup in localStorage if "${collectionsKey}" read from localStorage doesn't match the schema`, () => {
       // Invalid shape for `collections`
       // `v` -> `number`
-      const restCollectionsData = { ...REST_COLLECTIONS, v: "1" }
+      const restCollectionsData = [{ ...REST_COLLECTIONS, v: "1" }]
       window.localStorage.setItem(
         collectionsKey,
         JSON.stringify(restCollectionsData)
@@ -846,10 +846,10 @@ describe("PersistenceService", () => {
       expect(setItemSpy).not.toHaveBeenCalled()
     })
 
-    it.skip(`shows an error and sets the entry as a backup in localStorage if "${collectionsGraphqlKey}" read from localStorage doesn't match the schema`, () => {
+    it(`shows an error and sets the entry as a backup in localStorage if "${collectionsGraphqlKey}" read from localStorage doesn't match the schema`, () => {
       // Invalid shape for `collectionsGraphql`
       // `v` -> `number`
-      const graphqlCollectionsData = { ...GQL_COLLECTIONS, v: "1" }
+      const graphqlCollectionsData = [{ ...GQL_COLLECTIONS, v: "1" }]
       window.localStorage.setItem(
         collectionsGraphqlKey,
         JSON.stringify(graphqlCollectionsData)
@@ -1050,15 +1050,18 @@ describe("PersistenceService", () => {
     // Key read from localStorage across test cases
     const selectedEnvIndexKey = "selectedEnvIndex"
 
-    it.skip(`shows an error and sets the entry as a backup in localStorage if "${selectedEnvIndexKey}" read from localStorage doesn't match the schema`, () => {
+    it(`shows an error and sets the entry as a backup in localStorage if "${selectedEnvIndexKey}" read from localStorage doesn't match the schema`, () => {
       // Invalid shape for `selectedEnvIndex`
-      const request = {
-        endpoint: "wss://echo-websocket.hoppscotch.io",
-        // `protocols` -> `[]`
-        protocols: {},
+      // `index` -> `number`
+      const selectedEnvIndex = {
+        type: "MY_ENV",
+        index: "1",
       }
 
-      window.localStorage.setItem(selectedEnvIndexKey, JSON.stringify(request))
+      window.localStorage.setItem(
+        selectedEnvIndexKey,
+        JSON.stringify(selectedEnvIndex)
+      )
 
       const getItemSpy = spyOnGetItem()
       const setItemSpy = spyOnSetItem()
@@ -1074,10 +1077,10 @@ describe("PersistenceService", () => {
       expect(getItemSpy).toHaveBeenCalledWith(selectedEnvIndexKey)
 
       // @ts-expect-error Testing private method
-      expect(service.showErrorToast).toHaveBeenCalledWith()
+      expect(service.showErrorToast).toHaveBeenCalledWith(selectedEnvIndexKey)
       expect(setItemSpy).toHaveBeenCalledWith(
         `${selectedEnvIndexKey}-backup`,
-        JSON.stringify(request)
+        JSON.stringify(selectedEnvIndex)
       )
     })
 
@@ -1634,7 +1637,7 @@ describe("PersistenceService", () => {
     // Key read from localStorage across test cases
     const gqlTabStateKey = "gqlTabState"
 
-    it.skip(`shows an error and sets the entry as a backup in localStorage if "${gqlTabStateKey}" read from localStorage doesn't match the schema`, () => {
+    it(`shows an error and sets the entry as a backup in localStorage if "${gqlTabStateKey}" read from localStorage doesn't match the schema`, () => {
       // Invalid shape for `gqlTabState`
       // `lastActiveTabID` -> `string`
       const gqlTabState = { ...GQL_TAB_STATE, lastActiveTabID: 1234 }
@@ -1766,7 +1769,7 @@ describe("PersistenceService", () => {
     // Key read from localStorage across test cases
     const restTabStateKey = "restTabState"
 
-    it.skip(`shows an error and sets the entry as a backup in localStorage if "${restTabStateKey}" read from localStorage doesn't match the schema`, () => {
+    it(`shows an error and sets the entry as a backup in localStorage if "${restTabStateKey}" read from localStorage doesn't match the schema`, () => {
       // Invalid shape for `restTabState`
       // `lastActiveTabID` -> `string`
       const restTabState = { ...REST_TAB_STATE, lastActiveTabID: 1234 }

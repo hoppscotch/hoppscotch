@@ -1,4 +1,11 @@
-import { GQLHeader, HoppGQLAuth } from "@hoppscotch/data"
+import {
+  Environment,
+  GQLHeader,
+  HoppGQLAuth,
+  HoppGQLRequest,
+  HoppRESTRequest,
+} from "@hoppscotch/data"
+import { entityReference } from "verzod"
 import { z } from "zod"
 
 const ThemeColorSchema = z.enum([
@@ -37,14 +44,37 @@ const SettingsDefSchema = z.object({
   COLUMN_LAYOUT: z.boolean(),
 })
 
+// @ts-expect-error recursive schema
+const HoppCollectionSchema = z.object({
+  v: z.number(),
+  name: z.string(),
+  folders: z.array(z.lazy(() => HoppCollectionSchema)),
+  id: z.optional(z.string()),
+})
+
+const HoppRESTRequestSchema = entityReference(HoppRESTRequest)
+
+const HoppGQLRequestSchema = entityReference(HoppGQLRequest)
+
+const HoppRESTCollectionSchema = HoppCollectionSchema.merge(
+  z.object({
+    requests: z.optional(z.array(HoppRESTRequestSchema)),
+  })
+)
+
+const HoppGQLCollectionSchema = HoppCollectionSchema.merge(
+  z.object({
+    requests: z.optional(z.array(HoppGQLRequestSchema)),
+  })
+)
 export const VUEX_SCHEMA = z.object({
   postwoman: z.optional(
     z.object({
       settings: z.optional(SettingsDefSchema),
       //! Versioned entities
-      // collections: z.optional(z.array(HoppCollectionSchema)),
-      // collectionsGraphql: z.optional(z.array(HoppCollectionSchema)),
-      // environments: z.optional(z.array(EnvironmentSchema)),
+      collections: z.optional(z.array(HoppRESTCollectionSchema)),
+      collectionsGraphql: z.optional(z.array(HoppGQLCollectionSchema)),
+      environments: z.optional(z.array(entityReference(Environment))),
     })
   ),
 })
@@ -53,16 +83,16 @@ export const REST_HISTORY_ENTRY_SCHEMA = z
   .object({
     v: z.number(),
     //! Versioned entity
-    // request: HoppRESTRequestSchema,
+    request: HoppRESTRequestSchema,
     responseMeta: z
       .object({
-        duration: z.number().nullable(),
-        statusCode: z.number().nullable(),
+        duration: z.nullable(z.number()),
+        statusCode: z.nullable(z.number()),
       })
       .strict(),
     star: z.boolean(),
-    id: z.string().optional(),
-    updatedOn: z.date().optional(),
+    id: z.optional(z.string()),
+    updatedOn: z.optional(z.union([z.date(), z.string()])),
   })
   .strict()
 
@@ -70,36 +100,20 @@ export const GQL_HISTORY_ENTRY_SCHEMA = z
   .object({
     v: z.number(),
     //! Versioned entity
-    // request: HoppGQLRequestSchema,
+    request: HoppGQLRequestSchema,
     response: z.string(),
     star: z.boolean(),
-    id: z.string().optional(),
-    updatedOn: z.date().optional(),
+    id: z.optional(z.string()),
+    updatedOn: z.optional(z.union([z.date(), z.string()])),
   })
   .strict()
 
-// @ts-expect-error recursive schema
-export const REST_COLLECTION_SCHEMA = z.object({
-  v: z.number(),
-  name: z.string(),
-  folders: z.lazy(() => z.array(REST_COLLECTION_SCHEMA)),
-  //! Versioned entity
-  // requests: z.array(HoppRESTRequestSchema),
-  id: z.string().optional(),
-})
+export const REST_COLLECTION_SCHEMA = HoppRESTCollectionSchema
 
-// @ts-expect-error recursive schema
-export const GQL_COLLECTION_SCHEMA = z.object({
-  v: z.number(),
-  name: z.string(),
-  folders: z.lazy(() => z.array(GQL_COLLECTION_SCHEMA)),
-  //! Versioned entity
-  // requests: z.array(HoppGQLRequestSchema),
-  id: z.string().optional(),
-})
+export const GQL_COLLECTION_SCHEMA = HoppGQLCollectionSchema
 
 export const SELECTED_ENV_INDEX_SCHEMA = z.nullable(
-  z.union([
+  z.discriminatedUnion("type", [
     z
       .object({
         type: z.literal("NO_ENV_SELECTED"),
@@ -112,11 +126,11 @@ export const SELECTED_ENV_INDEX_SCHEMA = z.nullable(
       })
       .strict(),
     z.object({
-      type: z.literal("MY_ENV"),
+      type: z.literal("TEAM_ENV"),
       teamID: z.string(),
       teamEnvID: z.string(),
       // ! Versioned entity
-      // environment: Environment
+      environment: entityReference(Environment),
     }),
   ])
 )
@@ -245,7 +259,7 @@ export const GQL_TAB_STATE_SCHEMA = z
         doc: z
           .object({
             // Versioned entity
-            // request: HoppGQLRequest
+            request: entityReference(HoppGQLRequest),
             isDirty: z.boolean(),
             saveContext: z.optional(HoppGQLSaveContextSchema),
             response: z.optional(z.nullable(GQLResponseEventSchema)),
@@ -326,7 +340,7 @@ const HoppRESTResponseSchema = z.discriminatedUnion("type", [
     .object({
       type: z.literal("loading"),
       // !Versioned entity
-      // req: HoppRESTRequestSchema,
+      req: HoppRESTRequestSchema,
     })
     .strict(),
   z
@@ -342,7 +356,7 @@ const HoppRESTResponseSchema = z.discriminatedUnion("type", [
         })
         .strict(),
       // !Versioned entity
-      // req: HoppRESTRequestSchema,
+      req: HoppRESTRequestSchema,
     })
     .strict(),
   z
@@ -350,7 +364,7 @@ const HoppRESTResponseSchema = z.discriminatedUnion("type", [
       type: z.literal("network_fail"),
       error: z.unknown(),
       // !Versioned entity
-      // req: HoppRESTRequestSchema,
+      req: HoppRESTRequestSchema,
     })
     .strict(),
   z
@@ -372,7 +386,7 @@ const HoppRESTResponseSchema = z.discriminatedUnion("type", [
         })
         .strict(),
       // !Versioned entity
-      // req: HoppRESTRequestSchema,
+      req: HoppRESTRequestSchema,
     })
     .strict(),
 ])
@@ -415,11 +429,11 @@ export const REST_TAB_STATE_SCHEMA = z
         doc: z
           .object({
             // !Versioned entity
-            // request: HoppRESTRequest,
+            request: entityReference(HoppRESTRequest),
             isDirty: z.boolean(),
             saveContext: z.optional(HoppRESTSaveContextSchema),
             response: z.optional(z.nullable(HoppRESTResponseSchema)),
-            testResults: z.nullable(HoppTestResultSchema),
+            testResults: z.optional(z.nullable(HoppTestResultSchema)),
             responseTabPreference: z.optional(z.string()),
             optionTabPreference: z.optional(z.enum(validRestOperations)),
           })

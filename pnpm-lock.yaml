@@ -580,6 +580,9 @@ importers:
       uuid:
         specifier: ^9.0.0
         version: 9.0.0
+      verzod:
+        specifier: ^0.2.0
+        version: 0.2.2(zod@3.22.4)
       vue:
         specifier: ^3.3.4
         version: 3.3.4
@@ -1229,7 +1232,7 @@ importers:
         version: 0.8.0(vite@4.4.9)(vue-router@4.2.5)(vue@3.3.4)
       vitest:
         specifier: ^0.34.2
-        version: 0.34.2(terser@5.24.0)
+        version: 0.34.2(sass@1.66.0)(terser@5.24.0)
       vue-tsc:
         specifier: ^1.8.8
         version: 1.8.8(typescript@5.1.6)
@@ -20667,7 +20670,7 @@ packages:
     resolution: {integrity: sha512-9xZPKVYp9DxnM3sd1yAsh/d59iIaswDkai8oTxbursfKYbg/ibjX0IzFt35+VZ8iEW453TVTXztnRvYUQlAfUQ==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     dependencies:
-      acorn: 8.10.0
+      acorn: 8.11.2
       eslint-visitor-keys: 3.4.3
       espree: 9.6.1
       semver: 7.5.4
@@ -21882,7 +21885,7 @@ packages:
   /mlly@1.4.2:
     resolution: {integrity: sha512-i/Ykufi2t1EZ6NaPLdfnZk2AX8cs0d+mTzVKuPfqPKPatxLApaBoxJQ9x1/uckXtrS/U5oisPMDkNs0yQTaBRg==}
     dependencies:
-      acorn: 8.10.0
+      acorn: 8.11.2
       pathe: 1.1.1
       pkg-types: 1.0.3
       ufo: 1.3.1
@@ -26318,7 +26321,7 @@ packages:
       local-pkg: 0.4.3
       magic-string: 0.26.7
       minimatch: 5.1.6
-      resolve: 1.22.4
+      resolve: 1.22.8
       unplugin: 0.7.1(vite@3.2.4)
       vue: 3.2.45
     transitivePeerDependencies:
@@ -26456,7 +26459,7 @@ packages:
       webpack:
         optional: true
     dependencies:
-      acorn: 8.10.0
+      acorn: 8.11.2
       chokidar: 3.5.3
       vite: 3.2.4(@types/node@18.18.8)(sass@1.58.0)
       webpack-sources: 3.2.3
@@ -26771,28 +26774,6 @@ packages:
       pathe: 1.1.1
       picocolors: 1.0.0
       vite: 4.5.0(@types/node@18.17.6)(sass@1.66.0)(terser@5.24.0)
-    transitivePeerDependencies:
-      - '@types/node'
-      - less
-      - lightningcss
-      - sass
-      - stylus
-      - sugarss
-      - supports-color
-      - terser
-    dev: true
-
-  /vite-node@0.34.2(@types/node@18.18.8)(terser@5.24.0):
-    resolution: {integrity: sha512-JtW249Zm3FB+F7pQfH56uWSdlltCo1IOkZW5oHBzeQo0iX4jtC7o1t9aILMGd9kVekXBP2lfJBEQt9rBh07ebA==}
-    engines: {node: '>=v14.18.0'}
-    hasBin: true
-    dependencies:
-      cac: 6.7.14
-      debug: 4.3.4(supports-color@9.2.2)
-      mlly: 1.4.0
-      pathe: 1.1.1
-      picocolors: 1.0.0
-      vite: 4.5.0(@types/node@18.18.8)(terser@5.24.0)
     transitivePeerDependencies:
       - '@types/node'
       - less
@@ -27786,71 +27767,6 @@ packages:
       tinypool: 0.7.0
       vite: 4.4.9(@types/node@18.17.6)(sass@1.66.0)(terser@5.24.0)
       vite-node: 0.34.2(@types/node@18.17.6)(sass@1.66.0)(terser@5.24.0)
-      why-is-node-running: 2.2.2
-    transitivePeerDependencies:
-      - less
-      - lightningcss
-      - sass
-      - stylus
-      - sugarss
-      - supports-color
-      - terser
-    dev: true
-
-  /vitest@0.34.2(terser@5.24.0):
-    resolution: {integrity: sha512-WgaIvBbjsSYMq/oiMlXUI7KflELmzM43BEvkdC/8b5CAod4ryAiY2z8uR6Crbi5Pjnu5oOmhKa9sy7uk6paBxQ==}
-    engines: {node: '>=v14.18.0'}
-    hasBin: true
-    peerDependencies:
-      '@edge-runtime/vm': '*'
-      '@vitest/browser': '*'
-      '@vitest/ui': '*'
-      happy-dom: '*'
-      jsdom: '*'
-      playwright: '*'
-      safaridriver: '*'
-      webdriverio: '*'
-    peerDependenciesMeta:
-      '@edge-runtime/vm':
-        optional: true
-      '@vitest/browser':
-        optional: true
-      '@vitest/ui':
-        optional: true
-      happy-dom:
-        optional: true
-      jsdom:
-        optional: true
-      playwright:
-        optional: true
-      safaridriver:
-        optional: true
-      webdriverio:
-        optional: true
-    dependencies:
-      '@types/chai': 4.3.5
-      '@types/chai-subset': 1.3.3
-      '@types/node': 18.18.8
-      '@vitest/expect': 0.34.2
-      '@vitest/runner': 0.34.2
-      '@vitest/snapshot': 0.34.2
-      '@vitest/spy': 0.34.2
-      '@vitest/utils': 0.34.2
-      acorn: 8.10.0
-      acorn-walk: 8.2.0
-      cac: 6.7.14
-      chai: 4.3.7
-      debug: 4.3.4(supports-color@9.2.2)
-      local-pkg: 0.4.3
-      magic-string: 0.30.2
-      pathe: 1.1.1
-      picocolors: 1.0.0
-      std-env: 3.4.0
-      strip-literal: 1.3.0
-      tinybench: 2.5.0
-      tinypool: 0.7.0
-      vite: 4.5.0(@types/node@18.18.8)(terser@5.24.0)
-      vite-node: 0.34.2(@types/node@18.18.8)(terser@5.24.0)
       why-is-node-running: 2.2.2
     transitivePeerDependencies:
       - less

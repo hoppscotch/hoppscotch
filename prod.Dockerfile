@@ -13,16 +13,20 @@ RUN pnpm install -f --offline
 
 
 FROM base_builder as backend
+RUN apk add caddy
 WORKDIR /usr/src/app/packages/hoppscotch-backend
 RUN pnpm exec prisma generate
 RUN pnpm run build
+COPY --from=base_builder /usr/src/app/packages/hoppscotch-backend/backend-subpath.Caddyfile /etc/caddy/backend-subpath.Caddyfile
+COPY --from=base_builder /usr/src/app/packages/hoppscotch-backend/backend-multiport.Caddyfile /etc/caddy/backend-multiport.Caddyfile
 # Remove the env file to avoid backend copying it in and using it
 RUN rm "../../.env"
 ENV PRODUCTION="true"
-ENV PORT=3170
+ENV PORT=8080
 ENV APP_PORT=${PORT}
 ENV DB_URL=${DATABASE_URL}
-CMD ["pnpm", "run", "start:prod"]
+CMD ["node", "/usr/src/app/packages/hoppscotch-backend/prod_run.mjs"]
+EXPOSE 80
 EXPOSE 3170
 
 FROM base_builder as fe_builder

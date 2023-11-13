@@ -18,5 +18,4 @@ WORKDIR /site
 COPY packages/hoppscotch-sh-admin/Caddyfile /etc/caddy/Caddyfile
 COPY --from=builder /usr/src/app/packages/hoppscotch-sh-admin/dist/ .
 
-EXPOSE 80
-EXPOSE 3100
+EXPOSE 8080

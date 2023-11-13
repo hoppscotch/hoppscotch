@@ -60,7 +60,7 @@ services:
     depends_on:
       - hoppscotch-backend
     ports:
-      - "3180:80"
+      - "3280:80"
       - "3100:3100"
 
   # The service that spins up all 3 services at once in one container
@@ -139,8 +139,7 @@ services:
     depends_on:
       - hoppscotch-old-backend
     ports:
-      - "3080:80"
-      - "3000:3000"
+      - "3000:8080"
 
   hoppscotch-old-sh-admin:
     container_name: hoppscotch-old-sh-admin
@@ -152,5 +151,4 @@ services:
     depends_on:
       - hoppscotch-old-backend
     ports:
-      - "3180:80"
-      - "3100:3100"
+      - "3100:8080"

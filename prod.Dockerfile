@@ -36,7 +36,7 @@ RUN pnpm run generate
 FROM caddy:2-alpine as app
 WORKDIR /site
 COPY --from=fe_builder /usr/src/app/packages/hoppscotch-selfhost-web/prod_run.mjs /usr
-COPY --from=fe_builder /usr/src/app/packages/hoppscotch-selfhost-web/Caddyfile /etc/caddy/Caddyfile
+COPY --from=fe_builder /usr/src/app/packages/hoppscotch-selfhost-web/aio.Caddyfile /etc/caddy/Caddyfile
 COPY --from=fe_builder /usr/src/app/packages/hoppscotch-selfhost-web/dist/ .
 RUN apk add nodejs npm
 RUN npm install -g @import-meta-env/cli
@@ -61,7 +61,7 @@ RUN apk add nodejs npm
 RUN npm install -g @import-meta-env/cli
 EXPOSE 80
 EXPOSE 3100
-CMD ["/bin/sh", "-c", "node /usr/prod_run.mjs && caddy run --config /etc/caddy/Caddyfile --adapter caddyfile"]
+CMD ["node","/usr/prod_run.mjs"]
 
 FROM backend as aio
 RUN apk add caddy tini
@@ -80,3 +80,6 @@ EXPOSE 8080
 EXPOSE 3000
 EXPOSE 3100
 EXPOSE 80
+
+
+

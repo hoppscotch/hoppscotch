@@ -6,7 +6,7 @@
 	respond 404
 }
 
-:8080 {
+:80 {
 	# Serve the `selfhost-web` SPA by default
 	root * /site/selfhost-web
 	file_server
@@ -21,7 +21,7 @@
 
 	# Handle requests under `/backend*` path
 	handle_path /backend* {
-		reverse_proxy localhost:3170
+		reverse_proxy localhost:8080
 	}
 
 	# Catch-all route for unknown paths, serves `selfhost-web` SPA

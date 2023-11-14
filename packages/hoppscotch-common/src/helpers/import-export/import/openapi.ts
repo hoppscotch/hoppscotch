@@ -543,7 +543,8 @@ const parseOpenAPIUrl = (
 const convertPathToHoppReqs = (
   doc: OpenAPI.Document,
   pathName: string,
-  pathObj: OpenAPIPathInfoType
+  pathObj: OpenAPIPathInfoType,
+  filterTag?: string
 ) =>
   pipe(
     ["get", "head", "post", "put", "delete", "options", "patch"] as const,
@@ -551,7 +552,18 @@ const convertPathToHoppReqs = (
     // Filter and map out path info
     RA.filterMap(
       flow(
-        O.fromPredicate((method) => !!pathObj[method]),
+        O.fromPredicate((method) => {
+          if (!pathObj[method]) {
+            return false
+          }
+
+          // Requests that don't have the tag we are matching against are filtered out
+          if (filterTag) {
+            return (pathObj[method]?.tags || []).includes(filterTag)
+          }
+          // If no filter tag is provided, we filter out requests that have tags
+          return (pathObj[method]?.tags || []).length === 0
+        }),
         O.map((method) => ({ method, info: pathObj[method]! }))
       )
     ),
@@ -591,15 +603,29 @@ const convertOpenApiDocToHopp = (
 ): TE.TaskEither<never, HoppCollection<HoppRESTRequest>[]> => {
   const name = doc.info.title
 
-  const paths = Object.entries(doc.paths ?? {})
-    .map(([pathName, pathObj]) => convertPathToHoppReqs(doc, pathName, pathObj))
-    .flat()
+  const tags = Object.entries(doc.tags ?? {}).map(([, tagObj]) => tagObj.name)
 
   return TE.of([
     makeCollection<HoppRESTRequest>({
       name,
-      folders: [],
-      requests: paths,
+      // All requests that have a tag are put in a folder with the tag name
+      folders: tags.map((tag) =>
+        makeCollection({
+          name: tag,
+          folders: [],
+          requests: Object.entries(doc.paths ?? {})
+            .map(([pathName, pathObj]) =>
+              convertPathToHoppReqs(doc, pathName, pathObj, tag)
+            )
+            .flat(),
+        })
+      ),
+      // All requests that don't have a tag are put in the root
+      requests: Object.entries(doc.paths ?? {})
+        .map(([pathName, pathObj]) =>
+          convertPathToHoppReqs(doc, pathName, pathObj)
+        )
+        .flat(),
     }),
   ])
 }

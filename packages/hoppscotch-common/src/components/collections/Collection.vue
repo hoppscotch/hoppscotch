@@ -81,6 +81,13 @@
             class="hidden group-hover:inline-flex"
             @click="emit('run-collection', props.id)"
           />
+          <HoppButtonSecondary
+            v-tippy="{ theme: 'tooltip' }"
+            :icon="IconPlaySquare"
+            :title="t('collection.run')"
+            class="hidden group-hover:inline-flex"
+            @click="emit('add-folder')"
+          />
           <span>
             <tippy
               ref="options"
@@ -125,6 +132,18 @@
                     ref="folderAction"
                     :icon="IconFolderPlus"
                     :label="t('folder.new')"
+                    :shortcut="['N']"
+                    @click="
+                      () => {
+                        emit('add-folder')
+                        hide()
+                      }
+                    "
+                  />
+                  <HoppSmartItem
+                    ref="folderAction"
+                    :icon="IconPlaySquare"
+                    :label="t('collection.run')"
                     :shortcut="['N']"
                     @click="
                       () => {
@@ -233,6 +252,18 @@
 </template>
 
 <script setup lang="ts">
+import IconPlaySquare from "~icons/lucide/play-circle"
+import IconCheckCircle from "~icons/lucide/check-circle"
+import IconFolderPlus from "~icons/lucide/folder-plus"
+import IconFilePlus from "~icons/lucide/file-plus"
+import IconMoreVertical from "~icons/lucide/more-vertical"
+import IconDownload from "~icons/lucide/download"
+import IconTrash2 from "~icons/lucide/trash-2"
+import IconEdit from "~icons/lucide/edit"
+import IconFolder from "~icons/lucide/folder"
+import IconFolderOpen from "~icons/lucide/folder-open"
+import { ref, computed, watch } from "vue"
+import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
 import { useI18n } from "@composables/i18n"
 import { HoppCollection } from "@hoppscotch/data"
 import { computed, ref, watch } from "vue"

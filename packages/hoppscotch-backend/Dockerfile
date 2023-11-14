@@ -23,7 +23,7 @@ FROM builder AS dev
 
 ENV PRODUCTION="false"
 
-CMD ["pnpm", "run", "start:dev"]
+CMD ["pnpm", "run", "start:migrate:dev"]
 
 EXPOSE 3170
 
@@ -32,7 +32,7 @@ FROM builder AS prod
 
 ENV PRODUCTION="true"
 
-CMD ["pnpm", "run", "start:prod"]
+CMD ["pnpm", "run", "start:migrate:prod"]
 
 EXPOSE 3170
 

@@ -22,7 +22,7 @@ ENV PRODUCTION="true"
 ENV PORT=3170
 ENV APP_PORT=${PORT}
 ENV DB_URL=${DATABASE_URL}
-CMD ["pnpm", "run", "start:prod"]
+CMD ["pnpm", "run", "start:migrate:prod"]
 EXPOSE 3170
 
 FROM base_builder as fe_builder

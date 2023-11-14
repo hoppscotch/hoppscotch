@@ -50,7 +50,7 @@ execSync(`npx import-meta-env -x build.env -e build.env -p "/site/**/*"`)
 fs.rmSync("build.env")
 
 const caddyProcess = runChildProcessWithPrefix("caddy", ["run", "--config", "/etc/caddy/Caddyfile", "--adapter", "caddyfile"], "App/Admin Dashboard Caddy")
-const backendProcess = runChildProcessWithPrefix("pnpm", ["run", "start:prod"], "Backend Server")
+const backendProcess = runChildProcessWithPrefix("pnpm", ["run", "start:migrate:prod"], "Backend Server")
 
 caddyProcess.on("exit", (code) => {
   console.log(`Exiting process because Caddy Server exited with code ${code}`)

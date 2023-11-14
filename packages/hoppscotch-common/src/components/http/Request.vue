@@ -350,7 +350,6 @@ const newSendRequest = async () => {
   const streamResult = await streamPromise
 
   requestCancelFunc.value = cancel
-
   if (E.isRight(streamResult)) {
     subscribeToStream(
       streamResult.right,
@@ -365,6 +364,20 @@ const newSendRequest = async () => {
         loading.value = false
       },
       () => {
+        // TODO: Change this any to a proper type
+        const result = (streamResult.right as any).value
+        if (
+          result.type === "network_fail" &&
+          result.error?.error === "NO_PW_EXT_HOOK"
+        ) {
+          const errorResponse: HoppRESTResponse = {
+            type: "extension_error",
+            error: result.error.humanMessage.heading,
+            component: result.error.component,
+            req: result.req,
+          }
+          updateRESTResponse(errorResponse)
+        }
         loading.value = false
       }
     )

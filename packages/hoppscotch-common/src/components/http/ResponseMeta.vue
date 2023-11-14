@@ -11,6 +11,12 @@
         <HoppSmartSpinner class="my-4" />
         <span class="text-secondaryLight">{{ t("state.loading") }}</span>
       </div>
+
+      <component
+        :is="response.component"
+        v-if="response.type === 'extension_error'"
+        class="flex-1"
+      />
       <HoppSmartPlaceholder
         v-if="response.type === 'network_fail'"
         :src="`/images/states/${colorMode.value}/youre_lost.svg`"

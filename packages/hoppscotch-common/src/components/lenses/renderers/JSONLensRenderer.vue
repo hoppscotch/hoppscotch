@@ -38,12 +38,61 @@
         <HoppButtonSecondary
           v-if="response.body"
           v-tippy="{ theme: 'tooltip', allowHTML: true }"
+          class="my-2"
           :title="`${t(
             'action.copy'
           )} <kbd>${getSpecialKey()}</kbd><kbd>.</kbd>`"
           :icon="copyIcon"
           @click="copyResponse"
         />
+        <span class="flex mx-2 transition border rounded border-divider">
+          <HoppButtonSecondary
+            v-if="response.body"
+            v-tippy="{ theme: 'tooltip', allowHTML: true }"
+            :title="`${t(
+              'action.copy'
+            )} <kbd>${getSpecialKey()}</kbd><kbd>.</kbd>`"
+            :icon="copyInterfaceIcon"
+            :label="t(selectedLanguage)"
+            @click="() => copyInterface(selectedLanguage.toLowerCase())"
+          />
+          <span class="flex">
+            <tippy
+              interactive
+              trigger="click"
+              theme="popover"
+              :on-shown="() => saveTippyActions.focus()"
+            >
+              <HoppButtonSecondary
+                v-tippy="{ theme: 'tooltip' }"
+                :title="t('app.options')"
+                :icon="IconChevronDown"
+                filled
+                class="rounded rounded-l-none"
+              />
+              <template #content="{ hide }">
+                <div
+                  ref="saveTippyActions"
+                  class="flex flex-col focus:outline-none"
+                  tabindex="0"
+                  @keyup.escape="hide()"
+                >
+                  <li v-for="language in languages" :key="language">
+                    <HoppButtonSecondary
+                      :label="language"
+                      @click="
+                        () => {
+                          hide()
+                          updateSelectedLanguage(language)
+                        }
+                      "
+                    />
+                  </li>
+                </div>
+              </template>
+            </tippy>
+          </span>
+        </span>
       </div>
     </div>
     <div
@@ -201,6 +250,7 @@
 <script setup lang="ts">
 import IconWrapText from "~icons/lucide/wrap-text"
 import IconFilter from "~icons/lucide/filter"
+import IconChevronDown from "~icons/lucide/chevron-down"
 import IconHelpCircle from "~icons/lucide/help-circle"
 import * as LJSON from "lossless-json"
 import * as O from "fp-ts/Option"
@@ -221,9 +271,12 @@ import {
   useCopyResponse,
   useResponseBody,
   useDownloadResponse,
+  useCopyInterface,
 } from "@composables/lens-actions"
 import { defineActionHandler } from "~/helpers/actions"
 import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
+import { HoppButtonSecondary } from "@hoppscotch/ui"
+import languages from "~/helpers/utils/languages"
 
 const t = useI18n()
 
@@ -233,8 +286,16 @@ const props = defineProps<{
 
 const { responseBodyText } = useResponseBody(props.response)
 
+const saveTippyActions = ref<any | null>(null)
+
 const toggleFilter = ref(false)
 const filterQueryText = ref("")
+
+const selectedLanguage = ref(languages[0])
+
+const updateSelectedLanguage = (language: string) => {
+  selectedLanguage.value = language
+}
 
 type BodyParseError =
   | { type: "JSON_PARSE_FAILED" }
@@ -319,6 +380,7 @@ const filterResponseError = computed(() =>
 )
 
 const { copyIcon, copyResponse } = useCopyResponse(jsonBodyText)
+const { copyInterfaceIcon, copyInterface } = useCopyInterface(jsonBodyText)
 const { downloadIcon, downloadResponse } = useDownloadResponse(
   "application/json",
   jsonBodyText

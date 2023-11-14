@@ -76,6 +76,7 @@
     "postman-collection": "^4.2.0",
     "process": "^0.11.10",
     "qs": "^6.11.2",
+    "quicktype-core": "^23.0.79",
     "rxjs": "^7.8.1",
     "set-cookie-parser": "^2.6.0",
     "set-cookie-parser-es": "^1.0.5",

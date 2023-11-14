@@ -76,7 +76,7 @@ RUN apk --no-cache add curl
 COPY --chmod=755 healthcheck.sh .
 HEALTHCHECK --interval=2s CMD /bin/sh ./healthcheck.sh
 CMD ["node", "/usr/src/app/aio_run.mjs"]
-EXPOSE 8080
+EXPOSE 3170
 EXPOSE 3000
 EXPOSE 3100
 EXPOSE 80

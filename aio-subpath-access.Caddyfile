@@ -6,6 +6,10 @@
 	respond 404
 }
 
+:3170 {
+  respond 404
+}
+
 :80 {
 	# Serve the `selfhost-web` SPA by default
 	root * /site/selfhost-web

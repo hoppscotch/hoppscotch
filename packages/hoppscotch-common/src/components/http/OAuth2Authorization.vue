@@ -78,6 +78,15 @@ const clientSecret = pluckRef(auth, "clientSecret" as any)
 
 const scope = pluckRef(auth, "scope")
 
+function translateTokenRequestError(error: string) {
+  switch (error) {
+    case "OIDC_DISCOVERY_FAILED":
+      return t("authorization.oauth.token_generation_oidc_discovery_failed")
+    default:
+      return t("authorization.oauth.something_went_wrong_on_token_generation")
+  }
+}
+
 const handleAccessTokenRequest = async () => {
   if (
     oidcDiscoveryURL.value === "" &&
@@ -102,7 +111,7 @@ const handleAccessTokenRequest = async () => {
     const res = await tokenRequest(tokenReqParams)
 
     if (res && E.isLeft(res)) {
-      toast.error(res.left)
+      toast.error(translateTokenRequestError(res.left))
     }
   } catch (e) {
     toast.error(`${e}`)

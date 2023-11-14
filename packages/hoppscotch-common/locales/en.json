@@ -139,7 +139,21 @@
     "password": "Password",
     "token": "Token",
     "type": "Authorization Type",
-    "username": "Username"
+    "username": "Username",
+    "oauth": {
+      "token_generation_oidc_discovery_failed": "Failure on token generation: OpenID Connect Discovery Failed",
+      "something_went_wrong_on_token_generation": "Something went wrong on token generation",
+      "redirect_auth_server_returned_error": "Auth Server returned an error state",
+      "redirect_no_auth_code": "No Authorization Code present in the redirect",
+      "redirect_invalid_state": "Invalid State value present in the redirect",
+      "redirect_no_token_endpoint": "No Token Endpoint Defined",
+      "redirect_no_client_id": "No Client ID defined",
+      "redirect_no_client_secret": "No Client Secret Defined",
+      "redirect_no_code_verifier": "No Code Verifier Defined",
+      "redirect_auth_token_request_failed": "Request to get the auth token failed",
+      "redirect_auth_token_request_invalid_response": "Invalid Response from the Token Endpoint when requesting for an auth token",
+      "something_went_wrong_on_oauth_redirect": "Something went wrong during OAuth Redirect"
+    }
   },
   "collection": {
     "created": "Collection created",

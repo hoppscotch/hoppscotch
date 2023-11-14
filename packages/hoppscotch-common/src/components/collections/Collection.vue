@@ -73,6 +73,13 @@
             class="hidden group-hover:inline-flex"
             @click="emit('add-folder')"
           />
+          <HoppButtonSecondary
+            v-tippy="{ theme: 'tooltip' }"
+            :icon="IconPlaySquare"
+            :title="t('collection.run')"
+            class="hidden group-hover:inline-flex"
+            @click="emit('add-folder')"
+          />
           <span>
             <tippy
               ref="options"
@@ -114,6 +121,18 @@
                     ref="folderAction"
                     :icon="IconFolderPlus"
                     :label="t('folder.new')"
+                    :shortcut="['N']"
+                    @click="
+                      () => {
+                        emit('add-folder')
+                        hide()
+                      }
+                    "
+                  />
+                  <HoppSmartItem
+                    ref="folderAction"
+                    :icon="IconPlaySquare"
+                    :label="t('collection.run')"
                     :shortcut="['N']"
                     @click="
                       () => {
@@ -184,6 +203,7 @@
 </template>
 
 <script setup lang="ts">
+import IconPlaySquare from "~icons/lucide/play-circle"
 import IconCheckCircle from "~icons/lucide/check-circle"
 import IconFolderPlus from "~icons/lucide/folder-plus"
 import IconFilePlus from "~icons/lucide/file-plus"

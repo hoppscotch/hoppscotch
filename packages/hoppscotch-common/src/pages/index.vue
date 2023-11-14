@@ -43,10 +43,14 @@
                 </svg>
               </span>
             </template>
-            <HttpRequestTab
+            <HttpCollectionRunner
               :model-value="tab"
               @update:model-value="onTabUpdate"
             />
+            <!-- <HttpRequestTab
+              :model-value="tab"
+              @update:model-value="onTabUpdate"
+            /> -->
           </HoppSmartWindow>
           <template #actions>
             <EnvironmentsSelector class="h-full" />

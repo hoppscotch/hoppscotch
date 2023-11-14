@@ -160,6 +160,7 @@
     }
   },
   "collection": {
+    "run": "Run Collection",
     "created": "Collection created",
     "different_parent": "Cannot reorder collection with different parent",
     "edit": "Edit Collection",

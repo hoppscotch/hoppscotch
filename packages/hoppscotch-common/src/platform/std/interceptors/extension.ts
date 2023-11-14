@@ -12,6 +12,7 @@ import { computed, readonly, ref } from "vue"
 import { browserIsChrome, browserIsFirefox } from "~/helpers/utils/userAgent"
 import SettingsExtension from "~/components/settings/Extension.vue"
 import InterceptorsExtensionSubtitle from "~/components/interceptors/ExtensionSubtitle.vue"
+import InterceptorsErrorPlaceholder from "~/components/interceptors/ErrorPlaceholder.vue"
 
 export const defineSubscribableObject = <T extends object>(obj: T) => {
   const proxyObject = {
@@ -217,6 +218,7 @@ export class ExtensionInterceptorService
           description: () => "Heading not found",
         },
         error: "NO_PW_EXT_HOOK",
+        component: InterceptorsErrorPlaceholder,
       })
     }
 

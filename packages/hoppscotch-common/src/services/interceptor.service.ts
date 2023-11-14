@@ -29,6 +29,7 @@ export type InterceptorError =
         description: (t: ReturnType<typeof getI18n>) => string
       }
       error?: unknown
+      component?: Component
     }
 
 /**

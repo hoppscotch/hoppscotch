@@ -11,7 +11,7 @@ import {
   getIntrospectionQuery,
   printSchema,
 } from "graphql"
-import { computed, reactive, ref } from "vue"
+import { Component, computed, reactive, ref } from "vue"
 import { getService } from "~/modules/dioc"
 
 import { addGraphqlHistoryEntry, makeGQLHistoryEntry } from "~/newstore/history"
@@ -32,13 +32,23 @@ type RunQueryOptions = {
   operationType: OperationType
 }
 
-export type GQLResponseEvent = {
-  time: number
-  operationName: string | undefined
-  operationType: OperationType
-  data: string
-  rawQuery?: RunQueryOptions
-}
+export type GQLResponseEvent =
+  | {
+      type: "response"
+      time: number
+      operationName: string | undefined
+      operationType: OperationType
+      data: string
+      rawQuery?: RunQueryOptions
+    }
+  | {
+      type: "error"
+      error: {
+        type: string
+        message: string
+        component?: Component
+      }
+    }
 
 export type ConnectionState = "CONNECTING" | "CONNECTED" | "DISCONNECTED"
 export type SubscriptionState = "SUBSCRIBING" | "SUBSCRIBED" | "UNSUBSCRIBED"
@@ -61,6 +71,11 @@ type Connection = {
   subscriptionState: Map<string, SubscriptionState>
   socket: WebSocket | undefined
   schema: GraphQLSchema | null
+  error?: {
+    type: string
+    message: string
+    component?: Component
+  } | null
 }
 
 const tabs = getService(GQLTabService)
@@ -71,6 +86,7 @@ export const connection = reactive<Connection>({
   subscriptionState: new Map<string, SubscriptionState>(),
   socket: undefined,
   schema: null,
+  error: null,
 })
 
 export const schema = computed(() => connection.schema)
@@ -202,7 +218,14 @@ const getSchema = async (url: string, headers: GQLHeader[]) => {
     const res = await interceptorService.runRequest(reqOptions).response
 
     if (E.isLeft(res)) {
-      console.error(res.left)
+      if (res.left !== "cancellation" && res.left.error === "NO_PW_EXT_HOOK") {
+        connection.error = {
+          type: res.left.error,
+          message: res.left.humanMessage.description(),
+          component: res.left.component ?? undefined,
+        }
+      }
+
       throw new Error(res.left.toString())
     }
 
@@ -218,6 +241,7 @@ const getSchema = async (url: string, headers: GQLHeader[]) => {
     const schema = buildClientSchema(introspectResponse.data)
 
     connection.schema = schema
+    connection.error = null
   } catch (e: any) {
     console.error(e)
     disconnect()
@@ -292,6 +316,7 @@ export const runGQLOperation = async (options: RunQueryOptions) => {
     .replace(/\0+$/, "")
 
   gqlMessageEvent.value = {
+    type: "response",
     time: Date.now(),
     operationName: operationName ?? "query",
     data: responseText,
@@ -352,6 +377,7 @@ export const runSubscription = (
       }
       case GQL.DATA: {
         gqlMessageEvent.value = {
+          type: "response",
           time: Date.now(),
           operationName,
           data: JSON.stringify(data.payload),

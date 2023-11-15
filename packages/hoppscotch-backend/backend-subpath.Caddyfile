@@ -1,7 +1,5 @@
 :80 :3170 {
-	handle_path /backend* {
-		reverse_proxy localhost:8080
-	}
+	reverse_proxy localhost:8080
 }
 
 

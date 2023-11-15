@@ -1,11 +1,12 @@
 :3500 {
-handle_path /admin* {
-reverse_proxy localhost:3100/admin
+  handle_path /admin* {
+  reverse_proxy localhost:3280
+  }
+
+  handle_path /backend* {
+  reverse_proxy localhost:3180
+  }
+
+  reverse_proxy localhost:3080
 }
 
-handle_path /backend* {
-reverse_proxy localhost:3170/backend
-}
-
-reverse_proxy localhost:3000 # Proxy other requests to your server running on port 3001
-}

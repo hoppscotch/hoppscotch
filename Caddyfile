@@ -1,12 +1,11 @@
 :3500 {
-  handle_path /admin* {
-  reverse_proxy localhost:3280
-  }
+	handle_path /admin* {
+		reverse_proxy localhost:3280
+	}
 
-  handle_path /backend* {
-  reverse_proxy localhost:3180
-  }
+	handle_path /backend* {
+		reverse_proxy localhost:3180
+	}
 
-  reverse_proxy localhost:3080
+	reverse_proxy localhost:3080
 }
-

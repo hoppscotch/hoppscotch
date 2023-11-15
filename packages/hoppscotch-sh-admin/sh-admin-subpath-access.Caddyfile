@@ -1,5 +1,5 @@
 :80 :3100 {
-  try_files {path} /
-  root * /site/sh-admin-subpath-access
-  file_server
+	try_files {path} /
+	root * /site/sh-admin-subpath-access
+	file_server
 }

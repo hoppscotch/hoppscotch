@@ -304,7 +304,16 @@ export const runGQLOperation = async (options: RunQueryOptions) => {
   const result = await interceptorService.runRequest(reqOptions).response
 
   if (E.isLeft(result)) {
-    console.error(result.left)
+    if (
+      result.left !== "cancellation" &&
+      result.left.error === "NO_PW_EXT_HOOK"
+    ) {
+      connection.error = {
+        type: result.left.error,
+        message: result.left.humanMessage.description(),
+        component: result.left.component ?? undefined,
+      }
+    }
     throw new Error(result.left.toString())
   }
 
@@ -322,6 +331,10 @@ export const runGQLOperation = async (options: RunQueryOptions) => {
     data: responseText,
     rawQuery: options,
     operationType,
+  }
+
+  if (connection.state !== "CONNECTED") {
+    connection.state = "CONNECTED"
   }
 
   addQueryToHistory(options, responseText)

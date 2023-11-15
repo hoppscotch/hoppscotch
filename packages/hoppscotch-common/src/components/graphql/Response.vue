@@ -2,7 +2,7 @@
   <div class="flex flex-col flex-1 overflow-auto whitespace-nowrap">
     <div
       v-if="
-        response && response[0].type === 'response' && response?.length === 1
+        response && response.length === 1 && response[0].type === 'response'
       "
       class="flex flex-col flex-1"
     >

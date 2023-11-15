@@ -198,22 +198,17 @@ watch(
   () => connection,
   (newVal) => {
     if (newVal.error && newVal.state === "DISCONNECTED") {
-      const currentActiveTab = tabs.currentActiveTab.value
-      if (currentActiveTab) {
-        const response = [
-          {
-            type: "error",
-            error: {
-              message: newVal.error.message,
-              type: newVal.error.type,
-              component: newVal.error.component,
-            },
+      const response = [
+        {
+          type: "error",
+          error: {
+            message: newVal.error.message,
+            type: newVal.error.type,
+            component: newVal.error.component,
           },
-        ]
-        emit("update:response", response)
-      }
-    } else if (newVal.state === "CONNECTED") {
-      emit("update:response", null)
+        },
+      ]
+      emit("update:response", response)
     }
   },
   { deep: true }

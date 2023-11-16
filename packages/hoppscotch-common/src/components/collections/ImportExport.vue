@@ -198,7 +198,7 @@ const HoppOpenAPIImporter: ImporterOrExporter = {
       icon: IconFile,
       step: FileSource({
         caption: "import.from_file",
-        acceptedFileTypes: ".json",
+        acceptedFileTypes: ".json, .yaml, .yml",
         onImportFromFile: async (content) => {
           const res = await hoppOpenAPIImporter(content)()
 

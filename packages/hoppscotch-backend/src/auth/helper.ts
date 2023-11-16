@@ -90,12 +90,6 @@ export const authDesktopDeepLinkHandler = (
   const desktopDeepLinkUrl = process.env.DESKTOP_DEEP_LINK_URL;
   return res
     .status(HttpStatus.OK)
-    .cookie('test_cookie', 'test_cookie', {
-      httpOnly: true,
-      secure: true,
-      sameSite: 'lax',
-      maxAge: 1000,
-    })
     .redirect(
       `${desktopDeepLinkUrl}?access_token=${authTokens.access_token}&refresh_token=${authTokens.refresh_token}`,
     );

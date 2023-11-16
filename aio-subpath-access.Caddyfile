@@ -7,7 +7,7 @@
 }
 
 :3170 {
-	respond 404
+	reverse_proxy localhost:8080
 }
 
 :80 {

@@ -154,10 +154,6 @@ const runQuery = async (
     }
   } catch (e: any) {
     completePageProgress()
-    toast.error(
-      `${t("error.something_went_wrong")}. ${t("error.check_console_details")}`,
-      {}
-    )
     console.error(e)
   }
   platform.analytics?.logEvent({
@@ -202,7 +198,7 @@ watch(
         {
           type: "error",
           error: {
-            message: newVal.error.message,
+            message: newVal.error.message(t),
             type: newVal.error.type,
             component: newVal.error.component,
           },

@@ -13,6 +13,7 @@ import {
 } from "graphql"
 import { Component, computed, reactive, ref } from "vue"
 import { getService } from "~/modules/dioc"
+import { getI18n } from "~/modules/i18n"
 
 import { addGraphqlHistoryEntry, makeGQLHistoryEntry } from "~/newstore/history"
 
@@ -73,7 +74,7 @@ type Connection = {
   schema: GraphQLSchema | null
   error?: {
     type: string
-    message: string
+    message: (t: ReturnType<typeof getI18n>) => string
     component?: Component
   } | null
 }
@@ -218,11 +219,16 @@ const getSchema = async (url: string, headers: GQLHeader[]) => {
     const res = await interceptorService.runRequest(reqOptions).response
 
     if (E.isLeft(res)) {
-      if (res.left !== "cancellation" && res.left.error === "NO_PW_EXT_HOOK") {
+      if (
+        res.left !== "cancellation" &&
+        res.left.error === "NO_PW_EXT_HOOK" &&
+        res.left.humanMessage
+      ) {
         connection.error = {
           type: res.left.error,
-          message: res.left.humanMessage.description(),
-          component: res.left.component ?? undefined,
+          message: (t: ReturnType<typeof getI18n>) =>
+            res.left.humanMessage.description(t),
+          component: res.left.component,
         }
       }
 
@@ -306,12 +312,14 @@ export const runGQLOperation = async (options: RunQueryOptions) => {
   if (E.isLeft(result)) {
     if (
       result.left !== "cancellation" &&
-      result.left.error === "NO_PW_EXT_HOOK"
+      result.left.error === "NO_PW_EXT_HOOK" &&
+      result.left.humanMessage
     ) {
       connection.error = {
         type: result.left.error,
-        message: result.left.humanMessage.description(),
-        component: result.left.component ?? undefined,
+        message: (t: ReturnType<typeof getI18n>) =>
+          result.left.humanMessage.description(t),
+        component: result.left.component,
       }
     }
     throw new Error(result.left.toString())

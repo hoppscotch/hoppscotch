@@ -41,10 +41,10 @@
       <div ref="schemaEditor" class="flex flex-1 flex-col"></div>
     </div>
     <component
+      :is="response[0].error.component"
       v-else-if="
         response && response[0].type === 'error' && response[0].error.component
       "
-      :is="response[0].error.component"
       class="flex-1"
     />
     <div

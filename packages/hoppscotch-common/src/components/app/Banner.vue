@@ -8,10 +8,10 @@
 
     <span class="text-white">
       <span v-if="banner.alternateText" class="md:hidden">
-        {{ banner.alternateText }}
+        {{ banner.alternateText(t) }}
       </span>
-      <span class="<md:hidden">
-        {{ banner.text }}
+      <span :class="banner.alternateText ? '<md:hidden' : ''">
+        {{ banner.text(t) }}
       </span>
     </span>
   </div>
@@ -19,8 +19,8 @@
 
 <script setup lang="ts">
 import { computed } from "vue"
-
 import { BannerContent, BannerType } from "~/services/banner.service"
+import { useI18n } from "@composables/i18n"
 
 import IconAlertCircle from "~icons/lucide/alert-circle"
 import IconAlertTriangle from "~icons/lucide/alert-triangle"
@@ -29,6 +29,8 @@ import IconInfo from "~icons/lucide/info"
 const props = defineProps<{
   banner: BannerContent
 }>()
+
+const t = useI18n()
 
 const ariaRoles: Record<BannerType, string> = {
   error: "alert",

@@ -1,8 +1,7 @@
 #!/usr/local/bin/node
 // @ts-check
 
-import { execSync, spawn } from 'child_process';
-import fs from 'fs';
+import { spawn } from 'child_process';
 import process from 'process';
 
 function runChildProcessWithPrefix(command, args, prefix) {
@@ -27,20 +26,16 @@ function runChildProcessWithPrefix(command, args, prefix) {
   });
 
   childProcess.on('error', (stuff) => {
-    console.log('error');
-    console.log(stuff);
+    console.error('error');
+    console.error(stuff);
   });
 
   return childProcess;
 }
 
-const caddyFileName =
-  process.env.ENABLE_SUBPATH_BASED_ACCESS === 'true'
-    ? 'backend-subpath.Caddyfile'
-    : 'backend-multiport.Caddyfile';
 const caddyProcess = runChildProcessWithPrefix(
   'caddy',
-  ['run', '--config', `/etc/caddy/${caddyFileName}`, '--adapter', 'caddyfile'],
+  ['run', '--config', '/etc/caddy/backend.Caddyfile', '--adapter', 'caddyfile'],
   'App/Admin Dashboard Caddy',
 );
 const backendProcess = runChildProcessWithPrefix(

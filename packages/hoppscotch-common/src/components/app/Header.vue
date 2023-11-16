@@ -289,7 +289,7 @@ const breakpoints = useBreakpoints(breakpointsTailwind)
 const mdAndLarger = breakpoints.greater("md")
 
 const banner = useService(BannerService)
-const network = reactive(useNetwork())
+const bannerContent = computed(() => banner.content.value?.content)
 let bannerID: number | null = null
 
 const offlineBanner: BannerContent = {
@@ -299,8 +299,10 @@ const offlineBanner: BannerContent = {
   score: BANNER_PRIORITY_HIGH,
 }
 
+const network = reactive(useNetwork())
 const isOnline = computed(() => network.isOnline)
 
+// Show the offline banner if the user is offline
 watch(isOnline, () => {
   if (!isOnline.value) {
     bannerID = banner.showBanner(offlineBanner)
@@ -311,8 +313,6 @@ watch(isOnline, () => {
     }
   }
 })
-
-const bannerContent = computed(() => banner.content.value?.content)
 
 const currentUser = useReadonlyStream(
   platform.auth.getProbableUserStream(),

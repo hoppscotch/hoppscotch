@@ -217,7 +217,7 @@
         </div>
       </div>
     </header>
-    <AppBanner v-if="banner" :banner="banner" />
+    <AppBanner v-if="bannerContent" :banner="bannerContent" />
     <TeamsModal :show="showTeamsModal" @hide-modal="showTeamsModal = false" />
     <TeamsInvite
       v-if="workspace.type === 'team' && workspace.teamID"
@@ -266,7 +266,11 @@ import IconUsers from "~icons/lucide/users"
 import { pipe } from "fp-ts/function"
 import * as TE from "fp-ts/TaskEither"
 import { deleteTeam as backendDeleteTeam } from "~/helpers/backend/mutations/Team"
-import { BannerService } from "~/services/banner.service"
+import {
+  BannerService,
+  BannerContent,
+  BANNER_PRIORITY_HIGH,
+} from "~/services/banner.service"
 
 const t = useI18n()
 const toast = useToast()
@@ -284,20 +288,31 @@ const showTeamsModal = ref(false)
 const breakpoints = useBreakpoints(breakpointsTailwind)
 const mdAndLarger = breakpoints.greater("md")
 
-const { content: banner } = useService(BannerService)
+const banner = useService(BannerService)
 const network = reactive(useNetwork())
+let bannerID: number | null = null
 
-watch(network, () => {
-  if (network.isOnline) {
-    banner.value = null
+const offlineBanner: BannerContent = {
+  type: "info",
+  text: (t) => t("helpers.offline"),
+  alternateText: (t) => t("helpers.offline_short"),
+  score: BANNER_PRIORITY_HIGH,
+}
+
+const isOnline = computed(() => network.isOnline)
+
+watch(isOnline, () => {
+  if (!isOnline.value) {
+    bannerID = banner.showBanner(offlineBanner)
     return
-  }
-  banner.value = {
-    type: "info",
-    text: t("helpers.offline"),
-    alternateText: t("helpers.offline_short"),
+  } else {
+    if (banner.content && bannerID) {
+      banner.removeBanner(bannerID)
+    }
   }
 })
+
+const bannerContent = computed(() => banner.content.value?.content)
 
 const currentUser = useReadonlyStream(
   platform.auth.getProbableUserStream(),

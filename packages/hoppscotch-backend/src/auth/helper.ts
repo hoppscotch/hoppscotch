@@ -83,6 +83,24 @@ export const authCookieHandler = (
   return res.status(HttpStatus.OK).redirect(redirectUrl);
 };
 
+export const authDesktopDeepLinkHandler = (
+  res: Response,
+  authTokens: AuthTokens,
+) => {
+  const desktopDeepLinkUrl = process.env.DESKTOP_DEEP_LINK_URL;
+  return res
+    .status(HttpStatus.OK)
+    .cookie('test_cookie', 'test_cookie', {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'lax',
+      maxAge: 1000,
+    })
+    .redirect(
+      `${desktopDeepLinkUrl}?access_token=${authTokens.access_token}&refresh_token=${authTokens.refresh_token}`,
+    );
+};
+
 /**
  * Decode the cookie header from incoming websocket connects and returns a auth token pair
  * @param rawCookies cookies from the websocket connection

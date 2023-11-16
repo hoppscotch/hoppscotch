@@ -102,7 +102,8 @@ onBeforeMount(() => {
 })
 
 onMounted(() => {
-  const cookiesAllowed = persistenceService.getLocalConfig("cookiesAllowed") === "yes"
+  const cookiesAllowed =
+    persistenceService.getLocalConfig("cookiesAllowed") === "yes"
   const platformAllowsCookiePrompts =
     platform.platformFeatureFlags.promptAsUsingCookies ?? true
 

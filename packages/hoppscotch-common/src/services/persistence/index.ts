@@ -13,6 +13,7 @@ import { z } from "zod"
 import { GQLTabService } from "~/services/tab/graphql"
 import { RESTTabService } from "~/services/tab/rest"
 
+import { entityReference } from "verzod"
 import { useToast } from "~/composables/toast"
 import { MQTTRequest$, setMQTTRequest } from "../../newstore/MQTTSession"
 import { SSERequest$, setSSERequest } from "../../newstore/SSESession"
@@ -115,13 +116,14 @@ export class PersistenceService extends Service {
     }
 
     const vuexKey = "vuex"
-    const vuexData = JSON.parse(window.localStorage.getItem(vuexKey) || "{}")
+    let vuexData = JSON.parse(window.localStorage.getItem(vuexKey) || "{}")
 
     if (isEmpty(vuexData)) return
 
-    // TODO: Enable once the support for using versioned entity schemas within other schemas is added to verzod
     const result = VUEX_SCHEMA.safeParse(vuexData)
-    if (!result.success) {
+    if (result.success) {
+      vuexData = result.data
+    } else {
       this.showErrorToast(vuexKey)
       window.localStorage.setItem(`${vuexKey}-backup`, JSON.stringify(vuexData))
     }
@@ -269,12 +271,12 @@ export class PersistenceService extends Service {
 
   private setupHistoryPersistence() {
     const restHistoryKey = "history"
-    const restHistoryData = JSON.parse(
+    let restHistoryData = JSON.parse(
       window.localStorage.getItem(restHistoryKey) || "[]"
     )
 
     const graphqlHistoryKey = "graphqlHistory"
-    const graphqlHistoryData = JSON.parse(
+    let graphqlHistoryData = JSON.parse(
       window.localStorage.getItem(graphqlHistoryKey) || "[]"
     )
 
@@ -282,7 +284,9 @@ export class PersistenceService extends Service {
     const restHistorySchemaParsedresult = z
       .array(REST_HISTORY_ENTRY_SCHEMA)
       .safeParse(restHistoryData)
-    if (!restHistorySchemaParsedresult.success) {
+    if (restHistorySchemaParsedresult.success) {
+      restHistoryData = restHistorySchemaParsedresult.data
+    } else {
       this.showErrorToast(restHistoryKey)
       window.localStorage.setItem(
         `${restHistoryKey}-backup`,
@@ -293,7 +297,9 @@ export class PersistenceService extends Service {
     const gqlHistorySchemaParsedresult = z
       .array(GQL_HISTORY_ENTRY_SCHEMA)
       .safeParse(graphqlHistoryData)
-    if (!gqlHistorySchemaParsedresult.success) {
+    if (gqlHistorySchemaParsedresult.success) {
+      graphqlHistoryData = gqlHistorySchemaParsedresult.data
+    } else {
       this.showErrorToast(graphqlHistoryKey)
       window.localStorage.setItem(
         `${graphqlHistoryKey}-backup`,
@@ -322,19 +328,21 @@ export class PersistenceService extends Service {
 
   private setupCollectionsPersistence() {
     const restCollectionsKey = "collections"
-    const restCollectionsData = JSON.parse(
+    let restCollectionsData = JSON.parse(
       window.localStorage.getItem(restCollectionsKey) || "[]"
     )
 
     const graphqlCollectionsKey = "collectionsGraphql"
-    const graphqlCollectionsData = JSON.parse(
+    let graphqlCollectionsData = JSON.parse(
       window.localStorage.getItem(graphqlCollectionsKey) || "[]"
     )
 
     const restCollectionsSchemaParsedresult = z
       .array(REST_COLLECTION_SCHEMA)
       .safeParse(restCollectionsData)
-    if (!restCollectionsSchemaParsedresult.success) {
+    if (restCollectionsSchemaParsedresult.success) {
+      restCollectionsData = restCollectionsSchemaParsedresult.data
+    } else {
       this.showErrorToast(restCollectionsKey)
       window.localStorage.setItem(
         `${restCollectionsKey}-backup`,
@@ -345,7 +353,9 @@ export class PersistenceService extends Service {
     const gqlCollectionsSchemaParsedresult = z
       .array(GQL_COLLECTION_SCHEMA)
       .safeParse(graphqlCollectionsData)
-    if (!gqlCollectionsSchemaParsedresult.success) {
+    if (gqlCollectionsSchemaParsedresult.success) {
+      graphqlCollectionsData = gqlCollectionsSchemaParsedresult.data
+    } else {
       this.showErrorToast(graphqlCollectionsKey)
       window.localStorage.setItem(
         `${graphqlCollectionsKey}-backup`,
@@ -374,15 +384,15 @@ export class PersistenceService extends Service {
 
   private setupEnvironmentsPersistence() {
     const environmentsKey = "environments"
-    const environmentsData: Environment[] = JSON.parse(
+    let environmentsData: Environment[] = JSON.parse(
       window.localStorage.getItem(environmentsKey) || "[]"
     )
 
-    const isValidationSuccessful = environmentsData.every((env) => {
-      const result = Environment.safeParse(env)
-      return result.type === "ok"
-    })
-    if (!isValidationSuccessful) {
+    const schema = z.array(entityReference(Environment))
+    const result = schema.safeParse(environmentsData)
+    if (result.success) {
+      environmentsData = result.data
+    } else {
       this.showErrorToast(environmentsKey)
       window.localStorage.setItem(
         `${environmentsKey}-backup`,
@@ -418,12 +428,14 @@ export class PersistenceService extends Service {
 
   private setupSelectedEnvPersistence() {
     const selectedEnvIndexKey = "selectedEnvIndex"
-    const selectedEnvIndexValue = JSON.parse(
+    let selectedEnvIndexValue = JSON.parse(
       window.localStorage.getItem(selectedEnvIndexKey) ?? "null"
     )
 
     const result = SELECTED_ENV_INDEX_SCHEMA.safeParse(selectedEnvIndexValue)
-    if (!result.success) {
+    if (result.success) {
+      selectedEnvIndexValue = result.data
+    } else {
       this.showErrorToast(selectedEnvIndexKey)
       window.localStorage.setItem(
         `${selectedEnvIndexKey}-backup`,
@@ -447,12 +459,14 @@ export class PersistenceService extends Service {
 
   private setupWebsocketPersistence() {
     const wsRequestKey = "WebsocketRequest"
-    const wsRequestData = JSON.parse(
+    let wsRequestData = JSON.parse(
       window.localStorage.getItem(wsRequestKey) || "null"
     )
 
     const result = WEBSOCKET_REQUEST_SCHEMA.safeParse(wsRequestData)
-    if (!result.success) {
+    if (result.success) {
+      wsRequestData = result.data
+    } else {
       this.showErrorToast(wsRequestKey)
       window.localStorage.setItem(
         `${wsRequestKey}-backup`,
@@ -469,12 +483,14 @@ export class PersistenceService extends Service {
 
   private setupSocketIOPersistence() {
     const sioRequestKey = "SocketIORequest"
-    const sioRequestData = JSON.parse(
+    let sioRequestData = JSON.parse(
       window.localStorage.getItem(sioRequestKey) || "null"
     )
 
     const result = SOCKET_IO_REQUEST_SCHEMA.safeParse(sioRequestData)
-    if (!result.success) {
+    if (result.success) {
+      sioRequestData = result.data
+    } else {
       this.showErrorToast(sioRequestKey)
       window.localStorage.setItem(
         `${sioRequestKey}-backup`,
@@ -491,12 +507,14 @@ export class PersistenceService extends Service {
 
   private setupSSEPersistence() {
     const sseRequestKey = "SSERequest"
-    const sseRequestData = JSON.parse(
+    let sseRequestData = JSON.parse(
       window.localStorage.getItem(sseRequestKey) || "null"
     )
 
     const result = SSE_REQUEST_SCHEMA.safeParse(sseRequestData)
-    if (!result.success) {
+    if (result.success) {
+      sseRequestData = result.data
+    } else {
       this.showErrorToast(sseRequestKey)
       window.localStorage.setItem(
         `${sseRequestKey}-backup`,
@@ -513,12 +531,14 @@ export class PersistenceService extends Service {
 
   private setupMQTTPersistence() {
     const mqttRequestKey = "MQTTRequest"
-    const mqttRequestData = JSON.parse(
+    let mqttRequestData = JSON.parse(
       window.localStorage.getItem(mqttRequestKey) || "null"
     )
 
     const result = MQTT_REQUEST_SCHEMA.safeParse(mqttRequestData)
-    if (!result.success) {
+    if (result.success) {
+      mqttRequestData = result.data
+    } else {
       this.showErrorToast(mqttRequestKey)
       window.localStorage.setItem(
         `${mqttRequestKey}-backup`,
@@ -535,12 +555,14 @@ export class PersistenceService extends Service {
 
   private setupGlobalEnvsPersistence() {
     const globalEnvKey = "globalEnv"
-    const globalEnvData: Environment["variables"] = JSON.parse(
+    let globalEnvData: Environment["variables"] = JSON.parse(
       window.localStorage.getItem(globalEnvKey) || "[]"
     )
 
     const result = GLOBAL_ENV_SCHEMA.safeParse(globalEnvData)
-    if (!result.success) {
+    if (result.success) {
+      globalEnvData = result.data
+    } else {
       this.showErrorToast(globalEnvKey)
       window.localStorage.setItem(
         `${globalEnvKey}-backup`,
@@ -560,10 +582,12 @@ export class PersistenceService extends Service {
     try {
       const gqlTabStateData = window.localStorage.getItem(gqlTabStateKey)
       if (gqlTabStateData) {
-        const data = JSON.parse(gqlTabStateData)
+        let data = JSON.parse(gqlTabStateData)
 
         const result = GQL_TAB_STATE_SCHEMA.safeParse(data)
-        if (!result.success) {
+        if (result.success) {
+          data = result.data
+        } else {
           this.showErrorToast(gqlTabStateKey)
           window.localStorage.setItem(
             `${gqlTabStateKey}-backup`,
@@ -597,11 +621,12 @@ export class PersistenceService extends Service {
     try {
       const restTabStateData = window.localStorage.getItem(restTabStateKey)
       if (restTabStateData) {
-        const data = JSON.parse(restTabStateData)
+        let data = JSON.parse(restTabStateData)
 
-        // TODO: Enable once the support for using versioned entity schemas within other schemas is added to verzod
         const result = REST_TAB_STATE_SCHEMA.safeParse(data)
-        if (!result.success) {
+        if (result.success) {
+          data = result.data
+        } else {
           this.showErrorToast(restTabStateKey)
           window.localStorage.setItem(
             `${restTabStateKey}-backup`,

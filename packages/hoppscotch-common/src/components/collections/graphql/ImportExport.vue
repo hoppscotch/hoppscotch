@@ -31,6 +31,7 @@ import {
 import { hoppGqlCollectionsImporter } from "~/helpers/import-export/import/hoppGql"
 import { gqlCollectionsExporter } from "~/helpers/import-export/export/gqlCollections"
 import { gqlCollectionsGistExporter } from "~/helpers/import-export/export/gqlCollectionsGistExporter"
+import { computed } from "vue"
 
 const t = useI18n()
 const toast = useToast()
@@ -163,7 +164,15 @@ const GqlCollectionsGistExporter: ImporterOrExporter = {
 
 const importerModules = [GqlCollectionsHoppImporter, GqlCollectionsGistImporter]
 
-const exporterModules = [GqlCollectionsHoppExporter, GqlCollectionsGistExporter]
+const exporterModules = computed(() => {
+  const modules = [GqlCollectionsHoppExporter]
+
+  if (platform.platformFeatureFlags.exportAsGIST) {
+    modules.push(GqlCollectionsGistExporter)
+  }
+
+  return modules
+})
 
 const showImportFailedError = () => {
   toast.error(t("import.failed"))

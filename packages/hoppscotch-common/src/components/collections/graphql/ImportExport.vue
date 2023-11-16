@@ -56,7 +56,7 @@ const GqlCollectionsHoppImporter: ImporterOrExporter = {
       const res = await hoppGqlCollectionsImporter(gqlCollections)
 
       if (E.isLeft(res)) {
-        failedImport()
+        showImportFailedError()
         return
       }
 
@@ -78,10 +78,15 @@ const GqlCollectionsGistImporter: ImporterOrExporter = {
   component: GistSource({
     caption: "import.gql_collections_from_gist_description",
     onImportFromGist: async (gqlCollections) => {
-      const res = await hoppGqlCollectionsImporter(gqlCollections)
+      if (E.isLeft(gqlCollections)) {
+        showImportFailedError()
+        return
+      }
+
+      const res = await hoppGqlCollectionsImporter(gqlCollections.right)
 
       if (E.isLeft(res)) {
-        failedImport()
+        showImportFailedError()
         return
       } else {
         handleImportToStore(res.right)
@@ -160,7 +165,7 @@ const importerModules = [GqlCollectionsHoppImporter, GqlCollectionsGistImporter]
 
 const exporterModules = [GqlCollectionsHoppExporter, GqlCollectionsGistExporter]
 
-const failedImport = () => {
+const showImportFailedError = () => {
   toast.error(t("import.failed"))
 }
 

@@ -50,7 +50,7 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  (e: "importFromURL", content: string): void
+  (e: "importFromURL", content: unknown): void
 }>()
 
 const inputChooseGistToImportFrom = ref<string>("")

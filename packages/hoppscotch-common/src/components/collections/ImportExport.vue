@@ -290,7 +290,12 @@ const HoppGistImporter: ImporterOrExporter = {
   component: GistSource({
     caption: "import.from_url",
     onImportFromGist: async (content) => {
-      const res = await hoppRESTImporter(content)()
+      if (E.isLeft(content)) {
+        showImportFailedError()
+        return
+      }
+
+      const res = await hoppRESTImporter(content.right)()
 
       if (E.isRight(res)) {
         handleImportToStore(res.right)

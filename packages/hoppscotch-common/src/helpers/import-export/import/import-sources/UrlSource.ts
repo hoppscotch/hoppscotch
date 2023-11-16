@@ -12,6 +12,10 @@ export function UrlSource(metadata: {
 
   return defineStep(stepID, UrlImport, () => ({
     caption: metadata.caption,
-    onImportFromURL: metadata.onImportFromURL,
+    onImportFromURL: (content: unknown) => {
+      if (typeof content === "string") {
+        metadata.onImportFromURL(content)
+      }
+    },
   }))
 }

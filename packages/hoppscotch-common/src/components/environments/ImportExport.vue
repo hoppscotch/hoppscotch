@@ -82,7 +82,7 @@ const HoppEnvironmentsImport: ImporterOrExporter = {
       const res = await hoppEnvImporter(environments)()
 
       if (E.isLeft(res)) {
-        failedImport()
+        showImportFailedError()
         return
       }
 
@@ -108,7 +108,7 @@ const PostmanEnvironmentsImport: ImporterOrExporter = {
       const res = await postmanEnvImporter(environments)()
 
       if (E.isLeft(res)) {
-        failedImport()
+        showImportFailedError()
         return
       }
 
@@ -131,10 +131,15 @@ const EnvironmentsImportFromGIST: ImporterOrExporter = {
   component: GistSource({
     caption: "import.environments_from_gist_description",
     onImportFromGist: async (environments) => {
-      const res = await hoppEnvImporter(environments)()
+      if (E.isLeft(environments)) {
+        showImportFailedError()
+        return
+      }
+
+      const res = await hoppEnvImporter(environments.right)()
 
       if (E.isLeft(res)) {
-        failedImport()
+        showImportFailedError()
         return
       }
 
@@ -213,7 +218,7 @@ const importerModules = [
 
 const exporterModules = [HoppEnvironmentsExport, HoppEnvironmentsGistExporter]
 
-const failedImport = () => {
+const showImportFailedError = () => {
   toast.error(t("import.failed").toString())
 }
 

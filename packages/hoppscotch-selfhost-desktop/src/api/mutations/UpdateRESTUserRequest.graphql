@@ -1,0 +1,7 @@
+mutation UpdateRESTUserRequest($id: ID!, $title: String!, $request: String!) {
+  updateRESTUserRequest(id: $id, title: $title, request: $request) {
+    id
+    collectionID
+    request
+  }
+}

@@ -4,6 +4,7 @@ import { HeaderInspectorService } from "../header.inspector"
 import { InspectionService } from "../../index"
 import { getDefaultRESTRequest } from "~/helpers/rest/default"
 import { ref } from "vue"
+import { InterceptorService } from "~/services/interceptor.service"
 
 vi.mock("~/modules/i18n", () => ({
   __esModule: true,
@@ -57,6 +58,49 @@ describe("HeaderInspectorService", () => {
       const result = headerInspector.getInspections(req)
 
       expect(result.value).toHaveLength(0)
+    })
+
+    it("should return an empty array when headers contain cookies but interceptor supports cookies", () => {
+      const container = new TestContainer()
+
+      container.bindMock(InterceptorService, {
+        currentInterceptor: ref({ supportsCookies: true }) as any,
+      })
+
+      const headerInspector = container.bind(HeaderInspectorService)
+
+      const req = ref({
+        ...getDefaultRESTRequest(),
+        endpoint: "http://example.com/api/data",
+        headers: [{ key: "Cookie", value: "some-cookie", active: true }],
+      })
+
+      const result = headerInspector.getInspections(req)
+
+      expect(result.value).toHaveLength(0)
+    })
+
+    it("should return an inspector result when headers contain cookies and the current interceptor doesn't support cookies", () => {
+      const container = new TestContainer()
+
+      container.bindMock(InterceptorService, {
+        currentInterceptor: ref({ supportsCookies: false }) as any,
+      })
+
+      const headerInspector = container.bind(HeaderInspectorService)
+
+      const req = ref({
+        ...getDefaultRESTRequest(),
+        endpoint: "http://example.com/api/data",
+        headers: [{ key: "Cookie", value: "some-cookie", active: true }],
+      })
+
+      const result = headerInspector.getInspections(req)
+
+      expect(result.value).not.toHaveLength(0)
+      expect(result.value).toContainEqual(
+        expect.objectContaining({ id: "header", isApplicable: true })
+      )
     })
   })
 })

@@ -59,6 +59,7 @@ import { useToast } from "@composables/toast"
 import { defineActionHandler } from "~/helpers/actions"
 import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
 import { GQLResponseEvent } from "~/helpers/graphql/connection"
+import { platform } from "~/platform"
 
 const t = useI18n()
 const toast = useToast()
@@ -111,21 +112,31 @@ const copyResponse = (str: string) => {
   toast.success(`${t("state.copied_to_clipboard")}`)
 }
 
-const downloadResponse = (str: string) => {
+const downloadResponse = async (str: string) => {
   const dataToWrite = str
   const file = new Blob([dataToWrite!], { type: "application/json" })
-  const a = document.createElement("a")
   const url = URL.createObjectURL(file)
-  a.href = url
-  a.download = `${url.split("/").pop()!.split("#")[0].split("?")[0]}`
-  document.body.appendChild(a)
-  a.click()
-  downloadResponseIcon.value = IconCheck
-  toast.success(`${t("state.download_started")}`)
-  setTimeout(() => {
-    document.body.removeChild(a)
-    URL.revokeObjectURL(url)
-  }, 1000)
+
+  const filename = `${url.split("/").pop()!.split("#")[0].split("?")[0]}.json`
+
+  URL.revokeObjectURL(url)
+
+  const result = await platform.io.saveFileWithDialog({
+    data: dataToWrite,
+    contentType: "application/json",
+    suggestedFilename: filename,
+    filters: [
+      {
+        name: "JSON file",
+        extensions: ["json"],
+      },
+    ],
+  })
+
+  if (result.type === "unknown" || result.type === "saved") {
+    downloadResponseIcon.value = IconCheck
+    toast.success(`${t("state.download_started")}`)
+  }
 }
 
 defineActionHandler(

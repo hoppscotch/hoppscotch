@@ -73,6 +73,7 @@ import { applySetting } from "~/newstore/settings"
 import { getLocalConfig, setLocalConfig } from "~/newstore/localpersistence"
 import { useToast } from "~/composables/toast"
 import { useI18n } from "~/composables/i18n"
+import { platform } from "~/platform"
 
 const router = useRouter()
 
@@ -98,7 +99,10 @@ onBeforeMount(() => {
 
 onMounted(() => {
   const cookiesAllowed = getLocalConfig("cookiesAllowed") === "yes"
-  if (!cookiesAllowed) {
+  const platformAllowsCookiePrompts =
+    platform.platformFeatureFlags.promptAsUsingCookies ?? true
+
+  if (!cookiesAllowed && platformAllowsCookiePrompts) {
     toast.show(`${t("app.we_use_cookies")}`, {
       duration: 0,
       action: [

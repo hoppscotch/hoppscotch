@@ -1,0 +1,6 @@
+subscription UserSettingsUpdated {
+  userSettingsUpdated {
+    id
+    properties
+  }
+}

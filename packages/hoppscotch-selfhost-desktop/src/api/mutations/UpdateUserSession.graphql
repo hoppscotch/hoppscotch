@@ -1,0 +1,11 @@
+mutation UpdateUserSession(
+  $currentSession: String!
+  $sessionType: SessionType!
+) {
+  updateUserSessions(
+    currentSession: $currentSession
+    sessionType: $sessionType
+  ) {
+    currentRESTSession
+  }
+}

@@ -1,0 +1,13 @@
+query GetUserRootCollections {
+  # the frontend doesnt paginate right now, so giving take a big enough value to get all collections at once
+  rootRESTUserCollections(take: 99999) {
+    id
+    title
+    type
+    childrenREST {
+      id
+      title
+      type
+    }
+  }
+}

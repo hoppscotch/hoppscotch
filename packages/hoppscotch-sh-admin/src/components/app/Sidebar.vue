@@ -16,7 +16,7 @@
         <div class="flex items-center justify-start px-4 my-4">
           <div class="flex items-center">
             <HoppSmartLink class="flex items-center space-x-4" to="/dashboard">
-              <img src="/cover.jpg" alt="hoppscotch-logo" class="h-7" />
+              <img src="/logo.svg" alt="hoppscotch-logo" class="h-7 w-7" />
 
               <span
                 v-if="isExpanded"

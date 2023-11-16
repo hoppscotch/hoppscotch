@@ -1,0 +1,11 @@
+mutation CreateRESTChildUserCollection(
+  $title: String!
+  $parentUserCollectionID: ID!
+) {
+  createRESTChildUserCollection(
+    title: $title
+    parentUserCollectionID: $parentUserCollectionID
+  ) {
+    id
+  }
+}

@@ -58,8 +58,8 @@
               v-for="(field, index) in filteredQueryFields"
               :key="`field-${index}`"
               :gql-field="field"
-              :jump-type-callback="handleJumpToType"
               class="p-4"
+              @jump-to-type="handleJumpToType"
             />
           </HoppSmartTab>
           <HoppSmartTab
@@ -72,8 +72,8 @@
               v-for="(field, index) in filteredMutationFields"
               :key="`field-${index}`"
               :gql-field="field"
-              :jump-type-callback="handleJumpToType"
               class="p-4"
+              @jump-to-type="handleJumpToType"
             />
           </HoppSmartTab>
           <HoppSmartTab
@@ -86,8 +86,8 @@
               v-for="(field, index) in filteredSubscriptionFields"
               :key="`field-${index}`"
               :gql-field="field"
-              :jump-type-callback="handleJumpToType"
               class="p-4"
+              @jump-to-type="handleJumpToType"
             />
           </HoppSmartTab>
           <HoppSmartTab
@@ -103,7 +103,7 @@
               :gql-types="graphqlTypes"
               :is-highlighted="isGqlTypeHighlighted(type)"
               :highlighted-fields="getGqlTypeHighlightedFields(type)"
-              :jump-type-callback="handleJumpToType"
+              @jump-to-type="handleJumpToType"
             />
           </HoppSmartTab>
         </HoppSmartTabs>
@@ -202,6 +202,7 @@ import {
   schemaString,
   subscriptionFields,
 } from "~/helpers/graphql/connection"
+import { platform } from "~/platform"
 
 type NavigationTabs = "history" | "collection" | "docs" | "schema"
 type GqlTabs = "queries" | "mutations" | "subscriptions" | "types"
@@ -372,21 +373,33 @@ useCodemirror(
   })
 )
 
-const downloadSchema = () => {
-  const dataToWrite = JSON.stringify(schemaString.value, null, 2)
+const downloadSchema = async () => {
+  const dataToWrite = schemaString.value
   const file = new Blob([dataToWrite], { type: "application/graphql" })
-  const a = document.createElement("a")
   const url = URL.createObjectURL(file)
-  a.href = url
-  a.download = `${url.split("/").pop()!.split("#")[0].split("?")[0]}.graphql`
-  document.body.appendChild(a)
-  a.click()
-  downloadSchemaIcon.value = IconCheck
-  toast.success(`${t("state.download_started")}`)
-  setTimeout(() => {
-    document.body.removeChild(a)
-    URL.revokeObjectURL(url)
-  }, 1000)
+
+  const filename = `${
+    url.split("/").pop()!.split("#")[0].split("?")[0]
+  }.graphql`
+
+  URL.revokeObjectURL(url)
+
+  const result = await platform.io.saveFileWithDialog({
+    data: dataToWrite,
+    contentType: "application/graphql",
+    suggestedFilename: filename,
+    filters: [
+      {
+        name: "GraphQL Schema File",
+        extensions: ["graphql"],
+      },
+    ],
+  })
+
+  if (result.type === "unknown" || result.type === "saved") {
+    downloadSchemaIcon.value = IconCheck
+    toast.success(`${t("state.download_started")}`)
+  }
 }
 
 const copySchema = () => {

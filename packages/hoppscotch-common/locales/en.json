@@ -1,5 +1,6 @@
 {
   "action": {
+    "add": "Add",
     "autoscroll": "Autoscroll",
     "cancel": "Cancel",
     "choose_file": "Choose a file",
@@ -54,9 +55,28 @@
     "new": "Add new",
     "star": "Add star"
   },
+  "cookies": {
+    "modal": {
+      "new_domain_name": "New domain name",
+      "set": "Set a cookie",
+      "cookie_string": "Cookie string",
+      "enter_cookie_string": "Enter cookie string",
+      "cookie_name": "Name",
+      "cookie_value": "Value",
+      "cookie_path": "Path",
+      "cookie_expires": "Expires",
+      "managed_tab": "Managed",
+      "raw_tab": "Raw",
+      "interceptor_no_support": "Your currently selected interceptor does not support cookies. Select a different Interceptor and try again.",
+      "empty_domains": "Domain list is empty",
+      "empty_domain": "Domain is empty",
+      "no_cookies_in_domain": "No cookies set for this domain"
+    }
+  },
   "app": {
     "chat_with_us": "Chat with us",
     "contact_us": "Contact us",
+    "cookies": "Cookies",
     "copy": "Copy",
     "copy_user_id": "Copy User Auth Token",
     "developer_option": "Developer options",
@@ -119,7 +139,21 @@
     "password": "Password",
     "token": "Token",
     "type": "Authorization Type",
-    "username": "Username"
+    "username": "Username",
+    "oauth": {
+      "token_generation_oidc_discovery_failed": "Failure on token generation: OpenID Connect Discovery Failed",
+      "something_went_wrong_on_token_generation": "Something went wrong on token generation",
+      "redirect_auth_server_returned_error": "Auth Server returned an error state",
+      "redirect_no_auth_code": "No Authorization Code present in the redirect",
+      "redirect_invalid_state": "Invalid State value present in the redirect",
+      "redirect_no_token_endpoint": "No Token Endpoint Defined",
+      "redirect_no_client_id": "No Client ID defined",
+      "redirect_no_client_secret": "No Client Secret Defined",
+      "redirect_no_code_verifier": "No Code Verifier Defined",
+      "redirect_auth_token_request_failed": "Request to get the auth token failed",
+      "redirect_auth_token_request_invalid_response": "Invalid Response from the Token Endpoint when requesting for an auth token",
+      "something_went_wrong_on_oauth_redirect": "Something went wrong during OAuth Redirect"
+    }
   },
   "collection": {
     "created": "Collection created",
@@ -237,6 +271,7 @@
   "error": {
     "browser_support_sse": "This browser doesn't seems to have Server Sent Events support.",
     "check_console_details": "Check console log for details.",
+    "check_how_to_add_origin": "Check how you can add an origin",
     "curl_invalid_format": "cURL is not formatted properly",
     "danger_zone": "Danger zone",
     "delete_account": "Your account is currently an owner in these teams:",
@@ -257,6 +292,7 @@
     "no_environments_to_export": "No environments to export. Please create an environment to get started.",
     "no_results_found": "No matches found",
     "page_not_found": "This page could not be found",
+    "please_install_extension": "Please install the extension and add origin to the extension.",
     "proxy_error": "Proxy error",
     "script_fail": "Could not execute pre-request script",
     "something_went_wrong": "Something went wrong",
@@ -764,7 +800,7 @@
     "published_error": "Something went wrong while publishing msg: {topic} to topic: {message}",
     "published_message": "Published message: {message} to topic: {topic}",
     "reconnection_error": "Failed to reconnect",
-    "show":"Show",
+    "show": "Show",
     "subscribed_failed": "Failed to subscribe to topic: {topic}",
     "subscribed_success": "Successfully subscribed to topic: {topic}",
     "unsubscribed_failed": "Failed to unsubscribe from topic: {topic}",

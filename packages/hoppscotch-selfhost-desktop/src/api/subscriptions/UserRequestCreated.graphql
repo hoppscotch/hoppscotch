@@ -1,0 +1,9 @@
+subscription UserRequestCreated {
+  userRequestCreated {
+    id
+    collectionID
+    title
+    request
+    type
+  }
+}

@@ -11,6 +11,7 @@ import { ExtensionInspectorService } from "@hoppscotch/common/platform/std/inspe
 import { ExtensionInterceptorService } from "@hoppscotch/common/platform/std/interceptors/extension"
 import { stdFooterItems } from "@hoppscotch/common/platform/std/ui/footerItem"
 import { stdSupportOptionItems } from "@hoppscotch/common/platform/std/ui/supportOptionsItem"
+import { browserIODef } from "@hoppscotch/common/platform/std/io"
 
 createHoppApp("#app", {
   ui: {
@@ -18,6 +19,7 @@ createHoppApp("#app", {
     additionalSupportOptionsMenuItems: stdSupportOptionItems,
   },
   auth: authDef,
+  io: browserIODef,
   sync: {
     environments: environmentsDef,
     collections: collectionsDef,

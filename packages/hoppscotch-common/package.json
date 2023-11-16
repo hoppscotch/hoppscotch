@@ -1,7 +1,7 @@
 {
   "name": "@hoppscotch/common",
   "private": true,
-  "version": "2023.8.3",
+  "version": "2023.8.4-1",
   "scripts": {
     "dev": "pnpm exec npm-run-all -p -l dev:*",
     "test": "vitest --run",
@@ -27,7 +27,7 @@
     "@codemirror/lang-javascript": "^6.2.1",
     "@codemirror/lang-json": "^6.0.1",
     "@codemirror/lang-xml": "^6.0.2",
-    "@codemirror/language": "^6.9.2",
+    "@codemirror/language": "6.9.0",
     "@codemirror/legacy-modes": "^6.3.3",
     "@codemirror/lint": "^6.4.2",
     "@codemirror/search": "^6.5.4",
@@ -52,6 +52,7 @@
     "acorn-walk": "^8.2.0",
     "axios": "^1.4.0",
     "buffer": "^6.0.3",
+    "cookie-es": "^1.0.0",
     "dioc": "workspace:^",
     "esprima": "^4.0.1",
     "events": "^3.3.0",
@@ -76,6 +77,8 @@
     "process": "^0.11.10",
     "qs": "^6.11.2",
     "rxjs": "^7.8.1",
+    "set-cookie-parser": "^2.6.0",
+    "set-cookie-parser-es": "^1.0.5",
     "socket.io-client-v2": "npm:socket.io-client@^2.4.0",
     "socket.io-client-v3": "npm:socket.io-client@^3.1.3",
     "socket.io-client-v4": "npm:socket.io-client@^4.4.1",
@@ -98,7 +101,8 @@
     "wonka": "^6.3.4",
     "workbox-window": "^7.0.0",
     "xml-formatter": "^3.5.0",
-    "yargs-parser": "^21.1.1"
+    "yargs-parser": "^21.1.1",
+    "zod": "^3.22.4"
   },
   "devDependencies": {
     "@esbuild-plugins/node-globals-polyfill": "^0.2.3",

@@ -152,12 +152,14 @@ export function useStreamSubscriber(): {
     error?: (e: any) => void,
     complete?: () => void
   ) => {
-    const sub = stream.subscribe({
+    let sub: Subscription | null = null
+
+    sub = stream.subscribe({
       next,
       error,
       complete: () => {
         if (complete) complete()
-        subs.splice(subs.indexOf(sub), 1)
+        if (sub) subs.splice(subs.indexOf(sub), 1)
       },
     })
 

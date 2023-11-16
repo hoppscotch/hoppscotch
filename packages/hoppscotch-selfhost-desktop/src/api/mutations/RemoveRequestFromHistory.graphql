@@ -1,0 +1,5 @@
+mutation RemoveRequestFromHistory($id: ID!) {
+  removeRequestFromHistory(id: $id) {
+    id
+  }
+}

@@ -1,0 +1,9 @@
+subscription UserEnvironmentCreated {
+  userEnvironmentCreated {
+    id
+    isGlobal
+    name
+    userUid
+    variables
+  }
+}

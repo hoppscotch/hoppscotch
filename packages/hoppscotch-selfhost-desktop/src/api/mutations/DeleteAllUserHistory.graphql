@@ -1,0 +1,6 @@
+mutation DeleteAllUserHistory($reqType: ReqType!) {
+  deleteAllUserHistory(reqType: $reqType) {
+    count
+    reqType
+  }
+}

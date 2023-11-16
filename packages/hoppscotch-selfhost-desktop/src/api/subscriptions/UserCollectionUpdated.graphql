@@ -1,0 +1,10 @@
+subscription userCollectionUpdated {
+  userCollectionUpdated {
+    id
+    title
+    type
+    parent {
+      id
+    }
+  }
+}

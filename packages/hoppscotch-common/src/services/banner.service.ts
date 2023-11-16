@@ -1,16 +1,35 @@
 import { Service } from "dioc"
-import { ref } from "vue"
+import { computed, ref } from "vue"
+import { getI18n } from "~/modules/i18n"
 
-/**
- * The different types of banners that can be used.
- */
+export const BANNER_PRIORITY_LOW = 1
+export const BANNER_PRIORITY_MEDIUM = 3
+export const BANNER_PRIORITY_HIGH = 5
+
 export type BannerType = "info" | "warning" | "error"
 
 export type BannerContent = {
   type: BannerType
-  text: string
+  text: (t: ReturnType<typeof getI18n>) => string
   // Can be used to display an alternate text when display size is small
-  alternateText?: string
+  alternateText?: (t: ReturnType<typeof getI18n>) => string
+  // Used to determine which banner should be displayed when multiple banners are present
+  score: number
+}
+
+export type Banner = {
+  id: number
+  content: BannerContent
+}
+
+// Returns the banner with the highest score
+const getBannerWithHighestScore = (list: Banner[]) => {
+  if (list.length === 0) return null
+  else if (list.length === 1) return list[0]
+  else {
+    const highestScore = Math.max(...list.map((banner) => banner.content.score))
+    return list.find((banner) => banner.content.score === highestScore)
+  }
 }
 
 /**
@@ -20,9 +39,22 @@ export type BannerContent = {
 export class BannerService extends Service {
   public static readonly ID = "BANNER_SERVICE"
 
-  /**
-   * This is a reactive variable that can be used to set the contents of the banner
-   * and use it to render the banner on components.
-   */
-  public content = ref<BannerContent | null>(null)
+  private bannerID = 0
+  private bannerList = ref<Banner[]>([])
+
+  public content = computed(() =>
+    getBannerWithHighestScore(this.bannerList.value)
+  )
+
+  public showBanner(banner: BannerContent) {
+    this.bannerID = this.bannerID + 1
+    this.bannerList.value.push({ id: this.bannerID, content: banner })
+    return this.bannerID
+  }
+
+  public removeBanner(id: number) {
+    this.bannerList.value = this.bannerList.value.filter(
+      (banner) => id !== banner.id
+    )
+  }
 }

@@ -2015,10 +2015,14 @@ const importToTeams = async (collection: HoppCollection<HoppRESTRequest>[]) => {
 }
 
 const shareRequest = ({ request }: { request: HoppRESTRequest }) => {
-  // opens the share request modal
-  invokeAction("share.request", {
-    request,
-  })
+  if (currentUser.value) {
+    // opens the share request modal
+    invokeAction("share.request", {
+      request,
+    })
+  } else {
+    invokeAction("modals.login.toggle")
+  }
 }
 
 const resolveConfirmModal = (title: string | null) => {

@@ -90,7 +90,7 @@ import { useReadonlyStream } from "~/composables/stream"
 import { onAuthEvent, onLoggedIn } from "~/composables/auth"
 import { computed } from "vue"
 import { useColorMode } from "~/composables/theming"
-import { defineActionHandler } from "~/helpers/actions"
+import { defineActionHandler, invokeAction } from "~/helpers/actions"
 import { platform } from "~/platform"
 import { pipe } from "fp-ts/function"
 import * as TE from "fp-ts/TaskEither"
@@ -126,6 +126,11 @@ const requestToCreate = ref<HoppRESTRequest | null>(null)
 const requestToCustomize = ref<Shortcode | null>(null)
 
 const restTab = useService(RESTTabService)
+
+const currentUser = useReadonlyStream(
+  platform.auth.getCurrentUserStream(),
+  platform.auth.getCurrentUser()
+)
 
 type WidgetID = "embed" | "button" | "link"
 
@@ -168,9 +173,13 @@ onAuthEvent((ev) => {
 })
 
 const deleteSharedRequest = (codeID: string) => {
-  sharedRequestID.value = codeID
-  confirmModalTitle.value = `${t("confirm.remove_shared_request")}`
-  showConfirmModal.value = true
+  if (currentUser.value) {
+    sharedRequestID.value = codeID
+    confirmModalTitle.value = `${t("confirm.remove_shared_request")}`
+    showConfirmModal.value = true
+  } else {
+    invokeAction("modals.login.toggle")
+  }
 }
 
 const onDeleteSharedRequest = () => {

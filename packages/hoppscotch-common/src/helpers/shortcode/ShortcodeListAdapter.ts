@@ -55,6 +55,7 @@ export default class ShortcodeListAdapter {
   initialize() {
     if (!this.isDispose) throw new Error(`Adapter is already initialized`)
 
+    this.isDispose = false
     this.fetchList()
     this.registerSubscriptions()
   }
@@ -68,8 +69,8 @@ export default class ShortcodeListAdapter {
 
   public dispose() {
     if (this.isDispose) throw new Error(`Adapter has been disposed`)
-
     this.isDispose = true
+    this.shortcodes$.next([])
     this.unsubscribeSubscriptions()
   }
 

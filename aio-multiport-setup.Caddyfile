@@ -6,7 +6,7 @@
 
 :3100 {
 	try_files {path} /
-	root * /site/sh-admin
+	root * /site/sh-admin-multiport-setup
 	file_server
 }
 

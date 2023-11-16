@@ -216,7 +216,15 @@ const importerModules = [
   PostmanEnvironmentsImport,
 ]
 
-const exporterModules = [HoppEnvironmentsExport, HoppEnvironmentsGistExporter]
+const exporterModules = computed(() => {
+  const enabledExporters = [HoppEnvironmentsExport]
+
+  if (platform.platformFeatureFlags.exportAsGIST) {
+    enabledExporters.push(HoppEnvironmentsGistExporter)
+  }
+
+  return enabledExporters
+})
 
 const showImportFailedError = () => {
   toast.error(t("import.failed").toString())

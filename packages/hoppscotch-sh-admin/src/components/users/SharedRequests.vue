@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col">
+  <div class="flex flex-col mt-5">
     <h1 class="text-lg font-bold text-secondaryDark">
       {{ t('sharedRequests.title') }}
     </h1>
@@ -10,36 +10,7 @@
 
     <div v-else-if="error">{{ t('sharedRequests.load_list_error') }}</div>
 
-    <div v-else-if="sharedRequests?.length >= 0">
-      <div class="flex justify-end my-3">
-        <HoppSmartInput
-          :autofocus="false"
-          v-model="email"
-          :label="t('sharedRequests.filter_by_email')"
-          input-styles="floating-input rounded-r-none w-64"
-        />
-
-        <HoppButtonSecondary
-          v-if="showFilterButton"
-          :disabled="!email"
-          outline
-          filled
-          :label="t('sharedRequests.filter')"
-          :icon="IconFilter"
-          class="rounded-l-none"
-          @click="filterRequest"
-        />
-        <HoppButtonSecondary
-          v-else
-          outline
-          filled
-          :icon="IconFilterX"
-          :label="t('sharedRequests.clear_filter')"
-          class="rounded-l-none"
-          @click="clearAppliedFilters"
-        />
-      </div>
-
+    <div v-else-if="sharedRequests?.length >= 0" class="mt-10">
       <HoppSmartTable :list="sharedRequests">
         <template #head>
           <tr
@@ -135,13 +106,13 @@
 
 <script setup lang="ts">
 import { format } from 'date-fns';
-import { ref, watch } from 'vue';
+import { ref } from 'vue';
 import { useMutation } from '@urql/vue';
 import { refAutoReset } from '@vueuse/core';
 import {
   SharedRequestsDocument,
   RevokeShortcodeByAdminDocument,
-} from '../helpers/backend/graphql';
+} from '../../helpers/backend/graphql';
 import { usePagedQuery } from '~/composables/usePagedQuery';
 import { useToast } from '~/composables/toast';
 import { useI18n } from '~/composables/i18n';
@@ -149,8 +120,6 @@ import { copyToClipboard } from '~/helpers/utils/clipboard';
 import IconTrash from '~icons/lucide/trash';
 import IconCopy from '~icons/lucide/copy';
 import IconCheck from '~icons/lucide/check';
-import IconFilter from '~icons/lucide/filter';
-import IconFilterX from '~icons/lucide/filter-x';
 import IconExternalLink from '~icons/lucide/external-link';
 
 const t = useI18n();
@@ -178,28 +147,6 @@ const {
   sharedRequestsPerPage,
   { cursor: undefined, take: sharedRequestsPerPage }
 );
-
-// Filter Shared Requests
-const showFilterButton = ref(true);
-
-const filterRequest = () => {
-  showFilterButton.value = false;
-  refetch(email.value);
-};
-
-const clearAppliedFilters = () => {
-  email.value = ''; // The watcher will automatically call the refetch function
-  showFilterButton.value = true;
-};
-
-watch(email, () => {
-  if (email.value.length === 0) {
-    refetch();
-  }
-  if (!showFilterButton.value) {
-    showFilterButton.value = true;
-  }
-});
 
 // Return request endpoint from the request object
 const sharedRequestURL = (request: string) => {

@@ -142,6 +142,10 @@ const isHoppMyCollectionExporterInProgress = ref(false)
 const isHoppTeamCollectionExporterInProgress = ref(false)
 const isHoppGistCollectionExporterInProgress = ref(false)
 
+const isTeamWorkspace = computed(() => {
+  return props.collectionsType.type === "team-collections"
+})
+
 const HoppRESTImporter: ImporterOrExporter = {
   metadata: {
     id: "hopp_rest",
@@ -159,6 +163,13 @@ const HoppRESTImporter: ImporterOrExporter = {
 
       if (E.isRight(res)) {
         handleImportToStore(res.right)
+
+        platform.analytics?.logEvent({
+          type: "HOPP_IMPORT_COLLECTION",
+          importer: "import.from_json",
+          platform: "rest",
+          workspaceType: isTeamWorkspace.value ? "team" : "personal",
+        })
       } else {
         showImportFailedError()
       }
@@ -178,6 +189,13 @@ const HoppMyCollectionImporter: ImporterOrExporter = {
   component: defineStep("my_collection_import", MyCollectionImport, () => ({
     async onImportFromMyCollection(content) {
       handleImportToStore([content])
+
+      // our analytics consider this as an export event, so keeping compatibility with that
+      platform.analytics?.logEvent({
+        type: "HOPP_EXPORT_COLLECTION",
+        exporter: "import_to_teams",
+        platform: "rest",
+      })
     },
   })),
 }
@@ -204,6 +222,13 @@ const HoppOpenAPIImporter: ImporterOrExporter = {
 
           if (E.isRight(res)) {
             handleImportToStore(res.right)
+
+            platform.analytics?.logEvent({
+              platform: "rest",
+              type: "HOPP_IMPORT_COLLECTION",
+              importer: "import.from_openapi",
+              workspaceType: isTeamWorkspace.value ? "team" : "personal",
+            })
           } else {
             showImportFailedError()
           }
@@ -221,6 +246,13 @@ const HoppOpenAPIImporter: ImporterOrExporter = {
 
           if (E.isRight(res)) {
             handleImportToStore(res.right)
+
+            platform.analytics?.logEvent({
+              platform: "rest",
+              type: "HOPP_IMPORT_COLLECTION",
+              importer: "import.from_openapi",
+              workspaceType: isTeamWorkspace.value ? "team" : "personal",
+            })
           } else {
             showImportFailedError()
           }
@@ -247,6 +279,13 @@ const HoppPostmanImporter: ImporterOrExporter = {
 
       if (E.isRight(res)) {
         handleImportToStore(res.right)
+
+        platform.analytics?.logEvent({
+          platform: "rest",
+          type: "HOPP_IMPORT_COLLECTION",
+          importer: "import.from_postman",
+          workspaceType: isTeamWorkspace.value ? "team" : "personal",
+        })
       } else {
         showImportFailedError()
       }
@@ -271,6 +310,13 @@ const HoppInsomniaImporter: ImporterOrExporter = {
 
       if (E.isRight(res)) {
         handleImportToStore(res.right)
+
+        platform.analytics?.logEvent({
+          platform: "rest",
+          type: "HOPP_IMPORT_COLLECTION",
+          importer: "import.from_insomnia",
+          workspaceType: isTeamWorkspace.value ? "team" : "personal",
+        })
       } else {
         showImportFailedError()
       }
@@ -299,6 +345,13 @@ const HoppGistImporter: ImporterOrExporter = {
 
       if (E.isRight(res)) {
         handleImportToStore(res.right)
+
+        platform.analytics?.logEvent({
+          platform: "rest",
+          type: "HOPP_IMPORT_COLLECTION",
+          importer: "import.from_gist",
+          workspaceType: isTeamWorkspace.value ? "team" : "personal",
+        })
       } else {
         showImportFailedError()
       }
@@ -326,6 +379,12 @@ const HoppMyCollectionsExporter: ImporterOrExporter = {
 
     if (E.isRight(message)) {
       toast.success(t(message.right))
+
+      platform.analytics?.logEvent({
+        type: "HOPP_EXPORT_COLLECTION",
+        exporter: "json",
+        platform: "rest",
+      })
     }
 
     isHoppMyCollectionExporterInProgress.value = false
@@ -358,6 +417,12 @@ const HoppTeamCollectionsExporter: ImporterOrExporter = {
           res.right.exportCollectionsToJSON,
           "team-collections"
         )
+
+        platform.analytics?.logEvent({
+          type: "HOPP_EXPORT_COLLECTION",
+          exporter: "json",
+          platform: "rest",
+        })
       } else {
         toast.error(res.left.error.toString())
       }
@@ -391,8 +456,15 @@ const HoppGistCollectionsExporter: ImporterOrExporter = {
       return
     }
 
-    if (E.isRight(collectionJSON))
+    if (E.isRight(collectionJSON)) {
       collectionsGistExporter(collectionJSON.right, accessToken)
+
+      platform.analytics?.logEvent({
+        type: "HOPP_EXPORT_COLLECTION",
+        exporter: "gist",
+        platform: "rest",
+      })
+    }
 
     isHoppGistCollectionExporterInProgress.value = false
   },

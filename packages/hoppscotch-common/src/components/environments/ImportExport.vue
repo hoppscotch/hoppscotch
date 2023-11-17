@@ -52,6 +52,10 @@ const currentUser = useReadonlyStream(
   platform.auth.getCurrentUser()
 )
 
+const isTeamEnvironment = computed(() => {
+  return props.environmentType === "TEAM_ENV"
+})
+
 const environmentJson = computed(() => {
   if (
     props.environmentType === "TEAM_ENV" &&
@@ -87,6 +91,13 @@ const HoppEnvironmentsImport: ImporterOrExporter = {
       }
 
       handleImportToStore(res.right)
+
+      platform.analytics?.logEvent({
+        type: "HOPP_IMPORT_ENVIRONMENT",
+        platform: "rest",
+        workspaceType: isTeamEnvironment.value ? "team" : "personal",
+      })
+
       emit("hide-modal")
     },
   }),
@@ -113,6 +124,12 @@ const PostmanEnvironmentsImport: ImporterOrExporter = {
       }
 
       handleImportToStore([res.right])
+
+      platform.analytics?.logEvent({
+        type: "HOPP_IMPORT_ENVIRONMENT",
+        platform: "rest",
+        workspaceType: isTeamEnvironment.value ? "team" : "personal",
+      })
 
       emit("hide-modal")
     },
@@ -144,6 +161,11 @@ const EnvironmentsImportFromGIST: ImporterOrExporter = {
       }
 
       handleImportToStore(res.right)
+      platform.analytics?.logEvent({
+        type: "HOPP_IMPORT_ENVIRONMENT",
+        platform: "rest",
+        workspaceType: isTeamEnvironment.value ? "team" : "personal",
+      })
       emit("hide-modal")
     },
   }),
@@ -164,9 +186,17 @@ const HoppEnvironmentsExport: ImporterOrExporter = {
       "Environments"
     )
 
-    E.isRight(message)
-      ? toast.success(t(message.right))
-      : toast.error(t("export.failed"))
+    if (E.isLeft(message)) {
+      toast.error(t(message.left))
+      return
+    }
+
+    toast.success(t(message.right))
+
+    platform.analytics?.logEvent({
+      type: "HOPP_EXPORT_ENVIRONMENT",
+      platform: "rest",
+    })
   },
 }
 
@@ -202,10 +232,17 @@ const HoppEnvironmentsGistExporter: ImporterOrExporter = {
 
       if (E.isLeft(res)) {
         toast.error(t("export.failed"))
-      } else {
-        toast.success(t("export.success"))
-        window.open(res.right, "_blank")
+        return
       }
+
+      toast.success(t("export.success"))
+
+      platform.analytics?.logEvent({
+        type: "HOPP_EXPORT_ENVIRONMENT",
+        platform: "rest",
+      })
+
+      window.open(res.right, "_blank")
     }
   },
 }

@@ -62,6 +62,14 @@ const GqlCollectionsHoppImporter: ImporterOrExporter = {
       }
 
       handleImportToStore(res.right)
+
+      platform.analytics?.logEvent({
+        type: "HOPP_IMPORT_COLLECTION",
+        platform: "gql",
+        workspaceType: "personal",
+        importer: "json",
+      })
+
       emit("hide-modal")
     },
   }),
@@ -89,9 +97,16 @@ const GqlCollectionsGistImporter: ImporterOrExporter = {
       if (E.isLeft(res)) {
         showImportFailedError()
         return
-      } else {
-        handleImportToStore(res.right)
       }
+
+      handleImportToStore(res.right)
+
+      platform.analytics?.logEvent({
+        type: "HOPP_IMPORT_COLLECTION",
+        platform: "gql",
+        workspaceType: "personal",
+        importer: "gist",
+      })
 
       emit("hide-modal")
     },
@@ -115,9 +130,18 @@ const GqlCollectionsHoppExporter: ImporterOrExporter = {
       "GQLCollections"
     )
 
-    E.isRight(message)
-      ? toast.success(message.right)
-      : toast.error(t("export.failed"))
+    if (E.isLeft(message)) {
+      toast.error(t("export.failed"))
+      return
+    }
+
+    toast.success(message.right)
+
+    platform.analytics?.logEvent({
+      type: "HOPP_EXPORT_COLLECTION",
+      platform: "gql",
+      exporter: "json",
+    })
   },
 }
 
@@ -154,10 +178,18 @@ const GqlCollectionsGistExporter: ImporterOrExporter = {
 
       if (E.isLeft(res)) {
         toast.error(t("export.failed"))
-      } else {
-        toast.success(t("export.success"))
-        window.open(res.right, "_blank")
+        return
       }
+
+      toast.success(t("export.success"))
+
+      platform.analytics?.logEvent({
+        type: "HOPP_EXPORT_COLLECTION",
+        platform: "gql",
+        exporter: "gist",
+      })
+
+      window.open(res.right, "_blank")
     }
   },
 }

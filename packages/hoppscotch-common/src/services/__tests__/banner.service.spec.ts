@@ -1,38 +1,53 @@
 import { describe, expect, it } from "vitest"
-import { BannerContent, BannerService } from "../banner.service"
 import { TestContainer } from "dioc/testing"
+import { getI18n } from "~/modules/i18n"
+import {
+  BannerService,
+  BANNER_PRIORITY_LOW,
+  BANNER_PRIORITY_HIGH,
+  BannerContent,
+} from "../banner.service"
 
 describe("BannerService", () => {
   const container = new TestContainer()
-  const service = container.bind(BannerService)
+  const banner = container.bind(BannerService)
 
-  it("initally there are no banners defined", () => {
-    expect(service.content.value).toEqual(null)
-  })
-
-  it("should be able to set and retrieve banner content", () => {
-    const sampleBanner: BannerContent = {
+  it("should be able to show and remove a banner", () => {
+    const bannerContent: BannerContent = {
       type: "info",
-      text: "Info Banner",
+      text: (t: ReturnType<typeof getI18n>) => t("Info Banner"),
+      score: BANNER_PRIORITY_LOW,
     }
 
-    const banner = service.content
-    banner.value = sampleBanner
-    const retrievedBanner = service.content.value
+    const bannerId = banner.showBanner(bannerContent)
+    expect(banner.content.value).toEqual({
+      id: bannerId,
+      content: bannerContent,
+    })
 
-    expect(retrievedBanner).toEqual(sampleBanner)
+    banner.removeBanner(bannerId)
+    expect(banner.content.value).toBeNull()
   })
 
-  it("should be able to update the banner content", () => {
-    const updatedBanner: BannerContent = {
-      type: "warning",
-      text: "Updated Banner Content",
-      alternateText: "Updated Banner",
+  it("should show the banner with the highest score", () => {
+    const lowPriorityBanner: BannerContent = {
+      type: "info",
+      text: (t: ReturnType<typeof getI18n>) => t("Low Priority Banner"),
+      score: BANNER_PRIORITY_LOW,
     }
 
-    service.content.value = updatedBanner
-    const retrievedBanner = service.content.value
+    const highPriorityBanner: BannerContent = {
+      type: "warning",
+      text: (t: ReturnType<typeof getI18n>) => t("High Priority Banner"),
+      score: BANNER_PRIORITY_HIGH,
+    }
 
-    expect(retrievedBanner).toEqual(updatedBanner)
+    banner.showBanner(lowPriorityBanner)
+    const highPriorityBannerID = banner.showBanner(highPriorityBanner)
+
+    expect(banner.content.value).toEqual({
+      id: highPriorityBannerID,
+      content: highPriorityBanner,
+    })
   })
 })

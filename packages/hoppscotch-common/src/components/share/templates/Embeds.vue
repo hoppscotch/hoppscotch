@@ -12,16 +12,18 @@
       }"
     >
       <span
-        class="flex flex-1 items-center justify-center rounded border border-divider px-3 py-2"
+        class="flex max-w-[4rem] items-center justify-center text-tiny rounded border border-divider px-1 py-2"
         :class="{
           '!border-dividerLight bg-accentContrast text-primary':
             embedOptions.theme === 'light',
         }"
       >
-        {{ method }}
+        <span class="truncate">
+          {{ method }}
+        </span>
       </span>
       <span
-        class="max-w-40 flex items-center rounded border border-divider p-2"
+        class="max-w-46 flex items-center rounded border border-divider p-2"
       >
         <span
           class="min-w-0 truncate"
@@ -35,7 +37,8 @@
       <button
         class="flex items-center justify-center rounded border border-dividerDark bg-primaryDark px-3 py-2 font-semibold text-secondary"
         :class="{
-          'bg-accentContrast text-primary': embedOptions.theme === 'light',
+          '!bg-accentContrast text-primaryLight':
+            embedOptions.theme === 'light',
         }"
       >
         {{ t("action.send") }}

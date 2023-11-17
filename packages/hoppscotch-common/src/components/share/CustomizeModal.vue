@@ -22,7 +22,7 @@
         />
       </div>
       <div class="flex flex-col divide-y divide-divider">
-        <div class="flex items-center justify-center px-6 py-8">
+        <div class="flex items-center justify-center px-4 py-8">
           <div v-if="selectedWidget.value === 'embed'" class="w-full flex-1">
             <div class="flex flex-col pb-8">
               <div

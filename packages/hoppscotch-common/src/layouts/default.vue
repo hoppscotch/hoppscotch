@@ -75,7 +75,7 @@ import { applySetting } from "~/newstore/settings"
 import { useToast } from "~/composables/toast"
 import { useI18n } from "~/composables/i18n"
 import { platform } from "~/platform"
-import { PersistenceService } from "~/services/persistence.service"
+import { PersistenceService } from "~/services/persistence"
 
 const router = useRouter()
 

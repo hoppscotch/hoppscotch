@@ -148,6 +148,7 @@
     "confirm_user_to_admin": "Do you want to make this user into an admin?",
     "created_on": "Created On",
     "date": "Date",
+    "details": "Details",
     "delete": "Delete",
     "delete_user": "Delete User",
     "email": "Email",
@@ -170,8 +171,10 @@
     "remove_admin_status": "Remove Admin Status",
     "send_invite": "Send Invite",
     "show_more": "Show more",
+    "shared_requests": "User's shared requests",
     "uid": "UID",
     "unnamed": "(Unnamed User)",
+    "user_details": "User details",
     "user_not_found": "User not found in the infra!!",
     "users": "Users",
     "valid_email": "Please enter a valid email address"

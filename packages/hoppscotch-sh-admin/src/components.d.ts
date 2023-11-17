@@ -25,10 +25,16 @@ declare module '@vue/runtime-core' {
     HoppSmartItem: typeof import('@hoppscotch/ui')['HoppSmartItem']
     HoppSmartModal: typeof import('@hoppscotch/ui')['HoppSmartModal']
     HoppSmartPicture: typeof import('@hoppscotch/ui')['HoppSmartPicture']
+    HoppSmartPlaceholder: typeof import('@hoppscotch/ui')['HoppSmartPlaceholder']
     HoppSmartSpinner: typeof import('@hoppscotch/ui')['HoppSmartSpinner']
+    HoppSmartTab: typeof import('@hoppscotch/ui')['HoppSmartTab']
     HoppSmartTable: typeof import('@hoppscotch/ui')['HoppSmartTable']
+    HoppSmartTabs: typeof import('@hoppscotch/ui')['HoppSmartTabs']
+    IconLucideArrowLeft: typeof import('~icons/lucide/arrow-left')['default']
     IconLucideChevronDown: typeof import('~icons/lucide/chevron-down')['default']
+    IconLucideHelpCircle: typeof import('~icons/lucide/help-circle')['default']
     IconLucideInbox: typeof import('~icons/lucide/inbox')['default']
+    IconLucideUser: typeof import('~icons/lucide/user')['default']
     SmartAnchor: typeof import('./../../hoppscotch-ui/src/components/smart/Anchor.vue')['default']
     SmartAutoComplete: typeof import('./../../hoppscotch-ui/src/components/smart/AutoComplete.vue')['default']
     SmartCheckbox: typeof import('./../../hoppscotch-ui/src/components/smart/Checkbox.vue')['default']
@@ -62,7 +68,9 @@ declare module '@vue/runtime-core' {
     TeamsMembers: typeof import('./components/teams/Members.vue')['default']
     TeamsPendingInvites: typeof import('./components/teams/PendingInvites.vue')['default']
     Tippy: typeof import('vue-tippy')['Tippy']
+    UsersDetails: typeof import('./components/users/Details.vue')['default']
     UsersInviteModal: typeof import('./components/users/InviteModal.vue')['default']
+    UsersSharedRequests: typeof import('./components/users/SharedRequests.vue')['default']
   }
 
 }

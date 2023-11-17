@@ -7,6 +7,7 @@ import {
 } from "@hoppscotch/data"
 import { entityReference } from "verzod"
 import { z } from "zod"
+import { HoppAccentColors, HoppBgColors } from "~/newstore/settings"
 
 const ThemeColorSchema = z.enum([
   "green",
@@ -22,7 +23,7 @@ const ThemeColorSchema = z.enum([
 
 const BgColorSchema = z.enum(["system", "light", "dark", "black"])
 
-export const SettingsDefSchema = z.object({
+const SettingsDefSchema = z.object({
   syncCollections: z.boolean(),
   syncHistory: z.boolean(),
   syncEnvironments: z.boolean(),
@@ -45,28 +46,27 @@ export const SettingsDefSchema = z.object({
 })
 
 // @ts-expect-error recursive schema
-const HoppCollectionSchema = z.object({
-  v: z.number(),
-  name: z.string(),
-  folders: z.array(z.lazy(() => HoppCollectionSchema)),
-  id: z.optional(z.string()),
-})
+const HoppCollectionSchema = z
+  .object({
+    v: z.number(),
+    name: z.string(),
+    folders: z.array(z.lazy(() => HoppCollectionSchema)),
+    id: z.optional(z.string()),
+  })
+  .strict()
 
 const HoppRESTRequestSchema = entityReference(HoppRESTRequest)
 
 const HoppGQLRequestSchema = entityReference(HoppGQLRequest)
 
-const HoppRESTCollectionSchema = HoppCollectionSchema.merge(
-  z.object({
-    requests: z.optional(z.array(HoppRESTRequestSchema)),
-  })
-)
+const HoppRESTCollectionSchema = HoppCollectionSchema.extend({
+  requests: z.optional(z.array(HoppRESTRequestSchema)),
+}).strict()
 
-const HoppGQLCollectionSchema = HoppCollectionSchema.merge(
-  z.object({
-    requests: z.optional(z.array(HoppGQLRequestSchema)),
-  })
-)
+const HoppGQLCollectionSchema = HoppCollectionSchema.extend({
+  requests: z.optional(z.array(HoppGQLRequestSchema)),
+}).strict()
+
 export const VUEX_SCHEMA = z.object({
   postwoman: z.optional(
     z.object({
@@ -78,6 +78,27 @@ export const VUEX_SCHEMA = z.object({
     })
   ),
 })
+
+export const THEME_COLOR_SCHEMA = z.enum(HoppAccentColors)
+
+export const NUXT_COLOR_MODE_SCHEMA = z.enum(HoppBgColors)
+
+export const LOCAL_STATE_SCHEMA = z.union([
+  z.object({}).strict(),
+  z
+    .object({
+      REMEMBERED_TEAM_ID: z.optional(z.string()),
+    })
+    .strict(),
+])
+
+export const SETTINGS_SCHEMA = z.union([
+  z.object({}).strict(),
+  SettingsDefSchema.extend({
+    EXTENSIONS_ENABLED: z.optional(z.boolean()),
+    PROXY_ENABLED: z.optional(z.boolean()),
+  }),
+])
 
 export const REST_HISTORY_ENTRY_SCHEMA = z
   .object({
@@ -111,6 +132,8 @@ export const GQL_HISTORY_ENTRY_SCHEMA = z
 export const REST_COLLECTION_SCHEMA = HoppRESTCollectionSchema
 
 export const GQL_COLLECTION_SCHEMA = HoppGQLCollectionSchema
+
+export const ENVIRONMENTS_SCHEMA = z.array(entityReference(Environment))
 
 export const SELECTED_ENV_INDEX_SCHEMA = z.nullable(
   z.discriminatedUnion("type", [

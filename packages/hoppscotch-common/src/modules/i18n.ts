@@ -45,6 +45,8 @@ type LanguagesDef = {
 
 const FALLBACK_LANG_CODE = "en"
 
+const persistenceService = getService(PersistenceService)
+
 // TypeScript cannot understand dir is restricted to "ltr" or "rtl" yet, hence assertion
 export const APP_LANGUAGES: LanguagesDef[] = languages as LanguagesDef[]
 
@@ -57,8 +59,6 @@ export const FALLBACK_LANG = pipe(
     throwError(`Could not find the fallback language '${FALLBACK_LANG_CODE}'`)
   )
 )
-
-const persistenceService = getService(PersistenceService)
 
 // A reference to the i18n instance
 let i18nInstance: I18n<

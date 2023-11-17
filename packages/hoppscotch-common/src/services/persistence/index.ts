@@ -13,7 +13,6 @@ import { z } from "zod"
 import { GQLTabService } from "~/services/tab/graphql"
 import { RESTTabService } from "~/services/tab/rest"
 
-import { entityReference } from "verzod"
 import { useToast } from "~/composables/toast"
 import { MQTTRequest$, setMQTTRequest } from "../../newstore/MQTTSession"
 import { SSERequest$, setSSERequest } from "../../newstore/SSESession"
@@ -45,9 +44,7 @@ import {
 import { bulkApplyLocalState, localStateStore } from "../../newstore/localstate"
 import {
   HoppAccentColor,
-  HoppAccentColors,
   HoppBgColor,
-  HoppBgColors,
   applySetting,
   bulkApplySettings,
   getDefaultSettings,
@@ -55,18 +52,22 @@ import {
   settingsStore,
 } from "../../newstore/settings"
 import {
+  ENVIRONMENTS_SCHEMA,
   GLOBAL_ENV_SCHEMA,
   GQL_COLLECTION_SCHEMA,
   GQL_HISTORY_ENTRY_SCHEMA,
   GQL_TAB_STATE_SCHEMA,
+  LOCAL_STATE_SCHEMA,
   MQTT_REQUEST_SCHEMA,
+  NUXT_COLOR_MODE_SCHEMA,
   REST_COLLECTION_SCHEMA,
   REST_HISTORY_ENTRY_SCHEMA,
   REST_TAB_STATE_SCHEMA,
   SELECTED_ENV_INDEX_SCHEMA,
+  SETTINGS_SCHEMA,
   SOCKET_IO_REQUEST_SCHEMA,
   SSE_REQUEST_SCHEMA,
-  SettingsDefSchema,
+  THEME_COLOR_SCHEMA,
   VUEX_SCHEMA,
   WEBSOCKET_REQUEST_SCHEMA,
 } from "./validation-schemas"
@@ -179,7 +180,7 @@ export class PersistenceService extends Service {
 
     if (themeColorValue) {
       // Validate data read from localStorage
-      const result = z.enum(HoppAccentColors).safeParse(themeColorValue)
+      const result = THEME_COLOR_SCHEMA.safeParse(themeColorValue)
 
       if (result.success) {
         themeColorValue = result.data
@@ -197,7 +198,7 @@ export class PersistenceService extends Service {
 
     if (nuxtColorModeValue) {
       // Validate data read from localStorage
-      const result = z.enum(HoppBgColors).safeParse(nuxtColorModeValue)
+      const result = NUXT_COLOR_MODE_SCHEMA.safeParse(nuxtColorModeValue)
 
       if (result.success) {
         nuxtColorModeValue = result.data
@@ -220,17 +221,8 @@ export class PersistenceService extends Service {
       window.localStorage.getItem(localStateKey) ?? "{}"
     )
 
-    const schema = z.union([
-      z.object({}).strict(),
-      z
-        .object({
-          REMEMBERED_TEAM_ID: z.optional(z.string()),
-        })
-        .strict(),
-    ])
-
     // Validate data read from localStorage
-    const result = schema.safeParse(localStateData)
+    const result = LOCAL_STATE_SCHEMA.safeParse(localStateData)
 
     if (result.success) {
       localStateData = result.data
@@ -255,16 +247,8 @@ export class PersistenceService extends Service {
       window.localStorage.getItem(settingsKey) || "{}"
     )
 
-    const schema = z.union([
-      z.object({}).strict(),
-      SettingsDefSchema.extend({
-        EXTENSIONS_ENABLED: z.optional(z.boolean()),
-        PROXY_ENABLED: z.optional(z.boolean()),
-      }),
-    ])
-
     // Validate data read from localStorage
-    const result = schema.safeParse(settingsData)
+    const result = SETTINGS_SCHEMA.safeParse(settingsData)
     if (result.success) {
       settingsData = result.data
     } else {
@@ -412,10 +396,8 @@ export class PersistenceService extends Service {
       window.localStorage.getItem(environmentsKey) || "[]"
     )
 
-    const schema = z.array(entityReference(Environment))
-
     // Validate data read from localStorage
-    const result = schema.safeParse(environmentsData)
+    const result = ENVIRONMENTS_SCHEMA.safeParse(environmentsData)
     if (result.success) {
       environmentsData = result.data
     } else {

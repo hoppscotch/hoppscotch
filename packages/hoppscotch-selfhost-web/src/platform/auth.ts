@@ -9,11 +9,11 @@ import axios from "axios"
 import { BehaviorSubject, Subject } from "rxjs"
 import { Ref, ref, watch } from "vue"
 
-const persistenceService = getService(PersistenceService)
-
 export const authEvents$ = new Subject<AuthEvent | { event: "token_refresh" }>()
 const currentUser$ = new BehaviorSubject<HoppUser | null>(null)
 export const probableUser$ = new BehaviorSubject<HoppUser | null>(null)
+
+const persistenceService = getService(PersistenceService)
 
 async function logout() {
   await axios.get(`${import.meta.env.VITE_BACKEND_API_URL}/auth/logout`, {

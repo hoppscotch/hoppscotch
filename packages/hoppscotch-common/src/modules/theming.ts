@@ -12,7 +12,7 @@ export type HoppColorMode = {
   value: Readonly<Exclude<HoppBgColor, "system">>
 }
 
-let persistenceService: PersistenceService | null = null
+const persistenceService = getService(PersistenceService)
 
 const applyColorMode = (app: App) => {
   const [settingPref] = useSettingStatic("BG_COLOR")
@@ -20,7 +20,7 @@ const applyColorMode = (app: App) => {
   const currentLocalPreference = useStorage<HoppBgColor>(
     "nuxt-color-mode",
     "system",
-    persistenceService?.hoppLocalConfigStorage,
+    persistenceService.hoppLocalConfigStorage,
     {
       listenToStorageChanges: true,
     }
@@ -74,8 +74,6 @@ const applyAccentColor = (_app: App) => {
 
 export default <HoppModule>{
   onVueAppInit(app) {
-    persistenceService = getService(PersistenceService)
-
     applyColorMode(app)
     applyAccentColor(app)
   },

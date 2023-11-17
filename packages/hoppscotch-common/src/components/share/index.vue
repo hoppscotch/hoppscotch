@@ -64,21 +64,15 @@
     @hide-modal="showConfirmModal = false"
     @resolve="resolveConfirmModal"
   />
-  <ShareRequestModal
+  <ShareModal
     v-model="selectedWidget"
-    :request="requestToCreate"
-    :show="showSharedRequestModal"
+    :request="requestToShare"
+    :show="showShareRequestModal"
     :loading="shareRequestCreatingLoading"
-    @hide-modal="displayShareRequestModal(false)"
-    @create-shared-request="createSharedRequest"
-  />
-  <ShareCustomizeModal
-    v-model="selectedWidget"
-    :request="requestToCustomize"
-    :show="showCustomizeRequestModal"
-    :loading="shareRequestCreatingLoading"
+    :step="step"
     @hide-modal="displayCustomizeRequestModal(false)"
     @copy-shared-request="copySharedRequest"
+    @create-shared-request="createSharedRequest"
   />
 </template>
 
@@ -104,7 +98,6 @@ import { ref } from "vue"
 import { HoppRESTRequest } from "@hoppscotch/data"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
 import * as E from "fp-ts/Either"
-import { Shortcode } from "~/helpers/shortcode/Shortcode"
 import { RESTTabService } from "~/services/tab/rest"
 import { useService } from "dioc/vue"
 
@@ -116,14 +109,12 @@ const showConfirmModal = ref(false)
 const confirmModalTitle = ref("")
 const modalLoadingState = ref(false)
 
-const showSharedRequestModal = ref(false)
-const showCustomizeRequestModal = ref(false)
+const showShareRequestModal = ref(false)
 
 const sharedRequestID = ref("")
 const shareRequestCreatingLoading = ref(false)
 
-const requestToCreate = ref<HoppRESTRequest | null>(null)
-const requestToCustomize = ref<Shortcode | null>(null)
+const requestToShare = ref<HoppRESTRequest | null>(null)
 
 const restTab = useService(RESTTabService)
 
@@ -131,6 +122,8 @@ const currentUser = useReadonlyStream(
   platform.auth.getCurrentUserStream(),
   platform.auth.getCurrentUser()
 )
+
+const step = ref(1)
 
 type WidgetID = "embed" | "button" | "link"
 
@@ -162,7 +155,9 @@ const loading = computed(
 onLoggedIn(() => {
   try {
     adapter.initialize()
-  } catch (e) {}
+  } catch (e) {
+    console.error(e)
+  }
 })
 
 onAuthEvent((ev) => {
@@ -205,16 +200,13 @@ const loadMoreSharedRequests = () => {
   adapter.loadMore()
 }
 
-const customizeSharedRequest = (request: Shortcode) => {
-  requestToCustomize.value = request
-  displayCustomizeRequestModal(true)
-}
-
 const displayShareRequestModal = (show: boolean) => {
-  showSharedRequestModal.value = show
+  showShareRequestModal.value = show
+  step.value = 1
 }
 const displayCustomizeRequestModal = (show: boolean) => {
-  showCustomizeRequestModal.value = show
+  showShareRequestModal.value = show
+  step.value = 2
 }
 
 const createSharedRequest = async (request: HoppRESTRequest | null) => {
@@ -230,13 +222,27 @@ const createSharedRequest = async (request: HoppRESTRequest | null) => {
       toast.error(`${sharedRequestResult.left.error}`)
       toast.error(t("error.something_went_wrong"))
     } else if (E.isRight(sharedRequestResult)) {
-      if (sharedRequestResult.right.createShortcode)
-        customizeSharedRequest(sharedRequestResult.right.createShortcode)
-
-      shareRequestCreatingLoading.value = false
-      displayShareRequestModal(false)
+      if (sharedRequestResult.right.createShortcode) {
+        shareRequestCreatingLoading.value = false
+        requestToShare.value = {
+          ...JSON.parse(sharedRequestResult.right.createShortcode.request),
+          id: sharedRequestResult.right.createShortcode.id,
+        }
+        step.value = 2
+      }
     }
   }
+}
+
+const customizeSharedRequest = (
+  request: HoppRESTRequest,
+  shredRequestID: string
+) => {
+  requestToShare.value = {
+    ...request,
+    id: shredRequestID,
+  }
+  displayCustomizeRequestModal(true)
 }
 
 const copySharedRequest = (request: {
@@ -282,7 +288,7 @@ const getErrorMessage = (err: GQLError<string>) => {
 }
 
 defineActionHandler("share.request", ({ request }) => {
-  requestToCreate.value = request
+  requestToShare.value = request
   displayShareRequestModal(true)
 })
 </script>

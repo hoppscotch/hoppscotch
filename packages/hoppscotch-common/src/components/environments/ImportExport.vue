@@ -180,7 +180,11 @@ const HoppEnvironmentsExport: ImporterOrExporter = {
     disabled: false,
     applicableTo: ["personal-workspace", "team-workspace"],
   },
-  action: async () => {
+  action: () => {
+    if (!environmentJson.value.length) {
+      return toast.error(t("error.no_environments_to_export"))
+    }
+
     const message = initializeDownloadCollection(
       environmentsExporter(environmentJson.value),
       "Environments"
@@ -207,7 +211,7 @@ const HoppEnvironmentsGistExporter: ImporterOrExporter = {
     title:
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      currentUser && currentUser.provider === "github.com"
+      currentUser?.provider === "github.com"
         ? "export.create_secret_gist"
         : "export.require_github",
     icon: IconUser,

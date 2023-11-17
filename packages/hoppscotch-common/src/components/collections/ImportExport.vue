@@ -369,7 +369,11 @@ const HoppMyCollectionsExporter: ImporterOrExporter = {
     applicableTo: ["personal-workspace"],
     isLoading: isHoppMyCollectionExporterInProgress,
   },
-  action: async () => {
+  action: () => {
+    if (!myCollections.value.length) {
+      return toast.error(t("error.no_collections_to_export"))
+    }
+
     isHoppMyCollectionExporterInProgress.value = true
 
     const message = initializeDownloadCollection(
@@ -413,8 +417,16 @@ const HoppTeamCollectionsExporter: ImporterOrExporter = {
       )
 
       if (E.isRight(res)) {
+        const { exportCollectionsToJSON } = res.right
+
+        if (!JSON.parse(exportCollectionsToJSON).length) {
+          isHoppTeamCollectionExporterInProgress.value = false
+
+          return toast.error(t("error.no_collections_to_export"))
+        }
+
         initializeDownloadCollection(
-          res.right.exportCollectionsToJSON,
+          exportCollectionsToJSON,
           "team-collections"
         )
 

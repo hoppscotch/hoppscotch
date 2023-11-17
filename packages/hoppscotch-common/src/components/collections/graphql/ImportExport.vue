@@ -124,7 +124,11 @@ const GqlCollectionsHoppExporter: ImporterOrExporter = {
     disabled: false,
     applicableTo: ["personal-workspace", "team-workspace"],
   },
-  action: async () => {
+  action: () => {
+    if (!gqlCollections.value.length) {
+      return toast.error(t("error.no_collections_to_export"))
+    }
+
     const message = initializeDownloadCollection(
       gqlCollectionsExporter(gqlCollections.value),
       "GQLCollections"

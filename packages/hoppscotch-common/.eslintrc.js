@@ -70,5 +70,6 @@ module.exports = {
       },
     ],
     eqeqeq: 1,
+    "no-else-return": 1,
   },
 }

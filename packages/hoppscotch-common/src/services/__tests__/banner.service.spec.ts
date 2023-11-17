@@ -10,7 +10,7 @@ import {
 
 describe("BannerService", () => {
   const container = new TestContainer()
-  const bannerService = container.bind(BannerService)
+  const banner = container.bind(BannerService)
 
   it("should be able to show and remove a banner", () => {
     const bannerContent: BannerContent = {
@@ -19,14 +19,14 @@ describe("BannerService", () => {
       score: BANNER_PRIORITY_LOW,
     }
 
-    const bannerId = bannerService.showBanner(bannerContent)
-    expect(bannerService.content.value).toEqual({
+    const bannerId = banner.showBanner(bannerContent)
+    expect(banner.content.value).toEqual({
       id: bannerId,
       content: bannerContent,
     })
 
-    bannerService.removeBanner(bannerId)
-    expect(bannerService.content.value).toBeNull()
+    banner.removeBanner(bannerId)
+    expect(banner.content.value).toBeNull()
   })
 
   it("should show the banner with the highest score", () => {
@@ -42,9 +42,12 @@ describe("BannerService", () => {
       score: BANNER_PRIORITY_HIGH,
     }
 
-    bannerService.showBanner(lowPriorityBanner)
-    bannerService.showBanner(highPriorityBanner)
+    banner.showBanner(lowPriorityBanner)
+    const highPriorityBannerID = banner.showBanner(highPriorityBanner)
 
-    expect(bannerService.content.value?.content).toEqual(highPriorityBanner)
+    expect(banner.content.value).toEqual({
+      id: highPriorityBannerID,
+      content: highPriorityBanner,
+    })
   })
 })

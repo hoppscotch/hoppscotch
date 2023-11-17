@@ -66,6 +66,7 @@ import {
   SELECTED_ENV_INDEX_SCHEMA,
   SOCKET_IO_REQUEST_SCHEMA,
   SSE_REQUEST_SCHEMA,
+  SettingsDefSchema,
   VUEX_SCHEMA,
   WEBSOCKET_REQUEST_SCHEMA,
 } from "./validation-schemas"
@@ -120,6 +121,7 @@ export class PersistenceService extends Service {
 
     if (isEmpty(vuexData)) return
 
+    // Validate data read from localStorage
     const result = VUEX_SCHEMA.safeParse(vuexData)
     if (result.success) {
       vuexData = result.data
@@ -173,10 +175,15 @@ export class PersistenceService extends Service {
     }
 
     const themeColorKey = "THEME_COLOR"
-    const themeColorValue = window.localStorage.getItem(themeColorKey)
+    let themeColorValue = window.localStorage.getItem(themeColorKey)
+
     if (themeColorValue) {
+      // Validate data read from localStorage
       const result = z.enum(HoppAccentColors).safeParse(themeColorValue)
-      if (!result.success) {
+
+      if (result.success) {
+        themeColorValue = result.data
+      } else {
         this.showErrorToast(themeColorKey)
         window.localStorage.setItem(`${themeColorKey}-backup`, themeColorValue)
       }
@@ -186,10 +193,15 @@ export class PersistenceService extends Service {
     }
 
     const nuxtColorModeKey = "nuxt-color-mode"
-    const nuxtColorModeValue = window.localStorage.getItem(nuxtColorModeKey)
+    let nuxtColorModeValue = window.localStorage.getItem(nuxtColorModeKey)
+
     if (nuxtColorModeValue) {
+      // Validate data read from localStorage
       const result = z.enum(HoppBgColors).safeParse(nuxtColorModeValue)
-      if (!result.success) {
+
+      if (result.success) {
+        nuxtColorModeValue = result.data
+      } else {
         this.showErrorToast(nuxtColorModeKey)
         window.localStorage.setItem(
           `${nuxtColorModeKey}-backup`,
@@ -204,7 +216,7 @@ export class PersistenceService extends Service {
 
   private setupLocalStatePersistence() {
     const localStateKey = "localState"
-    const localStateData = JSON.parse(
+    let localStateData = JSON.parse(
       window.localStorage.getItem(localStateKey) ?? "{}"
     )
 
@@ -217,8 +229,12 @@ export class PersistenceService extends Service {
         .strict(),
     ])
 
+    // Validate data read from localStorage
     const result = schema.safeParse(localStateData)
-    if (!result.success) {
+
+    if (result.success) {
+      localStateData = result.data
+    } else {
       this.showErrorToast(localStateKey)
       window.localStorage.setItem(
         `${localStateKey}-backup`,
@@ -235,20 +251,23 @@ export class PersistenceService extends Service {
 
   private setupSettingsPersistence() {
     const settingsKey = "settings"
-    const settingsData = JSON.parse(
+    let settingsData = JSON.parse(
       window.localStorage.getItem(settingsKey) || "{}"
     )
 
     const schema = z.union([
       z.object({}).strict(),
-      z.object({
+      SettingsDefSchema.extend({
         EXTENSIONS_ENABLED: z.optional(z.boolean()),
         PROXY_ENABLED: z.optional(z.boolean()),
       }),
     ])
 
+    // Validate data read from localStorage
     const result = schema.safeParse(settingsData)
-    if (!result.success) {
+    if (result.success) {
+      settingsData = result.data
+    } else {
       this.showErrorToast(settingsKey)
       window.localStorage.setItem(
         `${settingsKey}-backup`,
@@ -284,6 +303,7 @@ export class PersistenceService extends Service {
     const restHistorySchemaParsedresult = z
       .array(REST_HISTORY_ENTRY_SCHEMA)
       .safeParse(restHistoryData)
+
     if (restHistorySchemaParsedresult.success) {
       restHistoryData = restHistorySchemaParsedresult.data
     } else {
@@ -297,6 +317,7 @@ export class PersistenceService extends Service {
     const gqlHistorySchemaParsedresult = z
       .array(GQL_HISTORY_ENTRY_SCHEMA)
       .safeParse(graphqlHistoryData)
+
     if (gqlHistorySchemaParsedresult.success) {
       graphqlHistoryData = gqlHistorySchemaParsedresult.data
     } else {
@@ -337,9 +358,11 @@ export class PersistenceService extends Service {
       window.localStorage.getItem(graphqlCollectionsKey) || "[]"
     )
 
+    // Validate data read from localStorage
     const restCollectionsSchemaParsedresult = z
       .array(REST_COLLECTION_SCHEMA)
       .safeParse(restCollectionsData)
+
     if (restCollectionsSchemaParsedresult.success) {
       restCollectionsData = restCollectionsSchemaParsedresult.data
     } else {
@@ -353,6 +376,7 @@ export class PersistenceService extends Service {
     const gqlCollectionsSchemaParsedresult = z
       .array(GQL_COLLECTION_SCHEMA)
       .safeParse(graphqlCollectionsData)
+
     if (gqlCollectionsSchemaParsedresult.success) {
       graphqlCollectionsData = gqlCollectionsSchemaParsedresult.data
     } else {
@@ -389,6 +413,8 @@ export class PersistenceService extends Service {
     )
 
     const schema = z.array(entityReference(Environment))
+
+    // Validate data read from localStorage
     const result = schema.safeParse(environmentsData)
     if (result.success) {
       environmentsData = result.data
@@ -432,6 +458,7 @@ export class PersistenceService extends Service {
       window.localStorage.getItem(selectedEnvIndexKey) ?? "null"
     )
 
+    // Validate data read from localStorage
     const result = SELECTED_ENV_INDEX_SCHEMA.safeParse(selectedEnvIndexValue)
     if (result.success) {
       selectedEnvIndexValue = result.data
@@ -463,6 +490,7 @@ export class PersistenceService extends Service {
       window.localStorage.getItem(wsRequestKey) || "null"
     )
 
+    // Validate data read from localStorage
     const result = WEBSOCKET_REQUEST_SCHEMA.safeParse(wsRequestData)
     if (result.success) {
       wsRequestData = result.data
@@ -487,6 +515,7 @@ export class PersistenceService extends Service {
       window.localStorage.getItem(sioRequestKey) || "null"
     )
 
+    // Validate data read from localStorage
     const result = SOCKET_IO_REQUEST_SCHEMA.safeParse(sioRequestData)
     if (result.success) {
       sioRequestData = result.data
@@ -511,6 +540,7 @@ export class PersistenceService extends Service {
       window.localStorage.getItem(sseRequestKey) || "null"
     )
 
+    // Validate data read from localStorage
     const result = SSE_REQUEST_SCHEMA.safeParse(sseRequestData)
     if (result.success) {
       sseRequestData = result.data
@@ -535,6 +565,7 @@ export class PersistenceService extends Service {
       window.localStorage.getItem(mqttRequestKey) || "null"
     )
 
+    // Validate data read from localStorage
     const result = MQTT_REQUEST_SCHEMA.safeParse(mqttRequestData)
     if (result.success) {
       mqttRequestData = result.data
@@ -559,6 +590,7 @@ export class PersistenceService extends Service {
       window.localStorage.getItem(globalEnvKey) || "[]"
     )
 
+    // Validate data read from localStorage
     const result = GLOBAL_ENV_SCHEMA.safeParse(globalEnvData)
     if (result.success) {
       globalEnvData = result.data
@@ -579,28 +611,31 @@ export class PersistenceService extends Service {
 
   private setupGQLTabsPersistence() {
     const gqlTabStateKey = "gqlTabState"
-    try {
-      const gqlTabStateData = window.localStorage.getItem(gqlTabStateKey)
-      if (gqlTabStateData) {
-        let data = JSON.parse(gqlTabStateData)
+    const gqlTabStateData = window.localStorage.getItem(gqlTabStateKey)
 
-        const result = GQL_TAB_STATE_SCHEMA.safeParse(data)
+    try {
+      if (gqlTabStateData) {
+        let parsedGqlTabStateData = JSON.parse(gqlTabStateData)
+
+        // Validate data read from localStorage
+        const result = GQL_TAB_STATE_SCHEMA.safeParse(parsedGqlTabStateData)
+
         if (result.success) {
-          data = result.data
+          parsedGqlTabStateData = result.data
         } else {
           this.showErrorToast(gqlTabStateKey)
           window.localStorage.setItem(
             `${gqlTabStateKey}-backup`,
-            JSON.stringify(data)
+            JSON.stringify(parsedGqlTabStateData)
           )
         }
 
-        this.gqlTabService.loadTabsFromPersistedState(data)
+        this.gqlTabService.loadTabsFromPersistedState(parsedGqlTabStateData)
       }
     } catch (e) {
       console.error(
         `Failed parsing persisted tab state, state:`,
-        window.localStorage.getItem(gqlTabStateKey)
+        gqlTabStateData
       )
     }
 
@@ -618,28 +653,31 @@ export class PersistenceService extends Service {
 
   public setupRESTTabsPersistence() {
     const restTabStateKey = "restTabState"
-    try {
-      const restTabStateData = window.localStorage.getItem(restTabStateKey)
-      if (restTabStateData) {
-        let data = JSON.parse(restTabStateData)
+    const restTabStateData = window.localStorage.getItem(restTabStateKey)
 
-        const result = REST_TAB_STATE_SCHEMA.safeParse(data)
+    try {
+      if (restTabStateData) {
+        let parsedGqlTabStateData = JSON.parse(restTabStateData)
+
+        // Validate data read from localStorage
+        const result = REST_TAB_STATE_SCHEMA.safeParse(parsedGqlTabStateData)
+
         if (result.success) {
-          data = result.data
+          parsedGqlTabStateData = result.data
         } else {
           this.showErrorToast(restTabStateKey)
           window.localStorage.setItem(
             `${restTabStateKey}-backup`,
-            JSON.stringify(data)
+            JSON.stringify(parsedGqlTabStateData)
           )
         }
 
-        this.restTabService.loadTabsFromPersistedState(data)
+        this.restTabService.loadTabsFromPersistedState(parsedGqlTabStateData)
       }
     } catch (e) {
       console.error(
         `Failed parsing persisted tab state, state:`,
-        window.localStorage.getItem(restTabStateKey)
+        restTabStateData
       )
     }
 
@@ -676,9 +714,9 @@ export class PersistenceService extends Service {
   }
 
   /**
-   * Gets a value from LocalStorage.
+   * Gets a value from localStorage
    *
-   * NOTE: Use LocalStorage to only store non-reactive simple data
+   * NOTE: Use localStorage to only store non-reactive simple data
    * For more complex data, use stores and connect it to `PersistenceService`
    */
   public getLocalConfig(name: string) {
@@ -686,9 +724,9 @@ export class PersistenceService extends Service {
   }
 
   /**
-   * Sets a value in LocalStorage.
+   * Sets a value in localStorage
    *
-   * NOTE: Use LocalStorage to only store non-reactive simple data
+   * NOTE: Use localStorage to only store non-reactive simple data
    * For more complex data, use stores and connect it to `PersistenceService`
    */
   public setLocalConfig(key: string, value: string) {
@@ -696,8 +734,7 @@ export class PersistenceService extends Service {
   }
 
   /**
-   * Clear config value in LocalStorage.
-   * @param key Key to be cleared
+   * Clear config value in localStorage
    */
   public removeLocalConfig(key: string) {
     window.localStorage.removeItem(key)

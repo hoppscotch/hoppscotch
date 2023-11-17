@@ -22,7 +22,7 @@ const ThemeColorSchema = z.enum([
 
 const BgColorSchema = z.enum(["system", "light", "dark", "black"])
 
-const SettingsDefSchema = z.object({
+export const SettingsDefSchema = z.object({
   syncCollections: z.boolean(),
   syncHistory: z.boolean(),
   syncEnvironments: z.boolean(),

@@ -124,7 +124,10 @@ import IconExternalLink from '~icons/lucide/external-link';
 
 const t = useI18n();
 const toast = useToast();
-const email = ref('');
+
+const props = defineProps<{
+  email: string;
+}>();
 
 // Get Desired Date Formats
 const getCreatedDate = (date: string) => format(new Date(date), 'dd-MM-yyyy');
@@ -145,7 +148,7 @@ const {
   (x) => x.infra.allShortcodes,
   (x) => x.id,
   sharedRequestsPerPage,
-  { cursor: undefined, take: sharedRequestsPerPage }
+  { cursor: undefined, take: sharedRequestsPerPage, email: props.email }
 );
 
 // Return request endpoint from the request object
@@ -194,7 +197,7 @@ const deleteSharedRequestMutation = async (id: string | null) => {
       sharedRequests.value = sharedRequests.value.filter(
         (request) => request.id !== id
       );
-      refetch(email.value);
+      refetch(props.email);
       toast.success(`${t('state.delete_request_success')}`);
     }
   });

@@ -209,7 +209,6 @@ export class ExtensionInterceptorService
     req: AxiosRequestConfig
   ): RequestRunResult["response"] {
     const extensionHook = window.__POSTWOMAN_EXTENSION_HOOK__
-
     if (!extensionHook) {
       return E.left(<InterceptorError>{
         // TODO: i18n this
@@ -230,6 +229,7 @@ export class ExtensionInterceptorService
 
       return E.right(result)
     } catch (e) {
+      console.error(e)
       // TODO: improve type checking
       if ((e as any).response) {
         return E.right((e as any).response)

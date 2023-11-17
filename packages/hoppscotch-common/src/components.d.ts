@@ -5,7 +5,7 @@
 // Read more: https://github.com/vuejs/core/pull/3399
 export {}
 
-declare module "vue" {
+declare module 'vue' {
   export interface GlobalComponents {
     AppActionHandler: typeof import('./components/app/ActionHandler.vue')['default']
     AppAnnouncement: typeof import('./components/app/Announcement.vue')['default']
@@ -93,11 +93,13 @@ declare module "vue" {
     HoppButtonPrimary: typeof import('@hoppscotch/ui')['HoppButtonPrimary']
     HoppButtonSecondary: typeof import('@hoppscotch/ui')['HoppButtonSecondary']
     HoppSmartAnchor: typeof import('@hoppscotch/ui')['HoppSmartAnchor']
+    HoppSmartAutoComplete: typeof import('@hoppscotch/ui')['HoppSmartAutoComplete']
     HoppSmartCheckbox: typeof import('@hoppscotch/ui')['HoppSmartCheckbox']
     HoppSmartConfirmModal: typeof import('@hoppscotch/ui')['HoppSmartConfirmModal']
     HoppSmartExpand: typeof import('@hoppscotch/ui')['HoppSmartExpand']
     HoppSmartFileChip: typeof import('@hoppscotch/ui')['HoppSmartFileChip']
     HoppSmartInput: typeof import('@hoppscotch/ui')['HoppSmartInput']
+    HoppSmartIntersection: typeof import('@hoppscotch/ui')['HoppSmartIntersection']
     HoppSmartItem: typeof import('@hoppscotch/ui')['HoppSmartItem']
     HoppSmartLink: typeof import('@hoppscotch/ui')['HoppSmartLink']
     HoppSmartModal: typeof import('@hoppscotch/ui')['HoppSmartModal']
@@ -145,6 +147,7 @@ declare module "vue" {
     IconLucideAlertTriangle: typeof import('~icons/lucide/alert-triangle')['default']
     IconLucideArrowLeft: typeof import('~icons/lucide/arrow-left')['default']
     IconLucideArrowUpRight: typeof import('~icons/lucide/arrow-up-right')['default']
+    IconLucideBrush: typeof import('~icons/lucide/brush')['default']
     IconLucideCheckCircle: typeof import('~icons/lucide/check-circle')['default']
     IconLucideChevronRight: typeof import('~icons/lucide/chevron-right')['default']
     IconLucideGlobe: typeof import('~icons/lucide/globe')['default']
@@ -154,6 +157,7 @@ declare module "vue" {
     IconLucideLayers: typeof import('~icons/lucide/layers')['default']
     IconLucideListEnd: typeof import('~icons/lucide/list-end')['default']
     IconLucideMinus: typeof import('~icons/lucide/minus')['default']
+    IconLucideRss: typeof import('~icons/lucide/rss')['default']
     IconLucideSearch: typeof import('~icons/lucide/search')['default']
     IconLucideUsers: typeof import('~icons/lucide/users')['default']
     InterceptorsErrorPlaceholder: typeof import('./components/interceptors/ErrorPlaceholder.vue')['default']
@@ -202,6 +206,7 @@ declare module "vue" {
     SmartSlideOver: typeof import('./../../hoppscotch-ui/src/components/smart/SlideOver.vue')['default']
     SmartSpinner: typeof import('./../../hoppscotch-ui/src/components/smart/Spinner.vue')['default']
     SmartTab: typeof import('./../../hoppscotch-ui/src/components/smart/Tab.vue')['default']
+    SmartTable: typeof import('./../../hoppscotch-ui/src/components/smart/Table.vue')['default']
     SmartTabs: typeof import('./../../hoppscotch-ui/src/components/smart/Tabs.vue')['default']
     SmartToggle: typeof import('./../../hoppscotch-ui/src/components/smart/Toggle.vue')['default']
     SmartTree: typeof import('./../../hoppscotch-ui/src/components/smart/Tree.vue')['default']

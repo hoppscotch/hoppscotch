@@ -63,6 +63,7 @@ import {
   GQLResponseEvent,
   runGQLOperation,
   gqlMessageEvent,
+  connection,
 } from "~/helpers/graphql/connection"
 import { useService } from "dioc/vue"
 import { InterceptorService } from "~/services/interceptor.service"
@@ -152,13 +153,7 @@ const runQuery = async (
       toast.success(t("authorization.graphql_headers"))
     }
   } catch (e: any) {
-    console.log(e)
-    // response.value = [`${e}`]
     completePageProgress()
-    toast.error(
-      `${t("error.something_went_wrong")}. ${t("error.check_console_details")}`,
-      {}
-    )
     console.error(e)
   }
   platform.analytics?.logEvent({
@@ -177,7 +172,10 @@ watch(
     }
 
     try {
-      if (event?.operationType !== "subscription") {
+      if (
+        event?.type === "response" &&
+        event?.operationType !== "subscription"
+      ) {
         // response.value = [event]
         emit("update:response", [event])
       } else {
@@ -187,6 +185,26 @@ watch(
       }
     } catch (error) {
       console.log(error)
+    }
+  },
+  { deep: true }
+)
+
+watch(
+  () => connection,
+  (newVal) => {
+    if (newVal.error && newVal.state === "DISCONNECTED") {
+      const response = [
+        {
+          type: "error",
+          error: {
+            message: newVal.error.message(t),
+            type: newVal.error.type,
+            component: newVal.error.component,
+          },
+        },
+      ]
+      emit("update:response", response)
     }
   },
   { deep: true }

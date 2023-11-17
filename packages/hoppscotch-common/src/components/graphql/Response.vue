@@ -1,6 +1,11 @@
 <template>
-  <div class="flex flex-1 flex-col overflow-auto whitespace-nowrap">
-    <div v-if="response?.length === 1" class="flex flex-1 flex-col">
+  <div class="flex flex-col flex-1 overflow-auto whitespace-nowrap">
+    <div
+      v-if="
+        response && response.length === 1 && response[0].type === 'response'
+      "
+      class="flex flex-col flex-1"
+    >
       <div
         class="sticky top-0 z-10 flex flex-shrink-0 items-center justify-between overflow-x-auto border-b border-dividerLight bg-primary pl-4"
       >
@@ -35,6 +40,13 @@
       </div>
       <div ref="schemaEditor" class="flex flex-1 flex-col"></div>
     </div>
+    <component
+      :is="response[0].error.component"
+      v-else-if="
+        response && response[0].type === 'error' && response[0].error.component
+      "
+      class="flex-1"
+    />
     <div
       v-else-if="response && response?.length > 1"
       class="flex flex-1 flex-col"
@@ -74,8 +86,16 @@ const props = withDefaults(
 )
 
 const responseString = computed(() => {
-  if (props.response?.length === 1) {
-    return JSON.stringify(JSON.parse(props.response[0].data), null, 2)
+  const response = props.response
+  if (response && response[0].type === "error") {
+    return ""
+  } else if (
+    response &&
+    response.length === 1 &&
+    response[0].type === "response" &&
+    response[0].data
+  ) {
+    return JSON.stringify(JSON.parse(response[0].data), null, 2)
   }
   return ""
 })

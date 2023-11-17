@@ -165,14 +165,12 @@ const parseOpenAPIV3BodyFormData = (
       contentType,
       body: keys.map((key) => `${key}: `).join("\n"),
     }
-  } else {
-    return {
-      contentType,
-      body: keys.map(
-        (key) =>
-          <FormDataKeyValue>{ key, value: "", isFile: false, active: true }
-      ),
-    }
+  }
+  return {
+    contentType,
+    body: keys.map(
+      (key) => <FormDataKeyValue>{ key, value: "", isFile: false, active: true }
+    ),
   }
 }
 
@@ -231,10 +229,9 @@ const resolveOpenAPIV3SecurityObj = (
     } else if (scheme.scheme === "bearer") {
       // Bearer
       return { authType: "bearer", authActive: true, token: "" }
-    } else {
-      // Unknown/Unsupported Scheme
-      return { authType: "none", authActive: true }
     }
+    // Unknown/Unsupported Scheme
+    return { authType: "none", authActive: true }
   } else if (scheme.type === "apiKey") {
     if (scheme.in === "header") {
       return {
@@ -299,17 +296,16 @@ const resolveOpenAPIV3SecurityObj = (
         scope: _schemeData.join(" "),
         token: "",
       }
-    } else {
-      return {
-        authType: "oauth-2",
-        authActive: true,
-        accessTokenURL: "",
-        authURL: "",
-        clientID: "",
-        oidcDiscoveryURL: "",
-        scope: _schemeData.join(" "),
-        token: "",
-      }
+    }
+    return {
+      authType: "oauth-2",
+      authActive: true,
+      accessTokenURL: "",
+      authURL: "",
+      clientID: "",
+      oidcDiscoveryURL: "",
+      scope: _schemeData.join(" "),
+      token: "",
     }
   } else if (scheme.type === "openIdConnect") {
     return {
@@ -337,7 +333,7 @@ const resolveOpenAPIV3SecurityScheme = (
     | undefined
 
   if (!scheme) return { authType: "none", authActive: true }
-  else return resolveOpenAPIV3SecurityObj(scheme, schemeData)
+  return resolveOpenAPIV3SecurityObj(scheme, schemeData)
 }
 
 const resolveOpenAPIV3Security = (
@@ -437,17 +433,16 @@ const resolveOpenAPIV2SecurityScheme = (
         scope: _schemeData.join(" "),
         token: "",
       }
-    } else {
-      return {
-        authType: "oauth-2",
-        authActive: true,
-        accessTokenURL: "",
-        authURL: "",
-        clientID: "",
-        oidcDiscoveryURL: "",
-        scope: _schemeData.join(" "),
-        token: "",
-      }
+    }
+    return {
+      authType: "oauth-2",
+      authActive: true,
+      accessTokenURL: "",
+      authURL: "",
+      clientID: "",
+      oidcDiscoveryURL: "",
+      scope: _schemeData.join(" "),
+      token: "",
     }
   }
 

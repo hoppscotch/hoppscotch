@@ -63,11 +63,10 @@ export function getRequestsByPath(
 
   if (pathArray.length === 1) {
     return currentCollection.requests
-  } else {
-    for (let i = 1; i < pathArray.length; i++) {
-      const folder = currentCollection.folders[pathArray[i]]
-      if (folder) currentCollection = folder
-    }
+  }
+  for (let i = 1; i < pathArray.length; i++) {
+    const folder = currentCollection.folders[pathArray[i]]
+    if (folder) currentCollection = folder
   }
 
   return currentCollection.requests

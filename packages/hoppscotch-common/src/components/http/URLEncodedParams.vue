@@ -242,7 +242,7 @@ const urlEncodedParamsRaw = pluckRef(body, "body")
 
 const urlEncodedParams = computed<RawKeyValueEntry[]>({
   get() {
-    return typeof urlEncodedParamsRaw.value == "string"
+    return typeof urlEncodedParamsRaw.value === "string"
       ? parseRawKeyValueEntries(urlEncodedParamsRaw.value)
       : []
   },

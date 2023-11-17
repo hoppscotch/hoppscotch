@@ -13,7 +13,6 @@ export const environmentsGistExporter = async (
 
   if (E.isLeft(res)) {
     return E.left(res.left)
-  } else {
-    return E.right(res.right.data.html_url as string)
   }
+  return E.right(res.right.data.html_url as string)
 }

@@ -453,12 +453,11 @@ const isEnvActive = (id: string | number) => {
   } else {
     if (selectedEnvironmentIndex.value.type === "MY_ENV") {
       return selectedEnv.value.index === id
-    } else {
-      return (
-        selectedEnvironmentIndex.value.type === "TEAM_ENV" &&
-        selectedEnv.value.teamEnvID === id
-      )
     }
+    return (
+      selectedEnvironmentIndex.value.type === "TEAM_ENV" &&
+      selectedEnv.value.teamEnvID === id
+    )
   }
 }
 
@@ -503,40 +502,36 @@ const selectedEnv = computed(() => {
         name: props.modelValue.environment.environment.name,
         teamEnvID: props.modelValue.environment.id,
       }
-    } else {
-      return { type: "global", name: "Global" }
     }
-  } else {
-    if (selectedEnvironmentIndex.value.type === "MY_ENV") {
-      const environment =
-        myEnvironments.value[selectedEnvironmentIndex.value.index]
-      return {
-        type: "MY_ENV",
-        index: selectedEnvironmentIndex.value.index,
-        name: environment.name,
-        variables: environment.variables,
-      }
-    } else if (selectedEnvironmentIndex.value.type === "TEAM_ENV") {
-      const teamEnv = teamEnvironmentList.value.find(
-        (env) =>
-          env.id ===
-          (selectedEnvironmentIndex.value.type === "TEAM_ENV" &&
-            selectedEnvironmentIndex.value.teamEnvID)
-      )
-      if (teamEnv) {
-        return {
-          type: "TEAM_ENV",
-          name: teamEnv.environment.name,
-          teamEnvID: selectedEnvironmentIndex.value.teamEnvID,
-          variables: teamEnv.environment.variables,
-        }
-      } else {
-        return { type: "NO_ENV_SELECTED" }
-      }
-    } else {
-      return { type: "NO_ENV_SELECTED" }
-    }
+    return { type: "global", name: "Global" }
   }
+  if (selectedEnvironmentIndex.value.type === "MY_ENV") {
+    const environment =
+      myEnvironments.value[selectedEnvironmentIndex.value.index]
+    return {
+      type: "MY_ENV",
+      index: selectedEnvironmentIndex.value.index,
+      name: environment.name,
+      variables: environment.variables,
+    }
+  } else if (selectedEnvironmentIndex.value.type === "TEAM_ENV") {
+    const teamEnv = teamEnvironmentList.value.find(
+      (env) =>
+        env.id ===
+        (selectedEnvironmentIndex.value.type === "TEAM_ENV" &&
+          selectedEnvironmentIndex.value.teamEnvID)
+    )
+    if (teamEnv) {
+      return {
+        type: "TEAM_ENV",
+        name: teamEnv.environment.name,
+        teamEnvID: selectedEnvironmentIndex.value.teamEnvID,
+        variables: teamEnv.environment.variables,
+      }
+    }
+    return { type: "NO_ENV_SELECTED" }
+  }
+  return { type: "NO_ENV_SELECTED" }
 })
 
 // Set the selected environment as initial scope value
@@ -584,13 +579,12 @@ const envQuickPeekActions = ref<TippyComponent | null>(null)
 const getErrorMessage = (err: GQLError<string>) => {
   if (err.type === "network_error") {
     return t("error.network_error")
-  } else {
-    switch (err.error) {
-      case "team_environment/not_found":
-        return t("team_environment.not_found")
-      default:
-        return t("error.something_went_wrong")
-    }
+  }
+  switch (err.error) {
+    case "team_environment/not_found":
+      return t("team_environment.not_found")
+    default:
+      return t("error.something_went_wrong")
   }
 }
 
@@ -599,9 +593,8 @@ const globalEnvs = useReadonlyStream(globalEnv$, [])
 const environmentVariables = computed(() => {
   if (selectedEnv.value.variables) {
     return selectedEnv.value.variables
-  } else {
-    return []
   }
+  return []
 })
 
 const editGlobalEnv = () => {

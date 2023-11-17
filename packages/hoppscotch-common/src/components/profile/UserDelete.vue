@@ -26,7 +26,7 @@
         </div>
         <div
           v-else-if="myTeams.length"
-          class="flex flex-col space-y-2 rounded-lg border border-red-500 bg-info p-4 text-secondaryDark"
+          class="bg-info flex flex-col space-y-2 rounded-lg border border-red-500 p-4 text-secondaryDark"
         >
           <h2 class="font-bold text-red-500">
             {{ t("error.danger_zone") }}
@@ -45,7 +45,7 @@
         </div>
         <div v-else>
           <div
-            class="mb-4 flex flex-col space-y-2 rounded-lg border border-red-500 bg-info p-4 text-secondaryDark"
+            class="bg-info mb-4 flex flex-col space-y-2 rounded-lg border border-red-500 p-4 text-secondaryDark"
           >
             <h2 class="font-bold text-red-500">
               {{ t("error.danger_zone") }}
@@ -173,8 +173,8 @@ const deleteUserAccount = async () => {
 const getErrorMessage = (err: GQLError<string>) => {
   if (err.type === "network_error") {
     return t("error.network_error")
-  } else {
-    return t("error.something_went_wrong")
   }
+
+  return t("error.something_went_wrong")
 }
 </script>

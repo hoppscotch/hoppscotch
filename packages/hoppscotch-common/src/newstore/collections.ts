@@ -1342,7 +1342,7 @@ function removeDuplicateCollectionsFromPath<
     : undefined
 
   if (collectionPath && parentCollection) {
-    if (type == "collection") {
+    if (type === "collection") {
       parentCollection.folders = removeDuplicatesFromAnArrayById(
         idToRemove,
         parentCollection.folders
@@ -1367,7 +1367,7 @@ function removeDuplicateCollectionsFromPath<
       (entry) => entry.id === idToRemove
     )
 
-    if (duplicateEntries.length == 2) {
+    if (duplicateEntries.length === 2) {
       const duplicateEntryIndex = arrayWithID.findIndex(
         (entry) => entry.id === idToRemove
       )

@@ -164,11 +164,10 @@ export function getFoldersByPath(
 
   if (pathArray.length === 1) {
     return currentCollection.folders
-  } else {
-    for (let i = 1; i < pathArray.length; i++) {
-      const folder = currentCollection.folders[pathArray[i]]
-      if (folder) currentCollection = folder
-    }
+  }
+  for (let i = 1; i < pathArray.length; i++) {
+    const folder = currentCollection.folders[pathArray[i]]
+    if (folder) currentCollection = folder
   }
 
   return currentCollection.folders

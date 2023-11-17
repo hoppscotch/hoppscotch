@@ -269,12 +269,12 @@ const ast = computed(() =>
 
 const editorText = computed(() => {
   if (selectedTab.value === "json") return jsonBodyText.value
-  else return logPayload.value
+  return logPayload.value
 })
 
 const editorMode = computed(() => {
   if (selectedTab.value === "json") return "application/ld+json"
-  else return "text/plain"
+  return "text/plain"
 })
 
 const { cursor } = useCodemirror(

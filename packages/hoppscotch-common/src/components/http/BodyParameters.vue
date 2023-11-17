@@ -339,7 +339,7 @@ const deleteBodyParam = (index: number) => {
   }
 
   workingParams.value = workingParams.value.filter(
-    (_, arrIndex) => arrIndex != index
+    (_, arrIndex) => arrIndex !== index
   )
 }
 

@@ -92,9 +92,8 @@ const getHighestSeverity = computed(() => {
       },
       { severity: 0 }
     )
-  } else {
-    return { severity: 0 }
   }
+  return { severity: 0 }
 })
 
 const severityColor = (severity: number) => {

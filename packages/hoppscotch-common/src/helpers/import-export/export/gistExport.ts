@@ -17,7 +17,6 @@ export const collectionsGistExporter = async (
 
   if (E.isLeft(res)) {
     return E.left(res.left)
-  } else {
-    return E.right(true)
   }
+  return E.right(true)
 }

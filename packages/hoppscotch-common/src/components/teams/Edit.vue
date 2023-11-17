@@ -276,7 +276,8 @@ const teamDetails = useGQLQuery<GetTeamQuery, GetTeamQueryVariables, "">({
           },
         },
       ]
-    } else return []
+    }
+    return []
   }),
 })
 

@@ -92,7 +92,7 @@ const handleImportToStore = async (
   collections: HoppCollection<HoppRESTRequest>[]
 ) => {
   const importResult =
-    props.collectionsType.type == "my-collections"
+    props.collectionsType.type === "my-collections"
       ? await importToPersonalWorkspace(collections)
       : await importToTeamsWorkspace(collections)
 

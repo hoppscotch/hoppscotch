@@ -32,7 +32,7 @@ export function useSteps() {
   }
 
   const goToPreviousStep = () => {
-    if (backHistoryIndexes.value.length != 1) {
+    if (backHistoryIndexes.value.length !== 1) {
       backHistoryIndexes.value.pop()
       currentStepIndex.value =
         backHistoryIndexes.value[backHistoryIndexes.value.length - 1]
@@ -51,7 +51,7 @@ export function useSteps() {
 }
 
 export function defineStep<
-  StepComponent extends ReturnType<typeof defineComponent>
+  StepComponent extends ReturnType<typeof defineComponent>,
 >(
   id: string,
   component: StepComponent,

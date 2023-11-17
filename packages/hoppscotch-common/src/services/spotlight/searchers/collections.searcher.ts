@@ -117,9 +117,8 @@ export class CollectionsSpotlightSearcherService
         return "graphql"
       } else if (url.pathname === "/") {
         return "rest"
-      } else {
-        return "other"
       }
+      return "other"
     } catch (e) {
       return "other"
     }

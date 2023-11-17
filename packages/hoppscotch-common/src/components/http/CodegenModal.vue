@@ -214,10 +214,9 @@ const requestCode = computed(() => {
   if (O.isSome(result)) {
     errorState.value = false
     return result.value
-  } else {
-    errorState.value = true
-    return ""
   }
+  errorState.value = true
+  return ""
 })
 
 // Template refs

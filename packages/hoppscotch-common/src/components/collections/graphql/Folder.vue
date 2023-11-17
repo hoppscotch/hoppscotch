@@ -253,7 +253,7 @@ const collectionIcon = computed(() => {
   if (isSelected.value) return IconCheckCircle
   else if (!showChildren.value && !props.isFiltered) return IconFolder
   else if (showChildren.value || !props.isFiltered) return IconFolderOpen
-  else return IconFolder
+  return IconFolder
 })
 
 const pick = () => {

@@ -319,7 +319,7 @@ export default class NewTeamCollectionAdapter {
 
       if (!parentCollection) return
 
-      if (parentCollection.children != null) {
+      if (parentCollection.children !== null) {
         parentCollection.children.push(collection)
       } else {
         parentCollection.children = [collection]
@@ -997,7 +997,7 @@ export default class NewTeamCollectionAdapter {
 
     if (!collection) return
 
-    if (collection.children != null) return
+    if (collection.children !== null) return
 
     this.loadingCollections$.next([
       ...this.loadingCollections$.getValue(),

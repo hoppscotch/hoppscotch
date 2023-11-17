@@ -374,9 +374,8 @@ const updateLastItemOrder = (e: DragEvent) => {
 const isRequestLoading = computed(() => {
   if (props.requestMoveLoading.length > 0 && props.requestID) {
     return props.requestMoveLoading.includes(props.requestID)
-  } else {
-    return false
   }
+  return false
 })
 
 const resetDragState = () => {

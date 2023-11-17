@@ -235,7 +235,7 @@ const probableUser = useReadonlyStream(
 const loadingCurrentUser = computed(() => {
   if (!probableUser.value) return false
   else if (!currentUser.value) return true
-  else return false
+  return false
 })
 
 const displayName = ref(currentUser.value?.displayName || "")

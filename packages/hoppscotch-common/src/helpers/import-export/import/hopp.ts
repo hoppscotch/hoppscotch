@@ -47,9 +47,8 @@ const isValidCollection = (
 const validateCollection = (collection: unknown) => {
   if (isValidCollection(collection)) {
     return O.some(collection)
-  } else {
-    return O.some(translateToNewRESTCollection(collection))
   }
+  return O.some(translateToNewRESTCollection(collection))
 }
 
 /**

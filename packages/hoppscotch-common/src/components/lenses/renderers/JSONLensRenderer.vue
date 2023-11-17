@@ -313,9 +313,8 @@ const jsonResponseBodyText = computed(() => {
       ),
       E.map(JSON.stringify)
     )
-  } else {
-    return E.right(responseBodyText.value)
   }
+  return E.right(responseBodyText.value)
 })
 
 const jsonBodyText = computed(() =>

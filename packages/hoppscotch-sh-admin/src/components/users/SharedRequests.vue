@@ -1,14 +1,14 @@
 <template>
-  <div class="flex flex-col mt-5">
-    <h1 class="text-lg font-bold text-secondaryDark">
-      {{ t('sharedRequests.title') }}
-    </h1>
-
+  <div class="flex flex-col">
     <div v-if="fetching" class="flex justify-center">
       <HoppSmartSpinner />
     </div>
 
     <div v-else-if="error">{{ t('sharedRequests.load_list_error') }}</div>
+
+    <div v-else-if="sharedRequests.length === 0" class="ml-3 mt-5 text-lg">
+      {{ t('sharedRequests.no_requests') }}
+    </div>
 
     <div v-else-if="sharedRequests?.length >= 0" class="mt-10">
       <HoppSmartTable :list="sharedRequests">
@@ -148,7 +148,8 @@ const {
   (x) => x.infra.allShortcodes,
   (x) => x.id,
   sharedRequestsPerPage,
-  { cursor: undefined, take: sharedRequestsPerPage, email: props.email }
+  { cursor: undefined, take: sharedRequestsPerPage },
+  { email: props.email }
 );
 
 // Return request endpoint from the request object
@@ -197,7 +198,7 @@ const deleteSharedRequestMutation = async (id: string | null) => {
       sharedRequests.value = sharedRequests.value.filter(
         (request) => request.id !== id
       );
-      refetch(props.email);
+      refetch();
       toast.success(`${t('state.delete_request_success')}`);
     }
   });

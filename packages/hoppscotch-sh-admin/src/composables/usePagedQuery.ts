@@ -11,7 +11,8 @@ export function usePagedQuery<
   getList: (result: Result) => ListItem[],
   getCursor: (value: ListItem) => string,
   itemsPerPage: number,
-  variables: Vars
+  variables: Vars,
+  additionalVariables?: Partial<Vars>
 ) {
   const { client } = useClientHandle();
   const fetching = ref(true);
@@ -20,7 +21,7 @@ export function usePagedQuery<
   const currentPage = ref(0);
   const hasNextPage = ref(true);
 
-  const fetchNextPage = async (email?: string) => {
+  const fetchNextPage = async () => {
     fetching.value = true;
 
     try {
@@ -30,7 +31,7 @@ export function usePagedQuery<
         ...variables,
         take: itemsPerPage,
         cursor,
-        email,
+        ...additionalVariables,
       };
 
       const result = await client
@@ -61,11 +62,11 @@ export function usePagedQuery<
     }
   };
 
-  const refetch = async (email?: string) => {
+  const refetch = async () => {
     currentPage.value = 0;
     hasNextPage.value = true;
     list.value = [];
-    await fetchNextPage(email);
+    await fetchNextPage();
   };
 
   return {

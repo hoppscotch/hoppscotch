@@ -4,22 +4,22 @@
       <HoppSmartSpinner />
     </div>
 
-    <div v-else-if="error">{{ t('sharedRequests.load_list_error') }}</div>
+    <div v-else-if="error">{{ t('shared_requests.load_list_error') }}</div>
 
     <div v-else-if="sharedRequests.length === 0" class="ml-3 mt-5 text-lg">
-      {{ t('sharedRequests.no_requests') }}
+      {{ t('shared_requests.no_requests') }}
     </div>
 
-    <div v-else-if="sharedRequests?.length >= 0" class="mt-10">
+    <div v-else-if="sharedRequests?.length" class="mt-10">
       <HoppSmartTable :list="sharedRequests">
         <template #head>
           <tr
             class="text-secondary border-b border-dividerDark text-sm text-left bg-primaryLight"
           >
-            <th class="px-6 py-3 w-30">{{ t('sharedRequests.url') }}</th>
-            <th class="px-6 py-2">{{ t('sharedRequests.id') }}</th>
-            <th class="px-6 py-2">{{ t('sharedRequests.email') }}</th>
-            <th class="px-6 py-2">{{ t('sharedRequests.created_on') }}</th>
+            <th class="px-6 py-3 w-30">{{ t('shared_requests.url') }}</th>
+            <th class="px-6 py-2">{{ t('shared_requests.id') }}</th>
+            <th class="px-6 py-2">{{ t('shared_requests.email') }}</th>
+            <th class="px-6 py-2">{{ t('shared_requests.created_on') }}</th>
             <!-- Empty Heading for the Action Button -->
             <th class="px-6 py-2">Actions</th>
           </tr>
@@ -54,7 +54,7 @@
             <td>
               <HoppButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"
-                :title="t('sharedRequests.open_request')"
+                :title="t('shared_requests.open_request')"
                 :to="`${shortcodeBaseURL}/r/${request.id}`"
                 :blank="true"
                 :icon="IconExternalLink"
@@ -62,7 +62,7 @@
               />
               <HoppButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"
-                :title="t('sharedRequests.copy')"
+                :title="t('shared_requests.copy')"
                 color="green"
                 :icon="copyIconRefs"
                 class="px-3"
@@ -70,7 +70,7 @@
               />
               <HoppButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"
-                :title="t('sharedRequests.delete')"
+                :title="t('shared_requests.delete')"
                 :icon="IconTrash"
                 color="red"
                 class="px-3"
@@ -86,19 +86,19 @@
         class="flex items-center w-28 px-3 py-2 mt-5 mx-auto font-semibold text-secondaryDark bg-divider hover:bg-dividerDark rounded-3xl cursor-pointer"
         @click="fetchNextSharedRequests"
       >
-        <span class="mr-2">{{ t('sharedRequests.show_more') }}</span>
+        <span class="mr-2">{{ t('shared_requests.show_more') }}</span>
         <icon-lucide-chevron-down />
       </div>
     </div>
 
     <div v-else class="mt-2 text-lg">
-      {{ t('sharedRequests.no_requests') }}
+      {{ t('shared_requests.no_requests') }}
     </div>
   </div>
 
   <HoppSmartConfirmModal
     :show="confirmDeletion"
-    :title="t('sharedRequests.confirm_request_deletion')"
+    :title="t('shared_requests.confirm_request_deletion')"
     @hide-modal="confirmDeletion = false"
     @resolve="deleteSharedRequestMutation(deleteSharedRequestID)"
   />

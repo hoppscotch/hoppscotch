@@ -31,7 +31,7 @@
             class="py-8 px-4"
           />
         </HoppSmartTab>
-        <HoppSmartTab :id="'requests'" :label="t('sharedRequests.title')">
+        <HoppSmartTab :id="'requests'" :label="t('shared_requests.title')">
           <UsersSharedRequests :email="user.email" class="py-8 px-4 mt-10" />
         </HoppSmartTab>
       </HoppSmartTabs>

@@ -19,7 +19,7 @@
     "owner": "OWNER",
     "viewer": "VIEWER"
   },
-  "sharedRequests": {
+  "shared_requests": {
     "clear_filter": "Clear Filter",
     "confirm_request_deletion": "Confirm deletion of the selected shared request?",
     "copy": "Copy",

@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col">
+  <div>
     <div v-if="fetching" class="flex justify-center">
       <HoppSmartSpinner />
     </div>
@@ -60,14 +60,13 @@
                 :icon="IconExternalLink"
                 class="px-3 text-emerald-500 hover:text-accent"
               />
-              <HoppButtonSecondary
-                v-tippy="{ theme: 'tooltip' }"
+
+              <UiAutoResetIcon
                 :title="t('shared_requests.copy')"
-                color="green"
-                :icon="copyIconRefs"
-                class="px-3"
-                @click="copySharedRequest(request.id)"
+                :icon="{ default: IconCopy, temporary: IconCheck }"
+                @icon-clicked="copySharedRequest(request.id)"
               />
+
               <HoppButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"
                 :title="t('shared_requests.delete')"
@@ -108,7 +107,6 @@
 import { format } from 'date-fns';
 import { ref } from 'vue';
 import { useMutation } from '@urql/vue';
-import { refAutoReset } from '@vueuse/core';
 import {
   SharedRequestsDocument,
   RevokeShortcodeByAdminDocument,
@@ -162,16 +160,10 @@ const sharedRequestURL = (request: string) => {
 const shortcodeBaseURL =
   import.meta.env.VITE_SHORTCODE_BASE_URL ?? 'https://hopp.sh';
 
-// Copy Shared Request
-const copyIconRefs = refAutoReset<typeof IconCopy | typeof IconCheck>(
-  IconCopy,
-  1000
-);
-
+// Copy Shared Request to Clipboard
 const copySharedRequest = (requestID: string) => {
   copyToClipboard(`${shortcodeBaseURL}/r/${requestID}`);
   toast.success(`${t('state.copied_to_clipboard')}`);
-  copyIconRefs.value = IconCheck;
 };
 
 // Shared Request Deletion

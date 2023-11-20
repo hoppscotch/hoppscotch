@@ -13,6 +13,10 @@ export class GithubStrategy extends PassportStrategy(Strategy) {
     private usersService: UserService,
   ) {
     super({
+      authorizationURL: process.env.GITHUB_AUTHORIZATION_URL,
+      tokenURL: process.env.GITHUB_TOKEN_URL,
+      userProfileURL: process.env.GITHUB_USER_PROFILE_URL,
+      userEmailURL: process.env.GITHUB_USER_EMAIL_URL,
       clientID: process.env.GITHUB_CLIENT_ID,
       clientSecret: process.env.GITHUB_CLIENT_SECRET,
       callbackURL: process.env.GITHUB_CALLBACK_URL,

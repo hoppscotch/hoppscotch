@@ -61,7 +61,7 @@
               @update:model-value="onTabUpdate"
             />
             <CollectionsRunner
-              v-if="tab.document.type === 'collection'"
+              v-if="tab.document.type === 'test-runner'"
               :model-value="tab"
               @update:model-value="onTabUpdate"
             />
@@ -70,6 +70,7 @@
               :model-value="tab"
               @update:model-value="onTabUpdate"
             />
+            <!-- END Render TabContents -->
           </HoppSmartWindow>
           <template #actions>
             <EnvironmentsSelector class="h-full" />
@@ -239,10 +240,10 @@ const sortTabs = (e: { oldIndex: number; newIndex: number }) => {
   tabs.updateTabOrdering(e.oldIndex, e.newIndex)
 }
 
-const getTabName = (tab: HoppTab<HoppRESTDocument>) => {
+const getTabName = (tab: HoppTab<HoppTabDocument>) => {
   if (tab.document.type === "request") {
     return tab.document.request.name
-  } else if (tab.document.type === "collection") {
+  } else if (tab.document.type === "test-runner") {
     console.log(tab.document.collection.name)
     return tab.document.collection.name
   }
@@ -413,7 +414,10 @@ defineActionHandler("rest.request.open", ({ doc }) => {
   tabs.createNewTab(doc)
 })
 
-defineActionHandler("request.rename", openReqRenameModal)
+defineActionHandler("request.rename", () => {
+  if (tabs.currentActiveTab.value.document.type === "request")
+    openReqRenameModal(tabs.currentActiveTab.value.id)
+})
 defineActionHandler("tab.duplicate-tab", ({ tabID }) => {
   duplicateTab(tabID ?? currentTabID.value)
 })

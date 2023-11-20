@@ -39,6 +39,7 @@ const toast = useToast()
 const props = defineProps<{
   document: HoppRequestDocument
   isEmbed: boolean
+  document: HoppTabDocument
 }>()
 
 const emit = defineEmits<{

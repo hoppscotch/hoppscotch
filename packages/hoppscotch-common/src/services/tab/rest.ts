@@ -4,8 +4,8 @@ import { computed } from "vue"
 import { getDefaultRESTRequest } from "~/helpers/rest/default"
 import {
   HoppCollectionSaveContext,
-  HoppRESTSaveContext,
   HoppTabDocument,
+  HoppRESTSaveContext,
 } from "~/helpers/rest/document"
 import { TabService } from "./tab"
 

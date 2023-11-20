@@ -83,11 +83,11 @@ export type HoppCollectionSaveContext =
     }
   | null
 
-export type HoppCollectionDocument = {
+export type HoppTestRunnerDocument = {
   /**
    * The document type
    */
-  type: "collection"
+  type: "test-runner"
   /**
    * The collection as it is in the document
    */
@@ -96,7 +96,7 @@ export type HoppCollectionDocument = {
    * Info about where this request should be saved.
    * This contains where the request is originated from basically.
    */
-  saveContext?: HoppCollectionSaveContext
+  saveContext?: HoppTestRunnerSaveContext
   /**
    * Whether the request has any unsaved changes
    * (atleast as far as we can say)

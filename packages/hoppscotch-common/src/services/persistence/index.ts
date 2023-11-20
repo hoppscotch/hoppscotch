@@ -635,7 +635,7 @@ export class PersistenceService extends Service {
     )
   }
 
-  public setupRESTTabsPersistence() {
+  private setupRESTTabsPersistence() {
     const restTabStateKey = "restTabState"
     const restTabStateData = window.localStorage.getItem(restTabStateKey)
 
@@ -677,7 +677,7 @@ export class PersistenceService extends Service {
     )
   }
 
-  public setupLocalPersistence() {
+  private setupLocalPersistence() {
     this.checkAndMigrateOldSettings()
 
     this.setupLocalStatePersistence()

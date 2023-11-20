@@ -85,6 +85,8 @@ export class PersistenceService extends Service {
 
   constructor() {
     super()
+
+    this.setupLocalPersistence()
   }
 
   private showErrorToast(localStorageKey: string) {

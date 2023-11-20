@@ -15,9 +15,6 @@ import "../assets/themes/themes.scss"
 
 import App from "./App.vue"
 
-import { getService } from "./modules/dioc"
-import { PersistenceService } from "./services/persistence"
-
 export function createHoppApp(el: string | Element, platformDef: PlatformDef) {
   setPlatformDef(platformDef)
 
@@ -29,9 +26,6 @@ export function createHoppApp(el: string | Element, platformDef: PlatformDef) {
 
   HOPP_MODULES.forEach((mod) => mod.onVueAppInit?.(app))
   platformDef.addedHoppModules?.forEach((mod) => mod.onVueAppInit?.(app))
-
-  const persistenceService = getService(PersistenceService)
-  persistenceService.setupLocalPersistence()
 
   performMigrations()
 

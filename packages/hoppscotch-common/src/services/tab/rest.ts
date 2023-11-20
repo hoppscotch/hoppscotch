@@ -1,7 +1,11 @@
 import { isEqual } from "lodash-es"
 import { computed } from "vue"
 import { getDefaultRESTRequest } from "~/helpers/rest/default"
-import { HoppRESTDocument, HoppRESTSaveContext } from "~/helpers/rest/document"
+import {
+  HoppCollectionSaveContext,
+  HoppRESTDocument,
+  HoppRESTSaveContext,
+} from "~/helpers/rest/document"
 import { TabService } from "./tab"
 
 export class RESTTabService extends TabService<HoppRESTDocument> {
@@ -13,6 +17,7 @@ export class RESTTabService extends TabService<HoppRESTDocument> {
     this.tabMap.set("test", {
       id: "test",
       document: {
+        type: "request",
         request: getDefaultRESTRequest(),
         isDirty: false,
         optionTabPreference: "params",
@@ -37,13 +42,18 @@ export class RESTTabService extends TabService<HoppRESTDocument> {
     }),
   }))
 
-  public getTabRefWithSaveContext(ctx: HoppRESTSaveContext) {
+  public getTabRefWithSaveContext(
+    ctx: HoppRESTSaveContext | HoppCollectionSaveContext,
+    type: "request" | "collection" = "request"
+  ) {
     for (const tab of this.tabMap.values()) {
       // For `team-collection` request id can be considered unique
       if (ctx?.originLocation === "team-collection") {
         if (
           tab.document.saveContext?.originLocation === "team-collection" &&
-          tab.document.saveContext.requestID === ctx.requestID
+          (type === "collection"
+            ? tab.document.saveContext.collectionID === ctx.collectionID
+            : tab.document.saveContext.requestID === ctx.requestID)
         ) {
           return this.getTabRef(tab.id)
         }

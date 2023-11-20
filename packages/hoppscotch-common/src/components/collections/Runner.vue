@@ -4,7 +4,9 @@
       <div class="flex flex-shrink-0 p-4 overflow-x-auto space-x-2 bg-primary">
         <div class="inline-flex flex-1 gap-8">
           <div v-for="item in arr" :key="item.name" class="flex flex-col">
-            <span class="text-xs text-secondaryLight">{{ item.name }}</span>
+            <span class="text-xs text-secondaryLight mb-1">{{
+              item.name
+            }}</span>
             <span class="text-sm font-bold text-secondaryDark">
               {{ item.value }}
             </span>
@@ -18,6 +20,36 @@
           outline
         />
       </div>
+
+      <HoppSmartTabs
+        v-model="selectedTestTab"
+        styles="sticky overflow-x-auto flex-shrink-0 bg-primary top-upperMobilePrimaryStickyFold sm:top-upperPrimaryStickyFold z-10"
+        render-inactive-tabs
+      >
+        <HoppSmartTab
+          :id="'all_tests'"
+          :label="`${t('tab.all_tests')}`"
+          :info="`${8}`"
+        >
+          <div class="flex flex-col justify-center p-4">
+            <HttpTestResult v-model="tab.document.testResults" />
+          </div>
+        </HoppSmartTab>
+        <HoppSmartTab
+          :id="'passed'"
+          :label="`${t('tab.passed')}`"
+          :info="`${3}`"
+        >
+          tab passed
+        </HoppSmartTab>
+        <HoppSmartTab
+          :id="'failed'"
+          :label="`${t('tab.failed')}`"
+          :info="`${5}`"
+        >
+          tab failed
+        </HoppSmartTab>
+      </HoppSmartTabs>
     </template>
     <template #secondary>
       <HttpResponse v-model:document="tab.document" />
@@ -27,7 +59,7 @@
 
 <script setup lang="ts">
 import IconPlus from "~icons/lucide/plus"
-import { watch } from "vue"
+import { ref, watch } from "vue"
 import { useVModel } from "@vueuse/core"
 import { cloneDeep } from "lodash-es"
 import { isEqualHoppRESTRequest } from "@hoppscotch/data"
@@ -59,6 +91,8 @@ const arr = [
     value: "1.5s",
   },
 ]
+
+const selectedTestTab = ref("all_tests")
 
 // TODO: Move Response and Request execution code to over here
 

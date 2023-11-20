@@ -34,6 +34,7 @@
       :filter-text="filterTexts"
       :save-request="saveRequest"
       :picked="picked"
+      @run-collection="runCollection"
       @add-folder="addFolder"
       @add-request="addRequest"
       @edit-collection="editCollection"
@@ -184,6 +185,7 @@ import {
 } from "~/newstore/collections"
 import TeamCollectionAdapter from "~/helpers/teams/TeamCollectionAdapter"
 import {
+  getDefaultRESTRequest,
   HoppCollection,
   HoppRESTRequest,
   makeCollection,
@@ -635,7 +637,9 @@ const addRequest = (payload: {
 
 const onAddRequest = (requestName: string) => {
   const newRequest = {
-    ...cloneDeep(tabs.currentActiveTab.value.document.request),
+    ...(tabs.currentActiveTab.value.document.type === "request"
+      ? cloneDeep(tabs.currentActiveTab.value.document.request)
+      : getDefaultRESTRequest()),
     name: requestName,
   }
 
@@ -645,6 +649,7 @@ const onAddRequest = (requestName: string) => {
     const insertionIndex = saveRESTRequestAs(path, newRequest)
 
     tabs.createNewTab({
+      type: "request",
       request: newRequest,
       isDirty: false,
       saveContext: {
@@ -694,6 +699,7 @@ const onAddRequest = (requestName: string) => {
           const { createRequestInCollection } = result
 
           tabs.createNewTab({
+            type: "request",
             request: newRequest,
             isDirty: false,
             saveContext: {
@@ -709,6 +715,34 @@ const onAddRequest = (requestName: string) => {
         }
       )
     )()
+  }
+}
+
+const runCollection = (payload: {
+  collectionIndex: string
+  collection: HoppCollection<HoppRESTRequest>
+}) => {
+  const possibleTab = tabs.getTabRefWithSaveContext(
+    {
+      originLocation: "user-collection",
+      folderPath: payload.collectionIndex!!,
+    },
+    "collection"
+  )
+  if (possibleTab) {
+    tabs.setActiveTab(possibleTab.value.id)
+  } else {
+    console.log("No tab found")
+    // If not, open the request in a new tab
+    tabs.createNewTab({
+      type: "collection",
+      collection: payload.collection,
+      isDirty: false,
+      saveContext: {
+        originLocation: "user-collection",
+        folderPath: payload.collectionIndex!,
+      },
+    })
   }
 }
 
@@ -924,7 +958,10 @@ const updateEditingRequest = (newName: string) => {
 
     editRESTRequest(folderPath, requestIndex, requestUpdated)
 
-    if (possibleActiveTab) {
+    if (
+      possibleActiveTab &&
+      possibleActiveTab.value.document.type === "request"
+    ) {
       possibleActiveTab.value.document.request.name = requestUpdated.name
       nextTick(() => {
         possibleActiveTab.value.document.isDirty = false
@@ -965,7 +1002,7 @@ const updateEditingRequest = (newName: string) => {
       requestID,
     })
 
-    if (possibleTab) {
+    if (possibleTab && possibleTab.value.document.type === "request") {
       possibleTab.value.document.request.name = requestName
       nextTick(() => {
         possibleTab.value.document.isDirty = false
@@ -1297,6 +1334,7 @@ const selectRequest = (selectedRequest: {
       tabs.setActiveTab(possibleTab.value.id)
     } else {
       tabs.createNewTab({
+        type: "request",
         request: cloneDeep(request),
         isDirty: false,
         saveContext: {
@@ -1316,6 +1354,7 @@ const selectRequest = (selectedRequest: {
     } else {
       // If not, open the request in a new tab
       tabs.createNewTab({
+        type: "request",
         request: cloneDeep(request),
         isDirty: false,
         saveContext: {

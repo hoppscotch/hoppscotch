@@ -33,7 +33,7 @@
             dropItemID = ''
           }
         "
-        @contextmenu.prevent="options?.tippy.show()"
+        @contextmenu.prevent="options?.tippy?.show()"
       >
         <div
           class="flex min-w-0 flex-1 items-center justify-center"
@@ -78,7 +78,7 @@
             :icon="IconPlaySquare"
             :title="t('collection.run')"
             class="hidden group-hover:inline-flex"
-            @click="emit('add-folder')"
+            @click="emit('run-collection')"
           />
           <span>
             <tippy
@@ -136,7 +136,7 @@
                     :shortcut="['N']"
                     @click="
                       () => {
-                        emit('add-folder')
+                        emit('run-collection')
                         hide()
                       }
                     "
@@ -264,6 +264,7 @@ const emit = defineEmits<{
   (event: "toggle-children"): void
   (event: "add-request"): void
   (event: "add-folder"): void
+  (event: "run-collection"): void
   (event: "edit-collection"): void
   (event: "export-data"): void
   (event: "remove-collection"): void
@@ -323,7 +324,7 @@ watch(
   () => props.exportLoading,
   (val) => {
     if (!val) {
-      options.value!.tippy.hide()
+      options.value!.tippy?.hide()
     }
   }
 )

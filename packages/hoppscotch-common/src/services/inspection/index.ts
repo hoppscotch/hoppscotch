@@ -126,11 +126,23 @@ export class InspectionService extends Service {
     watch(
       () => [this.inspectors.entries(), this.restTab.currentActiveTab.value.id],
       () => {
+        if (this.restTab.currentActiveTab.value.document.type !== "request")
+          return
+
+        console.log(
+          "INSPECTION SERVICE: initializeListeners",
+          this.restTab.currentActiveTab.value.document
+        )
+
         const reqRef = computed(
-          () => this.restTab.currentActiveTab.value.document.request
+          () =>
+            this.restTab.currentActiveTab.value.document.type === "request" &&
+            this.restTab.currentActiveTab.value.document.request
         )
         const resRef = computed(
-          () => this.restTab.currentActiveTab.value.document.response
+          () =>
+            this.restTab.currentActiveTab.value.document.type === "request" &&
+            this.restTab.currentActiveTab.value.document.response
         )
 
         const debouncedReq = refDebounced(reqRef, 1000, { maxWait: 2000 })

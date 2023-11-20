@@ -14,12 +14,13 @@
             v-for="tab in activeTabs"
             :id="tab.id"
             :key="tab.id"
-            :label="tab.document.request.name"
+            :label="getTabName(tab)"
             :is-removable="activeTabs.length > 1"
             :close-visibility="'hover'"
           >
             <template #tabhead>
               <HttpTabHead
+                v-if="tab.document.type === 'request'"
                 :tab="tab"
                 :is-removable="activeTabs.length > 1"
                 @open-rename-modal="openReqRenameModal(tab.id)"
@@ -43,14 +44,16 @@
                 </svg>
               </span>
             </template>
-            <HttpCollectionRunner
+            <CollectionsRunner
+              v-if="tab.document.type === 'collection'"
               :model-value="tab"
               @update:model-value="onTabUpdate"
             />
-            <!-- <HttpRequestTab
+            <HttpRequestTab
+              v-if="tab.document.type === 'request'"
               :model-value="tab"
               @update:model-value="onTabUpdate"
-            /> -->
+            />
           </HoppSmartWindow>
           <template #actions>
             <EnvironmentsSelector class="h-full" />
@@ -199,6 +202,7 @@ const onTabUpdate = (tab: HoppTab<HoppRESTDocument>) => {
 
 const addNewTab = () => {
   const tab = tabs.createNewTab({
+    type: "request",
     request: getDefaultRESTRequest(),
     isDirty: false,
   })
@@ -207,6 +211,15 @@ const addNewTab = () => {
 }
 const sortTabs = (e: { oldIndex: number; newIndex: number }) => {
   tabs.updateTabOrdering(e.oldIndex, e.newIndex)
+}
+
+const getTabName = (tab: HoppTab<HoppRESTDocument>) => {
+  if (tab.document.type === "request") {
+    return tab.document.request.name
+  } else if (tab.document.type === "collection") {
+    console.log(tab.document.collection.name)
+    return tab.document.collection.name
+  }
 }
 
 const inspectionService = useService(InspectionService)
@@ -242,6 +255,7 @@ const duplicateTab = (tabID: string) => {
   const tab = tabs.getTabRef(tabID)
   if (tab.value) {
     const newTab = tabs.createNewTab({
+      type: "request",
       request: cloneDeep(tab.value.document.request),
       isDirty: true,
     })

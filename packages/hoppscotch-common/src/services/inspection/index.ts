@@ -140,8 +140,21 @@ export class InspectionService extends Service {
             : null
         )
 
-        const reqRef = computed(() => currentTabRequest.value)
-        const resRef = computed(() => currentTabResponse.value)
+        console.log(
+          "INSPECTION SERVICE: initializeListeners",
+          this.restTab.currentActiveTab.value.document
+        )
+
+        const reqRef = computed(
+          () =>
+            this.restTab.currentActiveTab.value.document.type === "request" &&
+            this.restTab.currentActiveTab.value.document.request
+        )
+        const resRef = computed(
+          () =>
+            this.restTab.currentActiveTab.value.document.type === "request" &&
+            this.restTab.currentActiveTab.value.document.response
+        )
 
         const debouncedReq = refDebounced(reqRef, 1000, { maxWait: 2000 })
         const debouncedRes = refDebounced(resRef, 1000, { maxWait: 2000 })

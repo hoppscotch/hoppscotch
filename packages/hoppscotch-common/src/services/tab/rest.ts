@@ -1,9 +1,13 @@
+import { Container } from "dioc"
 import { isEqual } from "lodash-es"
 import { computed } from "vue"
 import { getDefaultRESTRequest } from "~/helpers/rest/default"
-import { HoppRESTSaveContext, HoppTabDocument } from "~/helpers/rest/document"
+import {
+  HoppCollectionSaveContext,
+  HoppRESTSaveContext,
+  HoppTabDocument,
+} from "~/helpers/rest/document"
 import { TabService } from "./tab"
-import { Container } from "dioc"
 
 export class RESTTabService extends TabService<HoppTabDocument> {
   public static readonly ID = "REST_TAB_SERVICE"
@@ -49,7 +53,10 @@ export class RESTTabService extends TabService<HoppTabDocument> {
     }),
   }))
 
-  public getTabRefWithSaveContext(ctx: HoppRESTSaveContext) {
+  public getTabRefWithSaveContext(
+    ctx: HoppRESTSaveContext | HoppCollectionSaveContext,
+    type: "request" | "collection" = "request"
+  ) {
     for (const tab of this.tabMap.values()) {
       // For `team-collection` request id can be considered unique
       if (ctx?.originLocation === "team-collection") {

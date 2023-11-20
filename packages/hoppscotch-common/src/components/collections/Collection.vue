@@ -86,7 +86,7 @@
             :icon="IconPlaySquare"
             :title="t('collection.run')"
             class="hidden group-hover:inline-flex"
-            @click="emit('add-folder')"
+            @click="emit('run-collection')"
           />
           <span>
             <tippy
@@ -147,7 +147,7 @@
                     :shortcut="['N']"
                     @click="
                       () => {
-                        emit('add-folder')
+                        emit('run-collection')
                         hide()
                       }
                     "
@@ -329,6 +329,7 @@ const emit = defineEmits<{
   (event: "toggle-children"): void
   (event: "add-request"): void
   (event: "add-folder"): void
+  (event: "run-collection"): void
   (event: "edit-collection"): void
   (event: "edit-properties"): void
   (event: "duplicate-collection"): void

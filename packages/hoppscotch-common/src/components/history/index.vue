@@ -298,6 +298,7 @@ const clearHistory = () => {
 const tabs = useService(RESTTabService)
 const useHistory = (entry: RESTHistoryEntry) => {
   tabs.createNewTab({
+    type: "request",
     request: entry.request,
     isDirty: false,
     type: "request",

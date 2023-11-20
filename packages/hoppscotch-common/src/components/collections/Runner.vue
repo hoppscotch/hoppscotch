@@ -1,149 +1,123 @@
 <template>
-  <HoppSmartModal
-    dialog
-    :title="t('collection_runner.run_collection')"
-    @close="closeModal"
-  >
-    <template #body>
-      <HoppSmartTabs v-model="activeTab">
-        <HoppSmartTab id="cli" :label="t('collection_runner.cli')">
-          <div class="space-y-4 p-4">
-            <p
-              class="p-4 mb-4 border rounded-md text-amber-500 border-amber-600"
-            >
-              {{ cliCommandGenerationDescription }}
-            </p>
-
-            <div v-if="environmentID" class="flex gap-x-2 items-center">
-              <HoppSmartCheckbox
-                :on="includeEnvironmentID"
-                @change="toggleIncludeEnvironment"
-              />
-              <span class="truncate"
-                >{{ t("collection_runner.include_active_environment") }}
-                <span class="text-secondaryDark">{{
-                  activeEnvironment
-                }}</span></span
-              >
-            </div>
-
-            <div
-              class="p-4 rounded-md bg-primaryLight text-secondaryDark select-text"
-            >
-              {{ generatedCLICommand }}
-            </div>
+  <AppPaneLayout layout-id="rest-primary">
+    <template #primary>
+      <div class="flex flex-shrink-0 p-4 overflow-x-auto space-x-2 bg-primary">
+        <div class="inline-flex flex-1 gap-8">
+          <div v-for="item in arr" :key="item.name" class="flex flex-col">
+            <span class="text-xs text-secondaryLight mb-1">{{
+              item.name
+            }}</span>
+            <span class="text-sm font-bold text-secondaryDark">
+              {{ item.value }}
+            </span>
           </div>
-        </HoppSmartTab>
-
-        <HoppSmartTab id="runner" disabled :label="t('collection_runner.ui')" />
-      </HoppSmartTabs>
-    </template>
-
-    <template #footer>
-      <div class="flex space-x-2">
-        <HoppButtonPrimary
-          :label="`${t('action.copy')}`"
-          :icon="copyIcon"
-          outline
-          @click="copyCLICommandToClipboard"
-        />
+        </div>
+        <HoppButtonPrimary label="Run" class="w-32" name="connect" />
         <HoppButtonSecondary
-          :label="`${t('action.close')}`"
-          outline
+          :icon="IconPlus"
+          :label="`New Run`"
           filled
-          @click="closeModal"
+          outline
         />
       </div>
+
+      <HoppSmartTabs
+        v-model="selectedTestTab"
+        styles="sticky overflow-x-auto flex-shrink-0 bg-primary top-upperMobilePrimaryStickyFold sm:top-upperPrimaryStickyFold z-10"
+        render-inactive-tabs
+      >
+        <HoppSmartTab
+          :id="'all_tests'"
+          :label="`${t('tab.all_tests')}`"
+          :info="`${8}`"
+        >
+          <div class="flex flex-col justify-center p-4">
+            <HttpTestResult v-model="tab.document.testResults" />
+          </div>
+        </HoppSmartTab>
+        <HoppSmartTab
+          :id="'passed'"
+          :label="`${t('tab.passed')}`"
+          :info="`${3}`"
+        >
+          tab passed
+        </HoppSmartTab>
+        <HoppSmartTab
+          :id="'failed'"
+          :label="`${t('tab.failed')}`"
+          :info="`${5}`"
+        >
+          tab failed
+        </HoppSmartTab>
+      </HoppSmartTabs>
     </template>
-  </HoppSmartModal>
+    <template #secondary>
+      <HttpResponse v-model:document="tab.document" />
+    </template>
+  </AppPaneLayout>
 </template>
 
 <script setup lang="ts">
-import { refAutoReset } from "@vueuse/core"
-import { computed, ref } from "vue"
+import IconPlus from "~icons/lucide/plus"
+import { ref, watch } from "vue"
+import { useVModel } from "@vueuse/core"
+import { cloneDeep } from "lodash-es"
+import { isEqualHoppRESTRequest } from "@hoppscotch/data"
+import { HoppTab } from "~/services/tab"
+import { HoppRESTDocument } from "~/helpers/rest/document"
 import { useI18n } from "~/composables/i18n"
 
-import { useToast } from "~/composables/toast"
-import { copyToClipboard } from "~/helpers/utils/clipboard"
-import { SelectedEnvironmentIndex } from "~/newstore/environments"
-import IconCheck from "~icons/lucide/check"
-import IconCopy from "~icons/lucide/copy"
-
 const t = useI18n()
-const toast = useToast()
 
-const props = defineProps<{
-  collectionID: string
-  environmentID?: string | null
-  selectedEnvironmentIndex: SelectedEnvironmentIndex
-}>()
+const arr = [
+  {
+    name: "Collection",
+    value: "Twitter API V3",
+  },
+  {
+    name: "Environment",
+    value: "None",
+  },
+  {
+    name: "Iteration",
+    value: "4",
+  },
+  {
+    name: "Duration",
+    value: "6s 123ms",
+  },
+  {
+    name: "Avg. Response Time",
+    value: "1.5s",
+  },
+]
+
+const selectedTestTab = ref("all_tests")
+
+// TODO: Move Response and Request execution code to over here
+
+const props = defineProps<{ modelValue: HoppTab<HoppRESTDocument> }>()
 
 const emit = defineEmits<{
-  (e: "hide-modal"): void
+  (e: "update:modelValue", val: HoppTab<HoppRESTDocument>): void
 }>()
 
-const includeEnvironmentID = ref(false)
-const activeTab = ref("cli")
+const tab = useVModel(props, "modelValue", emit)
 
-const copyIcon = refAutoReset<typeof IconCopy | typeof IconCheck>(
-  IconCopy,
-  1000
+// TODO: Come up with a better dirty check
+let oldRequest = cloneDeep(tab.value.document.request)
+watch(
+  () => tab.value.document.request,
+  (updatedValue) => {
+    if (
+      !tab.value.document.isDirty &&
+      !isEqualHoppRESTRequest(oldRequest, updatedValue)
+    ) {
+      tab.value.document.isDirty = true
+    }
+
+    oldRequest = cloneDeep(updatedValue)
+  },
+  { deep: true }
 )
-
-const activeEnvironment = computed(() => {
-  const selectedEnv = props.selectedEnvironmentIndex
-
-  if (selectedEnv.type === "TEAM_ENV") {
-    return selectedEnv.environment.name
-  }
-
-  return null
-})
-
-const isCloudInstance = window.location.hostname === "hoppscotch.io"
-
-const cliCommandGenerationDescription = computed(() => {
-  if (isCloudInstance) {
-    return t("collection_runner.cli_command_generation_description_cloud")
-  }
-
-  if (import.meta.env.VITE_BACKEND_API_URL) {
-    return t("collection_runner.cli_command_generation_description_sh")
-  }
-
-  return t(
-    "collection_runner.cli_command_generation_description_sh_with_server_url_placeholder"
-  )
-})
-
-const generatedCLICommand = computed(() => {
-  const { collectionID, environmentID } = props
-
-  const environmentFlag =
-    includeEnvironmentID.value && environmentID ? `-e ${environmentID}` : ""
-
-  const serverUrl = import.meta.env.VITE_BACKEND_API_URL?.endsWith("/v1")
-    ? // Removing `/v1` prefix
-      import.meta.env.VITE_BACKEND_API_URL.slice(0, -3)
-    : "<server_url>"
-
-  const serverFlag = isCloudInstance ? "" : `--server ${serverUrl}`
-
-  return `hopp test ${collectionID} ${environmentFlag} --token <access_token> ${serverFlag}`
-})
-
-const toggleIncludeEnvironment = () => {
-  includeEnvironmentID.value = !includeEnvironmentID.value
-}
-
-const copyCLICommandToClipboard = () => {
-  copyToClipboard(generatedCLICommand.value)
-  copyIcon.value = IconCheck
-
-  toast.success(`${t("state.copied_to_clipboard")}`)
-}
-
-const closeModal = () => {
-  emit("hide-modal")
-}
 </script>

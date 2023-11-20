@@ -449,6 +449,7 @@
     "invalid_name": "Please provide a name for the folder",
     "name_length_insufficient": "Folder name should be at least 3 characters long",
     "new": "New Folder",
+    "run": "Run Folder",
     "renamed": "Folder renamed"
   },
   "graphql": {
@@ -1070,7 +1071,10 @@
     "tests": "Tests",
     "types": "Types",
     "variables": "Variables",
-    "websocket": "WebSocket"
+    "websocket": "WebSocket",
+    "all_tests": "All Tests",
+    "passed": "Passed",
+    "failed": "Failed"
   },
   "team": {
     "already_member": "This email is associated with an existing user.",

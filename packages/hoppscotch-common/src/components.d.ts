@@ -7,6 +7,7 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    '(feat': collection runner added)
     AccessTokens: typeof import('./components/accessTokens/index.vue')['default']
     AccessTokensGenerateModal: typeof import('./components/accessTokens/GenerateModal.vue')['default']
     AccessTokensList: typeof import('./components/accessTokens/List.vue')['default']
@@ -129,6 +130,7 @@ declare module 'vue' {
     HoppSmartTree: typeof import('@hoppscotch/ui')['HoppSmartTree']
     HoppSmartWindow: typeof import('@hoppscotch/ui')['HoppSmartWindow']
     HoppSmartWindows: typeof import('@hoppscotch/ui')['HoppSmartWindows']
+    HoppTestEnv: typeof import('@hoppscotch/ui')['HoppTestEnv']
     HttpAuthorization: typeof import('./components/http/Authorization.vue')['default']
     HttpAuthorizationAkamaiEG: typeof import('./components/http/authorization/AkamaiEG.vue')['default']
     HttpAuthorizationApiKey: typeof import('./components/http/authorization/ApiKey.vue')['default']
@@ -143,6 +145,7 @@ declare module 'vue' {
     HttpBodyParameters: typeof import('./components/http/BodyParameters.vue')['default']
     HttpCodegen: typeof import('./components/http/Codegen.vue')['default']
     HttpCodegenModal: typeof import('./components/http/CodegenModal.vue')['default']
+    HttpCollectionRunner: (typeof import("./components/http/CollectionRunner.vue"))["default"]
     HttpExampleLenseBodyRenderer: typeof import('./components/http/example/LenseBodyRenderer.vue')['default']
     HttpExampleResponse: typeof import('./components/http/example/Response.vue')['default']
     HttpExampleResponseMeta: typeof import('./components/http/example/ResponseMeta.vue')['default']

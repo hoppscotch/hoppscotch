@@ -33,6 +33,7 @@
       :filter-text="filterTexts"
       :save-request="saveRequest"
       :picked="picked"
+      @run-collection="runCollection"
       @add-folder="addFolder"
       @add-request="addRequest"
       @edit-request="editRequest"
@@ -207,6 +208,7 @@
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
 import {
+  getDefaultRESTRequest,
   HoppCollection,
   HoppRESTAuth,
   HoppRESTHeaders,
@@ -837,7 +839,9 @@ const onAddRequest = (requestName: string) => {
   if (!request) return
 
   const newRequest = {
-    ...cloneDeep(request),
+    ...(tabs.currentActiveTab.value.document.type === "request"
+      ? cloneDeep(tabs.currentActiveTab.value.document.request)
+      : getDefaultRESTRequest()),
     name: requestName,
   }
 
@@ -849,6 +853,7 @@ const onAddRequest = (requestName: string) => {
     const { auth, headers } = cascadeParentCollectionForHeaderAuth(path, "rest")
 
     tabs.createNewTab({
+      type: "request",
       request: newRequest,
       isDirty: false,
       type: "request",
@@ -904,6 +909,7 @@ const onAddRequest = (requestName: string) => {
           const { auth, headers } =
             teamCollectionAdapter.cascadeParentCollectionForHeaderAuth(path)
           tabs.createNewTab({
+            type: "request",
             request: newRequest,
             isDirty: false,
             type: "request",
@@ -924,6 +930,34 @@ const onAddRequest = (requestName: string) => {
         }
       )
     )()
+  }
+}
+
+const runCollection = (payload: {
+  collectionIndex: string
+  collection: HoppCollection<HoppRESTRequest>
+}) => {
+  const possibleTab = tabs.getTabRefWithSaveContext(
+    {
+      originLocation: "user-collection",
+      folderPath: payload.collectionIndex!!,
+    },
+    "collection"
+  )
+  if (possibleTab) {
+    tabs.setActiveTab(possibleTab.value.id)
+  } else {
+    console.log("No tab found")
+    // If not, open the request in a new tab
+    tabs.createNewTab({
+      type: "collection",
+      collection: payload.collection,
+      isDirty: false,
+      saveContext: {
+        originLocation: "user-collection",
+        folderPath: payload.collectionIndex!,
+      },
+    })
   }
 }
 
@@ -1977,6 +2011,7 @@ const selectRequest = (selectedRequest: {
       tabs.setActiveTab(possibleTab.value.id)
     } else {
       tabs.createNewTab({
+        type: "request",
         request: cloneDeep(request),
         isDirty: false,
         type: "request",
@@ -2004,6 +2039,7 @@ const selectRequest = (selectedRequest: {
     } else {
       // If not, open the request in a new tab
       tabs.createNewTab({
+        type: "request",
         request: cloneDeep(request),
         isDirty: false,
         type: "request",

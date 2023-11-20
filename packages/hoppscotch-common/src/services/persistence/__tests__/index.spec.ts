@@ -114,8 +114,27 @@ const spyOnGetItem = () => vi.spyOn(Storage.prototype, "getItem")
 const spyOnRemoveItem = () => vi.spyOn(Storage.prototype, "removeItem")
 const spyOnSetItem = () => vi.spyOn(Storage.prototype, "setItem")
 
-const bindPersistenceService = () => {
+const bindPersistenceService = ({
+  bindGQLTabService = false,
+  bindRESTTabService = false,
+  mocks = {},
+}: {
+  bindGQLTabService?: boolean
+  bindRESTTabService?: boolean
+  mocks?: Record<string, unknown>
+} = {}) => {
   const container = new TestContainer()
+
+  if (bindGQLTabService) {
+    container.bindMock(GQLTabService, mocks)
+  }
+
+  if (bindRESTTabService) {
+    container.bindMock(RESTTabService, mocks)
+  }
+
+  container.bind(PersistenceService)
+
   const service = container.bind(PersistenceService)
   return service
 }
@@ -575,7 +594,9 @@ describe("PersistenceService", () => {
 
         expect(getItemSpy).toHaveBeenCalledWith(historyKey)
 
-        expect(toastErrorFn).toHaveBeenCalledWith(expect.stringContaining(historyKey))
+        expect(toastErrorFn).toHaveBeenCalledWith(
+          expect.stringContaining(historyKey)
+        )
         expect(setItemSpy).toHaveBeenCalledWith(
           `${historyKey}-backup`,
           JSON.stringify(restHistoryData)
@@ -670,7 +691,10 @@ describe("PersistenceService", () => {
         expect(getItemSpy).toHaveBeenCalledWith(historyKey)
         expect(getItemSpy).toHaveBeenCalledWith(graphqlHistoryKey)
 
-        expect(toastErrorFn).not.toHaveBeenCalledWith(historyKey, graphqlHistoryKey)
+        expect(toastErrorFn).not.toHaveBeenCalledWith(
+          historyKey,
+          graphqlHistoryKey
+        )
         expect(setItemSpy).not.toHaveBeenCalled()
 
         expect(translateToNewRESTHistory).toHaveBeenCalled()
@@ -713,7 +737,9 @@ describe("PersistenceService", () => {
 
         expect(getItemSpy).toHaveBeenCalledWith(collectionsKey)
 
-        expect(toastErrorFn).toHaveBeenCalledWith(expect.stringContaining(collectionsKey))
+        expect(toastErrorFn).toHaveBeenCalledWith(
+          expect.stringContaining(collectionsKey)
+        )
         expect(setItemSpy).toHaveBeenCalledWith(
           `${collectionsKey}-backup`,
           JSON.stringify(restCollectionsData)
@@ -750,7 +776,9 @@ describe("PersistenceService", () => {
 
         expect(getItemSpy).toHaveBeenCalledWith(collectionsGraphqlKey)
 
-        expect(toastErrorFn).toHaveBeenCalledWith(expect.stringContaining(collectionsGraphqlKey))
+        expect(toastErrorFn).toHaveBeenCalledWith(
+          expect.stringContaining(collectionsGraphqlKey)
+        )
         expect(setItemSpy).toHaveBeenCalledWith(
           `${collectionsGraphqlKey}-backup`,
           JSON.stringify(graphqlCollectionsData)
@@ -824,7 +852,10 @@ describe("PersistenceService", () => {
         expect(getItemSpy).toHaveBeenCalledWith(collectionsKey)
         expect(getItemSpy).toHaveBeenCalledWith(collectionsGraphqlKey)
 
-        expect(toastErrorFn).not.toHaveBeenCalledWith(collectionsKey, collectionsGraphqlKey)
+        expect(toastErrorFn).not.toHaveBeenCalledWith(
+          collectionsKey,
+          collectionsGraphqlKey
+        )
         expect(setItemSpy).not.toHaveBeenCalled()
 
         expect(translateToNewGQLCollection).toHaveBeenCalled()
@@ -865,7 +896,9 @@ describe("PersistenceService", () => {
 
         expect(getItemSpy).toHaveBeenCalledWith(environmentsKey)
 
-        expect(toastErrorFn).toHaveBeenCalledWith(expect.stringContaining(environmentsKey))
+        expect(toastErrorFn).toHaveBeenCalledWith(
+          expect.stringContaining(environmentsKey)
+        )
         expect(setItemSpy).toHaveBeenCalledWith(
           `${environmentsKey}-backup`,
           JSON.stringify(environments)
@@ -931,7 +964,9 @@ describe("PersistenceService", () => {
 
         expect(getItemSpy).toHaveBeenCalledWith(selectedEnvIndexKey)
 
-        expect(toastErrorFn).toHaveBeenCalledWith(expect.stringContaining(selectedEnvIndexKey))
+        expect(toastErrorFn).toHaveBeenCalledWith(
+          expect.stringContaining(selectedEnvIndexKey)
+        )
         expect(setItemSpy).toHaveBeenCalledWith(
           `${selectedEnvIndexKey}-backup`,
           JSON.stringify(selectedEnvIndex)
@@ -1024,7 +1059,9 @@ describe("PersistenceService", () => {
 
         expect(getItemSpy).toHaveBeenCalledWith(wsRequestKey)
 
-        expect(toastErrorFn).toHaveBeenCalledWith(expect.stringContaining(wsRequestKey))
+        expect(toastErrorFn).toHaveBeenCalledWith(
+          expect.stringContaining(wsRequestKey)
+        )
         expect(setItemSpy).toHaveBeenCalledWith(
           `${wsRequestKey}-backup`,
           JSON.stringify(request)
@@ -1098,7 +1135,9 @@ describe("PersistenceService", () => {
 
         expect(getItemSpy).toHaveBeenCalledWith(sioRequestKey)
 
-        expect(toastErrorFn).toHaveBeenCalledWith(expect.stringContaining(sioRequestKey))
+        expect(toastErrorFn).toHaveBeenCalledWith(
+          expect.stringContaining(sioRequestKey)
+        )
         expect(setItemSpy).toHaveBeenCalledWith(
           `${sioRequestKey}-backup`,
           JSON.stringify(request)
@@ -1173,7 +1212,9 @@ describe("PersistenceService", () => {
 
         expect(getItemSpy).toHaveBeenCalledWith(sseRequestKey)
 
-        expect(toastErrorFn).toHaveBeenCalledWith(expect.stringContaining(sseRequestKey))
+        expect(toastErrorFn).toHaveBeenCalledWith(
+          expect.stringContaining(sseRequestKey)
+        )
         expect(setItemSpy).toHaveBeenCalledWith(
           `${sseRequestKey}-backup`,
           JSON.stringify(request)
@@ -1246,7 +1287,9 @@ describe("PersistenceService", () => {
 
         expect(getItemSpy).toHaveBeenCalledWith(mqttRequestKey)
 
-        expect(toastErrorFn).toHaveBeenCalledWith(expect.stringContaining(mqttRequestKey))
+        expect(toastErrorFn).toHaveBeenCalledWith(
+          expect.stringContaining(mqttRequestKey)
+        )
         expect(setItemSpy).toHaveBeenCalledWith(
           `${mqttRequestKey}-backup`,
           JSON.stringify(request)
@@ -1323,7 +1366,9 @@ describe("PersistenceService", () => {
 
         expect(getItemSpy).toHaveBeenCalledWith(globalEnvKey)
 
-        expect(toastErrorFn).toHaveBeenCalledWith(expect.stringContaining(globalEnvKey))
+        expect(toastErrorFn).toHaveBeenCalledWith(
+          expect.stringContaining(globalEnvKey)
+        )
         expect(setItemSpy).toHaveBeenCalledWith(
           `${globalEnvKey}-backup`,
           JSON.stringify(globalEnv)
@@ -1370,11 +1415,7 @@ describe("PersistenceService", () => {
       const gqlTabStateKey = "gqlTabState"
 
       const loadTabsFromPersistedStateFn = vi.fn()
-
-      const container = new TestContainer()
-      container.bindMock(GQLTabService, {
-        loadTabsFromPersistedState: loadTabsFromPersistedStateFn,
-      })
+      const mocks = { loadTabsFromPersistedState: loadTabsFromPersistedStateFn }
 
       it(`shows an error and sets the entry as a backup in localStorage if "${gqlTabStateKey}" read from localStorage doesn't match the schema`, () => {
         // Invalid shape for `gqlTabState`
@@ -1390,7 +1431,9 @@ describe("PersistenceService", () => {
 
         expect(getItemSpy).toHaveBeenCalledWith(gqlTabStateKey)
 
-        expect(toastErrorFn).toHaveBeenCalledWith(expect.stringContaining(gqlTabStateKey))
+        expect(toastErrorFn).toHaveBeenCalledWith(
+          expect.stringContaining(gqlTabStateKey)
+        )
         expect(setItemSpy).toHaveBeenCalledWith(
           `${gqlTabStateKey}-backup`,
           JSON.stringify(gqlTabState)
@@ -1403,7 +1446,7 @@ describe("PersistenceService", () => {
         const getItemSpy = spyOnGetItem()
         const setItemSpy = spyOnSetItem()
 
-        bindPersistenceService()
+        bindPersistenceService({ bindGQLTabService: true, mocks })
 
         expect(getItemSpy).toHaveBeenCalledWith(gqlTabStateKey)
 
@@ -1414,14 +1457,14 @@ describe("PersistenceService", () => {
         expect(watchDebounced).toHaveBeenCalled()
       })
 
-      it.skip("loads tabs from the state persisted in localStorage and sets watcher for `persistableTabState`", () => {
+      it("loads tabs from the state persisted in localStorage and sets watcher for `persistableTabState`", () => {
         const tabState = GQL_TAB_STATE
         window.localStorage.setItem(gqlTabStateKey, JSON.stringify(tabState))
 
         const getItemSpy = spyOnGetItem()
         const setItemSpy = spyOnSetItem()
 
-        bindPersistenceService()
+        bindPersistenceService({ bindGQLTabService: true, mocks })
 
         expect(getItemSpy).toHaveBeenCalledWith(gqlTabStateKey)
 
@@ -1467,11 +1510,7 @@ describe("PersistenceService", () => {
       const restTabStateKey = "restTabState"
 
       const loadTabsFromPersistedStateFn = vi.fn()
-
-      const container = new TestContainer()
-      container.bindMock(RESTTabService, {
-        loadTabsFromPersistedState: loadTabsFromPersistedStateFn,
-      })
+      const mocks = { loadTabsFromPersistedState: loadTabsFromPersistedStateFn }
 
       it(`shows an error and sets the entry as a backup in localStorage if "${restTabStateKey}" read from localStorage doesn't match the schema`, () => {
         // Invalid shape for `restTabState`
@@ -1490,7 +1529,9 @@ describe("PersistenceService", () => {
 
         expect(getItemSpy).toHaveBeenCalledWith(restTabStateKey)
 
-        expect(toastErrorFn).toHaveBeenCalledWith(expect.stringContaining(restTabStateKey))
+        expect(toastErrorFn).toHaveBeenCalledWith(
+          expect.stringContaining(restTabStateKey)
+        )
         expect(setItemSpy).toHaveBeenCalledWith(
           `${restTabStateKey}-backup`,
           JSON.stringify(restTabState)
@@ -1503,7 +1544,7 @@ describe("PersistenceService", () => {
         const getItemSpy = spyOnGetItem()
         const setItemSpy = spyOnSetItem()
 
-        bindPersistenceService()
+        bindPersistenceService({ bindRESTTabService: true, mocks })
 
         expect(getItemSpy).toHaveBeenCalledWith(restTabStateKey)
 
@@ -1514,14 +1555,14 @@ describe("PersistenceService", () => {
         expect(watchDebounced).toHaveBeenCalled()
       })
 
-      it.skip("loads tabs from the state persisted in localStorage and sets watcher for `persistableTabState`", () => {
+      it("loads tabs from the state persisted in localStorage and sets watcher for `persistableTabState`", () => {
         const tabState = REST_TAB_STATE
         window.localStorage.setItem(restTabStateKey, JSON.stringify(tabState))
 
         const getItemSpy = spyOnGetItem()
         const setItemSpy = spyOnSetItem()
 
-        bindPersistenceService()
+        bindPersistenceService({ bindRESTTabService: true, mocks })
 
         expect(getItemSpy).toHaveBeenCalledWith(restTabStateKey)
 

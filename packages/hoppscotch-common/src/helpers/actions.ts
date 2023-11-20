@@ -4,7 +4,7 @@
 
 import { Ref, onBeforeUnmount, onMounted, reactive, watch } from "vue"
 import { BehaviorSubject } from "rxjs"
-import { HoppRESTDocument } from "./rest/document"
+import { HoppTabDocument } from "./rest/document"
 import { HoppGQLRequest, HoppRESTRequest } from "@hoppscotch/data"
 import { RESTOptionTabs } from "~/components/http/RequestOptions.vue"
 import { HoppGQLSaveContext } from "./graphql/document"
@@ -101,7 +101,7 @@ type HoppActionArgsMap = {
     teamId: string
   }
   "rest.request.open": {
-    doc: HoppRESTDocument
+    doc: HoppTabDocument
   }
   "request.save-as":
     | {
@@ -191,7 +191,7 @@ type InvokeActionFunc = {
  * @param args The argument passed to the action handler. Optional if action has no args required
  */
 export const invokeAction: InvokeActionFunc = <
-  A extends HoppAction | HoppActionWithArgs,
+  A extends HoppAction | HoppActionWithArgs
 >(
   action: A,
   args: ArgOfHoppAction<A>

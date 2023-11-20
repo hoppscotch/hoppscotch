@@ -64,7 +64,7 @@ import { useVModel } from "@vueuse/core"
 import { cloneDeep } from "lodash-es"
 import { isEqualHoppRESTRequest } from "@hoppscotch/data"
 import { HoppTab } from "~/services/tab"
-import { HoppRESTDocument } from "~/helpers/rest/document"
+import { HoppTabDocument } from "~/helpers/rest/document"
 import { useI18n } from "~/composables/i18n"
 
 const t = useI18n()
@@ -96,10 +96,10 @@ const selectedTestTab = ref("all_tests")
 
 // TODO: Move Response and Request execution code to over here
 
-const props = defineProps<{ modelValue: HoppTab<HoppRESTDocument> }>()
+const props = defineProps<{ modelValue: HoppTab<HoppTabDocument> }>()
 
 const emit = defineEmits<{
-  (e: "update:modelValue", val: HoppTab<HoppRESTDocument>): void
+  (e: "update:modelValue", val: HoppTab<HoppTabDocument>): void
 }>()
 
 const tab = useVModel(props, "modelValue", emit)

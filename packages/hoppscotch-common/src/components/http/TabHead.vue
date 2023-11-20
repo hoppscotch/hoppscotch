@@ -100,12 +100,12 @@ import IconXSquare from "~icons/lucide/x-square"
 import IconFileEdit from "~icons/lucide/file-edit"
 import IconCopy from "~icons/lucide/copy"
 import { HoppTab } from "~/services/tab"
-import { HoppRESTDocument } from "~/helpers/rest/document"
+import { HoppTabDocument } from "~/helpers/rest/document"
 
 const t = useI18n()
 
 defineProps<{
-  tab: HoppTab<HoppRESTDocument>
+  tab: HoppTab<HoppTabDocument>
   isRemovable: boolean
 }>()
 

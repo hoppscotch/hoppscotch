@@ -11,15 +11,15 @@
 <script setup lang="ts">
 import { useVModel } from "@vueuse/core"
 import { computed } from "vue"
-import { HoppRESTDocument } from "~/helpers/rest/document"
+import { HoppTabDocument } from "~/helpers/rest/document"
 
 const props = defineProps<{
-  document: HoppRESTDocument
   isEmbed: boolean
+  document: HoppTabDocument
 }>()
 
 const emit = defineEmits<{
-  (e: "update:tab", val: HoppRESTDocument): void
+  (e: "update:tab", val: HoppTabDocument): void
 }>()
 
 const doc = useVModel(props, "document", emit)

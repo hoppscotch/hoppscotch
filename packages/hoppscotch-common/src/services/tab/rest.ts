@@ -3,12 +3,12 @@ import { computed } from "vue"
 import { getDefaultRESTRequest } from "~/helpers/rest/default"
 import {
   HoppCollectionSaveContext,
-  HoppRESTDocument,
+  HoppTabDocument,
   HoppRESTSaveContext,
 } from "~/helpers/rest/document"
 import { TabService } from "./tab"
 
-export class RESTTabService extends TabService<HoppRESTDocument> {
+export class RESTTabService extends TabService<HoppTabDocument> {
   public static readonly ID = "REST_TAB_SERVICE"
 
   constructor() {

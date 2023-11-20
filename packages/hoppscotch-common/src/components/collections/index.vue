@@ -732,10 +732,8 @@ const runCollection = (payload: {
   if (possibleTab) {
     tabs.setActiveTab(possibleTab.value.id)
   } else {
-    console.log("No tab found")
-    // If not, open the request in a new tab
     tabs.createNewTab({
-      type: "collection",
+      type: "test-runner",
       collection: payload.collection,
       isDirty: false,
       saveContext: {

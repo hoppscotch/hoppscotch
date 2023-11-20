@@ -18,17 +18,6 @@
             :is-removable="activeTabs.length > 1"
             :close-visibility="'hover'"
           >
-            <template #tabhead>
-              <HttpTabHead
-                v-if="tab.document.type === 'request'"
-                :tab="tab"
-                :is-removable="activeTabs.length > 1"
-                @open-rename-modal="openReqRenameModal(tab.id)"
-                @close-tab="removeTab(tab.id)"
-                @close-other-tabs="closeOtherTabsAction(tab.id)"
-                @duplicate-tab="duplicateTab(tab.id)"
-              />
-            </template>
             <template #suffix>
               <span
                 v-if="tab.document.isDirty"
@@ -44,8 +33,23 @@
                 </svg>
               </span>
             </template>
+
+            <!-- Render TabHeads -->
+            <template v-if="tab.document.type === 'request'" #tabhead>
+              <HttpTabHead
+                :tab="tab"
+                :is-removable="activeTabs.length > 1"
+                @open-rename-modal="openReqRenameModal(tab.id)"
+                @close-tab="removeTab(tab.id)"
+                @close-other-tabs="closeOtherTabsAction(tab.id)"
+                @duplicate-tab="duplicateTab(tab.id)"
+              />
+            </template>
+            <!-- END Render TabHeads -->
+
+            <!-- Render TabContents -->
             <CollectionsRunner
-              v-if="tab.document.type === 'collection'"
+              v-if="tab.document.type === 'test-runner'"
               :model-value="tab"
               @update:model-value="onTabUpdate"
             />
@@ -54,6 +58,7 @@
               :model-value="tab"
               @update:model-value="onTabUpdate"
             />
+            <!-- END Render TabContents -->
           </HoppSmartWindow>
           <template #actions>
             <EnvironmentsSelector class="h-full" />
@@ -134,7 +139,7 @@ import { ResponseInspectorService } from "~/services/inspection/inspectors/respo
 import { cloneDeep } from "lodash-es"
 import { RESTTabService } from "~/services/tab/rest"
 import { HoppTab, PersistableTabState } from "~/services/tab"
-import { HoppRESTDocument } from "~/helpers/rest/document"
+import { HoppTabDocument } from "~/helpers/rest/document"
 
 const savingRequest = ref(false)
 const confirmingCloseForTabID = ref<string | null>(null)
@@ -176,7 +181,7 @@ const confirmSync = useReadonlyStream(currentSyncingStatus$, {
   isInitialSync: false,
   shouldSync: true,
 })
-const tabStateForSync = ref<PersistableTabState<HoppRESTDocument> | null>(null)
+const tabStateForSync = ref<PersistableTabState<HoppTabDocument> | null>(null)
 
 function bindRequestToURLParams() {
   const route = useRoute()
@@ -187,16 +192,18 @@ function bindRequestToURLParams() {
     // We skip URL params parsing
     if (Object.keys(query).length === 0 || query.code || query.error) return
 
-    const request = tabs.currentActiveTab.value.document.request
-
-    tabs.currentActiveTab.value.document.request = safelyExtractRESTRequest(
-      translateExtURLParams(query, request),
-      getDefaultRESTRequest()
-    )
+    tabs.createNewTab({
+      type: "request",
+      request: safelyExtractRESTRequest(
+        translateExtURLParams(query),
+        getDefaultRESTRequest()
+      ),
+      isDirty: false,
+    })
   })
 }
 
-const onTabUpdate = (tab: HoppTab<HoppRESTDocument>) => {
+const onTabUpdate = (tab: HoppTab<HoppTabDocument>) => {
   tabs.updateTab(tab)
 }
 
@@ -213,10 +220,10 @@ const sortTabs = (e: { oldIndex: number; newIndex: number }) => {
   tabs.updateTabOrdering(e.oldIndex, e.newIndex)
 }
 
-const getTabName = (tab: HoppTab<HoppRESTDocument>) => {
+const getTabName = (tab: HoppTab<HoppTabDocument>) => {
   if (tab.document.type === "request") {
     return tab.document.request.name
-  } else if (tab.document.type === "collection") {
+  } else if (tab.document.type === "test-runner") {
     console.log(tab.document.collection.name)
     return tab.document.collection.name
   }
@@ -254,11 +261,26 @@ const closeOtherTabsAction = (tabID: string) => {
 const duplicateTab = (tabID: string) => {
   const tab = tabs.getTabRef(tabID)
   if (tab.value) {
-    const newTab = tabs.createNewTab({
-      type: "request",
-      request: cloneDeep(tab.value.document.request),
-      isDirty: true,
-    })
+    let document: HoppTabDocument
+
+    switch (tab.value.document.type) {
+      case "request":
+        document = {
+          type: "request",
+          request: cloneDeep(tab.value.document.request),
+          isDirty: true,
+        }
+        break
+      case "test-runner":
+        document = {
+          type: "test-runner",
+          collection: cloneDeep(tab.value.document.collection),
+          isDirty: true,
+        }
+        break
+    }
+
+    const newTab = tabs.createNewTab(document)
     tabs.setActiveTab(newTab.id)
   }
 }
@@ -268,20 +290,17 @@ const onResolveConfirmCloseAllTabs = () => {
   confirmingCloseAllTabs.value = false
 }
 
-const openReqRenameModal = (tabID?: string) => {
-  if (tabID) {
-    const tab = tabs.getTabRef(tabID)
-    reqName.value = tab.value.document.request.name
-    renameTabID.value = tabID
-  } else {
-    reqName.value = tabs.currentActiveTab.value.document.request.name
-  }
+const openReqRenameModal = (tabID: string) => {
+  const tab = tabs.getTabRef(tabID)
+  if (tab.value?.document.type !== "request") return
+  reqName.value = tab.value.document.request.name
+  renameTabID.value = tabID
   showRenamingReqNameModal.value = true
 }
 
 const renameReqName = () => {
   const tab = tabs.getTabRef(renameTabID.value ?? currentTabID.value)
-  if (tab.value) {
+  if (tab.value && tab.value.document.type === "request") {
     tab.value.document.request.name = reqName.value
     tabs.updateTab(tab.value)
   }
@@ -340,7 +359,7 @@ const syncTabState = () => {
 function startTabStateSync(): Subscription {
   const currentUser$ = platform.auth.getCurrentUserStream()
   const tabState$ =
-    new BehaviorSubject<PersistableTabState<HoppRESTDocument> | null>(null)
+    new BehaviorSubject<PersistableTabState<HoppTabDocument> | null>(null)
 
   watchDebounced(
     tabs.persistableTabState,
@@ -454,7 +473,10 @@ defineActionHandler("rest.request.open", ({ doc }) => {
   tabs.createNewTab(doc)
 })
 
-defineActionHandler("request.rename", openReqRenameModal)
+defineActionHandler("request.rename", () => {
+  if (tabs.currentActiveTab.value.document.type === "request")
+    openReqRenameModal(tabs.currentActiveTab.value.id)
+})
 defineActionHandler("tab.duplicate-tab", ({ tabID }) => {
   duplicateTab(tabID ?? currentTabID.value)
 })

@@ -76,16 +76,16 @@ const t = useI18n();
 
 const toast = useToast();
 
+// Tabs
 type OptionTabs = 'details' | 'requests';
-
 const selectedOptionTab = ref<OptionTabs>('details');
 
 const currentTabName = computed(() => {
   switch (selectedOptionTab.value) {
     case 'details':
-      return t('users.user_details');
+      return t('users.details');
     case 'requests':
-      return t('users.shared_requests');
+      return t('shared_requests.title');
     default:
       return '';
   }

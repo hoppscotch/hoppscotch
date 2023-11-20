@@ -7,7 +7,7 @@
     <div v-else-if="error">{{ t('shared_requests.load_list_error') }}</div>
 
     <div v-else-if="sharedRequests.length === 0" class="ml-3 mt-5 text-lg">
-      {{ t('shared_requests.no_requests') }}
+      {{ t('users.no_shared_requests') }}
     </div>
 
     <div v-else-if="sharedRequests?.length" class="mt-10">
@@ -16,12 +16,11 @@
           <tr
             class="text-secondary border-b border-dividerDark text-sm text-left bg-primaryLight"
           >
-            <th class="px-6 py-3 w-30">{{ t('shared_requests.url') }}</th>
             <th class="px-6 py-2">{{ t('shared_requests.id') }}</th>
-            <th class="px-6 py-2">{{ t('shared_requests.email') }}</th>
+            <th class="px-6 py-2 w-30">{{ t('shared_requests.url') }}</th>
             <th class="px-6 py-2">{{ t('shared_requests.created_on') }}</th>
             <!-- Empty Heading for the Action Button -->
-            <th class="px-6 py-2">Actions</th>
+            <th class="px-6 py-2 text-center">Actions</th>
           </tr>
         </template>
         <template #body="{ list: sharedRequests }">
@@ -30,18 +29,14 @@
             :key="request.id"
             class="text-secondaryDark hover:bg-divider hover:cursor-pointer rounded-xl"
           >
-            <td class="py-4 px-7 max-w-30">
-              {{ sharedRequestURL(request.request) }}
-            </td>
-
             <td class="flex py-4 px-7 max-w-50">
               <span class="truncate">
                 {{ request.id }}
               </span>
             </td>
 
-            <td class="py-4 px-7 max-w-30">
-              {{ request.creator.email }}
+            <td class="py-4 px-7 w-96">
+              {{ sharedRequestURL(request.request) }}
             </td>
 
             <td class="py-2 px-7">
@@ -51,7 +46,7 @@
               </div>
             </td>
 
-            <td>
+            <td class="flex justify-center">
               <HoppButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"
                 :title="t('shared_requests.open_request')"
@@ -80,6 +75,7 @@
         </template>
       </HoppSmartTable>
 
+      <!-- Pagination -->
       <div
         v-if="hasNextPage && sharedRequests.length >= sharedRequestsPerPage"
         class="flex items-center w-28 px-3 py-2 mt-5 mx-auto font-semibold text-secondaryDark bg-divider hover:bg-dividerDark rounded-3xl cursor-pointer"

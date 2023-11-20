@@ -65,6 +65,7 @@ declare module '@vue/runtime-core' {
     TeamsMembers: typeof import('./components/teams/Members.vue')['default'];
     TeamsPendingInvites: typeof import('./components/teams/PendingInvites.vue')['default'];
     Tippy: typeof import('vue-tippy')['Tippy'];
+    UiAutoResetIcon: typeof import('./components/ui/AutoResetIcon.vue')['default'];
     UiInteractiveCopy: typeof import('./components/ui/InteractiveCopy.vue')['default'];
     UsersDetails: typeof import('./components/users/Details.vue')['default'];
     UsersInviteModal: typeof import('./components/users/InviteModal.vue')['default'];

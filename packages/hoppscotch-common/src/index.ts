@@ -14,6 +14,8 @@ import "../assets/scss/tailwind.scss"
 import "../assets/themes/themes.scss"
 
 import App from "./App.vue"
+import { getService } from "./modules/dioc"
+import { PersistenceService } from "./services/persistence"
 
 export function createHoppApp(el: string | Element, platformDef: PlatformDef) {
   setPlatformDef(platformDef)
@@ -27,6 +29,9 @@ export function createHoppApp(el: string | Element, platformDef: PlatformDef) {
   HOPP_MODULES.forEach((mod) => mod.onVueAppInit?.(app))
   platformDef.addedHoppModules?.forEach((mod) => mod.onVueAppInit?.(app))
 
+  // TODO: Explore possibilities of moving this invocation to the service constructor
+  // `toast` was coming up as `null` in the previous attempts
+  getService(PersistenceService).setupLocalPersistence()
   performMigrations()
 
   app.mount(el)

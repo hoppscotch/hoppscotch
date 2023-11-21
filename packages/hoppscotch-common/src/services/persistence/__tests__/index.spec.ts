@@ -139,6 +139,13 @@ const bindPersistenceService = ({
   return service
 }
 
+const invokeSetupLocalPersistence = (
+  serviceBindMock?: Record<string, unknown>
+) => {
+  const service = bindPersistenceService(serviceBindMock)
+  service.setupLocalPersistence()
+}
+
 describe("PersistenceService", () => {
   afterAll(() => {
     // Clear all mocks
@@ -148,7 +155,7 @@ describe("PersistenceService", () => {
     vi.restoreAllMocks()
   })
 
-  describe("Service initialisation", () => {
+  describe("setupLocalPersistence", () => {
     describe("Check and migrate old settings", () => {
       // Set of keys read from localStorage across test cases
       const bgColorKey = "BG_COLOR"
@@ -163,7 +170,7 @@ describe("PersistenceService", () => {
         const getItemSpy = spyOnGetItem()
         const setItemSpy = spyOnSetItem()
 
-        bindPersistenceService()
+        invokeSetupLocalPersistence()
 
         expect(getItemSpy).toHaveBeenCalledWith(selectedEnvIndexKey)
         expect(setItemSpy).toHaveBeenCalledWith(
@@ -180,7 +187,7 @@ describe("PersistenceService", () => {
         const getItemSpy = spyOnGetItem()
         const setItemSpy = spyOnSetItem()
 
-        bindPersistenceService()
+        invokeSetupLocalPersistence()
 
         expect(getItemSpy).toHaveBeenCalledWith(selectedEnvIndexKey)
         expect(setItemSpy).toHaveBeenCalledWith(
@@ -198,7 +205,7 @@ describe("PersistenceService", () => {
         const getItemSpy = spyOnGetItem()
         const setItemSpy = spyOnSetItem()
 
-        bindPersistenceService()
+        invokeSetupLocalPersistence()
 
         expect(getItemSpy).toHaveBeenCalledWith(vuexKey)
 
@@ -225,7 +232,7 @@ describe("PersistenceService", () => {
         const getItemSpy = spyOnGetItem()
         const setItemSpy = spyOnSetItem()
 
-        bindPersistenceService()
+        invokeSetupLocalPersistence()
 
         expect(getItemSpy).toHaveBeenCalledWith(vuexKey)
         expect(toastErrorFn).toHaveBeenCalledWith(
@@ -248,7 +255,7 @@ describe("PersistenceService", () => {
         const removeItemSpy = spyOnRemoveItem()
         const setItemSpy = spyOnSetItem()
 
-        bindPersistenceService()
+        invokeSetupLocalPersistence()
 
         expect(getItemSpy).toHaveBeenCalledWith(vuexKey)
 
@@ -278,7 +285,7 @@ describe("PersistenceService", () => {
         const removeItemSpy = spyOnRemoveItem()
         const setItemSpy = spyOnSetItem()
 
-        bindPersistenceService()
+        invokeSetupLocalPersistence()
 
         expect(getItemSpy).toHaveBeenCalledWith(vuexKey)
 
@@ -311,7 +318,7 @@ describe("PersistenceService", () => {
         const removeItemSpy = spyOnRemoveItem()
         const setItemSpy = spyOnSetItem()
 
-        bindPersistenceService()
+        invokeSetupLocalPersistence()
 
         expect(getItemSpy).toHaveBeenCalledWith(vuexKey)
 
@@ -401,7 +408,7 @@ describe("PersistenceService", () => {
         const getItemSpy = spyOnGetItem()
         const setItemSpy = spyOnSetItem()
 
-        bindPersistenceService()
+        invokeSetupLocalPersistence()
 
         expect(getItemSpy).toHaveBeenCalledWith(localStateKey)
 
@@ -426,7 +433,7 @@ describe("PersistenceService", () => {
         const getItemSpy = spyOnGetItem()
         const setItemSpy = spyOnSetItem()
 
-        bindPersistenceService()
+        invokeSetupLocalPersistence()
 
         expect(getItemSpy).toHaveBeenCalledWith(localStateKey)
 
@@ -445,7 +452,7 @@ describe("PersistenceService", () => {
         const getItemSpy = spyOnGetItem()
         const setItemSpy = spyOnSetItem()
 
-        bindPersistenceService()
+        invokeSetupLocalPersistence()
 
         expect(getItemSpy).toHaveBeenCalledWith(localStateKey)
 
@@ -476,7 +483,7 @@ describe("PersistenceService", () => {
         const getItemSpy = spyOnGetItem()
         const setItemSpy = spyOnSetItem()
 
-        bindPersistenceService()
+        invokeSetupLocalPersistence()
 
         expect(getItemSpy).toHaveBeenCalledWith(localStateKey)
 
@@ -506,7 +513,7 @@ describe("PersistenceService", () => {
         const getItemSpy = spyOnGetItem()
         const setItemSpy = spyOnSetItem()
 
-        bindPersistenceService()
+        invokeSetupLocalPersistence()
 
         expect(getItemSpy).toHaveBeenCalledWith(settingsKey)
 
@@ -525,7 +532,7 @@ describe("PersistenceService", () => {
         const getItemSpy = spyOnGetItem()
         const setItemSpy = spyOnSetItem()
 
-        bindPersistenceService()
+        invokeSetupLocalPersistence()
 
         expect(getItemSpy).toHaveBeenCalledWith(settingsKey)
 
@@ -558,7 +565,7 @@ describe("PersistenceService", () => {
         const getItemSpy = spyOnGetItem()
         const setItemSpy = spyOnSetItem()
 
-        bindPersistenceService()
+        invokeSetupLocalPersistence()
 
         // toastErrorFn = vi.fn()
 
@@ -590,7 +597,7 @@ describe("PersistenceService", () => {
         const getItemSpy = spyOnGetItem()
         const setItemSpy = spyOnSetItem()
 
-        bindPersistenceService()
+        invokeSetupLocalPersistence()
 
         expect(getItemSpy).toHaveBeenCalledWith(historyKey)
 
@@ -609,7 +616,7 @@ describe("PersistenceService", () => {
         const getItemSpy = spyOnGetItem()
         const setItemSpy = spyOnSetItem()
 
-        bindPersistenceService()
+        invokeSetupLocalPersistence()
 
         expect(getItemSpy).toHaveBeenCalledWith(historyKey)
 
@@ -629,7 +636,7 @@ describe("PersistenceService", () => {
         const getItemSpy = spyOnGetItem()
         const setItemSpy = spyOnSetItem()
 
-        bindPersistenceService()
+        invokeSetupLocalPersistence()
 
         expect(getItemSpy).toHaveBeenCalledWith(graphqlHistoryKey)
 
@@ -645,7 +652,7 @@ describe("PersistenceService", () => {
         const getItemSpy = spyOnGetItem()
         const setItemSpy = spyOnSetItem()
 
-        bindPersistenceService()
+        invokeSetupLocalPersistence()
 
         expect(getItemSpy).toHaveBeenCalledWith(graphqlHistoryKey)
 
@@ -686,7 +693,7 @@ describe("PersistenceService", () => {
         const getItemSpy = spyOnGetItem()
         const setItemSpy = spyOnSetItem()
 
-        bindPersistenceService()
+        invokeSetupLocalPersistence()
 
         expect(getItemSpy).toHaveBeenCalledWith(historyKey)
         expect(getItemSpy).toHaveBeenCalledWith(graphqlHistoryKey)
@@ -733,7 +740,7 @@ describe("PersistenceService", () => {
         const getItemSpy = spyOnGetItem()
         const setItemSpy = spyOnSetItem()
 
-        bindPersistenceService()
+        invokeSetupLocalPersistence()
 
         expect(getItemSpy).toHaveBeenCalledWith(collectionsKey)
 
@@ -752,7 +759,7 @@ describe("PersistenceService", () => {
         const getItemSpy = spyOnGetItem()
         const setItemSpy = spyOnSetItem()
 
-        bindPersistenceService()
+        invokeSetupLocalPersistence()
 
         expect(getItemSpy).toHaveBeenCalledWith(collectionsKey)
 
@@ -772,7 +779,7 @@ describe("PersistenceService", () => {
         const getItemSpy = spyOnGetItem()
         const setItemSpy = spyOnSetItem()
 
-        bindPersistenceService()
+        invokeSetupLocalPersistence()
 
         expect(getItemSpy).toHaveBeenCalledWith(collectionsGraphqlKey)
 
@@ -791,7 +798,7 @@ describe("PersistenceService", () => {
         const getItemSpy = spyOnGetItem()
         const setItemSpy = spyOnSetItem()
 
-        bindPersistenceService()
+        invokeSetupLocalPersistence()
 
         expect(getItemSpy).toHaveBeenCalledWith(collectionsGraphqlKey)
 
@@ -847,7 +854,7 @@ describe("PersistenceService", () => {
         const getItemSpy = spyOnGetItem()
         const setItemSpy = spyOnSetItem()
 
-        bindPersistenceService()
+        invokeSetupLocalPersistence()
 
         expect(getItemSpy).toHaveBeenCalledWith(collectionsKey)
         expect(getItemSpy).toHaveBeenCalledWith(collectionsGraphqlKey)
@@ -892,7 +899,7 @@ describe("PersistenceService", () => {
         const getItemSpy = spyOnGetItem()
         const setItemSpy = spyOnSetItem()
 
-        bindPersistenceService()
+        invokeSetupLocalPersistence()
 
         expect(getItemSpy).toHaveBeenCalledWith(environmentsKey)
 
@@ -915,7 +922,7 @@ describe("PersistenceService", () => {
         const getItemSpy = spyOnGetItem()
         const setItemSpy = spyOnSetItem()
 
-        bindPersistenceService()
+        invokeSetupLocalPersistence()
 
         expect(getItemSpy).toHaveBeenCalledWith(environmentsKey)
 
@@ -960,7 +967,7 @@ describe("PersistenceService", () => {
         const getItemSpy = spyOnGetItem()
         const setItemSpy = spyOnSetItem()
 
-        bindPersistenceService()
+        invokeSetupLocalPersistence()
 
         expect(getItemSpy).toHaveBeenCalledWith(selectedEnvIndexKey)
 
@@ -979,7 +986,7 @@ describe("PersistenceService", () => {
         const getItemSpy = spyOnGetItem()
         const setItemSpy = spyOnSetItem()
 
-        bindPersistenceService()
+        invokeSetupLocalPersistence()
 
         expect(getItemSpy).toHaveBeenCalledWith(selectedEnvIndexKey)
 
@@ -1001,7 +1008,7 @@ describe("PersistenceService", () => {
         const getItemSpy = spyOnGetItem()
         const setItemSpy = spyOnSetItem()
 
-        bindPersistenceService()
+        invokeSetupLocalPersistence()
 
         expect(getItemSpy).toHaveBeenCalledWith(selectedEnvIndexKey)
 
@@ -1022,7 +1029,7 @@ describe("PersistenceService", () => {
         const getItemSpy = spyOnGetItem()
         const setItemSpy = spyOnSetItem()
 
-        bindPersistenceService()
+        invokeSetupLocalPersistence()
 
         expect(getItemSpy).toHaveBeenCalledWith(selectedEnvIndexKey)
 
@@ -1055,7 +1062,7 @@ describe("PersistenceService", () => {
         const getItemSpy = spyOnGetItem()
         const setItemSpy = spyOnSetItem()
 
-        bindPersistenceService()
+        invokeSetupLocalPersistence()
 
         expect(getItemSpy).toHaveBeenCalledWith(wsRequestKey)
 
@@ -1074,7 +1081,7 @@ describe("PersistenceService", () => {
         const getItemSpy = spyOnGetItem()
         const setItemSpy = spyOnSetItem()
 
-        bindPersistenceService()
+        invokeSetupLocalPersistence()
 
         expect(getItemSpy).toHaveBeenCalledWith(wsRequestKey)
 
@@ -1101,7 +1108,7 @@ describe("PersistenceService", () => {
         const getItemSpy = spyOnGetItem()
         const setItemSpy = spyOnSetItem()
 
-        bindPersistenceService()
+        invokeSetupLocalPersistence()
 
         expect(getItemSpy).toHaveBeenCalledWith(wsRequestKey)
 
@@ -1131,7 +1138,7 @@ describe("PersistenceService", () => {
         const getItemSpy = spyOnGetItem()
         const setItemSpy = spyOnSetItem()
 
-        bindPersistenceService()
+        invokeSetupLocalPersistence()
 
         expect(getItemSpy).toHaveBeenCalledWith(sioRequestKey)
 
@@ -1150,7 +1157,7 @@ describe("PersistenceService", () => {
         const getItemSpy = spyOnGetItem()
         const setItemSpy = spyOnSetItem()
 
-        bindPersistenceService()
+        invokeSetupLocalPersistence()
 
         expect(getItemSpy).toHaveBeenCalledWith(sioRequestKey)
 
@@ -1179,7 +1186,7 @@ describe("PersistenceService", () => {
         const getItemSpy = spyOnGetItem()
         const setItemSpy = spyOnSetItem()
 
-        bindPersistenceService()
+        invokeSetupLocalPersistence()
 
         expect(getItemSpy).toHaveBeenCalledWith(sioRequestKey)
 
@@ -1208,7 +1215,7 @@ describe("PersistenceService", () => {
         const getItemSpy = spyOnGetItem()
         const setItemSpy = spyOnSetItem()
 
-        bindPersistenceService()
+        invokeSetupLocalPersistence()
 
         expect(getItemSpy).toHaveBeenCalledWith(sseRequestKey)
 
@@ -1227,7 +1234,7 @@ describe("PersistenceService", () => {
         const getItemSpy = spyOnGetItem()
         const setItemSpy = spyOnSetItem()
 
-        bindPersistenceService()
+        invokeSetupLocalPersistence()
 
         expect(getItemSpy).toHaveBeenCalledWith(sseRequestKey)
 
@@ -1254,7 +1261,7 @@ describe("PersistenceService", () => {
         const getItemSpy = spyOnGetItem()
         const setItemSpy = spyOnSetItem()
 
-        bindPersistenceService()
+        invokeSetupLocalPersistence()
 
         expect(getItemSpy).toHaveBeenCalledWith(sseRequestKey)
 
@@ -1283,7 +1290,7 @@ describe("PersistenceService", () => {
         const getItemSpy = spyOnGetItem()
         const setItemSpy = spyOnSetItem()
 
-        bindPersistenceService()
+        invokeSetupLocalPersistence()
 
         expect(getItemSpy).toHaveBeenCalledWith(mqttRequestKey)
 
@@ -1302,7 +1309,7 @@ describe("PersistenceService", () => {
         const getItemSpy = spyOnGetItem()
         const setItemSpy = spyOnSetItem()
 
-        bindPersistenceService()
+        invokeSetupLocalPersistence()
 
         expect(getItemSpy).toHaveBeenCalledWith(mqttRequestKey)
 
@@ -1329,7 +1336,7 @@ describe("PersistenceService", () => {
         const getItemSpy = spyOnGetItem()
         const setItemSpy = spyOnSetItem()
 
-        bindPersistenceService()
+        invokeSetupLocalPersistence()
 
         expect(getItemSpy).toHaveBeenCalledWith(mqttRequestKey)
 
@@ -1362,7 +1369,7 @@ describe("PersistenceService", () => {
         const getItemSpy = spyOnGetItem()
         const setItemSpy = spyOnSetItem()
 
-        bindPersistenceService()
+        invokeSetupLocalPersistence()
 
         expect(getItemSpy).toHaveBeenCalledWith(globalEnvKey)
 
@@ -1381,7 +1388,7 @@ describe("PersistenceService", () => {
         const getItemSpy = spyOnGetItem()
         const setItemSpy = spyOnSetItem()
 
-        bindPersistenceService()
+        invokeSetupLocalPersistence()
 
         expect(getItemSpy).toHaveBeenCalledWith(globalEnvKey)
 
@@ -1398,7 +1405,7 @@ describe("PersistenceService", () => {
         const getItemSpy = spyOnGetItem()
         const setItemSpy = spyOnSetItem()
 
-        bindPersistenceService()
+        invokeSetupLocalPersistence()
 
         expect(getItemSpy).toHaveBeenCalledWith(globalEnvKey)
 
@@ -1427,7 +1434,7 @@ describe("PersistenceService", () => {
         const getItemSpy = spyOnGetItem()
         const setItemSpy = spyOnSetItem()
 
-        bindPersistenceService()
+        invokeSetupLocalPersistence()
 
         expect(getItemSpy).toHaveBeenCalledWith(gqlTabStateKey)
 
@@ -1446,7 +1453,7 @@ describe("PersistenceService", () => {
         const getItemSpy = spyOnGetItem()
         const setItemSpy = spyOnSetItem()
 
-        bindPersistenceService({ mockGQLTabService: true, mock })
+        invokeSetupLocalPersistence({ mockGQLTabService: true, mock })
 
         expect(getItemSpy).toHaveBeenCalledWith(gqlTabStateKey)
 
@@ -1464,7 +1471,7 @@ describe("PersistenceService", () => {
         const getItemSpy = spyOnGetItem()
         const setItemSpy = spyOnSetItem()
 
-        bindPersistenceService({ mockGQLTabService: true, mock })
+        invokeSetupLocalPersistence({ mockGQLTabService: true, mock })
 
         expect(getItemSpy).toHaveBeenCalledWith(gqlTabStateKey)
 
@@ -1486,7 +1493,7 @@ describe("PersistenceService", () => {
         const getItemSpy = spyOnGetItem()
         const setItemSpy = spyOnSetItem()
 
-        bindPersistenceService()
+        invokeSetupLocalPersistence()
 
         expect(getItemSpy).toHaveBeenCalledWith(gqlTabStateKey)
 
@@ -1505,7 +1512,7 @@ describe("PersistenceService", () => {
       })
     })
 
-    describe("setupRESTTabsPersistence", () => {
+    describe("setup REST tabs persistence", () => {
       // Key read from localStorage across test cases
       const restTabStateKey = "restTabState"
 
@@ -1525,7 +1532,7 @@ describe("PersistenceService", () => {
         const getItemSpy = spyOnGetItem()
         const setItemSpy = spyOnSetItem()
 
-        bindPersistenceService()
+        invokeSetupLocalPersistence()
 
         expect(getItemSpy).toHaveBeenCalledWith(restTabStateKey)
 
@@ -1544,7 +1551,7 @@ describe("PersistenceService", () => {
         const getItemSpy = spyOnGetItem()
         const setItemSpy = spyOnSetItem()
 
-        bindPersistenceService({ mockRESTTabService: true, mock })
+        invokeSetupLocalPersistence({ mockRESTTabService: true, mock })
 
         expect(getItemSpy).toHaveBeenCalledWith(restTabStateKey)
 
@@ -1562,7 +1569,7 @@ describe("PersistenceService", () => {
         const getItemSpy = spyOnGetItem()
         const setItemSpy = spyOnSetItem()
 
-        bindPersistenceService({ mockRESTTabService: true, mock })
+        invokeSetupLocalPersistence({ mockRESTTabService: true, mock })
 
         expect(getItemSpy).toHaveBeenCalledWith(restTabStateKey)
 
@@ -1584,7 +1591,7 @@ describe("PersistenceService", () => {
         const getItemSpy = spyOnGetItem()
         const setItemSpy = spyOnSetItem()
 
-        bindPersistenceService()
+        invokeSetupLocalPersistence()
 
         expect(getItemSpy).toHaveBeenCalledWith(restTabStateKey)
 

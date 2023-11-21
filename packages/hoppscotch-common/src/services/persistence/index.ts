@@ -85,18 +85,17 @@ export class PersistenceService extends Service {
 
   constructor() {
     super()
-
-    this.setupLocalPersistence()
   }
 
   private showErrorToast(localStorageKey: string) {
     const toast = useToast()
-    toast?.error(
+    toast.error(
       `There's a mismatch with the expected schema for the value corresponding to ${localStorageKey} read from localStorage, keeping a backup in ${localStorageKey}-backup`
     )
   }
 
   private checkAndMigrateOldSettings() {
+    console.log("Invoked the method")
     if (window.localStorage.getItem("selectedEnvIndex")) {
       const index = window.localStorage.getItem("selectedEnvIndex")
       if (index) {
@@ -126,6 +125,7 @@ export class PersistenceService extends Service {
 
     // Validate data read from localStorage
     const result = VUEX_SCHEMA.safeParse(vuexData)
+    console.log(result)
     if (result.success) {
       vuexData = result.data
     } else {
@@ -217,7 +217,7 @@ export class PersistenceService extends Service {
     }
   }
 
-  private setupLocalStatePersistence() {
+  public setupLocalStatePersistence() {
     const localStateKey = "localState"
     let localStateData = JSON.parse(
       window.localStorage.getItem(localStateKey) ?? "{}"
@@ -677,7 +677,7 @@ export class PersistenceService extends Service {
     )
   }
 
-  private setupLocalPersistence() {
+  public setupLocalPersistence() {
     this.checkAndMigrateOldSettings()
 
     this.setupLocalStatePersistence()

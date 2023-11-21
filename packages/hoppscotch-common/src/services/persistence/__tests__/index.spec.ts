@@ -1,7 +1,6 @@
 /* eslint-disable no-restricted-globals, no-restricted-syntax */
 
 import {
-  Environment,
   translateToNewGQLCollection,
   translateToNewRESTCollection,
 } from "@hoppscotch/data"
@@ -48,14 +47,20 @@ import { GQLTabService } from "~/services/tab/graphql"
 import { RESTTabService } from "~/services/tab/rest"
 import { PersistenceService } from "../../persistence"
 import {
-  ENVIRONMENTS,
-  GQL_COLLECTIONS,
-  GQL_HISTORY,
-  GQL_TAB_STATE,
-  REST_COLLECTIONS,
-  REST_HISTORY,
-  REST_TAB_STATE,
-  VUEX_DATA,
+  ENVIRONMENTS_MOCK,
+  GLOBAL_ENV_MOCK,
+  GQL_COLLECTIONS_MOCK,
+  GQL_HISTORY_MOCK,
+  GQL_TAB_STATE_MOCK,
+  MQTT_REQUEST_MOCK,
+  REST_COLLECTIONS_MOCK,
+  REST_HISTORY_MOCK,
+  REST_TAB_STATE_MOCK,
+  SELECTED_ENV_INDEX_MOCK,
+  SOCKET_IO_REQUEST_MOCK,
+  SSE_REQUEST_MOCK,
+  VUEX_DATA_MOCK,
+  WEBSOCKET_REQUEST_MOCK,
 } from "./__mocks__"
 
 vi.mock("~/modules/i18n", () => {
@@ -217,11 +222,11 @@ describe("PersistenceService", () => {
         // Invalid shape for `vuex`
         // `postwoman.settings.CURRENT_INTERCEPTOR_ID` -> `string`
         const vuexData = {
-          ...VUEX_DATA,
+          ...VUEX_DATA_MOCK,
           postwoman: {
-            ...VUEX_DATA.postwoman,
+            ...VUEX_DATA_MOCK.postwoman,
             settings: {
-              ...VUEX_DATA.postwoman.settings,
+              ...VUEX_DATA_MOCK.postwoman.settings,
               CURRENT_INTERCEPTOR_ID: 1234,
             },
           },
@@ -245,7 +250,7 @@ describe("PersistenceService", () => {
       })
 
       it(`shows an error and sets the entry as a backup in localStorage if "${themeColorKey}" read from localStorage doesn't match the schema`, () => {
-        const vuexData = cloneDeep(VUEX_DATA)
+        const vuexData = cloneDeep(VUEX_DATA_MOCK)
         window.localStorage.setItem(vuexKey, JSON.stringify(vuexData))
 
         const themeColorValue = "invalid-color"
@@ -275,7 +280,7 @@ describe("PersistenceService", () => {
       })
 
       it(`shows an error and sets the entry as a backup in localStorage if "${nuxtColorModeKey}" read from localStorage doesn't match the schema`, () => {
-        const vuexData = cloneDeep(VUEX_DATA)
+        const vuexData = cloneDeep(VUEX_DATA_MOCK)
         window.localStorage.setItem(vuexKey, JSON.stringify(vuexData))
 
         const nuxtColorModeValue = "invalid-color"
@@ -305,7 +310,7 @@ describe("PersistenceService", () => {
       })
 
       it(`extracts individual properties from the key "${vuexKey}" and sets them in localStorage`, () => {
-        const vuexData = cloneDeep(VUEX_DATA)
+        const vuexData = cloneDeep(VUEX_DATA_MOCK)
         window.localStorage.setItem(vuexKey, JSON.stringify(vuexData))
 
         const themeColor = "red"
@@ -559,7 +564,7 @@ describe("PersistenceService", () => {
           }
         })
 
-        const { settings } = VUEX_DATA.postwoman
+        const { settings } = VUEX_DATA_MOCK.postwoman
         window.localStorage.setItem(settingsKey, JSON.stringify(settings))
 
         const getItemSpy = spyOnGetItem()
@@ -591,7 +596,7 @@ describe("PersistenceService", () => {
       it(`shows an error and sets the entry as a backup in localStorage if "${historyKey}" read from localStorage doesn't match the schema`, () => {
         // Invalid shape for `history`
         // `v` -> `number`
-        const restHistoryData = [{ ...REST_HISTORY, v: "1" }]
+        const restHistoryData = [{ ...REST_HISTORY_MOCK, v: "1" }]
         window.localStorage.setItem(historyKey, JSON.stringify(restHistoryData))
 
         const getItemSpy = spyOnGetItem()
@@ -627,7 +632,7 @@ describe("PersistenceService", () => {
       it(`shows an error and sets the entry as a backup in localStorage if "${graphqlHistoryKey}" read from localStorage doesn't match the schema`, () => {
         // Invalid shape for `graphqlHistory`
         // `v` -> `number`
-        const graphqlHistoryData = [{ ...GQL_HISTORY, v: "1" }]
+        const graphqlHistoryData = [{ ...GQL_HISTORY_MOCK, v: "1" }]
         window.localStorage.setItem(
           graphqlHistoryKey,
           JSON.stringify(graphqlHistoryData)
@@ -684,8 +689,8 @@ describe("PersistenceService", () => {
           }
         })
 
-        const stringifiedRestHistory = JSON.stringify(REST_HISTORY)
-        const stringifiedGqlHistory = JSON.stringify(GQL_HISTORY)
+        const stringifiedRestHistory = JSON.stringify(REST_HISTORY_MOCK)
+        const stringifiedGqlHistory = JSON.stringify(GQL_HISTORY_MOCK)
 
         window.localStorage.setItem(historyKey, stringifiedRestHistory)
         window.localStorage.setItem(graphqlHistoryKey, stringifiedGqlHistory)
@@ -731,7 +736,7 @@ describe("PersistenceService", () => {
       it(`shows an error and sets the entry as a backup in localStorage if "${collectionsKey}" read from localStorage doesn't match the schema`, () => {
         // Invalid shape for `collections`
         // `v` -> `number`
-        const restCollectionsData = [{ ...REST_COLLECTIONS, v: "1" }]
+        const restCollectionsData = [{ ...REST_COLLECTIONS_MOCK, v: "1" }]
         window.localStorage.setItem(
           collectionsKey,
           JSON.stringify(restCollectionsData)
@@ -770,7 +775,7 @@ describe("PersistenceService", () => {
       it(`shows an error and sets the entry as a backup in localStorage if "${collectionsGraphqlKey}" read from localStorage doesn't match the schema`, () => {
         // Invalid shape for `collectionsGraphql`
         // `v` -> `number`
-        const graphqlCollectionsData = [{ ...GQL_COLLECTIONS, v: "1" }]
+        const graphqlCollectionsData = [{ ...GQL_COLLECTIONS_MOCK, v: "1" }]
         window.localStorage.setItem(
           collectionsGraphqlKey,
           JSON.stringify(graphqlCollectionsData)
@@ -838,8 +843,8 @@ describe("PersistenceService", () => {
           }
         })
 
-        const restCollections = REST_COLLECTIONS
-        const gqlCollections = GQL_COLLECTIONS
+        const restCollections = REST_COLLECTIONS_MOCK
+        const gqlCollections = GQL_COLLECTIONS_MOCK
 
         window.localStorage.setItem(
           collectionsKey,
@@ -913,7 +918,7 @@ describe("PersistenceService", () => {
       })
 
       it(`separates "globals" entries from "${environmentsKey}", subscribes to the "environmentStore" and updates localStorage entries`, () => {
-        const environments = cloneDeep(ENVIRONMENTS)
+        const environments = cloneDeep(ENVIRONMENTS_MOCK)
         window.localStorage.setItem(
           "environments",
           JSON.stringify(environments)
@@ -954,10 +959,7 @@ describe("PersistenceService", () => {
       it(`shows an error and sets the entry as a backup in localStorage if "${selectedEnvIndexKey}" read from localStorage doesn't match the schema`, () => {
         // Invalid shape for `selectedEnvIndex`
         // `index` -> `number`
-        const selectedEnvIndex = {
-          type: "MY_ENV",
-          index: "1",
-        }
+        const selectedEnvIndex = { ...SELECTED_ENV_INDEX_MOCK, index: "1" }
 
         window.localStorage.setItem(
           selectedEnvIndexKey,
@@ -995,10 +997,7 @@ describe("PersistenceService", () => {
       })
 
       it(`sets it to the store if there is a value associated with the "${selectedEnvIndexKey}" key in localStorage`, () => {
-        const selectedEnvIndex = {
-          type: "MY_ENV",
-          index: 1,
-        }
+        const selectedEnvIndex = SELECTED_ENV_INDEX_MOCK
 
         window.localStorage.setItem(
           selectedEnvIndexKey,
@@ -1052,7 +1051,7 @@ describe("PersistenceService", () => {
       it(`shows an error and sets the entry as a backup in localStorage if "${wsRequestKey}" read from localStorage doesn't match the schema`, () => {
         // Invalid shape for `WebsocketRequest`
         const request = {
-          endpoint: "wss://echo-websocket.hoppscotch.io",
+          ...WEBSOCKET_REQUEST_MOCK,
           // `protocols` -> `[]`
           protocols: {},
         }
@@ -1099,10 +1098,7 @@ describe("PersistenceService", () => {
           }
         })
 
-        const request = {
-          endpoint: "wss://echo-websocket.hoppscotch.io",
-          protocols: [],
-        }
+        const request = WEBSOCKET_REQUEST_MOCK
         window.localStorage.setItem(wsRequestKey, JSON.stringify(request))
 
         const getItemSpy = spyOnGetItem()
@@ -1127,8 +1123,7 @@ describe("PersistenceService", () => {
       it(`shows an error and sets the entry as a backup in localStorage if "${sioRequestKey}" read from localStorage doesn't match the schema`, () => {
         // Invalid shape for `SocketIORequest`
         const request = {
-          endpoint: "wss://echo-websocket.hoppscotch.io",
-          path: "/socket.io",
+          ...SOCKET_IO_REQUEST_MOCK,
           // `v` -> `version: v4`
           v: "4",
         }
@@ -1175,11 +1170,7 @@ describe("PersistenceService", () => {
           }
         })
 
-        const request = {
-          endpoint: "wss://echo-socketio.hoppscotch.io",
-          path: "/socket.io",
-          version: "v4",
-        }
+        const request = SOCKET_IO_REQUEST_MOCK
 
         window.localStorage.setItem(sioRequestKey, JSON.stringify(request))
 
@@ -1205,9 +1196,9 @@ describe("PersistenceService", () => {
       it(`shows an error and sets the entry as a backup in localStorage if "${sseRequestKey}" read from localStorage doesn't match the versioned schema`, () => {
         // Invalid shape for `SSERequest`
         const request = {
+          ...SSE_REQUEST_MOCK,
           // `url` -> `endpoint`
           url: "https://express-eventsource.herokuapp.com/events",
-          eventType: "data",
         }
 
         window.localStorage.setItem(sseRequestKey, JSON.stringify(request))
@@ -1252,10 +1243,7 @@ describe("PersistenceService", () => {
           }
         })
 
-        const request = {
-          endpoint: "https://express-eventsource.herokuapp.com/events",
-          eventType: "data",
-        }
+        const request = SSE_REQUEST_MOCK
         window.localStorage.setItem(sseRequestKey, JSON.stringify(request))
 
         const getItemSpy = spyOnGetItem()
@@ -1280,9 +1268,9 @@ describe("PersistenceService", () => {
       it(`shows an error and sets the entry as a backup in localStorage if "${mqttRequestKey}" read from localStorage doesn't match the schema`, () => {
         // Invalid shape for `MQTTRequest`
         const request = {
+          ...MQTT_REQUEST_MOCK,
           // `url` -> `endpoint`
           url: "wss://test.mosquitto.org:8081",
-          clientID: "hoppscotch",
         }
 
         window.localStorage.setItem(mqttRequestKey, JSON.stringify(request))
@@ -1327,10 +1315,7 @@ describe("PersistenceService", () => {
           }
         })
 
-        const request = {
-          endpoint: "wss://test.mosquitto.org:8081",
-          clientID: "hoppscotch",
-        }
+        const request = MQTT_REQUEST_MOCK
         window.localStorage.setItem(mqttRequestKey, JSON.stringify(request))
 
         const getItemSpy = spyOnGetItem()
@@ -1358,9 +1343,9 @@ describe("PersistenceService", () => {
         // Invalid shape for `globalEnv`
         const globalEnv = [
           {
+            ...GLOBAL_ENV_MOCK[0],
             // `key` -> `string`
             key: 1,
-            value: "testValue",
           },
         ]
 
@@ -1397,9 +1382,7 @@ describe("PersistenceService", () => {
       })
 
       it(`reads the "globalEnv" entry from localStorage, dispatches the new value, subscribes to the "environmentsStore" and updates localStorage entries`, () => {
-        const globalEnv: Environment["variables"] = [
-          { key: "testKey", value: "testValue" },
-        ]
+        const globalEnv = GLOBAL_ENV_MOCK
         window.localStorage.setItem(globalEnvKey, JSON.stringify(globalEnv))
 
         const getItemSpy = spyOnGetItem()
@@ -1427,7 +1410,7 @@ describe("PersistenceService", () => {
       it(`shows an error and sets the entry as a backup in localStorage if "${gqlTabStateKey}" read from localStorage doesn't match the schema`, () => {
         // Invalid shape for `gqlTabState`
         // `lastActiveTabID` -> `string`
-        const gqlTabState = { ...GQL_TAB_STATE, lastActiveTabID: 1234 }
+        const gqlTabState = { ...GQL_TAB_STATE_MOCK, lastActiveTabID: 1234 }
 
         window.localStorage.setItem(gqlTabStateKey, JSON.stringify(gqlTabState))
 
@@ -1465,7 +1448,7 @@ describe("PersistenceService", () => {
       })
 
       it("loads tabs from the state persisted in localStorage and sets watcher for `persistableTabState`", () => {
-        const tabState = GQL_TAB_STATE
+        const tabState = GQL_TAB_STATE_MOCK
         window.localStorage.setItem(gqlTabStateKey, JSON.stringify(tabState))
 
         const getItemSpy = spyOnGetItem()
@@ -1522,7 +1505,7 @@ describe("PersistenceService", () => {
       it(`shows an error and sets the entry as a backup in localStorage if "${restTabStateKey}" read from localStorage doesn't match the schema`, () => {
         // Invalid shape for `restTabState`
         // `lastActiveTabID` -> `string`
-        const restTabState = { ...REST_TAB_STATE, lastActiveTabID: 1234 }
+        const restTabState = { ...REST_TAB_STATE_MOCK, lastActiveTabID: 1234 }
 
         window.localStorage.setItem(
           restTabStateKey,
@@ -1563,7 +1546,7 @@ describe("PersistenceService", () => {
       })
 
       it("loads tabs from the state persisted in localStorage and sets watcher for `persistableTabState`", () => {
-        const tabState = REST_TAB_STATE
+        const tabState = REST_TAB_STATE_MOCK
         window.localStorage.setItem(restTabStateKey, JSON.stringify(tabState))
 
         const getItemSpy = spyOnGetItem()

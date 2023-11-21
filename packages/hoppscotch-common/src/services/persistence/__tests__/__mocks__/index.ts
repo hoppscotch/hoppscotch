@@ -22,7 +22,7 @@ type VUEX_DATA = {
 
 const DEFAULT_SETTINGS = getDefaultSettings()
 
-export const REST_COLLECTIONS: HoppCollection<HoppRESTRequest>[] = [
+export const REST_COLLECTIONS_MOCK: HoppCollection<HoppRESTRequest>[] = [
   {
     v: 1,
     name: "Echo",
@@ -44,7 +44,7 @@ export const REST_COLLECTIONS: HoppCollection<HoppRESTRequest>[] = [
   },
 ]
 
-export const GQL_COLLECTIONS: HoppCollection<HoppGQLRequest>[] = [
+export const GQL_COLLECTIONS_MOCK: HoppCollection<HoppGQLRequest>[] = [
   {
     v: 1,
     name: "Echo",
@@ -63,7 +63,7 @@ export const GQL_COLLECTIONS: HoppCollection<HoppGQLRequest>[] = [
   },
 ]
 
-export const ENVIRONMENTS: Environment[] = [
+export const ENVIRONMENTS_MOCK: Environment[] = [
   {
     name: "globals",
     variables: [
@@ -76,16 +76,46 @@ export const ENVIRONMENTS: Environment[] = [
   { name: "Test", variables: [{ key: "test-key", value: "test-value" }] },
 ]
 
-export const VUEX_DATA: VUEX_DATA = {
+export const SELECTED_ENV_INDEX_MOCK = {
+  type: "MY_ENV",
+  index: 1,
+}
+
+export const WEBSOCKET_REQUEST_MOCK = {
+  endpoint: "wss://echo-websocket.hoppscotch.io",
+  protocols: [],
+}
+
+export const SOCKET_IO_REQUEST_MOCK = {
+  endpoint: "wss://echo-socketio.hoppscotch.io",
+  path: "/socket.io",
+  version: "v4",
+}
+
+export const SSE_REQUEST_MOCK = {
+  endpoint: "https://express-eventsource.herokuapp.com/events",
+  eventType: "data",
+}
+
+export const MQTT_REQUEST_MOCK = {
+  endpoint: "wss://test.mosquitto.org:8081",
+  clientID: "hoppscotch",
+}
+
+export const GLOBAL_ENV_MOCK: Environment["variables"] = [
+  { key: "test-key", value: "test-value" },
+]
+
+export const VUEX_DATA_MOCK: VUEX_DATA = {
   postwoman: {
     settings: { ...DEFAULT_SETTINGS, THEME_COLOR: "purple" },
-    collections: REST_COLLECTIONS,
-    collectionsGraphql: GQL_COLLECTIONS,
-    environments: ENVIRONMENTS,
+    collections: REST_COLLECTIONS_MOCK,
+    collectionsGraphql: GQL_COLLECTIONS_MOCK,
+    environments: ENVIRONMENTS_MOCK,
   },
 }
 
-export const REST_HISTORY: RESTHistoryEntry[] = [
+export const REST_HISTORY_MOCK: RESTHistoryEntry[] = [
   {
     v: 1,
     request: {
@@ -106,7 +136,7 @@ export const REST_HISTORY: RESTHistoryEntry[] = [
   },
 ]
 
-export const GQL_HISTORY: GQLHistoryEntry[] = [
+export const GQL_HISTORY_MOCK: GQLHistoryEntry[] = [
   {
     v: 1,
     request: {
@@ -124,7 +154,7 @@ export const GQL_HISTORY: GQLHistoryEntry[] = [
   },
 ]
 
-export const GQL_TAB_STATE: PersistableTabState<HoppGQLDocument> = {
+export const GQL_TAB_STATE_MOCK: PersistableTabState<HoppGQLDocument> = {
   lastActiveTabID: "5edbe8d4-65c9-4381-9354-5f1bf05d8ccc",
   orderedDocs: [
     {
@@ -147,7 +177,7 @@ export const GQL_TAB_STATE: PersistableTabState<HoppGQLDocument> = {
   ],
 }
 
-export const REST_TAB_STATE: PersistableTabState<HoppRESTDocument> = {
+export const REST_TAB_STATE_MOCK: PersistableTabState<HoppRESTDocument> = {
   lastActiveTabID: "e6e8d800-caa8-44a2-a6a6-b4765a3167aa",
   orderedDocs: [
     {

@@ -95,7 +95,6 @@ export class PersistenceService extends Service {
   }
 
   private checkAndMigrateOldSettings() {
-    console.log("Invoked the method")
     if (window.localStorage.getItem("selectedEnvIndex")) {
       const index = window.localStorage.getItem("selectedEnvIndex")
       if (index) {
@@ -125,7 +124,6 @@ export class PersistenceService extends Service {
 
     // Validate data read from localStorage
     const result = VUEX_SCHEMA.safeParse(vuexData)
-    console.log(result)
     if (result.success) {
       vuexData = result.data
     } else {

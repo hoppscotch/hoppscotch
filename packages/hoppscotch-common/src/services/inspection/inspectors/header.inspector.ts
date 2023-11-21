@@ -38,6 +38,8 @@ export class HeaderInspectorService extends Service implements Inspector {
     return computed(() => {
       const results: InspectorResult[] = []
 
+      if (!req.value) return results
+
       const headers = req.value.headers
 
       const headerKeys = Object.values(headers).map((header) => header.key)

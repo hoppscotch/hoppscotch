@@ -73,13 +73,6 @@
             class="hidden group-hover:inline-flex"
             @click="emit('add-folder')"
           />
-          <HoppButtonSecondary
-            v-tippy="{ theme: 'tooltip' }"
-            :icon="IconPlaySquare"
-            :title="t('collection.run')"
-            class="hidden group-hover:inline-flex"
-            @click="emit('run-collection')"
-          />
           <span>
             <tippy
               ref="options"

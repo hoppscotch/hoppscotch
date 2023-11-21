@@ -951,6 +951,8 @@
     "not_found": "Environment not found."
   },
   "test": {
+    "requests": "Requests",
+    "selection": "Selection",
     "failed": "test failed",
     "javascript_code": "JavaScript Code",
     "learn": "Read documentation",

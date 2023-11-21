@@ -945,7 +945,7 @@ importers:
         version: link:@tauri-apps/api/tauri
       tauri-plugin-store-api:
         specifier: github:tauri-apps/tauri-plugin-store#v1
-        version: github.com/tauri-apps/tauri-plugin-store/6e19887b1bdea9b921a31993d72396a350731e07
+        version: github.com/tauri-apps/tauri-plugin-store/3367248b2661abcb73d2a89f30df780c387fb57d
       util:
         specifier: ^0.12.4
         version: 0.12.5
@@ -1455,8 +1455,8 @@ importers:
         specifier: ^0.12.4
         version: 0.12.4(histoire@0.12.4)(vite@3.2.4)(vue@3.3.9)
       '@iconify-json/lucide':
-        specifier: ^1.1.109
-        version: 1.1.109
+        specifier: ^1.1.141
+        version: 1.1.144
       '@intlify/vite-plugin-vue-i18n':
         specifier: ^6.0.1
         version: 6.0.1(vite@3.2.4)
@@ -7566,12 +7566,6 @@ packages:
     resolution: {integrity: sha512-dvuCeX5fC9dXgJn9t+X5atfmgQAzUOWqS1254Gh0m6i8wKd10ebXkfNKiRK+1GWi/yTvvLDHpoxLr0xxxeslWw==}
     dev: true
 
-  /@iconify-json/lucide@1.1.109:
-    resolution: {integrity: sha512-1+zYieiKUAjN1x66kvcRmmtgBJaDbD7i4To8mhB6+3bEm/i61un76nspJ45LOSGovzBMvYZFIJpqJrGMipWPzw==}
-    dependencies:
-      '@iconify/types': 2.0.0
-    dev: true
-
   /@iconify-json/lucide@1.1.144:
     resolution: {integrity: sha512-MdpwW2zrSmxgUUyZs5zX7GqlqoTMvK1fpIFQKkXOwsxWfijAjyEWP2oWFFdVIKUoDyMSbJzXXIwon68D/Q4PcQ==}
     dependencies:
@@ -12380,7 +12374,7 @@ packages:
   /acorn-globals@7.0.1:
     resolution: {integrity: sha512-umOSDSDrfHbTNPuNpC2NSnnA3LUrqpevPb4T9jRx4MagXNS0rs+gwiTcAvqCRmsD6utzsrzNt+ebm00SNWiC3Q==}
     dependencies:
-      acorn: 8.10.0
+      acorn: 8.11.2
       acorn-walk: 8.3.0
     dev: true
 
@@ -28801,8 +28795,8 @@ packages:
   /zod@3.22.4:
     resolution: {integrity: sha512-iC+8Io04lddc+mVqQ9AZ7OQ2MrUKGN+oIQyq1vemgt46jwCwLfhq7/pwnBnNXXXZb8VTVLKwp9EDkx+ryxIWmg==}
 
-  github.com/tauri-apps/tauri-plugin-store/6e19887b1bdea9b921a31993d72396a350731e07:
-    resolution: {tarball: https://codeload.github.com/tauri-apps/tauri-plugin-store/tar.gz/6e19887b1bdea9b921a31993d72396a350731e07}
+  github.com/tauri-apps/tauri-plugin-store/3367248b2661abcb73d2a89f30df780c387fb57d:
+    resolution: {tarball: https://codeload.github.com/tauri-apps/tauri-plugin-store/tar.gz/3367248b2661abcb73d2a89f30df780c387fb57d}
     name: tauri-plugin-store-api
     version: 0.0.0
     dependencies:

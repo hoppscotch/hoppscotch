@@ -35,8 +35,22 @@
             </template>
 
             <!-- Render TabHeads -->
-            <template v-if="tab.document.type === 'request'" #tabhead>
+            <template #tabhead>
+              <div
+                v-if="tab.document.type === 'test-runner'"
+                :title="tab.document.collection.name"
+                class="truncate px-2 flex items-center"
+              >
+                <span class="svg-icons opacity-75">
+                  <icon-lucide-play-square></icon-lucide-play-square>
+                </span>
+
+                <span class="leading-8 px-2 truncate">
+                  {{ tab.document.collection.name }}
+                </span>
+              </div>
               <HttpTabHead
+                v-if="tab.document.type === 'request'"
                 :tab="tab"
                 :is-removable="activeTabs.length > 1"
                 @open-rename-modal="openReqRenameModal(tab.id)"
@@ -48,7 +62,7 @@
             <!-- END Render TabHeads -->
 
             <!-- Render TabContents -->
-            <CollectionsRunner
+            <HttpTestRunner
               v-if="tab.document.type === 'test-runner'"
               :model-value="tab"
               @update:model-value="onTabUpdate"

@@ -205,6 +205,8 @@ const emit = defineEmits<{
 
 const slots = useSlots()
 
+console.log(slots)
+
 const hasActions = computed(() => {
   return !!slots.actions
 })

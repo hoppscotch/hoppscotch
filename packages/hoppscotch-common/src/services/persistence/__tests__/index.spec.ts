@@ -115,22 +115,22 @@ const spyOnRemoveItem = () => vi.spyOn(Storage.prototype, "removeItem")
 const spyOnSetItem = () => vi.spyOn(Storage.prototype, "setItem")
 
 const bindPersistenceService = ({
-  bindGQLTabService = false,
-  bindRESTTabService = false,
-  mocks = {},
+  mockGQLTabService = false,
+  mockRESTTabService = false,
+  mock = {},
 }: {
-  bindGQLTabService?: boolean
-  bindRESTTabService?: boolean
-  mocks?: Record<string, unknown>
+  mockGQLTabService?: boolean
+  mockRESTTabService?: boolean
+  mock?: Record<string, unknown>
 } = {}) => {
   const container = new TestContainer()
 
-  if (bindGQLTabService) {
-    container.bindMock(GQLTabService, mocks)
+  if (mockGQLTabService) {
+    container.bindMock(GQLTabService, mock)
   }
 
-  if (bindRESTTabService) {
-    container.bindMock(RESTTabService, mocks)
+  if (mockRESTTabService) {
+    container.bindMock(RESTTabService, mock)
   }
 
   container.bind(PersistenceService)
@@ -1415,7 +1415,7 @@ describe("PersistenceService", () => {
       const gqlTabStateKey = "gqlTabState"
 
       const loadTabsFromPersistedStateFn = vi.fn()
-      const mocks = { loadTabsFromPersistedState: loadTabsFromPersistedStateFn }
+      const mock = { loadTabsFromPersistedState: loadTabsFromPersistedStateFn }
 
       it(`shows an error and sets the entry as a backup in localStorage if "${gqlTabStateKey}" read from localStorage doesn't match the schema`, () => {
         // Invalid shape for `gqlTabState`
@@ -1446,7 +1446,7 @@ describe("PersistenceService", () => {
         const getItemSpy = spyOnGetItem()
         const setItemSpy = spyOnSetItem()
 
-        bindPersistenceService({ bindGQLTabService: true, mocks })
+        bindPersistenceService({ mockGQLTabService: true, mock })
 
         expect(getItemSpy).toHaveBeenCalledWith(gqlTabStateKey)
 
@@ -1464,7 +1464,7 @@ describe("PersistenceService", () => {
         const getItemSpy = spyOnGetItem()
         const setItemSpy = spyOnSetItem()
 
-        bindPersistenceService({ bindGQLTabService: true, mocks })
+        bindPersistenceService({ mockGQLTabService: true, mock })
 
         expect(getItemSpy).toHaveBeenCalledWith(gqlTabStateKey)
 
@@ -1510,7 +1510,7 @@ describe("PersistenceService", () => {
       const restTabStateKey = "restTabState"
 
       const loadTabsFromPersistedStateFn = vi.fn()
-      const mocks = { loadTabsFromPersistedState: loadTabsFromPersistedStateFn }
+      const mock = { loadTabsFromPersistedState: loadTabsFromPersistedStateFn }
 
       it(`shows an error and sets the entry as a backup in localStorage if "${restTabStateKey}" read from localStorage doesn't match the schema`, () => {
         // Invalid shape for `restTabState`
@@ -1544,7 +1544,7 @@ describe("PersistenceService", () => {
         const getItemSpy = spyOnGetItem()
         const setItemSpy = spyOnSetItem()
 
-        bindPersistenceService({ bindRESTTabService: true, mocks })
+        bindPersistenceService({ mockRESTTabService: true, mock })
 
         expect(getItemSpy).toHaveBeenCalledWith(restTabStateKey)
 
@@ -1562,7 +1562,7 @@ describe("PersistenceService", () => {
         const getItemSpy = spyOnGetItem()
         const setItemSpy = spyOnSetItem()
 
-        bindPersistenceService({ bindRESTTabService: true, mocks })
+        bindPersistenceService({ mockRESTTabService: true, mock })
 
         expect(getItemSpy).toHaveBeenCalledWith(restTabStateKey)
 

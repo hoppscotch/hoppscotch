@@ -91,7 +91,7 @@ export class PersistenceService extends Service {
 
   private showErrorToast(localStorageKey: string) {
     const toast = useToast()
-    toast.error(
+    toast?.error(
       `There's a mismatch with the expected schema for the value corresponding to ${localStorageKey} read from localStorage, keeping a backup in ${localStorageKey}-backup`
     )
   }

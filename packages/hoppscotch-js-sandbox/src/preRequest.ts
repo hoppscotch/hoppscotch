@@ -1,10 +1,11 @@
-import { pipe } from "fp-ts/function"
-import * as O from "fp-ts/Option"
-import * as E from "fp-ts/Either"
-import * as TE from "fp-ts/lib/TaskEither"
-import * as qjs from "quickjs-emscripten"
-import cloneDeep from "lodash/clone"
 import { Environment, parseTemplateStringE } from "@hoppscotch/data"
+import * as E from "fp-ts/Either"
+import * as O from "fp-ts/Option"
+import { pipe } from "fp-ts/function"
+import * as TE from "fp-ts/lib/TaskEither"
+import cloneDeep from "lodash/clone"
+import { Context, createContext, runInContext } from "vm"
+
 import { getEnv, setEnv } from "./utils"
 
 type Envs = {
@@ -18,49 +19,51 @@ export const execPreRequestScript = (
 ): TE.TaskEither<string, Envs> =>
   pipe(
     TE.tryCatch(
-      async () => await qjs.getQuickJS(),
-      (reason) => `QuickJS initialization failed: ${reason}`
+      async () => {
+        return createContext()
+      },
+      (reason) => `Context initialization failed: ${reason}`
     ),
-    TE.chain((QuickJS) => {
+    TE.chain((context) =>
+      TE.tryCatch(
+        () => executeScriptInContext(preRequestScript, envs, context),
+        (reason) => `Script execution failed: ${reason}`
+      )
+    )
+  )
+
+const executeScriptInContext = (
+  preRequestScript: string,
+  envs: Envs,
+  context: Context
+): Promise<Envs> => {
+  return new Promise((resolve, reject) => {
+    try {
       let currentEnvs = cloneDeep(envs)
 
-      const vm = QuickJS.createVm()
-
-      const pwHandle = vm.newObject()
-
-      // Environment management APIs
-      // TODO: Unified Implementation
-      const envHandle = vm.newObject()
-
-      const envGetHandle = vm.newFunction("get", (keyHandle) => {
-        const key: unknown = vm.dump(keyHandle)
-
+      const envGetHandle = (key: any) => {
         if (typeof key !== "string") {
-          return {
-            error: vm.newString("Expected key to be a string"),
-          }
+          return reject({
+            error: "Expected key to be a string",
+          })
         }
 
         const result = pipe(
           getEnv(key, currentEnvs),
           O.match(
-            () => vm.undefined,
-            ({ value }) => vm.newString(value)
+            () => undefined,
+            ({ value }) => String(value)
           )
         )
 
-        return {
-          value: result,
-        }
-      })
+        return result
+      }
 
-      const envGetResolveHandle = vm.newFunction("getResolve", (keyHandle) => {
-        const key: unknown = vm.dump(keyHandle)
-
+      const envGetResolveHandle = (key: any) => {
         if (typeof key !== "string") {
-          return {
-            error: vm.newString("Expected key to be a string"),
-          }
+          return reject({
+            error: "Expected key to be a string",
+          })
         }
 
         const result = pipe(
@@ -74,49 +77,36 @@ export const execPreRequestScript = (
               E.getOrElse(() => value)
             )
           ),
-
-          // Create a new VM String
-          // NOTE: Do not shorten this to map(vm.newString) apparently it breaks it
-          E.map((x) => vm.newString(x)),
-
-          E.getOrElse(() => vm.undefined)
+          E.map((x) => String(x)),
+          E.getOrElseW(() => undefined)
         )
 
-        return {
-          value: result,
-        }
-      })
+        return result
+      }
 
-      const envSetHandle = vm.newFunction("set", (keyHandle, valueHandle) => {
-        const key: unknown = vm.dump(keyHandle)
-        const value: unknown = vm.dump(valueHandle)
-
+      const envSetHandle = (key: any, value: any) => {
         if (typeof key !== "string") {
-          return {
-            error: vm.newString("Expected key to be a string"),
-          }
+          return reject({
+            error: "Expected key to be a string",
+          })
         }
 
         if (typeof value !== "string") {
-          return {
-            error: vm.newString("Expected value to be a string"),
-          }
+          return reject({
+            error: "Expected value to be a string",
+          })
         }
 
         currentEnvs = setEnv(key, value, currentEnvs)
 
-        return {
-          value: vm.undefined,
-        }
-      })
+        return undefined
+      }
 
-      const envResolveHandle = vm.newFunction("resolve", (valueHandle) => {
-        const value: unknown = vm.dump(valueHandle)
-
+      const envResolveHandle = (value: any) => {
         if (typeof value !== "string") {
-          return {
-            error: vm.newString("Expected value to be a string"),
-          }
+          return reject({
+            error: "Expected value to be a string",
+          })
         }
 
         const result = pipe(
@@ -127,40 +117,27 @@ export const execPreRequestScript = (
           E.getOrElse(() => value)
         )
 
-        return {
-          value: vm.newString(result),
-        }
-      })
-
-      vm.setProp(envHandle, "resolve", envResolveHandle)
-      envResolveHandle.dispose()
-
-      vm.setProp(envHandle, "set", envSetHandle)
-      envSetHandle.dispose()
-
-      vm.setProp(envHandle, "getResolve", envGetResolveHandle)
-      envGetResolveHandle.dispose()
-
-      vm.setProp(envHandle, "get", envGetHandle)
-      envGetHandle.dispose()
-
-      vm.setProp(pwHandle, "env", envHandle)
-      envHandle.dispose()
-
-      vm.setProp(vm.global, "pw", pwHandle)
-      pwHandle.dispose()
-
-      const evalRes = vm.evalCode(preRequestScript)
-
-      if (evalRes.error) {
-        const errorData = vm.dump(evalRes.error)
-        evalRes.error.dispose()
-
-        return TE.left(errorData)
+        return String(result)
       }
 
-      vm.dispose()
+      const pw = {
+        env: {
+          get: envGetHandle,
+          getResolve: envGetResolveHandle,
+          set: envSetHandle,
+          resolve: envResolveHandle,
+        },
+      }
 
-      return TE.right(currentEnvs)
-    })
-  )
+      // Expose pw to the context
+      context.pw = pw
+
+      // Run the test script in the provided context
+      runInContext(preRequestScript, context)
+
+      resolve(currentEnvs)
+    } catch (error) {
+      reject({ error: `Script execution failed: ${(error as Error).message}` })
+    }
+  })
+}

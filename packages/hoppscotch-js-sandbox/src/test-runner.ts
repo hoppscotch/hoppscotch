@@ -1,11 +1,12 @@
-import * as O from "fp-ts/Option"
+import { Environment, parseTemplateStringE } from "@hoppscotch/data"
 import * as E from "fp-ts/Either"
+import * as O from "fp-ts/Option"
 import * as TE from "fp-ts/TaskEither"
 import { pipe } from "fp-ts/function"
-import * as qjs from "quickjs-emscripten"
-import { Environment, parseTemplateStringE } from "@hoppscotch/data"
 import cloneDeep from "lodash/cloneDeep"
-import { getEnv, marshalObjectToVM, setEnv } from "./utils"
+import { createContext, runInContext, runInNewContext } from "vm"
+
+import { getEnv, preventCyclicObjects, setEnv } from "./utils"
 
 /**
  * The response object structure exposed to the test script
@@ -60,173 +61,77 @@ export type TestResult = {
 
 /**
  * Creates an Expectation object for use inside the sandbox
- * @param vm The QuickJS sandbox VM instance
+ * @param context The VM context
  * @param expectVal The expecting value of the expectation
  * @param negated Whether the expectation is negated (negative)
  * @param currTestStack The current state of the test execution stack
  * @returns Handle to the expectation object in VM
  */
-function createExpectation(
-  vm: qjs.QuickJSVm,
+const createExpectation = (
   expectVal: any,
   negated: boolean,
   currTestStack: TestDescriptor[]
-): qjs.QuickJSHandle {
-  const resultHandle = vm.newObject()
+) => {
+  const result = runInNewContext("({})", {})
 
-  const toBeFnHandle = vm.newFunction("toBe", (expectedValHandle) => {
-    const expectedVal = vm.dump(expectedValHandle)
-
+  const toBeFn = (expectedVal: any) => {
     let assertion = expectVal === expectedVal
-    if (negated) assertion = !assertion
 
-    if (assertion) {
-      currTestStack[currTestStack.length - 1].expectResults.push({
-        status: "pass",
-        message: `Expected '${expectVal}' to${
-          negated ? " not" : ""
-        } be '${expectedVal}'`,
-      })
-    } else {
-      currTestStack[currTestStack.length - 1].expectResults.push({
-        status: "fail",
-        message: `Expected '${expectVal}' to${
-          negated ? " not" : ""
-        } be '${expectedVal}'`,
-      })
+    if (negated) {
+      assertion = !assertion
     }
 
-    return { value: vm.undefined }
-  })
+    const status = assertion ? "pass" : "fail"
+    const message = `Expected '${expectVal}' to${
+      negated ? " not" : ""
+    } be '${expectedVal}'`
 
-  const toBeLevel2xxHandle = vm.newFunction("toBeLevel2xx", () => {
-    // Check if the expected value is a number, else it is an error
+    currTestStack[currTestStack.length - 1].expectResults.push({
+      status,
+      message,
+    })
+
+    return undefined
+  }
+
+  const toBeLevelXxx = (
+    level: string,
+    rangeStart: number,
+    rangeEnd: number
+  ) => {
     if (typeof expectVal === "number" && !Number.isNaN(expectVal)) {
-      let assertion = expectVal >= 200 && expectVal <= 299
-      if (negated) assertion = !assertion
+      let assertion = expectVal >= rangeStart && expectVal <= rangeEnd
 
-      if (assertion) {
-        currTestStack[currTestStack.length - 1].expectResults.push({
-          status: "pass",
-          message: `Expected '${expectVal}' to${
-            negated ? " not" : ""
-          } be 200-level status`,
-        })
-      } else {
-        currTestStack[currTestStack.length - 1].expectResults.push({
-          status: "fail",
-          message: `Expected '${expectVal}' to${
-            negated ? " not" : ""
-          } be 200-level status`,
-        })
+      if (negated) {
+        assertion = !assertion
       }
+
+      const status = assertion ? "pass" : "fail"
+      const message = `Expected '${expectVal}' to${
+        negated ? " not" : ""
+      } be ${level}-level status`
+
+      currTestStack[currTestStack.length - 1].expectResults.push({
+        status,
+        message,
+      })
     } else {
+      const message = `Expected ${level}-level status but could not parse value '${expectVal}'`
       currTestStack[currTestStack.length - 1].expectResults.push({
         status: "error",
-        message: `Expected 200-level status but could not parse value '${expectVal}'`,
+        message,
       })
     }
 
-    return { value: vm.undefined }
-  })
+    return undefined
+  }
 
-  const toBeLevel3xxHandle = vm.newFunction("toBeLevel3xx", () => {
-    // Check if the expected value is a number, else it is an error
-    if (typeof expectVal === "number" && !Number.isNaN(expectVal)) {
-      let assertion = expectVal >= 300 && expectVal <= 399
-      if (negated) assertion = !assertion
+  const toBeLevel2xx = () => toBeLevelXxx("200", 200, 299)
+  const toBeLevel3xx = () => toBeLevelXxx("300", 300, 399)
+  const toBeLevel4xx = () => toBeLevelXxx("400", 400, 499)
+  const toBeLevel5xx = () => toBeLevelXxx("500", 500, 599)
 
-      if (assertion) {
-        currTestStack[currTestStack.length - 1].expectResults.push({
-          status: "pass",
-          message: `Expected '${expectVal}' to${
-            negated ? " not" : ""
-          } be 300-level status`,
-        })
-      } else {
-        currTestStack[currTestStack.length - 1].expectResults.push({
-          status: "fail",
-          message: `Expected '${expectVal}' to${
-            negated ? " not" : ""
-          } be 300-level status`,
-        })
-      }
-    } else {
-      currTestStack[currTestStack.length - 1].expectResults.push({
-        status: "error",
-        message: `Expected 300-level status but could not parse value '${expectVal}'`,
-      })
-    }
-
-    return { value: vm.undefined }
-  })
-
-  const toBeLevel4xxHandle = vm.newFunction("toBeLevel4xx", () => {
-    // Check if the expected value is a number, else it is an error
-    if (typeof expectVal === "number" && !Number.isNaN(expectVal)) {
-      let assertion = expectVal >= 400 && expectVal <= 499
-      if (negated) assertion = !assertion
-
-      if (assertion) {
-        currTestStack[currTestStack.length - 1].expectResults.push({
-          status: "pass",
-          message: `Expected '${expectVal}' to${
-            negated ? " not" : ""
-          } be 400-level status`,
-        })
-      } else {
-        currTestStack[currTestStack.length - 1].expectResults.push({
-          status: "fail",
-          message: `Expected '${expectVal}' to${
-            negated ? " not" : ""
-          } be 400-level status`,
-        })
-      }
-    } else {
-      currTestStack[currTestStack.length - 1].expectResults.push({
-        status: "error",
-        message: `Expected 400-level status but could not parse value '${expectVal}'`,
-      })
-    }
-
-    return { value: vm.undefined }
-  })
-
-  const toBeLevel5xxHandle = vm.newFunction("toBeLevel5xx", () => {
-    // Check if the expected value is a number, else it is an error
-    if (typeof expectVal === "number" && !Number.isNaN(expectVal)) {
-      let assertion = expectVal >= 500 && expectVal <= 599
-      if (negated) assertion = !assertion
-
-      if (assertion) {
-        currTestStack[currTestStack.length - 1].expectResults.push({
-          status: "pass",
-          message: `Expected '${expectVal}' to${
-            negated ? " not" : ""
-          } be 500-level status`,
-        })
-      } else {
-        currTestStack[currTestStack.length - 1].expectResults.push({
-          status: "fail",
-          message: `Expected '${expectVal}' to${
-            negated ? " not" : ""
-          } be 500-level status`,
-        })
-      }
-    } else {
-      currTestStack[currTestStack.length - 1].expectResults.push({
-        status: "error",
-        message: `Expected 500-level status but could not parse value '${expectVal}'`,
-      })
-    }
-
-    return { value: vm.undefined }
-  })
-
-  const toBeTypeHandle = vm.newFunction("toBeType", (expectedValHandle) => {
-    const expectedType = vm.dump(expectedValHandle)
-
-    // Check if the expectation param is a valid type name string, else error
+  const toBeType = (expectedType: any) => {
     if (
       [
         "string",
@@ -240,158 +145,135 @@ function createExpectation(
       ].includes(expectedType)
     ) {
       let assertion = typeof expectVal === expectedType
-      if (negated) assertion = !assertion
 
-      if (assertion) {
-        currTestStack[currTestStack.length - 1].expectResults.push({
-          status: "pass",
-          message: `Expected '${expectVal}' to${
-            negated ? " not" : ""
-          } be type '${expectedType}'`,
-        })
-      } else {
-        currTestStack[currTestStack.length - 1].expectResults.push({
-          status: "fail",
-          message: `Expected '${expectVal}' to${
-            negated ? " not" : ""
-          } be type '${expectedType}'`,
-        })
+      if (negated) {
+        assertion = !assertion
       }
+
+      const status = assertion ? "pass" : "fail"
+      const message = `Expected '${expectVal}' to${
+        negated ? " not" : ""
+      } be type '${expectedType}'`
+
+      currTestStack[currTestStack.length - 1].expectResults.push({
+        status,
+        message,
+      })
     } else {
+      const message =
+        'Argument for toBeType should be "string", "boolean", "number", "object", "undefined", "bigint", "symbol" or "function"'
       currTestStack[currTestStack.length - 1].expectResults.push({
         status: "error",
-        message: `Argument for toBeType should be "string", "boolean", "number", "object", "undefined", "bigint", "symbol" or "function"`,
+        message,
       })
     }
 
-    return { value: vm.undefined }
-  })
+    return undefined
+  }
 
-  const toHaveLengthHandle = vm.newFunction(
-    "toHaveLength",
-    (expectedValHandle) => {
-      const expectedLength = vm.dump(expectedValHandle)
-
-      if (!(Array.isArray(expectVal) || typeof expectVal === "string")) {
-        currTestStack[currTestStack.length - 1].expectResults.push({
-          status: "error",
-          message: `Expected toHaveLength to be called for an array or string`,
-        })
-
-        return { value: vm.undefined }
-      }
-
-      // Check if the parameter is a number, else error
-      if (typeof expectedLength === "number" && !Number.isNaN(expectedLength)) {
-        let assertion = (expectVal as any[]).length === expectedLength
-        if (negated) assertion = !assertion
-
-        if (assertion) {
-          currTestStack[currTestStack.length - 1].expectResults.push({
-            status: "pass",
-            message: `Expected the array to${
-              negated ? " not" : ""
-            } be of length '${expectedLength}'`,
-          })
-        } else {
-          currTestStack[currTestStack.length - 1].expectResults.push({
-            status: "fail",
-            message: `Expected the array to${
-              negated ? " not" : ""
-            } be of length '${expectedLength}'`,
-          })
-        }
-      } else {
-        currTestStack[currTestStack.length - 1].expectResults.push({
-          status: "error",
-          message: `Argument for toHaveLength should be a number`,
-        })
-      }
-
-      return { value: vm.undefined }
-    }
-  )
-
-  const toIncludeHandle = vm.newFunction("toInclude", (needleHandle) => {
-    const expectedVal = vm.dump(needleHandle)
-
+  const toHaveLength = (expectedLength: any) => {
     if (!(Array.isArray(expectVal) || typeof expectVal === "string")) {
+      const message =
+        "Expected toHaveLength to be called for an array or string"
       currTestStack[currTestStack.length - 1].expectResults.push({
         status: "error",
-        message: `Expected toInclude to be called for an array or string`,
+        message,
       })
 
-      return { value: vm.undefined }
+      return undefined
     }
 
-    if (expectedVal === null) {
+    if (typeof expectedLength === "number" && !Number.isNaN(expectedLength)) {
+      let assertion = expectVal.length === expectedLength
+
+      if (negated) {
+        assertion = !assertion
+      }
+
+      const status = assertion ? "pass" : "fail"
+      const message = `Expected the array to${
+        negated ? " not" : ""
+      } be of length '${expectedLength}'`
+
+      currTestStack[currTestStack.length - 1].expectResults.push({
+        status,
+        message,
+      })
+    } else {
+      const message = "Argument for toHaveLength should be a number"
       currTestStack[currTestStack.length - 1].expectResults.push({
         status: "error",
-        message: `Argument for toInclude should not be null`,
+        message,
       })
-
-      return { value: vm.undefined }
     }
 
-    if (expectedVal === undefined) {
+    return undefined
+  }
+
+  const toInclude = (needle: any) => {
+    if (!(Array.isArray(expectVal) || typeof expectVal === "string")) {
+      const message = "Expected toInclude to be called for an array or string"
       currTestStack[currTestStack.length - 1].expectResults.push({
         status: "error",
-        message: `Argument for toInclude should not be undefined`,
+        message,
       })
-
-      return { value: vm.undefined }
+      return undefined
     }
 
-    let assertion = expectVal.includes(expectedVal)
-    if (negated) assertion = !assertion
+    if (needle === null) {
+      const message = "Argument for toInclude should not be null"
+      currTestStack[currTestStack.length - 1].expectResults.push({
+        status: "error",
+        message,
+      })
+      return undefined
+    }
+
+    if (needle === undefined) {
+      const message = "Argument for toInclude should not be undefined"
+      currTestStack[currTestStack.length - 1].expectResults.push({
+        status: "error",
+        message,
+      })
+      return undefined
+    }
+
+    let assertion = expectVal.includes(needle)
+
+    if (negated) {
+      assertion = !assertion
+    }
 
     const expectValPretty = JSON.stringify(expectVal)
-    const expectedValPretty = JSON.stringify(expectedVal)
+    const needlePretty = JSON.stringify(needle)
+    const status = assertion ? "pass" : "fail"
+    const message = `Expected ${expectValPretty} to${
+      negated ? " not" : ""
+    } include ${needlePretty}`
 
-    if (assertion) {
-      currTestStack[currTestStack.length - 1].expectResults.push({
-        status: "pass",
-        message: `Expected ${expectValPretty} to${
-          negated ? " not" : ""
-        } include ${expectedValPretty}`,
-      })
-    } else {
-      currTestStack[currTestStack.length - 1].expectResults.push({
-        status: "fail",
-        message: `Expected ${expectValPretty} to${
-          negated ? " not" : ""
-        } include ${expectedValPretty}`,
-      })
-    }
+    currTestStack[currTestStack.length - 1].expectResults.push({
+      status,
+      message,
+    })
+    return undefined
+  }
 
-    return { value: vm.undefined }
-  })
+  result.toBe = toBeFn
+  result.toBeLevel2xx = toBeLevel2xx
+  result.toBeLevel3xx = toBeLevel3xx
+  result.toBeLevel4xx = toBeLevel4xx
+  result.toBeLevel5xx = toBeLevel5xx
+  result.toBeType = toBeType
+  result.toHaveLength = toHaveLength
+  result.toInclude = toInclude
 
-  vm.setProp(resultHandle, "toBe", toBeFnHandle)
-  vm.setProp(resultHandle, "toBeLevel2xx", toBeLevel2xxHandle)
-  vm.setProp(resultHandle, "toBeLevel3xx", toBeLevel3xxHandle)
-  vm.setProp(resultHandle, "toBeLevel4xx", toBeLevel4xxHandle)
-  vm.setProp(resultHandle, "toBeLevel5xx", toBeLevel5xxHandle)
-  vm.setProp(resultHandle, "toBeType", toBeTypeHandle)
-  vm.setProp(resultHandle, "toHaveLength", toHaveLengthHandle)
-  vm.setProp(resultHandle, "toInclude", toIncludeHandle)
-
-  vm.defineProp(resultHandle, "not", {
-    get: () => {
-      return createExpectation(vm, expectVal, !negated, currTestStack)
+  Object.defineProperties(result, {
+    not: {
+      get: () => createExpectation(expectVal, !negated, currTestStack),
     },
   })
 
-  toBeFnHandle.dispose()
-  toBeLevel2xxHandle.dispose()
-  toBeLevel3xxHandle.dispose()
-  toBeLevel4xxHandle.dispose()
-  toBeLevel5xxHandle.dispose()
-  toBeTypeHandle.dispose()
-  toHaveLengthHandle.dispose()
-  toIncludeHandle.dispose()
-
-  return resultHandle
+  return result
 }
 
 export const execTestScript = (
@@ -401,210 +283,160 @@ export const execTestScript = (
 ): TE.TaskEither<string, TestResult> =>
   pipe(
     TE.tryCatch(
-      async () => await qjs.getQuickJS(),
-      (reason) => `QuickJS initialization failed: ${reason}`
+      async () => {
+        return createContext()
+      },
+      (reason) => `Context initialization failed: ${reason}`
     ),
-    TE.chain(
-      // TODO: Make this more functional ?
-      (QuickJS) => {
-        let currentEnvs = cloneDeep(envs)
-
-        const vm = QuickJS.createVm()
-
-        const pwHandle = vm.newObject()
-
-        const testRunStack: TestDescriptor[] = [
-          { descriptor: "root", expectResults: [], children: [] },
-        ]
-
-        const testFuncHandle = vm.newFunction(
-          "test",
-          (descriptorHandle, testFuncHandle) => {
-            const descriptor = vm.getString(descriptorHandle)
-
-            testRunStack.push({
-              descriptor,
-              expectResults: [],
-              children: [],
-            })
-
-            const result = vm.unwrapResult(
-              vm.callFunction(testFuncHandle, vm.null)
-            )
-            result.dispose()
-
-            const child = testRunStack.pop() as TestDescriptor
-            testRunStack[testRunStack.length - 1].children.push(child)
-          }
-        )
-
-        const expectFnHandle = vm.newFunction("expect", (expectValueHandle) => {
-          const expectVal = vm.dump(expectValueHandle)
-
-          return {
-            value: createExpectation(vm, expectVal, false, testRunStack),
-          }
-        })
-
-        // Marshal response object
-        const responseObjHandle = marshalObjectToVM(vm, response)
-        if (E.isLeft(responseObjHandle))
-          return TE.left(
-            `Response marshalling failed: ${responseObjHandle.left}`
-          )
-
-        vm.setProp(pwHandle, "response", responseObjHandle.right)
-        responseObjHandle.right.dispose()
-
-        vm.setProp(pwHandle, "expect", expectFnHandle)
-        expectFnHandle.dispose()
-
-        vm.setProp(pwHandle, "test", testFuncHandle)
-        testFuncHandle.dispose()
-
-        // Environment management APIs
-        // TODO: Unified Implementation
-        const envHandle = vm.newObject()
-
-        const envGetHandle = vm.newFunction("get", (keyHandle) => {
-          const key: unknown = vm.dump(keyHandle)
-
-          if (typeof key !== "string") {
-            return {
-              error: vm.newString("Expected key to be a string"),
-            }
-          }
-
-          const result = pipe(
-            getEnv(key, currentEnvs),
-            O.match(
-              () => vm.undefined,
-              ({ value }) => vm.newString(value)
-            )
-          )
-
-          return {
-            value: result,
-          }
-        })
-
-        const envGetResolveHandle = vm.newFunction(
-          "getResolve",
-          (keyHandle) => {
-            const key: unknown = vm.dump(keyHandle)
-
-            if (typeof key !== "string") {
-              return {
-                error: vm.newString("Expected key to be a string"),
-              }
-            }
-
-            const result = pipe(
-              getEnv(key, currentEnvs),
-              E.fromOption(() => "INVALID_KEY" as const),
-
-              E.map(({ value }) =>
-                pipe(
-                  parseTemplateStringE(value, [
-                    ...envs.selected,
-                    ...envs.global,
-                  ]),
-                  // If the recursive resolution failed, return the unresolved value
-                  E.getOrElse(() => value)
-                )
-              ),
-
-              // Create a new VM String
-              // NOTE: Do not shorten this to map(vm.newString) apparently it breaks it
-              E.map((x) => vm.newString(x)),
-
-              E.getOrElse(() => vm.undefined)
-            )
-
-            return {
-              value: result,
-            }
-          }
-        )
-
-        const envSetHandle = vm.newFunction("set", (keyHandle, valueHandle) => {
-          const key: unknown = vm.dump(keyHandle)
-          const value: unknown = vm.dump(valueHandle)
-
-          if (typeof key !== "string") {
-            return {
-              error: vm.newString("Expected key to be a string"),
-            }
-          }
-
-          if (typeof value !== "string") {
-            return {
-              error: vm.newString("Expected value to be a string"),
-            }
-          }
-
-          currentEnvs = setEnv(key, value, currentEnvs)
-
-          return {
-            value: vm.undefined,
-          }
-        })
-
-        const envResolveHandle = vm.newFunction("resolve", (valueHandle) => {
-          const value: unknown = vm.dump(valueHandle)
-
-          if (typeof value !== "string") {
-            return {
-              error: vm.newString("Expected value to be a string"),
-            }
-          }
-
-          const result = pipe(
-            parseTemplateStringE(value, [
-              ...currentEnvs.selected,
-              ...currentEnvs.global,
-            ]),
-            E.getOrElse(() => value)
-          )
-
-          return {
-            value: vm.newString(result),
-          }
-        })
-
-        vm.setProp(envHandle, "resolve", envResolveHandle)
-        envResolveHandle.dispose()
-
-        vm.setProp(envHandle, "set", envSetHandle)
-        envSetHandle.dispose()
-
-        vm.setProp(envHandle, "getResolve", envGetResolveHandle)
-        envGetResolveHandle.dispose()
-
-        vm.setProp(envHandle, "get", envGetHandle)
-        envGetHandle.dispose()
-
-        vm.setProp(pwHandle, "env", envHandle)
-        envHandle.dispose()
-
-        vm.setProp(vm.global, "pw", pwHandle)
-        pwHandle.dispose()
-
-        const evalRes = vm.evalCode(testScript)
-
-        if (evalRes.error) {
-          const errorData = vm.dump(evalRes.error)
-          evalRes.error.dispose()
-
-          return TE.left(`Script evaluation failed: ${errorData}`)
-        }
-
-        vm.dispose()
-
-        return TE.right({
-          tests: testRunStack,
-          envs: currentEnvs,
-        })
-      }
+    TE.chain((context) =>
+      TE.tryCatch(
+        () => executeScriptInContext(testScript, envs, response, context),
+        (reason) => `Script execution failed: ${JSON.stringify(reason)}`
+      )
     )
   )
+
+const executeScriptInContext = (
+  testScript: string,
+  envs: TestResult["envs"],
+  response: TestResponse,
+  context: any
+): Promise<TestResult> => {
+  return new Promise((resolve, reject) => {
+    try {
+      let currentEnvs = cloneDeep(envs)
+
+      const testRunStack: TestDescriptor[] = [
+        { descriptor: "root", expectResults: [], children: [] },
+      ]
+
+      const testFuncHandle = (descriptor: string, testFunc: () => void) => {
+        testRunStack.push({
+          descriptor,
+          expectResults: [],
+          children: [],
+        })
+
+        testFunc()
+
+        const child = testRunStack.pop() as TestDescriptor
+        testRunStack[testRunStack.length - 1].children.push(child)
+      }
+
+      const expectFnHandle = (expectVal: any) =>
+        createExpectation(expectVal, false, testRunStack)
+
+      const envGetHandle = (key: any) => {
+        if (typeof key !== "string") {
+          return reject({
+            error: "Expected key to be a string",
+          })
+        }
+
+        const result = pipe(
+          getEnv(key, currentEnvs),
+          O.match(
+            () => undefined,
+            ({ value }) => String(value)
+          )
+        )
+
+        return result
+      }
+
+      const envGetResolveHandle = (key: any) => {
+        if (typeof key !== "string") {
+          return reject({
+            error: "Expected key to be a string",
+          })
+        }
+
+        const result = pipe(
+          getEnv(key, currentEnvs),
+          E.fromOption(() => "INVALID_KEY" as const),
+
+          E.map(({ value }) =>
+            pipe(
+              parseTemplateStringE(value, [...envs.selected, ...envs.global]),
+              // If the recursive resolution failed, return the unresolved value
+              E.getOrElse(() => value)
+            )
+          ),
+          E.map((x) => String(x)),
+
+          E.getOrElseW(() => undefined)
+        )
+
+        return result
+      }
+
+      const envSetHandle = (key: any, value: any) => {
+        if (typeof key !== "string") {
+          return reject({
+            error: "Expected key to be a string",
+          })
+        }
+
+        if (typeof value !== "string") {
+          return reject({
+            error: "Expected value to be a string",
+          })
+        }
+
+        currentEnvs = setEnv(key, value, currentEnvs)
+
+        return undefined
+      }
+
+      const envResolveHandle = (value: any) => {
+        if (typeof value !== "string") {
+          return reject({
+            error: "Expected value to be a string",
+          })
+        }
+
+        const result = pipe(
+          parseTemplateStringE(value, [
+            ...currentEnvs.selected,
+            ...currentEnvs.global,
+          ]),
+          E.getOrElse(() => value)
+        )
+
+        return String(result)
+      }
+
+      // Parse response object
+      const responseObjHandle = preventCyclicObjects(response)
+      if (E.isLeft(responseObjHandle)) {
+        return TE.left(`Response parsing failed: ${responseObjHandle.left}`)
+      }
+
+      const pw = {
+        response: responseObjHandle.right,
+        expect: expectFnHandle,
+        test: testFuncHandle,
+        env: {
+          get: envGetHandle,
+          getResolve: envGetResolveHandle,
+          set: envSetHandle,
+          resolve: envResolveHandle,
+        },
+      }
+
+      // Expose pw to the context
+      context.pw = pw
+      context.console = console
+
+      // Run the test script in the provided context
+      runInContext(testScript, context)
+
+      resolve({
+        tests: testRunStack,
+        envs: currentEnvs,
+      })
+    } catch (error) {
+      reject({ error: `Script execution failed: ${(error as Error).message}` })
+    }
+  })
+}

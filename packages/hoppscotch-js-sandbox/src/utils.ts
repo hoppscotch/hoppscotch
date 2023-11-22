@@ -1,43 +1,25 @@
-import * as O from "fp-ts/Option"
 import * as E from "fp-ts/Either"
-import * as QuickJS from "quickjs-emscripten"
+import * as O from "fp-ts/Option"
+
 import { TestResult } from "./test-runner"
 
-export function marshalObjectToVM(
-  vm: QuickJS.QuickJSVm,
-  obj: object
-): E.Either<string, QuickJS.QuickJSHandle> {
+export function preventCyclicObjects(
+  obj: Record<string, any>
+): E.Left<string> | E.Right<Record<string, any>> {
   let jsonString
 
   try {
     jsonString = JSON.stringify(obj)
   } catch (e) {
-    return E.left("Marshaling stringification failed")
+    return E.left("Stringification failed")
   }
 
-  const vmStringHandle = vm.newString(jsonString)
-
-  const jsonHandle = vm.getProp(vm.global, "JSON")
-  const parseFuncHandle = vm.getProp(jsonHandle, "parse")
-
-  const parseResultHandle = vm.callFunction(
-    parseFuncHandle,
-    vm.undefined,
-    vmStringHandle
-  )
-
-  if (parseResultHandle.error) {
-    parseResultHandle.error.dispose()
-    return E.left("Marshaling failed")
+  try {
+    const parsedJson = JSON.parse(jsonString)
+    return E.right(parsedJson)
+  } catch (err) {
+    return E.left("Parsing failed")
   }
-
-  const resultHandle = vm.unwrapResult(parseResultHandle)
-
-  vmStringHandle.dispose()
-  parseFuncHandle.dispose()
-  jsonHandle.dispose()
-
-  return E.right(resultHandle)
 }
 
 export function getEnv(envName: string, envs: TestResult["envs"]) {

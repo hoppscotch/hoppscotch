@@ -28,7 +28,7 @@ describe("Test 'hopp test <file>' command:", () => {
 
     expect(out).toBe<HoppErrorCode>("UNKNOWN_ERROR");
   });
-  
+
   test("Malformed collection file.", async () => {
     const cmd = `node ./bin/hopp test ${getTestJsonFilePath(
       "malformed-collection2.json"

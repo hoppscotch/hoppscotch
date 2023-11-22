@@ -430,6 +430,9 @@ importers:
       '@lezer/highlight':
         specifier: 1.2.0
         version: 1.2.0
+      '@unhead/vue':
+        specifier: ^1.8.7
+        version: 1.8.8(vue@3.3.8)
       '@urql/core':
         specifier: ^4.2.0
         version: 4.2.0(graphql@16.8.1)
@@ -448,9 +451,6 @@ importers:
       '@vueuse/core':
         specifier: ^10.6.1
         version: 10.6.1(vue@3.3.8)
-      '@vueuse/head':
-        specifier: ^1.3.1
-        version: 1.3.1(vue@3.3.8)
       acorn-walk:
         specifier: ^8.3.0
         version: 8.3.0
@@ -11542,13 +11542,6 @@ packages:
       '@unhead/schema': 1.8.8
     dev: false
 
-  /@unhead/ssr@1.8.8:
-    resolution: {integrity: sha512-+nKFgU2jT/3U0x97pQaVYa5+pH+ngpdfqPjpT6Wti8htJsBnRRUdQ8X3hTyD2vHgFsrUTj0RRr9/6CY/qdpM/A==}
-    dependencies:
-      '@unhead/schema': 1.8.8
-      '@unhead/shared': 1.8.8
-    dev: false
-
   /@unhead/vue@1.8.8(vue@3.3.8):
     resolution: {integrity: sha512-isHpVnSSE5SP+ObsZG/i+Jq9tAQ2u1AbGrktXKmL7P5FRxwPjhATYnJFdGpxXeXfuaFgRFKzGKs29xo4MMVODw==}
     peerDependencies:
@@ -12404,18 +12397,6 @@ packages:
     transitivePeerDependencies:
       - '@vue/composition-api'
       - vue
-    dev: false
-
-  /@vueuse/head@1.3.1(vue@3.3.8):
-    resolution: {integrity: sha512-XCcHGfDzkGlHS7KIPJVYN//L7jpfASLsN7MUE19ndHVQLnPIDxqFLDl7IROsY81PKzawVAUe4OYVWcGixseWxA==}
-    peerDependencies:
-      vue: '>=2.7 || >=3'
-    dependencies:
-      '@unhead/dom': 1.8.8
-      '@unhead/schema': 1.8.8
-      '@unhead/ssr': 1.8.8
-      '@unhead/vue': 1.8.8(vue@3.3.8)
-      vue: 3.3.8(typescript@5.2.2)
     dev: false
 
   /@vueuse/metadata@10.6.1:

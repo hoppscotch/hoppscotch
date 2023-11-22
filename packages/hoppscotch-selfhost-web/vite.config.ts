@@ -223,6 +223,8 @@ export default defineConfig({
           /twitter/,
           /github/,
           /announcements/,
+          /admin/,
+          /backend/,
         ],
       },
     }),

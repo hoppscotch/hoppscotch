@@ -2,7 +2,7 @@ import "@relmify/jest-fp-ts"
 import * as TE from "fp-ts/TaskEither"
 import { pipe } from "fp-ts/function"
 
-import { execTestScript } from "../../../test-runner/node-vm"
+import { execTestScriptForNode } from "../../../test-runner/node-vm"
 import { TestResponse, TestResult } from "../../../types"
 
 const fakeResponse: TestResponse = {
@@ -13,7 +13,7 @@ const fakeResponse: TestResponse = {
 
 const func = (script: string, envs: TestResult["envs"]) =>
   pipe(
-    execTestScript(script, envs, fakeResponse),
+    execTestScriptForNode(script, envs, fakeResponse),
     TE.map((x) => x.tests)
   )
 

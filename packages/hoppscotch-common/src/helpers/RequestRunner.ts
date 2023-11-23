@@ -6,7 +6,7 @@ import * as A from "fp-ts/Array"
 import { Environment } from "@hoppscotch/data"
 import {
   SandboxTestResult,
-  runTestScript,
+  runTestScriptForWeb,
   TestDescriptor,
 } from "@hoppscotch/js-sandbox"
 import * as E from "fp-ts/Either"
@@ -117,7 +117,7 @@ export function runRESTRequest$(
             res
           )
 
-          const runResult = await runTestScript(
+          const runResult = await runTestScriptForWeb(
             res.req.testScript,
             envs.right,
             {

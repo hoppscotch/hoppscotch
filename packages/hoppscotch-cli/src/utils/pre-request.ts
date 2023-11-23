@@ -6,7 +6,7 @@ import {
   parseTemplateString,
   parseTemplateStringE,
 } from "@hoppscotch/data";
-import { runPreRequestScript } from "@hoppscotch/js-sandbox";
+import { runPreRequestScriptForNode } from "@hoppscotch/js-sandbox";
 import { flow, pipe } from "fp-ts/function";
 import * as TE from "fp-ts/TaskEither";
 import * as E from "fp-ts/Either";
@@ -39,7 +39,7 @@ export const preRequestScriptRunner = (
   pipe(
     TE.of(request),
     TE.chain(({ preRequestScript }) =>
-      runPreRequestScript(preRequestScript, envs)
+      runPreRequestScriptForNode(preRequestScript, envs)
     ),
     TE.map(
       ({ selected, global }) =>

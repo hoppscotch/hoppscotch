@@ -13,7 +13,7 @@ type Envs = {
   selected: Environment["variables"]
 }
 
-export const execPreRequestScript = (
+export const execPreRequestScriptForNode = (
   preRequestScript: string,
   envs: Envs
 ): TE.TaskEither<string, Envs> =>
@@ -26,13 +26,13 @@ export const execPreRequestScript = (
     ),
     TE.chain((context) =>
       TE.tryCatch(
-        () => executeScriptInContext(preRequestScript, envs, context),
+        () => executeScriptInContextForNode(preRequestScript, envs, context),
         (reason) => `Script execution failed: ${reason}`
       )
     )
   )
 
-const executeScriptInContext = (
+const executeScriptInContextForNode = (
   preRequestScript: string,
   envs: Envs,
   context: Context

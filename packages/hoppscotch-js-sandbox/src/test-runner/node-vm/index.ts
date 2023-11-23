@@ -6,8 +6,8 @@ import { pipe } from "fp-ts/function"
 import cloneDeep from "lodash/cloneDeep"
 import { createContext, runInContext } from "vm"
 
-import { getEnv, preventCyclicObjects, setEnv } from "../../utils"
 import { TestDescriptor, TestResponse, TestResult } from "../../types"
+import { getEnv, preventCyclicObjects, setEnv } from "../../utils"
 
 /**
  * Node VM based implementation
@@ -229,7 +229,7 @@ export const createExpectation = (
   return result
 }
 
-export const execTestScript = (
+export const execTestScriptForNode = (
   testScript: string,
   envs: TestResult["envs"],
   response: TestResponse
@@ -243,13 +243,14 @@ export const execTestScript = (
     ),
     TE.chain((context) =>
       TE.tryCatch(
-        () => executeScriptInContext(testScript, envs, response, context),
+        () =>
+          executeScriptInContextForNode(testScript, envs, response, context),
         (reason) => `Script execution failed: ${JSON.stringify(reason)}`
       )
     )
   )
 
-const executeScriptInContext = (
+const executeScriptInContextForNode = (
   testScript: string,
   envs: TestResult["envs"],
   response: TestResponse,

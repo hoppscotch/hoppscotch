@@ -1,10 +1,10 @@
-import { execPreRequestScript } from "../pre-request/node-vm"
+import { execPreRequestScriptForNode } from "../pre-request/node-vm"
 import "@relmify/jest-fp-ts"
 
 describe("execPreRequestScript", () => {
   test("returns the updated envirionment properly", () => {
     return expect(
-      execPreRequestScript(
+      execPreRequestScriptForNode(
         `
           pw.env.set("bob", "newbob")
         `,
@@ -27,7 +27,7 @@ describe("execPreRequestScript", () => {
 
   test("fails if the key is not a string", () => {
     return expect(
-      execPreRequestScript(
+      execPreRequestScriptForNode(
         `
           pw.env.set(10, "newbob")
         `,
@@ -44,7 +44,7 @@ describe("execPreRequestScript", () => {
 
   test("fails if the value is not a string", () => {
     return expect(
-      execPreRequestScript(
+      execPreRequestScriptForNode(
         `
           pw.env.set("bob", 10)
         `,
@@ -61,7 +61,7 @@ describe("execPreRequestScript", () => {
 
   test("fails for invalid syntax", () => {
     return expect(
-      execPreRequestScript(
+      execPreRequestScriptForNode(
         `
           pw.env.set("bob",
         `,
@@ -78,7 +78,7 @@ describe("execPreRequestScript", () => {
 
   test("creates new env variable if doesn't exist", () => {
     return expect(
-      execPreRequestScript(
+      execPreRequestScriptForNode(
         `
           pw.env.set("foo", "bar")
         `,

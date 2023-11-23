@@ -1073,15 +1073,6 @@ importers:
 
   packages/hoppscotch-selfhost-web:
     dependencies:
-      '@fontsource-variable/inter':
-        specifier: ^5.0.8
-        version: 5.0.15
-      '@fontsource-variable/material-symbols-rounded':
-        specifier: ^5.0.7
-        version: 5.0.16
-      '@fontsource-variable/roboto-mono':
-        specifier: ^5.0.9
-        version: 5.0.16
       '@hoppscotch/common':
         specifier: workspace:^
         version: link:../hoppscotch-common
@@ -1233,9 +1224,6 @@ importers:
       vite-plugin-vue-layouts:
         specifier: ^0.8.0
         version: 0.8.0(vite@4.5.0)(vue-router@4.2.5)(vue@3.3.8)
-      vitest:
-        specifier: ^0.34.2
-        version: 0.34.6(sass@1.69.5)(terser@5.24.0)
       vue-tsc:
         specifier: ^1.8.8
         version: 1.8.8(typescript@5.2.2)

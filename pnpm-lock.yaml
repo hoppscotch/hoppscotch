@@ -765,7 +765,7 @@ importers:
         specifier: ^0.25.2
         version: 0.25.2(rollup@3.29.4)(vue@3.3.8)
       vite:
-        specifier: ^4.4.9
+        specifier: ^4.5.0
         version: 4.5.0(@types/node@17.0.27)(sass@1.69.5)(terser@5.24.0)
       vite-plugin-checker:
         specifier: ^0.6.2
@@ -1080,8 +1080,8 @@ importers:
         specifier: workspace:^
         version: link:../hoppscotch-data
       '@import-meta-env/unplugin':
-        specifier: ^0.4.8
-        version: 0.4.8(@import-meta-env/cli@0.6.3)(dotenv@16.3.1)
+        specifier: ^0.4.10
+        version: 0.4.10(dotenv@16.3.1)
       axios:
         specifier: ^1.6.2
         version: 1.6.2
@@ -1198,7 +1198,7 @@ importers:
         specifier: ^0.25.2
         version: 0.25.2(rollup@2.79.1)(vue@3.3.8)
       vite:
-        specifier: ^4.4.9
+        specifier: ^4.5.0
         version: 4.5.0(@types/node@17.0.27)(sass@1.53.0)(terser@5.24.0)
       vite-plugin-fonts:
         specifier: ^0.7.0
@@ -1219,7 +1219,7 @@ importers:
         specifier: ^0.17.0
         version: 0.17.0(vite@4.5.0)(workbox-build@7.0.0)(workbox-window@7.0.0)
       vite-plugin-static-copy:
-        specifier: ^0.17.0
+        specifier: ^0.17.1
         version: 0.17.1(vite@4.5.0)
       vite-plugin-vue-layouts:
         specifier: ^0.8.0
@@ -7853,6 +7853,25 @@ packages:
       glob: 10.2.7
       picocolors: 1.0.0
       serialize-javascript: 6.0.1
+    dev: true
+
+  /@import-meta-env/unplugin@0.4.10(dotenv@16.3.1):
+    resolution: {integrity: sha512-KA/JjnhHp2vrPA27J+IFj/XVDMJz7+jUmyukDAmMoF2uW5q8F3pJySrfl/vySLV1SVxa2b4zg2kuAe5CTIs+Bg==}
+    engines: {node: '>= 14'}
+    requiresBuild: true
+    peerDependencies:
+      '@import-meta-env/cli': ^0.5.1 || ^0.6.0
+      dotenv: ^11.0.0 || ^12.0.4 || ^13.0.1 || ^14.3.2 || ^15.0.1 || ^16.0.0
+    peerDependenciesMeta:
+      '@import-meta-env/cli':
+        optional: true
+    dependencies:
+      dotenv: 16.3.1
+      magic-string: 0.30.5
+      object-hash: 3.0.0
+      picocolors: 1.0.0
+      unplugin: 1.5.1
+    dev: false
 
   /@import-meta-env/unplugin@0.4.8(@import-meta-env/cli@0.6.3)(dotenv@16.3.1):
     resolution: {integrity: sha512-NMyC8BzR8+cl7Ht6vZPMqYeR60zxEwB5Yo/OsM5DSaLpD/L04jqQQIxeQDmg5/jRqi+OPc7KPTBhYccjSByNpA==}
@@ -7870,6 +7889,7 @@ packages:
       object-hash: 3.0.0
       picocolors: 1.0.0
       unplugin: 1.2.0
+    dev: true
 
   /@intlify/bundle-utils@3.4.0(vue-i18n@9.7.1):
     resolution: {integrity: sha512-2UQkqiSAOSPEHMGWlybqWm4G2K0X+FyYho5AwXz6QklSX1EY5EDmOSxZmwscn2qmKBnp6OYsme5kUrnN9xrWzQ==}
@@ -13964,6 +13984,7 @@ packages:
   /commander@10.0.1:
     resolution: {integrity: sha512-y4Mg2tXshplEbSGzx7amzPwKKOCGuoSRP/CjEdwwk0FOGlUbq6lKuoyDZTNZkmxHdJtp54hdfY/JUrdL7Xfdug==}
     engines: {node: '>=14'}
+    dev: true
 
   /commander@11.1.0:
     resolution: {integrity: sha512-yPVavfyCcRhmorC7rWlkHn15b4wDVgVmBA7kV4QVBsF7kv/9TKJAbAXVTxvTnwP8HHKjRCJDClKbciiYS7p0DQ==}
@@ -17056,6 +17077,7 @@ packages:
       minimatch: 9.0.3
       minipass: 6.0.2
       path-scurry: 1.10.1
+    dev: true
 
   /glob@10.3.10:
     resolution: {integrity: sha512-fa46+tv1Ak0UPK1TOy/pZrIybNNt4HCv7SDzwyfiOZkvZLEbjsZkJBPtDHVshZjbecAoAGSC20MjLDG/qr679g==}
@@ -18647,6 +18669,7 @@ packages:
       '@isaacs/cliui': 8.0.2
     optionalDependencies:
       '@pkgjs/parseargs': 0.11.0
+    dev: true
 
   /jackspeak@2.3.6:
     resolution: {integrity: sha512-N3yCS/NegsOBokc8GAdM8UcmfsKiSS8cipheD/nivzr700H+nsMOxJjQnvwOcRYVuFkdH0wGUvW2WbXGmrZGbQ==}
@@ -23186,6 +23209,7 @@ packages:
     resolution: {integrity: sha512-vYl3iOX+4CKUWuxGi9Ukhie6fsqXqS9FE2Zaic4tNFD2N2QQaXOMFbuKK4QmDHC0JO6B1Zp41J0LpT0oR68amQ==}
     dependencies:
       safe-buffer: 5.2.1
+    dev: true
 
   /range-parser@1.2.1:
     resolution: {integrity: sha512-Hrgsx+orqoygnmhFbKaHE6c296J+HTAQXoxEF6gNupROmmGJRoyzfG3ccAveqCBrwr/2yxQ5BVd/GTl5agOwSg==}
@@ -23943,6 +23967,7 @@ packages:
     resolution: {integrity: sha512-owoXEFjWRllis8/M1Q+Cw5k8ZH40e3zhp/ovX+Xr/vi1qj6QesbyXXViFbpNvWvPNAD62SutwEXavefrLJWj7w==}
     dependencies:
       randombytes: 2.1.0
+    dev: true
 
   /serve-static@1.15.0:
     resolution: {integrity: sha512-XGuRDNjXUijsUL0vl6nSD7cwURuzEgglbOaFuZM9g3kwDXOWVTck0jLzjPzGD+TazWbboZYu52/9/XPdUgne9g==}
@@ -26289,6 +26314,7 @@ packages:
       chokidar: 3.5.3
       webpack-sources: 3.2.3
       webpack-virtual-modules: 0.5.0
+    dev: true
 
   /unplugin@1.4.0:
     resolution: {integrity: sha512-5x4eIEL6WgbzqGtF9UV8VEC/ehKptPXDS6L2b0mv4FRMkJxRtjaJfOWDd6a8+kYbqsjklix7yWP0N3SUepjXcg==}
@@ -26306,7 +26332,6 @@ packages:
       chokidar: 3.5.3
       webpack-sources: 3.2.3
       webpack-virtual-modules: 0.6.1
-    dev: true
 
   /untildify@4.0.0:
     resolution: {integrity: sha512-KK8xQ1mkzZeg9inewmFVDNkg3l5LUhoq9kN6iWYB/CC9YMG8HA+c1Q8HwDe6dEX7kErrEVNVBO3fWsVq5iDgtw==}
@@ -28236,7 +28261,6 @@ packages:
 
   /webpack-virtual-modules@0.6.1:
     resolution: {integrity: sha512-poXpCylU7ExuvZK8z+On3kX+S8o/2dQ/SVYueKA0D4WEMXROXgY8Ez50/bQEUmvoSMMrWcrJqCHuhAbsiwg7Dg==}
-    dev: true
 
   /webpack@5.89.0:
     resolution: {integrity: sha512-qyfIC10pOr70V+jkmud8tMfajraGCZMBWJtrmuBymQKCrLTRejBI8STDp1MCyZu/QTdZSeacCQYpYNQVOzX5kw==}

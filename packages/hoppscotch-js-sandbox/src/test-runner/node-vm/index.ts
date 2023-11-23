@@ -1,4 +1,4 @@
-import { Environment, parseTemplateStringE } from "@hoppscotch/data"
+import { parseTemplateStringE } from "@hoppscotch/data"
 import * as E from "fp-ts/Either"
 import * as O from "fp-ts/Option"
 import * as TE from "fp-ts/TaskEither"
@@ -6,58 +6,12 @@ import { pipe } from "fp-ts/function"
 import cloneDeep from "lodash/cloneDeep"
 import { createContext, runInContext } from "vm"
 
-import { getEnv, preventCyclicObjects, setEnv } from "./utils"
+import { getEnv, preventCyclicObjects, setEnv } from "../../utils"
+import { TestDescriptor, TestResponse, TestResult } from "../../types"
 
 /**
- * The response object structure exposed to the test script
+ * Node VM based implementation
  */
-export type TestResponse = {
-  /** Status Code of the response */
-  status: number
-  /** List of headers returned */
-  headers: { key: string; value: string }[]
-  /**
-   * Body of the response, this will be the JSON object if it is a JSON content type, else body string
-   */
-  body: string | object
-}
-
-/**
- * The result of an expectation statement
- */
-type ExpectResult = { status: "pass" | "fail" | "error"; message: string } // The expectation failed (fail) or errored (error)
-
-/**
- * An object defining the result of the execution of a
- * test block
- */
-export type TestDescriptor = {
-  /**
-   * The name of the test block
-   */
-  descriptor: string
-
-  /**
-   * Expectation results of the test block
-   */
-  expectResults: ExpectResult[]
-
-  /**
-   * Children test blocks (test blocks inside the test block)
-   */
-  children: TestDescriptor[]
-}
-
-/**
- * Defines the result of a test script execution
- */
-export type TestResult = {
-  tests: TestDescriptor[]
-  envs: {
-    global: Environment["variables"]
-    selected: Environment["variables"]
-  }
-}
 
 /**
  * Creates an Expectation object for use inside the sandbox
@@ -66,7 +20,7 @@ export type TestResult = {
  * @param currTestStack The current state of the test execution stack
  * @returns Handle to the expectation object in VM
  */
-const createExpectation = (
+export const createExpectation = (
   expectVal: any,
   negated: boolean,
   currTestStack: TestDescriptor[]
@@ -439,177 +393,3 @@ const executeScriptInContext = (
     }
   })
 }
-
-/**
- * Web worker based implementation
- */
-
-const executeScriptInContextForWeb = (
-  testScript: string,
-  envs: TestResult["envs"],
-  response: TestResponse
-) => {
-  return new Promise((resolve, reject) => {
-    try {
-      let currentEnvs = cloneDeep(envs)
-
-      const testRunStack: TestDescriptor[] = [
-        { descriptor: "root", expectResults: [], children: [] },
-      ]
-
-      // Create a function from the script using the Function constructor
-      const scriptFunction = new Function(
-        "pw",
-        "marshalObject",
-        "cloneDeep",
-        "testRunStack",
-        "envs",
-        "response",
-        `
-      ${testScript}
-    `
-      )
-
-      const testFuncHandle = (descriptor: string, testFunc: () => void) => {
-        testRunStack.push({
-          descriptor,
-          expectResults: [],
-          children: [],
-        })
-
-        testFunc()
-
-        const child = testRunStack.pop() as TestDescriptor
-        testRunStack[testRunStack.length - 1].children.push(child)
-      }
-
-      const expectFnHandle = (expectVal: any) =>
-        createExpectation(expectVal, false, testRunStack)
-
-      const envGetHandle = (key: any) => {
-        if (typeof key !== "string") {
-          return reject({
-            error: "Expected key to be a string",
-          })
-        }
-
-        const result = pipe(
-          getEnv(key, currentEnvs),
-          O.match(
-            () => undefined,
-            ({ value }) => String(value)
-          )
-        )
-
-        return result
-      }
-
-      const envGetResolveHandle = (key: any) => {
-        if (typeof key !== "string") {
-          return reject({
-            error: "Expected key to be a string",
-          })
-        }
-
-        const result = pipe(
-          getEnv(key, currentEnvs),
-          E.fromOption(() => "INVALID_KEY" as const),
-
-          E.map(({ value }) =>
-            pipe(
-              parseTemplateStringE(value, [...envs.selected, ...envs.global]),
-              // If the recursive resolution failed, return the unresolved value
-              E.getOrElse(() => value)
-            )
-          ),
-          E.map((x) => String(x)),
-
-          E.getOrElseW(() => undefined)
-        )
-
-        return result
-      }
-
-      const envSetHandle = (key: any, value: any) => {
-        if (typeof key !== "string") {
-          return reject({
-            error: "Expected key to be a string",
-          })
-        }
-
-        if (typeof value !== "string") {
-          return reject({
-            error: "Expected value to be a string",
-          })
-        }
-
-        currentEnvs = setEnv(key, value, currentEnvs)
-
-        return undefined
-      }
-
-      const envResolveHandle = (value: any) => {
-        if (typeof value !== "string") {
-          return reject({
-            error: "Expected value to be a string",
-          })
-        }
-
-        const result = pipe(
-          parseTemplateStringE(value, [
-            ...currentEnvs.selected,
-            ...currentEnvs.global,
-          ]),
-          E.getOrElse(() => value)
-        )
-
-        return String(result)
-      }
-
-      // Marshal response object
-      const responseObjHandle = preventCyclicObjects(response)
-      if (E.isLeft(responseObjHandle)) {
-        return `Response marshalling failed: ${responseObjHandle.left}`
-      }
-
-      const pw = {
-        response: responseObjHandle.right,
-        expect: expectFnHandle,
-        test: testFuncHandle,
-        env: {
-          get: envGetHandle,
-          getResolve: envGetResolveHandle,
-          set: envSetHandle,
-          resolve: envResolveHandle,
-        },
-      }
-
-      // Expose pw and other dependencies to the script
-      scriptFunction(
-        pw,
-        preventCyclicObjects,
-        cloneDeep,
-        testRunStack,
-        currentEnvs,
-        response
-      )
-
-      resolve({
-        tests: testRunStack,
-        envs: currentEnvs,
-      })
-    } catch (error) {
-      return `Script execution failed: ${(error as Error).message}`
-    }
-  })
-}
-
-// Listen for messages from the main thread
-// self.addEventListener("message", async (event) => {
-//   const { messageId, testScript, envs, response } = event.data
-
-//   const result = executeScriptInContextForWeb(testScript, envs, response)
-
-//   // Post the result back to the main thread
-//   self.postMessage({ messageId, result })
-// })

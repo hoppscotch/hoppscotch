@@ -6,7 +6,7 @@ import * as TE from "fp-ts/lib/TaskEither"
 import cloneDeep from "lodash/clone"
 import { Context, createContext, runInContext } from "vm"
 
-import { getEnv, setEnv } from "./utils"
+import { getEnv, setEnv } from "../../utils"
 
 type Envs = {
   global: Environment["variables"]

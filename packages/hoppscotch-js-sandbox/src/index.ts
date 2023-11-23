@@ -1,14 +1,15 @@
-import { pipe } from "fp-ts/function"
 import * as TE from "fp-ts/TaskEither"
-import { execPreRequestScript } from "./preRequest"
-import {
-  execTestScript,
-  TestResponse as _TestResponse,
-  TestDescriptor as _TestDescriptor,
-  TestResult,
-} from "./test-runner"
+import { pipe } from "fp-ts/function"
 
-export * from "./test-runner"
+import { execPreRequestScript } from "./pre-request/node-vm"
+import { execTestScript } from "./test-runner/node-vm"
+import {
+  TestResult,
+  TestDescriptor as _TestDescriptor,
+  TestResponse as _TestResponse,
+} from "./types"
+
+export * from "./test-runner/node-vm"
 
 export type TestResponse = _TestResponse
 export type TestDescriptor = _TestDescriptor

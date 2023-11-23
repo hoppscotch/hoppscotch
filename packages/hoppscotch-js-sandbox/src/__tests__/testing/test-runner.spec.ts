@@ -1,6 +1,7 @@
 import * as TE from "fp-ts/TaskEither"
 import { pipe } from "fp-ts/function"
-import { execTestScript, TestResponse } from "../../test-runner"
+import { execTestScript } from "../../test-runner/node-vm"
+import { TestResponse } from "../../types"
 
 const fakeResponse: TestResponse = {
   status: 200,

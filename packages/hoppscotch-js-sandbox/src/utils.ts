@@ -1,7 +1,7 @@
 import * as E from "fp-ts/Either"
 import * as O from "fp-ts/Option"
 
-import { TestResult } from "./test-runner"
+import { TestResult } from "./types"
 
 export function preventCyclicObjects(
   obj: Record<string, any>

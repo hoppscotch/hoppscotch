@@ -161,6 +161,7 @@ declare module 'vue' {
     IconLucideSearch: typeof import('~icons/lucide/search')['default']
     IconLucideUsers: typeof import('~icons/lucide/users')['default']
     IconLucideVerified: typeof import('~icons/lucide/verified')['default']
+    IconLucideX: typeof import('~icons/lucide/x')['default']
     InterceptorsErrorPlaceholder: typeof import('./components/interceptors/ErrorPlaceholder.vue')['default']
     InterceptorsExtensionSubtitle: typeof import('./components/interceptors/ExtensionSubtitle.vue')['default']
     LensesHeadersRenderer: typeof import('./components/lenses/HeadersRenderer.vue')['default']

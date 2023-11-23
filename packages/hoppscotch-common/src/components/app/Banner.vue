@@ -20,7 +20,7 @@
     <icon-lucide-x
       v-if="dismissible"
       class="text-white hover:text-gray-300"
-      @click="emit('dissmissed')"
+      @click="emit('dismissed')"
     />
   </div>
 </template>
@@ -47,7 +47,7 @@ const props = withDefaults(
 const t = useI18n()
 
 const emit = defineEmits<{
-  (e: "dissmissed"): void
+  (e: "dismissed"): void
 }>()
 
 const ariaRoles: Record<BannerType, string> = {

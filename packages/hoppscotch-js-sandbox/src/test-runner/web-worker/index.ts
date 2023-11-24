@@ -3,13 +3,13 @@ import * as TE from "fp-ts/TaskEither"
 import { TestResponse, TestResult } from "../../types"
 import { SandboxTestResult } from "~/index"
 
-const worker = new Worker("./worker.ts")
-
 export const execTestScriptForWeb = (
   testScript: string,
   envs: TestResult["envs"],
   response: TestResponse
 ): TE.TaskEither<string, SandboxTestResult> => {
+  const worker = new Worker("./worker.ts")
+
   const messageId = Date.now().toString()
 
   let result = {} as TE.TaskEither<string, SandboxTestResult>

@@ -4,7 +4,6 @@ import * as O from "fp-ts/Option"
 import * as TE from "fp-ts/TaskEither"
 import { pipe } from "fp-ts/function"
 import cloneDeep from "lodash/cloneDeep"
-import { createContext, runInContext } from "vm"
 
 import { TestDescriptor, TestResponse, TestResult } from "../../types"
 import { getEnv, preventCyclicObjects, setEnv } from "../../utils"
@@ -237,6 +236,7 @@ export const execTestScriptForNode = (
   pipe(
     TE.tryCatch(
       async () => {
+        const { createContext } = await import("vm")
         return createContext()
       },
       (reason) => `Context initialization failed: ${reason}`
@@ -256,7 +256,8 @@ const executeScriptInContextForNode = (
   response: TestResponse,
   context: any
 ): Promise<TestResult> => {
-  return new Promise((resolve, reject) => {
+  // eslint-disable-next-line no-async-promise-executor
+  return new Promise(async (resolve, reject) => {
     try {
       let currentEnvs = cloneDeep(envs)
 
@@ -381,6 +382,8 @@ const executeScriptInContextForNode = (
       // Expose pw to the context
       context.pw = pw
       context.console = console
+
+      const { runInContext } = await import("vm")
 
       // Run the test script in the provided context
       runInContext(testScript, context)

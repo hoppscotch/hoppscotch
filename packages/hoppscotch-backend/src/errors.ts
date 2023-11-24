@@ -652,6 +652,12 @@ export const SHORTCODE_PROPERTIES_NOT_FOUND =
 export const INFRA_CONFIG_NOT_FOUND = 'infra_config/not_found' as const;
 
 /**
+ * Infra Config update failed
+ * (InfraConfigService)
+ */
+export const INFRA_CONFIG_UPDATE_FAILED = 'infra_config/update_failed' as const;
+
+/**
  * Infra Config not listed for onModuleInit creation
  * (InfraConfigService)
  */

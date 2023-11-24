@@ -8,10 +8,12 @@ import {
   DATABASE_TABLE_NOT_EXIST,
   INFRA_CONFIG_NOT_FOUND,
   INFRA_CONFIG_NOT_LISTED,
+  INFRA_CONFIG_UPDATE_FAILED,
 } from 'src/errors';
 import { throwErr } from 'src/utils';
 import { ConfigService } from '@nestjs/config';
 import { stopApp } from './helper';
+import { InfraConfigArgs } from './input-args';
 
 @Injectable()
 export class InfraConfigService implements OnModuleInit {
@@ -153,7 +155,40 @@ export class InfraConfigService implements OnModuleInit {
 
       return E.right(this.cast(infraConfig));
     } catch (e) {
-      return E.left(INFRA_CONFIG_NOT_FOUND);
+      return E.left(INFRA_CONFIG_UPDATE_FAILED);
+    }
+  }
+
+  /**
+   * Update InfraConfigs by name
+   * @param infraConfigs InfraConfigs to update
+   * @returns InfraConfig model
+   */
+  async updateMany(infraConfigs: InfraConfigArgs[]) {
+    try {
+      await this.prisma.$transaction(async (tx) => {
+        const deleteCount = await tx.infraConfig.deleteMany({
+          where: { name: { in: infraConfigs.map((p) => p.name) } },
+        });
+
+        const createCount = await tx.infraConfig.createMany({
+          data: infraConfigs.map((p) => ({
+            name: p.name,
+            value: p.value,
+          })),
+        });
+
+        if (deleteCount.count !== createCount.count) {
+          throwErr(INFRA_CONFIG_UPDATE_FAILED);
+        }
+      });
+
+      stopApp();
+
+      return E.right(infraConfigs);
+    } catch (e) {
+      console.log(e);
+      return E.left(INFRA_CONFIG_UPDATE_FAILED);
     }
   }
 

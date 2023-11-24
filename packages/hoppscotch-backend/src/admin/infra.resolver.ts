@@ -1,5 +1,12 @@
 import { UseGuards } from '@nestjs/common';
-import { Args, ID, Query, ResolveField, Resolver } from '@nestjs/graphql';
+import {
+  Args,
+  ID,
+  Mutation,
+  Query,
+  ResolveField,
+  Resolver,
+} from '@nestjs/graphql';
 import { GqlThrottlerGuard } from 'src/guards/gql-throttler.guard';
 import { Infra } from './infra.model';
 import { AdminService } from './admin.service';
@@ -16,11 +23,17 @@ import { Team } from 'src/team/team.model';
 import { TeamInvitation } from 'src/team-invitation/team-invitation.model';
 import { GqlAdmin } from './decorators/gql-admin.decorator';
 import { ShortcodeWithUserEmail } from 'src/shortcode/shortcode.model';
+import { InfraConfig } from 'src/infra-config/infra-config.model';
+import { InfraConfigService } from 'src/infra-config/infra-config.service';
+import { InfraConfigArgs } from 'src/infra-config/input-args';
 
 @UseGuards(GqlThrottlerGuard)
 @Resolver(() => Infra)
 export class InfraResolver {
-  constructor(private adminService: AdminService) {}
+  constructor(
+    private adminService: AdminService,
+    private infraConfigService: InfraConfigService,
+  ) {}
 
   @Query(() => Infra, {
     description: 'Fetch details of the Infrastructure',
@@ -221,5 +234,24 @@ export class InfraResolver {
       args.take,
       userEmail,
     );
+  }
+
+  /* Mutations */
+
+  @Mutation(() => [InfraConfig], {
+    description: 'Update Infra Configs',
+  })
+  @UseGuards(GqlAuthGuard, GqlAdminGuard)
+  async updateInfraConfigs(
+    @Args({
+      name: 'infraConfigs',
+      type: () => [InfraConfigArgs],
+      description: 'InfraConfigs to update',
+    })
+    infraConfigs: InfraConfigArgs[],
+  ) {
+    const updatedRes = await this.infraConfigService.updateMany(infraConfigs);
+    if (E.isLeft(updatedRes)) throwErr(updatedRes.left);
+    return updatedRes.right;
   }
 }

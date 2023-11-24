@@ -2,7 +2,7 @@ import { mockDeep, mockReset } from 'jest-mock-extended';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { InfraConfigService } from './infra-config.service';
 import { InfraConfigEnum } from 'src/types/InfraConfig';
-import { INFRA_CONFIG_NOT_FOUND } from 'src/errors';
+import { INFRA_CONFIG_NOT_FOUND, INFRA_CONFIG_UPDATE_FAILED } from 'src/errors';
 import { ConfigService } from '@nestjs/config';
 import * as helper from './helper';
 
@@ -55,14 +55,14 @@ describe('InfraConfigService', () => {
       expect(mockPrisma.infraConfig.update).toHaveBeenCalledTimes(1);
     });
 
-    it('should throw an error if the infra config does not exist', async () => {
+    it('should throw an error if the infra config update failed', async () => {
       const name = InfraConfigEnum.GOOGLE_CLIENT_ID;
       const value = 'true';
 
       mockPrisma.infraConfig.update.mockRejectedValueOnce('null');
 
       const result = await infraConfigService.update(name, value);
-      expect(result).toEqualLeft(INFRA_CONFIG_NOT_FOUND);
+      expect(result).toEqualLeft(INFRA_CONFIG_UPDATE_FAILED);
     });
   });
 

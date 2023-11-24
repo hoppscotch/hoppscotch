@@ -90,6 +90,8 @@ export function runRESTRequest$(
     tab.value.document.request.preRequestScript,
     getCombinedEnvVariables()
   ).then((envs: any) => {
+    console.log("envs received are ", envs)
+
     if (cancelCalled) return E.left("cancellation" as const)
 
     if (E.isLeft(envs)) {
@@ -125,7 +127,7 @@ export function runRESTRequest$(
               body: getTestableBody(res),
               headers: res.headers,
             }
-          )()
+          )
 
           if (E.isRight(runResult)) {
             tab.value.document.testResults = translateToSandboxTestResults(

@@ -27,7 +27,7 @@ export const runTestScriptForWeb = async (
   response: TestResponse
 ) => {
   return pipe(
-    execTestScriptForWeb(testScript, envs, response),
+    await execTestScriptForWeb(testScript, envs, response),
     TE.chain((results) =>
       TE.right(<SandboxTestResult>{
         envs: results.envs,

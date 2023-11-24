@@ -7,6 +7,9 @@ import {
   TestResponse as _TestResponse,
 } from "./types"
 
+import { execPreRequestScriptForWeb } from "./pre-request/web-worker"
+import { execTestScriptForWeb } from "./test-runner/web-worker"
+
 export type TestResponse = _TestResponse
 export type TestDescriptor = _TestDescriptor
 export type SandboxTestResult = TestResult & { tests: TestDescriptor }
@@ -27,7 +30,6 @@ if (typeof Worker !== "undefined") {
     envs: TestResult["envs"],
     response: TestResponse
   ) => {
-    const { execTestScriptForWeb } = await import("./test-runner/web-worker")
     return pipe(
       execTestScriptForWeb(testScript, envs, response),
       TE.chain((results) =>
@@ -39,7 +41,7 @@ if (typeof Worker !== "undefined") {
     )
   }
 
-  runPreRequestScriptForWeb = () => ({})
+  runPreRequestScriptForWeb = execPreRequestScriptForWeb
 } else {
   /**
    * Executes a given pre-request script on the sandbox

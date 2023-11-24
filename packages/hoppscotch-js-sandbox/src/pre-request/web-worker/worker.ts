@@ -1,56 +1,27 @@
-/**
- * Web worker based implementation
- */
-
 import { parseTemplateStringE } from "@hoppscotch/data"
 import * as E from "fp-ts/Either"
 import * as O from "fp-ts/Option"
 import { pipe } from "fp-ts/lib/function"
 import { cloneDeep } from "lodash"
+import { TestResult } from "~/types"
 
-import { getEnv, preventCyclicObjects, setEnv } from "~/utils"
-import { TestDescriptor, TestResponse, TestResult } from "../../types"
-import { createExpectation } from "../node-vm"
+import { getEnv, setEnv } from "~/utils"
 
 const executeScriptInContextForWeb = (
-  testScript: string,
-  envs: TestResult["envs"],
-  response: TestResponse
-) => {
+  preRequestScript: string,
+  envs: TestResult["envs"]
+): Promise<TestResult["envs"]> => {
   return new Promise((resolve, reject) => {
     try {
       let currentEnvs = cloneDeep(envs)
 
-      const testRunStack: TestDescriptor[] = [
-        { descriptor: "root", expectResults: [], children: [] },
-      ]
-
       // Create a function from the script using the Function constructor
       const scriptFunction = new Function(
         "pw",
-        "marshalObject",
         "cloneDeep",
-        "testRunStack",
         "envs",
-        "response",
-        `${testScript}`
+        `${preRequestScript}`
       )
-
-      const testFuncHandle = (descriptor: string, testFunc: () => void) => {
-        testRunStack.push({
-          descriptor,
-          expectResults: [],
-          children: [],
-        })
-
-        testFunc()
-
-        const child = testRunStack.pop() as TestDescriptor
-        testRunStack[testRunStack.length - 1].children.push(child)
-      }
-
-      const expectFnHandle = (expectVal: any) =>
-        createExpectation(expectVal, false, testRunStack)
 
       const envGetHandle = (key: any) => {
         if (typeof key !== "string") {
@@ -89,7 +60,6 @@ const executeScriptInContextForWeb = (
             )
           ),
           E.map((x) => String(x)),
-
           E.getOrElseW(() => undefined)
         )
 
@@ -132,16 +102,7 @@ const executeScriptInContextForWeb = (
         return String(result)
       }
 
-      // Marshal response object
-      const responseObjHandle = preventCyclicObjects(response)
-      if (E.isLeft(responseObjHandle)) {
-        return `Response marshalling failed: ${responseObjHandle.left}`
-      }
-
       const pw = {
-        response: responseObjHandle.right,
-        expect: expectFnHandle,
-        test: testFuncHandle,
         env: {
           get: envGetHandle,
           getResolve: envGetResolveHandle,
@@ -151,30 +112,20 @@ const executeScriptInContextForWeb = (
       }
 
       // Expose pw and other dependencies to the script
-      scriptFunction(
-        pw,
-        preventCyclicObjects,
-        cloneDeep,
-        testRunStack,
-        currentEnvs,
-        response
-      )
+      scriptFunction(pw, cloneDeep, currentEnvs)
 
-      resolve({
-        tests: testRunStack,
-        envs: currentEnvs,
-      })
+      resolve(currentEnvs)
     } catch (error) {
-      return `Script execution failed: ${(error as Error).message}`
+      reject({ error: `Script execution failed: ${(error as Error).message}` })
     }
   })
 }
 
 // Listen for messages from the main thread
 self.addEventListener("message", async (event) => {
-  const { messageId, testScript, envs, response } = event.data
+  const { messageId, preRequestScript, envs } = event.data
 
-  const result = executeScriptInContextForWeb(testScript, envs, response)
+  const result = executeScriptInContextForWeb(preRequestScript, envs)
 
   // Post the result back to the main thread
   self.postMessage({ messageId, result })

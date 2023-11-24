@@ -21,11 +21,14 @@ import { COOKIES_NOT_FOUND } from './errors';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { AppController } from './app.controller';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { InfraConfigModule } from './infra-config/infra-config.module';
+import { loadInfraConfiguration } from './infra-config/helper';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      load: [async () => loadInfraConfiguration()],
     }),
     GraphQLModule.forRootAsync<ApolloDriverConfig>({
       driver: ApolloDriver,
@@ -90,6 +93,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     TeamInvitationModule,
     UserCollectionModule,
     ShortcodeModule,
+    InfraConfigModule,
   ],
   providers: [GQLComplexityPlugin],
   controllers: [AppController],

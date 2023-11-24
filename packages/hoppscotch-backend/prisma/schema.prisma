@@ -209,3 +209,12 @@ enum TeamMemberRole {
   VIEWER
   EDITOR
 }
+
+model InfraConfig {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  value     String?
+  active    Boolean  @default(true) // Use case: Let's say, Admin wants to disable Google SSO, but doesn't want to delete the config
+  createdOn DateTime @default(now()) @db.Timestamp(3)
+  updatedOn DateTime @updatedAt @db.Timestamp(3)
+}

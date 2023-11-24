@@ -25,6 +25,7 @@ import { TeamEnvironmentsService } from '../team-environments/team-environments.
 import { TeamInvitationService } from '../team-invitation/team-invitation.service';
 import { TeamMemberRole } from '../team/team.model';
 import { ShortcodeService } from 'src/shortcode/shortcode.service';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AdminService {
@@ -39,6 +40,7 @@ export class AdminService {
     private readonly prisma: PrismaService,
     private readonly mailerService: MailerService,
     private readonly shortcodeService: ShortcodeService,
+    private readonly configService: ConfigService,
   ) {}
 
   /**
@@ -79,7 +81,7 @@ export class AdminService {
         template: 'user-invitation',
         variables: {
           inviteeEmail: inviteeEmail,
-          magicLink: `${process.env.VITE_BASE_URL}`,
+          magicLink: `${this.configService.get('VITE_BASE_URL')}`,
         },
       });
     } catch (e) {

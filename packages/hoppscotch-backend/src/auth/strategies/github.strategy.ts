@@ -5,18 +5,20 @@ import { AuthService } from '../auth.service';
 import { UserService } from 'src/user/user.service';
 import * as O from 'fp-ts/Option';
 import * as E from 'fp-ts/Either';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class GithubStrategy extends PassportStrategy(Strategy) {
   constructor(
     private authService: AuthService,
     private usersService: UserService,
+    private configService: ConfigService,
   ) {
     super({
-      clientID: process.env.GITHUB_CLIENT_ID,
-      clientSecret: process.env.GITHUB_CLIENT_SECRET,
-      callbackURL: process.env.GITHUB_CALLBACK_URL,
-      scope: [process.env.GITHUB_SCOPE],
+      clientID: configService.get('GITHUB_CLIENT_ID'),
+      clientSecret: configService.get('GITHUB_CLIENT_SECRET'),
+      callbackURL: configService.get('GITHUB_CALLBACK_URL'),
+      scope: [configService.get('GITHUB_SCOPE')],
       store: true,
     });
   }

@@ -28,6 +28,7 @@
     "@nestjs-modules/mailer": "^1.9.1",
     "@nestjs/apollo": "^12.0.9",
     "@nestjs/common": "^10.2.6",
+    "@nestjs/config": "^3.1.1",
     "@nestjs/core": "^10.2.6",
     "@nestjs/graphql": "^12.0.9",
     "@nestjs/jwt": "^10.1.1",

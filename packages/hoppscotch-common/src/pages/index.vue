@@ -67,9 +67,11 @@
               :model-value="tab"
               @update:model-value="onTabUpdate"
             />
+
+            <!-- When document.type === 'request' the tab type is HoppTab<HoppRequestDocument>-->
             <HttpRequestTab
               v-if="tab.document.type === 'request'"
-              :model-value="tab"
+              :model-value="(tab as HoppTab<HoppRequestDocument>)"
               @update:model-value="onTabUpdate"
             />
             <!-- END Render TabContents -->
@@ -153,7 +155,7 @@ import { ResponseInspectorService } from "~/services/inspection/inspectors/respo
 import { cloneDeep } from "lodash-es"
 import { RESTTabService } from "~/services/tab/rest"
 import { HoppTab, PersistableTabState } from "~/services/tab"
-import { HoppTabDocument } from "~/helpers/rest/document"
+import { HoppRequestDocument, HoppTabDocument } from "~/helpers/rest/document"
 
 const savingRequest = ref(false)
 const confirmingCloseForTabID = ref<string | null>(null)

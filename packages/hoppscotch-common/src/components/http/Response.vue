@@ -11,7 +11,7 @@
 <script setup lang="ts">
 import { useVModel } from "@vueuse/core"
 import { computed } from "vue"
-import { HoppTabDocument } from "~/helpers/rest/document"
+import { HoppRequestDocument, HoppTabDocument } from "~/helpers/rest/document"
 
 const props = defineProps<{
   isEmbed: boolean
@@ -19,7 +19,7 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  (e: "update:tab", val: HoppTabDocument): void
+  (e: "update:tab", val: HoppRequestDocument): void
 }>()
 
 const doc = useVModel(props, "document", emit)

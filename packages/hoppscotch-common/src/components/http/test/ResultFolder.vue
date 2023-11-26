@@ -77,6 +77,7 @@ const emit = defineEmits<{
 }>()
 
 const options = ref<TippyComponent | null>(null)
+
 const collectionName = computed(() => {
   if ((props.data as HoppCollection<HoppRESTRequest>).name)
     return (props.data as HoppCollection<HoppRESTRequest>).name

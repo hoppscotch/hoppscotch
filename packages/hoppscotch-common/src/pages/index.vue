@@ -65,9 +65,11 @@
               :model-value="tab"
               @update:model-value="onTabUpdate"
             />
+
+            <!-- When document.type === 'request' the tab type is HoppTab<HoppRequestDocument>-->
             <HttpRequestTab
               v-if="tab.document.type === 'request'"
-              :model-value="tab"
+              :model-value="tab as HoppTab<HoppRequestDocument>"
               @update:model-value="onTabUpdate"
             />
             <!-- END Render TabContents -->

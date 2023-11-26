@@ -7,6 +7,7 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    '(chore': test runner service added)
     '(feat': test runner config added)
     AccessTokens: typeof import('./components/accessTokens/index.vue')['default']
     AccessTokensGenerateModal: typeof import('./components/accessTokens/GenerateModal.vue')['default']
@@ -180,9 +181,12 @@ declare module 'vue' {
     HttpTestResult: typeof import('./components/http/TestResult.vue')['default']
     HttpTestResultEntry: typeof import('./components/http/TestResultEntry.vue')['default']
     HttpTestResultEnv: typeof import('./components/http/TestResultEnv.vue')['default']
+    HttpTestResultFolder: typeof import('./components/http/test/ResultFolder.vue')['default']
     HttpTestResultReport: typeof import('./components/http/TestResultReport.vue')['default']
+    HttpTestResultRequest: typeof import('./components/http/test/ResultRequest.vue')['default']
     HttpTestRunner: typeof import('./components/http/test/Runner.vue')['default']
     HttpTestRunnerConfig: typeof import('./components/http/test/RunnerConfig.vue')['default']
+    HttpTestRunnerResult: typeof import('./components/http/test/RunnerResult.vue')['default']
     HttpTests: typeof import('./components/http/Tests.vue')['default']
     HttpTestSelectRequest: (typeof import("./components/http/test/SelectRequest.vue"))["default"]
     HttpURLEncodedParams: typeof import('./components/http/URLEncodedParams.vue')['default']

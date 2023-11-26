@@ -1,0 +1,76 @@
+<template>
+  <div class="flex flex-col">
+    <div class="h-1 w-full transition"></div>
+    <div class="flex items-stretch group">
+      <button
+        @click="selectRequest()"
+        class="w-full rounded ml-4 px-6 py-3 transition cursor-pointer focus:outline-none hover:active hover:bg-primaryLight hover:text-secondaryDark"
+      >
+        <div class="flex gap-4 mb-1">
+          <span
+            class="flex items-center justify-center truncate pointer-events-none"
+            :class="requestLabelColor"
+          >
+            <span class="font-bold truncate">
+              {{ request.method }}
+            </span>
+          </span>
+          <span class="truncate text-sm text-secondaryDark">
+            {{ request.name }}
+          </span>
+        </div>
+
+        <p class="text-left text-secondaryLight text-sm">
+          {{ request.endpoint }}
+        </p>
+      </button>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { computed } from "vue"
+import { HoppRESTRequest } from "@hoppscotch/data"
+import { getMethodLabelColorClassOf } from "~/helpers/rest/labelColoring"
+
+const props = withDefaults(
+  defineProps<{
+    request: HoppRESTRequest
+    requestID?: string
+    parentID: string | null
+    isActive?: boolean
+    isSelected?: boolean
+    showSelection?: boolean
+  }>(),
+  {
+    parentID: null,
+    isActive: false,
+    isSelected: false,
+    showSelection: false,
+  }
+)
+
+const emit = defineEmits<{
+  (event: "edit-request"): void
+  (event: "duplicate-request"): void
+  (event: "remove-request"): void
+  (event: "select-request"): void
+  (event: "drag-request", payload: DataTransfer): void
+  (event: "update-request-order", payload: DataTransfer): void
+  (event: "update-last-request-order", payload: DataTransfer): void
+}>()
+
+const requestLabelColor = computed(() =>
+  getMethodLabelColorClassOf(props.request)
+)
+
+const selectRequest = () => {
+  emit("select-request")
+}
+</script>
+
+<style lang="scss" scoped>
+.active {
+  @apply after:bg-accentLight;
+}
+</style>

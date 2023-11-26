@@ -65,11 +65,10 @@
                 })
             "
             @run-collection="
-              node.data.type === 'collections' &&
-                emit('run-collection', {
-                  collectionIndex: node.id,
-                  collection: node.data.data.data,
-                })
+              emit('run-collection', {
+                collectionIndex: node.id,
+                collection: node.data.data.data,
+              })
             "
             @edit-collection="
               node.data.type === 'collections' &&
@@ -137,6 +136,12 @@
             :is-selected="
               isSelected({
                 folderPath: node.id,
+              })
+            "
+            @run-collection="
+              emit('run-collection', {
+                collectionIndex: node.id,
+                collection: node.data.data.data,
               })
             "
             folder-type="folder"

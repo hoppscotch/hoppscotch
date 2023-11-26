@@ -34,7 +34,7 @@
             :is-selected="node.data.isSelected"
             :is-last-item="node.data.isLastItem"
             :show-selection="showCheckbox"
-            folder-type="folder"
+            folder-type="collection"
           />
 
           <HttpTestRequest
@@ -44,7 +44,6 @@
             :parent-i-d="node.data.data.parentIndex"
             :is-selected="node.data.isSelected"
             :show-selection="showCheckbox"
-            :is-last-item="node.data.isLastItem"
           />
         </template>
       </HoppSmartTree>

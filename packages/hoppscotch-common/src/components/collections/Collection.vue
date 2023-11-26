@@ -252,7 +252,7 @@
 </template>
 
 <script setup lang="ts">
-import IconPlaySquare from "~icons/lucide/play-circle"
+import IconPlaySquare from "~icons/lucide/play-square"
 import IconCheckCircle from "~icons/lucide/check-circle"
 import IconFolderPlus from "~icons/lucide/folder-plus"
 import IconFilePlus from "~icons/lucide/file-plus"

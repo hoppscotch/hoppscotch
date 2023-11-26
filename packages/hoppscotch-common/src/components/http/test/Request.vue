@@ -13,6 +13,8 @@
           <HoppSmartCheckbox
             v-if="showSelection"
             :on="isSelected"
+            :name="`request-${requestID}`"
+            @change="selectRequest()"
             class="mx-2 ml-4"
           />
           <span class="font-semibold truncate text-tiny">
@@ -42,24 +44,13 @@
         </span>
       </div>
     </div>
-    <div
-      class="w-full transition"
-      :class="[
-        {
-          'bg-accentDark': isLastItemReorderable,
-          'h-1 ': isLastItem,
-        },
-      ]"
-    ></div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue"
+import { computed } from "vue"
 import { HoppRESTRequest } from "@hoppscotch/data"
 import { useI18n } from "@composables/i18n"
-import { currentReorderingStatus$ } from "~/newstore/reordering"
-import { useReadonlyStream } from "~/composables/stream"
 import { getMethodLabelColorClassOf } from "~/helpers/rest/labelColoring"
 
 const t = useI18n()
@@ -69,44 +60,21 @@ const props = withDefaults(
     request: HoppRESTRequest
     requestID?: string
     parentID: string | null
-    duplicateLoading?: boolean
-    saveRequest?: boolean
     isActive?: boolean
-    hasNoTeamAccess?: boolean
     isSelected?: boolean
-    requestMoveLoading?: string[]
-    isLastItem?: boolean
     showSelection?: boolean
   }>(),
   {
     parentID: null,
-    duplicateLoading: false,
-    saveRequest: false,
     isActive: false,
-    hasNoTeamAccess: false,
     isSelected: false,
-    isLastItem: false,
     showSelection: false,
   }
 )
 
 const emit = defineEmits<{
-  (event: "edit-request"): void
-  (event: "duplicate-request"): void
-  (event: "remove-request"): void
   (event: "select-request"): void
-  (event: "drag-request", payload: DataTransfer): void
-  (event: "update-request-order", payload: DataTransfer): void
-  (event: "update-last-request-order", payload: DataTransfer): void
 }>()
-
-const orderingLastItem = ref(false)
-
-const currentReorderingStatus = useReadonlyStream(currentReorderingStatus$, {
-  type: "collection",
-  id: "",
-  parentID: "",
-})
 
 const requestLabelColor = computed(() =>
   getMethodLabelColorClassOf(props.request)
@@ -115,18 +83,4 @@ const requestLabelColor = computed(() =>
 const selectRequest = () => {
   emit("select-request")
 }
-
-const isCollectionDragging = computed(() => {
-  return currentReorderingStatus.value.type === "collection"
-})
-
-const isSameParent = computed(() => {
-  return currentReorderingStatus.value.parentID === props.parentID
-})
-
-const isLastItemReorderable = computed(() => {
-  return (
-    orderingLastItem.value && isSameParent.value && !isCollectionDragging.value
-  )
-})
 </script>

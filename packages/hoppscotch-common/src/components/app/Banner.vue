@@ -11,7 +11,7 @@
         <span v-if="banner.alternateText" class="md:hidden">
           {{ banner.alternateText(t) }}
         </span>
-        <span :class="banner.alternateText ? '<md:hidden' : ''">
+        <span :class="{ '<md:hidden': banner.alternateText }">
           {{ banner.text(t) }}
         </span>
       </span>

@@ -62,26 +62,6 @@ export class InfraConfigService implements OnModuleInit {
         value: process.env.MICROSOFT_CLIENT_SECRET,
       },
       {
-        name: InfraConfigEnum.SAML_ISSUER,
-        value: process.env.SAML_ISSUER,
-      },
-      {
-        name: InfraConfigEnum.SAML_AUDIENCE,
-        value: process.env.SAML_AUDIENCE,
-      },
-      {
-        name: InfraConfigEnum.SAML_CALLBACK_URL,
-        value: process.env.SAML_CALLBACK_URL,
-      },
-      {
-        name: InfraConfigEnum.SAML_CERT,
-        value: process.env.SAML_CERT,
-      },
-      {
-        name: InfraConfigEnum.SAML_ENTRY_POINT,
-        value: process.env.SAML_ENTRY_POINT,
-      },
-      {
         name: InfraConfigEnum.VITE_ALLOWED_AUTH_PROVIDERS,
         value: process.env.VITE_ALLOWED_AUTH_PROVIDERS,
       },

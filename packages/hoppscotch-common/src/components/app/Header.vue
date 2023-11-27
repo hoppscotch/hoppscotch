@@ -221,7 +221,7 @@
       v-if="bannerContent"
       :banner="bannerContent"
       :dismissible="true"
-      @dismissed="dismissOfflineBanner"
+      @dismiss="dismissOfflineBanner"
     />
     <TeamsModal :show="showTeamsModal" @hide-modal="showTeamsModal = false" />
     <TeamsInvite

@@ -16,6 +16,7 @@ import {
   JSON_INVALID,
 } from './errors';
 import { AuthProvider } from './auth/helper';
+import { ConfigService } from '@nestjs/config';
 
 /**
  * A workaround to throw an exception in an expression.
@@ -165,17 +166,20 @@ export function isValidLength(title: string, length: number) {
  * If not, it throws an error.
  */
 export function checkEnvironmentAuthProvider() {
-  if (!process.env.hasOwnProperty('VITE_ALLOWED_AUTH_PROVIDERS')) {
+  const configService = new ConfigService();
+
+  if (!configService.get('VITE_ALLOWED_AUTH_PROVIDERS')) {
     throw new Error(ENV_NOT_FOUND_KEY_AUTH_PROVIDERS);
   }
 
-  if (process.env.VITE_ALLOWED_AUTH_PROVIDERS === '') {
+  if (configService.get('VITE_ALLOWED_AUTH_PROVIDERS') === '') {
     throw new Error(ENV_EMPTY_AUTH_PROVIDERS);
   }
 
-  const givenAuthProviders = process.env.VITE_ALLOWED_AUTH_PROVIDERS.split(
-    ',',
-  ).map((provider) => provider.toLocaleUpperCase());
+  const givenAuthProviders = configService
+    .get('VITE_ALLOWED_AUTH_PROVIDERS')
+    .split(',')
+    .map((provider) => provider.toLocaleUpperCase());
   const supportedAuthProviders = Object.values(AuthProvider).map(
     (provider: string) => provider.toLocaleUpperCase(),
   );

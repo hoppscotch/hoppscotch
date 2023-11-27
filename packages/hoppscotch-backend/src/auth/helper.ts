@@ -6,6 +6,7 @@ import { Response } from 'express';
 import * as cookie from 'cookie';
 import { AUTH_PROVIDER_NOT_SPECIFIED, COOKIES_NOT_FOUND } from 'src/errors';
 import { throwErr } from 'src/utils';
+import { ConfigService } from '@nestjs/config';
 
 enum AuthTokenType {
   ACCESS_TOKEN = 'access_token',
@@ -45,15 +46,17 @@ export const authCookieHandler = (
   redirect: boolean,
   redirectUrl: string | null,
 ) => {
+  const configService = new ConfigService();
+
   const currentTime = DateTime.now();
   const accessTokenValidity = currentTime
     .plus({
-      milliseconds: parseInt(process.env.ACCESS_TOKEN_VALIDITY),
+      milliseconds: parseInt(configService.get('ACCESS_TOKEN_VALIDITY')),
     })
     .toMillis();
   const refreshTokenValidity = currentTime
     .plus({
-      milliseconds: parseInt(process.env.REFRESH_TOKEN_VALIDITY),
+      milliseconds: parseInt(configService.get('REFRESH_TOKEN_VALIDITY')),
     })
     .toMillis();
 
@@ -75,10 +78,12 @@ export const authCookieHandler = (
   }
 
   // check to see if redirectUrl is a whitelisted url
-  const whitelistedOrigins = process.env.WHITELISTED_ORIGINS.split(',');
+  const whitelistedOrigins = configService
+    .get('WHITELISTED_ORIGINS')
+    .split(',');
   if (!whitelistedOrigins.includes(redirectUrl))
     // if it is not redirect by default to REDIRECT_URL
-    redirectUrl = process.env.REDIRECT_URL;
+    redirectUrl = configService.get('REDIRECT_URL');
 
   return res.status(HttpStatus.OK).redirect(redirectUrl);
 };
@@ -113,14 +118,17 @@ export const subscriptionContextCookieParser = (rawCookies: string) => {
  * @returns Boolean if provider specified is present or not
  */
 export function authProviderCheck(provider: string) {
+  const configService = new ConfigService();
+
   if (!provider) {
     throwErr(AUTH_PROVIDER_NOT_SPECIFIED);
   }
 
-  const envVariables = process.env.VITE_ALLOWED_AUTH_PROVIDERS
-    ? process.env.VITE_ALLOWED_AUTH_PROVIDERS.split(',').map((provider) =>
-        provider.trim().toUpperCase(),
-      )
+  const envVariables = configService.get('VITE_ALLOWED_AUTH_PROVIDERS')
+    ? configService
+        .get('VITE_ALLOWED_AUTH_PROVIDERS')
+        .split(',')
+        .map((provider) => provider.trim().toUpperCase())
     : [];
 
   if (!envVariables.includes(provider.toUpperCase())) return false;

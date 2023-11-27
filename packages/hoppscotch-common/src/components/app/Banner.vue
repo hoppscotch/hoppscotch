@@ -1,7 +1,7 @@
 <template>
   <div
     :role="bannerRole"
-    class="flex justify-between px-4 py-2 text-tiny"
+    class="flex items-center justify-between px-4 py-2 text-tiny"
     :class="bannerColor"
   >
     <div class="flex items-center">

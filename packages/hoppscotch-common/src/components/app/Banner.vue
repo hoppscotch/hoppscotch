@@ -19,7 +19,7 @@
 
     <icon-lucide-x
       v-if="dismissible"
-      class="text-white hover:text-gray-300"
+      class="text-white hover:cursor-pointer hover:text-gray-300"
       @click="emit('dismissed')"
     />
   </div>

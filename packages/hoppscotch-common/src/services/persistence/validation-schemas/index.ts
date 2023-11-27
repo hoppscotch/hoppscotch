@@ -45,12 +45,11 @@ const SettingsDefSchema = z.object({
   COLUMN_LAYOUT: z.boolean(),
 })
 
-// @ts-expect-error recursive schema
-const HoppCollectionSchema = z
+// Common properties shared across REST & GQL collections
+const HoppCollectionSchemaCommonProps = z
   .object({
     v: z.number(),
     name: z.string(),
-    folders: z.array(z.lazy(() => HoppCollectionSchema)),
     id: z.optional(z.string()),
   })
   .strict()
@@ -59,11 +58,15 @@ const HoppRESTRequestSchema = entityReference(HoppRESTRequest)
 
 const HoppGQLRequestSchema = entityReference(HoppGQLRequest)
 
-const HoppRESTCollectionSchema = HoppCollectionSchema.extend({
+// @ts-expect-error recursive schema
+const HoppRESTCollectionSchema = HoppCollectionSchemaCommonProps.extend({
+  folders: z.array(z.lazy(() => HoppRESTCollectionSchema)),
   requests: z.optional(z.array(HoppRESTRequestSchema)),
 }).strict()
 
-const HoppGQLCollectionSchema = HoppCollectionSchema.extend({
+// @ts-expect-error recursive schema
+const HoppGQLCollectionSchema = HoppCollectionSchemaCommonProps.extend({
+  folders: z.array(z.lazy(() => HoppGQLCollectionSchema)),
   requests: z.optional(z.array(HoppGQLRequestSchema)),
 }).strict()
 

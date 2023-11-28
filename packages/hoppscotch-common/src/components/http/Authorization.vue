@@ -43,6 +43,18 @@
                 "
               />
               <HoppSmartItem
+                v-if="!isRootCollection"
+                label="Inherit"
+                :icon="authName === 'Inherit' ? IconCircleDot : IconCircle"
+                :active="authName === 'Inherit'"
+                @click="
+                  () => {
+                    auth.authType = 'inherit'
+                    hide()
+                  }
+                "
+              />
+              <HoppSmartItem
                 label="Basic Auth"
                 :icon="authName === 'Basic Auth' ? IconCircleDot : IconCircle"
                 :active="authName === 'Basic Auth'"
@@ -140,6 +152,13 @@
         <div v-if="auth.authType === 'basic'">
           <HttpAuthorizationBasic v-model="auth" />
         </div>
+        <div v-if="auth.authType === 'inherit'">
+          <div class="p-4">
+            Inherited
+            {{ getAuthName(inheritedProperties?.auth?.authType) }} from Parent
+            Collection {{ inheritedProperties?.parentName }}
+          </div>
+        </div>
         <div v-if="auth.authType === 'bearer'">
           <div class="flex flex-1 border-b border-dividerLight">
             <SmartEnvInput v-model="auth.token" placeholder="Token" />
@@ -186,6 +205,8 @@ import { pluckRef } from "@composables/ref"
 import { useI18n } from "@composables/i18n"
 import { useColorMode } from "@composables/theming"
 import { useVModel } from "@vueuse/core"
+import { onMounted } from "vue"
+import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 
 const t = useI18n()
 
@@ -194,6 +215,8 @@ const colorMode = useColorMode()
 const props = defineProps<{
   modelValue: HoppRESTAuth
   isCollectionProperty?: boolean
+  isRootCollection?: boolean
+  inheritedProperties?: HoppInheritedProperty
 }>()
 
 const emit = defineEmits<{
@@ -202,18 +225,32 @@ const emit = defineEmits<{
 
 const auth = useVModel(props, "modelValue", emit)
 
+onMounted(() => {
+  if (props.isRootCollection && auth.value.authType === "inherit") {
+    console.log("isRootCollection", auth.value.authType)
+    auth.value.authType = "none"
+  }
+})
+
 const AUTH_KEY_NAME = {
   basic: "Basic Auth",
   bearer: "Bearer",
   "oauth-2": "OAuth 2.0",
   "api-key": "API key",
   none: "None",
+  inherit: "Inherit",
 } as const
 
 const authType = pluckRef(auth, "authType")
 const authName = computed(() =>
   AUTH_KEY_NAME[authType.value] ? AUTH_KEY_NAME[authType.value] : "None"
 )
+
+const getAuthName = (type: HoppRESTAuth["authType"] | undefined) => {
+  if (!type) return "None"
+  return AUTH_KEY_NAME[type] ? AUTH_KEY_NAME[type] : "None"
+}
+
 const authActive = pluckRef(auth, "authActive")
 
 const clearContent = () => {

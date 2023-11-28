@@ -8,6 +8,7 @@ import {
   InfraConfigEnumForClient,
 } from 'src/types/InfraConfig';
 import {
+  AUTH_PROVIDER_NOT_SPECIFIED,
   DATABASE_TABLE_NOT_EXIST,
   INFRA_CONFIG_INVALID_INPUT,
   INFRA_CONFIG_NOT_FOUND,
@@ -209,6 +210,9 @@ export class InfraConfigService implements OnModuleInit {
       newEnabledAuthProviders = enabledAuthProviders.filter(
         (p) => p !== provider,
       );
+      if (newEnabledAuthProviders.length === 0) {
+        return E.left(AUTH_PROVIDER_NOT_SPECIFIED);
+      }
     }
 
     const isUpdated = await this.update(

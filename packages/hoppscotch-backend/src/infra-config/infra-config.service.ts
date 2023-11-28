@@ -8,12 +8,14 @@ import {
   DATABASE_TABLE_NOT_EXIST,
   INFRA_CONFIG_NOT_FOUND,
   INFRA_CONFIG_NOT_LISTED,
+  INFRA_CONFIG_RESET_FAILED,
   INFRA_CONFIG_UPDATE_FAILED,
 } from 'src/errors';
 import { throwErr } from 'src/utils';
 import { ConfigService } from '@nestjs/config';
-import { stopApp } from './helper';
+import { Status, stopApp } from './helper';
 import { InfraConfigArgs } from './input-args';
+import { AuthProvider } from 'src/auth/helper';
 
 @Injectable()
 export class InfraConfigService implements OnModuleInit {
@@ -26,9 +28,9 @@ export class InfraConfigService implements OnModuleInit {
     await this.initializeInfraConfigTable();
   }
 
-  getDefaultInfraConfigs(): InfraConfig[] {
-    // Prepare rows for 'infra_config' table with default values for each 'name'
-    const infraConfigDefaultObjs: InfraConfig[] = [
+  getDefaultInfraConfigs(): { name: InfraConfigEnum; value: string }[] {
+    // Prepare rows for 'infra_config' table with default values (from .env) for each 'name'
+    const infraConfigDefaultObjs: { name: InfraConfigEnum; value: string }[] = [
       {
         name: InfraConfigEnum.MAILER_SMTP_URL,
         value: process.env.MAILER_SMTP_URL,
@@ -72,6 +74,7 @@ export class InfraConfigService implements OnModuleInit {
 
   /**
    * Initialize the 'infra_config' table with values from .env
+   * @description This function create rows 'infra_config' in very first time (only once)
    */
   async initializeInfraConfigTable() {
     try {
@@ -167,9 +170,38 @@ export class InfraConfigService implements OnModuleInit {
 
       return E.right(infraConfigs);
     } catch (e) {
-      console.log(e);
       return E.left(INFRA_CONFIG_UPDATE_FAILED);
     }
+  }
+
+  /**
+   * Enable or Disable SSO for login/signup
+   * @param provider Auth Provider to enable or disable
+   * @param status Status to enable or disable
+   * @returns Either true or an error
+   */
+  async enableAndDisableSSO(provider: AuthProvider, status: Status) {
+    const enabledAuthProviders = this.configService
+      .get('INFRA.VITE_ALLOWED_AUTH_PROVIDERS')
+      .split(',');
+    const isProviderEnabled = enabledAuthProviders.includes(provider);
+
+    let newEnabledAuthProviders = enabledAuthProviders;
+    if (status === Status.ENABLE && !isProviderEnabled) {
+      newEnabledAuthProviders = [...enabledAuthProviders, provider];
+    } else if (status === Status.DISABLE && isProviderEnabled) {
+      newEnabledAuthProviders = enabledAuthProviders.filter(
+        (p) => p !== provider,
+      );
+    }
+
+    const isUpdated = await this.update(
+      InfraConfigEnum.VITE_ALLOWED_AUTH_PROVIDERS,
+      newEnabledAuthProviders.join(','),
+    );
+    if (E.isLeft(isUpdated)) throwErr(isUpdated.left);
+
+    return E.right(true);
   }
 
   /**
@@ -190,17 +222,34 @@ export class InfraConfigService implements OnModuleInit {
   }
 
   /**
+   * Get allowed auth providers for login/signup
+   * @returns string[]
+   */
+  getAllowedAuthProviders() {
+    return this.configService
+      .get<string>('INFRA.VITE_ALLOWED_AUTH_PROVIDERS')
+      .split(',');
+  }
+
+  /**
    * Reset all the InfraConfigs to their default values (from .env)
    */
   async reset() {
-    const infraConfigDefaultObjs = this.getDefaultInfraConfigs();
+    try {
+      const infraConfigDefaultObjs = this.getDefaultInfraConfigs();
 
-    await this.prisma.infraConfig.deleteMany({
-      where: { name: { in: infraConfigDefaultObjs.map((p) => p.name) } },
-    });
+      await this.prisma.infraConfig.deleteMany({
+        where: { name: { in: infraConfigDefaultObjs.map((p) => p.name) } },
+      });
+      await this.prisma.infraConfig.createMany({
+        data: infraConfigDefaultObjs,
+      });
 
-    await this.prisma.infraConfig.createMany({ data: infraConfigDefaultObjs });
+      stopApp();
 
-    stopApp();
+      return E.right(true);
+    } catch (e) {
+      return E.left(INFRA_CONFIG_RESET_FAILED);
+    }
   }
 }

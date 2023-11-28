@@ -1,5 +1,10 @@
 import { PrismaService } from 'src/prisma/prisma.service';
 
+export enum Status {
+  ENABLE = 'ENABLE',
+  DISABLE = 'DISABLE',
+}
+
 /**
  * Load environment variables from the database and set them in the process
  *

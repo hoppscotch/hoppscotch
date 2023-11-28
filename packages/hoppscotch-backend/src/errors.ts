@@ -665,6 +665,12 @@ export const INFRA_CONFIG_NOT_LISTED =
   'infra_config/properly_not_listed' as const;
 
 /**
+ * Infra Config reset failed
+ * (InfraConfigService)
+ */
+export const INFRA_CONFIG_RESET_FAILED = 'infra_config/reset_failed' as const;
+
+/**
  * Error message for when the database table does not exist
  * (InfraConfigService)
  */

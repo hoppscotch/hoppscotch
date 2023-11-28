@@ -26,6 +26,8 @@ import { ShortcodeWithUserEmail } from 'src/shortcode/shortcode.model';
 import { InfraConfig } from 'src/infra-config/infra-config.model';
 import { InfraConfigService } from 'src/infra-config/infra-config.service';
 import { InfraConfigArgs } from 'src/infra-config/input-args';
+import { AuthProvider } from 'src/auth/helper';
+import { Status } from 'src/infra-config/helper';
 
 @UseGuards(GqlThrottlerGuard)
 @Resolver(() => Infra)
@@ -236,6 +238,14 @@ export class InfraResolver {
     );
   }
 
+  @Query(() => [String], {
+    description: 'Allowed Auth Provider list',
+  })
+  @UseGuards(GqlAuthGuard, GqlAdminGuard)
+  allowedAuthProviders() {
+    return this.infraConfigService.getAllowedAuthProviders();
+  }
+
   /* Mutations */
 
   @Mutation(() => [InfraConfig], {
@@ -253,5 +263,42 @@ export class InfraResolver {
     const updatedRes = await this.infraConfigService.updateMany(infraConfigs);
     if (E.isLeft(updatedRes)) throwErr(updatedRes.left);
     return updatedRes.right;
+  }
+
+  @Mutation(() => Boolean, {
+    description: 'Reset Infra Configs with default values (.env)',
+  })
+  @UseGuards(GqlAuthGuard, GqlAdminGuard)
+  async resetInfraConfigs() {
+    const resetRes = await this.infraConfigService.reset();
+    if (E.isLeft(resetRes)) throwErr(resetRes.left);
+    return true;
+  }
+
+  @Mutation(() => Boolean, {
+    description: 'Enable or Disable SSO for login/signup',
+  })
+  @UseGuards(GqlAuthGuard, GqlAdminGuard)
+  async enableAndDisableSSO(
+    @Args({
+      name: 'provider',
+      type: () => AuthProvider,
+      description: 'Auth Provider to enable or disable',
+    })
+    provider: AuthProvider,
+    @Args({
+      name: 'status',
+      type: () => Status,
+      description: 'Status to enable or disable',
+    })
+    status: Status,
+  ) {
+    const isUpdated = await this.infraConfigService.enableAndDisableSSO(
+      provider,
+      status,
+    );
+    if (E.isLeft(isUpdated)) throwErr(isUpdated.left);
+
+    return true;
   }
 }

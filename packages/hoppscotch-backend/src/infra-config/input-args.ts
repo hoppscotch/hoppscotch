@@ -1,12 +1,12 @@
 import { Field, InputType } from '@nestjs/graphql';
-import { InfraConfigEnum } from 'src/types/InfraConfig';
+import { InfraConfigEnumForClient } from 'src/types/InfraConfig';
 
 @InputType()
 export class InfraConfigArgs {
-  @Field(() => InfraConfigEnum, {
+  @Field(() => InfraConfigEnumForClient, {
     description: 'Infra Config Name',
   })
-  name: InfraConfigEnum;
+  name: InfraConfigEnumForClient;
 
   @Field({
     description: 'Infra Config Value',

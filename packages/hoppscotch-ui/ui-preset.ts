@@ -1,5 +1,5 @@
-import { Config } from "tailwindcss";
-import { theme } from 'tailwindcss/defaultConfig'
+import { Config } from "tailwindcss"
+import { theme } from "tailwindcss/defaultConfig"
 
 export default {
   content: [],
@@ -50,7 +50,6 @@ export default {
       fontFamily: {
         sans: "var(--font-sans)",
         mono: "var(--font-mono)",
-        icon: "var(--font-icon)",
       },
       fontSize: {
         tiny: "var(--font-size-tiny)",
@@ -82,9 +81,9 @@ export default {
         46: "11.5rem",
       },
       maxWidth: {
-        '1/2': '50%',
-        '1/3': '33%',
-        '3/4': '75%',
+        "1/2": "50%",
+        "1/3": "33%",
+        "3/4": "75%",
         46: "11.5rem",
       },
       maxHeight: {

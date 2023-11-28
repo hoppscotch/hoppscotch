@@ -24,7 +24,6 @@ import IconChevronDown from '~icons/lucide/chevron-down'
   @apply items-center;
   @apply justify-center;
   @apply pointer-events-none;
-  @apply font-icon;
   @apply text-current;
   @apply right-3;
 }

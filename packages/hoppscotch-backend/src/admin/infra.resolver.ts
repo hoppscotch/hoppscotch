@@ -27,7 +27,8 @@ import { InfraConfig } from 'src/infra-config/infra-config.model';
 import { InfraConfigService } from 'src/infra-config/infra-config.service';
 import { InfraConfigArgs } from 'src/infra-config/input-args';
 import { AuthProvider } from 'src/auth/helper';
-import { Status } from 'src/infra-config/helper';
+import { AuthProviderStatus } from 'src/infra-config/helper';
+import { InfraConfigEnumForClient } from 'src/types/InfraConfig';
 
 @UseGuards(GqlThrottlerGuard)
 @Resolver(() => Infra)
@@ -238,6 +239,24 @@ export class InfraResolver {
     );
   }
 
+  @Query(() => [InfraConfig], {
+    description: 'Fetch infra configs',
+  })
+  @UseGuards(GqlAuthGuard, GqlAdminGuard)
+  async infraConfigs(
+    @Args({
+      name: 'names',
+      type: () => [InfraConfigEnumForClient],
+      description: 'Names of the InfraConfigs',
+    })
+    names: InfraConfigEnumForClient[],
+  ) {
+    console.log(names);
+    const infraConfigs = await this.infraConfigService.getMany(names);
+    if (E.isLeft(infraConfigs)) throwErr(infraConfigs.left);
+    return infraConfigs.right;
+  }
+
   @Query(() => [String], {
     description: 'Allowed Auth Provider list',
   })
@@ -288,10 +307,10 @@ export class InfraResolver {
     provider: AuthProvider,
     @Args({
       name: 'status',
-      type: () => Status,
+      type: () => AuthProviderStatus,
       description: 'Status to enable or disable',
     })
-    status: Status,
+    status: AuthProviderStatus,
   ) {
     const isUpdated = await this.infraConfigService.enableAndDisableSSO(
       provider,

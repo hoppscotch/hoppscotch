@@ -1,6 +1,6 @@
 import { PrismaService } from 'src/prisma/prisma.service';
 
-export enum Status {
+export enum AuthProviderStatus {
   ENABLE = 'ENABLE',
   DISABLE = 'DISABLE',
 }

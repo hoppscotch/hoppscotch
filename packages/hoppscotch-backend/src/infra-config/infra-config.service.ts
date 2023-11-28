@@ -3,7 +3,10 @@ import { InfraConfig } from './infra-config.model';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { InfraConfig as DBInfraConfig } from '@prisma/client';
 import * as E from 'fp-ts/Either';
-import { InfraConfigEnum } from 'src/types/InfraConfig';
+import {
+  InfraConfigEnum,
+  InfraConfigEnumForClient,
+} from 'src/types/InfraConfig';
 import {
   DATABASE_TABLE_NOT_EXIST,
   INFRA_CONFIG_NOT_FOUND,
@@ -13,7 +16,7 @@ import {
 } from 'src/errors';
 import { throwErr } from 'src/utils';
 import { ConfigService } from '@nestjs/config';
-import { Status, stopApp } from './helper';
+import { AuthProviderStatus, stopApp } from './helper';
 import { InfraConfigArgs } from './input-args';
 import { AuthProvider } from 'src/auth/helper';
 
@@ -180,16 +183,19 @@ export class InfraConfigService implements OnModuleInit {
    * @param status Status to enable or disable
    * @returns Either true or an error
    */
-  async enableAndDisableSSO(provider: AuthProvider, status: Status) {
+  async enableAndDisableSSO(
+    provider: AuthProvider,
+    status: AuthProviderStatus,
+  ) {
     const enabledAuthProviders = this.configService
       .get('INFRA.VITE_ALLOWED_AUTH_PROVIDERS')
       .split(',');
     const isProviderEnabled = enabledAuthProviders.includes(provider);
 
     let newEnabledAuthProviders = enabledAuthProviders;
-    if (status === Status.ENABLE && !isProviderEnabled) {
+    if (status === AuthProviderStatus.ENABLE && !isProviderEnabled) {
       newEnabledAuthProviders = [...enabledAuthProviders, provider];
-    } else if (status === Status.DISABLE && isProviderEnabled) {
+    } else if (status === AuthProviderStatus.DISABLE && isProviderEnabled) {
       newEnabledAuthProviders = enabledAuthProviders.filter(
         (p) => p !== provider,
       );
@@ -209,13 +215,30 @@ export class InfraConfigService implements OnModuleInit {
    * @param name Name of the InfraConfig
    * @returns InfraConfig model
    */
-  async get(name: InfraConfigEnum) {
+  async get(name: InfraConfigEnumForClient) {
     try {
       const infraConfig = await this.prisma.infraConfig.findUniqueOrThrow({
         where: { name },
       });
 
       return E.right(this.cast(infraConfig));
+    } catch (e) {
+      return E.left(INFRA_CONFIG_NOT_FOUND);
+    }
+  }
+
+  /**
+   * Get InfraConfigs by names
+   * @param names Names of the InfraConfigs
+   * @returns InfraConfig model
+   */
+  async getMany(names: InfraConfigEnumForClient[]) {
+    try {
+      const infraConfigs = await this.prisma.infraConfig.findMany({
+        where: { name: { in: names } },
+      });
+
+      return E.right(infraConfigs.map((p) => this.cast(p)));
     } catch (e) {
       return E.left(INFRA_CONFIG_NOT_FOUND);
     }

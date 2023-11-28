@@ -16,7 +16,6 @@ import {
   JSON_INVALID,
 } from './errors';
 import { AuthProvider } from './auth/helper';
-import { ConfigService } from '@nestjs/config';
 
 /**
  * A workaround to throw an exception in an expression.
@@ -130,6 +129,41 @@ export const validateEmail = (email: string) => {
   return new RegExp(
     /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
   ).test(email);
+};
+
+/**
+ * Checks to see if the URL is valid or not
+ * @param url The URL to validate
+ * @returns boolean
+ */
+export const validateUrl = (url: string) => {
+  /**
+   * RegExps.
+   * A URL must match #1 and then at least one of #2/#3.
+   * Use two levels of REs to avoid REDOS.
+   */
+  const protocolAndDomainRE = /^(?:\w+:)?\/\/(\S+)$/;
+  const localhostDomainRE = /^localhost[\:?\d]*(?:[^\:?\d]\S*)?$/;
+  const nonLocalhostDomainRE = /^[^\s\.]+\.\S{2,}$/;
+
+  const match = url.match(protocolAndDomainRE);
+  if (!match) {
+    return false;
+  }
+
+  const everythingAfterProtocol = match[1];
+  if (!everythingAfterProtocol) {
+    return false;
+  }
+
+  if (
+    localhostDomainRE.test(everythingAfterProtocol) ||
+    nonLocalhostDomainRE.test(everythingAfterProtocol)
+  ) {
+    return true;
+  }
+
+  return false;
 };
 
 /**

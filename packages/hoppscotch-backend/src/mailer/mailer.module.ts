@@ -7,20 +7,19 @@ import {
   MAILER_FROM_ADDRESS_UNDEFINED,
   MAILER_SMTP_URL_UNDEFINED,
 } from 'src/errors';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
     NestMailerModule.forRootAsync({
-      imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
         transport:
-          configService.get('MAILER_SMTP_URL') ??
+          configService.get('INFRA.MAILER_SMTP_URL') ??
           throwErr(MAILER_SMTP_URL_UNDEFINED),
         defaults: {
           from:
-            configService.get('MAILER_ADDRESS_FROM') ??
+            configService.get('INFRA.MAILER_ADDRESS_FROM') ??
             throwErr(MAILER_FROM_ADDRESS_UNDEFINED),
         },
         template: {

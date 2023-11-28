@@ -75,7 +75,7 @@
             "
           />
           <div v-if="entry.isFile" class="file-chips-container">
-            <div class="file-chips-wrapper space-x-2">
+            <div class="file-chips-wrapper space-x-1">
               <HoppSmartFileChip
                 v-for="(file, fileIndex) in entry.value"
                 :key="`param-${index}-file-${fileIndex}`"

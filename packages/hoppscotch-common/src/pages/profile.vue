@@ -143,8 +143,6 @@
                   </div>
                 </section>
 
-                <ProfileUserDelete />
-
                 <section class="p-4">
                   <h4 class="font-semibold text-secondaryDark">
                     {{ t("settings.sync") }}
@@ -190,6 +188,8 @@
                 </template>
 
                 <ProfileShortcodes />
+
+                <ProfileUserDelete />
               </div>
             </HoppSmartTab>
             <HoppSmartTab :id="'teams'" :label="t('team.title')">

@@ -13,15 +13,10 @@ import { stdFooterItems } from "@hoppscotch/common/platform/std/ui/footerItem"
 import { stdSupportOptionItems } from "@hoppscotch/common/platform/std/ui/supportOptionsItem"
 import { browserIODef } from "@hoppscotch/common/platform/std/io"
 
-// these components will be removed when PR review is done. these are not part of the self-hosted version
-import Test1 from "./Test1.vue"
-import Test2 from "./Test2.vue"
-
 createHoppApp("#app", {
   ui: {
     additionalFooterMenuItems: stdFooterItems,
     additionalSupportOptionsMenuItems: stdSupportOptionItems,
-    additionalSettingsSections: [Test1, Test2],
   },
   auth: authDef,
   io: browserIODef,

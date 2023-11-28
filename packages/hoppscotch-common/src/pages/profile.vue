@@ -180,6 +180,15 @@
                   </div>
                 </section>
 
+                <template v-if="platform.ui?.additionalProfileSections?.length">
+                  <template
+                    v-for="item in platform.ui?.additionalProfileSections"
+                    :key="item.id"
+                  >
+                    <component :is="item" />
+                  </template>
+                </template>
+
                 <ProfileShortcodes />
               </div>
             </HoppSmartTab>

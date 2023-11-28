@@ -106,23 +106,6 @@
           </section>
         </div>
       </div>
-
-      <div
-        class="md:grid md:gap-4 md:grid-cols-3"
-        v-if="platform.ui?.additionalSettingsSections?.length"
-      >
-        <div class="p-8 md:col-span-1">
-          <h3 class="heading">{{ t("settings.additional") }}</h3>
-        </div>
-        <div class="p-8 space-y-8 md:col-span-2">
-          <template
-            v-for="item in platform.ui?.additionalSettingsSections"
-            :key="item.id"
-          >
-            <component :is="item" />
-          </template>
-        </div>
-      </div>
     </div>
     <HoppSmartConfirmModal
       :show="confirmRemove"

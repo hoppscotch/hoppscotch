@@ -42,5 +42,5 @@ export type UIPlatformDef = {
   /**
    * Additional Settings Section components in the settings page
    */
-  additionalSettingsSections?: Component[]
+  additionalProfileSections?: Component[]
 }

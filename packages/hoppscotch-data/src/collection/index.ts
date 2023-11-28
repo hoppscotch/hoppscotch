@@ -1,17 +1,22 @@
-import { GQL_REQ_SCHEMA_VERSION, HoppGQLRequest, translateToGQLRequest } from "../graphql";
-import { HoppRESTRequest, translateToNewRequest } from "../rest";
+import {
+  GQL_REQ_SCHEMA_VERSION,
+  HoppGQLRequest,
+  translateToGQLRequest,
+} from "../graphql"
+import { HoppRESTRequest, translateToNewRequest } from "../rest"
 
 const CURRENT_COLL_SCHEMA_VER = 1
 
-type SupportedReqTypes =
-  | HoppRESTRequest
-  | HoppGQLRequest
+type SupportedReqTypes = HoppRESTRequest | HoppGQLRequest
 
 export type HoppCollection<T extends SupportedReqTypes> = {
   v: number
   name: string
   folders: HoppCollection<T>[]
   requests: T[]
+
+  auth: T["auth"]
+  headers: T["headers"]
 
   id?: string // For Firestore ID data
 }
@@ -27,7 +32,7 @@ export function makeCollection<T extends SupportedReqTypes>(
 ): HoppCollection<T> {
   return {
     v: CURRENT_COLL_SCHEMA_VER,
-    ...x
+    ...x,
   }
 }
 
@@ -46,10 +51,15 @@ export function translateToNewRESTCollection(
   const folders = (x.folders ?? []).map(translateToNewRESTCollection)
   const requests = (x.requests ?? []).map(translateToNewRequest)
 
+  const auth = x.auth ?? "None"
+  const headers = x.headers ?? []
+
   const obj = makeCollection<HoppRESTRequest>({
     name,
     folders,
     requests,
+    auth,
+    headers,
   })
 
   if (x.id) obj.id = x.id
@@ -72,14 +82,18 @@ export function translateToNewGQLCollection(
   const folders = (x.folders ?? []).map(translateToNewGQLCollection)
   const requests = (x.requests ?? []).map(translateToGQLRequest)
 
+  const auth = x.auth ?? "None"
+  const headers = x.headers ?? []
+
   const obj = makeCollection<HoppGQLRequest>({
     name,
     folders,
     requests,
+    auth,
+    headers,
   })
 
   if (x.id) obj.id = x.id
 
   return obj
 }
-

@@ -20,6 +20,7 @@ export {
   HoppRESTAuth,
   HoppRESTAuthAPIKey,
   HoppRESTAuthBasic,
+  HoppRESTAuthInherit,
   HoppRESTAuthBearer,
   HoppRESTAuthNone,
   HoppRESTAuthOAuth2,

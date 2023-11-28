@@ -17,6 +17,11 @@ const defaultRESTCollectionState = {
       name: "My Collection",
       folders: [],
       requests: [],
+      auth: {
+        authType: "inherit",
+        authActive: false,
+      },
+      headers: [],
     }),
   ],
 }
@@ -27,6 +32,11 @@ const defaultGraphqlCollectionState = {
       name: "My GraphQL Collection",
       folders: [],
       requests: [],
+      auth: {
+        authType: "inherit",
+        authActive: false,
+      },
+      headers: [],
     }),
   ],
 }
@@ -132,6 +142,15 @@ const restCollectionDispatchers = defineDispatchers({
       name,
       folders: [],
       requests: [],
+      auth: {
+        authType: "inherit",
+        authActive: false,
+        auth: {
+          authType: "inherit",
+          authActive: false,
+        },
+      },
+      headers: [],
     })
 
     const newState = state
@@ -690,8 +709,12 @@ const gqlCollectionDispatchers = defineDispatchers({
       name,
       folders: [],
       requests: [],
+      auth: {
+        authType: "inherit",
+        authActive: false,
+      },
+      headers: [],
     })
-
     const newState = state
     const indexPaths = path.split("/").map((x) => parseInt(x))
 

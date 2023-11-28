@@ -71,9 +71,9 @@
                       : null,
                 }"
                 :icon="IconGripVertical"
-                class="cursor-auto text-primary hover:text-primary"
+                class="opacity-0"
                 :class="{
-                  'draggable-handle !cursor-grab group-hover:text-secondaryLight':
+                  'draggable-handle cursor-grab group-hover:opacity-100':
                     index !== workingHeaders?.length - 1,
                 }"
                 tabindex="-1"
@@ -190,19 +190,13 @@
                 :icon="masking ? IconEye : IconEyeOff"
                 @click="toggleMask()"
               />
-              <HoppButtonSecondary
-                v-else
-                v-tippy="{ theme: 'tooltip' }"
-                :icon="IconArrowUpRight"
-                :title="t('request.go_to_authorization_tab')"
-                class="cursor-auto text-primary hover:text-primary"
-              />
+              <div v-else class="aspect-square w-8"></div>
             </span>
             <span>
               <HoppButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"
                 :icon="IconArrowUpRight"
-                :title="t('request.go_to_authorization_tab')"
+                :title="changeTabTooltip(header.source)"
                 @click="changeTab(header.source)"
               />
             </span>
@@ -508,6 +502,15 @@ const mask = (header: ComputedHeader) => {
   if (header.source === "auth" && masking.value)
     return header.header.value.replace(/\S/gi, "*")
   return header.header.value
+}
+
+const changeTabTooltip = (tab: ComputedHeader["source"]) => {
+  switch (tab) {
+    case "auth":
+      return t("request.go_to_authorization_tab")
+    case "body":
+      return t("request.go_to_body_tab")
+  }
 }
 
 const changeTab = (tab: ComputedHeader["source"]) => {

@@ -161,7 +161,6 @@
                     "
                   />
                   <HoppSmartItem
-                    v-if="folderType === 'collection'"
                     ref="propertiesAction"
                     :icon="IconSettings2"
                     :label="t('action.properties')"

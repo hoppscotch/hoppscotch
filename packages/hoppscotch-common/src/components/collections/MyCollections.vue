@@ -146,6 +146,13 @@
                   folder: node.data.data.data,
                 })
             "
+            @edit-properties="
+              node.data.type === 'folders' &&
+                emit('edit-properties', {
+                  collectionIndex: node.id,
+                  collection: node.data.data.data,
+                })
+            "
             @export-data="
               node.data.type === 'folders' &&
                 emit('export-data', node.data.data.data)

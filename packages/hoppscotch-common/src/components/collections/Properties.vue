@@ -40,6 +40,8 @@
           <HttpAuthorization
             v-model="editableCollection.auth"
             :is-collection-property="true"
+            :is-root-collection="editingProperties.isRootCollection"
+            :inherited-properties="editingProperties.inheritedProperties"
           />
           <AppBanner
             :banner="{
@@ -80,37 +82,46 @@
 import { watch, ref } from "vue"
 import { useI18n } from "@composables/i18n"
 import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
-import { TeamCollection } from "~/helpers/backend/graphql"
 import { RESTOptionTabs } from "../http/RequestOptions.vue"
+import { TeamCollection } from "~/helpers/teams/TeamCollection"
+import { clone } from "lodash-es"
+import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 
 const t = useI18n()
+
+type EditingProperties = {
+  collection: HoppCollection<HoppRESTRequest> | TeamCollection | null
+  isRootCollection: boolean
+  path: string
+  inheritedProperties: HoppInheritedProperty | null
+}
 
 const props = withDefaults(
   defineProps<{
     show: boolean
     loadingState: boolean
-    collection: HoppCollection<HoppRESTRequest> | TeamCollection
+    editingProperties: EditingProperties | null
   }>(),
   {
     show: false,
     loadingState: false,
+    editingProperties: null,
   }
 )
 
 const emit = defineEmits<{
-  (e: "submit", name: string): void
+  (e: "set-collection-properties", newCollection: any): void
   (e: "hide-modal"): void
 }>()
 
 const editableCollection = ref({
-  ...props.collection,
   body: {
     contentType: null,
     body: null,
   },
   headers: [],
   auth: {
-    authType: "none",
+    authType: "inherit",
     authActive: false,
   },
 }) as any
@@ -124,22 +135,43 @@ const changeOptionTab = (tab: RESTOptionTabs) => {
 watch(
   () => props.show,
   (show) => {
-    if (!show) {
+    if (show && props.editingProperties?.collection) {
+      editableCollection.value.auth = clone(
+        props.editingProperties.collection.auth
+      )
+      editableCollection.value.headers = clone(
+        props.editingProperties.collection.headers
+      )
+    } else {
+      editableCollection.value = {
+        body: {
+          contentType: null,
+          body: null,
+        },
+        headers: [],
+        auth: {
+          authType: "inherit",
+          authActive: false,
+        },
+      }
     }
   }
 )
 
 const saveEditedCollection = () => {
-  console.log("new-coll", editableCollection.value)
+  if (!props.editingProperties) return
+  const finalCollection = clone(editableCollection.value)
+  delete finalCollection.body
+  const collection = {
+    path: props.editingProperties.path,
+    collection: {
+      ...props.editingProperties.collection,
+      ...finalCollection,
+    },
+    isRootCollection: props.editingProperties.isRootCollection,
+  }
+  emit("set-collection-properties", collection)
 }
-
-// const addNewCollection = () => {
-//   if (!editingName.value) {
-//     toast.error(t("collection.invalid_name"))
-//     return
-//   }
-
-// }
 
 const hideModal = () => {
   emit("hide-modal")

@@ -15,8 +15,8 @@ export class GithubStrategy extends PassportStrategy(Strategy) {
     private configService: ConfigService,
   ) {
     super({
-      clientID: configService.get('GITHUB_CLIENT_ID'),
-      clientSecret: configService.get('GITHUB_CLIENT_SECRET'),
+      clientID: configService.get('INFRA.GITHUB_CLIENT_ID'),
+      clientSecret: configService.get('INFRA.GITHUB_CLIENT_SECRET'),
       callbackURL: configService.get('GITHUB_CALLBACK_URL'),
       scope: [configService.get('GITHUB_SCOPE')],
       store: true,

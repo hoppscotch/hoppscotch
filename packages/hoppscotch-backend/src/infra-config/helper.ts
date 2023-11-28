@@ -16,7 +16,7 @@ export async function loadInfraConfiguration() {
     environmentObject[infraConfig.name] = infraConfig.value;
   });
 
-  return environmentObject;
+  return { INFRA: environmentObject };
 }
 
 /**
@@ -24,7 +24,10 @@ export async function loadInfraConfiguration() {
  * (Docker will re-start the app)
  */
 export function stopApp() {
+  console.log('Stopping app in 5 seconds...');
+
   setTimeout(() => {
+    console.log('Stopping app now...');
     process.exit();
   }, 5000);
 }

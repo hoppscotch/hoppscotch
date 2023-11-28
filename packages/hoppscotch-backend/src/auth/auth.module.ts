@@ -13,6 +13,7 @@ import { GithubStrategy } from './strategies/github.strategy';
 import { MicrosoftStrategy } from './strategies/microsoft.strategy';
 import { AuthProvider, authProviderCheck } from './helper';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { loadInfraConfiguration } from 'src/infra-config/helper';
 
 @Module({
   imports: [
@@ -28,14 +29,29 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       }),
     }),
   ],
-  providers: [
-    AuthService,
-    JwtStrategy,
-    RTJwtStrategy,
-    ...(authProviderCheck(AuthProvider.GOOGLE) ? [GoogleStrategy] : []),
-    ...(authProviderCheck(AuthProvider.GITHUB) ? [GithubStrategy] : []),
-    ...(authProviderCheck(AuthProvider.MICROSOFT) ? [MicrosoftStrategy] : []),
-  ],
+  providers: [AuthService, JwtStrategy, RTJwtStrategy],
   controllers: [AuthController],
 })
-export class AuthModule {}
+export class AuthModule {
+  static async register() {
+    const env = await loadInfraConfiguration();
+    const allowedAuthProviders = env.INFRA.VITE_ALLOWED_AUTH_PROVIDERS;
+
+    const providers = [
+      ...(authProviderCheck(AuthProvider.GOOGLE, allowedAuthProviders)
+        ? [GoogleStrategy]
+        : []),
+      ...(authProviderCheck(AuthProvider.GITHUB, allowedAuthProviders)
+        ? [GithubStrategy]
+        : []),
+      ...(authProviderCheck(AuthProvider.MICROSOFT, allowedAuthProviders)
+        ? [MicrosoftStrategy]
+        : []),
+    ];
+
+    return {
+      module: AuthModule,
+      providers,
+    };
+  }
+}

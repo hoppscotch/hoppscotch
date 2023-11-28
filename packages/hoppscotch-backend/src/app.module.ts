@@ -80,7 +80,7 @@ import { loadInfraConfiguration } from './infra-config/helper';
       ],
     }),
     UserModule,
-    AuthModule,
+    AuthModule.register(),
     AdminModule,
     UserSettingsModule,
     UserEnvironmentsModule,

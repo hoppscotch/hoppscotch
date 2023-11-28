@@ -16,7 +16,9 @@ async function bootstrap() {
   console.log(`Running in production:  ${configService.get('PRODUCTION')}`);
   console.log(`Port: ${configService.get('PORT')}`);
 
-  checkEnvironmentAuthProvider();
+  checkEnvironmentAuthProvider(
+    configService.get('VITE_ALLOWED_AUTH_PROVIDERS'),
+  );
 
   app.use(
     session({

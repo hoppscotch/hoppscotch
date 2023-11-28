@@ -7,6 +7,7 @@ import * as cookie from 'cookie';
 import { AUTH_PROVIDER_NOT_SPECIFIED, COOKIES_NOT_FOUND } from 'src/errors';
 import { throwErr } from 'src/utils';
 import { ConfigService } from '@nestjs/config';
+import { loadInfraConfiguration } from 'src/infra-config/helper';
 
 enum AuthTokenType {
   ACCESS_TOKEN = 'access_token',
@@ -117,18 +118,18 @@ export const subscriptionContextCookieParser = (rawCookies: string) => {
  * @param provider Provider we want to check the presence of
  * @returns Boolean if provider specified is present or not
  */
-export function authProviderCheck(provider: string) {
-  const configService = new ConfigService();
-
+export function authProviderCheck(
+  provider: string,
+  VITE_ALLOWED_AUTH_PROVIDERS: string,
+) {
   if (!provider) {
     throwErr(AUTH_PROVIDER_NOT_SPECIFIED);
   }
 
-  const envVariables = configService.get('VITE_ALLOWED_AUTH_PROVIDERS')
-    ? configService
-        .get('VITE_ALLOWED_AUTH_PROVIDERS')
-        .split(',')
-        .map((provider) => provider.trim().toUpperCase())
+  const envVariables = VITE_ALLOWED_AUTH_PROVIDERS
+    ? VITE_ALLOWED_AUTH_PROVIDERS.split(',').map((provider) =>
+        provider.trim().toUpperCase(),
+      )
     : [];
 
   if (!envVariables.includes(provider.toUpperCase())) return false;

@@ -162,24 +162,23 @@ export function isValidLength(title: string, length: number) {
 
 /**
  * This function is called by bootstrap() in main.ts
- *  It checks if the "VITE_ALLOWED_AUTH_PROVIDERS" environment variable is properly set or not.
+ * It checks if the "VITE_ALLOWED_AUTH_PROVIDERS" environment variable is properly set or not.
  * If not, it throws an error.
  */
-export function checkEnvironmentAuthProvider() {
-  const configService = new ConfigService();
-
-  if (!configService.get('VITE_ALLOWED_AUTH_PROVIDERS')) {
+export function checkEnvironmentAuthProvider(
+  VITE_ALLOWED_AUTH_PROVIDERS: string,
+) {
+  if (!VITE_ALLOWED_AUTH_PROVIDERS) {
     throw new Error(ENV_NOT_FOUND_KEY_AUTH_PROVIDERS);
   }
 
-  if (configService.get('VITE_ALLOWED_AUTH_PROVIDERS') === '') {
+  if (VITE_ALLOWED_AUTH_PROVIDERS === '') {
     throw new Error(ENV_EMPTY_AUTH_PROVIDERS);
   }
 
-  const givenAuthProviders = configService
-    .get('VITE_ALLOWED_AUTH_PROVIDERS')
-    .split(',')
-    .map((provider) => provider.toLocaleUpperCase());
+  const givenAuthProviders = VITE_ALLOWED_AUTH_PROVIDERS.split(',').map(
+    (provider) => provider.toLocaleUpperCase(),
+  );
   const supportedAuthProviders = Object.values(AuthProvider).map(
     (provider: string) => provider.toLocaleUpperCase(),
   );

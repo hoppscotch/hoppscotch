@@ -23,6 +23,7 @@ import { AppController } from './app.controller';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { InfraConfigModule } from './infra-config/infra-config.module';
 import { loadInfraConfiguration } from './infra-config/helper';
+import { MailerModule } from './mailer/mailer.module';
 
 @Module({
   imports: [
@@ -79,6 +80,7 @@ import { loadInfraConfiguration } from './infra-config/helper';
         },
       ],
     }),
+    MailerModule.register(),
     UserModule,
     AuthModule.register(),
     AdminModule,

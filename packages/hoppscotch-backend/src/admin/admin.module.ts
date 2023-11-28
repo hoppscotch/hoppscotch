@@ -4,7 +4,6 @@ import { AdminService } from './admin.service';
 import { PrismaModule } from '../prisma/prisma.module';
 import { PubSubModule } from '../pubsub/pubsub.module';
 import { UserModule } from '../user/user.module';
-import { MailerModule } from '../mailer/mailer.module';
 import { TeamModule } from '../team/team.module';
 import { TeamInvitationModule } from '../team-invitation/team-invitation.module';
 import { TeamEnvironmentsModule } from '../team-environments/team-environments.module';
@@ -19,7 +18,6 @@ import { InfraConfigModule } from 'src/infra-config/infra-config.module';
     PrismaModule,
     PubSubModule,
     UserModule,
-    MailerModule,
     TeamModule,
     TeamInvitationModule,
     TeamEnvironmentsModule,

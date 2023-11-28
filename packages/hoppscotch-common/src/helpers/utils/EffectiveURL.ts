@@ -42,22 +42,27 @@ export interface EffectiveHoppRESTRequest extends HoppRESTRequest {
  * @param envVars Currently active environment variables
  * @returns The list of headers
  */
-const getComputedAuthHeaders = (
-  req: HoppRESTRequest,
-  envVars: Environment["variables"]
+export const getComputedAuthHeaders = (
+  envVars: Environment["variables"],
+  req?: HoppRESTRequest,
+  auth?: HoppRESTRequest["auth"]
 ) => {
+  const request = auth ? { auth: auth ?? { authActive: false } } : req
+
   // If Authorization header is also being user-defined, that takes priority
-  if (req.headers.find((h) => h.key.toLowerCase() === "authorization"))
+  if (req && req.headers.find((h) => h.key.toLowerCase() === "authorization"))
     return []
 
-  if (!req.auth.authActive) return []
+  if (!request) return []
+
+  if (!request.auth.authActive) return []
 
   const headers: HoppRESTHeader[] = []
 
   // TODO: Support a better b64 implementation than btoa ?
-  if (req.auth.authType === "basic") {
-    const username = parseTemplateString(req.auth.username, envVars)
-    const password = parseTemplateString(req.auth.password, envVars)
+  if (request.auth.authType === "basic") {
+    const username = parseTemplateString(request.auth.username, envVars)
+    const password = parseTemplateString(request.auth.password, envVars)
 
     headers.push({
       active: true,
@@ -65,16 +70,16 @@ const getComputedAuthHeaders = (
       value: `Basic ${btoa(`${username}:${password}`)}`,
     })
   } else if (
-    req.auth.authType === "bearer" ||
-    req.auth.authType === "oauth-2"
+    request.auth.authType === "bearer" ||
+    request.auth.authType === "oauth-2"
   ) {
     headers.push({
       active: true,
       key: "Authorization",
-      value: `Bearer ${parseTemplateString(req.auth.token, envVars)}`,
+      value: `Bearer ${parseTemplateString(request.auth.token, envVars)}`,
     })
-  } else if (req.auth.authType === "api-key") {
-    const { key, value, addTo } = req.auth
+  } else if (request.auth.authType === "api-key") {
+    const { key, value, addTo } = request.auth
 
     if (addTo === "Headers") {
       headers.push({
@@ -132,7 +137,7 @@ export const getComputedHeaders = (
   req: HoppRESTRequest,
   envVars: Environment["variables"]
 ): ComputedHeader[] => [
-  ...getComputedAuthHeaders(req, envVars).map((header) => ({
+  ...getComputedAuthHeaders(envVars, req).map((header) => ({
     source: "auth" as const,
     header,
   })),

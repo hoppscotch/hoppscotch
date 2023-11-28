@@ -5,6 +5,7 @@ import { runGQLQuery } from "../backend/GQLClient"
 import * as E from "fp-ts/Either"
 import { getService } from "~/modules/dioc"
 import { RESTTabService } from "~/services/tab/rest"
+import { HoppInheritedProperty } from "../types/HoppInheritedProperties"
 
 /**
  * Resolve save context on reorder
@@ -105,6 +106,30 @@ export function updateSaveContextForAffectedRequests(
         ),
       }
     }
+  }
+}
+
+export function updateInheritedPropertiesForAffectedRequests(
+  path: string,
+  inheritedProperties: HoppInheritedProperty
+) {
+  const tabService = getService(RESTTabService)
+  const tabs = tabService.getTabsRefTo((tab) => {
+    return (
+      tab.document.saveContext?.originLocation === "user-collection" &&
+      tab.document.saveContext.folderPath.startsWith(path)
+    )
+  })
+
+  const filteredTabs = tabs.filter((tab) => {
+    return (
+      tab.value.document.inheritedProperties &&
+      tab.value.document.inheritedProperties.parentId === path
+    )
+  })
+
+  for (const tab of filteredTabs) {
+    tab.value.document.inheritedProperties = inheritedProperties
   }
 }
 

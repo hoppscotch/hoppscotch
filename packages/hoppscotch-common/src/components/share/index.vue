@@ -48,8 +48,8 @@
           @open-new-tab="openInNewTab"
         />
         <HoppSmartIntersection
-          v-if="hasMoreSharedRequests && sharedRequests.length > 0"
-          @intersecting="loadMoreSharedRequests()"
+          v-if="hasMoreSharedRequests"
+          @intersecting="loadMoreSharedRequests"
         >
           <div v-if="adapterLoading" class="flex flex-col items-center py-3">
             <HoppSmartSpinner />

@@ -89,6 +89,8 @@ type ExportedUserCollectionREST = {
   folders: ExportedUserCollectionREST[]
   requests: Array<HoppRESTRequest & { id: string }>
   name: string
+  auth: HoppRESTRequest["auth"]
+  headers: HoppRESTRequest["headers"]
 }
 
 type ExportedUserCollectionGQL = {
@@ -96,6 +98,8 @@ type ExportedUserCollectionGQL = {
   folders: ExportedUserCollectionGQL[]
   requests: Array<HoppGQLRequest & { id: string }>
   name: string
+  auth: HoppGQLRequest["auth"]
+  headers: HoppGQLRequest["headers"]
 }
 
 function exportedCollectionToHoppCollection(
@@ -104,7 +108,7 @@ function exportedCollectionToHoppCollection(
 ): HoppCollection<HoppRESTRequest | HoppGQLRequest> {
   if (collectionType == "REST") {
     const restCollection = collection as ExportedUserCollectionREST
-
+    console.log("restCollection", restCollection)
     return {
       id: restCollection.id,
       v: 1,
@@ -139,6 +143,8 @@ function exportedCollectionToHoppCollection(
           testScript,
         })
       ),
+      auth: restCollection.auth,
+      headers: restCollection.headers,
     }
   } else {
     const gqlCollection = collection as ExportedUserCollectionGQL
@@ -159,6 +165,8 @@ function exportedCollectionToHoppCollection(
           name,
         })
       ) as HoppGQLRequest[],
+      auth: gqlCollection.auth,
+      headers: gqlCollection.headers,
     }
   }
 }
@@ -168,7 +176,6 @@ async function loadUserCollections(collectionType: "REST" | "GQL") {
     undefined,
     collectionType == "REST" ? ReqType.Rest : ReqType.Gql
   )
-
   if (E.isRight(res)) {
     const collectionsJSONString =
       res.right.exportUserCollectionsToJSON.exportedCollection
@@ -177,7 +184,6 @@ async function loadUserCollections(collectionType: "REST" | "GQL") {
         ExportedUserCollectionGQL | ExportedUserCollectionREST
       >
     ).map((collection) => ({ v: 1, ...collection }))
-
     runDispatchWithOutSyncing(() => {
       collectionType == "REST"
         ? setRESTCollections(
@@ -299,12 +305,22 @@ function setupUserCollectionCreatedSubscription() {
                 folders: [],
                 requests: [],
                 v: 1,
+                auth: {
+                  authType: "none",
+                  authActive: false,
+                },
+                headers: [],
               })
             : addRESTCollection({
                 name: res.right.userCollectionCreated.title,
                 folders: [],
                 requests: [],
                 v: 1,
+                auth: {
+                  authType: "none",
+                  authActive: false,
+                },
+                headers: [],
               })
 
           const localIndex = collectionStore.value.state.length - 1

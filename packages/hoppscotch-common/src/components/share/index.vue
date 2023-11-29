@@ -25,8 +25,9 @@
         <HoppSmartSpinner class="mb-4" />
         <span class="text-secondaryLight">{{ t("state.loading") }}</span>
       </div>
+
       <HoppSmartPlaceholder
-        v-if="!currentUser"
+        v-else-if="!currentUser"
         :src="`/images/states/${colorMode.value}/add_files.svg`"
         :alt="`${t('empty.shared_requests_logout')}`"
         :text="`${t('empty.shared_requests_logout')}`"
@@ -36,36 +37,38 @@
           @click="invokeAction('modals.login.toggle')"
         />
       </HoppSmartPlaceholder>
+
+      <template v-else-if="sharedRequests.length">
+        <ShareRequest
+          v-for="request in sharedRequests"
+          :key="request.id"
+          :request="request"
+          @customize-shared-request="customizeSharedRequest"
+          @delete-shared-request="deleteSharedRequest"
+          @open-new-tab="openInNewTab"
+        />
+        <HoppSmartIntersection
+          v-if="hasMoreSharedRequests && sharedRequests.length > 0"
+          @intersecting="loadMoreSharedRequests()"
+        >
+          <div v-if="adapterLoading" class="flex flex-col items-center py-3">
+            <HoppSmartSpinner />
+          </div>
+        </HoppSmartIntersection>
+      </template>
+
+      <div v-else-if="adapterError" class="flex flex-col items-center py-4">
+        <icon-lucide-help-circle class="svg-icons mb-4" />
+        {{ getErrorMessage(adapterError) }}
+      </div>
+
       <HoppSmartPlaceholder
-        v-else-if="!loading && sharedRequests.length === 0"
+        v-else
         :src="`/images/states/${colorMode.value}/add_files.svg`"
         :alt="`${t('empty.shared_requests')}`"
         :text="t('empty.shared_requests')"
         @drop.stop
       />
-      <ShareRequest
-        v-for="request in sharedRequests"
-        :key="request.id"
-        :request="request"
-        @customize-shared-request="customizeSharedRequest"
-        @delete-shared-request="deleteSharedRequest"
-        @open-new-tab="openInNewTab"
-      />
-      <HoppSmartIntersection
-        v-if="hasMoreSharedRequests && sharedRequests.length > 0"
-        @intersecting="loadMoreSharedRequests()"
-      >
-        <div v-if="adapterLoading" class="flex flex-col items-center py-3">
-          <HoppSmartSpinner />
-        </div>
-      </HoppSmartIntersection>
-      <div
-        v-if="!loading && adapterError"
-        class="flex flex-col items-center py-4"
-      >
-        <icon-lucide-help-circle class="svg-icons mb-4" />
-        {{ getErrorMessage(adapterError) }}
-      </div>
     </div>
   </div>
   <HoppSmartConfirmModal

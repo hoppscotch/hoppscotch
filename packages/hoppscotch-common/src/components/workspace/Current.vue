@@ -29,18 +29,17 @@ const workspace = workspaceService.currentWorkspace
 const currentWorkspace = computed(() => {
   if (props.isOnlyPersonal) {
     return `${t("workspace.personal")}`
-  } else if (workspace.value.type === "team") {
-    return teamWorkspaceName.value
-  } else {
-    return `${t("workspace.personal")}`
   }
+  if (workspace.value.type === "team") {
+    return teamWorkspaceName.value
+  }
+  return `${t("workspace.personal")}`
 })
 
 const teamWorkspaceName = computed(() => {
   if (workspace.value.type === "team" && workspace.value.teamName) {
     return workspace.value.teamName
-  } else {
-    return `${t("workspace.team")}`
   }
+  return `${t("workspace.team")}`
 })
 </script>

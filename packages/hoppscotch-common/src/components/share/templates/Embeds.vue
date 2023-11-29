@@ -2,20 +2,20 @@
   <div
     class="flex flex-col rounded border border-dotted border-divider p-5"
     :class="{
-      'bg-accentContrast': embedOptions.theme === 'light',
+      'bg-accentContrast': isEmbedThemeLight,
     }"
   >
     <div
       class="flex items-stretch space-x-4 rounded border-divider"
       :class="{
-        'bg-accentContrast': embedOptions.theme === 'light',
+        'bg-accentContrast': isEmbedThemeLight,
       }"
     >
       <span
-        class="flex max-w-[4rem] items-center justify-center text-tiny rounded border border-divider px-1 py-2"
+        class="flex max-w-[4rem] items-center justify-center rounded border border-divider px-1 py-2 text-tiny"
         :class="{
           '!border-dividerLight bg-accentContrast text-primary':
-            embedOptions.theme === 'light',
+            isEmbedThemeLight,
         }"
       >
         <span class="truncate">
@@ -23,12 +23,12 @@
         </span>
       </span>
       <span
-        class="max-w-46 flex items-center rounded border border-divider p-2"
+        class="flex max-w-46 items-center rounded border border-divider p-2"
       >
         <span
           class="min-w-0 truncate"
           :class="{
-            'text-primary': embedOptions.theme === 'light',
+            'text-primary': isEmbedThemeLight,
           }"
         >
           {{ endpoint }}
@@ -37,8 +37,7 @@
       <button
         class="flex items-center justify-center rounded border border-dividerDark bg-primaryDark px-3 py-2 font-semibold text-secondary"
         :class="{
-          '!bg-accentContrast text-primaryLight':
-            embedOptions.theme === 'light',
+          '!bg-accentContrast text-primaryLight': isEmbedThemeLight,
         }"
       >
         {{ t("action.send") }}
@@ -47,7 +46,7 @@
     <div
       class="flex border-divider"
       :class="{
-        'bg-accentContrast text-primary': embedOptions.theme === 'light',
+        'bg-accentContrast text-primary': isEmbedThemeLight,
         'border-b pt-2 ': !noActiveTab,
       }"
     >
@@ -97,4 +96,6 @@ const t = useI18n()
 const noActiveTab = computed(() => {
   return embedOptions.value.tabs.every((tab) => !tab.enabled)
 })
+
+const isEmbedThemeLight = computed(() => embedOptions.value.theme === "light")
 </script>

@@ -1,26 +1,26 @@
-import axios from "axios"
+import { getService } from "@hoppscotch/common/modules/dioc"
 import {
   AuthEvent,
   AuthPlatformDef,
   HoppUser,
 } from "@hoppscotch/common/platform/auth"
-import { BehaviorSubject, Subject } from "rxjs"
 import {
-  getLocalConfig,
-  removeLocalConfig,
-  setLocalConfig,
-} from "@hoppscotch/common/newstore/localpersistence"
-import { Ref, ref, watch } from "vue"
-import { open } from '@tauri-apps/api/shell'
-import { Body, getClient } from '@tauri-apps/api/http'
+  PersistenceService
+} from "@hoppscotch/common/services/persistence"
 import { listen } from '@tauri-apps/api/event'
-import { Store } from "tauri-plugin-store-api";
+import { Body, getClient } from '@tauri-apps/api/http'
+import { open } from '@tauri-apps/api/shell'
+import { BehaviorSubject, Subject } from "rxjs"
+import { Store } from "tauri-plugin-store-api"
+import { Ref, ref, watch } from "vue"
 
 export const authEvents$ = new Subject<AuthEvent | { event: "token_refresh" }>()
 const currentUser$ = new BehaviorSubject<HoppUser | null>(null)
 export const probableUser$ = new BehaviorSubject<HoppUser | null>(null)
 
 const APP_DATA_PATH = "~/.hopp-desktop-app-data.dat"
+
+const persistenceService = getService(PersistenceService)
 
 async function logout() {
   let client = await getClient();
@@ -86,7 +86,7 @@ function setUser(user: HoppUser | null) {
   currentUser$.next(user)
   probableUser$.next(user)
 
-  setLocalConfig("login_state", JSON.stringify(user))
+  persistenceService.setLocalConfig("login_state", JSON.stringify(user))
 }
 
 async function setInitialUser() {
@@ -181,7 +181,7 @@ async function sendMagicLink(email: string) {
   const res = await client.post(url, Body.json({ email }));
 
   if (res.data && res.data.deviceIdentifier) {
-    setLocalConfig("deviceIdentifier", res.data.deviceIdentifier)
+    persistenceService.setLocalConfig("deviceIdentifier", res.data.deviceIdentifier)
   } else {
     throw new Error("test: does not get device identifier")
   }
@@ -257,7 +257,7 @@ export const def: AuthPlatformDef = {
     return null
   },
   async performAuthInit() {
-    const probableUser = JSON.parse(getLocalConfig("login_state") ?? "null")
+    const probableUser = JSON.parse(persistenceService.getLocalConfig("login_state") ?? "null")
     probableUser$.next(probableUser)
     await setInitialUser()
 
@@ -285,7 +285,7 @@ export const def: AuthPlatformDef = {
       }
 
       if (isNotNullOrUndefined(token)) {
-        setLocalConfig("verifyToken", token)
+        persistenceService.setLocalConfig("verifyToken", token)
         await this.signInWithEmailLink("", "")
         await setInitialUser()
       }
@@ -327,7 +327,7 @@ export const def: AuthPlatformDef = {
     await signInUserWithMicrosoftFB()
   },
   async signInWithEmailLink(_email, _url) {
-    const deviceIdentifier = getLocalConfig("deviceIdentifier")
+    const deviceIdentifier = persistenceService.getLocalConfig("deviceIdentifier")
 
     if (!deviceIdentifier) {
       throw new Error(
@@ -335,7 +335,7 @@ export const def: AuthPlatformDef = {
       )
     }
 
-    let verifyToken = getLocalConfig("verifyToken")
+    let verifyToken = persistenceService.getLocalConfig("verifyToken")
 
     const client = await getClient();
     let res = await client.post(`${import.meta.env.VITE_BACKEND_API_URL}/auth/verify`, Body.json({
@@ -345,8 +345,8 @@ export const def: AuthPlatformDef = {
 
     setAuthCookies(res.rawHeaders)
 
-    removeLocalConfig("deviceIdentifier")
-    removeLocalConfig("verifyToken")
+    persistenceService.removeLocalConfig("deviceIdentifier")
+    persistenceService.removeLocalConfig("verifyToken")
     window.location.href = "/"
   },
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -365,7 +365,7 @@ export const def: AuthPlatformDef = {
 
     probableUser$.next(null)
     currentUser$.next(null)
-    removeLocalConfig("login_state")
+    persistenceService.removeLocalConfig("login_state")
 
     authEvents$.next({
       event: "logout",

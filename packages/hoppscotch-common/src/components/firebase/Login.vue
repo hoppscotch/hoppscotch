@@ -111,20 +111,21 @@
 <script setup lang="ts">
 import { Ref, computed, onMounted, ref } from "vue"
 
+import { useI18n } from "@composables/i18n"
 import { useStreamSubscriber } from "@composables/stream"
 import { useToast } from "@composables/toast"
-import { useI18n } from "@composables/i18n"
 
 import { platform } from "~/platform"
-import { setLocalConfig } from "~/newstore/localpersistence"
 
+import IconEmail from "~icons/auth/email"
 import IconGithub from "~icons/auth/github"
 import IconGoogle from "~icons/auth/google"
-import IconEmail from "~icons/auth/email"
 import IconMicrosoft from "~icons/auth/microsoft"
 import IconArrowLeft from "~icons/lucide/arrow-left"
 
+import { useService } from "dioc/vue"
 import { LoginItemDef } from "~/platform/auth"
+import { PersistenceService } from "~/services/persistence"
 
 defineProps<{
   show: boolean
@@ -137,6 +138,8 @@ const emit = defineEmits<{
 const { subscribeToStream } = useStreamSubscriber()
 const t = useI18n()
 const toast = useToast()
+
+const persistenceService = useService(PersistenceService)
 
 const form = {
   email: "",
@@ -260,7 +263,7 @@ const signInWithEmail = async () => {
     .signInWithEmail(form.email)
     .then(() => {
       mode.value = "email-sent"
-      setLocalConfig("emailForSignIn", form.email)
+      persistenceService.setLocalConfig("emailForSignIn", form.email)
     })
     .catch((e) => {
       console.error(e)

@@ -51,7 +51,7 @@
 <script setup lang="ts">
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
-import { completePageProgress, startPageProgress } from "@modules/loadingbar"
+import { completePageProgress, startPageProgress } from "~/modules/loadingbar"
 import * as gql from "graphql"
 import { clone } from "lodash-es"
 import { computed, ref, watch } from "vue"

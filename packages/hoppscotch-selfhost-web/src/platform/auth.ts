@@ -1,20 +1,19 @@
-import axios from "axios"
+import { getService } from "@hoppscotch/common/modules/dioc"
 import {
   AuthEvent,
   AuthPlatformDef,
   HoppUser,
 } from "@hoppscotch/common/platform/auth"
+import { PersistenceService } from "@hoppscotch/common/services/persistence"
+import axios from "axios"
 import { BehaviorSubject, Subject } from "rxjs"
-import {
-  getLocalConfig,
-  removeLocalConfig,
-  setLocalConfig,
-} from "@hoppscotch/common/newstore/localpersistence"
 import { Ref, ref, watch } from "vue"
 
 export const authEvents$ = new Subject<AuthEvent | { event: "token_refresh" }>()
 const currentUser$ = new BehaviorSubject<HoppUser | null>(null)
 export const probableUser$ = new BehaviorSubject<HoppUser | null>(null)
+
+const persistenceService = getService(PersistenceService)
 
 async function logout() {
   await axios.get(`${import.meta.env.VITE_BACKEND_API_URL}/auth/logout`, {
@@ -83,7 +82,7 @@ function setUser(user: HoppUser | null) {
   currentUser$.next(user)
   probableUser$.next(user)
 
-  setLocalConfig("login_state", JSON.stringify(user))
+  persistenceService.setLocalConfig("login_state", JSON.stringify(user))
 }
 
 async function setInitialUser() {
@@ -176,7 +175,10 @@ async function sendMagicLink(email: string) {
   )
 
   if (res.data && res.data.deviceIdentifier) {
-    setLocalConfig("deviceIdentifier", res.data.deviceIdentifier)
+    persistenceService.setLocalConfig(
+      "deviceIdentifier",
+      res.data.deviceIdentifier
+    )
   } else {
     throw new Error("test: does not get device identifier")
   }
@@ -230,7 +232,9 @@ export const def: AuthPlatformDef = {
     return null
   },
   async performAuthInit() {
-    const probableUser = JSON.parse(getLocalConfig("login_state") ?? "null")
+    const probableUser = JSON.parse(
+      persistenceService.getLocalConfig("login_state") ?? "null"
+    )
     probableUser$.next(probableUser)
     await setInitialUser()
   },
@@ -281,7 +285,9 @@ export const def: AuthPlatformDef = {
     const searchParams = new URLSearchParams(urlObject.search)
 
     const token = searchParams.get("token")
-    const deviceIdentifier = getLocalConfig("deviceIdentifier")
+
+    const deviceIdentifier =
+      persistenceService.getLocalConfig("deviceIdentifier")
 
     await axios.post(
       `${import.meta.env.VITE_BACKEND_API_URL}/auth/verify`,
@@ -310,7 +316,8 @@ export const def: AuthPlatformDef = {
 
     probableUser$.next(null)
     currentUser$.next(null)
-    removeLocalConfig("login_state")
+
+    persistenceService.removeLocalConfig("login_state")
 
     authEvents$.next({
       event: "logout",
@@ -319,7 +326,8 @@ export const def: AuthPlatformDef = {
 
   async processMagicLink() {
     if (this.isSignInWithEmailLink(window.location.href)) {
-      const deviceIdentifier = getLocalConfig("deviceIdentifier")
+      const deviceIdentifier =
+        persistenceService.getLocalConfig("deviceIdentifier")
 
       if (!deviceIdentifier) {
         throw new Error(
@@ -329,7 +337,7 @@ export const def: AuthPlatformDef = {
 
       await this.signInWithEmailLink(deviceIdentifier, window.location.href)
 
-      removeLocalConfig("deviceIdentifier")
+      persistenceService.removeLocalConfig("deviceIdentifier")
       window.location.href = "/"
     }
   },

@@ -1,6 +1,6 @@
 {{- define "env" -}}
 - name: VITE_ALLOWED_AUTH_PROVIDERS
-  value: EMAIL
+  value: GOOGLE,GITHUB,MICROSOFT,EMAIL
 - name: VITE_BASE_URL
   value: http://app.hoppscotch
 - name: VITE_SHORTCODE_BASE_URL

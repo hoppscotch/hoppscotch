@@ -3,7 +3,7 @@
     <input
       ref="acInput"
       v-model="text"
-      type="text"
+      :type="type"
       autocomplete="off"
       :placeholder="placeholder"
       :spellcheck="spellcheck"
@@ -29,7 +29,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, computed } from "vue"
+import { onMounted, ref, computed, watch } from "vue"
 
 const acInput = ref<HTMLInputElement>()
 
@@ -67,6 +67,11 @@ const props = defineProps({
     type: String,
     default: "",
   },
+
+  type: {
+    type: String,
+    default: "text",
+  },
 })
 
 const emit = defineEmits<{
@@ -84,6 +89,13 @@ onMounted(() => {
     target: acInput,
   })
 })
+
+watch(
+  () => props.value,
+  (newValue) => {
+    text.value = newValue
+  }
+)
 
 const suggestions = computed(() => {
   const input = text.value.substring(0, selectionStart.value)

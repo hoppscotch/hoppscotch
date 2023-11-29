@@ -183,7 +183,7 @@ const createTeam = async (newTeamName: string, ownerEmail: string) => {
     toast.error(`${t('state.team_name_long')}`);
     return;
   }
-  if (ownerEmail.length == 0) {
+  if (ownerEmail.length === 0) {
     toast.error(`${t('state.enter_team_email')}`);
     return;
   }

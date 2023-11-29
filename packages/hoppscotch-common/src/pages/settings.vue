@@ -106,6 +106,15 @@
           </section>
         </div>
       </div>
+
+      <template v-if="platform.ui?.additionalSettingsSections?.length">
+        <template
+          v-for="item in platform.ui?.additionalSettingsSections"
+          :key="item.id"
+        >
+          <component :is="item" />
+        </template>
+      </template>
     </div>
     <HoppSmartConfirmModal
       :show="confirmRemove"

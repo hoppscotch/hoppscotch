@@ -143,8 +143,6 @@
                   </div>
                 </section>
 
-                <ProfileUserDelete />
-
                 <section class="p-4">
                   <h4 class="font-semibold text-secondaryDark">
                     {{ t("settings.sync") }}
@@ -180,7 +178,18 @@
                   </div>
                 </section>
 
+                <template v-if="platform.ui?.additionalProfileSections?.length">
+                  <template
+                    v-for="item in platform.ui?.additionalProfileSections"
+                    :key="item.id"
+                  >
+                    <component :is="item" />
+                  </template>
+                </template>
+
                 <ProfileShortcodes />
+
+                <ProfileUserDelete />
               </div>
             </HoppSmartTab>
             <HoppSmartTab :id="'teams'" :label="t('team.title')">

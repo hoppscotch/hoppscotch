@@ -192,7 +192,7 @@
     "profile": "登录以查看你的个人资料",
     "protocols": "协议为空",
     "schema": "连接至 GraphQL 端点",
-    "shortcodes": "Shortcodes 为空",
+    "shortcodes": "短链接为空",
     "subscription": "订阅为空",
     "team_name": "团队名称为空",
     "teams": "团队为空",
@@ -562,10 +562,10 @@
   "shortcodes": {
     "actions": "操作",
     "created_on": "创建于",
-    "deleted": "已刪除快捷键",
+    "deleted": "已刪除短链接",
     "method": "方法",
-    "not_found": "找不到快捷键",
-    "short_code": "快捷键",
+    "not_found": "找不到短链接",
+    "short_code": "短链接",
     "url": "URL"
   },
   "shortcut": {

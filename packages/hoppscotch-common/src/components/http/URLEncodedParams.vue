@@ -71,9 +71,9 @@
                       : null,
                 }"
                 :icon="IconGripVertical"
-                class="cursor-auto text-primary hover:text-primary"
+                class="opacity-0"
                 :class="{
-                  'draggable-handle !cursor-grab group-hover:text-secondaryLight':
+                  'draggable-handle cursor-grab group-hover:opacity-100':
                     index !== workingUrlEncodedParams?.length - 1,
                 }"
                 tabindex="-1"

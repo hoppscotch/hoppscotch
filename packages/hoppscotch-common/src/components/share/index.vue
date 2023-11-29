@@ -26,7 +26,18 @@
         <span class="text-secondaryLight">{{ t("state.loading") }}</span>
       </div>
       <HoppSmartPlaceholder
-        v-if="!loading && sharedRequests.length === 0"
+        v-if="!currentUser"
+        :src="`/images/states/${colorMode.value}/add_files.svg`"
+        :alt="`${t('empty.shared_requests_logout')}`"
+        :text="`${t('empty.shared_requests_logout')}`"
+      >
+        <HoppButtonPrimary
+          :label="t('auth.login')"
+          @click="invokeAction('modals.login.toggle')"
+        />
+      </HoppSmartPlaceholder>
+      <HoppSmartPlaceholder
+        v-else-if="!loading && sharedRequests.length === 0"
         :src="`/images/states/${colorMode.value}/add_files.svg`"
         :alt="`${t('empty.shared_requests')}`"
         :text="t('empty.shared_requests')"

@@ -1,7 +1,10 @@
 import { mockDeep, mockReset } from 'jest-mock-extended';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { InfraConfigService } from './infra-config.service';
-import { InfraConfigEnum } from 'src/types/InfraConfig';
+import {
+  InfraConfigEnum,
+  InfraConfigEnumForClient,
+} from 'src/types/InfraConfig';
 import { INFRA_CONFIG_NOT_FOUND, INFRA_CONFIG_UPDATE_FAILED } from 'src/errors';
 import { ConfigService } from '@nestjs/config';
 import * as helper from './helper';
@@ -68,7 +71,7 @@ describe('InfraConfigService', () => {
 
   describe('get', () => {
     it('should get the infra config', async () => {
-      const name = InfraConfigEnum.GOOGLE_CLIENT_ID;
+      const name = InfraConfigEnumForClient.GOOGLE_CLIENT_ID;
       const value = 'true';
 
       mockPrisma.infraConfig.findUniqueOrThrow.mockResolvedValueOnce({
@@ -84,7 +87,7 @@ describe('InfraConfigService', () => {
     });
 
     it('should pass correct params to prisma findUnique', async () => {
-      const name = InfraConfigEnum.GOOGLE_CLIENT_ID;
+      const name = InfraConfigEnumForClient.GOOGLE_CLIENT_ID;
 
       await infraConfigService.get(name);
 
@@ -95,7 +98,7 @@ describe('InfraConfigService', () => {
     });
 
     it('should throw an error if the infra config does not exist', async () => {
-      const name = InfraConfigEnum.GOOGLE_CLIENT_ID;
+      const name = InfraConfigEnumForClient.GOOGLE_CLIENT_ID;
 
       mockPrisma.infraConfig.findUniqueOrThrow.mockRejectedValueOnce('null');
 

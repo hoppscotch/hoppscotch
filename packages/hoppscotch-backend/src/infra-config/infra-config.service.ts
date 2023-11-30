@@ -105,7 +105,10 @@ export class InfraConfigService implements OnModuleInit {
         stopApp();
       }
     } catch (error) {
-      if (error.code === 'P2021') {
+      if (error.code === 'P1001') {
+        // Prisma error code for 'Can't reach at database server'
+        // We're not throwing error here because we want to allow the app to run 'pnpm install'
+      } else if (error.code === 'P2021') {
         // Prisma error code for 'Table does not exist'
         throwErr(DATABASE_TABLE_NOT_EXIST);
       } else {

@@ -12,16 +12,22 @@ export enum AuthProviderStatus {
  * (ConfigModule will set the environment variables in the process)
  */
 export async function loadInfraConfiguration() {
-  const prisma = new PrismaService();
+  try {
+    const prisma = new PrismaService();
 
-  const infraConfigs = await prisma.infraConfig.findMany();
+    const infraConfigs = await prisma.infraConfig.findMany();
 
-  let environmentObject: Record<string, any> = {};
-  infraConfigs.forEach((infraConfig) => {
-    environmentObject[infraConfig.name] = infraConfig.value;
-  });
+    let environmentObject: Record<string, any> = {};
+    infraConfigs.forEach((infraConfig) => {
+      environmentObject[infraConfig.name] = infraConfig.value;
+    });
 
-  return { INFRA: environmentObject };
+    return { INFRA: environmentObject };
+  } catch (error) {
+    // Prisma throw error if 'Can't reach at database server' OR 'Table does not exist'
+    // We're not throwing error here because we want to allow the app to run 'pnpm install'
+    return { INFRA: {} };
+  }
 }
 
 /**

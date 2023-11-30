@@ -55,7 +55,7 @@ export const getComputedAuthHeaders = (
 
   if (!request) return []
 
-  if (!request.auth.authActive) return []
+  if (!request.auth || !request.auth.authActive) return []
 
   const headers: HoppRESTHeader[] = []
 
@@ -165,7 +165,7 @@ export const getComputedParams = (
 ): ComputedParam[] => {
   // When this gets complex, its best to split this function off (like with getComputedHeaders)
   // API-key auth can be added to query params
-  if (!req.auth.authActive) return []
+  if (!req.auth || !req.auth.authActive) return []
   if (req.auth.authType !== "api-key") return []
   if (req.auth.addTo !== "Query params") return []
 

@@ -152,12 +152,16 @@
         <div v-if="auth.authType === 'basic'">
           <HttpAuthorizationBasic v-model="auth" />
         </div>
-        <div v-if="auth.authType === 'inherit'">
-          <div class="p-4">
+        <div v-if="auth.authType === 'inherit'" class="p-4">
+          <span v-if="inheritedProperties?.auth">
             Inherited
-            {{ getAuthName(inheritedProperties?.auth?.authType) }} from Parent
+            {{ getAuthName(inheritedProperties.auth.authType) }} from Parent
             Collection {{ inheritedProperties?.parentName }}
-          </div>
+          </span>
+          <span v-else>
+            Please save this request in any collection to inherit the
+            authorization
+          </span>
         </div>
         <div v-if="auth.authType === 'bearer'">
           <div class="flex flex-1 border-b border-dividerLight">

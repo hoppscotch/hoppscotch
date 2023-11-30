@@ -5,9 +5,9 @@
     :class="bannerColor"
   >
     <div class="flex items-center">
-      <component :is="bannerIcon" class="mr-2 text-white" />
+      <component :is="bannerIcon" class="mr-2 text-secondaryDark" />
 
-      <span class="text-white">
+      <span class="text-secondaryDark">
         <span v-if="banner.alternateText" class="md:hidden">
           {{ banner.alternateText(t) }}
         </span>
@@ -51,15 +51,15 @@ const emit = defineEmits<{
 }>()
 
 const ariaRoles: Record<BannerType, string> = {
-  error: "alert",
-  warning: "status",
   info: "status",
+  warning: "status",
+  error: "alert",
 }
 
 const bgColors: Record<BannerType, string> = {
-  error: "bg-red-700",
-  warning: "bg-yellow-700",
   info: "bg-stone-800",
+  warning: "bg-yellow-700",
+  error: "bg-red-700",
 }
 
 const icons = {

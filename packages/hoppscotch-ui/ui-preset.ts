@@ -39,6 +39,8 @@ export default {
         divider: "var(--divider-color)",
         dividerLight: "var(--divider-light-color)",
         dividerDark: "var(--divider-dark-color)",
+        info: "var(--info-color)",
+        warning: "var(--warning-color)",
         error: "var(--error-color)",
         tooltip: "var(--tooltip-color)",
         popover: "var(--popover-color)",

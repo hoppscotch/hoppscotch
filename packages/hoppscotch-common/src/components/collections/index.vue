@@ -189,6 +189,7 @@ import {
   moveRESTFolder,
   navigateToFolderWithIndexPath,
   restCollectionStore,
+  cascaseParentCollectionForHeaderAuth,
 } from "~/newstore/collections"
 import TeamCollectionAdapter from "~/helpers/teams/TeamCollectionAdapter"
 import {
@@ -1312,63 +1313,6 @@ const onRemoveRequest = () => {
 // The request is picked in the save request as modal
 const selectPicked = (payload: Picked | null) => {
   emit("select", payload)
-}
-
-const cascaseParentCollectionForHeaderAuth = (
-  folderPath: string | undefined
-) => {
-  let auth: HoppRESTRequest["auth"] = {
-    authType: "none",
-    authActive: false,
-  }
-  const headers: HoppRESTRequest["headers"] = []
-  let name = ""
-  if (!folderPath) return { auth, headers, name: "" }
-  const path = folderPath.split("/").map((i) => parseInt(i))
-
-  // Check if the path is empty or invalid
-  if (!path || path.length === 0) {
-    console.error("Invalid path:", folderPath)
-    return { auth, headers, name: "" }
-  }
-
-  // Loop through the path and get the last parent folder with authType other than 'inherit'
-  for (let i = 0; i < path.length; i++) {
-    const parentFolder = navigateToFolderWithIndexPath(
-      restCollectionStore.value.state,
-      [...path.slice(0, i + 1)] // Create a copy of the path array
-    )
-
-    // Check if parentFolder is undefined or null
-    if (!parentFolder) {
-      console.error("Parent folder not found for path:", path)
-      return { auth, headers, name: "" }
-    }
-
-    const parentFolderAuth = parentFolder.auth
-    const parentFolderHeaders = parentFolder.headers
-
-    // Check if authType is not 'inherit'
-    if (parentFolderAuth?.authType !== "inherit") {
-      auth = parentFolderAuth || auth
-      name = parentFolder.name
-    }
-    // Update headers, overwriting duplicates by key
-    if (parentFolderHeaders) {
-      const activeHeaders = parentFolderHeaders.filter((h) => h.active)
-      activeHeaders.forEach((header) => {
-        const index = headers.findIndex((h) => h.key === header.key)
-        if (index !== -1) {
-          // Replace the existing header with the same key
-          headers[index] = header
-        } else {
-          headers.push(header)
-        }
-      })
-    }
-  }
-
-  return { auth, headers, name }
 }
 
 /**

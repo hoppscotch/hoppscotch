@@ -74,6 +74,7 @@ import { Picked } from "~/helpers/types/HoppPicked"
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
 import {
+  cascaseParentCollectionForHeaderAuth,
   editGraphqlRequest,
   editRESTRequest,
   saveGraphqlRequestAs,
@@ -239,6 +240,17 @@ const saveRequestAs = async () => {
       },
     }
 
+    const { auth, headers, name } = cascaseParentCollectionForHeaderAuth(
+      `${picked.value.collectionIndex}`
+    )
+
+    RESTTabs.currentActiveTab.value.document.inheritedProperties = {
+      auth,
+      headers,
+      parentId: `${picked.value.collectionIndex}`,
+      parentName: name,
+    }
+
     platform.analytics?.logEvent({
       type: "HOPP_SAVE_REQUEST",
       createdNow: true,
@@ -264,6 +276,17 @@ const saveRequestAs = async () => {
         folderPath: picked.value.folderPath,
         requestIndex: insertionIndex,
       },
+    }
+
+    const { auth, headers, name } = cascaseParentCollectionForHeaderAuth(
+      picked.value.folderPath
+    )
+
+    RESTTabs.currentActiveTab.value.document.inheritedProperties = {
+      auth,
+      headers,
+      parentId: picked.value.folderPath,
+      parentName: name,
     }
 
     platform.analytics?.logEvent({
@@ -292,6 +315,17 @@ const saveRequestAs = async () => {
         folderPath: picked.value.folderPath,
         requestIndex: picked.value.requestIndex,
       },
+    }
+
+    const { auth, headers, name } = cascaseParentCollectionForHeaderAuth(
+      picked.value.folderPath
+    )
+
+    RESTTabs.currentActiveTab.value.document.inheritedProperties = {
+      auth,
+      headers,
+      parentId: picked.value.folderPath,
+      parentName: name,
     }
 
     platform.analytics?.logEvent({

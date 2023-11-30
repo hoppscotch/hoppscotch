@@ -89,6 +89,7 @@ const props = defineProps<{
   user: UserInfoQuery['infra']['userInfo'];
 }>();
 
+// User Info
 const { uid, displayName, email, createdOn } = props.user;
 
 const userInfo = {

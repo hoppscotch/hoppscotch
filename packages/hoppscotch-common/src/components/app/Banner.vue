@@ -57,9 +57,9 @@ const ariaRoles: Record<BannerType, string> = {
 }
 
 const bgColors: Record<BannerType, string> = {
-  info: "bg-stone-800",
-  warning: "bg-yellow-700",
-  error: "bg-red-700",
+  info: "bg-info",
+  warning: "bg-warning",
+  error: "bg-error",
 }
 
 const icons = {

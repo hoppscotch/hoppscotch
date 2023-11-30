@@ -10,7 +10,7 @@
       {{ t('users.no_shared_requests') }}
     </div>
 
-    <div v-else-if="sharedRequests?.length" class="mt-10">
+    <div v-else class="mt-10">
       <HoppSmartTable :list="sharedRequests">
         <template #head>
           <tr
@@ -85,10 +85,6 @@
         <icon-lucide-chevron-down />
       </div>
     </div>
-
-    <div v-else class="mt-2 text-lg">
-      {{ t('shared_requests.no_requests') }}
-    </div>
   </div>
 
   <HoppSmartConfirmModal
@@ -142,8 +138,7 @@ const {
   (x) => x.infra.allShortcodes,
   (x) => x.id,
   sharedRequestsPerPage,
-  { cursor: undefined, take: sharedRequestsPerPage },
-  { email: props.email }
+  { cursor: undefined, take: sharedRequestsPerPage, email: props.email }
 );
 
 // Return request endpoint from the request object

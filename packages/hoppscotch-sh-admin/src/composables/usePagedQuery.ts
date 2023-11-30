@@ -11,8 +11,7 @@ export function usePagedQuery<
   getList: (result: Result) => ListItem[],
   getCursor: (value: ListItem) => string,
   itemsPerPage: number,
-  variables: Vars,
-  additionalVariables?: Partial<Vars>
+  variables: Vars
 ) {
   const { client } = useClientHandle();
   const fetching = ref(true);
@@ -31,7 +30,6 @@ export function usePagedQuery<
         ...variables,
         take: itemsPerPage,
         cursor,
-        ...additionalVariables,
       };
 
       const result = await client

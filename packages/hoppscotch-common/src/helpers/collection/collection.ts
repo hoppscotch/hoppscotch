@@ -121,15 +121,47 @@ export function updateInheritedPropertiesForAffectedRequests(
     )
   })
 
-  const filteredTabs = tabs.filter((tab) => {
+  const tabsEffectedByAuth = tabs.filter((tab) => {
     return (
       tab.value.document.inheritedProperties &&
-      tab.value.document.inheritedProperties.parentId === path
+      tab.value.document.inheritedProperties.auth.parentID === path
     )
   })
 
-  for (const tab of filteredTabs) {
+  const tabsEffectedByHeaders = tabs.filter((tab) => {
+    return (
+      tab.value.document.inheritedProperties &&
+      tab.value.document.inheritedProperties.headers.some(
+        (header) => header.parentID === path
+      )
+    )
+  })
+
+  for (const tab of tabsEffectedByAuth) {
     tab.value.document.inheritedProperties = inheritedProperties
+  }
+
+  for (const tab of tabsEffectedByHeaders) {
+    const headers = tab.value.document.inheritedProperties?.headers.map(
+      (header) => {
+        if (header.parentID === path) {
+          return {
+            ...header,
+            inheritedHeader: inheritedProperties.headers.find(
+              (inheritedHeader) =>
+                inheritedHeader.inheritedHeader?.key ===
+                header.inheritedHeader?.key
+            )?.inheritedHeader,
+          }
+        }
+        return header
+      }
+    )
+
+    tab.value.document.inheritedProperties = {
+      ...tab.value.document.inheritedProperties,
+      headers,
+    }
   }
 }
 

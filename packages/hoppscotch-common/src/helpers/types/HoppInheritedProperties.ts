@@ -1,8 +1,14 @@
 import { HoppRESTRequest } from "@hoppscotch/data"
 
 export type HoppInheritedProperty = {
-  parentId: string
-  parentName: string
-  auth?: HoppRESTRequest["auth"]
-  headers?: HoppRESTRequest["headers"]
+  auth: {
+    parentID: string
+    parentName: string
+    inheritedAuth: HoppRESTRequest["auth"]
+  }
+  headers: {
+    parentID: string
+    parentName: string
+    inheritedHeader?: HoppRESTRequest["headers"][number]
+  }[]
 }

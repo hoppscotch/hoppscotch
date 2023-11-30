@@ -10,6 +10,7 @@ import { cloneDeep } from "lodash-es"
 import { resolveSaveContextOnRequestReorder } from "~/helpers/collection/request"
 import { getService } from "~/modules/dioc"
 import { RESTTabService } from "~/services/tab/rest"
+import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 
 const defaultRESTCollectionState = {
   state: [
@@ -65,19 +66,22 @@ export function navigateToFolderWithIndexPath(
 export function cascaseParentCollectionForHeaderAuth(
   folderPath: string | undefined
 ) {
-  let auth: HoppRESTRequest["auth"] = {
-    authType: "none",
-    authActive: false,
+  let auth: HoppInheritedProperty["auth"] = {
+    parentID: folderPath ?? "",
+    parentName: "",
+    inheritedAuth: {
+      authType: "inherit",
+      authActive: false,
+    },
   }
-  const headers: HoppRESTRequest["headers"] = []
-  let name = ""
-  if (!folderPath) return { auth, headers, name: "" }
+  const headers: HoppInheritedProperty["headers"] = []
+  if (!folderPath) return { auth, headers }
   const path = folderPath.split("/").map((i) => parseInt(i))
 
   // Check if the path is empty or invalid
   if (!path || path.length === 0) {
     console.error("Invalid path:", folderPath)
-    return { auth, headers, name: "" }
+    return { auth, headers }
   }
 
   // Loop through the path and get the last parent folder with authType other than 'inherit'
@@ -90,33 +94,49 @@ export function cascaseParentCollectionForHeaderAuth(
     // Check if parentFolder is undefined or null
     if (!parentFolder) {
       console.error("Parent folder not found for path:", path)
-      return { auth, headers, name: "" }
+      return { auth, headers }
     }
 
     const parentFolderAuth = parentFolder.auth
     const parentFolderHeaders = parentFolder.headers
 
+    const isRootCollection = path.length === 1
+
     // Check if authType is not 'inherit'
-    if (parentFolderAuth?.authType !== "inherit") {
-      auth = parentFolderAuth || auth
-      name = parentFolder.name
+    if (parentFolderAuth?.authType !== "inherit" || isRootCollection) {
+      auth = {
+        parentID: parentFolder.id ?? folderPath,
+        parentName: parentFolder.name,
+        inheritedAuth: parentFolderAuth,
+      }
     }
     // Update headers, overwriting duplicates by key
     if (parentFolderHeaders) {
       const activeHeaders = parentFolderHeaders.filter((h) => h.active)
       activeHeaders.forEach((header) => {
-        const index = headers.findIndex((h) => h.key === header.key)
+        const index = headers.findIndex(
+          (h) => h.inheritedHeader?.key === header.key
+        )
+        const currentPath = [...path.slice(0, i + 1)].join("/")
         if (index !== -1) {
           // Replace the existing header with the same key
-          headers[index] = header
+          headers[index] = {
+            parentID: currentPath,
+            parentName: parentFolder.name,
+            inheritedHeader: header,
+          }
         } else {
-          headers.push(header)
+          headers.push({
+            parentID: currentPath,
+            parentName: parentFolder.name,
+            inheritedHeader: header,
+          })
         }
       })
     }
   }
 
-  return { auth, headers, name }
+  return { auth, headers }
 }
 
 function reorderItems(array: unknown[], from: number, to: number) {
@@ -201,11 +221,7 @@ const restCollectionDispatchers = defineDispatchers({
       requests: [],
       auth: {
         authType: "inherit",
-        authActive: false,
-        auth: {
-          authType: "inherit",
-          authActive: false,
-        },
+        authActive: true,
       },
       headers: [],
     })
@@ -768,7 +784,7 @@ const gqlCollectionDispatchers = defineDispatchers({
       requests: [],
       auth: {
         authType: "inherit",
-        authActive: false,
+        authActive: true,
       },
       headers: [],
     })

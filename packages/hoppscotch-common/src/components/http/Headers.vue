@@ -242,17 +242,14 @@
               :placeholder="`${t('count.value', { count: index + 1 })}`"
               readonly
             />
-            <span class="">
-              <HoppButtonSecondary
-                v-tippy="{ theme: 'tooltip' }"
-                :title="t(masking ? 'state.show' : 'state.hide')"
-                :icon="
-                  masking && header.source === 'auth' ? IconEye : IconEyeOff
-                "
-                :disabled="header.source !== 'auth'"
-                @click="toggleMask()"
-              />
-            </span>
+            <HoppButtonSecondary
+              v-if="header.source === 'auth'"
+              v-tippy="{ theme: 'tooltip' }"
+              :title="t(masking ? 'state.show' : 'state.hide')"
+              :icon="masking && header.source === 'auth' ? IconEye : IconEyeOff"
+              @click="toggleMask()"
+            />
+            <span class="aspect-square w-[2.05rem]"></span>
             <span>
               <HoppButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"
@@ -578,13 +575,13 @@ const inheritedProperties = computed(() => {
   )
 
   const headers = inheritedHeaders.map((header, index) => ({
-    inheritedFrom: props.inheritedProperties?.parentName,
+    inheritedFrom: props.inheritedProperties?.headers[index].parentName,
     source: "headers",
     id: `header-${index}`,
     header: {
-      key: header.key,
-      value: header.value,
-      active: header.active,
+      key: header.inheritedHeader?.key,
+      value: header.inheritedHeader?.value,
+      active: header.inheritedHeader?.active,
     },
   }))
 
@@ -602,7 +599,7 @@ const inheritedProperties = computed(() => {
   const computedAuthHeader = getComputedAuthHeaders(
     aggregateEnvs.value,
     request.value,
-    props.inheritedProperties.auth
+    props.inheritedProperties.auth.inheritedAuth
   )[0]
 
   if (
@@ -612,7 +609,7 @@ const inheritedProperties = computed(() => {
   ) {
     auth = [
       {
-        inheritedFrom: props.inheritedProperties?.parentName,
+        inheritedFrom: props.inheritedProperties?.auth.parentName,
         source: "auth",
         id: `header-auth`,
         header: computedAuthHeader,

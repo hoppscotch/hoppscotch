@@ -48,7 +48,6 @@ export const getComputedAuthHeaders = (
   auth?: HoppRESTRequest["auth"]
 ) => {
   const request = auth ? { auth: auth ?? { authActive: false } } : req
-
   // If Authorization header is also being user-defined, that takes priority
   if (req && req.headers.find((h) => h.key.toLowerCase() === "authorization"))
     return []
@@ -136,16 +135,18 @@ export type ComputedHeader = {
 export const getComputedHeaders = (
   req: HoppRESTRequest,
   envVars: Environment["variables"]
-): ComputedHeader[] => [
-  ...getComputedAuthHeaders(envVars, req).map((header) => ({
-    source: "auth" as const,
-    header,
-  })),
-  ...getComputedBodyHeaders(req).map((header) => ({
-    source: "body" as const,
-    header,
-  })),
-]
+): ComputedHeader[] => {
+  return [
+    ...getComputedAuthHeaders(envVars, req).map((header) => ({
+      source: "auth" as const,
+      header,
+    })),
+    ...getComputedBodyHeaders(req).map((header) => ({
+      source: "body" as const,
+      header,
+    })),
+  ]
+}
 
 export type ComputedParam = {
   source: "auth"

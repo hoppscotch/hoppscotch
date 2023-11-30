@@ -98,17 +98,31 @@ export function runRESTRequest$(
     const requestAuth =
       tab.value.document.request.auth.authType === "inherit" &&
       tab.value.document.request.auth.authActive
-        ? tab.value.document.inheritedProperties?.auth
+        ? tab.value.document.inheritedProperties?.auth.inheritedAuth
         : tab.value.document.request.auth
 
-    const requestHeaders = [
-      ...(tab.value.document.inheritedProperties?.headers ?? []),
-      ...tab.value.document.request.headers,
-    ]
+    let requestHeaders
+
+    const inheritedHeaders =
+      tab.value.document.inheritedProperties?.headers.map((header) => {
+        if (header.inheritedHeader) {
+          return header.inheritedHeader
+        }
+        return []
+      })
+
+    if (inheritedHeaders) {
+      requestHeaders = [
+        ...inheritedHeaders,
+        ...tab.value.document.request.headers,
+      ]
+    } else {
+      requestHeaders = [...tab.value.document.request.headers]
+    }
 
     const finalRequest = {
       ...tab.value.document.request,
-      auth: requestAuth,
+      auth: requestAuth ?? { authType: "none", authActive: false },
       headers: requestHeaders,
     }
 

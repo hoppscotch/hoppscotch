@@ -155,8 +155,8 @@
         <div v-if="auth.authType === 'inherit'" class="p-4">
           <span v-if="inheritedProperties?.auth">
             Inherited
-            {{ getAuthName(inheritedProperties.auth.authType) }} from Parent
-            Collection {{ inheritedProperties?.parentName }}
+            {{ getAuthName(inheritedProperties.auth.inheritedAuth.authType) }}
+            from Parent Collection {{ inheritedProperties?.auth.parentName }}
           </span>
           <span v-else>
             Please save this request in any collection to inherit the
@@ -232,7 +232,10 @@ const auth = useVModel(props, "modelValue", emit)
 onMounted(() => {
   if (props.isRootCollection && auth.value.authType === "inherit") {
     console.log("isRootCollection", auth.value.authType)
-    auth.value.authType = "none"
+    auth.value = {
+      authType: "none",
+      authActive: true,
+    }
   }
 })
 

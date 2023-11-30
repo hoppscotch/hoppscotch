@@ -40,8 +40,8 @@
           <HttpAuthorization
             v-model="editableCollection.auth"
             :is-collection-property="true"
-            :is-root-collection="editingProperties.isRootCollection"
-            :inherited-properties="editingProperties.inheritedProperties"
+            :is-root-collection="editingProperties?.isRootCollection"
+            :inherited-properties="editingProperties?.inheritedProperties"
           />
           <AppBanner
             :banner="{
@@ -93,7 +93,7 @@ type EditingProperties = {
   collection: HoppCollection<HoppRESTRequest> | TeamCollection | null
   isRootCollection: boolean
   path: string
-  inheritedProperties: HoppInheritedProperty | null
+  inheritedProperties: HoppInheritedProperty | undefined
 }
 
 const props = withDefaults(

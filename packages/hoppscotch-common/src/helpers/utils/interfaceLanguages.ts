@@ -1,4 +1,4 @@
-const languages = [
+const interfaceLanguages = [
   "cJSON",
   "C++",
   "C#",
@@ -23,4 +23,4 @@ const languages = [
   "TypeScript",
 ]
 
-export default languages
+export default interfaceLanguages

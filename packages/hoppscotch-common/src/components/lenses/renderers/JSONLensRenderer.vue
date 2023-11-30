@@ -38,61 +38,45 @@
         <HoppButtonSecondary
           v-if="response.body"
           v-tippy="{ theme: 'tooltip', allowHTML: true }"
-          class="my-2"
           :title="`${t(
             'action.copy'
           )} <kbd>${getSpecialKey()}</kbd><kbd>.</kbd>`"
           :icon="copyIcon"
           @click="copyResponse"
         />
-        <span class="flex mx-2 transition border rounded border-divider">
+        <tippy
+          v-if="response.body"
+          interactive
+          trigger="click"
+          theme="popover"
+          :on-shown="() => copyInterfaceTippyActions.focus()"
+        >
           <HoppButtonSecondary
-            v-if="response.body"
-            v-tippy="{ theme: 'tooltip', allowHTML: true }"
-            :title="`${t(
-              'action.copy'
-            )} <kbd>${getSpecialKey()}</kbd><kbd>.</kbd>`"
-            :icon="copyInterfaceIcon"
-            :label="t(selectedLanguage)"
-            @click="() => copyInterface(selectedLanguage.toLowerCase())"
+            v-tippy="{ theme: 'tooltip' }"
+            :title="t('app.options')"
+            :icon="IconMore"
           />
-          <span class="flex">
-            <tippy
-              interactive
-              trigger="click"
-              theme="popover"
-              :on-shown="() => saveTippyActions.focus()"
+          <template #content="{ hide }">
+            <div
+              ref="copyInterfaceTippyActions"
+              class="flex flex-col focus:outline-none"
+              tabindex="0"
+              @keyup.escape="hide()"
             >
-              <HoppButtonSecondary
-                v-tippy="{ theme: 'tooltip' }"
-                :title="t('app.options')"
-                :icon="IconChevronDown"
-                filled
-                class="rounded rounded-l-none"
+              <HoppSmartItem
+                v-for="(language, index) in interfaceLanguages"
+                :key="index"
+                :label="language"
+                :icon="
+                  copiedInterfaceLanguage === language
+                    ? copyInterfaceIcon
+                    : IconCopy
+                "
+                @click="runCopyInterface(language)"
               />
-              <template #content="{ hide }">
-                <div
-                  ref="saveTippyActions"
-                  class="flex flex-col focus:outline-none"
-                  tabindex="0"
-                  @keyup.escape="hide()"
-                >
-                  <li v-for="language in languages" :key="language">
-                    <HoppButtonSecondary
-                      :label="language"
-                      @click="
-                        () => {
-                          hide()
-                          updateSelectedLanguage(language)
-                        }
-                      "
-                    />
-                  </li>
-                </div>
-              </template>
-            </tippy>
-          </span>
-        </span>
+            </div>
+          </template>
+        </tippy>
       </div>
     </div>
     <div
@@ -250,8 +234,9 @@
 <script setup lang="ts">
 import IconWrapText from "~icons/lucide/wrap-text"
 import IconFilter from "~icons/lucide/filter"
-import IconChevronDown from "~icons/lucide/chevron-down"
+import IconMore from "~icons/lucide/more-horizontal"
 import IconHelpCircle from "~icons/lucide/help-circle"
+import IconCopy from "~icons/lucide/copy"
 import * as LJSON from "lossless-json"
 import * as O from "fp-ts/Option"
 import * as E from "fp-ts/Either"
@@ -275,8 +260,7 @@ import {
 } from "@composables/lens-actions"
 import { defineActionHandler } from "~/helpers/actions"
 import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
-import { HoppButtonSecondary } from "@hoppscotch/ui"
-import languages from "~/helpers/utils/languages"
+import interfaceLanguages from "~/helpers/utils/interfaceLanguages"
 
 const t = useI18n()
 
@@ -286,15 +270,14 @@ const props = defineProps<{
 
 const { responseBodyText } = useResponseBody(props.response)
 
-const saveTippyActions = ref<any | null>(null)
-
 const toggleFilter = ref(false)
 const filterQueryText = ref("")
+const copiedInterfaceLanguage = ref("")
 
-const selectedLanguage = ref(languages[0])
-
-const updateSelectedLanguage = (language: string) => {
-  selectedLanguage.value = language
+const runCopyInterface = (language: string) => {
+  copyInterface(language).then(() => {
+    copiedInterfaceLanguage.value = language
+  })
 }
 
 type BodyParseError =
@@ -389,6 +372,7 @@ const { downloadIcon, downloadResponse } = useDownloadResponse(
 // Template refs
 const tippyActions = ref<any | null>(null)
 const jsonResponse = ref<any | null>(null)
+const copyInterfaceTippyActions = ref<any | null>(null)
 const linewrapEnabled = ref(true)
 
 const { cursor } = useCodemirror(

@@ -6,6 +6,12 @@ import { PaginationArgs } from 'src/types/input-types.args';
 export class CreateRootUserCollectionArgs {
   @Field({ name: 'title', description: 'Title of the new user collection' })
   title: string;
+
+  @Field({
+    name: 'data',
+    description: 'JSON string representing the collection data',
+  })
+  data: string;
 }
 @ArgsType()
 export class CreateChildUserCollectionArgs {
@@ -17,6 +23,12 @@ export class CreateChildUserCollectionArgs {
     description: 'ID of the parent to the new user collection',
   })
   parentUserCollectionID: string;
+
+  @Field({
+    name: 'data',
+    description: 'JSON string representing the collection data',
+  })
+  data: string;
 }
 
 @ArgsType()

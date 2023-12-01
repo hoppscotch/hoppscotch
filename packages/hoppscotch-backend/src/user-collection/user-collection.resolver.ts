@@ -142,7 +142,13 @@ export class UserCollectionResolver {
     );
 
     if (E.isLeft(userCollection)) throwErr(userCollection.left);
-    return userCollection.right;
+    return <UserCollection>{
+      ...userCollection.right,
+      userID: userCollection.right.userUid,
+      data: !userCollection.right.data
+        ? null
+        : JSON.stringify(userCollection.right.data),
+    };
   }
 
   @Query(() => UserCollectionExportJSONData, {
@@ -191,6 +197,7 @@ export class UserCollectionResolver {
       await this.userCollectionService.createUserCollection(
         user,
         args.title,
+        args.data,
         null,
         ReqType.REST,
       );
@@ -212,6 +219,7 @@ export class UserCollectionResolver {
       await this.userCollectionService.createUserCollection(
         user,
         args.title,
+        args.data,
         null,
         ReqType.GQL,
       );
@@ -232,6 +240,7 @@ export class UserCollectionResolver {
       await this.userCollectionService.createUserCollection(
         user,
         args.title,
+        args.data,
         args.parentUserCollectionID,
         ReqType.GQL,
       );
@@ -252,6 +261,7 @@ export class UserCollectionResolver {
       await this.userCollectionService.createUserCollection(
         user,
         args.title,
+        args.data,
         args.parentUserCollectionID,
         ReqType.REST,
       );

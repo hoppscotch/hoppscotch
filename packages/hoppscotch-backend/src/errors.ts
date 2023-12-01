@@ -593,6 +593,13 @@ export const USER_COLL_SAME_NEXT_COLL =
   'user_coll/user_collection_and_next_user_collection_are_same' as const;
 
 /**
+ * The User Collection data is not valid
+ * (UserCollectionService)
+ */
+export const USER_COLL_DATA_INVALID =
+  'user_coll/user_coll_data_invalid' as const;
+
+/**
  * The User Collection does not belong to the logged-in user
  * (UserCollectionService)
  */

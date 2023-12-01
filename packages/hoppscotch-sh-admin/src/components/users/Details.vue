@@ -99,9 +99,9 @@ const userInfo = {
     value: uid,
   },
   displayName: {
-    condition: displayName,
+    condition: true,
     label: t('users.name'),
-    value: displayName,
+    value: displayName ?? t('users.unnamed'),
   },
   email: {
     condition: email,

@@ -23,7 +23,7 @@
         </span>
       </div>
 
-      <div v-for="(info, key) in userInfo" :key="key">
+      <template v-for="(info, key) in userInfo" :key="key">
         <div v-if="info.condition">
           <label class="text-secondaryDark" :for="key">{{ info.label }}</label>
           <div
@@ -32,12 +32,12 @@
             <span>{{ info.value }}</span>
           </div>
         </div>
-      </div>
+      </template>
     </div>
 
     <div class="flex justify-start mt-8">
       <HoppButtonPrimary
-        :icon="IconUserMinus"
+        :icon="user.isAdmin ? IconUserMinus : null"
         :label="
           user.isAdmin
             ? t('users.remove_admin_privilege')
@@ -70,24 +70,33 @@
 </template>
 
 <script setup lang="ts">
-import { UserInfoQuery } from '../../helpers/backend/graphql';
 import { format } from 'date-fns';
+
+import { useI18n } from '~/composables/i18n';
 import { useToast } from '~/composables/toast';
+
 import IconTrash from '~icons/lucide/trash';
 import IconUserMinus from '~icons/lucide/user-minus';
-import { useI18n } from '~/composables/i18n';
+
+import { UserInfoQuery } from '../../helpers/backend/graphql';
 
 const t = useI18n();
 
 const toast = useToast();
 
-// Get Proper Date Formats
-const getCreatedDateAndTime = (date: string) =>
-  format(new Date(date), 'd-MM-yyyy  hh:mm a');
-
 const props = defineProps<{
   user: UserInfoQuery['infra']['userInfo'];
 }>();
+
+const emit = defineEmits<{
+  (event: 'delete-user', userID: string): void;
+  (event: 'make-admin', userID: string): void;
+  (event: 'remove-admin', userID: string): void;
+}>();
+
+// Get Proper Date Formats
+const getCreatedDateAndTime = (date: string) =>
+  format(new Date(date), 'd-MM-yyyy  hh:mm a');
 
 // User Info
 const { uid, displayName, email, createdOn } = props.user;
@@ -114,10 +123,4 @@ const userInfo = {
     value: getCreatedDateAndTime(createdOn),
   },
 };
-
-const emit = defineEmits<{
-  (event: 'delete-user', userID: string): void;
-  (event: 'make-admin', userID: string): void;
-  (event: 'remove-admin', userID: string): void;
-}>();
 </script>

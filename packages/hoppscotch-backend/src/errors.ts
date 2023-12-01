@@ -255,6 +255,13 @@ export const TEAM_COLL_INVALID_JSON = 'team_coll/invalid_json';
 export const TEAM_NOT_OWNER = 'team_coll/team_not_owner' as const;
 
 /**
+ * The Team Collection data is not valid
+ * (TeamCollectionService)
+ */
+export const TEAM_COLL_DATA_INVALID =
+  'team_coll/team_coll_data_invalid' as const;
+
+/**
  * Tried to perform an action on a request that doesn't accept their member role level
  * (GqlRequestTeamMemberGuard)
  */

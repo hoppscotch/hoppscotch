@@ -14,6 +14,12 @@ export class CreateRootTeamCollectionArgs {
 
   @Field({ name: 'title', description: 'Title of the new collection' })
   title: string;
+
+  @Field({
+    name: 'data',
+    description: 'JSON string representing the collection data',
+  })
+  data: string;
 }
 
 @ArgsType()
@@ -26,6 +32,12 @@ export class CreateChildTeamCollectionArgs {
 
   @Field({ name: 'childTitle', description: 'Title of the new collection' })
   childTitle: string;
+
+  @Field({
+    name: 'data',
+    description: 'JSON string representing the collection data',
+  })
+  data: string;
 }
 
 @ArgsType()
@@ -33,12 +45,14 @@ export class RenameTeamCollectionArgs {
   @Field(() => ID, {
     name: 'collectionID',
     description: 'ID of the collection',
+    deprecationReason: 'Switch to updateTeamCollection mutation instead',
   })
   collectionID: string;
 
   @Field({
     name: 'newTitle',
     description: 'The updated title of the collection',
+    deprecationReason: 'Switch to updateTeamCollection mutation instead',
   })
   newTitle: string;
 }
@@ -97,4 +111,26 @@ export class ReplaceTeamCollectionArgs {
     nullable: true,
   })
   parentCollectionID?: string;
+}
+
+@ArgsType()
+export class UpdateTeamCollectionArgs {
+  @Field(() => ID, {
+    name: 'collectionID',
+    description: 'ID of the collection',
+  })
+  collectionID: string;
+
+  @Field({
+    name: 'newTitle',
+    description: 'The updated title of the collection',
+    nullable: true,
+  })
+  newTitle: string;
+
+  @Field({
+    name: 'data',
+    description: 'JSON string representing the collection data',
+  })
+  data: string;
 }

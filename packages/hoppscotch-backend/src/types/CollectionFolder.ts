@@ -3,4 +3,5 @@ export interface CollectionFolder {
   folders: CollectionFolder[];
   requests: any[];
   name: string;
+  data?: string;
 }

@@ -1,7 +1,8 @@
-const postcssConfig = require("@hoppscotch/ui/postcss.config")
-
 const config = {
-  ...postcssConfig,
-}
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {},
+  },
+};
 
-module.exports = config
+module.exports = config;

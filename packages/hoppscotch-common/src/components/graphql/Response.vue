@@ -44,7 +44,7 @@
           >
             <HoppButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
-              :title="t('app.options')"
+              :title="t('app.copy_interface_type')"
               :icon="IconMore"
             />
             <template #content="{ hide }">

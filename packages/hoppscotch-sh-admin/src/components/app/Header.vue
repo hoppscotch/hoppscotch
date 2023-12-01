@@ -33,27 +33,15 @@
           :on-shown="() => tippyActions!.focus()"
         >
           <HoppSmartPicture
-            v-if="currentUser.photoURL"
             v-tippy="{
               theme: 'tooltip',
             }"
-            :url="currentUser.photoURL"
-            :alt="currentUser.displayName ?? `${t('app.no_name')}`"
+            :name="currentUser.uid"
             :title="
               currentUser.displayName ??
               currentUser.email ??
               `${t('app.no_name')}`
             "
-          />
-          <HoppSmartPicture
-            v-else
-            v-tippy="{ theme: 'tooltip' }"
-            :title="
-              currentUser.displayName ??
-              currentUser.email ??
-              `${t('app.no_name')}`
-            "
-            :initial="currentUser.displayName ?? currentUser.email"
           />
           <template #content="{ hide }">
             <div

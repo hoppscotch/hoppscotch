@@ -17,6 +17,7 @@
     "vue": "^3.2.25"
   },
   "dependencies": {
+    "@boringer-avatars/vue3": "^0.2.1",
     "@fontsource-variable/inter": "^5.0.5",
     "@fontsource-variable/material-symbols-rounded": "^5.0.5",
     "@fontsource-variable/roboto-mono": "^5.0.6",

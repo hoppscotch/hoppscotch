@@ -6,19 +6,9 @@
       class="inline-flex"
     >
       <HoppSmartPicture
-        v-if="member.user.photoURL"
         v-tippy="{ theme: 'tooltip' }"
-        :url="member.user.photoURL"
-        :title="getUserName(member)"
-        :alt="getUserName(member)"
-        class="ring-2 ring-primary"
-        @click="handleClick()"
-      />
-      <HoppSmartPicture
-        v-else
-        v-tippy="{ theme: 'tooltip' }"
-        :title="getUserName(member)"
-        :initial="getUserName(member)"
+        :name="member.user.uid"
+        :title="getUserName(member as TeamMember)"
         class="ring-2 ring-primary"
         @click="handleClick()"
       />
@@ -59,7 +49,7 @@ const emit = defineEmits<{
 const getUserName = (member: TeamMember): string =>
   member.user.displayName ||
   member.user.email ||
-  t("profile.default_hopp_displayName")
+  t("profile.default_hopp_displayname")
 
 const maxMembersSoftLimit = 4
 const maxMembersHardLimit = 6
@@ -77,7 +67,7 @@ const remainingSlicedMembers = computed(
     props.teamMembers
       .slice(maxMembersSoftLimit)
       .slice(0, maxMembersHardLimit)
-      .map((member) => getUserName(member))
+      .map((member) => getUserName(member as TeamMember))
       .join(`,<br>`) +
     (props.teamMembers.length - (maxMembersSoftLimit + maxMembersHardLimit) > 0
       ? `,<br>${t("team.more_members", {

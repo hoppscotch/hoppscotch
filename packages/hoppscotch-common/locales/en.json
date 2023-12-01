@@ -332,9 +332,13 @@
     "url": "URL"
   },
   "header": {
-    "install_pwa": "Install app",
+    "install_pwa": "Add to Home Screen",
     "login": "Login",
-    "save_workspace": "Save My Workspace"
+    "save_workspace": "Save My Workspace",
+    "download_app": "Download app",
+    "menu": "Menu",
+    "go_back": "Go back",
+    "go_forward": "Go forward"
   },
   "helpers": {
     "authorization": "The authorization header will be automatically generated when you send the request.",

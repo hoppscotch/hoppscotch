@@ -59,7 +59,7 @@
               <UiAutoResetIcon
                 :title="t('shared_requests.copy')"
                 :icon="{ default: IconCopy, temporary: IconCheck }"
-                @icon-clicked="copySharedRequest(request.id)"
+                @click="copySharedRequest(request.id)"
               />
 
               <HoppButtonSecondary

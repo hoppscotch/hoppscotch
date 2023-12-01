@@ -5,7 +5,7 @@
     :icon="icon"
     :color="icon === props.icon.default ? props.color : props.resetColor"
     class="px-3"
-    @click="iconClicked"
+    @click="iconClickHandler"
   />
 </template>
 
@@ -32,16 +32,16 @@ const props = withDefaults(
 );
 
 const emit = defineEmits<{
-  (e: 'icon-clicked'): void;
+  (e: 'click'): void;
 }>();
-
-const iconClicked = () => {
-  icon.value = props.icon.temporary;
-  emit('icon-clicked');
-};
 
 const icon = refAutoReset<FunctionalComponent<SVGAttributes, {}>>(
   props.icon.default,
   1000
 );
+
+const iconClickHandler = () => {
+  icon.value = props.icon.temporary;
+  emit('click');
+};
 </script>

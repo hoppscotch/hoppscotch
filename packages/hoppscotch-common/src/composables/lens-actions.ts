@@ -23,7 +23,9 @@ export function useCopyInterface(responseBodyText: Ref<string>) {
     jsonToLanguage(targetLanguage, responseBodyText.value).then((res) => {
       copyToClipboard(res.lines.join("\n"))
       copyInterfaceIcon.value = IconCheck
-      toast.success(`${t("state.copied_to_clipboard")}`)
+      toast.success(
+        t("state.copied_interface_to_clipboard", { language: targetLanguage })
+      )
     })
   }
 

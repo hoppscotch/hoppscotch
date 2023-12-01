@@ -780,6 +780,7 @@
     "connection_failed": "Connection failed",
     "connection_lost": "Connection lost",
     "copied_to_clipboard": "Copied to clipboard",
+    "copied_interface_to_clipboard": "Copied {language} interface type to clipboard",
     "deleted": "Deleted",
     "deprecated": "DEPRECATED",
     "disabled": "Disabled",

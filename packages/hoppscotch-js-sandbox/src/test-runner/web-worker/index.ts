@@ -3,25 +3,27 @@ import * as TE from "fp-ts/TaskEither"
 import { TestResponse, TestResult } from "../../types"
 import { SandboxTestResult } from "~/index"
 
+import Worker from "./worker?worker&inline"
+
 export const execTestScriptForWeb = (
   testScript: string,
   envs: TestResult["envs"],
   response: TestResponse
 ): Promise<TE.TaskEither<string, SandboxTestResult>> => {
   return new Promise((resolve) => {
-    const worker = new Worker(new URL("./worker.ts", import.meta.url), {
-      type: "module",
-    })
+    const worker = new Worker()
 
     const messageId = Date.now().toString()
 
     // Listen for the result from the web worker
-    worker.addEventListener("message", (event) => {
+    worker.addEventListener("message", (event: MessageEvent) => {
+      console.log("Received message from worker", event.data)
+
       if (event.data.messageId === messageId) {
         if (event.data.result) {
-          resolve(TE.right(event.data.result))
+          resolve(event.data.result)
         } else {
-          resolve(TE.left(event.data.result))
+          resolve(event.data.result)
         }
       }
     })

@@ -1,6 +1,3 @@
-import * as TE from "fp-ts/TaskEither"
-import { pipe } from "fp-ts/function"
-
 import {
   TestResult,
   TestDescriptor as _TestDescriptor,
@@ -21,21 +18,7 @@ export type SandboxTestResult = TestResult & { tests: TestDescriptor }
  * @param testScript The string of the script to run
  * @returns A TaskEither with an error message or a TestDescriptor with the final status
  */
-export const runTestScriptForWeb = async (
-  testScript: string,
-  envs: TestResult["envs"],
-  response: TestResponse
-) => {
-  return pipe(
-    await execTestScriptForWeb(testScript, envs, response),
-    TE.chain((results) =>
-      TE.right(<SandboxTestResult>{
-        envs: results.envs,
-        tests: results.tests[0],
-      })
-    ) // execTestScript returns an array of descriptors with a single element (extract that)
-  )
-}
+export const runTestScriptForWeb = execTestScriptForWeb
 
 export const runPreRequestScriptForWeb = execPreRequestScriptForWeb
 /**

@@ -3,21 +3,14 @@ import * as E from "fp-ts/Either"
 import * as O from "fp-ts/Option"
 import * as TE from "fp-ts/TaskEither"
 import { pipe } from "fp-ts/lib/function"
-import { cloneDeep } from "lodash"
+import { cloneDeep } from "lodash-es"
 import { TestResult } from "~/types"
-import { getEnv, setEnv } from "~/utils"
-
-console.log("Worker script loaded")
+import { getEnv, setEnv } from "../../utils"
 
 const executeScriptInContextForWeb = (
   preRequestScript: string,
   envs: TestResult["envs"]
 ) => {
-  console.log(
-    "Executing script in context from web worker script",
-    preRequestScript,
-    envs
-  )
   try {
     let currentEnvs = cloneDeep(envs)
 
@@ -117,13 +110,9 @@ const executeScriptInContextForWeb = (
 
 // Listen for messages from the main thread
 self.addEventListener("message", async (event) => {
-  console.log("Received message from main thread", event.data)
-
   const { messageId, preRequestScript, envs } = event.data
 
   const result = await executeScriptInContextForWeb(preRequestScript, envs)()
-
-  console.log(`Result from worker is `, result)
 
   // Post the result back to the main thread
   self.postMessage({ messageId, result })

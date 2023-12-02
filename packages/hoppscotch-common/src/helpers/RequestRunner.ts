@@ -8,6 +8,7 @@ import {
   SandboxTestResult,
   runTestScriptForWeb,
   TestDescriptor,
+  TestResult,
 } from "@hoppscotch/js-sandbox"
 import * as E from "fp-ts/Either"
 import { cloneDeep } from "lodash-es"
@@ -89,9 +90,7 @@ export function runRESTRequest$(
   const res = getFinalEnvsFromPreRequest(
     tab.value.document.request.preRequestScript,
     getCombinedEnvVariables()
-  ).then((envs: any) => {
-    console.log("envs received are ", envs)
-
+  ).then((envs: E.Left<TestResult["envs"]> | E.Right<TestResult["envs"]>) => {
     if (cancelCalled) return E.left("cancellation" as const)
 
     if (E.isLeft(envs)) {

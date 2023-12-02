@@ -2,13 +2,13 @@
   "name": "@hoppscotch/js-sandbox",
   "version": "2.1.0",
   "description": "JavaScript sandboxes for running external scripts used by Hoppscotch clients",
-  "main": "./lib/index.js",
-  "module": "./lib/index.mjs",
+  "main": "./lib/js-sandbox.js",
+  "module": "./lib/js-sandbox.mjs",
   "type": "commonjs",
   "exports": {
     ".": {
-      "require": "./lib/index.js",
-      "default": "./lib/index.mjs"
+      "import": "./dist/js-sandbox.mjs",
+      "require": "./dist/js-sandbox.js"
     }
   },
   "types": "./lib/",
@@ -20,7 +20,7 @@
     "lint": "eslint --ext .ts,.js --ignore-path .gitignore .",
     "lintfix": "eslint --fix --ext .ts,.js --ignore-path .gitignore .",
     "test": "pnpm exec jest",
-    "build": "pnpm exec tsup",
+    "build": "vite build",
     "clean": "pnpm tsc --build --clean",
     "postinstall": "pnpm run build",
     "prepublish": "pnpm run build",
@@ -41,9 +41,10 @@
   "license": "MIT",
   "dependencies": {
     "@hoppscotch/data": "workspace:^",
+    "@types/lodash-es": "^4.17.12",
     "fp-ts": "^2.11.10",
     "lodash": "^4.17.21",
-    "tsup": "^5.12.5"
+    "lodash-es": "^4.17.21"
   },
   "devDependencies": {
     "@digitak/esrun": "^3.1.2",
@@ -60,6 +61,7 @@
     "jest": "^27.5.1",
     "prettier": "^2.8.4",
     "ts-jest": "^27.1.4",
-    "typescript": "^4.6.3"
+    "typescript": "^4.6.3",
+    "vite": "^5.0.4"
   }
 }

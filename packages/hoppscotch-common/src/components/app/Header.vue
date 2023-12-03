@@ -217,7 +217,12 @@
         </div>
       </div>
     </header>
-    <AppBanner v-if="bannerContent" :banner="bannerContent" />
+    <AppBanner
+      v-if="bannerContent"
+      :banner="bannerContent"
+      :dismissible="true"
+      @dismiss="dismissOfflineBanner"
+    />
     <TeamsModal :show="showTeamsModal" @hide-modal="showTeamsModal = false" />
     <TeamsInvite
       v-if="workspace.type === 'team' && workspace.teamID"
@@ -313,6 +318,8 @@ watch(isOnline, () => {
     }
   }
 })
+
+const dismissOfflineBanner = () => banner.removeBanner(bannerID!)
 
 const currentUser = useReadonlyStream(
   platform.auth.getProbableUserStream(),

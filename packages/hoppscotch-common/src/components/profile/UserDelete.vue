@@ -26,7 +26,7 @@
         </div>
         <div
           v-else-if="myTeams.length"
-          class="flex flex-col space-y-2 rounded-lg border border-red-500 bg-error p-4 text-secondaryDark"
+          class="flex flex-col space-y-2 rounded-lg border border-red-500 bg-info p-4 text-secondaryDark"
         >
           <h2 class="font-bold text-red-500">
             {{ t("error.danger_zone") }}
@@ -45,7 +45,7 @@
         </div>
         <div v-else>
           <div
-            class="mb-4 flex flex-col space-y-2 rounded-lg border border-red-500 bg-error p-4 text-secondaryDark"
+            class="mb-4 flex flex-col space-y-2 rounded-lg border border-red-500 bg-info p-4 text-secondaryDark"
           >
             <h2 class="font-bold text-red-500">
               {{ t("error.danger_zone") }}

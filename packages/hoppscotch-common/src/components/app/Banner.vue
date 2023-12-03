@@ -1,19 +1,27 @@
 <template>
   <div
     :role="bannerRole"
-    class="flex items-center px-4 py-2 text-tiny"
+    class="flex items-center justify-between px-4 py-2 text-tiny"
     :class="bannerColor"
   >
-    <component :is="bannerIcon" class="mr-2 text-white" />
+    <div class="flex items-center">
+      <component :is="bannerIcon" class="mr-2 text-secondaryDark" />
 
-    <span class="text-white">
-      <span v-if="banner.alternateText" class="md:hidden">
-        {{ banner.alternateText(t) }}
+      <span class="text-secondaryDark">
+        <span v-if="banner.alternateText" class="md:hidden">
+          {{ banner.alternateText(t) }}
+        </span>
+        <span :class="{ '<md:hidden': banner.alternateText }">
+          {{ banner.text(t) }}
+        </span>
       </span>
-      <span :class="banner.alternateText ? '<md:hidden' : ''">
-        {{ banner.text(t) }}
-      </span>
-    </span>
+    </div>
+
+    <icon-lucide-x
+      v-if="dismissible"
+      class="text-white hover:cursor-pointer hover:text-gray-300"
+      @click="emit('dismiss')"
+    />
   </div>
 </template>
 
@@ -26,22 +34,32 @@ import IconAlertCircle from "~icons/lucide/alert-circle"
 import IconAlertTriangle from "~icons/lucide/alert-triangle"
 import IconInfo from "~icons/lucide/info"
 
-const props = defineProps<{
-  banner: BannerContent
-}>()
+const props = withDefaults(
+  defineProps<{
+    banner: BannerContent
+    dismissible?: boolean
+  }>(),
+  {
+    dismissible: false,
+  }
+)
 
 const t = useI18n()
 
+const emit = defineEmits<{
+  (e: "dismiss"): void
+}>()
+
 const ariaRoles: Record<BannerType, string> = {
-  error: "alert",
-  warning: "status",
   info: "status",
+  warning: "status",
+  error: "alert",
 }
 
 const bgColors: Record<BannerType, string> = {
-  error: "bg-red-700",
-  warning: "bg-yellow-700",
-  info: "bg-stone-800",
+  info: "bg-info",
+  warning: "bg-warning",
+  error: "bg-error",
 }
 
 const icons = {

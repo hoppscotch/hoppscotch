@@ -11,6 +11,29 @@ import { refAutoReset } from "@vueuse/core"
 import { copyToClipboard } from "@helpers/utils/clipboard"
 import { HoppRESTResponse } from "@helpers/types/HoppRESTResponse"
 import { platform } from "~/platform"
+import jsonToLanguage from "~/helpers/utils/json-to-language"
+
+export function useCopyInterface(responseBodyText: Ref<string>) {
+  const toast = useToast()
+  const t = useI18n()
+
+  const copyInterfaceIcon = refAutoReset(IconCopy, 1000)
+
+  const copyInterface = async (targetLanguage: string) => {
+    jsonToLanguage(targetLanguage, responseBodyText.value).then((res) => {
+      copyToClipboard(res.lines.join("\n"))
+      copyInterfaceIcon.value = IconCheck
+      toast.success(
+        t("state.copied_interface_to_clipboard", { language: targetLanguage })
+      )
+    })
+  }
+
+  return {
+    copyInterfaceIcon,
+    copyInterface,
+  }
+}
 
 export function useCopyResponse(responseBodyText: Ref<any>) {
   const toast = useToast()

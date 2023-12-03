@@ -8,6 +8,14 @@ import { FieldEquals, objectFieldIncludes } from "../typeutils"
 // Hoppscotch support HAR Spec 1.2
 // For more info on the spec: http://www.softwareishard.com/blog/har-12-spec/
 
+const splitHarQueryParams = (sep: string) => {
+  return (s: string): Array<string> => {
+    const out = pipe(s, S.split(sep))
+    const [key, ...rest] = out
+    return [key, rest.join(sep)] // Split by the first colon and join the rest
+  }
+}
+
 const buildHarHeaders = (req: HoppRESTRequest): Har.Header[] => {
   return req.headers
     .filter((header) => header.active)
@@ -43,7 +51,7 @@ const buildHarPostParams = (
         flow(
           // Define how each lines are parsed
 
-          S.split(":"), // Split by ":"
+          splitHarQueryParams(":"), // Split by the first ":"
           RA.map(S.trim), // Remove trailing spaces in key/value begins and ends
           ([key, value]) => ({
             // Convert into a proper key value definition

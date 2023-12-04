@@ -10,24 +10,25 @@
       @dragend="dragging = false"
       @contextmenu.prevent="options.tippy.show()"
     >
-      <span
-        class="flex cursor-pointer items-center justify-center px-4"
+      <div
+        class="flex min-w-0 flex-1 items-center justify-center cursor-pointer"
         @click="toggleShowChildren()"
       >
-        <component
-          :is="collectionIcon"
-          class="svg-icons"
-          :class="{ 'text-accent': isSelected }"
-        />
-      </span>
-      <span
-        class="flex min-w-0 flex-1 cursor-pointer py-2 pr-2 transition group-hover:text-secondaryDark"
-        @click="toggleShowChildren()"
-      >
-        <span class="truncate" :class="{ 'text-accent': isSelected }">
-          {{ folder.name ? folder.name : folder.title }}
+        <span class="pointer-events-none flex items-center justify-center px-4">
+          <component
+            :is="collectionIcon"
+            class="svg-icons"
+            :class="{ 'text-accent': isSelected }"
+          />
         </span>
-      </span>
+        <span
+          class="pointer-events-none flex min-w-0 flex-1 cursor-pointer py-2 pr-2 transition group-hover:text-secondaryDark"
+        >
+          <span class="truncate" :class="{ 'text-accent': isSelected }">
+            {{ folder.name ? folder.name : folder.title }}
+          </span>
+        </span>
+      </div>
       <div class="flex">
         <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip' }"

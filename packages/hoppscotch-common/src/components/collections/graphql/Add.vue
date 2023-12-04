@@ -32,58 +32,53 @@
   </HoppSmartModal>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "vue"
+<script setup lang="ts">
+import { ref } from "vue"
 import { useToast } from "@composables/toast"
 import { useI18n } from "@composables/i18n"
 import { HoppGQLRequest, makeCollection } from "@hoppscotch/data"
 import { addGraphqlCollection } from "~/newstore/collections"
 import { platform } from "~/platform"
 
-export default defineComponent({
-  props: {
-    show: Boolean,
-  },
-  emits: ["hide-modal"],
-  setup() {
-    return {
-      toast: useToast(),
-      t: useI18n(),
-    }
-  },
-  data() {
-    return {
-      name: null as string | null,
-    }
-  },
-  methods: {
-    addNewCollection() {
-      if (!this.name) {
-        this.toast.error(`${this.t("collection.invalid_name")}`)
-        return
-      }
+const t = useI18n()
+const toast = useToast()
 
-      addGraphqlCollection(
-        makeCollection<HoppGQLRequest>({
-          name: this.name,
-          folders: [],
-          requests: [],
-        })
-      )
+defineProps<{
+  show: boolean
+}>()
 
-      this.hideModal()
+const emit = defineEmits<{
+  (e: "hide-modal"): void
+}>()
 
-      platform.analytics?.logEvent({
-        type: "HOPP_CREATE_COLLECTION",
-        isRootCollection: true,
-        platform: "gql",
-        workspaceType: "personal",
-      })
-    },
-    hideModal() {
-      this.name = null
-      this.$emit("hide-modal")
-    },
-  },
-})
+const name = ref<string | null>(null)
+
+const addNewCollection = () => {
+  if (!name.value) {
+    toast.error(`${t("collection.invalid_name")}`)
+    return
+  }
+
+  addGraphqlCollection(
+    makeCollection<HoppGQLRequest>({
+      name: name.value,
+      folders: [],
+      requests: [],
+    })
+  )
+
+  hideModal()
+
+  platform.analytics?.logEvent({
+    type: "HOPP_CREATE_COLLECTION",
+    isRootCollection: true,
+    platform: "gql",
+    workspaceType: "personal",
+  })
+}
+
+const hideModal = () => {
+  name.value = null
+  emit("hide-modal")
+}
 </script>

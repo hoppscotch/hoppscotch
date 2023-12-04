@@ -99,18 +99,15 @@ const props = withDefaults(
     optionTab: "query",
   }
 )
-const emit = defineEmits(["update:modelValue", "update:response"])
+const emit = defineEmits<{
+  (e: "update:modelValue", value: HoppGQLRequest): void
+  (e: "update:optionTab", value: GQLOptionTabs): void
+  (e: "update:response", value: GQLResponseEvent[]): void
+}>()
+
 const selectedOptionTab = useVModel(props, "optionTab", emit)
 
-const request = ref(props.modelValue)
-
-watch(
-  () => request.value,
-  (newVal) => {
-    emit("update:modelValue", newVal)
-  },
-  { deep: true }
-)
+const request = useVModel(props, "modelValue", emit)
 
 const url = computedWithControl(
   () => tabs.currentActiveTab.value,

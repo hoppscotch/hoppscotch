@@ -37,13 +37,14 @@ import { ref, watch } from "vue"
 import { editGraphqlCollection } from "~/newstore/collections"
 import { useToast } from "@composables/toast"
 import { useI18n } from "@composables/i18n"
+import { HoppCollection, HoppGQLRequest } from "@hoppscotch/data"
 
-const props = defineProps({
-  show: Boolean,
-  editingCollection: { type: Object, default: () => ({}) },
-  editingCollectionIndex: { type: Number, default: null },
-  editingCollectionName: { type: String, default: null },
-})
+const props = defineProps<{
+  show: boolean
+  editingCollectionIndex: number | null
+  editingCollection: HoppCollection<HoppGQLRequest> | null
+  editingCollectionName: string
+}>()
 
 const emit = defineEmits<{
   (e: "hide-modal"): void

@@ -9,38 +9,41 @@
       @dragend="dragging = false"
       @contextmenu.prevent="options.tippy.show()"
     >
-      <span
-        class="flex w-16 cursor-pointer items-center justify-center truncate px-2"
+      <div
+        class="pointer-events-auto flex min-w-0 flex-1 cursor-pointer items-center justify-center"
         @click="selectRequest()"
       >
-        <component
-          :is="isSelected ? IconCheckCircle : IconFile"
-          class="svg-icons"
-          :class="{ 'text-accent': isSelected }"
-        />
-      </span>
-      <span
-        class="flex min-w-0 flex-1 cursor-pointer items-center py-2 pr-2 transition group-hover:text-secondaryDark"
-        @click="selectRequest()"
-      >
-        <span class="truncate" :class="{ 'text-accent': isSelected }">
-          {{ request.name }}
+        <span
+          class="pointer-events-none flex w-8 items-center justify-center truncate px-6"
+        >
+          <component
+            :is="isSelected ? IconCheckCircle : IconFile"
+            class="svg-icons"
+            :class="{ 'text-accent': isSelected }"
+          />
         </span>
         <span
-          v-if="isActive"
-          v-tippy="{ theme: 'tooltip' }"
-          class="relative mx-3 flex h-1.5 w-1.5 flex-shrink-0"
-          :title="`${t('collection.request_in_use')}`"
+          class="pointer-events-none flex min-w-0 flex-1 items-center py-2 pr-2 transition group-hover:text-secondaryDark"
         >
-          <span
-            class="absolute inline-flex h-full w-full flex-shrink-0 animate-ping rounded-full bg-green-500 opacity-75"
-          >
+          <span class="truncate" :class="{ 'text-accent': isSelected }">
+            {{ request.name }}
           </span>
           <span
-            class="relative inline-flex h-1.5 w-1.5 flex-shrink-0 rounded-full bg-green-500"
-          ></span>
+            v-if="isActive"
+            v-tippy="{ theme: 'tooltip' }"
+            class="relative mx-3 flex h-1.5 w-1.5 flex-shrink-0"
+            :title="`${t('collection.request_in_use')}`"
+          >
+            <span
+              class="absolute inline-flex h-full w-full flex-shrink-0 animate-ping rounded-full bg-green-500 opacity-75"
+            >
+            </span>
+            <span
+              class="relative inline-flex h-1.5 w-1.5 flex-shrink-0 rounded-full bg-green-500"
+            ></span>
+          </span>
         </span>
-      </span>
+      </div>
       <div class="flex">
         <span>
           <tippy

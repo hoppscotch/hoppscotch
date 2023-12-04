@@ -271,6 +271,7 @@ import { useCodemirror } from "@composables/codemirror"
 import { objRemoveKey } from "~/helpers/functional/object"
 import { useVModel } from "@vueuse/core"
 import { HoppGQLHeader } from "~/helpers/graphql"
+import { throwError } from "~/helpers/functional/error"
 
 const colorMode = useColorMode()
 const t = useI18n()
@@ -386,7 +387,6 @@ watch(workingHeaders, (newWorkingHeaders) => {
     )
   )
 
-  console.log("not-equal", workingHeaders.value)
   if (!isEqual(request.value.headers, fixedHeaders)) {
     request.value.headers = cloneDeep(fixedHeaders)
   }
@@ -479,7 +479,11 @@ const deleteHeader = (index: number) => {
     })
   }
 
-  workingHeaders.value.splice(index, 1)
+  workingHeaders.value = pipe(
+    workingHeaders.value,
+    A.deleteAt(index),
+    O.getOrElseW(() => throwError("Working Headers Deletion Out of Bounds"))
+  )
 }
 
 const clearContent = () => {
@@ -577,6 +581,4 @@ const mask = (header: any) => {
 //   if (tab === "auth") emit("change-tab", "authorization")
 //   else emit("change-tab", "bodyParams")
 // }
-
-console.log("compoyed-header", computedHeaders.value)
 </script>

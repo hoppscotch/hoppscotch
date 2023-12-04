@@ -249,7 +249,7 @@
               :icon="masking && header.source === 'auth' ? IconEye : IconEyeOff"
               @click="toggleMask()"
             />
-            <span class="aspect-square w-[2.05rem]"></span>
+            <span v-else class="aspect-square w-[2.05rem]"></span>
             <span>
               <HoppButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"

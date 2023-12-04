@@ -102,14 +102,25 @@ export function cascaseParentCollectionForHeaderAuth(
 
     const isRootCollection = path.length === 1
 
-    // Check if authType is not 'inherit'
-    if (parentFolderAuth?.authType !== "inherit" || isRootCollection) {
+    if (parentFolderAuth?.authType === "inherit" && isRootCollection) {
+      auth = {
+        parentID: parentFolder.id ?? folderPath,
+        parentName: parentFolder.name,
+        inheritedAuth: {
+          authType: "none",
+          authActive: true,
+        },
+      }
+    }
+
+    if (parentFolderAuth?.authType !== "inherit") {
       auth = {
         parentID: parentFolder.id ?? folderPath,
         parentName: parentFolder.name,
         inheritedAuth: parentFolderAuth,
       }
     }
+
     // Update headers, overwriting duplicates by key
     if (parentFolderHeaders) {
       const activeHeaders = parentFolderHeaders.filter((h) => h.active)

@@ -53,7 +53,12 @@
           <span v-if="response.statusCode">
             <span class="text-secondary"> {{ t("response.status") }}: </span>
             {{ `${response.statusCode}\xA0 • \xA0`
-            }}{{ getStatusCodeReasonPhrase(response.statusCode) }}
+            }}{{
+              getStatusCodeReasonPhrase(
+                response.statusCode,
+                response.statusText
+              )
+            }}
           </span>
           <span v-if="response.meta && response.meta.responseDuration">
             <span class="text-secondary"> {{ t("response.time") }}: </span>

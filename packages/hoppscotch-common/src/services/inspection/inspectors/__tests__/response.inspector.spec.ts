@@ -157,6 +157,7 @@ describe("ResponseInspectorService", () => {
         headers: [],
         meta: { responseDuration: 0, responseSize: 0 },
         req: req.value,
+        statusText: "",
       })
 
       const result = responseInspector.getInspections(req, res)
@@ -183,6 +184,7 @@ describe("ResponseInspectorService", () => {
         headers: [],
         meta: { responseDuration: 0, responseSize: 0 },
         req: req.value,
+        statusText: "",
       })
 
       const result = responseInspector.getInspections(req, res)
@@ -209,6 +211,7 @@ describe("ResponseInspectorService", () => {
         headers: [],
         meta: { responseDuration: 0, responseSize: 0 },
         req: req.value,
+        statusText: "",
       })
 
       const result = responseInspector.getInspections(req, res)
@@ -235,6 +238,7 @@ describe("ResponseInspectorService", () => {
         headers: [],
         meta: { responseDuration: 0, responseSize: 0 },
         req: req.value,
+        statusText: "",
       })
 
       const result = responseInspector.getInspections(req, res)

@@ -81,7 +81,7 @@
             </draggable>
           </div>
           <div
-            class="sticky right-0 flex items-center justify-center flex-shrink-0 overflow-x-auto z-14"
+            class="sticky right-0 flex items-center justify-center flex-shrink-0 overflow-x-auto z-20"
           >
             <span
               v-if="canAddNewTab"

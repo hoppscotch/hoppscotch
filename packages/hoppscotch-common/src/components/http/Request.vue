@@ -3,7 +3,7 @@
     class="sticky top-0 z-20 flex-none flex-shrink-0 bg-primary p-4 sm:flex sm:flex-shrink-0 sm:space-x-2"
   >
     <div
-      class="min-w-52 flex flex-1 whitespace-nowrap rounded border border-divider"
+      class="min-w-[12rem] flex flex-1 whitespace-nowrap rounded border border-divider"
     >
       <div class="relative flex">
         <label for="method">
@@ -64,9 +64,11 @@
       <HoppButtonPrimary
         id="send"
         v-tippy="{ theme: 'tooltip', delay: [500, 20], allowHTML: true }"
-        :title="`${t('action.send')} <kbd>${getSpecialKey()}</kbd><kbd>↩</kbd>`"
+        :title="`${t(
+          'action.send'
+        )} <kbd>${getSpecialKey()}</kbd><kbd>↩</kbd>`"
         :label="`${!loading ? t('action.send') : t('action.cancel')}`"
-        class="min-w-20 flex-1 rounded-r-none"
+        class="min-w-[5rem] flex-1 rounded-r-none"
         @click="!loading ? newSendRequest() : cancelRequest()"
       />
       <span class="flex">

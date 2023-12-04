@@ -98,7 +98,7 @@
                           filled
                           outline
                           :label="t('action.save')"
-                          class="min-w-16 ml-2"
+                          class="min-w-[4rem] ml-2"
                           type="submit"
                           :loading="updatingDisplayName"
                           @click="updateDisplayName"
@@ -121,7 +121,7 @@
                           filled
                           outline
                           :label="t('action.save')"
-                          class="min-w-16 ml-2"
+                          class="min-w-[4rem] ml-2"
                           type="submit"
                           :loading="updatingEmailAddress"
                           @click="updateEmailAddress"

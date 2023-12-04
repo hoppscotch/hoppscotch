@@ -7,7 +7,7 @@
   --font-sans: 'Inter Variable', sans-serif;
   --font-mono: 'Roboto Mono Variable', monospace;
   --font-size-body: 0.75rem;
-  --font-size-tiny: 0.688rem;
+  --font-size-tiny: 0.625rem;
   --line-height-body: 1rem;
   --upper-primary-sticky-fold: 4.125rem;
   --upper-secondary-sticky-fold: 6.188rem;
@@ -95,7 +95,6 @@
   accent-color: var(--accent-color);
   font-variant-ligatures: common-ligatures;
 
-  // Colors
   --info-color: #ec4899;
   --success-color: #10b981;
   --blue-color: #3b82f6;
@@ -326,7 +325,7 @@ a {
 
 hr {
   @apply border-b border-dividerLight;
-  @apply my-2;
+  @apply my-2 #{!important};
 }
 
 .heading {
@@ -590,8 +589,8 @@ pre.ace_editor {
   @apply rounded;
   @apply ml-2;
   @apply px-1;
-  @apply min-w-5;
-  @apply min-h-5;
+  @apply min-w-[1.25rem];
+  @apply min-h-[1.25rem];
   @apply items-center;
   @apply justify-center;
   @apply border border-dividerDark;

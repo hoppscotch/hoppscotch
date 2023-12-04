@@ -222,7 +222,7 @@ const selectTab = (id: string) => {
       @apply justify-center;
       @apply px-1;
       @apply leading-[15px];
-      @apply min-w-4;
+      @apply min-w-[1rem];
       @apply ml-2;
       @apply text-[8px];
       @apply border border-divider;

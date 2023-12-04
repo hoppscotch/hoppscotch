@@ -43,7 +43,7 @@
                 </span>
               </td>
 
-              <td class="py-4 px-7 min-w-80">
+              <td class="py-4 px-7 min-w-[20rem]">
                 <span
                   class="flex items-center truncate"
                   :class="{ truncate: team.name }"

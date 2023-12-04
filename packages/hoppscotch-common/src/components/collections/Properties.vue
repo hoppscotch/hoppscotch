@@ -18,20 +18,13 @@
             :is-collection-property="true"
             @change-tab="changeOptionTab"
           />
-          <AppBanner
-            :banner="{
-              type: 'info',
-              alternateText: 'This is an alternate text',
-            }"
-            class="sticky bottom-0 z-10"
-          >
-            <span>
-              {{ t("helpers.collection_properties_header") }}
-              <a href="hopp.sh" target="_blank" class="underline">{{
-                t("action.learn_more")
-              }}</a>
-            </span>
-          </AppBanner>
+          <div class="bg-info py-2 px-4 flex items-center">
+            <icon-lucide-info class="svg-icons mr-2" />
+            {{ t("helpers.collection_properties_header") }}
+            <a href="hopp.sh" target="_blank" class="underline">{{
+              t("action.learn_more")
+            }}</a>
+          </div>
         </HoppSmartTab>
         <HoppSmartTab
           :id="'authorization'"
@@ -43,19 +36,13 @@
             :is-root-collection="editingProperties?.isRootCollection"
             :inherited-properties="editingProperties?.inheritedProperties"
           />
-          <AppBanner
-            :banner="{
-              type: 'info',
-              alternateText: 'This is an alternate text',
-            }"
-          >
-            <span>
-              {{ t("helpers.collection_properties_authorization") }}
-              <a href="hopp.sh" target="_blank" class="underline">{{
-                t("action.learn_more")
-              }}</a>
-            </span>
-          </AppBanner>
+          <div class="bg-info py-2 px-4 flex items-center">
+            <icon-lucide-info class="svg-icons mr-2" />
+            {{ t("helpers.collection_properties_authorization") }}
+            <a href="hopp.sh" target="_blank" class="underline">{{
+              t("action.learn_more")
+            }}</a>
+          </div>
         </HoppSmartTab>
       </HoppSmartTabs>
     </template>

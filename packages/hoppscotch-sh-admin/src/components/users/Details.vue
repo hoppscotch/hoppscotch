@@ -37,7 +37,7 @@
 
     <div class="flex justify-start mt-8">
       <HoppButtonPrimary
-        :icon="user.isAdmin ? IconUserMinus : null"
+        :icon="user.isAdmin ? IconUserMinus : IconUserCheck"
         :label="
           user.isAdmin
             ? t('users.remove_admin_privilege')
@@ -76,9 +76,10 @@ import { useI18n } from '~/composables/i18n';
 import { useToast } from '~/composables/toast';
 
 import IconTrash from '~icons/lucide/trash';
+import IconUserCheck from '~icons/lucide/user-check';
 import IconUserMinus from '~icons/lucide/user-minus';
 
-import { UserInfoQuery } from '../../helpers/backend/graphql';
+import { UserInfoQuery } from '~/helpers/backend/graphql';
 
 const t = useI18n();
 

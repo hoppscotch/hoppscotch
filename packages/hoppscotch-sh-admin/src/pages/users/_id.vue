@@ -66,7 +66,7 @@ import {
   UserInfoDocument,
   RemoveUserByAdminDocument,
   RemoveUserAsAdminDocument,
-} from '../../helpers/backend/graphql';
+} from '~/helpers/backend/graphql';
 import { useClientHandle } from '@urql/vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useToast } from '~/composables/toast';

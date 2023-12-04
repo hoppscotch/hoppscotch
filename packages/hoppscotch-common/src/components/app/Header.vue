@@ -291,7 +291,7 @@ const bannerContent = computed(() => banner.content.value?.content)
 let bannerID: number | null = null
 
 const offlineBanner: BannerContent = {
-  type: "info",
+  type: "warning",
   text: (t) => t("helpers.offline"),
   alternateText: (t) => t("helpers.offline_short"),
   score: BANNER_PRIORITY_HIGH,

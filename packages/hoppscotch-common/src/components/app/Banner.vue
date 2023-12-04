@@ -1,25 +1,21 @@
 <template>
   <div
     :role="bannerRole"
-    class="flex items-center justify-between px-4 py-2 text-tiny"
+    class="flex items-center justify-between px-4 py-2 text-tiny text-secondaryDark"
     :class="bannerColor"
   >
     <div class="flex items-center">
-      <component :is="bannerIcon" class="mr-2 text-secondaryDark" />
-
-      <span class="text-secondaryDark">
-        <span v-if="banner.alternateText" class="md:hidden">
-          {{ banner.alternateText(t) }}
-        </span>
-        <span :class="{ '<md:hidden': banner.alternateText }">
-          {{ banner.text(t) }}
-        </span>
+      <component :is="bannerIcon" class="mr-2" />
+      <span :class="{ 'hidden sm:inline-flex': banner.alternateText }">
+        {{ banner.text(t) }}
+      </span>
+      <span v-if="banner.alternateText" class="inline-flex sm:hidden">
+        {{ banner.alternateText(t) }}
       </span>
     </div>
-
     <icon-lucide-x
       v-if="dismissible"
-      class="text-white hover:cursor-pointer hover:text-gray-300"
+      class="opacity-50 hover:cursor-pointer hover:opacity-100"
       @click="emit('dismiss')"
     />
   </div>
@@ -57,9 +53,9 @@ const ariaRoles: Record<BannerType, string> = {
 }
 
 const bgColors: Record<BannerType, string> = {
-  info: "bg-info",
-  warning: "bg-warning",
-  error: "bg-error",
+  info: "bg-bannerInfo",
+  warning: "bg-bannerWarning",
+  error: "bg-bannerError",
 }
 
 const icons = {

@@ -23,9 +23,9 @@ export default {
         divider: "var(--divider-color)",
         dividerLight: "var(--divider-light-color)",
         dividerDark: "var(--divider-dark-color)",
-        info: "var(--info-color)",
-        warning: "var(--warning-color)",
-        error: "var(--error-color)",
+        bannerInfo: "var(--banner-info-color)",
+        bannerWarning: "var(--banner-warning-color)",
+        bannerError: "var(--banner-error-color)",
         tooltip: "var(--tooltip-color)",
         popover: "var(--popover-color)",
         gradientFrom: "var(--gradient-from-color)",
@@ -95,15 +95,9 @@ export default {
       backgroundOpacity: {
         15: "0.15",
       },
-    },
-    screens: {
-      sm: "639px",
-      "<2xl": { max: "1536px" },
-      "<xl": { max: "1280px" },
-      "<lg": { max: "1024px" },
-      "<md": { max: "768px" },
-      "<sm": { max: "640px" },
-      ...theme?.screens,
+      screens: {
+        "<sm": { max: "640px" },
+      },
     },
   },
 } satisfies Config

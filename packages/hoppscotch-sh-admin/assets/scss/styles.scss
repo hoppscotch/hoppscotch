@@ -408,27 +408,27 @@ pre.ace_editor {
 }
 
 .info-response {
-  color: var(--info-color);
+  color: var(--status-info-color);
 }
 
 .success-response {
-  color: var(--success-color);
+  color: var(--status-success-color);
 }
 
-.redir-response {
-  color: var(--warning-color);
+.redirect-response {
+  color: var(--status-redirect-color);
 }
 
-.cl-error-response {
-  color: var(--cl-error-color);
+.critical-error-response {
+  color: var(--status-critical-error-color);
 }
 
-.sv-error-response {
-  color: var(--sv-error-color);
+.server-error-response {
+  color: var(--status-server-error-color);
 }
 
 .missing-data-response {
-  color: var(--missing-data-color);
+  color: var(--status-missing-data-color);
 }
 
 .toasted-container {

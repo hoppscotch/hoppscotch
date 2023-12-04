@@ -14,14 +14,14 @@
     ></div>
     <div class="relative flex flex-col">
       <div
-        class="z-1 pointer-events-none absolute inset-0 bg-accent opacity-0 transition"
+        class="z-[1] pointer-events-none absolute inset-0 bg-accent opacity-0 transition"
         :class="{
           'opacity-25':
             dragging && notSameDestination && notSameParentDestination,
         }"
       ></div>
       <div
-        class="z-3 group pointer-events-auto relative flex cursor-pointer items-stretch"
+        class="z-[3] group pointer-events-auto relative flex cursor-pointer items-stretch"
         :draggable="!hasNoTeamAccess"
         @dragstart="dragStart"
         @drop="handelDrop($event)"

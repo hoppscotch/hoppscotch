@@ -85,7 +85,7 @@
           >
             <span
               v-if="canAddNewTab"
-              class="flex items-center justify-center h-full px-3 bg-primaryLight z-8"
+              class="flex items-center justify-center h-full px-3 bg-primaryLight z-[8]"
             >
               <HoppButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"

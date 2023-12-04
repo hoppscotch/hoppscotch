@@ -89,11 +89,13 @@ export function getStatusCodeReasonPhrase(
   code: number,
   statusText?: string
 ): string {
-  // return statusText if it is not empty and trim and add ellipsis if greater than 35 characters
-  if (statusText && statusText !== "") {
-    return statusText.trim().length > 35
-      ? statusText.trim().substring(0, 35) + "..."
-      : statusText.trim()
+  // Return statusText if non-empty after trimming and add ellipsis if greater than 35 characters
+  const trimmedStatusText = statusText?.trim()
+  if (trimmedStatusText) {
+    return trimmedStatusText.length > 35
+      ? `${trimmedStatusText.substring(0, 35)}...`
+      : trimmedStatusText
   }
+
   return statusCodes[code] ?? "Unknown"
 }

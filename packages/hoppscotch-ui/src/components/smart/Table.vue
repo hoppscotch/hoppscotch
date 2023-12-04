@@ -26,7 +26,7 @@
               v-for="cellHeading in headings"
               :key="cellHeading.key"
               @click="!cellHeading.preventClick && onRowClicked(rowData)"
-              class="max-w-40 pl-6 py-1"
+              class="max-w-[10rem] pl-6 py-1"
             >
               <!-- Dynamic column slot -->
               <slot :name="cellHeading.key" :item="rowData">

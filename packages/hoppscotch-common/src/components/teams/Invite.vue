@@ -272,7 +272,7 @@
           <ul class="mt-4 space-y-4">
             <li class="flex">
               <span
-                class="max-w-16 w-1/4 truncate font-semibold uppercase text-secondaryDark"
+                class="max-w-[4rem] w-1/4 truncate font-semibold uppercase text-secondaryDark"
               >
                 {{ t("profile.owner") }}
               </span>
@@ -282,7 +282,7 @@
             </li>
             <li class="flex">
               <span
-                class="max-w-16 w-1/4 truncate font-semibold uppercase text-secondaryDark"
+                class="max-w-[4rem] w-1/4 truncate font-semibold uppercase text-secondaryDark"
               >
                 {{ t("profile.editor") }}
               </span>
@@ -292,7 +292,7 @@
             </li>
             <li class="flex">
               <span
-                class="max-w-16 w-1/4 truncate font-semibold uppercase text-secondaryDark"
+                class="max-w-[4rem] w-1/4 truncate font-semibold uppercase text-secondaryDark"
               >
                 {{ t("profile.viewer") }}
               </span>

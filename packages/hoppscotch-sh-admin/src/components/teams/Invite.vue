@@ -140,7 +140,7 @@
           <ul class="mt-4 space-y-4">
             <li class="flex">
               <span
-                class="w-1/4 font-semibold uppercase truncate text-secondaryDark max-w-16"
+                class="w-1/4 font-semibold uppercase truncate text-secondaryDark max-w-[4rem]"
               >
                 Owner
               </span>
@@ -151,7 +151,7 @@
             </li>
             <li class="flex">
               <span
-                class="w-1/4 font-semibold uppercase truncate text-secondaryDark max-w-16"
+                class="w-1/4 font-semibold uppercase truncate text-secondaryDark max-w-[4rem]"
               >
                 Editor
               </span>
@@ -161,7 +161,7 @@
             </li>
             <li class="flex">
               <span
-                class="w-1/4 font-semibold uppercase truncate text-secondaryDark max-w-16"
+                class="w-1/4 font-semibold uppercase truncate text-secondaryDark max-w-[4rem]"
               >
                 Viewer
               </span>

@@ -136,10 +136,30 @@ const runQuery = async (
   startPageProgress()
   try {
     const runURL = clone(url.value)
-    const runHeaders = clone(request.value.headers)
     const runQuery = clone(request.value.query)
     const runVariables = clone(request.value.variables)
-    const runAuth = clone(request.value.auth)
+    const runAuth =
+      request.value.auth.authType === "inherit" && request.value.auth.authActive
+        ? clone(tabs.currentActiveTab.value.document.inheritedProperties?.auth)
+        : clone(request.value.auth)
+
+    const inheritedHeaders =
+      tabs.currentActiveTab.value.document.inheritedProperties?.headers.map(
+        (header) => {
+          if (header.inheritedHeader) {
+            return header.inheritedHeader
+          }
+          return []
+        }
+      )
+
+    let runHeaders: HoppGQLRequest["headers"] = []
+
+    if (inheritedHeaders) {
+      runHeaders = [...inheritedHeaders, ...clone(request.value.headers)]
+    } else {
+      runHeaders = clone(request.value.headers)
+    }
 
     await runGQLOperation({
       name: request.value.name,
@@ -147,7 +167,7 @@ const runQuery = async (
       headers: runHeaders,
       query: runQuery,
       variables: runVariables,
-      auth: runAuth,
+      auth: runAuth ?? { authType: "none", authActive: false },
       operationName: definition?.name?.value,
       operationType: definition?.operation ?? "query",
     })

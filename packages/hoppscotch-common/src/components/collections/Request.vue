@@ -94,6 +94,7 @@
                 @keyup.e="edit?.$el.click()"
                 @keyup.d="duplicate?.$el.click()"
                 @keyup.delete="deleteAction?.$el.click()"
+                @keyup.s="shareAction?.$el.click()"
                 @keyup.escape="hide()"
               >
                 <HoppSmartItem
@@ -133,6 +134,18 @@
                     }
                   "
                 />
+                <HoppSmartItem
+                  ref="shareAction"
+                  :icon="IconShare2"
+                  :label="t('action.share')"
+                  :shortcut="['S']"
+                  @click="
+                    () => {
+                      emit('share-request')
+                      hide()
+                    }
+                  "
+                />
               </div>
             </template>
           </tippy>
@@ -162,6 +175,7 @@ import IconEdit from "~icons/lucide/edit"
 import IconCopy from "~icons/lucide/copy"
 import IconTrash2 from "~icons/lucide/trash-2"
 import IconRotateCCW from "~icons/lucide/rotate-ccw"
+import IconShare2 from "~icons/lucide/share-2"
 import { ref, PropType, watch, computed } from "vue"
 import { HoppRESTRequest } from "@hoppscotch/data"
 import { useI18n } from "@composables/i18n"
@@ -240,6 +254,7 @@ const emit = defineEmits<{
   (event: "duplicate-request"): void
   (event: "remove-request"): void
   (event: "select-request"): void
+  (event: "share-request"): void
   (event: "drag-request", payload: DataTransfer): void
   (event: "update-request-order", payload: DataTransfer): void
   (event: "update-last-request-order", payload: DataTransfer): void
@@ -250,6 +265,7 @@ const edit = ref<HTMLButtonElement | null>(null)
 const deleteAction = ref<HTMLButtonElement | null>(null)
 const options = ref<TippyComponent | null>(null)
 const duplicate = ref<HTMLButtonElement | null>(null)
+const shareAction = ref<HTMLButtonElement | null>(null)
 
 const dragging = ref(false)
 const ordering = ref(false)

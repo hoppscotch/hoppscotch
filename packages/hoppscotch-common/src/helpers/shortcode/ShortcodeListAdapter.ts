@@ -23,11 +23,11 @@ export default class ShortcodeListAdapter {
 
   private isDispose: boolean
 
-  private myShortcodesCreated: Subscription | null
-  private myShortcodesRevoked: Subscription | null
+  private shortcodeCreated: Subscription | null
+  private shortcodeRevoked: Subscription | null
 
-  private myShortcodesCreatedSub: WSubscription | null
-  private myShortcodesRevokedSub: WSubscription | null
+  private shortcodeCreatedSub: WSubscription | null
+  private shortcodeRevokedSub: WSubscription | null
 
   constructor(deferInit = false) {
     this.error$ = new BehaviorSubject<GQLError<string> | null>(null)
@@ -37,24 +37,25 @@ export default class ShortcodeListAdapter {
     >([])
     this.hasMoreShortcodes$ = new BehaviorSubject<boolean>(true)
     this.isDispose = true
-    this.myShortcodesCreated = null
-    this.myShortcodesRevoked = null
-    this.myShortcodesCreatedSub = null
-    this.myShortcodesRevokedSub = null
+    this.shortcodeCreated = null
+    this.shortcodeRevoked = null
+    this.shortcodeCreatedSub = null
+    this.shortcodeRevokedSub = null
 
     if (!deferInit) this.initialize()
   }
 
   unsubscribeSubscriptions() {
-    this.myShortcodesCreated?.unsubscribe()
-    this.myShortcodesRevoked?.unsubscribe()
-    this.myShortcodesCreatedSub?.unsubscribe()
-    this.myShortcodesRevokedSub?.unsubscribe()
+    this.shortcodeCreated?.unsubscribe()
+    this.shortcodeRevoked?.unsubscribe()
+    this.shortcodeCreatedSub?.unsubscribe()
+    this.shortcodeRevokedSub?.unsubscribe()
   }
 
   initialize() {
     if (!this.isDispose) throw new Error(`Adapter is already initialized`)
 
+    this.isDispose = false
     this.fetchList()
     this.registerSubscriptions()
   }
@@ -68,8 +69,8 @@ export default class ShortcodeListAdapter {
 
   public dispose() {
     if (this.isDispose) throw new Error(`Adapter has been disposed`)
-
     this.isDispose = true
+    this.shortcodes$.next([])
     this.unsubscribeSubscriptions()
   }
 
@@ -98,12 +99,12 @@ export default class ShortcodeListAdapter {
       console.error(result.left)
       this.loading$.next(false)
 
-      throw new Error(`Failed fetching short codes list: ${result.left}`)
+      throw new Error(`Failed fetching shortcodes list: ${result.left}`)
     }
 
     const fetchedResult = result.right.myShortcodes
 
-    this.pushNewShortcodes(fetchedResult)
+    this.pushNewShortcode(fetchedResult)
 
     if (fetchedResult.length !== BACKEND_PAGE_SIZE) {
       this.hasMoreShortcodes$.next(false)
@@ -112,7 +113,7 @@ export default class ShortcodeListAdapter {
     this.loading$.next(false)
   }
 
-  private pushNewShortcodes(results: Shortcode[]) {
+  private pushNewShortcode(results: Shortcode[]) {
     const userShortcodes = this.shortcodes$.value
 
     userShortcodes.push(...results)
@@ -121,29 +122,30 @@ export default class ShortcodeListAdapter {
   }
 
   private createShortcode(shortcode: Shortcode) {
-    const userShortcodes = this.shortcodes$.value
+    const userShortcode = this.shortcodes$.value
 
-    userShortcodes.unshift(shortcode)
+    userShortcode.unshift(shortcode)
 
-    this.shortcodes$.next(userShortcodes)
+    this.shortcodes$.next(userShortcode)
   }
 
-  private deleteShortcode(codeId: string) {
-    const newShortcodes = this.shortcodes$.value.filter(
+  private deleteSharedRequest(codeId: string) {
+    const newShortcode = this.shortcodes$.value.filter(
       ({ id }) => id !== codeId
     )
 
-    this.shortcodes$.next(newShortcodes)
+    this.shortcodes$.next(newShortcode)
   }
 
   private registerSubscriptions() {
-    const [myShortcodeCreated$, myShortcodeCreatedSub] =
-      runAuthOnlyGQLSubscription({
+    const [shortcodeCreated$, shortcodeCreatedSub] = runAuthOnlyGQLSubscription(
+      {
         query: ShortcodeCreatedDocument,
-      })
+      }
+    )
 
-    this.myShortcodesCreatedSub = myShortcodeCreatedSub
-    this.myShortcodesCreated = myShortcodeCreated$.subscribe((result) => {
+    this.shortcodeCreatedSub = shortcodeCreatedSub
+    this.shortcodeCreated = shortcodeCreated$.subscribe((result) => {
       if (E.isLeft(result)) {
         console.error(result.left)
         throw new Error(`Shortcode Create Error ${result.left}`)
@@ -152,19 +154,20 @@ export default class ShortcodeListAdapter {
       this.createShortcode(result.right.myShortcodesCreated)
     })
 
-    const [myShortcodesRevoked$, myShortcodeRevokedSub] =
-      runAuthOnlyGQLSubscription({
+    const [shortcodeRevoked$, shortcodeRevokedSub] = runAuthOnlyGQLSubscription(
+      {
         query: ShortcodeDeletedDocument,
-      })
+      }
+    )
 
-    this.myShortcodesRevokedSub = myShortcodeRevokedSub
-    this.myShortcodesRevoked = myShortcodesRevoked$.subscribe((result) => {
+    this.shortcodeRevokedSub = shortcodeRevokedSub
+    this.shortcodeRevoked = shortcodeRevoked$.subscribe((result) => {
       if (E.isLeft(result)) {
         console.error(result.left)
         throw new Error(`Shortcode Delete Error ${result.left}`)
       }
 
-      this.deleteShortcode(result.right.myShortcodesRevoked.id)
+      this.deleteSharedRequest(result.right.myShortcodesRevoked.id)
     })
   }
 }

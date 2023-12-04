@@ -1677,4 +1677,64 @@ describe('totalCollectionsInTeam', () => {
   });
 });
 
+describe('updateTeamCollection', () => {
+  test('should throw TEAM_COLL_SHORT_TITLE if title is invalid', async () => {
+    const result = await teamCollectionService.updateTeamCollection(
+      rootTeamCollection.id,
+      JSON.stringify(rootTeamCollection.data),
+      'de',
+    );
+    expect(result).toEqualLeft(TEAM_COLL_SHORT_TITLE);
+  });
+
+  test('should throw TEAM_COLL_DATA_INVALID is collection data is invalid', async () => {
+    const result = await teamCollectionService.updateTeamCollection(
+      rootTeamCollection.id,
+      '{',
+      rootTeamCollection.title,
+    );
+    expect(result).toEqualLeft(TEAM_COLL_DATA_INVALID);
+  });
+
+  test('should throw TEAM_COLL_NOT_FOUND is collectionID is invalid', async () => {
+    mockPrisma.teamCollection.update.mockRejectedValueOnce('RecordNotFound');
+
+    const result = await teamCollectionService.updateTeamCollection(
+      'invalid_id',
+      JSON.stringify(rootTeamCollection.data),
+      rootTeamCollection.title,
+    );
+    expect(result).toEqualLeft(TEAM_COLL_NOT_FOUND);
+  });
+
+  test('should successfully update a collection', async () => {
+    mockPrisma.teamCollection.update.mockResolvedValueOnce(rootTeamCollection);
+
+    const result = await teamCollectionService.updateTeamCollection(
+      rootTeamCollection.id,
+      JSON.stringify({ foo: 'bar' }),
+      'new_title',
+    );
+    expect(result).toEqualRight({
+      data: JSON.stringify({ foo: 'bar' }),
+      title: 'new_title',
+      ...rootTeamCollectionsCasted,
+    });
+  });
+
+  test('should send pubsub message to "team_coll/<teamID>/coll_updated" if TeamCollection is updated successfully', async () => {
+    mockPrisma.teamCollection.update.mockResolvedValueOnce(rootTeamCollection);
+
+    const result = await teamCollectionService.updateTeamCollection(
+      rootTeamCollection.id,
+      JSON.stringify(rootTeamCollection.data),
+      rootTeamCollection.title,
+    );
+    expect(mockPubSub.publish).toHaveBeenCalledWith(
+      `team_coll/${rootTeamCollection.teamID}/coll_updated`,
+      rootTeamCollectionsCasted,
+    );
+  });
+});
+
 //ToDo: write test cases for exportCollectionsToJSON

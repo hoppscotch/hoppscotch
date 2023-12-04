@@ -21,27 +21,15 @@
         </HoppSmartPlaceholder>
         <div v-else class="space-y-8">
           <div
-            class="-mb-11 h-24 rounded bg-primaryLight md:h-32"
+            class="-mb-12 h-24 rounded bg-primaryLight md:h-32"
             style="background-image: url(/images/cover.svg)"
           ></div>
           <div class="flex flex-col justify-between space-y-8 px-4 md:flex-row">
             <div class="flex items-end">
               <HoppSmartPicture
-                v-if="currentUser.photoURL"
-                :url="currentUser.photoURL"
-                :alt="
-                  currentUser.displayName || t('profile.default_displayname')
-                "
-                class="ring-4 ring-primary"
-                size="16"
-                rounded="lg"
-              />
-              <HoppSmartPicture
-                v-else
-                :initial="currentUser.displayName || currentUser.email"
-                rounded="lg"
-                size="16"
-                class="ring-4 ring-primary"
+                :name="currentUser.uid"
+                class="ring-8 ring-primary"
+                :size="64"
               />
               <div class="ml-4">
                 <label class="heading">

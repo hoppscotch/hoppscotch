@@ -30,6 +30,7 @@ import {
   MoveUserCollectionArgs,
   RenameUserCollectionsArgs,
   UpdateUserCollectionArgs,
+  UpdateUserCollectionsArgs,
 } from './input-type.args';
 import { ReqType } from 'src/types/RequestTypes';
 import * as E from 'fp-ts/Either';
@@ -367,6 +368,26 @@ export class UserCollectionResolver {
       );
     if (E.isLeft(importedCollection)) throwErr(importedCollection.left);
     return importedCollection.right;
+  }
+
+  @Mutation(() => UserCollection, {
+    description: 'Update a  UserCollection',
+  })
+  @UseGuards(GqlAuthGuard)
+  async updateUserCollection(
+    @GqlUser() user: AuthUser,
+    @Args() args: UpdateUserCollectionsArgs,
+  ) {
+    const updatedUserCollection =
+      await this.userCollectionService.updateUserCollection(
+        args.newTitle,
+        args.data,
+        args.userCollectionID,
+        user.uid,
+      );
+
+    if (E.isLeft(updatedUserCollection)) throwErr(updatedUserCollection.left);
+    return updatedUserCollection.right;
   }
 
   // Subscriptions

@@ -1016,6 +1016,9 @@ export class TeamCollectionService {
     newTitle: string = null,
   ) {
     try {
+      const isTitleValid = isValidLength(newTitle, this.TITLE_LENGTH);
+      if (!isTitleValid) return E.left(TEAM_COLL_SHORT_TITLE);
+
       if (collectionData) {
         const jsonReq = stringToJson(collectionData);
         if (E.isLeft(jsonReq)) return E.left(TEAM_COLL_DATA_INVALID);

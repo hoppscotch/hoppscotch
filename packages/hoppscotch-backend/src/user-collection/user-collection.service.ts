@@ -1079,4 +1079,53 @@ export class UserCollectionService {
 
     return E.right(true);
   }
+
+  /**
+   * Update a UserCollection
+   *
+   * @param newTitle The new title of collection
+   * @param userCollectionID The Collection Id
+   * @param userID The User UID
+   * @returns An Either of the updated UserCollection
+   */
+  async updateUserCollection(
+    newTitle: string = null,
+    collectionData: string,
+    userCollectionID: string,
+    userID: string,
+  ) {
+    if (collectionData) {
+      const jsonReq = stringToJson(collectionData);
+      if (E.isLeft(jsonReq)) return E.left(USER_COLL_DATA_INVALID);
+      collectionData = jsonReq.right;
+    }
+
+    const isTitleValid = isValidLength(newTitle, this.TITLE_LENGTH);
+    if (!isTitleValid) return E.left(USER_COLL_SHORT_TITLE);
+
+    // Check to see is the collection belongs to the user
+    const isOwner = await this.isOwnerCheck(userCollectionID, userID);
+    if (O.isNone(isOwner)) return E.left(USER_NOT_OWNER);
+
+    try {
+      const updatedUserCollection = await this.prisma.userCollection.update({
+        where: {
+          id: userCollectionID,
+        },
+        data: {
+          data: collectionData,
+          title: newTitle ?? undefined,
+        },
+      });
+
+      this.pubsub.publish(
+        `user_coll/${updatedUserCollection.userUid}/updated`,
+        this.cast(updatedUserCollection),
+      );
+
+      return E.right(this.cast(updatedUserCollection));
+    } catch (error) {
+      return E.left(USER_COLL_NOT_FOUND);
+    }
+  }
 }

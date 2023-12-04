@@ -23,7 +23,6 @@ export class TeamCollection {
     nullable: true,
   })
   parentID: string;
-  teamID: string;
 }
 
 @ObjectType()

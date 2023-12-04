@@ -107,3 +107,25 @@ export class ImportUserCollectionsFromJSONArgs {
   })
   parentCollectionID?: string;
 }
+
+@ArgsType()
+export class UpdateUserCollectionsArgs {
+  @Field(() => ID, {
+    name: 'userCollectionID',
+    description: 'ID of the user collection',
+  })
+  userCollectionID: string;
+
+  @Field({
+    name: 'newTitle',
+    description: 'The updated title of the user collection',
+    nullable: true,
+  })
+  newTitle: string;
+
+  @Field({
+    name: 'data',
+    description: 'JSON string representing the collection data',
+  })
+  data: string;
+}

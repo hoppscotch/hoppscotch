@@ -225,7 +225,7 @@ import IconSettings2 from "~icons/lucide/settings-2"
 import { useToast } from "@composables/toast"
 import { useI18n } from "@composables/i18n"
 import { useColorMode } from "@composables/theming"
-import { removeGraphqlFolder, moveGraphqlRequest } from "~/newstore/collections"
+import { removeGraphqlFolder } from "~/newstore/collections"
 import { computed, ref } from "vue"
 import { useService } from "dioc/vue"
 import { GQLTabService } from "~/services/tab/graphql"
@@ -258,6 +258,7 @@ const emit = defineEmits([
   "duplicate-request",
   "edit-properties",
   "select-request",
+  "drop-request",
 ])
 
 // Template refs
@@ -332,6 +333,11 @@ const dropEvent = ({ dataTransfer }: any) => {
   dragging.value = !dragging.value
   const folderPath = dataTransfer.getData("folderPath")
   const requestIndex = dataTransfer.getData("requestIndex")
-  moveGraphqlRequest(folderPath, requestIndex, props.folderPath)
+
+  emit("drop-request", {
+    folderPath,
+    requestIndex,
+    collectionIndex: props.folderPath,
+  })
 }
 </script>

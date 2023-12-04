@@ -1,4 +1,8 @@
-import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
+import {
+  HoppCollection,
+  HoppGQLRequest,
+  HoppRESTRequest,
+} from "@hoppscotch/data"
 import { getAffectedIndexes } from "./affectedIndex"
 import { RESTTabService } from "~/services/tab/rest"
 import { getService } from "~/modules/dioc"
@@ -53,9 +57,9 @@ export function resolveSaveContextOnRequestReorder(payload: {
 }
 
 export function getRequestsByPath(
-  collections: HoppCollection<HoppRESTRequest>[],
+  collections: HoppCollection<HoppRESTRequest | HoppGQLRequest>[],
   path: string
-): HoppRESTRequest[] {
+): HoppRESTRequest[] | HoppGQLRequest[] {
   // path will be like this "0/0/1" these are the indexes of the folders
   const pathArray = path.split("/").map((index) => parseInt(index))
 

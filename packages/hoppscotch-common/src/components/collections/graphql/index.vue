@@ -60,6 +60,7 @@
         @edit-properties="editProperties($event)"
         @select="$emit('select', $event)"
         @select-request="selectRequest($event)"
+        @drop-request="dropRequest($event)"
       />
     </div>
     <HoppSmartPlaceholder
@@ -163,6 +164,7 @@ import {
   cascaseParentCollectionForHeaderAuth,
   editGraphqlCollection,
   editGraphqlFolder,
+  moveGraphqlRequest,
 } from "~/newstore/collections"
 import IconPlus from "~icons/lucide/plus"
 import IconHelpCircle from "~icons/lucide/help-circle"
@@ -182,8 +184,11 @@ import {
 import { Picked } from "~/helpers/types/HoppPicked"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import { updateInheritedPropertiesForAffectedRequests } from "~/helpers/collection/collection"
+import { useToast } from "~/composables/toast"
+import { getRequestsByPath } from "~/helpers/collection/request"
 
 const t = useI18n()
+const toast = useToast()
 
 defineProps<{
   // Whether to activate the ability to pick items (activates 'select' events)
@@ -492,6 +497,45 @@ const selectRequest = ({
       headers,
     },
   })
+}
+
+const dropRequest = ({
+  folderPath,
+  requestIndex,
+  collectionIndex,
+}: {
+  folderPath: string
+  requestIndex: number
+  collectionIndex: number
+}) => {
+  const { auth, headers } = cascaseParentCollectionForHeaderAuth(
+    `${collectionIndex}`,
+    "graphql"
+  )
+
+  const possibleTab = tabs.getTabRefWithSaveContext({
+    originLocation: "user-collection",
+    folderPath,
+    requestIndex: Number(requestIndex),
+  })
+
+  if (possibleTab) {
+    possibleTab.value.document.saveContext = {
+      originLocation: "user-collection",
+      folderPath: `${collectionIndex}`,
+      requestIndex: getRequestsByPath(collections.value, `${collectionIndex}`)
+        .length,
+    }
+
+    possibleTab.value.document.inheritedProperties = {
+      auth,
+      headers,
+    }
+  }
+
+  moveGraphqlRequest(folderPath, requestIndex, `${collectionIndex}`)
+
+  toast.success(`${t("request.moved")}`)
 }
 
 /**

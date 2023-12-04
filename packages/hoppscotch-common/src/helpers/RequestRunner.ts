@@ -4,12 +4,12 @@ import { flow, pipe } from "fp-ts/function"
 import * as O from "fp-ts/Option"
 import * as A from "fp-ts/Array"
 import { Environment } from "@hoppscotch/data"
+import { runTestScript } from "@hoppscotch/js-sandbox/web"
 import {
   SandboxTestResult,
-  runTestScriptForWeb,
   TestDescriptor,
   TestResult,
-} from "@hoppscotch/js-sandbox/web"
+} from "@hoppscotch/js-sandbox"
 import * as E from "fp-ts/Either"
 import { cloneDeep } from "lodash-es"
 import {
@@ -118,7 +118,7 @@ export function runRESTRequest$(
             res
           )
 
-          const runResult = await runTestScriptForWeb(
+          const runResult = await runTestScript(
             res.req.testScript,
             envs.right,
             {

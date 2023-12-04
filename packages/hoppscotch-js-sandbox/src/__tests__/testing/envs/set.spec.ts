@@ -1,7 +1,7 @@
 import * as TE from "fp-ts/TaskEither"
 import { pipe } from "fp-ts/function"
 
-import { execTestScriptForNode } from "../../../test-runner/node-vm"
+import { runTestScript } from "../../../test-runner/node-vm"
 import { TestResponse, TestResult } from "../../../types"
 
 const fakeResponse: TestResponse = {
@@ -12,13 +12,13 @@ const fakeResponse: TestResponse = {
 
 const func = (script: string, envs: TestResult["envs"]) =>
   pipe(
-    execTestScriptForNode(script, envs, fakeResponse),
+    runTestScript(script, envs, fakeResponse),
     TE.map((x) => x.envs)
   )
 
 const funcTest = (script: string, envs: TestResult["envs"]) =>
   pipe(
-    execTestScriptForNode(script, envs, fakeResponse),
+    runTestScript(script, envs, fakeResponse),
     TE.map((x) => x.tests)
   )
 

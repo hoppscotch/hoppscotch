@@ -4,7 +4,6 @@ import * as O from "fp-ts/Option"
 import * as TE from "fp-ts/TaskEither"
 import { pipe } from "fp-ts/function"
 import cloneDeep from "lodash/cloneDeep"
-
 import { createContext, runInContext } from "vm"
 
 import { TestDescriptor, TestResponse, TestResult } from "../../types"
@@ -19,7 +18,7 @@ import {
  * Node VM based implementation
  */
 
-export const execTestScriptForNode = (
+export const runTestScript = (
   testScript: string,
   envs: TestResult["envs"],
   response: TestResponse
@@ -33,14 +32,13 @@ export const execTestScriptForNode = (
     ),
     TE.chain((context) =>
       TE.tryCatch(
-        () =>
-          executeScriptInContextForNode(testScript, envs, response, context),
+        () => executeScriptInContext(testScript, envs, response, context),
         (reason) => `Script execution failed: ${JSON.stringify(reason)}`
       )
     )
   )
 
-const executeScriptInContextForNode = (
+const executeScriptInContext = (
   testScript: string,
   envs: TestResult["envs"],
   response: TestResponse,

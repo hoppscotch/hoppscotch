@@ -17,7 +17,7 @@ import {
   createExpectation,
 } from "../../utils"
 
-const executeScriptInContextForWeb = (
+const executeScriptInContext = (
   testScript: string,
   envs: TestResult["envs"],
   response: TestResponse
@@ -167,11 +167,7 @@ const executeScriptInContextForWeb = (
 self.addEventListener("message", async (event) => {
   const { messageId, testScript, envs, response } = event.data
 
-  const result = await executeScriptInContextForWeb(
-    testScript,
-    envs,
-    response
-  )()
+  const result = await executeScriptInContext(testScript, envs, response)()
 
   // Post the result back to the main thread
   self.postMessage({ messageId, result })

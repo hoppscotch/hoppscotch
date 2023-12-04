@@ -53,3 +53,5 @@ export type TestResult = {
     selected: Environment["variables"]
   }
 }
+
+export type SandboxTestResult = TestResult & { tests: TestDescriptor }

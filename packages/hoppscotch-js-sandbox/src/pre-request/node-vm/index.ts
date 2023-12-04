@@ -4,7 +4,6 @@ import * as O from "fp-ts/Option"
 import { pipe } from "fp-ts/function"
 import * as TE from "fp-ts/lib/TaskEither"
 import cloneDeep from "lodash/clone"
-
 import { createContext, runInContext } from "vm"
 
 import { getEnv, setEnv } from "../../utils"
@@ -14,7 +13,7 @@ type Envs = {
   selected: Environment["variables"]
 }
 
-export const execPreRequestScriptForNode = (
+export const runPreRequestScript = (
   preRequestScript: string,
   envs: Envs
 ): TE.TaskEither<string, Envs> =>
@@ -27,13 +26,13 @@ export const execPreRequestScriptForNode = (
     ),
     TE.chain((context) =>
       TE.tryCatch(
-        () => executeScriptInContextForNode(preRequestScript, envs, context),
+        () => executeScriptInContext(preRequestScript, envs, context),
         (reason) => `Script execution failed: ${reason}`
       )
     )
   )
 
-const executeScriptInContextForNode = (
+const executeScriptInContext = (
   preRequestScript: string,
   envs: Envs,
   context: import("vm").Context

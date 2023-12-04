@@ -12,7 +12,7 @@
       "@/*": ["./src/*"]
     },
     "types": ["@types/node", "@types/jest", "@relmify/jest-fp-ts"],
-    "outDir": "./lib/",
+    "outDir": "./dist/",
     "rootDir": "./src/",
     "declaration": true,
     "declarationMap": true,

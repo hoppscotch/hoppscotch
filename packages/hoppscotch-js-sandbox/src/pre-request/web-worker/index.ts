@@ -2,7 +2,7 @@ import { TestResult } from "~/types"
 
 import Worker from "./worker?worker&inline"
 
-export const execPreRequestScriptForWeb = (
+export const runPreRequestScript = (
   preRequestScript: string,
   envs: TestResult["envs"]
 ) =>

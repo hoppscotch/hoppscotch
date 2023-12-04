@@ -1,11 +1,10 @@
 import * as TE from "fp-ts/TaskEither"
 
-import { TestResponse, TestResult } from "../../types"
-import { SandboxTestResult } from "~/node"
+import { SandboxTestResult, TestResponse, TestResult } from "../../types"
 
 import Worker from "./worker?worker&inline"
 
-export const execTestScriptForWeb = (
+export const runTestScript = (
   testScript: string,
   envs: TestResult["envs"],
   response: TestResponse

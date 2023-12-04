@@ -7,7 +7,7 @@ import { cloneDeep } from "lodash-es"
 import { TestResult } from "~/types"
 import { getEnv, setEnv } from "../../utils"
 
-const executeScriptInContextForWeb = (
+const executeScriptInContext = (
   preRequestScript: string,
   envs: TestResult["envs"]
 ) => {
@@ -112,7 +112,7 @@ const executeScriptInContextForWeb = (
 self.addEventListener("message", async (event) => {
   const { messageId, preRequestScript, envs } = event.data
 
-  const result = await executeScriptInContextForWeb(preRequestScript, envs)()
+  const result = await executeScriptInContext(preRequestScript, envs)()
 
   // Post the result back to the main thread
   self.postMessage({ messageId, result })

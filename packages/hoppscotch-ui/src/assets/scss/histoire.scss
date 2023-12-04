@@ -84,13 +84,6 @@
   @apply antialiased;
   accent-color: var(--accent-color);
   font-variant-ligatures: common-ligatures;
-
-  --info-color: #ec4899;
-  --success-color: #10b981;
-  --blue-color: #3b82f6;
-  --warning-color: #f59e0b;
-  --cl-error-color: #ef4444;
-  --sv-error-color: #dc2626;
 }
 
 ::-webkit-scrollbar-track {
@@ -425,7 +418,7 @@ pre.ace_editor {
 }
 
 .missing-data-response {
-  @apply text-secondaryLight;
+  color: var(--missing-data-color);
 }
 
 .toasted-container {

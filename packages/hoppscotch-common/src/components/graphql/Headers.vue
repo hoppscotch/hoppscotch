@@ -619,20 +619,27 @@ const inheritedProperties = computed(() => {
   const inheritedHeaders = props.inheritedProperties.headers.filter(
     (header) =>
       !request.value.headers.some(
-        (requestHeader) => requestHeader.key === header.key
+        (requestHeader) => requestHeader.key === header.inheritedHeader?.key
       )
   )
 
-  const headers = inheritedHeaders.map((header, index) => ({
-    inheritedFrom: props.inheritedProperties?.headers[index].parentName,
-    source: "headers",
-    id: `header-${index}`,
-    header: {
-      key: header.inheritedHeader?.key,
-      value: header.inheritedHeader?.value,
-      active: header.inheritedHeader?.active,
-    },
-  }))
+  const headers = inheritedHeaders
+    .filter(
+      (header) =>
+        header.inheritedHeader !== null &&
+        header.inheritedHeader !== undefined &&
+        header.inheritedHeader.active
+    )
+    .map((header, index) => ({
+      inheritedFrom: props.inheritedProperties?.headers[index].parentName,
+      source: "headers",
+      id: `header-${index}`,
+      header: {
+        key: header.inheritedHeader?.key,
+        value: header.inheritedHeader?.value,
+        active: header.inheritedHeader?.active,
+      },
+    }))
 
   let auth = [] as {
     inheritedFrom: string

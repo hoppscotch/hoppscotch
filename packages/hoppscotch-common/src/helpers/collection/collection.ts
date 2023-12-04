@@ -6,6 +6,7 @@ import * as E from "fp-ts/Either"
 import { getService } from "~/modules/dioc"
 import { RESTTabService } from "~/services/tab/rest"
 import { HoppInheritedProperty } from "../types/HoppInheritedProperties"
+import { GQLTabService } from "~/services/tab/graphql"
 
 /**
  * Resolve save context on reorder
@@ -111,9 +112,11 @@ export function updateSaveContextForAffectedRequests(
 
 export function updateInheritedPropertiesForAffectedRequests(
   path: string,
-  inheritedProperties: HoppInheritedProperty
+  inheritedProperties: HoppInheritedProperty,
+  type: "rest" | "graphql"
 ) {
-  const tabService = getService(RESTTabService)
+  const tabService =
+    type === "rest" ? getService(RESTTabService) : getService(GQLTabService)
   const tabs = tabService.getTabsRefTo((tab) => {
     return (
       tab.document.saveContext?.originLocation === "user-collection" &&

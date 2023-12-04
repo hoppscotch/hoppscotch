@@ -64,6 +64,11 @@ const addNewCollection = () => {
       name: name.value,
       folders: [],
       requests: [],
+      auth: {
+        authType: "inherit",
+        authActive: true,
+      },
+      headers: [],
     })
   )
 

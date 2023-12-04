@@ -82,7 +82,7 @@ export function translateToNewGQLCollection(
   const folders = (x.folders ?? []).map(translateToNewGQLCollection)
   const requests = (x.requests ?? []).map(translateToGQLRequest)
 
-  const auth = x.auth ?? "None"
+  const auth = x.auth ?? { authType: "inherit", authActive: true }
   const headers = x.headers ?? []
 
   const obj = makeCollection<HoppGQLRequest>({

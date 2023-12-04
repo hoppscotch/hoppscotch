@@ -231,7 +231,6 @@ const auth = useVModel(props, "modelValue", emit)
 
 onMounted(() => {
   if (props.isRootCollection && auth.value.authType === "inherit") {
-    console.log("isRootCollection", auth.value.authType)
     auth.value = {
       authType: "none",
       authActive: true,

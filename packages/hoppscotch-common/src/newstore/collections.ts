@@ -64,8 +64,12 @@ export function navigateToFolderWithIndexPath(
 }
 
 export function cascaseParentCollectionForHeaderAuth(
-  folderPath: string | undefined
+  folderPath: string | undefined,
+  type: "rest" | "graphql"
 ) {
+  const collectionStore =
+    type === "rest" ? restCollectionStore : graphqlCollectionStore
+
   let auth: HoppInheritedProperty["auth"] = {
     parentID: folderPath ?? "",
     parentName: "",
@@ -87,7 +91,7 @@ export function cascaseParentCollectionForHeaderAuth(
   // Loop through the path and get the last parent folder with authType other than 'inherit'
   for (let i = 0; i < path.length; i++) {
     const parentFolder = navigateToFolderWithIndexPath(
-      restCollectionStore.value.state,
+      collectionStore.value.state,
       [...path.slice(0, i + 1)] // Create a copy of the path array
     )
 

@@ -38,6 +38,18 @@
                 "
               />
               <HoppSmartItem
+                v-if="!isRootCollection"
+                label="Inherit"
+                :icon="authName === 'Inherit' ? IconCircleDot : IconCircle"
+                :active="authName === 'Inherit'"
+                @click="
+                  () => {
+                    auth.authType = 'inherit'
+                    hide()
+                  }
+                "
+              />
+              <HoppSmartItem
                 label="Basic Auth"
                 :icon="authName === 'Basic Auth' ? IconCircleDot : IconCircle"
                 :active="authName === 'Basic Auth'"
@@ -149,6 +161,17 @@
             />
           </div>
         </div>
+        <div v-if="auth.authType === 'inherit'" class="p-4">
+          <span v-if="inheritedProperties?.auth">
+            Inherited
+            {{ getAuthName(inheritedProperties.auth.inheritedAuth.authType) }}
+            from Parent Collection {{ inheritedProperties?.auth.parentName }}
+          </span>
+          <span v-else>
+            Please save this request in any collection to inherit the
+            authorization
+          </span>
+        </div>
         <div v-if="auth.authType === 'bearer'">
           <div class="flex flex-1 border-b border-dividerLight">
             <SmartEnvInput
@@ -203,6 +226,8 @@ import { pluckRef } from "@composables/ref"
 import { useI18n } from "@composables/i18n"
 import { useColorMode } from "@composables/theming"
 import { useVModel } from "@vueuse/core"
+import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
+import { onMounted } from "vue"
 
 const t = useI18n()
 
@@ -210,11 +235,23 @@ const colorMode = useColorMode()
 
 const props = defineProps<{
   modelValue: HoppGQLAuth
+  isCollectionProperty?: boolean
+  isRootCollection?: boolean
+  inheritedProperties?: HoppInheritedProperty
 }>()
 
 const emit = defineEmits<{
   (e: "update:modelValue", value: HoppGQLAuth): void
 }>()
+
+onMounted(() => {
+  if (props.isRootCollection && auth.value.authType === "inherit") {
+    auth.value = {
+      authType: "none",
+      authActive: true,
+    }
+  }
+})
 
 const auth = useVModel(props, "modelValue", emit)
 
@@ -224,12 +261,20 @@ const AUTH_KEY_NAME = {
   "oauth-2": "OAuth 2.0",
   "api-key": "API key",
   none: "None",
+  inherit: "Inherit",
 } as const
 
 const authType = pluckRef(auth, "authType")
+
 const authName = computed(() =>
   AUTH_KEY_NAME[authType.value] ? AUTH_KEY_NAME[authType.value] : "None"
 )
+
+const getAuthName = (type: HoppGQLAuth["authType"] | undefined) => {
+  if (!type) return "None"
+  return AUTH_KEY_NAME[type] ? AUTH_KEY_NAME[type] : "None"
+}
+
 const authActive = pluckRef(auth, "authActive")
 
 const clearContent = () => {

@@ -679,7 +679,7 @@ const onAddRequest = (requestName: string) => {
     if (!path) return
     const insertionIndex = saveRESTRequestAs(path, newRequest)
 
-    const { auth, headers } = cascaseParentCollectionForHeaderAuth(path)
+    const { auth, headers } = cascaseParentCollectionForHeaderAuth(path, "rest")
 
     tabs.createNewTab({
       request: newRequest,
@@ -1329,7 +1329,10 @@ const selectRequest = (selectedRequest: {
   // If there is a request with this save context, switch into it
   let possibleTab = null
 
-  const { auth, headers } = cascaseParentCollectionForHeaderAuth(folderPath)
+  const { auth, headers } = cascaseParentCollectionForHeaderAuth(
+    folderPath,
+    "rest"
+  )
 
   if (collectionsType.value.type === "team-collections") {
     possibleTab = tabs.getTabRefWithSaveContext({
@@ -1402,7 +1405,8 @@ const dropRequest = (payload: {
 
   if (collectionsType.value.type === "my-collections" && folderPath) {
     const { auth, headers } = cascaseParentCollectionForHeaderAuth(
-      destinationCollectionIndex
+      destinationCollectionIndex,
+      "rest"
     )
 
     possibleTab = tabs.getTabRefWithSaveContext({
@@ -1595,7 +1599,8 @@ const dropCollection = (payload: {
     )
 
     const { auth, headers } = cascaseParentCollectionForHeaderAuth(
-      `${destinationCollectionIndex}/${totalFoldersOfDestinationCollection}`
+      `${destinationCollectionIndex}/${totalFoldersOfDestinationCollection}`,
+      "rest"
     )
 
     const inheritedProperty = {
@@ -1605,7 +1610,8 @@ const dropCollection = (payload: {
 
     updateInheritedPropertiesForAffectedRequests(
       `${destinationCollectionIndex}/${totalFoldersOfDestinationCollection}`,
-      inheritedProperty
+      inheritedProperty,
+      "rest"
     )
 
     draggingToRoot.value = false
@@ -1975,7 +1981,10 @@ const editProperties = (payload: {
   let inheritedProperties = {}
 
   if (parentIndex) {
-    const { auth, headers } = cascaseParentCollectionForHeaderAuth(parentIndex)
+    const { auth, headers } = cascaseParentCollectionForHeaderAuth(
+      parentIndex,
+      "rest"
+    )
 
     inheritedProperties = {
       auth,
@@ -2005,13 +2014,17 @@ const setCollectionProperties = (newCollection: {
     editRESTFolder(path, collection)
   }
 
-  const { auth, headers } = cascaseParentCollectionForHeaderAuth(path)
+  const { auth, headers } = cascaseParentCollectionForHeaderAuth(path, "rest")
 
   nextTick(() => {
-    updateInheritedPropertiesForAffectedRequests(path, {
-      auth,
-      headers,
-    })
+    updateInheritedPropertiesForAffectedRequests(
+      path,
+      {
+        auth,
+        headers,
+      },
+      "rest"
+    )
   })
 
   displayModalEditProperties(false)

@@ -57,7 +57,9 @@
         @edit-request="editRequest($event)"
         @duplicate-request="duplicateRequest($event)"
         @select-collection="$emit('use-collection', collection)"
+        @edit-properties="editProperties($event)"
         @select="$emit('select', $event)"
+        @select-request="selectRequest($event)"
       />
     </div>
     <HoppSmartPlaceholder
@@ -142,16 +144,25 @@
       v-if="showModalImportExport"
       @hide-modal="displayModalImportExport(false)"
     />
+    <CollectionsProperties
+      :show="showModalEditProperties"
+      :editing-properties="editingProperties"
+      @hide-modal="displayModalEditProperties(false)"
+      @set-collection-properties="setCollectionProperties"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue"
+import { nextTick, ref } from "vue"
 import { clone, cloneDeep } from "lodash-es"
 import {
   graphqlCollections$,
   addGraphqlFolder,
   saveGraphqlRequestAs,
+  cascaseParentCollectionForHeaderAuth,
+  editGraphqlCollection,
+  editGraphqlFolder,
 } from "~/newstore/collections"
 import IconPlus from "~icons/lucide/plus"
 import IconHelpCircle from "~icons/lucide/help-circle"
@@ -163,8 +174,14 @@ import { platform } from "~/platform"
 import { useService } from "dioc/vue"
 import { GQLTabService } from "~/services/tab/graphql"
 import { computed } from "vue"
-import { HoppCollection, HoppGQLRequest } from "@hoppscotch/data"
+import {
+  HoppCollection,
+  HoppGQLRequest,
+  makeGQLRequest,
+} from "@hoppscotch/data"
 import { Picked } from "~/helpers/types/HoppPicked"
+import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
+import { updateInheritedPropertiesForAffectedRequests } from "~/helpers/collection/collection"
 
 const t = useI18n()
 
@@ -185,6 +202,7 @@ const showModalAddRequest = ref(false)
 const showModalAddFolder = ref(false)
 const showModalEditFolder = ref(false)
 const showModalEditRequest = ref(false)
+const showModalEditProperties = ref(false)
 
 const editingCollection = ref<HoppCollection<HoppGQLRequest> | null>(null)
 const editingCollectionIndex = ref<number | null>(null)
@@ -194,6 +212,18 @@ const editingFolderIndex = ref<number | null>(null)
 const editingFolderPath = ref("")
 const editingRequest = ref<HoppGQLRequest | null>(null)
 const editingRequestIndex = ref<number | null>(null)
+
+const editingProperties = ref<{
+  collection: HoppCollection<HoppGQLRequest> | null
+  isRootCollection: boolean
+  path: string
+  inheritedProperties?: HoppInheritedProperty
+}>({
+  collection: null,
+  isRootCollection: false,
+  path: "",
+  inheritedProperties: undefined,
+})
 
 const filterText = ref("")
 
@@ -276,6 +306,12 @@ const displayModalEditRequest = (shouldDisplay: boolean) => {
   if (!shouldDisplay) resetSelectedData()
 }
 
+const displayModalEditProperties = (show: boolean) => {
+  showModalEditProperties.value = show
+
+  if (!show) resetSelectedData()
+}
+
 const editCollection = (
   collection: HoppCollection<HoppGQLRequest>,
   collectionIndex: number
@@ -302,6 +338,11 @@ const onAddRequest = ({
 
   saveGraphqlRequestAs(path, newRequest)
 
+  const { auth, headers } = cascaseParentCollectionForHeaderAuth(
+    path,
+    "graphql"
+  )
+
   tabs.createNewTab({
     saveContext: {
       originLocation: "user-collection",
@@ -310,6 +351,10 @@ const onAddRequest = ({
     },
     request: newRequest,
     isDirty: false,
+    inheritedProperties: {
+      auth,
+      headers,
+    },
   })
 
   platform.analytics?.logEvent({
@@ -401,6 +446,128 @@ const duplicateRequest = ({
   })
 }
 
+const selectRequest = ({
+  request,
+  folderPath,
+  requestIndex,
+}: {
+  request: HoppGQLRequest
+  folderPath: string
+  requestIndex: number
+}) => {
+  const possibleTab = tabs.getTabRefWithSaveContext({
+    originLocation: "user-collection",
+    folderPath: folderPath,
+    requestIndex: requestIndex,
+  })
+  const { auth, headers } = cascaseParentCollectionForHeaderAuth(
+    folderPath,
+    "graphql"
+  )
+  // Switch to that request if that request is open
+  if (possibleTab) {
+    tabs.setActiveTab(possibleTab.value.id)
+    return
+  }
+
+  tabs.createNewTab({
+    saveContext: {
+      originLocation: "user-collection",
+      folderPath: folderPath,
+      requestIndex: requestIndex,
+    },
+    request: cloneDeep(
+      makeGQLRequest({
+        name: request.name,
+        url: request.url,
+        query: request.query,
+        headers: request.headers,
+        variables: request.variables,
+        auth: request.auth,
+      })
+    ),
+    isDirty: false,
+    inheritedProperties: {
+      auth,
+      headers,
+    },
+  })
+}
+
+/**
+ * Checks if the collection is already in the root
+ * @param id - path of the collection
+ * @returns boolean - true if the collection is already in the root
+ */
+const isAlreadyInRoot = (id: string) => {
+  const indexPath = id.split("/")
+  return indexPath.length === 1
+}
+
+const editProperties = ({
+  collectionIndex,
+  collection,
+}: {
+  collectionIndex: string | null
+  collection: HoppCollection<HoppGQLRequest> | null
+}) => {
+  if (collectionIndex === null || collection === null) return
+
+  const parentIndex = collectionIndex.split("/").slice(0, -1).join("/") // remove last folder to get parent folder
+  let inheritedProperties = {}
+
+  if (parentIndex) {
+    const { auth, headers } = cascaseParentCollectionForHeaderAuth(
+      parentIndex,
+      "graphql"
+    )
+
+    inheritedProperties = {
+      auth,
+      headers,
+    } as HoppInheritedProperty
+  }
+
+  editingProperties.value = {
+    collection,
+    isRootCollection: isAlreadyInRoot(collectionIndex),
+    path: collectionIndex,
+    inheritedProperties,
+  }
+
+  displayModalEditProperties(true)
+}
+
+const setCollectionProperties = (newCollection: {
+  collection: HoppCollection<HoppGQLRequest>
+  path: string
+  isRootCollection: boolean
+}) => {
+  const { collection, path, isRootCollection } = newCollection
+  if (isRootCollection) {
+    editGraphqlCollection(parseInt(path), collection)
+  } else {
+    editGraphqlFolder(path, collection)
+  }
+
+  const { auth, headers } = cascaseParentCollectionForHeaderAuth(
+    path,
+    "graphql"
+  )
+
+  nextTick(() => {
+    updateInheritedPropertiesForAffectedRequests(
+      path,
+      {
+        auth,
+        headers,
+      },
+      "graphql"
+    )
+  })
+
+  displayModalEditProperties(false)
+}
 const resetSelectedData = () => {
   editingCollection.value = null
   editingCollectionIndex.value = null

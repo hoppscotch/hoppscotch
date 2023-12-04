@@ -34,10 +34,16 @@
         :label="`${t('tab.headers')}`"
         :info="activeGQLHeadersCount === 0 ? null : `${activeGQLHeadersCount}`"
       >
-        <GraphqlHeaders v-model="request" />
+        <GraphqlHeaders
+          v-model="request"
+          :inherited-properties="inheritedProperties"
+        />
       </HoppSmartTab>
       <HoppSmartTab :id="'authorization'" :label="`${t('tab.authorization')}`">
-        <GraphqlAuthorization v-model="request.auth" />
+        <GraphqlAuthorization
+          v-model="request.auth"
+          :inherited-properties="inheritedProperties"
+        />
       </HoppSmartTab>
     </HoppSmartTabs>
     <CollectionsSaveRequest
@@ -69,6 +75,7 @@ import { useService } from "dioc/vue"
 import { InterceptorService } from "~/services/interceptor.service"
 import { editGraphqlRequest } from "~/newstore/collections"
 import { GQLTabService } from "~/services/tab/graphql"
+import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 
 const VALID_GQL_OPERATIONS = [
   "query",
@@ -93,6 +100,7 @@ const props = withDefaults(
     response?: GQLResponseEvent[] | null
     optionTab?: GQLOptionTabs
     tabId: string
+    inheritedProperties?: HoppInheritedProperty
   }>(),
   {
     response: null,

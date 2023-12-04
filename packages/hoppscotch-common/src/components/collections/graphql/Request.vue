@@ -178,7 +178,12 @@ const isActive = computed(() => {
 })
 
 // TODO: Better types please
-const emit = defineEmits(["select", "edit-request", "duplicate-request"])
+const emit = defineEmits([
+  "select",
+  "edit-request",
+  "duplicate-request",
+  "select-request",
+])
 
 const dragging = ref(false)
 const confirmRemove = ref(false)
@@ -202,35 +207,10 @@ const selectRequest = () => {
   if (props.saveRequest) {
     pick()
   } else {
-    const possibleTab = tabs.getTabRefWithSaveContext({
-      originLocation: "user-collection",
+    emit("select-request", {
+      request: props.request,
       folderPath: props.folderPath,
       requestIndex: props.requestIndex,
-    })
-
-    // Switch to that request if that request is open
-    if (possibleTab) {
-      tabs.setActiveTab(possibleTab.value.id)
-      return
-    }
-
-    tabs.createNewTab({
-      saveContext: {
-        originLocation: "user-collection",
-        folderPath: props.folderPath,
-        requestIndex: props.requestIndex,
-      },
-      request: cloneDeep(
-        makeGQLRequest({
-          name: props.request.name,
-          url: props.request.url,
-          query: props.request.query,
-          headers: props.request.headers,
-          variables: props.request.variables,
-          auth: props.request.auth,
-        })
-      ),
-      isDirty: false,
     })
   }
 }

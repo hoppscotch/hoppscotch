@@ -240,15 +240,14 @@ const saveRequestAs = async () => {
       },
     }
 
-    const { auth, headers, name } = cascaseParentCollectionForHeaderAuth(
-      `${picked.value.collectionIndex}`
+    const { auth, headers } = cascaseParentCollectionForHeaderAuth(
+      `${picked.value.collectionIndex}`,
+      "rest"
     )
 
     RESTTabs.currentActiveTab.value.document.inheritedProperties = {
       auth,
       headers,
-      parentId: `${picked.value.collectionIndex}`,
-      parentName: name,
     }
 
     platform.analytics?.logEvent({
@@ -278,15 +277,14 @@ const saveRequestAs = async () => {
       },
     }
 
-    const { auth, headers, name } = cascaseParentCollectionForHeaderAuth(
-      picked.value.folderPath
+    const { auth, headers } = cascaseParentCollectionForHeaderAuth(
+      picked.value.folderPath,
+      "rest"
     )
 
     RESTTabs.currentActiveTab.value.document.inheritedProperties = {
       auth,
       headers,
-      parentId: picked.value.folderPath,
-      parentName: name,
     }
 
     platform.analytics?.logEvent({
@@ -317,15 +315,14 @@ const saveRequestAs = async () => {
       },
     }
 
-    const { auth, headers, name } = cascaseParentCollectionForHeaderAuth(
-      picked.value.folderPath
+    const { auth, headers } = cascaseParentCollectionForHeaderAuth(
+      picked.value.folderPath,
+      "rest"
     )
 
     RESTTabs.currentActiveTab.value.document.inheritedProperties = {
       auth,
       headers,
-      parentId: picked.value.folderPath,
-      parentName: name,
     }
 
     platform.analytics?.logEvent({
@@ -412,6 +409,16 @@ const saveRequestAs = async () => {
       workspaceType: "team",
     })
 
+    const { auth, headers } = cascaseParentCollectionForHeaderAuth(
+      picked.value.folderPath,
+      "graphql"
+    )
+
+    GQLTabs.currentActiveTab.value.document.inheritedProperties = {
+      auth,
+      headers,
+    }
+
     requestSaved()
   } else if (picked.value.pickedType === "gql-my-folder") {
     // TODO: Check for GQL request ?
@@ -427,6 +434,16 @@ const saveRequestAs = async () => {
       workspaceType: "team",
     })
 
+    const { auth, headers } = cascaseParentCollectionForHeaderAuth(
+      picked.value.folderPath,
+      "graphql"
+    )
+
+    GQLTabs.currentActiveTab.value.document.inheritedProperties = {
+      auth,
+      headers,
+    }
+
     requestSaved()
   } else if (picked.value.pickedType === "gql-my-collection") {
     // TODO: Check for GQL request ?
@@ -441,6 +458,16 @@ const saveRequestAs = async () => {
       platform: "gql",
       workspaceType: "team",
     })
+
+    const { auth, headers } = cascaseParentCollectionForHeaderAuth(
+      `${picked.value.collectionIndex}`,
+      "graphql"
+    )
+
+    GQLTabs.currentActiveTab.value.document.inheritedProperties = {
+      auth,
+      headers,
+    }
 
     requestSaved()
   }

@@ -215,6 +215,60 @@
       </template>
     </draggable>
 
+    <draggable
+      v-model="inheritedProperties"
+      item-key="id"
+      animation="250"
+      handle=".draggable-handle"
+      draggable=".draggable-content"
+      ghost-class="cursor-move"
+      chosen-class="bg-primaryLight"
+      drag-class="cursor-grabbing"
+    >
+      <template #item="{ element: header, index }">
+        <div
+          class="draggable-content group flex divide-x divide-dividerLight border-b border-dividerLight"
+        >
+          <span>
+            <HoppButtonSecondary
+              :icon="IconLock"
+              class="cursor-auto bg-divider text-secondaryLight opacity-25"
+              tabindex="-1"
+            />
+          </span>
+          <SmartEnvInput
+            v-model="header.header.key"
+            :placeholder="`${t('count.value', { count: index + 1 })}`"
+            readonly
+          />
+          <SmartEnvInput
+            :model-value="
+              header.source === 'auth' ? mask(header) : header.header.value
+            "
+            :placeholder="`${t('count.value', { count: index + 1 })}`"
+            readonly
+          />
+          <HoppButtonSecondary
+            v-if="header.source === 'auth'"
+            v-tippy="{ theme: 'tooltip' }"
+            :title="t(masking ? 'state.show' : 'state.hide')"
+            :icon="masking && header.source === 'auth' ? IconEye : IconEyeOff"
+            @click="toggleMask()"
+          />
+          <span v-else class="aspect-square w-[2.05rem]"></span>
+          <span>
+            <HoppButtonSecondary
+              v-tippy="{ theme: 'tooltip' }"
+              :icon="IconInfo"
+              :title="`This header is inherited from Parent Collection ${
+                header.inheritedFrom ?? ''
+              }`"
+            />
+          </span>
+        </div>
+      </template>
+    </draggable>
+
     <HoppSmartPlaceholder
       v-if="workingHeaders.length === 0"
       :src="`/images/states/${colorMode.value}/add_category.svg`"
@@ -247,7 +301,7 @@ import IconArrowUpRight from "~icons/lucide/arrow-up-right"
 import IconLock from "~icons/lucide/lock"
 import IconEye from "~icons/lucide/eye"
 import IconEyeOff from "~icons/lucide/eye-off"
-
+import IconInfo from "~icons/lucide/info"
 import { computed, reactive, ref, watch } from "vue"
 import * as E from "fp-ts/Either"
 import * as O from "fp-ts/Option"
@@ -272,13 +326,18 @@ import { objRemoveKey } from "~/helpers/functional/object"
 import { useVModel } from "@vueuse/core"
 import { HoppGQLHeader } from "~/helpers/graphql"
 import { throwError } from "~/helpers/functional/error"
+import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 
 const colorMode = useColorMode()
 const t = useI18n()
 const toast = useToast()
 
 // v-model integration with props and emit
-const props = defineProps<{ modelValue: HoppGQLRequest }>()
+const props = defineProps<{
+  modelValue: HoppGQLRequest
+  isCollectionProperty?: boolean
+  inheritedProperties?: HoppInheritedProperty
+}>()
 
 const emit = defineEmits<{
   (e: "update:modelValue", value: HoppGQLRequest): void
@@ -564,6 +623,64 @@ const computedHeaders = computed(() =>
     ...header,
   }))
 )
+
+const inheritedProperties = computed(() => {
+  if (!props.inheritedProperties?.auth || !props.inheritedProperties.headers)
+    return []
+
+  //filter out headers that are already in the request headers
+
+  const inheritedHeaders = props.inheritedProperties.headers.filter(
+    (header) =>
+      !request.value.headers.some(
+        (requestHeader) => requestHeader.key === header.key
+      )
+  )
+
+  const headers = inheritedHeaders.map((header, index) => ({
+    inheritedFrom: props.inheritedProperties?.headers[index].parentName,
+    source: "headers",
+    id: `header-${index}`,
+    header: {
+      key: header.inheritedHeader?.key,
+      value: header.inheritedHeader?.value,
+      active: header.inheritedHeader?.active,
+    },
+  }))
+
+  let auth = [] as {
+    inheritedFrom: string
+    source: "auth"
+    id: string
+    header: {
+      key: string
+      value: string
+      active: boolean
+    }
+  }[]
+
+  const computedAuthHeader = getComputedAuthHeaders(
+    request.value,
+    props.inheritedProperties.auth.inheritedAuth
+  )[0]
+
+  if (
+    computedAuthHeader &&
+    request.value.auth.authType === "inherit" &&
+    request.value.auth.authActive
+  ) {
+    auth = [
+      {
+        inheritedFrom: props.inheritedProperties?.auth.parentName,
+        source: "auth",
+        id: `header-auth`,
+        header: computedAuthHeader,
+      },
+    ]
+  }
+
+  return [...headers, ...auth]
+})
 
 const masking = ref(true)
 

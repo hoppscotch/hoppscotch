@@ -121,6 +121,21 @@
                     }
                   "
                 />
+                <HoppSmartItem
+                  ref="propertiesAction"
+                  :icon="IconSettings2"
+                  :label="t('action.properties')"
+                  :shortcut="['P']"
+                  @click="
+                    () => {
+                      emit('edit-properties', {
+                        collectionIndex: collectionIndex,
+                        collection: collection,
+                      })
+                      hide()
+                    }
+                  "
+                />
               </div>
             </template>
           </tippy>
@@ -149,7 +164,14 @@
           @edit-folder="emit('edit-folder', $event)"
           @edit-request="emit('edit-request', $event)"
           @duplicate-request="emit('duplicate-request', $event)"
+          @edit-properties="
+            emit('edit-properties', {
+              collectionIndex: `${folderPath}/${String(subFolderIndex)}`,
+              collection: subFolder,
+            })
+          "
           @select="emit('select', $event)"
+          @select-request="$emit('select-request', $event)"
         />
         <CollectionsGraphqlRequest
           v-for="(request, index) in folder.requests"
@@ -165,6 +187,7 @@
           @edit-request="emit('edit-request', $event)"
           @duplicate-request="emit('duplicate-request', $event)"
           @select="emit('select', $event)"
+          @select-request="$emit('select-request', $event)"
         />
 
         <HoppSmartPlaceholder
@@ -198,6 +221,7 @@ import IconMoreVertical from "~icons/lucide/more-vertical"
 import IconCheckCircle from "~icons/lucide/check-circle"
 import IconFolder from "~icons/lucide/folder"
 import IconFolderOpen from "~icons/lucide/folder-open"
+import IconSettings2 from "~icons/lucide/settings-2"
 import { useToast } from "@composables/toast"
 import { useI18n } from "@composables/i18n"
 import { useColorMode } from "@composables/theming"
@@ -205,6 +229,8 @@ import { removeGraphqlFolder, moveGraphqlRequest } from "~/newstore/collections"
 import { computed, ref } from "vue"
 import { useService } from "dioc/vue"
 import { GQLTabService } from "~/services/tab/graphql"
+import { Picked } from "~/helpers/types/HoppPicked"
+import { HoppCollection, HoppGQLRequest } from "@hoppscotch/data"
 
 const toast = useToast()
 const t = useI18n()
@@ -212,16 +238,16 @@ const colorMode = useColorMode()
 
 const tabs = useService(GQLTabService)
 
-const props = defineProps({
-  picked: { type: Object, default: null },
+const props = defineProps<{
+  picked: Picked
   // Whether the request is in a selectable mode (activates 'select' event)
-  saveRequest: { type: Boolean, default: false },
-  folder: { type: Object, default: () => ({}) },
-  folderIndex: { type: Number, default: null },
-  collectionIndex: { type: Number, default: null },
-  folderPath: { type: String, default: null },
-  isFiltered: Boolean,
-})
+  saveRequest: boolean
+  folder: HoppCollection<HoppGQLRequest>
+  folderIndex: number
+  collectionIndex: number
+  folderPath: string
+  isFiltered: boolean
+}>()
 
 const emit = defineEmits([
   "select",
@@ -230,6 +256,8 @@ const emit = defineEmits([
   "add-folder",
   "edit-folder",
   "duplicate-request",
+  "edit-properties",
+  "select-request",
 ])
 
 // Template refs

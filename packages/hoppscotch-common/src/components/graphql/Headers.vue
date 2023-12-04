@@ -77,22 +77,11 @@
               tabindex="-1"
             />
           </span>
-          <HoppSmartAutoComplete
+          <SmartEnvInput
+            v-model="header.key"
             :placeholder="`${t('count.header', { count: index + 1 })}`"
-            :source="commonHeaders"
-            :spellcheck="false"
-            :value="header.key"
-            autofocus
-            styles="
-                bg-transparent
-                flex
-                flex-1
-                py-1
-                px-4
-                truncate
-              "
-            class="!flex flex-1"
-            @input="
+            :auto-complete-source="commonHeaders"
+            @change="
               updateHeader(index, {
                 id: header.id,
                 key: $event,
@@ -101,17 +90,14 @@
               })
             "
           />
-          <input
-            class="flex flex-1 bg-transparent px-4 py-2"
+          <SmartEnvInput
+            v-model="header.value"
             :placeholder="`${t('count.value', { count: index + 1 })}`"
-            :name="`value ${String(index)}`"
-            :value="header.value"
-            autofocus
             @change="
               updateHeader(index, {
                 id: header.id,
                 key: header.key,
-                value: ($event!.target! as HTMLInputElement).value,
+                value: $event,
                 active: header.active,
               })
             "

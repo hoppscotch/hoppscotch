@@ -5,6 +5,8 @@ import { pipe } from "fp-ts/function"
 import * as TE from "fp-ts/lib/TaskEither"
 import cloneDeep from "lodash/clone"
 
+import { createContext, runInContext } from "vm"
+
 import { getEnv, setEnv } from "../../utils"
 
 type Envs = {
@@ -19,7 +21,6 @@ export const execPreRequestScriptForNode = (
   pipe(
     TE.tryCatch(
       async () => {
-        const { createContext } = await import("vm")
         return createContext()
       },
       (reason) => `Context initialization failed: ${reason}`
@@ -132,8 +133,6 @@ const executeScriptInContextForNode = (
 
       // Expose pw to the context
       context.pw = pw
-
-      const { runInContext } = await import("vm")
 
       // Run the test script in the provided context
       runInContext(preRequestScript, context)

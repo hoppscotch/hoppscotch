@@ -9,7 +9,7 @@ import {
   runTestScriptForWeb,
   TestDescriptor,
   TestResult,
-} from "@hoppscotch/js-sandbox"
+} from "@hoppscotch/js-sandbox/web"
 import * as E from "fp-ts/Either"
 import { cloneDeep } from "lodash-es"
 import {

@@ -1,7 +1,7 @@
 import * as TE from "fp-ts/TaskEither"
 
 import { TestResponse, TestResult } from "../../types"
-import { SandboxTestResult } from "~/index"
+import { SandboxTestResult } from "~/node"
 
 import Worker from "./worker?worker&inline"
 

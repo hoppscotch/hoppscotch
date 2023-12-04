@@ -1,4 +1,4 @@
-import { runPreRequestScriptForWeb } from "@hoppscotch/js-sandbox"
+import { runPreRequestScriptForWeb } from "@hoppscotch/js-sandbox/web"
 import { Environment } from "@hoppscotch/data"
 import { cloneDeep } from "lodash-es"
 import {

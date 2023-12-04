@@ -7,8 +7,15 @@
   "type": "commonjs",
   "exports": {
     ".": {
-      "import": "./dist/js-sandbox.mjs",
-      "require": "./dist/js-sandbox.js"
+      "types": "./lib/"
+    },
+    "./web": {
+      "import": "./dist/web.mjs",
+      "require": "./dist/web.js"
+    },
+    "./node": {
+      "import": "./dist/node.mjs",
+      "require": "./dist/node.js"
     }
   },
   "types": "./lib/",

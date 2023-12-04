@@ -1,5 +1,5 @@
 import { HoppRESTRequest } from "@hoppscotch/data";
-import { runTestScriptForNode, TestDescriptor } from "@hoppscotch/js-sandbox";
+import { runTestScriptForNode, TestDescriptor } from "@hoppscotch/js-sandbox/node";
 import { hrtime } from "process";
 import { flow, pipe } from "fp-ts/function";
 import * as RA from "fp-ts/ReadonlyArray";

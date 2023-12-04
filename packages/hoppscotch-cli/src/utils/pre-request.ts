@@ -6,7 +6,7 @@ import {
   parseTemplateString,
   parseTemplateStringE,
 } from "@hoppscotch/data";
-import { runPreRequestScriptForNode } from "@hoppscotch/js-sandbox";
+import { runPreRequestScriptForNode } from "@hoppscotch/js-sandbox/node";
 import { flow, pipe } from "fp-ts/function";
 import * as TE from "fp-ts/TaskEither";
 import * as E from "fp-ts/Either";

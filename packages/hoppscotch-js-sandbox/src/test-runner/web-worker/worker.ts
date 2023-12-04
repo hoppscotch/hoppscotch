@@ -10,8 +10,12 @@ import { pipe } from "fp-ts/lib/function"
 import { cloneDeep } from "lodash-es"
 
 import { TestDescriptor, TestResponse, TestResult } from "../../types"
-import { getEnv, preventCyclicObjects, setEnv } from "../../utils"
-import { createExpectation } from "../node-vm"
+import {
+  getEnv,
+  preventCyclicObjects,
+  setEnv,
+  createExpectation,
+} from "../../utils"
 
 const executeScriptInContextForWeb = (
   testScript: string,

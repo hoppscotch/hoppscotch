@@ -96,6 +96,7 @@
       <HttpRequestOptions
         v-model="tab.document.request"
         v-model:option-tab="selectedOptionTab"
+        :properties="properties"
       />
     </div>
 
@@ -131,7 +132,7 @@ const props = defineProps<{
 
 const tab = useModel(props, "modelTab")
 
-const selectedOptionTab = ref("params")
+const selectedOptionTab = ref(props.properties[0])
 
 console.log("request", tab.value.document.request)
 

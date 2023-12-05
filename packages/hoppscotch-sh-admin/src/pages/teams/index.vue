@@ -24,7 +24,7 @@
               class="text-secondary border-b border-dividerDark text-sm text-left bg-primaryLight"
             >
               <th class="px-6 py-2">{{ t('teams.id') }}</th>
-              <th class="px-6 py-3">{{ t('teams.name') }}</th>
+              <th class="px-6 py-2">{{ t('teams.name') }}</th>
               <th class="px-6 py-2">{{ t('teams.members') }}</th>
               <!-- Empty Heading for the Action Button -->
               <th class="px-6 py-2"></th>

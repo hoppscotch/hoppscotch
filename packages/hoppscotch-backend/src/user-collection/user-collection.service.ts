@@ -229,6 +229,7 @@ export class UserCollectionService {
     const isTitleValid = isValidLength(title, this.TITLE_LENGTH);
     if (!isTitleValid) return E.left(USER_COLL_SHORT_TITLE);
 
+    if (data === '') return E.left(USER_COLL_DATA_INVALID);
     if (data) {
       const jsonReq = stringToJson(data);
       if (E.isLeft(jsonReq)) return E.left(USER_COLL_DATA_INVALID);
@@ -1099,6 +1100,8 @@ export class UserCollectionService {
     userCollectionID: string,
     userID: string,
   ) {
+    if (collectionData === '') return E.left(USER_COLL_DATA_INVALID);
+
     if (collectionData) {
       const jsonReq = stringToJson(collectionData);
       if (E.isLeft(jsonReq)) return E.left(USER_COLL_DATA_INVALID);

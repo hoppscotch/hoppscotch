@@ -503,6 +503,7 @@ export class TeamCollectionService {
       if (O.isNone(isOwner)) return E.left(TEAM_NOT_OWNER);
     }
 
+    if (data === '') return E.left(TEAM_COLL_DATA_INVALID);
     if (data) {
       const jsonReq = stringToJson(data);
       if (E.isLeft(jsonReq)) return E.left(TEAM_COLL_DATA_INVALID);
@@ -1015,7 +1016,7 @@ export class TeamCollectionService {
    */
   async updateTeamCollection(
     collectionID: string,
-    collectionData: string,
+    collectionData: string = null,
     newTitle: string = null,
   ) {
     try {
@@ -1024,6 +1025,7 @@ export class TeamCollectionService {
         if (!isTitleValid) return E.left(TEAM_COLL_SHORT_TITLE);
       }
 
+      if (collectionData === '') return E.left(TEAM_COLL_DATA_INVALID);
       if (collectionData) {
         const jsonReq = stringToJson(collectionData);
         if (E.isLeft(jsonReq)) return E.left(TEAM_COLL_DATA_INVALID);
@@ -1033,7 +1035,7 @@ export class TeamCollectionService {
       const updatedTeamCollection = await this.prisma.teamCollection.update({
         where: { id: collectionID },
         data: {
-          data: collectionData,
+          data: collectionData ?? undefined,
           title: newTitle ?? undefined,
         },
       });

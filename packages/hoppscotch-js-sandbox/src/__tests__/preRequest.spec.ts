@@ -1,4 +1,4 @@
-import { runPreRequestScript } from "../pre-request/node-vm"
+import { runPreRequestScript } from "~/pre-request/node-vm"
 import "@relmify/jest-fp-ts"
 
 describe("execPreRequestScript", () => {

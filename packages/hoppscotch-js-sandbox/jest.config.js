@@ -3,4 +3,7 @@ export default {
   testEnvironment: "jsdom",
   collectCoverage: true,
   setupFilesAfterEnv: ["./jest.setup.ts"],
+  moduleNameMapper: {
+    "~/(.*)": "<rootDir>/src/$1",
+  },
 }

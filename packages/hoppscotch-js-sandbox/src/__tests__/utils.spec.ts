@@ -1,4 +1,4 @@
-import { preventCyclicObjects } from "../utils"
+import { preventCyclicObjects } from "~/utils"
 
 describe("preventCyclicObjects", () => {
   test("succeeds with a simple object", () => {

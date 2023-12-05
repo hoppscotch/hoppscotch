@@ -11,6 +11,7 @@ import {
   USER_COLL_SHORT_TITLE,
   USER_COLL_ALREADY_ROOT,
   USER_NOT_OWNER,
+  USER_COLL_DATA_INVALID,
 } from 'src/errors';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { PubSubService } from 'src/pubsub/pubsub.service';
@@ -1724,6 +1725,110 @@ describe('updateUserCollectionOrder', () => {
           ...childRESTUserCollectionListCasted[2],
           userID: childRESTUserCollectionListCasted[2].userID,
         },
+      },
+    );
+  });
+});
+
+describe('updateUserCollection', () => {
+  test('should throw USER_COLL_DATA_INVALID is collection data is invalid', async () => {
+    const result = await userCollectionService.updateUserCollection(
+      rootRESTUserCollection.title,
+      '{',
+      rootRESTUserCollection.id,
+      rootRESTUserCollection.userUid,
+    );
+    expect(result).toEqualLeft(USER_COLL_DATA_INVALID);
+  });
+
+  test('should throw USER_COLL_SHORT_TITLE if title is invalid', async () => {
+    const result = await userCollectionService.updateUserCollection(
+      '',
+      JSON.stringify(rootRESTUserCollection.data),
+      rootRESTUserCollection.id,
+      rootRESTUserCollection.userUid,
+    );
+
+    expect(result).toEqualLeft(USER_COLL_SHORT_TITLE);
+  });
+
+  test('should throw USER_NOT_OWNER is user is not owner of collection', async () => {
+    // isOwnerCheck
+    mockPrisma.userCollection.findFirstOrThrow.mockRejectedValueOnce(
+      'NotFoundError',
+    );
+
+    const result = await userCollectionService.updateUserCollection(
+      rootRESTUserCollection.title,
+      JSON.stringify(rootRESTUserCollection.data),
+      rootRESTUserCollection.id,
+      rootRESTUserCollection.userUid,
+    );
+
+    expect(result).toEqualLeft(USER_NOT_OWNER);
+  });
+
+  test('should throw USER_COLL_NOT_FOUND is collectionID is invalid', async () => {
+    // isOwnerCheck
+    mockPrisma.userCollection.findUniqueOrThrow.mockResolvedValueOnce({
+      ...rootRESTUserCollection,
+    });
+    mockPrisma.userCollection.update.mockRejectedValueOnce('RecordNotFound');
+
+    const result = await userCollectionService.updateUserCollection(
+      rootRESTUserCollection.title,
+      JSON.stringify(rootRESTUserCollection.data),
+      'invalid_id',
+      rootRESTUserCollection.userUid,
+    );
+    expect(result).toEqualLeft(USER_COLL_NOT_FOUND);
+  });
+
+  test('should successfully update a collection', async () => {
+    // isOwnerCheck
+    mockPrisma.userCollection.findUniqueOrThrow.mockResolvedValueOnce({
+      ...rootRESTUserCollection,
+    });
+    mockPrisma.userCollection.update.mockResolvedValueOnce(
+      rootRESTUserCollection,
+    );
+
+    const result = await userCollectionService.updateUserCollection(
+      'new_title',
+      JSON.stringify({ foo: 'bar' }),
+      rootRESTUserCollection.id,
+      rootRESTUserCollection.userUid,
+    );
+
+    expect(result).toEqualRight({
+      data: JSON.stringify({ foo: 'bar' }),
+      title: 'new_title',
+      ...rootRESTUserCollectionCasted,
+    });
+  });
+
+  test('should send pubsub message to "user_coll/<userID>/updated" when UserCollection is updated successfully', async () => {
+    // isOwnerCheck
+    mockPrisma.userCollection.findUniqueOrThrow.mockResolvedValueOnce({
+      ...rootRESTUserCollection,
+    });
+    mockPrisma.userCollection.update.mockResolvedValueOnce(
+      rootRESTUserCollection,
+    );
+
+    const result = await userCollectionService.updateUserCollection(
+      'new_title',
+      JSON.stringify({ foo: 'bar' }),
+      rootRESTUserCollection.id,
+      rootRESTUserCollection.userUid,
+    );
+
+    expect(mockPubSub.publish).toHaveBeenCalledWith(
+      `user_coll/${rootRESTUserCollectionCasted.userID}/updated`,
+      {
+        data: JSON.stringify({ foo: 'bar' }),
+        title: 'new_title',
+        ...rootRESTUserCollectionCasted,
       },
     );
   });

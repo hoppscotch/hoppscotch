@@ -1,12 +1,23 @@
 <template>
-  <div class="relative flex flex-col space-y-2 overflow-hidden" :class="expand ? 'h-full' : 'max-h-32'">
+  <div
+    class="relative flex flex-col space-y-2 overflow-hidden"
+    :class="expand ? 'h-full' : 'max-h-32'"
+  >
     <slot name="body"></slot>
-    <div class="sticky inset-x-0 bottom-0 flex items-center justify-center flex-shrink-0 overflow-x-auto">
-      <HoppButtonSecondary :icon="expand ? IconChevronUp : IconChevronDown" :label="
-        expand
-          ? less ?? t?.('action.less') ?? 'Less'
-          : more ?? t?.('action.more') ?? 'More'
-      " filled rounded @click="expand = !expand" />
+    <div
+      class="sticky inset-x-0 bottom-0 flex items-center justify-center flex-shrink-0 overflow-x-auto"
+    >
+      <HoppButtonSecondary
+        :icon="expand ? IconChevronUp : IconChevronDown"
+        :label="
+          expand
+            ? less ?? t?.('action.less') ?? 'Less'
+            : more ?? t?.('action.more') ?? 'More'
+        "
+        filled
+        rounded
+        @click="expand = !expand"
+      />
     </div>
   </div>
 </template>

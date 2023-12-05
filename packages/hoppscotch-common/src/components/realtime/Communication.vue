@@ -279,6 +279,7 @@ defineActionHandler("request.send-cancel", sendMessage)
 :deep(.cm-panels) {
   @apply top-upperSecondaryStickyFold #{!important};
 }
+
 .eventFeildShown :deep(.cm-panels),
 .cmResponsePrimaryStickyFold :deep(.cm-panels) {
   @apply top-upperTertiaryStickyFold #{!important};

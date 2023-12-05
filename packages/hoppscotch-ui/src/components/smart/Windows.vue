@@ -24,7 +24,7 @@
                 <button
                   :key="`removable-tab-${tabID}`"
                   :id="`removable-tab-${tabID}`"
-                  class="px-2 tab group"
+                  class="tab group"
                   :class="[{ active: modelValue === tabID }]"
                   :aria-label="tabMeta.label || ''"
                   role="button"
@@ -382,9 +382,10 @@ watch(
   .tab {
     @apply relative;
     @apply flex;
-    @apply py-2;
+    @apply p-2;
     @apply font-semibold;
     @apply w-46;
+    @apply h-12;
     @apply transition;
     @apply flex-1;
     @apply items-center;

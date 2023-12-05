@@ -8,12 +8,11 @@
     @click.middle="emit('close-tab')"
   >
     <span
-      class="text-tiny font-semibold"
+      class="text-tiny font-semibold mr-2"
       :style="{ color: getMethodLabelColorClassOf(tab.document.request) }"
     >
       {{ tab.document.request.method }}
     </span>
-
     <tippy
       ref="options"
       trigger="manual"
@@ -21,7 +20,7 @@
       theme="popover"
       :on-shown="() => tippyActions!.focus()"
     >
-      <span class="truncate px-2 leading-8">
+      <span class="truncate">
         {{ tab.document.request.name }}
       </span>
       <template #content="{ hide }">

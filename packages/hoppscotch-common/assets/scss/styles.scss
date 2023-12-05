@@ -76,7 +76,7 @@ body {
   @apply font-medium;
   @apply select-none;
   @apply overflow-x-hidden;
-  @apply leading-body;
+  @apply leading-body #{!important};
   animation: fade 300ms forwards;
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
@@ -174,7 +174,7 @@ a {
     @apply font-semibold;
     @apply px-2 py-1;
     @apply truncate;
-    @apply leading-normal;
+    @apply leading-body;
     @apply items-center;
 
     kbd {
@@ -221,7 +221,7 @@ a {
     @apply overflow-y-auto;
     @apply text-body text-secondary;
     @apply p-2;
-    @apply leading-normal;
+    @apply leading-body;
     @apply focus:outline-none;
     scroll-behavior: smooth;
 

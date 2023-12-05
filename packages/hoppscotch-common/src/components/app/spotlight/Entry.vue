@@ -9,8 +9,8 @@
   >
     <component
       :is="entry.icon"
-      class="svg-icons opacity-50"
-      :class="{ 'opacity-100': active }"
+      class="svg-icons opacity-80"
+      :class="{ 'opacity-25': active }"
     />
     <template
       v-if="entry.text.type === 'text' && typeof entry.text.text === 'string'"
@@ -82,9 +82,9 @@ const props = defineProps<{
 
 const formattedShortcutKeys = computed(
   () =>
-    props.entry.meta?.keyboardShortcut?.map((key) => {
-      return SPECIAL_KEY_CHARS[key] ?? capitalize(key)
-    })
+    props.entry.meta?.keyboardShortcut?.map(
+      (key) => SPECIAL_KEY_CHARS[key] ?? capitalize(key)
+    )
 )
 
 const emit = defineEmits<{

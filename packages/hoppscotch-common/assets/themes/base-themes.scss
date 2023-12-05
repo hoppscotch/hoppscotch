@@ -20,25 +20,25 @@
 }
 
 @mixin light-theme {
-  --primary-color: #ffffff;
-  --primary-light-color: #f9fafb;
-  --primary-dark-color: #f3f4f6;
+  --primary-color: theme("colors.white");
+  --primary-light-color: theme("colors.gray.50");
+  --primary-dark-color: theme("colors.gray.100");
   --primary-contrast-color: #fdfdfd;
 
-  --secondary-color: #6b7280;
-  --secondary-light-color: #9ca3af;
-  --secondary-dark-color: #111827;
+  --secondary-color: theme("colors.gray.500");
+  --secondary-light-color: theme("colors.gray.400");
+  --secondary-dark-color: theme("colors.gray.900");
 
-  --divider-color: #f3f4f6;
-  --divider-light-color: #f3f4f6;
-  --divider-dark-color: #d1d5db;
+  --divider-color: theme("colors.gray.100");
+  --divider-light-color: theme("colors.gray.100");
+  --divider-dark-color: theme("colors.gray.300");
 
   --banner-info-color: theme("colors.stone.100");
   --banner-warning-color: theme("colors.yellow.100");
   --banner-error-color: theme("colors.red.100");
 
-  --tooltip-color: #262626;
-  --popover-color: #ffffff;
+  --tooltip-color: theme("colors.neutral.800");
+  --popover-color: theme("colors.white");
 
   --method-get-color: theme("colors.green.500");
   --method-post-color: theme("colors.amber.500");
@@ -62,22 +62,22 @@
 @mixin dark-theme {
   --primary-color: #181818;
   --primary-light-color: #1c1c1e;
-  --primary-dark-color: #262626;
-  --primary-contrast-color: #171717;
+  --primary-dark-color: theme("colors.neutral.800");
+  --primary-contrast-color: theme("colors.neutral.900");
 
-  --secondary-color: #a3a3a3;
-  --secondary-light-color: #737373;
-  --secondary-dark-color: #fafafa;
+  --secondary-color: theme("colors.neutral.400");
+  --secondary-light-color: theme("colors.neutral.500");
+  --secondary-dark-color: theme("colors.zinc.50");
 
-  --divider-color: #262626;
+  --divider-color: theme("colors.neutral.800");
   --divider-light-color: #1f1f1f;
-  --divider-dark-color: #2d2d2d;
+  --divider-dark-color: theme("colors.zinc.800");
 
   --banner-info-color: theme("colors.stone.800");
   --banner-warning-color: theme("colors.yellow.800");
   --banner-error-color: theme("colors.red.800");
 
-  --tooltip-color: #f5f5f5;
+  --tooltip-color: theme("colors.neutral.100");
   --popover-color: #1b1b1b;
 
   --method-get-color: theme("colors.emerald.500");
@@ -100,25 +100,25 @@
 }
 
 @mixin black-theme {
-  --primary-color: #0f0f0f;
-  --primary-light-color: #171717;
-  --primary-dark-color: #181818;
+  --primary-color: theme("colors.stone.950");
+  --primary-light-color: theme("colors.neutral.900");
+  --primary-dark-color: theme("colors.zinc.900");
   --primary-contrast-color: #0f0f0f;
 
-  --secondary-color: #a3a3a3;
-  --secondary-light-color: #737373;
-  --secondary-dark-color: #f5f5f5;
+  --secondary-color: theme("colors.neutral.400");
+  --secondary-light-color: theme("colors.neutral.500");
+  --secondary-dark-color: theme("colors.neutral.50");
 
-  --divider-color: #1c1c1e;
-  --divider-light-color: #181818;
-  --divider-dark-color: #323232;
+  --divider-color: theme("colors.neutral.800");
+  --divider-light-color: theme("colors.neutral.900");
+  --divider-dark-color: theme("colors.zinc.800");
 
   --banner-info-color: theme("colors.stone.900");
   --banner-warning-color: theme("colors.yellow.900");
   --banner-error-color: theme("colors.red.900");
 
-  --tooltip-color: #f5f5f5;
-  --popover-color: #0f0f0f;
+  --tooltip-color: theme("colors.neutral.100");
+  --popover-color: theme("colors.stone.950");
 
   --method-get-color: theme("colors.emerald.500");
   --method-post-color: theme("colors.yellow.500");

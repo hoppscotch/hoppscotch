@@ -2,6 +2,15 @@ import * as E from "fp-ts/Either"
 import * as O from "fp-ts/Option"
 
 import { TestDescriptor, TestResult } from "./types"
+import { Environment, parseTemplateStringE } from "@hoppscotch/data"
+import { pipe } from "fp-ts/lib/function"
+import { cloneDeep } from "lodash-es"
+
+// TODO: Move to types
+type Envs = {
+  global: Environment["variables"]
+  selected: Environment["variables"]
+}
 
 export function preventCyclicObjects(
   obj: Record<string, any>
@@ -284,4 +293,205 @@ export const createExpectation = (
   })
 
   return result
+}
+
+/**
+ * Compiles methods for use under the `pw` namespace for pre request scripts
+ * @param envs The current state of the environment variables
+ * @returns Object with methods in the `pw` namespace and updated environments
+ */
+export const getPreRequestScriptMethods = (envs: Envs) => {
+  let currentEnvs = cloneDeep(envs)
+
+  const envGetHandle = (key: any) => {
+    if (typeof key !== "string") {
+      return "Expected key to be a string"
+    }
+
+    const result = pipe(
+      getEnv(key, currentEnvs),
+      O.match(
+        () => undefined,
+        ({ value }) => String(value)
+      )
+    )
+
+    return result
+  }
+
+  const envGetResolveHandle = (key: any) => {
+    if (typeof key !== "string") {
+      return "Expected key to be a string"
+    }
+
+    const result = pipe(
+      getEnv(key, currentEnvs),
+      E.fromOption(() => "INVALID_KEY" as const),
+
+      E.map(({ value }) =>
+        pipe(
+          parseTemplateStringE(value, [...envs.selected, ...envs.global]),
+          // If the recursive resolution failed, return the unresolved value
+          E.getOrElse(() => value)
+        )
+      ),
+      E.map((x) => String(x)),
+      E.getOrElseW(() => undefined)
+    )
+
+    return result
+  }
+
+  const envSetHandle = (key: any, value: any) => {
+    if (typeof key !== "string") {
+      return "Expected key to be a string"
+    }
+
+    if (typeof value !== "string") {
+      return "Expected value to be a string"
+    }
+
+    currentEnvs = setEnv(key, value, currentEnvs)
+
+    return undefined
+  }
+
+  const envResolveHandle = (value: any) => {
+    if (typeof value !== "string") {
+      return "Expected value to be a string"
+    }
+
+    const result = pipe(
+      parseTemplateStringE(value, [
+        ...currentEnvs.selected,
+        ...currentEnvs.global,
+      ]),
+      E.getOrElse(() => value)
+    )
+
+    return String(result)
+  }
+
+  const pw = {
+    env: {
+      get: envGetHandle,
+      getResolve: envGetResolveHandle,
+      set: envSetHandle,
+      resolve: envResolveHandle,
+    },
+  }
+
+  return { pw, updatedEnvs: currentEnvs }
+}
+
+/**
+ * Compiles methods for use under the `pw` namespace for post request scripts
+ * @param envs The current state of the environment variables
+ * @returns Object with methods in the `pw` namespace and updated environments
+ */
+export const getTestRunnerScriptMethods = (envs: Envs) => {
+  let currentEnvs = cloneDeep(envs)
+
+  const testRunStack: TestDescriptor[] = [
+    { descriptor: "root", expectResults: [], children: [] },
+  ]
+
+  const testFuncHandle = (descriptor: string, testFunc: () => void) => {
+    testRunStack.push({
+      descriptor,
+      expectResults: [],
+      children: [],
+    })
+
+    testFunc()
+
+    const child = testRunStack.pop() as TestDescriptor
+    testRunStack[testRunStack.length - 1].children.push(child)
+  }
+
+  const expectFnHandle = (expectVal: any) =>
+    createExpectation(expectVal, false, testRunStack)
+
+  const envGetHandle = (key: any) => {
+    if (typeof key !== "string") {
+      return "Expected key to be a string"
+    }
+
+    const result = pipe(
+      getEnv(key, currentEnvs),
+      O.match(
+        () => undefined,
+        ({ value }) => String(value)
+      )
+    )
+
+    return result
+  }
+
+  const envGetResolveHandle = (key: any) => {
+    if (typeof key !== "string") {
+      return "Expected key to be a string"
+    }
+
+    const result = pipe(
+      getEnv(key, currentEnvs),
+      E.fromOption(() => "INVALID_KEY" as const),
+
+      E.map(({ value }) =>
+        pipe(
+          parseTemplateStringE(value, [...envs.selected, ...envs.global]),
+          // If the recursive resolution failed, return the unresolved value
+          E.getOrElse(() => value)
+        )
+      ),
+      E.map((x) => String(x)),
+
+      E.getOrElseW(() => undefined)
+    )
+
+    return result
+  }
+
+  const envSetHandle = (key: any, value: any) => {
+    if (typeof key !== "string") {
+      return "Expected key to be a string"
+    }
+
+    if (typeof value !== "string") {
+      return "Expected value to be a string"
+    }
+
+    currentEnvs = setEnv(key, value, currentEnvs)
+
+    return undefined
+  }
+
+  const envResolveHandle = (value: any) => {
+    if (typeof value !== "string") {
+      return "Expected value to be a string"
+    }
+
+    const result = pipe(
+      parseTemplateStringE(value, [
+        ...currentEnvs.selected,
+        ...currentEnvs.global,
+      ]),
+      E.getOrElse(() => value)
+    )
+
+    return String(result)
+  }
+
+  const pw = {
+    expect: expectFnHandle,
+    test: testFuncHandle,
+    env: {
+      get: envGetHandle,
+      getResolve: envGetResolveHandle,
+      set: envSetHandle,
+      resolve: envResolveHandle,
+    },
+  }
+
+  return { pw, testRunStack, updatedEnvs: currentEnvs }
 }

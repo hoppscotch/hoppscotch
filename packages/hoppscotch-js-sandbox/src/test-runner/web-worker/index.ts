@@ -16,8 +16,6 @@ export const runTestScript = (
 
     // Listen for the result from the web worker
     worker.addEventListener("message", (event: MessageEvent) => {
-      console.log("Received message from worker", event.data)
-
       if (event.data.messageId === messageId) {
         if (event.data.result) {
           resolve(event.data.result)

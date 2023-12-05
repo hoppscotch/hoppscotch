@@ -6,6 +6,15 @@
     }}</span>
     {{ t('state.login_as_admin') }}
   </div>
+
+  <!-- <div v-else-if="fetching" class="flex justify-center py-6">
+    <HoppSmartSpinner />
+  </div>
+
+  <div v-else-if="error">
+    <p class="text-xl">Error</p>
+  </div> -->
+
   <div v-else class="flex flex-1 flex-col">
     <div
       class="p-6 bg-primaryLight rounded-lg border border-primaryDark shadow"
@@ -142,7 +151,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, computed } from 'vue';
 import IconGithub from '~icons/auth/github';
 import IconGoogle from '~icons/auth/google';
 import IconEmail from '~icons/auth/email';
@@ -155,6 +164,8 @@ import { useToast } from '~/composables/toast';
 import { auth } from '~/helpers/auth';
 import { HoppButtonPrimary, HoppButtonSecondary } from '@hoppscotch/ui';
 import { useI18n } from '~/composables/i18n';
+import { useQuery } from '@urql/vue';
+import { AllowedAuthProvidersDocument } from '~/helpers/backend/graphql';
 
 const { subscribeToStream } = useStreamSubscriber();
 
@@ -164,6 +175,11 @@ const toast = useToast();
 const tosLink = import.meta.env.VITE_APP_TOS_LINK;
 const privacyPolicyLink = import.meta.env.VITE_APP_PRIVACY_POLICY_LINK;
 const allowedAuthProviders = import.meta.env.VITE_ALLOWED_AUTH_PROVIDERS;
+
+// const { fetching, error, data } = useQuery({
+//   query: AllowedAuthProvidersDocument,
+// });
+// const allowedAuthProviders = computed(() => data?.value?.allowedAuthProviders);
 
 // DATA
 

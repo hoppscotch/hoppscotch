@@ -222,15 +222,18 @@ export class UserCollectionService {
   async createUserCollection(
     user: AuthUser,
     title: string,
-    data: string,
+    data: string | null = null,
     parentUserCollectionID: string | null,
     type: ReqType,
   ) {
     const isTitleValid = isValidLength(title, this.TITLE_LENGTH);
     if (!isTitleValid) return E.left(USER_COLL_SHORT_TITLE);
 
-    const collectionData = stringToJson(data);
-    if (E.isLeft(collectionData)) return E.left(USER_COLL_DATA_INVALID);
+    if (data) {
+      const jsonReq = stringToJson(data);
+      if (E.isLeft(jsonReq)) return E.left(USER_COLL_DATA_INVALID);
+      data = jsonReq.right;
+    }
 
     // If creating a child collection
     if (parentUserCollectionID !== null) {
@@ -266,7 +269,7 @@ export class UserCollectionService {
           },
         },
         parent: isParent,
-        data: collectionData.right,
+        data: data ?? undefined,
         orderIndex: !parentUserCollectionID
           ? (await this.getRootCollectionsCount(user.uid)) + 1
           : (await this.getChildCollectionsCount(parentUserCollectionID)) + 1,
@@ -1092,7 +1095,7 @@ export class UserCollectionService {
    */
   async updateUserCollection(
     newTitle: string = null,
-    collectionData: string,
+    collectionData: string | null = null,
     userCollectionID: string,
     userID: string,
   ) {
@@ -1117,7 +1120,7 @@ export class UserCollectionService {
           id: userCollectionID,
         },
         data: {
-          data: collectionData,
+          data: collectionData ?? undefined,
           title: newTitle ?? undefined,
         },
       });

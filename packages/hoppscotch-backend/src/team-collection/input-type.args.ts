@@ -18,6 +18,7 @@ export class CreateRootTeamCollectionArgs {
   @Field({
     name: 'data',
     description: 'JSON string representing the collection data',
+    nullable: true,
   })
   data: string;
 }
@@ -36,6 +37,7 @@ export class CreateChildTeamCollectionArgs {
   @Field({
     name: 'data',
     description: 'JSON string representing the collection data',
+    nullable: true,
   })
   data: string;
 }
@@ -131,6 +133,7 @@ export class UpdateTeamCollectionArgs {
   @Field({
     name: 'data',
     description: 'JSON string representing the collection data',
+    nullable: true,
   })
   data: string;
 }

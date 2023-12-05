@@ -491,7 +491,7 @@ export class TeamCollectionService {
   async createCollection(
     teamID: string,
     title: string,
-    data: string,
+    data: string | null = null,
     parentTeamCollectionID: string | null,
   ) {
     const isTitleValid = isValidLength(title, this.TITLE_LENGTH);
@@ -503,8 +503,11 @@ export class TeamCollectionService {
       if (O.isNone(isOwner)) return E.left(TEAM_NOT_OWNER);
     }
 
-    const collectionData = stringToJson(data);
-    if (E.isLeft(collectionData)) return E.left(TEAM_COLL_DATA_INVALID);
+    if (data) {
+      const jsonReq = stringToJson(data);
+      if (E.isLeft(jsonReq)) return E.left(TEAM_COLL_DATA_INVALID);
+      data = jsonReq.right;
+    }
 
     const isParent = parentTeamCollectionID
       ? {
@@ -523,7 +526,7 @@ export class TeamCollectionService {
           },
         },
         parent: isParent,
-        data: collectionData.right,
+        data: data ?? undefined,
         orderIndex: !parentTeamCollectionID
           ? (await this.getRootCollectionsCount(teamID)) + 1
           : (await this.getChildCollectionsCount(parentTeamCollectionID)) + 1,

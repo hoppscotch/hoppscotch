@@ -10,6 +10,7 @@ export class CreateRootUserCollectionArgs {
   @Field({
     name: 'data',
     description: 'JSON string representing the collection data',
+    nullable: true,
   })
   data: string;
 }
@@ -27,6 +28,7 @@ export class CreateChildUserCollectionArgs {
   @Field({
     name: 'data',
     description: 'JSON string representing the collection data',
+    nullable: true,
   })
   data: string;
 }
@@ -126,6 +128,7 @@ export class UpdateUserCollectionsArgs {
   @Field({
     name: 'data',
     description: 'JSON string representing the collection data',
+    nullable: true,
   })
   data: string;
 }

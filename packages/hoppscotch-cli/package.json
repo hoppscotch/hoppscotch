@@ -19,8 +19,9 @@
     "debugger": "node debugger.js 9999",
     "prepublish": "pnpm exec tsup",
     "prettier-format": "prettier --config .prettierrc 'src/**/*.ts' --write",
+    "test": "pnpm run build && jest && rm -rf dist",
     "do-typecheck": "pnpm exec tsc --noEmit",
-    "test": "pnpm run build && jest && rm -rf dist"
+    "do-test": "pnpm test"
   },
   "keywords": [
     "cli",

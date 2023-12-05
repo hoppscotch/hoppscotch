@@ -25,6 +25,7 @@ import {
   MoveTeamCollectionArgs,
   RenameTeamCollectionArgs,
   ReplaceTeamCollectionArgs,
+  UpdateTeamCollectionArgs,
   UpdateTeamCollectionOrderArgs,
 } from './input-type.args';
 import * as E from 'fp-ts/Either';
@@ -141,7 +142,14 @@ export class TeamCollectionResolver {
     );
 
     if (E.isLeft(teamCollections)) throwErr(teamCollections.left);
-    return teamCollections.right;
+    return <TeamCollection>{
+      id: teamCollections.right.id,
+      title: teamCollections.right.title,
+      parentID: teamCollections.right.parentID,
+      data: !teamCollections.right.data
+        ? null
+        : JSON.stringify(teamCollections.right.data),
+    };
   }
 
   // Mutations
@@ -155,6 +163,7 @@ export class TeamCollectionResolver {
     const teamCollection = await this.teamCollectionService.createCollection(
       args.teamID,
       args.title,
+      args.data,
       null,
     );
 
@@ -230,6 +239,7 @@ export class TeamCollectionResolver {
     const teamCollection = await this.teamCollectionService.createCollection(
       team.right.id,
       args.childTitle,
+      args.data,
       args.collectionID,
     );
 
@@ -239,6 +249,7 @@ export class TeamCollectionResolver {
 
   @Mutation(() => TeamCollection, {
     description: 'Rename a collection',
+    deprecationReason: 'Switch to updateTeamCollection mutation instead',
   })
   @UseGuards(GqlAuthGuard, GqlCollectionTeamMemberGuard)
   @RequiresTeamRole(TeamMemberRole.OWNER, TeamMemberRole.EDITOR)
@@ -301,6 +312,23 @@ export class TeamCollectionResolver {
     );
     if (E.isLeft(request)) throwErr(request.left);
     return request.right;
+  }
+
+  @Mutation(() => TeamCollection, {
+    description: 'Update Team Collection details',
+  })
+  @UseGuards(GqlAuthGuard, GqlCollectionTeamMemberGuard)
+  @RequiresTeamRole(TeamMemberRole.OWNER, TeamMemberRole.EDITOR)
+  async updateTeamCollection(@Args() args: UpdateTeamCollectionArgs) {
+    const updatedTeamCollection =
+      await this.teamCollectionService.updateTeamCollection(
+        args.collectionID,
+        args.data,
+        args.newTitle,
+      );
+
+    if (E.isLeft(updatedTeamCollection)) throwErr(updatedTeamCollection.left);
+    return updatedTeamCollection.right;
   }
 
   // Subscriptions

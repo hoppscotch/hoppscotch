@@ -137,8 +137,8 @@
               !currentUser
                 ? `${t('export.require_github')}`
                 : currentUser.provider !== 'github.com'
-                ? `${t('export.require_github')}`
-                : undefined
+                  ? `${t('export.require_github')}`
+                  : undefined
             "
             class="flex"
           >
@@ -147,8 +147,8 @@
                 !currentUser
                   ? true
                   : currentUser.provider !== 'github.com'
-                  ? true
-                  : false
+                    ? true
+                    : false
               "
               :icon="IconGithub"
               :loading="creatingGistCollection"

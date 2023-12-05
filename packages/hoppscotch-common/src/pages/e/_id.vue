@@ -86,7 +86,6 @@ watch(
         } else if (parsedProperties.theme === "auto") {
           applySetting("BG_COLOR", "system")
         }
-        console.log("properties", JSON.parse(data.right.shortcode.properties))
         properties.value = parsedProperties.options
       }
     }

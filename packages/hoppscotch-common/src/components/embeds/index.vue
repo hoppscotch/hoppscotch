@@ -21,7 +21,7 @@
 
     <div class="flex-1">
       <div
-        class="top-0 z-20 flex-none flex-shrink-0 bg-primary p-4 sm:flex sm:flex-shrink-0 sm:space-x-2"
+        class="flex-none flex-shrink-0 bg-primary p-4 sm:flex sm:flex-shrink-0 sm:space-x-2"
       >
         <div
           class="min-w-52 flex flex-1 whitespace-nowrap rounded border border-divider"
@@ -92,17 +92,13 @@
       </div>
     </div>
 
-    <div>
-      <HttpRequestOptions
-        v-model="tab.document.request"
-        v-model:option-tab="selectedOptionTab"
-        :properties="properties"
-      />
-    </div>
+    <HttpRequestOptions
+      v-model="tab.document.request"
+      v-model:option-tab="selectedOptionTab"
+      :properties="properties"
+    />
 
-    <div>
-      <HttpResponse :document="tab.document" :is-embed="true" />
-    </div>
+    <HttpResponse :document="tab.document" :is-embed="true" />
   </div>
 </template>
 
@@ -133,8 +129,6 @@ const props = defineProps<{
 const tab = useModel(props, "modelTab")
 
 const selectedOptionTab = ref(props.properties[0])
-
-console.log("request", tab.value.document.request)
 
 const requestCancelFunc: Ref<(() => void) | null> = ref(null)
 

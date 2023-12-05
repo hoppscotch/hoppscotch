@@ -358,13 +358,7 @@ const linkVariants: LinkVariant[] = [
 const baseURL = import.meta.env.VITE_SHORTCODE_BASE_URL ?? "https://hopp.sh"
 
 const copyEmbed = () => {
-  //const options = embedOptions.value
-  // const enabledEmbedOptions = options.tabs
-  //   .filter((tab) => tab.enabled)
-  //   .map((tab) => tab.value)
-  //   .toString()
-  //return `<iframe src="${baseURL}/e/${props.request?.id}' style='width: 100%; height: 500px; border: 0; border-radius: 4px; overflow: hidden;'></iframe>`
-  return `${baseURL}/e/${props.request?.id} `
+  return `<iframe src="${baseURL}/e/${props.request?.id}' style='width: 100%; height: 500px; border: 0; border-radius: 4px; overflow: hidden;'></iframe>`
 }
 
 const copyButton = (

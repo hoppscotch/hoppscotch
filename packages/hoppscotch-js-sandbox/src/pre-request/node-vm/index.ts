@@ -4,9 +4,7 @@ import { cloneDeep } from "lodash"
 import { createContext, runInContext } from "vm"
 
 import { TestResult } from "~/types"
-
-// Todo: Investigate why path alias doesn't work for `utils`
-import { getPreRequestScriptMethods } from "../../utils"
+import { getPreRequestScriptMethods } from "~/utils"
 
 export const runPreRequestScript = (
   preRequestScript: string,

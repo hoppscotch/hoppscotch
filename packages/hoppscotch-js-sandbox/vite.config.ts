@@ -1,5 +1,5 @@
+import { resolve } from "path"
 import { defineConfig } from "vite"
-
 import dts from "vite-plugin-dts"
 
 export default defineConfig({
@@ -16,6 +16,11 @@ export default defineConfig({
     },
     rollupOptions: {
       external: ["vm"],
+    },
+  },
+  resolve: {
+    alias: {
+      "~": resolve(__dirname, "./src"),
     },
   },
   plugins: [dts()],

@@ -1,9 +1,5 @@
 import { Environment } from "@hoppscotch/data"
-import {
-  SandboxTestResult,
-  TestDescriptor,
-  TestResult
-} from "@hoppscotch/js-sandbox"
+import { SandboxTestResult, TestDescriptor } from "@hoppscotch/js-sandbox"
 import { runTestScript } from "@hoppscotch/js-sandbox/web"
 import * as A from "fp-ts/Array"
 import * as E from "fp-ts/Either"
@@ -119,12 +115,15 @@ export function runRESTRequest$(
             res
           )
 
-          const runResult =
-            await runTestScript(res.req.testScript, envs.right, {
+          const runResult = await runTestScript(
+            res.req.testScript,
+            envs.right,
+            {
               status: res.statusCode,
               body: getTestableBody(res),
               headers: res.headers,
-            })
+            }
+          )
 
           if (E.isRight(runResult)) {
             tab.value.document.testResults = translateToSandboxTestResults(

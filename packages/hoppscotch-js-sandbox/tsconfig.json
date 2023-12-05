@@ -8,8 +8,7 @@
     "esModuleInterop": true,
     "strict": true,
     "paths": {
-      "~/*": ["./src/*"],
-      "@/*": ["./src/*"]
+      "~/*": ["./src/*"]
     },
     "types": ["@types/node", "@types/jest", "@relmify/jest-fp-ts"],
     "outDir": "./dist/",

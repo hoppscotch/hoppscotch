@@ -2,9 +2,7 @@ import * as TE from "fp-ts/TaskEither"
 import { cloneDeep } from "lodash-es"
 
 import { TestResult } from "~/types"
-
-// Todo: Investigate why path alias doesn't work for `utils`
-import { getPreRequestScriptMethods } from "../../utils"
+import { getPreRequestScriptMethods } from "~/utils"
 
 const executeScriptInContext = (
   preRequestScript: string,

@@ -5,9 +5,7 @@ import { cloneDeep } from "lodash"
 import { createContext, runInContext } from "vm"
 
 import { TestResponse, TestResult } from "~/types"
-
-// Todo: Investigate why path alias doesn't work for `utils`
-import { getTestRunnerScriptMethods, preventCyclicObjects } from "../../utils"
+import { getTestRunnerScriptMethods, preventCyclicObjects } from "~/utils"
 
 export const runTestScript = (
   testScript: string,

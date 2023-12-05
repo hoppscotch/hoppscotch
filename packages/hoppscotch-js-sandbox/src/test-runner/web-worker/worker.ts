@@ -3,9 +3,7 @@ import * as TE from "fp-ts/TaskEither"
 import { cloneDeep } from "lodash-es"
 
 import { SandboxTestResult, TestResponse, TestResult } from "~/types"
-
-// Todo: Investigate why path alias doesn't work for `utils`
-import { getTestRunnerScriptMethods, preventCyclicObjects } from "../../utils"
+import { getTestRunnerScriptMethods, preventCyclicObjects } from "~/utils"
 
 const executeScriptInContext = (
   testScript: string,

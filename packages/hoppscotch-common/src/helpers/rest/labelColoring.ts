@@ -26,3 +26,11 @@ export function getMethodLabelColorClassOf(request: HoppRESTRequest) {
     O.getOrElseW(() => REQUEST_METHOD_LABEL_COLORS.default)
   )
 }
+
+export function getMethodLabelColor(method: string) {
+  return pipe(
+    REQUEST_METHOD_LABEL_COLORS,
+    RR.lookup(method.toLowerCase()),
+    O.getOrElseW(() => REQUEST_METHOD_LABEL_COLORS.default)
+  )
+}

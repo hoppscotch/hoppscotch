@@ -207,12 +207,12 @@
             <div class="my-2 flex flex-1 flex-col space-y-2 pl-4 pr-2">
               <div class="flex flex-1 space-x-4">
                 <span
-                  class="min-w-[8rem] w-1/4 truncate text-tiny font-semibold"
+                  class="min-w-[9rem] w-1/4 truncate text-tiny font-semibold"
                 >
                   {{ t("environment.name") }}
                 </span>
                 <span
-                  class="min-w-[8rem] w-full truncate text-tiny font-semibold"
+                  class="min-w-[9rem] w-full truncate text-tiny font-semibold"
                 >
                   {{ t("environment.value") }}
                 </span>
@@ -222,10 +222,10 @@
                 :key="index"
                 class="flex flex-1 space-x-4"
               >
-                <span class="min-w-[8rem] w-1/4 truncate text-secondaryLight">
+                <span class="min-w-[9rem] w-1/4 truncate text-secondaryLight">
                   {{ variable.key }}
                 </span>
-                <span class="min-w-[8rem] w-full truncate text-secondaryLight">
+                <span class="min-w-[9rem] w-full truncate text-secondaryLight">
                   {{ variable.value }}
                 </span>
               </div>
@@ -262,12 +262,12 @@
             <div v-else class="my-2 flex flex-1 flex-col space-y-2 pl-4 pr-2">
               <div class="flex flex-1 space-x-4">
                 <span
-                  class="min-w-[8rem] w-1/4 truncate text-tiny font-semibold"
+                  class="min-w-[9rem] w-1/4 truncate text-tiny font-semibold"
                 >
                   {{ t("environment.name") }}
                 </span>
                 <span
-                  class="min-w-[8rem] w-full truncate text-tiny font-semibold"
+                  class="min-w-[9rem] w-full truncate text-tiny font-semibold"
                 >
                   {{ t("environment.value") }}
                 </span>
@@ -277,10 +277,10 @@
                 :key="index"
                 class="flex flex-1 space-x-4"
               >
-                <span class="min-w-[8rem] w-1/4 truncate text-secondaryLight">
+                <span class="min-w-[9rem] w-1/4 truncate text-secondaryLight">
                   {{ variable.key }}
                 </span>
-                <span class="min-w-[8rem] w-full truncate text-secondaryLight">
+                <span class="min-w-[9rem] w-full truncate text-secondaryLight">
                   {{ variable.value }}
                 </span>
               </div>

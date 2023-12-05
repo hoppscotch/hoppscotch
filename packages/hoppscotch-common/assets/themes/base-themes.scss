@@ -100,9 +100,9 @@
 }
 
 @mixin black-theme {
-  --primary-color: theme("colors.stone.950");
+  --primary-color: #0f0f0f;
   --primary-light-color: theme("colors.neutral.900");
-  --primary-dark-color: theme("colors.zinc.900");
+  --primary-dark-color: #181818;
   --primary-contrast-color: #0f0f0f;
 
   --secondary-color: theme("colors.neutral.400");

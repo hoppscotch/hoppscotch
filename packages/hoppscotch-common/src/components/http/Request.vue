@@ -23,7 +23,6 @@
                 @input="onSelectMethod($event)"
               />
             </HoppSmartSelectWrapper>
-
             <template #content="{ hide }">
               <div
                 ref="methodTippyActions"
@@ -35,6 +34,9 @@
                   v-for="(method, index) in methods"
                   :key="`method-${index}`"
                   :label="method"
+                  :style="{
+                    color: getMethodLabelColor(method),
+                  }"
                   @click="
                     () => {
                       updateMethod(method)
@@ -260,6 +262,7 @@ import { InterceptorService } from "~/services/interceptor.service"
 import { HoppTab } from "~/services/tab"
 import { HoppRESTDocument } from "~/helpers/rest/document"
 import { RESTTabService } from "~/services/tab/rest"
+import { getMethodLabelColor } from "~/helpers/rest/labelColoring"
 
 const t = useI18n()
 const interceptorService = useService(InterceptorService)
@@ -271,8 +274,8 @@ const methods = [
   "PATCH",
   "DELETE",
   "HEAD",
-  "CONNECT",
   "OPTIONS",
+  "CONNECT",
   "TRACE",
   "CUSTOM",
 ]

@@ -112,7 +112,7 @@ input::placeholder,
 textarea::placeholder,
 .cm-placeholder {
   @apply text-secondary;
-  @apply opacity-50;
+  @apply opacity-50 #{!important};
 }
 
 input,

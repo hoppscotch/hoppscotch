@@ -5,13 +5,12 @@ import { initBackendGQLClient } from "./helpers/backend/GQLClient"
 import { performMigrations } from "./helpers/migrations"
 import { PlatformDef, setPlatformDef } from "./platform"
 
-import "@fontsource-variable/inter"
-import "@fontsource-variable/material-symbols-rounded"
-import "@fontsource-variable/roboto-mono"
-import "nprogress/nprogress.css"
-import "../assets/scss/styles.scss"
 import "../assets/scss/tailwind.scss"
 import "../assets/themes/themes.scss"
+import "../assets/scss/styles.scss"
+import "nprogress/nprogress.css"
+
+import "unfonts.css"
 
 import App from "./App.vue"
 import { getService } from "./modules/dioc"

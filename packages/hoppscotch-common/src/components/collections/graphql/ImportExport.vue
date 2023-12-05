@@ -38,8 +38,8 @@
                   !currentUser
                     ? `${t('export.require_github')}`
                     : currentUser.provider !== 'github.com'
-                    ? `${t('export.require_github')}`
-                    : undefined
+                      ? `${t('export.require_github')}`
+                      : undefined
                 "
               >
                 <HoppSmartItem
@@ -47,8 +47,8 @@
                     !currentUser
                       ? true
                       : currentUser.provider !== 'github.com'
-                      ? true
-                      : false
+                        ? true
+                        : false
                   "
                   :icon="IconGithub"
                   :label="t('export.create_secret_gist')"

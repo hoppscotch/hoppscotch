@@ -45,8 +45,8 @@
               connectionState === 'STARTING'
                 ? t('action.starting')
                 : connectionState === 'STOPPED'
-                ? t('action.start')
-                : t('action.stop')
+                  ? t('action.start')
+                  : t('action.stop')
             "
             :loading="connectionState === 'STARTING'"
             @click="toggleSSEConnection"

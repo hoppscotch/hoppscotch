@@ -85,8 +85,8 @@
               connectionState === 'CONNECTING'
                 ? t('action.connecting')
                 : connectionState === 'DISCONNECTED'
-                ? t('action.connect')
-                : t('action.disconnect')
+                  ? t('action.connect')
+                  : t('action.disconnect')
             "
             :loading="connectionState === 'CONNECTING'"
             @click="toggleConnection"

@@ -296,7 +296,7 @@ export class AuthService {
       );
     }
 
-    const currentTime = DateTime.now().toISO();
+    const currentTime = DateTime.now().toUTC().toISO();
     if (currentTime > passwordlessTokens.value.expiresOn.toISOString())
       return E.left({
         message: MAGIC_LINK_EXPIRED,

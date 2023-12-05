@@ -121,7 +121,12 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  (e: "customize-shared-request", request: HoppRESTRequest, id: string): void
+  (
+    e: "customize-shared-request",
+    request: HoppRESTRequest,
+    id: string,
+    embedProperties?: string | null
+  ): void
   (e: "delete-shared-request", codeID: string): void
   (e: "open-new-tab", request: HoppRESTRequest): void
 }>()
@@ -144,7 +149,13 @@ const openInNewTab = () => {
 }
 
 const customizeSharedRequest = () => {
-  emit("customize-shared-request", parseRequest.value, props.request.id)
+  const embedProperties = props.request.properties
+  emit(
+    "customize-shared-request",
+    parseRequest.value,
+    props.request.id,
+    embedProperties
+  )
 }
 
 const deleteSharedRequest = () => {

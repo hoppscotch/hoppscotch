@@ -132,7 +132,7 @@ const embedOption = ref<EmbedOption>({
     {
       value: "authorization",
       label: t("tab.authorization"),
-      enabled: true,
+      enabled: false,
     },
   ],
   theme: "system",

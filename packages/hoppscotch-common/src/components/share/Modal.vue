@@ -21,6 +21,7 @@
       <ShareCustomizeModal
         v-else-if="step === 2"
         v-model="selectedWidget"
+        v-model:embed-options="embedOptions"
         :request="request"
         :loading="loading"
         @copy-shared-request="copySharedRequest"
@@ -53,6 +54,18 @@ import { useI18n } from "~/composables/i18n"
 
 const t = useI18n()
 
+type EmbedTabs = "parameters" | "body" | "headers" | "authorization"
+
+type EmbedOption = {
+  selectedTab: EmbedTabs
+  tabs: {
+    value: EmbedTabs
+    label: string
+    enabled: boolean
+  }[]
+  theme: "light" | "dark" | "system"
+}
+
 const props = defineProps({
   request: {
     type: Object as PropType<HoppRESTRequest | null>,
@@ -75,6 +88,35 @@ const props = defineProps({
     type: Number,
     default: 1,
   },
+  embedOptions: {
+    type: Object as PropType<EmbedOption>,
+    default: () => ({
+      selectedTab: "parameters",
+      tabs: [
+        {
+          value: "parameters",
+          label: "shared_requests.parameters",
+          enabled: true,
+        },
+        {
+          value: "body",
+          label: "shared_requests.body",
+          enabled: true,
+        },
+        {
+          value: "headers",
+          label: "shared_requests.headers",
+          enabled: true,
+        },
+        {
+          value: "authorization",
+          label: "shared_requests.authorization",
+          enabled: false,
+        },
+      ],
+      theme: "system",
+    }),
+  },
 })
 
 type WidgetID = "embed" | "button" | "link"
@@ -86,6 +128,7 @@ type Widget = {
 }
 
 const selectedWidget = useVModel(props, "modelValue")
+const embedOptions = useVModel(props, "embedOptions")
 
 const emit = defineEmits<{
   (e: "create-shared-request", request: HoppRESTRequest | null): void
@@ -97,6 +140,7 @@ const emit = defineEmits<{
     request: {
       sharedRequestID: string | undefined
       content: string | undefined
+      type: string | undefined
     }
   ): void
 }>()
@@ -108,6 +152,7 @@ const createSharedRequest = () => {
 const copySharedRequest = (request: {
   sharedRequestID: string | undefined
   content: string | undefined
+  type: string | undefined
 }) => {
   emit("copy-shared-request", request)
 }

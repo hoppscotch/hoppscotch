@@ -80,11 +80,12 @@
   />
   <ShareModal
     v-model="selectedWidget"
+    v-model:embed-options="embedOptions"
+    :step="step"
     :request="requestToShare"
     :show="showShareRequestModal"
     :loading="shareRequestCreatingLoading"
-    :step="step"
-    @hide-modal="displayCustomizeRequestModal(false)"
+    @hide-modal="displayCustomizeRequestModal(false, null)"
     @copy-shared-request="copySharedRequest"
     @create-shared-request="createSharedRequest"
   />
@@ -105,6 +106,7 @@ import * as TE from "fp-ts/TaskEither"
 import {
   deleteShortcode as backendDeleteShortcode,
   createShortcode,
+  updateEmbedProperties,
 } from "~/helpers/backend/mutations/Shortcode"
 import { GQLError } from "~/helpers/backend/GQLClient"
 import { useToast } from "~/composables/toast"
@@ -130,6 +132,67 @@ const shareRequestCreatingLoading = ref(false)
 
 const requestToShare = ref<HoppRESTRequest | null>(null)
 
+const embedOptions = ref<EmbedOption>({
+  selectedTab: "parameters",
+  tabs: [
+    {
+      value: "parameters",
+      label: t("tab.parameters"),
+      enabled: true,
+    },
+    {
+      value: "body",
+      label: t("tab.body"),
+      enabled: true,
+    },
+    {
+      value: "headers",
+      label: t("tab.headers"),
+      enabled: true,
+    },
+    {
+      value: "authorization",
+      label: t("tab.authorization"),
+      enabled: false,
+    },
+  ],
+  theme: "system",
+})
+
+const updateEmbedProperty = async (
+  shareRequestID: string,
+  properties: string
+) => {
+  const customizeEmbedResult = await updateEmbedProperties(
+    shareRequestID,
+    properties
+  )()
+
+  if (E.isLeft(customizeEmbedResult)) {
+    toast.error(`${customizeEmbedResult.left.error}`)
+    toast.error(t("error.something_went_wrong"))
+  } else if (E.isRight(customizeEmbedResult)) {
+    if (customizeEmbedResult.right.updateEmbedProperties) {
+      if (customizeEmbedResult.right.updateEmbedProperties.properties) {
+        const parsedEmbedProperties = JSON.parse(
+          customizeEmbedResult.right.updateEmbedProperties.properties
+        )
+
+        embedOptions.value = {
+          selectedTab: parsedEmbedProperties.options[0],
+          tabs: embedOptions.value.tabs.map((tab) => {
+            return {
+              ...tab,
+              enabled: parsedEmbedProperties.options.includes(tab.value),
+            }
+          }),
+          theme: parsedEmbedProperties.theme,
+        }
+      }
+    }
+  }
+}
+
 const restTab = useService(RESTTabService)
 
 const currentUser = useReadonlyStream(
@@ -138,6 +201,18 @@ const currentUser = useReadonlyStream(
 )
 
 const step = ref(1)
+
+type EmbedTabs = "parameters" | "body" | "headers" | "authorization"
+
+type EmbedOption = {
+  selectedTab: EmbedTabs
+  tabs: {
+    value: EmbedTabs
+    label: string
+    enabled: boolean
+  }[]
+  theme: "light" | "dark" | "system"
+}
 
 type WidgetID = "embed" | "button" | "link"
 
@@ -218,15 +293,46 @@ const displayShareRequestModal = (show: boolean) => {
   showShareRequestModal.value = show
   step.value = 1
 }
-const displayCustomizeRequestModal = (show: boolean) => {
+const displayCustomizeRequestModal = (
+  show: boolean,
+  embedProperties?: string | null
+) => {
   showShareRequestModal.value = show
   step.value = 2
+  if (!embedProperties) {
+    selectedWidget.value = {
+      value: "button",
+      label: t("shared_requests.button"),
+      info: t("shared_requests.button_info"),
+    }
+  } else {
+    const parsedEmbedProperties = JSON.parse(embedProperties)
+    embedOptions.value = {
+      selectedTab: parsedEmbedProperties.options[0],
+      tabs: embedOptions.value.tabs.map((tab) => {
+        return {
+          ...tab,
+          enabled: parsedEmbedProperties.options.includes(tab.value),
+        }
+      }),
+      theme: parsedEmbedProperties.theme,
+    }
+  }
 }
 
 const createSharedRequest = async (request: HoppRESTRequest | null) => {
   if (request && selectedWidget.value) {
+    const properties = {
+      options: ["parameters", "body", "headers"],
+      theme: "system",
+    }
     shareRequestCreatingLoading.value = true
-    const sharedRequestResult = await createShortcode(request)()
+    const sharedRequestResult = await createShortcode(
+      request,
+      selectedWidget.value.value === "embed"
+        ? JSON.stringify(properties)
+        : undefined
+    )()
 
     platform.analytics?.logEvent({
       type: "HOPP_SHORTCODE_CREATED",
@@ -243,6 +349,23 @@ const createSharedRequest = async (request: HoppRESTRequest | null) => {
           id: sharedRequestResult.right.createShortcode.id,
         }
         step.value = 2
+
+        if (sharedRequestResult.right.createShortcode.properties) {
+          const parsedEmbedProperties = JSON.parse(
+            sharedRequestResult.right.createShortcode.properties
+          )
+
+          embedOptions.value = {
+            selectedTab: parsedEmbedProperties.options[0],
+            tabs: embedOptions.value.tabs.map((tab) => {
+              return {
+                ...tab,
+                enabled: parsedEmbedProperties.options.includes(tab.value),
+              }
+            }),
+            theme: parsedEmbedProperties.theme,
+          }
+        }
       }
     }
   }
@@ -250,22 +373,37 @@ const createSharedRequest = async (request: HoppRESTRequest | null) => {
 
 const customizeSharedRequest = (
   request: HoppRESTRequest,
-  shredRequestID: string
+  shredRequestID: string,
+  embedProperties?: string | null
 ) => {
   requestToShare.value = {
     ...request,
     id: shredRequestID,
   }
-  displayCustomizeRequestModal(true)
+  displayCustomizeRequestModal(true, embedProperties)
 }
 
 const copySharedRequest = (request: {
   sharedRequestID: string | undefined
   content: string | undefined
+  type: string | undefined
 }) => {
   if (request.content) {
     copyToClipboard(request.content)
     toast.success(t("state.copied_to_clipboard"))
+    if (
+      requestToShare.value &&
+      requestToShare.value.id &&
+      request.type === "embed"
+    ) {
+      const properties = {
+        options: embedOptions.value.tabs
+          .filter((tab) => tab.enabled)
+          .map((tab) => tab.value),
+        theme: embedOptions.value.theme,
+      }
+      updateEmbedProperty(requestToShare.value.id, JSON.stringify(properties))
+    }
   }
 }
 

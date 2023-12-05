@@ -4,6 +4,6 @@
 export interface Shortcode {
   id: string
   request: string
-  properties?: string | null | undefined
+  properties?: string | null
   createdOn: Date
 }

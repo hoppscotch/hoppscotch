@@ -11,6 +11,7 @@ import {
   GetUserShortcodesDocument,
   ShortcodeCreatedDocument,
   ShortcodeDeletedDocument,
+  ShortcodeUpdatedDocument,
 } from "../backend/graphql"
 import { BACKEND_PAGE_SIZE } from "../backend/helpers"
 import { Shortcode } from "./Shortcode"
@@ -25,9 +26,11 @@ export default class ShortcodeListAdapter {
 
   private shortcodeCreated: Subscription | null
   private shortcodeRevoked: Subscription | null
+  private shortcodeUpdated: Subscription | null
 
   private shortcodeCreatedSub: WSubscription | null
   private shortcodeRevokedSub: WSubscription | null
+  private shortcodeUpdatedSub: WSubscription | null
 
   constructor(deferInit = false) {
     this.error$ = new BehaviorSubject<GQLError<string> | null>(null)
@@ -39,8 +42,10 @@ export default class ShortcodeListAdapter {
     this.isDispose = true
     this.shortcodeCreated = null
     this.shortcodeRevoked = null
+    this.shortcodeUpdated = null
     this.shortcodeCreatedSub = null
     this.shortcodeRevokedSub = null
+    this.shortcodeUpdatedSub = null
 
     if (!deferInit) this.initialize()
   }
@@ -48,8 +53,10 @@ export default class ShortcodeListAdapter {
   unsubscribeSubscriptions() {
     this.shortcodeCreated?.unsubscribe()
     this.shortcodeRevoked?.unsubscribe()
+    this.shortcodeUpdated?.unsubscribe()
     this.shortcodeCreatedSub?.unsubscribe()
     this.shortcodeRevokedSub?.unsubscribe()
+    this.shortcodeUpdatedSub?.unsubscribe()
   }
 
   initialize() {
@@ -137,6 +144,14 @@ export default class ShortcodeListAdapter {
     this.shortcodes$.next(newShortcode)
   }
 
+  private updateSharedRequest(shortcode: Shortcode) {
+    const newShortcode = this.shortcodes$.value.map((oldShortcode) =>
+      oldShortcode.id === shortcode.id ? shortcode : oldShortcode
+    )
+
+    this.shortcodes$.next(newShortcode)
+  }
+
   private registerSubscriptions() {
     const [shortcodeCreated$, shortcodeCreatedSub] = runAuthOnlyGQLSubscription(
       {
@@ -168,6 +183,22 @@ export default class ShortcodeListAdapter {
       }
 
       this.deleteSharedRequest(result.right.myShortcodesRevoked.id)
+    })
+
+    const [shortcodeUpdated$, shortcodeUpdatedSub] = runAuthOnlyGQLSubscription(
+      {
+        query: ShortcodeUpdatedDocument,
+      }
+    )
+
+    this.shortcodeUpdatedSub = shortcodeUpdatedSub
+    this.shortcodeUpdated = shortcodeUpdated$.subscribe((result) => {
+      if (E.isLeft(result)) {
+        console.error(result.left)
+        throw new Error(`Shortcode Update Error ${result.left}`)
+      }
+
+      this.updateSharedRequest(result.right.myShortcodesUpdated)
     })
   }
 }

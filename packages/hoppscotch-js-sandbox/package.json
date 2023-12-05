@@ -4,7 +4,7 @@
   "description": "JavaScript sandboxes for running external scripts used by Hoppscotch clients",
   "type": "commonjs",
   "exports": {
-    ".":  {
+    ".": {
       "types": "./dist/types/index.d.ts"
     },
     "./web": {

@@ -1,20 +1,17 @@
-import { Environment } from "@hoppscotch/data"
 import { pipe } from "fp-ts/function"
 import * as TE from "fp-ts/lib/TaskEither"
+import { cloneDeep } from "lodash"
 import { createContext, runInContext } from "vm"
 
-import { getPreRequestScriptMethods } from "../../utils"
-import { cloneDeep } from "lodash"
+import { TestResult } from "~/types"
 
-type Envs = {
-  global: Environment["variables"]
-  selected: Environment["variables"]
-}
+// Todo: Investigate why path alias doesn't work for `utils`
+import { getPreRequestScriptMethods } from "../../utils"
 
 export const runPreRequestScript = (
   preRequestScript: string,
-  envs: Envs
-): TE.TaskEither<string, Envs> =>
+  envs: TestResult["envs"]
+): TE.TaskEither<string, TestResult["envs"]> =>
   pipe(
     TE.tryCatch(
       async () => {

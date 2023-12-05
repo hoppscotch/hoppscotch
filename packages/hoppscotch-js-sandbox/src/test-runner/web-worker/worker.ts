@@ -1,32 +1,18 @@
-/**
- * Web worker based implementation
- */
-
 import * as E from "fp-ts/Either"
 import * as TE from "fp-ts/TaskEither"
 import { cloneDeep } from "lodash-es"
 
-import { TestResponse, TestResult } from "../../types"
+import { SandboxTestResult, TestResponse, TestResult } from "~/types"
+
+// Todo: Investigate why path alias doesn't work for `utils`
 import { getTestRunnerScriptMethods, preventCyclicObjects } from "../../utils"
 
 const executeScriptInContext = (
   testScript: string,
   envs: TestResult["envs"],
   response: TestResponse
-) => {
+): TE.TaskEither<string, SandboxTestResult> => {
   try {
-    // Create a function from the script using the Function constructor
-    const scriptFunction = new Function(
-      "pw",
-      "marshalObject",
-      "cloneDeep",
-      "testRunStack",
-      "envs",
-      "response",
-      `${testScript}`
-    )
-
-    // Marshal response object
     const responseObjHandle = preventCyclicObjects(response)
     if (E.isLeft(responseObjHandle)) {
       return TE.left(`Response marshalling failed: ${responseObjHandle.left}`)
@@ -36,17 +22,13 @@ const executeScriptInContext = (
       cloneDeep(envs)
     )
 
-    // Expose pw and other dependencies to the script
-    scriptFunction(
-      { ...pw, response: responseObjHandle.right },
-      preventCyclicObjects,
-      cloneDeep,
-      testRunStack,
-      updatedEnvs,
-      response
-    )
+    // Create a function from the test script using the `Function` constructor
+    const executeScript = new Function("pw", testScript)
 
-    return TE.right({
+    // Execute the script
+    executeScript({ ...pw, response: responseObjHandle.right })
+
+    return TE.right(<SandboxTestResult>{
       tests: testRunStack[0],
       envs: updatedEnvs,
     })
@@ -57,10 +39,10 @@ const executeScriptInContext = (
 
 // Listen for messages from the main thread
 self.addEventListener("message", async (event) => {
-  const { messageId, testScript, envs, response } = event.data
+  const { testScript, envs, response } = event.data
 
-  const result = await executeScriptInContext(testScript, envs, response)()
+  const results = await executeScriptInContext(testScript, envs, response)()
 
   // Post the result back to the main thread
-  self.postMessage({ messageId, result })
+  self.postMessage({ results })
 })

@@ -1,15 +1,13 @@
 import * as E from "fp-ts/Either"
 import * as TE from "fp-ts/TaskEither"
 import { pipe } from "fp-ts/function"
+import { cloneDeep } from "lodash"
 import { createContext, runInContext } from "vm"
 
-import { TestResponse, TestResult } from "../../types"
-import { getTestRunnerScriptMethods, preventCyclicObjects } from "../../utils"
-import { cloneDeep } from "lodash"
+import { TestResponse, TestResult } from "~/types"
 
-/**
- * Node VM based implementation
- */
+// Todo: Investigate why path alias doesn't work for `utils`
+import { getTestRunnerScriptMethods, preventCyclicObjects } from "../../utils"
 
 export const runTestScript = (
   testScript: string,

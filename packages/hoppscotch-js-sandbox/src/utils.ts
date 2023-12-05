@@ -120,15 +120,18 @@ export const createExpectation = (
     rangeStart: number,
     rangeEnd: number
   ) => {
-    if (typeof expectVal === "number" && !Number.isNaN(expectVal)) {
-      let assertion = expectVal >= rangeStart && expectVal <= rangeEnd
+    const parsedExpectVal = parseInt(expectVal)
+
+    if (!Number.isNaN(parsedExpectVal)) {
+      let assertion =
+        parsedExpectVal >= rangeStart && parsedExpectVal <= rangeEnd
 
       if (negated) {
         assertion = !assertion
       }
 
       const status = assertion ? "pass" : "fail"
-      const message = `Expected '${expectVal}' to${
+      const message = `Expected '${parsedExpectVal}' to${
         negated ? " not" : ""
       } be ${level}-level status`
 
@@ -390,7 +393,7 @@ export const getPreRequestScriptMethods = (envs: TestResult["envs"]) => {
 /**
  * Compiles methods for use under the `pw` namespace for post request scripts
  * @param envs The current state of the environment variables
- * @returns Object with methods in the `pw` namespace and updated environments
+ * @returns Object with methods in the `pw` namespace, test run stack and environments that are updated
  */
 export const getTestRunnerScriptMethods = (envs: TestResult["envs"]) => {
   // The `envs` arg is supplied after deep cloning

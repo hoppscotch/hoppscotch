@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "ES6",
-    "module": "ESNext",
+    "module": "CommonJS",
     "moduleResolution": "Node",
     "skipLibCheck": true,
     "lib": ["ESNext", "ESNext.AsyncIterable", "DOM"],
@@ -13,7 +13,6 @@
     },
     "types": ["@types/node", "@types/jest", "@relmify/jest-fp-ts"],
     "outDir": "./dist/",
-    "rootDir": "./src/",
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true

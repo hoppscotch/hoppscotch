@@ -371,7 +371,7 @@ export class UserCollectionResolver {
   }
 
   @Mutation(() => UserCollection, {
-    description: 'Update a  UserCollection',
+    description: 'Update a UserCollection',
   })
   @UseGuards(GqlAuthGuard)
   async updateUserCollection(

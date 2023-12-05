@@ -44,7 +44,10 @@ export class UserCollectionService {
    */
   private cast(collection: UserCollection) {
     return <UserCollectionModel>{
-      ...collection,
+      id: collection.id,
+      title: collection.title,
+      type: collection.type,
+      parentID: collection.parentID,
       userID: collection.userUid,
       data: !collection.data ? null : JSON.stringify(collection.data),
     };
@@ -226,7 +229,6 @@ export class UserCollectionService {
     const isTitleValid = isValidLength(title, this.TITLE_LENGTH);
     if (!isTitleValid) return E.left(USER_COLL_SHORT_TITLE);
 
-    console.log(data);
     const collectionData = stringToJson(data);
     if (E.isLeft(collectionData)) return E.left(USER_COLL_DATA_INVALID);
 
@@ -1100,8 +1102,10 @@ export class UserCollectionService {
       collectionData = jsonReq.right;
     }
 
-    const isTitleValid = isValidLength(newTitle, this.TITLE_LENGTH);
-    if (!isTitleValid) return E.left(USER_COLL_SHORT_TITLE);
+    if (newTitle != null) {
+      const isTitleValid = isValidLength(newTitle, this.TITLE_LENGTH);
+      if (!isTitleValid) return E.left(USER_COLL_SHORT_TITLE);
+    }
 
     // Check to see is the collection belongs to the user
     const isOwner = await this.isOwnerCheck(userCollectionID, userID);

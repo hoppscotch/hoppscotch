@@ -2,7 +2,7 @@ import { Environment } from "@hoppscotch/data"
 import {
   SandboxTestResult,
   TestDescriptor,
-  TestResult,
+  TestResult
 } from "@hoppscotch/js-sandbox"
 import { runTestScript } from "@hoppscotch/js-sandbox/web"
 import * as A from "fp-ts/Array"
@@ -91,7 +91,7 @@ export function runRESTRequest$(
   const res = getFinalEnvsFromPreRequest(
     tab.value.document.request.preRequestScript,
     getCombinedEnvVariables()
-  ).then((envs: E.Either<string, TestResult["envs"]>) => {
+  ).then((envs) => {
     if (cancelCalled) return E.left("cancellation" as const)
 
     if (E.isLeft(envs)) {
@@ -119,7 +119,7 @@ export function runRESTRequest$(
             res
           )
 
-          const runResult: E.Either<string, SandboxTestResult> =
+          const runResult =
             await runTestScript(res.req.testScript, envs.right, {
               status: res.statusCode,
               body: getTestableBody(res),

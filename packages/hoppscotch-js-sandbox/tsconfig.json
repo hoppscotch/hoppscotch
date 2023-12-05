@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
-    "target": "ES6",
-    "module": "CommonJS",
+    "target": "ESNext",
+    "module": "ESNext",
     "moduleResolution": "Node",
     "skipLibCheck": true,
     "lib": ["ESNext", "ESNext.AsyncIterable", "DOM"],

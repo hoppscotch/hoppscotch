@@ -2,23 +2,27 @@
   "name": "@hoppscotch/js-sandbox",
   "version": "2.1.0",
   "description": "JavaScript sandboxes for running external scripts used by Hoppscotch clients",
-  "type": "commonjs",
+  "type": "module",
+  "files": [
+    "dist",
+    "index.d.ts"
+  ],
   "exports": {
     ".": {
       "types": "./dist/types/index.d.ts"
     },
     "./web": {
-      "import": "./dist/web.mjs",
-      "require": "./dist/web.js",
+      "import": "./dist/web.js",
+      "require": "./dist/web.cjs",
       "types": "./dist/web.d.ts"
     },
     "./node": {
-      "import": "./dist/node.mjs",
-      "require": "./dist/node.js",
+      "import": "./dist/node.js",
+      "require": "./dist/node.cjs",
       "types": "./dist/node.d.ts"
     }
   },
-  "types": "./dist/types/index.d.ts",
+  "types": "./index.d.ts",
   "engines": {
     "node": ">=14",
     "pnpm": ">=3"

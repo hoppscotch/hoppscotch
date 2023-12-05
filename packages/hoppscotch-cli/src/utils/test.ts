@@ -1,5 +1,5 @@
 import { HoppRESTRequest } from "@hoppscotch/data";
-import { SandboxTestResult, TestDescriptor } from "@hoppscotch/js-sandbox";
+import { TestDescriptor } from "@hoppscotch/js-sandbox";
 import { runTestScript } from "@hoppscotch/js-sandbox/node";
 import * as A from "fp-ts/Array";
 import * as RA from "fp-ts/ReadonlyArray";
@@ -38,7 +38,7 @@ export const testRunner = (
       pipe(
         TE.of(testScriptData),
         TE.chain(({ testScript, response, envs }) =>
-          runTestScript(testScript, envs, response) as TE.TaskEither<string, SandboxTestResult>
+          runTestScript(testScript, envs, response)
         )
       )
     ),

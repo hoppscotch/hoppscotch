@@ -6,7 +6,6 @@ import {
   parseTemplateString,
   parseTemplateStringE,
 } from "@hoppscotch/data";
-import { TestResult } from "@hoppscotch/js-sandbox";
 import { runPreRequestScript } from "@hoppscotch/js-sandbox/node";
 import * as A from "fp-ts/Array";
 import * as E from "fp-ts/Either";
@@ -41,7 +40,7 @@ export const preRequestScriptRunner = (
   pipe(
     TE.of(request),
     TE.chain(({ preRequestScript }) =>
-      runPreRequestScript(preRequestScript, envs) as TE.TaskEither<string, TestResult["envs"]>
+      runPreRequestScript(preRequestScript, envs)
     ),
     TE.map(
       ({ selected, global }) =>

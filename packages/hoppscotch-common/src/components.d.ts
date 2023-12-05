@@ -61,6 +61,7 @@ declare module 'vue' {
     CollectionsTeamCollections: typeof import('./components/collections/TeamCollections.vue')['default']
     CookiesAllModal: typeof import('./components/cookies/AllModal.vue')['default']
     CookiesEditCookie: typeof import('./components/cookies/EditCookie.vue')['default']
+    Embeds: typeof import('./components/embeds/index.vue')['default']
     Environments: typeof import('./components/environments/index.vue')['default']
     EnvironmentsAdd: typeof import('./components/environments/Add.vue')['default']
     EnvironmentsImportExport: typeof import('./components/environments/ImportExport.vue')['default']

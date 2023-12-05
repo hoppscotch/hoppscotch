@@ -42,7 +42,7 @@
           <div class="min-w-[4rem]" />
           <HoppSmartCheckbox
             :on="replaceWithVariable"
-            title="t('environment.replace_with_variable'))"
+            :title="t('environment.replace_with_variable')"
             @change="replaceWithVariable = !replaceWithVariable"
           />
           <label for="replaceWithVariable">

@@ -11,6 +11,7 @@
     "connect": "Connect",
     "connecting": "Connecting",
     "copy": "Copy",
+    "create": "Create",
     "delete": "Delete",
     "disconnect": "Disconnect",
     "dismiss": "Dismiss",
@@ -40,6 +41,7 @@
     "scroll_to_top": "Scroll to top",
     "search": "Search",
     "send": "Send",
+    "share": "Share",
     "start": "Start",
     "starting": "Starting",
     "stop": "Stop",
@@ -188,6 +190,7 @@
     "remove_folder": "Are you sure you want to permanently delete this folder?",
     "remove_history": "Are you sure you want to permanently delete all history?",
     "remove_request": "Are you sure you want to permanently delete this request?",
+    "remove_shared_request": "Are you sure you want to permanently delete this shared request?",
     "remove_team": "Are you sure you want to delete this team?",
     "remove_telemetry": "Are you sure you want to opt-out of Telemetry?",
     "request_change": "Are you sure you want to discard current request, unsaved changes will be lost.",
@@ -229,7 +232,8 @@
     "profile": "Login to view your profile",
     "protocols": "Protocols are empty",
     "schema": "Connect to a GraphQL endpoint to view schema",
-    "shortcodes": "Shortcodes are empty",
+    "shared_requests_logout": "Login to view your shared requests or create a new one",
+    "shared_requests": "Shared requests are empty",
     "subscription": "Subscriptions are empty",
     "team_name": "Team name empty",
     "teams": "You don't belong to any teams",
@@ -416,6 +420,7 @@
     "collections": "Collections",
     "confirm": "Confirm",
     "edit_request": "Edit Request",
+    "share_request":"Share Request",
     "import_export": "Import / Export"
   },
   "mqtt": {
@@ -491,7 +496,6 @@
       "structured": "Structured",
       "text": "Text"
     },
-    "copy_link": "Copy link",
     "different_collection": "Cannot reorder requests from different collections",
     "duplicated": "Request duplicated",
     "duration": "Duration",
@@ -524,6 +528,7 @@
     "saved": "Request saved",
     "share": "Share",
     "share_description": "Share Hoppscotch with your friends",
+    "share_request": "Share Request",
     "stop": "Stop",
     "title": "Request",
     "type": "Request type",
@@ -604,14 +609,30 @@
     "additional": "Additional Settings",
     "verify_email": "Verify email"
   },
-  "shortcodes": {
-    "actions": "Actions",
-    "created_on": "Created on",
-    "deleted": "Shortcode deleted",
-    "method": "Method",
-    "not_found": "Shortcode not found",
-    "short_code": "Short code",
-    "url": "URL"
+  "shared_requests":{
+    "button":"Button",
+    "button_info": "Create a 'Run in Hoppscotch' button for your website, blog or a README.",
+    "customize": "Customize",
+    "creating_widget": "Creating widget",
+    "copy_html": "Copy HTML",
+    "copy_link": "Copy Link",
+    "copy_markdown": "Copy Markdown",
+    "deleted":"Shared request deleted",
+    "description": "Select a widget, you can change and customize this later",
+    "embed":"Embed",
+    "embed_info": "Add a mini 'Hoppscotch API Playground' to your website, blog or documentation.",
+    "link":"Link",
+    "link_info": "Create a shareable link to share with anyone on the internet with view access.",
+    "not_found":"Shared request not found",
+    "open_new_tab": "Open in new tab",
+    "preview":"Preview",
+    "run_in_hoppscotch":"Run in Hoppscotch",
+    "theme":{
+      "dark":"Dark",
+      "light":"Light",
+      "system" :"System",
+      "title":"Theme"
+    }
   },
   "shortcut": {
     "general": {
@@ -641,7 +662,6 @@
       "title": "Others"
     },
     "request": {
-      "copy_request_link": "Copy Request Link",
       "delete_method": "Select DELETE method",
       "get_method": "Select GET method",
       "head_method": "Select HEAD method",
@@ -657,6 +677,7 @@
       "save_to_collections": "Save to Collections",
       "send_request": "Send Request",
       "show_code": "Generate code snippet",
+      "share_request":"Share Request",
       "title": "Request"
     },
     "response": {
@@ -840,6 +861,7 @@
     "queries": "Queries",
     "query": "Query",
     "schema": "Schema",
+    "shared_requests": "Shared Requests",
     "socketio": "Socket.IO",
     "sse": "SSE",
     "tests": "Tests",

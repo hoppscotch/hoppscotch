@@ -58,7 +58,6 @@
 
               <UiAutoResetIcon
                 :title="t('shared_requests.copy')"
-                resetColor="emerald"
                 :icon="{ default: IconCopy, temporary: IconCheck }"
                 @click="copySharedRequest(request.id)"
               />

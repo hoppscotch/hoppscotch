@@ -27,7 +27,7 @@ const props = withDefaults(
   }>(),
   {
     color: 'white',
-    resetColor: 'green',
+    resetColor: 'emerald',
   }
 );
 

@@ -17,7 +17,7 @@ const executeScriptInContext = (
       preRequestScript
     )
 
-    const { pw, updatedEnvs } = getPreRequestScriptMethods(envs)
+    const { pw, updatedEnvs } = getPreRequestScriptMethods(cloneDeep(envs))
 
     // Expose pw and other dependencies to the script
     scriptFunction(pw, cloneDeep, updatedEnvs)

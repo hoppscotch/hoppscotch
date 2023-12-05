@@ -42,6 +42,7 @@ export type TestDescriptor = {
    */
   children: TestDescriptor[]
 }
+
 /**
  * Defines the result of a test script execution
  */
@@ -53,5 +54,8 @@ export type TestResult = {
     selected: Environment["variables"]
   }
 }
+
+export type GlobalEnvItem = TestResult["envs"]["global"][number]
+export type SelectedEnvItem = TestResult["envs"]["selected"][number]
 
 export type SandboxTestResult = TestResult & { tests: TestDescriptor }

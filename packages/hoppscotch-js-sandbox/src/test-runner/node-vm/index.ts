@@ -5,6 +5,7 @@ import { createContext, runInContext } from "vm"
 
 import { TestResponse, TestResult } from "../../types"
 import { getTestRunnerScriptMethods, preventCyclicObjects } from "../../utils"
+import { cloneDeep } from "lodash"
 
 /**
  * Node VM based implementation
@@ -44,7 +45,9 @@ const executeScriptInContext = (
         return reject(`Response parsing failed: ${responseObjHandle.left}`)
       }
 
-      const { pw, testRunStack, updatedEnvs } = getTestRunnerScriptMethods(envs)
+      const { pw, testRunStack, updatedEnvs } = getTestRunnerScriptMethods(
+        cloneDeep(envs)
+      )
 
       // Expose pw to the context
       context.pw = { ...pw, response: responseObjHandle.right }

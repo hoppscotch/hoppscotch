@@ -1,16 +1,14 @@
 import * as E from "fp-ts/Either"
 import * as O from "fp-ts/Option"
 
-import { TestDescriptor, TestResult } from "./types"
-import { Environment, parseTemplateStringE } from "@hoppscotch/data"
+import { parseTemplateStringE } from "@hoppscotch/data"
 import { pipe } from "fp-ts/lib/function"
-import { cloneDeep } from "lodash-es"
-
-// TODO: Move to types
-type Envs = {
-  global: Environment["variables"]
-  selected: Environment["variables"]
-}
+import {
+  GlobalEnvItem,
+  SelectedEnvItem,
+  TestDescriptor,
+  TestResult,
+} from "./types"
 
 export function preventCyclicObjects(
   obj: Record<string, any>
@@ -33,8 +31,8 @@ export function preventCyclicObjects(
 
 export function getEnv(envName: string, envs: TestResult["envs"]) {
   return O.fromNullable(
-    envs.selected.find((x) => x.key === envName) ??
-      envs.global.find((x) => x.key === envName)
+    envs.selected.find((x: SelectedEnvItem) => x.key === envName) ??
+      envs.global.find((x: GlobalEnvItem) => x.key === envName)
   )
 }
 
@@ -43,7 +41,9 @@ export function setEnv(
   envValue: string,
   envs: TestResult["envs"]
 ): TestResult["envs"] {
-  const indexInSelected = envs.selected.findIndex((x) => x.key === envName)
+  const indexInSelected = envs.selected.findIndex(
+    (x: SelectedEnvItem) => x.key === envName
+  )
 
   // Found the match in selected
   if (indexInSelected >= 0) {
@@ -55,7 +55,9 @@ export function setEnv(
     }
   }
 
-  const indexInGlobal = envs.global.findIndex((x) => x.key == envName)
+  const indexInGlobal = envs.global.findIndex(
+    (x: GlobalEnvItem) => x.key == envName
+  )
 
   // Found a match in globals
   if (indexInGlobal >= 0) {
@@ -300,8 +302,9 @@ export const createExpectation = (
  * @param envs The current state of the environment variables
  * @returns Object with methods in the `pw` namespace and updated environments
  */
-export const getPreRequestScriptMethods = (envs: Envs) => {
-  let currentEnvs = cloneDeep(envs)
+export const getPreRequestScriptMethods = (envs: TestResult["envs"]) => {
+  // The `envs` arg is supplied after deep cloning
+  let currentEnvs = envs
 
   const envGetHandle = (key: any) => {
     if (typeof key !== "string") {
@@ -389,8 +392,9 @@ export const getPreRequestScriptMethods = (envs: Envs) => {
  * @param envs The current state of the environment variables
  * @returns Object with methods in the `pw` namespace and updated environments
  */
-export const getTestRunnerScriptMethods = (envs: Envs) => {
-  let currentEnvs = cloneDeep(envs)
+export const getTestRunnerScriptMethods = (envs: TestResult["envs"]) => {
+  // The `envs` arg is supplied after deep cloning
+  let currentEnvs = envs
 
   const testRunStack: TestDescriptor[] = [
     { descriptor: "root", expectResults: [], children: [] },

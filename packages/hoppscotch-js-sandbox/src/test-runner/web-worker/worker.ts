@@ -32,7 +32,9 @@ const executeScriptInContext = (
       return TE.left(`Response marshalling failed: ${responseObjHandle.left}`)
     }
 
-    const { pw, testRunStack, updatedEnvs } = getTestRunnerScriptMethods(envs)
+    const { pw, testRunStack, updatedEnvs } = getTestRunnerScriptMethods(
+      cloneDeep(envs)
+    )
 
     // Expose pw and other dependencies to the script
     scriptFunction(

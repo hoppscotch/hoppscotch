@@ -1079,8 +1079,8 @@ export class UserCollectionService {
       ),
     );
 
-    userCollections.forEach((x) =>
-      this.pubsub.publish(`user_coll/${userID}/created`, this.cast(x)),
+    userCollections.forEach((collection) =>
+      this.pubsub.publish(`user_coll/${userID}/created`, this.cast(collection)),
     );
 
     return E.right(true);

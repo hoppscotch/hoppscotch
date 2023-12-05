@@ -201,8 +201,11 @@ export class TeamCollectionService {
       ),
     );
 
-    teamCollections.forEach((x) =>
-      this.pubsub.publish(`team_coll/${destTeamID}/coll_added`, this.cast(x)),
+    teamCollections.forEach((collection) =>
+      this.pubsub.publish(
+        `team_coll/${destTeamID}/coll_added`,
+        this.cast(collection),
+      ),
     );
 
     return E.right(true);
@@ -271,8 +274,11 @@ export class TeamCollectionService {
       ),
     );
 
-    teamCollections.forEach((x) =>
-      this.pubsub.publish(`team_coll/${destTeamID}/coll_added`, this.cast(x)),
+    teamCollections.forEach((collections) =>
+      this.pubsub.publish(
+        `team_coll/${destTeamID}/coll_added`,
+        this.cast(collections),
+      ),
     );
 
     return E.right(true);

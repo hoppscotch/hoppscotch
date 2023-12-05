@@ -2,7 +2,7 @@
   <HoppSmartTabs
     v-model="currentTab"
     styles="sticky overflow-x-auto flex-shrink-0 bg-primary top-0 z-10"
-    content-styles="h-[calc(100%-var(--sidebar-primary-sticky-fold)-1px)] !flex"
+    content-styles="!h-[calc(100%-var(--sidebar-primary-sticky-fold)-1px)] !flex"
   >
     <HoppSmartTab
       v-for="{ target, title } in REALTIME_NAVIGATION"

@@ -12,7 +12,7 @@
           </div>
           <div
             v-if="entry.ts !== undefined"
-            class="w-34 hidden items-center px-1 sm:inline-flex"
+            class="w-36 hidden items-center px-1 sm:inline-flex"
           >
             <span
               v-tippy="{ theme: 'tooltip' }"

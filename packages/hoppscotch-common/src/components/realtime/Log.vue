@@ -35,8 +35,8 @@
             autoScrollEnabled ? t('action.turn_off') : t('action.turn_on')
           }`"
           :icon="IconChevronsDown"
-          :class="toggleAutoscrollColor"
-          @click="toggleAutoscroll()"
+          :color="autoScrollEnabled ? 'green' : 'red'"
+          @click="autoScrollEnabled = !autoScrollEnabled"
         />
       </div>
     </div>
@@ -60,7 +60,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, PropType, computed, watch, Ref } from "vue"
+import { ref, PropType, watch, Ref } from "vue"
 import IconTrash from "~icons/lucide/trash"
 import IconArrowUp from "~icons/lucide/arrow-up"
 import IconArrowDown from "~icons/lucide/arrow-down"
@@ -122,13 +122,5 @@ watch(
     if (autoScrollEnabled.value) scrollTo("bottom")
   }, 200),
   { flush: "post" }
-)
-
-const toggleAutoscroll = () => {
-  autoScrollEnabled.value = !autoScrollEnabled.value
-}
-
-const toggleAutoscrollColor = computed(() =>
-  autoScrollEnabled.value ? "text-green-500" : "text-red-500"
 )
 </script>

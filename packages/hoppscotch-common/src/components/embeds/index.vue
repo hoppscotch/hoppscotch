@@ -10,7 +10,11 @@
           to="/"
         />
         <div class="flex">
-          <HoppSmartItem :label="t('app.open_in_hoppscotch')" />
+          <HoppSmartItem
+            :label="t('app.open_in_hoppscotch')"
+            :to="sharedRequestURL"
+            blank
+          />
         </div>
       </div>
     </header>
@@ -96,7 +100,6 @@
     </div>
 
     <div>
-      {{ tab.document.response }}
       <HttpResponse :document="tab.document" />
     </div>
   </div>
@@ -122,6 +125,8 @@ const toast = useToast()
 
 const props = defineProps<{
   modelTab: HoppTab<HoppRESTDocument>
+  properties: string[]
+  sharedRequestID: string
 }>()
 
 const tab = useModel(props, "modelTab")
@@ -133,6 +138,11 @@ console.log("request", tab.value.document.request)
 const requestCancelFunc: Ref<(() => void) | null> = ref(null)
 
 const loading = ref(false)
+
+const baseURL = import.meta.env.VITE_SHORTCODE_BASE_URL ?? "https://hopp.sh"
+const sharedRequestURL = computed(() => {
+  return `${baseURL}/r/${props.sharedRequestID}`
+})
 
 const methods = [
   "GET",

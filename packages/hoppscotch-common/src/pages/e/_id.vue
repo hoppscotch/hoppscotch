@@ -1,6 +1,11 @@
 <template>
   <div class="flex flex-col flex-1 w-full">
-    <Embeds v-if="tab" v-model:modelTab="tab" />
+    <Embeds
+      v-if="tab"
+      v-model:modelTab="tab"
+      :properties="properties"
+      :shared-request-i-d="sharedRequestID"
+    />
   </div>
 </template>
 
@@ -28,6 +33,7 @@ const route = useRoute()
 
 const sharedRequestID = ref("")
 const invalidLink = ref(false)
+const properties = ref([])
 
 const sharedRequestDetails = useGQLQuery<
   ResolveShortcodeQuery,
@@ -81,6 +87,7 @@ watch(
           applySetting("BG_COLOR", "system")
         }
         console.log("properties", JSON.parse(data.right.shortcode.properties))
+        properties.value = parsedProperties.options
       }
     }
   }

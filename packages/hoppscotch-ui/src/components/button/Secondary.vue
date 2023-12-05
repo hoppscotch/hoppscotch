@@ -37,6 +37,7 @@
         v-if="icon"
         class="svg-icons"
         :class="[
+          color !== '' ? `text-${color}-500` : 'text-white',
           { '!text-2xl': large },
           label ? (reverse ? 'ml-2' : 'mr-2') : '',
         ]"

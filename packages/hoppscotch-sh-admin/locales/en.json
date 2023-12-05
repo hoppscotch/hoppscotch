@@ -6,6 +6,9 @@
     "no_name": "No name",
     "open_navigation": "Open Navigation"
   },
+  "config": {
+    "enable_auth_provider": "Enable {provider} Auth Provider"
+  },
   "metrics": {
     "dashboard": "Dashboard",
     "no_metrics": "No metrics found",
@@ -97,6 +100,9 @@
     "sign_out": "sign out",
     "team_name_long": "Team name should be atleast 6 characters long!!",
     "user_not_found": "User not found in the infra!!"
+  },
+  "settings": {
+    "settings": "Settings",
   },
   "teams": {
     "add_members": "Add Members",

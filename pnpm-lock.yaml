@@ -403,15 +403,6 @@ importers:
       '@codemirror/view':
         specifier: ^6.22.0
         version: 6.22.0
-      '@fontsource-variable/inter':
-        specifier: ^5.0.15
-        version: 5.0.15
-      '@fontsource-variable/material-symbols-rounded':
-        specifier: ^5.0.16
-        version: 5.0.16
-      '@fontsource-variable/roboto-mono':
-        specifier: ^5.0.16
-        version: 5.0.16
       '@hoppscotch/codemirror-lang-graphql':
         specifier: workspace:^
         version: link:../codemirror-lang-graphql
@@ -1073,6 +1064,15 @@ importers:
 
   packages/hoppscotch-selfhost-web:
     dependencies:
+      '@fontsource-variable/inter':
+        specifier: ^5.0.15
+        version: 5.0.15
+      '@fontsource-variable/material-symbols-rounded':
+        specifier: ^5.0.16
+        version: 5.0.16
+      '@fontsource-variable/roboto-mono':
+        specifier: ^5.0.16
+        version: 5.0.16
       '@hoppscotch/common':
         specifier: workspace:^
         version: link:../hoppscotch-common

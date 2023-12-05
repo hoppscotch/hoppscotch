@@ -23,6 +23,9 @@
     "postinstall": "pnpm run gql-codegen"
   },
   "dependencies": {
+    "@fontsource-variable/inter": "^5.0.15",
+    "@fontsource-variable/material-symbols-rounded": "^5.0.16",
+    "@fontsource-variable/roboto-mono": "^5.0.16",
     "@hoppscotch/common": "workspace:^",
     "@hoppscotch/data": "workspace:^",
     "@import-meta-env/unplugin": "^0.4.10",

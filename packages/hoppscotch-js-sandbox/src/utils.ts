@@ -308,7 +308,7 @@ export const getPreRequestScriptMethods = (envs: TestResult["envs"]) => {
 
   const envGetHandle = (key: any) => {
     if (typeof key !== "string") {
-      return "Expected key to be a string"
+      throw new Error("Expected key to be a string")
     }
 
     const result = pipe(
@@ -324,7 +324,7 @@ export const getPreRequestScriptMethods = (envs: TestResult["envs"]) => {
 
   const envGetResolveHandle = (key: any) => {
     if (typeof key !== "string") {
-      return "Expected key to be a string"
+      throw new Error("Expected key to be a string")
     }
 
     const result = pipe(
@@ -347,11 +347,11 @@ export const getPreRequestScriptMethods = (envs: TestResult["envs"]) => {
 
   const envSetHandle = (key: any, value: any) => {
     if (typeof key !== "string") {
-      return "Expected key to be a string"
+      throw new Error("Expected key to be a string")
     }
 
     if (typeof value !== "string") {
-      return "Expected value to be a string"
+      throw new Error("Expected value to be a string")
     }
 
     currentEnvs = setEnv(key, value, currentEnvs)
@@ -361,7 +361,7 @@ export const getPreRequestScriptMethods = (envs: TestResult["envs"]) => {
 
   const envResolveHandle = (value: any) => {
     if (typeof value !== "string") {
-      return "Expected value to be a string"
+      throw new Error("Expected value to be a string")
     }
 
     const result = pipe(
@@ -418,7 +418,7 @@ export const getTestRunnerScriptMethods = (envs: TestResult["envs"]) => {
 
   const envGetHandle = (key: any) => {
     if (typeof key !== "string") {
-      return "Expected key to be a string"
+      throw new Error("Expected key to be a string")
     }
 
     const result = pipe(
@@ -434,7 +434,7 @@ export const getTestRunnerScriptMethods = (envs: TestResult["envs"]) => {
 
   const envGetResolveHandle = (key: any) => {
     if (typeof key !== "string") {
-      return "Expected key to be a string"
+      throw new Error("Expected key to be a string")
     }
 
     const result = pipe(
@@ -458,11 +458,11 @@ export const getTestRunnerScriptMethods = (envs: TestResult["envs"]) => {
 
   const envSetHandle = (key: any, value: any) => {
     if (typeof key !== "string") {
-      return "Expected key to be a string"
+      throw new Error("Expected key to be a string")
     }
 
     if (typeof value !== "string") {
-      return "Expected value to be a string"
+      throw new Error("Expected value to be a string")
     }
 
     currentEnvs = setEnv(key, value, currentEnvs)
@@ -472,7 +472,7 @@ export const getTestRunnerScriptMethods = (envs: TestResult["envs"]) => {
 
   const envResolveHandle = (value: any) => {
     if (typeof value !== "string") {
-      return "Expected value to be a string"
+      throw new Error("Expected value to be a string")
     }
 
     const result = pipe(

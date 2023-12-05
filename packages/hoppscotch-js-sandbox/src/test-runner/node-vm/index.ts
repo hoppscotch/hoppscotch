@@ -38,29 +38,25 @@ const executeScriptInContext = (
   context: any
 ): Promise<TestResult> => {
   return new Promise((resolve, reject) => {
-    try {
-      // Parse response object
-      const responseObjHandle = preventCyclicObjects(response)
-      if (E.isLeft(responseObjHandle)) {
-        return reject(`Response parsing failed: ${responseObjHandle.left}`)
-      }
-
-      const { pw, testRunStack, updatedEnvs } = getTestRunnerScriptMethods(
-        cloneDeep(envs)
-      )
-
-      // Expose pw to the context
-      context.pw = { ...pw, response: responseObjHandle.right }
-
-      // Run the test script in the provided context
-      runInContext(testScript, context)
-
-      resolve({
-        tests: testRunStack,
-        envs: updatedEnvs,
-      })
-    } catch (error) {
-      reject(`Script execution failed: ${(error as Error).message}`)
+    // Parse response object
+    const responseObjHandle = preventCyclicObjects(response)
+    if (E.isLeft(responseObjHandle)) {
+      return reject(`Response parsing failed: ${responseObjHandle.left}`)
     }
+
+    const { pw, testRunStack, updatedEnvs } = getTestRunnerScriptMethods(
+      cloneDeep(envs)
+    )
+
+    // Expose pw to the context
+    context.pw = { ...pw, response: responseObjHandle.right }
+
+    // Run the test script in the provided context
+    runInContext(testScript, context)
+
+    resolve({
+      tests: testRunStack,
+      envs: updatedEnvs,
+    })
   })
 }

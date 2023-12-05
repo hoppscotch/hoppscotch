@@ -1,6 +1,6 @@
 <template>
   <div class="relative flex flex-1 flex-col">
-    <HttpResponseMeta :response="doc.response" />
+    <HttpResponseMeta :response="doc.response" :is-embed="isEmbed" />
     <LensesResponseBodyRenderer
       v-if="!loading && hasResponse"
       v-model:document="doc"
@@ -15,6 +15,7 @@ import { HoppRESTDocument } from "~/helpers/rest/document"
 
 const props = defineProps<{
   document: HoppRESTDocument
+  isEmbed: boolean
 }>()
 
 const emit = defineEmits<{

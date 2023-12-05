@@ -100,7 +100,7 @@
     </div>
 
     <div>
-      <HttpResponse :document="tab.document" />
+      <HttpResponse :document="tab.document" :is-embed="true" />
     </div>
   </div>
 </template>

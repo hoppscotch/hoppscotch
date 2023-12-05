@@ -1,89 +1,89 @@
 @mixin green-theme {
-  --accent-color: #10b981;
-  --accent-light-color: #34d399;
-  --accent-dark-color: #059669;
-  --accent-contrast-color: #fff;
-  --gradient-from-color: #a7f3d0;
-  --gradient-via-color: #34d399;
-  --gradient-to-color: #059669;
+  --accent-color: theme("colors.emerald.500");
+  --accent-light-color: theme("colors.emerald.400");
+  --accent-dark-color: theme("colors.emerald.600");
+  --accent-contrast-color: theme("colors.white");
+  --gradient-from-color: theme("colors.emerald.400");
+  --gradient-via-color: theme("colors.emerald.500");
+  --gradient-to-color: theme("colors.emerald.600");
 }
 
 @mixin teal-theme {
-  --accent-color: #14b8a6;
-  --accent-light-color: #2dd4bf;
-  --accent-dark-color: #0d9488;
-  --accent-contrast-color: #fff;
-  --gradient-from-color: #99f6e4;
-  --gradient-via-color: #2dd4bf;
-  --gradient-to-color: #0d9488;
+  --accent-color: theme("colors.teal.500");
+  --accent-light-color: theme("colors.teal.400");
+  --accent-dark-color: theme("colors.teal.600");
+  --accent-contrast-color: theme("colors.white");
+  --gradient-from-color: theme("colors.teal.400");
+  --gradient-via-color: theme("colors.teal.500");
+  --gradient-to-color: theme("colors.teal.600");
 }
 
 @mixin blue-theme {
-  --accent-color: #3b82f6;
-  --accent-light-color: #60a5fa;
-  --accent-dark-color: #2563eb;
-  --accent-contrast-color: #fff;
-  --gradient-from-color: #bfdbfe;
-  --gradient-via-color: #60a5fa;
-  --gradient-to-color: #2563eb;
+  --accent-color: theme("colors.blue.500");
+  --accent-light-color: theme("colors.blue.400");
+  --accent-dark-color: theme("colors.blue.600");
+  --accent-contrast-color: theme("colors.white");
+  --gradient-from-color: theme("colors.blue.400");
+  --gradient-via-color: theme("colors.blue.500");
+  --gradient-to-color: theme("colors.blue.600");
 }
 
 @mixin indigo-theme {
-  --accent-color: #6366f1;
-  --accent-light-color: #818cf8;
-  --accent-dark-color: #4f46e5;
-  --accent-contrast-color: #fff;
-  --gradient-from-color: #c7d2fe;
-  --gradient-via-color: #818cf8;
-  --gradient-to-color: #4f46e5;
+  --accent-color: theme("colors.indigo.500");
+  --accent-light-color: theme("colors.indigo.400");
+  --accent-dark-color: theme("colors.indigo.600");
+  --accent-contrast-color: theme("colors.white");
+  --gradient-from-color: theme("colors.indigo.400");
+  --gradient-via-color: theme("colors.indigo.500");
+  --gradient-to-color: theme("colors.indigo.600");
 }
 
 @mixin purple-theme {
-  --accent-color: #8b5cf6;
-  --accent-light-color: #a78bfa;
-  --accent-dark-color: #7c3aed;
-  --accent-contrast-color: #fff;
-  --gradient-from-color: #ddd6fe;
-  --gradient-via-color: #a78bfa;
-  --gradient-to-color: #7c3aed;
+  --accent-color: theme("colors.purple.500");
+  --accent-light-color: theme("colors.purple.400");
+  --accent-dark-color: theme("colors.purple.600");
+  --accent-contrast-color: theme("colors.white");
+  --gradient-from-color: theme("colors.purple.400");
+  --gradient-via-color: theme("colors.purple.500");
+  --gradient-to-color: theme("colors.purple.600");
 }
 
 @mixin yellow-theme {
-  --accent-color: #f59e0b;
-  --accent-light-color: #fbbf24;
-  --accent-dark-color: #d97706;
-  --accent-contrast-color: #fff;
-  --gradient-from-color: #fde68a;
-  --gradient-via-color: #fbbf24;
-  --gradient-to-color: #d97706;
+  --accent-color: theme("colors.amber.500");
+  --accent-light-color: theme("colors.amber.400");
+  --accent-dark-color: theme("colors.amber.600");
+  --accent-contrast-color: theme("colors.white");
+  --gradient-from-color: theme("colors.amber.400");
+  --gradient-via-color: theme("colors.amber.500");
+  --gradient-to-color: theme("colors.amber.600");
 }
 
 @mixin orange-theme {
-  --accent-color: #f97316;
-  --accent-light-color: #fb923c;
-  --accent-dark-color: #ea580c;
-  --accent-contrast-color: #fff;
-  --gradient-from-color: #fed7aa;
-  --gradient-via-color: #fb923c;
-  --gradient-to-color: #ea580c;
+  --accent-color: theme("colors.orange.500");
+  --accent-light-color: theme("colors.orange.400");
+  --accent-dark-color: theme("colors.orange.600");
+  --accent-contrast-color: theme("colors.white");
+  --gradient-from-color: theme("colors.orange.400");
+  --gradient-via-color: theme("colors.orange.500");
+  --gradient-to-color: theme("colors.orange.600");
 }
 
 @mixin red-theme {
-  --accent-color: #ef4444;
-  --accent-light-color: #f87171;
-  --accent-dark-color: #dc2626;
-  --accent-contrast-color: #fff;
-  --gradient-from-color: #fecaca;
-  --gradient-via-color: #f87171;
-  --gradient-to-color: #dc2626;
+  --accent-color: theme("colors.red.500");
+  --accent-light-color: theme("colors.red.400");
+  --accent-dark-color: theme("colors.red.600");
+  --accent-contrast-color: theme("colors.white");
+  --gradient-from-color: theme("colors.red.400");
+  --gradient-via-color: theme("colors.red.500");
+  --gradient-to-color: theme("colors.red.600");
 }
 
 @mixin pink-theme {
-  --accent-color: #ec4899;
-  --accent-light-color: #f472b6;
-  --accent-dark-color: #db2777;
-  --accent-contrast-color: #fff;
-  --gradient-from-color: #fbcfe8;
-  --gradient-via-color: #f472b6;
-  --gradient-to-color: #db2777;
+  --accent-color: theme("colors.pink.500");
+  --accent-light-color: theme("colors.pink.400");
+  --accent-dark-color: theme("colors.pink.600");
+  --accent-contrast-color: theme("colors.white");
+  --gradient-from-color: theme("colors.pink.400");
+  --gradient-via-color: theme("colors.pink.500");
+  --gradient-to-color: theme("colors.pink.600");
 }

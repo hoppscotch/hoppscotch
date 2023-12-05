@@ -44,7 +44,6 @@
               </h3>
               <span class="flex items-center">
                 <slot name="actions"></slot>
-                <kbd class="shortcut-key mr-2">ESC</kbd>
                 <HoppButtonSecondary
                   v-if="dimissible"
                   v-tippy="{ theme: 'tooltip', delay: [500, 20] }"

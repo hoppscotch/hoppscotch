@@ -16,7 +16,7 @@
             autocomplete="off"
             name="command"
             :placeholder="`${t('app.type_a_command_search')}`"
-            class="flex flex-1 bg-transparent px-6 py-5 text-base text-secondaryDark"
+            class="flex flex-1 bg-transparent px-6 pt-5 pb-3 text-base text-secondaryDark"
           />
           <HoppSmartSpinner v-if="searchSession?.loading" class="mr-6" />
         </div>

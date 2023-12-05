@@ -19,7 +19,7 @@
       class="svg-icons opacity-75"
       :class="label ? (reverse ? 'ml-4' : 'mr-4') : ''"
     />
-    <div class="max-w-54 truncate">
+    <div class="max-w-[16rem] truncate">
       {{ label }}
     </div>
   </HoppSmartLink>

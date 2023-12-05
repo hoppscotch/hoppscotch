@@ -11,7 +11,7 @@
     @dragend="draggingToRoot = false"
   >
     <div
-      class="sticky z-10 flex flex-shrink-0 flex-col overflow-x-auto border-b border-dividerLight bg-primary"
+      class="sticky z-10 flex flex-shrink-0 flex-col overflow-x-auto bg-primary border-b border-dividerLight"
       :class="{ 'rounded-t': saveRequest }"
       :style="
         saveRequest ? 'top: calc(-1 * var(--line-height-body))' : 'top: 0'
@@ -22,7 +22,7 @@
         v-model="filterTexts"
         type="search"
         autocomplete="off"
-        class="flex h-8 w-full bg-transparent p-4 py-2"
+        class="flex w-full bg-transparent px-4 py-2"
         :placeholder="t('action.search')"
         :disabled="collectionsType.type === 'team-collections'"
       />

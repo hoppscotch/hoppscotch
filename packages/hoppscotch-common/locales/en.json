@@ -345,7 +345,7 @@
     "authorization": "The authorization header will be automatically generated when you send the request.",
     "generate_documentation_first": "Generate documentation first",
     "network_fail": "Unable to reach the API endpoint. Check your network connection or select a different Interceptor and try again.",
-    "offline": "You're using Hoppscotch offline. Updates will sync when you're online, based on workspace settings",
+    "offline": "You're using Hoppscotch offline. Updates will sync when you're online, based on workspace settings.",
     "offline_short": "You're using Hoppscotch offline.",
     "post_request_tests": "Test scripts are written in JavaScript, and are run after the response is received.",
     "pre_request_script": "Pre-request scripts are written in JavaScript, and are run before the request is sent.",

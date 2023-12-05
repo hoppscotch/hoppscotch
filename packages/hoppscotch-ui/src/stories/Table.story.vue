@@ -29,7 +29,7 @@
             <td
               v-for="cellHeading in headings"
               :key="cellHeading.key"
-              class="max-w-40 pl-6 py-1"
+              class="max-w-[10rem] pl-6 py-1"
             >
               {{ item[cellHeading.key] ?? "-" }}
             </td>

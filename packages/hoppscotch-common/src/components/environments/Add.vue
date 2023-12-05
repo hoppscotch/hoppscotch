@@ -7,7 +7,7 @@
     <template #body>
       <div class="flex flex-1 flex-col space-y-4">
         <div class="ml-2 flex items-center space-x-8">
-          <label for="name" class="min-w-10 font-semibold">{{
+          <label for="name" class="min-w-[2.5rem] font-semibold">{{
             t("environment.name")
           }}</label>
           <input
@@ -18,7 +18,7 @@
           />
         </div>
         <div class="ml-2 flex items-center space-x-8">
-          <label for="value" class="min-w-10 font-semibold">{{
+          <label for="value" class="min-w-[2.5rem] font-semibold">{{
             t("environment.value")
           }}</label>
           <input
@@ -29,7 +29,7 @@
           />
         </div>
         <div class="ml-2 flex items-center space-x-8">
-          <label for="scope" class="min-w-10 font-semibold">
+          <label for="scope" class="min-w-[2.5rem] font-semibold">
             {{ t("environment.scope") }}
           </label>
           <div
@@ -39,7 +39,7 @@
           </div>
         </div>
         <div v-if="replaceWithVariable" class="mt-3 flex space-x-2">
-          <div class="min-w-18" />
+          <div class="min-w-[4rem]" />
           <HoppSmartCheckbox
             :on="replaceWithVariable"
             :title="t('environment.replace_with_variable')"

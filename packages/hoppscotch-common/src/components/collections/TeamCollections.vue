@@ -15,12 +15,12 @@
         class="!rounded-none"
         :icon="IconPlus"
         :title="t('team.no_access')"
-        :label="t('add.new')"
+        :label="t('action.new')"
       />
       <HoppButtonSecondary
         v-else
         :icon="IconPlus"
-        :label="t('add.new')"
+        :label="t('action.new')"
         class="!rounded-none"
         @click="emit('display-modal-add')"
       />

@@ -37,13 +37,13 @@
               class="text-secondaryDark hover:bg-divider hover:cursor-pointer rounded-xl"
               @click="goToTeamDetails(team.id)"
             >
-              <td class="flex py-4 px-7 max-w-50">
+              <td class="flex py-4 px-7 max-w-[16rem]">
                 <span class="truncate">
                   {{ team.id }}
                 </span>
               </td>
 
-              <td class="py-4 px-7 min-w-80">
+              <td class="py-4 px-7 min-w-[20rem]">
                 <span
                   class="flex items-center truncate"
                   :class="{ truncate: team.name }"

@@ -30,7 +30,7 @@
             v-model="graphqlFieldsFilterText"
             type="search"
             autocomplete="off"
-            class="flex h-8 w-full bg-transparent p-4 py-2"
+            class="flex w-full bg-transparent px-4 py-2"
             :placeholder="`${t('action.search')}`"
           />
           <div class="flex">

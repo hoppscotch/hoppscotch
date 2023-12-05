@@ -1,7 +1,7 @@
 <template>
   <div
     class="flex h-full flex-1 flex-nowrap"
-    :class="{ 'h-auto flex-col': !vertical }"
+    :class="{ '!h-auto !flex-col': !vertical }"
   >
     <div
       class="tabs relative border-dividerLight"
@@ -221,8 +221,8 @@ const selectTab = (id: string) => {
       @apply items-center;
       @apply justify-center;
       @apply px-1;
-      @apply leading-[15px];
-      @apply min-w-4;
+      @apply min-w-[1rem];
+      @apply h-4;
       @apply ml-2;
       @apply text-[8px];
       @apply border border-divider;

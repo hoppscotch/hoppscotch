@@ -34,7 +34,7 @@
         <div ref="testScriptEditor" class="h-full"></div>
       </div>
       <div
-        class="z-9 sticky top-upperTertiaryStickyFold h-full min-w-46 max-w-1/3 flex-shrink-0 overflow-auto overflow-x-auto bg-primary p-4"
+        class="z-[9] sticky top-upperTertiaryStickyFold h-full min-w-[12rem] max-w-1/3 flex-shrink-0 overflow-auto overflow-x-auto bg-primary p-4"
       >
         <div class="pb-2 text-secondaryLight">
           {{ t("helpers.post_request_tests") }}

@@ -29,14 +29,6 @@
   @apply antialiased;
   accent-color: var(--accent-color);
   font-variant-ligatures: common-ligatures;
-
-  // Colors
-  --info-color: #ec4899;
-  --success-color: #10b981;
-  --blue-color: #3b82f6;
-  --warning-color: #f59e0b;
-  --cl-error-color: #ef4444;
-  --sv-error-color: #dc2626;
 }
 
 ::-webkit-scrollbar-track {
@@ -65,7 +57,7 @@ input::placeholder,
 textarea::placeholder,
 .cm-placeholder {
   @apply text-secondary;
-  @apply opacity-50;
+  @apply opacity-50 #{!important};
 }
 
 input,
@@ -84,7 +76,7 @@ body {
   @apply font-medium;
   @apply select-none;
   @apply overflow-x-hidden;
-  @apply leading-body;
+  @apply leading-body #{!important};
   animation: fade 300ms forwards;
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
@@ -182,7 +174,7 @@ a {
     @apply font-semibold;
     @apply px-2 py-1;
     @apply truncate;
-    @apply leading-normal;
+    @apply leading-body;
     @apply items-center;
 
     kbd {
@@ -229,7 +221,7 @@ a {
     @apply overflow-y-auto;
     @apply text-body text-secondary;
     @apply p-2;
-    @apply leading-normal;
+    @apply leading-body;
     @apply focus:outline-none;
     scroll-behavior: smooth;
 
@@ -261,7 +253,7 @@ a {
 
 hr {
   @apply border-b border-dividerLight;
-  @apply my-2;
+  @apply my-2 #{!important};
 }
 
 .heading {
@@ -350,44 +342,28 @@ pre.ace_editor {
   }
 }
 
-.select-wrapper {
-  @apply flex flex-1;
-  @apply relative;
-  @apply after:absolute;
-  @apply after:flex;
-  @apply after:inset-y-0;
-  @apply after:items-center;
-  @apply after:justify-center;
-  @apply after:pointer-events-none;
-  @apply after:font-icon;
-  @apply after:text-current;
-  @apply after:right-3;
-  @apply after:content-["\e5cf"];
-  @apply after:text-lg;
-}
-
 .info-response {
-  color: var(--info-color);
+  color: var(--status-info-color);
 }
 
 .success-response {
-  color: var(--success-color);
+  color: var(--status-success-color);
 }
 
-.redir-response {
-  color: var(--warning-color);
+.redirect-response {
+  color: var(--status-redirect-color);
 }
 
-.cl-error-response {
-  color: var(--cl-error-color);
+.critical-error-response {
+  color: var(--status-critical-error-color);
 }
 
-.sv-error-response {
-  color: var(--sv-error-color);
+.server-error-response {
+  color: var(--status-server-error-color);
 }
 
 .missing-data-response {
-  @apply text-secondaryLight;
+  color: var(--status-missing-data-color);
 }
 
 .toasted-container {
@@ -537,12 +513,12 @@ pre.ace_editor {
   @apply inline-flex;
   @apply font-sans;
   @apply text-tiny;
-  @apply bg-divider;
+  @apply bg-dividerLight;
   @apply rounded;
   @apply ml-2;
   @apply px-1;
-  @apply min-w-5;
-  @apply min-h-5;
+  @apply min-w-[1.25rem];
+  @apply min-h-[1.25rem];
   @apply items-center;
   @apply justify-center;
   @apply border border-dividerDark;

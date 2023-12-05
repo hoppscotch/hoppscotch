@@ -24,7 +24,7 @@
                 <button
                   :key="`removable-tab-${tabID}`"
                   :id="`removable-tab-${tabID}`"
-                  class="px-2 tab group"
+                  class="tab group"
                   :class="[{ active: modelValue === tabID }]"
                   :aria-label="tabMeta.label || ''"
                   role="button"
@@ -81,11 +81,11 @@
             </draggable>
           </div>
           <div
-            class="sticky right-0 flex items-center justify-center flex-shrink-0 overflow-x-auto z-14"
+            class="sticky right-0 flex items-center justify-center flex-shrink-0 overflow-x-auto z-20"
           >
             <span
               v-if="canAddNewTab"
-              class="flex items-center justify-center h-full px-3 bg-primaryLight z-8"
+              class="flex items-center justify-center h-full px-3 bg-primaryLight z-[8]"
             >
               <HoppButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"
@@ -382,9 +382,10 @@ watch(
   .tab {
     @apply relative;
     @apply flex;
-    @apply py-2;
+    @apply p-2;
     @apply font-semibold;
     @apply w-46;
+    @apply h-12;
     @apply transition;
     @apply flex-1;
     @apply items-center;

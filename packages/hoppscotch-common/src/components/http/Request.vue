@@ -3,7 +3,7 @@
     class="sticky top-0 z-20 flex-none flex-shrink-0 bg-primary p-4 sm:flex sm:flex-shrink-0 sm:space-x-2"
   >
     <div
-      class="min-w-52 flex flex-1 whitespace-nowrap rounded border border-divider"
+      class="min-w-[12rem] flex flex-1 whitespace-nowrap rounded border border-divider"
     >
       <div class="relative flex">
         <label for="method">
@@ -13,7 +13,7 @@
             theme="popover"
             :on-shown="() => methodTippyActions.focus()"
           >
-            <span class="select-wrapper">
+            <HoppSmartSelectWrapper>
               <input
                 id="method"
                 class="flex w-26 cursor-pointer rounded-l bg-primaryLight px-4 py-2 font-semibold text-secondaryDark transition"
@@ -22,7 +22,7 @@
                 :placeholder="`${t('request.method')}`"
                 @input="onSelectMethod($event)"
               />
-            </span>
+            </HoppSmartSelectWrapper>
             <template #content="{ hide }">
               <div
                 ref="methodTippyActions"
@@ -34,6 +34,9 @@
                   v-for="(method, index) in methods"
                   :key="`method-${index}`"
                   :label="method"
+                  :style="{
+                    color: getMethodLabelColor(method),
+                  }"
                   @click="
                     () => {
                       updateMethod(method)
@@ -67,7 +70,7 @@
           'action.send'
         )} <kbd>${getSpecialKey()}</kbd><kbd>↩</kbd>`"
         :label="`${!loading ? t('action.send') : t('action.cancel')}`"
-        class="min-w-20 flex-1 rounded-r-none"
+        class="min-w-[5rem] flex-1 rounded-r-none"
         @click="!loading ? newSendRequest() : cancelRequest()"
       />
       <span class="flex">
@@ -259,6 +262,7 @@ import { InterceptorService } from "~/services/interceptor.service"
 import { HoppTab } from "~/services/tab"
 import { HoppRESTDocument } from "~/helpers/rest/document"
 import { RESTTabService } from "~/services/tab/rest"
+import { getMethodLabelColor } from "~/helpers/rest/labelColoring"
 
 const t = useI18n()
 const interceptorService = useService(InterceptorService)
@@ -270,8 +274,8 @@ const methods = [
   "PATCH",
   "DELETE",
   "HEAD",
-  "CONNECT",
   "OPTIONS",
+  "CONNECT",
   "TRACE",
   "CUSTOM",
 ]

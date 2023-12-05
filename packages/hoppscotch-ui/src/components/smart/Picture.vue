@@ -19,7 +19,7 @@
 </template>
 
 <script setup lang="ts">
-import { Avatar } from "@boringer-avatars/vue3";
+import { Avatar } from "@boringer-avatars/vue3"
 
 withDefaults(
   defineProps<{
@@ -32,7 +32,7 @@ withDefaults(
     name: "",
     indicator: false,
     indicatorStyles: "bg-green-500",
-    size: 24,
+    size: 22,
   }
 )
 </script>

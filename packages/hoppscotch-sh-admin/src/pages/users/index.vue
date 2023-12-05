@@ -49,7 +49,7 @@
               class="text-secondaryDark hover:bg-divider hover:cursor-pointer rounded-xl"
               @click="goToUserDetails(user.uid)"
             >
-              <td class="py-2 px-7 max-w-30 truncate">
+              <td class="py-2 px-7 max-w-[8rem] truncate">
                 {{ user.uid }}
               </td>
 

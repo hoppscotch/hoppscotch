@@ -28,8 +28,7 @@
       >
         <span
           class="pointer-events-none flex w-16 items-center justify-center truncate px-2"
-          :class="requestLabelColor"
-          :style="{ color: requestLabelColor }"
+          :style="{ color: getMethodLabelColorClassOf(request) }"
         >
           <component
             :is="IconCheckCircle"
@@ -276,10 +275,6 @@ const currentReorderingStatus = useReadonlyStream(currentReorderingStatus$, {
   id: "",
   parentID: "",
 })
-
-const requestLabelColor = computed(() =>
-  getMethodLabelColorClassOf(props.request)
-)
 
 watch(
   () => props.duplicateLoading,

@@ -19,7 +19,9 @@
             >
               {{
                 t('config.enable_auth_provider', {
-                  provider: provider.name,
+                  provider:
+                    provider.name.charAt(0).toUpperCase() +
+                    provider.name.slice(1),
                 })
               }}
             </HoppSmartToggle>
@@ -30,15 +32,16 @@
               <label for=""> CLIENT ID </label>
               <span class="flex">
                 <HoppSmartInput
-                  :type="provider.mask_client_id ? 'password' : 'text'"
-                  :autofocus="false"
                   v-model="provider.client_id"
+                  :type="clientIDStatus(provider.name) ? 'password' : 'text'"
+                  :disabled="clientIDStatus(provider.name)"
+                  :autofocus="false"
                   class="!my-2 !bg-primaryLight"
                 />
                 <HoppButtonSecondary
-                  :icon="provider.mask_client_id ? IconEye : IconEyeOff"
+                  :icon="clientIDStatus(provider.name) ? IconEye : IconEyeOff"
                   class="bg-primaryLight h-9 mt-2"
-                  @click="provider.mask_client_id = !provider.mask_client_id"
+                  @click="maskClientID(provider.name)"
                 />
               </span>
             </div>
@@ -47,17 +50,20 @@
               <label for=""> SECRET ID </label>
               <span class="flex">
                 <HoppSmartInput
-                  :type="provider.mask_client_secret ? 'password' : 'text'"
-                  :autofocus="false"
                   v-model="provider.client_secret"
+                  :type="
+                    clientSecretStatus(provider.name) ? 'password' : 'text'
+                  "
+                  :disabled="clientSecretStatus(provider.name)"
+                  :autofocus="false"
                   class="!my-2 !bg-primaryLight"
                 />
                 <HoppButtonSecondary
-                  :icon="provider.mask_client_secret ? IconEye : IconEyeOff"
-                  class="bg-primaryLight h-9 mt-2"
-                  @click="
-                    provider.mask_client_secret = !provider.mask_client_secret
+                  :icon="
+                    clientSecretStatus(provider.name) ? IconEye : IconEyeOff
                   "
+                  class="bg-primaryLight h-9 mt-2"
+                  @click="maskClientSecret(provider.name)"
                 />
               </span>
             </div>
@@ -73,7 +79,8 @@ import { useI18n } from '~/composables/i18n';
 import IconEye from '~icons/lucide/eye';
 import IconEyeOff from '~icons/lucide/eye-off';
 import { useVModel } from '@vueuse/core';
-import { Configs } from '~/composables/useConfigHandler';
+import { AuthProviders, Configs } from '~/composables/useConfigHandler';
+import { reactive } from 'vue';
 
 const t = useI18n();
 
@@ -86,4 +93,35 @@ const emit = defineEmits<{
 }>();
 
 const workingConfigs = useVModel(props, 'config', emit);
+
+// Masking Client ID and Client Secret of Auth Providers
+type MaskInputFields = 'client_id' | 'client_secret';
+
+const maskInputs = reactive({
+  google: {
+    client_id: true,
+    client_secret: true,
+  },
+  github: {
+    client_id: true,
+    client_secret: true,
+  },
+  microsoft: {
+    client_id: true,
+    client_secret: true,
+  },
+});
+
+const clientIDStatus = (provider: AuthProviders) =>
+  maskInputs[provider].client_id;
+const clientSecretStatus = (provider: AuthProviders) =>
+  maskInputs[provider].client_secret;
+
+const toggleMask = (provider: AuthProviders, field: MaskInputFields) =>
+  (maskInputs[provider][field] = !maskInputs[provider][field]);
+
+const maskClientID = (provider: AuthProviders) =>
+  toggleMask(provider, 'client_id');
+const maskClientSecret = (provider: AuthProviders) =>
+  toggleMask(provider, 'client_secret');
 </script>

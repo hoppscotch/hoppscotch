@@ -18,30 +18,26 @@ import { UseMutationResponse } from '@urql/vue';
 
 const toast = useToast();
 
+export type AuthProviders = 'google' | 'microsoft' | 'github';
+
 export type Configs = {
   google: {
-    name: string;
+    name: AuthProviders;
     enabled: boolean;
     client_id: string;
     client_secret: string;
-    mask_client_id: boolean;
-    mask_client_secret: boolean;
   };
   github: {
-    name: string;
+    name: AuthProviders;
     enabled: boolean;
     client_id: string;
     client_secret: string;
-    mask_client_id: boolean;
-    mask_client_secret: boolean;
   };
   microsoft: {
-    name: string;
+    name: AuthProviders;
     enabled: boolean;
     client_id: string;
     client_secret: string;
-    mask_client_id: boolean;
-    mask_client_secret: boolean;
   };
 };
 
@@ -87,7 +83,7 @@ export function useConfigHandler(updatedConfigs?: Configs) {
 
     currentConfigs.value = {
       google: {
-        name: 'Google',
+        name: 'google',
         enabled: allowedAuthProviders.value.includes('GOOGLE'),
         client_id:
           infraConfigs.value.find((x) => x.name === 'GOOGLE_CLIENT_ID')
@@ -95,11 +91,9 @@ export function useConfigHandler(updatedConfigs?: Configs) {
         client_secret:
           infraConfigs.value.find((x) => x.name === 'GOOGLE_CLIENT_SECRET')
             ?.value ?? '',
-        mask_client_id: true,
-        mask_client_secret: true,
       },
       github: {
-        name: 'Github',
+        name: 'github',
         enabled: allowedAuthProviders.value.includes('GITHUB'),
         client_id:
           infraConfigs.value.find((x) => x.name === 'GITHUB_CLIENT_ID')
@@ -107,11 +101,9 @@ export function useConfigHandler(updatedConfigs?: Configs) {
         client_secret:
           infraConfigs.value.find((x) => x.name === 'GITHUB_CLIENT_SECRET')
             ?.value ?? '',
-        mask_client_id: true,
-        mask_client_secret: true,
       },
       microsoft: {
-        name: 'Microsoft',
+        name: 'microsoft',
         enabled: allowedAuthProviders.value.includes('MICROSOFT'),
         client_id:
           infraConfigs.value.find((x) => x.name === 'MICROSOFT_CLIENT_ID')
@@ -119,8 +111,6 @@ export function useConfigHandler(updatedConfigs?: Configs) {
         client_secret:
           infraConfigs.value.find((x) => x.name === 'MICROSOFT_CLIENT_SECRET')
             ?.value ?? '',
-        mask_client_id: true,
-        mask_client_secret: true,
       },
     };
 
@@ -224,13 +214,14 @@ export function useConfigHandler(updatedConfigs?: Configs) {
     const variables = {
       data: updatedAllowedAuthProviders.value as EnableAndDisableSsoArgs[],
     };
-    await updateProviderStatus.executeMutation(variables).then((result) => {
-      if (result.error) {
-        toast.error('Unable to update provider status');
-      } else {
-        toast.success('Provider status updated successfully');
-      }
-    });
+
+    const result = await updateProviderStatus.executeMutation(variables);
+
+    if (result.error) {
+      toast.error('Unable to update provider status');
+    } else {
+      toast.success('Provider status updated successfully');
+    }
   };
 
   const updateInfraConfigs = async (
@@ -239,27 +230,26 @@ export function useConfigHandler(updatedConfigs?: Configs) {
     const variables = {
       infraConfigs: updatedInfraConfigs.value as InfraConfigArgs[],
     };
-    await updateInfraConfigsMutation
-      .executeMutation(variables)
-      .then((result) => {
-        if (result.error) {
-          toast.error('Unable to update provider status');
-        } else {
-          toast.success('Provider status updated successfully');
-        }
-      });
+
+    const result = await updateInfraConfigsMutation.executeMutation(variables);
+
+    if (result.error) {
+      toast.error('Unable to update provider status');
+    } else {
+      toast.success('Provider status updated successfully');
+    }
   };
 
   const resetInfraConfigs = async (
     resetInfraConfigsMutation: UseMutationResponse<ResetInfraConfigsMutation>
   ) => {
-    await resetInfraConfigsMutation.executeMutation().then((result) => {
-      if (result.error) {
-        toast.error('Unable to update provider status');
-      } else {
-        toast.success('Provider status updated successfully');
-      }
-    });
+    const result = await resetInfraConfigsMutation.executeMutation();
+
+    if (result.error) {
+      toast.error('Unable to update provider status');
+    } else {
+      toast.success('Provider status updated successfully');
+    }
   };
 
   return {

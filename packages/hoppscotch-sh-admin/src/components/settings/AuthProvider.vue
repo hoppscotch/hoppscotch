@@ -11,7 +11,7 @@
       <section>
         <h4 class="font-semibold text-secondaryDark">Auth Providers</h4>
 
-        <div v-for="provider in workingInfraConfigs" class="space-y-4 py-4">
+        <div v-for="provider in infraConfigs" class="space-y-4 py-4">
           <div class="flex items-center">
             <HoppSmartToggle
               :on="provider.enabled"
@@ -73,22 +73,17 @@ import { useI18n } from '~/composables/i18n';
 import IconEye from '~icons/lucide/eye';
 import IconEyeOff from '~icons/lucide/eye-off';
 import { useVModel } from '@vueuse/core';
-import {
-  AllowedAuthProvidersQuery,
-  InfraConfigsQuery,
-} from '~/helpers/backend/graphql';
-import { Configs, useAuthProviders } from '~/composables/useAuthProviders';
+import { Configs } from '~/composables/getConfig';
 
 const t = useI18n();
 
 const props = defineProps<{
   config: Configs;
-  provider: AllowedAuthProvidersQuery['allowedAuthProviders'];
 }>();
 
 const emit = defineEmits<{
   (e: 'update:config', v: Configs): void;
 }>();
 
-const workingInfraConfigs = useVModel(props, 'config', emit);
+const infraConfigs = useVModel(props, 'config', emit);
 </script>

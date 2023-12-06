@@ -10,7 +10,7 @@
 import { computed, ref, watch } from 'vue';
 import { useToast } from '~/composables/toast';
 import { useI18n } from '~/composables/i18n';
-import { Configs } from '~/composables/useAuthProviders';
+import { Configs } from '~/composables/getConfig';
 
 const t = useI18n();
 

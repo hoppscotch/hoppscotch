@@ -58,6 +58,7 @@
     "@graphql-codegen/urql-introspection": "2.2.1",
     "@import-meta-env/cli": "^0.6.3",
     "@import-meta-env/unplugin": "^0.4.8",
+    "@types/lodash-es": "^4.17.12",
     "@vitejs/plugin-vue": "^3.1.0",
     "@vue/compiler-sfc": "^3.2.6",
     "dotenv": "^16.0.3",

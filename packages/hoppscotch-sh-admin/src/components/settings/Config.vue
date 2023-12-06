@@ -1,6 +1,6 @@
 <template>
   <div>
-    <SettingsAuthProvider v-model:config="workingInfraConfigs" />
+    <SettingsAuthProvider v-model:config="infraConfigs" />
     <SettingsSmtp />
     <SettingsReset />
   </div>
@@ -8,7 +8,7 @@
 
 <script setup lang="ts">
 import { useVModel } from '@vueuse/core';
-import { Configs } from '~/composables/useAuthProviders';
+import { Configs } from '~/composables/getConfig';
 
 const props = defineProps<{
   config: Configs;
@@ -18,5 +18,5 @@ const emit = defineEmits<{
   (e: 'update:config', v: Configs): void;
 }>();
 
-const workingInfraConfigs = useVModel(props, 'config', emit);
+const infraConfigs = useVModel(props, 'config', emit);
 </script>

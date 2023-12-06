@@ -88,7 +88,6 @@
     @hide-modal="displayCustomizeRequestModal(false, null)"
     @copy-shared-request="copySharedRequest"
     @create-shared-request="createSharedRequest"
-    @save-shared-request="saveSharedRequest"
   />
 </template>
 
@@ -117,6 +116,7 @@ import { copyToClipboard } from "~/helpers/utils/clipboard"
 import * as E from "fp-ts/Either"
 import { RESTTabService } from "~/services/tab/rest"
 import { useService } from "dioc/vue"
+import { watch } from "vue"
 
 const t = useI18n()
 const colorMode = useColorMode()
@@ -139,17 +139,17 @@ const embedOptions = ref<EmbedOption>({
     {
       value: "parameters",
       label: t("tab.parameters"),
-      enabled: true,
+      enabled: false,
     },
     {
       value: "body",
       label: t("tab.body"),
-      enabled: true,
+      enabled: false,
     },
     {
       value: "headers",
       label: t("tab.headers"),
-      enabled: true,
+      enabled: false,
     },
     {
       value: "authorization",
@@ -162,7 +162,7 @@ const embedOptions = ref<EmbedOption>({
 
 const updateEmbedProperty = async (
   shareRequestID: string,
-  properties: string | null
+  properties: string
 ) => {
   const customizeEmbedResult = await updateEmbedProperties(
     shareRequestID,
@@ -172,27 +172,30 @@ const updateEmbedProperty = async (
   if (E.isLeft(customizeEmbedResult)) {
     toast.error(`${customizeEmbedResult.left.error}`)
     toast.error(t("error.something_went_wrong"))
-  } else if (E.isRight(customizeEmbedResult)) {
-    if (customizeEmbedResult.right.updateEmbedProperties) {
-      if (customizeEmbedResult.right.updateEmbedProperties.properties) {
-        const parsedEmbedProperties = JSON.parse(
-          customizeEmbedResult.right.updateEmbedProperties.properties
-        )
-
-        embedOptions.value = {
-          selectedTab: parsedEmbedProperties.options[0],
-          tabs: embedOptions.value.tabs.map((tab) => {
-            return {
-              ...tab,
-              enabled: parsedEmbedProperties.options.includes(tab.value),
-            }
-          }),
-          theme: parsedEmbedProperties.theme,
-        }
-      }
-    }
   }
 }
+
+watch(
+  () => embedOptions.value,
+  () => {
+    if (
+      requestToShare.value &&
+      requestToShare.value.id &&
+      showShareRequestModal.value
+    ) {
+      if (selectedWidget.value.value === "embed") {
+        const properties = {
+          options: embedOptions.value.tabs
+            .filter((tab) => tab.enabled)
+            .map((tab) => tab.value),
+          theme: embedOptions.value.theme,
+        }
+        updateEmbedProperty(requestToShare.value.id, JSON.stringify(properties))
+      }
+    }
+  },
+  { deep: true }
+)
 
 const restTab = useService(RESTTabService)
 
@@ -306,6 +309,32 @@ const displayCustomizeRequestModal = (
       label: t("shared_requests.button"),
       info: t("shared_requests.button_info"),
     }
+    embedOptions.value = {
+      selectedTab: "parameters",
+      tabs: [
+        {
+          value: "parameters",
+          label: t("tab.parameters"),
+          enabled: false,
+        },
+        {
+          value: "body",
+          label: t("tab.body"),
+          enabled: false,
+        },
+        {
+          value: "headers",
+          label: t("tab.headers"),
+          enabled: false,
+        },
+        {
+          value: "authorization",
+          label: t("tab.authorization"),
+          enabled: false,
+        },
+      ],
+      theme: "system",
+    }
   } else {
     const parsedEmbedProperties = JSON.parse(embedProperties)
     embedOptions.value = {
@@ -392,25 +421,6 @@ const copySharedRequest = (payload: {
   if (payload.content) {
     copyToClipboard(payload.content)
     toast.success(t("state.copied_to_clipboard"))
-  }
-}
-
-const saveSharedRequest = () => {
-  if (requestToShare.value && requestToShare.value.id) {
-    if (selectedWidget.value.value === "embed") {
-      const properties = {
-        options: embedOptions.value.tabs
-          .filter((tab) => tab.enabled)
-          .map((tab) => tab.value),
-        theme: embedOptions.value.theme,
-      }
-      updateEmbedProperty(requestToShare.value.id, JSON.stringify(properties))
-    } else {
-      updateEmbedProperty(requestToShare.value.id, null)
-    }
-
-    toast.success(t("shared_requests.modified"))
-    displayShareRequestModal(false)
   }
 }
 

@@ -35,10 +35,7 @@ export const deleteShortcode = (code: string) =>
     code,
   })
 
-export const updateEmbedProperties = (
-  code: string,
-  properties: string | null
-) =>
+export const updateEmbedProperties = (code: string, properties: string) =>
   runMutation<
     UpdateEmbedPropertiesMutation,
     UpdateEmbedPropertiesMutationVariables,

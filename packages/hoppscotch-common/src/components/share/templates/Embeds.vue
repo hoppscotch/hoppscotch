@@ -6,13 +6,13 @@
     }"
   >
     <div
-      class="flex items-stretch space-x-4 rounded border-divider"
+      class="flex items-stretch space-x-2 rounded border-divider"
       :class="{
         'bg-accentContrast': isEmbedThemeLight,
       }"
     >
       <span
-        class="flex max-w-[4rem] items-center justify-center rounded border border-divider px-1 py-2 text-tiny"
+        class="flex max-w-[4rem] items-center justify-center rounded border border-divider p-2 text-tiny"
         :class="{
           '!border-dividerLight bg-accentContrast text-primary':
             isEmbedThemeLight,

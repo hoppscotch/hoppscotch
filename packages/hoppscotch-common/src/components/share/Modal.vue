@@ -38,15 +38,11 @@
           :loading="loading"
           @click="createSharedRequest"
         />
-        <HoppButtonPrimary
-          v-else
-          :label="t('action.save')"
-          :loading="loading"
-          @click="saveSharedRequest"
-        />
         <HoppButtonSecondary
-          :label="t('action.cancel')"
+          :label="step === 1 ? t('action.cancel') : t('action.close')"
           class="ml-2"
+          filled
+          outline
           @click="hideModal"
         />
       </div>
@@ -151,7 +147,6 @@ const emit = defineEmits<{
       type: string | undefined
     }
   ): void
-  (e: "save-shared-request"): void
 }>()
 
 const createSharedRequest = () => {
@@ -164,10 +159,6 @@ const copySharedRequest = (payload: {
   type: string | undefined
 }) => {
   emit("copy-shared-request", payload)
-}
-
-const saveSharedRequest = () => {
-  emit("save-shared-request")
 }
 
 const hideModal = () => {

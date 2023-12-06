@@ -434,7 +434,7 @@
     "confirm": "Confirm",
     "customize_request": "Customize Request",
     "edit_request": "Edit Request",
-    "share_request":"Share Request",
+    "share_request": "Share Request",
     "import_export": "Import / Export"
   },
   "mqtt": {
@@ -623,30 +623,30 @@
     "additional": "Additional Settings",
     "verify_email": "Verify email"
   },
-  "shared_requests":{
-    "button":"Button",
+  "shared_requests": {
+    "button": "Button",
     "button_info": "Create a 'Run in Hoppscotch' button for your website, blog or a README.",
     "customize": "Customize",
     "creating_widget": "Creating widget",
     "copy_html": "Copy HTML",
     "copy_link": "Copy Link",
     "copy_markdown": "Copy Markdown",
-    "deleted":"Shared request deleted",
+    "deleted": "Shared request deleted",
     "description": "Select a widget, you can change and customize this later",
-    "embed":"Embed",
+    "embed": "Embed",
     "embed_info": "Add a mini 'Hoppscotch API Playground' to your website, blog or documentation.",
-    "link":"Link",
+    "link": "Link",
     "link_info": "Create a shareable link to share with anyone on the internet with view access.",
     "modified": "Shared request modified",
-    "not_found":"Shared request not found",
+    "not_found": "Shared request not found",
     "open_new_tab": "Open in new tab",
-    "preview":"Preview",
-    "run_in_hoppscotch":"Run in Hoppscotch",
-    "theme":{
-      "dark":"Dark",
-      "light":"Light",
-      "system" :"System",
-      "title":"Theme"
+    "preview": "Preview",
+    "run_in_hoppscotch": "Run in Hoppscotch",
+    "theme": {
+      "dark": "Dark",
+      "light": "Light",
+      "system": "System",
+      "title": "Theme"
     }
   },
   "shortcut": {
@@ -692,7 +692,7 @@
       "save_to_collections": "Save to Collections",
       "send_request": "Send Request",
       "show_code": "Generate code snippet",
-      "share_request":"Share Request",
+      "share_request": "Share Request",
       "title": "Request"
     },
     "response": {

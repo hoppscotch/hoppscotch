@@ -75,6 +75,7 @@ const emit = defineEmits<{
       @apply w-4;
       @apply mr-2;
       @apply transition;
+      @apply empty:mr-0;
       content: "";
     }
 

@@ -1,5 +1,4 @@
 import * as TE from "fp-ts/TaskEither"
-import { cloneDeep } from "lodash-es"
 
 import { TestResult } from "~/types"
 import { getPreRequestScriptMethods } from "~/utils"
@@ -9,13 +8,13 @@ const executeScriptInContext = (
   envs: TestResult["envs"]
 ): TE.TaskEither<string, TestResult["envs"]> => {
   try {
-    const { pw, updatedEnvs } = getPreRequestScriptMethods(cloneDeep(envs))
+    const { pw, updatedEnvs } = getPreRequestScriptMethods(envs)
 
     // Create a function from the pre request script using the `Function` constructor
     const executeScript = new Function("pw", preRequestScript)
 
     // Execute the script
-    executeScript(pw, cloneDeep, updatedEnvs)
+    executeScript(pw)
 
     return TE.right(updatedEnvs)
   } catch (error) {

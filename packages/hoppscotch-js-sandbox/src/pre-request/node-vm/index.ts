@@ -1,6 +1,5 @@
 import { pipe } from "fp-ts/function"
 import * as TE from "fp-ts/lib/TaskEither"
-import { cloneDeep } from "lodash"
 import { createContext, runInContext } from "vm"
 
 import { TestResult } from "~/types"
@@ -21,9 +20,7 @@ export const runPreRequestScript = (
       TE.tryCatch(
         () =>
           new Promise((resolve) => {
-            const { pw, updatedEnvs } = getPreRequestScriptMethods(
-              cloneDeep(envs)
-            )
+            const { pw, updatedEnvs } = getPreRequestScriptMethods(envs)
 
             // Expose pw to the context
             context.pw = pw

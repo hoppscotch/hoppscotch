@@ -10,6 +10,145 @@ import {
   TestResult,
 } from "./types"
 
+const getEnv = (envName: string, envs: TestResult["envs"]) => {
+  return O.fromNullable(
+    envs.selected.find((x: SelectedEnvItem) => x.key === envName) ??
+      envs.global.find((x: GlobalEnvItem) => x.key === envName)
+  )
+}
+
+// Compiles shared scripting API methods for use in both pre and post request scripts
+const getSharedMethods = (envs: TestResult["envs"]) => {
+  // Reference is broken while reassigning below
+  let envsCopy = envs
+
+  const envGetFn = (key: any) => {
+    if (typeof key !== "string") {
+      throw new Error("Expected key to be a string")
+    }
+
+    const result = pipe(
+      getEnv(key, envs),
+      O.match(
+        () => undefined,
+        ({ value }) => String(value)
+      )
+    )
+
+    return result
+  }
+
+  const envGetResolveFn = (key: any) => {
+    if (typeof key !== "string") {
+      throw new Error("Expected key to be a string")
+    }
+
+    const result = pipe(
+      getEnv(key, envs),
+      E.fromOption(() => "INVALID_KEY" as const),
+
+      E.map(({ value }) =>
+        pipe(
+          parseTemplateStringE(value, [...envs.selected, ...envs.global]),
+          // If the recursive resolution failed, return the unresolved value
+          E.getOrElse(() => value)
+        )
+      ),
+      E.map((x) => String(x)),
+
+      E.getOrElseW(() => undefined)
+    )
+
+    return result
+  }
+
+  const envSetFn = (key: any, value: any) => {
+    if (typeof key !== "string") {
+      throw new Error("Expected key to be a string")
+    }
+
+    if (typeof value !== "string") {
+      throw new Error("Expected value to be a string")
+    }
+
+    envsCopy = setEnv(key, value, envsCopy)
+
+    return undefined
+  }
+
+  const envResolveFn = (value: any) => {
+    if (typeof value !== "string") {
+      throw new Error("Expected value to be a string")
+    }
+
+    const result = pipe(
+      parseTemplateStringE(value, [...envsCopy.selected, ...envsCopy.global]),
+      E.getOrElse(() => value)
+    )
+
+    return String(result)
+  }
+
+  return {
+    methods: {
+      env: {
+        get: envGetFn,
+        getResolve: envGetResolveFn,
+        set: envSetFn,
+        resolve: envResolveFn,
+      },
+    },
+    updatedEnvs: envsCopy,
+  }
+}
+
+const setEnv = (
+  envName: string,
+  envValue: string,
+  envs: TestResult["envs"]
+): TestResult["envs"] => {
+  const envsCopy = { ...envs }
+
+  const indexInSelected = envsCopy.selected.findIndex(
+    (x: SelectedEnvItem) => x.key === envName
+  )
+
+  // Found the match in selected
+  if (indexInSelected >= 0) {
+    envsCopy.selected[indexInSelected].value = envValue
+
+    return {
+      global: envsCopy.global,
+      selected: envsCopy.selected,
+    }
+  }
+
+  const indexInGlobal = envsCopy.global.findIndex(
+    (x: GlobalEnvItem) => x.key == envName
+  )
+
+  // Found a match in globals
+  if (indexInGlobal >= 0) {
+    envsCopy.global[indexInGlobal].value = envValue
+
+    return {
+      global: envsCopy.global,
+      selected: envsCopy.selected,
+    }
+  }
+
+  // Didn't find in both places, create a new variable in selected
+  envsCopy.selected.push({
+    key: envName,
+    value: envValue,
+  })
+
+  return {
+    global: envsCopy.global,
+    selected: envsCopy.selected,
+  }
+}
+
 export function preventCyclicObjects(
   obj: Record<string, any>
 ): E.Left<string> | E.Right<Record<string, any>> {
@@ -29,64 +168,12 @@ export function preventCyclicObjects(
   }
 }
 
-export function getEnv(envName: string, envs: TestResult["envs"]) {
-  return O.fromNullable(
-    envs.selected.find((x: SelectedEnvItem) => x.key === envName) ??
-      envs.global.find((x: GlobalEnvItem) => x.key === envName)
-  )
-}
-
-export function setEnv(
-  envName: string,
-  envValue: string,
-  envs: TestResult["envs"]
-): TestResult["envs"] {
-  const indexInSelected = envs.selected.findIndex(
-    (x: SelectedEnvItem) => x.key === envName
-  )
-
-  // Found the match in selected
-  if (indexInSelected >= 0) {
-    envs.selected[indexInSelected].value = envValue
-
-    return {
-      global: envs.global,
-      selected: envs.selected,
-    }
-  }
-
-  const indexInGlobal = envs.global.findIndex(
-    (x: GlobalEnvItem) => x.key == envName
-  )
-
-  // Found a match in globals
-  if (indexInGlobal >= 0) {
-    envs.global[indexInGlobal].value = envValue
-
-    return {
-      global: envs.global,
-      selected: envs.selected,
-    }
-  }
-
-  // Didn't find in both places, create a new variable in selected
-  envs.selected.push({
-    key: envName,
-    value: envValue,
-  })
-
-  return {
-    global: envs.global,
-    selected: envs.selected,
-  }
-}
-
 /**
  * Creates an Expectation object for use inside the sandbox
  * @param expectVal The expecting value of the expectation
  * @param negated Whether the expectation is negated (negative)
  * @param currTestStack The current state of the test execution stack
- * @returns Handle to the expectation object in VM
+ * @returns Object with the expectation methods
  */
 export const createExpectation = (
   expectVal: any,
@@ -150,12 +237,12 @@ export const createExpectation = (
     return undefined
   }
 
-  const toBeLevel2xx = () => toBeLevelXxx("200", 200, 299)
-  const toBeLevel3xx = () => toBeLevelXxx("300", 300, 399)
-  const toBeLevel4xx = () => toBeLevelXxx("400", 400, 499)
-  const toBeLevel5xx = () => toBeLevelXxx("500", 500, 599)
+  const toBeLevel2xxFn = () => toBeLevelXxx("200", 200, 299)
+  const toBeLevel3xxFn = () => toBeLevelXxx("300", 300, 399)
+  const toBeLevel4xxFn = () => toBeLevelXxx("400", 400, 499)
+  const toBeLevel5xxFn = () => toBeLevelXxx("500", 500, 599)
 
-  const toBeType = (expectedType: any) => {
+  const toBeTypeFn = (expectedType: any) => {
     if (
       [
         "string",
@@ -195,7 +282,7 @@ export const createExpectation = (
     return undefined
   }
 
-  const toHaveLength = (expectedLength: any) => {
+  const toHaveLengthFn = (expectedLength: any) => {
     if (!(Array.isArray(expectVal) || typeof expectVal === "string")) {
       const message =
         "Expected toHaveLength to be called for an array or string"
@@ -234,7 +321,7 @@ export const createExpectation = (
     return undefined
   }
 
-  const toInclude = (needle: any) => {
+  const toIncludeFn = (needle: any) => {
     if (!(Array.isArray(expectVal) || typeof expectVal === "string")) {
       const message = "Expected toInclude to be called for an array or string"
       currTestStack[currTestStack.length - 1].expectResults.push({
@@ -283,13 +370,13 @@ export const createExpectation = (
   }
 
   result.toBe = toBeFn
-  result.toBeLevel2xx = toBeLevel2xx
-  result.toBeLevel3xx = toBeLevel3xx
-  result.toBeLevel4xx = toBeLevel4xx
-  result.toBeLevel5xx = toBeLevel5xx
-  result.toBeType = toBeType
-  result.toHaveLength = toHaveLength
-  result.toInclude = toInclude
+  result.toBeLevel2xx = toBeLevel2xxFn
+  result.toBeLevel3xx = toBeLevel3xxFn
+  result.toBeLevel4xx = toBeLevel4xxFn
+  result.toBeLevel5xx = toBeLevel5xxFn
+  result.toBeType = toBeTypeFn
+  result.toHaveLength = toHaveLengthFn
+  result.toInclude = toIncludeFn
 
   Object.defineProperties(result, {
     not: {
@@ -306,88 +393,8 @@ export const createExpectation = (
  * @returns Object with methods in the `pw` namespace and updated environments
  */
 export const getPreRequestScriptMethods = (envs: TestResult["envs"]) => {
-  // The `envs` arg is supplied after deep cloning
-  let currentEnvs = envs
-
-  const envGetHandle = (key: any) => {
-    if (typeof key !== "string") {
-      throw new Error("Expected key to be a string")
-    }
-
-    const result = pipe(
-      getEnv(key, currentEnvs),
-      O.match(
-        () => undefined,
-        ({ value }) => String(value)
-      )
-    )
-
-    return result
-  }
-
-  const envGetResolveHandle = (key: any) => {
-    if (typeof key !== "string") {
-      throw new Error("Expected key to be a string")
-    }
-
-    const result = pipe(
-      getEnv(key, currentEnvs),
-      E.fromOption(() => "INVALID_KEY" as const),
-
-      E.map(({ value }) =>
-        pipe(
-          parseTemplateStringE(value, [...envs.selected, ...envs.global]),
-          // If the recursive resolution failed, return the unresolved value
-          E.getOrElse(() => value)
-        )
-      ),
-      E.map((x) => String(x)),
-      E.getOrElseW(() => undefined)
-    )
-
-    return result
-  }
-
-  const envSetHandle = (key: any, value: any) => {
-    if (typeof key !== "string") {
-      throw new Error("Expected key to be a string")
-    }
-
-    if (typeof value !== "string") {
-      throw new Error("Expected value to be a string")
-    }
-
-    currentEnvs = setEnv(key, value, currentEnvs)
-
-    return undefined
-  }
-
-  const envResolveHandle = (value: any) => {
-    if (typeof value !== "string") {
-      throw new Error("Expected value to be a string")
-    }
-
-    const result = pipe(
-      parseTemplateStringE(value, [
-        ...currentEnvs.selected,
-        ...currentEnvs.global,
-      ]),
-      E.getOrElse(() => value)
-    )
-
-    return String(result)
-  }
-
-  const pw = {
-    env: {
-      get: envGetHandle,
-      getResolve: envGetResolveHandle,
-      set: envSetHandle,
-      resolve: envResolveHandle,
-    },
-  }
-
-  return { pw, updatedEnvs: currentEnvs }
+  const { methods, updatedEnvs } = getSharedMethods(envs)
+  return { pw: methods, updatedEnvs }
 }
 
 /**
@@ -396,14 +403,11 @@ export const getPreRequestScriptMethods = (envs: TestResult["envs"]) => {
  * @returns Object with methods in the `pw` namespace, test run stack and environments that are updated
  */
 export const getTestRunnerScriptMethods = (envs: TestResult["envs"]) => {
-  // The `envs` arg is supplied after deep cloning
-  let currentEnvs = envs
-
   const testRunStack: TestDescriptor[] = [
     { descriptor: "root", expectResults: [], children: [] },
   ]
 
-  const testFuncHandle = (descriptor: string, testFunc: () => void) => {
+  const testFn = (descriptor: string, testFunc: () => void) => {
     testRunStack.push({
       descriptor,
       expectResults: [],
@@ -416,89 +420,16 @@ export const getTestRunnerScriptMethods = (envs: TestResult["envs"]) => {
     testRunStack[testRunStack.length - 1].children.push(child)
   }
 
-  const expectFnHandle = (expectVal: any) =>
+  const expectFn = (expectVal: any) =>
     createExpectation(expectVal, false, testRunStack)
 
-  const envGetHandle = (key: any) => {
-    if (typeof key !== "string") {
-      throw new Error("Expected key to be a string")
-    }
-
-    const result = pipe(
-      getEnv(key, currentEnvs),
-      O.match(
-        () => undefined,
-        ({ value }) => String(value)
-      )
-    )
-
-    return result
-  }
-
-  const envGetResolveHandle = (key: any) => {
-    if (typeof key !== "string") {
-      throw new Error("Expected key to be a string")
-    }
-
-    const result = pipe(
-      getEnv(key, currentEnvs),
-      E.fromOption(() => "INVALID_KEY" as const),
-
-      E.map(({ value }) =>
-        pipe(
-          parseTemplateStringE(value, [...envs.selected, ...envs.global]),
-          // If the recursive resolution failed, return the unresolved value
-          E.getOrElse(() => value)
-        )
-      ),
-      E.map((x) => String(x)),
-
-      E.getOrElseW(() => undefined)
-    )
-
-    return result
-  }
-
-  const envSetHandle = (key: any, value: any) => {
-    if (typeof key !== "string") {
-      throw new Error("Expected key to be a string")
-    }
-
-    if (typeof value !== "string") {
-      throw new Error("Expected value to be a string")
-    }
-
-    currentEnvs = setEnv(key, value, currentEnvs)
-
-    return undefined
-  }
-
-  const envResolveHandle = (value: any) => {
-    if (typeof value !== "string") {
-      throw new Error("Expected value to be a string")
-    }
-
-    const result = pipe(
-      parseTemplateStringE(value, [
-        ...currentEnvs.selected,
-        ...currentEnvs.global,
-      ]),
-      E.getOrElse(() => value)
-    )
-
-    return String(result)
-  }
+  const { methods, updatedEnvs } = getSharedMethods(envs)
 
   const pw = {
-    expect: expectFnHandle,
-    test: testFuncHandle,
-    env: {
-      get: envGetHandle,
-      getResolve: envGetResolveHandle,
-      set: envSetHandle,
-      resolve: envResolveHandle,
-    },
+    ...methods,
+    expect: expectFn,
+    test: testFn,
   }
 
-  return { pw, testRunStack, updatedEnvs: currentEnvs }
+  return { pw, testRunStack, updatedEnvs }
 }

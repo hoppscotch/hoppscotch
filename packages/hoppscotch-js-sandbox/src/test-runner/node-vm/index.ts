@@ -1,7 +1,6 @@
 import * as E from "fp-ts/Either"
 import * as TE from "fp-ts/TaskEither"
 import { pipe } from "fp-ts/function"
-import { cloneDeep } from "lodash"
 import { createContext, runInContext } from "vm"
 
 import { TestResponse, TestResult } from "~/types"
@@ -40,9 +39,7 @@ const executeScriptInContext = (
       return reject(`Response parsing failed: ${responseObjHandle.left}`)
     }
 
-    const { pw, testRunStack, updatedEnvs } = getTestRunnerScriptMethods(
-      cloneDeep(envs)
-    )
+    const { pw, testRunStack, updatedEnvs } = getTestRunnerScriptMethods(envs)
 
     // Expose pw to the context
     context.pw = { ...pw, response: responseObjHandle.right }

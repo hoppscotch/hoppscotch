@@ -1,6 +1,5 @@
 import * as E from "fp-ts/Either"
 import * as TE from "fp-ts/TaskEither"
-import { cloneDeep } from "lodash-es"
 
 import { SandboxTestResult, TestResponse, TestResult } from "~/types"
 import { getTestRunnerScriptMethods, preventCyclicObjects } from "~/utils"
@@ -16,9 +15,7 @@ const executeScriptInContext = (
       return TE.left(`Response marshalling failed: ${responseObjHandle.left}`)
     }
 
-    const { pw, testRunStack, updatedEnvs } = getTestRunnerScriptMethods(
-      cloneDeep(envs)
-    )
+    const { pw, testRunStack, updatedEnvs } = getTestRunnerScriptMethods(envs)
 
     // Create a function from the test script using the `Function` constructor
     const executeScript = new Function("pw", testScript)

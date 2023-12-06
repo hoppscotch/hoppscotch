@@ -7,22 +7,22 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useToast } from '~/composables/toast';
 import { useI18n } from '~/composables/i18n';
-import { Configs } from '~/composables/getConfig';
+import { Configs, getConfig } from '~/composables/getConfig';
 import {
   EnableAndDisableSsoDocument,
-  AuthProvider,
-  AuthProviderStatus,
+  EnableAndDisableSsoArgs,
   UpdateInfraConfigsDocument,
   InfraConfigArgs,
 } from '~/helpers/backend/graphql';
 import { useMutation } from '@urql/vue';
 
 const t = useI18n();
-
 const toast = useToast();
+
+const count = ref(8);
 
 const props = withDefaults(
   defineProps<{
@@ -35,95 +35,25 @@ const props = withDefaults(
   }
 );
 
-const count = ref(8);
+const {
+  transformedInfraConfigs: infraConfigs,
+  transformedAuthProviders: authProviders,
+} = getConfig(props.config);
 
-onMounted(() => {
-  console.log('config', props.config);
-});
+const updateProviderStatus = useMutation(EnableAndDisableSsoDocument);
 
-watch(
-  () => props.show,
-  (val) => {
-    // create a timer of 8 seconds as soon as this modal is opened
-    if (props.show) {
-      const timer = setInterval(() => {
-        count.value--;
-        if (count.value === 0) {
-          clearInterval(timer);
-          toast.success(`${t('settings.server_restarted')}`);
-          window.location.reload();
-        }
-      }, 1000);
+const updateAuthProvider = async () => {
+  const variables = {
+    data: authProviders.value as EnableAndDisableSsoArgs[],
+  };
+  await updateProviderStatus.executeMutation(variables).then((result) => {
+    if (result.error) {
+      toast.error('Unable to update provider status');
+    } else {
+      toast.success('Provider status updated successfully');
     }
-  }
-);
-
-const infraConfigs = computed(() => {
-  return [
-    {
-      name: 'GOOGLE_CLIENT_ID',
-      value: props.config?.google.client_id ?? '',
-    },
-    {
-      name: 'GOOGLE_CLIENT_SECRET',
-      value: props.config?.google.client_secret ?? '',
-    },
-    {
-      name: 'MICROSOFT_CLIENT_ID',
-      value: props.config?.microsoft.client_id ?? '',
-    },
-    {
-      name: 'MICROSOFT_CLIENT_SECRET',
-      value: props.config?.microsoft.client_secret ?? '',
-    },
-    {
-      name: 'GITHUB_CLIENT_ID',
-      value: props.config?.github.client_id ?? '',
-    },
-    {
-      name: 'GITHUB_CLIENT_SECRET',
-      value: props.config?.github.client_secret ?? '',
-    },
-  ];
-});
-
-const authProviders = computed(() => {
-  const providers = [];
-  if (props.config.google.enabled) {
-    providers.push('GOOGLE');
-  }
-  if (props.config.microsoft.enabled) {
-    providers.push('MICROSOFT');
-  }
-  if (props.config.github.enabled) {
-    providers.push('GITHUB');
-  }
-  return providers;
-});
-
-const emit = defineEmits<{
-  (event: 'hide-modal'): void;
-  (event: 'send-invite', email: string): void;
-}>();
-
-// const updateProviderStatus = useMutation(EnableAndDisableSsoDocument);
-
-// const updateAuthProvider = async (
-//   provider: AuthProvider,
-//   status: AuthProviderStatus
-// ) => {
-//   const variables = {
-//     provider: provider,
-//     status: status,
-//   };
-//   await updateProviderStatus.executeMutation(variables).then((result) => {
-//     if (result.error) {
-//       toast.error('Unable to update provider status');
-//     } else {
-//       toast.success('Provider status updated successfully');
-//     }
-//   });
-// };
+  });
+};
 
 const updateInfraConfigsMutation = useMutation(UpdateInfraConfigsDocument);
 
@@ -141,8 +71,19 @@ const updateInfraConfigs = async () => {
 };
 
 onMounted(async () => {
+  if (authProviders.value) {
+    await updateAuthProvider();
+  }
   if (infraConfigs.value) {
     await updateInfraConfigs();
   }
+  const timer = setInterval(() => {
+    count.value--;
+    if (count.value === 0) {
+      clearInterval(timer);
+      toast.success(`${t('settings.server_restarted')}`);
+      window.location.reload();
+    }
+  }, 1000);
 });
 </script>

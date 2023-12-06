@@ -1,6 +1,3 @@
-mutation EnableAndDisableSSO(
-  $provider: AuthProvider!
-  $status: AuthProviderStatus!
-) {
-  enableAndDisableSSO(provider: $provider, status: $status)
+mutation EnableAndDisableSSO($data: [EnableAndDisableSSOArgs!]!) {
+  enableAndDisableSSO(data: $data)
 }

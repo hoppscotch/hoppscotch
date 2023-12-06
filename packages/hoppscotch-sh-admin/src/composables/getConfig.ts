@@ -1,5 +1,5 @@
 import { useClientHandler } from './useClientHandler';
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import {
   InfraConfigEnum,
   InfraConfigsDocument,
@@ -34,7 +34,7 @@ export type Configs = {
   };
 };
 
-export function getConfig() {
+export function getConfig(usedConfigs?: Configs) {
   const {
     fetching: fetchingInfraConfigs,
     error: errorInfraConfigs,
@@ -111,6 +111,102 @@ export function getConfig() {
     workingConfigs.value = cloneDeep(currentConfigs.value);
   });
 
+  type MutationConfig = {
+    name: string;
+    value: string;
+  };
+
+  const transformedInfraConfigs = computed(() => {
+    let config: MutationConfig[] = [
+      {
+        name: '',
+        value: '',
+      },
+    ];
+
+    if (usedConfigs?.google.enabled) {
+      config.push(
+        {
+          name: 'GOOGLE_CLIENT_ID',
+          value: usedConfigs?.google.client_id ?? '',
+        },
+        {
+          name: 'GOOGLE_CLIENT_SECRET',
+          value: usedConfigs?.google.client_secret ?? '',
+        }
+      );
+    } else {
+      config = config.filter((item) => {
+        return (
+          item.name !== 'GOOGLE_CLIENT_ID' &&
+          item.name !== 'GOOGLE_CLIENT_SECRET'
+        );
+      });
+    }
+    if (usedConfigs?.microsoft.enabled) {
+      config.push(
+        {
+          name: 'MICROSOFT_CLIENT_ID',
+          value: usedConfigs?.microsoft.client_id ?? '',
+        },
+        {
+          name: 'MICROSOFT_CLIENT_SECRET',
+          value: usedConfigs?.microsoft.client_secret ?? '',
+        }
+      );
+    } else {
+      config = config.filter((item) => {
+        return (
+          item.name !== 'MICROSOFT_CLIENT_ID' &&
+          item.name !== 'MICROSOFT_CLIENT_SECRET'
+        );
+      });
+    }
+
+    if (usedConfigs?.github.enabled) {
+      config.push(
+        {
+          name: 'GITHUB_CLIENT_ID',
+          value: usedConfigs?.github.client_id ?? '',
+        },
+        {
+          name: 'GITHUB_CLIENT_SECRET',
+          value: usedConfigs?.github.client_secret ?? '',
+        }
+      );
+    } else {
+      config = config.filter((item) => {
+        return (
+          item.name !== 'GITHUB_CLIENT_ID' &&
+          item.name !== 'GITHUB_CLIENT_SECRET'
+        );
+      });
+    }
+
+    config = config.filter((item) => {
+      return item.name !== '';
+    });
+
+    return config;
+  });
+
+  const transformedAuthProviders = computed(() => {
+    return [
+      {
+        provider: 'GOOGLE',
+        status: usedConfigs?.google.enabled ? 'ENABLE' : 'DISABLE',
+      },
+      {
+        provider: 'MICROSOFT',
+        status: usedConfigs?.microsoft.enabled ? 'ENABLE' : 'DISABLE',
+      },
+      {
+        provider: 'GITHUB',
+        status: usedConfigs?.github.enabled ? 'ENABLE' : 'DISABLE',
+      },
+    ];
+  });
+
   return {
     fetchingInfraConfigs,
     errorInfraConfigs,
@@ -118,5 +214,7 @@ export function getConfig() {
     errorAllowedAuthProviders,
     currentConfigs,
     workingConfigs,
+    transformedAuthProviders,
+    transformedInfraConfigs,
   };
 }

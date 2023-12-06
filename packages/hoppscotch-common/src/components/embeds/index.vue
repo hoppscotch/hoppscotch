@@ -7,7 +7,8 @@
         <HoppButtonSecondary
           class="!font-bold uppercase tracking-wide !text-secondaryDark hover:bg-primaryDark focus-visible:bg-primaryDark"
           :label="t('app.name')"
-          to="/"
+          to="https://hoppscotch.io/"
+          blank
         />
         <div class="flex">
           <HoppSmartItem
@@ -27,66 +28,43 @@
           class="min-w-52 flex flex-1 whitespace-nowrap rounded border border-divider"
         >
           <div class="relative flex">
-            <label for="method">
-              <tippy
-                interactive
-                trigger="click"
-                theme="popover"
-                :on-shown="() => methodTippyActions?.focus()"
-              >
-                <span class="select-wrapper">
-                  <input
-                    id="method"
-                    class="flex w-26 cursor-pointer rounded-l bg-primaryLight px-4 py-2 font-semibold text-secondaryDark transition"
-                    :value="tab.document.request.method"
-                    :readonly="!isCustomMethod"
-                    :placeholder="`${t('request.method')}`"
-                    @input="onSelectMethod($event)"
-                  />
-                </span>
-                <template #content="{ hide }">
-                  <div
-                    ref="methodTippyActions"
-                    class="flex flex-col focus:outline-none"
-                    tabindex="0"
-                    @keyup.escape="hide()"
-                  >
-                    <HoppSmartItem
-                      v-for="(method, index) in methods"
-                      :key="`method-${index}`"
-                      :label="method"
-                      @click="
-                        () => {
-                          updateMethod(method)
-                          hide()
-                        }
-                      "
-                    />
-                  </div>
-                </template>
-              </tippy>
-            </label>
+            <span
+              class="flex justify-center items-center w-26 cursor-pointer rounded-l bg-primaryLight px-4 py-2 font-semibold text-secondaryDark transition"
+            >
+              {{ tab.document.request.method }}
+            </span>
           </div>
           <div
             class="flex flex-1 whitespace-nowrap rounded-r border-l border-divider bg-primaryLight transition"
           >
-            <SmartEnvInput
-              v-model="tab.document.request.endpoint"
-              :placeholder="`${t('request.url')}`"
-              @enter="newSendRequest"
+            <input
+              name="method"
+              :value="tab.document.request.endpoint"
+              class="flex-1 px-4 bg-primary"
+              disabled
             />
           </div>
         </div>
         <div class="mt-2 flex sm:mt-0">
           <HoppButtonPrimary
             id="send"
-            v-tippy="{ theme: 'tooltip', delay: [500, 20], allowHTML: true }"
             :title="`${t(
               'action.send'
             )} <kbd>${getSpecialKey()}</kbd><kbd>↩</kbd>`"
             :label="`${!loading ? t('action.send') : t('action.cancel')}`"
             class="min-w-20 flex-1"
             @click="!loading ? newSendRequest() : cancelRequest()"
+          />
+          <HoppButtonSecondary
+            :title="`${t(
+              'request.save'
+            )} <kbd>${getSpecialKey()}</kbd><kbd>S</kbd>`"
+            :label="t('request.save')"
+            filled
+            :icon="IconSave"
+            class="flex-1 rounded rounded-r-none"
+            blank
+            :to="sharedRequestURL"
           />
         </div>
       </div>
@@ -106,7 +84,6 @@
 import { Ref } from "vue"
 import { computed, useModel } from "vue"
 import { ref } from "vue"
-import { TippyComponent } from "vue-tippy"
 import { useI18n } from "~/composables/i18n"
 import { useToast } from "~/composables/toast"
 import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
@@ -116,7 +93,7 @@ import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 import { runRESTRequest$ } from "~/helpers/RequestRunner"
 import { HoppTab } from "~/services/tab"
 import { HoppRESTDocument } from "~/helpers/rest/document"
-
+import IconSave from "~icons/lucide/save"
 const t = useI18n()
 const toast = useToast()
 
@@ -139,29 +116,7 @@ const sharedRequestURL = computed(() => {
   return `${baseURL}/r/${props.sharedRequestID}`
 })
 
-const methods = [
-  "GET",
-  "POST",
-  "PUT",
-  "PATCH",
-  "DELETE",
-  "HEAD",
-  "CONNECT",
-  "OPTIONS",
-  "TRACE",
-  "CUSTOM",
-]
-
 const { subscribeToStream } = useStreamSubscriber()
-
-const updateMethod = (method: string) => {
-  tab.value.document.request.method = method
-}
-
-const onSelectMethod = (e: Event | any) => {
-  // type any because of value property not being recognized by TS in the event.target object. It is a valid property though.
-  updateMethod(e.target.value)
-}
 
 const newSendRequest = async () => {
   if (newEndpoint.value === "" || /^\s+$/.test(newEndpoint.value)) {
@@ -254,11 +209,4 @@ const cancelRequest = () => {
 
   updateRESTResponse(null)
 }
-
-const isCustomMethod = computed(() => {
-  return tab.value.document.request.method === "CUSTOM"
-})
-
-// Template refs
-const methodTippyActions = ref<TippyComponent | null>(null)
 </script>

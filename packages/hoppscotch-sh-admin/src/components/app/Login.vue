@@ -7,13 +7,13 @@
     {{ t('state.login_as_admin') }}
   </div>
 
-  <!-- <div v-else-if="fetching" class="flex justify-center py-6">
+  <div v-else-if="fetching" class="flex justify-center py-6">
     <HoppSmartSpinner />
   </div>
 
   <div v-else-if="error">
     <p class="text-xl">Error</p>
-  </div> -->
+  </div>
 
   <div v-else class="flex flex-1 flex-col">
     <div
@@ -174,12 +174,12 @@ const toast = useToast();
 
 const tosLink = import.meta.env.VITE_APP_TOS_LINK;
 const privacyPolicyLink = import.meta.env.VITE_APP_PRIVACY_POLICY_LINK;
-const allowedAuthProviders = import.meta.env.VITE_ALLOWED_AUTH_PROVIDERS;
+// const allowedAuthProviders = import.meta.env.VITE_ALLOWED_AUTH_PROVIDERS;
 
-// const { fetching, error, data } = useQuery({
-//   query: AllowedAuthProvidersDocument,
-// });
-// const allowedAuthProviders = computed(() => data?.value?.allowedAuthProviders);
+const { fetching, error, data } = useQuery({
+  query: AllowedAuthProvidersDocument,
+});
+const allowedAuthProviders = computed(() => data?.value?.allowedAuthProviders);
 
 // DATA
 

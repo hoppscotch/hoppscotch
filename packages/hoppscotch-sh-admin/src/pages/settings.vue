@@ -12,7 +12,7 @@
     <HoppSmartSpinner />
   </div>
 
-  <div v-else-if="errorInfraConfigs || errorAllowedAuthProviders">Error</div>
+  <div v-else-if="infraConfigsError || allowedAuthProvidersError">Error</div>
 
   <div class="flex flex-col">
     <div class="py-8">
@@ -28,7 +28,7 @@
     <HoppButtonPrimary label="Save Changes" @click="changes = !changes" />
   </div>
 
-  <SettingsRestartServer v-if="restart" :config="workingConfigs" />
+  <SettingsRestartServer v-if="restart" :workingConfigs="workingConfigs" />
 
   <HoppSmartConfirmModal
     :show="changes"
@@ -39,9 +39,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch, watchEffect } from 'vue';
+import { computed, ref } from 'vue';
 import { useI18n } from '~/composables/i18n';
-import { getConfig } from '~/composables/getConfig';
+import { useConfigHandler } from '~/composables/useConfigHandler';
 import { isEqual } from 'lodash-es';
 
 const t = useI18n();
@@ -56,10 +56,10 @@ const {
   currentConfigs,
   workingConfigs,
   fetchingInfraConfigs,
-  errorInfraConfigs,
+  infraConfigsError,
   fetchingAllowedAuthProviders,
-  errorAllowedAuthProviders,
-} = getConfig();
+  allowedAuthProvidersError,
+} = useConfigHandler();
 
 const diff = computed(() => {
   if (currentConfigs.value && workingConfigs.value) {

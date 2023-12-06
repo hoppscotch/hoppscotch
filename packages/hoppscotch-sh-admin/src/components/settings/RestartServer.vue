@@ -10,12 +10,11 @@
 import { onMounted, ref } from 'vue';
 import { useToast } from '~/composables/toast';
 import { useI18n } from '~/composables/i18n';
-import { Configs, getConfig } from '~/composables/getConfig';
+import { Configs, useConfigHandler } from '~/composables/useConfigHandler';
 import {
   EnableAndDisableSsoDocument,
-  EnableAndDisableSsoArgs,
   UpdateInfraConfigsDocument,
-  InfraConfigArgs,
+  ResetInfraConfigsDocument,
 } from '~/helpers/backend/graphql';
 import { useMutation } from '@urql/vue';
 
@@ -27,55 +26,39 @@ const count = ref(8);
 const props = withDefaults(
   defineProps<{
     loadingState: boolean;
-    config: Configs;
+    workingConfigs?: Configs;
+    reset?: boolean;
   }>(),
   {
-    show: false,
     loadingState: false,
+    reset: false,
   }
 );
 
-const {
-  transformedInfraConfigs: infraConfigs,
-  transformedAuthProviders: authProviders,
-} = getConfig(props.config);
-
-const updateProviderStatus = useMutation(EnableAndDisableSsoDocument);
-
-const updateAuthProvider = async () => {
-  const variables = {
-    data: authProviders.value as EnableAndDisableSsoArgs[],
-  };
-  await updateProviderStatus.executeMutation(variables).then((result) => {
-    if (result.error) {
-      toast.error('Unable to update provider status');
-    } else {
-      toast.success('Provider status updated successfully');
-    }
-  });
-};
-
 const updateInfraConfigsMutation = useMutation(UpdateInfraConfigsDocument);
+const updateAllowedAuthProviderMutation = useMutation(
+  EnableAndDisableSsoDocument
+);
+const resetInfraConfigsMutation = useMutation(ResetInfraConfigsDocument);
 
-const updateInfraConfigs = async () => {
-  const variables = {
-    infraConfigs: infraConfigs.value as InfraConfigArgs[],
-  };
-  await updateInfraConfigsMutation.executeMutation(variables).then((result) => {
-    if (result.error) {
-      toast.error('Unable to update provider status');
-    } else {
-      toast.success('Provider status updated successfully');
-    }
-  });
-};
+const {
+  updatedInfraConfigs,
+  updatedAllowedAuthProviders,
+  updateInfraConfigs,
+  updateAuthProvider,
+  resetInfraConfigs,
+} = useConfigHandler(props.workingConfigs);
 
 onMounted(async () => {
-  if (authProviders.value) {
-    await updateAuthProvider();
-  }
-  if (infraConfigs.value) {
-    await updateInfraConfigs();
+  if (props.reset) {
+    await resetInfraConfigs(resetInfraConfigsMutation);
+  } else {
+    if (updatedAllowedAuthProviders.value) {
+      await updateAuthProvider(updateAllowedAuthProviderMutation);
+    }
+    if (updatedInfraConfigs.value) {
+      await updateInfraConfigs(updateInfraConfigsMutation);
+    }
   }
   const timer = setInterval(() => {
     count.value--;

@@ -22,13 +22,13 @@
     </div>
   </div>
 
-  <!-- <SettingsRestartServer :show="saveChangesModal" /> -->
+  <SettingsRestartServer v-if="resetInfraConfigs" :reset="resetInfraConfigs" />
 
   <HoppSmartConfirmModal
     :show="resetModal"
     title="Confirm Reset?"
     @hide-modal="resetModal = false"
-    @resolve="saveChangesModal = true"
+    @resolve="resetInfraConfigs = true"
   />
 </template>
 
@@ -36,12 +36,13 @@
 import { HoppButtonPrimary } from '@hoppscotch/ui';
 import { ref } from 'vue';
 import { useI18n } from '~/composables/i18n';
+import { useToast } from '~/composables/toast';
 
 const t = useI18n();
+const toast = useToast();
 
 const resetModal = ref(false);
-
-const saveChangesModal = ref(false);
+const resetInfraConfigs = ref(false);
 
 const resetConfigs = () => {
   resetModal.value = true;

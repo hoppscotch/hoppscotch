@@ -34,14 +34,9 @@ export function useClientHandler<
     fetching.value = false;
   };
 
-  const refetch = async () => {
-    await fetchList();
-  };
-
   return {
     fetching,
     error,
-    refetch,
     list,
     fetchList,
   };

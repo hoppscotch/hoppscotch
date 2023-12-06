@@ -144,7 +144,6 @@ const emit = defineEmits<{
     payload: {
       sharedRequestID: string | undefined
       content: string | undefined
-      type: string | undefined
     }
   ): void
 }>()
@@ -156,7 +155,6 @@ const createSharedRequest = () => {
 const copySharedRequest = (payload: {
   sharedRequestID: string | undefined
   content: string | undefined
-  type: string | undefined
 }) => {
   emit("copy-shared-request", payload)
 }

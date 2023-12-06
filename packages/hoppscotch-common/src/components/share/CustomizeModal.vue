@@ -242,7 +242,6 @@ const emit = defineEmits<{
     request: {
       sharedRequestID: string | undefined
       content: string | undefined
-      type: string | undefined
     }
   ): void
   (e: "hide-modal"): void
@@ -411,7 +410,6 @@ const copyContent = ({
   const copyContent = {
     sharedRequestID: props.request?.id,
     content,
-    type: widget,
   }
   emit("copy-shared-request", copyContent)
 }

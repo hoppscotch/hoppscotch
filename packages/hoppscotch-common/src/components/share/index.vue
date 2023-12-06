@@ -297,6 +297,7 @@ const displayShareRequestModal = (show: boolean) => {
   showShareRequestModal.value = show
   step.value = 1
 }
+
 const displayCustomizeRequestModal = (
   show: boolean,
   embedProperties?: string | null
@@ -416,7 +417,6 @@ const customizeSharedRequest = (
 const copySharedRequest = (payload: {
   sharedRequestID: string | undefined
   content: string | undefined
-  type: string | undefined
 }) => {
   if (payload.content) {
     copyToClipboard(payload.content)

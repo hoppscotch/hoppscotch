@@ -2,7 +2,9 @@
   <HoppSmartModal
     v-if="show"
     dialog
-    :title="t('modal.share_request')"
+    :title="
+      step === 1 ? t('modal.share_request') : t('modal.customize_request')
+    "
     styles="sm:max-w-md"
     @close="hideModal"
   >
@@ -29,19 +31,25 @@
     </template>
 
     <template #footer>
-      <div v-if="step === 1" class="flex justify-end">
+      <div class="flex justify-start flex-1">
         <HoppButtonPrimary
+          v-if="step === 1"
           :label="t('action.create')"
           :loading="loading"
           @click="createSharedRequest"
         />
+        <HoppButtonPrimary
+          v-else
+          :label="t('action.save')"
+          :loading="loading"
+          @click="saveSharedRequest"
+        />
         <HoppButtonSecondary
           :label="t('action.cancel')"
-          class="mr-2"
+          class="ml-2"
           @click="hideModal"
         />
       </div>
-      <HoppButtonPrimary v-else :label="t('action.close')" @click="hideModal" />
     </template>
   </HoppSmartModal>
 </template>
@@ -137,24 +145,29 @@ const emit = defineEmits<{
   (e: "update:step", value: number): void
   (
     e: "copy-shared-request",
-    request: {
+    payload: {
       sharedRequestID: string | undefined
       content: string | undefined
       type: string | undefined
     }
   ): void
+  (e: "save-shared-request"): void
 }>()
 
 const createSharedRequest = () => {
   emit("create-shared-request", props.request as HoppRESTRequest)
 }
 
-const copySharedRequest = (request: {
+const copySharedRequest = (payload: {
   sharedRequestID: string | undefined
   content: string | undefined
   type: string | undefined
 }) => {
-  emit("copy-shared-request", request)
+  emit("copy-shared-request", payload)
+}
+
+const saveSharedRequest = () => {
+  emit("save-shared-request")
 }
 
 const hideModal = () => {

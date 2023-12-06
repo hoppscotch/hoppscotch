@@ -88,6 +88,7 @@
     @hide-modal="displayCustomizeRequestModal(false, null)"
     @copy-shared-request="copySharedRequest"
     @create-shared-request="createSharedRequest"
+    @save-shared-request="saveSharedRequest"
   />
 </template>
 
@@ -161,7 +162,7 @@ const embedOptions = ref<EmbedOption>({
 
 const updateEmbedProperty = async (
   shareRequestID: string,
-  properties: string
+  properties: string | null
 ) => {
   const customizeEmbedResult = await updateEmbedProperties(
     shareRequestID,
@@ -383,19 +384,20 @@ const customizeSharedRequest = (
   displayCustomizeRequestModal(true, embedProperties)
 }
 
-const copySharedRequest = (request: {
+const copySharedRequest = (payload: {
   sharedRequestID: string | undefined
   content: string | undefined
   type: string | undefined
 }) => {
-  if (request.content) {
-    copyToClipboard(request.content)
+  if (payload.content) {
+    copyToClipboard(payload.content)
     toast.success(t("state.copied_to_clipboard"))
-    if (
-      requestToShare.value &&
-      requestToShare.value.id &&
-      request.type === "embed"
-    ) {
+  }
+}
+
+const saveSharedRequest = () => {
+  if (requestToShare.value && requestToShare.value.id) {
+    if (selectedWidget.value.value === "embed") {
       const properties = {
         options: embedOptions.value.tabs
           .filter((tab) => tab.enabled)
@@ -403,7 +405,12 @@ const copySharedRequest = (request: {
         theme: embedOptions.value.theme,
       }
       updateEmbedProperty(requestToShare.value.id, JSON.stringify(properties))
+    } else {
+      updateEmbedProperty(requestToShare.value.id, null)
     }
+
+    toast.success(t("shared_requests.modified"))
+    displayShareRequestModal(false)
   }
 }
 

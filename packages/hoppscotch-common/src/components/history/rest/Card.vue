@@ -121,7 +121,8 @@ const duration = computed(() => {
     return responseDuration > 0
       ? `${t("request.duration")}: ${responseDuration}ms`
       : t("error.no_duration")
-  } else return t("error.no_duration")
+  }
+  return t("error.no_duration")
 })
 
 const entryStatus = computed(() => {

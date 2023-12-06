@@ -210,7 +210,7 @@ export default defineComponent({
     const loadingCurrentUser = computed(() => {
       if (!probableUser.value) return false
       else if (!currentUser.value) return true
-      else return false
+      return false
     })
 
     return {
@@ -264,21 +264,20 @@ export default defineComponent({
     getErrorMessage(error: GQLError<GetInviteDetailsError>) {
       if (error.type === "network_error") {
         return this.t("error.network_error")
-      } else {
-        switch (error.error) {
-          case "team_invite/not_valid_viewer":
-            return this.t("team.not_valid_viewer")
-          case "team_invite/not_found":
-            return this.t("team.not_found")
-          case "team_invite/no_invite_found":
-            return this.t("team.no_invite_found")
-          case "team_invite/already_member":
-            return this.t("team.already_member")
-          case "team_invite/email_do_not_match":
-            return this.t("team.email_do_not_match")
-          default:
-            return this.t("error.something_went_wrong")
-        }
+      }
+      switch (error.error) {
+        case "team_invite/not_valid_viewer":
+          return this.t("team.not_valid_viewer")
+        case "team_invite/not_found":
+          return this.t("team.not_found")
+        case "team_invite/no_invite_found":
+          return this.t("team.no_invite_found")
+        case "team_invite/already_member":
+          return this.t("team.already_member")
+        case "team_invite/email_do_not_match":
+          return this.t("team.email_do_not_match")
+        default:
+          return this.t("error.something_went_wrong")
       }
     },
   },

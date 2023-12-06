@@ -31,7 +31,8 @@ const applyColorMode = (app: App) => {
   const selection = computed<Exclude<HoppBgColor, "system">>(() => {
     if (currentLocalPreference.value === "system") {
       return systemPrefersDark.value ? "dark" : "light"
-    } else return currentLocalPreference.value
+    }
+    return currentLocalPreference.value
   })
 
   watch(

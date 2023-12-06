@@ -538,13 +538,12 @@ const isSelected = ({
       props.picked.folderPath === folderPath &&
       props.picked.requestIndex === requestIndex
     )
-  } else {
-    return (
-      props.picked &&
-      props.picked.pickedType === "my-folder" &&
-      props.picked.folderPath === folderPath
-    )
   }
+  return (
+    props.picked &&
+    props.picked.pickedType === "my-folder" &&
+    props.picked.folderPath === folderPath
+  )
 }
 
 const tabs = useService(RESTTabService)
@@ -741,11 +740,10 @@ class MyCollectionsAdapter implements SmartTreeAdapter<MyCollectionNode> {
           status: "loaded",
           data: data,
         } as ChildrenResult<Folder | Requests>
-      } else {
-        return {
-          status: "loaded",
-          data: [],
-        }
+      }
+      return {
+        status: "loaded",
+        data: [],
       }
     })
   }

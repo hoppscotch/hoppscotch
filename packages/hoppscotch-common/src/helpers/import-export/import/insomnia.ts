@@ -1,4 +1,3 @@
-import IconInsomnia from "~icons/hopp/insomnia"
 import { convert, ImportRequest } from "insomnia-importers"
 import { pipe, flow } from "fp-ts/function"
 import {
@@ -16,8 +15,7 @@ import * as A from "fp-ts/Array"
 import * as S from "fp-ts/string"
 import * as TO from "fp-ts/TaskOption"
 import * as TE from "fp-ts/TaskEither"
-import { step } from "../steps"
-import { defineImporter, IMPORTER_INVALID_FILE_FORMAT } from "."
+import { IMPORTER_INVALID_FILE_FORMAT } from "."
 
 // TODO: Insomnia allows custom prefixes for Bearer token auth, Hoppscotch doesn't. We just ignore the prefix for now
 
@@ -210,27 +208,10 @@ const getHoppCollections = (doc: InsomniaDoc) =>
     getHoppFolder(f, doc.data.resources)
   )
 
-export default defineImporter({
-  id: "insomnia",
-  name: "import.from_insomnia",
-  applicableTo: ["my-collections", "team-collections", "url-import"],
-  icon: IconInsomnia,
-  steps: [
-    step({
-      stepName: "FILE_IMPORT",
-      metadata: {
-        caption: "import.from_insomnia_description",
-        acceptedFileTypes: ".json, .yaml",
-      },
-    }),
-  ] as const,
-  importer: ([fileContent]) =>
-    pipe(
-      fileContent,
-      parseInsomniaDoc,
-
-      TO.map(getHoppCollections),
-
-      TE.fromTaskOption(() => IMPORTER_INVALID_FILE_FORMAT)
-    ),
-})
+export const hoppInsomniaImporter = (fileContent: string) =>
+  pipe(
+    fileContent,
+    parseInsomniaDoc,
+    TO.map(getHoppCollections),
+    TE.fromTaskOption(() => IMPORTER_INVALID_FILE_FORMAT)
+  )

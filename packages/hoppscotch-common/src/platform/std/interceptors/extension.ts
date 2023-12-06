@@ -103,9 +103,8 @@ export class ExtensionInterceptorService
   public extensionVersion = computed(() => {
     if (this.extensionStatus.value === "available") {
       return window.__POSTWOMAN_EXTENSION_HOOK__?.getVersion()
-    } else {
-      return null
     }
+    return null
   })
 
   /**
@@ -197,11 +196,10 @@ export class ExtensionInterceptorService
       if (this.extensionStatus.value === "available" && version) {
         const { major, minor } = version
         return `${t("settings.extensions")}: v${major}.${minor}`
-      } else {
-        return `${t("settings.extensions")}: ${t(
-          "settings.extension_ver_not_reported"
-        )}`
       }
+      return `${t("settings.extensions")}: ${t(
+        "settings.extension_ver_not_reported"
+      )}`
     })
   }
 

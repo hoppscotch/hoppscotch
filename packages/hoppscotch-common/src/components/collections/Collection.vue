@@ -290,13 +290,13 @@ const collectionIcon = computed(() => {
   if (props.isSelected) return IconCheckCircle
   else if (!props.isOpen) return IconFolder
   else if (props.isOpen) return IconFolderOpen
-  else return IconFolder
+  return IconFolder
 })
 
 const collectionName = computed(() => {
   if ((props.data as HoppCollection<HoppRESTRequest>).name)
     return (props.data as HoppCollection<HoppRESTRequest>).name
-  else return (props.data as TeamCollection).title
+  return (props.data as TeamCollection).title
 })
 
 watch(
@@ -424,9 +424,8 @@ const isCollLoading = computed(() => {
     props.data.id
   ) {
     return collectionMoveLoading.includes(props.data.id)
-  } else {
-    return false
   }
+  return false
 })
 
 const resetDragState = () => {

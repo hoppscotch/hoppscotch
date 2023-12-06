@@ -273,6 +273,9 @@
     "variable": "Variable",
     "variable_list": "Variable List"
   },
+  "graphql_collections": {
+    "title": "GraphQL Collections"
+  },
   "error": {
     "browser_support_sse": "This browser doesn't seems to have Server Sent Events support.",
     "check_console_details": "Check console log for details.",
@@ -308,7 +311,8 @@
     "create_secret_gist": "Create secret Gist",
     "gist_created": "Gist created",
     "require_github": "Login with GitHub to create secret gist",
-    "title": "Export"
+    "title": "Export",
+    "failed": "Something went wrong while exporting"
   },
   "filter": {
     "all": "All",
@@ -375,6 +379,7 @@
     "from_openapi_description": "Import from OpenAPI specification file (YML/JSON)",
     "from_postman": "Import from Postman",
     "from_postman_description": "Import from Postman collection",
+    "from_file": "Import from File",
     "from_url": "Import from URL",
     "gist_url": "Enter Gist URL",
     "import_from_url_invalid_fetch": "Couldn't get data from the url",
@@ -382,7 +387,14 @@
     "import_from_url_invalid_type": "Unsupported type. accepted values are 'hoppscotch', 'openapi', 'postman', 'insomnia'",
     "import_from_url_success": "Collections Imported",
     "json_description": "Import collections from a Hoppscotch Collections JSON file",
-    "title": "Import"
+    "title": "Import",
+    "hoppscotch_environment": "Hoppscotch Environment",
+    "hoppscotch_environment_description": "Import Hoppscotch Environment JSON file",
+    "postman_environment": "Postman Environment",
+    "postman_environment_description": "Import Postman Environment JSON file",
+    "environments_from_gist": "Import From Gist",
+    "environments_from_gist_description": "Import Hoppscotch Environments From Gist",
+    "gql_collections_from_gist_description": "Import GraphQL Collections From Gist"
   },
   "inspections": {
     "description": "Inspect possible errors",

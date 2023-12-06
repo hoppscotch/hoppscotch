@@ -62,27 +62,25 @@ const buildHarPostParams = (
       ),
       RA.toArray
     )
-  } else {
-    // FormData has its own format
-    return req.body.body.flatMap((entry) => {
-      if (entry.isFile) {
-        // We support multiple files
-        return entry.value.map(
-          (file) =>
-            <Har.Param>{
-              name: entry.key,
-              fileName: entry.key, // TODO: Blob doesn't contain file info, anyway to bring file name here ?
-              contentType: file.type,
-            }
-        )
-      } else {
-        return {
-          name: entry.key,
-          value: entry.value,
-        }
-      }
-    })
   }
+  // FormData has its own format
+  return req.body.body.flatMap((entry) => {
+    if (entry.isFile) {
+      // We support multiple files
+      return entry.value.map(
+        (file) =>
+          <Har.Param>{
+            name: entry.key,
+            fileName: entry.key, // TODO: Blob doesn't contain file info, anyway to bring file name here ?
+            contentType: file.type,
+          }
+      )
+    }
+    return {
+      name: entry.key,
+      value: entry.value,
+    }
+  })
 }
 
 const buildHarPostData = (req: HoppRESTRequest): Har.PostData | undefined => {

@@ -57,9 +57,8 @@ const maxMembersHardLimit = 6
 const slicedTeamMembers = computed(() => {
   if (props.showCount && props.teamMembers.length > maxMembersSoftLimit) {
     return props.teamMembers.slice(0, maxMembersSoftLimit)
-  } else {
-    return props.teamMembers
   }
+  return props.teamMembers
 })
 
 const remainingSlicedMembers = computed(

@@ -132,17 +132,10 @@ export const teamCollToHoppRESTColl = (
  * @param teamID - ID of the team
  * @returns Either of the JSON string of the collection or the error
  */
-export const getTeamCollectionJSON = async (teamID: string) => {
-  const data = await runGQLQuery({
+export const getTeamCollectionJSON = async (teamID: string) =>
+  await runGQLQuery({
     query: ExportAsJsonDocument,
     variables: {
       teamID,
     },
   })
-
-  if (E.isLeft(data)) {
-    return E.left(data.left)
-  }
-
-  return E.right(data.right)
-}

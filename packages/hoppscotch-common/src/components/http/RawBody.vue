@@ -126,19 +126,19 @@ const linewrapEnabled = ref(true)
 const rawBodyParameters = ref<any | null>(null)
 
 const codemirrorValue: Ref<string | undefined> =
-  typeof rawParamsBody.value == "string"
+  typeof rawParamsBody.value === "string"
     ? ref(rawParamsBody.value)
     : ref(undefined)
 
 watch(rawParamsBody, (newVal) => {
-  typeof newVal == "string"
+  typeof newVal === "string"
     ? (codemirrorValue.value = newVal)
     : (codemirrorValue.value = undefined)
 })
 
 // propagate the edits from codemirror back to the body
 watch(codemirrorValue, (updatedValue) => {
-  if (updatedValue && updatedValue != rawParamsBody.value) {
+  if (updatedValue && updatedValue !== rawParamsBody.value) {
     rawParamsBody.value = updatedValue
   }
 })
@@ -185,7 +185,7 @@ const prettifyRequestBody = () => {
     if (body.value.contentType.endsWith("json")) {
       const jsonObj = JSON.parse(rawParamsBody.value as string)
       prettifyBody = JSON.stringify(jsonObj, null, 2)
-    } else if (body.value.contentType == "application/xml") {
+    } else if (body.value.contentType === "application/xml") {
       prettifyBody = prettifyXML(rawParamsBody.value as string)
     }
     rawParamsBody.value = prettifyBody

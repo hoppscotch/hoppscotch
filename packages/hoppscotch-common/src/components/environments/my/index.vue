@@ -68,7 +68,7 @@
       @hide-modal="displayModalEdit(false)"
     />
     <EnvironmentsImportExport
-      :show="showModalImportExport"
+      v-if="showModalImportExport"
       environment-type="MY_ENV"
       @hide-modal="displayModalImportExport(false)"
     />

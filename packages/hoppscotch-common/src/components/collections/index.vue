@@ -140,17 +140,13 @@
       @hide-modal="showConfirmModal = false"
       @resolve="resolveConfirmModal"
     />
+
     <CollectionsImportExport
-      :show="showModalImportExport"
-      :collections-type="collectionsType.type"
-      :exporting-team-collections="exportingTeamCollections"
-      :creating-gist-collection="creatingGistCollection"
-      :importing-my-collections="importingMyCollections"
-      @export-json-collection="exportJSONCollection"
-      @create-collection-gist="createCollectionGist"
-      @import-to-teams="importToTeams"
+      v-if="showModalImportExport"
+      :collections-type="collectionsType"
       @hide-modal="displayModalImportExport(false)"
     />
+
     <TeamsAdd
       :show="showTeamModalAdd"
       @hide-modal="displayTeamModalAdd(false)"
@@ -199,7 +195,6 @@ import {
   createChildCollection,
   renameCollection,
   deleteCollection,
-  importJSONToTeam,
   moveRESTTeamCollection,
   updateOrderRESTTeamCollection,
 } from "~/helpers/backend/mutations/TeamCollection"
@@ -214,12 +209,9 @@ import { TeamCollection } from "~/helpers/teams/TeamCollection"
 import { Collection as NodeCollection } from "./MyCollections.vue"
 import {
   getCompleteCollectionTree,
-  getTeamCollectionJSON,
   teamCollToHoppRESTColl,
 } from "~/helpers/backend/helpers"
-import * as E from "fp-ts/Either"
 import { platform } from "~/platform"
-import { createCollectionGists } from "~/helpers/gist"
 import {
   getRequestsByPath,
   resolveSaveContextOnRequestReorder,
@@ -304,12 +296,6 @@ const myCollections = useReadonlyStream(restCollections$, [], "deep")
 const draggingToRoot = ref(false)
 const collectionMoveLoading = ref<string[]>([])
 const requestMoveLoading = ref<string[]>([])
-
-// Export - Import refs
-const collectionJSON = ref("")
-const exportingTeamCollections = ref(false)
-const creatingGistCollection = ref(false)
-const importingMyCollections = ref(false)
 
 // TeamList-Adapter
 const workspaceService = useService(WorkspaceService)
@@ -414,14 +400,12 @@ const currentReorderingStatus = useReadonlyStream(currentReorderingStatus$, {
 })
 
 const hasTeamWriteAccess = computed(() => {
-  if (!collectionsType.value.selectedTeam) return false
+  if (collectionsType.value.type !== "team-collections") {
+    return false
+  }
 
-  if (
-    collectionsType.value.type === "team-collections" &&
-    collectionsType.value.selectedTeam.myRole !== "VIEWER"
-  )
-    return true
-  else return false
+  const role = collectionsType.value.selectedTeam?.myRole
+  return role === "OWNER" || role === "EDITOR"
 })
 
 const filteredCollections = computed(() => {
@@ -1071,7 +1055,7 @@ const onRemoveCollection = () => {
     const collectionIndex = editingCollectionIndex.value
 
     const collectionToRemove =
-      collectionIndex || collectionIndex == 0
+      collectionIndex || collectionIndex === 0
         ? navigateToFolderWithIndexPath(restCollectionStore.value.state, [
             collectionIndex,
           ])
@@ -1470,9 +1454,8 @@ const checkIfCollectionIsAParentOfTheChildren = (
     )
     if (isEqual(slicedDestinationCollectionPath, collectionDraggedPath)) {
       return true
-    } else {
-      return false
     }
+    return false
   }
 
   return false
@@ -1493,9 +1476,8 @@ const isMoveToSameLocation = (
 
     if (isEqual(draggedItemParentPathArr, destinationPathArr)) {
       return true
-    } else {
-      return false
     }
+    return false
   }
 }
 
@@ -1675,25 +1657,22 @@ const isSameSameParent = (
     const dragedItemParent = draggedItemIndex.slice(0, -1)
 
     return dragedItemParent.join("/") === destinationCollectionIndex
-  } else {
-    if (destinationItemPath === null) return false
-    const destinationItemIndex = pathToIndex(destinationItemPath)
-
-    // length of 1 means the request is in the root
-    if (draggedItemIndex.length === 1 && destinationItemIndex.length === 1) {
-      return true
-    } else if (draggedItemIndex.length === destinationItemIndex.length) {
-      const dragedItemParent = draggedItemIndex.slice(0, -1)
-      const destinationItemParent = destinationItemIndex.slice(0, -1)
-      if (isEqual(dragedItemParent, destinationItemParent)) {
-        return true
-      } else {
-        return false
-      }
-    } else {
-      return false
-    }
   }
+  if (destinationItemPath === null) return false
+  const destinationItemIndex = pathToIndex(destinationItemPath)
+
+  // length of 1 means the request is in the root
+  if (draggedItemIndex.length === 1 && destinationItemIndex.length === 1) {
+    return true
+  } else if (draggedItemIndex.length === destinationItemIndex.length) {
+    const dragedItemParent = draggedItemIndex.slice(0, -1)
+    const destinationItemParent = destinationItemIndex.slice(0, -1)
+    if (isEqual(dragedItemParent, destinationItemParent)) {
+      return true
+    }
+    return false
+  }
+  return false
 }
 
 /**
@@ -1835,33 +1814,6 @@ const updateCollectionOrder = (payload: {
   }
 }
 // Import - Export Collection functions
-/**
- * Export the whole my collection or specific team collection to JSON
- */
-const getJSONCollection = async () => {
-  if (collectionsType.value.type === "my-collections") {
-    collectionJSON.value = JSON.stringify(myCollections.value, null, 2)
-  } else {
-    if (!collectionsType.value.selectedTeam) return
-    exportingTeamCollections.value = true
-    pipe(
-      await getTeamCollectionJSON(collectionsType.value.selectedTeam.id),
-      E.match(
-        (err) => {
-          toast.error(`${getErrorMessage(err)}`)
-          exportingTeamCollections.value = false
-        },
-        (result) => {
-          const { exportCollectionsToJSON } = result
-          collectionJSON.value = exportCollectionsToJSON
-          exportingTeamCollections.value = false
-        }
-      )
-    )
-  }
-
-  return collectionJSON.value
-}
 
 /**
  * Create a downloadable file from a collection and prompts the user to download it.
@@ -1930,90 +1882,6 @@ const exportData = async (
   }
 }
 
-const exportJSONCollection = async () => {
-  platform.analytics?.logEvent({
-    type: "HOPP_EXPORT_COLLECTION",
-    exporter: "json",
-    platform: "rest",
-  })
-
-  await getJSONCollection()
-
-  const parsedCollections = JSON.parse(collectionJSON.value)
-
-  if (!parsedCollections.length) {
-    return toast.error(t("error.no_collections_to_export"))
-  }
-
-  initializeDownloadCollection(collectionJSON.value, null)
-}
-
-const createCollectionGist = async () => {
-  if (!currentUser.value || !currentUser.value.accessToken) {
-    toast.error(t("profile.no_permission").toString())
-    return
-  }
-
-  platform.analytics?.logEvent({
-    type: "HOPP_EXPORT_COLLECTION",
-    exporter: "gist",
-    platform: "rest",
-  })
-
-  creatingGistCollection.value = true
-  await getJSONCollection()
-
-  pipe(
-    createCollectionGists(collectionJSON.value, currentUser.value.accessToken),
-    TE.match(
-      (err) => {
-        toast.error(t("error.something_went_wrong").toString())
-        console.error(err)
-        creatingGistCollection.value = false
-      },
-      (result) => {
-        toast.success(t("export.gist_created").toString())
-        creatingGistCollection.value = false
-        window.open(result.data.html_url)
-      }
-    )
-  )()
-}
-
-const importToTeams = async (collection: HoppCollection<HoppRESTRequest>[]) => {
-  if (!hasTeamWriteAccess.value) {
-    toast.error(t("team.no_access").toString())
-    return
-  }
-
-  if (!collectionsType.value.selectedTeam) return
-
-  importingMyCollections.value = true
-
-  platform.analytics?.logEvent({
-    type: "HOPP_EXPORT_COLLECTION",
-    exporter: "import-to-teams",
-    platform: "rest",
-  })
-
-  pipe(
-    importJSONToTeam(
-      JSON.stringify(collection),
-      collectionsType.value.selectedTeam.id
-    ),
-    TE.match(
-      (err: GQLError<string>) => {
-        toast.error(`${getErrorMessage(err)}`)
-        importingMyCollections.value = false
-      },
-      () => {
-        importingMyCollections.value = false
-        displayModalImportExport(false)
-      }
-    )
-  )()
-}
-
 const shareRequest = ({ request }: { request: HoppRESTRequest }) => {
   if (currentUser.value) {
     // opens the share request modal
@@ -2054,37 +1922,36 @@ const getErrorMessage = (err: GQLError<string>) => {
   console.error(err)
   if (err.type === "network_error") {
     return t("error.network_error")
-  } else {
-    switch (err.error) {
-      case "team_coll/short_title":
-        return t("collection.name_length_insufficient")
-      case "team/invalid_coll_id":
-      case "bug/team_coll/no_coll_id":
-      case "team_req/invalid_target_id":
-        return t("team.invalid_coll_id")
-      case "team/not_required_role":
-        return t("profile.no_permission")
-      case "team_req/not_required_role":
-        return t("profile.no_permission")
-      case "Forbidden resource":
-        return t("profile.no_permission")
-      case "team_req/not_found":
-        return t("team.no_request_found")
-      case "bug/team_req/no_req_id":
-        return t("team.no_request_found")
-      case "team/collection_is_parent_coll":
-        return t("team.parent_coll_move")
-      case "team/target_and_destination_collection_are_same":
-        return t("team.same_target_destination")
-      case "team/target_collection_is_already_root_collection":
-        return t("collection.invalid_root_move")
-      case "team_req/requests_not_from_same_collection":
-        return t("request.different_collection")
-      case "team/team_collections_have_different_parents":
-        return t("collection.different_parent")
-      default:
-        return t("error.something_went_wrong")
-    }
+  }
+  switch (err.error) {
+    case "team_coll/short_title":
+      return t("collection.name_length_insufficient")
+    case "team/invalid_coll_id":
+    case "bug/team_coll/no_coll_id":
+    case "team_req/invalid_target_id":
+      return t("team.invalid_coll_id")
+    case "team/not_required_role":
+      return t("profile.no_permission")
+    case "team_req/not_required_role":
+      return t("profile.no_permission")
+    case "Forbidden resource":
+      return t("profile.no_permission")
+    case "team_req/not_found":
+      return t("team.no_request_found")
+    case "bug/team_req/no_req_id":
+      return t("team.no_request_found")
+    case "team/collection_is_parent_coll":
+      return t("team.parent_coll_move")
+    case "team/target_and_destination_collection_are_same":
+      return t("team.same_target_destination")
+    case "team/target_collection_is_already_root_collection":
+      return t("collection.invalid_root_move")
+    case "team_req/requests_not_from_same_collection":
+      return t("request.different_collection")
+    case "team/team_collections_have_different_parents":
+      return t("collection.different_parent")
+    default:
+      return t("error.something_went_wrong")
   }
 }
 

@@ -570,17 +570,16 @@ const sendInvites = async () => {
 const getErrorMessage = (error: SendInvitesErrorType) => {
   if (error.type === "network_error") {
     return t("error.network_error")
-  } else {
-    switch (error.error) {
-      case "team/invalid_id":
-        return t("team.invalid_id")
-      case "team/member_not_found":
-        return t("team.member_not_found")
-      case "team_invite/already_member":
-        return t("team.already_member")
-      case "team_invite/member_has_invite":
-        return t("team.member_has_invite")
-    }
+  }
+  switch (error.error) {
+    case "team/invalid_id":
+      return t("team.invalid_id")
+    case "team/member_not_found":
+      return t("team.member_not_found")
+    case "team_invite/already_member":
+      return t("team.already_member")
+    case "team_invite/member_has_invite":
+      return t("team.member_has_invite")
   }
 }
 

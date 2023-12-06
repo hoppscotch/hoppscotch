@@ -554,13 +554,12 @@ const isSelected = ({
       props.picked.pickedType === "teams-request" &&
       props.picked.requestID === requestID
     )
-  } else {
-    return (
-      props.picked &&
-      props.picked.pickedType === "teams-folder" &&
-      props.picked.folderID === folderID
-    )
   }
+  return (
+    props.picked &&
+    props.picked.pickedType === "teams-folder" &&
+    props.picked.folderID === folderID
+  )
 }
 
 const active = computed(() => tabs.currentActiveTab.value.document.saveContext)
@@ -726,81 +725,77 @@ class TeamCollectionsAdapter implements SmartTreeAdapter<TeamCollectionNode> {
           return {
             status: "loading",
           }
-        } else {
-          const data = this.data.value.map((item, index) => ({
-            id: item.id,
+        }
+        const data = this.data.value.map((item, index) => ({
+          id: item.id,
+          data: {
+            isLastItem: index === this.data.value.length - 1,
+            type: "collections",
             data: {
-              isLastItem: index === this.data.value.length - 1,
-              type: "collections",
-              data: {
-                parentIndex: null,
-                data: item,
-              },
+              parentIndex: null,
+              data: item,
             },
-          }))
-          return {
-            status: "loaded",
-            data: cloneDeep(data),
-          } as ChildrenResult<TeamCollections>
-        }
-      } else {
-        const parsedID = id.split("/")[id.split("/").length - 1]
+          },
+        }))
+        return {
+          status: "loaded",
+          data: cloneDeep(data),
+        } as ChildrenResult<TeamCollections>
+      }
+      const parsedID = id.split("/")[id.split("/").length - 1]
 
-        !props.teamLoadingCollections.includes(parsedID) &&
-          emit("expand-team-collection", parsedID)
+      !props.teamLoadingCollections.includes(parsedID) &&
+        emit("expand-team-collection", parsedID)
 
-        if (props.teamLoadingCollections.includes(parsedID)) {
-          return {
-            status: "loading",
-          }
-        } else {
-          const items = this.findCollInTree(this.data.value, parsedID)
-          if (items) {
-            const data = [
-              ...(items.children
-                ? items.children.map((item, index) => ({
-                    id: `${id}/${item.id}`,
-                    data: {
-                      isLastItem:
-                        items.children && items.children.length > 1
-                          ? index === items.children.length - 1
-                          : false,
-                      type: "folders",
-                      data: {
-                        parentIndex: parsedID,
-                        data: item,
-                      },
-                    },
-                  }))
-                : []),
-              ...(items.requests
-                ? items.requests.map((item, index) => ({
-                    id: `${id}/${item.id}`,
-                    data: {
-                      isLastItem:
-                        items.requests && items.requests.length > 1
-                          ? index === items.requests.length - 1
-                          : false,
-                      type: "requests",
-                      data: {
-                        parentIndex: parsedID,
-                        data: item,
-                      },
-                    },
-                  }))
-                : []),
-            ]
-            return {
-              status: "loaded",
-              data: cloneDeep(data),
-            } as ChildrenResult<TeamFolder | TeamRequests>
-          } else {
-            return {
-              status: "loaded",
-              data: [],
-            }
-          }
+      if (props.teamLoadingCollections.includes(parsedID)) {
+        return {
+          status: "loading",
         }
+      }
+      const items = this.findCollInTree(this.data.value, parsedID)
+      if (items) {
+        const data = [
+          ...(items.children
+            ? items.children.map((item, index) => ({
+                id: `${id}/${item.id}`,
+                data: {
+                  isLastItem:
+                    items.children && items.children.length > 1
+                      ? index === items.children.length - 1
+                      : false,
+                  type: "folders",
+                  data: {
+                    parentIndex: parsedID,
+                    data: item,
+                  },
+                },
+              }))
+            : []),
+          ...(items.requests
+            ? items.requests.map((item, index) => ({
+                id: `${id}/${item.id}`,
+                data: {
+                  isLastItem:
+                    items.requests && items.requests.length > 1
+                      ? index === items.requests.length - 1
+                      : false,
+                  type: "requests",
+                  data: {
+                    parentIndex: parsedID,
+                    data: item,
+                  },
+                },
+              }))
+            : []),
+        ]
+        return {
+          status: "loaded",
+          data: cloneDeep(data),
+        } as ChildrenResult<TeamFolder | TeamRequests>
+      }
+      return {
+        status: "loaded",
+        data: [],
       }
     })
   }

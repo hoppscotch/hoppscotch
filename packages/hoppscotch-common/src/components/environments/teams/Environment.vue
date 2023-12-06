@@ -184,13 +184,12 @@ const duplicateEnvironments = () => {
 const getErrorMessage = (err: GQLError<string>) => {
   if (err.type === "network_error") {
     return t("error.network_error")
-  } else {
-    switch (err.error) {
-      case "team_environment/not_found":
-        return t("team_environment.not_found")
-      default:
-        return t("error.something_went_wrong")
-    }
+  }
+  switch (err.error) {
+    case "team_environment/not_found":
+      return t("team_environment.not_found")
+    default:
+      return t("error.something_went_wrong")
   }
 }
 </script>

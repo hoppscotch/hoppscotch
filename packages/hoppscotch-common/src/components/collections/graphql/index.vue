@@ -137,7 +137,7 @@
       @hide-modal="displayModalEditRequest(false)"
     />
     <CollectionsGraphqlImportExport
-      :show="showModalImportExport"
+      v-if="showModalImportExport"
       @hide-modal="displayModalImportExport(false)"
     />
   </div>

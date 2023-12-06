@@ -198,9 +198,8 @@ const workingEnv = computed(() => {
       type: "MY_ENV",
       index: props.editingEnvironmentIndex,
     })
-  } else {
-    return null
   }
+  return null
 })
 
 const envList = useReadonlyStream(environments$, []) || props.envVars()
@@ -226,12 +225,11 @@ const liveEnvs = computed(() => {
     return [
       ...vars.value.map((x) => ({ ...x.env, source: editingName.value! })),
     ]
-  } else {
-    return [
-      ...vars.value.map((x) => ({ ...x.env, source: editingName.value! })),
-      ...globalVars.value.map((x) => ({ ...x, source: "Global" })),
-    ]
   }
+  return [
+    ...vars.value.map((x) => ({ ...x.env, source: editingName.value! })),
+    ...globalVars.value.map((x) => ({ ...x, source: "Global" })),
+  ]
 })
 
 watch(

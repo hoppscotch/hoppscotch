@@ -124,9 +124,8 @@ onClickOutside(autoCompleteWrapper, () => {
 const uniqueAutoCompleteSource = computed(() => {
   if (props.autoCompleteSource) {
     return [...new Set(props.autoCompleteSource)]
-  } else {
-    return []
   }
+  return []
 })
 
 const suggestions = computed(() => {
@@ -139,9 +138,8 @@ const suggestions = computed(() => {
     return uniqueAutoCompleteSource.value.filter((suggestion) =>
       suggestion.toLowerCase().includes(props.modelValue.toLowerCase())
     )
-  } else {
-    return uniqueAutoCompleteSource.value ?? []
   }
+  return uniqueAutoCompleteSource.value ?? []
 })
 
 const updateModelValue = (value: string) => {

@@ -11,6 +11,7 @@ import { HoppModule } from "~/modules"
 import { InspectorsPlatformDef } from "./inspectors"
 import { Service } from "dioc"
 import { IOPlatformDef } from "./io"
+import { SpotlightPlatformDef } from "./spotlight"
 
 export type PlatformDef = {
   ui?: UIPlatformDef
@@ -28,6 +29,7 @@ export type PlatformDef = {
   }
   interceptors: InterceptorsPlatformDef
   additionalInspectors?: InspectorsPlatformDef
+  spotlight?: SpotlightPlatformDef
   platformFeatureFlags: {
     exportAsGIST: boolean
     hasTelemetry: boolean

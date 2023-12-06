@@ -112,6 +112,7 @@ import {
   WorkspaceSpotlightSearcherService,
 } from "~/services/spotlight/searchers/workspace.searcher"
 import { InterceptorSpotlightSearcherService } from "~/services/spotlight/searchers/interceptor.searcher"
+import { platform } from "~/platform"
 
 const t = useI18n()
 
@@ -140,6 +141,10 @@ useService(SwitchEnvSpotlightSearcherService)
 useService(WorkspaceSpotlightSearcherService)
 useService(SwitchWorkspaceSpotlightSearcherService)
 useService(InterceptorSpotlightSearcherService)
+
+platform.spotlight?.additionalSearchers?.forEach((searcher) =>
+  useService(searcher)
+)
 
 const search = ref("")
 

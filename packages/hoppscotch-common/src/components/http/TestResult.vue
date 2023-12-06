@@ -41,7 +41,7 @@
             <div class="divide-y divide-dividerLight">
               <div
                 v-if="noEnvSelected && !globalHasAdditions"
-                class="flex bg-info p-4 text-secondaryDark"
+                class="flex bg-bannerInfo p-4 text-secondaryDark"
                 role="alert"
               >
                 <icon-lucide-alert-triangle class="svg-icons mr-4" />

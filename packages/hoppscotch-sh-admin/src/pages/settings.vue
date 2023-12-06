@@ -28,15 +28,18 @@
     <HoppButtonPrimary label="Save Changes" @click="changes = !changes" />
   </div>
 
-  <SettingsRestartServer
+  <SettingsRestartServer v-if="restart" :config="workingConfigs" />
+
+  <HoppSmartConfirmModal
     :show="changes"
-    :config="workingConfigs"
+    title="Confirm Changes?"
     @hide-modal="changes = false"
+    @resolve="restart = true"
   />
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, onMounted, ref, watch, watchEffect } from 'vue';
 import { useI18n } from '~/composables/i18n';
 import { getConfig } from '~/composables/getConfig';
 import { isEqual } from 'lodash-es';
@@ -44,6 +47,8 @@ import { isEqual } from 'lodash-es';
 const t = useI18n();
 
 const changes = ref(false);
+const restart = ref(false);
+
 type OptionTabs = 'config';
 const selectedOptionTab = ref<OptionTabs>('config');
 

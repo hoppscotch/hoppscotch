@@ -1,5 +1,5 @@
 <template>
-  <HoppSmartModal v-if="show" :dimissible="false" title="Server Restart">
+  <HoppSmartModal :dimissible="false" title="Server Restart">
     <template #body>
       Server is restarting in {{ count }} seconds. Please wait...
     </template>
@@ -7,10 +7,18 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useToast } from '~/composables/toast';
 import { useI18n } from '~/composables/i18n';
 import { Configs } from '~/composables/getConfig';
+import {
+  EnableAndDisableSsoDocument,
+  AuthProvider,
+  AuthProviderStatus,
+  UpdateInfraConfigsDocument,
+  InfraConfigArgs,
+} from '~/helpers/backend/graphql';
+import { useMutation } from '@urql/vue';
 
 const t = useI18n();
 
@@ -18,7 +26,6 @@ const toast = useToast();
 
 const props = withDefaults(
   defineProps<{
-    show: boolean;
     loadingState: boolean;
     config: Configs;
   }>(),
@@ -30,6 +37,10 @@ const props = withDefaults(
 
 const count = ref(8);
 
+onMounted(() => {
+  console.log('config', props.config);
+});
+
 watch(
   () => props.show,
   (val) => {
@@ -40,7 +51,6 @@ watch(
         if (count.value === 0) {
           clearInterval(timer);
           toast.success(`${t('settings.server_restarted')}`);
-          props.show = false;
           window.location.reload();
         }
       }, 1000);
@@ -52,27 +62,27 @@ const infraConfigs = computed(() => {
   return [
     {
       name: 'GOOGLE_CLIENT_ID',
-      value: props.config.google.client_id,
+      value: props.config?.google.client_id ?? '',
     },
     {
       name: 'GOOGLE_CLIENT_SECRET',
-      value: props.config.google.client_secret,
+      value: props.config?.google.client_secret ?? '',
     },
     {
       name: 'MICROSOFT_CLIENT_ID',
-      value: props.config.microsoft.client_id,
+      value: props.config?.microsoft.client_id ?? '',
     },
     {
       name: 'MICROSOFT_CLIENT_SECRET',
-      value: props.config.microsoft.client_secret,
+      value: props.config?.microsoft.client_secret ?? '',
     },
     {
       name: 'GITHUB_CLIENT_ID',
-      value: props.config.github.client_id,
+      value: props.config?.github.client_id ?? '',
     },
     {
       name: 'GITHUB_CLIENT_SECRET',
-      value: props.config.github.client_secret,
+      value: props.config?.github.client_secret ?? '',
     },
   ];
 });
@@ -96,7 +106,43 @@ const emit = defineEmits<{
   (event: 'send-invite', email: string): void;
 }>();
 
-const hideModal = () => {
-  emit('hide-modal');
+// const updateProviderStatus = useMutation(EnableAndDisableSsoDocument);
+
+// const updateAuthProvider = async (
+//   provider: AuthProvider,
+//   status: AuthProviderStatus
+// ) => {
+//   const variables = {
+//     provider: provider,
+//     status: status,
+//   };
+//   await updateProviderStatus.executeMutation(variables).then((result) => {
+//     if (result.error) {
+//       toast.error('Unable to update provider status');
+//     } else {
+//       toast.success('Provider status updated successfully');
+//     }
+//   });
+// };
+
+const updateInfraConfigsMutation = useMutation(UpdateInfraConfigsDocument);
+
+const updateInfraConfigs = async () => {
+  const variables = {
+    infraConfigs: infraConfigs.value as InfraConfigArgs[],
+  };
+  await updateInfraConfigsMutation.executeMutation(variables).then((result) => {
+    if (result.error) {
+      toast.error('Unable to update provider status');
+    } else {
+      toast.success('Provider status updated successfully');
+    }
+  });
 };
+
+onMounted(async () => {
+  if (infraConfigs.value) {
+    await updateInfraConfigs();
+  }
+});
 </script>

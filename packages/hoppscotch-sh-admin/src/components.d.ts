@@ -36,7 +36,6 @@ declare module '@vue/runtime-core' {
     SettingsConfig: typeof import('./components/settings/Config.vue')['default'];
     SettingsReset: typeof import('./components/settings/Reset.vue')['default'];
     SettingsRestartServer: typeof import('./components/settings/RestartServer.vue')['default'];
-    SettingsSaveChangesModal: typeof import('./components/settings/SaveChangesModal.vue')['default'];
     SettingsSmtp: typeof import('./components/settings/Smtp.vue')['default'];
     SmartAnchor: typeof import('./../../hoppscotch-ui/src/components/smart/Anchor.vue')['default'];
     SmartAutoComplete: typeof import('./../../hoppscotch-ui/src/components/smart/AutoComplete.vue')['default'];

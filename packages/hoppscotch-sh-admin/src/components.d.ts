@@ -19,9 +19,11 @@ declare module '@vue/runtime-core' {
     HoppButtonPrimary: typeof import('@hoppscotch/ui')['HoppButtonPrimary'];
     HoppButtonSecondary: typeof import('@hoppscotch/ui')['HoppButtonSecondary'];
     HoppSmartAnchor: typeof import('@hoppscotch/ui')['HoppSmartAnchor'];
+    HoppSmartAutoComplete: typeof import('@hoppscotch/ui')['HoppSmartAutoComplete'];
     HoppSmartConfirmModal: typeof import('@hoppscotch/ui')['HoppSmartConfirmModal'];
     HoppSmartInput: typeof import('@hoppscotch/ui')['HoppSmartInput'];
     HoppSmartItem: typeof import('@hoppscotch/ui')['HoppSmartItem'];
+    HoppSmartModal: typeof import('@hoppscotch/ui')['HoppSmartModal'];
     HoppSmartPicture: typeof import('@hoppscotch/ui')['HoppSmartPicture'];
     HoppSmartSpinner: typeof import('@hoppscotch/ui')['HoppSmartSpinner'];
     HoppSmartTab: typeof import('@hoppscotch/ui')['HoppSmartTab'];
@@ -33,6 +35,7 @@ declare module '@vue/runtime-core' {
     SettingsAuthProvider: typeof import('./components/settings/AuthProvider.vue')['default'];
     SettingsConfig: typeof import('./components/settings/Config.vue')['default'];
     SettingsReset: typeof import('./components/settings/Reset.vue')['default'];
+    SettingsRestartServer: typeof import('./components/settings/RestartServer.vue')['default'];
     SettingsSaveChangesModal: typeof import('./components/settings/SaveChangesModal.vue')['default'];
     SettingsSmtp: typeof import('./components/settings/Smtp.vue')['default'];
     SmartAnchor: typeof import('./../../hoppscotch-ui/src/components/smart/Anchor.vue')['default'];
@@ -67,9 +70,6 @@ declare module '@vue/runtime-core' {
     TeamsMembers: typeof import('./components/teams/Members.vue')['default'];
     TeamsPendingInvites: typeof import('./components/teams/PendingInvites.vue')['default'];
     Tippy: typeof import('vue-tippy')['Tippy'];
-    UiAutoResetIcon: typeof import('./components/ui/AutoResetIcon.vue')['default'];
-    UsersDetails: typeof import('./components/users/Details.vue')['default'];
     UsersInviteModal: typeof import('./components/users/InviteModal.vue')['default'];
-    UsersSharedRequests: typeof import('./components/users/SharedRequests.vue')['default'];
   }
 }

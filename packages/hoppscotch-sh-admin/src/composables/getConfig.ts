@@ -38,7 +38,7 @@ export function getConfig() {
   const {
     fetching: fetchingInfraConfigs,
     error: errorInfraConfigs,
-    list: workingInfraConfigs,
+    list: infraConfigs,
     fetchList: fetchInfraConfig,
   } = useClientHandler(InfraConfigsDocument, (x) => x.infraConfigs, {
     names: [
@@ -54,7 +54,7 @@ export function getConfig() {
   const {
     fetching: fetchingAllowedAuthProviders,
     error: errorAllowedAuthProviders,
-    list: workingAllowedAuthProviders,
+    list: allowedAuthProviders,
     fetchList: fetchAllowedAuthProviders,
   } = useClientHandler(
     AllowedAuthProvidersDocument,
@@ -72,41 +72,37 @@ export function getConfig() {
     currentConfigs.value = {
       google: {
         name: 'Google',
-        enabled: workingAllowedAuthProviders.value.includes('GOOGLE'),
+        enabled: allowedAuthProviders.value.includes('GOOGLE'),
         client_id:
-          workingInfraConfigs.value.find((x) => x.name === 'GOOGLE_CLIENT_ID')
+          infraConfigs.value.find((x) => x.name === 'GOOGLE_CLIENT_ID')
             ?.value ?? '',
         client_secret:
-          workingInfraConfigs.value.find(
-            (x) => x.name === 'GOOGLE_CLIENT_SECRET'
-          )?.value ?? '',
+          infraConfigs.value.find((x) => x.name === 'GOOGLE_CLIENT_SECRET')
+            ?.value ?? '',
         mask_client_id: true,
         mask_client_secret: true,
       },
       github: {
         name: 'Github',
-        enabled: workingAllowedAuthProviders.value.includes('GITHUB'),
+        enabled: allowedAuthProviders.value.includes('GITHUB'),
         client_id:
-          workingInfraConfigs.value.find((x) => x.name === 'GITHUB_CLIENT_ID')
+          infraConfigs.value.find((x) => x.name === 'GITHUB_CLIENT_ID')
             ?.value ?? '',
         client_secret:
-          workingInfraConfigs.value.find(
-            (x) => x.name === 'GITHUB_CLIENT_SECRET'
-          )?.value ?? '',
+          infraConfigs.value.find((x) => x.name === 'GITHUB_CLIENT_SECRET')
+            ?.value ?? '',
         mask_client_id: true,
         mask_client_secret: true,
       },
       microsoft: {
         name: 'Microsoft',
-        enabled: workingAllowedAuthProviders.value.includes('MICROSOFT'),
+        enabled: allowedAuthProviders.value.includes('MICROSOFT'),
         client_id:
-          workingInfraConfigs.value.find(
-            (x) => x.name === 'MICROSOFT_CLIENT_ID'
-          )?.value ?? '',
+          infraConfigs.value.find((x) => x.name === 'MICROSOFT_CLIENT_ID')
+            ?.value ?? '',
         client_secret:
-          workingInfraConfigs.value.find(
-            (x) => x.name === 'MICROSOFT_CLIENT_SECRET'
-          )?.value ?? '',
+          infraConfigs.value.find((x) => x.name === 'MICROSOFT_CLIENT_SECRET')
+            ?.value ?? '',
         mask_client_id: true,
         mask_client_secret: true,
       },

@@ -1,6 +1,6 @@
 import { TypedDocumentNode, useClientHandle } from '@urql/vue';
 import { DocumentNode } from 'graphql';
-import { onMounted, ref } from 'vue';
+import { ref } from 'vue';
 
 export function useClientHandler<
   Result,
@@ -34,17 +34,14 @@ export function useClientHandler<
     fetching.value = false;
   };
 
-  // onMounted(async () => {
-  //   await fetchList();
-  // });
-
-  // const refetch = async () => {
-  //   await fetchList();
-  // };
+  const refetch = async () => {
+    await fetchList();
+  };
 
   return {
     fetching,
     error,
+    refetch,
     list,
     fetchList,
   };

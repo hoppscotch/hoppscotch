@@ -22,7 +22,7 @@
     </div>
   </div>
 
-  <SettingsSaveChangesModal :show="saveChangesModal" />
+  <SettingsRestartServer :show="saveChangesModal" />
 
   <HoppSmartConfirmModal
     :show="resetModal"

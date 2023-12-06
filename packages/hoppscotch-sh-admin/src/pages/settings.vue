@@ -28,7 +28,7 @@
     <HoppButtonPrimary label="Save Changes" @click="changes = !changes" />
   </div>
 
-  <SettingsSaveChangesModal
+  <SettingsRestartServer
     :show="changes"
     :config="workingConfigs"
     @hide-modal="changes = false"

@@ -25,9 +25,10 @@ import { GqlAdmin } from './decorators/gql-admin.decorator';
 import { ShortcodeWithUserEmail } from 'src/shortcode/shortcode.model';
 import { InfraConfig } from 'src/infra-config/infra-config.model';
 import { InfraConfigService } from 'src/infra-config/infra-config.service';
-import { InfraConfigArgs } from 'src/infra-config/input-args';
-import { AuthProvider } from 'src/auth/helper';
-import { AuthProviderStatus } from 'src/infra-config/helper';
+import {
+  EnableAndDisableSSOArgs,
+  InfraConfigArgs,
+} from 'src/infra-config/input-args';
 import { InfraConfigEnumForClient } from 'src/types/InfraConfig';
 
 @UseGuards(GqlThrottlerGuard)
@@ -251,7 +252,6 @@ export class InfraResolver {
     })
     names: InfraConfigEnumForClient[],
   ) {
-    console.log(names);
     const infraConfigs = await this.infraConfigService.getMany(names);
     if (E.isLeft(infraConfigs)) throwErr(infraConfigs.left);
     return infraConfigs.right;
@@ -260,7 +260,6 @@ export class InfraResolver {
   @Query(() => [String], {
     description: 'Allowed Auth Provider list',
   })
-  @UseGuards(GqlAuthGuard, GqlAdminGuard)
   allowedAuthProviders() {
     return this.infraConfigService.getAllowedAuthProviders();
   }
@@ -300,22 +299,13 @@ export class InfraResolver {
   @UseGuards(GqlAuthGuard, GqlAdminGuard)
   async enableAndDisableSSO(
     @Args({
-      name: 'provider',
-      type: () => AuthProvider,
-      description: 'Auth Provider to enable or disable',
+      name: 'data',
+      type: () => [EnableAndDisableSSOArgs],
+      description: 'SSO provider and status',
     })
-    provider: AuthProvider,
-    @Args({
-      name: 'status',
-      type: () => AuthProviderStatus,
-      description: 'Status to enable or disable',
-    })
-    status: AuthProviderStatus,
+    data: EnableAndDisableSSOArgs[],
   ) {
-    const isUpdated = await this.infraConfigService.enableAndDisableSSO(
-      provider,
-      status,
-    );
+    const isUpdated = await this.infraConfigService.enableAndDisableSSO(data);
     if (E.isLeft(isUpdated)) throwErr(isUpdated.left);
 
     return true;

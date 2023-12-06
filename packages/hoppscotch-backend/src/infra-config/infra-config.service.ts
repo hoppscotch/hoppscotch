@@ -19,8 +19,7 @@ import {
 import { throwErr, validateUrl } from 'src/utils';
 import { ConfigService } from '@nestjs/config';
 import { AuthProviderStatus, stopApp } from './helper';
-import { InfraConfigArgs } from './input-args';
-import { AuthProvider } from 'src/auth/helper';
+import { EnableAndDisableSSOArgs, InfraConfigArgs } from './input-args';
 
 @Injectable()
 export class InfraConfigService implements OnModuleInit {
@@ -197,25 +196,27 @@ export class InfraConfigService implements OnModuleInit {
    * @param status Status to enable or disable
    * @returns Either true or an error
    */
-  async enableAndDisableSSO(
-    provider: AuthProvider,
-    status: AuthProviderStatus,
-  ) {
+  async enableAndDisableSSO(statusList: EnableAndDisableSSOArgs[]) {
     const enabledAuthProviders = this.configService
       .get('INFRA.VITE_ALLOWED_AUTH_PROVIDERS')
       .split(',');
-    const isProviderEnabled = enabledAuthProviders.includes(provider);
 
     let newEnabledAuthProviders = enabledAuthProviders;
-    if (status === AuthProviderStatus.ENABLE && !isProviderEnabled) {
-      newEnabledAuthProviders = [...enabledAuthProviders, provider];
-    } else if (status === AuthProviderStatus.DISABLE && isProviderEnabled) {
-      newEnabledAuthProviders = enabledAuthProviders.filter(
-        (p) => p !== provider,
-      );
-      if (newEnabledAuthProviders.length === 0) {
-        return E.left(AUTH_PROVIDER_NOT_SPECIFIED);
+
+    statusList.forEach(({ provider, status }) => {
+      if (status === AuthProviderStatus.ENABLE) {
+        newEnabledAuthProviders = [...newEnabledAuthProviders, provider];
+      } else if (status === AuthProviderStatus.DISABLE) {
+        newEnabledAuthProviders = newEnabledAuthProviders.filter(
+          (p) => p !== provider,
+        );
       }
+    });
+
+    newEnabledAuthProviders = [...new Set(newEnabledAuthProviders)];
+
+    if (newEnabledAuthProviders.length === 0) {
+      return E.left(AUTH_PROVIDER_NOT_SPECIFIED);
     }
 
     const isUpdated = await this.update(

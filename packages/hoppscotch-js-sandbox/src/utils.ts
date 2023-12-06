@@ -1,8 +1,9 @@
+import { parseTemplateStringE } from "@hoppscotch/data"
 import * as E from "fp-ts/Either"
 import * as O from "fp-ts/Option"
-
-import { parseTemplateStringE } from "@hoppscotch/data"
 import { pipe } from "fp-ts/lib/function"
+import { cloneDeep } from "lodash-es"
+
 import {
   GlobalEnvItem,
   SelectedEnvItem,
@@ -19,8 +20,7 @@ const getEnv = (envName: string, envs: TestResult["envs"]) => {
 
 // Compiles shared scripting API methods for use in both pre and post request scripts
 const getSharedMethods = (envs: TestResult["envs"]) => {
-  // Reference is broken while reassigning below
-  let envsCopy = envs
+  let updatedEnvs = envs
 
   const envGetFn = (key: any) => {
     if (typeof key !== "string") {
@@ -28,7 +28,7 @@ const getSharedMethods = (envs: TestResult["envs"]) => {
     }
 
     const result = pipe(
-      getEnv(key, envs),
+      getEnv(key, updatedEnvs),
       O.match(
         () => undefined,
         ({ value }) => String(value)
@@ -44,12 +44,15 @@ const getSharedMethods = (envs: TestResult["envs"]) => {
     }
 
     const result = pipe(
-      getEnv(key, envs),
+      getEnv(key, updatedEnvs),
       E.fromOption(() => "INVALID_KEY" as const),
 
       E.map(({ value }) =>
         pipe(
-          parseTemplateStringE(value, [...envs.selected, ...envs.global]),
+          parseTemplateStringE(value, [
+            ...updatedEnvs.selected,
+            ...updatedEnvs.global,
+          ]),
           // If the recursive resolution failed, return the unresolved value
           E.getOrElse(() => value)
         )
@@ -71,7 +74,7 @@ const getSharedMethods = (envs: TestResult["envs"]) => {
       throw new Error("Expected value to be a string")
     }
 
-    envsCopy = setEnv(key, value, envsCopy)
+    updatedEnvs = setEnv(key, value, updatedEnvs)
 
     return undefined
   }
@@ -82,7 +85,10 @@ const getSharedMethods = (envs: TestResult["envs"]) => {
     }
 
     const result = pipe(
-      parseTemplateStringE(value, [...envsCopy.selected, ...envsCopy.global]),
+      parseTemplateStringE(value, [
+        ...updatedEnvs.selected,
+        ...updatedEnvs.global,
+      ]),
       E.getOrElse(() => value)
     )
 
@@ -98,7 +104,7 @@ const getSharedMethods = (envs: TestResult["envs"]) => {
         resolve: envResolveFn,
       },
     },
-    updatedEnvs: envsCopy,
+    updatedEnvs,
   }
 }
 
@@ -107,45 +113,43 @@ const setEnv = (
   envValue: string,
   envs: TestResult["envs"]
 ): TestResult["envs"] => {
-  const envsCopy = { ...envs }
+  const { global, selected } = envs
 
-  const indexInSelected = envsCopy.selected.findIndex(
+  const indexInSelected = selected.findIndex(
     (x: SelectedEnvItem) => x.key === envName
   )
 
   // Found the match in selected
   if (indexInSelected >= 0) {
-    envsCopy.selected[indexInSelected].value = envValue
+    selected[indexInSelected].value = envValue
 
     return {
-      global: envsCopy.global,
-      selected: envsCopy.selected,
+      global,
+      selected,
     }
   }
 
-  const indexInGlobal = envsCopy.global.findIndex(
-    (x: GlobalEnvItem) => x.key == envName
-  )
+  const indexInGlobal = global.findIndex((x: GlobalEnvItem) => x.key == envName)
 
   // Found a match in globals
   if (indexInGlobal >= 0) {
-    envsCopy.global[indexInGlobal].value = envValue
+    global[indexInGlobal].value = envValue
 
     return {
-      global: envsCopy.global,
-      selected: envsCopy.selected,
+      global,
+      selected,
     }
   }
 
   // Didn't find in both places, create a new variable in selected
-  envsCopy.selected.push({
+  selected.push({
     key: envName,
     value: envValue,
   })
 
   return {
-    global: envsCopy.global,
-    selected: envsCopy.selected,
+    global,
+    selected,
   }
 }
 
@@ -390,17 +394,17 @@ export const createExpectation = (
 /**
  * Compiles methods for use under the `pw` namespace for pre request scripts
  * @param envs The current state of the environment variables
- * @returns Object with methods in the `pw` namespace and updated environments
+ * @returns Object with methods in the `pw` namespace
  */
 export const getPreRequestScriptMethods = (envs: TestResult["envs"]) => {
-  const { methods, updatedEnvs } = getSharedMethods(envs)
+  const { methods, updatedEnvs } = getSharedMethods(cloneDeep(envs))
   return { pw: methods, updatedEnvs }
 }
 
 /**
  * Compiles methods for use under the `pw` namespace for post request scripts
  * @param envs The current state of the environment variables
- * @returns Object with methods in the `pw` namespace, test run stack and environments that are updated
+ * @returns Object with methods in the `pw` namespace and test run stack
  */
 export const getTestRunnerScriptMethods = (envs: TestResult["envs"]) => {
   const testRunStack: TestDescriptor[] = [
@@ -423,7 +427,7 @@ export const getTestRunnerScriptMethods = (envs: TestResult["envs"]) => {
   const expectFn = (expectVal: any) =>
     createExpectation(expectVal, false, testRunStack)
 
-  const { methods, updatedEnvs } = getSharedMethods(envs)
+  const { methods, updatedEnvs } = getSharedMethods(cloneDeep(envs))
 
   const pw = {
     ...methods,

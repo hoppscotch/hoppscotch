@@ -1,6 +1,8 @@
-import { pipe } from "fp-ts/function"
 import * as TE from "fp-ts/TaskEither"
-import { execTestScript, TestResponse, TestResult } from "../../../test-runner"
+import { pipe } from "fp-ts/function"
+
+import { runTestScript } from "~/test-runner/node-vm"
+import { TestResponse, TestResult } from "~/types"
 
 const fakeResponse: TestResponse = {
   status: 200,
@@ -10,7 +12,7 @@ const fakeResponse: TestResponse = {
 
 const func = (script: string, envs: TestResult["envs"]) =>
   pipe(
-    execTestScript(script, envs, fakeResponse),
+    runTestScript(script, envs, fakeResponse),
     TE.map((x) => x.tests)
   )
 

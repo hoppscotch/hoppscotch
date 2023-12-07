@@ -1,17 +1,19 @@
 import { HoppRESTRequest } from "@hoppscotch/data";
-import { execTestScript, TestDescriptor } from "@hoppscotch/js-sandbox";
-import { hrtime } from "process";
-import { flow, pipe } from "fp-ts/function";
-import * as RA from "fp-ts/ReadonlyArray";
+import { TestDescriptor } from "@hoppscotch/js-sandbox";
+import { runTestScript } from "@hoppscotch/js-sandbox/node";
 import * as A from "fp-ts/Array";
-import * as TE from "fp-ts/TaskEither";
+import * as RA from "fp-ts/ReadonlyArray";
 import * as T from "fp-ts/Task";
+import * as TE from "fp-ts/TaskEither";
+import { flow, pipe } from "fp-ts/function";
+import { hrtime } from "process";
+
 import {
   RequestRunnerResponse,
   TestReport,
   TestScriptParams,
 } from "../interfaces/response";
-import { error, HoppCLIError } from "../types/errors";
+import { HoppCLIError, error } from "../types/errors";
 import { HoppEnvs } from "../types/request";
 import { ExpectResult, TestMetrics, TestRunnerRes } from "../types/response";
 import { getDurationInSeconds } from "./getters";
@@ -36,7 +38,7 @@ export const testRunner = (
       pipe(
         TE.of(testScriptData),
         TE.chain(({ testScript, response, envs }) =>
-          execTestScript(testScript, envs, response)
+          runTestScript(testScript, envs, response)
         )
       )
     ),

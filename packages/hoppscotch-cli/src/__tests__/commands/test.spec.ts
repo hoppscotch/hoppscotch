@@ -28,7 +28,7 @@ describe("Test 'hopp test <file>' command:", () => {
 
     expect(out).toBe<HoppErrorCode>("UNKNOWN_ERROR");
   });
-  
+
   test("Malformed collection file.", async () => {
     const cmd = `node ./bin/hopp test ${getTestJsonFilePath(
       "malformed-collection2.json"
@@ -106,7 +106,7 @@ describe("Test 'hopp test <file> --env <file>' command:", () => {
     const TESTS_PATH = getTestJsonFilePath("env-flag-tests.json");
     const ENV_PATH = getTestJsonFilePath("env-flag-envs.json");
     const cmd = `node ./bin/hopp test ${TESTS_PATH} --env ${ENV_PATH}`;
-    const { error } = await execAsync(cmd);
+    const { error, stdout } = await execAsync(cmd);
 
     expect(error).toBeNull();
   });
@@ -129,7 +129,6 @@ describe("Test 'hopp test <file> --delay <delay_in_ms>' command:", () => {
     const cmd = `${VALID_TEST_CMD} --delay 'NaN'`;
     const { stderr } = await execAsync(cmd);
     const out = getErrorCode(stderr);
-    console.log("invalid value thing", out)
     expect(out).toBe<HoppErrorCode>("INVALID_ARGUMENT");
   });
 

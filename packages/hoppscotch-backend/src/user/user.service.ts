@@ -41,12 +41,8 @@ export class UserService {
 
     return {
       ...dbUser,
-      currentRESTSession: dbCurrentRESTSession
-        ? JSON.stringify(dbCurrentRESTSession)
-        : null,
-      currentGQLSession: dbCurrentGQLSession
-        ? JSON.stringify(dbCurrentGQLSession)
-        : null,
+      currentRESTSession: JSON.stringify(dbCurrentRESTSession) ?? null,
+      currentGQLSession:  JSON.stringify(dbCurrentGQLSession) ?? null,
     };
   }
 

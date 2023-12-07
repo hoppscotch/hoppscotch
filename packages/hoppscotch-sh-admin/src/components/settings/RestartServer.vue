@@ -1,7 +1,7 @@
 <template>
   <HoppSmartModal :dimissible="false" title="Server Restart">
     <template #body>
-      Server is restarting in {{ count }} seconds. Please wait...
+      {{ t('configs.restart.description', { count: count }) }}
     </template>
   </HoppSmartModal>
 </template>
@@ -55,7 +55,7 @@ onMounted(async () => {
     count.value--;
     if (count.value === 0) {
       clearInterval(timer);
-      toast.success('Initiating server restart');
+      toast.success(t('configs.restart.initiate'));
       window.location.reload();
     }
   }, 1000);

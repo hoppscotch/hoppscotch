@@ -1,18 +1,18 @@
 <template>
   <div class="md:grid md:grid-cols-3 md:gap-4">
     <div class="p-8 md:col-span-1">
-      <h3 class="heading">Reset Configurations</h3>
+      <h3 class="heading">{{ t('configs.reset.title') }}</h3>
       <p class="my-1 text-secondaryLight">Reset all Configs to default</p>
     </div>
     <div class="space-y-8 p-8 md:col-span-2">
       <section>
         <h4 class="font-semibold text-secondaryDark">
-          Resets Configs to default
+          {{ t('configs.reset.description') }}
         </h4>
         <div class="space-y-4 py-4">
           <div>
             <HoppButtonPrimary
-              label="Reset Configs"
+              :label="t('configs.reset.title')"
               class="bg-red-700 hover:bg-red-500"
               @click="resetConfigs"
             />
@@ -26,7 +26,7 @@
 
   <HoppSmartConfirmModal
     :show="resetModal"
-    title="Confirm Reset?"
+    :title="t('configs.reset.confirm_reset')"
     @hide-modal="resetModal = false"
     @resolve="resetInfraConfigs = true"
   />
@@ -36,10 +36,8 @@
 import { HoppButtonPrimary } from '@hoppscotch/ui';
 import { ref } from 'vue';
 import { useI18n } from '~/composables/i18n';
-import { useToast } from '~/composables/toast';
 
 const t = useI18n();
-const toast = useToast();
 
 const resetModal = ref(false);
 const resetInfraConfigs = ref(false);

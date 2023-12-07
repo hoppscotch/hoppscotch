@@ -4,15 +4,17 @@
     class="md:grid md:grid-cols-3 md:gap-4 border-divider border-b"
   >
     <div class="p-8 px-8 md:col-span-1">
-      <h3 class="heading">SMTP Configs</h3>
+      <h3 class="heading">{{ t('configs.mail_configs.title') }}</h3>
       <p class="my-1 text-secondaryLight">
-        Configure the smtp configs for your team.
+        {{ t('configs.mail_configs.description') }}
       </p>
     </div>
 
     <div class="space-y-8 p-8 md:col-span-2">
       <section>
-        <h4 class="font-semibold text-secondaryDark">SMTP Config</h4>
+        <h4 class="font-semibold text-secondaryDark">
+          {{ t('configs.mail_configs.title') }}
+        </h4>
 
         <div class="space-y-4 py-4">
           <div class="flex items-center">
@@ -20,13 +22,13 @@
               :on="mailConfigs.enabled"
               @change="mailConfigs.enabled = !mailConfigs.enabled"
             >
-              Enable Email for Authentication
+              {{ t('configs.mail_configs.enable') }}
             </HoppSmartToggle>
           </div>
 
           <div v-if="mailConfigs.enabled" class="ml-12">
             <div>
-              <label for=""> MAILER SMTP URL </label>
+              <label> {{ t('configs.mail_configs.smtp_url') }} </label>
               <span class="flex">
                 <HoppSmartInput
                   v-model="mailConfigs.fields.mailer_smtp_url"
@@ -44,7 +46,9 @@
             </div>
 
             <div class="mt-5">
-              <label for=""> MAILER ADDRESS FROM </label>
+              <label>
+                {{ t('configs.mail_configs.address_from') }}
+              </label>
               <span class="flex">
                 <HoppSmartInput
                   v-model="mailConfigs.fields.mailer_address_from"

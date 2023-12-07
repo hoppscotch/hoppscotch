@@ -6,8 +6,36 @@
     "no_name": "No name",
     "open_navigation": "Open Navigation"
   },
-  "config": {
-    "enable_auth_provider": "Enable {provider} as Auth Provider"
+  "configs": {
+    "enable_auth_provider": "Enable {provider} as Auth Provider",
+    "load_error": "Unable to load server configurations",
+    "title": "Configs",
+    "save_changes": "Save Changes",
+    "auth_providers": {
+      "title": "Auth Providers",
+      "description": "Configure authentication providers for your server",
+      "client_id": "CLIENT ID",
+      "client_secret": "CLIENT SECRET",
+      "update_failure": "Failed to update auth provider configurations!!"
+    },
+    "mail_configs": {
+      "title": "SMTP Configs",
+      "description": " Configure the smtp configurations",
+      "enable": "Enable Email for Authentication",
+      "smtp_url": "MAILER SMTP URL",
+      "address_from": "MAILER ADDRESS FROM",
+      "update_failure": "Failed to update smtp configurations!!"
+    },
+    "reset": {
+      "title": "Reset Configurations",
+      "description": "Reset the server configurations",
+      "confirm_reset": "Confirm Reset?",
+      "failure": "Failed to reset configurations!!"
+    },
+    "restart": {
+      "description": "Server is restarting in {count} seconds. Please wait...",
+      "initiate": "Initiating server restart..."
+    }
   },
   "metrics": {
     "dashboard": "Dashboard",

@@ -12,12 +12,14 @@
     <HoppSmartSpinner />
   </div>
 
-  <div v-else-if="infraConfigsError || allowedAuthProvidersError">Error</div>
+  <div v-else-if="infraConfigsError || allowedAuthProvidersError">
+    {{ t('configs.load_error') }}
+  </div>
 
   <div class="flex flex-col">
     <div class="py-8">
       <HoppSmartTabs v-model="selectedOptionTab" render-inactive-tabs>
-        <HoppSmartTab :id="'config'" label="Config">
+        <HoppSmartTab :id="'config'" :label="t('configs.title')">
           <SettingsConfig v-model:config="workingConfigs" class="py-8 px-4" />
         </HoppSmartTab>
       </HoppSmartTabs>
@@ -25,7 +27,10 @@
   </div>
 
   <div v-if="diff" class="fixed bottom-0 right-0 m-10">
-    <HoppButtonPrimary label="Save Changes" @click="changes = !changes" />
+    <HoppButtonPrimary
+      :label="t('configs.save_changes')"
+      @click="changes = !changes"
+    />
   </div>
 
   <SettingsRestartServer v-if="restart" :workingConfigs="workingConfigs" />

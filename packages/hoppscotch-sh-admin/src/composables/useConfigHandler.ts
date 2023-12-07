@@ -15,6 +15,7 @@ import {
   InfraConfigArgs,
 } from '~/helpers/backend/graphql';
 import { UseMutationResponse } from '@urql/vue';
+import { useI18n } from '~/composables/i18n';
 
 const toast = useToast();
 
@@ -64,6 +65,8 @@ type UpdatedConfigs = {
 };
 
 export function useConfigHandler(updatedConfigs?: Configs) {
+  const t = useI18n();
+
   const {
     fetching: fetchingInfraConfigs,
     error: infraConfigsError,
@@ -277,7 +280,7 @@ export function useConfigHandler(updatedConfigs?: Configs) {
     const result = await updateProviderStatus.executeMutation(variables);
 
     if (result.error) {
-      toast.error('Unable to update the allowed auth providers');
+      toast.error(t('configs.auth_providers.update_failure'));
     }
   };
 
@@ -291,7 +294,7 @@ export function useConfigHandler(updatedConfigs?: Configs) {
     const result = await updateInfraConfigsMutation.executeMutation(variables);
 
     if (result.error) {
-      toast.error('Unable to update the server configurations');
+      toast.error(t('configs.mail_configs.update_failure'));
     }
   };
 
@@ -301,7 +304,7 @@ export function useConfigHandler(updatedConfigs?: Configs) {
     const result = await resetInfraConfigsMutation.executeMutation();
 
     if (result.error) {
-      toast.error('Unable to reset server configurations');
+      toast.error(t('configs.reset.failure'));
     }
   };
 

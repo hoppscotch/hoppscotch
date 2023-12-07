@@ -4,15 +4,17 @@
     class="md:grid md:grid-cols-3 md:gap-4 border-divider border-b"
   >
     <div class="pb-8 px-8 md:col-span-1">
-      <h3 class="heading">Auth Providers</h3>
+      <h3 class="heading">{{ t('configs.auth_providers.title') }}</h3>
       <p class="my-1 text-secondaryLight">
-        Configure the auth providers for your team.
+        {{ t('configs.auth_providers.description') }}
       </p>
     </div>
 
     <div class="space-y-8 p-8 md:col-span-2">
       <section>
-        <h4 class="font-semibold text-secondaryDark">Auth Providers</h4>
+        <h4 class="font-semibold text-secondaryDark">
+          {{ t('configs.auth_providers.title') }}
+        </h4>
 
         <div
           v-for="provider in workingConfigs.providers"
@@ -24,7 +26,7 @@
               @change="provider.enabled = !provider.enabled"
             >
               {{
-                t('config.enable_auth_provider', {
+                t('configs.enable_auth_provider', {
                   provider:
                     provider.name.charAt(0).toUpperCase() +
                     provider.name.slice(1),
@@ -35,7 +37,9 @@
 
           <div v-if="provider.enabled" class="ml-12">
             <div>
-              <label for=""> CLIENT ID </label>
+              <label for="">
+                {{ t('configs.auth_providers.client_id') }}
+              </label>
               <span class="flex">
                 <HoppSmartInput
                   v-model="provider.fields.client_id"
@@ -53,7 +57,9 @@
             </div>
 
             <div class="mt-5">
-              <label for=""> SECRET ID </label>
+              <label for="">
+                {{ t('configs.auth_providers.client_secret') }}
+              </label>
               <span class="flex">
                 <HoppSmartInput
                   v-model="provider.fields.client_secret"

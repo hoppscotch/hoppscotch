@@ -1,7 +1,7 @@
 <template>
   <div>
     <SettingsAuthProvider v-model:config="workingConfigs" />
-    <SettingsSmtp />
+    <SettingsSmtp v-model:config="workingConfigs" />
     <SettingsReset />
   </div>
 </template>

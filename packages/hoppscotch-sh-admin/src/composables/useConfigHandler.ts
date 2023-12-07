@@ -21,23 +21,40 @@ const toast = useToast();
 export type AuthProviders = 'google' | 'microsoft' | 'github';
 
 export type Configs = {
-  google: {
-    name: AuthProviders;
-    enabled: boolean;
-    client_id: string;
-    client_secret: string;
+  providers: {
+    google: {
+      name: AuthProviders;
+      enabled: boolean;
+      fields: {
+        client_id: string;
+        client_secret: string;
+      };
+    };
+    github: {
+      name: AuthProviders;
+      enabled: boolean;
+      fields: {
+        client_id: string;
+        client_secret: string;
+      };
+    };
+    microsoft: {
+      name: AuthProviders;
+      enabled: boolean;
+      fields: {
+        client_id: string;
+        client_secret: string;
+      };
+    };
   };
-  github: {
-    name: AuthProviders;
+
+  mailConfigs: {
+    name: string;
     enabled: boolean;
-    client_id: string;
-    client_secret: string;
-  };
-  microsoft: {
-    name: AuthProviders;
-    enabled: boolean;
-    client_id: string;
-    client_secret: string;
+    fields: {
+      mailer_smtp_url: string;
+      mailer_address_from: string;
+    };
   };
 };
 
@@ -60,6 +77,8 @@ export function useConfigHandler(updatedConfigs?: Configs) {
       'MICROSOFT_CLIENT_SECRET',
       'GITHUB_CLIENT_ID',
       'GITHUB_CLIENT_SECRET',
+      'MAILER_SMTP_URL',
+      'MAILER_ADDRESS_FROM',
     ] as InfraConfigEnum[],
   });
 
@@ -82,35 +101,56 @@ export function useConfigHandler(updatedConfigs?: Configs) {
     await fetchAllowedAuthProviders();
 
     currentConfigs.value = {
-      google: {
-        name: 'google',
-        enabled: allowedAuthProviders.value.includes('GOOGLE'),
-        client_id:
-          infraConfigs.value.find((x) => x.name === 'GOOGLE_CLIENT_ID')
-            ?.value ?? '',
-        client_secret:
-          infraConfigs.value.find((x) => x.name === 'GOOGLE_CLIENT_SECRET')
-            ?.value ?? '',
+      providers: {
+        google: {
+          name: 'google',
+          enabled: allowedAuthProviders.value.includes('GOOGLE'),
+          fields: {
+            client_id:
+              infraConfigs.value.find((x) => x.name === 'GOOGLE_CLIENT_ID')
+                ?.value ?? '',
+            client_secret:
+              infraConfigs.value.find((x) => x.name === 'GOOGLE_CLIENT_SECRET')
+                ?.value ?? '',
+          },
+        },
+        github: {
+          name: 'github',
+          enabled: allowedAuthProviders.value.includes('GITHUB'),
+          fields: {
+            client_id:
+              infraConfigs.value.find((x) => x.name === 'GITHUB_CLIENT_ID')
+                ?.value ?? '',
+            client_secret:
+              infraConfigs.value.find((x) => x.name === 'GITHUB_CLIENT_SECRET')
+                ?.value ?? '',
+          },
+        },
+        microsoft: {
+          name: 'microsoft',
+          enabled: allowedAuthProviders.value.includes('MICROSOFT'),
+          fields: {
+            client_id:
+              infraConfigs.value.find((x) => x.name === 'MICROSOFT_CLIENT_ID')
+                ?.value ?? '',
+            client_secret:
+              infraConfigs.value.find(
+                (x) => x.name === 'MICROSOFT_CLIENT_SECRET'
+              )?.value ?? '',
+          },
+        },
       },
-      github: {
-        name: 'github',
-        enabled: allowedAuthProviders.value.includes('GITHUB'),
-        client_id:
-          infraConfigs.value.find((x) => x.name === 'GITHUB_CLIENT_ID')
-            ?.value ?? '',
-        client_secret:
-          infraConfigs.value.find((x) => x.name === 'GITHUB_CLIENT_SECRET')
-            ?.value ?? '',
-      },
-      microsoft: {
-        name: 'microsoft',
-        enabled: allowedAuthProviders.value.includes('MICROSOFT'),
-        client_id:
-          infraConfigs.value.find((x) => x.name === 'MICROSOFT_CLIENT_ID')
-            ?.value ?? '',
-        client_secret:
-          infraConfigs.value.find((x) => x.name === 'MICROSOFT_CLIENT_SECRET')
-            ?.value ?? '',
+      mailConfigs: {
+        name: 'email',
+        enabled: allowedAuthProviders.value.includes('EMAIL'),
+        fields: {
+          mailer_smtp_url:
+            infraConfigs.value.find((x) => x.name === 'MAILER_SMTP_URL')
+              ?.value ?? '',
+          mailer_address_from:
+            infraConfigs.value.find((x) => x.name === 'MAILER_ADDRESS_FROM')
+              ?.value ?? '',
+        },
       },
     };
 
@@ -125,15 +165,15 @@ export function useConfigHandler(updatedConfigs?: Configs) {
       },
     ];
 
-    if (updatedConfigs?.google.enabled) {
+    if (updatedConfigs?.providers.google.enabled) {
       config.push(
         {
           name: 'GOOGLE_CLIENT_ID',
-          value: updatedConfigs?.google.client_id ?? '',
+          value: updatedConfigs?.providers.google.fields.client_id ?? '',
         },
         {
           name: 'GOOGLE_CLIENT_SECRET',
-          value: updatedConfigs?.google.client_secret ?? '',
+          value: updatedConfigs?.providers.google.fields.client_secret ?? '',
         }
       );
     } else {
@@ -144,15 +184,15 @@ export function useConfigHandler(updatedConfigs?: Configs) {
         );
       });
     }
-    if (updatedConfigs?.microsoft.enabled) {
+    if (updatedConfigs?.providers.microsoft.enabled) {
       config.push(
         {
           name: 'MICROSOFT_CLIENT_ID',
-          value: updatedConfigs?.microsoft.client_id ?? '',
+          value: updatedConfigs?.providers.microsoft.fields.client_id ?? '',
         },
         {
           name: 'MICROSOFT_CLIENT_SECRET',
-          value: updatedConfigs?.microsoft.client_secret ?? '',
+          value: updatedConfigs?.providers.microsoft.fields.client_secret ?? '',
         }
       );
     } else {
@@ -164,15 +204,15 @@ export function useConfigHandler(updatedConfigs?: Configs) {
       });
     }
 
-    if (updatedConfigs?.github.enabled) {
+    if (updatedConfigs?.providers.github.enabled) {
       config.push(
         {
           name: 'GITHUB_CLIENT_ID',
-          value: updatedConfigs?.github.client_id ?? '',
+          value: updatedConfigs?.providers.github.fields.client_id ?? '',
         },
         {
           name: 'GITHUB_CLIENT_SECRET',
-          value: updatedConfigs?.github.client_secret ?? '',
+          value: updatedConfigs?.providers.github.fields.client_secret ?? '',
         }
       );
     } else {
@@ -180,6 +220,25 @@ export function useConfigHandler(updatedConfigs?: Configs) {
         return (
           item.name !== 'GITHUB_CLIENT_ID' &&
           item.name !== 'GITHUB_CLIENT_SECRET'
+        );
+      });
+    }
+
+    if (updatedConfigs?.mailConfigs.enabled) {
+      config.push(
+        {
+          name: 'MAILER_SMTP_URL',
+          value: updatedConfigs?.mailConfigs.fields.mailer_smtp_url ?? '',
+        },
+        {
+          name: 'MAILER_ADDRESS_FROM',
+          value: updatedConfigs?.mailConfigs.fields.mailer_address_from ?? '',
+        }
+      );
+    } else {
+      config = config.filter((item) => {
+        return (
+          item.name !== 'MAILER_SMTP_URL' && item.name !== 'MAILER_ADDRESS_FROM'
         );
       });
     }
@@ -195,15 +254,21 @@ export function useConfigHandler(updatedConfigs?: Configs) {
     return [
       {
         provider: 'GOOGLE',
-        status: updatedConfigs?.google.enabled ? 'ENABLE' : 'DISABLE',
+        status: updatedConfigs?.providers.google.enabled ? 'ENABLE' : 'DISABLE',
       },
       {
         provider: 'MICROSOFT',
-        status: updatedConfigs?.microsoft.enabled ? 'ENABLE' : 'DISABLE',
+        status: updatedConfigs?.providers.microsoft.enabled
+          ? 'ENABLE'
+          : 'DISABLE',
       },
       {
         provider: 'GITHUB',
-        status: updatedConfigs?.github.enabled ? 'ENABLE' : 'DISABLE',
+        status: updatedConfigs?.providers.github.enabled ? 'ENABLE' : 'DISABLE',
+      },
+      {
+        provider: 'EMAIL',
+        status: updatedConfigs?.mailConfigs.enabled ? 'ENABLE' : 'DISABLE',
       },
     ];
   });

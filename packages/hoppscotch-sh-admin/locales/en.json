@@ -7,7 +7,7 @@
     "open_navigation": "Open Navigation"
   },
   "config": {
-    "enable_auth_provider": "Enable {provider} Auth Provider"
+    "enable_auth_provider": "Enable {provider} as Auth Provider"
   },
   "metrics": {
     "dashboard": "Dashboard",

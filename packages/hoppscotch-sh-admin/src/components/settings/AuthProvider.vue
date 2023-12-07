@@ -1,5 +1,8 @@
 <template>
-  <div class="md:grid md:grid-cols-3 md:gap-4 border-divider border-b">
+  <div
+    v-if="workingConfigs"
+    class="md:grid md:grid-cols-3 md:gap-4 border-divider border-b"
+  >
     <div class="pb-8 px-8 md:col-span-1">
       <h3 class="heading">Auth Providers</h3>
       <p class="my-1 text-secondaryLight">
@@ -11,7 +14,10 @@
       <section>
         <h4 class="font-semibold text-secondaryDark">Auth Providers</h4>
 
-        <div v-for="provider in workingConfigs" class="space-y-4 py-4">
+        <div
+          v-for="provider in workingConfigs.providers"
+          class="space-y-4 py-4"
+        >
           <div class="flex items-center">
             <HoppSmartToggle
               :on="provider.enabled"
@@ -32,14 +38,14 @@
               <label for=""> CLIENT ID </label>
               <span class="flex">
                 <HoppSmartInput
-                  v-model="provider.client_id"
-                  :type="clientIDStatus(provider.name) ? 'password' : 'text'"
-                  :disabled="clientIDStatus(provider.name)"
+                  v-model="provider.fields.client_id"
+                  :type="isclientIDMasked(provider.name) ? 'password' : 'text'"
+                  :disabled="isclientIDMasked(provider.name)"
                   :autofocus="false"
                   class="!my-2 !bg-primaryLight"
                 />
                 <HoppButtonSecondary
-                  :icon="clientIDStatus(provider.name) ? IconEye : IconEyeOff"
+                  :icon="isclientIDMasked(provider.name) ? IconEye : IconEyeOff"
                   class="bg-primaryLight h-9 mt-2"
                   @click="maskClientID(provider.name)"
                 />
@@ -50,17 +56,17 @@
               <label for=""> SECRET ID </label>
               <span class="flex">
                 <HoppSmartInput
-                  v-model="provider.client_secret"
+                  v-model="provider.fields.client_secret"
                   :type="
-                    clientSecretStatus(provider.name) ? 'password' : 'text'
+                    isClientSecretMasked(provider.name) ? 'password' : 'text'
                   "
-                  :disabled="clientSecretStatus(provider.name)"
+                  :disabled="isClientSecretMasked(provider.name)"
                   :autofocus="false"
                   class="!my-2 !bg-primaryLight"
                 />
                 <HoppButtonSecondary
                   :icon="
-                    clientSecretStatus(provider.name) ? IconEye : IconEyeOff
+                    isClientSecretMasked(provider.name) ? IconEye : IconEyeOff
                   "
                   class="bg-primaryLight h-9 mt-2"
                   @click="maskClientSecret(provider.name)"
@@ -97,7 +103,7 @@ const workingConfigs = useVModel(props, 'config', emit);
 // Masking Client ID and Client Secret of Auth Providers
 type MaskInputFields = 'client_id' | 'client_secret';
 
-const maskInputs = reactive({
+const maskFields = reactive({
   google: {
     client_id: true,
     client_secret: true,
@@ -112,13 +118,13 @@ const maskInputs = reactive({
   },
 });
 
-const clientIDStatus = (provider: AuthProviders) =>
-  maskInputs[provider].client_id;
-const clientSecretStatus = (provider: AuthProviders) =>
-  maskInputs[provider].client_secret;
+const isclientIDMasked = (provider: AuthProviders) =>
+  maskFields[provider].client_id;
+const isClientSecretMasked = (provider: AuthProviders) =>
+  maskFields[provider].client_secret;
 
 const toggleMask = (provider: AuthProviders, field: MaskInputFields) =>
-  (maskInputs[provider][field] = !maskInputs[provider][field]);
+  (maskFields[provider][field] = !maskFields[provider][field]);
 
 const maskClientID = (provider: AuthProviders) =>
   toggleMask(provider, 'client_id');

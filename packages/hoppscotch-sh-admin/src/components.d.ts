@@ -34,6 +34,7 @@ declare module '@vue/runtime-core' {
     IconLucideInbox: typeof import('~icons/lucide/inbox')['default']
     SettingsAuthProvider: typeof import('./components/settings/AuthProvider.vue')['default']
     SettingsConfig: typeof import('./components/settings/Config.vue')['default']
+    SettingsProvider: typeof import('./components/settings/Provider.vue')['default']
     SettingsReset: typeof import('./components/settings/Reset.vue')['default']
     SettingsRestartServer: typeof import('./components/settings/RestartServer.vue')['default']
     SettingsSmtp: typeof import('./components/settings/Smtp.vue')['default']

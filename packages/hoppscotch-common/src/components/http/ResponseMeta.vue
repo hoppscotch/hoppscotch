@@ -2,8 +2,20 @@
   <div
     class="sticky top-0 z-10 flex flex-shrink-0 items-center justify-center overflow-auto overflow-x-auto whitespace-nowrap bg-primary p-4"
   >
-    <AppShortcutsPrompt v-if="response == null" class="flex-1" />
-    <div v-else class="flex flex-1 flex-col">
+    <AppShortcutsPrompt v-if="response == null && !isEmbed" class="flex-1" />
+
+    <div v-if="response == null && isEmbed">
+      <HoppButtonSecondary
+        :label="`${t('app.documentation')}`"
+        to="https://docs.hoppscotch.io/documentation/features/rest-api-testing#response"
+        :icon="IconExternalLink"
+        blank
+        outline
+        reverse
+      />
+    </div>
+
+    <div v-else-if="response" class="flex flex-1 flex-col">
       <div
         v-if="response.type === 'loading'"
         class="flex flex-col items-center justify-center"
@@ -105,6 +117,7 @@ import { getStatusCodeReasonPhrase } from "~/helpers/utils/statusCodes"
 import { useService } from "dioc/vue"
 import { InspectionService } from "~/services/inspection"
 import { RESTTabService } from "~/services/tab/rest"
+import IconExternalLink from "~icons/lucide/external-link"
 
 const t = useI18n()
 const colorMode = useColorMode()
@@ -112,6 +125,7 @@ const tabs = useService(RESTTabService)
 
 const props = defineProps<{
   response: HoppRESTResponse | null | undefined
+  isEmbed?: boolean
 }>()
 
 /**

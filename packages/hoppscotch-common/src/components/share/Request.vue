@@ -1,31 +1,31 @@
 <template>
   <div
-    class="group flex items-stretch"
+    class="flex items-stretch group"
     @contextmenu.prevent="options!.tippy.show()"
   >
     <div
       v-tippy="{ theme: 'tooltip', delay: [500, 20] }"
-      class="pointer-events-auto flex min-w-0 flex-1 cursor-pointer items-center justify-center py-2"
+      class="flex items-center justify-center flex-1 min-w-0 py-2 cursor-pointer pointer-events-auto"
       :title="`${timeStamp}`"
       @click="openInNewTab"
     >
       <span
-        class="pointer-events-none flex w-16 items-center justify-center truncate px-2"
+        class="flex items-center justify-center w-16 px-2 truncate pointer-events-none"
         :style="{ color: requestLabelColor }"
       >
-        <span class="truncate text-tiny font-semibold">
+        <span class="font-semibold truncate text-tiny">
           {{ parseRequest.method }}
         </span>
       </span>
       <span
-        class="pointer-events-none flex min-w-0 flex-1 items-center pr-2 transition group-hover:text-secondaryDark"
+        class="flex items-center flex-1 min-w-0 pr-2 transition pointer-events-none group-hover:text-secondaryDark"
       >
         <span class="flex-1 truncate">
           {{ parseRequest.endpoint }}
         </span>
       </span>
       <span
-        class="flex-1 truncate border-l border-dividerDark px-2 text-secondaryLight group-hover:text-secondaryDark"
+        class="flex px-2 truncate text-secondaryLight group-hover:text-secondaryDark"
       >
         {{ parseRequest.name }}
       </span>
@@ -69,7 +69,7 @@
               />
               <HoppSmartItem
                 ref="customizeAction"
-                :icon="IconFileEdit"
+                :icon="IconCustomize"
                 :label="`${t('shared_requests.customize')}`"
                 :shortcut="['E']"
                 @click="
@@ -110,7 +110,7 @@ import { getMethodLabelColorClassOf } from "~/helpers/rest/labelColoring"
 import { Shortcode } from "~/helpers/shortcode/Shortcode"
 import IconArrowUpRight from "~icons/lucide/arrow-up-right-square"
 import IconMoreVertical from "~icons/lucide/more-vertical"
-import IconFileEdit from "~icons/lucide/file-edit"
+import IconCustomize from "~icons/lucide/settings-2"
 import IconTrash2 from "~icons/lucide/trash-2"
 import { shortDateTime } from "~/helpers/utils/date"
 
@@ -121,7 +121,12 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  (e: "customize-shared-request", request: HoppRESTRequest, id: string): void
+  (
+    e: "customize-shared-request",
+    request: HoppRESTRequest,
+    id: string,
+    embedProperties?: string | null
+  ): void
   (e: "delete-shared-request", codeID: string): void
   (e: "open-new-tab", request: HoppRESTRequest): void
 }>()
@@ -130,6 +135,7 @@ const tippyActions = ref<TippyComponent | null>(null)
 const openInNewTabAction = ref<HTMLButtonElement | null>(null)
 const customizeAction = ref<HTMLButtonElement | null>(null)
 const deleteAction = ref<HTMLButtonElement | null>(null)
+const options = ref<any | null>(null)
 
 const parseRequest = computed(() =>
   pipe(props.request.request, JSON.parse, translateToNewRequest)
@@ -144,7 +150,13 @@ const openInNewTab = () => {
 }
 
 const customizeSharedRequest = () => {
-  emit("customize-shared-request", parseRequest.value, props.request.id)
+  const embedProperties = props.request.properties
+  emit(
+    "customize-shared-request",
+    parseRequest.value,
+    props.request.id,
+    embedProperties
+  )
 }
 
 const deleteSharedRequest = () => {

@@ -1,32 +1,30 @@
 <template>
   <div
-    class="flex flex-col rounded border border-dotted border-divider p-5"
+    class="flex flex-col p-4 border rounded border-dividerDark"
     :class="{
       'bg-accentContrast': isEmbedThemeLight,
     }"
   >
     <div
-      class="flex items-stretch space-x-4 rounded border-divider"
+      class="flex items-stretch space-x-2"
       :class="{
         'bg-accentContrast': isEmbedThemeLight,
       }"
     >
-      <span
-        class="flex max-w-[4rem] items-center justify-center rounded border border-divider px-1 py-2 text-tiny"
-        :class="{
-          '!border-dividerLight bg-accentContrast text-primary':
-            isEmbedThemeLight,
-        }"
-      >
-        <span class="truncate">
-          {{ method }}
-        </span>
-      </span>
-      <span
-        class="flex max-w-46 items-center rounded border border-divider p-2"
-      >
+      <span class="flex items-center min-w-0 border rounded border-divider">
         <span
-          class="min-w-0 truncate"
+          class="flex max-w-[4rem] rounded-l h-full items-center justify-center border-r border-divider text-tiny"
+          :class="{
+            '!border-dividerLight bg-accentContrast text-primary':
+              isEmbedThemeLight,
+          }"
+        >
+          <span class="px-3 truncate">
+            {{ method }}
+          </span>
+        </span>
+        <span
+          class="px-3 truncate"
           :class="{
             'text-primary': isEmbedThemeLight,
           }"
@@ -35,7 +33,7 @@
         </span>
       </span>
       <button
-        class="flex items-center justify-center rounded border border-dividerDark bg-primaryDark px-3 py-2 font-semibold text-secondary"
+        class="flex items-center justify-center flex-shrink-0 px-3 py-2 font-semibold border rounded border-dividerDark bg-primaryDark text-secondary"
         :class="{
           '!bg-accentContrast text-primaryLight': isEmbedThemeLight,
         }"
@@ -44,10 +42,10 @@
       </button>
     </div>
     <div
-      class="flex border-divider"
+      class="flex"
       :class="{
         'bg-accentContrast text-primary': isEmbedThemeLight,
-        'border-b pt-2 ': !noActiveTab,
+        'border-b border-divider pt-2': !noActiveTab,
       }"
     >
       <span
@@ -57,7 +55,8 @@
         class="px-2 py-2"
         :class="{
           'border-b border-dividerDark':
-            embedOptions.selectedTab === option.value,
+            embedOptions.tabs.filter((tab) => tab.enabled)[0]?.value ===
+            option.value,
         }"
       >
         {{ option.label }}

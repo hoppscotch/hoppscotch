@@ -1,7 +1,7 @@
 <template>
   <div
     v-if="selectedWidget"
-    class="divide-y divide-divider rounded border border-divider"
+    class="border divide-y rounded divide-divider border-divider"
   >
     <div v-if="loading" class="px-4 py-2">
       {{ t("shared_requests.creating_widget") }}
@@ -14,7 +14,7 @@
       <span class="text-secondaryLight">{{ t("state.loading") }}</span>
     </div>
     <div v-else class="flex flex-col divide-y divide-divider">
-      <div class="flex flex-col space-y-4 p-4">
+      <div class="flex flex-col p-2 space-y-2">
         <HoppSmartRadioGroup
           v-model="selectedWidget.value"
           :radios="widgets"
@@ -22,9 +22,9 @@
         />
       </div>
       <div class="flex flex-col divide-y divide-divider">
-        <div class="flex items-center justify-center px-4 py-8">
-          <div v-if="selectedWidget.value === 'embed'" class="w-full flex-1">
-            <div class="flex flex-col pb-8">
+        <div class="flex items-center justify-center px-6 py-4">
+          <div v-if="selectedWidget.value === 'embed'" class="w-full">
+            <div class="flex flex-col pb-4">
               <div
                 v-for="option in embedOptions.tabs"
                 :key="option.value"
@@ -36,7 +36,8 @@
                 <HoppSmartCheckbox
                   :on="option.enabled"
                   @change="removeEmbedOption(option.value)"
-                />
+                >
+                </HoppSmartCheckbox>
               </div>
               <div class="flex items-center justify-between">
                 <span>
@@ -49,13 +50,11 @@
                     theme="popover"
                     :on-shown="() => tippyActions!.focus()"
                   >
-                    <span class="select-wrapper">
-                      <HoppButtonSecondary
-                        class="ml-2 rounded-none pr-8 capitalize"
-                        :label="embedOptions.theme"
-                        :icon="embedThemeIcon"
-                      />
-                    </span>
+                    <HoppButtonSecondary
+                      class="!py-2 !px-0 capitalize"
+                      :label="embedOptions.theme"
+                      :icon="embedThemeIcon"
+                    />
                     <template #content="{ hide }">
                       <div
                         ref="tippyActions"
@@ -102,14 +101,20 @@
                 </div>
               </div>
             </div>
+            <span
+              class="flex justify-center mb-2 text-secondaryLight text-tiny"
+            >
+              {{ t("shared_requests.preview") }}
+            </span>
             <ShareTemplatesEmbeds
               :endpoint="request?.endpoint"
               :method="request?.method"
               :model-value="embedOptions"
             />
-            <div class="flex items-center justify-center py-4">
+            <div class="flex items-center justify-center">
               <HoppButtonSecondary
                 :label="t('shared_requests.copy_html')"
+                class="underline text-secondaryDark"
                 @click="
                   copyContent({
                     widget: 'embed',
@@ -126,12 +131,18 @@
             <div
               v-for="variant in buttonVariants"
               :key="variant.id"
-              class="flex flex-col space-y-4"
+              class="flex flex-col"
             >
+              <span
+                class="flex justify-center mb-2 text-secondaryLight text-tiny"
+              >
+                {{ t("shared_requests.preview") }}
+              </span>
               <ShareTemplatesButton :img="variant.img" />
               <div class="flex items-center justify-between">
                 <HoppButtonSecondary
                   :label="t('shared_requests.copy_html')"
+                  class="underline text-secondaryDark"
                   @click="
                     copyContent({
                       widget: 'button',
@@ -142,6 +153,7 @@
                 />
                 <HoppButtonSecondary
                   :label="t('shared_requests.copy_markdown')"
+                  class="underline text-secondaryDark"
                   @click="
                     copyContent({
                       widget: 'button',
@@ -157,12 +169,17 @@
             <div
               v-for="variant in linkVariants"
               :key="variant.type"
-              class="flex flex-col items-center justify-center space-y-2"
+              class="flex flex-col items-center justify-center"
             >
+              <span
+                class="flex justify-center mb-2 text-secondaryLight text-tiny"
+              >
+                {{ t("shared_requests.preview") }}
+              </span>
               <ShareTemplatesLink :link="variant.link" :label="variant.label" />
-
               <HoppButtonSecondary
                 :label="t(`shared_requests.copy_${variant.type}`)"
+                class="underline text-secondaryDark"
                 @click="
                   copyContent({
                     widget: 'link',
@@ -205,6 +222,35 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  embedOptions: {
+    type: Object as PropType<EmbedOption>,
+    default: () => ({
+      selectedTab: "parameters",
+      tabs: [
+        {
+          value: "parameters",
+          label: "shared_requests.parameters",
+          enabled: true,
+        },
+        {
+          value: "body",
+          label: "shared_requests.body",
+          enabled: true,
+        },
+        {
+          value: "headers",
+          label: "shared_requests.headers",
+          enabled: true,
+        },
+        {
+          value: "authorization",
+          label: "shared_requests.authorization",
+          enabled: false,
+        },
+      ],
+      theme: "system",
+    }),
+  },
 })
 
 const emit = defineEmits<{
@@ -220,6 +266,7 @@ const emit = defineEmits<{
 }>()
 
 const selectedWidget = useVModel(props, "modelValue")
+const embedOptions = useVModel(props, "embedOptions")
 
 type WidgetID = "embed" | "button" | "link"
 
@@ -254,34 +301,6 @@ type EmbedOption = {
   }[]
   theme: "light" | "dark" | "system"
 }
-
-const embedOptions = ref<EmbedOption>({
-  selectedTab: "parameters",
-  tabs: [
-    {
-      value: "parameters",
-      label: t("tab.parameters"),
-      enabled: true,
-    },
-    {
-      value: "body",
-      label: t("tab.body"),
-      enabled: true,
-    },
-    {
-      value: "headers",
-      label: t("tab.headers"),
-      enabled: true,
-    },
-    {
-      value: "authorization",
-      label: t("tab.authorization"),
-      enabled: true,
-    },
-  ],
-  theme: "system",
-})
-
 const embedThemeIcon = computed(() => {
   if (embedOptions.value.theme === "system") {
     return IconMonitor
@@ -355,12 +374,7 @@ const linkVariants: LinkVariant[] = [
 const baseURL = import.meta.env.VITE_SHORTCODE_BASE_URL ?? "https://hopp.sh"
 
 const copyEmbed = () => {
-  const options = embedOptions.value
-  const enabledEmbedOptions = options.tabs
-    .filter((tab) => tab.enabled)
-    .map((tab) => tab.value)
-    .toString()
-  return `<iframe src="${baseURL}/e/${props.request?.id}/${enabledEmbedOptions}' style='width: 100%; height: 500px; border: 0; border-radius: 4px; overflow: hidden;'></iframe>`
+  return `<iframe src="${baseURL}/e/${props.request?.id}' style='width: 100%; height: 500px; border: 0; border-radius: 4px; overflow: hidden;'></iframe>`
 }
 
 const copyButton = (
@@ -410,7 +424,10 @@ const copyContent = ({
   } else {
     content = copyEmbed()
   }
-  const copyContent = { sharedRequestID: props.request?.id, content }
+  const copyContent = {
+    sharedRequestID: props.request?.id,
+    content,
+  }
   emit("copy-shared-request", copyContent)
 }
 

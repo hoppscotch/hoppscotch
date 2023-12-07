@@ -2,7 +2,9 @@
   <HoppSmartModal
     v-if="show"
     dialog
-    :title="t('modal.share_request')"
+    :title="
+      step === 1 ? t('modal.share_request') : t('modal.customize_request')
+    "
     styles="sm:max-w-md"
     @close="hideModal"
   >
@@ -21,6 +23,7 @@
       <ShareCustomizeModal
         v-else-if="step === 2"
         v-model="selectedWidget"
+        v-model:embed-options="embedOptions"
         :request="request"
         :loading="loading"
         @copy-shared-request="copySharedRequest"
@@ -28,19 +31,21 @@
     </template>
 
     <template #footer>
-      <div v-if="step === 1" class="flex justify-end">
+      <div class="flex justify-start flex-1">
         <HoppButtonPrimary
+          v-if="step === 1"
           :label="t('action.create')"
           :loading="loading"
           @click="createSharedRequest"
         />
         <HoppButtonSecondary
-          :label="t('action.cancel')"
-          class="mr-2"
+          :label="step === 1 ? t('action.cancel') : t('action.close')"
+          class="ml-2"
+          filled
+          outline
           @click="hideModal"
         />
       </div>
-      <HoppButtonPrimary v-else :label="t('action.close')" @click="hideModal" />
     </template>
   </HoppSmartModal>
 </template>
@@ -52,6 +57,18 @@ import { PropType } from "vue"
 import { useI18n } from "~/composables/i18n"
 
 const t = useI18n()
+
+type EmbedTabs = "parameters" | "body" | "headers" | "authorization"
+
+type EmbedOption = {
+  selectedTab: EmbedTabs
+  tabs: {
+    value: EmbedTabs
+    label: string
+    enabled: boolean
+  }[]
+  theme: "light" | "dark" | "system"
+}
 
 const props = defineProps({
   request: {
@@ -75,6 +92,35 @@ const props = defineProps({
     type: Number,
     default: 1,
   },
+  embedOptions: {
+    type: Object as PropType<EmbedOption>,
+    default: () => ({
+      selectedTab: "parameters",
+      tabs: [
+        {
+          value: "parameters",
+          label: "shared_requests.parameters",
+          enabled: true,
+        },
+        {
+          value: "body",
+          label: "shared_requests.body",
+          enabled: true,
+        },
+        {
+          value: "headers",
+          label: "shared_requests.headers",
+          enabled: true,
+        },
+        {
+          value: "authorization",
+          label: "shared_requests.authorization",
+          enabled: false,
+        },
+      ],
+      theme: "system",
+    }),
+  },
 })
 
 type WidgetID = "embed" | "button" | "link"
@@ -86,6 +132,7 @@ type Widget = {
 }
 
 const selectedWidget = useVModel(props, "modelValue")
+const embedOptions = useVModel(props, "embedOptions")
 
 const emit = defineEmits<{
   (e: "create-shared-request", request: HoppRESTRequest | null): void
@@ -94,7 +141,7 @@ const emit = defineEmits<{
   (e: "update:step", value: number): void
   (
     e: "copy-shared-request",
-    request: {
+    payload: {
       sharedRequestID: string | undefined
       content: string | undefined
     }
@@ -105,11 +152,11 @@ const createSharedRequest = () => {
   emit("create-shared-request", props.request as HoppRESTRequest)
 }
 
-const copySharedRequest = (request: {
+const copySharedRequest = (payload: {
   sharedRequestID: string | undefined
   content: string | undefined
 }) => {
-  emit("copy-shared-request", request)
+  emit("copy-shared-request", payload)
 }
 
 const hideModal = () => {

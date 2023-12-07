@@ -1,7 +1,5 @@
 <template>
-  <div
-    class="flex items-center justify-center rounded border border-dotted border-dividerDark p-5"
-  >
+  <div class="flex flex-col items-center p-4 border rounded border-dividerDark">
     <span
       :class="{
         'border-b border-secondary': label,

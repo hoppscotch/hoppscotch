@@ -87,7 +87,7 @@
           <HoppSmartCheckbox class="pr-2">
             <span>Persist responses</span>
             <HoppButtonSecondary
-              class="p-0 pl-2"
+              class="!py-0 pl-2"
               v-tippy="{ theme: 'tooltip' }"
               to="https://docs.hoppscotch.io/documentation/features/inspections"
               blank
@@ -99,7 +99,7 @@
           <HoppSmartCheckbox class="pr-2">
             <span>Keep variable values</span>
             <HoppButtonSecondary
-              class="p-0 pl-2"
+              class="!py-0 pl-2"
               v-tippy="{ theme: 'tooltip' }"
               to="https://docs.hoppscotch.io/documentation/features/inspections"
               blank

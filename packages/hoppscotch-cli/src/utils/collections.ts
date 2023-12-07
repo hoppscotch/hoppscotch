@@ -3,7 +3,7 @@ import { pipe } from "fp-ts/function";
 import { bold } from "chalk";
 import { log } from "console";
 import round from "lodash/round";
-import { HoppCollection } from "@hoppscotch/data";
+import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data";
 import {
   HoppEnvs,
   CollectionStack,
@@ -55,19 +55,19 @@ export const collectionsRunner = async (
     // Pop out top-most collection from stack to be processed.
     const { collection, path } = <CollectionStack>collectionStack.pop();
 
-    // Processing each request in collection
-    for (const request of collection.requests) {
-      const _request = preProcessRequest(request);
-      const requestPath = `${path}/${_request.name}`;
-      const processRequestParams: ProcessRequestParams = {
-        path: requestPath,
-        request: _request,
-        envs,
-        delay,
-      };
+      // Processing each request in collection
+      for (const request of collection.requests) {
+        const _request = preProcessRequest(request as HoppRESTRequest, collection);
+        const requestPath = `${path}/${_request.name}`;
+        const processRequestParams: ProcessRequestParams = {
+          path: requestPath,
+          request: _request,
+          envs,
+          delay,
+        };
 
-      // Request processing initiated message.
-      log(WARN(`\nRunning: ${bold(requestPath)}`));
+        // Request processing initiated message.
+        log(WARN(`\nRunning: ${bold(requestPath)}`));
 
       // Processing current request.
       const result = await processRequest(processRequestParams)();
@@ -77,19 +77,29 @@ export const collectionsRunner = async (
       envs.global = global;
       envs.selected = selected;
 
-      // Storing current request's report.
-      const requestReport = result.report;
-      requestsReport.push(requestReport);
-    }
+        // Storing current request's report.
+        const requestReport = result.report;
+        requestsReport.push(requestReport);
+      }
 
-    // Pushing remaining folders realted collection to stack.
-    for (const folder of collection.folders) {
-      collectionStack.push({
-        path: `${path}/${folder.name}`,
-        collection: folder,
-      });
+      // Pushing remaining folders realted collection to stack.
+      for (const folder of collection.folders) {
+        const updatedFolder = { ...folder }
+
+        if (updatedFolder.auth.authType === "inherit") {
+          updatedFolder.auth = collection.auth;
+        }
+
+        if (collection.headers) {
+          updatedFolder.headers.push(...collection.headers);
+        }
+
+        collectionStack.push({
+          path: `${path}/${updatedFolder.name}`,
+          collection: updatedFolder,
+        });
+      }
     }
-  }
 
   return requestsReport;
 };

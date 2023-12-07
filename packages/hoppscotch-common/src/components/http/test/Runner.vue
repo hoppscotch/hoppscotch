@@ -33,7 +33,7 @@
       </div>
 
       <div v-else class="flex flex-col flex-1">
-        <HttpTestRunnerConfig v-model="tab" />
+        <HttpTestRunnerConfig v-model="tab" v-model:config="testRunnerConfig"  />
       </div>
     </template>
     <template #secondary>
@@ -48,6 +48,14 @@ import { ref } from "vue"
 import { useVModel } from "@vueuse/core"
 import { HoppTab } from "~/services/tab"
 import { HoppTabDocument } from "~/helpers/rest/document"
+
+export type TestRunnerConfig = {
+  iterations: number
+  delay: number
+  stopOnError: boolean
+  persistResponses: boolean
+  keepVariableValues: boolean
+}
 
 const arr = [
   {
@@ -71,6 +79,15 @@ const arr = [
   //   value: "1.5s",
   // },
 ]
+
+const testRunnerConfig = ref<TestRunnerConfig>({
+  iterations: 1,
+  delay: 0,
+  stopOnError: false,
+  persistResponses: false,
+  keepVariableValues: false,
+})
+
 const props = defineProps<{ modelValue: HoppTab<HoppTabDocument> }>()
 
 const emit = defineEmits<{

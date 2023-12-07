@@ -79,5 +79,5 @@ const emit = defineEmits<{
 
 const tab = useVModel(props, "modelValue", emit)
 
-const showResult = ref(true)
+const showResult = ref(false)
 </script>

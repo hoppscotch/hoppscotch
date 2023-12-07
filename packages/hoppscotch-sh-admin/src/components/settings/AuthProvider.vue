@@ -85,7 +85,7 @@ import { useI18n } from '~/composables/i18n';
 import IconEye from '~icons/lucide/eye';
 import IconEyeOff from '~icons/lucide/eye-off';
 import { useVModel } from '@vueuse/core';
-import { AuthProviders, Configs } from '~/composables/useConfigHandler';
+import { SsoAuthProviders, Configs } from '~/composables/useConfigHandler';
 import { reactive } from 'vue';
 
 const t = useI18n();
@@ -118,16 +118,16 @@ const maskFields = reactive({
   },
 });
 
-const isclientIDMasked = (provider: AuthProviders) =>
+const isclientIDMasked = (provider: SsoAuthProviders) =>
   maskFields[provider].client_id;
-const isClientSecretMasked = (provider: AuthProviders) =>
+const isClientSecretMasked = (provider: SsoAuthProviders) =>
   maskFields[provider].client_secret;
 
-const toggleMask = (provider: AuthProviders, field: MaskInputFields) =>
+const toggleMask = (provider: SsoAuthProviders, field: MaskInputFields) =>
   (maskFields[provider][field] = !maskFields[provider][field]);
 
-const maskClientID = (provider: AuthProviders) =>
+const maskClientID = (provider: SsoAuthProviders) =>
   toggleMask(provider, 'client_id');
-const maskClientSecret = (provider: AuthProviders) =>
+const maskClientSecret = (provider: SsoAuthProviders) =>
   toggleMask(provider, 'client_secret');
 </script>

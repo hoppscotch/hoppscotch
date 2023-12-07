@@ -18,12 +18,12 @@ import { UseMutationResponse } from '@urql/vue';
 
 const toast = useToast();
 
-export type AuthProviders = 'google' | 'microsoft' | 'github';
+export type SsoAuthProviders = 'google' | 'microsoft' | 'github';
 
 export type Configs = {
   providers: {
     google: {
-      name: AuthProviders;
+      name: SsoAuthProviders;
       enabled: boolean;
       fields: {
         client_id: string;
@@ -31,7 +31,7 @@ export type Configs = {
       };
     };
     github: {
-      name: AuthProviders;
+      name: SsoAuthProviders;
       enabled: boolean;
       fields: {
         client_id: string;
@@ -39,7 +39,7 @@ export type Configs = {
       };
     };
     microsoft: {
-      name: AuthProviders;
+      name: SsoAuthProviders;
       enabled: boolean;
       fields: {
         client_id: string;
@@ -177,12 +177,11 @@ export function useConfigHandler(updatedConfigs?: Configs) {
         }
       );
     } else {
-      config = config.filter((item) => {
-        return (
+      config = config.filter(
+        (item) =>
           item.name !== 'GOOGLE_CLIENT_ID' &&
           item.name !== 'GOOGLE_CLIENT_SECRET'
-        );
-      });
+      );
     }
     if (updatedConfigs?.providers.microsoft.enabled) {
       config.push(
@@ -196,12 +195,11 @@ export function useConfigHandler(updatedConfigs?: Configs) {
         }
       );
     } else {
-      config = config.filter((item) => {
-        return (
+      config = config.filter(
+        (item) =>
           item.name !== 'MICROSOFT_CLIENT_ID' &&
           item.name !== 'MICROSOFT_CLIENT_SECRET'
-        );
-      });
+      );
     }
 
     if (updatedConfigs?.providers.github.enabled) {
@@ -216,12 +214,11 @@ export function useConfigHandler(updatedConfigs?: Configs) {
         }
       );
     } else {
-      config = config.filter((item) => {
-        return (
+      config = config.filter(
+        (item) =>
           item.name !== 'GITHUB_CLIENT_ID' &&
           item.name !== 'GITHUB_CLIENT_SECRET'
-        );
-      });
+      );
     }
 
     if (updatedConfigs?.mailConfigs.enabled) {
@@ -236,16 +233,13 @@ export function useConfigHandler(updatedConfigs?: Configs) {
         }
       );
     } else {
-      config = config.filter((item) => {
-        return (
+      config = config.filter(
+        (item) =>
           item.name !== 'MAILER_SMTP_URL' && item.name !== 'MAILER_ADDRESS_FROM'
-        );
-      });
+      );
     }
 
-    config = config.filter((item) => {
-      return item.name !== '';
-    });
+    config = config.filter((item) => item.name !== '');
 
     return config;
   });
@@ -283,9 +277,7 @@ export function useConfigHandler(updatedConfigs?: Configs) {
     const result = await updateProviderStatus.executeMutation(variables);
 
     if (result.error) {
-      toast.error('Unable to update provider status');
-    } else {
-      toast.success('Provider status updated successfully');
+      toast.error('Unable to update the allowed auth providers');
     }
   };
 
@@ -299,9 +291,7 @@ export function useConfigHandler(updatedConfigs?: Configs) {
     const result = await updateInfraConfigsMutation.executeMutation(variables);
 
     if (result.error) {
-      toast.error('Unable to update provider status');
-    } else {
-      toast.success('Provider status updated successfully');
+      toast.error('Unable to update the server configurations');
     }
   };
 
@@ -311,9 +301,7 @@ export function useConfigHandler(updatedConfigs?: Configs) {
     const result = await resetInfraConfigsMutation.executeMutation();
 
     if (result.error) {
-      toast.error('Unable to update provider status');
-    } else {
-      toast.success('Provider status updated successfully');
+      toast.error('Unable to reset server configurations');
     }
   };
 

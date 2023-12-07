@@ -41,30 +41,21 @@ const updateAllowedAuthProviderMutation = useMutation(
 );
 const resetInfraConfigsMutation = useMutation(ResetInfraConfigsDocument);
 
-const {
-  updatedInfraConfigs,
-  updatedAllowedAuthProviders,
-  updateInfraConfigs,
-  updateAuthProvider,
-  resetInfraConfigs,
-} = useConfigHandler(props.workingConfigs);
+const { updateInfraConfigs, updateAuthProvider, resetInfraConfigs } =
+  useConfigHandler(props.workingConfigs);
 
 onMounted(async () => {
   if (props.reset) {
     await resetInfraConfigs(resetInfraConfigsMutation);
   } else {
-    if (updatedAllowedAuthProviders.value) {
-      await updateAuthProvider(updateAllowedAuthProviderMutation);
-    }
-    if (updatedInfraConfigs.value) {
-      await updateInfraConfigs(updateInfraConfigsMutation);
-    }
+    await updateAuthProvider(updateAllowedAuthProviderMutation);
+    await updateInfraConfigs(updateInfraConfigsMutation);
   }
   const timer = setInterval(() => {
     count.value--;
     if (count.value === 0) {
       clearInterval(timer);
-      toast.success(`${t('settings.server_restarted')}`);
+      toast.success('Initiating server restart');
       window.location.reload();
     }
   }, 1000);

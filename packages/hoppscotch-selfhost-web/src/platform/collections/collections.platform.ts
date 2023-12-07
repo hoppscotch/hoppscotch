@@ -108,7 +108,6 @@ function exportedCollectionToHoppCollection(
 ): HoppCollection<HoppRESTRequest | HoppGQLRequest> {
   if (collectionType == "REST") {
     const restCollection = collection as ExportedUserCollectionREST
-    console.log("restCollection", restCollection)
     return {
       id: restCollection.id,
       v: 1,

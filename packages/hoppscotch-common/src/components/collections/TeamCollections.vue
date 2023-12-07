@@ -252,6 +252,7 @@
                 selectRequest({
                   request: node.data.data.data.request,
                   requestIndex: node.data.data.data.id,
+                  folderPath: getPath(node.id),
                 })
             "
             @share-request="
@@ -503,7 +504,7 @@ const emit = defineEmits<{
       request: HoppRESTRequest
       requestIndex: string
       isActive: boolean
-      folderPath?: string | undefined
+      folderPath: string
     }
   ): void
   (
@@ -550,6 +551,12 @@ const emit = defineEmits<{
   (event: "display-modal-add"): void
   (event: "display-modal-import-export"): void
 }>()
+
+const getPath = (path: string) => {
+  const pathArray = path.split("/")
+  pathArray.pop()
+  return pathArray.join("/")
+}
 
 const teamCollectionsList = toRef(props, "teamCollectionList")
 
@@ -607,6 +614,7 @@ const isActiveRequest = (requestID: string) => {
 const selectRequest = (data: {
   request: HoppRESTRequest
   requestIndex: string
+  folderPath: string | null
 }) => {
   const { request, requestIndex } = data
   if (props.saveRequest) {
@@ -619,6 +627,7 @@ const selectRequest = (data: {
       request: request,
       requestIndex: requestIndex,
       isActive: isActiveRequest(requestIndex),
+      folderPath: data.folderPath,
     })
   }
 }

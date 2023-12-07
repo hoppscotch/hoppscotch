@@ -74,7 +74,7 @@ import { Picked } from "~/helpers/types/HoppPicked"
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
 import {
-  cascaseParentCollectionForHeaderAuth,
+  cascadeParentCollectionForHeaderAuth,
   editGraphqlRequest,
   editRESTRequest,
   saveGraphqlRequestAs,
@@ -240,7 +240,7 @@ const saveRequestAs = async () => {
       },
     }
 
-    const { auth, headers } = cascaseParentCollectionForHeaderAuth(
+    const { auth, headers } = cascadeParentCollectionForHeaderAuth(
       `${picked.value.collectionIndex}`,
       "rest"
     )
@@ -277,7 +277,7 @@ const saveRequestAs = async () => {
       },
     }
 
-    const { auth, headers } = cascaseParentCollectionForHeaderAuth(
+    const { auth, headers } = cascadeParentCollectionForHeaderAuth(
       picked.value.folderPath,
       "rest"
     )
@@ -315,7 +315,7 @@ const saveRequestAs = async () => {
       },
     }
 
-    const { auth, headers } = cascaseParentCollectionForHeaderAuth(
+    const { auth, headers } = cascadeParentCollectionForHeaderAuth(
       picked.value.folderPath,
       "rest"
     )
@@ -409,7 +409,7 @@ const saveRequestAs = async () => {
       workspaceType: "team",
     })
 
-    const { auth, headers } = cascaseParentCollectionForHeaderAuth(
+    const { auth, headers } = cascadeParentCollectionForHeaderAuth(
       picked.value.folderPath,
       "graphql"
     )
@@ -434,7 +434,7 @@ const saveRequestAs = async () => {
       workspaceType: "team",
     })
 
-    const { auth, headers } = cascaseParentCollectionForHeaderAuth(
+    const { auth, headers } = cascadeParentCollectionForHeaderAuth(
       picked.value.folderPath,
       "graphql"
     )
@@ -459,7 +459,7 @@ const saveRequestAs = async () => {
       workspaceType: "team",
     })
 
-    const { auth, headers } = cascaseParentCollectionForHeaderAuth(
+    const { auth, headers } = cascadeParentCollectionForHeaderAuth(
       `${picked.value.collectionIndex}`,
       "graphql"
     )

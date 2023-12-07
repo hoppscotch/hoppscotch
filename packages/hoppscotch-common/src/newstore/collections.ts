@@ -63,7 +63,7 @@ export function navigateToFolderWithIndexPath(
   return target !== undefined ? target : null
 }
 
-export function cascaseParentCollectionForHeaderAuth(
+export function cascadeParentCollectionForHeaderAuth(
   folderPath: string | undefined,
   type: "rest" | "graphql"
 ) {

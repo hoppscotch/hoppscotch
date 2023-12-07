@@ -1,6 +1,10 @@
 import * as E from "fp-ts/Either"
 import { BehaviorSubject, Subscription } from "rxjs"
-import { translateToNewRequest } from "@hoppscotch/data"
+import {
+  HoppRESTAuth,
+  HoppRESTHeader,
+  translateToNewRequest,
+} from "@hoppscotch/data"
 import { pull, remove } from "lodash-es"
 import { Subscription as WSubscription } from "wonka"
 import { runGQLQuery, runGQLSubscription } from "../backend/GQLClient"
@@ -21,6 +25,7 @@ import {
   TeamRequestOrderUpdatedDocument,
   TeamCollectionOrderUpdatedDocument,
 } from "~/helpers/backend/graphql"
+import { HoppInheritedProperty } from "../types/HoppInheritedProperties"
 
 const TEAMS_BACKEND_PAGE_SIZE = 10
 
@@ -542,6 +547,7 @@ export default class NewTeamCollectionAdapter {
         children: null,
         requests: null,
         title: title,
+        data: null,
       },
       parentID ?? null
     )
@@ -693,6 +699,7 @@ export default class NewTeamCollectionAdapter {
           children: null,
           requests: null,
           title: result.right.teamCollectionAdded.title,
+          data: null,
         },
         result.right.teamCollectionAdded.parent?.id ?? null
       )
@@ -715,6 +722,7 @@ export default class NewTeamCollectionAdapter {
       this.updateCollection({
         id: result.right.teamCollectionUpdated.id,
         title: result.right.teamCollectionUpdated.title,
+        data: result.right.teamCollectionUpdated.data,
       })
     })
 
@@ -931,6 +939,7 @@ export default class NewTeamCollectionAdapter {
             <TeamCollection>{
               id: el.id,
               title: el.title,
+              data: el.data,
               children: null,
               requests: null,
             }
@@ -1023,5 +1032,97 @@ export default class NewTeamCollectionAdapter {
         this.loadingCollections$.getValue().filter((x) => x !== collectionID)
       )
     }
+  }
+
+  public cascadeParentCollectionForHeaderAuth(folderPath: string) {
+    let auth: HoppInheritedProperty["auth"] = {
+      parentID: folderPath ?? "",
+      parentName: "",
+      inheritedAuth: {
+        authType: "none",
+        authActive: true,
+      },
+    }
+    const headers: HoppInheritedProperty["headers"] = []
+
+    if (!folderPath) return { auth, headers }
+
+    const path = folderPath.split("/")
+
+    // Check if the path is empty or invalid
+    if (!path || path.length === 0) {
+      console.error("Invalid path:", folderPath)
+      return { auth, headers }
+    }
+
+    // Loop through the path and get the last parent folder with authType other than 'inherit'
+    for (let i = 0; i < path.length; i++) {
+      const parentFolder = findCollInTree(this.collections$.value, path[i])
+
+      // Check if parentFolder is undefined or null
+      if (!parentFolder) {
+        console.error("Parent folder not found for path:", path)
+        return { auth, headers }
+      }
+
+      const data: {
+        auth?: HoppRESTAuth
+        headers?: HoppRESTHeader[]
+      } = parentFolder.data ? JSON.parse(parentFolder.data) : null
+      if (!data) return { auth, headers }
+
+      const parentFolderAuth = data.auth
+      const parentFolderHeaders = data.headers
+
+      const isRootCollection = path.length === 1
+      if (parentFolderAuth?.authType === "inherit" && isRootCollection) {
+        auth = {
+          parentID: parentFolder.id ?? folderPath,
+          parentName: parentFolder.title,
+          inheritedAuth: {
+            authType: "none",
+            authActive: true,
+          },
+        }
+      }
+
+      if (
+        parentFolderAuth?.authType !== "inherit" &&
+        parentFolderAuth?.authActive
+      ) {
+        auth = {
+          parentID: parentFolder.id ?? folderPath,
+          parentName: parentFolder.title,
+          inheritedAuth: parentFolderAuth,
+        }
+      }
+
+      // Update headers, overwriting duplicates by key
+      if (parentFolderHeaders) {
+        const activeHeaders = parentFolderHeaders.filter((h) => h.active)
+        activeHeaders.forEach((header) => {
+          const index = headers.findIndex(
+            (h) => h.inheritedHeader?.key === header.key
+          )
+          const currentPath = [...path.slice(0, i + 1)].join("/")
+          if (index !== -1) {
+            // Replace the existing header with the same key
+            headers[index] = {
+              parentID: currentPath,
+              parentName: parentFolder.title,
+              inheritedHeader: header,
+            }
+          } else {
+            headers.push({
+              parentID: currentPath,
+              parentName: parentFolder.title,
+              inheritedHeader: header,
+            })
+          }
+        })
+      }
+    }
+
+    return { auth, headers }
   }
 }

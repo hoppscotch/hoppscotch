@@ -113,16 +113,29 @@ export function updateSaveContextForAffectedRequests(
 export function updateInheritedPropertiesForAffectedRequests(
   path: string,
   inheritedProperties: HoppInheritedProperty,
-  type: "rest" | "graphql"
+  type: "rest" | "graphql",
+  workspace: "personal" | "team" = "personal"
 ) {
   const tabService =
     type === "rest" ? getService(RESTTabService) : getService(GQLTabService)
-  const tabs = tabService.getTabsRefTo((tab) => {
-    return (
-      tab.document.saveContext?.originLocation === "user-collection" &&
-      tab.document.saveContext.folderPath.startsWith(path)
-    )
-  })
+
+  let tabs
+
+  if (workspace === "personal") {
+    tabs = tabService.getTabsRefTo((tab) => {
+      return (
+        tab.document.saveContext?.originLocation === "user-collection" &&
+        tab.document.saveContext.folderPath.startsWith(path)
+      )
+    })
+  } else {
+    tabs = tabService.getTabsRefTo((tab) => {
+      return (
+        tab.document.saveContext?.originLocation === "team-collection" &&
+        tab.document.saveContext.collectionID?.startsWith(path)
+      )
+    })
+  }
 
   const tabsEffectedByAuth = tabs.filter((tab) => {
     return (

@@ -11,7 +11,9 @@
         'bg-accentContrast': isEmbedThemeLight,
       }"
     >
-      <span class="flex items-center min-w-0 border rounded border-divider">
+      <span
+        class="flex items-center flex-1 min-w-0 border rounded border-divider"
+      >
         <span
           class="flex max-w-[4rem] rounded-l h-full items-center justify-center border-r border-divider text-tiny"
           :class="{

@@ -306,9 +306,8 @@ const embedThemeIcon = computed(() => {
     return IconMonitor
   } else if (embedOptions.value.theme === "light") {
     return IconSun
-  } else {
-    return IconMoon
   }
+  return IconMoon
 })
 
 const removeEmbedOption = (option: EmbedTabs) => {
@@ -392,9 +391,8 @@ const copyButton = (
 
   if (type === "markdown") {
     return `[![Run in Hoppscotch](${baseURL}/${badge})](${baseURL}/r/${props.request?.id})`
-  } else {
-    return `<a href="${baseURL}/r/${props.request?.id}"><img src="${baseURL}/${badge}" alt="Run in Hoppscotch" /></a>`
   }
+  return `<a href="${baseURL}/r/${props.request?.id}"><img src="${baseURL}/${badge}" alt="Run in Hoppscotch" /></a>`
 }
 
 const copyLink = (variationID: string) => {
@@ -402,9 +400,8 @@ const copyLink = (variationID: string) => {
     return `${baseURL}/r/${props.request?.id}`
   } else if (variationID === "link2") {
     return `<a href="${baseURL}/r/${props.request?.id}">Run in Hoppscotch</a>`
-  } else {
-    return `[Run in Hoppscotch](${baseURL}/r/${props.request?.id})`
   }
+  return `[Run in Hoppscotch](${baseURL}/r/${props.request?.id})`
 }
 
 const copyContent = ({

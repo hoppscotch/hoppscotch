@@ -305,10 +305,9 @@ watch(isOnline, () => {
   if (!isOnline.value) {
     bannerID = banner.showBanner(offlineBanner)
     return
-  } else {
-    if (banner.content && bannerID) {
-      banner.removeBanner(bannerID)
-    }
+  }
+  if (banner.content && bannerID) {
+    banner.removeBanner(bannerID)
   }
 })
 

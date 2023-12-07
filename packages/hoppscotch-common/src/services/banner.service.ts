@@ -26,10 +26,9 @@ export type Banner = {
 const getBannerWithHighestScore = (list: Banner[]) => {
   if (list.length === 0) return null
   else if (list.length === 1) return list[0]
-  else {
-    const highestScore = Math.max(...list.map((banner) => banner.content.score))
-    return list.find((banner) => banner.content.score === highestScore)
-  }
+
+  const highestScore = Math.max(...list.map((banner) => banner.content.score))
+  return list.find((banner) => banner.content.score === highestScore)
 }
 
 /**

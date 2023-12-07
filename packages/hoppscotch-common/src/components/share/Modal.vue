@@ -29,17 +29,15 @@
         @copy-shared-request="copySharedRequest"
       />
     </template>
-
-    <template #footer>
+    <template v-if="step === 1" #footer>
       <div class="flex justify-start flex-1">
         <HoppButtonPrimary
-          v-if="step === 1"
           :label="t('action.create')"
           :loading="loading"
           @click="createSharedRequest"
         />
         <HoppButtonSecondary
-          :label="step === 1 ? t('action.cancel') : t('action.close')"
+          :label="t('action.cancel')"
           class="ml-2"
           filled
           outline

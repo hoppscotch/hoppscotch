@@ -1,17 +1,17 @@
 <template>
-  <div class="flex flex-1 flex-col">
+  <div class="flex flex-col flex-1">
     <header
-      class="flex flex-1 flex-shrink-0 items-center justify-between space-x-2 overflow-x-auto overflow-y-hidden px-2 py-2"
+      class="flex items-center justify-between flex-1 flex-shrink-0 px-2 py-2 space-x-2 overflow-x-auto overflow-y-hidden"
     >
-      <div class="flex flex-1 items-center justify-between space-x-2">
+      <div class="flex items-center justify-between flex-1 space-x-2">
         <HoppButtonSecondary
           class="!font-bold uppercase tracking-wide !text-secondaryDark hover:bg-primaryDark focus-visible:bg-primaryDark"
           :label="t('app.name')"
-          to="https://hoppscotch.io/"
+          to="https://hoppscotch.io"
           blank
         />
         <div class="flex">
-          <HoppSmartItem
+          <HoppButtonSecondary
             :label="t('app.open_in_hoppscotch')"
             :to="sharedRequestURL"
             blank
@@ -19,63 +19,57 @@
         </div>
       </div>
     </header>
-
-    <div class="flex-1">
+    <div class="sticky top-0 z-10 flex-1">
       <div
-        class="flex-none flex-shrink-0 bg-primary p-4 sm:flex sm:flex-shrink-0 sm:space-x-2"
+        class="flex-none flex-shrink-0 p-4 bg-primary sm:flex sm:flex-shrink-0 sm:space-x-2"
       >
         <div
-          class="min-w-52 flex flex-1 whitespace-nowrap rounded border border-divider"
+          class="flex flex-1 overflow-hidden border divide-x rounded text-secondaryDark divide-divider min-w-[12rem] overflow-x-auto border-divider"
         >
-          <div class="relative flex">
-            <span
-              class="flex justify-center items-center w-26 cursor-pointer rounded-l bg-primaryLight px-4 py-2 font-semibold text-secondaryDark transition"
-            >
-              {{ tab.document.request.method }}
-            </span>
-          </div>
-          <div
-            class="flex flex-1 whitespace-nowrap rounded-r border-l border-divider bg-primaryLight transition"
+          <span
+            class="flex items-center justify-center px-4 py-2 font-semibold transition rounded-l"
           >
-            <input
-              name="method"
-              :value="tab.document.request.endpoint"
-              class="flex-1 px-4 bg-primary"
-              disabled
-            />
+            {{ tab.document.request.method }}
+          </span>
+          <div
+            class="flex items-center flex-1 flex-shrink-0 min-w-0 px-4 py-2 truncate rounded-r"
+          >
+            {{ tab.document.request.endpoint }}
           </div>
         </div>
-        <div class="mt-2 flex sm:mt-0">
+        <div class="flex mt-2 space-x-2 sm:mt-0">
           <HoppButtonPrimary
             id="send"
             :title="`${t(
               'action.send'
             )} <kbd>${getSpecialKey()}</kbd><kbd>↩</kbd>`"
             :label="`${!loading ? t('action.send') : t('action.cancel')}`"
-            class="min-w-20 flex-1"
+            class="flex-1 min-w-20"
+            outline
             @click="!loading ? newSendRequest() : cancelRequest()"
           />
-          <HoppButtonSecondary
-            :title="`${t(
-              'request.save'
-            )} <kbd>${getSpecialKey()}</kbd><kbd>S</kbd>`"
-            :label="t('request.save')"
-            filled
-            :icon="IconSave"
-            class="flex-1 rounded rounded-r-none"
-            blank
-            :to="sharedRequestURL"
-          />
+          <div class="flex">
+            <HoppButtonSecondary
+              :title="`${t(
+                'request.save'
+              )} <kbd>${getSpecialKey()}</kbd><kbd>S</kbd>`"
+              :label="t('request.save')"
+              filled
+              :icon="IconSave"
+              class="flex-1 rounded"
+              blank
+              outline
+              :to="sharedRequestURL"
+            />
+          </div>
         </div>
       </div>
     </div>
-
     <HttpRequestOptions
       v-model="tab.document.request"
       v-model:option-tab="selectedOptionTab"
       :properties="properties"
     />
-
     <HttpResponse :document="tab.document" :is-embed="true" />
   </div>
 </template>

@@ -446,13 +446,12 @@ const resolveConfirmModal = (title: string | null) => {
 const getErrorMessage = (err: GQLError<string>) => {
   if (err.type === "network_error") {
     return t("error.network_error")
-  } else {
-    switch (err.error) {
-      case "shortcode/not_found":
-        return t("shared_request.not_found")
-      default:
-        return t("error.something_went_wrong")
-    }
+  }
+  switch (err.error) {
+    case "shortcode/not_found":
+      return t("shared_request.not_found")
+    default:
+      return t("error.something_went_wrong")
   }
 }
 

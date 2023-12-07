@@ -32,6 +32,9 @@
     "lint-staged": "12.4.0"
   },
   "pnpm": {
+    "overrides": {
+      "vue": "3.3.9"
+    },
     "packageExtensions": {
       "httpsnippet@^3.0.1": {
         "peerDependencies": {

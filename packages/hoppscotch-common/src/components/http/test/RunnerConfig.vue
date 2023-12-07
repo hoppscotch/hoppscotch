@@ -54,13 +54,17 @@
       <section>
         <h4 class="font-semibold text-secondaryDark">Run Configuration</h4>
         <div class="mt-4">
+          <!-- TODO: fix input component types -->
           <HoppSmartInput
-            :model-value="'1'"
+            v-model="(config.iterations as any)"
+            type="number"
             class="mb-4"
             :label="t('Iteration')"
             input-styles="floating-input"
           />
           <HoppSmartInput
+            v-model="(config.delay as any)"
+            type="number"
             :label="t('Delay')"
             class="!rounded-r-none !border-r-0"
             input-styles="floating-input !rounded-r-none !border-r-0"
@@ -80,11 +84,19 @@
         <span class="text-xs text-secondaryLight"> Advanced Settings </span>
 
         <div class="flex flex-col gap-4 mt-4 items-start">
-          <HoppSmartCheckbox class="pr-2">
+          <HoppSmartCheckbox
+            class="pr-2"
+            :on="config.stopOnError"
+            @change="config.stopOnError = !config.stopOnError"
+          >
             <span>Stop run if an error occurs</span>
           </HoppSmartCheckbox>
 
-          <HoppSmartCheckbox class="pr-2">
+          <HoppSmartCheckbox
+            class="pr-2"
+            :on="config.persistResponses"
+            @change="config.persistResponses = !config.persistResponses"
+          >
             <span>Persist responses</span>
             <HoppButtonSecondary
               class="!py-0 pl-2"
@@ -96,7 +108,11 @@
             />
           </HoppSmartCheckbox>
 
-          <HoppSmartCheckbox class="pr-2">
+          <HoppSmartCheckbox
+            class="pr-2"
+            :on="config.keepVariableValues"
+            @change="config.keepVariableValues = !config.keepVariableValues"
+          >
             <span>Keep variable values</span>
             <HoppButtonSecondary
               class="!py-0 pl-2"
@@ -130,15 +146,21 @@ import { toRef } from "vue"
 import { Ref } from "vue"
 import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
 import { computed } from "vue"
+import { TestRunnerConfig } from "./Runner.vue"
 
 const t = useI18n()
-const props = defineProps<{ modelValue: HoppTab<HoppTabDocument> }>()
+const props = defineProps<{
+  modelValue: HoppTab<HoppTabDocument>
+  config: TestRunnerConfig
+}>()
 
 const emit = defineEmits<{
   (e: "update:modelValue", val: HoppTab<HoppTabDocument>): void
+  (e: "update:config", val: TestRunnerConfig): void
 }>()
 
 const tab = useVModel(props, "modelValue", emit)
+const config = useVModel(props, "config", emit)
 
 const showCheckbox = ref(false)
 

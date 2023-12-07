@@ -136,33 +136,18 @@ export const validateEmail = (email: string) => {
  * @param url The URL to validate
  * @returns boolean
  */
-export const validateUrl = (url: string) => {
-  /**
-   * RegExps.
-   * A URL must match #1 and then at least one of #2/#3.
-   * Use two levels of REs to avoid REDOS.
-   */
-  const protocolAndDomainRE = /^(?:\w+:)?\/\/(\S+)$/;
-  const localhostDomainRE = /^localhost[\:?\d]*(?:[^\:?\d]\S*)?$/;
-  const nonLocalhostDomainRE = /^[^\s\.]+\.\S{2,}$/;
+export const validateSMTPUrl = (url: string) => {
+  // Possible valid formats
+  // smtp(s)://mail.example.com
+  // smtp(s)://user:pass@mail.example.com
+  // smtp(s)://mail.example.com:587
+  // smtp(s)://user:pass@mail.example.com:587
 
-  const match = url.match(protocolAndDomainRE);
-  if (!match) {
-    return false;
-  }
+  if (!url || url.length === 0) return false;
 
-  const everythingAfterProtocol = match[1];
-  if (!everythingAfterProtocol) {
-    return false;
-  }
-
-  if (
-    localhostDomainRE.test(everythingAfterProtocol) ||
-    nonLocalhostDomainRE.test(everythingAfterProtocol)
-  ) {
-    return true;
-  }
-
+  const regex =
+    /^(smtp|smtps):\/\/(?:([^:]+):([^@]+)@)?((?!\.)[^:]+)(?::(\d+))?$/;
+  if (regex.test(url)) return true;
   return false;
 };
 

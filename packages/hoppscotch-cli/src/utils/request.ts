@@ -310,7 +310,7 @@ export const processRequest =
  */
 export const preProcessRequest = (
   request: HoppRESTRequest,
-  collection: HoppCollection<HoppRESTRequest>,
+  collection: HoppCollection,
 ): HoppRESTRequest => {
   const tempRequest = Object.assign({}, request);
   const { headers: parentHeaders, auth: parentAuth } = collection;

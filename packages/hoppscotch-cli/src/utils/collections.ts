@@ -1,21 +1,23 @@
-import * as A from "fp-ts/Array";
-import { pipe } from "fp-ts/function";
+import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data";
 import { bold } from "chalk";
 import { log } from "console";
+import * as A from "fp-ts/Array";
+import { pipe } from "fp-ts/function";
 import round from "lodash/round";
-import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data";
+
+import { CollectionRunnerParam } from "../types/collections";
 import {
-  HoppEnvs,
   CollectionStack,
-  RequestReport,
+  HoppEnvs,
   ProcessRequestParams,
+  RequestReport,
 } from "../types/request";
 import {
-  getRequestMetrics,
-  preProcessRequest,
-  processRequest,
-} from "./request";
-import { exceptionColors } from "./getters";
+  PreRequestMetrics,
+  RequestMetrics,
+  TestMetrics,
+} from "../types/response";
+import { DEFAULT_DURATION_PRECISION } from "./constants";
 import {
   printErrorsReport,
   printFailedTestsReport,
@@ -23,15 +25,14 @@ import {
   printRequestsMetrics,
   printTestsMetrics,
 } from "./display";
-import {
-  PreRequestMetrics,
-  RequestMetrics,
-  TestMetrics,
-} from "../types/response";
-import { getTestMetrics } from "./test";
-import { DEFAULT_DURATION_PRECISION } from "./constants";
+import { exceptionColors } from "./getters";
 import { getPreRequestMetrics } from "./pre-request";
-import { CollectionRunnerParam } from "../types/collections";
+import {
+  getRequestMetrics,
+  preProcessRequest,
+  processRequest,
+} from "./request";
+import { getTestMetrics } from "./test";
 
 const { WARN, FAIL } = exceptionColors;
 
@@ -84,7 +85,7 @@ export const collectionsRunner = async (
 
       // Pushing remaining folders realted collection to stack.
       for (const folder of collection.folders) {
-        const updatedFolder = { ...folder }
+        const updatedFolder: HoppCollection = { ...folder }
 
         if (updatedFolder.auth?.authType === "inherit") {
           updatedFolder.auth = collection.auth;

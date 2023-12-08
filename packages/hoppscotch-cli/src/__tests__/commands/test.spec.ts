@@ -71,6 +71,13 @@ describe("Test 'hopp test <file>' command:", () => {
 
     expect(error).toBeNull();
   });
+
+  test("Supports inheriting headers and authorization set at the root collection", async () => {
+    const cmd = `node ./bin/hopp test ${getTestJsonFilePath("collection-level-headers-auth.json")}`;
+    const { error } = await execAsync(cmd);
+
+    expect(error).toBeNull();
+  })
 });
 
 describe("Test 'hopp test <file> --env <file>' command:", () => {

@@ -20,43 +20,51 @@
     <div class="py-8">
       <HoppSmartTabs v-model="selectedOptionTab" render-inactive-tabs>
         <HoppSmartTab :id="'config'" :label="t('configs.title')">
-          <SettingsConfig v-model:config="workingConfigs" class="py-8 px-4" />
+          <SettingsConfigurations
+            v-model:config="workingConfigs"
+            class="py-8 px-4"
+          />
         </HoppSmartTab>
       </HoppSmartTabs>
     </div>
   </div>
 
-  <div v-if="diff" class="fixed bottom-0 right-0 m-10">
+  <div v-if="isConfigUpdated" class="fixed bottom-0 right-0 m-10">
     <HoppButtonPrimary
       :label="t('configs.save_changes')"
-      @click="changes = !changes"
+      @click="showSaveChangesModal = !showSaveChangesModal"
     />
   </div>
 
-  <SettingsRestartServer v-if="restart" :workingConfigs="workingConfigs" />
+  <SettingsServerRestart
+    v-if="initiateServerRestart"
+    :workingConfigs="workingConfigs"
+  />
 
   <HoppSmartConfirmModal
-    :show="changes"
-    title="Confirm Changes?"
-    @hide-modal="changes = false"
-    @resolve="restart = true"
+    :show="showSaveChangesModal"
+    :title="t('configs.confirm_changes')"
+    @hide-modal="showSaveChangesModal = false"
+    @resolve="initiateServerRestart = true"
   />
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { ref, computed } from 'vue';
+import { isEqual } from 'lodash-es';
 import { useI18n } from '~/composables/i18n';
 import { useConfigHandler } from '~/composables/useConfigHandler';
-import { isEqual } from 'lodash-es';
 
 const t = useI18n();
 
-const changes = ref(false);
-const restart = ref(false);
+const showSaveChangesModal = ref(false);
+const initiateServerRestart = ref(false);
 
+// Tabs
 type OptionTabs = 'config';
 const selectedOptionTab = ref<OptionTabs>('config');
 
+// Obtain the current and working configs from the useConfigHandler composable
 const {
   currentConfigs,
   workingConfigs,
@@ -66,11 +74,10 @@ const {
   allowedAuthProvidersError,
 } = useConfigHandler();
 
-const diff = computed(() => {
-  if (currentConfigs.value && workingConfigs.value) {
-    return !isEqual(currentConfigs.value, workingConfigs.value);
-  } else {
-    return true;
-  }
-});
+// Check if the configs have been updated
+const isConfigUpdated = computed(() =>
+  currentConfigs.value && workingConfigs.value
+    ? !isEqual(currentConfigs.value, workingConfigs.value)
+    : false
+);
 </script>

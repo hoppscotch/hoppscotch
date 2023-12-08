@@ -1,5 +1,9 @@
+import { computed, onMounted, ref } from 'vue';
+import { cloneDeep } from 'lodash-es';
+import { UseMutationResponse } from '@urql/vue';
 import { useClientHandler } from './useClientHandler';
-import { ref, onMounted, computed } from 'vue';
+import { useToast } from './toast';
+import { useI18n } from '~/composables/i18n';
 import {
   InfraConfigEnum,
   InfraConfigsDocument,
@@ -7,18 +11,11 @@ import {
   EnableAndDisableSsoMutation,
   UpdateInfraConfigsMutation,
   ResetInfraConfigsMutation,
-} from '~/helpers/backend/graphql';
-import { cloneDeep } from 'lodash-es';
-import { useToast } from './toast';
-import {
   EnableAndDisableSsoArgs,
   InfraConfigArgs,
 } from '~/helpers/backend/graphql';
-import { UseMutationResponse } from '@urql/vue';
-import { useI18n } from '~/composables/i18n';
 
-const toast = useToast();
-
+// Types
 export type SsoAuthProviders = 'google' | 'microsoft' | 'github';
 
 export type Configs = {
@@ -64,9 +61,14 @@ type UpdatedConfigs = {
   value: string;
 };
 
+/** Composable that handles all operations related to server configurations
+ * @param updatedConfigs A Config Object contatining the updated configs
+ */
 export function useConfigHandler(updatedConfigs?: Configs) {
   const t = useI18n();
+  const toast = useToast();
 
+  // Fetching infra configurations
   const {
     fetching: fetchingInfraConfigs,
     error: infraConfigsError,
@@ -85,6 +87,7 @@ export function useConfigHandler(updatedConfigs?: Configs) {
     ] as InfraConfigEnum[],
   });
 
+  // Fetching allowed auth providers
   const {
     fetching: fetchingAllowedAuthProviders,
     error: allowedAuthProvidersError,
@@ -96,6 +99,7 @@ export function useConfigHandler(updatedConfigs?: Configs) {
     {}
   );
 
+  // Current and working configs
   const currentConfigs = ref<Configs>();
   const workingConfigs = ref<Configs>();
 
@@ -103,6 +107,7 @@ export function useConfigHandler(updatedConfigs?: Configs) {
     await fetchInfraConfigs();
     await fetchAllowedAuthProviders();
 
+    // Transforming the fetched data into a Configs object
     currentConfigs.value = {
       providers: {
         google: {
@@ -157,9 +162,12 @@ export function useConfigHandler(updatedConfigs?: Configs) {
       },
     };
 
+    // Cloning the current configs to working configs
+    // Changes are made only to working configs
     workingConfigs.value = cloneDeep(currentConfigs.value);
   });
 
+  // Trasforming the working configs back into the format required by the mutations
   const updatedInfraConfigs = computed(() => {
     let config: UpdatedConfigs[] = [
       {
@@ -247,6 +255,7 @@ export function useConfigHandler(updatedConfigs?: Configs) {
     return config;
   });
 
+  // Trasforming the working configs back into the format required by the mutations
   const updatedAllowedAuthProviders = computed(() => {
     return [
       {
@@ -270,6 +279,7 @@ export function useConfigHandler(updatedConfigs?: Configs) {
     ];
   });
 
+  // Updating the auth provider configurations
   const updateAuthProvider = async (
     updateProviderStatus: UseMutationResponse<EnableAndDisableSsoMutation>
   ) => {
@@ -284,6 +294,7 @@ export function useConfigHandler(updatedConfigs?: Configs) {
     }
   };
 
+  // Updating the infra configurations
   const updateInfraConfigs = async (
     updateInfraConfigsMutation: UseMutationResponse<UpdateInfraConfigsMutation>
   ) => {
@@ -298,6 +309,7 @@ export function useConfigHandler(updatedConfigs?: Configs) {
     }
   };
 
+  // Resetting the infra configurations
   const resetInfraConfigs = async (
     resetInfraConfigsMutation: UseMutationResponse<ResetInfraConfigsMutation>
   ) => {

@@ -2,6 +2,12 @@ import { TypedDocumentNode, useClientHandle } from '@urql/vue';
 import { DocumentNode } from 'graphql';
 import { ref } from 'vue';
 
+/** A composable function to handle grapqhl requests
+ * using urql's useClientHandle
+ * @param query The query to be executed
+ * @param getList A function to get the list from the result
+ * @param variables The variables to be passed to the query
+ */
 export function useClientHandler<
   Result,
   Vars extends Record<string, any>,

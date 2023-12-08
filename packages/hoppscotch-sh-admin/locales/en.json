@@ -7,35 +7,36 @@
     "open_navigation": "Open Navigation"
   },
   "configs": {
-    "enable_auth_provider": "Enable {provider} as Auth Provider",
-    "load_error": "Unable to load server configurations",
-    "title": "Configs",
-    "save_changes": "Save Changes",
     "auth_providers": {
-      "title": "Auth Providers",
-      "description": "Configure authentication providers for your server",
       "client_id": "CLIENT ID",
       "client_secret": "CLIENT SECRET",
+      "description": "Configure authentication providers for your server",
+      "title": "Auth Providers",
       "update_failure": "Failed to update auth provider configurations!!"
     },
+    "confirm_changes": "Confirm changes made to the server configurations?",
+    "enable_auth_provider": "Enable {provider} as Auth Provider",
+    "load_error": "Unable to load server configurations",
     "mail_configs": {
-      "title": "SMTP Configs",
       "description": " Configure the smtp configurations",
       "enable": "Enable Email for Authentication",
       "smtp_url": "MAILER SMTP URL",
       "address_from": "MAILER ADDRESS FROM",
+      "title": "SMTP Configs",
       "update_failure": "Failed to update smtp configurations!!"
     },
     "reset": {
-      "title": "Reset Configurations",
-      "description": "Reset the server configurations",
       "confirm_reset": "Confirm Reset?",
-      "failure": "Failed to reset configurations!!"
+      "description": "Reset all configurations to default",
+      "failure": "Failed to reset configurations!!",
+      "title": "Reset Configurations"
     },
     "restart": {
-      "description": "Server is restarting in {count} seconds. Please wait...",
+      "description": "Server is restarting in {duration} seconds. Please wait...",
       "initiate": "Initiating server restart..."
-    }
+    },
+    "save_changes": "Save Changes",
+    "title": "Configs"
   },
   "metrics": {
     "dashboard": "Dashboard",
@@ -49,6 +50,9 @@
     "editor": "EDITOR",
     "owner": "OWNER",
     "viewer": "VIEWER"
+  },
+  "settings": {
+    "settings": "Settings"
   },
   "shared_requests": {
     "clear_filter": "Clear Filter",
@@ -128,9 +132,6 @@
     "sign_out": "sign out",
     "team_name_long": "Team name should be atleast 6 characters long!!",
     "user_not_found": "User not found in the infra!!"
-  },
-  "settings": {
-    "settings": "Settings",
   },
   "teams": {
     "add_members": "Add Members",

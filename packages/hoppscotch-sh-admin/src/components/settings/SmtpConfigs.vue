@@ -72,12 +72,12 @@
 </template>
 
 <script setup lang="ts">
+import { computed, reactive } from 'vue';
+import { useVModel } from '@vueuse/core';
 import { useI18n } from '~/composables/i18n';
+import { Configs } from '~/composables/useConfigHandler';
 import IconEye from '~icons/lucide/eye';
 import IconEyeOff from '~icons/lucide/eye-off';
-import { useVModel } from '@vueuse/core';
-import { Configs } from '~/composables/useConfigHandler';
-import { reactive, computed } from 'vue';
 
 const t = useI18n();
 
@@ -91,6 +91,7 @@ const emit = defineEmits<{
 
 const workingConfigs = useVModel(props, 'config', emit);
 
+// Extract mail configs from working configs
 const mailConfigs = computed({
   get() {
     return workingConfigs.value?.mailConfigs;
@@ -100,21 +101,19 @@ const mailConfigs = computed({
   },
 });
 
+// Mask fields of mail configs
 const maskFields = reactive({
-  email: {
-    mailer_smtp_url: true,
-    mailer_address_from: true,
-  },
+  mailer_smtp_url: true,
+  mailer_address_from: true,
 });
 
-const isMailerSmtpUrlMasked = computed(() => maskFields.email.mailer_smtp_url);
+const isMailerSmtpUrlMasked = computed(() => maskFields.mailer_smtp_url);
 const isMailerAddressFromMasked = computed(
-  () => maskFields.email.mailer_address_from
+  () => maskFields.mailer_address_from
 );
 
 const toggleSMTPUrlMask = () =>
-  (maskFields.email.mailer_smtp_url = !maskFields.email.mailer_smtp_url);
+  (maskFields.mailer_smtp_url = !maskFields.mailer_smtp_url);
 const toggleMailerAddressFromMask = () =>
-  (maskFields.email.mailer_address_from =
-    !maskFields.email.mailer_address_from);
+  (maskFields.mailer_address_from = !maskFields.mailer_address_from);
 </script>

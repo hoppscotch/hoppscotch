@@ -27,9 +27,7 @@
             >
               {{
                 t('configs.enable_auth_provider', {
-                  provider:
-                    provider.name.charAt(0).toUpperCase() +
-                    provider.name.slice(1),
+                  provider: capitalize(provider.name),
                 })
               }}
             </HoppSmartToggle>
@@ -87,12 +85,12 @@
 </template>
 
 <script setup lang="ts">
+import { reactive } from 'vue';
+import { useVModel } from '@vueuse/core';
 import { useI18n } from '~/composables/i18n';
+import { SsoAuthProviders, Configs } from '~/composables/useConfigHandler';
 import IconEye from '~icons/lucide/eye';
 import IconEyeOff from '~icons/lucide/eye-off';
-import { useVModel } from '@vueuse/core';
-import { SsoAuthProviders, Configs } from '~/composables/useConfigHandler';
-import { reactive } from 'vue';
 
 const t = useI18n();
 
@@ -106,8 +104,12 @@ const emit = defineEmits<{
 
 const workingConfigs = useVModel(props, 'config', emit);
 
+// Capitalize first letter of a string
+const capitalize = (text: string) =>
+  text.charAt(0).toUpperCase() + text.slice(1);
+
 // Masking Client ID and Client Secret of Auth Providers
-type MaskInputFields = 'client_id' | 'client_secret';
+type ProviderFields = 'client_id' | 'client_secret';
 
 const maskFields = reactive({
   google: {
@@ -129,7 +131,7 @@ const isclientIDMasked = (provider: SsoAuthProviders) =>
 const isClientSecretMasked = (provider: SsoAuthProviders) =>
   maskFields[provider].client_secret;
 
-const toggleMask = (provider: SsoAuthProviders, field: MaskInputFields) =>
+const toggleMask = (provider: SsoAuthProviders, field: ProviderFields) =>
   (maskFields[provider][field] = !maskFields[provider][field]);
 
 const maskClientID = (provider: SsoAuthProviders) =>

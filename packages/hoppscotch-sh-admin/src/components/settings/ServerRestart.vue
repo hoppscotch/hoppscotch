@@ -1,27 +1,25 @@
 <template>
   <HoppSmartModal :dimissible="false" title="Server Restart">
     <template #body>
-      {{ t('configs.restart.description', { count: count }) }}
+      {{ t('configs.restart.description', { duration }) }}
     </template>
   </HoppSmartModal>
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { ref, onMounted } from 'vue';
+import { useMutation } from '@urql/vue';
 import { useToast } from '~/composables/toast';
 import { useI18n } from '~/composables/i18n';
-import { Configs, useConfigHandler } from '~/composables/useConfigHandler';
+import { useConfigHandler, Configs } from '~/composables/useConfigHandler';
 import {
   EnableAndDisableSsoDocument,
   UpdateInfraConfigsDocument,
   ResetInfraConfigsDocument,
 } from '~/helpers/backend/graphql';
-import { useMutation } from '@urql/vue';
 
 const t = useI18n();
 const toast = useToast();
-
-const count = ref(8);
 
 const props = withDefaults(
   defineProps<{
@@ -35,14 +33,19 @@ const props = withDefaults(
   }
 );
 
+// Mutations to update or reset server configurations
+const resetInfraConfigsMutation = useMutation(ResetInfraConfigsDocument);
 const updateInfraConfigsMutation = useMutation(UpdateInfraConfigsDocument);
 const updateAllowedAuthProviderMutation = useMutation(
   EnableAndDisableSsoDocument
 );
-const resetInfraConfigsMutation = useMutation(ResetInfraConfigsDocument);
 
+// Mutation handlers`
 const { updateInfraConfigs, updateAuthProvider, resetInfraConfigs } =
   useConfigHandler(props.workingConfigs);
+
+// Call relevant mutations on component mount and initiate server restart
+const duration = ref(8);
 
 onMounted(async () => {
   if (props.reset) {
@@ -52,8 +55,8 @@ onMounted(async () => {
     await updateInfraConfigs(updateInfraConfigsMutation);
   }
   const timer = setInterval(() => {
-    count.value--;
-    if (count.value === 0) {
+    duration.value--;
+    if (duration.value === 0) {
       clearInterval(timer);
       toast.success(t('configs.restart.initiate'));
       window.location.reload();

@@ -29,6 +29,7 @@ import { AuthUser, IsAdmin } from 'src/types/AuthUser';
 import { VerificationToken } from '@prisma/client';
 import { Origin } from './helper';
 import { ConfigService } from '@nestjs/config';
+import { InfraConfigService } from 'src/infra-config/infra-config.service';
 
 @Injectable()
 export class AuthService {
@@ -38,6 +39,7 @@ export class AuthService {
     private jwtService: JwtService,
     private readonly mailerService: MailerService,
     private readonly configService: ConfigService,
+    private infraConfigService: InfraConfigService,
   ) {}
 
   /**
@@ -380,5 +382,9 @@ export class AuthService {
     }
 
     return E.right(<IsAdmin>{ isAdmin: false });
+  }
+
+  getAuthProviders() {
+    return this.infraConfigService.getAllowedAuthProviders();
   }
 }

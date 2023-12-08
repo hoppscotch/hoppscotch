@@ -260,6 +260,7 @@ export class InfraResolver {
   @Query(() => [String], {
     description: 'Allowed Auth Provider list',
   })
+  @UseGuards(GqlAuthGuard, GqlAdminGuard)
   allowedAuthProviders() {
     return this.infraConfigService.getAllowedAuthProviders();
   }

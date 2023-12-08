@@ -40,6 +40,12 @@ export class AuthController {
     private configService: ConfigService,
   ) {}
 
+  @Get('providers')
+  async getAuthProviders() {
+    const providers = await this.authService.getAuthProviders();
+    return { providers };
+  }
+
   /**
    ** Route to initiate magic-link auth for a users email
    */

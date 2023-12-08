@@ -13,6 +13,7 @@ import { MicrosoftStrategy } from './strategies/microsoft.strategy';
 import { AuthProvider, authProviderCheck } from './helper';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { loadInfraConfiguration } from 'src/infra-config/helper';
+import { InfraConfigModule } from 'src/infra-config/infra-config.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { loadInfraConfiguration } from 'src/infra-config/helper';
         secret: configService.get('JWT_SECRET'),
       }),
     }),
+    InfraConfigModule,
   ],
   providers: [AuthService, JwtStrategy, RTJwtStrategy],
   controllers: [AuthController],

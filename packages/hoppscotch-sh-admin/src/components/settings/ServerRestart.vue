@@ -47,7 +47,7 @@ const { updateInfraConfigs, updateAuthProvider, resetInfraConfigs } =
   useConfigHandler(props.workingConfigs);
 
 // Call relevant mutations on component mount and initiate server restart
-const duration = ref(8);
+const duration = ref(30);
 
 onMounted(async () => {
   if (props.reset) {

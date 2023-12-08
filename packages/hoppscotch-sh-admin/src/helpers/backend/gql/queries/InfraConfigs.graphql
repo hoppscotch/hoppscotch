@@ -1,5 +1,5 @@
-query InfraConfigs($names: [InfraConfigEnum!]!) {
-  infraConfigs(names: $names) {
+query InfraConfigs($configNames: [InfraConfigEnum!]!) {
+  infraConfigs(configNames: $configNames) {
     name
     value
   }

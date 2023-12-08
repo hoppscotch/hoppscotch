@@ -64,7 +64,7 @@ type UpdatedConfigs = {
 /** Composable that handles all operations related to server configurations
  * @param updatedConfigs A Config Object contatining the updated configs
  */
-export function useConfigHandler(updatedConfigs?: Configs) {
+export function useConfigHandler(updatedConfigs?: Config) {
   const t = useI18n();
   const toast = useToast();
 
@@ -75,7 +75,7 @@ export function useConfigHandler(updatedConfigs?: Configs) {
     list: infraConfigs,
     fetchList: fetchInfraConfigs,
   } = useClientHandler(InfraConfigsDocument, (x) => x.infraConfigs, {
-    names: [
+    configNames: [
       'GOOGLE_CLIENT_ID',
       'GOOGLE_CLIENT_SECRET',
       'MICROSOFT_CLIENT_ID',
@@ -284,7 +284,8 @@ export function useConfigHandler(updatedConfigs?: Configs) {
     updateProviderStatus: UseMutationResponse<EnableAndDisableSsoMutation>
   ) => {
     const variables = {
-      data: updatedAllowedAuthProviders.value as EnableAndDisableSsoArgs[],
+      providerInfo:
+        updatedAllowedAuthProviders.value as EnableAndDisableSsoArgs[],
     };
 
     const result = await updateProviderStatus.executeMutation(variables);

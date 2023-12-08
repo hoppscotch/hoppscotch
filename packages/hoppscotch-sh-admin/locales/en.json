@@ -11,32 +11,33 @@
       "client_id": "CLIENT ID",
       "client_secret": "CLIENT SECRET",
       "description": "Configure authentication providers for your server",
-      "title": "Auth Providers",
-      "update_failure": "Failed to update auth provider configurations!!"
+      "title": "Authentication Providers",
+      "update_failure": "Failed to update authentication provider configurations!!"
     },
-    "confirm_changes": "Confirm changes made to the server configurations?",
-    "enable_auth_provider": "Enable {provider} as Auth Provider",
+    "confirm_changes": "Hoppscotch server must restart to reflect the new changes. Confirm changes made to the server configurations?",
     "load_error": "Unable to load server configurations",
     "mail_configs": {
       "description": " Configure the smtp configurations",
-      "enable": "Enable Email for Authentication",
+      "enable": "Email based authentication",
       "smtp_url": "MAILER SMTP URL",
-      "address_from": "MAILER ADDRESS FROM",
-      "title": "SMTP Configs",
+      "address_from": "MAILER FROM ADDRESS",
+      "title": "SMTP Configurations",
       "update_failure": "Failed to update smtp configurations!!"
     },
     "reset": {
-      "confirm_reset": "Confirm Reset?",
-      "description": "Reset all configurations to default",
+      "confirm_reset": "Hoppscotch server must restart to reflect the new changes. Confirm the reset of server configurations?",
+      "description": "Default configurations will be loaded as specified in the environment file",
       "failure": "Failed to reset configurations!!",
-      "title": "Reset Configurations"
+      "title": "Reset Configurations",
+      "info": "Reset server configurations"
     },
     "restart": {
-      "description": "Server is restarting in {duration} seconds. Please wait...",
-      "initiate": "Initiating server restart..."
+      "description": "{duration} seconds remaining before this page reloads automatically",
+      "initiate": "Initiating server restart...",
+      "title": "Server is restarting"
     },
     "save_changes": "Save Changes",
-    "title": "Configs"
+    "title": "Configurations"
   },
   "metrics": {
     "dashboard": "Dashboard",
@@ -100,6 +101,7 @@
     "email_success": "Email invitation sent successfully",
     "enter_team_email": "Please enter email of team owner!!",
     "error": "Something went wrong",
+    "error_auth_providers": "Unable to load auth providers",
     "github_signin_failure": "Failed to login with Github",
     "google_signin_failure": "Failed to login with Google",
     "invalid_email": "Please enter a valid email address",

@@ -18,7 +18,7 @@ import {
 // Types
 export type SsoAuthProviders = 'google' | 'microsoft' | 'github';
 
-export type Configs = {
+export type Config = {
   providers: {
     google: {
       name: SsoAuthProviders;
@@ -51,7 +51,7 @@ export type Configs = {
     enabled: boolean;
     fields: {
       mailer_smtp_url: string;
-      mailer_address_from: string;
+      mailer_from_address: string;
     };
   };
 };
@@ -100,8 +100,8 @@ export function useConfigHandler(updatedConfigs?: Configs) {
   );
 
   // Current and working configs
-  const currentConfigs = ref<Configs>();
-  const workingConfigs = ref<Configs>();
+  const currentConfigs = ref<Config>();
+  const workingConfigs = ref<Config>();
 
   onMounted(async () => {
     await fetchInfraConfigs();
@@ -155,7 +155,7 @@ export function useConfigHandler(updatedConfigs?: Configs) {
           mailer_smtp_url:
             infraConfigs.value.find((x) => x.name === 'MAILER_SMTP_URL')
               ?.value ?? '',
-          mailer_address_from:
+          mailer_from_address:
             infraConfigs.value.find((x) => x.name === 'MAILER_ADDRESS_FROM')
               ?.value ?? '',
         },
@@ -240,7 +240,7 @@ export function useConfigHandler(updatedConfigs?: Configs) {
         },
         {
           name: 'MAILER_ADDRESS_FROM',
-          value: updatedConfigs?.mailConfigs.fields.mailer_address_from ?? '',
+          value: updatedConfigs?.mailConfigs.fields.mailer_from_address ?? '',
         }
       );
     } else {

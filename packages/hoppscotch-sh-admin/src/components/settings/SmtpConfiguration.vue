@@ -1,6 +1,6 @@
 <template>
   <div
-    v-if="mailConfigs"
+    v-if="smtpConfigs"
     class="md:grid md:grid-cols-3 md:gap-4 border-divider border-b"
   >
     <div class="p-8 px-8 md:col-span-1">
@@ -19,19 +19,19 @@
         <div class="space-y-4 py-4">
           <div class="flex items-center">
             <HoppSmartToggle
-              :on="mailConfigs.enabled"
-              @change="mailConfigs.enabled = !mailConfigs.enabled"
+              :on="smtpConfigs.enabled"
+              @change="smtpConfigs.enabled = !smtpConfigs.enabled"
             >
               {{ t('configs.mail_configs.enable') }}
             </HoppSmartToggle>
           </div>
 
-          <div v-if="mailConfigs.enabled" class="ml-12">
+          <div v-if="smtpConfigs.enabled" class="ml-12">
             <div>
               <label> {{ t('configs.mail_configs.smtp_url') }} </label>
               <span class="flex">
                 <HoppSmartInput
-                  v-model="mailConfigs.fields.mailer_smtp_url"
+                  v-model="smtpConfigs.fields.mailer_smtp_url"
                   :type="isMailerSmtpUrlMasked ? 'password' : 'text'"
                   :disabled="isMailerSmtpUrlMasked"
                   :autofocus="false"
@@ -51,16 +51,16 @@
               </label>
               <span class="flex">
                 <HoppSmartInput
-                  v-model="mailConfigs.fields.mailer_address_from"
-                  :type="isMailerAddressFromMasked ? 'password' : 'text'"
-                  :disabled="isMailerAddressFromMasked"
+                  v-model="smtpConfigs.fields.mailer_from_address"
+                  :type="isMailerFromAddressMasked ? 'password' : 'text'"
+                  :disabled="isMailerFromAddressMasked"
                   :autofocus="false"
                   class="!my-2 !bg-primaryLight"
                 />
                 <HoppButtonSecondary
-                  :icon="isMailerAddressFromMasked ? IconEye : IconEyeOff"
+                  :icon="isMailerFromAddressMasked ? IconEye : IconEyeOff"
                   class="bg-primaryLight h-9 mt-2"
-                  @click="toggleMailerAddressFromMask"
+                  @click="toggleMailerFromAddressMask"
                 />
               </span>
             </div>
@@ -75,24 +75,24 @@
 import { computed, reactive } from 'vue';
 import { useVModel } from '@vueuse/core';
 import { useI18n } from '~/composables/i18n';
-import { Configs } from '~/composables/useConfigHandler';
+import { Config } from '~/composables/useConfigHandler';
 import IconEye from '~icons/lucide/eye';
 import IconEyeOff from '~icons/lucide/eye-off';
 
 const t = useI18n();
 
 const props = defineProps<{
-  config: Configs;
+  config: Config;
 }>();
 
 const emit = defineEmits<{
-  (e: 'update:config', v: Configs): void;
+  (e: 'update:config', v: Config): void;
 }>();
 
 const workingConfigs = useVModel(props, 'config', emit);
 
 // Extract mail configs from working configs
-const mailConfigs = computed({
+const smtpConfigs = computed({
   get() {
     return workingConfigs.value?.mailConfigs;
   },
@@ -104,16 +104,16 @@ const mailConfigs = computed({
 // Mask fields of mail configs
 const maskFields = reactive({
   mailer_smtp_url: true,
-  mailer_address_from: true,
+  mailer_from_address: true,
 });
 
 const isMailerSmtpUrlMasked = computed(() => maskFields.mailer_smtp_url);
-const isMailerAddressFromMasked = computed(
-  () => maskFields.mailer_address_from
+const isMailerFromAddressMasked = computed(
+  () => maskFields.mailer_from_address
 );
 
 const toggleSMTPUrlMask = () =>
   (maskFields.mailer_smtp_url = !maskFields.mailer_smtp_url);
-const toggleMailerAddressFromMask = () =>
-  (maskFields.mailer_address_from = !maskFields.mailer_address_from);
+const toggleMailerFromAddressMask = () =>
+  (maskFields.mailer_from_address = !maskFields.mailer_from_address);
 </script>

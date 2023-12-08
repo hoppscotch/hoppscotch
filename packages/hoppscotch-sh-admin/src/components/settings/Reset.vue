@@ -9,7 +9,7 @@
     <div class="space-y-8 p-8 md:col-span-2">
       <section>
         <h4 class="font-semibold text-secondaryDark">
-          {{ t('configs.reset.description') }}
+          {{ t('configs.reset.info') }}
         </h4>
         <div class="space-y-4 py-4">
           <div>

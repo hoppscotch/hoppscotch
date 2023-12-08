@@ -25,11 +25,7 @@
               :on="provider.enabled"
               @change="provider.enabled = !provider.enabled"
             >
-              {{
-                t('configs.enable_auth_provider', {
-                  provider: capitalize(provider.name),
-                })
-              }}
+              {{ capitalize(provider.name) }}
             </HoppSmartToggle>
           </div>
 
@@ -88,18 +84,18 @@
 import { reactive } from 'vue';
 import { useVModel } from '@vueuse/core';
 import { useI18n } from '~/composables/i18n';
-import { SsoAuthProviders, Configs } from '~/composables/useConfigHandler';
+import { SsoAuthProviders, Config } from '~/composables/useConfigHandler';
 import IconEye from '~icons/lucide/eye';
 import IconEyeOff from '~icons/lucide/eye-off';
 
 const t = useI18n();
 
 const props = defineProps<{
-  config: Configs;
+  config: Config;
 }>();
 
 const emit = defineEmits<{
-  (e: 'update:config', v: Configs): void;
+  (e: 'update:config', v: Config): void;
 }>();
 
 const workingConfigs = useVModel(props, 'config', emit);

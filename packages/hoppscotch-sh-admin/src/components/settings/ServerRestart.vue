@@ -1,7 +1,9 @@
 <template>
-  <HoppSmartModal :dimissible="false" title="Server Restart">
+  <HoppSmartModal :dimissible="false" :title="t('configs.restart.title')">
     <template #body>
-      {{ t('configs.restart.description', { duration }) }}
+      <div class="text-center">
+        {{ t('configs.restart.description', { duration }) }}
+      </div>
     </template>
   </HoppSmartModal>
 </template>
@@ -11,7 +13,7 @@ import { ref, onMounted } from 'vue';
 import { useMutation } from '@urql/vue';
 import { useToast } from '~/composables/toast';
 import { useI18n } from '~/composables/i18n';
-import { useConfigHandler, Configs } from '~/composables/useConfigHandler';
+import { useConfigHandler, Config } from '~/composables/useConfigHandler';
 import {
   EnableAndDisableSsoDocument,
   UpdateInfraConfigsDocument,
@@ -24,7 +26,7 @@ const toast = useToast();
 const props = withDefaults(
   defineProps<{
     loadingState: boolean;
-    workingConfigs?: Configs;
+    workingConfigs?: Config;
     reset?: boolean;
   }>(),
   {

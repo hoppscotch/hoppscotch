@@ -18,7 +18,7 @@
             :is-collection-property="true"
             @change-tab="changeOptionTab"
           />
-          <div class="bg-bannerInfo py-2 px-4 flex items-center">
+          <div class="bg-bannerInfo p-2 flex items-center">
             <icon-lucide-info class="svg-icons mr-2" />
             {{ t("helpers.collection_properties_header") }}
             <a href="hopp.sh" target="_blank" class="underline">{{
@@ -36,7 +36,7 @@
             :is-root-collection="editingProperties?.isRootCollection"
             :inherited-properties="editingProperties?.inheritedProperties"
           />
-          <div class="bg-bannerInfo py-2 px-4 flex items-center">
+          <div class="bg-bannerInfo p-2 flex items-center">
             <icon-lucide-info class="svg-icons mr-2" />
             {{ t("helpers.collection_properties_authorization") }}
             <a href="hopp.sh" target="_blank" class="underline">{{

@@ -105,9 +105,11 @@ const requestCancelFunc: Ref<(() => void) | null> = ref(null)
 
 const loading = ref(false)
 
-const baseURL = import.meta.env.VITE_SHORTCODE_BASE_URL ?? "https://hopp.sh"
+const shortcodeBaseURL =
+  import.meta.env.VITE_SHORTCODE_BASE_URL ?? "https://hopp.sh"
+
 const sharedRequestURL = computed(() => {
-  return `${baseURL}/r/${props.sharedRequestID}`
+  return `${shortcodeBaseURL}/r/${props.sharedRequestID}`
 })
 
 const { subscribeToStream } = useStreamSubscriber()

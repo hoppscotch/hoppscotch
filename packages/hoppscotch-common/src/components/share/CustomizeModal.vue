@@ -370,10 +370,11 @@ const linkVariants: LinkVariant[] = [
   },
 ]
 
-const baseURL = import.meta.env.VITE_SHORTCODE_BASE_URL ?? "https://hopp.sh"
+const shortcodeBaseURL =
+  import.meta.env.VITE_SHORTCODE_BASE_URL ?? "https://hopp.sh"
 
 const copyEmbed = () => {
-  return `<iframe src="${baseURL}/e/${props.request?.id}' style='width: 100%; height: 500px; border: 0; border-radius: 4px; overflow: hidden;'></iframe>`
+  return `<iframe src="${shortcodeBaseURL}/e/${props.request?.id}" title="Hoppscotch Embed" style="width: 100%; height: 480px; border-radius: 4px; border: 1px solid rgba(0, 0, 0, 0.1);"></iframe>`
 }
 
 const copyButton = (
@@ -390,18 +391,18 @@ const copyButton = (
   }
 
   if (type === "markdown") {
-    return `[![Run in Hoppscotch](${baseURL}/${badge})](${baseURL}/r/${props.request?.id})`
+    return `[![Run in Hoppscotch](${shortcodeBaseURL}/${badge})](${shortcodeBaseURL}/r/${props.request?.id})`
   }
-  return `<a href="${baseURL}/r/${props.request?.id}"><img src="${baseURL}/${badge}" alt="Run in Hoppscotch" /></a>`
+  return `<a href="${shortcodeBaseURL}/r/${props.request?.id}"><img src="${shortcodeBaseURL}/${badge}" alt="Run in Hoppscotch" /></a>`
 }
 
 const copyLink = (variationID: string) => {
   if (variationID === "link1") {
-    return `${baseURL}/r/${props.request?.id}`
+    return `${shortcodeBaseURL}/r/${props.request?.id}`
   } else if (variationID === "link2") {
-    return `<a href="${baseURL}/r/${props.request?.id}">Run in Hoppscotch</a>`
+    return `<a href="${shortcodeBaseURL}/r/${props.request?.id}">Run in Hoppscotch</a>`
   }
-  return `[Run in Hoppscotch](${baseURL}/r/${props.request?.id})`
+  return `[Run in Hoppscotch](${shortcodeBaseURL}/r/${props.request?.id})`
 }
 
 const copyContent = ({

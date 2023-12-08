@@ -12,7 +12,7 @@
   </div>
 
   <div v-else-if="error">
-    <p class="text-xl">Error</p>
+    <p class="text-xl">{{ t('state.error') }}</p>
   </div>
 
   <div v-else class="flex flex-1 flex-col">
@@ -151,7 +151,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, computed } from 'vue';
+import { onMounted, ref } from 'vue';
 import IconGithub from '~icons/auth/github';
 import IconGoogle from '~icons/auth/google';
 import IconEmail from '~icons/auth/email';
@@ -164,8 +164,6 @@ import { useToast } from '~/composables/toast';
 import { auth } from '~/helpers/auth';
 import { HoppButtonPrimary, HoppButtonSecondary } from '@hoppscotch/ui';
 import { useI18n } from '~/composables/i18n';
-import { useQuery } from '@urql/vue';
-import { AllowedAuthProvidersDocument } from '~/helpers/backend/graphql';
 
 const { subscribeToStream } = useStreamSubscriber();
 
@@ -174,27 +172,22 @@ const toast = useToast();
 
 const tosLink = import.meta.env.VITE_APP_TOS_LINK;
 const privacyPolicyLink = import.meta.env.VITE_APP_PRIVACY_POLICY_LINK;
-// const allowedAuthProviders = import.meta.env.VITE_ALLOWED_AUTH_PROVIDERS;
-
-const { fetching, error, data } = useQuery({
-  query: AllowedAuthProvidersDocument,
-});
-const allowedAuthProviders = computed(() => data?.value?.allowedAuthProviders);
-
-// DATA
 
 const form = ref({
   email: '',
 });
+const fetching = ref(false);
+const error = ref(false);
 const signingInWithGoogle = ref(false);
 const signingInWithGitHub = ref(false);
 const signingInWithMicrosoft = ref(false);
 const signingInWithEmail = ref(false);
 const mode = ref('sign-in');
-
 const nonAdminUser = ref(false);
 
-onMounted(() => {
+const allowedAuthProviders = ref<string[]>([]);
+
+onMounted(async () => {
   const currentUser$ = auth.getCurrentUserStream();
 
   subscribeToStream(currentUser$, (user) => {
@@ -203,6 +196,8 @@ onMounted(() => {
       toast.error(t('state.non_admin_login'));
     }
   });
+
+  allowedAuthProviders.value = await getAllowedAuthProviders();
 });
 
 const signInWithGoogle = () => {
@@ -255,6 +250,18 @@ const signInWithEmail = async () => {
     toast.error(t('state.email_signin_failure'));
   }
   signingInWithEmail.value = false;
+};
+
+const getAllowedAuthProviders = async () => {
+  fetching.value = true;
+  try {
+    const res = await auth.getAllowedAuthProviders();
+    fetching.value = false;
+    return res;
+  } catch (e) {
+    error.value = true;
+    toast.error(t('state.error_auth_providers'));
+  }
 };
 
 const logout = async () => {

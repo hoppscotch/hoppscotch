@@ -82,10 +82,10 @@ export class InfraConfigService implements OnModuleInit {
    */
   async initializeInfraConfigTable() {
     try {
-      // Get all the 'names' for 'infra_config' table
+      // Get all the 'names' of the properties to be saved in the 'infra_config' table
       const enumValues = Object.values(InfraConfigEnum);
 
-      // Prepare rows for 'infra_config' table with default values for each 'name'
+      // Fetch the default values (value in .env) for configs to be saved in 'infra_config' table
       const infraConfigDefaultObjs = this.getDefaultInfraConfigs();
 
       // Check if all the 'names' are listed in the default values
@@ -166,19 +166,11 @@ export class InfraConfigService implements OnModuleInit {
 
     try {
       await this.prisma.$transaction(async (tx) => {
-        const deleteCount = await tx.infraConfig.deleteMany({
-          where: { name: { in: infraConfigs.map((p) => p.name) } },
-        });
-
-        const createCount = await tx.infraConfig.createMany({
-          data: infraConfigs.map((p) => ({
-            name: p.name,
-            value: p.value,
-          })),
-        });
-
-        if (deleteCount.count !== createCount.count) {
-          return E.left(INFRA_CONFIG_UPDATE_FAILED);
+        for (let i = 0; i < infraConfigs.length; i++) {
+          await tx.infraConfig.update({
+            where: { name: infraConfigs[i].name },
+            data: { value: infraConfigs[i].value },
+          });
         }
       });
 
@@ -196,32 +188,32 @@ export class InfraConfigService implements OnModuleInit {
    * @param status Status to enable or disable
    * @returns Either true or an error
    */
-  async enableAndDisableSSO(statusList: EnableAndDisableSSOArgs[]) {
-    const enabledAuthProviders = this.configService
-      .get('INFRA.VITE_ALLOWED_AUTH_PROVIDERS')
+  async enableAndDisableSSO(providerInfo: EnableAndDisableSSOArgs[]) {
+    const allowedAuthProviders = this.configService
+      .get<string>('INFRA.VITE_ALLOWED_AUTH_PROVIDERS')
       .split(',');
 
-    let newEnabledAuthProviders = enabledAuthProviders;
+    let updatedAuthProviders = allowedAuthProviders;
 
-    statusList.forEach(({ provider, status }) => {
+    providerInfo.forEach(({ provider, status }) => {
       if (status === AuthProviderStatus.ENABLE) {
-        newEnabledAuthProviders = [...newEnabledAuthProviders, provider];
+        updatedAuthProviders.push(provider);
       } else if (status === AuthProviderStatus.DISABLE) {
-        newEnabledAuthProviders = newEnabledAuthProviders.filter(
+        updatedAuthProviders = updatedAuthProviders.filter(
           (p) => p !== provider,
         );
       }
     });
 
-    newEnabledAuthProviders = [...new Set(newEnabledAuthProviders)];
+    updatedAuthProviders = [...new Set(updatedAuthProviders)];
 
-    if (newEnabledAuthProviders.length === 0) {
+    if (updatedAuthProviders.length === 0) {
       return E.left(AUTH_PROVIDER_NOT_SPECIFIED);
     }
 
     const isUpdated = await this.update(
       InfraConfigEnum.VITE_ALLOWED_AUTH_PROVIDERS,
-      newEnabledAuthProviders.join(','),
+      updatedAuthProviders.join(','),
     );
     if (E.isLeft(isUpdated)) return E.left(isUpdated.left);
 

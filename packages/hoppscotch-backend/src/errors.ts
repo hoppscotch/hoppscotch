@@ -671,7 +671,7 @@ export const INFRA_CONFIG_NOT_LISTED =
 export const INFRA_CONFIG_RESET_FAILED = 'infra_config/reset_failed' as const;
 
 /**
- * Infra Config reset failed
+ * Infra Config invalid input for Config variable
  * (InfraConfigService)
  */
 export const INFRA_CONFIG_INVALID_INPUT = 'infra_config/invalid_input' as const;

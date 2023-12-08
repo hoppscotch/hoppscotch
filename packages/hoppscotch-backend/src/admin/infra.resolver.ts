@@ -241,14 +241,14 @@ export class InfraResolver {
   }
 
   @Query(() => [InfraConfig], {
-    description: 'Fetch infra configs',
+    description: 'Retrieve configuration details for the instance',
   })
   @UseGuards(GqlAuthGuard, GqlAdminGuard)
   async infraConfigs(
     @Args({
-      name: 'names',
+      name: 'configNames',
       type: () => [InfraConfigEnumForClient],
-      description: 'Names of the InfraConfigs',
+      description: 'Configs to fetch',
     })
     names: InfraConfigEnumForClient[],
   ) {
@@ -300,13 +300,13 @@ export class InfraResolver {
   @UseGuards(GqlAuthGuard, GqlAdminGuard)
   async enableAndDisableSSO(
     @Args({
-      name: 'data',
+      name: 'providerInfo',
       type: () => [EnableAndDisableSSOArgs],
       description: 'SSO provider and status',
     })
-    data: EnableAndDisableSSOArgs[],
+    providerInfo: EnableAndDisableSSOArgs[],
   ) {
-    const isUpdated = await this.infraConfigService.enableAndDisableSSO(data);
+    const isUpdated = await this.infraConfigService.enableAndDisableSSO(providerInfo);
     if (E.isLeft(isUpdated)) throwErr(isUpdated.left);
 
     return true;

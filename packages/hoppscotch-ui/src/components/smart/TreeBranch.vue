@@ -81,25 +81,31 @@ import { SmartTreeAdapter, TreeNode } from "~/helpers/treeAdapter"
 import { HOPP_UI_OPTIONS, HoppUIPluginOptions } from "./../../plugin"
 const { t } = inject<HoppUIPluginOptions>(HOPP_UI_OPTIONS) ?? {}
 
-const props = defineProps<{
-  /**
-   * The node item that will be used to render the tree branch
-   * @template T The type of the data passed to the tree branch
-   */
-  adapter: SmartTreeAdapter<T>
-  /**
-   *  The node item that will be used to render the tree branch content
-   */
-  nodeItem: TreeNode<T>
-  /**
-   *  Total number of rootNode
-   */
-  rootNodesLength?: number
-  /**
-   *  open by default
-   */
-  expandAll?: boolean
-}>()
+const props = withDefaults(
+  defineProps<{
+    /**
+     * The node item that will be used to render the tree branch
+     * @template T The type of the data passed to the tree branch
+     */
+    adapter: SmartTreeAdapter<T>
+    /**
+     *  The node item that will be used to render the tree branch content
+     */
+    nodeItem: TreeNode<T>
+    /**
+     *  Total number of rootNode
+     */
+    rootNodesLength?: number
+    /**
+     *  open by default
+     */
+    expandAll?: boolean
+  }>(),
+  {
+    rootNodesLength: 0,
+    expandAll: false,
+  }
+)
 
 const CHILD_SLOT_NAME = "default"
 

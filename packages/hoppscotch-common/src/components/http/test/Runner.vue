@@ -33,7 +33,7 @@
       </div>
 
       <div v-else class="flex flex-col flex-1">
-        <HttpTestRunnerConfig v-model="tab" v-model:config="testRunnerConfig"  />
+        <HttpTestRunnerConfig v-model="tab" v-model:config="testRunnerConfig" />
       </div>
     </template>
     <template #secondary>
@@ -96,5 +96,5 @@ const emit = defineEmits<{
 
 const tab = useVModel(props, "modelValue", emit)
 
-const showResult = ref(false)
+const showResult = ref(true)
 </script>

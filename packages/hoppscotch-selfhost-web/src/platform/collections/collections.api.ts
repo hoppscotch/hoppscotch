@@ -65,6 +65,9 @@ import {
   GetGqlRootUserCollectionsQueryVariables,
   GetGqlRootUserCollectionsDocument,
   ReqType,
+  UpdateUserCollectionMutation,
+  UpdateUserCollectionMutationVariables,
+  UpdateUserCollectionDocument,
 } from "../../api/generated/graphql"
 
 export const createRESTRootUserCollection = (title: string) =>
@@ -159,6 +162,17 @@ export const renameUserCollection = (
     RenameUserCollectionMutationVariables,
     ""
   >(RenameUserCollectionDocument, { userCollectionID, newTitle })()
+
+export const updateUserCollection = (
+  userCollectionID: string,
+  newTitle?: string,
+  data?: string
+) =>
+  runMutation<
+    UpdateUserCollectionMutation,
+    UpdateUserCollectionMutationVariables,
+    ""
+  >(UpdateUserCollectionDocument, { userCollectionID, newTitle, data })()
 
 export const moveUserCollection = (
   sourceCollectionID: string,

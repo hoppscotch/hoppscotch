@@ -89,8 +89,7 @@ type ExportedUserCollectionREST = {
   folders: ExportedUserCollectionREST[]
   requests: Array<HoppRESTRequest & { id: string }>
   name: string
-  auth: HoppRESTRequest["auth"]
-  headers: HoppRESTRequest["headers"]
+  data: string
 }
 
 type ExportedUserCollectionGQL = {
@@ -98,8 +97,7 @@ type ExportedUserCollectionGQL = {
   folders: ExportedUserCollectionGQL[]
   requests: Array<HoppGQLRequest & { id: string }>
   name: string
-  auth: HoppGQLRequest["auth"]
-  headers: HoppGQLRequest["headers"]
+  data: string
 }
 
 function exportedCollectionToHoppCollection(
@@ -108,6 +106,8 @@ function exportedCollectionToHoppCollection(
 ): HoppCollection<HoppRESTRequest | HoppGQLRequest> {
   if (collectionType == "REST") {
     const restCollection = collection as ExportedUserCollectionREST
+    const data = restCollection.data ? JSON.parse(restCollection.data) : null
+
     return {
       id: restCollection.id,
       v: 1,
@@ -142,11 +142,12 @@ function exportedCollectionToHoppCollection(
           testScript,
         })
       ),
-      auth: restCollection.auth,
-      headers: restCollection.headers,
+      auth: data.auth ?? { authType: "inherit", authActive: false },
+      headers: data.headers ?? [],
     }
   } else {
     const gqlCollection = collection as ExportedUserCollectionGQL
+    const data = gqlCollection.data ? JSON.parse(gqlCollection.data) : null
 
     return {
       id: gqlCollection.id,
@@ -164,8 +165,8 @@ function exportedCollectionToHoppCollection(
           name,
         })
       ) as HoppGQLRequest[],
-      auth: gqlCollection.auth,
-      headers: gqlCollection.headers,
+      auth: data.auth,
+      headers: data.headers,
     }
   }
 }
@@ -297,6 +298,9 @@ function setupUserCollectionCreatedSubscription() {
         })
       } else {
         // root collections won't have parentCollectionID
+        const data = res.right.userCollectionCreated.data
+          ? JSON.parse(res.right.userCollectionCreated.data)
+          : null
         runDispatchWithOutSyncing(() => {
           collectionType == "GQL"
             ? addGraphqlCollection({
@@ -304,22 +308,19 @@ function setupUserCollectionCreatedSubscription() {
                 folders: [],
                 requests: [],
                 v: 1,
-                auth: {
-                  authType: "none",
-                  authActive: false,
-                },
-                headers: [],
+                auth: data?.auth ?? { authType: "inherit", authActive: false },
+                headers: data?.headers ?? [],
               })
             : addRESTCollection({
                 name: res.right.userCollectionCreated.title,
                 folders: [],
                 requests: [],
                 v: 1,
-                auth: {
-                  authType: "none",
+                auth: data?.auth ?? {
+                  authType: "inherit",
                   authActive: false,
                 },
-                headers: [],
+                headers: data?.headers ?? [],
               })
 
           const localIndex = collectionStore.value.state.length - 1

@@ -24,7 +24,7 @@ import {
   editUserRequest,
   moveUserCollection,
   moveUserRequest,
-  renameUserCollection,
+  updateUserCollection,
   updateUserCollectionOrder,
 } from "./collections.api"
 
@@ -155,8 +155,13 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
       [collectionIndex]
     )?.id
 
-    if (collectionID && collection.name) {
-      renameUserCollection(collectionID, collection.name)
+    const data = {
+      auth: collection.auth,
+      headers: collection.headers,
+    }
+
+    if (collectionID) {
+      updateUserCollection(collectionID, collection.name, JSON.stringify(data))
     }
   },
   async addFolder({ name, path }) {
@@ -195,9 +200,12 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
     )?.id
 
     const folderName = folder.name
-
-    if (folderID && folderName) {
-      renameUserCollection(folderID, folderName)
+    const data = {
+      auth: folder.auth,
+      headers: folder.headers,
+    }
+    if (folderID) {
+      updateUserCollection(folderID, folderName, JSON.stringify(data))
     }
   },
   async removeFolder({ folderID }) {

@@ -86,12 +86,17 @@ export const collectionsRunner = async (
       for (const folder of collection.folders) {
         const updatedFolder = { ...folder }
 
-        if (updatedFolder.auth.authType === "inherit") {
+        if (updatedFolder.auth?.authType === "inherit") {
           updatedFolder.auth = collection.auth;
         }
 
-        if (collection.headers) {
-          updatedFolder.headers.push(...collection.headers);
+        if (collection.headers?.length) {
+          // Filter out header entries present in the parent collection under the same name
+          // This ensures the folder headers take precedence over the collection headers
+          const filteredHeaders = collection.headers.filter((collectionHeaderEntries) => {
+            return !updatedFolder.headers.some((folderHeaderEntries) => folderHeaderEntries.key === collectionHeaderEntries.key)
+          })
+          updatedFolder.headers.push(...filteredHeaders);
         }
 
         collectionStack.push({

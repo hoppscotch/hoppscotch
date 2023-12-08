@@ -332,7 +332,12 @@ export const preProcessRequest = (
   }
 
   if (parentHeaders?.length) {
-    tempRequest.headers.push(...parentHeaders);
+    // Filter out header entries present in the parent (folder/collection) under the same name
+    // This ensures the child headers take precedence over the parent headers
+    const filteredEntries = parentHeaders.filter((parentHeaderEntries) => {
+      return !tempRequest.headers.some((reqHeaderEntries) => reqHeaderEntries.key === parentHeaderEntries.key)
+    })
+    tempRequest.headers.push(...filteredEntries);
   } else if (!tempRequest.headers) {
     tempRequest.headers = [];
   }

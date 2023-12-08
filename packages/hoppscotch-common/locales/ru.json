@@ -271,7 +271,7 @@
   "error": {
     "browser_support_sse": "Похоже, в этом браузере нет поддержки событий, отправленных сервером.",
     "check_console_details": "Подробности смотрите в журнале консоли.",
-    "check_how_to_add_origin": "Check how you can add an origin",
+    "check_how_to_add_origin": "Инструкция как добавить origin в настройки расширения",
     "curl_invalid_format": "cURL неправильно отформатирован",
     "danger_zone": "Опасная зона",
     "delete_account": "Вы являетесь владельцем этой команды:",
@@ -292,7 +292,7 @@
     "no_environments_to_export": "Нечего экспортировать. Для начала нужно создать переменные окружения.",
     "no_results_found": "Совпадения не найдены",
     "page_not_found": "Эта страница не найдена",
-    "please_install_extension": "Please install the extension and add origin to the extension.",
+    "please_install_extension": "Нужно установить специальное расширение и добавить этот домен как новый origin в настройках расширения.",
     "proxy_error": "Proxy error",
     "script_fail": "Не удалось выполнить сценарий предварительного запроса",
     "something_went_wrong": "Что-то пошло не так",

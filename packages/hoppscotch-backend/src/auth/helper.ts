@@ -7,7 +7,6 @@ import * as cookie from 'cookie';
 import { AUTH_PROVIDER_NOT_SPECIFIED, COOKIES_NOT_FOUND } from 'src/errors';
 import { throwErr } from 'src/utils';
 import { ConfigService } from '@nestjs/config';
-import { loadInfraConfiguration } from 'src/infra-config/helper';
 
 enum AuthTokenType {
   ACCESS_TOKEN = 'access_token',

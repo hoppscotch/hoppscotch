@@ -25,7 +25,7 @@ export async function loadInfraConfiguration() {
     return { INFRA: environmentObject };
   } catch (error) {
     // Prisma throw error if 'Can't reach at database server' OR 'Table does not exist'
-    // We're not throwing error here because we want to allow the app to run 'pnpm install'
+    // Reason for not throwing error is, we want successful build during 'postinstall' and generate dist files
     return { INFRA: {} };
   }
 }

@@ -106,8 +106,13 @@ function exportedCollectionToHoppCollection(
 ): HoppCollection<HoppRESTRequest | HoppGQLRequest> {
   if (collectionType == "REST") {
     const restCollection = collection as ExportedUserCollectionREST
-    const data = restCollection.data ? JSON.parse(restCollection.data) : null
-
+    const data =
+      restCollection.data && restCollection.data != "null"
+        ? JSON.parse(restCollection.data)
+        : {
+            auth: { authType: "inherit", authActive: false },
+            headers: [],
+          }
     return {
       id: restCollection.id,
       v: 1,
@@ -142,12 +147,18 @@ function exportedCollectionToHoppCollection(
           testScript,
         })
       ),
-      auth: data.auth ?? { authType: "inherit", authActive: false },
-      headers: data.headers ?? [],
+      auth: data.auth,
+      headers: data.headers,
     }
   } else {
     const gqlCollection = collection as ExportedUserCollectionGQL
-    const data = gqlCollection.data ? JSON.parse(gqlCollection.data) : null
+    const data =
+      gqlCollection.data && gqlCollection.data !== "null"
+        ? JSON.parse(gqlCollection.data)
+        : {
+            auth: { authType: "inherit", authActive: false },
+            headers: [],
+          }
 
     return {
       id: gqlCollection.id,
@@ -298,9 +309,15 @@ function setupUserCollectionCreatedSubscription() {
         })
       } else {
         // root collections won't have parentCollectionID
-        const data = res.right.userCollectionCreated.data
-          ? JSON.parse(res.right.userCollectionCreated.data)
-          : null
+        const data =
+          res.right.userCollectionCreated.data &&
+          res.right.userCollectionCreated.data != "null"
+            ? JSON.parse(res.right.userCollectionCreated.data)
+            : {
+                auth: { authType: "inherit", authActive: false },
+                headers: [],
+              }
+
         runDispatchWithOutSyncing(() => {
           collectionType == "GQL"
             ? addGraphqlCollection({
@@ -308,19 +325,16 @@ function setupUserCollectionCreatedSubscription() {
                 folders: [],
                 requests: [],
                 v: 1,
-                auth: data?.auth ?? { authType: "inherit", authActive: false },
-                headers: data?.headers ?? [],
+                auth: data.auth,
+                headers: data.headers,
               })
             : addRESTCollection({
                 name: res.right.userCollectionCreated.title,
                 folders: [],
                 requests: [],
                 v: 1,
-                auth: data?.auth ?? {
-                  authType: "inherit",
-                  authActive: false,
-                },
-                headers: data?.headers ?? [],
+                auth: data.auth,
+                headers: data?.headers,
               })
 
           const localIndex = collectionStore.value.state.length - 1

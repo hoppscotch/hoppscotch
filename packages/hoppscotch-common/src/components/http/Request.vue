@@ -181,6 +181,18 @@
                   @keyup.enter="hide()"
                 />
                 <HoppSmartItem
+                  ref="saveRequestAction"
+                  :label="`${t('request.save_as')}`"
+                  :icon="IconFolderPlus"
+                  @click="
+                    () => {
+                      showSaveRequestModal = true
+                      hide()
+                    }
+                  "
+                />
+                <hr />
+                <HoppSmartItem
                   ref="copyRequestAction"
                   :label="t('request.share_request')"
                   :icon="IconShare2"
@@ -188,18 +200,6 @@
                   @click="
                     () => {
                       shareRequest()
-                      hide()
-                    }
-                  "
-                />
-                <hr />
-                <HoppSmartItem
-                  ref="saveRequestAction"
-                  :label="`${t('request.save_as')}`"
-                  :icon="IconFolderPlus"
-                  @click="
-                    () => {
-                      showSaveRequestModal = true
                       hide()
                     }
                   "

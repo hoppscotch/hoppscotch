@@ -3,7 +3,7 @@
     <div
       class="sticky top-0 z-10 flex flex-shrink-0 flex-col overflow-x-auto border-b border-dividerLight bg-primary"
     >
-      <WorkspaceCurrent :section="t('tab.history')" />
+      <WorkspaceCurrent :section="t('tab.history')" :is-only-personal="true" />
       <div class="flex">
         <input
           v-model="filterText"

@@ -13,7 +13,7 @@
     >
       <HoppButtonSecondary
         v-tippy="{ theme: 'tooltip' }"
-        to="https://docs.hoppscotch.io/documentation/features/shared-request"
+        to="https://docs.hoppscotch.io/documentation/features/share-requests"
         blank
         :title="t('app.wiki')"
         :icon="IconHelpCircle"

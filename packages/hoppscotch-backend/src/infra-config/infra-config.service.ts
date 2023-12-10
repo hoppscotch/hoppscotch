@@ -69,7 +69,7 @@ export class InfraConfigService implements OnModuleInit {
       },
       {
         name: InfraConfigEnum.VITE_ALLOWED_AUTH_PROVIDERS,
-        value: process.env.VITE_ALLOWED_AUTH_PROVIDERS,
+        value: process.env.VITE_ALLOWED_AUTH_PROVIDERS.toLocaleUpperCase(),
       },
     ];
 

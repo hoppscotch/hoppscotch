@@ -8,9 +8,9 @@
       :class="large ? 'w-32 h-32' : 'w-16 h-16'"
       :alt="alt"
     />
-    <div v-if="hasIcon">
+    <template v-if="hasIcon">
       <slot name="icon"></slot>
-    </div>
+    </template>
     <span v-if="heading" class="font-semibold mt-2 text-center">
       {{ heading }}
     </span>

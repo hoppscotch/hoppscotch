@@ -157,12 +157,14 @@
         :alt="`${t('empty.parameters')}`"
         :text="t('empty.parameters')"
       >
-        <HoppButtonSecondary
-          :label="`${t('add.new')}`"
-          :icon="IconPlus"
-          filled
-          @click="addParam"
-        />
+        <template #body>
+          <HoppButtonSecondary
+            :label="`${t('add.new')}`"
+            :icon="IconPlus"
+            filled
+            @click="addParam"
+          />
+        </template>
       </HoppSmartPlaceholder>
     </div>
   </div>

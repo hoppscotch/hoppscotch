@@ -176,8 +176,7 @@
           :src="`/images/states/${colorMode.value}/pack.svg`"
           :alt="`${t('empty.folder')}`"
           :text="t('empty.folder')"
-        >
-        </HoppSmartPlaceholder>
+        />
       </div>
     </div>
     <HoppSmartConfirmModal

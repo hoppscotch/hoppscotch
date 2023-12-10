@@ -41,10 +41,12 @@
         v-if="team && pendingInvites?.length === 0"
         text="No pending invites"
       >
-        <div v-if="!fetching && error" class="flex flex-col items-center p-4">
-          <icon-lucide-help-circle class="mb-4 svg-icons" />
-          Something went wrong. Please try again later.
-        </div>
+        <template #body>
+          <div v-if="!fetching && error" class="flex flex-col items-center p-4">
+            <icon-lucide-help-circle class="mb-4 svg-icons" />
+            {{ t('error.something_went_wrong') }}
+          </div>
+        </template>
       </HoppSmartPlaceholder>
     </div>
   </div>

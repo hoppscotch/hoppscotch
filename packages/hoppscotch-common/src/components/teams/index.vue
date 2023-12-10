@@ -16,11 +16,13 @@
         :alt="`${t('empty.teams')}`"
         :text="`${t('empty.teams')}`"
       >
-        <HoppButtonSecondary
-          :label="`${t('team.create_new')}`"
-          filled
-          @click="displayModalAdd(true)"
-        />
+        <template #body>
+          <HoppButtonSecondary
+            :label="`${t('team.create_new')}`"
+            filled
+            @click="displayModalAdd(true)"
+          />
+        </template>
       </HoppSmartPlaceholder>
       <div
         v-else-if="!loading"

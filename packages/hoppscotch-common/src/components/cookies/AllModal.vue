@@ -11,7 +11,9 @@
         v-if="!currentInterceptorSupportsCookies"
         :text="t('cookies.modal.interceptor_no_support')"
       >
-        <AppInterceptor class="rounded border border-dividerLight p-2" />
+        <template #body>
+          <AppInterceptor class="rounded border border-dividerLight p-2" />
+        </template>
       </HoppSmartPlaceholder>
       <div v-else class="flex flex-col">
         <div
@@ -38,8 +40,7 @@
             :alt="`${t('cookies.modal.empty_domains')}`"
             :text="t('cookies.modal.empty_domains')"
             class="mt-6"
-          >
-          </HoppSmartPlaceholder>
+          />
           <div
             v-for="[domain, entries] in workingCookieJar.entries()"
             v-else

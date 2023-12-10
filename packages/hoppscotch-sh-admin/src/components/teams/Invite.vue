@@ -117,7 +117,13 @@
             alt="No invites"
             text="No invites"
           >
-            <HoppButtonSecondary label="Add new" filled @click="addNewMember" />
+            <template #body>
+              <HoppButtonSecondary
+                label="Add new"
+                filled
+                @click="addNewMember"
+              />
+            </template>
           </HoppSmartPlaceholder>
         </div>
         <div

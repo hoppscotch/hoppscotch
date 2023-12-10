@@ -20,8 +20,7 @@
         :src="`/images/states/${colorMode.value}/add_comment.svg`"
         :alt="`${t('empty.documentation')}`"
         :text="t('empty.documentation')"
-      >
-      </HoppSmartPlaceholder>
+      />
       <div v-else>
         <div
           class="sticky top-0 z-10 flex flex-shrink-0 overflow-x-auto bg-primary"

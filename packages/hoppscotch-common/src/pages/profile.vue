@@ -14,10 +14,12 @@
           :alt="`${t('empty.profile')}`"
           :text="`${t('empty.profile')}`"
         >
-          <HoppButtonPrimary
-            :label="t('auth.login')"
-            @click="invokeAction('modals.login.toggle')"
-          />
+          <template #body>
+            <HoppButtonPrimary
+              :label="t('auth.login')"
+              @click="invokeAction('modals.login.toggle')"
+            />
+          </template>
         </HoppSmartPlaceholder>
         <div v-else class="space-y-8">
           <div

@@ -142,12 +142,14 @@
         :alt="`${t('empty.subscription')}`"
         :text="`${t('empty.subscription')}`"
       >
-        <HoppButtonSecondary
-          :label="t('mqtt.new')"
-          filled
-          outline
-          @click="showSubscriptionModal(true)"
-        />
+        <template #body>
+          <HoppButtonSecondary
+            :label="t('mqtt.new')"
+            filled
+            outline
+            @click="showSubscriptionModal(true)"
+          />
+        </template>
       </HoppSmartPlaceholder>
       <div v-else>
         <div

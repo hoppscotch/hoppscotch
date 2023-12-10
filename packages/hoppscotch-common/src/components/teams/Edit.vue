@@ -45,15 +45,17 @@
             :alt="`${t('empty.members')}`"
             :text="t('empty.members')"
           >
-            <HoppButtonSecondary
-              :icon="IconUserPlus"
-              :label="t('team.invite')"
-              @click="
-                () => {
-                  emit('invite-team')
-                }
-              "
-            />
+            <template #body>
+              <HoppButtonSecondary
+                :icon="IconUserPlus"
+                :label="t('team.invite')"
+                @click="
+                  () => {
+                    emit('invite-team')
+                  }
+                "
+              />
+            </template>
           </HoppSmartPlaceholder>
           <div v-else class="divide-y divide-dividerLight">
             <div

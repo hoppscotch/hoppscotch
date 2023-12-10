@@ -17,9 +17,10 @@
           v-if="isEmpty(shortcutsResults)"
           :text="`${t('state.nothing_found')} ‟${filterText}”`"
         >
-          <icon-lucide-search class="svg-icons pb-2 opacity-75" />
+          <template #icon>
+            <icon-lucide-search class="svg-icons opacity-75" />
+          </template>
         </HoppSmartPlaceholder>
-
         <details
           v-for="(sectionResults, sectionTitle) in shortcutsResults"
           v-else

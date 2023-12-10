@@ -49,31 +49,33 @@
       :alt="`${t('empty.environments')}`"
       :text="t('empty.environments')"
     >
-      <div class="flex flex-col items-center space-y-4">
-        <span class="text-center text-secondaryLight">
-          {{ t("environment.import_or_create") }}
-        </span>
-        <div class="flex flex-col items-stretch gap-4">
-          <HoppButtonPrimary
-            :icon="IconImport"
-            :label="t('import.title')"
-            filled
-            outline
-            :title="isTeamViewer ? t('team.no_access') : ''"
-            :disabled="isTeamViewer"
-            @click="isTeamViewer ? null : displayModalImportExport(true)"
-          />
-          <HoppButtonSecondary
-            :label="`${t('add.new')}`"
-            filled
-            outline
-            :icon="IconPlus"
-            :title="isTeamViewer ? t('team.no_access') : ''"
-            :disabled="isTeamViewer"
-            @click="isTeamViewer ? null : displayModalAdd(true)"
-          />
+      <template #body>
+        <div class="flex flex-col items-center space-y-4">
+          <span class="text-center text-secondaryLight">
+            {{ t("environment.import_or_create") }}
+          </span>
+          <div class="flex flex-col items-stretch gap-4">
+            <HoppButtonPrimary
+              :icon="IconImport"
+              :label="t('import.title')"
+              filled
+              outline
+              :title="isTeamViewer ? t('team.no_access') : ''"
+              :disabled="isTeamViewer"
+              @click="isTeamViewer ? null : displayModalImportExport(true)"
+            />
+            <HoppButtonSecondary
+              :label="`${t('add.new')}`"
+              filled
+              outline
+              :icon="IconPlus"
+              :title="isTeamViewer ? t('team.no_access') : ''"
+              :disabled="isTeamViewer"
+              @click="isTeamViewer ? null : displayModalAdd(true)"
+            />
+          </div>
         </div>
-      </div>
+      </template>
     </HoppSmartPlaceholder>
     <div v-else-if="!loading">
       <EnvironmentsTeamsEnvironment

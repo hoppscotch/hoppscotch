@@ -125,8 +125,7 @@
                 pendingInvites.data.right.team?.teamInvitations.length === 0
               "
               :text="t('empty.pending_invites')"
-            >
-            </HoppSmartPlaceholder>
+            />
             <div
               v-if="!pendingInvites.loading && E.isLeft(pendingInvites.data)"
               class="flex flex-col items-center p-4"
@@ -245,11 +244,13 @@
             :alt="`${t('empty.invites')}`"
             :text="`${t('empty.invites')}`"
           >
-            <HoppButtonSecondary
-              :label="t('add.new')"
-              filled
-              @click="addNewInvitee"
-            />
+            <template #body>
+              <HoppButtonSecondary
+                :label="t('add.new')"
+                filled
+                @click="addNewInvitee"
+              />
+            </template>
           </HoppSmartPlaceholder>
         </div>
         <div

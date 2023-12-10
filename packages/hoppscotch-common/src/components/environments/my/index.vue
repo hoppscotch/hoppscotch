@@ -38,27 +38,29 @@
       :alt="`${t('empty.environments')}`"
       :text="t('empty.environments')"
     >
-      <div class="flex flex-col items-center space-y-4">
-        <span class="text-center text-secondaryLight">
-          {{ t("environment.import_or_create") }}
-        </span>
-        <div class="flex flex-col items-stretch gap-4">
-          <HoppButtonPrimary
-            :icon="IconImport"
-            :label="t('import.title')"
-            filled
-            outline
-            @click="displayModalImportExport(true)"
-          />
-          <HoppButtonSecondary
-            :icon="IconPlus"
-            :label="`${t('add.new')}`"
-            filled
-            outline
-            @click="displayModalAdd(true)"
-          />
+      <template #body>
+        <div class="flex flex-col items-center space-y-4">
+          <span class="text-center text-secondaryLight">
+            {{ t("environment.import_or_create") }}
+          </span>
+          <div class="flex flex-col items-stretch gap-4">
+            <HoppButtonPrimary
+              :icon="IconImport"
+              :label="t('import.title')"
+              filled
+              outline
+              @click="displayModalImportExport(true)"
+            />
+            <HoppButtonSecondary
+              :icon="IconPlus"
+              :label="`${t('add.new')}`"
+              filled
+              outline
+              @click="displayModalAdd(true)"
+            />
+          </div>
         </div>
-      </div>
+      </template>
     </HoppSmartPlaceholder>
     <EnvironmentsMyDetails
       :show="showModalDetails"

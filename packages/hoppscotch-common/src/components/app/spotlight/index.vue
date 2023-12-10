@@ -49,13 +49,15 @@
           :text="`${t('state.nothing_found')} ‟${search}”`"
         >
           <template #icon>
-            <icon-lucide-search class="svg-icons pb-2 opacity-75" />
+            <icon-lucide-search class="svg-icons opacity-75" />
           </template>
-          <HoppButtonSecondary
-            :label="t('action.clear')"
-            outline
-            @click="search = ''"
-          />
+          <template #body>
+            <HoppButtonSecondary
+              :label="t('action.clear')"
+              outline
+              @click="search = ''"
+            />
+          </template>
         </HoppSmartPlaceholder>
       </div>
       <div

@@ -197,14 +197,16 @@
             :alt="`${t('socketio.connection_not_authorized')}`"
             :text="`${t('socketio.connection_not_authorized')}`"
           >
-            <HoppButtonSecondary
-              outline
-              :label="t('app.documentation')"
-              to="https://docs.hoppscotch.io/documentation/features/authorization"
-              blank
-              :icon="IconExternalLink"
-              reverse
-            />
+            <template #body>
+              <HoppButtonSecondary
+                outline
+                :label="t('app.documentation')"
+                to="https://docs.hoppscotch.io/documentation/features/authorization"
+                blank
+                :icon="IconExternalLink"
+                reverse
+              />
+            </template>
           </HoppSmartPlaceholder>
           <div
             v-if="authType === 'Bearer'"

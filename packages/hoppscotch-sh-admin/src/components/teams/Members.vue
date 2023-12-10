@@ -15,15 +15,17 @@
           v-if="team?.teamMembers?.length === 0"
           text="No members in this team. Add members to this team to collaborate"
         >
-          <HoppButtonSecondary
-            :icon="IconUserPlus"
-            :label="t('teams.add_members')"
-            @click="
-              () => {
-                showInvite = !showInvite;
-              }
-            "
-          />
+          <template #body>
+            <HoppButtonSecondary
+              :icon="IconUserPlus"
+              :label="t('teams.add_members')"
+              @click="
+                () => {
+                  showInvite = !showInvite;
+                }
+              "
+            />
+          </template>
         </HoppSmartPlaceholder>
         <div v-else class="divide-y divide-dividerLight">
           <div

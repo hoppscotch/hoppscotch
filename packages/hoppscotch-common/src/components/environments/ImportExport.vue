@@ -33,6 +33,7 @@ import { insomniaEnvImporter } from "~/helpers/import-export/import/insomniaEnv"
 
 import IconFolderPlus from "~icons/lucide/folder-plus"
 import IconPostman from "~icons/hopp/postman"
+import IconInsomnia from "~icons/hopp/insomnia"
 import IconUser from "~icons/lucide/user"
 import { initializeDownloadCollection } from "~/helpers/import-export/export"
 import { computed } from "vue"
@@ -145,7 +146,7 @@ const insomniaEnvironmentsImport: ImporterOrExporter = {
   metadata: {
     id: "import.from_insomnia",
     name: "import.from_insomnia",
-    icon: IconPostman,
+    icon: IconInsomnia,
     title: "import.from_json",
     applicableTo: ["personal-workspace", "team-workspace"],
     disabled: false,

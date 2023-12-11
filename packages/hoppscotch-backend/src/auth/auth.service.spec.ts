@@ -22,12 +22,14 @@ import { DateTime } from 'luxon';
 import * as argon2 from 'argon2';
 import * as E from 'fp-ts/Either';
 import { ConfigService } from '@nestjs/config';
+import { InfraConfigService } from 'src/infra-config/infra-config.service';
 
 const mockPrisma = mockDeep<PrismaService>();
 const mockUser = mockDeep<UserService>();
 const mockJWT = mockDeep<JwtService>();
 const mockMailer = mockDeep<MailerService>();
 const mockConfigService = mockDeep<ConfigService>();
+const mockInfraConfigService = mockDeep<InfraConfigService>();
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
@@ -37,6 +39,7 @@ const authService = new AuthService(
   mockJWT,
   mockMailer,
   mockConfigService,
+  mockInfraConfigService,
 );
 
 const currentTime = new Date();

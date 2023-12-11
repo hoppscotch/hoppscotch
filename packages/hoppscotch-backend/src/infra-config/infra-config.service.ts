@@ -16,7 +16,7 @@ import {
   INFRA_CONFIG_RESET_FAILED,
   INFRA_CONFIG_UPDATE_FAILED,
 } from 'src/errors';
-import { throwErr, validateSMTPUrl } from 'src/utils';
+import { throwErr, validateEmail, validateSMTPUrl } from 'src/utils';
 import { ConfigService } from '@nestjs/config';
 import { AuthProviderStatus, stopApp } from './helper';
 import { EnableAndDisableSSOArgs, InfraConfigArgs } from './input-args';
@@ -296,6 +296,11 @@ export class InfraConfigService implements OnModuleInit {
       if (infraConfigs[i].name === InfraConfigEnumForClient.MAILER_SMTP_URL) {
         const isValidUrl = validateSMTPUrl(infraConfigs[i].value);
         if (!isValidUrl) return E.left(INFRA_CONFIG_INVALID_INPUT);
+      } else if (
+        infraConfigs[i].name === InfraConfigEnumForClient.MAILER_ADDRESS_FROM
+      ) {
+        const isValidEmail = validateEmail(infraConfigs[i].value);
+        if (!isValidEmail) return E.left(INFRA_CONFIG_INVALID_INPUT);
       }
     }
 

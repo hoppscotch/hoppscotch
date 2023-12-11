@@ -18,7 +18,7 @@ import {
 } from 'src/errors';
 import { throwErr, validateEmail, validateSMTPUrl } from 'src/utils';
 import { ConfigService } from '@nestjs/config';
-import { AuthProviderStatus, stopApp } from './helper';
+import { ServiceStatus, stopApp } from './helper';
 import { EnableAndDisableSSOArgs, InfraConfigArgs } from './input-args';
 
 @Injectable()
@@ -196,9 +196,9 @@ export class InfraConfigService implements OnModuleInit {
     let updatedAuthProviders = allowedAuthProviders;
 
     providerInfo.forEach(({ provider, status }) => {
-      if (status === AuthProviderStatus.ENABLE) {
+      if (status === ServiceStatus.ENABLE) {
         updatedAuthProviders.push(provider);
-      } else if (status === AuthProviderStatus.DISABLE) {
+      } else if (status === ServiceStatus.DISABLE) {
         updatedAuthProviders = updatedAuthProviders.filter(
           (p) => p !== provider,
         );

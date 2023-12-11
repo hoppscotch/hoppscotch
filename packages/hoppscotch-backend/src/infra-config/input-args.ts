@@ -1,6 +1,6 @@
 import { Field, InputType } from '@nestjs/graphql';
 import { InfraConfigEnumForClient } from 'src/types/InfraConfig';
-import { AuthProviderStatus } from './helper';
+import { ServiceStatus } from './helper';
 import { AuthProvider } from 'src/auth/helper';
 
 @InputType()
@@ -23,8 +23,8 @@ export class EnableAndDisableSSOArgs {
   })
   provider: AuthProvider;
 
-  @Field(() => AuthProviderStatus, {
+  @Field(() => ServiceStatus, {
     description: 'Auth Provider Status',
   })
-  status: AuthProviderStatus;
+  status: ServiceStatus;
 }

@@ -2,11 +2,7 @@ import { pipe, flow } from "fp-ts/function"
 import * as TE from "fp-ts/TaskEither"
 import * as O from "fp-ts/Option"
 import * as RA from "fp-ts/ReadonlyArray"
-import {
-  translateToNewRESTCollection,
-  HoppCollection,
-  HoppRESTRequest,
-} from "@hoppscotch/data"
+import { translateToNewRESTCollection, HoppCollection } from "@hoppscotch/data"
 import { isPlainObject as _isPlainObject } from "lodash-es"
 
 import { IMPORTER_INVALID_FILE_FORMAT } from "."
@@ -33,12 +29,9 @@ const isPlainObject = (value: any): value is object => _isPlainObject(value)
 
 /**
  * checks if a collection matches the schema for a hoppscotch collection.
- * as of now we are only checking if the collection has a "v" key in it.
  */
-const isValidCollection = (
-  collection: unknown
-): collection is HoppCollection<HoppRESTRequest> =>
-  isPlainObject(collection) && "v" in collection
+const isValidCollection = (collection: unknown): collection is HoppCollection =>
+  isPlainObject(collection) && "v" in collection && collection.v === 2
 
 /**
  * checks if a collection is a valid hoppscotch collection.

@@ -580,13 +580,13 @@ const getComputedAuthHeaders = (
       value: `Bearer ${request.auth.token}`,
     })
   } else if (request.auth.authType === "api-key") {
-    const { key, value, addTo } = request.auth
+    const { key, addTo } = request.auth
 
-    if (addTo === "Headers") {
+    if (addTo === "Headers" && key) {
       headers.push({
         active: true,
         key,
-        value,
+        value: request.auth.value ?? "",
       })
     }
   }

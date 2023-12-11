@@ -78,13 +78,12 @@ export const getComputedAuthHeaders = (
       value: `Bearer ${parseTemplateString(request.auth.token, envVars)}`,
     })
   } else if (request.auth.authType === "api-key") {
-    const { key, value, addTo } = request.auth
-
-    if (addTo === "Headers") {
+    const { key, addTo } = request.auth
+    if (addTo === "Headers" && key) {
       headers.push({
         active: true,
         key: parseTemplateString(key, envVars),
-        value: parseTemplateString(value, envVars),
+        value: parseTemplateString(request.auth.value ?? "", envVars),
       })
     }
   }

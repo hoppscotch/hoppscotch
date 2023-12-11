@@ -108,6 +108,27 @@ const importToPersonalWorkspace = (collections: HoppCollection[]) => {
   })
 }
 
+function translateToTeamCollectionFormat(x: HoppCollection) {
+  const folders: HoppCollection[] = (x.folders ?? []).map(
+    translateToTeamCollectionFormat
+  )
+
+  const data = {
+    auth: x.auth,
+    headers: x.headers,
+  }
+
+  const obj = {
+    ...x,
+    folders,
+    data,
+  }
+
+  if (x.id) obj.id = x.id
+
+  return obj
+}
+
 const importToTeamsWorkspace = async (collections: HoppCollection[]) => {
   if (!hasTeamWriteAccess.value || !selectedTeamID.value) {
     return E.left({
@@ -115,8 +136,12 @@ const importToTeamsWorkspace = async (collections: HoppCollection[]) => {
     })
   }
 
+  const transformedCollection = collections.map((collection) =>
+    translateToTeamCollectionFormat(collection)
+  )
+
   const res = await toTeamsImporter(
-    JSON.stringify(collections),
+    JSON.stringify(transformedCollection),
     selectedTeamID.value
   )()
 
@@ -400,7 +425,6 @@ const HoppTeamCollectionsExporter: ImporterOrExporter = {
   },
   action: async () => {
     isHoppTeamCollectionExporterInProgress.value = true
-
     if (
       props.collectionsType.type === "team-collections" &&
       props.collectionsType.selectedTeam

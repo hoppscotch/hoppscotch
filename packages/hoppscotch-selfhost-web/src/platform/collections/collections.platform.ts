@@ -107,7 +107,7 @@ function exportedCollectionToHoppCollection(
   if (collectionType == "REST") {
     const restCollection = collection as ExportedUserCollectionREST
     const data =
-      restCollection.data && restCollection.data != "null"
+      restCollection.data && restCollection.data !== "null"
         ? JSON.parse(restCollection.data)
         : {
             auth: { authType: "inherit", authActive: false },
@@ -115,7 +115,7 @@ function exportedCollectionToHoppCollection(
           }
     return {
       id: restCollection.id,
-      v: 1,
+      v: 2,
       name: restCollection.name,
       folders: restCollection.folders.map((folder) =>
         exportedCollectionToHoppCollection(folder, collectionType)
@@ -162,7 +162,7 @@ function exportedCollectionToHoppCollection(
 
     return {
       id: gqlCollection.id,
-      v: 1,
+      v: 2,
       name: gqlCollection.name,
       folders: gqlCollection.folders.map((folder) =>
         exportedCollectionToHoppCollection(folder, collectionType)
@@ -324,7 +324,7 @@ function setupUserCollectionCreatedSubscription() {
                 name: res.right.userCollectionCreated.title,
                 folders: [],
                 requests: [],
-                v: 1,
+                v: 2,
                 auth: data.auth,
                 headers: data.headers,
               })
@@ -332,7 +332,7 @@ function setupUserCollectionCreatedSubscription() {
                 name: res.right.userCollectionCreated.title,
                 folders: [],
                 requests: [],
-                v: 1,
+                v: 2,
                 auth: data.auth,
                 headers: data?.headers,
               })

@@ -29,6 +29,7 @@ const isPlainObject = (value: any): value is object => _isPlainObject(value)
 
 /**
  * checks if a collection matches the schema for a hoppscotch collection.
+ * here 2 is the latest version of the schema.
  */
 const isValidCollection = (collection: unknown): collection is HoppCollection =>
   isPlainObject(collection) && "v" in collection && collection.v === 2

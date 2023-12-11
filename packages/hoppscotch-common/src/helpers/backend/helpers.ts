@@ -14,7 +14,7 @@ import {
   ExportAsJsonDocument,
   GetCollectionChildrenIDsDocument,
   GetCollectionRequestsDocument,
-  GetCollectionTitleDocument,
+  GetCollectionTitleAndDataDocument,
 } from "./graphql"
 
 export const BACKEND_PAGE_SIZE = 10
@@ -84,16 +84,19 @@ export const getCompleteCollectionTree = (
   pipe(
     TE.Do,
 
-    TE.bind("title", () =>
+    TE.bind("titleAndData", () =>
       pipe(
         () =>
           runGQLQuery({
-            query: GetCollectionTitleDocument,
+            query: GetCollectionTitleAndDataDocument,
             variables: {
               collectionID: collID,
             },
           }),
-        TE.map((x) => x.collection!.title)
+        TE.map((result) => ({
+          title: result.collection!.title,
+          data: result.collection!.data,
+        }))
       )
     ),
     TE.bind("children", () =>
@@ -107,22 +110,36 @@ export const getCompleteCollectionTree = (
     TE.bind("requests", () => () => getCollectionRequests(collID)),
 
     TE.map(
-      ({ title, children, requests }) =>
+      ({ titleAndData, children, requests }) =>
         <TeamCollection>{
           id: collID,
           children,
           requests,
-          title,
+          title: titleAndData.title,
+          data: titleAndData.data,
         }
     )
   )
 
-export const teamCollToHoppRESTColl = (coll: TeamCollection): HoppCollection =>
-  makeCollection({
+export const teamCollToHoppRESTColl = (
+  coll: TeamCollection
+): HoppCollection => {
+  const data =
+    coll.data && coll.data !== "null"
+      ? JSON.parse(coll.data)
+      : {
+          auth: { authType: "inherit", authActive: true },
+          headers: [],
+        }
+
+  return makeCollection({
     name: coll.title,
     folders: coll.children?.map(teamCollToHoppRESTColl) ?? [],
     requests: coll.requests?.map((x) => x.request) ?? [],
+    auth: data.auth ?? { authType: "inherit", authActive: true },
+    headers: data.headers ?? [],
   })
+}
 
 /**
  * Get the JSON string of all the collection of the specified team

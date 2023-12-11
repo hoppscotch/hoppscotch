@@ -699,7 +699,7 @@ export default class NewTeamCollectionAdapter {
           children: null,
           requests: null,
           title: result.right.teamCollectionAdded.title,
-          data: null,
+          data: result.right.teamCollectionAdded.data ?? null,
         },
         result.right.teamCollectionAdded.parent?.id ?? null
       )

@@ -1074,8 +1074,7 @@ export default class NewTeamCollectionAdapter {
       const parentFolderAuth = data.auth
       const parentFolderHeaders = data.headers
 
-      const isRootCollection = path.length === 1
-      if (parentFolderAuth?.authType === "inherit" && isRootCollection) {
+      if (parentFolderAuth?.authType === "inherit") {
         auth = {
           parentID: parentFolder.id ?? folderPath,
           parentName: parentFolder.title,

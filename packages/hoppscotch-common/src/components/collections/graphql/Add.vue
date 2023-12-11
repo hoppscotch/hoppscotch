@@ -36,7 +36,7 @@
 import { ref } from "vue"
 import { useToast } from "@composables/toast"
 import { useI18n } from "@composables/i18n"
-import { HoppGQLRequest, makeCollection } from "@hoppscotch/data"
+import { makeCollection } from "@hoppscotch/data"
 import { addGraphqlCollection } from "~/newstore/collections"
 import { platform } from "~/platform"
 
@@ -60,7 +60,7 @@ const addNewCollection = () => {
   }
 
   addGraphqlCollection(
-    makeCollection<HoppGQLRequest>({
+    makeCollection({
       name: name.value,
       folders: [],
       requests: [],

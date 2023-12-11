@@ -277,15 +277,11 @@ const collectionsType = ref<CollectionType>({
 })
 
 // Collection Data
-const editingCollection = ref<
-  HoppCollection<HoppRESTRequest> | TeamCollection | null
->(null)
+const editingCollection = ref<HoppCollection | TeamCollection | null>(null)
 const editingCollectionName = ref<string | null>(null)
 const editingCollectionIndex = ref<number | null>(null)
 const editingCollectionID = ref<string | null>(null)
-const editingFolder = ref<
-  HoppCollection<HoppRESTRequest> | TeamCollection | null
->(null)
+const editingFolder = ref<HoppCollection | TeamCollection | null>(null)
 const editingFolderName = ref<string | null>(null)
 const editingFolderPath = ref<string | null>(null)
 const editingRequest = ref<HoppRESTRequest | null>(null)
@@ -294,7 +290,7 @@ const editingRequestIndex = ref<number | null>(null)
 const editingRequestID = ref<string | null>(null)
 
 const editingProperties = ref<{
-  collection: HoppCollection<HoppRESTRequest> | TeamCollection | null
+  collection: HoppCollection | TeamCollection | null
   isRootCollection: boolean
   path: string
   inheritedProperties?: HoppInheritedProperty
@@ -660,7 +656,7 @@ const addNewRootCollection = (name: string) => {
 
 const addRequest = (payload: {
   path: string
-  folder: HoppCollection<HoppRESTRequest> | TeamCollection
+  folder: HoppCollection | TeamCollection
 }) => {
   const { path, folder } = payload
   editingFolder.value = folder
@@ -760,7 +756,7 @@ const onAddRequest = (requestName: string) => {
 
 const addFolder = (payload: {
   path: string
-  folder: HoppCollection<HoppRESTRequest> | TeamCollection
+  folder: HoppCollection | TeamCollection
 }) => {
   const { path, folder } = payload
   editingFolder.value = folder
@@ -819,15 +815,13 @@ const onAddFolder = (folderName: string) => {
 
 const editCollection = (payload: {
   collectionIndex: string
-  collection: HoppCollection<HoppRESTRequest> | TeamCollection
+  collection: HoppCollection | TeamCollection
 }) => {
   const { collectionIndex, collection } = payload
   editingCollection.value = collection
   if (collectionsType.value.type === "my-collections") {
     editingCollectionIndex.value = parseInt(collectionIndex)
-    editingCollectionName.value = (
-      collection as HoppCollection<HoppRESTRequest>
-    ).name
+    editingCollectionName.value = (collection as HoppCollection).name
   } else {
     editingCollectionName.value = (collection as TeamCollection).title
   }
@@ -880,13 +874,13 @@ const updateEditingCollection = (newName: string) => {
 
 const editFolder = (payload: {
   folderPath: string | undefined
-  folder: HoppCollection<HoppRESTRequest> | TeamCollection
+  folder: HoppCollection | TeamCollection
 }) => {
   const { folderPath, folder } = payload
   editingFolder.value = folder
   if (collectionsType.value.type === "my-collections" && folderPath) {
     editingFolderPath.value = folderPath
-    editingFolderName.value = (folder as HoppCollection<HoppRESTRequest>).name
+    editingFolderName.value = (folder as HoppCollection).name
   } else {
     editingFolderName.value = (folder as TeamCollection).title
   }
@@ -900,7 +894,7 @@ const updateEditingFolder = (newName: string) => {
     if (!editingFolderPath.value) return
 
     editRESTFolder(editingFolderPath.value, {
-      ...(editingFolder.value as HoppCollection<HoppRESTRequest>),
+      ...(editingFolder.value as HoppCollection),
       name: newName,
     })
     displayModalEditFolder(false)
@@ -1958,13 +1952,11 @@ const initializeDownloadCollection = async (
  * Triggered by the export button in the tippy menu
  * @param collection - Collection or folder to be exported
  */
-const exportData = async (
-  collection: HoppCollection<HoppRESTRequest> | TeamCollection
-) => {
+const exportData = async (collection: HoppCollection | TeamCollection) => {
   if (collectionsType.value.type === "my-collections") {
     const collectionJSON = JSON.stringify(collection)
 
-    const name = (collection as HoppCollection<HoppRESTRequest>).name
+    const name = (collection as HoppCollection).name
 
     initializeDownloadCollection(collectionJSON, name)
   } else {
@@ -2007,7 +1999,7 @@ const shareRequest = ({ request }: { request: HoppRESTRequest }) => {
 
 const editProperties = (payload: {
   collectionIndex: string
-  collection: HoppCollection<HoppRESTRequest> | TeamCollection
+  collection: HoppCollection | TeamCollection
 }) => {
   const { collection, collectionIndex } = payload
 
@@ -2096,7 +2088,7 @@ const editProperties = (payload: {
 }
 
 const setCollectionProperties = (newCollection: {
-  collection: HoppCollection<HoppRESTRequest>
+  collection: HoppCollection
   path: string
   isRootCollection: boolean
 }) => {

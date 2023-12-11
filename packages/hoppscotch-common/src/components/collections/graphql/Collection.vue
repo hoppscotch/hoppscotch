@@ -246,14 +246,14 @@ import { removeGraphqlCollection } from "~/newstore/collections"
 import { Picked } from "~/helpers/types/HoppPicked"
 import { useService } from "dioc/vue"
 import { GQLTabService } from "~/services/tab/graphql"
-import { HoppCollection, HoppGQLRequest } from "@hoppscotch/data"
+import { HoppCollection } from "@hoppscotch/data"
 
 const props = defineProps<{
   picked: Picked | null
   // Whether the viewing context is related to picking (activates 'select' events)
   saveRequest: boolean
   collectionIndex: number | null
-  collection: HoppCollection<HoppGQLRequest>
+  collection: HoppCollection
   isFiltered: boolean
 }>()
 
@@ -275,7 +275,7 @@ const emit = defineEmits<{
     e: "edit-properties",
     payload: {
       collectionIndex: string | null
-      collection: HoppCollection<HoppGQLRequest>
+      collection: HoppCollection
     }
   ): void
   (e: "edit-collection"): void

@@ -208,7 +208,7 @@ import IconFolder from "~icons/lucide/folder"
 import IconFolderOpen from "~icons/lucide/folder-open"
 import IconSettings2 from "~icons/lucide/settings-2"
 import { ref, computed, watch } from "vue"
-import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
+import { HoppCollection } from "@hoppscotch/data"
 import { useI18n } from "@composables/i18n"
 import { TippyComponent } from "vue-tippy"
 import { TeamCollection } from "~/helpers/teams/TeamCollection"
@@ -227,7 +227,7 @@ const props = withDefaults(
   defineProps<{
     id: string
     parentID?: string | null
-    data: HoppCollection<HoppRESTRequest> | TeamCollection
+    data: HoppCollection | TeamCollection
     /**
      * Collection component can be used for both collections and folders.
      * folderType is used to determine which one it is.
@@ -310,8 +310,8 @@ const collectionIcon = computed(() => {
 })
 
 const collectionName = computed(() => {
-  if ((props.data as HoppCollection<HoppRESTRequest>).name)
-    return (props.data as HoppCollection<HoppRESTRequest>).name
+  if ((props.data as HoppCollection).name)
+    return (props.data as HoppCollection).name
   return (props.data as TeamCollection).title
 })
 

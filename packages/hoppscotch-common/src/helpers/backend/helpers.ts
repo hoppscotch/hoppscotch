@@ -4,7 +4,6 @@ import * as TE from "fp-ts/TaskEither"
 import { pipe, flow } from "fp-ts/function"
 import {
   HoppCollection,
-  HoppRESTRequest,
   makeCollection,
   translateToNewRequest,
 } from "@hoppscotch/data"
@@ -118,9 +117,7 @@ export const getCompleteCollectionTree = (
     )
   )
 
-export const teamCollToHoppRESTColl = (
-  coll: TeamCollection
-): HoppCollection<HoppRESTRequest> =>
+export const teamCollToHoppRESTColl = (coll: TeamCollection): HoppCollection =>
   makeCollection({
     name: coll.title,
     folders: coll.children?.map(teamCollToHoppRESTColl) ?? [],

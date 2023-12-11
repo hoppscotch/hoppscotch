@@ -358,7 +358,7 @@ export type Collection = {
   isLastItem: boolean
   data: {
     parentIndex: null
-    data: HoppCollection<HoppRESTRequest>
+    data: HoppCollection
   }
 }
 
@@ -367,7 +367,7 @@ type Folder = {
   isLastItem: boolean
   data: {
     parentIndex: string
-    data: HoppCollection<HoppRESTRequest>
+    data: HoppCollection
   }
 }
 
@@ -394,7 +394,7 @@ type CollectionType =
 
 const props = defineProps({
   filteredCollections: {
-    type: Array as PropType<HoppCollection<HoppRESTRequest>[]>,
+    type: Array as PropType<HoppCollection[]>,
     default: () => [],
     required: true,
   },
@@ -426,35 +426,35 @@ const emit = defineEmits<{
     event: "add-request",
     payload: {
       path: string
-      folder: HoppCollection<HoppRESTRequest>
+      folder: HoppCollection
     }
   ): void
   (
     event: "add-folder",
     payload: {
       path: string
-      folder: HoppCollection<HoppRESTRequest>
+      folder: HoppCollection
     }
   ): void
   (
     event: "edit-collection",
     payload: {
       collectionIndex: string
-      collection: HoppCollection<HoppRESTRequest>
+      collection: HoppCollection
     }
   ): void
   (
     event: "edit-folder",
     payload: {
       folderPath: string
-      folder: HoppCollection<HoppRESTRequest>
+      folder: HoppCollection
     }
   ): void
   (
     event: "edit-properties",
     payload: {
       collectionIndex: string
-      collection: HoppCollection<HoppRESTRequest>
+      collection: HoppCollection
     }
   ): void
   (
@@ -472,7 +472,7 @@ const emit = defineEmits<{
       request: HoppRESTRequest
     }
   ): void
-  (event: "export-data", payload: HoppCollection<HoppRESTRequest>): void
+  (event: "export-data", payload: HoppCollection): void
   (event: "remove-collection", payload: string): void
   (event: "remove-folder", payload: string): void
   (
@@ -686,10 +686,10 @@ const updateCollectionOrder = (
 type MyCollectionNode = Collection | Folder | Requests
 
 class MyCollectionsAdapter implements SmartTreeAdapter<MyCollectionNode> {
-  constructor(public data: Ref<HoppCollection<HoppRESTRequest>[]>) {}
+  constructor(public data: Ref<HoppCollection[]>) {}
 
   navigateToFolderWithIndexPath(
-    collections: HoppCollection<HoppRESTRequest>[],
+    collections: HoppCollection[],
     indexPaths: number[]
   ) {
     if (indexPaths.length === 0) return null

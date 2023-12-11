@@ -1,9 +1,4 @@
-import {
-  Environment,
-  HoppCollection,
-  HoppGQLRequest,
-  HoppRESTRequest,
-} from "@hoppscotch/data"
+import { Environment, HoppCollection } from "@hoppscotch/data"
 
 import { HoppGQLDocument } from "~/helpers/graphql/document"
 import { HoppRESTDocument } from "~/helpers/rest/document"
@@ -14,15 +9,15 @@ import { PersistableTabState } from "~/services/tab"
 type VUEX_DATA = {
   postwoman: {
     settings?: SettingsDef
-    collections?: HoppCollection<HoppRESTRequest>[]
-    collectionsGraphql?: HoppCollection<HoppGQLRequest>[]
+    collections?: HoppCollection[]
+    collectionsGraphql?: HoppCollection[]
     environments?: Environment[]
   }
 }
 
 const DEFAULT_SETTINGS = getDefaultSettings()
 
-export const REST_COLLECTIONS_MOCK: HoppCollection<HoppRESTRequest>[] = [
+export const REST_COLLECTIONS_MOCK: HoppCollection[] = [
   {
     v: 1,
     name: "Echo",
@@ -44,7 +39,7 @@ export const REST_COLLECTIONS_MOCK: HoppCollection<HoppRESTRequest>[] = [
   },
 ]
 
-export const GQL_COLLECTIONS_MOCK: HoppCollection<HoppGQLRequest>[] = [
+export const GQL_COLLECTIONS_MOCK: HoppCollection[] = [
   {
     v: 1,
     name: "Echo",

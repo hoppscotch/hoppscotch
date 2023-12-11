@@ -13,7 +13,7 @@
 </template>
 
 <script setup lang="ts">
-import { HoppCollection, HoppGQLRequest } from "@hoppscotch/data"
+import { HoppCollection } from "@hoppscotch/data"
 import { computed } from "vue"
 import { graphqlCollectionStore } from "~/newstore/collections"
 
@@ -28,7 +28,7 @@ const pathFolders = computed(() => {
       .slice(0, -1)
       .map((x) => parseInt(x))
 
-    const pathItems: HoppCollection<HoppGQLRequest>[] = []
+    const pathItems: HoppCollection[] = []
 
     let currentFolder =
       graphqlCollectionStore.value.state[folderIndicies.shift()!]

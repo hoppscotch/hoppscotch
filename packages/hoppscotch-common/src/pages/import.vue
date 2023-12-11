@@ -12,7 +12,7 @@ import { onMounted } from "vue"
 import { useRoute, useRouter } from "vue-router"
 import * as E from "fp-ts/Either"
 import { pipe } from "fp-ts/function"
-import { HoppRESTRequest, HoppCollection } from "@hoppscotch/data"
+import { HoppCollection } from "@hoppscotch/data"
 import { appendRESTCollections } from "~/newstore/collections"
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
@@ -110,9 +110,7 @@ const handleImportFailure = (error: ImportCollectionsError) => {
   toast.error(t(IMPORT_ERROR_MAP[error]).toString())
 }
 
-const handleImportSuccess = (
-  collections: HoppCollection<HoppRESTRequest>[]
-) => {
+const handleImportSuccess = (collections: HoppCollection[]) => {
   appendRESTCollections(collections)
   toast.success(t("import.import_from_url_success").toString())
 }

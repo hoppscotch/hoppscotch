@@ -1,4 +1,4 @@
-import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
+import { HoppCollection } from "@hoppscotch/data"
 import { getAffectedIndexes } from "./affectedIndex"
 import { GetSingleRequestDocument } from "../backend/graphql"
 import { runGQLQuery } from "../backend/GQLClient"
@@ -225,9 +225,9 @@ export async function resetTeamRequestsContext() {
 }
 
 export function getFoldersByPath(
-  collections: HoppCollection<HoppRESTRequest>[],
+  collections: HoppCollection[],
   path: string
-): HoppCollection<HoppRESTRequest>[] {
+): HoppCollection[] {
   if (!path) return collections
 
   // path will be like this "0/0/1" these are the indexes of the folders

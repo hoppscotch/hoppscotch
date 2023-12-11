@@ -1,7 +1,5 @@
-import { HoppCollection, HoppGQLRequest } from "@hoppscotch/data"
+import { HoppCollection } from "@hoppscotch/data"
 
-export const gqlCollectionsExporter = (
-  gqlCollections: HoppCollection<HoppGQLRequest>[]
-) => {
+export const gqlCollectionsExporter = (gqlCollections: HoppCollection[]) => {
   return JSON.stringify(gqlCollections, null, 2)
 }

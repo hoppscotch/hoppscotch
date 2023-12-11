@@ -209,9 +209,9 @@ const showModalEditFolder = ref(false)
 const showModalEditRequest = ref(false)
 const showModalEditProperties = ref(false)
 
-const editingCollection = ref<HoppCollection<HoppGQLRequest> | null>(null)
+const editingCollection = ref<HoppCollection | null>(null)
 const editingCollectionIndex = ref<number | null>(null)
-const editingFolder = ref<HoppCollection<HoppGQLRequest> | null>(null)
+const editingFolder = ref<HoppCollection | null>(null)
 const editingFolderName = ref("")
 const editingFolderIndex = ref<number | null>(null)
 const editingFolderPath = ref("")
@@ -219,7 +219,7 @@ const editingRequest = ref<HoppGQLRequest | null>(null)
 const editingRequestIndex = ref<number | null>(null)
 
 const editingProperties = ref<{
-  collection: HoppCollection<HoppGQLRequest> | null
+  collection: HoppCollection | null
   isRootCollection: boolean
   path: string
   inheritedProperties?: HoppInheritedProperty
@@ -318,7 +318,7 @@ const displayModalEditProperties = (show: boolean) => {
 }
 
 const editCollection = (
-  collection: HoppCollection<HoppGQLRequest>,
+  collection: HoppCollection,
   collectionIndex: number
 ) => {
   editingCollection.value = collection
@@ -404,7 +404,7 @@ const addFolder = (payload: { path: string }) => {
 }
 
 const editFolder = (payload: {
-  folder: HoppCollection<HoppGQLRequest>
+  folder: HoppCollection
   folderPath: string
 }) => {
   const { folder, folderPath } = payload
@@ -553,7 +553,7 @@ const editProperties = ({
   collection,
 }: {
   collectionIndex: string | null
-  collection: HoppCollection<HoppGQLRequest> | null
+  collection: HoppCollection | null
 }) => {
   if (collectionIndex === null || collection === null) return
 
@@ -583,7 +583,7 @@ const editProperties = ({
 }
 
 const setCollectionProperties = (newCollection: {
-  collection: HoppCollection<HoppGQLRequest>
+  collection: HoppCollection
   path: string
   isRootCollection: boolean
 }) => {

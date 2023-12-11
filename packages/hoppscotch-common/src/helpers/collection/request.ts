@@ -57,7 +57,7 @@ export function resolveSaveContextOnRequestReorder(payload: {
 }
 
 export function getRequestsByPath(
-  collections: HoppCollection<HoppRESTRequest | HoppGQLRequest>[],
+  collections: HoppCollection[],
   path: string
 ): HoppRESTRequest[] | HoppGQLRequest[] {
   // path will be like this "0/0/1" these are the indexes of the folders

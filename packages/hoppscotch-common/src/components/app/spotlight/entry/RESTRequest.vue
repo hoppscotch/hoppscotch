@@ -20,7 +20,7 @@
 </template>
 
 <script setup lang="ts">
-import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
+import { HoppCollection } from "@hoppscotch/data"
 import { computed } from "vue"
 import { restCollectionStore } from "~/newstore/collections"
 import { getMethodLabelColorClassOf } from "~/helpers/rest/labelColoring"
@@ -36,7 +36,7 @@ const pathFolders = computed(() => {
       .slice(0, -1)
       .map((x) => parseInt(x))
 
-    const pathItems: HoppCollection<HoppRESTRequest>[] = []
+    const pathItems: HoppCollection[] = []
 
     let currentFolder = restCollectionStore.value.state[folderIndicies.shift()!]
     pathItems.push(currentFolder)

@@ -230,7 +230,7 @@ import { computed, ref } from "vue"
 import { useService } from "dioc/vue"
 import { GQLTabService } from "~/services/tab/graphql"
 import { Picked } from "~/helpers/types/HoppPicked"
-import { HoppCollection, HoppGQLRequest } from "@hoppscotch/data"
+import { HoppCollection } from "@hoppscotch/data"
 
 const toast = useToast()
 const t = useI18n()
@@ -242,7 +242,7 @@ const props = defineProps<{
   picked: Picked
   // Whether the request is in a selectable mode (activates 'select' event)
   saveRequest: boolean
-  folder: HoppCollection<HoppGQLRequest>
+  folder: HoppCollection
   folderIndex: number
   collectionIndex: number
   folderPath: string

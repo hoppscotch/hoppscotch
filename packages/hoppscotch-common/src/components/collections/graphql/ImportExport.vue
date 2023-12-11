@@ -11,7 +11,7 @@
 <script setup lang="ts">
 import { useI18n } from "~/composables/i18n"
 import { useToast } from "~/composables/toast"
-import { HoppCollection, HoppGQLRequest } from "@hoppscotch/data"
+import { HoppCollection } from "@hoppscotch/data"
 import { ImporterOrExporter } from "~/components/importExport/types"
 import { FileSource } from "~/helpers/import-export/import/import-sources/FileSource"
 import { GistSource } from "~/helpers/import-export/import/import-sources/GistSource"
@@ -214,9 +214,7 @@ const showImportFailedError = () => {
   toast.error(t("import.failed"))
 }
 
-const handleImportToStore = async (
-  gqlCollections: HoppCollection<HoppGQLRequest>[]
-) => {
+const handleImportToStore = async (gqlCollections: HoppCollection[]) => {
   setGraphqlCollections(gqlCollections)
   toast.success(t("import.success"))
 }

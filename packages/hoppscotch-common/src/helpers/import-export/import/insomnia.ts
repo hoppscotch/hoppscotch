@@ -192,7 +192,7 @@ const getHoppRequest = (req: InsomniaRequestResource): HoppRESTRequest =>
 const getHoppFolder = (
   folderRes: InsomniaFolderResource,
   resources: InsomniaResource[]
-): HoppCollection<HoppRESTRequest> =>
+): HoppCollection =>
   makeCollection({
     name: folderRes.name ?? "",
     folders: getFoldersIn(folderRes, resources).map((f) =>

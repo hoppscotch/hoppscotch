@@ -29,7 +29,6 @@ import { PropType, computed, ref } from "vue"
 import { useI18n } from "~/composables/i18n"
 import { useToast } from "~/composables/toast"
 import { HoppCollection } from "@hoppscotch/data"
-import { HoppRESTRequest } from "@hoppscotch/data"
 import { appendRESTCollections, restCollections$ } from "~/newstore/collections"
 import MyCollectionImport from "~/components/importExport/ImportExportSteps/MyCollectionImport.vue"
 import { GetMyTeamsQuery } from "~/helpers/backend/graphql"
@@ -88,9 +87,7 @@ const showImportFailedError = () => {
   toast.error(t("import.failed"))
 }
 
-const handleImportToStore = async (
-  collections: HoppCollection<HoppRESTRequest>[]
-) => {
+const handleImportToStore = async (collections: HoppCollection[]) => {
   const importResult =
     props.collectionsType.type === "my-collections"
       ? await importToPersonalWorkspace(collections)
@@ -104,18 +101,14 @@ const handleImportToStore = async (
   }
 }
 
-const importToPersonalWorkspace = (
-  collections: HoppCollection<HoppRESTRequest>[]
-) => {
+const importToPersonalWorkspace = (collections: HoppCollection[]) => {
   appendRESTCollections(collections)
   return E.right({
     success: true,
   })
 }
 
-const importToTeamsWorkspace = async (
-  collections: HoppCollection<HoppRESTRequest>[]
-) => {
+const importToTeamsWorkspace = async (collections: HoppCollection[]) => {
   if (!hasTeamWriteAccess.value || !selectedTeamID.value) {
     return E.left({
       success: false,

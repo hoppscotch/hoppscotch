@@ -68,7 +68,7 @@
 <script setup lang="ts">
 import { watch, ref } from "vue"
 import { useI18n } from "@composables/i18n"
-import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
+import { HoppCollection } from "@hoppscotch/data"
 import { RESTOptionTabs } from "../http/RequestOptions.vue"
 import { TeamCollection } from "~/helpers/teams/TeamCollection"
 import { clone } from "lodash-es"
@@ -77,7 +77,7 @@ import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 const t = useI18n()
 
 type EditingProperties = {
-  collection: HoppCollection<HoppRESTRequest> | TeamCollection | null
+  collection: HoppCollection | TeamCollection | null
   isRootCollection: boolean
   path: string
   inheritedProperties: HoppInheritedProperty | undefined

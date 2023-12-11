@@ -31,7 +31,7 @@
 </template>
 
 <script setup lang="ts">
-import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
+import { HoppCollection } from "@hoppscotch/data"
 import { computed, ref } from "vue"
 import { useI18n } from "~/composables/i18n"
 import { useReadonlyStream } from "~/composables/stream"
@@ -48,7 +48,7 @@ const hasSelectedCollectionID = computed(() => {
 const myCollections = useReadonlyStream(restCollections$, [])
 
 const emit = defineEmits<{
-  (e: "importFromMyCollection", content: HoppCollection<HoppRESTRequest>): void
+  (e: "importFromMyCollection", content: HoppCollection): void
 }>()
 
 const fetchCollectionFromMyCollections = async () => {

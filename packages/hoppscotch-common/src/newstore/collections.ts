@@ -14,7 +14,7 @@ import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 
 const defaultRESTCollectionState = {
   state: [
-    makeCollection<HoppRESTRequest>({
+    makeCollection({
       name: "My Collection",
       folders: [],
       requests: [],
@@ -29,7 +29,7 @@ const defaultRESTCollectionState = {
 
 const defaultGraphqlCollectionState = {
   state: [
-    makeCollection<HoppGQLRequest>({
+    makeCollection({
       name: "My GraphQL Collection",
       folders: [],
       requests: [],
@@ -50,7 +50,7 @@ type GraphqlCollectionStoreType = typeof defaultGraphqlCollectionState
  * Not removing this behaviour because i'm not sure if we utilize this behaviour anywhere and i found this on a tight time crunch.
  */
 export function navigateToFolderWithIndexPath(
-  collections: HoppCollection<HoppRESTRequest | HoppGQLRequest>[],
+  collections: HoppCollection[],
   indexPaths: number[]
 ) {
   if (indexPaths.length === 0) return null
@@ -79,7 +79,9 @@ export function cascadeParentCollectionForHeaderAuth(
     },
   }
   const headers: HoppInheritedProperty["headers"] = []
+
   if (!folderPath) return { auth, headers }
+
   const path = folderPath.split("/").map((i) => parseInt(i))
 
   // Check if the path is empty or invalid
@@ -104,9 +106,7 @@ export function cascadeParentCollectionForHeaderAuth(
     const parentFolderAuth = parentFolder.auth
     const parentFolderHeaders = parentFolder.headers
 
-    const isRootCollection = path.length === 1
-
-    if (parentFolderAuth?.authType === "inherit" && isRootCollection) {
+    if (parentFolderAuth?.authType === "inherit") {
       auth = {
         parentID: folderPath,
         parentName: parentFolder.name,
@@ -166,7 +166,7 @@ function reorderItems(array: unknown[], from: number, to: number) {
 const restCollectionDispatchers = defineDispatchers({
   setCollections(
     _: RESTCollectionStoreType,
-    { entries }: { entries: HoppCollection<HoppRESTRequest>[] }
+    { entries }: { entries: HoppCollection[] }
   ) {
     return {
       state: entries,
@@ -175,7 +175,7 @@ const restCollectionDispatchers = defineDispatchers({
 
   appendCollections(
     { state }: RESTCollectionStoreType,
-    { entries }: { entries: HoppCollection<HoppRESTRequest>[] }
+    { entries }: { entries: HoppCollection[] }
   ) {
     return {
       state: [...state, ...entries],
@@ -184,7 +184,7 @@ const restCollectionDispatchers = defineDispatchers({
 
   addCollection(
     { state }: RESTCollectionStoreType,
-    { collection }: { collection: HoppCollection<any> }
+    { collection }: { collection: HoppCollection }
   ) {
     return {
       state: [...state, collection],
@@ -214,7 +214,7 @@ const restCollectionDispatchers = defineDispatchers({
       partialCollection,
     }: {
       collectionIndex: number
-      partialCollection: Partial<HoppCollection<any>>
+      partialCollection: Partial<HoppCollection>
     }
   ) {
     return {
@@ -230,7 +230,7 @@ const restCollectionDispatchers = defineDispatchers({
     { state }: RESTCollectionStoreType,
     { name, path }: { name: string; path: string }
   ) {
-    const newFolder: HoppCollection<HoppRESTRequest> = makeCollection({
+    const newFolder: HoppCollection = makeCollection({
       name,
       folders: [],
       requests: [],
@@ -265,7 +265,7 @@ const restCollectionDispatchers = defineDispatchers({
       folder,
     }: {
       path: string
-      folder: Partial<HoppCollection<HoppRESTRequest>>
+      folder: Partial<HoppCollection>
     }
   ) {
     const newState = state
@@ -356,7 +356,7 @@ const restCollectionDispatchers = defineDispatchers({
       }
 
       const theFolder = containingFolder.folders.splice(folderIndex, 1)
-      newState.push(theFolder[0] as HoppCollection<HoppRESTRequest>)
+      newState.push(theFolder[0] as HoppCollection)
 
       return {
         state: newState,
@@ -719,7 +719,7 @@ const restCollectionDispatchers = defineDispatchers({
       type: "collection" | "request"
     }
   ) {
-    const after = removeDuplicateCollectionsFromPath<HoppRESTRequest>(
+    const after = removeDuplicateCollectionsFromPath(
       id,
       collectionPath,
       state,
@@ -735,7 +735,7 @@ const restCollectionDispatchers = defineDispatchers({
 const gqlCollectionDispatchers = defineDispatchers({
   setCollections(
     _: GraphqlCollectionStoreType,
-    { entries }: { entries: HoppCollection<any>[] }
+    { entries }: { entries: HoppCollection[] }
   ) {
     return {
       state: entries,
@@ -744,7 +744,7 @@ const gqlCollectionDispatchers = defineDispatchers({
 
   appendCollections(
     { state }: GraphqlCollectionStoreType,
-    { entries }: { entries: HoppCollection<any>[] }
+    { entries }: { entries: HoppCollection[] }
   ) {
     return {
       state: [...state, ...entries],
@@ -753,7 +753,7 @@ const gqlCollectionDispatchers = defineDispatchers({
 
   addCollection(
     { state }: GraphqlCollectionStoreType,
-    { collection }: { collection: HoppCollection<any> }
+    { collection }: { collection: HoppCollection }
   ) {
     return {
       state: [...state, collection],
@@ -780,7 +780,7 @@ const gqlCollectionDispatchers = defineDispatchers({
     {
       collectionIndex,
       collection,
-    }: { collectionIndex: number; collection: Partial<HoppCollection<any>> }
+    }: { collectionIndex: number; collection: Partial<HoppCollection> }
   ) {
     return {
       state: state.map((col, index) =>
@@ -793,7 +793,7 @@ const gqlCollectionDispatchers = defineDispatchers({
     { state }: GraphqlCollectionStoreType,
     { name, path }: { name: string; path: string }
   ) {
-    const newFolder: HoppCollection<HoppGQLRequest> = makeCollection({
+    const newFolder: HoppCollection = makeCollection({
       name,
       folders: [],
       requests: [],
@@ -822,10 +822,7 @@ const gqlCollectionDispatchers = defineDispatchers({
 
   editFolder(
     { state }: GraphqlCollectionStoreType,
-    {
-      path,
-      folder,
-    }: { path: string; folder: Partial<HoppCollection<HoppGQLRequest>> }
+    { path, folder }: { path: string; folder: Partial<HoppCollection> }
   ) {
     const newState = state
 
@@ -1024,7 +1021,7 @@ const gqlCollectionDispatchers = defineDispatchers({
       type: "collection" | "request"
     }
   ) {
-    const after = removeDuplicateCollectionsFromPath<HoppGQLRequest>(
+    const after = removeDuplicateCollectionsFromPath(
       id,
       collectionPath,
       state,
@@ -1047,7 +1044,7 @@ export const graphqlCollectionStore = new DispatchingStore(
   gqlCollectionDispatchers
 )
 
-export function setRESTCollections(entries: HoppCollection<HoppRESTRequest>[]) {
+export function setRESTCollections(entries: HoppCollection[]) {
   restCollectionStore.dispatch({
     dispatcher: "setCollections",
     payload: {
@@ -1064,9 +1061,7 @@ export const graphqlCollections$ = graphqlCollectionStore.subject$.pipe(
   pluck("state")
 )
 
-export function appendRESTCollections(
-  entries: HoppCollection<HoppRESTRequest>[]
-) {
+export function appendRESTCollections(entries: HoppCollection[]) {
   restCollectionStore.dispatch({
     dispatcher: "appendCollections",
     payload: {
@@ -1075,7 +1070,7 @@ export function appendRESTCollections(
   })
 }
 
-export function addRESTCollection(collection: HoppCollection<HoppRESTRequest>) {
+export function addRESTCollection(collection: HoppCollection) {
   restCollectionStore.dispatch({
     dispatcher: "addCollection",
     payload: {
@@ -1103,7 +1098,7 @@ export function getRESTCollection(collectionIndex: number) {
 
 export function editRESTCollection(
   collectionIndex: number,
-  partialCollection: Partial<HoppCollection<HoppRESTRequest>>
+  partialCollection: Partial<HoppCollection>
 ) {
   restCollectionStore.dispatch({
     dispatcher: "editCollection",
@@ -1124,10 +1119,7 @@ export function addRESTFolder(name: string, path: string) {
   })
 }
 
-export function editRESTFolder(
-  path: string,
-  folder: Partial<HoppCollection<HoppRESTRequest>>
-) {
+export function editRESTFolder(path: string, folder: Partial<HoppCollection>) {
   restCollectionStore.dispatch({
     dispatcher: "editFolder",
     payload: {
@@ -1271,9 +1263,7 @@ export function updateRESTCollectionOrder(
   })
 }
 
-export function setGraphqlCollections(
-  entries: HoppCollection<HoppGQLRequest>[]
-) {
+export function setGraphqlCollections(entries: HoppCollection[]) {
   graphqlCollectionStore.dispatch({
     dispatcher: "setCollections",
     payload: {
@@ -1282,9 +1272,7 @@ export function setGraphqlCollections(
   })
 }
 
-export function appendGraphqlCollections(
-  entries: HoppCollection<HoppGQLRequest>[]
-) {
+export function appendGraphqlCollections(entries: HoppCollection[]) {
   graphqlCollectionStore.dispatch({
     dispatcher: "appendCollections",
     payload: {
@@ -1293,9 +1281,7 @@ export function appendGraphqlCollections(
   })
 }
 
-export function addGraphqlCollection(
-  collection: HoppCollection<HoppGQLRequest>
-) {
+export function addGraphqlCollection(collection: HoppCollection) {
   graphqlCollectionStore.dispatch({
     dispatcher: "addCollection",
     payload: {
@@ -1319,7 +1305,7 @@ export function removeGraphqlCollection(
 
 export function editGraphqlCollection(
   collectionIndex: number,
-  collection: Partial<HoppCollection<HoppGQLRequest>>
+  collection: Partial<HoppCollection>
 ) {
   graphqlCollectionStore.dispatch({
     dispatcher: "editCollection",
@@ -1342,7 +1328,7 @@ export function addGraphqlFolder(name: string, path: string) {
 
 export function editGraphqlFolder(
   path: string,
-  folder: Partial<HoppCollection<HoppGQLRequest>>
+  folder: Partial<HoppCollection>
 ) {
   graphqlCollectionStore.dispatch({
     dispatcher: "editFolder",
@@ -1433,14 +1419,12 @@ export function moveGraphqlRequest(
   })
 }
 
-function removeDuplicateCollectionsFromPath<
-  T extends HoppRESTRequest | HoppGQLRequest,
->(
+function removeDuplicateCollectionsFromPath(
   idToRemove: string,
   collectionPath: string | null,
-  collections: HoppCollection<T>[],
+  collections: HoppCollection[],
   type: "collection" | "request"
-): HoppCollection<T>[] {
+): HoppCollection[] {
   const indexes = collectionPath?.split("/").map((x) => parseInt(x))
   indexes && indexes.pop()
   const parentPath = indexes?.join("/")

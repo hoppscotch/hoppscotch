@@ -17,7 +17,11 @@ import {
 import IconFolder from "~icons/lucide/folder"
 import RESTRequestSpotlightEntry from "~/components/app/spotlight/entry/RESTRequest.vue"
 import GQLRequestSpotlightEntry from "~/components/app/spotlight/entry/GQLRequest.vue"
-import { HoppCollection } from "@hoppscotch/data"
+import {
+  HoppCollection,
+  HoppGQLRequest,
+  HoppRESTRequest,
+} from "@hoppscotch/data"
 import { WorkspaceService } from "~/services/workspace.service"
 import { invokeAction } from "~/helpers/actions"
 import { RESTTabService } from "~/services/tab/rest"
@@ -297,7 +301,7 @@ export class CollectionsSpotlightSearcherService
         this.restTab.setActiveTab(possibleTab.value.id)
       } else {
         const req = this.getRESTFolderFromFolderPath(folderPath.join("/"))
-          ?.requests[reqIndex]
+          ?.requests[reqIndex] as HoppRESTRequest
 
         if (!req) return
 
@@ -328,7 +332,7 @@ export class CollectionsSpotlightSearcherService
       const reqIndex = folderPath.pop()!
 
       const req = this.getGQLFolderFromFolderPath(folderPath.join("/"))
-        ?.requests[reqIndex]
+        ?.requests[reqIndex] as HoppGQLRequest
 
       if (!req) return
 

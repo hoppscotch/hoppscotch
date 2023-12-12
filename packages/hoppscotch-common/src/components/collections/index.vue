@@ -2119,6 +2119,7 @@ const setCollectionProperties = (newCollection: {
         "rest"
       )
     })
+    toast.success(t("collection.properties_updated"))
   } else if (hasTeamWriteAccess.value && collection.id) {
     const data = {
       auth: collection.auth,

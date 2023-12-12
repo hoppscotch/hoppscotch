@@ -21,7 +21,12 @@ const props = defineProps<{
   label?: string | undefined
 }>()
 
+const shortcodeBaseURL =
+  import.meta.env.VITE_SHORTCODE_BASE_URL ?? "https://hopp.sh"
+
 const text = computed(() => {
-  return props.label ? t(props.label) : `hopp.sh/r/${props.link ?? "xxxx"}`
+  return props.label
+    ? t(props.label)
+    : `${shortcodeBaseURL}/r/${props.link ?? "xxxx"}`
 })
 </script>

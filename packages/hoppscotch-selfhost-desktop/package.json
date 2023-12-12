@@ -20,7 +20,7 @@
     "@vueuse/core": "^10.4.1",
     "axios": "^0.21.4",
     "buffer": "^6.0.3",
-    "dioc": "workspace:^",
+    "dioc": "^1.0.1",
     "environments.api": "link:@platform/environments/environments.api",
     "event": "link:@tauri-apps/api/event",
     "fp-ts": "^2.16.0",

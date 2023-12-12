@@ -39,6 +39,6 @@ export function stopApp() {
 
   setTimeout(() => {
     console.log('Stopping app now...');
-    process.exit();
+    process.kill(process.pid, 'SIGTERM');
   }, 5000);
 }

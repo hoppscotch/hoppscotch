@@ -53,6 +53,12 @@ async function bootstrap() {
   });
   app.use(cookieParser());
   await app.listen(configService.get('PORT') || 3170);
+
+  // Graceful shutdown
+  process.on('SIGTERM', async () => {
+    console.info('SIGTERM signal received');
+    await app.close();
+  });
 }
 
 if (!process.env.GENERATE_GQL_SCHEMA) {

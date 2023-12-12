@@ -151,6 +151,7 @@ declare module 'vue' {
     HttpTestResultRequest: typeof import('./components/http/test/ResultRequest.vue')['default']
     HttpTestRunner: typeof import('./components/http/test/Runner.vue')['default']
     HttpTestRunnerConfig: typeof import('./components/http/test/RunnerConfig.vue')['default']
+    HttpTestRunnerMeta: typeof import('./components/http/test/RunnerMeta.vue')['default']
     HttpTestRunnerResult: typeof import('./components/http/test/RunnerResult.vue')['default']
     HttpTests: typeof import('./components/http/Tests.vue')['default']
     HttpTestSelectRequest: typeof import('./components/http/test/SelectRequest.vue')['default']

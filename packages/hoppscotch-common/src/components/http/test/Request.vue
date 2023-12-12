@@ -8,7 +8,7 @@
       >
         <span
           class="flex items-center justify-center px-2 truncate pointer-events-none"
-          :class="requestLabelColor"
+          :style="{ color: requestLabelColor }"
         >
           <HoppSmartCheckbox
             v-if="showSelection"

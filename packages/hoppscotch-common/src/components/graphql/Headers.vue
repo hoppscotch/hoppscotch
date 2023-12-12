@@ -162,12 +162,14 @@
       :alt="`${t('empty.headers')}`"
       :text="t('empty.headers')"
     >
-      <HoppButtonSecondary
-        :label="`${t('add.new')}`"
-        filled
-        :icon="IconPlus"
-        @click="addHeader"
-      />
+      <template #body>
+        <HoppButtonSecondary
+          :label="`${t('add.new')}`"
+          filled
+          :icon="IconPlus"
+          @click="addHeader"
+        />
+      </template>
     </HoppSmartPlaceholder>
   </div>
 </template>

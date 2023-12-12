@@ -149,12 +149,14 @@
         :alt="`${t('empty.body')}`"
         :text="t('empty.body')"
       >
-        <HoppButtonSecondary
-          filled
-          :label="`${t('add.new')}`"
-          :icon="IconPlus"
-          @click="addUrlEncodedParam"
-        />
+        <template #body>
+          <HoppButtonSecondary
+            filled
+            :label="`${t('add.new')}`"
+            :icon="IconPlus"
+            @click="addUrlEncodedParam"
+          />
+        </template>
       </HoppSmartPlaceholder>
     </div>
   </div>

@@ -163,8 +163,7 @@
             :src="`/images/states/${colorMode.value}/add_category.svg`"
             :alt="`${t('empty.protocols')}`"
             :text="`${t('empty.protocols')}`"
-          >
-          </HoppSmartPlaceholder>
+          />
         </HoppSmartTab>
       </HoppSmartTabs>
     </template>

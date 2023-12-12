@@ -78,11 +78,13 @@
             :alt="`${t('empty.environments')}`"
             :text="t('empty.environments')"
           >
-            <HoppButtonSecondary
-              :label="`${t('add.new')}`"
-              filled
-              @click="addEnvironmentVariable"
-            />
+            <template #body>
+              <HoppButtonSecondary
+                :label="`${t('add.new')}`"
+                filled
+                @click="addEnvironmentVariable"
+              />
+            </template>
           </HoppSmartPlaceholder>
         </div>
       </div>

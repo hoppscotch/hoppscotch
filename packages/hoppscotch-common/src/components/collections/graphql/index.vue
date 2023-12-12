@@ -11,7 +11,7 @@
         type="search"
         autocomplete="off"
         :placeholder="t('action.search')"
-        class="!border-0 bg-transparent py-2 pl-4 pr-2"
+        class="flex w-full bg-transparent px-4 py-2 h-8"
       />
       <div
         class="flex flex-1 flex-shrink-0 justify-between border-y border-dividerLight bg-primary"
@@ -66,34 +66,36 @@
       :alt="`${t('empty.collections')}`"
       :text="t('empty.collections')"
     >
-      <div class="flex flex-col items-center space-y-4">
-        <span class="text-center text-secondaryLight">
-          {{ t("collection.import_or_create") }}
-        </span>
-        <div class="flex flex-col items-stretch gap-4">
-          <HoppButtonPrimary
-            :icon="IconImport"
-            :label="t('import.title')"
-            filled
-            outline
-            @click="displayModalImportExport(true)"
-          />
-          <HoppButtonSecondary
-            :label="t('add.new')"
-            filled
-            outline
-            :icon="IconPlus"
-            @click="displayModalAdd(true)"
-          />
+      <template #body>
+        <div class="flex flex-col items-center space-y-4">
+          <span class="text-center text-secondaryLight">
+            {{ t("collection.import_or_create") }}
+          </span>
+          <div class="flex flex-col items-stretch gap-4">
+            <HoppButtonPrimary
+              :icon="IconImport"
+              :label="t('import.title')"
+              filled
+              outline
+              @click="displayModalImportExport(true)"
+            />
+            <HoppButtonSecondary
+              :label="t('add.new')"
+              filled
+              outline
+              :icon="IconPlus"
+              @click="displayModalAdd(true)"
+            />
+          </div>
         </div>
-      </div>
+      </template>
     </HoppSmartPlaceholder>
     <HoppSmartPlaceholder
       v-if="!(filteredCollections.length !== 0 || collections.length === 0)"
       :text="`${t('state.nothing_found')} ‟${filterText}”`"
     >
       <template #icon>
-        <icon-lucide-search class="svg-icons pb-2 opacity-75" />
+        <icon-lucide-search class="svg-icons opacity-75" />
       </template>
     </HoppSmartPlaceholder>
     <CollectionsGraphqlAdd

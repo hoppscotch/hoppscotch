@@ -37,7 +37,9 @@
         :text="t('helpers.network_fail')"
         large
       >
-        <AppInterceptor class="rounded border border-dividerLight p-2" />
+        <template #body>
+          <AppInterceptor class="rounded border border-dividerLight p-2" />
+        </template>
       </HoppSmartPlaceholder>
       <HoppSmartPlaceholder
         v-if="response.type === 'script_fail'"
@@ -47,12 +49,14 @@
         :text="t('helpers.script_fail')"
         large
       >
-        <div
-          class="mt-2 w-full overflow-auto whitespace-normal rounded bg-primaryLight px-4 py-2 font-mono text-red-400"
-        >
-          {{ response.error.name }}: {{ response.error.message }}<br />
-          {{ response.error.stack }}
-        </div>
+        <template #body>
+          <div
+            class="mt-2 w-full overflow-auto whitespace-normal rounded bg-primaryLight px-4 py-2 font-mono text-red-400"
+          >
+            {{ response.error.name }}: {{ response.error.message }}<br />
+            {{ response.error.stack }}
+          </div>
+        </template>
       </HoppSmartPlaceholder>
       <div
         v-if="response.type === 'success' || response.type === 'fail'"

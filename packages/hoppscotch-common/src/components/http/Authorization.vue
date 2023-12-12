@@ -119,14 +119,16 @@
       :alt="`${t('empty.authorization')}`"
       :text="t('empty.authorization')"
     >
-      <HoppButtonSecondary
-        outline
-        :label="t('app.documentation')"
-        to="https://docs.hoppscotch.io/documentation/features/authorization"
-        blank
-        :icon="IconExternalLink"
-        reverse
-      />
+      <template #body>
+        <HoppButtonSecondary
+          outline
+          :label="t('app.documentation')"
+          to="https://docs.hoppscotch.io/documentation/features/authorization"
+          blank
+          :icon="IconExternalLink"
+          reverse
+        />
+      </template>
     </HoppSmartPlaceholder>
     <div v-else class="flex flex-1 border-b border-dividerLight">
       <div class="w-2/3 border-r border-dividerLight">

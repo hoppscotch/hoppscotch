@@ -159,8 +159,7 @@
       :alt="`${t('error.test_script_fail')}`"
       :heading="t('error.test_script_fail')"
       :text="t('helpers.test_script_fail')"
-    >
-    </HoppSmartPlaceholder>
+    />
     <HoppSmartPlaceholder
       v-else
       :src="`/images/states/${colorMode.value}/validation.svg`"
@@ -168,15 +167,16 @@
       :heading="t('empty.tests')"
       :text="t('helpers.tests')"
     >
-      <HoppButtonSecondary
-        outline
-        :label="`${t('action.learn_more')}`"
-        to="https://docs.hoppscotch.io/documentation/getting-started/rest/tests"
-        blank
-        :icon="IconExternalLink"
-        reverse
-        class="my-4"
-      />
+      <template #body>
+        <HoppButtonSecondary
+          outline
+          :label="`${t('action.learn_more')}`"
+          to="https://docs.hoppscotch.io/documentation/getting-started/rest/tests"
+          blank
+          :icon="IconExternalLink"
+          reverse
+        />
+      </template>
     </HoppSmartPlaceholder>
     <EnvironmentsMyDetails
       :show="showMyEnvironmentDetailsModal"

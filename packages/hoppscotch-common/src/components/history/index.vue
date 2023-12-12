@@ -9,7 +9,7 @@
           v-model="filterText"
           type="search"
           autocomplete="off"
-          class="flex w-full bg-transparent px-4 py-2"
+          class="flex w-full bg-transparent px-4 py-2 h-8"
           :placeholder="`${t('action.search')}`"
         />
         <div class="flex">
@@ -114,8 +114,7 @@
       :src="`/images/states/${colorMode.value}/history.svg`"
       :alt="`${t('empty.history')}`"
       :text="t('empty.history')"
-    >
-    </HoppSmartPlaceholder>
+    />
     <HoppSmartPlaceholder
       v-else-if="
         Object.keys(filteredHistoryGroups).length === 0 ||
@@ -124,18 +123,20 @@
       :text="`${t('state.nothing_found')} ‟${filterText || filterSelection}”`"
     >
       <template #icon>
-        <icon-lucide-search class="svg-icons pb-2 opacity-75" />
+        <icon-lucide-search class="svg-icons opacity-75" />
       </template>
-      <HoppButtonSecondary
-        :label="t('action.clear')"
-        outline
-        @click="
-          () => {
-            filterText = ''
-            filterSelection = 'ALL'
-          }
-        "
-      />
+      <template #body>
+        <HoppButtonSecondary
+          :label="t('action.clear')"
+          outline
+          @click="
+            () => {
+              filterText = ''
+              filterSelection = 'ALL'
+            }
+          "
+        />
+      </template>
     </HoppSmartPlaceholder>
     <HoppSmartConfirmModal
       :show="confirmRemove"

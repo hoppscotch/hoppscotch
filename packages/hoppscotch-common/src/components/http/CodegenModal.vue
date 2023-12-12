@@ -61,7 +61,7 @@
                   :text="`${t('state.nothing_found')} ‟${searchQuery}”`"
                 >
                   <template #icon>
-                    <icon-lucide-search class="svg-icons pb-2 opacity-75" />
+                    <icon-lucide-search class="svg-icons opacity-75" />
                   </template>
                 </HoppSmartPlaceholder>
               </div>

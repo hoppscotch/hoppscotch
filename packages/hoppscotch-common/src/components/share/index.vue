@@ -32,10 +32,12 @@
         :alt="`${t('empty.shared_requests_logout')}`"
         :text="`${t('empty.shared_requests_logout')}`"
       >
-        <HoppButtonPrimary
-          :label="t('auth.login')"
-          @click="invokeAction('modals.login.toggle')"
-        />
+        <template #body>
+          <HoppButtonPrimary
+            :label="t('auth.login')"
+            @click="invokeAction('modals.login.toggle')"
+          />
+        </template>
       </HoppSmartPlaceholder>
 
       <template v-else-if="sharedRequests.length">

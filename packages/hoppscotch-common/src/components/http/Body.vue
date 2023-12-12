@@ -112,14 +112,16 @@
       :alt="`${t('empty.body')}`"
       :text="t('empty.body')"
     >
-      <HoppButtonSecondary
-        outline
-        :label="`${t('app.documentation')}`"
-        to="https://docs.hoppscotch.io/documentation/getting-started/rest/uploading-data"
-        blank
-        :icon="IconExternalLink"
-        reverse
-      />
+      <template #body>
+        <HoppButtonSecondary
+          outline
+          :label="`${t('app.documentation')}`"
+          to="https://docs.hoppscotch.io/documentation/getting-started/rest/uploading-data"
+          blank
+          :icon="IconExternalLink"
+          reverse
+        />
+      </template>
     </HoppSmartPlaceholder>
   </div>
 </template>

@@ -81,18 +81,20 @@
             :alt="`${t('empty.environments')}`"
             :text="t('empty.environments')"
           >
-            <HoppButtonSecondary
-              v-if="isViewer"
-              disabled
-              :label="`${t('add.new')}`"
-              filled
-            />
-            <HoppButtonSecondary
-              v-else
-              :label="`${t('add.new')}`"
-              filled
-              @click="addEnvironmentVariable"
-            />
+            <template #body>
+              <HoppButtonSecondary
+                v-if="isViewer"
+                disabled
+                :label="`${t('add.new')}`"
+                filled
+              />
+              <HoppButtonSecondary
+                v-else
+                :label="`${t('add.new')}`"
+                filled
+                @click="addEnvironmentVariable"
+              />
+            </template>
           </HoppSmartPlaceholder>
         </div>
       </div>

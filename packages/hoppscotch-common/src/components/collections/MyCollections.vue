@@ -254,7 +254,7 @@
             :text="`${t('state.nothing_found')} ‟${filterText}”`"
           >
             <template #icon>
-              <icon-lucide-search class="svg-icons pb-2 opacity-75" />
+              <icon-lucide-search class="svg-icons opacity-75" />
             </template>
           </HoppSmartPlaceholder>
           <HoppSmartPlaceholder
@@ -263,27 +263,29 @@
             :alt="`${t('empty.collections')}`"
             :text="t('empty.collections')"
           >
-            <div class="flex flex-col items-center space-y-4">
-              <span class="text-center text-secondaryLight">
-                {{ t("collection.import_or_create") }}
-              </span>
-              <div class="flex flex-col items-stretch gap-4">
-                <HoppButtonPrimary
-                  :icon="IconImport"
-                  :label="t('import.title')"
-                  filled
-                  outline
-                  @click="emit('display-modal-import-export')"
-                />
-                <HoppButtonSecondary
-                  :icon="IconPlus"
-                  :label="t('add.new')"
-                  filled
-                  outline
-                  @click="emit('display-modal-add')"
-                />
+            <template #body>
+              <div class="flex flex-col items-center space-y-4">
+                <span class="text-center text-secondaryLight">
+                  {{ t("collection.import_or_create") }}
+                </span>
+                <div class="flex flex-col items-stretch gap-4">
+                  <HoppButtonPrimary
+                    :icon="IconImport"
+                    :label="t('import.title')"
+                    filled
+                    outline
+                    @click="emit('display-modal-import-export')"
+                  />
+                  <HoppButtonSecondary
+                    :icon="IconPlus"
+                    :label="t('add.new')"
+                    filled
+                    outline
+                    @click="emit('display-modal-add')"
+                  />
+                </div>
               </div>
-            </div>
+            </template>
           </HoppSmartPlaceholder>
           <HoppSmartPlaceholder
             v-else-if="node.data.type === 'collections'"
@@ -291,18 +293,20 @@
             :alt="`${t('empty.collections')}`"
             :text="t('empty.collections')"
           >
-            <HoppButtonSecondary
-              :label="t('add.new')"
-              filled
-              outline
-              @click="
-                node.data.type === 'collections' &&
-                  emit('add-folder', {
-                    path: node.id,
-                    folder: node.data.data.data,
-                  })
-              "
-            />
+            <template #body>
+              <HoppButtonSecondary
+                :label="t('add.new')"
+                filled
+                outline
+                @click="
+                  node.data.type === 'collections' &&
+                    emit('add-folder', {
+                      path: node.id,
+                      folder: node.data.data.data,
+                    })
+                "
+              />
+            </template>
           </HoppSmartPlaceholder>
           <HoppSmartPlaceholder
             v-else-if="node.data.type === 'folders'"

@@ -180,16 +180,18 @@
           :alt="`${t('empty.collection')}`"
           :text="t('empty.collection')"
         >
-          <HoppButtonSecondary
-            :label="t('add.new')"
-            filled
-            outline
-            @click="
-              emit('add-folder', {
-                path: `${collectionIndex}`,
-              })
-            "
-          />
+          <template #body>
+            <HoppButtonSecondary
+              :label="t('add.new')"
+              filled
+              outline
+              @click="
+                emit('add-folder', {
+                  path: `${collectionIndex}`,
+                })
+              "
+            />
+          </template>
         </HoppSmartPlaceholder>
       </div>
     </div>

@@ -22,7 +22,7 @@
         v-model="filterTexts"
         type="search"
         autocomplete="off"
-        class="flex w-full bg-transparent px-4 py-2"
+        class="flex w-full bg-transparent px-4 py-2 h-8"
         :placeholder="t('action.search')"
         :disabled="collectionsType.type === 'team-collections'"
       />

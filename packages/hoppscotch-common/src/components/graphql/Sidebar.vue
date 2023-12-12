@@ -20,8 +20,7 @@
         :src="`/images/states/${colorMode.value}/add_comment.svg`"
         :alt="`${t('empty.documentation')}`"
         :text="t('empty.documentation')"
-      >
-      </HoppSmartPlaceholder>
+      />
       <div v-else>
         <div
           class="sticky top-0 z-10 flex flex-shrink-0 overflow-x-auto bg-primary"
@@ -30,7 +29,7 @@
             v-model="graphqlFieldsFilterText"
             type="search"
             autocomplete="off"
-            class="flex w-full bg-transparent px-4 py-2"
+            class="flex w-full bg-transparent px-4 py-2 h-8"
             :placeholder="`${t('action.search')}`"
           />
           <div class="flex">

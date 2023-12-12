@@ -37,8 +37,9 @@
                 :is="tabMeta.icon"
                 v-if="tabMeta.icon"
                 class="svg-icons"
+                :class="{ 'mr-2': tabMeta.label && !vertical }"
               />
-              <span v-else-if="tabMeta.label">{{ tabMeta.label }}</span>
+              <span v-if="tabMeta.label && !vertical">{{ tabMeta.label }}</span>
               <span
                 v-if="tabMeta.info && tabMeta.info !== 'null'"
                 class="tab-info"

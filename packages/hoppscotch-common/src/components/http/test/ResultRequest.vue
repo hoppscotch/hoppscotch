@@ -9,7 +9,7 @@
         <div class="flex gap-4 mb-1">
           <span
             class="flex items-center justify-center truncate pointer-events-none"
-            :class="requestLabelColor"
+            :style="{ color: requestLabelColor }"
           >
             <span class="font-bold truncate">
               {{ request.method }}

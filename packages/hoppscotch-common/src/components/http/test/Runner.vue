@@ -5,26 +5,44 @@
         class="flex flex-shrink-0 p-4 overflow-x-auto space-x-2 bg-primary sticky top-0 z-20"
       >
         <div class="inline-flex flex-1 gap-8">
-          <div
-            v-for="item in arr"
-            :key="item.name"
-            class="flex flex-col"
-            @click="showResult = !showResult"
-          >
-            <span class="text-xs text-secondaryLight mb-1">
-              {{ item.name }}
-            </span>
-            <span class="text-sm font-bold text-secondaryDark">
-              {{ item.value }}
-            </span>
-          </div>
+          <HttpTestRunnerMeta
+            :heading="t('collection.title')"
+            :text="collectionName"
+          />
+          <template v-if="showResult">
+            <HttpTestRunnerMeta
+              :heading="t('environment.heading')"
+              :text="'None'"
+            />
+            <HttpTestRunnerMeta :heading="t('test.iterations')" :text="'1'" />
+            <HttpTestRunnerMeta
+              :heading="t('test.duration')"
+              :text="'10s 321ms'"
+            />
+            <HttpTestRunnerMeta
+              :heading="t('test.avg_resp')"
+              :text="'1234ms'"
+            />
+          </template>
         </div>
-        <HoppButtonPrimary label="Run" class="w-32" name="connect" />
+        <HoppButtonPrimary
+          v-if="!showResult"
+          :label="t('test.run')"
+          class="w-32"
+          @click="runTests()"
+        />
+        <HoppButtonPrimary
+          v-if="showResult && !stopRunningTest"
+          :label="t('test.stop')"
+          class="w-32"
+          @click="stopRunning()"
+        />
         <HoppButtonSecondary
           :icon="IconPlus"
-          :label="`New Run`"
+          :label="t('test.new_run')"
           filled
           outline
+          @click="newRun()"
         />
       </div>
 
@@ -44,10 +62,17 @@
 
 <script setup lang="ts">
 import IconPlus from "~icons/lucide/plus"
-import { ref } from "vue"
+import { ref, computed } from "vue"
 import { useVModel } from "@vueuse/core"
 import { HoppTab } from "~/services/tab"
 import { HoppTabDocument } from "~/helpers/rest/document"
+import { useI18n } from "@composables/i18n"
+import { useService } from "dioc/vue"
+import { TestRunnerService } from "~/services/test-runner/test-runner.service"
+
+const testRunnerService = useService(TestRunnerService)
+
+const t = useI18n()
 
 export type TestRunnerConfig = {
   iterations: number
@@ -56,29 +81,6 @@ export type TestRunnerConfig = {
   persistResponses: boolean
   keepVariableValues: boolean
 }
-
-const arr = [
-  {
-    name: "Collection",
-    value: "Twitter API V3",
-  },
-  {
-    name: "Environment",
-    value: "None",
-  },
-  // {
-  //   name: "Iteration",
-  //   value: "4",
-  // },
-  // {
-  //   name: "Duration",
-  //   value: "6s 123ms",
-  // },
-  // {
-  //   name: "Avg. Response Time",
-  //   value: "1.5s",
-  // },
-]
 
 const testRunnerConfig = ref<TestRunnerConfig>({
   iterations: 1,
@@ -94,7 +96,35 @@ const emit = defineEmits<{
   (e: "update:modelValue", val: HoppTab<HoppTabDocument>): void
 }>()
 
+const collectionName = computed(() => {
+  if (props.modelValue.document.type === "test-runner") {
+    return props.modelValue.document.collection.name
+  }
+  return ""
+})
+
 const tab = useVModel(props, "modelValue", emit)
 
-const showResult = ref(true)
+const showResult = ref(false)
+const stopRunningTest = ref(false)
+
+const runTests = () => {
+  showResult.value = true
+
+  if (tab.value.document.type === "test-runner") {
+    testRunnerService.runTests(tab.value.document.collection, {
+      stop: stopRunningTest,
+      ...testRunnerConfig.value,
+    })
+  }
+}
+
+const stopRunning = () => {
+  stopRunningTest.value = true
+}
+
+const newRun = () => {
+  showResult.value = false
+  stopRunningTest.value = false
+}
 </script>

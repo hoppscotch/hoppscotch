@@ -231,6 +231,7 @@
     }
   },
   "collection": {
+    "title": "Collection",
     "run": "Run Collection",
     "created": "Collection created",
     "different_parent": "Cannot reorder collection with different parent",
@@ -342,6 +343,7 @@
     "response": "No response received"
   },
   "environment": {
+    "heading": "Environment",
     "add_to_global": "Add to Global",
     "added": "Environment addition",
     "create_new": "Create new environment",
@@ -1151,7 +1153,13 @@
     "report": "Test Report",
     "results": "Test Results",
     "script": "Script",
-    "snippets": "Snippets"
+    "snippets": "Snippets",
+    "run": "Run",
+    "stop": "Stop",
+    "new_run": "New Run",
+    "iterations": "Iterations",
+    "duration": "Duration",
+    "avg_resp": "Avg. Response Time"
   },
   "websocket": {
     "communication": "Communication",

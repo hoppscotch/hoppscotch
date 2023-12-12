@@ -174,6 +174,7 @@
     "new": "New Collection",
     "order_changed": "Collection Order Updated",
     "properties":"Colection Properties",
+    "properties_updated": "Collection Properties Updated",
     "renamed": "Collection renamed",
     "request_in_use": "Request in use",
     "save_as": "Save as",

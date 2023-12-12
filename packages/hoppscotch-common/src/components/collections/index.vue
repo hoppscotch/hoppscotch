@@ -2130,24 +2130,27 @@ const setCollectionProperties = (newCollection: {
         (err: GQLError<string>) => {
           toast.error(`${getErrorMessage(err)}`)
         },
-        async () => {
-          nextTick(() => {
-            const { auth, headers } =
-              teamCollectionAdapter.cascadeParentCollectionForHeaderAuth(path)
-
-            updateInheritedPropertiesForAffectedRequests(
-              path,
-              {
-                auth,
-                headers,
-              },
-              "rest",
-              "team"
-            )
-          })
+        () => {
+          toast.success(t("collection.properties_updated"))
         }
       )
     )()
+
+    //This is a hack to update the inherited properties of the requests if there an tab opened
+    // since it takes a little bit of time to update the collection tree
+    setTimeout(() => {
+      const { auth, headers } =
+        teamCollectionAdapter.cascadeParentCollectionForHeaderAuth(path)
+      updateInheritedPropertiesForAffectedRequests(
+        path,
+        {
+          auth,
+          headers,
+        },
+        "rest",
+        "team"
+      )
+    }, 200)
   }
 
   displayModalEditProperties(false)

@@ -20,7 +20,7 @@ const baseCollectionSchema = z.object({
   ),
 
   auth: z.union([HoppRESTAuth, HoppGQLAuth]),
-  headers: z.array(z.union([HoppRESTHeaders, GQLHeader])),
+  headers: z.union([HoppRESTHeaders, z.array(GQLHeader)]),
 })
 
 type Collection = z.infer<typeof baseCollectionSchema> & {

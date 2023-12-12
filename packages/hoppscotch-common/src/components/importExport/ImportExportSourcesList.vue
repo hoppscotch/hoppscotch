@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col">
+  <div class="flex flex-col space-y-2">
     <HoppSmartItem
       v-for="source in sources"
       :key="source.id"

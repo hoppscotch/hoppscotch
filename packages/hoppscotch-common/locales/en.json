@@ -160,6 +160,8 @@
     }
   },
   "collection": {
+    "title": "Collection",
+    "run": "Run Collection",
     "created": "Collection created",
     "different_parent": "Cannot reorder collection with different parent",
     "edit": "Edit Collection",
@@ -241,6 +243,7 @@
     "tests": "There are no tests for this request"
   },
   "environment": {
+    "heading": "Environment",
     "add_to_global": "Add to Global",
     "added": "Environment addition",
     "create_new": "Create new environment",
@@ -326,6 +329,7 @@
     "invalid_name": "Please provide a name for the folder",
     "name_length_insufficient": "Folder name should be at least 3 characters long",
     "new": "New Folder",
+    "run": "Run Folder",
     "renamed": "Folder renamed"
   },
   "graphql": {
@@ -882,7 +886,10 @@
     "tests": "Tests",
     "types": "Types",
     "variables": "Variables",
-    "websocket": "WebSocket"
+    "websocket": "WebSocket",
+    "all_tests": "All Tests",
+    "passed": "Passed",
+    "failed": "Failed"
   },
   "team": {
     "already_member": "You are already a member of this team. Contact your team owner.",
@@ -946,6 +953,8 @@
     "not_found": "Environment not found."
   },
   "test": {
+    "requests": "Requests",
+    "selection": "Selection",
     "failed": "test failed",
     "javascript_code": "JavaScript Code",
     "learn": "Read documentation",
@@ -953,7 +962,13 @@
     "report": "Test Report",
     "results": "Test Results",
     "script": "Script",
-    "snippets": "Snippets"
+    "snippets": "Snippets",
+    "run": "Run",
+    "stop": "Stop",
+    "new_run": "New Run",
+    "iterations": "Iterations",
+    "duration": "Duration",
+    "avg_resp": "Avg. Response Time"
   },
   "websocket": {
     "communication": "Communication",

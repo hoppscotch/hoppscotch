@@ -64,6 +64,12 @@
                   folder: node.data.data.data,
                 })
             "
+            @run-collection="
+              emit('run-collection', {
+                collectionIndex: node.id,
+                collection: node.data.data.data,
+              })
+            "
             @edit-collection="
               node.data.type === 'collections' &&
                 emit('edit-collection', {
@@ -115,6 +121,12 @@
             :is-selected="
               isSelected({
                 folderPath: node.id,
+              })
+            "
+            @run-collection="
+              emit('run-collection', {
+                collectionIndex: node.id,
+                collection: node.data.data.data,
               })
             "
             folder-type="folder"
@@ -420,6 +432,13 @@ const emit = defineEmits<{
     payload: {
       path: string
       folder: HoppCollection<HoppRESTRequest>
+    }
+  ): void
+  (
+    event: "run-collection",
+    payload: {
+      collectionIndex: string
+      collection: HoppCollection<HoppRESTRequest>
     }
   ): void
   (

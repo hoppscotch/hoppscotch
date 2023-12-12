@@ -33,7 +33,7 @@
             dropItemID = ''
           }
         "
-        @contextmenu.prevent="options?.tippy.show()"
+        @contextmenu.prevent="options?.tippy?.show()"
       >
         <div
           class="flex min-w-0 flex-1 items-center justify-center"
@@ -123,6 +123,18 @@
                     "
                   />
                   <HoppSmartItem
+                    ref="folderAction"
+                    :icon="IconPlaySquare"
+                    :label="t('collection.run')"
+                    :shortcut="['N']"
+                    @click="
+                      () => {
+                        emit('run-collection')
+                        hide()
+                      }
+                    "
+                  />
+                  <HoppSmartItem
                     ref="edit"
                     :icon="IconEdit"
                     :label="t('action.edit')"
@@ -184,6 +196,7 @@
 </template>
 
 <script setup lang="ts">
+import IconPlaySquare from "~icons/lucide/play-square"
 import IconCheckCircle from "~icons/lucide/check-circle"
 import IconFolderPlus from "~icons/lucide/folder-plus"
 import IconFilePlus from "~icons/lucide/file-plus"
@@ -244,6 +257,7 @@ const emit = defineEmits<{
   (event: "toggle-children"): void
   (event: "add-request"): void
   (event: "add-folder"): void
+  (event: "run-collection"): void
   (event: "edit-collection"): void
   (event: "export-data"): void
   (event: "remove-collection"): void
@@ -303,7 +317,7 @@ watch(
   () => props.exportLoading,
   (val) => {
     if (!val) {
-      options.value!.tippy.hide()
+      options.value!.tippy?.hide()
     }
   }
 )

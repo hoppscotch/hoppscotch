@@ -19,7 +19,7 @@ import { shortDateTime } from "~/helpers/utils/date"
 import { useStreamStatic } from "~/composables/stream"
 import { activeActions$, invokeAction } from "~/helpers/actions"
 import { map } from "rxjs/operators"
-import { HoppRESTDocument } from "~/helpers/rest/document"
+import { HoppTabDocument } from "~/helpers/rest/document"
 
 /**
  * This searcher is responsible for searching through the history.
@@ -235,7 +235,7 @@ export class HistorySpotlightSearcherService
         restHistoryStore.value.state[parseInt(result.id.split("-")[1])].request
 
       invokeAction("rest.request.open", {
-        doc: <HoppRESTDocument>{
+        doc: <HoppTabDocument>{
           request: req,
           isDirty: false,
         },

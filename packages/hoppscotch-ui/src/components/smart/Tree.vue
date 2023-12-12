@@ -12,6 +12,7 @@
         <SmartTreeBranch
           :root-nodes-length="rootNodes.data.length"
           :node-item="rootNode"
+          :expand-all="expandAll"
           :adapter="adapter as SmartTreeAdapter<T>"
         >
           <template
@@ -63,6 +64,10 @@ const props = defineProps<{
    * @template T The type of the data that will be stored in the tree
    */
   adapter: SmartTreeAdapter<T>
+  /**
+   *  open by default
+   */
+  expandAll?: boolean
 }>()
 
 /**

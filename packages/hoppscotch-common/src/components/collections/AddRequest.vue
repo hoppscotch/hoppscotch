@@ -65,7 +65,7 @@ const tabs = useService(RESTTabService)
 watch(
   () => props.show,
   (show) => {
-    if (show) {
+    if (show && tabs.currentActiveTab.value.document.type === "request") {
       editingName.value = tabs.currentActiveTab.value.document.request.name
     }
   }

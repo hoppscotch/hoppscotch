@@ -36,16 +36,17 @@ let checkboxIDCounter = 564275
 <script setup lang="ts">
 // Unique ID for checkbox
 const checkboxID = `checkbox-${checkboxIDCounter++}`
-defineProps({
-  on: {
-    type: Boolean,
-    default: false,
-  },
-  name: {
-    type: String,
-    default: "checkbox",
-  },
-})
+
+withDefaults(
+  defineProps<{
+    on: boolean
+    name: string
+  }>(),
+  {
+    on: false,
+    name: "checkbox",
+  }
+)
 
 const emit = defineEmits<{
   (e: "change"): void

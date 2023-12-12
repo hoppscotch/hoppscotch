@@ -30,6 +30,7 @@
         :key="childNode.id"
         :node-item="childNode"
         :adapter="adapter"
+        :expand-all="expandAll"
       >
         <!-- The child slot is given a dynamic name in order to not break Volar -->
         <template
@@ -73,28 +74,38 @@
 </template>
 
 <script setup lang="ts" generic="T extends any">
-import { computed, inject, ref } from "vue"
+import { computed, inject, onMounted, ref } from "vue"
 import SmartTreeBranch from "./TreeBranch.vue"
 import SmartSpinner from "./Spinner.vue"
 import { SmartTreeAdapter, TreeNode } from "~/helpers/treeAdapter"
 import { HOPP_UI_OPTIONS, HoppUIPluginOptions } from "./../../plugin"
 const { t } = inject<HoppUIPluginOptions>(HOPP_UI_OPTIONS) ?? {}
 
-const props = defineProps<{
-  /**
-   * The node item that will be used to render the tree branch
-   * @template T The type of the data passed to the tree branch
-   */
-  adapter: SmartTreeAdapter<T>
-  /**
-   *  The node item that will be used to render the tree branch content
-   */
-  nodeItem: TreeNode<T>
-  /**
-   *  Total number of rootNode
-   */
-  rootNodesLength?: number
-}>()
+const props = withDefaults(
+  defineProps<{
+    /**
+     * The node item that will be used to render the tree branch
+     * @template T The type of the data passed to the tree branch
+     */
+    adapter: SmartTreeAdapter<T>
+    /**
+     *  The node item that will be used to render the tree branch content
+     */
+    nodeItem: TreeNode<T>
+    /**
+     *  Total number of rootNode
+     */
+    rootNodesLength?: number
+    /**
+     *  open by default
+     */
+    expandAll?: boolean
+  }>(),
+  {
+    rootNodesLength: 0,
+    expandAll: false,
+  }
+)
 
 const CHILD_SLOT_NAME = "default"
 
@@ -119,11 +130,20 @@ const childNodes = computed(
 )
 
 const toggleNodeChildren = () => {
+  if (props.expandAll) return
   if (!childrenRendered.value) childrenRendered.value = true
 
   showChildren.value = !showChildren.value
   isNodeOpen.value = !isNodeOpen.value
 }
+
+onMounted(() => {
+  if (props.expandAll) {
+    childrenRendered.value = true
+    showChildren.value = true
+    isNodeOpen.value = true
+  }
+})
 
 const highlightNodeChildren = (id: string | null) => {
   if (id) {

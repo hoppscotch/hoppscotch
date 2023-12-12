@@ -45,14 +45,14 @@ import {
 } from "~/helpers/lenses/lenses"
 import { useI18n } from "@composables/i18n"
 import { useVModel } from "@vueuse/core"
-import { HoppRESTDocument } from "~/helpers/rest/document"
+import { HoppRequestDocument } from "~/helpers/rest/document"
 
 const props = defineProps<{
-  document: HoppRESTDocument
+  document: HoppRequestDocument
 }>()
 
 const emit = defineEmits<{
-  (e: "update:document", document: HoppRESTDocument): void
+  (e: "update:document", document: HoppRequestDocument): void
 }>()
 
 const doc = useVModel(props, "document", emit)

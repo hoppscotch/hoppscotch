@@ -25,11 +25,11 @@ import {
   getCombinedEnvVariables,
   getFinalEnvsFromPreRequest,
 } from "./preRequest"
-import { HoppRESTDocument } from "./rest/document"
 import { HoppRESTResponse } from "./types/HoppRESTResponse"
 import { HoppTestData, HoppTestResult } from "./types/HoppTestResult"
 import { getEffectiveRESTRequest } from "./utils/EffectiveURL"
 import { isJSONContentType } from "./utils/contenttypes"
+import { HoppTabDocument } from "./rest/document"
 
 const getTestableBody = (
   res: HoppRESTResponse & { type: "success" | "fail" }
@@ -68,13 +68,13 @@ export const executedResponses$ = new Subject<
 >()
 
 export function runRESTRequest$(
-  tab: Ref<HoppTab<HoppRESTDocument>>
+  tab: Ref<HoppTab<HoppTabDocument>>
 ): [
   () => void,
   Promise<
     | E.Left<"script_fail" | "cancellation">
     | E.Right<Observable<HoppRESTResponse>>
-  >,
+  >
 ] {
   let cancelCalled = false
   let cancelFunc: (() => void) | null = null

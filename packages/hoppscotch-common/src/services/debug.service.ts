@@ -17,27 +17,27 @@ export class DebugService extends Service {
   constructor() {
     super()
 
-    console.log("DebugService is initialized...")
+    console.debug("DebugService is initialized...")
 
     const container = this.getContainer()
 
     // Log container events
     container.getEventStream().subscribe((event) => {
       if (event.type === "SERVICE_BIND") {
-        console.log(
+        console.debug(
           "[CONTAINER] Service Bind:",
           event.bounderID ?? "<CONTAINER>",
           "->",
           event.boundeeID
         )
       } else if (event.type === "SERVICE_INIT") {
-        console.log("[CONTAINER] Service Init:", event.serviceID)
+        console.debug("[CONTAINER] Service Init:", event.serviceID)
 
         // Subscribe to event stream of the newly initialized service
         const service = container.getBoundServiceWithID(event.serviceID)
 
         service?.getEventStream().subscribe((ev: any) => {
-          console.log(`[${event.serviceID}] Event:`, ev)
+          console.debug(`[${event.serviceID}] Event:`, ev)
         })
       }
     })
@@ -45,7 +45,7 @@ export class DebugService extends Service {
     // Subscribe to event stream of all already bound services (if any)
     for (const [id, service] of container.getBoundServices()) {
       service.getEventStream().subscribe((event: any) => {
-        console.log(`[${id}]`, event)
+        console.debug(`[${id}]`, event)
       })
     }
 

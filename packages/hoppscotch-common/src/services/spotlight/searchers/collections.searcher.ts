@@ -309,6 +309,10 @@ export class CollectionsSpotlightSearcherService
           {
             request: req,
             isDirty: false,
+            editorSettings: {
+              requestWrapLines: true,
+              responseWrapLines: true,
+            },
             saveContext: {
               originLocation: "user-collection",
               folderPath: folderPath.join("/"),

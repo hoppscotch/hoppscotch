@@ -59,6 +59,10 @@ export class URLMenuService extends Service implements ContextMenu {
     this.restTab.createNewTab({
       request: request,
       isDirty: false,
+      editorSettings: {
+        requestWrapLines: true,
+        responseWrapLines: true,
+      },
     })
   }
 

@@ -3,6 +3,11 @@ import { HoppRESTResponse } from "../types/HoppRESTResponse"
 import { HoppTestResult } from "../types/HoppTestResult"
 import { RESTOptionTabs } from "~/components/http/RequestOptions.vue"
 
+export type RESTEditorSettings = {
+  requestWrapLines: boolean
+  responseWrapLines: boolean
+}
+
 export type HoppRESTSaveContext =
   | {
       /**
@@ -80,4 +85,9 @@ export type HoppRESTDocument = {
    * Options tab preference for the current tab's document
    */
   optionTabPreference?: RESTOptionTabs
+
+  /**
+   * Settings for the current tab's editors
+   */
+  editorSettings: RESTEditorSettings
 }

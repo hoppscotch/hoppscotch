@@ -85,6 +85,7 @@ import { platform } from "~/platform"
 import { useService } from "dioc/vue"
 import { RESTTabService } from "~/services/tab/rest"
 import { GQLTabService } from "~/services/tab/graphql"
+import { RESTEditorSettings } from "~/helpers/rest/document"
 
 const t = useI18n()
 const toast = useToast()
@@ -219,6 +220,15 @@ const saveRequestAs = async () => {
       ? cloneDeep(RESTTabs.currentActiveTab.value.document.request)
       : cloneDeep(GQLTabs.currentActiveTab.value.document.request)
 
+  // TODO: Change when adding GraphQL Tab Support
+  const editorSettings =
+    props.mode === "rest"
+      ? cloneDeep(RESTTabs.currentActiveTab.value.document.editorSettings)
+      : {
+          requestWrapLines: true,
+          responseWrapLines: true,
+        }
+
   requestUpdated.name = requestName.value
 
   if (picked.value.pickedType === "my-collection") {
@@ -233,6 +243,7 @@ const saveRequestAs = async () => {
     RESTTabs.currentActiveTab.value.document = {
       request: requestUpdated,
       isDirty: false,
+      editorSettings: editorSettings,
       saveContext: {
         originLocation: "user-collection",
         folderPath: `${picked.value.collectionIndex}`,
@@ -260,6 +271,7 @@ const saveRequestAs = async () => {
     RESTTabs.currentActiveTab.value.document = {
       request: requestUpdated,
       isDirty: false,
+      editorSettings: editorSettings,
       saveContext: {
         originLocation: "user-collection",
         folderPath: picked.value.folderPath,
@@ -288,6 +300,7 @@ const saveRequestAs = async () => {
     RESTTabs.currentActiveTab.value.document = {
       request: requestUpdated,
       isDirty: false,
+      editorSettings: editorSettings,
       saveContext: {
         originLocation: "user-collection",
         folderPath: picked.value.folderPath,
@@ -307,7 +320,11 @@ const saveRequestAs = async () => {
     if (!isHoppRESTRequest(requestUpdated))
       throw new Error("requestUpdated is not a REST Request")
 
-    updateTeamCollectionOrFolder(picked.value.collectionID, requestUpdated)
+    updateTeamCollectionOrFolder(
+      picked.value.collectionID,
+      requestUpdated,
+      editorSettings
+    )
 
     platform.analytics?.logEvent({
       type: "HOPP_SAVE_REQUEST",
@@ -319,7 +336,11 @@ const saveRequestAs = async () => {
     if (!isHoppRESTRequest(requestUpdated))
       throw new Error("requestUpdated is not a REST Request")
 
-    updateTeamCollectionOrFolder(picked.value.folderID, requestUpdated)
+    updateTeamCollectionOrFolder(
+      picked.value.folderID,
+      requestUpdated,
+      editorSettings
+    )
 
     platform.analytics?.logEvent({
       type: "HOPP_SAVE_REQUEST",
@@ -420,7 +441,8 @@ const saveRequestAs = async () => {
  */
 const updateTeamCollectionOrFolder = (
   collectionID: string,
-  requestUpdated: HoppRESTRequest
+  requestUpdated: HoppRESTRequest,
+  editorSettings: RESTEditorSettings
 ) => {
   if (
     collectionsType.value.type !== "team-collections" ||
@@ -448,6 +470,7 @@ const updateTeamCollectionOrFolder = (
         RESTTabs.currentActiveTab.value.document = {
           request: requestUpdated,
           isDirty: false,
+          editorSettings: editorSettings,
           saveContext: {
             originLocation: "team-collection",
             requestID: createRequestInCollection.id,

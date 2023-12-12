@@ -15,6 +15,7 @@
       <HttpBody
         v-model:headers="request.headers"
         v-model:body="request.body"
+        v-model:editor-settings="currentEditorSettings"
         @change-tab="changeOptionTab"
       />
     </HoppSmartTab>
@@ -57,6 +58,7 @@ import { HoppRESTRequest } from "@hoppscotch/data"
 import { useVModel } from "@vueuse/core"
 import { computed } from "vue"
 import { defineActionHandler } from "~/helpers/actions"
+import { RESTEditorSettings } from "~/helpers/rest/document"
 
 const VALID_OPTION_TABS = [
   "params",
@@ -76,6 +78,7 @@ const props = withDefaults(
   defineProps<{
     modelValue: HoppRESTRequest
     optionTab: RESTOptionTabs
+    editorSettings: RESTEditorSettings
   }>(),
   {
     optionTab: "params",
@@ -85,10 +88,12 @@ const props = withDefaults(
 const emit = defineEmits<{
   (e: "update:modelValue", value: HoppRESTRequest): void
   (e: "update:optionTab", value: RESTOptionTabs): void
+  (e: "update:editorSettings", value: RESTEditorSettings): void
 }>()
 
 const request = useVModel(props, "modelValue", emit)
 const selectedOptionTab = useVModel(props, "optionTab", emit)
+const currentEditorSettings = useVModel(props, "editorSettings", emit)
 
 const changeOptionTab = (e: RESTOptionTabs) => {
   selectedOptionTab.value = e

@@ -13,6 +13,7 @@
     >
       <component
         :is="lensRendererFor(lens.renderer)"
+        v-model:editor-settings="editorSettings"
         :response="doc.response"
       />
     </HoppSmartTab>
@@ -31,7 +32,10 @@
       :indicator="showIndicator"
       class="flex flex-col flex-1"
     >
-      <HttpTestResult v-model="doc.testResults" />
+      <HttpTestResult
+        v-model="doc.testResults"
+        v-model:editor-settings="editorSettings"
+      />
     </HoppSmartTab>
   </HoppSmartTabs>
 </template>
@@ -45,17 +49,20 @@ import {
 } from "~/helpers/lenses/lenses"
 import { useI18n } from "@composables/i18n"
 import { useVModel } from "@vueuse/core"
-import { HoppRESTDocument } from "~/helpers/rest/document"
+import { HoppRESTDocument, RESTEditorSettings } from "~/helpers/rest/document"
 
 const props = defineProps<{
   document: HoppRESTDocument
+  editorSettings: RESTEditorSettings
 }>()
 
 const emit = defineEmits<{
   (e: "update:document", document: HoppRESTDocument): void
+  (e: "update:editorSettings", value: RESTEditorSettings): void
 }>()
 
 const doc = useVModel(props, "document", emit)
+const editorSettings = useVModel(props, "editorSettings", emit)
 
 const showIndicator = computed(() => {
   if (!doc.value.testResults) return false

@@ -105,7 +105,11 @@
       v-else-if="body.contentType === 'application/x-www-form-urlencoded'"
       v-model="body"
     />
-    <HttpRawBody v-else-if="body.contentType !== null" v-model="body" />
+    <HttpRawBody
+      v-else-if="body.contentType !== null"
+      v-model="body"
+      v-model:editor-settings="editorSettings"
+    />
     <HoppSmartPlaceholder
       v-if="body.contentType == null"
       :src="`/images/states/${colorMode.value}/upload_single_file.svg`"
@@ -139,6 +143,7 @@ import IconExternalLink from "~icons/lucide/external-link"
 import IconInfo from "~icons/lucide/info"
 import IconRefreshCW from "~icons/lucide/refresh-cw"
 import { RESTOptionTabs } from "./RequestOptions.vue"
+import { RESTEditorSettings } from "~/helpers/rest/document"
 
 const colorMode = useColorMode()
 const t = useI18n()
@@ -146,16 +151,19 @@ const t = useI18n()
 const props = defineProps<{
   body: HoppRESTReqBody
   headers: HoppRESTHeader[]
+  editorSettings: RESTEditorSettings
 }>()
 
 const emit = defineEmits<{
   (e: "change-tab", value: RESTOptionTabs): void
   (e: "update:headers", value: HoppRESTHeader[]): void
   (e: "update:body", value: HoppRESTReqBody): void
+  (e: "update:editorSettings", value: RESTEditorSettings): void
 }>()
 
 const headers = useVModel(props, "headers", emit)
 const body = useVModel(props, "body", emit)
+const editorSettings = useVModel(props, "editorSettings", emit)
 
 const overridenContentType = computed(() =>
   pipe(

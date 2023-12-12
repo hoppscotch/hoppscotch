@@ -197,6 +197,10 @@ const addNewTab = () => {
   const tab = tabs.createNewTab({
     request: getDefaultRESTRequest(),
     isDirty: false,
+    editorSettings: {
+      requestWrapLines: true,
+      responseWrapLines: true,
+    },
   })
 
   tabs.setActiveTab(tab.id)
@@ -240,6 +244,7 @@ const duplicateTab = (tabID: string) => {
     const newTab = tabs.createNewTab({
       request: cloneDeep(tab.value.document.request),
       isDirty: true,
+      editorSettings: tab.value.document.editorSettings,
     })
     tabs.setActiveTab(newTab.id)
   }

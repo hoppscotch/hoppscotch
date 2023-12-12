@@ -206,7 +206,7 @@ import * as LJSON from "lossless-json"
 import * as O from "fp-ts/Option"
 import * as E from "fp-ts/Either"
 import { pipe } from "fp-ts/function"
-import { computed, ref, reactive } from "vue"
+import { computed, ref, reactive, watch } from "vue"
 import { JSONPath } from "jsonpath-plus"
 import { useCodemirror } from "@composables/codemirror"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
@@ -224,12 +224,23 @@ import {
 } from "@composables/lens-actions"
 import { defineActionHandler } from "~/helpers/actions"
 import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
+import { RESTEditorSettings } from "~/helpers/rest/document"
+import { useVModel } from "@vueuse/core"
+import { pluckRef } from "@composables/ref"
 
 const t = useI18n()
 
 const props = defineProps<{
+  editorSettings: RESTEditorSettings
   response: HoppRESTResponse
 }>()
+
+const emit = defineEmits<{
+  (e: "update:editorSettings", val: RESTEditorSettings): void
+}>()
+
+const editorSettings = useVModel(props, "editorSettings", emit)
+const responseWrapLines = pluckRef(editorSettings, "responseWrapLines")
 
 const { responseBodyText } = useResponseBody(props.response)
 
@@ -327,7 +338,13 @@ const { downloadIcon, downloadResponse } = useDownloadResponse(
 // Template refs
 const tippyActions = ref<any | null>(null)
 const jsonResponse = ref<any | null>(null)
-const linewrapEnabled = ref(true)
+const linewrapEnabled = ref(responseWrapLines.value)
+
+watch(linewrapEnabled, (newVal) => {
+  typeof newVal == "boolean"
+    ? (responseWrapLines.value = newVal)
+    : (responseWrapLines.value = responseWrapLines.value)
+})
 
 const { cursor } = useCodemirror(
   jsonResponse,

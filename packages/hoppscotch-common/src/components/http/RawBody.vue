@@ -85,6 +85,7 @@ import { isJSONContentType } from "~/helpers/utils/contenttypes"
 import jsonLinter from "~/helpers/editor/linting/json"
 import { readFileAsText } from "~/helpers/functional/files"
 import xmlFormat from "xml-formatter"
+import { RESTEditorSettings } from "~/helpers/rest/document"
 
 type PossibleContentTypes = Exclude<
   ValidContentTypes,
@@ -95,13 +96,16 @@ type Body = HoppRESTReqBody & { contentType: PossibleContentTypes }
 
 const props = defineProps<{
   modelValue: Body
+  editorSettings: RESTEditorSettings
 }>()
 
 const emit = defineEmits<{
   (e: "update:modelValue", val: Body): void
+  (e: "update:editorSettings", val: RESTEditorSettings): void
 }>()
 
 const body = useVModel(props, "modelValue", emit)
+const editorSettings = useVModel(props, "editorSettings", emit)
 
 const t = useI18n()
 
@@ -110,6 +114,7 @@ const payload = ref<HTMLInputElement | null>(null)
 const toast = useToast()
 
 const rawParamsBody = pluckRef(body, "body")
+const requestWrapLines = pluckRef(editorSettings, "requestWrapLines")
 
 const prettifyIcon = refAutoReset<
   typeof IconWand2 | typeof IconCheck | typeof IconInfo
@@ -122,7 +127,7 @@ const langLinter = computed(() =>
   isJSONContentType(body.value.contentType) ? jsonLinter : null
 )
 
-const linewrapEnabled = ref(true)
+const linewrapEnabled = ref(requestWrapLines.value)
 const rawBodyParameters = ref<any | null>(null)
 
 const codemirrorValue: Ref<string | undefined> =
@@ -134,6 +139,12 @@ watch(rawParamsBody, (newVal) => {
   typeof newVal == "string"
     ? (codemirrorValue.value = newVal)
     : (codemirrorValue.value = undefined)
+})
+
+watch(linewrapEnabled, (newVal) => {
+  typeof newVal == "boolean"
+    ? (requestWrapLines.value = newVal)
+    : (requestWrapLines.value = requestWrapLines.value)
 })
 
 // propagate the edits from codemirror back to the body

@@ -5,10 +5,14 @@
       <HttpRequestOptions
         v-model="tab.document.request"
         v-model:option-tab="tab.document.optionTabPreference"
+        v-model:editor-settings="tab.document.editorSettings"
       />
     </template>
     <template #secondary>
-      <HttpResponse v-model:document="tab.document" />
+      <HttpResponse
+        v-model:document="tab.document"
+        v-model:editor-settings="tab.document.editorSettings"
+      />
     </template>
   </AppPaneLayout>
 </template>

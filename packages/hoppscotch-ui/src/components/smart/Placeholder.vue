@@ -8,9 +8,7 @@
       :class="large ? 'w-32 h-32' : 'w-16 h-16'"
       :alt="alt"
     />
-    <template v-if="hasIcon">
-      <slot name="icon"></slot>
-    </template>
+    <slot name="icon"></slot>
     <span v-if="heading" class="font-semibold mt-2 text-center">
       {{ heading }}
     </span>
@@ -44,10 +42,6 @@ withDefaults(
 )
 
 const slots = useSlots()
-
-const hasIcon = computed(() => {
-  return !!slots.icon
-})
 
 const hasBody = computed(() => {
   return !!slots.body

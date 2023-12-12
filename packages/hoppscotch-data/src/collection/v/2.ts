@@ -23,12 +23,15 @@ const baseCollectionSchema = z.object({
   headers: z.union([HoppRESTHeaders, z.array(GQLHeader)]),
 })
 
-type Collection = z.infer<typeof baseCollectionSchema> & {
-  folders: Collection[]
+type Input = z.input<typeof baseCollectionSchema> & {
+  folders: Input[]
 }
 
-// @ts-expect-error ~ Recursive type
-export const V2_SCHEMA: z.ZodType<Collection> = baseCollectionSchema.extend({
+type Output = z.output<typeof baseCollectionSchema> & {
+  folders: Output[]
+}
+
+export const V2_SCHEMA: z.ZodType<Output, z.ZodTypeDef, Input> = baseCollectionSchema.extend({
   folders: z.lazy(() => z.array(V2_SCHEMA)),
 })
 

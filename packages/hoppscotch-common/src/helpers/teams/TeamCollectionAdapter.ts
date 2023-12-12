@@ -1066,31 +1066,40 @@ export default class NewTeamCollectionAdapter {
       }
 
       const data: {
-        auth?: HoppRESTAuth
-        headers?: HoppRESTHeader[]
-      } = parentFolder.data ? JSON.parse(parentFolder.data) : null
-      if (!data) return { auth, headers }
+        auth: HoppRESTAuth
+        headers: HoppRESTHeader[]
+      } = parentFolder.data
+        ? JSON.parse(parentFolder.data)
+        : {
+            auth: null,
+            headers: null,
+          }
+
+      if (!data.auth) {
+        data.auth = {
+          authType: "inherit",
+          authActive: true,
+        }
+        auth.parentID = folderPath ?? parentFolder.id
+        auth.parentName = parentFolder.title
+      }
+
+      if (!data.headers) data.headers = []
 
       const parentFolderAuth = data.auth
       const parentFolderHeaders = data.headers
 
-      if (parentFolderAuth?.authType === "inherit") {
+      if (parentFolderAuth?.authType === "inherit" && path.length === 1) {
         auth = {
-          parentID: parentFolder.id ?? folderPath,
+          parentID: folderPath ?? parentFolder.id,
           parentName: parentFolder.title,
-          inheritedAuth: {
-            authType: "none",
-            authActive: true,
-          },
+          inheritedAuth: auth.inheritedAuth,
         }
       }
 
-      if (
-        parentFolderAuth?.authType !== "inherit" &&
-        parentFolderAuth?.authActive
-      ) {
+      if (parentFolderAuth?.authType !== "inherit") {
         auth = {
-          parentID: parentFolder.id ?? folderPath,
+          parentID: folderPath ?? parentFolder.id,
           parentName: parentFolder.title,
           inheritedAuth: parentFolderAuth,
         }

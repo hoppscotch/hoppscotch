@@ -194,6 +194,8 @@ import {
 import TeamCollectionAdapter from "~/helpers/teams/TeamCollectionAdapter"
 import {
   HoppCollection,
+  HoppRESTAuth,
+  HoppRESTHeaders,
   HoppRESTRequest,
   makeCollection,
 } from "@hoppscotch/data"
@@ -290,7 +292,7 @@ const editingRequestIndex = ref<number | null>(null)
 const editingRequestID = ref<string | null>(null)
 
 const editingProperties = ref<{
-  collection: HoppCollection | TeamCollection | null
+  collection: Omit<HoppCollection, "v"> | TeamCollection | null
   isRootCollection: boolean
   path: string
   inheritedProperties?: HoppInheritedProperty
@@ -2011,7 +2013,7 @@ const editProperties = (payload: {
         parentID: "",
         parentName: "",
         inheritedAuth: {
-          authType: "none",
+          authType: "inherit",
           authActive: true,
         },
       },
@@ -2045,17 +2047,21 @@ const editProperties = (payload: {
   } else if (hasTeamWriteAccess.value) {
     const parentIndex = collectionIndex.split("/").slice(0, -1).join("/") // remove last folder to get parent folder
 
-    const data = collection.data ? JSON.parse(collection.data) : null
+    const data = (collection as TeamCollection).data
+      ? JSON.parse((collection as TeamCollection).data ?? "")
+      : null
 
-    let inheritedProperties = {}
+    let inheritedProperties = undefined
     let coll = {
       id: collection.id,
-      name: collection.title,
+      name: (collection as TeamCollection).title,
       auth: {
-        authType: "none",
+        authType: "inherit",
         authActive: true,
-      },
-      headers: [],
+      } as HoppRESTAuth,
+      headers: [] as HoppRESTHeaders,
+      folders: null,
+      requests: null,
     }
 
     if (parentIndex) {
@@ -2072,7 +2078,7 @@ const editProperties = (payload: {
       coll = {
         ...coll,
         auth: data.auth,
-        headers: data.headers,
+        headers: data.headers as HoppRESTHeaders,
       }
     }
 
@@ -2124,11 +2130,11 @@ const setCollectionProperties = (newCollection: {
         (err: GQLError<string>) => {
           toast.error(`${getErrorMessage(err)}`)
         },
-        () => {
-          const { auth, headers } =
-            teamCollectionAdapter.cascadeParentCollectionForHeaderAuth(path)
-
+        async () => {
           nextTick(() => {
+            const { auth, headers } =
+              teamCollectionAdapter.cascadeParentCollectionForHeaderAuth(path)
+
             updateInheritedPropertiesForAffectedRequests(
               path,
               {

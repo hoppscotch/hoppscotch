@@ -120,7 +120,6 @@ export function updateInheritedPropertiesForAffectedRequests(
     type === "rest" ? getService(RESTTabService) : getService(GQLTabService)
 
   let tabs
-
   if (workspace === "personal") {
     tabs = tabService.getTabsRefTo((tab) => {
       return (

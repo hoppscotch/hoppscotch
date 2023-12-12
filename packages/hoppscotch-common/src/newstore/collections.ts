@@ -74,8 +74,8 @@ export function cascadeParentCollectionForHeaderAuth(
     parentID: folderPath ?? "",
     parentName: "",
     inheritedAuth: {
-      authType: "inherit",
-      authActive: false,
+      authType: "none",
+      authActive: true,
     },
   }
   const headers: HoppInheritedProperty["headers"] = []
@@ -106,14 +106,12 @@ export function cascadeParentCollectionForHeaderAuth(
     const parentFolderAuth = parentFolder.auth
     const parentFolderHeaders = parentFolder.headers
 
-    if (parentFolderAuth?.authType === "inherit") {
+    // check if the parent folder has authType 'inherit' and if it is the root folder
+    if (parentFolderAuth?.authType === "inherit" && path.length === 1) {
       auth = {
         parentID: folderPath,
         parentName: parentFolder.name,
-        inheritedAuth: {
-          authType: "none",
-          authActive: true,
-        },
+        inheritedAuth: auth.inheritedAuth,
       }
     }
 

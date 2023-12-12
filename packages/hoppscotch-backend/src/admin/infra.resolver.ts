@@ -1,5 +1,12 @@
 import { UseGuards } from '@nestjs/common';
-import { Args, ID, Query, ResolveField, Resolver } from '@nestjs/graphql';
+import {
+  Args,
+  ID,
+  Mutation,
+  Query,
+  ResolveField,
+  Resolver,
+} from '@nestjs/graphql';
 import { GqlThrottlerGuard } from 'src/guards/gql-throttler.guard';
 import { Infra } from './infra.model';
 import { AdminService } from './admin.service';
@@ -16,11 +23,21 @@ import { Team } from 'src/team/team.model';
 import { TeamInvitation } from 'src/team-invitation/team-invitation.model';
 import { GqlAdmin } from './decorators/gql-admin.decorator';
 import { ShortcodeWithUserEmail } from 'src/shortcode/shortcode.model';
+import { InfraConfig } from 'src/infra-config/infra-config.model';
+import { InfraConfigService } from 'src/infra-config/infra-config.service';
+import {
+  EnableAndDisableSSOArgs,
+  InfraConfigArgs,
+} from 'src/infra-config/input-args';
+import { InfraConfigEnumForClient } from 'src/types/InfraConfig';
 
 @UseGuards(GqlThrottlerGuard)
 @Resolver(() => Infra)
 export class InfraResolver {
-  constructor(private adminService: AdminService) {}
+  constructor(
+    private adminService: AdminService,
+    private infraConfigService: InfraConfigService,
+  ) {}
 
   @Query(() => Infra, {
     description: 'Fetch details of the Infrastructure',
@@ -221,5 +238,77 @@ export class InfraResolver {
       args.take,
       userEmail,
     );
+  }
+
+  @Query(() => [InfraConfig], {
+    description: 'Retrieve configuration details for the instance',
+  })
+  @UseGuards(GqlAuthGuard, GqlAdminGuard)
+  async infraConfigs(
+    @Args({
+      name: 'configNames',
+      type: () => [InfraConfigEnumForClient],
+      description: 'Configs to fetch',
+    })
+    names: InfraConfigEnumForClient[],
+  ) {
+    const infraConfigs = await this.infraConfigService.getMany(names);
+    if (E.isLeft(infraConfigs)) throwErr(infraConfigs.left);
+    return infraConfigs.right;
+  }
+
+  @Query(() => [String], {
+    description: 'Allowed Auth Provider list',
+  })
+  @UseGuards(GqlAuthGuard, GqlAdminGuard)
+  allowedAuthProviders() {
+    return this.infraConfigService.getAllowedAuthProviders();
+  }
+
+  /* Mutations */
+
+  @Mutation(() => [InfraConfig], {
+    description: 'Update Infra Configs',
+  })
+  @UseGuards(GqlAuthGuard, GqlAdminGuard)
+  async updateInfraConfigs(
+    @Args({
+      name: 'infraConfigs',
+      type: () => [InfraConfigArgs],
+      description: 'InfraConfigs to update',
+    })
+    infraConfigs: InfraConfigArgs[],
+  ) {
+    const updatedRes = await this.infraConfigService.updateMany(infraConfigs);
+    if (E.isLeft(updatedRes)) throwErr(updatedRes.left);
+    return updatedRes.right;
+  }
+
+  @Mutation(() => Boolean, {
+    description: 'Reset Infra Configs with default values (.env)',
+  })
+  @UseGuards(GqlAuthGuard, GqlAdminGuard)
+  async resetInfraConfigs() {
+    const resetRes = await this.infraConfigService.reset();
+    if (E.isLeft(resetRes)) throwErr(resetRes.left);
+    return true;
+  }
+
+  @Mutation(() => Boolean, {
+    description: 'Enable or Disable SSO for login/signup',
+  })
+  @UseGuards(GqlAuthGuard, GqlAdminGuard)
+  async enableAndDisableSSO(
+    @Args({
+      name: 'providerInfo',
+      type: () => [EnableAndDisableSSOArgs],
+      description: 'SSO provider and status',
+    })
+    providerInfo: EnableAndDisableSSOArgs[],
+  ) {
+    const isUpdated = await this.infraConfigService.enableAndDisableSSO(providerInfo);
+    if (E.isLeft(isUpdated)) throwErr(isUpdated.left);
+
+    return true;
   }
 }

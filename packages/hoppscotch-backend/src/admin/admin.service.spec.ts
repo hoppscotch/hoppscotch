@@ -16,6 +16,7 @@ import {
   USER_ALREADY_INVITED,
 } from '../errors';
 import { ShortcodeService } from 'src/shortcode/shortcode.service';
+import { ConfigService } from '@nestjs/config';
 
 const mockPrisma = mockDeep<PrismaService>();
 const mockPubSub = mockDeep<PubSubService>();
@@ -27,6 +28,7 @@ const mockTeamInvitationService = mockDeep<TeamInvitationService>();
 const mockTeamCollectionService = mockDeep<TeamCollectionService>();
 const mockMailerService = mockDeep<MailerService>();
 const mockShortcodeService = mockDeep<ShortcodeService>();
+const mockConfigService = mockDeep<ConfigService>();
 
 const adminService = new AdminService(
   mockUserService,
@@ -39,6 +41,7 @@ const adminService = new AdminService(
   mockPrisma as any,
   mockMailerService,
   mockShortcodeService,
+  mockConfigService,
 );
 
 const invitedUsers: InvitedUsers[] = [

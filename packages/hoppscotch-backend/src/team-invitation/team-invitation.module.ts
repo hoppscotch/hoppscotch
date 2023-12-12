@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { MailerModule } from 'src/mailer/mailer.module';
 import { PrismaModule } from 'src/prisma/prisma.module';
 import { PubSubModule } from 'src/pubsub/pubsub.module';
 import { TeamModule } from 'src/team/team.module';
@@ -12,7 +11,7 @@ import { TeamInviteeGuard } from './team-invitee.guard';
 import { TeamTeamInviteExtResolver } from './team-teaminvite-ext.resolver';
 
 @Module({
-  imports: [PrismaModule, TeamModule, PubSubModule, UserModule, MailerModule],
+  imports: [PrismaModule, TeamModule, PubSubModule, UserModule],
   providers: [
     TeamInvitationService,
     TeamInvitationResolver,

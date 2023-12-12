@@ -644,3 +644,41 @@ export const SHORTCODE_INVALID_PROPERTIES_JSON =
  */
 export const SHORTCODE_PROPERTIES_NOT_FOUND =
   'shortcode/properties_not_found' as const;
+
+/**
+ * Infra Config not found
+ * (InfraConfigService)
+ */
+export const INFRA_CONFIG_NOT_FOUND = 'infra_config/not_found' as const;
+
+/**
+ * Infra Config update failed
+ * (InfraConfigService)
+ */
+export const INFRA_CONFIG_UPDATE_FAILED = 'infra_config/update_failed' as const;
+
+/**
+ * Infra Config not listed for onModuleInit creation
+ * (InfraConfigService)
+ */
+export const INFRA_CONFIG_NOT_LISTED =
+  'infra_config/properly_not_listed' as const;
+
+/**
+ * Infra Config reset failed
+ * (InfraConfigService)
+ */
+export const INFRA_CONFIG_RESET_FAILED = 'infra_config/reset_failed' as const;
+
+/**
+ * Infra Config invalid input for Config variable
+ * (InfraConfigService)
+ */
+export const INFRA_CONFIG_INVALID_INPUT = 'infra_config/invalid_input' as const;
+
+/**
+ * Error message for when the database table does not exist
+ * (InfraConfigService)
+ */
+export const DATABASE_TABLE_NOT_EXIST =
+  'Database migration not performed. Please check the FAQ for assistance: https://docs.hoppscotch.io/support/faq';

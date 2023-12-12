@@ -66,6 +66,7 @@ services:
   # The service that spins up all 3 services at once in one container
   hoppscotch-aio:
     container_name: hoppscotch-aio
+    restart: unless-stopped
     build:
       dockerfile: prod.Dockerfile
       context: .

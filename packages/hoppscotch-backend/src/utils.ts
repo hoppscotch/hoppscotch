@@ -132,6 +132,26 @@ export const validateEmail = (email: string) => {
 };
 
 /**
+ * Checks to see if the URL is valid or not
+ * @param url The URL to validate
+ * @returns boolean
+ */
+export const validateSMTPUrl = (url: string) => {
+  // Possible valid formats
+  // smtp(s)://mail.example.com
+  // smtp(s)://user:pass@mail.example.com
+  // smtp(s)://mail.example.com:587
+  // smtp(s)://user:pass@mail.example.com:587
+
+  if (!url || url.length === 0) return false;
+
+  const regex =
+    /^(smtp|smtps):\/\/(?:([^:]+):([^@]+)@)?((?!\.)[^:]+)(?::(\d+))?$/;
+  if (regex.test(url)) return true;
+  return false;
+};
+
+/**
  * String to JSON parser
  * @param {str} str The string to parse
  * @returns {E.Right<T> | E.Left<"json_invalid">} An Either of the parsed JSON
@@ -161,21 +181,23 @@ export function isValidLength(title: string, length: number) {
 
 /**
  * This function is called by bootstrap() in main.ts
- *  It checks if the "VITE_ALLOWED_AUTH_PROVIDERS" environment variable is properly set or not.
+ * It checks if the "VITE_ALLOWED_AUTH_PROVIDERS" environment variable is properly set or not.
  * If not, it throws an error.
  */
-export function checkEnvironmentAuthProvider() {
-  if (!process.env.hasOwnProperty('VITE_ALLOWED_AUTH_PROVIDERS')) {
+export function checkEnvironmentAuthProvider(
+  VITE_ALLOWED_AUTH_PROVIDERS: string,
+) {
+  if (!VITE_ALLOWED_AUTH_PROVIDERS) {
     throw new Error(ENV_NOT_FOUND_KEY_AUTH_PROVIDERS);
   }
 
-  if (process.env.VITE_ALLOWED_AUTH_PROVIDERS === '') {
+  if (VITE_ALLOWED_AUTH_PROVIDERS === '') {
     throw new Error(ENV_EMPTY_AUTH_PROVIDERS);
   }
 
-  const givenAuthProviders = process.env.VITE_ALLOWED_AUTH_PROVIDERS.split(
-    ',',
-  ).map((provider) => provider.toLocaleUpperCase());
+  const givenAuthProviders = VITE_ALLOWED_AUTH_PROVIDERS.split(',').map(
+    (provider) => provider.toLocaleUpperCase(),
+  );
   const supportedAuthProviders = Object.values(AuthProvider).map(
     (provider: string) => provider.toLocaleUpperCase(),
   );

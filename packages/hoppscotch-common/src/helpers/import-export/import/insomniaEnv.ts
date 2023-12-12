@@ -23,9 +23,9 @@ const insomniaEnvSchema = z.object({
   data: z.record(z.string()),
 })
 
-const replaceInsomniaTemplating = (expression: string) => {
-  const regex = /\{\{ _\.([^}]+) \}\}/
-  return expression.replace(regex, "<<$1>>")
+export const replaceInsomniaTemplating = (expression: string) => {
+  const regex = /\{\{ _\.([^}]+) \}\}/g
+  return expression.replaceAll(regex, "<<$1>>")
 }
 
 export const insomniaEnvImporter = (content: string) => {

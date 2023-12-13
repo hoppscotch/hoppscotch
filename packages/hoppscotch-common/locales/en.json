@@ -392,7 +392,8 @@
     "hoppscotch_environment": "Hoppscotch Environment",
     "hoppscotch_environment_description": "Import Hoppscotch Environment JSON file",
     "postman_environment": "Postman Environment",
-    "postman_environment_description": "Import Postman Environment JSON file",
+    "postman_environment_description": "Import Postman Environment from a JSON file",
+    "insomnia_environment_description": "Import Insomnia Environment from a JSON/YAML file",
     "environments_from_gist": "Import From Gist",
     "environments_from_gist_description": "Import Hoppscotch Environments From Gist",
     "gql_collections_from_gist_description": "Import GraphQL Collections From Gist"

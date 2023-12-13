@@ -18,16 +18,22 @@ import { GistSource } from "~/helpers/import-export/import/import-sources/GistSo
 import { hoppEnvImporter } from "~/helpers/import-export/import/hoppEnv"
 
 import * as E from "fp-ts/Either"
-import { appendEnvironments, environments$ } from "~/newstore/environments"
+import {
+  appendEnvironments,
+  addGlobalEnvVariable,
+  environments$,
+} from "~/newstore/environments"
 
 import { createTeamEnvironment } from "~/helpers/backend/mutations/TeamEnvironment"
 import { TeamEnvironment } from "~/helpers/teams/TeamEnvironment"
 import { GQLError } from "~/helpers/backend/GQLClient"
 import { CreateTeamEnvironmentMutation } from "~/helpers/backend/graphql"
 import { postmanEnvImporter } from "~/helpers/import-export/import/postmanEnv"
+import { insomniaEnvImporter } from "~/helpers/import-export/import/insomniaEnv"
 
 import IconFolderPlus from "~icons/lucide/folder-plus"
 import IconPostman from "~icons/hopp/postman"
+import IconInsomnia from "~icons/hopp/insomnia"
 import IconUser from "~icons/lucide/user"
 import { initializeDownloadCollection } from "~/helpers/import-export/export"
 import { computed } from "vue"
@@ -124,6 +130,51 @@ const PostmanEnvironmentsImport: ImporterOrExporter = {
       }
 
       handleImportToStore([res.right])
+
+      platform.analytics?.logEvent({
+        type: "HOPP_IMPORT_ENVIRONMENT",
+        platform: "rest",
+        workspaceType: isTeamEnvironment.value ? "team" : "personal",
+      })
+
+      emit("hide-modal")
+    },
+  }),
+}
+
+const insomniaEnvironmentsImport: ImporterOrExporter = {
+  metadata: {
+    id: "import.from_insomnia",
+    name: "import.from_insomnia",
+    icon: IconInsomnia,
+    title: "import.from_json",
+    applicableTo: ["personal-workspace", "team-workspace"],
+    disabled: false,
+  },
+  component: FileSource({
+    acceptedFileTypes: "application/json",
+    caption: "import.insomnia_environment_description",
+    onImportFromFile: async (environments) => {
+      const res = await insomniaEnvImporter(environments)()
+
+      if (E.isLeft(res)) {
+        showImportFailedError()
+        return
+      }
+
+      const globalEnvIndex = res.right.findIndex(
+        (env) => env.name === "Base Environment"
+      )
+
+      const globalEnv =
+        globalEnvIndex !== -1 ? res.right[globalEnvIndex] : undefined
+
+      // remove the global env from the environments array to prevent it from being imported twice
+      if (globalEnvIndex !== -1) {
+        res.right.splice(globalEnvIndex, 1)
+      }
+
+      handleImportToStore(res.right, globalEnv)
 
       platform.analytics?.logEvent({
         type: "HOPP_IMPORT_ENVIRONMENT",
@@ -255,6 +306,7 @@ const importerModules = [
   HoppEnvironmentsImport,
   EnvironmentsImportFromGIST,
   PostmanEnvironmentsImport,
+  insomniaEnvironmentsImport,
 ]
 
 const exporterModules = computed(() => {
@@ -271,7 +323,17 @@ const showImportFailedError = () => {
   toast.error(t("import.failed").toString())
 }
 
-const handleImportToStore = async (environments: Environment[]) => {
+const handleImportToStore = async (
+  environments: Environment[],
+  globalEnv?: Environment
+) => {
+  // if there's a global env, add them to the store
+  if (globalEnv) {
+    globalEnv.variables.forEach(({ key, value }) => {
+      addGlobalEnvVariable({ key, value })
+    })
+  }
+
   if (props.environmentType === "MY_ENV") {
     appendEnvironments(environments)
     toast.success(t("state.file_imported"))

@@ -1,5 +1,5 @@
 import { convert, ImportRequest } from "insomnia-importers"
-import { pipe, flow } from "fp-ts/function"
+import { pipe } from "fp-ts/function"
 import {
   HoppRESTAuth,
   HoppRESTHeader,
@@ -12,10 +12,10 @@ import {
   makeCollection,
 } from "@hoppscotch/data"
 import * as A from "fp-ts/Array"
-import * as S from "fp-ts/string"
 import * as TO from "fp-ts/TaskOption"
 import * as TE from "fp-ts/TaskEither"
 import { IMPORTER_INVALID_FILE_FORMAT } from "."
+import { replaceInsomniaTemplating } from "./insomniaEnv"
 
 // TODO: Insomnia allows custom prefixes for Bearer token auth, Hoppscotch doesn't. We just ignore the prefix for now
 
@@ -32,10 +32,8 @@ type InsomniaRequestResource = ImportRequest & { _type: "request" }
 const parseInsomniaDoc = (content: string) =>
   TO.tryCatch(() => convert(content))
 
-const replaceVarTemplating = flow(
-  S.replace(/{{\s*/g, "<<"),
-  S.replace(/\s*}}/g, ">>")
-)
+const replaceVarTemplating = (expression: string) =>
+  replaceInsomniaTemplating(expression)
 
 const getFoldersIn = (
   folder: InsomniaFolderResource | null,

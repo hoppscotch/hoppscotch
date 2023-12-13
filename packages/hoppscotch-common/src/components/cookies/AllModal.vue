@@ -9,6 +9,8 @@
     <template #body>
       <HoppSmartPlaceholder
         v-if="!currentInterceptorSupportsCookies"
+        :src="`/images/states/${colorMode.value}/add_category.svg`"
+        :alt="`${t('cookies.modal.interceptor_no_support')}`"
         :text="t('cookies.modal.interceptor_no_support')"
       >
         <template #body>

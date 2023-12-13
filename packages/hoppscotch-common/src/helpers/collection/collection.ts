@@ -222,7 +222,9 @@ export function updateInheritedPropertiesForAffectedRequests(
           return {
             ...header,
             inheritedHeader: inheritedProperties.headers.find(
-              (inheritedHeader) => inheritedHeader.parentID === path
+              (inheritedHeader) =>
+                inheritedHeader.inheritedHeader?.key ===
+                header.inheritedHeader?.key
             )?.inheritedHeader,
           }
         }

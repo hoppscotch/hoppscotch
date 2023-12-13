@@ -1,64 +1,71 @@
 <template>
   <HoppSmartModal
-    v-if="show"
     dialog
     :title="`${t('auth.login_to_hoppscotch')}`"
     styles="sm:max-w-md"
     @close="hideModal"
   >
     <template #body>
-      <div v-if="mode === 'sign-in'" class="flex flex-col space-y-2">
-        <HoppSmartItem
-          v-for="provider in allowedAuthProviders"
-          :key="provider.id"
-          :loading="provider.isLoading.value"
-          :icon="provider.icon"
-          :label="provider.label"
-          @click="provider.action"
-        />
-
-        <hr v-if="additonalLoginItems.length > 0" />
-
-        <HoppSmartItem
-          v-for="loginItem in additonalLoginItems"
-          :key="loginItem.id"
-          :icon="loginItem.icon"
-          :label="loginItem.text(t)"
-          @click="doAdditionalLoginItemClickAction(loginItem)"
-        />
-      </div>
-      <form
-        v-if="mode === 'email'"
-        class="flex flex-col space-y-2"
-        @submit.prevent="signInWithEmail"
-      >
-        <HoppSmartInput
-          v-model="form.email"
-          type="email"
-          placeholder=" "
-          :label="t('auth.email')"
-          input-styles="floating-input"
-        />
-
-        <HoppButtonPrimary
-          :loading="signingInWithEmail"
-          type="submit"
-          :label="`${t('auth.send_magic_link')}`"
-        />
-      </form>
-      <div v-if="mode === 'email-sent'" class="flex flex-col px-4">
-        <div class="flex max-w-md flex-col items-center justify-center">
-          <icon-lucide-inbox class="h-6 w-6 text-accent" />
-          <h3 class="my-2 text-center text-lg">
-            {{ t("auth.we_sent_magic_link") }}
-          </h3>
-          <p class="text-center">
-            {{
-              t("auth.we_sent_magic_link_description", { email: form.email })
-            }}
-          </p>
+      <template v-if="isLoadingAllowedAuthProviders">
+        <div class="flex justify-center">
+          <HoppSmartSpinner />
         </div>
-      </div>
+      </template>
+
+      <template v-else>
+        <div v-if="mode === 'sign-in'" class="flex flex-col space-y-2">
+          <HoppSmartItem
+            v-for="provider in allowedAuthProviders"
+            :key="provider.id"
+            :loading="provider.isLoading.value"
+            :icon="provider.icon"
+            :label="provider.label"
+            @click="provider.action"
+          />
+
+          <hr v-if="additonalLoginItems.length > 0" />
+
+          <HoppSmartItem
+            v-for="loginItem in additonalLoginItems"
+            :key="loginItem.id"
+            :icon="loginItem.icon"
+            :label="loginItem.text(t)"
+            @click="doAdditionalLoginItemClickAction(loginItem)"
+          />
+        </div>
+        <form
+          v-if="mode === 'email'"
+          class="flex flex-col space-y-2"
+          @submit.prevent="signInWithEmail"
+        >
+          <HoppSmartInput
+            v-model="form.email"
+            type="email"
+            placeholder=" "
+            :label="t('auth.email')"
+            input-styles="floating-input"
+          />
+
+          <HoppButtonPrimary
+            :loading="signingInWithEmail"
+            type="submit"
+            :label="`${t('auth.send_magic_link')}`"
+          />
+        </form>
+        <div v-if="mode === 'email-sent'" class="flex flex-col px-4">
+          <div class="flex max-w-md flex-col items-center justify-center">
+            <icon-lucide-inbox class="h-6 w-6 text-accent" />
+            <h3 class="my-2 text-center text-lg">
+              {{ t("auth.we_sent_magic_link") }}
+            </h3>
+            <p class="text-center">
+              {{
+                t("auth.we_sent_magic_link_description", { email: form.email })
+              }}
+            </p>
+          </div>
+        </div>
+      </template>
     </template>
     <template #footer>
       <div
@@ -109,7 +116,7 @@
 </template>
 
 <script setup lang="ts">
-import { Ref, computed, onMounted, ref } from "vue"
+import { Ref, onMounted, ref } from "vue"
 
 import { useI18n } from "@composables/i18n"
 import { useStreamSubscriber } from "@composables/stream"
@@ -127,9 +134,7 @@ import { useService } from "dioc/vue"
 import { LoginItemDef } from "~/platform/auth"
 import { PersistenceService } from "~/services/persistence"
 
-defineProps<{
-  show: boolean
-}>()
+import * as E from "fp-ts/Either"
 
 const emit = defineEmits<{
   (e: "hide-modal"): void
@@ -144,6 +149,8 @@ const persistenceService = useService(PersistenceService)
 const form = {
   email: "",
 }
+
+const isLoadingAllowedAuthProviders = ref(true)
 
 const signingInWithGoogle = ref(false)
 const signingInWithGitHub = ref(false)
@@ -162,21 +169,42 @@ type AuthProviderItem = {
   isLoading: Ref<boolean>
 }
 
-const additonalLoginItems = computed(
-  () => platform.auth.additionalLoginItems ?? []
-)
+let allowedAuthProviders: AuthProviderItem[] = []
+let additonalLoginItems: LoginItemDef[] = []
 
 const doAdditionalLoginItemClickAction = async (item: LoginItemDef) => {
   await item.onClick()
   emit("hide-modal")
 }
 
-onMounted(() => {
+onMounted(async () => {
   const currentUser$ = platform.auth.getCurrentUserStream()
 
   subscribeToStream(currentUser$, (user) => {
     if (user) hideModal()
   })
+
+  const res = await platform.auth.getAllowedAuthProviders()
+
+  if (E.isLeft(res)) {
+    toast.error(`${t("error.authproviders_load_error")}`)
+    isLoadingAllowedAuthProviders.value = false
+    return
+  }
+
+  // setup the normal auth providers
+  const enabledAuthProviders = authProvidersAvailable.filter((provider) =>
+    res.right.includes(provider.id)
+  )
+  allowedAuthProviders = enabledAuthProviders
+
+  // setup the additional login items
+  additonalLoginItems =
+    platform.auth.additionalLoginItems?.filter((item) =>
+      res.right.includes(item.id)
+    ) ?? []
+
+  isLoadingAllowedAuthProviders.value = false
 })
 
 const showLoginSuccess = () => {
@@ -275,14 +303,7 @@ const signInWithEmail = async () => {
     })
 }
 
-const hideModal = () => {
-  mode.value = "sign-in"
-  toast.clear()
-
-  emit("hide-modal")
-}
-
-const authProviders: AuthProviderItem[] = [
+const authProvidersAvailable: AuthProviderItem[] = [
   {
     id: "GITHUB",
     icon: IconGithub,
@@ -315,19 +336,10 @@ const authProviders: AuthProviderItem[] = [
   },
 ]
 
-// Do not format the `import.meta.env.VITE_ALLOWED_AUTH_PROVIDERS` call into multiple lines!
-// prettier-ignore
-const allowedAuthProvidersIDsString =
-  import.meta.env.VITE_ALLOWED_AUTH_PROVIDERS
+const hideModal = () => {
+  mode.value = "sign-in"
+  toast.clear()
 
-const allowedAuthProvidersIDs = allowedAuthProvidersIDsString
-  ? allowedAuthProvidersIDsString.split(",")
-  : []
-
-const allowedAuthProviders =
-  allowedAuthProvidersIDs.length > 0
-    ? authProviders.filter((provider) =>
-        allowedAuthProvidersIDs.includes(provider.id)
-      )
-    : authProviders
+  emit("hide-modal")
+}
 </script>

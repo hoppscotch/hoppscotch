@@ -37,7 +37,8 @@
     "stream-browserify": "^3.0.0",
     "util": "^0.12.5",
     "vue": "^3.3.8",
-    "workbox-window": "^7.0.0"
+    "workbox-window": "^7.0.0",
+    "zod": "^3.22.4"
   },
   "devDependencies": {
     "@graphql-codegen/add": "^5.0.0",

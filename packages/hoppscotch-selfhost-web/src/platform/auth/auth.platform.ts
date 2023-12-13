@@ -8,6 +8,7 @@ import { PersistenceService } from "@hoppscotch/common/services/persistence"
 import axios from "axios"
 import { BehaviorSubject, Subject } from "rxjs"
 import { Ref, ref, watch } from "vue"
+import { getAllowedAuthProviders } from "./auth.api"
 
 export const authEvents$ = new Subject<AuthEvent | { event: "token_refresh" }>()
 const currentUser$ = new BehaviorSubject<HoppUser | null>(null)
@@ -341,4 +342,5 @@ export const def: AuthPlatformDef = {
       window.location.href = "/"
     }
   },
+  getAllowedAuthProviders,
 }

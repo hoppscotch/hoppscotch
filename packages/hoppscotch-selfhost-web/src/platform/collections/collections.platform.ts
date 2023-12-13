@@ -1,4 +1,4 @@
-import { authEvents$, def as platformAuth } from "@platform/auth"
+import { authEvents$, def as platformAuth } from "@platform/auth/auth.platform"
 import { CollectionsPlatformDef } from "@hoppscotch/common/platform/collections"
 import { runDispatchWithOutSyncing } from "../../lib/sync"
 

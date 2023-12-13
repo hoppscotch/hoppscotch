@@ -308,7 +308,8 @@
     "proxy_error": "Proxy error",
     "script_fail": "Could not execute pre-request script",
     "something_went_wrong": "Something went wrong",
-    "test_script_fail": "Could not execute post-request script"
+    "test_script_fail": "Could not execute post-request script",
+    "authproviders_load_error": "Unable to load auth providers"
   },
   "export": {
     "as_json": "Export as JSON",

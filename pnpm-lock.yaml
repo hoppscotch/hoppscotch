@@ -1099,6 +1099,9 @@ importers:
       workbox-window:
         specifier: ^7.0.0
         version: 7.0.0
+      zod:
+        specifier: ^3.22.4
+        version: 3.22.4
     devDependencies:
       '@graphql-codegen/add':
         specifier: ^5.0.0
@@ -7645,7 +7648,7 @@ packages:
     dependencies:
       '@intlify/bundle-utils': 7.4.0(vue-i18n@9.2.2)
       '@intlify/shared': 9.4.1
-      '@rollup/pluginutils': 5.0.3(rollup@2.79.1)
+      '@rollup/pluginutils': 5.0.3(rollup@3.29.4)
       '@vue/compiler-sfc': 3.3.10
       debug: 4.3.4(supports-color@9.2.2)
       fast-glob: 3.3.1
@@ -9365,6 +9368,7 @@ packages:
       estree-walker: 2.0.2
       picomatch: 2.3.1
       rollup: 2.79.1
+    dev: true
 
   /@rollup/pluginutils@5.0.3(rollup@3.29.4):
     resolution: {integrity: sha512-hfllNN4a80rwNQ9QCxhxuHCGHMAvabXqxNdaChUSSadMre7t4iEUI6fFAhBOn/eIYTgYVhBv7vCLsAJ4u3lf3g==}
@@ -9379,7 +9383,6 @@ packages:
       estree-walker: 2.0.2
       picomatch: 2.3.1
       rollup: 3.29.4
-    dev: true
 
   /@rollup/pluginutils@5.1.0(rollup@2.79.1):
     resolution: {integrity: sha512-XTIWOPPcpvyKI6L1NHo0lFlCyznUEyPmPY1mc3KpPVDYulHSTvyeLNVW00QTLIAFNhR3kYnJTQHeGqU4M3n09g==}
@@ -11264,7 +11267,7 @@ packages:
       regenerator-runtime: 0.13.11
       systemjs: 6.14.2
       terser: 5.24.0
-      vite: 4.5.0(@types/node@17.0.27)(sass@1.69.5)(terser@5.24.0)
+      vite: 4.5.0(@types/node@17.0.27)(sass@1.53.0)(terser@5.24.0)
     transitivePeerDependencies:
       - supports-color
 
@@ -11297,7 +11300,7 @@ packages:
       vite: ^4.0.0 || ^5.0.0
       vue: ^3.2.25
     dependencies:
-      vite: 4.5.0(@types/node@17.0.27)(sass@1.69.5)(terser@5.24.0)
+      vite: 4.5.0(@types/node@17.0.27)(sass@1.53.0)(terser@5.24.0)
       vue: 3.3.9(typescript@5.3.2)
     dev: true
 
@@ -11857,7 +11860,7 @@ packages:
     dependencies:
       '@vue/compiler-ssr': 3.3.9
       '@vue/shared': 3.3.9
-      vue: 3.3.9(typescript@4.9.5)
+      vue: 3.3.9(typescript@5.3.2)
 
   /@vue/shared@3.2.45:
     resolution: {integrity: sha512-Ewzq5Yhimg7pSztDV+RH1UDKBzmtqieXQlpTVm2AwraoRL/Rks96mvd8Vgi7Lj+h+TH8dv7mXD3FRZR3TUvbSg==}
@@ -23454,6 +23457,7 @@ packages:
       chokidar: 3.5.3
       immutable: 4.3.2
       source-map-js: 1.0.2
+    dev: true
 
   /sax@1.2.4:
     resolution: {integrity: sha512-NqVDv9TpANUjFm0N8uM5GxL36UgKi9/atZw+x7YFnQ8ckwFGKrl4xX4yWtrey3UJm5nP1kUbnYgLopqWNSRhWw==}
@@ -25457,7 +25461,7 @@ packages:
     dependencies:
       fast-glob: 3.3.1
       unplugin: 1.4.0
-      vite: 4.5.0(@types/node@17.0.27)(sass@1.69.5)(terser@5.24.0)
+      vite: 4.5.0(@types/node@17.0.27)(sass@1.53.0)(terser@5.24.0)
     dev: true
 
   /unplugin-icons@0.14.9(@vue/compiler-sfc@3.2.45)(vite@3.2.4):
@@ -26279,7 +26283,7 @@ packages:
       vite: ^2.0.0 || ^3.0.0 || ^4.0.0
     dependencies:
       fast-glob: 3.3.1
-      vite: 4.5.0(@types/node@17.0.27)(sass@1.69.5)(terser@5.24.0)
+      vite: 4.5.0(@types/node@17.0.27)(sass@1.53.0)(terser@5.24.0)
     dev: true
 
   /vite-plugin-html-config@1.0.10(vite@3.2.4):
@@ -26297,7 +26301,7 @@ packages:
     peerDependencies:
       vite: '>=2.0.0'
     dependencies:
-      vite: 4.5.0(@types/node@17.0.27)(sass@1.69.5)(terser@5.24.0)
+      vite: 4.5.0(@types/node@17.0.27)(sass@1.53.0)(terser@5.24.0)
     dev: true
 
   /vite-plugin-inspect@0.7.38(rollup@2.79.1)(vite@4.5.0):
@@ -26538,7 +26542,7 @@ packages:
       debug: 4.3.4(supports-color@9.2.2)
       fast-glob: 3.3.2
       pretty-bytes: 6.1.1
-      vite: 4.5.0(@types/node@17.0.27)(sass@1.69.5)(terser@5.24.0)
+      vite: 4.5.0(@types/node@17.0.27)(sass@1.53.0)(terser@5.24.0)
       workbox-build: 7.0.0
       workbox-window: 7.0.0
     transitivePeerDependencies:
@@ -26632,7 +26636,7 @@ packages:
       '@vue/compiler-sfc': 3.3.8
       debug: 4.3.4(supports-color@9.2.2)
       fast-glob: 3.3.1
-      vite: 4.5.0(@types/node@17.0.27)(sass@1.69.5)(terser@5.24.0)
+      vite: 4.5.0(@types/node@17.0.27)(sass@1.53.0)(terser@5.24.0)
       vue: 3.3.9(typescript@5.3.2)
       vue-router: 4.2.5(vue@3.3.9)
     transitivePeerDependencies:
@@ -26758,7 +26762,6 @@ packages:
       terser: 5.24.0
     optionalDependencies:
       fsevents: 2.3.3
-    dev: true
 
   /vite@4.5.0(@types/node@17.0.27)(sass@1.69.5)(terser@5.24.0):
     resolution: {integrity: sha512-ulr8rNLA6rkyFAlVWw2q5YJ91v098AFQ2R0PRFwPzREXOUJQPtFUG0t+/ZikhaOCDqFoDhN6/v8Sq0o4araFAw==}
@@ -26790,12 +26793,13 @@ packages:
     dependencies:
       '@types/node': 17.0.27
       esbuild: 0.18.20
-      postcss: 8.4.31
+      postcss: 8.4.32
       rollup: 3.29.4
       sass: 1.69.5
       terser: 5.24.0
     optionalDependencies:
       fsevents: 2.3.3
+    dev: true
 
   /vite@4.5.0(@types/node@18.18.8)(sass@1.69.5)(terser@5.24.0):
     resolution: {integrity: sha512-ulr8rNLA6rkyFAlVWw2q5YJ91v098AFQ2R0PRFwPzREXOUJQPtFUG0t+/ZikhaOCDqFoDhN6/v8Sq0o4araFAw==}

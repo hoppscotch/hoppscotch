@@ -9,6 +9,7 @@
     </d>
     <div class="flex">
       <HoppButtonSecondary
+        class="invisible"
         v-tippy="{ theme: 'tooltip' }"
         :title="t('test.selection')"
         :label="t('test.selection')"
@@ -165,11 +166,4 @@ const collection = toRef(
 
 const collectionAdapter: SmartTreeAdapter<any> =
   new TestRunnerCollectionsAdapter(collection)
-
-const runnableCollection = computed(() => {
-  if (tab.value.document.type === "test-runner") {
-    return tab.value.document.collection
-  }
-  return null
-})
 </script>

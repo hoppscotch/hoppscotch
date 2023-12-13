@@ -161,23 +161,25 @@
       :text="t('helpers.test_script_fail')"
     >
     </HoppSmartPlaceholder>
-    <HoppSmartPlaceholder
-      v-else
-      :src="`/images/states/${colorMode.value}/validation.svg`"
-      :alt="`${t('empty.tests')}`"
-      :heading="t('empty.tests')"
-      :text="t('helpers.tests')"
-    >
-      <HoppButtonSecondary
-        outline
-        :label="`${t('action.learn_more')}`"
-        to="https://docs.hoppscotch.io/documentation/getting-started/rest/tests"
-        blank
-        :icon="IconExternalLink"
-        reverse
-        class="my-4"
-      />
-    </HoppSmartPlaceholder>
+    <template v-else>
+      <HoppSmartPlaceholder
+        v-if="showEmptyMessage"
+        :src="`/images/states/${colorMode.value}/validation.svg`"
+        :alt="`${t('empty.tests')}`"
+        :heading="t('empty.tests')"
+        :text="t('helpers.tests')"
+      >
+        <HoppButtonSecondary
+          outline
+          :label="`${t('action.learn_more')}`"
+          to="https://docs.hoppscotch.io/documentation/getting-started/rest/tests"
+          blank
+          :icon="IconExternalLink"
+          reverse
+          class="my-4"
+        />
+      </HoppSmartPlaceholder>
+    </template>
     <EnvironmentsMyDetails
       :show="showMyEnvironmentDetailsModal"
       action="new"
@@ -219,9 +221,15 @@ import { useVModel } from "@vueuse/core"
 import { useService } from "dioc/vue"
 import { WorkspaceService } from "~/services/workspace.service"
 
-const props = defineProps<{
-  modelValue: HoppTestResult | null | undefined
-}>()
+const props = withDefaults(
+  defineProps<{
+    modelValue: HoppTestResult | null | undefined
+    showEmptyMessage?: boolean
+  }>(),
+  {
+    showEmptyMessage: true,
+  }
+)
 
 const emit = defineEmits<{
   (e: "update:modelValue", val: HoppTestResult | null | undefined): void

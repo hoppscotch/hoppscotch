@@ -1080,7 +1080,7 @@ export default class NewTeamCollectionAdapter {
           authType: "inherit",
           authActive: true,
         }
-        auth.parentID = folderPath ?? parentFolder.id
+        auth.parentID = [...path.slice(0, i + 1)].join("/")
         auth.parentName = parentFolder.title
       }
 
@@ -1091,7 +1091,7 @@ export default class NewTeamCollectionAdapter {
 
       if (parentFolderAuth?.authType === "inherit" && path.length === 1) {
         auth = {
-          parentID: folderPath ?? parentFolder.id,
+          parentID: [...path.slice(0, i + 1)].join("/"),
           parentName: parentFolder.title,
           inheritedAuth: auth.inheritedAuth,
         }
@@ -1099,7 +1099,7 @@ export default class NewTeamCollectionAdapter {
 
       if (parentFolderAuth?.authType !== "inherit") {
         auth = {
-          parentID: folderPath ?? parentFolder.id,
+          parentID: [...path.slice(0, i + 1)].join("/"),
           parentName: parentFolder.title,
           inheritedAuth: parentFolderAuth,
         }

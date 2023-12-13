@@ -105,11 +105,10 @@ export function cascadeParentCollectionForHeaderAuth(
 
     const parentFolderAuth = parentFolder.auth
     const parentFolderHeaders = parentFolder.headers
-
     // check if the parent folder has authType 'inherit' and if it is the root folder
     if (parentFolderAuth?.authType === "inherit" && path.length === 1) {
       auth = {
-        parentID: folderPath,
+        parentID: [...path.slice(0, i + 1)].join("/"),
         parentName: parentFolder.name,
         inheritedAuth: auth.inheritedAuth,
       }
@@ -117,7 +116,7 @@ export function cascadeParentCollectionForHeaderAuth(
 
     if (parentFolderAuth?.authType !== "inherit") {
       auth = {
-        parentID: folderPath,
+        parentID: [...path.slice(0, i + 1)].join("/"),
         parentName: parentFolder.name,
         inheritedAuth: parentFolderAuth,
       }

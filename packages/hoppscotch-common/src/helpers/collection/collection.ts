@@ -110,6 +110,46 @@ export function updateSaveContextForAffectedRequests(
   }
 }
 
+/**
+ * Used to check the new folder path is close to the save context folder path or not
+ * @param folderPathCurrent The path saved as the inherited path in the inherited properties
+ * @param newFolderPath The incomming path
+ * @param saveContextPath The save context of the request
+ * @returns The path which is close to saveContext.folderPath
+ */
+function folderPathCloseToSaveContext(
+  folderPathCurrent: string | undefined,
+  newFolderPath: string,
+  saveContextPath: string
+) {
+  if (!folderPathCurrent) return newFolderPath
+  const folderPathCurrentArray = folderPathCurrent.split("/")
+  const newFolderPathArray = newFolderPath.split("/")
+
+  const saveContextFolderPathArray = saveContextPath.split("/")
+
+  let folderPathCurrentMatch = 0
+
+  for (let i = 0; i < folderPathCurrentArray.length; i++) {
+    if (folderPathCurrentArray[i] === saveContextFolderPathArray[i]) {
+      folderPathCurrentMatch++
+    }
+  }
+
+  let newFolderPathMatch = 0
+
+  for (let i = 0; i < newFolderPathArray.length; i++) {
+    if (newFolderPathArray[i] === saveContextFolderPathArray[i]) {
+      newFolderPathMatch++
+    }
+  }
+
+  if (folderPathCurrentMatch > newFolderPathMatch) {
+    return folderPathCurrent
+  }
+  return newFolderPath
+}
+
 export function updateInheritedPropertiesForAffectedRequests(
   path: string,
   inheritedProperties: HoppInheritedProperty,
@@ -137,9 +177,28 @@ export function updateInheritedPropertiesForAffectedRequests(
   }
 
   const tabsEffectedByAuth = tabs.filter((tab) => {
+    if (workspace === "personal") {
+      return (
+        tab.value.document.saveContext?.originLocation === "user-collection" &&
+        tab.value.document.saveContext.folderPath.startsWith(path) &&
+        path ===
+          folderPathCloseToSaveContext(
+            tab.value.document.inheritedProperties?.auth.parentID,
+            path,
+            tab.value.document.saveContext.folderPath
+          )
+      )
+    }
+
     return (
-      tab.value.document.inheritedProperties &&
-      tab.value.document.inheritedProperties.auth.parentID === path
+      tab.value.document.saveContext?.originLocation === "team-collection" &&
+      tab.value.document.saveContext.collectionID?.startsWith(path) &&
+      path ===
+        folderPathCloseToSaveContext(
+          tab.value.document.inheritedProperties?.auth.parentID,
+          path,
+          tab.value.document.saveContext.collectionID
+        )
     )
   })
 
@@ -163,9 +222,7 @@ export function updateInheritedPropertiesForAffectedRequests(
           return {
             ...header,
             inheritedHeader: inheritedProperties.headers.find(
-              (inheritedHeader) =>
-                inheritedHeader.inheritedHeader?.key ===
-                header.inheritedHeader?.key
+              (inheritedHeader) => inheritedHeader.parentID === path
             )?.inheritedHeader,
           }
         }

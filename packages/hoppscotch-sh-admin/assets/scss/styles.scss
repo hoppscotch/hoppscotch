@@ -582,9 +582,10 @@ pre.ace_editor {
   @apply bg-dividerLight;
   @apply rounded;
   @apply ml-2;
-  @apply px-1;
-  @apply min-w-[1.25rem];
-  @apply min-h-[1.25rem];
+  @apply px-0.5;
+  @apply min-w-[1rem];
+  @apply min-h-[1rem];
+  @apply leading-none;
   @apply items-center;
   @apply justify-center;
   @apply border border-dividerDark;

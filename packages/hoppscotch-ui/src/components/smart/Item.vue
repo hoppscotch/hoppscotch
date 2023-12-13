@@ -51,7 +51,7 @@
       class="items-center self-center ml-6 -mr-2 svg-icons"
       :class="{ 'text-accent': activeInfoIcon }"
     />
-    <div v-if="shortcut.length" class="ml-4 <sm:hidden font-medium">
+    <div v-if="shortcut.length" class="ml-4 inline-flex <sm:hidden font-medium">
       <kbd
         v-for="(key, index) in shortcut"
         :key="`key-${index}`"

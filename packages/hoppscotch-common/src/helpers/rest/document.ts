@@ -88,10 +88,17 @@ export type HoppTestRunnerDocument = {
    * The document type
    */
   type: "test-runner"
+
   /**
    * The collection as it is in the document
    */
   collection: HoppCollection<HoppRESTRequest>
+
+  /**
+   * The request as it is in the document
+   */
+  result: HoppCollection<HoppRESTRequest>
+
   /**
    * Info about where this request should be saved.
    * This contains where the request is originated from basically.

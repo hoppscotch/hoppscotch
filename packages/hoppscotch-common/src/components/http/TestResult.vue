@@ -237,9 +237,15 @@ import { useColorMode } from "~/composables/theming"
 import { invokeAction } from "~/helpers/actions"
 import { WorkspaceService } from "~/services/workspace.service"
 
-const props = defineProps<{
-  modelValue: HoppTestResult | null | undefined
-}>()
+const props = withDefaults(
+  defineProps<{
+    modelValue: HoppTestResult | null | undefined
+    showEmptyMessage?: boolean
+  }>(),
+  {
+    showEmptyMessage: true,
+  }
+)
 
 const emit = defineEmits<{
   (e: "update:modelValue", val: HoppTestResult | null | undefined): void

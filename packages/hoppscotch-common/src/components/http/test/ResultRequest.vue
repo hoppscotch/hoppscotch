@@ -1,31 +1,34 @@
 <template>
-  <div class="flex flex-col">
-    <div class="h-1 w-full transition"></div>
-    <div class="flex items-stretch group">
-      <button
-        @click="selectRequest()"
-        class="w-full rounded ml-4 px-6 py-3 transition cursor-pointer focus:outline-none hover:active hover:bg-primaryLight hover:text-secondaryDark"
-      >
-        <div class="flex gap-4 mb-1">
-          <span
-            class="flex items-center justify-center truncate pointer-events-none"
-            :style="{ color: requestLabelColor }"
-          >
-            <span class="font-bold truncate">
-              {{ request.method }}
-            </span>
+  <div class="flex items-stretch group">
+    <button
+      @click="selectRequest()"
+      class="w-full rounded ml-4 px-6 py-3 transition cursor-pointer focus:outline-none hover:active hover:bg-primaryLight hover:text-secondaryDark"
+    >
+      <div class="flex gap-4 mb-1">
+        <span
+          class="flex items-center justify-center truncate pointer-events-none"
+          :style="{ color: requestLabelColor }"
+        >
+          <span class="font-bold truncate">
+            {{ request.method }}
           </span>
-          <span class="truncate text-sm text-secondaryDark">
-            {{ request.name }}
-          </span>
-        </div>
+        </span>
+        <span class="truncate text-sm text-secondaryDark">
+          {{ request.name }}
+        </span>
+      </div>
 
-        <p class="text-left text-secondaryLight text-sm">
-          {{ request.endpoint }}
-        </p>
-      </button>
-    </div>
+      <p class="text-left text-secondaryLight text-sm">
+        {{ request.endpoint }}
+      </p>
+    </button>
   </div>
+
+  <HttpTestResult
+    :show-empty-message="false"
+    v-if="request.testResults"
+    v-model="request.testResults"
+  />
 </template>
 
 <script setup lang="ts">

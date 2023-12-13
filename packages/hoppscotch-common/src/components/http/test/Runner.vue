@@ -47,7 +47,10 @@
       </div>
 
       <div v-if="showResult">
-        <HttpTestRunnerResult v-model="tab" />
+        <HttpTestRunnerResult
+          :config="testRunnerConfig"
+          :collection="collection"
+        />
       </div>
 
       <div v-else class="flex flex-col flex-1">
@@ -61,16 +64,12 @@
 </template>
 
 <script setup lang="ts">
-import IconPlus from "~icons/lucide/plus"
-import { ref, computed } from "vue"
-import { useVModel } from "@vueuse/core"
-import { HoppTab } from "~/services/tab"
-import { HoppTabDocument } from "~/helpers/rest/document"
 import { useI18n } from "@composables/i18n"
-import { useService } from "dioc/vue"
-import { TestRunnerService } from "~/services/test-runner/test-runner.service"
-
-const testRunnerService = useService(TestRunnerService)
+import { useVModel } from "@vueuse/core"
+import { computed, ref } from "vue"
+import { HoppTabDocument } from "~/helpers/rest/document"
+import { HoppTab } from "~/services/tab"
+import IconPlus from "~icons/lucide/plus"
 
 const t = useI18n()
 
@@ -105,19 +104,16 @@ const collectionName = computed(() => {
 
 const tab = useVModel(props, "modelValue", emit)
 
-const showResult = ref(false)
-const stopRunningTest = ref(false)
+const collection = computed(() => {
+  return tab.value.document.collection
+})
 
 const runTests = () => {
   showResult.value = true
-
-  if (tab.value.document.type === "test-runner") {
-    testRunnerService.runTests(tab.value.document.collection, {
-      stop: stopRunningTest,
-      ...testRunnerConfig.value,
-    })
-  }
 }
+
+const showResult = ref(false)
+const stopRunningTest = ref(false)
 
 const stopRunning = () => {
   stopRunningTest.value = true

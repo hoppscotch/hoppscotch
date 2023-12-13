@@ -42,7 +42,7 @@ import { getService } from "~/modules/dioc"
 
 const secretEnvironmentService = getService(SecretEnvironmentService)
 
-const getTestableBody = (
+export const getTestableBody = (
   res: HoppRESTResponse & { type: "success" | "fail" }
 ) => {
   const contentTypeHeader = res.headers.find(
@@ -372,6 +372,111 @@ export function runRESTRequest$(
   })
 
   return [cancel, res]
+}
+
+export function runTestRunnerRequest(
+  request: TestRunnerRequest
+): Promise<
+  E.Left<"script_fail" | "cancellation"> | E.Right<Observable<HoppRESTResponse>>
+> {
+  const res = getFinalEnvsFromPreRequest(
+    request.preRequestScript,
+    getCombinedEnvVariables()
+  ).then((envs) => {
+    if (E.isLeft(envs)) {
+      console.error(envs.left)
+      return E.left("script_fail" as const)
+    }
+
+    const effectiveRequest = getEffectiveRESTRequest(request, {
+      name: "Env",
+      variables: combineEnvVariables(envs.right),
+    })
+
+    const [stream] = createRESTNetworkRequestStream(effectiveRequest)
+
+    const subscription = stream
+      .pipe(filter((res) => res.type === "success" || res.type === "fail"))
+      .subscribe(async (res) => {
+        if (res.type === "success" || res.type === "fail") {
+          executedResponses$.next(
+            // @ts-expect-error Typescript can't figure out this inference for some reason
+            res
+          )
+
+          const runResult = await runTestScript(
+            res.req.testScript,
+            envs.right,
+            {
+              status: res.statusCode,
+              body: getTestableBody(res),
+              headers: res.headers,
+            }
+          )
+
+          if (E.isRight(runResult)) {
+            request.testResults = translateToSandboxTestResults(runResult.right)
+
+            setGlobalEnvVariables(runResult.right.envs.global)
+
+            if (
+              environmentsStore.value.selectedEnvironmentIndex.type === "MY_ENV"
+            ) {
+              const env = getEnvironment({
+                type: "MY_ENV",
+                index: environmentsStore.value.selectedEnvironmentIndex.index,
+              })
+              updateEnvironment(
+                environmentsStore.value.selectedEnvironmentIndex.index,
+                {
+                  ...env,
+                  variables: runResult.right.envs.selected,
+                }
+              )
+            } else if (
+              environmentsStore.value.selectedEnvironmentIndex.type ===
+              "TEAM_ENV"
+            ) {
+              const env = getEnvironment({
+                type: "TEAM_ENV",
+              })
+              pipe(
+                updateTeamEnvironment(
+                  JSON.stringify(runResult.right.envs.selected),
+                  environmentsStore.value.selectedEnvironmentIndex.teamEnvID,
+                  env.name
+                )
+              )()
+            }
+          } else {
+            request.testResults = {
+              description: "",
+              expectResults: [],
+              tests: [],
+              envDiff: {
+                global: {
+                  additions: [],
+                  deletions: [],
+                  updations: [],
+                },
+                selected: {
+                  additions: [],
+                  deletions: [],
+                  updations: [],
+                },
+              },
+              scriptError: true,
+            }
+          }
+
+          subscription.unsubscribe()
+        }
+      })
+
+    return E.right(stream)
+  })
+
+  return res
 }
 
 const getAddedEnvVariables = (

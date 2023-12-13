@@ -49,33 +49,60 @@
 </template>
 
 <script setup lang="ts">
+import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
 import { SmartTreeAdapter } from "@hoppscotch/ui/dist/helpers/treeAdapter"
-import { useVModel } from "@vueuse/core"
-import { ref, toRef } from "vue"
+import { ref, onMounted, computed, watch } from "vue"
 import { useI18n } from "~/composables/i18n"
-import { HoppTabDocument } from "~/helpers/rest/document"
 import { TestRunnerCollectionsAdapter } from "~/helpers/runner/adapter"
-import { HoppTab } from "~/services/tab"
+import { TestRunnerService } from "~/services/test-runner/test-runner.service"
+import { useService } from "dioc/vue"
+import { TestRunnerConfig } from "./Runner.vue"
 
 const t = useI18n()
-const props = defineProps<{ modelValue: HoppTab<HoppTabDocument> }>()
+const testRunnerService = useService(TestRunnerService)
 
-const emit = defineEmits<{
-  (e: "update:modelValue", val: HoppTab<HoppTabDocument>): void
+const props = defineProps<{
+  collection: HoppCollection<HoppRESTRequest>
+  config: TestRunnerConfig
 }>()
-
-const tab = useVModel(props, "modelValue", emit)
 
 const selectedTestTab = ref("all_tests")
 
 const showCheckbox = ref(false)
 
-const collection = toRef(
-  tab.value.document.type === "test-runner"
-    ? [tab.value.document.collection]
-    : []
+const runnerState = testRunnerService.runTests(props.collection, props.config)
+
+watch(
+  () => runnerState.value,
+  () => {
+    console.log(runnerState.value)
+  },
+  {
+    deep: true,
+  }
 )
 
+const result = computed(() => {
+  return [runnerState.value.result]
+})
+
+// const runTest = async () => {
+//   const state = testRunnerService.runTests(props.collection, props.config)
+//   watch(
+//     () => state,
+//     () => {
+//       runnerState.value = state.value
+//     },
+//     {
+//       deep: true,
+//     }
+//   )
+// }
+
+// onMounted(() => {
+//   runTest()
+// })
+
 const collectionAdapter: SmartTreeAdapter<any> =
-  new TestRunnerCollectionsAdapter(collection)
+  new TestRunnerCollectionsAdapter(result)
 </script>

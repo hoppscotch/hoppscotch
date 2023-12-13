@@ -1,5 +1,5 @@
 <template>
-  <div class="z-[99999]">
+  <div class="z-[1000]">
     <Transition name="fade" appear>
       <div
         v-if="show"

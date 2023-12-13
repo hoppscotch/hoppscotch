@@ -423,7 +423,7 @@ pre.ace_editor {
 
 .toasted-container {
   @apply max-w-md;
-  @apply z-[100000];
+  @apply z-[10000];
 
   .toasted {
     &.toasted-primary {

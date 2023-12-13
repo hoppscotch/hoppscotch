@@ -2,7 +2,7 @@
   <Transition name="fade" appear @leave="onTransitionLeaveStart">
     <div
       ref="modal"
-      class="fixed inset-0 z-[99999] overflow-y-auto transition"
+      class="fixed inset-0 z-[1000] overflow-y-auto transition"
       role="dialog"
     >
       <div

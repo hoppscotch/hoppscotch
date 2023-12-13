@@ -1,5 +1,9 @@
 <template>
-  <HoppSmartModal :dimissible="false" :title="t('configs.restart.title')">
+  <HoppSmartModal
+    v-if="restart"
+    :dimissible="false"
+    :title="t('configs.restart.title')"
+  >
     <template #body>
       <div class="text-center">
         {{ t('configs.restart.description', { duration }) }}
@@ -9,15 +13,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
 import { useMutation } from '@urql/vue';
-import { useToast } from '~/composables/toast';
+import { onMounted, ref } from 'vue';
 import { useI18n } from '~/composables/i18n';
-import { useConfigHandler, Config } from '~/composables/useConfigHandler';
+import { useToast } from '~/composables/toast';
+import { Config, useConfigHandler } from '~/composables/useConfigHandler';
 import {
   EnableAndDisableSsoDocument,
-  UpdateInfraConfigsDocument,
   ResetInfraConfigsDocument,
+  UpdateInfraConfigsDocument,
 } from '~/helpers/backend/graphql';
 
 const t = useI18n();
@@ -25,37 +29,31 @@ const toast = useToast();
 
 const props = withDefaults(
   defineProps<{
-    loadingState: boolean;
     workingConfigs?: Config;
     reset?: boolean;
   }>(),
   {
-    loadingState: false,
     reset: false,
   }
 );
 
-// Mutations to update or reset server configurations
+// Mutations to update or reset server configurations and audit logs
 const resetInfraConfigsMutation = useMutation(ResetInfraConfigsDocument);
 const updateInfraConfigsMutation = useMutation(UpdateInfraConfigsDocument);
 const updateAllowedAuthProviderMutation = useMutation(
   EnableAndDisableSsoDocument
 );
 
-// Mutation handlers`
+// Mutation handlers
 const { updateInfraConfigs, updateAuthProvider, resetInfraConfigs } =
   useConfigHandler(props.workingConfigs);
 
 // Call relevant mutations on component mount and initiate server restart
 const duration = ref(30);
+const restart = ref(false);
 
-onMounted(async () => {
-  if (props.reset) {
-    await resetInfraConfigs(resetInfraConfigsMutation);
-  } else {
-    await updateAuthProvider(updateAllowedAuthProviderMutation);
-    await updateInfraConfigs(updateInfraConfigsMutation);
-  }
+// Start countdown timer
+const startCountdown = () => {
   const timer = setInterval(() => {
     duration.value--;
     if (duration.value === 0) {
@@ -64,5 +62,26 @@ onMounted(async () => {
       window.location.reload();
     }
   }, 1000);
+};
+
+// Call relevant mutations on component mount and initiate server restart
+onMounted(async () => {
+  let success = true;
+
+  if (props.reset) {
+    success = await resetInfraConfigs(resetInfraConfigsMutation);
+    if (!success) return;
+  } else {
+    const authResult = await updateAuthProvider(
+      updateAllowedAuthProviderMutation
+    );
+    const infraResult = await updateInfraConfigs(updateInfraConfigsMutation);
+
+    success = authResult && infraResult;
+    if (!success) return;
+  }
+
+  restart.value = true;
+  startCountdown();
 });
 </script>

@@ -16,7 +16,7 @@
     {{ t('configs.load_error') }}
   </div>
 
-  <div class="flex flex-col">
+  <div v-else class="flex flex-col">
     <div class="py-8">
       <HoppSmartTabs v-model="selectedOptionTab" render-inactive-tabs>
         <HoppSmartTab :id="'config'" :label="t('configs.title')">
@@ -50,8 +50,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
 import { isEqual } from 'lodash-es';
+import { computed, ref } from 'vue';
 import { useI18n } from '~/composables/i18n';
 import { useConfigHandler } from '~/composables/useConfigHandler';
 

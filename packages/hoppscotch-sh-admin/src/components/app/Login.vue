@@ -152,20 +152,16 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
+import { useI18n } from '~/composables/i18n';
+import { useToast } from '~/composables/toast';
+import { auth } from '~/helpers/auth';
+import { setLocalConfig } from '~/helpers/localpersistence';
+import IconEmail from '~icons/auth/email';
 import IconGithub from '~icons/auth/github';
 import IconGoogle from '~icons/auth/google';
-import IconEmail from '~icons/auth/email';
 import IconMicrosoft from '~icons/auth/microsoft';
 import IconArrowLeft from '~icons/lucide/arrow-left';
 import IconFileText from '~icons/lucide/file-text';
-import { setLocalConfig } from '~/helpers/localpersistence';
-import { useStreamSubscriber } from '~/composables/stream';
-import { useToast } from '~/composables/toast';
-import { auth } from '~/helpers/auth';
-import { HoppButtonPrimary, HoppButtonSecondary } from '@hoppscotch/ui';
-import { useI18n } from '~/composables/i18n';
-
-const { subscribeToStream } = useStreamSubscriber();
 
 const t = useI18n();
 const toast = useToast();
@@ -188,15 +184,6 @@ const nonAdminUser = ref(false);
 const allowedAuthProviders = ref<string[]>([]);
 
 onMounted(async () => {
-  const currentUser$ = auth.getCurrentUserStream();
-
-  subscribeToStream(currentUser$, (user) => {
-    if (user && !user.isAdmin) {
-      nonAdminUser.value = true;
-      toast.error(t('state.non_admin_login'));
-    }
-  });
-
   allowedAuthProviders.value = await getAllowedAuthProviders();
 });
 

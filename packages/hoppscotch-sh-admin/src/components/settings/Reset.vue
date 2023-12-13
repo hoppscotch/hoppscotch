@@ -37,7 +37,6 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useI18n } from '~/composables/i18n';
-import { HoppButtonPrimary } from '@hoppscotch/ui';
 
 const t = useI18n();
 

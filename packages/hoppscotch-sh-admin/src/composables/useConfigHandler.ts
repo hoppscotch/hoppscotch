@@ -292,7 +292,10 @@ export function useConfigHandler(updatedConfigs?: Config) {
 
     if (result.error) {
       toast.error(t('configs.auth_providers.update_failure'));
+      return false;
     }
+
+    return true;
   };
 
   // Updating the infra configurations
@@ -307,7 +310,10 @@ export function useConfigHandler(updatedConfigs?: Config) {
 
     if (result.error) {
       toast.error(t('configs.mail_configs.update_failure'));
+      return false;
     }
+
+    return true;
   };
 
   // Resetting the infra configurations
@@ -318,7 +324,9 @@ export function useConfigHandler(updatedConfigs?: Config) {
 
     if (result.error) {
       toast.error(t('configs.reset.failure'));
+      return false;
     }
+    return true;
   };
 
   return {

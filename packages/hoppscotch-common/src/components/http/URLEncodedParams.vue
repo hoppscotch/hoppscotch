@@ -24,9 +24,9 @@
           v-if="bulkMode"
           v-tippy="{ theme: 'tooltip' }"
           :title="t('state.linewrap')"
-          :class="{ '!text-accent': linewrapEnabled }"
+          :class="{ '!text-accent': WRAP_LINES_HTTP_URL_ENCODED }"
           :icon="IconWrapText"
-          @click.prevent="linewrapEnabled = !linewrapEnabled"
+          @click.prevent="toggleSetting('WRAP_LINES_HTTP_URL_ENCODED')"
         />
         <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
@@ -196,6 +196,8 @@ import { useColorMode } from "@composables/theming"
 import { objRemoveKey } from "~/helpers/functional/object"
 import { throwError } from "~/helpers/functional/error"
 import { useVModel } from "@vueuse/core"
+import { useSetting } from "~/composables/settings"
+import { toggleSetting } from "~/newstore/settings"
 
 type Body = HoppRESTReqBody & {
   contentType: "application/x-www-form-urlencoded"
@@ -220,7 +222,7 @@ const idTicker = ref(0)
 const bulkMode = ref(false)
 const bulkUrlEncodedParams = ref("")
 const bulkEditor = ref<any | null>(null)
-const linewrapEnabled = ref(true)
+const WRAP_LINES_HTTP_URL_ENCODED = useSetting("WRAP_LINES_HTTP_URL_ENCODED")
 
 const deletionToast = ref<{ goAway: (delay: number) => void } | null>(null)
 
@@ -231,7 +233,7 @@ useCodemirror(
     extendedEditorConfig: {
       mode: "text/x-yaml",
       placeholder: `${t("state.bulk_mode_placeholder")}`,
-      lineWrapping: linewrapEnabled,
+      lineWrapping: WRAP_LINES_HTTP_URL_ENCODED,
     },
     linter,
     completer: null,

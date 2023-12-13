@@ -30,6 +30,31 @@ export type SettingsDef = {
 
   PROXY_URL: string
 
+  // HTTP Wrap Lines
+  WRAP_LINES_HTTP_REQUEST_BODY: boolean
+  WRAP_LINES_HTTP_RESPONSE_BODY: boolean
+  WRAP_LINES_HTTP_HEADERS: boolean
+  WRAP_LINES_HTTP_PARAMS: boolean
+  WRAP_LINES_HTTP_URL_ENCODED: boolean
+  WRAP_LINES_HTTP_PREREQUEST: boolean
+  WRAP_LINES_HTTP_TEST: boolean
+
+  // GraphQL Wrap Lines
+  WRAP_LINES_GRAPHQL_QUERY: boolean
+  WRAP_LINES_GRAPHQL_RESPONSE_BODY: boolean
+  WRAP_LINES_GRAPHQL_HEADERS: boolean
+  WRAP_LINES_GRAPHQL_VARIABLES: boolean
+  WRAP_LINES_GRAPHQL_SCHEMA: boolean
+
+  // Realtime Wrap Lines
+  WRAP_LINES_REALTIME_BODY: boolean
+  WRAP_LINES_REALTIME_LOG: boolean
+
+  // Other Wrap Lines
+  WRAP_LINES_IMPORT_CURL: boolean
+  WRAP_LINES_CODE_GEN: boolean
+  WRAP_LINES_COOKIE: boolean
+
   CURRENT_INTERCEPTOR_ID: string
 
   URL_EXCLUDES: {
@@ -52,6 +77,27 @@ export const getDefaultSettings = (): SettingsDef => ({
   syncCollections: true,
   syncHistory: true,
   syncEnvironments: true,
+
+  WRAP_LINES_HTTP_REQUEST_BODY: true,
+  WRAP_LINES_HTTP_RESPONSE_BODY: true,
+  WRAP_LINES_HTTP_HEADERS: true,
+  WRAP_LINES_HTTP_PARAMS: true,
+  WRAP_LINES_HTTP_URL_ENCODED: true,
+  WRAP_LINES_HTTP_PREREQUEST: true,
+  WRAP_LINES_HTTP_TEST: true,
+
+  WRAP_LINES_GRAPHQL_QUERY: true,
+  WRAP_LINES_GRAPHQL_RESPONSE_BODY: true,
+  WRAP_LINES_GRAPHQL_HEADERS: false,
+  WRAP_LINES_GRAPHQL_VARIABLES: false,
+  WRAP_LINES_GRAPHQL_SCHEMA: true,
+
+  WRAP_LINES_REALTIME_BODY: true,
+  WRAP_LINES_REALTIME_LOG: true,
+
+  WRAP_LINES_IMPORT_CURL: true,
+  WRAP_LINES_CODE_GEN: true,
+  WRAP_LINES_COOKIE: true,
 
   CURRENT_INTERCEPTOR_ID: "browser", // TODO: Allow the platform definition to take this place
 

@@ -61,9 +61,9 @@
       <HoppButtonSecondary
         v-tippy="{ theme: 'tooltip' }"
         :title="t('state.linewrap')"
-        :class="{ '!text-accent': linewrapEnabled }"
+        :class="{ '!text-accent': WRAP_LINES_GRAPHQL_QUERY }"
         :icon="IconWrapText"
-        @click.prevent="linewrapEnabled = !linewrapEnabled"
+        @click.prevent="toggleSetting('WRAP_LINES_GRAPHQL_QUERY')"
       />
       <HoppButtonSecondary
         v-tippy="{ theme: 'tooltip' }"
@@ -112,6 +112,8 @@ import {
   socketDisconnect,
   subscriptionState,
 } from "~/helpers/graphql/connection"
+import { useSetting } from "~/composables/settings"
+import { toggleSetting } from "~/newstore/settings"
 
 // Template refs
 const queryEditor = ref<any | null>(null)
@@ -137,7 +139,7 @@ const prettifyQueryIcon = refAutoReset<
   typeof IconWand | typeof IconCheck | typeof IconInfo
 >(IconWand, 1000)
 
-const linewrapEnabled = ref(true)
+const WRAP_LINES_GRAPHQL_QUERY = useSetting("WRAP_LINES_GRAPHQL_QUERY")
 
 const selectedOperation = ref<gql.OperationDefinitionNode | null>(null)
 
@@ -184,7 +186,7 @@ useCodemirror(
     extendedEditorConfig: {
       mode: "graphql",
       placeholder: `${t("request.query")}`,
-      lineWrapping: linewrapEnabled,
+      lineWrapping: WRAP_LINES_GRAPHQL_QUERY,
     },
     linter: createGQLQueryLinter(schema),
     completer: queryCompleter(schema),

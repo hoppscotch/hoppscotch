@@ -86,9 +86,9 @@
               <HoppButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"
                 :title="t('state.linewrap')"
-                :class="{ '!text-accent': linewrapEnabled }"
+                :class="{ '!text-accent': WRAP_LINES_CODE_GEN }"
                 :icon="IconWrapText"
-                @click.prevent="linewrapEnabled = !linewrapEnabled"
+                @click.prevent="toggleSetting('WRAP_LINES_CODE_GEN')"
               />
               <HoppButtonSecondary
                 v-tippy="{ theme: 'tooltip', allowHTML: true }"
@@ -161,6 +161,8 @@ import cloneDeep from "lodash-es/cloneDeep"
 import { platform } from "~/platform"
 import { RESTTabService } from "~/services/tab/rest"
 import { useService } from "dioc/vue"
+import { useSetting } from "~/composables/settings"
+import { toggleSetting } from "~/newstore/settings"
 
 const t = useI18n()
 
@@ -224,7 +226,7 @@ const requestCode = computed(() => {
 // Template refs
 const tippyActions = ref<any | null>(null)
 const generatedCode = ref<any | null>(null)
-const linewrapEnabled = ref(true)
+const WRAP_LINES_CODE_GEN = useSetting("WRAP_LINES_CODE_GEN")
 
 useCodemirror(
   generatedCode,
@@ -233,7 +235,7 @@ useCodemirror(
     extendedEditorConfig: {
       mode: "text/plain",
       readOnly: true,
-      lineWrapping: linewrapEnabled,
+      lineWrapping: WRAP_LINES_CODE_GEN,
     },
     linter: null,
     completer: null,

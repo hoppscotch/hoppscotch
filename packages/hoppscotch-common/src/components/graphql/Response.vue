@@ -16,9 +16,9 @@
           <HoppButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
             :title="t('state.linewrap')"
-            :class="{ '!text-accent': linewrapEnabled }"
+            :class="{ '!text-accent': WRAP_LINES_GRAPHQL_RESPONSE_BODY }"
             :icon="IconWrapText"
-            @click.prevent="linewrapEnabled = !linewrapEnabled"
+            @click.prevent="toggleSetting('WRAP_LINES_GRAPHQL_RESPONSE_BODY')"
           />
           <HoppButtonSecondary
             v-tippy="{ theme: 'tooltip', allowHTML: true }"
@@ -105,6 +105,9 @@ import {
   useCopyResponse,
   useDownloadResponse,
 } from "~/composables/lens-actions"
+import { platform } from "~/platform"
+import { useSetting } from "~/composables/settings"
+import { toggleSetting } from "~/newstore/settings"
 
 const t = useI18n()
 
@@ -134,7 +137,9 @@ const responseString = computed(() => {
 
 const schemaEditor = ref<any | null>(null)
 const copyInterfaceTippyActions = ref<any | null>(null)
-const linewrapEnabled = ref(true)
+const WRAP_LINES_GRAPHQL_RESPONSE_BODY = useSetting(
+  "WRAP_LINES_GRAPHQL_RESPONSE_BODY"
+)
 
 useCodemirror(
   schemaEditor,
@@ -143,7 +148,7 @@ useCodemirror(
     extendedEditorConfig: {
       mode: "application/ld+json",
       readOnly: true,
-      lineWrapping: linewrapEnabled,
+      lineWrapping: WRAP_LINES_GRAPHQL_RESPONSE_BODY,
     },
     linter: null,
     completer: null,

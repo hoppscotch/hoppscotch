@@ -27,9 +27,9 @@
       <HoppButtonSecondary
         v-tippy="{ theme: 'tooltip' }"
         :title="t('state.linewrap')"
-        :class="{ '!text-accent': linewrapEnabled }"
+        :class="{ '!text-accent': WRAP_LINES_GRAPHQL_HEADERS }"
         :icon="IconWrapText"
-        @click.prevent="linewrapEnabled = !linewrapEnabled"
+        @click.prevent="toggleSetting('WRAP_LINES_GRAPHQL_HEADERS')"
       />
       <HoppButtonSecondary
         v-tippy="{ theme: 'tooltip' }"
@@ -318,6 +318,8 @@ import { useVModel } from "@vueuse/core"
 import { HoppGQLHeader } from "~/helpers/graphql"
 import { throwError } from "~/helpers/functional/error"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
+import { useSetting } from "~/composables/settings"
+import { toggleSetting } from "~/newstore/settings"
 
 const colorMode = useColorMode()
 const t = useI18n()
@@ -338,7 +340,7 @@ const request = useVModel(props, "modelValue", emit)
 
 const idTicker = ref(0)
 
-const linewrapEnabled = ref(false)
+const WRAP_LINES_GRAPHQL_HEADERS = useSetting("WRAP_LINES_GRAPHQL_HEADERS")
 const bulkMode = ref(false)
 const bulkHeaders = ref("")
 
@@ -353,7 +355,7 @@ useCodemirror(
     extendedEditorConfig: {
       mode: "text/x-yaml",
       placeholder: `${t("state.bulk_mode_placeholder")}`,
-      lineWrapping: linewrapEnabled,
+      lineWrapping: WRAP_LINES_GRAPHQL_HEADERS,
     },
     linter: null,
     completer: null,

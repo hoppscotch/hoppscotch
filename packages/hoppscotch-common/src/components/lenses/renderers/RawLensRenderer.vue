@@ -11,9 +11,9 @@
           v-if="response.body"
           v-tippy="{ theme: 'tooltip' }"
           :title="t('state.linewrap')"
-          :class="{ '!text-accent': linewrapEnabled }"
+          :class="{ '!text-accent': WRAP_LINES_HTTP_RESPONSE_BODY }"
           :icon="IconWrapText"
-          @click.prevent="linewrapEnabled = !linewrapEnabled"
+          @click.prevent="toggleSetting('WRAP_LINES_HTTP_RESPONSE_BODY')"
         />
         <HoppButtonSecondary
           v-if="response.body"
@@ -58,6 +58,8 @@ import {
 import { objFieldMatches } from "~/helpers/functional/object"
 import { defineActionHandler } from "~/helpers/actions"
 import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
+import { useSetting } from "~/composables/settings"
+import { toggleSetting } from "~/newstore/settings"
 
 const t = useI18n()
 
@@ -97,7 +99,9 @@ const { downloadIcon, downloadResponse } = useDownloadResponse(
 const { copyIcon, copyResponse } = useCopyResponse(responseBodyText)
 
 const rawResponse = ref<any | null>(null)
-const linewrapEnabled = ref(true)
+const WRAP_LINES_HTTP_RESPONSE_BODY = useSetting(
+  "WRAP_LINES_HTTP_RESPONSE_BODY"
+)
 
 useCodemirror(
   rawResponse,
@@ -106,7 +110,7 @@ useCodemirror(
     extendedEditorConfig: {
       mode: "text/plain",
       readOnly: true,
-      lineWrapping: linewrapEnabled,
+      lineWrapping: WRAP_LINES_HTTP_RESPONSE_BODY,
     },
     linter: null,
     completer: null,

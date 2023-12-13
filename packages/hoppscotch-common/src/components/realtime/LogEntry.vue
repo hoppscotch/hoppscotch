@@ -68,9 +68,9 @@
           <HoppButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
             :title="t('state.linewrap')"
-            :class="{ '!text-accent': linewrapEnabled }"
+            :class="{ '!text-accent': WRAP_LINES_REALTIME_LOG }"
             :icon="IconWrapText"
-            @click.prevent="linewrapEnabled = !linewrapEnabled"
+            @click.prevent="toggleSetting('WRAP_LINES_REALTIME_LOG')"
           />
           <HoppButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
@@ -224,6 +224,8 @@ import {
   convertLineChToIndex,
 } from "~/helpers/editor/utils"
 import { shortDateTime } from "~/helpers/utils/date"
+import { useSetting } from "~/composables/settings"
+import { toggleSetting } from "~/newstore/settings"
 
 const t = useI18n()
 
@@ -241,7 +243,7 @@ const props = defineProps({
 // Template refs
 const tippyActions = ref<any | null>(null)
 const editor = ref<any | null>(null)
-const linewrapEnabled = ref(true)
+const WRAP_LINES_REALTIME_LOG = useSetting("WRAP_LINES_REALTIME_LOG")
 
 const logPayload = computed(() => props.entry.payload)
 
@@ -284,7 +286,7 @@ const { cursor } = useCodemirror(
     extendedEditorConfig: {
       mode: editorMode,
       readOnly: true,
-      lineWrapping: linewrapEnabled,
+      lineWrapping: WRAP_LINES_REALTIME_LOG,
     },
     linter: null,
     completer: null,

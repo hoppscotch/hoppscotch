@@ -47,27 +47,69 @@ const recursivelySyncCollections = async (
 
   // if parentUserCollectionID does not exist, create the collection as a root collection
   if (!parentUserCollectionID) {
-    const res = await createRESTRootUserCollection(collection.name)
-
+    const data = {
+      auth: collection.auth ?? {
+        authType: "inherit",
+        authActive: true,
+      },
+      headers: collection.headers ?? [],
+    }
+    const res = await createRESTRootUserCollection(
+      collection.name,
+      JSON.stringify(data)
+    )
     if (E.isRight(res)) {
       parentCollectionID = res.right.createRESTRootUserCollection.id
 
+      const returnedData = res.right.createRESTRootUserCollection.data
+        ? JSON.parse(res.right.createRESTRootUserCollection.data)
+        : {
+            auth: {
+              authType: "inherit",
+              authActive: true,
+            },
+            headers: [],
+          }
+
       collection.id = parentCollectionID
+      collection.auth = returnedData.auth
+      collection.headers = returnedData.headers
       removeDuplicateRESTCollectionOrFolder(parentCollectionID, collectionPath)
     } else {
       parentCollectionID = undefined
     }
   } else {
     // if parentUserCollectionID exists, create the collection as a child collection
+    const data = {
+      auth: collection.auth ?? {
+        authType: "inherit",
+        authActive: true,
+      },
+      headers: collection.headers ?? [],
+    }
+
     const res = await createRESTChildUserCollection(
       collection.name,
-      parentUserCollectionID
+      parentUserCollectionID,
+      JSON.stringify(data)
     )
 
     if (E.isRight(res)) {
       const childCollectionId = res.right.createRESTChildUserCollection.id
 
+      const returnedData = res.right.createRESTChildUserCollection.data
+        ? JSON.parse(res.right.createRESTChildUserCollection.data)
+        : {
+            auth: {
+              authType: "inherit",
+              authActive: true,
+            },
+            headers: [],
+          }
+
       collection.id = childCollectionId
+      collection.auth = returnedData.auth
+      collection.headers = returnedData.headers
 
       removeDuplicateRESTCollectionOrFolder(
         childCollectionId,

@@ -44,12 +44,35 @@ const recursivelySyncCollections = async (
 
   // if parentUserCollectionID does not exist, create the collection as a root collection
   if (!parentUserCollectionID) {
-    const res = await createGQLRootUserCollection(collection.name)
+    const data = {
+      auth: collection.auth ?? {
+        authType: "inherit",
+        authActive: true,
+      },
+      headers: collection.headers ?? [],
+    }
+    const res = await createGQLRootUserCollection(
+      collection.name,
+      JSON.stringify(data)
+    )
 
     if (E.isRight(res)) {
       parentCollectionID = res.right.createGQLRootUserCollection.id
 
+      const returnedData = res.right.createGQLRootUserCollection.data
+        ? JSON.parse(res.right.createGQLRootUserCollection.data)
+        : {
+            auth: {
+              authType: "inherit",
+              authActive: true,
+            },
+            headers: [],
+          }
+
       collection.id = parentCollectionID
+      collection.auth = returnedData.auth
+      collection.headers = returnedData.headers
+
       removeDuplicateGraphqlCollectionOrFolder(
         parentCollectionID,
         collectionPath
@@ -59,15 +82,37 @@ const recursivelySyncCollections = async (
     }
   } else {
     // if parentUserCollectionID exists, create the collection as a child collection
+
+    const data = {
+      auth: collection.auth ?? {
+        authType: "inherit",
+        authActive: true,
+      },
+      headers: collection.headers ?? [],
+    }
+
     const res = await createGQLChildUserCollection(
       collection.name,
-      parentUserCollectionID
+      parentUserCollectionID,
+      JSON.stringify(data)
     )
 
     if (E.isRight(res)) {
       const childCollectionId = res.right.createGQLChildUserCollection.id
 
+      const returnedData = res.right.createGQLChildUserCollection.data
+        ? JSON.parse(res.right.createGQLChildUserCollection.data)
+        : {
+            auth: {
+              authType: "inherit",
+              authActive: true,
+            },
+            headers: [],
+          }
+
       collection.id = childCollectionId
+      collection.auth = returnedData.auth
+      collection.headers = returnedData.headers
 
       removeDuplicateGraphqlCollectionOrFolder(
         childCollectionId,

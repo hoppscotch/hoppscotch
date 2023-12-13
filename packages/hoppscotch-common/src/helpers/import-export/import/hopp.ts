@@ -7,6 +7,7 @@ import { isPlainObject as _isPlainObject } from "lodash-es"
 
 import { IMPORTER_INVALID_FILE_FORMAT } from "."
 import { safeParseJSON } from "~/helpers/functional/json"
+import { translateToNewGQLCollection } from "@hoppscotch/data"
 
 export const hoppRESTImporter = (content: string) =>
   pipe(
@@ -50,3 +51,29 @@ const validateCollection = (collection: unknown) => {
  */
 const makeCollectionsArray = (collections: unknown | unknown[]): unknown[] =>
   Array.isArray(collections) ? collections : [collections]
+
+export const hoppGQLImporter = (content: string) =>
+  pipe(
+    safeParseJSON(content),
+    O.chain(
+      flow(
+        makeCollectionsArray,
+        RA.map(validateGQLCollection),
+        O.sequenceArray,
+        O.map(RA.toArray)
+      )
+    ),
+    TE.fromOption(() => IMPORTER_INVALID_FILE_FORMAT)
+  )
+
+/**
+ *
+ * @param collection the collection to validate
+ * @returns the collection if it is valid, else a translated version of the collection
+ */
+export const validateGQLCollection = (collection: unknown) => {
+  if (isValidCollection(collection)) {
+    return O.some(collection)
+  }
+  return O.some(translateToNewGQLCollection(collection))
+}

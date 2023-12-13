@@ -25,13 +25,14 @@ import { useReadonlyStream } from "~/composables/stream"
 
 import { platform } from "~/platform"
 import {
+  appendGraphqlCollections,
   graphqlCollections$,
-  setGraphqlCollections,
 } from "~/newstore/collections"
 import { hoppGqlCollectionsImporter } from "~/helpers/import-export/import/hoppGql"
 import { gqlCollectionsExporter } from "~/helpers/import-export/export/gqlCollections"
 import { gqlCollectionsGistExporter } from "~/helpers/import-export/export/gqlCollectionsGistExporter"
 import { computed } from "vue"
+import { hoppGQLImporter } from "~/helpers/import-export/import/hopp"
 
 const t = useI18n()
 const toast = useToast()
@@ -60,15 +61,20 @@ const GqlCollectionsHoppImporter: ImporterOrExporter = {
         showImportFailedError()
         return
       }
+      const validatedCollection = await hoppGQLImporter(
+        JSON.stringify(res.right)
+      )()
 
-      handleImportToStore(res.right)
+      if (E.isRight(validatedCollection)) {
+        handleImportToStore(validatedCollection.right)
 
-      platform.analytics?.logEvent({
-        type: "HOPP_IMPORT_COLLECTION",
-        platform: "gql",
-        workspaceType: "personal",
-        importer: "json",
-      })
+        platform.analytics?.logEvent({
+          type: "HOPP_IMPORT_COLLECTION",
+          platform: "gql",
+          workspaceType: "personal",
+          importer: "json",
+        })
+      }
 
       emit("hide-modal")
     },
@@ -215,8 +221,8 @@ const showImportFailedError = () => {
 }
 
 const handleImportToStore = async (gqlCollections: HoppCollection[]) => {
-  setGraphqlCollections(gqlCollections)
-  toast.success(t("import.success"))
+  appendGraphqlCollections(gqlCollections)
+  toast.success(t("state.file_imported"))
 }
 
 const emit = defineEmits<{

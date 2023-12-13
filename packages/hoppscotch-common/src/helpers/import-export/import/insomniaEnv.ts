@@ -43,9 +43,18 @@ export const insomniaEnvImporter = (content: string) => {
     return TE.left(IMPORTER_INVALID_FILE_FORMAT)
   }
 
-  const insomniaEnvs = validationResult.data.resources.filter(
-    (resource) => resource._type === "environment"
-  )
+  const insomniaEnvs = validationResult.data.resources
+    .filter((resource) => resource._type === "environment")
+    .map((envResource) => {
+      const envResourceData = envResource.data as Record<string, unknown>
+      const stringifiedData: Record<string, string> = {}
+
+      Object.keys(envResourceData).forEach((key) => {
+        stringifiedData[key] = String(envResourceData[key])
+      })
+
+      return { ...envResource, data: stringifiedData }
+    })
 
   const environments: Environment[] = []
 

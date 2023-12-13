@@ -168,12 +168,15 @@ function exportedCollectionToHoppCollection(
         exportedCollectionToHoppCollection(folder, collectionType)
       ),
       requests: gqlCollection.requests.map(
-        ({ v, auth, headers, name, id }) => ({
+        ({ v, auth, headers, name, id, query, url, variables }) => ({
           id,
           v,
           auth,
           headers,
           name,
+          query,
+          url,
+          variables,
         })
       ) as HoppGQLRequest[],
       auth: data.auth,

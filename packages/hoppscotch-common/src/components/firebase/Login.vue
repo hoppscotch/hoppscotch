@@ -1,6 +1,5 @@
 <template>
   <HoppSmartModal
-    v-if="show"
     dialog
     :title="`${t('auth.login_to_hoppscotch')}`"
     styles="sm:max-w-md"
@@ -126,10 +125,6 @@ import IconArrowLeft from "~icons/lucide/arrow-left"
 import { useService } from "dioc/vue"
 import { LoginItemDef } from "~/platform/auth"
 import { PersistenceService } from "~/services/persistence"
-
-defineProps<{
-  show: boolean
-}>()
 
 const emit = defineEmits<{
   (e: "hide-modal"): void

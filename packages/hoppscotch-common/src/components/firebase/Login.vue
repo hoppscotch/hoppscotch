@@ -116,7 +116,7 @@
 </template>
 
 <script setup lang="ts">
-import { Ref, computed, onMounted, ref } from "vue"
+import { Ref, onMounted, ref } from "vue"
 
 import { useI18n } from "@composables/i18n"
 import { useStreamSubscriber } from "@composables/stream"
@@ -169,11 +169,8 @@ type AuthProviderItem = {
   isLoading: Ref<boolean>
 }
 
-const additonalLoginItems = computed(
-  () => platform.auth.additionalLoginItems ?? []
-)
-
 let allowedAuthProviders: AuthProviderItem[] = []
+let additonalLoginItems: LoginItemDef[] = []
 
 const doAdditionalLoginItemClickAction = async (item: LoginItemDef) => {
   await item.onClick()
@@ -195,10 +192,18 @@ onMounted(async () => {
     return
   }
 
+  // setup the normal auth providers
   const enabledAuthProviders = authProvidersAvailable.filter((provider) =>
     res.right.includes(provider.id)
   )
   allowedAuthProviders = enabledAuthProviders
+
+  // setup the additional login items
+  additonalLoginItems =
+    platform.auth.additionalLoginItems?.filter((item) =>
+      res.right.includes(item.id)
+    ) ?? []
+
   isLoadingAllowedAuthProviders.value = false
 })
 

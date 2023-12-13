@@ -243,11 +243,12 @@ const getAllowedAuthProviders = async () => {
   fetching.value = true;
   try {
     const res = await auth.getAllowedAuthProviders();
-    fetching.value = false;
     return res;
   } catch (e) {
     error.value = true;
     toast.error(t('state.error_auth_providers'));
+  } finally {
+    fetching.value = false;
   }
 };
 

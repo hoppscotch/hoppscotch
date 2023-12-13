@@ -16,8 +16,7 @@
     {{ t('configs.load_error') }}
   </div>
 
-  <div v-else class="flex flex-col">
-    <div class="py-8">
+    <div v-else class="flex flex-col py-8">
       <HoppSmartTabs v-model="selectedOptionTab" render-inactive-tabs>
         <HoppSmartTab :id="'config'" :label="t('configs.title')">
           <SettingsConfigurations
@@ -26,7 +25,6 @@
           />
         </HoppSmartTab>
       </HoppSmartTabs>
-    </div>
   </div>
 
   <div v-if="isConfigUpdated" class="fixed bottom-0 right-0 m-10">

@@ -1,16 +1,32 @@
 <template>
-  <HoppSmartModal v-if="show" dialog :title="confirm ?? t?.('modal.confirm') ?? 'Confirm'" role="dialog" aria-modal="true"
-    @close="hideModal">
+  <HoppSmartModal
+    v-if="show"
+    dialog
+    :title="confirm ?? t?.('modal.confirm') ?? 'Confirm'"
+    role="dialog"
+    aria-modal="true"
+    @close="hideModal"
+  >
     <template #body>
-      <div class="flex flex-col items-center justify-center">
+      <div class="text-center">
         {{ title }}
       </div>
     </template>
     <template #footer>
       <span class="flex space-x-2">
-        <HoppButtonPrimary v-focus :label="yes ?? t?.('action.yes') ?? 'Yes'" :loading="!!loadingState" outline
-          @click="resolve" />
-        <HoppButtonSecondary :label="no ?? t?.('action.no') ?? 'No'" filled outline @click="hideModal" />
+        <HoppButtonPrimary
+          v-focus
+          :label="yes ?? t?.('action.yes') ?? 'Yes'"
+          :loading="!!loadingState"
+          outline
+          @click="resolve"
+        />
+        <HoppButtonSecondary
+          :label="no ?? t?.('action.no') ?? 'No'"
+          filled
+          outline
+          @click="hideModal"
+        />
       </span>
     </template>
   </HoppSmartModal>

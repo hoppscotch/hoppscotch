@@ -65,6 +65,7 @@ import { useSidebar } from '~/composables/useSidebar';
 import IconDashboard from '~icons/lucide/layout-dashboard';
 import IconUser from '~icons/lucide/user';
 import IconUsers from '~icons/lucide/users';
+import IconSettings from '~icons/lucide/settings';
 import { useI18n } from '~/composables/i18n';
 
 const t = useI18n();
@@ -89,6 +90,12 @@ const primaryNavigations = [
     icon: IconUsers,
     to: '/teams',
     exact: false,
+  },
+  {
+    label: t('settings.settings'),
+    icon: IconSettings,
+    to: '/settings',
+    exact: true,
   },
 ];
 </script>

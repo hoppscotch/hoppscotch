@@ -6,6 +6,39 @@
     "no_name": "No name",
     "open_navigation": "Open Navigation"
   },
+  "configs": {
+    "auth_providers": {
+      "client_id": "CLIENT ID",
+      "client_secret": "CLIENT SECRET",
+      "description": "Configure authentication providers for your server",
+      "title": "Authentication Providers",
+      "update_failure": "Failed to update authentication provider configurations!!"
+    },
+    "confirm_changes": "Hoppscotch server must restart to reflect the new changes. Confirm changes made to the server configurations?",
+    "load_error": "Unable to load server configurations",
+    "mail_configs": {
+      "description": " Configure the smtp configurations",
+      "enable": "Email based authentication",
+      "smtp_url": "MAILER SMTP URL",
+      "address_from": "MAILER FROM ADDRESS",
+      "title": "SMTP Configurations",
+      "update_failure": "Failed to update smtp configurations!!"
+    },
+    "reset": {
+      "confirm_reset": "Hoppscotch server must restart to reflect the new changes. Confirm the reset of server configurations?",
+      "description": "Default configurations will be loaded as specified in the environment file",
+      "failure": "Failed to reset configurations!!",
+      "title": "Reset Configurations",
+      "info": "Reset server configurations"
+    },
+    "restart": {
+      "description": "{duration} seconds remaining before this page reloads automatically",
+      "initiate": "Initiating server restart...",
+      "title": "Server is restarting"
+    },
+    "save_changes": "Save Changes",
+    "title": "Configurations"
+  },
   "metrics": {
     "dashboard": "Dashboard",
     "no_metrics": "No metrics found",
@@ -18,6 +51,9 @@
     "editor": "EDITOR",
     "owner": "OWNER",
     "viewer": "VIEWER"
+  },
+  "settings": {
+    "settings": "Settings"
   },
   "shared_requests": {
     "clear_filter": "Clear Filter",
@@ -65,6 +101,7 @@
     "email_success": "Email invitation sent successfully",
     "enter_team_email": "Please enter email of team owner!!",
     "error": "Something went wrong",
+    "error_auth_providers": "Unable to load auth providers",
     "github_signin_failure": "Failed to login with Github",
     "google_signin_failure": "Failed to login with Google",
     "invalid_email": "Please enter a valid email address",

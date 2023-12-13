@@ -2,15 +2,12 @@ import { pipe, flow } from "fp-ts/function"
 import * as TE from "fp-ts/TaskEither"
 import * as O from "fp-ts/Option"
 import * as RA from "fp-ts/ReadonlyArray"
-import {
-  translateToNewRESTCollection,
-  HoppCollection,
-  HoppRESTRequest,
-} from "@hoppscotch/data"
+import { translateToNewRESTCollection, HoppCollection } from "@hoppscotch/data"
 import { isPlainObject as _isPlainObject } from "lodash-es"
 
 import { IMPORTER_INVALID_FILE_FORMAT } from "."
 import { safeParseJSON } from "~/helpers/functional/json"
+import { translateToNewGQLCollection } from "@hoppscotch/data"
 
 export const hoppRESTImporter = (content: string) =>
   pipe(
@@ -33,12 +30,10 @@ const isPlainObject = (value: any): value is object => _isPlainObject(value)
 
 /**
  * checks if a collection matches the schema for a hoppscotch collection.
- * as of now we are only checking if the collection has a "v" key in it.
+ * here 2 is the latest version of the schema.
  */
-const isValidCollection = (
-  collection: unknown
-): collection is HoppCollection<HoppRESTRequest> =>
-  isPlainObject(collection) && "v" in collection
+const isValidCollection = (collection: unknown): collection is HoppCollection =>
+  isPlainObject(collection) && "v" in collection && collection.v === 2
 
 /**
  * checks if a collection is a valid hoppscotch collection.
@@ -56,3 +51,29 @@ const validateCollection = (collection: unknown) => {
  */
 const makeCollectionsArray = (collections: unknown | unknown[]): unknown[] =>
   Array.isArray(collections) ? collections : [collections]
+
+export const hoppGQLImporter = (content: string) =>
+  pipe(
+    safeParseJSON(content),
+    O.chain(
+      flow(
+        makeCollectionsArray,
+        RA.map(validateGQLCollection),
+        O.sequenceArray,
+        O.map(RA.toArray)
+      )
+    ),
+    TE.fromOption(() => IMPORTER_INVALID_FILE_FORMAT)
+  )
+
+/**
+ *
+ * @param collection the collection to validate
+ * @returns the collection if it is valid, else a translated version of the collection
+ */
+export const validateGQLCollection = (collection: unknown) => {
+  if (isValidCollection(collection)) {
+    return O.some(collection)
+  }
+  return O.some(translateToNewGQLCollection(collection))
+}

@@ -34,10 +34,16 @@
         :label="`${t('tab.headers')}`"
         :info="activeGQLHeadersCount === 0 ? null : `${activeGQLHeadersCount}`"
       >
-        <GraphqlHeaders v-model="request" />
+        <GraphqlHeaders
+          v-model="request"
+          :inherited-properties="inheritedProperties"
+        />
       </HoppSmartTab>
       <HoppSmartTab :id="'authorization'" :label="`${t('tab.authorization')}`">
-        <GraphqlAuthorization v-model="request.auth" />
+        <GraphqlAuthorization
+          v-model="request.auth"
+          :inherited-properties="inheritedProperties"
+        />
       </HoppSmartTab>
     </HoppSmartTabs>
     <CollectionsSaveRequest
@@ -69,6 +75,7 @@ import { useService } from "dioc/vue"
 import { InterceptorService } from "~/services/interceptor.service"
 import { editGraphqlRequest } from "~/newstore/collections"
 import { GQLTabService } from "~/services/tab/graphql"
+import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 
 const VALID_GQL_OPERATIONS = [
   "query",
@@ -93,24 +100,22 @@ const props = withDefaults(
     response?: GQLResponseEvent[] | null
     optionTab?: GQLOptionTabs
     tabId: string
+    inheritedProperties?: HoppInheritedProperty
   }>(),
   {
     response: null,
     optionTab: "query",
   }
 )
-const emit = defineEmits(["update:modelValue", "update:response"])
+const emit = defineEmits<{
+  (e: "update:modelValue", value: HoppGQLRequest): void
+  (e: "update:optionTab", value: GQLOptionTabs): void
+  (e: "update:response", value: GQLResponseEvent[]): void
+}>()
+
 const selectedOptionTab = useVModel(props, "optionTab", emit)
 
-const request = ref(props.modelValue)
-
-watch(
-  () => request.value,
-  (newVal) => {
-    emit("update:modelValue", newVal)
-  },
-  { deep: true }
-)
+const request = useVModel(props, "modelValue", emit)
 
 const url = computedWithControl(
   () => tabs.currentActiveTab.value,
@@ -131,10 +136,30 @@ const runQuery = async (
   startPageProgress()
   try {
     const runURL = clone(url.value)
-    const runHeaders = clone(request.value.headers)
     const runQuery = clone(request.value.query)
     const runVariables = clone(request.value.variables)
-    const runAuth = clone(request.value.auth)
+    const runAuth =
+      request.value.auth.authType === "inherit" && request.value.auth.authActive
+        ? clone(tabs.currentActiveTab.value.document.inheritedProperties?.auth)
+        : clone(request.value.auth)
+
+    const inheritedHeaders =
+      tabs.currentActiveTab.value.document.inheritedProperties?.headers.map(
+        (header) => {
+          if (header.inheritedHeader) {
+            return header.inheritedHeader
+          }
+          return []
+        }
+      )
+
+    let runHeaders: HoppGQLRequest["headers"] = []
+
+    if (inheritedHeaders) {
+      runHeaders = [...inheritedHeaders, ...clone(request.value.headers)]
+    } else {
+      runHeaders = clone(request.value.headers)
+    }
 
     await runGQLOperation({
       name: request.value.name,
@@ -142,7 +167,7 @@ const runQuery = async (
       headers: runHeaders,
       query: runQuery,
       variables: runVariables,
-      auth: runAuth,
+      auth: runAuth ?? { authType: "none", authActive: false },
       operationName: definition?.name?.value,
       operationType: definition?.operation ?? "query",
     })

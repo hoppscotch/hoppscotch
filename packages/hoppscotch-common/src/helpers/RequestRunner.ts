@@ -95,13 +95,41 @@ export function runRESTRequest$(
       return E.left("script_fail" as const)
     }
 
-    const effectiveRequest = getEffectiveRESTRequest(
-      tab.value.document.request,
-      {
-        name: "Env",
-        variables: combineEnvVariables(envs.right),
-      }
-    )
+    const requestAuth =
+      tab.value.document.request.auth.authType === "inherit" &&
+      tab.value.document.request.auth.authActive
+        ? tab.value.document.inheritedProperties?.auth.inheritedAuth
+        : tab.value.document.request.auth
+
+    let requestHeaders
+
+    const inheritedHeaders =
+      tab.value.document.inheritedProperties?.headers.map((header) => {
+        if (header.inheritedHeader) {
+          return header.inheritedHeader
+        }
+        return []
+      })
+
+    if (inheritedHeaders) {
+      requestHeaders = [
+        ...inheritedHeaders,
+        ...tab.value.document.request.headers,
+      ]
+    } else {
+      requestHeaders = [...tab.value.document.request.headers]
+    }
+
+    const finalRequest = {
+      ...tab.value.document.request,
+      auth: requestAuth ?? { authType: "none", authActive: false },
+      headers: requestHeaders,
+    }
+
+    const effectiveRequest = getEffectiveRESTRequest(finalRequest, {
+      name: "Env",
+      variables: combineEnvVariables(envs.right),
+    })
 
     const [stream, cancelRun] = createRESTNetworkRequestStream(effectiveRequest)
     cancelFunc = cancelRun

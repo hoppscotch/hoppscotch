@@ -74,6 +74,7 @@ import { Picked } from "~/helpers/types/HoppPicked"
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
 import {
+  cascadeParentCollectionForHeaderAuth,
   editGraphqlRequest,
   editRESTRequest,
   saveGraphqlRequestAs,
@@ -239,6 +240,16 @@ const saveRequestAs = async () => {
       },
     }
 
+    const { auth, headers } = cascadeParentCollectionForHeaderAuth(
+      `${picked.value.collectionIndex}`,
+      "rest"
+    )
+
+    RESTTabs.currentActiveTab.value.document.inheritedProperties = {
+      auth,
+      headers,
+    }
+
     platform.analytics?.logEvent({
       type: "HOPP_SAVE_REQUEST",
       createdNow: true,
@@ -264,6 +275,16 @@ const saveRequestAs = async () => {
         folderPath: picked.value.folderPath,
         requestIndex: insertionIndex,
       },
+    }
+
+    const { auth, headers } = cascadeParentCollectionForHeaderAuth(
+      picked.value.folderPath,
+      "rest"
+    )
+
+    RESTTabs.currentActiveTab.value.document.inheritedProperties = {
+      auth,
+      headers,
     }
 
     platform.analytics?.logEvent({
@@ -292,6 +313,16 @@ const saveRequestAs = async () => {
         folderPath: picked.value.folderPath,
         requestIndex: picked.value.requestIndex,
       },
+    }
+
+    const { auth, headers } = cascadeParentCollectionForHeaderAuth(
+      picked.value.folderPath,
+      "rest"
+    )
+
+    RESTTabs.currentActiveTab.value.document.inheritedProperties = {
+      auth,
+      headers,
     }
 
     platform.analytics?.logEvent({
@@ -378,6 +409,16 @@ const saveRequestAs = async () => {
       workspaceType: "team",
     })
 
+    const { auth, headers } = cascadeParentCollectionForHeaderAuth(
+      picked.value.folderPath,
+      "graphql"
+    )
+
+    GQLTabs.currentActiveTab.value.document.inheritedProperties = {
+      auth,
+      headers,
+    }
+
     requestSaved()
   } else if (picked.value.pickedType === "gql-my-folder") {
     // TODO: Check for GQL request ?
@@ -393,6 +434,16 @@ const saveRequestAs = async () => {
       workspaceType: "team",
     })
 
+    const { auth, headers } = cascadeParentCollectionForHeaderAuth(
+      picked.value.folderPath,
+      "graphql"
+    )
+
+    GQLTabs.currentActiveTab.value.document.inheritedProperties = {
+      auth,
+      headers,
+    }
+
     requestSaved()
   } else if (picked.value.pickedType === "gql-my-collection") {
     // TODO: Check for GQL request ?
@@ -407,6 +458,16 @@ const saveRequestAs = async () => {
       platform: "gql",
       workspaceType: "team",
     })
+
+    const { auth, headers } = cascadeParentCollectionForHeaderAuth(
+      `${picked.value.collectionIndex}`,
+      "graphql"
+    )
+
+    GQLTabs.currentActiveTab.value.document.inheritedProperties = {
+      auth,
+      headers,
+    }
 
     requestSaved()
   }

@@ -3,7 +3,9 @@ import {
   GQLHeader,
   HoppGQLAuth,
   HoppGQLRequest,
+  HoppRESTAuth,
   HoppRESTRequest,
+  HoppRESTHeaders,
 } from "@hoppscotch/data"
 import { entityReference } from "verzod"
 import { z } from "zod"
@@ -62,12 +64,18 @@ const HoppGQLRequestSchema = entityReference(HoppGQLRequest)
 const HoppRESTCollectionSchema = HoppCollectionSchemaCommonProps.extend({
   folders: z.array(z.lazy(() => HoppRESTCollectionSchema)),
   requests: z.optional(z.array(HoppRESTRequestSchema)),
+
+  auth: z.optional(HoppRESTAuth),
+  headers: z.optional(HoppRESTHeaders),
 }).strict()
 
 // @ts-expect-error recursive schema
 const HoppGQLCollectionSchema = HoppCollectionSchemaCommonProps.extend({
   folders: z.array(z.lazy(() => HoppGQLCollectionSchema)),
   requests: z.optional(z.array(HoppGQLRequestSchema)),
+
+  auth: z.optional(HoppGQLAuth),
+  headers: z.optional(z.array(GQLHeader)),
 }).strict()
 
 export const VUEX_SCHEMA = z.object({
@@ -276,6 +284,23 @@ const validGqlOperations = [
   "authorization",
 ] as const
 
+const HoppInheritedPropertySchema = z
+  .object({
+    auth: z.object({
+      parentID: z.string(),
+      parentName: z.string(),
+      inheritedAuth: z.union([HoppRESTAuth, HoppGQLAuth]),
+    }),
+    headers: z.array(
+      z.object({
+        parentID: z.string(),
+        parentName: z.string(),
+        inheritedHeader: z.union([HoppRESTHeaders, GQLHeader]),
+      })
+    ),
+  })
+  .strict()
+
 export const GQL_TAB_STATE_SCHEMA = z
   .object({
     lastActiveTabID: z.string(),
@@ -291,6 +316,7 @@ export const GQL_TAB_STATE_SCHEMA = z
             response: z.optional(z.nullable(GQLResponseEventSchema)),
             responseTabPreference: z.optional(z.string()),
             optionTabPreference: z.optional(z.enum(validGqlOperations)),
+            inheritedProperties: z.optional(HoppInheritedPropertySchema),
           })
           .strict(),
       })
@@ -462,6 +488,7 @@ export const REST_TAB_STATE_SCHEMA = z
             testResults: z.optional(z.nullable(HoppTestResultSchema)),
             responseTabPreference: z.optional(z.string()),
             optionTabPreference: z.optional(z.enum(validRestOperations)),
+            inheritedProperties: z.optional(HoppInheritedPropertySchema),
           })
           .strict(),
       })

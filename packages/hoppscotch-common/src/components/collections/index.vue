@@ -38,6 +38,7 @@
       @add-request="addRequest"
       @edit-collection="editCollection"
       @edit-folder="editFolder"
+      @edit-properties="editProperties"
       @export-data="exportData"
       @remove-collection="removeCollection"
       @remove-folder="removeFolder"
@@ -69,6 +70,7 @@
       @add-folder="addFolder"
       @edit-collection="editCollection"
       @edit-folder="editFolder"
+      @edit-properties="editProperties"
       @export-data="exportData"
       @remove-collection="removeCollection"
       @remove-folder="removeFolder"
@@ -151,6 +153,12 @@
       :show="showTeamModalAdd"
       @hide-modal="displayTeamModalAdd(false)"
     />
+    <CollectionsProperties
+      :show="showModalEditProperties"
+      :editing-properties="editingProperties"
+      @hide-modal="displayModalEditProperties(false)"
+      @set-collection-properties="setCollectionProperties"
+    />
   </div>
 </template>
 
@@ -181,10 +189,13 @@ import {
   moveRESTFolder,
   navigateToFolderWithIndexPath,
   restCollectionStore,
+  cascadeParentCollectionForHeaderAuth,
 } from "~/newstore/collections"
 import TeamCollectionAdapter from "~/helpers/teams/TeamCollectionAdapter"
 import {
   HoppCollection,
+  HoppRESTAuth,
+  HoppRESTHeaders,
   HoppRESTRequest,
   makeCollection,
 } from "@hoppscotch/data"
@@ -193,10 +204,10 @@ import { GQLError } from "~/helpers/backend/GQLClient"
 import {
   createNewRootCollection,
   createChildCollection,
-  renameCollection,
   deleteCollection,
   moveRESTTeamCollection,
   updateOrderRESTTeamCollection,
+  updateTeamCollection,
 } from "~/helpers/backend/mutations/TeamCollection"
 import {
   updateTeamRequest,
@@ -220,6 +231,7 @@ import {
   getFoldersByPath,
   resolveSaveContextOnCollectionReorder,
   updateSaveContextForAffectedRequests,
+  updateInheritedPropertiesForAffectedRequests,
   resetTeamRequestsContext,
 } from "~/helpers/collection/collection"
 import { currentReorderingStatus$ } from "~/newstore/reordering"
@@ -227,6 +239,7 @@ import { defineActionHandler, invokeAction } from "~/helpers/actions"
 import { WorkspaceService } from "~/services/workspace.service"
 import { useService } from "dioc/vue"
 import { RESTTabService } from "~/services/tab/rest"
+import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 
 const t = useI18n()
 const toast = useToast()
@@ -266,21 +279,29 @@ const collectionsType = ref<CollectionType>({
 })
 
 // Collection Data
-const editingCollection = ref<
-  HoppCollection<HoppRESTRequest> | TeamCollection | null
->(null)
+const editingCollection = ref<HoppCollection | TeamCollection | null>(null)
 const editingCollectionName = ref<string | null>(null)
 const editingCollectionIndex = ref<number | null>(null)
 const editingCollectionID = ref<string | null>(null)
-const editingFolder = ref<
-  HoppCollection<HoppRESTRequest> | TeamCollection | null
->(null)
+const editingFolder = ref<HoppCollection | TeamCollection | null>(null)
 const editingFolderName = ref<string | null>(null)
 const editingFolderPath = ref<string | null>(null)
 const editingRequest = ref<HoppRESTRequest | null>(null)
 const editingRequestName = ref("")
 const editingRequestIndex = ref<number | null>(null)
 const editingRequestID = ref<string | null>(null)
+
+const editingProperties = ref<{
+  collection: Omit<HoppCollection, "v"> | TeamCollection | null
+  isRootCollection: boolean
+  path: string
+  inheritedProperties?: HoppInheritedProperty
+}>({
+  collection: null,
+  isRootCollection: false,
+  path: "",
+  inheritedProperties: undefined,
+})
 
 const confirmModalTitle = ref<string | null>(null)
 
@@ -520,6 +541,7 @@ const showModalEditCollection = ref(false)
 const showModalEditFolder = ref(false)
 const showModalEditRequest = ref(false)
 const showModalImportExport = ref(false)
+const showModalEditProperties = ref(false)
 const showConfirmModal = ref(false)
 const showTeamModalAdd = ref(false)
 
@@ -565,6 +587,12 @@ const displayModalImportExport = (show: boolean) => {
   if (!show) resetSelectedData()
 }
 
+const displayModalEditProperties = (show: boolean) => {
+  showModalEditProperties.value = show
+
+  if (!show) resetSelectedData()
+}
+
 const displayConfirmModal = (show: boolean) => {
   showConfirmModal.value = show
 
@@ -584,6 +612,11 @@ const addNewRootCollection = (name: string) => {
         name,
         folders: [],
         requests: [],
+        headers: [],
+        auth: {
+          authType: "inherit",
+          authActive: false,
+        },
       })
     )
 
@@ -625,7 +658,7 @@ const addNewRootCollection = (name: string) => {
 
 const addRequest = (payload: {
   path: string
-  folder: HoppCollection<HoppRESTRequest> | TeamCollection
+  folder: HoppCollection | TeamCollection
 }) => {
   const { path, folder } = payload
   editingFolder.value = folder
@@ -639,10 +672,12 @@ const onAddRequest = (requestName: string) => {
     name: requestName,
   }
 
+  const path = editingFolderPath.value
+  if (!path) return
   if (collectionsType.value.type === "my-collections") {
-    const path = editingFolderPath.value
-    if (!path) return
     const insertionIndex = saveRESTRequestAs(path, newRequest)
+
+    const { auth, headers } = cascadeParentCollectionForHeaderAuth(path, "rest")
 
     tabs.createNewTab({
       request: newRequest,
@@ -651,6 +686,10 @@ const onAddRequest = (requestName: string) => {
         originLocation: "user-collection",
         folderPath: path,
         requestIndex: insertionIndex,
+      },
+      inheritedProperties: {
+        auth,
+        headers,
       },
     })
 
@@ -692,7 +731,8 @@ const onAddRequest = (requestName: string) => {
         },
         (result) => {
           const { createRequestInCollection } = result
-
+          const { auth, headers } =
+            teamCollectionAdapter.cascadeParentCollectionForHeaderAuth(path)
           tabs.createNewTab({
             request: newRequest,
             isDirty: false,
@@ -701,6 +741,10 @@ const onAddRequest = (requestName: string) => {
               requestID: createRequestInCollection.id,
               collectionID: createRequestInCollection.collection.id,
               teamID: createRequestInCollection.collection.team.id,
+            },
+            inheritedProperties: {
+              auth,
+              headers,
             },
           })
 
@@ -714,7 +758,7 @@ const onAddRequest = (requestName: string) => {
 
 const addFolder = (payload: {
   path: string
-  folder: HoppCollection<HoppRESTRequest> | TeamCollection
+  folder: HoppCollection | TeamCollection
 }) => {
   const { path, folder } = payload
   editingFolder.value = folder
@@ -773,15 +817,13 @@ const onAddFolder = (folderName: string) => {
 
 const editCollection = (payload: {
   collectionIndex: string
-  collection: HoppCollection<HoppRESTRequest> | TeamCollection
+  collection: HoppCollection | TeamCollection
 }) => {
   const { collectionIndex, collection } = payload
   editingCollection.value = collection
   if (collectionsType.value.type === "my-collections") {
     editingCollectionIndex.value = parseInt(collectionIndex)
-    editingCollectionName.value = (
-      collection as HoppCollection<HoppRESTRequest>
-    ).name
+    editingCollectionName.value = (collection as HoppCollection).name
   } else {
     editingCollectionName.value = (collection as TeamCollection).title
   }
@@ -816,7 +858,7 @@ const updateEditingCollection = (newName: string) => {
     modalLoadingState.value = true
 
     pipe(
-      renameCollection(editingCollection.value.id, newName),
+      updateTeamCollection(editingCollection.value.id, undefined, newName),
       TE.match(
         (err: GQLError<string>) => {
           toast.error(`${getErrorMessage(err)}`)
@@ -834,13 +876,13 @@ const updateEditingCollection = (newName: string) => {
 
 const editFolder = (payload: {
   folderPath: string | undefined
-  folder: HoppCollection<HoppRESTRequest> | TeamCollection
+  folder: HoppCollection | TeamCollection
 }) => {
   const { folderPath, folder } = payload
   editingFolder.value = folder
   if (collectionsType.value.type === "my-collections" && folderPath) {
     editingFolderPath.value = folderPath
-    editingFolderName.value = (folder as HoppCollection<HoppRESTRequest>).name
+    editingFolderName.value = (folder as HoppCollection).name
   } else {
     editingFolderName.value = (folder as TeamCollection).title
   }
@@ -854,7 +896,7 @@ const updateEditingFolder = (newName: string) => {
     if (!editingFolderPath.value) return
 
     editRESTFolder(editingFolderPath.value, {
-      ...(editingFolder.value as HoppCollection<HoppRESTRequest>),
+      ...(editingFolder.value as HoppCollection),
       name: newName,
     })
     displayModalEditFolder(false)
@@ -865,7 +907,7 @@ const updateEditingFolder = (newName: string) => {
     /* renameCollection can be used to rename both collections and folders
      since folder is treated as collection in the BE. */
     pipe(
-      renameCollection(editingFolder.value.id, newName),
+      updateTeamCollection(editingFolder.value.id, undefined, newName),
       TE.match(
         (err: GQLError<string>) => {
           if (err.error === "team_coll/short_title") {
@@ -1279,16 +1321,18 @@ const selectPicked = (payload: Picked | null) => {
  */
 const selectRequest = (selectedRequest: {
   request: HoppRESTRequest
-  folderPath: string | undefined
+  folderPath: string
   requestIndex: string
   isActive: boolean
 }) => {
   const { request, folderPath, requestIndex } = selectedRequest
-
   // If there is a request with this save context, switch into it
   let possibleTab = null
 
   if (collectionsType.value.type === "team-collections") {
+    const { auth, headers } =
+      teamCollectionAdapter.cascadeParentCollectionForHeaderAuth(folderPath)
+
     possibleTab = tabs.getTabRefWithSaveContext({
       originLocation: "team-collection",
       requestID: requestIndex,
@@ -1302,10 +1346,19 @@ const selectRequest = (selectedRequest: {
         saveContext: {
           originLocation: "team-collection",
           requestID: requestIndex,
+          collectionID: folderPath,
+        },
+        inheritedProperties: {
+          auth,
+          headers,
         },
       })
     }
   } else {
+    const { auth, headers } = cascadeParentCollectionForHeaderAuth(
+      folderPath,
+      "rest"
+    )
     possibleTab = tabs.getTabRefWithSaveContext({
       originLocation: "user-collection",
       requestIndex: parseInt(requestIndex),
@@ -1322,6 +1375,10 @@ const selectRequest = (selectedRequest: {
           originLocation: "user-collection",
           folderPath: folderPath!,
           requestIndex: parseInt(requestIndex),
+        },
+        inheritedProperties: {
+          auth,
+          headers,
         },
       })
     }
@@ -1349,16 +1406,17 @@ const dropRequest = (payload: {
 }) => {
   const { folderPath, requestIndex, destinationCollectionIndex } = payload
 
-  if (!requestIndex || !destinationCollectionIndex) return
+  if (!requestIndex || !destinationCollectionIndex || !folderPath) return
 
-  if (collectionsType.value.type === "my-collections" && folderPath) {
-    moveRESTRequest(
-      folderPath,
-      pathToLastIndex(requestIndex),
-      destinationCollectionIndex
+  let possibleTab = null
+
+  if (collectionsType.value.type === "my-collections") {
+    const { auth, headers } = cascadeParentCollectionForHeaderAuth(
+      destinationCollectionIndex,
+      "rest"
     )
 
-    const possibleTab = tabs.getTabRefWithSaveContext({
+    possibleTab = tabs.getTabRefWithSaveContext({
       originLocation: "user-collection",
       folderPath,
       requestIndex: pathToLastIndex(requestIndex),
@@ -1374,6 +1432,11 @@ const dropRequest = (payload: {
           destinationCollectionIndex
         ).length,
       }
+
+      possibleTab.value.document.inheritedProperties = {
+        auth,
+        headers,
+      }
     }
 
     // When it's drop it's basically getting deleted from last folder. reordering last folder accordingly
@@ -1383,6 +1446,11 @@ const dropRequest = (payload: {
       folderPath,
       length: getRequestsByPath(myCollections.value, folderPath).length,
     })
+    moveRESTRequest(
+      folderPath,
+      pathToLastIndex(requestIndex),
+      destinationCollectionIndex
+    )
 
     toast.success(`${t("request.moved")}`)
     draggingToRoot.value = false
@@ -1406,8 +1474,12 @@ const dropRequest = (payload: {
             requestMoveLoading.value.indexOf(requestIndex),
             1
           )
+          const { auth, headers } =
+            teamCollectionAdapter.cascadeParentCollectionForHeaderAuth(
+              destinationCollectionIndex
+            )
 
-          const possibleTab = tabs.getTabRefWithSaveContext({
+          possibleTab = tabs.getTabRefWithSaveContext({
             originLocation: "team-collection",
             requestID: requestIndex,
           })
@@ -1416,6 +1488,10 @@ const dropRequest = (payload: {
             possibleTab.value.document.saveContext = {
               originLocation: "team-collection",
               requestID: requestIndex,
+            }
+            possibleTab.value.document.inheritedProperties = {
+              auth,
+              headers,
             }
           }
           toast.success(`${t("request.moved")}`)
@@ -1537,6 +1613,22 @@ const dropCollection = (payload: {
       `${destinationCollectionIndex}/${totalFoldersOfDestinationCollection}`
     )
 
+    const { auth, headers } = cascadeParentCollectionForHeaderAuth(
+      `${destinationCollectionIndex}/${totalFoldersOfDestinationCollection}`,
+      "rest"
+    )
+
+    const inheritedProperty = {
+      auth,
+      headers,
+    }
+
+    updateInheritedPropertiesForAffectedRequests(
+      `${destinationCollectionIndex}/${totalFoldersOfDestinationCollection}`,
+      inheritedProperty,
+      "rest"
+    )
+
     draggingToRoot.value = false
     toast.success(`${t("collection.moved")}`)
   } else if (hasTeamWriteAccess.value) {
@@ -1561,6 +1653,22 @@ const dropCollection = (payload: {
           collectionMoveLoading.value.splice(
             collectionMoveLoading.value.indexOf(collectionIndexDragged),
             1
+          )
+
+          const { auth, headers } =
+            teamCollectionAdapter.cascadeParentCollectionForHeaderAuth(
+              destinationCollectionIndex
+            )
+
+          const inheritedProperty = {
+            auth,
+            headers,
+          }
+
+          updateInheritedPropertiesForAffectedRequests(
+            `${destinationCollectionIndex}`,
+            inheritedProperty,
+            "rest"
           )
         }
       )
@@ -1846,13 +1954,11 @@ const initializeDownloadCollection = async (
  * Triggered by the export button in the tippy menu
  * @param collection - Collection or folder to be exported
  */
-const exportData = async (
-  collection: HoppCollection<HoppRESTRequest> | TeamCollection
-) => {
+const exportData = async (collection: HoppCollection | TeamCollection) => {
   if (collectionsType.value.type === "my-collections") {
     const collectionJSON = JSON.stringify(collection)
 
-    const name = (collection as HoppCollection<HoppRESTRequest>).name
+    const name = (collection as HoppCollection).name
 
     initializeDownloadCollection(collectionJSON, name)
   } else {
@@ -1891,6 +1997,164 @@ const shareRequest = ({ request }: { request: HoppRESTRequest }) => {
   } else {
     invokeAction("modals.login.toggle")
   }
+}
+
+const editProperties = (payload: {
+  collectionIndex: string
+  collection: HoppCollection | TeamCollection
+}) => {
+  const { collection, collectionIndex } = payload
+
+  if (collectionsType.value.type === "my-collections") {
+    const parentIndex = collectionIndex.split("/").slice(0, -1).join("/") // remove last folder to get parent folder
+
+    let inheritedProperties = {
+      auth: {
+        parentID: "",
+        parentName: "",
+        inheritedAuth: {
+          authType: "inherit",
+          authActive: true,
+        },
+      },
+      headers: [
+        {
+          parentID: "",
+          parentName: "",
+          inheritedHeaders: [],
+        },
+      ],
+    } as HoppInheritedProperty
+
+    if (parentIndex) {
+      const { auth, headers } = cascadeParentCollectionForHeaderAuth(
+        parentIndex,
+        "rest"
+      )
+
+      inheritedProperties = {
+        auth,
+        headers,
+      }
+    }
+
+    editingProperties.value = {
+      collection,
+      isRootCollection: isAlreadyInRoot(collectionIndex),
+      path: collectionIndex,
+      inheritedProperties,
+    }
+  } else if (hasTeamWriteAccess.value) {
+    const parentIndex = collectionIndex.split("/").slice(0, -1).join("/") // remove last folder to get parent folder
+
+    const data = (collection as TeamCollection).data
+      ? JSON.parse((collection as TeamCollection).data ?? "")
+      : null
+
+    let inheritedProperties = undefined
+    let coll = {
+      id: collection.id,
+      name: (collection as TeamCollection).title,
+      auth: {
+        authType: "inherit",
+        authActive: true,
+      } as HoppRESTAuth,
+      headers: [] as HoppRESTHeaders,
+      folders: null,
+      requests: null,
+    }
+
+    if (parentIndex) {
+      const { auth, headers } =
+        teamCollectionAdapter.cascadeParentCollectionForHeaderAuth(parentIndex)
+
+      inheritedProperties = {
+        auth,
+        headers,
+      }
+    }
+
+    if (data) {
+      coll = {
+        ...coll,
+        auth: data.auth,
+        headers: data.headers as HoppRESTHeaders,
+      }
+    }
+
+    editingProperties.value = {
+      collection: coll,
+      isRootCollection: isAlreadyInRoot(collectionIndex),
+      path: collectionIndex,
+      inheritedProperties,
+    }
+  }
+
+  displayModalEditProperties(true)
+}
+
+const setCollectionProperties = (newCollection: {
+  collection: HoppCollection
+  path: string
+  isRootCollection: boolean
+}) => {
+  const { collection, path, isRootCollection } = newCollection
+
+  if (collectionsType.value.type === "my-collections") {
+    if (isRootCollection) {
+      editRESTCollection(parseInt(path), collection)
+    } else {
+      editRESTFolder(path, collection)
+    }
+
+    const { auth, headers } = cascadeParentCollectionForHeaderAuth(path, "rest")
+
+    nextTick(() => {
+      updateInheritedPropertiesForAffectedRequests(
+        path,
+        {
+          auth,
+          headers,
+        },
+        "rest"
+      )
+    })
+    toast.success(t("collection.properties_updated"))
+  } else if (hasTeamWriteAccess.value && collection.id) {
+    const data = {
+      auth: collection.auth,
+      headers: collection.headers,
+    }
+    pipe(
+      updateTeamCollection(collection.id, JSON.stringify(data), undefined),
+      TE.match(
+        (err: GQLError<string>) => {
+          toast.error(`${getErrorMessage(err)}`)
+        },
+        () => {
+          toast.success(t("collection.properties_updated"))
+        }
+      )
+    )()
+
+    //This is a hack to update the inherited properties of the requests if there an tab opened
+    // since it takes a little bit of time to update the collection tree
+    setTimeout(() => {
+      const { auth, headers } =
+        teamCollectionAdapter.cascadeParentCollectionForHeaderAuth(path)
+      updateInheritedPropertiesForAffectedRequests(
+        path,
+        {
+          auth,
+          headers,
+        },
+        "rest",
+        "team"
+      )
+    }, 200)
+  }
+
+  displayModalEditProperties(false)
 }
 
 const resolveConfirmModal = (title: string | null) => {

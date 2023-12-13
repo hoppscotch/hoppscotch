@@ -10,24 +10,25 @@
       @dragend="dragging = false"
       @contextmenu.prevent="options.tippy.show()"
     >
-      <span
-        class="flex cursor-pointer items-center justify-center px-4"
+      <div
+        class="flex min-w-0 flex-1 items-center justify-center cursor-pointer"
         @click="toggleShowChildren()"
       >
-        <component
-          :is="collectionIcon"
-          class="svg-icons"
-          :class="{ 'text-accent': isSelected }"
-        />
-      </span>
-      <span
-        class="flex min-w-0 flex-1 cursor-pointer py-2 pr-2 transition group-hover:text-secondaryDark"
-        @click="toggleShowChildren()"
-      >
-        <span class="truncate" :class="{ 'text-accent': isSelected }">
-          {{ folder.name ? folder.name : folder.title }}
+        <span class="pointer-events-none flex items-center justify-center px-4">
+          <component
+            :is="collectionIcon"
+            class="svg-icons"
+            :class="{ 'text-accent': isSelected }"
+          />
         </span>
-      </span>
+        <span
+          class="pointer-events-none flex min-w-0 flex-1 cursor-pointer py-2 pr-2 transition group-hover:text-secondaryDark"
+        >
+          <span class="truncate" :class="{ 'text-accent': isSelected }">
+            {{ folder.name ? folder.name : folder.title }}
+          </span>
+        </span>
+      </div>
       <div class="flex">
         <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
@@ -120,6 +121,21 @@
                     }
                   "
                 />
+                <HoppSmartItem
+                  ref="propertiesAction"
+                  :icon="IconSettings2"
+                  :label="t('action.properties')"
+                  :shortcut="['P']"
+                  @click="
+                    () => {
+                      emit('edit-properties', {
+                        collectionIndex: collectionIndex,
+                        collection: collection,
+                      })
+                      hide()
+                    }
+                  "
+                />
               </div>
             </template>
           </tippy>
@@ -148,7 +164,14 @@
           @edit-folder="emit('edit-folder', $event)"
           @edit-request="emit('edit-request', $event)"
           @duplicate-request="emit('duplicate-request', $event)"
+          @edit-properties="
+            emit('edit-properties', {
+              collectionIndex: `${folderPath}/${String(subFolderIndex)}`,
+              collection: subFolder,
+            })
+          "
           @select="emit('select', $event)"
+          @select-request="$emit('select-request', $event)"
         />
         <CollectionsGraphqlRequest
           v-for="(request, index) in folder.requests"
@@ -164,6 +187,7 @@
           @edit-request="emit('edit-request', $event)"
           @duplicate-request="emit('duplicate-request', $event)"
           @select="emit('select', $event)"
+          @select-request="$emit('select-request', $event)"
         />
 
         <HoppSmartPlaceholder
@@ -197,13 +221,16 @@ import IconMoreVertical from "~icons/lucide/more-vertical"
 import IconCheckCircle from "~icons/lucide/check-circle"
 import IconFolder from "~icons/lucide/folder"
 import IconFolderOpen from "~icons/lucide/folder-open"
+import IconSettings2 from "~icons/lucide/settings-2"
 import { useToast } from "@composables/toast"
 import { useI18n } from "@composables/i18n"
 import { useColorMode } from "@composables/theming"
-import { removeGraphqlFolder, moveGraphqlRequest } from "~/newstore/collections"
+import { removeGraphqlFolder } from "~/newstore/collections"
 import { computed, ref } from "vue"
 import { useService } from "dioc/vue"
 import { GQLTabService } from "~/services/tab/graphql"
+import { Picked } from "~/helpers/types/HoppPicked"
+import { HoppCollection } from "@hoppscotch/data"
 
 const toast = useToast()
 const t = useI18n()
@@ -211,16 +238,16 @@ const colorMode = useColorMode()
 
 const tabs = useService(GQLTabService)
 
-const props = defineProps({
-  picked: { type: Object, default: null },
+const props = defineProps<{
+  picked: Picked
   // Whether the request is in a selectable mode (activates 'select' event)
-  saveRequest: { type: Boolean, default: false },
-  folder: { type: Object, default: () => ({}) },
-  folderIndex: { type: Number, default: null },
-  collectionIndex: { type: Number, default: null },
-  folderPath: { type: String, default: null },
-  isFiltered: Boolean,
-})
+  saveRequest: boolean
+  folder: HoppCollection
+  folderIndex: number
+  collectionIndex: number
+  folderPath: string
+  isFiltered: boolean
+}>()
 
 const emit = defineEmits([
   "select",
@@ -229,6 +256,9 @@ const emit = defineEmits([
   "add-folder",
   "edit-folder",
   "duplicate-request",
+  "edit-properties",
+  "select-request",
+  "drop-request",
 ])
 
 // Template refs
@@ -303,6 +333,11 @@ const dropEvent = ({ dataTransfer }: any) => {
   dragging.value = !dragging.value
   const folderPath = dataTransfer.getData("folderPath")
   const requestIndex = dataTransfer.getData("requestIndex")
-  moveGraphqlRequest(folderPath, requestIndex, props.folderPath)
+
+  emit("drop-request", {
+    folderPath,
+    requestIndex,
+    collectionIndex: props.folderPath,
+  })
 }
 </script>

@@ -12,7 +12,6 @@ import {
   HoppRESTHeader,
   HoppRESTParam,
   HoppRESTReqBody,
-  HoppRESTRequest,
   knownContentTypes,
   makeRESTRequest,
   HoppCollection,
@@ -581,7 +580,7 @@ const convertPathToHoppReqs = (
 
 const convertOpenApiDocToHopp = (
   doc: OpenAPI.Document
-): TE.TaskEither<never, HoppCollection<HoppRESTRequest>[]> => {
+): TE.TaskEither<never, HoppCollection[]> => {
   const name = doc.info.title
 
   const paths = Object.entries(doc.paths ?? {})
@@ -589,7 +588,7 @@ const convertOpenApiDocToHopp = (
     .flat()
 
   return TE.of([
-    makeCollection<HoppRESTRequest>({
+    makeCollection({
       name,
       folders: [],
       requests: paths,

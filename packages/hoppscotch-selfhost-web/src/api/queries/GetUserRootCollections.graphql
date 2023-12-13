@@ -4,10 +4,12 @@ query GetUserRootCollections {
     id
     title
     type
+    data
     childrenREST {
       id
       title
       type
+      data
     }
   }
 }

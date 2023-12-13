@@ -11,7 +11,7 @@
 <script setup lang="ts">
 import { useI18n } from "~/composables/i18n"
 import { useToast } from "~/composables/toast"
-import { HoppCollection, HoppGQLRequest } from "@hoppscotch/data"
+import { HoppCollection } from "@hoppscotch/data"
 import { ImporterOrExporter } from "~/components/importExport/types"
 import { FileSource } from "~/helpers/import-export/import/import-sources/FileSource"
 import { GistSource } from "~/helpers/import-export/import/import-sources/GistSource"
@@ -25,13 +25,14 @@ import { useReadonlyStream } from "~/composables/stream"
 
 import { platform } from "~/platform"
 import {
+  appendGraphqlCollections,
   graphqlCollections$,
-  setGraphqlCollections,
 } from "~/newstore/collections"
 import { hoppGqlCollectionsImporter } from "~/helpers/import-export/import/hoppGql"
 import { gqlCollectionsExporter } from "~/helpers/import-export/export/gqlCollections"
 import { gqlCollectionsGistExporter } from "~/helpers/import-export/export/gqlCollectionsGistExporter"
 import { computed } from "vue"
+import { hoppGQLImporter } from "~/helpers/import-export/import/hopp"
 
 const t = useI18n()
 const toast = useToast()
@@ -60,15 +61,20 @@ const GqlCollectionsHoppImporter: ImporterOrExporter = {
         showImportFailedError()
         return
       }
+      const validatedCollection = await hoppGQLImporter(
+        JSON.stringify(res.right)
+      )()
 
-      handleImportToStore(res.right)
+      if (E.isRight(validatedCollection)) {
+        handleImportToStore(validatedCollection.right)
 
-      platform.analytics?.logEvent({
-        type: "HOPP_IMPORT_COLLECTION",
-        platform: "gql",
-        workspaceType: "personal",
-        importer: "json",
-      })
+        platform.analytics?.logEvent({
+          type: "HOPP_IMPORT_COLLECTION",
+          platform: "gql",
+          workspaceType: "personal",
+          importer: "json",
+        })
+      }
 
       emit("hide-modal")
     },
@@ -214,11 +220,9 @@ const showImportFailedError = () => {
   toast.error(t("import.failed"))
 }
 
-const handleImportToStore = async (
-  gqlCollections: HoppCollection<HoppGQLRequest>[]
-) => {
-  setGraphqlCollections(gqlCollections)
-  toast.success(t("import.success"))
+const handleImportToStore = async (gqlCollections: HoppCollection[]) => {
+  appendGraphqlCollections(gqlCollections)
+  toast.success(t("state.file_imported"))
 }
 
 const emit = defineEmits<{

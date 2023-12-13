@@ -88,6 +88,13 @@
                   collection: node.data.data.data,
                 })
             "
+            @edit-properties="
+              node.data.type === 'collections' &&
+                emit('edit-properties', {
+                  collectionIndex: node.id,
+                  collection: node.data.data.data,
+                })
+            "
             @export-data="
               node.data.type === 'collections' &&
                 emit('export-data', node.data.data.data)
@@ -157,6 +164,13 @@
               node.data.type === 'folders' &&
                 emit('edit-folder', {
                   folder: node.data.data.data,
+                })
+            "
+            @edit-properties="
+              node.data.type === 'folders' &&
+                emit('edit-properties', {
+                  collectionIndex: node.id,
+                  collection: node.data.data.data,
                 })
             "
             @export-data="
@@ -238,6 +252,7 @@
                 selectRequest({
                   request: node.data.data.data.request,
                   requestIndex: node.data.data.data.id,
+                  folderPath: getPath(node.id),
                 })
             "
             @share-request="
@@ -453,6 +468,13 @@ const emit = defineEmits<{
     }
   ): void
   (
+    event: "edit-properties",
+    payload: {
+      collectionIndex: string
+      collection: TeamCollection
+    }
+  ): void
+  (
     event: "edit-request",
     payload: {
       requestIndex: string
@@ -482,7 +504,7 @@ const emit = defineEmits<{
       request: HoppRESTRequest
       requestIndex: string
       isActive: boolean
-      folderPath?: string | undefined
+      folderPath: string
     }
   ): void
   (
@@ -529,6 +551,12 @@ const emit = defineEmits<{
   (event: "display-modal-add"): void
   (event: "display-modal-import-export"): void
 }>()
+
+const getPath = (path: string) => {
+  const pathArray = path.split("/")
+  pathArray.pop()
+  return pathArray.join("/")
+}
 
 const teamCollectionsList = toRef(props, "teamCollectionList")
 
@@ -586,6 +614,7 @@ const isActiveRequest = (requestID: string) => {
 const selectRequest = (data: {
   request: HoppRESTRequest
   requestIndex: string
+  folderPath: string | null
 }) => {
   const { request, requestIndex } = data
   if (props.saveRequest) {
@@ -598,6 +627,7 @@ const selectRequest = (data: {
       request: request,
       requestIndex: requestIndex,
       isActive: isActiveRequest(requestIndex),
+      folderPath: data.folderPath,
     })
   }
 }

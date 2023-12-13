@@ -128,6 +128,21 @@
                     }
                   "
                 />
+                <HoppSmartItem
+                  ref="propertiesAction"
+                  :icon="IconSettings2"
+                  :label="t('action.properties')"
+                  :shortcut="['P']"
+                  @click="
+                    () => {
+                      emit('edit-properties', {
+                        collectionIndex: String(collectionIndex),
+                        collection: collection,
+                      })
+                      hide()
+                    }
+                  "
+                />
               </div>
             </template>
           </tippy>
@@ -155,7 +170,15 @@
           @edit-folder="$emit('edit-folder', $event)"
           @edit-request="$emit('edit-request', $event)"
           @duplicate-request="$emit('duplicate-request', $event)"
+          @edit-properties="
+            $emit('edit-properties', {
+              collectionIndex: `${collectionIndex}/${String(index)}`,
+              collection: folder,
+            })
+          "
           @select="$emit('select', $event)"
+          @select-request="$emit('select-request', $event)"
+          @drop-request="$emit('drop-request', $event)"
         />
         <CollectionsGraphqlRequest
           v-for="(request, index) in collection.requests"
@@ -171,6 +194,7 @@
           @edit-request="$emit('edit-request', $event)"
           @duplicate-request="$emit('duplicate-request', $event)"
           @select="$emit('select', $event)"
+          @select-request="$emit('select-request', $event)"
         />
         <HoppSmartPlaceholder
           v-if="
@@ -214,25 +238,24 @@ import IconFolderPlus from "~icons/lucide/folder-plus"
 import IconMoreVertical from "~icons/lucide/more-vertical"
 import IconEdit from "~icons/lucide/edit"
 import IconTrash2 from "~icons/lucide/trash-2"
+import IconSettings2 from "~icons/lucide/settings-2"
 import { useToast } from "@composables/toast"
 import { useI18n } from "@composables/i18n"
 import { useColorMode } from "@composables/theming"
-import {
-  removeGraphqlCollection,
-  moveGraphqlRequest,
-} from "~/newstore/collections"
+import { removeGraphqlCollection } from "~/newstore/collections"
 import { Picked } from "~/helpers/types/HoppPicked"
 import { useService } from "dioc/vue"
 import { GQLTabService } from "~/services/tab/graphql"
+import { HoppCollection } from "@hoppscotch/data"
 
-const props = defineProps({
-  picked: { type: Object, default: null },
+const props = defineProps<{
+  picked: Picked | null
   // Whether the viewing context is related to picking (activates 'select' events)
-  saveRequest: { type: Boolean, default: false },
-  collectionIndex: { type: Number, default: null },
-  collection: { type: Object, default: () => ({}) },
-  isFiltered: Boolean,
-})
+  saveRequest: boolean
+  collectionIndex: number | null
+  collection: HoppCollection
+  isFiltered: boolean
+}>()
 
 const colorMode = useColorMode()
 const toast = useToast()
@@ -248,7 +271,23 @@ const emit = defineEmits<{
   (e: "add-request", i: any): void
   (e: "add-folder", i: any): void
   (e: "edit-folder", i: any): void
+  (
+    e: "edit-properties",
+    payload: {
+      collectionIndex: string | null
+      collection: HoppCollection
+    }
+  ): void
   (e: "edit-collection"): void
+  (e: "select-request", i: any): void
+  (
+    e: "drop-request",
+    payload: {
+      folderPath: string
+      requestIndex: string
+      collectionIndex: number | null
+    }
+  ): void
 }>()
 
 // Template refs
@@ -324,6 +363,10 @@ const dropEvent = ({ dataTransfer }: any) => {
   dragging.value = !dragging.value
   const folderPath = dataTransfer.getData("folderPath")
   const requestIndex = dataTransfer.getData("requestIndex")
-  moveGraphqlRequest(folderPath, requestIndex, `${props.collectionIndex}`)
+  emit("drop-request", {
+    folderPath,
+    requestIndex,
+    collectionIndex: props.collectionIndex,
+  })
 }
 </script>

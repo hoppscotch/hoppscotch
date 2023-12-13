@@ -1,7 +1,12 @@
 <template>
   <div class="flex flex-1 flex-col">
     <div
-      class="sticky top-upperMobileSecondaryStickyFold z-10 flex flex-shrink-0 items-center justify-between overflow-x-auto border-b border-dividerLight bg-primary pl-4 sm:top-upperSecondaryStickyFold"
+      class="sticky z-10 flex flex-shrink-0 items-center justify-between overflow-x-auto border-b border-dividerLight bg-primary pl-4"
+      :class="{
+        'top-upperMobileSecondaryStickyFold sm:top-upperSecondaryStickyFold':
+          !isCollectionProperty,
+        'top-propertiesPrimaryStickyFold': isCollectionProperty,
+      }"
     >
       <span class="flex items-center">
         <label class="truncate font-semibold text-secondaryLight">
@@ -33,6 +38,18 @@
                 @click="
                   () => {
                     auth.authType = 'none'
+                    hide()
+                  }
+                "
+              />
+              <HoppSmartItem
+                v-if="!isRootCollection"
+                label="Inherit"
+                :icon="authName === 'Inherit' ? IconCircleDot : IconCircle"
+                :active="authName === 'Inherit'"
+                @click="
+                  () => {
+                    auth.authType = 'inherit'
                     hide()
                   }
                 "
@@ -135,6 +152,17 @@
         <div v-if="auth.authType === 'basic'">
           <HttpAuthorizationBasic v-model="auth" />
         </div>
+        <div v-if="auth.authType === 'inherit'" class="p-4">
+          <span v-if="inheritedProperties?.auth">
+            Inherited
+            {{ getAuthName(inheritedProperties.auth.inheritedAuth.authType) }}
+            from Parent Collection {{ inheritedProperties?.auth.parentName }}
+          </span>
+          <span v-else>
+            Please save this request in any collection to inherit the
+            authorization
+          </span>
+        </div>
         <div v-if="auth.authType === 'bearer'">
           <div class="flex flex-1 border-b border-dividerLight">
             <SmartEnvInput v-model="auth.token" placeholder="Token" />
@@ -181,6 +209,8 @@ import { pluckRef } from "@composables/ref"
 import { useI18n } from "@composables/i18n"
 import { useColorMode } from "@composables/theming"
 import { useVModel } from "@vueuse/core"
+import { onMounted } from "vue"
+import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 
 const t = useI18n()
 
@@ -188,6 +218,9 @@ const colorMode = useColorMode()
 
 const props = defineProps<{
   modelValue: HoppRESTAuth
+  isCollectionProperty?: boolean
+  isRootCollection?: boolean
+  inheritedProperties?: HoppInheritedProperty
 }>()
 
 const emit = defineEmits<{
@@ -196,18 +229,34 @@ const emit = defineEmits<{
 
 const auth = useVModel(props, "modelValue", emit)
 
+onMounted(() => {
+  if (props.isRootCollection && auth.value.authType === "inherit") {
+    auth.value = {
+      authType: "none",
+      authActive: true,
+    }
+  }
+})
+
 const AUTH_KEY_NAME = {
   basic: "Basic Auth",
   bearer: "Bearer",
   "oauth-2": "OAuth 2.0",
   "api-key": "API key",
   none: "None",
+  inherit: "Inherit",
 } as const
 
 const authType = pluckRef(auth, "authType")
 const authName = computed(() =>
   AUTH_KEY_NAME[authType.value] ? AUTH_KEY_NAME[authType.value] : "None"
 )
+
+const getAuthName = (type: HoppRESTAuth["authType"] | undefined) => {
+  if (!type) return "None"
+  return AUTH_KEY_NAME[type] ? AUTH_KEY_NAME[type] : "None"
+}
+
 const authActive = pluckRef(auth, "authActive")
 
 const clearContent = () => {

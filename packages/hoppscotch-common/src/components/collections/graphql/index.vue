@@ -335,7 +335,6 @@ const onAddRequest = ({
   path: string
   index: number
 }) => {
-  console.log("onAddRequest", name, path, index)
   const newRequest = {
     ...tabs.currentActiveTab.value.document.request,
     name,

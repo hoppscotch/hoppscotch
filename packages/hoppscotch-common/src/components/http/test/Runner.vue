@@ -14,7 +14,7 @@
               :heading="t('environment.heading')"
               :text="'None'"
             />
-            <HttpTestRunnerMeta :heading="t('test.iterations')" :text="'1'" />
+            <!-- <HttpTestRunnerMeta :heading="t('test.iterations')" :text="'1'" /> -->
             <HttpTestRunnerMeta
               :heading="t('test.duration')"
               :text="'10s 321ms'"
@@ -50,6 +50,8 @@
         <HttpTestRunnerResult
           :config="testRunnerConfig"
           :collection="collection"
+          :stop-running="stopRunningTest"
+          @on-stop-running="stopRunningTest = true"
         />
       </div>
 
@@ -83,7 +85,7 @@ export type TestRunnerConfig = {
 
 const testRunnerConfig = ref<TestRunnerConfig>({
   iterations: 1,
-  delay: 0,
+  delay: 1000,
   stopOnError: false,
   persistResponses: false,
   keepVariableValues: false,

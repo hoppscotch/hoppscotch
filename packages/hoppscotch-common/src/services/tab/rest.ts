@@ -2,7 +2,7 @@ import { isEqual } from "lodash-es"
 import { computed } from "vue"
 import { getDefaultRESTRequest } from "~/helpers/rest/default"
 import {
-  HoppCollectionSaveContext,
+  HoppTestRunnerSaveContext,
   HoppTabDocument,
   HoppRESTSaveContext,
 } from "~/helpers/rest/document"
@@ -30,20 +30,22 @@ export class RESTTabService extends TabService<HoppTabDocument> {
   // override persistableTabState to remove response from the document
   public override persistableTabState = computed(() => ({
     lastActiveTabID: this.currentTabID.value,
-    orderedDocs: this.tabOrdering.value.map((tabID) => {
-      const tab = this.tabMap.get(tabID)! // tab ordering is guaranteed to have value for this key
-      return {
-        tabID: tab.id,
-        doc: {
-          ...tab.document,
-          response: null,
-        },
-      }
-    }),
+    orderedDocs: this.tabOrdering.value
+      .map((tabID) => {
+        const tab = this.tabMap.get(tabID)! // tab ordering is guaranteed to have value for this key
+        return {
+          tabID: tab.id,
+          doc: {
+            ...tab.document,
+            response: null,
+          },
+        }
+      })
+      .filter((tab) => tab.doc.type !== "test-runner"),
   }))
 
   public getTabRefWithSaveContext(
-    ctx: HoppRESTSaveContext | HoppCollectionSaveContext,
+    ctx: HoppRESTSaveContext | HoppTestRunnerSaveContext,
     type: "request" | "collection" = "request"
   ) {
     for (const tab of this.tabMap.values()) {

@@ -24,7 +24,7 @@
     </button>
   </div>
 
-  <HttpTestResult
+  <HttpTestTestResult
     :show-empty-message="false"
     v-if="request.testResults"
     v-model="request.testResults"

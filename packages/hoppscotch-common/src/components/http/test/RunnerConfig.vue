@@ -56,13 +56,6 @@
         <div class="mt-4">
           <!-- TODO: fix input component types -->
           <HoppSmartInput
-            v-model="config.iterations as any"
-            type="number"
-            class="mb-4"
-            :label="t('Iteration')"
-            input-styles="floating-input"
-          />
-          <HoppSmartInput
             v-model="config.delay as any"
             type="number"
             :label="t('Delay')"
@@ -130,9 +123,9 @@
 </template>
 
 <script setup lang="ts">
-import { SmartTreeAdapter } from "@hoppscotch/ui/dist/helpers/treeAdapter"
+import { SmartTreeAdapter } from "@hoppscotch/ui/helpers/treeAdapter.ts"
 import { useVModel } from "@vueuse/core"
-import { ref, toRef, computed } from "vue"
+import { ref, toRef } from "vue"
 import { useI18n } from "~/composables/i18n"
 import { HoppTabDocument } from "~/helpers/rest/document"
 import { TestRunnerCollectionsAdapter } from "~/helpers/runner/adapter"

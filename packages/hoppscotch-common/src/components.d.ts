@@ -155,6 +155,7 @@ declare module 'vue' {
     HttpTestRunnerResult: typeof import('./components/http/test/RunnerResult.vue')['default']
     HttpTests: typeof import('./components/http/Tests.vue')['default']
     HttpTestSelectRequest: typeof import('./components/http/test/SelectRequest.vue')['default']
+    HttpTestTestResult: typeof import('./components/http/test/TestResult.vue')['default']
     HttpURLEncodedParams: typeof import('./components/http/URLEncodedParams.vue')['default']
     IconLucideActivity: typeof import('~icons/lucide/activity')['default']
     IconLucideAlertCircle: typeof import('~icons/lucide/alert-circle')['default']

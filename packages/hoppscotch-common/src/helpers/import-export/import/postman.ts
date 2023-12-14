@@ -292,6 +292,8 @@ const getHoppFolder = (ig: ItemGroup<Item>): HoppCollection =>
       A.map(getHoppFolder)
     ),
     requests: pipe(ig.items.all(), A.filter(isPMItem), A.map(getHoppRequest)),
+    auth: { authType: "inherit", authActive: true },
+    headers: [],
   })
 
 export const getHoppCollection = (coll: PMCollection) => getHoppFolder(coll)

@@ -173,7 +173,7 @@
     "name_length_insufficient": "Collection name should be at least 3 characters long",
     "new": "New Collection",
     "order_changed": "Collection Order Updated",
-    "properties":"Colection Properties",
+    "properties":"Collection Properties",
     "properties_updated": "Collection Properties Updated",
     "renamed": "Collection renamed",
     "request_in_use": "Request in use",

@@ -199,6 +199,8 @@ const getHoppFolder = (
       getHoppFolder(f, resources)
     ),
     requests: getRequestsIn(folderRes, resources).map(getHoppRequest),
+    auth: { authType: "inherit", authActive: true },
+    headers: [],
   })
 
 const getHoppCollections = (doc: InsomniaDoc) =>

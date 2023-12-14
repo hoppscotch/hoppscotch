@@ -592,6 +592,8 @@ const convertOpenApiDocToHopp = (
       name,
       folders: [],
       requests: paths,
+      auth: { authType: "inherit", authActive: true },
+      headers: [],
     }),
   ])
 }

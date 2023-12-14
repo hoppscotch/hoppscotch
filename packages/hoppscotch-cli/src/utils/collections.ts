@@ -1,21 +1,23 @@
-import * as A from "fp-ts/Array";
-import { pipe } from "fp-ts/function";
+import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data";
 import { bold } from "chalk";
 import { log } from "console";
+import * as A from "fp-ts/Array";
+import { pipe } from "fp-ts/function";
 import round from "lodash/round";
-import { HoppCollection } from "@hoppscotch/data";
+
+import { CollectionRunnerParam } from "../types/collections";
 import {
-  HoppEnvs,
   CollectionStack,
-  RequestReport,
+  HoppEnvs,
   ProcessRequestParams,
+  RequestReport,
 } from "../types/request";
 import {
-  getRequestMetrics,
-  preProcessRequest,
-  processRequest,
-} from "./request";
-import { exceptionColors } from "./getters";
+  PreRequestMetrics,
+  RequestMetrics,
+  TestMetrics,
+} from "../types/response";
+import { DEFAULT_DURATION_PRECISION } from "./constants";
 import {
   printErrorsReport,
   printFailedTestsReport,
@@ -23,15 +25,14 @@ import {
   printRequestsMetrics,
   printTestsMetrics,
 } from "./display";
-import {
-  PreRequestMetrics,
-  RequestMetrics,
-  TestMetrics,
-} from "../types/response";
-import { getTestMetrics } from "./test";
-import { DEFAULT_DURATION_PRECISION } from "./constants";
+import { exceptionColors } from "./getters";
 import { getPreRequestMetrics } from "./pre-request";
-import { CollectionRunnerParam } from "../types/collections";
+import {
+  getRequestMetrics,
+  preProcessRequest,
+  processRequest,
+} from "./request";
+import { getTestMetrics } from "./test";
 
 const { WARN, FAIL } = exceptionColors;
 
@@ -55,19 +56,19 @@ export const collectionsRunner = async (
     // Pop out top-most collection from stack to be processed.
     const { collection, path } = <CollectionStack>collectionStack.pop();
 
-    // Processing each request in collection
-    for (const request of collection.requests) {
-      const _request = preProcessRequest(request);
-      const requestPath = `${path}/${_request.name}`;
-      const processRequestParams: ProcessRequestParams = {
-        path: requestPath,
-        request: _request,
-        envs,
-        delay,
-      };
+      // Processing each request in collection
+      for (const request of collection.requests) {
+        const _request = preProcessRequest(request as HoppRESTRequest, collection);
+        const requestPath = `${path}/${_request.name}`;
+        const processRequestParams: ProcessRequestParams = {
+          path: requestPath,
+          request: _request,
+          envs,
+          delay,
+        };
 
-      // Request processing initiated message.
-      log(WARN(`\nRunning: ${bold(requestPath)}`));
+        // Request processing initiated message.
+        log(WARN(`\nRunning: ${bold(requestPath)}`));
 
       // Processing current request.
       const result = await processRequest(processRequestParams)();
@@ -77,19 +78,34 @@ export const collectionsRunner = async (
       envs.global = global;
       envs.selected = selected;
 
-      // Storing current request's report.
-      const requestReport = result.report;
-      requestsReport.push(requestReport);
-    }
+        // Storing current request's report.
+        const requestReport = result.report;
+        requestsReport.push(requestReport);
+      }
 
-    // Pushing remaining folders realted collection to stack.
-    for (const folder of collection.folders) {
-      collectionStack.push({
-        path: `${path}/${folder.name}`,
-        collection: folder,
-      });
+      // Pushing remaining folders realted collection to stack.
+      for (const folder of collection.folders) {
+        const updatedFolder: HoppCollection = { ...folder }
+
+        if (updatedFolder.auth?.authType === "inherit") {
+          updatedFolder.auth = collection.auth;
+        }
+
+        if (collection.headers?.length) {
+          // Filter out header entries present in the parent collection under the same name
+          // This ensures the folder headers take precedence over the collection headers
+          const filteredHeaders = collection.headers.filter((collectionHeaderEntries) => {
+            return !updatedFolder.headers.some((folderHeaderEntries) => folderHeaderEntries.key === collectionHeaderEntries.key)
+          })
+          updatedFolder.headers.push(...filteredHeaders);
+        }
+
+        collectionStack.push({
+          path: `${path}/${updatedFolder.name}`,
+          collection: updatedFolder,
+        });
+      }
     }
-  }
 
   return requestsReport;
 };

@@ -1,8 +1,8 @@
 <template>
-  <div class="flex items-stretch group">
+  <div class="flex items-stretch group ml-4">
     <button
       @click="selectRequest()"
-      class="w-full rounded ml-4 px-6 py-3 transition cursor-pointer focus:outline-none hover:active hover:bg-primaryLight hover:text-secondaryDark"
+      class="w-full rounded px-6 py-3 transition cursor-pointer focus:outline-none hover:active hover:bg-primaryLight hover:text-secondaryDark"
     >
       <div class="flex gap-4 mb-1">
         <span

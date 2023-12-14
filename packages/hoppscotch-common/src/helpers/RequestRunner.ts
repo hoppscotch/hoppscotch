@@ -374,12 +374,43 @@ export function runRESTRequest$(
   return [cancel, res]
 }
 
-export function runTestRunnerRequest(
-  request: TestRunnerRequest
-): Promise<
-  E.Left<"script_fail" | "cancellation"> | E.Right<Observable<HoppRESTResponse>>
+function updateEnvsFromTestScript(runResult: TestResult) {
+  setGlobalEnvVariables(runResult.envs.global)
+
+  if (environmentsStore.value.selectedEnvironmentIndex.type === "MY_ENV") {
+    const env = getEnvironment({
+      type: "MY_ENV",
+      index: environmentsStore.value.selectedEnvironmentIndex.index,
+    })
+    updateEnvironment(environmentsStore.value.selectedEnvironmentIndex.index, {
+      ...env,
+      variables: runResult.envs.selected,
+    })
+  } else if (
+    environmentsStore.value.selectedEnvironmentIndex.type === "TEAM_ENV"
+  ) {
+    const env = getEnvironment({
+      type: "TEAM_ENV",
+    })
+    pipe(
+      updateTeamEnvironment(
+        JSON.stringify(runResult.envs.selected),
+        environmentsStore.value.selectedEnvironmentIndex.teamEnvID,
+        env.name
+      )
+    )()
+  }
+}
+
+export function runTestRunnerRequest(request: HoppRESTRequest): Promise<
+  | E.Left<"script_fail">
+  | E.Right<{
+      response: HoppRESTResponse
+      testResult: HoppTestResult
+    }>
+  | undefined
 > {
-  const res = getFinalEnvsFromPreRequest(
+  return getFinalEnvsFromPreRequest(
     request.preRequestScript,
     getCombinedEnvVariables()
   ).then((envs) => {
@@ -395,15 +426,11 @@ export function runTestRunnerRequest(
 
     const [stream] = createRESTNetworkRequestStream(effectiveRequest)
 
-    const subscription = stream
+    const requestResult = stream
       .pipe(filter((res) => res.type === "success" || res.type === "fail"))
-      .subscribe(async (res) => {
-        if (res.type === "success" || res.type === "fail") {
-          executedResponses$.next(
-            // @ts-expect-error Typescript can't figure out this inference for some reason
-            res
-          )
-
+      .toPromise()
+      .then(async (res) => {
+        if (res?.type === "success" || res?.type === "fail") {
           const runResult = await runTestScript(
             res.req.testScript,
             envs.right,
@@ -415,41 +442,20 @@ export function runTestRunnerRequest(
           )
 
           if (E.isRight(runResult)) {
-            request.testResults = translateToSandboxTestResults(runResult.right)
+            const sandboxTestResult = translateToSandboxTestResults(
+              runResult.right
+            )
 
             setGlobalEnvVariables(runResult.right.envs.global)
 
-            if (
-              environmentsStore.value.selectedEnvironmentIndex.type === "MY_ENV"
-            ) {
-              const env = getEnvironment({
-                type: "MY_ENV",
-                index: environmentsStore.value.selectedEnvironmentIndex.index,
-              })
-              updateEnvironment(
-                environmentsStore.value.selectedEnvironmentIndex.index,
-                {
-                  ...env,
-                  variables: runResult.right.envs.selected,
-                }
-              )
-            } else if (
-              environmentsStore.value.selectedEnvironmentIndex.type ===
-              "TEAM_ENV"
-            ) {
-              const env = getEnvironment({
-                type: "TEAM_ENV",
-              })
-              pipe(
-                updateTeamEnvironment(
-                  JSON.stringify(runResult.right.envs.selected),
-                  environmentsStore.value.selectedEnvironmentIndex.teamEnvID,
-                  env.name
-                )
-              )()
-            }
+            updateEnvsFromTestScript(runResult.right)
+
+            return E.right({
+              response: res,
+              testResult: sandboxTestResult,
+            })
           } else {
-            request.testResults = {
+            const sandboxTestResult = {
               description: "",
               expectResults: [],
               tests: [],
@@ -467,16 +473,20 @@ export function runTestRunnerRequest(
               },
               scriptError: true,
             }
+            return E.right({
+              response: res,
+              testResult: sandboxTestResult,
+            })
           }
-
-          subscription.unsubscribe()
         }
       })
 
-    return E.right(stream)
-  })
+    if (requestResult) {
+      return requestResult
+    }
 
-  return res
+    return E.left("script_fail")
+  })
 }
 
 const getAddedEnvVariables = (

@@ -5,6 +5,7 @@ import { TestRunnerConfig } from "~/components/http/test/Runner.vue"
 import { runTestRunnerRequest } from "~/helpers/RequestRunner"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 import { HoppTestResult } from "~/helpers/types/HoppTestResult"
+import * as E from "fp-ts/Either"
 
 export type TestRunState = {
   status: "idle" | "running" | "stopped"
@@ -41,28 +42,35 @@ export class TestRunnerService extends Service {
     super()
   }
 
-  private runTestRequest(
+  private async runTestRequest(
     state: Ref<TestRunState>,
-    request: HoppRESTRequest,
+    request: TestRunnerRequest,
     options: TestRunnerOptions
   ) {
-    runTestRunnerRequest(request)
+    const results = await runTestRunnerRequest(request)
+    if (results && E.isRight(results)) {
+      const { response, testResult } = results.right
+      // Use response and testResult
+      request.testResults = testResult
+      request.response = response
+
+      console.log(request)
+    } else {
+      console.error("Script failed")
+    }
   }
 
-  private runTestCollection(
+  private async runTestCollection(
     state: Ref<TestRunState>,
     collection: HoppCollection<TestRunnerRequest>,
     options: TestRunnerOptions
   ) {
-    if (collection.requests.length) {
-      for (const request of collection.requests) {
-        this.runTestRequest(state, request, options)
-      }
+    for (const folder of collection.folders) {
+      await this.runTestCollection(state, folder, options)
     }
-    if (collection.folders.length) {
-      for (const folder of collection.folders) {
-        this.runTestCollection(state, folder, options)
-      }
+
+    for (const request of collection.requests) {
+      await this.runTestRequest(state, request, options)
     }
   }
 

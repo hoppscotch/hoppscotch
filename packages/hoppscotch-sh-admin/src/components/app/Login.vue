@@ -184,6 +184,10 @@ const nonAdminUser = ref(false);
 const allowedAuthProviders = ref<string[]>([]);
 
 onMounted(async () => {
+  const user = auth.getCurrentUser();
+  if (user && !user.isAdmin) {
+    nonAdminUser.value = true;
+  }
   allowedAuthProviders.value = await getAllowedAuthProviders();
 });
 

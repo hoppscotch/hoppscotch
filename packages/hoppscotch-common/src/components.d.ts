@@ -7,6 +7,8 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    '(chore': test runner service added)
+    '(feat': test runner stop and delay)
     AccessTokens: typeof import('./components/accessTokens/index.vue')['default']
     AccessTokensGenerateModal: typeof import('./components/accessTokens/GenerateModal.vue')['default']
     AccessTokensList: typeof import('./components/accessTokens/List.vue')['default']
@@ -176,6 +178,8 @@ declare module 'vue' {
     HttpTestRunnerConfig: typeof import('./components/http/test/RunnerConfig.vue')['default']
     HttpTestRunnerResult: typeof import('./components/http/test/RunnerResult.vue')['default']
     HttpTests: typeof import('./components/http/Tests.vue')['default']
+    HttpTestSelectRequest: (typeof import("./components/http/test/SelectRequest.vue"))["default"]
+    HttpTestTestResult: typeof import('./components/http/test/TestResult.vue')['default']
     HttpURLEncodedParams: typeof import('./components/http/URLEncodedParams.vue')['default']
     IconLucideActivity: typeof import('~icons/lucide/activity')['default']
     IconLucideAlertTriangle: typeof import('~icons/lucide/alert-triangle')['default']

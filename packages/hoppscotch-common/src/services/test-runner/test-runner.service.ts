@@ -1,11 +1,12 @@
 import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
 import { Service } from "dioc"
-import { Ref, ref, watch } from "vue"
+import * as E from "fp-ts/Either"
+import { cloneDeep } from "lodash-es"
+import { Ref, ref } from "vue"
 import { TestRunnerConfig } from "~/components/http/test/Runner.vue"
 import { runTestRunnerRequest } from "~/helpers/RequestRunner"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 import { HoppTestResult } from "~/helpers/types/HoppTestResult"
-import * as E from "fp-ts/Either"
 
 export type TestRunState = {
   status: "idle" | "running" | "stopped"
@@ -15,7 +16,7 @@ export type TestRunState = {
 }
 
 export type TestRunnerOptions = {
-  stop?: Ref<boolean>
+  stopRef: Ref<boolean>
 } & TestRunnerConfig
 
 export type TestRunnerRequest = HoppRESTRequest & {
@@ -30,6 +31,19 @@ export type TestRunnerRequest = HoppRESTRequest & {
    * (if any)
    */
   testResults?: HoppTestResult | null
+
+  /**
+   * Whether to render the results in the UI
+   */
+  renderResults?: boolean
+}
+
+/**
+ * Delays the execution of the script
+ * @param timeMS The time to wait in milliseconds
+ */
+function delay(timeMS: number) {
+  return new Promise((resolve) => setTimeout(resolve, timeMS))
 }
 
 /**
@@ -54,7 +68,10 @@ export class TestRunnerService extends Service {
       request.testResults = testResult
       request.response = response
 
-      console.log(request)
+      state.value.totalRequests++
+      if (response.type === "success" || response.type === "fail") {
+        state.value.totalTime += response.meta.responseDuration
+      }
     } else {
       console.error("Script failed")
     }
@@ -62,15 +79,25 @@ export class TestRunnerService extends Service {
 
   private async runTestCollection(
     state: Ref<TestRunState>,
-    collection: HoppCollection<TestRunnerRequest>,
+    collection: TestRunState["result"],
     options: TestRunnerOptions
   ) {
     for (const folder of collection.folders) {
+      if (options.stopRef?.value) {
+        state.value.status = "stopped"
+        break
+      }
+      folder.renderResults = options.renderResults
       await this.runTestCollection(state, folder, options)
     }
 
     for (const request of collection.requests) {
+      if (options.stopRef?.value) {
+        state.value.status = "stopped"
+        break
+      }
       await this.runTestRequest(state, request, options)
+      await delay(options.delay ?? 0)
     }
   }
 
@@ -82,19 +109,15 @@ export class TestRunnerService extends Service {
       status: "running",
       totalRequests: 0,
       totalTime: 0,
-      result: collection,
+      result: cloneDeep(collection),
     })
 
-    this.runTestCollection(state, state.value.result, options)
-
-    console.log(collection)
-
-    watch(state.value, (data) => {
-      console.log(
-        `Status: ${data.status} - Requests: ${data.totalRequests} - Time: ${data.totalTime}`,
-        data
-      )
+    state.value.result.renderResults = false
+    this.runTestCollection(state, state.value.result, options).finally(() => {
+      state.value.status = "stopped"
     })
+
+    console.log("collection received in service", collection)
 
     return state
   }

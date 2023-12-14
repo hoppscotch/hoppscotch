@@ -3,7 +3,7 @@ import { isEqual } from "lodash-es"
 import { computed } from "vue"
 import { getDefaultRESTRequest } from "~/helpers/rest/default"
 import {
-  HoppCollectionSaveContext,
+  HoppTestRunnerSaveContext,
   HoppTabDocument,
   HoppRESTSaveContext,
 } from "~/helpers/rest/document"
@@ -54,7 +54,7 @@ export class RESTTabService extends TabService<HoppTabDocument> {
   }))
 
   public getTabRefWithSaveContext(
-    ctx: HoppRESTSaveContext | HoppCollectionSaveContext,
+    ctx: HoppRESTSaveContext | HoppTestRunnerSaveContext,
     type: "request" | "collection" = "request"
   ) {
     for (const tab of this.tabMap.values()) {

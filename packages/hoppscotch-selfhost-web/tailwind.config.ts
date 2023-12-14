@@ -26,6 +26,7 @@ export default {
         lowerFourthStickyFold: "var(--lower-fourth-sticky-fold)",
         sidebarPrimaryStickyFold: "var(--sidebar-primary-sticky-fold)",
         sidebarSecondaryStickyFold: "var(--line-height-body)",
+        propertiesPrimaryStickyFold: "var(--properties-primary-sticky-fold)",
       },
     },
   },

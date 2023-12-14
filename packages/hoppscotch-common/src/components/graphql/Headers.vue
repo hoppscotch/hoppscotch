@@ -1,6 +1,11 @@
 <template>
   <div
-    class="sticky top-sidebarPrimaryStickyFold z-10 flex items-center justify-between border-y border-dividerLight bg-primary pl-4"
+    class="sticky z-10 flex items-center justify-between border-y border-dividerLight bg-primary pl-4"
+    :class="[
+      isCollectionProperty
+        ? 'top-propertiesPrimaryStickyFold'
+        : 'top-sidebarPrimaryStickyFold',
+    ]"
   >
     <label class="font-semibold text-secondaryLight">
       {{ t("tab.headers") }}

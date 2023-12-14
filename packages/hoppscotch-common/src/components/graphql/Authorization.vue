@@ -1,7 +1,12 @@
 <template>
   <div class="flex flex-1 flex-col">
     <div
-      class="sticky top-sidebarPrimaryStickyFold z-10 flex items-center justify-between border-y border-dividerLight bg-primary pl-4"
+      class="sticky z-10 flex items-center justify-between border-y border-dividerLight bg-primary pl-4"
+      :class="[
+        isCollectionProperty
+          ? 'top-propertiesPrimaryStickyFold'
+          : 'top-sidebarPrimaryStickyFold',
+      ]"
     >
       <span class="flex items-center">
         <label class="truncate font-semibold text-secondaryLight">

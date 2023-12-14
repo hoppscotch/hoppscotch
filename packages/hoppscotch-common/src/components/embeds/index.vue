@@ -86,13 +86,13 @@ import { useStreamSubscriber } from "~/composables/stream"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 import { runRESTRequest$ } from "~/helpers/RequestRunner"
 import { HoppTab } from "~/services/tab"
-import { HoppRESTDocument } from "~/helpers/rest/document"
+import { HoppRequestDocument } from "~/helpers/rest/document"
 import IconSave from "~icons/lucide/save"
 const t = useI18n()
 const toast = useToast()
 
 const props = defineProps<{
-  modelTab: HoppTab<HoppRESTDocument>
+  modelTab: HoppTab<HoppRequestDocument>
   properties: string[]
   sharedRequestID: string
 }>()

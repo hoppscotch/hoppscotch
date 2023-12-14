@@ -83,7 +83,7 @@ export type HoppTestRunnerDocument = {
   /**
    * The request as it is in the document
    */
-  result: HoppCollection<HoppRESTRequest>
+  result?: HoppCollection<HoppRESTRequest>
 
   /**
    * Info about where this request should be saved.

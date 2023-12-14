@@ -67,7 +67,7 @@
 import { useI18n } from "@composables/i18n"
 import { useVModel } from "@vueuse/core"
 import { computed, ref } from "vue"
-import { HoppTabDocument } from "~/helpers/rest/document"
+import { HoppTestRunnerDocument } from "~/helpers/rest/document"
 import { HoppTab } from "~/services/tab"
 import IconPlus from "~icons/lucide/plus"
 
@@ -89,10 +89,10 @@ const testRunnerConfig = ref<TestRunnerConfig>({
   keepVariableValues: false,
 })
 
-const props = defineProps<{ modelValue: HoppTab<HoppTabDocument> }>()
+const props = defineProps<{ modelValue: HoppTab<HoppTestRunnerDocument> }>()
 
 const emit = defineEmits<{
-  (e: "update:modelValue", val: HoppTab<HoppTabDocument>): void
+  (e: "update:modelValue", val: HoppTab<HoppTestRunnerDocument>): void
 }>()
 
 const collectionName = computed(() => {

@@ -30,15 +30,9 @@ import IconAlertCircle from "~icons/lucide/alert-circle"
 import IconAlertTriangle from "~icons/lucide/alert-triangle"
 import IconInfo from "~icons/lucide/info"
 
-const props = withDefaults(
-  defineProps<{
-    banner: BannerContent
-    dismissible?: boolean
-  }>(),
-  {
-    dismissible: false,
-  }
-)
+const props = defineProps<{
+  banner: BannerContent
+}>()
 
 const t = useI18n()
 

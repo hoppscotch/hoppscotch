@@ -109,8 +109,8 @@ export function unsetEnv(
 
   // Found a match in globals
   if (indexInGlobal >= 0) {
-    // delete envs.selected[indexInSelected]
-    envs.selected.splice(indexInGlobal, 1)
+    // delete envs.global[indexInSelected]
+    envs.global.splice(indexInGlobal, 1)
 
     return {
       global: envs.global,

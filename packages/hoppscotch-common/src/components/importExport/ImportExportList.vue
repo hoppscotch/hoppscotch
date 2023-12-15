@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col">
-    <HoppSmartExpand>
+    <HoppSmartExpand v-if="showExpand">
       <template #body>
         <HoppSmartItem
           v-for="importer in importers"
@@ -11,6 +11,16 @@
         />
       </template>
     </HoppSmartExpand>
+
+    <div v-else class="flex flex-col space-y-2">
+      <HoppSmartItem
+        v-for="importer in importers"
+        :key="importer.id"
+        :icon="importer.icon"
+        :label="t(`${importer.name}`)"
+        @click="emit('importer-selected', importer.id)"
+      />
+    </div>
     <hr />
     <div class="flex flex-col space-y-2">
       <template v-for="exporter in exporters" :key="exporter.id">
@@ -49,7 +59,7 @@
 
 <script setup lang="ts">
 import { useI18n } from "@composables/i18n"
-import { Component } from "vue"
+import { Component, computed } from "vue"
 
 const t = useI18n()
 
@@ -63,7 +73,7 @@ type ImportExportEntryMeta = {
   isVisible?: boolean
 }
 
-defineProps<{
+const props = defineProps<{
   importers: ImportExportEntryMeta[]
   exporters: ImportExportEntryMeta[]
 }>()
@@ -72,4 +82,6 @@ const emit = defineEmits<{
   (e: "importer-selected", importerID: string): void
   (e: "exporter-selected", exporterID: string): void
 }>()
+
+const showExpand = computed(() => props.importers.length >= 4)
 </script>

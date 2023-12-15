@@ -214,7 +214,7 @@
     <AppBanner
       v-if="bannerContent"
       :banner="bannerContent"
-      :dismissible="true"
+      :dismissable="bannerContent.dismissible"
       @dismiss="dismissOfflineBanner"
     />
     <TeamsModal :show="showTeamsModal" @hide-modal="showTeamsModal = false" />
@@ -295,6 +295,7 @@ const offlineBanner: BannerContent = {
   text: (t) => t("helpers.offline"),
   alternateText: (t) => t("helpers.offline_short"),
   score: BANNER_PRIORITY_HIGH,
+  dismissible: true,
 }
 
 const network = reactive(useNetwork())

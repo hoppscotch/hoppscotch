@@ -399,6 +399,9 @@ importers:
       '@hoppscotch/js-sandbox':
         specifier: workspace:^
         version: link:../hoppscotch-js-sandbox
+      '@hoppscotch/ui':
+        specifier: ^0.0.13
+        version: 0.0.13(eslint@8.55.0)(terser@5.24.0)(vite@4.5.0)(vue@3.3.9)
       '@hoppscotch/vue-toasted':
         specifier: ^0.1.0
         version: 0.1.0(vue@3.3.9)
@@ -1067,8 +1070,8 @@ importers:
         specifier: workspace:^
         version: link:../hoppscotch-data
       '@hoppscotch/ui':
-        specifier: ^0.0.1
-        version: 0.0.1(eslint@8.55.0)(terser@5.24.0)(vite@4.5.0)(vue@3.3.9)
+        specifier: ^0.0.13
+        version: 0.0.13(eslint@8.55.0)(terser@5.24.0)(vite@4.5.0)(vue@3.3.9)
       '@import-meta-env/unplugin':
         specifier: ^0.4.10
         version: 0.4.10(dotenv@16.3.1)
@@ -4205,6 +4208,14 @@ packages:
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
     dev: true
 
+  /@boringer-avatars/vue3@0.2.1(vue@3.3.9):
+    resolution: {integrity: sha512-KzAfh31SDXToTvFL0tBNG5Ur+VzfD1PP4jmY5/GS+eIuObGTIAiUu9eiht0LjuAGI+0xCgnaEgsTrOx8H3vLOQ==}
+    peerDependencies:
+      vue: 3.3.9
+    dependencies:
+      vue: 3.3.9(typescript@5.3.2)
+    dev: false
+
   /@codemirror/autocomplete@6.11.1(@codemirror/language@6.9.3)(@codemirror/state@6.3.3)(@codemirror/view@6.22.3)(@lezer/common@1.0.3):
     resolution: {integrity: sha512-L5UInv8Ffd6BPw0P3EF7JLYAMeEbclY7+6Q11REt8vhih8RuLreKtPy/xk8wPxs4EQgYqzI7cdgpiYwWlbS/ow==}
     peerDependencies:
@@ -7036,12 +7047,13 @@ packages:
       - vite
     dev: false
 
-  /@hoppscotch/ui@0.0.1(eslint@8.55.0)(terser@5.24.0)(vite@4.5.0)(vue@3.3.9):
-    resolution: {integrity: sha512-1sPqya1iH6ipwuo98oxhW0VgwqmV7DdhzCXbaMBbZPr5NjxmwcWBL0YrFHd544VzeSVjXjJ4Mzncwr5R+tOHQg==}
+  /@hoppscotch/ui@0.0.13(eslint@8.55.0)(terser@5.24.0)(vite@4.5.0)(vue@3.3.9):
+    resolution: {integrity: sha512-bxBwKYysVWEAGGV3MWuUBSh1utqQ7m+eaSArfLudA5JjVvBXo1rM2sxHgHlsUsmqsPnL60Q36lxq9Wmfm188ug==}
     engines: {node: '>=16'}
     peerDependencies:
       vue: 3.3.9
     dependencies:
+      '@boringer-avatars/vue3': 0.2.1(vue@3.3.9)
       '@fontsource-variable/inter': 5.0.15
       '@fontsource-variable/material-symbols-rounded': 5.0.16
       '@fontsource-variable/roboto-mono': 5.0.16
@@ -11052,7 +11064,7 @@ packages:
     dependencies:
       '@vue/compiler-ssr': 3.3.9
       '@vue/shared': 3.3.9
-      vue: 3.3.9(typescript@5.3.2)
+      vue: 3.3.9(typescript@4.9.5)
 
   /@vue/shared@3.2.45:
     resolution: {integrity: sha512-Ewzq5Yhimg7pSztDV+RH1UDKBzmtqieXQlpTVm2AwraoRL/Rks96mvd8Vgi7Lj+h+TH8dv7mXD3FRZR3TUvbSg==}

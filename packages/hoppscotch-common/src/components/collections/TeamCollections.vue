@@ -366,10 +366,7 @@ import { useI18n } from "@composables/i18n"
 import { useColorMode } from "@composables/theming"
 import { TeamCollection } from "~/helpers/teams/TeamCollection"
 import { TeamRequest } from "~/helpers/teams/TeamRequest"
-import {
-  ChildrenResult,
-  SmartTreeAdapter,
-} from "@hoppscotch/ui/dist/helpers/treeAdapter"
+import { ChildrenResult, SmartTreeAdapter } from "@hoppscotch/ui/helpers"
 import { cloneDeep } from "lodash-es"
 import { HoppRESTRequest } from "@hoppscotch/data"
 import { pipe } from "fp-ts/function"

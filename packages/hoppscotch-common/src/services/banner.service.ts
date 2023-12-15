@@ -15,6 +15,7 @@ export type BannerContent = {
   alternateText?: (t: ReturnType<typeof getI18n>) => string
   // Used to determine which banner should be displayed when multiple banners are present
   score: number
+  dismissible?: boolean
 }
 
 export type Banner = {

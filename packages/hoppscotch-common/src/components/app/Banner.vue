@@ -14,7 +14,7 @@
       </span>
     </div>
     <icon-lucide-x
-      v-if="dismissible"
+      v-if="banner.dismissible"
       class="opacity-50 hover:cursor-pointer hover:opacity-100"
       @click="emit('dismiss')"
     />

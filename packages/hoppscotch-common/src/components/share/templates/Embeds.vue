@@ -1,28 +1,28 @@
 <template>
   <div
     class="flex flex-col p-4 border rounded border-dividerDark"
-    :class="[embedColours]"
+    :class="embedColours"
   >
-    <div class="flex items-stretch space-x-2" :class="[embedColours]">
+    <div class="flex items-stretch space-x-2">
       <span
         class="flex items-center flex-1 min-w-0 border rounded"
-        :class="[embedColours]"
+        :class="embedColours"
       >
         <span
           class="flex max-w-[4rem] rounded-l h-full items-center justify-center border-r text-tiny"
-          :class="[embedColours]"
+          :class="embedColours"
         >
           <span class="px-3 truncate text-xs">
             {{ method }}
           </span>
         </span>
-        <span class="px-3 truncate" :class="[embedColours]">
+        <span class="px-3 truncate">
           {{ endpoint }}
         </span>
       </span>
       <button
         class="flex items-center justify-center flex-shrink-0 px-3 py-2 font-semibold border rounded"
-        :class="[embedColours]"
+        :class="embedColours"
       >
         {{ t("action.send") }}
       </button>
@@ -38,7 +38,6 @@
         class="p-2"
         :class="[
           {
-            embedColours,
             'border-b ':
               embedOptions.tabs.filter((tab) => tab.enabled)[0]?.value ===
               option.value,
@@ -53,10 +52,10 @@
 </template>
 
 <script lang="ts" setup>
-import { useVModel } from "@vueuse/core"
+import { usePreferredDark, useVModel } from "@vueuse/core"
 import { computed } from "vue"
+
 import { useI18n } from "~/composables/i18n"
-import { usePreferredDark } from "@vueuse/core"
 
 type Tabs = "parameters" | "body" | "headers" | "authorization"
 
@@ -87,16 +86,17 @@ const noActiveTab = computed(() => {
 const systemPrefersDark = usePreferredDark()
 
 const embedColours = computed(() => {
-  const theme = embedOptions.value.theme
+  const { theme } = embedOptions.value
 
-  const darkThemeColours = "bg-dark-800 text-white !border-dark-50"
-  const lightThemeColours = "bg-white !text-black !border-white-50"
+  const darkThemeClasses = "bg-dark-800 text-white !border-dark-50"
+  const lightThemeClasses = "bg-white text-black !border-white-50"
 
-  if (theme === "dark") {
-    return darkThemeColours
-  } else if (theme === "light") {
-    return lightThemeColours
+  const colorThemeMap = {
+    light: lightThemeClasses,
+    dark: darkThemeClasses,
+    system: systemPrefersDark.value ? darkThemeClasses : lightThemeClasses,
   }
-  return systemPrefersDark.value ? darkThemeColours : lightThemeColours
+
+  return colorThemeMap[theme]
 })
 </script>

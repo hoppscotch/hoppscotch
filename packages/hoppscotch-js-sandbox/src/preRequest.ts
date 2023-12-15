@@ -5,7 +5,7 @@ import * as TE from "fp-ts/lib/TaskEither"
 import * as qjs from "quickjs-emscripten"
 import cloneDeep from "lodash/clone"
 import { Environment, parseTemplateStringE } from "@hoppscotch/data"
-import { getEnv, setEnv } from "./utils"
+import { getEnv, setEnv, unsetEnv } from "./utils"
 
 type Envs = {
   global: Environment["variables"]
@@ -110,6 +110,22 @@ export const execPreRequestScript = (
         }
       })
 
+      const envUnsetHandle = vm.newFunction("unset", (keyHandle) => {
+        const key: unknown = vm.dump(keyHandle)
+
+        if (typeof key !== "string") {
+          return {
+            error: vm.newString("Expected key to be a string"),
+          }
+        }
+
+        currentEnvs = unsetEnv(key, currentEnvs)
+
+        return {
+          value: vm.undefined,
+        }
+      })
+
       const envResolveHandle = vm.newFunction("resolve", (valueHandle) => {
         const value: unknown = vm.dump(valueHandle)
 
@@ -137,6 +153,9 @@ export const execPreRequestScript = (
 
       vm.setProp(envHandle, "set", envSetHandle)
       envSetHandle.dispose()
+
+      vm.setProp(envHandle, "unset", envUnsetHandle)
+      envUnsetHandle.dispose()
 
       vm.setProp(envHandle, "getResolve", envGetResolveHandle)
       envGetResolveHandle.dispose()

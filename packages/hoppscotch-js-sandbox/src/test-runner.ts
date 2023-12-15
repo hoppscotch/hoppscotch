@@ -5,7 +5,7 @@ import { pipe } from "fp-ts/function"
 import * as qjs from "quickjs-emscripten"
 import { Environment, parseTemplateStringE } from "@hoppscotch/data"
 import cloneDeep from "lodash/cloneDeep"
-import { getEnv, marshalObjectToVM, setEnv } from "./utils"
+import { getEnv, marshalObjectToVM, setEnv, unsetEnv } from "./utils"
 
 /**
  * The response object structure exposed to the test script
@@ -550,6 +550,22 @@ export const execTestScript = (
           }
         })
 
+        const envUnsetHandle = vm.newFunction("unset", (keyHandle) => {
+          const key: unknown = vm.dump(keyHandle)
+
+          if (typeof key !== "string") {
+            return {
+              error: vm.newString("Expected key to be a string"),
+            }
+          }
+
+          currentEnvs = unsetEnv(key, currentEnvs)
+
+          return {
+            value: vm.undefined,
+          }
+        })
+
         const envResolveHandle = vm.newFunction("resolve", (valueHandle) => {
           const value: unknown = vm.dump(valueHandle)
 
@@ -577,6 +593,9 @@ export const execTestScript = (
 
         vm.setProp(envHandle, "set", envSetHandle)
         envSetHandle.dispose()
+
+        vm.setProp(envHandle, "unset", envUnsetHandle)
+        envUnsetHandle.dispose()
 
         vm.setProp(envHandle, "getResolve", envGetResolveHandle)
         envGetResolveHandle.dispose()

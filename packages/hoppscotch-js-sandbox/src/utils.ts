@@ -87,3 +87,40 @@ export function setEnv(
     selected: envs.selected,
   }
 }
+
+export function unsetEnv(
+  envName: string,
+  envs: TestResult["envs"]
+): TestResult["envs"] {
+  const indexInSelected = envs.selected.findIndex((x) => x.key === envName)
+
+  // Found the match in selected
+  if (indexInSelected >= 0) {
+    // delete envs.selected[indexInSelected]
+    envs.selected.splice(indexInSelected, 1)
+
+    return {
+      global: envs.global,
+      selected: envs.selected,
+    }
+  }
+
+  const indexInGlobal = envs.global.findIndex((x) => x.key == envName)
+
+  // Found a match in globals
+  if (indexInGlobal >= 0) {
+    // delete envs.selected[indexInSelected]
+    envs.selected.splice(indexInGlobal, 1)
+
+    return {
+      global: envs.global,
+      selected: envs.selected,
+    }
+  }
+
+  // Didn't find in both places
+  return {
+    global: envs.global,
+    selected: envs.selected,
+  }
+}

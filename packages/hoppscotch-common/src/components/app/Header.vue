@@ -214,7 +214,6 @@
     <AppBanner
       v-if="bannerContent"
       :banner="bannerContent"
-      :dismissable="bannerContent.dismissible"
       @dismiss="dismissOfflineBanner"
     />
     <TeamsModal :show="showTeamsModal" @hide-modal="showTeamsModal = false" />

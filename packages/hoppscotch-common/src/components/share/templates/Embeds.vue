@@ -56,7 +56,6 @@
 import { useVModel } from "@vueuse/core"
 import { computed } from "vue"
 import { useI18n } from "~/composables/i18n"
-import { useSetting } from "~/composables/settings"
 import { usePreferredDark } from "@vueuse/core"
 
 type Tabs = "parameters" | "body" | "headers" | "authorization"
@@ -85,7 +84,6 @@ const noActiveTab = computed(() => {
   return embedOptions.value.tabs.every((tab) => !tab.enabled)
 })
 
-const systemTheme = useSetting("BG_COLOR")
 const systemPrefersDark = usePreferredDark()
 
 const embedColours = computed(() => {
@@ -98,10 +96,7 @@ const embedColours = computed(() => {
     return darkThemeColours
   } else if (theme === "light") {
     return lightThemeColours
-  } else if (systemTheme.value === "system") {
-    return systemPrefersDark.value ? darkThemeColours : lightThemeColours
   }
-
-  return darkThemeColours
+  return systemPrefersDark.value ? darkThemeColours : lightThemeColours
 })
 </script>

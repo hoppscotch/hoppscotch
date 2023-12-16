@@ -1371,6 +1371,9 @@ importers:
       graphql-tag:
         specifier: ^2.12.6
         version: 2.12.6(graphql@16.6.0)
+      hoppscotch-backend:
+        specifier: workspace:^
+        version: link:../hoppscotch-backend
       npm-run-all:
         specifier: ^4.1.5
         version: 4.1.5
@@ -4216,7 +4219,7 @@ packages:
     peerDependencies:
       vue: 3.3.9
     dependencies:
-      vue: 3.3.9(typescript@4.9.5)
+      vue: 3.3.9(typescript@5.3.2)
 
   /@codemirror/autocomplete@6.11.1(@codemirror/language@6.9.3)(@codemirror/state@6.3.3)(@codemirror/view@6.22.3)(@lezer/common@1.0.3):
     resolution: {integrity: sha512-L5UInv8Ffd6BPw0P3EF7JLYAMeEbclY7+6Q11REt8vhih8RuLreKtPy/xk8wPxs4EQgYqzI7cdgpiYwWlbS/ow==}
@@ -7038,7 +7041,7 @@ packages:
       lodash-es: 4.17.21
       path: 0.12.7
       vite-plugin-eslint: 1.8.1(eslint@8.55.0)(vite@3.2.4)
-      vue: 3.3.9(typescript@4.9.5)
+      vue: 3.3.9(typescript@4.9.3)
       vuedraggable-es: 4.1.1(vue@3.3.9)
     transitivePeerDependencies:
       - '@vue/composition-api'
@@ -7077,7 +7080,7 @@ packages:
     peerDependencies:
       vue: 3.3.9
     dependencies:
-      vue: 3.3.9(typescript@4.9.5)
+      vue: 3.3.9(typescript@5.3.2)
 
   /@humanwhocodes/config-array@0.11.10:
     resolution: {integrity: sha512-KVVjQmNUepDVGXNuoRRdmmEjruj0KfiGSbS8LVc12LMsWDQzRXJ0qdhN8L8uUigKpfEHRhlaQFY0ib1tnUbNeQ==}
@@ -10604,7 +10607,7 @@ packages:
       regenerator-runtime: 0.13.11
       systemjs: 6.14.2
       terser: 5.24.0
-      vite: 3.2.4(@types/node@17.0.27)(terser@5.24.0)
+      vite: 3.2.4(@types/node@18.18.8)(sass@1.58.0)(terser@5.24.0)
 
   /@vitejs/plugin-legacy@2.3.0(terser@5.24.0)(vite@4.5.0):
     resolution: {integrity: sha512-Bh62i0gzQvvT8AeAAb78nOnqSYXypkRmQmOTImdPZ39meHR9e2une3AIFmVo4s1SDmcmJ6qj18Sa/lRc/14KaA==}
@@ -11122,7 +11125,7 @@ packages:
       '@types/web-bluetooth': 0.0.14
       '@vueuse/metadata': 8.7.5
       '@vueuse/shared': 8.7.5(vue@3.3.9)
-      vue: 3.3.9(typescript@4.9.5)
+      vue: 3.3.9(typescript@5.3.2)
       vue-demi: 0.14.6(vue@3.3.9)
 
   /@vueuse/core@9.12.0(vue@3.3.9):
@@ -11181,7 +11184,7 @@ packages:
       vue:
         optional: true
     dependencies:
-      vue: 3.3.9(typescript@4.9.5)
+      vue: 3.3.9(typescript@5.3.2)
       vue-demi: 0.14.6(vue@3.3.9)
 
   /@vueuse/shared@9.12.0(vue@3.3.9):
@@ -24704,7 +24707,7 @@ packages:
       '@types/eslint': 8.44.3
       eslint: 8.55.0
       rollup: 2.79.1
-      vite: 3.2.4(@types/node@17.0.27)(terser@5.24.0)
+      vite: 3.2.4(@types/node@18.18.8)(sass@1.58.0)(terser@5.24.0)
 
   /vite-plugin-eslint@1.8.1(eslint@8.55.0)(vite@4.5.0):
     resolution: {integrity: sha512-PqdMf3Y2fLO9FsNPmMX+//2BF5SF8nEWspZdgl4kSt7UvHDRHVVfHvxsD7ULYzZrJDGRxR81Nq7TOFgwMnUang==}
@@ -25021,40 +25024,6 @@ packages:
     transitivePeerDependencies:
       - supports-color
     dev: true
-
-  /vite@3.2.4(@types/node@17.0.27)(terser@5.24.0):
-    resolution: {integrity: sha512-Z2X6SRAffOUYTa+sLy3NQ7nlHFU100xwanq1WDwqaiFiCe+25zdxP1TfCS5ojPV2oDDcXudHIoPnI1Z/66B7Yw==}
-    engines: {node: ^14.18.0 || >=16.0.0}
-    hasBin: true
-    peerDependencies:
-      '@types/node': '>= 14'
-      less: '*'
-      sass: '*'
-      stylus: '*'
-      sugarss: '*'
-      terser: ^5.4.0
-    peerDependenciesMeta:
-      '@types/node':
-        optional: true
-      less:
-        optional: true
-      sass:
-        optional: true
-      stylus:
-        optional: true
-      sugarss:
-        optional: true
-      terser:
-        optional: true
-    dependencies:
-      '@types/node': 17.0.27
-      esbuild: 0.15.15
-      postcss: 8.4.31
-      resolve: 1.22.4
-      rollup: 2.79.1
-      terser: 5.24.0
-    optionalDependencies:
-      fsevents: 2.3.3
 
   /vite@3.2.4(@types/node@18.18.8)(sass@1.58.0)(terser@5.24.0):
     resolution: {integrity: sha512-Z2X6SRAffOUYTa+sLy3NQ7nlHFU100xwanq1WDwqaiFiCe+25zdxP1TfCS5ojPV2oDDcXudHIoPnI1Z/66B7Yw==}
@@ -25478,7 +25447,7 @@ packages:
       '@vue/composition-api':
         optional: true
     dependencies:
-      vue: 3.3.9(typescript@4.9.5)
+      vue: 3.3.9(typescript@5.3.2)
 
   /vue-eslint-parser@9.3.1(eslint@8.47.0):
     resolution: {integrity: sha512-Clr85iD2XFZ3lJ52/ppmUDG/spxQu6+MAeHXjjyI4I1NUYZ9xmenQp4N0oaHJhrA8OOxltCVxMRfANGa70vU0g==}
@@ -25674,7 +25643,7 @@ packages:
       vue: 3.3.9
     dependencies:
       sortablejs: 1.14.0
-      vue: 3.3.9(typescript@4.9.5)
+      vue: 3.3.9(typescript@5.3.2)
 
   /w3c-hr-time@1.0.2:
     resolution: {integrity: sha512-z8P5DvDNjKDoFIHK7q8r8lackT6l+jo/Ye3HOle7l9nICP9lf1Ci25fy9vHd0JOWewkIFzXIEig3TdKT7JQ5fQ==}

@@ -48,6 +48,7 @@
     "vue-tippy": "6.0.0-alpha.58"
   },
   "devDependencies": {
+    "hoppscotch-backend": "workspace:^",
     "@graphql-codegen/cli": "3.0.0",
     "@graphql-codegen/client-preset": "^2.0.0",
     "@graphql-codegen/introspection": "3.0.0",

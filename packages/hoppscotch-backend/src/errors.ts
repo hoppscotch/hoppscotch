@@ -681,4 +681,4 @@ export const INFRA_CONFIG_INVALID_INPUT = 'infra_config/invalid_input' as const;
  * (InfraConfigService)
  */
 export const DATABASE_TABLE_NOT_EXIST =
-  'Database migration not performed. Please check the FAQ for assistance: https://docs.hoppscotch.io/support/faq';
+  'Database migration not performed. Please check the FAQ for assistance: https://docs.hoppscotch.io/support/getting-started/faq';

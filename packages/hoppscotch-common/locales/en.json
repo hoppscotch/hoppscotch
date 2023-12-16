@@ -33,7 +33,7 @@
     "open_workspace": "Open workspace",
     "paste": "Paste",
     "prettify": "Prettify",
-    "properties":"Properties",
+    "properties": "Properties",
     "remove": "Remove",
     "rename": "Rename",
     "restore": "Restore",
@@ -57,24 +57,6 @@
   "add": {
     "new": "Add new",
     "star": "Add star"
-  },
-  "cookies": {
-    "modal": {
-      "new_domain_name": "New domain name",
-      "set": "Set a cookie",
-      "cookie_string": "Cookie string",
-      "enter_cookie_string": "Enter cookie string",
-      "cookie_name": "Name",
-      "cookie_value": "Value",
-      "cookie_path": "Path",
-      "cookie_expires": "Expires",
-      "managed_tab": "Managed",
-      "raw_tab": "Raw",
-      "interceptor_no_support": "Your currently selected interceptor does not support cookies. Select a different Interceptor and try again.",
-      "empty_domains": "Domain list is empty",
-      "empty_domain": "Domain is empty",
-      "no_cookies_in_domain": "No cookies set for this domain"
-    }
   },
   "app": {
     "chat_with_us": "Chat with us",
@@ -141,26 +123,26 @@
     "include_in_url": "Include in URL",
     "inherited_from": "Inherited from {auth} from Parent Collection {collection} ",
     "learn": "Learn how",
+    "oauth": {
+      "redirect_auth_server_returned_error": "Auth Server returned an error state",
+      "redirect_auth_token_request_failed": "Request to get the auth token failed",
+      "redirect_auth_token_request_invalid_response": "Invalid Response from the Token Endpoint when requesting for an auth token",
+      "redirect_invalid_state": "Invalid State value present in the redirect",
+      "redirect_no_auth_code": "No Authorization Code present in the redirect",
+      "redirect_no_client_id": "No Client ID defined",
+      "redirect_no_client_secret": "No Client Secret Defined",
+      "redirect_no_code_verifier": "No Code Verifier Defined",
+      "redirect_no_token_endpoint": "No Token Endpoint Defined",
+      "something_went_wrong_on_oauth_redirect": "Something went wrong during OAuth Redirect",
+      "something_went_wrong_on_token_generation": "Something went wrong on token generation",
+      "token_generation_oidc_discovery_failed": "Failure on token generation: OpenID Connect Discovery Failed"
+    },
     "pass_key_by": "Pass by",
     "password": "Password",
     "save_to_inherit": "Please save this request in any collection to inherit the authorization",
     "token": "Token",
     "type": "Authorization Type",
-    "username": "Username",
-    "oauth": {
-      "token_generation_oidc_discovery_failed": "Failure on token generation: OpenID Connect Discovery Failed",
-      "something_went_wrong_on_token_generation": "Something went wrong on token generation",
-      "redirect_auth_server_returned_error": "Auth Server returned an error state",
-      "redirect_no_auth_code": "No Authorization Code present in the redirect",
-      "redirect_invalid_state": "Invalid State value present in the redirect",
-      "redirect_no_token_endpoint": "No Token Endpoint Defined",
-      "redirect_no_client_id": "No Client ID defined",
-      "redirect_no_client_secret": "No Client Secret Defined",
-      "redirect_no_code_verifier": "No Code Verifier Defined",
-      "redirect_auth_token_request_failed": "Request to get the auth token failed",
-      "redirect_auth_token_request_invalid_response": "Invalid Response from the Token Endpoint when requesting for an auth token",
-      "something_went_wrong_on_oauth_redirect": "Something went wrong during OAuth Redirect"
-    }
+    "username": "Username"
   },
   "collection": {
     "created": "Collection created",
@@ -175,7 +157,7 @@
     "name_length_insufficient": "Collection name should be at least 3 characters long",
     "new": "New Collection",
     "order_changed": "Collection Order Updated",
-    "properties":"Collection Properties",
+    "properties": "Collection Properties",
     "properties_updated": "Collection Properties Updated",
     "renamed": "Collection renamed",
     "request_in_use": "Request in use",
@@ -208,6 +190,24 @@
     "open_request_in_new_tab": "Open request in new tab",
     "set_environment_variable": "Set as variable"
   },
+  "cookies": {
+    "modal": {
+      "cookie_expires": "Expires",
+      "cookie_name": "Name",
+      "cookie_path": "Path",
+      "cookie_string": "Cookie string",
+      "cookie_value": "Value",
+      "empty_domain": "Domain is empty",
+      "empty_domains": "Domain list is empty",
+      "enter_cookie_string": "Enter cookie string",
+      "interceptor_no_support": "Your currently selected interceptor does not support cookies. Select a different Interceptor and try again.",
+      "managed_tab": "Managed",
+      "new_domain_name": "New domain name",
+      "no_cookies_in_domain": "No cookies set for this domain",
+      "raw_tab": "Raw",
+      "set": "Set a cookie"
+    }
+  },
   "count": {
     "header": "Header {count}",
     "message": "Message {count}",
@@ -238,8 +238,8 @@
     "profile": "Login to view your profile",
     "protocols": "Protocols are empty",
     "schema": "Connect to a GraphQL endpoint to view schema",
-    "shared_requests_logout": "Login to view your shared requests or create a new one",
     "shared_requests": "Shared requests are empty",
+    "shared_requests_logout": "Login to view your shared requests or create a new one",
     "subscription": "Subscriptions are empty",
     "team_name": "Team name empty",
     "teams": "You don't belong to any teams",
@@ -279,10 +279,8 @@
     "variable": "Variable",
     "variable_list": "Variable List"
   },
-  "graphql_collections": {
-    "title": "GraphQL Collections"
-  },
   "error": {
+    "authproviders_load_error": "Unable to load auth providers",
     "browser_support_sse": "This browser doesn't seems to have Server Sent Events support.",
     "check_console_details": "Check console log for details.",
     "check_how_to_add_origin": "Check how you can add an origin",
@@ -310,16 +308,15 @@
     "proxy_error": "Proxy error",
     "script_fail": "Could not execute pre-request script",
     "something_went_wrong": "Something went wrong",
-    "test_script_fail": "Could not execute post-request script",
-    "authproviders_load_error": "Unable to load auth providers"
+    "test_script_fail": "Could not execute post-request script"
   },
   "export": {
     "as_json": "Export as JSON",
     "create_secret_gist": "Create secret Gist",
+    "failed": "Something went wrong while exporting",
     "gist_created": "Gist created",
     "require_github": "Login with GitHub to create secret gist",
-    "title": "Export",
-    "failed": "Something went wrong while exporting"
+    "title": "Export"
   },
   "filter": {
     "all": "All",
@@ -343,6 +340,9 @@
     "subscriptions": "Subscriptions",
     "switch_connection": "Switch connection"
   },
+  "graphql_collections": {
+    "title": "GraphQL Collections"
+  },
   "group": {
     "time": "Time",
     "url": "URL"
@@ -354,14 +354,14 @@
   },
   "helpers": {
     "authorization": "The authorization header will be automatically generated when you send the request.",
+    "collection_properties_authorization": " This authorization will be set for every request in this collection.",
+    "collection_properties_header": "This header will be set for every request in this collection.",
     "generate_documentation_first": "Generate documentation first",
     "network_fail": "Unable to reach the API endpoint. Check your network connection or select a different Interceptor and try again.",
     "offline": "You're using Hoppscotch offline. Updates will sync when you're online, based on workspace settings.",
     "offline_short": "You're using Hoppscotch offline.",
     "post_request_tests": "Test scripts are written in JavaScript, and are run after the response is received.",
     "pre_request_script": "Pre-request scripts are written in JavaScript, and are run before the request is sent.",
-    "collection_properties_authorization": " This authorization will be set for every request in this collection.",
-    "collection_properties_header": "This header will be set for every request in this collection.",
     "script_fail": "It seems there is a glitch in the pre-request script. Check the error below and fix the script accordingly.",
     "test_script_fail": "There seems to be an error with test script. Please fix the errors and run tests again",
     "tests": "Write a test script to automate debugging."
@@ -375,7 +375,10 @@
   "import": {
     "collections": "Import collections",
     "curl": "Import cURL",
+    "environments_from_gist": "Import From Gist",
+    "environments_from_gist_description": "Import Hoppscotch Environments From Gist",
     "failed": "Error while importing: format not recognized",
+    "from_file": "Import from File",
     "from_gist": "Import from Gist",
     "from_gist_description": "Import from Gist URL",
     "from_insomnia": "Import from Insomnia",
@@ -388,23 +391,20 @@
     "from_openapi_description": "Import from OpenAPI specification file (YML/JSON)",
     "from_postman": "Import from Postman",
     "from_postman_description": "Import from Postman collection",
-    "from_file": "Import from File",
     "from_url": "Import from URL",
     "gist_url": "Enter Gist URL",
+    "gql_collections_from_gist_description": "Import GraphQL Collections From Gist",
+    "hoppscotch_environment": "Hoppscotch Environment",
+    "hoppscotch_environment_description": "Import Hoppscotch Environment JSON file",
     "import_from_url_invalid_fetch": "Couldn't get data from the url",
     "import_from_url_invalid_file_format": "Error while importing collections",
     "import_from_url_invalid_type": "Unsupported type. accepted values are 'hoppscotch', 'openapi', 'postman', 'insomnia'",
     "import_from_url_success": "Collections Imported",
+    "insomnia_environment_description": "Import Insomnia Environment from a JSON/YAML file",
     "json_description": "Import collections from a Hoppscotch Collections JSON file",
-    "title": "Import",
-    "hoppscotch_environment": "Hoppscotch Environment",
-    "hoppscotch_environment_description": "Import Hoppscotch Environment JSON file",
     "postman_environment": "Postman Environment",
     "postman_environment_description": "Import Postman Environment from a JSON file",
-    "insomnia_environment_description": "Import Insomnia Environment from a JSON/YAML file",
-    "environments_from_gist": "Import From Gist",
-    "environments_from_gist_description": "Import Hoppscotch Environments From Gist",
-    "gql_collections_from_gist_description": "Import GraphQL Collections From Gist"
+    "title": "Import"
   },
   "inspections": {
     "description": "Inspect possible errors",
@@ -443,8 +443,8 @@
     "confirm": "Confirm",
     "customize_request": "Customize Request",
     "edit_request": "Edit Request",
-    "share_request": "Share Request",
-    "import_export": "Import / Export"
+    "import_export": "Import / Export",
+    "share_request": "Share Request"
   },
   "mqtt": {
     "already_subscribed": "You are already subscribed to this topic.",
@@ -585,6 +585,7 @@
     "account_description": "Customize your account settings.",
     "account_email_description": "Your primary email address.",
     "account_name_description": "This is your display name.",
+    "additional": "Additional Settings",
     "background": "Background",
     "black_mode": "Black",
     "choose_language": "Choose language",
@@ -629,17 +630,16 @@
     "use_experimental_url_bar": "Use experimental URL bar with environment highlighting",
     "user": "User",
     "verified_email": "Verified email",
-    "additional": "Additional Settings",
     "verify_email": "Verify email"
   },
   "shared_requests": {
     "button": "Button",
     "button_info": "Create a 'Run in Hoppscotch' button for your website, blog or a README.",
-    "customize": "Customize",
-    "creating_widget": "Creating widget",
     "copy_html": "Copy HTML",
     "copy_link": "Copy Link",
     "copy_markdown": "Copy Markdown",
+    "creating_widget": "Creating widget",
+    "customize": "Customize",
     "deleted": "Shared request deleted",
     "description": "Select a widget, you can change and customize this later",
     "embed": "Embed",
@@ -700,8 +700,8 @@
       "save_request": "Save Request",
       "save_to_collections": "Save to Collections",
       "send_request": "Send Request",
-      "show_code": "Generate code snippet",
       "share_request": "Share Request",
+      "show_code": "Generate code snippet",
       "title": "Request"
     },
     "response": {
@@ -825,16 +825,16 @@
     "connection_error": "Failed to connect",
     "connection_failed": "Connection failed",
     "connection_lost": "Connection lost",
-    "copied_to_clipboard": "Copied to clipboard",
     "copied_interface_to_clipboard": "Copied {language} interface type to clipboard",
+    "copied_to_clipboard": "Copied to clipboard",
     "deleted": "Deleted",
     "deprecated": "DEPRECATED",
     "disabled": "Disabled",
     "disconnected": "Disconnected",
     "disconnected_from": "Disconnected from {name}",
     "docs_generated": "Documentation generated",
-    "download_started": "Download started",
     "download_failed": "Download failed",
+    "download_started": "Download started",
     "enabled": "Enabled",
     "file_imported": "File imported",
     "finished_in": "Finished in {duration} ms",
@@ -902,6 +902,7 @@
     "email_do_not_match": "Email doesn't match with your account details. Contact your team owner.",
     "exit": "Exit Team",
     "exit_disabled": "Only owner cannot exit the team",
+    "failed_invites": "Failed invites",
     "invalid_coll_id": "Invalid collection ID",
     "invalid_email_format": "Email format is invalid",
     "invalid_id": "Invalid team ID. Contact your team owner.",
@@ -938,13 +939,12 @@
     "not_found": "Team not found. Contact your team owner.",
     "not_valid_viewer": "You are not a valid viewer. Contact your team owner.",
     "parent_coll_move": "Cannot move collection to a child collection",
-    "success_invites": "Success invites",
-    "failed_invites": "Failed invites",
     "pending_invites": "Pending invites",
     "permissions": "Permissions",
     "same_target_destination": "Same target and destination",
     "saved": "Team saved",
     "select_a_team": "Select a team",
+    "success_invites": "Success invites",
     "title": "Teams",
     "we_sent_invite_link": "We sent an invite link to all invitees!",
     "we_sent_invite_link_description": "Ask all invitees to check their inbox. Click on the link to join the team."

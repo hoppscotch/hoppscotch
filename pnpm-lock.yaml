@@ -400,8 +400,8 @@ importers:
         specifier: workspace:^
         version: link:../hoppscotch-js-sandbox
       '@hoppscotch/ui':
-        specifier: ^0.0.13
-        version: 0.0.13(eslint@8.55.0)(terser@5.24.0)(vite@4.5.0)(vue@3.3.9)
+        specifier: ^0.1.0
+        version: 0.1.0(eslint@8.55.0)(terser@5.24.0)(vite@4.5.0)(vue@3.3.9)
       '@hoppscotch/vue-toasted':
         specifier: ^0.1.0
         version: 0.1.0(vue@3.3.9)
@@ -1070,8 +1070,8 @@ importers:
         specifier: workspace:^
         version: link:../hoppscotch-data
       '@hoppscotch/ui':
-        specifier: ^0.0.13
-        version: 0.0.13(eslint@8.55.0)(terser@5.24.0)(vite@4.5.0)(vue@3.3.9)
+        specifier: ^0.1.0
+        version: 0.1.0(eslint@8.55.0)(terser@5.24.0)(vite@4.5.0)(vue@3.3.9)
       '@import-meta-env/unplugin':
         specifier: ^0.4.10
         version: 0.4.10(dotenv@16.3.1)
@@ -1236,8 +1236,8 @@ importers:
         specifier: ^3.1.1
         version: 3.1.1(graphql@16.6.0)
       '@hoppscotch/ui':
-        specifier: ^0.0.1
-        version: 0.0.1(eslint@8.55.0)(terser@5.24.0)(vite@3.2.4)(vue@3.3.9)
+        specifier: ^0.1.0
+        version: 0.1.0(eslint@8.55.0)(terser@5.24.0)(vite@3.2.4)(vue@3.3.9)
       '@hoppscotch/vue-toasted':
         specifier: ^0.1.0
         version: 0.1.0(vue@3.3.9)
@@ -7022,12 +7022,13 @@ packages:
     dependencies:
       graphql: 16.8.1
 
-  /@hoppscotch/ui@0.0.1(eslint@8.55.0)(terser@5.24.0)(vite@3.2.4)(vue@3.3.9):
-    resolution: {integrity: sha512-1sPqya1iH6ipwuo98oxhW0VgwqmV7DdhzCXbaMBbZPr5NjxmwcWBL0YrFHd544VzeSVjXjJ4Mzncwr5R+tOHQg==}
+  /@hoppscotch/ui@0.1.0(eslint@8.55.0)(terser@5.24.0)(vite@3.2.4)(vue@3.3.9):
+    resolution: {integrity: sha512-+4iHdfO7gRn7l3vpnPcQZbgdA+uE/K1KQX0/eUFcCWvja/C3eSM0db31MRX2cz1KYGwiezzhhVe21mIT4a0CZQ==}
     engines: {node: '>=16'}
     peerDependencies:
       vue: 3.3.9
     dependencies:
+      '@boringer-avatars/vue3': 0.2.1(vue@3.3.9)
       '@fontsource-variable/inter': 5.0.15
       '@fontsource-variable/material-symbols-rounded': 5.0.16
       '@fontsource-variable/roboto-mono': 5.0.16
@@ -7047,8 +7048,8 @@ packages:
       - vite
     dev: false
 
-  /@hoppscotch/ui@0.0.13(eslint@8.55.0)(terser@5.24.0)(vite@4.5.0)(vue@3.3.9):
-    resolution: {integrity: sha512-bxBwKYysVWEAGGV3MWuUBSh1utqQ7m+eaSArfLudA5JjVvBXo1rM2sxHgHlsUsmqsPnL60Q36lxq9Wmfm188ug==}
+  /@hoppscotch/ui@0.1.0(eslint@8.55.0)(terser@5.24.0)(vite@4.5.0)(vue@3.3.9):
+    resolution: {integrity: sha512-+4iHdfO7gRn7l3vpnPcQZbgdA+uE/K1KQX0/eUFcCWvja/C3eSM0db31MRX2cz1KYGwiezzhhVe21mIT4a0CZQ==}
     engines: {node: '>=16'}
     peerDependencies:
       vue: 3.3.9

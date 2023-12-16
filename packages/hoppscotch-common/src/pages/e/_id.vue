@@ -83,7 +83,7 @@ watch(
           applySetting("BG_COLOR", "dark")
         } else if (parsedProperties.theme === "light") {
           applySetting("BG_COLOR", "light")
-        } else if (parsedProperties.theme === "auto") {
+        } else if (parsedProperties.theme === "system") {
           applySetting("BG_COLOR", "system")
         }
         properties.value = parsedProperties.options

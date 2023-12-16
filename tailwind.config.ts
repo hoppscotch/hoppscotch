@@ -1,4 +1,4 @@
-import preset from "./packages/hoppscotch-ui/ui-preset"
+import preset from "@hoppscotch/ui/ui-preset"
 
 export default {
   content: [

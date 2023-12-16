@@ -341,10 +341,7 @@ import IconImport from "~icons/lucide/folder-down"
 import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
 import { computed, PropType, Ref, toRef } from "vue"
 import { GetMyTeamsQuery } from "~/helpers/backend/graphql"
-import {
-  ChildrenResult,
-  SmartTreeAdapter,
-} from "@hoppscotch/ui/dist/helpers/treeAdapter"
+import { ChildrenResult, SmartTreeAdapter } from "@hoppscotch/ui/helpers"
 import { useI18n } from "@composables/i18n"
 import { useColorMode } from "@composables/theming"
 import { pipe } from "fp-ts/function"

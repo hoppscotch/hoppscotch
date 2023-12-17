@@ -15,8 +15,8 @@ import Layouts from "vite-plugin-vue-layouts"
 import IconResolver from "unplugin-icons/resolver"
 import { FileSystemIconLoader } from "unplugin-icons/loaders"
 import * as path from "path"
-import { VitePluginFonts } from "vite-plugin-fonts"
 import legacy from "@vitejs/plugin-legacy"
+import Unfonts from "unplugin-fonts/vite"
 
 const ENV = loadEnv("development", path.resolve(__dirname, "../../"))
 
@@ -112,7 +112,6 @@ export default defineConfig({
       dts: "../hoppscotch-common/src/components.d.ts",
       dirs: [
         "../hoppscotch-common/src/components",
-        "../hoppscotch-ui/src/components",
       ],
       directoryAsNamespace: true,
       resolvers: [
@@ -184,12 +183,21 @@ export default defineConfig({
         ],
       },
     }),
-    VitePluginFonts({
-      google: {
+    Unfonts({
+      fontsource: {
         families: [
-          "Inter:wght@400;500;600;700;800",
-          "Roboto+Mono:wght@400;500",
-          "Material+Icons",
+          {
+            name: "Inter Variable",
+            variables: ["variable-full"],
+          },
+          {
+            name: "Material Symbols Rounded Variable",
+            variables: ["variable-full"],
+          },
+          {
+            name: "Roboto Mono Variable",
+            variables: ["variable-full"],
+          },
         ],
       },
     }),

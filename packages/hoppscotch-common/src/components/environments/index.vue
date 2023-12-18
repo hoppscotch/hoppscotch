@@ -296,7 +296,7 @@ watch(
 
 defineActionHandler("modals.environment.add", ({ envName, variableName }) => {
   editingVariableName.value = envName
-  if (variableName) editingVariableValue.value = variableName
+  editingVariableValue.value = variableName ?? ""
   displayModalNew(true)
 })
 </script>

@@ -313,10 +313,12 @@
   "export": {
     "as_json": "Export as JSON",
     "create_secret_gist": "Create secret Gist",
+    "create_secret_gist_tooltip_text": "Export as secret Gist",
     "failed": "Something went wrong while exporting",
-    "gist_created": "Gist created",
+    "secret_gist_success": "Successfully exported as secret Gist",
     "require_github": "Login with GitHub to create secret gist",
-    "title": "Export"
+    "title": "Export",
+    "success": "Successfully exported"
   },
   "filter": {
     "all": "All",

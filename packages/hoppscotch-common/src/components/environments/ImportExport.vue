@@ -30,6 +30,7 @@ import { GQLError } from "~/helpers/backend/GQLClient"
 import { CreateTeamEnvironmentMutation } from "~/helpers/backend/graphql"
 import { postmanEnvImporter } from "~/helpers/import-export/import/postmanEnv"
 import { insomniaEnvImporter } from "~/helpers/import-export/import/insomniaEnv"
+import { ref } from "vue"
 
 import IconFolderPlus from "~icons/lucide/folder-plus"
 import IconPostman from "~icons/hopp/postman"
@@ -57,6 +58,8 @@ const currentUser = useReadonlyStream(
   platform.auth.getCurrentUserStream(),
   platform.auth.getCurrentUser()
 )
+
+const isEnvironmentGistExportInProgress = ref(false)
 
 const isTeamEnvironment = computed(() => {
   return props.environmentType === "TEAM_ENV"
@@ -262,20 +265,27 @@ const HoppEnvironmentsGistExporter: ImporterOrExporter = {
     title:
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      currentUser?.provider === "github.com"
-        ? "export.create_secret_gist"
+      currentUser?.value.provider === "github.com"
+        ? "export.create_secret_gist_tooltip_text"
         : "export.require_github",
     icon: IconUser,
     disabled: !currentUser.value
       ? true
       : currentUser.value.provider !== "github.com",
     applicableTo: ["personal-workspace", "team-workspace"],
+    isLoading: isEnvironmentGistExportInProgress,
   },
   action: async () => {
+    if (!environmentJson.value.length) {
+      return toast.error(t("error.no_environments_to_export"))
+    }
+
     if (!currentUser.value) {
       toast.error(t("profile.no_permission"))
       return
     }
+
+    isEnvironmentGistExportInProgress.value = true
 
     const accessToken = currentUser.value?.accessToken
 
@@ -287,10 +297,11 @@ const HoppEnvironmentsGistExporter: ImporterOrExporter = {
 
       if (E.isLeft(res)) {
         toast.error(t("export.failed"))
+        isEnvironmentGistExportInProgress.value = false
         return
       }
 
-      toast.success(t("export.success"))
+      toast.success(t("export.secret_gist_success"))
 
       platform.analytics?.logEvent({
         type: "HOPP_EXPORT_ENVIRONMENT",
@@ -299,6 +310,8 @@ const HoppEnvironmentsGistExporter: ImporterOrExporter = {
 
       platform.io.openExternalLink(res.right)
     }
+
+    isEnvironmentGistExportInProgress.value = false
   },
 }
 

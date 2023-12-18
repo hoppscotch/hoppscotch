@@ -83,6 +83,8 @@ const currentUser = useReadonlyStream(
   platform.auth.getCurrentUser()
 )
 
+const myCollections = useReadonlyStream(restCollections$, [])
+
 const showImportFailedError = () => {
   toast.error(t("import.failed"))
 }
@@ -469,11 +471,20 @@ const HoppGistCollectionsExporter: ImporterOrExporter = {
     disabled: !currentUser.value
       ? true
       : currentUser.value.provider !== "github.com",
-    title: t("export.create_secret_gist"),
+    title:
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      currentUser?.value.provider === "github.com"
+        ? "export.create_secret_gist_tooltip_text"
+        : "export.require_github",
     applicableTo: ["personal-workspace", "team-workspace"],
     isLoading: isHoppGistCollectionExporterInProgress,
   },
   action: async () => {
+    if (!myCollections.value.length) {
+      return toast.error(t("error.no_collections_to_export"))
+    }
+
     isHoppGistCollectionExporterInProgress.value = true
 
     const collectionJSON = await getCollectionJSON()
@@ -486,13 +497,29 @@ const HoppGistCollectionsExporter: ImporterOrExporter = {
     }
 
     if (E.isRight(collectionJSON)) {
-      collectionsGistExporter(collectionJSON.right, accessToken)
+      const res = await collectionsGistExporter(
+        collectionJSON.right,
+        accessToken
+      )
+
+      console.log(JSON.stringify(res, null, 2))
+
+      if (E.isLeft(res)) {
+        toast.error(t("export.failed"))
+        return
+      }
+
+      toast.success(t("export.secret_gist_success"))
 
       platform.analytics?.logEvent({
         type: "HOPP_EXPORT_COLLECTION",
         exporter: "gist",
         platform: "rest",
       })
+
+      if (res.right) {
+        window.open(res.right, "_blank")
+      }
     }
 
     isHoppGistCollectionExporterInProgress.value = false
@@ -559,8 +586,6 @@ const selectedTeamID = computed(() => {
     ? collectionsType.selectedTeam?.id
     : undefined
 })
-
-const myCollections = useReadonlyStream(restCollections$, [])
 
 const getCollectionJSON = async () => {
   if (

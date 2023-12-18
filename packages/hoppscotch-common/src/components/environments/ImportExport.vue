@@ -40,7 +40,7 @@ import { initializeDownloadCollection } from "~/helpers/import-export/export"
 import { computed } from "vue"
 import { useReadonlyStream } from "~/composables/stream"
 import { environmentsExporter } from "~/helpers/import-export/export/environments"
-import { environmentsGistExporter } from "~/helpers/import-export/export/environmentsGistExport"
+import { gistExporter } from "~/helpers/import-export/export/gist"
 import { platform } from "~/platform"
 
 const t = useI18n()
@@ -265,13 +265,13 @@ const HoppEnvironmentsGistExporter: ImporterOrExporter = {
     title:
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      currentUser?.value.provider === "github.com"
+      currentUser?.value?.provider === "github.com"
         ? "export.create_secret_gist_tooltip_text"
         : "export.require_github",
     icon: IconUser,
     disabled: !currentUser.value
       ? true
-      : currentUser.value.provider !== "github.com",
+      : currentUser.value?.provider !== "github.com",
     applicableTo: ["personal-workspace", "team-workspace"],
     isLoading: isEnvironmentGistExportInProgress,
   },
@@ -290,9 +290,10 @@ const HoppEnvironmentsGistExporter: ImporterOrExporter = {
     const accessToken = currentUser.value?.accessToken
 
     if (accessToken) {
-      const res = await environmentsGistExporter(
+      const res = await gistExporter(
         JSON.stringify(environmentJson.value),
-        accessToken
+        accessToken,
+        "hoppscotch-environment.json"
       )
 
       if (E.isLeft(res)) {

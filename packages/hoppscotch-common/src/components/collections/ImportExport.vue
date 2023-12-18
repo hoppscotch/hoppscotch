@@ -48,7 +48,7 @@ import { getTeamCollectionJSON } from "~/helpers/backend/helpers"
 import { platform } from "~/platform"
 
 import { initializeDownloadCollection } from "~/helpers/import-export/export"
-import { collectionsGistExporter } from "~/helpers/import-export/export/gistExport"
+import { gistExporter } from "~/helpers/import-export/export/gist"
 import { myCollectionsExporter } from "~/helpers/import-export/export/myCollections"
 import { teamCollectionsExporter } from "~/helpers/import-export/export/teamCollections"
 
@@ -470,11 +470,11 @@ const HoppGistCollectionsExporter: ImporterOrExporter = {
     icon: IconGithub,
     disabled: !currentUser.value
       ? true
-      : currentUser.value.provider !== "github.com",
+      : currentUser.value?.provider !== "github.com",
     title:
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      currentUser?.value.provider === "github.com"
+      currentUser?.value?.provider === "github.com"
         ? "export.create_secret_gist_tooltip_text"
         : "export.require_github",
     applicableTo: ["personal-workspace", "team-workspace"],
@@ -497,10 +497,7 @@ const HoppGistCollectionsExporter: ImporterOrExporter = {
     }
 
     if (E.isRight(collectionJSON)) {
-      const res = await collectionsGistExporter(
-        collectionJSON.right,
-        accessToken
-      )
+      const res = await gistExporter(collectionJSON.right, accessToken)
 
       console.log(JSON.stringify(res, null, 2))
 
@@ -608,3 +605,4 @@ const getCollectionJSON = async () => {
   return E.left("INVALID_SELECTED_TEAM_OR_INVALID_COLLECTION_TYPE")
 }
 </script>
+~/helpers/import-export/export/gist

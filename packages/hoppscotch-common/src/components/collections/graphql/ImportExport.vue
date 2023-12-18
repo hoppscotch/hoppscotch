@@ -31,7 +31,7 @@ import {
 } from "~/newstore/collections"
 import { hoppGqlCollectionsImporter } from "~/helpers/import-export/import/hoppGql"
 import { gqlCollectionsExporter } from "~/helpers/import-export/export/gqlCollections"
-import { gqlCollectionsGistExporter } from "~/helpers/import-export/export/gqlCollectionsGistExporter"
+import { gistExporter } from "~/helpers/import-export/export/gist"
 import { computed } from "vue"
 import { hoppGQLImporter } from "~/helpers/import-export/import/hopp"
 
@@ -165,13 +165,13 @@ const GqlCollectionsGistExporter: ImporterOrExporter = {
     title:
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      currentUser?.value.provider === "github.com"
+      currentUser?.value?.provider === "github.com"
         ? "export.create_secret_gist_tooltip_text"
         : "export.require_github",
     icon: IconUser,
     disabled: !currentUser.value
       ? true
-      : currentUser.value.provider !== "github.com",
+      : currentUser.value?.provider !== "github.com",
     applicableTo: ["personal-workspace"],
     isLoading: isGqlCollectionGistExportInProgress,
   },
@@ -190,7 +190,7 @@ const GqlCollectionsGistExporter: ImporterOrExporter = {
     const accessToken = currentUser.value?.accessToken
 
     if (accessToken) {
-      const res = await gqlCollectionsGistExporter(
+      const res = await gistExporter(
         JSON.stringify(gqlCollections.value),
         accessToken
       )

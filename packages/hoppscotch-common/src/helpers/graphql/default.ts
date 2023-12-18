@@ -27,7 +27,7 @@ export const getDefaultGQLRequest = (): HoppGQLRequest => ({
 }`,
   query: DEFAULT_QUERY,
   auth: {
-    authType: "inherit",
+    authType: "none",
     authActive: true,
   },
 })

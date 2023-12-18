@@ -140,7 +140,10 @@ const runQuery = async (
     const runVariables = clone(request.value.variables)
     const runAuth =
       request.value.auth.authType === "inherit" && request.value.auth.authActive
-        ? clone(tabs.currentActiveTab.value.document.inheritedProperties?.auth)
+        ? clone(
+            tabs.currentActiveTab.value.document.inheritedProperties?.auth
+              .inheritedAuth
+          )
         : clone(request.value.auth)
 
     const inheritedHeaders =

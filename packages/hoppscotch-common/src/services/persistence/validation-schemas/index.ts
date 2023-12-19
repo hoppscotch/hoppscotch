@@ -104,7 +104,7 @@ export const LOCAL_STATE_SCHEMA = z.union([
 ])
 
 export const SETTINGS_SCHEMA = z.union([
-  z.object({}).strict(),
+  z.object({}),
   SettingsDefSchema.extend({
     EXTENSIONS_ENABLED: z.optional(z.boolean()),
     PROXY_ENABLED: z.optional(z.boolean()),
@@ -208,7 +208,7 @@ export const MQTT_REQUEST_SCHEMA = z.nullable(
   z
     .object({
       endpoint: z.string(),
-      clientID: z.string(),
+      clientID: z.optional(z.string()),
     })
     .strict()
 )

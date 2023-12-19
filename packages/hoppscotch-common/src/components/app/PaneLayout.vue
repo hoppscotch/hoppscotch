@@ -1,15 +1,16 @@
 <template>
   <Splitpanes
-    class="smart-splitter"
     :rtl="SIDEBAR_ON_LEFT && mdAndLarger"
     :class="{
       '!flex-row-reverse': SIDEBAR_ON_LEFT && mdAndLarger,
+      'smart-splitter': SIDEBAR && hasSidebar,
+      'no-splitter': !(SIDEBAR && hasSidebar),
     }"
     :horizontal="!mdAndLarger"
     @resize="setPaneEvent($event, 'vertical')"
   >
     <Pane
-      :size="PANE_MAIN_SIZE"
+      :size="SIDEBAR && hasSidebar ? PANE_MAIN_SIZE : 100"
       min-size="65"
       class="flex flex-col !overflow-auto"
     >
@@ -36,9 +37,8 @@
       </Splitpanes>
     </Pane>
     <Pane
-      v-if="SIDEBAR && hasSidebar"
-      :size="PANE_SIDEBAR_SIZE"
-      min-size="25"
+      :size="SIDEBAR && hasSidebar ? PANE_SIDEBAR_SIZE : 0"
+      :min-size="25"
       class="flex flex-col !overflow-auto bg-primaryContrast"
     >
       <slot name="sidebar" />

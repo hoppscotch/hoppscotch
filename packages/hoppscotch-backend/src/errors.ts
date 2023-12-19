@@ -688,4 +688,4 @@ export const INFRA_CONFIG_SERVICE_NOT_CONFIGURED =
  * (InfraConfigService)
  */
 export const DATABASE_TABLE_NOT_EXIST =
-  'Database migration not performed. Please check the FAQ for assistance: https://docs.hoppscotch.io/support/getting-started/faq';
+  'Database migration not found. Please check the documentation for assistance: https://docs.hoppscotch.io/documentation/self-host/community-edition/install-and-build#running-migrations';

@@ -677,6 +677,13 @@ export const INFRA_CONFIG_RESET_FAILED = 'infra_config/reset_failed' as const;
 export const INFRA_CONFIG_INVALID_INPUT = 'infra_config/invalid_input' as const;
 
 /**
+ * Infra Config service (auth provider/mailer/audit logs) not configured
+ * (InfraConfigService)
+ */
+export const INFRA_CONFIG_SERVICE_NOT_CONFIGURED =
+  'infra_config/service_not_configured' as const;
+
+/**
  * Error message for when the database table does not exist
  * (InfraConfigService)
  */

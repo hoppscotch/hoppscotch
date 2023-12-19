@@ -15,11 +15,13 @@ import {
   INFRA_CONFIG_NOT_LISTED,
   INFRA_CONFIG_RESET_FAILED,
   INFRA_CONFIG_UPDATE_FAILED,
+  INFRA_CONFIG_SERVICE_NOT_CONFIGURED,
 } from 'src/errors';
 import { throwErr, validateEmail, validateSMTPUrl } from 'src/utils';
 import { ConfigService } from '@nestjs/config';
 import { ServiceStatus, stopApp } from './helper';
 import { EnableAndDisableSSOArgs, InfraConfigArgs } from './input-args';
+import { AuthProvider } from 'src/auth/helper';
 
 @Injectable()
 export class InfraConfigService implements OnModuleInit {
@@ -124,7 +126,7 @@ export class InfraConfigService implements OnModuleInit {
   cast(dbInfraConfig: DBInfraConfig) {
     return <InfraConfig>{
       name: dbInfraConfig.name,
-      value: dbInfraConfig.value,
+      value: dbInfraConfig.value ?? '',
     };
   }
 
@@ -183,6 +185,38 @@ export class InfraConfigService implements OnModuleInit {
   }
 
   /**
+   * Check if the service is configured or not
+   * @param service Service can be Auth Provider, Mailer, Audit Log etc.
+   * @returns Either true or false
+   */
+  isServiceConfigured(service: AuthProvider) {
+    switch (service) {
+      case AuthProvider.GOOGLE:
+        return (
+          this.configService.get<string>('INFRA.GOOGLE_CLIENT_ID') &&
+          this.configService.get<string>('INFRA.GOOGLE_CLIENT_SECRET')
+        );
+      case AuthProvider.GITHUB:
+        return (
+          this.configService.get<string>('INFRA.GITHUB_CLIENT_ID') &&
+          !this.configService.get<string>('INFRA.GITHUB_CLIENT_SECRET')
+        );
+      case AuthProvider.MICROSOFT:
+        return (
+          this.configService.get<string>('INFRA.MICROSOFT_CLIENT_ID') &&
+          !this.configService.get<string>('INFRA.MICROSOFT_CLIENT_SECRET')
+        );
+      case AuthProvider.EMAIL:
+        return (
+          this.configService.get<string>('INFRA.MAILER_SMTP_URL') &&
+          this.configService.get<string>('INFRA.MAILER_ADDRESS_FROM')
+        );
+      default:
+        return false;
+    }
+  }
+
+  /**
    * Enable or Disable SSO for login/signup
    * @param provider Auth Provider to enable or disable
    * @param status Status to enable or disable
@@ -195,15 +229,21 @@ export class InfraConfigService implements OnModuleInit {
 
     let updatedAuthProviders = allowedAuthProviders;
 
-    providerInfo.forEach(({ provider, status }) => {
+    for (let i = 0; i < providerInfo.length; i++) {
+      const { provider, status } = providerInfo[i];
+
       if (status === ServiceStatus.ENABLE) {
+        const isConfigured = this.isServiceConfigured(provider);
+        if (!isConfigured) {
+          throwErr(INFRA_CONFIG_SERVICE_NOT_CONFIGURED);
+        }
         updatedAuthProviders.push(provider);
       } else if (status === ServiceStatus.DISABLE) {
         updatedAuthProviders = updatedAuthProviders.filter(
           (p) => p !== provider,
         );
       }
-    });
+    }
 
     updatedAuthProviders = [...new Set(updatedAuthProviders)];
 
@@ -286,6 +326,9 @@ export class InfraConfigService implements OnModuleInit {
     }
   }
 
+  /**
+   * Validate the values of the InfraConfigs
+   */
   validateEnvValues(
     infraConfigs: {
       name: InfraConfigEnumForClient | InfraConfigEnum;
@@ -301,6 +344,24 @@ export class InfraConfigService implements OnModuleInit {
         case InfraConfigEnumForClient.MAILER_ADDRESS_FROM:
           const isValidEmail = validateEmail(infraConfigs[i].value);
           if (!isValidEmail) return E.left(INFRA_CONFIG_INVALID_INPUT);
+          break;
+        case InfraConfigEnumForClient.GOOGLE_CLIENT_ID:
+          if (!infraConfigs[i].value) return E.left(INFRA_CONFIG_INVALID_INPUT);
+          break;
+        case InfraConfigEnumForClient.GOOGLE_CLIENT_SECRET:
+          if (!infraConfigs[i].value) return E.left(INFRA_CONFIG_INVALID_INPUT);
+          break;
+        case InfraConfigEnumForClient.GITHUB_CLIENT_ID:
+          if (!infraConfigs[i].value) return E.left(INFRA_CONFIG_INVALID_INPUT);
+          break;
+        case InfraConfigEnumForClient.GITHUB_CLIENT_SECRET:
+          if (!infraConfigs[i].value) return E.left(INFRA_CONFIG_INVALID_INPUT);
+          break;
+        case InfraConfigEnumForClient.MICROSOFT_CLIENT_ID:
+          if (!infraConfigs[i].value) return E.left(INFRA_CONFIG_INVALID_INPUT);
+          break;
+        case InfraConfigEnumForClient.MICROSOFT_CLIENT_SECRET:
+          if (!infraConfigs[i].value) return E.left(INFRA_CONFIG_INVALID_INPUT);
           break;
         default:
           break;

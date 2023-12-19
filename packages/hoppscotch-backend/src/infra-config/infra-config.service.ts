@@ -192,41 +192,28 @@ export class InfraConfigService implements OnModuleInit {
   isServiceConfigured(service: AuthProvider) {
     switch (service) {
       case AuthProvider.GOOGLE:
-        if (
-          !this.configService.get<string>('INFRA.GOOGLE_CLIENT_ID') ||
-          !this.configService.get<string>('INFRA.GOOGLE_CLIENT_SECRET')
-        ) {
-          return false;
-        }
-        break;
+        return (
+          this.configService.get<string>('INFRA.GOOGLE_CLIENT_ID') &&
+          this.configService.get<string>('INFRA.GOOGLE_CLIENT_SECRET')
+        );
       case AuthProvider.GITHUB:
-        if (
-          !this.configService.get<string>('INFRA.GITHUB_CLIENT_ID') ||
+        return (
+          this.configService.get<string>('INFRA.GITHUB_CLIENT_ID') &&
           !this.configService.get<string>('INFRA.GITHUB_CLIENT_SECRET')
-        ) {
-          return false;
-        }
-        break;
+        );
       case AuthProvider.MICROSOFT:
-        if (
-          !this.configService.get<string>('INFRA.MICROSOFT_CLIENT_ID') ||
+        return (
+          this.configService.get<string>('INFRA.MICROSOFT_CLIENT_ID') &&
           !this.configService.get<string>('INFRA.MICROSOFT_CLIENT_SECRET')
-        ) {
-          return false;
-        }
-        break;
+        );
       case AuthProvider.EMAIL:
-        if (
-          !this.configService.get<string>('INFRA.MAILER_SMTP_URL') ||
-          !this.configService.get<string>('INFRA.MAILER_ADDRESS_FROM')
-        ) {
-          return false;
-        }
-        break;
+        return (
+          this.configService.get<string>('INFRA.MAILER_SMTP_URL') &&
+          this.configService.get<string>('INFRA.MAILER_ADDRESS_FROM')
+        );
       default:
-        break;
+        return false;
     }
-    return true;
   }
 
   /**

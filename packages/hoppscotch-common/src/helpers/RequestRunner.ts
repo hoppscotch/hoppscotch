@@ -1,26 +1,15 @@
+import { Environment } from "@hoppscotch/data"
+import { SandboxTestResult, TestDescriptor } from "@hoppscotch/js-sandbox"
+import { runTestScript } from "@hoppscotch/js-sandbox/web"
+import * as A from "fp-ts/Array"
+import * as E from "fp-ts/Either"
+import * as O from "fp-ts/Option"
+import { flow, pipe } from "fp-ts/function"
+import { cloneDeep } from "lodash-es"
 import { Observable, Subject } from "rxjs"
 import { filter } from "rxjs/operators"
-import { flow, pipe } from "fp-ts/function"
-import * as O from "fp-ts/Option"
-import * as A from "fp-ts/Array"
-import { Environment } from "@hoppscotch/data"
-import {
-  SandboxTestResult,
-  runTestScript,
-  TestDescriptor,
-} from "@hoppscotch/js-sandbox"
-import * as E from "fp-ts/Either"
-import { cloneDeep } from "lodash-es"
-import {
-  getCombinedEnvVariables,
-  getFinalEnvsFromPreRequest,
-} from "./preRequest"
-import { getEffectiveRESTRequest } from "./utils/EffectiveURL"
-import { HoppRESTResponse } from "./types/HoppRESTResponse"
-import { createRESTNetworkRequestStream } from "./network"
-import { HoppTestData, HoppTestResult } from "./types/HoppTestResult"
-import { isJSONContentType } from "./utils/contenttypes"
-import { updateTeamEnvironment } from "./backend/mutations/TeamEnvironment"
+import { Ref } from "vue"
+
 import {
   environmentsStore,
   getCurrentEnvironment,
@@ -29,9 +18,18 @@ import {
   setGlobalEnvVariables,
   updateEnvironment,
 } from "~/newstore/environments"
-import { Ref } from "vue"
 import { HoppTab } from "~/services/tab"
+import { updateTeamEnvironment } from "./backend/mutations/TeamEnvironment"
+import { createRESTNetworkRequestStream } from "./network"
+import {
+  getCombinedEnvVariables,
+  getFinalEnvsFromPreRequest,
+} from "./preRequest"
 import { HoppRESTDocument } from "./rest/document"
+import { HoppRESTResponse } from "./types/HoppRESTResponse"
+import { HoppTestData, HoppTestResult } from "./types/HoppTestResult"
+import { getEffectiveRESTRequest } from "./utils/EffectiveURL"
+import { isJSONContentType } from "./utils/contenttypes"
 
 const getTestableBody = (
   res: HoppRESTResponse & { type: "success" | "fail" }
@@ -89,7 +87,7 @@ export function runRESTRequest$(
   const res = getFinalEnvsFromPreRequest(
     tab.value.document.request.preRequestScript,
     getCombinedEnvVariables()
-  )().then((envs) => {
+  ).then((envs) => {
     if (cancelCalled) return E.left("cancellation" as const)
 
     if (E.isLeft(envs)) {
@@ -97,13 +95,41 @@ export function runRESTRequest$(
       return E.left("script_fail" as const)
     }
 
-    const effectiveRequest = getEffectiveRESTRequest(
-      tab.value.document.request,
-      {
-        name: "Env",
-        variables: combineEnvVariables(envs.right),
-      }
-    )
+    const requestAuth =
+      tab.value.document.request.auth.authType === "inherit" &&
+      tab.value.document.request.auth.authActive
+        ? tab.value.document.inheritedProperties?.auth.inheritedAuth
+        : tab.value.document.request.auth
+
+    let requestHeaders
+
+    const inheritedHeaders =
+      tab.value.document.inheritedProperties?.headers.map((header) => {
+        if (header.inheritedHeader) {
+          return header.inheritedHeader
+        }
+        return []
+      })
+
+    if (inheritedHeaders) {
+      requestHeaders = [
+        ...inheritedHeaders,
+        ...tab.value.document.request.headers,
+      ]
+    } else {
+      requestHeaders = [...tab.value.document.request.headers]
+    }
+
+    const finalRequest = {
+      ...tab.value.document.request,
+      auth: requestAuth ?? { authType: "none", authActive: false },
+      headers: requestHeaders,
+    }
+
+    const effectiveRequest = getEffectiveRESTRequest(finalRequest, {
+      name: "Env",
+      variables: combineEnvVariables(envs.right),
+    })
 
     const [stream, cancelRun] = createRESTNetworkRequestStream(effectiveRequest)
     cancelFunc = cancelRun
@@ -125,7 +151,7 @@ export function runRESTRequest$(
               body: getTestableBody(res),
               headers: res.headers,
             }
-          )()
+          )
 
           if (E.isRight(runResult)) {
             tab.value.document.testResults = translateToSandboxTestResults(

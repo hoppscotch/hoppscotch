@@ -1,17 +1,17 @@
 <template>
   <div
-    class="flex items-stretch group"
+    class="group flex items-stretch"
     @contextmenu.prevent="options!.tippy.show()"
   >
     <span
       v-tippy="{ theme: 'tooltip', delay: [500, 20] }"
-      class="flex items-center justify-center w-16 px-2 truncate cursor-pointer"
+      class="flex w-16 cursor-pointer items-center justify-center truncate px-2"
       :class="entryStatus.className"
       data-testid="restore_history_entry"
       :title="`${duration}`"
       @click="emit('use-entry')"
     >
-      <span class="font-semibold truncate text-tiny">
+      <span class="truncate text-tiny font-semibold">
         {{ entry.request.method }}
       </span>
     </span>
@@ -21,7 +21,7 @@
         delay: [500, 20],
         content: entry.updatedOn ? shortDateTime(entry.updatedOn) : null,
       }"
-      class="flex flex-1 min-w-0 py-2 pr-2 cursor-pointer transition group-hover:text-secondaryDark"
+      class="flex min-w-0 flex-1 cursor-pointer py-2 pr-2 transition group-hover:text-secondaryDark"
       data-testid="restore_history_entry"
       @click="emit('use-entry')"
     >
@@ -74,7 +74,7 @@
     <HoppButtonSecondary
       v-tippy="{ theme: 'tooltip' }"
       :title="!entry.star ? t('add.star') : t('remove.star')"
-      :class="{ 'group-hover:inline-flex hidden': !entry.star }"
+      :class="{ 'hidden group-hover:inline-flex': !entry.star }"
       :icon="entry.star ? IconStarOff : IconStar"
       color="yellow"
       data-testid="star_button"
@@ -121,7 +121,8 @@ const duration = computed(() => {
     return responseDuration > 0
       ? `${t("request.duration")}: ${responseDuration}ms`
       : t("error.no_duration")
-  } else return t("error.no_duration")
+  }
+  return t("error.no_duration")
 })
 
 const entryStatus = computed(() => {

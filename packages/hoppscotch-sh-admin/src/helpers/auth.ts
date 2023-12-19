@@ -227,4 +227,9 @@ export const auth = {
       window.location.href = import.meta.env.VITE_ADMIN_URL;
     }
   },
+
+  getAllowedAuthProviders: async () => {
+    const res = await authQuery.getProviders();
+    return res.data?.providers;
+  },
 };

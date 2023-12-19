@@ -12,15 +12,21 @@ import { onMounted } from "vue"
 import { useRoute, useRouter } from "vue-router"
 import * as E from "fp-ts/Either"
 import { pipe } from "fp-ts/function"
-import { HoppRESTRequest, HoppCollection } from "@hoppscotch/data"
+import { HoppCollection } from "@hoppscotch/data"
 import { appendRESTCollections } from "~/newstore/collections"
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
-import { URLImporters } from "~/helpers/import-export/import/importers"
 import { IMPORTER_INVALID_FILE_FORMAT } from "~/helpers/import-export/import"
 import { OPENAPI_DEREF_ERROR } from "~/helpers/import-export/import/openapi"
 import { isOfType } from "~/helpers/functional/primtive"
 import { TELeftType } from "~/helpers/functional/taskEither"
+
+import {
+  hoppRESTImporter,
+  hoppPostmanImporter,
+  hoppInsomniaImporter,
+  hoppOpenAPIImporter,
+} from "~/helpers/import-export/import/importers"
 
 const route = useRoute()
 const router = useRouter()
@@ -30,16 +36,33 @@ const t = useI18n()
 const IMPORTER_INVALID_TYPE = "importer_invalid_type" as const
 const IMPORTER_INVALID_FETCH = "importer_invalid_fetch" as const
 
+// TODO: move this to importers after moving the importer metadatas from respective components to imports/*.ts file
+const URLImporters = [
+  {
+    id: "hoppscotch",
+    importer: hoppRESTImporter,
+  },
+  {
+    id: "postman",
+    importer: hoppPostmanImporter,
+  },
+  {
+    id: "insomnia",
+    importer: hoppInsomniaImporter,
+  },
+  {
+    id: "openapi",
+    importer: hoppOpenAPIImporter,
+  },
+]
+
 const importCollections = (url: unknown, type: unknown) =>
   pipe(
     TE.Do,
     TE.bind("importer", () =>
       pipe(
         URLImporters,
-        RA.findFirst(
-          (importer) =>
-            importer.applicableTo.includes("url-import") && importer.id === type
-        ),
+        RA.findFirst((importer) => importer.id === type),
         TE.fromOption(() => IMPORTER_INVALID_TYPE)
       )
     ),
@@ -56,7 +79,7 @@ const importCollections = (url: unknown, type: unknown) =>
         content.data,
         TO.fromPredicate(isOfType("string")),
         TE.fromTaskOption(() => IMPORTER_INVALID_FILE_FORMAT),
-        TE.chain((data) => importer.importer([data]))
+        TE.chain((data) => importer.importer(data))
       )
     )
   )
@@ -87,9 +110,7 @@ const handleImportFailure = (error: ImportCollectionsError) => {
   toast.error(t(IMPORT_ERROR_MAP[error]).toString())
 }
 
-const handleImportSuccess = (
-  collections: HoppCollection<HoppRESTRequest>[]
-) => {
+const handleImportSuccess = (collections: HoppCollection[]) => {
   appendRESTCollections(collections)
   toast.success(t("import.import_from_url_success").toString())
 }

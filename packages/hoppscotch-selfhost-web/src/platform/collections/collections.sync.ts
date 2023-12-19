@@ -24,7 +24,7 @@ import {
   editUserRequest,
   moveUserCollection,
   moveUserRequest,
-  renameUserCollection,
+  updateUserCollection,
   updateUserCollectionOrder,
 } from "./collections.api"
 
@@ -39,7 +39,7 @@ export const restRequestsMapper = createMapper<string, string>()
 // temp implementation untill the backend implements an endpoint that accepts an entire collection
 // TODO: use importCollectionsJSON to do this
 const recursivelySyncCollections = async (
-  collection: HoppCollection<HoppRESTRequest>,
+  collection: HoppCollection,
   collectionPath: string,
   parentUserCollectionID?: string
 ) => {
@@ -47,27 +47,69 @@ const recursivelySyncCollections = async (
 
   // if parentUserCollectionID does not exist, create the collection as a root collection
   if (!parentUserCollectionID) {
-    const res = await createRESTRootUserCollection(collection.name)
-
+    const data = {
+      auth: collection.auth ?? {
+        authType: "inherit",
+        authActive: true,
+      },
+      headers: collection.headers ?? [],
+    }
+    const res = await createRESTRootUserCollection(
+      collection.name,
+      JSON.stringify(data)
+    )
     if (E.isRight(res)) {
       parentCollectionID = res.right.createRESTRootUserCollection.id
 
+      const returnedData = res.right.createRESTRootUserCollection.data
+        ? JSON.parse(res.right.createRESTRootUserCollection.data)
+        : {
+            auth: {
+              authType: "inherit",
+              authActive: true,
+            },
+            headers: [],
+          }
+
       collection.id = parentCollectionID
+      collection.auth = returnedData.auth
+      collection.headers = returnedData.headers
       removeDuplicateRESTCollectionOrFolder(parentCollectionID, collectionPath)
     } else {
       parentCollectionID = undefined
     }
   } else {
     // if parentUserCollectionID exists, create the collection as a child collection
+    const data = {
+      auth: collection.auth ?? {
+        authType: "inherit",
+        authActive: true,
+      },
+      headers: collection.headers ?? [],
+    }
+
     const res = await createRESTChildUserCollection(
       collection.name,
-      parentUserCollectionID
+      parentUserCollectionID,
+      JSON.stringify(data)
     )
 
     if (E.isRight(res)) {
       const childCollectionId = res.right.createRESTChildUserCollection.id
 
+      const returnedData = res.right.createRESTChildUserCollection.data
+        ? JSON.parse(res.right.createRESTChildUserCollection.data)
+        : {
+            auth: {
+              authType: "inherit",
+              authActive: true,
+            },
+            headers: [],
+          }
+
       collection.id = childCollectionId
+      collection.auth = returnedData.auth
+      collection.headers = returnedData.headers
 
       removeDuplicateRESTCollectionOrFolder(
         childCollectionId,
@@ -155,8 +197,13 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
       [collectionIndex]
     )?.id
 
-    if (collectionID && collection.name) {
-      renameUserCollection(collectionID, collection.name)
+    const data = {
+      auth: collection.auth,
+      headers: collection.headers,
+    }
+
+    if (collectionID) {
+      updateUserCollection(collectionID, collection.name, JSON.stringify(data))
     }
   },
   async addFolder({ name, path }) {
@@ -195,9 +242,12 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
     )?.id
 
     const folderName = folder.name
-
-    if (folderID && folderName) {
-      renameUserCollection(folderID, folderName)
+    const data = {
+      auth: folder.auth,
+      headers: folder.headers,
+    }
+    if (folderID) {
+      updateUserCollection(folderID, folderName, JSON.stringify(data))
     }
   },
   async removeFolder({ folderID }) {

@@ -47,17 +47,15 @@ const dispatchers = defineDispatchers({
         return {
           selectedEnvironmentIndex,
         }
-      } else {
-        return {
-          selectedEnvironmentIndex: {
-            type: "NO_ENV_SELECTED",
-          },
-        }
       }
-    } else {
       return {
-        selectedEnvironmentIndex,
+        selectedEnvironmentIndex: {
+          type: "NO_ENV_SELECTED",
+        },
       }
+    }
+    return {
+      selectedEnvironmentIndex,
     }
   },
   appendEnvironments(
@@ -309,7 +307,7 @@ const dispatchers = defineDispatchers({
 
     const newEnvironments = [...environments]
 
-    if (entries.length == 2) {
+    if (entries.length === 2) {
       const indexToRemove = environments.findIndex((e) => e.id === id)
       newEnvironments.splice(indexToRemove, 1)
     }
@@ -350,9 +348,8 @@ export const currentEnvironment$: Observable<Environment | undefined> =
         return env
       } else if (selectedEnvironmentIndex.type === "MY_ENV") {
         return environments[selectedEnvironmentIndex.index]
-      } else {
-        return selectedEnvironmentIndex.environment
       }
+      return selectedEnvironmentIndex.environment
     })
   )
 
@@ -422,9 +419,8 @@ export function getCurrentEnvironment(): Environment {
     return environmentsStore.value.environments[
       environmentsStore.value.selectedEnvironmentIndex.index
     ]
-  } else {
-    return environmentsStore.value.selectedEnvironmentIndex.environment
   }
+  return environmentsStore.value.selectedEnvironmentIndex.environment
 }
 
 export function getSelectedEnvironmentIndex() {
@@ -469,7 +465,7 @@ export function getLocalIndexByEnvironmentID(id: string) {
     (env) => env.id === id
   )
 
-  return envIndex != -1 ? envIndex : null
+  return envIndex !== -1 ? envIndex : null
 }
 
 export function addGlobalEnvVariable(entry: Environment["variables"][number]) {
@@ -678,10 +674,9 @@ export function getEnvironment(selectedEnv: SelectedEnv) {
     environmentsStore.value.selectedEnvironmentIndex.type === "TEAM_ENV"
   ) {
     return environmentsStore.value.selectedEnvironmentIndex.environment
-  } else {
-    return {
-      name: "N0_ENV",
-      variables: [],
-    }
+  }
+  return {
+    name: "N0_ENV",
+    variables: [],
   }
 }

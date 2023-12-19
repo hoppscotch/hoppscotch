@@ -17,7 +17,7 @@
           placement="bottom"
           :on-shown="() => tippyActions.focus()"
         >
-          <span class="select-wrapper">
+          <HoppSmartSelectWrapper>
             <HoppButtonSecondary
               :label="
                 CodegenDefinitions.find((x) => x.name === codegenType)!.caption
@@ -25,15 +25,15 @@
               outline
               class="flex-1 pr-8"
             />
-          </span>
+          </HoppSmartSelectWrapper>
           <template #content="{ hide }">
             <div class="flex flex-col space-y-2">
-              <div class="sticky z-10 top-0 flex-shrink-0 overflow-x-auto">
+              <div class="sticky top-0 z-10 flex-shrink-0 overflow-x-auto">
                 <input
                   v-model="searchQuery"
                   type="search"
                   autocomplete="off"
-                  class="flex w-full p-4 py-2 input !bg-primaryContrast"
+                  class="input flex w-full !bg-primaryContrast p-4 py-2"
                   :placeholder="`${t('action.search')}`"
                 />
               </div>
@@ -61,7 +61,7 @@
                   :text="`${t('state.nothing_found')} ‟${searchQuery}”`"
                 >
                   <template #icon>
-                    <icon-lucide-search class="pb-2 opacity-75 svg-icons" />
+                    <icon-lucide-search class="svg-icons opacity-75" />
                   </template>
                 </HoppSmartPlaceholder>
               </div>
@@ -70,16 +70,16 @@
         </tippy>
         <div
           v-if="errorState"
-          class="w-full px-4 py-2 mt-4 overflow-auto font-mono text-red-400 whitespace-normal rounded bg-primaryLight"
+          class="mt-4 w-full overflow-auto whitespace-normal rounded bg-primaryLight px-4 py-2 font-mono text-red-400"
         >
           {{ t("error.something_went_wrong") }}
         </div>
         <div
           v-else-if="codegenType"
-          class="mt-4 border rounded border-dividerLight"
+          class="mt-4 rounded border border-dividerLight"
         >
           <div class="flex items-center justify-between pl-4">
-            <label class="font-semibold truncate text-secondaryLight">
+            <label class="truncate font-semibold text-secondaryLight">
               {{ t("request.generated_code") }}
             </label>
             <div class="flex items-center">
@@ -106,7 +106,7 @@
           </div>
           <div
             ref="generatedCode"
-            class="border-t rounded-b border-dividerLight"
+            class="rounded-b border-t border-dividerLight"
           ></div>
         </div>
       </div>
@@ -214,10 +214,9 @@ const requestCode = computed(() => {
   if (O.isSome(result)) {
     errorState.value = false
     return result.value
-  } else {
-    errorState.value = true
-    return ""
   }
+  errorState.value = true
+  return ""
 })
 
 // Template refs

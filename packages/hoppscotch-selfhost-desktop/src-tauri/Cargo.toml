@@ -1,6 +1,6 @@
 [package]
 name = "hoppscotch-desktop"
-version = "0.0.0"
+version = "23.12.0-1"
 description = "A Tauri App"
 authors = ["you"]
 license = ""
@@ -10,10 +10,10 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [build-dependencies]
-tauri-build = { version = "1.4.0", features = [] }
+tauri-build = { version = "1.5.0", features = [] }
 
 [dependencies]
-tauri = { version = "1.4.1", features = [
+tauri = { version = "1.5.3", features = [
   "dialog-save",
   "fs-write-file",
   "http-all",
@@ -21,21 +21,22 @@ tauri = { version = "1.4.1", features = [
   "shell-open",
   "window-start-dragging",
   "http-multipart",
+  "devtools"
 ] }
 tauri-plugin-store = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "v1" }
 tauri-plugin-deep-link = { git = "https://github.com/FabianLars/tauri-plugin-deep-link", branch = "main" }
 tauri-plugin-window-state = "0.1.0"
-reqwest = "0.11.20"
-serde_json = "1.0.107"
-url = "2.4.1"
-hex_color = "2.0.0"
+reqwest = "0.11.22"
+serde_json = "1.0.108"
+url = "2.5.0"
+hex_color = "3.0.0"
 
 [target.'cfg(target_os = "macos")'.dependencies]
 cocoa = "0.25.0"
 objc = "0.2.7"
 
 [target.'cfg(target_os = "windows")'.dependencies]
-windows = { version = "0.51.1", features = [
+windows = { version = "0.52.0", features = [
   "Win32_Graphics_Dwm",
   "Win32_Foundation",
   "Win32_UI_Controls",

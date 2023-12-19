@@ -1,63 +1,64 @@
 import { ExecException } from "child_process";
+
 import { HoppErrorCode } from "../../types/errors";
-import { execAsync, getErrorCode, getTestJsonFilePath } from "../utils";
+import { runCLI, getErrorCode, getTestJsonFilePath } from "../utils";
 
 describe("Test 'hopp test <file>' command:", () => {
   test("No collection file path provided.", async () => {
-    const cmd = `node ./bin/hopp test`;
-    const { stderr } = await execAsync(cmd);
-    const out = getErrorCode(stderr);
+    const args = "test";
+    const { stderr } = await runCLI(args);
 
+    const out = getErrorCode(stderr);
     expect(out).toBe<HoppErrorCode>("INVALID_ARGUMENT");
   });
 
   test("Collection file not found.", async () => {
-    const cmd = `node ./bin/hopp test notfound.json`;
-    const { stderr } = await execAsync(cmd);
-    const out = getErrorCode(stderr);
+    const args = "test notfound.json";
+    const { stderr } = await runCLI(args);
 
+    const out = getErrorCode(stderr);
     expect(out).toBe<HoppErrorCode>("FILE_NOT_FOUND");
   });
 
   test("Collection file is invalid JSON.", async () => {
-    const cmd = `node ./bin/hopp test ${getTestJsonFilePath(
+    const args = `test ${getTestJsonFilePath(
       "malformed-collection.json"
     )}`;
-    const { stderr } = await execAsync(cmd);
-    const out = getErrorCode(stderr);
+    const { stderr } = await runCLI(args);
 
+    const out = getErrorCode(stderr);
     expect(out).toBe<HoppErrorCode>("UNKNOWN_ERROR");
   });
-  
+
   test("Malformed collection file.", async () => {
-    const cmd = `node ./bin/hopp test ${getTestJsonFilePath(
+    const args = `test ${getTestJsonFilePath(
       "malformed-collection2.json"
     )}`;
-    const { stderr } = await execAsync(cmd);
-    const out = getErrorCode(stderr);
+    const { stderr } = await runCLI(args);
 
+    const out = getErrorCode(stderr);
     expect(out).toBe<HoppErrorCode>("MALFORMED_COLLECTION");
   });
 
   test("Invalid arguement.", async () => {
-    const cmd = `node ./bin/hopp invalid-arg`;
-    const { stderr } = await execAsync(cmd);
-    const out = getErrorCode(stderr);
+    const args = "invalid-arg";
+    const { stderr } = await runCLI(args);
 
+    const out = getErrorCode(stderr);
     expect(out).toBe<HoppErrorCode>("INVALID_ARGUMENT");
   });
 
   test("Collection file not JSON type.", async () => {
-    const cmd = `node ./bin/hopp test ${getTestJsonFilePath("notjson.txt")}`;
-    const { stderr } = await execAsync(cmd);
-    const out = getErrorCode(stderr);
+    const args = `test ${getTestJsonFilePath("notjson.txt")}`;
+    const { stderr } = await runCLI(args);
 
+    const out = getErrorCode(stderr);
     expect(out).toBe<HoppErrorCode>("INVALID_FILE_TYPE");
   });
 
   test("Some errors occured (exit code 1).", async () => {
-    const cmd = `node ./bin/hopp test ${getTestJsonFilePath("fails.json")}`;
-    const { error } = await execAsync(cmd);
+    const args = `test ${getTestJsonFilePath("fails.json")}`;
+    const { error } = await runCLI(args);
 
     expect(error).not.toBeNull();
     expect(error).toMatchObject(<ExecException>{
@@ -66,76 +67,83 @@ describe("Test 'hopp test <file>' command:", () => {
   });
 
   test("No errors occured (exit code 0).", async () => {
-    const cmd = `node ./bin/hopp test ${getTestJsonFilePath("passes.json")}`;
-    const { error } = await execAsync(cmd);
+    const args = `test ${getTestJsonFilePath("passes.json")}`;
+    const { error } = await runCLI(args);
 
     expect(error).toBeNull();
   });
+
+  test("Supports inheriting headers and authorization set at the root collection", async () => {
+    const args = `test ${getTestJsonFilePath("collection-level-headers-auth.json")}`;
+    const { error } = await runCLI(args);
+
+    expect(error).toBeNull();
+  })
 });
 
 describe("Test 'hopp test <file> --env <file>' command:", () => {
-  const VALID_TEST_CMD = `node ./bin/hopp test ${getTestJsonFilePath(
+  const VALID_TEST_ARGS = `test ${getTestJsonFilePath(
     "passes.json"
   )}`;
 
   test("No env file path provided.", async () => {
-    const cmd = `${VALID_TEST_CMD} --env`;
-    const { stderr } = await execAsync(cmd);
-    const out = getErrorCode(stderr);
+    const args = `${VALID_TEST_ARGS} --env`;
+    const { stderr } = await runCLI(args);
 
+    const out = getErrorCode(stderr);
     expect(out).toBe<HoppErrorCode>("INVALID_ARGUMENT");
   });
 
   test("ENV file not JSON type.", async () => {
-    const cmd = `${VALID_TEST_CMD} --env ${getTestJsonFilePath("notjson.txt")}`;
-    const { stderr } = await execAsync(cmd);
-    const out = getErrorCode(stderr);
+    const args = `${VALID_TEST_ARGS} --env ${getTestJsonFilePath("notjson.txt")}`;
+    const { stderr } = await runCLI(args);
 
+    const out = getErrorCode(stderr);
     expect(out).toBe<HoppErrorCode>("INVALID_FILE_TYPE");
   });
 
   test("ENV file not found.", async () => {
-    const cmd = `${VALID_TEST_CMD} --env notfound.json`;
-    const { stderr } = await execAsync(cmd);
-    const out = getErrorCode(stderr);
+    const args = `${VALID_TEST_ARGS} --env notfound.json`;
+    const { stderr } = await runCLI(args);
 
+    const out = getErrorCode(stderr);
     expect(out).toBe<HoppErrorCode>("FILE_NOT_FOUND");
   });
 
   test("No errors occured (exit code 0).", async () => {
     const TESTS_PATH = getTestJsonFilePath("env-flag-tests.json");
     const ENV_PATH = getTestJsonFilePath("env-flag-envs.json");
-    const cmd = `node ./bin/hopp test ${TESTS_PATH} --env ${ENV_PATH}`;
-    const { error } = await execAsync(cmd);
+    const args = `test ${TESTS_PATH} --env ${ENV_PATH}`;
 
+    const { error } = await runCLI(args);
     expect(error).toBeNull();
   });
 });
 
 describe("Test 'hopp test <file> --delay <delay_in_ms>' command:", () => {
-  const VALID_TEST_CMD = `node ./bin/hopp test ${getTestJsonFilePath(
+  const VALID_TEST_ARGS = `test ${getTestJsonFilePath(
     "passes.json"
   )}`;
 
   test("No value passed to delay flag.", async () => {
-    const cmd = `${VALID_TEST_CMD} --delay`;
-    const { stderr } = await execAsync(cmd);
-    const out = getErrorCode(stderr);
+    const args = `${VALID_TEST_ARGS} --delay`;
+    const { stderr } = await runCLI(args);
 
+    const out = getErrorCode(stderr);
     expect(out).toBe<HoppErrorCode>("INVALID_ARGUMENT");
   });
 
   test("Invalid value passed to delay flag.", async () => {
-    const cmd = `${VALID_TEST_CMD} --delay 'NaN'`;
-    const { stderr } = await execAsync(cmd);
+    const args = `${VALID_TEST_ARGS} --delay 'NaN'`;
+    const { stderr } = await runCLI(args);
+
     const out = getErrorCode(stderr);
-    console.log("invalid value thing", out)
     expect(out).toBe<HoppErrorCode>("INVALID_ARGUMENT");
   });
 
   test("Valid value passed to delay flag.", async () => {
-    const cmd = `${VALID_TEST_CMD} --delay 1`;
-    const { error } = await execAsync(cmd);
+    const args = `${VALID_TEST_ARGS} --delay 1`;
+    const { error } = await runCLI(args);
 
     expect(error).toBeNull();
   });

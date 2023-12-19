@@ -1,4 +1,4 @@
-import { authEvents$, def as platformAuth } from "@platform/auth"
+import { authEvents$, def as platformAuth } from "@platform/auth/auth.platform"
 import { CollectionsPlatformDef } from "@hoppscotch/common/platform/collections"
 import { runDispatchWithOutSyncing } from "../../lib/sync"
 
@@ -89,6 +89,7 @@ type ExportedUserCollectionREST = {
   folders: ExportedUserCollectionREST[]
   requests: Array<HoppRESTRequest & { id: string }>
   name: string
+  data: string
 }
 
 type ExportedUserCollectionGQL = {
@@ -96,18 +97,25 @@ type ExportedUserCollectionGQL = {
   folders: ExportedUserCollectionGQL[]
   requests: Array<HoppGQLRequest & { id: string }>
   name: string
+  data: string
 }
 
 function exportedCollectionToHoppCollection(
   collection: ExportedUserCollectionREST | ExportedUserCollectionGQL,
   collectionType: "REST" | "GQL"
-): HoppCollection<HoppRESTRequest | HoppGQLRequest> {
+): HoppCollection {
   if (collectionType == "REST") {
     const restCollection = collection as ExportedUserCollectionREST
-
+    const data =
+      restCollection.data && restCollection.data !== "null"
+        ? JSON.parse(restCollection.data)
+        : {
+            auth: { authType: "inherit", authActive: false },
+            headers: [],
+          }
     return {
       id: restCollection.id,
-      v: 1,
+      v: 2,
       name: restCollection.name,
       folders: restCollection.folders.map((folder) =>
         exportedCollectionToHoppCollection(folder, collectionType)
@@ -139,26 +147,40 @@ function exportedCollectionToHoppCollection(
           testScript,
         })
       ),
+      auth: data.auth,
+      headers: data.headers,
     }
   } else {
     const gqlCollection = collection as ExportedUserCollectionGQL
+    const data =
+      gqlCollection.data && gqlCollection.data !== "null"
+        ? JSON.parse(gqlCollection.data)
+        : {
+            auth: { authType: "inherit", authActive: false },
+            headers: [],
+          }
 
     return {
       id: gqlCollection.id,
-      v: 1,
+      v: 2,
       name: gqlCollection.name,
       folders: gqlCollection.folders.map((folder) =>
         exportedCollectionToHoppCollection(folder, collectionType)
       ),
       requests: gqlCollection.requests.map(
-        ({ v, auth, headers, name, id }) => ({
+        ({ v, auth, headers, name, id, query, url, variables }) => ({
           id,
           v,
           auth,
           headers,
           name,
+          query,
+          url,
+          variables,
         })
       ) as HoppGQLRequest[],
+      auth: data.auth,
+      headers: data.headers,
     }
   }
 }
@@ -168,7 +190,6 @@ async function loadUserCollections(collectionType: "REST" | "GQL") {
     undefined,
     collectionType == "REST" ? ReqType.Rest : ReqType.Gql
   )
-
   if (E.isRight(res)) {
     const collectionsJSONString =
       res.right.exportUserCollectionsToJSON.exportedCollection
@@ -177,7 +198,6 @@ async function loadUserCollections(collectionType: "REST" | "GQL") {
         ExportedUserCollectionGQL | ExportedUserCollectionREST
       >
     ).map((collection) => ({ v: 1, ...collection }))
-
     runDispatchWithOutSyncing(() => {
       collectionType == "REST"
         ? setRESTCollections(
@@ -186,7 +206,7 @@ async function loadUserCollections(collectionType: "REST" | "GQL") {
                 exportedCollectionToHoppCollection(
                   collection,
                   "REST"
-                ) as HoppCollection<HoppRESTRequest>
+                ) as HoppCollection
             )
           )
         : setGraphqlCollections(
@@ -195,7 +215,7 @@ async function loadUserCollections(collectionType: "REST" | "GQL") {
                 exportedCollectionToHoppCollection(
                   collection,
                   "GQL"
-                ) as HoppCollection<HoppGQLRequest>
+                ) as HoppCollection
             )
           )
     })
@@ -292,19 +312,32 @@ function setupUserCollectionCreatedSubscription() {
         })
       } else {
         // root collections won't have parentCollectionID
+        const data =
+          res.right.userCollectionCreated.data &&
+          res.right.userCollectionCreated.data != "null"
+            ? JSON.parse(res.right.userCollectionCreated.data)
+            : {
+                auth: { authType: "inherit", authActive: false },
+                headers: [],
+              }
+
         runDispatchWithOutSyncing(() => {
           collectionType == "GQL"
             ? addGraphqlCollection({
                 name: res.right.userCollectionCreated.title,
                 folders: [],
                 requests: [],
-                v: 1,
+                v: 2,
+                auth: data.auth,
+                headers: data.headers,
               })
             : addRESTCollection({
                 name: res.right.userCollectionCreated.title,
                 folders: [],
                 requests: [],
-                v: 1,
+                v: 2,
+                auth: data.auth,
+                headers: data?.headers,
               })
 
           const localIndex = collectionStore.value.state.length - 1
@@ -718,7 +751,7 @@ export const def: CollectionsPlatformDef = {
 
 function getCollectionPathFromCollectionID(
   collectionID: string,
-  collections: HoppCollection<HoppRESTRequest | HoppGQLRequest>[],
+  collections: HoppCollection[],
   parentPath?: string
 ): string | null {
   for (const collectionIndex in collections) {
@@ -742,7 +775,7 @@ function getCollectionPathFromCollectionID(
 
 function getRequestPathFromRequestID(
   requestID: string,
-  collections: HoppCollection<HoppRESTRequest | HoppGQLRequest>[],
+  collections: HoppCollection[],
   parentPath?: string
 ): { collectionPath: string; requestIndex: number } | null {
   for (const collectionIndex in collections) {
@@ -774,7 +807,7 @@ function getRequestPathFromRequestID(
 function getRequestIndex(
   requestID: string,
   parentCollectionPath: string,
-  collections: HoppCollection<HoppRESTRequest | HoppGQLRequest>[]
+  collections: HoppCollection[]
 ) {
   const collection = navigateToFolderWithIndexPath(
     collections,

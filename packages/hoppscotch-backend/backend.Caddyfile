@@ -1,0 +1,3 @@
+:80 :3170 {
+	reverse_proxy localhost:8080
+}

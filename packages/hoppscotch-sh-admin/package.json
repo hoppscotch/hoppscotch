@@ -1,7 +1,7 @@
 {
   "name": "hoppscotch-sh-admin",
   "private": true,
-  "version": "2023.8.4-1",
+  "version": "2023.12.0-1",
   "type": "module",
   "scripts": {
     "dev": "pnpm exec npm-run-all -p -l dev:*",
@@ -17,7 +17,7 @@
     "@fontsource-variable/material-symbols-rounded": "^5.0.5",
     "@fontsource-variable/roboto-mono": "^5.0.6",
     "@graphql-typed-document-node/core": "^3.1.1",
-    "@hoppscotch/ui": "workspace:^",
+    "@hoppscotch/ui": "^0.1.0",
     "@hoppscotch/vue-toasted": "^0.1.0",
     "@intlify/unplugin-vue-i18n": "^1.2.0",
     "@types/cors": "^2.8.13",
@@ -34,7 +34,10 @@
     "graphql": "^16.6.0",
     "io-ts": "^2.2.16",
     "lodash-es": "^4.17.21",
+    "postcss": "^8.4.23",
+    "prettier-plugin-tailwindcss": "^0.5.6",
     "rxjs": "^7.8.0",
+    "tailwindcss": "^3.3.5",
     "tippy.js": "^6.3.7",
     "ts-node-dev": "^2.0.0",
     "unplugin-icons": "^0.14.9",
@@ -45,6 +48,7 @@
     "vue-tippy": "6.0.0-alpha.58"
   },
   "devDependencies": {
+    "hoppscotch-backend": "workspace:^",
     "@graphql-codegen/cli": "3.0.0",
     "@graphql-codegen/client-preset": "^2.0.0",
     "@graphql-codegen/introspection": "3.0.0",
@@ -55,6 +59,7 @@
     "@graphql-codegen/urql-introspection": "2.2.1",
     "@import-meta-env/cli": "^0.6.3",
     "@import-meta-env/unplugin": "^0.4.8",
+    "@types/lodash-es": "^4.17.12",
     "@vitejs/plugin-vue": "^3.1.0",
     "@vue/compiler-sfc": "^3.2.6",
     "dotenv": "^16.0.3",
@@ -67,9 +72,7 @@
     "vite": "^3.1.4",
     "vite-plugin-pages": "^0.26.0",
     "vite-plugin-vue-layouts": "^0.7.0",
-    "vite-plugin-windicss": "^1.8.8",
-    "vue-tsc": "^0.3.0",
-    "windicss": "^3.5.6"
+    "vue-tsc": "^0.3.0"
   },
   "prettier": {
     "singleQuote": true,

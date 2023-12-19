@@ -10,6 +10,8 @@
         <div class="flex flex-col relaive">
           <label for="teamName" class="py-2"> {{ t('teams.email') }} </label>
           <HoppSmartAutoComplete
+            type="email"
+            :value="ownerEmail"
             styles="w-full p-2 bg-transparent border border-divider rounded-md"
             class="flex-1 !flex"
             :source="allUsersEmail"
@@ -41,7 +43,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, watchEffect } from 'vue';
 import { useToast } from '~/composables/toast';
 import { useI18n } from '~/composables/i18n';
 
@@ -49,7 +51,7 @@ const t = useI18n();
 
 const toast = useToast();
 
-withDefaults(
+const props = withDefaults(
   defineProps<{
     show: boolean;
     loadingState: boolean;
@@ -69,6 +71,13 @@ const emit = defineEmits<{
 const teamName = ref('');
 const ownerEmail = ref('');
 
+watchEffect(() => {
+  if (!props.show) {
+    teamName.value = '';
+    ownerEmail.value = '';
+  }
+});
+
 const getOwnerEmail = (email: string) => (ownerEmail.value = email);
 
 const createTeam = () => {
@@ -81,8 +90,6 @@ const createTeam = () => {
     return;
   }
   emit('create-team', teamName.value, ownerEmail.value);
-  teamName.value = '';
-  ownerEmail.value = '';
 };
 
 const hideModal = () => {

@@ -76,15 +76,14 @@ async function runRequest(
       })
     } else if (axios.isCancel(e)) {
       return E.left("cancellation")
-    } else {
-      return E.left(<InterceptorError>{
-        humanMessage: {
-          heading: (t) => t("error.network_fail"),
-          description: (t) => t("helpers.network_fail"),
-        },
-        error: e,
-      })
     }
+    return E.left(<InterceptorError>{
+      humanMessage: {
+        heading: (t) => t("error.network_fail"),
+        description: (t) => t("helpers.network_fail"),
+      },
+      error: e,
+    })
   }
 }
 

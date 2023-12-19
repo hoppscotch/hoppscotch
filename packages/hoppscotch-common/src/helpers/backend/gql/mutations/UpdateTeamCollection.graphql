@@ -1,0 +1,15 @@
+mutation UpdateTeamCollection(
+  $collectionID: ID!
+  $newTitle: String
+  $data: String
+) {
+  updateTeamCollection(
+    collectionID: $collectionID
+    newTitle: $newTitle
+    data: $data
+  ) {
+    id
+    title
+    data
+  }
+}

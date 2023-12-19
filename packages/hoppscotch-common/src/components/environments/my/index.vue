@@ -1,7 +1,7 @@
 <template>
   <div>
     <div
-      class="sticky z-10 flex justify-between flex-1 flex-shrink-0 overflow-x-auto border-b top-upperPrimaryStickyFold border-dividerLight bg-primary"
+      class="sticky top-upperPrimaryStickyFold z-10 flex flex-1 flex-shrink-0 justify-between overflow-x-auto border-b border-dividerLight bg-primary"
     >
       <HoppButtonSecondary
         :icon="IconPlus"
@@ -38,27 +38,29 @@
       :alt="`${t('empty.environments')}`"
       :text="t('empty.environments')"
     >
-      <div class="flex flex-col items-center space-y-4">
-        <span class="text-secondaryLight text-center">
-          {{ t("environment.import_or_create") }}
-        </span>
-        <div class="flex gap-4 flex-col items-stretch">
-          <HoppButtonPrimary
-            :icon="IconImport"
-            :label="t('import.title')"
-            filled
-            outline
-            @click="displayModalImportExport(true)"
-          />
-          <HoppButtonSecondary
-            :icon="IconPlus"
-            :label="`${t('add.new')}`"
-            filled
-            outline
-            @click="displayModalAdd(true)"
-          />
+      <template #body>
+        <div class="flex flex-col items-center space-y-4">
+          <span class="text-center text-secondaryLight">
+            {{ t("environment.import_or_create") }}
+          </span>
+          <div class="flex flex-col items-stretch gap-4">
+            <HoppButtonPrimary
+              :icon="IconImport"
+              :label="t('import.title')"
+              filled
+              outline
+              @click="displayModalImportExport(true)"
+            />
+            <HoppButtonSecondary
+              :icon="IconPlus"
+              :label="`${t('add.new')}`"
+              filled
+              outline
+              @click="displayModalAdd(true)"
+            />
+          </div>
         </div>
-      </div>
+      </template>
     </HoppSmartPlaceholder>
     <EnvironmentsMyDetails
       :show="showModalDetails"
@@ -68,7 +70,7 @@
       @hide-modal="displayModalEdit(false)"
     />
     <EnvironmentsImportExport
-      :show="showModalImportExport"
+      v-if="showModalImportExport"
       environment-type="MY_ENV"
       @hide-modal="displayModalImportExport(false)"
     />

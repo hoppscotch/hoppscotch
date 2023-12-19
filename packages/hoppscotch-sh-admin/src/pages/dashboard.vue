@@ -57,5 +57,5 @@ const t = useI18n();
 
 // Get Metrics Data
 const { fetching, error, data } = useQuery({ query: MetricsDocument });
-const metrics = computed(() => data?.value?.admin);
+const metrics = computed(() => data?.value?.infra);
 </script>

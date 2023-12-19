@@ -14,6 +14,7 @@ import IconGitHub from "~icons/lucide/github"
 import IconBook from "~icons/lucide/book"
 import IconLifeBuoy from "~icons/lucide/life-buoy"
 import IconZap from "~icons/lucide/zap"
+import { platform } from "~/platform"
 
 type Doc = {
   text: string | string[]
@@ -113,7 +114,7 @@ export class GeneralSpotlightSearcherService extends StaticSpotlightSearcherServ
   }
 
   private openURL(url: string) {
-    window.open(url, "_blank")
+    platform.io.openExternalLink(url)
   }
 
   public onDocSelected(id: string): void {

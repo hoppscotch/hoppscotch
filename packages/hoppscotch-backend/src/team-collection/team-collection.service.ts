@@ -13,6 +13,7 @@ import {
   TEAM_COLL_IS_PARENT_COLL,
   TEAM_COL_SAME_NEXT_COLL,
   TEAM_COL_REORDERING_FAILED,
+  TEAM_COLL_DATA_INVALID,
 } from '../errors';
 import { PubSubService } from '../pubsub/pubsub.service';
 import { isValidLength } from 'src/utils';
@@ -69,6 +70,7 @@ export class TeamCollectionService {
           this.generatePrismaQueryObjForFBCollFolder(f, teamID, index + 1),
         ),
       },
+      data: folder.data ?? undefined,
     };
   }
 
@@ -118,6 +120,7 @@ export class TeamCollectionService {
       name: collection.right.title,
       folders: childrenCollectionObjects,
       requests: requests.map((x) => x.request),
+      data: JSON.stringify(collection.right.data),
     };
 
     return E.right(result);
@@ -198,8 +201,11 @@ export class TeamCollectionService {
       ),
     );
 
-    teamCollections.forEach((x) =>
-      this.pubsub.publish(`team_coll/${destTeamID}/coll_added`, x),
+    teamCollections.forEach((collection) =>
+      this.pubsub.publish(
+        `team_coll/${destTeamID}/coll_added`,
+        this.cast(collection),
+      ),
     );
 
     return E.right(true);
@@ -268,8 +274,11 @@ export class TeamCollectionService {
       ),
     );
 
-    teamCollections.forEach((x) =>
-      this.pubsub.publish(`team_coll/${destTeamID}/coll_added`, x),
+    teamCollections.forEach((collections) =>
+      this.pubsub.publish(
+        `team_coll/${destTeamID}/coll_added`,
+        this.cast(collections),
+      ),
     );
 
     return E.right(true);
@@ -277,11 +286,17 @@ export class TeamCollectionService {
 
   /**
    * Typecast a database TeamCollection to a TeamCollection model
+   *
    * @param teamCollection database TeamCollection
    * @returns TeamCollection model
    */
   private cast(teamCollection: DBTeamCollection): TeamCollection {
-    return <TeamCollection>{ ...teamCollection };
+    return <TeamCollection>{
+      id: teamCollection.id,
+      title: teamCollection.title,
+      parentID: teamCollection.parentID,
+      data: !teamCollection.data ? null : JSON.stringify(teamCollection.data),
+    };
   }
 
   /**
@@ -324,7 +339,7 @@ export class TeamCollectionService {
     });
     if (!teamCollection) return null;
 
-    return teamCollection.parent;
+    return !teamCollection.parent ? null : this.cast(teamCollection.parent);
   }
 
   /**
@@ -335,12 +350,12 @@ export class TeamCollectionService {
    * @param take Number of items we want returned
    * @returns A list of child collections
    */
-  getChildrenOfCollection(
+  async getChildrenOfCollection(
     collectionID: string,
     cursor: string | null,
     take: number,
   ) {
-    return this.prisma.teamCollection.findMany({
+    const res = await this.prisma.teamCollection.findMany({
       where: {
         parentID: collectionID,
       },
@@ -351,6 +366,12 @@ export class TeamCollectionService {
       skip: cursor ? 1 : 0,
       cursor: cursor ? { id: cursor } : undefined,
     });
+
+    const childCollections = res.map((teamCollection) =>
+      this.cast(teamCollection),
+    );
+
+    return childCollections;
   }
 
   /**
@@ -366,7 +387,7 @@ export class TeamCollectionService {
     cursor: string | null,
     take: number,
   ) {
-    return this.prisma.teamCollection.findMany({
+    const res = await this.prisma.teamCollection.findMany({
       where: {
         teamID,
         parentID: null,
@@ -378,6 +399,12 @@ export class TeamCollectionService {
       skip: cursor ? 1 : 0,
       cursor: cursor ? { id: cursor } : undefined,
     });
+
+    const teamCollections = res.map((teamCollection) =>
+      this.cast(teamCollection),
+    );
+
+    return teamCollections;
   }
 
   /**
@@ -470,6 +497,7 @@ export class TeamCollectionService {
   async createCollection(
     teamID: string,
     title: string,
+    data: string | null = null,
     parentTeamCollectionID: string | null,
   ) {
     const isTitleValid = isValidLength(title, this.TITLE_LENGTH);
@@ -479,6 +507,13 @@ export class TeamCollectionService {
     if (parentTeamCollectionID !== null) {
       const isOwner = await this.isOwnerCheck(parentTeamCollectionID, teamID);
       if (O.isNone(isOwner)) return E.left(TEAM_NOT_OWNER);
+    }
+
+    if (data === '') return E.left(TEAM_COLL_DATA_INVALID);
+    if (data) {
+      const jsonReq = stringToJson(data);
+      if (E.isLeft(jsonReq)) return E.left(TEAM_COLL_DATA_INVALID);
+      data = jsonReq.right;
     }
 
     const isParent = parentTeamCollectionID
@@ -498,18 +533,23 @@ export class TeamCollectionService {
           },
         },
         parent: isParent,
+        data: data ?? undefined,
         orderIndex: !parentTeamCollectionID
           ? (await this.getRootCollectionsCount(teamID)) + 1
           : (await this.getChildCollectionsCount(parentTeamCollectionID)) + 1,
       },
     });
 
-    this.pubsub.publish(`team_coll/${teamID}/coll_added`, teamCollection);
+    this.pubsub.publish(
+      `team_coll/${teamID}/coll_added`,
+      this.cast(teamCollection),
+    );
 
     return E.right(this.cast(teamCollection));
   }
 
   /**
+   * @deprecated Use updateTeamCollection method instead
    * Update the title of a TeamCollection
    *
    * @param collectionID The Collection ID
@@ -532,10 +572,10 @@ export class TeamCollectionService {
 
       this.pubsub.publish(
         `team_coll/${updatedTeamCollection.teamID}/coll_updated`,
-        updatedTeamCollection,
+        this.cast(updatedTeamCollection),
       );
 
-      return E.right(updatedTeamCollection);
+      return E.right(this.cast(updatedTeamCollection));
     } catch (error) {
       return E.left(TEAM_COLL_NOT_FOUND);
     }
@@ -694,8 +734,8 @@ export class TeamCollectionService {
    * @returns An Option of boolean, is parent or not
    */
   private async isParent(
-    collection: TeamCollection,
-    destCollection: TeamCollection,
+    collection: DBTeamCollection,
+    destCollection: DBTeamCollection,
   ): Promise<O.Option<boolean>> {
     //* Recursively check if collection is a parent by going up the tree of child-parent collections until we reach a root collection i.e parentID === null
     //* Valid condition, isParent returns false
@@ -970,5 +1010,50 @@ export class TeamCollectionService {
   async getTeamCollectionsCount() {
     const teamCollectionsCount = this.prisma.teamCollection.count();
     return teamCollectionsCount;
+  }
+
+  /**
+   * Update Team Collection details
+   *
+   * @param collectionID Collection ID
+   * @param collectionData new header data in a JSONified string form
+   * @param newTitle New title of the collection
+   * @returns Updated TeamCollection
+   */
+  async updateTeamCollection(
+    collectionID: string,
+    collectionData: string = null,
+    newTitle: string = null,
+  ) {
+    try {
+      if (newTitle != null) {
+        const isTitleValid = isValidLength(newTitle, this.TITLE_LENGTH);
+        if (!isTitleValid) return E.left(TEAM_COLL_SHORT_TITLE);
+      }
+
+      if (collectionData === '') return E.left(TEAM_COLL_DATA_INVALID);
+      if (collectionData) {
+        const jsonReq = stringToJson(collectionData);
+        if (E.isLeft(jsonReq)) return E.left(TEAM_COLL_DATA_INVALID);
+        collectionData = jsonReq.right;
+      }
+
+      const updatedTeamCollection = await this.prisma.teamCollection.update({
+        where: { id: collectionID },
+        data: {
+          data: collectionData ?? undefined,
+          title: newTitle ?? undefined,
+        },
+      });
+
+      this.pubsub.publish(
+        `team_coll/${updatedTeamCollection.teamID}/coll_updated`,
+        this.cast(updatedTeamCollection),
+      );
+
+      return E.right(this.cast(updatedTeamCollection));
+    } catch (e) {
+      return E.left(TEAM_COLL_NOT_FOUND);
+    }
   }
 }

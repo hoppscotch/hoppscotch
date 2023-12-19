@@ -1,5 +1,5 @@
 query TeamInfo($teamID: ID!) {
-  admin {
+  infra {
     teamInfo(teamID: $teamID) {
       id
       name

@@ -6,20 +6,10 @@
       class="inline-flex"
     >
       <HoppSmartPicture
-        v-if="member.user.photoURL"
         v-tippy="{ theme: 'tooltip' }"
-        :url="member.user.photoURL"
-        :title="getUserName(member)"
-        :alt="getUserName(member)"
-        class="ring-primary ring-2"
-        @click="handleClick()"
-      />
-      <HoppSmartPicture
-        v-else
-        v-tippy="{ theme: 'tooltip' }"
-        :title="getUserName(member)"
-        :initial="getUserName(member)"
-        class="ring-primary ring-2"
+        :name="member.user.uid"
+        :title="getUserName(member as TeamMember)"
+        class="ring-2 ring-primary"
         @click="handleClick()"
       />
     </div>
@@ -27,7 +17,7 @@
       v-if="props.showCount && props.teamMembers.length > maxMembersSoftLimit"
       v-tippy="{ theme: 'tooltip', allowHTML: true }"
       :title="remainingSlicedMembers"
-      class="z-10 inline-flex items-center justify-center w-5 h-5 rounded-full cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primaryDark font- text-8px text-secondaryDark bg-dividerDark ring-2 ring-primary"
+      class="font- text-8px z-10 inline-flex h-5 w-5 cursor-pointer items-center justify-center rounded-full bg-dividerDark text-secondaryDark ring-2 ring-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-primaryDark"
       tabindex="0"
       @click="handleClick()"
     >
@@ -59,7 +49,7 @@ const emit = defineEmits<{
 const getUserName = (member: TeamMember): string =>
   member.user.displayName ||
   member.user.email ||
-  t("profile.default_hopp_displayName")
+  t("profile.default_hopp_displayname")
 
 const maxMembersSoftLimit = 4
 const maxMembersHardLimit = 6
@@ -67,9 +57,8 @@ const maxMembersHardLimit = 6
 const slicedTeamMembers = computed(() => {
   if (props.showCount && props.teamMembers.length > maxMembersSoftLimit) {
     return props.teamMembers.slice(0, maxMembersSoftLimit)
-  } else {
-    return props.teamMembers
   }
+  return props.teamMembers
 })
 
 const remainingSlicedMembers = computed(
@@ -77,7 +66,7 @@ const remainingSlicedMembers = computed(
     props.teamMembers
       .slice(maxMembersSoftLimit)
       .slice(0, maxMembersHardLimit)
-      .map((member) => getUserName(member))
+      .map((member) => getUserName(member as TeamMember))
       .join(`,<br>`) +
     (props.teamMembers.length - (maxMembersSoftLimit + maxMembersHardLimit) > 0
       ? `,<br>${t("team.more_members", {

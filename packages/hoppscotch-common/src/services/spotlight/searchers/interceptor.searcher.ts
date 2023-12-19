@@ -8,7 +8,6 @@ import {
 } from ".."
 
 import { Service } from "dioc"
-import { useService } from "dioc/vue"
 import MiniSearch from "minisearch"
 import IconCheckCircle from "~/components/app/spotlight/entry/IconSelected.vue"
 import { InterceptorService } from "~/services/interceptor.service"
@@ -30,14 +29,13 @@ export class InterceptorSpotlightSearcherService
   public searcherSectionTitle = this.t("settings.interceptor")
 
   private readonly spotlight = this.bind(SpotlightService)
+  private interceptorService = this.bind(InterceptorService)
 
   constructor() {
     super()
 
     this.spotlight.registerSearcher(this)
   }
-
-  private interceptorService = useService(InterceptorService)
 
   createSearchSession(
     query: Readonly<Ref<string>>

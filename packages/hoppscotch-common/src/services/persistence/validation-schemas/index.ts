@@ -36,7 +36,7 @@ const SettingsDefSchema = z.object({
     httpUser: z.boolean(),
     httpPassword: z.boolean(),
     bearerToken: z.boolean(),
-    oauth2Token: z.boolean(),
+    oauth2Token: z.optional(z.boolean()),
   }),
   THEME_COLOR: ThemeColorSchema,
   BG_COLOR: BgColorSchema,
@@ -103,13 +103,10 @@ export const LOCAL_STATE_SCHEMA = z.union([
     .strict(),
 ])
 
-export const SETTINGS_SCHEMA = z.union([
-  z.object({}).strict(),
-  SettingsDefSchema.extend({
-    EXTENSIONS_ENABLED: z.optional(z.boolean()),
-    PROXY_ENABLED: z.optional(z.boolean()),
-  }),
-])
+export const SETTINGS_SCHEMA = SettingsDefSchema.extend({
+  EXTENSIONS_ENABLED: z.optional(z.boolean()),
+  PROXY_ENABLED: z.optional(z.boolean()),
+})
 
 export const REST_HISTORY_ENTRY_SCHEMA = z
   .object({
@@ -208,7 +205,7 @@ export const MQTT_REQUEST_SCHEMA = z.nullable(
   z
     .object({
       endpoint: z.string(),
-      clientID: z.string(),
+      clientID: z.optional(z.string()),
     })
     .strict()
 )

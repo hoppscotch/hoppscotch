@@ -244,8 +244,12 @@ export class PersistenceService extends Service {
   private setupSettingsPersistence() {
     const settingsKey = "settings"
     let settingsData = JSON.parse(
-      window.localStorage.getItem(settingsKey) || "{}"
+      window.localStorage.getItem(settingsKey) ?? "null"
     )
+
+    if (!settingsData) {
+      settingsData = getDefaultSettings()
+    }
 
     // Validate data read from localStorage
     const result = SETTINGS_SCHEMA.safeParse(settingsData)

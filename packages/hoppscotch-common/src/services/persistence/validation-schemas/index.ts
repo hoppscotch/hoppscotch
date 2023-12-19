@@ -36,7 +36,7 @@ const SettingsDefSchema = z.object({
     httpUser: z.boolean(),
     httpPassword: z.boolean(),
     bearerToken: z.boolean(),
-    oauth2Token: z.boolean(),
+    oauth2Token: z.optional(z.boolean()),
   }),
   THEME_COLOR: ThemeColorSchema,
   BG_COLOR: BgColorSchema,

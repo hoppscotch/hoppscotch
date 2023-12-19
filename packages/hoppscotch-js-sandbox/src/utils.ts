@@ -176,7 +176,7 @@ const unsetEnv = (
 
   // Found the match in selected
   if (indexInSelected >= 0) {
-    // delete envs.selected[indexInSelected]
+    // delete selected[indexInSelected]
     selected.splice(indexInSelected, 1)
 
     return {
@@ -187,9 +187,9 @@ const unsetEnv = (
 
   const indexInGlobal = global.findIndex((x: GlobalEnvItem) => x.key == envName)
 
-  // Found a match in globals
+  // Found a match in global
   if (indexInGlobal >= 0) {
-    // delete envs.selected[indexInSelected]
+    // delete global[indexInGlobal]
     global.splice(indexInGlobal, 1)
 
     return {

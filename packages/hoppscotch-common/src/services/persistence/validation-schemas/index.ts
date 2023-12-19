@@ -45,6 +45,24 @@ const SettingsDefSchema = z.object({
   SIDEBAR: z.boolean(),
   SIDEBAR_ON_LEFT: z.boolean(),
   COLUMN_LAYOUT: z.boolean(),
+
+  WRAP_LINES_HTTP_REQUEST_BODY: z.boolean(),
+  WRAP_LINES_HTTP_RESPONSE_BODY: z.boolean(),
+  WRAP_LINES_HTTP_HEADERS: z.boolean(),
+  WRAP_LINES_HTTP_PARAMS: z.boolean(),
+  WRAP_LINES_HTTP_URL_ENCODED: z.boolean(),
+  WRAP_LINES_HTTP_PREREQUEST: z.boolean(),
+  WRAP_LINES_HTTP_TEST: z.boolean(),
+  WRAP_LINES_GRAPHQL_QUERY: z.boolean(),
+  WRAP_LINES_GRAPHQL_RESPONSE_BODY: z.boolean(),
+  WRAP_LINES_GRAPHQL_HEADERS: z.boolean(),
+  WRAP_LINES_GRAPHQL_VARIABLES: z.boolean(),
+  WRAP_LINES_GRAPHQL_SCHEMA: z.boolean(),
+  WRAP_LINES_REALTIME_BODY: z.boolean(),
+  WRAP_LINES_REALTIME_LOG: z.boolean(),
+  WRAP_LINES_IMPORT_CURL: z.boolean(),
+  WRAP_LINES_CODE_GEN: z.boolean(),
+  WRAP_LINES_COOKIE: z.boolean(),
 })
 
 // Common properties shared across REST & GQL collections

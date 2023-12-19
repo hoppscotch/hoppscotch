@@ -1,7 +1,19 @@
 <template>
-  <div class="flex flex-col flex-1 w-full">
+  <div class="flex flex-col justify-center">
+    <div
+      v-if="invalidLink"
+      class="flex flex-1 flex-col items-center justify-center p-8"
+    >
+      <icon-lucide-alert-triangle class="svg-icons mb-2 opacity-75" />
+      <h1 class="heading text-center">
+        {{ t("error.invalid_link") }}
+      </h1>
+      <p class="mt-2 text-center">
+        {{ t("error.invalid_embed_link") }}
+      </p>
+    </div>
     <Embeds
-      v-if="tab"
+      v-else-if="!invalidLink && tab"
       v-model:modelTab="tab"
       :properties="properties"
       :shared-request-i-d="sharedRequestID"
@@ -28,6 +40,9 @@ import {
 import { HoppTab } from "~/services/tab"
 import { HoppRESTDocument } from "~/helpers/rest/document"
 import { applySetting } from "~/newstore/settings"
+import { useI18n } from "~/composables/i18n"
+
+const t = useI18n()
 
 const route = useRoute()
 

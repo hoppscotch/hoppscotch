@@ -3,6 +3,7 @@
   "pw": {
     "env": {
       "set": "fn(key: string, value: string)",
+      "unset": "fn(key: string)",
       "get": "fn(key: string) -> string",
       "getResolve": "fn(key: string) -> string",
       "resolve": "fn(value: string) -> string"

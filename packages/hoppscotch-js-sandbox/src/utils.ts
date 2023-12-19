@@ -79,6 +79,16 @@ const getSharedMethods = (envs: TestResult["envs"]) => {
     return undefined
   }
 
+  const envUnsetFn = (key: any) => {
+    if (typeof key !== "string") {
+      throw new Error("Expected key to be a string")
+    }
+
+    updatedEnvs = unsetEnv(key, updatedEnvs)
+
+    return undefined
+  }
+
   const envResolveFn = (value: any) => {
     if (typeof value !== "string") {
       throw new Error("Expected value to be a string")
@@ -101,6 +111,7 @@ const getSharedMethods = (envs: TestResult["envs"]) => {
         get: envGetFn,
         getResolve: envGetResolveFn,
         set: envSetFn,
+        unset: envUnsetFn,
         resolve: envResolveFn,
       },
     },
@@ -147,6 +158,47 @@ const setEnv = (
     value: envValue,
   })
 
+  return {
+    global,
+    selected,
+  }
+}
+
+const unsetEnv = (
+  envName: string,
+  envs: TestResult["envs"]
+): TestResult["envs"] => {
+  const { global, selected } = envs
+
+  const indexInSelected = selected.findIndex(
+    (x: SelectedEnvItem) => x.key === envName
+  )
+
+  // Found the match in selected
+  if (indexInSelected >= 0) {
+    // delete envs.selected[indexInSelected]
+    selected.splice(indexInSelected, 1)
+
+    return {
+      global,
+      selected,
+    }
+  }
+
+  const indexInGlobal = global.findIndex((x: GlobalEnvItem) => x.key == envName)
+
+  // Found a match in globals
+  if (indexInGlobal >= 0) {
+    // delete envs.selected[indexInSelected]
+    global.splice(indexInGlobal, 1)
+
+    return {
+      global,
+      selected,
+    }
+  }
+
+  // Didn't find in both places
   return {
     global,
     selected,

@@ -189,7 +189,7 @@ export class InfraConfigService implements OnModuleInit {
    * @param service Service can be Auth Provider, Mailer, Audit Log etc.
    * @returns Either true or false
    */
-  async isServiceConfigured(service: AuthProvider) {
+  isServiceConfigured(service: AuthProvider) {
     switch (service) {
       case AuthProvider.GOOGLE:
         if (
@@ -246,7 +246,7 @@ export class InfraConfigService implements OnModuleInit {
       const { provider, status } = providerInfo[i];
 
       if (status === ServiceStatus.ENABLE) {
-        const isConfigured = await this.isServiceConfigured(provider);
+        const isConfigured = this.isServiceConfigured(provider);
         if (!isConfigured) {
           throwErr(INFRA_CONFIG_SERVICE_NOT_CONFIGURED);
         }

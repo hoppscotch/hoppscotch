@@ -500,8 +500,6 @@ const HoppGistCollectionsExporter: ImporterOrExporter = {
     if (E.isRight(collectionJSON)) {
       const res = await gistExporter(collectionJSON.right, accessToken)
 
-      console.log(JSON.stringify(res, null, 2))
-
       if (E.isLeft(res)) {
         toast.error(t("export.failed"))
         return
@@ -515,9 +513,7 @@ const HoppGistCollectionsExporter: ImporterOrExporter = {
         platform: "rest",
       })
 
-      if (res.right) {
-        window.open(res.right, "_blank")
-      }
+      platform.io.openExternalLink(res.right)
     }
 
     isHoppGistCollectionExporterInProgress.value = false
@@ -606,4 +602,3 @@ const getCollectionJSON = async () => {
   return E.left("INVALID_SELECTED_TEAM_OR_INVALID_COLLECTION_TYPE")
 }
 </script>
-~/helpers/import-export/export/gist

@@ -81,4 +81,11 @@ export type IOPlatformDef = {
   saveFileWithDialog: (
     opts: SaveFileWithDialogOptions
   ) => Promise<SaveFileResponse>
+
+  /**
+   * Opens a link in the user's browser.
+   * The expected behaviour is for the browser to open a new tab/window (for example in desktop app) with the given URL.
+   * @param url The URL to open
+   */
+  openExternalLink: (url: string) => Promise<void>
 }

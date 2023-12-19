@@ -199,7 +199,7 @@ const GqlCollectionsGistExporter: ImporterOrExporter = {
         exporter: "gist",
       })
 
-      window.open(res.right, "_blank")
+      platform.io.openExternalLink(res.right)
     }
   },
 }

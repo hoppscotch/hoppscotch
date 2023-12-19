@@ -297,7 +297,7 @@ const HoppEnvironmentsGistExporter: ImporterOrExporter = {
         platform: "rest",
       })
 
-      window.open(res.right, "_blank")
+      platform.io.openExternalLink(res.right)
     }
   },
 }

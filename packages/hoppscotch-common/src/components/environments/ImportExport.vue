@@ -9,15 +9,17 @@
 </template>
 
 <script setup lang="ts">
+import { Environment } from "@hoppscotch/data"
+import * as E from "fp-ts/Either"
+import { ref } from "vue"
+
 import { useI18n } from "~/composables/i18n"
 import { useToast } from "~/composables/toast"
-import { Environment } from "@hoppscotch/data"
 import { ImporterOrExporter } from "~/components/importExport/types"
 import { FileSource } from "~/helpers/import-export/import/import-sources/FileSource"
 import { GistSource } from "~/helpers/import-export/import/import-sources/GistSource"
 import { hoppEnvImporter } from "~/helpers/import-export/import/hoppEnv"
 
-import * as E from "fp-ts/Either"
 import {
   appendEnvironments,
   addGlobalEnvVariable,
@@ -39,7 +41,7 @@ import { initializeDownloadCollection } from "~/helpers/import-export/export"
 import { computed } from "vue"
 import { useReadonlyStream } from "~/composables/stream"
 import { environmentsExporter } from "~/helpers/import-export/export/environments"
-import { environmentsGistExporter } from "~/helpers/import-export/export/environmentsGistExport"
+import { gistExporter } from "~/helpers/import-export/export/gist"
 import { platform } from "~/platform"
 
 const t = useI18n()
@@ -57,6 +59,8 @@ const currentUser = useReadonlyStream(
   platform.auth.getCurrentUserStream(),
   platform.auth.getCurrentUser()
 )
+
+const isEnvironmentGistExportInProgress = ref(false)
 
 const isTeamEnvironment = computed(() => {
   return props.environmentType === "TEAM_ENV"
@@ -262,35 +266,44 @@ const HoppEnvironmentsGistExporter: ImporterOrExporter = {
     title:
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      currentUser?.provider === "github.com"
-        ? "export.create_secret_gist"
+      currentUser?.value?.provider === "github.com"
+        ? "export.create_secret_gist_tooltip_text"
         : "export.require_github",
     icon: IconUser,
     disabled: !currentUser.value
       ? true
-      : currentUser.value.provider !== "github.com",
+      : currentUser.value?.provider !== "github.com",
     applicableTo: ["personal-workspace", "team-workspace"],
+    isLoading: isEnvironmentGistExportInProgress,
   },
   action: async () => {
+    if (!environmentJson.value.length) {
+      return toast.error(t("error.no_environments_to_export"))
+    }
+
     if (!currentUser.value) {
       toast.error(t("profile.no_permission"))
       return
     }
 
+    isEnvironmentGistExportInProgress.value = true
+
     const accessToken = currentUser.value?.accessToken
 
     if (accessToken) {
-      const res = await environmentsGistExporter(
+      const res = await gistExporter(
         JSON.stringify(environmentJson.value),
-        accessToken
+        accessToken,
+        "hoppscotch-environment.json"
       )
 
       if (E.isLeft(res)) {
         toast.error(t("export.failed"))
+        isEnvironmentGistExportInProgress.value = false
         return
       }
 
-      toast.success(t("export.success"))
+      toast.success(t("export.secret_gist_success"))
 
       platform.analytics?.logEvent({
         type: "HOPP_EXPORT_ENVIRONMENT",
@@ -299,6 +312,8 @@ const HoppEnvironmentsGistExporter: ImporterOrExporter = {
 
       platform.io.openExternalLink(res.right)
     }
+
+    isEnvironmentGistExportInProgress.value = false
   },
 }
 

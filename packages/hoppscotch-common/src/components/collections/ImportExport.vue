@@ -9,7 +9,10 @@
 </template>
 
 <script setup lang="ts">
+import { HoppCollection } from "@hoppscotch/data"
 import * as E from "fp-ts/Either"
+import { PropType, computed, ref } from "vue"
+
 import { FileSource } from "~/helpers/import-export/import/import-sources/FileSource"
 import { UrlSource } from "~/helpers/import-export/import/import-sources/UrlSource"
 
@@ -24,11 +27,9 @@ import {
 } from "~/helpers/import-export/import/importers"
 
 import { defineStep } from "~/composables/step-components"
-import { PropType, computed, ref } from "vue"
 
 import { useI18n } from "~/composables/i18n"
 import { useToast } from "~/composables/toast"
-import { HoppCollection } from "@hoppscotch/data"
 import { appendRESTCollections, restCollections$ } from "~/newstore/collections"
 import MyCollectionImport from "~/components/importExport/ImportExportSteps/MyCollectionImport.vue"
 import { GetMyTeamsQuery } from "~/helpers/backend/graphql"
@@ -48,7 +49,7 @@ import { getTeamCollectionJSON } from "~/helpers/backend/helpers"
 import { platform } from "~/platform"
 
 import { initializeDownloadCollection } from "~/helpers/import-export/export"
-import { collectionsGistExporter } from "~/helpers/import-export/export/gistExport"
+import { gistExporter } from "~/helpers/import-export/export/gist"
 import { myCollectionsExporter } from "~/helpers/import-export/export/myCollections"
 import { teamCollectionsExporter } from "~/helpers/import-export/export/teamCollections"
 
@@ -82,6 +83,8 @@ const currentUser = useReadonlyStream(
   platform.auth.getCurrentUserStream(),
   platform.auth.getCurrentUser()
 )
+
+const myCollections = useReadonlyStream(restCollections$, [])
 
 const showImportFailedError = () => {
   toast.error(t("import.failed"))
@@ -468,8 +471,13 @@ const HoppGistCollectionsExporter: ImporterOrExporter = {
     icon: IconGithub,
     disabled: !currentUser.value
       ? true
-      : currentUser.value.provider !== "github.com",
-    title: t("export.create_secret_gist"),
+      : currentUser.value?.provider !== "github.com",
+    title:
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      currentUser?.value?.provider === "github.com"
+        ? "export.create_secret_gist_tooltip_text"
+        : "export.require_github",
     applicableTo: ["personal-workspace", "team-workspace"],
     isLoading: isHoppGistCollectionExporterInProgress,
   },
@@ -486,13 +494,27 @@ const HoppGistCollectionsExporter: ImporterOrExporter = {
     }
 
     if (E.isRight(collectionJSON)) {
-      collectionsGistExporter(collectionJSON.right, accessToken)
+      if (!JSON.parse(collectionJSON.right).length) {
+        isHoppGistCollectionExporterInProgress.value = false
+        return toast.error(t("error.no_collections_to_export"))
+      }
+
+      const res = await gistExporter(collectionJSON.right, accessToken)
+
+      if (E.isLeft(res)) {
+        toast.error(t("export.failed"))
+        return
+      }
+
+      toast.success(t("export.secret_gist_success"))
 
       platform.analytics?.logEvent({
         type: "HOPP_EXPORT_COLLECTION",
         exporter: "gist",
         platform: "rest",
       })
+
+      platform.io.openExternalLink(res.right)
     }
 
     isHoppGistCollectionExporterInProgress.value = false
@@ -559,8 +581,6 @@ const selectedTeamID = computed(() => {
     ? collectionsType.selectedTeam?.id
     : undefined
 })
-
-const myCollections = useReadonlyStream(restCollections$, [])
 
 const getCollectionJSON = async () => {
   if (

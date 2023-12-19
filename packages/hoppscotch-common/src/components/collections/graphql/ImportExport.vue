@@ -9,14 +9,15 @@
 </template>
 
 <script setup lang="ts">
+import { HoppCollection } from "@hoppscotch/data"
+import * as E from "fp-ts/Either"
+import { ref } from "vue"
+
 import { useI18n } from "~/composables/i18n"
 import { useToast } from "~/composables/toast"
-import { HoppCollection } from "@hoppscotch/data"
 import { ImporterOrExporter } from "~/components/importExport/types"
 import { FileSource } from "~/helpers/import-export/import/import-sources/FileSource"
 import { GistSource } from "~/helpers/import-export/import/import-sources/GistSource"
-
-import * as E from "fp-ts/Either"
 
 import IconFolderPlus from "~icons/lucide/folder-plus"
 import IconUser from "~icons/lucide/user"
@@ -30,7 +31,7 @@ import {
 } from "~/newstore/collections"
 import { hoppGqlCollectionsImporter } from "~/helpers/import-export/import/hoppGql"
 import { gqlCollectionsExporter } from "~/helpers/import-export/export/gqlCollections"
-import { gqlCollectionsGistExporter } from "~/helpers/import-export/export/gqlCollectionsGistExporter"
+import { gistExporter } from "~/helpers/import-export/export/gist"
 import { computed } from "vue"
 import { hoppGQLImporter } from "~/helpers/import-export/import/hopp"
 
@@ -41,6 +42,10 @@ const currentUser = useReadonlyStream(
   platform.auth.getCurrentUserStream(),
   platform.auth.getCurrentUser()
 )
+
+const gqlCollections = useReadonlyStream(graphqlCollections$, [])
+
+const isGqlCollectionGistExportInProgress = ref(false)
 
 const GqlCollectionsHoppImporter: ImporterOrExporter = {
   metadata: {
@@ -119,8 +124,6 @@ const GqlCollectionsGistImporter: ImporterOrExporter = {
   }),
 }
 
-const gqlCollections = useReadonlyStream(graphqlCollections$, [])
-
 const GqlCollectionsHoppExporter: ImporterOrExporter = {
   metadata: {
     id: "export.as_json",
@@ -159,29 +162,35 @@ const GqlCollectionsGistExporter: ImporterOrExporter = {
   metadata: {
     id: "export.as_gist",
     name: "export.create_secret_gist",
-    title: !currentUser
-      ? "export.require_github"
-      : // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        currentUser.provider !== "github.com"
-        ? `export.require_github`
-        : "export.create_secret_gist",
+    title:
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      currentUser?.value?.provider === "github.com"
+        ? "export.create_secret_gist_tooltip_text"
+        : "export.require_github",
     icon: IconUser,
     disabled: !currentUser.value
       ? true
-      : currentUser.value.provider !== "github.com",
+      : currentUser.value?.provider !== "github.com",
     applicableTo: ["personal-workspace"],
+    isLoading: isGqlCollectionGistExportInProgress,
   },
   action: async () => {
+    if (!gqlCollections.value.length) {
+      return toast.error(t("error.no_collections_to_export"))
+    }
+
     if (!currentUser.value) {
       toast.error(t("profile.no_permission"))
       return
     }
 
+    isGqlCollectionGistExportInProgress.value = true
+
     const accessToken = currentUser.value?.accessToken
 
     if (accessToken) {
-      const res = await gqlCollectionsGistExporter(
+      const res = await gistExporter(
         JSON.stringify(gqlCollections.value),
         accessToken
       )
@@ -191,7 +200,7 @@ const GqlCollectionsGistExporter: ImporterOrExporter = {
         return
       }
 
-      toast.success(t("export.success"))
+      toast.success(t("export.secret_gist_success"))
 
       platform.analytics?.logEvent({
         type: "HOPP_EXPORT_COLLECTION",
@@ -201,6 +210,8 @@ const GqlCollectionsGistExporter: ImporterOrExporter = {
 
       platform.io.openExternalLink(res.right)
     }
+
+    isGqlCollectionGistExportInProgress.value = false
   },
 }
 

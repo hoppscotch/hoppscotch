@@ -99,15 +99,14 @@ import { useI18n } from "@composables/i18n"
 import { defineActionHandler } from "~/helpers/actions"
 import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
 import { GQLResponseEvent } from "~/helpers/graphql/connection"
+import { useSetting } from "~/composables/settings"
+import { toggleSetting } from "~/newstore/settings"
 import interfaceLanguages from "~/helpers/utils/interfaceLanguages"
 import {
   useCopyInterface,
   useCopyResponse,
   useDownloadResponse,
 } from "~/composables/lens-actions"
-import { platform } from "~/platform"
-import { useSetting } from "~/composables/settings"
-import { toggleSetting } from "~/newstore/settings"
 
 const t = useI18n()
 

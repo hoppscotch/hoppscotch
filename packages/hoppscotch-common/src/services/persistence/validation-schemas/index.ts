@@ -103,13 +103,10 @@ export const LOCAL_STATE_SCHEMA = z.union([
     .strict(),
 ])
 
-export const SETTINGS_SCHEMA = z.union([
-  z.object({}),
-  SettingsDefSchema.extend({
-    EXTENSIONS_ENABLED: z.optional(z.boolean()),
-    PROXY_ENABLED: z.optional(z.boolean()),
-  }),
-])
+export const SETTINGS_SCHEMA = SettingsDefSchema.extend({
+  EXTENSIONS_ENABLED: z.optional(z.boolean()),
+  PROXY_ENABLED: z.optional(z.boolean()),
+})
 
 export const REST_HISTORY_ENTRY_SCHEMA = z
   .object({

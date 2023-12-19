@@ -482,10 +482,6 @@ const HoppGistCollectionsExporter: ImporterOrExporter = {
     isLoading: isHoppGistCollectionExporterInProgress,
   },
   action: async () => {
-    if (!myCollections.value.length) {
-      return toast.error(t("error.no_collections_to_export"))
-    }
-
     isHoppGistCollectionExporterInProgress.value = true
 
     const collectionJSON = await getCollectionJSON()
@@ -498,6 +494,11 @@ const HoppGistCollectionsExporter: ImporterOrExporter = {
     }
 
     if (E.isRight(collectionJSON)) {
+      if (!JSON.parse(collectionJSON.right).length) {
+        isHoppGistCollectionExporterInProgress.value = false
+        return toast.error(t("error.no_collections_to_export"))
+      }
+
       const res = await gistExporter(collectionJSON.right, accessToken)
 
       if (E.isLeft(res)) {

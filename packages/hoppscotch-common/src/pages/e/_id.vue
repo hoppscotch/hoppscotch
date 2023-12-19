@@ -9,7 +9,7 @@
         {{ t("error.invalid_link") }}
       </h1>
       <p class="mt-2 text-center">
-        {{ t("error.invalid_link_description") }}
+        {{ t("error.invalid_embed_link") }}
       </p>
     </div>
     <Embeds

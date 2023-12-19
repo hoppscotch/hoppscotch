@@ -9,15 +9,15 @@
 </template>
 
 <script setup lang="ts">
+import { HoppCollection } from "@hoppscotch/data"
+import * as E from "fp-ts/Either"
+import { ref } from "vue"
+
 import { useI18n } from "~/composables/i18n"
 import { useToast } from "~/composables/toast"
-import { HoppCollection } from "@hoppscotch/data"
 import { ImporterOrExporter } from "~/components/importExport/types"
 import { FileSource } from "~/helpers/import-export/import/import-sources/FileSource"
 import { GistSource } from "~/helpers/import-export/import/import-sources/GistSource"
-import { ref } from "vue"
-
-import * as E from "fp-ts/Either"
 
 import IconFolderPlus from "~icons/lucide/folder-plus"
 import IconUser from "~icons/lucide/user"

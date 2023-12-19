@@ -9,15 +9,17 @@
 </template>
 
 <script setup lang="ts">
+import { Environment } from "@hoppscotch/data"
+import * as E from "fp-ts/Either"
+import { ref } from "vue"
+
 import { useI18n } from "~/composables/i18n"
 import { useToast } from "~/composables/toast"
-import { Environment } from "@hoppscotch/data"
 import { ImporterOrExporter } from "~/components/importExport/types"
 import { FileSource } from "~/helpers/import-export/import/import-sources/FileSource"
 import { GistSource } from "~/helpers/import-export/import/import-sources/GistSource"
 import { hoppEnvImporter } from "~/helpers/import-export/import/hoppEnv"
 
-import * as E from "fp-ts/Either"
 import {
   appendEnvironments,
   addGlobalEnvVariable,
@@ -30,7 +32,6 @@ import { GQLError } from "~/helpers/backend/GQLClient"
 import { CreateTeamEnvironmentMutation } from "~/helpers/backend/graphql"
 import { postmanEnvImporter } from "~/helpers/import-export/import/postmanEnv"
 import { insomniaEnvImporter } from "~/helpers/import-export/import/insomniaEnv"
-import { ref } from "vue"
 
 import IconFolderPlus from "~icons/lucide/folder-plus"
 import IconPostman from "~icons/hopp/postman"

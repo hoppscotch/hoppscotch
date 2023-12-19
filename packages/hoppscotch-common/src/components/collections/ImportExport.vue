@@ -9,7 +9,10 @@
 </template>
 
 <script setup lang="ts">
+import { HoppCollection } from "@hoppscotch/data"
 import * as E from "fp-ts/Either"
+import { PropType, computed, ref } from "vue"
+
 import { FileSource } from "~/helpers/import-export/import/import-sources/FileSource"
 import { UrlSource } from "~/helpers/import-export/import/import-sources/UrlSource"
 
@@ -24,11 +27,9 @@ import {
 } from "~/helpers/import-export/import/importers"
 
 import { defineStep } from "~/composables/step-components"
-import { PropType, computed, ref } from "vue"
 
 import { useI18n } from "~/composables/i18n"
 import { useToast } from "~/composables/toast"
-import { HoppCollection } from "@hoppscotch/data"
 import { appendRESTCollections, restCollections$ } from "~/newstore/collections"
 import MyCollectionImport from "~/components/importExport/ImportExportSteps/MyCollectionImport.vue"
 import { GetMyTeamsQuery } from "~/helpers/backend/graphql"

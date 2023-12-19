@@ -1,5 +1,5 @@
-import { createGist } from "~/helpers/gist"
 import * as E from "fp-ts/Either"
+import { createGist } from "~/helpers/gist"
 
 export const gistExporter = async (
   JSONFileContents: string,

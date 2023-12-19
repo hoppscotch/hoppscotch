@@ -121,7 +121,7 @@
     "generate_token": "Generate Token",
     "graphql_headers": "Authorization Headers are sent as part of the payload to connection_init",
     "include_in_url": "Include in URL",
-    "inherited_from": "Inherited from {auth} from Parent Collection {collection} ",
+    "inherited_from": "Inherited {auth} from parent collection {collection} ",
     "learn": "Learn how",
     "oauth": {
       "redirect_auth_server_returned_error": "Auth Server returned an error state",

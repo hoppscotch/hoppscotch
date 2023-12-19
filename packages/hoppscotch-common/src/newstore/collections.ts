@@ -4,6 +4,7 @@ import {
   HoppRESTRequest,
   HoppCollection,
   makeCollection,
+  HoppGQLAuth,
 } from "@hoppscotch/data"
 import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
 import { cloneDeep } from "lodash-es"
@@ -11,6 +12,9 @@ import { resolveSaveContextOnRequestReorder } from "~/helpers/collection/request
 import { getService } from "~/modules/dioc"
 import { RESTTabService } from "~/services/tab/rest"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
+import { HoppRESTAuth } from "@hoppscotch/data"
+import { HoppRESTHeaders } from "@hoppscotch/data"
+import { HoppGQLHeader } from "~/helpers/graphql"
 
 const defaultRESTCollectionState = {
   state: [
@@ -63,6 +67,12 @@ export function navigateToFolderWithIndexPath(
   return target !== undefined ? target : null
 }
 
+/**
+ * Used to obtain the inherited auth and headers for a given folder path, used for both REST and GraphQL
+ * @param folderPath the path of the folder to cascade the auth from
+ * @param type the type of collection
+ * @returns the inherited auth and headers for the given folder path
+ */
 export function cascadeParentCollectionForHeaderAuth(
   folderPath: string | undefined,
   type: "rest" | "graphql"
@@ -103,10 +113,16 @@ export function cascadeParentCollectionForHeaderAuth(
       return { auth, headers }
     }
 
-    const parentFolderAuth = parentFolder.auth
-    const parentFolderHeaders = parentFolder.headers
+    const parentFolderAuth = parentFolder.auth as HoppRESTAuth | HoppGQLAuth
+    const parentFolderHeaders = parentFolder.headers as
+      | HoppRESTHeaders
+      | HoppGQLHeader[]
+
     // check if the parent folder has authType 'inherit' and if it is the root folder
-    if (parentFolderAuth?.authType === "inherit" && path.length === 1) {
+    if (
+      parentFolderAuth?.authType === "inherit" &&
+      [...path.slice(0, i + 1)].length === 1
+    ) {
       auth = {
         parentID: [...path.slice(0, i + 1)].join("/"),
         parentName: parentFolder.name,

@@ -124,6 +124,8 @@
                 E.isRight(pendingInvites.data) &&
                 pendingInvites.data.right.team?.teamInvitations.length === 0
               "
+              :src="`/images/states/${colorMode.value}/add_group.svg`"
+              :alt="t('empty.pending_invites')"
               :text="t('empty.pending_invites')"
             />
             <div

@@ -17,7 +17,7 @@
       v-if="props.showCount && props.teamMembers.length > maxMembersSoftLimit"
       v-tippy="{ theme: 'tooltip', allowHTML: true }"
       :title="remainingSlicedMembers"
-      class="font- text-8px z-10 inline-flex h-5 w-5 cursor-pointer items-center justify-center rounded-full bg-dividerDark text-secondaryDark ring-2 ring-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-primaryDark"
+      class="text-[8px] z-10 inline-flex h-5 w-5 cursor-pointer items-center justify-center rounded-full bg-dividerDark text-secondaryDark ring-2 ring-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-primaryDark"
       tabindex="0"
       @click="handleClick()"
     >

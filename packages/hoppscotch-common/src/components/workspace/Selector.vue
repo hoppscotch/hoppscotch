@@ -33,7 +33,7 @@
       </HoppSmartPlaceholder>
       <div v-else-if="!loading" class="flex flex-col">
         <div
-          class="sticky -top-2 top-0 z-10 mb-2 flex items-center justify-between bg-popover py-2 pl-2"
+          class="sticky top-0 z-10 mb-2 flex items-center justify-between bg-popover py-2 pl-2"
         >
           <div class="flex items-center px-2 font-semibold text-secondaryLight">
             {{ t("team.title") }}

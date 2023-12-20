@@ -451,7 +451,7 @@ const getErrorMessage = (err: GQLError<string>) => {
   }
   switch (err.error) {
     case "shortcode/not_found":
-      return t("shared_request.not_found")
+      return t("shared_requests.not_found")
     default:
       return t("error.something_went_wrong")
   }

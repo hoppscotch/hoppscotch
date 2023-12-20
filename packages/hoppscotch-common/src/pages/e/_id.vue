@@ -18,6 +18,41 @@
       :properties="properties"
       :shared-request-i-d="sharedRequestID"
     />
+    <div v-else class="flex flex-1 flex-col items-center justify-center p-4">
+      <div
+        v-if="sharedRequestDetails.loading"
+        class="flex flex-1 flex-col items-center justify-center p-4"
+      >
+        <HoppSmartSpinner />
+      </div>
+      <div v-else>
+        <div
+          v-if="
+            !sharedRequestDetails.loading && E.isLeft(sharedRequestDetails.data)
+          "
+          class="flex flex-col items-center p-4"
+        >
+          <icon-lucide-alert-triangle class="svg-icons mb-2 opacity-75" />
+          <h1 class="heading text-center">
+            {{ t("error.invalid_link") }}
+          </h1>
+          <p class="mt-2 text-center">
+            {{ t("error.invalid_embed_link") }}
+          </p>
+        </div>
+        <div
+          v-if="
+            !sharedRequestDetails.loading &&
+            E.isRight(sharedRequestDetails.data)
+          "
+          class="flex flex-1 flex-col items-center justify-center p-4"
+        >
+          <h1 class="heading">
+            {{ t("state.loading") }}
+          </h1>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 

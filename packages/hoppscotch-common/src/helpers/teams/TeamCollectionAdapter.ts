@@ -1034,6 +1034,11 @@ export default class NewTeamCollectionAdapter {
     }
   }
 
+  /**
+   * Used to obtain the inherited auth and headers for a given folder path, used for both REST and GraphQL team collections
+   * @param folderPath the path of the folder to cascade the auth from
+   * @returns the inherited auth and headers for the given folder path
+   */
   public cascadeParentCollectionForHeaderAuth(folderPath: string) {
     let auth: HoppInheritedProperty["auth"] = {
       parentID: folderPath ?? "",
@@ -1089,7 +1094,10 @@ export default class NewTeamCollectionAdapter {
       const parentFolderAuth = data.auth
       const parentFolderHeaders = data.headers
 
-      if (parentFolderAuth?.authType === "inherit" && path.length === 1) {
+      if (
+        parentFolderAuth?.authType === "inherit" &&
+        [...path.slice(0, i + 1)].length === 1
+      ) {
         auth = {
           parentID: [...path.slice(0, i + 1)].join("/"),
           parentName: parentFolder.title,

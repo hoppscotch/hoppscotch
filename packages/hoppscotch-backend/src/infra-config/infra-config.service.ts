@@ -187,30 +187,24 @@ export class InfraConfigService implements OnModuleInit {
   /**
    * Check if the service is configured or not
    * @param service Service can be Auth Provider, Mailer, Audit Log etc.
+   * @param configMap Map of all the infra configs
    * @returns Either true or false
    */
-  isServiceConfigured(service: AuthProvider) {
+  isServiceConfigured(
+    service: AuthProvider,
+    configMap: Record<string, string>,
+  ) {
     switch (service) {
       case AuthProvider.GOOGLE:
-        return (
-          this.configService.get<string>('INFRA.GOOGLE_CLIENT_ID') &&
-          this.configService.get<string>('INFRA.GOOGLE_CLIENT_SECRET')
-        );
+        return configMap.GOOGLE_CLIENT_ID && configMap.GOOGLE_CLIENT_SECRET;
       case AuthProvider.GITHUB:
-        return (
-          this.configService.get<string>('INFRA.GITHUB_CLIENT_ID') &&
-          !this.configService.get<string>('INFRA.GITHUB_CLIENT_SECRET')
-        );
+        return configMap.GITHUB_CLIENT_ID && configMap.GITHUB_CLIENT_SECRET;
       case AuthProvider.MICROSOFT:
         return (
-          this.configService.get<string>('INFRA.MICROSOFT_CLIENT_ID') &&
-          !this.configService.get<string>('INFRA.MICROSOFT_CLIENT_SECRET')
+          configMap.MICROSOFT_CLIENT_ID && configMap.MICROSOFT_CLIENT_SECRET
         );
       case AuthProvider.EMAIL:
-        return (
-          this.configService.get<string>('INFRA.MAILER_SMTP_URL') &&
-          this.configService.get<string>('INFRA.MAILER_ADDRESS_FROM')
-        );
+        return configMap.MAILER_SMTP_URL && configMap.MAILER_ADDRESS_FROM;
       default:
         return false;
     }
@@ -229,11 +223,15 @@ export class InfraConfigService implements OnModuleInit {
 
     let updatedAuthProviders = allowedAuthProviders;
 
-    for (let i = 0; i < providerInfo.length; i++) {
-      const { provider, status } = providerInfo[i];
+    const infraConfigs = await this.prisma.infraConfig.findMany();
+    const infraConfigMap = {};
+    infraConfigs.forEach((config) => {
+      infraConfigMap[config.name] = config.value;
+    });
 
+    providerInfo.forEach(({ provider, status }) => {
       if (status === ServiceStatus.ENABLE) {
-        const isConfigured = this.isServiceConfigured(provider);
+        const isConfigured = this.isServiceConfigured(provider, infraConfigMap);
         if (!isConfigured) {
           throwErr(INFRA_CONFIG_SERVICE_NOT_CONFIGURED);
         }
@@ -243,7 +241,7 @@ export class InfraConfigService implements OnModuleInit {
           (p) => p !== provider,
         );
       }
-    }
+    });
 
     updatedAuthProviders = [...new Set(updatedAuthProviders)];
 

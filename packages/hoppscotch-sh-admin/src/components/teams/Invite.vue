@@ -236,10 +236,10 @@ const toast = useToast();
 // Template refs
 const tippyActions = ref<any | null>(null);
 
-const props = defineProps({
-  show: Boolean,
-  editingTeamID: { type: String, default: null },
-});
+const props = defineProps<{
+  show: boolean;
+  editingTeamID: string;
+}>();
 
 const emit = defineEmits<{
   (e: 'hide-modal'): void;

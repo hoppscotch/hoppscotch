@@ -139,6 +139,7 @@
 
     <div class="flex">
       <HoppButtonPrimary
+        v-if="areRolesUpdated"
         :label="t('teams.save')"
         outline
         @click="saveUpdatedTeam"
@@ -161,7 +162,8 @@
 <script setup lang="ts">
 import { useMutation } from '@urql/vue';
 import { useVModel } from '@vueuse/core';
-import { computed, ref, watch, onMounted } from 'vue';
+import { cloneDeep, isEqual } from 'lodash-es';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { useI18n } from '~/composables/i18n';
 import { useToast } from '~/composables/toast';
@@ -224,12 +226,28 @@ const updateMembers = async () => {
 // Template refs
 const tippyActions = ref<any | null>(null);
 
-const roleUpdates = ref<
+// Roles of the members in the team
+const currentMemberRoles = ref<
   {
     userID: string;
     role: TeamMemberRole;
   }[]
 >([]);
+
+// Roles of the members in the team after the updates but before saving
+const updatedMemberRoles = ref<
+  {
+    userID: string;
+    role: TeamMemberRole;
+  }[]
+>(cloneDeep(currentMemberRoles.value));
+
+// Check if the roles of the members have been updated
+const areRolesUpdated = computed(() =>
+  currentMemberRoles.value && updatedMemberRoles.value
+    ? !isEqual(currentMemberRoles.value, updatedMemberRoles.value)
+    : false
+);
 
 watch(
   () => team.value,
@@ -237,7 +255,7 @@ watch(
     const members = teamDetails?.teamMembers ?? [];
 
     // Remove deleted members
-    roleUpdates.value = roleUpdates.value.filter(
+    updatedMemberRoles.value = updatedMemberRoles.value.filter(
       (update) =>
         members.findIndex(
           (y: { user: { uid: string } }) => y.user.uid === update.userID
@@ -248,15 +266,15 @@ watch(
 
 // Update the role of the member selected in the UI
 const updateMemberRole = (userID: string, role: TeamMemberRole) => {
-  const updateIndex = roleUpdates.value.findIndex(
+  const updateIndex = updatedMemberRoles.value.findIndex(
     (item) => item.userID === userID
   );
   if (updateIndex !== -1) {
     // Role Update exists
-    roleUpdates.value[updateIndex].role = role;
+    updatedMemberRoles.value[updateIndex].role = role;
   } else {
     // Role Update does not exist
-    roleUpdates.value.push({
+    updatedMemberRoles.value.push({
       userID,
       role,
     });
@@ -264,26 +282,21 @@ const updateMemberRole = (userID: string, role: TeamMemberRole) => {
 };
 
 // Obtain the list of members in the team
-const membersList = computed({
-  get() {
-    if (!team.value) return [];
-    const members = (team.value.teamMembers ?? []).map((member) => {
-      const updatedRole = roleUpdates.value.find(
-        (update) => update.userID === member.user.uid
-      );
+const membersList = computed(() => {
+  if (!team.value) return [];
+  const members = (team.value.teamMembers ?? []).map((member) => {
+    const updatedRole = updatedMemberRoles.value.find(
+      (update) => update.userID === member.user.uid
+    );
 
-      return {
-        userID: member.user.uid,
-        email: member.user.email!,
-        role: updatedRole?.role ?? member.role,
-      };
-    });
+    return {
+      userID: member.user.uid,
+      email: member.user.email!,
+      role: updatedRole?.role ?? member.role,
+    };
+  });
 
-    return members;
-  },
-  set(value) {
-    membersList.value.push(...value);
-  },
+  return members;
 });
 
 // Change the role of the selected user in the team
@@ -307,7 +320,7 @@ const isLoading = ref(false);
 
 const saveUpdatedTeam = async () => {
   isLoading.value = true;
-  roleUpdates.value.forEach(async (update) => {
+  updatedMemberRoles.value.forEach(async (update) => {
     if (!team.value) return;
     const updateMemberRoleResult = await changeUserRoleInTeam(
       update.userID,
@@ -316,10 +329,12 @@ const saveUpdatedTeam = async () => {
     );
     if (updateMemberRoleResult.error) {
       toast.error(`${t('state.role_update_failed')}`);
-      roleUpdates.value = [];
+      updatedMemberRoles.value = [];
     } else {
       toast.success(`${t('state.role_update_success')}`);
-      roleUpdates.value = [];
+      // roleUpdates.value = [];
+      currentMemberRoles.value = updatedMemberRoles.value;
+      updatedMemberRoles.value = cloneDeep(currentMemberRoles.value);
     }
     isLoading.value = false;
   });
@@ -353,6 +368,7 @@ const removeExistingTeamMember = async (userID: string, index: number) => {
     team.value.teamMembers = team.value.teamMembers?.filter(
       (member: any) => member.user.uid !== userID
     );
+    teamDetails.value = team.value;
     toast.success(`${t('state.remove_member_success')}`);
   }
   isLoadingIndex.value = null;

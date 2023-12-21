@@ -4,6 +4,8 @@
       <HoppSmartSpinner />
     </div>
 
+    <div v-else-if="error">{{ t('teams.load_info_error') }}</div>
+
     <div v-if="team" class="flex flex-col">
       <div class="flex items-center space-x-4">
         <button
@@ -27,7 +29,7 @@
         <HoppSmartTabs v-model="selectedOptionTab" render-inactive-tabs>
           <HoppSmartTab :id="'details'" :label="t('teams.details')">
             <TeamsDetails
-              :team="team"
+              v-model:team="team"
               :teamName="teamName"
               v-model:showRenameInput="showRenameInput"
               @rename-team="renameTeamName"
@@ -36,7 +38,7 @@
             />
           </HoppSmartTab>
           <HoppSmartTab :id="'members'" :label="t('teams.team_members')">
-            <TeamsMembers @update-team="updateTeam()" class="py-8 px-4" />
+            <TeamsMembers v-model:team="team" class="py-8 px-4" />
           </HoppSmartTab>
           <HoppSmartTab :id="'invites'" :label="t('teams.invites')">
             <TeamsPendingInvites :editingTeamID="team.id" />
@@ -55,7 +57,7 @@
 </template>
 
 <script setup lang="ts">
-import { useClientHandle, useMutation } from '@urql/vue';
+import { useMutation } from '@urql/vue';
 import { computed, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useToast } from '~/composables/toast';
@@ -68,6 +70,7 @@ import {
 } from '../../helpers/backend/graphql';
 import { HoppSmartTabs } from '@hoppscotch/ui';
 import { useI18n } from '~/composables/i18n';
+import { useClientHandler } from '~/composables/useClientHandler';
 
 const t = useI18n();
 
@@ -90,31 +93,24 @@ const currentTabName = computed(() => {
   }
 });
 
-// Get the details of the team
-const team = ref<TeamInfoQuery['infra']['teamInfo'] | undefined>();
-const teamName = ref('');
 const route = useRoute();
-const fetching = ref(true);
-const { client } = useClientHandle();
 
-const getTeamInfo = async () => {
-  fetching.value = true;
-  const result = await client
-    .query(TeamInfoDocument, { teamID: route.params.id.toString() })
-    .toPromise();
-  if (result.error) {
-    return toast.error(`${t('team.load_info_error')}`);
-  }
-  if (result.data?.infra.teamInfo) {
-    team.value = result.data.infra.teamInfo;
-    teamName.value = team.value.name;
-  }
-  fetching.value = false;
-};
+const {
+  fetching,
+  fetchData: getTeamInfo,
+  fetchedData: teamInfo,
+  error,
+} = useClientHandler(TeamInfoDocument, {
+  teamID: route.params.id.toString(),
+});
 
-onMounted(async () => await getTeamInfo());
+const team = ref<TeamInfoQuery['infra']['teamInfo'] | undefined>();
+const teamName = computed(() => team.value?.name ?? '');
 
-const updateTeam = async () => await getTeamInfo();
+onMounted(async () => {
+  await getTeamInfo();
+  team.value = teamInfo.value?.infra.teamInfo;
+});
 
 // Rename the team name
 const showRenameInput = ref(false);

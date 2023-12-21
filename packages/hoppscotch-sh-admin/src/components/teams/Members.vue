@@ -131,7 +131,7 @@
           </div>
         </div>
       </div>
-      <div v-if="!fetching && !team" class="flex flex-col items-center">
+      <div v-if="!team" class="flex flex-col items-center">
         <icon-lucide-help-circle class="mb-4 svg-icons" />
         {{ t('teams.error') }}
       </div>
@@ -146,6 +146,7 @@
     </div>
     <TeamsInvite
       :show="showInvite"
+      :team="team"
       :editingTeamID="route.params.id.toString()"
       @member="updateMembers"
       @hide-modal="
@@ -158,64 +159,66 @@
 </template>
 
 <script setup lang="ts">
-import IconCircleDot from '~icons/lucide/circle-dot';
-import IconCircle from '~icons/lucide/circle';
-import IconUserPlus from '~icons/lucide/user-plus';
-import IconUserMinus from '~icons/lucide/user-minus';
-import IconChevronDown from '~icons/lucide/chevron-down';
-import { useClientHandle, useMutation } from '@urql/vue';
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
+import { useMutation } from '@urql/vue';
+import { useVModel } from '@vueuse/core';
+import { computed, ref, watch, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
+import { useI18n } from '~/composables/i18n';
 import { useToast } from '~/composables/toast';
+import { useClientHandler } from '~/composables/useClientHandler';
+import IconChevronDown from '~icons/lucide/chevron-down';
+import IconCircle from '~icons/lucide/circle';
+import IconCircleDot from '~icons/lucide/circle-dot';
+import IconUserMinus from '~icons/lucide/user-minus';
+import IconUserPlus from '~icons/lucide/user-plus';
 import {
   ChangeUserRoleInTeamByAdminDocument,
-  TeamInfoDocument,
-  TeamMemberRole,
   RemoveUserFromTeamByAdminDocument,
+  TeamInfoDocument,
   TeamInfoQuery,
+  TeamMemberRole,
 } from '../../helpers/backend/graphql';
-import { HoppButtonPrimary, HoppButtonSecondary } from '@hoppscotch/ui';
-import { useI18n } from '~/composables/i18n';
 
 const t = useI18n();
-
 const toast = useToast();
 
-const emit = defineEmits<{
-  (e: 'update-team'): void;
+const props = defineProps<{
+  team: TeamInfoQuery['infra']['teamInfo'];
+  teamName: string;
+  showRenameInput: boolean;
 }>();
+
+const emit = defineEmits<{
+  (event: 'update:team', team: TeamInfoQuery['infra']['teamInfo']): void;
+  (event: 'delete-team', teamID: string): void;
+  (event: 'rename-team', teamName: string): void;
+  (event: 'update:showRenameInput', showRenameInput: boolean): void;
+}>();
+
+const teamDetails = useVModel(props, 'team', emit);
 
 // Used to Invoke the Invite Members Modal
 const showInvite = ref(false);
-
-// Get Team Details
-const team = ref<TeamInfoQuery['infra']['teamInfo'] | undefined>();
-const fetching = ref(true);
 const route = useRoute();
-const { client } = useClientHandle();
 
-const getTeamInfo = async () => {
-  fetching.value = true;
-  const result = await client
-    .query(TeamInfoDocument, { teamID: route.params.id.toString() })
-    .toPromise();
-
-  if (result.error) {
-    return toast.error(`${t('teams.load_info_error')}`);
+const { fetchData: getTeamInfo, fetchedData: teamInfo } = useClientHandler(
+  TeamInfoDocument,
+  {
+    teamID: route.params.id.toString(),
   }
-  if (result.data?.infra.teamInfo) {
-    team.value = result.data.infra.teamInfo;
-  }
-  fetching.value = false;
-};
+);
 
-onMounted(async () => await getTeamInfo());
-onUnmounted(() => emit('update-team'));
+onMounted(async () => {
+  await getTeamInfo();
+});
+
+const team = computed(() => teamInfo.value?.infra.teamInfo);
 
 // Update members tab after a change in the members list or member roles
-const updateMembers = () => {
-  getTeamInfo();
-  emit('update-team');
+const updateMembers = async () => {
+  if (!team.value) return;
+  await getTeamInfo();
+  teamDetails.value = team.value;
 };
 
 // Template refs
@@ -261,21 +264,26 @@ const updateMemberRole = (userID: string, role: TeamMemberRole) => {
 };
 
 // Obtain the list of members in the team
-const membersList = computed(() => {
-  if (!team.value) return [];
-  const members = (team.value.teamMembers ?? []).map((member) => {
-    const updatedRole = roleUpdates.value.find(
-      (update) => update.userID === member.user.uid
-    );
+const membersList = computed({
+  get() {
+    if (!team.value) return [];
+    const members = (team.value.teamMembers ?? []).map((member) => {
+      const updatedRole = roleUpdates.value.find(
+        (update) => update.userID === member.user.uid
+      );
 
-    return {
-      userID: member.user.uid,
-      email: member.user.email!,
-      role: updatedRole?.role ?? member.role,
-    };
-  });
+      return {
+        userID: member.user.uid,
+        email: member.user.email!,
+        role: updatedRole?.role ?? member.role,
+      };
+    });
 
-  return members;
+    return members;
+  },
+  set(value) {
+    membersList.value.push(...value);
+  },
 });
 
 // Change the role of the selected user in the team
@@ -348,6 +356,5 @@ const removeExistingTeamMember = async (userID: string, index: number) => {
     toast.success(`${t('state.remove_member_success')}`);
   }
   isLoadingIndex.value = null;
-  emit('update-team');
 };
 </script>

@@ -22,12 +22,10 @@ export const trimAnsi = (target: string) => {
 
 export const getErrorCode = (out: string) => {
   const ansiTrimmedStr = trimAnsi(out);
-
   return ansiTrimmedStr.split(" ")[0];
 };
 
 export const getTestJsonFilePath = (file: string) => {
-  const filePath = `${process.cwd()}/src/__tests__/samples/${file}`;
-
+  const filePath = resolve(__dirname, `../../src/__tests__/samples/${file}`);
   return filePath;
 };

@@ -1,0 +1,13 @@
+{
+  "name": "Response body sample",
+  "variables": [
+    {
+      "key": "firstName",
+      "value": "John"
+    },
+    {
+      "key": "lastName",
+      "value": "Doe"
+    }
+  ]
+}

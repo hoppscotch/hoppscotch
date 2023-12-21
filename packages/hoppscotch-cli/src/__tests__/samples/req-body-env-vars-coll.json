@@ -1,0 +1,30 @@
+{
+  "v": 2,
+  "name": "Test environment variables in request body",
+  "folders": [],
+  "requests": [
+    {
+      "v": "1",
+      "name": "test-request",
+      "endpoint": "https://echo.hoppscotch.io",
+      "method": "POST",
+      "headers": [],
+      "params": [],
+      "auth": {
+        "authType": "none",
+        "authActive": true
+      },
+      "body": {
+        "contentType": "application/json",
+        "body": "{\n   \"firstName\": \"<<firstName>>\",\n   \"lastName\": \"<<lastName>>\" \n}"
+      },
+      "preRequestScript": "",
+      "testScript": "pw.test(\"Status code is 200 and response body matches\", () => {\n  const expectedFirstName = \"John\"\n  const expectedLastName = \"Doe\"\n\n  pw.expect(pw.response.status).toBe(200)\n\n  const { firstName, lastName } = JSON.parse(pw.response.body.data)\n\n  pw.expect(expectedFirstName).toBe(firstName)\n  pw.expect(expectedLastName).toBe(lastName)\n});"
+    }
+  ],
+  "auth": {
+    "authType": "inherit",
+    "authActive": true
+  },
+  "headers": []
+}

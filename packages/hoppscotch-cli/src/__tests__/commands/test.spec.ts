@@ -118,6 +118,15 @@ describe("Test 'hopp test <file> --env <file>' command:", () => {
     const { error } = await runCLI(args);
     expect(error).toBeNull();
   });
+
+  test("Correctly resolves environment variables referenced in the request body", async () => {
+    const COLL_PATH = getTestJsonFilePath("req-body-env-vars-coll.json");
+    const ENVS_PATH = getTestJsonFilePath("req-body-env-vars-envs.json");
+    const args = `test ${COLL_PATH} --env ${ENVS_PATH}`;
+
+    const { error } = await runCLI(args);
+    expect(error).toBeNull();
+  });
 });
 
 describe("Test 'hopp test <file> --delay <delay_in_ms>' command:", () => {

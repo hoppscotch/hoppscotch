@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col">
+  <div v-if="team" class="flex flex-col">
     <div class="flex flex-col space-y-8">
       <div v-if="team.id" class="flex flex-col space-y-3">
         <label class="text-accentContrast" for="username"
@@ -73,9 +73,9 @@ import IconEdit from '~icons/lucide/edit';
 import IconSave from '~icons/lucide/save';
 import IconTrash from '~icons/lucide/trash-2';
 import { useI18n } from '~/composables/i18n';
+import { useVModel } from '@vueuse/core';
 
 const t = useI18n();
-
 const toast = useToast();
 
 const props = defineProps<{
@@ -85,10 +85,13 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
+  (event: 'update:team', team: TeamInfoQuery['infra']['teamInfo']): void;
   (event: 'delete-team', teamID: string): void;
   (event: 'rename-team', teamName: string): void;
   (event: 'update:showRenameInput', showRenameInput: boolean): void;
 }>();
+
+const team = useVModel(props, 'team', emit);
 
 const newTeamName = ref(props.teamName);
 

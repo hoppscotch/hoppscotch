@@ -192,9 +192,6 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (event: 'update:team', team: TeamInfoQuery['infra']['teamInfo']): void;
-  (event: 'delete-team', teamID: string): void;
-  (event: 'rename-team', teamName: string): void;
-  (event: 'update:showRenameInput', showRenameInput: boolean): void;
 }>();
 
 const teamDetails = useVModel(props, 'team', emit);

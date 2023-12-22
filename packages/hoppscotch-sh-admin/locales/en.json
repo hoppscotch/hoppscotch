@@ -149,6 +149,7 @@
     "edit": "Edit",
     "email": "Team owner email",
     "email_address": "Email Address",
+    "empty_name": "Team name cannot be empty!!",
     "error": "Something went wrong. Please try again later.",
     "id": "Team ID",
     "invited_email": "Invitee Email",

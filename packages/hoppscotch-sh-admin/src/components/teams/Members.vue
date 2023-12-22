@@ -329,7 +329,6 @@ const saveUpdatedTeam = async () => {
       updatedMemberRoles.value = [];
     } else {
       toast.success(`${t('state.role_update_success')}`);
-      // roleUpdates.value = [];
       currentMemberRoles.value = updatedMemberRoles.value;
       updatedMemberRoles.value = cloneDeep(currentMemberRoles.value);
     }
@@ -360,13 +359,13 @@ const removeExistingTeamMember = async (userID: string, index: number) => {
     team.value.id
   )();
   if (removeTeamMemberResult.error) {
-    toast.error(`${t('state.remove_member_failure')}`);
+    toast.error(t('state.remove_member_failure'));
   } else {
     team.value.teamMembers = team.value.teamMembers?.filter(
       (member: any) => member.user.uid !== userID
     );
     teamDetails.value = team.value;
-    toast.success(`${t('state.remove_member_success')}`);
+    toast.success(t('state.remove_member_success'));
   }
   isLoadingIndex.value = null;
 };

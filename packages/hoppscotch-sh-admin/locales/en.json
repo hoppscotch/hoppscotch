@@ -47,11 +47,6 @@
     "total_teams": "Total Teams",
     "total_users": "Total Users"
   },
-  "role": {
-    "editor": "EDITOR",
-    "owner": "OWNER",
-    "viewer": "VIEWER"
-  },
   "settings": {
     "settings": "Settings"
   },
@@ -149,6 +144,8 @@
     "delete_team": "Delete Team",
     "details": "Details",
     "edit": "Edit",
+    "editor": "EDITOR",
+    "editor_description": "Editors can add, edit, and delete requests and collections.",
     "email": "Team owner email",
     "email_address": "Email Address",
     "empty_name": "Team name cannot be empty!!",
@@ -165,7 +162,7 @@
     "no_members": "No members in this team. Add members to this team to collaborate",
     "no_pending_invites": "No pending invites",
     "no_teams": "No teams found",
-    "owner": "Owner",
+    "owner": "OWNER",
     "owner_description": " Owners can add, edit, and delete requests, collections and team members.",
     "permissions": "Permissions",
     "pending_invites": "Pending invites",
@@ -184,7 +181,7 @@
     "unnamed": "(Unnamed Team)",
     "valid_name": "Please enter a valid team name",
     "valid_owner_email": "Please enter a valid owner email",
-    "viewer": "Viewer",
+    "viewer": "VIEWER",
     "viewer_description": "Viewers can only view and use requests"
   },
   "users": {

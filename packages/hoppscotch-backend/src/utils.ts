@@ -131,6 +131,11 @@ export const validateEmail = (email: string) => {
   ).test(email);
 };
 
+/**
+ * Checks to see if the SMTP email is valid or not
+ * @param email
+ * @returns A Boolean depending on the format of the email
+ */
 export const validateSMTPEmail = (email: string) => {
   // Regular expressions for the specified formats
   const emailRegex1 = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;

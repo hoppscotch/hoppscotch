@@ -3,7 +3,7 @@
     v-if="show"
     dialog
     :title="t('teams.create_team')"
-    @close="$emit('hide-modal')"
+    @close="emit('hide-modal')"
   >
     <template #body>
       <div class="flex flex-col space-y-4 relative">
@@ -16,12 +16,16 @@
             class="flex-1 !flex"
             :source="allUsersEmail"
             :spellcheck="true"
-            placeholder=""
+            :placeholder="t('teams.email')"
             @input="(email: string) => getOwnerEmail(email)"
           />
         </div>
         <label for="teamName"> {{ t('teams.name') }} </label>
-        <HoppSmartInput v-model="teamName" placeholder="" class="!my-2" />
+        <HoppSmartInput
+          v-model="teamName"
+          :placeholder="t('teams.name')"
+          class="!my-2"
+        />
       </div>
     </template>
     <template #footer>
@@ -44,11 +48,10 @@
 
 <script setup lang="ts">
 import { ref, watchEffect } from 'vue';
-import { useToast } from '~/composables/toast';
 import { useI18n } from '~/composables/i18n';
+import { useToast } from '~/composables/toast';
 
 const t = useI18n();
-
 const toast = useToast();
 
 const props = withDefaults(
@@ -82,11 +85,11 @@ const getOwnerEmail = (email: string) => (ownerEmail.value = email);
 
 const createTeam = () => {
   if (teamName.value.trim() === '') {
-    toast.error(`${t('teams.valid_name')}`);
+    toast.error(t('teams.valid_name'));
     return;
   }
   if (ownerEmail.value.trim() === '') {
-    toast.error(`${t('teams.valid_owner_email')}`);
+    toast.error(t('teams.valid_owner_email'));
     return;
   }
   emit('create-team', teamName.value, ownerEmail.value);

@@ -131,6 +131,28 @@ export const validateEmail = (email: string) => {
   ).test(email);
 };
 
+// Regular expressions for supported address object formats by nodemailer
+// check out for more info https://nodemailer.com/message/addresses
+const emailRegex1 = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+const emailRegex2 =
+  /^[\w\s]* <([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})>$/;
+const emailRegex3 =
+  /^"[\w\s]+" <([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})>$/;
+
+/**
+ * Checks to see if the SMTP email is valid or not
+ * @param email
+ * @returns A Boolean depending on the format of the email
+ */
+export const validateSMTPEmail = (email: string) => {
+  // Check if the input matches any of the formats
+  return (
+    emailRegex1.test(email) ||
+    emailRegex2.test(email) ||
+    emailRegex3.test(email)
+  );
+};
+
 /**
  * Checks to see if the URL is valid or not
  * @param url The URL to validate

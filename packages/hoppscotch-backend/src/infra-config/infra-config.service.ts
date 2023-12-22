@@ -17,9 +17,9 @@ import {
   INFRA_CONFIG_UPDATE_FAILED,
   INFRA_CONFIG_SERVICE_NOT_CONFIGURED,
 } from 'src/errors';
-import { throwErr, validateEmail, validateSMTPUrl } from 'src/utils';
+import { throwErr, validateSMTPEmail, validateSMTPUrl } from 'src/utils';
 import { ConfigService } from '@nestjs/config';
-import { ServiceStatus, stopApp } from './helper';
+import { ServiceStatus, getConfiguredSSOProviders, stopApp } from './helper';
 import { EnableAndDisableSSOArgs, InfraConfigArgs } from './input-args';
 import { AuthProvider } from 'src/auth/helper';
 
@@ -71,7 +71,7 @@ export class InfraConfigService implements OnModuleInit {
       },
       {
         name: InfraConfigEnum.VITE_ALLOWED_AUTH_PROVIDERS,
-        value: process.env.VITE_ALLOWED_AUTH_PROVIDERS.toLocaleUpperCase(),
+        value: getConfiguredSSOProviders(),
       },
     ];
 
@@ -131,6 +131,19 @@ export class InfraConfigService implements OnModuleInit {
   }
 
   /**
+   * Get all the InfraConfigs as map
+   * @returns InfraConfig map
+   */
+  async getInfraConfigsMap() {
+    const infraConfigs = await this.prisma.infraConfig.findMany();
+    const infraConfigMap: Record<string, string> = {};
+    infraConfigs.forEach((config) => {
+      infraConfigMap[config.name] = config.value;
+    });
+    return infraConfigMap;
+  }
+
+  /**
    * Update InfraConfig by name
    * @param name Name of the InfraConfig
    * @param value Value of the InfraConfig
@@ -187,30 +200,24 @@ export class InfraConfigService implements OnModuleInit {
   /**
    * Check if the service is configured or not
    * @param service Service can be Auth Provider, Mailer, Audit Log etc.
+   * @param configMap Map of all the infra configs
    * @returns Either true or false
    */
-  isServiceConfigured(service: AuthProvider) {
+  isServiceConfigured(
+    service: AuthProvider,
+    configMap: Record<string, string>,
+  ) {
     switch (service) {
       case AuthProvider.GOOGLE:
-        return (
-          this.configService.get<string>('INFRA.GOOGLE_CLIENT_ID') &&
-          this.configService.get<string>('INFRA.GOOGLE_CLIENT_SECRET')
-        );
+        return configMap.GOOGLE_CLIENT_ID && configMap.GOOGLE_CLIENT_SECRET;
       case AuthProvider.GITHUB:
-        return (
-          this.configService.get<string>('INFRA.GITHUB_CLIENT_ID') &&
-          !this.configService.get<string>('INFRA.GITHUB_CLIENT_SECRET')
-        );
+        return configMap.GITHUB_CLIENT_ID && configMap.GITHUB_CLIENT_SECRET;
       case AuthProvider.MICROSOFT:
         return (
-          this.configService.get<string>('INFRA.MICROSOFT_CLIENT_ID') &&
-          !this.configService.get<string>('INFRA.MICROSOFT_CLIENT_SECRET')
+          configMap.MICROSOFT_CLIENT_ID && configMap.MICROSOFT_CLIENT_SECRET
         );
       case AuthProvider.EMAIL:
-        return (
-          this.configService.get<string>('INFRA.MAILER_SMTP_URL') &&
-          this.configService.get<string>('INFRA.MAILER_ADDRESS_FROM')
-        );
+        return configMap.MAILER_SMTP_URL && configMap.MAILER_ADDRESS_FROM;
       default:
         return false;
     }
@@ -229,11 +236,11 @@ export class InfraConfigService implements OnModuleInit {
 
     let updatedAuthProviders = allowedAuthProviders;
 
-    for (let i = 0; i < providerInfo.length; i++) {
-      const { provider, status } = providerInfo[i];
+    const infraConfigMap = await this.getInfraConfigsMap();
 
+    providerInfo.forEach(({ provider, status }) => {
       if (status === ServiceStatus.ENABLE) {
-        const isConfigured = this.isServiceConfigured(provider);
+        const isConfigured = this.isServiceConfigured(provider, infraConfigMap);
         if (!isConfigured) {
           throwErr(INFRA_CONFIG_SERVICE_NOT_CONFIGURED);
         }
@@ -243,7 +250,7 @@ export class InfraConfigService implements OnModuleInit {
           (p) => p !== provider,
         );
       }
-    }
+    });
 
     updatedAuthProviders = [...new Set(updatedAuthProviders)];
 
@@ -342,7 +349,7 @@ export class InfraConfigService implements OnModuleInit {
           if (!isValidUrl) return E.left(INFRA_CONFIG_INVALID_INPUT);
           break;
         case InfraConfigEnumForClient.MAILER_ADDRESS_FROM:
-          const isValidEmail = validateEmail(infraConfigs[i].value);
+          const isValidEmail = validateSMTPEmail(infraConfigs[i].value);
           if (!isValidEmail) return E.left(INFRA_CONFIG_INVALID_INPUT);
           break;
         case InfraConfigEnumForClient.GOOGLE_CLIENT_ID:

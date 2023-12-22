@@ -17,7 +17,8 @@ async function bootstrap() {
   console.log(`Port: ${configService.get('PORT')}`);
 
   checkEnvironmentAuthProvider(
-    configService.get('VITE_ALLOWED_AUTH_PROVIDERS'),
+    configService.get('INFRA.VITE_ALLOWED_AUTH_PROVIDERS') ??
+      configService.get('VITE_ALLOWED_AUTH_PROVIDERS'),
   );
 
   app.use(

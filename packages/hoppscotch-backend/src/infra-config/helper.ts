@@ -1,9 +1,32 @@
+import { AuthProvider } from 'src/auth/helper';
+import { AUTH_PROVIDER_NOT_CONFIGURED } from 'src/errors';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { InfraConfigEnum } from 'src/types/InfraConfig';
+import { throwErr } from 'src/utils';
 
 export enum ServiceStatus {
   ENABLE = 'ENABLE',
   DISABLE = 'DISABLE',
 }
+
+const AuthProviderConfigurations = {
+  [AuthProvider.GOOGLE]: [
+    InfraConfigEnum.GOOGLE_CLIENT_ID,
+    InfraConfigEnum.GOOGLE_CLIENT_SECRET,
+  ],
+  [AuthProvider.GITHUB]: [
+    InfraConfigEnum.GITHUB_CLIENT_ID,
+    InfraConfigEnum.GITHUB_CLIENT_SECRET,
+  ],
+  [AuthProvider.MICROSOFT]: [
+    InfraConfigEnum.MICROSOFT_CLIENT_ID,
+    InfraConfigEnum.MICROSOFT_CLIENT_SECRET,
+  ],
+  [AuthProvider.EMAIL]: [
+    InfraConfigEnum.MAILER_SMTP_URL,
+    InfraConfigEnum.MAILER_ADDRESS_FROM,
+  ],
+};
 
 /**
  * Load environment variables from the database and set them in the process
@@ -41,4 +64,43 @@ export function stopApp() {
     console.log('Stopping app now...');
     process.kill(process.pid, 'SIGTERM');
   }, 5000);
+}
+
+/**
+ * Get the configured SSO providers
+ * @returns Array of configured SSO providers
+ */
+export function getConfiguredSSOProviders() {
+  const allowedAuthProviders: string[] =
+    process.env.VITE_ALLOWED_AUTH_PROVIDERS.split(',');
+  let configuredAuthProviders: string[] = [];
+
+  const addProviderIfConfigured = (provider) => {
+    const configParameters: string[] = AuthProviderConfigurations[provider];
+
+    const isConfigured = configParameters.every((configParameter) => {
+      return process.env[configParameter];
+    });
+
+    if (isConfigured) configuredAuthProviders.push(provider);
+  };
+
+  allowedAuthProviders.forEach((provider) => addProviderIfConfigured(provider));
+
+  if (configuredAuthProviders.length === 0) {
+    throwErr(AUTH_PROVIDER_NOT_CONFIGURED);
+  } else if (allowedAuthProviders.length !== configuredAuthProviders.length) {
+    const unConfiguredAuthProviders = allowedAuthProviders.filter(
+      (provider) => {
+        return !configuredAuthProviders.includes(provider);
+      },
+    );
+    console.log(
+      `${unConfiguredAuthProviders.join(
+        ',',
+      )} SSO auth provider(s) are not configured properly. Do configure them from Admin Dashboard.`,
+    );
+  }
+
+  return configuredAuthProviders.join(',');
 }

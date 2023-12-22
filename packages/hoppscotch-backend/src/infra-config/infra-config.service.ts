@@ -131,6 +131,19 @@ export class InfraConfigService implements OnModuleInit {
   }
 
   /**
+   * Get all the InfraConfigs as map
+   * @returns InfraConfig map
+   */
+  async getInfraConfigsMap() {
+    const infraConfigs = await this.prisma.infraConfig.findMany();
+    const infraConfigMap: Record<string, string> = {};
+    infraConfigs.forEach((config) => {
+      infraConfigMap[config.name] = config.value;
+    });
+    return infraConfigMap;
+  }
+
+  /**
    * Update InfraConfig by name
    * @param name Name of the InfraConfig
    * @param value Value of the InfraConfig
@@ -223,11 +236,7 @@ export class InfraConfigService implements OnModuleInit {
 
     let updatedAuthProviders = allowedAuthProviders;
 
-    const infraConfigs = await this.prisma.infraConfig.findMany();
-    const infraConfigMap = {};
-    infraConfigs.forEach((config) => {
-      infraConfigMap[config.name] = config.value;
-    });
+    const infraConfigMap = await this.getInfraConfigsMap();
 
     providerInfo.forEach(({ provider, status }) => {
       if (status === ServiceStatus.ENABLE) {

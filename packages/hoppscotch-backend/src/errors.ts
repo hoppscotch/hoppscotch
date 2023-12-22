@@ -29,6 +29,13 @@ export const JSON_INVALID = 'json_invalid';
 export const AUTH_PROVIDER_NOT_SPECIFIED = 'auth/provider_not_specified';
 
 /**
+ * Auth Provider not specified
+ * (Auth)
+ */
+export const AUTH_PROVIDER_NOT_CONFIGURED =
+  'auth/provider_not_configured_correctly';
+
+/**
  * Environment variable "VITE_ALLOWED_AUTH_PROVIDERS" is not present in .env file
  */
 export const ENV_NOT_FOUND_KEY_AUTH_PROVIDERS =

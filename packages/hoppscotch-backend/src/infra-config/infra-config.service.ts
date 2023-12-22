@@ -19,7 +19,7 @@ import {
 } from 'src/errors';
 import { throwErr, validateSMTPEmail, validateSMTPUrl } from 'src/utils';
 import { ConfigService } from '@nestjs/config';
-import { ServiceStatus, stopApp } from './helper';
+import { ServiceStatus, getConfiguredSSOProviders, stopApp } from './helper';
 import { EnableAndDisableSSOArgs, InfraConfigArgs } from './input-args';
 import { AuthProvider } from 'src/auth/helper';
 
@@ -71,7 +71,7 @@ export class InfraConfigService implements OnModuleInit {
       },
       {
         name: InfraConfigEnum.VITE_ALLOWED_AUTH_PROVIDERS,
-        value: process.env.VITE_ALLOWED_AUTH_PROVIDERS.toLocaleUpperCase(),
+        value: getConfiguredSSOProviders(),
       },
     ];
 

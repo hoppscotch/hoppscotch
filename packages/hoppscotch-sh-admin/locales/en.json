@@ -136,7 +136,9 @@
     "user_not_found": "User not found in the infra!!"
   },
   "teams": {
+    "add_member": "Add Member",
     "add_members": "Add Members",
+    "add_new": "Add New",
     "admin": "Admin",
     "admin_Email": "Admin Email",
     "admin_id": "Admin ID",
@@ -159,10 +161,16 @@
     "load_list_error": "Unable to Load Teams List",
     "members": "Number of members",
     "name": "Team Name",
+    "no_invite": "No invites",
     "no_members": "No members in this team. Add members to this team to collaborate",
     "no_pending_invites": "No pending invites",
     "no_teams": "No teams found",
+    "owner": "Owner",
+    "owner_description": " Owners can add, edit, and delete requests, collections and team members.",
+    "permissions": "Permissions",
     "pending_invites": "Pending invites",
+    "roles": "Roles",
+    "roles_description": "Roles are used to control access to the shared collections.",
     "remove": "Remove",
     "rename": "Rename",
     "save": "Save",
@@ -175,7 +183,9 @@
     "uid": "UID",
     "unnamed": "(Unnamed Team)",
     "valid_name": "Please enter a valid team name",
-    "valid_owner_email": "Please enter a valid owner email"
+    "valid_owner_email": "Please enter a valid owner email",
+    "viewer": "Viewer",
+    "viewer_description": "Viewers can only view and use requests"
   },
   "users": {
     "admin": "Admin",

@@ -8,6 +8,30 @@
     {
       "key": "lastName",
       "value": "Doe"
+    },
+    {
+      "key": "id",
+      "value": "7"
+    },
+    {
+      "key": "fullName",
+      "value": "<<firstName>> <<lastName>>"
+    },
+    {
+      "key": "recursiveVarX",
+      "value": "<<recursiveVarY>>"
+    },
+    {
+      "key": "recursiveVarY",
+      "value": "<<salutation>>"
+    },
+    {
+      "key": "salutation",
+      "value": "Hello"
+    },
+    {
+      "key": "greetText",
+      "value": "<<salutation>> <<fullName>>"
     }
   ]
 }

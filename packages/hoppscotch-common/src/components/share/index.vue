@@ -21,7 +21,7 @@
       />
     </div>
     <div class="flex flex-col">
-      <div v-if="loading" class="flex flex-col items-center justify-center">
+      <div v-if="loading" class="flex flex-col items-center justify-center p-4">
         <HoppSmartSpinner class="mb-4" />
         <span class="text-secondaryLight">{{ t("state.loading") }}</span>
       </div>

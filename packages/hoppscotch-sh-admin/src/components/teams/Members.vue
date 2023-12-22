@@ -183,6 +183,7 @@ import {
 
 const t = useI18n();
 const toast = useToast();
+const route = useRoute();
 
 const props = defineProps<{
   team: TeamInfoQuery['infra']['teamInfo'];
@@ -198,7 +199,6 @@ const teamDetails = useVModel(props, 'team', emit);
 
 // Used to Invoke the Invite Members Modal
 const showInvite = ref(false);
-const route = useRoute();
 
 const { fetchData: getTeamInfo, fetchedData: teamInfo } = useClientHandler(
   TeamInfoDocument,

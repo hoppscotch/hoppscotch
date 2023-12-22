@@ -30,9 +30,6 @@
           <HoppSmartTab :id="'details'" :label="t('teams.details')">
             <TeamsDetails
               v-model:team="team"
-              :teamName="teamName"
-              v-model:showRenameInput="showRenameInput"
-              @rename-team="renameTeamName"
               @delete-team="deleteTeam"
               class="py-8 px-4"
             />
@@ -41,7 +38,7 @@
             <TeamsMembers v-model:team="team" class="py-8 px-4" />
           </HoppSmartTab>
           <HoppSmartTab :id="'invites'" :label="t('teams.invites')">
-            <TeamsPendingInvites :editingTeamID="team.id" />
+            <TeamsPendingInvites :editingTeamID="team?.id" />
           </HoppSmartTab>
         </HoppSmartTabs>
 
@@ -60,22 +57,21 @@
 import { useMutation } from '@urql/vue';
 import { computed, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { useI18n } from '~/composables/i18n';
 import { useToast } from '~/composables/toast';
+import { useClientHandler } from '~/composables/useClientHandler';
 import {
   RemoveTeamDocument,
-  RenameTeamDocument,
   TeamInfoDocument,
-  TeamMemberRole,
   TeamInfoQuery,
+  TeamMemberRole,
 } from '../../helpers/backend/graphql';
-import { HoppSmartTabs } from '@hoppscotch/ui';
-import { useI18n } from '~/composables/i18n';
-import { useClientHandler } from '~/composables/useClientHandler';
 
 const t = useI18n();
-
+const route = useRoute();
 const toast = useToast();
 
+// Tabs
 type OptionTabs = 'details' | 'members' | 'invites';
 
 const selectedOptionTab = ref<OptionTabs>('details');
@@ -93,8 +89,7 @@ const currentTabName = computed(() => {
   }
 });
 
-const route = useRoute();
-
+// Get Team Info
 const {
   fetching,
   fetchData: getTeamInfo,
@@ -105,37 +100,11 @@ const {
 });
 
 const team = ref<TeamInfoQuery['infra']['teamInfo'] | undefined>();
-const teamName = computed(() => team.value?.name ?? '');
 
 onMounted(async () => {
   await getTeamInfo();
   team.value = teamInfo.value?.infra.teamInfo;
 });
-
-// Rename the team name
-const showRenameInput = ref(false);
-const teamRename = useMutation(RenameTeamDocument);
-
-const renameTeamName = async (teamName: string) => {
-  if (!team.value) return;
-
-  if (team.value.name === teamName) {
-    showRenameInput.value = false;
-    return;
-  }
-  const variables = { uid: team.value.id, name: teamName };
-  await teamRename.executeMutation(variables).then((result) => {
-    if (result.error) {
-      toast.error(`${t('state.rename_team_failure')}`);
-    } else {
-      showRenameInput.value = false;
-      if (team.value) {
-        team.value.name = teamName;
-        toast.success(`${t('state.rename_team_success')}`);
-      }
-    }
-  });
-};
 
 // Delete team from the infra
 const router = useRouter();

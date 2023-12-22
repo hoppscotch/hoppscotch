@@ -17,7 +17,7 @@ import {
   INFRA_CONFIG_UPDATE_FAILED,
   INFRA_CONFIG_SERVICE_NOT_CONFIGURED,
 } from 'src/errors';
-import { throwErr, validateEmail, validateSMTPUrl } from 'src/utils';
+import { throwErr, validateSMTPEmail, validateSMTPUrl } from 'src/utils';
 import { ConfigService } from '@nestjs/config';
 import { ServiceStatus, stopApp } from './helper';
 import { EnableAndDisableSSOArgs, InfraConfigArgs } from './input-args';
@@ -340,7 +340,7 @@ export class InfraConfigService implements OnModuleInit {
           if (!isValidUrl) return E.left(INFRA_CONFIG_INVALID_INPUT);
           break;
         case InfraConfigEnumForClient.MAILER_ADDRESS_FROM:
-          const isValidEmail = validateEmail(infraConfigs[i].value);
+          const isValidEmail = validateSMTPEmail(infraConfigs[i].value);
           if (!isValidEmail) return E.left(INFRA_CONFIG_INVALID_INPUT);
           break;
         case InfraConfigEnumForClient.GOOGLE_CLIENT_ID:

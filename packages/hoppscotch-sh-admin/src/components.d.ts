@@ -21,7 +21,6 @@ declare module '@vue/runtime-core' {
     HoppSmartConfirmModal: typeof import('@hoppscotch/ui')['HoppSmartConfirmModal'];
     HoppSmartInput: typeof import('@hoppscotch/ui')['HoppSmartInput'];
     HoppSmartItem: typeof import('@hoppscotch/ui')['HoppSmartItem'];
-    HoppSmartLink: typeof import('@hoppscotch/ui')['HoppSmartLink'];
     HoppSmartModal: typeof import('@hoppscotch/ui')['HoppSmartModal'];
     HoppSmartPicture: typeof import('@hoppscotch/ui')['HoppSmartPicture'];
     HoppSmartPlaceholder: typeof import('@hoppscotch/ui')['HoppSmartPlaceholder'];
@@ -29,6 +28,7 @@ declare module '@vue/runtime-core' {
     HoppSmartSpinner: typeof import('@hoppscotch/ui')['HoppSmartSpinner'];
     HoppSmartTab: typeof import('@hoppscotch/ui')['HoppSmartTab'];
     HoppSmartTable: typeof import('@hoppscotch/ui')['HoppSmartTable'];
+    HoppSmartTabs: typeof import('@hoppscotch/ui')['HoppSmartTabs'];
     IconLucideArrowLeft: typeof import('~icons/lucide/arrow-left')['default'];
     IconLucideChevronDown: typeof import('~icons/lucide/chevron-down')['default'];
     IconLucideHelpCircle: typeof import('~icons/lucide/help-circle')['default'];

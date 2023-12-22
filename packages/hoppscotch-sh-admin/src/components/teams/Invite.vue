@@ -1,5 +1,10 @@
 <template>
-  <HoppSmartModal v-if="show" dialog title="Add Member" @close="hideModal">
+  <HoppSmartModal
+    v-if="show"
+    dialog
+    :title="t('teams.add_member')"
+    @close="hideModal"
+  >
     <template #body>
       <div v-if="addingUserToTeam" class="flex items-center justify-center p-4">
         <HoppSmartSpinner />
@@ -25,7 +30,7 @@
             class="flex divide-x divide-dividerLight"
           >
             <HoppSmartAutoComplete
-              v-model="member.key"
+              :value="member.key"
               :placeholder="t('state.email')"
               :source="allUsersEmail"
               :name="'member' + index"
@@ -115,9 +120,9 @@
           </div>
           <HoppSmartPlaceholder
             v-if="newMembersList.length === 0"
-            :src="`/images/states/dark/add_group.svg`"
-            :alt="t('teams.no_invites')"
-            :text="t('teams.no_invites')"
+            :src="addGroupImagePath"
+            :alt="t('teams.no_members')"
+            :text="t('teams.no_members')"
           >
             <template #body>
               <HoppButtonSecondary
@@ -235,6 +240,10 @@ const emit = defineEmits<{
   (e: 'member'): void;
 }>();
 
+const addGroupImagePath = `${
+  import.meta.env.VITE_ADMIN_URL
+}/assets/images/add_group.svg`;
+
 // Get Users List to extract email ids of all users
 const { data } = useQuery({ query: MetricsDocument });
 const usersPerPage = computed(() => data.value?.infra.usersCount || 10000);
@@ -267,8 +276,8 @@ const updateNewMemberRole = (index: number, role: TeamMemberRole) => {
   newMembersList.value[index].value = role;
 };
 
-const removeNewMember = (id: number) => {
-  newMembersList.value.splice(id, 1);
+const removeNewMember = (index: number) => {
+  newMembersList.value.splice(index, 1);
 };
 
 const addingUserToTeam = ref<boolean>(false);

@@ -13,7 +13,7 @@
       <div class="border rounded border-divider my-8">
         <HoppSmartPlaceholder
           v-if="team?.teamMembers?.length === 0"
-          text="No members in this team. Add members to this team to collaborate"
+          :text="t('teams.no_members')"
         >
           <template #body>
             <HoppButtonSecondary
@@ -35,7 +35,7 @@
           >
             <input
               class="flex flex-1 px-4 py-3 bg-transparent"
-              placeholder="Email"
+              :placeholder="t('teams.email_title')"
               :name="'param' + index"
               :value="member.email"
               readonly
@@ -50,7 +50,7 @@
                 <span class="relative">
                   <input
                     class="flex flex-1 px-4 py-3 bg-transparent cursor-pointer"
-                    placeholder="Permissions"
+                    :placeholder="t('teams.permissions')"
                     :name="'value' + index"
                     :value="member.role"
                     readonly
@@ -69,7 +69,7 @@
                     @keyup.escape="hide()"
                   >
                     <HoppSmartItem
-                      label="OWNER"
+                      :label="t('teams.owner')"
                       :icon="
                         member.role === 'OWNER' ? IconCircleDot : IconCircle
                       "
@@ -82,7 +82,7 @@
                       "
                     />
                     <HoppSmartItem
-                      label="EDITOR"
+                      :label="t('teams.editor')"
                       :icon="
                         member.role === 'EDITOR' ? IconCircleDot : IconCircle
                       "
@@ -98,7 +98,7 @@
                       "
                     />
                     <HoppSmartItem
-                      label="VIEWER"
+                      :label="t('teams.viewer')"
                       :icon="
                         member.role === 'VIEWER' ? IconCircleDot : IconCircle
                       "
@@ -140,7 +140,7 @@
     <div class="flex">
       <HoppButtonPrimary
         v-if="areRolesUpdated"
-        :label="t('teams.save')"
+        :label="t('teams.save_changes')"
         outline
         @click="saveUpdatedTeam"
       />
@@ -163,7 +163,7 @@
 import { useMutation } from '@urql/vue';
 import { useVModel } from '@vueuse/core';
 import { cloneDeep, isEqual } from 'lodash-es';
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { useI18n } from '~/composables/i18n';
 import { useToast } from '~/composables/toast';
@@ -187,8 +187,6 @@ const route = useRoute();
 
 const props = defineProps<{
   team: TeamInfoQuery['infra']['teamInfo'];
-  teamName: string;
-  showRenameInput: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -244,21 +242,6 @@ const areRolesUpdated = computed(() =>
   currentMemberRoles.value && updatedMemberRoles.value
     ? !isEqual(currentMemberRoles.value, updatedMemberRoles.value)
     : false
-);
-
-watch(
-  () => team.value,
-  (teamDetails) => {
-    const members = teamDetails?.teamMembers ?? [];
-
-    // Remove deleted members
-    updatedMemberRoles.value = updatedMemberRoles.value.filter(
-      (update) =>
-        members.findIndex(
-          (y: { user: { uid: string } }) => y.user.uid === update.userID
-        ) !== -1
-    );
-  }
 );
 
 // Update the role of the member selected in the UI
@@ -317,18 +300,29 @@ const isLoading = ref(false);
 
 const saveUpdatedTeam = async () => {
   isLoading.value = true;
+
+  const isOwnerPresent = membersList.value.some(
+    (member) => member.role === TeamMemberRole.Owner
+  );
+
+  if (!isOwnerPresent) {
+    toast.error(t('state.owner_not_present'));
+    isLoading.value = false;
+    return;
+  }
+
   updatedMemberRoles.value.forEach(async (update) => {
     if (!team.value) return;
+
     const updateMemberRoleResult = await changeUserRoleInTeam(
       update.userID,
       team.value.id,
       update.role
     );
     if (updateMemberRoleResult.error) {
-      toast.error(`${t('state.role_update_failed')}`);
-      updatedMemberRoles.value = [];
+      toast.error(t('state.role_update_failed'));
     } else {
-      toast.success(`${t('state.role_update_success')}`);
+      toast.success(t('state.role_update_success'));
       currentMemberRoles.value = updatedMemberRoles.value;
       updatedMemberRoles.value = cloneDeep(currentMemberRoles.value);
     }

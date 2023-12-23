@@ -180,11 +180,11 @@ const createTeamMutation = useMutation(CreateTeamDocument);
 
 const createTeam = async (newTeamName: string, ownerEmail: string) => {
   if (newTeamName.length < 6) {
-    toast.error(`${t('state.team_name_long')}`);
+    toast.error(t('state.team_name_too_short'));
     return;
   }
   if (ownerEmail.length === 0) {
-    toast.error(`${t('state.enter_team_email')}`);
+    toast.error(t('state.enter_team_email'));
     return;
   }
 

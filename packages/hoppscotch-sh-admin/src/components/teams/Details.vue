@@ -135,8 +135,8 @@ const renameTeamName = async () => {
     return;
   }
 
-  if (updatedTeamName.value.length < 5) {
-    toast.error('Team name should be atleast 5 characters long.');
+  if (updatedTeamName.value.length < 6) {
+    toast.error(t('state.team_name_too_short'));
     return;
   }
 

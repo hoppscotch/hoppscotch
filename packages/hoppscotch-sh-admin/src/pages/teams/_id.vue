@@ -38,7 +38,7 @@
             <TeamsMembers v-model:team="team" class="py-8 px-4" />
           </HoppSmartTab>
           <HoppSmartTab :id="'invites'" :label="t('teams.invites')">
-            <TeamsPendingInvites :editingTeamID="team?.id" />
+            <TeamsPendingInvites v-model:team="team" />
           </HoppSmartTab>
         </HoppSmartTabs>
 
@@ -55,7 +55,7 @@
 
 <script setup lang="ts">
 import { useMutation } from '@urql/vue';
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useI18n } from '~/composables/i18n';
 import { useToast } from '~/composables/toast';
@@ -64,12 +64,12 @@ import {
   RemoveTeamDocument,
   TeamInfoDocument,
   TeamInfoQuery,
-  TeamMemberRole,
 } from '../../helpers/backend/graphql';
 
 const t = useI18n();
-const route = useRoute();
 const toast = useToast();
+const route = useRoute();
+const router = useRouter();
 
 // Tabs
 type OptionTabs = 'details' | 'members' | 'invites';
@@ -107,7 +107,6 @@ onMounted(async () => {
 });
 
 // Delete team from the infra
-const router = useRouter();
 const confirmDeletion = ref(false);
 const teamDeletion = useMutation(RemoveTeamDocument);
 const deleteTeamUID = ref<string | null>(null);
@@ -124,38 +123,14 @@ const deleteTeamMutation = async (id: string | null) => {
     return;
   }
   const variables = { uid: id };
-  await teamDeletion.executeMutation(variables).then((result) => {
-    if (result.error) {
-      toast.error(`${t('state.delete_team_failure')}`);
-    } else {
-      toast.success(`${t('state.delete_team_success')}`);
-    }
-  });
+  const result = await teamDeletion.executeMutation(variables);
+  if (result.error) {
+    toast.error(t('state.delete_team_failure'));
+  } else {
+    toast.success(t('state.delete_team_success'));
+  }
   confirmDeletion.value = false;
   deleteTeamUID.value = null;
   router.push('/teams');
 };
-
-// Update Roles of Members
-const roleUpdates = ref<
-  {
-    userID: string;
-    role: TeamMemberRole;
-  }[]
->([]);
-
-watch(
-  () => team.value,
-  (teamDetails) => {
-    const members = teamDetails?.teamMembers ?? [];
-
-    // Remove deleted members
-    roleUpdates.value = roleUpdates.value.filter(
-      (update) =>
-        members.findIndex(
-          (y: { user: { uid: string } }) => y.user.uid === update.userID
-        ) !== -1
-    );
-  }
-);
 </script>

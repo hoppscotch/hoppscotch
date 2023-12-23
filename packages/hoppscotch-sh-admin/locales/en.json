@@ -108,6 +108,7 @@
     "microsoft_signin_failure": "Failed to login with Microsoft",
     "non_admin_logged_in": "Logged in as non admin user.",
     "non_admin_login": "You are logged in. But you're not an admin",
+    "owner_not_present": "Atleast one owner should be present in the team!!",
     "privacy_policy": "Privacy Policy",
     "reenter_email": "Re-enter email",
     "remove_admin_failure": "Failed to remove admin status!!",
@@ -127,7 +128,7 @@
     "sign_in_agreement": "By signing in, you are agreeing to our",
     "sign_in_options": "All sign in option",
     "sign_out": "Sign out",
-    "team_name_long": "Team name should be atleast 6 characters long!!",
+    "team_name_too_short": "Team name should be atleast 6 characters long!!",
     "user_not_found": "User not found in the infra!!"
   },
   "teams": {
@@ -148,6 +149,7 @@
     "editor_description": "Editors can add, edit, and delete requests and collections.",
     "email": "Team owner email",
     "email_address": "Email Address",
+    "email_title": "Email",
     "empty_name": "Team name cannot be empty!!",
     "error": "Something went wrong. Please try again later.",
     "id": "Team ID",
@@ -171,6 +173,7 @@
     "remove": "Remove",
     "rename": "Rename",
     "save": "Save",
+    "save_changes": "Save Changes",
     "send_invite": "Send Invite",
     "show_more": "Show more",
     "team_details": "Team details",

@@ -15,6 +15,7 @@
       "update_failure": "Failed to update authentication provider configurations!!"
     },
     "confirm_changes": "Hoppscotch server must restart to reflect the new changes. Confirm changes made to the server configurations?",
+    "input_empty": "Please fill all the fields before updating the configurations",
     "load_error": "Unable to load server configurations",
     "mail_configs": {
       "description": " Configure the smtp configurations",

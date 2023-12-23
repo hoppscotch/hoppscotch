@@ -45,8 +45,13 @@ const updateAllowedAuthProviderMutation = useMutation(
 );
 
 // Mutation handlers
-const { updateInfraConfigs, updateAuthProvider, resetInfraConfigs } =
-  useConfigHandler(props.workingConfigs);
+const {
+  updateInfraConfigs,
+  updateAuthProvider,
+  resetInfraConfigs,
+  updatedInfraConfigs,
+  isAnyConfigFieldsEmpty,
+} = useConfigHandler(props.workingConfigs);
 
 // Call relevant mutations on component mount and initiate server restart
 const duration = ref(30);
@@ -78,13 +83,14 @@ onMounted(async () => {
     success = await resetInfraConfigs(resetInfraConfigsMutation);
     if (!success) return;
   } else {
-    const authResult = await updateAuthProvider(
-      updateAllowedAuthProviderMutation
-    );
     const infraResult = await updateInfraConfigs(updateInfraConfigsMutation);
 
-    success = authResult && infraResult;
-    if (!success) return;
+    if (infraResult) {
+      const authResult = await updateAuthProvider(
+        updateAllowedAuthProviderMutation
+      );
+      if (!authResult) return;
+    } else return;
   }
 
   restart.value = true;

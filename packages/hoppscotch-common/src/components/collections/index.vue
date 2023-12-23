@@ -262,6 +262,7 @@ const emit = defineEmits<{
   (event: "select", payload: Picked | null): void
   (event: "update-team", team: SelectedTeam): void
   (event: "update-collection-type", type: CollectionType["type"]): void
+  (event: "set-team-collection-adapter", adapter: TeamCollectionAdapter): void
 }>()
 
 type SelectedTeam = GetMyTeamsQuery["myTeams"][number] | undefined
@@ -354,6 +355,7 @@ watch(
   (newTeam) => {
     if (newTeam) {
       teamCollectionAdapter.changeTeamID(newTeam.id)
+      emit("set-team-collection-adapter", teamCollectionAdapter)
     }
   }
 )

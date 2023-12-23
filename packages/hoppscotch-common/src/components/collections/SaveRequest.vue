@@ -33,6 +33,7 @@
           @select="onSelect"
           @update-team="updateTeam"
           @update-collection-type="updateCollectionType"
+          @set-team-collection-adapter="teamCollectionAdapter = $event"
         />
       </div>
     </template>
@@ -86,12 +87,15 @@ import { platform } from "~/platform"
 import { useService } from "dioc/vue"
 import { RESTTabService } from "~/services/tab/rest"
 import { GQLTabService } from "~/services/tab/graphql"
+import TeamCollectionAdapter from "~/helpers/teams/TeamCollectionAdapter"
 
 const t = useI18n()
 const toast = useToast()
 
 const RESTTabs = useService(RESTTabService)
 const GQLTabs = useService(GQLTabService)
+
+const teamCollectionAdapter = ref<TeamCollectionAdapter>()
 
 type SelectedTeam = GetMyTeamsQuery["myTeams"][number] | undefined
 
@@ -380,7 +384,6 @@ const saveRequestAs = async () => {
       platform: "rest",
       workspaceType: "team",
     })
-
     pipe(
       updateTeamRequest(picked.value.requestID, data),
       TE.match(
@@ -388,7 +391,31 @@ const saveRequestAs = async () => {
           toast.error(`${getErrorMessage(err)}`)
           modalLoadingState.value = false
         },
-        () => {
+        (result) => {
+          const { updateRequest } = result
+
+          RESTTabs.currentActiveTab.value.document = {
+            request: requestUpdated,
+            isDirty: false,
+            saveContext: {
+              originLocation: "team-collection",
+              requestID: updateRequest.id,
+              collectionID: updateRequest.collectionID,
+            },
+          }
+
+          if (teamCollectionAdapter.value) {
+            const { auth, headers } =
+              teamCollectionAdapter.value.cascadeParentCollectionForHeaderAuth(
+                updateRequest.collectionID
+              )
+
+            RESTTabs.currentActiveTab.value.document.inheritedProperties = {
+              auth,
+              headers,
+            }
+          }
+
           modalLoadingState.value = false
           requestSaved()
         }
@@ -514,6 +541,18 @@ const updateTeamCollectionOrFolder = (
             collectionID: createRequestInCollection.collection.id,
             teamID: createRequestInCollection.collection.team.id,
           },
+        }
+
+        if (teamCollectionAdapter.value) {
+          const { auth, headers } =
+            teamCollectionAdapter.value.cascadeParentCollectionForHeaderAuth(
+              createRequestInCollection.collection.id
+            )
+
+          RESTTabs.currentActiveTab.value.document.inheritedProperties = {
+            auth,
+            headers,
+          }
         }
 
         modalLoadingState.value = false

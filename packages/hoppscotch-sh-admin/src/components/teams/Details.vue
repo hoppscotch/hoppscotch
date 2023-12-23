@@ -123,7 +123,7 @@ const handleTeamNameEdit = () => {
     // If the team name is not changed, then return control
     if (teamName.value !== updatedTeamName.value) {
       renameTeamName();
-    }
+    } else isTeamNameBeingEdited.value = false;
   } else {
     isTeamNameBeingEdited.value = true;
   }

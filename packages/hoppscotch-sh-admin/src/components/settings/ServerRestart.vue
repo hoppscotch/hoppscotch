@@ -68,7 +68,7 @@ const startCountdown = () => {
 onMounted(async () => {
   // Check if any config fields are empty
   if (isAnyConfigFieldsEmpty(updatedInfraConfigs.value)) {
-    toast.error('configs.input_empty');
+    toast.error(t('configs.input_empty'));
     return;
   }
 

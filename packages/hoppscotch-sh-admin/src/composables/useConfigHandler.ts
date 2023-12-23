@@ -1,7 +1,7 @@
 import { computed, onMounted, ref } from 'vue';
 import { cloneDeep } from 'lodash-es';
 import { UseMutationResponse } from '@urql/vue';
-import { useClientHandler } from './useClientHandler';
+import { useClientListHandler } from './useClientListHandler';
 import { useToast } from './toast';
 import { useI18n } from '~/composables/i18n';
 import {
@@ -74,7 +74,7 @@ export function useConfigHandler(updatedConfigs?: Config) {
     error: infraConfigsError,
     list: infraConfigs,
     fetchList: fetchInfraConfigs,
-  } = useClientHandler(InfraConfigsDocument, (x) => x.infraConfigs, {
+  } = useClientListHandler(InfraConfigsDocument, (x) => x.infraConfigs, {
     configNames: [
       'GOOGLE_CLIENT_ID',
       'GOOGLE_CLIENT_SECRET',
@@ -93,7 +93,7 @@ export function useConfigHandler(updatedConfigs?: Config) {
     error: allowedAuthProvidersError,
     list: allowedAuthProviders,
     fetchList: fetchAllowedAuthProviders,
-  } = useClientHandler(
+  } = useClientListHandler(
     AllowedAuthProvidersDocument,
     (x) => x.allowedAuthProviders,
     {}
@@ -255,6 +255,10 @@ export function useConfigHandler(updatedConfigs?: Config) {
     return config;
   });
 
+  // Checking if any of the config fields are empty
+  const isAnyConfigFieldsEmpty = (configs: UpdatedConfigs[]): boolean =>
+    configs.some((config) => config.value === '');
+
   // Trasforming the working configs back into the format required by the mutations
   const updatedAllowedAuthProviders = computed(() => {
     return [
@@ -341,5 +345,6 @@ export function useConfigHandler(updatedConfigs?: Config) {
     fetchingAllowedAuthProviders,
     infraConfigsError,
     allowedAuthProvidersError,
+    isAnyConfigFieldsEmpty,
   };
 }

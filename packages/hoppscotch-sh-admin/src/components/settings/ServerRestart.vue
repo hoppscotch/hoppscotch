@@ -66,6 +66,12 @@ const startCountdown = () => {
 
 // Call relevant mutations on component mount and initiate server restart
 onMounted(async () => {
+  // Check if any config fields are empty
+  if (isAnyConfigFieldsEmpty(updatedInfraConfigs.value)) {
+    toast.error('configs.input_empty');
+    return;
+  }
+
   let success = true;
 
   if (props.reset) {

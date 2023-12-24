@@ -8,7 +8,6 @@ import VueI18n from "@intlify/vite-plugin-vue-i18n"
 import Components from "unplugin-vue-components/vite"
 import Icons from "unplugin-icons/vite"
 import Inspect from "vite-plugin-inspect"
-import WindiCSS from "vite-plugin-windicss"
 import { VitePWA } from "vite-plugin-pwa"
 import Pages from "vite-plugin-pages"
 import Layouts from "vite-plugin-vue-layouts"
@@ -104,9 +103,6 @@ export default defineConfig({
       runtimeOnly: false,
       compositionOnly: true,
       include: [path.resolve(__dirname, "locales")],
-    }),
-    WindiCSS({
-      root: path.resolve(__dirname, "../hoppscotch-common"),
     }),
     Components({
       dts: "../hoppscotch-common/src/components.d.ts",

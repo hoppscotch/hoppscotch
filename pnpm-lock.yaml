@@ -1063,15 +1063,9 @@ importers:
       vite-plugin-vue-layouts:
         specifier: ^0.7.0
         version: 0.7.0(vite@4.5.0)(vue-router@4.2.5)(vue@3.3.9)
-      vite-plugin-windicss:
-        specifier: ^1.8.8
-        version: 1.9.1(vite@4.5.0)
       vue-tsc:
         specifier: ^1.0.11
         version: 1.8.8(typescript@4.9.5)
-      windicss:
-        specifier: ^3.5.6
-        version: 3.5.6
 
   packages/hoppscotch-selfhost-web:
     dependencies:
@@ -4237,7 +4231,7 @@ packages:
     peerDependencies:
       vue: 3.3.9
     dependencies:
-      vue: 3.3.9(typescript@4.9.5)
+      vue: 3.3.9(typescript@5.3.2)
 
   /@codemirror/autocomplete@6.11.1(@codemirror/language@6.9.3)(@codemirror/state@6.3.3)(@codemirror/view@6.22.3)(@lezer/common@1.0.3):
     resolution: {integrity: sha512-L5UInv8Ffd6BPw0P3EF7JLYAMeEbclY7+6Q11REt8vhih8RuLreKtPy/xk8wPxs4EQgYqzI7cdgpiYwWlbS/ow==}
@@ -7059,7 +7053,7 @@ packages:
       lodash-es: 4.17.21
       path: 0.12.7
       vite-plugin-eslint: 1.8.1(eslint@8.55.0)(vite@3.2.4)
-      vue: 3.3.9(typescript@4.9.5)
+      vue: 3.3.9(typescript@4.9.3)
       vuedraggable-es: 4.1.1(vue@3.3.9)
     transitivePeerDependencies:
       - '@vue/composition-api'
@@ -7098,7 +7092,7 @@ packages:
     peerDependencies:
       vue: 3.3.9
     dependencies:
-      vue: 3.3.9(typescript@4.9.5)
+      vue: 3.3.9(typescript@5.3.2)
 
   /@humanwhocodes/config-array@0.11.10:
     resolution: {integrity: sha512-KVVjQmNUepDVGXNuoRRdmmEjruj0KfiGSbS8LVc12LMsWDQzRXJ0qdhN8L8uUigKpfEHRhlaQFY0ib1tnUbNeQ==}
@@ -7400,7 +7394,7 @@ packages:
     dependencies:
       '@intlify/bundle-utils': 7.4.0(vue-i18n@9.2.2)
       '@intlify/shared': 9.4.1
-      '@rollup/pluginutils': 5.0.3(rollup@3.29.4)
+      '@rollup/pluginutils': 5.0.3(rollup@2.79.1)
       '@vue/compiler-sfc': 3.3.10
       debug: 4.3.4(supports-color@9.2.2)
       fast-glob: 3.3.1
@@ -8993,7 +8987,6 @@ packages:
       estree-walker: 2.0.2
       picomatch: 2.3.1
       rollup: 2.79.1
-    dev: true
 
   /@rollup/pluginutils@5.0.3(rollup@3.29.4):
     resolution: {integrity: sha512-hfllNN4a80rwNQ9QCxhxuHCGHMAvabXqxNdaChUSSadMre7t4iEUI6fFAhBOn/eIYTgYVhBv7vCLsAJ4u3lf3g==}
@@ -9008,6 +9001,7 @@ packages:
       estree-walker: 2.0.2
       picomatch: 2.3.1
       rollup: 3.29.4
+    dev: true
 
   /@rollup/pluginutils@5.1.0(rollup@2.79.1):
     resolution: {integrity: sha512-XTIWOPPcpvyKI6L1NHo0lFlCyznUEyPmPY1mc3KpPVDYulHSTvyeLNVW00QTLIAFNhR3kYnJTQHeGqU4M3n09g==}
@@ -10625,7 +10619,7 @@ packages:
       regenerator-runtime: 0.13.11
       systemjs: 6.14.2
       terser: 5.24.0
-      vite: 3.2.4(@types/node@17.0.27)(terser@5.24.0)
+      vite: 3.2.4(@types/node@18.18.8)(sass@1.58.0)(terser@5.24.0)
 
   /@vitejs/plugin-legacy@2.3.0(terser@5.24.0)(vite@4.5.0):
     resolution: {integrity: sha512-Bh62i0gzQvvT8AeAAb78nOnqSYXypkRmQmOTImdPZ39meHR9e2une3AIFmVo4s1SDmcmJ6qj18Sa/lRc/14KaA==}
@@ -11143,7 +11137,7 @@ packages:
       '@types/web-bluetooth': 0.0.14
       '@vueuse/metadata': 8.7.5
       '@vueuse/shared': 8.7.5(vue@3.3.9)
-      vue: 3.3.9(typescript@4.9.5)
+      vue: 3.3.9(typescript@5.3.2)
       vue-demi: 0.14.6(vue@3.3.9)
 
   /@vueuse/core@9.12.0(vue@3.3.9):
@@ -11202,7 +11196,7 @@ packages:
       vue:
         optional: true
     dependencies:
-      vue: 3.3.9(typescript@4.9.5)
+      vue: 3.3.9(typescript@5.3.2)
       vue-demi: 0.14.6(vue@3.3.9)
 
   /@vueuse/shared@9.12.0(vue@3.3.9):
@@ -11420,30 +11414,6 @@ packages:
       fast-querystring: 1.1.2
       fast-url-parser: 1.1.3
       tslib: 2.6.2
-    dev: true
-
-  /@windicss/config@1.9.1:
-    resolution: {integrity: sha512-MjutTiS9XIteriwkH9D+que+bILbpulekYzjJGQDg3Sb2H87aOcO30f7N11ZiHF5OYoZn4yJz4lDbB3A6IuXfQ==}
-    dependencies:
-      debug: 4.3.4(supports-color@9.2.2)
-      jiti: 1.19.3
-      windicss: 3.5.6
-    transitivePeerDependencies:
-      - supports-color
-    dev: true
-
-  /@windicss/plugin-utils@1.9.1:
-    resolution: {integrity: sha512-sz/Z2sxUZIkJ2nVeTmtYTtXhWxe/yTTkM5nqU6eKhP0n6waipTCJJdLvWoZcgzQBbBCL/JLRQd/9BYsBqKuLDQ==}
-    dependencies:
-      '@antfu/utils': 0.7.6
-      '@windicss/config': 1.9.1
-      debug: 4.3.4(supports-color@9.2.2)
-      fast-glob: 3.3.1
-      magic-string: 0.30.4
-      micromatch: 4.0.5
-      windicss: 3.5.6
-    transitivePeerDependencies:
-      - supports-color
     dev: true
 
   /@xtuc/ieee754@1.2.0:
@@ -13614,7 +13584,7 @@ packages:
         optional: true
     dependencies:
       rxjs: 7.8.1
-      vue: 3.3.9(typescript@4.9.5)
+      vue: 3.3.9(typescript@5.3.2)
     dev: false
 
   /dir-glob@3.0.1:
@@ -24162,7 +24132,7 @@ packages:
     dependencies:
       fast-glob: 3.3.2
       unplugin: 1.5.1
-      vite: 4.5.0(@types/node@18.18.8)(sass@1.69.5)(terser@5.24.0)
+      vite: 4.5.0(@types/node@17.0.27)(sass@1.69.5)(terser@5.24.0)
     dev: true
 
   /unplugin-icons@0.14.9(@vue/compiler-sfc@3.2.45)(vite@3.2.4):
@@ -24772,7 +24742,7 @@ packages:
       '@types/eslint': 8.44.3
       eslint: 8.55.0
       rollup: 2.79.1
-      vite: 3.2.4(@types/node@17.0.27)(terser@5.24.0)
+      vite: 3.2.4(@types/node@18.18.8)(sass@1.58.0)(terser@5.24.0)
 
   /vite-plugin-eslint@1.8.1(eslint@8.55.0)(vite@4.5.0):
     resolution: {integrity: sha512-PqdMf3Y2fLO9FsNPmMX+//2BF5SF8nEWspZdgl4kSt7UvHDRHVVfHvxsD7ULYzZrJDGRxR81Nq7TOFgwMnUang==}
@@ -24803,7 +24773,7 @@ packages:
     peerDependencies:
       vite: '>=2.0.0'
     dependencies:
-      vite: 4.5.0(@types/node@18.18.8)(sass@1.69.5)(terser@5.24.0)
+      vite: 4.5.0(@types/node@17.0.27)(sass@1.69.5)(terser@5.24.0)
     dev: true
 
   /vite-plugin-inspect@0.7.38(rollup@2.79.1)(vite@4.5.0):
@@ -25065,54 +25035,6 @@ packages:
     transitivePeerDependencies:
       - supports-color
     dev: true
-
-  /vite-plugin-windicss@1.9.1(vite@4.5.0):
-    resolution: {integrity: sha512-CWm1b/tXVCJTbEGn4oB8B7Gev9xDuY9k4E/KiJqDuLYspBUFQyZKPF2mSZ3DfNdojsfqgzxu9ervqvlb9jJ7fw==}
-    peerDependencies:
-      vite: ^2.0.1 || ^3.0.0 || ^4.0.0
-    dependencies:
-      '@windicss/plugin-utils': 1.9.1
-      debug: 4.3.4(supports-color@9.2.2)
-      kolorist: 1.8.0
-      vite: 4.5.0(@types/node@18.18.8)(sass@1.69.5)(terser@5.24.0)
-      windicss: 3.5.6
-    transitivePeerDependencies:
-      - supports-color
-    dev: true
-
-  /vite@3.2.4(@types/node@17.0.27)(terser@5.24.0):
-    resolution: {integrity: sha512-Z2X6SRAffOUYTa+sLy3NQ7nlHFU100xwanq1WDwqaiFiCe+25zdxP1TfCS5ojPV2oDDcXudHIoPnI1Z/66B7Yw==}
-    engines: {node: ^14.18.0 || >=16.0.0}
-    hasBin: true
-    peerDependencies:
-      '@types/node': '>= 14'
-      less: '*'
-      sass: '*'
-      stylus: '*'
-      sugarss: '*'
-      terser: ^5.4.0
-    peerDependenciesMeta:
-      '@types/node':
-        optional: true
-      less:
-        optional: true
-      sass:
-        optional: true
-      stylus:
-        optional: true
-      sugarss:
-        optional: true
-      terser:
-        optional: true
-    dependencies:
-      '@types/node': 17.0.27
-      esbuild: 0.15.15
-      postcss: 8.4.32
-      resolve: 1.22.4
-      rollup: 2.79.1
-      terser: 5.24.0
-    optionalDependencies:
-      fsevents: 2.3.3
 
   /vite@3.2.4(@types/node@18.18.8)(sass@1.58.0)(terser@5.24.0):
     resolution: {integrity: sha512-Z2X6SRAffOUYTa+sLy3NQ7nlHFU100xwanq1WDwqaiFiCe+25zdxP1TfCS5ojPV2oDDcXudHIoPnI1Z/66B7Yw==}
@@ -25536,7 +25458,7 @@ packages:
       '@vue/composition-api':
         optional: true
     dependencies:
-      vue: 3.3.9(typescript@4.9.5)
+      vue: 3.3.9(typescript@5.3.2)
 
   /vue-eslint-parser@9.3.1(eslint@8.47.0):
     resolution: {integrity: sha512-Clr85iD2XFZ3lJ52/ppmUDG/spxQu6+MAeHXjjyI4I1NUYZ9xmenQp4N0oaHJhrA8OOxltCVxMRfANGa70vU0g==}
@@ -25620,7 +25542,7 @@ packages:
       vue: 3.3.9
     dependencies:
       '@vue/devtools-api': 6.5.1
-      vue: 3.3.9(typescript@4.9.5)
+      vue: 3.3.9(typescript@5.3.2)
 
   /vue-template-compiler@2.7.14:
     resolution: {integrity: sha512-zyA5Y3ArvVG0NacJDkkzJuPQDF8RFeRlzV2vLeSnhSpieO6LK2OVbdLPi5MPPs09Ii+gMO8nY4S3iKQxBxDmWQ==}
@@ -25732,7 +25654,7 @@ packages:
       vue: 3.3.9
     dependencies:
       sortablejs: 1.14.0
-      vue: 3.3.9(typescript@4.9.5)
+      vue: 3.3.9(typescript@5.3.2)
 
   /w3c-hr-time@1.0.2:
     resolution: {integrity: sha512-z8P5DvDNjKDoFIHK7q8r8lackT6l+jo/Ye3HOle7l9nICP9lf1Ci25fy9vHd0JOWewkIFzXIEig3TdKT7JQ5fQ==}
@@ -26002,12 +25924,6 @@ packages:
     resolution: {integrity: sha512-eDMORYaPNZ4sQIuuYPDHdQvf4gyCF9rEEV/yPxGfwPkRodwEgiMUUXTx/dex+Me0wxx53S+NgUHaP7y3MGlDmg==}
     dependencies:
       string-width: 4.2.3
-
-  /windicss@3.5.6:
-    resolution: {integrity: sha512-P1mzPEjgFMZLX0ZqfFht4fhV/FX8DTG7ERG1fBLiWvd34pTLVReS5CVsewKn9PApSgXnVfPWwvq+qUsRwpnwFA==}
-    engines: {node: '>= 12'}
-    hasBin: true
-    dev: true
 
   /windows-release@4.0.0:
     resolution: {integrity: sha512-OxmV4wzDKB1x7AZaZgXMVsdJ1qER1ed83ZrTYd5Bwq2HfJVg3DJS8nqlAG4sMoJ7mu8cuRmLEYyU13BKwctRAg==}

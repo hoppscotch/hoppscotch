@@ -18,7 +18,7 @@ const hoppEnvSchema = z.object({
 })
 
 export const hoppEnvImporter = (content: string) => {
-  const parsedContent = safeParseJSON(content)
+  const parsedContent = safeParseJSON(content, true)
 
   // parse json from the environments string
   if (O.isNone(parsedContent)) {

@@ -119,7 +119,7 @@ const deleteTeam = (id: string) => {
 const deleteTeamMutation = async (id: string | null) => {
   if (!id) {
     confirmDeletion.value = false;
-    toast.error(`${t('state.delete_team_failure')}`);
+    toast.error(t('state.delete_team_failure'));
     return;
   }
   const variables = { uid: id };

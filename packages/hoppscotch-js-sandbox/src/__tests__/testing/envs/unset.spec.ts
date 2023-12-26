@@ -23,7 +23,7 @@ const funcTest = (script: string, envs: TestResult["envs"]) =>
   )
 
 describe("pw.env.unset", () => {
-  test("removes the variable set in selected environment variables correctly", () => {
+  test("removes the variable set in selected environment correctly", () => {
     return expect(
       func(
         `
@@ -46,7 +46,7 @@ describe("pw.env.unset", () => {
     )
   })
 
-  test("removes the variable set in global environment variables correctly", () => {
+  test("removes the variable set in global environment correctly", () => {
     return expect(
       func(
         `
@@ -69,7 +69,7 @@ describe("pw.env.unset", () => {
     )
   })
 
-  test("removes the variable from selected environment variables if the entry is present in both selected and global context", () => {
+  test("removes the variable from selected environment if the entry is present in both selected and global environments", () => {
     return expect(
       func(
         `

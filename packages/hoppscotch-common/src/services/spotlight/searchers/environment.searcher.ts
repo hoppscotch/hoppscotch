@@ -33,7 +33,7 @@ import { cloneDeep } from "lodash-es"
 import MiniSearch from "minisearch"
 import { map } from "rxjs"
 import { useStreamStatic } from "~/composables/stream"
-import { GQLError } from "~/helpers/backend/GQLClient"
+import { GQLError, runGQLQuery } from "~/helpers/backend/GQLClient"
 import { deleteTeamEnvironment } from "~/helpers/backend/mutations/TeamEnvironment"
 import {
   createEnvironment,
@@ -45,7 +45,11 @@ import {
   setSelectedEnvironmentIndex,
 } from "~/newstore/environments"
 
+import * as E from "fp-ts/Either"
 import IconCheckCircle from "~/components/app/spotlight/entry/IconSelected.vue"
+import { GetTeamEnvironmentsDocument } from "~/helpers/backend/graphql"
+import { TeamEnvironment } from "~/helpers/teams/TeamEnvironment"
+import { WorkspaceService } from "~/services/workspace.service"
 import IconCircle from "~icons/lucide/circle"
 
 type Doc = {
@@ -262,6 +266,8 @@ export class SwitchEnvSpotlightSearcherService
   public searcherSectionTitle = this.t("tab.environments")
 
   private readonly spotlight = this.bind(SpotlightService)
+  private readonly workspaceService = this.bind(WorkspaceService)
+  private teamEnvironmentList: TeamEnvironment[] = []
 
   constructor() {
     super()
@@ -288,6 +294,45 @@ export class SwitchEnvSpotlightSearcherService
       /* noop */
     }
   )[0]
+
+  fetchTeamEnvironmentList(
+    teamID: string,
+    fn: (results: TeamEnvironment[]) => void
+  ) {
+    const results: TeamEnvironment[] = []
+
+    runGQLQuery({
+      query: GetTeamEnvironmentsDocument,
+      variables: {
+        teamID: teamID,
+      },
+    }).then(
+      (result) => {
+        if (E.isRight(result)) {
+          if (result.right.team !== undefined && result.right.team !== null) {
+            results.push(
+              ...result.right.team.teamEnvironments.map(
+                (x) =>
+                  <TeamEnvironment>{
+                    id: x.id,
+                    teamID: x.teamID,
+                    environment: {
+                      name: x.name,
+                      variables: JSON.parse(x.variables),
+                    },
+                  }
+              )
+            )
+          }
+
+          fn(results)
+        }
+      },
+      (err) => {
+        console.error(err)
+      }
+    )
+  }
 
   createSearchSession(
     query: Readonly<Ref<string>>
@@ -318,6 +363,31 @@ export class SwitchEnvSpotlightSearcherService
           }
         })
       )
+
+      const workspace = this.workspaceService.currentWorkspace
+
+      if (workspace.value?.type === "team") {
+        this.fetchTeamEnvironmentList(workspace.value.teamID, (results) => {
+          this.teamEnvironmentList = results
+          minisearch.addAll(
+            results.map((entry) => {
+              let id = `team-environment-${entry.teamID}:${entry.id}`
+
+              if (
+                this.selectedEnvIndex.value?.type === "TEAM_ENV" &&
+                this.selectedEnvIndex.value.teamEnvID === entry.id
+              ) {
+                id += "-selected"
+              }
+              return {
+                id,
+                name: entry.environment.name,
+                alternates: ["environment", "change", entry.environment.name],
+              }
+            })
+          )
+        })
+      }
     }
 
     const scopeHandle = effectScope()
@@ -370,10 +440,23 @@ export class SwitchEnvSpotlightSearcherService
   }
 
   onResultSelect(result: SpotlightSearcherResult): void {
-    const selectedEnvIndex = Number(result.id.split("-")[1])
-    setSelectedEnvironmentIndex({
-      type: "MY_ENV",
-      index: selectedEnvIndex,
-    })
+    if (result.id.startsWith("team-environment")) {
+      const teamAndEnvID = result.id.split("-")[2]
+      const [teamID, teamEnvID] = teamAndEnvID.split(":")
+      const teamEnv = this.teamEnvironmentList.find((x) => x.id === teamEnvID)
+      if (!teamEnv) return
+      setSelectedEnvironmentIndex({
+        type: "TEAM_ENV",
+        teamEnvID: teamEnvID,
+        teamID: teamID,
+        environment: teamEnv.environment,
+      })
+    } else {
+      const selectedEnvIndex = Number(result.id.split("-")[1])
+      setSelectedEnvironmentIndex({
+        type: "MY_ENV",
+        index: selectedEnvIndex,
+      })
+    }
   }
 }

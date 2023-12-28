@@ -262,7 +262,7 @@ export function useConfigHandler(updatedConfigs?: Config) {
   // Checking if any of the config fields are empty
   const isFieldEmpty = (field: string) => field === '';
 
-  const isAnyConfigFieldsEmpty = (config: Config): boolean => {
+  const AreAnyConfigFieldsEmpty = (config: Config): boolean => {
     const providerFieldsEmpty = Object.values(config.providers).some(
       (provider) => [...Object.values(provider.fields)].some(isFieldEmpty)
     );
@@ -359,6 +359,6 @@ export function useConfigHandler(updatedConfigs?: Config) {
     fetchingAllowedAuthProviders,
     infraConfigsError,
     allowedAuthProvidersError,
-    isAnyConfigFieldsEmpty,
+    AreAnyConfigFieldsEmpty,
   };
 }

@@ -71,18 +71,14 @@
 
 <script setup lang="ts">
 import { format } from 'date-fns';
-
 import { useI18n } from '~/composables/i18n';
 import { useToast } from '~/composables/toast';
-
+import { UserInfoQuery } from '~/helpers/backend/graphql';
 import IconTrash from '~icons/lucide/trash';
 import IconUserCheck from '~icons/lucide/user-check';
 import IconUserMinus from '~icons/lucide/user-minus';
 
-import { UserInfoQuery } from '~/helpers/backend/graphql';
-
 const t = useI18n();
-
 const toast = useToast();
 
 const props = defineProps<{

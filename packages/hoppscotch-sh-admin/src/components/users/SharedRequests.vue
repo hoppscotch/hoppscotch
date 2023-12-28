@@ -20,7 +20,9 @@
             <th class="px-6 py-2 w-30">{{ t('shared_requests.url') }}</th>
             <th class="px-6 py-2">{{ t('shared_requests.created_on') }}</th>
             <!-- Empty Heading for the Action Button -->
-            <th class="px-6 py-2 text-center">Actions</th>
+            <th class="px-6 py-2 text-center">
+              {{ t('shared_requests.action') }}
+            </th>
           </tr>
         </template>
         <template #body="{ list: sharedRequests }">
@@ -85,32 +87,32 @@
         <icon-lucide-chevron-down />
       </div>
     </div>
-  </div>
 
-  <HoppSmartConfirmModal
-    :show="confirmDeletion"
-    :title="t('shared_requests.confirm_request_deletion')"
-    @hide-modal="confirmDeletion = false"
-    @resolve="deleteSharedRequestMutation(deleteSharedRequestID)"
-  />
+    <HoppSmartConfirmModal
+      :show="confirmDeletion"
+      :title="t('shared_requests.confirm_request_deletion')"
+      @hide-modal="confirmDeletion = false"
+      @resolve="deleteSharedRequestMutation(deleteSharedRequestID)"
+    />
+  </div>
 </template>
 
 <script setup lang="ts">
+import { useMutation } from '@urql/vue';
 import { format } from 'date-fns';
 import { ref } from 'vue';
-import { useMutation } from '@urql/vue';
-import {
-  SharedRequestsDocument,
-  RevokeShortcodeByAdminDocument,
-} from '../../helpers/backend/graphql';
-import { usePagedQuery } from '~/composables/usePagedQuery';
-import { useToast } from '~/composables/toast';
 import { useI18n } from '~/composables/i18n';
+import { useToast } from '~/composables/toast';
+import { usePagedQuery } from '~/composables/usePagedQuery';
 import { copyToClipboard } from '~/helpers/utils/clipboard';
-import IconTrash from '~icons/lucide/trash';
-import IconCopy from '~icons/lucide/copy';
 import IconCheck from '~icons/lucide/check';
+import IconCopy from '~icons/lucide/copy';
 import IconExternalLink from '~icons/lucide/external-link';
+import IconTrash from '~icons/lucide/trash';
+import {
+  RevokeShortcodeByAdminDocument,
+  SharedRequestsDocument,
+} from '../../helpers/backend/graphql';
 
 const t = useI18n();
 const toast = useToast();
@@ -154,7 +156,7 @@ const shortcodeBaseURL =
 // Copy Shared Request to Clipboard
 const copySharedRequest = (requestID: string) => {
   copyToClipboard(`${shortcodeBaseURL}/r/${requestID}`);
-  toast.success(`${t('state.copied_to_clipboard')}`);
+  toast.success(t('state.copied_to_clipboard'));
 };
 
 // Shared Request Deletion
@@ -170,19 +172,19 @@ const deleteSharedRequest = (id: string) => {
 const deleteSharedRequestMutation = async (id: string | null) => {
   if (!id) {
     confirmDeletion.value = false;
-    toast.error(`${t('state.delete_request_failure')}`);
+    toast.error(t('state.delete_request_failure'));
     return;
   }
   const variables = { codeID: id };
   await sharedRequestDeletion.executeMutation(variables).then((result) => {
     if (result.error) {
-      toast.error(`${t('state.delete_request_failure')}`);
+      toast.error(t('state.delete_request_failure'));
     } else {
       sharedRequests.value = sharedRequests.value.filter(
         (request) => request.id !== id
       );
       refetch();
-      toast.success(`${t('state.delete_request_success')}`);
+      toast.success(t('state.delete_request_success'));
     }
   });
   confirmDeletion.value = false;

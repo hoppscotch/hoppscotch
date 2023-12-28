@@ -5,16 +5,23 @@ import { ref } from 'vue';
 /** A composable function to handle grapqhl requests
  * using urql's useClientHandle
  * @param query The query to be executed
+ * @param getList A function to get the list from the result
  * @param variables The variables to be passed to the query
  */
-export function useClientHandler<Result, Vars extends Record<string, any>>(
+export function useClientHandler<
+  Result,
+  Vars extends Record<string, any>,
+  ListItem
+>(
   query: string | TypedDocumentNode<Result, Vars> | DocumentNode,
-  variables: Vars
+  variables: Vars,
+  getList?: (result: Result) => ListItem[]
 ) {
   const { client } = useClientHandle();
   const fetching = ref(true);
   const error = ref(false);
-  const fetchedData = ref<Result>();
+  const data = ref<Result>();
+  const dataAsList = ref<ListItem[]>([]);
 
   const fetchData = async () => {
     fetching.value = true;
@@ -25,7 +32,12 @@ export function useClientHandler<Result, Vars extends Record<string, any>>(
         })
         .toPromise();
 
-      fetchedData.value = result.data;
+      if (getList) {
+        const resultList = getList(result.data!);
+        dataAsList.value.push(...resultList);
+      } else {
+        data.value = result.data;
+      }
     } catch (e) {
       error.value = true;
     }
@@ -35,7 +47,8 @@ export function useClientHandler<Result, Vars extends Record<string, any>>(
   return {
     fetching,
     error,
+    data,
+    dataAsList,
     fetchData,
-    fetchedData,
   };
 }

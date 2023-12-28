@@ -45,13 +45,8 @@ const updateAllowedAuthProviderMutation = useMutation(
 );
 
 // Mutation handlers
-const {
-  updateInfraConfigs,
-  updateAuthProvider,
-  resetInfraConfigs,
-  updatedInfraConfigs,
-  isAnyConfigFieldsEmpty,
-} = useConfigHandler(props.workingConfigs);
+const { updateInfraConfigs, updateAuthProvider, resetInfraConfigs } =
+  useConfigHandler(props.workingConfigs);
 
 // Call relevant mutations on component mount and initiate server restart
 const duration = ref(30);
@@ -71,12 +66,6 @@ const startCountdown = () => {
 
 // Call relevant mutations on component mount and initiate server restart
 onMounted(async () => {
-  // Check if any config fields are empty
-  if (isAnyConfigFieldsEmpty(updatedInfraConfigs.value)) {
-    toast.error(t('configs.input_empty'));
-    return;
-  }
-
   let success = true;
 
   if (props.reset) {

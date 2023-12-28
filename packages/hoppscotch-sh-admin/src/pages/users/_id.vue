@@ -1,6 +1,6 @@
 <template>
   <div v-if="fetching" class="flex justify-center"><HoppSmartSpinner /></div>
-  <div v-else class="flex flex-col space-y-4">
+  <div v-if="user" class="flex flex-col space-y-4">
     <div class="flex gap-x-3">
       <button
         class="p-2 mb-2 rounded-3xl bg-divider"
@@ -32,7 +32,7 @@
           />
         </HoppSmartTab>
         <HoppSmartTab :id="'requests'" :label="t('shared_requests.title')">
-          <UsersSharedRequests :email="user.email" class="py-8 px-4 mt-10" />
+          <UsersSharedRequests :email="user.email" />
         </HoppSmartTab>
       </HoppSmartTabs>
     </div>
@@ -59,21 +59,20 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, computed } from 'vue';
-import { useMutation } from '@urql/vue';
+import { useClientHandle, useMutation } from '@urql/vue';
+import { computed, onMounted, ref } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { useI18n } from '~/composables/i18n';
+import { useToast } from '~/composables/toast';
 import {
   MakeUserAdminDocument,
-  UserInfoDocument,
-  RemoveUserByAdminDocument,
   RemoveUserAsAdminDocument,
+  RemoveUserByAdminDocument,
+  UserInfoDocument,
+  UserInfoQuery,
 } from '~/helpers/backend/graphql';
-import { useClientHandle } from '@urql/vue';
-import { useRoute, useRouter } from 'vue-router';
-import { useToast } from '~/composables/toast';
-import { useI18n } from '~/composables/i18n';
 
 const t = useI18n();
-
 const toast = useToast();
 
 // Tabs
@@ -92,7 +91,7 @@ const currentTabName = computed(() => {
 });
 
 // Get User Info
-const user = ref();
+const user = ref<UserInfoQuery['infra']['userInfo']>();
 const { client } = useClientHandle();
 const fetching = ref(true);
 const route = useRoute();
@@ -104,9 +103,9 @@ onMounted(async () => {
     .toPromise();
 
   if (result.error) {
-    toast.error(`${t('users.load_info_error')}`);
+    toast.error(t('users.load_info_error'));
   }
-  user.value = result.data?.infra.userInfo ?? {};
+  user.value = result.data?.infra.userInfo;
   fetching.value = false;
 });
 
@@ -124,17 +123,18 @@ const deleteUser = (id: string) => {
 const deleteUserMutation = async (id: string | null) => {
   if (!id) {
     confirmDeletion.value = false;
-    toast.error(`${t('state.delete_user_failure')}`);
+    toast.error(t('state.delete_user_failure'));
     return;
   }
   const variables = { uid: id };
-  await userDeletion.executeMutation(variables).then((result) => {
-    if (result.error) {
-      toast.error(`${t('state.delete_user_failure')}`);
-    } else {
-      toast.success(`${t('state.delete_user_success')}`);
-    }
-  });
+  const result = await userDeletion.executeMutation(variables);
+
+  if (result.error) {
+    toast.error(t('state.delete_user_failure'));
+  } else {
+    toast.success(t('state.delete_user_success'));
+  }
+
   confirmDeletion.value = false;
   deleteUserUID.value = null;
   router.push('/users');
@@ -153,18 +153,17 @@ const makeUserAdmin = (id: string) => {
 const makeUserAdminMutation = async (id: string | null) => {
   if (!id) {
     confirmUserToAdmin.value = false;
-    toast.error(`${t('state.admin_failure')}`);
+    toast.error(t('state.admin_failure'));
     return;
   }
   const variables = { uid: id };
-  await userToAdmin.executeMutation(variables).then((result) => {
-    if (result.error) {
-      toast.error(`${t('state.admin_failure')}`);
-    } else {
-      user.value.isAdmin = true;
-      toast.success(`${t('state.admin_success')}`);
-    }
-  });
+  const result = await userToAdmin.executeMutation(variables);
+  if (result.error) {
+    toast.error(t('state.admin_failure'));
+  } else {
+    user.value.isAdmin = true;
+    toast.success(t('state.admin_success'));
+  }
   confirmUserToAdmin.value = false;
   userToAdminUID.value = null;
 };
@@ -182,18 +181,17 @@ const makeAdminToUser = (id: string) => {
 const makeAdminToUserMutation = async (id: string | null) => {
   if (!id) {
     confirmAdminToUser.value = false;
-    toast.error(`${t('state.remove_admin_failure')}`);
+    toast.error(t('state.remove_admin_failure'));
     return;
   }
   const variables = { uid: id };
-  await adminToUser.executeMutation(variables).then((result) => {
-    if (result.error) {
-      toast.error(`${t('state.remove_admin_failure')}`);
-    } else {
-      user.value.isAdmin = false;
-      toast.error(`${t('state.remove_admin_success')}`);
-    }
-  });
+  const result = await adminToUser.executeMutation(variables);
+  if (result.error) {
+    toast.error(t('state.remove_admin_failure'));
+  } else {
+    user.value.isAdmin = false;
+    toast.error(t('state.remove_admin_success'));
+  }
   confirmAdminToUser.value = false;
   adminToUserUID.value = null;
 };

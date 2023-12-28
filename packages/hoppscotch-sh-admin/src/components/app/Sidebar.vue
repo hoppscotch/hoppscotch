@@ -12,7 +12,7 @@
       :class="isOpen ? '' : '-translate-x-full ease-in'"
       class="sidebar-container transform !md:translate-x-0 ease-out"
     >
-      <div :class="isExpanded ? 'w-80' : 'w-full'">
+      <div :class="isExpanded ? 'w-48' : 'w-full'">
         <div class="flex items-center justify-start px-4 my-4">
           <div class="flex items-center">
             <HoppSmartLink class="flex items-center space-x-4" to="/dashboard">
@@ -26,7 +26,6 @@
             </HoppSmartLink>
           </div>
         </div>
-
         <nav class="my-5">
           <HoppSmartLink
             v-for="(navigation, index) in primaryNavigations"
@@ -39,19 +38,33 @@
             :to="navigation.to"
             tabindex="0"
             :exact="navigation.exact"
-            class="nav-link"
             :class="
               !isExpanded
                 ? 'flex items-center justify-center'
                 : 'flex items-center'
             "
+            @click="setActiveTab(navigation.label)"
           >
-            <div v-if="navigation.icon">
-              <component :is="navigation.icon" class="svg-icons" />
+            <div
+              class="flex p-5 w-full transition duration-300 ease-in-out font-bold"
+              :class="{
+                'bg-gradient-to-r from-emerald-900 to-emerald-600  text-secondaryDark':
+                  activeTab === navigation.label,
+                'bg-primary hover:bg-primaryDark hover:text-secondaryDark focus-visible:text-secondaryDark focus-visible:bg-primaryLight focus-visible:outline-none':
+                  activeTab !== navigation.label,
+              }"
+            >
+              <div
+                v-if="navigation.icon"
+                class="svg-icons"
+                :class="isExpanded ? 'mr-3' : 'mx-auto'"
+              >
+                <component :is="navigation.icon" />
+              </div>
+              <span v-if="isExpanded" class="nav-title">
+                {{ navigation.label }}
+              </span>
             </div>
-            <span v-if="isExpanded" class="nav-title">
-              {{ navigation.label }}
-            </span>
           </HoppSmartLink>
         </nav>
       </div>
@@ -67,12 +80,22 @@ import IconUser from '~icons/lucide/user';
 import IconUsers from '~icons/lucide/users';
 import IconSettings from '~icons/lucide/settings';
 import { useI18n } from '~/composables/i18n';
+import { ref } from 'vue';
 
 const t = useI18n();
 
 const { isOpen, isExpanded } = useSidebar();
 
-const primaryNavigations = [
+type SidebarTabs = 'Dashboard' | 'Users' | 'Teams' | 'Settings';
+
+type NavigationItem = {
+  label: SidebarTabs;
+  icon: any;
+  to: string;
+  exact: boolean;
+};
+
+const primaryNavigations: NavigationItem[] = [
   {
     label: t('metrics.dashboard'),
     icon: IconDashboard,
@@ -98,6 +121,12 @@ const primaryNavigations = [
     exact: true,
   },
 ];
+
+const activeTab = ref<SidebarTabs>('Dashboard');
+
+const setActiveTab = (tab: SidebarTabs) => {
+  activeTab.value = tab;
+};
 </script>
 
 <style scoped lang="scss">
@@ -105,55 +134,5 @@ const primaryNavigations = [
   @apply fixed md:static md:translate-x-0 md:inset-0 inset-y-0 left-0 z-30;
   @apply transition duration-300;
   @apply flex overflow-y-auto bg-primary border-r border-divider;
-}
-
-.nav-link {
-  @apply relative;
-  @apply p-4;
-  @apply flex flex-1;
-  @apply items-center;
-  @apply space-x-4;
-  @apply hover:bg-primaryDark hover:text-secondaryDark;
-  @apply focus-visible:text-secondaryDark;
-  @apply after:absolute;
-  @apply after:inset-x-0;
-  @apply after:md:inset-x-auto;
-  @apply after:md:inset-y-0;
-  @apply after:bottom-0;
-  @apply after:md:bottom-auto;
-  @apply after:md:left-0;
-  @apply after:z-10;
-  @apply after:h-0.5;
-  @apply after:md:h-full;
-  @apply after:w-full;
-  @apply after:md:w-0.5;
-  @apply after:content-[''];
-  @apply focus:after:bg-divider;
-
-  .svg-icons {
-    @apply opacity-75;
-  }
-
-  &.router-link-active {
-    @apply text-secondaryDark;
-    @apply bg-primaryLight;
-    @apply hover:text-secondaryDark;
-    @apply after:bg-accent;
-
-    .svg-icons {
-      @apply opacity-100;
-    }
-  }
-
-  &.exact-active-link {
-    @apply text-secondaryDark;
-    @apply bg-primaryLight;
-    @apply hover:text-secondaryDark;
-    @apply after:bg-accent;
-
-    .svg-icons {
-      @apply opacity-100;
-    }
-  }
 }
 </style>

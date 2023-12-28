@@ -16,9 +16,11 @@
           <HoppButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
             :title="t('state.linewrap')"
-            :class="{ '!text-accent': WRAP_LINES_GRAPHQL_RESPONSE_BODY }"
+            :class="{ '!text-accent': WRAP_LINES }"
             :icon="IconWrapText"
-            @click.prevent="toggleSetting('WRAP_LINES_GRAPHQL_RESPONSE_BODY')"
+            @click.prevent="
+              toggleNestedSetting('WRAP_LINES', 'graphqlResponseBody')
+            "
           />
           <HoppButtonSecondary
             v-tippy="{ theme: 'tooltip', allowHTML: true }"
@@ -99,8 +101,8 @@ import { useI18n } from "@composables/i18n"
 import { defineActionHandler } from "~/helpers/actions"
 import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
 import { GQLResponseEvent } from "~/helpers/graphql/connection"
-import { useSetting } from "~/composables/settings"
-import { toggleSetting } from "~/newstore/settings"
+import { useNestedSetting } from "~/composables/settings"
+import { toggleNestedSetting } from "~/newstore/settings"
 import interfaceLanguages from "~/helpers/utils/interfaceLanguages"
 import {
   useCopyInterface,
@@ -135,10 +137,8 @@ const responseString = computed(() => {
 })
 
 const schemaEditor = ref<any | null>(null)
+const WRAP_LINES = useNestedSetting("WRAP_LINES", "graphqlResponseBody")
 const copyInterfaceTippyActions = ref<any | null>(null)
-const WRAP_LINES_GRAPHQL_RESPONSE_BODY = useSetting(
-  "WRAP_LINES_GRAPHQL_RESPONSE_BODY"
-)
 
 useCodemirror(
   schemaEditor,
@@ -147,7 +147,7 @@ useCodemirror(
     extendedEditorConfig: {
       mode: "application/ld+json",
       readOnly: true,
-      lineWrapping: WRAP_LINES_GRAPHQL_RESPONSE_BODY,
+      lineWrapping: WRAP_LINES,
     },
     linter: null,
     completer: null,

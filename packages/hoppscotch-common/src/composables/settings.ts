@@ -21,6 +21,29 @@ export function useSetting<K extends keyof SettingsDef>(
   )
 }
 
+export function useNestedSetting<
+  K extends keyof SettingsDef,
+  P extends keyof SettingsDef[K],
+>(settingKey: K, property: P): Ref<SettingsDef[K][P]> {
+  return useStream(
+    settingsStore.subject$.pipe(
+      pluck(settingKey),
+      pluck(property),
+      distinctUntilChanged()
+    ),
+    settingsStore.value[settingKey],
+    (value: SettingsDef[K]) => {
+      settingsStore.dispatch({
+        dispatcher: "applySetting",
+        payload: {
+          settingKey,
+          value,
+        },
+      })
+    }
+  )
+}
+
 /**
  * A static version (does not require component setup)
  * of `useSetting`

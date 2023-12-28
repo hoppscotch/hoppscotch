@@ -27,9 +27,9 @@
       <HoppButtonSecondary
         v-tippy="{ theme: 'tooltip' }"
         :title="t('state.linewrap')"
-        :class="{ '!text-accent': WRAP_LINES_GRAPHQL_HEADERS }"
+        :class="{ '!text-accent': WRAP_LINES }"
         :icon="IconWrapText"
-        @click.prevent="toggleSetting('WRAP_LINES_GRAPHQL_HEADERS')"
+        @click.prevent="toggleNestedSetting('WRAP_LINES', 'graphqlHeaders')"
       />
       <HoppButtonSecondary
         v-tippy="{ theme: 'tooltip' }"
@@ -315,11 +315,11 @@ import { commonHeaders } from "~/helpers/headers"
 import { useCodemirror } from "@composables/codemirror"
 import { objRemoveKey } from "~/helpers/functional/object"
 import { useVModel } from "@vueuse/core"
+import { useNestedSetting } from "~/composables/settings"
+import { toggleNestedSetting } from "~/newstore/settings"
 import { HoppGQLHeader } from "~/helpers/graphql"
 import { throwError } from "~/helpers/functional/error"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
-import { useSetting } from "~/composables/settings"
-import { toggleSetting } from "~/newstore/settings"
 
 const colorMode = useColorMode()
 const t = useI18n()
@@ -340,7 +340,7 @@ const request = useVModel(props, "modelValue", emit)
 
 const idTicker = ref(0)
 
-const WRAP_LINES_GRAPHQL_HEADERS = useSetting("WRAP_LINES_GRAPHQL_HEADERS")
+const WRAP_LINES = useNestedSetting("WRAP_LINES", "graphqlHeaders")
 const bulkMode = ref(false)
 const bulkHeaders = ref("")
 
@@ -355,7 +355,7 @@ useCodemirror(
     extendedEditorConfig: {
       mode: "text/x-yaml",
       placeholder: `${t("state.bulk_mode_placeholder")}`,
-      lineWrapping: WRAP_LINES_GRAPHQL_HEADERS,
+      lineWrapping: WRAP_LINES,
     },
     linter: null,
     completer: null,

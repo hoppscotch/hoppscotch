@@ -22,9 +22,9 @@
               <HoppButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"
                 :title="t('state.linewrap')"
-                :class="{ '!text-accent': WRAP_LINES_IMPORT_CURL }"
+                :class="{ '!text-accent': WRAP_LINES }"
                 :icon="IconWrapText"
-                @click.prevent="toggleSetting('WRAP_LINES_IMPORT_CURL')"
+                @click.prevent="toggleNestedSetting('WRAP_LINES', 'importCurl')"
               />
               <HoppButtonSecondary
                 v-tippy="{ theme: 'tooltip', allowHTML: true }"
@@ -96,8 +96,8 @@ import IconTrash2 from "~icons/lucide/trash-2"
 import { platform } from "~/platform"
 import { RESTTabService } from "~/services/tab/rest"
 import { useService } from "dioc/vue"
-import { useSetting } from "~/composables/settings"
-import { toggleSetting } from "~/newstore/settings"
+import { useNestedSetting } from "~/composables/settings"
+import { toggleNestedSetting } from "~/newstore/settings"
 
 const t = useI18n()
 
@@ -108,7 +108,7 @@ const tabs = useService(RESTTabService)
 const curl = ref("")
 
 const curlEditor = ref<any | null>(null)
-const WRAP_LINES_IMPORT_CURL = useSetting("WRAP_LINES_IMPORT_CURL")
+const WRAP_LINES = useNestedSetting("WRAP_LINES", "importCurl")
 
 const props = defineProps<{ show: boolean; text: string }>()
 
@@ -119,7 +119,7 @@ useCodemirror(
     extendedEditorConfig: {
       mode: "application/x-sh",
       placeholder: `${t("request.enter_curl")}`,
-      lineWrapping: WRAP_LINES_IMPORT_CURL,
+      lineWrapping: WRAP_LINES,
     },
     linter: null,
     completer: null,

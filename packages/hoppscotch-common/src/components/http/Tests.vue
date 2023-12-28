@@ -23,9 +23,9 @@
         <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           :title="t('state.linewrap')"
-          :class="{ '!text-accent': WRAP_LINES_HTTP_TEST }"
+          :class="{ '!text-accent': WRAP_LINES }"
           :icon="IconWrapText"
-          @click.prevent="toggleSetting('WRAP_LINES_HTTP_TEST')"
+          @click.prevent="toggleNestedSetting('WRAP_LINES', 'httpTest')"
         />
       </div>
     </div>
@@ -72,8 +72,8 @@ import linter from "~/helpers/editor/linting/testScript"
 import completer from "~/helpers/editor/completion/testScript"
 import { useI18n } from "@composables/i18n"
 import { useVModel } from "@vueuse/core"
-import { useSetting } from "~/composables/settings"
-import { toggleSetting } from "~/newstore/settings"
+import { useNestedSetting } from "~/composables/settings"
+import { toggleNestedSetting } from "~/newstore/settings"
 
 const t = useI18n()
 
@@ -83,7 +83,7 @@ const props = defineProps<{
 const emit = defineEmits(["update:modelValue"])
 const testScript = useVModel(props, "modelValue", emit)
 const testScriptEditor = ref<any | null>(null)
-const WRAP_LINES_HTTP_TEST = useSetting("WRAP_LINES_HTTP_TEST")
+const WRAP_LINES = useNestedSetting("WRAP_LINES", "httpTest")
 
 useCodemirror(
   testScriptEditor,
@@ -91,7 +91,7 @@ useCodemirror(
   reactive({
     extendedEditorConfig: {
       mode: "application/javascript",
-      lineWrapping: WRAP_LINES_HTTP_TEST,
+      lineWrapping: WRAP_LINES,
       placeholder: `${t("test.javascript_code")}`,
     },
     linter,

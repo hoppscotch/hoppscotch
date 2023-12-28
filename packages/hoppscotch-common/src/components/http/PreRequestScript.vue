@@ -23,9 +23,9 @@
         <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           :title="t('state.linewrap')"
-          :class="{ '!text-accent': WRAP_LINES_HTTP_PREREQUEST }"
+          :class="{ '!text-accent': WRAP_LINES }"
           :icon="IconWrapText"
-          @click.prevent="toggleSetting('WRAP_LINES_HTTP_PREREQUEST')"
+          @click.prevent="toggleNestedSetting('WRAP_LINES', 'httpPreRequest')"
         />
       </div>
     </div>
@@ -72,8 +72,8 @@ import linter from "~/helpers/editor/linting/preRequest"
 import completer from "~/helpers/editor/completion/preRequest"
 import { useI18n } from "@composables/i18n"
 import { useVModel } from "@vueuse/core"
-import { useSetting } from "~/composables/settings"
-import { toggleSetting } from "~/newstore/settings"
+import { useNestedSetting } from "~/composables/settings"
+import { toggleNestedSetting } from "~/newstore/settings"
 
 const t = useI18n()
 
@@ -87,7 +87,7 @@ const emit = defineEmits<{
 const preRequestScript = useVModel(props, "modelValue", emit)
 
 const preRequestEditor = ref<any | null>(null)
-const WRAP_LINES_HTTP_PREREQUEST = useSetting("WRAP_LINES_HTTP_PREREQUEST")
+const WRAP_LINES = useNestedSetting("WRAP_LINES", "httpPreRequest")
 
 useCodemirror(
   preRequestEditor,
@@ -95,7 +95,7 @@ useCodemirror(
   reactive({
     extendedEditorConfig: {
       mode: "application/javascript",
-      lineWrapping: WRAP_LINES_HTTP_PREREQUEST,
+      lineWrapping: WRAP_LINES,
       placeholder: `${t("preRequest.javascript_code")}`,
     },
     linter,

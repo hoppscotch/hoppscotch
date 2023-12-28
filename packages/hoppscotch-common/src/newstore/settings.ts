@@ -30,30 +30,25 @@ export type SettingsDef = {
 
   PROXY_URL: string
 
-  // HTTP Wrap Lines
-  WRAP_LINES_HTTP_REQUEST_BODY: boolean
-  WRAP_LINES_HTTP_RESPONSE_BODY: boolean
-  WRAP_LINES_HTTP_HEADERS: boolean
-  WRAP_LINES_HTTP_PARAMS: boolean
-  WRAP_LINES_HTTP_URL_ENCODED: boolean
-  WRAP_LINES_HTTP_PREREQUEST: boolean
-  WRAP_LINES_HTTP_TEST: boolean
-
-  // GraphQL Wrap Lines
-  WRAP_LINES_GRAPHQL_QUERY: boolean
-  WRAP_LINES_GRAPHQL_RESPONSE_BODY: boolean
-  WRAP_LINES_GRAPHQL_HEADERS: boolean
-  WRAP_LINES_GRAPHQL_VARIABLES: boolean
-  WRAP_LINES_GRAPHQL_SCHEMA: boolean
-
-  // Realtime Wrap Lines
-  WRAP_LINES_REALTIME_BODY: boolean
-  WRAP_LINES_REALTIME_LOG: boolean
-
-  // Other Wrap Lines
-  WRAP_LINES_IMPORT_CURL: boolean
-  WRAP_LINES_CODE_GEN: boolean
-  WRAP_LINES_COOKIE: boolean
+  WRAP_LINES: {
+    httpRequestBody: boolean
+    httpResponseBody: boolean
+    httpHeaders: boolean
+    httpParams: boolean
+    httpUrlEncoded: boolean
+    httpPreRequest: boolean
+    httpTest: boolean
+    graphqlQuery: boolean
+    graphqlResponseBody: boolean
+    graphqlHeaders: boolean
+    graphqlVariables: boolean
+    graphqlSchema: boolean
+    realtimeBody: boolean
+    realtimeLog: boolean
+    importCurl: boolean
+    codeGen: boolean
+    cookie: boolean
+  }
 
   CURRENT_INTERCEPTOR_ID: string
 
@@ -78,26 +73,25 @@ export const getDefaultSettings = (): SettingsDef => ({
   syncHistory: true,
   syncEnvironments: true,
 
-  WRAP_LINES_HTTP_REQUEST_BODY: true,
-  WRAP_LINES_HTTP_RESPONSE_BODY: true,
-  WRAP_LINES_HTTP_HEADERS: true,
-  WRAP_LINES_HTTP_PARAMS: true,
-  WRAP_LINES_HTTP_URL_ENCODED: true,
-  WRAP_LINES_HTTP_PREREQUEST: true,
-  WRAP_LINES_HTTP_TEST: true,
-
-  WRAP_LINES_GRAPHQL_QUERY: true,
-  WRAP_LINES_GRAPHQL_RESPONSE_BODY: true,
-  WRAP_LINES_GRAPHQL_HEADERS: false,
-  WRAP_LINES_GRAPHQL_VARIABLES: false,
-  WRAP_LINES_GRAPHQL_SCHEMA: true,
-
-  WRAP_LINES_REALTIME_BODY: true,
-  WRAP_LINES_REALTIME_LOG: true,
-
-  WRAP_LINES_IMPORT_CURL: true,
-  WRAP_LINES_CODE_GEN: true,
-  WRAP_LINES_COOKIE: true,
+  WRAP_LINES: {
+    httpRequestBody: true,
+    httpResponseBody: true,
+    httpHeaders: true,
+    httpParams: true,
+    httpUrlEncoded: true,
+    httpPreRequest: true,
+    httpTest: true,
+    graphqlQuery: true,
+    graphqlResponseBody: true,
+    graphqlHeaders: false,
+    graphqlVariables: false,
+    graphqlSchema: true,
+    realtimeBody: true,
+    realtimeLog: true,
+    importCurl: true,
+    codeGen: true,
+    cookie: true,
+  },
 
   CURRENT_INTERCEPTOR_ID: "browser", // TODO: Allow the platform definition to take this place
 
@@ -146,6 +140,26 @@ const dispatchers = defineDispatchers({
 
     return result
   },
+  toggleNestedSetting(
+    currentState: SettingsDef,
+    {
+      settingKey,
+      property,
+    }: { settingKey: KeysMatching<SettingsDef, object>; property: string }
+  ) {
+    const result: Partial<SettingsDef> = {}
+
+    if (!has(currentState, settingKey + "." + property)) {
+      return {}
+    }
+
+    result[settingKey] = {
+      ...currentState[settingKey],
+      [property]: !currentState[settingKey][property],
+    }
+
+    return result
+  },
   applySetting(
     _currentState: SettingsDef,
     { settingKey, value }: ApplySettingPayload
@@ -186,6 +200,19 @@ export function toggleSetting(settingKey: KeysMatching<SettingsDef, boolean>) {
     dispatcher: "toggleSetting",
     payload: {
       settingKey,
+    },
+  })
+}
+
+export function toggleNestedSetting<
+  K extends KeysMatching<SettingsDef, object>,
+  P extends keyof SettingsDef[K],
+>(settingKey: K, property: P) {
+  settingsStore.dispatch({
+    dispatcher: "toggleNestedSetting",
+    payload: {
+      settingKey,
+      property,
     },
   })
 }

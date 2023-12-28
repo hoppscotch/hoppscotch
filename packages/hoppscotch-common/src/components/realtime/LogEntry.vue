@@ -68,9 +68,9 @@
           <HoppButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
             :title="t('state.linewrap')"
-            :class="{ '!text-accent': WRAP_LINES_REALTIME_LOG }"
+            :class="{ '!text-accent': WRAP_LINES }"
             :icon="IconWrapText"
-            @click.prevent="toggleSetting('WRAP_LINES_REALTIME_LOG')"
+            @click.prevent="toggleNestedSetting('WRAP_LINES', 'realtimeLog')"
           />
           <HoppButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
@@ -224,8 +224,8 @@ import {
   convertLineChToIndex,
 } from "~/helpers/editor/utils"
 import { shortDateTime } from "~/helpers/utils/date"
-import { useSetting } from "~/composables/settings"
-import { toggleSetting } from "~/newstore/settings"
+import { useNestedSetting } from "~/composables/settings"
+import { toggleNestedSetting } from "~/newstore/settings"
 
 const t = useI18n()
 
@@ -243,7 +243,7 @@ const props = defineProps({
 // Template refs
 const tippyActions = ref<any | null>(null)
 const editor = ref<any | null>(null)
-const WRAP_LINES_REALTIME_LOG = useSetting("WRAP_LINES_REALTIME_LOG")
+const WRAP_LINES = useNestedSetting("WRAP_LINES", "realtimeLog")
 
 const logPayload = computed(() => props.entry.payload)
 
@@ -286,7 +286,7 @@ const { cursor } = useCodemirror(
     extendedEditorConfig: {
       mode: editorMode,
       readOnly: true,
-      lineWrapping: WRAP_LINES_REALTIME_LOG,
+      lineWrapping: WRAP_LINES,
     },
     linter: null,
     completer: null,

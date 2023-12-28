@@ -22,9 +22,9 @@
               <HoppButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"
                 :title="t('state.linewrap')"
-                :class="{ '!text-accent': WRAP_LINES_COOKIE }"
+                :class="{ '!text-accent': WRAP_LINES }"
                 :icon="IconWrapText"
-                @click.prevent="toggleSetting('WRAP_LINES_COOKIE')"
+                @click.prevent="toggleNestedSetting('WRAP_LINES', 'cookie')"
               />
               <HoppButtonSecondary
                 v-tippy="{ theme: 'tooltip', allowHTML: true }"
@@ -102,8 +102,8 @@ import {
   useCopyResponse,
   useDownloadResponse,
 } from "~/composables/lens-actions"
-import { useSetting } from "~/composables/settings"
-import { toggleSetting } from "~/newstore/settings"
+import { useNestedSetting } from "~/composables/settings"
+import { toggleNestedSetting } from "~/newstore/settings"
 
 // TODO: Build Managed Mode!
 
@@ -124,7 +124,7 @@ const toast = useToast()
 
 const cookieEditor = ref<HTMLElement>()
 const rawCookieString = ref("")
-const WRAP_LINES_COOKIE = useSetting("WRAP_LINES_COOKIE")
+const WRAP_LINES = useNestedSetting("WRAP_LINES", "cookie")
 
 useCodemirror(
   cookieEditor,
@@ -133,7 +133,7 @@ useCodemirror(
     extendedEditorConfig: {
       mode: "text/plain",
       placeholder: `${t("cookies.modal.enter_cookie_string")}`,
-      lineWrapping: WRAP_LINES_COOKIE,
+      lineWrapping: WRAP_LINES,
     },
     linter: null,
     completer: null,

@@ -102,9 +102,9 @@
         <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           :title="t('state.linewrap')"
-          :class="{ '!text-accent': WRAP_LINES_REALTIME_BODY }"
+          :class="{ '!text-accent': WRAP_LINES }"
           :icon="IconWrapText"
-          @click.prevent="toggleSetting('WRAP_LINES_REALTIME_BODY')"
+          @click.prevent="toggleNestedSetting('WRAP_LINES', 'realtimeBody')"
         />
         <HoppButtonSecondary
           v-if="contentType && contentType == 'JSON'"
@@ -156,8 +156,8 @@ import { useToast } from "@composables/toast"
 import { isJSONContentType } from "@helpers/utils/contenttypes"
 import { defineActionHandler } from "~/helpers/actions"
 import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
-import { useSetting } from "~/composables/settings"
-import { toggleSetting } from "~/newstore/settings"
+import { useNestedSetting } from "~/composables/settings"
+import { toggleNestedSetting } from "~/newstore/settings"
 
 defineProps({
   showEventField: {
@@ -193,7 +193,7 @@ const toast = useToast()
 
 // Template refs
 const tippyActions = ref<any | null>(null)
-const WRAP_LINES_REALTIME_BODY = useSetting("WRAP_LINES_REALTIME_BODY")
+const WRAP_LINES = useNestedSetting("WRAP_LINES", "realtimeBody")
 const wsCommunicationBody = ref<HTMLElement>()
 const payload = ref<HTMLInputElement>()
 
@@ -221,7 +221,7 @@ useCodemirror(
   communicationBody,
   reactive({
     extendedEditorConfig: {
-      lineWrapping: WRAP_LINES_REALTIME_BODY,
+      lineWrapping: WRAP_LINES,
       mode: rawInputEditorLang,
       placeholder: t("websocket.message").toString(),
     },

@@ -1,7 +1,7 @@
 import { computed, onMounted, ref } from 'vue';
 import { cloneDeep } from 'lodash-es';
 import { UseMutationResponse } from '@urql/vue';
-import { useClientListHandler } from './useClientListHandler';
+import { useClientHandler } from './useClientHandler';
 import { useToast } from './toast';
 import { useI18n } from '~/composables/i18n';
 import {
@@ -72,31 +72,35 @@ export function useConfigHandler(updatedConfigs?: Config) {
   const {
     fetching: fetchingInfraConfigs,
     error: infraConfigsError,
-    list: infraConfigs,
-    fetchList: fetchInfraConfigs,
-  } = useClientListHandler(InfraConfigsDocument, (x) => x.infraConfigs, {
-    configNames: [
-      'GOOGLE_CLIENT_ID',
-      'GOOGLE_CLIENT_SECRET',
-      'MICROSOFT_CLIENT_ID',
-      'MICROSOFT_CLIENT_SECRET',
-      'GITHUB_CLIENT_ID',
-      'GITHUB_CLIENT_SECRET',
-      'MAILER_SMTP_URL',
-      'MAILER_ADDRESS_FROM',
-    ] as InfraConfigEnum[],
-  });
+    dataAsList: infraConfigs,
+    fetchData: fetchInfraConfigs,
+  } = useClientHandler(
+    InfraConfigsDocument,
+    {
+      configNames: [
+        'GOOGLE_CLIENT_ID',
+        'GOOGLE_CLIENT_SECRET',
+        'MICROSOFT_CLIENT_ID',
+        'MICROSOFT_CLIENT_SECRET',
+        'GITHUB_CLIENT_ID',
+        'GITHUB_CLIENT_SECRET',
+        'MAILER_SMTP_URL',
+        'MAILER_ADDRESS_FROM',
+      ] as InfraConfigEnum[],
+    },
+    (x) => x.infraConfigs
+  );
 
   // Fetching allowed auth providers
   const {
     fetching: fetchingAllowedAuthProviders,
     error: allowedAuthProvidersError,
-    list: allowedAuthProviders,
-    fetchList: fetchAllowedAuthProviders,
-  } = useClientListHandler(
+    dataAsList: allowedAuthProviders,
+    fetchData: fetchAllowedAuthProviders,
+  } = useClientHandler(
     AllowedAuthProvidersDocument,
-    (x) => x.allowedAuthProviders,
-    {}
+    {},
+    (x) => x.allowedAuthProviders
   );
 
   // Current and working configs
@@ -256,10 +260,20 @@ export function useConfigHandler(updatedConfigs?: Config) {
   });
 
   // Checking if any of the config fields are empty
-  const isAnyConfigFieldsEmpty = (configs: UpdatedConfigs[]): boolean =>
-    configs.some((config) => config.value === '');
+  const isFieldEmpty = (field: string) => field === '';
 
-  // Trasforming the working configs back into the format required by the mutations
+  const isAnyConfigFieldsEmpty = (config: Config): boolean => {
+    const providerFieldsEmpty = Object.values(config.providers).some(
+      (provider) => [...Object.values(provider.fields)].some(isFieldEmpty)
+    );
+    const mailFieldsEmpty = [...Object.values(config.mailConfigs.fields)].some(
+      isFieldEmpty
+    );
+
+    return providerFieldsEmpty || mailFieldsEmpty;
+  };
+
+  // Transforming the working configs back into the format required by the mutations
   const updatedAllowedAuthProviders = computed(() => {
     return [
       {

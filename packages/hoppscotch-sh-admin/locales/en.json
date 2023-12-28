@@ -51,6 +51,7 @@
     "settings": "Settings"
   },
   "shared_requests": {
+    "action": "Action",
     "clear_filter": "Clear Filter",
     "confirm_request_deletion": "Confirm deletion of the selected shared request?",
     "copy": "Copy",

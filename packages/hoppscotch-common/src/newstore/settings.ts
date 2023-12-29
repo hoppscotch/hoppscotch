@@ -121,14 +121,14 @@ type ApplySettingPayload = {
 }[keyof SettingsDef]
 
 type ApplyNestedSettingPayload = {
-  [K in KeysMatching<SettingsDef, object>]: {
+  [K in KeysMatching<SettingsDef, Record<string, any>>]: {
     [P in keyof SettingsDef[K]]: {
       settingKey: K
       property: P
       value: SettingsDef[K][P]
     }
   }[keyof SettingsDef[K]]
-}[KeysMatching<SettingsDef, object>]
+}[KeysMatching<SettingsDef, Record<string, any>>]
 
 const dispatchers = defineDispatchers({
   bulkApplySettings(_currentState: SettingsDef, payload: Partial<SettingsDef>) {

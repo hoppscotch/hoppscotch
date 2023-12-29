@@ -1085,7 +1085,7 @@ export default class NewTeamCollectionAdapter {
           authType: "inherit",
           authActive: true,
         }
-        auth.parentID = [...path.slice(0, i + 1)].join("/")
+        auth.parentID = path.slice(0, i + 1).join("/")
         auth.parentName = parentFolder.title
       }
 
@@ -1096,10 +1096,10 @@ export default class NewTeamCollectionAdapter {
 
       if (
         parentFolderAuth?.authType === "inherit" &&
-        [...path.slice(0, i + 1)].length === 1
+        path.slice(0, i + 1).length === 1
       ) {
         auth = {
-          parentID: [...path.slice(0, i + 1)].join("/"),
+          parentID: path.slice(0, i + 1).join("/"),
           parentName: parentFolder.title,
           inheritedAuth: auth.inheritedAuth,
         }
@@ -1107,7 +1107,7 @@ export default class NewTeamCollectionAdapter {
 
       if (parentFolderAuth?.authType !== "inherit") {
         auth = {
-          parentID: [...path.slice(0, i + 1)].join("/"),
+          parentID: path.slice(0, i + 1).join("/"),
           parentName: parentFolder.title,
           inheritedAuth: parentFolderAuth,
         }
@@ -1120,7 +1120,7 @@ export default class NewTeamCollectionAdapter {
           const index = headers.findIndex(
             (h) => h.inheritedHeader?.key === header.key
           )
-          const currentPath = [...path.slice(0, i + 1)].join("/")
+          const currentPath = path.slice(0, i + 1).join("/")
           if (index !== -1) {
             // Replace the existing header with the same key
             headers[index] = {

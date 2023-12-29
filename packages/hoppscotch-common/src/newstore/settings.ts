@@ -157,18 +157,18 @@ const dispatchers = defineDispatchers({
       property,
     }: {
       settingKey: KeysMatching<SettingsDef, Record<string, boolean>>
-      property: string
+      property: KeysMatching<SettingsDef[typeof settingKey], boolean>
     }
   ) {
-    const result: Partial<SettingsDef> = {}
-
     if (!has(currentState, [settingKey, property])) {
       return {}
     }
 
-    result[settingKey] = {
-      ...currentState[settingKey],
-      [property]: !currentState[settingKey][property],
+    const result: Partial<SettingsDef> = {
+      [settingKey]: {
+        ...currentState[settingKey],
+        [property]: !currentState[settingKey][property],
+      },
     }
 
     return result
@@ -187,9 +187,10 @@ const dispatchers = defineDispatchers({
     _currentState: SettingsDef,
     { settingKey, property, value }: ApplyNestedSettingPayload
   ) {
-    const result: Partial<SettingsDef> = {}
-    result[settingKey] = {
-      [property]: value,
+    const result: Partial<SettingsDef> = {
+      [settingKey]: {
+        [property]: value,
+      },
     }
 
     return result
@@ -236,6 +237,7 @@ export function toggleNestedSetting<
     dispatcher: "toggleNestedSetting",
     payload: {
       settingKey,
+      // @ts-expect-error TS is not able to understand the type semantics here
       property,
     },
   })

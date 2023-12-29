@@ -120,6 +120,16 @@ type ApplySettingPayload = {
   }
 }[keyof SettingsDef]
 
+type ApplyNestedSettingPayload = {
+  [K in KeysMatching<SettingsDef, object>]: {
+    [P in keyof SettingsDef[K]]: {
+      settingKey: K
+      property: P
+      value: SettingsDef[K][P]
+    }
+  }[keyof SettingsDef[K]]
+}[KeysMatching<SettingsDef, object>]
+
 const dispatchers = defineDispatchers({
   bulkApplySettings(_currentState: SettingsDef, payload: Partial<SettingsDef>) {
     return payload
@@ -166,6 +176,17 @@ const dispatchers = defineDispatchers({
   ) {
     const result: Partial<SettingsDef> = {
       [settingKey]: value,
+    }
+
+    return result
+  },
+  applyNestedSetting(
+    _currentState: SettingsDef,
+    { settingKey, property, value }: ApplyNestedSettingPayload
+  ) {
+    const result: Partial<SettingsDef> = {}
+    result[settingKey] = {
+      [property]: value,
     }
 
     return result
@@ -227,6 +248,22 @@ export function applySetting<K extends keyof SettingsDef>(
       // @ts-expect-error TS is not able to understand the type semantics here
       settingKey,
       // @ts-expect-error TS is not able to understand the type semantics here
+      value,
+    },
+  })
+}
+
+export function applyNestedSetting<
+  K extends KeysMatching<SettingsDef, object>,
+  P extends keyof SettingsDef[K],
+  R extends SettingsDef[K][P],
+>(settingKey: K, property: P, value: R) {
+  settingsStore.dispatch({
+    dispatcher: "applyNestedSetting",
+    payload: {
+      settingKey,
+      // @ts-expect-error TS is not able to understand the type semantics here
+      property,
       value,
     },
   })

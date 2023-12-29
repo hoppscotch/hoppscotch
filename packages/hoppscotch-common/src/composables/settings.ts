@@ -31,12 +31,13 @@ export function useNestedSetting<
       pluck(property),
       distinctUntilChanged()
     ),
-    settingsStore.value[settingKey],
-    (value: SettingsDef[K]) => {
+    settingsStore.value[settingKey][property],
+    (value: SettingsDef[K][P]) => {
       settingsStore.dispatch({
-        dispatcher: "applySetting",
+        dispatcher: "applyNestedSetting",
         payload: {
           settingKey,
+          property,
           value,
         },
       })

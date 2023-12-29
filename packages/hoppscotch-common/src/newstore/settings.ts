@@ -155,11 +155,14 @@ const dispatchers = defineDispatchers({
     {
       settingKey,
       property,
-    }: { settingKey: KeysMatching<SettingsDef, object>; property: string }
+    }: {
+      settingKey: KeysMatching<SettingsDef, Record<string, boolean>>
+      property: string
+    }
   ) {
     const result: Partial<SettingsDef> = {}
 
-    if (!has(currentState, settingKey + "." + property)) {
+    if (!has(currentState, [settingKey, property])) {
       return {}
     }
 
@@ -226,7 +229,7 @@ export function toggleSetting(settingKey: KeysMatching<SettingsDef, boolean>) {
 }
 
 export function toggleNestedSetting<
-  K extends KeysMatching<SettingsDef, object>,
+  K extends KeysMatching<SettingsDef, Record<string, boolean>>,
   P extends keyof SettingsDef[K],
 >(settingKey: K, property: P) {
   settingsStore.dispatch({
@@ -254,7 +257,7 @@ export function applySetting<K extends keyof SettingsDef>(
 }
 
 export function applyNestedSetting<
-  K extends KeysMatching<SettingsDef, object>,
+  K extends KeysMatching<SettingsDef, Record<string, any>>,
   P extends keyof SettingsDef[K],
   R extends SettingsDef[K][P],
 >(settingKey: K, property: P, value: R) {

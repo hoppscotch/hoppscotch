@@ -8,10 +8,10 @@
     <img
       :src="`/images/states/${colorMode.value}/youre_lost.svg`"
       loading="lazy"
-      class="inline-flex flex-col object-contain object-center mb-2 h-46 w-46"
+      class="mb-2 inline-flex h-46 w-46 flex-col object-contain object-center"
       :alt="message"
     />
-    <h1 class="mb-2 text-4xl heading">
+    <h1 class="heading mb-2 text-4xl">
       {{ statusCode }}
     </h1>
     <p class="mb-4 text-secondaryLight">{{ message }}</p>

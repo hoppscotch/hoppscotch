@@ -1,299 +1,242 @@
 <template>
-  <HoppSmartModal
-    v-if="show"
-    dialog
-    :title="`${t('modal.collections')}`"
-    styles="sm:max-w-md"
-    @close="hideModal"
-  >
-    <template #actions>
-      <span>
-        <tippy interactive trigger="click" theme="popover">
-          <HoppButtonSecondary
-            v-tippy="{ theme: 'tooltip' }"
-            :title="t('action.more')"
-            :icon="IconMoreVertical"
-            :on-shown="() => tippyActions.focus()"
-          />
-          <template #content="{ hide }">
-            <div
-              ref="tippyActions"
-              class="flex flex-col focus:outline-none"
-              tabindex="0"
-              @keyup.escape="hide()"
-            >
-              <HoppSmartItem
-                :icon="IconGithub"
-                :label="t('import.from_gist')"
-                @click="
-                  () => {
-                    readCollectionGist()
-                    hide()
-                  }
-                "
-              />
-              <span
-                v-tippy="{ theme: 'tooltip' }"
-                :title="
-                  !currentUser
-                    ? `${t('export.require_github')}`
-                    : currentUser.provider !== 'github.com'
-                    ? `${t('export.require_github')}`
-                    : undefined
-                "
-              >
-                <HoppSmartItem
-                  :disabled="
-                    !currentUser
-                      ? true
-                      : currentUser.provider !== 'github.com'
-                      ? true
-                      : false
-                  "
-                  :icon="IconGithub"
-                  :label="t('export.create_secret_gist')"
-                  @click="
-                    () => {
-                      createCollectionGist()
-                      hide()
-                    }
-                  "
-                />
-              </span>
-            </div>
-          </template>
-        </tippy>
-      </span>
-    </template>
-    <template #body>
-      <div class="flex flex-col space-y-2">
-        <HoppSmartItem
-          :icon="IconFolderPlus"
-          :label="t('import.from_json')"
-          @click="openDialogChooseFileToImportFrom"
-        />
-        <input
-          ref="inputChooseFileToImportFrom"
-          class="input"
-          type="file"
-          accept="application/json"
-          @change="importFromJSON"
-        />
-        <hr />
-        <HoppSmartItem
-          v-tippy="{ theme: 'tooltip' }"
-          :title="t('action.download_file')"
-          :icon="IconDownload"
-          :label="t('export.as_json')"
-          @click="exportJSON"
-        />
-      </div>
-    </template>
-  </HoppSmartModal>
+  <ImportExportBase
+    ref="collections-import-export"
+    modal-title="graphql_collections.title"
+    :importer-modules="importerModules"
+    :exporter-modules="exporterModules"
+    @hide-modal="emit('hide-modal')"
+  />
 </template>
 
 <script setup lang="ts">
-import axios from "axios"
-import IconMoreVertical from "~icons/lucide/more-vertical"
+import { HoppCollection } from "@hoppscotch/data"
+import * as E from "fp-ts/Either"
+import { ref } from "vue"
+
+import { useI18n } from "~/composables/i18n"
+import { useToast } from "~/composables/toast"
+import { ImporterOrExporter } from "~/components/importExport/types"
+import { FileSource } from "~/helpers/import-export/import/import-sources/FileSource"
+import { GistSource } from "~/helpers/import-export/import/import-sources/GistSource"
+
 import IconFolderPlus from "~icons/lucide/folder-plus"
-import IconDownload from "~icons/lucide/download"
-import IconGithub from "~icons/lucide/github"
-import { computed, ref } from "vue"
+import IconUser from "~icons/lucide/user"
+import { initializeDownloadCollection } from "~/helpers/import-export/export"
+import { useReadonlyStream } from "~/composables/stream"
+
 import { platform } from "~/platform"
-import { useI18n } from "@composables/i18n"
-import { useReadonlyStream } from "@composables/stream"
-import { useToast } from "@composables/toast"
 import {
-  graphqlCollections$,
-  setGraphqlCollections,
   appendGraphqlCollections,
+  graphqlCollections$,
 } from "~/newstore/collections"
+import { hoppGqlCollectionsImporter } from "~/helpers/import-export/import/hoppGql"
+import { gqlCollectionsExporter } from "~/helpers/import-export/export/gqlCollections"
+import { gistExporter } from "~/helpers/import-export/export/gist"
+import { computed } from "vue"
+import { hoppGQLImporter } from "~/helpers/import-export/import/hopp"
 
-defineProps<{
-  show: boolean
-}>()
-
-const emit = defineEmits<{
-  (e: "hide-modal"): void
-}>()
-
-const toast = useToast()
 const t = useI18n()
-const collections = useReadonlyStream(graphqlCollections$, [])
+const toast = useToast()
+
 const currentUser = useReadonlyStream(
   platform.auth.getCurrentUserStream(),
   platform.auth.getCurrentUser()
 )
 
-// Template refs
-const tippyActions = ref<any | null>(null)
-const inputChooseFileToImportFrom = ref<HTMLInputElement>()
+const gqlCollections = useReadonlyStream(graphqlCollections$, [])
 
-const collectionJson = computed(() => {
-  return JSON.stringify(collections.value, null, 2)
-})
+const isGqlCollectionGistExportInProgress = ref(false)
 
-const createCollectionGist = async () => {
-  if (!currentUser.value) {
-    toast.error(t("profile.no_permission").toString())
+const GqlCollectionsHoppImporter: ImporterOrExporter = {
+  metadata: {
+    id: "import.from_json",
+    name: "import.from_json",
+    icon: IconFolderPlus,
+    title: "import.from_json",
+    applicableTo: ["personal-workspace"],
+    disabled: false,
+  },
+  component: FileSource({
+    acceptedFileTypes: "application/json",
+    caption: "import.from_json_description",
+    onImportFromFile: async (gqlCollections) => {
+      const res = await hoppGqlCollectionsImporter(gqlCollections)
 
-    return
-  }
-
-  try {
-    const res = await axios.post(
-      "https://api.github.com/gists",
-      {
-        files: {
-          "hoppscotch-collections.json": {
-            content: collectionJson.value,
-          },
-        },
-      },
-      {
-        headers: {
-          Authorization: `token ${currentUser.value.accessToken}`,
-          Accept: "application/vnd.github.v3+json",
-        },
+      if (E.isLeft(res)) {
+        showImportFailedError()
+        return
       }
+      const validatedCollection = await hoppGQLImporter(
+        JSON.stringify(res.right)
+      )()
+
+      if (E.isRight(validatedCollection)) {
+        handleImportToStore(validatedCollection.right)
+
+        platform.analytics?.logEvent({
+          type: "HOPP_IMPORT_COLLECTION",
+          platform: "gql",
+          workspaceType: "personal",
+          importer: "json",
+        })
+      }
+
+      emit("hide-modal")
+    },
+  }),
+}
+
+const GqlCollectionsGistImporter: ImporterOrExporter = {
+  metadata: {
+    id: "import.from_gist",
+    name: "import.from_gist",
+    icon: IconFolderPlus,
+    title: "import.from_gist",
+    applicableTo: ["personal-workspace", "team-workspace"],
+    disabled: false,
+  },
+  component: GistSource({
+    caption: "import.gql_collections_from_gist_description",
+    onImportFromGist: async (gqlCollections) => {
+      if (E.isLeft(gqlCollections)) {
+        showImportFailedError()
+        return
+      }
+
+      const res = await hoppGqlCollectionsImporter(gqlCollections.right)
+
+      if (E.isLeft(res)) {
+        showImportFailedError()
+        return
+      }
+
+      handleImportToStore(res.right)
+
+      platform.analytics?.logEvent({
+        type: "HOPP_IMPORT_COLLECTION",
+        platform: "gql",
+        workspaceType: "personal",
+        importer: "gist",
+      })
+
+      emit("hide-modal")
+    },
+  }),
+}
+
+const GqlCollectionsHoppExporter: ImporterOrExporter = {
+  metadata: {
+    id: "export.as_json",
+    name: "export.as_json",
+    title: "action.download_file",
+    icon: IconUser,
+    disabled: false,
+    applicableTo: ["personal-workspace", "team-workspace"],
+  },
+  action: () => {
+    if (!gqlCollections.value.length) {
+      return toast.error(t("error.no_collections_to_export"))
+    }
+
+    const message = initializeDownloadCollection(
+      gqlCollectionsExporter(gqlCollections.value),
+      "GQLCollections"
     )
 
-    toast.success(t("export.gist_created").toString())
-    window.open(res.data.html_url)
-  } catch (e) {
-    toast.error(t("error.something_went_wrong").toString())
-    console.error(e)
-  }
-}
-
-const fileImported = () => {
-  toast.success(t("state.file_imported").toString())
-}
-
-const failedImport = () => {
-  toast.error(t("import.failed").toString())
-}
-
-const readCollectionGist = async () => {
-  const gist = prompt(t("import.gist_url").toString())
-  if (!gist) return
-
-  try {
-    const { files } = (await axios.get(
-      `https://api.github.com/gists/${gist.split("/").pop()}`,
-      {
-        headers: {
-          Accept: "application/vnd.github.v3+json",
-        },
-      }
-    )) as {
-      files: {
-        [fileName: string]: {
-          content: any
-        }
-      }
-    }
-
-    const collections = JSON.parse(Object.values(files)[0].content)
-    setGraphqlCollections(collections)
-    fileImported()
-  } catch (e) {
-    failedImport()
-    console.error(e)
-  }
-}
-
-const hideModal = () => {
-  emit("hide-modal")
-}
-
-const openDialogChooseFileToImportFrom = () => {
-  if (inputChooseFileToImportFrom.value)
-    inputChooseFileToImportFrom.value.click()
-}
-
-const importFromJSON = () => {
-  if (!inputChooseFileToImportFrom.value) return
-
-  if (
-    !inputChooseFileToImportFrom.value.files ||
-    inputChooseFileToImportFrom.value.files.length === 0
-  ) {
-    toast.show(t("action.choose_file").toString())
-    return
-  }
-
-  const reader = new FileReader()
-
-  reader.onload = ({ target }) => {
-    const content = target!.result as string | null
-
-    if (!content) {
-      toast.show(t("action.choose_file").toString())
+    if (E.isLeft(message)) {
+      toast.error(t("export.failed"))
       return
     }
 
-    const collections = JSON.parse(content)
-    if (collections[0]) {
-      const [name, folders, requests] = Object.keys(collections[0])
-      if (name === "name" && folders === "folders" && requests === "requests") {
-        // Do nothing
-      }
-    } else {
-      failedImport()
-      return
-    }
-    appendGraphqlCollections(collections)
+    toast.success(message.right)
 
     platform.analytics?.logEvent({
-      type: "HOPP_IMPORT_COLLECTION",
-      importer: "json",
-      workspaceType: "personal",
-      platform: "gql",
-    })
-
-    fileImported()
-  }
-  reader.readAsText(inputChooseFileToImportFrom.value.files[0])
-  inputChooseFileToImportFrom.value.value = ""
-}
-
-const exportJSON = async () => {
-  const dataToWrite = collectionJson.value
-
-  const parsedCollections = JSON.parse(dataToWrite)
-
-  if (!parsedCollections.length) {
-    return toast.error(t("error.no_collections_to_export"))
-  }
-
-  const file = new Blob([dataToWrite], { type: "application/json" })
-  const url = URL.createObjectURL(file)
-
-  const filename = `${url.split("/").pop()!.split("#")[0].split("?")[0]}.json`
-
-  URL.revokeObjectURL(url)
-
-  const result = await platform.io.saveFileWithDialog({
-    data: dataToWrite,
-    contentType: "application/json",
-    suggestedFilename: filename,
-    filters: [
-      {
-        name: "Hoppscotch Collection JSON file",
-        extensions: ["json"],
-      },
-    ],
-  })
-
-  if (result.type === "unknown" || result.type === "saved") {
-    platform?.analytics?.logEvent({
       type: "HOPP_EXPORT_COLLECTION",
-      exporter: "json",
       platform: "gql",
+      exporter: "json",
     })
-
-    toast.success(t("state.download_started").toString())
-  }
+  },
 }
+
+const GqlCollectionsGistExporter: ImporterOrExporter = {
+  metadata: {
+    id: "export.as_gist",
+    name: "export.create_secret_gist",
+    title:
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      currentUser?.value?.provider === "github.com"
+        ? "export.create_secret_gist_tooltip_text"
+        : "export.require_github",
+    icon: IconUser,
+    disabled: !currentUser.value
+      ? true
+      : currentUser.value?.provider !== "github.com",
+    applicableTo: ["personal-workspace"],
+    isLoading: isGqlCollectionGistExportInProgress,
+  },
+  action: async () => {
+    if (!gqlCollections.value.length) {
+      return toast.error(t("error.no_collections_to_export"))
+    }
+
+    if (!currentUser.value) {
+      toast.error(t("profile.no_permission"))
+      return
+    }
+
+    isGqlCollectionGistExportInProgress.value = true
+
+    const accessToken = currentUser.value?.accessToken
+
+    if (accessToken) {
+      const res = await gistExporter(
+        JSON.stringify(gqlCollections.value),
+        accessToken
+      )
+
+      if (E.isLeft(res)) {
+        toast.error(t("export.failed"))
+        return
+      }
+
+      toast.success(t("export.secret_gist_success"))
+
+      platform.analytics?.logEvent({
+        type: "HOPP_EXPORT_COLLECTION",
+        platform: "gql",
+        exporter: "gist",
+      })
+
+      platform.io.openExternalLink(res.right)
+    }
+
+    isGqlCollectionGistExportInProgress.value = false
+  },
+}
+
+const importerModules = [GqlCollectionsHoppImporter, GqlCollectionsGistImporter]
+
+const exporterModules = computed(() => {
+  const modules = [GqlCollectionsHoppExporter]
+
+  if (platform.platformFeatureFlags.exportAsGIST) {
+    modules.push(GqlCollectionsGistExporter)
+  }
+
+  return modules
+})
+
+const showImportFailedError = () => {
+  toast.error(t("import.failed"))
+}
+
+const handleImportToStore = async (gqlCollections: HoppCollection[]) => {
+  appendGraphqlCollections(gqlCollections)
+  toast.success(t("state.file_imported"))
+}
+
+const emit = defineEmits<{
+  (e: "hide-modal"): () => void
+}>()
 </script>

@@ -1,4 +1,3 @@
-import IconPostman from "~icons/hopp/postman"
 import {
   Collection as PMCollection,
   Item,
@@ -25,8 +24,7 @@ import * as S from "fp-ts/string"
 import * as A from "fp-ts/Array"
 import * as O from "fp-ts/Option"
 import * as TE from "fp-ts/TaskEither"
-import { step } from "../steps"
-import { defineImporter, IMPORTER_INVALID_FILE_FORMAT } from "."
+import { IMPORTER_INVALID_FILE_FORMAT } from "."
 import { PMRawLanguage } from "~/types/pm-coll-exts"
 import { stringArrayJoin } from "~/helpers/functional/array"
 
@@ -285,7 +283,7 @@ const getHoppRequest = (item: Item): HoppRESTRequest => {
   })
 }
 
-const getHoppFolder = (ig: ItemGroup<Item>): HoppCollection<HoppRESTRequest> =>
+const getHoppFolder = (ig: ItemGroup<Item>): HoppCollection =>
   makeCollection({
     name: ig.name,
     folders: pipe(
@@ -294,32 +292,19 @@ const getHoppFolder = (ig: ItemGroup<Item>): HoppCollection<HoppRESTRequest> =>
       A.map(getHoppFolder)
     ),
     requests: pipe(ig.items.all(), A.filter(isPMItem), A.map(getHoppRequest)),
+    auth: { authType: "inherit", authActive: true },
+    headers: [],
   })
 
 export const getHoppCollection = (coll: PMCollection) => getHoppFolder(coll)
 
-export default defineImporter({
-  id: "postman",
-  name: "import.from_postman",
-  applicableTo: ["my-collections", "team-collections", "url-import"],
-  icon: IconPostman,
-  steps: [
-    step({
-      stepName: "FILE_IMPORT",
-      metadata: {
-        caption: "import.from_postman_description",
-        acceptedFileTypes: ".json",
-      },
-    }),
-  ] as const,
-  importer: ([fileContent]) =>
-    pipe(
-      // Try reading
-      fileContent,
-      readPMCollection,
+export const hoppPostmanImporter = (fileContent: string) =>
+  pipe(
+    // Try reading
+    fileContent,
+    readPMCollection,
 
-      O.map(flow(getHoppCollection, A.of)),
+    O.map(flow(getHoppCollection, A.of)),
 
-      TE.fromOption(() => IMPORTER_INVALID_FILE_FORMAT)
-    ),
-})
+    TE.fromOption(() => IMPORTER_INVALID_FILE_FORMAT)
+  )

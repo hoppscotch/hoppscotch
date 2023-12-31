@@ -1,6 +1,8 @@
-mutation CreateShortcode($request: String!) {
-  createShortcode(request: $request) {
+mutation CreateShortcode($request: String!, $properties: String) {
+  createShortcode(request: $request, properties: $properties) {
     id
     request
+    createdOn
+    properties
   }
 }

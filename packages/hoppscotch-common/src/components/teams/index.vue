@@ -16,11 +16,13 @@
         :alt="`${t('empty.teams')}`"
         :text="`${t('empty.teams')}`"
       >
-        <HoppButtonSecondary
-          :label="`${t('team.create_new')}`"
-          filled
-          @click="displayModalAdd(true)"
-        />
+        <template #body>
+          <HoppButtonSecondary
+            :label="`${t('team.create_new')}`"
+            filled
+            @click="displayModalAdd(true)"
+          />
+        </template>
       </HoppSmartPlaceholder>
       <div
         v-else-if="!loading"
@@ -40,7 +42,7 @@
         />
       </div>
       <div v-if="!loading && adapterError" class="flex flex-col items-center">
-        <icon-lucide-help-circle class="mb-4 svg-icons" />
+        <icon-lucide-help-circle class="svg-icons mb-4" />
         {{ t("error.something_went_wrong") }}
       </div>
     </div>

@@ -1,5 +1,6 @@
 {
   "action": {
+    "add": "Add",
     "autoscroll": "Autoscroll",
     "cancel": "Annuleren",
     "choose_file": "Kies een bestand",
@@ -10,6 +11,7 @@
     "connect": "Verbinden",
     "connecting": "Connecting",
     "copy": "Kopiëren",
+    "create": "Create",
     "delete": "Verwijderen",
     "disconnect": "Verbinding verbreken",
     "dismiss": "Afwijzen",
@@ -31,6 +33,7 @@
     "open_workspace": "Open workspace",
     "paste": "Paste",
     "prettify": "Netter opmaken",
+    "properties": "Properties",
     "remove": "Verwijderen",
     "rename": "Rename",
     "restore": "Herstellen",
@@ -39,6 +42,7 @@
     "scroll_to_top": "Scroll to top",
     "search": "Zoeken",
     "send": "Versturen",
+    "share": "Share",
     "start": "Begin",
     "starting": "Starting",
     "stop": "Stop",
@@ -57,7 +61,9 @@
   "app": {
     "chat_with_us": "Chat met ons",
     "contact_us": "Neem contact op",
+    "cookies": "Cookies",
     "copy": "Kopiëren",
+    "copy_interface_type": "Copy interface type",
     "copy_user_id": "Copy User Auth Token",
     "developer_option": "Developer options",
     "developer_option_description": "Developer tools which helps in development and maintenance of Hoppscotch.",
@@ -73,6 +79,7 @@
     "keyboard_shortcuts": "Toetsenbord sneltoetsen",
     "name": "Hoppscotch",
     "new_version_found": "Nieuwe versie gevonden. Vernieuwen om te updaten.",
+    "open_in_hoppscotch": "Open in Hoppscotch",
     "options": "Options",
     "proxy_privacy_policy": "Proxy-privacybeleid",
     "reload": "Herladen",
@@ -112,10 +119,27 @@
   },
   "authorization": {
     "generate_token": "Token genereren",
+    "graphql_headers": "Authorization Headers are sent as part of the payload to connection_init",
     "include_in_url": "Opnemen in URL",
+    "inherited_from": "Inherited from {auth} from Parent Collection {collection} ",
     "learn": "Leren hoe",
+    "oauth": {
+      "redirect_auth_server_returned_error": "Auth Server returned an error state",
+      "redirect_auth_token_request_failed": "Request to get the auth token failed",
+      "redirect_auth_token_request_invalid_response": "Invalid Response from the Token Endpoint when requesting for an auth token",
+      "redirect_invalid_state": "Invalid State value present in the redirect",
+      "redirect_no_auth_code": "No Authorization Code present in the redirect",
+      "redirect_no_client_id": "No Client ID defined",
+      "redirect_no_client_secret": "No Client Secret Defined",
+      "redirect_no_code_verifier": "No Code Verifier Defined",
+      "redirect_no_token_endpoint": "No Token Endpoint Defined",
+      "something_went_wrong_on_oauth_redirect": "Something went wrong during OAuth Redirect",
+      "something_went_wrong_on_token_generation": "Something went wrong on token generation",
+      "token_generation_oidc_discovery_failed": "Failure on token generation: OpenID Connect Discovery Failed"
+    },
     "pass_key_by": "Pass by",
     "password": "Wachtwoord",
+    "save_to_inherit": "Please save this request in any collection to inherit the authorization",
     "token": "token",
     "type": "Autorisatietype:",
     "username": "Gebruikersnaam"
@@ -124,6 +148,7 @@
     "created": "Collectie gemaakt",
     "different_parent": "Cannot reorder collection with different parent",
     "edit": "Verzameling bewerken",
+    "import_or_create": "Import or create a collection",
     "invalid_name": "Geef een geldige naam op voor de collectie",
     "invalid_root_move": "Collection already in the root",
     "moved": "Moved Successfully",
@@ -132,6 +157,8 @@
     "name_length_insufficient": "Collection name should be at least 3 characters long",
     "new": "Nieuwe collectie",
     "order_changed": "Collection Order Updated",
+    "properties": "Collection Properties",
+    "properties_updated": "Collection Properties Updated",
     "renamed": "Collectie hernoemd",
     "request_in_use": "Request in use",
     "save_as": "Opslaan als",
@@ -151,6 +178,7 @@
     "remove_folder": "Weet u zeker dat u deze map permanent wilt verwijderen?",
     "remove_history": "Weet je zeker dat je de hele geschiedenis permanent wilt verwijderen?",
     "remove_request": "Weet u zeker dat u dit verzoek definitief wilt verwijderen?",
+    "remove_shared_request": "Are you sure you want to permanently delete this shared request?",
     "remove_team": "Weet je zeker dat je dit team wilt verwijderen?",
     "remove_telemetry": "Weet u zeker dat u zich wilt afmelden voor telemetrie?",
     "request_change": "Are you sure you want to discard current request, unsaved changes will be lost.",
@@ -161,6 +189,24 @@
     "add_parameters": "Add to parameters",
     "open_request_in_new_tab": "Open request in new tab",
     "set_environment_variable": "Set as variable"
+  },
+  "cookies": {
+    "modal": {
+      "cookie_expires": "Expires",
+      "cookie_name": "Name",
+      "cookie_path": "Path",
+      "cookie_string": "Cookie string",
+      "cookie_value": "Value",
+      "empty_domain": "Domain is empty",
+      "empty_domains": "Domain list is empty",
+      "enter_cookie_string": "Enter cookie string",
+      "interceptor_no_support": "Your currently selected interceptor does not support cookies. Select a different Interceptor and try again.",
+      "managed_tab": "Managed",
+      "new_domain_name": "New domain name",
+      "no_cookies_in_domain": "No cookies set for this domain",
+      "raw_tab": "Raw",
+      "set": "Set a cookie"
+    }
   },
   "count": {
     "header": "Kop {count}",
@@ -192,11 +238,13 @@
     "profile": "Login to view your profile",
     "protocols": "Protocollen zijn leeg",
     "schema": "Verbinding maken met een GraphQL-eindpunt",
-    "shortcodes": "Shortcodes are empty",
+    "shared_requests": "Shared requests are empty",
+    "shared_requests_logout": "Login to view your shared requests or create a new one",
     "subscription": "Subscriptions are empty",
     "team_name": "Teamnaam leeg",
     "teams": "Teams zijn leeg",
-    "tests": "Er zijn geen tests voor dit verzoek"
+    "tests": "Er zijn geen tests voor dit verzoek",
+    "shortcodes": "Shortcodes are empty"
   },
   "environment": {
     "add_to_global": "Add to Global",
@@ -209,6 +257,7 @@
     "empty_variables": "No variables",
     "global": "Global",
     "global_variables": "Global variables",
+    "import_or_create": "Import or create a environment",
     "invalid_name": "Geef een geldige naam op voor de omgeving",
     "list": "Environment variables",
     "my_environments": "My Environments",
@@ -232,8 +281,10 @@
     "variable_list": "Variabele lijst"
   },
   "error": {
+    "authproviders_load_error": "Unable to load auth providers",
     "browser_support_sse": "Deze browser lijkt geen ondersteuning te hebben voor door de server verzonden gebeurtenissen.",
     "check_console_details": "Controleer het consolelogboek voor details.",
+    "check_how_to_add_origin": "Check how you can add an origin",
     "curl_invalid_format": "cURL is niet correct geformatteerd",
     "danger_zone": "Danger zone",
     "delete_account": "Your account is currently an owner in these teams:",
@@ -249,9 +300,12 @@
     "json_prettify_invalid_body": "Kon een ongeldige hoofdtekst niet mooier maken, json-syntaxisfouten oplossen en opnieuw proberen",
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "Kan verzoek niet versturen",
+    "no_collections_to_export": "No collections to export. Please create a collection to get started.",
     "no_duration": "Geen duur",
+    "no_environments_to_export": "No environments to export. Please create an environment to get started.",
     "no_results_found": "No matches found",
     "page_not_found": "This page could not be found",
+    "please_install_extension": "Please install the extension and add origin to the extension.",
     "proxy_error": "Proxy error",
     "script_fail": "Kon pre-aanvraagscript niet uitvoeren",
     "something_went_wrong": "Er is iets fout gegaan",
@@ -260,6 +314,7 @@
   "export": {
     "as_json": "Exporteren als JSON",
     "create_secret_gist": "Maak geheime kern",
+    "failed": "Something went wrong while exporting",
     "gist_created": "Kern gemaakt",
     "require_github": "Log in met GitHub om een geheime kern te maken",
     "title": "Export"
@@ -286,6 +341,9 @@
     "subscriptions": "Abonnementen",
     "switch_connection": "Switch connection"
   },
+  "graphql_collections": {
+    "title": "GraphQL Collections"
+  },
   "group": {
     "time": "Time",
     "url": "URL"
@@ -297,6 +355,8 @@
   },
   "helpers": {
     "authorization": "De autorisatieheader wordt automatisch gegenereerd wanneer u het verzoek verzendt.",
+    "collection_properties_authorization": " This authorization will be set for every request in this collection.",
+    "collection_properties_header": "This header will be set for every request in this collection.",
     "generate_documentation_first": "Genereer eerst documentatie",
     "network_fail": "Kan het API-eindpunt niet bereiken. Controleer uw netwerkverbinding en probeer het opnieuw.",
     "offline": "Je lijkt offline te zijn. Gegevens in deze werkruimte zijn mogelijk niet up-to-date.",
@@ -316,7 +376,10 @@
   "import": {
     "collections": "Collecties importeren",
     "curl": "cURL-commando importeren",
+    "environments_from_gist": "Import From Gist",
+    "environments_from_gist_description": "Import Hoppscotch Environments From Gist",
     "failed": "Importeren mislukt",
+    "from_file": "Import from File",
     "from_gist": "Importeren uit Gist",
     "from_gist_description": "Import from Gist URL",
     "from_insomnia": "Import from Insomnia",
@@ -331,11 +394,17 @@
     "from_postman_description": "Import from Postman collection",
     "from_url": "Import from URL",
     "gist_url": "Vul de hoofd-URL in",
+    "gql_collections_from_gist_description": "Import GraphQL Collections From Gist",
+    "hoppscotch_environment": "Hoppscotch Environment",
+    "hoppscotch_environment_description": "Import Hoppscotch Environment JSON file",
     "import_from_url_invalid_fetch": "Couldn't get data from the url",
     "import_from_url_invalid_file_format": "Error while importing collections",
     "import_from_url_invalid_type": "Unsupported type. accepted values are 'hoppscotch', 'openapi', 'postman', 'insomnia'",
     "import_from_url_success": "Collections Imported",
+    "insomnia_environment_description": "Import Insomnia Environment from a JSON/YAML file",
     "json_description": "Import collections from a Hoppscotch Collections JSON file",
+    "postman_environment": "Postman Environment",
+    "postman_environment_description": "Import Postman Environment from a JSON file",
     "title": "Importeren"
   },
   "inspections": {
@@ -373,8 +442,10 @@
     "close_unsaved_tab": "You have unsaved changes",
     "collections": "Collecties",
     "confirm": "Bevestigen",
+    "customize_request": "Customize Request",
     "edit_request": "Verzoek bewerken",
-    "import_export": "Importeren / exporteren"
+    "import_export": "Importeren / exporteren",
+    "share_request": "Share Request"
   },
   "mqtt": {
     "already_subscribed": "You are already subscribed to this topic.",
@@ -449,13 +520,14 @@
       "structured": "Structured",
       "text": "Text"
     },
-    "copy_link": "Kopieer link",
     "different_collection": "Cannot reorder requests from different collections",
     "duplicated": "Request duplicated",
     "duration": "Duur",
     "enter_curl": "Voer cURL . in",
     "generate_code": "Genereer code",
     "generated_code": "Gegenereerde code",
+    "go_to_authorization_tab": "Go to Authorization tab",
+    "go_to_body_tab": "Go to Body tab",
     "header_list": "Koplijst",
     "invalid_name": "Geef een naam op voor het verzoek",
     "method": "Methode",
@@ -480,12 +552,14 @@
     "saved": "Verzoek opgeslagen",
     "share": "Deel",
     "share_description": "Share Hoppscotch with your friends",
+    "share_request": "Share Request",
     "stop": "Stop",
     "title": "Verzoek",
     "type": "Aanvraag type",
     "url": "URL",
     "variables": "Variabelen",
-    "view_my_links": "View my links"
+    "view_my_links": "View my links",
+    "copy_link": "Kopieer link"
   },
   "response": {
     "audio": "Audio",
@@ -513,6 +587,7 @@
     "account_description": "Pas uw accountinstellingen aan.",
     "account_email_description": "Uw primaire e-mailadres.",
     "account_name_description": "Dit is uw weergavenaam.",
+    "additional": "Additional Settings",
     "background": "Achtergrond",
     "black_mode": "zwart",
     "choose_language": "Kies een taal",
@@ -559,14 +634,31 @@
     "verified_email": "Verified email",
     "verify_email": "Verify email"
   },
-  "shortcodes": {
-    "actions": "Actions",
-    "created_on": "Created on",
-    "deleted": "Shortcode deleted",
-    "method": "Method",
-    "not_found": "Shortcode not found",
-    "short_code": "Short code",
-    "url": "URL"
+  "shared_requests": {
+    "button": "Button",
+    "button_info": "Create a 'Run in Hoppscotch' button for your website, blog or a README.",
+    "copy_html": "Copy HTML",
+    "copy_link": "Copy Link",
+    "copy_markdown": "Copy Markdown",
+    "creating_widget": "Creating widget",
+    "customize": "Customize",
+    "deleted": "Shared request deleted",
+    "description": "Select a widget, you can change and customize this later",
+    "embed": "Embed",
+    "embed_info": "Add a mini 'Hoppscotch API Playground' to your website, blog or documentation.",
+    "link": "Link",
+    "link_info": "Create a shareable link to share with anyone on the internet with view access.",
+    "modified": "Shared request modified",
+    "not_found": "Shared request not found",
+    "open_new_tab": "Open in new tab",
+    "preview": "Preview",
+    "run_in_hoppscotch": "Run in Hoppscotch",
+    "theme": {
+      "dark": "Dark",
+      "light": "Light",
+      "system": "System",
+      "title": "Theme"
+    }
   },
   "shortcut": {
     "general": {
@@ -596,7 +688,6 @@
       "title": "Others"
     },
     "request": {
-      "copy_request_link": "Kopieer aanvraaglink",
       "delete_method": "Selecteer DELETE-methode",
       "get_method": "Selecteer GET-methode",
       "head_method": "Selecteer HEAD-methode:",
@@ -611,8 +702,10 @@
       "save_request": "Save Request",
       "save_to_collections": "Opslaan in collecties",
       "send_request": "Verstuur verzoek",
+      "share_request": "Share Request",
       "show_code": "Generate code snippet",
-      "title": "Verzoek"
+      "title": "Verzoek",
+      "copy_request_link": "Kopieer aanvraaglink"
     },
     "response": {
       "copy": "Copy response to clipboard",
@@ -735,6 +828,7 @@
     "connection_error": "Failed to connect",
     "connection_failed": "Connection failed",
     "connection_lost": "Connection lost",
+    "copied_interface_to_clipboard": "Copied {language} interface type to clipboard",
     "copied_to_clipboard": "Gekopieerd naar het klembord",
     "deleted": "verwijderd",
     "deprecated": "VEROUDERD",
@@ -742,10 +836,12 @@
     "disconnected": "Verbinding verbroken",
     "disconnected_from": "Verbinding verbroken met {name}",
     "docs_generated": "Documentatie gegenereerd",
+    "download_failed": "Download failed",
     "download_started": "Download gestart",
     "enabled": "ingeschakeld",
     "file_imported": "Bestand geïmporteerd",
     "finished_in": "Klaar in {duration} ms",
+    "hide": "Hide",
     "history_deleted": "Geschiedenis verwijderd",
     "linewrap": "Regels afbreken",
     "loading": "Bezig met laden...",
@@ -756,6 +852,7 @@
     "published_error": "Something went wrong while publishing msg: {topic} to topic: {message}",
     "published_message": "Published message: {message} to topic: {topic}",
     "reconnection_error": "Failed to reconnect",
+    "show": "Show",
     "subscribed_failed": "Failed to subscribe to topic: {topic}",
     "subscribed_success": "Successfully subscribed to topic: {topic}",
     "unsubscribed_failed": "Failed to unsubscribe from topic: {topic}",
@@ -791,6 +888,7 @@
     "queries": "Queries",
     "query": "Query",
     "schema": "Schema",
+    "shared_requests": "Shared Requests",
     "socketio": "Socket.IO",
     "sse": "SSE",
     "tests": "Testen",
@@ -807,6 +905,7 @@
     "email_do_not_match": "Email doesn't match with your account details. Contact your team owner.",
     "exit": "Team verlaten",
     "exit_disabled": "Alleen de eigenaar kan het team niet verlaten",
+    "failed_invites": "Failed invites",
     "invalid_coll_id": "Invalid collection ID",
     "invalid_email_format": "E-mailindeling is ongeldig",
     "invalid_id": "Invalid team ID. Contact your team owner.",
@@ -848,6 +947,7 @@
     "same_target_destination": "Same target and destination",
     "saved": "Team gered",
     "select_a_team": "Select a team",
+    "success_invites": "Success invites",
     "title": "teams",
     "we_sent_invite_link": "We sent an invite link to all invitees!",
     "we_sent_invite_link_description": "Ask all invitees to check their inbox. Click on the link to join the team."
@@ -879,5 +979,14 @@
     "personal": "My Workspace",
     "team": "Team Workspace",
     "title": "Workspaces"
+  },
+  "shortcodes": {
+    "actions": "Actions",
+    "created_on": "Created on",
+    "deleted": "Shortcode deleted",
+    "method": "Method",
+    "not_found": "Shortcode not found",
+    "short_code": "Short code",
+    "url": "URL"
   }
 }

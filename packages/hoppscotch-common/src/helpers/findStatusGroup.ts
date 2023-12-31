@@ -14,19 +14,19 @@ export default function (responseStatus) {
   if (responseStatus >= 300 && responseStatus < 400)
     return {
       name: "redirection",
-      className: "redir-response",
+      className: "redirect-response",
     }
 
   if (responseStatus >= 400 && responseStatus < 500)
     return {
       name: "client error",
-      className: "cl-error-response",
+      className: "critical-error-response",
     }
 
   if (responseStatus >= 500 && responseStatus < 600)
     return {
       name: "server error",
-      className: "sv-error-response",
+      className: "server-error-response",
     }
 
   // this object is a catch-all for when no other objects match and should always be last

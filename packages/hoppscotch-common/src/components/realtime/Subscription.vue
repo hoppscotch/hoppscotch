@@ -1,17 +1,17 @@
 <template>
   <HoppSmartModal v-if="show" dialog :title="t('mqtt.new')" @close="hideModal">
     <template #body>
-      <div class="flex justify-between mb-4">
+      <div class="mb-4 flex justify-between">
         <div
-          class="flex items-center border divide-x rounded border-divider divide-divider"
+          class="flex items-center divide-x divide-divider rounded border border-divider"
         >
           <label class="mx-4">
             {{ t("mqtt.qos") }}
           </label>
           <tippy interactive trigger="click" theme="popover">
-            <span class="select-wrapper">
+            <HoppSmartSelectWrapper>
               <HoppButtonSecondary class="pr-8" :label="`${QoS}`" />
-            </span>
+            </HoppSmartSelectWrapper>
             <template #content="{ hide }">
               <div class="flex flex-col" role="menu">
                 <HoppSmartItem
@@ -51,17 +51,17 @@
             v-tippy="{ theme: 'tooltip' }"
             :title="t('mqtt.color')"
             for="select-color"
-            class="absolute inset-0 flex items-center justify-center group hover:cursor-pointer"
+            class="group absolute inset-0 flex items-center justify-center hover:cursor-pointer"
           >
             <icon-lucide-brush
-              class="transition opacity-80 svg-icons group-hover:opacity-100 text-accentContrast"
+              class="svg-icons text-accentContrast opacity-80 transition group-hover:opacity-100"
             />
           </label>
           <input
             id="select-color"
             v-model="color"
             type="color"
-            class="w-8 h-8 p-1 rounded bg-primary color-picker"
+            class="color-picker h-8 w-8 rounded bg-primary p-1"
           />
         </span>
       </div>

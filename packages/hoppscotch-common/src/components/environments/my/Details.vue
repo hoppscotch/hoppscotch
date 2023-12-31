@@ -16,7 +16,7 @@
           @submit="saveEnvironment"
         />
 
-        <div class="flex items-center justify-between flex-1">
+        <div class="flex flex-1 items-center justify-between">
           <label for="variableList" class="p-4">
             {{ t("environment.variable_list") }}
           </label>
@@ -37,11 +37,11 @@
         </div>
         <div
           v-if="evnExpandError"
-          class="w-full px-4 py-2 mb-2 overflow-auto font-mono text-red-400 whitespace-normal rounded bg-primaryLight"
+          class="mb-2 w-full overflow-auto whitespace-normal rounded bg-primaryLight px-4 py-2 font-mono text-red-400"
         >
           {{ t("environment.nested_overflow") }}
         </div>
-        <div class="border rounded divide-y divide-dividerLight border-divider">
+        <div class="divide-y divide-dividerLight rounded border border-divider">
           <div
             v-for="({ id, env }, index) in vars"
             :key="`variable-${id}-${index}`"
@@ -50,7 +50,7 @@
             <input
               v-model="env.key"
               v-focus
-              class="flex flex-1 px-4 py-2 bg-transparent"
+              class="flex flex-1 bg-transparent px-4 py-2"
               :placeholder="`${t('count.variable', { count: index + 1 })}`"
               :name="'param' + index"
             />
@@ -78,11 +78,13 @@
             :alt="`${t('empty.environments')}`"
             :text="t('empty.environments')"
           >
-            <HoppButtonSecondary
-              :label="`${t('add.new')}`"
-              filled
-              @click="addEnvironmentVariable"
-            />
+            <template #body>
+              <HoppButtonSecondary
+                :label="`${t('add.new')}`"
+                filled
+                @click="addEnvironmentVariable"
+              />
+            </template>
           </HoppSmartPlaceholder>
         </div>
       </div>
@@ -198,9 +200,8 @@ const workingEnv = computed(() => {
       type: "MY_ENV",
       index: props.editingEnvironmentIndex,
     })
-  } else {
-    return null
   }
+  return null
 })
 
 const envList = useReadonlyStream(environments$, []) || props.envVars()
@@ -226,12 +227,11 @@ const liveEnvs = computed(() => {
     return [
       ...vars.value.map((x) => ({ ...x.env, source: editingName.value! })),
     ]
-  } else {
-    return [
-      ...vars.value.map((x) => ({ ...x.env, source: editingName.value! })),
-      ...globalVars.value.map((x) => ({ ...x, source: "Global" })),
-    ]
   }
+  return [
+    ...vars.value.map((x) => ({ ...x.env, source: editingName.value! })),
+    ...globalVars.value.map((x) => ({ ...x, source: "Global" })),
+  ]
 })
 
 watch(

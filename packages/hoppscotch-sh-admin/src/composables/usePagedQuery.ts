@@ -1,6 +1,6 @@
-import { TypedDocumentNode, useClientHandle } from '@urql/vue';
-import { DocumentNode } from 'graphql';
 import { onMounted, ref } from 'vue';
+import { DocumentNode } from 'graphql';
+import { TypedDocumentNode, useClientHandle } from '@urql/vue';
 
 export function usePagedQuery<
   Result,
@@ -13,7 +13,6 @@ export function usePagedQuery<
   itemsPerPage: number,
   variables: Vars
 ) {
-  //Fetch All Users
   const { client } = useClientHandle();
   const fetching = ref(true);
   const error = ref(false);
@@ -23,16 +22,19 @@ export function usePagedQuery<
 
   const fetchNextPage = async () => {
     fetching.value = true;
-    try {
-      const result = await client
-        .query(query, {
-          ...variables,
-          take: itemsPerPage,
-          cursor:
-            list.value.length > 0 ? getCursor(list.value.at(-1)) : undefined,
-        })
-        .toPromise();
 
+    try {
+      const cursor =
+        list.value.length > 0 ? getCursor(list.value.at(-1)) : undefined;
+      const variablesForPagination = {
+        ...variables,
+        take: itemsPerPage,
+        cursor,
+      };
+
+      const result = await client
+        .query(query, variablesForPagination)
+        .toPromise();
       const resultList = getList(result.data!);
 
       if (resultList.length < itemsPerPage) {
@@ -43,8 +45,9 @@ export function usePagedQuery<
       currentPage.value++;
     } catch (e) {
       error.value = true;
+    } finally {
+      fetching.value = false;
     }
-    fetching.value = false;
   };
 
   onMounted(async () => {

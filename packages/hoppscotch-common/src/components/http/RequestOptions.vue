@@ -5,13 +5,18 @@
     render-inactive-tabs
   >
     <HoppSmartTab
+      v-if="properties ? properties.includes('parameters') : true"
       :id="'params'"
       :label="`${t('tab.parameters')}`"
       :info="`${newActiveParamsCount$}`"
     >
       <HttpParameters v-model="request.params" />
     </HoppSmartTab>
-    <HoppSmartTab :id="'bodyParams'" :label="`${t('tab.body')}`">
+    <HoppSmartTab
+      v-if="properties ? properties.includes('body') : true"
+      :id="'bodyParams'"
+      :label="`${t('tab.body')}`"
+    >
       <HttpBody
         v-model:headers="request.headers"
         v-model:body="request.body"
@@ -19,16 +24,29 @@
       />
     </HoppSmartTab>
     <HoppSmartTab
+      v-if="properties ? properties.includes('headers') : true"
       :id="'headers'"
       :label="`${t('tab.headers')}`"
       :info="`${newActiveHeadersCount$}`"
     >
-      <HttpHeaders v-model="request" @change-tab="changeOptionTab" />
-    </HoppSmartTab>
-    <HoppSmartTab :id="'authorization'" :label="`${t('tab.authorization')}`">
-      <HttpAuthorization v-model="request.auth" />
+      <HttpHeaders
+        v-model="request"
+        :inherited-properties="inheritedProperties"
+        @change-tab="changeOptionTab"
+      />
     </HoppSmartTab>
     <HoppSmartTab
+      v-if="properties ? properties.includes('authorization') : true"
+      :id="'authorization'"
+      :label="`${t('tab.authorization')}`"
+    >
+      <HttpAuthorization
+        v-model="request.auth"
+        :inherited-properties="inheritedProperties"
+      />
+    </HoppSmartTab>
+    <HoppSmartTab
+      v-if="properties ? properties.includes('preRequestScript') : true"
       :id="'preRequestScript'"
       :label="`${t('tab.pre_request_script')}`"
       :indicator="
@@ -40,6 +58,7 @@
       <HttpPreRequestScript v-model="request.preRequestScript" />
     </HoppSmartTab>
     <HoppSmartTab
+      v-if="properties ? properties.includes('tests') : true"
       :id="'tests'"
       :label="`${t('tab.tests')}`"
       :indicator="
@@ -57,6 +76,7 @@ import { HoppRESTRequest } from "@hoppscotch/data"
 import { useVModel } from "@vueuse/core"
 import { computed } from "vue"
 import { defineActionHandler } from "~/helpers/actions"
+import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 
 const VALID_OPTION_TABS = [
   "params",
@@ -76,6 +96,8 @@ const props = withDefaults(
   defineProps<{
     modelValue: HoppRESTRequest
     optionTab: RESTOptionTabs
+    properties?: string[]
+    inheritedProperties?: HoppInheritedProperty
   }>(),
   {
     optionTab: "params",

@@ -80,15 +80,14 @@ async function runRequest(
   } catch (e) {
     if (axios.isCancel(e)) {
       return E.left("cancellation")
-    } else {
-      return E.left({
-        humanMessage: {
-          heading: (t) => t("error.network_fail"),
-          description: (t) => t("helpers.network_fail"),
-        },
-        error: e,
-      })
     }
+    return E.left({
+      humanMessage: {
+        heading: (t) => t("error.network_fail"),
+        description: (t) => t("helpers.network_fail"),
+      },
+      error: e,
+    })
   }
 }
 

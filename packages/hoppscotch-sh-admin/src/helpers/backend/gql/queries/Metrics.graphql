@@ -1,5 +1,5 @@
 query Metrics {
-  admin {
+  infra {
     usersCount
     teamsCount
     teamRequestsCount

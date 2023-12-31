@@ -10,7 +10,7 @@ export type HoppRESTResponse =
       headers: HoppRESTResponseHeader[]
       body: ArrayBuffer
       statusCode: number
-
+      statusText: string
       meta: {
         responseSize: number // in bytes
         responseDuration: number // in millis
@@ -33,6 +33,7 @@ export type HoppRESTResponse =
       headers: HoppRESTResponseHeader[]
       body: ArrayBuffer
       statusCode: number
+      statusText: string
       meta: {
         responseSize: number // in bytes
         responseDuration: number // in millis

@@ -2,7 +2,7 @@
   <AppPaneLayout layout-id="sse">
     <template #primary>
       <div
-        class="sticky top-0 z-10 flex flex-shrink-0 p-4 overflow-x-auto space-x-2 bg-primary"
+        class="sticky top-0 z-10 flex flex-shrink-0 space-x-2 overflow-x-auto bg-primary p-4"
       >
         <div class="inline-flex flex-1 space-x-2">
           <div class="flex flex-1">
@@ -12,7 +12,7 @@
               type="url"
               autocomplete="off"
               :class="{ error: !isUrlValid }"
-              class="flex flex-1 w-full px-4 py-2 border rounded-l bg-primaryLight border-divider text-secondaryDark"
+              class="flex w-full flex-1 rounded-l border border-divider bg-primaryLight px-4 py-2 text-secondaryDark"
               :placeholder="t('sse.url')"
               :disabled="
                 connectionState === 'STARTED' || connectionState === 'STARTING'
@@ -21,14 +21,14 @@
             />
             <label
               for="event-type"
-              class="px-4 py-2 font-semibold truncate border-t border-b bg-primaryLight border-divider text-secondaryLight"
+              class="truncate border-b border-t border-divider bg-primaryLight px-4 py-2 font-semibold text-secondaryLight"
             >
               {{ t("sse.event_type") }}
             </label>
             <input
               id="event-type"
               v-model="eventType"
-              class="flex flex-1 w-full px-4 py-2 border rounded-r bg-primaryLight border-divider text-secondaryDark"
+              class="flex w-full flex-1 rounded-r border border-divider bg-primaryLight px-4 py-2 text-secondaryDark"
               spellcheck="false"
               :disabled="
                 connectionState === 'STARTED' || connectionState === 'STARTING'
@@ -45,8 +45,8 @@
               connectionState === 'STARTING'
                 ? t('action.starting')
                 : connectionState === 'STOPPED'
-                ? t('action.start')
-                : t('action.stop')
+                  ? t('action.start')
+                  : t('action.stop')
             "
             :loading="connectionState === 'STARTING'"
             @click="toggleSSEConnection"

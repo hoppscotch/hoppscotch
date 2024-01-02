@@ -153,7 +153,7 @@ async function refreshToken() {
       {
         withCredentials: true,
       }
-      )
+    )
 
     const isSuccessful = res.status === 200
 

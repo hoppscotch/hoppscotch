@@ -74,12 +74,12 @@ onMounted(async () => {
   } else {
     const infraResult = await updateInfraConfigs(updateInfraConfigsMutation);
 
-    if (infraResult) {
-      const authResult = await updateAuthProvider(
-        updateAllowedAuthProviderMutation
-      );
-      if (!authResult) return;
-    } else return;
+    if (!infraResult) return;
+
+    const authResult = await updateAuthProvider(
+      updateAllowedAuthProviderMutation
+    );
+    if (!authResult) return;
   }
 
   restart.value = true;

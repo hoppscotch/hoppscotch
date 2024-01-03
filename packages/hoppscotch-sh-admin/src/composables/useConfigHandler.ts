@@ -264,9 +264,9 @@ export function useConfigHandler(updatedConfigs?: Config) {
 
   const AreAnyConfigFieldsEmpty = (config: Config): boolean => {
     const providerFieldsEmpty = Object.values(config.providers).some(
-      (provider) => [...Object.values(provider.fields)].some(isFieldEmpty)
+      (provider) => Object.values(provider.fields).some(isFieldEmpty)
     );
-    const mailFieldsEmpty = [...Object.values(config.mailConfigs.fields)].some(
+    const mailFieldsEmpty = Object.values(config.mailConfigs.fields).some(
       isFieldEmpty
     );
 

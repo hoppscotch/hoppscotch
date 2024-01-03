@@ -29,8 +29,18 @@ type InsomniaResource = ImportRequest
 type InsomniaFolderResource = ImportRequest & { _type: "request_group" }
 type InsomniaRequestResource = ImportRequest & { _type: "request" }
 
-const parseInsomniaDoc = (content: string) =>
-  TO.tryCatch(() => convert(content))
+const parseInsomniaDocs = (content: string) =>
+  TO.tryCatch(async () => {
+    const contentArr = JSON.parse(content)
+    const resultArr = []
+
+    for (const contentObj of contentArr) {
+      const insomniaDoc = await convert(JSON.stringify(contentObj))
+      resultArr.push(insomniaDoc)
+    }
+
+    return resultArr
+  })
 
 const replaceVarTemplating = (expression: string) =>
   replaceInsomniaTemplating(expression)
@@ -203,15 +213,18 @@ const getHoppFolder = (
     headers: [],
   })
 
-const getHoppCollections = (doc: InsomniaDoc) =>
-  getFoldersIn(null, doc.data.resources).map((f) =>
-    getHoppFolder(f, doc.data.resources)
-  )
+const getHoppCollections = (docs: InsomniaDoc[]) => {
+  return docs.flatMap((doc) => {
+    return getFoldersIn(null, doc.data.resources).map((f) =>
+      getHoppFolder(f, doc.data.resources)
+    )
+  })
+}
 
 export const hoppInsomniaImporter = (fileContent: string) =>
   pipe(
     fileContent,
-    parseInsomniaDoc,
+    parseInsomniaDocs,
     TO.map(getHoppCollections),
     TE.fromTaskOption(() => IMPORTER_INVALID_FILE_FORMAT)
   )

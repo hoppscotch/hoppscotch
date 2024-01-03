@@ -23,6 +23,7 @@
         type="file"
         class="p-4 cursor-pointer transition file:transition file:cursor-pointer text-secondary hover:text-secondaryDark file:mr-2 file:py-2 file:px-4 file:rounded file:border-0 file:text-secondary hover:file:text-secondaryDark file:bg-primaryLight hover:file:bg-primaryDark"
         :accept="acceptedFileTypes"
+        multiple
         @change="onFileChange"
       />
     </div>
@@ -42,6 +43,7 @@
 import { ref } from "vue"
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
+import { load } from "js-yaml"
 
 defineProps<{
   caption: string
@@ -60,6 +62,14 @@ const emit = defineEmits<{
   (e: "importFromFile", content: string): void
 }>()
 
+const parseFileContent = (content: string) => {
+  try {
+    return JSON.parse(content)
+  } catch (error) {
+    return load(content)
+  }
+}
+
 const onFileChange = () => {
   const inputFileToImport = inputChooseFileToImportFrom.value
 
@@ -75,21 +85,34 @@ const onFileChange = () => {
     return
   }
 
-  const reader = new FileReader()
+  const contentArray: string[] = []
+  const readerPromises: Promise<string | null>[] = []
 
-  reader.onload = ({ target }) => {
-    const content = target!.result as string | null
-    if (!content) {
-      hasFile.value = false
-      toast.show(t("action.choose_file").toString())
-      return
-    }
+  for (let i = 0; i < inputFileToImport.files.length; i++) {
+    const file = inputFileToImport.files[i]
+    const reader = new FileReader()
 
-    fileContent.value = content
-
-    hasFile.value = !!content?.length
+    readerPromises.push(
+      new Promise((resolve) => {
+        reader.onload = () => resolve(reader.result as string | null)
+        reader.readAsText(file)
+      })
+    )
   }
 
-  reader.readAsText(inputFileToImport.files[0])
+  Promise.all(readerPromises).then((contents) => {
+    for (const content of contents) {
+      if (content) {
+        const parsedContent = parseFileContent(content)
+
+        Array.isArray(parsedContent)
+          ? contentArray.push(...parsedContent)
+          : contentArray.push(parsedContent)
+      }
+    }
+
+    fileContent.value = JSON.stringify(contentArray)
+    hasFile.value = contentArray.length > 0
+  })
 }
 </script>

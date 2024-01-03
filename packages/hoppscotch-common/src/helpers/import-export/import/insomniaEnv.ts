@@ -36,26 +36,28 @@ export const insomniaEnvImporter = (content: string) => {
     return TE.left(IMPORTER_INVALID_FILE_FORMAT)
   }
 
-  const validationResult = insomniaResourcesSchema.safeParse(
-    parsedContent.value
-  )
+  const validationResult = z
+    .array(insomniaResourcesSchema)
+    .safeParse(parsedContent.value)
 
   if (!validationResult.success) {
     return TE.left(IMPORTER_INVALID_FILE_FORMAT)
   }
 
-  const insomniaEnvs = validationResult.data.resources
-    .filter((resource) => resource._type === "environment")
-    .map((envResource) => {
-      const envResourceData = envResource.data as Record<string, unknown>
-      const stringifiedData: Record<string, string> = {}
+  const insomniaEnvs = validationResult.data.flatMap(({ resources }) => {
+    return resources
+      .filter((resource) => resource._type === "environment")
+      .map((envResource) => {
+        const envResourceData = envResource.data as Record<string, unknown>
+        const stringifiedData: Record<string, string> = {}
 
-      Object.keys(envResourceData).forEach((key) => {
-        stringifiedData[key] = String(envResourceData[key])
+        Object.keys(envResourceData).forEach((key) => {
+          stringifiedData[key] = String(envResourceData[key])
+        })
+
+        return { ...envResource, data: stringifiedData }
       })
-
-      return { ...envResource, data: stringifiedData }
-    })
+  })
 
   const environments: NonSecretEnvironment[] = []
 

@@ -133,7 +133,7 @@ const PostmanEnvironmentsImport: ImporterOrExporter = {
         return
       }
 
-      handleImportToStore([res.right])
+      handleImportToStore(res.right)
 
       platform.analytics?.logEvent({
         type: "HOPP_IMPORT_ENVIRONMENT",

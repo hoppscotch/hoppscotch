@@ -584,24 +584,28 @@ const convertPathToHoppReqs = (
     RA.toArray
   )
 
-const convertOpenApiDocToHopp = (
-  doc: OpenAPI.Document
+const convertOpenApiDocsToHopp = (
+  docs: OpenAPI.Document[]
 ): TE.TaskEither<never, HoppCollection[]> => {
-  const name = doc.info.title
+  const collections = docs.map((doc) => {
+    const name = doc.info.title
 
-  const paths = Object.entries(doc.paths ?? {})
-    .map(([pathName, pathObj]) => convertPathToHoppReqs(doc, pathName, pathObj))
-    .flat()
+    const paths = Object.entries(doc.paths ?? {})
+      .map(([pathName, pathObj]) =>
+        convertPathToHoppReqs(doc, pathName, pathObj)
+      )
+      .flat()
 
-  return TE.of([
-    makeCollection({
+    return makeCollection({
       name,
       folders: [],
       requests: paths,
       auth: { authType: "inherit", authActive: true },
       headers: [],
-    }),
-  ])
+    })
+  })
+
+  return TE.of(collections)
 }
 
 const parseOpenAPIDocContent = (str: string) =>
@@ -619,24 +623,44 @@ export const hoppOpenAPIImporter = (fileContent: string) =>
     // See if we can parse JSON properly
     fileContent,
     parseOpenAPIDocContent,
-    TE.fromOption(() => IMPORTER_INVALID_FILE_FORMAT),
+    TE.fromOption(() => {
+      return IMPORTER_INVALID_FILE_FORMAT
+    }),
     // Try validating, else the importer is invalid file format
-    TE.chainW((obj) =>
-      pipe(
+    TE.chainW((docArr) => {
+      return pipe(
         TE.tryCatch(
-          () => SwaggerParser.validate(obj),
+          async () => {
+            const resultDoc = []
+
+            for (const docObj of docArr) {
+              const validatedDoc = await SwaggerParser.validate(docObj)
+              resultDoc.push(validatedDoc)
+            }
+
+            return resultDoc
+          },
           () => IMPORTER_INVALID_FILE_FORMAT
         )
       )
-    ),
+    }),
     // Deference the references
-    TE.chainW((obj) =>
+    TE.chainW((docArr) =>
       pipe(
         TE.tryCatch(
-          () => SwaggerParser.dereference(obj),
+          async () => {
+            const resultDoc = []
+
+            for (const docObj of docArr) {
+              const validatedDoc = await SwaggerParser.dereference(docObj)
+              resultDoc.push(validatedDoc)
+            }
+
+            return resultDoc
+          },
           () => OPENAPI_DEREF_ERROR
         )
       )
     ),
-    TE.chainW(convertOpenApiDocToHopp)
+    TE.chainW(convertOpenApiDocsToHopp)
   )

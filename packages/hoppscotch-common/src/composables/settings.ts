@@ -13,7 +13,9 @@ export function useSetting<K extends keyof SettingsDef>(
       settingsStore.dispatch({
         dispatcher: "applySetting",
         payload: {
+          // @ts-expect-error TS is not able to understand the type semantics here
           settingKey,
+          // @ts-expect-error TS is not able to understand the type semantics here
           value,
         },
       })
@@ -36,8 +38,11 @@ export function useNestedSetting<
       settingsStore.dispatch({
         dispatcher: "applyNestedSetting",
         payload: {
+          // @ts-expect-error TS is not able to understand the type semantics here
           settingKey,
+          // @ts-expect-error TS is not able to understand the type semantics here
           property,
+          // @ts-expect-error TS is not able to understand the type semantics here
           value,
         },
       })
@@ -59,7 +64,9 @@ export function useSettingStatic<K extends keyof SettingsDef>(
       settingsStore.dispatch({
         dispatcher: "applySetting",
         payload: {
+          // @ts-expect-error TS is not able to understand the type semantics here
           settingKey,
+          // @ts-expect-error TS is not able to understand the type semantics here
           value,
         },
       })

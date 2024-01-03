@@ -1,7 +1,7 @@
 <template>
+  <HttpRequest v-model="tab" />
   <AppPaneLayout layout-id="rest-primary">
     <template #primary>
-      <HttpRequest v-model="tab" />
       <HttpRequestOptions
         v-model="tab.document.request"
         v-model:option-tab="tab.document.optionTabPreference"

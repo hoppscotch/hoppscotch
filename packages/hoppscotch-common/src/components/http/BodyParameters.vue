@@ -1,7 +1,7 @@
 <template>
   <div>
     <div
-      class="sticky top-upperMobileStickyFold z-10 flex flex-shrink-0 items-center justify-between overflow-x-auto border-b border-dividerLight bg-primary pl-4 sm:top-upperMobileTertiaryStickyFold"
+      class="z-10 flex flex-shrink-0 items-center justify-between overflow-x-auto border-b border-dividerLight bg-primary pl-4"
     >
       <label class="truncate font-semibold text-secondaryLight">
         {{ t("request.body") }}

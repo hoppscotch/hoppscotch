@@ -2,9 +2,7 @@
   <div
     class="sticky top-0 z-20 flex-none flex-shrink-0 bg-primary p-4 sm:flex sm:flex-shrink-0 sm:space-x-2"
   >
-    <div
-      class="min-w-[12rem] flex flex-1 whitespace-nowrap rounded border border-divider"
-    >
+    <div class="flex flex-1 whitespace-nowrap rounded border border-divider">
       <div class="relative flex">
         <label for="method">
           <tippy
@@ -143,7 +141,7 @@
           :title="`${t(
             'request.save'
           )} <kbd>${getSpecialKey()}</kbd><kbd>S</kbd>`"
-          :label="COLUMN_LAYOUT ? `${t('request.save')}` : ''"
+          :label="t('request.save')"
           filled
           :icon="IconSave"
           class="flex-1 rounded rounded-r-none"
@@ -232,7 +230,6 @@
 
 <script setup lang="ts">
 import { useI18n } from "@composables/i18n"
-import { useSetting } from "@composables/settings"
 import { useReadonlyStream, useStreamSubscriber } from "@composables/stream"
 import { useToast } from "@composables/toast"
 import { useVModel } from "@vueuse/core"
@@ -604,8 +601,6 @@ const isCustomMethod = computed(() => {
     !methods.includes(newMethod.value)
   )
 })
-
-const COLUMN_LAYOUT = useSetting("COLUMN_LAYOUT")
 
 const inspectionService = useService(InspectionService)
 

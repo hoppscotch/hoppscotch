@@ -1,7 +1,7 @@
 <template>
   <HoppSmartTabs
     v-model="selectedOptionTab"
-    styles="sticky overflow-x-auto flex-shrink-0 bg-primary top-upperMobilePrimaryStickyFold sm:top-upperPrimaryStickyFold z-10"
+    styles=" overflow-x-auto flex-shrink-0 bg-primary  z-10"
     render-inactive-tabs
   >
     <HoppSmartTab

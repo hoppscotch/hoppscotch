@@ -43,8 +43,6 @@ export type SettingsDef = {
     graphqlHeaders: boolean
     graphqlVariables: boolean
     graphqlSchema: boolean
-    realtimeBody: boolean
-    realtimeLog: boolean
     importCurl: boolean
     codeGen: boolean
     cookie: boolean
@@ -86,8 +84,6 @@ export const getDefaultSettings = (): SettingsDef => ({
     graphqlHeaders: false,
     graphqlVariables: false,
     graphqlSchema: true,
-    realtimeBody: true,
-    realtimeLog: true,
     importCurl: true,
     codeGen: true,
     cookie: true,

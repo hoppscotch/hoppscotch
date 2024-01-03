@@ -59,8 +59,6 @@ const SettingsDefSchema = z.object({
     graphqlHeaders: z.boolean(),
     graphqlVariables: z.boolean(),
     graphqlSchema: z.boolean(),
-    realtimeBody: z.boolean(),
-    realtimeLog: z.boolean(),
     importCurl: z.boolean(),
     codeGen: z.boolean(),
     cookie: z.boolean(),

@@ -102,9 +102,9 @@
         <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           :title="t('state.linewrap')"
-          :class="{ '!text-accent': WRAP_LINES }"
+          :class="{ '!text-accent': linewrapEnabled }"
           :icon="IconWrapText"
-          @click.prevent="toggleNestedSetting('WRAP_LINES', 'realtimeBody')"
+          @click.prevent="linewrapEnabled = !linewrapEnabled"
         />
         <HoppButtonSecondary
           v-if="contentType && contentType == 'JSON'"
@@ -156,8 +156,6 @@ import { useToast } from "@composables/toast"
 import { isJSONContentType } from "@helpers/utils/contenttypes"
 import { defineActionHandler } from "~/helpers/actions"
 import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
-import { useNestedSetting } from "~/composables/settings"
-import { toggleNestedSetting } from "~/newstore/settings"
 
 defineProps({
   showEventField: {
@@ -193,7 +191,7 @@ const toast = useToast()
 
 // Template refs
 const tippyActions = ref<any | null>(null)
-const WRAP_LINES = useNestedSetting("WRAP_LINES", "realtimeBody")
+const linewrapEnabled = ref(true)
 const wsCommunicationBody = ref<HTMLElement>()
 const payload = ref<HTMLInputElement>()
 
@@ -221,7 +219,7 @@ useCodemirror(
   communicationBody,
   reactive({
     extendedEditorConfig: {
-      lineWrapping: WRAP_LINES,
+      lineWrapping: linewrapEnabled,
       mode: rawInputEditorLang,
       placeholder: t("websocket.message").toString(),
     },

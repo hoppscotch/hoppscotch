@@ -83,11 +83,9 @@ const isConfigUpdated = computed(() =>
 );
 
 // Check if any of the fields in workingConfigs are empty
-const areAnyFieldsEmpty = computed(() => {
-  if (workingConfigs.value) {
-    return AreAnyConfigFieldsEmpty(workingConfigs.value);
-  }
-});
+const areAnyFieldsEmpty = computed(() =>
+  workingConfigs.value ? AreAnyConfigFieldsEmpty(workingConfigs.value) : false
+);
 
 const restartServer = () => {
   if (areAnyFieldsEmpty.value) {

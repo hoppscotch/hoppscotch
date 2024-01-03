@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="px-4">
     <div v-if="fetching" class="flex justify-center">
       <HoppSmartSpinner />
     </div>

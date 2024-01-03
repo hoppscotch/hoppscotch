@@ -14,15 +14,16 @@ export function useClientHandler<
   ListItem
 >(
   query: string | TypedDocumentNode<Result, Vars> | DocumentNode,
-  getList: (result: Result) => ListItem[],
-  variables: Vars
+  variables: Vars,
+  getList?: (result: Result) => ListItem[]
 ) {
   const { client } = useClientHandle();
   const fetching = ref(true);
   const error = ref(false);
-  const list = ref<ListItem[]>([]);
+  const data = ref<Result>();
+  const dataAsList = ref<ListItem[]>([]);
 
-  const fetchList = async () => {
+  const fetchData = async () => {
     fetching.value = true;
     try {
       const result = await client
@@ -31,9 +32,12 @@ export function useClientHandler<
         })
         .toPromise();
 
-      const resultList = getList(result.data!);
-
-      list.value.push(...resultList);
+      if (getList) {
+        const resultList = getList(result.data!);
+        dataAsList.value.push(...resultList);
+      } else {
+        data.value = result.data;
+      }
     } catch (e) {
       error.value = true;
     }
@@ -43,7 +47,8 @@ export function useClientHandler<
   return {
     fetching,
     error,
-    list,
-    fetchList,
+    data,
+    dataAsList,
+    fetchData,
   };
 }

@@ -86,10 +86,8 @@ const t = useI18n();
 
 const { isOpen, isExpanded } = useSidebar();
 
-type SidebarTabs = 'Dashboard' | 'Users' | 'Teams' | 'Settings';
-
 type NavigationItem = {
-  label: SidebarTabs;
+  label: string;
   icon: any;
   to: string;
   exact: boolean;
@@ -122,9 +120,9 @@ const primaryNavigations: NavigationItem[] = [
   },
 ];
 
-const activeTab = ref<SidebarTabs>('Dashboard');
+const activeTab = ref('Dashboard');
 
-const setActiveTab = (tab: SidebarTabs) => {
+const setActiveTab = (tab: string) => {
   activeTab.value = tab;
 };
 </script>

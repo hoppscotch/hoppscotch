@@ -1,6 +1,7 @@
 <template>
   <div v-if="fetching" class="flex justify-center"><HoppSmartSpinner /></div>
-  <div v-if="user" class="flex flex-col space-y-4">
+  <div v-else-if="error">{{ t('users.load_info_error') }}</div>
+  <div v-else-if="user" class="flex flex-col space-y-4">
     <div class="flex gap-x-3">
       <button
         class="p-2 mb-2 rounded-3xl bg-divider"
@@ -59,17 +60,17 @@
 </template>
 
 <script setup lang="ts">
-import { useClientHandle, useMutation } from '@urql/vue';
+import { useMutation } from '@urql/vue';
 import { computed, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useI18n } from '~/composables/i18n';
 import { useToast } from '~/composables/toast';
+import { useClientHandler } from '~/composables/useClientHandler';
 import {
   MakeUserAdminDocument,
   RemoveUserAsAdminDocument,
   RemoveUserByAdminDocument,
   UserInfoDocument,
-  UserInfoQuery,
 } from '~/helpers/backend/graphql';
 
 const t = useI18n();
@@ -90,23 +91,26 @@ const currentTabName = computed(() => {
   }
 });
 
-// Get User Info
-const user = ref<UserInfoQuery['infra']['userInfo']>();
-const { client } = useClientHandle();
-const fetching = ref(true);
 const route = useRoute();
 
-onMounted(async () => {
-  fetching.value = true;
-  const result = await client
-    .query(UserInfoDocument, { uid: route.params.id.toString() })
-    .toPromise();
-
-  if (result.error) {
-    toast.error(t('users.load_info_error'));
+const { fetching, error, data, fetchData } = useClientHandler(
+  UserInfoDocument,
+  {
+    uid: route.params.id.toString(),
   }
-  user.value = result.data?.infra.userInfo;
-  fetching.value = false;
+);
+
+onMounted(async () => {
+  await fetchData();
+});
+
+const user = computed({
+  get: () => data.value?.infra.userInfo,
+  set: (value) => {
+    if (value) {
+      data.value!.infra.userInfo = value;
+    }
+  },
 });
 
 // User Deletion
@@ -161,7 +165,7 @@ const makeUserAdminMutation = async (id: string | null) => {
   if (result.error) {
     toast.error(t('state.admin_failure'));
   } else {
-    user.value.isAdmin = true;
+    user.value!.isAdmin = true;
     toast.success(t('state.admin_success'));
   }
   confirmUserToAdmin.value = false;
@@ -189,7 +193,7 @@ const makeAdminToUserMutation = async (id: string | null) => {
   if (result.error) {
     toast.error(t('state.remove_admin_failure'));
   } else {
-    user.value.isAdmin = false;
+    user.value!.isAdmin = false;
     toast.error(t('state.remove_admin_success'));
   }
   confirmAdminToUser.value = false;

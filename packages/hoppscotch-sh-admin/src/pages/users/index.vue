@@ -236,7 +236,9 @@ const sendInvite = async (email: string) => {
 
 // Go to Individual User Details Page
 const router = useRouter();
-const goToUserDetails = (uid: string) => router.push('/users/' + uid);
+const goToUserDetails = (uid: string) => {
+  router.push('/users/' + uid);
+};
 
 // User Deletion
 const userDeletion = useMutation(RemoveUserByAdminDocument);
@@ -285,6 +287,7 @@ const makeUserAdminMutation = async (id: string | null) => {
     toast.success(t('state.admin_success'));
     usersList.value = usersList.value.map((user) => {
       if (user.uid === id) {
+        user.isAdmin = true;
       }
       return user;
     });
@@ -322,6 +325,7 @@ const makeAdminToUserMutation = async (id: string | null) => {
     toast.success(t('state.remove_admin_success'));
     usersList.value = usersList.value.map((user) => {
       if (user.uid === id) {
+        user.isAdmin = false;
       }
       return user;
     });

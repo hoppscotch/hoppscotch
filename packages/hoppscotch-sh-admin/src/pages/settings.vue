@@ -16,7 +16,7 @@
     {{ t('configs.load_error') }}
   </div>
 
-  <div v-if="workingConfigs" class="flex flex-col py-8">
+  <div v-else-if="workingConfigs" class="flex flex-col py-8">
     <HoppSmartTabs v-model="selectedOptionTab" render-inactive-tabs>
       <HoppSmartTab :id="'config'" :label="t('configs.title')">
         <SettingsConfigurations
@@ -83,9 +83,11 @@ const isConfigUpdated = computed(() =>
 );
 
 // Check if any of the fields in workingConfigs are empty
-const areAnyFieldsEmpty = computed(() =>
-  workingConfigs.value ? AreAnyConfigFieldsEmpty(workingConfigs.value) : true
-);
+const areAnyFieldsEmpty = computed(() => {
+  if (workingConfigs.value) {
+    return AreAnyConfigFieldsEmpty(workingConfigs.value);
+  }
+});
 
 const restartServer = () => {
   if (areAnyFieldsEmpty.value) {

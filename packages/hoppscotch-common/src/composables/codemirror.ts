@@ -63,6 +63,8 @@ type CodeMirrorOptions = {
 
   additionalExts?: Extension[]
 
+  contextMenuEnabled?: boolean
+
   // callback on editor update
   onUpdate?: (view: ViewUpdate) => void
 }
@@ -208,6 +210,9 @@ export function useCodemirror(
 ): { cursor: Ref<{ line: number; ch: number }> } {
   const { subscribeToStream } = useStreamSubscriber()
 
+  // Set default value for contextMenuEnabled if not provided
+  options.contextMenuEnabled = options.contextMenuEnabled ?? true
+
   const additionalExts = new Compartment()
   const language = new Compartment()
   const lineWrapping = new Compartment()
@@ -272,8 +277,11 @@ export function useCodemirror(
               handleTextSelection()
             }, 140)
 
-            el.addEventListener("mouseup", debounceFn)
-            el.addEventListener("keyup", debounceFn)
+            // Only add event listeners if context menu is enabled in the editor
+            if (options.contextMenuEnabled) {
+              el.addEventListener("mouseup", debounceFn)
+              el.addEventListener("keyup", debounceFn)
+            }
 
             if (options.onUpdate) {
               options.onUpdate(update)
@@ -312,7 +320,7 @@ export function useCodemirror(
       ),
       EditorView.domEventHandlers({
         scroll(event) {
-          if (event.target) {
+          if (event.target && options.contextMenuEnabled) {
             handleTextSelection()
           }
         },

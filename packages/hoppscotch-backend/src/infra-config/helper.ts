@@ -14,14 +14,20 @@ const AuthProviderConfigurations = {
   [AuthProvider.GOOGLE]: [
     InfraConfigEnum.GOOGLE_CLIENT_ID,
     InfraConfigEnum.GOOGLE_CLIENT_SECRET,
+    InfraConfigEnum.GOOGLE_CALLBACK_URL,
+    InfraConfigEnum.GOOGLE_SCOPE,
   ],
   [AuthProvider.GITHUB]: [
     InfraConfigEnum.GITHUB_CLIENT_ID,
     InfraConfigEnum.GITHUB_CLIENT_SECRET,
+    InfraConfigEnum.GITHUB_CALLBACK_URL,
+    InfraConfigEnum.GITHUB_SCOPE,
   ],
   [AuthProvider.MICROSOFT]: [
     InfraConfigEnum.MICROSOFT_CLIENT_ID,
     InfraConfigEnum.MICROSOFT_CLIENT_SECRET,
+    InfraConfigEnum.MICROSOFT_CALLBACK_URL,
+    InfraConfigEnum.MICROSOFT_SCOPE,
   ],
   [AuthProvider.EMAIL]: [
     InfraConfigEnum.MAILER_SMTP_URL,

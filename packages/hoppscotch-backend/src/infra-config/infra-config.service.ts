@@ -17,7 +17,13 @@ import {
   INFRA_CONFIG_UPDATE_FAILED,
   INFRA_CONFIG_SERVICE_NOT_CONFIGURED,
 } from 'src/errors';
-import { throwErr, validateSMTPEmail, validateSMTPUrl } from 'src/utils';
+import {
+  throwErr,
+  validateSMTPEmail,
+  validateSMTPUrl,
+  validateSSOScope,
+  validateUrl,
+} from 'src/utils';
 import { ConfigService } from '@nestjs/config';
 import {
   ServiceStatus,
@@ -61,6 +67,14 @@ export class InfraConfigService implements OnModuleInit {
         value: process.env.GOOGLE_CLIENT_SECRET,
       },
       {
+        name: InfraConfigEnum.GOOGLE_CALLBACK_URL,
+        value: process.env.GOOGLE_CALLBACK_URL,
+      },
+      {
+        name: InfraConfigEnum.GOOGLE_SCOPE,
+        value: process.env.GOOGLE_SCOPE,
+      },
+      {
         name: InfraConfigEnum.GITHUB_CLIENT_ID,
         value: process.env.GITHUB_CLIENT_ID,
       },
@@ -69,12 +83,28 @@ export class InfraConfigService implements OnModuleInit {
         value: process.env.GITHUB_CLIENT_SECRET,
       },
       {
+        name: InfraConfigEnum.GITHUB_CALLBACK_URL,
+        value: process.env.GITHUB_CALLBACK_URL,
+      },
+      {
+        name: InfraConfigEnum.GITHUB_SCOPE,
+        value: process.env.GITHUB_SCOPE,
+      },
+      {
         name: InfraConfigEnum.MICROSOFT_CLIENT_ID,
         value: process.env.MICROSOFT_CLIENT_ID,
       },
       {
         name: InfraConfigEnum.MICROSOFT_CLIENT_SECRET,
         value: process.env.MICROSOFT_CLIENT_SECRET,
+      },
+      {
+        name: InfraConfigEnum.MICROSOFT_CALLBACK_URL,
+        value: process.env.MICROSOFT_CALLBACK_URL,
+      },
+      {
+        name: InfraConfigEnum.MICROSOFT_SCOPE,
+        value: process.env.MICROSOFT_SCOPE,
       },
       {
         name: InfraConfigEnum.VITE_ALLOWED_AUTH_PROVIDERS,
@@ -230,12 +260,25 @@ export class InfraConfigService implements OnModuleInit {
   ) {
     switch (service) {
       case AuthProvider.GOOGLE:
-        return configMap.GOOGLE_CLIENT_ID && configMap.GOOGLE_CLIENT_SECRET;
+        return (
+          configMap.GOOGLE_CLIENT_ID &&
+          configMap.GOOGLE_CLIENT_SECRET &&
+          configMap.GOOGLE_CALLBACK_URL &&
+          configMap.GOOGLE_SCOPE
+        );
       case AuthProvider.GITHUB:
-        return configMap.GITHUB_CLIENT_ID && configMap.GITHUB_CLIENT_SECRET;
+        return (
+          configMap.GITHUB_CLIENT_ID &&
+          configMap.GITHUB_CLIENT_SECRET &&
+          configMap.GITHUB_CALLBACK_URL &&
+          configMap.GITHUB_SCOPE
+        );
       case AuthProvider.MICROSOFT:
         return (
-          configMap.MICROSOFT_CLIENT_ID && configMap.MICROSOFT_CLIENT_SECRET
+          configMap.MICROSOFT_CLIENT_ID &&
+          configMap.MICROSOFT_CLIENT_SECRET &&
+          configMap.MICROSOFT_CALLBACK_URL &&
+          configMap.MICROSOFT_SCOPE
         );
       case AuthProvider.EMAIL:
         return configMap.MAILER_SMTP_URL && configMap.MAILER_ADDRESS_FROM;
@@ -407,17 +450,41 @@ export class InfraConfigService implements OnModuleInit {
         case InfraConfigEnumForClient.GOOGLE_CLIENT_SECRET:
           if (!infraConfigs[i].value) return E.left(INFRA_CONFIG_INVALID_INPUT);
           break;
+        case InfraConfigEnumForClient.GOOGLE_CALLBACK_URL:
+          if (!validateUrl(infraConfigs[i].value))
+            return E.left(INFRA_CONFIG_INVALID_INPUT);
+          break;
+        case InfraConfigEnumForClient.GOOGLE_SCOPE:
+          if (!validateSSOScope(infraConfigs[i].value))
+            return E.left(INFRA_CONFIG_INVALID_INPUT);
+          break;
         case InfraConfigEnumForClient.GITHUB_CLIENT_ID:
           if (!infraConfigs[i].value) return E.left(INFRA_CONFIG_INVALID_INPUT);
           break;
         case InfraConfigEnumForClient.GITHUB_CLIENT_SECRET:
           if (!infraConfigs[i].value) return E.left(INFRA_CONFIG_INVALID_INPUT);
           break;
+        case InfraConfigEnumForClient.GITHUB_CALLBACK_URL:
+          if (!validateUrl(infraConfigs[i].value))
+            return E.left(INFRA_CONFIG_INVALID_INPUT);
+          break;
+        case InfraConfigEnumForClient.GITHUB_SCOPE:
+          if (!validateSSOScope(infraConfigs[i].value))
+            return E.left(INFRA_CONFIG_INVALID_INPUT);
+          break;
         case InfraConfigEnumForClient.MICROSOFT_CLIENT_ID:
           if (!infraConfigs[i].value) return E.left(INFRA_CONFIG_INVALID_INPUT);
           break;
         case InfraConfigEnumForClient.MICROSOFT_CLIENT_SECRET:
           if (!infraConfigs[i].value) return E.left(INFRA_CONFIG_INVALID_INPUT);
+          break;
+        case InfraConfigEnumForClient.MICROSOFT_CALLBACK_URL:
+          if (!validateUrl(infraConfigs[i].value))
+            return E.left(INFRA_CONFIG_INVALID_INPUT);
+          break;
+        case InfraConfigEnumForClient.MICROSOFT_SCOPE:
+          if (!validateSSOScope(infraConfigs[i].value))
+            return E.left(INFRA_CONFIG_INVALID_INPUT);
           break;
         default:
           break;

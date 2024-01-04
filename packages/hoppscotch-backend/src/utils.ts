@@ -184,6 +184,32 @@ export const validateSMTPUrl = (url: string) => {
 };
 
 /**
+ * Checks to see if the URL is valid or not
+ * @param url The URL to validate
+ * @returns boolean
+ */
+export const validateUrl = (url: string) => {
+  const urlRegex = /^(https?|ftp):\/\/(-\.)?([^\s\/?\.#-]+\.?)+(\/[^\s]*)?$/i;
+  return urlRegex.test(url);
+};
+
+/**
+ * Validate SSO (Google, Github, Microsoft) Scope
+ * @param scope The scope to validate
+ * @returns boolean
+ */
+export const validateSSOScope = (scope: string) => {
+  if (!scope || scope.length === 0) return false;
+
+  const scopes = scope.split(',');
+  scopes.forEach((aScope) => {
+    if (aScope.length === 0) return false;
+  });
+
+  return true;
+};
+
+/**
  * String to JSON parser
  * @param {str} str The string to parse
  * @returns {E.Right<T> | E.Left<"json_invalid">} An Either of the parsed JSON

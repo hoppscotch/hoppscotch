@@ -410,7 +410,6 @@ const initView = (el: any) => {
       class {
         update(update: ViewUpdate) {
           if (props.readonly) return
-
           if (update.docChanged) {
             const prevValue = clone(cachedValue.value)
 
@@ -440,6 +439,17 @@ const initView = (el: any) => {
             } else {
               clipboardEv = null
               pastedValue = null
+            }
+
+            if (props.contextMenuEnabled) {
+              // close the context menu if text is being updated in the editor
+              invokeAction("contextmenu.open", {
+                position: {
+                  top: 0,
+                  left: 0,
+                },
+                text: null,
+              })
             }
           }
         }

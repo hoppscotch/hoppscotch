@@ -112,6 +112,7 @@ type HoppActionArgsMap = {
         requestType: "gql"
         request: HoppGQLRequest
       }
+    | undefined
   "request.open-tab": {
     tab: RESTOptionTabs | GQLOptionTabs
   }
@@ -121,7 +122,6 @@ type HoppActionArgsMap = {
   "tab.duplicate-tab": {
     tabID?: string
   }
-
   "gql.request.open": {
     request: HoppGQLRequest
     saveContext?: HoppGQLSaveContext
@@ -132,10 +132,22 @@ type HoppActionArgsMap = {
   }
 }
 
+type KeysWithValueUndefined<T> = {
+  [K in keyof T]: undefined extends T[K] ? K : never
+}[keyof T]
+
 /**
  * HoppActions which require arguments for their invocation
  */
 export type HoppActionWithArgs = keyof HoppActionArgsMap
+
+/**
+ * HoppActions which optionally takes in arguments for their invocation
+ */
+
+export type HoppActionWithOptionalArgs =
+  | HoppActionWithNoArgs
+  | KeysWithValueUndefined<HoppActionArgsMap>
 
 /**
  * HoppActions which do not require arguments for their invocation
@@ -152,7 +164,9 @@ type ArgOfHoppAction<A extends HoppAction | HoppActionWithArgs> =
  * Resolves the action function for a given HoppAction, used by action handler function defs
  */
 type ActionFunc<A extends HoppAction | HoppActionWithArgs> =
-  A extends HoppActionWithArgs ? (arg: ArgOfHoppAction<A>) => void : () => void
+  A extends HoppActionWithArgs
+    ? (arg: ArgOfHoppAction<A>) => void
+    : (_?: unknown, trigger?: InvocationTriggers) => void
 
 type BoundActionList = {
   // eslint-disable-next-line no-unused-vars
@@ -179,24 +193,32 @@ export function bindAction<A extends HoppAction | HoppActionWithArgs>(
   activeActions$.next(Object.keys(boundActions) as HoppAction[])
 }
 
+export type InvocationTriggers = "keypress" | "mouseclick"
+
 type InvokeActionFunc = {
-  (action: HoppActionWithNoArgs, args?: undefined): void
+  (
+    action: HoppActionWithOptionalArgs,
+    args?: undefined,
+    trigger?: InvocationTriggers
+  ): void
   <A extends HoppActionWithArgs>(action: A, args: HoppActionArgsMap[A]): void
 }
 
 /**
- * Invokes a action, triggering action handlers if any registered.
- * The second argument parameter is optional if your action has no args required
+ * Invokes an action, triggering action handlers if any registered.
+ * The second and third arguments are optional
  * @param action The action to fire
  * @param args The argument passed to the action handler. Optional if action has no args required
+ * @param trigger Optionally supply the trigger that invoked the action (keypress/mouseclick)
  */
 export const invokeAction: InvokeActionFunc = <
   A extends HoppAction | HoppActionWithArgs,
 >(
   action: A,
-  args: ArgOfHoppAction<A>
+  args?: ArgOfHoppAction<A>,
+  trigger?: InvocationTriggers
 ) => {
-  boundActions[action]?.forEach((handler) => handler(args! as any))
+  boundActions[action]?.forEach((handler) => handler(args! as any, trigger))
 }
 
 export function unbindAction<A extends HoppAction | HoppActionWithArgs>(

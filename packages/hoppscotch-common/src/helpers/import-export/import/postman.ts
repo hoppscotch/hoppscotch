@@ -58,9 +58,7 @@ const readPMCollection = (def: string) => {
     safeParseJSON,
     O.chain((data) =>
       O.tryCatch(() => {
-        return data.map((item: CollectionDefinition) => {
-          return new PMCollection(item)
-        })
+        return new PMCollection(data)
       })
     )
   )
@@ -304,17 +302,17 @@ const getHoppFolder = (ig: ItemGroup<Item>): HoppCollection =>
     headers: [],
   })
 
-export const getHoppCollection = (collections: PMCollection[]) => {
+export const getHoppCollections = (collections: PMCollection[]) => {
   return collections.map(getHoppFolder)
 }
 
-export const hoppPostmanImporter = (fileContent: string) => {
+export const hoppPostmanImporter = (fileContents: string[]) => {
   return pipe(
     // Try reading
-    fileContent,
-    readPMCollection,
+    fileContents,
+    A.traverse(O.Applicative)(readPMCollection),
 
-    O.map(flow(getHoppCollection)),
+    O.map(flow(getHoppCollections)),
 
     TE.fromOption(() => IMPORTER_INVALID_FILE_FORMAT)
   )

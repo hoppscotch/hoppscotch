@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from "uuid"
 export function FileSource(metadata: {
   acceptedFileTypes: string
   caption: string
-  onImportFromFile: (content: string) => any | Promise<any>
+  onImportFromFile: (content: string[]) => any | Promise<any>
 }) {
   const stepID = uuidv4()
 

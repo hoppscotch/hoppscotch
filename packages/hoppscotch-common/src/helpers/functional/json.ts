@@ -11,7 +11,10 @@ type SafeParseJSON = {
  * @param str Raw JSON data to be parsed
  * @returns Option type with some(JSON data) or none
  */
-export const safeParseJSON: SafeParseJSON = (str, convertToArray = false) =>
+export const safeParseJSON: SafeParseJSON = (
+  str: string,
+  convertToArray = false
+) =>
   O.tryCatch(() => {
     const data = JSON.parse(str)
     if (convertToArray) {

@@ -43,7 +43,6 @@
 import { ref } from "vue"
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
-import { load } from "js-yaml"
 
 defineProps<{
   caption: string
@@ -54,23 +53,15 @@ const t = useI18n()
 const toast = useToast()
 
 const hasFile = ref(false)
-const fileContent = ref("")
+const fileContent = ref<string[]>([])
 
 const inputChooseFileToImportFrom = ref<HTMLInputElement | any>()
 
 const emit = defineEmits<{
-  (e: "importFromFile", content: string): void
+  (e: "importFromFile", content: string[]): void
 }>()
 
-const parseFileContent = (content: string) => {
-  try {
-    return JSON.parse(content)
-  } catch (error) {
-    return load(content)
-  }
-}
-
-const onFileChange = () => {
+const onFileChange = async () => {
   const inputFileToImport = inputChooseFileToImportFrom.value
 
   if (!inputFileToImport) {
@@ -85,7 +76,6 @@ const onFileChange = () => {
     return
   }
 
-  const contentArray: string[] = []
   const readerPromises: Promise<string | null>[] = []
 
   for (let i = 0; i < inputFileToImport.files.length; i++) {
@@ -100,19 +90,11 @@ const onFileChange = () => {
     )
   }
 
-  Promise.all(readerPromises).then((contents) => {
-    for (const content of contents) {
-      if (content) {
-        const parsedContent = parseFileContent(content)
+  const contents = await Promise.all(readerPromises)
 
-        Array.isArray(parsedContent)
-          ? contentArray.push(...parsedContent)
-          : contentArray.push(parsedContent)
-      }
-    }
+  const contentsArr = contents.filter(Boolean) as string[]
+  fileContent.value = contentsArr
 
-    fileContent.value = JSON.stringify(contentArray)
-    hasFile.value = contentArray.length > 0
-  })
+  hasFile.value = contentsArr.length > 0
 }
 </script>

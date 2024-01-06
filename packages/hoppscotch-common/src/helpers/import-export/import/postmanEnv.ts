@@ -17,17 +17,15 @@ const postmanEnvSchema = z.object({
   ),
 })
 
-export const postmanEnvImporter = (content: string) => {
-  const parsedContent = safeParseJSON(content)
-
-  // parse json from the environments string
-  if (O.isNone(parsedContent)) {
+export const postmanEnvImporter = (contents: string[]) => {
+  const parsedContents = contents.map((str) => safeParseJSON(str))
+  if (parsedContents.some((parsed) => O.isNone(parsed))) {
     return TE.left(IMPORTER_INVALID_FILE_FORMAT)
   }
 
-  const validationResult = z
-    .array(postmanEnvSchema)
-    .safeParse(parsedContent.value)
+  const parsedValues = parsedContents.flatMap((parsed) => O.toNullable(parsed))
+
+  const validationResult = z.array(postmanEnvSchema).safeParse(parsedValues)
 
   if (!validationResult.success) {
     return TE.left(IMPORTER_INVALID_FILE_FORMAT)

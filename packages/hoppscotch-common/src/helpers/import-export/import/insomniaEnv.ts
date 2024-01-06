@@ -1,3 +1,4 @@
+import * as A from "fp-ts/Array"
 import * as TE from "fp-ts/TaskEither"
 import * as O from "fp-ts/Option"
 
@@ -29,16 +30,17 @@ export const replaceInsomniaTemplating = (expression: string) => {
   return expression.replaceAll(regex, "<<$1>>")
 }
 
-export const insomniaEnvImporter = (content: string) => {
-  const parsedContent = safeParseJSONOrYAML(content)
-
-  if (O.isNone(parsedContent)) {
+export const insomniaEnvImporter = (contents: string[]) => {
+  const parsedContents = contents.map((str) => safeParseJSONOrYAML(str))
+  if (parsedContents.some((parsed) => O.isNone(parsed))) {
     return TE.left(IMPORTER_INVALID_FILE_FORMAT)
   }
 
+  const parsedValues = parsedContents.flatMap((parsed) => O.toNullable(parsed))
+
   const validationResult = z
     .array(insomniaResourcesSchema)
-    .safeParse(parsedContent.value)
+    .safeParse(parsedValues)
 
   if (!validationResult.success) {
     return TE.left(IMPORTER_INVALID_FILE_FORMAT)

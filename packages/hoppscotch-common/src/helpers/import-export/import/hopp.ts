@@ -2,19 +2,26 @@ import { pipe, flow } from "fp-ts/function"
 import * as TE from "fp-ts/TaskEither"
 import * as O from "fp-ts/Option"
 import * as RA from "fp-ts/ReadonlyArray"
+import * as A from "fp-ts/Array"
 import { translateToNewRESTCollection, HoppCollection } from "@hoppscotch/data"
 import { isPlainObject as _isPlainObject } from "lodash-es"
 
 import { IMPORTER_INVALID_FILE_FORMAT } from "."
 import { safeParseJSON } from "~/helpers/functional/json"
 import { translateToNewGQLCollection } from "@hoppscotch/data"
+import { trace } from "~/helpers/functional/debug"
 
-export const hoppRESTImporter = (content: string) =>
+export const hoppRESTImporter = (content: string[]) =>
   pipe(
-    safeParseJSON(content),
+    content,
+    A.traverse(O.Applicative)((str) => safeParseJSON(str, true)),
     O.chain(
       flow(
         makeCollectionsArray,
+        trace,
+        // @ts-expect-error Todo: Investigate this
+        A.flatten,
+        trace,
         RA.map(validateCollection),
         O.sequenceArray,
         O.map(RA.toArray)

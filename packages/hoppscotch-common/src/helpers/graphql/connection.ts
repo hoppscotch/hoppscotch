@@ -1,4 +1,9 @@
-import { GQLHeader, HoppGQLAuth, makeGQLRequest } from "@hoppscotch/data"
+import {
+  GQLHeader,
+  HoppGQLAuth,
+  makeGQLRequest,
+  parseTemplateString,
+} from "@hoppscotch/data"
 import { OperationType } from "@urql/core"
 import * as E from "fp-ts/Either"
 import {
@@ -19,6 +24,7 @@ import { addGraphqlHistoryEntry, makeGQLHistoryEntry } from "~/newstore/history"
 
 import { InterceptorService } from "~/services/interceptor.service"
 import { GQLTabService } from "~/services/tab/graphql"
+import { getCombinedEnvVariables } from "../preRequest"
 
 const GQL_SCHEMA_POLL_INTERVAL = 7000
 
@@ -268,22 +274,46 @@ export const runGQLOperation = async (options: RunQueryOptions) => {
     if (auth.authType === "basic") {
       const username = auth.username
       const password = auth.password
-      finalHeaders.Authorization = `Basic ${btoa(`${username}:${password}`)}`
+      headers.push({
+        active: true,
+        key: "Authorization",
+        value: `Basic ${btoa(`${username}:${password}`)}`,
+      })
     } else if (auth.authType === "bearer" || auth.authType === "oauth-2") {
-      finalHeaders.Authorization = `Bearer ${auth.token}`
+      headers.push({
+        active: true,
+        key: "Authorization",
+        value: `Bearer ${auth.token}`,
+      })
     } else if (auth.authType === "api-key") {
       const { key, value, addTo } = auth
       if (addTo === "Headers") {
-        finalHeaders[key] = value
+        headers.push({
+          active: true,
+          key,
+          value,
+        })
       } else if (addTo === "Query params") {
         params[key] = value
       }
     }
   }
 
-  headers
-    .filter((item) => item.active && item.key !== "")
-    .forEach(({ key, value }) => (finalHeaders[key] = value))
+  const envVariables = getCombinedEnvVariables()
+  for (const header of headers.filter(
+    (item) => item.active && item.key !== ""
+  )) {
+    header.key = parseTemplateString(header.key, [
+      ...envVariables.selected,
+      ...envVariables.global,
+    ])
+    header.value = parseTemplateString(header.value, [
+      ...envVariables.selected,
+      ...envVariables.global,
+    ])
+
+    finalHeaders[header.key] = header.value
+  }
 
   const reqOptions = {
     method: "POST",

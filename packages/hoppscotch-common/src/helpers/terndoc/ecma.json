@@ -1256,5 +1256,11 @@
         "!type": "fn(value: ?) -> bool"
       }
     }
+  },
+  "btoa": {
+    "!type": "fn(string: string) -> string"
+  },
+  "atob": {
+    "!type": "fn(base64: string) -> string"
   }
 }

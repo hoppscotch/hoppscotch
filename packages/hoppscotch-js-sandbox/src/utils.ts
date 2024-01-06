@@ -421,7 +421,7 @@ export const createExpectation = (
  */
 export const getPreRequestScriptMethods = (envs: TestResult["envs"]) => {
   const { methods, updatedEnvs } = getSharedMethods(cloneDeep(envs))
-  return { pw: methods, updatedEnvs }
+  return { pw: methods, updatedEnvs, btoa, atob }
 }
 
 /**

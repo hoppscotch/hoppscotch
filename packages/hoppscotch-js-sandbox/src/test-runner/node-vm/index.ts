@@ -43,6 +43,8 @@ const executeScriptInContext = (
 
     // Expose pw to the context
     context.pw = { ...pw, response: responseObjHandle.right }
+    context.atob = atob
+    context.btoa = btoa
 
     // Run the test script in the provided context
     runInContext(testScript, context)

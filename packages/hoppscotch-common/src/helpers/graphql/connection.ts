@@ -199,22 +199,41 @@ export const reset = () => {
   connection.schema = null
 }
 
+const getComputedHeaders = (headers: GQLHeader[]) => {
+  const envVariables = getCombinedEnvVariables()
+  const finalEnvVariables = [...envVariables.selected, ...envVariables.global]
+  const result: Record<string, string> = {}
+
+  for (const header of headers.filter(
+    (item) => item.active && item.key !== ""
+  )) {
+    header.key = parseTemplateString(header.key, finalEnvVariables)
+    header.value = parseTemplateString(header.value, finalEnvVariables)
+
+    result[header.key] = header.value
+  }
+
+  return result
+}
+
+const getComputedUrl = (url: string) => {
+  const envVariables = getCombinedEnvVariables()
+  const finalEnvVariables = [...envVariables.selected, ...envVariables.global]
+
+  return parseTemplateString(url, finalEnvVariables)
+}
+
 const getSchema = async (url: string, headers: GQLHeader[]) => {
   try {
     const introspectionQuery = JSON.stringify({
       query: getIntrospectionQuery(),
     })
 
-    const finalHeaders: Record<string, string> = {}
-    headers
-      .filter((x) => x.active && x.key !== "")
-      .forEach((x) => (finalHeaders[x.key] = x.value))
-
     const reqOptions = {
       method: "POST",
-      url,
+      url: getComputedUrl(url),
       headers: {
-        ...finalHeaders,
+        ...getComputedHeaders(headers),
         "content-type": "application/json",
       },
       data: introspectionQuery,
@@ -264,8 +283,6 @@ export const runGQLOperation = async (options: RunQueryOptions) => {
   const { url, headers, query, variables, auth, operationName, operationType } =
     options
 
-  const finalHeaders: Record<string, string> = {}
-
   const parsedVariables = JSON.parse(variables || "{}")
   const finalVariables: Record<string, any> = {}
 
@@ -303,15 +320,6 @@ export const runGQLOperation = async (options: RunQueryOptions) => {
   const envVariables = getCombinedEnvVariables()
   const finalEnvVariables = [...envVariables.selected, ...envVariables.global]
 
-  for (const header of headers.filter(
-    (item) => item.active && item.key !== ""
-  )) {
-    header.key = parseTemplateString(header.key, finalEnvVariables)
-    header.value = parseTemplateString(header.value, finalEnvVariables)
-
-    finalHeaders[header.key] = header.value
-  }
-
   for (const variable of Object.keys(parsedVariables)) {
     finalVariables[parseTemplateString(variable, finalEnvVariables)] =
       parseTemplateString(parsedVariables[variable], finalEnvVariables)
@@ -319,9 +327,9 @@ export const runGQLOperation = async (options: RunQueryOptions) => {
 
   const reqOptions = {
     method: "POST",
-    url,
+    url: getComputedUrl(url),
     headers: {
-      ...finalHeaders,
+      ...getComputedHeaders(headers),
       "content-type": "application/json",
     },
     data: JSON.stringify({
@@ -335,7 +343,7 @@ export const runGQLOperation = async (options: RunQueryOptions) => {
   }
 
   if (operationType === "subscription") {
-    return runSubscription(options, finalHeaders)
+    return runSubscription(options, getComputedHeaders(headers))
   }
 
   const interceptorService = getService(InterceptorService)

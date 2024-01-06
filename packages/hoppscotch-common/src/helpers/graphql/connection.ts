@@ -2,7 +2,7 @@ import {
   GQLHeader,
   HoppGQLAuth,
   makeGQLRequest,
-  parseTemplateString,
+  parseTemplateStringE,
 } from "@hoppscotch/data"
 import { OperationType } from "@urql/core"
 import * as E from "fp-ts/Either"
@@ -207,8 +207,10 @@ const getComputedHeaders = (headers: GQLHeader[]) => {
   for (const header of headers.filter(
     (item) => item.active && item.key !== ""
   )) {
-    header.key = parseTemplateString(header.key, finalEnvVariables)
-    header.value = parseTemplateString(header.value, finalEnvVariables)
+    let parseResult = parseTemplateStringE(header.value, finalEnvVariables)
+    header.key = E.isLeft(parseResult) ? "error" : result.right
+    parseResult = parseTemplateStringE(header.value, finalEnvVariables)
+    header.value = E.isLeft(parseResult) ? "error" : result.right
 
     result[header.key] = header.value
   }
@@ -220,7 +222,9 @@ const getComputedUrl = (url: string) => {
   const envVariables = getCombinedEnvVariables()
   const finalEnvVariables = [...envVariables.selected, ...envVariables.global]
 
-  return parseTemplateString(url, finalEnvVariables)
+  const parseResult = parseTemplateStringE(url, finalEnvVariables)
+
+  return E.isLeft(parseResult) ? "error" : parseResult.right
 }
 
 const getSchema = async (url: string, headers: GQLHeader[]) => {
@@ -321,8 +325,14 @@ export const runGQLOperation = async (options: RunQueryOptions) => {
   const finalEnvVariables = [...envVariables.selected, ...envVariables.global]
 
   for (const variable of Object.keys(parsedVariables)) {
-    finalVariables[parseTemplateString(variable, finalEnvVariables)] =
-      parseTemplateString(parsedVariables[variable], finalEnvVariables)
+    const parseResultKey = parseTemplateStringE(variable, finalEnvVariables)
+    const parseResultValue = parseTemplateStringE(
+      parsedVariables[variable],
+      finalEnvVariables
+    )
+
+    finalVariables[E.isLeft(parseResultKey) ? "error" : parseResultKey.right] =
+      E.isLeft(parseResultValue) ? "error" : parseResultValue.right
   }
 
   const reqOptions = {

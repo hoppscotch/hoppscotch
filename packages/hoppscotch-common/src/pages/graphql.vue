@@ -53,6 +53,10 @@
               @update:model-value="onTabUpdate"
             />
           </HoppSmartWindow>
+
+          <template #actions>
+            <EnvironmentsSelector class="h-full" />
+          </template>
         </HoppSmartWindows>
       </template>
       <template #sidebar>

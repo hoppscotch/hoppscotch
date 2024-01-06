@@ -267,6 +267,7 @@ export const runGQLOperation = async (options: RunQueryOptions) => {
   const finalHeaders: Record<string, string> = {}
 
   const parsedVariables = JSON.parse(variables || "{}")
+  const finalVariables: Record<string, any> = {}
 
   const params: Record<string, string> = {}
 
@@ -300,19 +301,20 @@ export const runGQLOperation = async (options: RunQueryOptions) => {
   }
 
   const envVariables = getCombinedEnvVariables()
+  const finalEnvVariables = [...envVariables.selected, ...envVariables.global]
+
   for (const header of headers.filter(
     (item) => item.active && item.key !== ""
   )) {
-    header.key = parseTemplateString(header.key, [
-      ...envVariables.selected,
-      ...envVariables.global,
-    ])
-    header.value = parseTemplateString(header.value, [
-      ...envVariables.selected,
-      ...envVariables.global,
-    ])
+    header.key = parseTemplateString(header.key, finalEnvVariables)
+    header.value = parseTemplateString(header.value, finalEnvVariables)
 
     finalHeaders[header.key] = header.value
+  }
+
+  for (const variable of Object.keys(parsedVariables)) {
+    finalVariables[parseTemplateString(variable, finalEnvVariables)] =
+      parseTemplateString(parsedVariables[variable], finalEnvVariables)
   }
 
   const reqOptions = {
@@ -324,7 +326,7 @@ export const runGQLOperation = async (options: RunQueryOptions) => {
     },
     data: JSON.stringify({
       query,
-      variables: parsedVariables,
+      variables: finalVariables,
       operationName,
     }),
     params: {

@@ -93,6 +93,7 @@ import {
   socketDisconnect,
   subscriptionState,
 } from "~/helpers/graphql/connection"
+import { EditorView } from "@codemirror/view"
 
 const t = useI18n()
 const toast = useToast()
@@ -112,7 +113,7 @@ const selectedOperation = ref<gql.OperationDefinitionNode | null>(null)
 
 const variableString = useVModel(props, "modelValue", emit)
 
-const variableEditor = ref<any | null>(null)
+const variableEditor = ref<EditorView>()
 
 const linewrapEnabled = ref(false)
 
@@ -137,7 +138,7 @@ useCodemirror(
       variableString.value.length > 0 ? jsonLinter : null
     ),
     completer: null,
-    environmentHighlights: false,
+    environmentHighlights: true,
   })
 )
 

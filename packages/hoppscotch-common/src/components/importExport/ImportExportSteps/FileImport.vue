@@ -70,7 +70,7 @@ const onFileChange = async () => {
   }
 
   if (!inputFileToImport.files || inputFileToImport.files.length === 0) {
-    inputChooseFileToImportFrom.value[0].value = ""
+    inputChooseFileToImportFrom.value = ""
     hasFile.value = false
     toast.show(t("action.choose_file").toString())
     return

@@ -26,7 +26,8 @@ const isScalar = computed(() => {
 
 function resolveRootType(type: GraphQLType) {
   let t = type as any
-  while (t.ofType !== null) t = t.ofType
+  // We can't do !== here because it's possible to have a type that is not null or undefined but still not have an ofType property
+  while (t.ofType != null) t = t.ofType
   return t
 }
 

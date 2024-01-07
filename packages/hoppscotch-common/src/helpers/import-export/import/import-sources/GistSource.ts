@@ -17,7 +17,7 @@ export function GistSource(metadata: {
 
   return defineStep(stepID, UrlImport, () => ({
     caption: metadata.caption,
-    onImportFromURL: (gistResponse) => {
+    onImportFromURL: (gistResponse: Record<string, unknown>) => {
       const fileSchema = z.object({
         files: z.record(z.object({ content: z.string() })),
       })

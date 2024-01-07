@@ -11,12 +11,23 @@ import { z } from "zod"
 export const hoppEnvImporter = (contents: string[]) => {
   const parsedContents = contents.map((str) => safeParseJSON(str))
 
-  // check if any of the JSON parse results is None
   if (parsedContents.some((parsed) => O.isNone(parsed))) {
     return TE.left(IMPORTER_INVALID_FILE_FORMAT)
   }
 
-  const parsedValues = parsedContents.flatMap((parsed) => O.toNullable(parsed))
+  const parsedValues = parsedContents.flatMap((content) => {
+    const unwrappedContent = O.toNullable(content) as HoppEnv[]
+
+    return unwrappedContent.map((contentEntry) => {
+      return {
+        ...contentEntry,
+        variables: contentEntry.variables.map((valueEntry) => ({
+          ...valueEntry,
+          value: String(valueEntry.value),
+        })),
+      }
+    })
+  })
 
   const validationResult = z
     .array(entityReference(Environment))

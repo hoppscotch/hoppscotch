@@ -1,4 +1,3 @@
-import * as A from "fp-ts/Array"
 import * as TE from "fp-ts/TaskEither"
 import * as O from "fp-ts/Option"
 

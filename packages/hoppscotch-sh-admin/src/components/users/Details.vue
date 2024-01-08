@@ -1,6 +1,6 @@
 <template>
   <div class="rounded-md">
-    <div class="grid gap-6 mt-4">
+    <div class="grid gap-6">
       <div
         class="relative"
         :class="

@@ -256,15 +256,6 @@ function newUseArrowKeysForNavigation() {
     const [sectionID, section] = scoredResults.value[sectionIndex]
     const result = section.results[entryIndex]
 
-    const analyticsData: HoppSpotlightSessionEventData = {
-      action: "success",
-      inputLength: search.value.length,
-      rank: result.score,
-      // sessionDuration: ""
-    }
-
-    logSpotlightSessionAnalyticsEvent(analyticsData)
-
     runAction(sectionID, result)
   }
 
@@ -304,20 +295,11 @@ function newUseArrowKeysForNavigation() {
 function closeSpotlightModal() {
   const analyticsData: HoppSpotlightSessionEventData = {
     action: "close",
-    inputLength: search.value.length,
     rank: null,
   }
-  logSpotlightSessionAnalyticsEvent(analyticsData)
+
+  spotlightService.setAnalyticsData(analyticsData)
 
   emit("hide-modal")
-}
-
-function logSpotlightSessionAnalyticsEvent(
-  analyticsData: HoppSpotlightSessionEventData
-) {
-  platform.analytics?.logEvent({
-    type: "HOPP_SPOTLIGHT_SESSION",
-    ...analyticsData,
-  })
 }
 </script>

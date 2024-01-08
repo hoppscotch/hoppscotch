@@ -77,6 +77,7 @@ import { applySetting } from "~/newstore/settings"
 import { platform } from "~/platform"
 import { HoppSpotlightSessionEventData } from "~/platform/analytics"
 import { PersistenceService } from "~/services/persistence"
+import { SpotlightService } from "~/services/spotlight"
 
 const router = useRouter()
 
@@ -94,6 +95,7 @@ const toast = useToast()
 const t = useI18n()
 
 const persistenceService = useService(PersistenceService)
+const spotlightService = useService(SpotlightService)
 
 onBeforeMount(() => {
   if (!mdAndLarger.value) {
@@ -153,8 +155,7 @@ defineActionHandler("modals.search.toggle", (_, trigger) => {
     keypress: "keyboard-shortcut",
     mouseclick: "click-spotlight-bar",
   }
-  platform.analytics?.logEvent({
-    type: "HOPP_SPOTLIGHT_SESSION",
+  spotlightService.setAnalyticsData({
     method: triggerMethodMap[trigger as InvocationTriggers],
   })
 

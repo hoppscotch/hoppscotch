@@ -1,5 +1,8 @@
 import { Service } from "dioc"
-import { watch, type Ref, ref, reactive, effectScope, Component } from "vue"
+import { Component, effectScope, reactive, ref, watch, type Ref } from "vue"
+
+import { platform } from "~/platform"
+import { HoppSpotlightSessionEventData } from "~/platform/analytics"
 
 /**
  * Defines how to render the entry text in a Spotlight Search Result
@@ -117,6 +120,8 @@ export class SpotlightService extends Service {
 
   private searchers: Map<string, SpotlightSearcher> = new Map()
 
+  private analyticsData: HoppSpotlightSessionEventData = {}
+
   /**
    * Registers a searcher with the spotlight service
    * @param searcher The searcher instance to register
@@ -176,6 +181,7 @@ export class SpotlightService extends Service {
                 results: newState.results,
               }
             }
+            this.setAnalyticsData({ inputLength: query.value.length })
           },
           { immediate: true }
         )
@@ -198,6 +204,19 @@ export class SpotlightService extends Service {
       for (const onEnd of onSessionEndList) {
         onEnd()
       }
+
+      console.log(
+        `About to log spotlight session event with ${JSON.stringify(
+          this.analyticsData,
+          null,
+          2
+        )}`
+      )
+
+      platform.analytics?.logEvent({
+        type: "HOPP_SPOTLIGHT_SESSION",
+        ...this.analyticsData,
+      })
     }
 
     return [resultObj, onSearchEnd]
@@ -213,5 +232,10 @@ export class SpotlightService extends Service {
     result: SpotlightSearcherResult
   ) {
     this.searchers.get(searcherID)?.onResultSelect(result)
+    this.setAnalyticsData({ action: "success", rank: result.score })
+  }
+
+  public setAnalyticsData(data: HoppSpotlightSessionEventData) {
+    this.analyticsData = { ...this.analyticsData, ...data }
   }
 }

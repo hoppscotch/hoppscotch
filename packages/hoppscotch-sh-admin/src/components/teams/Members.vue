@@ -198,7 +198,7 @@ const teamDetails = useVModel(props, 'team', emit);
 // Used to Invoke the Invite Members Modal
 const showInvite = ref(false);
 
-const { fetchData: getTeamInfo, fetchedData: teamInfo } = useClientHandler(
+const { fetchData: getTeamInfo, data: teamInfo } = useClientHandler(
   TeamInfoDocument,
   {
     teamID: route.params.id.toString(),

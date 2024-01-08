@@ -20,21 +20,22 @@ const postmanEnvSchema = z.object({
 type PostmanEnv = z.infer<typeof postmanEnvSchema>
 
 export const postmanEnvImporter = (contents: string[]) => {
-  const parsedContents = contents.map((str) => safeParseJSON(str))
+  const parsedContents = contents.map((str) => safeParseJSON(str, true))
   if (parsedContents.some((parsed) => O.isNone(parsed))) {
     return TE.left(IMPORTER_INVALID_FILE_FORMAT)
   }
 
   const parsedValues = parsedContents.flatMap((parsed) => {
-    const unwrappedEntry = O.toNullable(parsed) as PostmanEnv | null
+    const unwrappedEntry = O.toNullable(parsed) as PostmanEnv[] | null
+
     if (unwrappedEntry) {
-      return {
-        ...unwrappedEntry,
-        values: unwrappedEntry.values.map((valueEntry) => ({
+      return unwrappedEntry.map((entry) => ({
+        ...entry,
+        values: entry.values?.map((valueEntry) => ({
           ...valueEntry,
           value: String(valueEntry.value),
         })),
-      }
+      }))
     }
     return null
   })

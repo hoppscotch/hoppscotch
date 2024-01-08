@@ -5,7 +5,6 @@ import {
   QueryParam,
   RequestAuthDefinition,
   VariableDefinition,
-  CollectionDefinition,
 } from "postman-collection"
 import {
   HoppRESTAuth,
@@ -52,8 +51,8 @@ const PMRawLanguageOptionsToContentTypeMap: Record<
 const isPMItemGroup = (x: unknown): x is ItemGroup<Item> =>
   ItemGroup.isItemGroup(x)
 
-const readPMCollection = (def: string) => {
-  return pipe(
+const readPMCollection = (def: string) =>
+  pipe(
     def,
     safeParseJSON,
     O.chain((data) =>
@@ -62,7 +61,6 @@ const readPMCollection = (def: string) => {
       })
     )
   )
-}
 
 const getHoppReqHeaders = (item: Item): HoppRESTHeader[] =>
   pipe(
@@ -306,8 +304,8 @@ export const getHoppCollections = (collections: PMCollection[]) => {
   return collections.map(getHoppFolder)
 }
 
-export const hoppPostmanImporter = (fileContents: string[]) => {
-  return pipe(
+export const hoppPostmanImporter = (fileContents: string[]) =>
+  pipe(
     // Try reading
     fileContents,
     A.traverse(O.Applicative)(readPMCollection),
@@ -316,4 +314,3 @@ export const hoppPostmanImporter = (fileContents: string[]) => {
 
     TE.fromOption(() => IMPORTER_INVALID_FILE_FORMAT)
   )
-}

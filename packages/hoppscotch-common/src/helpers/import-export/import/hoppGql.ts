@@ -6,12 +6,7 @@ export const hoppGqlCollectionsImporter = (
   contents: string[]
 ): E.Either<"INVALID_JSON", HoppCollection[]> => {
   return E.tryCatch(
-    () =>
-      contents.flatMap((content) => {
-        const data = JSON.parse(content)
-        const result = Array.isArray(data) ? data : [data]
-        return result
-      }) as HoppCollection[],
+    () => contents.flatMap((content) => JSON.parse(content)),
     () => "INVALID_JSON"
   )
 }

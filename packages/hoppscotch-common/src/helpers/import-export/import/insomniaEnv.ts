@@ -35,7 +35,7 @@ export const insomniaEnvImporter = (contents: string[]) => {
     return TE.left(IMPORTER_INVALID_FILE_FORMAT)
   }
 
-  const parsedValues = parsedContents.flatMap((parsed) => O.toNullable(parsed))
+  const parsedValues = parsedContents.map((parsed) => O.toNullable(parsed))
 
   const validationResult = z
     .array(insomniaResourcesSchema)

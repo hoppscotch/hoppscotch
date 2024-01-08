@@ -16,17 +16,20 @@ export const hoppEnvImporter = (contents: string[]) => {
   }
 
   const parsedValues = parsedContents.flatMap((content) => {
-    const unwrappedContent = O.toNullable(content) as HoppEnv[]
+    const unwrappedContent = O.toNullable(content) as HoppEnv[] | null
 
-    return unwrappedContent.map((contentEntry) => {
-      return {
-        ...contentEntry,
-        variables: contentEntry.variables.map((valueEntry) => ({
-          ...valueEntry,
-          value: String(valueEntry.value),
-        })),
-      }
-    })
+    if (unwrappedContent) {
+      return unwrappedContent.map((contentEntry) => {
+        return {
+          ...contentEntry,
+          variables: contentEntry.variables?.map((valueEntry) => ({
+            ...valueEntry,
+            value: String(valueEntry.value),
+          })),
+        }
+      })
+    }
+    return null
   })
 
   const validationResult = z

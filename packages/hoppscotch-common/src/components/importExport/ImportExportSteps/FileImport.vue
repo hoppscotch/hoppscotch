@@ -83,18 +83,27 @@ const onFileChange = async () => {
     const reader = new FileReader()
 
     readerPromises.push(
-      new Promise((resolve) => {
+      new Promise((resolve, reject) => {
         reader.onload = () => resolve(reader.result as string | null)
+        reader.onerror = reject
         reader.readAsText(file)
       })
     )
   }
 
-  const contents = await Promise.all(readerPromises)
+  const results = await Promise.allSettled(readerPromises)
 
-  const contentsArr = contents.filter(Boolean) as string[]
+  const contentsArr = results
+    .filter((result) => result.status === "fulfilled")
+    .map((result) => (result as { value: string | null }).value)
+    .filter(Boolean) as string[]
+
+  const errors = results.filter((result) => result.status === "rejected")
+  if (errors.length) {
+    toast.error(t("error.reading_files"))
+  }
+
   fileContent.value = contentsArr
-
   hasFile.value = contentsArr.length > 0
 }
 </script>

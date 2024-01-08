@@ -1,6 +1,6 @@
 import { TypedDocumentNode, useClientHandle } from '@urql/vue';
 import { DocumentNode } from 'graphql';
-import { ref } from 'vue';
+import { Ref, ref } from 'vue';
 
 /** A composable function to handle grapqhl requests
  * using urql's useClientHandle
@@ -21,7 +21,7 @@ export function useClientHandler<
   const fetching = ref(true);
   const error = ref(false);
   const data = ref<Result>();
-  const dataAsList = ref<ListItem[]>([]);
+  const dataAsList: Ref<ListItem[]> = ref([]);
 
   const fetchData = async () => {
     fetching.value = true;

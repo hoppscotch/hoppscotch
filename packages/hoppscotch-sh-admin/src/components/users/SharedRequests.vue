@@ -6,11 +6,11 @@
 
     <div v-else-if="error">{{ t('shared_requests.load_list_error') }}</div>
 
-    <div v-else-if="sharedRequests.length === 0" class="ml-3 mt-5 text-lg">
+    <div v-else-if="sharedRequests.length === 0" class="mt-5">
       {{ t('users.no_shared_requests') }}
     </div>
 
-    <div v-else class="mt-10">
+    <div v-else class="mt-7">
       <HoppSmartTable :list="sharedRequests">
         <template #head>
           <tr

@@ -1,6 +1,6 @@
 <template>
   <div class="flex items-center py-1">
-    <span class="flex flex-1 mr-4">
+    <span class="mr-4 flex flex-1">
       {{ shortcut.label }}
     </span>
     <kbd

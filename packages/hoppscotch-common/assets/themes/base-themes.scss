@@ -1,0 +1,141 @@
+@mixin base-theme {
+  --font-sans: "Inter Variable", sans-serif;
+  --font-mono: "Roboto Mono Variable", monospace;
+  --font-size-body: 0.75rem;
+  --font-size-tiny: 0.625rem;
+  --line-height-body: 1rem;
+  --upper-primary-sticky-fold: 4.125rem;
+  --upper-secondary-sticky-fold: 6.188rem;
+  --upper-tertiary-sticky-fold: 8.25rem;
+  --upper-fourth-sticky-fold: 10.2rem;
+  --upper-mobile-primary-sticky-fold: 6.75rem;
+  --upper-mobile-secondary-sticky-fold: 8.813rem;
+  --upper-mobile-sticky-fold: 10.875rem;
+  --upper-mobile-tertiary-sticky-fold: 8.25rem;
+  --lower-primary-sticky-fold: 3rem;
+  --lower-secondary-sticky-fold: 5.063rem;
+  --lower-tertiary-sticky-fold: 7.125rem;
+  --lower-fourth-sticky-fold: 9.188rem;
+  --sidebar-primary-sticky-fold: 2rem;
+  --properties-primary-sticky-fold: 2.063rem;
+}
+
+@mixin light-theme {
+  --primary-color: theme("colors.white");
+  --primary-light-color: theme("colors.gray.50");
+  --primary-dark-color: theme("colors.gray.100");
+  --primary-contrast-color: #fdfdfd;
+
+  --secondary-color: theme("colors.gray.500");
+  --secondary-light-color: theme("colors.gray.400");
+  --secondary-dark-color: theme("colors.gray.900");
+
+  --divider-color: theme("colors.gray.100");
+  --divider-light-color: theme("colors.gray.100");
+  --divider-dark-color: theme("colors.gray.300");
+
+  --banner-info-color: theme("colors.stone.100");
+  --banner-warning-color: theme("colors.yellow.100");
+  --banner-error-color: theme("colors.red.100");
+
+  --tooltip-color: theme("colors.neutral.800");
+  --popover-color: theme("colors.white");
+
+  --method-get-color: theme("colors.green.500");
+  --method-post-color: theme("colors.amber.500");
+  --method-put-color: theme("colors.blue.500");
+  --method-patch-color: theme("colors.purple.500");
+  --method-delete-color: theme("colors.red.500");
+  --method-head-color: theme("colors.lime.500");
+  --method-options-color: theme("colors.pink.500");
+  --method-default-color: theme("colors.gray.500");
+
+  --status-info-color: theme("colors.blue.500");
+  --status-success-color: theme("colors.green.500");
+  --status-redirect-color: theme("colors.amber.500");
+  --status-critical-error-color: theme("colors.red.500");
+  --status-server-error-color: theme("colors.rose.500");
+  --status-missing-data-color: theme("colors.slate.500");
+
+  --editor-theme: "textmate";
+}
+
+@mixin dark-theme {
+  --primary-color: #181818;
+  --primary-light-color: #1c1c1e;
+  --primary-dark-color: theme("colors.neutral.800");
+  --primary-contrast-color: theme("colors.neutral.900");
+
+  --secondary-color: theme("colors.neutral.400");
+  --secondary-light-color: theme("colors.neutral.500");
+  --secondary-dark-color: theme("colors.zinc.50");
+
+  --divider-color: #1f1f1f;
+  --divider-light-color: #1f1f1f;
+  --divider-dark-color: theme("colors.zinc.800");
+
+  --banner-info-color: theme("colors.stone.800");
+  --banner-warning-color: theme("colors.yellow.800");
+  --banner-error-color: theme("colors.red.800");
+
+  --tooltip-color: theme("colors.neutral.100");
+  --popover-color: #1b1b1b;
+
+  --method-get-color: theme("colors.emerald.500");
+  --method-post-color: theme("colors.yellow.500");
+  --method-put-color: theme("colors.sky.500");
+  --method-patch-color: theme("colors.violet.500");
+  --method-delete-color: theme("colors.rose.500");
+  --method-head-color: theme("colors.teal.500");
+  --method-options-color: theme("colors.indigo.500");
+  --method-default-color: theme("colors.neutral.500");
+
+  --status-info-color: theme("colors.blue.500");
+  --status-success-color: theme("colors.green.500");
+  --status-redirect-color: theme("colors.amber.500");
+  --status-critical-error-color: theme("colors.red.500");
+  --status-server-error-color: theme("colors.rose.500");
+  --status-missing-data-color: theme("colors.slate.500");
+
+  --editor-theme: "merbivore_soft";
+}
+
+@mixin black-theme {
+  --primary-color: #0f0f0f;
+  --primary-light-color: theme("colors.neutral.900");
+  --primary-dark-color: #181818;
+  --primary-contrast-color: #0f0f0f;
+
+  --secondary-color: theme("colors.neutral.400");
+  --secondary-light-color: theme("colors.neutral.500");
+  --secondary-dark-color: theme("colors.neutral.50");
+
+  --divider-color: theme("colors.neutral.900");
+  --divider-light-color: theme("colors.neutral.900");
+  --divider-dark-color: theme("colors.zinc.800");
+
+  --banner-info-color: theme("colors.stone.900");
+  --banner-warning-color: theme("colors.yellow.900");
+  --banner-error-color: theme("colors.red.900");
+
+  --tooltip-color: theme("colors.neutral.100");
+  --popover-color: theme("colors.stone.950");
+
+  --method-get-color: theme("colors.emerald.500");
+  --method-post-color: theme("colors.yellow.500");
+  --method-put-color: theme("colors.sky.500");
+  --method-patch-color: theme("colors.violet.500");
+  --method-delete-color: theme("colors.rose.500");
+  --method-head-color: theme("colors.teal.500");
+  --method-options-color: theme("colors.indigo.500");
+  --method-default-color: theme("colors.zinc.500");
+
+  --status-info-color: theme("colors.blue.500");
+  --status-success-color: theme("colors.green.500");
+  --status-redirect-color: theme("colors.amber.500");
+  --status-critical-error-color: theme("colors.red.500");
+  --status-server-error-color: theme("colors.rose.500");
+  --status-missing-data-color: theme("colors.slate.500");
+
+  --editor-theme: "twilight";
+}

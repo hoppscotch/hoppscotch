@@ -1,5 +1,5 @@
 <template>
-  <div class="flex justify-center items-center">
+  <div class="flex items-center justify-center">
     <HoppSmartSpinner />
   </div>
 </template>

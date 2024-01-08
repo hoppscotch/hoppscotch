@@ -1,0 +1,6 @@
+query InfraConfigs($configNames: [InfraConfigEnum!]!) {
+  infraConfigs(configNames: $configNames) {
+    name
+    value
+  }
+}

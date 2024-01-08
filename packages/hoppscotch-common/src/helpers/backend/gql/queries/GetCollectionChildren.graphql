@@ -3,6 +3,7 @@ query GetCollectionChildren($collectionID: ID!, $cursor: ID) {
     children(cursor: $cursor) {
       id
       title
+      data
     }
   }
 }

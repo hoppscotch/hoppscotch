@@ -21,8 +21,8 @@ import {
 } from 'src/team-request/team-request.model';
 import { TeamInvitation } from 'src/team-invitation/team-invitation.model';
 import { InvitedUser } from '../admin/invited-user.model';
-import { UserCollection } from '@prisma/client';
 import {
+  UserCollection,
   UserCollectionRemovedData,
   UserCollectionReorderData,
 } from 'src/user-collection/user-collections.model';
@@ -69,5 +69,7 @@ export type TopicDef = {
   [topic: `team_req/${string}/req_deleted`]: string;
   [topic: `team/${string}/invite_added`]: TeamInvitation;
   [topic: `team/${string}/invite_removed`]: string;
-  [topic: `shortcode/${string}/${'created' | 'revoked'}`]: Shortcode;
+  [
+    topic: `shortcode/${string}/${'created' | 'revoked' | 'updated'}`
+  ]: Shortcode;
 };

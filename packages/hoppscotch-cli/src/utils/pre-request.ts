@@ -6,23 +6,24 @@ import {
   parseTemplateString,
   parseTemplateStringE,
 } from "@hoppscotch/data";
-import { runPreRequestScript } from "@hoppscotch/js-sandbox";
-import { flow, pipe } from "fp-ts/function";
-import * as TE from "fp-ts/TaskEither";
-import * as E from "fp-ts/Either";
-import * as RA from "fp-ts/ReadonlyArray";
+import { runPreRequestScript } from "@hoppscotch/js-sandbox/node";
 import * as A from "fp-ts/Array";
+import * as E from "fp-ts/Either";
 import * as O from "fp-ts/Option";
+import * as RA from "fp-ts/ReadonlyArray";
+import * as TE from "fp-ts/TaskEither";
+import { flow, pipe } from "fp-ts/function";
 import * as S from "fp-ts/string";
 import qs from "qs";
+
 import { EffectiveHoppRESTRequest } from "../interfaces/request";
-import { error, HoppCLIError } from "../types/errors";
+import { HoppCLIError, error } from "../types/errors";
 import { HoppEnvs } from "../types/request";
-import { isHoppCLIError } from "./checks";
-import { tupleToRecord, arraySort, arrayFlatMap } from "./functions/array";
-import { toFormData } from "./mutators";
-import { getEffectiveFinalMetaData } from "./getters";
 import { PreRequestMetrics } from "../types/response";
+import { isHoppCLIError } from "./checks";
+import { arrayFlatMap, arraySort, tupleToRecord } from "./functions/array";
+import { getEffectiveFinalMetaData } from "./getters";
+import { toFormData } from "./mutators";
 
 /**
  * Runs pre-request-script runner over given request which extracts set ENVs and

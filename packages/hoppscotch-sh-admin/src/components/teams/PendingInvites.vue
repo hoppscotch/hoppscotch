@@ -41,10 +41,12 @@
         v-if="team && pendingInvites?.length === 0"
         text="No pending invites"
       >
-        <div v-if="!fetching && error" class="flex flex-col items-center p-4">
-          <icon-lucide-help-circle class="mb-4 svg-icons" />
-          Something went wrong. Please try again later.
-        </div>
+        <template #body>
+          <div v-if="!fetching && error" class="flex flex-col items-center p-4">
+            <icon-lucide-help-circle class="mb-4 svg-icons" />
+            {{ t('error.something_went_wrong') }}
+          </div>
+        </template>
       </HoppSmartPlaceholder>
     </div>
   </div>
@@ -72,9 +74,9 @@ const fetching = ref(true);
 const error = ref(false);
 const { client } = useClientHandle();
 const route = useRoute();
-const team = ref<TeamInfoQuery['admin']['teamInfo'] | undefined>();
+const team = ref<TeamInfoQuery['infra']['teamInfo'] | undefined>();
 const pendingInvites = ref<
-  TeamInfoQuery['admin']['teamInfo']['teamInvitations'] | undefined
+  TeamInfoQuery['infra']['teamInfo']['teamInvitations'] | undefined
 >();
 
 const getTeamInfo = async () => {
@@ -88,8 +90,8 @@ const getTeamInfo = async () => {
     return toast.error(`${t('teams.load_info_error')}`);
   }
 
-  if (result.data?.admin.teamInfo) {
-    team.value = result.data.admin.teamInfo;
+  if (result.data?.infra.teamInfo) {
+    team.value = result.data.infra.teamInfo;
     pendingInvites.value = team.value.teamInvitations;
   }
   fetching.value = false;

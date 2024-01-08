@@ -20,8 +20,7 @@
         :src="`/images/states/${colorMode.value}/add_comment.svg`"
         :alt="`${t('empty.documentation')}`"
         :text="t('empty.documentation')"
-      >
-      </HoppSmartPlaceholder>
+      />
       <div v-else>
         <div
           class="sticky top-0 z-10 flex flex-shrink-0 overflow-x-auto bg-primary"
@@ -30,7 +29,7 @@
             v-model="graphqlFieldsFilterText"
             type="search"
             autocomplete="off"
-            class="flex w-full p-4 py-2 bg-transparent h-8"
+            class="flex w-full bg-transparent px-4 py-2 h-8"
             :placeholder="`${t('action.search')}`"
           />
           <div class="flex">
@@ -112,9 +111,9 @@
     <HoppSmartTab :id="'schema'" :icon="IconBox" :label="`${t('tab.schema')}`">
       <div
         v-if="schemaString"
-        class="sticky top-0 z-10 flex items-center justify-between flex-shrink-0 pl-4 overflow-x-auto border-b bg-primary border-dividerLight"
+        class="sticky top-0 z-10 flex flex-shrink-0 items-center justify-between overflow-x-auto border-b border-dividerLight bg-primary pl-4"
       >
-        <label class="font-semibold truncate text-secondaryLight">
+        <label class="truncate font-semibold text-secondaryLight">
           {{ t("graphql.schema") }}
         </label>
         <div class="flex">
@@ -149,7 +148,7 @@
       <div
         v-if="schemaString"
         ref="schemaEditor"
-        class="flex flex-col flex-1"
+        class="flex flex-1 flex-col"
       ></div>
       <HoppSmartPlaceholder
         v-else

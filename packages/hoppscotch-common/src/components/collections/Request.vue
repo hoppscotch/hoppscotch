@@ -13,7 +13,7 @@
       @dragend="resetDragState"
     ></div>
     <div
-      class="flex items-stretch group"
+      class="group flex items-stretch"
       :draggable="!hasNoTeamAccess"
       @drop="handelDrop"
       @dragstart="dragStart"
@@ -23,12 +23,12 @@
       @contextmenu.prevent="options?.tippy.show()"
     >
       <div
-        class="flex items-center justify-center flex-1 min-w-0 cursor-pointer pointer-events-auto"
+        class="pointer-events-auto flex min-w-0 flex-1 cursor-pointer items-center justify-center"
         @click="selectRequest()"
       >
         <span
-          class="flex items-center justify-center w-16 px-2 truncate pointer-events-none"
-          :class="requestLabelColor"
+          class="pointer-events-none flex w-16 items-center justify-center truncate px-2"
+          :style="{ color: getMethodLabelColorClassOf(request) }"
         >
           <component
             :is="IconCheckCircle"
@@ -37,12 +37,12 @@
             :class="{ 'text-accent': isSelected }"
           />
           <HoppSmartSpinner v-else-if="isRequestLoading" />
-          <span v-else class="font-semibold truncate text-tiny">
+          <span v-else class="truncate text-tiny font-semibold">
             {{ request.method }}
           </span>
         </span>
         <span
-          class="flex items-center flex-1 min-w-0 py-2 pr-2 pointer-events-none transition group-hover:text-secondaryDark"
+          class="pointer-events-none flex min-w-0 flex-1 items-center py-2 pr-2 transition group-hover:text-secondaryDark"
         >
           <span class="truncate" :class="{ 'text-accent': isSelected }">
             {{ request.name }}
@@ -50,15 +50,15 @@
           <span
             v-if="isActive"
             v-tippy="{ theme: 'tooltip' }"
-            class="relative h-1.5 w-1.5 flex flex-shrink-0 mx-3"
+            class="relative mx-3 flex h-1.5 w-1.5 flex-shrink-0"
             :title="`${t('collection.request_in_use')}`"
           >
             <span
-              class="absolute inline-flex flex-shrink-0 w-full h-full bg-green-500 rounded-full opacity-75 animate-ping"
+              class="absolute inline-flex h-full w-full flex-shrink-0 animate-ping rounded-full bg-green-500 opacity-75"
             >
             </span>
             <span
-              class="relative inline-flex flex-shrink-0 rounded-full h-1.5 w-1.5 bg-green-500"
+              class="relative inline-flex h-1.5 w-1.5 flex-shrink-0 rounded-full bg-green-500"
             ></span>
           </span>
         </span>
@@ -93,6 +93,7 @@
                 @keyup.e="edit?.$el.click()"
                 @keyup.d="duplicate?.$el.click()"
                 @keyup.delete="deleteAction?.$el.click()"
+                @keyup.s="shareAction?.$el.click()"
                 @keyup.escape="hide()"
               >
                 <HoppSmartItem
@@ -132,6 +133,18 @@
                     }
                   "
                 />
+                <HoppSmartItem
+                  ref="shareAction"
+                  :icon="IconShare2"
+                  :label="t('action.share')"
+                  :shortcut="['S']"
+                  @click="
+                    () => {
+                      emit('share-request')
+                      hide()
+                    }
+                  "
+                />
               </div>
             </template>
           </tippy>
@@ -161,6 +174,7 @@ import IconEdit from "~icons/lucide/edit"
 import IconCopy from "~icons/lucide/copy"
 import IconTrash2 from "~icons/lucide/trash-2"
 import IconRotateCCW from "~icons/lucide/rotate-ccw"
+import IconShare2 from "~icons/lucide/share-2"
 import { ref, PropType, watch, computed } from "vue"
 import { HoppRESTRequest } from "@hoppscotch/data"
 import { useI18n } from "@composables/i18n"
@@ -239,6 +253,7 @@ const emit = defineEmits<{
   (event: "duplicate-request"): void
   (event: "remove-request"): void
   (event: "select-request"): void
+  (event: "share-request"): void
   (event: "drag-request", payload: DataTransfer): void
   (event: "update-request-order", payload: DataTransfer): void
   (event: "update-last-request-order", payload: DataTransfer): void
@@ -249,6 +264,7 @@ const edit = ref<HTMLButtonElement | null>(null)
 const deleteAction = ref<HTMLButtonElement | null>(null)
 const options = ref<TippyComponent | null>(null)
 const duplicate = ref<HTMLButtonElement | null>(null)
+const shareAction = ref<HTMLButtonElement | null>(null)
 
 const dragging = ref(false)
 const ordering = ref(false)
@@ -259,10 +275,6 @@ const currentReorderingStatus = useReadonlyStream(currentReorderingStatus$, {
   id: "",
   parentID: "",
 })
-
-const requestLabelColor = computed(() =>
-  getMethodLabelColorClassOf(props.request)
-)
 
 watch(
   () => props.duplicateLoading,
@@ -362,9 +374,8 @@ const updateLastItemOrder = (e: DragEvent) => {
 const isRequestLoading = computed(() => {
   if (props.requestMoveLoading.length > 0 && props.requestID) {
     return props.requestMoveLoading.includes(props.requestID)
-  } else {
-    return false
   }
+  return false
 })
 
 const resetDragState = () => {

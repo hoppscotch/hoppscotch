@@ -11,6 +11,7 @@
     "connect": "Connect",
     "connecting": "Connecting",
     "copy": "Copy",
+    "create": "Create",
     "delete": "Delete",
     "disconnect": "Disconnect",
     "dismiss": "Dismiss",
@@ -32,6 +33,7 @@
     "open_workspace": "Open workspace",
     "paste": "Paste",
     "prettify": "Prettify",
+    "properties": "Properties",
     "remove": "Remove",
     "rename": "Rename",
     "restore": "Restore",
@@ -40,6 +42,7 @@
     "scroll_to_top": "Scroll to top",
     "search": "Search",
     "send": "Send",
+    "share": "Share",
     "start": "Start",
     "starting": "Starting",
     "stop": "Stop",
@@ -55,29 +58,12 @@
     "new": "Add new",
     "star": "Add star"
   },
-  "cookies": {
-    "modal": {
-      "new_domain_name": "New domain name",
-      "set": "Set a cookie",
-      "cookie_string": "Cookie string",
-      "enter_cookie_string": "Enter cookie string",
-      "cookie_name": "Name",
-      "cookie_value": "Value",
-      "cookie_path": "Path",
-      "cookie_expires": "Expires",
-      "managed_tab": "Managed",
-      "raw_tab": "Raw",
-      "interceptor_no_support": "Your currently selected interceptor does not support cookies. Select a different Interceptor and try again.",
-      "empty_domains": "Domain list is empty",
-      "empty_domain": "Domain is empty",
-      "no_cookies_in_domain": "No cookies set for this domain"
-    }
-  },
   "app": {
     "chat_with_us": "Chat with us",
     "contact_us": "Contact us",
     "cookies": "Cookies",
     "copy": "Copy",
+    "copy_interface_type": "Copy interface type",
     "copy_user_id": "Copy User Auth Token",
     "developer_option": "Developer options",
     "developer_option_description": "Developer tools which helps in development and maintenance of Hoppscotch.",
@@ -93,6 +79,7 @@
     "keyboard_shortcuts": "Keyboard shortcuts",
     "name": "Hoppscotch",
     "new_version_found": "New version found. Refresh to update.",
+    "open_in_hoppscotch": "Open in Hoppscotch",
     "options": "Options",
     "proxy_privacy_policy": "Proxy privacy policy",
     "reload": "Reload",
@@ -134,26 +121,28 @@
     "generate_token": "Generate Token",
     "graphql_headers": "Authorization Headers are sent as part of the payload to connection_init",
     "include_in_url": "Include in URL",
+    "inherited_from": "Inherited {auth} from parent collection {collection} ",
     "learn": "Learn how",
-    "pass_key_by": "Pass by",
-    "password": "Password",
-    "token": "Token",
-    "type": "Authorization Type",
-    "username": "Username",
     "oauth": {
-      "token_generation_oidc_discovery_failed": "Failure on token generation: OpenID Connect Discovery Failed",
-      "something_went_wrong_on_token_generation": "Something went wrong on token generation",
       "redirect_auth_server_returned_error": "Auth Server returned an error state",
-      "redirect_no_auth_code": "No Authorization Code present in the redirect",
+      "redirect_auth_token_request_failed": "Request to get the auth token failed",
+      "redirect_auth_token_request_invalid_response": "Invalid Response from the Token Endpoint when requesting for an auth token",
       "redirect_invalid_state": "Invalid State value present in the redirect",
-      "redirect_no_token_endpoint": "No Token Endpoint Defined",
+      "redirect_no_auth_code": "No Authorization Code present in the redirect",
       "redirect_no_client_id": "No Client ID defined",
       "redirect_no_client_secret": "No Client Secret Defined",
       "redirect_no_code_verifier": "No Code Verifier Defined",
-      "redirect_auth_token_request_failed": "Request to get the auth token failed",
-      "redirect_auth_token_request_invalid_response": "Invalid Response from the Token Endpoint when requesting for an auth token",
-      "something_went_wrong_on_oauth_redirect": "Something went wrong during OAuth Redirect"
-    }
+      "redirect_no_token_endpoint": "No Token Endpoint Defined",
+      "something_went_wrong_on_oauth_redirect": "Something went wrong during OAuth Redirect",
+      "something_went_wrong_on_token_generation": "Something went wrong on token generation",
+      "token_generation_oidc_discovery_failed": "Failure on token generation: OpenID Connect Discovery Failed"
+    },
+    "pass_key_by": "Pass by",
+    "password": "Password",
+    "save_to_inherit": "Please save this request in any collection to inherit the authorization",
+    "token": "Token",
+    "type": "Authorization Type",
+    "username": "Username"
   },
   "collection": {
     "created": "Collection created",
@@ -168,6 +157,8 @@
     "name_length_insufficient": "Collection name should be at least 3 characters long",
     "new": "New Collection",
     "order_changed": "Collection Order Updated",
+    "properties": "Collection Properties",
+    "properties_updated": "Collection Properties Updated",
     "renamed": "Collection renamed",
     "request_in_use": "Request in use",
     "save_as": "Save as",
@@ -187,6 +178,7 @@
     "remove_folder": "Are you sure you want to permanently delete this folder?",
     "remove_history": "Are you sure you want to permanently delete all history?",
     "remove_request": "Are you sure you want to permanently delete this request?",
+    "remove_shared_request": "Are you sure you want to permanently delete this shared request?",
     "remove_team": "Are you sure you want to delete this team?",
     "remove_telemetry": "Are you sure you want to opt-out of Telemetry?",
     "request_change": "Are you sure you want to discard current request, unsaved changes will be lost.",
@@ -197,6 +189,24 @@
     "add_parameters": "Add to parameters",
     "open_request_in_new_tab": "Open request in new tab",
     "set_environment_variable": "Set as variable"
+  },
+  "cookies": {
+    "modal": {
+      "cookie_expires": "Expires",
+      "cookie_name": "Name",
+      "cookie_path": "Path",
+      "cookie_string": "Cookie string",
+      "cookie_value": "Value",
+      "empty_domain": "Domain is empty",
+      "empty_domains": "Domain list is empty",
+      "enter_cookie_string": "Enter cookie string",
+      "interceptor_no_support": "Your currently selected interceptor does not support cookies. Select a different Interceptor and try again.",
+      "managed_tab": "Managed",
+      "new_domain_name": "New domain name",
+      "no_cookies_in_domain": "No cookies set for this domain",
+      "raw_tab": "Raw",
+      "set": "Set a cookie"
+    }
   },
   "count": {
     "header": "Header {count}",
@@ -228,7 +238,8 @@
     "profile": "Login to view your profile",
     "protocols": "Protocols are empty",
     "schema": "Connect to a GraphQL endpoint to view schema",
-    "shortcodes": "Shortcodes are empty",
+    "shared_requests": "Shared requests are empty",
+    "shared_requests_logout": "Login to view your shared requests or create a new one",
     "subscription": "Subscriptions are empty",
     "team_name": "Team name empty",
     "teams": "You don't belong to any teams",
@@ -269,6 +280,7 @@
     "variable_list": "Variable List"
   },
   "error": {
+    "authproviders_load_error": "Unable to load auth providers",
     "browser_support_sse": "This browser doesn't seems to have Server Sent Events support.",
     "check_console_details": "Check console log for details.",
     "check_how_to_add_origin": "Check how you can add an origin",
@@ -283,6 +295,7 @@
     "incorrect_email": "Incorrect email",
     "invalid_link": "Invalid link",
     "invalid_link_description": "The link you clicked is invalid or expired.",
+    "invalid_embed_link": "The embed does not exist or is invalid.",
     "json_parsing_failed": "Invalid JSON",
     "json_prettify_invalid_body": "Couldn't prettify an invalid body, solve json syntax errors and try again",
     "network_error": "There seems to be a network error. Please try again.",
@@ -301,9 +314,12 @@
   "export": {
     "as_json": "Export as JSON",
     "create_secret_gist": "Create secret Gist",
-    "gist_created": "Gist created",
+    "create_secret_gist_tooltip_text": "Export as secret Gist",
+    "failed": "Something went wrong while exporting",
+    "secret_gist_success": "Successfully exported as secret Gist",
     "require_github": "Login with GitHub to create secret gist",
-    "title": "Export"
+    "title": "Export",
+    "success": "Successfully exported"
   },
   "filter": {
     "all": "All",
@@ -327,6 +343,9 @@
     "subscriptions": "Subscriptions",
     "switch_connection": "Switch connection"
   },
+  "graphql_collections": {
+    "title": "GraphQL Collections"
+  },
   "group": {
     "time": "Time",
     "url": "URL"
@@ -338,10 +357,12 @@
   },
   "helpers": {
     "authorization": "The authorization header will be automatically generated when you send the request.",
+    "collection_properties_authorization": " This authorization will be set for every request in this collection.",
+    "collection_properties_header": "This header will be set for every request in this collection.",
     "generate_documentation_first": "Generate documentation first",
     "network_fail": "Unable to reach the API endpoint. Check your network connection or select a different Interceptor and try again.",
-    "offline": "You seem to be offline. Data in this workspace might not be up to date.",
-    "offline_short": "You seem to be offline.",
+    "offline": "You're using Hoppscotch offline. Updates will sync when you're online, based on workspace settings.",
+    "offline_short": "You're using Hoppscotch offline.",
     "post_request_tests": "Test scripts are written in JavaScript, and are run after the response is received.",
     "pre_request_script": "Pre-request scripts are written in JavaScript, and are run before the request is sent.",
     "script_fail": "It seems there is a glitch in the pre-request script. Check the error below and fix the script accordingly.",
@@ -357,7 +378,10 @@
   "import": {
     "collections": "Import collections",
     "curl": "Import cURL",
+    "environments_from_gist": "Import From Gist",
+    "environments_from_gist_description": "Import Hoppscotch Environments From Gist",
     "failed": "Error while importing: format not recognized",
+    "from_file": "Import from File",
     "from_gist": "Import from Gist",
     "from_gist_description": "Import from Gist URL",
     "from_insomnia": "Import from Insomnia",
@@ -372,11 +396,17 @@
     "from_postman_description": "Import from Postman collection",
     "from_url": "Import from URL",
     "gist_url": "Enter Gist URL",
+    "gql_collections_from_gist_description": "Import GraphQL Collections From Gist",
+    "hoppscotch_environment": "Hoppscotch Environment",
+    "hoppscotch_environment_description": "Import Hoppscotch Environment JSON file",
     "import_from_url_invalid_fetch": "Couldn't get data from the url",
     "import_from_url_invalid_file_format": "Error while importing collections",
     "import_from_url_invalid_type": "Unsupported type. accepted values are 'hoppscotch', 'openapi', 'postman', 'insomnia'",
     "import_from_url_success": "Collections Imported",
+    "insomnia_environment_description": "Import Insomnia Environment from a JSON/YAML file",
     "json_description": "Import collections from a Hoppscotch Collections JSON file",
+    "postman_environment": "Postman Environment",
+    "postman_environment_description": "Import Postman Environment from a JSON file",
     "title": "Import"
   },
   "inspections": {
@@ -414,8 +444,10 @@
     "close_unsaved_tab": "You have unsaved changes",
     "collections": "Collections",
     "confirm": "Confirm",
+    "customize_request": "Customize Request",
     "edit_request": "Edit Request",
-    "import_export": "Import / Export"
+    "import_export": "Import / Export",
+    "share_request": "Share Request"
   },
   "mqtt": {
     "already_subscribed": "You are already subscribed to this topic.",
@@ -490,14 +522,14 @@
       "structured": "Structured",
       "text": "Text"
     },
-    "copy_link": "Copy link",
     "different_collection": "Cannot reorder requests from different collections",
     "duplicated": "Request duplicated",
     "duration": "Duration",
     "enter_curl": "Enter cURL command",
     "generate_code": "Generate code",
     "generated_code": "Generated code",
-    "go_to_authorization_tab": "Go to Authorization",
+    "go_to_authorization_tab": "Go to Authorization tab",
+    "go_to_body_tab": "Go to Body tab",
     "header_list": "Header List",
     "invalid_name": "Please provide a name for the request",
     "method": "Method",
@@ -522,6 +554,7 @@
     "saved": "Request saved",
     "share": "Share",
     "share_description": "Share Hoppscotch with your friends",
+    "share_request": "Share Request",
     "stop": "Stop",
     "title": "Request",
     "type": "Request type",
@@ -555,6 +588,7 @@
     "account_description": "Customize your account settings.",
     "account_email_description": "Your primary email address.",
     "account_name_description": "This is your display name.",
+    "additional": "Additional Settings",
     "background": "Background",
     "black_mode": "Black",
     "choose_language": "Choose language",
@@ -601,14 +635,31 @@
     "verified_email": "Verified email",
     "verify_email": "Verify email"
   },
-  "shortcodes": {
-    "actions": "Actions",
-    "created_on": "Created on",
-    "deleted": "Shortcode deleted",
-    "method": "Method",
-    "not_found": "Shortcode not found",
-    "short_code": "Short code",
-    "url": "URL"
+  "shared_requests": {
+    "button": "Button",
+    "button_info": "Create a 'Run in Hoppscotch' button for your website, blog or a README.",
+    "copy_html": "Copy HTML",
+    "copy_link": "Copy Link",
+    "copy_markdown": "Copy Markdown",
+    "creating_widget": "Creating widget",
+    "customize": "Customize",
+    "deleted": "Shared request deleted",
+    "description": "Select a widget, you can change and customize this later",
+    "embed": "Embed",
+    "embed_info": "Add a mini 'Hoppscotch API Playground' to your website, blog or documentation.",
+    "link": "Link",
+    "link_info": "Create a shareable link to share with anyone on the internet with view access.",
+    "modified": "Shared request modified",
+    "not_found": "Shared request not found",
+    "open_new_tab": "Open in new tab",
+    "preview": "Preview",
+    "run_in_hoppscotch": "Run in Hoppscotch",
+    "theme": {
+      "dark": "Dark",
+      "light": "Light",
+      "system": "System",
+      "title": "Theme"
+    }
   },
   "shortcut": {
     "general": {
@@ -638,7 +689,6 @@
       "title": "Others"
     },
     "request": {
-      "copy_request_link": "Copy Request Link",
       "delete_method": "Select DELETE method",
       "get_method": "Select GET method",
       "head_method": "Select HEAD method",
@@ -653,6 +703,7 @@
       "save_request": "Save Request",
       "save_to_collections": "Save to Collections",
       "send_request": "Send Request",
+      "share_request": "Share Request",
       "show_code": "Generate code snippet",
       "title": "Request"
     },
@@ -777,6 +828,7 @@
     "connection_error": "Failed to connect",
     "connection_failed": "Connection failed",
     "connection_lost": "Connection lost",
+    "copied_interface_to_clipboard": "Copied {language} interface type to clipboard",
     "copied_to_clipboard": "Copied to clipboard",
     "deleted": "Deleted",
     "deprecated": "DEPRECATED",
@@ -784,8 +836,8 @@
     "disconnected": "Disconnected",
     "disconnected_from": "Disconnected from {name}",
     "docs_generated": "Documentation generated",
-    "download_started": "Download started",
     "download_failed": "Download failed",
+    "download_started": "Download started",
     "enabled": "Enabled",
     "file_imported": "File imported",
     "finished_in": "Finished in {duration} ms",
@@ -836,6 +888,7 @@
     "queries": "Queries",
     "query": "Query",
     "schema": "Schema",
+    "shared_requests": "Shared Requests",
     "socketio": "Socket.IO",
     "sse": "SSE",
     "tests": "Tests",
@@ -852,6 +905,7 @@
     "email_do_not_match": "Email doesn't match with your account details. Contact your team owner.",
     "exit": "Exit Team",
     "exit_disabled": "Only owner cannot exit the team",
+    "failed_invites": "Failed invites",
     "invalid_coll_id": "Invalid collection ID",
     "invalid_email_format": "Email format is invalid",
     "invalid_id": "Invalid team ID. Contact your team owner.",
@@ -888,13 +942,12 @@
     "not_found": "Team not found. Contact your team owner.",
     "not_valid_viewer": "You are not a valid viewer. Contact your team owner.",
     "parent_coll_move": "Cannot move collection to a child collection",
-    "success_invites": "Success invites",
-    "failed_invites": "Failed invites",
     "pending_invites": "Pending invites",
     "permissions": "Permissions",
     "same_target_destination": "Same target and destination",
     "saved": "Team saved",
     "select_a_team": "Select a team",
+    "success_invites": "Success invites",
     "title": "Teams",
     "we_sent_invite_link": "We sent an invite link to all invitees!",
     "we_sent_invite_link_description": "Ask all invitees to check their inbox. Click on the link to join the team."

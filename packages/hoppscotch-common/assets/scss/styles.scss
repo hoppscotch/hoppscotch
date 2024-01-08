@@ -1,7 +1,25 @@
+/*
+* Write hoppscotch-common related custom styles in this file.
+* If styles are sharable across all package then write into hoppscotch-ui/assets/scss/styles.scss file.
+*/
+
 * {
-  @apply backface-hidden;
-  @apply before:backface-hidden;
-  @apply after:backface-hidden;
+  backface-visibility: hidden;
+  -moz-backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+
+  &::before {
+    backface-visibility: hidden;
+    -moz-backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+
+  &::after {
+    backface-visibility: hidden;
+    -moz-backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+
   @apply selection:bg-accentDark;
   @apply selection:text-accentContrast;
   @apply overscroll-none;
@@ -15,13 +33,13 @@
 
 ::-webkit-scrollbar-track {
   @apply bg-transparent;
-  @apply border-solid border-l border-dividerLight border-t-0 border-b-0 border-r-0;
+  @apply border-b-0 border-l border-r-0 border-t-0 border-solid border-dividerLight;
 }
 
 ::-webkit-scrollbar-thumb {
   @apply bg-divider bg-clip-content;
   @apply rounded-full;
-  @apply border-solid border-transparent border-4;
+  @apply border-4 border-solid border-transparent;
   @apply hover:bg-dividerDark;
   @apply hover:bg-clip-content;
 }
@@ -39,7 +57,7 @@ input::placeholder,
 textarea::placeholder,
 .cm-placeholder {
   @apply text-secondary;
-  @apply opacity-50;
+  @apply opacity-50 #{!important};
 }
 
 input,
@@ -54,11 +72,11 @@ html {
 
 body {
   @apply bg-primary;
-  @apply text-secondary text-body;
+  @apply text-body text-secondary;
   @apply font-medium;
   @apply select-none;
   @apply overflow-x-hidden;
-  @apply leading-body;
+  @apply leading-body #{!important};
   animation: fade 300ms forwards;
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
@@ -124,8 +142,8 @@ a {
 
   &.link {
     @apply items-center;
-    @apply py-0.5 px-1;
-    @apply -my-0.5 -mx-1;
+    @apply px-1 py-0.5;
+    @apply -mx-1 -my-0.5;
     @apply text-accent;
     @apply rounded;
     @apply hover:text-accentDark;
@@ -140,7 +158,7 @@ a {
     @apply shadow-none #{!important};
     @apply fixed;
     @apply inline-flex;
-    @apply -mt-7.5;
+    @apply -mt-7;
   }
 }
 
@@ -154,21 +172,27 @@ a {
     @apply flex;
     @apply text-tiny text-primary;
     @apply font-semibold;
-    @apply py-1 px-2;
+    @apply px-2 py-1;
     @apply truncate;
-    @apply leading-normal;
+    @apply leading-body;
     @apply items-center;
 
     kbd {
       @apply hidden;
       @apply font-sans;
-      @apply bg-gray-500/45;
+      background-color: rgba(107, 114, 128, 0.45);
       @apply text-primaryLight;
       @apply rounded-sm;
       @apply px-1;
       @apply my-0 ml-1;
       @apply truncate;
       @apply sm:inline-flex;
+    }
+
+    .env-icon {
+      @apply transition;
+      @apply inline-flex;
+      @apply items-center;
     }
   }
 
@@ -195,9 +219,9 @@ a {
     @apply max-h-[45vh];
     @apply items-stretch;
     @apply overflow-y-auto;
-    @apply text-secondary text-body;
+    @apply text-body text-secondary;
     @apply p-2;
-    @apply leading-normal;
+    @apply leading-body;
     @apply focus:outline-none;
     scroll-behavior: smooth;
 
@@ -229,12 +253,12 @@ a {
 
 hr {
   @apply border-b border-dividerLight;
-  @apply my-2;
+  @apply my-2 #{!important};
 }
 
 .heading {
   @apply font-bold;
-  @apply text-secondaryDark text-lg;
+  @apply text-lg text-secondaryDark;
   @apply tracking-tight;
 }
 
@@ -243,7 +267,7 @@ hr {
 .textarea {
   @apply flex;
   @apply w-full;
-  @apply py-2 px-4;
+  @apply px-4 py-2;
   @apply bg-transparent;
   @apply rounded;
   @apply text-secondaryDark;
@@ -284,7 +308,7 @@ button {
   @apply transform;
   @apply origin-top-left;
   @apply scale-75;
-  @apply translate-x-1 -translate-y-4;
+  @apply -translate-y-4 translate-x-1;
 }
 
 .floating-input:focus-within ~ label {
@@ -293,7 +317,7 @@ button {
 
 .floating-input ~ .end-actions {
   @apply absolute;
-  @apply right-0.2;
+  @apply right-[.05rem];
   @apply inset-y-0;
   @apply flex;
   @apply items-center;
@@ -318,55 +342,40 @@ pre.ace_editor {
   }
 }
 
-.select-wrapper {
-  @apply flex flex-1;
-  @apply relative;
-  @apply after:absolute;
-  @apply after:flex;
-  @apply after:inset-y-0;
-  @apply after:items-center;
-  @apply after:justify-center;
-  @apply after:pointer-events-none;
-  @apply after:font-icon;
-  @apply after:text-current;
-  @apply after:right-3;
-  @apply after:content-["\e5cf"];
-  @apply after:text-lg;
-}
-
 .info-response {
-  @apply text-pink-500;
+  color: var(--status-info-color);
 }
 
 .success-response {
-  @apply text-green-500;
+  color: var(--status-success-color);
 }
 
-.redir-response {
-  @apply text-yellow-500;
+.redirect-response {
+  color: var(--status-redirect-color);
 }
 
-.cl-error-response {
-  @apply text-red-500;
+.critical-error-response {
+  color: var(--status-critical-error-color);
 }
 
-.sv-error-response {
-  @apply text-red-600;
+.server-error-response {
+  color: var(--status-server-error-color);
 }
 
 .missing-data-response {
-  @apply text-secondaryLight;
+  color: var(--status-missing-data-color);
 }
 
 .toasted-container {
   @apply max-w-md;
+  @apply z-[10000];
 
   .toasted {
     &.toasted-primary {
       @apply px-4 py-2;
       @apply bg-tooltip;
       @apply border-secondaryDark;
-      @apply text-primary text-body;
+      @apply text-body text-primary;
       @apply justify-between;
       @apply shadow-lg;
       @apply font-semibold;
@@ -394,7 +403,7 @@ pre.ace_editor {
         @apply before:opacity-10;
         @apply before:inset-0;
         @apply before:transition;
-        @apply before:content-DEFAULT;
+        @apply before:content-[''];
         @apply hover:no-underline;
         @apply hover:before:opacity-20;
       }
@@ -428,7 +437,7 @@ pre.ace_editor {
   @apply before:opacity-0;
   @apply before:z-20;
   @apply before:transition;
-  @apply before:content-DEFAULT;
+  @apply before:content-[''];
   @apply hover:before:opacity-100;
 }
 
@@ -501,32 +510,17 @@ pre.ace_editor {
   }
 }
 
-.cm-panel.cm-search [name="close"] {
-  @apply flex;
-  @apply items-center;
-  @apply justify-center;
-  @apply min-h-5;
-  @apply min-w-5;
-  @apply bg-primaryDark #{!important};
-  @apply sticky #{!important};
-  @apply right-0 #{!important};
-  @apply ml-auto #{!important};
-  @apply my-auto #{!important};
-  @apply rounded #{!important};
-  @apply outline #{!important};
-  @apply outline-divider #{!important};
-}
-
 .shortcut-key {
   @apply inline-flex;
   @apply font-sans;
   @apply text-tiny;
-  @apply bg-divider;
+  @apply bg-dividerLight;
   @apply rounded;
   @apply ml-2;
-  @apply px-1;
-  @apply min-w-5;
-  @apply min-h-5;
+  @apply px-0.5;
+  @apply min-w-[1rem];
+  @apply min-h-[1rem];
+  @apply leading-none;
   @apply items-center;
   @apply justify-center;
   @apply border border-dividerDark;

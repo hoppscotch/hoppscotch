@@ -118,9 +118,8 @@ export type SpotlightSearchState = {
 export class SpotlightService extends Service {
   public static readonly ID = "SPOTLIGHT_SERVICE"
 
-  private searchers: Map<string, SpotlightSearcher> = new Map()
-
   private analyticsData: HoppSpotlightSessionEventData = {}
+  private searchers: Map<string, SpotlightSearcher> = new Map()
 
   /**
    * Registers a searcher with the spotlight service
@@ -145,6 +144,10 @@ export class SpotlightService extends Service {
   public createSearchSession(
     query: Ref<string>
   ): [Ref<SpotlightSearchState>, () => void] {
+    let elapsedTimeInMs = 0
+    let elapsedTimeInS = 0
+    let timerId: ReturnType<typeof setInterval>
+
     const searchSessions = Array.from(this.searchers.values()).map(
       (x) => [x, ...x.createSearchSession(query)] as const
     )
@@ -160,6 +163,12 @@ export class SpotlightService extends Service {
     const scopeHandle = effectScope()
 
     scopeHandle.run(() => {
+      // Compute the session duration
+      timerId = setInterval(() => {
+        elapsedTimeInMs += 100
+        elapsedTimeInS = elapsedTimeInMs / 1000
+      }, 100)
+
       for (const [searcher, state, onSessionEnd] of searchSessions) {
         watch(
           state,
@@ -181,7 +190,9 @@ export class SpotlightService extends Service {
                 results: newState.results,
               }
             }
-            this.setAnalyticsData({ inputLength: query.value.length })
+            this.setAnalyticsData({
+              inputLength: query.value.length,
+            })
           },
           { immediate: true }
         )
@@ -205,18 +216,17 @@ export class SpotlightService extends Service {
         onEnd()
       }
 
-      console.log(
-        `About to log spotlight session event with ${JSON.stringify(
-          this.analyticsData,
-          null,
-          2
-        )}`
-      )
+      this.setAnalyticsData({ sessionDuration: `${elapsedTimeInS}s` })
 
       platform.analytics?.logEvent({
         type: "HOPP_SPOTLIGHT_SESSION",
         ...this.analyticsData,
       })
+
+      // Reset the state
+      this.setAnalyticsData({}, false)
+
+      clearInterval(timerId)
     }
 
     return [resultObj, onSearchEnd]
@@ -225,7 +235,7 @@ export class SpotlightService extends Service {
   /**
    * Selects a search result. To be called when the user selects a result
    * @param searcherID The ID of the searcher that the result belongs to
-   * @param result The resuklt to look at
+   * @param result The result to look at
    */
   public selectSearchResult(
     searcherID: string,
@@ -235,7 +245,12 @@ export class SpotlightService extends Service {
     this.setAnalyticsData({ action: "success", rank: result.score })
   }
 
-  public setAnalyticsData(data: HoppSpotlightSessionEventData) {
-    this.analyticsData = { ...this.analyticsData, ...data }
+  /**
+   * Sets Analytics data for the current search session
+   * @param data The data to set
+   * @param merge Whether to merge the data with the existing data or replace it
+   */
+  public setAnalyticsData(data: HoppSpotlightSessionEventData, merge = true) {
+    this.analyticsData = merge ? { ...this.analyticsData, ...data } : data
   }
 }

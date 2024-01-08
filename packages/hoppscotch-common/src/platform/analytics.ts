@@ -10,7 +10,7 @@ export type HoppSpotlightSessionEventData = {
   inputLength?: number
   method?: "keyboard-shortcut" | "click-spotlight-bar"
   rank?: number | null
-  // sessionDuration: number
+  sessionDuration?: string
 }
 
 export type AnalyticsEvent =

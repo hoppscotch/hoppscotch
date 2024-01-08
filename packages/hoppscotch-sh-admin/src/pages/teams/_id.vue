@@ -6,7 +6,7 @@
 
     <div v-else-if="error">{{ t('teams.load_info_error') }}</div>
 
-    <div v-if="team" class="flex flex-col">
+    <div v-else-if="team" class="flex flex-col">
       <div class="flex items-center space-x-4">
         <button
           class="p-2 rounded-3xl bg-divider hover:bg-dividerDark transition flex justify-center items-center"
@@ -92,9 +92,9 @@ const currentTabName = computed(() => {
 // Get Team Info
 const {
   fetching,
-  fetchData: getTeamInfo,
-  fetchedData: teamInfo,
   error,
+  data: teamInfo,
+  fetchData: getTeamInfo,
 } = useClientHandler(TeamInfoDocument, {
   teamID: route.params.id.toString(),
 });

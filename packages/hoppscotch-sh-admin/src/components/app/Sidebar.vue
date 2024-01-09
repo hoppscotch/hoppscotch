@@ -12,7 +12,7 @@
       :class="isOpen ? '' : '-translate-x-full ease-in'"
       class="sidebar-container transform !md:translate-x-0 ease-out"
     >
-      <div :class="isExpanded ? 'w-48' : 'w-full'">
+      <div :class="isExpanded ? 'w-56' : 'w-full'">
         <div class="flex items-center justify-start px-4 my-4">
           <div class="flex items-center">
             <HoppSmartLink class="flex items-center space-x-4" to="/dashboard">
@@ -46,11 +46,11 @@
             @click="setActiveTab(navigation.label)"
           >
             <div
-              class="flex p-5 w-full transition duration-300 ease-in-out font-bold"
+              class="flex p-5 w-full font-bold"
               :class="{
-                'bg-gradient-to-r from-emerald-900 to-emerald-600  text-secondaryDark':
+                'bg-primaryDark text-secondaryDark border-l-2 border-l-emerald-600':
                   activeTab === navigation.label,
-                'bg-primary hover:bg-primaryDark hover:text-secondaryDark focus-visible:text-secondaryDark focus-visible:bg-primaryLight focus-visible:outline-none':
+                'bg-primary hover:bg-primaryLight hover:text-secondaryDark focus-visible:text-secondaryDark focus-visible:bg-primaryLight focus-visible:outline-none':
                   activeTab !== navigation.label,
               }"
             >

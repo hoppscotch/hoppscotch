@@ -67,9 +67,9 @@ export const getDefaultSettings = (): SettingsDef => ({
   THEME_COLOR: "indigo",
   BG_COLOR: "system",
   TELEMETRY_ENABLED: true,
-  EXPAND_NAVIGATION: true,
+  EXPAND_NAVIGATION: false,
   SIDEBAR: true,
-  SIDEBAR_ON_LEFT: true,
+  SIDEBAR_ON_LEFT: false,
   COLUMN_LAYOUT: true,
 })
 

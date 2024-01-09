@@ -11,10 +11,10 @@ import {
   INVALID_EMAIL,
   ONLY_ONE_ADMIN_ACCOUNT,
   TEAM_INVITE_ALREADY_MEMBER,
-  TEAM_INVITE_NO_INVITE_FOUND,
   USER_ALREADY_INVITED,
   USER_IS_ADMIN,
   USER_NOT_FOUND,
+  USER_NOT_INVITED,
 } from '../errors';
 import { MailerService } from '../mailer/mailer.service';
 import { InvitedUser } from './invited-user.model';
@@ -26,6 +26,7 @@ import { TeamInvitationService } from '../team-invitation/team-invitation.servic
 import { TeamMemberRole } from '../team/team.model';
 import { ShortcodeService } from 'src/shortcode/shortcode.service';
 import { ConfigService } from '@nestjs/config';
+import { Admin } from './admin.model';
 
 @Injectable()
 export class AdminService {
@@ -111,17 +112,68 @@ export class AdminService {
   }
 
   /**
+   * Revoke the invitation of a user to join infra.
+   * @param inviteeEmail Invitee's email
+   * @param adminUser Admin object
+   * @returns an Either of array of `InvitedUser` object or error string
+   */
+  async revokeUserInvite(inviteeEmail: string, adminUser: Admin) {
+    try {
+      const deletedInvitee = await this.prisma.invitedUsers.delete({
+        where: {
+          inviteeEmail,
+        },
+      });
+
+      const invitedUser = <InvitedUser>{
+        adminEmail: deletedInvitee.adminEmail,
+        adminUid: deletedInvitee.adminUid,
+        inviteeEmail: deletedInvitee.inviteeEmail,
+        invitedOn: deletedInvitee.invitedOn,
+      };
+
+      this.pubsub.publish(`admin/${adminUser.uid}/revoked`, invitedUser);
+
+      return E.right(true);
+    } catch (error) {
+      return E.left(USER_NOT_INVITED);
+    }
+  }
+
+  /**
    * Fetch the list of invited users by the admin.
    * @returns an Either of array of `InvitedUser` object or error
    */
   async fetchInvitedUsers() {
-    const invitedUsers = await this.prisma.invitedUsers.findMany();
+    const dbInvitedUsers = await this.prisma.invitedUsers.findMany();
 
-    const users: InvitedUser[] = invitedUsers.map(
-      (user) => <InvitedUser>{ ...user },
-    );
+    const invitationAcceptedUsers = await this.prisma.user.findMany({
+      where: {
+        email: {
+          in: dbInvitedUsers.map((user) => user.inviteeEmail),
+        },
+      },
+    });
 
-    return users;
+    let invitedUsers: InvitedUser[] = [];
+
+    dbInvitedUsers.forEach((dbInvitedUser) => {
+      const isUserAccepts = invitationAcceptedUsers.find(
+        (user) => user.email === dbInvitedUser.inviteeEmail,
+      );
+
+      const invitedUser: InvitedUser = {
+        adminEmail: dbInvitedUser.adminEmail,
+        adminUid: dbInvitedUser.adminUid,
+        inviteeEmail: dbInvitedUser.inviteeEmail,
+        invitedOn: dbInvitedUser.invitedOn,
+        isInvitationAccepted: isUserAccepts ? true : false,
+      };
+
+      invitedUsers.push(invitedUser);
+    });
+
+    return invitedUsers;
   }
 
   /**

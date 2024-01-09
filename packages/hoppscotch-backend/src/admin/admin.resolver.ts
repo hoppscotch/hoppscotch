@@ -269,6 +269,25 @@ export class AdminResolver {
     return invitedUser.right;
   }
 
+  @Mutation(() => Boolean, { description: 'Revoke a user invite by ID' })
+  @UseGuards(GqlAuthGuard, GqlAdminGuard)
+  async revokeUserInviteByAdmin(
+    @GqlAdmin() adminUser: Admin,
+    @Args({
+      name: 'inviteeEmail',
+      description: 'Invite Email',
+      type: () => ID,
+    })
+    inviteeEmail: string,
+  ): Promise<boolean> {
+    const invite = await this.adminService.revokeUserInvite(
+      inviteeEmail,
+      adminUser,
+    );
+    if (E.isLeft(invite)) throwErr(invite.left);
+    return invite.right;
+  }
+
   @Mutation(() => Boolean, {
     description: 'Delete an user account from infra',
   })
@@ -470,5 +489,15 @@ export class AdminResolver {
   @UseGuards(GqlAuthGuard, GqlAdminGuard)
   userInvited(@GqlUser() admin: AuthUser) {
     return this.pubsub.asyncIterator(`admin/${admin.uid}/invited`);
+  }
+
+  @Subscription(() => InvitedUser, {
+    description: 'Listen for User Revocation',
+    resolve: (value) => value,
+  })
+  @SkipThrottle()
+  @UseGuards(GqlAuthGuard, GqlAdminGuard)
+  userRevoked(@GqlUser() admin: AuthUser) {
+    return this.pubsub.asyncIterator(`admin/${admin.uid}/revoked`);
   }
 }

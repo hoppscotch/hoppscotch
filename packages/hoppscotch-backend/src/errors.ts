@@ -66,6 +66,11 @@ export const USER_FB_DOCUMENT_DELETION_FAILED =
 export const USER_NOT_FOUND = 'user/not_found' as const;
 
 /**
+ * User is not invited by admin
+ */
+export const USER_NOT_INVITED = 'admin/user_not_invited' as const;
+
+/**
  * User is already invited by admin
  */
 export const USER_ALREADY_INVITED = 'admin/user_already_invited' as const;

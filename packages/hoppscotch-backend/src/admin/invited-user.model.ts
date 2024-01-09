@@ -21,4 +21,10 @@ export class InvitedUser {
     description: 'Date when the user invitation was sent',
   })
   invitedOn: Date;
+
+  @Field({
+    description: 'Boolean status if invitation was accepted or not',
+    defaultValue: false,
+  })
+  isInvitationAccepted: boolean;
 }

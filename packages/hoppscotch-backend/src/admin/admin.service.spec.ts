@@ -1,7 +1,7 @@
 import { AdminService } from './admin.service';
 import { PubSubService } from '../pubsub/pubsub.service';
 import { mockDeep } from 'jest-mock-extended';
-import { InvitedUsers } from '@prisma/client';
+import { InvitedUsers as DbInvitedUser } from '@prisma/client';
 import { UserService } from '../user/user.service';
 import { TeamService } from '../team/team.service';
 import { TeamEnvironmentsService } from '../team-environments/team-environments.service';
@@ -17,6 +17,7 @@ import {
 } from '../errors';
 import { ShortcodeService } from 'src/shortcode/shortcode.service';
 import { ConfigService } from '@nestjs/config';
+import { InvitedUser } from './invited-user.model';
 
 const mockPrisma = mockDeep<PrismaService>();
 const mockPubSub = mockDeep<PubSubService>();
@@ -44,7 +45,7 @@ const adminService = new AdminService(
   mockConfigService,
 );
 
-const invitedUsers: InvitedUsers[] = [
+const invitedUsers: DbInvitedUser[] = [
   {
     adminUid: 'uid1',
     adminEmail: 'admin1@example.com',
@@ -64,9 +65,19 @@ describe('AdminService', () => {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       mockPrisma.invitedUsers.findMany.mockResolvedValue(invitedUsers);
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      mockPrisma.user.findMany.mockResolvedValue([]);
+
+      const expectedResults: InvitedUser[] = invitedUsers.map(
+        (invitedUser) => ({
+          ...invitedUser,
+          isInvitationAccepted: false,
+        }),
+      );
 
       const results = await adminService.fetchInvitedUsers();
-      expect(results).toEqual(invitedUsers);
+      expect(results).toEqual(expectedResults);
     });
     test('should resolve left and return an empty array if invited users not found', async () => {
       mockPrisma.invitedUsers.findMany.mockResolvedValue([]);

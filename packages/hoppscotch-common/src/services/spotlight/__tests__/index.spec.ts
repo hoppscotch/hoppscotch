@@ -398,16 +398,14 @@ describe("SpotlightService", () => {
         searcherID: "test-searcher",
         searcherSectionTitle: "Test Searcher",
         createSearchSession: (query) => {
-          watch(query, notifiedFn, { immediate: true })
+          const dispose = watch(query, notifiedFn, { immediate: true })
 
           return [
             computed<SpotlightSearcherSessionState>(() => ({
               loading: false,
               results: [],
             })),
-            () => {
-              /* noop */
-            },
+            dispose,
           ]
         },
         onResultSelect: () => {
@@ -431,7 +429,7 @@ describe("SpotlightService", () => {
       query.value = "test3"
       await nextTick()
 
-      expect(notifiedFn).toHaveBeenCalledTimes(3)
+      expect(notifiedFn).toHaveBeenCalledTimes(2)
     })
 
     describe("selectSearchResult", () => {

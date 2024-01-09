@@ -298,6 +298,7 @@ function closeSpotlightModal() {
     rank: null,
   }
 
+  // Sets the action indicating `close` and rank as `null` in the state for analytics event logging
   spotlightService.setAnalyticsData(analyticsData)
 
   emit("hide-modal")

@@ -190,6 +190,8 @@ export class SpotlightService extends Service {
                 results: newState.results,
               }
             }
+
+            // Sets the search query length in the state for analytics event logging
             this.setAnalyticsData({
               inputLength: query.value.length,
             })
@@ -216,6 +218,7 @@ export class SpotlightService extends Service {
         onEnd()
       }
 
+      // Sets the session duration in the state for analytics event logging
       this.setAnalyticsData({ sessionDuration: `${elapsedTimeInS}s` })
 
       platform.analytics?.logEvent({
@@ -242,7 +245,16 @@ export class SpotlightService extends Service {
     result: SpotlightSearcherResult
   ) {
     this.searchers.get(searcherID)?.onResultSelect(result)
+
+    // Sets the action indicating `success` and selected result score in the state for analytics event logging
     this.setAnalyticsData({ action: "success", rank: result.score })
+  }
+
+  /**
+   * Gets the analytics data for the current search session
+   */
+  public getAnalyticsData(): HoppSpotlightSessionEventData {
+    return this.analyticsData
   }
 
   /**

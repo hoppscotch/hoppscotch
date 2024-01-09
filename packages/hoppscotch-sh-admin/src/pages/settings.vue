@@ -15,7 +15,6 @@
   <div v-else-if="infraConfigsError || allowedAuthProvidersError">
     {{ t('configs.load_error') }}
   </div>
-
   <div v-else-if="workingConfigs" class="flex flex-col py-8">
     <HoppSmartTabs v-model="selectedOptionTab" render-inactive-tabs>
       <HoppSmartTab :id="'config'" :label="t('configs.title')">

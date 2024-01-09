@@ -95,20 +95,28 @@ type Field = {
 const providerConfigFields = reactive<Field[]>([
   { name: t('configs.auth_providers.client_id'), key: 'client_id' },
   { name: t('configs.auth_providers.client_secret'), key: 'client_secret' },
+  { name: t('configs.auth_providers.callback_url'), key: 'callback_url' },
+  { name: t('configs.auth_providers.scope'), key: 'scope' },
 ]);
 
 const maskState = reactive({
   google: {
     client_id: true,
     client_secret: true,
+    callback_url: true,
+    scope: true,
   },
   github: {
     client_id: true,
     client_secret: true,
+    callback_url: true,
+    scope: true,
   },
   microsoft: {
     client_id: true,
     client_secret: true,
+    callback_url: true,
+    scope: true,
   },
 });
 

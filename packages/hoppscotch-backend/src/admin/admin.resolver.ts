@@ -282,7 +282,7 @@ export class AdminResolver {
   ): Promise<boolean> {
     const invite = await this.adminService.revokeUserInvite(
       inviteeEmail,
-      adminUser,
+      adminUser.uid,
     );
     if (E.isLeft(invite)) throwErr(invite.left);
     return invite.right;

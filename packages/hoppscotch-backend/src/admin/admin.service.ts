@@ -117,7 +117,7 @@ export class AdminService {
    * @param adminUser Admin object
    * @returns an Either of array of `InvitedUser` object or error string
    */
-  async revokeUserInvite(inviteeEmail: string, adminUser: Admin) {
+  async revokeUserInvite(inviteeEmail: string, adminUid: string) {
     try {
       const deletedInvitee = await this.prisma.invitedUsers.delete({
         where: {
@@ -132,7 +132,7 @@ export class AdminService {
         invitedOn: deletedInvitee.invitedOn,
       };
 
-      this.pubsub.publish(`admin/${adminUser.uid}/revoked`, invitedUser);
+      this.pubsub.publish(`admin/${adminUid}/revoked`, invitedUser);
 
       return E.right(true);
     } catch (error) {

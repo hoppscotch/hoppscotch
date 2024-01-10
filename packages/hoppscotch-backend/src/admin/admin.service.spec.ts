@@ -14,6 +14,7 @@ import {
   DUPLICATE_EMAIL,
   INVALID_EMAIL,
   USER_ALREADY_INVITED,
+  USER_NOT_INVITED,
 } from '../errors';
 import { ShortcodeService } from 'src/shortcode/shortcode.service';
 import { ConfigService } from '@nestjs/config';
@@ -84,6 +85,51 @@ describe('AdminService', () => {
 
       const results = await adminService.fetchInvitedUsers();
       expect(results).toEqual([]);
+    });
+  });
+
+  describe('revokeUserInvite', () => {
+    test('should resolve left and return error if email not invited', async () => {
+      mockPrisma.invitedUsers.delete.mockRejectedValueOnce(new Error());
+
+      const result = await adminService.revokeUserInvite(
+        'test@gmail.com',
+        'adminUid',
+      );
+
+      expect(result).toEqualLeft(USER_NOT_INVITED);
+    });
+
+    test('should resolve right and return deleted invitee email', async () => {
+      const adminUid = 'adminUid';
+      mockPrisma.invitedUsers.delete.mockResolvedValueOnce(invitedUsers[0]);
+
+      const result = await adminService.revokeUserInvite(
+        invitedUsers[0].inviteeEmail,
+        adminUid,
+      );
+
+      expect(mockPrisma.invitedUsers.delete).toHaveBeenCalledWith({
+        where: {
+          inviteeEmail: invitedUsers[0].inviteeEmail,
+        },
+      });
+      expect(result).toEqualRight(true);
+    });
+
+    test('should resolve right, delete invitee email and publish a subscription', async () => {
+      const adminUid = 'adminUid';
+      mockPrisma.invitedUsers.delete.mockResolvedValueOnce(invitedUsers[0]);
+
+      await adminService.revokeUserInvite(
+        invitedUsers[0].inviteeEmail,
+        adminUid,
+      );
+
+      expect(mockPubSub.publish).toHaveBeenCalledWith(
+        `admin/${adminUid}/revoked`,
+        invitedUsers[0],
+      );
     });
   });
 

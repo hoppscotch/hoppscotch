@@ -237,7 +237,7 @@ import { useReadonlyStream, useStreamSubscriber } from "@composables/stream"
 import { useToast } from "@composables/toast"
 import { useVModel } from "@vueuse/core"
 import * as E from "fp-ts/Either"
-import { Ref, computed, onBeforeUnmount, ref } from "vue"
+import { Ref, computed, ref } from "vue"
 import { defineActionHandler, invokeAction } from "~/helpers/actions"
 import { runMutation } from "~/helpers/backend/GQLClient"
 import { UpdateRequestDocument } from "~/helpers/backend/graphql"
@@ -552,10 +552,6 @@ const saveRequest = () => {
 }
 
 const request = ref<HoppRESTRequest | null>(null)
-
-onBeforeUnmount(() => {
-  if (loading.value) cancelRequest()
-})
 
 defineActionHandler("request.send-cancel", () => {
   if (!loading.value) newSendRequest()

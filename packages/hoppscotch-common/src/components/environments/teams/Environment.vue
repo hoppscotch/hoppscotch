@@ -1,16 +1,16 @@
 <template>
   <div
-    class="flex items-stretch group"
+    class="group flex items-stretch"
     @contextmenu.prevent="options!.tippy.show()"
   >
     <span
-      class="flex items-center justify-center px-4 cursor-pointer"
+      class="flex cursor-pointer items-center justify-center px-4"
       @click="emit('edit-environment')"
     >
       <icon-lucide-layers class="svg-icons" />
     </span>
     <span
-      class="flex flex-1 min-w-0 py-2 pr-2 cursor-pointer transition group-hover:text-secondaryDark"
+      class="flex min-w-0 flex-1 cursor-pointer py-2 pr-2 transition group-hover:text-secondaryDark"
       @click="emit('edit-environment')"
     >
       <span class="truncate">
@@ -184,13 +184,12 @@ const duplicateEnvironments = () => {
 const getErrorMessage = (err: GQLError<string>) => {
   if (err.type === "network_error") {
     return t("error.network_error")
-  } else {
-    switch (err.error) {
-      case "team_environment/not_found":
-        return t("team_environment.not_found")
-      default:
-        return t("error.something_went_wrong")
-    }
+  }
+  switch (err.error) {
+    case "team_environment/not_found":
+      return t("team_environment.not_found")
+    default:
+      return t("error.something_went_wrong")
   }
 }
 </script>

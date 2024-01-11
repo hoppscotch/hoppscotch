@@ -1,7 +1,7 @@
 <template>
   <div v-if="entry" class="divide-y divide-dividerLight">
     <div :style="{ color: entryColor }" class="realtime-log">
-      <div class="flex group">
+      <div class="group flex">
         <div class="flex flex-1 divide-x divide-dividerLight">
           <div class="inline-flex items-center p-2">
             <component
@@ -12,18 +12,18 @@
           </div>
           <div
             v-if="entry.ts !== undefined"
-            class="items-center hidden px-1 w-34 sm:inline-flex"
+            class="w-36 hidden items-center px-1 sm:inline-flex"
           >
             <span
               v-tippy="{ theme: 'tooltip' }"
               :title="relativeTime"
-              class="mx-auto truncate text-tiny text-secondaryLight hover:text-secondary hover:text-center"
+              class="mx-auto truncate text-tiny text-secondaryLight hover:text-center hover:text-secondary"
             >
               {{ shortDateTime(entry.ts) }}
             </span>
           </div>
           <div
-            class="inline-grid items-center flex-1 min-w-0 p-2"
+            class="inline-grid min-w-0 flex-1 items-center p-2"
             @click="toggleExpandPayload()"
           >
             <div class="truncate">
@@ -59,9 +59,9 @@
         <HoppSmartTab id="raw" label="Raw" />
       </HoppSmartTabs>
       <div
-        class="z-10 flex items-center justify-between pl-4 border-b border-dividerLight top-lowerSecondaryStickyFold"
+        class="top-lowerSecondaryStickyFold z-10 flex items-center justify-between border-b border-dividerLight pl-4"
       >
-        <label class="font-semibold truncate text-secondaryLight">
+        <label class="truncate font-semibold text-secondaryLight">
           {{ t("response.body") }}
         </label>
         <div class="flex">
@@ -89,7 +89,7 @@
       <div ref="editor"></div>
       <div
         v-if="outlinePath && selectedTab === 'json'"
-        class="sticky bottom-0 z-10 flex flex-shrink-0 px-2 overflow-auto overflow-x-auto border-t bg-primaryLight border-dividerLight flex-nowrap"
+        class="sticky bottom-0 z-10 flex flex-shrink-0 flex-nowrap overflow-auto overflow-x-auto border-t border-dividerLight bg-primaryLight px-2"
       >
         <div
           v-for="(item, index) in outlinePath"
@@ -189,7 +189,7 @@
           </tippy>
           <icon-lucide-chevron-right
             v-if="index + 1 !== outlinePath.length"
-            class="opacity-50 text-secondaryLight svg-icons"
+            class="svg-icons text-secondaryLight opacity-50"
           />
         </div>
       </div>
@@ -269,12 +269,12 @@ const ast = computed(() =>
 
 const editorText = computed(() => {
   if (selectedTab.value === "json") return jsonBodyText.value
-  else return logPayload.value
+  return logPayload.value
 })
 
 const editorMode = computed(() => {
   if (selectedTab.value === "json") return "application/ld+json"
-  else return "text/plain"
+  return "text/plain"
 })
 
 const { cursor } = useCodemirror(
@@ -397,13 +397,13 @@ const icon = computed(() => markRaw(ICONS[props.entry.source].icon))
 
 .outline-item {
   @apply cursor-pointer;
-  @apply flex-grow-0 flex-shrink-0;
+  @apply flex-shrink-0 flex-grow-0;
   @apply text-secondaryLight;
   @apply inline-flex;
   @apply items-center;
   @apply px-2;
   @apply py-1;
   @apply transition;
-  @apply hover: text-secondary;
+  @apply hover:text-secondary;
 }
 </style>

@@ -32,61 +32,55 @@
   </HoppSmartModal>
 </template>
 
-<script lang="ts">
-import { defineComponent, PropType } from "vue"
+<script setup lang="ts">
+import { ref, watch } from "vue"
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
 import { HoppGQLRequest } from "@hoppscotch/data"
 import { editGraphqlRequest } from "~/newstore/collections"
 
-export default defineComponent({
-  props: {
-    show: Boolean,
-    folderPath: { type: String, default: null },
-    request: { type: Object as PropType<HoppGQLRequest>, default: () => ({}) },
-    requestIndex: { type: Number, default: null },
-    editingRequestName: { type: String, default: null },
-  },
-  emits: ["hide-modal"],
-  setup() {
-    return {
-      toast: useToast(),
-      t: useI18n(),
-    }
-  },
-  data() {
-    return {
-      requestUpdateData: {
-        name: null as any | null,
-      },
-    }
-  },
-  watch: {
-    editingRequestName(val) {
-      this.requestUpdateData.name = val
-    },
-  },
-  methods: {
-    saveRequest() {
-      if (!this.requestUpdateData.name) {
-        this.toast.error(`${this.t("collection.invalid_name")}`)
-        return
-      }
+const t = useI18n()
+const toast = useToast()
 
-      // TODO: Type safety goes brrrr. Proper typing plz
-      const requestUpdated = {
-        ...this.$props.request,
-        name: this.$data.requestUpdateData.name || this.$props.request.name,
-      }
+const props = defineProps<{
+  show: boolean
+  folderPath?: string
+  requestIndex: number | null
+  request: HoppGQLRequest | null
+  editingRequestName: string
+}>()
 
-      editGraphqlRequest(this.folderPath, this.requestIndex, requestUpdated)
+const emit = defineEmits<{
+  (e: "hide-modal"): void
+}>()
 
-      this.hideModal()
-    },
-    hideModal() {
-      this.requestUpdateData = { name: null }
-      this.$emit("hide-modal")
-    },
-  },
-})
+const requestUpdateData = ref({ name: null as string | null })
+
+watch(
+  () => props.editingRequestName,
+  (val) => {
+    requestUpdateData.value.name = val
+  }
+)
+
+const saveRequest = () => {
+  if (!requestUpdateData.value.name) {
+    toast.error(`${t("collection.invalid_name")}`)
+    return
+  }
+
+  const requestUpdated = {
+    ...(props.request as any),
+    name: requestUpdateData.value.name || (props.request as any).name,
+  }
+
+  editGraphqlRequest(props.folderPath, props.requestIndex, requestUpdated)
+
+  hideModal()
+}
+
+const hideModal = () => {
+  requestUpdateData.value = { name: null }
+  emit("hide-modal")
+}
 </script>

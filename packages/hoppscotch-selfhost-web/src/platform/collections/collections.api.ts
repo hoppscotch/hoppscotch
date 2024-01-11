@@ -65,24 +65,29 @@ import {
   GetGqlRootUserCollectionsQueryVariables,
   GetGqlRootUserCollectionsDocument,
   ReqType,
+  UpdateUserCollectionMutation,
+  UpdateUserCollectionMutationVariables,
+  UpdateUserCollectionDocument,
 } from "../../api/generated/graphql"
 
-export const createRESTRootUserCollection = (title: string) =>
+export const createRESTRootUserCollection = (title: string, data?: string) =>
   runMutation<
     CreateRestRootUserCollectionMutation,
     CreateRestRootUserCollectionMutationVariables,
     ""
   >(CreateRestRootUserCollectionDocument, {
     title,
+    data,
   })()
 
-export const createGQLRootUserCollection = (title: string) =>
+export const createGQLRootUserCollection = (title: string, data?: string) =>
   runMutation<
     CreateGqlRootUserCollectionMutation,
     CreateGqlRootUserCollectionMutationVariables,
     ""
   >(CreateGqlRootUserCollectionDocument, {
     title,
+    data,
   })()
 
 export const createRESTUserRequest = (
@@ -117,7 +122,8 @@ export const createGQLUserRequest = (
 
 export const createRESTChildUserCollection = (
   title: string,
-  parentUserCollectionID: string
+  parentUserCollectionID: string,
+  data?: string
 ) =>
   runMutation<
     CreateRestChildUserCollectionMutation,
@@ -126,11 +132,13 @@ export const createRESTChildUserCollection = (
   >(CreateRestChildUserCollectionDocument, {
     title,
     parentUserCollectionID,
+    data,
   })()
 
 export const createGQLChildUserCollection = (
   title: string,
-  parentUserCollectionID: string
+  parentUserCollectionID: string,
+  data?: string
 ) =>
   runMutation<
     CreateGqlChildUserCollectionMutation,
@@ -139,6 +147,7 @@ export const createGQLChildUserCollection = (
   >(CreateGqlChildUserCollectionDocument, {
     title,
     parentUserCollectionID,
+    data,
   })()
 
 export const deleteUserCollection = (userCollectionID: string) =>
@@ -159,6 +168,17 @@ export const renameUserCollection = (
     RenameUserCollectionMutationVariables,
     ""
   >(RenameUserCollectionDocument, { userCollectionID, newTitle })()
+
+export const updateUserCollection = (
+  userCollectionID: string,
+  newTitle?: string,
+  data?: string
+) =>
+  runMutation<
+    UpdateUserCollectionMutation,
+    UpdateUserCollectionMutationVariables,
+    ""
+  >(UpdateUserCollectionDocument, { userCollectionID, newTitle, data })()
 
 export const moveUserCollection = (
   sourceCollectionID: string,

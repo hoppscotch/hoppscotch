@@ -1,19 +1,17 @@
 {
   "compilerOptions": {
-    "target": "ES6",
-    "module": "CommonJS",
+    "target": "ESNext",
+    "module": "ESNext",
     "moduleResolution": "Node",
     "skipLibCheck": true,
     "lib": ["ESNext", "ESNext.AsyncIterable", "DOM"],
     "esModuleInterop": true,
     "strict": true,
     "paths": {
-      "~/*": ["./src/*"],
-      "@/*": ["./src/*"]
+      "~/*": ["./src/*"]
     },
-    "types": ["@types/node", "@types/jest", "@relmify/jest-fp-ts"],
-    "outDir": "./lib/",
-    "rootDir": "./src/",
+    "types": ["@types/node", "@types/jest", "@relmify/jest-fp-ts", "vite/client"],
+    "outDir": "./dist/",
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true

@@ -3,7 +3,7 @@
     v-if="show"
     dialog
     :title="t('folder.new')"
-    @close="$emit('hide-modal')"
+    @close="hideModal"
   >
     <template #body>
       <HoppSmartInput
@@ -32,47 +32,49 @@
   </HoppSmartModal>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
+import { ref } from "vue"
 import { useToast } from "@composables/toast"
 import { useI18n } from "@composables/i18n"
-import { defineComponent } from "vue"
 
-export default defineComponent({
-  props: {
-    show: Boolean,
-    folderPath: { type: String, default: null },
-    collectionIndex: { type: Number, default: null },
-  },
-  emits: ["hide-modal", "add-folder"],
-  setup() {
-    return {
-      toast: useToast(),
-      t: useI18n(),
+const t = useI18n()
+const toast = useToast()
+
+const props = defineProps<{
+  show: boolean
+  folderPath?: string
+  collectionIndex: number
+}>()
+
+const emit = defineEmits<{
+  (e: "hide-modal"): void
+  (
+    e: "add-folder",
+    v: {
+      name: string
+      path: string | undefined
     }
-  },
-  data() {
-    return {
-      name: null,
-    }
-  },
-  methods: {
-    addFolder() {
-      if (!this.name) {
-        this.toast.error(`${this.t("folder.name_length_insufficient")}`)
-        return
-      }
+  ): void
+}>()
 
-      this.$emit("add-folder", {
-        name: this.name,
-        path: this.folderPath || `${this.collectionIndex}`,
-      })
+const name = ref<string | null>(null)
 
-      this.hideModal()
-    },
-    hideModal() {
-      this.name = null
-      this.$emit("hide-modal")
-    },
-  },
-})
+const addFolder = () => {
+  if (!name.value) {
+    toast.error(`${t("folder.name_length_insufficient")}`)
+    return
+  }
+
+  emit("add-folder", {
+    name: name.value,
+    path: props.folderPath || `${props.collectionIndex}`,
+  })
+
+  hideModal()
+}
+
+const hideModal = () => {
+  name.value = null
+  emit("hide-modal")
+}
 </script>

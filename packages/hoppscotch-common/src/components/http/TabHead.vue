@@ -2,18 +2,17 @@
   <div
     v-tippy="{ theme: 'tooltip', delay: [500, 20] }"
     :title="tab.document.request.name"
-    class="truncate px-2 flex items-center"
+    class="flex items-center truncate px-2"
     @dblclick="emit('open-rename-modal')"
     @contextmenu.prevent="options?.tippy?.show()"
     @click.middle="emit('close-tab')"
   >
     <span
-      class="font-semibold text-tiny"
-      :class="getMethodLabelColorClassOf(tab.document.request)"
+      class="text-tiny font-semibold mr-2"
+      :style="{ color: getMethodLabelColorClassOf(tab.document.request) }"
     >
       {{ tab.document.request.method }}
     </span>
-
     <tippy
       ref="options"
       trigger="manual"
@@ -21,7 +20,7 @@
       theme="popover"
       :on-shown="() => tippyActions!.focus()"
     >
-      <span class="leading-8 px-2 truncate">
+      <span class="truncate">
         {{ tab.document.request.name }}
       </span>
       <template #content="{ hide }">

@@ -1,0 +1,6 @@
+mutation UpdateInfraConfigs($infraConfigs: [InfraConfigArgs!]!) {
+  updateInfraConfigs(infraConfigs: $infraConfigs) {
+    name
+    value
+  }
+}

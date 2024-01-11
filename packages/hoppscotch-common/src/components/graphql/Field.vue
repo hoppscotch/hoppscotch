@@ -23,7 +23,7 @@
       <div v-if="gqlField.deprecationReason">
         <span
           v-tippy="{ theme: 'tomato' }"
-          class="!text-red-500 hover:!text-red-600 text-xs flex items-center gap-2 cursor-pointer"
+          class="flex cursor-pointer items-center gap-2 text-xs !text-red-500 hover:!text-red-600"
           :title="gqlField.deprecationReason"
         >
           <IconAlertTriangle /> {{ t("state.deprecated") }}

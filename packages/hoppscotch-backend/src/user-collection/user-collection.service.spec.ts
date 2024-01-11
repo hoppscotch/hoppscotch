@@ -1,4 +1,4 @@
-import { UserCollection } from '@prisma/client';
+import { UserCollection as DBUserCollection } from '@prisma/client';
 import { mockDeep, mockReset } from 'jest-mock-extended';
 import {
   USER_COLL_DEST_SAME,
@@ -11,12 +11,14 @@ import {
   USER_COLL_SHORT_TITLE,
   USER_COLL_ALREADY_ROOT,
   USER_NOT_OWNER,
+  USER_COLL_DATA_INVALID,
 } from 'src/errors';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { PubSubService } from 'src/pubsub/pubsub.service';
 import { AuthUser } from 'src/types/AuthUser';
 import { ReqType } from 'src/types/RequestTypes';
 import { UserCollectionService } from './user-collection.service';
+import { UserCollection } from './user-collections.model';
 
 const mockPrisma = mockDeep<PrismaService>();
 const mockPubSub = mockDeep<PubSubService>();
@@ -41,7 +43,7 @@ const user: AuthUser = {
   currentRESTSession: {},
 };
 
-const rootRESTUserCollection: UserCollection = {
+const rootRESTUserCollection: DBUserCollection = {
   id: '123',
   orderIndex: 1,
   parentID: null,
@@ -50,9 +52,19 @@ const rootRESTUserCollection: UserCollection = {
   type: ReqType.REST,
   createdOn: currentTime,
   updatedOn: currentTime,
+  data: {},
 };
 
-const rootGQLUserCollection: UserCollection = {
+const rootRESTUserCollectionCasted: UserCollection = {
+  id: '123',
+  parentID: null,
+  userID: user.uid,
+  title: 'Root Collection 1',
+  type: ReqType.REST,
+  data: JSON.stringify(rootRESTUserCollection.data),
+};
+
+const rootGQLUserCollection: DBUserCollection = {
   id: '123',
   orderIndex: 1,
   parentID: null,
@@ -61,9 +73,19 @@ const rootGQLUserCollection: UserCollection = {
   type: ReqType.GQL,
   createdOn: currentTime,
   updatedOn: currentTime,
+  data: {},
 };
 
-const rootRESTUserCollection_2: UserCollection = {
+const rootGQLUserCollectionCasted: UserCollection = {
+  id: '123',
+  parentID: null,
+  title: 'Root Collection 1',
+  userID: user.uid,
+  type: ReqType.GQL,
+  data: JSON.stringify(rootGQLUserCollection.data),
+};
+
+const rootRESTUserCollection_2: DBUserCollection = {
   id: '4gf',
   orderIndex: 2,
   parentID: null,
@@ -72,9 +94,19 @@ const rootRESTUserCollection_2: UserCollection = {
   type: ReqType.REST,
   createdOn: currentTime,
   updatedOn: currentTime,
+  data: {},
 };
 
-const rootGQLUserCollection_2: UserCollection = {
+const rootRESTUserCollection_2Casted: UserCollection = {
+  id: '4gf',
+  parentID: null,
+  title: 'Root Collection 2',
+  userID: user.uid,
+  type: ReqType.REST,
+  data: JSON.stringify(rootRESTUserCollection_2.data),
+};
+
+const rootGQLUserCollection_2: DBUserCollection = {
   id: '4gf',
   orderIndex: 2,
   parentID: null,
@@ -83,9 +115,19 @@ const rootGQLUserCollection_2: UserCollection = {
   type: ReqType.GQL,
   createdOn: currentTime,
   updatedOn: currentTime,
+  data: {},
 };
 
-const childRESTUserCollection: UserCollection = {
+const rootGQLUserCollection_2Casted: UserCollection = {
+  id: '4gf',
+  parentID: null,
+  title: 'Root Collection 2',
+  userID: user.uid,
+  type: ReqType.GQL,
+  data: JSON.stringify(rootGQLUserCollection_2.data),
+};
+
+const childRESTUserCollection: DBUserCollection = {
   id: '234',
   orderIndex: 1,
   parentID: rootRESTUserCollection.id,
@@ -94,9 +136,19 @@ const childRESTUserCollection: UserCollection = {
   type: ReqType.REST,
   createdOn: currentTime,
   updatedOn: currentTime,
+  data: {},
 };
 
-const childGQLUserCollection: UserCollection = {
+const childRESTUserCollectionCasted: UserCollection = {
+  id: '234',
+  parentID: rootRESTUserCollection.id,
+  title: 'Child Collection 1',
+  userID: user.uid,
+  type: ReqType.REST,
+  data: JSON.stringify({}),
+};
+
+const childGQLUserCollection: DBUserCollection = {
   id: '234',
   orderIndex: 1,
   parentID: rootRESTUserCollection.id,
@@ -105,9 +157,19 @@ const childGQLUserCollection: UserCollection = {
   type: ReqType.GQL,
   createdOn: currentTime,
   updatedOn: currentTime,
+  data: {},
 };
 
-const childRESTUserCollection_2: UserCollection = {
+const childGQLUserCollectionCasted: UserCollection = {
+  id: '234',
+  parentID: rootRESTUserCollection.id,
+  title: 'Child Collection 1',
+  userID: user.uid,
+  type: ReqType.GQL,
+  data: JSON.stringify({}),
+};
+
+const childRESTUserCollection_2: DBUserCollection = {
   id: '0kn',
   orderIndex: 2,
   parentID: rootRESTUserCollection_2.id,
@@ -116,9 +178,19 @@ const childRESTUserCollection_2: UserCollection = {
   type: ReqType.REST,
   createdOn: currentTime,
   updatedOn: currentTime,
+  data: {},
 };
 
-const childGQLUserCollection_2: UserCollection = {
+const childRESTUserCollection_2Casted: UserCollection = {
+  id: '0kn',
+  parentID: rootRESTUserCollection_2.id,
+  title: 'Child Collection 2',
+  userID: user.uid,
+  type: ReqType.REST,
+  data: JSON.stringify({}),
+};
+
+const childGQLUserCollection_2: DBUserCollection = {
   id: '0kn',
   orderIndex: 2,
   parentID: rootRESTUserCollection_2.id,
@@ -127,9 +199,19 @@ const childGQLUserCollection_2: UserCollection = {
   type: ReqType.GQL,
   createdOn: currentTime,
   updatedOn: currentTime,
+  data: {},
 };
 
-const childRESTUserCollectionList: UserCollection[] = [
+const childGQLUserCollection_2Casted: UserCollection = {
+  id: '0kn',
+  parentID: rootRESTUserCollection_2.id,
+  title: 'Child Collection 2',
+  userID: user.uid,
+  type: ReqType.GQL,
+  data: JSON.stringify({}),
+};
+
+const childRESTUserCollectionList: DBUserCollection[] = [
   {
     id: '234',
     orderIndex: 1,
@@ -139,6 +221,7 @@ const childRESTUserCollectionList: UserCollection[] = [
     type: ReqType.REST,
     createdOn: currentTime,
     updatedOn: currentTime,
+    data: {},
   },
   {
     id: '345',
@@ -149,6 +232,7 @@ const childRESTUserCollectionList: UserCollection[] = [
     type: ReqType.REST,
     createdOn: currentTime,
     updatedOn: currentTime,
+    data: {},
   },
   {
     id: '456',
@@ -159,6 +243,7 @@ const childRESTUserCollectionList: UserCollection[] = [
     type: ReqType.REST,
     createdOn: currentTime,
     updatedOn: currentTime,
+    data: {},
   },
   {
     id: '567',
@@ -169,6 +254,7 @@ const childRESTUserCollectionList: UserCollection[] = [
     type: ReqType.REST,
     createdOn: currentTime,
     updatedOn: currentTime,
+    data: {},
   },
   {
     id: '678',
@@ -179,10 +265,54 @@ const childRESTUserCollectionList: UserCollection[] = [
     type: ReqType.REST,
     createdOn: currentTime,
     updatedOn: currentTime,
+    data: {},
   },
 ];
 
-const childGQLUserCollectionList: UserCollection[] = [
+const childRESTUserCollectionListCasted: UserCollection[] = [
+  {
+    id: '234',
+    parentID: rootRESTUserCollection.id,
+    title: 'Child Collection 1',
+    userID: user.uid,
+    type: ReqType.REST,
+    data: JSON.stringify({}),
+  },
+  {
+    id: '345',
+    parentID: rootRESTUserCollection.id,
+    title: 'Child Collection 2',
+    userID: user.uid,
+    type: ReqType.REST,
+    data: JSON.stringify({}),
+  },
+  {
+    id: '456',
+    parentID: rootRESTUserCollection.id,
+    title: 'Child Collection 3',
+    userID: user.uid,
+    type: ReqType.REST,
+    data: JSON.stringify({}),
+  },
+  {
+    id: '567',
+    parentID: rootRESTUserCollection.id,
+    title: 'Child Collection 4',
+    userID: user.uid,
+    type: ReqType.REST,
+    data: JSON.stringify({}),
+  },
+  {
+    id: '678',
+    parentID: rootRESTUserCollection.id,
+    title: 'Child Collection 5',
+    userID: user.uid,
+    type: ReqType.REST,
+    data: JSON.stringify({}),
+  },
+];
+
+const childGQLUserCollectionList: DBUserCollection[] = [
   {
     id: '234',
     orderIndex: 1,
@@ -192,6 +322,7 @@ const childGQLUserCollectionList: UserCollection[] = [
     type: ReqType.GQL,
     createdOn: currentTime,
     updatedOn: currentTime,
+    data: {},
   },
   {
     id: '345',
@@ -202,6 +333,7 @@ const childGQLUserCollectionList: UserCollection[] = [
     type: ReqType.GQL,
     createdOn: currentTime,
     updatedOn: currentTime,
+    data: {},
   },
   {
     id: '456',
@@ -212,6 +344,7 @@ const childGQLUserCollectionList: UserCollection[] = [
     type: ReqType.GQL,
     createdOn: currentTime,
     updatedOn: currentTime,
+    data: {},
   },
   {
     id: '567',
@@ -222,6 +355,7 @@ const childGQLUserCollectionList: UserCollection[] = [
     type: ReqType.GQL,
     createdOn: currentTime,
     updatedOn: currentTime,
+    data: {},
   },
   {
     id: '678',
@@ -232,10 +366,54 @@ const childGQLUserCollectionList: UserCollection[] = [
     type: ReqType.GQL,
     createdOn: currentTime,
     updatedOn: currentTime,
+    data: {},
   },
 ];
 
-const rootRESTUserCollectionList: UserCollection[] = [
+const childGQLUserCollectionListCasted: UserCollection[] = [
+  {
+    id: '234',
+    parentID: rootRESTUserCollection.id,
+    title: 'Child Collection 1',
+    userID: user.uid,
+    type: ReqType.GQL,
+    data: JSON.stringify({}),
+  },
+  {
+    id: '345',
+    parentID: rootRESTUserCollection.id,
+    title: 'Child Collection 2',
+    userID: user.uid,
+    type: ReqType.GQL,
+    data: JSON.stringify({}),
+  },
+  {
+    id: '456',
+    parentID: rootRESTUserCollection.id,
+    title: 'Child Collection 3',
+    userID: user.uid,
+    type: ReqType.GQL,
+    data: JSON.stringify({}),
+  },
+  {
+    id: '567',
+    parentID: rootRESTUserCollection.id,
+    title: 'Child Collection 4',
+    userID: user.uid,
+    type: ReqType.GQL,
+    data: JSON.stringify({}),
+  },
+  {
+    id: '678',
+    parentID: rootRESTUserCollection.id,
+    title: 'Child Collection 5',
+    userID: user.uid,
+    type: ReqType.GQL,
+    data: JSON.stringify({}),
+  },
+];
+
+const rootRESTUserCollectionList: DBUserCollection[] = [
   {
     id: '123',
     orderIndex: 1,
@@ -245,6 +423,7 @@ const rootRESTUserCollectionList: UserCollection[] = [
     type: ReqType.REST,
     createdOn: currentTime,
     updatedOn: currentTime,
+    data: {},
   },
   {
     id: '234',
@@ -255,6 +434,7 @@ const rootRESTUserCollectionList: UserCollection[] = [
     type: ReqType.REST,
     createdOn: currentTime,
     updatedOn: currentTime,
+    data: {},
   },
   {
     id: '345',
@@ -265,6 +445,7 @@ const rootRESTUserCollectionList: UserCollection[] = [
     type: ReqType.REST,
     createdOn: currentTime,
     updatedOn: currentTime,
+    data: {},
   },
   {
     id: '456',
@@ -275,6 +456,7 @@ const rootRESTUserCollectionList: UserCollection[] = [
     type: ReqType.REST,
     createdOn: currentTime,
     updatedOn: currentTime,
+    data: {},
   },
   {
     id: '567',
@@ -285,10 +467,54 @@ const rootRESTUserCollectionList: UserCollection[] = [
     type: ReqType.REST,
     createdOn: currentTime,
     updatedOn: currentTime,
+    data: {},
   },
 ];
 
-const rootGQLGQLUserCollectionList: UserCollection[] = [
+const rootRESTUserCollectionListCasted: UserCollection[] = [
+  {
+    id: '123',
+    parentID: null,
+    title: 'Root Collection 1',
+    userID: user.uid,
+    type: ReqType.REST,
+    data: JSON.stringify({}),
+  },
+  {
+    id: '234',
+    parentID: null,
+    title: 'Root Collection 2',
+    userID: user.uid,
+    type: ReqType.REST,
+    data: JSON.stringify({}),
+  },
+  {
+    id: '345',
+    parentID: null,
+    title: 'Root Collection 3',
+    userID: user.uid,
+    type: ReqType.REST,
+    data: JSON.stringify({}),
+  },
+  {
+    id: '456',
+    parentID: null,
+    title: 'Root Collection 4',
+    userID: user.uid,
+    type: ReqType.REST,
+    data: JSON.stringify({}),
+  },
+  {
+    id: '567',
+    parentID: null,
+    title: 'Root Collection 5',
+    userID: user.uid,
+    type: ReqType.REST,
+    data: JSON.stringify({}),
+  },
+];
+
+const rootGQLUserCollectionList: DBUserCollection[] = [
   {
     id: '123',
     orderIndex: 1,
@@ -298,6 +524,7 @@ const rootGQLGQLUserCollectionList: UserCollection[] = [
     type: ReqType.GQL,
     createdOn: currentTime,
     updatedOn: currentTime,
+    data: {},
   },
   {
     id: '234',
@@ -308,6 +535,7 @@ const rootGQLGQLUserCollectionList: UserCollection[] = [
     type: ReqType.GQL,
     createdOn: currentTime,
     updatedOn: currentTime,
+    data: {},
   },
   {
     id: '345',
@@ -318,6 +546,7 @@ const rootGQLGQLUserCollectionList: UserCollection[] = [
     type: ReqType.GQL,
     createdOn: currentTime,
     updatedOn: currentTime,
+    data: {},
   },
   {
     id: '456',
@@ -328,6 +557,7 @@ const rootGQLGQLUserCollectionList: UserCollection[] = [
     type: ReqType.GQL,
     createdOn: currentTime,
     updatedOn: currentTime,
+    data: {},
   },
   {
     id: '567',
@@ -338,6 +568,50 @@ const rootGQLGQLUserCollectionList: UserCollection[] = [
     type: ReqType.GQL,
     createdOn: currentTime,
     updatedOn: currentTime,
+    data: {},
+  },
+];
+
+const rootGQLUserCollectionListCasted: UserCollection[] = [
+  {
+    id: '123',
+    parentID: null,
+    title: 'Root Collection 1',
+    userID: user.uid,
+    type: ReqType.GQL,
+    data: JSON.stringify({}),
+  },
+  {
+    id: '234',
+    parentID: null,
+    title: 'Root Collection 2',
+    userID: user.uid,
+    type: ReqType.GQL,
+    data: JSON.stringify({}),
+  },
+  {
+    id: '345',
+    parentID: null,
+    title: 'Root Collection 3',
+    userID: user.uid,
+    type: ReqType.GQL,
+    data: JSON.stringify({}),
+  },
+  {
+    id: '456',
+    parentID: null,
+    title: 'Root Collection 4',
+    userID: user.uid,
+    type: ReqType.GQL,
+    data: JSON.stringify({}),
+  },
+  {
+    id: '567',
+    parentID: null,
+    title: 'Root Collection 5',
+    userID: user.uid,
+    type: ReqType.GQL,
+    data: JSON.stringify({}),
   },
 ];
 
@@ -356,7 +630,7 @@ describe('getParentOfUserCollection', () => {
     const result = await userCollectionService.getParentOfUserCollection(
       childRESTUserCollection.id,
     );
-    expect(result).toEqual(rootRESTUserCollection);
+    expect(result).toEqual(rootRESTUserCollectionCasted);
   });
   test('should return null with invalid collectionID', async () => {
     mockPrisma.userCollection.findUnique.mockResolvedValueOnce(
@@ -367,7 +641,7 @@ describe('getParentOfUserCollection', () => {
       'invalidId',
     );
     //TODO: check it not null
-    expect(result).toEqual(undefined);
+    expect(result).toEqual(null);
   });
 });
 
@@ -383,7 +657,7 @@ describe('getChildrenOfUserCollection', () => {
       10,
       ReqType.REST,
     );
-    expect(result).toEqual(childRESTUserCollectionList);
+    expect(result).toEqual(childRESTUserCollectionListCasted);
   });
   test('should return a list of paginated child GQL user-collections with valid collectionID', async () => {
     mockPrisma.userCollection.findMany.mockResolvedValueOnce(
@@ -396,7 +670,7 @@ describe('getChildrenOfUserCollection', () => {
       10,
       ReqType.REST,
     );
-    expect(result).toEqual(childGQLUserCollectionList);
+    expect(result).toEqual(childGQLUserCollectionListCasted);
   });
   test('should return a empty array with a invalid REST collectionID', async () => {
     mockPrisma.userCollection.findMany.mockResolvedValueOnce([]);
@@ -455,11 +729,11 @@ describe('getUserRootCollections', () => {
       10,
       ReqType.REST,
     );
-    expect(result).toEqual(rootRESTUserCollectionList);
+    expect(result).toEqual(rootRESTUserCollectionListCasted);
   });
   test('should return a list of paginated root GQL user-collections with valid collectionID', async () => {
     mockPrisma.userCollection.findMany.mockResolvedValueOnce(
-      rootGQLGQLUserCollectionList,
+      rootGQLUserCollectionList,
     );
 
     const result = await userCollectionService.getUserRootCollections(
@@ -468,7 +742,7 @@ describe('getUserRootCollections', () => {
       10,
       ReqType.GQL,
     );
-    expect(result).toEqual(rootGQLGQLUserCollectionList);
+    expect(result).toEqual(rootGQLUserCollectionListCasted);
   });
   test('should return a empty array with a invalid REST collectionID', async () => {
     mockPrisma.userCollection.findMany.mockResolvedValueOnce([]);
@@ -499,11 +773,13 @@ describe('createUserCollection', () => {
     const result = await userCollectionService.createUserCollection(
       user,
       '',
+      JSON.stringify(rootRESTUserCollection.data),
       rootRESTUserCollection.id,
       ReqType.REST,
     );
     expect(result).toEqualLeft(USER_COLL_SHORT_TITLE);
   });
+
   test('should throw USER_NOT_OWNER when user is not the owner of the collection', async () => {
     // isOwnerCheck
     mockPrisma.userCollection.findUniqueOrThrow.mockResolvedValueOnce({
@@ -514,11 +790,13 @@ describe('createUserCollection', () => {
     const result = await userCollectionService.createUserCollection(
       user,
       rootRESTUserCollection.title,
+      JSON.stringify(rootRESTUserCollection.data),
       rootRESTUserCollection.id,
       ReqType.REST,
     );
     expect(result).toEqualLeft(USER_NOT_OWNER);
   });
+
   test('should successfully create a new root REST user-collection with valid inputs', async () => {
     // isOwnerCheck
     mockPrisma.userCollection.findUniqueOrThrow.mockResolvedValueOnce(
@@ -534,11 +812,13 @@ describe('createUserCollection', () => {
     const result = await userCollectionService.createUserCollection(
       user,
       rootRESTUserCollection.title,
+      JSON.stringify(rootRESTUserCollection.data),
       rootRESTUserCollection.id,
       ReqType.REST,
     );
-    expect(result).toEqualRight(rootRESTUserCollection);
+    expect(result).toEqualRight(rootRESTUserCollectionCasted);
   });
+
   test('should successfully create a new root GQL user-collection with valid inputs', async () => {
     // isOwnerCheck
     mockPrisma.userCollection.findUniqueOrThrow.mockResolvedValueOnce(
@@ -554,11 +834,13 @@ describe('createUserCollection', () => {
     const result = await userCollectionService.createUserCollection(
       user,
       rootGQLUserCollection.title,
+      JSON.stringify(rootGQLUserCollection.data),
       rootGQLUserCollection.id,
       ReqType.GQL,
     );
-    expect(result).toEqualRight(rootGQLUserCollection);
+    expect(result).toEqualRight(rootGQLUserCollectionCasted);
   });
+
   test('should successfully create a new child REST user-collection with valid inputs', async () => {
     // isOwnerCheck
     mockPrisma.userCollection.findUniqueOrThrow.mockResolvedValueOnce(
@@ -574,11 +856,13 @@ describe('createUserCollection', () => {
     const result = await userCollectionService.createUserCollection(
       user,
       childRESTUserCollection.title,
+      JSON.stringify(childRESTUserCollection.data),
       childRESTUserCollection.id,
       ReqType.REST,
     );
-    expect(result).toEqualRight(childRESTUserCollection);
+    expect(result).toEqualRight(childRESTUserCollectionCasted);
   });
+
   test('should successfully create a new child GQL user-collection with valid inputs', async () => {
     // isOwnerCheck
     mockPrisma.userCollection.findUniqueOrThrow.mockResolvedValueOnce(
@@ -594,11 +878,13 @@ describe('createUserCollection', () => {
     const result = await userCollectionService.createUserCollection(
       user,
       childGQLUserCollection.title,
+      JSON.stringify(childGQLUserCollection.data),
       childGQLUserCollection.id,
       ReqType.GQL,
     );
-    expect(result).toEqualRight(childGQLUserCollection);
+    expect(result).toEqualRight(childGQLUserCollectionCasted);
   });
+
   test('should send pubsub message to "user_coll/<userID>/created" if child REST user-collection is created successfully', async () => {
     // isOwnerCheck
     mockPrisma.userCollection.findUniqueOrThrow.mockResolvedValueOnce(
@@ -614,14 +900,16 @@ describe('createUserCollection', () => {
     const result = await userCollectionService.createUserCollection(
       user,
       childRESTUserCollection.title,
+      JSON.stringify(childRESTUserCollection.data),
       childRESTUserCollection.id,
       ReqType.REST,
     );
     expect(mockPubSub.publish).toHaveBeenCalledWith(
       `user_coll/${user.uid}/created`,
-      childRESTUserCollection,
+      childRESTUserCollectionCasted,
     );
   });
+
   test('should send pubsub message to "user_coll/<userID>/created" if child GQL user-collection is created successfully', async () => {
     // isOwnerCheck
     mockPrisma.userCollection.findUniqueOrThrow.mockResolvedValueOnce(
@@ -637,14 +925,16 @@ describe('createUserCollection', () => {
     const result = await userCollectionService.createUserCollection(
       user,
       childGQLUserCollection.title,
+      JSON.stringify(childGQLUserCollection.data),
       childGQLUserCollection.id,
       ReqType.GQL,
     );
     expect(mockPubSub.publish).toHaveBeenCalledWith(
       `user_coll/${user.uid}/created`,
-      childGQLUserCollection,
+      childGQLUserCollectionCasted,
     );
   });
+
   test('should send pubsub message to "user_coll/<userID>/created" if REST root user-collection is created successfully', async () => {
     // isOwnerCheck
     mockPrisma.userCollection.findUniqueOrThrow.mockResolvedValueOnce(
@@ -660,14 +950,16 @@ describe('createUserCollection', () => {
     const result = await userCollectionService.createUserCollection(
       user,
       rootRESTUserCollection.title,
+      JSON.stringify(rootRESTUserCollection.data),
       rootRESTUserCollection.id,
       ReqType.REST,
     );
     expect(mockPubSub.publish).toHaveBeenCalledWith(
       `user_coll/${user.uid}/created`,
-      rootRESTUserCollection,
+      rootRESTUserCollectionCasted,
     );
   });
+
   test('should send pubsub message to "user_coll/<userID>/created" if GQL root user-collection is created successfully', async () => {
     // isOwnerCheck
     mockPrisma.userCollection.findUniqueOrThrow.mockResolvedValueOnce(
@@ -683,12 +975,13 @@ describe('createUserCollection', () => {
     const result = await userCollectionService.createUserCollection(
       user,
       rootGQLUserCollection.title,
+      JSON.stringify(rootGQLUserCollection.data),
       rootGQLUserCollection.id,
       ReqType.GQL,
     );
     expect(mockPubSub.publish).toHaveBeenCalledWith(
       `user_coll/${user.uid}/created`,
-      rootGQLUserCollection,
+      rootGQLUserCollectionCasted,
     );
   });
 });
@@ -732,7 +1025,7 @@ describe('renameUserCollection', () => {
       user.uid,
     );
     expect(result).toEqualRight({
-      ...rootRESTUserCollection,
+      ...rootRESTUserCollectionCasted,
       title: 'NewTitle',
     });
   });
@@ -770,7 +1063,7 @@ describe('renameUserCollection', () => {
     expect(mockPubSub.publish).toHaveBeenCalledWith(
       `user_coll/${user.uid}/updated`,
       {
-        ...rootRESTUserCollection,
+        ...rootRESTUserCollectionCasted,
         title: 'NewTitle',
       },
     );
@@ -895,6 +1188,7 @@ describe('moveUserCollection', () => {
     );
     expect(result).toEqualLeft(USER_COLL_NOT_FOUND);
   });
+
   test('should throw USER_NOT_OWNER if user is not owner of collection', async () => {
     // getUserCollection
     mockPrisma.userCollection.findUniqueOrThrow.mockResolvedValueOnce(
@@ -908,6 +1202,7 @@ describe('moveUserCollection', () => {
     );
     expect(result).toEqualLeft(USER_NOT_OWNER);
   });
+
   test('should throw USER_COLL_DEST_SAME if userCollectionID and destCollectionID is the same', async () => {
     // getUserCollection
     mockPrisma.userCollection.findUniqueOrThrow.mockResolvedValueOnce(
@@ -921,6 +1216,7 @@ describe('moveUserCollection', () => {
     );
     expect(result).toEqualLeft(USER_COLL_DEST_SAME);
   });
+
   test('should throw USER_COLL_NOT_FOUND if destCollectionID is invalid', async () => {
     // getUserCollection
     mockPrisma.userCollection.findUniqueOrThrow.mockResolvedValueOnce(
@@ -938,6 +1234,7 @@ describe('moveUserCollection', () => {
     );
     expect(result).toEqualLeft(USER_COLL_NOT_FOUND);
   });
+
   test('should throw USER_COLL_NOT_SAME_TYPE if userCollectionID and destCollectionID are not the same collection type', async () => {
     // getUserCollection
     mockPrisma.userCollection.findUniqueOrThrow.mockResolvedValueOnce(
@@ -955,6 +1252,7 @@ describe('moveUserCollection', () => {
     );
     expect(result).toEqualLeft(USER_COLL_NOT_SAME_TYPE);
   });
+
   test('should throw USER_COLL_NOT_SAME_USER if userCollectionID and destCollectionID are not from the same user', async () => {
     // getUserCollection
     mockPrisma.userCollection.findUniqueOrThrow.mockResolvedValueOnce(
@@ -973,6 +1271,7 @@ describe('moveUserCollection', () => {
     );
     expect(result).toEqualLeft(USER_COLL_NOT_SAME_USER);
   });
+
   test('should throw USER_COLL_IS_PARENT_COLL if userCollectionID is parent of destCollectionID ', async () => {
     // getUserCollection
     mockPrisma.userCollection.findUniqueOrThrow.mockResolvedValueOnce(
@@ -990,6 +1289,7 @@ describe('moveUserCollection', () => {
     );
     expect(result).toEqualLeft(USER_COLL_IS_PARENT_COLL);
   });
+
   test('should throw USER_COL_ALREADY_ROOT when moving root user-collection to root', async () => {
     // getUserCollection
     mockPrisma.userCollection.findUniqueOrThrow.mockResolvedValueOnce(
@@ -1003,6 +1303,7 @@ describe('moveUserCollection', () => {
     );
     expect(result).toEqualLeft(USER_COLL_ALREADY_ROOT);
   });
+
   test('should successfully move a child user-collection into root', async () => {
     // getUserCollection
     mockPrisma.userCollection.findUniqueOrThrow.mockResolvedValueOnce(
@@ -1030,11 +1331,11 @@ describe('moveUserCollection', () => {
       user.uid,
     );
     expect(result).toEqualRight({
-      ...childRESTUserCollection,
+      ...childRESTUserCollectionCasted,
       parentID: null,
-      orderIndex: 2,
     });
   });
+
   test('should throw USER_COLL_NOT_FOUND when trying to change parent of collection with invalid collectionID', async () => {
     // getUserCollection
     mockPrisma.userCollection.findUniqueOrThrow.mockResolvedValueOnce(
@@ -1059,6 +1360,7 @@ describe('moveUserCollection', () => {
     );
     expect(result).toEqualLeft(USER_COLL_NOT_FOUND);
   });
+
   test('should send pubsub message to "user_coll/<userID>/moved" when user-collection is moved to root successfully', async () => {
     // getUserCollection
     mockPrisma.userCollection.findUniqueOrThrow.mockResolvedValueOnce(
@@ -1088,12 +1390,12 @@ describe('moveUserCollection', () => {
     expect(mockPubSub.publish).toHaveBeenCalledWith(
       `user_coll/${user.uid}/moved`,
       {
-        ...childRESTUserCollection,
+        ...childRESTUserCollectionCasted,
         parentID: null,
-        orderIndex: 2,
       },
     );
   });
+
   test('should successfully move a root user-collection into a child user-collection', async () => {
     // getUserCollection
     mockPrisma.userCollection.findUniqueOrThrow.mockResolvedValueOnce(
@@ -1129,11 +1431,11 @@ describe('moveUserCollection', () => {
       user.uid,
     );
     expect(result).toEqualRight({
-      ...rootRESTUserCollection,
-      parentID: childRESTUserCollection_2.id,
-      orderIndex: 1,
+      ...rootRESTUserCollectionCasted,
+      parentID: childRESTUserCollection_2Casted.id,
     });
   });
+
   test('should successfully move a child user-collection into another child user-collection', async () => {
     // getUserCollection
     mockPrisma.userCollection.findUniqueOrThrow.mockResolvedValueOnce(
@@ -1169,11 +1471,11 @@ describe('moveUserCollection', () => {
       user.uid,
     );
     expect(result).toEqualRight({
-      ...rootRESTUserCollection,
-      parentID: childRESTUserCollection.id,
-      orderIndex: 1,
+      ...rootRESTUserCollectionCasted,
+      parentID: childRESTUserCollectionCasted.id,
     });
   });
+
   test('should send pubsub message to "user_coll/<userID>/moved" when user-collection is moved into another child user-collection successfully', async () => {
     // getUserCollection
     mockPrisma.userCollection.findUniqueOrThrow.mockResolvedValueOnce(
@@ -1211,9 +1513,8 @@ describe('moveUserCollection', () => {
     expect(mockPubSub.publish).toHaveBeenCalledWith(
       `user_coll/${user.uid}/moved`,
       {
-        ...rootRESTUserCollection,
-        parentID: childRESTUserCollection.id,
-        orderIndex: 1,
+        ...rootRESTUserCollectionCasted,
+        parentID: childRESTUserCollectionCasted.id,
       },
     );
   });
@@ -1228,6 +1529,7 @@ describe('updateUserCollectionOrder', () => {
     );
     expect(result).toEqualLeft(USER_COLL_SAME_NEXT_COLL);
   });
+
   test('should throw USER_COLL_NOT_FOUND if collectionID is invalid', async () => {
     // getUserCollection;
     mockPrisma.userCollection.findUniqueOrThrow.mockRejectedValueOnce(
@@ -1241,6 +1543,7 @@ describe('updateUserCollectionOrder', () => {
     );
     expect(result).toEqualLeft(USER_COLL_NOT_FOUND);
   });
+
   test('should throw USER_NOT_OWNER if userUID is of a different user', async () => {
     // getUserCollection;
     mockPrisma.userCollection.findUniqueOrThrow.mockResolvedValueOnce(
@@ -1254,6 +1557,7 @@ describe('updateUserCollectionOrder', () => {
     );
     expect(result).toEqualLeft(USER_NOT_OWNER);
   });
+
   test('should successfully move the child user-collection to the end of the list', async () => {
     // getUserCollection;
     mockPrisma.userCollection.findUniqueOrThrow.mockResolvedValueOnce(
@@ -1272,6 +1576,7 @@ describe('updateUserCollectionOrder', () => {
     );
     expect(result).toEqualRight(true);
   });
+
   test('should successfully move the root user-collection to the end of the list', async () => {
     // getUserCollection;
     mockPrisma.userCollection.findUniqueOrThrow.mockResolvedValueOnce(
@@ -1290,6 +1595,7 @@ describe('updateUserCollectionOrder', () => {
     );
     expect(result).toEqualRight(true);
   });
+
   test('should throw USER_COLL_REORDERING_FAILED when re-ordering operation failed for child user-collection list', async () => {
     // getUserCollection;
     mockPrisma.userCollection.findUniqueOrThrow.mockResolvedValueOnce(
@@ -1304,6 +1610,7 @@ describe('updateUserCollectionOrder', () => {
     );
     expect(result).toEqualLeft(USER_COLL_REORDERING_FAILED);
   });
+
   test('should send pubsub message to "user_coll/<userID>/order_updated" when user-collection order is updated successfully', async () => {
     // getUserCollection;
     mockPrisma.userCollection.findUniqueOrThrow.mockResolvedValueOnce(
@@ -1324,13 +1631,14 @@ describe('updateUserCollectionOrder', () => {
       `user_coll/${user.uid}/order_updated`,
       {
         userCollection: {
-          ...childRESTUserCollectionList[4],
-          userID: childRESTUserCollectionList[4].userUid,
+          ...childRESTUserCollectionListCasted[4],
+          userID: childRESTUserCollectionListCasted[4].userID,
         },
         nextUserCollection: null,
       },
     );
   });
+
   test('should throw USER_COLL_NOT_SAME_USER when collectionID and nextCollectionID do not belong to the same user account', async () => {
     // getUserCollection;
     mockPrisma.userCollection.findUniqueOrThrow
@@ -1347,6 +1655,7 @@ describe('updateUserCollectionOrder', () => {
     );
     expect(result).toEqualLeft(USER_COLL_NOT_SAME_USER);
   });
+
   test('should throw USER_COLL_NOT_SAME_TYPE when collectionID and nextCollectionID do not belong to the same collection type', async () => {
     // getUserCollection;
     mockPrisma.userCollection.findUniqueOrThrow
@@ -1363,6 +1672,7 @@ describe('updateUserCollectionOrder', () => {
     );
     expect(result).toEqualLeft(USER_COLL_NOT_SAME_TYPE);
   });
+
   test('should successfully update the order of the child user-collection list', async () => {
     // getUserCollection;
     mockPrisma.userCollection.findUniqueOrThrow
@@ -1376,6 +1686,7 @@ describe('updateUserCollectionOrder', () => {
     );
     expect(result).toEqualRight(true);
   });
+
   test('should throw USER_COLL_REORDERING_FAILED when re-ordering operation failed for child user-collection list', async () => {
     // getUserCollection;
     mockPrisma.userCollection.findUniqueOrThrow
@@ -1391,6 +1702,7 @@ describe('updateUserCollectionOrder', () => {
     );
     expect(result).toEqualLeft(USER_COLL_REORDERING_FAILED);
   });
+
   test('should send pubsub message to "user_coll/<userID>/order_updated" when user-collection order is updated successfully', async () => {
     // getUserCollection;
     mockPrisma.userCollection.findUniqueOrThrow
@@ -1406,13 +1718,117 @@ describe('updateUserCollectionOrder', () => {
       `user_coll/${user.uid}/order_updated`,
       {
         userCollection: {
-          ...childRESTUserCollectionList[4],
-          userID: childRESTUserCollectionList[4].userUid,
+          ...childRESTUserCollectionListCasted[4],
+          userID: childRESTUserCollectionListCasted[4].userID,
         },
         nextUserCollection: {
-          ...childRESTUserCollectionList[2],
-          userID: childRESTUserCollectionList[2].userUid,
+          ...childRESTUserCollectionListCasted[2],
+          userID: childRESTUserCollectionListCasted[2].userID,
         },
+      },
+    );
+  });
+});
+
+describe('updateUserCollection', () => {
+  test('should throw USER_COLL_DATA_INVALID is collection data is invalid', async () => {
+    const result = await userCollectionService.updateUserCollection(
+      rootRESTUserCollection.title,
+      '{',
+      rootRESTUserCollection.id,
+      rootRESTUserCollection.userUid,
+    );
+    expect(result).toEqualLeft(USER_COLL_DATA_INVALID);
+  });
+
+  test('should throw USER_COLL_SHORT_TITLE if title is invalid', async () => {
+    const result = await userCollectionService.updateUserCollection(
+      '',
+      JSON.stringify(rootRESTUserCollection.data),
+      rootRESTUserCollection.id,
+      rootRESTUserCollection.userUid,
+    );
+
+    expect(result).toEqualLeft(USER_COLL_SHORT_TITLE);
+  });
+
+  test('should throw USER_NOT_OWNER is user is not owner of collection', async () => {
+    // isOwnerCheck
+    mockPrisma.userCollection.findFirstOrThrow.mockRejectedValueOnce(
+      'NotFoundError',
+    );
+
+    const result = await userCollectionService.updateUserCollection(
+      rootRESTUserCollection.title,
+      JSON.stringify(rootRESTUserCollection.data),
+      rootRESTUserCollection.id,
+      rootRESTUserCollection.userUid,
+    );
+
+    expect(result).toEqualLeft(USER_NOT_OWNER);
+  });
+
+  test('should throw USER_COLL_NOT_FOUND is collectionID is invalid', async () => {
+    // isOwnerCheck
+    mockPrisma.userCollection.findUniqueOrThrow.mockResolvedValueOnce({
+      ...rootRESTUserCollection,
+    });
+    mockPrisma.userCollection.update.mockRejectedValueOnce('RecordNotFound');
+
+    const result = await userCollectionService.updateUserCollection(
+      rootRESTUserCollection.title,
+      JSON.stringify(rootRESTUserCollection.data),
+      'invalid_id',
+      rootRESTUserCollection.userUid,
+    );
+    expect(result).toEqualLeft(USER_COLL_NOT_FOUND);
+  });
+
+  test('should successfully update a collection', async () => {
+    // isOwnerCheck
+    mockPrisma.userCollection.findUniqueOrThrow.mockResolvedValueOnce({
+      ...rootRESTUserCollection,
+    });
+    mockPrisma.userCollection.update.mockResolvedValueOnce(
+      rootRESTUserCollection,
+    );
+
+    const result = await userCollectionService.updateUserCollection(
+      'new_title',
+      JSON.stringify({ foo: 'bar' }),
+      rootRESTUserCollection.id,
+      rootRESTUserCollection.userUid,
+    );
+
+    expect(result).toEqualRight({
+      data: JSON.stringify({ foo: 'bar' }),
+      title: 'new_title',
+      ...rootRESTUserCollectionCasted,
+    });
+  });
+
+  test('should send pubsub message to "user_coll/<userID>/updated" when UserCollection is updated successfully', async () => {
+    // isOwnerCheck
+    mockPrisma.userCollection.findUniqueOrThrow.mockResolvedValueOnce({
+      ...rootRESTUserCollection,
+    });
+    mockPrisma.userCollection.update.mockResolvedValueOnce(
+      rootRESTUserCollection,
+    );
+
+    const result = await userCollectionService.updateUserCollection(
+      'new_title',
+      JSON.stringify({ foo: 'bar' }),
+      rootRESTUserCollection.id,
+      rootRESTUserCollection.userUid,
+    );
+
+    expect(mockPubSub.publish).toHaveBeenCalledWith(
+      `user_coll/${rootRESTUserCollectionCasted.userID}/updated`,
+      {
+        data: JSON.stringify({ foo: 'bar' }),
+        title: 'new_title',
+        ...rootRESTUserCollectionCasted,
       },
     );
   });

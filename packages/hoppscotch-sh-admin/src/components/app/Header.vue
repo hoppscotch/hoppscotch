@@ -7,7 +7,7 @@
         v-tippy="{ theme: 'tooltip' }"
         :title="t('app.open_navigation')"
         :icon="IconMenu"
-        class="transform !md:hidden mr-2"
+        class="transform md:hidden mr-2"
         @click="isOpen = true"
       />
       <HoppButtonSecondary
@@ -18,7 +18,7 @@
             : `${t('app.expand_sidebar')}`
         "
         :icon="isExpanded ? IconSidebarClose : IconSidebarOpen"
-        class="transform"
+        class="transform hidden md:block"
         @click="expandSidebar"
       />
     </div>
@@ -33,27 +33,15 @@
           :on-shown="() => tippyActions!.focus()"
         >
           <HoppSmartPicture
-            v-if="currentUser.photoURL"
             v-tippy="{
               theme: 'tooltip',
             }"
-            :url="currentUser.photoURL"
-            :alt="currentUser.displayName ?? `${t('app.no_name')}`"
+            :name="currentUser.uid"
             :title="
               currentUser.displayName ??
               currentUser.email ??
               `${t('app.no_name')}`
             "
-          />
-          <HoppSmartPicture
-            v-else
-            v-tippy="{ theme: 'tooltip' }"
-            :title="
-              currentUser.displayName ??
-              currentUser.email ??
-              `${t('app.no_name')}`
-            "
-            :initial="currentUser.displayName ?? currentUser.email"
           />
           <template #content="{ hide }">
             <div

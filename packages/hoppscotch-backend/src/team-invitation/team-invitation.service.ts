@@ -20,6 +20,7 @@ import { UserService } from 'src/user/user.service';
 import { PubSubService } from 'src/pubsub/pubsub.service';
 import { validateEmail } from '../utils';
 import { AuthUser } from 'src/types/AuthUser';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class TeamInvitationService {
@@ -28,8 +29,8 @@ export class TeamInvitationService {
     private readonly userService: UserService,
     private readonly teamService: TeamService,
     private readonly mailerService: MailerService,
-
     private readonly pubsub: PubSubService,
+    private readonly configService: ConfigService,
   ) {}
 
   /**
@@ -150,7 +151,9 @@ export class TeamInvitationService {
       template: 'team-invitation',
       variables: {
         invitee: creator.displayName ?? 'A Hoppscotch User',
-        action_url: `${process.env.VITE_BASE_URL}/join-team?id=${dbInvitation.id}`,
+        action_url: `${this.configService.get('VITE_BASE_URL')}/join-team?id=${
+          dbInvitation.id
+        }`,
         invite_team_name: team.name,
       },
     });

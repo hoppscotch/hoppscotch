@@ -31,7 +31,7 @@
             <template #suffix>
               <span
                 v-if="tab.document.isDirty"
-                class="flex items-center justify-center text-secondary group-hover:hidden w-4"
+                class="flex w-4 items-center justify-center text-secondary group-hover:hidden"
               >
                 <svg
                   viewBox="0 0 24 24"

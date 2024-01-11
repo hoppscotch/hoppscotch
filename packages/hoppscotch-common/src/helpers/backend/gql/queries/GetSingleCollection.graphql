@@ -2,6 +2,7 @@ query GetSingleCollection($collectionID: ID!) {
   collection(collectionID: $collectionID) {
     id
     title
+    data
     parent {
       id
     }

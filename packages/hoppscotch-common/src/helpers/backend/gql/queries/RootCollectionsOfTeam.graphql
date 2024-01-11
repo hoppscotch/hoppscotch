@@ -2,5 +2,6 @@ query RootCollectionsOfTeam($teamID: ID!, $cursor: ID) {
   rootCollectionsOfTeam(teamID: $teamID, cursor: $cursor) {
     id
     title
+    data
   }
 }

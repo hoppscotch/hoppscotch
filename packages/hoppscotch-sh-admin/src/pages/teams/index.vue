@@ -12,25 +12,90 @@
       </div>
 
       <div class="overflow-x-auto">
-        <div
-          v-if="fetching && !error && teamList.length === 0"
-          class="flex justify-center"
-        >
+        <div v-if="fetching" class="flex justify-center">
           <HoppSmartSpinner />
         </div>
 
         <div v-else-if="error">{{ t('teams.load_list_error') }}</div>
 
-        <TeamsTable
-          v-else
-          :teamList="teamList"
-          @goToTeamDetails="goToTeamDetails"
-          @deleteTeam="deleteTeam"
-          class=""
-        />
+        <HoppSmartTable v-else-if="teamsList.length" :list="teamsList">
+          <template #head>
+            <tr
+              class="text-secondary border-b border-dividerDark text-sm text-left bg-primaryLight"
+            >
+              <th class="px-6 py-2">{{ t('teams.id') }}</th>
+              <th class="px-6 py-2">{{ t('teams.name') }}</th>
+              <th class="px-6 py-2">{{ t('teams.members') }}</th>
+              <!-- Empty Heading for the Action Button -->
+              <th class="px-6 py-2"></th>
+            </tr>
+          </template>
+          <template #body="{ list }">
+            <tr
+              v-for="team in list"
+              :key="team.id"
+              class="text-secondaryDark hover:bg-divider hover:cursor-pointer rounded-xl"
+              @click="goToTeamDetails(team.id)"
+            >
+              <td class="flex py-4 px-7 max-w-[16rem]">
+                <span class="truncate">
+                  {{ team.id }}
+                </span>
+              </td>
+
+              <td class="py-4 px-7 min-w-[20rem]">
+                <span
+                  class="flex items-center truncate"
+                  :class="{ truncate: team.name }"
+                >
+                  {{ team.name ?? t('teams.unnamed') }}
+                </span>
+              </td>
+
+              <td class="py-4 px-7">
+                {{ team.members?.length }}
+              </td>
+
+              <td @click.stop>
+                <div class="relative">
+                  <tippy interactive trigger="click" theme="popover">
+                    <HoppButtonSecondary
+                      v-tippy="{ theme: 'tooltip' }"
+                      :icon="IconMoreHorizontal"
+                    />
+                    <template #content="{ hide }">
+                      <div
+                        ref="tippyActions"
+                        class="flex flex-col focus:outline-none"
+                        tabindex="0"
+                        @keyup.escape="hide()"
+                      >
+                        <HoppSmartItem
+                          :icon="IconTrash"
+                          :label="t('teams.delete_team')"
+                          class="!hover:bg-red-600 w-full"
+                          @click="
+                            () => {
+                              deleteTeam(team.id);
+                              hide();
+                            }
+                          "
+                        />
+                      </div>
+                    </template>
+                  </tippy>
+                </div>
+              </td>
+            </tr>
+          </template>
+        </HoppSmartTable>
+
+        <div v-else class="px-2 text-lg">
+          {{ t('teams.no_teams') }}
+        </div>
 
         <div
-          v-if="hasNextPage && teamList.length >= teamsPerPage"
+          v-if="hasNextPage && teamsList.length >= teamsPerPage"
           class="flex justify-center my-5 px-3 py-2 cursor-pointer font-semibold rounded-3xl bg-dividerDark hover:bg-divider transition mx-auto w-38 text-secondaryDark"
           @click="fetchNextTeams"
         >
@@ -66,10 +131,12 @@ import {
   UsersListDocument,
 } from '../../helpers/backend/graphql';
 import { usePagedQuery } from '~/composables/usePagedQuery';
-import { ref, watch, computed } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useMutation, useQuery } from '@urql/vue';
 import { useToast } from '~/composables/toast';
 import IconAddUsers from '~icons/lucide/plus';
+import IconTrash from '~icons/lucide/trash';
+import IconMoreHorizontal from '~icons/lucide/more-horizontal';
 import { useI18n } from '~/composables/i18n';
 
 const t = useI18n();
@@ -77,11 +144,11 @@ const t = useI18n();
 const toast = useToast();
 // Get Users List
 const { data } = useQuery({ query: MetricsDocument });
-const usersPerPage = computed(() => data.value?.admin.usersCount || 10000);
+const usersPerPage = computed(() => data.value?.infra.usersCount || 10000);
 
 const { list: usersList } = usePagedQuery(
   UsersListDocument,
-  (x) => x.admin.allUsers,
+  (x) => x.infra.allUsers,
   (x) => x.uid,
   usersPerPage.value,
   { cursor: undefined, take: usersPerPage.value }
@@ -96,11 +163,11 @@ const {
   error,
   goToNextPage: fetchNextTeams,
   refetch,
-  list: teamList,
+  list: teamsList,
   hasNextPage,
 } = usePagedQuery(
   TeamListDocument,
-  (x) => x.admin.allTeams,
+  (x) => x.infra.allTeams,
   (x) => x.id,
   teamsPerPage,
   { cursor: undefined, take: teamsPerPage }
@@ -116,7 +183,7 @@ const createTeam = async (newTeamName: string, ownerEmail: string) => {
     toast.error(`${t('state.team_name_long')}`);
     return;
   }
-  if (ownerEmail.length == 0) {
+  if (ownerEmail.length === 0) {
     toast.error(`${t('state.enter_team_email')}`);
     return;
   }
@@ -143,9 +210,7 @@ const createTeam = async (newTeamName: string, ownerEmail: string) => {
 
 // Go To Individual Team Details Page
 const router = useRouter();
-const goToTeamDetails = (teamId: string) => {
-  router.push('/teams/' + teamId);
-};
+const goToTeamDetails = (teamId: string) => router.push('/teams/' + teamId);
 
 // Reload Teams Page when routed back to the teams page
 const route = useRoute();
@@ -175,7 +240,7 @@ const deleteTeamMutation = async (id: string | null) => {
     if (result.error) {
       toast.error(`${t('state.delete_team_failure')}`);
     } else {
-      teamList.value = teamList.value.filter((team) => team.id !== id);
+      teamsList.value = teamsList.value.filter((team) => team.id !== id);
       toast.success(`${t('state.delete_team_success')}`);
     }
   });

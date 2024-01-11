@@ -17,7 +17,7 @@ services:
     environment:
       # Edit the below line to match your PostgresDB URL if you have an outside DB (make sure to update the .env file as well)
       - DATABASE_URL=postgresql://postgres:testpass@hoppscotch-db:5432/hoppscotch?connect_timeout=300
-      - PORT=3170
+      - PORT=8080
     volumes:
       # Uncomment the line below when modifying code. Only applicable when using the "dev" target.
       # - ./packages/hoppscotch-backend/:/usr/src/app
@@ -26,6 +26,7 @@ services:
       hoppscotch-db:
         condition: service_healthy
     ports:
+      - "3180:80"
       - "3170:3170"
 
   # The main hoppscotch app. This will be hosted at port 3000
@@ -42,7 +43,8 @@ services:
     depends_on:
       - hoppscotch-backend
     ports:
-      - "3000:8080"
+      - "3080:80"
+      - "3000:3000"
 
   # The Self Host dashboard for managing the app. This will be hosted at port 3100
   # NOTE: To do TLS or play around with how the app is hosted, you can look into the Caddyfile for
@@ -58,11 +60,13 @@ services:
     depends_on:
       - hoppscotch-backend
     ports:
-      - "3100:8080"
+      - "3280:80"
+      - "3100:3100"
 
   # The service that spins up all 3 services at once in one container
   hoppscotch-aio:
     container_name: hoppscotch-aio
+    restart: unless-stopped
     build:
       dockerfile: prod.Dockerfile
       context: .
@@ -76,6 +80,7 @@ services:
       - "3000:3000"
       - "3100:3100"
       - "3170:3170"
+      - "3080:80"
 
   # The preset DB service, you can delete/comment the below lines if
   # you are using an external postgres instance

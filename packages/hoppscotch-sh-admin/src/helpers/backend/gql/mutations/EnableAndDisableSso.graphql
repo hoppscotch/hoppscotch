@@ -1,0 +1,3 @@
+mutation EnableAndDisableSSO($providerInfo: [EnableAndDisableSSOArgs!]!) {
+  enableAndDisableSSO(providerInfo: $providerInfo)
+}

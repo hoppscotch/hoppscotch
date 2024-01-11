@@ -1,10 +1,15 @@
 <template>
-  <div class="flex flex-col flex-1 overflow-auto whitespace-nowrap">
-    <div v-if="response?.length === 1" class="flex flex-col flex-1">
+  <div class="flex flex-1 flex-col overflow-auto whitespace-nowrap">
+    <div
+      v-if="
+        response && response.length === 1 && response[0].type === 'response'
+      "
+      class="flex flex-1 flex-col"
+    >
       <div
-        class="sticky top-0 z-10 flex items-center justify-between flex-shrink-0 pl-4 overflow-x-auto border-b bg-primary border-dividerLight"
+        class="sticky top-0 z-10 flex flex-shrink-0 items-center justify-between overflow-x-auto border-b border-dividerLight bg-primary pl-4"
       >
-        <label class="font-semibold truncate text-secondaryLight">
+        <label class="truncate font-semibold text-secondaryLight">
           {{ t("response.title") }}
         </label>
         <div class="flex items-center">
@@ -20,7 +25,7 @@
             :title="`${t(
               'action.download_file'
             )} <kbd>${getSpecialKey()}</kbd><kbd>J</kbd>`"
-            :icon="downloadResponseIcon"
+            :icon="downloadIcon"
             @click="downloadResponse"
           />
           <HoppButtonSecondary
@@ -28,16 +33,55 @@
             :title="`${t(
               'action.copy'
             )} <kbd>${getSpecialKey()}</kbd><kbd>.</kbd>`"
-            :icon="copyResponseIcon"
-            @click="copyResponse(response[0].data)"
+            :icon="copyIcon"
+            @click="copyResponse"
           />
+          <tippy
+            interactive
+            trigger="click"
+            theme="popover"
+            :on-shown="() => copyInterfaceTippyActions.focus()"
+          >
+            <HoppButtonSecondary
+              v-tippy="{ theme: 'tooltip' }"
+              :title="t('app.copy_interface_type')"
+              :icon="IconMore"
+            />
+            <template #content="{ hide }">
+              <div
+                ref="copyInterfaceTippyActions"
+                class="flex flex-col focus:outline-none"
+                tabindex="0"
+                @keyup.escape="hide()"
+              >
+                <HoppSmartItem
+                  v-for="(language, index) in interfaceLanguages"
+                  :key="index"
+                  :label="language"
+                  :icon="
+                    copiedInterfaceLanguage === language
+                      ? copyInterfaceIcon
+                      : IconCopy
+                  "
+                  @click="runCopyInterface(language)"
+                />
+              </div>
+            </template>
+          </tippy>
         </div>
       </div>
-      <div ref="schemaEditor" class="flex flex-col flex-1"></div>
+      <div ref="schemaEditor" class="flex flex-1 flex-col"></div>
     </div>
+    <component
+      :is="response[0].error.component"
+      v-else-if="
+        response && response[0].type === 'error' && response[0].error.component
+      "
+      class="flex-1"
+    />
     <div
       v-else-if="response && response?.length > 1"
-      class="flex flex-col flex-1"
+      class="flex flex-1 flex-col"
     >
       <GraphqlSubscriptionLog :log="response" />
     </div>
@@ -47,22 +91,22 @@
 
 <script setup lang="ts">
 import IconWrapText from "~icons/lucide/wrap-text"
-import IconDownload from "~icons/lucide/download"
-import IconCheck from "~icons/lucide/check"
 import IconCopy from "~icons/lucide/copy"
+import IconMore from "~icons/lucide/more-horizontal"
 import { computed, reactive, ref } from "vue"
-import { refAutoReset } from "@vueuse/core"
 import { useCodemirror } from "@composables/codemirror"
-import { copyToClipboard } from "~/helpers/utils/clipboard"
 import { useI18n } from "@composables/i18n"
-import { useToast } from "@composables/toast"
 import { defineActionHandler } from "~/helpers/actions"
 import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
 import { GQLResponseEvent } from "~/helpers/graphql/connection"
-import { platform } from "~/platform"
+import interfaceLanguages from "~/helpers/utils/interfaceLanguages"
+import {
+  useCopyInterface,
+  useCopyResponse,
+  useDownloadResponse,
+} from "~/composables/lens-actions"
 
 const t = useI18n()
-const toast = useToast()
 
 const props = withDefaults(
   defineProps<{
@@ -74,13 +118,22 @@ const props = withDefaults(
 )
 
 const responseString = computed(() => {
-  if (props.response?.length === 1) {
-    return JSON.stringify(JSON.parse(props.response[0].data), null, 2)
+  const response = props.response
+  if (response && response[0].type === "error") {
+    return ""
+  } else if (
+    response &&
+    response.length === 1 &&
+    response[0].type === "response" &&
+    response[0].data
+  ) {
+    return JSON.stringify(JSON.parse(response[0].data), null, 2)
   }
   return ""
 })
 
 const schemaEditor = ref<any | null>(null)
+const copyInterfaceTippyActions = ref<any | null>(null)
 const linewrapEnabled = ref(true)
 
 useCodemirror(
@@ -98,55 +151,29 @@ useCodemirror(
   })
 )
 
-const downloadResponseIcon = refAutoReset<
-  typeof IconDownload | typeof IconCheck
->(IconDownload, 1000)
-const copyResponseIcon = refAutoReset<typeof IconCopy | typeof IconCheck>(
-  IconCopy,
-  1000
+const { copyIcon, copyResponse } = useCopyResponse(responseString)
+const { copyInterfaceIcon, copyInterface } = useCopyInterface(responseString)
+const { downloadIcon, downloadResponse } = useDownloadResponse(
+  "application/json",
+  responseString
 )
 
-const copyResponse = (str: string) => {
-  copyToClipboard(str)
-  copyResponseIcon.value = IconCheck
-  toast.success(`${t("state.copied_to_clipboard")}`)
-}
+const copiedInterfaceLanguage = ref("")
 
-const downloadResponse = async (str: string) => {
-  const dataToWrite = str
-  const file = new Blob([dataToWrite!], { type: "application/json" })
-  const url = URL.createObjectURL(file)
-
-  const filename = `${url.split("/").pop()!.split("#")[0].split("?")[0]}.json`
-
-  URL.revokeObjectURL(url)
-
-  const result = await platform.io.saveFileWithDialog({
-    data: dataToWrite,
-    contentType: "application/json",
-    suggestedFilename: filename,
-    filters: [
-      {
-        name: "JSON file",
-        extensions: ["json"],
-      },
-    ],
+const runCopyInterface = (language: string) => {
+  copyInterface(language).then(() => {
+    copiedInterfaceLanguage.value = language
   })
-
-  if (result.type === "unknown" || result.type === "saved") {
-    downloadResponseIcon.value = IconCheck
-    toast.success(`${t("state.download_started")}`)
-  }
 }
 
 defineActionHandler(
   "response.file.download",
-  () => downloadResponse(responseString.value),
+  () => downloadResponse(),
   computed(() => !!props.response && props.response.length > 0)
 )
 defineActionHandler(
   "response.copy",
-  () => copyResponse(responseString.value),
+  () => copyResponse(),
   computed(() => !!props.response && props.response.length > 0)
 )
 </script>

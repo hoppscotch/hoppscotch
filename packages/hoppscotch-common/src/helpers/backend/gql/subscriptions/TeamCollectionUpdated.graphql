@@ -2,6 +2,7 @@ subscription TeamCollectionUpdated($teamID: ID!) {
   teamCollectionUpdated(teamID: $teamID) {
     id
     title
+    data
     parent {
       id
     }

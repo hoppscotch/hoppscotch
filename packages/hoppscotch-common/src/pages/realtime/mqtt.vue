@@ -2,7 +2,7 @@
   <AppPaneLayout layout-id="mqtt">
     <template #primary>
       <div
-        class="sticky top-0 z-10 flex flex-shrink-0 p-4 space-x-2 overflow-x-auto bg-primary"
+        class="sticky top-0 z-10 flex flex-shrink-0 space-x-2 overflow-x-auto bg-primary p-4"
       >
         <div class="inline-flex flex-1 space-x-2">
           <div class="flex flex-1">
@@ -12,7 +12,7 @@
               type="url"
               autocomplete="off"
               :class="{ error: !isUrlValid }"
-              class="flex flex-1 w-full px-4 py-2 border rounded-l bg-primaryLight border-divider text-secondaryDark"
+              class="flex w-full flex-1 rounded-l border border-divider bg-primaryLight px-4 py-2 text-secondaryDark"
               :placeholder="`${t('mqtt.url')}`"
               :disabled="
                 connectionState === 'CONNECTED' ||
@@ -22,14 +22,14 @@
             />
             <label
               for="client-id"
-              class="px-4 py-2 font-semibold truncate border-t border-b bg-primaryLight border-divider text-secondaryLight"
+              class="truncate border-b border-t border-divider bg-primaryLight px-4 py-2 font-semibold text-secondaryLight"
             >
               {{ t("mqtt.client_id") }}
             </label>
             <input
               id="client-id"
               v-model="clientID"
-              class="flex flex-1 w-full px-4 py-2 border rounded-r bg-primaryLight border-divider text-secondaryDark"
+              class="flex w-full flex-1 rounded-r border border-divider bg-primaryLight px-4 py-2 text-secondaryDark"
               spellcheck="false"
               :disabled="
                 connectionState === 'CONNECTED' ||
@@ -46,8 +46,8 @@
               connectionState === 'CONNECTING'
                 ? t('action.connecting')
                 : connectionState === 'DISCONNECTED'
-                ? t('action.connect')
-                : t('action.disconnect')
+                  ? t('action.connect')
+                  : t('action.disconnect')
             "
             :loading="connectionState === 'CONNECTING'"
             @click="toggleConnection"
@@ -56,7 +56,7 @@
       </div>
 
       <div
-        class="flex flex-col flex-1"
+        class="flex flex-1 flex-col"
         :class="{ '!hidden': connectionState === 'CONNECTED' }"
       >
         <RealtimeConnectionConfig @change="onChangeConfig" />
@@ -103,7 +103,7 @@
               :style="{
                 color: tab.color,
               }"
-              class="w-4 h-4 svg-icons"
+              class="svg-icons h-4 w-4"
             />
           </template>
           <RealtimeLog
@@ -116,9 +116,9 @@
     </template>
     <template #sidebar>
       <div
-        class="sticky z-10 flex flex-col flex-shrink-0 overflow-x-auto border-b divide-y rounded-t divide-dividerLight bg-primary border-dividerLight"
+        class="sticky z-10 flex flex-shrink-0 flex-col divide-y divide-dividerLight overflow-x-auto rounded-t border-b border-dividerLight bg-primary"
       >
-        <div class="flex justify-between flex-1">
+        <div class="flex flex-1 justify-between">
           <HoppButtonSecondary
             :icon="IconPlus"
             :label="t('mqtt.new')"
@@ -142,12 +142,14 @@
         :alt="`${t('empty.subscription')}`"
         :text="`${t('empty.subscription')}`"
       >
-        <HoppButtonSecondary
-          :label="t('mqtt.new')"
-          filled
-          outline
-          @click="showSubscriptionModal(true)"
-        />
+        <template #body>
+          <HoppButtonSecondary
+            :label="t('mqtt.new')"
+            filled
+            outline
+            @click="showSubscriptionModal(true)"
+          />
+        </template>
       </HoppSmartPlaceholder>
       <div v-else>
         <div
@@ -155,17 +157,17 @@
           :key="`subscription-${index}`"
           class="flex flex-col"
         >
-          <div class="flex items-stretch group">
-            <span class="flex items-center justify-center px-4 cursor-pointer">
+          <div class="group flex items-stretch">
+            <span class="flex cursor-pointer items-center justify-center px-4">
               <icon-lucide-rss
                 :style="{
                   color: topic.color,
                 }"
-                class="w-4 h-4 svg-icons"
+                class="svg-icons h-4 w-4"
               />
             </span>
             <span
-              class="flex flex-1 min-w-0 py-2 pr-2 transition cursor-pointer group-hover:text-secondaryDark"
+              class="flex min-w-0 flex-1 cursor-pointer py-2 pr-2 transition group-hover:text-secondaryDark"
               @click="openTopicAsTab(topic)"
             >
               <span class="truncate">

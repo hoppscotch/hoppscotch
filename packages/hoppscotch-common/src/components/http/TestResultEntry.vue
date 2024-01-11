@@ -17,23 +17,23 @@
         class="flex items-center px-4 py-2"
       >
         <div
-          class="flex items-center flex-shrink flex-shrink-0 overflow-x-auto"
+          class="flex flex-shrink flex-shrink-0 items-center overflow-x-auto"
         >
           <component
             :is="result.status === 'pass' ? IconCheck : IconClose"
-            class="mr-4 svg-icons"
+            class="svg-icons mr-4"
             :class="
               result.status === 'pass' ? 'text-green-500' : 'text-red-500'
             "
           />
           <div
-            class="flex items-center flex-shrink flex-shrink-0 space-x-2 overflow-x-auto"
+            class="flex flex-shrink flex-shrink-0 items-center space-x-2 overflow-x-auto"
           >
             <span v-if="result.message" class="inline-flex text-secondaryDark">
               {{ result.message }}
             </span>
             <span class="inline-flex text-secondaryLight">
-              <icon-lucide-minus class="mr-2 svg-icons" />
+              <icon-lucide-minus class="svg-icons mr-2" />
               {{
                 result.status === "pass" ? t("test.passed") : t("test.failed")
               }}

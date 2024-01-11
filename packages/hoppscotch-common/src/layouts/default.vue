@@ -1,5 +1,5 @@
 <template>
-  <div class="flex w-screen h-screen">
+  <div class="flex h-screen w-screen">
     <Splitpanes class="no-splitter" :dbl-click-splitter="false" horizontal>
       <Pane style="height: auto">
         <AppHeader />
@@ -12,7 +12,7 @@
         >
           <Pane
             style="width: auto; height: auto"
-            class="!overflow-auto hidden md:flex md:flex-col"
+            class="hidden !overflow-auto md:flex md:flex-col"
           >
             <AppSidenav />
           </Pane>
@@ -23,10 +23,10 @@
               horizontal
             >
               <Pane class="flex flex-1 !overflow-auto">
-                <main class="flex flex-1 w-full" role="main">
+                <main class="flex w-full flex-1" role="main">
                   <RouterView
                     v-slot="{ Component }"
-                    class="flex flex-1 min-w-0"
+                    class="flex min-w-0 flex-1"
                   >
                     <Transition name="fade" mode="out-in" appear>
                       <component :is="Component" />
@@ -44,7 +44,7 @@
       <Pane
         v-else
         style="height: auto"
-        class="!overflow-auto flex flex-col fixed inset-x-0 bottom-0 z-10"
+        class="fixed inset-x-0 bottom-0 z-10 flex flex-col !overflow-auto"
       >
         <AppSidenav />
       </Pane>
@@ -61,19 +61,21 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeMount, onMounted, ref, watch } from "vue"
-import { breakpointsTailwind, useBreakpoints } from "@vueuse/core"
-import { Splitpanes, Pane } from "splitpanes"
-import "splitpanes/dist/splitpanes.css"
-import { RouterView, useRouter } from "vue-router"
 import { useSetting } from "@composables/settings"
+import { breakpointsTailwind, useBreakpoints } from "@vueuse/core"
+import { useService } from "dioc/vue"
+import { Pane, Splitpanes } from "splitpanes"
+import "splitpanes/dist/splitpanes.css"
+import { computed, onBeforeMount, onMounted, ref, watch } from "vue"
+import { RouterView, useRouter } from "vue-router"
+
 import { defineActionHandler } from "~/helpers/actions"
 import { hookKeybindingsListener } from "~/helpers/keybindings"
 import { applySetting } from "~/newstore/settings"
-import { getLocalConfig, setLocalConfig } from "~/newstore/localpersistence"
 import { useToast } from "~/composables/toast"
 import { useI18n } from "~/composables/i18n"
 import { platform } from "~/platform"
+import { PersistenceService } from "~/services/persistence"
 
 const router = useRouter()
 
@@ -90,6 +92,8 @@ const mdAndLarger = breakpoints.greater("md")
 const toast = useToast()
 const t = useI18n()
 
+const persistenceService = useService(PersistenceService)
+
 onBeforeMount(() => {
   if (!mdAndLarger.value) {
     rightSidebar.value = false
@@ -98,7 +102,8 @@ onBeforeMount(() => {
 })
 
 onMounted(() => {
-  const cookiesAllowed = getLocalConfig("cookiesAllowed") === "yes"
+  const cookiesAllowed =
+    persistenceService.getLocalConfig("cookiesAllowed") === "yes"
   const platformAllowsCookiePrompts =
     platform.platformFeatureFlags.promptAsUsingCookies ?? true
 
@@ -109,7 +114,7 @@ onMounted(() => {
         {
           text: `${t("action.learn_more")}`,
           onClick: (_, toastObject) => {
-            setLocalConfig("cookiesAllowed", "yes")
+            persistenceService.setLocalConfig("cookiesAllowed", "yes")
             toastObject.goAway(0)
             window
               .open("https://docs.hoppscotch.io/support/privacy", "_blank")
@@ -119,7 +124,7 @@ onMounted(() => {
         {
           text: `${t("action.dismiss")}`,
           onClick: (_, toastObject) => {
-            setLocalConfig("cookiesAllowed", "yes")
+            persistenceService.setLocalConfig("cookiesAllowed", "yes")
             toastObject.goAway(0)
           },
         },

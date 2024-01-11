@@ -1,0 +1,64 @@
+@import "./base-themes.scss";
+@import "./editor-themes.scss";
+@import "./accent-themes.scss";
+
+:root {
+  @include base-theme;
+  @include dark-theme;
+  @include green-theme;
+  @include dark-editor-theme;
+}
+
+:root.light {
+  @include light-theme;
+  @include light-editor-theme;
+  color-scheme: light;
+}
+
+:root.dark {
+  @include dark-theme;
+  @include dark-editor-theme;
+  color-scheme: dark;
+}
+
+:root.black {
+  @include black-theme;
+  @include black-editor-theme;
+  color-scheme: dark;
+}
+
+:root[data-accent="blue"] {
+  @include blue-theme;
+}
+
+:root[data-accent="green"] {
+  @include green-theme;
+}
+
+:root[data-accent="teal"] {
+  @include teal-theme;
+}
+
+:root[data-accent="indigo"] {
+  @include indigo-theme;
+}
+
+:root[data-accent="purple"] {
+  @include purple-theme;
+}
+
+:root[data-accent="orange"] {
+  @include orange-theme;
+}
+
+:root[data-accent="pink"] {
+  @include pink-theme;
+}
+
+:root[data-accent="red"] {
+  @include red-theme;
+}
+
+:root[data-accent="yellow"] {
+  @include yellow-theme;
+}

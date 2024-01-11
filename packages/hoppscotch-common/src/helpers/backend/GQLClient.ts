@@ -325,7 +325,8 @@ export const runAuthOnlyGQLSubscription = flow(
         ) {
           sub.unsubscribe()
           return null
-        } else return res
+        }
+        return res
       }),
       filter((res): res is Exclude<typeof res, null> => res !== null)
     )

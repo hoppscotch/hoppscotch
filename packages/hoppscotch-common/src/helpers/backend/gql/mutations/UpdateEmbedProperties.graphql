@@ -1,0 +1,8 @@
+mutation UpdateEmbedProperties($code: ID!, $properties: String!) {
+  updateEmbedProperties(code: $code, properties: $properties) {
+    id
+    request
+    properties
+    createdOn
+  }
+}

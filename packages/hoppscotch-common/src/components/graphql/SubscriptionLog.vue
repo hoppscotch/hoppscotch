@@ -1,7 +1,7 @@
 <template>
-  <div ref="container" class="flex flex-col flex-1">
+  <div ref="container" class="flex flex-1 flex-col">
     <div
-      class="sticky top-0 z-10 flex items-center justify-between flex-none pl-4 border-b bg-primary border-dividerLight"
+      class="sticky top-0 z-10 flex flex-none items-center justify-between border-b border-dividerLight bg-primary pl-4"
     >
       <label for="log" class="py-2 font-semibold text-secondaryLight">
         {{ "Subscription Log" }}
@@ -43,13 +43,17 @@
       class="overflow-y-auto border-b border-dividerLight"
     >
       <div
-        class="flex flex-col h-auto h-full border-r divide-y divide-dividerLight border-dividerLight"
+        class="flex h-auto h-full flex-col divide-y divide-dividerLight border-r border-dividerLight"
       >
         <RealtimeLogEntry
           v-for="(entry, index) in log"
           :key="`entry-${index}`"
           :is-open="log.length - 1 === index"
-          :entry="{ ts: entry.time, source: 'info', payload: entry.data }"
+          :entry="{
+            ts: entry.type === 'response' ? entry.time : undefined,
+            source: 'info',
+            payload: entry.type === 'response' ? entry.data : '',
+          }"
         />
       </div>
     </div>

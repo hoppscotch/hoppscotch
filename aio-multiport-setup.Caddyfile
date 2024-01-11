@@ -1,0 +1,19 @@
+:3000 {
+	try_files {path} /
+	root * /site/selfhost-web
+	file_server
+}
+
+:3100 {
+	try_files {path} /
+	root * /site/sh-admin-multiport-setup
+	file_server
+}
+
+:3170 {
+	reverse_proxy localhost:8080
+}
+
+:80 {
+	respond 404
+}

@@ -1,0 +1,3 @@
+mutation RevokeShortcodeByAdmin($codeID: ID!) {
+  revokeShortcodeByAdmin(code: $codeID)
+}

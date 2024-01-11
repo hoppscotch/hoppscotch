@@ -1,5 +1,6 @@
 {
   "action": {
+    "add": "Add",
     "autoscroll": "Автоскрол",
     "cancel": "Отменить",
     "choose_file": "Выберите файл",
@@ -10,6 +11,7 @@
     "connect": "Подключиться",
     "connecting": "Соединение...",
     "copy": "Скопировать",
+    "create": "Create",
     "delete": "Удалить",
     "disconnect": "Отключиться",
     "dismiss": "Скрыть",
@@ -31,6 +33,7 @@
     "open_workspace": "Открыть пространство",
     "paste": "Вставить",
     "prettify": "Форматировать",
+    "properties": "Properties",
     "remove": "Удалить",
     "rename": "Переименовать",
     "restore": "Восстановить",
@@ -39,6 +42,7 @@
     "scroll_to_top": "Вверх",
     "search": "Поиск",
     "send": "Отправить",
+    "share": "Share",
     "start": "Начать",
     "starting": "Запускаю",
     "stop": "Стоп",
@@ -57,7 +61,9 @@
   "app": {
     "chat_with_us": "Связаться с нами",
     "contact_us": "Свяжитесь с нами",
+    "cookies": "Cookies",
     "copy": "Копировать",
+    "copy_interface_type": "Copy interface type",
     "copy_user_id": "Копировать токен пользователя",
     "developer_option": "Настройки разработчика",
     "developer_option_description": "Инструмент разработчика помогает обслуживить и развивить Hoppscotch",
@@ -73,6 +79,7 @@
     "keyboard_shortcuts": "Горячие клавиши",
     "name": "Hoppscotch",
     "new_version_found": "Найдена новая версия. Перезагрузите для обновления.",
+    "open_in_hoppscotch": "Open in Hoppscotch",
     "options": "Настройки",
     "proxy_privacy_policy": "Политика конфиденциальности прокси",
     "reload": "Перезагрузить",
@@ -112,10 +119,27 @@
   },
   "authorization": {
     "generate_token": "Сгенерировать токен",
+    "graphql_headers": "Authorization Headers are sent as part of the payload to connection_init",
     "include_in_url": "Добавить в URL",
+    "inherited_from": "Inherited from {auth} from Parent Collection {collection} ",
     "learn": "Узнать больше",
+    "oauth": {
+      "redirect_auth_server_returned_error": "Auth Server returned an error state",
+      "redirect_auth_token_request_failed": "Request to get the auth token failed",
+      "redirect_auth_token_request_invalid_response": "Invalid Response from the Token Endpoint when requesting for an auth token",
+      "redirect_invalid_state": "Invalid State value present in the redirect",
+      "redirect_no_auth_code": "No Authorization Code present in the redirect",
+      "redirect_no_client_id": "No Client ID defined",
+      "redirect_no_client_secret": "No Client Secret Defined",
+      "redirect_no_code_verifier": "No Code Verifier Defined",
+      "redirect_no_token_endpoint": "No Token Endpoint Defined",
+      "something_went_wrong_on_oauth_redirect": "Something went wrong during OAuth Redirect",
+      "something_went_wrong_on_token_generation": "Something went wrong on token generation",
+      "token_generation_oidc_discovery_failed": "Failure on token generation: OpenID Connect Discovery Failed"
+    },
     "pass_key_by": "Pass by",
     "password": "Пароль",
+    "save_to_inherit": "Please save this request in any collection to inherit the authorization",
     "token": "Токен",
     "type": "Метод авторизации",
     "username": "Имя пользователя"
@@ -124,6 +148,7 @@
     "created": "Коллекция создана",
     "different_parent": "Нельзя сортировать коллекцию с разной родительской коллекцией",
     "edit": "Редактировать коллекцию",
+    "import_or_create": "Import or create a collection",
     "invalid_name": "Укажите допустимое название коллекции",
     "invalid_root_move": "Коллекция уже в корне",
     "moved": "Перемещено успешно",
@@ -132,6 +157,8 @@
     "name_length_insufficient": "Имя коллекции должно иметь 3 или более символов",
     "new": "Создать коллекцию",
     "order_changed": "Порядок коллекции обновлён",
+    "properties": "Collection Properties",
+    "properties_updated": "Collection Properties Updated",
     "renamed": "Коллекция переименована",
     "request_in_use": "Запрос обрабатывается",
     "save_as": "Сохранить как",
@@ -151,6 +178,7 @@
     "remove_folder": "Вы уверены, что хотите навсегда удалить эту папку?",
     "remove_history": "Вы уверены, что хотите навсегда удалить всю историю?",
     "remove_request": "Вы уверены, что хотите навсегда удалить этот запрос?",
+    "remove_shared_request": "Are you sure you want to permanently delete this shared request?",
     "remove_team": "Вы уверены, что хотите удалить эту команду?",
     "remove_telemetry": "Вы действительно хотите отказаться от телеметрии?",
     "request_change": "Вы уверены что хотите сбросить текущий запрос, все не сохранённые данные будт утеряны?",
@@ -161,6 +189,24 @@
     "add_parameters": "Add to parameters",
     "open_request_in_new_tab": "Open request in new tab",
     "set_environment_variable": "Set as variable"
+  },
+  "cookies": {
+    "modal": {
+      "cookie_expires": "Expires",
+      "cookie_name": "Name",
+      "cookie_path": "Path",
+      "cookie_string": "Cookie string",
+      "cookie_value": "Value",
+      "empty_domain": "Domain is empty",
+      "empty_domains": "Domain list is empty",
+      "enter_cookie_string": "Enter cookie string",
+      "interceptor_no_support": "Your currently selected interceptor does not support cookies. Select a different Interceptor and try again.",
+      "managed_tab": "Managed",
+      "new_domain_name": "New domain name",
+      "no_cookies_in_domain": "No cookies set for this domain",
+      "raw_tab": "Raw",
+      "set": "Set a cookie"
+    }
   },
   "count": {
     "header": "Заголовок {count}",
@@ -192,11 +238,13 @@
     "profile": "Войдите, чтобы просмотреть свой профиль",
     "protocols": "Протоколы пустые",
     "schema": "Подключиться к конечной точке GraphQL",
-    "shortcodes": "Нет коротких ссылок",
+    "shared_requests": "Shared requests are empty",
+    "shared_requests_logout": "Login to view your shared requests or create a new one",
     "subscription": "Нет подписок",
     "team_name": "Название команды пусто",
     "teams": "Команды пустые",
-    "tests": "Для этого запроса нет тестов"
+    "tests": "Для этого запроса нет тестов",
+    "shortcodes": "Нет коротких ссылок"
   },
   "environment": {
     "add_to_global": "Добавить в глобальное окружение",
@@ -209,6 +257,7 @@
     "empty_variables": "No variables",
     "global": "Global",
     "global_variables": "Global variables",
+    "import_or_create": "Import or create a environment",
     "invalid_name": "Укажите допустимое имя для окружения",
     "list": "Environment variables",
     "my_environments": "Мои окружения",
@@ -232,8 +281,10 @@
     "variable_list": "Список переменных"
   },
   "error": {
+    "authproviders_load_error": "Unable to load auth providers",
     "browser_support_sse": "Похоже, в этом браузере нет поддержки событий, отправленных сервером.",
     "check_console_details": "Подробности смотрите в журнале консоли.",
+    "check_how_to_add_origin": "Check how you can add an origin",
     "curl_invalid_format": "cURL неправильно отформатирован",
     "danger_zone": "Опасная зона",
     "delete_account": "Вы являетесь владельцем этой команды:",
@@ -249,9 +300,12 @@
     "json_prettify_invalid_body": "Не удалось определить недопустимое тело, устранить синтаксические ошибки json и повторить попытку.",
     "network_error": "Похоже, возникла проблема с соединением. Попробуйте еще раз.",
     "network_fail": "Не удалось отправить запрос",
+    "no_collections_to_export": "No collections to export. Please create a collection to get started.",
     "no_duration": "Без продолжительности",
+    "no_environments_to_export": "No environments to export. Please create an environment to get started.",
     "no_results_found": "Совпадения не найдены",
     "page_not_found": "Эта страница не найдена",
+    "please_install_extension": "Please install the extension and add origin to the extension.",
     "proxy_error": "Proxy error",
     "script_fail": "Не удалось выполнить сценарий предварительного запроса",
     "something_went_wrong": "Что-то пошло не так",
@@ -260,6 +314,7 @@
   "export": {
     "as_json": "Экспорт как JSON",
     "create_secret_gist": "Создать секретный Gist",
+    "failed": "Something went wrong while exporting",
     "gist_created": "Gist создан",
     "require_github": "Войдите через GitHub, чтобы создать секретную суть",
     "title": "Экспорт"
@@ -286,6 +341,9 @@
     "subscriptions": "Подписки",
     "switch_connection": "Изменить соединение"
   },
+  "graphql_collections": {
+    "title": "GraphQL Collections"
+  },
   "group": {
     "time": "Время",
     "url": "URL"
@@ -297,6 +355,8 @@
   },
   "helpers": {
     "authorization": "Заголовок авторизации будет автоматически сгенерирован при отправке запроса.",
+    "collection_properties_authorization": " This authorization will be set for every request in this collection.",
+    "collection_properties_header": "This header will be set for every request in this collection.",
     "generate_documentation_first": "Сначала создайте документацию",
     "network_fail": "Невозможно достичь конечной точки API. Проверьте подключение к сети и попробуйте еще раз.",
     "offline": "Кажется, вы не в сети. Данные в этой рабочей области могут быть устаревшими.",
@@ -316,7 +376,10 @@
   "import": {
     "collections": "Импортировать коллекции",
     "curl": "Импортировать cURL",
+    "environments_from_gist": "Import From Gist",
+    "environments_from_gist_description": "Import Hoppscotch Environments From Gist",
     "failed": "Ошибка импорта",
+    "from_file": "Import from File",
     "from_gist": "Импорт из Gist",
     "from_gist_description": "Импортировать через Gist URL",
     "from_insomnia": "Импортировать с Insomnia",
@@ -331,11 +394,17 @@
     "from_postman_description": "Импортировать из коллекции Postman",
     "from_url": "Импортировать из URL",
     "gist_url": "Введите URL-адрес Gist",
+    "gql_collections_from_gist_description": "Import GraphQL Collections From Gist",
+    "hoppscotch_environment": "Hoppscotch Environment",
+    "hoppscotch_environment_description": "Import Hoppscotch Environment JSON file",
     "import_from_url_invalid_fetch": "Не удалить получить данные по этому URL",
     "import_from_url_invalid_file_format": "Ошибка при импорте коллекций",
     "import_from_url_invalid_type": "Неподдерживаемый тип. Поддерживаемые типы: 'hoppscotch', 'openapi', 'postman', 'insomnia'",
     "import_from_url_success": "Коллекция импортирована",
+    "insomnia_environment_description": "Import Insomnia Environment from a JSON/YAML file",
     "json_description": "Импортировать из коллекции Hoppscotch",
+    "postman_environment": "Postman Environment",
+    "postman_environment_description": "Import Postman Environment from a JSON file",
     "title": "Импортировать"
   },
   "inspections": {
@@ -373,8 +442,10 @@
     "close_unsaved_tab": "У вас есть не сохранённые изменения",
     "collections": "Коллекции",
     "confirm": "Подтверждать",
+    "customize_request": "Customize Request",
     "edit_request": "Изменить запрос",
-    "import_export": "Импорт Экспорт"
+    "import_export": "Импорт Экспорт",
+    "share_request": "Share Request"
   },
   "mqtt": {
     "already_subscribed": "Вы уже подписаны на этот топик",
@@ -449,13 +520,14 @@
       "structured": "Структурированный",
       "text": "Текст"
     },
-    "copy_link": "Копировать ссылку",
     "different_collection": "Нельзя изменять порядок запросов из разных коллекций",
     "duplicated": "Запрос скопирован",
     "duration": "Продолжительность",
     "enter_curl": "Введите cURL",
     "generate_code": "Сгенерировать код",
     "generated_code": "Сгенерированный код",
+    "go_to_authorization_tab": "Go to Authorization tab",
+    "go_to_body_tab": "Go to Body tab",
     "header_list": "Список заголовков",
     "invalid_name": "Укажите имя для запроса",
     "method": "Методика",
@@ -480,12 +552,14 @@
     "saved": "Запрос сохранен",
     "share": "Делиться",
     "share_description": "Поделиться Hoppscotch с друзьями",
+    "share_request": "Share Request",
     "stop": "Stop",
     "title": "Запрос",
     "type": "Тип запроса",
     "url": "URL",
     "variables": "Переменные",
-    "view_my_links": "Посмотреть мои ссылки"
+    "view_my_links": "Посмотреть мои ссылки",
+    "copy_link": "Копировать ссылку"
   },
   "response": {
     "audio": "Аудио",
@@ -513,6 +587,7 @@
     "account_description": "Настройте параметры своей учетной записи.",
     "account_email_description": "Ваш основной адрес электронной почты.",
     "account_name_description": "Это ваше отображаемое имя.",
+    "additional": "Additional Settings",
     "background": "Задний фон",
     "black_mode": "Темная тема",
     "choose_language": "Выберите язык",
@@ -559,14 +634,31 @@
     "verified_email": "Проверенный Email",
     "verify_email": "Подтвердить Email"
   },
-  "shortcodes": {
-    "actions": "Действия",
-    "created_on": "Создано",
-    "deleted": "Удалёна",
-    "method": "Метод",
-    "not_found": "Короткая ссылка не найдена",
-    "short_code": "Короткая ссылка",
-    "url": "URL"
+  "shared_requests": {
+    "button": "Button",
+    "button_info": "Create a 'Run in Hoppscotch' button for your website, blog or a README.",
+    "copy_html": "Copy HTML",
+    "copy_link": "Copy Link",
+    "copy_markdown": "Copy Markdown",
+    "creating_widget": "Creating widget",
+    "customize": "Customize",
+    "deleted": "Shared request deleted",
+    "description": "Select a widget, you can change and customize this later",
+    "embed": "Embed",
+    "embed_info": "Add a mini 'Hoppscotch API Playground' to your website, blog or documentation.",
+    "link": "Link",
+    "link_info": "Create a shareable link to share with anyone on the internet with view access.",
+    "modified": "Shared request modified",
+    "not_found": "Shared request not found",
+    "open_new_tab": "Open in new tab",
+    "preview": "Preview",
+    "run_in_hoppscotch": "Run in Hoppscotch",
+    "theme": {
+      "dark": "Dark",
+      "light": "Light",
+      "system": "System",
+      "title": "Theme"
+    }
   },
   "shortcut": {
     "general": {
@@ -596,7 +688,6 @@
       "title": "Others"
     },
     "request": {
-      "copy_request_link": "Копировать ссылку на запрос",
       "delete_method": "Выберите метод DELETE",
       "get_method": "Выберите метод GET",
       "head_method": "Выберите метод HEAD",
@@ -611,8 +702,10 @@
       "save_request": "Сохарнить запрос",
       "save_to_collections": "Сохранить в коллекции",
       "send_request": "Послать запрос",
+      "share_request": "Share Request",
       "show_code": "Generate code snippet",
-      "title": "Запрос"
+      "title": "Запрос",
+      "copy_request_link": "Копировать ссылку на запрос"
     },
     "response": {
       "copy": "Копировать запрос в буфер обмена",
@@ -735,6 +828,7 @@
     "connection_error": "Ошибка подключения",
     "connection_failed": "Не удалось установить соединение",
     "connection_lost": "Соединение утеряно",
+    "copied_interface_to_clipboard": "Copied {language} interface type to clipboard",
     "copied_to_clipboard": "Скопировано в буфер обмена",
     "deleted": "Удалено",
     "deprecated": "УСТАРЕЛО",
@@ -742,10 +836,12 @@
     "disconnected": "Отключен",
     "disconnected_from": "Отключено от {name}",
     "docs_generated": "Документация создана",
+    "download_failed": "Download failed",
     "download_started": "Скачивание началось",
     "enabled": "Включено",
     "file_imported": "Файл импортирован",
     "finished_in": "Завершено через {duration} мс",
+    "hide": "Hide",
     "history_deleted": "История удалена",
     "linewrap": "Обернуть линии",
     "loading": "Загрузка...",
@@ -756,6 +852,7 @@
     "published_error": "Что-то пошло не так при попытке опубликовать сообщение в топик {topic}: {message}",
     "published_message": "Опубликовано сообщение: {message} в топик: {topic}",
     "reconnection_error": "Не удалось переподключиться",
+    "show": "Show",
     "subscribed_failed": "Не удалось подписаться на топик: {topic}",
     "subscribed_success": "Успешно подписался на топик: {topic}",
     "unsubscribed_failed": "Не удалось отписаться от топика: {topic}",
@@ -791,6 +888,7 @@
     "queries": "Запросы",
     "query": "Запрос",
     "schema": "Схема",
+    "shared_requests": "Shared Requests",
     "socketio": "Socket.IO",
     "sse": "SSE",
     "tests": "Тесты",
@@ -807,6 +905,7 @@
     "email_do_not_match": "Электронная почта, которой Вы воспользовались не соответсвует указанной в данных Вашей учетной записи.",
     "exit": "Выйти из команды",
     "exit_disabled": "Только владелец не может выйти из команды",
+    "failed_invites": "Failed invites",
     "invalid_coll_id": "Не верный идентификатор коллекции",
     "invalid_email_format": "Формат электронной почты недействителен",
     "invalid_id": "Некорректный ID команды. Свяжитесь с руководителем команды.",
@@ -848,6 +947,7 @@
     "same_target_destination": "Таже цель и конечная точка",
     "saved": "Команда сохранена",
     "select_a_team": "Выбрать команду",
+    "success_invites": "Success invites",
     "title": "Команды",
     "we_sent_invite_link": "Мы отправили все приглашения!",
     "we_sent_invite_link_description": "Попросите тех, кого Вы пригласили, проверить их почтовые ящики. Им нужно перейди по ссылке, чтобы подтвердить вступление в эту команду."
@@ -879,5 +979,14 @@
     "personal": "Моё пространство",
     "team": "Пространство команды",
     "title": "Рабочие пространства"
+  },
+  "shortcodes": {
+    "actions": "Действия",
+    "created_on": "Создано",
+    "deleted": "Удалёна",
+    "method": "Метод",
+    "not_found": "Короткая ссылка не найдена",
+    "short_code": "Короткая ссылка",
+    "url": "URL"
   }
 }

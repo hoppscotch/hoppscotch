@@ -13,5 +13,5 @@
     "emitDeclarationOnly": true,
     "declarationDir": "./dist"
   },
-  "include": ["src/*.ts"]
+  "include": ["src/**/*.ts"]
 }

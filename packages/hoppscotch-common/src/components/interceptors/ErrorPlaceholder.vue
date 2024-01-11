@@ -5,55 +5,57 @@
     :heading="t('error.network_fail')"
     large
   >
-    <div class="my-1 text-secondaryLight flex flex-col items-center">
-      <span>
-        {{ t("error.please_install_extension") }}
-      </span>
-      <span>
-        {{ t("error.check_how_to_add_origin") }}
-        <HoppSmartLink
-          blank
-          to="https://docs.hoppscotch.io/documentation/features/interceptor#browser-extension"
-          class="text-accent hover:text-accentDark"
-        >
-          here
-        </HoppSmartLink>
-      </span>
-    </div>
-    <div class="flex flex-col py-4 space-y-2">
-      <span>
-        <HoppSmartItem
-          to="https://chrome.google.com/webstore/detail/hoppscotch-browser-extens/amknoiejhlmhancpahfcfcfhllgkpbld"
-          blank
-          :icon="IconChrome"
-          label="Chrome"
-          :info-icon="hasChromeExtInstalled ? IconCheckCircle : null"
-          :active-info-icon="hasChromeExtInstalled"
-          outline
-        />
-      </span>
-      <span>
-        <HoppSmartItem
-          to="https://addons.mozilla.org/en-US/firefox/addon/hoppscotch"
-          blank
-          :icon="IconFirefox"
-          label="Firefox"
-          :info-icon="hasFirefoxExtInstalled ? IconCheckCircle : null"
-          :active-info-icon="hasFirefoxExtInstalled"
-          outline
-        />
-      </span>
-    </div>
-    <div class="py-4 space-y-4">
-      <div class="flex items-center">
-        <HoppSmartToggle
-          :on="extensionEnabled"
-          @change="extensionEnabled = !extensionEnabled"
-        >
-          {{ t("settings.extensions_use_toggle") }}
-        </HoppSmartToggle>
+    <template #body>
+      <div class="my-1 flex flex-col items-center text-secondaryLight">
+        <span>
+          {{ t("error.please_install_extension") }}
+        </span>
+        <span>
+          {{ t("error.check_how_to_add_origin") }}
+          <HoppSmartLink
+            blank
+            to="https://docs.hoppscotch.io/documentation/features/interceptor#browser-extension"
+            class="text-accent hover:text-accentDark"
+          >
+            here
+          </HoppSmartLink>
+        </span>
       </div>
-    </div>
+      <div class="flex flex-col space-y-2 py-4">
+        <span>
+          <HoppSmartItem
+            to="https://chrome.google.com/webstore/detail/hoppscotch-browser-extens/amknoiejhlmhancpahfcfcfhllgkpbld"
+            blank
+            :icon="IconChrome"
+            label="Chrome"
+            :info-icon="hasChromeExtInstalled ? IconCheckCircle : null"
+            :active-info-icon="hasChromeExtInstalled"
+            outline
+          />
+        </span>
+        <span>
+          <HoppSmartItem
+            to="https://addons.mozilla.org/en-US/firefox/addon/hoppscotch"
+            blank
+            :icon="IconFirefox"
+            label="Firefox"
+            :info-icon="hasFirefoxExtInstalled ? IconCheckCircle : null"
+            :active-info-icon="hasFirefoxExtInstalled"
+            outline
+          />
+        </span>
+      </div>
+      <div class="space-y-4 py-4">
+        <div class="flex items-center">
+          <HoppSmartToggle
+            :on="extensionEnabled"
+            @change="extensionEnabled = !extensionEnabled"
+          >
+            {{ t("settings.extensions_use_toggle") }}
+          </HoppSmartToggle>
+        </div>
+      </div>
+    </template>
   </HoppSmartPlaceholder>
 </template>
 

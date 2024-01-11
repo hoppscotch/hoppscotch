@@ -1,0 +1,11 @@
+:80 :3100 {
+	handle_path /admin* {
+		root * /site/sh-admin-subpath-access
+		file_server
+		try_files {path} /
+	}
+
+	handle {
+		respond 404
+	}
+}

@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="container divide-y divide-dividerLight">
-      <div class="md:grid md:gap-4 md:grid-cols-3">
+      <div class="md:grid md:grid-cols-3 md:gap-4">
         <div class="p-8 md:col-span-1">
           <h3 class="heading">
             {{ t("settings.theme") }}
@@ -10,7 +10,7 @@
             {{ t("settings.theme_description") }}
           </p>
         </div>
-        <div class="p-8 space-y-8 md:col-span-2">
+        <div class="space-y-8 p-8 md:col-span-2">
           <section>
             <h4 class="font-semibold text-secondaryDark">
               {{ t("settings.background") }}
@@ -57,7 +57,7 @@
                 :label="t('app.contact_us')"
               />.
             </div>
-            <div class="py-4 space-y-4">
+            <div class="space-y-4 py-4">
               <div class="flex items-center">
                 <HoppSmartToggle
                   v-if="hasPlatformTelemetry"
@@ -88,7 +88,7 @@
         </div>
       </div>
 
-      <div class="md:grid md:gap-4 md:grid-cols-3">
+      <div class="md:grid md:grid-cols-3 md:gap-4">
         <div class="p-8 md:col-span-1">
           <h3 class="heading">
             {{ t("settings.interceptor") }}
@@ -97,7 +97,7 @@
             {{ t("settings.interceptor_description") }}
           </p>
         </div>
-        <div class="p-8 space-y-8 md:col-span-2">
+        <div class="space-y-8 p-8 md:col-span-2">
           <section v-for="[id, settings] in interceptorsWithSettings" :key="id">
             <h4 class="font-semibold text-secondaryDark">
               {{ settings.entryTitle(t) }}
@@ -106,6 +106,15 @@
           </section>
         </div>
       </div>
+
+      <template v-if="platform.ui?.additionalSettingsSections?.length">
+        <template
+          v-for="item in platform.ui?.additionalSettingsSections"
+          :key="item.id"
+        >
+          <component :is="item" />
+        </template>
+      </template>
     </div>
     <HoppSmartConfirmModal
       :show="confirmRemove"

@@ -8,8 +8,8 @@
     </template>
     <span
       v-if="request"
-      class="font-semibold truncate text-tiny flex flex-shrink-0 border border-dividerDark rounded-md px-1"
-      :class="getMethodLabelColorClassOf(request)"
+      class="flex flex-shrink-0 truncate rounded-md border border-dividerDark px-1 text-tiny font-semibold"
+      :style="{ color: getMethodLabelColorClassOf(request) }"
     >
       {{ request.method.toUpperCase() }}
     </span>
@@ -20,7 +20,7 @@
 </template>
 
 <script setup lang="ts">
-import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
+import { HoppCollection } from "@hoppscotch/data"
 import { computed } from "vue"
 import { restCollectionStore } from "~/newstore/collections"
 import { getMethodLabelColorClassOf } from "~/helpers/rest/labelColoring"
@@ -36,7 +36,7 @@ const pathFolders = computed(() => {
       .slice(0, -1)
       .map((x) => parseInt(x))
 
-    const pathItems: HoppCollection<HoppRESTRequest>[] = []
+    const pathItems: HoppCollection[] = []
 
     let currentFolder = restCollectionStore.value.state[folderIndicies.shift()!]
     pathItems.push(currentFolder)

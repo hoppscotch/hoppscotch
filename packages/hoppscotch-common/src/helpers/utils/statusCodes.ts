@@ -85,6 +85,17 @@ const statusCodes: {
   599: "Network connect timeout error", // (Unknown) This status code is not specified in any RFCs, but is used by Microsoft Corp. HTTP proxies to signal a network connect timeout behind the proxy to a client in front of the proxy.
 }
 
-export function getStatusCodeReasonPhrase(code: number): string {
+export function getStatusCodeReasonPhrase(
+  code: number,
+  statusText?: string
+): string {
+  // Return statusText if non-empty after trimming and add ellipsis if greater than 35 characters
+  const trimmedStatusText = statusText?.trim()
+  if (trimmedStatusText) {
+    return trimmedStatusText.length > 35
+      ? `${trimmedStatusText.substring(0, 35)}...`
+      : trimmedStatusText
+  }
+
   return statusCodes[code] ?? "Unknown"
 }

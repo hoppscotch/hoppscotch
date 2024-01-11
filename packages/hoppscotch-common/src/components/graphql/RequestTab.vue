@@ -5,6 +5,7 @@
         v-model="tab.document.request"
         v-model:response="tab.document.response"
         v-model:option-tab="tab.document.optionTabPreference"
+        v-model:inherited-properties="tab.document.inheritedProperties"
         :tab-id="tab.id"
       />
     </template>

@@ -2,16 +2,27 @@
   "name": "@hoppscotch/js-sandbox",
   "version": "2.1.0",
   "description": "JavaScript sandboxes for running external scripts used by Hoppscotch clients",
-  "main": "./lib/index.js",
-  "module": "./lib/index.mjs",
-  "type": "commonjs",
+  "type": "module",
+  "files": [
+    "dist",
+    "index.d.ts"
+  ],
   "exports": {
     ".": {
-      "require": "./lib/index.js",
-      "default": "./lib/index.mjs"
+      "types": "./dist/types/index.d.ts"
+    },
+    "./web": {
+      "import": "./dist/web.js",
+      "require": "./dist/web.cjs",
+      "types": "./dist/web.d.ts"
+    },
+    "./node": {
+      "import": "./dist/node.js",
+      "require": "./dist/node.cjs",
+      "types": "./dist/node.d.ts"
     }
   },
-  "types": "./lib/",
+  "types": "./index.d.ts",
   "engines": {
     "node": ">=14",
     "pnpm": ">=3"
@@ -20,7 +31,7 @@
     "lint": "eslint --ext .ts,.js --ignore-path .gitignore .",
     "lintfix": "eslint --fix --ext .ts,.js --ignore-path .gitignore .",
     "test": "pnpm exec jest",
-    "build": "pnpm exec tsup",
+    "build": "vite build && tsc --emitDeclarationOnly",
     "clean": "pnpm tsc --build --clean",
     "postinstall": "pnpm run build",
     "prepublish": "pnpm run build",
@@ -41,10 +52,10 @@
   "license": "MIT",
   "dependencies": {
     "@hoppscotch/data": "workspace:^",
+    "@types/lodash-es": "^4.17.12",
     "fp-ts": "^2.11.10",
     "lodash": "^4.17.21",
-    "quickjs-emscripten": "^0.15.0",
-    "tsup": "^5.12.5"
+    "lodash-es": "^4.17.21"
   },
   "devDependencies": {
     "@digitak/esrun": "^3.1.2",
@@ -61,6 +72,7 @@
     "jest": "^27.5.1",
     "prettier": "^2.8.4",
     "ts-jest": "^27.1.4",
-    "typescript": "^4.6.3"
+    "typescript": "^4.6.3",
+    "vite": "^5.0.4"
   }
 }

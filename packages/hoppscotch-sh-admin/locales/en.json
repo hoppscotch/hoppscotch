@@ -6,6 +6,39 @@
     "no_name": "No name",
     "open_navigation": "Open Navigation"
   },
+  "configs": {
+    "auth_providers": {
+      "client_id": "CLIENT ID",
+      "client_secret": "CLIENT SECRET",
+      "description": "Configure authentication providers for your server",
+      "title": "Authentication Providers",
+      "update_failure": "Failed to update authentication provider configurations!!"
+    },
+    "confirm_changes": "Hoppscotch server must restart to reflect the new changes. Confirm changes made to the server configurations?",
+    "load_error": "Unable to load server configurations",
+    "mail_configs": {
+      "description": " Configure the smtp configurations",
+      "enable": "Email based authentication",
+      "smtp_url": "MAILER SMTP URL",
+      "address_from": "MAILER FROM ADDRESS",
+      "title": "SMTP Configurations",
+      "update_failure": "Failed to update smtp configurations!!"
+    },
+    "reset": {
+      "confirm_reset": "Hoppscotch server must restart to reflect the new changes. Confirm the reset of server configurations?",
+      "description": "Default configurations will be loaded as specified in the environment file",
+      "failure": "Failed to reset configurations!!",
+      "title": "Reset Configurations",
+      "info": "Reset server configurations"
+    },
+    "restart": {
+      "description": "{duration} seconds remaining before this page reloads automatically",
+      "initiate": "Initiating server restart...",
+      "title": "Server is restarting"
+    },
+    "save_changes": "Save Changes",
+    "title": "Configurations"
+  },
   "metrics": {
     "dashboard": "Dashboard",
     "no_metrics": "No metrics found",
@@ -19,6 +52,28 @@
     "owner": "OWNER",
     "viewer": "VIEWER"
   },
+  "settings": {
+    "settings": "Settings"
+  },
+  "shared_requests": {
+    "clear_filter": "Clear Filter",
+    "confirm_request_deletion": "Confirm deletion of the selected shared request?",
+    "copy": "Copy",
+    "created_on": "Created On",
+    "delete": "Delete",
+    "email": "Email",
+    "filter": "Filter",
+    "filter_by_email": "Filter by email",
+    "id": "ID",
+    "load_list_error": "Unable to load shared requests list",
+    "no_requests": "No shared requests found",
+    "open_request": "Open Request",
+    "properties": "Properties",
+    "request": "Request",
+    "show_more": "Show more",
+    "title": "Shared Requests",
+    "url": "URL"
+  },
   "state": {
     "add_user_failure": "Failed to add user to the team!!",
     "add_user_success": "User is now a member of the team!!",
@@ -31,8 +86,11 @@
     "continue_github": "Continue with Github",
     "continue_google": "Continue with Google",
     "continue_microsoft": "Continue with Microsoft",
+    "copied_to_clipboard": "Copied to clipboard",
     "create_team_failure": "Failed to create team!!",
     "create_team_success": "Team created successfully!!",
+    "delete_request_failure": "Shared Request deletion failed!!",
+    "delete_request_success": "Shared Request deleted successfully!!",
     "delete_team_failure": "Team deletion failed!!",
     "delete_team_success": "Team deleted successfully!!",
     "delete_user_failure": "User deletion failed!!",
@@ -43,6 +101,7 @@
     "email_success": "Email invitation sent successfully",
     "enter_team_email": "Please enter email of team owner!!",
     "error": "Something went wrong",
+    "error_auth_providers": "Unable to load auth providers",
     "github_signin_failure": "Failed to login with Github",
     "google_signin_failure": "Failed to login with Google",
     "invalid_email": "Please enter a valid email address",
@@ -72,7 +131,7 @@
     "send_magic_link": "Send magic link",
     "sign_in_agreement": "By signing in, you are agreeing to our",
     "sign_in_options": "All sign in option",
-    "sign_out": "sign out",
+    "sign_out": "Sign out",
     "team_name_long": "Team name should be atleast 6 characters long!!",
     "user_not_found": "User not found in the infra!!"
   },
@@ -98,9 +157,10 @@
     "load_info_error": "Unable to load team info",
     "load_list_error": "Unable to Load Teams List",
     "members": "Number of members",
-    "name": "Team name",
+    "name": "Team Name",
     "no_members": "No members in this team. Add members to this team to collaborate",
     "no_pending_invites": "No pending invites",
+    "no_teams": "No teams found",
     "pending_invites": "Pending invites",
     "remove": "Remove",
     "rename": "Rename",
@@ -112,6 +172,7 @@
     "team_members_tab": "Team members",
     "teams": "Teams",
     "uid": "UID",
+    "unnamed": "(Unnamed Team)",
     "valid_name": "Please enter a valid team name",
     "valid_owner_email": "Please enter a valid owner email"
   },
@@ -125,10 +186,13 @@
     "created_on": "Created On",
     "date": "Date",
     "delete": "Delete",
+    "delete_user": "Delete User",
+    "details": "Details",
     "email": "Email",
     "email_address": "Email Address",
     "id": "User ID",
     "invalid_user": "Invalid User",
+    "invite_load_list_error": "Unable to Load Invited Users List",
     "invite_user": "Invite User",
     "invited_on": "Invited On",
     "invited_users": "Invited Users",
@@ -138,6 +202,7 @@
     "make_admin": "Make admin",
     "name": "Name",
     "no_invite": "No invited users found",
+    "no_shared_requests": "No shared requests created by the user",
     "no_users": "No users found",
     "not_found": "User not found",
     "remove_admin_privilege": "Remove Admin Privilege",

@@ -57,6 +57,7 @@ export type SpotlightSearcherResult = {
      * The keyboard shortcut to trigger the result
      */
     keyboardShortcut?: string[]
+    additionalInfo?: unknown
   }
 }
 

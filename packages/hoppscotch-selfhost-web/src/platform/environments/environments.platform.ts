@@ -1,4 +1,4 @@
-import { authEvents$, def as platformAuth } from "@platform/auth"
+import { authEvents$, def as platformAuth } from "@platform/auth/auth.platform"
 import {
   createEnvironment,
   deleteEnvironment,

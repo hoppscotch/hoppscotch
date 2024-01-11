@@ -1,10 +1,15 @@
 <template>
-  <div class="flex flex-col flex-1">
+  <div class="flex flex-1 flex-col">
     <div
-      class="sticky z-10 flex items-center justify-between flex-shrink-0 pl-4 overflow-x-auto border-b bg-primary border-dividerLight top-upperMobileSecondaryStickyFold sm:top-upperSecondaryStickyFold"
+      class="sticky z-10 flex flex-shrink-0 items-center justify-between overflow-x-auto border-b border-dividerLight bg-primary pl-4"
+      :class="[
+        isCollectionProperty
+          ? 'top-propertiesPrimaryStickyFold'
+          : 'top-upperMobileSecondaryStickyFold sm:top-upperSecondaryStickyFold',
+      ]"
     >
       <span class="flex items-center">
-        <label class="font-semibold truncate text-secondaryLight">
+        <label class="truncate font-semibold text-secondaryLight">
           {{ t("authorization.type") }}
         </label>
         <tippy
@@ -13,12 +18,12 @@
           theme="popover"
           :on-shown="() => tippyActions.focus()"
         >
-          <span class="select-wrapper">
+          <HoppSmartSelectWrapper>
             <HoppButtonSecondary
-              class="pr-8 ml-2 rounded-none"
+              class="ml-2 rounded-none pr-8"
               :label="authName"
             />
-          </span>
+          </HoppSmartSelectWrapper>
           <template #content="{ hide }">
             <div
               ref="tippyActions"
@@ -33,6 +38,18 @@
                 @click="
                   () => {
                     auth.authType = 'none'
+                    hide()
+                  }
+                "
+              />
+              <HoppSmartItem
+                v-if="!isRootCollection"
+                label="Inherit"
+                :icon="authName === 'Inherit' ? IconCircleDot : IconCircle"
+                :active="authName === 'Inherit'"
+                @click="
+                  () => {
+                    auth.authType = 'inherit'
                     hide()
                   }
                 "
@@ -119,19 +136,36 @@
       :alt="`${t('empty.authorization')}`"
       :text="t('empty.authorization')"
     >
-      <HoppButtonSecondary
-        outline
-        :label="t('app.documentation')"
-        to="https://docs.hoppscotch.io/documentation/features/authorization"
-        blank
-        :icon="IconExternalLink"
-        reverse
-      />
+      <template #body>
+        <HoppButtonSecondary
+          outline
+          :label="t('app.documentation')"
+          to="https://docs.hoppscotch.io/documentation/features/authorization"
+          blank
+          :icon="IconExternalLink"
+          reverse
+        />
+      </template>
     </HoppSmartPlaceholder>
     <div v-else class="flex flex-1 border-b border-dividerLight">
       <div class="w-2/3 border-r border-dividerLight">
         <div v-if="auth.authType === 'basic'">
           <HttpAuthorizationBasic v-model="auth" />
+        </div>
+        <div v-if="auth.authType === 'inherit'" class="p-4">
+          <span v-if="inheritedProperties?.auth">
+            {{
+              t("authorization.inherited_from", {
+                auth: getAuthName(
+                  inheritedProperties.auth.inheritedAuth.authType
+                ),
+                collection: inheritedProperties?.auth.parentName,
+              })
+            }}
+          </span>
+          <span v-else>
+            {{ t("authorization.save_to_inherit") }}
+          </span>
         </div>
         <div v-if="auth.authType === 'bearer'">
           <div class="flex flex-1 border-b border-dividerLight">
@@ -149,7 +183,7 @@
         </div>
       </div>
       <div
-        class="sticky flex-shrink-0 h-full p-4 overflow-auto overflow-x-auto bg-primary top-upperTertiaryStickyFold min-w-46 max-w-1/3 z-9"
+        class="z-[9] sticky top-upperTertiaryStickyFold h-full min-w-[12rem] max-w-1/3 flex-shrink-0 overflow-auto overflow-x-auto bg-primary p-4"
       >
         <div class="pb-2 text-secondaryLight">
           {{ t("helpers.authorization") }}
@@ -179,6 +213,8 @@ import { pluckRef } from "@composables/ref"
 import { useI18n } from "@composables/i18n"
 import { useColorMode } from "@composables/theming"
 import { useVModel } from "@vueuse/core"
+import { onMounted } from "vue"
+import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 
 const t = useI18n()
 
@@ -186,6 +222,9 @@ const colorMode = useColorMode()
 
 const props = defineProps<{
   modelValue: HoppRESTAuth
+  isCollectionProperty?: boolean
+  isRootCollection?: boolean
+  inheritedProperties?: HoppInheritedProperty
 }>()
 
 const emit = defineEmits<{
@@ -194,18 +233,34 @@ const emit = defineEmits<{
 
 const auth = useVModel(props, "modelValue", emit)
 
+onMounted(() => {
+  if (props.isRootCollection && auth.value.authType === "inherit") {
+    auth.value = {
+      authType: "none",
+      authActive: true,
+    }
+  }
+})
+
 const AUTH_KEY_NAME = {
   basic: "Basic Auth",
   bearer: "Bearer",
   "oauth-2": "OAuth 2.0",
   "api-key": "API key",
   none: "None",
+  inherit: "Inherit",
 } as const
 
 const authType = pluckRef(auth, "authType")
 const authName = computed(() =>
   AUTH_KEY_NAME[authType.value] ? AUTH_KEY_NAME[authType.value] : "None"
 )
+
+const getAuthName = (type: HoppRESTAuth["authType"] | undefined) => {
+  if (!type) return "None"
+  return AUTH_KEY_NAME[type] ? AUTH_KEY_NAME[type] : "None"
+}
+
 const authActive = pluckRef(auth, "authActive")
 
 const clearContent = () => {

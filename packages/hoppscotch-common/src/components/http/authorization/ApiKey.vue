@@ -16,12 +16,12 @@
         theme="popover"
         :on-shown="() => authTippyActions.focus()"
       >
-        <span class="select-wrapper">
+        <HoppSmartSelectWrapper>
           <HoppButtonSecondary
             :label="auth.addTo || t('state.none')"
-            class="pr-8 ml-2 rounded-none"
+            class="ml-2 rounded-none pr-8"
           />
-        </span>
+        </HoppSmartSelectWrapper>
         <template #content="{ hide }">
           <div
             ref="authTippyActions"

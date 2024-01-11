@@ -8,7 +8,7 @@
       :label="t('app.proxy_privacy_policy')"
     />.
   </div>
-  <div class="py-4 space-y-4">
+  <div class="space-y-4 py-4">
     <div class="flex items-center">
       <HoppSmartToggle
         :on="proxyEnabled"
@@ -18,7 +18,7 @@
       </HoppSmartToggle>
     </div>
   </div>
-  <div class="flex items-center py-4 space-x-2">
+  <div class="flex items-center space-x-2 py-4">
     <HoppSmartInput
       v-model="PROXY_URL"
       :autofocus="false"

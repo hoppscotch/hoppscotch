@@ -1,5 +1,6 @@
 import { IOPlatformDef } from "@hoppscotch/common/platform/io"
 import { save } from "@tauri-apps/api/dialog"
+import { open } from "@tauri-apps/api/shell"
 import { writeBinaryFile, writeTextFile } from "@tauri-apps/api/fs"
 
 export const ioDef: IOPlatformDef = {
@@ -20,5 +21,8 @@ export const ioDef: IOPlatformDef = {
     }
 
     return { type: "saved", path }
+  },
+  openExternalLink(url) {
+    return open(url)
   },
 }

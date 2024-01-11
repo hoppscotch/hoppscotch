@@ -1,0 +1,30 @@
+{
+  "v": 2,
+  "name": "Test environment variables in request body",
+  "folders": [],
+  "requests": [
+    {
+      "v": "1",
+      "name": "test-request",
+      "endpoint": "https://echo.hoppscotch.io",
+      "method": "POST",
+      "headers": [],
+      "params": [],
+      "auth": {
+        "authType": "none",
+        "authActive": true
+      },
+      "body": {
+        "contentType": "application/json",
+        "body": "{\n   \"firstName\": \"<<firstName>>\",\n   \"lastName\": \"<<lastName>>\",\n   \"greetText\": \"<<salutation>>, <<fullName>>\",\n   \"fullName\": \"<<fullName>>\",\n   \"id\": \"<<id>>\"\n}"
+      },
+      "preRequestScript": "",
+      "testScript": "pw.test(\"Status code is 200\", ()=> {\n  pw.expect(pw.response.status).toBe(200);\n});\n\npw.test(\"Successfully resolves environments recursively\", ()=> {\n  pw.expect(pw.env.getResolve(\"recursiveVarX\")).toBe(\"Hello\")\n  pw.expect(pw.env.getResolve(\"recursiveVarY\")).toBe(\"Hello\")\n  pw.expect(pw.env.getResolve(\"salutation\")).toBe(\"Hello\")\n});\n\npw.test(\"Successfully resolves environments referenced in the request body\", () => {\n  const expectedId = \"7\"\n  const expectedFirstName = \"John\"\n  const expectedLastName = \"Doe\"\n  const expectedFullName = `${expectedFirstName} ${expectedLastName}`\n  const expectedGreetText = `Hello, ${expectedFullName}`\n\n  pw.expect(pw.env.getResolve(\"recursiveVarX\")).toBe(\"Hello\")\n  pw.expect(pw.env.getResolve(\"recursiveVarY\")).toBe(\"Hello\")\n  pw.expect(pw.env.getResolve(\"salutation\")).toBe(\"Hello\")\n\n  const { id, firstName, lastName, fullName, greetText } = JSON.parse(pw.response.body.data)\n\n  pw.expect(id).toBe(expectedId)\n  pw.expect(expectedFirstName).toBe(firstName)\n  pw.expect(expectedLastName).toBe(lastName)\n  pw.expect(fullName).toBe(expectedFullName)\n  pw.expect(greetText).toBe(expectedGreetText)\n});"
+    }
+  ],
+  "auth": {
+    "authType": "none",
+    "authActive": true
+  },
+  "headers": []
+}

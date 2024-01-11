@@ -1,0 +1,8 @@
+subscription ShortcodeUpdated {
+  myShortcodesUpdated {
+    id
+    request
+    createdOn
+    properties
+  }
+}

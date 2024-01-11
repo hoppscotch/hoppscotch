@@ -10,6 +10,7 @@ import { Ref, computed, effectScope, markRaw, ref, watch } from "vue"
 import { getI18n } from "~/modules/i18n"
 import MiniSearch from "minisearch"
 import {
+  cascadeParentCollectionForHeaderAuth,
   graphqlCollectionStore,
   restCollectionStore,
 } from "~/newstore/collections"
@@ -117,9 +118,8 @@ export class CollectionsSpotlightSearcherService
         return "graphql"
       } else if (url.pathname === "/") {
         return "rest"
-      } else {
-        return "other"
       }
+      return "other"
     } catch (e) {
       return "other"
     }
@@ -230,7 +230,7 @@ export class CollectionsSpotlightSearcherService
 
   private getRESTFolderFromFolderPath(
     folderPath: string
-  ): HoppCollection<HoppRESTRequest> | undefined {
+  ): HoppCollection | undefined {
     try {
       const folderIndicies = folderPath.split("/").map((x) => parseInt(x))
 
@@ -254,7 +254,7 @@ export class CollectionsSpotlightSearcherService
 
   private getGQLFolderFromFolderPath(
     folderPath: string
-  ): HoppCollection<HoppGQLRequest> | undefined {
+  ): HoppCollection | undefined {
     try {
       const folderIndicies = folderPath.split("/").map((x) => parseInt(x))
 
@@ -301,9 +301,14 @@ export class CollectionsSpotlightSearcherService
         this.restTab.setActiveTab(possibleTab.value.id)
       } else {
         const req = this.getRESTFolderFromFolderPath(folderPath.join("/"))
-          ?.requests[reqIndex]
+          ?.requests[reqIndex] as HoppRESTRequest
 
         if (!req) return
+
+        const { auth, headers } = cascadeParentCollectionForHeaderAuth(
+          folderPath.join("/"),
+          "rest"
+        )
 
         this.restTab.createNewTab(
           {
@@ -314,6 +319,10 @@ export class CollectionsSpotlightSearcherService
               folderPath: folderPath.join("/"),
               requestIndex: reqIndex,
             },
+            inheritedProperties: {
+              auth,
+              headers,
+            },
           },
           true
         )
@@ -323,10 +332,14 @@ export class CollectionsSpotlightSearcherService
       const reqIndex = folderPath.pop()!
 
       const req = this.getGQLFolderFromFolderPath(folderPath.join("/"))
-        ?.requests[reqIndex]
+        ?.requests[reqIndex] as HoppGQLRequest
 
       if (!req) return
 
+      const { auth, headers } = cascadeParentCollectionForHeaderAuth(
+        folderPath.join("/"),
+        "graphql"
+      )
       this.gqlTab.createNewTab({
         saveContext: {
           originLocation: "user-collection",
@@ -335,6 +348,10 @@ export class CollectionsSpotlightSearcherService
         },
         request: req,
         isDirty: false,
+        inheritedProperties: {
+          auth,
+          headers,
+        },
       })
     }
   }

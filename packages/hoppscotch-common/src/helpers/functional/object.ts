@@ -33,20 +33,20 @@ type TypeFromPrimitiveArray<P extends JSPrimitive | undefined> =
   P extends "undefined"
     ? undefined
     : P extends "object"
-    ? object[] | null
-    : P extends "boolean"
-    ? boolean[]
-    : P extends "number"
-    ? number[]
-    : P extends "bigint"
-    ? bigint[]
-    : P extends "string"
-    ? string[]
-    : P extends "symbol"
-    ? symbol[]
-    : P extends "function"
-    ? Function[] // eslint-disable-line @typescript-eslint/ban-types
-    : unknown[]
+      ? object[] | null
+      : P extends "boolean"
+        ? boolean[]
+        : P extends "number"
+          ? number[]
+          : P extends "bigint"
+            ? bigint[]
+            : P extends "string"
+              ? string[]
+              : P extends "symbol"
+                ? symbol[]
+                : P extends "function"
+                  ? Function[] // eslint-disable-line @typescript-eslint/ban-types
+                  : unknown[]
 
 // The ban-types silence is because in this case,
 // we can't get the Function type info to make a better guess

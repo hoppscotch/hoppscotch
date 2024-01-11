@@ -4,7 +4,6 @@ import * as TE from "fp-ts/TaskEither"
 import { pipe, flow } from "fp-ts/function"
 import {
   HoppCollection,
-  HoppRESTRequest,
   makeCollection,
   translateToNewRequest,
 } from "@hoppscotch/data"
@@ -15,7 +14,7 @@ import {
   ExportAsJsonDocument,
   GetCollectionChildrenIDsDocument,
   GetCollectionRequestsDocument,
-  GetCollectionTitleDocument,
+  GetCollectionTitleAndDataDocument,
 } from "./graphql"
 
 export const BACKEND_PAGE_SIZE = 10
@@ -85,16 +84,19 @@ export const getCompleteCollectionTree = (
   pipe(
     TE.Do,
 
-    TE.bind("title", () =>
+    TE.bind("titleAndData", () =>
       pipe(
         () =>
           runGQLQuery({
-            query: GetCollectionTitleDocument,
+            query: GetCollectionTitleAndDataDocument,
             variables: {
               collectionID: collID,
             },
           }),
-        TE.map((x) => x.collection!.title)
+        TE.map((result) => ({
+          title: result.collection!.title,
+          data: result.collection!.data,
+        }))
       )
     ),
     TE.bind("children", () =>
@@ -108,41 +110,46 @@ export const getCompleteCollectionTree = (
     TE.bind("requests", () => () => getCollectionRequests(collID)),
 
     TE.map(
-      ({ title, children, requests }) =>
+      ({ titleAndData, children, requests }) =>
         <TeamCollection>{
           id: collID,
           children,
           requests,
-          title,
+          title: titleAndData.title,
+          data: titleAndData.data,
         }
     )
   )
 
 export const teamCollToHoppRESTColl = (
   coll: TeamCollection
-): HoppCollection<HoppRESTRequest> =>
-  makeCollection({
+): HoppCollection => {
+  const data =
+    coll.data && coll.data !== "null"
+      ? JSON.parse(coll.data)
+      : {
+          auth: { authType: "inherit", authActive: true },
+          headers: [],
+        }
+
+  return makeCollection({
     name: coll.title,
     folders: coll.children?.map(teamCollToHoppRESTColl) ?? [],
     requests: coll.requests?.map((x) => x.request) ?? [],
+    auth: data.auth ?? { authType: "inherit", authActive: true },
+    headers: data.headers ?? [],
   })
+}
 
 /**
  * Get the JSON string of all the collection of the specified team
  * @param teamID - ID of the team
  * @returns Either of the JSON string of the collection or the error
  */
-export const getTeamCollectionJSON = async (teamID: string) => {
-  const data = await runGQLQuery({
+export const getTeamCollectionJSON = async (teamID: string) =>
+  await runGQLQuery({
     query: ExportAsJsonDocument,
     variables: {
       teamID,
     },
   })
-
-  if (E.isLeft(data)) {
-    return E.left(data.left)
-  }
-
-  return E.right(data.right)
-}

@@ -39,7 +39,7 @@ export const restRequestsMapper = createMapper<string, string>()
 // temp implementation untill the backend implements an endpoint that accepts an entire collection
 // TODO: use importCollectionsJSON to do this
 const recursivelySyncCollections = async (
-  collection: HoppCollection<HoppRESTRequest>,
+  collection: HoppCollection,
   collectionPath: string,
   parentUserCollectionID?: string
 ) => {

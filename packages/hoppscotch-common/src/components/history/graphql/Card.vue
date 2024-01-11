@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col group">
+  <div class="group flex flex-col">
     <div class="flex items-center">
       <span
         v-tippy="{
@@ -7,7 +7,7 @@
           delay: [500, 20],
           content: entry.updatedOn ? shortDateTime(entry.updatedOn) : null,
         }"
-        class="flex flex-1 min-w-0 py-2 pl-4 pr-2 cursor-pointer transition group-hover:text-secondaryDark"
+        class="flex min-w-0 flex-1 cursor-pointer py-2 pl-4 pr-2 transition group-hover:text-secondaryDark"
         data-testid="restore_history_entry"
         @click="useEntry"
       >
@@ -36,7 +36,7 @@
         :title="!entry.star ? t('add.star') : t('remove.star')"
         :icon="entry.star ? IconStarOff : IconStar"
         color="yellow"
-        :class="{ 'group-hover:inline-flex hidden': !entry.star }"
+        :class="{ 'hidden group-hover:inline-flex': !entry.star }"
         data-testid="star_button"
         @click="emit('toggle-star')"
       />
@@ -45,7 +45,7 @@
       <span
         v-for="(line, index) in query"
         :key="`line-${index}`"
-        class="px-4 font-mono truncate whitespace-pre cursor-pointer text-secondaryLight"
+        class="cursor-pointer truncate whitespace-pre px-4 font-mono text-secondaryLight"
         data-testid="restore_history_entry"
         @click="useEntry"
         >{{ line }}</span

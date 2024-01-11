@@ -2,5 +2,6 @@ query ResolveShortcode($code: ID!) {
   shortcode(code: $code) {
     id
     request
+    properties
   }
 }

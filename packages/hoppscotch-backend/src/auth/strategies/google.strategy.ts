@@ -5,18 +5,20 @@ import { UserService } from 'src/user/user.service';
 import * as O from 'fp-ts/Option';
 import { AuthService } from '../auth.service';
 import * as E from 'fp-ts/Either';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy) {
   constructor(
     private usersService: UserService,
     private authService: AuthService,
+    private configService: ConfigService,
   ) {
     super({
-      clientID: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: process.env.GOOGLE_CALLBACK_URL,
-      scope: process.env.GOOGLE_SCOPE.split(','),
+      clientID: configService.get('INFRA.GOOGLE_CLIENT_ID'),
+      clientSecret: configService.get('INFRA.GOOGLE_CLIENT_SECRET'),
+      callbackURL: configService.get('GOOGLE_CALLBACK_URL'),
+      scope: configService.get('GOOGLE_SCOPE').split(','),
       passReqToCallback: true,
       store: true,
     });

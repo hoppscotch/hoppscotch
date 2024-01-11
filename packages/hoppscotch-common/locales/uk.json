@@ -1,5 +1,6 @@
 {
   "action": {
+    "add": "Add",
     "autoscroll": "Автопрокручування",
     "cancel": "Скасувати",
     "choose_file": "Виберіть файл",
@@ -10,6 +11,7 @@
     "connect": "Підключитись",
     "connecting": "Підключення",
     "copy": "Копіювати",
+    "create": "Create",
     "delete": "Видалити",
     "disconnect": "Відключитись",
     "dismiss": "Відхилити",
@@ -31,6 +33,7 @@
     "open_workspace": "Відкрити робочу область",
     "paste": "Вставити",
     "prettify": "Форматувати",
+    "properties": "Properties",
     "remove": "Видалити",
     "rename": "Rename",
     "restore": "Відновити",
@@ -39,6 +42,7 @@
     "scroll_to_top": "Прокрутити вгору",
     "search": "Пошук",
     "send": "Надіслати",
+    "share": "Share",
     "start": "Почати",
     "starting": "Розпочинається",
     "stop": "Зупити",
@@ -57,7 +61,9 @@
   "app": {
     "chat_with_us": "Написати нам",
     "contact_us": "Зв'яжіться з нами",
+    "cookies": "Cookies",
     "copy": "Копіювати",
+    "copy_interface_type": "Copy interface type",
     "copy_user_id": "Скопіювати токен автентифікації користувача",
     "developer_option": "Параметри розробника",
     "developer_option_description": "Інструменти розробника, що допомагають у розробці та підтримці Hoppscotch.",
@@ -73,6 +79,7 @@
     "keyboard_shortcuts": "Гарячі клавіши",
     "name": "Hoppscotch",
     "new_version_found": "Знайдено нову версію. Перезавантажте сторінку, щоб оновити.",
+    "open_in_hoppscotch": "Open in Hoppscotch",
     "options": "Опції",
     "proxy_privacy_policy": "Політика конфіденційності проксі",
     "reload": "Перезавантажити",
@@ -112,10 +119,27 @@
   },
   "authorization": {
     "generate_token": "Створіть маркер",
+    "graphql_headers": "Authorization Headers are sent as part of the payload to connection_init",
     "include_in_url": "Включити в URL",
+    "inherited_from": "Inherited from {auth} from Parent Collection {collection} ",
     "learn": "Дізнайтесь, як",
+    "oauth": {
+      "redirect_auth_server_returned_error": "Auth Server returned an error state",
+      "redirect_auth_token_request_failed": "Request to get the auth token failed",
+      "redirect_auth_token_request_invalid_response": "Invalid Response from the Token Endpoint when requesting for an auth token",
+      "redirect_invalid_state": "Invalid State value present in the redirect",
+      "redirect_no_auth_code": "No Authorization Code present in the redirect",
+      "redirect_no_client_id": "No Client ID defined",
+      "redirect_no_client_secret": "No Client Secret Defined",
+      "redirect_no_code_verifier": "No Code Verifier Defined",
+      "redirect_no_token_endpoint": "No Token Endpoint Defined",
+      "something_went_wrong_on_oauth_redirect": "Something went wrong during OAuth Redirect",
+      "something_went_wrong_on_token_generation": "Something went wrong on token generation",
+      "token_generation_oidc_discovery_failed": "Failure on token generation: OpenID Connect Discovery Failed"
+    },
     "pass_key_by": "Пропустити",
     "password": "Пароль",
+    "save_to_inherit": "Please save this request in any collection to inherit the authorization",
     "token": "Токен",
     "type": "Тип авторизації",
     "username": "Ім'я користувача"
@@ -124,6 +148,7 @@
     "created": "Колекція створена",
     "different_parent": "Cannot reorder collection with different parent",
     "edit": "Редагувати колекцію",
+    "import_or_create": "Import or create a collection",
     "invalid_name": "Укажіть дійсну назву колекції",
     "invalid_root_move": "Collection already in the root",
     "moved": "Moved Successfully",
@@ -132,6 +157,8 @@
     "name_length_insufficient": "Назва колекції має містити принаймні 3 символи",
     "new": "Нова колекція",
     "order_changed": "Collection Order Updated",
+    "properties": "Collection Properties",
+    "properties_updated": "Collection Properties Updated",
     "renamed": "Колекція перейменована",
     "request_in_use": "Запит використовується",
     "save_as": "Зберегти як",
@@ -151,6 +178,7 @@
     "remove_folder": "Ви впевнені, що хочете назавжди видалити цю папку?",
     "remove_history": "Ви впевнені, що хочете назавжди видалити всю історію?",
     "remove_request": "Ви впевнені, що хочете назавжди видалити цей запит?",
+    "remove_shared_request": "Are you sure you want to permanently delete this shared request?",
     "remove_team": "Ви впевнені, що хочете видалити цю команду?",
     "remove_telemetry": "Ви впевнені, що хочете відмовитися від телеметрії?",
     "request_change": "Ви дійсно бажаєте скасувати поточний запит? Незбережені зміни будуть втрачені.",
@@ -161,6 +189,24 @@
     "add_parameters": "Add to parameters",
     "open_request_in_new_tab": "Open request in new tab",
     "set_environment_variable": "Set as variable"
+  },
+  "cookies": {
+    "modal": {
+      "cookie_expires": "Expires",
+      "cookie_name": "Name",
+      "cookie_path": "Path",
+      "cookie_string": "Cookie string",
+      "cookie_value": "Value",
+      "empty_domain": "Domain is empty",
+      "empty_domains": "Domain list is empty",
+      "enter_cookie_string": "Enter cookie string",
+      "interceptor_no_support": "Your currently selected interceptor does not support cookies. Select a different Interceptor and try again.",
+      "managed_tab": "Managed",
+      "new_domain_name": "New domain name",
+      "no_cookies_in_domain": "No cookies set for this domain",
+      "raw_tab": "Raw",
+      "set": "Set a cookie"
+    }
   },
   "count": {
     "header": "Заголовок {count}",
@@ -192,11 +238,13 @@
     "profile": "Увійдіть для перегляду вашого профілю",
     "protocols": "Протоколи порожні",
     "schema": "Підключіться до кінцевої точки GraphQL",
-    "shortcodes": "Короткі коди порожні",
+    "shared_requests": "Shared requests are empty",
+    "shared_requests_logout": "Login to view your shared requests or create a new one",
     "subscription": "Підписки порожні",
     "team_name": "Назва команди порожня",
     "teams": "Команди порожні",
-    "tests": "Для цього запиту немає тестів"
+    "tests": "Для цього запиту немає тестів",
+    "shortcodes": "Короткі коди порожні"
   },
   "environment": {
     "add_to_global": "Додати до Глобального середовища",
@@ -209,6 +257,7 @@
     "empty_variables": "No variables",
     "global": "Global",
     "global_variables": "Global variables",
+    "import_or_create": "Import or create a environment",
     "invalid_name": "Укажіть дійсну назву середовища",
     "list": "Environment variables",
     "my_environments": "Мої середовища",
@@ -232,8 +281,10 @@
     "variable_list": "Список змінних"
   },
   "error": {
+    "authproviders_load_error": "Unable to load auth providers",
     "browser_support_sse": "Схоже, цей браузер не підтримує події, надіслані сервером.",
     "check_console_details": "Детальніше перевірте журнал консолі.",
+    "check_how_to_add_origin": "Check how you can add an origin",
     "curl_invalid_format": "cURL неправильно форматовано",
     "danger_zone": "Небезпечна зона",
     "delete_account": "Ваш обліковий запис на разі володіє цими командами:",
@@ -249,9 +300,12 @@
     "json_prettify_invalid_body": "Не вдалося заздалегідь визначити недійсне тіло, вирішити синтаксичні помилки json і повторити спробу",
     "network_error": "Здається, виникла мережева помилка. Будь ласка, спробуйте ще раз.",
     "network_fail": "Не вдалося надіслати запит",
+    "no_collections_to_export": "No collections to export. Please create a collection to get started.",
     "no_duration": "Без тривалості",
+    "no_environments_to_export": "No environments to export. Please create an environment to get started.",
     "no_results_found": "Збігів не знайдено",
     "page_not_found": "Ця сторінка не знайдена",
+    "please_install_extension": "Please install the extension and add origin to the extension.",
     "proxy_error": "Proxy error",
     "script_fail": "Не вдалося виконати сценарій попереднього запиту",
     "something_went_wrong": "Щось пішло не так",
@@ -260,6 +314,7 @@
   "export": {
     "as_json": "Експортувати як JSON",
     "create_secret_gist": "Створити секретний GitHub Gist",
+    "failed": "Something went wrong while exporting",
     "gist_created": "Gist створений",
     "require_github": "Увійдіть за допомогою GitHub, щоб створити секретний Gist",
     "title": "Експортувати"
@@ -286,6 +341,9 @@
     "subscriptions": "Підписки",
     "switch_connection": "Switch connection"
   },
+  "graphql_collections": {
+    "title": "GraphQL Collections"
+  },
   "group": {
     "time": "Час",
     "url": "URL"
@@ -297,6 +355,8 @@
   },
   "helpers": {
     "authorization": "Заголовок авторизації буде автоматично сформований під час надсилання запиту.",
+    "collection_properties_authorization": " This authorization will be set for every request in this collection.",
+    "collection_properties_header": "This header will be set for every request in this collection.",
     "generate_documentation_first": "Спочатку згенеруйте документацію",
     "network_fail": "Не вдається зв'язатися з кінцевою точкою API. Перевірте підключення до мережі та повторіть спробу.",
     "offline": "Ви, здається, не в мережі. Дані в цій робочій області можуть бути не актуальними.",
@@ -316,7 +376,10 @@
   "import": {
     "collections": "Імпортувати колекції",
     "curl": "Імпортувати cURL",
+    "environments_from_gist": "Import From Gist",
+    "environments_from_gist_description": "Import Hoppscotch Environments From Gist",
     "failed": "Не вдалося імпортувати",
+    "from_file": "Import from File",
     "from_gist": "Імпорт з Gist",
     "from_gist_description": "Імпорт з Gist URL",
     "from_insomnia": "Імпорт з Insomnia",
@@ -331,11 +394,17 @@
     "from_postman_description": "Імпорт із колекції Postman",
     "from_url": "Імпорт з URL",
     "gist_url": "Введіть URL-адресу Gist",
+    "gql_collections_from_gist_description": "Import GraphQL Collections From Gist",
+    "hoppscotch_environment": "Hoppscotch Environment",
+    "hoppscotch_environment_description": "Import Hoppscotch Environment JSON file",
     "import_from_url_invalid_fetch": "Не вдалося отримати дані з url",
     "import_from_url_invalid_file_format": "Помилка при імпорті колекцій",
     "import_from_url_invalid_type": "Непідтримуваний тип. Допустимими значеннями є 'hoppscotch', 'openapi', 'postman', 'insomnia'",
     "import_from_url_success": "Колекції імпортовано",
+    "insomnia_environment_description": "Import Insomnia Environment from a JSON/YAML file",
     "json_description": "Імпортувати колекції з колекцій Hoppscotch JSON файлу",
+    "postman_environment": "Postman Environment",
+    "postman_environment_description": "Import Postman Environment from a JSON file",
     "title": "Імпортувати"
   },
   "inspections": {
@@ -373,8 +442,10 @@
     "close_unsaved_tab": "You have unsaved changes",
     "collections": "Колекції",
     "confirm": "Підтвердити",
+    "customize_request": "Customize Request",
     "edit_request": "Редагувати запит",
-    "import_export": "Імпорт-експорт"
+    "import_export": "Імпорт-експорт",
+    "share_request": "Share Request"
   },
   "mqtt": {
     "already_subscribed": "Ви вже підписані на цю тему.",
@@ -449,13 +520,14 @@
       "structured": "Структуровано",
       "text": "Текст"
     },
-    "copy_link": "Скопіювати посилання",
     "different_collection": "Cannot reorder requests from different collections",
     "duplicated": "Request duplicated",
     "duration": "Тривалість",
     "enter_curl": "Введіть cURL",
     "generate_code": "Сформувати код",
     "generated_code": "Сформований код",
+    "go_to_authorization_tab": "Go to Authorization tab",
+    "go_to_body_tab": "Go to Body tab",
     "header_list": "Список заголовків",
     "invalid_name": "Будь ласка, вкажіть назву запиту",
     "method": "Метод",
@@ -480,12 +552,14 @@
     "saved": "Запит збережено",
     "share": "Поділитися",
     "share_description": "Поділіться Hoppscotch зі своїми друзями",
+    "share_request": "Share Request",
     "stop": "Stop",
     "title": "Запит",
     "type": "Тип запиту",
     "url": "URL",
     "variables": "Змінні",
-    "view_my_links": "Переглянути мої посилання"
+    "view_my_links": "Переглянути мої посилання",
+    "copy_link": "Скопіювати посилання"
   },
   "response": {
     "audio": "Audio",
@@ -513,6 +587,7 @@
     "account_description": "Налаштуйте налаштування свого облікового запису.",
     "account_email_description": "Ваша основна електронна адреса.",
     "account_name_description": "Це ваше відображуване ім'я.",
+    "additional": "Additional Settings",
     "background": "Колір фону",
     "black_mode": "Чорний",
     "choose_language": "Виберіть мову",
@@ -559,14 +634,31 @@
     "verified_email": "Підтверджений email",
     "verify_email": "Підтвердити електронну адресу"
   },
-  "shortcodes": {
-    "actions": "Дії",
-    "created_on": "Дата створення",
-    "deleted": "Короткий код видалено",
-    "method": "Метод",
-    "not_found": "Короткий код не знайдено",
-    "short_code": "Короткий код",
-    "url": "URL"
+  "shared_requests": {
+    "button": "Button",
+    "button_info": "Create a 'Run in Hoppscotch' button for your website, blog or a README.",
+    "copy_html": "Copy HTML",
+    "copy_link": "Copy Link",
+    "copy_markdown": "Copy Markdown",
+    "creating_widget": "Creating widget",
+    "customize": "Customize",
+    "deleted": "Shared request deleted",
+    "description": "Select a widget, you can change and customize this later",
+    "embed": "Embed",
+    "embed_info": "Add a mini 'Hoppscotch API Playground' to your website, blog or documentation.",
+    "link": "Link",
+    "link_info": "Create a shareable link to share with anyone on the internet with view access.",
+    "modified": "Shared request modified",
+    "not_found": "Shared request not found",
+    "open_new_tab": "Open in new tab",
+    "preview": "Preview",
+    "run_in_hoppscotch": "Run in Hoppscotch",
+    "theme": {
+      "dark": "Dark",
+      "light": "Light",
+      "system": "System",
+      "title": "Theme"
+    }
   },
   "shortcut": {
     "general": {
@@ -596,7 +688,6 @@
       "title": "Others"
     },
     "request": {
-      "copy_request_link": "Скопіювати посилання на запит",
       "delete_method": "Виберіть метод ВИДАЛИТИ",
       "get_method": "Виберіть метод GET",
       "head_method": "Виберіть метод HEAD",
@@ -611,8 +702,10 @@
       "save_request": "Save Request",
       "save_to_collections": "Зберегти в колекції",
       "send_request": "Відправляти запит",
+      "share_request": "Share Request",
       "show_code": "Generate code snippet",
-      "title": "Запит"
+      "title": "Запит",
+      "copy_request_link": "Скопіювати посилання на запит"
     },
     "response": {
       "copy": "Скопіювати відповідь в буфер обміну",
@@ -735,6 +828,7 @@
     "connection_error": "Не вдалося з’єднатися",
     "connection_failed": "Помилка зʼєднання",
     "connection_lost": "З'єднання втрачено",
+    "copied_interface_to_clipboard": "Copied {language} interface type to clipboard",
     "copied_to_clipboard": "Скопійовано в буфер обміну",
     "deleted": "Видалено",
     "deprecated": "ЗНИЖЕНО",
@@ -742,10 +836,12 @@
     "disconnected": "Відключено",
     "disconnected_from": "Від'єднано від {name}",
     "docs_generated": "Сформована документація",
+    "download_failed": "Download failed",
     "download_started": "Завантаження розпочато",
     "enabled": "Увімкнено",
     "file_imported": "Файл імпортовано",
     "finished_in": "Завершено за {duration} мс",
+    "hide": "Hide",
     "history_deleted": "Історію видалено",
     "linewrap": "Лінії загортання",
     "loading": "Завантаження ...",
@@ -756,6 +852,7 @@
     "published_error": "Щось пішло не так під час публікації повідомлення: {topic} на тему: {message}",
     "published_message": "Опубліковане повідомлення: {message} до теми: {topic}",
     "reconnection_error": "Не вдалося перепід'єднатися",
+    "show": "Show",
     "subscribed_failed": "Не вдалося підписатися на тему: {topic}",
     "subscribed_success": "Успішно підписано на тему: {topic}",
     "unsubscribed_failed": "Не вдалося відписатися від теми: {topic}",
@@ -791,6 +888,7 @@
     "queries": "Запити",
     "query": "Запит",
     "schema": "Схема",
+    "shared_requests": "Shared Requests",
     "socketio": "Socket.IO",
     "sse": "SSE",
     "tests": "Тести",
@@ -807,6 +905,7 @@
     "email_do_not_match": "Електронна пошта не відповідає відомостям вашого облікового запису. Зверніться до свого власника команди.",
     "exit": "Вийти з команди",
     "exit_disabled": "Вийти з команди не може тільки власник",
+    "failed_invites": "Failed invites",
     "invalid_coll_id": "Invalid collection ID",
     "invalid_email_format": "Формат електронної пошти недійсний",
     "invalid_id": "Недійсний ID команди. Зв'яжіться з власником вашої команди.",
@@ -848,6 +947,7 @@
     "same_target_destination": "Same target and destination",
     "saved": "Команда збережена",
     "select_a_team": "Виберіть команду",
+    "success_invites": "Success invites",
     "title": "Команди",
     "we_sent_invite_link": "Ми надіслали запрошення всім запрошеним!",
     "we_sent_invite_link_description": "Попросіть всіх запрошених перевірити свої поштові скриньки. Перейдіть за посиланням, щоб приєднатися до команди."
@@ -879,5 +979,14 @@
     "personal": "My Workspace",
     "team": "Team Workspace",
     "title": "Workspaces"
+  },
+  "shortcodes": {
+    "actions": "Дії",
+    "created_on": "Дата створення",
+    "deleted": "Короткий код видалено",
+    "method": "Метод",
+    "not_found": "Короткий код не знайдено",
+    "short_code": "Короткий код",
+    "url": "URL"
   }
 }

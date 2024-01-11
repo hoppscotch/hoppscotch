@@ -10,7 +10,7 @@ export function translateExtURLParams(
   initialReq?: HoppRESTRequest
 ): HoppRESTRequest {
   if (urlParams.v) return parseV1ExtURL(urlParams, initialReq)
-  else return parseV0ExtURL(urlParams, initialReq)
+  return parseV0ExtURL(urlParams, initialReq)
 }
 
 function parseV0ExtURL(

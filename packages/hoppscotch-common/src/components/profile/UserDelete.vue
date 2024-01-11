@@ -26,14 +26,14 @@
         </div>
         <div
           v-else-if="myTeams.length"
-          class="flex flex-col p-4 space-y-2 border border-red-500 rounded-lg text-secondaryDark bg-error"
+          class="bg-bannerInfo flex flex-col space-y-2 rounded-lg border border-red-500 p-4 text-secondaryDark"
         >
           <h2 class="font-bold text-red-500">
             {{ t("error.danger_zone") }}
           </h2>
           <div>
             {{ t("error.delete_account") }}
-            <ul class="my-4 ml-8 space-y-2 list-disc">
+            <ul class="my-4 ml-8 list-disc space-y-2">
               <li v-for="team in myTeams" :key="team.id">
                 {{ team.name }}
               </li>
@@ -45,7 +45,7 @@
         </div>
         <div v-else>
           <div
-            class="flex flex-col p-4 mb-4 space-y-2 border border-red-500 rounded-lg text-secondaryDark bg-error"
+            class="bg-bannerInfo mb-4 flex flex-col space-y-2 rounded-lg border border-red-500 p-4 text-secondaryDark"
           >
             <h2 class="font-bold text-red-500">
               {{ t("error.danger_zone") }}
@@ -83,7 +83,7 @@
               myTeams.length > 0 ||
               userVerificationInput !== 'delete my account'
             "
-            class="!bg-red-500 !hover:bg-red-600 !border-red-500 !hover:border-red-600"
+            class="!hover:bg-red-600 !hover:border-red-600 !border-red-500 !bg-red-500"
             @click="deleteUserAccount"
           />
           <HoppButtonSecondary
@@ -173,13 +173,8 @@ const deleteUserAccount = async () => {
 const getErrorMessage = (err: GQLError<string>) => {
   if (err.type === "network_error") {
     return t("error.network_error")
-  } else {
-    switch (err.error) {
-      case "shortcode/not_found":
-        return t("shortcodes.not_found")
-      default:
-        return t("error.something_went_wrong")
-    }
   }
+
+  return t("error.something_went_wrong")
 }
 </script>

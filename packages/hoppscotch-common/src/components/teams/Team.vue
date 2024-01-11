@@ -1,14 +1,14 @@
 <template>
   <div
-    class="flex flex-col flex-1 border rounded border-divider"
+    class="flex flex-1 flex-col rounded border border-divider"
     @contextmenu.prevent="!compact ? options.tippy.show() : null"
   >
     <div
-      class="flex items-start flex-1"
+      class="flex flex-1 items-start"
       :class="
         compact
           ? team.myRole === 'OWNER'
-            ? 'cursor-pointer hover:bg-primaryDark transition hover:border-dividerDark focus-visible:border-dividerDark'
+            ? 'cursor-pointer transition hover:border-dividerDark hover:bg-primaryDark focus-visible:border-dividerDark'
             : 'cursor-not-allowed bg-primaryLight'
           : ''
       "
@@ -30,7 +30,7 @@
         <TeamsMemberStack :team-members="team.teamMembers" class="mt-4" />
       </div>
     </div>
-    <div v-if="!compact" class="flex items-end justify-between flex-shrink-0">
+    <div v-if="!compact" class="flex flex-shrink-0 items-end justify-between">
       <span>
         <HoppButtonSecondary
           v-if="team.myRole === 'OWNER'"

@@ -9,11 +9,14 @@ import { AnalyticsPlatformDef } from "./analytics"
 import { InterceptorsPlatformDef } from "./interceptors"
 import { HoppModule } from "~/modules"
 import { InspectorsPlatformDef } from "./inspectors"
+import { Service } from "dioc"
 import { IOPlatformDef } from "./io"
+import { SpotlightPlatformDef } from "./spotlight"
 
 export type PlatformDef = {
   ui?: UIPlatformDef
   addedHoppModules?: HoppModule[]
+  addedServices?: Array<typeof Service<unknown> & { ID: string }>
   auth: AuthPlatformDef
   analytics?: AnalyticsPlatformDef
   io: IOPlatformDef
@@ -26,6 +29,7 @@ export type PlatformDef = {
   }
   interceptors: InterceptorsPlatformDef
   additionalInspectors?: InspectorsPlatformDef
+  spotlight?: SpotlightPlatformDef
   platformFeatureFlags: {
     exportAsGIST: boolean
     hasTelemetry: boolean

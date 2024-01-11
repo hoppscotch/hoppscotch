@@ -14,10 +14,14 @@ import {
   USER_NOT_FOUND,
 } from 'src/errors';
 import * as O from 'fp-ts/Option';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class RTJwtStrategy extends PassportStrategy(Strategy, 'jwt-refresh') {
-  constructor(private usersService: UserService) {
+  constructor(
+    private usersService: UserService,
+    private configService: ConfigService,
+  ) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
         (request: Request) => {
@@ -28,7 +32,7 @@ export class RTJwtStrategy extends PassportStrategy(Strategy, 'jwt-refresh') {
           return RTCookie;
         },
       ]),
-      secretOrKey: process.env.JWT_SECRET,
+      secretOrKey: configService.get('JWT_SECRET'),
     });
   }
 

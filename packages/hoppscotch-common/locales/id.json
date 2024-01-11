@@ -1,5 +1,6 @@
 {
   "action": {
+    "add": "Add",
     "autoscroll": "Gulir Otomatis",
     "cancel": "Batalkan",
     "choose_file": "Pilih file",
@@ -10,6 +11,7 @@
     "connect": "Sambungkan",
     "connecting": "Menyambungkan",
     "copy": "Salin",
+    "create": "Create",
     "delete": "Menghapus",
     "disconnect": "Memutuskan",
     "dismiss": "Tolak",
@@ -31,6 +33,7 @@
     "open_workspace": "Ruang kerja terbuka",
     "paste": "Tempel",
     "prettify": "Prettify",
+    "properties": "Properties",
     "remove": "Hapus",
     "rename": "Rename",
     "restore": "Pulihkan",
@@ -39,6 +42,7 @@
     "scroll_to_top": "Gulir ke atas",
     "search": "Cari",
     "send": "Kirim",
+    "share": "Share",
     "start": "Mulai",
     "starting": "Memulai",
     "stop": "Berhenti",
@@ -57,7 +61,9 @@
   "app": {
     "chat_with_us": "Berbincanglah dengan kami",
     "contact_us": "Hubungi kami",
+    "cookies": "Cookies",
     "copy": "Salin",
+    "copy_interface_type": "Copy interface type",
     "copy_user_id": "Salin Token Otentikasi Pengguna",
     "developer_option": "Opsi pengembang",
     "developer_option_description": "Alat pengembang yang membantu dalam pengembangan dan pemeliharaan Hoppscotch.",
@@ -73,6 +79,7 @@
     "keyboard_shortcuts": "Pintasan keyboard",
     "name": "Hoppscotch",
     "new_version_found": "Versi baru ditemukan. Segarkan untuk memperbarui..",
+    "open_in_hoppscotch": "Open in Hoppscotch",
     "options": "Pilihan",
     "proxy_privacy_policy": "Kebijakan privasi proxy",
     "reload": "Muat ulang",
@@ -112,10 +119,27 @@
   },
   "authorization": {
     "generate_token": "Buat Token",
+    "graphql_headers": "Authorization Headers are sent as part of the payload to connection_init",
     "include_in_url": "Sertakan dalam URL",
+    "inherited_from": "Inherited from {auth} from Parent Collection {collection} ",
     "learn": "Belajar bagaimana",
+    "oauth": {
+      "redirect_auth_server_returned_error": "Auth Server returned an error state",
+      "redirect_auth_token_request_failed": "Request to get the auth token failed",
+      "redirect_auth_token_request_invalid_response": "Invalid Response from the Token Endpoint when requesting for an auth token",
+      "redirect_invalid_state": "Invalid State value present in the redirect",
+      "redirect_no_auth_code": "No Authorization Code present in the redirect",
+      "redirect_no_client_id": "No Client ID defined",
+      "redirect_no_client_secret": "No Client Secret Defined",
+      "redirect_no_code_verifier": "No Code Verifier Defined",
+      "redirect_no_token_endpoint": "No Token Endpoint Defined",
+      "something_went_wrong_on_oauth_redirect": "Something went wrong during OAuth Redirect",
+      "something_went_wrong_on_token_generation": "Something went wrong on token generation",
+      "token_generation_oidc_discovery_failed": "Failure on token generation: OpenID Connect Discovery Failed"
+    },
     "pass_key_by": "Lewat",
     "password": "Kata Sandi",
+    "save_to_inherit": "Please save this request in any collection to inherit the authorization",
     "token": "Token",
     "type": "Jenis Otorisasi",
     "username": "Nama Pengguna"
@@ -124,6 +148,7 @@
     "created": "Koleksi dibuat",
     "different_parent": "Tidak dapat mengubah urutan koleksi dengan induk yang berbeda",
     "edit": "Mengubah Koleksi",
+    "import_or_create": "Import or create a collection",
     "invalid_name": "Berikan nama untuk Koleksi",
     "invalid_root_move": "Koleksi sudah berada di akar direktori",
     "moved": "Berhasil Dipindahkan",
@@ -132,6 +157,8 @@
     "name_length_insufficient": "Nama koleksi harus minimal 3 karakter",
     "new": "Koleksi baru",
     "order_changed": "Pembaruan Urutan Koleksi",
+    "properties": "Collection Properties",
+    "properties_updated": "Collection Properties Updated",
     "renamed": "Koleksi berganti nama",
     "request_in_use": "Permintaan sedang digunakan",
     "save_as": "Simpan Sebagai",
@@ -151,6 +178,7 @@
     "remove_folder": "Apakah Anda yakin ingin menghapus folder ini secara permanen?",
     "remove_history": "Apakah Anda yakin ingin menghapus semua riwayat secara permanen?",
     "remove_request": "Apakah Anda yakin ingin menghapus permintaan ini secara permanen?",
+    "remove_shared_request": "Are you sure you want to permanently delete this shared request?",
     "remove_team": "Apakah Anda yakin ingin menghapus tim ini?",
     "remove_telemetry": "Apakah Anda yakin ingin menyisih dari Telemetri?",
     "request_change": "Apakah Anda yakin ingin membuang permintaan saat ini, perubahan yang belum disimpan akan hilang.",
@@ -161,6 +189,24 @@
     "add_parameters": "Add to parameters",
     "open_request_in_new_tab": "Open request in new tab",
     "set_environment_variable": "Set as variable"
+  },
+  "cookies": {
+    "modal": {
+      "cookie_expires": "Expires",
+      "cookie_name": "Name",
+      "cookie_path": "Path",
+      "cookie_string": "Cookie string",
+      "cookie_value": "Value",
+      "empty_domain": "Domain is empty",
+      "empty_domains": "Domain list is empty",
+      "enter_cookie_string": "Enter cookie string",
+      "interceptor_no_support": "Your currently selected interceptor does not support cookies. Select a different Interceptor and try again.",
+      "managed_tab": "Managed",
+      "new_domain_name": "New domain name",
+      "no_cookies_in_domain": "No cookies set for this domain",
+      "raw_tab": "Raw",
+      "set": "Set a cookie"
+    }
   },
   "count": {
     "header": "Header {count}",
@@ -192,11 +238,13 @@
     "profile": "Masuk untuk melihat profil Anda",
     "protocols": "Protokol kosong",
     "schema": "Hubungkan ke endpoint GraphQL untuk melihat skema",
-    "shortcodes": "Shortcodes kosong",
+    "shared_requests": "Shared requests are empty",
+    "shared_requests_logout": "Login to view your shared requests or create a new one",
     "subscription": "Langganan kosong",
     "team_name": "Nama team kosong",
     "teams": "Kamu bukan di team manapun",
-    "tests": "Tidak ada tes untuk permintaan ini"
+    "tests": "Tidak ada tes untuk permintaan ini",
+    "shortcodes": "Shortcodes kosong"
   },
   "environment": {
     "add_to_global": "Tambahkan ke Global",
@@ -209,6 +257,7 @@
     "empty_variables": "No variables",
     "global": "Global",
     "global_variables": "Global variables",
+    "import_or_create": "Import or create a environment",
     "invalid_name": "Tolong beri nama untuk environment",
     "list": "Environment variables",
     "my_environments": "Environment Saya",
@@ -232,8 +281,10 @@
     "variable_list": "Daftar Variable"
   },
   "error": {
+    "authproviders_load_error": "Unable to load auth providers",
     "browser_support_sse": "Browser ini sepertinya tidak memiliki dukungan Server Sent Events.",
     "check_console_details": "Periksa console log untuk detailnya.",
+    "check_how_to_add_origin": "Check how you can add an origin",
     "curl_invalid_format": "cURL tidak diformat dengan benar",
     "danger_zone": "Danger zone",
     "delete_account": "Akun Anda saat ini merupakan pemilik dalam tim-tim ini:",
@@ -249,9 +300,12 @@
     "json_prettify_invalid_body": "Tidak dapat prettify body yang tidak valid, selesaikan kesalahan sintaks json dan coba lagi",
     "network_error": "Sepertinya ada kesalahan jaringan. Silakan coba lagi.",
     "network_fail": "Tidak dapat mengirim permintaan",
+    "no_collections_to_export": "No collections to export. Please create a collection to get started.",
     "no_duration": "Tidak ada durasi",
+    "no_environments_to_export": "No environments to export. Please create an environment to get started.",
     "no_results_found": "Tidak ada kecocokan yang ditemukan",
     "page_not_found": "Halaman ini tidak dapat ditemukan",
+    "please_install_extension": "Please install the extension and add origin to the extension.",
     "proxy_error": "Proxy error",
     "script_fail": "Tidak dapat menjalankan pre-request script",
     "something_went_wrong": "Ada yang salah",
@@ -260,6 +314,7 @@
   "export": {
     "as_json": "Export sebagai JSON",
     "create_secret_gist": "Buat secret Gist",
+    "failed": "Something went wrong while exporting",
     "gist_created": "Gist dibuat",
     "require_github": "Masuk dengan GitHub untuk membuat secret gist",
     "title": "Export"
@@ -286,6 +341,9 @@
     "subscriptions": "Subscriptions",
     "switch_connection": "Switch connection"
   },
+  "graphql_collections": {
+    "title": "GraphQL Collections"
+  },
   "group": {
     "time": "Time",
     "url": "URL"
@@ -297,6 +355,8 @@
   },
   "helpers": {
     "authorization": "Header otorisasi akan dibuat secara otomatis saat Anda mengirim permintaan.",
+    "collection_properties_authorization": " This authorization will be set for every request in this collection.",
+    "collection_properties_header": "This header will be set for every request in this collection.",
     "generate_documentation_first": "Generate dokumentasi dulu",
     "network_fail": "Tidak dapat mencapai API endpoint. Periksa koneksi jaringan Anda atau pilih Interceptor lain dan coba lagi.",
     "offline": "Anda tampaknya sedang offline. Data di ruang kerja ini mungkin tidak terbarui.",
@@ -316,7 +376,10 @@
   "import": {
     "collections": "Impor koleksi",
     "curl": "Impor cURL",
+    "environments_from_gist": "Import From Gist",
+    "environments_from_gist_description": "Import Hoppscotch Environments From Gist",
     "failed": "Kesalahan saat mengimpor: format tidak dikenali",
+    "from_file": "Import from File",
     "from_gist": "Impor dari Gist",
     "from_gist_description": "Impor dari Gist URL",
     "from_insomnia": "Impor dari Insomnia",
@@ -331,11 +394,17 @@
     "from_postman_description": "Impor dari Koleksi Postman",
     "from_url": "Impor dari URL",
     "gist_url": "Masukkan Gist URL",
+    "gql_collections_from_gist_description": "Import GraphQL Collections From Gist",
+    "hoppscotch_environment": "Hoppscotch Environment",
+    "hoppscotch_environment_description": "Import Hoppscotch Environment JSON file",
     "import_from_url_invalid_fetch": "Tidak bisa mendapatkan data dari url",
     "import_from_url_invalid_file_format": "Kesalahan saat mengimpor koleksi",
     "import_from_url_invalid_type": "Jenis tidak didukung. nilai yang diterima adalah 'hoppscotch', 'openapi', 'postman', 'insomnia'",
     "import_from_url_success": "Impor koleksi berhasil",
+    "insomnia_environment_description": "Import Insomnia Environment from a JSON/YAML file",
     "json_description": "Impor Koleksi dari berkas JSON Koleksi Hoppscotch",
+    "postman_environment": "Postman Environment",
+    "postman_environment_description": "Import Postman Environment from a JSON file",
     "title": "Impor"
   },
   "inspections": {
@@ -373,8 +442,10 @@
     "close_unsaved_tab": "Anda memiliki perubahan yang belum disimpan",
     "collections": "Koleksi",
     "confirm": "Mengonfirmasi",
+    "customize_request": "Customize Request",
     "edit_request": "Edit Request",
-    "import_export": "Impor / Ekspor"
+    "import_export": "Impor / Ekspor",
+    "share_request": "Share Request"
   },
   "mqtt": {
     "already_subscribed": "Anda sudah berlangganan topik ini.",
@@ -449,13 +520,14 @@
       "structured": "Structured",
       "text": "Text"
     },
-    "copy_link": "Salin tautan",
     "different_collection": "Tidak dapat mengubah urutan permintaan dari koleksi yang berbeda",
     "duplicated": "Request duplicated",
     "duration": "Durasi",
     "enter_curl": "Masukkan cURL",
     "generate_code": "Hasilkan kode",
     "generated_code": "Hasilkan kode",
+    "go_to_authorization_tab": "Go to Authorization tab",
+    "go_to_body_tab": "Go to Body tab",
     "header_list": "Daftar Header",
     "invalid_name": "Harap berikan nama untuk request",
     "method": "Method",
@@ -480,12 +552,14 @@
     "saved": "Request disimpan",
     "share": "Membagikan",
     "share_description": "Bagikan Hoppscotch dengan teman-teman Anda",
+    "share_request": "Share Request",
     "stop": "Stop",
     "title": "Request",
     "type": "Tipe Request",
     "url": "URL",
     "variables": "Variables",
-    "view_my_links": "Lihat tautan saya"
+    "view_my_links": "Lihat tautan saya",
+    "copy_link": "Salin tautan"
   },
   "response": {
     "audio": "Audio",
@@ -513,6 +587,7 @@
     "account_description": "Sesuaikan pengaturan akun Anda.",
     "account_email_description": "Alamat surel utama Anda.",
     "account_name_description": "Ini adalah nama tampilan Anda.",
+    "additional": "Additional Settings",
     "background": "Latar belakang",
     "black_mode": "Hitam",
     "choose_language": "Pilih bahasa",
@@ -559,14 +634,31 @@
     "verified_email": "Surel terverifikasi",
     "verify_email": "Verifikasi surel"
   },
-  "shortcodes": {
-    "actions": "Tindakan",
-    "created_on": "Dibuat pada",
-    "deleted": "Shortcode dihapus",
-    "method": "Method",
-    "not_found": "Shortcode tidak ditemukan",
-    "short_code": "Short code",
-    "url": "URL"
+  "shared_requests": {
+    "button": "Button",
+    "button_info": "Create a 'Run in Hoppscotch' button for your website, blog or a README.",
+    "copy_html": "Copy HTML",
+    "copy_link": "Copy Link",
+    "copy_markdown": "Copy Markdown",
+    "creating_widget": "Creating widget",
+    "customize": "Customize",
+    "deleted": "Shared request deleted",
+    "description": "Select a widget, you can change and customize this later",
+    "embed": "Embed",
+    "embed_info": "Add a mini 'Hoppscotch API Playground' to your website, blog or documentation.",
+    "link": "Link",
+    "link_info": "Create a shareable link to share with anyone on the internet with view access.",
+    "modified": "Shared request modified",
+    "not_found": "Shared request not found",
+    "open_new_tab": "Open in new tab",
+    "preview": "Preview",
+    "run_in_hoppscotch": "Run in Hoppscotch",
+    "theme": {
+      "dark": "Dark",
+      "light": "Light",
+      "system": "System",
+      "title": "Theme"
+    }
   },
   "shortcut": {
     "general": {
@@ -596,7 +688,6 @@
       "title": "Others"
     },
     "request": {
-      "copy_request_link": "Salin Tautan Permintaan",
       "delete_method": "Pilih metode DELETE",
       "get_method": "Pilih metode GET",
       "head_method": "Pilih metode HEAD",
@@ -611,8 +702,10 @@
       "save_request": "Save Request",
       "save_to_collections": "Menyimpan ke Collections",
       "send_request": "Kirim Request",
+      "share_request": "Share Request",
       "show_code": "Generate code snippet",
-      "title": "Request"
+      "title": "Request",
+      "copy_request_link": "Salin Tautan Permintaan"
     },
     "response": {
       "copy": "Salin response ke papan klip",
@@ -735,6 +828,7 @@
     "connection_error": "Gagal terhubung",
     "connection_failed": "Koneksi gagal",
     "connection_lost": "Koneksi terputus",
+    "copied_interface_to_clipboard": "Copied {language} interface type to clipboard",
     "copied_to_clipboard": "Disalin ke papan klip",
     "deleted": "Dihapus",
     "deprecated": "Tidak digunakan lagi",
@@ -742,10 +836,12 @@
     "disconnected": "Terputus",
     "disconnected_from": "Terputus dari {name}",
     "docs_generated": "Dokumentasi dihasilkan",
+    "download_failed": "Download failed",
     "download_started": "Unduhan dimulai",
     "enabled": "Diaktifkan",
     "file_imported": "File diimpor",
     "finished_in": "Selesai dalam {duration} ms",
+    "hide": "Hide",
     "history_deleted": "Riwayat dihapus",
     "linewrap": "Bungkus baris",
     "loading": "Memuat...",
@@ -756,6 +852,7 @@
     "published_error": "Terjadi masalah saat memublikasikan msg: {topic} ke topik: {message}",
     "published_message": "Pesan yang dipublikasikan: {message} ke topik: {topic}",
     "reconnection_error": "Gagal menyambung kembali",
+    "show": "Show",
     "subscribed_failed": "Gagal berlangganan topik: {topic}",
     "subscribed_success": "Berhasil berlangganan topik: {topic}",
     "unsubscribed_failed": "Gagal berhenti berlangganan dari topik: {topic}",
@@ -791,6 +888,7 @@
     "queries": "Queries",
     "query": "Query",
     "schema": "Schema",
+    "shared_requests": "Shared Requests",
     "socketio": "Socket.IO",
     "sse": "SSE",
     "tests": "Tests",
@@ -807,6 +905,7 @@
     "email_do_not_match": "Surel tidak cocok dengan detail akun Anda. Hubungi pemilik tim Anda.",
     "exit": "Keluar dari Tim",
     "exit_disabled": "Hanya pemilik yang tidak dapat keluar dari tim",
+    "failed_invites": "Failed invites",
     "invalid_coll_id": "ID koleksi tidak valid",
     "invalid_email_format": "Format surel tidak valid",
     "invalid_id": "ID tim tidak valid. Hubungi pemilik tim Anda.",
@@ -848,6 +947,7 @@
     "same_target_destination": "Sama tujuan dan destinasi",
     "saved": "Tim disimpan",
     "select_a_team": "Pilih tim",
+    "success_invites": "Success invites",
     "title": "tim",
     "we_sent_invite_link": "Kami mengirim tautan undangan ke semua undangan!",
     "we_sent_invite_link_description": "Minta semua undangan untuk memeriksa kotak masuk mereka. Klik tautan untuk bergabung dengan tim."
@@ -879,5 +979,14 @@
     "personal": "Workspace Saya",
     "team": "Workspace Tim",
     "title": "Workspaces"
+  },
+  "shortcodes": {
+    "actions": "Tindakan",
+    "created_on": "Dibuat pada",
+    "deleted": "Shortcode dihapus",
+    "method": "Method",
+    "not_found": "Shortcode tidak ditemukan",
+    "short_code": "Short code",
+    "url": "URL"
   }
 }

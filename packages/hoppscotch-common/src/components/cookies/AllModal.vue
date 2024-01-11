@@ -9,13 +9,17 @@
     <template #body>
       <HoppSmartPlaceholder
         v-if="!currentInterceptorSupportsCookies"
+        :src="`/images/states/${colorMode.value}/add_category.svg`"
+        :alt="`${t('cookies.modal.interceptor_no_support')}`"
         :text="t('cookies.modal.interceptor_no_support')"
       >
-        <AppInterceptor class="p-2 border rounded border-dividerLight" />
+        <template #body>
+          <AppInterceptor class="rounded border border-dividerLight p-2" />
+        </template>
       </HoppSmartPlaceholder>
       <div v-else class="flex flex-col">
         <div
-          class="flex bg-primary space-x-2 border-b sticky border-dividerLight -mx-4 px-4 py-4 -mt-4"
+          class="sticky -mx-4 -mt-4 flex space-x-2 border-b border-dividerLight bg-primary px-4 py-4"
           style="top: calc(-1 * var(--line-height-body))"
         >
           <HoppSmartInput
@@ -38,15 +42,14 @@
             :alt="`${t('cookies.modal.empty_domains')}`"
             :text="t('cookies.modal.empty_domains')"
             class="mt-6"
-          >
-          </HoppSmartPlaceholder>
+          />
           <div
             v-for="[domain, entries] in workingCookieJar.entries()"
             v-else
             :key="domain"
             class="flex flex-col"
           >
-            <div class="flex items-center justify-between flex-1">
+            <div class="flex flex-1 items-center justify-between">
               <label for="cookiesList" class="p-4">
                 {{ domain }}
               </label>
@@ -65,11 +68,11 @@
                 />
               </div>
             </div>
-            <div class="border rounded border-divider">
+            <div class="rounded border border-divider">
               <div class="divide-y divide-dividerLight">
                 <div
                   v-if="entries.length === 0"
-                  class="flex flex-col gap-2 p-4 items-center"
+                  class="flex flex-col items-center gap-2 p-4"
                 >
                   {{ t("cookies.modal.no_cookies_in_domain") }}
                 </div>
@@ -80,7 +83,7 @@
                     class="flex divide-x divide-dividerLight"
                   >
                     <input
-                      class="flex flex-1 px-4 py-2 bg-transparent"
+                      class="flex flex-1 bg-transparent px-4 py-2"
                       :value="entry"
                       readonly
                     />

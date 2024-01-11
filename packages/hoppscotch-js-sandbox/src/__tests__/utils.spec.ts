@@ -1,40 +1,15 @@
-import { match } from "fp-ts/lib/Either"
-import { pipe } from "fp-ts/lib/function"
-import * as QuickJS from "quickjs-emscripten"
-import { marshalObjectToVM } from "../utils"
+import { preventCyclicObjects } from "~/utils"
 
-let vm: QuickJS.QuickJSVm
-
-beforeAll(async () => {
-  const qjs = await QuickJS.getQuickJS()
-  vm = qjs.createVm()
-})
-
-afterAll(() => {
-  vm.dispose()
-})
-
-describe("marshalObjectToVM", () => {
-  test("successfully marshals simple object into the vm", () => {
+describe("preventCyclicObjects", () => {
+  test("succeeds with a simple object", () => {
     const testObj = {
       a: 1,
     }
 
-    const objVMHandle: QuickJS.QuickJSHandle | null = pipe(
-      marshalObjectToVM(vm, testObj),
-      match(
-        () => null,
-        (result) => result
-      )
-    )
-
-    expect(objVMHandle).not.toBeNull()
-    expect(vm.dump(objVMHandle!)).toEqual(testObj)
-
-    objVMHandle!.dispose()
+    expect(preventCyclicObjects(testObj)).toBeRight()
   })
 
-  test("fails marshalling cyclic object into vm", () => {
+  test("fails with a cyclic object", () => {
     const testObj = {
       a: 1,
       b: null as any,
@@ -42,14 +17,6 @@ describe("marshalObjectToVM", () => {
 
     testObj.b = testObj
 
-    const objVMHandle: QuickJS.QuickJSHandle | null = pipe(
-      marshalObjectToVM(vm, testObj),
-      match(
-        () => null,
-        (result) => result
-      )
-    )
-
-    expect(objVMHandle).toBeNull()
+    expect(preventCyclicObjects(testObj)).toBeLeft()
   })
 })

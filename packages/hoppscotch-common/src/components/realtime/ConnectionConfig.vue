@@ -1,10 +1,10 @@
 <template>
-  <div class="flex flex-col flex-1">
+  <div class="flex flex-1 flex-col">
     <div
-      class="sticky z-10 flex items-center justify-between flex-shrink-0 py-2 pl-4 pr-2 overflow-x-auto border-b bg-primary border-dividerLight top-upperPrimaryStickyFold"
+      class="sticky top-upperPrimaryStickyFold z-10 flex flex-shrink-0 items-center justify-between overflow-x-auto border-b border-dividerLight bg-primary py-2 pl-4 pr-2"
     >
       <span class="flex items-center">
-        <label class="font-semibold truncate text-secondaryLight">
+        <label class="truncate font-semibold text-secondaryLight">
           {{ t("mqtt.connection_config") }}
         </label>
       </span>
@@ -17,7 +17,7 @@
         </HoppSmartCheckbox>
       </div>
     </div>
-    <div class="flex flex-1 h-full border-dividerLight">
+    <div class="flex h-full flex-1 border-dividerLight">
       <div class="w-1/3 border-r border-dividerLight">
         <div class="flex flex-1 border-b border-dividerLight">
           <SmartEnvInput
@@ -55,19 +55,19 @@
           />
         </div>
         <div
-          class="flex items-center justify-between px-4 border-b border-dividerLight"
+          class="flex items-center justify-between border-b border-dividerLight px-4"
         >
           <div class="flex items-center">
-            <label class="font-semibold truncate text-secondaryLight">
+            <label class="truncate font-semibold text-secondaryLight">
               {{ t("mqtt.lw_qos") }}
             </label>
             <tippy interactive trigger="click" theme="popover">
-              <span class="select-wrapper">
+              <HoppSmartSelectWrapper>
                 <HoppButtonSecondary
-                  class="pr-8 ml-2 rounded-none"
+                  class="ml-2 rounded-none pr-8"
                   :label="`${config.lwQos}`"
                 />
-              </span>
+              </HoppSmartSelectWrapper>
               <template #content="{ hide }">
                 <div class="flex flex-col" role="menu">
                   <HoppSmartItem

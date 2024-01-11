@@ -16,9 +16,8 @@ const linter: LinterDefinition = (text) => {
         severity: "error",
       },
     ])
-  } else {
-    return Promise.resolve([])
   }
+  return Promise.resolve([])
 }
 
 export default linter

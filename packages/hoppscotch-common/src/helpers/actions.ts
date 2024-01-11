@@ -15,7 +15,7 @@ export type HoppAction =
   | "contextmenu.open" // Send/Cancel a Hoppscotch Request
   | "request.send-cancel" // Send/Cancel a Hoppscotch Request
   | "request.reset" // Clear request data
-  | "request.copy-link" // Copy Request Link
+  | "request.share-request" // Share Request
   | "request.save" // Save to Collections
   | "request.save-as" // Save As
   | "request.rename" // Rename request on REST or GraphQL
@@ -115,7 +115,9 @@ type HoppActionArgsMap = {
   "request.open-tab": {
     tab: RESTOptionTabs | GQLOptionTabs
   }
-
+  "share.request": {
+    request: HoppRESTRequest
+  }
   "tab.duplicate-tab": {
     tabID?: string
   }

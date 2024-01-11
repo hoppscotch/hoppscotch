@@ -9,7 +9,7 @@
       :id="lens.renderer"
       :key="`lens-${index}`"
       :label="t(lens.lensName)"
-      class="flex flex-col flex-1 w-full h-full"
+      class="flex h-full w-full flex-1 flex-col"
     >
       <component
         :is="lensRendererFor(lens.renderer)"
@@ -21,7 +21,7 @@
       id="headers"
       :label="t('response.headers')"
       :info="`${maybeHeaders.length}`"
-      class="flex flex-col flex-1"
+      class="flex flex-1 flex-col"
     >
       <LensesHeadersRenderer :headers="maybeHeaders" />
     </HoppSmartTab>
@@ -29,7 +29,7 @@
       id="results"
       :label="t('test.results')"
       :indicator="showIndicator"
-      class="flex flex-col flex-1"
+      class="flex flex-1 flex-col"
     >
       <HttpTestResult v-model="doc.testResults" />
     </HoppSmartTab>

@@ -4,10 +4,12 @@ query GetGQLRootUserCollections {
     id
     title
     type
+    data
     childrenGQL {
       id
       title
       type
+      data
     }
   }
 }

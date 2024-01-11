@@ -33,7 +33,7 @@ export type HoppEnvs = {
 
 export type CollectionStack = {
   path: string;
-  collection: HoppCollection<HoppRESTRequest>;
+  collection: HoppCollection;
 };
 
 export type RequestReport = {

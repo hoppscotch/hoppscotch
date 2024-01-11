@@ -21,15 +21,15 @@ import { InvitedUser } from './invited-user.model';
 import { GqlUser } from '../decorators/gql-user.decorator';
 import { PubSubService } from '../pubsub/pubsub.service';
 import { Team, TeamMember } from '../team/team.model';
-import { User } from '../user/user.model';
-import { TeamInvitation } from '../team-invitation/team-invitation.model';
-import { PaginationArgs } from '../types/input-types.args';
 import {
   AddUserToTeamArgs,
   ChangeUserRoleInTeamArgs,
 } from './input-types.args';
 import { GqlThrottlerGuard } from 'src/guards/gql-throttler.guard';
 import { SkipThrottle } from '@nestjs/throttler';
+import { User } from 'src/user/user.model';
+import { PaginationArgs } from 'src/types/input-types.args';
+import { TeamInvitation } from 'src/team-invitation/team-invitation.model';
 
 @UseGuards(GqlThrottlerGuard)
 @Resolver(() => Admin)
@@ -51,6 +51,7 @@ export class AdminResolver {
 
   @ResolveField(() => [User], {
     description: 'Returns a list of all admin users in infra',
+    deprecationReason: 'Use `infra` query instead',
   })
   @UseGuards(GqlAuthGuard, GqlAdminGuard)
   async admins() {
@@ -59,6 +60,7 @@ export class AdminResolver {
   }
   @ResolveField(() => User, {
     description: 'Returns a user info by UID',
+    deprecationReason: 'Use `infra` query instead',
   })
   @UseGuards(GqlAuthGuard, GqlAdminGuard)
   async userInfo(
@@ -76,6 +78,7 @@ export class AdminResolver {
 
   @ResolveField(() => [User], {
     description: 'Returns a list of all the users in infra',
+    deprecationReason: 'Use `infra` query instead',
   })
   @UseGuards(GqlAuthGuard, GqlAdminGuard)
   async allUsers(
@@ -88,6 +91,7 @@ export class AdminResolver {
 
   @ResolveField(() => [InvitedUser], {
     description: 'Returns a list of all the invited users',
+    deprecationReason: 'Use `infra` query instead',
   })
   async invitedUsers(@Parent() admin: Admin): Promise<InvitedUser[]> {
     const users = await this.adminService.fetchInvitedUsers();
@@ -96,6 +100,7 @@ export class AdminResolver {
 
   @ResolveField(() => [Team], {
     description: 'Returns a list of all the teams in the infra',
+    deprecationReason: 'Use `infra` query instead',
   })
   async allTeams(
     @Parent() admin: Admin,
@@ -106,6 +111,7 @@ export class AdminResolver {
   }
   @ResolveField(() => Team, {
     description: 'Returns a team info by ID when requested by Admin',
+    deprecationReason: 'Use `infra` query instead',
   })
   async teamInfo(
     @Parent() admin: Admin,
@@ -123,6 +129,7 @@ export class AdminResolver {
 
   @ResolveField(() => Number, {
     description: 'Return count of all the members in a team',
+    deprecationReason: 'Use `infra` query instead',
   })
   async membersCountInTeam(
     @Parent() admin: Admin,
@@ -140,6 +147,7 @@ export class AdminResolver {
 
   @ResolveField(() => Number, {
     description: 'Return count of all the stored collections in a team',
+    deprecationReason: 'Use `infra` query instead',
   })
   async collectionCountInTeam(
     @Parent() admin: Admin,
@@ -155,6 +163,7 @@ export class AdminResolver {
   }
   @ResolveField(() => Number, {
     description: 'Return count of all the stored requests in a team',
+    deprecationReason: 'Use `infra` query instead',
   })
   async requestCountInTeam(
     @Parent() admin: Admin,
@@ -171,6 +180,7 @@ export class AdminResolver {
 
   @ResolveField(() => Number, {
     description: 'Return count of all the stored environments in a team',
+    deprecationReason: 'Use `infra` query instead',
   })
   async environmentCountInTeam(
     @Parent() admin: Admin,
@@ -187,6 +197,7 @@ export class AdminResolver {
 
   @ResolveField(() => [TeamInvitation], {
     description: 'Return all the pending invitations in a team',
+    deprecationReason: 'Use `infra` query instead',
   })
   async pendingInvitationCountInTeam(
     @Parent() admin: Admin,
@@ -205,6 +216,7 @@ export class AdminResolver {
 
   @ResolveField(() => Number, {
     description: 'Return total number of Users in organization',
+    deprecationReason: 'Use `infra` query instead',
   })
   async usersCount() {
     return this.adminService.getUsersCount();
@@ -212,6 +224,7 @@ export class AdminResolver {
 
   @ResolveField(() => Number, {
     description: 'Return total number of Teams in organization',
+    deprecationReason: 'Use `infra` query instead',
   })
   async teamsCount() {
     return this.adminService.getTeamsCount();
@@ -219,6 +232,7 @@ export class AdminResolver {
 
   @ResolveField(() => Number, {
     description: 'Return total number of Team Collections in organization',
+    deprecationReason: 'Use `infra` query instead',
   })
   async teamCollectionsCount() {
     return this.adminService.getTeamCollectionsCount();
@@ -226,6 +240,7 @@ export class AdminResolver {
 
   @ResolveField(() => Number, {
     description: 'Return total number of Team Requests in organization',
+    deprecationReason: 'Use `infra` query instead',
   })
   async teamRequestsCount() {
     return this.adminService.getTeamRequestsCount();
@@ -425,6 +440,23 @@ export class AdminResolver {
   ): Promise<boolean> {
     const invite = await this.adminService.revokeTeamInviteByID(inviteID);
     if (E.isLeft(invite)) throwErr(invite.left);
+    return true;
+  }
+
+  @Mutation(() => Boolean, {
+    description: 'Revoke Shortcode by ID',
+  })
+  @UseGuards(GqlAuthGuard, GqlAdminGuard)
+  async revokeShortcodeByAdmin(
+    @Args({
+      name: 'code',
+      description: 'The shortcode to delete',
+      type: () => ID,
+    })
+    code: string,
+  ): Promise<boolean> {
+    const res = await this.adminService.deleteShortcode(code);
+    if (E.isLeft(res)) throwErr(res.left);
     return true;
   }
 

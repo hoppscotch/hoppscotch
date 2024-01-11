@@ -2,6 +2,7 @@ import { HoppModule } from "."
 import { Container, Service } from "dioc"
 import { diocPlugin } from "dioc/vue"
 import { DebugService } from "~/services/debug.service"
+import { platform } from "~/platform"
 
 const serviceContainer = new Container()
 
@@ -34,5 +35,8 @@ export default <HoppModule>{
     app.use(diocPlugin, {
       container: serviceContainer,
     })
+    for (const service of platform.addedServices ?? []) {
+      serviceContainer.bind(service)
+    }
   },
 }

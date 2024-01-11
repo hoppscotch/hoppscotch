@@ -1,7 +1,7 @@
 <template>
   <AppShortcuts :show="showShortcuts" @close="showShortcuts = false" />
   <AppShare :show="showShare" @hide-modal="showShare = false" />
-  <FirebaseLogin :show="showLogin" @hide-modal="showLogin = false" />
+  <FirebaseLogin v-if="showLogin" @hide-modal="showLogin = false" />
 </template>
 
 <script setup lang="ts">

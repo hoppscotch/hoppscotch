@@ -42,6 +42,7 @@ const teamCollection: DbTeamCollection = {
   id: 'team-coll-1',
   parentID: null,
   teamID: team.id,
+  data: {},
   title: 'Team Collection 1',
   orderIndex: 1,
   createdOn: new Date(),

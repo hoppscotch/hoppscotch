@@ -1,7 +1,7 @@
 <template>
-  <div class="flex flex-col flex-1">
+  <div class="flex flex-1 flex-col">
     <div
-      class="sticky z-10 flex justify-between flex-1 border-b bg-primary border-dividerLight"
+      class="sticky z-10 flex flex-1 justify-between border-b border-dividerLight bg-primary"
       :style="
         saveRequest
           ? 'top: calc(var(--upper-primary-sticky-fold) - var(--line-height-body))'
@@ -15,12 +15,12 @@
         class="!rounded-none"
         :icon="IconPlus"
         :title="t('team.no_access')"
-        :label="t('add.new')"
+        :label="t('action.new')"
       />
       <HoppButtonSecondary
         v-else
         :icon="IconPlus"
-        :label="t('add.new')"
+        :label="t('action.new')"
         class="!rounded-none"
         @click="emit('display-modal-add')"
       />
@@ -84,6 +84,13 @@
             @edit-collection="
               node.data.type === 'collections' &&
                 emit('edit-collection', {
+                  collectionIndex: node.id,
+                  collection: node.data.data.data,
+                })
+            "
+            @edit-properties="
+              node.data.type === 'collections' &&
+                emit('edit-properties', {
                   collectionIndex: node.id,
                   collection: node.data.data.data,
                 })
@@ -157,6 +164,13 @@
               node.data.type === 'folders' &&
                 emit('edit-folder', {
                   folder: node.data.data.data,
+                })
+            "
+            @edit-properties="
+              node.data.type === 'folders' &&
+                emit('edit-properties', {
+                  collectionIndex: node.id,
+                  collection: node.data.data.data,
                 })
             "
             @export-data="
@@ -238,6 +252,13 @@
                 selectRequest({
                   request: node.data.data.data.request,
                   requestIndex: node.data.data.data.id,
+                  folderPath: getPath(node.id),
+                })
+            "
+            @share-request="
+              node.data.type === 'requests' &&
+                emit('share-request', {
+                  request: node.data.data.data.request,
                 })
             "
             @drag-request="
@@ -268,33 +289,37 @@
             :text="t('empty.collections')"
             @drop.stop
           >
-            <div class="flex flex-col items-center space-y-4">
-              <span class="text-secondaryLight text-center">
-                {{ t("collection.import_or_create") }}
-              </span>
-              <div class="flex gap-4 flex-col items-stretch">
-                <HoppButtonPrimary
-                  :icon="IconImport"
-                  :label="t('import.title')"
-                  filled
-                  outline
-                  :disabled="hasNoTeamAccess"
-                  :title="hasNoTeamAccess ? t('team.no_access') : ''"
-                  @click="
-                    hasNoTeamAccess ? null : emit('display-modal-import-export')
-                  "
-                />
-                <HoppButtonSecondary
-                  :icon="IconPlus"
-                  :label="t('add.new')"
-                  filled
-                  outline
-                  :disabled="hasNoTeamAccess"
-                  :title="hasNoTeamAccess ? t('team.no_access') : ''"
-                  @click="hasNoTeamAccess ? null : emit('display-modal-add')"
-                />
+            <template #body>
+              <div class="flex flex-col items-center space-y-4">
+                <span class="text-center text-secondaryLight">
+                  {{ t("collection.import_or_create") }}
+                </span>
+                <div class="flex flex-col items-stretch gap-4">
+                  <HoppButtonPrimary
+                    :icon="IconImport"
+                    :label="t('import.title')"
+                    filled
+                    outline
+                    :disabled="hasNoTeamAccess"
+                    :title="hasNoTeamAccess ? t('team.no_access') : ''"
+                    @click="
+                      hasNoTeamAccess
+                        ? null
+                        : emit('display-modal-import-export')
+                    "
+                  />
+                  <HoppButtonSecondary
+                    :icon="IconPlus"
+                    :label="t('add.new')"
+                    filled
+                    outline
+                    :disabled="hasNoTeamAccess"
+                    :title="hasNoTeamAccess ? t('team.no_access') : ''"
+                    @click="hasNoTeamAccess ? null : emit('display-modal-add')"
+                  />
+                </div>
               </div>
-            </div>
+            </template>
           </HoppSmartPlaceholder>
           <HoppSmartPlaceholder
             v-else-if="node.data.type === 'collections'"
@@ -303,18 +328,20 @@
             :text="t('empty.collections')"
             @drop.stop
           >
-            <HoppButtonSecondary
-              :label="t('add.new')"
-              filled
-              outline
-              @click="
-                node.data.type === 'collections' &&
-                  emit('add-folder', {
-                    path: node.id,
-                    folder: node.data.data.data,
-                  })
-              "
-            />
+            <template #body>
+              <HoppButtonSecondary
+                :label="t('add.new')"
+                filled
+                outline
+                @click="
+                  node.data.type === 'collections' &&
+                    emit('add-folder', {
+                      path: node.id,
+                      folder: node.data.data.data,
+                    })
+                "
+              />
+            </template>
           </HoppSmartPlaceholder>
           <HoppSmartPlaceholder
             v-else-if="node.data.type === 'folders'"
@@ -339,10 +366,7 @@ import { useI18n } from "@composables/i18n"
 import { useColorMode } from "@composables/theming"
 import { TeamCollection } from "~/helpers/teams/TeamCollection"
 import { TeamRequest } from "~/helpers/teams/TeamRequest"
-import {
-  ChildrenResult,
-  SmartTreeAdapter,
-} from "@hoppscotch/ui/dist/helpers/treeAdapter"
+import { ChildrenResult, SmartTreeAdapter } from "@hoppscotch/ui/helpers"
 import { cloneDeep } from "lodash-es"
 import { HoppRESTRequest } from "@hoppscotch/data"
 import { pipe } from "fp-ts/function"
@@ -441,6 +465,13 @@ const emit = defineEmits<{
     }
   ): void
   (
+    event: "edit-properties",
+    payload: {
+      collectionIndex: string
+      collection: TeamCollection
+    }
+  ): void
+  (
     event: "edit-request",
     payload: {
       requestIndex: string
@@ -470,7 +501,13 @@ const emit = defineEmits<{
       request: HoppRESTRequest
       requestIndex: string
       isActive: boolean
-      folderPath?: string | undefined
+      folderPath: string
+    }
+  ): void
+  (
+    event: "share-request",
+    payload: {
+      request: HoppRESTRequest
     }
   ): void
   (
@@ -512,6 +549,12 @@ const emit = defineEmits<{
   (event: "display-modal-import-export"): void
 }>()
 
+const getPath = (path: string) => {
+  const pathArray = path.split("/")
+  pathArray.pop()
+  return pathArray.join("/")
+}
+
 const teamCollectionsList = toRef(props, "teamCollectionList")
 
 const hasNoTeamAccess = computed(
@@ -542,13 +585,12 @@ const isSelected = ({
       props.picked.pickedType === "teams-request" &&
       props.picked.requestID === requestID
     )
-  } else {
-    return (
-      props.picked &&
-      props.picked.pickedType === "teams-folder" &&
-      props.picked.folderID === folderID
-    )
   }
+  return (
+    props.picked &&
+    props.picked.pickedType === "teams-folder" &&
+    props.picked.folderID === folderID
+  )
 }
 
 const active = computed(() => tabs.currentActiveTab.value.document.saveContext)
@@ -569,6 +611,7 @@ const isActiveRequest = (requestID: string) => {
 const selectRequest = (data: {
   request: HoppRESTRequest
   requestIndex: string
+  folderPath: string | null
 }) => {
   const { request, requestIndex } = data
   if (props.saveRequest) {
@@ -581,6 +624,7 @@ const selectRequest = (data: {
       request: request,
       requestIndex: requestIndex,
       isActive: isActiveRequest(requestIndex),
+      folderPath: data.folderPath,
     })
   }
 }
@@ -714,81 +758,77 @@ class TeamCollectionsAdapter implements SmartTreeAdapter<TeamCollectionNode> {
           return {
             status: "loading",
           }
-        } else {
-          const data = this.data.value.map((item, index) => ({
-            id: item.id,
+        }
+        const data = this.data.value.map((item, index) => ({
+          id: item.id,
+          data: {
+            isLastItem: index === this.data.value.length - 1,
+            type: "collections",
             data: {
-              isLastItem: index === this.data.value.length - 1,
-              type: "collections",
-              data: {
-                parentIndex: null,
-                data: item,
-              },
+              parentIndex: null,
+              data: item,
             },
-          }))
-          return {
-            status: "loaded",
-            data: cloneDeep(data),
-          } as ChildrenResult<TeamCollections>
-        }
-      } else {
-        const parsedID = id.split("/")[id.split("/").length - 1]
+          },
+        }))
+        return {
+          status: "loaded",
+          data: cloneDeep(data),
+        } as ChildrenResult<TeamCollections>
+      }
+      const parsedID = id.split("/")[id.split("/").length - 1]
 
-        !props.teamLoadingCollections.includes(parsedID) &&
-          emit("expand-team-collection", parsedID)
+      !props.teamLoadingCollections.includes(parsedID) &&
+        emit("expand-team-collection", parsedID)
 
-        if (props.teamLoadingCollections.includes(parsedID)) {
-          return {
-            status: "loading",
-          }
-        } else {
-          const items = this.findCollInTree(this.data.value, parsedID)
-          if (items) {
-            const data = [
-              ...(items.children
-                ? items.children.map((item, index) => ({
-                    id: `${id}/${item.id}`,
-                    data: {
-                      isLastItem:
-                        items.children && items.children.length > 1
-                          ? index === items.children.length - 1
-                          : false,
-                      type: "folders",
-                      data: {
-                        parentIndex: parsedID,
-                        data: item,
-                      },
-                    },
-                  }))
-                : []),
-              ...(items.requests
-                ? items.requests.map((item, index) => ({
-                    id: `${id}/${item.id}`,
-                    data: {
-                      isLastItem:
-                        items.requests && items.requests.length > 1
-                          ? index === items.requests.length - 1
-                          : false,
-                      type: "requests",
-                      data: {
-                        parentIndex: parsedID,
-                        data: item,
-                      },
-                    },
-                  }))
-                : []),
-            ]
-            return {
-              status: "loaded",
-              data: cloneDeep(data),
-            } as ChildrenResult<TeamFolder | TeamRequests>
-          } else {
-            return {
-              status: "loaded",
-              data: [],
-            }
-          }
+      if (props.teamLoadingCollections.includes(parsedID)) {
+        return {
+          status: "loading",
         }
+      }
+      const items = this.findCollInTree(this.data.value, parsedID)
+      if (items) {
+        const data = [
+          ...(items.children
+            ? items.children.map((item, index) => ({
+                id: `${id}/${item.id}`,
+                data: {
+                  isLastItem:
+                    items.children && items.children.length > 1
+                      ? index === items.children.length - 1
+                      : false,
+                  type: "folders",
+                  data: {
+                    parentIndex: parsedID,
+                    data: item,
+                  },
+                },
+              }))
+            : []),
+          ...(items.requests
+            ? items.requests.map((item, index) => ({
+                id: `${id}/${item.id}`,
+                data: {
+                  isLastItem:
+                    items.requests && items.requests.length > 1
+                      ? index === items.requests.length - 1
+                      : false,
+                  type: "requests",
+                  data: {
+                    parentIndex: parsedID,
+                    data: item,
+                  },
+                },
+              }))
+            : []),
+        ]
+        return {
+          status: "loaded",
+          data: cloneDeep(data),
+        } as ChildrenResult<TeamFolder | TeamRequests>
+      }
+      return {
+        status: "loaded",
+        data: [],
       }
     })
   }

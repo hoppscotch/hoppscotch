@@ -22,27 +22,118 @@
         </div>
       </div>
       <div class="overflow-x-auto">
-        <div
-          v-if="fetching && !error && usersList.length === 0"
-          class="flex justify-center"
-        >
+        <div v-if="fetching" class="flex justify-center">
           <HoppSmartSpinner />
         </div>
 
         <div v-else-if="error">{{ t('users.load_list_error') }}</div>
 
-        <UsersTable
-          v-else-if="usersList.length >= 1"
-          :usersList="usersList"
-          :fetching="fetching"
-          :error="error"
-          @goToUserDetails="goToUserDetails"
-          @makeUserAdmin="makeUserAdmin"
-          @makeAdminToUser="makeAdminToUser"
-          @deleteUser="deleteUser"
-        />
+        <HoppSmartTable v-else-if="usersList.length" :list="usersList">
+          <template #head>
+            <tr
+              class="text-secondary border-b border-dividerDark text-sm text-left bg-primaryLight"
+            >
+              <th class="px-6 py-2">{{ t('users.id') }}</th>
+              <th class="px-6 py-2">{{ t('users.name') }}</th>
+              <th class="px-6 py-2">{{ t('users.email') }}</th>
+              <th class="px-6 py-2">{{ t('users.date') }}</th>
+              <!-- Empty header for Action Button -->
+              <th class="px-6 py-2"></th>
+            </tr>
+          </template>
 
-        <div v-else class="flex justify-center">{{ t('users.no_users') }}</div>
+          <template #body="{ list }">
+            <tr
+              v-for="user in list"
+              :key="user.uid"
+              class="text-secondaryDark hover:bg-divider hover:cursor-pointer rounded-xl"
+              @click="goToUserDetails(user.uid)"
+            >
+              <td class="py-2 px-7 max-w-[8rem] truncate">
+                {{ user.uid }}
+              </td>
+
+              <td class="py-2 px-7">
+                <div class="flex items-center space-x-2">
+                  <span>
+                    {{ user.displayName ?? t('users.unnamed') }}
+                  </span>
+
+                  <span
+                    v-if="user.isAdmin"
+                    class="text-xs font-medium px-3 py-0.5 rounded-full bg-green-900 text-green-300"
+                  >
+                    {{ t('users.admin') }}
+                  </span>
+                </div>
+              </td>
+
+              <td class="py-2 px-7">
+                {{ user.email }}
+              </td>
+
+              <td class="py-2 px-7">
+                {{ getCreatedDate(user.createdOn) }}
+                <div class="text-gray-400 text-tiny">
+                  {{ getCreatedTime(user.createdOn) }}
+                </div>
+              </td>
+
+              <td @click.stop>
+                <div class="relative">
+                  <tippy interactive trigger="click" theme="popover">
+                    <HoppButtonSecondary
+                      v-tippy="{ theme: 'tooltip' }"
+                      :icon="IconMoreHorizontal"
+                    />
+                    <template #content="{ hide }">
+                      <div
+                        ref="tippyActions"
+                        class="flex flex-col focus:outline-none"
+                        tabindex="0"
+                        @keyup.escape="hide()"
+                      >
+                        <HoppSmartItem
+                          :icon="user.isAdmin ? IconUserMinus : IconUserCheck"
+                          :label="
+                            user.isAdmin
+                              ? t('users.remove_admin_status')
+                              : t('users.make_admin')
+                          "
+                          class="!hover:bg-emerald-600"
+                          @click="
+                            () => {
+                              user.isAdmin
+                                ? makeAdminToUser(user.uid)
+                                : makeUserAdmin(user.uid);
+                              hide();
+                            }
+                          "
+                        />
+                        <HoppSmartItem
+                          v-if="!user.isAdmin"
+                          :icon="IconTrash"
+                          :label="t('users.delete_user')"
+                          class="!hover:bg-red-600"
+                          @click="
+                            () => {
+                              deleteUser(user.uid);
+                              hide();
+                            }
+                          "
+                        />
+                      </div>
+                    </template>
+                  </tippy>
+                </div>
+              </td>
+            </tr>
+          </template>
+        </HoppSmartTable>
+
+        <div v-else-if="usersList.length === 0" class="flex justify-center">
+          {{ t('users.no_users') }}
+        </div>
 
         <div
           v-if="hasNextPage && usersList.length >= usersPerPage"
@@ -82,6 +173,7 @@
 </template>
 
 <script setup lang="ts">
+import { format } from 'date-fns';
 import { ref, watch } from 'vue';
 import { useMutation } from '@urql/vue';
 import {
@@ -96,7 +188,15 @@ import { useRoute, useRouter } from 'vue-router';
 import { useToast } from '~/composables/toast';
 import { HoppButtonSecondary } from '@hoppscotch/ui';
 import IconAddUser from '~icons/lucide/user-plus';
+import IconTrash from '~icons/lucide/trash';
+import IconUserMinus from '~icons/lucide/user-minus';
+import IconUserCheck from '~icons/lucide/user-check';
+import IconMoreHorizontal from '~icons/lucide/more-horizontal';
 import { useI18n } from '~/composables/i18n';
+
+// Get Proper Date Formats
+const getCreatedDate = (date: string) => format(new Date(date), 'dd-MM-yyyy');
+const getCreatedTime = (date: string) => format(new Date(date), 'hh:mm a');
 
 const t = useI18n();
 
@@ -112,7 +212,7 @@ const {
   hasNextPage,
 } = usePagedQuery(
   UsersListDocument,
-  (x) => x.admin.allUsers,
+  (x) => x.infra.allUsers,
   (x) => x.uid,
   usersPerPage,
   { cursor: undefined, take: usersPerPage }
@@ -141,9 +241,7 @@ const sendInvite = async (email: string) => {
 // Go to Individual User Details Page
 const route = useRoute();
 const router = useRouter();
-const goToUserDetails = (uid: string) => {
-  router.push('/users/' + uid);
-};
+const goToUserDetails = (uid: string) => router.push('/users/' + uid);
 
 watch(
   () => route.params.id,

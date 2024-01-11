@@ -9,7 +9,7 @@
           input-styles="floating-input"
           @submit="saveTeam"
         />
-        <div class="flex items-center justify-between flex-1 pt-4">
+        <div class="flex flex-1 items-center justify-between pt-4">
           <label for="memberList" class="p-4">
             {{ t("team.members") }}
           </label>
@@ -26,7 +26,7 @@
             />
           </div>
         </div>
-        <div v-if="teamDetails.loading" class="border rounded border-divider">
+        <div v-if="teamDetails.loading" class="rounded border border-divider">
           <div class="flex items-center justify-center p-4">
             <HoppSmartSpinner />
           </div>
@@ -37,7 +37,7 @@
             E.isRight(teamDetails.data) &&
             teamDetails.data.right.team?.teamMembers
           "
-          class="border rounded border-divider"
+          class="rounded border border-divider"
         >
           <HoppSmartPlaceholder
             v-if="teamDetails.data.right.team.teamMembers.length === 0"
@@ -45,15 +45,17 @@
             :alt="`${t('empty.members')}`"
             :text="t('empty.members')"
           >
-            <HoppButtonSecondary
-              :icon="IconUserPlus"
-              :label="t('team.invite')"
-              @click="
-                () => {
-                  emit('invite-team')
-                }
-              "
-            />
+            <template #body>
+              <HoppButtonSecondary
+                :icon="IconUserPlus"
+                :label="t('team.invite')"
+                @click="
+                  () => {
+                    emit('invite-team')
+                  }
+                "
+              />
+            </template>
           </HoppSmartPlaceholder>
           <div v-else class="divide-y divide-dividerLight">
             <div
@@ -62,7 +64,7 @@
               class="flex divide-x divide-dividerLight"
             >
               <input
-                class="flex flex-1 px-4 py-2 bg-transparent"
+                class="flex flex-1 bg-transparent px-4 py-2"
                 :placeholder="`${t('team.email')}`"
                 :name="'param' + index"
                 :value="member.email"
@@ -75,15 +77,15 @@
                   theme="popover"
                   :on-shown="() => tippyActions![index].focus()"
                 >
-                  <span class="select-wrapper">
+                  <HoppSmartSelectWrapper>
                     <input
-                      class="flex flex-1 px-4 py-2 bg-transparent cursor-pointer"
+                      class="flex flex-1 cursor-pointer bg-transparent px-4 py-2"
                       :placeholder="`${t('team.permissions')}`"
                       :name="'value' + index"
                       :value="member.role"
                       readonly
                     />
-                  </span>
+                  </HoppSmartSelectWrapper>
                   <template #content="{ hide }">
                     <div
                       ref="tippyActions"
@@ -152,7 +154,7 @@
           v-if="!teamDetails.loading && E.isLeft(teamDetails.data)"
           class="flex flex-col items-center"
         >
-          <icon-lucide-help-circle class="mb-4 svg-icons" />
+          <icon-lucide-help-circle class="svg-icons mb-4" />
           {{ t("error.something_went_wrong") }}
         </div>
       </div>
@@ -276,7 +278,8 @@ const teamDetails = useGQLQuery<GetTeamQuery, GetTeamQueryVariables, "">({
           },
         },
       ]
-    } else return []
+    }
+    return []
   }),
 })
 

@@ -1,21 +1,23 @@
-import * as A from "fp-ts/Array";
-import { pipe } from "fp-ts/function";
+import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data";
 import { bold } from "chalk";
 import { log } from "console";
+import * as A from "fp-ts/Array";
+import { pipe } from "fp-ts/function";
 import round from "lodash/round";
-import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data";
+
+import { CollectionRunnerParam } from "../types/collections";
 import {
-  HoppEnvs,
   CollectionStack,
-  RequestReport,
+  HoppEnvs,
   ProcessRequestParams,
+  RequestReport,
 } from "../types/request";
 import {
-  getRequestMetrics,
-  preProcessRequest,
-  processRequest,
-} from "./request";
-import { exceptionColors } from "./getters";
+  PreRequestMetrics,
+  RequestMetrics,
+  TestMetrics,
+} from "../types/response";
+import { DEFAULT_DURATION_PRECISION } from "./constants";
 import {
   printErrorsReport,
   printFailedTestsReport,
@@ -23,15 +25,14 @@ import {
   printRequestsMetrics,
   printTestsMetrics,
 } from "./display";
-import {
-  PreRequestMetrics,
-  RequestMetrics,
-  TestMetrics,
-} from "../types/response";
-import { getTestMetrics } from "./test";
-import { DEFAULT_DURATION_PRECISION } from "./constants";
+import { exceptionColors } from "./getters";
 import { getPreRequestMetrics } from "./pre-request";
-import { CollectionRunnerParam } from "../types/collections";
+import {
+  getRequestMetrics,
+  preProcessRequest,
+  processRequest,
+} from "./request";
+import { getTestMetrics } from "./test";
 
 const { WARN, FAIL } = exceptionColors;
 
@@ -41,23 +42,23 @@ const { WARN, FAIL } = exceptionColors;
  * @param param Data of hopp-collection with hopp-requests, envs to be processed.
  * @returns List of report for each processed request.
  */
-export const collectionsRunner =
-  async (param: CollectionRunnerParam): Promise<RequestReport[]> =>
-   {
-    const envs: HoppEnvs = param.envs;
-    const delay = param.delay ?? 0;
-    const requestsReport: RequestReport[] = [];
-    const collectionStack: CollectionStack[] = getCollectionStack(
-      param.collections
-    );
+export const collectionsRunner = async (
+  param: CollectionRunnerParam
+): Promise<RequestReport[]> => {
+  const envs: HoppEnvs = param.envs;
+  const delay = param.delay ?? 0;
+  const requestsReport: RequestReport[] = [];
+  const collectionStack: CollectionStack[] = getCollectionStack(
+    param.collections
+  );
 
-    while (collectionStack.length) {
-      // Pop out top-most collection from stack to be processed.
-      const { collection, path } = <CollectionStack>collectionStack.pop();
+  while (collectionStack.length) {
+    // Pop out top-most collection from stack to be processed.
+    const { collection, path } = <CollectionStack>collectionStack.pop();
 
       // Processing each request in collection
       for (const request of collection.requests) {
-        const _request = preProcessRequest(request);
+        const _request = preProcessRequest(request as HoppRESTRequest, collection);
         const requestPath = `${path}/${_request.name}`;
         const processRequestParams: ProcessRequestParams = {
           path: requestPath,
@@ -69,13 +70,13 @@ export const collectionsRunner =
         // Request processing initiated message.
         log(WARN(`\nRunning: ${bold(requestPath)}`));
 
-        // Processing current request.
-        const result = await processRequest(processRequestParams)();
+      // Processing current request.
+      const result = await processRequest(processRequestParams)();
 
-        // Updating global & selected envs with new envs from processed-request output.
-        const { global, selected } = result.envs;
-        envs.global = global;
-        envs.selected = selected;
+      // Updating global & selected envs with new envs from processed-request output.
+      const { global, selected } = result.envs;
+      envs.global = global;
+      envs.selected = selected;
 
         // Storing current request's report.
         const requestReport = result.report;
@@ -84,15 +85,30 @@ export const collectionsRunner =
 
       // Pushing remaining folders realted collection to stack.
       for (const folder of collection.folders) {
+        const updatedFolder: HoppCollection = { ...folder }
+
+        if (updatedFolder.auth?.authType === "inherit") {
+          updatedFolder.auth = collection.auth;
+        }
+
+        if (collection.headers?.length) {
+          // Filter out header entries present in the parent collection under the same name
+          // This ensures the folder headers take precedence over the collection headers
+          const filteredHeaders = collection.headers.filter((collectionHeaderEntries) => {
+            return !updatedFolder.headers.some((folderHeaderEntries) => folderHeaderEntries.key === collectionHeaderEntries.key)
+          })
+          updatedFolder.headers.push(...filteredHeaders);
+        }
+
         collectionStack.push({
-          path: `${path}/${folder.name}`,
-          collection: folder,
+          path: `${path}/${updatedFolder.name}`,
+          collection: updatedFolder,
         });
       }
     }
 
-    return requestsReport;
-  };
+  return requestsReport;
+};
 
 /**
  * Transforms collections to generate collection-stack which describes each collection's
@@ -100,9 +116,7 @@ export const collectionsRunner =
  * @param collections Hopp-collection objects to be mapped to collection-stack type.
  * @returns Mapped collections to collection-stack.
  */
-const getCollectionStack = (
-  collections: HoppCollection<HoppRESTRequest>[]
-): CollectionStack[] =>
+const getCollectionStack = (collections: HoppCollection[]): CollectionStack[] =>
   pipe(
     collections,
     A.map(

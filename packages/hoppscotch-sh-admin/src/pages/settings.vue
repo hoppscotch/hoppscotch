@@ -1,3 +1,81 @@
 <template>
-  <h3 class="sm:px-6 p-4 text-3xl font-medium text-gray-200">Settings</h3>
+  <div class="flex flex-col">
+    <h1 class="text-lg font-bold text-secondaryDark">
+      {{ t('settings.settings') }}
+    </h1>
+  </div>
+
+  <div
+    v-if="fetchingInfraConfigs || fetchingAllowedAuthProviders"
+    class="flex justify-center"
+  >
+    <HoppSmartSpinner />
+  </div>
+
+  <div v-else-if="infraConfigsError || allowedAuthProvidersError">
+    {{ t('configs.load_error') }}
+  </div>
+
+    <div v-else class="flex flex-col py-8">
+      <HoppSmartTabs v-model="selectedOptionTab" render-inactive-tabs>
+        <HoppSmartTab :id="'config'" :label="t('configs.title')">
+          <SettingsConfigurations
+            v-model:config="workingConfigs"
+            class="py-8 px-4"
+          />
+        </HoppSmartTab>
+      </HoppSmartTabs>
+  </div>
+
+  <div v-if="isConfigUpdated" class="fixed bottom-0 right-0 m-10">
+    <HoppButtonPrimary
+      :label="t('configs.save_changes')"
+      @click="showSaveChangesModal = !showSaveChangesModal"
+    />
+  </div>
+
+  <SettingsServerRestart
+    v-if="initiateServerRestart"
+    :workingConfigs="workingConfigs"
+  />
+
+  <HoppSmartConfirmModal
+    :show="showSaveChangesModal"
+    :title="t('configs.confirm_changes')"
+    @hide-modal="showSaveChangesModal = false"
+    @resolve="initiateServerRestart = true"
+  />
 </template>
+
+<script setup lang="ts">
+import { isEqual } from 'lodash-es';
+import { computed, ref } from 'vue';
+import { useI18n } from '~/composables/i18n';
+import { useConfigHandler } from '~/composables/useConfigHandler';
+
+const t = useI18n();
+
+const showSaveChangesModal = ref(false);
+const initiateServerRestart = ref(false);
+
+// Tabs
+type OptionTabs = 'config';
+const selectedOptionTab = ref<OptionTabs>('config');
+
+// Obtain the current and working configs from the useConfigHandler composable
+const {
+  currentConfigs,
+  workingConfigs,
+  fetchingInfraConfigs,
+  infraConfigsError,
+  fetchingAllowedAuthProviders,
+  allowedAuthProvidersError,
+} = useConfigHandler();
+
+// Check if the configs have been updated
+const isConfigUpdated = computed(() =>
+  currentConfigs.value && workingConfigs.value
+    ? !isEqual(currentConfigs.value, workingConfigs.value)
+    : false
+);
+</script>

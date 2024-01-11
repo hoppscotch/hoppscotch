@@ -2,13 +2,14 @@
   <HoppSmartTabs
     v-model="currentTab"
     styles="sticky overflow-x-auto flex-shrink-0 bg-primary top-0 z-10"
-    content-styles="h-[calc(100%-var(--sidebar-primary-sticky-fold)-1px)] !flex"
+    content-styles="!h-[calc(100%-var(--sidebar-primary-sticky-fold)-1px)] !flex"
   >
     <HoppSmartTab
-      v-for="{ target, title } in REALTIME_NAVIGATION"
-      :id="target"
-      :key="target"
-      :label="title"
+      v-for="(navigation, index) in REALTIME_NAVIGATION"
+      :id="navigation.target"
+      :key="index"
+      :label="navigation.title"
+      :icon="navigation.icon"
     >
       <RouterView />
     </HoppSmartTab>
@@ -20,6 +21,10 @@ import { watch, ref, computed } from "vue"
 import { RouterView, useRouter, useRoute } from "vue-router"
 import { usePageHead } from "~/composables/head"
 import { useI18n } from "~/composables/i18n"
+import IconWebsocket from "~icons/hopp/websocket"
+import IconSocketio from "~icons/hopp/socketio"
+import IconMqtt from "~icons/hopp/mqtt"
+import IconSse from "~icons/lucide/satellite-dish"
 
 const t = useI18n()
 const router = useRouter()
@@ -29,18 +34,22 @@ const REALTIME_NAVIGATION = [
   {
     target: "websocket",
     title: t("tab.websocket"),
+    icon: IconWebsocket,
   },
   {
     target: "sse",
     title: t("tab.sse"),
+    icon: IconSse,
   },
   {
     target: "socketio",
     title: t("tab.socketio"),
+    icon: IconSocketio,
   },
   {
     target: "mqtt",
     title: t("tab.mqtt"),
+    icon: IconMqtt,
   },
 ] as const
 

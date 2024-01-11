@@ -1,0 +1,6 @@
+query GetCollectionTitleAndData($collectionID: ID!) {
+  collection(collectionID: $collectionID) {
+    title
+    data
+  }
+}

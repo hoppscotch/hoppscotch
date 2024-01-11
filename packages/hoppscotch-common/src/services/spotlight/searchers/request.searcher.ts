@@ -12,7 +12,7 @@ import { RESTOptionTabs } from "~/components/http/RequestOptions.vue"
 import IconWindow from "~icons/lucide/app-window"
 import IconCheckCircle from "~icons/lucide/check-circle"
 import IconCode2 from "~icons/lucide/code-2"
-import IconCopy from "~icons/lucide/copy"
+import IconShare2 from "~icons/lucide/share-2"
 import IconFileCode from "~icons/lucide/file-code"
 import IconRename from "~icons/lucide/file-edit"
 import IconPlay from "~icons/lucide/play"
@@ -94,10 +94,10 @@ export class RequestSpotlightSearcherService extends StaticSpotlightSearcherServ
       icon: markRaw(IconRename),
       excludeFromSearch: computed(() => !this.isRESTOrGQLPage.value),
     },
-    copy_request_link: {
-      text: this.t("shortcut.request.copy_request_link"),
-      alternates: ["copy", "link"],
-      icon: markRaw(IconCopy),
+    share_request: {
+      text: this.t("shortcut.request.share_request"),
+      alternates: ["share", "request", "copy"],
+      icon: markRaw(IconShare2),
       excludeFromSearch: computed(() => !this.isRESTPage.value),
     },
     reset_request: {
@@ -277,8 +277,8 @@ export class RequestSpotlightSearcherService extends StaticSpotlightSearcherServ
       case "rename_request":
         invokeAction("request.rename")
         break
-      case "copy_request_link":
-        invokeAction("request.copy-link")
+      case "share_request":
+        invokeAction("request.share-request")
         break
       case "reset_request":
         invokeAction("request.reset")

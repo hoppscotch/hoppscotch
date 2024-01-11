@@ -3,5 +3,6 @@ subscription ShortcodeCreated {
     id
     request
     createdOn
+    properties
   }
 }

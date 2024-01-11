@@ -1,7 +1,7 @@
 <template>
   <button
     ref="el"
-    class="flex items-center flex-1 px-6 py-4 font-medium space-x-4 transition cursor-pointer relative search-entry focus:outline-none"
+    class="search-entry relative flex flex-1 cursor-pointer items-center space-x-4 px-6 py-4 font-medium transition focus:outline-none"
     :class="{ 'active bg-primaryLight text-secondaryDark': active }"
     tabindex="-1"
     @click="emit('action')"
@@ -9,8 +9,8 @@
   >
     <component
       :is="entry.icon"
-      class="opacity-50 svg-icons"
-      :class="{ 'opacity-100': active }"
+      class="svg-icons opacity-80"
+      :class="{ 'opacity-25': active }"
     />
     <template
       v-if="entry.text.type === 'text' && typeof entry.text.text === 'string'"
@@ -82,9 +82,9 @@ const props = defineProps<{
 
 const formattedShortcutKeys = computed(
   () =>
-    props.entry.meta?.keyboardShortcut?.map((key) => {
-      return SPECIAL_KEY_CHARS[key] ?? capitalize(key)
-    })
+    props.entry.meta?.keyboardShortcut?.map(
+      (key) => SPECIAL_KEY_CHARS[key] ?? capitalize(key)
+    )
 )
 
 const emit = defineEmits<{
@@ -112,9 +112,9 @@ watch(
   @apply after:left-0;
   @apply after:bottom-0;
   @apply after:bg-transparent;
-  @apply after:z-2;
+  @apply after:z-10;
   @apply after:w-0.5;
-  @apply after:content-DEFAULT;
+  @apply after:content-[''];
 
   &.active {
     @apply after:bg-accentLight;

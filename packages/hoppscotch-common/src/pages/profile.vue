@@ -4,7 +4,7 @@
       <div class="p-4">
         <div
           v-if="loadingCurrentUser"
-          class="flex flex-col items-center justify-center flex-1 p-4"
+          class="flex flex-1 flex-col items-center justify-center p-4"
         >
           <HoppSmartSpinner class="mb-4" />
         </div>
@@ -14,34 +14,24 @@
           :alt="`${t('empty.profile')}`"
           :text="`${t('empty.profile')}`"
         >
-          <HoppButtonPrimary
-            :label="t('auth.login')"
-            @click="invokeAction('modals.login.toggle')"
-          />
+          <template #body>
+            <HoppButtonPrimary
+              :label="t('auth.login')"
+              @click="invokeAction('modals.login.toggle')"
+            />
+          </template>
         </HoppSmartPlaceholder>
         <div v-else class="space-y-8">
           <div
-            class="h-24 rounded bg-primaryLight -mb-11 md:h-32"
+            class="-mb-12 h-24 rounded bg-primaryLight md:h-32"
             style="background-image: url(/images/cover.svg)"
           ></div>
-          <div class="flex flex-col justify-between px-4 space-y-8 md:flex-row">
+          <div class="flex flex-col justify-between space-y-8 px-4 md:flex-row">
             <div class="flex items-end">
               <HoppSmartPicture
-                v-if="currentUser.photoURL"
-                :url="currentUser.photoURL"
-                :alt="
-                  currentUser.displayName || t('profile.default_displayname')
-                "
-                class="ring-primary ring-4"
-                size="16"
-                rounded="lg"
-              />
-              <HoppSmartPicture
-                v-else
-                :initial="currentUser.displayName || currentUser.email"
-                rounded="lg"
-                size="16"
-                class="ring-primary ring-4"
+                :name="currentUser.uid"
+                class="ring-8 ring-primary"
+                :size="64"
               />
               <div class="ml-4">
                 <label class="heading">
@@ -56,13 +46,13 @@
                     v-if="currentUser.emailVerified"
                     v-tippy="{ theme: 'tooltip' }"
                     :title="t('settings.verified_email')"
-                    class="ml-2 text-green-500 svg-icons focus:outline-none cursor-help"
+                    class="svg-icons ml-2 cursor-help text-green-500 focus:outline-none"
                   />
                   <HoppButtonSecondary
                     v-else
                     :label="t('settings.verify_email')"
                     :icon="IconVerified"
-                    class="px-1 py-0 ml-2"
+                    class="ml-2 px-1 py-0"
                     :loading="verifyingEmailAddress"
                     @click="sendEmailVerification"
                   />
@@ -110,7 +100,7 @@
                           filled
                           outline
                           :label="t('action.save')"
-                          class="ml-2 min-w-16"
+                          class="min-w-[4rem] ml-2"
                           type="submit"
                           :loading="updatingDisplayName"
                           @click="updateDisplayName"
@@ -133,7 +123,7 @@
                           filled
                           outline
                           :label="t('action.save')"
-                          class="ml-2 min-w-16"
+                          class="min-w-[4rem] ml-2"
                           type="submit"
                           :loading="updatingEmailAddress"
                           @click="updateEmailAddress"
@@ -143,8 +133,6 @@
                   </div>
                 </section>
 
-                <ProfileUserDelete />
-
                 <section class="p-4">
                   <h4 class="font-semibold text-secondaryDark">
                     {{ t("settings.sync") }}
@@ -152,7 +140,7 @@
                   <div class="my-1 text-secondaryLight">
                     {{ t("settings.sync_description") }}
                   </div>
-                  <div class="py-4 space-y-4">
+                  <div class="space-y-4 py-4">
                     <div class="flex items-center">
                       <HoppSmartToggle
                         :on="SYNC_COLLECTIONS"
@@ -180,7 +168,18 @@
                   </div>
                 </section>
 
+                <template v-if="platform.ui?.additionalProfileSections?.length">
+                  <template
+                    v-for="item in platform.ui?.additionalProfileSections"
+                    :key="item.id"
+                  >
+                    <component :is="item" />
+                  </template>
+                </template>
+
                 <ProfileShortcodes />
+
+                <ProfileUserDelete />
               </div>
             </HoppSmartTab>
             <HoppSmartTab :id="'teams'" :label="t('team.title')">
@@ -238,7 +237,7 @@ const probableUser = useReadonlyStream(
 const loadingCurrentUser = computed(() => {
   if (!probableUser.value) return false
   else if (!currentUser.value) return true
-  else return false
+  return false
 })
 
 const displayName = ref(currentUser.value?.displayName || "")

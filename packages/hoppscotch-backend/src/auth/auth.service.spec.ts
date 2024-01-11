@@ -21,15 +21,26 @@ import { VerifyMagicDto } from './dto/verify-magic.dto';
 import { DateTime } from 'luxon';
 import * as argon2 from 'argon2';
 import * as E from 'fp-ts/Either';
+import { ConfigService } from '@nestjs/config';
+import { InfraConfigService } from 'src/infra-config/infra-config.service';
 
 const mockPrisma = mockDeep<PrismaService>();
 const mockUser = mockDeep<UserService>();
 const mockJWT = mockDeep<JwtService>();
 const mockMailer = mockDeep<MailerService>();
+const mockConfigService = mockDeep<ConfigService>();
+const mockInfraConfigService = mockDeep<InfraConfigService>();
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-const authService = new AuthService(mockUser, mockPrisma, mockJWT, mockMailer);
+const authService = new AuthService(
+  mockUser,
+  mockPrisma,
+  mockJWT,
+  mockMailer,
+  mockConfigService,
+  mockInfraConfigService,
+);
 
 const currentTime = new Date();
 
@@ -91,6 +102,8 @@ describe('signInMagicLink', () => {
     mockUser.createUserViaMagicLink.mockResolvedValue(user);
     // create new entry in VerificationToken table
     mockPrisma.verificationToken.create.mockResolvedValueOnce(passwordlessData);
+    // Read env variable 'MAGIC_LINK_TOKEN_VALIDITY' from config service
+    mockConfigService.get.mockReturnValue('3');
 
     const result = await authService.signInMagicLink(
       'dwight@dundermifflin.com',

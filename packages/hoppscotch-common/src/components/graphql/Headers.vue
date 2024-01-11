@@ -1,6 +1,11 @@
 <template>
   <div
-    class="sticky top-sidebarPrimaryStickyFold z-10 flex items-center justify-between pl-4 border-y bg-primary border-dividerLight"
+    class="sticky z-10 flex items-center justify-between border-y border-dividerLight bg-primary pl-4"
+    :class="[
+      isCollectionProperty
+        ? 'top-propertiesPrimaryStickyFold'
+        : 'top-sidebarPrimaryStickyFold',
+    ]"
   >
     <label class="font-semibold text-secondaryLight">
       {{ t("tab.headers") }}
@@ -42,7 +47,7 @@
       />
     </div>
   </div>
-  <div v-if="bulkMode" ref="bulkEditor" class="flex flex-col flex-1"></div>
+  <div v-if="bulkMode" ref="bulkEditor" class="flex flex-1 flex-col"></div>
   <div v-else>
     <draggable
       v-model="workingHeaders"
@@ -56,7 +61,7 @@
     >
       <template #item="{ element: header, index }">
         <div
-          class="flex border-b divide-x divide-dividerLight border-dividerLight draggable-content group"
+          class="draggable-content group flex divide-x divide-dividerLight border-b border-dividerLight"
         >
           <span>
             <HoppButtonSecondary
@@ -69,30 +74,19 @@
                     : null,
               }"
               :icon="IconGripVertical"
-              class="cursor-auto text-primary hover:text-primary"
+              class="opacity-0"
               :class="{
-                'draggable-handle group-hover:text-secondaryLight !cursor-grab':
+                'draggable-handle cursor-grab group-hover:opacity-100':
                   index !== workingHeaders?.length - 1,
               }"
               tabindex="-1"
             />
           </span>
-          <HoppSmartAutoComplete
+          <SmartEnvInput
+            v-model="header.key"
             :placeholder="`${t('count.header', { count: index + 1 })}`"
-            :source="commonHeaders"
-            :spellcheck="false"
-            :value="header.key"
-            autofocus
-            styles="
-                bg-transparent
-                flex
-                flex-1
-                py-1
-                px-4
-                truncate
-              "
-            class="flex-1 !flex"
-            @input="
+            :auto-complete-source="commonHeaders"
+            @change="
               updateHeader(index, {
                 id: header.id,
                 key: $event,
@@ -101,17 +95,14 @@
               })
             "
           />
-          <input
-            class="flex flex-1 px-4 py-2 bg-transparent"
+          <SmartEnvInput
+            v-model="header.value"
             :placeholder="`${t('count.value', { count: index + 1 })}`"
-            :name="`value ${String(index)}`"
-            :value="header.value"
-            autofocus
             @change="
               updateHeader(index, {
                 id: header.id,
                 key: header.key,
-                value: ($event!.target! as HTMLInputElement).value,
+                value: $event,
                 active: header.active,
               })
             "
@@ -156,18 +147,133 @@
         </div>
       </template>
     </draggable>
+
+    <draggable
+      v-model="computedHeaders"
+      item-key="id"
+      animation="250"
+      handle=".draggable-handle"
+      draggable=".draggable-content"
+      ghost-class="cursor-move"
+      chosen-class="bg-primaryLight"
+      drag-class="cursor-grabbing"
+    >
+      <template #item="{ element: header, index }">
+        <div
+          class="draggable-content group flex divide-x divide-dividerLight border-b border-dividerLight"
+        >
+          <span>
+            <HoppButtonSecondary
+              :icon="IconLock"
+              class="cursor-auto bg-divider text-secondaryLight opacity-25"
+              tabindex="-1"
+            />
+          </span>
+          <SmartEnvInput
+            v-model="header.header.key"
+            :placeholder="`${t('count.value', { count: index + 1 })}`"
+            readonly
+          />
+          <SmartEnvInput
+            :model-value="mask(header)"
+            :placeholder="`${t('count.value', { count: index + 1 })}`"
+            readonly
+          />
+          <span>
+            <HoppButtonSecondary
+              v-if="header.source === 'auth'"
+              v-tippy="{ theme: 'tooltip' }"
+              :title="t(masking ? 'state.show' : 'state.hide')"
+              :icon="masking ? IconEye : IconEyeOff"
+              @click="toggleMask()"
+            />
+            <HoppButtonSecondary
+              v-else
+              v-tippy="{ theme: 'tooltip' }"
+              :icon="IconArrowUpRight"
+              :title="t('request.go_to_authorization_tab')"
+              class="cursor-auto text-primary hover:text-primary"
+            />
+          </span>
+          <span>
+            <HoppButtonSecondary
+              v-tippy="{ theme: 'tooltip' }"
+              :icon="IconArrowUpRight"
+              :title="t('request.go_to_authorization_tab')"
+            />
+          </span>
+        </div>
+      </template>
+    </draggable>
+
+    <draggable
+      v-model="inheritedProperties"
+      item-key="id"
+      animation="250"
+      handle=".draggable-handle"
+      draggable=".draggable-content"
+      ghost-class="cursor-move"
+      chosen-class="bg-primaryLight"
+      drag-class="cursor-grabbing"
+    >
+      <template #item="{ element: header, index }">
+        <div
+          class="draggable-content group flex divide-x divide-dividerLight border-b border-dividerLight"
+        >
+          <span>
+            <HoppButtonSecondary
+              :icon="IconLock"
+              class="cursor-auto bg-divider text-secondaryLight opacity-25"
+              tabindex="-1"
+            />
+          </span>
+          <SmartEnvInput
+            v-model="header.header.key"
+            :placeholder="`${t('count.value', { count: index + 1 })}`"
+            readonly
+          />
+          <SmartEnvInput
+            :model-value="
+              header.source === 'auth' ? mask(header) : header.header.value
+            "
+            :placeholder="`${t('count.value', { count: index + 1 })}`"
+            readonly
+          />
+          <HoppButtonSecondary
+            v-if="header.source === 'auth'"
+            v-tippy="{ theme: 'tooltip' }"
+            :title="t(masking ? 'state.show' : 'state.hide')"
+            :icon="masking && header.source === 'auth' ? IconEye : IconEyeOff"
+            @click="toggleMask()"
+          />
+          <span v-else class="aspect-square w-[2.05rem]"></span>
+          <span>
+            <HoppButtonSecondary
+              v-tippy="{ theme: 'tooltip' }"
+              :icon="IconInfo"
+              :title="`This header is inherited from Parent Collection ${
+                header.inheritedFrom ?? ''
+              }`"
+            />
+          </span>
+        </div>
+      </template>
+    </draggable>
+
     <HoppSmartPlaceholder
       v-if="workingHeaders.length === 0"
       :src="`/images/states/${colorMode.value}/add_category.svg`"
       :alt="`${t('empty.headers')}`"
       :text="t('empty.headers')"
     >
-      <HoppButtonSecondary
-        :label="`${t('add.new')}`"
-        filled
-        :icon="IconPlus"
-        @click="addHeader"
-      />
+      <template #body>
+        <HoppButtonSecondary
+          :label="`${t('add.new')}`"
+          filled
+          :icon="IconPlus"
+          @click="addHeader"
+        />
+      </template>
     </HoppSmartPlaceholder>
   </div>
 </template>
@@ -182,7 +288,12 @@ import IconCheckCircle from "~icons/lucide/check-circle"
 import IconTrash from "~icons/lucide/trash"
 import IconCircle from "~icons/lucide/circle"
 import IconWrapText from "~icons/lucide/wrap-text"
-import { reactive, ref, watch } from "vue"
+import IconArrowUpRight from "~icons/lucide/arrow-up-right"
+import IconLock from "~icons/lucide/lock"
+import IconEye from "~icons/lucide/eye"
+import IconEyeOff from "~icons/lucide/eye-off"
+import IconInfo from "~icons/lucide/info"
+import { computed, reactive, ref, watch } from "vue"
 import * as E from "fp-ts/Either"
 import * as O from "fp-ts/Option"
 import * as A from "fp-ts/Array"
@@ -204,13 +315,20 @@ import { commonHeaders } from "~/helpers/headers"
 import { useCodemirror } from "@composables/codemirror"
 import { objRemoveKey } from "~/helpers/functional/object"
 import { useVModel } from "@vueuse/core"
+import { HoppGQLHeader } from "~/helpers/graphql"
+import { throwError } from "~/helpers/functional/error"
+import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 
 const colorMode = useColorMode()
 const t = useI18n()
 const toast = useToast()
 
 // v-model integration with props and emit
-const props = defineProps<{ modelValue: HoppGQLRequest }>()
+const props = defineProps<{
+  modelValue: HoppGQLRequest
+  isCollectionProperty?: boolean
+  inheritedProperties?: HoppInheritedProperty
+}>()
 
 const emit = defineEmits<{
   (e: "update:modelValue", value: HoppGQLRequest): void
@@ -411,7 +529,11 @@ const deleteHeader = (index: number) => {
     })
   }
 
-  workingHeaders.value.splice(index, 1)
+  workingHeaders.value = pipe(
+    workingHeaders.value,
+    A.deleteAt(index),
+    O.getOrElseW(() => throwError("Working Headers Deletion Out of Bounds"))
+  )
 }
 
 const clearContent = () => {
@@ -427,4 +549,151 @@ const clearContent = () => {
 
   bulkHeaders.value = ""
 }
+
+const getComputedAuthHeaders = (
+  req?: HoppGQLRequest,
+  auth?: HoppGQLRequest["auth"]
+) => {
+  const request = auth ? { auth: auth ?? { authActive: false } } : req
+  // If Authorization header is also being user-defined, that takes priority
+  if (req && req.headers.find((h) => h.key.toLowerCase() === "authorization"))
+    return []
+
+  if (!request) return []
+
+  if (!request.auth || !request.auth.authActive) return []
+
+  const headers: HoppGQLHeader[] = []
+
+  // TODO: Support a better b64 implementation than btoa ?
+  if (request.auth.authType === "basic") {
+    const username = request.auth.username
+    const password = request.auth.password
+
+    headers.push({
+      active: true,
+      key: "Authorization",
+      value: `Basic ${btoa(`${username}:${password}`)}`,
+    })
+  } else if (
+    request.auth.authType === "bearer" ||
+    request.auth.authType === "oauth-2"
+  ) {
+    headers.push({
+      active: true,
+      key: "Authorization",
+      value: `Bearer ${request.auth.token}`,
+    })
+  } else if (request.auth.authType === "api-key") {
+    const { key, addTo } = request.auth
+
+    if (addTo === "Headers" && key) {
+      headers.push({
+        active: true,
+        key,
+        value: request.auth.value ?? "",
+      })
+    }
+  }
+
+  return headers
+}
+
+const getComputedHeaders = (req: HoppGQLRequest) => {
+  return [
+    ...getComputedAuthHeaders(req).map((header) => ({
+      source: "auth" as const,
+      header,
+    })),
+  ]
+}
+
+const computedHeaders = computed(() =>
+  getComputedHeaders(request.value).map((header, index) => ({
+    id: `header-${index}`,
+    ...header,
+  }))
+)
+
+const inheritedProperties = computed(() => {
+  if (!props.inheritedProperties?.auth || !props.inheritedProperties.headers)
+    return []
+
+  //filter out headers that are already in the request headers
+
+  const inheritedHeaders = props.inheritedProperties.headers.filter(
+    (header) =>
+      !request.value.headers.some(
+        (requestHeader) => requestHeader.key === header.inheritedHeader?.key
+      )
+  )
+
+  const headers = inheritedHeaders
+    .filter(
+      (header) =>
+        header.inheritedHeader !== null &&
+        header.inheritedHeader !== undefined &&
+        header.inheritedHeader.active
+    )
+    .map((header, index) => ({
+      inheritedFrom: props.inheritedProperties?.headers[index].parentName,
+      source: "headers",
+      id: `header-${index}`,
+      header: {
+        key: header.inheritedHeader?.key,
+        value: header.inheritedHeader?.value,
+        active: header.inheritedHeader?.active,
+      },
+    }))
+
+  let auth = [] as {
+    inheritedFrom: string
+    source: "auth"
+    id: string
+    header: {
+      key: string
+      value: string
+      active: boolean
+    }
+  }[]
+
+  const computedAuthHeader = getComputedAuthHeaders(
+    request.value,
+    props.inheritedProperties.auth.inheritedAuth
+  )[0]
+
+  if (
+    computedAuthHeader &&
+    request.value.auth.authType === "inherit" &&
+    request.value.auth.authActive
+  ) {
+    auth = [
+      {
+        inheritedFrom: props.inheritedProperties?.auth.parentName,
+        source: "auth",
+        id: `header-auth`,
+        header: computedAuthHeader,
+      },
+    ]
+  }
+
+  return [...headers, ...auth]
+})
+
+const masking = ref(true)
+
+const toggleMask = () => {
+  masking.value = !masking.value
+}
+
+const mask = (header: any) => {
+  if (header.source === "auth" && masking.value)
+    return header.header.value.replace(/\S/gi, "*")
+  return header.header.value
+}
+
+// const changeTab = (tab: ComputedHeader["source"]) => {
+//   if (tab === "auth") emit("change-tab", "authorization")
+//   else emit("change-tab", "bodyParams")
+// }
 </script>

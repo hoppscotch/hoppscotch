@@ -8,15 +8,14 @@ import VueI18n from "@intlify/vite-plugin-vue-i18n"
 import Components from "unplugin-vue-components/vite"
 import Icons from "unplugin-icons/vite"
 import Inspect from "vite-plugin-inspect"
-import WindiCSS from "vite-plugin-windicss"
 import { VitePWA } from "vite-plugin-pwa"
 import Pages from "vite-plugin-pages"
 import Layouts from "vite-plugin-vue-layouts"
 import IconResolver from "unplugin-icons/resolver"
 import { FileSystemIconLoader } from "unplugin-icons/loaders"
 import * as path from "path"
-import { VitePluginFonts } from "vite-plugin-fonts"
 import legacy from "@vitejs/plugin-legacy"
+import Unfonts from "unplugin-fonts/vite"
 
 const ENV = loadEnv("development", path.resolve(__dirname, "../../"))
 
@@ -105,14 +104,10 @@ export default defineConfig({
       compositionOnly: true,
       include: [path.resolve(__dirname, "locales")],
     }),
-    WindiCSS({
-      root: path.resolve(__dirname, "../hoppscotch-common"),
-    }),
     Components({
       dts: "../hoppscotch-common/src/components.d.ts",
       dirs: [
         "../hoppscotch-common/src/components",
-        "../hoppscotch-ui/src/components",
       ],
       directoryAsNamespace: true,
       resolvers: [
@@ -184,12 +179,21 @@ export default defineConfig({
         ],
       },
     }),
-    VitePluginFonts({
-      google: {
+    Unfonts({
+      fontsource: {
         families: [
-          "Inter:wght@400;500;600;700;800",
-          "Roboto+Mono:wght@400;500",
-          "Material+Icons",
+          {
+            name: "Inter Variable",
+            variables: ["variable-full"],
+          },
+          {
+            name: "Material Symbols Rounded Variable",
+            variables: ["variable-full"],
+          },
+          {
+            name: "Roboto Mono Variable",
+            variables: ["variable-full"],
+          },
         ],
       },
     }),

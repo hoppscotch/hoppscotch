@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex items-center sm:px-15 px-8 justify-center !sm:justify-start py-6 bg-primaryLight rounded-md shadow-sm h-50 space-x-6"
+    class="flex items-center sm:px-16 px-8 justify-start py-6 bg-primaryLight rounded-md shadow-sm h-48 space-x-6"
   >
     <component :is="icon" class="text-5xl" :class="color" />
 

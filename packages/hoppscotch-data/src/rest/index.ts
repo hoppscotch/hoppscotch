@@ -20,10 +20,12 @@ export {
   HoppRESTAuth,
   HoppRESTAuthAPIKey,
   HoppRESTAuthBasic,
+  HoppRESTAuthInherit,
   HoppRESTAuthBearer,
   HoppRESTAuthNone,
   HoppRESTAuthOAuth2,
   HoppRESTReqBody,
+  HoppRESTHeaders,
 } from "./v/1"
 
 const versionedObject = z.object({

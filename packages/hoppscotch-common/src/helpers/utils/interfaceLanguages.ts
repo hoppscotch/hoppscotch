@@ -1,0 +1,26 @@
+const interfaceLanguages = [
+  "cJSON",
+  "C++",
+  "C#",
+  "Crystal",
+  "Dart",
+  "Elm",
+  "Flow",
+  "Go",
+  "Haskell",
+  "Java",
+  "JavaScript",
+  "Kotlin",
+  "Objective-C",
+  "PHP",
+  "Pike",
+  "Python",
+  "Ruby",
+  "Rust",
+  "Scala3",
+  "Smithy",
+  "Swift",
+  "TypeScript",
+]
+
+export default interfaceLanguages

@@ -1,9 +1,9 @@
 <template>
-  <div class="flex flex-col flex-1">
+  <div class="flex flex-1 flex-col">
     <div
-      class="sticky z-10 flex items-center justify-between flex-shrink-0 pl-4 overflow-x-auto border-b bg-primary border-dividerLight top-upperMobileSecondaryStickyFold sm:top-upperSecondaryStickyFold"
+      class="sticky top-upperMobileSecondaryStickyFold z-10 flex flex-shrink-0 items-center justify-between overflow-x-auto border-b border-dividerLight bg-primary pl-4 sm:top-upperSecondaryStickyFold"
     >
-      <label class="font-semibold truncate text-secondaryLight">
+      <label class="truncate font-semibold text-secondaryLight">
         {{ t("request.parameter_list") }}
       </label>
       <div class="flex">
@@ -44,7 +44,7 @@
         />
       </div>
     </div>
-    <div v-if="bulkMode" ref="bulkEditor" class="flex flex-col flex-1"></div>
+    <div v-if="bulkMode" ref="bulkEditor" class="flex flex-1 flex-col"></div>
     <div v-else>
       <draggable
         v-model="workingParams"
@@ -58,7 +58,7 @@
       >
         <template #item="{ element: param, index }">
           <div
-            class="flex border-b divide-x divide-dividerLight border-dividerLight draggable-content group"
+            class="draggable-content group flex divide-x divide-dividerLight border-b border-dividerLight"
           >
             <span>
               <HoppButtonSecondary
@@ -71,9 +71,9 @@
                       : null,
                 }"
                 :icon="IconGripVertical"
-                class="cursor-auto text-primary hover:text-primary"
+                class="opacity-0"
                 :class="{
-                  'draggable-handle group-hover:text-secondaryLight !cursor-grab':
+                  'draggable-handle cursor-grab group-hover:opacity-100':
                     index !== workingParams?.length - 1,
                 }"
                 tabindex="-1"
@@ -157,12 +157,14 @@
         :alt="`${t('empty.parameters')}`"
         :text="t('empty.parameters')"
       >
-        <HoppButtonSecondary
-          :label="`${t('add.new')}`"
-          :icon="IconPlus"
-          filled
-          @click="addParam"
-        />
+        <template #body>
+          <HoppButtonSecondary
+            :label="`${t('add.new')}`"
+            :icon="IconPlus"
+            filled
+            @click="addParam"
+          />
+        </template>
       </HoppSmartPlaceholder>
     </div>
   </div>

@@ -26,7 +26,7 @@ const isScalar = computed(() => {
 
 function resolveRootType(type: GraphQLType) {
   let t = type as any
-  while (t.ofType != null) t = t.ofType
+  while (t.ofType !== null) t = t.ofType
   return t
 }
 

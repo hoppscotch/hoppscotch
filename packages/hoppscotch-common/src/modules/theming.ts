@@ -1,14 +1,18 @@
-import { usePreferredDark, useStorage } from "@vueuse/core"
-import { App, computed, reactive, Ref, watch } from "vue"
-import type { HoppBgColor } from "~/newstore/settings"
 import { useSettingStatic } from "@composables/settings"
+import { usePreferredDark, useStorage } from "@vueuse/core"
+import { App, Ref, computed, reactive, watch } from "vue"
+
+import type { HoppBgColor } from "~/newstore/settings"
+import { PersistenceService } from "~/services/persistence"
 import { HoppModule } from "."
-import { hoppLocalConfigStorage } from "~/newstore/localpersistence"
+import { getService } from "./dioc"
 
 export type HoppColorMode = {
   preference: HoppBgColor
   value: Readonly<Exclude<HoppBgColor, "system">>
 }
+
+const persistenceService = getService(PersistenceService)
 
 const applyColorMode = (app: App) => {
   const [settingPref] = useSettingStatic("BG_COLOR")
@@ -16,7 +20,7 @@ const applyColorMode = (app: App) => {
   const currentLocalPreference = useStorage<HoppBgColor>(
     "nuxt-color-mode",
     "system",
-    hoppLocalConfigStorage,
+    persistenceService.hoppLocalConfigStorage,
     {
       listenToStorageChanges: true,
     }
@@ -27,7 +31,8 @@ const applyColorMode = (app: App) => {
   const selection = computed<Exclude<HoppBgColor, "system">>(() => {
     if (currentLocalPreference.value === "system") {
       return systemPrefersDark.value ? "dark" : "light"
-    } else return currentLocalPreference.value
+    }
+    return currentLocalPreference.value
   })
 
   watch(

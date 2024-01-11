@@ -1,5 +1,6 @@
 {
   "action": {
+    "add": "Add",
     "autoscroll": "Autoscroll",
     "cancel": "Ματαίωση",
     "choose_file": "Επιλέξτε ένα αρχείο",
@@ -10,6 +11,7 @@
     "connect": "Συνδέω-συωδεομαι",
     "connecting": "Connecting",
     "copy": "αντίγραφο",
+    "create": "Create",
     "delete": "Διαγράφω",
     "disconnect": "Αποσυνδέω",
     "dismiss": "Απολύω",
@@ -31,6 +33,7 @@
     "open_workspace": "Open workspace",
     "paste": "Paste",
     "prettify": "Ωραιοποιώ",
+    "properties": "Properties",
     "remove": "Αφαιρώ",
     "rename": "Rename",
     "restore": "Επαναφέρω",
@@ -39,6 +42,7 @@
     "scroll_to_top": "Scroll to top",
     "search": "Αναζήτηση",
     "send": "Στείλετε",
+    "share": "Share",
     "start": "Αρχή",
     "starting": "Starting",
     "stop": "Να σταματήσει",
@@ -57,7 +61,9 @@
   "app": {
     "chat_with_us": "μίλα μαζί μας",
     "contact_us": "Επικοινωνήστε μαζί μας",
+    "cookies": "Cookies",
     "copy": "αντίγραφο",
+    "copy_interface_type": "Copy interface type",
     "copy_user_id": "Copy User Auth Token",
     "developer_option": "Developer options",
     "developer_option_description": "Εργαλεία για προγραμματιστές που βοηθάνε στην ανάπτυξη και συντήρηση του Hoppscotch.",
@@ -73,6 +79,7 @@
     "keyboard_shortcuts": "Συντομεύσεις πληκτρολογίου",
     "name": "Hoppscotch",
     "new_version_found": "Βρέθηκε νέα έκδοση. Ανανέωση για ενημέρωση.",
+    "open_in_hoppscotch": "Open in Hoppscotch",
     "options": "Options",
     "proxy_privacy_policy": "Πολιτική απορρήτου μεσολάβησης",
     "reload": "Φορτώνω πάλι",
@@ -112,10 +119,27 @@
   },
   "authorization": {
     "generate_token": "Δημιουργήστε το διακριτικό",
+    "graphql_headers": "Authorization Headers are sent as part of the payload to connection_init",
     "include_in_url": "Συμπερίληψη στη διεύθυνση URL",
+    "inherited_from": "Inherited from {auth} from Parent Collection {collection} ",
     "learn": "Μάθε πως",
+    "oauth": {
+      "redirect_auth_server_returned_error": "Auth Server returned an error state",
+      "redirect_auth_token_request_failed": "Request to get the auth token failed",
+      "redirect_auth_token_request_invalid_response": "Invalid Response from the Token Endpoint when requesting for an auth token",
+      "redirect_invalid_state": "Invalid State value present in the redirect",
+      "redirect_no_auth_code": "No Authorization Code present in the redirect",
+      "redirect_no_client_id": "No Client ID defined",
+      "redirect_no_client_secret": "No Client Secret Defined",
+      "redirect_no_code_verifier": "No Code Verifier Defined",
+      "redirect_no_token_endpoint": "No Token Endpoint Defined",
+      "something_went_wrong_on_oauth_redirect": "Something went wrong during OAuth Redirect",
+      "something_went_wrong_on_token_generation": "Something went wrong on token generation",
+      "token_generation_oidc_discovery_failed": "Failure on token generation: OpenID Connect Discovery Failed"
+    },
     "pass_key_by": "Pass by",
     "password": "Κωδικός πρόσβασης",
+    "save_to_inherit": "Please save this request in any collection to inherit the authorization",
     "token": "Ενδειξη",
     "type": "Τύπος εξουσιοδότησης",
     "username": "Όνομα χρήστη"
@@ -124,6 +148,7 @@
     "created": "Η συλλογή δημιουργήθηκε",
     "different_parent": "Cannot reorder collection with different parent",
     "edit": "Επεξεργασία Συλλογής",
+    "import_or_create": "Import or create a collection",
     "invalid_name": "Καταχωρίστε ένα έγκυρο όνομα για τη συλλογή",
     "invalid_root_move": "Collection already in the root",
     "moved": "Moved Successfully",
@@ -132,6 +157,8 @@
     "name_length_insufficient": "Collection name should be at least 3 characters long",
     "new": "Νέα συλλογή",
     "order_changed": "Collection Order Updated",
+    "properties": "Collection Properties",
+    "properties_updated": "Collection Properties Updated",
     "renamed": "Η συλλογή μετονομάστηκε",
     "request_in_use": "Request in use",
     "save_as": "Αποθήκευση ως",
@@ -151,6 +178,7 @@
     "remove_folder": "Είστε βέβαιοι ότι θέλετε να διαγράψετε οριστικά αυτόν τον φάκελο;",
     "remove_history": "Είστε βέβαιοι ότι θέλετε να διαγράψετε οριστικά όλο το ιστορικό;",
     "remove_request": "Είστε βέβαιοι ότι θέλετε να διαγράψετε οριστικά αυτό το αίτημα;",
+    "remove_shared_request": "Are you sure you want to permanently delete this shared request?",
     "remove_team": "Είστε βέβαιοι ότι θέλετε να διαγράψετε αυτήν την ομάδα;",
     "remove_telemetry": "Είστε βέβαιοι ότι θέλετε να εξαιρεθείτε από την τηλεμετρία;",
     "request_change": "Are you sure you want to discard current request, unsaved changes will be lost.",
@@ -161,6 +189,24 @@
     "add_parameters": "Add to parameters",
     "open_request_in_new_tab": "Open request in new tab",
     "set_environment_variable": "Set as variable"
+  },
+  "cookies": {
+    "modal": {
+      "cookie_expires": "Expires",
+      "cookie_name": "Name",
+      "cookie_path": "Path",
+      "cookie_string": "Cookie string",
+      "cookie_value": "Value",
+      "empty_domain": "Domain is empty",
+      "empty_domains": "Domain list is empty",
+      "enter_cookie_string": "Enter cookie string",
+      "interceptor_no_support": "Your currently selected interceptor does not support cookies. Select a different Interceptor and try again.",
+      "managed_tab": "Managed",
+      "new_domain_name": "New domain name",
+      "no_cookies_in_domain": "No cookies set for this domain",
+      "raw_tab": "Raw",
+      "set": "Set a cookie"
+    }
   },
   "count": {
     "header": "Κεφαλίδα {count}",
@@ -192,11 +238,13 @@
     "profile": "Συνδεθείτε για προβολή του προφίλ σας",
     "protocols": "Τα πρωτόκολλα είναι κενά",
     "schema": "Συνδεθείτε σε ένα τελικό σημείο GraphQL",
-    "shortcodes": "Τα Shortcodes είναι κενά",
+    "shared_requests": "Shared requests are empty",
+    "shared_requests_logout": "Login to view your shared requests or create a new one",
     "subscription": "Subscriptions are empty",
     "team_name": "Το όνομα της ομάδας είναι κενό",
     "teams": "Οι ομάδες είναι άδειες",
-    "tests": "Δεν υπάρχουν δοκιμές για αυτό το αίτημα"
+    "tests": "Δεν υπάρχουν δοκιμές για αυτό το αίτημα",
+    "shortcodes": "Τα Shortcodes είναι κενά"
   },
   "environment": {
     "add_to_global": "Προσθήκη στο Global",
@@ -209,6 +257,7 @@
     "empty_variables": "No variables",
     "global": "Global",
     "global_variables": "Global variables",
+    "import_or_create": "Import or create a environment",
     "invalid_name": "Καταχωρίστε ένα έγκυρο όνομα για το περιβάλλον",
     "list": "Environment variables",
     "my_environments": "Τα Περιβάλλοντα μου",
@@ -232,8 +281,10 @@
     "variable_list": "Λίστα μεταβλητών"
   },
   "error": {
+    "authproviders_load_error": "Unable to load auth providers",
     "browser_support_sse": "Αυτό το πρόγραμμα περιήγησης δεν φαίνεται να υποστηρίζει διακομιστές που έχουν σταλεί συμβάντα.",
     "check_console_details": "Ελέγξτε το αρχείο καταγραφής της κονσόλας για λεπτομέρειες.",
+    "check_how_to_add_origin": "Check how you can add an origin",
     "curl_invalid_format": "Το cURL δεν έχει μορφοποιηθεί σωστά",
     "danger_zone": "Danger zone",
     "delete_account": "Your account is currently an owner in these teams:",
@@ -249,9 +300,12 @@
     "json_prettify_invalid_body": "Δεν ήταν δυνατή η ομορφιά ενός μη έγκυρου σώματος, η επίλυση σφαλμάτων σύνταξης json και η προσπάθεια ξανά",
     "network_error": "Από ότι φαίνεται υπάρχει ένα σφάλμα δικτύου. Παρακαλούμε προσπαθήστε ξανά.",
     "network_fail": "Δεν ήταν δυνατή η αποστολή του αιτήματος",
+    "no_collections_to_export": "No collections to export. Please create a collection to get started.",
     "no_duration": "Χωρίς διάρκεια",
+    "no_environments_to_export": "No environments to export. Please create an environment to get started.",
     "no_results_found": "Δεν βρέθηκαν αντιστοιχίες",
     "page_not_found": "Αυτή η σελίδα δεν βρέθηκε",
+    "please_install_extension": "Please install the extension and add origin to the extension.",
     "proxy_error": "Proxy error",
     "script_fail": "Δεν ήταν δυνατή η εκτέλεση του σεναρίου πριν από το αίτημα",
     "something_went_wrong": "Κάτι πήγε στραβά",
@@ -260,6 +314,7 @@
   "export": {
     "as_json": "Εξαγωγή ως JSON",
     "create_secret_gist": "Δημιουργήστε μυστική ουσία",
+    "failed": "Something went wrong while exporting",
     "gist_created": "Η ουσία δημιουργήθηκε",
     "require_github": "Συνδεθείτε με το GitHub για να δημιουργήσετε μυστική ουσία",
     "title": "Export"
@@ -286,6 +341,9 @@
     "subscriptions": "Συνδρομές",
     "switch_connection": "Switch connection"
   },
+  "graphql_collections": {
+    "title": "GraphQL Collections"
+  },
   "group": {
     "time": "Time",
     "url": "URL"
@@ -297,6 +355,8 @@
   },
   "helpers": {
     "authorization": "Η κεφαλίδα εξουσιοδότησης θα δημιουργηθεί αυτόματα κατά την αποστολή του αιτήματος.",
+    "collection_properties_authorization": " This authorization will be set for every request in this collection.",
+    "collection_properties_header": "This header will be set for every request in this collection.",
     "generate_documentation_first": "Δημιουργήστε πρώτα έγγραφα",
     "network_fail": "Δεν είναι δυνατή η πρόσβαση στο τελικό σημείο API. Ελέγξτε τη σύνδεση δικτύου και δοκιμάστε ξανά.",
     "offline": "Φαίνεται ότι είστε εκτός σύνδεσης. Τα δεδομένα σε αυτόν τον χώρο εργασίας ενδέχεται να μην είναι ενημερωμένα.",
@@ -316,7 +376,10 @@
   "import": {
     "collections": "Εισαγωγή συλλογών",
     "curl": "Εισαγωγή cURL",
+    "environments_from_gist": "Import From Gist",
+    "environments_from_gist_description": "Import Hoppscotch Environments From Gist",
     "failed": "Η εισαγωγή απέτυχε",
+    "from_file": "Import from File",
     "from_gist": "Εισαγωγή από το Gist",
     "from_gist_description": "Εισαγωγή από Gist URL",
     "from_insomnia": "Εισαγωγή από Insomnia",
@@ -331,11 +394,17 @@
     "from_postman_description": "Εισαγωγή Συλλογής από Postman",
     "from_url": "Εισαγωγή από URL",
     "gist_url": "Εισαγάγετε Gist URL",
+    "gql_collections_from_gist_description": "Import GraphQL Collections From Gist",
+    "hoppscotch_environment": "Hoppscotch Environment",
+    "hoppscotch_environment_description": "Import Hoppscotch Environment JSON file",
     "import_from_url_invalid_fetch": "Δεν μπορέσαμε να πάρουμε δεδομένα από το url",
     "import_from_url_invalid_file_format": "Σφάλμα κατά την εισαγωγή των Συλλογών",
     "import_from_url_invalid_type": "Μη υποστηριζόμενος τύπος. Αποδεκτές τιμές είναι 'hoppscotch', 'openapi', 'postman', 'insomnia'",
     "import_from_url_success": "Η εισαγωγή των Συλλογών ήταν επιτυχής",
+    "insomnia_environment_description": "Import Insomnia Environment from a JSON/YAML file",
     "json_description": "Εισαγωγή συλλογών αρχείο JSON Hoppscotch Collections",
+    "postman_environment": "Postman Environment",
+    "postman_environment_description": "Import Postman Environment from a JSON file",
     "title": "Εισαγωγή"
   },
   "inspections": {
@@ -373,8 +442,10 @@
     "close_unsaved_tab": "You have unsaved changes",
     "collections": "Συλλογές",
     "confirm": "Επιβεβαιώνω",
+    "customize_request": "Customize Request",
     "edit_request": "Αίτημα Επεξεργασίας",
-    "import_export": "Εισαγωγή εξαγωγή"
+    "import_export": "Εισαγωγή εξαγωγή",
+    "share_request": "Share Request"
   },
   "mqtt": {
     "already_subscribed": "You are already subscribed to this topic.",
@@ -449,13 +520,14 @@
       "structured": "Structured",
       "text": "Text"
     },
-    "copy_link": "Αντιγραφή συνδέσμου",
     "different_collection": "Cannot reorder requests from different collections",
     "duplicated": "Request duplicated",
     "duration": "Διάρκεια",
     "enter_curl": "Εισαγάγετε cURL",
     "generate_code": "Δημιουργία κώδικα",
     "generated_code": "Παραγόμενος κώδικας",
+    "go_to_authorization_tab": "Go to Authorization tab",
+    "go_to_body_tab": "Go to Body tab",
     "header_list": "Λίστα κεφαλίδων",
     "invalid_name": "Καταχωρίστε ένα όνομα για το αίτημα",
     "method": "Μέθοδος",
@@ -480,12 +552,14 @@
     "saved": "Το αίτημα αποθηκεύτηκε",
     "share": "Μερίδιο",
     "share_description": "Κοινοποίηση Hoppscotch στους φίλους σου",
+    "share_request": "Share Request",
     "stop": "Stop",
     "title": "Αίτηση",
     "type": "Τύπος αιτήματος",
     "url": "URL",
     "variables": "Μεταβλητές",
-    "view_my_links": "Προβολή των links μου"
+    "view_my_links": "Προβολή των links μου",
+    "copy_link": "Αντιγραφή συνδέσμου"
   },
   "response": {
     "audio": "Audio",
@@ -513,6 +587,7 @@
     "account_description": "Προσαρμόστε τις ρυθμίσεις του λογαριασμού σας.",
     "account_email_description": "Η κύρια διεύθυνση email σας.",
     "account_name_description": "Αυτό είναι το εμφανιζόμενο όνομά σας.",
+    "additional": "Additional Settings",
     "background": "Ιστορικό",
     "black_mode": "Μαύρος",
     "choose_language": "Διάλεξε γλώσσα",
@@ -559,14 +634,31 @@
     "verified_email": "Επαληθευμένο email",
     "verify_email": "Επαλήθευση email"
   },
-  "shortcodes": {
-    "actions": "Δράσεις",
-    "created_on": "Created on",
-    "deleted": "Το Shortcode διαγράφηκε",
-    "method": "Method",
-    "not_found": "Το Shortcode δεν βρέθηκε",
-    "short_code": "Short code",
-    "url": "URL"
+  "shared_requests": {
+    "button": "Button",
+    "button_info": "Create a 'Run in Hoppscotch' button for your website, blog or a README.",
+    "copy_html": "Copy HTML",
+    "copy_link": "Copy Link",
+    "copy_markdown": "Copy Markdown",
+    "creating_widget": "Creating widget",
+    "customize": "Customize",
+    "deleted": "Shared request deleted",
+    "description": "Select a widget, you can change and customize this later",
+    "embed": "Embed",
+    "embed_info": "Add a mini 'Hoppscotch API Playground' to your website, blog or documentation.",
+    "link": "Link",
+    "link_info": "Create a shareable link to share with anyone on the internet with view access.",
+    "modified": "Shared request modified",
+    "not_found": "Shared request not found",
+    "open_new_tab": "Open in new tab",
+    "preview": "Preview",
+    "run_in_hoppscotch": "Run in Hoppscotch",
+    "theme": {
+      "dark": "Dark",
+      "light": "Light",
+      "system": "System",
+      "title": "Theme"
+    }
   },
   "shortcut": {
     "general": {
@@ -596,7 +688,6 @@
       "title": "Others"
     },
     "request": {
-      "copy_request_link": "Αντιγραφή συνδέσμου αιτήματος",
       "delete_method": "Επιλέξτε ΔΙΑΓΡΑΦΗ μεθόδου",
       "get_method": "Επιλέξτε μέθοδο GET",
       "head_method": "Επιλέξτε μέθοδο HEAD",
@@ -611,8 +702,10 @@
       "save_request": "Save Request",
       "save_to_collections": "Αποθήκευση στις Συλλογές",
       "send_request": "Στείλε αίτημα",
+      "share_request": "Share Request",
       "show_code": "Generate code snippet",
-      "title": "Αίτηση"
+      "title": "Αίτηση",
+      "copy_request_link": "Αντιγραφή συνδέσμου αιτήματος"
     },
     "response": {
       "copy": "Αντιγραφή response στο πρόχειρο",
@@ -735,6 +828,7 @@
     "connection_error": "Η Σύνδεση απέτυχε",
     "connection_failed": "Αποτυχής Σύνδεση",
     "connection_lost": "Η Σύνδεση χάθηκε",
+    "copied_interface_to_clipboard": "Copied {language} interface type to clipboard",
     "copied_to_clipboard": "Αντιγράφηκε στο πρόχειρο",
     "deleted": "Διαγράφηκε",
     "deprecated": "ΚΑΤΑΡΓΗΘΗΚΕ",
@@ -742,10 +836,12 @@
     "disconnected": "Ασύνδετος",
     "disconnected_from": "Αποσυνδέθηκε από το {name}",
     "docs_generated": "Δημιουργήθηκε τεκμηρίωση",
+    "download_failed": "Download failed",
     "download_started": "Η λήψη ξεκίνησε",
     "enabled": "Ενεργοποιημένο",
     "file_imported": "Το αρχείο εισήχθη",
     "finished_in": "Ολοκληρώθηκε σε {duration} ms",
+    "hide": "Hide",
     "history_deleted": "Το ιστορικό διαγράφηκε",
     "linewrap": "Τυλίξτε γραμμές",
     "loading": "Φόρτωση...",
@@ -756,6 +852,7 @@
     "published_error": "Κάτι πήγε στραβά κατα την αποστολή του μηνύματος: {topic} με θέμα: {message}",
     "published_message": "Δημοσιευμένο Μηνυμα: {message} με θέμα: {topic}",
     "reconnection_error": "Αποτυχία επανασύνδεσης",
+    "show": "Show",
     "subscribed_failed": "Αποτυχία εγγραφής στο Θέμα: {topic}",
     "subscribed_success": "Επιτυχία εγγραφής στο Θέμα: {topic}",
     "unsubscribed_failed": "Αποτυχία απεγγραφής στο Θέμα: {topic}",
@@ -791,6 +888,7 @@
     "queries": "Ερωτήματα",
     "query": "Ερώτηση",
     "schema": "Schema",
+    "shared_requests": "Shared Requests",
     "socketio": "Υποδοχή.IO",
     "sse": "SSE",
     "tests": "Δοκιμές",
@@ -807,6 +905,7 @@
     "email_do_not_match": "Το Email δεν ταιριάζει με τις λεπτομέριες του προφιλ σας. Επικοινωνήστε με τον Ιδιοκτήτη της Ομάδας.",
     "exit": "Έξοδος από την ομάδα",
     "exit_disabled": "Μόνο ο ιδιοκτήτης δεν μπορεί να αποχωρήσει από την ομάδα",
+    "failed_invites": "Failed invites",
     "invalid_coll_id": "Invalid collection ID",
     "invalid_email_format": "Η μορφή ηλεκτρονικού ταχυδρομείου δεν είναι έγκυρη",
     "invalid_id": "Μή εγκυρο αναγνωριστικό ομάδας. Επικοινωνήστε με τον Ιδιοκτήτη της Ομάδας.",
@@ -848,6 +947,7 @@
     "same_target_destination": "Same target and destination",
     "saved": "Η ομάδα σώθηκε",
     "select_a_team": "Επιλογή ομάδας",
+    "success_invites": "Success invites",
     "title": "Της ομάδας",
     "we_sent_invite_link": "Στείλαμε έναν σύνδεσμο πρόσκλησης σε όλους!",
     "we_sent_invite_link_description": "Ζητήστε από όλους όσους στείλατε πρόσκληση να ελέγξουν τα email τους. Click στον σύνδεσμο για εισαγωγή στην ομάδα."
@@ -879,5 +979,14 @@
     "personal": "My Workspace",
     "team": "Team Workspace",
     "title": "Workspaces"
+  },
+  "shortcodes": {
+    "actions": "Δράσεις",
+    "created_on": "Created on",
+    "deleted": "Το Shortcode διαγράφηκε",
+    "method": "Method",
+    "not_found": "Το Shortcode δεν βρέθηκε",
+    "short_code": "Short code",
+    "url": "URL"
   }
 }

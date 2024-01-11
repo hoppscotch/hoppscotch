@@ -1,5 +1,6 @@
 {
   "action": {
+    "add": "Add",
     "autoscroll": "Autoscroll",
     "cancel": "الغاء",
     "choose_file": "اختيار ملف",
@@ -10,6 +11,7 @@
     "connect": "الاتصال",
     "connecting": "Connecting",
     "copy": "نسخ",
+    "create": "Create",
     "delete": "حذف",
     "disconnect": "قطع الاتصال",
     "dismiss": "رفض",
@@ -31,6 +33,7 @@
     "open_workspace": "Open workspace",
     "paste": "لصق",
     "prettify": "جمال",
+    "properties": "Properties",
     "remove": "ازالة",
     "rename": "Rename",
     "restore": "اعادة",
@@ -39,6 +42,7 @@
     "scroll_to_top": "Scroll to top",
     "search": "بحث",
     "send": "ارسل",
+    "share": "Share",
     "start": "ابدأ",
     "starting": "Starting",
     "stop": "قف",
@@ -57,7 +61,9 @@
   "app": {
     "chat_with_us": "دردش معنا",
     "contact_us": "اتصل بنا",
+    "cookies": "Cookies",
     "copy": "انسخ",
+    "copy_interface_type": "Copy interface type",
     "copy_user_id": "Copy User Auth Token",
     "developer_option": "Developer options",
     "developer_option_description": "Developer tools which helps in development and maintenance of Hoppscotch.",
@@ -73,6 +79,7 @@
     "keyboard_shortcuts": "اختصارات لوحة المفاتيح",
     "name": "هوبسكوتش",
     "new_version_found": "تم العثور على نسخة جديدة. قم بالتحديث للتحديث.",
+    "open_in_hoppscotch": "Open in Hoppscotch",
     "options": "Options",
     "proxy_privacy_policy": "سياسة خصوصية الوكيل",
     "reload": "إعادة تحميل",
@@ -112,10 +119,27 @@
   },
   "authorization": {
     "generate_token": "توليد رمز",
+    "graphql_headers": "Authorization Headers are sent as part of the payload to connection_init",
     "include_in_url": "تضمين في URL",
+    "inherited_from": "Inherited from {auth} from Parent Collection {collection} ",
     "learn": "تعلم كيف",
+    "oauth": {
+      "redirect_auth_server_returned_error": "Auth Server returned an error state",
+      "redirect_auth_token_request_failed": "Request to get the auth token failed",
+      "redirect_auth_token_request_invalid_response": "Invalid Response from the Token Endpoint when requesting for an auth token",
+      "redirect_invalid_state": "Invalid State value present in the redirect",
+      "redirect_no_auth_code": "No Authorization Code present in the redirect",
+      "redirect_no_client_id": "No Client ID defined",
+      "redirect_no_client_secret": "No Client Secret Defined",
+      "redirect_no_code_verifier": "No Code Verifier Defined",
+      "redirect_no_token_endpoint": "No Token Endpoint Defined",
+      "something_went_wrong_on_oauth_redirect": "Something went wrong during OAuth Redirect",
+      "something_went_wrong_on_token_generation": "Something went wrong on token generation",
+      "token_generation_oidc_discovery_failed": "Failure on token generation: OpenID Connect Discovery Failed"
+    },
     "pass_key_by": "Pass by",
     "password": "كلمة المرور",
+    "save_to_inherit": "Please save this request in any collection to inherit the authorization",
     "token": "رمز",
     "type": "نوع التفويض",
     "username": "اسم المستخدم"
@@ -124,6 +148,7 @@
     "created": "تم إنشاء المجموعة",
     "different_parent": "Cannot reorder collection with different parent",
     "edit": "تحرير المجموعة",
+    "import_or_create": "Import or create a collection",
     "invalid_name": "الرجاء تقديم اسم صالح للمجموعة",
     "invalid_root_move": "Collection already in the root",
     "moved": "Moved Successfully",
@@ -132,6 +157,8 @@
     "name_length_insufficient": "اسم المجموعة يجب ان لايقل على 3 رموز",
     "new": "مجموعة جديدة",
     "order_changed": "Collection Order Updated",
+    "properties": "Collection Properties",
+    "properties_updated": "Collection Properties Updated",
     "renamed": "تمت إعادة تسمية المجموعة",
     "request_in_use": "Request in use",
     "save_as": "حفظ باسم",
@@ -151,6 +178,7 @@
     "remove_folder": "هل أنت متأكد أنك تريد حذف هذا المجلد نهائيًا؟",
     "remove_history": "هل أنت متأكد أنك تريد حذف كل المحفوظات بشكل دائم؟",
     "remove_request": "هل أنت متأكد أنك تريد حذف هذا الطلب نهائيًا؟",
+    "remove_shared_request": "Are you sure you want to permanently delete this shared request?",
     "remove_team": "هل أنت متأكد أنك تريد حذف هذا الفريق؟",
     "remove_telemetry": "هل أنت متأكد أنك تريد الانسحاب من القياس عن بعد؟",
     "request_change": "Are you sure you want to discard current request, unsaved changes will be lost.",
@@ -161,6 +189,24 @@
     "add_parameters": "Add to parameters",
     "open_request_in_new_tab": "Open request in new tab",
     "set_environment_variable": "Set as variable"
+  },
+  "cookies": {
+    "modal": {
+      "cookie_expires": "Expires",
+      "cookie_name": "Name",
+      "cookie_path": "Path",
+      "cookie_string": "Cookie string",
+      "cookie_value": "Value",
+      "empty_domain": "Domain is empty",
+      "empty_domains": "Domain list is empty",
+      "enter_cookie_string": "Enter cookie string",
+      "interceptor_no_support": "Your currently selected interceptor does not support cookies. Select a different Interceptor and try again.",
+      "managed_tab": "Managed",
+      "new_domain_name": "New domain name",
+      "no_cookies_in_domain": "No cookies set for this domain",
+      "raw_tab": "Raw",
+      "set": "Set a cookie"
+    }
   },
   "count": {
     "header": "رأس {count}",
@@ -192,11 +238,13 @@
     "profile": "سجل الدخول لرؤية فريقك",
     "protocols": "البروتوكولات فارغة",
     "schema": "اتصل بنقطة نهاية GraphQL",
-    "shortcodes": "Shortcodes are empty",
+    "shared_requests": "Shared requests are empty",
+    "shared_requests_logout": "Login to view your shared requests or create a new one",
     "subscription": "Subscriptions are empty",
     "team_name": "اسم الفريق فارغ",
     "teams": "الفرق فارغة",
-    "tests": "لا توجد اختبارات لهذا الطلب"
+    "tests": "لا توجد اختبارات لهذا الطلب",
+    "shortcodes": "Shortcodes are empty"
   },
   "environment": {
     "add_to_global": "Add to Global",
@@ -209,6 +257,7 @@
     "empty_variables": "No variables",
     "global": "Global",
     "global_variables": "Global variables",
+    "import_or_create": "Import or create a environment",
     "invalid_name": "الرجاء تقديم اسم صالح للبيئة",
     "list": "Environment variables",
     "my_environments": "My Environments",
@@ -232,8 +281,10 @@
     "variable_list": "قائمة متغيرة"
   },
   "error": {
+    "authproviders_load_error": "Unable to load auth providers",
     "browser_support_sse": "يبدو أن هذا المستعرض لا يدعم أحداث إرسال الخادم.",
     "check_console_details": "تحقق من سجل وحدة التحكم للحصول على التفاصيل.",
+    "check_how_to_add_origin": "Check how you can add an origin",
     "curl_invalid_format": "لم يتم تنسيق cURL بشكل صحيح",
     "danger_zone": "Danger zone",
     "delete_account": "Your account is currently an owner in these teams:",
@@ -249,9 +300,12 @@
     "json_prettify_invalid_body": "تعذر تجميل جسم غير صالح وحل أخطاء بناء جملة json وحاول مرة أخرى",
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "تعذر إرسال الطلب",
+    "no_collections_to_export": "No collections to export. Please create a collection to get started.",
     "no_duration": "لا مدة",
+    "no_environments_to_export": "No environments to export. Please create an environment to get started.",
     "no_results_found": "No matches found",
     "page_not_found": "This page could not be found",
+    "please_install_extension": "Please install the extension and add origin to the extension.",
     "proxy_error": "Proxy error",
     "script_fail": "تعذر تنفيذ نص الطلب المسبق",
     "something_went_wrong": "هناك خطأ ما",
@@ -260,6 +314,7 @@
   "export": {
     "as_json": "تصدير بتنسيق JSON",
     "create_secret_gist": "إنشاء جوهر سري",
+    "failed": "Something went wrong while exporting",
     "gist_created": "خلقت الجست",
     "require_github": "تسجيل الدخول باستخدام GitHub لإنشاء جوهر سري",
     "title": "Export"
@@ -286,6 +341,9 @@
     "subscriptions": "الاشتراكات",
     "switch_connection": "Switch connection"
   },
+  "graphql_collections": {
+    "title": "GraphQL Collections"
+  },
   "group": {
     "time": "Time",
     "url": "URL"
@@ -297,6 +355,8 @@
   },
   "helpers": {
     "authorization": "سيتم إنشاء رأس التفويض تلقائيًا عند إرسال الطلب.",
+    "collection_properties_authorization": " This authorization will be set for every request in this collection.",
+    "collection_properties_header": "This header will be set for every request in this collection.",
     "generate_documentation_first": "قم بإنشاء الوثائق أولاً",
     "network_fail": "تعذر الوصول إلى نقطة نهاية API. تحقق من اتصالك بالشبكة وحاول مرة أخرى.",
     "offline": "يبدو أنك غير متصل بالإنترنت. قد لا تكون البيانات الموجودة في مساحة العمل هذه محدثة.",
@@ -316,7 +376,10 @@
   "import": {
     "collections": "مجموعات الاستيراد",
     "curl": "استيراد cURL",
+    "environments_from_gist": "Import From Gist",
+    "environments_from_gist_description": "Import Hoppscotch Environments From Gist",
     "failed": "فشل الاستيراد",
+    "from_file": "Import from File",
     "from_gist": "الاستيراد من Gist",
     "from_gist_description": "استيراد من Gist URL",
     "from_insomnia": "استيراد من Insomnia",
@@ -331,11 +394,17 @@
     "from_postman_description": "استيراد من مجموعة Postman",
     "from_url": "استيراد من رابط",
     "gist_url": "أدخل عنوان URL لـ Gist",
+    "gql_collections_from_gist_description": "Import GraphQL Collections From Gist",
+    "hoppscotch_environment": "Hoppscotch Environment",
+    "hoppscotch_environment_description": "Import Hoppscotch Environment JSON file",
     "import_from_url_invalid_fetch": "Couldn't get data from the url",
     "import_from_url_invalid_file_format": "Error while importing collections",
     "import_from_url_invalid_type": "Unsupported type. accepted values are 'hoppscotch', 'openapi', 'postman', 'insomnia'",
     "import_from_url_success": "Collections Imported",
+    "insomnia_environment_description": "Import Insomnia Environment from a JSON/YAML file",
     "json_description": "استيراد مجموعة من ملفHoppscotch Collections JSON file",
+    "postman_environment": "Postman Environment",
+    "postman_environment_description": "Import Postman Environment from a JSON file",
     "title": "يستورد"
   },
   "inspections": {
@@ -373,8 +442,10 @@
     "close_unsaved_tab": "You have unsaved changes",
     "collections": "المجموعات",
     "confirm": "يتأكد",
+    "customize_request": "Customize Request",
     "edit_request": "تحرير الطلب",
-    "import_export": "استيراد و تصدير"
+    "import_export": "استيراد و تصدير",
+    "share_request": "Share Request"
   },
   "mqtt": {
     "already_subscribed": "You are already subscribed to this topic.",
@@ -449,13 +520,14 @@
       "structured": "Structured",
       "text": "Text"
     },
-    "copy_link": "نسخ الوصلة",
     "different_collection": "Cannot reorder requests from different collections",
     "duplicated": "Request duplicated",
     "duration": "مدة",
     "enter_curl": "أدخل cURL",
     "generate_code": "إنشاء التعليمات البرمجية",
     "generated_code": "رمز تم إنشاؤه",
+    "go_to_authorization_tab": "Go to Authorization tab",
+    "go_to_body_tab": "Go to Body tab",
     "header_list": "قائمة الرأس",
     "invalid_name": "يرجى تقديم اسم للطلب",
     "method": "طريقة",
@@ -480,12 +552,14 @@
     "saved": "تم حفظ الطلب",
     "share": "يشارك",
     "share_description": "Share Hoppscotch with your friends",
+    "share_request": "Share Request",
     "stop": "Stop",
     "title": "طلب",
     "type": "نوع الطلب",
     "url": "URL",
     "variables": "المتغيرات",
-    "view_my_links": "View my links"
+    "view_my_links": "View my links",
+    "copy_link": "نسخ الوصلة"
   },
   "response": {
     "audio": "Audio",
@@ -513,6 +587,7 @@
     "account_description": "تخصيص إعدادات حسابك.",
     "account_email_description": "عنوان بريدك الإلكتروني الأساسي.",
     "account_name_description": "هذا هو اسم العرض الخاص بك.",
+    "additional": "Additional Settings",
     "background": "خلفية",
     "black_mode": "أسود",
     "choose_language": "اختر اللغة",
@@ -559,14 +634,31 @@
     "verified_email": "Verified email",
     "verify_email": "تأكيد البريد الإلكتروني"
   },
-  "shortcodes": {
-    "actions": "Actions",
-    "created_on": "Created on",
-    "deleted": "Shortcode deleted",
-    "method": "Method",
-    "not_found": "Shortcode not found",
-    "short_code": "Short code",
-    "url": "URL"
+  "shared_requests": {
+    "button": "Button",
+    "button_info": "Create a 'Run in Hoppscotch' button for your website, blog or a README.",
+    "copy_html": "Copy HTML",
+    "copy_link": "Copy Link",
+    "copy_markdown": "Copy Markdown",
+    "creating_widget": "Creating widget",
+    "customize": "Customize",
+    "deleted": "Shared request deleted",
+    "description": "Select a widget, you can change and customize this later",
+    "embed": "Embed",
+    "embed_info": "Add a mini 'Hoppscotch API Playground' to your website, blog or documentation.",
+    "link": "Link",
+    "link_info": "Create a shareable link to share with anyone on the internet with view access.",
+    "modified": "Shared request modified",
+    "not_found": "Shared request not found",
+    "open_new_tab": "Open in new tab",
+    "preview": "Preview",
+    "run_in_hoppscotch": "Run in Hoppscotch",
+    "theme": {
+      "dark": "Dark",
+      "light": "Light",
+      "system": "System",
+      "title": "Theme"
+    }
   },
   "shortcut": {
     "general": {
@@ -596,7 +688,6 @@
       "title": "Others"
     },
     "request": {
-      "copy_request_link": "نسخ ارتباط الطلب",
       "delete_method": "حدد طريقة الحذف",
       "get_method": "حدد طريقة GET",
       "head_method": "حدد طريقة HEAD",
@@ -611,8 +702,10 @@
       "save_request": "Save Request",
       "save_to_collections": "حفظ في المجموعات",
       "send_request": "ارسل طلب",
+      "share_request": "Share Request",
       "show_code": "Generate code snippet",
-      "title": "طلب"
+      "title": "طلب",
+      "copy_request_link": "نسخ ارتباط الطلب"
     },
     "response": {
       "copy": "Copy response to clipboard",
@@ -735,6 +828,7 @@
     "connection_error": "Failed to connect",
     "connection_failed": "Connection failed",
     "connection_lost": "Connection lost",
+    "copied_interface_to_clipboard": "Copied {language} interface type to clipboard",
     "copied_to_clipboard": "نسخ إلى الحافظة",
     "deleted": "تم الحذف",
     "deprecated": "إهمال",
@@ -742,10 +836,12 @@
     "disconnected": "انقطع الاتصال",
     "disconnected_from": "انقطع الاتصال بـ {name}",
     "docs_generated": "تم إنشاء الوثائق",
+    "download_failed": "Download failed",
     "download_started": "بدأ التنزيل",
     "enabled": "ممكن",
     "file_imported": "تم استيراد الملف",
     "finished_in": "انتهى في {duration} مللي ثانية",
+    "hide": "Hide",
     "history_deleted": "تم حذف السجل",
     "linewrap": "خطوط الالتفاف",
     "loading": "تحميل...",
@@ -756,6 +852,7 @@
     "published_error": "Something went wrong while publishing msg: {topic} to topic: {message}",
     "published_message": "Published message: {message} to topic: {topic}",
     "reconnection_error": "Failed to reconnect",
+    "show": "Show",
     "subscribed_failed": "Failed to subscribe to topic: {topic}",
     "subscribed_success": "Successfully subscribed to topic: {topic}",
     "unsubscribed_failed": "Failed to unsubscribe from topic: {topic}",
@@ -791,6 +888,7 @@
     "queries": "استفسارات",
     "query": "استفسار",
     "schema": "مخطط",
+    "shared_requests": "Shared Requests",
     "socketio": "مقبس",
     "sse": "SSE",
     "tests": "الاختبارات",
@@ -807,6 +905,7 @@
     "email_do_not_match": "البريد الإلكتروني لا يتوافق مع معلومات حسابك. اتصل بمدير الفريق.",
     "exit": "فريق الخروج",
     "exit_disabled": "فقط المالك لا يمكنه الخروج من الفريق",
+    "failed_invites": "Failed invites",
     "invalid_coll_id": "Invalid collection ID",
     "invalid_email_format": "تنسيق البريد الإلكتروني غير صالح",
     "invalid_id": "معرف الفريق غير صالح. اتصل بمدير الفريق.",
@@ -848,6 +947,7 @@
     "same_target_destination": "Same target and destination",
     "saved": "فريق حفظ",
     "select_a_team": "اختر فريق",
+    "success_invites": "Success invites",
     "title": "فرق",
     "we_sent_invite_link": "لقد أرسلنا رابط دعوة لجميع المدعوين!",
     "we_sent_invite_link_description": "اطلب من جميع المدعوين التحقق من صندوق الوارد الخاص بهم. انقر على الرابط للانضمام إلى الفريق."
@@ -879,5 +979,14 @@
     "personal": "My Workspace",
     "team": "Team Workspace",
     "title": "Workspaces"
+  },
+  "shortcodes": {
+    "actions": "Actions",
+    "created_on": "Created on",
+    "deleted": "Shortcode deleted",
+    "method": "Method",
+    "not_found": "Shortcode not found",
+    "short_code": "Short code",
+    "url": "URL"
   }
 }

@@ -2,6 +2,7 @@ import { ClientOptions } from "@urql/core"
 import { Observable } from "rxjs"
 import { Component } from "vue"
 import { getI18n } from "~/modules/i18n"
+import * as E from "fp-ts/Either"
 
 /**
  * A common (and required) set of fields that describe a user.
@@ -221,6 +222,11 @@ export type AuthPlatformDef = {
    * @returns An empty promise that is resolved when the operation is complete
    */
   setDisplayName: (name: string) => Promise<void>
+
+  /**
+   * Returns the list of allowed auth providers for the platform ( the currently supported ones are GOOGLE, GITHUB, EMAIL, MICROSOFT, SAML )
+   */
+  getAllowedAuthProviders: () => Promise<E.Either<string, string[]>>
 
   /**
    * Defines the additional login items that should be shown in the login screen

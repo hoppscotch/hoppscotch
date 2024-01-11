@@ -91,7 +91,7 @@ const currentTabName = computed(() => {
 });
 
 // Get the details of the team
-const team = ref<TeamInfoQuery['admin']['teamInfo'] | undefined>();
+const team = ref<TeamInfoQuery['infra']['teamInfo'] | undefined>();
 const teamName = ref('');
 const route = useRoute();
 const fetching = ref(true);
@@ -105,8 +105,8 @@ const getTeamInfo = async () => {
   if (result.error) {
     return toast.error(`${t('team.load_info_error')}`);
   }
-  if (result.data?.admin.teamInfo) {
-    team.value = result.data.admin.teamInfo;
+  if (result.data?.infra.teamInfo) {
+    team.value = result.data.infra.teamInfo;
     teamName.value = team.value.name;
   }
   fetching.value = false;

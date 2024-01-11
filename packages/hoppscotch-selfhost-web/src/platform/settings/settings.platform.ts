@@ -1,6 +1,6 @@
 import { SettingsPlatformDef } from "@hoppscotch/common/platform/settings"
 import { settingsSyncer } from "./settings.sync"
-import { authEvents$, def as platformAuth } from "@platform/auth"
+import { authEvents$, def as platformAuth } from "@platform/auth/auth.platform"
 import {
   createUserSettings,
   getUserSettings,

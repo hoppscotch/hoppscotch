@@ -1,18 +1,18 @@
 <template>
   <div
-    class="flex flex-col flex-1"
+    class="flex flex-1 flex-col"
     :class="{ eventFeildShown: showEventField }"
   >
     <div
       v-if="showEventField"
-      class="sticky z-10 flex items-center justify-center flex-shrink-0 overflow-x-auto border-b bg-primary border-dividerLight"
+      class="sticky z-10 flex flex-shrink-0 items-center justify-center overflow-x-auto border-b border-dividerLight bg-primary"
       :class="eventFieldStyles"
     >
-      <icon-lucide-rss class="mx-4 svg-icons text-accentLight" />
+      <icon-lucide-rss class="svg-icons mx-4 text-accentLight" />
       <input
         id="event_name"
         v-model="eventName"
-        class="w-full py-2 pr-4 truncate bg-primary"
+        class="w-full truncate bg-primary py-2 pr-4"
         name="event_name"
         :placeholder="`${t('socketio.event_name')}`"
         type="text"
@@ -20,11 +20,11 @@
       />
     </div>
     <div
-      class="sticky z-10 flex items-center justify-between flex-shrink-0 pl-4 overflow-x-auto border-b bg-primary border-dividerLight"
+      class="sticky z-10 flex flex-shrink-0 items-center justify-between overflow-x-auto border-b border-dividerLight bg-primary pl-4"
       :class="stickyHeaderStyles"
     >
       <span class="flex items-center">
-        <label class="font-semibold truncate text-secondaryLight">
+        <label class="truncate font-semibold text-secondaryLight">
           {{ t("websocket.message") }}
         </label>
         <tippy
@@ -33,12 +33,12 @@
           theme="popover"
           :on-shown="() => tippyActions.focus()"
         >
-          <span class="select-wrapper">
+          <HoppSmartSelectWrapper>
             <HoppButtonSecondary
               :label="contentType || t('state.none').toLowerCase()"
-              class="pr-8 ml-2 rounded-none"
+              class="ml-2 rounded-none pr-8"
             />
-          </span>
+          </HoppSmartSelectWrapper>
           <template #content="{ hide }">
             <div
               ref="tippyActions"
@@ -74,7 +74,7 @@
           :label="`${t('action.send')}`"
           :disabled="!communicationBody || !isConnected"
           :icon="IconSend"
-          class="rounded-none !text-accent !hover:text-accentDark"
+          class="!hover:text-accentDark rounded-none !text-accent"
           @click="sendMessage()"
         />
         <HoppSmartCheckbox
@@ -130,7 +130,7 @@
         />
       </div>
     </div>
-    <div ref="wsCommunicationBody" class="flex flex-col flex-1"></div>
+    <div ref="wsCommunicationBody" class="flex flex-1 flex-col"></div>
   </div>
 </template>
 <script setup lang="ts">
@@ -279,6 +279,7 @@ defineActionHandler("request.send-cancel", sendMessage)
 :deep(.cm-panels) {
   @apply top-upperSecondaryStickyFold #{!important};
 }
+
 .eventFeildShown :deep(.cm-panels),
 .cmResponsePrimaryStickyFold :deep(.cm-panels) {
   @apply top-upperTertiaryStickyFold #{!important};

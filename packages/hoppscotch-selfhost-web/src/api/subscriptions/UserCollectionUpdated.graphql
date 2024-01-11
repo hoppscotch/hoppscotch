@@ -3,6 +3,7 @@ subscription userCollectionUpdated {
     id
     title
     type
+    data
     parent {
       id
     }

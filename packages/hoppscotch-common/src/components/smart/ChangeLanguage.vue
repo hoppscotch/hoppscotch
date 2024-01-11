@@ -6,7 +6,7 @@
       theme="popover"
       :on-shown="() => tippyActions.focus()"
     >
-      <span class="select-wrapper">
+      <HoppSmartSelectWrapper>
         <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           :title="t('settings.choose_language')"
@@ -15,7 +15,7 @@
           outline
           :label="currentLocale.name"
         />
-      </span>
+      </HoppSmartSelectWrapper>
       <template #content="{ hide }">
         <div class="flex flex-col space-y-2">
           <HoppSmartInput
@@ -60,7 +60,7 @@
               :text="`${t('state.nothing_found')} ‟${searchQuery}”`"
             >
               <template #icon>
-                <icon-lucide-search class="pb-2 opacity-75 svg-icons" />
+                <icon-lucide-search class="svg-icons opacity-75" />
               </template>
             </HoppSmartPlaceholder>
           </div>

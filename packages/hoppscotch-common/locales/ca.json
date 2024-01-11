@@ -1,5 +1,6 @@
 {
   "action": {
+    "add": "Add",
     "autoscroll": "Autoscroll",
     "cancel": "Cancel·lar",
     "choose_file": "Triar un fitxer",
@@ -10,6 +11,7 @@
     "connect": "Connectar",
     "connecting": "Connecting",
     "copy": "Copiar",
+    "create": "Create",
     "delete": "Eliminar",
     "disconnect": "Desconnectar",
     "dismiss": "Tancar",
@@ -31,6 +33,7 @@
     "open_workspace": "Obrir espai de treball",
     "paste": "Enganxar",
     "prettify": "Fes-ho bonic",
+    "properties": "Properties",
     "remove": "Eliminar",
     "rename": "Rename",
     "restore": "Restaurar",
@@ -39,6 +42,7 @@
     "scroll_to_top": "Desplaceu-vos cap a dalt",
     "search": "Cercar",
     "send": "Enviar",
+    "share": "Share",
     "start": "Començar",
     "starting": "Starting",
     "stop": "Aturar",
@@ -57,7 +61,9 @@
   "app": {
     "chat_with_us": "Xateja amb nosaltres",
     "contact_us": "Contacta amb nosaltres",
+    "cookies": "Cookies",
     "copy": "Copiar",
+    "copy_interface_type": "Copy interface type",
     "copy_user_id": "Copiar User Auth Token",
     "developer_option": "Opcions de desenvolupador",
     "developer_option_description": "Eines de desenvolupament que ajuden en el desenvolupament i manteniment de Hoppscotch.",
@@ -73,6 +79,7 @@
     "keyboard_shortcuts": "Dreceres de teclat",
     "name": "Hoppscotch",
     "new_version_found": "S'ha trobat una nova versió. Refresca per actualitzar.",
+    "open_in_hoppscotch": "Open in Hoppscotch",
     "options": "Opcions",
     "proxy_privacy_policy": "Política de privadesa del servidor intermediari (proxy)",
     "reload": "Recarregar",
@@ -112,10 +119,27 @@
   },
   "authorization": {
     "generate_token": "Generar Token",
+    "graphql_headers": "Authorization Headers are sent as part of the payload to connection_init",
     "include_in_url": "Inclou a l'URL",
+    "inherited_from": "Inherited from {auth} from Parent Collection {collection} ",
     "learn": "Aprèn com",
+    "oauth": {
+      "redirect_auth_server_returned_error": "Auth Server returned an error state",
+      "redirect_auth_token_request_failed": "Request to get the auth token failed",
+      "redirect_auth_token_request_invalid_response": "Invalid Response from the Token Endpoint when requesting for an auth token",
+      "redirect_invalid_state": "Invalid State value present in the redirect",
+      "redirect_no_auth_code": "No Authorization Code present in the redirect",
+      "redirect_no_client_id": "No Client ID defined",
+      "redirect_no_client_secret": "No Client Secret Defined",
+      "redirect_no_code_verifier": "No Code Verifier Defined",
+      "redirect_no_token_endpoint": "No Token Endpoint Defined",
+      "something_went_wrong_on_oauth_redirect": "Something went wrong during OAuth Redirect",
+      "something_went_wrong_on_token_generation": "Something went wrong on token generation",
+      "token_generation_oidc_discovery_failed": "Failure on token generation: OpenID Connect Discovery Failed"
+    },
     "pass_key_by": "Passar per",
     "password": "Contrasenya",
+    "save_to_inherit": "Please save this request in any collection to inherit the authorization",
     "token": "Token",
     "type": "Tipus d'autorització",
     "username": "Nom d'usuari"
@@ -124,6 +148,7 @@
     "created": "Col·lecció creada",
     "different_parent": "Cannot reorder collection with different parent",
     "edit": "Editar la col·lecció",
+    "import_or_create": "Import or create a collection",
     "invalid_name": "Proporcioneu un nom vàlid per a la col·lecció",
     "invalid_root_move": "Collection already in the root",
     "moved": "Moved Successfully",
@@ -132,6 +157,8 @@
     "name_length_insufficient": "El nom de la col·lecció ha de tenir almenys 3 caràcters",
     "new": "Nova col · lecció",
     "order_changed": "Collection Order Updated",
+    "properties": "Collection Properties",
+    "properties_updated": "Collection Properties Updated",
     "renamed": "S'ha canviat el nom de la col·lecció",
     "request_in_use": "Request in use",
     "save_as": "Guardar com",
@@ -151,6 +178,7 @@
     "remove_folder": "Està segur que vol suprimir definitivament aquesta carpeta?",
     "remove_history": "Està segur que vol suprimir definitivament tot l'historial?",
     "remove_request": "Està segur que vol suprimir definitivament aquesta sol·licitud?",
+    "remove_shared_request": "Are you sure you want to permanently delete this shared request?",
     "remove_team": "Està segur que vol suprimir aquest equip?",
     "remove_telemetry": "Està segur que vol desactivar Telemetry?",
     "request_change": "Està segur que vol descartar la sol·licitud actual, els canvis no desats es perdran.",
@@ -161,6 +189,24 @@
     "add_parameters": "Add to parameters",
     "open_request_in_new_tab": "Open request in new tab",
     "set_environment_variable": "Set as variable"
+  },
+  "cookies": {
+    "modal": {
+      "cookie_expires": "Expires",
+      "cookie_name": "Name",
+      "cookie_path": "Path",
+      "cookie_string": "Cookie string",
+      "cookie_value": "Value",
+      "empty_domain": "Domain is empty",
+      "empty_domains": "Domain list is empty",
+      "enter_cookie_string": "Enter cookie string",
+      "interceptor_no_support": "Your currently selected interceptor does not support cookies. Select a different Interceptor and try again.",
+      "managed_tab": "Managed",
+      "new_domain_name": "New domain name",
+      "no_cookies_in_domain": "No cookies set for this domain",
+      "raw_tab": "Raw",
+      "set": "Set a cookie"
+    }
   },
   "count": {
     "header": "Capçalera {count}",
@@ -192,11 +238,13 @@
     "profile": "Inicia sessió per veure el vostre perfil",
     "protocols": "Els protocols estan buits",
     "schema": "Connecta't a un endpoint GraphQL",
-    "shortcodes": "Els shortcodes estan buits",
+    "shared_requests": "Shared requests are empty",
+    "shared_requests_logout": "Login to view your shared requests or create a new one",
     "subscription": "Subscriptions are empty",
     "team_name": "El nom de l'equip és buit",
     "teams": "Els equips estan buits",
-    "tests": "No hi ha proves per a aquesta sol·licitud"
+    "tests": "No hi ha proves per a aquesta sol·licitud",
+    "shortcodes": "Els shortcodes estan buits"
   },
   "environment": {
     "add_to_global": "Afegir-ho a Global",
@@ -209,6 +257,7 @@
     "empty_variables": "No variables",
     "global": "Global",
     "global_variables": "Global variables",
+    "import_or_create": "Import or create a environment",
     "invalid_name": "Proporcioneu un nom vàlid per a l'entorn",
     "list": "Environment variables",
     "my_environments": "My Environments",
@@ -232,8 +281,10 @@
     "variable_list": "Llista de variables"
   },
   "error": {
+    "authproviders_load_error": "Unable to load auth providers",
     "browser_support_sse": "Sembla que aquest navegador no és compatible amb els Esdeveniments Enviats pel Servidor (Server Sent Events).",
     "check_console_details": "Consulta el registre de la consola per obtenir més informació.",
+    "check_how_to_add_origin": "Check how you can add an origin",
     "curl_invalid_format": "cURL no està formatat correctament",
     "danger_zone": "Danger zone",
     "delete_account": "Your account is currently an owner in these teams:",
@@ -249,9 +300,12 @@
     "json_prettify_invalid_body": "No s'ha pogut personalitzar un cos no vàlid, resol els errors de sintaxi json i tornar-ho a provar",
     "network_error": "Sembla que hi ha un error de xarxa. Si us plau torna-ho a provar.",
     "network_fail": "No s'ha pogut enviar la sol·licitud",
+    "no_collections_to_export": "No collections to export. Please create a collection to get started.",
     "no_duration": "Sense durada",
+    "no_environments_to_export": "No environments to export. Please create an environment to get started.",
     "no_results_found": "No s'ha trobat cap coincidència",
     "page_not_found": "This page could not be found",
+    "please_install_extension": "Please install the extension and add origin to the extension.",
     "proxy_error": "Proxy error",
     "script_fail": "No s'ha pogut executar l'script de sol·licitud prèvia",
     "something_went_wrong": "Alguna cosa ha anat malament",
@@ -260,6 +314,7 @@
   "export": {
     "as_json": "Exporta com a JSON",
     "create_secret_gist": "Crear un Gist secret",
+    "failed": "Something went wrong while exporting",
     "gist_created": "Gist creat",
     "require_github": "Inicieu la sessió amb GitHub per crear un Gisst secret",
     "title": "Exportar"
@@ -286,6 +341,9 @@
     "subscriptions": "Subscripcions",
     "switch_connection": "Switch connection"
   },
+  "graphql_collections": {
+    "title": "GraphQL Collections"
+  },
   "group": {
     "time": "Time",
     "url": "URL"
@@ -297,6 +355,8 @@
   },
   "helpers": {
     "authorization": "La capçalera de l'autorització es generarà automàticament quan envieu la sol·licitud.",
+    "collection_properties_authorization": " This authorization will be set for every request in this collection.",
+    "collection_properties_header": "This header will be set for every request in this collection.",
     "generate_documentation_first": "Genereu documentació primer",
     "network_fail": "No es pot arribar al punt final de l'API. Comproveu la connexió de xarxa i torneu-ho a provar.",
     "offline": "Sembla que estàs fora de línia. És possible que les dades d'aquest espai de treball no estiguin actualitzades.",
@@ -316,7 +376,10 @@
   "import": {
     "collections": "Importar col·leccions",
     "curl": "Importar cURL",
+    "environments_from_gist": "Import From Gist",
+    "environments_from_gist_description": "Import Hoppscotch Environments From Gist",
     "failed": "La importació ha fallat",
+    "from_file": "Import from File",
     "from_gist": "Importar des de Gist",
     "from_gist_description": "Importar des de l'URL de Gist",
     "from_insomnia": "Importar des d'Insomnia",
@@ -331,11 +394,17 @@
     "from_postman_description": "Importar des de la col·lecció de Postman",
     "from_url": "Importar des de l'URL",
     "gist_url": "Introduïu l'URL del Gist",
+    "gql_collections_from_gist_description": "Import GraphQL Collections From Gist",
+    "hoppscotch_environment": "Hoppscotch Environment",
+    "hoppscotch_environment_description": "Import Hoppscotch Environment JSON file",
     "import_from_url_invalid_fetch": "No s'han pogut obtenir dades de l'URL",
     "import_from_url_invalid_file_format": "S'ha produït un error en importar les col·leccions",
     "import_from_url_invalid_type": "Tipus no compatible. Els valors acceptats són 'hoppscotch', 'openapi', 'postman', 'insomnia'",
     "import_from_url_success": "Col·leccions importades",
+    "insomnia_environment_description": "Import Insomnia Environment from a JSON/YAML file",
     "json_description": "Importar col·leccions des d'un fitxer JSON de col·leccions Hoppscotch",
+    "postman_environment": "Postman Environment",
+    "postman_environment_description": "Import Postman Environment from a JSON file",
     "title": "Importació"
   },
   "inspections": {
@@ -373,8 +442,10 @@
     "close_unsaved_tab": "You have unsaved changes",
     "collections": "Col·leccions",
     "confirm": "Confirmar",
+    "customize_request": "Customize Request",
     "edit_request": "Sol·licitud d'edició",
-    "import_export": "Importar / Exportar"
+    "import_export": "Importar / Exportar",
+    "share_request": "Share Request"
   },
   "mqtt": {
     "already_subscribed": "You are already subscribed to this topic.",
@@ -449,13 +520,14 @@
       "structured": "Estructurat",
       "text": "Text"
     },
-    "copy_link": "Copia l'enllaç",
     "different_collection": "Cannot reorder requests from different collections",
     "duplicated": "Request duplicated",
     "duration": "Durada",
     "enter_curl": "Introduïu cURL",
     "generate_code": "Generar codi",
     "generated_code": "Codi generat",
+    "go_to_authorization_tab": "Go to Authorization tab",
+    "go_to_body_tab": "Go to Body tab",
     "header_list": "Llista de capçaleres",
     "invalid_name": "Proporcioneu un nom per a la sol·licitud",
     "method": "Mètode",
@@ -480,12 +552,14 @@
     "saved": "S'ha desat la sol·licitud",
     "share": "Compartir",
     "share_description": "Comparteix Hoppscotch amb els teus amics",
+    "share_request": "Share Request",
     "stop": "Stop",
     "title": "Sol·licitud",
     "type": "Tipus de sol·licitud",
     "url": "URL",
     "variables": "Variables",
-    "view_my_links": "Visualitzar els meus enllaços"
+    "view_my_links": "Visualitzar els meus enllaços",
+    "copy_link": "Copia l'enllaç"
   },
   "response": {
     "audio": "Audio",
@@ -513,6 +587,7 @@
     "account_description": "Personalitzeu la configuració del compte.",
     "account_email_description": "La vostra adreça de correu electrònic principal.",
     "account_name_description": "Aquest és el vostre nom d'exposició",
+    "additional": "Additional Settings",
     "background": "Fons",
     "black_mode": "Negre",
     "choose_language": "Tria l'idioma",
@@ -559,14 +634,31 @@
     "verified_email": "Verified email",
     "verify_email": "Verificar correu electronic"
   },
-  "shortcodes": {
-    "actions": "Accions",
-    "created_on": "Creat el",
-    "deleted": "S'ha suprimit el shortcode",
-    "method": "Mètode",
-    "not_found": "No s'ha trobat el shortcode",
-    "short_code": "Short code",
-    "url": "URL"
+  "shared_requests": {
+    "button": "Button",
+    "button_info": "Create a 'Run in Hoppscotch' button for your website, blog or a README.",
+    "copy_html": "Copy HTML",
+    "copy_link": "Copy Link",
+    "copy_markdown": "Copy Markdown",
+    "creating_widget": "Creating widget",
+    "customize": "Customize",
+    "deleted": "Shared request deleted",
+    "description": "Select a widget, you can change and customize this later",
+    "embed": "Embed",
+    "embed_info": "Add a mini 'Hoppscotch API Playground' to your website, blog or documentation.",
+    "link": "Link",
+    "link_info": "Create a shareable link to share with anyone on the internet with view access.",
+    "modified": "Shared request modified",
+    "not_found": "Shared request not found",
+    "open_new_tab": "Open in new tab",
+    "preview": "Preview",
+    "run_in_hoppscotch": "Run in Hoppscotch",
+    "theme": {
+      "dark": "Dark",
+      "light": "Light",
+      "system": "System",
+      "title": "Theme"
+    }
   },
   "shortcut": {
     "general": {
@@ -596,7 +688,6 @@
       "title": "Others"
     },
     "request": {
-      "copy_request_link": "Copiar l'enllaç de la sol·licitud",
       "delete_method": "Seleccionar el mètode DELETE",
       "get_method": "Seleccionar el mètode GET",
       "head_method": "Seleccionar el mètode HEAD",
@@ -611,8 +702,10 @@
       "save_request": "Save Request",
       "save_to_collections": "Guardar a les col·leccions",
       "send_request": "Enviar sol.licitud",
+      "share_request": "Share Request",
       "show_code": "Generate code snippet",
-      "title": "Sol·licitud"
+      "title": "Sol·licitud",
+      "copy_request_link": "Copiar l'enllaç de la sol·licitud"
     },
     "response": {
       "copy": "Copy response to clipboard",
@@ -735,6 +828,7 @@
     "connection_error": "No s'ha pogut connectar",
     "connection_failed": "Connexió fallida",
     "connection_lost": "Connexió perduda",
+    "copied_interface_to_clipboard": "Copied {language} interface type to clipboard",
     "copied_to_clipboard": "Copiat al porta-retalls",
     "deleted": "Eliminat",
     "deprecated": "Obsolet",
@@ -742,10 +836,12 @@
     "disconnected": "Desconnectat",
     "disconnected_from": "Desconnectat de {name}",
     "docs_generated": "Documentació generada",
+    "download_failed": "Download failed",
     "download_started": "S'ha iniciat la baixada",
     "enabled": "Activat",
     "file_imported": "Fitxer importat",
     "finished_in": "Acabat en {duration} ms",
+    "hide": "Hide",
     "history_deleted": "S'ha suprimit l'historial",
     "linewrap": "Embolcar línies",
     "loading": "S'està carregant...",
@@ -756,6 +852,7 @@
     "published_error": "S'ha produït un error en publicar el missatge: {topic} al tema: {message}",
     "published_message": "Missatge publicat: {missatge} al tema: {tema}",
     "reconnection_error": "No s'ha pogut tornar a connectar",
+    "show": "Show",
     "subscribed_failed": "No s'ha pogut subscriure al tema: {topic}",
     "subscribed_success": "S'ha subscrit correctament al tema: {topic}",
     "unsubscribed_failed": "No s'ha pogut cancel·lar la subscripció al tema: {topic}",
@@ -791,6 +888,7 @@
     "queries": "Consultes",
     "query": "Consulta",
     "schema": "Schema",
+    "shared_requests": "Shared Requests",
     "socketio": "Socket.IO",
     "sse": "SSE",
     "tests": "Proves",
@@ -807,6 +905,7 @@
     "email_do_not_match": "El correu electrònic no coincideix amb les dades del vostre compte. Contacta amb el propietari del teu equip.",
     "exit": "Sortir de l'equip",
     "exit_disabled": "L'únic propietari no pot sortir de l'equip",
+    "failed_invites": "Failed invites",
     "invalid_coll_id": "Invalid collection ID",
     "invalid_email_format": "El format del correu electrònic no és vàlid",
     "invalid_id": "Identificador d'equip no vàlid. Contacta amb el propietari del teu equip.",
@@ -848,6 +947,7 @@
     "same_target_destination": "Same target and destination",
     "saved": "S'ha guardat l'equip",
     "select_a_team": "Select a team",
+    "success_invites": "Success invites",
     "title": "Equips",
     "we_sent_invite_link": "Hem enviat un enllaç d'invitació a tots els convidats!",
     "we_sent_invite_link_description": "Demaneu a tots els convidats que comprovin la seva safata d'entrada. Feu clic a l'enllaç per unir-vos a l'equip."
@@ -879,5 +979,14 @@
     "personal": "My Workspace",
     "team": "Team Workspace",
     "title": "Workspaces"
+  },
+  "shortcodes": {
+    "actions": "Accions",
+    "created_on": "Creat el",
+    "deleted": "S'ha suprimit el shortcode",
+    "method": "Mètode",
+    "not_found": "No s'ha trobat el shortcode",
+    "short_code": "Short code",
+    "url": "URL"
   }
 }

@@ -1,7 +1,7 @@
 <template>
-  <div class="flex flex-col items-center justify-center min-h-screen">
+  <div class="flex min-h-screen flex-col items-center justify-center">
     <HoppSmartSpinner v-if="signingInWithEmail" />
-    <AppLogo v-else class="w-16 h-16 rounded" />
+    <AppLogo v-else class="h-16 w-16 rounded" />
     <pre v-if="error" class="mt-4 text-secondaryLight">{{ error }}</pre>
   </div>
 </template>

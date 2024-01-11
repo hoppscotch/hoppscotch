@@ -1,7 +1,7 @@
 <template>
   <div v-if="inspectionResults && inspectionResults.length > 0">
     <tippy interactive trigger="click" theme="popover">
-      <div class="flex justify-center items-center flex-1 flex-col">
+      <div class="flex flex-1 flex-col items-center justify-center">
         <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           :icon="IconAlertTriangle"
@@ -10,12 +10,12 @@
         />
       </div>
       <template #content="{ hide }">
-        <div class="flex flex-col space-y-2 items-start flex-1">
+        <div class="flex flex-1 flex-col items-start space-y-2">
           <div
-            class="flex justify-between border rounded pl-2 border-divider bg-popover sticky top-0 self-stretch"
+            class="sticky top-0 flex justify-between self-stretch rounded border border-divider bg-popover pl-2"
           >
-            <span class="flex items-center flex-1">
-              <icon-lucide-activity class="mr-2 svg-icons text-accent" />
+            <span class="flex flex-1 items-center">
+              <icon-lucide-activity class="svg-icons mr-2 text-accent" />
               <span class="font-bold">
                 {{ t("inspections.title") }}
               </span>
@@ -31,10 +31,10 @@
           <div
             v-for="(inspector, index) in inspectionResults"
             :key="index"
-            class="flex self-stretch max-w-md w-full"
+            class="flex w-full max-w-md self-stretch"
           >
             <div
-              class="flex flex-col flex-1 rounded border border-dashed border-dividerDark divide-y divide-dashed divide-dividerDark"
+              class="flex flex-1 flex-col divide-y divide-dashed divide-dividerDark rounded border border-dashed border-dividerDark"
             >
               <span
                 v-if="inspector.text.type === 'text'"
@@ -44,13 +44,13 @@
                 <HoppSmartLink
                   blank
                   :to="inspector.doc.link"
-                  class="text-accent hover:text-accentDark transition"
+                  class="text-accent transition hover:text-accentDark"
                 >
                   {{ inspector.doc.text }}
                   <icon-lucide-arrow-up-right class="svg-icons" />
                 </HoppSmartLink>
               </span>
-              <span v-if="inspector.action" class="flex p-2 space-x-2">
+              <span v-if="inspector.action" class="flex space-x-2 p-2">
                 <HoppButtonSecondary
                   :label="inspector.action.text"
                   outline
@@ -92,9 +92,8 @@ const getHighestSeverity = computed(() => {
       },
       { severity: 0 }
     )
-  } else {
-    return { severity: 0 }
   }
+  return { severity: 0 }
 })
 
 const severityColor = (severity: number) => {

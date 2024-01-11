@@ -271,7 +271,7 @@ export class AdminResolver {
 
   @Mutation(() => Boolean, { description: 'Revoke a user invite by ID' })
   @UseGuards(GqlAuthGuard, GqlAdminGuard)
-  async revokeUserInviteByAdmin(
+  async revokeUserInvitationByAdmin(
     @GqlAdmin() adminUser: Admin,
     @Args({
       name: 'inviteeEmail',

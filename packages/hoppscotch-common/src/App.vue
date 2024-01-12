@@ -2,7 +2,7 @@
   <div>
     <div
       v-if="isLoadingInitialRoute"
-      class="flex flex-col items-center justify-center min-h-screen"
+      class="flex min-h-screen flex-col items-center justify-center"
     >
       <HoppSmartSpinner />
     </div>

@@ -1,0 +1,37 @@
+:3000 {
+	respond 404
+}
+
+:3100 {
+	respond 404
+}
+
+:3170 {
+	reverse_proxy localhost:8080
+}
+
+:80 {
+	# Serve the `selfhost-web` SPA by default
+	root * /site/selfhost-web
+	file_server
+
+	handle_path /admin* {
+		root * /site/sh-admin-subpath-access
+		file_server
+
+		# Ensures any non-existent file in the server is routed to the SPA
+		try_files {path} /
+	}
+
+	# Handle requests under `/backend*` path
+	handle_path /backend* {
+		reverse_proxy localhost:8080
+	}
+
+	# Catch-all route for unknown paths, serves `selfhost-web` SPA
+	handle {
+		root * /site/selfhost-web
+		file_server
+		try_files {path} /
+	}
+}

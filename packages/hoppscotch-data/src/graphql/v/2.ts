@@ -3,7 +3,7 @@ import { defineVersion } from "verzod"
 import { GQLHeader, V1_SCHEMA } from "./1"
 
 export const HoppGQLAuthNone = z.object({
-  authType: z.literal("none")
+  authType: z.literal("none"),
 })
 
 export type HoppGQLAuthNone = z.infer<typeof HoppGQLAuthNone>
@@ -11,8 +11,8 @@ export type HoppGQLAuthNone = z.infer<typeof HoppGQLAuthNone>
 export const HoppGQLAuthBasic = z.object({
   authType: z.literal("basic"),
 
-  username: z.string(),
-  password: z.string()
+  username: z.string().catch(""),
+  password: z.string().catch(""),
 })
 
 export type HoppGQLAuthBasic = z.infer<typeof HoppGQLAuthBasic>
@@ -20,7 +20,7 @@ export type HoppGQLAuthBasic = z.infer<typeof HoppGQLAuthBasic>
 export const HoppGQLAuthBearer = z.object({
   authType: z.literal("bearer"),
 
-  token: z.string()
+  token: z.string().catch(""),
 })
 
 export type HoppGQLAuthBearer = z.infer<typeof HoppGQLAuthBearer>
@@ -28,12 +28,12 @@ export type HoppGQLAuthBearer = z.infer<typeof HoppGQLAuthBearer>
 export const HoppGQLAuthOAuth2 = z.object({
   authType: z.literal("oauth-2"),
 
-  token: z.string(),
-  oidcDiscoveryURL: z.string(),
-  authURL: z.string(),
-  accessTokenURL: z.string(),
-  clientID: z.string(),
-  scope: z.string()
+  token: z.string().catch(""),
+  oidcDiscoveryURL: z.string().catch(""),
+  authURL: z.string().catch(""),
+  accessTokenURL: z.string().catch(""),
+  clientID: z.string().catch(""),
+  scope: z.string().catch(""),
 })
 
 export type HoppGQLAuthOAuth2 = z.infer<typeof HoppGQLAuthOAuth2>
@@ -41,24 +41,33 @@ export type HoppGQLAuthOAuth2 = z.infer<typeof HoppGQLAuthOAuth2>
 export const HoppGQLAuthAPIKey = z.object({
   authType: z.literal("api-key"),
 
-  key: z.string(),
-  value: z.string(),
-  addTo: z.string()
+  key: z.string().catch(""),
+  value: z.string().catch(""),
+  addTo: z.string().catch("Headers"),
 })
 
 export type HoppGQLAuthAPIKey = z.infer<typeof HoppGQLAuthAPIKey>
 
-export const HoppGQLAuth = z.discriminatedUnion("authType", [
-  HoppGQLAuthNone,
-  HoppGQLAuthBasic,
-  HoppGQLAuthBearer,
-  HoppGQLAuthOAuth2,
-  HoppGQLAuthAPIKey
-]).and(
-  z.object({
-    authActive: z.boolean()
-  })
-)
+export const HoppGQLAuthInherit = z.object({
+  authType: z.literal("inherit"),
+})
+
+export type HoppGQLAuthInherit = z.infer<typeof HoppGQLAuthInherit>
+
+export const HoppGQLAuth = z
+  .discriminatedUnion("authType", [
+    HoppGQLAuthNone,
+    HoppGQLAuthBasic,
+    HoppGQLAuthBearer,
+    HoppGQLAuthOAuth2,
+    HoppGQLAuthAPIKey,
+    HoppGQLAuthInherit,
+  ])
+  .and(
+    z.object({
+      authActive: z.boolean(),
+    })
+  )
 
 export type HoppGQLAuth = z.infer<typeof HoppGQLAuth>
 
@@ -68,11 +77,11 @@ const V2_SCHEMA = z.object({
 
   name: z.string(),
   url: z.string(),
-  headers: z.array(GQLHeader),
+  headers: z.array(GQLHeader).catch([]),
   query: z.string(),
   variables: z.string(),
 
-  auth: HoppGQLAuth
+  auth: HoppGQLAuth,
 })
 
 export default defineVersion({
@@ -85,7 +94,7 @@ export default defineVersion({
       auth: {
         authActive: true,
         authType: "none",
-      }
+      },
     }
-  }
+  },
 })

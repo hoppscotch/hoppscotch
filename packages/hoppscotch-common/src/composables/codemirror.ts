@@ -44,6 +44,8 @@ import { invokeAction } from "~/helpers/actions"
 import { useDebounceFn } from "@vueuse/core"
 // TODO: Migrate from legacy mode
 
+import * as E from "fp-ts/Either"
+
 type ExtendedEditorConfig = {
   mode: string
   placeholder: string
@@ -160,6 +162,21 @@ const getLanguage = (langMime: string): Language | null => {
   return null
 }
 
+const formatXML = (doc: string) => {
+  try {
+    const formatted = xmlFormat(doc, {
+      indentation: "  ",
+      collapseContent: true,
+      lineSeparator: "\n",
+      whiteSpaceAtEndOfSelfclosingTag: true,
+    })
+
+    return E.right(formatted)
+  } catch (e) {
+    return E.left(e)
+  }
+}
+
 /**
  * Uses xml-formatter to format the XML document
  * @param doc Document to parse
@@ -171,14 +188,11 @@ const parseDoc = (
   langMime: string
 ): string | undefined => {
   if (langMime === "application/xml" && doc) {
-    return xmlFormat(doc, {
-      indentation: "  ",
-      collapseContent: true,
-      lineSeparator: "\n",
-    })
-  } else {
-    return doc
+    const xmlFormatingResult = formatXML(doc)
+    if (E.isRight(xmlFormatingResult)) return xmlFormatingResult.right
   }
+
+  return doc
 }
 
 const getEditorLanguage = (

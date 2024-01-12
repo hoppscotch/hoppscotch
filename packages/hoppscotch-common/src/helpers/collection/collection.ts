@@ -1,10 +1,12 @@
-import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
+import { HoppCollection } from "@hoppscotch/data"
 import { getAffectedIndexes } from "./affectedIndex"
 import { GetSingleRequestDocument } from "../backend/graphql"
 import { runGQLQuery } from "../backend/GQLClient"
 import * as E from "fp-ts/Either"
 import { getService } from "~/modules/dioc"
 import { RESTTabService } from "~/services/tab/rest"
+import { HoppInheritedProperty } from "../types/HoppInheritedProperties"
+import { GQLTabService } from "~/services/tab/graphql"
 
 /**
  * Resolve save context on reorder
@@ -108,6 +110,135 @@ export function updateSaveContextForAffectedRequests(
   }
 }
 
+/**
+ * Used to check the new folder path is close to the save context folder path or not
+ * @param folderPathCurrent The path saved as the inherited path in the inherited properties
+ * @param newFolderPath The incomming path
+ * @param saveContextPath The save context of the request
+ * @returns The path which is close to saveContext.folderPath
+ */
+function folderPathCloseToSaveContext(
+  folderPathCurrent: string | undefined,
+  newFolderPath: string,
+  saveContextPath: string
+) {
+  if (!folderPathCurrent) return newFolderPath
+  const folderPathCurrentArray = folderPathCurrent.split("/")
+  const newFolderPathArray = newFolderPath.split("/")
+
+  const saveContextFolderPathArray = saveContextPath.split("/")
+
+  let folderPathCurrentMatch = 0
+
+  for (let i = 0; i < folderPathCurrentArray.length; i++) {
+    if (folderPathCurrentArray[i] === saveContextFolderPathArray[i]) {
+      folderPathCurrentMatch++
+    }
+  }
+
+  let newFolderPathMatch = 0
+
+  for (let i = 0; i < newFolderPathArray.length; i++) {
+    if (newFolderPathArray[i] === saveContextFolderPathArray[i]) {
+      newFolderPathMatch++
+    }
+  }
+
+  if (folderPathCurrentMatch > newFolderPathMatch) {
+    return folderPathCurrent
+  }
+  return newFolderPath
+}
+
+export function updateInheritedPropertiesForAffectedRequests(
+  path: string,
+  inheritedProperties: HoppInheritedProperty,
+  type: "rest" | "graphql",
+  workspace: "personal" | "team" = "personal"
+) {
+  const tabService =
+    type === "rest" ? getService(RESTTabService) : getService(GQLTabService)
+
+  let tabs
+  if (workspace === "personal") {
+    tabs = tabService.getTabsRefTo((tab) => {
+      return (
+        tab.document.saveContext?.originLocation === "user-collection" &&
+        tab.document.saveContext.folderPath.startsWith(path)
+      )
+    })
+  } else {
+    tabs = tabService.getTabsRefTo((tab) => {
+      return (
+        tab.document.saveContext?.originLocation === "team-collection" &&
+        tab.document.saveContext.collectionID?.startsWith(path)
+      )
+    })
+  }
+
+  const tabsEffectedByAuth = tabs.filter((tab) => {
+    if (workspace === "personal") {
+      return (
+        tab.value.document.saveContext?.originLocation === "user-collection" &&
+        tab.value.document.saveContext.folderPath.startsWith(path) &&
+        path ===
+          folderPathCloseToSaveContext(
+            tab.value.document.inheritedProperties?.auth.parentID,
+            path,
+            tab.value.document.saveContext.folderPath
+          )
+      )
+    }
+
+    return (
+      tab.value.document.saveContext?.originLocation === "team-collection" &&
+      tab.value.document.saveContext.collectionID?.startsWith(path) &&
+      path ===
+        folderPathCloseToSaveContext(
+          tab.value.document.inheritedProperties?.auth.parentID,
+          path,
+          tab.value.document.saveContext.collectionID
+        )
+    )
+  })
+
+  const tabsEffectedByHeaders = tabs.filter((tab) => {
+    return (
+      tab.value.document.inheritedProperties &&
+      tab.value.document.inheritedProperties.headers.some(
+        (header) => header.parentID === path
+      )
+    )
+  })
+
+  for (const tab of tabsEffectedByAuth) {
+    tab.value.document.inheritedProperties = inheritedProperties
+  }
+
+  for (const tab of tabsEffectedByHeaders) {
+    const headers = tab.value.document.inheritedProperties?.headers.map(
+      (header) => {
+        if (header.parentID === path) {
+          return {
+            ...header,
+            inheritedHeader: inheritedProperties.headers.find(
+              (inheritedHeader) =>
+                inheritedHeader.inheritedHeader?.key ===
+                header.inheritedHeader?.key
+            )?.inheritedHeader,
+          }
+        }
+        return header
+      }
+    )
+
+    tab.value.document.inheritedProperties = {
+      ...tab.value.document.inheritedProperties,
+      headers,
+    }
+  }
+}
+
 function resetSaveContextForAffectedRequests(folderPath: string) {
   const tabService = getService(RESTTabService)
   const tabs = tabService.getTabsRefTo((tab) => {
@@ -152,9 +283,9 @@ export async function resetTeamRequestsContext() {
 }
 
 export function getFoldersByPath(
-  collections: HoppCollection<HoppRESTRequest>[],
+  collections: HoppCollection[],
   path: string
-): HoppCollection<HoppRESTRequest>[] {
+): HoppCollection[] {
   if (!path) return collections
 
   // path will be like this "0/0/1" these are the indexes of the folders
@@ -164,11 +295,10 @@ export function getFoldersByPath(
 
   if (pathArray.length === 1) {
     return currentCollection.folders
-  } else {
-    for (let i = 1; i < pathArray.length; i++) {
-      const folder = currentCollection.folders[pathArray[i]]
-      if (folder) currentCollection = folder
-    }
+  }
+  for (let i = 1; i < pathArray.length; i++) {
+    const folder = currentCollection.folders[pathArray[i]]
+    if (folder) currentCollection = folder
   }
 
   return currentCollection.folders

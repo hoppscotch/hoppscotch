@@ -9,10 +9,10 @@
     <!-- End Backdrop -->
 
     <div
-      :class="isOpen ? '' : '!-translate-x-full ease-in'"
+      :class="isOpen ? '' : '-translate-x-full ease-in'"
       class="sidebar-container transform !md:translate-x-0 ease-out"
     >
-      <div :class="isExpanded ? 'w-xs' : 'w-full'">
+      <div :class="isExpanded ? 'w-80' : 'w-full'">
         <div class="flex items-center justify-start px-4 my-4">
           <div class="flex items-center">
             <HoppSmartLink class="flex items-center space-x-4" to="/dashboard">
@@ -65,6 +65,7 @@ import { useSidebar } from '~/composables/useSidebar';
 import IconDashboard from '~icons/lucide/layout-dashboard';
 import IconUser from '~icons/lucide/user';
 import IconUsers from '~icons/lucide/users';
+import IconSettings from '~icons/lucide/settings';
 import { useI18n } from '~/composables/i18n';
 
 const t = useI18n();
@@ -90,6 +91,12 @@ const primaryNavigations = [
     to: '/teams',
     exact: false,
   },
+  {
+    label: t('settings.settings'),
+    icon: IconSettings,
+    to: '/settings',
+    exact: true,
+  },
 ];
 </script>
 
@@ -106,22 +113,22 @@ const primaryNavigations = [
   @apply flex flex-1;
   @apply items-center;
   @apply space-x-4;
-  @apply hover: (bg-primaryDark text-secondaryDark);
-  @apply focus-visible: text-secondaryDark;
+  @apply hover:bg-primaryDark hover:text-secondaryDark;
+  @apply focus-visible:text-secondaryDark;
   @apply after:absolute;
   @apply after:inset-x-0;
-  @apply after:md: inset-x-auto;
-  @apply after:md: inset-y-0;
+  @apply after:md:inset-x-auto;
+  @apply after:md:inset-y-0;
   @apply after:bottom-0;
-  @apply after:md: bottom-auto;
-  @apply after:md: left-0;
-  @apply after:z-2;
+  @apply after:md:bottom-auto;
+  @apply after:md:left-0;
+  @apply after:z-10;
   @apply after:h-0.5;
-  @apply after:md: h-full;
+  @apply after:md:h-full;
   @apply after:w-full;
-  @apply after:md: w-0.5;
-  @apply after:content-DEFAULT;
-  @apply focus: after: bg-divider;
+  @apply after:md:w-0.5;
+  @apply after:content-[''];
+  @apply focus:after:bg-divider;
 
   .svg-icons {
     @apply opacity-75;
@@ -130,7 +137,7 @@ const primaryNavigations = [
   &.router-link-active {
     @apply text-secondaryDark;
     @apply bg-primaryLight;
-    @apply hover: text-secondaryDark;
+    @apply hover:text-secondaryDark;
     @apply after:bg-accent;
 
     .svg-icons {
@@ -141,7 +148,7 @@ const primaryNavigations = [
   &.exact-active-link {
     @apply text-secondaryDark;
     @apply bg-primaryLight;
-    @apply hover: text-secondaryDark;
+    @apply hover:text-secondaryDark;
     @apply after:bg-accent;
 
     .svg-icons {

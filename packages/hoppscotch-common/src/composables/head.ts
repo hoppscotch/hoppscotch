@@ -1,1 +1,1 @@
-export { useHead as usePageHead } from "@vueuse/head"
+export { useHead as usePageHead } from "@unhead/vue"

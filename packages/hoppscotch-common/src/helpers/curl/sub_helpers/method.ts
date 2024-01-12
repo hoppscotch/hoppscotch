@@ -51,7 +51,7 @@ const getMethodByDeduction = (parsedArguments: parser.Arguments) => {
     )(parsedArguments)
   )
     return O.some("POST")
-  else return O.none
+  return O.none
 }
 
 /**

@@ -20,10 +20,12 @@ export {
   HoppRESTAuth,
   HoppRESTAuthAPIKey,
   HoppRESTAuthBasic,
+  HoppRESTAuthInherit,
   HoppRESTAuthBearer,
   HoppRESTAuthNone,
   HoppRESTAuthOAuth2,
   HoppRESTReqBody,
+  HoppRESTHeaders,
 } from "./v/1"
 
 const versionedObject = z.object({
@@ -52,6 +54,7 @@ export const HoppRESTRequest = createVersionedEntity({
 
 export type HoppRESTRequest = InferredEntity<typeof HoppRESTRequest>
 
+// TODO: Handle the issue with the preRequestScript and testScript type check failures on pre-commit
 const HoppRESTRequestEq = Eq.struct<HoppRESTRequest>({
   id: undefinedEq(S.Eq),
   v: S.Eq,
@@ -59,11 +62,11 @@ const HoppRESTRequestEq = Eq.struct<HoppRESTRequest>({
   body: lodashIsEqualEq,
   endpoint: S.Eq,
   headers: mapThenEq(
-    (arr) => arr.filter((h) => h.key !== "" && h.value !== ""),
+    (arr) => arr.filter((h: any) => h.key !== "" && h.value !== ""),
     lodashIsEqualEq
   ),
   params: mapThenEq(
-    (arr) => arr.filter((p) => p.key !== "" && p.value !== ""),
+    (arr) => arr.filter((p: any) => p.key !== "" && p.value !== ""),
     lodashIsEqualEq
   ),
   method: S.Eq,

@@ -21,7 +21,7 @@ import {
   deleteUserCollection,
   deleteUserRequest,
   editGQLUserRequest,
-  renameUserCollection,
+  updateUserCollection,
 } from "./collections.api"
 
 import * as E from "fp-ts/Either"
@@ -36,7 +36,7 @@ export const gqlRequestsMapper = createMapper<string, string>()
 // temp implementation untill the backend implements an endpoint that accepts an entire collection
 // TODO: use importCollectionsJSON to do this
 const recursivelySyncCollections = async (
-  collection: HoppCollection<HoppRESTRequest>,
+  collection: HoppCollection,
   collectionPath: string,
   parentUserCollectionID?: string
 ) => {
@@ -44,12 +44,35 @@ const recursivelySyncCollections = async (
 
   // if parentUserCollectionID does not exist, create the collection as a root collection
   if (!parentUserCollectionID) {
-    const res = await createGQLRootUserCollection(collection.name)
+    const data = {
+      auth: collection.auth ?? {
+        authType: "inherit",
+        authActive: true,
+      },
+      headers: collection.headers ?? [],
+    }
+    const res = await createGQLRootUserCollection(
+      collection.name,
+      JSON.stringify(data)
+    )
 
     if (E.isRight(res)) {
       parentCollectionID = res.right.createGQLRootUserCollection.id
 
+      const returnedData = res.right.createGQLRootUserCollection.data
+        ? JSON.parse(res.right.createGQLRootUserCollection.data)
+        : {
+            auth: {
+              authType: "inherit",
+              authActive: true,
+            },
+            headers: [],
+          }
+
       collection.id = parentCollectionID
+      collection.auth = returnedData.auth
+      collection.headers = returnedData.headers
+
       removeDuplicateGraphqlCollectionOrFolder(
         parentCollectionID,
         collectionPath
@@ -59,15 +82,37 @@ const recursivelySyncCollections = async (
     }
   } else {
     // if parentUserCollectionID exists, create the collection as a child collection
+
+    const data = {
+      auth: collection.auth ?? {
+        authType: "inherit",
+        authActive: true,
+      },
+      headers: collection.headers ?? [],
+    }
+
     const res = await createGQLChildUserCollection(
       collection.name,
-      parentUserCollectionID
+      parentUserCollectionID,
+      JSON.stringify(data)
     )
 
     if (E.isRight(res)) {
       const childCollectionId = res.right.createGQLChildUserCollection.id
 
+      const returnedData = res.right.createGQLChildUserCollection.data
+        ? JSON.parse(res.right.createGQLChildUserCollection.data)
+        : {
+            auth: {
+              authType: "inherit",
+              authActive: true,
+            },
+            headers: [],
+          }
+
       collection.id = childCollectionId
+      collection.auth = returnedData.auth
+      collection.headers = returnedData.headers
 
       removeDuplicateGraphqlCollectionOrFolder(
         childCollectionId,
@@ -158,8 +203,13 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
       [collectionIndex]
     )?.id
 
-    if (collectionID && collection.name) {
-      renameUserCollection(collectionID, collection.name)
+    const data = {
+      auth: collection.auth,
+      headers: collection.headers,
+    }
+
+    if (collectionID) {
+      updateUserCollection(collectionID, collection.name, JSON.stringify(data))
     }
   },
   async addFolder({ name, path }) {
@@ -197,8 +247,13 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
       path.split("/").map((index) => parseInt(index))
     )?.id
 
-    if (folderBackendId && folder.name) {
-      renameUserCollection(folderBackendId, folder.name)
+    const data = {
+      auth: folder.auth,
+      headers: folder.headers,
+    }
+
+    if (folderBackendId) {
+      updateUserCollection(folderBackendId, folder.name, JSON.stringify(data))
     }
   },
   async removeFolder({ folderID }) {

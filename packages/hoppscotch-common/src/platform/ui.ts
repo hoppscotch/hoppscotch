@@ -38,4 +38,14 @@ export type UIPlatformDef = {
    * Additional Support Options menu items shown in the app header
    */
   additionalSupportOptionsMenuItems?: HoppSupportOptionsMenuItem[]
+
+  /**
+   * Additional Settings Section components in the settings page
+   */
+  additionalSettingsSections?: Component[]
+
+  /**
+   * Additional profile Section components in the profile page
+   */
+  additionalProfileSections?: Component[]
 }

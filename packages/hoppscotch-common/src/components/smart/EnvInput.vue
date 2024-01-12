@@ -1,7 +1,7 @@
 <template>
   <div ref="autoCompleteWrapper" class="autocomplete-wrapper">
     <div
-      class="absolute inset-0 flex flex-1 divide-x divide-dividerLight overflow-x-auto no-scrollbar"
+      class="no-scrollbar absolute inset-0 flex flex-1 divide-x divide-dividerLight overflow-x-auto"
     >
       <div
         ref="editor"
@@ -14,7 +14,7 @@
       ></div>
       <AppInspection
         :inspection-results="inspectionResults"
-        class="sticky inset-y-0 right-0 bg-primary rounded-r"
+        class="sticky inset-y-0 right-0 rounded-r bg-primary"
       />
     </div>
     <ul
@@ -35,7 +35,7 @@
         </span>
         <div
           v-if="currentSuggestionIndex === index"
-          class="hidden md:flex text-secondary items-center"
+          class="hidden items-center text-secondary md:flex"
         >
           <kbd class="shortcut-key">TAB</kbd>
           <span class="ml-2 truncate">to select</span>
@@ -124,9 +124,8 @@ onClickOutside(autoCompleteWrapper, () => {
 const uniqueAutoCompleteSource = computed(() => {
   if (props.autoCompleteSource) {
     return [...new Set(props.autoCompleteSource)]
-  } else {
-    return []
   }
+  return []
 })
 
 const suggestions = computed(() => {
@@ -139,9 +138,8 @@ const suggestions = computed(() => {
     return uniqueAutoCompleteSource.value.filter((suggestion) =>
       suggestion.toLowerCase().includes(props.modelValue.toLowerCase())
     )
-  } else {
-    return uniqueAutoCompleteSource.value ?? []
   }
+  return uniqueAutoCompleteSource.value ?? []
 })
 
 const updateModelValue = (value: string) => {
@@ -499,7 +497,7 @@ watch(editor, () => {
     @apply z-50;
     @apply shadow-lg;
     @apply max-h-46;
-    @apply border-b border-x border-divider;
+    @apply border-x border-b border-divider;
     @apply overflow-y-auto;
     @apply -left-[1px];
     @apply -right-[1px];
@@ -512,7 +510,7 @@ watch(editor, () => {
       @apply items-center;
       @apply justify-between;
       @apply w-full;
-      @apply py-2 px-4;
+      @apply px-4 py-2;
       @apply text-secondary;
       @apply cursor-pointer;
 

@@ -1,0 +1,13 @@
+query SharedRequests($cursor: ID, $take: Int, $email: String) {
+  infra {
+    allShortcodes(cursor: $cursor, take: $take, userEmail: $email) {
+      id
+      request
+      properties
+      createdOn
+      creator {
+        email
+      }
+    }
+  }
+}

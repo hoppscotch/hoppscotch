@@ -13,6 +13,12 @@ export class UserCollection {
   })
   title: string;
 
+  @Field({
+    description: 'JSON string representing the collection data',
+    nullable: true,
+  })
+  data: string;
+
   @Field(() => ReqType, {
     description: 'Type of the user collection',
   })

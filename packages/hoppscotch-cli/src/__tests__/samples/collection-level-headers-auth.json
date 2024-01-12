@@ -1,0 +1,221 @@
+[
+  {
+    "v": 1,
+    "name": "CollectionA",
+    "folders": [
+      {
+        "v": 1,
+        "name": "FolderA",
+        "folders": [
+          {
+            "v": 1,
+            "name": "FolderB",
+            "folders": [
+              {
+                "v": 1,
+                "name": "FolderC",
+                "folders": [],
+                "requests": [
+                  {
+                    "v": "1",
+                    "endpoint": "https://echo.hoppscotch.io",
+                    "name": "RequestD",
+                    "params": [],
+                    "headers": [
+                      {
+                        "active": true,
+                        "key": "X-Test-Header",
+                        "value": "Overriden at RequestD"
+                      }
+                    ],
+                    "method": "GET",
+                    "auth": {
+                      "authType": "basic",
+                      "authActive": true,
+                      "username": "username",
+                      "password": "password"
+                    },
+                    "preRequestScript": "",
+                    "testScript": "pw.test(\"Overrides auth and headers set at the parent folder\", ()=> {\n    pw.expect(pw.response.body.headers[\"x-test-header\"]).toBe(\"Overriden at RequestD\");\n  pw.expect(pw.response.body.headers[\"authorization\"]).toBe(\"Basic dXNlcm5hbWU6cGFzc3dvcmQ=\");\n});",
+                    "body": {
+                      "contentType": null,
+                      "body": null
+                    }
+                  }
+                ],
+                "auth": {
+                  "authType": "inherit",
+                  "authActive": true
+                },
+                "headers": []
+              }
+            ],
+            "requests": [
+              {
+                "v": "1",
+                "endpoint": "https://echo.hoppscotch.io",
+                "name": "RequestC",
+                "params": [],
+                "headers": [],
+                "method": "GET",
+                "auth": {
+                  "authType": "inherit",
+                  "authActive": true
+                },
+                "preRequestScript": "",
+                "testScript": "pw.test(\"Correctly inherits auth and headers from the parent folder\", ()=> {\n    pw.expect(pw.response.body.headers[\"x-test-header\"]).toBe(\"Overriden at FolderB\");\n  pw.expect(pw.response.body.headers[\"key\"]).toBe(\"test-key\");\n});",
+                "body": {
+                  "contentType": null,
+                  "body": null
+                }
+              }
+            ],
+            "auth": {
+              "authType": "api-key",
+              "authActive": true,
+              "addTo": "Headers",
+              "key": "key",
+              "value": "test-key"
+            },
+            "headers": [
+              {
+                "active": true,
+                "key": "X-Test-Header",
+                "value": "Overriden at FolderB"
+              }
+            ]
+          }
+        ],
+        "requests": [
+          {
+            "v": "1",
+            "endpoint": "https://echo.hoppscotch.io",
+            "name": "RequestB",
+            "params": [],
+            "headers": [],
+            "method": "GET",
+            "auth": {
+              "authType": "inherit",
+              "authActive": true
+            },
+            "preRequestScript": "",
+            "testScript": "pw.test(\"Correctly inherits auth and headers from the parent folder\", ()=> {\n    pw.expect(pw.response.body.headers[\"x-test-header\"]).toBe(\"Set at root collection\");\n  pw.expect(pw.response.body.headers[\"authorization\"]).toBe(\"Bearer BearerToken\");\n});",
+            "body": {
+              "contentType": null,
+              "body": null
+            },
+            "id": "clpttpdq00003qp16kut6doqv"
+          }
+        ],
+        "auth": {
+          "authType": "inherit",
+          "authActive": true
+        },
+        "headers": []
+      }
+    ],
+    "requests": [
+      {
+        "v": "1",
+        "endpoint": "https://echo.hoppscotch.io",
+        "name": "RequestA",
+        "params": [],
+        "headers": [],
+        "method": "GET",
+        "auth": {
+          "authType": "inherit",
+          "authActive": true
+        },
+        "preRequestScript": "",
+        "testScript": "pw.test(\"Correctly inherits auth and headers from the root collection\", ()=> {\n    pw.expect(pw.response.body.headers[\"x-test-header\"]).toBe(\"Set at root collection\");\n  pw.expect(pw.response.body.headers[\"authorization\"]).toBe(\"Bearer BearerToken\");\n});",
+        "body": {
+          "contentType": null,
+          "body": null
+        },
+        "id": "clpttpdq00003qp16kut6doqv"
+      }
+    ],
+    "headers": [
+      {
+        "active": true,
+        "key": "X-Test-Header",
+        "value": "Set at root collection"
+      }
+    ],
+    "auth": {
+      "authType": "bearer",
+      "authActive": true,
+      "token": "BearerToken"
+    }
+  },
+  {
+    "v": 1,
+    "name": "CollectionB",
+    "folders": [
+      {
+        "v": 1,
+        "name": "FolderA",
+        "folders": [],
+        "requests": [
+          {
+            "v": "1",
+            "endpoint": "https://echo.hoppscotch.io",
+            "name": "RequestB",
+            "params": [],
+            "headers": [],
+            "method": "GET",
+            "auth": {
+              "authType": "inherit",
+              "authActive": true
+            },
+            "preRequestScript": "",
+            "testScript": "pw.test(\"Correctly inherits auth and headers from the parent folder\", ()=> {\n    pw.expect(pw.response.body.headers[\"x-test-header\"]).toBe(\"Set at root collection\");\n  pw.expect(pw.response.body.headers[\"authorization\"]).toBe(\"Bearer BearerToken\");\n});",
+            "body": {
+              "contentType": null,
+              "body": null
+            },
+            "id": "clpttpdq00003qp16kut6doqv"
+          }
+        ],
+        "auth": {
+          "authType": "inherit",
+          "authActive": true
+        },
+        "headers": []
+      }
+    ],
+    "requests": [
+      {
+        "v": "1",
+        "endpoint": "https://echo.hoppscotch.io",
+        "name": "RequestA",
+        "params": [],
+        "headers": [],
+        "method": "GET",
+        "auth": {
+          "authType": "inherit",
+          "authActive": true
+        },
+        "preRequestScript": "",
+        "testScript": "pw.test(\"Correctly inherits auth and headers from the root collection\", ()=> {\n    pw.expect(pw.response.body.headers[\"x-test-header\"]).toBe(\"Set at root collection\");\n  pw.expect(pw.response.body.headers[\"authorization\"]).toBe(\"Bearer BearerToken\");\n});",
+        "body": {
+          "contentType": null,
+          "body": null
+        },
+        "id": "clpttpdq00003qp16kut6doqv"
+      }
+    ],
+    "headers": [
+      {
+        "active": true,
+        "key": "X-Test-Header",
+        "value": "Set at root collection"
+      }
+    ],
+    "auth": {
+      "authType": "bearer",
+      "authActive": true,
+      "token": "BearerToken"
+    }
+  }
+]

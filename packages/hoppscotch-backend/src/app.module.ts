@@ -20,51 +20,69 @@ import { ShortcodeModule } from './shortcode/shortcode.module';
 import { COOKIES_NOT_FOUND } from './errors';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { AppController } from './app.controller';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { InfraConfigModule } from './infra-config/infra-config.module';
+import { loadInfraConfiguration } from './infra-config/helper';
+import { MailerModule } from './mailer/mailer.module';
 
 @Module({
   imports: [
-    GraphQLModule.forRoot<ApolloDriverConfig>({
-      buildSchemaOptions: {
-        numberScalarMode: 'integer',
-      },
-      playground: process.env.PRODUCTION !== 'true',
-      autoSchemaFile: true,
-      installSubscriptionHandlers: true,
-      subscriptions: {
-        'subscriptions-transport-ws': {
-          path: '/graphql',
-          onConnect: (_, websocket) => {
-            try {
-              const cookies = subscriptionContextCookieParser(
-                websocket.upgradeReq.headers.cookie,
-              );
-
-              return {
-                headers: { ...websocket?.upgradeReq?.headers, cookies },
-              };
-            } catch (error) {
-              throw new HttpException(COOKIES_NOT_FOUND, 400, {
-                cause: new Error(COOKIES_NOT_FOUND),
-              });
-            }
-          },
-        },
-      },
-      context: ({ req, res, connection }) => ({
-        req,
-        res,
-        connection,
-      }),
-      driver: ApolloDriver,
+    ConfigModule.forRoot({
+      isGlobal: true,
+      load: [async () => loadInfraConfiguration()],
     }),
-    ThrottlerModule.forRoot([
-      {
-        ttl: +process.env.RATE_LIMIT_TTL,
-        limit: +process.env.RATE_LIMIT_MAX,
+    GraphQLModule.forRootAsync<ApolloDriverConfig>({
+      driver: ApolloDriver,
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => {
+        return {
+          buildSchemaOptions: {
+            numberScalarMode: 'integer',
+          },
+          playground: configService.get('PRODUCTION') !== 'true',
+          autoSchemaFile: true,
+          installSubscriptionHandlers: true,
+          subscriptions: {
+            'subscriptions-transport-ws': {
+              path: '/graphql',
+              onConnect: (_, websocket) => {
+                try {
+                  const cookies = subscriptionContextCookieParser(
+                    websocket.upgradeReq.headers.cookie,
+                  );
+                  return {
+                    headers: { ...websocket?.upgradeReq?.headers, cookies },
+                  };
+                } catch (error) {
+                  throw new HttpException(COOKIES_NOT_FOUND, 400, {
+                    cause: new Error(COOKIES_NOT_FOUND),
+                  });
+                }
+              },
+            },
+          },
+          context: ({ req, res, connection }) => ({
+            req,
+            res,
+            connection,
+          }),
+        };
       },
-    ]),
+    }),
+    ThrottlerModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => [
+        {
+          ttl: +configService.get('RATE_LIMIT_TTL'),
+          limit: +configService.get('RATE_LIMIT_MAX'),
+        },
+      ],
+    }),
+    MailerModule.register(),
     UserModule,
-    AuthModule,
+    AuthModule.register(),
     AdminModule,
     UserSettingsModule,
     UserEnvironmentsModule,
@@ -77,6 +95,7 @@ import { AppController } from './app.controller';
     TeamInvitationModule,
     UserCollectionModule,
     ShortcodeModule,
+    InfraConfigModule,
   ],
   providers: [GQLComplexityPlugin],
   controllers: [AppController],

@@ -1,12 +1,16 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import * as T from 'fp-ts/Task';
-import * as O from 'fp-ts/Option';
 import * as TO from 'fp-ts/TaskOption';
 import * as E from 'fp-ts/Either';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { SHORTCODE_INVALID_JSON, SHORTCODE_NOT_FOUND } from 'src/errors';
+import {
+  SHORTCODE_INVALID_PROPERTIES_JSON,
+  SHORTCODE_INVALID_REQUEST_JSON,
+  SHORTCODE_NOT_FOUND,
+  SHORTCODE_PROPERTIES_NOT_FOUND,
+} from 'src/errors';
 import { UserDataHandler } from 'src/user/user.data.handler';
-import { Shortcode } from './shortcode.model';
+import { Shortcode, ShortcodeWithUserEmail } from './shortcode.model';
 import { Shortcode as DBShortCode } from '@prisma/client';
 import { PubSubService } from 'src/pubsub/pubsub.service';
 import { UserService } from 'src/user/user.service';
@@ -46,10 +50,14 @@ export class ShortcodeService implements UserDataHandler, OnModuleInit {
    * @param shortcodeInfo Prisma Shortcode type
    * @returns GQL Shortcode
    */
-  private returnShortCode(shortcodeInfo: DBShortCode): Shortcode {
+  private cast(shortcodeInfo: DBShortCode): Shortcode {
     return <Shortcode>{
       id: shortcodeInfo.id,
       request: JSON.stringify(shortcodeInfo.request),
+      properties:
+        shortcodeInfo.embedProperties != null
+          ? JSON.stringify(shortcodeInfo.embedProperties)
+          : null,
       createdOn: shortcodeInfo.createdOn,
     };
   }
@@ -94,7 +102,7 @@ export class ShortcodeService implements UserDataHandler, OnModuleInit {
       const shortcodeInfo = await this.prisma.shortcode.findFirstOrThrow({
         where: { id: shortcode },
       });
-      return E.right(this.returnShortCode(shortcodeInfo));
+      return E.right(this.cast(shortcodeInfo));
     } catch (error) {
       return E.left(SHORTCODE_NOT_FOUND);
     }
@@ -104,14 +112,22 @@ export class ShortcodeService implements UserDataHandler, OnModuleInit {
    * Create a new ShortCode
    *
    * @param request JSON string of request details
-   * @param userUID user UID, if present
+   * @param userInfo user UI
+   * @param properties JSON string of embed properties, if present
    * @returns Either of ShortCode or error
    */
-  async createShortcode(request: string, userUID: string | null) {
-    const shortcodeData = stringToJson(request);
-    if (E.isLeft(shortcodeData)) return E.left(SHORTCODE_INVALID_JSON);
+  async createShortcode(
+    request: string,
+    properties: string | null = null,
+    userInfo: AuthUser,
+  ) {
+    const requestData = stringToJson(request);
+    if (E.isLeft(requestData) || !requestData.right)
+      return E.left(SHORTCODE_INVALID_REQUEST_JSON);
 
-    const user = await this.userService.findUserById(userUID);
+    const parsedProperties = stringToJson(properties);
+    if (E.isLeft(parsedProperties))
+      return E.left(SHORTCODE_INVALID_PROPERTIES_JSON);
 
     const generatedShortCode = await this.generateUniqueShortCodeID();
     if (E.isLeft(generatedShortCode)) return E.left(generatedShortCode.left);
@@ -119,8 +135,9 @@ export class ShortcodeService implements UserDataHandler, OnModuleInit {
     const createdShortCode = await this.prisma.shortcode.create({
       data: {
         id: generatedShortCode.right,
-        request: shortcodeData.right,
-        creatorUid: O.isNone(user) ? null : user.value.uid,
+        request: requestData.right,
+        embedProperties: parsedProperties.right ?? undefined,
+        creatorUid: userInfo.uid,
       },
     });
 
@@ -128,11 +145,11 @@ export class ShortcodeService implements UserDataHandler, OnModuleInit {
     if (createdShortCode.creatorUid) {
       this.pubsub.publish(
         `shortcode/${createdShortCode.creatorUid}/created`,
-        this.returnShortCode(createdShortCode),
+        this.cast(createdShortCode),
       );
     }
 
-    return E.right(this.returnShortCode(createdShortCode));
+    return E.right(this.cast(createdShortCode));
   }
 
   /**
@@ -156,14 +173,14 @@ export class ShortcodeService implements UserDataHandler, OnModuleInit {
     });
 
     const fetchedShortCodes: Shortcode[] = shortCodes.map((code) =>
-      this.returnShortCode(code),
+      this.cast(code),
     );
 
     return fetchedShortCodes;
   }
 
   /**
-   * Delete a ShortCode
+   * Delete a ShortCode created by User of uid
    *
    * @param shortcode ShortCode
    * @param uid User Uid
@@ -182,7 +199,7 @@ export class ShortcodeService implements UserDataHandler, OnModuleInit {
 
       this.pubsub.publish(
         `shortcode/${deletedShortCodes.creatorUid}/revoked`,
-        this.returnShortCode(deletedShortCodes),
+        this.cast(deletedShortCodes),
       );
 
       return E.right(true);
@@ -204,5 +221,119 @@ export class ShortcodeService implements UserDataHandler, OnModuleInit {
     });
 
     return deletedShortCodes.count;
+  }
+
+  /**
+   * Delete a Shortcode
+   *
+   * @param shortcodeID ID of Shortcode being deleted
+   * @returns Boolean on successful deletion
+   */
+  async deleteShortcode(shortcodeID: string) {
+    try {
+      await this.prisma.shortcode.delete({
+        where: {
+          id: shortcodeID,
+        },
+      });
+
+      return E.right(true);
+    } catch (error) {
+      return E.left(SHORTCODE_NOT_FOUND);
+    }
+  }
+
+  /**
+   * Update a created Shortcode
+   * @param shortcodeID Shortcode ID
+   * @param uid User Uid
+   * @returns Updated Shortcode
+   */
+  async updateEmbedProperties(
+    shortcodeID: string,
+    uid: string,
+    updatedProps: string,
+  ) {
+    if (!updatedProps) return E.left(SHORTCODE_PROPERTIES_NOT_FOUND);
+
+    const parsedProperties = stringToJson(updatedProps);
+    if (E.isLeft(parsedProperties) || !parsedProperties.right)
+      return E.left(SHORTCODE_INVALID_PROPERTIES_JSON);
+
+    try {
+      const updatedShortcode = await this.prisma.shortcode.update({
+        where: {
+          creator_uid_shortcode_unique: {
+            creatorUid: uid,
+            id: shortcodeID,
+          },
+        },
+        data: {
+          embedProperties: parsedProperties.right,
+        },
+      });
+
+      this.pubsub.publish(
+        `shortcode/${updatedShortcode.creatorUid}/updated`,
+        this.cast(updatedShortcode),
+      );
+
+      return E.right(this.cast(updatedShortcode));
+    } catch (error) {
+      return E.left(SHORTCODE_NOT_FOUND);
+    }
+  }
+
+  /**
+   * Fetch all created ShortCodes
+   *
+   * @param args Pagination arguments
+   * @param userEmail User email
+   * @returns ShortcodeWithUserEmail
+   */
+  async fetchAllShortcodes(
+    args: PaginationArgs,
+    userEmail: string | null = null,
+  ) {
+    const shortCodes = await this.prisma.shortcode.findMany({
+      where: userEmail
+        ? {
+            User: {
+              email: userEmail,
+            },
+          }
+        : undefined,
+      orderBy: {
+        createdOn: 'desc',
+      },
+      skip: args.cursor ? 1 : 0,
+      take: args.take,
+      cursor: args.cursor ? { id: args.cursor } : undefined,
+      include: {
+        User: true,
+      },
+    });
+
+    const fetchedShortCodes: ShortcodeWithUserEmail[] = shortCodes.map(
+      (code) => {
+        return <ShortcodeWithUserEmail>{
+          id: code.id,
+          request: JSON.stringify(code.request),
+          properties:
+            code.embedProperties != null
+              ? JSON.stringify(code.embedProperties)
+              : null,
+          createdOn: code.createdOn,
+          creator: code.User
+            ? {
+                uid: code.User.uid,
+                email: code.User.email,
+              }
+            : null,
+        };
+      },
+    );
+
+    return fetchedShortCodes;
   }
 }

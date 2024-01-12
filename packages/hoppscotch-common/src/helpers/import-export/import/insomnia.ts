@@ -1,6 +1,5 @@
-import IconInsomnia from "~icons/hopp/insomnia"
 import { convert, ImportRequest } from "insomnia-importers"
-import { pipe, flow } from "fp-ts/function"
+import { pipe } from "fp-ts/function"
 import {
   HoppRESTAuth,
   HoppRESTHeader,
@@ -13,11 +12,10 @@ import {
   makeCollection,
 } from "@hoppscotch/data"
 import * as A from "fp-ts/Array"
-import * as S from "fp-ts/string"
 import * as TO from "fp-ts/TaskOption"
 import * as TE from "fp-ts/TaskEither"
-import { step } from "../steps"
-import { defineImporter, IMPORTER_INVALID_FILE_FORMAT } from "."
+import { IMPORTER_INVALID_FILE_FORMAT } from "."
+import { replaceInsomniaTemplating } from "./insomniaEnv"
 
 // TODO: Insomnia allows custom prefixes for Bearer token auth, Hoppscotch doesn't. We just ignore the prefix for now
 
@@ -34,10 +32,8 @@ type InsomniaRequestResource = ImportRequest & { _type: "request" }
 const parseInsomniaDoc = (content: string) =>
   TO.tryCatch(() => convert(content))
 
-const replaceVarTemplating = flow(
-  S.replace(/{{\s*/g, "<<"),
-  S.replace(/\s*}}/g, ">>")
-)
+const replaceVarTemplating = (expression: string) =>
+  replaceInsomniaTemplating(expression)
 
 const getFoldersIn = (
   folder: InsomniaFolderResource | null,
@@ -196,13 +192,15 @@ const getHoppRequest = (req: InsomniaRequestResource): HoppRESTRequest =>
 const getHoppFolder = (
   folderRes: InsomniaFolderResource,
   resources: InsomniaResource[]
-): HoppCollection<HoppRESTRequest> =>
+): HoppCollection =>
   makeCollection({
     name: folderRes.name ?? "",
     folders: getFoldersIn(folderRes, resources).map((f) =>
       getHoppFolder(f, resources)
     ),
     requests: getRequestsIn(folderRes, resources).map(getHoppRequest),
+    auth: { authType: "inherit", authActive: true },
+    headers: [],
   })
 
 const getHoppCollections = (doc: InsomniaDoc) =>
@@ -210,27 +208,10 @@ const getHoppCollections = (doc: InsomniaDoc) =>
     getHoppFolder(f, doc.data.resources)
   )
 
-export default defineImporter({
-  id: "insomnia",
-  name: "import.from_insomnia",
-  applicableTo: ["my-collections", "team-collections", "url-import"],
-  icon: IconInsomnia,
-  steps: [
-    step({
-      stepName: "FILE_IMPORT",
-      metadata: {
-        caption: "import.from_insomnia_description",
-        acceptedFileTypes: ".json, .yaml",
-      },
-    }),
-  ] as const,
-  importer: ([fileContent]) =>
-    pipe(
-      fileContent,
-      parseInsomniaDoc,
-
-      TO.map(getHoppCollections),
-
-      TE.fromTaskOption(() => IMPORTER_INVALID_FILE_FORMAT)
-    ),
-})
+export const hoppInsomniaImporter = (fileContent: string) =>
+  pipe(
+    fileContent,
+    parseInsomniaDoc,
+    TO.map(getHoppCollections),
+    TE.fromTaskOption(() => IMPORTER_INVALID_FILE_FORMAT)
+  )

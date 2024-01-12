@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col flex-1 h-full">
+  <div class="flex h-full flex-1 flex-col">
     <HoppSmartTabs
       v-model="selectedOptionTab"
       styles="sticky top-0 bg-primary z-10 border-b-0"
@@ -34,10 +34,16 @@
         :label="`${t('tab.headers')}`"
         :info="activeGQLHeadersCount === 0 ? null : `${activeGQLHeadersCount}`"
       >
-        <GraphqlHeaders v-model="request" />
+        <GraphqlHeaders
+          v-model="request"
+          :inherited-properties="inheritedProperties"
+        />
       </HoppSmartTab>
       <HoppSmartTab :id="'authorization'" :label="`${t('tab.authorization')}`">
-        <GraphqlAuthorization v-model="request.auth" />
+        <GraphqlAuthorization
+          v-model="request.auth"
+          :inherited-properties="inheritedProperties"
+        />
       </HoppSmartTab>
     </HoppSmartTabs>
     <CollectionsSaveRequest
@@ -51,7 +57,7 @@
 <script setup lang="ts">
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
-import { completePageProgress, startPageProgress } from "@modules/loadingbar"
+import { completePageProgress, startPageProgress } from "~/modules/loadingbar"
 import * as gql from "graphql"
 import { clone } from "lodash-es"
 import { computed, ref, watch } from "vue"
@@ -63,11 +69,13 @@ import {
   GQLResponseEvent,
   runGQLOperation,
   gqlMessageEvent,
+  connection,
 } from "~/helpers/graphql/connection"
 import { useService } from "dioc/vue"
 import { InterceptorService } from "~/services/interceptor.service"
 import { editGraphqlRequest } from "~/newstore/collections"
 import { GQLTabService } from "~/services/tab/graphql"
+import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 
 const VALID_GQL_OPERATIONS = [
   "query",
@@ -92,24 +100,22 @@ const props = withDefaults(
     response?: GQLResponseEvent[] | null
     optionTab?: GQLOptionTabs
     tabId: string
+    inheritedProperties?: HoppInheritedProperty
   }>(),
   {
     response: null,
     optionTab: "query",
   }
 )
-const emit = defineEmits(["update:modelValue", "update:response"])
+const emit = defineEmits<{
+  (e: "update:modelValue", value: HoppGQLRequest): void
+  (e: "update:optionTab", value: GQLOptionTabs): void
+  (e: "update:response", value: GQLResponseEvent[]): void
+}>()
+
 const selectedOptionTab = useVModel(props, "optionTab", emit)
 
-const request = ref(props.modelValue)
-
-watch(
-  () => request.value,
-  (newVal) => {
-    emit("update:modelValue", newVal)
-  },
-  { deep: true }
-)
+const request = useVModel(props, "modelValue", emit)
 
 const url = computedWithControl(
   () => tabs.currentActiveTab.value,
@@ -130,10 +136,33 @@ const runQuery = async (
   startPageProgress()
   try {
     const runURL = clone(url.value)
-    const runHeaders = clone(request.value.headers)
     const runQuery = clone(request.value.query)
     const runVariables = clone(request.value.variables)
-    const runAuth = clone(request.value.auth)
+    const runAuth =
+      request.value.auth.authType === "inherit" && request.value.auth.authActive
+        ? clone(
+            tabs.currentActiveTab.value.document.inheritedProperties?.auth
+              .inheritedAuth
+          )
+        : clone(request.value.auth)
+
+    const inheritedHeaders =
+      tabs.currentActiveTab.value.document.inheritedProperties?.headers.map(
+        (header) => {
+          if (header.inheritedHeader) {
+            return header.inheritedHeader
+          }
+          return []
+        }
+      )
+
+    let runHeaders: HoppGQLRequest["headers"] = []
+
+    if (inheritedHeaders) {
+      runHeaders = [...inheritedHeaders, ...clone(request.value.headers)]
+    } else {
+      runHeaders = clone(request.value.headers)
+    }
 
     await runGQLOperation({
       name: request.value.name,
@@ -141,7 +170,7 @@ const runQuery = async (
       headers: runHeaders,
       query: runQuery,
       variables: runVariables,
-      auth: runAuth,
+      auth: runAuth ?? { authType: "none", authActive: false },
       operationName: definition?.name?.value,
       operationType: definition?.operation ?? "query",
     })
@@ -152,13 +181,7 @@ const runQuery = async (
       toast.success(t("authorization.graphql_headers"))
     }
   } catch (e: any) {
-    console.log(e)
-    // response.value = [`${e}`]
     completePageProgress()
-    toast.error(
-      `${t("error.something_went_wrong")}. ${t("error.check_console_details")}`,
-      {}
-    )
     console.error(e)
   }
   platform.analytics?.logEvent({
@@ -177,7 +200,10 @@ watch(
     }
 
     try {
-      if (event?.operationType !== "subscription") {
+      if (
+        event?.type === "response" &&
+        event?.operationType !== "subscription"
+      ) {
         // response.value = [event]
         emit("update:response", [event])
       } else {
@@ -187,6 +213,26 @@ watch(
       }
     } catch (error) {
       console.log(error)
+    }
+  },
+  { deep: true }
+)
+
+watch(
+  () => connection,
+  (newVal) => {
+    if (newVal.error && newVal.state === "DISCONNECTED") {
+      const response = [
+        {
+          type: "error",
+          error: {
+            message: newVal.error.message(t),
+            type: newVal.error.type,
+            component: newVal.error.component,
+          },
+        },
+      ]
+      emit("update:response", response)
     }
   },
   { deep: true }

@@ -37,8 +37,7 @@ export async function parseEnvsData(path: string) {
       envPairs.push({ key, value });
     }
   } else if (HoppEnvExportObjectResult.success) {
-    const { key, value } = HoppEnvExportObjectResult.data.variables[0];
-    envPairs.push({ key, value });
+    envPairs.push(...HoppEnvExportObjectResult.data.variables);
   }
 
   return <HoppEnvs>{ global: [], selected: envPairs };

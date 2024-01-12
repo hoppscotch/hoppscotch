@@ -3,7 +3,7 @@
     :to="to"
     :exact="exact"
     :blank="blank"
-    class="inline-flex items-center py-2 font-semibold transition transform hover:translate-x-2 focus:outline-none focus-visible:translate-x-2"
+    class="inline-flex transform items-center py-2 font-semibold transition hover:translate-x-2 focus:outline-none focus-visible:translate-x-2"
     :class="[
       label ? 'px-4' : 'px-2',
       active
@@ -14,7 +14,7 @@
       color
         ? `text-${color}-500 hover:text-${color}-600 focus-visible:text-${color}-600`
         : '',
-      { 'opacity-75 cursor-not-allowed': disabled },
+      { 'cursor-not-allowed opacity-75': disabled },
     ]"
     :disabled="disabled"
     type="button"
@@ -25,7 +25,7 @@
       class="svg-icons"
       :class="label ? 'mr-4 opacity-75' : ''"
     />
-    <div class="truncate max-w-54">
+    <div class="max-w-[16rem] truncate">
       {{ label }}
     </div>
   </HoppSmartLink>

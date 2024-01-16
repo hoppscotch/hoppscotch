@@ -184,7 +184,7 @@ export class UserService {
       data: {
         provider: profile.provider,
         providerAccountId: profile.id,
-        providerRefreshToken: refreshToken ??? null,
+        providerRefreshToken: refreshToken ?? null,
         providerAccessToken: accessToken ?? null,
         user: {
           connect: {

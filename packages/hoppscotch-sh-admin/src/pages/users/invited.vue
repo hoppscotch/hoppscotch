@@ -6,21 +6,25 @@
       </button>
     </div>
 
-    <h3 class="text-lg font-bold text-accentContrast py-6">
+    <h3 class="text-lg font-bold text-accentContrast pt-6">
       {{ t('users.invited_users') }}
     </h3>
 
     <div class="flex flex-col">
       <div class="py-2 overflow-x-auto">
-        <div v-if="fetching" class="flex justify-center">
+        <div v-if="fetching" class="flex justify-center mt-2">
           <HoppSmartSpinner />
         </div>
 
-        <div v-else-if="error" class="text-xl">
+        <div v-else-if="error" class="mt-2 ml-2 text-xl">
           {{ t('users.invite_load_list_error') }}
         </div>
 
-        <HoppSmartTable v-else-if="invitedUsers?.length" :list="invitedUsers">
+        <HoppSmartTable
+          class="mt-6"
+          v-else-if="invitedUsers?.length"
+          :list="invitedUsers"
+        >
           <template #head>
             <tr
               class="text-secondary border-b border-dividerDark text-sm text-left bg-primaryLight"
@@ -67,27 +71,26 @@
                   :icon="IconTrash"
                   color="red"
                   class="px-3"
-                  @click="deleteInvites(invites.inviteeEmail)"
+                  @click="deleteInvite(invites.inviteeEmail)"
                 />
               </td>
             </tr>
           </template>
         </HoppSmartTable>
 
-        <div v-else class="text-lg">{{ t('users.no_invite') }}</div>
+        <div v-else class="ml-2 mt-2 text-md">{{ t('users.no_invite') }}</div>
       </div>
     </div>
     <HoppSmartConfirmModal
       :show="confirmDeletion"
-      :title="t('shared_requests.confirm_request_deletion')"
+      :title="t('state.confirm_delete_invites')"
       @hide-modal="confirmDeletion = false"
-      @resolve="deleteUserInvitation(deleteInvite)"
+      @resolve="deleteUserInvitation(inviteToBeDeleted)"
     />
   </div>
 </template>
 
 <script setup lang="ts">
-import { HoppSmartSpinner } from '@hoppscotch/ui';
 import { useMutation, useQuery } from '@urql/vue';
 import { format } from 'date-fns';
 import { computed, ref } from 'vue';
@@ -124,38 +127,41 @@ const headings = [
 const invitedUsers = computed({
   get: () => data.value?.infra.invitedUsers,
   set: (value) => {
+    if (!value) return;
     data.value!.infra.invitedUsers = value;
   },
 });
 
 // Delete Invite
 const confirmDeletion = ref(false);
-const deleteInvite = ref<string | null>(null);
-const deleteInviteMutation = useMutation(RevokeUserInvitationByAdminDocument);
+const inviteToBeDeleted = ref<string | null>(null);
+const deleteInvitationMutation = useMutation(
+  RevokeUserInvitationByAdminDocument
+);
 
-const deleteInvites = (inviteeEmail: string) => {
+const deleteInvite = (inviteeEmail: string) => {
   confirmDeletion.value = true;
-  deleteInvite.value = inviteeEmail;
+  inviteToBeDeleted.value = inviteeEmail;
 };
 
 const deleteUserInvitation = async (inviteeEmail: string | null) => {
   if (!inviteeEmail) {
     confirmDeletion.value = false;
-    toast.error(t('state.delete_request_failure'));
+    toast.error(t('state.delete_invites_failure'));
     return;
   }
   const variables = { inviteeEmail };
-  const result = await deleteInviteMutation.executeMutation(variables);
+  const result = await deleteInvitationMutation.executeMutation(variables);
   if (result.error) {
-    toast.error(t('state.delete_request_failure'));
+    toast.error(t('state.delete_invites_failure'));
   } else {
     invitedUsers.value = invitedUsers.value?.filter(
       (request) => request.inviteeEmail !== inviteeEmail
     );
-    toast.success(t('state.delete_request_success'));
+    toast.success(t('state.delete_invites_success'));
   }
 
   confirmDeletion.value = false;
-  deleteInvite.value = null;
+  inviteToBeDeleted.value = null;
 };
 </script>

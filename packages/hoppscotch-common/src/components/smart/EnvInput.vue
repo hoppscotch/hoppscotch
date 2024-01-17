@@ -37,7 +37,7 @@
           v-if="currentSuggestionIndex === index"
           class="hidden items-center text-secondary md:flex"
         >
-          <kbd class="shortcut-key">TAB</kbd>
+          <kbd class="shortcut-key">Enter</kbd>
           <span class="ml-2 truncate">to select</span>
         </div>
       </li>
@@ -180,7 +180,16 @@ const handleKeystroke = (ev: KeyboardEvent) => {
     return
   }
 
-  showSuggestionPopover.value = true
+  // Enter key is used to select a suggestion or to emit enter event. Any other key press will show the suggestions
+  if (ev.key === "Enter") {
+    if (showSuggestionPopover.value) {
+      showSuggestionPopover.value = false
+    } else {
+      emit("enter", ev)
+    }
+  } else {
+    showSuggestionPopover.value = true
+  }
 
   if (
     ["Enter", "Tab"].includes(ev.key) &&
@@ -223,11 +232,6 @@ const handleKeystroke = (ev: KeyboardEvent) => {
         : 0
 
     emit("keyup", ev)
-  }
-
-  if (ev.key === "Enter") {
-    emit("enter", ev)
-    showSuggestionPopover.value = false
   }
 
   if (ev.key === "Escape") {

@@ -136,15 +136,15 @@ const shareRequestCreatingLoading = ref(false)
 const requestToShare = ref<HoppRESTRequest | null>(null)
 
 const embedOptions = ref<EmbedOption>({
-  selectedTab: "parameters",
+  selectedTab: "params",
   tabs: [
     {
-      value: "parameters",
+      value: "params",
       label: t("tab.parameters"),
       enabled: false,
     },
     {
-      value: "body",
+      value: "bodyParams",
       label: t("tab.body"),
       enabled: false,
     },
@@ -208,7 +208,7 @@ const currentUser = useReadonlyStream(
 
 const step = ref(1)
 
-type EmbedTabs = "parameters" | "body" | "headers" | "authorization"
+type EmbedTabs = "params" | "bodyParams" | "headers" | "authorization"
 
 type EmbedOption = {
   selectedTab: EmbedTabs
@@ -251,9 +251,13 @@ onLoggedIn(() => {
   try {
     // wait for a bit to let the auth token to be set
     // because in some race conditions, the token is not set this fixes that
-    setTimeout(() => {
+    const initLoadTimeout = setTimeout(() => {
       adapter.initialize()
     }, 10)
+
+    return () => {
+      clearTimeout(initLoadTimeout)
+    }
   } catch (e) {
     console.error(e)
   }
@@ -317,15 +321,15 @@ const displayCustomizeRequestModal = (
       info: t("shared_requests.button_info"),
     }
     embedOptions.value = {
-      selectedTab: "parameters",
+      selectedTab: "params",
       tabs: [
         {
-          value: "parameters",
+          value: "params",
           label: t("tab.parameters"),
           enabled: false,
         },
         {
-          value: "body",
+          value: "bodyParams",
           label: t("tab.body"),
           enabled: false,
         },

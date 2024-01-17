@@ -5,7 +5,7 @@
     render-inactive-tabs
   >
     <HoppSmartTab
-      v-if="properties ? properties.includes('parameters') : true"
+      v-if="properties ? properties.includes('params') : true"
       :id="'params'"
       :label="`${t('tab.parameters')}`"
       :info="`${newActiveParamsCount$}`"
@@ -13,7 +13,7 @@
       <HttpParameters v-model="request.params" />
     </HoppSmartTab>
     <HoppSmartTab
-      v-if="properties ? properties.includes('body') : true"
+      v-if="properties ? properties.includes('bodyParams') : true"
       :id="'bodyParams'"
       :label="`${t('tab.body')}`"
     >

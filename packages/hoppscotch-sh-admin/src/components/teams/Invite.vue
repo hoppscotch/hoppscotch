@@ -203,7 +203,7 @@ import {
   TeamMemberRole,
   MetricsDocument,
   UsersListDocument,
-} from '../../helpers/backend/graphql';
+} from '~/helpers/backend/graphql';
 import { useToast } from '~/composables/toast';
 import { useMutation, useQuery } from '@urql/vue';
 import { Email, EmailCodec } from '~/helpers/Email';

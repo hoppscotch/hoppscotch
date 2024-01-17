@@ -10,82 +10,80 @@
       {{ t('users.no_shared_requests') }}
     </div>
 
-    <div v-else class="mt-7">
-      <HoppSmartTable :list="sharedRequests">
-        <template #head>
-          <tr
-            class="text-secondary border-b border-dividerDark text-sm text-left bg-primaryLight"
-          >
-            <th class="px-6 py-2">{{ t('shared_requests.id') }}</th>
-            <th class="px-6 py-2 w-30">{{ t('shared_requests.url') }}</th>
-            <th class="px-6 py-2">{{ t('shared_requests.created_on') }}</th>
-            <!-- Empty Heading for the Action Button -->
-            <th class="px-6 py-2 text-center">
-              {{ t('shared_requests.action') }}
-            </th>
-          </tr>
-        </template>
-        <template #body="{ list: sharedRequests }">
-          <tr
-            v-for="request in sharedRequests"
-            :key="request.id"
-            class="text-secondaryDark hover:bg-divider hover:cursor-pointer rounded-xl"
-          >
-            <td class="flex py-4 px-7 max-w-50">
-              <span class="truncate">
-                {{ request.id }}
-              </span>
-            </td>
+    <HoppSmartTable v-else class="mt-8" :list="sharedRequests">
+      <template #head>
+        <tr
+          class="text-secondary border-b border-dividerDark text-sm text-left bg-primaryLight"
+        >
+          <th class="px-6 py-2">{{ t('shared_requests.id') }}</th>
+          <th class="px-6 py-2 w-30">{{ t('shared_requests.url') }}</th>
+          <th class="px-6 py-2">{{ t('shared_requests.created_on') }}</th>
+          <!-- Empty Heading for the Action Button -->
+          <th class="px-6 py-2 text-center">
+            {{ t('shared_requests.action') }}
+          </th>
+        </tr>
+      </template>
+      <template #body="{ list: sharedRequests }">
+        <tr
+          v-for="request in sharedRequests"
+          :key="request.id"
+          class="text-secondaryDark hover:bg-divider hover:cursor-pointer rounded-xl"
+        >
+          <td class="flex py-4 px-7 max-w-50">
+            <span class="truncate">
+              {{ request.id }}
+            </span>
+          </td>
 
-            <td class="py-4 px-7 w-96">
-              {{ sharedRequestURL(request.request) }}
-            </td>
+          <td class="py-4 px-7 w-96">
+            {{ sharedRequestURL(request.request) }}
+          </td>
 
-            <td class="py-2 px-7">
-              {{ getCreatedDate(request.createdOn) }}
-              <div class="text-gray-400 text-tiny">
-                {{ getCreatedTime(request.createdOn) }}
-              </div>
-            </td>
+          <td class="py-2 px-7">
+            {{ getCreatedDate(request.createdOn) }}
+            <div class="text-gray-400 text-tiny">
+              {{ getCreatedTime(request.createdOn) }}
+            </div>
+          </td>
 
-            <td class="flex justify-center">
-              <HoppButtonSecondary
-                v-tippy="{ theme: 'tooltip' }"
-                :title="t('shared_requests.open_request')"
-                :to="`${shortcodeBaseURL}/r/${request.id}`"
-                :blank="true"
-                :icon="IconExternalLink"
-                class="px-3 text-emerald-500 hover:text-accent"
-              />
+          <td class="flex justify-center">
+            <HoppButtonSecondary
+              v-tippy="{ theme: 'tooltip' }"
+              :title="t('shared_requests.open_request')"
+              :to="`${shortcodeBaseURL}/r/${request.id}`"
+              :blank="true"
+              :icon="IconExternalLink"
+              class="px-3 text-emerald-500 hover:text-accent"
+            />
 
-              <UiAutoResetIcon
-                :title="t('shared_requests.copy')"
-                :icon="{ default: IconCopy, temporary: IconCheck }"
-                @click="copySharedRequest(request.id)"
-              />
+            <UiAutoResetIcon
+              :title="t('shared_requests.copy')"
+              :icon="{ default: IconCopy, temporary: IconCheck }"
+              @click="copySharedRequest(request.id)"
+            />
 
-              <HoppButtonSecondary
-                v-tippy="{ theme: 'tooltip' }"
-                :title="t('shared_requests.delete')"
-                :icon="IconTrash"
-                color="red"
-                class="px-3"
-                @click="deleteSharedRequest(request.id)"
-              />
-            </td>
-          </tr>
-        </template>
-      </HoppSmartTable>
+            <HoppButtonSecondary
+              v-tippy="{ theme: 'tooltip' }"
+              :title="t('shared_requests.delete')"
+              :icon="IconTrash"
+              color="red"
+              class="px-3"
+              @click="deleteSharedRequest(request.id)"
+            />
+          </td>
+        </tr>
+      </template>
+    </HoppSmartTable>
 
-      <!-- Pagination -->
-      <div
-        v-if="hasNextPage && sharedRequests.length >= sharedRequestsPerPage"
-        class="flex items-center w-28 px-3 py-2 mt-5 mx-auto font-semibold text-secondaryDark bg-divider hover:bg-dividerDark rounded-3xl cursor-pointer"
-        @click="fetchNextSharedRequests"
-      >
-        <span class="mr-2">{{ t('shared_requests.show_more') }}</span>
-        <icon-lucide-chevron-down />
-      </div>
+    <!-- Pagination -->
+    <div
+      v-if="hasNextPage && sharedRequests.length >= sharedRequestsPerPage"
+      class="flex items-center w-28 px-3 py-2 mt-5 mx-auto font-semibold text-secondaryDark bg-divider hover:bg-dividerDark rounded-3xl cursor-pointer"
+      @click="fetchNextSharedRequests"
+    >
+      <span class="mr-2">{{ t('shared_requests.show_more') }}</span>
+      <icon-lucide-chevron-down />
     </div>
 
     <HoppSmartConfirmModal
@@ -112,7 +110,7 @@ import IconTrash from '~icons/lucide/trash';
 import {
   RevokeShortcodeByAdminDocument,
   SharedRequestsDocument,
-} from '../../helpers/backend/graphql';
+} from '~/helpers/backend/graphql';
 
 const t = useI18n();
 const toast = useToast();

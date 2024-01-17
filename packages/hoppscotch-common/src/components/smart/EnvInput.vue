@@ -171,7 +171,7 @@ watch(
 const handleKeystroke = (ev: KeyboardEvent) => {
   if (!props.autoCompleteSource) return
 
-  if (["ArrowDown", "ArrowUp", "Enter", "Tab", "Escape"].includes(ev.key)) {
+  if (["ArrowDown", "ArrowUp", "Enter", "Escape"].includes(ev.key)) {
     ev.preventDefault()
   }
 
@@ -180,19 +180,11 @@ const handleKeystroke = (ev: KeyboardEvent) => {
     return
   }
 
-  // Enter key is used to select a suggestion or to emit enter event. Any other key press will show the suggestions
-  if (ev.key === "Enter") {
-    if (showSuggestionPopover.value) {
-      showSuggestionPopover.value = false
-    } else {
-      emit("enter", ev)
-    }
-  } else {
-    showSuggestionPopover.value = true
-  }
+  // show suggestions only when the user types a character other than enter or tab
+  showSuggestionPopover.value = !["Enter", "Tab"].includes(ev.key)
 
   if (
-    ["Enter", "Tab"].includes(ev.key) &&
+    ["Enter"].includes(ev.key) &&
     suggestions.value.length > 0 &&
     currentSuggestionIndex.value > -1
   ) {
@@ -232,6 +224,14 @@ const handleKeystroke = (ev: KeyboardEvent) => {
         : 0
 
     emit("keyup", ev)
+  }
+
+  if (ev.key === "Enter") {
+    if (showSuggestionPopover.value) {
+      showSuggestionPopover.value = false
+    } else {
+      emit("enter", ev)
+    }
   }
 
   if (ev.key === "Escape") {

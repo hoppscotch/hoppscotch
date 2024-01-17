@@ -1,6 +1,11 @@
 <template>
   <div class="flex flex-col justify-center">
-    <HoppSmartSpinner v-if="sharedRequestDetails.loading" />
+    <div
+      v-if="sharedRequestDetails.loading"
+      class="flex justify-center items-center py-5"
+    >
+      <HoppSmartSpinner />
+    </div>
 
     <div
       v-else-if="E.isLeft(sharedRequestDetails.data) || invalidLink"

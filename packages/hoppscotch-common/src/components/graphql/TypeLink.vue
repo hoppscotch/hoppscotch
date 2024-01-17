@@ -10,6 +10,7 @@
 <script setup lang="ts">
 import { GraphQLScalarType, GraphQLType } from "graphql"
 import { computed } from "vue"
+import { resolveRootType } from "~/helpers/graphql/connection"
 
 const props = defineProps<{
   gqlType: GraphQLType
@@ -23,13 +24,6 @@ const typeString = computed(() => `${props.gqlType}`)
 const isScalar = computed(() => {
   return resolveRootType(props.gqlType) instanceof GraphQLScalarType
 })
-
-function resolveRootType(type: GraphQLType) {
-  let t = type as any
-  // We can't do !== here because it's possible to have a type that is not null or undefined but still not have an ofType property
-  while (t.ofType != null) t = t.ofType
-  return t
-}
 
 function jumpToType() {
   if (isScalar.value) return

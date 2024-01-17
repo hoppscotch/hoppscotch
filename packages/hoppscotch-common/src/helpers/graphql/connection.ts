@@ -7,6 +7,7 @@ import {
   GraphQLInterfaceType,
   GraphQLObjectType,
   GraphQLSchema,
+  GraphQLType,
   buildClientSchema,
   getIntrospectionQuery,
   printSchema,
@@ -443,4 +444,10 @@ const addQueryToHistory = (options: RunQueryOptions, response: string) => {
       star: false,
     })
   )
+}
+
+export function resolveRootType(type: GraphQLType) {
+  let t: any = type
+  while (t.ofType) t = t.ofType
+  return t
 }

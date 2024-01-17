@@ -200,6 +200,7 @@ import {
   queryFields,
   schemaString,
   subscriptionFields,
+  resolveRootType,
 } from "~/helpers/graphql/connection"
 import { platform } from "~/platform"
 
@@ -258,12 +259,6 @@ function getFilteredGraphqlTypes(filterText: string, types: GraphQLType[]) {
 
     return isFilterTextMatchingAtLeastOneField
   })
-}
-
-function resolveRootType(type: GraphQLType) {
-  let t: any = type
-  while (t.ofType) t = t.ofType
-  return t
 }
 
 const toast = useToast()

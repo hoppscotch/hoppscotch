@@ -20,42 +20,88 @@
           {{ t('users.invite_load_list_error') }}
         </div>
 
-        <HoppSmartTable
-          v-else-if="invitedUsers?.length"
-          :list="invitedUsers"
-          :headings="headings"
-        >
-          <template #invitedOn="{ item }">
-            <div v-if="item" class="pr-2 truncate">
-              <span class="truncate">
-                {{ getCreatedDate(item.invitedOn) }}
-              </span>
+        <HoppSmartTable v-else-if="invitedUsers?.length" :list="invitedUsers">
+          <template #head>
+            <tr
+              class="text-secondary border-b border-dividerDark text-sm text-left bg-primaryLight"
+            >
+              <th
+                v-for="heading in headings"
+                :key="heading.key"
+                class="px-6 py-2"
+              >
+                {{ heading.label }}
+              </th>
+            </tr>
+          </template>
 
-              <div class="text-gray-400 text-tiny">
-                {{ getCreatedTime(item.invitedOn) }}
-              </div>
-            </div>
-            <span v-else> - </span>
+          <template #body="{ list }">
+            <tr
+              v-for="invites in list"
+              :key="invites.uid"
+              class="text-secondaryDark hover:bg-divider hover:cursor-pointer rounded-xl"
+            >
+              <td class="py-2 px-5 max-w-5 truncate">
+                {{ invites.adminUid }}
+              </td>
+
+              <td class="py-2 px-7">
+                {{ invites.adminEmail }}
+              </td>
+
+              <td class="py-2 px-7">
+                {{ invites.inviteeEmail }}
+              </td>
+
+              <td class="py-2 px-7">
+                {{ getCreatedDate(invites.invitedOn) }}
+                <div class="text-gray-400 text-tiny">
+                  {{ getCreatedTime(invites.invitedOn) }}
+                </div>
+              </td>
+
+              <td class="my-auto">
+                <HoppButtonSecondary
+                  v-tippy="{ theme: 'tooltip' }"
+                  title="Delete"
+                  :icon="IconTrash"
+                  color="red"
+                  class="px-3"
+                  @click="deleteInvites(invites.inviteeEmail)"
+                />
+              </td>
+            </tr>
           </template>
         </HoppSmartTable>
 
         <div v-else class="text-lg">{{ t('users.no_invite') }}</div>
       </div>
     </div>
+    <HoppSmartConfirmModal
+      :show="confirmDeletion"
+      :title="t('shared_requests.confirm_request_deletion')"
+      @hide-modal="confirmDeletion = false"
+      @resolve="deleteUserInvitation(deleteInvite)"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
-import { useQuery } from '@urql/vue';
-import { InvitedUsersDocument } from '../../helpers/backend/graphql';
-import { format } from 'date-fns';
 import { HoppSmartSpinner } from '@hoppscotch/ui';
+import { useMutation, useQuery } from '@urql/vue';
+import { format } from 'date-fns';
+import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from '~/composables/i18n';
+import { useToast } from '~/composables/toast';
+import IconTrash from '~icons/lucide/trash';
+import {
+  InvitedUsersDocument,
+  RevokeUserInvitationByAdminDocument,
+} from '../../helpers/backend/graphql';
 
 const t = useI18n();
-
+const toast = useToast();
 const router = useRouter();
 
 // Get Proper Date Formats
@@ -64,7 +110,6 @@ const getCreatedTime = (date: string) => format(new Date(date), 'hh:mm a');
 
 // Get Invited Users
 const { fetching, error, data } = useQuery({ query: InvitedUsersDocument });
-const invitedUsers = computed(() => data?.value?.infra.invitedUsers);
 
 // Table Headings
 const headings = [
@@ -72,5 +117,45 @@ const headings = [
   { key: 'adminEmail', label: t('users.admin_email') },
   { key: 'inviteeEmail', label: t('users.invitee_email') },
   { key: 'invitedOn', label: t('users.invited_on') },
+  { key: 'actions', label: '' },
 ];
+
+// Invited Users
+const invitedUsers = computed({
+  get: () => data.value?.infra.invitedUsers,
+  set: (value) => {
+    data.value!.infra.invitedUsers = value;
+  },
+});
+
+// Delete Invite
+const confirmDeletion = ref(false);
+const deleteInvite = ref<string | null>(null);
+const deleteInviteMutation = useMutation(RevokeUserInvitationByAdminDocument);
+
+const deleteInvites = (inviteeEmail: string) => {
+  confirmDeletion.value = true;
+  deleteInvite.value = inviteeEmail;
+};
+
+const deleteUserInvitation = async (inviteeEmail: string | null) => {
+  if (!inviteeEmail) {
+    confirmDeletion.value = false;
+    toast.error(t('state.delete_request_failure'));
+    return;
+  }
+  const variables = { inviteeEmail };
+  const result = await deleteInviteMutation.executeMutation(variables);
+  if (result.error) {
+    toast.error(t('state.delete_request_failure'));
+  } else {
+    invitedUsers.value = invitedUsers.value?.filter(
+      (request) => request.inviteeEmail !== inviteeEmail
+    );
+    toast.success(t('state.delete_request_success'));
+  }
+
+  confirmDeletion.value = false;
+  deleteInvite.value = null;
+};
 </script>

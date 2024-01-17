@@ -190,7 +190,7 @@ import {
   RemoveUserAsAdminDocument,
   RemoveUserByAdminDocument,
   UsersListDocument,
-} from '../../helpers/backend/graphql';
+} from '~/helpers/backend/graphql';
 
 // Get Proper Date Formats
 const t = useI18n();
@@ -236,9 +236,7 @@ const sendInvite = async (email: string) => {
 
 // Go to Individual User Details Page
 const router = useRouter();
-const goToUserDetails = (uid: string) => {
-  router.push('/users/' + uid);
-};
+const goToUserDetails = (uid: string) => router.push('/users/' + uid);
 
 // User Deletion
 const userDeletion = useMutation(RemoveUserByAdminDocument);
@@ -323,12 +321,6 @@ const makeAdminToUserMutation = async (id: string | null) => {
     toast.error(t('state.remove_admin_failure'));
   } else {
     toast.success(t('state.remove_admin_success'));
-    usersList.value = usersList.value.map((user) => {
-      if (user.uid === id) {
-        user.isAdmin = false;
-      }
-      return user;
-    });
   }
   confirmAdminToUser.value = false;
   adminToUserUID.value = null;

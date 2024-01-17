@@ -8,9 +8,8 @@
 </template>
 
 <script setup lang="ts">
-import { GraphQLScalarType, GraphQLType } from "graphql"
+import { GraphQLScalarType, GraphQLType, getNamedType } from "graphql"
 import { computed } from "vue"
-import { resolveRootType } from "~/helpers/graphql/connection"
 
 const props = defineProps<{
   gqlType: GraphQLType
@@ -22,7 +21,7 @@ const emit = defineEmits<{
 
 const typeString = computed(() => `${props.gqlType}`)
 const isScalar = computed(() => {
-  return resolveRootType(props.gqlType) instanceof GraphQLScalarType
+  return getNamedType(props.gqlType) instanceof GraphQLScalarType
 })
 
 function jumpToType() {

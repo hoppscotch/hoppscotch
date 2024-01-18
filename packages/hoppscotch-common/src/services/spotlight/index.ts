@@ -182,17 +182,18 @@ export class SpotlightService extends Service {
                 results: newState.results,
               }
             }
-
-            // Sets the search query length in the state for analytics event logging
-            this.setAnalyticsData({
-              inputLength: query.value.length,
-            })
           },
           { immediate: true }
         )
 
         onSessionEndList.push(onSessionEnd)
       }
+
+      watch(query, (newQuery) => {
+        this.setAnalyticsData({
+          inputLength: newQuery.length,
+        })
+      })
 
       watch(
         loadingSearchers,

@@ -295,43 +295,37 @@ export class SwitchEnvSpotlightSearcherService
     }
   )[0]
 
-  fetchTeamEnvironmentList(
-    teamID: string,
-    fn: (results: TeamEnvironment[]) => void
-  ) {
+  async fetchTeamEnvironmentList(teamID: string): Promise<TeamEnvironment[]> {
     const results: TeamEnvironment[] = []
 
-    runGQLQuery({
+    const result = await runGQLQuery({
       query: GetTeamEnvironmentsDocument,
       variables: {
         teamID: teamID,
       },
-    }).then(
-      (result) => {
-        if (E.isRight(result)) {
-          if (result.right.team !== undefined && result.right.team !== null) {
-            results.push(
-              ...result.right.team.teamEnvironments.map(
-                (x) =>
-                  <TeamEnvironment>{
-                    id: x.id,
-                    teamID: x.teamID,
-                    environment: {
-                      name: x.name,
-                      variables: JSON.parse(x.variables),
-                    },
-                  }
-              )
-            )
-          }
+    })
 
-          fn(results)
+    return new Promise((resolve) => {
+      if (E.isRight(result)) {
+        if (result.right.team) {
+          results.push(
+            ...result.right.team.teamEnvironments.map(
+              ({ id, teamID, name, variables }) =>
+                <TeamEnvironment>{
+                  id: id,
+                  teamID: teamID,
+                  environment: {
+                    name: name,
+                    variables: JSON.parse(variables),
+                  },
+                }
+            )
+          )
         }
-      },
-      (err) => {
-        console.error(err)
       }
-    )
+
+      resolve(results)
+    })
   }
 
   createSearchSession(
@@ -367,26 +361,28 @@ export class SwitchEnvSpotlightSearcherService
       const workspace = this.workspaceService.currentWorkspace
 
       if (workspace.value?.type === "team") {
-        this.fetchTeamEnvironmentList(workspace.value.teamID, (results) => {
-          this.teamEnvironmentList = results
-          minisearch.addAll(
-            results.map((entry) => {
-              let id = `team-environment-${entry.teamID}:${entry.id}`
+        this.fetchTeamEnvironmentList(workspace.value.teamID).then(
+          (results) => {
+            this.teamEnvironmentList = results
+            minisearch.addAll(
+              results.map((entry) => {
+                let id = `team-environment-${entry.teamID}:${entry.id}`
 
-              if (
-                this.selectedEnvIndex.value?.type === "TEAM_ENV" &&
-                this.selectedEnvIndex.value.teamEnvID === entry.id
-              ) {
-                id += "-selected"
-              }
-              return {
-                id,
-                name: entry.environment.name,
-                alternates: ["environment", "change", entry.environment.name],
-              }
-            })
-          )
-        })
+                if (
+                  this.selectedEnvIndex.value?.type === "TEAM_ENV" &&
+                  this.selectedEnvIndex.value.teamEnvID === entry.id
+                ) {
+                  id += "-selected"
+                }
+                return {
+                  id,
+                  name: entry.environment.name,
+                  alternates: ["environment", "change", entry.environment.name],
+                }
+              })
+            )
+          }
+        )
       }
     }
 
@@ -408,16 +404,16 @@ export class SwitchEnvSpotlightSearcherService
                 prefix: 0.8,
               },
             })
-            .map((x) => {
+            .map(({ id, score, name }) => {
               return {
-                id: x.id,
+                id: id,
                 icon: markRaw(
-                  x.id.endsWith("-selected") ? IconCheckCircle : IconCircle
+                  id.endsWith("-selected") ? IconCheckCircle : IconCircle
                 ),
-                score: x.score,
+                score: score,
                 text: {
                   type: "text",
-                  text: [this.t("environment.set"), x.name],
+                  text: [this.t("environment.set"), name],
                 },
               }
             })
@@ -441,14 +437,15 @@ export class SwitchEnvSpotlightSearcherService
 
   onResultSelect(result: SpotlightSearcherResult): void {
     if (result.id.startsWith("team-environment")) {
+      // the id is in the format of team-environment-<teamID>:<teamEnvID>
       const teamAndEnvID = result.id.split("-")[2]
       const [teamID, teamEnvID] = teamAndEnvID.split(":")
       const teamEnv = this.teamEnvironmentList.find((x) => x.id === teamEnvID)
       if (!teamEnv) return
       setSelectedEnvironmentIndex({
         type: "TEAM_ENV",
-        teamEnvID: teamEnvID,
-        teamID: teamID,
+        teamEnvID,
+        teamID,
         environment: teamEnv.environment,
       })
     } else {

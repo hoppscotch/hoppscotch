@@ -110,7 +110,7 @@ export default class TeamEnvironmentAdapter {
       throw new Error(`Failed fetching team environments: ${result.left}`)
     }
 
-    if (result.right.team !== undefined && result.right.team !== null) {
+    if (result.right.team) {
       results.push(
         ...result.right.team.teamEnvironments.map(
           (x) =>

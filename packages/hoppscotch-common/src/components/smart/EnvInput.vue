@@ -175,33 +175,37 @@ const handleKeystroke = (ev: KeyboardEvent) => {
     ev.preventDefault()
   }
 
-  if (ev.shiftKey) {
+  if (["Escape", "Tab", "Shift"].includes(ev.key)) {
     showSuggestionPopover.value = false
-    return
   }
 
-  // show suggestions only when the user types a character other than enter or tab
-  showSuggestionPopover.value = !["Enter", "Tab"].includes(ev.key)
+  if (ev.key !== "Enter") {
+    showSuggestionPopover.value = true
+  }
 
-  if (
-    ["Enter"].includes(ev.key) &&
-    suggestions.value.length > 0 &&
-    currentSuggestionIndex.value > -1
-  ) {
-    updateModelValue(suggestions.value[currentSuggestionIndex.value])
-    currentSuggestionIndex.value = -1
+  if (ev.key === "Enter") {
+    if (suggestions.value.length > 0 && currentSuggestionIndex.value > -1) {
+      updateModelValue(suggestions.value[currentSuggestionIndex.value])
+      currentSuggestionIndex.value = -1
 
-    //used to set codemirror cursor at the end of the line after selecting a suggestion
-    nextTick(() => {
-      view.value?.dispatch({
-        selection: EditorSelection.create([
-          EditorSelection.range(
-            props.modelValue.length,
-            props.modelValue.length
-          ),
-        ]),
+      //used to set codemirror cursor at the end of the line after selecting a suggestion
+      nextTick(() => {
+        view.value?.dispatch({
+          selection: EditorSelection.create([
+            EditorSelection.range(
+              props.modelValue.length,
+              props.modelValue.length
+            ),
+          ]),
+        })
       })
-    })
+    }
+
+    if (showSuggestionPopover.value) {
+      showSuggestionPopover.value = false
+    } else {
+      emit("enter", ev)
+    }
   }
 
   if (ev.key === "ArrowDown") {
@@ -224,18 +228,6 @@ const handleKeystroke = (ev: KeyboardEvent) => {
         : 0
 
     emit("keyup", ev)
-  }
-
-  if (ev.key === "Enter") {
-    if (showSuggestionPopover.value) {
-      showSuggestionPopover.value = false
-    } else {
-      emit("enter", ev)
-    }
-  }
-
-  if (ev.key === "Escape") {
-    showSuggestionPopover.value = false
   }
 
   // used to scroll to the first suggestion when left arrow is pressed

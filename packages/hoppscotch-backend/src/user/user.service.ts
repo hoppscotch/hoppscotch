@@ -40,9 +40,13 @@ export class UserService {
     const dbCurrentGQLSession = dbUser.currentGQLSession;
 
     return {
-      ...dbUser,
-      currentRESTSession: JSON.stringify(dbCurrentRESTSession) ?? null,
-      currentGQLSession:  JSON.stringify(dbCurrentGQLSession) ?? null,
+      ...dbUser,   
+      currentRESTSession: dbCurrentRESTSession
+        ? JSON.stringify(dbCurrentRESTSession)
+        : null,
+      currentGQLSession: dbCurrentGQLSession
+        ? JSON.stringify(dbCurrentGQLSession)
+        : null
     };
   }
 

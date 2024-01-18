@@ -36,6 +36,7 @@ import { useStreamStatic } from "~/composables/stream"
 import { GQLError, runGQLQuery } from "~/helpers/backend/GQLClient"
 import { deleteTeamEnvironment } from "~/helpers/backend/mutations/TeamEnvironment"
 import {
+  SelectedEnvironmentIndex,
   createEnvironment,
   currentEnvironment$,
   duplicateEnvironment,
@@ -58,6 +59,17 @@ type Doc = {
   icon: object | Component
   excludeFromSearch?: boolean
 }
+
+type SelectedEnv = {
+  selected?: boolean
+} & (
+  | Omit<SelectedEnvironmentIndex & { type: "TEAM_ENV" }, "environment">
+  | (SelectedEnvironmentIndex & { type: "MY_ENV" })
+)
+
+// type SelectedEnv = SelectedEnvironmentIndex & {
+//   selected?: boolean
+// }
 
 /**
  *
@@ -342,16 +354,19 @@ export class SwitchEnvSpotlightSearcherService
     if (this.environmentSearchable.value) {
       minisearch.addAll(
         environmentsStore.value.environments.map((entry, index) => {
-          let id = `environment-${index}`
+          const id: SelectedEnv = {
+            type: "MY_ENV",
+            index,
+          }
 
           if (
             this.selectedEnvIndex.value?.type === "MY_ENV" &&
             this.selectedEnvIndex.value.index === index
           ) {
-            id += "-selected"
+            id.selected = true
           }
           return {
-            id,
+            id: JSON.stringify(id),
             name: entry.name,
             alternates: ["environment", "change", entry.name],
           }
@@ -365,19 +380,23 @@ export class SwitchEnvSpotlightSearcherService
           (results) => {
             this.teamEnvironmentList = results
             minisearch.addAll(
-              results.map((entry) => {
-                let id = `team-environment-${entry.teamID}:${entry.id}`
+              results.map(({ teamID, id: teamEnvID, environment }) => {
+                const id: SelectedEnv = {
+                  type: "TEAM_ENV",
+                  teamID,
+                  teamEnvID,
+                }
 
                 if (
                   this.selectedEnvIndex.value?.type === "TEAM_ENV" &&
-                  this.selectedEnvIndex.value.teamEnvID === entry.id
+                  this.selectedEnvIndex.value.teamEnvID === teamEnvID
                 ) {
-                  id += "-selected"
+                  id.selected = true
                 }
                 return {
-                  id,
-                  name: entry.environment.name,
-                  alternates: ["environment", "change", entry.environment.name],
+                  id: JSON.stringify(id),
+                  name: environment.name,
+                  alternates: ["environment", "change", environment.name],
                 }
               })
             )
@@ -436,24 +455,28 @@ export class SwitchEnvSpotlightSearcherService
   }
 
   onResultSelect(result: SpotlightSearcherResult): void {
-    if (result.id.startsWith("team-environment")) {
-      // the id is in the format of team-environment-<teamID>:<teamEnvID>
-      const teamAndEnvID = result.id.split("-")[2]
-      const [teamID, teamEnvID] = teamAndEnvID.split(":")
-      const teamEnv = this.teamEnvironmentList.find((x) => x.id === teamEnvID)
-      if (!teamEnv) return
-      setSelectedEnvironmentIndex({
-        type: "TEAM_ENV",
-        teamEnvID,
-        teamID,
-        environment: teamEnv.environment,
-      })
-    } else {
-      const selectedEnvIndex = Number(result.id.split("-")[1])
-      setSelectedEnvironmentIndex({
-        type: "MY_ENV",
-        index: selectedEnvIndex,
-      })
-    }
+    try {
+      const selectedEnv = JSON.parse(result.id) as SelectedEnv
+
+      if (selectedEnv.type === "MY_ENV") {
+        setSelectedEnvironmentIndex({
+          type: "MY_ENV",
+          index: selectedEnv.index,
+        })
+      }
+
+      if (selectedEnv.type === "TEAM_ENV") {
+        const teamEnv = this.teamEnvironmentList.find(
+          ({ id }) => id === selectedEnv.teamEnvID
+        )
+        if (!teamEnv) return
+        setSelectedEnvironmentIndex({
+          type: "TEAM_ENV",
+          teamEnvID: selectedEnv.teamEnvID,
+          teamID: selectedEnv.teamID,
+          environment: teamEnv.environment,
+        })
+      }
+    } catch (e) {}
   }
 }

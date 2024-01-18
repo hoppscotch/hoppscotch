@@ -144,9 +144,7 @@ export class SpotlightService extends Service {
   public createSearchSession(
     query: Ref<string>
   ): [Ref<SpotlightSearchState>, () => void] {
-    let elapsedTimeInMs = 0
-    let elapsedTimeInS = 0
-    let timerId: ReturnType<typeof setInterval>
+    const startTime = Date.now()
 
     const searchSessions = Array.from(this.searchers.values()).map(
       (x) => [x, ...x.createSearchSession(query)] as const
@@ -163,12 +161,6 @@ export class SpotlightService extends Service {
     const scopeHandle = effectScope()
 
     scopeHandle.run(() => {
-      // Compute the session duration
-      timerId = setInterval(() => {
-        elapsedTimeInMs += 100
-        elapsedTimeInS = elapsedTimeInMs / 1000
-      }, 100)
-
       for (const [searcher, state, onSessionEnd] of searchSessions) {
         watch(
           state,
@@ -219,7 +211,8 @@ export class SpotlightService extends Service {
       }
 
       // Sets the session duration in the state for analytics event logging
-      this.setAnalyticsData({ sessionDuration: `${elapsedTimeInS}s` })
+      const sessionDuration = `${Date.now() - startTime}ms`
+      this.setAnalyticsData({ sessionDuration })
 
       platform.analytics?.logEvent({
         type: "HOPP_SPOTLIGHT_SESSION",
@@ -228,8 +221,6 @@ export class SpotlightService extends Service {
 
       // Reset the state
       this.setAnalyticsData({}, false)
-
-      clearInterval(timerId)
     }
 
     return [resultObj, onSearchEnd]

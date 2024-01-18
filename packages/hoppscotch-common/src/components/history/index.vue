@@ -331,7 +331,8 @@ const deleteHistory = (entry: HistoryEntry) => {
 const addToCollection = (entry: HistoryEntry) => {
   if (props.page === "rest") {
     invokeAction("request.save-as", {
-      request: entry.request,
+      requestType: "rest",
+      request: entry.request as HoppRESTRequest,
     })
   }
 }

@@ -261,7 +261,9 @@ const saveRequest = () => {
 const clearGQLQuery = () => {
   request.value.query = ""
 }
-defineActionHandler("request.send-cancel", runQuery)
+defineActionHandler("request.send-cancel", () => {
+  runQuery()
+})
 defineActionHandler("request.save", saveRequest)
 defineActionHandler("request.save-as", () => {
   showSaveRequestModal.value = true

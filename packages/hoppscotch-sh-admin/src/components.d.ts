@@ -34,6 +34,7 @@ declare module '@vue/runtime-core' {
     IconLucideChevronDown: typeof import('~icons/lucide/chevron-down')['default'];
     IconLucideHelpCircle: typeof import('~icons/lucide/help-circle')['default'];
     IconLucideInbox: typeof import('~icons/lucide/inbox')['default'];
+    IconLucideUser: typeof import('~icons/lucide/user')['default'];
     SettingsAuthProvider: typeof import('./components/settings/AuthProvider.vue')['default'];
     SettingsConfigurations: typeof import('./components/settings/Configurations.vue')['default'];
     SettingsReset: typeof import('./components/settings/Reset.vue')['default'];

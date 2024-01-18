@@ -283,12 +283,10 @@ const makeUserAdminMutation = async (id: string | null) => {
     toast.error(t('state.admin_failure'));
   } else {
     toast.success(t('state.admin_success'));
-    usersList.value = usersList.value.map((user) => {
-      if (user.uid === id) {
-        user.isAdmin = true;
-      }
-      return user;
-    });
+    usersList.value = usersList.value.map((user) => ({
+      ...user,
+      isAdmin: user.uid === id ? true : user.isAdmin,
+    }));
   }
   confirmUserToAdmin.value = false;
   userToAdminUID.value = null;
@@ -321,6 +319,10 @@ const makeAdminToUserMutation = async (id: string | null) => {
     toast.error(t('state.remove_admin_failure'));
   } else {
     toast.success(t('state.remove_admin_success'));
+    usersList.value = usersList.value.map((user) => ({
+      ...user,
+      isAdmin: user.uid === id ? false : user.isAdmin,
+    }));
   }
   confirmAdminToUser.value = false;
   adminToUserUID.value = null;

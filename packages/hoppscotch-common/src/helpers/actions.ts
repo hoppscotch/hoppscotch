@@ -66,6 +66,13 @@ export type HoppAction =
   | "user.login" // Login to Hoppscotch
   | "user.logout" // Log out of Hoppscotch
   | "editor.format" // Format editor content
+  | "modals.team.delete" // Delete team
+  | "workspace.switch" // Switch workspace
+  | "rest.request.open" // Open REST request
+  | "request.open-tab" // Open REST request
+  | "share.request" // Share REST request
+  | "tab.duplicate-tab" // Duplicate REST request
+  | "gql.request.open" // Open GraphQL request
 
 /**
  * Defines the arguments, if present for a given type that is required to be passed on
@@ -157,29 +164,26 @@ export type HoppActionWithNoArgs = Exclude<HoppAction, HoppActionWithArgs>
 /**
  * Resolves the argument type for a given HoppAction
  */
-type ArgOfHoppAction<A extends HoppAction | HoppActionWithArgs> =
-  A extends HoppActionWithArgs ? HoppActionArgsMap[A] : undefined
+type ArgOfHoppAction<A extends HoppAction> = A extends HoppActionWithArgs
+  ? HoppActionArgsMap[A]
+  : undefined
 
 /**
  * Resolves the action function for a given HoppAction, used by action handler function defs
  */
-type ActionFunc<A extends HoppAction | HoppActionWithArgs> =
-  A extends HoppActionWithArgs
-    ? (arg: ArgOfHoppAction<A>) => void
-    : (_?: unknown, trigger?: InvocationTriggers) => void
+type ActionFunc<A extends HoppAction> = A extends HoppActionWithArgs
+  ? (arg: ArgOfHoppAction<A>, trigger?: InvocationTriggers) => void
+  : (_?: undefined, trigger?: InvocationTriggers) => void
 
 type BoundActionList = {
-  // eslint-disable-next-line no-unused-vars
-  [A in HoppAction | HoppActionWithArgs]?: Array<ActionFunc<A>>
+  [A in HoppAction]?: Array<ActionFunc<A>>
 }
 
 const boundActions: BoundActionList = reactive({})
 
-export const activeActions$ = new BehaviorSubject<
-  (HoppAction | HoppActionWithArgs)[]
->([])
+export const activeActions$ = new BehaviorSubject<HoppAction[]>([])
 
-export function bindAction<A extends HoppAction | HoppActionWithArgs>(
+export function bindAction<A extends HoppAction>(
   action: A,
   handler: ActionFunc<A>
 ) {
@@ -211,9 +215,7 @@ type InvokeActionFunc = {
  * @param args The argument passed to the action handler. Optional if action has no args required
  * @param trigger Optionally supply the trigger that invoked the action (keypress/mouseclick)
  */
-export const invokeAction: InvokeActionFunc = <
-  A extends HoppAction | HoppActionWithArgs,
->(
+export const invokeAction: InvokeActionFunc = <A extends HoppAction>(
   action: A,
   args?: ArgOfHoppAction<A>,
   trigger?: InvocationTriggers
@@ -221,7 +223,7 @@ export const invokeAction: InvokeActionFunc = <
   boundActions[action]?.forEach((handler) => handler(args! as any, trigger))
 }
 
-export function unbindAction<A extends HoppAction | HoppActionWithArgs>(
+export function unbindAction<A extends HoppAction>(
   action: A,
   handler: ActionFunc<A>
 ) {
@@ -254,7 +256,7 @@ export function isActionBound(action: HoppAction): Ref<boolean> {
  * @param handler The function to be called when the action is invoked
  * @param isActive A ref that indicates whether the action is active
  */
-export function defineActionHandler<A extends HoppAction | HoppActionWithArgs>(
+export function defineActionHandler<A extends HoppAction>(
   action: A,
   handler: ActionFunc<A>,
   isActive: Ref<boolean> | undefined = undefined

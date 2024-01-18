@@ -47,12 +47,11 @@
           >
             <div
               class="flex p-5 w-full font-bold"
-              :class="{
-                'bg-primaryDark text-secondaryDark border-l-2 border-l-emerald-600':
-                  activeTab === navigation.label,
-                'bg-primary hover:bg-primaryLight hover:text-secondaryDark focus-visible:text-secondaryDark focus-visible:bg-primaryLight focus-visible:outline-none':
-                  activeTab !== navigation.label,
-              }"
+              :class="
+                activeTab === navigation.label
+                  ? 'bg-primaryDark text-secondaryDark border-l-2 border-l-emerald-600'
+                  : 'bg-primary hover:bg-primaryLight hover:text-secondaryDark focus-visible:text-secondaryDark focus-visible:bg-primaryLight focus-visible:outline-none'
+              "
             >
               <div
                 v-if="navigation.icon"
@@ -73,14 +72,14 @@
 </template>
 
 <script setup lang="ts">
-import { HoppSmartLink } from '@hoppscotch/ui';
+import type { Component } from 'vue';
+import { ref } from 'vue';
+import { useI18n } from '~/composables/i18n';
 import { useSidebar } from '~/composables/useSidebar';
 import IconDashboard from '~icons/lucide/layout-dashboard';
+import IconSettings from '~icons/lucide/settings';
 import IconUser from '~icons/lucide/user';
 import IconUsers from '~icons/lucide/users';
-import IconSettings from '~icons/lucide/settings';
-import { useI18n } from '~/composables/i18n';
-import { ref } from 'vue';
 
 const t = useI18n();
 
@@ -88,7 +87,7 @@ const { isOpen, isExpanded } = useSidebar();
 
 type NavigationItem = {
   label: string;
-  icon: any;
+  icon: Component;
   to: string;
   exact: boolean;
 };

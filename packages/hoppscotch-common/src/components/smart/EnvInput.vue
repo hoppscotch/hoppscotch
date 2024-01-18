@@ -179,10 +179,6 @@ const handleKeystroke = (ev: KeyboardEvent) => {
     showSuggestionPopover.value = false
   }
 
-  if (ev.key !== "Enter") {
-    showSuggestionPopover.value = true
-  }
-
   if (ev.key === "Enter") {
     if (suggestions.value.length > 0 && currentSuggestionIndex.value > -1) {
       updateModelValue(suggestions.value[currentSuggestionIndex.value])
@@ -206,6 +202,8 @@ const handleKeystroke = (ev: KeyboardEvent) => {
     } else {
       emit("enter", ev)
     }
+  } else {
+    showSuggestionPopover.value = true
   }
 
   if (ev.key === "ArrowDown") {

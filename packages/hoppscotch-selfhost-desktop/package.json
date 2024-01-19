@@ -68,7 +68,7 @@
     "unplugin-fonts": "^1.1.1",
     "unplugin-icons": "^0.14.9",
     "unplugin-vue-components": "^0.21.0",
-    "vite": "^4.2.1",
+    "vite": "^3.2.8",
     "vite-plugin-html-config": "^1.0.10",
     "vite-plugin-inspect": "^0.7.4",
     "vite-plugin-pages": "^0.26.0",

@@ -72,8 +72,8 @@
 </template>
 
 <script setup lang="ts">
-import type { Component } from 'vue';
-import { ref } from 'vue';
+import { ref, type Component } from 'vue';
+
 import { useI18n } from '~/composables/i18n';
 import { useSidebar } from '~/composables/useSidebar';
 import IconDashboard from '~icons/lucide/layout-dashboard';

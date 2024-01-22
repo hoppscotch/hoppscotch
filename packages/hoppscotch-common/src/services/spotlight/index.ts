@@ -189,11 +189,15 @@ export class SpotlightService extends Service {
         onSessionEndList.push(onSessionEnd)
       }
 
-      watch(query, (newQuery) => {
-        this.setAnalyticsData({
-          inputLength: newQuery.length,
-        })
-      })
+      watch(
+        query,
+        (newQuery) => {
+          this.setAnalyticsData({
+            inputLength: newQuery.length,
+          })
+        },
+        { immediate: true }
+      )
 
       watch(
         loadingSearchers,
@@ -212,7 +216,7 @@ export class SpotlightService extends Service {
       }
 
       // Sets the session duration in the state for analytics event logging
-      const sessionDuration = `${Date.now() - startTime}ms`
+      const sessionDuration = `${((Date.now() - startTime) / 1000).toFixed(2)}s`
       this.setAnalyticsData({ sessionDuration })
 
       platform.analytics?.logEvent({
@@ -239,7 +243,7 @@ export class SpotlightService extends Service {
     this.searchers.get(searcherID)?.onResultSelect(result)
 
     // Sets the action indicating `success` and selected result score in the state for analytics event logging
-    this.setAnalyticsData({ action: "success", rank: result.score })
+    this.setAnalyticsData({ action: "success", rank: result.score.toFixed(2) })
   }
 
   /**

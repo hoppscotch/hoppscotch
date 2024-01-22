@@ -579,7 +579,7 @@ defineActionHandler("request.method.prev", cycleUpMethod)
 defineActionHandler("request.save", saveRequest)
 defineActionHandler("request.save-as", (req) => {
   showSaveRequestModal.value = true
-  if (req && req.requestType === "rest") {
+  if (req?.requestType === "rest") {
     request.value = req.request
   }
 })

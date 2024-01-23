@@ -1,7 +1,14 @@
 <template>
   <div class="flex flex-col justify-center">
     <div
-      v-if="invalidLink"
+      v-if="sharedRequestDetails.loading"
+      class="flex justify-center items-center py-5"
+    >
+      <HoppSmartSpinner />
+    </div>
+
+    <div
+      v-else-if="E.isLeft(sharedRequestDetails.data) || invalidLink"
       class="flex flex-1 flex-col items-center justify-center p-8"
     >
       <icon-lucide-alert-triangle class="svg-icons mb-2 opacity-75" />
@@ -12,8 +19,9 @@
         {{ t("error.invalid_embed_link") }}
       </p>
     </div>
+
     <Embeds
-      v-else-if="!invalidLink && tab"
+      v-else-if="tab"
       v-model:modelTab="tab"
       :properties="properties"
       :shared-request-i-d="sharedRequestID"

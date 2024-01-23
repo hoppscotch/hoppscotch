@@ -319,27 +319,25 @@ export class SwitchEnvSpotlightSearcherService
       },
     })
 
-    return new Promise((resolve) => {
-      if (E.isRight(result)) {
-        if (result.right.team) {
-          results.push(
-            ...result.right.team.teamEnvironments.map(
-              ({ id, teamID, name, variables }) =>
-                <TeamEnvironment>{
-                  id: id,
-                  teamID: teamID,
-                  environment: {
-                    name: name,
-                    variables: JSON.parse(variables),
-                  },
-                }
-            )
+    if (E.isRight(result)) {
+      if (result.right.team) {
+        results.push(
+          ...result.right.team.teamEnvironments.map(
+            ({ id, teamID, name, variables }) =>
+              <TeamEnvironment>{
+                id: id,
+                teamID: teamID,
+                environment: {
+                  name: name,
+                  variables: JSON.parse(variables),
+                },
+              }
           )
-        }
+        )
       }
+    }
 
-      resolve(results)
-    })
+    return results
   }
 
   createSearchSession(

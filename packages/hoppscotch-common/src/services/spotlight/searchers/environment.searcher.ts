@@ -470,10 +470,12 @@ export class SwitchEnvSpotlightSearcherService
           ({ id }) => id === selectedEnv.teamEnvID
         )
         if (!teamEnv) return
+
+        const { teamID, teamEnvID } = selectedEnv
         setSelectedEnvironmentIndex({
           type: "TEAM_ENV",
-          teamEnvID: selectedEnv.teamEnvID,
-          teamID: selectedEnv.teamID,
+          teamEnvID,
+          teamID,
           environment: teamEnv.environment,
         })
       }

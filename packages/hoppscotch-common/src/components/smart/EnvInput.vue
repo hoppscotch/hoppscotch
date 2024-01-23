@@ -79,6 +79,7 @@ const props = withDefaults(
     readonly?: boolean
     autoCompleteSource?: string[]
     inspectionResults?: InspectorResult[] | undefined
+    contextMenuEnabled?: boolean
   }>(),
   {
     modelValue: "",
@@ -91,6 +92,7 @@ const props = withDefaults(
     autoCompleteSource: undefined,
     inspectionResult: undefined,
     inspectionResults: undefined,
+    contextMenuEnabled: true,
   }
 )
 
@@ -359,8 +361,11 @@ const initView = (el: any) => {
     handleTextSelection()
   }, 140)
 
-  el.addEventListener("mouseup", debounceFn)
-  el.addEventListener("keyup", debounceFn)
+  // Only add event listeners if context menu is enabled in the component
+  if (props.contextMenuEnabled) {
+    el.addEventListener("mouseup", debounceFn)
+    el.addEventListener("keyup", debounceFn)
+  }
 
   const extensions: Extension = [
     EditorView.contentAttributes.of({ "aria-label": props.placeholder }),
@@ -396,7 +401,7 @@ const initView = (el: any) => {
         ev.preventDefault()
       },
       scroll(event) {
-        if (event.target) {
+        if (event.target && props.contextMenuEnabled) {
           handleTextSelection()
         }
       },
@@ -405,7 +410,6 @@ const initView = (el: any) => {
       class {
         update(update: ViewUpdate) {
           if (props.readonly) return
-
           if (update.docChanged) {
             const prevValue = clone(cachedValue.value)
 
@@ -435,6 +439,17 @@ const initView = (el: any) => {
             } else {
               clipboardEv = null
               pastedValue = null
+            }
+
+            if (props.contextMenuEnabled) {
+              // close the context menu if text is being updated in the editor
+              invokeAction("contextmenu.open", {
+                position: {
+                  top: 0,
+                  left: 0,
+                },
+                text: null,
+              })
             }
           }
         }

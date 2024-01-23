@@ -99,6 +99,7 @@ useCodemirror(
     linter,
     completer,
     environmentHighlights: false,
+    contextMenuEnabled: false,
   })
 )
 

@@ -48,6 +48,7 @@ import {
 
 import * as E from "fp-ts/Either"
 import IconCheckCircle from "~/components/app/spotlight/entry/IconSelected.vue"
+import { useToast } from "~/composables/toast"
 import { GetTeamEnvironmentsDocument } from "~/helpers/backend/graphql"
 import { TeamEnvironment } from "~/helpers/teams/TeamEnvironment"
 import { WorkspaceService } from "~/services/workspace.service"
@@ -273,6 +274,7 @@ export class SwitchEnvSpotlightSearcherService
   public static readonly ID = "SWITCH_ENV_SPOTLIGHT_SEARCHER_SERVICE"
 
   private t = getI18n()
+  private toast = useToast()
 
   public searcherID = "switch_env"
   public searcherSectionTitle = this.t("tab.environments")
@@ -479,6 +481,8 @@ export class SwitchEnvSpotlightSearcherService
           environment: teamEnv.environment,
         })
       }
-    } catch (e) {}
+    } catch (e) {
+      this.toast.error(this.t("error.something_went_wrong"))
+    }
   }
 }

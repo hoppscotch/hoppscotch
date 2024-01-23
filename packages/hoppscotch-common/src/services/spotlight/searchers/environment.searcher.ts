@@ -427,7 +427,7 @@ export class SwitchEnvSpotlightSearcherService
               return {
                 id: id,
                 icon: markRaw(
-                  id.endsWith("-selected") ? IconCheckCircle : IconCircle
+                  JSON.parse(id).selected ? IconCheckCircle : IconCircle
                 ),
                 score: score,
                 text: {

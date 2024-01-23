@@ -70,7 +70,11 @@
       v-model:option-tab="selectedOptionTab"
       :properties="properties"
     />
-    <HttpResponse :document="tab.document" :is-embed="true" />
+    <HttpResponse
+      v-if="tab.document.response"
+      :document="tab.document"
+      :is-embed="true"
+    />
   </div>
 </template>
 

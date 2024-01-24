@@ -351,6 +351,9 @@ importers:
       typescript:
         specifier: ^5.2.2
         version: 5.2.2
+      verzod:
+        specifier: ^0.2.2
+        version: 0.2.2(zod@3.22.4)
       zod:
         specifier: ^3.22.4
         version: 3.22.4
@@ -25770,7 +25773,6 @@ packages:
       zod: ^3.22.0
     dependencies:
       zod: 3.22.4
-    dev: false
 
   /vite-node@0.34.6(@types/node@18.18.8)(sass@1.69.5)(terser@5.27.0):
     resolution: {integrity: sha512-nlBMJ9x6n7/Amaz6F3zJ97EBwR2FkzhBRxF5e+jE6LA3yi6Wtc2lyTij1OnDMIr34v5g/tVQtsVAzhT0jc5ygA==}

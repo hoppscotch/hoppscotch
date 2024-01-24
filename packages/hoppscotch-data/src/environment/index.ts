@@ -105,6 +105,7 @@ export function parseTemplateStringE(
   while (result.match(REGEX_ENV_VAR) != null && depth <= ENV_MAX_EXPAND_LIMIT) {
     result = decodeURI(encodeURI(result)).replace(REGEX_ENV_VAR, (_, p1) => {
       const variable = variables.find((x) => x && x.key === p1)
+
       if (variable && "value" in variable) {
         // Mask the value if it is a secret and explicitly specified
         if (variable.secret && maskValue) {

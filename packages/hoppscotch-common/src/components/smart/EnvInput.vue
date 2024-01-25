@@ -374,14 +374,13 @@ const envVars = computed(() => {
         if (x.secret) {
           return {
             key: x.key,
-            sourceEnv: x.source,
+            sourceEnv: "source" in x ? x.source : null,
           }
-        } else {
-          return {
-            key: x.key,
-            value: x.value,
-            sourceEnv: x.source,
-          }
+        }
+        return {
+          key: x.key,
+          value: x.value,
+          sourceEnv: "source" in x ? x.source : null,
         }
       })
     : aggregateEnvs.value

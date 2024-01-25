@@ -11,14 +11,14 @@ import { TestResult } from "@hoppscotch/js-sandbox"
 
 export const getCombinedEnvVariables = () => ({
   global: cloneDeep(getGlobalVariables()),
-  selected: cloneDeep(getCurrentEnvironment().variables),
+  selected: cloneDeep(getCurrentEnvironment()),
 })
 
 export const getFinalEnvsFromPreRequest = (
   script: string,
   envs: {
     global: Environment["variables"]
-    selected: Environment["variables"]
+    selected: Environment
   }
 ): Promise<E.Either<string, TestResult["envs"]>> =>
   runPreRequestScript(script, envs)

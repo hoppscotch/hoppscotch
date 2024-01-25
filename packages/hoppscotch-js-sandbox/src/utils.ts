@@ -13,7 +13,7 @@ import {
 
 const getEnv = (envName: string, envs: TestResult["envs"]) => {
   return O.fromNullable(
-    envs.selected.find((x: SelectedEnvItem) => x.key === envName) ??
+    envs.selected.variables.find((x: SelectedEnvItem) => x.key === envName) ??
       envs.global.find((x: GlobalEnvItem) => x.key === envName)
   )
 }
@@ -34,17 +34,23 @@ const setEnv = (
 ): TestResult["envs"] => {
   const { global, selected } = envs
 
-  const indexInSelected = findEnvIndex(envName, selected)
+  const indexInSelected = findEnvIndex(envName, selected.variables)
   const indexInGlobal = findEnvIndex(envName, global)
 
   if (indexInSelected >= 0) {
-    selected[indexInSelected].value = envValue
+    const selectedEnv = selected.variables[indexInSelected]
+    if ("value" in selectedEnv) {
+      selectedEnv.value = envValue
+    }
   } else if (indexInGlobal >= 0) {
-    global[indexInGlobal].value = envValue
+    if ("value" in global[indexInGlobal]) {
+      global[indexInGlobal].value = envValue
+    }
   } else {
-    selected.push({
+    selected.variables.push({
       key: envName,
       value: envValue,
+      secret: false,
     })
   }
 
@@ -60,11 +66,11 @@ const unsetEnv = (
 ): TestResult["envs"] => {
   const { global, selected } = envs
 
-  const indexInSelected = findEnvIndex(envName, selected)
+  const indexInSelected = findEnvIndex(envName, selected.variables)
   const indexInGlobal = findEnvIndex(envName, global)
 
   if (indexInSelected >= 0) {
-    selected.splice(indexInSelected, 1)
+    selected.variables.splice(indexInSelected, 1)
   } else if (indexInGlobal >= 0) {
     global.splice(indexInGlobal, 1)
   }
@@ -86,9 +92,9 @@ const getSharedMethods = (envs: TestResult["envs"]) => {
 
     const result = pipe(
       getEnv(key, updatedEnvs),
-      O.match(
+      O.fold(
         () => undefined,
-        ({ value }) => String(value)
+        (env) => (env.secret ? "" : String(env.value))
       )
     )
 
@@ -104,14 +110,20 @@ const getSharedMethods = (envs: TestResult["envs"]) => {
       getEnv(key, updatedEnvs),
       E.fromOption(() => "INVALID_KEY" as const),
 
-      E.map(({ value }) =>
+      E.map((env) =>
         pipe(
-          parseTemplateStringE(value, [
-            ...updatedEnvs.selected,
-            ...updatedEnvs.global,
-          ]),
-          // If the recursive resolution failed, return the unresolved value
-          E.getOrElse(() => value)
+          env,
+          E.fromNullable(undefined),
+          E.map((e) =>
+            pipe(
+              parseTemplateStringE(!e.secret ? e.value?.toString() : "", [
+                ...updatedEnvs.selected.variables,
+                ...updatedEnvs.global,
+              ]),
+              // If the recursive resolution failed, return the unresolved value
+              E.getOrElse(() => (!e.secret ? e.value?.toString() : ""))
+            )
+          )
         )
       ),
       E.map((x) => String(x)),
@@ -153,7 +165,7 @@ const getSharedMethods = (envs: TestResult["envs"]) => {
 
     const result = pipe(
       parseTemplateStringE(value, [
-        ...updatedEnvs.selected,
+        ...updatedEnvs.selected.variables,
         ...updatedEnvs.global,
       ]),
       E.getOrElse(() => value)

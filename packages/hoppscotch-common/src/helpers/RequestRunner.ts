@@ -30,6 +30,10 @@ import { HoppRESTResponse } from "./types/HoppRESTResponse"
 import { HoppTestData, HoppTestResult } from "./types/HoppTestResult"
 import { getEffectiveRESTRequest } from "./utils/EffectiveURL"
 import { isJSONContentType } from "./utils/contenttypes"
+import { getService } from "~/modules/dioc"
+import { SecretEnvironmentService } from "~/services/secret-environment.service"
+
+const secretEnvironmentService = getService(SecretEnvironmentService)
 
 const getTestableBody = (
   res: HoppRESTResponse & { type: "success" | "fail" }
@@ -60,8 +64,42 @@ const getTestableBody = (
 
 const combineEnvVariables = (env: {
   global: Environment["variables"]
-  selected: Environment["variables"]
-}) => [...env.selected, ...env.global]
+  selected: Environment
+}) => {
+  const resolvedGlobalWithSecrets = env.global.map((globalVar, index) => {
+    const secretVar = secretEnvironmentService.getSecretEnvironmentVariable(
+      "Global",
+      index
+    )
+    if (secretVar) {
+      return {
+        ...globalVar,
+        secret: false,
+        value: secretVar.value,
+      }
+    }
+    return globalVar
+  })
+
+  const resolvedSelectedWithSecrets = env.selected.variables.map(
+    (selectedVar, index) => {
+      const secretVar = secretEnvironmentService.getSecretEnvironmentVariable(
+        env.selected.id,
+        index
+      )
+      if (secretVar) {
+        return {
+          ...selectedVar,
+          secret: false,
+          value: secretVar.value,
+        }
+      }
+      return selectedVar
+    }
+  )
+
+  return [...resolvedSelectedWithSecrets, ...resolvedGlobalWithSecrets]
+}
 
 export const executedResponses$ = new Subject<
   HoppRESTResponse & { type: "success" | "fail " }
@@ -174,7 +212,8 @@ export function runRESTRequest$(
                 environmentsStore.value.selectedEnvironmentIndex.index,
                 {
                   ...env,
-                  variables: runResult.right.envs.selected,
+                  v: 1,
+                  id: env.id ?? "",
                 }
               )
             } else if (
@@ -186,7 +225,7 @@ export function runRESTRequest$(
               })
               pipe(
                 updateTeamEnvironment(
-                  JSON.stringify(runResult.right.envs.selected),
+                  JSON.stringify(runResult.right.envs.selected.variables),
                   environmentsStore.value.selectedEnvironmentIndex.teamEnvID,
                   env.name
                 )
@@ -288,14 +327,17 @@ function translateToSandboxTestResults(
         updations: getUpdatedEnvVariables(globals, testDesc.envs.global),
       },
       selected: {
-        additions: getAddedEnvVariables(env.variables, testDesc.envs.selected),
+        additions: getAddedEnvVariables(
+          env.variables,
+          testDesc.envs.selected.variables
+        ),
         deletions: getRemovedEnvVariables(
           env.variables,
-          testDesc.envs.selected
+          testDesc.envs.selected.variables
         ),
         updations: getUpdatedEnvVariables(
           env.variables,
-          testDesc.envs.selected
+          testDesc.envs.selected.variables
         ),
       },
     },

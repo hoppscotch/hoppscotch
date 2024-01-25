@@ -17,10 +17,15 @@ export const runTestScript = (
       resolve(event.data.results)
     )
 
+    const environments = {
+      global: envs.global,
+      selected: envs.selected.variables,
+    }
+
     // Send the script to the web worker
     worker.postMessage({
       testScript,
-      envs,
+      environments,
       response,
     })
   })

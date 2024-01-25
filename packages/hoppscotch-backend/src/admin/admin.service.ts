@@ -145,9 +145,23 @@ export class AdminService {
    * @returns an Either of array of `InvitedUser` object or error
    */
   async fetchInvitedUsers() {
-    const invitedUsers = await this.prisma.invitedUsers.findMany();
+    const userEmailObjs = await this.prisma.user.findMany({
+      select: {
+        email: true,
+      },
+    });
 
-    const users: InvitedUser[] = invitedUsers.map(
+    const pendingInvitedUsers = await this.prisma.invitedUsers.findMany({
+      where: {
+        NOT: {
+          inviteeEmail: {
+            in: userEmailObjs.map((user) => user.email),
+          },
+        },
+      },
+    });
+
+    const users: InvitedUser[] = pendingInvitedUsers.map(
       (user) => <InvitedUser>{ ...user },
     );
 

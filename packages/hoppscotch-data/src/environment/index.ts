@@ -131,14 +131,12 @@ export const parseTemplateString = (
 
 export const translateToNewEnvironmentVariables = (
   x: any
-): Environment["variables"] => {
-  return x.variables.map((variable: any) => {
-    return {
-      key: variable.key,
-      value: variable.value,
-      secret: false,
-    }
-  })
+): Environment["variables"][number] => {
+  return {
+    key: x.key,
+    value: x.value,
+    secret: false,
+  }
 }
 
 export const translateToNewEnvironment = (x: any): Environment => {

@@ -344,8 +344,12 @@ const handleImportToStore = async (
 ) => {
   // if there's a global env, add them to the store
   if (globalEnv) {
-    globalEnv.variables.forEach(({ key, value }) => {
-      addGlobalEnvVariable({ key, value })
+    globalEnv.variables.map((env) => {
+      if (env.secret) {
+        addGlobalEnvVariable({ key: env.key, secret: true })
+      } else {
+        addGlobalEnvVariable({ key: env.key, value: env.value, secret: false })
+      }
     })
   }
 

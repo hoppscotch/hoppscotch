@@ -21,7 +21,7 @@
           <label for="value" class="min-w-[2.5rem] font-semibold">{{
             t("environment.value")
           }}</label>
-          <input
+          <SmartEnvInput
             v-model="editingValue"
             type="text"
             class="input"
@@ -154,12 +154,14 @@ const addEnvironment = async () => {
     addGlobalEnvVariable({
       key: editingName.value,
       value: editingValue.value,
+      secret: false,
     })
     toast.success(`${t("environment.updated")}`)
   } else if (scope.value.type === "my-environment") {
     addEnvironmentVariable(scope.value.index, {
       key: editingName.value,
       value: editingValue.value,
+      secret: false,
     })
     toast.success(`${t("environment.updated")}`)
   } else {

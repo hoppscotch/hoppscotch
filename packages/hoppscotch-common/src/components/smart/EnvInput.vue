@@ -4,6 +4,7 @@
       class="no-scrollbar absolute inset-0 flex flex-1 divide-x divide-dividerLight overflow-x-auto"
     >
       <div
+        v-if="!isSecret"
         ref="editor"
         :placeholder="placeholder"
         class="flex flex-1"
@@ -12,6 +13,23 @@
         @keydown="handleKeystroke"
         @focusin="showSuggestionPopover = true"
       ></div>
+      <input
+        v-if="isSecret"
+        id="secret"
+        v-model="asterikedText"
+        name="secret"
+        disabled
+        :placeholder="t('environment.secret_value')"
+        class="flex flex-1 bg-transparent px-4 opacity-50"
+        :class="styles"
+      />
+      <HoppButtonSecondary
+        v-if="secret"
+        v-tippy="{ theme: 'tooltip' }"
+        :title="isSecret ? t('action.show_secret') : t('action.hide_secret')"
+        :icon="isSecret ? IconLock : IconUnlock"
+        @click="toggleSecret"
+      />
       <AppInspection
         :inspection-results="inspectionResults"
         class="sticky inset-y-0 right-0 rounded-r bg-primary"
@@ -66,13 +84,21 @@ import { platform } from "~/platform"
 import { onClickOutside, useDebounceFn } from "@vueuse/core"
 import { InspectorResult } from "~/services/inspection"
 import { invokeAction } from "~/helpers/actions"
+import { Environment } from "@hoppscotch/data"
+import { useI18n } from "~/composables/i18n"
+import IconLock from "~icons/lucide/lock"
+import IconUnlock from "~icons/lucide/unlock"
+
+const t = useI18n()
+
+type Env = Environment["variables"] & { source: string }
 
 const props = withDefaults(
   defineProps<{
     modelValue?: string
     placeholder?: string
     styles?: string
-    envs?: { key: string; value: string; source: string }[] | null
+    envs?: Env | null
     focus?: boolean
     selectTextOnMount?: boolean
     environmentHighlights?: boolean
@@ -80,6 +106,7 @@ const props = withDefaults(
     autoCompleteSource?: string[]
     inspectionResults?: InspectorResult[] | undefined
     contextMenuEnabled?: boolean
+    secret?: boolean
   }>(),
   {
     modelValue: "",
@@ -93,6 +120,7 @@ const props = withDefaults(
     inspectionResult: undefined,
     inspectionResults: undefined,
     contextMenuEnabled: true,
+    secret: false,
   }
 )
 
@@ -118,9 +146,38 @@ const showSuggestionPopover = ref(false)
 const suggestionsMenu = ref<any | null>(null)
 const autoCompleteWrapper = ref<any | null>(null)
 
+const isSecret = ref(props.secret)
+
+const getAsterikedText = (text: string) => {
+  return "*".repeat(text.length)
+}
+const asterikedText = ref(getAsterikedText(props.modelValue))
+
 onClickOutside(autoCompleteWrapper, () => {
   showSuggestionPopover.value = false
 })
+
+const toggleSecret = () => {
+  if (isSecret.value) {
+    asterikedText.value = props.modelValue
+    isSecret.value = false
+  } else {
+    asterikedText.value = getAsterikedText(props.modelValue)
+    isSecret.value = true
+  }
+}
+watch(
+  () => isSecret.value,
+  (newVal) => {
+    if (newVal) {
+      asterikedText.value = getAsterikedText(props.modelValue)
+      isSecret.value = true
+    } else {
+      asterikedText.value = props.modelValue
+      isSecret.value = false
+    }
+  }
+)
 
 //filter autocompleteSource with unique values
 const uniqueAutoCompleteSource = computed(() => {
@@ -311,15 +368,24 @@ const aggregateEnvs = useReadonlyStream(aggregateEnvs$, []) as Ref<
   AggregateEnvironment[]
 >
 
-const envVars = computed(() =>
-  props.envs
-    ? props.envs.map((x) => ({
-        key: x.key,
-        value: x.value,
-        sourceEnv: x.source,
-      }))
+const envVars = computed(() => {
+  return props.envs
+    ? props.envs.map((x) => {
+        if (x.secret) {
+          return {
+            key: x.key,
+            sourceEnv: x.source,
+          }
+        } else {
+          return {
+            key: x.key,
+            value: x.value,
+            sourceEnv: x.source,
+          }
+        }
+      })
     : aggregateEnvs.value
-)
+})
 
 const envTooltipPlugin = new HoppReactiveEnvPlugin(envVars, view)
 
@@ -363,17 +429,31 @@ const initView = (el: any) => {
     el.addEventListener("keyup", debounceFn)
   }
 
+  if (isSecret.value) {
+    emit("update:modelValue", asterikedText.value)
+  }
+  const extensions: Extension = getExtensions(props.readonly || isSecret.value)
+  view.value = new EditorView({
+    parent: el,
+    state: EditorState.create({
+      doc: props.modelValue,
+      extensions,
+    }),
+  })
+}
+
+const getExtensions = (readonly: boolean): Extension => {
   const extensions: Extension = [
     EditorView.contentAttributes.of({ "aria-label": props.placeholder }),
     EditorView.contentAttributes.of({ "data-enable-grammarly": "false" }),
     EditorView.updateListener.of((update) => {
-      if (props.readonly) {
+      if (readonly) {
         update.view.contentDOM.inputMode = "none"
       }
     }),
-    EditorState.changeFilter.of(() => !props.readonly),
+    EditorState.changeFilter.of(() => !readonly),
     inputTheme,
-    props.readonly
+    readonly
       ? EditorView.theme({
           ".cm-content": {
             caretColor: "var(--secondary-dark-color)",
@@ -405,7 +485,8 @@ const initView = (el: any) => {
     ViewPlugin.fromClass(
       class {
         update(update: ViewUpdate) {
-          if (props.readonly) return
+          if (readonly) return
+
           if (update.docChanged) {
             const prevValue = clone(cachedValue.value)
 
@@ -417,8 +498,14 @@ const initView = (el: any) => {
             // So, we desync cachedValue a bit so we can trigger updates
             const value = clone(cachedValue.value).replaceAll("\n", "")
 
-            emit("update:modelValue", value)
-            emit("change", value)
+            if (isSecret.value) {
+              const asterikedValue = "*".repeat(value.length)
+              emit("update:modelValue", asterikedValue)
+              emit("change", asterikedValue)
+            } else {
+              emit("update:modelValue", value)
+              emit("change", value)
+            }
 
             const pasted = !!update.transactions.find((txn) =>
               txn.isUserEvent("input.paste")
@@ -454,14 +541,7 @@ const initView = (el: any) => {
     history(),
     keymap.of([...historyKeymap]),
   ]
-
-  view.value = new EditorView({
-    parent: el,
-    state: EditorState.create({
-      doc: props.modelValue,
-      extensions,
-    }),
-  })
+  return extensions
 }
 
 const triggerTextSelection = () => {

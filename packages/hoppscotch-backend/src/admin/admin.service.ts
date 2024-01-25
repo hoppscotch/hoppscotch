@@ -27,6 +27,7 @@ import { TeamInvitationService } from '../team-invitation/team-invitation.servic
 import { TeamMemberRole } from '../team/team.model';
 import { ShortcodeService } from 'src/shortcode/shortcode.service';
 import { ConfigService } from '@nestjs/config';
+import { OffsetPaginationArgs } from 'src/types/input-types.args';
 
 @Injectable()
 export class AdminService {
@@ -144,7 +145,7 @@ export class AdminService {
    * Fetch the list of invited users by the admin.
    * @returns an Either of array of `InvitedUser` object or error
    */
-  async fetchInvitedUsers() {
+  async fetchInvitedUsers(paginationOption: OffsetPaginationArgs) {
     const userEmailObjs = await this.prisma.user.findMany({
       select: {
         email: true,
@@ -152,6 +153,11 @@ export class AdminService {
     });
 
     const pendingInvitedUsers = await this.prisma.invitedUsers.findMany({
+      take: paginationOption.take,
+      skip: paginationOption.skip,
+      orderBy: {
+        invitedOn: 'desc',
+      },
       where: {
         NOT: {
           inviteeEmail: {

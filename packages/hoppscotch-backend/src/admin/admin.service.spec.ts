@@ -18,6 +18,7 @@ import {
 } from '../errors';
 import { ShortcodeService } from 'src/shortcode/shortcode.service';
 import { ConfigService } from '@nestjs/config';
+import { OffsetPaginationArgs } from 'src/types/input-types.args';
 
 const mockPrisma = mockDeep<PrismaService>();
 const mockPubSub = mockDeep<PubSubService>();
@@ -62,17 +63,23 @@ const invitedUsers: InvitedUsers[] = [
 describe('AdminService', () => {
   describe('fetchInvitedUsers', () => {
     test('should resolve right and return an array of invited users', async () => {
+      const paginationArgs: OffsetPaginationArgs = { take: 10, skip: 0 };
+
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      mockPrisma.user.findMany.mockResolvedValue([]);
       // @ts-ignore
       mockPrisma.invitedUsers.findMany.mockResolvedValue(invitedUsers);
 
-      const results = await adminService.fetchInvitedUsers();
+      const results = await adminService.fetchInvitedUsers(paginationArgs);
       expect(results).toEqual(invitedUsers);
     });
     test('should resolve left and return an empty array if invited users not found', async () => {
+      const paginationArgs: OffsetPaginationArgs = { take: 10, skip: 0 };
+
       mockPrisma.invitedUsers.findMany.mockResolvedValue([]);
 
-      const results = await adminService.fetchInvitedUsers();
+      const results = await adminService.fetchInvitedUsers(paginationArgs);
       expect(results).toEqual([]);
     });
   });

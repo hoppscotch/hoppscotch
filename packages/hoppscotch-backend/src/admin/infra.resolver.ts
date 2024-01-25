@@ -17,7 +17,10 @@ import { AuthUser } from 'src/types/AuthUser';
 import { throwErr } from 'src/utils';
 import * as E from 'fp-ts/Either';
 import { Admin } from './admin.model';
-import { PaginationArgs } from 'src/types/input-types.args';
+import {
+  OffsetPaginationArgs,
+  PaginationArgs,
+} from 'src/types/input-types.args';
 import { InvitedUser } from './invited-user.model';
 import { Team } from 'src/team/team.model';
 import { TeamInvitation } from 'src/team-invitation/team-invitation.model';
@@ -86,8 +89,10 @@ export class InfraResolver {
   @ResolveField(() => [InvitedUser], {
     description: 'Returns a list of all the invited users',
   })
-  async invitedUsers(): Promise<InvitedUser[]> {
-    const users = await this.adminService.fetchInvitedUsers();
+  async invitedUsers(
+    @Args() args: OffsetPaginationArgs,
+  ): Promise<InvitedUser[]> {
+    const users = await this.adminService.fetchInvitedUsers(args);
     return users;
   }
 
@@ -306,7 +311,9 @@ export class InfraResolver {
     })
     providerInfo: EnableAndDisableSSOArgs[],
   ) {
-    const isUpdated = await this.infraConfigService.enableAndDisableSSO(providerInfo);
+    const isUpdated = await this.infraConfigService.enableAndDisableSSO(
+      providerInfo,
+    );
     if (E.isLeft(isUpdated)) throwErr(isUpdated.left);
 
     return true;

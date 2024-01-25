@@ -17,3 +17,21 @@ export class PaginationArgs {
   })
   take: number;
 }
+
+@ArgsType()
+@InputType()
+export class OffsetPaginationArgs {
+  @Field({
+    nullable: true,
+    defaultValue: 0,
+    description: 'Number of items to skip',
+  })
+  skip: number;
+
+  @Field({
+    nullable: true,
+    defaultValue: 10,
+    description: 'Number of items to fetch',
+  })
+  take: number;
+}

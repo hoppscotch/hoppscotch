@@ -89,15 +89,6 @@ export class AdminResolver {
     return users;
   }
 
-  @ResolveField(() => [InvitedUser], {
-    description: 'Returns a list of all the invited users',
-    deprecationReason: 'Use `infra` query instead',
-  })
-  async invitedUsers(@Parent() admin: Admin): Promise<InvitedUser[]> {
-    const users = await this.adminService.fetchInvitedUsers();
-    return users;
-  }
-
   @ResolveField(() => [Team], {
     description: 'Returns a list of all the teams in the infra',
     deprecationReason: 'Use `infra` query instead',

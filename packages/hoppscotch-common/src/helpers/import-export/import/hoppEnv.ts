@@ -5,17 +5,10 @@ import { IMPORTER_INVALID_FILE_FORMAT } from "."
 import { safeParseJSON } from "~/helpers/functional/json"
 
 import { z } from "zod"
+import { entityReference } from "verzod"
+import { Environment } from "@hoppscotch/data"
 
-const hoppEnvSchema = z.object({
-  id: z.string().optional(),
-  name: z.string(),
-  variables: z.array(
-    z.object({
-      key: z.string(),
-      value: z.string(),
-    })
-  ),
-})
+const hoppEnvSchema = entityReference(Environment)
 
 export const hoppEnvImporter = (content: string) => {
   const parsedContent = safeParseJSON(content, true)

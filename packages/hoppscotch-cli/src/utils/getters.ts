@@ -11,7 +11,7 @@ import * as E from "fp-ts/Either";
 import * as S from "fp-ts/string";
 import * as O from "fp-ts/Option";
 import { error } from "../types/errors";
-import round from "lodash/round";
+import { round } from "lodash-es";
 import { DEFAULT_DURATION_PRECISION } from "./constants";
 
 /**

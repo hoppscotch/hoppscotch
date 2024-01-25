@@ -13,6 +13,7 @@ import {
   TEAM_INVITE_ALREADY_MEMBER,
   TEAM_INVITE_NO_INVITE_FOUND,
   USER_ALREADY_INVITED,
+  USER_INVITATION_NOT_FOUND,
   USER_IS_ADMIN,
   USER_NOT_FOUND,
 } from '../errors';
@@ -108,6 +109,35 @@ export class AdminService {
     await this.pubsub.publish(`admin/${adminUID}/invited`, invitedUser);
 
     return E.right(invitedUser);
+  }
+
+  /**
+   * Revoke infra level user invitation
+   * @param inviteeEmail Invitee's email
+   * @param adminUid Admin Uid
+   * @returns an Either of array of `InvitedUser` object or error string
+   */
+  async revokeUserInvite(inviteeEmail: string, adminUid: string) {
+    try {
+      const deletedInvitee = await this.prisma.invitedUsers.delete({
+        where: {
+          inviteeEmail,
+        },
+      });
+
+      const invitedUser = <InvitedUser>{
+        adminEmail: deletedInvitee.adminEmail,
+        adminUid: deletedInvitee.adminUid,
+        inviteeEmail: deletedInvitee.inviteeEmail,
+        invitedOn: deletedInvitee.invitedOn,
+      };
+
+      this.pubsub.publish(`admin/${adminUid}/invitation_revoked`, invitedUser);
+
+      return E.right(true);
+    } catch (error) {
+      return E.left(USER_INVITATION_NOT_FOUND);
+    }
   }
 
   /**

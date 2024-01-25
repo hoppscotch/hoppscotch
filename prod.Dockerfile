@@ -19,7 +19,7 @@ WORKDIR /usr/src/app/
 RUN pnpm --filter=hoppscotch-backend deploy /usr/src/deploy/backend
 
 
-FROM node:18-alpine3.16 as backend
+FROM node:18-alpine3.19 as backend
 RUN apk add caddy
 RUN npm install -g pnpm
 WORKDIR /usr/src/deploy/backend

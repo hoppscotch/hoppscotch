@@ -160,8 +160,16 @@ export const SELECTED_ENV_INDEX_SCHEMA = z.nullable(
       type: z.literal("TEAM_ENV"),
       teamID: z.string(),
       teamEnvID: z.string(),
-      // ! Versioned entity
-      environment: entityReference(Environment),
+      environment: z.object({
+        name: z.string(),
+        variables: z.array(
+          z.object({
+            key: z.string(),
+            value: z.string(),
+            secret: z.boolean(),
+          })
+        ),
+      }),
     }),
   ])
 )
@@ -212,13 +220,23 @@ export const MQTT_REQUEST_SCHEMA = z.nullable(
 
 export const GLOBAL_ENV_SCHEMA = z.union([
   z.array(z.never()),
+
   z.array(
-    z
-      .object({
-        key: z.string(),
-        value: z.string(),
-      })
-      .strict()
+    z.union([
+      z
+        .object({
+          key: z.string(),
+          secret: z.literal(true),
+        })
+        .strict(),
+      z
+        .object({
+          key: z.string(),
+          value: z.string(),
+          secret: z.literal(false),
+        })
+        .strict(),
+    ])
   ),
 ])
 
@@ -339,12 +357,38 @@ const HoppTestDataSchema = z.lazy(() =>
     .strict()
 )
 
-const EnvironmentVariablesSchema = z
-  .object({
-    key: z.string(),
-    value: z.string(),
-  })
-  .strict()
+const EnvironmentVariablesSchema = z.union([
+  z
+    .object({
+      key: z.string(),
+      value: z.string(),
+      secret: z.literal(false),
+    })
+    .strict(),
+  z
+    .object({
+      key: z.string(),
+      secret: z.literal(true),
+    })
+    .strict(),
+])
+
+export const SecretEnvironmentVariable = z.union([
+  z.object({}).strict(),
+
+  z.record(
+    z.string(),
+    z.array(
+      z
+        .object({
+          key: z.string(),
+          value: z.string(),
+          varIndex: z.number(),
+        })
+        .strict()
+    )
+  ),
+])
 
 const HoppTestResultSchema = z
   .object({
@@ -358,7 +402,7 @@ const HoppTestResultSchema = z
           .object({
             additions: z.array(EnvironmentVariablesSchema),
             updations: z.array(
-              EnvironmentVariablesSchema.extend({ previousValue: z.string() })
+              EnvironmentVariablesSchema.refine((val) => !val.secret)
             ),
             deletions: z.array(EnvironmentVariablesSchema),
           })
@@ -367,7 +411,7 @@ const HoppTestResultSchema = z
           .object({
             additions: z.array(EnvironmentVariablesSchema),
             updations: z.array(
-              EnvironmentVariablesSchema.extend({ previousValue: z.string() })
+              EnvironmentVariablesSchema.refine((val) => !val.secret)
             ),
             deletions: z.array(EnvironmentVariablesSchema),
           })

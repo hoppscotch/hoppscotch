@@ -67,10 +67,13 @@ import {
   SETTINGS_SCHEMA,
   SOCKET_IO_REQUEST_SCHEMA,
   SSE_REQUEST_SCHEMA,
+  SecretEnvironmentVariable,
   THEME_COLOR_SCHEMA,
   VUEX_SCHEMA,
   WEBSOCKET_REQUEST_SCHEMA,
 } from "./validation-schemas"
+import { SecretEnvironmentService } from "../secret-environment.service"
+import { watch } from "vue"
 
 /**
  * This service compiles persistence logic across the codebase
@@ -80,6 +83,10 @@ export class PersistenceService extends Service {
 
   private readonly restTabService = this.bind(RESTTabService)
   private readonly gqlTabService = this.bind(GQLTabService)
+
+  private readonly secretEnvironmentService = this.bind(
+    SecretEnvironmentService
+  )
 
   public hoppLocalConfigStorage: StorageLike = localStorage
 
@@ -438,6 +445,56 @@ export class PersistenceService extends Service {
     })
   }
 
+  private setupSecretEnvironmentsPersistence() {
+    const secretEnvironmentsKey = "secretEnvironments"
+    const secretEnvironmentsData = window.localStorage.getItem(
+      secretEnvironmentsKey
+    )
+
+    try {
+      if (secretEnvironmentsData) {
+        let parsedSecretEnvironmentsData = JSON.parse(secretEnvironmentsData)
+
+        // Validate data read from localStorage
+        const result = SecretEnvironmentVariable.safeParse(
+          parsedSecretEnvironmentsData
+        )
+
+        if (result.success) {
+          parsedSecretEnvironmentsData = result.data
+        } else {
+          this.showErrorToast(secretEnvironmentsKey)
+          window.localStorage.setItem(
+            `${secretEnvironmentsKey}-backup`,
+            JSON.stringify(parsedSecretEnvironmentsData)
+          )
+        }
+
+        this.secretEnvironmentService.loadSecretEnvironmentsFromPersistedState(
+          parsedSecretEnvironmentsData
+        )
+      }
+    } catch (e) {
+      console.error(
+        `Failed parsing persisted tab state, state:`,
+        secretEnvironmentsData
+      )
+    }
+
+    watch(
+      this.secretEnvironmentService.persistableSecretEnvironments,
+      (newSecretEnvironment) => {
+        window.localStorage.setItem(
+          secretEnvironmentsKey,
+          JSON.stringify(newSecretEnvironment)
+        )
+      },
+      {
+        immediate: true,
+      }
+    )
+  }
+
   private setupSelectedEnvPersistence() {
     const selectedEnvIndexKey = "selectedEnvIndex"
     let selectedEnvIndexValue = JSON.parse(
@@ -697,6 +754,8 @@ export class PersistenceService extends Service {
     this.setupSocketIOPersistence()
     this.setupSSEPersistence()
     this.setupMQTTPersistence()
+
+    this.setupSecretEnvironmentsPersistence()
   }
 
   /**

@@ -15,6 +15,7 @@ import { PubSubService } from 'src/pubsub/pubsub.service';
 import { stringToJson, taskEitherValidateArraySeq } from 'src/utils';
 import { UserDataHandler } from './user.data.handler';
 import { User as DbUser } from '@prisma/client';
+import { OffsetPaginationArgs } from 'src/types/input-types.args';
 
 @Injectable()
 export class UserService {
@@ -293,6 +294,43 @@ export class UserService {
       take: take,
       cursor: cursorID ? { uid: cursorID } : undefined,
     });
+    return fetchedUsers;
+  }
+
+  /**
+   * Fetch all the users in the `User` table based on cursor
+   * @param searchString search on user's displayName or email
+   * @param paginationOption pagination options
+   * @returns an array of `User` object
+   */
+  async fetchAllUsersV2(
+    searchString: string,
+    paginationOption: OffsetPaginationArgs,
+  ) {
+    const fetchedUsers = await this.prisma.user.findMany({
+      skip: paginationOption.skip,
+      take: paginationOption.take,
+      where: searchString
+        ? {
+            OR: [
+              {
+                displayName: {
+                  contains: searchString,
+                  mode: 'insensitive',
+                },
+              },
+              {
+                email: {
+                  contains: searchString,
+                  mode: 'insensitive',
+                },
+              },
+            ],
+          }
+        : undefined,
+      orderBy: [{ isAdmin: 'desc' }, { displayName: 'asc' }],
+    });
+
     return fetchedUsers;
   }
 

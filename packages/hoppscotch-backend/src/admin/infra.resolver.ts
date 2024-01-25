@@ -79,10 +79,31 @@ export class InfraResolver {
 
   @ResolveField(() => [User], {
     description: 'Returns a list of all the users in infra',
+    deprecationReason: 'Use allUsersV2 instead',
   })
   @UseGuards(GqlAuthGuard, GqlAdminGuard)
   async allUsers(@Args() args: PaginationArgs): Promise<AuthUser[]> {
     const users = await this.adminService.fetchUsers(args.cursor, args.take);
+    return users;
+  }
+
+  @ResolveField(() => [User], {
+    description: 'Returns a list of all the users in infra',
+  })
+  @UseGuards(GqlAuthGuard, GqlAdminGuard)
+  async allUsersV2(
+    @Args({
+      name: 'searchString',
+      nullable: true,
+      description: 'Search on users displayName or email',
+    })
+    searchString: string,
+    @Args() paginationOption: OffsetPaginationArgs,
+  ): Promise<AuthUser[]> {
+    const users = await this.adminService.fetchUsersV2(
+      searchString,
+      paginationOption,
+    );
     return users;
   }
 

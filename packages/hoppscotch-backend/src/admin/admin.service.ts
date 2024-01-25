@@ -57,6 +57,23 @@ export class AdminService {
   }
 
   /**
+   * Fetch all the users in the infra.
+   * @param searchString search on users displayName or email
+   * @param paginationOption pagination options
+   * @returns an Either of array of user or error
+   */
+  async fetchUsersV2(
+    searchString: string,
+    paginationOption: OffsetPaginationArgs,
+  ) {
+    const allUsers = await this.userService.fetchAllUsersV2(
+      searchString,
+      paginationOption,
+    );
+    return allUsers;
+  }
+
+  /**
    * Invite a user to join the infra.
    * @param adminUID Admin's UID
    * @param adminEmail Admin's email

@@ -22,6 +22,7 @@ import {
 import { arrayFlatMap, arraySort } from "../functional/array"
 import { toFormData } from "../functional/formData"
 import { tupleWithSameKeysToRecord } from "../functional/record"
+import { getGlobalVariables } from "~/newstore/environments"
 
 export interface EffectiveHoppRESTRequest extends HoppRESTRequest {
   /**
@@ -300,7 +301,7 @@ export function getEffectiveRESTRequest(
   request: HoppRESTRequest,
   environment: Environment
 ): EffectiveHoppRESTRequest {
-  const envVariables = environment.variables
+  const envVariables = [...environment.variables, ...getGlobalVariables()]
 
   const effectiveFinalHeaders = pipe(
     getComputedHeaders(request, envVariables).map((h) => h.header),

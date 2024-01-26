@@ -51,12 +51,11 @@ export type TestResult = {
   tests: TestDescriptor[]
   envs: {
     global: Environment["variables"]
-    selected: Environment
+    selected: Environment["variables"]
   }
 }
 
 export type GlobalEnvItem = TestResult["envs"]["global"][number]
-export type SelectedEnvItem =
-  TestResult["envs"]["selected"]["variables"][number]
+export type SelectedEnvItem = TestResult["envs"]["selected"][number]
 
 export type SandboxTestResult = TestResult & { tests: TestDescriptor }

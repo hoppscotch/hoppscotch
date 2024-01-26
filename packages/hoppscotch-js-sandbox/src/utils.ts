@@ -13,7 +13,7 @@ import {
 
 const getEnv = (envName: string, envs: TestResult["envs"]) => {
   return O.fromNullable(
-    envs.selected.variables.find((x: SelectedEnvItem) => x.key === envName) ??
+    envs.selected.find((x: SelectedEnvItem) => x.key === envName) ??
       envs.global.find((x: GlobalEnvItem) => x.key === envName)
   )
 }
@@ -34,20 +34,21 @@ const setEnv = (
 ): TestResult["envs"] => {
   const { global, selected } = envs
 
-  const indexInSelected = findEnvIndex(envName, selected.variables)
+  const indexInSelected = findEnvIndex(envName, selected)
   const indexInGlobal = findEnvIndex(envName, global)
 
   if (indexInSelected >= 0) {
-    const selectedEnv = selected.variables[indexInSelected]
+    const selectedEnv = selected[indexInSelected]
     if ("value" in selectedEnv) {
       selectedEnv.value = envValue
     }
   } else if (indexInGlobal >= 0) {
-    if ("value" in global[indexInGlobal]) {
-      global[indexInGlobal].value = envValue
+    if (!global[indexInGlobal].secret && "value" in global[indexInGlobal]) {
+      // eslint-disable-next-line @typescript-eslint/no-extra-semi
+      ;(global[indexInGlobal] as { value: string }).value = envValue
     }
   } else {
-    selected.variables.push({
+    selected.push({
       key: envName,
       value: envValue,
       secret: false,
@@ -66,11 +67,11 @@ const unsetEnv = (
 ): TestResult["envs"] => {
   const { global, selected } = envs
 
-  const indexInSelected = findEnvIndex(envName, selected.variables)
+  const indexInSelected = findEnvIndex(envName, selected)
   const indexInGlobal = findEnvIndex(envName, global)
 
   if (indexInSelected >= 0) {
-    selected.variables.splice(indexInSelected, 1)
+    selected.splice(indexInSelected, 1)
   } else if (indexInGlobal >= 0) {
     global.splice(indexInGlobal, 1)
   }
@@ -117,7 +118,7 @@ const getSharedMethods = (envs: TestResult["envs"]) => {
           E.map((e) =>
             pipe(
               parseTemplateStringE(!e.secret ? e.value?.toString() : "", [
-                ...updatedEnvs.selected.variables,
+                ...updatedEnvs.selected,
                 ...updatedEnvs.global,
               ]),
               // If the recursive resolution failed, return the unresolved value
@@ -165,7 +166,7 @@ const getSharedMethods = (envs: TestResult["envs"]) => {
 
     const result = pipe(
       parseTemplateStringE(value, [
-        ...updatedEnvs.selected.variables,
+        ...updatedEnvs.selected,
         ...updatedEnvs.global,
       ]),
       E.getOrElse(() => value)

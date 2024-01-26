@@ -7,7 +7,15 @@ import {
   getCurrentEnvironment,
   getGlobalVariables,
 } from "~/newstore/environments"
-import { TestResult } from "@hoppscotch/js-sandbox"
+import { TestDescriptor } from "@hoppscotch/js-sandbox"
+
+type TestResultWithSelectedEnv = {
+  tests: TestDescriptor[]
+  envs: {
+    global: Environment["variables"]
+    selected: Environment
+  }
+}
 
 export const getCombinedEnvVariables = () => ({
   global: cloneDeep(getGlobalVariables()),
@@ -20,5 +28,5 @@ export const getFinalEnvsFromPreRequest = (
     global: Environment["variables"]
     selected: Environment
   }
-): Promise<E.Either<string, TestResult["envs"]>> =>
+): Promise<E.Either<string, TestResultWithSelectedEnv["envs"]>> =>
   runPreRequestScript(script, envs)

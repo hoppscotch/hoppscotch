@@ -62,11 +62,16 @@ const getTestableBody = (
   return x
 }
 
-const combineEnvVariables = (env: {
+const combineEnvVariables = (envs: {
+  global: Environment["variables"]
+  selected: Environment["variables"]
+}) => [...envs.selected, ...envs.global]
+
+const unsecretEnvironemnt = (envs: {
   global: Environment["variables"]
   selected: Environment
 }) => {
-  const resolvedGlobalWithSecrets = env.global.map((globalVar, index) => {
+  const resolvedGlobalWithSecrets = envs.global.map((globalVar, index) => {
     const secretVar = secretEnvironmentService.getSecretEnvironmentVariable(
       "Global",
       index
@@ -81,10 +86,10 @@ const combineEnvVariables = (env: {
     return globalVar
   })
 
-  const resolvedSelectedWithSecrets = env.selected.variables.map(
+  const resolvedSelectedWithSecrets = envs.selected.variables.map(
     (selectedVar, index) => {
       const secretVar = secretEnvironmentService.getSecretEnvironmentVariable(
-        env.selected.id,
+        envs.selected.id,
         index
       )
       if (secretVar) {
@@ -98,7 +103,10 @@ const combineEnvVariables = (env: {
     }
   )
 
-  return [...resolvedSelectedWithSecrets, ...resolvedGlobalWithSecrets]
+  return {
+    global: resolvedGlobalWithSecrets,
+    selected: resolvedSelectedWithSecrets,
+  }
 }
 
 export const executedResponses$ = new Subject<
@@ -166,7 +174,7 @@ export function runRESTRequest$(
 
     const effectiveRequest = getEffectiveRESTRequest(finalRequest, {
       name: "Env",
-      variables: combineEnvVariables(envs.right),
+      variables: pipe(envs.right, unsecretEnvironemnt, combineEnvVariables),
     })
 
     const [stream, cancelRun] = createRESTNetworkRequestStream(effectiveRequest)
@@ -181,20 +189,20 @@ export function runRESTRequest$(
             res
           )
 
-          const runResult = await runTestScript(
-            res.req.testScript,
-            envs.right,
-            {
-              status: res.statusCode,
-              body: getTestableBody(res),
-              headers: res.headers,
-            }
-          )
+          const env = {
+            global: envs.right.global,
+            selected: envs.right.selected.variables,
+          }
+
+          const runResult = await runTestScript(res.req.testScript, env, {
+            status: res.statusCode,
+            body: getTestableBody(res),
+            headers: res.headers,
+          })
 
           if (E.isRight(runResult)) {
             // set the response in the tab so that multiple tabs can run request simultaneously
             tab.value.document.response = res
-
             tab.value.document.testResults = translateToSandboxTestResults(
               runResult.right
             )
@@ -225,7 +233,7 @@ export function runRESTRequest$(
               })
               pipe(
                 updateTeamEnvironment(
-                  JSON.stringify(runResult.right.envs.selected.variables),
+                  JSON.stringify(runResult.right.envs.selected),
                   environmentsStore.value.selectedEnvironmentIndex.teamEnvID,
                   env.name
                 )
@@ -314,7 +322,6 @@ function translateToSandboxTestResults(
 
   const globals = cloneDeep(getGlobalVariables())
   const env = getCurrentEnvironment()
-
   return {
     description: "",
     expectResults: testDesc.tests.expectResults,
@@ -327,17 +334,14 @@ function translateToSandboxTestResults(
         updations: getUpdatedEnvVariables(globals, testDesc.envs.global),
       },
       selected: {
-        additions: getAddedEnvVariables(
-          env.variables,
-          testDesc.envs.selected.variables
-        ),
+        additions: getAddedEnvVariables(env.variables, testDesc.envs.selected),
         deletions: getRemovedEnvVariables(
           env.variables,
-          testDesc.envs.selected.variables
+          testDesc.envs.selected
         ),
         updations: getUpdatedEnvVariables(
           env.variables,
-          testDesc.envs.selected.variables
+          testDesc.envs.selected
         ),
       },
     },

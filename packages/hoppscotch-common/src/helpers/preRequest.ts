@@ -7,26 +7,70 @@ import {
   getCurrentEnvironment,
   getGlobalVariables,
 } from "~/newstore/environments"
-import { TestDescriptor } from "@hoppscotch/js-sandbox"
+import { TestResult } from "@hoppscotch/js-sandbox"
+import { getService } from "~/modules/dioc"
+import { SecretEnvironmentService } from "~/services/secret-environment.service"
 
-type TestResultWithSelectedEnv = {
-  tests: TestDescriptor[]
-  envs: {
-    global: Environment["variables"]
-    selected: Environment
+const secretEnvironmentService = getService(SecretEnvironmentService)
+
+const unsecretEnvironments = (
+  global: Environment["variables"],
+  selected: Environment
+) => {
+  const resolvedGlobalWithSecrets = global.map((globalVar, index) => {
+    const secretVar = secretEnvironmentService.getSecretEnvironmentVariable(
+      "Global",
+      index
+    )
+    if (secretVar) {
+      return {
+        ...globalVar,
+        secret: false,
+        value: secretVar.value,
+      }
+    }
+    return globalVar
+  })
+
+  const resolvedSelectedWithSecrets = selected.variables.map(
+    (selectedVar, index) => {
+      const secretVar = secretEnvironmentService.getSecretEnvironmentVariable(
+        selected.id,
+        index
+      )
+      if (secretVar) {
+        return {
+          ...selectedVar,
+          secret: false,
+          value: secretVar.value,
+        }
+      }
+      return selectedVar
+    }
+  )
+
+  return {
+    global: resolvedGlobalWithSecrets,
+    selected: resolvedSelectedWithSecrets,
   }
 }
 
-export const getCombinedEnvVariables = () => ({
-  global: cloneDeep(getGlobalVariables()),
-  selected: cloneDeep(getCurrentEnvironment()),
-})
+export const getCombinedEnvVariables = () => {
+  const reformedVars = unsecretEnvironments(
+    getGlobalVariables(),
+    getCurrentEnvironment()
+  )
+  return {
+    global: cloneDeep(reformedVars.global),
+    selected: cloneDeep(reformedVars.selected),
+  }
+}
 
 export const getFinalEnvsFromPreRequest = (
   script: string,
   envs: {
     global: Environment["variables"]
-    selected: Environment
+    selected: Environment["variables"]
   }
-): Promise<E.Either<string, TestResultWithSelectedEnv["envs"]>> =>
+): Promise<E.Either<string, TestResult["envs"]>> =>
   runPreRequestScript(script, envs)

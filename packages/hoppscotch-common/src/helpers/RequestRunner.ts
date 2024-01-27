@@ -30,10 +30,6 @@ import { HoppRESTResponse } from "./types/HoppRESTResponse"
 import { HoppTestData, HoppTestResult } from "./types/HoppTestResult"
 import { getEffectiveRESTRequest } from "./utils/EffectiveURL"
 import { isJSONContentType } from "./utils/contenttypes"
-import { getService } from "~/modules/dioc"
-import { SecretEnvironmentService } from "~/services/secret-environment.service"
-
-const secretEnvironmentService = getService(SecretEnvironmentService)
 
 const getTestableBody = (
   res: HoppRESTResponse & { type: "success" | "fail" }
@@ -66,48 +62,6 @@ const combineEnvVariables = (envs: {
   global: Environment["variables"]
   selected: Environment["variables"]
 }) => [...envs.selected, ...envs.global]
-
-const unsecretEnvironemnt = (envs: {
-  global: Environment["variables"]
-  selected: Environment
-}) => {
-  const resolvedGlobalWithSecrets = envs.global.map((globalVar, index) => {
-    const secretVar = secretEnvironmentService.getSecretEnvironmentVariable(
-      "Global",
-      index
-    )
-    if (secretVar) {
-      return {
-        ...globalVar,
-        secret: false,
-        value: secretVar.value,
-      }
-    }
-    return globalVar
-  })
-
-  const resolvedSelectedWithSecrets = envs.selected.variables.map(
-    (selectedVar, index) => {
-      const secretVar = secretEnvironmentService.getSecretEnvironmentVariable(
-        envs.selected.id,
-        index
-      )
-      if (secretVar) {
-        return {
-          ...selectedVar,
-          secret: false,
-          value: secretVar.value,
-        }
-      }
-      return selectedVar
-    }
-  )
-
-  return {
-    global: resolvedGlobalWithSecrets,
-    selected: resolvedSelectedWithSecrets,
-  }
-}
 
 export const executedResponses$ = new Subject<
   HoppRESTResponse & { type: "success" | "fail " }
@@ -174,7 +128,7 @@ export function runRESTRequest$(
 
     const effectiveRequest = getEffectiveRESTRequest(finalRequest, {
       name: "Env",
-      variables: pipe(envs.right, unsecretEnvironemnt, combineEnvVariables),
+      variables: combineEnvVariables(envs.right),
     })
 
     const [stream, cancelRun] = createRESTNetworkRequestStream(effectiveRequest)
@@ -189,16 +143,15 @@ export function runRESTRequest$(
             res
           )
 
-          const env = {
-            global: envs.right.global,
-            selected: envs.right.selected.variables,
-          }
-
-          const runResult = await runTestScript(res.req.testScript, env, {
-            status: res.statusCode,
-            body: getTestableBody(res),
-            headers: res.headers,
-          })
+          const runResult = await runTestScript(
+            res.req.testScript,
+            envs.right,
+            {
+              status: res.statusCode,
+              body: getTestableBody(res),
+              headers: res.headers,
+            }
+          )
 
           if (E.isRight(runResult)) {
             // set the response in the tab so that multiple tabs can run request simultaneously

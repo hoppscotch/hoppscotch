@@ -12,16 +12,16 @@ describe("runPreRequestScript", () => {
         {
           global: [],
           selected: [
-            { key: "bob", value: "oldbob" },
-            { key: "foo", value: "bar" },
+            { key: "bob", value: "oldbob", secret: false },
+            { key: "foo", value: "bar", secret: false },
           ],
         }
       )()
     ).resolves.toEqualRight({
       global: [],
       selected: [
-        { key: "bob", value: "newbob" },
-        { key: "foo", value: "bar" },
+        { key: "bob", value: "newbob", secret: false },
+        { key: "foo", value: "bar", secret: false },
       ],
     })
   })
@@ -35,8 +35,8 @@ describe("runPreRequestScript", () => {
         {
           global: [],
           selected: [
-            { key: "bob", value: "oldbob" },
-            { key: "foo", value: "bar" },
+            { key: "bob", value: "oldbob", secret: false },
+            { key: "foo", value: "bar", secret: false },
           ],
         }
       )()
@@ -52,8 +52,8 @@ describe("runPreRequestScript", () => {
         {
           global: [],
           selected: [
-            { key: "bob", value: "oldbob" },
-            { key: "foo", value: "bar" },
+            { key: "bob", value: "oldbob", secret: false },
+            { key: "foo", value: "bar", secret: false },
           ],
         }
       )()
@@ -69,8 +69,8 @@ describe("runPreRequestScript", () => {
         {
           global: [],
           selected: [
-            { key: "bob", value: "oldbob" },
-            { key: "foo", value: "bar" },
+            { key: "bob", value: "oldbob", secret: false },
+            { key: "foo", value: "bar", secret: false },
           ],
         }
       )()
@@ -87,7 +87,7 @@ describe("runPreRequestScript", () => {
       )()
     ).resolves.toEqualRight({
       global: [],
-      selected: [{ key: "foo", value: "bar" }],
+      selected: [{ key: "foo", value: "bar", secret: false }],
     })
   })
 })

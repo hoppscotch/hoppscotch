@@ -35,6 +35,7 @@ describe("pw.env.set", () => {
             {
               key: "a",
               value: "b",
+              secret: false,
             },
           ],
         }
@@ -45,6 +46,7 @@ describe("pw.env.set", () => {
           {
             key: "a",
             value: "c",
+            secret: false,
           },
         ],
       })
@@ -62,6 +64,7 @@ describe("pw.env.set", () => {
             {
               key: "a",
               value: "b",
+              secret: false,
             },
           ],
           selected: [],
@@ -73,6 +76,7 @@ describe("pw.env.set", () => {
           {
             key: "a",
             value: "c",
+            secret: false,
           },
         ],
       })
@@ -90,12 +94,14 @@ describe("pw.env.set", () => {
             {
               key: "a",
               value: "b",
+              secret: false,
             },
           ],
           selected: [
             {
               key: "a",
               value: "d",
+              secret: false,
             },
           ],
         }
@@ -106,12 +112,14 @@ describe("pw.env.set", () => {
           {
             key: "a",
             value: "b",
+            secret: false,
           },
         ],
         selected: [
           {
             key: "a",
             value: "c",
+            secret: false,
           },
         ],
       })
@@ -136,6 +144,7 @@ describe("pw.env.set", () => {
           {
             key: "a",
             value: "c",
+            secret: false,
           },
         ],
       })

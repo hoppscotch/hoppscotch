@@ -374,6 +374,23 @@ export class UserService {
   }
 
   /**
+   * Change users to admins by toggling isAdmin param to true
+   * @param userUID user UIDs
+   * @returns a Either of true or error
+   */
+  async makeAdmins(userUIDs: string[]) {
+    try {
+      await this.prisma.user.updateMany({
+        where: { uid: { in: userUIDs } },
+        data: { isAdmin: true },
+      });
+      return E.right(true);
+    } catch (error) {
+      return E.left(USER_NOT_FOUND);
+    }
+  }
+
+  /**
    * Fetch all the admin users
    * @returns an array of admin users
    */

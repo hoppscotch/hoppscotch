@@ -430,6 +430,17 @@ export class AdminService {
   }
 
   /**
+   * Make users to admin
+   * @param userUid User UIDs
+   * @returns an Either of boolean or error
+   */
+  async makeUsersAdmin(userUIDs: string[]) {
+    const isUpdated = await this.userService.makeAdmins(userUIDs);
+    if (E.isLeft(isUpdated)) return E.left(isUpdated.left);
+    return E.right(true);
+  }
+
+  /**
    * Remove user as admin
    * @param userUid User UID
    * @returns an Either of boolean or error

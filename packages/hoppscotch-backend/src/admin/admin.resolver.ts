@@ -109,6 +109,7 @@ export class AdminResolver {
     if (E.isLeft(invitedUser)) throwErr(invitedUser.left);
     return invitedUser.right;
   }
+
   @Mutation(() => Boolean, {
     description: 'Make user an admin',
   })
@@ -124,6 +125,23 @@ export class AdminResolver {
     const admin = await this.adminService.makeUserAdmin(userUID);
     if (E.isLeft(admin)) throwErr(admin.left);
     return admin.right;
+  }
+
+  @Mutation(() => Boolean, {
+    description: 'Make users an admin',
+  })
+  @UseGuards(GqlAuthGuard, GqlAdminGuard)
+  async makeUsersAdmin(
+    @Args({
+      name: 'userUIDs',
+      description: 'users UID',
+      type: () => [ID],
+    })
+    userUIDs: string[],
+  ): Promise<boolean> {
+    const isUpdated = await this.adminService.makeUsersAdmin(userUIDs);
+    if (E.isLeft(isUpdated)) throwErr(isUpdated.left);
+    return isUpdated.right;
   }
 
   @Mutation(() => Boolean, {

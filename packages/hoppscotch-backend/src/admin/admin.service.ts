@@ -47,26 +47,15 @@ export class AdminService {
 
   /**
    * Fetch all the users in the infra.
-   * @param cursorID Users uid
-   * @param take number of users to fetch
-   * @returns an Either of array of user or error
-   */
-  async fetchUsers(cursorID: string, take: number) {
-    const allUsers = await this.userService.fetchAllUsers(cursorID, take);
-    return allUsers;
-  }
-
-  /**
-   * Fetch all the users in the infra.
    * @param searchString search on users displayName or email
    * @param paginationOption pagination options
    * @returns an Either of array of user or error
    */
-  async fetchUsersV2(
+  async fetchUsers(
     searchString: string,
     paginationOption: OffsetPaginationArgs,
   ) {
-    const allUsers = await this.userService.fetchAllUsersV2(
+    const allUsers = await this.userService.fetchAllUsers(
       searchString,
       paginationOption,
     );

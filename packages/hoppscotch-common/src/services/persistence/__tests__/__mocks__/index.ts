@@ -4,6 +4,7 @@ import { HoppGQLDocument } from "~/helpers/graphql/document"
 import { HoppRESTDocument } from "~/helpers/rest/document"
 import { GQLHistoryEntry, RESTHistoryEntry } from "~/newstore/history"
 import { SettingsDef, getDefaultSettings } from "~/newstore/settings"
+import { SecretVariable } from "~/services/secret-environment.service"
 import { PersistableTabState } from "~/services/tab"
 
 type VUEX_DATA = {
@@ -19,7 +20,7 @@ const DEFAULT_SETTINGS = getDefaultSettings()
 
 export const REST_COLLECTIONS_MOCK: HoppCollection[] = [
   {
-    v: 1,
+    v: 2,
     name: "Echo",
     folders: [],
     requests: [
@@ -36,12 +37,14 @@ export const REST_COLLECTIONS_MOCK: HoppCollection[] = [
         body: { contentType: null, body: null },
       },
     ],
+    auth: { authType: "none", authActive: true },
+    headers: [],
   },
 ]
 
 export const GQL_COLLECTIONS_MOCK: HoppCollection[] = [
   {
-    v: 1,
+    v: 2,
     name: "Echo",
     folders: [],
     requests: [
@@ -55,20 +58,30 @@ export const GQL_COLLECTIONS_MOCK: HoppCollection[] = [
         auth: { authType: "none", authActive: true },
       },
     ],
+    auth: { authType: "none", authActive: true },
+    headers: [],
   },
 ]
 
 export const ENVIRONMENTS_MOCK: Environment[] = [
   {
+    v: 1,
+    id: "ENV_1",
     name: "globals",
     variables: [
       {
         key: "test-global-key",
         value: "test-global-value",
+        secret: false,
       },
     ],
   },
-  { name: "Test", variables: [{ key: "test-key", value: "test-value" }] },
+  {
+    v: 1,
+    id: "ENV_2",
+    name: "Test",
+    variables: [{ key: "test-key", value: "test-value", secret: false }],
+  },
 ]
 
 export const SELECTED_ENV_INDEX_MOCK = {
@@ -98,7 +111,7 @@ export const MQTT_REQUEST_MOCK = {
 }
 
 export const GLOBAL_ENV_MOCK: Environment["variables"] = [
-  { key: "test-key", value: "test-value" },
+  { key: "test-key", value: "test-value", secret: false },
 ]
 
 export const VUEX_DATA_MOCK: VUEX_DATA = {
@@ -200,4 +213,12 @@ export const REST_TAB_STATE_MOCK: PersistableTabState<HoppRESTDocument> = {
       },
     },
   ],
+}
+
+export const SECRET_ENVIRONMENTS_MOCK: Record<string, SecretVariable> = {
+  clryz7ir7002al4162bsj0azg: {
+    key: "test-key",
+    value: "test-value",
+    varIndex: 1,
+  },
 }

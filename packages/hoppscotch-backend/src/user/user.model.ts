@@ -56,3 +56,22 @@ export enum SessionType {
 registerEnumType(SessionType, {
   name: 'SessionType',
 });
+
+@ObjectType()
+export class UserDeleteData {
+  @Field(() => ID, {
+    description: 'UID of the user',
+  })
+  userUID: string;
+
+  @Field(() => Boolean, {
+    description: 'Flag to determine if user deletion was successful or not',
+  })
+  success: Boolean;
+
+  @Field({
+    nullable: true,
+    description: 'Error message if user deletion was not successful',
+  })
+  errorMessage: String;
+}

@@ -90,6 +90,21 @@ export class UserService {
   }
 
   /**
+   * Find Non-Admin Users with given IDs
+   * @param userUIDs User IDs
+   * @returns Option of found Users
+   */
+  async findNonAdminUsersByIds(userUIDs: string[]): Promise<AuthUser[]> {
+    const users = await this.prisma.user.findMany({
+      where: {
+        uid: { in: userUIDs },
+        isAdmin: false,
+      },
+    });
+    return users;
+  }
+
+  /**
    * Update User with new generated hashed refresh token
    *
    * @param refreshTokenHash Hash of newly generated refresh token

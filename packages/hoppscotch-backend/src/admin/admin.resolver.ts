@@ -27,9 +27,7 @@ import {
 } from './input-types.args';
 import { GqlThrottlerGuard } from 'src/guards/gql-throttler.guard';
 import { SkipThrottle } from '@nestjs/throttler';
-import { User } from 'src/user/user.model';
-import { PaginationArgs } from 'src/types/input-types.args';
-import { TeamInvitation } from 'src/team-invitation/team-invitation.model';
+import { UserDeleteData } from 'src/user/user.model';
 
 @UseGuards(GqlThrottlerGuard)
 @Resolver(() => Admin)
@@ -105,9 +103,28 @@ export class AdminResolver {
     })
     userUID: string,
   ): Promise<boolean> {
-    const invitedUser = await this.adminService.removeUserAccount(userUID);
-    if (E.isLeft(invitedUser)) throwErr(invitedUser.left);
-    return invitedUser.right;
+    const removedUser = await this.adminService.removeUserAccount(userUID);
+    if (E.isLeft(removedUser)) throwErr(removedUser.left);
+    return removedUser.right;
+  }
+
+  @Mutation(() => [UserDeleteData], {
+    description: 'Delete user accounts from infra',
+  })
+  @UseGuards(GqlAuthGuard, GqlAdminGuard)
+  async removeUsersByAdmin(
+    @Args({
+      name: 'userUIDs',
+      description: 'users UID',
+      type: () => [ID],
+    })
+    userUIDs: string[],
+  ): Promise<UserDeleteData[]> {
+    const deletionResults = await this.adminService.removeUserAccounts(
+      userUIDs,
+    );
+    if (E.isLeft(deletionResults)) throwErr(deletionResults.left);
+    return deletionResults.right;
   }
 
   @Mutation(() => Boolean, {

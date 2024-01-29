@@ -28,6 +28,7 @@ import { TeamMemberRole } from '../team/team.model';
 import { ShortcodeService } from 'src/shortcode/shortcode.service';
 import { ConfigService } from '@nestjs/config';
 import { OffsetPaginationArgs } from 'src/types/input-types.args';
+import { UserDeleteData } from 'src/user/user.model';
 
 @Injectable()
 export class AdminService {
@@ -416,6 +417,44 @@ export class AdminService {
     const delUser = await this.userService.deleteUserByUID(user.value)();
     if (E.isLeft(delUser)) return E.left(delUser.left);
     return E.right(delUser.right);
+  }
+
+  /**
+   * Remove user accounts by UIDs
+   * @param userUid User UIDs
+   * @returns an Either of boolean or error
+   */
+  async removeUserAccounts(userUIDs: string[]) {
+    const users = await this.userService.findNonAdminUsersByIds(userUIDs);
+    if (users.length === 0) return E.left(USER_NOT_FOUND);
+
+    const deletionPromises = users.map((user) => {
+      return this.userService
+        .deleteUserByUID(user)()
+        .then((res) => {
+          if (E.isLeft(res)) {
+            return {
+              userUID: user.uid,
+              success: false,
+              errorMessage: res.left,
+            } as UserDeleteData;
+          }
+          return {
+            userUID: user.uid,
+            success: true,
+            errorMessage: null,
+          } as UserDeleteData;
+        });
+    });
+    const promiseResult = await Promise.allSettled(deletionPromises);
+
+    const userDeleteResult = promiseResult.map((result) => {
+      if (result.status === 'fulfilled') {
+        return result.value;
+      }
+    });
+
+    return E.right(userDeleteResult);
   }
 
   /**

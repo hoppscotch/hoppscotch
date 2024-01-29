@@ -386,13 +386,6 @@ const saveEnvironment = async () => {
     )
   )
 
-  const environmentUpdated: Environment = {
-    v: 1,
-    id: editingID.value ?? "",
-    name: editingName.value,
-    variables: filterdVariables,
-  }
-
   const secretVariables = pipe(
     filterdVariables,
     A.filterMapWithIndex((i, e) =>
@@ -400,25 +393,18 @@ const saveEnvironment = async () => {
     )
   )
 
-  if (selectedEnvOption.value === "secret") {
-    const variables = pipe(
-      vars.value,
-      A.map((e) =>
-        e.env.secret
-          ? { key: e.env.key, secret: e.env.secret, value: undefined }
-          : e.env
-      ),
-      A.filterMap(
-        flow(
-          O.fromPredicate((e) => e.key !== ""),
-          O.map((e) => e)
-        )
-      )
+  const variables = pipe(
+    filterdVariables,
+    A.map((e) =>
+      e.secret ? { key: e.key, secret: e.secret, value: undefined } : e
     )
+  )
 
-    environmentUpdated.variables = variables
-  } else {
-    environmentUpdated.variables = filterdVariables
+  const environmentUpdated: Environment = {
+    v: 1,
+    id: editingID.value ?? "",
+    name: editingName.value,
+    variables,
   }
 
   if (props.action === "new") {
@@ -441,7 +427,7 @@ const saveEnvironment = async () => {
         },
         (res) => {
           const envID = res.createTeamEnvironment.id
-          if (selectedEnvOption.value === "secret" && envID) {
+          if (envID) {
             secretEnvironmentService.addSecretEnvironment(
               envID,
               secretVariables
@@ -473,7 +459,7 @@ const saveEnvironment = async () => {
         },
         (res) => {
           const envID = res.updateTeamEnvironment.id
-          if (selectedEnvOption.value === "secret" && envID) {
+          if (envID) {
             secretEnvironmentService.addSecretEnvironment(
               envID,
               secretVariables

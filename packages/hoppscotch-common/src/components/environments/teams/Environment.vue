@@ -124,6 +124,8 @@ import IconMoreVertical from "~icons/lucide/more-vertical"
 import { TippyComponent } from "vue-tippy"
 import { HoppSmartItem } from "@hoppscotch/ui"
 import { exportAsJSON } from "~/helpers/import-export/export/environment"
+import { useService } from "dioc/vue"
+import { SecretEnvironmentService } from "~/services/secret-environment.service"
 
 const t = useI18n()
 const toast = useToast()
@@ -136,6 +138,8 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: "edit-environment"): void
 }>()
+
+const secretEnvironmentService = useService(SecretEnvironmentService)
 
 const confirmRemove = ref(false)
 
@@ -161,6 +165,7 @@ const removeEnvironment = () => {
       },
       () => {
         toast.success(`${t("team_environment.deleted")}`)
+        secretEnvironmentService.deleteSecretEnvironment(props.environment.id)
       }
     )
   )()

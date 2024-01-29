@@ -337,7 +337,10 @@ watch(
   (show) => {
     if (show) {
       editingName.value = workingEnv.value?.name ?? null
-      editingID.value = workingEnv.value?.id ?? uniqueId()
+
+      if (props.editingEnvironmentIndex !== "Global") {
+        editingID.value = workingEnv.value?.id ?? uniqueId()
+      }
       vars.value = pipe(
         workingEnv.value?.variables ?? [],
         A.mapWithIndex((index, e) => ({
@@ -412,50 +415,34 @@ const saveEnvironment = () => {
     )
   )
 
+  const secretVariables = pipe(
+    filteredVariables,
+    A.filterMapWithIndex((i, e) =>
+      e.secret ? O.some({ key: e.key, value: e.value, varIndex: i }) : O.none
+    )
+  )
+
+  if (editingID.value) {
+    secretEnvironmentService.addSecretEnvironment(
+      editingID.value,
+      secretVariables
+    )
+  } else if (props.editingEnvironmentIndex === "Global") {
+    secretEnvironmentService.addSecretEnvironment("Global", secretVariables)
+  }
+
+  const variables = pipe(
+    filteredVariables,
+    A.map((e) =>
+      e.secret ? { key: e.key, secret: e.secret, value: undefined } : e
+    )
+  )
+
   const environmentUpdated: Environment = {
     v: 1,
     id: uniqueId(),
     name: editingName.value,
-    variables: filteredVariables,
-  }
-
-  if (selectedEnvOption.value === "secret") {
-    const secretVariables = pipe(
-      filteredVariables,
-      A.filterMapWithIndex((i, e) =>
-        e.secret ? O.some({ key: e.key, value: e.value, varIndex: i }) : O.none
-      )
-    )
-
-    if (editingID.value) {
-      secretEnvironmentService.addSecretEnvironment(
-        editingID.value,
-        secretVariables
-      )
-    }
-
-    if (props.editingEnvironmentIndex === "Global") {
-      secretEnvironmentService.addSecretEnvironment("Global", secretVariables)
-    }
-
-    const variables = pipe(
-      vars.value,
-      A.map((e) =>
-        e.env.secret
-          ? { key: e.env.key, secret: e.env.secret, value: undefined }
-          : e.env
-      ),
-      A.filterMap(
-        flow(
-          O.fromPredicate((e) => e.key !== ""),
-          O.map((e) => e)
-        )
-      )
-    )
-
-    environmentUpdated.variables = variables
-  } else {
-    environmentUpdated.variables = filteredVariables
+    variables,
   }
 
   if (props.action === "new") {

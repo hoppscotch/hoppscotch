@@ -37,8 +37,6 @@ const defaultEnvironmentsState = {
 
 type EnvironmentStore = typeof defaultEnvironmentsState
 
-// const secretEnvironmentService = getService(SecretEnvironmentService)
-
 const dispatchers = defineDispatchers({
   setSelectedEnvironmentIndex(
     store: EnvironmentStore,
@@ -116,8 +114,7 @@ const dispatchers = defineDispatchers({
       }
     }
 
-    // remove the id, because this is a new environment & it will get its own id when syncing
-    delete newEnvironment["id"]
+    newEnvironment.id = uniqueId()
 
     return {
       environments: [
@@ -395,40 +392,6 @@ export const aggregateEnvs$: Observable<AggregateEnvironment[]> = combineLatest(
       results.push({ key, value, secret, sourceEnv: "Global" })
     )
 
-    // selectedEnv?.variables.map((x, index) => {
-    //   let value
-    //   if (x.secret) {
-    //     value = secretEnvironmentService.getSecretEnvironmentVariableValue(
-    //       selectedEnv.id,
-    //       index
-    //     )
-    //   } else {
-    //     value = x.value
-    //   }
-    //   results.push({
-    //     key: x.key,
-    //     value,
-    //     sourceEnv: selectedEnv.name,
-    //   })
-    // })
-
-    // globalVars.map((x, index) => {
-    //   let value
-    //   if (x.secret) {
-    //     value = secretEnvironmentService.getSecretEnvironmentVariableValue(
-    //       "Global",
-    //       index
-    //     )
-    //   } else {
-    //     value = x.value
-    //   }
-    //   results.push({
-    //     key: x.key,
-    //     value,
-    //     sourceEnv: "Global",
-    //   })
-    // })
-
     return results
   }),
   distinctUntilChanged(isEqual)
@@ -463,51 +426,6 @@ export function getAggregateEnvs() {
       }
     }),
   ]
-  // return [
-  //   ...currentEnv.variables.map((x, index) => {
-  //     let value
-  //     if (x.secret) {
-  //       value = secretEnvironmentService.getSecretEnvironmentVariableValue(
-  //         currentEnv.id,
-  //         index
-  //       )
-  //     } else {
-  //       value = x.value
-  //     }
-  //     console.log("set-agrre", {
-  //       key: x.key,
-  //       value,
-  //       sourceEnv: currentEnv.name,
-  //     })
-  //     return <AggregateEnvironment>{
-  //       key: x.key,
-  //       value,
-  //       sourceEnv: currentEnv.name,
-  //     }
-  //   }),
-  //   ...getGlobalVariables().map((x, index) => {
-  //     let value
-  //     if (x.secret) {
-  //       value = secretEnvironmentService.getSecretEnvironmentVariableValue(
-  //         "Global",
-  //         index
-  //       )
-  //     } else {
-  //       value = x.value
-  //     }
-  //     console.log("set-agrre-global", {
-  //       key: x.key,
-  //       value,
-  //       sourceEnv: currentEnv.name,
-  //     })
-
-  //     return <AggregateEnvironment>{
-  //       key: x.key,
-  //       value,
-  //       sourceEnv: "Global",
-  //     }
-  //   }),
-  // ]
 }
 
 export function getCurrentEnvironment(): Environment {

@@ -508,4 +508,21 @@ export class UserService {
       return E.left(USER_NOT_FOUND);
     }
   }
+
+  /**
+   * Change users from an admin by toggling isAdmin param to false
+   * @param userUIDs user UIDs
+   * @returns a Either of true or error
+   */
+  async removeUsersAsAdmin(userUIDs: string[]) {
+    try {
+      await this.prisma.user.updateMany({
+        where: { uid: { in: userUIDs } },
+        data: { isAdmin: false },
+      });
+      return E.right(true);
+    } catch (error) {
+      return E.left(USER_NOT_FOUND);
+    }
+  }
 }

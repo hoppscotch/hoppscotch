@@ -455,6 +455,26 @@ export class AdminService {
   }
 
   /**
+   * Remove users as admin
+   * @param userUIDs User UIDs
+   * @returns an Either of boolean or error
+   */
+  async removeUsersAsAdmin(userUIDs: string[]) {
+    const adminUsers = await this.userService.fetchAdminUsers();
+
+    const adminsNotInArray = adminUsers.filter(
+      (adminUser) => !userUIDs.includes(adminUser.uid),
+    );
+    if (adminsNotInArray.length < 1) {
+      return E.left(ONLY_ONE_ADMIN_ACCOUNT);
+    }
+
+    const isUpdated = await this.userService.removeUsersAsAdmin(userUIDs);
+    if (E.isLeft(isUpdated)) return E.left(isUpdated.left);
+    return E.right(true);
+  }
+
+  /**
    * Fetch list of all the Users in org
    * @returns number of users in the org
    */

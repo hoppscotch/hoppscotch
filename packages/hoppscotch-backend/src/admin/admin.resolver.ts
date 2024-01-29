@@ -186,6 +186,23 @@ export class AdminResolver {
     return admin.right;
   }
 
+  @Mutation(() => Boolean, {
+    description: 'Remove users as admin',
+  })
+  @UseGuards(GqlAuthGuard, GqlAdminGuard)
+  async removeUsersAsAdmin(
+    @Args({
+      name: 'userUIDs',
+      description: 'users UID',
+      type: () => [ID],
+    })
+    userUIDs: string[],
+  ): Promise<boolean> {
+    const isUpdated = await this.adminService.removeUsersAsAdmin(userUIDs);
+    if (E.isLeft(isUpdated)) throwErr(isUpdated.left);
+    return isUpdated.right;
+  }
+
   @Mutation(() => Team, {
     description:
       'Create a new team by providing the user uid to nominate as Team owner',

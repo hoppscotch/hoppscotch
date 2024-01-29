@@ -160,16 +160,7 @@ export const SELECTED_ENV_INDEX_SCHEMA = z.nullable(
       type: z.literal("TEAM_ENV"),
       teamID: z.string(),
       teamEnvID: z.string(),
-      environment: z.object({
-        name: z.string(),
-        variables: z.array(
-          z.object({
-            key: z.string(),
-            value: z.string(),
-            secret: z.boolean(),
-          })
-        ),
-      }),
+      environment: entityReference(Environment),
     }),
   ])
 )

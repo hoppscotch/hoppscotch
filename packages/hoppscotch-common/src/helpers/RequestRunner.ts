@@ -154,14 +154,51 @@ export function runRESTRequest$(
           )
 
           if (E.isRight(runResult)) {
-            // set the response in the tab so that multiple tabs can run request simultaneously
-            tab.value.document.response = res
-            tab.value.document.testResults = translateToSandboxTestResults(
-              runResult.right
+            const updateEnvironmentsWithSecret = (
+              envs: Environment["variables"] &
+                {
+                  secret: true
+                  value: string | undefined
+                  key: string
+                }[]
+            ) => {
+              return pipe(
+                envs,
+                A.map((e) => {
+                  if (e.secret) {
+                    delete e.value
+                    return e
+                  }
+                  return e
+                })
+              )
+            }
+
+            const updatedGlobalEnvVariables = updateEnvironmentsWithSecret(
+              runResult.right.envs.global
             )
 
-            setGlobalEnvVariables(runResult.right.envs.global)
+            const updatedSelectedEnvVariables = updateEnvironmentsWithSecret(
+              runResult.right.envs.selected
+            )
 
+            // set the response in the tab so that multiple tabs can run request simultaneously
+            tab.value.document.response = res
+
+            const updatedRunResult = {
+              ...runResult.right,
+              envs: {
+                global: updatedGlobalEnvVariables,
+                selected: updatedSelectedEnvVariables,
+              },
+            }
+
+            tab.value.document.testResults =
+              translateToSandboxTestResults(updatedRunResult)
+
+            setGlobalEnvVariables(
+              updateEnvironmentsWithSecret(runResult.right.envs.global)
+            )
             if (
               environmentsStore.value.selectedEnvironmentIndex.type === "MY_ENV"
             ) {
@@ -172,9 +209,10 @@ export function runRESTRequest$(
               updateEnvironment(
                 environmentsStore.value.selectedEnvironmentIndex.index,
                 {
-                  ...env,
+                  name: env.name,
                   v: 1,
                   id: env.id ?? "",
+                  variables: updatedRunResult.envs.selected,
                 }
               )
             } else if (
@@ -186,7 +224,7 @@ export function runRESTRequest$(
               })
               pipe(
                 updateTeamEnvironment(
-                  JSON.stringify(runResult.right.envs.selected),
+                  JSON.stringify(updatedRunResult.envs.selected),
                   environmentsStore.value.selectedEnvironmentIndex.teamEnvID,
                   env.name
                 )

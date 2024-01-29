@@ -187,6 +187,8 @@ const copyCodeIcon = refAutoReset<typeof IconCopy | typeof IconCheck>(
 const requestCode = computed(() => {
   const aggregateEnvs = getAggregateEnvs()
   const env: Environment = {
+    v: 1,
+    id: "env",
     name: "Env",
     variables: aggregateEnvs,
   }

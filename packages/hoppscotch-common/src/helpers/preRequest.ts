@@ -25,7 +25,6 @@ const unsecretEnvironments = (
     if (secretVar) {
       return {
         ...globalVar,
-        secret: false,
         value: secretVar.value,
       }
     }
@@ -41,7 +40,6 @@ const unsecretEnvironments = (
       if (secretVar) {
         return {
           ...selectedVar,
-          secret: false,
           value: secretVar.value,
         }
       }

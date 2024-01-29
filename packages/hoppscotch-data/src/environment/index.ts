@@ -90,7 +90,9 @@ export const parseBodyEnvVariables = (
 
 export function parseTemplateStringE(
   str: string,
-  variables: Environment["variables"]
+  variables:
+    | Environment["variables"]
+    | { secret: true; value: string; key: string }[]
 ) {
   if (!variables || !str) {
     return E.right(str)
@@ -99,16 +101,11 @@ export function parseTemplateStringE(
   let result = str
   let depth = 0
 
-  const notSecretVariables = variables.map((x) => {
-    if (!x.secret) return x
-    return null
-  })
-
   while (result.match(REGEX_ENV_VAR) != null && depth <= ENV_MAX_EXPAND_LIMIT) {
-    result = decodeURI(encodeURI(result)).replace(
-      REGEX_ENV_VAR,
-      (_, p1) => notSecretVariables.find((x) => x && x.key === p1)?.value || ""
-    )
+    result = decodeURI(encodeURI(result)).replace(REGEX_ENV_VAR, (_, p1) => {
+      const variable = variables.find((x) => x && x.key === p1)
+      return variable && "value" in variable ? variable.value : ""
+    })
     depth++
   }
 
@@ -122,7 +119,9 @@ export function parseTemplateStringE(
  */
 export const parseTemplateString = (
   str: string,
-  variables: Environment["variables"]
+  variables:
+    | Environment["variables"]
+    | { secret: true; value: string; key: string }[]
 ) =>
   pipe(
     parseTemplateStringE(str, variables),

@@ -5,7 +5,7 @@ import { computed } from "vue"
 /**
  * Defines a secret environment variable.
  */
-type SecretVariable = {
+export type SecretVariable = {
   key: string
   value: string
   varIndex: number

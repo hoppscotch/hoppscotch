@@ -73,7 +73,6 @@ import {
   WEBSOCKET_REQUEST_SCHEMA,
 } from "./validation-schemas"
 import { SecretEnvironmentService } from "../secret-environment.service"
-import { watch } from "vue"
 
 /**
  * This service compiles persistence logic across the codebase
@@ -476,12 +475,12 @@ export class PersistenceService extends Service {
       }
     } catch (e) {
       console.error(
-        `Failed parsing persisted tab state, state:`,
+        `Failed parsing persisted secret environment, state:`,
         secretEnvironmentsData
       )
     }
 
-    watch(
+    watchDebounced(
       this.secretEnvironmentService.persistableSecretEnvironments,
       (newSecretEnvironment) => {
         window.localStorage.setItem(
@@ -490,7 +489,7 @@ export class PersistenceService extends Service {
         )
       },
       {
-        immediate: true,
+        debounce: 200,
       }
     )
   }

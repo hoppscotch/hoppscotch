@@ -119,6 +119,19 @@ export class AdminService {
   }
 
   /**
+   * Update the display name of a user
+   * @param userUid Who's display name is being updated
+   * @param displayName New display name of the user
+   * @returns an Either of boolean or error
+   */
+  async updateUserDisplayName(userUid: string, displayName: string) {
+    const updatedUser = await this.userService.updateUser(userUid, displayName);
+    if (E.isLeft(updatedUser)) return E.left(updatedUser.left);
+
+    return E.right(true);
+  }
+
+  /**
    * Revoke infra level user invitation
    * @param inviteeEmail Invitee's email
    * @param adminUid Admin Uid

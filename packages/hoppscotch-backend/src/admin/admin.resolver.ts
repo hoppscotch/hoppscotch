@@ -315,6 +315,31 @@ export class AdminResolver {
   }
 
   @Mutation(() => Boolean, {
+    description: 'Update user display name',
+  })
+  @UseGuards(GqlAuthGuard, GqlAdminGuard)
+  async updateUserDisplayNameByAdmin(
+    @Args({
+      name: 'userUID',
+      description: 'users UID',
+      type: () => ID,
+    })
+    userUID: string,
+    @Args({
+      name: 'displayName',
+      description: 'users display name',
+    })
+    displayName: string,
+  ): Promise<boolean> {
+    const isUpdated = await this.adminService.updateUserDisplayName(
+      userUID,
+      displayName,
+    );
+    if (E.isLeft(isUpdated)) throwErr(isUpdated.left);
+    return isUpdated.right;
+  }
+
+  @Mutation(() => Boolean, {
     description: 'Remove user as admin',
   })
   @UseGuards(GqlAuthGuard, GqlAdminGuard)

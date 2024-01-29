@@ -271,6 +271,30 @@ export class UserService {
   }
 
   /**
+   * Update a user's data
+   * @param userUID User UID
+   * @param displayName User's displayName
+   * @returns a Either of User or error
+   */
+  async updateUser(userUID: string, displayName: string) {
+    try {
+      const dbUpdatedUser = await this.prisma.user.update({
+        where: { uid: userUID },
+        data: { displayName },
+      });
+
+      const updatedUser = this.convertDbUserToUser(dbUpdatedUser);
+
+      // Publish subscription for user updates
+      await this.pubsub.publish(`user/${updatedUser.uid}/updated`, updatedUser);
+
+      return E.right(updatedUser);
+    } catch (error) {
+      return E.left(USER_NOT_FOUND);
+    }
+  }
+
+  /**
    * Validate and parse currentRESTSession and currentGQLSession
    * @param sessionData string of the session
    * @returns a Either of JSON object or error

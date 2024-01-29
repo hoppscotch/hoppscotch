@@ -393,21 +393,14 @@ const saveEnvironment = async () => {
     variables: filterdVariables,
   }
 
-  if (selectedEnvOption.value === "secret") {
-    const secretVariables = pipe(
-      filterdVariables,
-      A.filterMapWithIndex((i, e) =>
-        e.secret ? O.some({ key: e.key, value: e.value, varIndex: i }) : O.none
-      )
+  const secretVariables = pipe(
+    filterdVariables,
+    A.filterMapWithIndex((i, e) =>
+      e.secret ? O.some({ key: e.key, value: e.value, varIndex: i }) : O.none
     )
+  )
 
-    if (editingID.value) {
-      secretEnvironmentService.addSecretEnvironment(
-        editingID.value,
-        secretVariables
-      )
-    }
-
+  if (selectedEnvOption.value === "secret") {
     const variables = pipe(
       vars.value,
       A.map((e) =>
@@ -446,7 +439,14 @@ const saveEnvironment = async () => {
           toast.error(`${getErrorMessage(err)}`)
           isLoading.value = false
         },
-        () => {
+        (res) => {
+          const envID = res.createTeamEnvironment.id
+          if (selectedEnvOption.value === "secret" && envID) {
+            secretEnvironmentService.addSecretEnvironment(
+              envID,
+              secretVariables
+            )
+          }
           hideModal()
           toast.success(`${t("environment.created")}`)
           isLoading.value = false
@@ -471,7 +471,14 @@ const saveEnvironment = async () => {
           toast.error(`${getErrorMessage(err)}`)
           isLoading.value = false
         },
-        () => {
+        (res) => {
+          const envID = res.updateTeamEnvironment.id
+          if (selectedEnvOption.value === "secret" && envID) {
+            secretEnvironmentService.addSecretEnvironment(
+              envID,
+              secretVariables
+            )
+          }
           hideModal()
           toast.success(`${t("environment.updated")}`)
           isLoading.value = false

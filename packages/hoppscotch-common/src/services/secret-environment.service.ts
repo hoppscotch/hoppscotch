@@ -59,6 +59,12 @@ export class SecretEnvironmentService extends Service {
     this.secretEnvironments.set(id, newSecretVars || [])
   }
 
+  public updateSecretEnvironmentID(oldID: string, newID: string) {
+    const secretVars = this.getSecretEnvironment(oldID)
+    this.secretEnvironments.set(newID, secretVars || [])
+    this.secretEnvironments.delete(oldID)
+  }
+
   public persistableSecretEnvironments = computed(() => {
     const secretEnvironments: Record<string, SecretVariable[]> = {}
     this.secretEnvironments.forEach((secretVars, id) => {

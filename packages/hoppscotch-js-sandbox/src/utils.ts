@@ -120,19 +120,27 @@ const getSharedMethods = (envs: TestResult["envs"]) => {
       getEnv(key, updatedEnvs),
       E.fromOption(() => "INVALID_KEY" as const),
 
-      E.map((env) =>
+      E.map((e) =>
         pipe(
-          env,
-          E.fromNullable(undefined),
-          E.map((e) =>
-            pipe(
-              parseTemplateStringE(!e.secret ? e.value?.toString() : "", [
-                ...updatedEnvs.selected,
-                ...updatedEnvs.global,
-              ]),
-              // If the recursive resolution failed, return the unresolved value
-              E.getOrElse(() => (!e.secret ? e.value?.toString() : ""))
-            )
+          parseTemplateStringE(
+            (
+              e as {
+                key: string
+                value: string | undefined
+                secret: boolean
+              }
+            ).value ?? "",
+            [...updatedEnvs.selected, ...updatedEnvs.global]
+          ), // If the recursive resolution failed, return the unresolved value
+          E.getOrElse(
+            () =>
+              (
+                e as {
+                  key: string
+                  value: string | undefined
+                  secret: boolean
+                }
+              ).value ?? ""
           )
         )
       ),

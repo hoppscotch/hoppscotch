@@ -68,10 +68,6 @@ type SelectedEnv = {
   | (SelectedEnvironmentIndex & { type: "MY_ENV" })
 )
 
-// type SelectedEnv = SelectedEnvironmentIndex & {
-//   selected?: boolean
-// }
-
 /**
  *
  * This searcher is responsible for providing environments related actions on the spotlight results.
@@ -480,6 +476,7 @@ export class SwitchEnvSpotlightSearcherService
         })
       }
     } catch (e) {
+      console.error((e as Error).message)
       this.toast.error(this.t("error.something_went_wrong"))
     }
   }

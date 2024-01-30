@@ -418,19 +418,49 @@ describe('UserService', () => {
     test('should resolve right and return 20 users when cursor is null', async () => {
       mockPrisma.user.findMany.mockResolvedValueOnce(users);
 
-      const result = await userService.fetchAllUsersV2(null, 20);
+      const result = await userService.fetchAllUsers(null, 20);
       expect(result).toEqual(users);
     });
     test('should resolve right and return next 20 users when cursor is provided', async () => {
       mockPrisma.user.findMany.mockResolvedValueOnce(users);
 
-      const result = await userService.fetchAllUsersV2('123344', 20);
+      const result = await userService.fetchAllUsers('123456', 20);
       expect(result).toEqual(users);
     });
     test('should resolve left and return an empty array when users not found', async () => {
       mockPrisma.user.findMany.mockResolvedValueOnce([]);
 
-      const result = await userService.fetchAllUsersV2(null, 20);
+      const result = await userService.fetchAllUsers(null, 20);
+      expect(result).toEqual([]);
+    });
+  });
+
+  describe('fetchAllUsersV2', () => {
+    test('should resolve right and return first 20 users when searchString is null', async () => {
+      mockPrisma.user.findMany.mockResolvedValueOnce(users);
+
+      const result = await userService.fetchAllUsersV2(null, {
+        take: 20,
+        skip: 0,
+      });
+      expect(result).toEqual(users);
+    });
+    test('should resolve right and return next 20 users when cursor is provided', async () => {
+      mockPrisma.user.findMany.mockResolvedValueOnce(users);
+
+      const result = await userService.fetchAllUsersV2('.com', {
+        take: 20,
+        skip: 0,
+      });
+      expect(result).toEqual(users);
+    });
+    test('should resolve left and return an empty array when users not found', async () => {
+      mockPrisma.user.findMany.mockResolvedValueOnce([]);
+
+      const result = await userService.fetchAllUsersV2('Unknown entry', {
+        take: 20,
+        skip: 0,
+      });
       expect(result).toEqual([]);
     });
   });

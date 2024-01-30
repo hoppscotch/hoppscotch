@@ -418,19 +418,19 @@ describe('UserService', () => {
     test('should resolve right and return 20 users when cursor is null', async () => {
       mockPrisma.user.findMany.mockResolvedValueOnce(users);
 
-      const result = await userService.fetchAllUsers(null, 20);
+      const result = await userService.fetchAllUsersV2(null, 20);
       expect(result).toEqual(users);
     });
     test('should resolve right and return next 20 users when cursor is provided', async () => {
       mockPrisma.user.findMany.mockResolvedValueOnce(users);
 
-      const result = await userService.fetchAllUsers('123344', 20);
+      const result = await userService.fetchAllUsersV2('123344', 20);
       expect(result).toEqual(users);
     });
     test('should resolve left and return an empty array when users not found', async () => {
       mockPrisma.user.findMany.mockResolvedValueOnce([]);
 
-      const result = await userService.fetchAllUsers(null, 20);
+      const result = await userService.fetchAllUsersV2(null, 20);
       expect(result).toEqual([]);
     });
   });

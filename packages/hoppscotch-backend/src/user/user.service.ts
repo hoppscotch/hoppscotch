@@ -323,11 +323,27 @@ export class UserService {
 
   /**
    * Fetch all the users in the `User` table based on cursor
+   * @param cursorID string of userUID or null
+   * @param take number of users to query
+   * @returns an array of `User` object
+   * @deprecated use fetchAllUsersV2 instead
+   */
+  async fetchAllUsers(cursorID: string, take: number) {
+    const fetchedUsers = await this.prisma.user.findMany({
+      skip: cursorID ? 1 : 0,
+      take: take,
+      cursor: cursorID ? { uid: cursorID } : undefined,
+    });
+    return fetchedUsers;
+  }
+
+  /**
+   * Fetch all the users in the `User` table based on cursor
    * @param searchString search on user's displayName or email
    * @param paginationOption pagination options
    * @returns an array of `User` object
    */
-  async fetchAllUsers(
+  async fetchAllUsersV2(
     searchString: string,
     paginationOption: OffsetPaginationArgs,
   ) {

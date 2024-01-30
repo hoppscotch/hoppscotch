@@ -295,6 +295,7 @@ function newUseArrowKeysForNavigation() {
 function closeSpotlightModal() {
   const analyticsData: HoppSpotlightSessionEventData = {
     action: "close",
+    searcherID: null,
     rank: null,
   }
 

@@ -563,6 +563,7 @@ describe("SpotlightService", () => {
       inputLength: 0,
       action: "close",
       rank: null,
+      searcherID: null,
       sessionDuration: "0.9s",
     }
 
@@ -590,6 +591,7 @@ describe("SpotlightService", () => {
       inputLength: 0,
       action: "close",
       rank: null,
+      searcherID: null,
       sessionDuration: "0.9s",
     }
 
@@ -603,6 +605,7 @@ describe("SpotlightService", () => {
         method: "click-spotlight-bar",
         action: "close",
         rank: null,
+        searcherID: null,
       })
 
       // Session duration and input length are computed at the service level

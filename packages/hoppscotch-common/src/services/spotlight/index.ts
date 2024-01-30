@@ -243,7 +243,11 @@ export class SpotlightService extends Service {
     this.searchers.get(searcherID)?.onResultSelect(result)
 
     // Sets the action indicating `success` and selected result score in the state for analytics event logging
-    this.setAnalyticsData({ action: "success", rank: result.score.toFixed(2) })
+    this.setAnalyticsData({
+      action: "success",
+      rank: result.score.toFixed(2),
+      searcherID,
+    })
   }
 
   /**

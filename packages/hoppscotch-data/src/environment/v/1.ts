@@ -37,8 +37,6 @@ export default defineVersion({
       }),
     }
 
-    if (old.id) result.id = old.id
-
     return result
   },
 })

@@ -113,10 +113,12 @@ const updateEnvironmentsWithSecret = (
       return e
     })
   )
-  secretEnvironmentService.addSecretEnvironment(
-    currentEnvID,
-    updatedSecretEnvironments
-  )
+  if (currentEnvID) {
+    secretEnvironmentService.addSecretEnvironment(
+      currentEnvID,
+      updatedSecretEnvironments
+    )
+  }
   return updatedEnv
 }
 

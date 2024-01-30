@@ -43,7 +43,7 @@ const setEnv = (
       selectedEnv.value = envValue
     }
   } else if (indexInGlobal >= 0) {
-    if (!global[indexInGlobal].secret && "value" in global[indexInGlobal]) {
+    if ("value" in global[indexInGlobal]) {
       // eslint-disable-next-line @typescript-eslint/no-extra-semi
       ;(global[indexInGlobal] as { value: string }).value = envValue
     }

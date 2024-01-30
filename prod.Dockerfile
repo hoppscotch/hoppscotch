@@ -11,20 +11,28 @@ RUN pnpm fetch
 COPY . .
 RUN pnpm install -f --offline
 
-
-FROM base_builder as backend
-RUN apk add caddy
+FROM base_builder as backend_builder
 WORKDIR /usr/src/app/packages/hoppscotch-backend
 RUN pnpm exec prisma generate
 RUN pnpm run build
+WORKDIR /usr/src/app/
+RUN pnpm --filter=hoppscotch-backend deploy /usr/src/deploy/backend
+
+
+FROM node:18-alpine3.19 as backend
+RUN apk add caddy
+RUN npm install -g pnpm
+WORKDIR /usr/src/deploy/backend
+COPY --from=backend_builder /usr/src/deploy/backend .
 COPY --from=base_builder /usr/src/app/packages/hoppscotch-backend/backend.Caddyfile /etc/caddy/backend.Caddyfile
+RUN pnpm i
+RUN pnpm exec prisma generate
 # Remove the env file to avoid backend copying it in and using it
-RUN rm "../../.env"
 ENV PRODUCTION="true"
 ENV PORT=8080
 ENV APP_PORT=${PORT}
 ENV DB_URL=${DATABASE_URL}
-CMD ["node", "/usr/src/app/packages/hoppscotch-backend/prod_run.mjs"]
+CMD ["node", "prod_run.mjs"]
 EXPOSE 80
 EXPOSE 3170
 
@@ -38,7 +46,7 @@ COPY --from=fe_builder /usr/src/app/packages/hoppscotch-selfhost-web/prod_run.mj
 COPY --from=fe_builder /usr/src/app/packages/hoppscotch-selfhost-web/selfhost-web.Caddyfile /etc/caddy/selfhost-web.Caddyfile
 COPY --from=fe_builder /usr/src/app/packages/hoppscotch-selfhost-web/dist/ .
 RUN apk add nodejs npm
-RUN npm install -g @import-meta-env/cli
+RUN npm install -g @import-meta-env/cli pnpm
 EXPOSE 80
 EXPOSE 3000
 CMD ["/bin/sh", "-c", "node /usr/prod_run.mjs && caddy run --config /etc/caddy/selfhost-web.Caddyfile --adapter caddyfile"]
@@ -57,14 +65,15 @@ COPY --from=sh_admin_builder /usr/src/app/packages/hoppscotch-sh-admin/sh-admin-
 COPY --from=sh_admin_builder /usr/src/app/packages/hoppscotch-sh-admin/dist-multiport-setup /site/sh-admin-multiport-setup
 COPY --from=sh_admin_builder /usr/src/app/packages/hoppscotch-sh-admin/dist-subpath-access /site/sh-admin-subpath-access
 RUN apk add nodejs npm
-RUN npm install -g @import-meta-env/cli
+RUN npm install -g @import-meta-env/cli pnpm
 EXPOSE 80
 EXPOSE 3100
 CMD ["node","/usr/prod_run.mjs"]
 
 FROM backend as aio
 RUN apk add caddy tini
-RUN npm install -g @import-meta-env/cli
+RUN npm install -g @import-meta-env/cli pnpm
+COPY --from=base_builder /usr/src/app/aio_run.mjs /usr/src/app/aio_run.mjs
 COPY --from=fe_builder /usr/src/app/packages/hoppscotch-selfhost-web/dist /site/selfhost-web
 COPY --from=sh_admin_builder /usr/src/app/packages/hoppscotch-sh-admin/dist-multiport-setup /site/sh-admin-multiport-setup
 COPY --from=sh_admin_builder /usr/src/app/packages/hoppscotch-sh-admin/dist-subpath-access /site/sh-admin-subpath-access

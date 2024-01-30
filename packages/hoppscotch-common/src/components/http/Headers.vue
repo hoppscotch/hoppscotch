@@ -553,7 +553,7 @@ const clearContent = () => {
 const aggregateEnvs = useReadonlyStream(aggregateEnvs$, getAggregateEnvs())
 
 const computedHeaders = computed(() =>
-  getComputedHeaders(request.value, aggregateEnvs.value).map(
+  getComputedHeaders(request.value, aggregateEnvs.value, false).map(
     (header, index) => ({
       id: `header-${index}`,
       ...header,
@@ -606,7 +606,8 @@ const inheritedProperties = computed(() => {
   const computedAuthHeader = getComputedAuthHeaders(
     aggregateEnvs.value,
     request.value,
-    props.inheritedProperties.auth.inheritedAuth
+    props.inheritedProperties.auth.inheritedAuth,
+    false
   )[0]
 
   if (

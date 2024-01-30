@@ -103,7 +103,7 @@ const widgets: Widget[] = [
   },
 ]
 
-type Tabs = "parameters" | "body" | "headers" | "authorization"
+type Tabs = "params" | "bodyParams" | "headers" | "authorization"
 
 type EmbedOption = {
   selectedTab: Tabs
@@ -116,15 +116,15 @@ type EmbedOption = {
 }
 
 const embedOption = ref<EmbedOption>({
-  selectedTab: "parameters",
+  selectedTab: "params",
   tabs: [
     {
-      value: "parameters",
+      value: "params",
       label: t("tab.parameters"),
       enabled: true,
     },
     {
-      value: "body",
+      value: "bodyParams",
       label: t("tab.body"),
       enabled: true,
     },

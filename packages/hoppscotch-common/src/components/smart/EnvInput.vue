@@ -37,7 +37,7 @@
           v-if="currentSuggestionIndex === index"
           class="hidden items-center text-secondary md:flex"
         >
-          <kbd class="shortcut-key">TAB</kbd>
+          <kbd class="shortcut-key">Enter</kbd>
           <span class="ml-2 truncate">to select</span>
         </div>
       </li>
@@ -79,6 +79,7 @@ const props = withDefaults(
     readonly?: boolean
     autoCompleteSource?: string[]
     inspectionResults?: InspectorResult[] | undefined
+    contextMenuEnabled?: boolean
   }>(),
   {
     modelValue: "",
@@ -91,6 +92,7 @@ const props = withDefaults(
     autoCompleteSource: undefined,
     inspectionResult: undefined,
     inspectionResults: undefined,
+    contextMenuEnabled: true,
   }
 )
 
@@ -167,36 +169,41 @@ watch(
 )
 
 const handleKeystroke = (ev: KeyboardEvent) => {
-  if (["ArrowDown", "ArrowUp", "Enter", "Tab", "Escape"].includes(ev.key)) {
+  if (!props.autoCompleteSource) return
+
+  if (["ArrowDown", "ArrowUp", "Enter", "Escape"].includes(ev.key)) {
     ev.preventDefault()
   }
 
-  if (ev.shiftKey) {
+  if (["Escape", "Tab", "Shift"].includes(ev.key)) {
     showSuggestionPopover.value = false
-    return
   }
 
-  showSuggestionPopover.value = true
+  if (ev.key === "Enter") {
+    if (suggestions.value.length > 0 && currentSuggestionIndex.value > -1) {
+      updateModelValue(suggestions.value[currentSuggestionIndex.value])
+      currentSuggestionIndex.value = -1
 
-  if (
-    ["Enter", "Tab"].includes(ev.key) &&
-    suggestions.value.length > 0 &&
-    currentSuggestionIndex.value > -1
-  ) {
-    updateModelValue(suggestions.value[currentSuggestionIndex.value])
-    currentSuggestionIndex.value = -1
-
-    //used to set codemirror cursor at the end of the line after selecting a suggestion
-    nextTick(() => {
-      view.value?.dispatch({
-        selection: EditorSelection.create([
-          EditorSelection.range(
-            props.modelValue.length,
-            props.modelValue.length
-          ),
-        ]),
+      //used to set codemirror cursor at the end of the line after selecting a suggestion
+      nextTick(() => {
+        view.value?.dispatch({
+          selection: EditorSelection.create([
+            EditorSelection.range(
+              props.modelValue.length,
+              props.modelValue.length
+            ),
+          ]),
+        })
       })
-    })
+    }
+
+    if (showSuggestionPopover.value) {
+      showSuggestionPopover.value = false
+    } else {
+      emit("enter", ev)
+    }
+  } else {
+    showSuggestionPopover.value = true
   }
 
   if (ev.key === "ArrowDown") {
@@ -219,15 +226,6 @@ const handleKeystroke = (ev: KeyboardEvent) => {
         : 0
 
     emit("keyup", ev)
-  }
-
-  if (ev.key === "Enter") {
-    emit("enter", ev)
-    showSuggestionPopover.value = false
-  }
-
-  if (ev.key === "Escape") {
-    showSuggestionPopover.value = false
   }
 
   // used to scroll to the first suggestion when left arrow is pressed
@@ -359,8 +357,11 @@ const initView = (el: any) => {
     handleTextSelection()
   }, 140)
 
-  el.addEventListener("mouseup", debounceFn)
-  el.addEventListener("keyup", debounceFn)
+  // Only add event listeners if context menu is enabled in the component
+  if (props.contextMenuEnabled) {
+    el.addEventListener("mouseup", debounceFn)
+    el.addEventListener("keyup", debounceFn)
+  }
 
   const extensions: Extension = [
     EditorView.contentAttributes.of({ "aria-label": props.placeholder }),
@@ -396,7 +397,7 @@ const initView = (el: any) => {
         ev.preventDefault()
       },
       scroll(event) {
-        if (event.target) {
+        if (event.target && props.contextMenuEnabled) {
           handleTextSelection()
         }
       },
@@ -405,7 +406,6 @@ const initView = (el: any) => {
       class {
         update(update: ViewUpdate) {
           if (props.readonly) return
-
           if (update.docChanged) {
             const prevValue = clone(cachedValue.value)
 
@@ -435,6 +435,17 @@ const initView = (el: any) => {
             } else {
               clipboardEv = null
               pastedValue = null
+            }
+
+            if (props.contextMenuEnabled) {
+              // close the context menu if text is being updated in the editor
+              invokeAction("contextmenu.open", {
+                position: {
+                  top: 0,
+                  left: 0,
+                },
+                text: null,
+              })
             }
           }
         }

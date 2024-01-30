@@ -237,7 +237,7 @@ import { useReadonlyStream, useStreamSubscriber } from "@composables/stream"
 import { useToast } from "@composables/toast"
 import { useVModel } from "@vueuse/core"
 import * as E from "fp-ts/Either"
-import { Ref, computed, onBeforeUnmount, ref } from "vue"
+import { Ref, computed, ref, onUnmounted } from "vue"
 import { defineActionHandler, invokeAction } from "~/helpers/actions"
 import { runMutation } from "~/helpers/backend/GQLClient"
 import { UpdateRequestDocument } from "~/helpers/backend/graphql"
@@ -321,6 +321,10 @@ const requestCancelFunc: Ref<(() => void) | null> = ref(null)
 const userHistories = computed(() => {
   return history.value.map((history) => history.request.endpoint).slice(0, 10)
 })
+
+const inspectionService = useService(InspectionService)
+
+const tabs = useService(RESTTabService)
 
 const newSendRequest = async () => {
   if (newEndpoint.value === "" || /^\s+$/.test(newEndpoint.value)) {
@@ -421,6 +425,17 @@ const onPasteUrl = (e: { pastedValue: string; prevValue: string }) => {
 function isCURL(curl: string) {
   return curl.includes("curl ")
 }
+
+const currentTabID = tabs.currentTabID.value
+
+onUnmounted(() => {
+  //check if current tab id exist in the current tab id lists
+  const isCurrentTabRemoved = !tabs
+    .getActiveTabs()
+    .value.some((tab) => tab.id === currentTabID)
+
+  if (isCurrentTabRemoved) cancelRequest()
+})
 
 const cancelRequest = () => {
   loading.value = false
@@ -553,10 +568,6 @@ const saveRequest = () => {
 
 const request = ref<HoppRESTRequest | null>(null)
 
-onBeforeUnmount(() => {
-  if (loading.value) cancelRequest()
-})
-
 defineActionHandler("request.send-cancel", () => {
   if (!loading.value) newSendRequest()
   else cancelRequest()
@@ -607,8 +618,5 @@ const isCustomMethod = computed(() => {
 
 const COLUMN_LAYOUT = useSetting("COLUMN_LAYOUT")
 
-const inspectionService = useService(InspectionService)
-
-const tabs = useService(RESTTabService)
 const tabResults = inspectionService.getResultViewFor(tabs.currentTabID.value)
 </script>

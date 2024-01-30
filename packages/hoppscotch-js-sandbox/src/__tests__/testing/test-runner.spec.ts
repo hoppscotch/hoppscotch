@@ -16,8 +16,8 @@ const func = (script: string, res: TestResponse) =>
     TE.map((x) => x.tests)
   )
 
-describe("execTestScript function behavior", () => {
-  test("returns a resolved promise for a valid test scripts with all green", () => {
+describe("runTestScript", () => {
+  test("returns a resolved promise for a valid test script with all green", () => {
     return expect(
       func(
         `

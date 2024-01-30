@@ -80,6 +80,13 @@
                 global
               />
               <HttpTestResultEnv
+                v-for="(env, index) in testResults.envDiff.global.deletions"
+                :key="`env-${env.key}-${index}`"
+                :env="env"
+                status="deletions"
+                global
+              />
+              <HttpTestResultEnv
                 v-for="(env, index) in testResults.envDiff.selected.additions"
                 :key="`env-${env.key}-${index}`"
                 :env="env"

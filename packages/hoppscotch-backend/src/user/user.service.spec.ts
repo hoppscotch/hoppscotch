@@ -414,6 +414,41 @@ describe('UserService', () => {
     });
   });
 
+  describe('updateUser', () => {
+    test('should resolve right and update user', async () => {
+      mockPrisma.user.update.mockResolvedValueOnce(user);
+
+      const result = await userService.updateUser(user.uid, user.displayName);
+      expect(result).toEqualRight({
+        ...user,
+        currentGQLSession: JSON.stringify(user.currentGQLSession),
+        currentRESTSession: JSON.stringify(user.currentRESTSession),
+      });
+    });
+    test('should resolve right and publish user updated subscription', async () => {
+      mockPrisma.user.update.mockResolvedValueOnce(user);
+
+      await userService.updateUser(user.uid, user.displayName);
+      expect(mockPubSub.publish).toHaveBeenCalledWith(
+        `user/${user.uid}/updated`,
+        {
+          ...user,
+          currentGQLSession: JSON.stringify(user.currentGQLSession),
+          currentRESTSession: JSON.stringify(user.currentRESTSession),
+        },
+      );
+    });
+    test('should resolve left and error when invalid user uid is passed', async () => {
+      mockPrisma.user.update.mockRejectedValueOnce('NotFoundError');
+
+      const result = await userService.updateUser(
+        'invalidUserUid',
+        user.displayName,
+      );
+      expect(result).toEqualLeft(USER_NOT_FOUND);
+    });
+  });
+
   describe('fetchAllUsers', () => {
     test('should resolve right and return 20 users when cursor is null', async () => {
       mockPrisma.user.findMany.mockResolvedValueOnce(users);

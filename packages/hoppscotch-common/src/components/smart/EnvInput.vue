@@ -378,6 +378,7 @@ const envVars = computed(() => {
           return {
             key: x.key,
             sourceEnv: "source" in x ? x.source : null,
+            value: "********",
           }
         }
         return {

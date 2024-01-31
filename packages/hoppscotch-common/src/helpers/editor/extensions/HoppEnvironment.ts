@@ -12,7 +12,7 @@ import { parseTemplateStringE } from "@hoppscotch/data"
 import { StreamSubscriberFunc } from "@composables/stream"
 import {
   AggregateEnvironment,
-  aggregateEnvs$,
+  aggregateEnvsWithSecrets$,
   getAggregateEnvsWithSecrets,
   getSelectedEnvironmentType,
 } from "~/newstore/environments"
@@ -182,7 +182,7 @@ export class HoppEnvironmentPlugin {
   ) {
     this.envs = getAggregateEnvsWithSecrets()
 
-    subscribeToStream(aggregateEnvs$, (envs) => {
+    subscribeToStream(aggregateEnvsWithSecrets$, (envs) => {
       this.envs = envs
 
       this.editorView.value?.dispatch({

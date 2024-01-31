@@ -315,8 +315,6 @@ export function getEffectiveRESTRequest(
 ): EffectiveHoppRESTRequest {
   const envVariables = [...environment.variables, ...getGlobalVariables()]
 
-  console.log("cobuned", getComputedHeaders(request, envVariables))
-
   const effectiveFinalHeaders = pipe(
     getComputedHeaders(request, envVariables).map((h) => h.header),
     A.concat(request.headers),

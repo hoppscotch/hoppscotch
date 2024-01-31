@@ -497,15 +497,20 @@ const selectedEnv = computed(() => {
         type: "MY_ENV",
         index: props.modelValue.index,
         name: props.modelValue.environment?.name,
+        variables: props.modelValue.environment?.variables,
       }
     } else if (props.modelValue?.type === "team-environment") {
       return {
         type: "TEAM_ENV",
         name: props.modelValue.environment.environment.name,
         teamEnvID: props.modelValue.environment.id,
+        variables: props.modelValue.environment.environment.variables,
       }
     }
-    return { type: "global", name: "Global" }
+    return {
+      type: "global",
+      name: "Global",
+    }
   }
   if (selectedEnvironmentIndex.value.type === "MY_ENV") {
     const environment =

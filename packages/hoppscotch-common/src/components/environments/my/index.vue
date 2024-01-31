@@ -67,6 +67,7 @@
       :action="action"
       :editing-environment-index="editingEnvironmentIndex"
       :editing-variable-name="editingVariableName"
+      :is-secret-option-selected="secretOptionSelected"
       @hide-modal="displayModalEdit(false)"
     />
     <EnvironmentsImportExport
@@ -99,6 +100,7 @@ const showModalDetails = ref(false)
 const action = ref<"new" | "edit">("edit")
 const editingEnvironmentIndex = ref<number | null>(null)
 const editingVariableName = ref("")
+const secretOptionSelected = ref(false)
 
 const displayModalAdd = (shouldDisplay: boolean) => {
   action.value = "new"
@@ -124,14 +126,17 @@ const resetSelectedData = () => {
 
 defineActionHandler(
   "modals.my.environment.edit",
-  ({ envName, variableName }) => {
+  ({ envName, variableName, isSecret }) => {
     if (variableName) editingVariableName.value = variableName
     const envIndex: number = environments.value.findIndex(
       (environment: Environment) => {
         return environment.name === envName
       }
     )
-    if (envName !== "Global") editEnvironment(envIndex)
+    if (envName !== "Global") {
+      editEnvironment(envIndex)
+      secretOptionSelected.value = isSecret ?? false
+    }
   }
 )
 </script>

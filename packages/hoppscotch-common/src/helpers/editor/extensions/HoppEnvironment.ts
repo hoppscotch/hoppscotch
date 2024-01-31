@@ -97,6 +97,7 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
           invokeAction(`modals.${action}.environment.edit`, {
             envName,
             variableName: parsedEnvKey,
+            isSecret: tooltipEnv?.secret,
           })
         })
         editIcon.innerHTML = `<span class="inline-flex items-center justify-center my-1">${IconEdit}</span>`

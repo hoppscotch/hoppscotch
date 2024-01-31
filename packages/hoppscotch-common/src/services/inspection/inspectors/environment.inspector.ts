@@ -12,6 +12,7 @@ import { HoppRESTRequest } from "@hoppscotch/data"
 import {
   aggregateEnvsWithSecrets$,
   getCurrentEnvironment,
+  getSelectedEnvironmentType,
 } from "~/newstore/environments"
 import { invokeAction } from "~/helpers/actions"
 import { computed } from "vue"
@@ -157,6 +158,11 @@ export class EnvironmentInspectorService extends Service implements Inspector {
                   }
 
                   const currentSelectedEnvironment = getCurrentEnvironment()
+                  const currentEnvironmentType = getSelectedEnvironmentType()
+                  const invokeActionType =
+                    currentEnvironmentType === "TEAM_ENV"
+                      ? "modals.team.environment.edit"
+                      : "modals.my.environment.edit"
                   newErrors.push({
                     id: `environment-empty-${newErrors.length}`,
                     text: {
@@ -171,7 +177,7 @@ export class EnvironmentInspectorService extends Service implements Inspector {
                         "inspections.environment.add_environment_value"
                       ),
                       apply: () => {
-                        invokeAction("modals.team.environment.edit", {
+                        invokeAction(invokeActionType, {
                           envName: currentSelectedEnvironment.name,
                           variableName: formattedExEnv,
                           isSecret: env.secret,

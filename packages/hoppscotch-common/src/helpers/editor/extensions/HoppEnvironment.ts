@@ -13,7 +13,7 @@ import { StreamSubscriberFunc } from "@composables/stream"
 import {
   AggregateEnvironment,
   aggregateEnvs$,
-  getAggregateEnvs,
+  getAggregateEnvsWithSecrets,
   getSelectedEnvironmentType,
 } from "~/newstore/environments"
 import { invokeAction } from "~/helpers/actions"
@@ -68,8 +68,12 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
 
       let envValue = tooltipEnv?.value ?? "Not found"
 
-      if (tooltipEnv?.secret) {
+      if (tooltipEnv?.secret && tooltipEnv.value) {
         envValue = "******"
+      }
+
+      if (!tooltipEnv?.value) {
+        envValue = "Not found"
       }
 
       const result = parseTemplateStringE(envValue, aggregateEnvs)
@@ -175,7 +179,7 @@ export class HoppEnvironmentPlugin {
     subscribeToStream: StreamSubscriberFunc,
     private editorView: Ref<EditorView | undefined>
   ) {
-    this.envs = getAggregateEnvs()
+    this.envs = getAggregateEnvsWithSecrets()
 
     subscribeToStream(aggregateEnvs$, (envs) => {
       this.envs = envs

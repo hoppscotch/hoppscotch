@@ -9,7 +9,10 @@ import { Service } from "dioc"
 import { Ref, markRaw } from "vue"
 import IconPlusCircle from "~icons/lucide/plus-circle"
 import { HoppRESTRequest } from "@hoppscotch/data"
-import { aggregateEnvs$ } from "~/newstore/environments"
+import {
+  aggregateEnvsWithSecrets$,
+  getCurrentEnvironment,
+} from "~/newstore/environments"
 import { invokeAction } from "~/helpers/actions"
 import { computed } from "vue"
 import { useStreamStatic } from "~/composables/stream"
@@ -36,7 +39,7 @@ export class EnvironmentInspectorService extends Service implements Inspector {
 
   private readonly inspection = this.bind(InspectionService)
 
-  private aggregateEnvs = useStreamStatic(aggregateEnvs$, [], () => {
+  private aggregateEnvs = useStreamStatic(aggregateEnvsWithSecrets$, [], () => {
     /* noop */
   })[0]
 
@@ -68,29 +71,20 @@ export class EnvironmentInspectorService extends Service implements Inspector {
         if (extractedEnv) {
           extractedEnv.forEach((exEnv: string) => {
             const formattedExEnv = exEnv.slice(2, -2)
-            let itemLocation: InspectorLocation
-            if (locations.type === "header") {
-              itemLocation = {
-                type: "header",
-                position: locations.position,
-                index: index,
-                key: element,
-              }
-            } else if (locations.type === "parameter") {
-              itemLocation = {
-                type: "parameter",
-                position: locations.position,
-                index: index,
-                key: element,
-              }
-            } else {
-              itemLocation = {
-                type: "url",
-              }
+            const itemLocation: InspectorLocation = {
+              type: locations.type,
+              position:
+                locations.type === "url" ||
+                locations.type === "body" ||
+                locations.type === "response"
+                  ? "key"
+                  : locations.position,
+              index: index,
+              key: element,
             }
             if (!envKeys.includes(formattedExEnv)) {
               newErrors.push({
-                id: "environment",
+                id: `environment-not-foud-${newErrors.length}`,
                 text: {
                   type: "text",
                   text: this.t("inspections.environment.not_found", {
@@ -124,6 +118,76 @@ export class EnvironmentInspectorService extends Service implements Inspector {
     return newErrors
   }
 
+  private validateEmptyEnvironmentVariables = (
+    target: any[],
+    locations: InspectorLocation
+  ) => {
+    const newErrors: InspectorResult[] = []
+
+    target.forEach((element, index) => {
+      if (isENVInString(element)) {
+        const extractedEnv = element.match(HOPP_ENVIRONMENT_REGEX)
+
+        if (extractedEnv) {
+          extractedEnv.forEach((exEnv: string) => {
+            const formattedExEnv = exEnv.slice(2, -2)
+
+            this.aggregateEnvs.value.forEach((env) => {
+              if (env.key === formattedExEnv) {
+                if (env.value === "") {
+                  const itemLocation: InspectorLocation = {
+                    type: locations.type,
+                    position:
+                      locations.type === "url" ||
+                      locations.type === "body" ||
+                      locations.type === "response"
+                        ? "key"
+                        : locations.position,
+                    index: index,
+                    key: element,
+                  }
+
+                  const currentSelectedEnvironment = getCurrentEnvironment()
+                  newErrors.push({
+                    id: `environment-empty-${newErrors.length}`,
+                    text: {
+                      type: "text",
+                      text: this.t("inspections.environment.empty_value", {
+                        variable: exEnv,
+                      }),
+                    },
+                    icon: markRaw(IconPlusCircle),
+                    action: {
+                      text: this.t(
+                        "inspections.environment.add_environment_value"
+                      ),
+                      apply: () => {
+                        invokeAction("modals.team.environment.edit", {
+                          envName: currentSelectedEnvironment.name,
+                          variableName: formattedExEnv,
+                          isSecret: env.secret,
+                        })
+                      },
+                    },
+                    severity: 3,
+                    isApplicable: true,
+                    locations: itemLocation,
+                    doc: {
+                      text: this.t("action.learn_more"),
+                      link: "https://docs.hoppscotch.io/",
+                    },
+                  })
+                }
+              }
+            })
+          })
+        }
+      }
+    })
+
+    return newErrors
+  }
+
   getInspections(req: Readonly<Ref<HoppRESTRequest>>) {
     return computed(() => {
       const results: InspectorResult[] = []
@@ -132,16 +196,35 @@ export class EnvironmentInspectorService extends Service implements Inspector {
 
       const params = req.value.params
 
+      /**
+       * Validate the environment variables in the URL
+       */
+      const url = req.value.endpoint
+
       results.push(
-        ...this.validateEnvironmentVariables([req.value.endpoint], {
+        ...this.validateEnvironmentVariables([url], {
+          type: "url",
+        })
+      )
+      results.push(
+        ...this.validateEmptyEnvironmentVariables([url], {
           type: "url",
         })
       )
 
+      /**
+       * Validate the environment variables in the headers
+       */
       const headerKeys = Object.values(headers).map((header) => header.key)
 
       results.push(
         ...this.validateEnvironmentVariables(headerKeys, {
+          type: "header",
+          position: "key",
+        })
+      )
+      results.push(
+        ...this.validateEmptyEnvironmentVariables(headerKeys, {
           type: "header",
           position: "key",
         })
@@ -155,11 +238,26 @@ export class EnvironmentInspectorService extends Service implements Inspector {
           position: "value",
         })
       )
+      results.push(
+        ...this.validateEmptyEnvironmentVariables(headerValues, {
+          type: "header",
+          position: "value",
+        })
+      )
 
+      /**
+       * Validate the environment variables in the parameters
+       */
       const paramsKeys = Object.values(params).map((param) => param.key)
 
       results.push(
         ...this.validateEnvironmentVariables(paramsKeys, {
+          type: "parameter",
+          position: "key",
+        })
+      )
+      results.push(
+        ...this.validateEmptyEnvironmentVariables(paramsKeys, {
           type: "parameter",
           position: "key",
         })
@@ -169,6 +267,13 @@ export class EnvironmentInspectorService extends Service implements Inspector {
 
       results.push(
         ...this.validateEnvironmentVariables(paramsValues, {
+          type: "parameter",
+          position: "value",
+        })
+      )
+
+      results.push(
+        ...this.validateEmptyEnvironmentVariables(paramsValues, {
           type: "parameter",
           position: "value",
         })

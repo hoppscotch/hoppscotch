@@ -100,6 +100,7 @@ type HoppActionArgsMap = {
   "modals.team.environment.edit": {
     envName: string
     variableName?: string
+    isSecret?: boolean
   }
   "modals.team.delete": {
     teamId: string

@@ -35,7 +35,7 @@
                   :key="`method-${index}`"
                   :label="method"
                   :style="{
-                    color: getMethodLabelColor(method),
+                    color: getMethodLabelColorClassOf({ method }),
                   }"
                   @click="
                     () => {
@@ -262,7 +262,7 @@ import { InterceptorService } from "~/services/interceptor.service"
 import { HoppTab } from "~/services/tab"
 import { HoppRESTDocument } from "~/helpers/rest/document"
 import { RESTTabService } from "~/services/tab/rest"
-import { getMethodLabelColor } from "~/helpers/rest/labelColoring"
+import { getMethodLabelColorClassOf } from "~/helpers/rest/labelColoring"
 
 const t = useI18n()
 const interceptorService = useService(InterceptorService)

@@ -978,6 +978,7 @@
     "change": "Change workspace",
     "personal": "My Workspace",
     "team": "Team Workspace",
-    "title": "Workspaces"
+    "title": "Workspaces",
+    "no_workspace": "No Workspace"
   }
 }

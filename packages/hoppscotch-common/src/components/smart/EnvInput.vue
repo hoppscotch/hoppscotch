@@ -466,6 +466,7 @@ const getExtensions = (readonly: boolean): Extension => {
         })
       : EditorView.theme({}),
     tooltips({
+      parent: document.body,
       position: "absolute",
     }),
     props.environmentHighlights ? envTooltipPlugin : [],

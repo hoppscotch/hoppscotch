@@ -10,7 +10,8 @@
       :icon="IconFolder"
       :label="`${t('tab.collections')}`"
     >
-      <Collections />
+      <!-- <Collections /> -->
+      <NewCollections :platform="'rest'" />
     </HoppSmartTab>
     <HoppSmartTab
       :id="'env'"

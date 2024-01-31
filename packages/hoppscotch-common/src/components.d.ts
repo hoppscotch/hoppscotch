@@ -192,6 +192,10 @@ declare module 'vue' {
     ModalsNativeCACertificates: typeof import('./../../hoppscotch-selfhost-desktop/src/components/modals/NativeCACertificates.vue')['default']
     ModalsNativeClientCertificates: typeof import('./../../hoppscotch-selfhost-desktop/src/components/modals/NativeClientCertificates.vue')['default']
     ModalsNativeClientCertsAdd: typeof import('./../../hoppscotch-selfhost-desktop/src/components/modals/NativeClientCertsAdd.vue')['default']
+    NewCollections: typeof import('./components/new-collections/index.vue')['default']
+    NewCollectionsRest: typeof import('./components/new-collections/rest/index.vue')['default']
+    NewCollectionsRestCollection: typeof import('./components/new-collections/rest/Collection.vue')['default']
+    NewCollectionsRestRequest: typeof import('./components/new-collections/rest/Request.vue')['default']
     ProfileUserDelete: typeof import('./components/profile/UserDelete.vue')['default']
     RealtimeCommunication: typeof import('./components/realtime/Communication.vue')['default']
     RealtimeConnectionConfig: typeof import('./components/realtime/ConnectionConfig.vue')['default']
@@ -224,6 +228,8 @@ declare module 'vue' {
     TeamsTeam: typeof import('./components/teams/Team.vue')['default']
     Tippy: typeof import('vue-tippy')['Tippy']
     WorkspaceCurrent: typeof import('./components/workspace/Current.vue')['default']
+    WorkspacePersonalWorkspaceSelector: typeof import('./components/workspace/PersonalWorkspaceSelector.vue')['default']
     WorkspaceSelector: typeof import('./components/workspace/Selector.vue')['default']
+    WorkspaceTestWorkspaceSelector: typeof import('./components/workspace/TestWorkspaceSelector.vue')['default']
   }
 }

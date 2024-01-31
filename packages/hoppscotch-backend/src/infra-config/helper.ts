@@ -28,6 +28,7 @@ const AuthProviderConfigurations = {
     InfraConfigEnum.MICROSOFT_CLIENT_SECRET,
     InfraConfigEnum.MICROSOFT_CALLBACK_URL,
     InfraConfigEnum.MICROSOFT_SCOPE,
+    InfraConfigEnum.MICROSOFT_TENANT,
   ],
   [AuthProvider.EMAIL]: [
     InfraConfigEnum.MAILER_SMTP_URL,

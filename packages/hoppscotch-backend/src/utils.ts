@@ -194,22 +194,6 @@ export const validateUrl = (url: string) => {
 };
 
 /**
- * Validate SSO (Google, Github, Microsoft) Scope
- * @param scope The scope to validate
- * @returns boolean
- */
-export const validateSSOScope = (scope: string) => {
-  if (!scope || scope.length === 0) return false;
-
-  const scopes = scope.split(',');
-  scopes.forEach((aScope) => {
-    if (aScope.length === 0) return false;
-  });
-
-  return true;
-};
-
-/**
  * String to JSON parser
  * @param {str} str The string to parse
  * @returns {E.Right<T> | E.Left<"json_invalid">} An Either of the parsed JSON

@@ -82,7 +82,7 @@ export const getComputedAuthHeaders = (
       key: "Authorization",
       value: `Bearer ${
         parse
-          ? parseTemplateString(request.auth.token, envVars, true)
+          ? parseTemplateString(request.auth.token, envVars)
           : request.auth.token
       }`,
     })
@@ -314,6 +314,8 @@ export function getEffectiveRESTRequest(
   environment: Environment
 ): EffectiveHoppRESTRequest {
   const envVariables = [...environment.variables, ...getGlobalVariables()]
+
+  console.log("cobuned", getComputedHeaders(request, envVariables))
 
   const effectiveFinalHeaders = pipe(
     getComputedHeaders(request, envVariables).map((h) => h.header),

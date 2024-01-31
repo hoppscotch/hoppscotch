@@ -229,8 +229,6 @@ watch(
 )
 
 const handleKeystroke = (ev: KeyboardEvent) => {
-  if (!props.autoCompleteSource) return
-
   if (["ArrowDown", "ArrowUp", "Enter", "Escape"].includes(ev.key)) {
     ev.preventDefault()
   }

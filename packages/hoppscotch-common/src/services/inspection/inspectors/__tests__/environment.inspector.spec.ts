@@ -29,6 +29,7 @@ vi.mock("~/newstore/environments", async () => {
         secret: false,
       },
     }),
+    getSelectedEnvironmentType: () => "MY_ENV",
   }
 })
 

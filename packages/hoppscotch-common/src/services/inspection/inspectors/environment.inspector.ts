@@ -159,10 +159,19 @@ export class EnvironmentInspectorService extends Service implements Inspector {
 
                   const currentSelectedEnvironment = getCurrentEnvironment()
                   const currentEnvironmentType = getSelectedEnvironmentType()
-                  const invokeActionType =
-                    currentEnvironmentType === "TEAM_ENV"
-                      ? "modals.team.environment.edit"
-                      : "modals.my.environment.edit"
+
+                  let invokeActionType:
+                    | "modals.my.environment.edit"
+                    | "modals.team.environment.edit" =
+                    "modals.my.environment.edit"
+                  if (currentEnvironmentType === "MY_ENV") {
+                    invokeActionType = "modals.my.environment.edit"
+                  } else if (currentEnvironmentType === "TEAM_ENV") {
+                    invokeActionType = "modals.team.environment.edit"
+                  } else {
+                    invokeActionType = "modals.my.environment.edit"
+                  }
+
                   newErrors.push({
                     id: `environment-empty-${newErrors.length}`,
                     text: {
@@ -178,7 +187,10 @@ export class EnvironmentInspectorService extends Service implements Inspector {
                       ),
                       apply: () => {
                         invokeAction(invokeActionType, {
-                          envName: currentSelectedEnvironment.name,
+                          envName:
+                            env.sourceEnv !== "Global"
+                              ? currentSelectedEnvironment.name
+                              : "Global",
                           variableName: formattedExEnv,
                           isSecret: env.secret,
                         })

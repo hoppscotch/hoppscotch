@@ -230,6 +230,7 @@ const props = withDefaults(
     action: "edit" | "new"
     editingEnvironmentIndex?: number | "Global" | null
     editingVariableName?: string | null
+    isSecretOptionSelected?: boolean
     envVars?: () => Environment["variables"]
   }>(),
   {
@@ -237,6 +238,7 @@ const props = withDefaults(
     action: "edit",
     editingEnvironmentIndex: null,
     editingVariableName: null,
+    isSecretOptionSelected: false,
     envVars: () => [],
   }
 )
@@ -337,6 +339,9 @@ watch(
   (show) => {
     if (show) {
       editingName.value = workingEnv.value?.name ?? null
+      selectedEnvOption.value = props.isSecretOptionSelected
+        ? "secret"
+        : "variables"
 
       if (props.editingEnvironmentIndex !== "Global") {
         editingID.value = workingEnv.value?.id ?? uniqueId()

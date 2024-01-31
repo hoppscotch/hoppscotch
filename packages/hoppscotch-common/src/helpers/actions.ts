@@ -96,6 +96,7 @@ type HoppActionArgsMap = {
   "modals.my.environment.edit": {
     envName: string
     variableName?: string
+    isSecret?: boolean
   }
   "modals.team.environment.edit": {
     envName: string

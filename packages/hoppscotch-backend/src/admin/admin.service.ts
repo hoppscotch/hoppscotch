@@ -513,10 +513,10 @@ export class AdminService {
   async removeUsersAsAdmin(userUIDs: string[]) {
     const adminUsers = await this.userService.fetchAdminUsers();
 
-    const adminsNotInArray = adminUsers.filter(
+    const remainingAdmins = adminUsers.filter(
       (adminUser) => !userUIDs.includes(adminUser.uid),
     );
-    if (adminsNotInArray.length < 1) {
+    if (remainingAdmins.length < 1) {
       return E.left(ONLY_ONE_ADMIN_ACCOUNT);
     }
 

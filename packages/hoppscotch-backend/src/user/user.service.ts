@@ -546,14 +546,10 @@ export class UserService {
    * @returns a Either of true or error
    */
   async removeUsersAsAdmin(userUIDs: string[]) {
-    try {
-      await this.prisma.user.updateMany({
-        where: { uid: { in: userUIDs } },
-        data: { isAdmin: false },
-      });
-      return E.right(true);
-    } catch (error) {
-      return E.left(USER_NOT_FOUND);
-    }
+    await this.prisma.user.updateMany({
+      where: { uid: { in: userUIDs } },
+      data: { isAdmin: false },
+    });
+    return E.right(true);
   }
 }

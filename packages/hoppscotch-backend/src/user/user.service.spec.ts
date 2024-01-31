@@ -176,6 +176,26 @@ describe('UserService', () => {
     });
   });
 
+  describe('findNonAdminUsersByIds', () => {
+    test('should successfully return valid (non-admin) users given valid user UIDs', async () => {
+      mockPrisma.user.findMany.mockResolvedValueOnce(users);
+
+      const result = await userService.findNonAdminUsersByIds([
+        '123344',
+        '5555',
+        '6666',
+      ]);
+      expect(result).toEqual(users);
+    });
+
+    test('should return empty array of users given a invalid user UIDs', async () => {
+      mockPrisma.user.findMany.mockResolvedValueOnce([]);
+
+      const result = await userService.findNonAdminUsersByIds(['sdcvbdbr']);
+      expect(result).toEqual([]);
+    });
+  });
+
   describe('createUserViaMagicLink', () => {
     test('should successfully create user and account for magic-link given valid inputs', async () => {
       mockPrisma.user.create.mockResolvedValueOnce(user);
@@ -619,6 +639,14 @@ describe('UserService', () => {
 
       const result = await userService.getUsersCount();
       expect(result).toEqual(10);
+    });
+  });
+
+  describe('removeUsersAsAdmin', () => {
+    test('should resolve right and return true for valid user UIDs', async () => {
+      mockPrisma.user.updateMany.mockResolvedValueOnce({ count: 1 });
+      const result = await userService.removeUsersAsAdmin(['123344']);
+      expect(result).toEqualRight(true);
     });
   });
 });

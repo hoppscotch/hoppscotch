@@ -13,12 +13,15 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import {
   DUPLICATE_EMAIL,
   INVALID_EMAIL,
+  ONLY_ONE_ADMIN_ACCOUNT,
   USER_ALREADY_INVITED,
   USER_INVITATION_NOT_FOUND,
+  USER_NOT_FOUND,
 } from '../errors';
 import { ShortcodeService } from 'src/shortcode/shortcode.service';
 import { ConfigService } from '@nestjs/config';
 import { OffsetPaginationArgs } from 'src/types/input-types.args';
+import * as E from 'fp-ts/Either';
 
 const mockPrisma = mockDeep<PrismaService>();
 const mockPubSub = mockDeep<PubSubService>();
@@ -183,6 +186,30 @@ describe('AdminService', () => {
       expect(mockPubSub.publish).toHaveBeenCalledWith(
         `admin/${adminUid}/invitation_revoked`,
         invitedUsers[0],
+      );
+    });
+  });
+
+  describe('removeUsersAsAdmin', () => {
+    test('should resolve right and make admins to users', async () => {
+      mockUserService.fetchAdminUsers.mockResolvedValueOnce([
+        { uid: '123' } as any,
+      ]);
+      mockUserService.removeUsersAsAdmin.mockResolvedValueOnce(E.right(true));
+
+      return expect(
+        await adminService.removeUsersAsAdmin(['123456']),
+      ).toEqualRight(true);
+    });
+
+    test('should resolve left and return error if only one admin in the infra', async () => {
+      mockUserService.fetchAdminUsers.mockResolvedValueOnce([
+        { uid: '123' } as any,
+      ]);
+      mockUserService.removeUsersAsAdmin.mockResolvedValueOnce(E.right(true));
+
+      return expect(await adminService.removeUsersAsAdmin(['123'])).toEqualLeft(
+        ONLY_ONE_ADMIN_ACCOUNT,
       );
     });
   });

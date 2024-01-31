@@ -26,9 +26,10 @@ import {
 import { ConfigService } from '@nestjs/config';
 import {
   ServiceStatus,
+  getDefaultInfraConfigs,
+  stopApp,
   generateAnalyticsUserId,
   getConfiguredSSOProviders,
-  stopApp,
 } from './helper';
 import { EnableAndDisableSSOArgs, InfraConfigArgs } from './input-args';
 import { AuthProvider } from 'src/auth/helper';
@@ -44,92 +45,6 @@ export class InfraConfigService implements OnModuleInit {
     await this.initializeInfraConfigTable();
   }
 
-  async getDefaultInfraConfigs(): Promise<
-    { name: InfraConfigEnum; value: string }[]
-  > {
-    // Prepare rows for 'infra_config' table with default values (from .env) for each 'name'
-    const infraConfigDefaultObjs: { name: InfraConfigEnum; value: string }[] = [
-      {
-        name: InfraConfigEnum.MAILER_SMTP_URL,
-        value: process.env.MAILER_SMTP_URL,
-      },
-      {
-        name: InfraConfigEnum.MAILER_ADDRESS_FROM,
-        value: process.env.MAILER_ADDRESS_FROM,
-      },
-      {
-        name: InfraConfigEnum.GOOGLE_CLIENT_ID,
-        value: process.env.GOOGLE_CLIENT_ID,
-      },
-      {
-        name: InfraConfigEnum.GOOGLE_CLIENT_SECRET,
-        value: process.env.GOOGLE_CLIENT_SECRET,
-      },
-      {
-        name: InfraConfigEnum.GOOGLE_CALLBACK_URL,
-        value: process.env.GOOGLE_CALLBACK_URL,
-      },
-      {
-        name: InfraConfigEnum.GOOGLE_SCOPE,
-        value: process.env.GOOGLE_SCOPE,
-      },
-      {
-        name: InfraConfigEnum.GITHUB_CLIENT_ID,
-        value: process.env.GITHUB_CLIENT_ID,
-      },
-      {
-        name: InfraConfigEnum.GITHUB_CLIENT_SECRET,
-        value: process.env.GITHUB_CLIENT_SECRET,
-      },
-      {
-        name: InfraConfigEnum.GITHUB_CALLBACK_URL,
-        value: process.env.GITHUB_CALLBACK_URL,
-      },
-      {
-        name: InfraConfigEnum.GITHUB_SCOPE,
-        value: process.env.GITHUB_SCOPE,
-      },
-      {
-        name: InfraConfigEnum.MICROSOFT_CLIENT_ID,
-        value: process.env.MICROSOFT_CLIENT_ID,
-      },
-      {
-        name: InfraConfigEnum.MICROSOFT_CLIENT_SECRET,
-        value: process.env.MICROSOFT_CLIENT_SECRET,
-      },
-      {
-        name: InfraConfigEnum.MICROSOFT_CALLBACK_URL,
-        value: process.env.MICROSOFT_CALLBACK_URL,
-      },
-      {
-        name: InfraConfigEnum.MICROSOFT_SCOPE,
-        value: process.env.MICROSOFT_SCOPE,
-      },
-      {
-        name: InfraConfigEnum.MICROSOFT_TENANT,
-        value: process.env.MICROSOFT_TENANT,
-      },
-      {
-        name: InfraConfigEnum.VITE_ALLOWED_AUTH_PROVIDERS,
-        value: getConfiguredSSOProviders(),
-      },
-      {
-        name: InfraConfigEnum.ALLOW_ANALYTICS_COLLECTION,
-        value: false.toString(),
-      },
-      {
-        name: InfraConfigEnum.ANALYTICS_USER_ID,
-        value: generateAnalyticsUserId(),
-      },
-      {
-        name: InfraConfigEnum.IS_FIRST_TIME_INFRA_SETUP,
-        value: (await this.prisma.infraConfig.count()) === 0 ? 'true' : 'false',
-      },
-    ];
-
-    return infraConfigDefaultObjs;
-  }
-
   /**
    * Initialize the 'infra_config' table with values from .env
    * @description This function create rows 'infra_config' in very first time (only once)
@@ -140,7 +55,7 @@ export class InfraConfigService implements OnModuleInit {
       const enumValues = Object.values(InfraConfigEnum);
 
       // Fetch the default values (value in .env) for configs to be saved in 'infra_config' table
-      const infraConfigDefaultObjs = await this.getDefaultInfraConfigs();
+      const infraConfigDefaultObjs = await getDefaultInfraConfigs();
 
       // Check if all the 'names' are listed in the default values
       if (enumValues.length !== infraConfigDefaultObjs.length) {
@@ -401,7 +316,7 @@ export class InfraConfigService implements OnModuleInit {
    */
   async reset() {
     try {
-      const infraConfigDefaultObjs = await this.getDefaultInfraConfigs();
+      const infraConfigDefaultObjs = await getDefaultInfraConfigs();
 
       await this.prisma.infraConfig.deleteMany({
         where: { name: { in: infraConfigDefaultObjs.map((p) => p.name) } },

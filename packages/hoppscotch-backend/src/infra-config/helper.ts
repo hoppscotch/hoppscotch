@@ -62,6 +62,119 @@ export async function loadInfraConfiguration() {
 }
 
 /**
+ * Read the default values from .env file and return them as an array
+ * @returns Array of default infra configs
+ */
+export async function getDefaultInfraConfigs(): Promise<
+  { name: InfraConfigEnum; value: string }[]
+> {
+  const prisma = new PrismaService();
+
+  // Prepare rows for 'infra_config' table with default values (from .env) for each 'name'
+  const infraConfigDefaultObjs: { name: InfraConfigEnum; value: string }[] = [
+    {
+      name: InfraConfigEnum.MAILER_SMTP_URL,
+      value: process.env.MAILER_SMTP_URL,
+    },
+    {
+      name: InfraConfigEnum.MAILER_ADDRESS_FROM,
+      value: process.env.MAILER_ADDRESS_FROM,
+    },
+    {
+      name: InfraConfigEnum.GOOGLE_CLIENT_ID,
+      value: process.env.GOOGLE_CLIENT_ID,
+    },
+    {
+      name: InfraConfigEnum.GOOGLE_CLIENT_SECRET,
+      value: process.env.GOOGLE_CLIENT_SECRET,
+    },
+    {
+      name: InfraConfigEnum.GOOGLE_CALLBACK_URL,
+      value: process.env.GOOGLE_CALLBACK_URL,
+    },
+    {
+      name: InfraConfigEnum.GOOGLE_SCOPE,
+      value: process.env.GOOGLE_SCOPE,
+    },
+    {
+      name: InfraConfigEnum.GITHUB_CLIENT_ID,
+      value: process.env.GITHUB_CLIENT_ID,
+    },
+    {
+      name: InfraConfigEnum.GITHUB_CLIENT_SECRET,
+      value: process.env.GITHUB_CLIENT_SECRET,
+    },
+    {
+      name: InfraConfigEnum.GITHUB_CALLBACK_URL,
+      value: process.env.GITHUB_CALLBACK_URL,
+    },
+    {
+      name: InfraConfigEnum.GITHUB_SCOPE,
+      value: process.env.GITHUB_SCOPE,
+    },
+    {
+      name: InfraConfigEnum.MICROSOFT_CLIENT_ID,
+      value: process.env.MICROSOFT_CLIENT_ID,
+    },
+    {
+      name: InfraConfigEnum.MICROSOFT_CLIENT_SECRET,
+      value: process.env.MICROSOFT_CLIENT_SECRET,
+    },
+    {
+      name: InfraConfigEnum.MICROSOFT_CALLBACK_URL,
+      value: process.env.MICROSOFT_CALLBACK_URL,
+    },
+    {
+      name: InfraConfigEnum.MICROSOFT_SCOPE,
+      value: process.env.MICROSOFT_SCOPE,
+    },
+    {
+      name: InfraConfigEnum.MICROSOFT_TENANT,
+      value: process.env.MICROSOFT_TENANT,
+    },
+    {
+      name: InfraConfigEnum.VITE_ALLOWED_AUTH_PROVIDERS,
+      value: getConfiguredSSOProviders(),
+    },
+    {
+      name: InfraConfigEnum.ALLOW_ANALYTICS_COLLECTION,
+      value: false.toString(),
+    },
+    {
+      name: InfraConfigEnum.ANALYTICS_USER_ID,
+      value: generateAnalyticsUserId(),
+    },
+    {
+      name: InfraConfigEnum.IS_FIRST_TIME_INFRA_SETUP,
+      value: (await prisma.infraConfig.count()) === 0 ? 'true' : 'false',
+    },
+  ];
+
+  return infraConfigDefaultObjs;
+}
+
+/**
+ * Verify if 'infra_config' table is loaded with all entries
+ * @returns boolean
+ */
+export async function isInfraConfigTablePopulated(): Promise<boolean> {
+  const prisma = new PrismaService();
+
+  const infraConfigCountInDB = await prisma.infraConfig.count();
+  const infraConfigCountShouldBe = getDefaultInfraConfigs().length;
+
+  const isPopulated = infraConfigCountInDB === infraConfigCountShouldBe;
+
+  if (!isPopulated) {
+    console.log(
+      'Infra Config table is not populated with all entries. Populating now...',
+    );
+  }
+
+  return isPopulated;
+}
+
+/**
  * Stop the app after 5 seconds
  * (Docker will re-start the app)
  */

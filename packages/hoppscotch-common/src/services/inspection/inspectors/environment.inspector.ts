@@ -52,9 +52,8 @@ export class EnvironmentInspectorService extends Service implements Inspector {
   /**
    * Validates the environment variables in the target array
    * @param target The target array to validate
-   * @param results The results array to push the results to
    * @param locations The location where results are to be displayed
-   * @returns The results array
+   * @returns The results array containing the results of the validation
    */
   private validateEnvironmentVariables = (
     target: any[],
@@ -118,6 +117,12 @@ export class EnvironmentInspectorService extends Service implements Inspector {
     return newErrors
   }
 
+  /**
+   * Checks if the environment variables in the target array are empty
+   * @param target The target array to validate
+   * @param locations The location where results are to be displayed
+   * @returns The results array containing the results of the validation
+   */
   private validateEmptyEnvironmentVariables = (
     target: any[],
     locations: InspectorLocation
@@ -169,7 +174,7 @@ export class EnvironmentInspectorService extends Service implements Inspector {
                         })
                       },
                     },
-                    severity: 3,
+                    severity: 2,
                     isApplicable: true,
                     locations: itemLocation,
                     doc: {

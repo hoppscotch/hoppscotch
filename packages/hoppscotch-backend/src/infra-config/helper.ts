@@ -1,5 +1,8 @@
 import { AuthProvider } from 'src/auth/helper';
-import { AUTH_PROVIDER_NOT_CONFIGURED } from 'src/errors';
+import {
+  AUTH_PROVIDER_NOT_CONFIGURED,
+  DATABASE_TABLE_NOT_EXIST,
+} from 'src/errors';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { InfraConfigEnum } from 'src/types/InfraConfig';
 import { throwErr } from 'src/utils';
@@ -159,19 +162,22 @@ export async function getDefaultInfraConfigs(): Promise<
  */
 export async function isInfraConfigTablePopulated(): Promise<boolean> {
   const prisma = new PrismaService();
+  try {
+    const infraConfigCountInDB = await prisma.infraConfig.count();
+    const infraConfigCountShouldBe = getDefaultInfraConfigs().length;
 
-  const infraConfigCountInDB = await prisma.infraConfig.count();
-  const infraConfigCountShouldBe = getDefaultInfraConfigs().length;
+    const isPopulated = infraConfigCountInDB === infraConfigCountShouldBe;
 
-  const isPopulated = infraConfigCountInDB === infraConfigCountShouldBe;
+    if (!isPopulated) {
+      console.log(
+        'Infra Config table is not populated with all entries. Populating now...',
+      );
+    }
 
-  if (!isPopulated) {
-    console.log(
-      'Infra Config table is not populated with all entries. Populating now...',
-    );
+    return isPopulated;
+  } catch (error) {
+    return false;
   }
-
-  return isPopulated;
 }
 
 /**

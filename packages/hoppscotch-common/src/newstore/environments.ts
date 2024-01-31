@@ -2,9 +2,11 @@ import { Environment } from "@hoppscotch/data"
 import { cloneDeep, isEqual, uniqueId } from "lodash-es"
 import { combineLatest, Observable } from "rxjs"
 import { distinctUntilChanged, map, pluck } from "rxjs/operators"
+import { getService } from "~/modules/dioc"
 import DispatchingStore, {
   defineDispatchers,
 } from "~/newstore/DispatchingStore"
+import { SecretEnvironmentService } from "~/services/secret-environment.service"
 
 export type SelectedEnvironmentIndex =
   | { type: "NO_ENV_SELECTED" }
@@ -34,6 +36,8 @@ const defaultEnvironmentsState = {
     type: "NO_ENV_SELECTED",
   } as SelectedEnvironmentIndex,
 }
+
+const secretEnvironmentService = getService(SecretEnvironmentService)
 
 type EnvironmentStore = typeof defaultEnvironmentsState
 
@@ -427,6 +431,93 @@ export function getAggregateEnvs() {
     }),
   ]
 }
+
+export function getAggregateEnvsWithSecrets() {
+  const currentEnv = getCurrentEnvironment()
+  return [
+    ...currentEnv.variables.map((x, index) => {
+      let value
+      if (x.secret) {
+        value = secretEnvironmentService.getSecretEnvironmentVariableValue(
+          currentEnv.id,
+          index
+        )
+      } else {
+        value = x.value
+      }
+
+      return <AggregateEnvironment>{
+        key: x.key,
+        value,
+        secret: x.secret,
+        sourceEnv: currentEnv.name,
+      }
+    }),
+    ...getGlobalVariables().map((x, index) => {
+      let value
+      if (x.secret) {
+        value = secretEnvironmentService.getSecretEnvironmentVariableValue(
+          "Global",
+          index
+        )
+      } else {
+        value = x.value
+      }
+      return <AggregateEnvironment>{
+        key: x.key,
+        value,
+        secret: x.secret,
+        sourceEnv: "Global",
+      }
+    }),
+  ]
+}
+
+export const aggregateEnvsWithSecrets$: Observable<AggregateEnvironment[]> =
+  combineLatest([currentEnvironment$, globalEnv$]).pipe(
+    map(([selectedEnv, globalVars]) => {
+      const results: AggregateEnvironment[] = []
+
+      selectedEnv?.variables.map((x, index) => {
+        let value
+        if (x.secret) {
+          value = secretEnvironmentService.getSecretEnvironmentVariableValue(
+            selectedEnv.id,
+            index
+          )
+        } else {
+          value = x.value
+        }
+        results.push({
+          key: x.key,
+          value: value ?? "",
+          secret: x.secret,
+          sourceEnv: selectedEnv.name,
+        })
+      })
+
+      globalVars.map((x, index) => {
+        let value
+        if (x.secret) {
+          value = secretEnvironmentService.getSecretEnvironmentVariableValue(
+            "Global",
+            index
+          )
+        } else {
+          value = x.value
+        }
+        results.push({
+          key: x.key,
+          value: value ?? "",
+          secret: x.secret,
+          sourceEnv: "Global",
+        })
+      })
+
+      return results
+    }),
+    distinctUntilChanged(isEqual)
+  )
 
 export function getCurrentEnvironment(): Environment {
   if (

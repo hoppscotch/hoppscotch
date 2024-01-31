@@ -79,7 +79,10 @@ import { history, historyKeymap } from "@codemirror/commands"
 import { inputTheme } from "~/helpers/editor/themes/baseTheme"
 import { HoppReactiveEnvPlugin } from "~/helpers/editor/extensions/HoppEnvironment"
 import { useReadonlyStream } from "@composables/stream"
-import { AggregateEnvironment, aggregateEnvs$ } from "~/newstore/environments"
+import {
+  AggregateEnvironment,
+  aggregateEnvsWithSecrets$,
+} from "~/newstore/environments"
 import { platform } from "~/platform"
 import { onClickOutside, useDebounceFn } from "@vueuse/core"
 import { InspectorResult } from "~/services/inspection"
@@ -364,7 +367,7 @@ watch(
 let clipboardEv: ClipboardEvent | null = null
 let pastedValue: string | null = null
 
-const aggregateEnvs = useReadonlyStream(aggregateEnvs$, []) as Ref<
+const aggregateEnvs = useReadonlyStream(aggregateEnvsWithSecrets$, []) as Ref<
   AggregateEnvironment[]
 >
 

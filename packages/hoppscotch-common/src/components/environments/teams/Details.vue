@@ -228,6 +228,7 @@ const props = withDefaults(
     editingTeamId: string | undefined
     editingVariableName?: string | null
     isViewer?: boolean
+    isSecretOptionSelected?: boolean
     envVars?: () => Environment["variables"]
   }>(),
   {
@@ -237,6 +238,7 @@ const props = withDefaults(
     editingTeamId: "",
     editingVariableName: null,
     isViewer: false,
+    isSecretOptionSelected: false,
     envVars: () => [],
   }
 )
@@ -302,6 +304,9 @@ watch(
   (show) => {
     if (show) {
       editingName.value = props.editingEnvironment?.environment.name ?? null
+      selectedEnvOption.value = props.isSecretOptionSelected
+        ? "secret"
+        : "variables"
       if (props.action === "new") {
         vars.value = pipe(
           props.envVars() ?? [],

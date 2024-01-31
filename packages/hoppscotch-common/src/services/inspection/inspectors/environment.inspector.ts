@@ -39,9 +39,13 @@ export class EnvironmentInspectorService extends Service implements Inspector {
 
   private readonly inspection = this.bind(InspectionService)
 
-  private aggregateEnvs = useStreamStatic(aggregateEnvsWithSecrets$, [], () => {
-    /* noop */
-  })[0]
+  private aggregateEnvsWithSecrets = useStreamStatic(
+    aggregateEnvsWithSecrets$,
+    [],
+    () => {
+      /* noop */
+    }
+  )[0]
 
   constructor() {
     super()
@@ -61,7 +65,7 @@ export class EnvironmentInspectorService extends Service implements Inspector {
   ) => {
     const newErrors: InspectorResult[] = []
 
-    const envKeys = this.aggregateEnvs.value.map((e) => e.key)
+    const envKeys = this.aggregateEnvsWithSecrets.value.map((e) => e.key)
 
     target.forEach((element, index) => {
       if (isENVInString(element)) {
@@ -83,7 +87,7 @@ export class EnvironmentInspectorService extends Service implements Inspector {
             }
             if (!envKeys.includes(formattedExEnv)) {
               newErrors.push({
-                id: `environment-not-foud-${newErrors.length}`,
+                id: `environment-not-found-${newErrors.length}`,
                 text: {
                   type: "text",
                   text: this.t("inspections.environment.not_found", {
@@ -137,7 +141,7 @@ export class EnvironmentInspectorService extends Service implements Inspector {
           extractedEnv.forEach((exEnv: string) => {
             const formattedExEnv = exEnv.slice(2, -2)
 
-            this.aggregateEnvs.value.forEach((env) => {
+            this.aggregateEnvsWithSecrets.value.forEach((env) => {
               if (env.key === formattedExEnv) {
                 if (env.value === "") {
                   const itemLocation: InspectorLocation = {

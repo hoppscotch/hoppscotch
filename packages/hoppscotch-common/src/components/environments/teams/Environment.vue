@@ -19,7 +19,6 @@
     </span>
     <span>
       <tippy
-        v-if="!isViewer"
         ref="options"
         interactive
         trigger="click"
@@ -57,6 +56,7 @@
             />
 
             <HoppSmartItem
+              v-if="!isViewer"
               ref="duplicate"
               :icon="IconCopy"
               :label="`${t('action.duplicate')}`"
@@ -69,6 +69,7 @@
               "
             />
             <HoppSmartItem
+              v-if="!isViewer"
               ref="exportAsJsonEl"
               :icon="IconEdit"
               :label="`${t('export.as_json')}`"
@@ -81,6 +82,7 @@
               "
             />
             <HoppSmartItem
+              v-if="!isViewer"
               ref="deleteAction"
               :icon="IconTrash2"
               :label="`${t('action.delete')}`"

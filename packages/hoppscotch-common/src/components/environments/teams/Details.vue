@@ -35,12 +35,14 @@
                     :icon="IconHelpCircle"
                   />
                   <HoppButtonSecondary
+                    v-if="!isViewer"
                     v-tippy="{ theme: 'tooltip' }"
                     :title="t('action.clear_all')"
                     :icon="clearIcon"
                     @click="clearContent()"
                   />
                   <HoppButtonSecondary
+                    v-if="!isViewer"
                     v-tippy="{ theme: 'tooltip' }"
                     :icon="IconPlus"
                     :title="t('add.new')"
@@ -66,6 +68,7 @@
                       count: index + 1,
                     })}`"
                     :name="'param' + index"
+                    :disabled="isViewer"
                   />
                   <SmartEnvInput
                     v-model="env.value"
@@ -73,8 +76,9 @@
                     :placeholder="`${t('count.value', { count: index + 1 })}`"
                     :envs="liveEnvs"
                     :name="'value' + index"
+                    :readonly="isViewer"
                   />
-                  <div class="flex">
+                  <div v-if="!isViewer" class="flex">
                     <HoppButtonSecondary
                       id="variable"
                       v-tippy="{ theme: 'tooltip' }"
@@ -119,6 +123,7 @@
                       count: index + 1,
                     })}`"
                     :name="'param' + index"
+                    :disabled="isViewer"
                   />
                   <SmartEnvInput
                     v-model="env.value"
@@ -128,7 +133,7 @@
                     :name="'value' + index"
                     :secret="true"
                   />
-                  <div class="flex">
+                  <div v-if="!isViewer" class="flex">
                     <HoppButtonSecondary
                       id="variable"
                       v-tippy="{ theme: 'tooltip' }"
@@ -160,7 +165,7 @@
         </div>
       </div>
     </template>
-    <template v-if="!isViewer" #footer>
+    <template #footer>
       <span class="flex space-x-2">
         <HoppButtonPrimary
           :label="`${t('action.save')}`"
@@ -418,64 +423,75 @@ const saveEnvironment = async () => {
       workspaceType: "team",
     })
 
-    await pipe(
-      createTeamEnvironment(
-        JSON.stringify(environmentUpdated.variables),
-        props.editingTeamId,
-        environmentUpdated.name
-      ),
-      TE.match(
-        (err: GQLError<string>) => {
-          console.error(err)
-          toast.error(`${getErrorMessage(err)}`)
-          isLoading.value = false
-        },
-        (res) => {
-          const envID = res.createTeamEnvironment.id
-          if (envID) {
-            secretEnvironmentService.addSecretEnvironment(
-              envID,
-              secretVariables
-            )
+    if (!props.isViewer) {
+      await pipe(
+        createTeamEnvironment(
+          JSON.stringify(environmentUpdated.variables),
+          props.editingTeamId,
+          environmentUpdated.name
+        ),
+        TE.match(
+          (err: GQLError<string>) => {
+            console.error(err)
+            toast.error(`${getErrorMessage(err)}`)
+            isLoading.value = false
+          },
+          (res) => {
+            const envID = res.createTeamEnvironment.id
+            if (envID) {
+              secretEnvironmentService.addSecretEnvironment(
+                envID,
+                secretVariables
+              )
+            }
+            hideModal()
+            toast.success(`${t("environment.created")}`)
+            isLoading.value = false
           }
-          hideModal()
-          toast.success(`${t("environment.created")}`)
-          isLoading.value = false
-        }
-      )
-    )()
+        )
+      )()
+    }
   } else {
     if (!props.editingEnvironment) {
       console.error("No Environment Found")
       return
     }
 
-    await pipe(
-      updateTeamEnvironment(
-        JSON.stringify(environmentUpdated.variables),
-        props.editingEnvironment.id,
-        environmentUpdated.name
-      ),
-      TE.match(
-        (err: GQLError<string>) => {
-          console.error(err)
-          toast.error(`${getErrorMessage(err)}`)
-          isLoading.value = false
-        },
-        (res) => {
-          const envID = res.updateTeamEnvironment.id
-          if (envID) {
-            secretEnvironmentService.addSecretEnvironment(
-              envID,
-              secretVariables
-            )
-          }
-          hideModal()
-          toast.success(`${t("environment.updated")}`)
-          isLoading.value = false
-        }
+    if (editingID.value) {
+      secretEnvironmentService.addSecretEnvironment(
+        editingID.value,
+        secretVariables
       )
-    )()
+
+      // If the user is a viewer, we don't need to update the environment in BE
+      // just update the secret environment in the local storage
+      if (props.isViewer) {
+        hideModal()
+        toast.success(`${t("environment.updated")}`)
+      }
+    }
+
+    if (!props.isViewer) {
+      await pipe(
+        updateTeamEnvironment(
+          JSON.stringify(environmentUpdated.variables),
+          props.editingEnvironment.id,
+          environmentUpdated.name
+        ),
+        TE.match(
+          (err: GQLError<string>) => {
+            console.error(err)
+            toast.error(`${getErrorMessage(err)}`)
+            isLoading.value = false
+          },
+          () => {
+            hideModal()
+            toast.success(`${t("environment.updated")}`)
+            isLoading.value = false
+          }
+        )
+      )()
+    }
   }
 
   isLoading.value = false

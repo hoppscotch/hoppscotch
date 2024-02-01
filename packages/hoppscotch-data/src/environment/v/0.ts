@@ -2,7 +2,6 @@ import { z } from "zod"
 import { defineVersion } from "verzod"
 
 export const V0_SCHEMA = z.object({
-  v: z.literal(0),
   id: z.optional(z.string()),
   name: z.string(),
   variables: z.array(

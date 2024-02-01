@@ -62,7 +62,7 @@ export function parseBodyEnvVariablesE(
         (envVar) => envVar.key === key.replace(/[<>]/g, "")
       )
 
-      if (found && !found.secret) {
+      if (found && "value" in found) {
         return found.value
       }
       return key

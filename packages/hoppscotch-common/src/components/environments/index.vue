@@ -25,6 +25,7 @@
       :editing-environment-index="editingEnvironmentIndex"
       :editing-variable-name="editingVariableName"
       :env-vars="envVars"
+      :is-secret-option-selected="secretOptionSelected"
       @hide-modal="displayModalEdit(false)"
     />
     <EnvironmentsAdd
@@ -190,6 +191,7 @@ const action = ref<"new" | "edit">("edit")
 const editingEnvironmentIndex = ref<"Global" | null>(null)
 const editingVariableName = ref("")
 const editingVariableValue = ref("")
+const secretOptionSelected = ref(false)
 
 const position = ref({ top: 0, left: 0 })
 
@@ -250,8 +252,9 @@ defineActionHandler("modals.environment.delete-selected", () => {
 
 defineActionHandler(
   "modals.my.environment.edit",
-  ({ envName, variableName }) => {
+  ({ envName, variableName, isSecret }) => {
     if (variableName) editingVariableName.value = variableName
+    secretOptionSelected.value = isSecret ?? false
     envName === "Global" && editEnvironment("Global")
   }
 )

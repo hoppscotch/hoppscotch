@@ -56,7 +56,7 @@ import { useI18n } from "~/composables/i18n"
 
 const t = useI18n()
 
-type EmbedTabs = "parameters" | "body" | "headers" | "authorization"
+type EmbedTabs = "params" | "bodyParams" | "headers" | "authorization"
 
 type EmbedOption = {
   selectedTab: EmbedTabs
@@ -93,15 +93,15 @@ const props = defineProps({
   embedOptions: {
     type: Object as PropType<EmbedOption>,
     default: () => ({
-      selectedTab: "parameters",
+      selectedTab: "params",
       tabs: [
         {
-          value: "parameters",
+          value: "params",
           label: "shared_requests.parameters",
           enabled: true,
         },
         {
-          value: "body",
+          value: "bodyParams",
           label: "shared_requests.body",
           enabled: true,
         },

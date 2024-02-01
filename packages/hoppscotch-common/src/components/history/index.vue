@@ -111,7 +111,7 @@
     </div>
     <HoppSmartPlaceholder
       v-if="history.length === 0"
-      :src="`/images/states/${colorMode.value}/history.svg`"
+      :src="`/images/states/${colorMode.value}/time.svg`"
       :alt="`${t('empty.history')}`"
       :text="t('empty.history')"
     />

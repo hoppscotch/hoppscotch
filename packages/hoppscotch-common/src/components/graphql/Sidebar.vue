@@ -187,7 +187,7 @@ import IconClock from "~icons/lucide/clock"
 import IconCopy from "~icons/lucide/copy"
 import IconBox from "~icons/lucide/box"
 import { computed, nextTick, reactive, ref } from "vue"
-import { GraphQLField, GraphQLType } from "graphql"
+import { GraphQLField, GraphQLType, getNamedType } from "graphql"
 import { refAutoReset } from "@vueuse/core"
 import { useCodemirror } from "@composables/codemirror"
 import { copyToClipboard } from "@helpers/utils/clipboard"
@@ -260,12 +260,6 @@ function getFilteredGraphqlTypes(filterText: string, types: GraphQLType[]) {
   })
 }
 
-function resolveRootType(type: GraphQLType) {
-  let t: any = type
-  while (t.ofType) t = t.ofType
-  return t
-}
-
 const toast = useToast()
 
 const downloadSchemaIcon = refAutoReset<typeof IconDownload | typeof IconCheck>(
@@ -331,7 +325,7 @@ const handleJumpToType = async (type: GraphQLType) => {
   selectedGqlTab.value = "types"
   await nextTick()
 
-  const rootTypeName = resolveRootType(type).name
+  const rootTypeName = getNamedType(type).name
   const target = document.getElementById(`type_${rootTypeName}`)
   if (target) {
     target.scrollIntoView({ block: "center", behavior: "smooth" })

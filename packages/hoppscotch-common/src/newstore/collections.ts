@@ -68,7 +68,7 @@ export function navigateToFolderWithIndexPath(
 }
 
 /**
- * Used to obtain the inherited auth and headers for a given folder path, used for both REST and GraphQL
+ * Used to obtain the inherited auth and headers for a given folder path, used for both REST and GraphQL personal collections
  * @param folderPath the path of the folder to cascade the auth from
  * @param type the type of collection
  * @returns the inherited auth and headers for the given folder path

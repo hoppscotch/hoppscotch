@@ -94,7 +94,7 @@ export const stdSupportOptionItems: HoppSupportOptionsMenuItem[] = [
   shortcuts,
   changelog,
   github,
+  invite,
   discord,
   twitter,
-  invite,
 ]

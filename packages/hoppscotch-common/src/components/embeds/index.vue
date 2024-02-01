@@ -70,7 +70,11 @@
       v-model:option-tab="selectedOptionTab"
       :properties="properties"
     />
-    <HttpResponse :document="tab.document" :is-embed="true" />
+    <HttpResponse
+      v-if="tab.document.response"
+      :document="tab.document"
+      :is-embed="true"
+    />
   </div>
 </template>
 
@@ -88,18 +92,19 @@ import { runRESTRequest$ } from "~/helpers/RequestRunner"
 import { HoppTab } from "~/services/tab"
 import { HoppRESTDocument } from "~/helpers/rest/document"
 import IconSave from "~icons/lucide/save"
+import { RESTOptionTabs } from "../http/RequestOptions.vue"
 const t = useI18n()
 const toast = useToast()
 
 const props = defineProps<{
   modelTab: HoppTab<HoppRESTDocument>
-  properties: string[]
+  properties: RESTOptionTabs[]
   sharedRequestID: string
 }>()
 
 const tab = useModel(props, "modelTab")
 
-const selectedOptionTab = ref(props.properties[0])
+const selectedOptionTab = ref<RESTOptionTabs>(props.properties[0])
 
 const requestCancelFunc: Ref<(() => void) | null> = ref(null)
 

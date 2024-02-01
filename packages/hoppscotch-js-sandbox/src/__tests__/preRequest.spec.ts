@@ -1,8 +1,9 @@
-import { runPreRequestScript } from "~/pre-request/node-vm"
 import "@relmify/jest-fp-ts"
 
-describe("execPreRequestScript", () => {
-  test("returns the updated envirionment properly", () => {
+import { runPreRequestScript } from "~/pre-request/node-vm"
+
+describe("runPreRequestScript", () => {
+  test("returns the updated environment properly", () => {
     return expect(
       runPreRequestScript(
         `

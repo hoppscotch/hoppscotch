@@ -154,6 +154,9 @@ export function runRESTRequest$(
           )
 
           if (E.isRight(runResult)) {
+            // set the response in the tab so that multiple tabs can run request simultaneously
+            tab.value.document.response = res
+
             tab.value.document.testResults = translateToSandboxTestResults(
               runResult.right
             )

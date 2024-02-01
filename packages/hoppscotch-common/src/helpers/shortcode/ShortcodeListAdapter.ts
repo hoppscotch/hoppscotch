@@ -156,6 +156,7 @@ export default class ShortcodeListAdapter {
     const [shortcodeCreated$, shortcodeCreatedSub] = runAuthOnlyGQLSubscription(
       {
         query: ShortcodeCreatedDocument,
+        variables: {},
       }
     )
 
@@ -172,6 +173,7 @@ export default class ShortcodeListAdapter {
     const [shortcodeRevoked$, shortcodeRevokedSub] = runAuthOnlyGQLSubscription(
       {
         query: ShortcodeDeletedDocument,
+        variables: {},
       }
     )
 
@@ -188,6 +190,7 @@ export default class ShortcodeListAdapter {
     const [shortcodeUpdated$, shortcodeUpdatedSub] = runAuthOnlyGQLSubscription(
       {
         query: ShortcodeUpdatedDocument,
+        variables: {},
       }
     )
 

@@ -80,6 +80,13 @@
                 global
               />
               <HttpTestResultEnv
+                v-for="(env, index) in testResults.envDiff.global.deletions"
+                :key="`env-${env.key}-${index}`"
+                :env="env"
+                status="deletions"
+                global
+              />
+              <HttpTestResultEnv
                 v-for="(env, index) in testResults.envDiff.selected.additions"
                 :key="`env-${env.key}-${index}`"
                 :env="env"
@@ -155,7 +162,7 @@
     </div>
     <HoppSmartPlaceholder
       v-else-if="testResults && testResults.scriptError"
-      :src="`/images/states/${colorMode.value}/youre_lost.svg`"
+      :src="`/images/states/${colorMode.value}/upload_error.svg`"
       :alt="`${t('error.test_script_fail')}`"
       :heading="t('error.test_script_fail')"
       :text="t('helpers.test_script_fail')"

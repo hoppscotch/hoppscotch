@@ -31,11 +31,10 @@
       />
       <HoppSmartPlaceholder
         v-if="response.type === 'network_fail'"
-        :src="`/images/states/${colorMode.value}/youre_lost.svg`"
+        :src="`/images/states/${colorMode.value}/upload_error.svg`"
         :alt="`${t('error.network_fail')}`"
         :heading="t('error.network_fail')"
         :text="t('helpers.network_fail')"
-        large
       >
         <template #body>
           <AppInterceptor class="rounded border border-dividerLight p-2" />
@@ -43,11 +42,10 @@
       </HoppSmartPlaceholder>
       <HoppSmartPlaceholder
         v-if="response.type === 'script_fail'"
-        :src="`/images/states/${colorMode.value}/youre_lost.svg`"
+        :src="`/images/states/${colorMode.value}/upload_error.svg`"
         :alt="`${t('error.script_fail')}`"
         :label="t('error.script_fail')"
         :text="t('helpers.script_fail')"
-        large
       >
         <template #body>
           <div

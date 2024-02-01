@@ -6,7 +6,7 @@ import DispatchingStore, {
   defineDispatchers,
 } from "~/newstore/DispatchingStore"
 
-type SelectedEnvironmentIndex =
+export type SelectedEnvironmentIndex =
   | { type: "NO_ENV_SELECTED" }
   | { type: "MY_ENV"; index: number }
   | {

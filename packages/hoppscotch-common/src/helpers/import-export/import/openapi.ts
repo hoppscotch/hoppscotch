@@ -549,13 +549,19 @@ const convertPathToHoppReqs = (
     ),
 
     // Construct request object
-    RA.map(({ method, info }) =>
-      makeRESTRequest({
+    RA.map(({ method, info }) => {
+      const openAPIUrl = parseOpenAPIUrl(doc)
+      const openAPIPath = replaceOpenApiPathTemplating(pathName)
+
+      const endpoint =
+        openAPIUrl.endsWith("/") && openAPIPath.startsWith("/")
+          ? openAPIUrl + openAPIPath.slice(1)
+          : openAPIUrl + openAPIPath
+
+      return makeRESTRequest({
         name: info.operationId ?? info.summary ?? "Untitled Request",
         method: method.toUpperCase(),
-        endpoint: `${parseOpenAPIUrl(doc)}${replaceOpenApiPathTemplating(
-          pathName
-        )}`,
+        endpoint,
 
         // We don't need to worry about reference types as the Dereferencing pass should remove them
         params: parseOpenAPIParams(
@@ -572,7 +578,7 @@ const convertPathToHoppReqs = (
         preRequestScript: "",
         testScript: "",
       })
-    ),
+    }),
 
     // Disable Readonly
     RA.toArray

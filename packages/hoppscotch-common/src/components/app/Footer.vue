@@ -35,7 +35,7 @@
           :on-shown="() => tippyActions!.focus()"
         >
           <HoppButtonSecondary
-            :icon="IconLifeBuoy"
+            :icon="IconHelpCircle"
             class="!rounded-none"
             :label="`${t('app.help')}`"
           />
@@ -70,33 +70,18 @@
                   }
                 "
               />
-              <!--
-              <HoppSmartItem
-                ref="chat"
-                :icon="IconMessageCircle"
-                :label="`${t('app.chat_with_us')}`"
-                :shortcut="['C']"
-                @click="
-                  () => {
-                    chatWithUs()
-                    hide()
-                  }
-                "
-              />
-              -->
               <template
                 v-for="footerItem in platform.ui?.additionalFooterMenuItems"
                 :key="footerItem.id"
               >
-                <template v-if="footerItem.action.type === 'link'">
-                  <HoppSmartItem
-                    :icon="footerItem.icon"
-                    :label="footerItem.text(t)"
-                    :to="footerItem.action.href"
-                    blank
-                    @click="hide()"
-                  />
-                </template>
+                <HoppSmartItem
+                  v-if="footerItem.action.type === 'link'"
+                  :icon="footerItem.icon"
+                  :label="footerItem.text(t)"
+                  :to="footerItem.action.href"
+                  blank
+                  @click="hide()"
+                />
                 <HoppSmartItem
                   v-else
                   :icon="footerItem.icon"
@@ -223,7 +208,7 @@ import IconGithub from "~icons/lucide/github"
 import IconTwitter from "~icons/lucide/twitter"
 import IconUserPlus from "~icons/lucide/user-plus"
 import IconLock from "~icons/lucide/lock"
-import IconLifeBuoy from "~icons/lucide/life-buoy"
+import IconHelpCircle from "~icons/lucide/help-circle"
 import { useSetting } from "@composables/settings"
 import { useI18n } from "@composables/i18n"
 import { useReadonlyStream } from "@composables/stream"

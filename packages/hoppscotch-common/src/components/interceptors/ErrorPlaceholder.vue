@@ -1,9 +1,8 @@
 <template>
   <HoppSmartPlaceholder
-    :src="`/images/states/${colorMode.value}/youre_lost.svg`"
+    :src="`/images/states/${colorMode.value}/upload_error.svg`"
     :alt="`${t('error.network_fail')}`"
     :heading="t('error.network_fail')"
-    large
   >
     <template #body>
       <div class="my-1 flex flex-col items-center text-secondaryLight">

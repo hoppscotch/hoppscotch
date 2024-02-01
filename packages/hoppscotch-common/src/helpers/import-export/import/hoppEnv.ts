@@ -1,50 +1,30 @@
-import * as TE from "fp-ts/TaskEither"
 import * as O from "fp-ts/Option"
-import * as RA from "fp-ts/ReadonlyArray"
-import { pipe, flow } from "fp-ts/function"
+import * as TE from "fp-ts/TaskEither"
+import { entityReference } from "verzod"
 
-import { IMPORTER_INVALID_FILE_FORMAT } from "."
 import { safeParseJSON } from "~/helpers/functional/json"
+import { IMPORTER_INVALID_FILE_FORMAT } from "."
 
-import { Environment, translateToNewEnvironment } from "@hoppscotch/data"
-import { isPlainObject as _isPlainObject } from "lodash-es"
+import { Environment } from "@hoppscotch/data"
+import { z } from "zod"
 
-const isPlainObject = (value: any): value is object => _isPlainObject(value)
+export const hoppEnvImporter = (content: string) => {
+  const parsedContent = safeParseJSON(content, true)
 
-/**
- * checks if a environment matches the schema for a hoppscotch environment.
- * here 1 is the latest version of the schema.
- */
-const isValidEnvironment = (environment: unknown): environment is Environment =>
-  isPlainObject(environment) && "v" in environment && environment.v === 1
-
-/**
- * checks if a environment is a valid hoppscotch environment.
- * else translate it into one.
- */
-const validateEnviroment = (env: unknown) => {
-  if (isValidEnvironment(env)) {
-    return O.some(env)
+  // parse json from the environments string
+  if (O.isNone(parsedContent)) {
+    return TE.left(IMPORTER_INVALID_FILE_FORMAT)
   }
-  return O.some(translateToNewEnvironment(env))
+
+  const validationResult = z
+    .array(entityReference(Environment))
+    .safeParse(parsedContent.value)
+
+  if (!validationResult.success) {
+    return TE.left(IMPORTER_INVALID_FILE_FORMAT)
+  }
+
+  const environments = validationResult.data
+
+  return TE.right(environments)
 }
-
-/**
- * convert single environment object into an array so it can be handled the same as multiple environments
- */
-const makeEnvironmentsArray = (environments: unknown | unknown[]): unknown[] =>
-  Array.isArray(environments) ? environments : [environments]
-
-export const hoppEnvImporter = (content: string) =>
-  pipe(
-    safeParseJSON(content),
-    O.chain(
-      flow(
-        makeEnvironmentsArray,
-        RA.map(validateEnviroment),
-        O.sequenceArray,
-        O.map(RA.toArray)
-      )
-    ),
-    TE.fromOption(() => IMPORTER_INVALID_FILE_FORMAT)
-  )

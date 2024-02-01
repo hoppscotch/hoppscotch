@@ -211,7 +211,6 @@ import { useI18n } from "@composables/i18n"
 import {
   globalEnv$,
   selectedEnvironmentIndex$,
-  setGlobalEnvVariables,
   setSelectedEnvironmentIndex,
 } from "~/newstore/environments"
 import { HoppTestResult } from "~/helpers/types/HoppTestResult"
@@ -306,14 +305,8 @@ const globalHasAdditions = computed(() => {
 const addEnvToGlobal = () => {
   if (!testResults.value?.envDiff.selected.additions) return
 
-  setGlobalEnvVariables([
-    ...globalEnvVars.value,
-    ...testResults.value.envDiff.selected.additions,
-  ])
-
-  invokeAction("modals.my.environment.edit", {
-    envName: "Global",
-    variableName: testResults.value.envDiff.selected.additions[0].key,
+  invokeAction("modals.global.environment.update", {
+    variables: testResults.value.envDiff.selected.additions,
     isSecret: false,
   })
 }

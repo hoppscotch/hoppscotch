@@ -284,9 +284,13 @@ const selectedEnvOption = ref<SelectedEnv>("variables")
 
 const workingEnv = computed(() => {
   if (props.editingEnvironmentIndex === "Global") {
+    const vars =
+      props.editingVariableName === "Global"
+        ? props.envVars()
+        : getGlobalVariables()
     return {
       name: "Global",
-      variables: getGlobalVariables(),
+      variables: vars,
     } as Environment
   } else if (props.action === "new") {
     return {

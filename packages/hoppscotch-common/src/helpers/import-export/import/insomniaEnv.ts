@@ -6,6 +6,7 @@ import { IMPORTER_INVALID_FILE_FORMAT } from "."
 import { z } from "zod"
 import { Environment } from "@hoppscotch/data"
 import { safeParseJSONOrYAML } from "~/helpers/functional/yaml"
+import { uniqueId } from "lodash-es"
 
 const insomniaResourcesSchema = z.object({
   resources: z.array(
@@ -63,9 +64,11 @@ export const insomniaEnvImporter = (content: string) => {
 
     if (parsedInsomniaEnv.success) {
       const environment: Environment = {
+        id: uniqueId(),
+        v: 1,
         name: parsedInsomniaEnv.data.name,
         variables: Object.entries(parsedInsomniaEnv.data.data).map(
-          ([key, value]) => ({ key, value })
+          ([key, value]) => ({ key, value, secret: false })
         ),
       }
 
@@ -77,7 +80,15 @@ export const insomniaEnvImporter = (content: string) => {
     ...env,
     variables: env.variables.map((variable) => ({
       ...variable,
-      value: replaceInsomniaTemplating(variable.value),
+      value: replaceInsomniaTemplating(
+        (
+          variable as {
+            key: string
+            value: string
+            secret: false
+          }
+        ).value
+      ),
     })),
   }))
 

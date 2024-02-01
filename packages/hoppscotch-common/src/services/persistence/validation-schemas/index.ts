@@ -393,7 +393,11 @@ const HoppTestResultSchema = z
           .object({
             additions: z.array(EnvironmentVariablesSchema),
             updations: z.array(
-              EnvironmentVariablesSchema.refine((val) => !val.secret)
+              EnvironmentVariablesSchema.and(
+                z.object({
+                  previousValue: z.string(),
+                })
+              )
             ),
             deletions: z.array(EnvironmentVariablesSchema),
           })
@@ -402,7 +406,11 @@ const HoppTestResultSchema = z
           .object({
             additions: z.array(EnvironmentVariablesSchema),
             updations: z.array(
-              EnvironmentVariablesSchema.refine((val) => !val.secret)
+              EnvironmentVariablesSchema.and(
+                z.object({
+                  previousValue: z.string(),
+                })
+              )
             ),
             deletions: z.array(EnvironmentVariablesSchema),
           })

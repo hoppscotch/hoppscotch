@@ -24,6 +24,7 @@
       :action="action"
       :editing-environment-index="editingEnvironmentIndex"
       :editing-variable-name="editingVariableName"
+      :env-vars="envVars"
       @hide-modal="displayModalEdit(false)"
     />
     <EnvironmentsAdd
@@ -67,6 +68,7 @@ import { deleteTeamEnvironment } from "~/helpers/backend/mutations/TeamEnvironme
 import { useToast } from "~/composables/toast"
 import { WorkspaceService } from "~/services/workspace.service"
 import { useService } from "dioc/vue"
+import { Environment } from "@hoppscotch/data"
 
 const t = useI18n()
 const toast = useToast()
@@ -88,6 +90,8 @@ const environmentType = ref<EnvironmentsChooseType>({
 const globalEnv = useReadonlyStream(globalEnv$, [])
 
 const globalEnvironment = computed(() => ({
+  v: 1 as const,
+  id: "Global",
   name: "Global",
   variables: globalEnv.value,
 }))
@@ -203,6 +207,7 @@ const displayModalEdit = (shouldDisplay: boolean) => {
 const editEnvironment = (environmentIndex: "Global") => {
   editingEnvironmentIndex.value = environmentIndex
   action.value = "edit"
+  editingVariableName.value = ""
   displayModalEdit(true)
 }
 
@@ -250,6 +255,18 @@ defineActionHandler(
     envName === "Global" && editEnvironment("Global")
   }
 )
+
+const additionalVars = ref<Environment["variables"]>([])
+
+const envVars = () => [...globalEnv.value, ...additionalVars.value]
+
+defineActionHandler("modals.global.environment.update", ({ variables }) => {
+  if (variables) {
+    additionalVars.value = variables
+  }
+  editEnvironment("Global")
+  editingVariableName.value = "Global"
+})
 
 const selectedEnvironmentIndex = useStream(
   selectedEnvironmentIndex$,

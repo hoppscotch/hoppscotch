@@ -118,13 +118,12 @@ const dispatchers = defineDispatchers({
       }
     }
 
-    newEnvironment.id = uniqueId()
-
     return {
       environments: [
         ...environments,
         {
           ...cloneDeep(newEnvironment),
+          id: uniqueId(),
           name: `${newEnvironment.name} - Duplicate`,
         },
       ],

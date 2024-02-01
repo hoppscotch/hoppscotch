@@ -37,7 +37,7 @@
 
   <HoppSmartConfirmModal
     :show="showConfirmRemoveEnvModal"
-    :title="t('confirm.remove_team')"
+    :title="`${t('confirm.remove_environment')}`"
     @hide-modal="showConfirmRemoveEnvModal = false"
     @resolve="removeSelectedEnvironment()"
   />

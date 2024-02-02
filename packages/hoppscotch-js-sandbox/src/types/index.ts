@@ -59,3 +59,9 @@ export type GlobalEnvItem = TestResult["envs"]["global"][number]
 export type SelectedEnvItem = TestResult["envs"]["selected"][number]
 
 export type SandboxTestResult = TestResult & { tests: TestDescriptor }
+
+export type EnvironmentVariable = {
+  key: string
+  value: string | undefined
+  secret: boolean
+}

@@ -122,7 +122,15 @@
 </template>
 
 <script setup lang="ts">
-import { useRoute, useRouter } from 'vue-router';
+import { useMutation, useQuery } from '@urql/vue';
+import { computed, ref } from 'vue';
+import { useRouter } from 'vue-router';
+import { useI18n } from '~/composables/i18n';
+import { useToast } from '~/composables/toast';
+import { usePagedQuery } from '~/composables/usePagedQuery';
+import IconMoreHorizontal from '~icons/lucide/more-horizontal';
+import IconAddUsers from '~icons/lucide/plus';
+import IconTrash from '~icons/lucide/trash';
 import {
   CreateTeamDocument,
   MetricsDocument,
@@ -130,18 +138,10 @@ import {
   TeamListDocument,
   UsersListDocument,
 } from '../../helpers/backend/graphql';
-import { usePagedQuery } from '~/composables/usePagedQuery';
-import { computed, ref, watch } from 'vue';
-import { useMutation, useQuery } from '@urql/vue';
-import { useToast } from '~/composables/toast';
-import IconAddUsers from '~icons/lucide/plus';
-import IconTrash from '~icons/lucide/trash';
-import IconMoreHorizontal from '~icons/lucide/more-horizontal';
-import { useI18n } from '~/composables/i18n';
 
 const t = useI18n();
-
 const toast = useToast();
+
 // Get Users List
 const { data } = useQuery({ query: MetricsDocument });
 const usersPerPage = computed(() => data.value?.infra.usersCount || 10000);
@@ -174,55 +174,50 @@ const {
 );
 
 // Create Team
-const createTeamMutation = useMutation(CreateTeamDocument);
 const showCreateTeamModal = ref(false);
 const createTeamLoading = ref(false);
+const createTeamMutation = useMutation(CreateTeamDocument);
 
 const createTeam = async (newTeamName: string, ownerEmail: string) => {
   if (newTeamName.length < 6) {
-    toast.error(`${t('state.team_name_long')}`);
+    toast.error(t('state.team_name_too_short'));
     return;
   }
   if (ownerEmail.length === 0) {
-    toast.error(`${t('state.enter_team_email')}`);
+    toast.error(t('state.enter_team_email'));
     return;
   }
+
   createTeamLoading.value = true;
   const userUid =
     usersList.value.find((user) => user.email === ownerEmail)?.uid || '';
+
   const variables = { name: newTeamName.trim(), userUid: userUid };
-  await createTeamMutation.executeMutation(variables).then((result) => {
-    if (result.error) {
-      if (result.error.toString() == '[GraphQL] user/not_found') {
-        toast.error(`${t('state.user_not_found')}`);
-      } else {
-        toast.error(`${t('state.create_team_failure')}`);
-      }
-      createTeamLoading.value = false;
+
+  const result = await createTeamMutation.executeMutation(variables);
+  if (result.error) {
+    if (result.error.toString() == '[GraphQL] user/not_found') {
+      toast.error(t('state.user_not_found'));
     } else {
-      toast.success(`${t('state.create_team_success')}`);
-      showCreateTeamModal.value = false;
-      createTeamLoading.value = false;
-      refetch();
+      toast.error(t('state.create_team_failure'));
     }
-  });
+    createTeamLoading.value = false;
+  } else {
+    toast.success(t('state.create_team_success'));
+    showCreateTeamModal.value = false;
+    createTeamLoading.value = false;
+    refetch();
+  }
 };
 
 // Go To Individual Team Details Page
 const router = useRouter();
 const goToTeamDetails = (teamId: string) => router.push('/teams/' + teamId);
 
-// Reload Teams Page when routed back to the teams page
-const route = useRoute();
-watch(
-  () => route.params.id,
-  () => window.location.reload()
-);
-
 // Team Deletion
-const teamDeletion = useMutation(RemoveTeamDocument);
 const confirmDeletion = ref(false);
 const deleteTeamID = ref<string | null>(null);
+const teamDeletion = useMutation(RemoveTeamDocument);
 
 const deleteTeam = (id: string) => {
   confirmDeletion.value = true;
@@ -232,20 +227,19 @@ const deleteTeam = (id: string) => {
 const deleteTeamMutation = async (id: string | null) => {
   if (!id) {
     confirmDeletion.value = false;
-    toast.error(`${t('state.delete_team_failure')}`);
+    toast.error(t('state.delete_team_failure'));
     return;
   }
   const variables = { uid: id };
-  await teamDeletion.executeMutation(variables).then((result) => {
-    if (result.error) {
-      toast.error(`${t('state.delete_team_failure')}`);
-    } else {
-      teamsList.value = teamsList.value.filter((team) => team.id !== id);
-      toast.success(`${t('state.delete_team_success')}`);
-    }
-  });
+  const result = await teamDeletion.executeMutation(variables);
+  if (result.error) {
+    toast.error(t('state.delete_team_failure'));
+  } else {
+    teamsList.value = teamsList.value.filter((team) => team.id !== id);
+    toast.success(t('state.delete_team_success'));
+  }
+
   confirmDeletion.value = false;
   deleteTeamID.value = null;
-  router.push('/teams');
 };
 </script>

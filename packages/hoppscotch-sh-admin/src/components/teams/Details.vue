@@ -1,7 +1,7 @@
 <template>
-  <div class="flex flex-col">
+  <div v-if="team" class="flex flex-col">
     <div class="flex flex-col space-y-8">
-      <div v-if="team.id" class="flex flex-col space-y-3">
+      <div class="flex flex-col space-y-3">
         <label class="text-accentContrast" for="username"
           >{{ t('teams.id') }}
         </label>
@@ -10,33 +10,33 @@
         </div>
       </div>
 
-      <div v-if="teamName" class="flex flex-col space-y-3">
+      <div class="flex flex-col space-y-3">
         <label class="text-accentContrast" for="teamname"
           >{{ t('teams.name') }}
         </label>
         <div
           class="flex bg-divider rounded-md items-stretch flex-1 border border-divider"
           :class="{
-            '!border-accent': showRenameInput,
+            '!border-accent': isTeamNameBeingEdited,
           }"
         >
           <HoppSmartInput
-            v-model="newTeamName"
+            v-model="updatedTeamName"
             styles="bg-transparent flex-1 rounded-md !rounded-r-none disabled:select-none border-r-0 disabled:cursor-default disabled:opacity-50"
             placeholder="Team Name"
-            :disabled="!showRenameInput"
+            :disabled="!isTeamNameBeingEdited"
           >
             <template #button>
               <HoppButtonPrimary
                 class="!rounded-l-none"
                 filled
-                :icon="showRenameInput ? IconSave : IconEdit"
+                :icon="isTeamNameBeingEdited ? IconSave : IconEdit"
                 :label="
-                  showRenameInput
+                  isTeamNameBeingEdited
                     ? `${t('teams.rename')}`
                     : `${t('teams.edit')}`
                 "
-                @click="handleNameEdit()"
+                @click="handleTeamNameEdit"
               />
             </template>
           </HoppSmartInput>
@@ -58,7 +58,7 @@
         class="!bg-red-600 !hover:opacity-80"
         filled
         :label="t('teams.delete_team')"
-        @click="team && $emit('delete-team', team.id)"
+        @click="emit('delete-team', team.id)"
         :icon="IconTrash"
       />
     </div>
@@ -66,45 +66,89 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { useMutation } from '@urql/vue';
+import { useVModel } from '@vueuse/core';
+import { computed, onMounted, ref } from 'vue';
+import { useI18n } from '~/composables/i18n';
 import { useToast } from '~/composables/toast';
-import { TeamInfoQuery } from '~/helpers/backend/graphql';
+import { RenameTeamDocument, TeamInfoQuery } from '~/helpers/backend/graphql';
 import IconEdit from '~icons/lucide/edit';
 import IconSave from '~icons/lucide/save';
 import IconTrash from '~icons/lucide/trash-2';
-import { useI18n } from '~/composables/i18n';
 
 const t = useI18n();
-
 const toast = useToast();
 
 const props = defineProps<{
   team: TeamInfoQuery['infra']['teamInfo'];
-  teamName: string;
-  showRenameInput: boolean;
 }>();
 
 const emit = defineEmits<{
-  (event: 'delete-team', teamID: string): void;
-  (event: 'rename-team', teamName: string): void;
-  (event: 'update:showRenameInput', showRenameInput: boolean): void;
+  (event: 'update:team', team: TeamInfoQuery['infra']['teamInfo']): void;
+  (event: 'delete-team', teamId: string): void;
 }>();
 
-const newTeamName = ref(props.teamName);
+const team = useVModel(props, 'team', emit);
 
-const handleNameEdit = () => {
-  if (props.showRenameInput) {
-    renameTeam();
+// Contains the actual team name
+const teamName = computed({
+  get: () => team.value.name,
+  set: (value) => {
+    team.value.name = value;
+  },
+});
+
+// Contains the stored team name from the actual team name before being edited
+const currentTeamName = ref('');
+
+// Contains the team name that is being edited
+const updatedTeamName = computed({
+  get: () => currentTeamName.value,
+  set: (value) => {
+    currentTeamName.value = value;
+  },
+});
+
+// Set the current team name to the actual team name
+onMounted(() => {
+  currentTeamName.value = teamName.value;
+});
+
+// Rename the team name
+const isTeamNameBeingEdited = ref(false);
+const teamRename = useMutation(RenameTeamDocument);
+
+const handleTeamNameEdit = () => {
+  if (isTeamNameBeingEdited.value) {
+    // If the team name is not changed, then return control
+    if (teamName.value !== updatedTeamName.value) {
+      renameTeamName();
+    } else isTeamNameBeingEdited.value = false;
   } else {
-    emit('update:showRenameInput', true);
+    isTeamNameBeingEdited.value = true;
   }
 };
 
-const renameTeam = () => {
-  if (newTeamName.value.trim() === '') {
-    toast.error(`${t('teams.empty_name')}`);
+const renameTeamName = async () => {
+  if (updatedTeamName.value.trim() === '') {
+    toast.error(t('teams.empty_name'));
     return;
   }
-  emit('rename-team', newTeamName.value);
+
+  if (updatedTeamName.value.length < 6) {
+    toast.error(t('state.team_name_too_short'));
+    return;
+  }
+
+  const variables = { uid: team.value.id, name: updatedTeamName.value };
+  const result = await teamRename.executeMutation(variables);
+
+  if (result.error) {
+    toast.error(t('state.rename_team_failure'));
+  } else {
+    isTeamNameBeingEdited.value = false;
+    toast.success(t('state.rename_team_success'));
+    teamName.value = updatedTeamName.value;
+  }
 };
 </script>

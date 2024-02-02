@@ -11,7 +11,6 @@
           @click="showInviteUserModal = true"
           :icon="IconAddUser"
         />
-
         <div class="flex">
           <HoppButtonSecondary
             outline
@@ -173,34 +172,32 @@
 </template>
 
 <script setup lang="ts">
-import { format } from 'date-fns';
-import { ref, watch } from 'vue';
 import { useMutation } from '@urql/vue';
+import { format } from 'date-fns';
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+import { useI18n } from '~/composables/i18n';
+import { useToast } from '~/composables/toast';
+import { usePagedQuery } from '~/composables/usePagedQuery';
+import IconMoreHorizontal from '~icons/lucide/more-horizontal';
+import IconTrash from '~icons/lucide/trash';
+import IconUserCheck from '~icons/lucide/user-check';
+import IconUserMinus from '~icons/lucide/user-minus';
+import IconAddUser from '~icons/lucide/user-plus';
 import {
   InviteNewUserDocument,
   MakeUserAdminDocument,
-  RemoveUserByAdminDocument,
   RemoveUserAsAdminDocument,
+  RemoveUserByAdminDocument,
   UsersListDocument,
-} from '../../helpers/backend/graphql';
-import { usePagedQuery } from '~/composables/usePagedQuery';
-import { useRoute, useRouter } from 'vue-router';
-import { useToast } from '~/composables/toast';
-import { HoppButtonSecondary } from '@hoppscotch/ui';
-import IconAddUser from '~icons/lucide/user-plus';
-import IconTrash from '~icons/lucide/trash';
-import IconUserMinus from '~icons/lucide/user-minus';
-import IconUserCheck from '~icons/lucide/user-check';
-import IconMoreHorizontal from '~icons/lucide/more-horizontal';
-import { useI18n } from '~/composables/i18n';
+} from '~/helpers/backend/graphql';
 
 // Get Proper Date Formats
+const t = useI18n();
+const toast = useToast();
+
 const getCreatedDate = (date: string) => format(new Date(date), 'dd-MM-yyyy');
 const getCreatedTime = (date: string) => format(new Date(date), 'hh:mm a');
-
-const t = useI18n();
-
-const toast = useToast();
 
 // Get Paginated Results of all the users in the infra
 const usersPerPage = 20;
@@ -224,29 +221,22 @@ const showInviteUserModal = ref(false);
 
 const sendInvite = async (email: string) => {
   if (!email.trim()) {
-    toast.error(`${t('state.invalid_email')}`);
+    toast.error(t('state.invalid_email'));
     return;
   }
   const variables = { inviteeEmail: email.trim() };
-  await sendInvitation.executeMutation(variables).then((result) => {
-    if (result.error) {
-      toast.error(`${t('state.email_failure')}`);
-    } else {
-      toast.success(`${t('state.email_success')}`);
-      showInviteUserModal.value = false;
-    }
-  });
+  const result = await sendInvitation.executeMutation(variables);
+  if (result.error) {
+    toast.error(t('state.email_failure'));
+  } else {
+    toast.success(t('state.email_success'));
+    showInviteUserModal.value = false;
+  }
 };
 
 // Go to Individual User Details Page
-const route = useRoute();
 const router = useRouter();
 const goToUserDetails = (uid: string) => router.push('/users/' + uid);
-
-watch(
-  () => route.params.id,
-  () => window.location.reload()
-);
 
 // User Deletion
 const userDeletion = useMutation(RemoveUserByAdminDocument);
@@ -256,18 +246,17 @@ const deleteUserUID = ref<string | null>(null);
 const deleteUserMutation = async (id: string | null) => {
   if (!id) {
     confirmDeletion.value = false;
-    toast.error(`${t('state.delete_user_failure')}`);
+    toast.error(t('state.delete_user_failure'));
     return;
   }
   const variables = { uid: id };
-  await userDeletion.executeMutation(variables).then((result) => {
-    if (result.error) {
-      toast.error(`${t('state.delete_user_failure')}`);
-    } else {
-      toast.success(`${t('state.delete_user_success')}`);
-      usersList.value = usersList.value.filter((user) => user.uid !== id);
-    }
-  });
+  const result = await userDeletion.executeMutation(variables);
+  if (result.error) {
+    toast.error(t('state.delete_user_failure'));
+  } else {
+    toast.success(t('state.delete_user_success'));
+    usersList.value = usersList.value.filter((user) => user.uid !== id);
+  }
   confirmDeletion.value = false;
   deleteUserUID.value = null;
 };
@@ -285,23 +274,20 @@ const makeUserAdmin = (id: string) => {
 const makeUserAdminMutation = async (id: string | null) => {
   if (!id) {
     confirmUserToAdmin.value = false;
-    toast.error(`${t('state.admin_failure')}`);
+    toast.error(t('state.admin_failure'));
     return;
   }
   const variables = { uid: id };
-  await userToAdmin.executeMutation(variables).then((result) => {
-    if (result.error) {
-      toast.error(`${t('state.admin_failure')}`);
-    } else {
-      toast.success(`${t('state.admin_success')}`);
-      usersList.value = usersList.value.map((user) => {
-        if (user.uid === id) {
-          user.isAdmin = true;
-        }
-        return user;
-      });
-    }
-  });
+  const result = await userToAdmin.executeMutation(variables);
+  if (result.error) {
+    toast.error(t('state.admin_failure'));
+  } else {
+    toast.success(t('state.admin_success'));
+    usersList.value = usersList.value.map((user) => ({
+      ...user,
+      isAdmin: user.uid === id ? true : user.isAdmin,
+    }));
+  }
   confirmUserToAdmin.value = false;
   userToAdminUID.value = null;
 };
@@ -324,23 +310,20 @@ const deleteUser = (id: string) => {
 const makeAdminToUserMutation = async (id: string | null) => {
   if (!id) {
     confirmAdminToUser.value = false;
-    toast.error(`${t('state.remove_admin_failure')}`);
+    toast.error(t('state.remove_admin_failure'));
     return;
   }
   const variables = { uid: id };
-  await adminToUser.executeMutation(variables).then((result) => {
-    if (result.error) {
-      toast.error(`${t('state.remove_admin_failure')}`);
-    } else {
-      toast.success(`${t('state.remove_admin_success')}`);
-      usersList.value = usersList.value.map((user) => {
-        if (user.uid === id) {
-          user.isAdmin = false;
-        }
-        return user;
-      });
-    }
-  });
+  const result = await adminToUser.executeMutation(variables);
+  if (result.error) {
+    toast.error(t('state.remove_admin_failure'));
+  } else {
+    toast.success(t('state.remove_admin_success'));
+    usersList.value = usersList.value.map((user) => ({
+      ...user,
+      isAdmin: user.uid === id ? false : user.isAdmin,
+    }));
+  }
   confirmAdminToUser.value = false;
   adminToUserUID.value = null;
 };

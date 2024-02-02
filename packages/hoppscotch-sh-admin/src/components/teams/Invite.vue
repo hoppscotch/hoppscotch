@@ -1,16 +1,23 @@
 <template>
-  <HoppSmartModal v-if="show" dialog title="Add Member" @close="hideModal">
+  <HoppSmartModal
+    v-if="show"
+    dialog
+    :title="t('teams.add_member')"
+    @close="hideModal"
+  >
     <template #body>
       <div v-if="addingUserToTeam" class="flex items-center justify-center p-4">
         <HoppSmartSpinner />
       </div>
       <div v-else class="flex flex-col">
         <div class="flex items-center justify-between flex-1 pt-4">
-          <label for="memberList" class="p-4"> Add members </label>
+          <label for="memberList" class="p-4">
+            {{ t('teams.add_members') }}
+          </label>
           <div class="flex">
             <HoppButtonSecondary
               :icon="IconPlus"
-              label="Add new"
+              :label="t('teams.add_new')"
               filled
               @click="addNewMember"
             />
@@ -23,8 +30,8 @@
             class="flex divide-x divide-dividerLight"
           >
             <HoppSmartAutoComplete
-              v-model="member.key"
-              placeholder="Email"
+              :value="member.key"
+              :placeholder="t('state.email')"
               :source="allUsersEmail"
               :name="'member' + index"
               :spellcheck="true"
@@ -44,7 +51,7 @@
                 <HoppSmartSelectWrapper>
                   <input
                     class="flex flex-1 px-4 py-2 bg-transparent cursor-pointer"
-                    placeholder="Permissions"
+                    :placeholder="t('teams.permissions')"
                     :name="'value' + index"
                     :value="member.value"
                     readonly
@@ -58,7 +65,7 @@
                     @keyup.escape="hide()"
                   >
                     <HoppSmartItem
-                      label="OWNER"
+                      :label="t('teams.owner')"
                       :icon="
                         member.value === 'OWNER' ? IconCircleDot : IconCircle
                       "
@@ -71,7 +78,7 @@
                       "
                     />
                     <HoppSmartItem
-                      label="EDITOR"
+                      :label="t('teams.editor')"
                       :icon="
                         member.value === 'EDITOR' ? IconCircleDot : IconCircle
                       "
@@ -84,7 +91,7 @@
                       "
                     />
                     <HoppSmartItem
-                      label="VIEWER"
+                      :label="t('teams.viewer')"
                       :icon="
                         member.value === 'VIEWER' ? IconCircleDot : IconCircle
                       "
@@ -104,7 +111,7 @@
               <HoppButtonSecondary
                 id="member"
                 v-tippy="{ theme: 'tooltip' }"
-                title="Remove"
+                :title="t('teams.remove')"
                 :icon="IconTrash"
                 color="red"
                 @click="removeNewMember(index)"
@@ -113,13 +120,13 @@
           </div>
           <HoppSmartPlaceholder
             v-if="newMembersList.length === 0"
-            :src="`/images/states/dark/add_group.svg`"
-            alt="No invites"
-            text="No invites"
+            :src="addGroupImagePath"
+            :alt="t('teams.no_members')"
+            :text="t('teams.no_members')"
           >
             <template #body>
               <HoppButtonSecondary
-                label="Add new"
+                :label="t('teams.add_new')"
                 filled
                 @click="addNewMember"
               />
@@ -136,11 +143,12 @@
             <icon-lucide-help-circle
               class="mr-2 text-secondaryLight svg-icons"
             />
-            Roles
+
+            {{ t('teams.roles') }}
           </span>
           <p>
             <span class="text-secondaryLight">
-              Roles are used to control access to the shared collections.
+              {{ t('teams.roles_description') }}
             </span>
           </p>
           <ul class="mt-4 space-y-4">
@@ -148,31 +156,30 @@
               <span
                 class="w-1/4 font-semibold uppercase truncate text-secondaryDark max-w-[4rem]"
               >
-                Owner
+                {{ t('teams.owner') }}
               </span>
               <span class="flex flex-1">
-                Owners can add, edit, and delete requests, collections and team
-                members.
+                {{ t('teams.owner_description') }}
               </span>
             </li>
             <li class="flex">
               <span
                 class="w-1/4 font-semibold uppercase truncate text-secondaryDark max-w-[4rem]"
               >
-                Editor
+                {{ t('teams.editor') }}
               </span>
               <span class="flex flex-1">
-                Editors can add, edit, and delete requests.
+                {{ t('teams.editor_description') }}
               </span>
             </li>
             <li class="flex">
               <span
                 class="w-1/4 font-semibold uppercase truncate text-secondaryDark max-w-[4rem]"
               >
-                Viewer
+                {{ t('teams.viewer') }}
               </span>
               <span class="flex flex-1">
-                Viewers can only view and use requests.
+                {{ t('teams.viewer_description') }}
               </span>
             </li>
           </ul>
@@ -183,41 +190,61 @@
     <template #footer>
       <span class="flex space-x-2">
         <HoppButtonPrimary
-          label="Add Member"
+          :label="t('teams.add_member')"
           outline
           @click="addUserasTeamMember"
         />
-        <HoppButtonSecondary label="Cancel" outline filled @click="hideModal" />
+        <HoppButtonSecondary
+          :label="t('teams.cancel')"
+          outline
+          filled
+          @click="hideModal"
+        />
       </span>
     </template>
   </HoppSmartModal>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { useMutation, useQuery } from '@urql/vue';
 import * as A from 'fp-ts/Array';
 import * as O from 'fp-ts/Option';
 import { pipe } from 'fp-ts/function';
+import { computed, ref } from 'vue';
+import { useI18n } from '~/composables/i18n';
+import { useToast } from '~/composables/toast';
+import { usePagedQuery } from '~/composables/usePagedQuery';
+import { Email, EmailCodec } from '~/helpers/Email';
+import IconCircle from '~icons/lucide/circle';
+import IconCircleDot from '~icons/lucide/circle-dot';
+import IconPlus from '~icons/lucide/plus';
+import IconTrash from '~icons/lucide/trash';
 import {
   AddUserToTeamByAdminDocument,
-  TeamMemberRole,
   MetricsDocument,
+  TeamMemberRole,
   UsersListDocument,
 } from '../../helpers/backend/graphql';
-import { useToast } from '~/composables/toast';
-import { useMutation, useQuery } from '@urql/vue';
-import { Email, EmailCodec } from '~/helpers/Email';
-import IconTrash from '~icons/lucide/trash';
-import IconPlus from '~icons/lucide/plus';
-import IconCircleDot from '~icons/lucide/circle-dot';
-import IconCircle from '~icons/lucide/circle';
-import { computed } from 'vue';
-import { usePagedQuery } from '~/composables/usePagedQuery';
-import { useI18n } from '~/composables/i18n';
 
 const t = useI18n();
+const toast = useToast();
+const tippyActions = ref<any | null>(null);
 
-// Get Users List
+const props = defineProps<{
+  show: boolean;
+  editingTeamID: string;
+}>();
+
+const emit = defineEmits<{
+  (e: 'hide-modal'): void;
+  (e: 'member'): void;
+}>();
+
+const addGroupImagePath = `${
+  import.meta.env.VITE_ADMIN_URL
+}/assets/images/add_group.svg`;
+
+// Get Users List to extract email ids of all users
 const { data } = useQuery({ query: MetricsDocument });
 const usersPerPage = computed(() => data.value?.infra.usersCount || 10000);
 
@@ -230,21 +257,6 @@ const { list: usersList } = usePagedQuery(
 );
 
 const allUsersEmail = computed(() => usersList.value.map((user) => user.email));
-
-const toast = useToast();
-
-// Template refs
-const tippyActions = ref<any | null>(null);
-
-const props = defineProps({
-  show: Boolean,
-  editingTeamID: { type: String, default: null },
-});
-
-const emit = defineEmits<{
-  (e: 'hide-modal'): void;
-  (e: 'member'): void;
-}>();
 
 const newMembersList = ref<Array<{ key: string; value: TeamMemberRole }>>([
   {
@@ -264,12 +276,13 @@ const updateNewMemberRole = (index: number, role: TeamMemberRole) => {
   newMembersList.value[index].value = role;
 };
 
-const removeNewMember = (id: number) => {
-  newMembersList.value.splice(id, 1);
+const removeNewMember = (index: number) => {
+  newMembersList.value.splice(index, 1);
 };
 
 const addingUserToTeam = ref<boolean>(false);
 
+// Checks if the member invites are of valid email format and then adds the users to the team
 const addUserasTeamMember = async () => {
   addingUserToTeam.value = true;
 
@@ -293,7 +306,7 @@ const addUserasTeamMember = async () => {
 
   if (O.isNone(validationResult)) {
     // Error handling for no validation
-    toast.error(`${t('users.invalid_user')}`);
+    toast.error(t('users.invalid_user'));
     addingUserToTeam.value = false;
     return;
   }
@@ -320,20 +333,18 @@ const addUserToTeam = async (
 ) => {
   const variables = { userEmail: email, role: userRole, teamID: teamID };
 
-  const res = await addUserToTeamMutation
-    .executeMutation(variables)
-    .then((result) => {
-      if (result.error) {
-        if (result.error.toString() == '[GraphQL] user/not_found') {
-          toast.error(`${t('state.user_not_found')}`);
-        } else {
-          toast.error(`${t('state.add_user_failure')}`);
-        }
-      } else {
-        toast.success(`${t('state.add_user_success')}`);
-        emit('member');
-      }
-    });
-  return res;
+  const result = await addUserToTeamMutation.executeMutation(variables);
+
+  if (result.error) {
+    if (result.error.toString() == '[GraphQL] user/not_found') {
+      toast.error(t('state.user_not_found'));
+    } else {
+      toast.error(t('state.add_user_failure'));
+    }
+  } else {
+    toast.success(t('state.add_user_success'));
+    emit('member');
+  }
+  return result;
 };
 </script>

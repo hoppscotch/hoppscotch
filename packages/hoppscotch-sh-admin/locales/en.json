@@ -15,6 +15,7 @@
       "update_failure": "Failed to update authentication provider configurations!!"
     },
     "confirm_changes": "Hoppscotch server must restart to reflect the new changes. Confirm changes made to the server configurations?",
+    "input_empty": "Please fill all the fields before updating the configurations",
     "load_error": "Unable to load server configurations",
     "mail_configs": {
       "description": " Configure the smtp configurations",
@@ -47,15 +48,11 @@
     "total_teams": "Total Teams",
     "total_users": "Total Users"
   },
-  "role": {
-    "editor": "EDITOR",
-    "owner": "OWNER",
-    "viewer": "VIEWER"
-  },
   "settings": {
     "settings": "Settings"
   },
   "shared_requests": {
+    "action": "Action",
     "clear_filter": "Clear Filter",
     "confirm_request_deletion": "Confirm deletion of the selected shared request?",
     "copy": "Copy",
@@ -113,6 +110,7 @@
     "microsoft_signin_failure": "Failed to login with Microsoft",
     "non_admin_logged_in": "Logged in as non admin user.",
     "non_admin_login": "You are logged in. But you're not an admin",
+    "owner_not_present": "Atleast one owner should be present in the team!!",
     "privacy_policy": "Privacy Policy",
     "reenter_email": "Re-enter email",
     "remove_admin_failure": "Failed to remove admin status!!",
@@ -132,11 +130,13 @@
     "sign_in_agreement": "By signing in, you are agreeing to our",
     "sign_in_options": "All sign in option",
     "sign_out": "Sign out",
-    "team_name_long": "Team name should be atleast 6 characters long!!",
+    "team_name_too_short": "Team name should be atleast 6 characters long!!",
     "user_not_found": "User not found in the infra!!"
   },
   "teams": {
+    "add_member": "Add Member",
     "add_members": "Add Members",
+    "add_new": "Add New",
     "admin": "Admin",
     "admin_Email": "Admin Email",
     "admin_id": "Admin ID",
@@ -147,8 +147,12 @@
     "delete_team": "Delete Team",
     "details": "Details",
     "edit": "Edit",
+    "editor": "EDITOR",
+    "editor_description": "Editors can add, edit, and delete requests and collections.",
     "email": "Team owner email",
     "email_address": "Email Address",
+    "email_title": "Email",
+    "empty_name": "Team name cannot be empty!!",
     "error": "Something went wrong. Please try again later.",
     "id": "Team ID",
     "invited_email": "Invitee Email",
@@ -158,13 +162,20 @@
     "load_list_error": "Unable to Load Teams List",
     "members": "Number of members",
     "name": "Team Name",
+    "no_invite": "No invites",
     "no_members": "No members in this team. Add members to this team to collaborate",
     "no_pending_invites": "No pending invites",
     "no_teams": "No teams found",
+    "owner": "OWNER",
+    "owner_description": " Owners can add, edit, and delete requests, collections and team members.",
+    "permissions": "Permissions",
     "pending_invites": "Pending invites",
+    "roles": "Roles",
+    "roles_description": "Roles are used to control access to the shared collections.",
     "remove": "Remove",
     "rename": "Rename",
     "save": "Save",
+    "save_changes": "Save Changes",
     "send_invite": "Send Invite",
     "show_more": "Show more",
     "team_details": "Team details",
@@ -174,7 +185,9 @@
     "uid": "UID",
     "unnamed": "(Unnamed Team)",
     "valid_name": "Please enter a valid team name",
-    "valid_owner_email": "Please enter a valid owner email"
+    "valid_owner_email": "Please enter a valid owner email",
+    "viewer": "VIEWER",
+    "viewer_description": "Viewers can only view and use requests"
   },
   "users": {
     "admin": "Admin",

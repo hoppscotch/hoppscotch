@@ -46,16 +46,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
 import { useQuery } from '@urql/vue';
-import { InvitedUsersDocument } from '../../helpers/backend/graphql';
 import { format } from 'date-fns';
-import { HoppSmartSpinner } from '@hoppscotch/ui';
+import { computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from '~/composables/i18n';
+import { InvitedUsersDocument } from '~/helpers/backend/graphql';
 
 const t = useI18n();
-
 const router = useRouter();
 
 // Get Proper Date Formats

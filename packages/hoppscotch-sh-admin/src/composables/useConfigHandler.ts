@@ -72,31 +72,35 @@ export function useConfigHandler(updatedConfigs?: Config) {
   const {
     fetching: fetchingInfraConfigs,
     error: infraConfigsError,
-    list: infraConfigs,
-    fetchList: fetchInfraConfigs,
-  } = useClientHandler(InfraConfigsDocument, (x) => x.infraConfigs, {
-    configNames: [
-      'GOOGLE_CLIENT_ID',
-      'GOOGLE_CLIENT_SECRET',
-      'MICROSOFT_CLIENT_ID',
-      'MICROSOFT_CLIENT_SECRET',
-      'GITHUB_CLIENT_ID',
-      'GITHUB_CLIENT_SECRET',
-      'MAILER_SMTP_URL',
-      'MAILER_ADDRESS_FROM',
-    ] as InfraConfigEnum[],
-  });
+    dataAsList: infraConfigs,
+    fetchData: fetchInfraConfigs,
+  } = useClientHandler(
+    InfraConfigsDocument,
+    {
+      configNames: [
+        'GOOGLE_CLIENT_ID',
+        'GOOGLE_CLIENT_SECRET',
+        'MICROSOFT_CLIENT_ID',
+        'MICROSOFT_CLIENT_SECRET',
+        'GITHUB_CLIENT_ID',
+        'GITHUB_CLIENT_SECRET',
+        'MAILER_SMTP_URL',
+        'MAILER_ADDRESS_FROM',
+      ] as InfraConfigEnum[],
+    },
+    (x) => x.infraConfigs
+  );
 
   // Fetching allowed auth providers
   const {
     fetching: fetchingAllowedAuthProviders,
     error: allowedAuthProvidersError,
-    list: allowedAuthProviders,
-    fetchList: fetchAllowedAuthProviders,
+    dataAsList: allowedAuthProviders,
+    fetchData: fetchAllowedAuthProviders,
   } = useClientHandler(
     AllowedAuthProvidersDocument,
-    (x) => x.allowedAuthProviders,
-    {}
+    {},
+    (x) => x.allowedAuthProviders
   );
 
   // Current and working configs
@@ -255,7 +259,21 @@ export function useConfigHandler(updatedConfigs?: Config) {
     return config;
   });
 
-  // Trasforming the working configs back into the format required by the mutations
+  // Checking if any of the config fields are empty
+  const isFieldEmpty = (field: string) => field.trim() === '';
+
+  const AreAnyConfigFieldsEmpty = (config: Config): boolean => {
+    const providerFieldsEmpty = Object.values(config.providers).some(
+      (provider) => Object.values(provider.fields).some(isFieldEmpty)
+    );
+    const mailFieldsEmpty = Object.values(config.mailConfigs.fields).some(
+      isFieldEmpty
+    );
+
+    return providerFieldsEmpty || mailFieldsEmpty;
+  };
+
+  // Transforming the working configs back into the format required by the mutations
   const updatedAllowedAuthProviders = computed(() => {
     return [
       {
@@ -341,5 +359,6 @@ export function useConfigHandler(updatedConfigs?: Config) {
     fetchingAllowedAuthProviders,
     infraConfigsError,
     allowedAuthProvidersError,
+    AreAnyConfigFieldsEmpty,
   };
 }

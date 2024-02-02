@@ -215,14 +215,14 @@ const tabsData: ComputedRef<
     {
       id: "variables",
       label: t("environment.variables"),
-      emptyStateLabel: t("empty.variables"),
+      emptyStateLabel: t("empty.environments"),
       isSecret: false,
       variables: nonSecretVars.value,
     },
     {
       id: "secret",
       label: t("environment.secret"),
-      emptyStateLabel: t("empty.secret"),
+      emptyStateLabel: t("empty.secret_environments"),
       isSecret: true,
       variables: secretVars.value,
     },

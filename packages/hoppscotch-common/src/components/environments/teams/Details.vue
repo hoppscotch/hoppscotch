@@ -68,6 +68,7 @@
                 >
                   <template #body>
                     <HoppButtonSecondary
+                      v-if="!isViewer"
                       :label="`${t('add.new')}`"
                       filled
                       :icon="IconPlus"
@@ -90,6 +91,7 @@
                         count: index + 1,
                       })}`"
                       :name="'param' + index"
+                      :disabled="isViewer"
                     />
                     <SmartEnvInput
                       v-model="env.value"
@@ -98,9 +100,11 @@
                       :envs="liveEnvs"
                       :name="'value' + index"
                       :secret="tab.isSecret"
+                      :readonly="isViewer && !tab.isSecret"
                     />
                     <div class="flex">
                       <HoppButtonSecondary
+                        v-if="!isViewer"
                         id="variable"
                         v-tippy="{ theme: 'tooltip' }"
                         :title="t('action.remove')"
@@ -219,14 +223,14 @@ const tabsData: ComputedRef<
     {
       id: "variables",
       label: t("environment.variables"),
-      emptyStateLabel: t("empty.variables"),
+      emptyStateLabel: t("empty.environments"),
       isSecret: false,
       variables: nonSecretVars.value,
     },
     {
       id: "secret",
       label: t("environment.secret"),
-      emptyStateLabel: t("empty.secret"),
+      emptyStateLabel: t("empty.secret_environments"),
       isSecret: true,
       variables: secretVars.value,
     },

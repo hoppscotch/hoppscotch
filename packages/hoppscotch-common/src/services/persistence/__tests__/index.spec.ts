@@ -1121,7 +1121,7 @@ describe("PersistenceService", () => {
         expect(watchDebounced).toHaveBeenCalledWith(
           expect.any(Object),
           expect.any(Function),
-          { debounce: 200 }
+          { debounce: 500 }
         )
       })
 
@@ -1165,7 +1165,7 @@ describe("PersistenceService", () => {
         expect(watchDebounced).toHaveBeenCalledWith(
           expect.any(Object),
           expect.any(Function),
-          { debounce: 200 }
+          { debounce: 500 }
         )
       })
     })

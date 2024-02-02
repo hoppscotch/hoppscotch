@@ -27,6 +27,11 @@ const unsecretEnvironments = (
         ...globalVar,
         value: secretVar.value,
       }
+    } else if (!("value" in globalVar) || !globalVar.value) {
+      return {
+        ...globalVar,
+        value: "",
+      }
     }
     return globalVar
   })

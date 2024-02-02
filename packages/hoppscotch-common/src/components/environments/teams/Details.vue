@@ -51,49 +51,20 @@
                 </div>
               </div>
             </template>
-            <HoppSmartTab id="variables" :label="t('environment.variables')">
+            <HoppSmartTab
+              v-for="tab in tabsData"
+              :id="tab.id"
+              :key="tab.id"
+              :label="tab.label"
+            >
               <div
                 class="divide-y divide-dividerLight rounded border border-divider"
               >
-                <div
-                  v-for="({ id, env }, index) in nonSecretVars"
-                  :key="`variable-${id}-${index}`"
-                  class="flex divide-x divide-dividerLight"
-                >
-                  <input
-                    v-model="env.key"
-                    v-focus
-                    class="flex flex-1 bg-transparent px-4 py-2"
-                    :placeholder="`${t('count.variable', {
-                      count: index + 1,
-                    })}`"
-                    :name="'param' + index"
-                    :disabled="isViewer"
-                  />
-                  <SmartEnvInput
-                    v-model="env.value"
-                    :select-text-on-mount="env.key === editingVariableName"
-                    :placeholder="`${t('count.value', { count: index + 1 })}`"
-                    :envs="liveEnvs"
-                    :name="'value' + index"
-                    :readonly="isViewer"
-                  />
-                  <div v-if="!isViewer" class="flex">
-                    <HoppButtonSecondary
-                      id="variable"
-                      v-tippy="{ theme: 'tooltip' }"
-                      :title="t('action.remove')"
-                      :icon="IconTrash"
-                      color="red"
-                      @click="removeEnvironmentVariable(id)"
-                    />
-                  </div>
-                </div>
                 <HoppSmartPlaceholder
-                  v-if="nonSecretVars.length === 0"
+                  v-if="tab.variables.length === 0"
                   :src="`/images/states/${colorMode.value}/blockchain.svg`"
-                  :alt="`${t('empty.environments')}`"
-                  :text="t('empty.environments')"
+                  :alt="tab.emptyStateLabel"
+                  :text="tab.emptyStateLabel"
                 >
                   <template #body>
                     <HoppButtonSecondary
@@ -104,61 +75,42 @@
                     />
                   </template>
                 </HoppSmartPlaceholder>
-              </div>
-            </HoppSmartTab>
-            <HoppSmartTab id="secret" :label="t('environment.secret')">
-              <div
-                class="divide-y divide-dividerLight rounded border border-divider"
-              >
-                <div
-                  v-for="({ id, env }, index) in secretVars"
-                  :key="`variable-${id}-${index}`"
-                  class="flex divide-x divide-dividerLight"
-                >
-                  <input
-                    v-model="env.key"
-                    v-focus
-                    class="flex flex-1 bg-transparent px-4 py-2"
-                    :placeholder="`${t('count.variable', {
-                      count: index + 1,
-                    })}`"
-                    :name="'param' + index"
-                    :disabled="isViewer"
-                  />
-                  <SmartEnvInput
-                    v-model="env.value"
-                    :select-text-on-mount="env.key === editingVariableName"
-                    :placeholder="`${t('count.value', { count: index + 1 })}`"
-                    :envs="liveEnvs"
-                    :name="'value' + index"
-                    :secret="true"
-                  />
-                  <div v-if="!isViewer" class="flex">
-                    <HoppButtonSecondary
-                      id="variable"
-                      v-tippy="{ theme: 'tooltip' }"
-                      :title="t('action.remove')"
-                      :icon="IconTrash"
-                      color="red"
-                      @click="removeEnvironmentVariable(id)"
+
+                <template v-else>
+                  <div
+                    v-for="({ id, env }, index) in tab.variables"
+                    :key="`variable-${id}-${index}`"
+                    class="flex divide-x divide-dividerLight"
+                  >
+                    <input
+                      v-model="env.key"
+                      v-focus
+                      class="flex flex-1 bg-transparent px-4 py-2"
+                      :placeholder="`${t('count.variable', {
+                        count: index + 1,
+                      })}`"
+                      :name="'param' + index"
                     />
+                    <SmartEnvInput
+                      v-model="env.value"
+                      :select-text-on-mount="env.key === editingVariableName"
+                      :placeholder="`${t('count.value', { count: index + 1 })}`"
+                      :envs="liveEnvs"
+                      :name="'value' + index"
+                      :secret="tab.isSecret"
+                    />
+                    <div class="flex">
+                      <HoppButtonSecondary
+                        id="variable"
+                        v-tippy="{ theme: 'tooltip' }"
+                        :title="t('action.remove')"
+                        :icon="IconTrash"
+                        color="red"
+                        @click="removeEnvironmentVariable(id)"
+                      />
+                    </div>
                   </div>
-                </div>
-                <HoppSmartPlaceholder
-                  v-if="secretVars.length === 0"
-                  :src="`/images/states/${colorMode.value}/blockchain.svg`"
-                  :alt="`${t('empty.secret_environments')}`"
-                  :text="t('empty.secret_environments')"
-                >
-                  <template #body>
-                    <HoppButtonSecondary
-                      :label="`${t('add.new')}`"
-                      filled
-                      :icon="IconPlus"
-                      @click="addEnvironmentVariable"
-                    />
-                  </template>
-                </HoppSmartPlaceholder>
+                </template>
               </div>
             </HoppSmartTab>
           </HoppSmartTabs>
@@ -185,7 +137,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from "vue"
+import { ComputedRef, computed, ref, watch } from "vue"
 import * as E from "fp-ts/Either"
 import * as A from "fp-ts/Array"
 import * as O from "fp-ts/Option"
@@ -253,6 +205,33 @@ const emit = defineEmits<{
 }>()
 
 const idTicker = ref(0)
+
+const tabsData: ComputedRef<
+  {
+    id: string
+    label: string
+    emptyStateLabel: string
+    isSecret: boolean
+    variables: EnvironmentVariable[]
+  }[]
+> = computed(() => {
+  return [
+    {
+      id: "variables",
+      label: t("environment.variables"),
+      emptyStateLabel: t("empty.variables"),
+      isSecret: false,
+      variables: nonSecretVars.value,
+    },
+    {
+      id: "secret",
+      label: t("environment.secret"),
+      emptyStateLabel: t("empty.secret"),
+      isSecret: true,
+      variables: secretVars.value,
+    },
+  ]
+})
 
 const editingName = ref<string | null>(null)
 const editingID = ref<string | null>(null)
@@ -361,19 +340,10 @@ const addEnvironmentVariable = () => {
 }
 
 const removeEnvironmentVariable = (id: number) => {
-  const variable = vars.value
-    .map((e, index) => {
-      if (e.id === id) {
-        return {
-          env: e.env,
-          index,
-        }
-      }
-      return null
-    })
-    .filter((e) => e !== null)[0]
-
-  if (variable) vars.value = vars.value.filter((e) => e.id !== id)
+  const index = vars.value.findIndex((e) => e.id === id)
+  if (index !== -1) {
+    vars.value.splice(index, 1)
+  }
 }
 
 const isLoading = ref(false)

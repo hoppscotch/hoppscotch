@@ -260,7 +260,7 @@ export function useConfigHandler(updatedConfigs?: Config) {
   });
 
   // Checking if any of the config fields are empty
-  const isFieldEmpty = (field: string) => field === '';
+  const isFieldEmpty = (field: string) => field.trim() === '';
 
   const AreAnyConfigFieldsEmpty = (config: Config): boolean => {
     const providerFieldsEmpty = Object.values(config.providers).some(

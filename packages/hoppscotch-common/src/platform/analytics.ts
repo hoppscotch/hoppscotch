@@ -5,6 +5,15 @@ export type HoppRequestEvent =
     }
   | { platform: "wss" | "sse" | "socketio" | "mqtt" }
 
+export type HoppSpotlightSessionEventData = {
+  action?: "success" | "close"
+  inputLength?: number
+  method?: "keyboard-shortcut" | "click-spotlight-bar"
+  rank?: string | null
+  searcherID?: string | null
+  sessionDuration?: string
+}
+
 export type AnalyticsEvent =
   | ({ type: "HOPP_REQUEST_RUN" } & HoppRequestEvent)
   | {
@@ -46,6 +55,9 @@ export type AnalyticsEvent =
   | { type: "HOPP_EXPORT_ENVIRONMENT"; platform: "rest" | "gql" }
   | { type: "HOPP_REST_CODEGEN_OPENED" }
   | { type: "HOPP_REST_IMPORT_CURL" }
+  | ({
+      type: "HOPP_SPOTLIGHT_SESSION"
+    } & HoppSpotlightSessionEventData)
 
 export type AnalyticsPlatformDef = {
   initAnalytics: () => void

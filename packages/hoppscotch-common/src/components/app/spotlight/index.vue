@@ -3,7 +3,7 @@
     v-if="show"
     styles="sm:max-w-lg"
     full-width
-    @close="emit('hide-modal')"
+    @close="closeSpotlightModal"
   >
     <template #body>
       <div class="flex flex-col border-b border-divider transition">
@@ -86,35 +86,36 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from "vue"
-import { useService } from "dioc/vue"
 import { useI18n } from "@composables/i18n"
+import { useService } from "dioc/vue"
+import { isEqual } from "lodash-es"
+import { computed, ref, watch } from "vue"
+import { platform } from "~/platform"
+import { HoppSpotlightSessionEventData } from "~/platform/analytics"
 import {
-  SpotlightService,
   SpotlightSearchState,
   SpotlightSearcherResult,
+  SpotlightService,
 } from "~/services/spotlight"
-import { isEqual } from "lodash-es"
-import { HistorySpotlightSearcherService } from "~/services/spotlight/searchers/history.searcher"
-import { UserSpotlightSearcherService } from "~/services/spotlight/searchers/user.searcher"
-import { NavigationSpotlightSearcherService } from "~/services/spotlight/searchers/navigation.searcher"
-import { SettingsSpotlightSearcherService } from "~/services/spotlight/searchers/settings.searcher"
 import { CollectionsSpotlightSearcherService } from "~/services/spotlight/searchers/collections.searcher"
-import { MiscellaneousSpotlightSearcherService } from "~/services/spotlight/searchers/miscellaneous.searcher"
-import { TabSpotlightSearcherService } from "~/services/spotlight/searchers/tab.searcher"
-import { GeneralSpotlightSearcherService } from "~/services/spotlight/searchers/general.searcher"
-import { ResponseSpotlightSearcherService } from "~/services/spotlight/searchers/response.searcher"
-import { RequestSpotlightSearcherService } from "~/services/spotlight/searchers/request.searcher"
 import {
   EnvironmentsSpotlightSearcherService,
   SwitchEnvSpotlightSearcherService,
 } from "~/services/spotlight/searchers/environment.searcher"
+import { GeneralSpotlightSearcherService } from "~/services/spotlight/searchers/general.searcher"
+import { HistorySpotlightSearcherService } from "~/services/spotlight/searchers/history.searcher"
+import { InterceptorSpotlightSearcherService } from "~/services/spotlight/searchers/interceptor.searcher"
+import { MiscellaneousSpotlightSearcherService } from "~/services/spotlight/searchers/miscellaneous.searcher"
+import { NavigationSpotlightSearcherService } from "~/services/spotlight/searchers/navigation.searcher"
+import { RequestSpotlightSearcherService } from "~/services/spotlight/searchers/request.searcher"
+import { ResponseSpotlightSearcherService } from "~/services/spotlight/searchers/response.searcher"
+import { SettingsSpotlightSearcherService } from "~/services/spotlight/searchers/settings.searcher"
+import { TabSpotlightSearcherService } from "~/services/spotlight/searchers/tab.searcher"
+import { UserSpotlightSearcherService } from "~/services/spotlight/searchers/user.searcher"
 import {
   SwitchWorkspaceSpotlightSearcherService,
   WorkspaceSpotlightSearcherService,
 } from "~/services/spotlight/searchers/workspace.searcher"
-import { InterceptorSpotlightSearcherService } from "~/services/spotlight/searchers/interceptor.searcher"
-import { platform } from "~/platform"
 
 const t = useI18n()
 
@@ -289,5 +290,18 @@ function newUseArrowKeysForNavigation() {
   )
 
   return { selectedEntry }
+}
+
+function closeSpotlightModal() {
+  const analyticsData: HoppSpotlightSessionEventData = {
+    action: "close",
+    searcherID: null,
+    rank: null,
+  }
+
+  // Sets the action indicating `close` and rank as `null` in the state for analytics event logging
+  spotlightService.setAnalyticsData(analyticsData)
+
+  emit("hide-modal")
 }
 </script>

@@ -161,26 +161,11 @@ onClickOutside(autoCompleteWrapper, () => {
 })
 
 const toggleSecret = () => {
-  if (isSecret.value) {
-    asterikedText.value = props.modelValue
-    isSecret.value = false
-  } else {
-    asterikedText.value = getAsterikedText(props.modelValue)
-    isSecret.value = true
-  }
+  asterikedText.value = isSecret.value
+    ? props.modelValue
+    : getAsterikedText(props.modelValue)
+  isSecret.value = !isSecret.value
 }
-watch(
-  () => isSecret.value,
-  (newVal) => {
-    if (newVal) {
-      asterikedText.value = getAsterikedText(props.modelValue)
-      isSecret.value = true
-    } else {
-      asterikedText.value = props.modelValue
-      isSecret.value = false
-    }
-  }
-)
 
 //filter autocompleteSource with unique values
 const uniqueAutoCompleteSource = computed(() => {

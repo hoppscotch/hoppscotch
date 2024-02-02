@@ -3,8 +3,18 @@
     <div
       class="no-scrollbar absolute inset-0 flex flex-1 divide-x divide-dividerLight overflow-x-auto"
     >
+      <input
+        v-if="isSecret"
+        id="secret"
+        v-model="asteriskedText"
+        name="secret"
+        disabled
+        :placeholder="t('environment.secret_value')"
+        class="flex flex-1 bg-transparent px-4 opacity-50"
+        :class="styles"
+      />
       <div
-        v-if="!isSecret"
+        v-else
         ref="editor"
         :placeholder="placeholder"
         class="flex flex-1"
@@ -12,16 +22,6 @@
         @click="emit('click', $event)"
         @keydown="handleKeystroke"
         @focusin="showSuggestionPopover = true"
-      ></div>
-      <input
-        v-if="isSecret"
-        id="secret"
-        v-model="asterikedText"
-        name="secret"
-        disabled
-        :placeholder="t('environment.secret_value')"
-        class="flex flex-1 bg-transparent px-4 opacity-50"
-        :class="styles"
       />
       <HoppButtonSecondary
         v-if="secret"
@@ -151,19 +151,19 @@ const autoCompleteWrapper = ref<any | null>(null)
 
 const isSecret = ref(props.secret)
 
-const getAsterikedText = (text: string) => {
+const getAsteriskedText = (text: string) => {
   return "*".repeat(text.length)
 }
-const asterikedText = ref(getAsterikedText(props.modelValue))
+const asteriskedText = ref(getAsteriskedText(props.modelValue))
 
 onClickOutside(autoCompleteWrapper, () => {
   showSuggestionPopover.value = false
 })
 
 const toggleSecret = () => {
-  asterikedText.value = isSecret.value
+  asteriskedText.value = isSecret.value
     ? props.modelValue
-    : getAsterikedText(props.modelValue)
+    : getAsteriskedText(props.modelValue)
   isSecret.value = !isSecret.value
 }
 
@@ -416,7 +416,7 @@ const initView = (el: any) => {
   }
 
   if (isSecret.value) {
-    emit("update:modelValue", asterikedText.value)
+    emit("update:modelValue", asteriskedText.value)
   }
   const extensions: Extension = getExtensions(props.readonly || isSecret.value)
   view.value = new EditorView({
@@ -486,7 +486,7 @@ const getExtensions = (readonly: boolean): Extension => {
             const value = clone(cachedValue.value).replaceAll("\n", "")
 
             if (isSecret.value) {
-              const asterikedValue = "*".repeat(value.length)
+              const asterikedValue = getAsteriskedText(value)
               emit("update:modelValue", asterikedValue)
               emit("change", asterikedValue)
             } else {

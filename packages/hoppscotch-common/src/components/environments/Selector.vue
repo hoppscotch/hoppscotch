@@ -209,17 +209,11 @@
                 <span class="min-w-[9rem] w-1/4 truncate text-secondaryLight">
                   {{ variable.key }}
                 </span>
-                <span
-                  v-if="!variable.secret"
-                  class="min-w-[9rem] w-full truncate text-secondaryLight"
-                >
-                  {{ variable.value }}
-                </span>
-                <span
-                  v-else
-                  class="min-w-[9rem] w-full truncate text-secondaryLight"
-                >
-                  ********
+                <span class="min-w-[9rem] w-full truncate text-secondaryLight">
+                  <template v-if="variable.secret"> ******** </template>
+                  <template v-else>
+                    {{ variable.value }}
+                  </template>
                 </span>
               </div>
               <div v-if="globalEnvs.length === 0" class="text-secondaryLight">
@@ -273,17 +267,11 @@
                 <span class="min-w-[9rem] w-1/4 truncate text-secondaryLight">
                   {{ variable.key }}
                 </span>
-                <span
-                  v-if="!variable.secret"
-                  class="min-w-[9rem] w-full truncate text-secondaryLight"
-                >
-                  {{ variable.value }}
-                </span>
-                <span
-                  v-else
-                  class="min-w-[9rem] w-full truncate text-secondaryLight"
-                >
-                  ********
+                <span class="min-w-[9rem] w-full truncate text-secondaryLight">
+                  <template v-if="variable.secret"> ******** </template>
+                  <template v-else>
+                    {{ variable.value }}
+                  </template>
                 </span>
               </div>
               <div

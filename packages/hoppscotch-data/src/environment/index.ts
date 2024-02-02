@@ -126,6 +126,15 @@ export function parseTemplateStringE(
     : E.right(result)
 }
 
+export type NonSecretEnvironmentVariable = Extract<
+  EnvironmentVariable,
+  { secret: false }
+>
+
+export type NonSecretEnvironment = Omit<Environment, "variables"> & {
+  variables: NonSecretEnvironmentVariable[]
+}
+
 /**
  * @deprecated Use `parseTemplateStringE` instead
  */

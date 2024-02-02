@@ -9,7 +9,7 @@
 </template>
 
 <script setup lang="ts">
-import { Environment } from "@hoppscotch/data"
+import { Environment, NonSecretEnvironment } from "@hoppscotch/data"
 import * as E from "fp-ts/Either"
 import { ref } from "vue"
 
@@ -340,16 +340,12 @@ const showImportFailedError = () => {
 
 const handleImportToStore = async (
   environments: Environment[],
-  globalEnv?: Environment
+  globalEnv?: NonSecretEnvironment
 ) => {
   // if there's a global env, add them to the store
   if (globalEnv) {
-    globalEnv.variables.map((env) => {
-      if (env.secret) {
-        addGlobalEnvVariable({ key: env.key, secret: true })
-      } else {
-        addGlobalEnvVariable({ key: env.key, value: env.value, secret: false })
-      }
+    globalEnv.variables.map(({ key, value, secret }) => {
+      addGlobalEnvVariable({ key, value, secret })
     })
   }
 

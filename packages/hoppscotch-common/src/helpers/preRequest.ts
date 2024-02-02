@@ -42,6 +42,11 @@ const unsecretEnvironments = (
           ...selectedVar,
           value: secretVar.value,
         }
+      } else if (!("value" in selectedVar) || !selectedVar.value) {
+        return {
+          ...selectedVar,
+          value: "",
+        }
       }
       return selectedVar
     }

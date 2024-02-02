@@ -4,7 +4,7 @@ import * as O from "fp-ts/Option"
 import { IMPORTER_INVALID_FILE_FORMAT } from "."
 
 import { z } from "zod"
-import { Environment } from "@hoppscotch/data"
+import { Environment, NonSecretEnvironment } from "@hoppscotch/data"
 import { safeParseJSONOrYAML } from "~/helpers/functional/yaml"
 import { uniqueId } from "lodash-es"
 
@@ -57,13 +57,13 @@ export const insomniaEnvImporter = (content: string) => {
       return { ...envResource, data: stringifiedData }
     })
 
-  const environments: Environment[] = []
+  const environments: NonSecretEnvironment[] = []
 
   insomniaEnvs.forEach((insomniaEnv) => {
     const parsedInsomniaEnv = insomniaEnvSchema.safeParse(insomniaEnv)
 
     if (parsedInsomniaEnv.success) {
-      const environment: Environment = {
+      const environment: NonSecretEnvironment = {
         id: uniqueId(),
         v: 1,
         name: parsedInsomniaEnv.data.name,
@@ -80,15 +80,7 @@ export const insomniaEnvImporter = (content: string) => {
     ...env,
     variables: env.variables.map((variable) => ({
       ...variable,
-      value: replaceInsomniaTemplating(
-        (
-          variable as {
-            key: string
-            value: string
-            secret: false
-          }
-        ).value
-      ),
+      value: replaceInsomniaTemplating(variable.value),
     })),
   }))
 

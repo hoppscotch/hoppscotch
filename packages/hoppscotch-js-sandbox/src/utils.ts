@@ -5,7 +5,6 @@ import { pipe } from "fp-ts/lib/function"
 import { cloneDeep } from "lodash-es"
 
 import {
-  EnvironmentVariable,
   GlobalEnvItem,
   SelectedEnvItem,
   TestDescriptor,
@@ -96,7 +95,7 @@ const getSharedMethods = (envs: TestResult["envs"]) => {
       getEnv(key, updatedEnvs),
       O.fold(
         () => undefined,
-        (env) => String((env as EnvironmentVariable).value)
+        (env) => String(env.value)
       )
     )
 
@@ -114,11 +113,11 @@ const getSharedMethods = (envs: TestResult["envs"]) => {
 
       E.map((e) =>
         pipe(
-          parseTemplateStringE((e as EnvironmentVariable).value ?? "", [
+          parseTemplateStringE(e.value, [
             ...updatedEnvs.selected,
             ...updatedEnvs.global,
           ]), // If the recursive resolution failed, return the unresolved value
-          E.getOrElse(() => (e as EnvironmentVariable).value ?? "")
+          E.getOrElse(() => e.value)
         )
       ),
       E.map((x) => String(x)),

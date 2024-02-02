@@ -214,19 +214,15 @@ export const GLOBAL_ENV_SCHEMA = z.union([
 
   z.array(
     z.union([
-      z
-        .object({
-          key: z.string(),
-          secret: z.literal(true),
-        })
-        .strict(),
-      z
-        .object({
-          key: z.string(),
-          value: z.string(),
-          secret: z.literal(false),
-        })
-        .strict(),
+      z.object({
+        key: z.string(),
+        secret: z.literal(true),
+      }),
+      z.object({
+        key: z.string(),
+        value: z.string(),
+        secret: z.literal(false),
+      }),
     ])
   ),
 ])
@@ -349,22 +345,18 @@ const HoppTestDataSchema = z.lazy(() =>
 )
 
 const EnvironmentVariablesSchema = z.union([
-  z
-    .object({
-      key: z.string(),
-      value: z.string(),
-      secret: z.literal(false),
-    })
-    .strict(),
-  z
-    .object({
-      key: z.string(),
-      secret: z.literal(true),
-    })
-    .strict(),
+  z.object({
+    key: z.string(),
+    value: z.string(),
+    secret: z.literal(false),
+  }),
+  z.object({
+    key: z.string(),
+    secret: z.literal(true),
+  }),
 ])
 
-export const SecretEnvironmentVariable = z.union([
+export const SECRET_ENVIRONMENT_VARIABLE_SCHEMA = z.union([
   z.object({}).strict(),
 
   z.record(

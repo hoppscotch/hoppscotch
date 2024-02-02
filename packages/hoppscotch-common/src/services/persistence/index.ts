@@ -67,7 +67,7 @@ import {
   SETTINGS_SCHEMA,
   SOCKET_IO_REQUEST_SCHEMA,
   SSE_REQUEST_SCHEMA,
-  SecretEnvironmentVariable,
+  SECRET_ENVIRONMENT_VARIABLE_SCHEMA,
   THEME_COLOR_SCHEMA,
   VUEX_SCHEMA,
   WEBSOCKET_REQUEST_SCHEMA,
@@ -455,7 +455,7 @@ export class PersistenceService extends Service {
         let parsedSecretEnvironmentsData = JSON.parse(secretEnvironmentsData)
 
         // Validate data read from localStorage
-        const result = SecretEnvironmentVariable.safeParse(
+        const result = SECRET_ENVIRONMENT_VARIABLE_SCHEMA.safeParse(
           parsedSecretEnvironmentsData
         )
 
@@ -489,7 +489,7 @@ export class PersistenceService extends Service {
         )
       },
       {
-        debounce: 200,
+        debounce: 500,
       }
     )
   }

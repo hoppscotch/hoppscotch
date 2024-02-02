@@ -62,6 +62,6 @@ export type SandboxTestResult = TestResult & { tests: TestDescriptor }
 
 export type EnvironmentVariable = {
   key: string
-  value: string | undefined
+  value: string
   secret: boolean
 }

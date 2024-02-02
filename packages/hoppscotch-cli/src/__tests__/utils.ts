@@ -25,7 +25,12 @@ export const getErrorCode = (out: string) => {
   return ansiTrimmedStr.split(" ")[0];
 };
 
-export const getTestJsonFilePath = (file: string) => {
-  const filePath = resolve(__dirname, `../../src/__tests__/samples/${file}`);
+export const getTestJsonFilePath = (file: string, kind: "collection" | "environment") => {
+  const kindDir = {
+    collection: "collections",
+    environment: "environments",
+  }[kind];
+
+  const filePath = resolve(__dirname, `../../src/__tests__/samples/${kindDir}/${file}`);
   return filePath;
 };

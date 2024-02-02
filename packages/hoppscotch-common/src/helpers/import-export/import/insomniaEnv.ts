@@ -4,7 +4,7 @@ import * as O from "fp-ts/Option"
 import { IMPORTER_INVALID_FILE_FORMAT } from "."
 
 import { z } from "zod"
-import { Environment, NonSecretEnvironment } from "@hoppscotch/data"
+import { NonSecretEnvironment } from "@hoppscotch/data"
 import { safeParseJSONOrYAML } from "~/helpers/functional/yaml"
 import { uniqueId } from "lodash-es"
 

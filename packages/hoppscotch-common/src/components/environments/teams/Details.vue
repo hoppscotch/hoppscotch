@@ -26,31 +26,30 @@
           <HoppSmartTabs v-model="selectedEnvOption" render-inactive-tabs>
             <template #actions>
               <div class="flex flex-1 items-center justify-between">
-                <div class="flex">
-                  <HoppButtonSecondary
-                    v-tippy="{ theme: 'tooltip' }"
-                    to="https://docs.hoppscotch.io/documentation/features/environments"
-                    blank
-                    :title="t('app.wiki')"
-                    :icon="IconHelpCircle"
-                  />
-                  <HoppButtonSecondary
-                    v-if="!isViewer"
-                    v-tippy="{ theme: 'tooltip' }"
-                    :title="t('action.clear_all')"
-                    :icon="clearIcon"
-                    @click="clearContent()"
-                  />
-                  <HoppButtonSecondary
-                    v-if="!isViewer"
-                    v-tippy="{ theme: 'tooltip' }"
-                    :icon="IconPlus"
-                    :title="t('add.new')"
-                    @click="addEnvironmentVariable"
-                  />
-                </div>
+                <HoppButtonSecondary
+                  v-tippy="{ theme: 'tooltip' }"
+                  to="https://docs.hoppscotch.io/documentation/features/environments"
+                  blank
+                  :title="t('app.wiki')"
+                  :icon="IconHelpCircle"
+                />
+                <HoppButtonSecondary
+                  v-if="!isViewer"
+                  v-tippy="{ theme: 'tooltip' }"
+                  :title="t('action.clear_all')"
+                  :icon="clearIcon"
+                  @click="clearContent()"
+                />
+                <HoppButtonSecondary
+                  v-if="!isViewer"
+                  v-tippy="{ theme: 'tooltip' }"
+                  :icon="IconPlus"
+                  :title="t('add.new')"
+                  @click="addEnvironmentVariable"
+                />
               </div>
             </template>
+
             <HoppSmartTab
               v-for="tab in tabsData"
               :id="tab.id"
@@ -102,9 +101,8 @@
                       :secret="tab.isSecret"
                       :readonly="isViewer && !tab.isSecret"
                     />
-                    <div class="flex">
+                    <div v-if="!isViewer" class="flex">
                       <HoppButtonSecondary
-                        v-if="!isViewer"
                         id="variable"
                         v-tippy="{ theme: 'tooltip' }"
                         :title="t('action.remove')"

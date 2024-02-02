@@ -47,6 +47,7 @@
                 />
               </div>
             </template>
+
             <HoppSmartTab
               v-for="tab in tabsData"
               :id="tab.id"

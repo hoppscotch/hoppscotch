@@ -6,6 +6,7 @@
     >
       <div
         class="pointer-events-auto flex min-w-0 flex-1 cursor-pointer items-center justify-center"
+        @click="selectRequest(request.requestID, request.request)"
       >
         <span
           class="pointer-events-none flex w-16 items-center justify-center truncate px-2"
@@ -38,12 +39,13 @@
           </span>
         </span>
       </div>
-      <div v-if="!collectionReadonly" class="flex">
+      <div class="flex">
         <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           :icon="IconRotateCCW"
           :title="t('action.restore')"
           class="hidden group-hover:inline-flex"
+          @click="selectRequest(request.requestID, request.request)"
         />
         <span>
           <tippy
@@ -75,7 +77,10 @@
                   :shortcut="['E']"
                   @click="
                     () => {
-                      emit('edit-request')
+                      emit('edit-request', {
+                        requestPath: request.requestID,
+                        request: request.request,
+                      })
                       hide()
                     }
                   "
@@ -87,7 +92,10 @@
                   :shortcut="['D']"
                   @click="
                     () => {
-                      emit('duplicate-request')
+                      emit('duplicate-request', {
+                        requestPath: request.requestID,
+                        request: request.request,
+                      })
                       hide()
                     }
                   "
@@ -124,12 +132,37 @@ import { RESTCollectionViewRequest } from "~/services/new-workspace/view"
 import { computed, ref } from "vue"
 import { TippyComponent } from "vue-tippy"
 import { getMethodLabelColorClassOf } from "~/helpers/rest/labelColoring"
+import { HoppRESTRequest } from "@hoppscotch/data"
 
 const t = useI18n()
 
 const props = defineProps<{
   request: RESTCollectionViewRequest
-  collectionReadonly: boolean
+}>()
+
+const emit = defineEmits<{
+  (
+    event: "duplicate-request",
+    payload: {
+      requestPath: string
+      request: HoppRESTRequest
+    }
+  ): void
+  (
+    event: "edit-request",
+    payload: {
+      requestPath: string
+      request: HoppRESTRequest
+    }
+  ): void
+  (event: "remove-request"): void
+  (
+    event: "select-request",
+    payload: {
+      requestPath: string
+      request: HoppRESTRequest
+    }
+  ): void
 }>()
 
 const tippyActions = ref<TippyComponent | null>(null)
@@ -141,4 +174,10 @@ const isActive = ref(true)
 const requestLabelColor = computed(() =>
   getMethodLabelColorClassOf(props.request)
 )
+
+const selectRequest = (requestPath: string, request: HoppRESTRequest) =>
+  emit("select-request", {
+    requestPath,
+    request,
+  })
 </script>

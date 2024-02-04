@@ -1,18 +1,21 @@
-import {
-  HoppCollection,
-  HoppRESTRequest,
-  makeCollection,
-} from "@hoppscotch/data"
+import { HoppCollection, makeCollection } from "@hoppscotch/data"
 import { Service } from "dioc"
 import * as E from "fp-ts/Either"
-import { get } from "lodash-es"
-import { v4 as uuid } from "uuid"
-import { Ref, computed, markRaw, ref, shallowReactive, shallowRef } from "vue"
+import { Ref, computed, markRaw, nextTick, ref, shallowRef } from "vue"
 
 import PersonalWorkspaceSelector from "~/components/workspace/PersonalWorkspaceSelector.vue"
 import { useStreamStatic } from "~/composables/stream"
 
-import { addRESTCollection, restCollectionStore } from "~/newstore/collections"
+import {
+  addRESTCollection,
+  addRESTFolder,
+  cascadeParentCollectionForHeaderAuth,
+  editRESTRequest,
+  navigateToFolderWithIndexPath,
+  removeRESTRequest,
+  restCollectionStore,
+  saveRESTRequestAs,
+} from "~/newstore/collections"
 import { platform } from "~/platform"
 
 import { HandleRef } from "~/services/new-workspace/handle"
@@ -28,8 +31,15 @@ import {
   WorkspaceDecor,
 } from "~/services/new-workspace/workspace"
 
+import { cloneDeep } from "lodash-es"
+import {
+  getRequestsByPath,
+  resolveSaveContextOnRequestReorder,
+} from "~/helpers/collection/request"
+import { RESTTabService } from "~/services/tab/rest"
 import IconUser from "~icons/lucide/user"
 import { NewWorkspaceService } from ".."
+import { HoppRESTRequest } from "@hoppscotch/data"
 
 export class PersonalWorkspaceProviderService
   extends Service
@@ -40,6 +50,7 @@ export class PersonalWorkspaceProviderService
   public readonly providerID = "PERSONAL_WORKSPACE_PROVIDER"
 
   private workspaceService = this.bind(NewWorkspaceService)
+  private tabs = this.bind(RESTTabService)
 
   public workspaceDecor: Ref<WorkspaceDecor> = ref({
     headerCurrentIcon: IconUser,
@@ -63,77 +74,68 @@ export class PersonalWorkspaceProviderService
     this.workspaceService.registerWorkspaceProvider(this)
   }
 
-  private collectionIDMap = shallowReactive(
-    new WeakMap<HoppCollection, string>()
-  )
-
-  private reqIDMap = shallowReactive(new WeakMap<HoppRESTRequest, string>())
-
-  private collectionIDPathMap = shallowReactive(new Map<string, number[]>())
-
-  private generatedUUIDs = new Set<string>()
-
-  private generateUniqueUUID() {
-    let id = uuid()
-
-    while (this.generatedUUIDs.has(id)) {
-      id = uuid()
-    }
-
-    this.generatedUUIDs.add(id)
-
-    return id
-  }
-
-  private resolvePathFromCollectionID(id: string): number[] | undefined {
-    return this.collectionIDPathMap.get(id)
-  }
-
-  private resolveCollectionFromCollectionID(
-    id: string
-  ): HoppCollection | undefined {
-    const path = this.resolvePathFromCollectionID(id)
-
-    if (path === undefined) return
-
-    const collPath = path.flatMap((x, i) =>
-      i === 0 ? [x.toString()] : ["folders", x.toString()]
-    )
-
-    const coll = get(this.restCollectionState.value.state, collPath) as
-      | HoppCollection
-      | undefined
-
-    return coll
-  }
-
-  private getIssuedInstanceIDForCollection(
-    coll: HoppCollection,
-    location: number[]
+  private navigateToFolderWithIndexPath(
+    collections: HoppCollection[],
+    indexPaths: number[]
   ) {
-    const id = this.collectionIDMap.has(coll)
-      ? this.collectionIDMap.get(coll)!
-      : this.generateUniqueUUID()
+    if (indexPaths.length === 0) return null
 
-    this.collectionIDPathMap.set(id, location)
-    this.collectionIDMap.set(coll, id)
+    let target = collections[indexPaths.shift() as number]
 
-    return id
-  }
+    while (indexPaths.length > 0)
+      target = target?.folders[indexPaths.shift() as number]
 
-  private getIssuedInstanceIDForRequest(req: HoppRESTRequest) {
-    const id = this.reqIDMap.get(req) ?? this.generateUniqueUUID()
-
-    this.reqIDMap.set(req, id)
-
-    return id
+    return target !== undefined ? target : null
   }
 
   public createRESTChildCollection(
     parentCollHandle: HandleRef<WorkspaceCollection>,
-    collectionName: string
+    collectionName: string,
+    path: string
   ): Promise<E.Either<unknown, HandleRef<WorkspaceCollection>>> {
-    throw new Error("TODO: Method not implemented.")
+    if (
+      parentCollHandle.value.type !== "ok" ||
+      parentCollHandle.value.data.providerID !== this.providerID ||
+      parentCollHandle.value.data.workspaceID !== "personal"
+    ) {
+      return Promise.resolve(E.left("INVALID_WORKSPACE_HANDLE" as const))
+    }
+
+    return Promise.resolve(
+      E.right(
+        computed(() => {
+          if (
+            parentCollHandle.value.type !== "ok" ||
+            parentCollHandle.value.data.providerID !== this.providerID ||
+            parentCollHandle.value.data.workspaceID !== "personal"
+          ) {
+            return {
+              type: "invalid" as const,
+              reason: "WORKSPACE_INVALIDATED" as const,
+            }
+          }
+
+          addRESTFolder(collectionName, path)
+
+          platform.analytics?.logEvent({
+            type: "HOPP_CREATE_COLLECTION",
+            workspaceType: "personal",
+            isRootCollection: false,
+            platform: "rest",
+          })
+
+          return {
+            type: "ok",
+            data: {
+              providerID: this.providerID,
+              workspaceID: parentCollHandle.value.data.workspaceID,
+              collectionID: parentCollHandle.value.data.collectionID,
+              name: collectionName,
+            },
+          }
+        })
+      )
+    )
   }
 
   public createRESTRootCollection(
@@ -157,7 +159,7 @@ export class PersonalWorkspaceProviderService
             workspaceHandle.value.data.workspaceID !== "personal"
           ) {
             return {
-              type: "invalid",
+              type: "invalid" as const,
               reason: "WORKSPACE_INVALIDATED" as const,
             }
           }
@@ -196,6 +198,329 @@ export class PersonalWorkspaceProviderService
     )
   }
 
+  public createRESTRequest(
+    parentCollHandle: HandleRef<WorkspaceCollection>,
+    requestName: string,
+    path: string
+  ): Promise<E.Either<unknown, HandleRef<WorkspaceCollection>>> {
+    if (
+      parentCollHandle.value.type !== "ok" ||
+      parentCollHandle.value.data.providerID !== this.providerID ||
+      parentCollHandle.value.data.workspaceID !== "personal"
+    ) {
+      return Promise.resolve(E.left("INVALID_WORKSPACE_HANDLE" as const))
+    }
+
+    return Promise.resolve(
+      E.right(
+        computed(() => {
+          if (
+            parentCollHandle.value.type !== "ok" ||
+            parentCollHandle.value.data.providerID !== this.providerID ||
+            parentCollHandle.value.data.workspaceID !== "personal"
+          ) {
+            return {
+              type: "invalid" as const,
+              reason: "WORKSPACE_INVALIDATED" as const,
+            }
+          }
+
+          const newRequest = {
+            ...cloneDeep(this.tabs.currentActiveTab.value.document.request),
+            name: requestName,
+          }
+
+          const insertionIndex = saveRESTRequestAs(path, newRequest)
+
+          const { auth, headers } = cascadeParentCollectionForHeaderAuth(
+            path,
+            "rest"
+          )
+
+          this.tabs.createNewTab({
+            request: newRequest,
+            isDirty: false,
+            saveContext: {
+              originLocation: "user-collection",
+              folderPath: path,
+              requestIndex: insertionIndex,
+            },
+            inheritedProperties: {
+              auth,
+              headers,
+            },
+          })
+
+          platform.analytics?.logEvent({
+            type: "HOPP_SAVE_REQUEST",
+            workspaceType: "personal",
+            createdNow: true,
+            platform: "rest",
+          })
+
+          return {
+            type: "ok",
+            data: {
+              providerID: this.providerID,
+              workspaceID: parentCollHandle.value.data.workspaceID,
+              collectionID: parentCollHandle.value.data.collectionID,
+              name: requestName,
+            },
+          }
+        })
+      )
+    )
+  }
+
+  public removeRESTRequest(
+    parentCollHandle: HandleRef<WorkspaceCollection>,
+    path: string,
+    requestIndex: number
+  ): Promise<E.Either<unknown, HandleRef<WorkspaceCollection>>> {
+    if (
+      parentCollHandle.value.type !== "ok" ||
+      parentCollHandle.value.data.providerID !== this.providerID ||
+      parentCollHandle.value.data.workspaceID !== "personal"
+    ) {
+      return Promise.resolve(E.left("INVALID_WORKSPACE_HANDLE" as const))
+    }
+
+    return Promise.resolve(
+      E.right(
+        computed(() => {
+          if (
+            parentCollHandle.value.type !== "ok" ||
+            parentCollHandle.value.data.providerID !== this.providerID ||
+            parentCollHandle.value.data.workspaceID !== "personal"
+          ) {
+            return {
+              type: "invalid" as const,
+              reason: "WORKSPACE_INVALIDATED" as const,
+            }
+          }
+
+          const possibleTab = this.tabs.getTabRefWithSaveContext({
+            originLocation: "user-collection",
+            folderPath: path,
+            requestIndex,
+          })
+
+          // If there is a tab attached to this request, dissociate its state and mark it dirty
+          if (possibleTab) {
+            possibleTab.value.document.saveContext = null
+            possibleTab.value.document.isDirty = true
+          }
+
+          console.log(
+            `REST collection store state is `,
+            restCollectionStore.value.state
+          )
+
+          const requestToRemove = navigateToFolderWithIndexPath(
+            restCollectionStore.value.state,
+            path.split("/").map((i) => parseInt(i))
+          )?.requests[requestIndex]
+
+          removeRESTRequest(path, requestIndex, requestToRemove?.id)
+
+          // the same function is used to reorder requests since after removing, it's basically doing reorder
+          resolveSaveContextOnRequestReorder({
+            lastIndex: requestIndex,
+            newIndex: -1,
+            folderPath: path,
+            length: getRequestsByPath(
+              this.restCollectionState.value.state,
+              path
+            ).length,
+          })
+
+          return {
+            type: "ok",
+            data: {
+              providerID: this.providerID,
+              workspaceID: parentCollHandle.value.data.workspaceID,
+              collectionID: parentCollHandle.value.data.workspaceID,
+              name: "" as const,
+            },
+          }
+        })
+      )
+    )
+  }
+
+  public selectRESTRequest(
+    parentCollHandle: HandleRef<WorkspaceCollection>,
+    collPath: string,
+    requestIndex: string,
+    request: HoppRESTRequest
+  ): Promise<E.Either<unknown, HandleRef<WorkspaceCollection>>> {
+    if (
+      parentCollHandle.value.type !== "ok" ||
+      parentCollHandle.value.data.providerID !== this.providerID ||
+      parentCollHandle.value.data.workspaceID !== "personal"
+    ) {
+      return Promise.resolve(E.left("INVALID_WORKSPACE_HANDLE" as const))
+    }
+
+    return Promise.resolve(
+      E.right(
+        computed(() => {
+          if (
+            parentCollHandle.value.type !== "ok" ||
+            parentCollHandle.value.data.providerID !== this.providerID ||
+            parentCollHandle.value.data.workspaceID !== "personal"
+          ) {
+            return {
+              type: "invalid" as const,
+              reason: "WORKSPACE_INVALIDATED" as const,
+            }
+          }
+
+          // If there is a request with this save context, switch into it
+          let possibleTab = null
+
+          const { auth, headers } = cascadeParentCollectionForHeaderAuth(
+            collPath,
+            "rest"
+          )
+          possibleTab = this.tabs.getTabRefWithSaveContext({
+            originLocation: "user-collection",
+            requestIndex: parseInt(requestIndex),
+            folderPath: collPath!,
+          })
+          if (possibleTab) {
+            this.tabs.setActiveTab(possibleTab.value.id)
+          } else {
+            // If not, open the request in a new tab
+            this.tabs.createNewTab({
+              request: cloneDeep(request),
+              isDirty: false,
+              saveContext: {
+                originLocation: "user-collection",
+                folderPath: collPath!,
+                requestIndex: parseInt(requestIndex),
+              },
+              inheritedProperties: {
+                auth,
+                headers,
+              },
+            })
+          }
+
+          return {
+            type: "ok",
+            data: {
+              providerID: this.providerID,
+              workspaceID: parentCollHandle.value.data.workspaceID,
+              collectionID: parentCollHandle.value.data.workspaceID,
+              name: "",
+            },
+          }
+        })
+      )
+    )
+  }
+
+  public duplicateRESTRequest(
+    parentCollHandle: HandleRef<WorkspaceCollection>,
+    collPath: string,
+    request: HoppRESTRequest
+  ): Promise<E.Either<unknown, HandleRef<WorkspaceCollection>>> {
+    if (
+      parentCollHandle.value.type !== "ok" ||
+      parentCollHandle.value.data.providerID !== this.providerID ||
+      parentCollHandle.value.data.workspaceID !== "personal"
+    ) {
+      return Promise.resolve(E.left("INVALID_WORKSPACE_HANDLE" as const))
+    }
+
+    return Promise.resolve(
+      E.right(
+        computed(() => {
+          if (
+            parentCollHandle.value.type !== "ok" ||
+            parentCollHandle.value.data.providerID !== this.providerID ||
+            parentCollHandle.value.data.workspaceID !== "personal"
+          ) {
+            return {
+              type: "invalid" as const,
+              reason: "WORKSPACE_INVALIDATED" as const,
+            }
+          }
+
+          saveRESTRequestAs(collPath, request)
+
+          return {
+            type: "ok",
+            data: {
+              providerID: this.providerID,
+              workspaceID: parentCollHandle.value.data.workspaceID,
+              collectionID: parentCollHandle.value.data.workspaceID,
+              name: "",
+            },
+          }
+        })
+      )
+    )
+  }
+
+  public editRESTRequest(
+    parentCollHandle: HandleRef<WorkspaceCollection>,
+    collPath: string,
+    requestIndex: number,
+    request: HoppRESTRequest
+  ): Promise<E.Either<unknown, HandleRef<WorkspaceCollection>>> {
+    if (
+      parentCollHandle.value.type !== "ok" ||
+      parentCollHandle.value.data.providerID !== this.providerID ||
+      parentCollHandle.value.data.workspaceID !== "personal"
+    ) {
+      return Promise.resolve(E.left("INVALID_WORKSPACE_HANDLE" as const))
+    }
+
+    return Promise.resolve(
+      E.right(
+        computed(() => {
+          if (
+            parentCollHandle.value.type !== "ok" ||
+            parentCollHandle.value.data.providerID !== this.providerID ||
+            parentCollHandle.value.data.workspaceID !== "personal"
+          ) {
+            return {
+              type: "invalid" as const,
+              reason: "WORKSPACE_INVALIDATED" as const,
+            }
+          }
+
+          const possibleActiveTab = this.tabs.getTabRefWithSaveContext({
+            originLocation: "user-collection",
+            requestIndex,
+            collPath,
+          })
+
+          editRESTRequest(collPath, requestIndex, request)
+
+          if (possibleActiveTab) {
+            possibleActiveTab.value.document.request.name = request.name
+            nextTick(() => {
+              possibleActiveTab.value.document.isDirty = false
+            })
+          }
+
+          return {
+            type: "ok",
+            data: {
+              providerID: this.providerID,
+              workspaceID: parentCollHandle.value.data.workspaceID,
+              collectionID: parentCollHandle.value.data.workspaceID,
+              name: "",
+            },
+          }
+        })
+      )
+    )
+  }
+
   public getCollectionHandle(
     workspaceHandle: HandleRef<Workspace>,
     collectionID: string
@@ -224,24 +549,13 @@ export class PersonalWorkspaceProviderService
             }
           }
 
-          // TODO: The way the IDs are issued, this will make it so we need a view
-          // before the ID is issued correctly
-          const coll = this.resolveCollectionFromCollectionID(collectionID)
-
-          if (coll === undefined) {
-            return {
-              type: "invalid",
-              reason: "INVALID_COLL_ID" as const,
-            }
-          }
-
           return {
             type: "ok",
             data: {
               providerID: this.providerID,
               workspaceID: workspaceHandle.value.data.workspaceID,
               collectionID,
-              name: coll.name,
+              name: "" as const,
             },
           }
         })
@@ -279,45 +593,41 @@ export class PersonalWorkspaceProviderService
               mayHaveMoreContent: ref(false),
 
               content: computed(() => {
-                const path = this.resolvePathFromCollectionID(collectionID)
-                const coll =
-                  this.resolveCollectionFromCollectionID(collectionID)
+                const indexPath = collectionID
+                  .split("/")
+                  .map((x) => parseInt(x))
 
-                if (coll === undefined || path === undefined) {
-                  console.warn("Collection against ID was not resolvable")
+                const item = this.navigateToFolderWithIndexPath(
+                  this.restCollectionState.value.state,
+                  indexPath
+                )
 
-                  return []
+                if (item) {
+                  const collections = item.folders.map((childColl, id) => {
+                    return <RESTCollectionViewItem>{
+                      type: "collection",
+                      value: {
+                        collectionID: `${collectionID}/${id}`,
+                        name: childColl.name,
+                      },
+                    }
+                  })
+
+                  const requests = item.requests.map((req, id) => {
+                    return <RESTCollectionViewItem>{
+                      type: "request",
+                      value: {
+                        requestID: `${collectionID}/${id}`,
+                        name: req.name,
+                        method: req.method,
+                        request: req,
+                      },
+                    }
+                  })
+
+                  return [...collections, ...requests]
                 }
-
-                const collections = coll.folders.map((childColl, i) => {
-                  const id = this.getIssuedInstanceIDForCollection(childColl, [
-                    ...path,
-                    i,
-                  ])
-
-                  return <RESTCollectionViewItem>{
-                    type: "collection",
-                    value: {
-                      collectionID: id,
-                      name: coll.name,
-                    },
-                  }
-                })
-
-                const requests = coll.requests.map((req, i) => {
-                  const id = this.getIssuedInstanceIDForRequest(req)
-
-                  return <RESTCollectionViewItem>{
-                    type: "request",
-                    value: {
-                      requestID: id,
-                      name: req.name,
-                      method: req.method,
-                    },
-                  }
-                })
-
-                return [...collections, ...requests]
+                return []
               }),
               loadMore() {
                 return Promise.resolve()
@@ -356,11 +666,9 @@ export class PersonalWorkspaceProviderService
               mayHaveMoreContent: ref(false),
 
               collections: computed(() => {
-                return this.restCollectionState.value.state.map((coll, i) => {
-                  const id = this.getIssuedInstanceIDForCollection(coll, [i])
-
+                return this.restCollectionState.value.state.map((coll, id) => {
                   return {
-                    collectionID: id,
+                    collectionID: id.toString(),
                     name: coll.name,
                   }
                 })

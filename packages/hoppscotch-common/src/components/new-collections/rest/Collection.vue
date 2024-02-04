@@ -22,20 +22,28 @@
             </span>
           </span>
         </div>
-        <div v-if="!collectionReadonly" class="flex">
+        <div class="flex">
           <HoppButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
             :icon="IconFilePlus"
             :title="t('request.new')"
             class="hidden group-hover:inline-flex"
-            @click="emit('add-request')"
+            @click="
+              emit('add-request', {
+                path: collection.collectionID,
+              })
+            "
           />
           <HoppButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
             :icon="IconFolderPlus"
             :title="t('folder.new')"
             class="hidden group-hover:inline-flex"
-            @click="emit('add-folder')"
+            @click="
+              emit('add-folder', {
+                path: collection.collectionID,
+              })
+            "
           />
           <span>
             <tippy
@@ -69,7 +77,9 @@
                     :shortcut="['R']"
                     @click="
                       () => {
-                        emit('add-request')
+                        emit('add-request', {
+                          path: collection.collectionID,
+                        })
                         hide()
                       }
                     "
@@ -81,7 +91,9 @@
                     :shortcut="['N']"
                     @click="
                       () => {
-                        emit('add-folder')
+                        emit('add-folder', {
+                          path: collection.collectionID,
+                        })
                         hide()
                       }
                     "
@@ -105,8 +117,7 @@
                     :shortcut="['X']"
                     @click="
                       () => {
-                        emit('export-data'),
-                          collectionsType === 'my-collections' ? hide() : null
+                        emit('export-data'), hide()
                       }
                     "
                   />
@@ -117,7 +128,9 @@
                     :shortcut="['⌫']"
                     @click="
                       () => {
-                        emit('remove-collection')
+                        emit('remove-collection', {
+                          path: collection.collectionID,
+                        })
                         hide()
                       }
                     "
@@ -150,17 +163,31 @@ const t = useI18n()
 
 const props = defineProps<{
   collection: RESTCollectionViewCollection
-  collectionReadonly: boolean
   isOpen: boolean
 }>()
 
 const emit = defineEmits<{
   (event: "toggle-children"): void
-  (event: "add-request"): void
-  (event: "add-folder"): void
+  (
+    event: "add-request",
+    payload: {
+      path: string
+    }
+  ): void
+  (
+    event: "add-folder",
+    payload: {
+      path: string
+    }
+  ): void
   (event: "edit-collection"): void
   (event: "export-data"): void
-  (event: "remove-collection"): void
+  (
+    event: "remove-collection",
+    payload: {
+      path: string
+    }
+  ): void
 }>()
 
 const tippyActions = ref<TippyComponent | null>(null)

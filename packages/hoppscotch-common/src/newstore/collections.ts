@@ -62,7 +62,7 @@ export function navigateToFolderWithIndexPath(
   let target = collections[indexPaths.shift() as number]
 
   while (indexPaths.length > 0)
-    target = target.folders[indexPaths.shift() as number]
+    target = target?.folders[indexPaths.shift() as number]
 
   return target !== undefined ? target : null
 }
@@ -319,6 +319,7 @@ const restCollectionDispatchers = defineDispatchers({
       )
       return {}
     }
+
     // We get the index path to the folder itself,
     // we have to find the folder containing the target folder,
     // so we pop the last path index

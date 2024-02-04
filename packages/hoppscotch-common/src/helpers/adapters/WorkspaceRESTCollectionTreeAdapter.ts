@@ -2,7 +2,7 @@ import {
   ChildrenResult,
   SmartTreeAdapter,
 } from "@hoppscotch/ui/dist/src/helpers/treeAdapter"
-import { Ref, computed, ref, watchEffect } from "vue"
+import { Ref, ref, watchEffect } from "vue"
 import { NewWorkspaceService } from "~/services/new-workspace"
 import { HandleRef } from "~/services/new-workspace/handle"
 import {

@@ -25,6 +25,9 @@ export function createHoppApp(el: string | Element, platformDef: PlatformDef) {
 
   const app = createApp(App)
 
+  HOPP_MODULES.forEach((mod) => mod.onVueAppInit?.(app))
+  platformDef.addedHoppModules?.forEach((mod) => mod.onVueAppInit?.(app))
+
   // Some basic work that needs to be done before module inits even
   initBackendGQLClient()
   initializeApp()
@@ -36,9 +39,6 @@ export function createHoppApp(el: string | Element, platformDef: PlatformDef) {
   // TODO: Remove this
   getService(TestWorkspaceProviderService)
   getService(PersonalWorkspaceProviderService)
-
-  HOPP_MODULES.forEach((mod) => mod.onVueAppInit?.(app))
-  platformDef.addedHoppModules?.forEach((mod) => mod.onVueAppInit?.(app))
 
   app.mount(el)
 

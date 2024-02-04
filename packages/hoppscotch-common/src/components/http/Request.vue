@@ -395,17 +395,14 @@ const newSendRequest = async () => {
 }
 
 const ensureMethodInEndpoint = () => {
-  if (
-    !/^http[s]?:\/\//.test(newEndpoint.value) &&
-    !newEndpoint.value.startsWith("<<")
-  ) {
-    const domain = newEndpoint.value.split(/[/:#?]+/)[0]
+  const endpoint = newEndpoint.value.trim()
+  tab.value.document.request.endpoint = endpoint
+  if (!/^http[s]?:\/\//.test(endpoint) && !endpoint.startsWith("<<")) {
+    const domain = endpoint.split(/[/:#?]+/)[0]
     if (domain === "localhost" || /([0-9]+\.)*[0-9]/.test(domain)) {
-      tab.value.document.request.endpoint =
-        "http://" + tab.value.document.request.endpoint
+      tab.value.document.request.endpoint = "http://" + endpoint
     } else {
-      tab.value.document.request.endpoint =
-        "https://" + tab.value.document.request.endpoint
+      tab.value.document.request.endpoint = "https://" + endpoint
     }
   }
 }

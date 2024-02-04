@@ -319,6 +319,7 @@ const restCollectionDispatchers = defineDispatchers({
       )
       return {}
     }
+
     // We get the index path to the folder itself,
     // we have to find the folder containing the target folder,
     // so we pop the last path index

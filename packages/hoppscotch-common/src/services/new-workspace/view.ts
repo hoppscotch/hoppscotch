@@ -1,3 +1,4 @@
+import { HoppRESTRequest } from "@hoppscotch/data"
 import { Ref } from "vue"
 
 export type RESTCollectionViewCollection = {
@@ -10,6 +11,7 @@ export type RESTCollectionViewRequest = {
 
   name: string
   method: string
+  request: HoppRESTRequest
 }
 
 export type RESTCollectionViewItem =

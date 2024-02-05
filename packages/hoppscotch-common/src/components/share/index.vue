@@ -9,8 +9,14 @@
       />
     </div>
     <div
-      class="sticky top-sidebarPrimaryStickyFold z-10 flex flex-1 flex-shrink-0 justify-end overflow-x-auto border-b border-dividerLight bg-primary"
+      class="sticky top-sidebarPrimaryStickyFold z-10 flex flex-1 flex-shrink-0 justify-between overflow-x-auto border-b border-dividerLight bg-primary"
     >
+      <HoppButtonSecondary
+        :label="t('action.new')"
+        :icon="IconPlus"
+        class="!rounded-none"
+        @click="shareRequest()"
+      />
       <HoppButtonSecondary
         v-tippy="{ theme: 'tooltip' }"
         to="https://docs.hoppscotch.io/documentation/features/widgets"
@@ -47,7 +53,6 @@
           :request="request"
           @customize-shared-request="customizeSharedRequest"
           @delete-shared-request="deleteSharedRequest"
-          @open-new-tab="openInNewTab"
         />
         <HoppSmartIntersection
           v-if="hasMoreSharedRequests"
@@ -70,7 +75,15 @@
         :alt="`${t('empty.shared_requests')}`"
         :text="t('empty.shared_requests')"
         @drop.stop
-      />
+      >
+        <template #body>
+          <HoppButtonPrimary
+            :label="t('add.new')"
+            :icon="IconPlus"
+            @click="shareRequest()"
+          />
+        </template>
+      </HoppSmartPlaceholder>
     </div>
   </div>
   <HoppSmartConfirmModal
@@ -95,6 +108,7 @@
 
 <script lang="ts" setup>
 import IconHelpCircle from "~icons/lucide/help-circle"
+import IconPlus from "~icons/lucide/plus"
 import { useI18n } from "~/composables/i18n"
 import ShortcodeListAdapter from "~/helpers/shortcode/ShortcodeListAdapter"
 import { useReadonlyStream } from "~/composables/stream"
@@ -270,6 +284,17 @@ onAuthEvent((ev) => {
   }
 })
 
+const shareRequest = () => {
+  if (currentUser.value) {
+    const tab = restTab.currentActiveTab
+    invokeAction("share.request", {
+      request: tab.value.document.request,
+    })
+  } else {
+    invokeAction("modals.login.toggle")
+  }
+}
+
 const deleteSharedRequest = (codeID: string) => {
   if (currentUser.value) {
     sharedRequestID.value = codeID
@@ -432,13 +457,6 @@ const copySharedRequest = (payload: {
     copyToClipboard(payload.content)
     toast.success(t("state.copied_to_clipboard"))
   }
-}
-
-const openInNewTab = (request: HoppRESTRequest) => {
-  restTab.createNewTab({
-    isDirty: false,
-    request,
-  })
 }
 
 const resolveConfirmModal = (title: string | null) => {

@@ -90,11 +90,13 @@
                     />
                     <SmartEnvInput
                       v-model="env.value"
-                      :select-text-on-mount="env.key === editingVariableName"
                       :placeholder="`${t('count.value', { count: index + 1 })}`"
                       :envs="liveEnvs"
                       :name="'value' + index"
                       :secret="tab.isSecret"
+                      :select-text-on-mount="
+                        env.key ? env.key === editingVariableName : false
+                      "
                     />
                     <div class="flex">
                       <HoppButtonSecondary

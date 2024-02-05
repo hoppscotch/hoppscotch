@@ -26,6 +26,7 @@
                 @close-tab="removeTab(tab.id)"
                 @close-other-tabs="closeOtherTabsAction(tab.id)"
                 @duplicate-tab="duplicateTab(tab.id)"
+                @share-tab-request="shareTabRequest(tab.id)"
               />
             </template>
             <template #suffix>
@@ -144,6 +145,11 @@ const toast = useToast()
 const tabs = useService(RESTTabService)
 
 const currentTabID = tabs.currentTabID
+
+const currentUser = useReadonlyStream(
+  platform.auth.getCurrentUserStream(),
+  platform.auth.getCurrentUser()
+)
 
 type PopupDetails = {
   show: boolean
@@ -305,6 +311,19 @@ const onSaveModalClose = () => {
   if (confirmingCloseForTabID.value) {
     tabs.closeTab(confirmingCloseForTabID.value)
     confirmingCloseForTabID.value = null
+  }
+}
+
+const shareTabRequest = (tabID: string) => {
+  const tab = tabs.getTabRef(tabID)
+  if (tab.value) {
+    if (currentUser.value) {
+      invokeAction("share.request", {
+        request: tab.value.document.request,
+      })
+    } else {
+      invokeAction("modals.login.toggle")
+    }
   }
 }
 

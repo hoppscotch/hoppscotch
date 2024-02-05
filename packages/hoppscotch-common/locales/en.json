@@ -889,6 +889,7 @@
     "query": "Query",
     "schema": "Schema",
     "shared_requests": "Shared Requests",
+    "share_tab_request": "Share tab request",
     "socketio": "Socket.IO",
     "sse": "SSE",
     "tests": "Tests",

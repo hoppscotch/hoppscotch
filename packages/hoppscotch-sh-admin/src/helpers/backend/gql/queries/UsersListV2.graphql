@@ -1,0 +1,12 @@
+query UsersListV2($searchString: String, $skip: Int, $take: Int) {
+  infra {
+    allUsersV2(searchString: $searchString, skip: $skip, take: $take) {
+      uid
+      displayName
+      email
+      isAdmin
+      photoURL
+      createdOn
+    }
+  }
+}

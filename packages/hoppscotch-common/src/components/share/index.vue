@@ -53,7 +53,6 @@
           :request="request"
           @customize-shared-request="customizeSharedRequest"
           @delete-shared-request="deleteSharedRequest"
-          @open-new-tab="openInNewTab"
         />
         <HoppSmartIntersection
           v-if="hasMoreSharedRequests"
@@ -458,13 +457,6 @@ const copySharedRequest = (payload: {
     copyToClipboard(payload.content)
     toast.success(t("state.copied_to_clipboard"))
   }
-}
-
-const openInNewTab = (request: HoppRESTRequest) => {
-  restTab.createNewTab({
-    isDirty: false,
-    request,
-  })
 }
 
 const resolveConfirmModal = (title: string | null) => {

@@ -1,4 +1,4 @@
-import { clone } from "lodash";
+import { clone } from "lodash-es";
 
 /**
  * Sorts the array based on the sort func.

@@ -94,7 +94,9 @@
                     />
                     <SmartEnvInput
                       v-model="env.value"
-                      :select-text-on-mount="env.key === editingVariableName"
+                      :select-text-on-mount="
+                        env.key ? env.key === editingVariableName : false
+                      "
                       :placeholder="`${t('count.value', { count: index + 1 })}`"
                       :envs="liveEnvs"
                       :name="'value' + index"

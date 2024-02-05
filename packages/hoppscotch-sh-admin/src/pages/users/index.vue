@@ -32,10 +32,9 @@
           :headings="headings"
           :list="usersList"
           :checkbox="true"
-          :selectedRows="selectedRows"
+          :selected-rows="selectedRows"
           :search-bar="{ debounce: 300 }"
           @onRowClicked="goToUserDetails"
-          @onRowToggled="handleToggle"
           @search="handleInput"
         >
           <template #head>
@@ -394,7 +393,8 @@ const confirmUsersToAdmin = ref(false);
 
 const makeUsersToAdmin = async () => {
   const userUIDs = selectedRows.value.map((user) => user.uid);
-  console.log(userUIDs);
+
+  console.log(selectedRows.value);
 
   const variables = { userUIDs };
   const result = await usersToAdmin.executeMutation(variables);
@@ -406,7 +406,9 @@ const makeUsersToAdmin = async () => {
       ...user,
       isAdmin: userUIDs.includes(user.uid) ? true : user.isAdmin,
     }));
-    selectedRows.value = [];
+    console.log(selectedRows.value);
+
+    selectedRows.value.splice(0, selectedRows.value.length);
   }
   confirmUsersToAdmin.value = false;
 };
@@ -416,7 +418,6 @@ const confirmAdminsToUsers = ref(false);
 
 const makeAdminsToUsers = async () => {
   const userUIDs = selectedRows.value.map((user) => user.uid);
-  console.log(userUIDs);
 
   const variables = { userUIDs };
   const result = await adminsToUser.executeMutation(variables);
@@ -428,7 +429,8 @@ const makeAdminsToUsers = async () => {
       ...user,
       isAdmin: userUIDs.includes(user.uid) ? false : user.isAdmin,
     }));
-    selectedRows.value = [];
+
+    selectedRows.value.splice(0, selectedRows.value.length);
   }
   confirmAdminsToUsers.value = false;
 };
@@ -438,7 +440,6 @@ const confirmUsersDeletion = ref(false);
 
 const deleteUsers = async () => {
   const userUIDs = selectedRows.value.map((user) => user.uid);
-  console.log(userUIDs);
 
   const variables = { userUIDs };
   const result = await usersDeletion.executeMutation(variables);
@@ -449,14 +450,10 @@ const deleteUsers = async () => {
     usersList.value = usersList.value.filter(
       (user) => !userUIDs.includes(user.uid)
     );
-    selectedRows.value = [];
+
+    selectedRows.value.splice(0, selectedRows.value.length);
   }
   confirmUsersDeletion.value = false;
-};
-
-const handleToggle = (selected: UsersListQuery['infra']['allUsers']) => {
-  selectedRows.value = selected;
-  console.log(selectedRows.value);
 };
 
 const handleInput = (input) => {

@@ -106,13 +106,11 @@ function translateTokenRequestError(error: string) {
 }
 
 const handleAccessTokenRequest = async () => {
-  if (
-    oidcDiscoveryURL.value === "" &&
-    (authURL.value === "" || accessTokenURL.value === "")
-  ) {
+  if (!oidcDiscoveryURL.value && !(authURL.value || accessTokenURL.value)) {
     toast.error(`${t("error.incomplete_config_urls")}`)
     return
   }
+
   const envs = getCombinedEnvVariables()
   const envVars = [...envs.selected, ...envs.global]
 

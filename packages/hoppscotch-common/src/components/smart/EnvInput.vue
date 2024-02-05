@@ -94,14 +94,14 @@ import IconUnlock from "~icons/lucide/unlock"
 
 const t = useI18n()
 
-type Env = Environment["variables"] & { source: string }
+type Env = Environment["variables"][number] & { source: string }
 
 const props = withDefaults(
   defineProps<{
     modelValue?: string
     placeholder?: string
     styles?: string
-    envs?: Env | null
+    envs?: Env[] | null
     focus?: boolean
     selectTextOnMount?: boolean
     environmentHighlights?: boolean
@@ -541,11 +541,11 @@ const triggerTextSelection = () => {
     })
   })
 }
-
 onMounted(() => {
   if (editor.value) {
     if (!view.value) initView(editor.value)
     if (props.selectTextOnMount) triggerTextSelection()
+    if (props.focus) view.value?.focus()
     platform.ui?.onCodemirrorInstanceMount?.(editor.value)
   }
 })

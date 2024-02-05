@@ -28,12 +28,12 @@
         <div v-else-if="error">{{ t('users.load_list_error') }}</div>
 
         <UsersTable
-          v-else-if="usersList.length"
+          v-if="usersList.length >= 0"
           :headings="headings"
           :list="usersList"
           :checkbox="true"
           :selected-rows="selectedRows"
-          :search-bar="{ debounce: 300 }"
+          :search-bar="{ debounce: 500 }"
           @onRowClicked="goToUserDetails"
           @search="handleInput"
         >
@@ -128,9 +128,9 @@
           </template>
         </UsersTable>
 
-        <div v-else-if="usersList.length === 0" class="flex justify-center">
+        <!-- <div v-else-if="usersList.length === 0" class="flex justify-center">
           {{ t('users.no_users') }}
-        </div>
+        </div> -->
 
         <div
           v-if="selectedRows.length"
@@ -140,21 +140,25 @@
             class="flex justify-center items-end bg-primaryLight border border-divider rounded-md mb-5"
           >
             <HoppButtonSecondary
+              :label="`${selectedRows.length} selected`"
+              class="py-4 border-divider rounded-r-none bg-yellow-700 text-secondaryDark"
+            />
+            <HoppButtonSecondary
               :icon="IconUserCheck"
               label="Make Admin"
-              class="py-4 border-divider border-r-1 hover:bg-emerald-500"
+              class="py-4 border-divider border-r-1 rounded-none hover:bg-emerald-500"
               @click="confirmUsersToAdmin = true"
             />
             <HoppButtonSecondary
               :icon="IconUserMinus"
               label="Remove Admin"
-              class="py-4 border-divider border-r-1 hover:bg-orange-400"
+              class="py-4 border-divider border-r-1 rounded-none hover:bg-orange-400"
               @click="confirmAdminsToUsers = true"
             />
             <HoppButtonSecondary
               :icon="IconTrash"
               label="Delete User"
-              class="py-4 border-divider hover:bg-red-500"
+              class="py-4 border-divider rounded-l-none hover:bg-red-500"
               @click="confirmUsersDeletion = true"
             />
           </div>
@@ -236,7 +240,7 @@ import {
   RemoveUsersAsAdminDocument,
   RemoveUserByAdminDocument,
   RemoveUsersByAdminDocument,
-  UsersListDocument,
+  UsersListV2Document,
   UsersListQuery,
   UserInfoQuery,
 } from '~/helpers/backend/graphql';
@@ -256,21 +260,30 @@ const headings = [
   { key: 'createdOn', label: t('users.date') },
 ];
 
+const searchQuery = ref('');
+
 // Get Paginated Results of all the users in the infra
 const usersPerPage = 20;
 const {
   fetching,
   error,
   goToNextPage: fetchNextUsers,
+  refetch,
   list: usersList,
   hasNextPage,
 } = usePagedQuery(
-  UsersListDocument,
-  (x) => x.infra.allUsers,
-  (x) => x.uid,
+  UsersListV2Document,
+  (x) => x.infra.allUsersV2,
   usersPerPage,
-  { cursor: undefined, take: usersPerPage }
+  { searchString: searchQuery.value, take: usersPerPage, skip: 0 }
 );
+
+const handleInput = async (input: string) => {
+  searchQuery.value = input;
+  await refetch(searchQuery.value);
+};
+
+const selectedRows = ref<UsersListQuery['infra']['allUsers']>([]);
 
 // Send Invitation through Email
 const sendInvitation = useMutation(InviteNewUserDocument);
@@ -386,8 +399,6 @@ const makeAdminToUserMutation = async (id: string | null) => {
   adminToUserUID.value = null;
 };
 
-const selectedRows = ref<UsersListQuery['infra']['allUsers']>([]);
-
 const usersToAdmin = useMutation(MakeUsersAdminDocument);
 const confirmUsersToAdmin = ref(false);
 
@@ -454,9 +465,5 @@ const deleteUsers = async () => {
     selectedRows.value.splice(0, selectedRows.value.length);
   }
   confirmUsersDeletion.value = false;
-};
-
-const handleInput = (input) => {
-  console.log(input);
 };
 </script>

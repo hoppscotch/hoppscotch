@@ -27,111 +27,138 @@
 
         <div v-else-if="error">{{ t('users.load_list_error') }}</div>
 
-        <HoppSmartTable v-else-if="usersList.length" :list="usersList">
+        <UsersTable
+          v-else-if="usersList.length"
+          :headings="headings"
+          :list="usersList"
+          :checkbox="true"
+          :selectedRows="selectedRows"
+          :search-bar="{ debounce: 300 }"
+          @onRowClicked="goToUserDetails"
+          @onRowToggled="handleToggle"
+          @search="handleInput"
+        >
           <template #head>
-            <tr
-              class="text-secondary border-b border-dividerDark text-sm text-left bg-primaryLight"
-            >
-              <th class="px-6 py-2">{{ t('users.id') }}</th>
-              <th class="px-6 py-2">{{ t('users.name') }}</th>
-              <th class="px-6 py-2">{{ t('users.email') }}</th>
-              <th class="px-6 py-2">{{ t('users.date') }}</th>
-              <!-- Empty header for Action Button -->
-              <th class="px-6 py-2"></th>
-            </tr>
+            <th class="px-6 py-2">{{ t('users.id') }}</th>
+            <th class="px-6 py-2">{{ t('users.name') }}</th>
+            <th class="px-6 py-2">{{ t('users.email') }}</th>
+            <th class="px-6 py-2">{{ t('users.date') }}</th>
+            <!-- Empty header for Action Button -->
+            <th class="px-6 py-2"></th>
           </template>
 
-          <template #body="{ list }">
-            <tr
-              v-for="user in list"
-              :key="user.uid"
-              class="text-secondaryDark hover:bg-divider hover:cursor-pointer rounded-xl"
-              @click="goToUserDetails(user.uid)"
-            >
-              <td class="py-2 px-7 max-w-[8rem] truncate">
-                {{ user.uid }}
-              </td>
+          <template #body="{ row: user }">
+            <td class="py-2 px-7 max-w-[8rem] truncate">
+              {{ user.uid }}
+            </td>
 
-              <td class="py-2 px-7">
-                <div class="flex items-center space-x-2">
-                  <span>
-                    {{ user.displayName ?? t('users.unnamed') }}
-                  </span>
+            <td class="py-2 px-7">
+              <div class="flex items-center space-x-2">
+                <span>
+                  {{ user.displayName ?? t('users.unnamed') }}
+                </span>
 
-                  <span
-                    v-if="user.isAdmin"
-                    class="text-xs font-medium px-3 py-0.5 rounded-full bg-green-900 text-green-300"
-                  >
-                    {{ t('users.admin') }}
-                  </span>
-                </div>
-              </td>
+                <span
+                  v-if="user.isAdmin"
+                  class="text-xs font-medium px-3 py-0.5 rounded-full bg-green-900 text-green-300"
+                >
+                  {{ t('users.admin') }}
+                </span>
+              </div>
+            </td>
 
-              <td class="py-2 px-7">
-                {{ user.email }}
-              </td>
+            <td class="py-2 px-7">
+              {{ user.email }}
+            </td>
 
-              <td class="py-2 px-7">
-                {{ getCreatedDate(user.createdOn) }}
-                <div class="text-gray-400 text-tiny">
-                  {{ getCreatedTime(user.createdOn) }}
-                </div>
-              </td>
+            <td class="py-2 px-7">
+              {{ getCreatedDate(user.createdOn) }}
+              <div class="text-gray-400 text-tiny">
+                {{ getCreatedTime(user.createdOn) }}
+              </div>
+            </td>
 
-              <td @click.stop>
-                <div class="relative">
-                  <tippy interactive trigger="click" theme="popover">
-                    <HoppButtonSecondary
-                      v-tippy="{ theme: 'tooltip' }"
-                      :icon="IconMoreHorizontal"
-                    />
-                    <template #content="{ hide }">
-                      <div
-                        ref="tippyActions"
-                        class="flex flex-col focus:outline-none"
-                        tabindex="0"
-                        @keyup.escape="hide()"
-                      >
-                        <HoppSmartItem
-                          :icon="user.isAdmin ? IconUserMinus : IconUserCheck"
-                          :label="
+            <td @click.stop>
+              <div class="relative">
+                <tippy interactive trigger="click" theme="popover">
+                  <HoppButtonSecondary
+                    v-tippy="{ theme: 'tooltip' }"
+                    :icon="IconMoreHorizontal"
+                  />
+                  <template #content="{ hide }">
+                    <div
+                      ref="tippyActions"
+                      class="flex flex-col focus:outline-none"
+                      tabindex="0"
+                      @keyup.escape="hide()"
+                    >
+                      <HoppSmartItem
+                        :icon="user.isAdmin ? IconUserMinus : IconUserCheck"
+                        :label="
+                          user.isAdmin
+                            ? t('users.remove_admin_status')
+                            : t('users.make_admin')
+                        "
+                        class="!hover:bg-emerald-600"
+                        @click="
+                          () => {
                             user.isAdmin
-                              ? t('users.remove_admin_status')
-                              : t('users.make_admin')
-                          "
-                          class="!hover:bg-emerald-600"
-                          @click="
-                            () => {
-                              user.isAdmin
-                                ? makeAdminToUser(user.uid)
-                                : makeUserAdmin(user.uid);
-                              hide();
-                            }
-                          "
-                        />
-                        <HoppSmartItem
-                          v-if="!user.isAdmin"
-                          :icon="IconTrash"
-                          :label="t('users.delete_user')"
-                          class="!hover:bg-red-600"
-                          @click="
-                            () => {
-                              deleteUser(user.uid);
-                              hide();
-                            }
-                          "
-                        />
-                      </div>
-                    </template>
-                  </tippy>
-                </div>
-              </td>
-            </tr>
+                              ? makeAdminToUser(user.uid)
+                              : makeUserAdmin(user.uid);
+                            hide();
+                          }
+                        "
+                      />
+                      <HoppSmartItem
+                        v-if="!user.isAdmin"
+                        :icon="IconTrash"
+                        :label="t('users.delete_user')"
+                        class="!hover:bg-red-600"
+                        @click="
+                          () => {
+                            deleteUser(user.uid);
+                            hide();
+                          }
+                        "
+                      />
+                    </div>
+                  </template>
+                </tippy>
+              </div>
+            </td>
           </template>
-        </HoppSmartTable>
+        </UsersTable>
 
         <div v-else-if="usersList.length === 0" class="flex justify-center">
           {{ t('users.no_users') }}
+        </div>
+
+        <div
+          v-if="selectedRows.length"
+          class="fixed m-2 bottom-0 left-32 right-0 w-min mx-auto"
+        >
+          <div
+            class="flex justify-center items-end bg-primaryLight border border-divider rounded-md mb-5"
+          >
+            <HoppButtonSecondary
+              :icon="IconUserCheck"
+              label="Make Admin"
+              class="py-4 border-divider border-r-1 hover:bg-emerald-500"
+              @click="confirmUsersToAdmin = true"
+            />
+            <HoppButtonSecondary
+              :icon="IconUserMinus"
+              label="Remove Admin"
+              class="py-4 border-divider border-r-1 hover:bg-orange-400"
+              @click="confirmAdminsToUsers = true"
+            />
+            <HoppButtonSecondary
+              :icon="IconTrash"
+              label="Delete User"
+              class="py-4 border-divider hover:bg-red-500"
+              @click="confirmUsersDeletion = true"
+            />
+          </div>
         </div>
 
         <div
@@ -168,6 +195,24 @@
       @hide-modal="confirmAdminToUser = false"
       @resolve="makeAdminToUserMutation(adminToUserUID)"
     />
+    <HoppSmartConfirmModal
+      :show="confirmUsersToAdmin"
+      :title="t('users.confirm_user_to_admin')"
+      @hide-modal="confirmUsersToAdmin = false"
+      @resolve="makeUsersToAdmin"
+    />
+    <HoppSmartConfirmModal
+      :show="confirmAdminsToUsers"
+      :title="t('users.confirm_admin_to_user')"
+      @hide-modal="confirmAdminsToUsers = false"
+      @resolve="makeAdminsToUsers"
+    />
+    <HoppSmartConfirmModal
+      :show="confirmUsersDeletion"
+      :title="t('users.confirm_user_deletion')"
+      @hide-modal="confirmUsersDeletion = false"
+      @resolve="deleteUsers"
+    />
   </div>
 </template>
 
@@ -187,9 +232,14 @@ import IconAddUser from '~icons/lucide/user-plus';
 import {
   InviteNewUserDocument,
   MakeUserAdminDocument,
+  MakeUsersAdminDocument,
   RemoveUserAsAdminDocument,
+  RemoveUsersAsAdminDocument,
   RemoveUserByAdminDocument,
+  RemoveUsersByAdminDocument,
   UsersListDocument,
+  UsersListQuery,
+  UserInfoQuery,
 } from '~/helpers/backend/graphql';
 
 // Get Proper Date Formats
@@ -198,6 +248,14 @@ const toast = useToast();
 
 const getCreatedDate = (date: string) => format(new Date(date), 'dd-MM-yyyy');
 const getCreatedTime = (date: string) => format(new Date(date), 'hh:mm a');
+
+// Table Headings
+const headings = [
+  { key: 'uid', label: t('users.id') },
+  { key: 'displayName', label: t('users.name') },
+  { key: 'email', label: t('users.email') },
+  { key: 'createdOn', label: t('users.date') },
+];
 
 // Get Paginated Results of all the users in the infra
 const usersPerPage = 20;
@@ -236,12 +294,18 @@ const sendInvite = async (email: string) => {
 
 // Go to Individual User Details Page
 const router = useRouter();
-const goToUserDetails = (uid: string) => router.push('/users/' + uid);
+const goToUserDetails = (user: UserInfoQuery['infra']['userInfo']) =>
+  router.push('/users/' + user.uid);
 
 // User Deletion
 const userDeletion = useMutation(RemoveUserByAdminDocument);
 const confirmDeletion = ref(false);
 const deleteUserUID = ref<string | null>(null);
+
+const deleteUser = (id: string) => {
+  confirmDeletion.value = true;
+  deleteUserUID.value = id;
+};
 
 const deleteUserMutation = async (id: string | null) => {
   if (!id) {
@@ -302,11 +366,6 @@ const makeAdminToUser = (id: string) => {
   adminToUserUID.value = id;
 };
 
-const deleteUser = (id: string) => {
-  confirmDeletion.value = true;
-  deleteUserUID.value = id;
-};
-
 const makeAdminToUserMutation = async (id: string | null) => {
   if (!id) {
     confirmAdminToUser.value = false;
@@ -326,5 +385,81 @@ const makeAdminToUserMutation = async (id: string | null) => {
   }
   confirmAdminToUser.value = false;
   adminToUserUID.value = null;
+};
+
+const selectedRows = ref<UsersListQuery['infra']['allUsers']>([]);
+
+const usersToAdmin = useMutation(MakeUsersAdminDocument);
+const confirmUsersToAdmin = ref(false);
+
+const makeUsersToAdmin = async () => {
+  const userUIDs = selectedRows.value.map((user) => user.uid);
+  console.log(userUIDs);
+
+  const variables = { userUIDs };
+  const result = await usersToAdmin.executeMutation(variables);
+  if (result.error) {
+    toast.error(t('state.admin_failure'));
+  } else {
+    toast.success(t('state.admin_success'));
+    usersList.value = usersList.value.map((user) => ({
+      ...user,
+      isAdmin: userUIDs.includes(user.uid) ? true : user.isAdmin,
+    }));
+    selectedRows.value = [];
+  }
+  confirmUsersToAdmin.value = false;
+};
+
+const adminsToUser = useMutation(RemoveUsersAsAdminDocument);
+const confirmAdminsToUsers = ref(false);
+
+const makeAdminsToUsers = async () => {
+  const userUIDs = selectedRows.value.map((user) => user.uid);
+  console.log(userUIDs);
+
+  const variables = { userUIDs };
+  const result = await adminsToUser.executeMutation(variables);
+  if (result.error) {
+    toast.error(t('state.remove_admin_failure'));
+  } else {
+    toast.success(t('state.remove_admin_success'));
+    usersList.value = usersList.value.map((user) => ({
+      ...user,
+      isAdmin: userUIDs.includes(user.uid) ? false : user.isAdmin,
+    }));
+    selectedRows.value = [];
+  }
+  confirmAdminsToUsers.value = false;
+};
+
+const usersDeletion = useMutation(RemoveUsersByAdminDocument);
+const confirmUsersDeletion = ref(false);
+
+const deleteUsers = async () => {
+  const userUIDs = selectedRows.value.map((user) => user.uid);
+  console.log(userUIDs);
+
+  const variables = { userUIDs };
+  const result = await usersDeletion.executeMutation(variables);
+  if (result.error) {
+    toast.error(t('state.delete_user_failure'));
+  } else {
+    toast.success(t('state.delete_user_success'));
+    usersList.value = usersList.value.filter(
+      (user) => !userUIDs.includes(user.uid)
+    );
+    selectedRows.value = [];
+  }
+  confirmUsersDeletion.value = false;
+};
+
+const handleToggle = (selected: UsersListQuery['infra']['allUsers']) => {
+  selectedRows.value = selected;
+  console.log(selectedRows.value);
+};
+
+const handleInput = (input) => {
+  console.log(input);
 };
 </script>

@@ -6,12 +6,12 @@
       <input
         v-if="isSecret"
         id="secret"
-        v-model="asteriskedText"
+        v-model="secretText"
         name="secret"
-        disabled
         :placeholder="t('environment.secret_value')"
-        class="flex flex-1 bg-transparent px-4 opacity-50"
+        class="flex flex-1 bg-transparent px-4"
         :class="styles"
+        type="password"
       />
       <div
         v-else
@@ -27,7 +27,7 @@
         v-if="secret"
         v-tippy="{ theme: 'tooltip' }"
         :title="isSecret ? t('action.show_secret') : t('action.hide_secret')"
-        :icon="isSecret ? IconLock : IconUnlock"
+        :icon="isSecret ? IconEyeoff : IconEye"
         @click="toggleSecret"
       />
       <AppInspection
@@ -89,8 +89,8 @@ import { InspectorResult } from "~/services/inspection"
 import { invokeAction } from "~/helpers/actions"
 import { Environment } from "@hoppscotch/data"
 import { useI18n } from "~/composables/i18n"
-import IconLock from "~icons/lucide/lock"
-import IconUnlock from "~icons/lucide/unlock"
+import IconEye from "~icons/lucide/eye"
+import IconEyeoff from "~icons/lucide/eye-off"
 
 const t = useI18n()
 
@@ -151,19 +151,22 @@ const autoCompleteWrapper = ref<any | null>(null)
 
 const isSecret = ref(props.secret)
 
-const getAsteriskedText = (text: string) => {
-  return "*".repeat(text.length)
-}
-const asteriskedText = ref(getAsteriskedText(props.modelValue))
+const secretText = ref(props.modelValue)
+
+watch(
+  () => secretText.value,
+  (newVal) => {
+    if (isSecret.value) {
+      updateModelValue(newVal)
+    }
+  }
+)
 
 onClickOutside(autoCompleteWrapper, () => {
   showSuggestionPopover.value = false
 })
 
 const toggleSecret = () => {
-  asteriskedText.value = isSecret.value
-    ? props.modelValue
-    : getAsteriskedText(props.modelValue)
   isSecret.value = !isSecret.value
 }
 
@@ -415,9 +418,6 @@ const initView = (el: any) => {
     el.addEventListener("keyup", debounceFn)
   }
 
-  if (isSecret.value) {
-    emit("update:modelValue", asteriskedText.value)
-  }
   const extensions: Extension = getExtensions(props.readonly || isSecret.value)
   view.value = new EditorView({
     parent: el,
@@ -485,14 +485,8 @@ const getExtensions = (readonly: boolean): Extension => {
             // So, we desync cachedValue a bit so we can trigger updates
             const value = clone(cachedValue.value).replaceAll("\n", "")
 
-            if (isSecret.value) {
-              const asterikedValue = getAsteriskedText(value)
-              emit("update:modelValue", asterikedValue)
-              emit("change", asterikedValue)
-            } else {
-              emit("update:modelValue", value)
-              emit("change", value)
-            }
+            emit("update:modelValue", value)
+            emit("change", value)
 
             const pasted = !!update.transactions.find((txn) =>
               txn.isUserEvent("input.paste")

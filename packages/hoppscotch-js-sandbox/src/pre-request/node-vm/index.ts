@@ -24,6 +24,8 @@ export const runPreRequestScript = (
 
             // Expose pw to the context
             context.pw = pw
+            context.atob = atob
+            context.btoa = btoa
 
             // Run the pre-request script in the provided context
             runInContext(preRequestScript, context)

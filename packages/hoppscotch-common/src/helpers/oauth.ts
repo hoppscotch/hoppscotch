@@ -297,19 +297,7 @@ const clearPKCEState = () => {
 }
 
 async function runRequestThroughInterceptor(config: AxiosRequestConfig) {
-  if (interceptorService.currentInterceptorID.value === "extension") {
-    // wait till the extension resolves
-    await until(extensionService.extensionStatus).toMatch(
-      (status) => status !== "waiting",
-      {
-        timeout: 1000,
-      }
-    )
-  }
-
   const res = await interceptorService.runRequest(config).response
-
-  // wait for the extension to resolve if the interceptor is extension
 
   if (E.isLeft(res)) {
     return E.left("REQUEST_FAILED")

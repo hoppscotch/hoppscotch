@@ -253,15 +253,6 @@ defineActionHandler("modals.environment.delete-selected", () => {
   showConfirmRemoveEnvModal.value = true
 })
 
-defineActionHandler(
-  "modals.my.environment.edit",
-  ({ envName, variableName, isSecret }) => {
-    if (variableName) editingVariableName.value = variableName
-    secretOptionSelected.value = isSecret ?? false
-    envName === "Global" && editEnvironment("Global")
-  }
-)
-
 const additionalVars = ref<Environment["variables"]>([])
 
 const envVars = () => [...globalEnv.value, ...additionalVars.value]

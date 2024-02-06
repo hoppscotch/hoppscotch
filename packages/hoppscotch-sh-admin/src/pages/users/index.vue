@@ -5,7 +5,7 @@
       <h1 class="text-lg font-bold text-secondaryDark">
         {{ t('users.users') }}
       </h1>
-      <div class="flex items-center space-x-4 py-10">
+      <div class="flex items-center space-x-4 mt-10 mb-5">
         <HoppButtonPrimary
           :label="t('users.invite_user')"
           @click="showInviteUserModal = true"
@@ -33,9 +33,14 @@
           :list="usersList"
           :checkbox="true"
           :selected-rows="selectedRows"
-          :search-bar="{ debounce: 500 }"
+          :search-bar="{
+            debounce: 500,
+            placeholder: 'Search by name or email..',
+          }"
+          :pagination="{ totalPages: totalPages }"
           @onRowClicked="goToUserDetails"
           @search="handleInput"
+          @pageNumber="handlePageChange"
         >
           <template #head>
             <th class="px-6 py-2">{{ t('users.id') }}</th>
@@ -128,10 +133,6 @@
           </template>
         </UsersTable>
 
-        <!-- <div v-else-if="usersList.length === 0" class="flex justify-center">
-          {{ t('users.no_users') }}
-        </div> -->
-
         <div
           v-if="selectedRows.length"
           class="fixed m-2 bottom-0 left-32 right-0 w-min mx-auto"
@@ -162,15 +163,6 @@
               @click="confirmUsersDeletion = true"
             />
           </div>
-        </div>
-
-        <div
-          v-if="hasNextPage && usersList.length >= usersPerPage"
-          class="flex justify-center my-5 px-3 py-2 cursor-pointer font-semibold rounded-3xl bg-dividerDark hover:bg-divider transition mx-auto w-38 text-secondaryDark"
-          @click="fetchNextUsers"
-        >
-          <span>{{ t('users.show_more') }}</span>
-          <icon-lucide-chevron-down class="ml-2 text-lg" />
         </div>
       </div>
     </div>
@@ -222,8 +214,9 @@
 <script setup lang="ts">
 import { useMutation } from '@urql/vue';
 import { format } from 'date-fns';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
+import { useQuery } from '@urql/vue';
 import { useI18n } from '~/composables/i18n';
 import { useToast } from '~/composables/toast';
 import { usePagedQuery } from '~/composables/usePagedQuery';
@@ -236,6 +229,7 @@ import {
   InviteNewUserDocument,
   MakeUserAdminDocument,
   MakeUsersAdminDocument,
+  MetricsDocument,
   RemoveUserAsAdminDocument,
   RemoveUsersAsAdminDocument,
   RemoveUserByAdminDocument,
@@ -260,30 +254,52 @@ const headings = [
   { key: 'createdOn', label: t('users.date') },
 ];
 
-const searchQuery = ref('');
-
 // Get Paginated Results of all the users in the infra
-const usersPerPage = 20;
+const usersPerPage = 3;
 const {
   fetching,
   error,
-  goToNextPage: fetchNextUsers,
   refetch,
   list: usersList,
-  hasNextPage,
 } = usePagedQuery(
   UsersListV2Document,
   (x) => x.infra.allUsersV2,
   usersPerPage,
-  { searchString: searchQuery.value, take: usersPerPage, skip: 0 }
+  { searchString: '', take: usersPerPage, skip: 0 }
 );
 
+const selectedRows = ref<UsersListQuery['infra']['allUsers']>([]);
+
+// Search
+const searchQuery = ref('');
 const handleInput = async (input: string) => {
   searchQuery.value = input;
-  await refetch(searchQuery.value);
+  await refetch({ searchString: input, take: usersPerPage, skip: 0 });
 };
 
-const selectedRows = ref<UsersListQuery['infra']['allUsers']>([]);
+// Pagination
+const { data } = useQuery({ query: MetricsDocument });
+const usersCount = computed(() => data?.value?.infra.usersCount);
+
+const totalPages = computed(() => {
+  if (!usersCount.value) return 0;
+  if (searchQuery.value.length > 0) {
+    return usersList.value.length;
+  }
+  return Math.ceil(usersCount.value / usersPerPage);
+});
+
+const handlePageChange = async (page: number) => {
+  if (page < 1 || page > totalPages.value) {
+    return;
+  } else {
+    await refetch({
+      searchString: searchQuery.value,
+      take: usersPerPage,
+      skip: (page - 1) * usersPerPage,
+    });
+  }
+};
 
 // Send Invitation through Email
 const sendInvitation = useMutation(InviteNewUserDocument);

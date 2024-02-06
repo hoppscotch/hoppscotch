@@ -263,13 +263,17 @@ const additionalVars = ref<Environment["variables"]>([])
 
 const envVars = () => [...globalEnv.value, ...additionalVars.value]
 
-defineActionHandler("modals.global.environment.update", ({ variables }) => {
-  if (variables) {
-    additionalVars.value = variables
+defineActionHandler(
+  "modals.global.environment.update",
+  ({ variables, isSecret }) => {
+    if (variables) {
+      additionalVars.value = variables
+    }
+    secretOptionSelected.value = isSecret ?? false
+    editEnvironment("Global")
+    editingVariableName.value = "Global"
   }
-  editEnvironment("Global")
-  editingVariableName.value = "Global"
-})
+)
 
 const selectedEnvironmentIndex = useStream(
   selectedEnvironmentIndex$,

@@ -593,9 +593,7 @@ const environmentVariables = computed(() => {
 })
 
 const editGlobalEnv = () => {
-  invokeAction("modals.my.environment.edit", {
-    envName: "Global",
-  })
+  invokeAction("modals.global.environment.update", {})
 }
 
 const editEnv = () => {

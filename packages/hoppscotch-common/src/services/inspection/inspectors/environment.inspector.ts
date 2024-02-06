@@ -162,9 +162,13 @@ export class EnvironmentInspectorService extends Service implements Inspector {
 
                   let invokeActionType:
                     | "modals.my.environment.edit"
-                    | "modals.team.environment.edit" =
+                    | "modals.team.environment.edit"
+                    | "modals.global.environment.update" =
                     "modals.my.environment.edit"
-                  if (currentEnvironmentType === "MY_ENV") {
+
+                  if (env.sourceEnv === "Global") {
+                    invokeActionType = "modals.global.environment.update"
+                  } else if (currentEnvironmentType === "MY_ENV") {
                     invokeActionType = "modals.my.environment.edit"
                   } else if (currentEnvironmentType === "TEAM_ENV") {
                     invokeActionType = "modals.team.environment.edit"

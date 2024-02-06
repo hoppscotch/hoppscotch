@@ -149,9 +149,9 @@ const usersPerPage = computed(() => data.value?.infra.usersCount || 10000);
 const { list: usersList } = usePagedQuery(
   UsersListDocument,
   (x) => x.infra.allUsers,
-  (x) => x.uid,
   usersPerPage.value,
-  { cursor: undefined, take: usersPerPage.value }
+  { cursor: undefined, take: usersPerPage.value },
+  (x) => x.uid
 );
 
 const allUsersEmail = computed(() => usersList.value.map((user) => user.email));
@@ -168,9 +168,9 @@ const {
 } = usePagedQuery(
   TeamListDocument,
   (x) => x.infra.allTeams,
-  (x) => x.id,
   teamsPerPage,
-  { cursor: undefined, take: teamsPerPage }
+  { cursor: undefined, take: teamsPerPage },
+  (x) => x.id
 );
 
 // Create Team

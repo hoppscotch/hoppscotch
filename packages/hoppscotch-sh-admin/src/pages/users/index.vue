@@ -15,20 +15,20 @@
           <HoppButtonSecondary
             outline
             filled
-            :label="t('users.invited_users')"
+            label="Pending Invites"
             :to="'/users/invited'"
           />
         </div>
       </div>
       <div class="overflow-x-auto">
-        <div v-if="fetching" class="flex justify-center">
+        <div v-if="fetching" class="w-5 h-5 text-center mx-auto">
           <HoppSmartSpinner />
         </div>
 
         <div v-else-if="error">{{ t('users.load_list_error') }}</div>
 
         <UsersTable
-          v-if="usersList.length >= 0"
+          v-else-if="usersList.length > 0"
           :headings="headings"
           :list="usersList"
           :checkbox="true"
@@ -41,6 +41,7 @@
           @onRowClicked="goToUserDetails"
           @search="handleInput"
           @pageNumber="handlePageChange"
+          class="w-full h-full"
         >
           <template #head>
             <th class="px-6 py-2">{{ t('users.id') }}</th>
@@ -133,6 +134,13 @@
           </template>
         </UsersTable>
 
+        <!-- <div
+          v-if="usersList.length === 0"
+          class="w-full border-x-2 border-b-2 border-divider text-center p-3 rounded-b-md"
+        >
+          No users found...
+        </div> -->
+
         <div
           v-if="selectedRows.length"
           class="fixed m-2 bottom-0 left-32 right-0 w-min mx-auto"
@@ -147,13 +155,13 @@
             <HoppButtonSecondary
               :icon="IconUserCheck"
               label="Make Admin"
-              class="py-4 border-divider border-r-1 rounded-none hover:bg-emerald-500"
+              class="py-4 border-divider border-r-1 rounded-none hover:bg-emerald-600"
               @click="confirmUsersToAdmin = true"
             />
             <HoppButtonSecondary
               :icon="IconUserMinus"
               label="Remove Admin"
-              class="py-4 border-divider border-r-1 rounded-none hover:bg-orange-400"
+              class="py-4 border-divider border-r-1 rounded-none hover:bg-yellow-600"
               @click="confirmAdminsToUsers = true"
             />
             <HoppButtonSecondary
@@ -255,7 +263,7 @@ const headings = [
 ];
 
 // Get Paginated Results of all the users in the infra
-const usersPerPage = 3;
+const usersPerPage = 2;
 const {
   fetching,
   error,
@@ -271,6 +279,7 @@ const {
 const selectedRows = ref<UsersListQuery['infra']['allUsers']>([]);
 
 // Search
+
 const searchQuery = ref('');
 const handleInput = async (input: string) => {
   searchQuery.value = input;

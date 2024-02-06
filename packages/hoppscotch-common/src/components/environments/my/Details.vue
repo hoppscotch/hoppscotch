@@ -473,6 +473,7 @@ const saveEnvironment = () => {
 
 const hideModal = () => {
   editingName.value = null
+  selectedEnvOption.value = "variables"
   emit("hide-modal")
 }
 </script>

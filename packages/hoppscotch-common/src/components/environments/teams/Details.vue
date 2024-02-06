@@ -473,6 +473,7 @@ const saveEnvironment = async () => {
 
 const hideModal = () => {
   editingName.value = null
+  selectedEnvOption.value = "variables"
   emit("hide-modal")
 }
 

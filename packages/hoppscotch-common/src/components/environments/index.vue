@@ -239,6 +239,9 @@ const removeSelectedEnvironment = () => {
 
 const resetSelectedData = () => {
   editingEnvironmentIndex.value = null
+  editingVariableName.value = ""
+  editingVariableValue.value = ""
+  secretOptionSelected.value = false
 }
 
 defineActionHandler("modals.environment.new", () => {

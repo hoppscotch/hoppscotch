@@ -122,6 +122,8 @@ const editEnvironment = (environmentIndex: number) => {
 }
 const resetSelectedData = () => {
   editingEnvironmentIndex.value = null
+  editingVariableName.value = ""
+  secretOptionSelected.value = false
 }
 
 defineActionHandler(

@@ -173,6 +173,8 @@ const editEnvironment = (environment: TeamEnvironment | null) => {
 }
 const resetSelectedData = () => {
   editingEnvironment.value = null
+  editingVariableName.value = ""
+  secretOptionSelected.value = false
 }
 
 const getErrorMessage = (err: GQLError<string>) => {

@@ -64,7 +64,6 @@
             :icon="IconShare2"
             :label="t('tab.share_tab_request')"
             :shortcut="['S']"
-            :new="true"
             @click="
               () => {
                 emit('share-tab-request')

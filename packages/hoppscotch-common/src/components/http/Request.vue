@@ -245,7 +245,6 @@ import { UpdateRequestDocument } from "~/helpers/backend/graphql"
 import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
 import { runRESTRequest$ } from "~/helpers/RequestRunner"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
-import { editRESTRequest } from "~/newstore/collections"
 import IconChevronDown from "~icons/lucide/chevron-down"
 import IconCode2 from "~icons/lucide/code-2"
 import IconFileCode from "~icons/lucide/file-code"
@@ -265,9 +264,11 @@ import { HoppRESTDocument } from "~/helpers/rest/document"
 import { RESTTabService } from "~/services/tab/rest"
 import { getMethodLabelColorClassOf } from "~/helpers/rest/labelColoring"
 import { WorkspaceService } from "~/services/workspace.service"
+import { NewWorkspaceService } from "~/services/new-workspace"
 
 const t = useI18n()
 const interceptorService = useService(InterceptorService)
+const newWorkspaceService = useService(NewWorkspaceService)
 
 const methods = [
   "GET",
@@ -506,7 +507,7 @@ const cycleDownMethod = () => {
   }
 }
 
-const saveRequest = () => {
+const saveRequest = async () => {
   const saveCtx = tab.value.document.saveContext
 
   if (!saveCtx) {
@@ -514,25 +515,72 @@ const saveRequest = () => {
     return
   }
   if (saveCtx.originLocation === "user-collection") {
-    const req = tab.value.document.request
+    const updatedRequest = tab.value.document.request
 
-    try {
-      editRESTRequest(saveCtx.folderPath, saveCtx.requestIndex, req)
-
-      tab.value.document.isDirty = false
-
-      platform.analytics?.logEvent({
-        type: "HOPP_SAVE_REQUEST",
-        platform: "rest",
-        createdNow: false,
-        workspaceType: "personal",
-      })
-
-      toast.success(`${t("request.saved")}`)
-    } catch (e) {
-      tab.value.document.saveContext = undefined
-      saveRequest()
+    if (!newWorkspaceService.activeWorkspaceHandle.value) {
+      return
     }
+
+    const collHandleResult = await newWorkspaceService.getCollectionHandle(
+      newWorkspaceService.activeWorkspaceHandle.value,
+      saveCtx.folderPath
+    )
+
+    if (E.isLeft(collHandleResult)) {
+      // INVALID_WORKSPACE_HANDLE
+      return
+    }
+
+    const collHandle = collHandleResult.right
+
+    if (collHandle.value.type === "invalid") {
+      // WORKSPACE_INVALIDATED | INVALID_COLLECTION_HANDLE
+      return
+    }
+
+    const requestHandleResult = await newWorkspaceService.getRequestHandle(
+      collHandle,
+      `${saveCtx.folderPath}/${saveCtx.requestIndex.toString()}`
+    )
+
+    if (E.isLeft(requestHandleResult)) {
+      // INVALID_REQUEST_HANDLE
+      return
+    }
+
+    const requestHandle = requestHandleResult.right
+
+    if (requestHandle.value.type === "invalid") {
+      // WORKSPACE_INVALIDATED | INVALID_REQUEST_HANDLE
+      return
+    }
+
+    const updatedRequestResult = await newWorkspaceService.saveRESTRequest(
+      requestHandle,
+      updatedRequest
+    )
+
+    if (E.isLeft(updatedRequestResult)) {
+      // INVALID_REQUEST_HANDLE
+      return
+    }
+
+    const resultHandle = updatedRequestResult.right
+
+    if (resultHandle.value.type === "invalid") {
+      // REQUEST_INVALIDATED | REQUEST_PATH_NOT_FOUND
+
+      if (resultHandle.value.reason === "REQUEST_PATH_NOT_FOUND") {
+        // REQUEST_PATH_NOT_FOUND
+        tab.value.document.saveContext = undefined
+        await saveRequest()
+      }
+      return
+    }
+
+    tab.value.document.isDirty = false
+
+    toast.success(`${t("request.saved")}`)
   } else if (saveCtx.originLocation === "team-collection") {
     const req = tab.value.document.request
 

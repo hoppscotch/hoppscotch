@@ -126,7 +126,7 @@ import {
 import { refAutoReset, useVModel } from "@vueuse/core"
 import { useService } from "dioc/vue"
 import { clone } from "lodash-es"
-import { computed, ref, watch } from "vue"
+import { computed, ref, toRefs, watch } from "vue"
 import { useToast } from "~/composables/toast"
 
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
@@ -159,11 +159,15 @@ const props = withDefaults(
     source: "REST" | "GraphQL"
     modelValue: string
     showDetails: boolean
+    // TODO: Purpose of this prop is to maintain backwards compatibility
+    // To be removed after porting all usages of this component
+    emitWithFullCollection: boolean
   }>(),
   {
     show: false,
     loadingState: false,
     showDetails: false,
+    emitWithFullCollection: true,
   }
 )
 
@@ -250,15 +254,23 @@ watch(
 const saveEditedCollection = () => {
   if (!props.editingProperties) return
   const finalCollection = clone(editableCollection.value)
+
+  const { path } = toRefs(props.editingProperties)
+
   const collection = {
-    path: props.editingProperties.path,
+    path: path.value,
     collection: {
       ...props.editingProperties.collection,
       ...finalCollection,
     },
     isRootCollection: props.editingProperties.isRootCollection,
   }
-  emit("set-collection-properties", collection as EditingProperties)
+
+  const data = props.emitWithFullCollection
+    ? collection
+    : { ...finalCollection, collIndexPath: path.value }
+  emit("set-collection-properties", data as EditingProperties)
+
   persistenceService.removeLocalConfig("unsaved_collection_properties")
 }
 

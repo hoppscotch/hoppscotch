@@ -6,7 +6,7 @@
     >
       <div
         class="pointer-events-auto flex min-w-0 flex-1 cursor-pointer items-center justify-center"
-        @click="selectRequest(request.requestID, request.request)"
+        @click="selectRequest"
       >
         <span
           class="pointer-events-none flex w-16 items-center justify-center truncate px-2"
@@ -14,14 +14,14 @@
           :style="{ color: requestLabelColor }"
         >
           <span class="truncate text-tiny font-semibold">
-            {{ request.method }}
+            {{ requestView.request.method }}
           </span>
         </span>
         <span
           class="pointer-events-none flex min-w-0 flex-1 items-center py-2 pr-2 transition group-hover:text-secondaryDark"
         >
           <span class="truncate">
-            {{ request.name }}
+            {{ requestView.request.name }}
           </span>
           <span
             v-if="isActive"
@@ -45,7 +45,7 @@
           :icon="IconRotateCCW"
           :title="t('action.restore')"
           class="hidden group-hover:inline-flex"
-          @click="selectRequest(request.requestID, request.request)"
+          @click="selectRequest"
         />
         <span>
           <tippy
@@ -78,8 +78,8 @@
                   @click="
                     () => {
                       emit('edit-request', {
-                        requestPath: request.requestID,
-                        request: request.request,
+                        requestIndexPath: requestView.requestID,
+                        requestName: requestView.request.name,
                       })
                       hide()
                     }
@@ -92,10 +92,7 @@
                   :shortcut="['D']"
                   @click="
                     () => {
-                      emit('duplicate-request', {
-                        requestPath: request.requestID,
-                        request: request.request,
-                      })
+                      emit('duplicate-request', requestView.requestID)
                       hide()
                     }
                   "
@@ -132,37 +129,24 @@ import { RESTCollectionViewRequest } from "~/services/new-workspace/view"
 import { computed, ref } from "vue"
 import { TippyComponent } from "vue-tippy"
 import { getMethodLabelColorClassOf } from "~/helpers/rest/labelColoring"
-import { HoppRESTRequest } from "@hoppscotch/data"
 
 const t = useI18n()
 
 const props = defineProps<{
-  request: RESTCollectionViewRequest
+  requestView: RESTCollectionViewRequest
 }>()
 
 const emit = defineEmits<{
-  (
-    event: "duplicate-request",
-    payload: {
-      requestPath: string
-      request: HoppRESTRequest
-    }
-  ): void
+  (event: "duplicate-request", requestIndexPath: string): void
   (
     event: "edit-request",
     payload: {
-      requestPath: string
-      request: HoppRESTRequest
+      requestIndexPath: string
+      requestName: string
     }
   ): void
   (event: "remove-request"): void
-  (
-    event: "select-request",
-    payload: {
-      requestPath: string
-      request: HoppRESTRequest
-    }
-  ): void
+  (event: "select-request", requestIndexPath: string): void
 }>()
 
 const tippyActions = ref<TippyComponent | null>(null)
@@ -172,12 +156,8 @@ const options = ref<TippyComponent | null>(null)
 const isActive = ref(true)
 
 const requestLabelColor = computed(() =>
-  getMethodLabelColorClassOf(props.request)
+  getMethodLabelColorClassOf(props.requestView.request)
 )
 
-const selectRequest = (requestPath: string, request: HoppRESTRequest) =>
-  emit("select-request", {
-    requestPath,
-    request,
-  })
+const selectRequest = () => emit("select-request", props.requestView.requestID)
 </script>

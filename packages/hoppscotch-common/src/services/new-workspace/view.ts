@@ -1,16 +1,16 @@
-import { HoppRESTRequest } from "@hoppscotch/data"
+import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
 import { Ref } from "vue"
 
 export type RESTCollectionViewCollection = {
   collectionID: string
-  name: string
+
+  collection: HoppCollection
 }
 
 export type RESTCollectionViewRequest = {
+  collectionID: string
   requestID: string
 
-  name: string
-  method: string
   request: HoppRESTRequest
 }
 

@@ -22,7 +22,7 @@
           v-tippy="{ theme: 'tooltip' }"
           :icon="IconImport"
           :title="t('modal.import_export')"
-          @click="onImportExportClick"
+          @click="() => {}"
         />
       </span>
     </div>
@@ -33,16 +33,20 @@
           <!-- TODO: Implement -->
           <NewCollectionsRestCollection
             v-if="node.data.type === 'collection'"
-            :collection="node.data.value"
+            :collection-view="node.data.value"
             :is-open="isOpen"
             @add-request="addRequest"
-            @add-folder="addFolder"
-            @remove-collection="removeFolder"
+            @add-child-collection="addChildCollection"
+            @edit-root-collection="editRootCollection"
+            @edit-collection-properties="editCollectionProperties"
+            @edit-child-collection="editChildCollection"
+            @remove-root-collection="removeRootCollection"
+            @remove-child-collection="removeChildCollection"
             @toggle-children="toggleChildren"
           />
           <NewCollectionsRestRequest
             v-else-if="node.data.type === 'request'"
-            :request="node.data.value"
+            :request-view="node.data.value"
             @duplicate-request="duplicateRequest"
             @edit-request="editRequest"
             @remove-request="removeRequest(node.data.value.requestID)"
@@ -72,10 +76,24 @@
       @hide-modal="displayModalAddRequest(false)"
     />
     <CollectionsAddFolder
-      :show="showModalAddFolder"
+      :show="showModalAddChildColl"
       :loading-state="modalLoadingState"
-      @add-folder="onAddFolder"
-      @hide-modal="displayModalAddFolder(false)"
+      @add-folder="onAddChildCollection"
+      @hide-modal="displayModalAddChildColl(false)"
+    />
+    <CollectionsEdit
+      :show="showModalEditRootColl"
+      :editing-collection-name="editingRootCollName ?? ''"
+      :loading-state="modalLoadingState"
+      @hide-modal="displayModalEditCollection(false)"
+      @submit="onEditRootCollection"
+    />
+    <CollectionsEditFolder
+      :show="showModalEditChildColl"
+      :editing-folder-name="editingChildCollName ?? ''"
+      :loading-state="modalLoadingState"
+      @submit="onEditChildCollection"
+      @hide-modal="displayModalEditChildCollection(false)"
     />
     <CollectionsEditRequest
       v-model="editingRequestName"
@@ -91,6 +109,15 @@
       :loading-state="modalLoadingState"
       @hide-modal="showConfirmModal = false"
       @resolve="resolveConfirmModal"
+    />
+
+    <!-- TODO: Remove the `emitWithFullCollection` prop after porting all usages of the below component -->
+    <CollectionsProperties
+      :show="showModalEditProperties"
+      :editing-properties="editingProperties"
+      :emit-with-full-collection="false"
+      @hide-modal="displayModalEditProperties(false)"
+      @set-collection-properties="setCollectionProperties"
     />
   </div>
 </template>
@@ -112,18 +139,13 @@ import IconImport from "~icons/lucide/folder-down"
 import IconHelpCircle from "~icons/lucide/help-circle"
 import IconPlus from "~icons/lucide/plus"
 import {
-  resolveSaveContextOnCollectionReorder,
-  getFoldersByPath,
-} from "~/helpers/collection/collection"
-import {
-  navigateToFolderWithIndexPath,
-  restCollectionStore,
-  removeRESTFolder,
-  restCollections$,
+  cascadeParentCollectionForHeaderAuth,
+  saveRESTRequestAs,
 } from "~/newstore/collections"
-import { useReadonlyStream } from "~/composables/stream"
 import { cloneDeep } from "lodash-es"
-import { HoppRESTRequest } from "@hoppscotch/data"
+import { HoppCollection, HoppRESTAuth, HoppRESTRequest } from "@hoppscotch/data"
+import { TeamCollection } from "~/helpers/backend/graphql"
+import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 
 const t = useI18n()
 const toast = useToast()
@@ -150,18 +172,33 @@ const modalLoadingState = ref(false)
 
 const showModalAdd = ref(false)
 const showModalAddRequest = ref(false)
-const showModalAddFolder = ref(false)
+const showModalAddChildColl = ref(false)
+const showModalEditRootColl = ref(false)
+const showModalEditChildColl = ref(false)
 const showModalEditRequest = ref(false)
+const showModalEditProperties = ref(false)
 const showConfirmModal = ref(false)
 
-const editingFolderPath = ref<string | null>(null)
-const editingRequest = ref<HoppRESTRequest | null>(null)
-const editingRequestName = ref("")
-const editingRequestIndex = ref<number | null>(null)
+const editingCollIndexPath = ref<string>("")
+const editingChildCollIndexPath = ref<string>("")
+const editingRootCollName = ref<string>("")
+const editingChildCollName = ref<string>("")
+const editingRequestName = ref<string>("")
+const editingRequestIndexPath = ref<string>("")
+
+const editingProperties = ref<{
+  collection: Omit<HoppCollection, "v"> | TeamCollection | null
+  isRootCollection: boolean
+  path: string
+  inheritedProperties?: HoppInheritedProperty
+}>({
+  collection: null,
+  isRootCollection: false,
+  path: "",
+  inheritedProperties: undefined,
+})
 
 const confirmModalTitle = ref<string | null>(null)
-
-const myCollections = useReadonlyStream(restCollections$, [], "deep")
 
 const displayModalAddRequest = (show: boolean) => {
   showModalAddRequest.value = show
@@ -169,14 +206,32 @@ const displayModalAddRequest = (show: boolean) => {
   if (!show) resetSelectedData()
 }
 
-const displayModalAddFolder = (show: boolean) => {
-  showModalAddFolder.value = show
+const displayModalAddChildColl = (show: boolean) => {
+  showModalAddChildColl.value = show
+
+  if (!show) resetSelectedData()
+}
+
+const displayModalEditCollection = (show: boolean) => {
+  showModalEditRootColl.value = show
+
+  if (!show) resetSelectedData()
+}
+
+const displayModalEditChildCollection = (show: boolean) => {
+  showModalEditChildColl.value = show
 
   if (!show) resetSelectedData()
 }
 
 const displayModalEditRequest = (show: boolean) => {
   showModalEditRequest.value = show
+
+  if (!show) resetSelectedData()
+}
+
+const displayModalEditProperties = (show: boolean) => {
+  showModalEditProperties.value = show
 
   if (!show) resetSelectedData()
 }
@@ -210,19 +265,19 @@ const addNewRootCollection = async (name: string) => {
   showModalAdd.value = false
 }
 
-const addRequest = (payload: { path: string }) => {
-  const { path } = payload
-  editingFolderPath.value = path
-  displayModalAddRequest(true)
+const removeRootCollection = (collPathIndex: string) => {
+  editingCollIndexPath.value = collPathIndex
+
+  confirmModalTitle.value = `${t("confirm.remove_collection")}`
+  displayConfirmModal(true)
 }
 
-const onAddRequest = async (requestName: string) => {
-  const path = editingFolderPath.value
-  if (!path) return
+const onRemoveRootCollection = async () => {
+  const collIndexPath = editingCollIndexPath.value
 
   const collHandleResult = await workspaceService.getCollectionHandle(
     props.workspaceHandle,
-    path
+    collIndexPath
   )
 
   if (E.isLeft(collHandleResult)) {
@@ -233,14 +288,54 @@ const onAddRequest = async (requestName: string) => {
   const collHandle = collHandleResult.right
 
   if (collHandle.value.type === "invalid") {
-    // WORKSPACE_INVALIDATED
+    // WORKSPACE_INVALIDATED | INVALID_COLLECTION_HANDLE
+    return
+  }
+
+  const result = await workspaceService.removeRESTRootCollection(collHandle)
+
+  if (E.isLeft(result)) {
+    // INVALID_COLLECTION_HANDLE
+    return
+  }
+
+  if (result.right.value.type === "invalid") {
+    // COLLECTION_INVALIDATED
+    return
+  }
+
+  toast.success(t("state.deleted"))
+  displayConfirmModal(false)
+}
+
+const addRequest = (requestPathIndex: string) => {
+  editingCollIndexPath.value = requestPathIndex
+  displayModalAddRequest(true)
+}
+
+const onAddRequest = async (requestName: string) => {
+  const parentCollIndexPath = editingCollIndexPath.value
+
+  const collHandleResult = await workspaceService.getCollectionHandle(
+    props.workspaceHandle,
+    parentCollIndexPath
+  )
+
+  if (E.isLeft(collHandleResult)) {
+    // INVALID_WORKSPACE_HANDLE
+    return
+  }
+
+  const collHandle = collHandleResult.right
+
+  if (collHandle.value.type === "invalid") {
+    // WORKSPACE_INVALIDATED | INVALID_COLLECTION_HANDLE
     return
   }
 
   const result = await workspaceService.createRESTRequest(
     collHandle,
-    requestName,
-    path
+    requestName
   )
 
   if (E.isLeft(result)) {
@@ -256,20 +351,17 @@ const onAddRequest = async (requestName: string) => {
   displayModalAddRequest(false)
 }
 
-const addFolder = (payload: { path: string }) => {
-  const { path } = payload
-  editingFolderPath.value = path
-  displayModalAddFolder(true)
+const addChildCollection = (parentCollIndexPath: string) => {
+  editingCollIndexPath.value = parentCollIndexPath
+  displayModalAddChildColl(true)
 }
 
-const onAddFolder = async (folderName: string) => {
-  const path = editingFolderPath.value
-
-  if (!path) return
+const onAddChildCollection = async (childCollName: string) => {
+  const parentCollIndexPath = editingCollIndexPath.value
 
   const collHandleResult = await workspaceService.getCollectionHandle(
     props.workspaceHandle,
-    path
+    parentCollIndexPath
   )
 
   if (E.isLeft(collHandleResult)) {
@@ -280,102 +372,223 @@ const onAddFolder = async (folderName: string) => {
   const collHandle = collHandleResult.right
 
   if (collHandle.value.type === "invalid") {
-    // WORKSPACE_INVALIDATED
+    // WORKSPACE_INVALIDATED | INVALID_COLLECTION_HANDLE
     return
   }
 
   const result = await workspaceService.createRESTChildCollection(
     collHandle,
-    folderName,
-    path
+    childCollName
   )
 
   if (E.isLeft(result)) {
-    // INVALID_WORKSPACE_HANDLE
+    // INVALID_COLLECTION_HANDLE
     return
   }
 
   if (result.right.value.type === "invalid") {
-    // WORKSPACE_INVALIDATED
+    // COLLECTION_INVALIDATED
     return
   }
 
-  displayModalAddFolder(false)
+  displayModalAddChildColl(false)
 }
 
-const removeFolder = (payload: { path: string }) => {
-  const { path } = payload
-  editingFolderPath.value = path
+const editRootCollection = (payload: {
+  collIndexPath: string
+  collectionName: string
+}) => {
+  const { collIndexPath, collectionName } = payload
+
+  editingCollIndexPath.value = collIndexPath
+  editingRootCollName.value = collectionName
+
+  displayModalEditCollection(true)
+}
+
+const onEditRootCollection = async (newCollectionName: string) => {
+  const collID = editingCollIndexPath.value
+
+  const collHandleResult = await workspaceService.getCollectionHandle(
+    props.workspaceHandle,
+    collID
+  )
+
+  if (E.isLeft(collHandleResult)) {
+    // INVALID_WORKSPACE_HANDLE
+    return
+  }
+
+  const collHandle = collHandleResult.right
+
+  if (collHandle.value.type === "invalid") {
+    // WORKSPACE_INVALIDATED | INVALID_COLLECTION_HANDLE
+    return
+  }
+
+  const result = await workspaceService.editRESTRootCollection(
+    collHandle,
+    newCollectionName
+  )
+
+  if (E.isLeft(result)) {
+    // INVALID_COLLECTION_HANDLE
+    return
+  }
+
+  if (result.right.value.type === "invalid") {
+    // COLLECTION_INVALIDATED
+    return
+  }
+
+  displayModalEditCollection(false)
+  toast.success(t("collection.renamed"))
+}
+
+const editChildCollection = (payload: {
+  collIndexPath: string
+  collectionName: string
+}) => {
+  const { collIndexPath, collectionName } = payload
+
+  editingChildCollIndexPath.value = collIndexPath
+  editingChildCollName.value = collectionName
+
+  displayModalEditChildCollection(true)
+}
+
+const onEditChildCollection = async (newCollectionName: string) => {
+  const collID = editingChildCollIndexPath.value
+
+  const collHandleResult = await workspaceService.getCollectionHandle(
+    props.workspaceHandle,
+    collID
+  )
+
+  if (E.isLeft(collHandleResult)) {
+    // INVALID_WORKSPACE_HANDLE
+    return
+  }
+
+  const collHandle = collHandleResult.right
+
+  if (collHandle.value.type === "invalid") {
+    // WORKSPACE_INVALIDATED | INVALID_COLLECTION_HANDLE
+    return
+  }
+
+  const result = await workspaceService.editRESTChildCollection(
+    collHandle,
+    newCollectionName
+  )
+
+  if (E.isLeft(result)) {
+    // INVALID_COLLECTION_HANDLE
+    return
+  }
+
+  if (result.right.value.type === "invalid") {
+    // COLLECTION_INVALIDATED
+    return
+  }
+
+  displayModalEditChildCollection(false)
+  toast.success(t("collection.renamed"))
+}
+
+const removeChildCollection = (parentCollIndexPath: string) => {
+  editingCollIndexPath.value = parentCollIndexPath
 
   confirmModalTitle.value = `${t("confirm.remove_folder")}`
   displayConfirmModal(true)
 }
 
-const onRemoveFolder = () => {
-  const path = editingFolderPath.value
+const onRemoveChildCollection = async () => {
+  const parentCollIndexPath = editingCollIndexPath.value
 
-  if (!path) return
+  const parentCollHandleResult = await workspaceService.getCollectionHandle(
+    props.workspaceHandle,
+    parentCollIndexPath
+  )
 
-  const folderToRemove = path
-    ? navigateToFolderWithIndexPath(
-        restCollectionStore.value.state,
-        path.split("/").map((i) => parseInt(i))
-      )
-    : undefined
+  if (E.isLeft(parentCollHandleResult)) {
+    // INVALID_WORKSPACE_HANDLE
+    return
+  }
 
-  removeRESTFolder(path, folderToRemove ? folderToRemove.id : undefined)
+  const parentCollHandle = parentCollHandleResult.right
 
-  const parentFolder = path.split("/").slice(0, -1).join("/") // remove last folder to get parent folder
-  resolveSaveContextOnCollectionReorder({
-    lastIndex: pathToLastIndex(path),
-    newIndex: -1,
-    folderPath: parentFolder,
-    length: getFoldersByPath(myCollections.value, parentFolder).length,
-  })
+  if (parentCollHandle.value.type === "invalid") {
+    // WORKSPACE_INVALIDATED | INVALID_COLLECTION_HANDLE
+    return
+  }
+
+  const result =
+    await workspaceService.removeRESTChildCollection(parentCollHandle)
+
+  if (E.isLeft(result)) {
+    // INVALID_COLLECTION_HANDLE
+    return
+  }
+
+  if (result.right.value.type === "invalid") {
+    // COLLECTION_INVALIDATED
+    return
+  }
 
   toast.success(t("state.deleted"))
   displayConfirmModal(false)
 }
 
-const removeRequest = (requestIndex: string) => {
-  const folderPath = requestIndex.slice(0, -2)
-  const requestID = requestIndex[requestIndex.length - 1]
+const removeRequest = (requestIndexPath: string) => {
+  const collIndexPath = requestIndexPath.split("/").slice(0, -1).join("/")
 
-  editingFolderPath.value = folderPath
-  editingRequestIndex.value = parseInt(requestID)
+  editingCollIndexPath.value = collIndexPath
+  editingRequestIndexPath.value = requestIndexPath
 
   confirmModalTitle.value = `${t("confirm.remove_request")}`
   displayConfirmModal(true)
 }
 
 const onRemoveRequest = async () => {
-  const path = editingFolderPath.value
-  const requestIndex = editingRequestIndex.value
+  const parentCollIndexPath = editingCollIndexPath.value
+  const requestIndexPath = editingRequestIndexPath.value
 
-  if (path === null || requestIndex === null) return
-
-  const collHandleResult = await workspaceService.getCollectionHandle(
+  const parentCollHandleResult = await workspaceService.getCollectionHandle(
     props.workspaceHandle,
-    path
+    parentCollIndexPath
   )
 
-  if (E.isLeft(collHandleResult)) {
+  if (E.isLeft(parentCollHandleResult)) {
     // INVALID_WORKSPACE_HANDLE
     return
   }
 
-  const collHandle = collHandleResult.right
+  const parentCollHandle = parentCollHandleResult.right
 
-  if (collHandle.value.type === "invalid") {
-    // WORKSPACE_INVALIDATED
+  if (parentCollHandle.value.type === "invalid") {
+    // WORKSPACE_INVALIDATED | INVALID_COLLECTION_HANDLE
     return
   }
 
-  const result = await workspaceService.removeRESTRequest(
-    collHandle,
-    path,
-    requestIndex
+  const requestHandleResult = await workspaceService.getRequestHandle(
+    parentCollHandle,
+    requestIndexPath
   )
+
+  if (E.isLeft(requestHandleResult)) {
+    // INVALID_COLLECTION_HANDLE
+    return
+  }
+
+  const requestHandle = requestHandleResult.right
+
+  if (requestHandle.value.type === "invalid") {
+    // COLLECTION_INVALIDATED | INVALID_REQUEST_HANDLE
+    return
+  }
+
+  const result = await workspaceService.removeRESTRequest(requestHandle)
 
   if (E.isLeft(result)) {
     // INVALID_WORKSPACE_HANDLE
@@ -391,18 +604,12 @@ const onRemoveRequest = async () => {
   displayConfirmModal(false)
 }
 
-const selectRequest = async (payload: {
-  requestPath: string
-  request: HoppRESTRequest
-}) => {
-  const { requestPath, request } = payload
-
-  const collPath = requestPath.slice(0, -2)
-  const requestIndex = requestPath[requestPath.length - 1]
+const selectRequest = async (requestIndexPath: string) => {
+  const collIndexPath = requestIndexPath.split("/").slice(0, -1).join("/")
 
   const collHandleResult = await workspaceService.getCollectionHandle(
     props.workspaceHandle,
-    collPath
+    collIndexPath
   )
 
   if (E.isLeft(collHandleResult)) {
@@ -413,35 +620,64 @@ const selectRequest = async (payload: {
   const collHandle = collHandleResult.right
 
   if (collHandle.value.type === "invalid") {
-    // WORKSPACE_INVALIDATED
+    // WORKSPACE_INVALIDATED | INVALID_COLLECTION_HANDLE
     return
   }
 
-  const result = await workspaceService.selectRESTRequest(
+  const requestHandleResult = await workspaceService.getRequestHandle(
     collHandle,
-    collPath,
-    requestIndex,
-    request
+    requestIndexPath
   )
 
-  if (E.isLeft(result)) {
-    // INVALID_WORKSPACE_HANDLE
+  if (E.isLeft(requestHandleResult)) {
+    // INVALID_COLLECTION_HANDLE
     return
   }
 
-  if (result.right.value.type === "invalid") {
-    // WORKSPACE_INVALIDATED
+  const requestHandle = requestHandleResult.right
+
+  if (requestHandle.value.type === "invalid") {
+    // COLLECTION_INVALIDATED | INVALID_REQUEST_HANDLE
     return
+  }
+
+  const requestIndex = parseInt(requestIndexPath.split("/").slice(-1)[0])
+  const request = requestHandle.value.data.request as HoppRESTRequest
+
+  // If there is a request with this save context, switch into it
+  let possibleTab = null
+
+  const { auth, headers } = cascadeParentCollectionForHeaderAuth(
+    collIndexPath,
+    "rest"
+  )
+  possibleTab = tabs.getTabRefWithSaveContext({
+    originLocation: "user-collection",
+    requestIndex,
+    folderPath: collIndexPath,
+  })
+  if (possibleTab) {
+    tabs.setActiveTab(possibleTab.value.id)
+  } else {
+    // If not, open the request in a new tab
+    tabs.createNewTab({
+      request: cloneDeep(request),
+      isDirty: false,
+      saveContext: {
+        originLocation: "user-collection",
+        folderPath: collIndexPath,
+        requestIndex,
+      },
+      inheritedProperties: {
+        auth,
+        headers,
+      },
+    })
   }
 }
 
-const duplicateRequest = async (payload: {
-  requestPath: string
-  request: HoppRESTRequest
-}) => {
-  const { requestPath, request } = payload
-
-  const collPath = requestPath.slice(0, -2)
+const duplicateRequest = async (requestIndexPath: string) => {
+  const collPath = requestIndexPath.split("/").slice(0, -1).join("/")
 
   const collHandleResult = await workspaceService.getCollectionHandle(
     props.workspaceHandle,
@@ -456,95 +692,105 @@ const duplicateRequest = async (payload: {
   const collHandle = collHandleResult.right
 
   if (collHandle.value.type === "invalid") {
-    // WORKSPACE_INVALIDATED
+    // WORKSPACE_INVALIDATED | INVALID_COLLECTION_HANDLE
     return
   }
+
+  const requestHandleResult = await workspaceService.getRequestHandle(
+    collHandle,
+    requestIndexPath
+  )
+
+  if (E.isLeft(requestHandleResult)) {
+    // INVALID_COLLECTION_HANDLE
+    return
+  }
+
+  const requestHandle = requestHandleResult.right
+
+  if (requestHandle.value.type === "invalid") {
+    // COLLECTION_INVALIDATED | INVALID_REQUEST_HANDLE
+    return
+  }
+
+  const request = requestHandle.value.data.request as HoppRESTRequest
 
   const newRequest = {
     ...cloneDeep(request),
     name: `${request.name} - ${t("action.duplicate")}`,
   }
 
-  const result = await workspaceService.duplicateRESTRequest(
-    collHandle,
-    collPath,
-    newRequest
-  )
-
-  if (E.isLeft(result)) {
-    // INVALID_WORKSPACE_HANDLE
-    return
-  }
-
-  if (result.right.value.type === "invalid") {
-    // WORKSPACE_INVALIDATED
-    return
-  }
+  saveRESTRequestAs(collPath, newRequest)
 
   toast.success(t("request.duplicated"))
 }
 
 const editRequest = (payload: {
-  requestPath: string
-  request: HoppRESTRequest
+  requestIndexPath: string
+  requestName: string
 }) => {
-  const { requestPath, request } = payload
-  const collPath = requestPath.slice(0, -2)
-  const requestIndex = requestPath[requestPath.length - 1]
+  const { requestIndexPath, requestName } = payload
 
-  editingRequest.value = request
-  editingRequestName.value = request.name ?? ""
-  editingFolderPath.value = collPath
-  editingRequestIndex.value = parseInt(requestIndex)
+  const collPath = requestIndexPath.split("/").slice(0, -1).join("/")
+
+  editingCollIndexPath.value = collPath
+  editingRequestIndexPath.value = requestIndexPath
+
+  editingRequestName.value = requestName
 
   displayModalEditRequest(true)
 }
 
 const onEditRequest = async (newReqName: string) => {
-  const collPath = editingFolderPath.value
-  const requestIndex = editingRequestIndex.value
-  const request = editingRequest.value
+  const parentCollID = editingCollIndexPath.value
+  const requestID = editingRequestIndexPath.value
 
-  if (collPath === null || requestIndex === null || !request) {
-    return
-  }
-
-  const collHandleResult = await workspaceService.getCollectionHandle(
+  const parentCollHandleResult = await workspaceService.getCollectionHandle(
     props.workspaceHandle,
-    collPath
+    parentCollID
   )
 
-  if (E.isLeft(collHandleResult)) {
+  if (E.isLeft(parentCollHandleResult)) {
     // INVALID_WORKSPACE_HANDLE
     return
   }
 
-  const collHandle = collHandleResult.right
+  const parentCollHandle = parentCollHandleResult.right
 
-  if (collHandle.value.type === "invalid") {
-    // WORKSPACE_INVALIDATED
+  if (parentCollHandle.value.type === "invalid") {
+    // WORKSPACE_INVALIDATED | INVALID_COLLECTION_HANDLE
     return
   }
 
-  const updatedRequest = {
-    ...request,
-    name: newReqName || request.name,
+  const requestHandleResult = await workspaceService.getRequestHandle(
+    parentCollHandle,
+    requestID
+  )
+
+  if (E.isLeft(requestHandleResult)) {
+    // INVALID_COLLECTION_HANDLE
+    return
+  }
+
+  const requestHandle = requestHandleResult.right
+
+  if (requestHandle.value.type === "invalid") {
+    // COLLECTION_INVALIDATED | INVALID_REQUEST_HANDLE
+    return
   }
 
   const result = await workspaceService.editRESTRequest(
-    collHandle,
-    collPath,
-    requestIndex,
-    updatedRequest
+    requestHandle,
+    newReqName
   )
 
   if (E.isLeft(result)) {
-    // INVALID_WORKSPACE_HANDLE
+    // INVALID_REQUEST_HANDLE
     return
   }
 
   if (result.right.value.type === "invalid") {
-    // WORKSPACE_INVALIDATED
+    // REQUEST_INVALIDATED
     return
   }
 
@@ -552,17 +798,119 @@ const onEditRequest = async (newReqName: string) => {
   toast.success(t("request.renamed"))
 }
 
-function onImportExportClick() {
-  // TODO: Implement
+const editCollectionProperties = async (collIndexPath: string) => {
+  const parentIndex = collIndexPath.split("/").slice(0, -1).join("/") // remove last folder to get parent folder
+
+  let inheritedProperties = {
+    auth: {
+      parentID: "",
+      parentName: "",
+      inheritedAuth: {
+        authType: "inherit",
+        authActive: true,
+      },
+    },
+    headers: [
+      {
+        parentID: "",
+        parentName: "",
+        inheritedHeader: {},
+      },
+    ],
+  } as HoppInheritedProperty
+
+  if (parentIndex) {
+    const { auth, headers } = cascadeParentCollectionForHeaderAuth(
+      parentIndex,
+      "rest"
+    )
+
+    inheritedProperties = {
+      auth,
+      headers,
+    }
+  }
+
+  const collHandleResult = await workspaceService.getCollectionHandle(
+    props.workspaceHandle,
+    collIndexPath
+  )
+
+  if (E.isLeft(collHandleResult)) {
+    // INVALID_WORKSPACE_HANDLE
+    return
+  }
+
+  const collHandle = collHandleResult.right
+
+  if (collHandle.value.type === "invalid") {
+    // WORKSPACE_INVALIDATED | INVALID_COLLECTION_HANDLE
+    return
+  }
+
+  const { collection } = collHandle.value.data
+
+  editingProperties.value = {
+    collection,
+    isRootCollection: isAlreadyInRoot(collIndexPath),
+    path: collIndexPath,
+    inheritedProperties,
+  }
+
+  displayModalEditProperties(true)
+}
+
+const setCollectionProperties = async (updatedCollectionProps: {
+  auth: HoppRESTAuth
+  headers: HoppCollection["headers"]
+  collIndexPath: string
+}) => {
+  const { collIndexPath, auth, headers } = updatedCollectionProps
+
+  const collHandleResult = await workspaceService.getCollectionHandle(
+    props.workspaceHandle,
+    collIndexPath
+  )
+
+  if (E.isLeft(collHandleResult)) {
+    // INVALID_WORKSPACE_HANDLE
+    return
+  }
+
+  const collHandle = collHandleResult.right
+
+  if (collHandle.value.type === "invalid") {
+    // WORKSPACE_INVALIDATED | INVALID_COLLECTION_HANDLE
+    return
+  }
+
+  const result = await workspaceService.editRESTCollectionProperties(
+    collHandle,
+    { auth, headers }
+  )
+
+  if (E.isLeft(result)) {
+    // INVALID_COLLECTION_HANDLE
+    return
+  }
+
+  if (result.right.value.type === "invalid") {
+    // COLLECTION_INVALIDATED
+    return
+  }
+
+  toast.success(t("collection.properties_updated"))
+
+  displayModalEditProperties(false)
 }
 
 const resolveConfirmModal = (title: string | null) => {
   if (title === `${t("confirm.remove_collection")}`) {
-    // onRemoveCollection()
+    onRemoveRootCollection()
   } else if (title === `${t("confirm.remove_request")}`) {
     onRemoveRequest()
   } else if (title === `${t("confirm.remove_folder")}`) {
-    onRemoveFolder()
+    onRemoveChildCollection()
   } else {
     console.error(
       `Confirm modal title ${title} is not handled by the component`
@@ -573,16 +921,25 @@ const resolveConfirmModal = (title: string | null) => {
 }
 
 const resetSelectedData = () => {
-  editingFolderPath.value = null
+  editingCollIndexPath.value = ""
 }
 
 /**
- * Used to get the index of the request from the path
- * @param path The path of the request
- * @returns The index of the request
+ * @param path The path of the collection or request
+ * @returns The index of the collection or request
  */
-const pathToLastIndex = (path: string) => {
+const pathToIndex = (path: string) => {
   const pathArr = path.split("/")
-  return parseInt(pathArr[pathArr.length - 1])
+  return pathArr
+}
+
+/**
+ * Checks if the collection is already in the root
+ * @param id - path of the collection
+ * @returns boolean - true if the collection is already in the root
+ */
+const isAlreadyInRoot = (id: string) => {
+  const indexPath = pathToIndex(id)
+  return indexPath.length === 1
 }
 </script>

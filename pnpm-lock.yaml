@@ -19828,7 +19828,7 @@ packages:
         optional: true
     dependencies:
       abab: 2.0.6
-      acorn: 8.11.2
+      acorn: 8.11.3
       acorn-globals: 6.0.0
       cssom: 0.4.4
       cssstyle: 2.3.0
@@ -24713,7 +24713,7 @@ packages:
       '@tsconfig/node14': 1.0.3
       '@tsconfig/node16': 1.0.3
       '@types/node': 18.18.8
-      acorn: 8.11.2
+      acorn: 8.11.3
       acorn-walk: 8.3.0
       arg: 4.1.3
       create-require: 1.1.1

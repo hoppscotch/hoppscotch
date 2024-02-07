@@ -18,7 +18,7 @@
             class="pointer-events-none flex min-w-0 flex-1 py-2 pr-2 transition group-hover:text-secondaryDark"
           >
             <span class="truncate">
-              {{ collection.name }}
+              {{ collectionView.collection.name }}
             </span>
           </span>
         </div>
@@ -28,22 +28,14 @@
             :icon="IconFilePlus"
             :title="t('request.new')"
             class="hidden group-hover:inline-flex"
-            @click="
-              emit('add-request', {
-                path: collection.collectionID,
-              })
-            "
+            @click="addRequest"
           />
           <HoppButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
             :icon="IconFolderPlus"
             :title="t('folder.new')"
             class="hidden group-hover:inline-flex"
-            @click="
-              emit('add-folder', {
-                path: collection.collectionID,
-              })
-            "
+            @click="addChildCollection"
           />
           <span>
             <tippy
@@ -77,9 +69,7 @@
                     :shortcut="['R']"
                     @click="
                       () => {
-                        emit('add-request', {
-                          path: collection.collectionID,
-                        })
+                        addRequest()
                         hide()
                       }
                     "
@@ -91,9 +81,7 @@
                     :shortcut="['N']"
                     @click="
                       () => {
-                        emit('add-folder', {
-                          path: collection.collectionID,
-                        })
+                        addChildCollection()
                         hide()
                       }
                     "
@@ -105,7 +93,7 @@
                     :shortcut="['E']"
                     @click="
                       () => {
-                        emit('edit-collection')
+                        editCollection()
                         hide()
                       }
                     "
@@ -128,9 +116,22 @@
                     :shortcut="['⌫']"
                     @click="
                       () => {
-                        emit('remove-collection', {
-                          path: collection.collectionID,
-                        })
+                        removeCollection()
+                        hide()
+                      }
+                    "
+                  />
+                  <HoppSmartItem
+                    ref="propertiesAction"
+                    :icon="IconSettings2"
+                    :label="t('action.properties')"
+                    :shortcut="['P']"
+                    @click="
+                      () => {
+                        emit(
+                          'edit-collection-properties',
+                          collectionView.collectionID
+                        )
                         hide()
                       }
                     "
@@ -158,36 +159,31 @@ import IconTrash2 from "~icons/lucide/trash-2"
 import IconEdit from "~icons/lucide/edit"
 import IconFolder from "~icons/lucide/folder"
 import IconFolderOpen from "~icons/lucide/folder-open"
+import IconSettings2 from "~icons/lucide/settings-2"
 
 const t = useI18n()
 
 const props = defineProps<{
-  collection: RESTCollectionViewCollection
+  collectionView: RESTCollectionViewCollection
   isOpen: boolean
 }>()
 
 const emit = defineEmits<{
   (event: "toggle-children"): void
+  (event: "add-request", parentCollIndexPath: string): void
+  (event: "add-child-collection", parentCollIndexPath: string): void
   (
-    event: "add-request",
-    payload: {
-      path: string
-    }
+    event: "edit-root-collection",
+    payload: { collIndexPath: string; collectionName: string }
   ): void
   (
-    event: "add-folder",
-    payload: {
-      path: string
-    }
+    event: "edit-child-collection",
+    payload: { collIndexPath: string; collectionName: string }
   ): void
-  (event: "edit-collection"): void
+  (event: "edit-collection-properties", collIndexPath: string): void
   (event: "export-data"): void
-  (
-    event: "remove-collection",
-    payload: {
-      path: string
-    }
-  ): void
+  (event: "remove-root-collection", collIndexPath: string): void
+  (event: "remove-child-collection", collIndexPath: string): void
 }>()
 
 const tippyActions = ref<TippyComponent | null>(null)
@@ -201,4 +197,36 @@ const options = ref<TippyComponent | null>(null)
 const collectionIcon = computed(() => {
   return !props.isOpen ? IconFolder : IconFolderOpen
 })
+
+const addChildCollection = () => {
+  emit("add-child-collection", props.collectionView.collectionID)
+}
+
+const addRequest = () => {
+  emit("add-request", props.collectionView.collectionID)
+}
+
+const editCollection = () => {
+  const {
+    collectionID: collIndexPath,
+    collection: { name: collectionName },
+  } = props.collectionView
+
+  const data = {
+    collIndexPath,
+    collectionName,
+  }
+
+  collIndexPath.split("/").length > 1
+    ? emit("edit-child-collection", data)
+    : emit("edit-root-collection", data)
+}
+
+const removeCollection = () => {
+  const { collectionID } = props.collectionView
+
+  collectionID.split("/").length > 1
+    ? emit("remove-child-collection", collectionID)
+    : emit("remove-root-collection", collectionID)
+}
 </script>

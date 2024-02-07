@@ -64,7 +64,7 @@
 </template>
 
 <script setup lang="ts">
-import { watch, ref } from "vue"
+import { watch, ref, toRefs } from "vue"
 import { useI18n } from "@composables/i18n"
 import { HoppCollection } from "@hoppscotch/data"
 import { RESTOptionTabs } from "../http/RequestOptions.vue"
@@ -86,11 +86,15 @@ const props = withDefaults(
     show: boolean
     loadingState: boolean
     editingProperties: EditingProperties | null
+    // TODO: Purpose of this prop is to maintain backwards compatibility
+    // To be removed after porting all usages of this component
+    emitWithFullCollection: boolean
   }>(),
   {
     show: false,
     loadingState: false,
     editingProperties: null,
+    emitWithFullCollection: true,
   }
 )
 
@@ -147,15 +151,22 @@ const saveEditedCollection = () => {
   if (!props.editingProperties) return
   const finalCollection = clone(editableCollection.value)
   delete finalCollection.body
+
+  const { path } = toRefs(props.editingProperties)
+
   const collection = {
-    path: props.editingProperties.path,
+    path: path.value,
     collection: {
       ...props.editingProperties.collection,
       ...finalCollection,
     },
     isRootCollection: props.editingProperties.isRootCollection,
   }
-  emit("set-collection-properties", collection)
+
+  const data = props.emitWithFullCollection
+    ? collection
+    : { ...finalCollection, collIndexPath: path.value }
+  emit("set-collection-properties", data)
 }
 
 const hideModal = () => {

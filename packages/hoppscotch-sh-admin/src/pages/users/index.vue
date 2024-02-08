@@ -15,17 +15,13 @@
           <HoppButtonSecondary
             outline
             filled
-            label="Pending Invites"
+            :label="t('users.pending_invites')"
             :to="'/users/invited'"
           />
         </div>
       </div>
       <div class="overflow-x-auto">
-        <!-- <div v-if="fetching" class="w-5 h-5 text-center mx-auto">
-          <HoppSmartSpinner />
-        </div> -->
-
-        <!-- <div v-else-if="error">{{ t('users.load_list_error') }}</div> -->
+        <div v-if="error">{{ t('users.load_list_error') }}</div>
 
         <UsersTable
           v-if="usersList.length >= 0"
@@ -35,7 +31,7 @@
           :selected-rows="selectedRows"
           :search-bar="{
             debounce: 1000,
-            placeholder: 'Search by name or email..',
+            placeholder: t('users.searchbar_placeholder'),
           }"
           :pagination="{ totalPages: totalPages }"
           @onRowClicked="goToUserDetails"
@@ -149,24 +145,24 @@
             class="flex justify-center items-end bg-primaryLight border border-divider rounded-md mb-5"
           >
             <HoppButtonSecondary
-              :label="`${selectedRows.length} selected`"
+              :label="t('state.selected', { count: selectedRows.length })"
               class="py-4 border-divider rounded-r-none bg-emerald-800 text-secondaryDark"
             />
             <HoppButtonSecondary
               :icon="IconUserCheck"
-              label="Make Admin"
+              :label="t('users.make_admin')"
               class="py-4 border-divider border-r-1 rounded-none hover:bg-emerald-600"
               @click="confirmUsersToAdmin = true"
             />
             <HoppButtonSecondary
               :icon="IconUserMinus"
-              label="Remove Admin"
+              :label="t('users.remove_admin_status')"
               class="py-4 border-divider border-r-1 rounded-none hover:bg-orange-500"
               @click="confirmAdminsToUsers = true"
             />
             <HoppButtonSecondary
               :icon="IconTrash"
-              label="Delete User"
+              :label="t('users.delete_users')"
               class="py-4 border-divider rounded-l-none hover:bg-red-500"
               @click="confirmUsersDeletion = true"
             />
@@ -182,37 +178,37 @@
     />
     <HoppSmartConfirmModal
       :show="confirmDeletion"
-      :title="t('users.confirm_user_deletion')"
+      :title="t('state.confirm_user_deletion')"
       @hide-modal="confirmDeletion = false"
       @resolve="deleteUserMutation(deleteUserUID)"
     />
     <HoppSmartConfirmModal
       :show="confirmUserToAdmin"
-      :title="t('users.confirm_user_to_admin')"
+      :title="t('state.confirm_user_to_admin')"
       @hide-modal="confirmUserToAdmin = false"
       @resolve="makeUserAdminMutation(userToAdminUID)"
     />
     <HoppSmartConfirmModal
       :show="confirmAdminToUser"
-      :title="t('users.confirm_admin_to_user')"
+      :title="t('state.confirm_admin_to_user')"
       @hide-modal="confirmAdminToUser = false"
       @resolve="makeAdminToUserMutation(adminToUserUID)"
     />
     <HoppSmartConfirmModal
       :show="confirmUsersToAdmin"
-      :title="t('users.confirm_user_to_admin')"
+      :title="t('state.confirm_users_to_admin')"
       @hide-modal="confirmUsersToAdmin = false"
       @resolve="makeUsersToAdmin"
     />
     <HoppSmartConfirmModal
       :show="confirmAdminsToUsers"
-      :title="t('users.confirm_admin_to_user')"
+      :title="t('state.confirm_admins_to_users')"
       @hide-modal="confirmAdminsToUsers = false"
       @resolve="makeAdminsToUsers"
     />
     <HoppSmartConfirmModal
       :show="confirmUsersDeletion"
-      :title="t('users.confirm_user_deletion')"
+      :title="t('state.confirm_users_deletion')"
       @hide-modal="confirmUsersDeletion = false"
       @resolve="deleteUsers"
     />
@@ -220,32 +216,35 @@
 </template>
 
 <script setup lang="ts">
-import { useMutation } from '@urql/vue';
+import { useMutation, useQuery } from '@urql/vue';
 import { format } from 'date-fns';
-import { ref, computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { useQuery } from '@urql/vue';
 import { useI18n } from '~/composables/i18n';
 import { useToast } from '~/composables/toast';
 import { usePagedQuery } from '~/composables/usePagedQuery';
-import IconMoreHorizontal from '~icons/lucide/more-horizontal';
-import IconTrash from '~icons/lucide/trash';
-import IconUserCheck from '~icons/lucide/user-check';
-import IconUserMinus from '~icons/lucide/user-minus';
-import IconAddUser from '~icons/lucide/user-plus';
 import {
   InviteNewUserDocument,
   MakeUserAdminDocument,
   MakeUsersAdminDocument,
   MetricsDocument,
   RemoveUserAsAdminDocument,
-  RemoveUsersAsAdminDocument,
   RemoveUserByAdminDocument,
+  RemoveUsersAsAdminDocument,
   RemoveUsersByAdminDocument,
-  UsersListV2Document,
-  UsersListQuery,
   UserInfoQuery,
+  UsersListQuery,
+  UsersListV2Document,
 } from '~/helpers/backend/graphql';
+import {
+  DELETE_USER_FAILED_ONLY_ONE_ADMIN,
+  USER_ALREADY_INVITED,
+} from '~/helpers/errors';
+import IconMoreHorizontal from '~icons/lucide/more-horizontal';
+import IconTrash from '~icons/lucide/trash';
+import IconUserCheck from '~icons/lucide/user-check';
+import IconUserMinus from '~icons/lucide/user-minus';
+import IconAddUser from '~icons/lucide/user-plus';
 
 // Get Proper Date Formats
 const t = useI18n();
@@ -263,9 +262,8 @@ const headings = [
 ];
 
 // Get Paginated Results of all the users in the infra
-const usersPerPage = 2;
+const usersPerPage = 20;
 const {
-  fetching,
   error,
   refetch,
   list: usersList,
@@ -322,7 +320,11 @@ const sendInvite = async (email: string) => {
   const variables = { inviteeEmail: email.trim() };
   const result = await sendInvitation.executeMutation(variables);
   if (result.error) {
-    toast.error(t('state.email_failure'));
+    console.log(result.error.message);
+
+    if (result.error.message === USER_ALREADY_INVITED)
+      toast.error(t('state.user_already_invited'));
+    else toast.error(t('state.email_failure'));
   } else {
     toast.success(t('state.email_success'));
     showInviteUserModal.value = false;
@@ -353,7 +355,9 @@ const deleteUserMutation = async (id: string | null) => {
   const variables = { uid: id };
   const result = await userDeletion.executeMutation(variables);
   if (result.error) {
-    toast.error(t('state.delete_user_failure'));
+    if (result.error.message === DELETE_USER_FAILED_ONLY_ONE_ADMIN) {
+      toast.error(t('state.delete_user_failed_only_one_admin'));
+    } else toast.error(t('state.delete_user_failure'));
   } else {
     toast.success(t('state.delete_user_success'));
     usersList.value = usersList.value.filter((user) => user.uid !== id);
@@ -424,31 +428,29 @@ const makeAdminToUserMutation = async (id: string | null) => {
   adminToUserUID.value = null;
 };
 
+// Make Multiple Users Admin
 const usersToAdmin = useMutation(MakeUsersAdminDocument);
 const confirmUsersToAdmin = ref(false);
 
 const makeUsersToAdmin = async () => {
   const userUIDs = selectedRows.value.map((user) => user.uid);
 
-  console.log(selectedRows.value);
-
   const variables = { userUIDs };
   const result = await usersToAdmin.executeMutation(variables);
   if (result.error) {
-    toast.error(t('state.admin_failure'));
+    toast.error(t('state.users_to_admin_failure'));
   } else {
-    toast.success(t('state.admin_success'));
+    toast.success(t('state.users_to_admin_success'));
     usersList.value = usersList.value.map((user) => ({
       ...user,
       isAdmin: userUIDs.includes(user.uid) ? true : user.isAdmin,
     }));
-    console.log(selectedRows.value);
-
     selectedRows.value.splice(0, selectedRows.value.length);
   }
   confirmUsersToAdmin.value = false;
 };
 
+// Remove Admin Status from Multiple Users
 const adminsToUser = useMutation(RemoveUsersAsAdminDocument);
 const confirmAdminsToUsers = ref(false);
 
@@ -458,9 +460,9 @@ const makeAdminsToUsers = async () => {
   const variables = { userUIDs };
   const result = await adminsToUser.executeMutation(variables);
   if (result.error) {
-    toast.error(t('state.remove_admin_failure'));
+    toast.error(t('state.remove_admin_from_users_failure'));
   } else {
-    toast.success(t('state.remove_admin_success'));
+    toast.success(t('state.remove_admin_from_users_success'));
     usersList.value = usersList.value.map((user) => ({
       ...user,
       isAdmin: userUIDs.includes(user.uid) ? false : user.isAdmin,
@@ -471,6 +473,7 @@ const makeAdminsToUsers = async () => {
   confirmAdminsToUsers.value = false;
 };
 
+// Delete Multiple Users
 const usersDeletion = useMutation(RemoveUsersByAdminDocument);
 const confirmUsersDeletion = ref(false);
 
@@ -480,7 +483,7 @@ const deleteUsers = async () => {
   const variables = { userUIDs };
   const result = await usersDeletion.executeMutation(variables);
   if (result.error) {
-    toast.error(t('state.delete_user_failure'));
+    toast.error(t('state.delete_users_failure'));
   } else {
     toast.success(t('state.delete_user_success'));
     usersList.value = usersList.value.filter(

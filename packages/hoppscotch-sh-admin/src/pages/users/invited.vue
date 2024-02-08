@@ -7,8 +7,7 @@
     </div>
 
     <h3 class="text-lg font-bold text-accentContrast pt-6 pb-4">
-      <!-- {{ t('users.invited_users') }} -->
-      Pending Invites
+      {{ t('users.pending_invites') }}
     </h3>
 
     <div class="flex flex-col">
@@ -39,7 +38,7 @@
             <span v-else> - </span>
           </template>
           <template #action="{ item }">
-            <div v-if="item" class="my-1">
+            <div v-if="item" class="my-1 mr-2">
               <HoppButtonPrimary
                 :icon="IconTrash"
                 label="Revoke Invitation"
@@ -86,7 +85,6 @@ const getCreatedTime = (date: string) => format(new Date(date), 'hh:mm a');
 
 // Get Invited Users
 const { fetching, error, data } = useQuery({ query: InvitedUsersDocument });
-// const invitedUsers = computed(() => data?.value?.infra.invitedUsers);
 
 // Table Headings
 const headings = [

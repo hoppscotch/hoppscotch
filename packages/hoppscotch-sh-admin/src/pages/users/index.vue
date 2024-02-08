@@ -277,7 +277,6 @@ const {
 const selectedRows = ref<UsersListQuery['infra']['allUsers']>([]);
 
 // Search
-
 const searchQuery = ref('');
 const handleInput = async (input: string) => {
   searchQuery.value = input;

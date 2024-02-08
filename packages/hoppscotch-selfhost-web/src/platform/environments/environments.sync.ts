@@ -20,9 +20,13 @@ import {
   deleteUserEnvironment,
   updateUserEnvironment,
 } from "./environments.api"
+import { SecretEnvironmentService } from "@hoppscotch/common/services/secret-environment.service"
+import { getService } from "@hoppscotch/common/modules/dioc"
 
 export const environmentsMapper = createMapper<number, string>()
 export const globalEnvironmentMapper = createMapper<number, string>()
+
+const secretEnvironmentService = getService(SecretEnvironmentService)
 
 export const storeSyncDefinition: StoreSyncDefinitionOf<
   typeof environmentsStore
@@ -34,6 +38,12 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
 
     if (E.isRight(res)) {
       const id = res.right.createUserEnvironment.id
+
+      secretEnvironmentService.updateSecretEnvironmentID(
+        environmentsStore.value.environments[lastCreatedEnvIndex].id,
+        id
+      )
+
       environmentsStore.value.environments[lastCreatedEnvIndex].id = id
       removeDuplicateEntry(id)
     }
@@ -84,7 +94,6 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
   },
   updateEnvironment({ envIndex, updatedEnv }) {
     const backendId = environmentsStore.value.environments[envIndex].id
-
     if (backendId) {
       updateUserEnvironment(backendId, updatedEnv)()
     }
@@ -97,7 +106,12 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
   setGlobalVariables({ entries }) {
     const backendId = getGlobalVariableID()
     if (backendId) {
-      updateUserEnvironment(backendId, { name: "", variables: entries })()
+      updateUserEnvironment(backendId, {
+        name: "",
+        variables: entries,
+        id: "",
+        v: 1,
+      })()
     }
   },
   clearGlobalVariables() {

@@ -5,7 +5,7 @@
 import { Ref, onBeforeUnmount, onMounted, reactive, watch } from "vue"
 import { BehaviorSubject } from "rxjs"
 import { HoppRESTDocument } from "./rest/document"
-import { HoppGQLRequest, HoppRESTRequest } from "@hoppscotch/data"
+import { Environment, HoppGQLRequest, HoppRESTRequest } from "@hoppscotch/data"
 import { RESTOptionTabs } from "~/components/http/RequestOptions.vue"
 import { HoppGQLSaveContext } from "./graphql/document"
 import { GQLOptionTabs } from "~/components/graphql/RequestOptions.vue"
@@ -43,6 +43,7 @@ export type HoppAction =
   | "modals.environment.new" // Add new environment
   | "modals.environment.delete-selected" // Delete Selected Environment
   | "modals.my.environment.edit" // Edit current personal environment
+  | "modals.global.environment.update" // Update global environment
   | "modals.team.environment.edit" // Edit current team environment
   | "modals.team.new" // Add new team
   | "modals.team.edit" // Edit selected team
@@ -93,13 +94,19 @@ type HoppActionArgsMap = {
     }
     text: string | null
   }
+  "modals.global.environment.update": {
+    variables?: Environment["variables"]
+    isSecret?: boolean
+  }
   "modals.my.environment.edit": {
     envName: string
     variableName?: string
+    isSecret?: boolean
   }
   "modals.team.environment.edit": {
     envName: string
     variableName?: string
+    isSecret?: boolean
   }
   "modals.team.delete": {
     teamId: string

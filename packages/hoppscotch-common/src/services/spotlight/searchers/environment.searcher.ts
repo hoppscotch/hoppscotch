@@ -248,9 +248,7 @@ export class EnvironmentsSpotlightSearcherService extends StaticSpotlightSearche
         this.duplicateSelectedEnv()
         break
       case "edit_global_env":
-        invokeAction(`modals.my.environment.edit`, {
-          envName: "Global",
-        })
+        invokeAction(`modals.global.environment.update`, {})
         break
       case "duplicate_global_env":
         this.duplicateGlobalEnv()

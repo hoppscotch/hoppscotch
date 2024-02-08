@@ -12,8 +12,8 @@ import { parseTemplateStringE } from "@hoppscotch/data"
 import { StreamSubscriberFunc } from "@composables/stream"
 import {
   AggregateEnvironment,
-  aggregateEnvs$,
-  getAggregateEnvs,
+  aggregateEnvsWithSecrets$,
+  getAggregateEnvsWithSecrets,
   getSelectedEnvironmentType,
 } from "~/newstore/environments"
 import { invokeAction } from "~/helpers/actions"
@@ -66,7 +66,16 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
 
       const envName = tooltipEnv?.sourceEnv ?? "Choose an Environment"
 
-      const envValue = tooltipEnv?.value ?? "Not found"
+      let envValue = "Not Found"
+
+      if (!tooltipEnv?.secret && tooltipEnv?.value) envValue = tooltipEnv.value
+      else if (tooltipEnv?.secret && tooltipEnv.value) {
+        envValue = "******"
+      } else if (!tooltipEnv?.sourceEnv) {
+        envValue = "Not Found"
+      } else if (!tooltipEnv?.value) {
+        envValue = "Empty"
+      }
 
       const result = parseTemplateStringE(envValue, aggregateEnvs)
 
@@ -89,6 +98,7 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
           invokeAction(`modals.${action}.environment.edit`, {
             envName,
             variableName: parsedEnvKey,
+            isSecret: tooltipEnv?.secret,
           })
         })
         editIcon.innerHTML = `<span class="inline-flex items-center justify-center my-1">${IconEdit}</span>`
@@ -171,9 +181,9 @@ export class HoppEnvironmentPlugin {
     subscribeToStream: StreamSubscriberFunc,
     private editorView: Ref<EditorView | undefined>
   ) {
-    this.envs = getAggregateEnvs()
+    this.envs = getAggregateEnvsWithSecrets()
 
-    subscribeToStream(aggregateEnvs$, (envs) => {
+    subscribeToStream(aggregateEnvsWithSecrets$, (envs) => {
       this.envs = envs
 
       this.editorView.value?.dispatch({

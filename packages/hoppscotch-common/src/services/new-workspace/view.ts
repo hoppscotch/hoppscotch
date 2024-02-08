@@ -1,10 +1,10 @@
-import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
+import { HoppRESTRequest } from "@hoppscotch/data"
 import { Ref } from "vue"
 
 export type RESTCollectionViewCollection = {
   collectionID: string
 
-  collection: HoppCollection // Should not store children including folders and requests
+  name: string
 }
 
 export type RESTCollectionViewRequest = {

@@ -1,8 +1,4 @@
-import {
-  HoppCollection,
-  isHoppRESTRequest,
-  makeCollection,
-} from "@hoppscotch/data"
+import { HoppCollection, makeCollection } from "@hoppscotch/data"
 import { Service } from "dioc"
 import * as E from "fp-ts/Either"
 import { Ref, computed, markRaw, nextTick, ref, shallowRef } from "vue"
@@ -153,7 +149,7 @@ export class PersonalWorkspaceProviderService
               providerID: this.providerID,
               workspaceID: workspaceHandle.value.data.workspaceID,
               collectionID: "", // Compute this and supply
-              collection: newRootCollection,
+              name: collectionName,
             },
           }
         })
@@ -199,18 +195,13 @@ export class PersonalWorkspaceProviderService
             platform: "rest",
           })
 
-          const newCollection = navigateToFolderWithIndexPath(
-            this.restCollectionState.value.state,
-            collectionID.split("/").map((id) => parseInt(id))
-          ) as HoppCollection
-
           return {
             type: "ok",
             data: {
               providerID,
               workspaceID,
               collectionID,
-              collection: newCollection,
+              name: collectionName,
             },
           }
         })
@@ -244,10 +235,23 @@ export class PersonalWorkspaceProviderService
             }
           }
 
-          const { collection, collectionID } = collHandle.value.data
+          const { collectionID } = collHandle.value.data
+
+          const collection: HoppCollection | null =
+            navigateToFolderWithIndexPath(
+              this.restCollectionState.value.state,
+              collectionID.split("/").map((id) => parseInt(id))
+            )
+
+          if (!collection) {
+            return {
+              type: "invalid" as const,
+              reason: "COLLECTION_NOT_FOUND" as const,
+            }
+          }
 
           const updatedCollection = {
-            ...(collection as HoppCollection),
+            ...collection,
             name: newCollectionName,
           }
 
@@ -289,10 +293,23 @@ export class PersonalWorkspaceProviderService
             }
           }
 
-          const { collection, collectionID } = collHandle.value.data
+          const { collectionID } = collHandle.value.data
+
+          const collection: HoppCollection | null =
+            navigateToFolderWithIndexPath(
+              this.restCollectionState.value.state,
+              collectionID.split("/").map((id) => parseInt(id))
+            )
+
+          if (!collection) {
+            return {
+              type: "invalid" as const,
+              reason: "COLLECTION_NOT_FOUND" as const,
+            }
+          }
 
           const updatedCollection = {
-            ...(collection as HoppCollection),
+            ...collection,
             name: newCollectionName,
           }
 
@@ -333,9 +350,22 @@ export class PersonalWorkspaceProviderService
             }
           }
 
-          const { collection, collectionID } = collHandle.value.data
+          const { collectionID } = collHandle.value.data
 
           const { auth, headers } = updatedCollProps
+
+          const collection: HoppCollection | null =
+            navigateToFolderWithIndexPath(
+              this.restCollectionState.value.state,
+              collectionID.split("/").map((id) => parseInt(id))
+            )
+
+          if (!collection) {
+            return {
+              type: "invalid" as const,
+              reason: "COLLECTION_NOT_FOUND" as const,
+            }
+          }
 
           const updatedCollection = {
             ...collection,
@@ -515,7 +545,7 @@ export class PersonalWorkspaceProviderService
             }
           }
 
-          const { collectionID, providerID, workspaceID } =
+          const { collectionID, providerID, workspaceID, name } =
             parentCollHandle.value.data
 
           const newRequest = {
@@ -553,18 +583,13 @@ export class PersonalWorkspaceProviderService
             platform: "rest",
           })
 
-          const newCollection = navigateToFolderWithIndexPath(
-            this.restCollectionState.value.state,
-            collectionID.split("/").map((id) => parseInt(id))
-          ) as HoppCollection
-
           return {
             type: "ok",
             data: {
               providerID,
               workspaceID,
               collectionID,
-              collection: newCollection,
+              name,
             },
           }
         })
@@ -746,7 +771,7 @@ export class PersonalWorkspaceProviderService
               providerID,
               workspaceID,
               collectionID,
-              collection,
+              name: collection.name,
             },
           }
         })
@@ -878,7 +903,7 @@ export class PersonalWorkspaceProviderService
                       type: "collection",
                       value: {
                         collectionID: `${collectionID}/${id}`,
-                        collection: childColl,
+                        name: childColl.name,
                       },
                     }
                   })
@@ -937,7 +962,7 @@ export class PersonalWorkspaceProviderService
                 return this.restCollectionState.value.state.map((coll, id) => {
                   return {
                     collectionID: id.toString(),
-                    collection: coll,
+                    name: coll.name,
                   }
                 })
               }),

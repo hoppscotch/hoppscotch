@@ -13,7 +13,7 @@ export type WorkspaceCollection = {
   workspaceID: string
   collectionID: string
 
-  collection: HoppCollection | null
+  name: string
 }
 
 export type WorkspaceRequest = {

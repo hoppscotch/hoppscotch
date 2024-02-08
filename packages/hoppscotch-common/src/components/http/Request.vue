@@ -35,7 +35,7 @@
                   :key="`method-${index}`"
                   :label="method"
                   :style="{
-                    color: getMethodLabelColorClassOf({ method }),
+                    color: getMethodLabelColor(method),
                   }"
                   @click="
                     () => {
@@ -262,7 +262,7 @@ import { InterceptorService } from "~/services/interceptor.service"
 import { HoppTab } from "~/services/tab"
 import { HoppRESTDocument } from "~/helpers/rest/document"
 import { RESTTabService } from "~/services/tab/rest"
-import { getMethodLabelColorClassOf } from "~/helpers/rest/labelColoring"
+import { getMethodLabelColor } from "~/helpers/rest/labelColoring"
 import { WorkspaceService } from "~/services/workspace.service"
 import { NewWorkspaceService } from "~/services/new-workspace"
 
@@ -539,7 +539,7 @@ const saveRequest = async () => {
     }
 
     const requestHandleResult = await newWorkspaceService.getRequestHandle(
-      collHandle,
+      newWorkspaceService.activeWorkspaceHandle.value,
       `${saveCtx.folderPath}/${saveCtx.requestIndex.toString()}`
     )
 
@@ -555,7 +555,7 @@ const saveRequest = async () => {
       return
     }
 
-    const updatedRequestResult = await newWorkspaceService.saveRESTRequest(
+    const updatedRequestResult = await newWorkspaceService.updateRESTRequest(
       requestHandle,
       updatedRequest
     )

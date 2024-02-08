@@ -335,16 +335,17 @@ const onAddRequest = async (requestName: string) => {
 
   const result = await workspaceService.createRESTRequest(
     collHandle,
-    requestName
+    requestName,
+    true
   )
 
   if (E.isLeft(result)) {
-    // INVALID_WORKSPACE_HANDLE
+    // INVALID_COLLECTION_HANDLE
     return
   }
 
   if (result.right.value.type === "invalid") {
-    // WORKSPACE_INVALIDATED
+    // COLLECTION_INVALIDATED
     return
   }
 
@@ -551,28 +552,10 @@ const removeRequest = (requestIndexPath: string) => {
 }
 
 const onRemoveRequest = async () => {
-  const parentCollIndexPath = editingCollIndexPath.value
   const requestIndexPath = editingRequestIndexPath.value
 
-  const parentCollHandleResult = await workspaceService.getCollectionHandle(
-    props.workspaceHandle,
-    parentCollIndexPath
-  )
-
-  if (E.isLeft(parentCollHandleResult)) {
-    // INVALID_WORKSPACE_HANDLE
-    return
-  }
-
-  const parentCollHandle = parentCollHandleResult.right
-
-  if (parentCollHandle.value.type === "invalid") {
-    // WORKSPACE_INVALIDATED | INVALID_COLLECTION_HANDLE
-    return
-  }
-
   const requestHandleResult = await workspaceService.getRequestHandle(
-    parentCollHandle,
+    props.workspaceHandle,
     requestIndexPath
   )
 
@@ -607,25 +590,8 @@ const onRemoveRequest = async () => {
 const selectRequest = async (requestIndexPath: string) => {
   const collIndexPath = requestIndexPath.split("/").slice(0, -1).join("/")
 
-  const collHandleResult = await workspaceService.getCollectionHandle(
-    props.workspaceHandle,
-    collIndexPath
-  )
-
-  if (E.isLeft(collHandleResult)) {
-    // INVALID_WORKSPACE_HANDLE
-    return
-  }
-
-  const collHandle = collHandleResult.right
-
-  if (collHandle.value.type === "invalid") {
-    // WORKSPACE_INVALIDATED | INVALID_COLLECTION_HANDLE
-    return
-  }
-
   const requestHandleResult = await workspaceService.getRequestHandle(
-    collHandle,
+    props.workspaceHandle,
     requestIndexPath
   )
 
@@ -679,25 +645,8 @@ const selectRequest = async (requestIndexPath: string) => {
 const duplicateRequest = async (requestIndexPath: string) => {
   const collPath = requestIndexPath.split("/").slice(0, -1).join("/")
 
-  const collHandleResult = await workspaceService.getCollectionHandle(
-    props.workspaceHandle,
-    collPath
-  )
-
-  if (E.isLeft(collHandleResult)) {
-    // INVALID_WORKSPACE_HANDLE
-    return
-  }
-
-  const collHandle = collHandleResult.right
-
-  if (collHandle.value.type === "invalid") {
-    // WORKSPACE_INVALIDATED | INVALID_COLLECTION_HANDLE
-    return
-  }
-
   const requestHandleResult = await workspaceService.getRequestHandle(
-    collHandle,
+    props.workspaceHandle,
     requestIndexPath
   )
 
@@ -742,28 +691,10 @@ const editRequest = (payload: {
 }
 
 const onEditRequest = async (newReqName: string) => {
-  const parentCollID = editingCollIndexPath.value
   const requestID = editingRequestIndexPath.value
 
-  const parentCollHandleResult = await workspaceService.getCollectionHandle(
-    props.workspaceHandle,
-    parentCollID
-  )
-
-  if (E.isLeft(parentCollHandleResult)) {
-    // INVALID_WORKSPACE_HANDLE
-    return
-  }
-
-  const parentCollHandle = parentCollHandleResult.right
-
-  if (parentCollHandle.value.type === "invalid") {
-    // WORKSPACE_INVALIDATED | INVALID_COLLECTION_HANDLE
-    return
-  }
-
   const requestHandleResult = await workspaceService.getRequestHandle(
-    parentCollHandle,
+    props.workspaceHandle,
     requestID
   )
 
@@ -779,9 +710,14 @@ const onEditRequest = async (newReqName: string) => {
     return
   }
 
-  const result = await workspaceService.editRESTRequest(
+  const updatedRequest = {
+    ...requestHandle.value.data.request,
+    name: newReqName,
+  } as HoppRESTRequest
+
+  const result = await workspaceService.updateRESTRequest(
     requestHandle,
-    newReqName
+    updatedRequest
   )
 
   if (E.isLeft(result)) {
@@ -818,7 +754,7 @@ const editCollectionProperties = async (collIndexPath: string) => {
       },
     ],
   } as HoppInheritedProperty
-
+  // Have a provider level implementation that returns a view that says what the headesd and auth are
   if (parentIndex) {
     const { auth, headers } = cascadeParentCollectionForHeaderAuth(
       parentIndex,

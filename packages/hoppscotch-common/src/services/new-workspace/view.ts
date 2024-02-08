@@ -4,7 +4,7 @@ import { Ref } from "vue"
 export type RESTCollectionViewCollection = {
   collectionID: string
 
-  collection: HoppCollection
+  collection: HoppCollection // Should not store children including folders and requests
 }
 
 export type RESTCollectionViewRequest = {

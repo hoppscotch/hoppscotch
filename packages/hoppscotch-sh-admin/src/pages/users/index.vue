@@ -21,20 +21,20 @@
         </div>
       </div>
       <div class="overflow-x-auto">
-        <div v-if="fetching" class="w-5 h-5 text-center mx-auto">
+        <!-- <div v-if="fetching" class="w-5 h-5 text-center mx-auto">
           <HoppSmartSpinner />
-        </div>
+        </div> -->
 
-        <div v-else-if="error">{{ t('users.load_list_error') }}</div>
+        <!-- <div v-else-if="error">{{ t('users.load_list_error') }}</div> -->
 
         <UsersTable
-          v-else-if="usersList.length > 0"
+          v-if="usersList.length >= 0"
           :headings="headings"
           :list="usersList"
           :checkbox="true"
           :selected-rows="selectedRows"
           :search-bar="{
-            debounce: 500,
+            debounce: 1000,
             placeholder: 'Search by name or email..',
           }"
           :pagination="{ totalPages: totalPages }"
@@ -135,7 +135,7 @@
         </UsersTable>
 
         <!-- <div
-          v-if="usersList.length === 0"
+          v-if="fetchQuery"
           class="w-full border-x-2 border-b-2 border-divider text-center p-3 rounded-b-md"
         >
           No users found...
@@ -143,14 +143,14 @@
 
         <div
           v-if="selectedRows.length"
-          class="fixed m-2 bottom-0 left-32 right-0 w-min mx-auto"
+          class="fixed m-2 bottom-0 left-32 right-0 w-min mx-auto shadow-2xl"
         >
           <div
             class="flex justify-center items-end bg-primaryLight border border-divider rounded-md mb-5"
           >
             <HoppButtonSecondary
               :label="`${selectedRows.length} selected`"
-              class="py-4 border-divider rounded-r-none bg-yellow-700 text-secondaryDark"
+              class="py-4 border-divider rounded-r-none bg-emerald-800 text-secondaryDark"
             />
             <HoppButtonSecondary
               :icon="IconUserCheck"
@@ -161,7 +161,7 @@
             <HoppButtonSecondary
               :icon="IconUserMinus"
               label="Remove Admin"
-              class="py-4 border-divider border-r-1 rounded-none hover:bg-yellow-600"
+              class="py-4 border-divider border-r-1 rounded-none hover:bg-orange-500"
               @click="confirmAdminsToUsers = true"
             />
             <HoppButtonSecondary

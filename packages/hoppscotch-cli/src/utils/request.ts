@@ -1,4 +1,4 @@
-import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data";
+import { Environment, HoppCollection, HoppRESTRequest } from "@hoppscotch/data";
 import axios, { Method } from "axios";
 import * as A from "fp-ts/Array";
 import * as E from "fp-ts/Either";
@@ -30,6 +30,38 @@ import { getTestScriptParams, hasFailedTestCases, testRunner } from "./test";
 // !NOTE: The `config.supported` checks are temporary until OAuth2 and Multipart Forms are supported
 
 /**
+ * Processes given variable, which includes checking for secret variables
+ * and getting value from system environment
+ * @param variable Variable to be processed
+ * @returns Updated variable with value from system environment
+ */
+const processVariables = (variable: Environment["variables"][number]) => {
+  if (variable.secret) {
+    return {
+      ...variable,
+      value:
+        "value" in variable ? variable.value : process.env[variable.key] || "",
+    }
+  }
+  return variable
+}
+
+/**
+ * Processes given envs, which includes processing each variable in global
+ * and selected envs
+ * @param envs Global + selected envs used by requests with in collection
+ * @returns Processed envs with each variable processed
+ */
+const processEnvs = (envs: HoppEnvs) => {
+  const processedEnvs = {
+    global: envs.global.map(processVariables),
+    selected: envs.selected.map(processVariables),
+  }
+
+  return processedEnvs
+}
+
+/**
  * Transforms given request data to request-config used by request-runner to
  * perform HTTP request.
  * @param req Effective request data with parsed ENVs.
@@ -38,6 +70,7 @@ import { getTestScriptParams, hasFailedTestCases, testRunner } from "./test";
 export const createRequest = (req: EffectiveHoppRESTRequest): RequestConfig => {
   const config: RequestConfig = {
     supported: true,
+    displayUrl: req.effectiveFinalDisplayURL
   };
   const { finalBody, finalEndpoint, finalHeaders, finalParams } = getRequest;
   const reqParams = finalParams(req);
@@ -221,9 +254,13 @@ export const processRequest =
       effectiveFinalParams: [],
       effectiveFinalURL: "",
     };
+    let updatedEnvs = <HoppEnvs>{};
+
+    // Fetch values for secret environment variables from system environment
+    const processedEnvs = processEnvs(envs)
 
     // Executing pre-request-script
-    const preRequestRes = await preRequestScriptRunner(request, envs)();
+    const preRequestRes = await preRequestScriptRunner(request, processedEnvs)();
     if (E.isLeft(preRequestRes)) {
       printPreRequestRunner.fail();
 
@@ -231,8 +268,8 @@ export const processRequest =
       report.errors.push(preRequestRes.left);
       report.result = report.result && false;
     } else {
-      // Updating effective-request
-      effectiveRequest = preRequestRes.right;
+      // Updating effective-request and consuming updated envs after pre-request script execution
+      ({ effectiveRequest, updatedEnvs } = preRequestRes.right);
     }
 
     // Creating request-config for request-runner.
@@ -270,7 +307,7 @@ export const processRequest =
     const testScriptParams = getTestScriptParams(
       _requestRunnerRes,
       request,
-      envs
+      updatedEnvs
     );
 
     // Executing test-runner.

@@ -140,12 +140,15 @@ import IconHelpCircle from "~icons/lucide/help-circle"
 import IconPlus from "~icons/lucide/plus"
 import {
   cascadeParentCollectionForHeaderAuth,
+  navigateToFolderWithIndexPath,
+  restCollectionStore,
   saveRESTRequestAs,
 } from "~/newstore/collections"
 import { cloneDeep } from "lodash-es"
 import { HoppCollection, HoppRESTAuth, HoppRESTRequest } from "@hoppscotch/data"
 import { TeamCollection } from "~/helpers/backend/graphql"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
+import { useStreamStatic } from "~/composables/stream"
 
 const t = useI18n()
 const toast = useToast()
@@ -784,7 +787,18 @@ const editCollectionProperties = async (collIndexPath: string) => {
     return
   }
 
-  const { collection } = collHandle.value.data
+  const restCollectionState = useStreamStatic(
+    restCollectionStore.subject$,
+    { state: [] },
+    () => {
+      /* noop */
+    }
+  )[0]
+
+  const collection = navigateToFolderWithIndexPath(
+    restCollectionState.value.state,
+    collIndexPath.split("/").map((i) => parseInt(i))
+  )
 
   editingProperties.value = {
     collection,

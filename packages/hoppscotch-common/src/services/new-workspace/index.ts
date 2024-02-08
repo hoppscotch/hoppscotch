@@ -139,7 +139,7 @@ export class NewWorkspaceService extends Service {
   }
 
   public async getRequestHandle(
-    parentCollHandle: HandleRef<WorkspaceCollection>,
+    workspaceHandle: HandleRef<Workspace>,
     requestID: string
   ): Promise<
     E.Either<
@@ -147,19 +147,19 @@ export class NewWorkspaceService extends Service {
       HandleRef<WorkspaceRequest>
     >
   > {
-    if (parentCollHandle.value.type === "invalid") {
+    if (workspaceHandle.value.type === "invalid") {
       return E.left({ type: "SERVICE_ERROR", error: "INVALID_HANDLE" })
     }
 
     const provider = this.registeredProviders.get(
-      parentCollHandle.value.data.providerID
+      workspaceHandle.value.data.providerID
     )
 
     if (!provider) {
       return E.left({ type: "SERVICE_ERROR", error: "INVALID_PROVIDER" })
     }
 
-    const result = await provider.getRequestHandle(parentCollHandle, requestID)
+    const result = await provider.getRequestHandle(workspaceHandle, requestID)
 
     if (E.isLeft(result)) {
       return E.left({ type: "PROVIDER_ERROR", error: result.left })
@@ -240,7 +240,7 @@ export class NewWorkspaceService extends Service {
   ): Promise<
     E.Either<
       WorkspaceError<"INVALID_HANDLE" | "INVALID_PROVIDER">,
-      HandleRef<WorkspaceCollection>
+      HandleRef<boolean>
     >
   > {
     if (collHandle.value.type === "invalid") {
@@ -273,7 +273,7 @@ export class NewWorkspaceService extends Service {
   ): Promise<
     E.Either<
       WorkspaceError<"INVALID_HANDLE" | "INVALID_PROVIDER">,
-      HandleRef<WorkspaceCollection>
+      HandleRef<boolean>
     >
   > {
     if (collHandle.value.type === "invalid") {
@@ -306,7 +306,7 @@ export class NewWorkspaceService extends Service {
   ): Promise<
     E.Either<
       WorkspaceError<"INVALID_HANDLE" | "INVALID_PROVIDER">,
-      HandleRef<WorkspaceCollection>
+      HandleRef<boolean>
     >
   > {
     if (collHandle.value.type === "invalid") {
@@ -338,7 +338,7 @@ export class NewWorkspaceService extends Service {
   ): Promise<
     E.Either<
       WorkspaceError<"INVALID_HANDLE" | "INVALID_PROVIDER">,
-      HandleRef<WorkspaceCollection>
+      HandleRef<boolean>
     >
   > {
     if (collHandle.value.type === "invalid") {
@@ -367,7 +367,7 @@ export class NewWorkspaceService extends Service {
   ): Promise<
     E.Either<
       WorkspaceError<"INVALID_HANDLE" | "INVALID_PROVIDER">,
-      HandleRef<WorkspaceCollection>
+      HandleRef<boolean>
     >
   > {
     if (parentCollHandle.value.type === "invalid") {
@@ -393,7 +393,8 @@ export class NewWorkspaceService extends Service {
 
   public async createRESTRequest(
     parentCollHandle: HandleRef<WorkspaceCollection>,
-    requestName: string
+    requestName: string,
+    openInNewTab: boolean
   ): Promise<
     E.Either<
       WorkspaceError<"INVALID_HANDLE" | "INVALID_PROVIDER">,
@@ -414,7 +415,8 @@ export class NewWorkspaceService extends Service {
 
     const result = await provider.createRESTRequest(
       parentCollHandle,
-      requestName
+      requestName,
+      openInNewTab
     )
 
     if (E.isLeft(result)) {
@@ -429,7 +431,7 @@ export class NewWorkspaceService extends Service {
   ): Promise<
     E.Either<
       WorkspaceError<"INVALID_HANDLE" | "INVALID_PROVIDER">,
-      HandleRef<WorkspaceRequest>
+      HandleRef<boolean>
     >
   > {
     if (requestHandle.value.type === "invalid") {
@@ -453,43 +455,13 @@ export class NewWorkspaceService extends Service {
     return E.right(result.right)
   }
 
-  public async editRESTRequest(
-    requestHandle: HandleRef<WorkspaceRequest>,
-    newRequestName: string
-  ): Promise<
-    E.Either<
-      WorkspaceError<"INVALID_HANDLE" | "INVALID_PROVIDER">,
-      HandleRef<WorkspaceRequest>
-    >
-  > {
-    if (requestHandle.value.type === "invalid") {
-      return E.left({ type: "SERVICE_ERROR", error: "INVALID_HANDLE" })
-    }
-
-    const provider = this.registeredProviders.get(
-      requestHandle.value.data.providerID
-    )
-
-    if (!provider) {
-      return E.left({ type: "SERVICE_ERROR", error: "INVALID_PROVIDER" })
-    }
-
-    const result = await provider.editRESTRequest(requestHandle, newRequestName)
-
-    if (E.isLeft(result)) {
-      return E.left({ type: "PROVIDER_ERROR", error: result.left })
-    }
-
-    return E.right(result.right)
-  }
-
-  public async saveRESTRequest(
+  public async updateRESTRequest(
     requestHandle: HandleRef<WorkspaceRequest>,
     updatedRequest: HoppRESTRequest
   ): Promise<
     E.Either<
       WorkspaceError<"INVALID_HANDLE" | "INVALID_PROVIDER">,
-      HandleRef<WorkspaceRequest>
+      HandleRef<boolean>
     >
   > {
     if (requestHandle.value.type === "invalid") {
@@ -504,7 +476,10 @@ export class NewWorkspaceService extends Service {
       return E.left({ type: "SERVICE_ERROR", error: "INVALID_PROVIDER" })
     }
 
-    const result = await provider.saveRESTRequest(requestHandle, updatedRequest)
+    const result = await provider.updateRESTRequest(
+      requestHandle,
+      updatedRequest
+    )
 
     if (E.isLeft(result)) {
       return E.left({ type: "PROVIDER_ERROR", error: result.left })

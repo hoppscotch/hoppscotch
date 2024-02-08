@@ -51,13 +51,13 @@ export class InfraConfigService implements OnModuleInit {
    */
   async initializeInfraConfigTable() {
     try {
-      // Get all the 'names' of the properties to be saved in the 'infra_config' table
+      // Get all the 'names' of the properties from ENUM to be saved in the 'infra_config' table
       const enumValues = Object.values(InfraConfigEnum);
 
       // Fetch the default values (value in .env) for configs to be saved in 'infra_config' table
       const infraConfigDefaultObjs = await getDefaultInfraConfigs();
 
-      // Check if all the 'names' are listed in the default values
+      // Cross-check if all the 'names' are listed in the default-values-list and ENUM at the same time
       if (enumValues.length !== infraConfigDefaultObjs.length) {
         throw new Error(INFRA_CONFIG_NOT_LISTED);
       }

@@ -43,12 +43,11 @@
                 ? 'flex items-center justify-center'
                 : 'flex items-center'
             "
-            @click="setActiveTab(navigation.label)"
           >
             <div
               class="flex p-5 w-full font-bold"
               :class="
-                activeTab === navigation.label
+                  currentRouteName.startsWith(navigation.baseRouteName)
                   ? 'bg-primaryDark text-secondaryDark border-l-2 border-l-emerald-600'
                   : 'bg-primary hover:bg-primaryLight hover:text-secondaryDark focus-visible:text-secondaryDark focus-visible:bg-primaryLight focus-visible:outline-none'
               "
@@ -72,7 +71,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, type Component } from 'vue';
+import { computed, type Component } from 'vue';
+import { useRoute } from 'vue-router';
 
 import { useI18n } from '~/composables/i18n';
 import { useSidebar } from '~/composables/useSidebar';
@@ -81,6 +81,7 @@ import IconSettings from '~icons/lucide/settings';
 import IconUser from '~icons/lucide/user';
 import IconUsers from '~icons/lucide/users';
 
+const route = useRoute()
 const t = useI18n();
 
 const { isOpen, isExpanded } = useSidebar();
@@ -90,6 +91,7 @@ type NavigationItem = {
   icon: Component;
   to: string;
   exact: boolean;
+  baseRouteName: string;
 };
 
 const primaryNavigations: NavigationItem[] = [
@@ -98,32 +100,32 @@ const primaryNavigations: NavigationItem[] = [
     icon: IconDashboard,
     to: '/dashboard',
     exact: true,
+    baseRouteName: 'dashboard',
   },
   {
     label: t('users.users'),
     icon: IconUser,
     to: '/users',
     exact: false,
+    baseRouteName: 'users'
   },
   {
     label: t('teams.teams'),
     icon: IconUsers,
     to: '/teams',
     exact: false,
+    baseRouteName: 'teams'
   },
   {
     label: t('settings.settings'),
     icon: IconSettings,
     to: '/settings',
     exact: true,
+    baseRouteName: 'settings',
   },
 ];
 
-const activeTab = ref('Dashboard');
-
-const setActiveTab = (tab: string) => {
-  activeTab.value = tab;
-};
+const currentRouteName = computed(() => route.name as string);
 </script>
 
 <style scoped lang="scss">

@@ -12,7 +12,7 @@
 
       <div class="flex items-center space-x-3">
         <h1 class="text-lg text-accentContrast">
-          {{ user.displayName }}
+          {{ userName }}
         </h1>
         <span>/</span>
         <h2 class="text-lg text-accentContrast">
@@ -29,6 +29,7 @@
             @delete-user="deleteUser"
             @make-admin="makeUserAdmin"
             @remove-admin="makeAdminToUser"
+            @update-user-name="(name: string) => (userName = name)"
             class="py-8 px-4"
           />
         </HoppSmartTab>
@@ -40,19 +41,19 @@
 
     <HoppSmartConfirmModal
       :show="confirmDeletion"
-      :title="t('users.confirm_user_deletion')"
+      :title="t('state.confirm_user_deletion')"
       @hide-modal="confirmDeletion = false"
       @resolve="deleteUserMutation(deleteUserUID)"
     />
     <HoppSmartConfirmModal
       :show="confirmUserToAdmin"
-      :title="t('users.confirm_user_to_admin')"
+      :title="t('state.confirm_user_to_admin')"
       @hide-modal="confirmUserToAdmin = false"
       @resolve="makeUserAdminMutation(userToAdminUID)"
     />
     <HoppSmartConfirmModal
       :show="confirmAdminToUser"
-      :title="t('users.confirm_admin_to_user')"
+      :title="t('state.confirm_admin_to_user')"
       @hide-modal="confirmAdminToUser = false"
       @resolve="makeAdminToUserMutation(adminToUserUID)"
     />
@@ -102,6 +103,15 @@ const { fetching, error, data, fetchData } = useClientHandler(
 
 onMounted(async () => {
   await fetchData();
+});
+
+const userName = computed({
+  get: () => data.value?.infra.userInfo.displayName,
+  set: (value) => {
+    if (value) {
+      data.value!.infra.userInfo.displayName = value;
+    }
+  },
 });
 
 const user = computed({

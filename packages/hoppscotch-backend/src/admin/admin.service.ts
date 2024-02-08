@@ -6,6 +6,7 @@ import * as E from 'fp-ts/Either';
 import * as O from 'fp-ts/Option';
 import { validateEmail } from '../utils';
 import {
+  ADMIN_CAN_NOT_BE_DELETED,
   DUPLICATE_EMAIL,
   EMAIL_FAILED,
   INVALID_EMAIL,
@@ -432,15 +433,30 @@ export class AdminService {
   }
 
   /**
-   * Remove user accounts by UIDs
+   * Remove user (not Admin) accounts by UIDs
    * @param userUid User UIDs
    * @returns an Either of boolean or error
    */
   async removeUserAccounts(userUIDs: string[]) {
-    const users = await this.userService.findNonAdminUsersByIds(userUIDs);
-    if (users.length === 0) return E.left(USER_NOT_FOUND);
+    const allUsers = await this.userService.findUsersByIds(userUIDs);
+    if (allUsers.length === 0) return E.left(USER_NOT_FOUND);
 
-    const deletionPromises = users.map((user) => {
+    const userDeleteResult: UserDeleteData[] = [];
+
+    // Admin user can not be deleted without removing admin status/role
+    allUsers.forEach((user) => {
+      if (user.isAdmin) {
+        userDeleteResult.push({
+          userUID: user.uid,
+          success: false,
+          errorMessage: ADMIN_CAN_NOT_BE_DELETED,
+        });
+      }
+    });
+
+    const normalUsers = allUsers.filter((user) => !user.isAdmin);
+
+    const deletionPromises = normalUsers.map((user) => {
       return this.userService
         .deleteUserByUID(user)()
         .then((res) => {
@@ -460,9 +476,9 @@ export class AdminService {
     });
     const promiseResult = await Promise.allSettled(deletionPromises);
 
-    const userDeleteResult = promiseResult.map((result) => {
+    promiseResult.forEach((result) => {
       if (result.status === 'fulfilled') {
-        return result.value;
+        userDeleteResult.push(result.value);
       }
     });
 

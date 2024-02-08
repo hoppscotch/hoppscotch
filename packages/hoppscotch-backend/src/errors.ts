@@ -11,6 +11,14 @@ export const ONLY_ONE_ADMIN_ACCOUNT =
   'admin/only_one_admin_account_found' as const;
 
 /**
+ * Admin user can not be deleted
+ * To delete the admin user, first make the Admin user a normal user
+ * (AdminService)
+ */
+export const ADMIN_CAN_NOT_BE_DELETED =
+  'admin/admin_can_not_be_deleted' as const;
+
+/**
  * Token Authorization failed (Check 'Authorization' Header)
  * (GqlAuthGuard)
  */

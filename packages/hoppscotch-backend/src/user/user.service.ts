@@ -94,11 +94,10 @@ export class UserService {
    * @param userUIDs User IDs
    * @returns Option of found Users
    */
-  async findNonAdminUsersByIds(userUIDs: string[]): Promise<AuthUser[]> {
+  async findUsersByIds(userUIDs: string[]): Promise<AuthUser[]> {
     const users = await this.prisma.user.findMany({
       where: {
         uid: { in: userUIDs },
-        isAdmin: false,
       },
     });
     return users;

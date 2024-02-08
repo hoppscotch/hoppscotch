@@ -4,16 +4,13 @@ import { PersistenceService } from "~/services/persistence"
 import * as E from "fp-ts/Either"
 import { z } from "zod"
 import { InterceptorService } from "~/services/interceptor.service"
-import { ExtensionInterceptorService } from "~/platform/std/interceptors/extension"
 
 import { AxiosRequestConfig } from "axios"
-import { until } from "@vueuse/core"
 
 const redirectUri = `${window.location.origin}/oauth`
 
 const interceptorService = getService(InterceptorService)
 const persistenceService = getService(PersistenceService)
-const extensionService = getService(ExtensionInterceptorService)
 
 // GENERAL HELPER FUNCTIONS
 

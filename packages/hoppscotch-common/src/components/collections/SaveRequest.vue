@@ -65,6 +65,7 @@ import {
 } from "@hoppscotch/data"
 import { pipe } from "fp-ts/function"
 import * as TE from "fp-ts/TaskEither"
+import * as E from "fp-ts/Either"
 import { GetMyTeamsQuery } from "~/helpers/backend/graphql"
 import {
   createRequestInCollection,
@@ -86,12 +87,14 @@ import { platform } from "~/platform"
 import { useService } from "dioc/vue"
 import { RESTTabService } from "~/services/tab/rest"
 import { GQLTabService } from "~/services/tab/graphql"
+import { NewWorkspaceService } from "~/services/new-workspace"
 
 const t = useI18n()
 const toast = useToast()
 
 const RESTTabs = useService(RESTTabService)
 const GQLTabs = useService(GQLTabService)
+const workspaceService = useService(NewWorkspaceService)
 
 type SelectedTeam = GetMyTeamsQuery["myTeams"][number] | undefined
 
@@ -214,99 +217,106 @@ const saveRequestAs = async () => {
     return
   }
 
-  const requestUpdated =
+  const updatedRequest =
     props.mode === "rest"
       ? cloneDeep(RESTTabs.currentActiveTab.value.document.request)
       : cloneDeep(GQLTabs.currentActiveTab.value.document.request)
 
-  requestUpdated.name = requestName.value
+  updatedRequest.name = requestName.value
 
-  if (picked.value.pickedType === "my-collection") {
-    if (!isHoppRESTRequest(requestUpdated))
+  if (!workspaceService.activeWorkspaceHandle.value) {
+    return
+  }
+
+  if (
+    picked.value.pickedType === "my-collection" ||
+    picked.value.pickedType === "my-folder"
+  ) {
+    if (!isHoppRESTRequest(updatedRequest))
       throw new Error("requestUpdated is not a REST Request")
 
-    const insertionIndex = saveRESTRequestAs(
-      `${picked.value.collectionIndex}`,
-      requestUpdated
+    const collPathIndex =
+      picked.value.pickedType === "my-collection"
+        ? picked.value.collectionIndex.toString()
+        : picked.value.folderPath
+
+    const collHandleResult = await workspaceService.getCollectionHandle(
+      workspaceService.activeWorkspaceHandle.value,
+      collPathIndex
     )
 
-    RESTTabs.currentActiveTab.value.document = {
-      request: requestUpdated,
-      isDirty: false,
-      saveContext: {
-        originLocation: "user-collection",
-        folderPath: `${picked.value.collectionIndex}`,
-        requestIndex: insertionIndex,
-      },
+    if (E.isLeft(collHandleResult)) {
+      // INVALID_WORKSPACE_HANDLE
+      return
     }
 
-    const { auth, headers } = cascadeParentCollectionForHeaderAuth(
-      `${picked.value.collectionIndex}`,
-      "rest"
+    const collHandle = collHandleResult.right
+
+    if (collHandle.value.type === "invalid") {
+      // WORKSPACE_INVALIDATED | INVALID_COLLECTION_HANDLE
+      return
+    }
+
+    const resultHandle = await workspaceService.createRESTRequest(
+      collHandle,
+      updatedRequest.name,
+      false
     )
 
-    RESTTabs.currentActiveTab.value.document.inheritedProperties = {
-      auth,
-      headers,
+    if (E.isLeft(resultHandle)) {
+      // WORKSPACE_INVALIDATED | INVALID_COLLECTION_HANDLE
+      return
     }
 
-    platform.analytics?.logEvent({
-      type: "HOPP_SAVE_REQUEST",
-      createdNow: true,
-      platform: "rest",
-      workspaceType: "personal",
-    })
+    const result = resultHandle.right
 
-    requestSaved()
-  } else if (picked.value.pickedType === "my-folder") {
-    if (!isHoppRESTRequest(requestUpdated))
-      throw new Error("requestUpdated is not a REST Request")
-
-    const insertionIndex = saveRESTRequestAs(
-      picked.value.folderPath,
-      requestUpdated
-    )
-
-    RESTTabs.currentActiveTab.value.document = {
-      request: requestUpdated,
-      isDirty: false,
-      saveContext: {
-        originLocation: "user-collection",
-        folderPath: picked.value.folderPath,
-        requestIndex: insertionIndex,
-      },
+    if (result.value.type === "invalid") {
+      // WORKSPACE_INVALIDATED | INVALID_COLLECTION_HANDLE
+      return
     }
-
-    const { auth, headers } = cascadeParentCollectionForHeaderAuth(
-      picked.value.folderPath,
-      "rest"
-    )
-
-    RESTTabs.currentActiveTab.value.document.inheritedProperties = {
-      auth,
-      headers,
-    }
-
-    platform.analytics?.logEvent({
-      type: "HOPP_SAVE_REQUEST",
-      createdNow: true,
-      platform: "rest",
-      workspaceType: "personal",
-    })
 
     requestSaved()
   } else if (picked.value.pickedType === "my-request") {
-    if (!isHoppRESTRequest(requestUpdated))
+    if (!isHoppRESTRequest(updatedRequest))
       throw new Error("requestUpdated is not a REST Request")
 
-    editRESTRequest(
+    const requestHandleResult = await workspaceService.getRequestHandle(
+      workspaceService.activeWorkspaceHandle.value,
       picked.value.folderPath,
-      picked.value.requestIndex,
-      requestUpdated
     )
 
+    if (E.isLeft(requestHandleResult)) {
+      // INVALID_WORKSPACE_HANDLE
+      return
+    }
+
+    const requestHandle = requestHandleResult.right
+
+    if (requestHandle.value.type === "invalid") {
+      // WORKSPACE_INVALIDATED | INVALID_REQUEST_HANDLE
+      return
+    }
+
+    const resultHandle = await workspaceService.updateRESTRequest(
+      requestHandle,
+      updatedRequest
+    )
+
+    if (E.isLeft(resultHandle)) {
+      // WORKSPACE_INVALIDATED | INVALID_REQUEST_HANDLE
+      return
+    }
+
+    const result = resultHandle.right
+
+    if (result.value.type === "invalid") {
+      // WORKSPACE_INVALIDATED | INVALID_REQUEST_HANDLE
+      return
+    }
+
+    // These remain here in the component
     RESTTabs.currentActiveTab.value.document = {
-      request: requestUpdated,
+      request: updatedRequest,
       isDirty: false,
       saveContext: {
         originLocation: "user-collection",
@@ -325,19 +335,12 @@ const saveRequestAs = async () => {
       headers,
     }
 
-    platform.analytics?.logEvent({
-      type: "HOPP_SAVE_REQUEST",
-      createdNow: false,
-      platform: "rest",
-      workspaceType: "personal",
-    })
-
     requestSaved()
   } else if (picked.value.pickedType === "teams-collection") {
-    if (!isHoppRESTRequest(requestUpdated))
+    if (!isHoppRESTRequest(updatedRequest))
       throw new Error("requestUpdated is not a REST Request")
 
-    updateTeamCollectionOrFolder(picked.value.collectionID, requestUpdated)
+    updateTeamCollectionOrFolder(picked.value.collectionID, updatedRequest)
 
     platform.analytics?.logEvent({
       type: "HOPP_SAVE_REQUEST",
@@ -346,10 +349,10 @@ const saveRequestAs = async () => {
       workspaceType: "team",
     })
   } else if (picked.value.pickedType === "teams-folder") {
-    if (!isHoppRESTRequest(requestUpdated))
+    if (!isHoppRESTRequest(updatedRequest))
       throw new Error("requestUpdated is not a REST Request")
 
-    updateTeamCollectionOrFolder(picked.value.folderID, requestUpdated)
+    updateTeamCollectionOrFolder(picked.value.folderID, updatedRequest)
 
     platform.analytics?.logEvent({
       type: "HOPP_SAVE_REQUEST",
@@ -358,7 +361,7 @@ const saveRequestAs = async () => {
       workspaceType: "team",
     })
   } else if (picked.value.pickedType === "teams-request") {
-    if (!isHoppRESTRequest(requestUpdated))
+    if (!isHoppRESTRequest(updatedRequest))
       throw new Error("requestUpdated is not a REST Request")
 
     if (
@@ -370,8 +373,8 @@ const saveRequestAs = async () => {
     modalLoadingState.value = true
 
     const data = {
-      request: JSON.stringify(requestUpdated),
-      title: requestUpdated.name,
+      request: JSON.stringify(updatedRequest),
+      title: updatedRequest.name,
     }
 
     platform.analytics?.logEvent({
@@ -399,7 +402,7 @@ const saveRequestAs = async () => {
     editGraphqlRequest(
       picked.value.folderPath,
       picked.value.requestIndex,
-      requestUpdated as HoppGQLRequest
+      updatedRequest as HoppGQLRequest
     )
 
     platform.analytics?.logEvent({
@@ -424,7 +427,7 @@ const saveRequestAs = async () => {
     // TODO: Check for GQL request ?
     saveGraphqlRequestAs(
       picked.value.folderPath,
-      requestUpdated as HoppGQLRequest
+      updatedRequest as HoppGQLRequest
     )
 
     platform.analytics?.logEvent({
@@ -449,7 +452,7 @@ const saveRequestAs = async () => {
     // TODO: Check for GQL request ?
     saveGraphqlRequestAs(
       `${picked.value.collectionIndex}`,
-      requestUpdated as HoppGQLRequest
+      updatedRequest as HoppGQLRequest
     )
 
     platform.analytics?.logEvent({

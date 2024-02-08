@@ -1,4 +1,8 @@
-import { HoppCollection, makeCollection } from "@hoppscotch/data"
+import {
+  HoppCollection,
+  isHoppRESTRequest,
+  makeCollection,
+} from "@hoppscotch/data"
 import { Service } from "dioc"
 import * as E from "fp-ts/Either"
 import { Ref, computed, markRaw, nextTick, ref, shallowRef } from "vue"
@@ -148,7 +152,7 @@ export class PersonalWorkspaceProviderService
             data: {
               providerID: this.providerID,
               workspaceID: workspaceHandle.value.data.workspaceID,
-              collectionID: "",
+              collectionID: "", // Compute this and supply
               collection: newRootCollection,
             },
           }
@@ -217,7 +221,7 @@ export class PersonalWorkspaceProviderService
   public editRESTRootCollection(
     collHandle: HandleRef<WorkspaceCollection>,
     newCollectionName: string
-  ): Promise<E.Either<unknown, HandleRef<WorkspaceCollection>>> {
+  ): Promise<E.Either<unknown, HandleRef<boolean>>> {
     if (
       collHandle.value.type !== "ok" ||
       collHandle.value.data.providerID !== this.providerID ||
@@ -240,8 +244,7 @@ export class PersonalWorkspaceProviderService
             }
           }
 
-          const { collection, collectionID, providerID, workspaceID } =
-            collHandle.value.data
+          const { collection, collectionID } = collHandle.value.data
 
           const updatedCollection = {
             ...(collection as HoppCollection),
@@ -253,12 +256,7 @@ export class PersonalWorkspaceProviderService
 
           return {
             type: "ok",
-            data: {
-              providerID,
-              workspaceID,
-              collectionID,
-              collection: updatedCollection,
-            },
+            data: true,
           }
         })
       )
@@ -268,7 +266,7 @@ export class PersonalWorkspaceProviderService
   public editRESTChildCollection(
     collHandle: HandleRef<WorkspaceCollection>,
     newCollectionName: string
-  ): Promise<E.Either<unknown, HandleRef<WorkspaceCollection>>> {
+  ): Promise<E.Either<unknown, HandleRef<boolean>>> {
     if (
       collHandle.value.type !== "ok" ||
       collHandle.value.data.providerID !== this.providerID ||
@@ -291,8 +289,7 @@ export class PersonalWorkspaceProviderService
             }
           }
 
-          const { collection, collectionID, providerID, workspaceID } =
-            collHandle.value.data
+          const { collection, collectionID } = collHandle.value.data
 
           const updatedCollection = {
             ...(collection as HoppCollection),
@@ -303,12 +300,7 @@ export class PersonalWorkspaceProviderService
 
           return {
             type: "ok",
-            data: {
-              providerID,
-              workspaceID,
-              collectionID,
-              collection: updatedCollection,
-            },
+            data: true,
           }
         })
       )
@@ -318,7 +310,7 @@ export class PersonalWorkspaceProviderService
   public editRESTCollectionProperties(
     collHandle: HandleRef<WorkspaceCollection>,
     updatedCollProps: UpdatedCollectionProperties
-  ): Promise<E.Either<unknown, HandleRef<WorkspaceCollection>>> {
+  ): Promise<E.Either<unknown, HandleRef<boolean>>> {
     if (
       collHandle.value.type !== "ok" ||
       collHandle.value.data.providerID !== this.providerID ||
@@ -341,8 +333,7 @@ export class PersonalWorkspaceProviderService
             }
           }
 
-          const { collection, collectionID, providerID, workspaceID } =
-            collHandle.value.data
+          const { collection, collectionID } = collHandle.value.data
 
           const { auth, headers } = updatedCollProps
 
@@ -376,12 +367,7 @@ export class PersonalWorkspaceProviderService
 
           return {
             type: "ok",
-            data: {
-              providerID,
-              workspaceID,
-              collectionID,
-              collection: updatedCollection,
-            },
+            data: true,
           }
         })
       )
@@ -390,7 +376,7 @@ export class PersonalWorkspaceProviderService
 
   public removeRESTRootCollection(
     collHandle: HandleRef<WorkspaceCollection>
-  ): Promise<E.Either<unknown, HandleRef<WorkspaceCollection>>> {
+  ): Promise<E.Either<unknown, HandleRef<boolean>>> {
     if (
       collHandle.value.type !== "ok" ||
       collHandle.value.data.providerID !== this.providerID ||
@@ -413,8 +399,7 @@ export class PersonalWorkspaceProviderService
             }
           }
 
-          const { collectionID, providerID, workspaceID } =
-            collHandle.value.data
+          const { collectionID } = collHandle.value.data
 
           const collectionIndex = parseInt(collectionID)
 
@@ -437,12 +422,7 @@ export class PersonalWorkspaceProviderService
 
           return {
             type: "ok",
-            data: {
-              providerID,
-              workspaceID,
-              collectionID,
-              collection: null,
-            },
+            data: true,
           }
         })
       )
@@ -451,7 +431,7 @@ export class PersonalWorkspaceProviderService
 
   public removeRESTChildCollection(
     parentCollHandle: HandleRef<WorkspaceCollection>
-  ): Promise<E.Either<unknown, HandleRef<WorkspaceCollection>>> {
+  ): Promise<E.Either<unknown, HandleRef<boolean>>> {
     if (
       parentCollHandle.value.type !== "ok" ||
       parentCollHandle.value.data.providerID !== this.providerID ||
@@ -474,8 +454,7 @@ export class PersonalWorkspaceProviderService
             }
           }
 
-          const { collectionID, providerID, workspaceID } =
-            parentCollHandle.value.data
+          const { collectionID } = parentCollHandle.value.data
 
           const folderToRemove = path
             ? navigateToFolderWithIndexPath(
@@ -502,12 +481,7 @@ export class PersonalWorkspaceProviderService
 
           return {
             type: "ok",
-            data: {
-              providerID,
-              workspaceID,
-              collectionID,
-              collection: null,
-            },
+            data: true,
           }
         })
       )
@@ -516,14 +490,15 @@ export class PersonalWorkspaceProviderService
 
   public createRESTRequest(
     parentCollHandle: HandleRef<WorkspaceCollection>,
-    requestName: string
+    requestName: string,
+    openInNewTab: boolean
   ): Promise<E.Either<unknown, HandleRef<WorkspaceCollection>>> {
     if (
       parentCollHandle.value.type !== "ok" ||
       parentCollHandle.value.data.providerID !== this.providerID ||
       parentCollHandle.value.data.workspaceID !== "personal"
     ) {
-      return Promise.resolve(E.left("INVALID_WORKSPACE_HANDLE" as const))
+      return Promise.resolve(E.left("INVALID_COLLECTION_HANDLE" as const))
     }
 
     return Promise.resolve(
@@ -536,7 +511,7 @@ export class PersonalWorkspaceProviderService
           ) {
             return {
               type: "invalid" as const,
-              reason: "WORKSPACE_INVALIDATED" as const,
+              reason: "COLLECTION_INVALIDATED" as const,
             }
           }
 
@@ -550,24 +525,26 @@ export class PersonalWorkspaceProviderService
 
           const insertionIndex = saveRESTRequestAs(collectionID, newRequest)
 
-          const { auth, headers } = cascadeParentCollectionForHeaderAuth(
-            collectionID,
-            "rest"
-          )
+          if (openInNewTab) {
+            const { auth, headers } = cascadeParentCollectionForHeaderAuth(
+              collectionID,
+              "rest"
+            )
 
-          this.tabs.createNewTab({
-            request: newRequest,
-            isDirty: false,
-            saveContext: {
-              originLocation: "user-collection",
-              folderPath: collectionID,
-              requestIndex: insertionIndex,
-            },
-            inheritedProperties: {
-              auth,
-              headers,
-            },
-          })
+            this.tabs.createNewTab({
+              request: newRequest,
+              isDirty: false,
+              saveContext: {
+                originLocation: "user-collection",
+                folderPath: collectionID,
+                requestIndex: insertionIndex,
+              },
+              inheritedProperties: {
+                auth,
+                headers,
+              },
+            })
+          }
 
           platform.analytics?.logEvent({
             type: "HOPP_SAVE_REQUEST",
@@ -597,7 +574,7 @@ export class PersonalWorkspaceProviderService
 
   public removeRESTRequest(
     requestHandle: HandleRef<WorkspaceRequest>
-  ): Promise<E.Either<unknown, HandleRef<WorkspaceRequest>>> {
+  ): Promise<E.Either<unknown, HandleRef<boolean>>> {
     if (
       requestHandle.value.type !== "ok" ||
       requestHandle.value.data.providerID !== this.providerID ||
@@ -620,8 +597,7 @@ export class PersonalWorkspaceProviderService
             }
           }
 
-          const { collectionID, providerID, requestID, workspaceID } =
-            requestHandle.value.data
+          const { collectionID, requestID } = requestHandle.value.data
           const requestIndex = parseInt(requestID.split("/").slice(-1)[0])
 
           const possibleTab = this.tabs.getTabRefWithSaveContext({
@@ -656,90 +632,17 @@ export class PersonalWorkspaceProviderService
 
           return {
             type: "ok",
-            data: {
-              providerID,
-              workspaceID,
-              collectionID,
-              requestID,
-              request: null,
-            },
+            data: true,
           }
         })
       )
     )
   }
 
-  public editRESTRequest(
-    requestHandle: HandleRef<WorkspaceRequest>,
-    newRequestName: string
-  ): Promise<E.Either<unknown, HandleRef<WorkspaceRequest>>> {
-    if (
-      requestHandle.value.type !== "ok" ||
-      requestHandle.value.data.providerID !== this.providerID ||
-      requestHandle.value.data.workspaceID !== "personal"
-    ) {
-      return Promise.resolve(E.left("INVALID_REQUEST_HANDLE" as const))
-    }
-
-    return Promise.resolve(
-      E.right(
-        computed(() => {
-          if (
-            requestHandle.value.type !== "ok" ||
-            requestHandle.value.data.providerID !== this.providerID ||
-            requestHandle.value.data.workspaceID !== "personal"
-          ) {
-            return {
-              type: "invalid" as const,
-              reason: "REQUEST_INVALIDATED" as const,
-            }
-          }
-
-          const { collectionID, providerID, request, requestID, workspaceID } =
-            requestHandle.value.data
-          const requestIndexPath = requestID.split("/").slice(-1).join("")
-
-          const requestIndex = parseInt(requestIndexPath)
-
-          const updatedRequest = {
-            ...request,
-            name: newRequestName || request?.name,
-          } as HoppRESTRequest
-
-          const possibleActiveTab = this.tabs.getTabRefWithSaveContext({
-            originLocation: "user-collection",
-            requestIndex,
-            folderPath: collectionID,
-          })
-
-          editRESTRequest(collectionID, requestIndex, updatedRequest)
-
-          if (possibleActiveTab) {
-            possibleActiveTab.value.document.request.name = updatedRequest.name
-            nextTick(() => {
-              possibleActiveTab.value.document.isDirty = false
-            })
-          }
-
-          return {
-            type: "ok",
-            data: {
-              providerID,
-              workspaceID,
-              collectionID,
-              requestID,
-              request: updatedRequest,
-            },
-          }
-        })
-      )
-    )
-  }
-
-  public saveRESTRequest(
+  public updateRESTRequest(
     requestHandle: HandleRef<WorkspaceRequest>,
     updatedRequest: HoppRESTRequest
-  ): Promise<E.Either<unknown, HandleRef<WorkspaceRequest>>> {
+  ): Promise<E.Either<unknown, HandleRef<boolean>>> {
     if (
       requestHandle.value.type !== "ok" ||
       requestHandle.value.data.providerID !== this.providerID ||
@@ -762,8 +665,7 @@ export class PersonalWorkspaceProviderService
             }
           }
 
-          const { collectionID, providerID, requestID, workspaceID } =
-            requestHandle.value.data
+          const { collectionID, requestID } = requestHandle.value.data
 
           try {
             const requestIndex = parseInt(requestID)
@@ -784,13 +686,7 @@ export class PersonalWorkspaceProviderService
 
           return {
             type: "ok",
-            data: {
-              providerID,
-              workspaceID,
-              collectionID,
-              requestID,
-              request: updatedRequest,
-            },
+            data: true,
           }
         })
       )
@@ -859,13 +755,13 @@ export class PersonalWorkspaceProviderService
   }
 
   public getRequestHandle(
-    parentCollHandle: HandleRef<WorkspaceCollection>,
+    workspaceHandle: HandleRef<Workspace>,
     requestID: string
   ): Promise<E.Either<unknown, HandleRef<WorkspaceRequest>>> {
     if (
-      parentCollHandle.value.type !== "ok" ||
-      parentCollHandle.value.data.providerID !== this.providerID ||
-      parentCollHandle.value.data.workspaceID !== "personal"
+      workspaceHandle.value.type !== "ok" ||
+      workspaceHandle.value.data.providerID !== this.providerID ||
+      workspaceHandle.value.data.workspaceID !== "personal"
     ) {
       return Promise.resolve(E.left("INVALID_COLLECTION_HANDLE" as const))
     }
@@ -874,9 +770,9 @@ export class PersonalWorkspaceProviderService
       E.right(
         computed(() => {
           if (
-            parentCollHandle.value.type !== "ok" ||
-            parentCollHandle.value.data.providerID !== this.providerID ||
-            parentCollHandle.value.data.workspaceID !== "personal"
+            workspaceHandle.value.type !== "ok" ||
+            workspaceHandle.value.data.providerID !== this.providerID ||
+            workspaceHandle.value.data.workspaceID !== "personal"
           ) {
             return {
               type: "invalid" as const,
@@ -891,11 +787,12 @@ export class PersonalWorkspaceProviderService
             }
           }
 
-          const { collectionID, providerID, workspaceID } = parentCollHandle.value.data
+          const { providerID, workspaceID } = workspaceHandle.value.data
 
+          const collectionID = requestID.split("/").slice(0, -1).join("/")
           const requestIndexPath = requestID.split("/").slice(-1)[0]
 
-          if (!collectionID || !requestIndexPath) {
+          if (!requestIndexPath) {
             return {
               type: "invalid" as const,
               reason: "INVALID_REQUEST_HANDLE" as const,

@@ -519,25 +519,8 @@ const saveRequest = async () => {
       return
     }
 
-    const collHandleResult = await workspaceService.getCollectionHandle(
-      workspaceService.activeWorkspaceHandle.value,
-      saveCtx.folderPath
-    )
-
-    if (E.isLeft(collHandleResult)) {
-      // INVALID_WORKSPACE_HANDLE
-      return
-    }
-
-    const collHandle = collHandleResult.right
-
-    if (collHandle.value.type === "invalid") {
-      // WORKSPACE_INVALIDATED | INVALID_COLLECTION_HANDLE
-      return
-    }
-
     const requestHandleResult = await workspaceService.getRequestHandle(
-      collHandle,
+      workspaceService.activeWorkspaceHandle.value,
       `${saveCtx.folderPath}/${saveCtx.requestIndex.toString()}`
     )
 
@@ -553,17 +536,17 @@ const saveRequest = async () => {
       return
     }
 
-    const updatedRequestResult = await workspaceService.saveRESTRequest(
+    const updateRequestResult = await workspaceService.updateRESTRequest(
       requestHandle,
       updatedRequest
     )
 
-    if (E.isLeft(updatedRequestResult)) {
+    if (E.isLeft(updateRequestResult)) {
       // INVALID_REQUEST_HANDLE
       return
     }
 
-    const resultHandle = updatedRequestResult.right
+    const resultHandle = updateRequestResult.right
 
     if (resultHandle.value.type === "invalid") {
       // REQUEST_INVALIDATED | REQUEST_PATH_NOT_FOUND

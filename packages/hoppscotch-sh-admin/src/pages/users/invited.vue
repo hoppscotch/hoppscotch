@@ -119,18 +119,18 @@ const deleteInvite = (inviteeEmail: string) => {
 const deleteUserInvitation = async (inviteeEmail: string | null) => {
   if (!inviteeEmail) {
     confirmDeletion.value = false;
-    toast.error(t('state.delete_invites_failure'));
+    toast.error(t('state.delete_invite_failure'));
     return;
   }
   const variables = { inviteeEmail };
   const result = await deleteInvitationMutation.executeMutation(variables);
   if (result.error) {
-    toast.error(t('state.delete_invites_failure'));
+    toast.error(t('state.delete_invite_failure'));
   } else {
     invitedUsers.value = invitedUsers.value?.filter(
       (request) => request.inviteeEmail !== inviteeEmail
     );
-    toast.success(t('state.delete_invites_success'));
+    toast.success(t('state.delete_invite_success'));
   }
 
   confirmDeletion.value = false;

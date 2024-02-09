@@ -331,8 +331,7 @@ export class NewWorkspaceService extends Service {
 
   public async createRESTRequest(
     parentCollectionHandle: HandleRef<WorkspaceCollection>,
-    requestName: string,
-    openInNewTab: boolean
+    newRequest: HoppRESTRequest
   ): Promise<
     E.Either<
       WorkspaceError<"INVALID_HANDLE" | "INVALID_PROVIDER">,
@@ -353,8 +352,7 @@ export class NewWorkspaceService extends Service {
 
     const result = await provider.createRESTRequest(
       parentCollectionHandle,
-      requestName,
-      openInNewTab
+      newRequest
     )
 
     if (E.isLeft(result)) {

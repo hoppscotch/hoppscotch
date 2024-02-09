@@ -544,9 +544,18 @@ const saveRequest = async () => {
     if (E.isLeft(updateRequestResult)) {
       // INVALID_REQUEST_HANDLE
       showSaveRequestModal.value = true
+      return
+    }
 
-      if (!tab.value.document.isDirty) {
-        tab.value.document.isDirty = true
+    const resultHandle = updateRequestResult.right
+
+    if (resultHandle.type === "invalid") {
+      // REQUEST_INVALIDATED | REQUEST_PATH_NOT_FOUND
+
+      if (resultHandle.reason === "REQUEST_PATH_NOT_FOUND") {
+        // REQUEST_PATH_NOT_FOUND
+        tab.value.document.saveContext = undefined
+        await saveRequest()
       }
       return
     }

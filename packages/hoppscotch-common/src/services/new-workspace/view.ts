@@ -1,5 +1,11 @@
 import { HoppRESTRequest } from "@hoppscotch/data"
 import { Ref } from "vue"
+import { HoppInheritedRESTProperty } from "~/helpers/types/HoppInheritedProperties"
+
+export type RESTCollectionLevelAuthHeadersView = {
+  auth: HoppInheritedRESTProperty["auth"]
+  headers: HoppInheritedRESTProperty["headers"]
+}
 
 export type RESTCollectionViewCollection = {
   collectionID: string

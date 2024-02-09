@@ -96,7 +96,8 @@ export class PersonalWorkspaceProviderService
 
   public createRESTRootCollection(
     workspaceHandle: HandleRef<Workspace>,
-    collectionName: string
+    collectionName: string,
+    newCollectionID: string
   ): Promise<E.Either<unknown, HandleRef<WorkspaceCollection>>> {
     if (
       workspaceHandle.value.type !== "ok" ||
@@ -144,7 +145,7 @@ export class PersonalWorkspaceProviderService
             data: {
               providerID: this.providerID,
               workspaceID: workspaceHandle.value.data.workspaceID,
-              collectionID: "", // Compute this and supply
+              collectionID: newCollectionID,
               name: collectionName,
             },
           }
@@ -348,7 +349,7 @@ export class PersonalWorkspaceProviderService
           const folderToRemove = path
             ? navigateToFolderWithIndexPath(
                 restCollectionStore.value.state,
-                collectionID.split("/").map((i) => parseInt(i))
+                collectionID.split("/").map((id) => parseInt(id))
               )
             : undefined
 
@@ -381,7 +382,7 @@ export class PersonalWorkspaceProviderService
     parentCollHandle: HandleRef<WorkspaceCollection>,
     requestName: string,
     openInNewTab: boolean
-  ): Promise<E.Either<unknown, HandleRef<WorkspaceCollection>>> {
+  ): Promise<E.Either<unknown, HandleRef<WorkspaceRequest>>> {
     if (
       parentCollHandle.value.type !== "ok" ||
       parentCollHandle.value.data.providerID !== this.providerID ||
@@ -404,7 +405,7 @@ export class PersonalWorkspaceProviderService
             }
           }
 
-          const { collectionID, providerID, workspaceID, name } =
+          const { collectionID, providerID, workspaceID } =
             parentCollHandle.value.data
 
           const newRequest = {
@@ -442,13 +443,16 @@ export class PersonalWorkspaceProviderService
             platform: "rest",
           })
 
+          const requestID = `${collectionID}/${insertionIndex}`
+
           return {
             type: "ok",
             data: {
               providerID,
               workspaceID,
               collectionID,
-              name,
+              requestID,
+              request: newRequest,
             },
           }
         })
@@ -498,7 +502,7 @@ export class PersonalWorkspaceProviderService
 
           const requestToRemove = navigateToFolderWithIndexPath(
             restCollectionStore.value.state,
-            collectionID.split("/").map((i) => parseInt(i))
+            collectionID.split("/").map((id) => parseInt(id))
           )?.requests[requestIndex]
 
           removeRESTRequest(collectionID, requestIndex, requestToRemove?.id)

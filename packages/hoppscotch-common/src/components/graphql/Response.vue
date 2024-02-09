@@ -16,9 +16,11 @@
           <HoppButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
             :title="t('state.linewrap')"
-            :class="{ '!text-accent': linewrapEnabled }"
+            :class="{ '!text-accent': WRAP_LINES }"
             :icon="IconWrapText"
-            @click.prevent="linewrapEnabled = !linewrapEnabled"
+            @click.prevent="
+              toggleNestedSetting('WRAP_LINES', 'graphqlResponseBody')
+            "
           />
           <HoppButtonSecondary
             v-tippy="{ theme: 'tooltip', allowHTML: true }"
@@ -99,6 +101,8 @@ import { useI18n } from "@composables/i18n"
 import { defineActionHandler } from "~/helpers/actions"
 import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
 import { GQLResponseEvent } from "~/helpers/graphql/connection"
+import { useNestedSetting } from "~/composables/settings"
+import { toggleNestedSetting } from "~/newstore/settings"
 import interfaceLanguages from "~/helpers/utils/interfaceLanguages"
 import {
   useCopyInterface,
@@ -133,8 +137,8 @@ const responseString = computed(() => {
 })
 
 const schemaEditor = ref<any | null>(null)
+const WRAP_LINES = useNestedSetting("WRAP_LINES", "graphqlResponseBody")
 const copyInterfaceTippyActions = ref<any | null>(null)
-const linewrapEnabled = ref(true)
 
 useCodemirror(
   schemaEditor,
@@ -143,7 +147,7 @@ useCodemirror(
     extendedEditorConfig: {
       mode: "application/ld+json",
       readOnly: true,
-      lineWrapping: linewrapEnabled,
+      lineWrapping: WRAP_LINES,
     },
     linter: null,
     completer: null,

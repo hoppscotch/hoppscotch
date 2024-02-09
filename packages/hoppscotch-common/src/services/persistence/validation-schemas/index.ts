@@ -45,6 +45,26 @@ const SettingsDefSchema = z.object({
   SIDEBAR: z.boolean(),
   SIDEBAR_ON_LEFT: z.boolean(),
   COLUMN_LAYOUT: z.boolean(),
+
+  WRAP_LINES: z.optional(
+    z.object({
+      httpRequestBody: z.boolean(),
+      httpResponseBody: z.boolean(),
+      httpHeaders: z.boolean(),
+      httpParams: z.boolean(),
+      httpUrlEncoded: z.boolean(),
+      httpPreRequest: z.boolean(),
+      httpTest: z.boolean(),
+      graphqlQuery: z.boolean(),
+      graphqlResponseBody: z.boolean(),
+      graphqlHeaders: z.boolean(),
+      graphqlVariables: z.boolean(),
+      graphqlSchema: z.boolean(),
+      importCurl: z.boolean(),
+      codeGen: z.boolean(),
+      cookie: z.boolean(),
+    })
+  ),
 })
 
 // Common properties shared across REST & GQL collections

@@ -23,9 +23,9 @@
         <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           :title="t('state.linewrap')"
-          :class="{ '!text-accent': linewrapEnabled }"
+          :class="{ '!text-accent': WRAP_LINES }"
           :icon="IconWrapText"
-          @click.prevent="linewrapEnabled = !linewrapEnabled"
+          @click.prevent="toggleNestedSetting('WRAP_LINES', 'httpTest')"
         />
       </div>
     </div>
@@ -72,6 +72,8 @@ import linter from "~/helpers/editor/linting/testScript"
 import completer from "~/helpers/editor/completion/testScript"
 import { useI18n } from "@composables/i18n"
 import { useVModel } from "@vueuse/core"
+import { useNestedSetting } from "~/composables/settings"
+import { toggleNestedSetting } from "~/newstore/settings"
 
 const t = useI18n()
 
@@ -81,7 +83,7 @@ const props = defineProps<{
 const emit = defineEmits(["update:modelValue"])
 const testScript = useVModel(props, "modelValue", emit)
 const testScriptEditor = ref<any | null>(null)
-const linewrapEnabled = ref(true)
+const WRAP_LINES = useNestedSetting("WRAP_LINES", "httpTest")
 
 useCodemirror(
   testScriptEditor,
@@ -89,7 +91,7 @@ useCodemirror(
   reactive({
     extendedEditorConfig: {
       mode: "application/javascript",
-      lineWrapping: linewrapEnabled,
+      lineWrapping: WRAP_LINES,
       placeholder: `${t("test.javascript_code")}`,
     },
     linter,

@@ -127,9 +127,9 @@
           <HoppButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
             :title="t('state.linewrap')"
-            :class="{ '!text-accent': linewrapEnabled }"
+            :class="{ '!text-accent': WRAP_LINES }"
             :icon="IconWrapText"
-            @click.prevent="linewrapEnabled = !linewrapEnabled"
+            @click.prevent="toggleNestedSetting('WRAP_LINES', 'graphqlSchema')"
           />
           <HoppButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
@@ -202,6 +202,8 @@ import {
   subscriptionFields,
 } from "~/helpers/graphql/connection"
 import { platform } from "~/platform"
+import { useNestedSetting } from "~/composables/settings"
+import { toggleNestedSetting } from "~/newstore/settings"
 
 type NavigationTabs = "history" | "collection" | "docs" | "schema"
 type GqlTabs = "queries" | "mutations" | "subscriptions" | "types"
@@ -349,7 +351,7 @@ const handleJumpToType = async (type: GraphQLType) => {
 }
 
 const schemaEditor = ref<any | null>(null)
-const linewrapEnabled = ref(true)
+const WRAP_LINES = useNestedSetting("WRAP_LINES", "graphqlSchema")
 
 useCodemirror(
   schemaEditor,
@@ -358,7 +360,7 @@ useCodemirror(
     extendedEditorConfig: {
       mode: "graphql",
       readOnly: true,
-      lineWrapping: linewrapEnabled,
+      lineWrapping: WRAP_LINES,
     },
     linter: null,
     completer: null,

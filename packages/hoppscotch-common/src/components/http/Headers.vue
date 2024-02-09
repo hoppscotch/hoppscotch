@@ -29,9 +29,9 @@
           v-if="bulkMode"
           v-tippy="{ theme: 'tooltip' }"
           :title="t('state.linewrap')"
-          :class="{ '!text-accent': linewrapEnabled }"
+          :class="{ '!text-accent': WRAP_LINES }"
           :icon="IconWrapText"
-          @click.prevent="linewrapEnabled = !linewrapEnabled"
+          @click.prevent="toggleNestedSetting('WRAP_LINES', 'httpHeaders')"
         />
         <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
@@ -332,6 +332,9 @@ import { useVModel } from "@vueuse/core"
 import { useService } from "dioc/vue"
 import { InspectionService, InspectorResult } from "~/services/inspection"
 import { RESTTabService } from "~/services/tab/rest"
+import { toggleSetting } from "~/newstore/settings"
+import { useNestedSetting } from "~/composables/settings"
+import { toggleNestedSetting } from "~/newstore/settings"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 
 const t = useI18n()
@@ -346,7 +349,7 @@ const idTicker = ref(0)
 const bulkMode = ref(false)
 const bulkHeaders = ref("")
 const bulkEditor = ref<any | null>(null)
-const linewrapEnabled = ref(true)
+const WRAP_LINES = useNestedSetting("WRAP_LINES", "httpHeaders")
 
 const deletionToast = ref<{ goAway: (delay: number) => void } | null>(null)
 
@@ -371,7 +374,7 @@ useCodemirror(
     extendedEditorConfig: {
       mode: "text/x-yaml",
       placeholder: `${t("state.bulk_mode_placeholder")}`,
-      lineWrapping: linewrapEnabled,
+      lineWrapping: WRAP_LINES,
     },
     linter,
     completer: null,

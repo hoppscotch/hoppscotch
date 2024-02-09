@@ -35,9 +35,8 @@
           }"
           :pagination="{ totalPages: totalPages }"
           @onRowClicked="goToUserDetails"
-          @search="handleInput"
+          @search="handleSearch"
           @pageNumber="handlePageChange"
-          class="w-full h-full"
         >
           <template #head>
             <th class="px-6 py-2">{{ t('users.id') }}</th>
@@ -130,16 +129,10 @@
           </template>
         </UsersTable>
 
-        <!-- <div
-          v-if="fetchQuery"
-          class="w-full border-x-2 border-b-2 border-divider text-center p-3 rounded-b-md"
-        >
-          No users found...
-        </div> -->
-
+        <!-- Actions for Selected Rows -->
         <div
           v-if="selectedRows.length"
-          class="fixed m-2 bottom-0 left-32 right-0 w-min mx-auto shadow-2xl"
+          class="fixed m-2 bottom-0 left-40 right-0 w-min mx-auto shadow-2xl"
         >
           <div
             class="flex justify-center items-end bg-primaryLight border border-divider rounded-md mb-5"
@@ -274,11 +267,12 @@ const {
   { searchString: '', take: usersPerPage, skip: 0 }
 );
 
+// Selected Rows
 const selectedRows = ref<UsersListQuery['infra']['allUsers']>([]);
 
 // Search
 const searchQuery = ref('');
-const handleInput = async (input: string) => {
+const handleSearch = async (input: string) => {
   searchQuery.value = input;
   await refetch({ searchString: input, take: usersPerPage, skip: 0 });
 };
@@ -307,6 +301,11 @@ const handlePageChange = async (page: number) => {
   }
 };
 
+// Go to Individual User Details Page
+const router = useRouter();
+const goToUserDetails = (user: UserInfoQuery['infra']['userInfo']) =>
+  router.push('/users/' + user.uid);
+
 // Send Invitation through Email
 const sendInvitation = useMutation(InviteNewUserDocument);
 const showInviteUserModal = ref(false);
@@ -319,8 +318,6 @@ const sendInvite = async (email: string) => {
   const variables = { inviteeEmail: email.trim() };
   const result = await sendInvitation.executeMutation(variables);
   if (result.error) {
-    console.log(result.error.message);
-
     if (result.error.message === USER_ALREADY_INVITED)
       toast.error(t('state.user_already_invited'));
     else toast.error(t('state.email_failure'));
@@ -330,42 +327,7 @@ const sendInvite = async (email: string) => {
   }
 };
 
-// Go to Individual User Details Page
-const router = useRouter();
-const goToUserDetails = (user: UserInfoQuery['infra']['userInfo']) =>
-  router.push('/users/' + user.uid);
-
-// User Deletion
-const userDeletion = useMutation(RemoveUserByAdminDocument);
-const confirmDeletion = ref(false);
-const deleteUserUID = ref<string | null>(null);
-
-const deleteUser = (id: string) => {
-  confirmDeletion.value = true;
-  deleteUserUID.value = id;
-};
-
-const deleteUserMutation = async (id: string | null) => {
-  if (!id) {
-    confirmDeletion.value = false;
-    toast.error(t('state.delete_user_failure'));
-    return;
-  }
-  const variables = { uid: id };
-  const result = await userDeletion.executeMutation(variables);
-  if (result.error) {
-    if (result.error.message === DELETE_USER_FAILED_ONLY_ONE_ADMIN) {
-      toast.error(t('state.delete_user_failed_only_one_admin'));
-    } else toast.error(t('state.delete_user_failure'));
-  } else {
-    toast.success(t('state.delete_user_success'));
-    usersList.value = usersList.value.filter((user) => user.uid !== id);
-  }
-  confirmDeletion.value = false;
-  deleteUserUID.value = null;
-};
-
-// Make User Admin
+// Make a single user an admin
 const userToAdmin = useMutation(MakeUserAdminDocument);
 const confirmUserToAdmin = ref(false);
 const userToAdminUID = ref<string | null>(null);
@@ -396,7 +358,7 @@ const makeUserAdminMutation = async (id: string | null) => {
   userToAdminUID.value = null;
 };
 
-// Remove Admin Status from a current Admin
+// Remove Admin Status from a Current Admin
 const adminToUser = useMutation(RemoveUserAsAdminDocument);
 const confirmAdminToUser = ref(false);
 const adminToUserUID = ref<string | null>(null);
@@ -425,6 +387,36 @@ const makeAdminToUserMutation = async (id: string | null) => {
   }
   confirmAdminToUser.value = false;
   adminToUserUID.value = null;
+};
+
+// Delete a single user
+const userDeletion = useMutation(RemoveUserByAdminDocument);
+const confirmDeletion = ref(false);
+const deleteUserUID = ref<string | null>(null);
+
+const deleteUser = (id: string) => {
+  confirmDeletion.value = true;
+  deleteUserUID.value = id;
+};
+
+const deleteUserMutation = async (id: string | null) => {
+  if (!id) {
+    confirmDeletion.value = false;
+    toast.error(t('state.delete_user_failure'));
+    return;
+  }
+  const variables = { uid: id };
+  const result = await userDeletion.executeMutation(variables);
+  if (result.error) {
+    if (result.error.message === DELETE_USER_FAILED_ONLY_ONE_ADMIN) {
+      toast.error(t('state.delete_user_failed_only_one_admin'));
+    } else toast.error(t('state.delete_user_failure'));
+  } else {
+    toast.success(t('state.delete_user_success'));
+    usersList.value = usersList.value.filter((user) => user.uid !== id);
+  }
+  confirmDeletion.value = false;
+  deleteUserUID.value = null;
 };
 
 // Make Multiple Users Admin
@@ -488,7 +480,6 @@ const deleteUsers = async () => {
     usersList.value = usersList.value.filter(
       (user) => !userUIDs.includes(user.uid)
     );
-
     selectedRows.value.splice(0, selectedRows.value.length);
   }
   confirmUsersDeletion.value = false;

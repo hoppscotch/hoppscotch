@@ -136,9 +136,9 @@ const {
 } = usePagedQuery(
   SharedRequestsDocument,
   (x) => x.infra.allShortcodes,
-  (x) => x.id,
   sharedRequestsPerPage,
-  { cursor: undefined, take: sharedRequestsPerPage, email: props.email }
+  { cursor: undefined, take: sharedRequestsPerPage, email: props.email },
+  (x) => x.id
 );
 
 // Return request endpoint from the request object
@@ -174,17 +174,17 @@ const deleteSharedRequestMutation = async (id: string | null) => {
     return;
   }
   const variables = { codeID: id };
-  await sharedRequestDeletion.executeMutation(variables).then((result) => {
-    if (result.error) {
-      toast.error(t('state.delete_request_failure'));
-    } else {
-      sharedRequests.value = sharedRequests.value.filter(
-        (request) => request.id !== id
-      );
-      refetch();
-      toast.success(t('state.delete_request_success'));
-    }
-  });
+  const result = await sharedRequestDeletion.executeMutation(variables);
+  if (result.error) {
+    toast.error(t('state.delete_request_failure'));
+  } else {
+    sharedRequests.value = sharedRequests.value.filter(
+      (request) => request.id !== id
+    );
+    refetch();
+    toast.success(t('state.delete_request_success'));
+  }
+
   confirmDeletion.value = false;
   deleteSharedRequestID.value = null;
 };

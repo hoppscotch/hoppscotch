@@ -24,10 +24,7 @@
       </div>
 
       <template v-for="(info, key) in userInfo" :key="key">
-        <div
-          v-if="info.label === t('users.name')"
-          class="flex flex-col space-y-3"
-        >
+        <div v-if="key === 'displayName'" class="flex flex-col space-y-3">
           <label class="text-accentContrast" for="teamname"
             >{{ t('users.name') }}
           </label>
@@ -49,11 +46,9 @@
                   filled
                   :icon="isNameBeingEdited ? IconSave : IconEdit"
                   :label="
-                    isNameBeingEdited
-                      ? `${t('users.rename')}`
-                      : `${t('users.edit')}`
+                    isNameBeingEdited ? t('users.rename') : t('users.edit')
                   "
-                  @click="handleTeamNameEdit"
+                  @click="handleNameEdit"
                 />
               </template>
             </HoppSmartInput>
@@ -104,20 +99,20 @@
 </template>
 
 <script setup lang="ts">
-import { format } from 'date-fns';
 import { useMutation } from '@urql/vue';
-import { ref, computed, onMounted } from 'vue';
+import { format } from 'date-fns';
+import { computed, onMounted, ref } from 'vue';
 import { useI18n } from '~/composables/i18n';
 import { useToast } from '~/composables/toast';
 import {
-  UserInfoQuery,
   UpdateUserDisplayNameByAdminDocument,
+  UserInfoQuery,
 } from '~/helpers/backend/graphql';
+import IconEdit from '~icons/lucide/edit';
+import IconSave from '~icons/lucide/save';
 import IconTrash from '~icons/lucide/trash';
 import IconUserCheck from '~icons/lucide/user-check';
 import IconUserMinus from '~icons/lucide/user-minus';
-import IconEdit from '~icons/lucide/edit';
-import IconSave from '~icons/lucide/save';
 
 const t = useI18n();
 const toast = useToast();
@@ -163,16 +158,23 @@ const userInfo = {
   },
 };
 
+// Contains the actual user name
 const userName = computed({
   get: () => props.user.displayName,
   set: (value) => {
-    props.user.displayName = value;
+    return value;
   },
 });
 
-// Contains the user name that is being edited
-const currentUserName = ref(displayName);
+// Contains the stored user name from the actual name before being edited
+const currentUserName = ref('');
 
+// Set the current user name to the actual user name
+onMounted(() => {
+  if (displayName) currentUserName.value = displayName;
+});
+
+// Contains the user name that is being edited
 const updatedUserName = computed({
   get: () => currentUserName.value,
   set: (value) => {
@@ -180,15 +182,11 @@ const updatedUserName = computed({
   },
 });
 
-onMounted(() => {
-  currentUserName.value = displayName;
-});
-
 // Rename the user
 const isNameBeingEdited = ref(false);
 const userRename = useMutation(UpdateUserDisplayNameByAdminDocument);
 
-const handleTeamNameEdit = () => {
+const handleNameEdit = () => {
   if (isNameBeingEdited.value) {
     // If the name is not changed, then return control
     if (userName.value !== updatedUserName.value) {

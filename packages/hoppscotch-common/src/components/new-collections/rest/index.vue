@@ -151,6 +151,10 @@ import { TeamCollection } from "~/helpers/backend/graphql"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import { useReadonlyStream } from "~/composables/stream"
 import { updateInheritedPropertiesForAffectedRequests } from "~/helpers/collection/collection"
+import {
+  resolveSaveContextOnRequestReorder,
+  getRequestsByPath,
+} from "~/helpers/collection/request"
 
 const t = useI18n()
 const toast = useToast()
@@ -344,21 +348,45 @@ const onAddRequest = async (requestName: string) => {
     return
   }
 
-  const result = await workspaceService.createRESTRequest(
+  const newRequest = {
+    ...cloneDeep(tabs.currentActiveTab.value.document.request),
+    name: requestName,
+  }
+
+  const requestHandleResult = await workspaceService.createRESTRequest(
     collectionHandle,
-    requestName,
-    true
+    newRequest
   )
 
-  if (E.isLeft(result)) {
+  if (E.isLeft(requestHandleResult)) {
     // INVALID_COLLECTION_HANDLE
     return
   }
 
-  if (result.right.value.type === "invalid") {
+  const requestHandle = requestHandleResult.right
+
+  if (requestHandle.value.type === "invalid") {
     // COLLECTION_INVALIDATED
     return
   }
+
+  const { auth, headers } = cascadeParentCollectionForHeaderAuth(
+    requestHandle.value.data.collectionID,
+    "rest"
+  )
+
+  tabs.createNewTab({
+    request: newRequest,
+    isDirty: false,
+    saveContext: {
+      originLocation: "workspace-user-collection",
+      requestHandle,
+    },
+    inheritedProperties: {
+      auth,
+      headers,
+    },
+  })
 
   displayModalAddRequest(false)
 }
@@ -612,6 +640,28 @@ const onRemoveRequest = async () => {
     return
   }
 
+  const possibleTab = tabs.getTabRefWithSaveContext({
+    originLocation: "workspace-user-collection",
+    requestHandle,
+  })
+
+  // If there is a tab attached to this request, dissociate its state and mark it dirty
+  if (possibleTab) {
+    possibleTab.value.document.saveContext = null
+    possibleTab.value.document.isDirty = true
+  }
+
+  const { collectionID, requestID } = requestHandle.value.data
+  const requestIndex = parseInt(requestID.split("/").slice(-1)[0])
+
+  // The same function is used to reorder requests since after removing, it's basically doing reorder
+  resolveSaveContextOnRequestReorder({
+    lastIndex: requestIndex,
+    newIndex: -1,
+    folderPath: collectionID,
+    length: getRequestsByPath(restCollectionState.value, collectionID).length,
+  })
+
   toast.success(t("state.deleted"))
   displayConfirmModal(false)
 }
@@ -636,7 +686,6 @@ const selectRequest = async (requestIndexPath: string) => {
     return
   }
 
-  const requestIndex = parseInt(requestIndexPath.split("/").slice(-1)[0])
   const request = requestHandle.value.data.request as HoppRESTRequest
 
   // If there is a request with this save context, switch into it
@@ -647,9 +696,8 @@ const selectRequest = async (requestIndexPath: string) => {
     "rest"
   )
   possibleTab = tabs.getTabRefWithSaveContext({
-    originLocation: "user-collection",
-    requestIndex,
-    folderPath: collectionIndexPath,
+    originLocation: "workspace-user-collection",
+    requestHandle,
   })
   if (possibleTab) {
     tabs.setActiveTab(possibleTab.value.id)
@@ -659,9 +707,8 @@ const selectRequest = async (requestIndexPath: string) => {
       request: cloneDeep(request),
       isDirty: false,
       saveContext: {
-        originLocation: "user-collection",
-        folderPath: collectionIndexPath,
-        requestIndex,
+        originLocation: "workspace-user-collection",
+        requestHandle,
       },
       inheritedProperties: {
         auth,

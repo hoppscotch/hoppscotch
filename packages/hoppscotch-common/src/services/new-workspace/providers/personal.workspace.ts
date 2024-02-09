@@ -9,7 +9,6 @@ import { useStreamStatic } from "~/composables/stream"
 import {
   addRESTCollection,
   addRESTFolder,
-  cascadeParentCollectionForHeaderAuth,
   editRESTCollection,
   editRESTFolder,
   editRESTRequest,
@@ -36,12 +35,6 @@ import {
   WorkspaceRequest,
 } from "~/services/new-workspace/workspace"
 
-import { cloneDeep } from "lodash-es"
-import {
-  getRequestsByPath,
-  resolveSaveContextOnRequestReorder,
-} from "~/helpers/collection/request"
-import { RESTTabService } from "~/services/tab/rest"
 import IconUser from "~icons/lucide/user"
 import { NewWorkspaceService } from ".."
 import { HoppRESTRequest } from "@hoppscotch/data"
@@ -60,7 +53,6 @@ export class PersonalWorkspaceProviderService
   public readonly providerID = "PERSONAL_WORKSPACE_PROVIDER"
 
   private workspaceService = this.bind(NewWorkspaceService)
-  private tabs = this.bind(RESTTabService)
 
   public workspaceDecor: Ref<WorkspaceDecor> = ref({
     headerCurrentIcon: IconUser,
@@ -380,8 +372,7 @@ export class PersonalWorkspaceProviderService
 
   public createRESTRequest(
     parentCollHandle: HandleRef<WorkspaceCollection>,
-    requestName: string,
-    openInNewTab: boolean
+    newRequest: HoppRESTRequest
   ): Promise<E.Either<unknown, HandleRef<WorkspaceRequest>>> {
     if (
       parentCollHandle.value.type !== "ok" ||
@@ -408,33 +399,7 @@ export class PersonalWorkspaceProviderService
           const { collectionID, providerID, workspaceID } =
             parentCollHandle.value.data
 
-          const newRequest = {
-            ...cloneDeep(this.tabs.currentActiveTab.value.document.request),
-            name: requestName,
-          }
-
           const insertionIndex = saveRESTRequestAs(collectionID, newRequest)
-
-          if (openInNewTab) {
-            const { auth, headers } = cascadeParentCollectionForHeaderAuth(
-              collectionID,
-              "rest"
-            )
-
-            this.tabs.createNewTab({
-              request: newRequest,
-              isDirty: false,
-              saveContext: {
-                originLocation: "user-collection",
-                folderPath: collectionID,
-                requestIndex: insertionIndex,
-              },
-              inheritedProperties: {
-                auth,
-                headers,
-              },
-            })
-          }
 
           platform.analytics?.logEvent({
             type: "HOPP_SAVE_REQUEST",
@@ -488,35 +453,12 @@ export class PersonalWorkspaceProviderService
           const { collectionID, requestID } = requestHandle.value.data
           const requestIndex = parseInt(requestID.split("/").slice(-1)[0])
 
-          const possibleTab = this.tabs.getTabRefWithSaveContext({
-            originLocation: "user-collection",
-            folderPath: collectionID,
-            requestIndex,
-          })
-
-          // If there is a tab attached to this request, dissociate its state and mark it dirty
-          if (possibleTab) {
-            possibleTab.value.document.saveContext = null
-            possibleTab.value.document.isDirty = true
-          }
-
           const requestToRemove = navigateToFolderWithIndexPath(
             restCollectionStore.value.state,
             collectionID.split("/").map((id) => parseInt(id))
           )?.requests[requestIndex]
 
           removeRESTRequest(collectionID, requestIndex, requestToRemove?.id)
-
-          // the same function is used to reorder requests since after removing, it's basically doing reorder
-          resolveSaveContextOnRequestReorder({
-            lastIndex: requestIndex,
-            newIndex: -1,
-            folderPath: collectionID,
-            length: getRequestsByPath(
-              this.restCollectionState.value.state,
-              collectionID
-            ).length,
-          })
 
           return {
             type: "ok",
@@ -617,14 +559,7 @@ export class PersonalWorkspaceProviderService
           const collection = navigateToFolderWithIndexPath(
             this.restCollectionState.value.state,
             collectionID.split("/").map((x) => parseInt(x))
-          )
-
-          if (!collection) {
-            return {
-              type: "invalid" as const,
-              reason: "INVALID_COLLECTION_HANDLE" as const,
-            }
-          }
+          ) as HoppCollection
 
           const { providerID, workspaceID } = workspaceHandle.value.data
 
@@ -634,7 +569,7 @@ export class PersonalWorkspaceProviderService
               providerID,
               workspaceID,
               collectionID,
-              name: collection.name,
+              name: collection?.name,
             },
           }
         })
@@ -696,15 +631,7 @@ export class PersonalWorkspaceProviderService
           )
 
           // Grab the request with it's index
-          const request = (collection?.requests[requestIndex] ??
-            null) as HoppRESTRequest | null
-
-          if (!request) {
-            return {
-              type: "invalid" as const,
-              reason: "INVALID_REQUEST_HANDLE" as const,
-            }
-          }
+          const request = collection?.requests[requestIndex] as HoppRESTRequest
 
           return {
             type: "ok",

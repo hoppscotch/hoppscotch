@@ -58,8 +58,7 @@ export interface WorkspaceProvider {
   ): Promise<E.Either<unknown, HandleRef<boolean>>>
   createRESTRequest(
     parentCollectionHandle: HandleRef<WorkspaceCollection>,
-    requestName: string,
-    openInNewTab: boolean
+    request: HoppRESTRequest
   ): Promise<E.Either<unknown, HandleRef<WorkspaceRequest>>>
   updateRESTRequest(
     requestHandle: HandleRef<WorkspaceRequest>,

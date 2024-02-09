@@ -3,8 +3,21 @@ import { HoppRESTResponse } from "../types/HoppRESTResponse"
 import { HoppTestResult } from "../types/HoppTestResult"
 import { RESTOptionTabs } from "~/components/http/RequestOptions.vue"
 import { HoppInheritedProperty } from "../types/HoppInheritedProperties"
+import { HandleRef } from "~/services/new-workspace/handle"
+import { WorkspaceRequest } from "~/services/new-workspace/workspace"
 
 export type HoppRESTSaveContext =
+  | {
+      /**
+       * The origin source of the request
+       */
+      // TODO: Make this `user-collection` after porting all usages
+      originLocation: "workspace-user-collection"
+      /**
+       * Handle to a request in the workspace
+       */
+      requestHandle: HandleRef<WorkspaceRequest>
+    }
   | {
       /**
        * The origin source of the request

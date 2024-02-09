@@ -3,6 +3,7 @@ import * as S from "fp-ts/string"
 import cloneDeep from "lodash/cloneDeep"
 import V0_VERSION from "./v/0"
 import V1_VERSION from "./v/1"
+import V2_VERSION from "./v/2"
 import { createVersionedEntity, InferredEntity } from "verzod"
 import { lodashIsEqualEq, mapThenEq, undefinedEq } from "../utils/eq"
 import {
@@ -11,6 +12,7 @@ import {
   HoppRESTHeaders,
   HoppRESTParams,
 } from "./v/1"
+import { HoppRESTRequestVariables } from "./v/2"
 import { z } from "zod"
 
 export * from "./content-types"
@@ -28,16 +30,19 @@ export {
   HoppRESTHeaders,
 } from "./v/1"
 
+export { HoppRESTRequestVariables } from "./v/2"
+
 const versionedObject = z.object({
   // v is a stringified number
   v: z.string().regex(/^\d+$/).transform(Number),
 })
 
 export const HoppRESTRequest = createVersionedEntity({
-  latestVersion: 1,
+  latestVersion: 2,
   versionMap: {
     0: V0_VERSION,
     1: V1_VERSION,
+    2: V2_VERSION,
   },
   getVersion(data) {
     // For V1 onwards we have the v string storing the number
@@ -73,12 +78,18 @@ const HoppRESTRequestEq = Eq.struct<HoppRESTRequest>({
   name: S.Eq,
   preRequestScript: S.Eq,
   testScript: S.Eq,
+  requestVariables: mapThenEq(
+    (arr) => arr.filter((v: any) => v.key !== "" && v.value !== ""),
+    lodashIsEqualEq
+  ),
 })
 
-export const RESTReqSchemaVersion = "1"
+export const RESTReqSchemaVersion = "2"
 
 export type HoppRESTParam = HoppRESTRequest["params"][number]
 export type HoppRESTHeader = HoppRESTRequest["headers"][number]
+export type HoppRESTRequestVariable =
+  HoppRESTRequest["requestVariables"][number]
 
 export const isEqualHoppRESTRequest = HoppRESTRequestEq.equals
 
@@ -144,6 +155,14 @@ export function safelyExtractRESTRequest(
         req.headers = result.data
       }
     }
+
+    if ("requestVariables" in x) {
+      const result = HoppRESTRequestVariables.safeParse(x.requestVariables)
+
+      if (result.success) {
+        req.requestVariables = result.data
+      }
+    }
   }
 
   return req
@@ -160,7 +179,7 @@ export function makeRESTRequest(
 
 export function getDefaultRESTRequest(): HoppRESTRequest {
   return {
-    v: "1",
+    v: "2",
     endpoint: "https://echo.hoppscotch.io",
     name: "Untitled",
     params: [],
@@ -176,6 +195,7 @@ export function getDefaultRESTRequest(): HoppRESTRequest {
       contentType: null,
       body: null,
     },
+    requestVariables: [],
   }
 }
 

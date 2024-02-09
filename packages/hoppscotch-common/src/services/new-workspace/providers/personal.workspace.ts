@@ -1,7 +1,7 @@
 import { HoppCollection, makeCollection } from "@hoppscotch/data"
 import { Service } from "dioc"
 import * as E from "fp-ts/Either"
-import { Ref, computed, markRaw, nextTick, ref, shallowRef } from "vue"
+import { Ref, computed, markRaw, ref, shallowRef } from "vue"
 
 import PersonalWorkspaceSelector from "~/components/workspace/PersonalWorkspaceSelector.vue"
 import { useStreamStatic } from "~/composables/stream"
@@ -23,10 +23,7 @@ import {
 import { platform } from "~/platform"
 
 import { HandleRef } from "~/services/new-workspace/handle"
-import {
-  UpdatedCollectionProperties,
-  WorkspaceProvider,
-} from "~/services/new-workspace/provider"
+import { WorkspaceProvider } from "~/services/new-workspace/provider"
 import {
   RESTCollectionChildrenView,
   RESTCollectionViewItem,
@@ -52,7 +49,6 @@ import path from "path"
 import {
   resolveSaveContextOnCollectionReorder,
   getFoldersByPath,
-  updateInheritedPropertiesForAffectedRequests,
 } from "~/helpers/collection/collection"
 
 export class PersonalWorkspaceProviderService
@@ -209,9 +205,9 @@ export class PersonalWorkspaceProviderService
     )
   }
 
-  public editRESTRootCollection(
+  public editRESTCollection(
     collHandle: HandleRef<WorkspaceCollection>,
-    newCollectionName: string
+    updatedCollection: HoppCollection
   ): Promise<E.Either<unknown, HandleRef<boolean>>> {
     if (
       collHandle.value.type !== "ok" ||
@@ -249,129 +245,6 @@ export class PersonalWorkspaceProviderService
               reason: "COLLECTION_NOT_FOUND" as const,
             }
           }
-
-          const updatedCollection = {
-            ...collection,
-            name: newCollectionName,
-          }
-
-          const collectionIndex = parseInt(collectionID)
-          editRESTCollection(collectionIndex, updatedCollection)
-
-          return {
-            type: "ok",
-            data: true,
-          }
-        })
-      )
-    )
-  }
-
-  public editRESTChildCollection(
-    collHandle: HandleRef<WorkspaceCollection>,
-    newCollectionName: string
-  ): Promise<E.Either<unknown, HandleRef<boolean>>> {
-    if (
-      collHandle.value.type !== "ok" ||
-      collHandle.value.data.providerID !== this.providerID ||
-      collHandle.value.data.workspaceID !== "personal"
-    ) {
-      return Promise.resolve(E.left("INVALID_WORKSPACE_HANDLE" as const))
-    }
-
-    return Promise.resolve(
-      E.right(
-        computed(() => {
-          if (
-            collHandle.value.type !== "ok" ||
-            collHandle.value.data.providerID !== this.providerID ||
-            collHandle.value.data.workspaceID !== "personal"
-          ) {
-            return {
-              type: "invalid" as const,
-              reason: "WORKSPACE_INVALIDATED" as const,
-            }
-          }
-
-          const { collectionID } = collHandle.value.data
-
-          const collection: HoppCollection | null =
-            navigateToFolderWithIndexPath(
-              this.restCollectionState.value.state,
-              collectionID.split("/").map((id) => parseInt(id))
-            )
-
-          if (!collection) {
-            return {
-              type: "invalid" as const,
-              reason: "COLLECTION_NOT_FOUND" as const,
-            }
-          }
-
-          const updatedCollection = {
-            ...collection,
-            name: newCollectionName,
-          }
-
-          editRESTFolder(collectionID, updatedCollection)
-
-          return {
-            type: "ok",
-            data: true,
-          }
-        })
-      )
-    )
-  }
-
-  public editRESTCollectionProperties(
-    collHandle: HandleRef<WorkspaceCollection>,
-    updatedCollProps: UpdatedCollectionProperties
-  ): Promise<E.Either<unknown, HandleRef<boolean>>> {
-    if (
-      collHandle.value.type !== "ok" ||
-      collHandle.value.data.providerID !== this.providerID ||
-      collHandle.value.data.workspaceID !== "personal"
-    ) {
-      return Promise.resolve(E.left("INVALID_WORKSPACE_HANDLE" as const))
-    }
-
-    return Promise.resolve(
-      E.right(
-        computed(() => {
-          if (
-            collHandle.value.type !== "ok" ||
-            collHandle.value.data.providerID !== this.providerID ||
-            collHandle.value.data.workspaceID !== "personal"
-          ) {
-            return {
-              type: "invalid" as const,
-              reason: "WORKSPACE_INVALIDATED" as const,
-            }
-          }
-
-          const { collectionID } = collHandle.value.data
-
-          const { auth, headers } = updatedCollProps
-
-          const collection: HoppCollection | null =
-            navigateToFolderWithIndexPath(
-              this.restCollectionState.value.state,
-              collectionID.split("/").map((id) => parseInt(id))
-            )
-
-          if (!collection) {
-            return {
-              type: "invalid" as const,
-              reason: "COLLECTION_NOT_FOUND" as const,
-            }
-          }
-
-          const updatedCollection = {
-            ...collection,
-            auth,
-            headers,
-          } as HoppCollection
 
           const isRootCollection = collectionID.split("/").length === 1
 
@@ -380,20 +253,6 @@ export class PersonalWorkspaceProviderService
           } else {
             editRESTFolder(collectionID, updatedCollection)
           }
-
-          const { auth: cascadedAuth, headers: cascadedHeaders } =
-            cascadeParentCollectionForHeaderAuth(collectionID, "rest")
-
-          nextTick(() => {
-            updateInheritedPropertiesForAffectedRequests(
-              collectionID,
-              {
-                auth: cascadedAuth,
-                headers: cascadedHeaders,
-              },
-              "rest"
-            )
-          })
 
           return {
             type: "ok",

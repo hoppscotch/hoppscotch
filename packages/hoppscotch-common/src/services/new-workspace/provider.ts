@@ -7,7 +7,11 @@ import {
   WorkspaceDecor,
   WorkspaceRequest,
 } from "./workspace"
-import { RESTCollectionChildrenView, RootRESTCollectionView } from "./view"
+import {
+  RESTCollectionLevelAuthHeadersView,
+  RESTCollectionChildrenView,
+  RootRESTCollectionView,
+} from "./view"
 import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
 
 export interface WorkspaceProvider {
@@ -33,38 +37,34 @@ export interface WorkspaceProvider {
   getRESTCollectionChildrenView(
     collectionHandle: HandleRef<WorkspaceCollection>
   ): Promise<E.Either<unknown, HandleRef<RESTCollectionChildrenView>>>
-  // getRESTCollectionAuthHeaders(
-  //   collectionHandle: HandleRef<WorkspaceCollection>
-  // ): Promise<E.Either<unknown, HandleRef<RESTCollectionAuthHeadersView>>>
+  getRESTCollectionLevelAuthHeadersView(
+    collectionHandle: HandleRef<WorkspaceCollection>
+  ): Promise<E.Either<unknown, HandleRef<RESTCollectionLevelAuthHeadersView>>>
 
   createRESTRootCollection(
     workspaceHandle: HandleRef<Workspace>,
-    collectionName: string,
-    newCollectionID: string
+    newCollection: Partial<HoppCollection>
   ): Promise<E.Either<unknown, HandleRef<WorkspaceCollection>>>
   createRESTChildCollection(
     parentCollectionHandle: HandleRef<WorkspaceCollection>,
-    collectionName: string
+    newChildCollection: Partial<HoppCollection>
   ): Promise<E.Either<unknown, HandleRef<WorkspaceCollection>>>
-  editRESTCollection(
+  updateRESTCollection(
     collectionHandle: HandleRef<WorkspaceCollection>,
-    updatedCollection: HoppCollection
-  ): Promise<E.Either<unknown, HandleRef<boolean>>>
-  removeRESTRootCollection(
+    updatedCollection: Partial<HoppCollection>
+  ): Promise<E.Either<unknown, void>>
+  removeRESTCollection(
     collectionHandle: HandleRef<WorkspaceCollection>
-  ): Promise<E.Either<unknown, HandleRef<boolean>>>
-  removeRESTChildCollection(
-    parentCollectionHandle: HandleRef<WorkspaceCollection>
-  ): Promise<E.Either<unknown, HandleRef<boolean>>>
+  ): Promise<E.Either<unknown, void>>
   createRESTRequest(
     parentCollectionHandle: HandleRef<WorkspaceCollection>,
-    request: HoppRESTRequest
+    newRequest: HoppRESTRequest
   ): Promise<E.Either<unknown, HandleRef<WorkspaceRequest>>>
   updateRESTRequest(
     requestHandle: HandleRef<WorkspaceRequest>,
-    updatedRequest: HoppRESTRequest
-  ): Promise<E.Either<unknown, HandleRef<boolean>>>
+    updatedRequest: Partial<HoppRESTRequest>
+  ): Promise<E.Either<unknown, HandleRef<boolean>["value"]>>
   removeRESTRequest(
     requestHandle: HandleRef<WorkspaceRequest>
-  ): Promise<E.Either<unknown, HandleRef<boolean>>>
+  ): Promise<E.Either<unknown, void>>
 }

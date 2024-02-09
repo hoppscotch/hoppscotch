@@ -83,14 +83,14 @@
     />
     <CollectionsEdit
       :show="showModalEditRootColl"
-      :editing-collection-name="editingRootCollName ?? ''"
+      :editing-collection-name="editingRootCollectionName ?? ''"
       :loading-state="modalLoadingState"
       @hide-modal="displayModalEditCollection(false)"
       @submit="onEditRootCollection"
     />
     <CollectionsEditFolder
       :show="showModalEditChildColl"
-      :editing-folder-name="editingChildCollName ?? ''"
+      :editing-folder-name="editingChildCollectionName ?? ''"
       :loading-state="modalLoadingState"
       @submit="onEditChildCollection"
       @hide-modal="displayModalEditChildCollection(false)"
@@ -126,7 +126,7 @@
 import * as E from "fp-ts/lib/Either"
 
 import { useService } from "dioc/vue"
-import { markRaw, ref } from "vue"
+import { markRaw, nextTick, ref } from "vue"
 
 import { useI18n } from "~/composables/i18n"
 import { useToast } from "~/composables/toast"
@@ -149,6 +149,7 @@ import { HoppCollection, HoppRESTAuth, HoppRESTRequest } from "@hoppscotch/data"
 import { TeamCollection } from "~/helpers/backend/graphql"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import { useStreamStatic } from "~/composables/stream"
+import { updateInheritedPropertiesForAffectedRequests } from "~/helpers/collection/collection"
 
 const t = useI18n()
 const toast = useToast()
@@ -182,10 +183,10 @@ const showModalEditRequest = ref(false)
 const showModalEditProperties = ref(false)
 const showConfirmModal = ref(false)
 
-const editingCollIndexPath = ref<string>("")
-const editingChildCollIndexPath = ref<string>("")
-const editingRootCollName = ref<string>("")
-const editingChildCollName = ref<string>("")
+const editingCollectionIndexPath = ref<string>("")
+const editingChildCollectionIndexPath = ref<string>("")
+const editingRootCollectionName = ref<string>("")
+const editingChildCollectionName = ref<string>("")
 const editingRequestName = ref<string>("")
 const editingRequestIndexPath = ref<string>("")
 
@@ -269,33 +270,34 @@ const addNewRootCollection = async (name: string) => {
 }
 
 const removeRootCollection = (collPathIndex: string) => {
-  editingCollIndexPath.value = collPathIndex
+  editingCollectionIndexPath.value = collPathIndex
 
   confirmModalTitle.value = `${t("confirm.remove_collection")}`
   displayConfirmModal(true)
 }
 
 const onRemoveRootCollection = async () => {
-  const collIndexPath = editingCollIndexPath.value
+  const collectionIndexPath = editingCollectionIndexPath.value
 
-  const collHandleResult = await workspaceService.getCollectionHandle(
+  const collectionHandleResult = await workspaceService.getCollectionHandle(
     props.workspaceHandle,
-    collIndexPath
+    collectionIndexPath
   )
 
-  if (E.isLeft(collHandleResult)) {
+  if (E.isLeft(collectionHandleResult)) {
     // INVALID_WORKSPACE_HANDLE
     return
   }
 
-  const collHandle = collHandleResult.right
+  const collectionHandle = collectionHandleResult.right
 
-  if (collHandle.value.type === "invalid") {
+  if (collectionHandle.value.type === "invalid") {
     // WORKSPACE_INVALIDATED | INVALID_COLLECTION_HANDLE
     return
   }
 
-  const result = await workspaceService.removeRESTRootCollection(collHandle)
+  const result =
+    await workspaceService.removeRESTRootCollection(collectionHandle)
 
   if (E.isLeft(result)) {
     // INVALID_COLLECTION_HANDLE
@@ -312,32 +314,32 @@ const onRemoveRootCollection = async () => {
 }
 
 const addRequest = (requestPathIndex: string) => {
-  editingCollIndexPath.value = requestPathIndex
+  editingCollectionIndexPath.value = requestPathIndex
   displayModalAddRequest(true)
 }
 
 const onAddRequest = async (requestName: string) => {
-  const parentCollIndexPath = editingCollIndexPath.value
+  const parentCollectionIndexPath = editingCollectionIndexPath.value
 
-  const collHandleResult = await workspaceService.getCollectionHandle(
+  const collectionHandleResult = await workspaceService.getCollectionHandle(
     props.workspaceHandle,
-    parentCollIndexPath
+    parentCollectionIndexPath
   )
 
-  if (E.isLeft(collHandleResult)) {
+  if (E.isLeft(collectionHandleResult)) {
     // INVALID_WORKSPACE_HANDLE
     return
   }
 
-  const collHandle = collHandleResult.right
+  const collectionHandle = collectionHandleResult.right
 
-  if (collHandle.value.type === "invalid") {
+  if (collectionHandle.value.type === "invalid") {
     // WORKSPACE_INVALIDATED | INVALID_COLLECTION_HANDLE
     return
   }
 
   const result = await workspaceService.createRESTRequest(
-    collHandle,
+    collectionHandle,
     requestName,
     true
   )
@@ -355,34 +357,34 @@ const onAddRequest = async (requestName: string) => {
   displayModalAddRequest(false)
 }
 
-const addChildCollection = (parentCollIndexPath: string) => {
-  editingCollIndexPath.value = parentCollIndexPath
+const addChildCollection = (parentCollectionIndexPath: string) => {
+  editingCollectionIndexPath.value = parentCollectionIndexPath
   displayModalAddChildColl(true)
 }
 
-const onAddChildCollection = async (childCollName: string) => {
-  const parentCollIndexPath = editingCollIndexPath.value
+const onAddChildCollection = async (childCollectionName: string) => {
+  const parentCollectionIndexPath = editingCollectionIndexPath.value
 
-  const collHandleResult = await workspaceService.getCollectionHandle(
+  const collectionHandleResult = await workspaceService.getCollectionHandle(
     props.workspaceHandle,
-    parentCollIndexPath
+    parentCollectionIndexPath
   )
 
-  if (E.isLeft(collHandleResult)) {
+  if (E.isLeft(collectionHandleResult)) {
     // INVALID_WORKSPACE_HANDLE
     return
   }
 
-  const collHandle = collHandleResult.right
+  const collectionHandle = collectionHandleResult.right
 
-  if (collHandle.value.type === "invalid") {
+  if (collectionHandle.value.type === "invalid") {
     // WORKSPACE_INVALIDATED | INVALID_COLLECTION_HANDLE
     return
   }
 
   const result = await workspaceService.createRESTChildCollection(
-    collHandle,
-    childCollName
+    collectionHandle,
+    childCollectionName
   )
 
   if (E.isLeft(result)) {
@@ -399,40 +401,48 @@ const onAddChildCollection = async (childCollName: string) => {
 }
 
 const editRootCollection = (payload: {
-  collIndexPath: string
+  collectionIndexPath: string
   collectionName: string
 }) => {
-  const { collIndexPath, collectionName } = payload
+  const { collectionIndexPath, collectionName } = payload
 
-  editingCollIndexPath.value = collIndexPath
-  editingRootCollName.value = collectionName
+  editingCollectionIndexPath.value = collectionIndexPath
+  editingRootCollectionName.value = collectionName
 
   displayModalEditCollection(true)
 }
 
 const onEditRootCollection = async (newCollectionName: string) => {
-  const collID = editingCollIndexPath.value
+  const collectionIndexPath = editingCollectionIndexPath.value
 
-  const collHandleResult = await workspaceService.getCollectionHandle(
+  const collectionHandleResult = await workspaceService.getCollectionHandle(
     props.workspaceHandle,
-    collID
+    collectionIndexPath
   )
 
-  if (E.isLeft(collHandleResult)) {
+  if (E.isLeft(collectionHandleResult)) {
     // INVALID_WORKSPACE_HANDLE
     return
   }
 
-  const collHandle = collHandleResult.right
+  const collectionHandle = collectionHandleResult.right
 
-  if (collHandle.value.type === "invalid") {
+  if (collectionHandle.value.type === "invalid") {
     // WORKSPACE_INVALIDATED | INVALID_COLLECTION_HANDLE
     return
   }
 
-  const result = await workspaceService.editRESTRootCollection(
-    collHandle,
-    newCollectionName
+  // We're sure that the collection exists in the given `collectionIndexPath` as there's a validation happening in `getCollectionHandle` above
+  const updatedCollection = navigateToFolderWithIndexPath(
+    restCollectionStore.value.state,
+    collectionIndexPath.split("/").map((id) => parseInt(id))
+  ) as HoppCollection
+
+  updatedCollection.name = newCollectionName
+
+  const result = await workspaceService.editRESTCollection(
+    collectionHandle,
+    updatedCollection
   )
 
   if (E.isLeft(result)) {
@@ -450,40 +460,48 @@ const onEditRootCollection = async (newCollectionName: string) => {
 }
 
 const editChildCollection = (payload: {
-  collIndexPath: string
+  collectionIndexPath: string
   collectionName: string
 }) => {
-  const { collIndexPath, collectionName } = payload
+  const { collectionIndexPath, collectionName } = payload
 
-  editingChildCollIndexPath.value = collIndexPath
-  editingChildCollName.value = collectionName
+  editingChildCollectionIndexPath.value = collectionIndexPath
+  editingChildCollectionName.value = collectionName
 
   displayModalEditChildCollection(true)
 }
 
 const onEditChildCollection = async (newCollectionName: string) => {
-  const collID = editingChildCollIndexPath.value
+  const collectionIndexPath = editingChildCollectionIndexPath.value
 
-  const collHandleResult = await workspaceService.getCollectionHandle(
+  const collectionHandleResult = await workspaceService.getCollectionHandle(
     props.workspaceHandle,
-    collID
+    collectionIndexPath
   )
 
-  if (E.isLeft(collHandleResult)) {
+  if (E.isLeft(collectionHandleResult)) {
     // INVALID_WORKSPACE_HANDLE
     return
   }
 
-  const collHandle = collHandleResult.right
+  const collectionHandle = collectionHandleResult.right
 
-  if (collHandle.value.type === "invalid") {
+  if (collectionHandle.value.type === "invalid") {
     // WORKSPACE_INVALIDATED | INVALID_COLLECTION_HANDLE
     return
   }
 
-  const result = await workspaceService.editRESTChildCollection(
-    collHandle,
-    newCollectionName
+  // We're sure that the collection exists in the given `collectionIndexPath` as there's a validation happening in `getCollectionHandle` above
+  const updatedCollection = navigateToFolderWithIndexPath(
+    restCollectionStore.value.state,
+    collectionIndexPath.split("/").map((id) => parseInt(id))
+  ) as HoppCollection
+
+  updatedCollection.name = newCollectionName
+
+  const result = await workspaceService.editRESTCollection(
+    collectionHandle,
+    updatedCollection
   )
 
   if (E.isLeft(result)) {
@@ -500,35 +518,37 @@ const onEditChildCollection = async (newCollectionName: string) => {
   toast.success(t("collection.renamed"))
 }
 
-const removeChildCollection = (parentCollIndexPath: string) => {
-  editingCollIndexPath.value = parentCollIndexPath
+const removeChildCollection = (parentCollectionIndexPath: string) => {
+  editingCollectionIndexPath.value = parentCollectionIndexPath
 
   confirmModalTitle.value = `${t("confirm.remove_folder")}`
   displayConfirmModal(true)
 }
 
 const onRemoveChildCollection = async () => {
-  const parentCollIndexPath = editingCollIndexPath.value
+  const parentCollectionIndexPath = editingCollectionIndexPath.value
 
-  const parentCollHandleResult = await workspaceService.getCollectionHandle(
-    props.workspaceHandle,
-    parentCollIndexPath
-  )
+  const parentCollectionHandleResult =
+    await workspaceService.getCollectionHandle(
+      props.workspaceHandle,
+      parentCollectionIndexPath
+    )
 
-  if (E.isLeft(parentCollHandleResult)) {
+  if (E.isLeft(parentCollectionHandleResult)) {
     // INVALID_WORKSPACE_HANDLE
     return
   }
 
-  const parentCollHandle = parentCollHandleResult.right
+  const parentCollectionHandle = parentCollectionHandleResult.right
 
-  if (parentCollHandle.value.type === "invalid") {
+  if (parentCollectionHandle.value.type === "invalid") {
     // WORKSPACE_INVALIDATED | INVALID_COLLECTION_HANDLE
     return
   }
 
-  const result =
-    await workspaceService.removeRESTChildCollection(parentCollHandle)
+  const result = await workspaceService.removeRESTChildCollection(
+    parentCollectionHandle
+  )
 
   if (E.isLeft(result)) {
     // INVALID_COLLECTION_HANDLE
@@ -545,9 +565,9 @@ const onRemoveChildCollection = async () => {
 }
 
 const removeRequest = (requestIndexPath: string) => {
-  const collIndexPath = requestIndexPath.split("/").slice(0, -1).join("/")
+  const collectionIndexPath = requestIndexPath.split("/").slice(0, -1).join("/")
 
-  editingCollIndexPath.value = collIndexPath
+  editingCollectionIndexPath.value = collectionIndexPath
   editingRequestIndexPath.value = requestIndexPath
 
   confirmModalTitle.value = `${t("confirm.remove_request")}`
@@ -591,7 +611,7 @@ const onRemoveRequest = async () => {
 }
 
 const selectRequest = async (requestIndexPath: string) => {
-  const collIndexPath = requestIndexPath.split("/").slice(0, -1).join("/")
+  const collectionIndexPath = requestIndexPath.split("/").slice(0, -1).join("/")
 
   const requestHandleResult = await workspaceService.getRequestHandle(
     props.workspaceHandle,
@@ -617,13 +637,13 @@ const selectRequest = async (requestIndexPath: string) => {
   let possibleTab = null
 
   const { auth, headers } = cascadeParentCollectionForHeaderAuth(
-    collIndexPath,
+    collectionIndexPath,
     "rest"
   )
   possibleTab = tabs.getTabRefWithSaveContext({
     originLocation: "user-collection",
     requestIndex,
-    folderPath: collIndexPath,
+    folderPath: collectionIndexPath,
   })
   if (possibleTab) {
     tabs.setActiveTab(possibleTab.value.id)
@@ -634,7 +654,7 @@ const selectRequest = async (requestIndexPath: string) => {
       isDirty: false,
       saveContext: {
         originLocation: "user-collection",
-        folderPath: collIndexPath,
+        folderPath: collectionIndexPath,
         requestIndex,
       },
       inheritedProperties: {
@@ -646,7 +666,7 @@ const selectRequest = async (requestIndexPath: string) => {
 }
 
 const duplicateRequest = async (requestIndexPath: string) => {
-  const collPath = requestIndexPath.split("/").slice(0, -1).join("/")
+  const collectionIndexPath = requestIndexPath.split("/").slice(0, -1).join("/")
 
   const requestHandleResult = await workspaceService.getRequestHandle(
     props.workspaceHandle,
@@ -672,7 +692,7 @@ const duplicateRequest = async (requestIndexPath: string) => {
     name: `${request.name} - ${t("action.duplicate")}`,
   }
 
-  saveRESTRequestAs(collPath, newRequest)
+  saveRESTRequestAs(collectionIndexPath, newRequest)
 
   toast.success(t("request.duplicated"))
 }
@@ -683,9 +703,9 @@ const editRequest = (payload: {
 }) => {
   const { requestIndexPath, requestName } = payload
 
-  const collPath = requestIndexPath.split("/").slice(0, -1).join("/")
+  const collectionIndexPath = requestIndexPath.split("/").slice(0, -1).join("/")
 
-  editingCollIndexPath.value = collPath
+  editingCollectionIndexPath.value = collectionIndexPath
   editingRequestIndexPath.value = requestIndexPath
 
   editingRequestName.value = requestName
@@ -737,8 +757,8 @@ const onEditRequest = async (newReqName: string) => {
   toast.success(t("request.renamed"))
 }
 
-const editCollectionProperties = async (collIndexPath: string) => {
-  const parentIndex = collIndexPath.split("/").slice(0, -1).join("/") // remove last folder to get parent folder
+const editCollectionProperties = async (collectionIndexPath: string) => {
+  const parentIndex = collectionIndexPath.split("/").slice(0, -1).join("/") // remove last folder to get parent folder
 
   let inheritedProperties = {
     auth: {
@@ -770,19 +790,19 @@ const editCollectionProperties = async (collIndexPath: string) => {
     }
   }
 
-  const collHandleResult = await workspaceService.getCollectionHandle(
+  const collectionHandleResult = await workspaceService.getCollectionHandle(
     props.workspaceHandle,
-    collIndexPath
+    collectionIndexPath
   )
 
-  if (E.isLeft(collHandleResult)) {
+  if (E.isLeft(collectionHandleResult)) {
     // INVALID_WORKSPACE_HANDLE
     return
   }
 
-  const collHandle = collHandleResult.right
+  const collectionHandle = collectionHandleResult.right
 
-  if (collHandle.value.type === "invalid") {
+  if (collectionHandle.value.type === "invalid") {
     // WORKSPACE_INVALIDATED | INVALID_COLLECTION_HANDLE
     return
   }
@@ -797,13 +817,13 @@ const editCollectionProperties = async (collIndexPath: string) => {
 
   const collection = navigateToFolderWithIndexPath(
     restCollectionState.value.state,
-    collIndexPath.split("/").map((i) => parseInt(i))
+    collectionIndexPath.split("/").map((id) => parseInt(id))
   )
 
   editingProperties.value = {
     collection,
-    isRootCollection: isAlreadyInRoot(collIndexPath),
-    path: collIndexPath,
+    isRootCollection: isAlreadyInRoot(collectionIndexPath),
+    path: collectionIndexPath,
     inheritedProperties,
   }
 
@@ -813,30 +833,42 @@ const editCollectionProperties = async (collIndexPath: string) => {
 const setCollectionProperties = async (updatedCollectionProps: {
   auth: HoppRESTAuth
   headers: HoppCollection["headers"]
-  collIndexPath: string
+  collectionIndexPath: string
 }) => {
-  const { collIndexPath, auth, headers } = updatedCollectionProps
+  const { collectionIndexPath, auth, headers } = updatedCollectionProps
 
-  const collHandleResult = await workspaceService.getCollectionHandle(
+  const collectionHandleResult = await workspaceService.getCollectionHandle(
     props.workspaceHandle,
-    collIndexPath
+    collectionIndexPath
   )
 
-  if (E.isLeft(collHandleResult)) {
+  if (E.isLeft(collectionHandleResult)) {
     // INVALID_WORKSPACE_HANDLE
     return
   }
 
-  const collHandle = collHandleResult.right
+  const collectionHandle = collectionHandleResult.right
 
-  if (collHandle.value.type === "invalid") {
+  if (collectionHandle.value.type === "invalid") {
     // WORKSPACE_INVALIDATED | INVALID_COLLECTION_HANDLE
     return
   }
 
-  const result = await workspaceService.editRESTCollectionProperties(
-    collHandle,
-    { auth, headers }
+  // We're sure that the collection exists in the given `collectionIndexPath` as there's a validation happening in `getCollectionHandle` above
+  const collection = navigateToFolderWithIndexPath(
+    restCollectionStore.value.state,
+    collectionIndexPath.split("/").map((id) => parseInt(id))
+  ) as HoppCollection
+
+  const updatedCollection = {
+    ...collection,
+    auth,
+    headers,
+  }
+
+  const result = await workspaceService.editRESTCollection(
+    collectionHandle,
+    updatedCollection
   )
 
   if (E.isLeft(result)) {
@@ -848,6 +880,20 @@ const setCollectionProperties = async (updatedCollectionProps: {
     // COLLECTION_INVALIDATED
     return
   }
+
+  const { auth: cascadedAuth, headers: cascadedHeaders } =
+    cascadeParentCollectionForHeaderAuth(collectionIndexPath, "rest")
+
+  nextTick(() => {
+    updateInheritedPropertiesForAffectedRequests(
+      collectionIndexPath,
+      {
+        auth: cascadedAuth,
+        headers: cascadedHeaders,
+      },
+      "rest"
+    )
+  })
 
   toast.success(t("collection.properties_updated"))
 
@@ -871,7 +917,7 @@ const resolveConfirmModal = (title: string | null) => {
 }
 
 const resetSelectedData = () => {
-  editingCollIndexPath.value = ""
+  editingCollectionIndexPath.value = ""
 }
 
 /**

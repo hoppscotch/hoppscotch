@@ -133,6 +133,7 @@ function exportedCollectionToHoppCollection(
           params,
           preRequestScript,
           testScript,
+          requestVariables,
         }) => ({
           id,
           v,
@@ -145,6 +146,7 @@ function exportedCollectionToHoppCollection(
           params,
           preRequestScript,
           testScript,
+          requestVariables,
         })
       ),
       auth: data.auth,

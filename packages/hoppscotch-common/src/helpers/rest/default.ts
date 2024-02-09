@@ -17,4 +17,5 @@ export const getDefaultRESTRequest = (): HoppRESTRequest => ({
     contentType: null,
     body: null,
   },
+  requestVariables: [],
 })

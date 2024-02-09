@@ -67,6 +67,14 @@
     >
       <HttpTests v-model="request.testScript" />
     </HoppSmartTab>
+    <HoppSmartTab
+      v-if="properties ? properties.includes('requestVariables') : true"
+      :id="'requestVariables'"
+      :label="`${t('tab.variables')}`"
+      :info="`${newActiveRequestVariablesCount$}`"
+    >
+      <HttpRequestVariables v-model="request.requestVariables" />
+    </HoppSmartTab>
   </HoppSmartTabs>
 </template>
 
@@ -85,6 +93,7 @@ const VALID_OPTION_TABS = [
   "authorization",
   "preRequestScript",
   "tests",
+  "requestVariables",
 ] as const
 
 export type RESTOptionTabs = (typeof VALID_OPTION_TABS)[number]
@@ -127,6 +136,15 @@ const newActiveParamsCount$ = computed(() => {
 
 const newActiveHeadersCount$ = computed(() => {
   const e = request.value.headers.filter(
+    (x) => x.active && (x.key !== "" || x.value !== "")
+  ).length
+
+  if (e === 0) return null
+  return `${e}`
+})
+
+const newActiveRequestVariablesCount$ = computed(() => {
+  const e = request.value.requestVariables.filter(
     (x) => x.active && (x.key !== "" || x.value !== "")
   ).length
 

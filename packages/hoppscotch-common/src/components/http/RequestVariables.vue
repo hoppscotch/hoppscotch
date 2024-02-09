@@ -1,0 +1,409 @@
+<template>
+  <div class="flex flex-1 flex-col">
+    <div
+      class="sticky top-upperMobileSecondaryStickyFold z-10 flex flex-shrink-0 items-center justify-between overflow-x-auto border-b border-dividerLight bg-primary pl-4 sm:top-upperSecondaryStickyFold"
+    >
+      <label class="truncate font-semibold text-secondaryLight">
+        {{ t("request.request_variables") }}
+      </label>
+      <div class="flex">
+        <HoppButtonSecondary
+          v-tippy="{ theme: 'tooltip' }"
+          to="https://docs.hoppscotch.io/documentation/features/rest-api-testing"
+          blank
+          :title="t('app.wiki')"
+          :icon="IconHelpCircle"
+        />
+        <HoppButtonSecondary
+          v-tippy="{ theme: 'tooltip' }"
+          :title="t('action.clear_all')"
+          :icon="IconTrash2"
+          @click="clearContent()"
+        />
+        <HoppButtonSecondary
+          v-if="bulkVariables"
+          v-tippy="{ theme: 'tooltip' }"
+          :title="t('state.linewrap')"
+          :class="{ '!text-accent': linewrapEnabled }"
+          :icon="IconWrapText"
+          @click.prevent="linewrapEnabled = !linewrapEnabled"
+        />
+        <HoppButtonSecondary
+          v-tippy="{ theme: 'tooltip' }"
+          :title="t('state.bulk_mode')"
+          :icon="IconEdit"
+          :class="{ '!text-accent': bulkMode }"
+          @click="bulkMode = !bulkMode"
+        />
+        <HoppButtonSecondary
+          v-tippy="{ theme: 'tooltip' }"
+          :title="t('add.new')"
+          :icon="IconPlus"
+          :disabled="bulkMode"
+          @click="addVariable"
+        />
+      </div>
+    </div>
+    <div v-if="bulkMode" ref="bulkEditor" class="flex flex-1 flex-col"></div>
+    <div v-else>
+      <draggable
+        v-model="workingRequestVaraiables"
+        item-key="id"
+        animation="250"
+        handle=".draggable-handle"
+        draggable=".draggable-content"
+        ghost-class="cursor-move"
+        chosen-class="bg-primaryLight"
+        drag-class="cursor-grabbing"
+      >
+        <template #item="{ element: variable, index }">
+          <div
+            class="draggable-content group flex divide-x divide-dividerLight border-b border-dividerLight"
+          >
+            <span>
+              <HoppButtonSecondary
+                v-tippy="{
+                  theme: 'tooltip',
+                  delay: [500, 20],
+                  content:
+                    index !== workingRequestVaraiables?.length - 1
+                      ? t('action.drag_to_reorder')
+                      : null,
+                }"
+                :icon="IconGripVertical"
+                class="opacity-0"
+                :class="{
+                  'draggable-handle cursor-grab group-hover:opacity-100':
+                    index !== workingRequestVaraiables?.length - 1,
+                }"
+                tabindex="-1"
+              />
+            </span>
+            <SmartEnvInput
+              v-model="variable.key"
+              :placeholder="`${t('count.variable', { count: index + 1 })}`"
+              @change="
+                updateVariable(index, {
+                  id: variable.id,
+                  key: $event,
+                  value: variable.value,
+                  active: variable.active,
+                })
+              "
+            />
+            <SmartEnvInput
+              v-model="variable.value"
+              :placeholder="`${t('count.value', { count: index + 1 })}`"
+              @change="
+                updateVariable(index, {
+                  id: variable.id,
+                  key: variable.key,
+                  value: $event,
+                  active: variable.active,
+                })
+              "
+            />
+            <span>
+              <HoppButtonSecondary
+                v-tippy="{ theme: 'tooltip' }"
+                :title="
+                  variable.hasOwnProperty('active')
+                    ? variable.active
+                      ? t('action.turn_off')
+                      : t('action.turn_on')
+                    : t('action.turn_off')
+                "
+                :icon="
+                  variable.hasOwnProperty('active')
+                    ? variable.active
+                      ? IconCheckCircle
+                      : IconCircle
+                    : IconCheckCircle
+                "
+                color="green"
+                @click="
+                  updateVariable(index, {
+                    id: variable.id,
+                    key: variable.key,
+                    value: variable.value,
+                    active: variable.hasOwnProperty('active')
+                      ? !variable.active
+                      : false,
+                  })
+                "
+              />
+            </span>
+            <span>
+              <HoppButtonSecondary
+                v-tippy="{ theme: 'tooltip' }"
+                :title="t('action.remove')"
+                :icon="IconTrash"
+                color="red"
+                @click="deleteVariable(index)"
+              />
+            </span>
+          </div>
+        </template>
+      </draggable>
+      <HoppSmartPlaceholder
+        v-if="workingRequestVaraiables.length === 0"
+        :src="`/images/states/${colorMode.value}/add_files.svg`"
+        :alt="`${t('empty.request_variables')}`"
+        :text="t('empty.request_variables')"
+      >
+        <template #body>
+          <HoppButtonSecondary
+            :label="`${t('add.new')}`"
+            :icon="IconPlus"
+            filled
+            @click="addVariable"
+          />
+        </template>
+      </HoppSmartPlaceholder>
+    </div>
+  </div>
+</template>
+
+<script lang="ts" setup>
+import IconHelpCircle from "~icons/lucide/help-circle"
+import IconTrash2 from "~icons/lucide/trash-2"
+import IconEdit from "~icons/lucide/edit"
+import IconPlus from "~icons/lucide/plus"
+import IconGripVertical from "~icons/lucide/grip-vertical"
+import IconCheckCircle from "~icons/lucide/check-circle"
+import IconCircle from "~icons/lucide/circle"
+import IconTrash from "~icons/lucide/trash"
+import IconWrapText from "~icons/lucide/wrap-text"
+import { useToast } from "~/composables/toast"
+import { useI18n } from "~/composables/i18n"
+import { useColorMode } from "~/composables/theming"
+import { ref, watch } from "vue"
+import { useCodemirror } from "~/composables/codemirror"
+import { reactive } from "vue"
+import linter from "~/helpers/editor/linting/rawKeyValue"
+import draggable from "vuedraggable-es"
+import { cloneDeep, isEqual } from "lodash-es"
+import { flow, pipe } from "fp-ts/function"
+import * as O from "fp-ts/Option"
+import * as A from "fp-ts/Array"
+import * as RA from "fp-ts/ReadonlyArray"
+import * as E from "fp-ts/Either"
+import { throwError } from "@functional/error"
+import { HoppRESTRequestVariable } from "@hoppscotch/data"
+import { useVModel } from "@vueuse/core"
+import { objRemoveKey } from "~/helpers/functional/object"
+import { parseRawKeyValueEntriesE } from "@hoppscotch/data"
+import { RawKeyValueEntry } from "@hoppscotch/data"
+import { rawKeyValueEntriesToString } from "@hoppscotch/data"
+
+const colorMode = useColorMode()
+
+const t = useI18n()
+const toast = useToast()
+
+const bulkMode = ref(false)
+const bulkEditor = ref<any | null>(null)
+const bulkVariables = ref("")
+const linewrapEnabled = ref(true)
+
+const deletionToast = ref<{ goAway: (delay: number) => void } | null>(null)
+
+const props = defineProps<{
+  modelValue: HoppRESTRequestVariable[]
+}>()
+
+const emit = defineEmits<{
+  (e: "update:modelValue", value: Array<HoppRESTRequestVariable>): void
+}>()
+
+// The functional requestVariable list (the requestVariable actually applied to the session)
+const requestVariables = useVModel(props, "modelValue", emit)
+
+useCodemirror(
+  bulkEditor,
+  bulkVariables,
+  reactive({
+    extendedEditorConfig: {
+      mode: "text/x-yaml",
+      placeholder: `${t("state.bulk_mode_placeholder")}`,
+      lineWrapping: linewrapEnabled,
+    },
+    linter,
+    completer: null,
+    environmentHighlights: true,
+  })
+)
+
+const idTicker = ref(0)
+
+const workingRequestVaraiables = ref<
+  Array<HoppRESTRequestVariable & { id: number }>
+>([
+  {
+    id: idTicker.value++,
+    key: "",
+    value: "",
+    active: true,
+  },
+])
+
+// Sync logic between params and working/bulk params
+watch(
+  requestVariables,
+  (newRequestVariableList) => {
+    // Sync should overwrite working params
+    const filteredWorkingRequestVariables: HoppRESTRequestVariable[] = pipe(
+      workingRequestVaraiables.value,
+      A.filterMap(
+        flow(
+          O.fromPredicate((e) => e.key !== ""),
+          O.map(objRemoveKey("id"))
+        )
+      )
+    )
+
+    const filteredBulkRequestVariables = pipe(
+      parseRawKeyValueEntriesE(bulkVariables.value),
+      E.map(
+        flow(
+          RA.filter((e) => e.key !== ""),
+          RA.toArray
+        )
+      ),
+      E.getOrElse(() => [] as RawKeyValueEntry[])
+    )
+
+    if (!isEqual(newRequestVariableList, filteredWorkingRequestVariables)) {
+      workingRequestVaraiables.value = pipe(
+        newRequestVariableList,
+        A.map((x) => ({ id: idTicker.value++, ...x }))
+      )
+    }
+
+    if (!isEqual(newRequestVariableList, filteredBulkRequestVariables)) {
+      bulkVariables.value = rawKeyValueEntriesToString(newRequestVariableList)
+    }
+  },
+  { immediate: true }
+)
+
+watch(workingRequestVaraiables, (newWorkingRequestVariables) => {
+  const fixedRequestVariables = pipe(
+    newWorkingRequestVariables,
+    A.filterMap(
+      flow(
+        O.fromPredicate((e) => e.key !== ""),
+        O.map(objRemoveKey("id"))
+      )
+    )
+  )
+
+  if (!isEqual(requestVariables.value, fixedRequestVariables)) {
+    requestVariables.value = cloneDeep(fixedRequestVariables)
+  }
+})
+
+watch(bulkVariables, (newBulkParams) => {
+  const filteredBulkRequestVariables = pipe(
+    parseRawKeyValueEntriesE(newBulkParams),
+    E.map(
+      flow(
+        RA.filter((e) => e.key !== ""),
+        RA.toArray
+      )
+    ),
+    E.getOrElse(() => [] as RawKeyValueEntry[])
+  )
+
+  if (!isEqual(requestVariables.value, filteredBulkRequestVariables)) {
+    requestVariables.value = filteredBulkRequestVariables
+  }
+})
+
+// Rule: Working Request variable always have last element is always an empty param
+watch(workingRequestVaraiables, (variableList) => {
+  if (
+    variableList.length > 0 &&
+    variableList[variableList.length - 1].key !== ""
+  ) {
+    workingRequestVaraiables.value.push({
+      id: idTicker.value++,
+      key: "",
+      value: "",
+      active: true,
+    })
+  }
+})
+
+const addVariable = () => {
+  workingRequestVaraiables.value.push({
+    id: idTicker.value++,
+    key: "",
+    value: "",
+    active: true,
+  })
+}
+
+const updateVariable = (index: number, variable: any & { id: number }) => {
+  workingRequestVaraiables.value = workingRequestVaraiables.value.map((h, i) =>
+    i === index ? variable : h
+  )
+}
+
+const deleteVariable = (index: number) => {
+  const requestVariablesBeforeDeletion = cloneDeep(
+    workingRequestVaraiables.value
+  )
+
+  if (
+    !(
+      requestVariablesBeforeDeletion.length > 0 &&
+      index === requestVariablesBeforeDeletion.length - 1
+    )
+  ) {
+    if (deletionToast.value) {
+      deletionToast.value.goAway(0)
+      deletionToast.value = null
+    }
+
+    deletionToast.value = toast.success(`${t("state.deleted")}`, {
+      action: [
+        {
+          text: `${t("action.undo")}`,
+          onClick: (_, toastObject) => {
+            workingRequestVaraiables.value = requestVariablesBeforeDeletion
+            toastObject.goAway(0)
+            deletionToast.value = null
+          },
+        },
+      ],
+
+      onComplete: () => {
+        deletionToast.value = null
+      },
+    })
+  }
+
+  workingRequestVaraiables.value = pipe(
+    workingRequestVaraiables.value,
+    A.deleteAt(index),
+    O.getOrElseW(() =>
+      throwError("Working Request Variable Deletion Out of Bounds")
+    )
+  )
+}
+
+const clearContent = () => {
+  // set params list to the initial state
+  workingRequestVaraiables.value = [
+    {
+      id: idTicker.value++,
+      key: "",
+      value: "",
+      active: true,
+    },
+  ]
+
+  bulkVariables.value = ""
+}
+</script>

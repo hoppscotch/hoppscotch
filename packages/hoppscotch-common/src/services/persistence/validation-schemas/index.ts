@@ -514,6 +514,7 @@ const validRestOperations = [
   "authorization",
   "preRequestScript",
   "tests",
+  "requestVariables",
 ] as const
 
 export const REST_TAB_STATE_SCHEMA = z

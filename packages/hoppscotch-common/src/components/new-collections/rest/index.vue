@@ -49,7 +49,7 @@
             :request-view="node.data.value"
             @duplicate-request="duplicateRequest"
             @edit-request="editRequest"
-            @remove-request="removeRequest(node.data.value.requestID)"
+            @remove-request="removeRequest"
             @select-request="selectRequest"
           />
           <div v-else @click="toggleChildren">
@@ -142,13 +142,14 @@ import {
   cascadeParentCollectionForHeaderAuth,
   navigateToFolderWithIndexPath,
   restCollectionStore,
+  restCollections$,
   saveRESTRequestAs,
 } from "~/newstore/collections"
 import { cloneDeep } from "lodash-es"
 import { HoppCollection, HoppRESTAuth, HoppRESTRequest } from "@hoppscotch/data"
 import { TeamCollection } from "~/helpers/backend/graphql"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
-import { useStreamStatic } from "~/composables/stream"
+import { useReadonlyStream } from "~/composables/stream"
 import { updateInheritedPropertiesForAffectedRequests } from "~/helpers/collection/collection"
 
 const t = useI18n()
@@ -165,6 +166,8 @@ defineEmits<{
 }>()
 
 const workspaceService = useService(NewWorkspaceService)
+const restCollectionState = useReadonlyStream(restCollections$, [])
+
 const treeAdapter = markRaw(
   new WorkspaceRESTCollectionTreeAdapter(
     props.workspaceHandle,
@@ -249,9 +252,12 @@ const displayConfirmModal = (show: boolean) => {
 const addNewRootCollection = async (name: string) => {
   modalLoadingState.value = true
 
+  const newCollectionID = restCollectionState.value.length.toString()
+
   const result = await workspaceService.createRESTRootCollection(
     props.workspaceHandle,
-    name
+    name,
+    newCollectionID
   )
 
   if (E.isLeft(result)) {
@@ -807,16 +813,8 @@ const editCollectionProperties = async (collectionIndexPath: string) => {
     return
   }
 
-  const restCollectionState = useStreamStatic(
-    restCollectionStore.subject$,
-    { state: [] },
-    () => {
-      /* noop */
-    }
-  )[0]
-
   const collection = navigateToFolderWithIndexPath(
-    restCollectionState.value.state,
+    restCollectionState.value,
     collectionIndexPath.split("/").map((id) => parseInt(id))
   )
 

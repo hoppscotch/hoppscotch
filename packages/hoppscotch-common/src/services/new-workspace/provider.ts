@@ -39,7 +39,8 @@ export interface WorkspaceProvider {
 
   createRESTRootCollection(
     workspaceHandle: HandleRef<Workspace>,
-    collectionName: string
+    collectionName: string,
+    newCollectionID: string
   ): Promise<E.Either<unknown, HandleRef<WorkspaceCollection>>>
   createRESTChildCollection(
     parentCollectionHandle: HandleRef<WorkspaceCollection>,
@@ -59,7 +60,7 @@ export interface WorkspaceProvider {
     parentCollectionHandle: HandleRef<WorkspaceCollection>,
     requestName: string,
     openInNewTab: boolean
-  ): Promise<E.Either<unknown, HandleRef<WorkspaceCollection>>>
+  ): Promise<E.Either<unknown, HandleRef<WorkspaceRequest>>>
   updateRESTRequest(
     requestHandle: HandleRef<WorkspaceRequest>,
     updatedRequest: HoppRESTRequest

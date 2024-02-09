@@ -104,7 +104,7 @@
                   :shortcut="['⌫']"
                   @click="
                     () => {
-                      emit('remove-request')
+                      emit('remove-request', requestView.requestID)
                       hide()
                     }
                   "
@@ -145,7 +145,7 @@ const emit = defineEmits<{
       requestName: string
     }
   ): void
-  (event: "remove-request"): void
+  (event: "remove-request", requestIndexPath: string): void
   (event: "select-request", requestIndexPath: string): void
 }>()
 

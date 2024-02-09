@@ -165,7 +165,7 @@ const saveEditedCollection = () => {
 
   const data = props.emitWithFullCollection
     ? collection
-    : { ...finalCollection, collIndexPath: path.value }
+    : { ...finalCollection, collectionIndexPath: path.value }
   emit("set-collection-properties", data)
 }
 

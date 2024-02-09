@@ -18,7 +18,7 @@
             class="pointer-events-none flex min-w-0 flex-1 py-2 pr-2 transition group-hover:text-secondaryDark"
           >
             <span class="truncate">
-              {{ collectionView.collection.name }}
+              {{ collectionView.name }}
             </span>
           </span>
         </div>
@@ -170,20 +170,20 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (event: "toggle-children"): void
-  (event: "add-request", parentCollIndexPath: string): void
-  (event: "add-child-collection", parentCollIndexPath: string): void
+  (event: "add-request", parentCollectionIndexPath: string): void
+  (event: "add-child-collection", parentCollectionIndexPath: string): void
   (
     event: "edit-root-collection",
-    payload: { collIndexPath: string; collectionName: string }
+    payload: { collectionIndexPath: string; collectionName: string }
   ): void
   (
     event: "edit-child-collection",
-    payload: { collIndexPath: string; collectionName: string }
+    payload: { collectionIndexPath: string; collectionName: string }
   ): void
-  (event: "edit-collection-properties", collIndexPath: string): void
+  (event: "edit-collection-properties", collectionIndexPath: string): void
   (event: "export-data"): void
-  (event: "remove-root-collection", collIndexPath: string): void
-  (event: "remove-child-collection", collIndexPath: string): void
+  (event: "remove-root-collection", collectionIndexPath: string): void
+  (event: "remove-child-collection", collectionIndexPath: string): void
 }>()
 
 const tippyActions = ref<TippyComponent | null>(null)
@@ -207,17 +207,15 @@ const addRequest = () => {
 }
 
 const editCollection = () => {
-  const {
-    collectionID: collIndexPath,
-    collection: { name: collectionName },
-  } = props.collectionView
+  const { collectionID: collectionIndexPath, name: collectionName } =
+    props.collectionView
 
   const data = {
-    collIndexPath,
+    collectionIndexPath,
     collectionName,
   }
 
-  collIndexPath.split("/").length > 1
+  collectionIndexPath.split("/").length > 1
     ? emit("edit-child-collection", data)
     : emit("edit-root-collection", data)
 }

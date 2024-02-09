@@ -282,7 +282,7 @@ const saveRequestAs = async () => {
 
     const requestHandleResult = await workspaceService.getRequestHandle(
       workspaceService.activeWorkspaceHandle.value,
-      picked.value.folderPath
+      `${picked.value.folderPath}/${picked.value.requestIndex.toString()}`
     )
 
     if (E.isLeft(requestHandleResult)) {

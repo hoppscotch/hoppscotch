@@ -512,29 +512,14 @@ const saveRequest = async () => {
     showSaveRequestModal.value = true
     return
   }
-  if (saveCtx.originLocation === "user-collection") {
+  if (saveCtx.originLocation === "workspace-user-collection") {
     const updatedRequest = tab.value.document.request
 
     if (!workspaceService.activeWorkspaceHandle.value) {
       return
     }
 
-    const requestHandleResult = await workspaceService.getRequestHandle(
-      workspaceService.activeWorkspaceHandle.value,
-      `${saveCtx.folderPath}/${saveCtx.requestIndex.toString()}`
-    )
-
-    if (E.isLeft(requestHandleResult)) {
-      // INVALID_REQUEST_HANDLE
-      return
-    }
-
-    const requestHandle = requestHandleResult.right
-
-    if (requestHandle.value.type === "invalid") {
-      // WORKSPACE_INVALIDATED | INVALID_REQUEST_HANDLE
-      return
-    }
+    const requestHandle = ref(saveCtx.requestHandle)
 
     const updateRequestResult = await workspaceService.updateRESTRequest(
       requestHandle,

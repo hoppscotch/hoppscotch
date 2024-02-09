@@ -77,9 +77,7 @@ import { useToast } from "@composables/toast"
 import {
   cascadeParentCollectionForHeaderAuth,
   editGraphqlRequest,
-  editRESTRequest,
   saveGraphqlRequestAs,
-  saveRESTRequestAs,
 } from "~/newstore/collections"
 import { GQLError } from "~/helpers/backend/GQLClient"
 import { computedWithControl } from "@vueuse/core"
@@ -257,20 +255,19 @@ const saveRequestAs = async () => {
       return
     }
 
-    const resultHandle = await workspaceService.createRESTRequest(
+    const requestHandleResult = await workspaceService.createRESTRequest(
       collHandle,
-      updatedRequest.name,
-      false
+      updatedRequest
     )
 
-    if (E.isLeft(resultHandle)) {
+    if (E.isLeft(requestHandleResult)) {
       // WORKSPACE_INVALIDATED | INVALID_COLLECTION_HANDLE
       return
     }
 
-    const result = resultHandle.right
+    const requestHandle = requestHandleResult.right
 
-    if (result.value.type === "invalid") {
+    if (requestHandle.value.type === "invalid") {
       // WORKSPACE_INVALIDATED | INVALID_COLLECTION_HANDLE
       return
     }
@@ -319,9 +316,8 @@ const saveRequestAs = async () => {
       request: updatedRequest,
       isDirty: false,
       saveContext: {
-        originLocation: "user-collection",
-        folderPath: picked.value.folderPath,
-        requestIndex: picked.value.requestIndex,
+        originLocation: "workspace-user-collection",
+        requestHandle,
       },
     }
 

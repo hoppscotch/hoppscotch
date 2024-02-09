@@ -444,6 +444,13 @@ const HoppRESTSaveContextSchema = z.nullable(
   z.discriminatedUnion("originLocation", [
     z
       .object({
+        originLocation: z.literal("workspace-user-collection"),
+        // TODO: Specify the correct shape
+        requestHandle: z.any(),
+      })
+      .strict(),
+    z
+      .object({
         originLocation: z.literal("user-collection"),
         folderPath: z.string(),
         requestIndex: z.number(),

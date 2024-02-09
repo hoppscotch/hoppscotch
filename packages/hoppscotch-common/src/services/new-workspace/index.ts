@@ -170,7 +170,8 @@ export class NewWorkspaceService extends Service {
 
   public async createRESTRootCollection(
     workspaceHandle: HandleRef<Workspace>,
-    collectionName: string
+    collectionName: string,
+    newCollectionID: string
   ): Promise<
     E.Either<
       WorkspaceError<"INVALID_HANDLE" | "INVALID_PROVIDER">,
@@ -191,7 +192,8 @@ export class NewWorkspaceService extends Service {
 
     const result = await provider.createRESTRootCollection(
       workspaceHandle,
-      collectionName
+      collectionName,
+      newCollectionID
     )
 
     if (E.isLeft(result)) {
@@ -334,7 +336,7 @@ export class NewWorkspaceService extends Service {
   ): Promise<
     E.Either<
       WorkspaceError<"INVALID_HANDLE" | "INVALID_PROVIDER">,
-      HandleRef<WorkspaceCollection>
+      HandleRef<WorkspaceRequest>
     >
   > {
     if (parentCollectionHandle.value.type === "invalid") {

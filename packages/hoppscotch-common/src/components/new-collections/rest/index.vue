@@ -139,9 +139,7 @@ import IconImport from "~icons/lucide/folder-down"
 import IconHelpCircle from "~icons/lucide/help-circle"
 import IconPlus from "~icons/lucide/plus"
 import {
-  cascadeParentCollectionForHeaderAuth,
   navigateToFolderWithIndexPath,
-  restCollectionStore,
   restCollections$,
   saveRESTRequestAs,
 } from "~/newstore/collections"
@@ -256,12 +254,9 @@ const displayConfirmModal = (show: boolean) => {
 const addNewRootCollection = async (name: string) => {
   modalLoadingState.value = true
 
-  const newCollectionID = restCollectionState.value.length.toString()
-
   const result = await workspaceService.createRESTRootCollection(
     props.workspaceHandle,
-    name,
-    newCollectionID
+    { name }
   )
 
   if (E.isLeft(result)) {
@@ -306,16 +301,10 @@ const onRemoveRootCollection = async () => {
     return
   }
 
-  const result =
-    await workspaceService.removeRESTRootCollection(collectionHandle)
+  const result = await workspaceService.removeRESTCollection(collectionHandle)
 
   if (E.isLeft(result)) {
     // INVALID_COLLECTION_HANDLE
-    return
-  }
-
-  if (result.right.value.type === "invalid") {
-    // COLLECTION_INVALIDATED
     return
   }
 
@@ -370,10 +359,24 @@ const onAddRequest = async (requestName: string) => {
     return
   }
 
-  const { auth, headers } = cascadeParentCollectionForHeaderAuth(
-    requestHandle.value.data.collectionID,
-    "rest"
-  )
+  const cascadingAuthHeadersHandleResult =
+    await workspaceService.getRESTCollectionLevelAuthHeadersView(
+      collectionHandle
+    )
+
+  if (E.isLeft(cascadingAuthHeadersHandleResult)) {
+    // INVALID_COLLECTION_HANDLE
+    return
+  }
+
+  const cascadingAuthHeadersHandle = cascadingAuthHeadersHandleResult.right
+
+  if (cascadingAuthHeadersHandle.value.type === "invalid") {
+    // COLLECTION_INVALIDATED
+    return
+  }
+
+  const { auth, headers } = cascadingAuthHeadersHandle.value.data
 
   tabs.createNewTab({
     request: newRequest,
@@ -396,7 +399,7 @@ const addChildCollection = (parentCollectionIndexPath: string) => {
   displayModalAddChildColl(true)
 }
 
-const onAddChildCollection = async (childCollectionName: string) => {
+const onAddChildCollection = async (newChildCollectionName: string) => {
   const parentCollectionIndexPath = editingCollectionIndexPath.value
 
   const collectionHandleResult = await workspaceService.getCollectionHandle(
@@ -418,7 +421,7 @@ const onAddChildCollection = async (childCollectionName: string) => {
 
   const result = await workspaceService.createRESTChildCollection(
     collectionHandle,
-    childCollectionName
+    { name: newChildCollectionName }
   )
 
   if (E.isLeft(result)) {
@@ -466,26 +469,12 @@ const onEditRootCollection = async (newCollectionName: string) => {
     return
   }
 
-  // We're sure that the collection exists in the given `collectionIndexPath` as there's a validation happening in `getCollectionHandle` above
-  const updatedCollection = navigateToFolderWithIndexPath(
-    restCollectionStore.value.state,
-    collectionIndexPath.split("/").map((id) => parseInt(id))
-  ) as HoppCollection
-
-  updatedCollection.name = newCollectionName
-
-  const result = await workspaceService.editRESTCollection(
-    collectionHandle,
-    updatedCollection
-  )
+  const result = await workspaceService.updateRESTCollection(collectionHandle, {
+    name: newCollectionName,
+  })
 
   if (E.isLeft(result)) {
     // INVALID_COLLECTION_HANDLE
-    return
-  }
-
-  if (result.right.value.type === "invalid") {
-    // COLLECTION_INVALIDATED
     return
   }
 
@@ -505,7 +494,7 @@ const editChildCollection = (payload: {
   displayModalEditChildCollection(true)
 }
 
-const onEditChildCollection = async (newCollectionName: string) => {
+const onEditChildCollection = async (newChildCollectionName: string) => {
   const collectionIndexPath = editingChildCollectionIndexPath.value
 
   const collectionHandleResult = await workspaceService.getCollectionHandle(
@@ -525,26 +514,12 @@ const onEditChildCollection = async (newCollectionName: string) => {
     return
   }
 
-  // We're sure that the collection exists in the given `collectionIndexPath` as there's a validation happening in `getCollectionHandle` above
-  const updatedCollection = navigateToFolderWithIndexPath(
-    restCollectionStore.value.state,
-    collectionIndexPath.split("/").map((id) => parseInt(id))
-  ) as HoppCollection
-
-  updatedCollection.name = newCollectionName
-
-  const result = await workspaceService.editRESTCollection(
-    collectionHandle,
-    updatedCollection
-  )
+  const result = await workspaceService.updateRESTCollection(collectionHandle, {
+    name: newChildCollectionName,
+  })
 
   if (E.isLeft(result)) {
     // INVALID_COLLECTION_HANDLE
-    return
-  }
-
-  if (result.right.value.type === "invalid") {
-    // COLLECTION_INVALIDATED
     return
   }
 
@@ -580,17 +555,12 @@ const onRemoveChildCollection = async () => {
     return
   }
 
-  const result = await workspaceService.removeRESTChildCollection(
+  const result = await workspaceService.removeRESTCollection(
     parentCollectionHandle
   )
 
   if (E.isLeft(result)) {
     // INVALID_COLLECTION_HANDLE
-    return
-  }
-
-  if (result.right.value.type === "invalid") {
-    // COLLECTION_INVALIDATED
     return
   }
 
@@ -635,11 +605,6 @@ const onRemoveRequest = async () => {
     return
   }
 
-  if (result.right.value.type === "invalid") {
-    // WORKSPACE_INVALIDATED
-    return
-  }
-
   const possibleTab = tabs.getTabRefWithSaveContext({
     originLocation: "workspace-user-collection",
     requestHandle,
@@ -669,6 +634,23 @@ const onRemoveRequest = async () => {
 const selectRequest = async (requestIndexPath: string) => {
   const collectionIndexPath = requestIndexPath.split("/").slice(0, -1).join("/")
 
+  const collectionHandleResult = await workspaceService.getCollectionHandle(
+    props.workspaceHandle,
+    collectionIndexPath
+  )
+
+  if (E.isLeft(collectionHandleResult)) {
+    // INVALID_WORKSPACE_HANDLE
+    return
+  }
+
+  const collectionHandle = collectionHandleResult.right
+
+  if (collectionHandle.value.type === "invalid") {
+    // WORKSPACE_INVALIDATED | INVALID_COLLECTION_HANDLE
+    return
+  }
+
   const requestHandleResult = await workspaceService.getRequestHandle(
     props.workspaceHandle,
     requestIndexPath
@@ -686,15 +668,30 @@ const selectRequest = async (requestIndexPath: string) => {
     return
   }
 
-  const request = requestHandle.value.data.request as HoppRESTRequest
+  const request = requestHandle.value.data.request
 
   // If there is a request with this save context, switch into it
   let possibleTab = null
 
-  const { auth, headers } = cascadeParentCollectionForHeaderAuth(
-    collectionIndexPath,
-    "rest"
-  )
+  const cascadingAuthHeadersHandleResult =
+    await workspaceService.getRESTCollectionLevelAuthHeadersView(
+      collectionHandle
+    )
+
+  if (E.isLeft(cascadingAuthHeadersHandleResult)) {
+    // INVALID_COLLECTION_HANDLE
+    return
+  }
+
+  const cascadingAuthHeadersHandle = cascadingAuthHeadersHandleResult.right
+
+  if (cascadingAuthHeadersHandle.value.type === "invalid") {
+    // COLLECTION_INVALIDATED
+    return
+  }
+
+  const { auth, headers } = cascadingAuthHeadersHandle.value.data
+
   possibleTab = tabs.getTabRefWithSaveContext({
     originLocation: "workspace-user-collection",
     requestHandle,
@@ -766,7 +763,7 @@ const editRequest = (payload: {
   displayModalEditRequest(true)
 }
 
-const onEditRequest = async (newReqName: string) => {
+const onEditRequest = async (newRequestName: string) => {
   const requestID = editingRequestIndexPath.value
 
   const requestHandleResult = await workspaceService.getRequestHandle(
@@ -786,22 +783,16 @@ const onEditRequest = async (newReqName: string) => {
     return
   }
 
-  const updatedRequest = {
-    ...requestHandle.value.data.request,
-    name: newReqName,
-  } as HoppRESTRequest
-
-  const result = await workspaceService.updateRESTRequest(
-    requestHandle,
-    updatedRequest
-  )
+  const result = await workspaceService.updateRESTRequest(requestHandle, {
+    name: newRequestName,
+  })
 
   if (E.isLeft(result)) {
     // INVALID_REQUEST_HANDLE
     return
   }
 
-  if (result.right.value.type === "invalid") {
+  if (result.right.type === "invalid") {
     // REQUEST_INVALIDATED
     return
   }
@@ -830,18 +821,6 @@ const editCollectionProperties = async (collectionIndexPath: string) => {
       },
     ],
   } as HoppInheritedProperty
-  // Have a provider level implementation that returns a view that says what the headesd and auth are
-  if (parentIndex) {
-    const { auth, headers } = cascadeParentCollectionForHeaderAuth(
-      parentIndex,
-      "rest"
-    )
-
-    inheritedProperties = {
-      auth,
-      headers,
-    }
-  }
 
   const collectionHandleResult = await workspaceService.getCollectionHandle(
     props.workspaceHandle,
@@ -858,6 +837,32 @@ const editCollectionProperties = async (collectionIndexPath: string) => {
   if (collectionHandle.value.type === "invalid") {
     // WORKSPACE_INVALIDATED | INVALID_COLLECTION_HANDLE
     return
+  }
+
+  if (parentIndex) {
+    const cascadingAuthHeadersHandleResult =
+      await workspaceService.getRESTCollectionLevelAuthHeadersView(
+        collectionHandle
+      )
+
+    if (E.isLeft(cascadingAuthHeadersHandleResult)) {
+      // INVALID_COLLECTION_HANDLE
+      return
+    }
+
+    const cascadingAuthHeadersHandle = cascadingAuthHeadersHandleResult.right
+
+    if (cascadingAuthHeadersHandle.value.type === "invalid") {
+      // COLLECTION_INVALIDATED
+      return
+    }
+
+    const { auth, headers } = cascadingAuthHeadersHandle.value.data
+
+    inheritedProperties = {
+      auth,
+      headers,
+    }
   }
 
   const collection = navigateToFolderWithIndexPath(
@@ -899,35 +904,35 @@ const setCollectionProperties = async (updatedCollectionProps: {
     return
   }
 
-  // We're sure that the collection exists in the given `collectionIndexPath` as there's a validation happening in `getCollectionHandle` above
-  const collection = navigateToFolderWithIndexPath(
-    restCollectionStore.value.state,
-    collectionIndexPath.split("/").map((id) => parseInt(id))
-  ) as HoppCollection
-
-  const updatedCollection = {
-    ...collection,
+  const result = await workspaceService.updateRESTCollection(collectionHandle, {
     auth,
     headers,
-  }
-
-  const result = await workspaceService.editRESTCollection(
-    collectionHandle,
-    updatedCollection
-  )
+  })
 
   if (E.isLeft(result)) {
     // INVALID_COLLECTION_HANDLE
     return
   }
 
-  if (result.right.value.type === "invalid") {
+  const cascadingAuthHeadersHandleResult =
+    await workspaceService.getRESTCollectionLevelAuthHeadersView(
+      collectionHandle
+    )
+
+  if (E.isLeft(cascadingAuthHeadersHandleResult)) {
+    // INVALID_COLLECTION_HANDLE
+    return
+  }
+
+  const cascadingAuthHeadersHandle = cascadingAuthHeadersHandleResult.right
+
+  if (cascadingAuthHeadersHandle.value.type === "invalid") {
     // COLLECTION_INVALIDATED
     return
   }
 
   const { auth: cascadedAuth, headers: cascadedHeaders } =
-    cascadeParentCollectionForHeaderAuth(collectionIndexPath, "rest")
+    cascadingAuthHeadersHandle.value.data
 
   nextTick(() => {
     updateInheritedPropertiesForAffectedRequests(

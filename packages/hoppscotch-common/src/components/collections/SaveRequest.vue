@@ -294,20 +294,19 @@ const saveRequestAs = async () => {
       return
     }
 
-    const resultHandle = await workspaceService.updateRESTRequest(
+    const updateRequestResult = await workspaceService.updateRESTRequest(
       requestHandle,
       updatedRequest
     )
 
-    if (E.isLeft(resultHandle)) {
+    if (E.isLeft(updateRequestResult)) {
       // WORKSPACE_INVALIDATED | INVALID_REQUEST_HANDLE
       return
     }
 
-    const result = resultHandle.right
+    if (updateRequestResult.right.type === "invalid") {
+      // REQUEST_INVALIDATED | REQUEST_PATH_NOT_FOUND
 
-    if (result.value.type === "invalid") {
-      // WORKSPACE_INVALIDATED | INVALID_REQUEST_HANDLE
       return
     }
 

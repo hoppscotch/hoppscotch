@@ -1,4 +1,10 @@
-import { HoppCollection, makeCollection } from "@hoppscotch/data"
+import {
+  HoppCollection,
+  HoppGQLAuth,
+  HoppRESTAuth,
+  HoppRESTHeaders,
+  makeCollection,
+} from "@hoppscotch/data"
 import { Service } from "dioc"
 import * as E from "fp-ts/Either"
 import { Ref, computed, markRaw, ref, shallowRef } from "vue"
@@ -24,6 +30,7 @@ import { platform } from "~/platform"
 import { HandleRef } from "~/services/new-workspace/handle"
 import { WorkspaceProvider } from "~/services/new-workspace/provider"
 import {
+  RESTCollectionLevelAuthHeadersView,
   RESTCollectionChildrenView,
   RESTCollectionViewItem,
   RootRESTCollectionView,
@@ -43,6 +50,9 @@ import {
   resolveSaveContextOnCollectionReorder,
   getFoldersByPath,
 } from "~/helpers/collection/collection"
+import { HoppGQLHeader } from "~/helpers/graphql"
+import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
+import { computedAsync } from "@vueuse/core"
 
 export class PersonalWorkspaceProviderService
   extends Service
@@ -88,8 +98,7 @@ export class PersonalWorkspaceProviderService
 
   public createRESTRootCollection(
     workspaceHandle: HandleRef<Workspace>,
-    collectionName: string,
-    newCollectionID: string
+    newCollection: Partial<HoppCollection>
   ): Promise<E.Either<unknown, HandleRef<WorkspaceCollection>>> {
     if (
       workspaceHandle.value.type !== "ok" ||
@@ -113,8 +122,12 @@ export class PersonalWorkspaceProviderService
             }
           }
 
+          const newCollectionName = newCollection.name as string
+          const newCollectionID =
+            this.restCollectionState.value.state.length.toString()
+
           const newRootCollection = makeCollection({
-            name: collectionName,
+            name: newCollectionName,
             folders: [],
             requests: [],
             headers: [],
@@ -138,7 +151,7 @@ export class PersonalWorkspaceProviderService
               providerID: this.providerID,
               workspaceID: workspaceHandle.value.data.workspaceID,
               collectionID: newCollectionID,
-              name: collectionName,
+              name: newCollectionName,
             },
           }
         })
@@ -147,13 +160,13 @@ export class PersonalWorkspaceProviderService
   }
 
   public createRESTChildCollection(
-    parentCollHandle: HandleRef<WorkspaceCollection>,
-    collectionName: string
+    parentCollectionHandle: HandleRef<WorkspaceCollection>,
+    newChildCollection: Partial<HoppCollection>
   ): Promise<E.Either<unknown, HandleRef<WorkspaceCollection>>> {
     if (
-      parentCollHandle.value.type !== "ok" ||
-      parentCollHandle.value.data.providerID !== this.providerID ||
-      parentCollHandle.value.data.workspaceID !== "personal"
+      parentCollectionHandle.value.type !== "ok" ||
+      parentCollectionHandle.value.data.providerID !== this.providerID ||
+      parentCollectionHandle.value.data.workspaceID !== "personal"
     ) {
       return Promise.resolve(E.left("INVALID_COLLECTION_HANDLE" as const))
     }
@@ -162,9 +175,9 @@ export class PersonalWorkspaceProviderService
       E.right(
         computed(() => {
           if (
-            parentCollHandle.value.type !== "ok" ||
-            parentCollHandle.value.data.providerID !== this.providerID ||
-            parentCollHandle.value.data.workspaceID !== "personal"
+            parentCollectionHandle.value.type !== "ok" ||
+            parentCollectionHandle.value.data.providerID !== this.providerID ||
+            parentCollectionHandle.value.data.workspaceID !== "personal"
           ) {
             return {
               type: "invalid" as const,
@@ -173,9 +186,10 @@ export class PersonalWorkspaceProviderService
           }
 
           const { collectionID, providerID, workspaceID } =
-            parentCollHandle.value.data
+            parentCollectionHandle.value.data
 
-          addRESTFolder(collectionName, collectionID)
+          const newCollectionName = newChildCollection.name as string
+          addRESTFolder(newCollectionName, collectionID)
 
           platform.analytics?.logEvent({
             type: "HOPP_CREATE_COLLECTION",
@@ -190,7 +204,7 @@ export class PersonalWorkspaceProviderService
               providerID,
               workspaceID,
               collectionID,
-              name: collectionName,
+              name: newCollectionName,
             },
           }
         })
@@ -198,186 +212,111 @@ export class PersonalWorkspaceProviderService
     )
   }
 
-  public editRESTCollection(
-    collHandle: HandleRef<WorkspaceCollection>,
-    updatedCollection: HoppCollection
-  ): Promise<E.Either<unknown, HandleRef<boolean>>> {
+  public updateRESTCollection(
+    collectionHandle: HandleRef<WorkspaceCollection>,
+    updatedCollection: Partial<HoppCollection>
+  ): Promise<E.Either<unknown, void>> {
     if (
-      collHandle.value.type !== "ok" ||
-      collHandle.value.data.providerID !== this.providerID ||
-      collHandle.value.data.workspaceID !== "personal"
+      collectionHandle.value.type !== "ok" ||
+      collectionHandle.value.data.providerID !== this.providerID ||
+      collectionHandle.value.data.workspaceID !== "personal"
     ) {
       return Promise.resolve(E.left("INVALID_WORKSPACE_HANDLE" as const))
     }
 
-    return Promise.resolve(
-      E.right(
-        computed(() => {
-          if (
-            collHandle.value.type !== "ok" ||
-            collHandle.value.data.providerID !== this.providerID ||
-            collHandle.value.data.workspaceID !== "personal"
-          ) {
-            return {
-              type: "invalid" as const,
-              reason: "WORKSPACE_INVALIDATED" as const,
-            }
-          }
+    const { collectionID } = collectionHandle.value.data
 
-          const { collectionID } = collHandle.value.data
-
-          const collection: HoppCollection | null =
-            navigateToFolderWithIndexPath(
-              this.restCollectionState.value.state,
-              collectionID.split("/").map((id) => parseInt(id))
-            )
-
-          if (!collection) {
-            return {
-              type: "invalid" as const,
-              reason: "COLLECTION_NOT_FOUND" as const,
-            }
-          }
-
-          const isRootCollection = collectionID.split("/").length === 1
-
-          if (isRootCollection) {
-            editRESTCollection(parseInt(collectionID), updatedCollection)
-          } else {
-            editRESTFolder(collectionID, updatedCollection)
-          }
-
-          return {
-            type: "ok",
-            data: true,
-          }
-        })
-      )
+    const collection = navigateToFolderWithIndexPath(
+      this.restCollectionState.value.state,
+      collectionID.split("/").map((id) => parseInt(id))
     )
-  }
 
-  public removeRESTRootCollection(
-    collHandle: HandleRef<WorkspaceCollection>
-  ): Promise<E.Either<unknown, HandleRef<boolean>>> {
-    if (
-      collHandle.value.type !== "ok" ||
-      collHandle.value.data.providerID !== this.providerID ||
-      collHandle.value.data.workspaceID !== "personal"
-    ) {
-      return Promise.resolve(E.left("INVALID_WORKSPACE_HANDLE" as const))
+    const newCollection = {
+      ...collection,
+      ...updatedCollection,
     }
 
-    return Promise.resolve(
-      E.right(
-        computed(() => {
-          if (
-            collHandle.value.type !== "ok" ||
-            collHandle.value.data.providerID !== this.providerID ||
-            collHandle.value.data.workspaceID !== "personal"
-          ) {
-            return {
-              type: "invalid" as const,
-              reason: "WORKSPACE_INVALIDATED" as const,
-            }
-          }
+    const isRootCollection = collectionID.split("/").length === 1
 
-          const { collectionID } = collHandle.value.data
+    if (isRootCollection) {
+      editRESTCollection(parseInt(collectionID), newCollection)
+    } else {
+      editRESTFolder(collectionID, newCollection)
+    }
 
-          const collectionIndex = parseInt(collectionID)
-
-          const collectionToRemove = navigateToFolderWithIndexPath(
-            restCollectionStore.value.state,
-            [collectionIndex]
-          )
-
-          removeRESTCollection(
-            collectionIndex,
-            collectionToRemove ? collectionToRemove.id : undefined
-          )
-
-          resolveSaveContextOnCollectionReorder({
-            lastIndex: collectionIndex,
-            newIndex: -1,
-            folderPath: "", // root collection
-            length: this.restCollectionState.value.state.length,
-          })
-
-          return {
-            type: "ok",
-            data: true,
-          }
-        })
-      )
-    )
+    return Promise.resolve(E.right(undefined))
   }
 
-  public removeRESTChildCollection(
-    parentCollHandle: HandleRef<WorkspaceCollection>
-  ): Promise<E.Either<unknown, HandleRef<boolean>>> {
+  public removeRESTCollection(
+    collectionHandle: HandleRef<WorkspaceCollection>
+  ): Promise<E.Either<unknown, void>> {
     if (
-      parentCollHandle.value.type !== "ok" ||
-      parentCollHandle.value.data.providerID !== this.providerID ||
-      parentCollHandle.value.data.workspaceID !== "personal"
+      collectionHandle.value.type !== "ok" ||
+      collectionHandle.value.data.providerID !== this.providerID ||
+      collectionHandle.value.data.workspaceID !== "personal"
     ) {
       return Promise.resolve(E.left("INVALID_COLLECTION_HANDLE" as const))
     }
 
-    return Promise.resolve(
-      E.right(
-        computed(() => {
-          if (
-            parentCollHandle.value.type !== "ok" ||
-            parentCollHandle.value.data.providerID !== this.providerID ||
-            parentCollHandle.value.data.workspaceID !== "personal"
-          ) {
-            return {
-              type: "invalid" as const,
-              reason: "COLLECTION_INVALIDATED" as const,
-            }
-          }
+    const { collectionID } = collectionHandle.value.data
 
-          const { collectionID } = parentCollHandle.value.data
+    const isRootCollection = collectionID.split("/").length === 1
 
-          const folderToRemove = path
-            ? navigateToFolderWithIndexPath(
-                restCollectionStore.value.state,
-                collectionID.split("/").map((id) => parseInt(id))
-              )
-            : undefined
+    if (isRootCollection) {
+      const collectionIndex = parseInt(collectionID)
 
-          removeRESTFolder(
-            collectionID,
-            folderToRemove ? folderToRemove.id : undefined
-          )
-
-          const parentFolder = collectionID.split("/").slice(0, -1).join("/") // remove last folder to get parent folder
-          resolveSaveContextOnCollectionReorder({
-            lastIndex: this.pathToLastIndex(collectionID),
-            newIndex: -1,
-            folderPath: parentFolder,
-            length: getFoldersByPath(
-              this.restCollectionState.value.state,
-              parentFolder
-            ).length,
-          })
-
-          return {
-            type: "ok",
-            data: true,
-          }
-        })
+      const collectionToRemove = navigateToFolderWithIndexPath(
+        restCollectionStore.value.state,
+        [collectionIndex]
       )
-    )
+
+      removeRESTCollection(
+        collectionIndex,
+        collectionToRemove ? collectionToRemove.id : undefined
+      )
+
+      resolveSaveContextOnCollectionReorder({
+        lastIndex: collectionIndex,
+        newIndex: -1,
+        folderPath: "", // root collection
+        length: this.restCollectionState.value.state.length,
+      })
+    } else {
+      const folderToRemove = path
+        ? navigateToFolderWithIndexPath(
+            restCollectionStore.value.state,
+            collectionID.split("/").map((id) => parseInt(id))
+          )
+        : undefined
+
+      removeRESTFolder(
+        collectionID,
+        folderToRemove ? folderToRemove.id : undefined
+      )
+
+      const parentFolder = collectionID.split("/").slice(0, -1).join("/") // Remove last folder to get parent folder
+      resolveSaveContextOnCollectionReorder({
+        lastIndex: this.pathToLastIndex(collectionID),
+        newIndex: -1,
+        folderPath: parentFolder,
+        length: getFoldersByPath(
+          this.restCollectionState.value.state,
+          parentFolder
+        ).length,
+      })
+    }
+
+    return Promise.resolve(E.right(undefined))
   }
 
   public createRESTRequest(
-    parentCollHandle: HandleRef<WorkspaceCollection>,
+    parentCollectionHandle: HandleRef<WorkspaceCollection>,
     newRequest: HoppRESTRequest
   ): Promise<E.Either<unknown, HandleRef<WorkspaceRequest>>> {
     if (
-      parentCollHandle.value.type !== "ok" ||
-      parentCollHandle.value.data.providerID !== this.providerID ||
-      parentCollHandle.value.data.workspaceID !== "personal"
+      parentCollectionHandle.value.type !== "ok" ||
+      parentCollectionHandle.value.data.providerID !== this.providerID ||
+      parentCollectionHandle.value.data.workspaceID !== "personal"
     ) {
       return Promise.resolve(E.left("INVALID_COLLECTION_HANDLE" as const))
     }
@@ -386,9 +325,9 @@ export class PersonalWorkspaceProviderService
       E.right(
         computed(() => {
           if (
-            parentCollHandle.value.type !== "ok" ||
-            parentCollHandle.value.data.providerID !== this.providerID ||
-            parentCollHandle.value.data.workspaceID !== "personal"
+            parentCollectionHandle.value.type !== "ok" ||
+            parentCollectionHandle.value.data.providerID !== this.providerID ||
+            parentCollectionHandle.value.data.workspaceID !== "personal"
           ) {
             return {
               type: "invalid" as const,
@@ -397,7 +336,7 @@ export class PersonalWorkspaceProviderService
           }
 
           const { collectionID, providerID, workspaceID } =
-            parentCollHandle.value.data
+            parentCollectionHandle.value.data
 
           const insertionIndex = saveRESTRequestAs(collectionID, newRequest)
 
@@ -427,7 +366,7 @@ export class PersonalWorkspaceProviderService
 
   public removeRESTRequest(
     requestHandle: HandleRef<WorkspaceRequest>
-  ): Promise<E.Either<unknown, HandleRef<boolean>>> {
+  ): Promise<E.Either<unknown, void>> {
     if (
       requestHandle.value.type !== "ok" ||
       requestHandle.value.data.providerID !== this.providerID ||
@@ -436,43 +375,23 @@ export class PersonalWorkspaceProviderService
       return Promise.resolve(E.left("INVALID_REQUEST_HANDLE" as const))
     }
 
-    return Promise.resolve(
-      E.right(
-        computed(() => {
-          if (
-            requestHandle.value.type !== "ok" ||
-            requestHandle.value.data.providerID !== this.providerID ||
-            requestHandle.value.data.workspaceID !== "personal"
-          ) {
-            return {
-              type: "invalid" as const,
-              reason: "REQUEST_INVALIDATED" as const,
-            }
-          }
+    const { collectionID, requestID } = requestHandle.value.data
+    const requestIndex = parseInt(requestID.split("/").slice(-1)[0])
 
-          const { collectionID, requestID } = requestHandle.value.data
-          const requestIndex = parseInt(requestID.split("/").slice(-1)[0])
+    const requestToRemove = navigateToFolderWithIndexPath(
+      restCollectionStore.value.state,
+      collectionID.split("/").map((id) => parseInt(id))
+    )?.requests[requestIndex]
 
-          const requestToRemove = navigateToFolderWithIndexPath(
-            restCollectionStore.value.state,
-            collectionID.split("/").map((id) => parseInt(id))
-          )?.requests[requestIndex]
+    removeRESTRequest(collectionID, requestIndex, requestToRemove?.id)
 
-          removeRESTRequest(collectionID, requestIndex, requestToRemove?.id)
-
-          return {
-            type: "ok",
-            data: true,
-          }
-        })
-      )
-    )
+    return Promise.resolve(E.right(undefined))
   }
 
   public updateRESTRequest(
     requestHandle: HandleRef<WorkspaceRequest>,
-    updatedRequest: HoppRESTRequest
-  ): Promise<E.Either<unknown, HandleRef<boolean>>> {
+    updatedRequest: Partial<HoppRESTRequest>
+  ): Promise<E.Either<unknown, HandleRef<boolean>["value"]>> {
     if (
       requestHandle.value.type !== "ok" ||
       requestHandle.value.data.providerID !== this.providerID ||
@@ -481,45 +400,36 @@ export class PersonalWorkspaceProviderService
       return Promise.resolve(E.left("INVALID_REQUEST_HANDLE" as const))
     }
 
-    return Promise.resolve(
-      E.right(
-        computed(() => {
-          if (
-            requestHandle.value.type !== "ok" ||
-            requestHandle.value.data.providerID !== this.providerID ||
-            requestHandle.value.data.workspaceID !== "personal"
-          ) {
-            return {
-              type: "invalid" as const,
-              reason: "REQUEST_INVALIDATED" as const,
-            }
-          }
+    const { collectionID, requestID, request } = requestHandle.value.data
 
-          const { collectionID, requestID } = requestHandle.value.data
+    try {
+      const newRequest: HoppRESTRequest = {
+        ...request,
+        ...updatedRequest,
+      }
+      const requestIndex = parseInt(requestID)
+      editRESTRequest(collectionID, requestIndex, newRequest)
 
-          try {
-            const requestIndex = parseInt(requestID)
-            editRESTRequest(collectionID, requestIndex, updatedRequest)
-
-            platform.analytics?.logEvent({
-              type: "HOPP_SAVE_REQUEST",
-              platform: "rest",
-              createdNow: false,
-              workspaceType: "personal",
-            })
-          } catch (err) {
-            return {
-              type: "invalid" as const,
-              reason: "REQUEST_PATH_NOT_FOUND" as const,
-            }
-          }
-
-          return {
-            type: "ok",
-            data: true,
-          }
+      platform.analytics?.logEvent({
+        type: "HOPP_SAVE_REQUEST",
+        platform: "rest",
+        createdNow: false,
+        workspaceType: "personal",
+      })
+    } catch (err) {
+      return Promise.resolve(
+        E.right({
+          type: "invalid" as const,
+          reason: "REQUEST_PATH_NOT_FOUND" as const,
         })
       )
+    }
+
+    return Promise.resolve(
+      E.right({
+        type: "ok",
+        data: true,
+      })
     )
   }
 
@@ -761,6 +671,117 @@ export class PersonalWorkspaceProviderService
               },
             },
           })
+        })
+      )
+    )
+  }
+
+  public getRESTCollectionLevelAuthHeadersView(
+    collectionHandle: HandleRef<WorkspaceCollection>
+  ): Promise<E.Either<never, HandleRef<RESTCollectionLevelAuthHeadersView>>> {
+    return Promise.resolve(
+      E.right(
+        computed(() => {
+          if (
+            collectionHandle.value.type === "invalid" ||
+            collectionHandle.value.data.providerID !== this.providerID ||
+            collectionHandle.value.data.workspaceID !== "personal"
+          ) {
+            return {
+              type: "invalid" as const,
+              reason: "INVALID_COLLECTION_HANDLE" as const,
+            }
+          }
+
+          const { collectionID } = collectionHandle.value.data
+
+          let auth: HoppInheritedProperty["auth"] = {
+            parentID: collectionID ?? "",
+            parentName: "",
+            inheritedAuth: {
+              authType: "none",
+              authActive: true,
+            },
+          }
+          const headers: HoppInheritedProperty["headers"] = []
+
+          if (!collectionID) return { type: "ok", data: { auth, headers } }
+
+          const path = collectionID.split("/").map((i) => parseInt(i))
+
+          // Check if the path is empty or invalid
+          if (!path || path.length === 0) {
+            console.error("Invalid path:", collectionID)
+            return { type: "ok", data: { auth, headers } }
+          }
+
+          // Loop through the path and get the last parent folder with authType other than 'inherit'
+          for (let i = 0; i < path.length; i++) {
+            const parentFolder = navigateToFolderWithIndexPath(
+              this.restCollectionState.value.state,
+              [...path.slice(0, i + 1)] // Create a copy of the path array
+            )
+
+            // Check if parentFolder is undefined or null
+            if (!parentFolder) {
+              console.error("Parent folder not found for path:", path)
+              return { type: "ok", data: { auth, headers } }
+            }
+
+            const parentFolderAuth = parentFolder.auth as
+              | HoppRESTAuth
+              | HoppGQLAuth
+            const parentFolderHeaders = parentFolder.headers as
+              | HoppRESTHeaders
+              | HoppGQLHeader[]
+
+            // check if the parent folder has authType 'inherit' and if it is the root folder
+            if (
+              parentFolderAuth?.authType === "inherit" &&
+              [...path.slice(0, i + 1)].length === 1
+            ) {
+              auth = {
+                parentID: [...path.slice(0, i + 1)].join("/"),
+                parentName: parentFolder.name,
+                inheritedAuth: auth.inheritedAuth,
+              }
+            }
+
+            if (parentFolderAuth?.authType !== "inherit") {
+              auth = {
+                parentID: [...path.slice(0, i + 1)].join("/"),
+                parentName: parentFolder.name,
+                inheritedAuth: parentFolderAuth,
+              }
+            }
+
+            // Update headers, overwriting duplicates by key
+            if (parentFolderHeaders) {
+              const activeHeaders = parentFolderHeaders.filter((h) => h.active)
+              activeHeaders.forEach((header) => {
+                const index = headers.findIndex(
+                  (h) => h.inheritedHeader?.key === header.key
+                )
+                const currentPath = [...path.slice(0, i + 1)].join("/")
+                if (index !== -1) {
+                  // Replace the existing header with the same key
+                  headers[index] = {
+                    parentID: currentPath,
+                    parentName: parentFolder.name,
+                    inheritedHeader: header,
+                  }
+                } else {
+                  headers.push({
+                    parentID: currentPath,
+                    parentName: parentFolder.name,
+                    inheritedHeader: header,
+                  })
+                }
+              })
+            }
+          }
+
+          return { type: "ok", data: { auth, headers } }
         })
       )
     )

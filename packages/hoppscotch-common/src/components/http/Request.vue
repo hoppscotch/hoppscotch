@@ -533,10 +533,10 @@ const saveRequest = async () => {
 
     const resultHandle = updateRequestResult.right
 
-    if (resultHandle.value.type === "invalid") {
+    if (resultHandle.type === "invalid") {
       // REQUEST_INVALIDATED | REQUEST_PATH_NOT_FOUND
 
-      if (resultHandle.value.reason === "REQUEST_PATH_NOT_FOUND") {
+      if (resultHandle.reason === "REQUEST_PATH_NOT_FOUND") {
         // REQUEST_PATH_NOT_FOUND
         tab.value.document.saveContext = undefined
         await saveRequest()

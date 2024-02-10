@@ -389,7 +389,7 @@ export class PersonalWorkspaceProviderService
   public updateRESTRequest(
     requestHandle: HandleRef<WorkspaceRequest>,
     updatedRequest: Partial<HoppRESTRequest>
-  ): Promise<E.Either<unknown, HandleRef<boolean>["value"]>> {
+  ): Promise<E.Either<unknown, void>> {
     if (
       requestHandle.value.type !== "ok" ||
       requestHandle.value.data.providerID !== this.providerID ||
@@ -400,32 +400,18 @@ export class PersonalWorkspaceProviderService
 
     const { collectionID, requestID, request } = requestHandle.value.data
 
-    try {
-      const newRequest: HoppRESTRequest = merge(request, updatedRequest)
-      const requestIndex = parseInt(requestID)
-      editRESTRequest(collectionID, requestIndex, newRequest)
+    const newRequest: HoppRESTRequest = merge(request, updatedRequest)
+    const requestIndex = parseInt(requestID)
+    editRESTRequest(collectionID, requestIndex, newRequest)
 
-      platform.analytics?.logEvent({
-        type: "HOPP_SAVE_REQUEST",
-        platform: "rest",
-        createdNow: false,
-        workspaceType: "personal",
-      })
-    } catch (err) {
-      return Promise.resolve(
-        E.right({
-          type: "invalid" as const,
-          reason: "REQUEST_PATH_NOT_FOUND" as const,
-        })
-      )
-    }
+    platform.analytics?.logEvent({
+      type: "HOPP_SAVE_REQUEST",
+      platform: "rest",
+      createdNow: false,
+      workspaceType: "personal",
+    })
 
-    return Promise.resolve(
-      E.right({
-        type: "ok",
-        data: true,
-      })
-    )
+    return Promise.resolve(E.right(undefined))
   }
 
   public getCollectionHandle(
@@ -464,7 +450,14 @@ export class PersonalWorkspaceProviderService
           const collection = navigateToFolderWithIndexPath(
             this.restCollectionState.value.state,
             collectionID.split("/").map((x) => parseInt(x))
-          ) as HoppCollection
+          )
+
+          if (!collection) {
+            return {
+              type: "invalid" as const,
+              reason: "COLLECTION_PATH_NOT_FOUND" as const,
+            }
+          }
 
           const { providerID, workspaceID } = workspaceHandle.value.data
 
@@ -537,6 +530,13 @@ export class PersonalWorkspaceProviderService
 
           // Grab the request with it's index
           const request = collection?.requests[requestIndex] as HoppRESTRequest
+
+          if (!request) {
+            return {
+              type: "invalid" as const,
+              reason: "REQUEST_PATH_NOT_FOUND" as const,
+            }
+          }
 
           return {
             type: "ok",

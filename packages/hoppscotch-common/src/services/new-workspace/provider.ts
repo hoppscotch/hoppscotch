@@ -63,7 +63,7 @@ export interface WorkspaceProvider {
   updateRESTRequest(
     requestHandle: HandleRef<WorkspaceRequest>,
     updatedRequest: Partial<HoppRESTRequest>
-  ): Promise<E.Either<unknown, HandleRef<boolean>["value"]>>
+  ): Promise<E.Either<unknown, void>>
   removeRESTRequest(
     requestHandle: HandleRef<WorkspaceRequest>
   ): Promise<E.Either<unknown, void>>

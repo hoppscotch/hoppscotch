@@ -12,7 +12,11 @@ import { WorkspaceProvider } from "./provider"
 import { HandleRef } from "./handle"
 import * as E from "fp-ts/Either"
 import { Workspace, WorkspaceCollection, WorkspaceRequest } from "./workspace"
-import { RESTCollectionChildrenView, RESTCollectionLevelAuthHeadersView, RootRESTCollectionView } from "./view"
+import {
+  RESTCollectionChildrenView,
+  RESTCollectionLevelAuthHeadersView,
+  RootRESTCollectionView,
+} from "./view"
 import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
 
 export type WorkspaceError<ServiceErr> =
@@ -353,10 +357,7 @@ export class NewWorkspaceService extends Service {
     requestHandle: HandleRef<WorkspaceRequest>,
     updatedRequest: Partial<HoppRESTRequest>
   ): Promise<
-    E.Either<
-      WorkspaceError<"INVALID_HANDLE" | "INVALID_PROVIDER">,
-      HandleRef<boolean>["value"]
-    >
+    E.Either<WorkspaceError<"INVALID_HANDLE" | "INVALID_PROVIDER">, void>
   > {
     if (requestHandle.value.type === "invalid") {
       return E.left({ type: "SERVICE_ERROR", error: "INVALID_HANDLE" })

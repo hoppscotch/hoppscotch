@@ -1,7 +1,7 @@
 <template>
   <div
     v-tippy="{ theme: 'tooltip', delay: [500, 20] }"
-    :title="tab.document.request.name"
+    :title="tabDocument.request.name"
     class="flex items-center truncate px-2"
     @dblclick="emit('open-rename-modal')"
     @contextmenu.prevent="options?.tippy?.show()"
@@ -9,9 +9,9 @@
   >
     <span
       class="text-tiny font-semibold mr-2"
-      :style="{ color: getMethodLabelColorClassOf(tab.document.request) }"
+      :style="{ color: getMethodLabelColorClassOf(tabDocument.request) }"
     >
-      {{ tab.document.request.method }}
+      {{ tabDocument.request.method }}
     </span>
     <tippy
       ref="options"
@@ -21,7 +21,7 @@
       :on-shown="() => tippyActions!.focus()"
     >
       <span class="truncate">
-        {{ tab.document.request.name }}
+        {{ tabDocument.request.name }}
       </span>
       <template #content="{ hide }">
         <div
@@ -91,7 +91,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue"
+import { ComputedRef, ref, watch } from "vue"
 import { TippyComponent } from "vue-tippy"
 import { getMethodLabelColorClassOf } from "~/helpers/rest/labelColoring"
 import { useI18n } from "~/composables/i18n"
@@ -101,10 +101,13 @@ import IconFileEdit from "~icons/lucide/file-edit"
 import IconCopy from "~icons/lucide/copy"
 import { HoppTab } from "~/services/tab"
 import { HoppRESTDocument } from "~/helpers/rest/document"
+import { computed } from "vue"
+import { HandleRef } from "~/services/new-workspace/handle"
+import { WorkspaceRequest } from "~/services/new-workspace/workspace"
 
 const t = useI18n()
 
-defineProps<{
+const props = defineProps<{
   tab: HoppTab<HoppRESTDocument>
   isRemovable: boolean
 }>()
@@ -123,4 +126,40 @@ const renameAction = ref<HTMLButtonElement | null>(null)
 const closeAction = ref<HTMLButtonElement | null>(null)
 const closeOthersAction = ref<HTMLButtonElement | null>(null)
 const duplicateAction = ref<HTMLButtonElement | null>(null)
+const tabDocument = ref<HoppRESTDocument>(props.tab.document)
+
+const requestHandleForCurrentTab = computed(() => {
+  return props.tab.document.saveContext?.originLocation ===
+    "workspace-user-collection"
+    ? props.tab.document.saveContext.requestHandle
+    : undefined
+}) as ComputedRef<HandleRef<WorkspaceRequest>["value"] | undefined>
+
+watch(
+  requestHandleForCurrentTab,
+  (newRequestHandleState) => {
+    if (!newRequestHandleState) {
+      return
+    }
+
+    if (newRequestHandleState.type !== "ok") {
+      return
+    }
+
+    if (
+      tabDocument.value.request.name !== newRequestHandleState.data.request.name
+    ) {
+      tabDocument.value.request.name = newRequestHandleState.data.request.name
+    }
+  },
+  { deep: true }
+)
+
+watch(
+  props.tab.document,
+  (newTabDocument) => {
+    ;(tabDocument.value as HoppRESTDocument) = newTabDocument
+  },
+  { deep: true }
+)
 </script>

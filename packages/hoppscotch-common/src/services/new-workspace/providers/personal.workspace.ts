@@ -53,6 +53,7 @@ import {
 import { HoppGQLHeader } from "~/helpers/graphql"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import { computedAsync } from "@vueuse/core"
+import { merge } from "lodash-es"
 
 export class PersonalWorkspaceProviderService
   extends Service
@@ -231,10 +232,7 @@ export class PersonalWorkspaceProviderService
       collectionID.split("/").map((id) => parseInt(id))
     )
 
-    const newCollection = {
-      ...collection,
-      ...updatedCollection,
-    }
+    const newCollection = merge(collection, updatedCollection)
 
     const isRootCollection = collectionID.split("/").length === 1
 
@@ -403,10 +401,7 @@ export class PersonalWorkspaceProviderService
     const { collectionID, requestID, request } = requestHandle.value.data
 
     try {
-      const newRequest: HoppRESTRequest = {
-        ...request,
-        ...updatedRequest,
-      }
+      const newRequest: HoppRESTRequest = merge(request, updatedRequest)
       const requestIndex = parseInt(requestID)
       editRESTRequest(collectionID, requestIndex, newRequest)
 

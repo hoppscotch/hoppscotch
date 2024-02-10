@@ -616,17 +616,6 @@ const onRemoveRequest = async () => {
     possibleTab.value.document.isDirty = true
   }
 
-  const { collectionID, requestID } = requestHandle.value.data
-  const requestIndex = parseInt(requestID.split("/").slice(-1)[0])
-
-  // The same function is used to reorder requests since after removing, it's basically doing reorder
-  resolveSaveContextOnRequestReorder({
-    lastIndex: requestIndex,
-    newIndex: -1,
-    folderPath: collectionID,
-    length: getRequestsByPath(restCollectionState.value, collectionID).length,
-  })
-
   toast.success(t("state.deleted"))
   displayConfirmModal(false)
 }
@@ -668,8 +657,6 @@ const selectRequest = async (requestIndexPath: string) => {
     return
   }
 
-  const request = requestHandle.value.data.request
-
   // If there is a request with this save context, switch into it
   let possibleTab = null
 
@@ -701,7 +688,7 @@ const selectRequest = async (requestIndexPath: string) => {
   } else {
     // If not, open the request in a new tab
     tabs.createNewTab({
-      request: cloneDeep(request),
+      request: cloneDeep(requestHandle.value.data.request),
       isDirty: false,
       saveContext: {
         originLocation: "workspace-user-collection",

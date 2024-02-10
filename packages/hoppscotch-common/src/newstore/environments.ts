@@ -367,7 +367,8 @@ export const currentEnvironment$: Observable<Environment | undefined> =
         return environments[selectedEnvironmentIndex.index]
       }
       return selectedEnvironmentIndex.environment
-    })
+    }),
+    distinctUntilChanged()
   )
 
 export type AggregateEnvironment = {
@@ -476,7 +477,6 @@ export const aggregateEnvsWithSecrets$: Observable<AggregateEnvironment[]> =
   combineLatest([currentEnvironment$, globalEnv$]).pipe(
     map(([selectedEnv, globalVars]) => {
       const results: AggregateEnvironment[] = []
-
       selectedEnv?.variables.map((x, index) => {
         let value
         if (x.secret) {

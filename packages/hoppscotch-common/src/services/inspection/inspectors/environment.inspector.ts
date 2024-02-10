@@ -17,6 +17,7 @@ import {
 import { invokeAction } from "~/helpers/actions"
 import { computed } from "vue"
 import { useStreamStatic } from "~/composables/stream"
+import { SecretEnvironmentService } from "~/services/secret-environment.service"
 
 const HOPP_ENVIRONMENT_REGEX = /(<<[a-zA-Z0-9-_]+>>)/g
 
@@ -39,6 +40,7 @@ export class EnvironmentInspectorService extends Service implements Inspector {
   public readonly inspectorID = "environment"
 
   private readonly inspection = this.bind(InspectionService)
+  private readonly secretEnvs = this.bind(SecretEnvironmentService)
 
   private aggregateEnvsWithSecrets = useStreamStatic(
     aggregateEnvsWithSecrets$,
@@ -141,10 +143,18 @@ export class EnvironmentInspectorService extends Service implements Inspector {
         if (extractedEnv) {
           extractedEnv.forEach((exEnv: string) => {
             const formattedExEnv = exEnv.slice(2, -2)
+            const currentSelectedEnvironment = getCurrentEnvironment()
 
             this.aggregateEnvsWithSecrets.value.forEach((env) => {
+              const hasSecretEnv = this.secretEnvs.hasSecretValue(
+                env.sourceEnv !== "Global"
+                  ? currentSelectedEnvironment.id
+                  : "Global",
+                env.key
+              )
+
               if (env.key === formattedExEnv) {
-                if (env.value === "") {
+                if (env.secret ? !hasSecretEnv : env.value === "") {
                   const itemLocation: InspectorLocation = {
                     type: locations.type,
                     position:
@@ -157,7 +167,6 @@ export class EnvironmentInspectorService extends Service implements Inspector {
                     key: element,
                   }
 
-                  const currentSelectedEnvironment = getCurrentEnvironment()
                   const currentEnvironmentType = getSelectedEnvironmentType()
 
                   let invokeActionType:

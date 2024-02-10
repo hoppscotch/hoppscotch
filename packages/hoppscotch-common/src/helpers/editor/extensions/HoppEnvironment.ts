@@ -67,7 +67,6 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
       const envName = tooltipEnv?.sourceEnv ?? "Choose an Environment"
 
       let envValue = "Not Found"
-
       if (!tooltipEnv?.secret && tooltipEnv?.value) envValue = tooltipEnv.value
       else if (tooltipEnv?.secret && tooltipEnv.value) {
         envValue = "******"
@@ -92,11 +91,23 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
         editIcon.className =
           "ml-2 cursor-pointer text-accent hover:text-accentDark"
         editIcon.addEventListener("click", () => {
-          const isPersonalEnv =
-            envName === "Global" || selectedEnvType !== "TEAM_ENV"
-          const action = isPersonalEnv ? "my" : "team"
-          invokeAction(`modals.${action}.environment.edit`, {
-            envName,
+          let invokeActionType:
+            | "modals.my.environment.edit"
+            | "modals.team.environment.edit"
+            | "modals.global.environment.update" = "modals.my.environment.edit"
+
+          if (tooltipEnv?.sourceEnv === "Global") {
+            invokeActionType = "modals.global.environment.update"
+          } else if (selectedEnvType === "MY_ENV") {
+            invokeActionType = "modals.my.environment.edit"
+          } else if (selectedEnvType === "TEAM_ENV") {
+            invokeActionType = "modals.team.environment.edit"
+          } else {
+            invokeActionType = "modals.my.environment.edit"
+          }
+
+          invokeAction(invokeActionType, {
+            envName: tooltipEnv?.sourceEnv !== "Global" ? envName : "Global",
             variableName: parsedEnvKey,
             isSecret: tooltipEnv?.secret,
           })
@@ -185,7 +196,6 @@ export class HoppEnvironmentPlugin {
 
     subscribeToStream(aggregateEnvsWithSecrets$, (envs) => {
       this.envs = envs
-
       this.editorView.value?.dispatch({
         effects: this.compartment.reconfigure([
           cursorTooltipField(this.envs),

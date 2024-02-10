@@ -118,6 +118,21 @@ export class SecretEnvironmentService extends Service {
   }
 
   /**
+   *
+   * @param id ID of the environment
+   * @param key Key of the variable to check the value exists
+   * @returns true if the key has a secret value
+   */
+  public hasSecretValue(id: string, key: string) {
+    return (
+      this.secretEnvironments.has(id) &&
+      this.secretEnvironments
+        .get(id)!
+        .some((secretVar) => secretVar.key === key && secretVar.value !== "")
+    )
+  }
+
+  /**
    * Used to update the value of a secret environment variable.
    */
   public persistableSecretEnvironments = computed(() => {

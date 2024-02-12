@@ -30,8 +30,8 @@ import { platform } from "~/platform"
 import { HandleRef } from "~/services/new-workspace/handle"
 import { WorkspaceProvider } from "~/services/new-workspace/provider"
 import {
-  RESTCollectionLevelAuthHeadersView,
   RESTCollectionChildrenView,
+  RESTCollectionLevelAuthHeadersView,
   RESTCollectionViewItem,
   RootRESTCollectionView,
 } from "~/services/new-workspace/view"
@@ -42,18 +42,13 @@ import {
   WorkspaceRequest,
 } from "~/services/new-workspace/workspace"
 
-import IconUser from "~icons/lucide/user"
-import { NewWorkspaceService } from ".."
 import { HoppRESTRequest } from "@hoppscotch/data"
+import { merge } from "lodash-es"
 import path from "path"
-import {
-  resolveSaveContextOnCollectionReorder,
-  getFoldersByPath,
-} from "~/helpers/collection/collection"
 import { HoppGQLHeader } from "~/helpers/graphql"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
-import { computedAsync } from "@vueuse/core"
-import { merge } from "lodash-es"
+import IconUser from "~icons/lucide/user"
+import { NewWorkspaceService } from ".."
 
 export class PersonalWorkspaceProviderService
   extends Service
@@ -272,13 +267,6 @@ export class PersonalWorkspaceProviderService
         collectionIndex,
         collectionToRemove ? collectionToRemove.id : undefined
       )
-
-      resolveSaveContextOnCollectionReorder({
-        lastIndex: collectionIndex,
-        newIndex: -1,
-        folderPath: "", // root collection
-        length: this.restCollectionState.value.state.length,
-      })
     } else {
       const folderToRemove = path
         ? navigateToFolderWithIndexPath(
@@ -291,17 +279,6 @@ export class PersonalWorkspaceProviderService
         collectionID,
         folderToRemove ? folderToRemove.id : undefined
       )
-
-      const parentFolder = collectionID.split("/").slice(0, -1).join("/") // Remove last folder to get parent folder
-      resolveSaveContextOnCollectionReorder({
-        lastIndex: this.pathToLastIndex(collectionID),
-        newIndex: -1,
-        folderPath: parentFolder,
-        length: getFoldersByPath(
-          this.restCollectionState.value.state,
-          parentFolder
-        ).length,
-      })
     }
 
     return Promise.resolve(E.right(undefined))
@@ -453,9 +430,22 @@ export class PersonalWorkspaceProviderService
           )
 
           if (!collection) {
-            return {
-              type: "invalid" as const,
-              reason: "COLLECTION_PATH_NOT_FOUND" as const,
+            const parentCollectionIndexPath = collectionID
+              .split("/")
+              .slice(0, -1)
+              .join("/")
+            const requestIndex = this.pathToLastIndex(collectionID)
+
+            const parentCollection = navigateToFolderWithIndexPath(
+              this.restCollectionState.value.state,
+              parentCollectionIndexPath.split("/").map((x) => parseInt(x))
+            )
+
+            if (!parentCollection || !parentCollection.requests[requestIndex]) {
+              return {
+                type: "invalid" as const,
+                reason: "INVALID_PATH" as const,
+              }
             }
           }
 
@@ -467,7 +457,7 @@ export class PersonalWorkspaceProviderService
               providerID,
               workspaceID,
               collectionID,
-              name: collection?.name,
+              name: collection?.name as string,
             },
           }
         })

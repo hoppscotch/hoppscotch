@@ -547,19 +547,6 @@ const saveRequest = async () => {
       return
     }
 
-    const resultHandle = updateRequestResult.right
-
-    if (resultHandle.type === "invalid") {
-      // REQUEST_INVALIDATED | REQUEST_PATH_NOT_FOUND
-
-      if (resultHandle.reason === "REQUEST_PATH_NOT_FOUND") {
-        // REQUEST_PATH_NOT_FOUND
-        tab.value.document.saveContext = undefined
-        await saveRequest()
-      }
-      return
-    }
-
     tab.value.document.isDirty = false
 
     tab.value.document.saveContext = {

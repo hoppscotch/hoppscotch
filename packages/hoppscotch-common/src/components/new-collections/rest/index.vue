@@ -779,11 +779,6 @@ const onEditRequest = async (newRequestName: string) => {
     return
   }
 
-  if (result.right.type === "invalid") {
-    // REQUEST_INVALIDATED
-    return
-  }
-
   displayModalEditRequest(false)
   toast.success(t("request.renamed"))
 }

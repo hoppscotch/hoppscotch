@@ -304,12 +304,6 @@ const saveRequestAs = async () => {
       return
     }
 
-    if (updateRequestResult.right.type === "invalid") {
-      // REQUEST_INVALIDATED | REQUEST_PATH_NOT_FOUND
-
-      return
-    }
-
     // These remain here in the component
     RESTTabs.currentActiveTab.value.document = {
       request: updatedRequest,

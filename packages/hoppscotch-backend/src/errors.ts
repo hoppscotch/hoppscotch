@@ -111,7 +111,8 @@ export const USER_IS_ADMIN = 'user/is_admin' as const;
  * User invite deletion failure error due to invitation not found
  * (AdminService)
  */
-export const USER_INVITATION_NOT_FOUND = 'user/invitation_not_found' as const;
+export const USER_INVITATION_DELETION_FAILED =
+  'user/invitation_deletion_failed' as const;
 
 /**
  * Teams not found

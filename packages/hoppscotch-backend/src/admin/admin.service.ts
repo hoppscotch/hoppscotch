@@ -15,7 +15,7 @@ import {
   TEAM_INVITE_NO_INVITE_FOUND,
   USERS_NOT_FOUND,
   USER_ALREADY_INVITED,
-  USER_INVITATION_NOT_FOUND,
+  USER_INVITATION_DELETION_FAILED,
   USER_IS_ADMIN,
   USER_NOT_FOUND,
 } from '../errors';
@@ -164,7 +164,7 @@ export class AdminService {
       });
       return E.right(true);
     } catch (error) {
-      return E.left(USER_INVITATION_NOT_FOUND);
+      return E.left(USER_INVITATION_DELETION_FAILED);
     }
   }
 
@@ -543,7 +543,7 @@ export class AdminService {
 
     const isUpdated = await this.userService.removeUsersAsAdmin(userUIDs);
     if (E.isLeft(isUpdated)) return E.left(isUpdated.left);
-    return E.right(true);
+    return E.right(isUpdated.right);
   }
 
   /**

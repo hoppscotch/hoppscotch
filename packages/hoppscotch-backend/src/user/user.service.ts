@@ -8,7 +8,7 @@ import * as T from 'fp-ts/Task';
 import * as A from 'fp-ts/Array';
 import { pipe, constVoid } from 'fp-ts/function';
 import { AuthUser } from 'src/types/AuthUser';
-import { USER_NOT_FOUND } from 'src/errors';
+import { USERS_NOT_FOUND, USER_NOT_FOUND } from 'src/errors';
 import { SessionType, User } from './user.model';
 import { USER_UPDATE_FAILED } from 'src/errors';
 import { PubSubService } from 'src/pubsub/pubsub.service';
@@ -545,10 +545,15 @@ export class UserService {
    * @returns a Either of true or error
    */
   async removeUsersAsAdmin(userUIDs: string[]) {
-    await this.prisma.user.updateMany({
+    const data = await this.prisma.user.updateMany({
       where: { uid: { in: userUIDs } },
       data: { isAdmin: false },
     });
+
+    if (data.count === 0) {
+      return E.left(USERS_NOT_FOUND);
+    }
+
     return E.right(true);
   }
 }

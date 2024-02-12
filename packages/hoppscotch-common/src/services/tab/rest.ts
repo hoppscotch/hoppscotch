@@ -1,5 +1,5 @@
 import { isEqual } from "lodash-es"
-import { computed } from "vue"
+import { computed, ref } from "vue"
 import { getDefaultRESTRequest } from "~/helpers/rest/default"
 import { HoppRESTDocument, HoppRESTSaveContext } from "~/helpers/rest/document"
 import { TabService } from "./tab"
@@ -50,8 +50,32 @@ export class RESTTabService extends TabService<HoppRESTDocument> {
         ) {
           return this.getTabRef(tab.id)
         }
-      } else if (isEqual(ctx, tab.document.saveContext)) {
-        return this.getTabRef(tab.id)
+      } else if (ctx?.originLocation === "user-collection") {
+        if (isEqual(ctx, tab.document.saveContext)) {
+          return this.getTabRef(tab.id)
+        }
+      } else if (
+        ctx?.originLocation === "workspace-user-collection" &&
+        tab.document.saveContext?.originLocation === "workspace-user-collection"
+      ) {
+        const tabDocumentRequestHandle = ref(
+          tab.document.saveContext?.requestHandle
+        )
+
+        if (
+          ctx?.requestHandle.value?.type === "invalid" ||
+          tabDocumentRequestHandle?.value.type === "invalid"
+        ) {
+          return
+        }
+
+        if (
+          isEqual(
+            ctx?.requestHandle.value.data.request.id,
+            tabDocumentRequestHandle.value.data.request.id
+          )
+        )
+          return this.getTabRef(tab.id)
       }
     }
 

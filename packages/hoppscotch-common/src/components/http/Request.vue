@@ -341,6 +341,10 @@ const newSendRequest = async () => {
     type: "HOPP_REQUEST_RUN",
     platform: "rest",
     strategy: interceptorService.currentInterceptorID.value!,
+    workspaceType:
+      tab.value.document.saveContext?.originLocation === "team-collection"
+        ? "team"
+        : "personal",
   })
 
   const [cancel, streamPromise] = runRESTRequest$(tab)

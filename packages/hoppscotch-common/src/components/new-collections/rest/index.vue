@@ -128,9 +128,20 @@ import * as E from "fp-ts/lib/Either"
 import { useService } from "dioc/vue"
 import { markRaw, nextTick, ref } from "vue"
 
+import { HoppCollection, HoppRESTAuth, HoppRESTRequest } from "@hoppscotch/data"
+import { cloneDeep } from "lodash-es"
 import { useI18n } from "~/composables/i18n"
+import { useReadonlyStream } from "~/composables/stream"
 import { useToast } from "~/composables/toast"
 import { WorkspaceRESTCollectionTreeAdapter } from "~/helpers/adapters/WorkspaceRESTCollectionTreeAdapter"
+import { TeamCollection } from "~/helpers/backend/graphql"
+import { updateInheritedPropertiesForAffectedRequests } from "~/helpers/collection/collection"
+import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
+import {
+  navigateToFolderWithIndexPath,
+  restCollections$,
+  saveRESTRequestAs,
+} from "~/newstore/collections"
 import { NewWorkspaceService } from "~/services/new-workspace"
 import { HandleRef } from "~/services/new-workspace/handle"
 import { Workspace } from "~/services/new-workspace/workspace"
@@ -138,21 +149,6 @@ import { RESTTabService } from "~/services/tab/rest"
 import IconImport from "~icons/lucide/folder-down"
 import IconHelpCircle from "~icons/lucide/help-circle"
 import IconPlus from "~icons/lucide/plus"
-import {
-  navigateToFolderWithIndexPath,
-  restCollections$,
-  saveRESTRequestAs,
-} from "~/newstore/collections"
-import { cloneDeep } from "lodash-es"
-import { HoppCollection, HoppRESTAuth, HoppRESTRequest } from "@hoppscotch/data"
-import { TeamCollection } from "~/helpers/backend/graphql"
-import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
-import { useReadonlyStream } from "~/composables/stream"
-import { updateInheritedPropertiesForAffectedRequests } from "~/helpers/collection/collection"
-import {
-  resolveSaveContextOnRequestReorder,
-  getRequestsByPath,
-} from "~/helpers/collection/request"
 
 const t = useI18n()
 const toast = useToast()
@@ -312,8 +308,8 @@ const onRemoveRootCollection = async () => {
   displayConfirmModal(false)
 }
 
-const addRequest = (requestPathIndex: string) => {
-  editingCollectionIndexPath.value = requestPathIndex
+const addRequest = (parentCollectionIndexPath: string) => {
+  editingCollectionIndexPath.value = parentCollectionIndexPath
   displayModalAddRequest(true)
 }
 
@@ -598,17 +594,17 @@ const onRemoveRequest = async () => {
     return
   }
 
+  const possibleTab = tabs.getTabRefWithSaveContext({
+    originLocation: "workspace-user-collection",
+    requestHandle,
+  })
+
   const result = await workspaceService.removeRESTRequest(requestHandle)
 
   if (E.isLeft(result)) {
     // INVALID_WORKSPACE_HANDLE
     return
   }
-
-  const possibleTab = tabs.getTabRefWithSaveContext({
-    originLocation: "workspace-user-collection",
-    requestHandle,
-  })
 
   // If there is a tab attached to this request, dissociate its state and mark it dirty
   if (possibleTab) {
@@ -715,7 +711,7 @@ const duplicateRequest = async (requestIndexPath: string) => {
     return
   }
 
-  const requestHandle = requestHandleResult.right
+  const requestHandle = cloneDeep(requestHandleResult.right)
 
   if (requestHandle.value.type === "invalid") {
     // COLLECTION_INVALIDATED | INVALID_REQUEST_HANDLE

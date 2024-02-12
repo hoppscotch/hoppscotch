@@ -432,12 +432,13 @@ export class AdminService {
    * @returns an Either of boolean or error
    */
   async removeUserAccounts(userUIDs: string[]) {
+    const userDeleteResult: UserDeletionResult[] = [];
+
+    // step 1: fetch all users
     const allUsersList = await this.userService.findUsersByIds(userUIDs);
     if (allUsersList.length === 0) return E.left(USERS_NOT_FOUND);
 
-    const userDeleteResult: UserDeletionResult[] = [];
-
-    // Admin user can not be deleted without removing admin status/role
+    // step 2: admin user can not be deleted without removing admin status/role
     allUsersList.forEach((user) => {
       if (user.isAdmin) {
         userDeleteResult.push({
@@ -449,7 +450,9 @@ export class AdminService {
     });
 
     const nonAdminUsers = allUsersList.filter((user) => !user.isAdmin);
+    let deletedUserEmails: string[] = [];
 
+    // step 3: delete non-admin users
     const deletionPromises = nonAdminUsers.map((user) => {
       return this.userService
         .deleteUserByUID(user)()
@@ -461,6 +464,8 @@ export class AdminService {
               errorMessage: res.left,
             } as UserDeletionResult;
           }
+
+          deletedUserEmails.push(user.email);
           return {
             userUID: user.uid,
             isDeleted: true,
@@ -470,6 +475,12 @@ export class AdminService {
     });
     const promiseResult = await Promise.allSettled(deletionPromises);
 
+    // step 4: revoke all the invites sent to the deleted users
+    await this.prisma.invitedUsers.deleteMany({
+      where: { inviteeEmail: { in: deletedUserEmails } },
+    });
+
+    // step 5: return the result
     promiseResult.forEach((result) => {
       if (result.status === 'fulfilled') {
         userDeleteResult.push(result.value);

@@ -58,7 +58,7 @@ registerEnumType(SessionType, {
 });
 
 @ObjectType()
-export class UserDeleteData {
+export class UserDeletionResult {
   @Field(() => ID, {
     description: 'UID of the user',
   })
@@ -67,7 +67,7 @@ export class UserDeleteData {
   @Field(() => Boolean, {
     description: 'Flag to determine if user deletion was successful or not',
   })
-  success: Boolean;
+  isDeleted: Boolean;
 
   @Field({
     nullable: true,

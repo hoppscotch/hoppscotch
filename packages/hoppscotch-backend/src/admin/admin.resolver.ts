@@ -27,7 +27,7 @@ import {
 } from './input-types.args';
 import { GqlThrottlerGuard } from 'src/guards/gql-throttler.guard';
 import { SkipThrottle } from '@nestjs/throttler';
-import { UserDeleteData } from 'src/user/user.model';
+import { UserDeletionResult } from 'src/user/user.model';
 
 @UseGuards(GqlThrottlerGuard)
 @Resolver(() => Admin)
@@ -71,20 +71,20 @@ export class AdminResolver {
   }
 
   @Mutation(() => Boolean, {
-    description: 'Revoke a user invite by invitee email',
+    description: 'Revoke a user invites by invitee emails',
   })
   @UseGuards(GqlAuthGuard, GqlAdminGuard)
-  async revokeUserInvitationByAdmin(
+  async revokeUserInvitationsByAdmin(
     @GqlAdmin() adminUser: Admin,
     @Args({
-      name: 'inviteeEmail',
-      description: 'Invite Email',
-      type: () => ID,
+      name: 'inviteeEmails',
+      description: 'Invitee Emails',
+      type: () => [String],
     })
-    inviteeEmail: string,
+    inviteeEmails: string[],
   ): Promise<boolean> {
-    const invite = await this.adminService.revokeUserInvite(
-      inviteeEmail,
+    const invite = await this.adminService.revokeUserInvites(
+      inviteeEmails,
       adminUser.uid,
     );
     if (E.isLeft(invite)) throwErr(invite.left);
@@ -93,6 +93,7 @@ export class AdminResolver {
 
   @Mutation(() => Boolean, {
     description: 'Delete an user account from infra',
+    deprecationReason: 'Use removeUsersByAdmin instead',
   })
   @UseGuards(GqlAuthGuard, GqlAdminGuard)
   async removeUserByAdmin(
@@ -108,7 +109,7 @@ export class AdminResolver {
     return removedUser.right;
   }
 
-  @Mutation(() => [UserDeleteData], {
+  @Mutation(() => [UserDeletionResult], {
     description: 'Delete user accounts from infra',
   })
   @UseGuards(GqlAuthGuard, GqlAdminGuard)
@@ -119,7 +120,7 @@ export class AdminResolver {
       type: () => [ID],
     })
     userUIDs: string[],
-  ): Promise<UserDeleteData[]> {
+  ): Promise<UserDeletionResult[]> {
     const deletionResults = await this.adminService.removeUserAccounts(
       userUIDs,
     );
@@ -129,6 +130,7 @@ export class AdminResolver {
 
   @Mutation(() => Boolean, {
     description: 'Make user an admin',
+    deprecationReason: 'Use makeUsersAdmin instead',
   })
   @UseGuards(GqlAuthGuard, GqlAdminGuard)
   async makeUserAdmin(
@@ -188,6 +190,7 @@ export class AdminResolver {
 
   @Mutation(() => Boolean, {
     description: 'Remove user as admin',
+    deprecationReason: 'Use demoteUsersByAdmin instead',
   })
   @UseGuards(GqlAuthGuard, GqlAdminGuard)
   async removeUserAsAdmin(
@@ -207,7 +210,7 @@ export class AdminResolver {
     description: 'Remove users as admin',
   })
   @UseGuards(GqlAuthGuard, GqlAdminGuard)
-  async removeUsersAsAdmin(
+  async demoteUsersByAdmin(
     @Args({
       name: 'userUIDs',
       description: 'users UID',
@@ -215,7 +218,7 @@ export class AdminResolver {
     })
     userUIDs: string[],
   ): Promise<boolean> {
-    const isUpdated = await this.adminService.removeUsersAsAdmin(userUIDs);
+    const isUpdated = await this.adminService.demoteUsersByAdmin(userUIDs);
     if (E.isLeft(isUpdated)) throwErr(isUpdated.left);
     return isUpdated.right;
   }
@@ -371,15 +374,5 @@ export class AdminResolver {
   @UseGuards(GqlAuthGuard, GqlAdminGuard)
   userInvited(@GqlUser() admin: AuthUser) {
     return this.pubsub.asyncIterator(`admin/${admin.uid}/invited`);
-  }
-
-  @Subscription(() => InvitedUser, {
-    description: 'Listen for User Invite Revocation',
-    resolve: (value) => value,
-  })
-  @SkipThrottle()
-  @UseGuards(GqlAuthGuard, GqlAdminGuard)
-  userRevoked(@GqlUser() admin: AuthUser) {
-    return this.pubsub.asyncIterator(`admin/${admin.uid}/invitation_revoked`);
   }
 }

@@ -438,7 +438,7 @@ describe('UserService', () => {
     test('should resolve right and update user', async () => {
       mockPrisma.user.update.mockResolvedValueOnce(user);
 
-      const result = await userService.updateUser(user.uid, user.displayName);
+      const result = await userService.updateUserDisplayName(user.uid, user.displayName);
       expect(result).toEqualRight({
         ...user,
         currentGQLSession: JSON.stringify(user.currentGQLSession),
@@ -448,7 +448,7 @@ describe('UserService', () => {
     test('should resolve right and publish user updated subscription', async () => {
       mockPrisma.user.update.mockResolvedValueOnce(user);
 
-      await userService.updateUser(user.uid, user.displayName);
+      await userService.updateUserDisplayName(user.uid, user.displayName);
       expect(mockPubSub.publish).toHaveBeenCalledWith(
         `user/${user.uid}/updated`,
         {
@@ -461,7 +461,7 @@ describe('UserService', () => {
     test('should resolve left and error when invalid user uid is passed', async () => {
       mockPrisma.user.update.mockRejectedValueOnce('NotFoundError');
 
-      const result = await userService.updateUser(
+      const result = await userService.updateUserDisplayName(
         'invalidUserUid',
         user.displayName,
       );

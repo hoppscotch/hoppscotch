@@ -90,9 +90,9 @@ export class UserService {
   }
 
   /**
-   * Find Non-Admin Users with given IDs
+   * Find users with given IDs
    * @param userUIDs User IDs
-   * @returns Option of found Users
+   * @returns Array of found Users
    */
   async findUsersByIds(userUIDs: string[]): Promise<AuthUser[]> {
     const users = await this.prisma.user.findMany({
@@ -290,7 +290,7 @@ export class UserService {
    * @param displayName User's displayName
    * @returns a Either of User or error
    */
-  async updateUser(userUID: string, displayName: string) {
+  async updateUserDisplayName(userUID: string, displayName: string) {
     try {
       const dbUpdatedUser = await this.prisma.user.update({
         where: { uid: userUID },

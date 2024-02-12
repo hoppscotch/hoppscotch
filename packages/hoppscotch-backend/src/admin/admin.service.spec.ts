@@ -198,7 +198,7 @@ describe('AdminService', () => {
       mockUserService.removeUsersAsAdmin.mockResolvedValueOnce(E.right(true));
 
       return expect(
-        await adminService.removeUsersAsAdmin(['123456']),
+        await adminService.demoteUsersByAdmin(['123456']),
       ).toEqualRight(true);
     });
 
@@ -208,7 +208,7 @@ describe('AdminService', () => {
       ]);
       mockUserService.removeUsersAsAdmin.mockResolvedValueOnce(E.right(true));
 
-      return expect(await adminService.removeUsersAsAdmin(['123'])).toEqualLeft(
+      return expect(await adminService.demoteUsersByAdmin(['123'])).toEqualLeft(
         ONLY_ONE_ADMIN_ACCOUNT,
       );
     });

@@ -31,7 +31,7 @@ import { Shortcode } from 'src/shortcode/shortcode.model';
 // A custom message type that defines the topic and the corresponding payload.
 // For every module that publishes a subscription add its type def and the possible subscription type.
 export type TopicDef = {
-  [topic: `admin/${string}/${'invited' | 'invitation_revoked'}`]: InvitedUser;
+  [topic: `admin/${string}/${'invited'}`]: InvitedUser;
   [topic: `user/${string}/${'updated' | 'deleted'}`]: User;
   [topic: `user_settings/${string}/${'created' | 'updated'}`]: UserSettings;
   [

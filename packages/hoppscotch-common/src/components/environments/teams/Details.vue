@@ -380,7 +380,7 @@ const saveEnvironment = async () => {
   const variables = pipe(
     filterdVariables,
     A.map((e) =>
-      e.secret ? { key: e.key, secret: e.secret ?? false, value: undefined } : e
+      e.secret ? { key: e.key, secret: e.secret, value: undefined } : e
     )
   )
 

@@ -83,9 +83,9 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
       )
 
       if (!tooltipEnv?.secret && tooltipEnv?.value) envValue = tooltipEnv.value
-      else if (tooltipEnv?.secret && !tooltipEnv.value && hasSecretEnv) {
+      else if (tooltipEnv?.secret && hasSecretEnv) {
         envValue = "******"
-      } else if (tooltipEnv?.secret && !tooltipEnv.value && !hasSecretEnv) {
+      } else if (tooltipEnv?.secret && !hasSecretEnv) {
         envValue = "Empty"
       } else if (!tooltipEnv?.sourceEnv) {
         envValue = "Not Found"

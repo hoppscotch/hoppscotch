@@ -1,4 +1,4 @@
-import { JSON_INVALID, USER_NOT_FOUND } from 'src/errors';
+import { JSON_INVALID, USERS_NOT_FOUND, USER_NOT_FOUND } from 'src/errors';
 import { mockDeep, mockReset } from 'jest-mock-extended';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AuthUser } from 'src/types/AuthUser';
@@ -176,11 +176,11 @@ describe('UserService', () => {
     });
   });
 
-  describe('findNonAdminUsersByIds', () => {
-    test('should successfully return valid (non-admin) users given valid user UIDs', async () => {
+  describe('findUsersByIds', () => {
+    test('should successfully return users given valid user UIDs', async () => {
       mockPrisma.user.findMany.mockResolvedValueOnce(users);
 
-      const result = await userService.findNonAdminUsersByIds([
+      const result = await userService.findUsersByIds([
         '123344',
         '5555',
         '6666',
@@ -191,7 +191,7 @@ describe('UserService', () => {
     test('should return empty array of users given a invalid user UIDs', async () => {
       mockPrisma.user.findMany.mockResolvedValueOnce([]);
 
-      const result = await userService.findNonAdminUsersByIds(['sdcvbdbr']);
+      const result = await userService.findUsersByIds(['sdcvbdbr']);
       expect(result).toEqual([]);
     });
   });
@@ -434,25 +434,38 @@ describe('UserService', () => {
     });
   });
 
-  describe('updateUser', () => {
-    test('should resolve right and update user', async () => {
-      mockPrisma.user.update.mockResolvedValueOnce(user);
+  describe('updateUserDisplayName', () => {
+    test('should resolve right and update user display name', async () => {
+      const newDisplayName = 'New Name';
+      mockPrisma.user.update.mockResolvedValueOnce({
+        ...user,
+        displayName: newDisplayName,
+      });
 
-      const result = await userService.updateUserDisplayName(user.uid, user.displayName);
+      const result = await userService.updateUserDisplayName(
+        user.uid,
+        newDisplayName,
+      );
       expect(result).toEqualRight({
         ...user,
+        displayName: newDisplayName,
         currentGQLSession: JSON.stringify(user.currentGQLSession),
         currentRESTSession: JSON.stringify(user.currentRESTSession),
       });
     });
     test('should resolve right and publish user updated subscription', async () => {
-      mockPrisma.user.update.mockResolvedValueOnce(user);
+      const newDisplayName = 'New Name';
+      mockPrisma.user.update.mockResolvedValueOnce({
+        ...user,
+        displayName: newDisplayName,
+      });
 
       await userService.updateUserDisplayName(user.uid, user.displayName);
       expect(mockPubSub.publish).toHaveBeenCalledWith(
         `user/${user.uid}/updated`,
         {
           ...user,
+          displayName: newDisplayName,
           currentGQLSession: JSON.stringify(user.currentGQLSession),
           currentRESTSession: JSON.stringify(user.currentRESTSession),
         },
@@ -479,7 +492,7 @@ describe('UserService', () => {
     test('should resolve right and return next 20 users when cursor is provided', async () => {
       mockPrisma.user.findMany.mockResolvedValueOnce(users);
 
-      const result = await userService.fetchAllUsers('123456', 20);
+      const result = await userService.fetchAllUsers('123344', 20);
       expect(result).toEqual(users);
     });
     test('should resolve left and return an empty array when users not found', async () => {
@@ -500,7 +513,7 @@ describe('UserService', () => {
       });
       expect(result).toEqual(users);
     });
-    test('should resolve right and return next 20 users when cursor is provided', async () => {
+    test('should resolve right and return next 20 users when searchString is provided', async () => {
       mockPrisma.user.findMany.mockResolvedValueOnce(users);
 
       const result = await userService.fetchAllUsersV2('.com', {
@@ -647,6 +660,11 @@ describe('UserService', () => {
       mockPrisma.user.updateMany.mockResolvedValueOnce({ count: 1 });
       const result = await userService.removeUsersAsAdmin(['123344']);
       expect(result).toEqualRight(true);
+    });
+    test('should resolve right and return false for invalid user UIDs', async () => {
+      mockPrisma.user.updateMany.mockResolvedValueOnce({ count: 0 });
+      const result = await userService.removeUsersAsAdmin(['123344']);
+      expect(result).toEqualLeft(USERS_NOT_FOUND);
     });
   });
 });

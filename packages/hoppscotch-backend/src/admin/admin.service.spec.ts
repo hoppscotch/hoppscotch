@@ -1,7 +1,7 @@
 import { AdminService } from './admin.service';
 import { PubSubService } from '../pubsub/pubsub.service';
 import { mockDeep } from 'jest-mock-extended';
-import { InvitedUsers } from '@prisma/client';
+import { InvitedUsers, User as DbUser } from '@prisma/client';
 import { UserService } from '../user/user.service';
 import { TeamService } from '../team/team.service';
 import { TeamEnvironmentsService } from '../team-environments/team-environments.service';
@@ -15,7 +15,7 @@ import {
   INVALID_EMAIL,
   ONLY_ONE_ADMIN_ACCOUNT,
   USER_ALREADY_INVITED,
-  USER_INVITATION_NOT_FOUND,
+  USER_INVITATION_DELETION_FAILED,
   USER_NOT_FOUND,
 } from '../errors';
 import { ShortcodeService } from 'src/shortcode/shortcode.service';
@@ -63,8 +63,69 @@ const invitedUsers: InvitedUsers[] = [
     invitedOn: new Date(),
   },
 ];
+
+const dbAdminUsers: DbUser[] = [
+  {
+    uid: 'uid 1',
+    displayName: 'displayName',
+    email: 'email@email.com',
+    photoURL: 'photoURL',
+    isAdmin: true,
+    refreshToken: 'refreshToken',
+    currentRESTSession: '',
+    currentGQLSession: '',
+    createdOn: new Date(),
+  },
+  {
+    uid: 'uid 2',
+    displayName: 'displayName',
+    email: 'email@email.com',
+    photoURL: 'photoURL',
+    isAdmin: true,
+    refreshToken: 'refreshToken',
+    currentRESTSession: '',
+    currentGQLSession: '',
+    createdOn: new Date(),
+  },
+];
+const dbNonAminUser: DbUser = {
+  uid: 'uid 3',
+  displayName: 'displayName',
+  email: 'email@email.com',
+  photoURL: 'photoURL',
+  isAdmin: false,
+  refreshToken: 'refreshToken',
+  currentRESTSession: '',
+  currentGQLSession: '',
+  createdOn: new Date(),
+};
+
 describe('AdminService', () => {
   describe('fetchInvitedUsers', () => {
+    test('should resolve right and apply pagination correctly', async () => {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      mockPrisma.user.findMany.mockResolvedValue([]);
+      // @ts-ignore
+      mockPrisma.invitedUsers.findMany.mockResolvedValue(invitedUsers);
+
+      const paginationArgs: OffsetPaginationArgs = { take: 5, skip: 2 };
+      const results = await adminService.fetchInvitedUsers(paginationArgs);
+
+      expect(mockPrisma.invitedUsers.findMany).toHaveBeenCalledWith({
+        ...paginationArgs,
+        orderBy: {
+          invitedOn: 'desc',
+        },
+        where: {
+          NOT: {
+            inviteeEmail: {
+              in: [],
+            },
+          },
+        },
+      });
+    });
     test('should resolve right and return an array of invited users', async () => {
       const paginationArgs: OffsetPaginationArgs = { take: 10, skip: 0 };
 
@@ -145,72 +206,57 @@ describe('AdminService', () => {
     });
   });
 
-  describe('revokeUserInvite', () => {
+  describe('revokeUserInvites', () => {
     test('should resolve left and return error if email not invited', async () => {
-      mockPrisma.invitedUsers.delete.mockRejectedValueOnce(new Error());
+      mockPrisma.invitedUsers.deleteMany.mockRejectedValueOnce(
+        'RecordNotFound',
+      );
 
-      const result = await adminService.revokeUserInvite(
-        'test@gmail.com',
+      const result = await adminService.revokeUserInvites(
+        ['test@gmail.com'],
         'adminUid',
       );
 
-      expect(result).toEqualLeft(USER_INVITATION_NOT_FOUND);
+      expect(result).toEqualLeft(USER_INVITATION_DELETION_FAILED);
     });
 
     test('should resolve right and return deleted invitee email', async () => {
       const adminUid = 'adminUid';
-      mockPrisma.invitedUsers.delete.mockResolvedValueOnce(invitedUsers[0]);
+      mockPrisma.invitedUsers.deleteMany.mockResolvedValueOnce({ count: 1 });
 
-      const result = await adminService.revokeUserInvite(
-        invitedUsers[0].inviteeEmail,
+      const result = await adminService.revokeUserInvites(
+        [invitedUsers[0].inviteeEmail],
         adminUid,
       );
 
-      expect(mockPrisma.invitedUsers.delete).toHaveBeenCalledWith({
+      expect(mockPrisma.invitedUsers.deleteMany).toHaveBeenCalledWith({
         where: {
-          inviteeEmail: invitedUsers[0].inviteeEmail,
+          inviteeEmail: { in: [invitedUsers[0].inviteeEmail] },
         },
       });
       expect(result).toEqualRight(true);
-    });
-
-    test('should resolve right, delete invitee email and publish a subscription', async () => {
-      const adminUid = 'adminUid';
-      mockPrisma.invitedUsers.delete.mockResolvedValueOnce(invitedUsers[0]);
-
-      await adminService.revokeUserInvite(
-        invitedUsers[0].inviteeEmail,
-        adminUid,
-      );
-
-      expect(mockPubSub.publish).toHaveBeenCalledWith(
-        `admin/${adminUid}/invitation_revoked`,
-        invitedUsers[0],
-      );
     });
   });
 
   describe('removeUsersAsAdmin', () => {
     test('should resolve right and make admins to users', async () => {
-      mockUserService.fetchAdminUsers.mockResolvedValueOnce([
-        { uid: '123' } as any,
-      ]);
+      mockUserService.fetchAdminUsers.mockResolvedValueOnce(dbAdminUsers);
       mockUserService.removeUsersAsAdmin.mockResolvedValueOnce(E.right(true));
 
       return expect(
-        await adminService.demoteUsersByAdmin(['123456']),
+        await adminService.demoteUsersByAdmin([dbAdminUsers[0].uid]),
       ).toEqualRight(true);
     });
 
     test('should resolve left and return error if only one admin in the infra', async () => {
-      mockUserService.fetchAdminUsers.mockResolvedValueOnce([
-        { uid: '123' } as any,
-      ]);
+      mockUserService.fetchAdminUsers.mockResolvedValueOnce(dbAdminUsers);
       mockUserService.removeUsersAsAdmin.mockResolvedValueOnce(E.right(true));
 
-      return expect(await adminService.demoteUsersByAdmin(['123'])).toEqualLeft(
-        ONLY_ONE_ADMIN_ACCOUNT,
-      );
+      return expect(
+        await adminService.demoteUsersByAdmin(
+          dbAdminUsers.map((user) => user.uid),
+        ),
+      ).toEqualLeft(ONLY_ONE_ADMIN_ACCOUNT);
     });
   });
 

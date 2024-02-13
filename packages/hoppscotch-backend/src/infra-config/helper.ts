@@ -174,6 +174,7 @@ export async function isInfraConfigTablePopulated(): Promise<boolean> {
       console.log(
         'Infra Config table is not populated with all entries. Populating now...',
       );
+      return false;
     }
 
     return true;

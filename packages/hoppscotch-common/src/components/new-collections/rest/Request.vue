@@ -24,7 +24,7 @@
             {{ requestView.request.name }}
           </span>
           <span
-            v-if="isActive"
+            v-if="props.isActive"
             v-tippy="{ theme: 'tooltip' }"
             class="relative mx-3 flex h-1.5 w-1.5 flex-shrink-0"
             :title="`${t('collection.request_in_use')}`"
@@ -133,6 +133,7 @@ import { getMethodLabelColorClassOf } from "~/helpers/rest/labelColoring"
 const t = useI18n()
 
 const props = defineProps<{
+  isActive: boolean
   requestView: RESTCollectionViewRequest
 }>()
 
@@ -151,9 +152,6 @@ const emit = defineEmits<{
 
 const tippyActions = ref<TippyComponent | null>(null)
 const options = ref<TippyComponent | null>(null)
-
-// TODO: implement
-const isActive = ref(true)
 
 const requestLabelColor = computed(() =>
   getMethodLabelColorClassOf(props.requestView.request)

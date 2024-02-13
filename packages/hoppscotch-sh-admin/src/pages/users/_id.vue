@@ -68,9 +68,9 @@ import { useI18n } from '~/composables/i18n';
 import { useToast } from '~/composables/toast';
 import { useClientHandler } from '~/composables/useClientHandler';
 import {
-  MakeUserAdminDocument,
-  RemoveUserAsAdminDocument,
-  RemoveUserByAdminDocument,
+  DemoteUsersByAdminDocument,
+  MakeUsersAdminDocument,
+  RemoveUsersByAdminDocument,
   UserInfoDocument,
 } from '~/helpers/backend/graphql';
 
@@ -123,43 +123,11 @@ const user = computed({
   },
 });
 
-// User Deletion
-const router = useRouter();
-const userDeletion = useMutation(RemoveUserByAdminDocument);
-const confirmDeletion = ref(false);
-const deleteUserUID = ref<string | null>(null);
-
-const deleteUser = (id: string) => {
-  confirmDeletion.value = true;
-  deleteUserUID.value = id;
-};
-
-const deleteUserMutation = async (id: string | null) => {
-  if (!id) {
-    confirmDeletion.value = false;
-    toast.error(t('state.delete_user_failure'));
-    return;
-  }
-  const variables = { uid: id };
-  const result = await userDeletion.executeMutation(variables);
-
-  if (result.error) {
-    toast.error(t('state.delete_user_failure'));
-  } else {
-    toast.success(t('state.delete_user_success'));
-  }
-
-  confirmDeletion.value = false;
-  deleteUserUID.value = null;
-  router.push('/users');
-};
-
-// Make User Admin
-const userToAdmin = useMutation(MakeUserAdminDocument);
 const confirmUserToAdmin = ref(false);
 const userToAdminUID = ref<string | null>(null);
+const usersToAdmin = useMutation(MakeUsersAdminDocument);
 
-const makeUserAdmin = (id: string) => {
+const makeUserAdmin = (id: string | null) => {
   confirmUserToAdmin.value = true;
   userToAdminUID.value = id;
 };
@@ -170,20 +138,23 @@ const makeUserAdminMutation = async (id: string | null) => {
     toast.error(t('state.admin_failure'));
     return;
   }
-  const variables = { uid: id };
-  const result = await userToAdmin.executeMutation(variables);
+
+  const userUIDs = [id];
+  const variables = { userUIDs };
+  const result = await usersToAdmin.executeMutation(variables);
+
   if (result.error) {
     toast.error(t('state.admin_failure'));
   } else {
-    user.value!.isAdmin = true;
     toast.success(t('state.admin_success'));
+    user.value!.isAdmin = true;
   }
   confirmUserToAdmin.value = false;
   userToAdminUID.value = null;
 };
 
 // Remove Admin Status from a current admin user
-const adminToUser = useMutation(RemoveUserAsAdminDocument);
+const adminToUser = useMutation(DemoteUsersByAdminDocument);
 const confirmAdminToUser = ref(false);
 const adminToUserUID = ref<string | null>(null);
 
@@ -198,15 +169,56 @@ const makeAdminToUserMutation = async (id: string | null) => {
     toast.error(t('state.remove_admin_failure'));
     return;
   }
-  const variables = { uid: id };
+
+  const userUIDs = [id];
+  const variables = { userUIDs };
   const result = await adminToUser.executeMutation(variables);
   if (result.error) {
     toast.error(t('state.remove_admin_failure'));
   } else {
+    toast.success(t('state.remove_admin_success'));
     user.value!.isAdmin = false;
-    toast.error(t('state.remove_admin_success'));
   }
   confirmAdminToUser.value = false;
   adminToUserUID.value = null;
+};
+
+// User Deletion
+const router = useRouter();
+const userDeletion = useMutation(RemoveUsersByAdminDocument);
+const confirmDeletion = ref(false);
+const deleteUserUID = ref<string | null>(null);
+
+const deleteUser = (id: string) => {
+  confirmDeletion.value = true;
+  deleteUserUID.value = id;
+};
+
+const deleteUserMutation = async (id: string | null) => {
+  if (!id) {
+    confirmDeletion.value = false;
+    toast.error(t('state.delete_user_failure'));
+    return;
+  }
+  const userUIDs = [id];
+  const variables = { userUIDs };
+  const result = await userDeletion.executeMutation(variables);
+
+  if (result.error) {
+    toast.error(t('state.delete_user_failure'));
+  } else {
+    const deletedUsers = result.data?.removeUsersByAdmin || [];
+
+    const isAdminError = deletedUsers.some(
+      (user) => user.errorMessage === 'admin/admin_can_not_be_deleted'
+    );
+
+    isAdminError
+      ? toast.error(t('state.delete_user_failed_only_one_admin'))
+      : toast.success(t('state.delete_user_success'));
+  }
+  confirmDeletion.value = false;
+  deleteUserUID.value = null;
+  router.push('/users');
 };
 </script>

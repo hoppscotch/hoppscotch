@@ -6,7 +6,7 @@
 
     <div v-else-if="error">{{ t('shared_requests.load_list_error') }}</div>
 
-    <div v-else-if="sharedRequests.length === 0" class="mt-5">
+    <div v-else-if="sharedRequests.length === 0">
       {{ t('users.no_shared_requests') }}
     </div>
 

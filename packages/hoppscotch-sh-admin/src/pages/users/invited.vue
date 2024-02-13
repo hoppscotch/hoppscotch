@@ -66,7 +66,7 @@ import { computed, ref } from 'vue';
 import { useQuery, useMutation } from '@urql/vue';
 import {
   InvitedUsersDocument,
-  RevokeUserInvitationByAdminDocument,
+  RevokeUserInvitationsByAdminDocument,
 } from '../../helpers/backend/graphql';
 import { format } from 'date-fns';
 import { useRouter } from 'vue-router';
@@ -108,7 +108,7 @@ const invitedUsers = computed({
 const confirmDeletion = ref(false);
 const inviteToBeDeleted = ref<string | null>(null);
 const deleteInvitationMutation = useMutation(
-  RevokeUserInvitationByAdminDocument
+  RevokeUserInvitationsByAdminDocument
 );
 
 const deleteInvite = (inviteeEmail: string) => {
@@ -122,7 +122,7 @@ const deleteUserInvitation = async (inviteeEmail: string | null) => {
     toast.error(t('state.delete_invite_failure'));
     return;
   }
-  const variables = { inviteeEmail };
+  const variables = { inviteeEmails: [inviteeEmail] };
   const result = await deleteInvitationMutation.executeMutation(variables);
   if (result.error) {
     toast.error(t('state.delete_invite_failure'));

@@ -269,7 +269,7 @@
     "load_list_error": "Unable to Load Users List",
     "make_admin": "Make Admin",
     "name": "Name",
-    "no_invite": "No invited users found",
+    "no_invite": "No pending invites found",
     "no_shared_requests": "No shared requests created by the user",
     "no_users": "No users found",
     "not_found": "User not found",

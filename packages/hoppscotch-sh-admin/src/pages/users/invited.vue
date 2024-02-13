@@ -16,7 +16,7 @@
           <HoppSmartSpinner />
         </div>
 
-        <div v-else-if="error" class="text-xl">
+        <div v-else-if="error">
           {{ t('users.invite_load_list_error') }}
         </div>
 
@@ -49,7 +49,7 @@
           </template>
         </UsersTable>
 
-        <div v-else class="text-lg">{{ t('users.no_invite') }}</div>
+        <div v-else>{{ t('users.no_invite') }}</div>
       </div>
     </div>
     <HoppSmartConfirmModal

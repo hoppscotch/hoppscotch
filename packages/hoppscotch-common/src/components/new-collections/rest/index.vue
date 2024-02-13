@@ -711,7 +711,7 @@ const duplicateRequest = async (requestIndexPath: string) => {
     return
   }
 
-  const requestHandle = cloneDeep(requestHandleResult.right)
+  const requestHandle = requestHandleResult.right
 
   if (requestHandle.value.type === "invalid") {
     // COLLECTION_INVALIDATED | INVALID_REQUEST_HANDLE
@@ -773,6 +773,18 @@ const onEditRequest = async (newRequestName: string) => {
   if (E.isLeft(result)) {
     // INVALID_REQUEST_HANDLE
     return
+  }
+
+  const possibleActiveTab = tabs.getTabRefWithSaveContext({
+    originLocation: "workspace-user-collection",
+    requestHandle,
+  })
+
+  if (possibleActiveTab) {
+    possibleActiveTab.value.document.request.name = newRequestName
+    nextTick(() => {
+      possibleActiveTab.value.document.isDirty = false
+    })
   }
 
   displayModalEditRequest(false)

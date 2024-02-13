@@ -1,7 +1,7 @@
 mutation RemoveUsersByAdmin($userUIDs: [ID!]!) {
   removeUsersByAdmin(userUIDs: $userUIDs) {
     userUID
-    success
+    isDeleted
     errorMessage
   }
 }

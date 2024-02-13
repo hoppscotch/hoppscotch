@@ -1,0 +1,3 @@
+mutation RevokeUserInvitationsByAdmin($inviteeEmails: [String!]!) {
+  revokeUserInvitationsByAdmin(inviteeEmails: $inviteeEmails)
+}

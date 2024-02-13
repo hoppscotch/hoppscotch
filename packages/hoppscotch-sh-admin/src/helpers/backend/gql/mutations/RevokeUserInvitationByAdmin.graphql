@@ -1,3 +1,0 @@
-mutation RevokeUserInvitationByAdmin($inviteeEmail: ID!) {
-  revokeUserInvitationByAdmin(inviteeEmail: $inviteeEmail)
-}

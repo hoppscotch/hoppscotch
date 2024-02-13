@@ -374,6 +374,10 @@ const EnvironmentVariablesSchema = z.union([
     key: z.string(),
     secret: z.literal(true),
   }),
+  z.object({
+    key: z.string(),
+    value: z.string(),
+  }),
 ])
 
 export const SECRET_ENVIRONMENT_VARIABLE_SCHEMA = z.union([
@@ -405,7 +409,9 @@ const HoppTestResultSchema = z
           .object({
             additions: z.array(EnvironmentVariablesSchema),
             updations: z.array(
-              EnvironmentVariablesSchema.refine((x) => !x.secret).and(
+              EnvironmentVariablesSchema.refine(
+                (x) => "secret" in x && !x.secret
+              ).and(
                 z.object({
                   previousValue: z.string(),
                 })
@@ -418,7 +424,9 @@ const HoppTestResultSchema = z
           .object({
             additions: z.array(EnvironmentVariablesSchema),
             updations: z.array(
-              EnvironmentVariablesSchema.refine((x) => !x.secret).and(
+              EnvironmentVariablesSchema.refine(
+                (x) => "secret" in x && !x.secret
+              ).and(
                 z.object({
                   previousValue: z.string(),
                 })

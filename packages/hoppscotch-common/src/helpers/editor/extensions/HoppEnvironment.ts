@@ -14,12 +14,15 @@ import {
   AggregateEnvironment,
   aggregateEnvsWithSecrets$,
   getAggregateEnvsWithSecrets,
+  getCurrentEnvironment,
   getSelectedEnvironmentType,
 } from "~/newstore/environments"
 import { invokeAction } from "~/helpers/actions"
 import IconUser from "~icons/lucide/user?raw"
 import IconUsers from "~icons/lucide/users?raw"
 import IconEdit from "~icons/lucide/edit?raw"
+import { SecretEnvironmentService } from "~/services/secret-environment.service"
+import { getService } from "~/modules/dioc"
 
 const HOPP_ENVIRONMENT_REGEX = /(<<[a-zA-Z0-9-_]+>>)/g
 
@@ -27,6 +30,8 @@ const HOPP_ENV_HIGHLIGHT =
   "cursor-help transition rounded px-1 focus:outline-none mx-0.5 env-highlight"
 const HOPP_ENV_HIGHLIGHT_FOUND = "env-found"
 const HOPP_ENV_HIGHLIGHT_NOT_FOUND = "env-not-found"
+
+const secretEnvironmentService = getService(SecretEnvironmentService)
 
 const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
   hoverTooltip(
@@ -67,9 +72,21 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
       const envName = tooltipEnv?.sourceEnv ?? "Choose an Environment"
 
       let envValue = "Not Found"
+
+      const currentSelectedEnvironment = getCurrentEnvironment()
+
+      const hasSecretEnv = secretEnvironmentService.hasSecretValue(
+        tooltipEnv?.sourceEnv !== "Global"
+          ? currentSelectedEnvironment.id
+          : "Global",
+        tooltipEnv?.key ?? ""
+      )
+
       if (!tooltipEnv?.secret && tooltipEnv?.value) envValue = tooltipEnv.value
-      else if (tooltipEnv?.secret && tooltipEnv.value) {
+      else if (tooltipEnv?.secret && hasSecretEnv) {
         envValue = "******"
+      } else if (tooltipEnv?.secret && !hasSecretEnv) {
+        envValue = "Empty"
       } else if (!tooltipEnv?.sourceEnv) {
         envValue = "Not Found"
       } else if (!tooltipEnv?.value) {

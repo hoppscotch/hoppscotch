@@ -12,12 +12,16 @@
           <span
             class="pointer-events-none flex items-center justify-center px-4"
           >
-            <component :is="collectionIcon" class="svg-icons" />
+            <component
+              :is="collectionIcon"
+              class="svg-icons"
+              :class="{ 'text-accent': isSelected }"
+            />
           </span>
           <span
             class="pointer-events-none flex min-w-0 flex-1 py-2 pr-2 transition group-hover:text-secondaryDark"
           >
-            <span class="truncate">
+            <span class="truncate" :class="{ 'text-accent': isSelected }">
               {{ collectionView.name }}
             </span>
           </span>
@@ -151,6 +155,7 @@ import { RESTCollectionViewCollection } from "~/services/new-workspace/view"
 import { TippyComponent } from "vue-tippy"
 import { ref, computed } from "vue"
 import { useI18n } from "~/composables/i18n"
+import IconCheckCircle from "~icons/lucide/check-circle"
 import IconFolderPlus from "~icons/lucide/folder-plus"
 import IconFilePlus from "~icons/lucide/file-plus"
 import IconMoreVertical from "~icons/lucide/more-vertical"
@@ -166,6 +171,7 @@ const t = useI18n()
 const props = defineProps<{
   collectionView: RESTCollectionViewCollection
   isOpen: boolean
+  isSelected?: boolean | null
 }>()
 
 const emit = defineEmits<{
@@ -195,6 +201,9 @@ const exportAction = ref<HTMLButtonElement | null>(null)
 const options = ref<TippyComponent | null>(null)
 
 const collectionIcon = computed(() => {
+  if (props.isSelected) {
+    return IconCheckCircle
+  }
   return !props.isOpen ? IconFolder : IconFolderOpen
 })
 

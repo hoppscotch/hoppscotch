@@ -18,7 +18,10 @@
     </div>
     <NewCollectionsRest
       v-if="platform === 'rest'"
+      :picked="picked"
+      :save-request="saveRequest"
       :workspace-handle="activeWorkspaceHandle"
+      @select="(payload) => emit('select', payload)"
     />
   </div>
 </template>
@@ -27,10 +30,17 @@
 import { useService } from "dioc/vue"
 import { ref } from "vue"
 import { useI18n } from "~/composables/i18n"
+import { Picked } from "~/helpers/types/HoppPicked";
 import { NewWorkspaceService } from "~/services/new-workspace"
 
 defineProps<{
+  picked: Picked | null
   platform: "rest" | "gql"
+  saveRequest: boolean
+}>()
+
+const emit = defineEmits<{
+  (event: "select", payload: Picked | null): void
 }>()
 
 const t = useI18n()
@@ -40,7 +50,4 @@ const searchText = ref("")
 const workspaceService = useService(NewWorkspaceService)
 
 const activeWorkspaceHandle = workspaceService.activeWorkspaceHandle
-
-const showModalAdd = ref(false)
-const showModalImportExport = ref(false)
 </script>

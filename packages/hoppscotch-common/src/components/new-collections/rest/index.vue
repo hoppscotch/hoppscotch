@@ -46,6 +46,7 @@
           />
           <NewCollectionsRestRequest
             v-else-if="node.data.type === 'request'"
+            :is-active="isActiveRequest(node.data.value.request.id)"
             :request-view="node.data.value"
             @duplicate-request="duplicateRequest"
             @edit-request="editRequest"
@@ -977,5 +978,23 @@ const pathToIndex = (path: string) => {
 const isAlreadyInRoot = (id: string) => {
   const indexPath = pathToIndex(id)
   return indexPath.length === 1
+}
+
+const isActiveRequest = (requestID: string) => {
+  if (
+    tabs.currentActiveTab.value.document.saveContext?.originLocation !==
+    "workspace-user-collection"
+  ) {
+    return false
+  }
+
+  const requestHandle = ref(
+    tabs.currentActiveTab.value.document.saveContext?.requestHandle
+  )
+
+  if (requestHandle.value.type === "invalid") {
+    return false
+  }
+  return requestHandle.value.data.request.id === requestID
 }
 </script>

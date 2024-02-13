@@ -416,7 +416,7 @@ export class UserService {
       });
       return E.right(true);
     } catch (error) {
-      return E.left(USER_NOT_FOUND);
+      return E.left(USER_UPDATE_FAILED);
     }
   }
 

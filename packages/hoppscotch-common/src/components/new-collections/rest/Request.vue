@@ -13,14 +13,20 @@
           :class="requestLabelColor"
           :style="{ color: requestLabelColor }"
         >
-          <span class="truncate text-tiny font-semibold">
+          <component
+            :is="IconCheckCircle"
+            v-if="isSelected"
+            class="svg-icons"
+            :class="{ 'text-accent': isSelected }"
+          />
+          <span v-else class="truncate text-tiny font-semibold">
             {{ requestView.request.method }}
           </span>
         </span>
         <span
           class="pointer-events-none flex min-w-0 flex-1 items-center py-2 pr-2 transition group-hover:text-secondaryDark"
         >
-          <span class="truncate">
+          <span class="truncate" :class="{ 'text-accent': isSelected }">
             {{ requestView.request.name }}
           </span>
           <span
@@ -119,6 +125,7 @@
 </template>
 
 <script setup lang="ts">
+import IconCheckCircle from "~icons/lucide/check-circle"
 import IconMoreVertical from "~icons/lucide/more-vertical"
 import IconEdit from "~icons/lucide/edit"
 import IconCopy from "~icons/lucide/copy"
@@ -135,6 +142,7 @@ const t = useI18n()
 const props = defineProps<{
   isActive: boolean
   requestView: RESTCollectionViewRequest
+  isSelected: boolean | null | undefined
 }>()
 
 const emit = defineEmits<{

@@ -2,7 +2,11 @@
   <div class="flex flex-1 flex-col">
     <div
       class="sticky z-10 flex flex-1 justify-between border-b border-dividerLight bg-primary"
-      :style="'top: var(--upper-primary-sticky-fold)'"
+      :style="
+        saveRequest
+          ? 'top: calc(var(--upper-primary-sticky-fold) - var(--line-height-body))'
+          : 'top: var(--upper-primary-sticky-fold)'
+      "
     >
       <HoppButtonSecondary
         :icon="IconPlus"
@@ -19,6 +23,7 @@
           :icon="IconHelpCircle"
         />
         <HoppButtonSecondary
+          v-if="!saveRequest"
           v-tippy="{ theme: 'tooltip' }"
           :icon="IconImport"
           :title="t('modal.import_export')"
@@ -30,27 +35,52 @@
     <div class="flex flex-1 flex-col">
       <HoppSmartTree :adapter="treeAdapter">
         <template #content="{ node, toggleChildren, isOpen }">
-          <!-- TODO: Implement -->
           <NewCollectionsRestCollection
             v-if="node.data.type === 'collection'"
             :collection-view="node.data.value"
             :is-open="isOpen"
+            :is-selected="
+              isSelected(
+                getCollectionIndexPathArgs(node.data.value.collectionID)
+              )
+            "
+            :save-request="saveRequest"
             @add-request="addRequest"
             @add-child-collection="addChildCollection"
             @edit-root-collection="editRootCollection"
             @edit-collection-properties="editCollectionProperties"
             @edit-child-collection="editChildCollection"
+            @select-pick="onSelectPick"
             @remove-root-collection="removeRootCollection"
             @remove-child-collection="removeChildCollection"
-            @toggle-children="toggleChildren"
+            @toggle-children="
+              () => {
+                toggleChildren(),
+                  saveRequest &&
+                    onSelectPick({
+                      pickedType: isAlreadyInRoot(node.data.value.collectionID)
+                        ? 'my-collection'
+                        : 'my-folder',
+                      ...getCollectionIndexPathArgs(
+                        node.data.value.collectionID
+                      ),
+                    })
+              }
+            "
           />
+
           <NewCollectionsRestRequest
             v-else-if="node.data.type === 'request'"
             :is-active="isActiveRequest(node.data.value.request.id)"
+            :is-selected="
+              isSelected(getRequestIndexPathArgs(node.data.value.requestID))
+            "
             :request-view="node.data.value"
+            :save-request="saveRequest"
             @duplicate-request="duplicateRequest"
             @edit-request="editRequest"
             @remove-request="removeRequest"
+            @select-pick="onSelectPick"
             @select-request="selectRequest"
           />
           <div v-else @click="toggleChildren">
@@ -150,6 +180,7 @@ import { RESTTabService } from "~/services/tab/rest"
 import IconImport from "~icons/lucide/folder-down"
 import IconHelpCircle from "~icons/lucide/help-circle"
 import IconPlus from "~icons/lucide/plus"
+import { Picked } from "~/helpers/types/HoppPicked"
 
 const t = useI18n()
 const toast = useToast()
@@ -157,9 +188,12 @@ const tabs = useService(RESTTabService)
 
 const props = defineProps<{
   workspaceHandle: HandleRef<Workspace>
+  picked: Picked | null
+  saveRequest: boolean
 }>()
 
-defineEmits<{
+const emit = defineEmits<{
+  (event: "select", payload: Picked | null): void
   (e: "display-modal-add"): void
   (e: "display-modal-import-export"): void
 }>()
@@ -205,6 +239,37 @@ const editingProperties = ref<{
 })
 
 const confirmModalTitle = ref<string | null>(null)
+
+const isSelected = ({
+  collectionIndex,
+  folderPath,
+  requestIndex,
+}: {
+  collectionIndex?: number | undefined
+  folderPath?: string | undefined
+  requestIndex?: number | undefined
+}) => {
+  if (collectionIndex !== undefined) {
+    return (
+      props.picked &&
+      props.picked.pickedType === "my-collection" &&
+      props.picked.collectionIndex === collectionIndex
+    )
+  } else if (requestIndex !== undefined && folderPath !== undefined) {
+    return (
+      props.picked &&
+      props.picked.pickedType === "my-request" &&
+      props.picked.folderPath === folderPath &&
+      props.picked.requestIndex === requestIndex
+    )
+  } else if (folderPath !== undefined) {
+    return (
+      props.picked &&
+      props.picked.pickedType === "my-folder" &&
+      props.picked.folderPath === folderPath
+    )
+  }
+}
 
 const displayModalAddRequest = (show: boolean) => {
   showModalAddRequest.value = show
@@ -271,8 +336,8 @@ const addNewRootCollection = async (name: string) => {
   showModalAdd.value = false
 }
 
-const removeRootCollection = (collPathIndex: string) => {
-  editingCollectionIndexPath.value = collPathIndex
+const removeRootCollection = (collectionIndexPath: string) => {
+  editingCollectionIndexPath.value = collectionIndexPath
 
   confirmModalTitle.value = `${t("confirm.remove_collection")}`
   displayConfirmModal(true)
@@ -296,6 +361,10 @@ const onRemoveRootCollection = async () => {
   if (collectionHandle.value.type === "invalid") {
     // WORKSPACE_INVALIDATED | INVALID_COLLECTION_HANDLE
     return
+  }
+
+  if (isSelected({ collectionIndex: parseInt(collectionIndexPath) })) {
+    emit("select", null)
   }
 
   const result = await workspaceService.removeRESTCollection(collectionHandle)
@@ -552,6 +621,14 @@ const onRemoveChildCollection = async () => {
     return
   }
 
+  if (
+    isSelected({
+      folderPath: parentCollectionIndexPath.split("/").pop(),
+    })
+  ) {
+    emit("select", null)
+  }
+
   const result = await workspaceService.removeRESTCollection(
     parentCollectionHandle
   )
@@ -600,6 +677,15 @@ const onRemoveRequest = async () => {
     requestHandle,
   })
 
+  if (
+    isSelected({
+      requestIndex: parseInt(requestIndexPath.split("/").pop() ?? ""),
+      folderPath: editingCollectionIndexPath.value,
+    })
+  ) {
+    emit("select", null)
+  }
+
   const result = await workspaceService.removeRESTRequest(requestHandle)
 
   if (E.isLeft(result)) {
@@ -619,6 +705,15 @@ const onRemoveRequest = async () => {
 
 const selectRequest = async (requestIndexPath: string) => {
   const collectionIndexPath = requestIndexPath.split("/").slice(0, -1).join("/")
+  const requestIndex = requestIndexPath.split("/").slice(-1)[0]
+
+  if (props.saveRequest) {
+    return emit("select", {
+      pickedType: "my-request",
+      folderPath: collectionIndexPath,
+      requestIndex: parseInt(requestIndex),
+    })
+  }
 
   const collectionHandleResult = await workspaceService.getCollectionHandle(
     props.workspaceHandle,
@@ -996,5 +1091,31 @@ const isActiveRequest = (requestID: string) => {
     return false
   }
   return requestHandle.value.data.request.id === requestID
+}
+
+const onSelectPick = (payload: Picked | null) => {
+  emit("select", payload)
+}
+
+const getCollectionIndexPathArgs = (
+  collectionIndexPath: string
+): { collectionIndex: number } | { folderPath: string } => {
+  return isAlreadyInRoot(collectionIndexPath)
+    ? {
+        collectionIndex: parseInt(collectionIndexPath),
+      }
+    : { folderPath: collectionIndexPath }
+}
+
+const getRequestIndexPathArgs = (requestIndexPath: string) => {
+  const requestIndexPathArr = pathToIndex(requestIndexPath)
+
+  const parentCollectionIndexPath = requestIndexPathArr.slice(0, -1).join("/")
+  const requestIndex = parseInt(requestIndexPathArr.slice(-1)[0])
+
+  return {
+    folderPath: parentCollectionIndexPath,
+    requestIndex,
+  }
 }
 </script>

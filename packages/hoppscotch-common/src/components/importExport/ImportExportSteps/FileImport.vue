@@ -13,6 +13,7 @@
         {{ t(`${caption}`) }}
       </span>
     </p>
+
     <div
       class="flex flex-col ml-10 border border-dashed rounded border-dividerDark"
     >
@@ -28,11 +29,25 @@
       />
     </div>
 
+    <p v-if="showFileSizeLimitExceededWarning" class="text-red-500 ml-10">
+      <template v-if="importFilesCount">
+        {{
+          t("import.file_size_limit_exceeded_warning_multiple_files", {
+            files:
+              importFilesCount === 1 ? "file" : `${importFilesCount} files`,
+          })
+        }}
+      </template>
+
+      <template v-else>
+        {{ t("import.file_size_limit_exceeded_warning_single_file") }}
+      </template>
+    </p>
     <div>
       <HoppButtonPrimary
         class="w-full"
         :label="t('import.title')"
-        :disabled="!hasFile"
+        :disabled="!hasFile || showFileSizeLimitExceededWarning"
         @click="emit('importFromFile', fileContent)"
       />
     </div>
@@ -52,7 +67,10 @@ defineProps<{
 const t = useI18n()
 const toast = useToast()
 
+const importFilesCount = ref(0)
+
 const hasFile = ref(false)
+const showFileSizeLimitExceededWarning = ref(false)
 const fileContent = ref<string[]>([])
 
 const inputChooseFileToImportFrom = ref<HTMLInputElement | any>()
@@ -62,6 +80,14 @@ const emit = defineEmits<{
 }>()
 
 const onFileChange = async () => {
+  if (showFileSizeLimitExceededWarning.value) {
+    showFileSizeLimitExceededWarning.value = false
+  }
+
+  if (importFilesCount.value) {
+    importFilesCount.value = 0
+  }
+
   const inputFileToImport = inputChooseFileToImportFrom.value
 
   if (!inputFileToImport) {
@@ -78,8 +104,18 @@ const onFileChange = async () => {
 
   const readerPromises: Promise<string | null>[] = []
 
+  let totalFilesSize = 0
+
   for (let i = 0; i < inputFileToImport.files.length; i++) {
     const file = inputFileToImport.files[i]
+
+    totalFilesSize += file.size / 1024 / 1024
+
+    if (totalFilesSize > 10) {
+      showFileSizeLimitExceededWarning.value = true
+      break
+    }
+
     const reader = new FileReader()
 
     readerPromises.push(
@@ -90,6 +126,8 @@ const onFileChange = async () => {
       })
     )
   }
+
+  importFilesCount.value = readerPromises.length
 
   const results = await Promise.allSettled(readerPromises)
 

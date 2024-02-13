@@ -103,8 +103,8 @@
                         @click="
                           () => {
                             user.isAdmin
-                              ? makeAdminToUser(user.uid)
-                              : makeUserAdmin(user.uid);
+                              ? makeAdminsUsers(user.uid)
+                              : makeUsersAdmin(user.uid);
                             hide();
                           }
                         "
@@ -176,28 +176,24 @@
       @resolve="deleteUserMutation(deleteUserUID)"
     />
     <HoppSmartConfirmModal
-      :show="confirmUserToAdmin"
-      :title="t('state.confirm_user_to_admin')"
-      @hide-modal="confirmUserToAdmin = false"
-      @resolve="makeUserAdminMutation(userToAdminUID)"
-    />
-    <HoppSmartConfirmModal
-      :show="confirmAdminToUser"
-      :title="t('state.confirm_admin_to_user')"
-      @hide-modal="confirmAdminToUser = false"
-      @resolve="makeAdminToUserMutation(adminToUserUID)"
-    />
-    <HoppSmartConfirmModal
       :show="confirmUsersToAdmin"
-      :title="t('state.confirm_users_to_admin')"
+      :title="
+        AreMultipleUsersSelected
+          ? t('state.confirm_users_to_admin')
+          : t('state.confirm_user_to_admin')
+      "
       @hide-modal="confirmUsersToAdmin = false"
-      @resolve="makeUsersToAdmin"
+      @resolve="makeUsersToAdmin(usersToAdminUID)"
     />
     <HoppSmartConfirmModal
       :show="confirmAdminsToUsers"
-      :title="t('state.confirm_admins_to_users')"
+      :title="
+        AreMultipleUsersSelectedToAdmin
+          ? t('state.confirm_admins_to_users')
+          : t('state.confirm_admin_to_user')
+      "
       @hide-modal="confirmAdminsToUsers = false"
-      @resolve="makeAdminsToUsers"
+      @resolve="makeAdminsToUsers(adminsToUserUID)"
     />
     <HoppSmartConfirmModal
       :show="confirmUsersDeletion"
@@ -217,13 +213,12 @@ import { useI18n } from '~/composables/i18n';
 import { useToast } from '~/composables/toast';
 import { usePagedQuery } from '~/composables/usePagedQuery';
 import {
+  DemoteUsersByAdminDocument,
   InviteNewUserDocument,
-  MakeUserAdminDocument,
   MakeUsersAdminDocument,
   MetricsDocument,
   RemoveUserAsAdminDocument,
   RemoveUserByAdminDocument,
-  RemoveUsersAsAdminDocument,
   RemoveUsersByAdminDocument,
   UserInfoQuery,
   UsersListQuery,
@@ -327,111 +322,94 @@ const sendInvite = async (email: string) => {
   }
 };
 
-// Make a single user an admin
-const userToAdmin = useMutation(MakeUserAdminDocument);
-const confirmUserToAdmin = ref(false);
-const userToAdminUID = ref<string | null>(null);
-
-const makeUserAdmin = (id: string) => {
-  confirmUserToAdmin.value = true;
-  userToAdminUID.value = id;
-};
-
-const makeUserAdminMutation = async (id: string | null) => {
-  if (!id) {
-    confirmUserToAdmin.value = false;
-    toast.error(t('state.admin_failure'));
-    return;
-  }
-  const variables = { uid: id };
-  const result = await userToAdmin.executeMutation(variables);
-  if (result.error) {
-    toast.error(t('state.admin_failure'));
-  } else {
-    toast.success(t('state.admin_success'));
-    usersList.value = usersList.value.map((user) => ({
-      ...user,
-      isAdmin: user.uid === id ? true : user.isAdmin,
-    }));
-  }
-  confirmUserToAdmin.value = false;
-  userToAdminUID.value = null;
-};
-
 // Remove Admin Status from a Current Admin
-const adminToUser = useMutation(RemoveUserAsAdminDocument);
-const confirmAdminToUser = ref(false);
-const adminToUserUID = ref<string | null>(null);
+// const adminToUser = useMutation(RemoveUserAsAdminDocument);
+// const confirmAdminToUser = ref(false);
+// const adminToUserUID = ref<string | null>(null);
 
-const makeAdminToUser = (id: string) => {
-  confirmAdminToUser.value = true;
-  adminToUserUID.value = id;
-};
+// const makeAdminToUser = (id: string) => {
+//   confirmAdminToUser.value = true;
+//   adminToUserUID.value = id;
+// };
 
-const makeAdminToUserMutation = async (id: string | null) => {
-  if (!id) {
-    confirmAdminToUser.value = false;
-    toast.error(t('state.remove_admin_failure'));
-    return;
-  }
-  const variables = { uid: id };
-  const result = await adminToUser.executeMutation(variables);
-  if (result.error) {
-    toast.error(t('state.remove_admin_failure'));
-  } else {
-    toast.success(t('state.remove_admin_success'));
-    usersList.value = usersList.value.map((user) => ({
-      ...user,
-      isAdmin: user.uid === id ? false : user.isAdmin,
-    }));
-  }
-  confirmAdminToUser.value = false;
-  adminToUserUID.value = null;
-};
+// const makeAdminToUserMutation = async (id: string | null) => {
+//   if (!id) {
+//     confirmAdminToUser.value = false;
+//     toast.error(t('state.remove_admin_failure'));
+//     return;
+//   }
+//   const variables = { uid: id };
+//   const result = await adminToUser.executeMutation(variables);
+//   if (result.error) {
+//     toast.error(t('state.remove_admin_failure'));
+//   } else {
+//     toast.success(t('state.remove_admin_success'));
+//     usersList.value = usersList.value.map((user) => ({
+//       ...user,
+//       isAdmin: user.uid === id ? false : user.isAdmin,
+//     }));
+//   }
+//   confirmAdminToUser.value = false;
+//   adminToUserUID.value = null;
+// };
 
 // Delete a single user
-const userDeletion = useMutation(RemoveUserByAdminDocument);
-const confirmDeletion = ref(false);
-const deleteUserUID = ref<string | null>(null);
+// const userDeletion = useMutation(RemoveUserByAdminDocument);
+// const confirmDeletion = ref(false);
+// const deleteUserUID = ref<string | null>(null);
 
-const deleteUser = (id: string) => {
-  confirmDeletion.value = true;
-  deleteUserUID.value = id;
-};
+// const deleteUser = (id: string) => {
+//   confirmDeletion.value = true;
+//   deleteUserUID.value = id;
+// };
 
-const deleteUserMutation = async (id: string | null) => {
-  if (!id) {
-    confirmDeletion.value = false;
-    toast.error(t('state.delete_user_failure'));
-    return;
-  }
-  const variables = { uid: id };
-  const result = await userDeletion.executeMutation(variables);
-  if (result.error) {
-    if (result.error.message === DELETE_USER_FAILED_ONLY_ONE_ADMIN) {
-      toast.error(t('state.delete_user_failed_only_one_admin'));
-    } else toast.error(t('state.delete_user_failure'));
-  } else {
-    toast.success(t('state.delete_user_success'));
-    usersList.value = usersList.value.filter((user) => user.uid !== id);
-  }
-  confirmDeletion.value = false;
-  deleteUserUID.value = null;
-};
+// const deleteUserMutation = async (id: string | null) => {
+//   if (!id) {
+//     confirmDeletion.value = false;
+//     toast.error(t('state.delete_user_failure'));
+//     return;
+//   }
+//   const variables = { uid: id };
+//   const result = await userDeletion.executeMutation(variables);
+//   if (result.error) {
+//     if (result.error.message === DELETE_USER_FAILED_ONLY_ONE_ADMIN) {
+//       toast.error(t('state.delete_user_failed_only_one_admin'));
+//     } else toast.error(t('state.delete_user_failure'));
+//   } else {
+//     toast.success(t('state.delete_user_success'));
+//     usersList.value = usersList.value.filter((user) => user.uid !== id);
+//   }
+//   confirmDeletion.value = false;
+//   deleteUserUID.value = null;
+// };
 
 // Make Multiple Users Admin
-const usersToAdmin = useMutation(MakeUsersAdminDocument);
 const confirmUsersToAdmin = ref(false);
+const usersToAdminUID = ref<string | null>(null);
+const usersToAdmin = useMutation(MakeUsersAdminDocument);
 
-const makeUsersToAdmin = async () => {
-  const userUIDs = selectedRows.value.map((user) => user.uid);
+const AreMultipleUsersSelected = computed(
+  () => usersToAdminUID.value === null && selectedRows.value.length > 0
+);
 
+const makeUsersAdmin = (id: string | null) => {
+  confirmUsersToAdmin.value = true;
+  usersToAdminUID.value = id;
+};
+
+const makeUsersToAdmin = async (id: string | null) => {
+  const userUIDs = id ? [id] : selectedRows.value.map((user) => user.uid);
   const variables = { userUIDs };
   const result = await usersToAdmin.executeMutation(variables);
+
   if (result.error) {
-    toast.error(t('state.users_to_admin_failure'));
+    toast.error(
+      id ? t('state.admin_failure') : t('state.users_to_admin_failure')
+    );
   } else {
-    toast.success(t('state.users_to_admin_success'));
+    toast.success(
+      id ? t('state.admin_success') : t('state.users_to_admin_success')
+    );
     usersList.value = usersList.value.map((user) => ({
       ...user,
       isAdmin: userUIDs.includes(user.uid) ? true : user.isAdmin,
@@ -439,21 +417,40 @@ const makeUsersToAdmin = async () => {
     selectedRows.value.splice(0, selectedRows.value.length);
   }
   confirmUsersToAdmin.value = false;
+  usersToAdminUID.value = null;
 };
 
 // Remove Admin Status from Multiple Users
-const adminsToUser = useMutation(RemoveUsersAsAdminDocument);
+const adminsToUser = useMutation(DemoteUsersByAdminDocument);
 const confirmAdminsToUsers = ref(false);
+const adminsToUserUID = ref<string | null>(null);
 
-const makeAdminsToUsers = async () => {
-  const userUIDs = selectedRows.value.map((user) => user.uid);
+const makeAdminsUsers = (id: string | null) => {
+  confirmAdminsToUsers.value = true;
+  adminsToUserUID.value = id;
+};
+
+const AreMultipleUsersSelectedToAdmin = computed(
+  () => adminsToUserUID.value === null && selectedRows.value.length > 0
+);
+
+const makeAdminsToUsers = async (id: string | null) => {
+  const userUIDs = id ? [id] : selectedRows.value.map((user) => user.uid);
 
   const variables = { userUIDs };
   const result = await adminsToUser.executeMutation(variables);
   if (result.error) {
-    toast.error(t('state.remove_admin_from_users_failure'));
+    toast.error(
+      id
+        ? t('state.remove_admin_failure')
+        : t('state.remove_admin_from_users_failure')
+    );
   } else {
-    toast.success(t('state.remove_admin_from_users_success'));
+    toast.success(
+      id
+        ? t('state.remove_admin_success')
+        : t('state.remove_admin_from_users_success')
+    );
     usersList.value = usersList.value.map((user) => ({
       ...user,
       isAdmin: userUIDs.includes(user.uid) ? false : user.isAdmin,
@@ -462,6 +459,7 @@ const makeAdminsToUsers = async () => {
     selectedRows.value.splice(0, selectedRows.value.length);
   }
   confirmAdminsToUsers.value = false;
+  adminsToUserUID.value = null;
 };
 
 // Delete Multiple Users

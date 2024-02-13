@@ -170,12 +170,6 @@
       @send-invite="sendInvite"
     />
     <HoppSmartConfirmModal
-      :show="confirmDeletion"
-      :title="t('state.confirm_user_deletion')"
-      @hide-modal="confirmDeletion = false"
-      @resolve="deleteUserMutation(deleteUserUID)"
-    />
-    <HoppSmartConfirmModal
       :show="confirmUsersToAdmin"
       :title="
         AreMultipleUsersSelected
@@ -197,9 +191,13 @@
     />
     <HoppSmartConfirmModal
       :show="confirmUsersDeletion"
-      :title="t('state.confirm_users_deletion')"
+      :title="
+        AreMultipleUsersSelectedForDeletion
+          ? t('state.confirm_users_deletion')
+          : t('state.confirm_user_deletion')
+      "
       @hide-modal="confirmUsersDeletion = false"
-      @resolve="deleteUsers"
+      @resolve="deleteUsers(deleteUserUID)"
     />
   </div>
 </template>
@@ -217,8 +215,6 @@ import {
   InviteNewUserDocument,
   MakeUsersAdminDocument,
   MetricsDocument,
-  RemoveUserAsAdminDocument,
-  RemoveUserByAdminDocument,
   RemoveUsersByAdminDocument,
   UserInfoQuery,
   UsersListQuery,
@@ -322,67 +318,6 @@ const sendInvite = async (email: string) => {
   }
 };
 
-// Remove Admin Status from a Current Admin
-// const adminToUser = useMutation(RemoveUserAsAdminDocument);
-// const confirmAdminToUser = ref(false);
-// const adminToUserUID = ref<string | null>(null);
-
-// const makeAdminToUser = (id: string) => {
-//   confirmAdminToUser.value = true;
-//   adminToUserUID.value = id;
-// };
-
-// const makeAdminToUserMutation = async (id: string | null) => {
-//   if (!id) {
-//     confirmAdminToUser.value = false;
-//     toast.error(t('state.remove_admin_failure'));
-//     return;
-//   }
-//   const variables = { uid: id };
-//   const result = await adminToUser.executeMutation(variables);
-//   if (result.error) {
-//     toast.error(t('state.remove_admin_failure'));
-//   } else {
-//     toast.success(t('state.remove_admin_success'));
-//     usersList.value = usersList.value.map((user) => ({
-//       ...user,
-//       isAdmin: user.uid === id ? false : user.isAdmin,
-//     }));
-//   }
-//   confirmAdminToUser.value = false;
-//   adminToUserUID.value = null;
-// };
-
-// Delete a single user
-// const userDeletion = useMutation(RemoveUserByAdminDocument);
-// const confirmDeletion = ref(false);
-// const deleteUserUID = ref<string | null>(null);
-
-// const deleteUser = (id: string) => {
-//   confirmDeletion.value = true;
-//   deleteUserUID.value = id;
-// };
-
-// const deleteUserMutation = async (id: string | null) => {
-//   if (!id) {
-//     confirmDeletion.value = false;
-//     toast.error(t('state.delete_user_failure'));
-//     return;
-//   }
-//   const variables = { uid: id };
-//   const result = await userDeletion.executeMutation(variables);
-//   if (result.error) {
-//     if (result.error.message === DELETE_USER_FAILED_ONLY_ONE_ADMIN) {
-//       toast.error(t('state.delete_user_failed_only_one_admin'));
-//     } else toast.error(t('state.delete_user_failure'));
-//   } else {
-//     toast.success(t('state.delete_user_success'));
-//     usersList.value = usersList.value.filter((user) => user.uid !== id);
-//   }
-//   confirmDeletion.value = false;
-//   deleteUserUID.value = null;
-// };
-
 // Make Multiple Users Admin
 const confirmUsersToAdmin = ref(false);
 const usersToAdminUID = ref<string | null>(null);
@@ -465,21 +400,40 @@ const makeAdminsToUsers = async (id: string | null) => {
 // Delete Multiple Users
 const usersDeletion = useMutation(RemoveUsersByAdminDocument);
 const confirmUsersDeletion = ref(false);
+const deleteUserUID = ref<string | null>(null);
 
-const deleteUsers = async () => {
-  const userUIDs = selectedRows.value.map((user) => user.uid);
+const deleteUser = (id: string | null) => {
+  confirmUsersDeletion.value = true;
+  deleteUserUID.value = id;
+};
+
+const AreMultipleUsersSelectedForDeletion = computed(
+  () => deleteUserUID.value === null && selectedRows.value.length > 0
+);
+
+const deleteUsers = async (id: string | null) => {
+  const userUIDs = id ? [id] : selectedRows.value.map((user) => user.uid);
 
   const variables = { userUIDs };
   const result = await usersDeletion.executeMutation(variables);
   if (result.error) {
-    toast.error(t('state.delete_users_failure'));
+    if (result.error.message === DELETE_USER_FAILED_ONLY_ONE_ADMIN) {
+      toast.error(t('state.delete_user_failed_only_one_admin'));
+    } else {
+      toast.error(
+        id ? t('state.delete_user_failure') : t('state.delete_users_failure')
+      );
+    }
   } else {
-    toast.success(t('state.delete_user_success'));
+    toast.success(
+      id ? t('state.delete_user_success') : t('state.delete_users_success')
+    );
     usersList.value = usersList.value.filter(
       (user) => !userUIDs.includes(user.uid)
     );
     selectedRows.value.splice(0, selectedRows.value.length);
   }
   confirmUsersDeletion.value = false;
+  deleteUserUID.value = null;
 };
 </script>

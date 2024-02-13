@@ -413,24 +413,46 @@ const AreMultipleUsersSelectedForDeletion = computed(
 
 const deleteUsers = async (id: string | null) => {
   const userUIDs = id ? [id] : selectedRows.value.map((user) => user.uid);
-
   const variables = { userUIDs };
   const result = await usersDeletion.executeMutation(variables);
+
   if (result.error) {
-    if (result.error.message === DELETE_USER_FAILED_ONLY_ONE_ADMIN) {
-      toast.error(t('state.delete_user_failed_only_one_admin'));
-    } else {
+    const errorMessage =
+      result.error.message === DELETE_USER_FAILED_ONLY_ONE_ADMIN
+        ? t('state.delete_user_failed_only_one_admin')
+        : id
+        ? t('state.delete_user_failure')
+        : t('state.delete_users_failure');
+    toast.error(errorMessage);
+  } else {
+    const deletedUsers = result.data?.removeUsersByAdmin || [];
+    const deletedIDs = deletedUsers
+      .filter((user) => user.isDeleted)
+      .map((user) => user.userUID);
+
+    const isAdminError = deletedUsers.some(
+      (user) => user.errorMessage === 'admin/admin_can_not_be_deleted'
+    );
+
+    usersList.value = usersList.value.filter(
+      (user) => !deletedIDs.includes(user.uid)
+    );
+
+    if (isAdminError) {
+      toast.success(
+        `Number of Users Deleted Successfully: ${deletedIDs.length}`
+      );
       toast.error(
-        id ? t('state.delete_user_failure') : t('state.delete_users_failure')
+        `Users Not Deleted Due to Admin Status: ${
+          deletedUsers.length - deletedIDs.length
+        }. \nPlease remove admin status before deleting users`
+      );
+    } else {
+      toast.success(
+        id ? t('state.delete_user_success') : t('state.delete_users_success')
       );
     }
-  } else {
-    toast.success(
-      id ? t('state.delete_user_success') : t('state.delete_users_success')
-    );
-    usersList.value = usersList.value.filter(
-      (user) => !userUIDs.includes(user.uid)
-    );
+
     selectedRows.value.splice(0, selectedRows.value.length);
   }
   confirmUsersDeletion.value = false;

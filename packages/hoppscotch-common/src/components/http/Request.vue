@@ -263,6 +263,7 @@ import { HoppTab } from "~/services/tab"
 import { HoppRESTDocument } from "~/helpers/rest/document"
 import { RESTTabService } from "~/services/tab/rest"
 import { getMethodLabelColor } from "~/helpers/rest/labelColoring"
+import { WorkspaceService } from "~/services/workspace.service"
 
 const t = useI18n()
 const interceptorService = useService(InterceptorService)
@@ -326,6 +327,8 @@ const inspectionService = useService(InspectionService)
 
 const tabs = useService(RESTTabService)
 
+const workspaceService = useService(WorkspaceService)
+
 const newSendRequest = async () => {
   if (newEndpoint.value === "" || /^\s+$/.test(newEndpoint.value)) {
     toast.error(`${t("empty.endpoint")}`)
@@ -341,6 +344,7 @@ const newSendRequest = async () => {
     type: "HOPP_REQUEST_RUN",
     platform: "rest",
     strategy: interceptorService.currentInterceptorID.value!,
+    workspaceType: workspaceService.currentWorkspace.value.type,
   })
 
   const [cancel, streamPromise] = runRESTRequest$(tab)

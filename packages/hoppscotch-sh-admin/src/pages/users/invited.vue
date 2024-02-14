@@ -24,6 +24,9 @@
           v-if="invitedUsers?.length"
           :headings="headings"
           :list="invitedUsers"
+          :checkbox="true"
+          :spinner="{ enabled: fetching, duration: 1000 }"
+          :selectedRows="selectedRows"
         >
           <template #invitedOn="{ item }">
             <div v-if="item" class="pr-2 truncate">
@@ -49,7 +52,28 @@
           </template>
         </UsersTable>
 
-        <div v-else>{{ t('users.no_invite') }}</div>
+        <div
+          v-if="selectedRows.length"
+          class="fixed m-2 bottom-0 left-40 right-0 w-min mx-auto shadow-2xl"
+        >
+          <div
+            class="flex justify-center items-end bg-primaryLight border border-divider rounded-md mb-5"
+          >
+            <HoppButtonSecondary
+              :label="t('state.selected', { count: selectedRows.length })"
+              class="py-4 border-divider rounded-r-none bg-emerald-800 text-secondaryDark"
+            />
+
+            <HoppButtonSecondary
+              :icon="IconTrash"
+              label="Revoke Invitation"
+              class="py-4 border-divider rounded-l-none hover:bg-red-500"
+              @click="confirmDeletion = true"
+            />
+          </div>
+        </div>
+
+        <div v-if="invitedUsers?.length === 0">{{ t('users.no_invite') }}</div>
       </div>
     </div>
     <HoppSmartConfirmModal
@@ -62,18 +86,18 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
-import { useQuery, useMutation } from '@urql/vue';
-import {
-  InvitedUsersDocument,
-  RevokeUserInvitationsByAdminDocument,
-} from '../../helpers/backend/graphql';
+import { useMutation, useQuery } from '@urql/vue';
 import { format } from 'date-fns';
+import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from '~/composables/i18n';
-import IconTrash from '~icons/lucide/trash';
 import { useToast } from '~/composables/toast';
-import { HoppButtonPrimary } from '@hoppscotch/ui';
+import IconTrash from '~icons/lucide/trash';
+import {
+  InvitedUsersDocument,
+  InvitedUsersQuery,
+  RevokeUserInvitationsByAdminDocument,
+} from '../../helpers/backend/graphql';
 
 const t = useI18n();
 const toast = useToast();
@@ -95,6 +119,9 @@ const headings = [
   { key: 'action', label: 'Action' },
 ];
 
+// Selected Rows
+const selectedRows = ref<InvitedUsersQuery['infra']['invitedUsers']>([]);
+
 // Invited Users
 const invitedUsers = computed({
   get: () => data.value?.infra.invitedUsers,
@@ -111,25 +138,25 @@ const deleteInvitationMutation = useMutation(
   RevokeUserInvitationsByAdminDocument
 );
 
-const deleteInvite = (inviteeEmail: string) => {
+const deleteInvite = (inviteeEmail: string | null) => {
   confirmDeletion.value = true;
   inviteToBeDeleted.value = inviteeEmail;
 };
 
 const deleteUserInvitation = async (inviteeEmail: string | null) => {
-  if (!inviteeEmail) {
-    confirmDeletion.value = false;
-    toast.error(t('state.delete_invite_failure'));
-    return;
-  }
-  const variables = { inviteeEmails: [inviteeEmail] };
+  const inviteeEmails = inviteeEmail
+    ? [inviteeEmail]
+    : selectedRows.value.map((row) => row.inviteeEmail);
+
+  const variables = { inviteeEmails };
   const result = await deleteInvitationMutation.executeMutation(variables);
   if (result.error) {
     toast.error(t('state.delete_invite_failure'));
   } else {
     invitedUsers.value = invitedUsers.value?.filter(
-      (request) => request.inviteeEmail !== inviteeEmail
+      (user) => !inviteeEmails.includes(user.inviteeEmail)
     );
+    selectedRows.value.splice(0, selectedRows.value.length);
     toast.success(t('state.delete_invite_success'));
   }
 

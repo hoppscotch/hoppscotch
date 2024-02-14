@@ -378,7 +378,7 @@ export class PersonalWorkspaceProviderService
     const { collectionID, requestID, request } = requestHandle.value.data
 
     const newRequest: HoppRESTRequest = merge(request, updatedRequest)
-    const requestIndex = parseInt(requestID)
+    const requestIndex = parseInt(requestID.split("/").slice(-1)[0])
     editRESTRequest(collectionID, requestIndex, newRequest)
 
     platform.analytics?.logEvent({

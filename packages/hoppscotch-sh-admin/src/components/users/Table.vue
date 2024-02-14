@@ -37,7 +37,7 @@
       <HoppSmartSpinner />
     </div>
 
-    <table v-else class="w-full">
+    <table v-else-if="list" class="w-full">
       <thead>
         <tr
           class="border-b border-dividerDark bg-primaryLight text-left text-sm text-secondary"

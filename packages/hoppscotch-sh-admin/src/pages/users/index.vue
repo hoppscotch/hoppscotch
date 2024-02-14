@@ -24,7 +24,7 @@
         <div v-if="error">{{ t('users.load_list_error') }}</div>
 
         <UsersTable
-          v-if="usersList.length >= 0"
+          v-if="usersList"
           :headings="headings"
           :list="usersList"
           :checkbox="true"
@@ -247,7 +247,7 @@ const headings = [
 ];
 
 // Get Paginated Results of all the users in the infra
-const usersPerPage = 20;
+const usersPerPage = 2;
 const {
   fetching,
   error,

@@ -181,5 +181,6 @@ export const parseCurlCommand = (curlCommand: string) => {
     testScript: defaultRESTReq.testScript,
     auth,
     body: finalBody,
+    requestVariables: defaultRESTReq.requestVariables,
   })
 }

@@ -22,7 +22,6 @@ import {
 import { arrayFlatMap, arraySort } from "../functional/array"
 import { toFormData } from "../functional/formData"
 import { tupleWithSameKeysToRecord } from "../functional/record"
-import { getGlobalVariables } from "~/newstore/environments"
 
 export interface EffectiveHoppRESTRequest extends HoppRESTRequest {
   /**
@@ -34,6 +33,7 @@ export interface EffectiveHoppRESTRequest extends HoppRESTRequest {
   effectiveFinalHeaders: { key: string; value: string }[]
   effectiveFinalParams: { key: string; value: string }[]
   effectiveFinalBody: FormData | string | null
+  effectiveFinalRequestVariables: { key: string; value: string }[]
 }
 
 /**
@@ -313,38 +313,53 @@ export function getEffectiveRESTRequest(
   request: HoppRESTRequest,
   environment: Environment
 ): EffectiveHoppRESTRequest {
-  const envVariables = [...environment.variables, ...getGlobalVariables()]
-
   const effectiveFinalHeaders = pipe(
-    getComputedHeaders(request, envVariables).map((h) => h.header),
+    getComputedHeaders(request, environment.variables).map((h) => h.header),
     A.concat(request.headers),
     A.filter((x) => x.active && x.key !== ""),
     A.map((x) => ({
       active: true,
-      key: parseTemplateString(x.key, envVariables),
-      value: parseTemplateString(x.value, envVariables),
+      key: parseTemplateString(x.key, environment.variables),
+      value: parseTemplateString(x.value, environment.variables),
     }))
   )
 
   const effectiveFinalParams = pipe(
-    getComputedParams(request, envVariables).map((p) => p.param),
+    getComputedParams(request, environment.variables).map((p) => p.param),
     A.concat(request.params),
     A.filter((x) => x.active && x.key !== ""),
     A.map((x) => ({
       active: true,
-      key: parseTemplateString(x.key, envVariables),
-      value: parseTemplateString(x.value, envVariables),
+      key: parseTemplateString(x.key, environment.variables),
+      value: parseTemplateString(x.value, environment.variables),
     }))
   )
 
-  const effectiveFinalBody = getFinalBodyFromRequest(request, envVariables)
+  const effectiveFinalRequestVariables = pipe(
+    request.requestVariables,
+    A.filter((x) => x.active && x.key !== ""),
+    A.map((x) => ({
+      active: true,
+      key: parseTemplateString(x.key, environment.variables),
+      value: parseTemplateString(x.value, environment.variables),
+    }))
+  )
+
+  const effectiveFinalBody = getFinalBodyFromRequest(
+    request,
+    environment.variables
+  )
 
   return {
     ...request,
-    effectiveFinalURL: parseTemplateString(request.endpoint, envVariables),
+    effectiveFinalURL: parseTemplateString(
+      request.endpoint,
+      environment.variables
+    ),
     effectiveFinalHeaders,
     effectiveFinalParams,
     effectiveFinalBody,
+    effectiveFinalRequestVariables,
   }
 }
 

@@ -1,4 +1,8 @@
-import { Environment } from "@hoppscotch/data"
+import {
+  Environment,
+  HoppRESTHeaders,
+  HoppRESTRequestVariable,
+} from "@hoppscotch/data"
 import { SandboxTestResult, TestDescriptor } from "@hoppscotch/js-sandbox"
 import { runTestScript } from "@hoppscotch/js-sandbox/web"
 import * as A from "fp-ts/Array"
@@ -65,10 +69,17 @@ const getTestableBody = (
   return x
 }
 
-const combineEnvVariables = (envs: {
-  global: Environment["variables"]
-  selected: Environment["variables"]
-}) => [...envs.selected, ...envs.global]
+const combineEnvVariables = (variables: {
+  environments: {
+    global: Environment["variables"]
+    selected: Environment["variables"]
+  }
+  requestVariables: Environment["variables"]
+}) => [
+  ...variables.requestVariables,
+  ...variables.environments.global,
+  ...variables.environments.selected,
+]
 
 export const executedResponses$ = new Subject<
   HoppRESTResponse & { type: "success" | "fail " }
@@ -175,15 +186,36 @@ export function runRESTRequest$(
       requestHeaders = [...tab.value.document.request.headers]
     }
 
+    const finalRequestVariables =
+      tab.value.document.request.requestVariables.map(
+        (v: HoppRESTRequestVariable) => {
+          if (v.active) {
+            return {
+              key: v.key,
+              value: v.value,
+              secret: false,
+            }
+          }
+          return []
+        }
+      )
+
     const finalRequest = {
       ...tab.value.document.request,
       auth: requestAuth ?? { authType: "none", authActive: false },
-      headers: requestHeaders,
+      headers: requestHeaders as HoppRESTHeaders,
+    }
+
+    const finalEnvs = {
+      environments: envs.right,
+      requestVariables: finalRequestVariables as Environment["variables"],
     }
 
     const effectiveRequest = getEffectiveRESTRequest(finalRequest, {
+      id: "env-id",
+      v: 1,
       name: "Env",
-      variables: combineEnvVariables(envs.right),
+      variables: combineEnvVariables(finalEnvs),
     })
 
     const [stream, cancelRun] = createRESTNetworkRequestStream(effectiveRequest)

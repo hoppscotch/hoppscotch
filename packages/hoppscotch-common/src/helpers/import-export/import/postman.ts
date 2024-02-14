@@ -5,6 +5,7 @@ import {
   QueryParam,
   RequestAuthDefinition,
   VariableDefinition,
+  Variable,
 } from "postman-collection"
 import {
   HoppRESTAuth,
@@ -18,6 +19,7 @@ import {
   ValidContentTypes,
   knownContentTypes,
   FormDataKeyValue,
+  HoppRESTRequestVariable,
 } from "@hoppscotch/data"
 import { pipe, flow } from "fp-ts/function"
 import * as S from "fp-ts/string"
@@ -86,6 +88,25 @@ const getHoppReqParams = (item: Item): HoppRESTParam[] => {
         key: replacePMVarTemplating(param.key),
         value: replacePMVarTemplating(param.value ?? ""),
         active: !param.disabled,
+      }
+    })
+  )
+}
+
+const getHoppReqVariables = (item: Item) => {
+  return pipe(
+    item.request.url.variables.all(),
+    A.filter(
+      (variable): variable is Variable =>
+        variable.key !== undefined &&
+        variable.key !== null &&
+        variable.key.length > 0
+    ),
+    A.map((variable) => {
+      return <HoppRESTRequestVariable>{
+        key: replacePMVarTemplating(variable.key ?? ""),
+        value: replacePMVarTemplating(variable.value ?? ""),
+        active: !variable.disabled,
       }
     })
   )
@@ -280,6 +301,7 @@ const getHoppRequest = (item: Item): HoppRESTRequest => {
     params: getHoppReqParams(item),
     auth: getHoppReqAuth(item),
     body: getHoppReqBody(item),
+    requestVariables: getHoppReqVariables(item),
 
     // TODO: Decide about this
     preRequestScript: "",

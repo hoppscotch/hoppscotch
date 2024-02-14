@@ -17,7 +17,7 @@
                 "folders": [],
                 "requests": [
                   {
-                    "v": "1",
+                    "v": "2",
                     "endpoint": "https://echo.hoppscotch.io",
                     "name": "RequestD",
                     "params": [],
@@ -40,7 +40,8 @@
                     "body": {
                       "contentType": null,
                       "body": null
-                    }
+                    },
+                    "requestVariables": []
                   }
                 ],
                 "auth": {
@@ -52,7 +53,7 @@
             ],
             "requests": [
               {
-                "v": "1",
+                "v": "2",
                 "endpoint": "https://echo.hoppscotch.io",
                 "name": "RequestC",
                 "params": [],
@@ -67,7 +68,8 @@
                 "body": {
                   "contentType": null,
                   "body": null
-                }
+                },
+                "requestVariables": []
               }
             ],
             "auth": {
@@ -88,7 +90,7 @@
         ],
         "requests": [
           {
-            "v": "1",
+            "v": "2",
             "endpoint": "https://echo.hoppscotch.io",
             "name": "RequestB",
             "params": [],
@@ -104,6 +106,7 @@
               "contentType": null,
               "body": null
             },
+            "requestVariables": [],
             "id": "clpttpdq00003qp16kut6doqv"
           }
         ],
@@ -116,7 +119,7 @@
     ],
     "requests": [
       {
-        "v": "1",
+        "v": "2",
         "endpoint": "https://echo.hoppscotch.io",
         "name": "RequestA",
         "params": [],
@@ -132,6 +135,7 @@
           "contentType": null,
           "body": null
         },
+        "requestVariables": [],
         "id": "clpttpdq00003qp16kut6doqv"
       }
     ],
@@ -158,7 +162,7 @@
         "folders": [],
         "requests": [
           {
-            "v": "1",
+            "v": "2",
             "endpoint": "https://echo.hoppscotch.io",
             "name": "RequestB",
             "params": [],
@@ -174,6 +178,7 @@
               "contentType": null,
               "body": null
             },
+            "requestVariables": [],
             "id": "clpttpdq00003qp16kut6doqv"
           }
         ],
@@ -186,7 +191,7 @@
     ],
     "requests": [
       {
-        "v": "1",
+        "v": "2",
         "endpoint": "https://echo.hoppscotch.io",
         "name": "RequestA",
         "params": [],
@@ -202,6 +207,7 @@
           "contentType": null,
           "body": null
         },
+        "requestVariables": [],
         "id": "clpttpdq00003qp16kut6doqv"
       }
     ],

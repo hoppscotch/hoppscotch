@@ -4,7 +4,7 @@
   "folders": [],
   "requests": [
     {
-      "v": "1",
+      "v": "2",
       "endpoint": "<<URL>>",
       "name": "test1",
       "params": [],
@@ -16,7 +16,8 @@
       "body": {
         "contentType": "application/json",
         "body": "{\n  \"<<BODY_KEY>>\":\"<<BODY_VALUE>>\"\n}"
-      }
+      },
+      "requestVariables": []
     }
   ]
 }

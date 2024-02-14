@@ -353,6 +353,7 @@ executedResponses$.subscribe((res) => {
         params: res.req.params,
         preRequestScript: res.req.preRequestScript,
         testScript: res.req.testScript,
+        requestVariables: res.req.requestVariables,
         v: res.req.v,
       },
       responseMeta: {

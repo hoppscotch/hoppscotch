@@ -23,6 +23,7 @@ import IconUsers from "~icons/lucide/users?raw"
 import IconEdit from "~icons/lucide/edit?raw"
 import { SecretEnvironmentService } from "~/services/secret-environment.service"
 import { getService } from "~/modules/dioc"
+import { RESTTabService } from "~/services/tab/rest"
 
 const HOPP_ENVIRONMENT_REGEX = /(<<[a-zA-Z0-9-_]+>>)/g
 
@@ -32,6 +33,7 @@ const HOPP_ENV_HIGHLIGHT_FOUND = "env-found"
 const HOPP_ENV_HIGHLIGHT_NOT_FOUND = "env-not-found"
 
 const secretEnvironmentService = getService(SecretEnvironmentService)
+const restTabs = getService(RESTTabService)
 
 const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
   hoverTooltip(
@@ -209,7 +211,45 @@ export class HoppEnvironmentPlugin {
     subscribeToStream: StreamSubscriberFunc,
     private editorView: Ref<EditorView | undefined>
   ) {
-    this.envs = getAggregateEnvsWithSecrets()
+    // const aggregateEnvs = getAggregateEnvsWithSecrets()
+    // const currentTab = restTabs.currentActiveTab.value
+
+    // watch(
+    //   currentTab.document.request.requestVariables,
+    //   (reqVariables) => {
+    //     console.log("reqVariables", reqVariables)
+    //     this.envs = [
+    //       ...reqVariables.map((variable) => ({
+    //         key: variable.key,
+    //         value: variable.value,
+    //         sourceEnv: "RequestVariable",
+    //         secret: false,
+    //       })),
+    //       ...aggregateEnvs,
+    //     ]
+
+    //     this.editorView.value?.dispatch({
+    //       effects: this.compartment.reconfigure([
+    //         cursorTooltipField(this.envs),
+    //         environmentHighlightStyle(this.envs),
+    //       ]),
+    //     })
+    //   },
+    //   { immediate: true }
+    // )
+
+    const currentTab = restTabs.currentActiveTab.value
+    const aggregateEnvs = getAggregateEnvsWithSecrets()
+
+    this.envs = [
+      ...currentTab.document.request.requestVariables.map((variable) => ({
+        key: variable.key,
+        value: variable.value,
+        sourceEnv: "RequestVariable",
+        secret: false,
+      })),
+      ...aggregateEnvs,
+    ]
 
     subscribeToStream(aggregateEnvsWithSecrets$, (envs) => {
       this.envs = envs
@@ -239,10 +279,20 @@ export class HoppReactiveEnvPlugin {
     envsRef: Ref<AggregateEnvironment[]>,
     private editorView: Ref<EditorView | undefined>
   ) {
+    const currentTab = restTabs.currentActiveTab
+
     watch(
-      envsRef,
-      (envs) => {
-        this.envs = envs
+      [currentTab.value.document.request, envsRef],
+      ([reqVariables, envs]) => {
+        this.envs = [
+          ...reqVariables.requestVariables.map((variable) => ({
+            key: variable.key,
+            value: variable.value,
+            sourceEnv: "RequestVariable",
+            secret: false,
+          })),
+          ...envs,
+        ]
 
         this.editorView.value?.dispatch({
           effects: this.compartment.reconfigure([
@@ -251,7 +301,7 @@ export class HoppReactiveEnvPlugin {
           ]),
         })
       },
-      { immediate: true }
+      { immediate: true, deep: true }
     )
   }
 

@@ -208,10 +208,6 @@ watch(
   }
 );
 
-onMounted(() => {
-  isSpinnerEnabled.value = props.spinner?.enabled ?? false;
-});
-
 // Checkbox functionality
 const selectedRows = useVModel(props, 'selectedRows', emit);
 

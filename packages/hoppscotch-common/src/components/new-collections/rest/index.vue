@@ -375,6 +375,48 @@ const onRemoveRootCollection = async () => {
     return
   }
 
+  const activeTabs = tabs.getActiveTabs()
+
+  for (const tab of activeTabs.value) {
+    if (
+      tab.document.saveContext?.originLocation === "workspace-user-collection"
+    ) {
+      const requestHandle = ref(tab.document.saveContext.requestHandle)
+
+      if (requestHandle.value.type === "invalid") {
+        tab.document.saveContext = null
+        tab.document.isDirty = true
+        continue
+      }
+
+      const requestID = requestHandle.value.data.requestID
+
+      const parentCollectionIndexPath = requestID
+        .split("/")
+        .slice(0, -1)
+        .join("/")
+      const requestIndex = parseInt(requestID.split("/").slice(-1)[0])
+
+      const parentCollection = navigateToFolderWithIndexPath(
+        restCollectionState.value,
+        parentCollectionIndexPath.split("/").map((id) => parseInt(id))
+      )
+
+      console.log(`Parent collection is `, parentCollection)
+
+      if (!parentCollection) {
+        tab.document.saveContext = null
+        tab.document.isDirty = true
+        continue
+      }
+
+      if (!parentCollection.requests[requestIndex]) {
+        tab.document.saveContext = null
+        tab.document.isDirty = true
+      }
+    }
+  }
+
   toast.success(t("state.deleted"))
   displayConfirmModal(false)
 }
@@ -637,6 +679,46 @@ const onRemoveChildCollection = async () => {
   if (E.isLeft(result)) {
     // INVALID_COLLECTION_HANDLE
     return
+  }
+
+  const activeTabs = tabs.getActiveTabs()
+
+  for (const tab of activeTabs.value) {
+    if (
+      tab.document.saveContext?.originLocation === "workspace-user-collection"
+    ) {
+      const requestHandle = ref(tab.document.saveContext.requestHandle)
+
+      if (requestHandle.value.type === "invalid") {
+        tab.document.saveContext = null
+        tab.document.isDirty = true
+        continue
+      }
+
+      const requestID = requestHandle.value.data.requestID
+
+      const parentCollectionIndexPath = requestID
+        .split("/")
+        .slice(0, -1)
+        .join("/")
+      const requestIndex = parseInt(requestID.split("/").slice(-1)[0])
+
+      const parentCollection = navigateToFolderWithIndexPath(
+        restCollectionState.value,
+        parentCollectionIndexPath.split("/").map((id) => parseInt(id))
+      )
+
+      if (!parentCollection) {
+        tab.document.saveContext = null
+        tab.document.isDirty = true
+        continue
+      }
+
+      if (!parentCollection.requests[requestIndex]) {
+        tab.document.saveContext = null
+        tab.document.isDirty = true
+      }
+    }
   }
 
   toast.success(t("state.deleted"))

@@ -71,7 +71,7 @@
 
           <NewCollectionsRestRequest
             v-else-if="node.data.type === 'request'"
-            :is-active="isActiveRequest(node.data.value.request.id)"
+            :is-active="isActiveRequest(node.data.value)"
             :is-selected="
               isSelected(getRequestIndexPathArgs(node.data.value.requestID))
             "
@@ -168,6 +168,7 @@ import { WorkspaceRESTCollectionTreeAdapter } from "~/helpers/adapters/Workspace
 import { TeamCollection } from "~/helpers/backend/graphql"
 import { updateInheritedPropertiesForAffectedRequests } from "~/helpers/collection/collection"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
+import { Picked } from "~/helpers/types/HoppPicked"
 import {
   navigateToFolderWithIndexPath,
   restCollections$,
@@ -175,12 +176,12 @@ import {
 } from "~/newstore/collections"
 import { NewWorkspaceService } from "~/services/new-workspace"
 import { HandleRef } from "~/services/new-workspace/handle"
+import { RESTCollectionViewRequest } from "~/services/new-workspace/view"
 import { Workspace } from "~/services/new-workspace/workspace"
 import { RESTTabService } from "~/services/tab/rest"
 import IconImport from "~icons/lucide/folder-down"
 import IconHelpCircle from "~icons/lucide/help-circle"
 import IconPlus from "~icons/lucide/plus"
-import { Picked } from "~/helpers/types/HoppPicked"
 
 const t = useI18n()
 const toast = useToast()
@@ -749,9 +750,6 @@ const selectRequest = async (requestIndexPath: string) => {
     return
   }
 
-  // If there is a request with this save context, switch into it
-  let possibleTab = null
-
   const cascadingAuthHeadersHandleResult =
     await workspaceService.getRESTCollectionLevelAuthHeadersView(
       collectionHandle
@@ -771,16 +769,18 @@ const selectRequest = async (requestIndexPath: string) => {
 
   const { auth, headers } = cascadingAuthHeadersHandle.value.data
 
-  possibleTab = tabs.getTabRefWithSaveContext({
+  // If there is a request with this save context, switch into it
+  const possibleTab = tabs.getTabRefWithSaveContext({
     originLocation: "workspace-user-collection",
     requestHandle,
   })
+
   if (possibleTab) {
     tabs.setActiveTab(possibleTab.value.id)
   } else {
     // If not, open the request in a new tab
     tabs.createNewTab({
-      request: cloneDeep(requestHandle.value.data.request),
+      request: requestHandle.value.data.request,
       isDirty: false,
       saveContext: {
         originLocation: "workspace-user-collection",
@@ -1075,7 +1075,7 @@ const isAlreadyInRoot = (id: string) => {
   return indexPath.length === 1
 }
 
-const isActiveRequest = (requestID: string) => {
+const isActiveRequest = (requestView: RESTCollectionViewRequest) => {
   if (
     tabs.currentActiveTab.value.document.saveContext?.originLocation !==
     "workspace-user-collection"
@@ -1090,7 +1090,10 @@ const isActiveRequest = (requestID: string) => {
   if (requestHandle.value.type === "invalid") {
     return false
   }
-  return requestHandle.value.data.request.id === requestID
+  return (
+    requestHandle.value.data.requestID === requestView.requestID &&
+    requestHandle.value.data.request.id === requestView.request.id
+  )
 }
 
 const onSelectPick = (payload: Picked | null) => {

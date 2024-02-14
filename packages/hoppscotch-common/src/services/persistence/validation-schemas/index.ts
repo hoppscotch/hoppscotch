@@ -229,23 +229,23 @@ export const MQTT_REQUEST_SCHEMA = z.nullable(
     .strict()
 )
 
-export const GLOBAL_ENV_SCHEMA = z.union([
-  z.array(z.never()),
-
-  z.array(
-    z.union([
-      z.object({
-        key: z.string(),
-        secret: z.literal(true),
-      }),
-      z.object({
-        key: z.string(),
-        value: z.string(),
-        secret: z.literal(false),
-      }),
-    ])
-  ),
+const EnvironmentVariablesSchema = z.union([
+  z.object({
+    key: z.string(),
+    value: z.string(),
+    secret: z.literal(false),
+  }),
+  z.object({
+    key: z.string(),
+    secret: z.literal(true),
+  }),
+  z.object({
+    key: z.string(),
+    value: z.string(),
+  }),
 ])
+
+export const GLOBAL_ENV_SCHEMA = z.array(EnvironmentVariablesSchema)
 
 const OperationTypeSchema = z.enum([
   "subscription",
@@ -363,22 +363,6 @@ const HoppTestDataSchema = z.lazy(() =>
     })
     .strict()
 )
-
-const EnvironmentVariablesSchema = z.union([
-  z.object({
-    key: z.string(),
-    value: z.string(),
-    secret: z.literal(false),
-  }),
-  z.object({
-    key: z.string(),
-    secret: z.literal(true),
-  }),
-  z.object({
-    key: z.string(),
-    value: z.string(),
-  }),
-])
 
 export const SECRET_ENVIRONMENT_VARIABLE_SCHEMA = z.union([
   z.object({}).strict(),

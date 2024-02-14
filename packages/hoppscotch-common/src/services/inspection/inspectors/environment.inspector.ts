@@ -18,6 +18,7 @@ import { invokeAction } from "~/helpers/actions"
 import { computed } from "vue"
 import { useStreamStatic } from "~/composables/stream"
 import { SecretEnvironmentService } from "~/services/secret-environment.service"
+import { RESTTabService } from "~/services/tab/rest"
 
 const HOPP_ENVIRONMENT_REGEX = /(<<[a-zA-Z0-9-_]+>>)/g
 
@@ -41,6 +42,7 @@ export class EnvironmentInspectorService extends Service implements Inspector {
 
   private readonly inspection = this.bind(InspectionService)
   private readonly secretEnvs = this.bind(SecretEnvironmentService)
+  private readonly restTabs = this.bind(RESTTabService)
 
   private aggregateEnvsWithSecrets = useStreamStatic(
     aggregateEnvsWithSecrets$,
@@ -68,7 +70,14 @@ export class EnvironmentInspectorService extends Service implements Inspector {
   ) => {
     const newErrors: InspectorResult[] = []
 
-    const envKeys = this.aggregateEnvsWithSecrets.value.map((e) => e.key)
+    const currentTab = this.restTabs.currentActiveTab.value
+
+    const environmentVariables = [
+      ...currentTab.document.request.requestVariables,
+      ...this.aggregateEnvsWithSecrets.value,
+    ]
+
+    const envKeys = environmentVariables.map((e) => e.key)
 
     target.forEach((element, index) => {
       if (isENVInString(element)) {

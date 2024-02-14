@@ -25,7 +25,7 @@ export const REST_COLLECTIONS_MOCK: HoppCollection[] = [
     folders: [],
     requests: [
       {
-        v: "1",
+        v: "2",
         endpoint: "https://echo.hoppscotch.io",
         name: "Echo test",
         params: [],
@@ -35,6 +35,7 @@ export const REST_COLLECTIONS_MOCK: HoppCollection[] = [
         preRequestScript: "",
         testScript: "",
         body: { contentType: null, body: null },
+        requestVariables: [],
       },
     ],
     auth: { authType: "none", authActive: true },
@@ -136,7 +137,8 @@ export const REST_HISTORY_MOCK: RESTHistoryEntry[] = [
       params: [],
       preRequestScript: "",
       testScript: "",
-      v: "1",
+      requestVariables: [],
+      v: "2",
     },
     responseMeta: { duration: 807, statusCode: 200 },
     star: false,
@@ -192,7 +194,7 @@ export const REST_TAB_STATE_MOCK: PersistableTabState<HoppRESTDocument> = {
       tabID: "e6e8d800-caa8-44a2-a6a6-b4765a3167aa",
       doc: {
         request: {
-          v: "1",
+          v: "2",
           endpoint: "https://echo.hoppscotch.io",
           name: "Echo test",
           params: [],
@@ -202,6 +204,7 @@ export const REST_TAB_STATE_MOCK: PersistableTabState<HoppRESTDocument> = {
           preRequestScript: "",
           testScript: "",
           body: { contentType: null, body: null },
+          requestVariables: [],
         },
         isDirty: false,
         saveContext: {

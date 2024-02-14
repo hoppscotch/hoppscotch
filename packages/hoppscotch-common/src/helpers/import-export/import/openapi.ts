@@ -1,3 +1,4 @@
+import IconOpenAPI from "~icons/lucide/file"
 import {
   OpenAPI,
   OpenAPIV2,
@@ -12,6 +13,7 @@ import {
   HoppRESTHeader,
   HoppRESTParam,
   HoppRESTReqBody,
+  HoppRESTRequest,
   knownContentTypes,
   makeRESTRequest,
   HoppCollection,
@@ -23,7 +25,8 @@ import * as S from "fp-ts/string"
 import * as O from "fp-ts/Option"
 import * as TE from "fp-ts/TaskEither"
 import * as RA from "fp-ts/ReadonlyArray"
-import { IMPORTER_INVALID_FILE_FORMAT } from "."
+import { step } from "../steps"
+import { defineImporter, IMPORTER_INVALID_FILE_FORMAT } from "."
 
 export const OPENAPI_DEREF_ERROR = "openapi/deref_error" as const
 
@@ -164,12 +167,14 @@ const parseOpenAPIV3BodyFormData = (
       contentType,
       body: keys.map((key) => `${key}: `).join("\n"),
     }
-  }
-  return {
-    contentType,
-    body: keys.map(
-      (key) => <FormDataKeyValue>{ key, value: "", isFile: false, active: true }
-    ),
+  } else {
+    return {
+      contentType,
+      body: keys.map(
+        (key) =>
+          <FormDataKeyValue>{ key, value: "", isFile: false, active: true }
+      ),
+    }
   }
 }
 
@@ -228,9 +233,10 @@ const resolveOpenAPIV3SecurityObj = (
     } else if (scheme.scheme === "bearer") {
       // Bearer
       return { authType: "bearer", authActive: true, token: "" }
+    } else {
+      // Unknown/Unsupported Scheme
+      return { authType: "none", authActive: true }
     }
-    // Unknown/Unsupported Scheme
-    return { authType: "none", authActive: true }
   } else if (scheme.type === "apiKey") {
     if (scheme.in === "header") {
       return {
@@ -295,16 +301,17 @@ const resolveOpenAPIV3SecurityObj = (
         scope: _schemeData.join(" "),
         token: "",
       }
-    }
-    return {
-      authType: "oauth-2",
-      authActive: true,
-      accessTokenURL: "",
-      authURL: "",
-      clientID: "",
-      oidcDiscoveryURL: "",
-      scope: _schemeData.join(" "),
-      token: "",
+    } else {
+      return {
+        authType: "oauth-2",
+        authActive: true,
+        accessTokenURL: "",
+        authURL: "",
+        clientID: "",
+        oidcDiscoveryURL: "",
+        scope: _schemeData.join(" "),
+        token: "",
+      }
     }
   } else if (scheme.type === "openIdConnect") {
     return {
@@ -332,7 +339,7 @@ const resolveOpenAPIV3SecurityScheme = (
     | undefined
 
   if (!scheme) return { authType: "none", authActive: true }
-  return resolveOpenAPIV3SecurityObj(scheme, schemeData)
+  else return resolveOpenAPIV3SecurityObj(scheme, schemeData)
 }
 
 const resolveOpenAPIV3Security = (
@@ -432,16 +439,17 @@ const resolveOpenAPIV2SecurityScheme = (
         scope: _schemeData.join(" "),
         token: "",
       }
-    }
-    return {
-      authType: "oauth-2",
-      authActive: true,
-      accessTokenURL: "",
-      authURL: "",
-      clientID: "",
-      oidcDiscoveryURL: "",
-      scope: _schemeData.join(" "),
-      token: "",
+    } else {
+      return {
+        authType: "oauth-2",
+        authActive: true,
+        accessTokenURL: "",
+        authURL: "",
+        clientID: "",
+        oidcDiscoveryURL: "",
+        scope: _schemeData.join(" "),
+        token: "",
+      }
     }
   }
 
@@ -535,7 +543,8 @@ const parseOpenAPIUrl = (
 const convertPathToHoppReqs = (
   doc: OpenAPI.Document,
   pathName: string,
-  pathObj: OpenAPIPathInfoType
+  pathObj: OpenAPIPathInfoType,
+  filterTag?: string
 ) =>
   pipe(
     ["get", "head", "post", "put", "delete", "options", "patch"] as const,
@@ -543,25 +552,30 @@ const convertPathToHoppReqs = (
     // Filter and map out path info
     RA.filterMap(
       flow(
-        O.fromPredicate((method) => !!pathObj[method]),
+        O.fromPredicate((method) => {
+          if (!pathObj[method]) {
+            return false
+          }
+
+          // Requests that don't have the tag we are matching against are filtered out
+          if (filterTag) {
+            return (pathObj[method]?.tags || []).includes(filterTag)
+          }
+          // If no filter tag is provided, we filter out requests that have tags
+          return (pathObj[method]?.tags || []).length === 0
+        }),
         O.map((method) => ({ method, info: pathObj[method]! }))
       )
     ),
 
     // Construct request object
-    RA.map(({ method, info }) => {
-      const openAPIUrl = parseOpenAPIUrl(doc)
-      const openAPIPath = replaceOpenApiPathTemplating(pathName)
-
-      const endpoint =
-        openAPIUrl.endsWith("/") && openAPIPath.startsWith("/")
-          ? openAPIUrl + openAPIPath.slice(1)
-          : openAPIUrl + openAPIPath
-
-      return makeRESTRequest({
+    RA.map(({ method, info }) =>
+      makeRESTRequest({
         name: info.operationId ?? info.summary ?? "Untitled Request",
         method: method.toUpperCase(),
-        endpoint,
+        endpoint: `${parseOpenAPIUrl(doc)}${replaceOpenApiPathTemplating(
+          pathName
+        )}`,
 
         // We don't need to worry about reference types as the Dereferencing pass should remove them
         params: parseOpenAPIParams(
@@ -578,7 +592,7 @@ const convertPathToHoppReqs = (
         preRequestScript: "",
         testScript: "",
       })
-    }),
+    ),
 
     // Disable Readonly
     RA.toArray
@@ -586,20 +600,32 @@ const convertPathToHoppReqs = (
 
 const convertOpenApiDocToHopp = (
   doc: OpenAPI.Document
-): TE.TaskEither<never, HoppCollection[]> => {
+): TE.TaskEither<never, HoppCollection<HoppRESTRequest>[]> => {
   const name = doc.info.title
 
-  const paths = Object.entries(doc.paths ?? {})
-    .map(([pathName, pathObj]) => convertPathToHoppReqs(doc, pathName, pathObj))
-    .flat()
+  const tags = Object.entries(doc.tags ?? {}).map(([, tagObj]) => tagObj.name)
 
   return TE.of([
-    makeCollection({
+    makeCollection<HoppRESTRequest>({
       name,
-      folders: [],
-      requests: paths,
-      auth: { authType: "inherit", authActive: true },
-      headers: [],
+      // All requests that have a tag are put in a folder with the tag name
+      folders: tags.map((tag) =>
+        makeCollection({
+          name: tag,
+          folders: [],
+          requests: Object.entries(doc.paths ?? {})
+            .map(([pathName, pathObj]) =>
+              convertPathToHoppReqs(doc, pathName, pathObj, tag)
+            )
+            .flat(),
+        })
+      ),
+      // All requests that don't have a tag are put in the root
+      requests: Object.entries(doc.paths ?? {})
+        .map(([pathName, pathObj]) =>
+          convertPathToHoppReqs(doc, pathName, pathObj)
+        )
+        .flat(),
     }),
   ])
 }
@@ -614,29 +640,44 @@ const parseOpenAPIDocContent = (str: string) =>
     )
   )
 
-export const hoppOpenAPIImporter = (fileContent: string) =>
-  pipe(
-    // See if we can parse JSON properly
-    fileContent,
-    parseOpenAPIDocContent,
-    TE.fromOption(() => IMPORTER_INVALID_FILE_FORMAT),
-    // Try validating, else the importer is invalid file format
-    TE.chainW((obj) =>
-      pipe(
-        TE.tryCatch(
-          () => SwaggerParser.validate(obj),
-          () => IMPORTER_INVALID_FILE_FORMAT
+export default defineImporter({
+  id: "openapi",
+  name: "import.from_openapi",
+  applicableTo: ["my-collections", "team-collections", "url-import"],
+  icon: IconOpenAPI,
+  steps: [
+    step({
+      stepName: "FILE_IMPORT",
+      metadata: {
+        caption: "import.from_openapi_description",
+        acceptedFileTypes: ".json, .yaml, .yml",
+      },
+    }),
+  ] as const,
+  importer: ([fileContent]) =>
+    pipe(
+      // See if we can parse JSON properly
+      fileContent,
+      parseOpenAPIDocContent,
+      TE.fromOption(() => IMPORTER_INVALID_FILE_FORMAT),
+      // Try validating, else the importer is invalid file format
+      TE.chainW((obj) =>
+        pipe(
+          TE.tryCatch(
+            () => SwaggerParser.validate(obj),
+            () => IMPORTER_INVALID_FILE_FORMAT
+          )
         )
-      )
-    ),
-    // Deference the references
-    TE.chainW((obj) =>
-      pipe(
-        TE.tryCatch(
-          () => SwaggerParser.dereference(obj),
-          () => OPENAPI_DEREF_ERROR
+      ),
+      // Deference the references
+      TE.chainW((obj) =>
+        pipe(
+          TE.tryCatch(
+            () => SwaggerParser.dereference(obj),
+            () => OPENAPI_DEREF_ERROR
+          )
         )
-      )
+      ),
+      TE.chainW(convertOpenApiDocToHopp)
     ),
-    TE.chainW(convertOpenApiDocToHopp)
-  )
+})

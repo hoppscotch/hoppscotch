@@ -100,7 +100,7 @@
 <script lang="ts" setup>
 import { useVModel } from '@vueuse/core';
 import { isEqual } from 'lodash-es';
-import { computed, ref, watch } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import IconLeft from '~icons/lucide/arrow-left';
 import IconRight from '~icons/lucide/arrow-right';
 
@@ -143,6 +143,12 @@ const props = withDefaults(
     pagination?: {
       totalPages: number;
     };
+
+    /** Whether to show the spinner */
+    spinner?: {
+      enabled: boolean;
+      duration?: number;
+    };
   }>(),
   {
     showYBorder: false,
@@ -170,15 +176,12 @@ enum PageDirection {
 }
 
 const changePage = (direction: PageDirection) => {
-  if (direction === PageDirection.Previous && page.value > 1) {
-    showSpinner(300);
-    page.value -= 1;
-  } else if (
-    direction === PageDirection.Next &&
-    page.value < props.pagination!.totalPages
+  const isPrevious = direction === PageDirection.Previous;
+  if (
+    (isPrevious && page.value > 1) ||
+    (!isPrevious && page.value < props.pagination!.totalPages)
   ) {
-    showSpinner(300);
-    page.value += 1;
+    page.value += isPrevious ? -1 : 1;
   }
 
   emit('pageNumber', page.value);
@@ -186,6 +189,28 @@ const changePage = (direction: PageDirection) => {
 
 // The working version of the list that is used to perform operations upon
 const workingList = useVModel(props, 'list', emit);
+
+// Spinner functionality
+const isSpinnerEnabled = ref(false);
+const showSpinner = (duration: number = 500) => {
+  isSpinnerEnabled.value = true;
+  setTimeout(() => {
+    isSpinnerEnabled.value = false;
+  }, duration);
+};
+
+watch(
+  () => props.spinner,
+  () => {
+    if (props.spinner?.enabled === true) {
+      showSpinner(props.spinner.duration);
+    }
+  }
+);
+
+onMounted(() => {
+  isSpinnerEnabled.value = props.spinner?.enabled ?? false;
+});
 
 // Checkbox functionality
 const selectedRows = useVModel(props, 'selectedRows', emit);
@@ -274,24 +299,15 @@ watch(workingList.value, () => {
 // Searchbar functionality with optional debouncer
 const searchQuery = ref('');
 let debounceTimeout: NodeJS.Timeout;
-const isSpinnerEnabled = ref(false);
 
 const debounce = (func: () => void, delay: number) => {
   clearTimeout(debounceTimeout);
   debounceTimeout = setTimeout(func, delay);
 };
 
-const showSpinner = (duration: number = 500) => {
-  isSpinnerEnabled.value = true;
-  setTimeout(() => {
-    isSpinnerEnabled.value = false;
-  }, duration);
-};
-
 watch(searchQuery, () => {
   if (props.searchBar?.debounce) {
     debounce(() => {
-      showSpinner();
       emit('search', searchQuery.value);
     }, props.searchBar.debounce);
   } else {

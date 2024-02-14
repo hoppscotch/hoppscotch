@@ -33,6 +33,7 @@
             debounce: 1000,
             placeholder: t('users.searchbar_placeholder'),
           }"
+          :spinner="{ enabled: fetching, duration: 1000 }"
           :pagination="{ totalPages: totalPages }"
           @onRowClicked="goToUserDetails"
           @search="handleSearch"
@@ -248,6 +249,7 @@ const headings = [
 // Get Paginated Results of all the users in the infra
 const usersPerPage = 20;
 const {
+  fetching,
   error,
   refetch,
   list: usersList,

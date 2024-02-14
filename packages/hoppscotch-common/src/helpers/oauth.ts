@@ -3,40 +3,16 @@ import { PersistenceService } from "~/services/persistence"
 
 import * as E from "fp-ts/Either"
 import { z } from "zod"
+import { InterceptorService } from "~/services/interceptor.service"
+
+import { AxiosRequestConfig } from "axios"
 
 const redirectUri = `${window.location.origin}/oauth`
 
+const interceptorService = getService(InterceptorService)
 const persistenceService = getService(PersistenceService)
 
 // GENERAL HELPER FUNCTIONS
-
-/**
- * Makes a POST request and parse the response as JSON
- *
- * @param {String} url - The resource
- * @param {Object} params - Configuration options
- * @returns {Object}
- */
-
-const sendPostRequest = async (url: string, params: Record<string, string>) => {
-  const body = Object.keys(params)
-    .map((key) => `${key}=${params[key]}`)
-    .join("&")
-  const options = {
-    method: "POST",
-    headers: {
-      "Content-type": "application/x-www-form-urlencoded; charset=UTF-8",
-    },
-    body,
-  }
-  try {
-    const response = await fetch(url, options)
-    const data = await response.json()
-    return E.right(data)
-  } catch (e) {
-    return E.left("AUTH_TOKEN_REQUEST_FAILED")
-  }
-}
 
 /**
  * Parse a query string into an object
@@ -71,9 +47,16 @@ const getTokenConfiguration = async (endpoint: string) => {
     },
   }
   try {
-    const response = await fetch(endpoint, options)
-    const config = await response.json()
-    return E.right(config)
+    const res = await runRequestThroughInterceptor({
+      url: endpoint,
+      ...options,
+    })
+
+    if (E.isLeft(res)) {
+      return E.left("OIDC_DISCOVERY_FAILED")
+    }
+
+    return E.right(JSON.parse(res.right))
   } catch (e) {
     return E.left("OIDC_DISCOVERY_FAILED")
   }
@@ -166,8 +149,7 @@ const tokenRequest = async ({
   clientSecret,
   scope,
 }: TokenRequestParams) => {
-  // Check oauth configuration
-  if (oidcDiscoveryUrl !== "") {
+  if (oidcDiscoveryUrl) {
     const res = await getTokenConfiguration(oidcDiscoveryUrl)
 
     const OIDCConfigurationSchema = z.object({
@@ -269,17 +251,19 @@ const handleOAuthRedirect = async () => {
   }
 
   // Exchange the authorization code for an access token
-  const tokenResponse: E.Either<string, any> = await sendPostRequest(
-    tokenEndpoint,
-    {
+  const tokenResponse = await runRequestThroughInterceptor({
+    url: tokenEndpoint,
+    data: JSON.stringify({
       grant_type: "authorization_code",
       code: queryParams.code,
       client_id: clientID,
       client_secret: clientSecret,
       redirect_uri: redirectUri,
       code_verifier: codeVerifier,
-    }
-  )
+    }),
+    method: "POST",
+    headers: {},
+  })
 
   // Clean these up since we don't need them anymore
   clearPKCEState()
@@ -293,7 +277,7 @@ const handleOAuthRedirect = async () => {
   })
 
   const parsedTokenResponse = withAccessTokenSchema.safeParse(
-    tokenResponse.right
+    JSON.parse(tokenResponse.right)
   )
 
   return parsedTokenResponse.success
@@ -307,6 +291,22 @@ const clearPKCEState = () => {
   persistenceService.removeLocalConfig("tokenEndpoint")
   persistenceService.removeLocalConfig("client_id")
   persistenceService.removeLocalConfig("client_secret")
+}
+
+async function runRequestThroughInterceptor(config: AxiosRequestConfig) {
+  const res = await interceptorService.runRequest(config).response
+
+  if (E.isLeft(res)) {
+    return E.left("REQUEST_FAILED")
+  }
+
+  // convert ArrayBuffer to string
+  if (!(res.right.data instanceof ArrayBuffer)) {
+    return E.left("REQUEST_FAILED")
+  }
+
+  const data = new TextDecoder().decode(res.right.data).replace(/\0+$/, "")
+  return E.right(data)
 }
 
 export { tokenRequest, handleOAuthRedirect }

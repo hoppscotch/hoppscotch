@@ -1034,6 +1034,11 @@ export default class NewTeamCollectionAdapter {
     }
   }
 
+  /**
+   * Used to obtain the inherited auth and headers for a given folder path, used for both REST and GraphQL team collections
+   * @param folderPath the path of the folder to cascade the auth from
+   * @returns the inherited auth and headers for the given folder path
+   */
   public cascadeParentCollectionForHeaderAuth(folderPath: string) {
     let auth: HoppInheritedProperty["auth"] = {
       parentID: folderPath ?? "",
@@ -1080,7 +1085,7 @@ export default class NewTeamCollectionAdapter {
           authType: "inherit",
           authActive: true,
         }
-        auth.parentID = [...path.slice(0, i + 1)].join("/")
+        auth.parentID = path.slice(0, i + 1).join("/")
         auth.parentName = parentFolder.title
       }
 
@@ -1089,9 +1094,12 @@ export default class NewTeamCollectionAdapter {
       const parentFolderAuth = data.auth
       const parentFolderHeaders = data.headers
 
-      if (parentFolderAuth?.authType === "inherit" && path.length === 1) {
+      if (
+        parentFolderAuth?.authType === "inherit" &&
+        path.slice(0, i + 1).length === 1
+      ) {
         auth = {
-          parentID: [...path.slice(0, i + 1)].join("/"),
+          parentID: path.slice(0, i + 1).join("/"),
           parentName: parentFolder.title,
           inheritedAuth: auth.inheritedAuth,
         }
@@ -1099,7 +1107,7 @@ export default class NewTeamCollectionAdapter {
 
       if (parentFolderAuth?.authType !== "inherit") {
         auth = {
-          parentID: [...path.slice(0, i + 1)].join("/"),
+          parentID: path.slice(0, i + 1).join("/"),
           parentName: parentFolder.title,
           inheritedAuth: parentFolderAuth,
         }
@@ -1112,7 +1120,7 @@ export default class NewTeamCollectionAdapter {
           const index = headers.findIndex(
             (h) => h.inheritedHeader?.key === header.key
           )
-          const currentPath = [...path.slice(0, i + 1)].join("/")
+          const currentPath = path.slice(0, i + 1).join("/")
           if (index !== -1) {
             // Replace the existing header with the same key
             headers[index] = {

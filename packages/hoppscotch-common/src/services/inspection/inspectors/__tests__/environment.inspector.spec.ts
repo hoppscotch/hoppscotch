@@ -15,9 +15,21 @@ vi.mock("~/newstore/environments", async () => {
 
   return {
     __esModule: true,
-    aggregateEnvs$: new BehaviorSubject([
-      { key: "EXISTING_ENV_VAR", value: "test_value" },
+    aggregateEnvsWithSecrets$: new BehaviorSubject([
+      { key: "EXISTING_ENV_VAR", value: "test_value", secret: false },
+      { key: "EXISTING_ENV_VAR_2", value: "", secret: false },
     ]),
+    getCurrentEnvironment: () => ({
+      id: "1",
+      name: "some-env",
+      v: 1,
+      variables: {
+        key: "EXISTING_ENV_VAR",
+        value: "test_value",
+        secret: false,
+      },
+    }),
+    getSelectedEnvironmentType: () => "MY_ENV",
   }
 })
 
@@ -51,7 +63,7 @@ describe("EnvironmentInspectorService", () => {
 
       expect(result.value).toContainEqual(
         expect.objectContaining({
-          id: "environment",
+          id: "environment-not-found-0",
           isApplicable: true,
           text: {
             type: "text",
@@ -91,7 +103,7 @@ describe("EnvironmentInspectorService", () => {
 
       expect(result.value).toContainEqual(
         expect.objectContaining({
-          id: "environment",
+          id: "environment-not-found-0",
           isApplicable: true,
           text: {
             type: "text",
@@ -134,7 +146,7 @@ describe("EnvironmentInspectorService", () => {
 
       expect(result.value).toContainEqual(
         expect.objectContaining({
-          id: "environment",
+          id: "environment-not-found-0",
           isApplicable: true,
           text: {
             type: "text",
@@ -145,6 +157,104 @@ describe("EnvironmentInspectorService", () => {
     })
 
     it("should not return an inspector result when the params contain defined environment variables", () => {
+      const container = new TestContainer()
+      const envInspector = container.bind(EnvironmentInspectorService)
+
+      const req = ref({
+        ...getDefaultRESTRequest(),
+        endpoint: "http://example.com/api/data",
+        headers: [],
+        params: [
+          { key: "<<EXISTING_ENV_VAR>>", value: "some-value", active: true },
+        ],
+      })
+
+      const result = envInspector.getInspections(req)
+
+      expect(result.value).toHaveLength(0)
+    })
+
+    it("should return an inspector result when the URL contains empty value in a environment variable", () => {
+      const container = new TestContainer()
+      const envInspector = container.bind(EnvironmentInspectorService)
+
+      const req = ref({
+        ...getDefaultRESTRequest(),
+        endpoint: "<<EXISTING_ENV_VAR_2>>",
+      })
+
+      const result = envInspector.getInspections(req)
+
+      expect(result.value).toHaveLength(1)
+    })
+
+    it("should not return an inspector result when the URL contains non empty value in a environemnt variable", () => {
+      const container = new TestContainer()
+      const envInspector = container.bind(EnvironmentInspectorService)
+
+      const req = ref({
+        ...getDefaultRESTRequest(),
+        endpoint: "<<EXISTING_ENV_VAR>>",
+      })
+
+      const result = envInspector.getInspections(req)
+
+      expect(result.value).toHaveLength(0)
+    })
+
+    it("should return an inspector result when the headers contain empty value in a environment variable", () => {
+      const container = new TestContainer()
+      const envInspector = container.bind(EnvironmentInspectorService)
+
+      const req = ref({
+        ...getDefaultRESTRequest(),
+        endpoint: "http://example.com/api/data",
+        headers: [
+          { key: "<<EXISTING_ENV_VAR_2>>", value: "some-value", active: true },
+        ],
+      })
+
+      const result = envInspector.getInspections(req)
+
+      expect(result.value).toHaveLength(1)
+    })
+
+    it("should not return an inspector result when the headers contain non empty value in a environemnt variable", () => {
+      const container = new TestContainer()
+      const envInspector = container.bind(EnvironmentInspectorService)
+
+      const req = ref({
+        ...getDefaultRESTRequest(),
+        endpoint: "http://example.com/api/data",
+        headers: [
+          { key: "<<EXISTING_ENV_VAR>>", value: "some-value", active: true },
+        ],
+      })
+
+      const result = envInspector.getInspections(req)
+
+      expect(result.value).toHaveLength(0)
+    })
+
+    it("should return an inspector result when the params contain empty value in a environment variable", () => {
+      const container = new TestContainer()
+      const envInspector = container.bind(EnvironmentInspectorService)
+
+      const req = ref({
+        ...getDefaultRESTRequest(),
+        endpoint: "http://example.com/api/data",
+        headers: [],
+        params: [
+          { key: "<<EXISTING_ENV_VAR_2>>", value: "some-value", active: true },
+        ],
+      })
+
+      const result = envInspector.getInspections(req)
+
+      expect(result.value).toHaveLength(1)
+    })
+
+    it("should not return an inspector result when the params contain non empty value in a environemnt variable", () => {
       const container = new TestContainer()
       const envInspector = container.bind(EnvironmentInspectorService)
 

@@ -3,13 +3,13 @@
     <div
       v-for="(member, index) in slicedTeamMembers"
       :key="`member-${index}`"
-      class="inline-flex"
+      class="inline-flex group cursor-pointer"
     >
       <HoppSmartPicture
         v-tippy="{ theme: 'tooltip' }"
         :name="member.user.uid"
         :title="getUserName(member as TeamMember)"
-        class="ring-2 ring-primary"
+        class="ring-2 ring-primary group-hover:-translate-y-1 transition-transform"
         @click="handleClick()"
       />
     </div>
@@ -51,7 +51,7 @@ const getUserName = (member: TeamMember): string =>
   member.user.email ||
   t("profile.default_hopp_displayname")
 
-const maxMembersSoftLimit = 4
+const maxMembersSoftLimit = 3
 const maxMembersHardLimit = 6
 
 const slicedTeamMembers = computed(() => {

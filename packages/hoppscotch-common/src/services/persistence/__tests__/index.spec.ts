@@ -56,12 +56,14 @@ import {
   REST_COLLECTIONS_MOCK,
   REST_HISTORY_MOCK,
   REST_TAB_STATE_MOCK,
+  SECRET_ENVIRONMENTS_MOCK,
   SELECTED_ENV_INDEX_MOCK,
   SOCKET_IO_REQUEST_MOCK,
   SSE_REQUEST_MOCK,
   VUEX_DATA_MOCK,
   WEBSOCKET_REQUEST_MOCK,
 } from "./__mocks__"
+import { SecretEnvironmentService } from "~/services/secret-environment.service"
 
 vi.mock("~/modules/i18n", () => {
   return {
@@ -122,10 +124,12 @@ const spyOnSetItem = () => vi.spyOn(Storage.prototype, "setItem")
 const bindPersistenceService = ({
   mockGQLTabService = false,
   mockRESTTabService = false,
+  mockSecretEnvironmentsService = false,
   mock = {},
 }: {
   mockGQLTabService?: boolean
   mockRESTTabService?: boolean
+  mockSecretEnvironmentsService?: boolean
   mock?: Record<string, unknown>
 } = {}) => {
   const container = new TestContainer()
@@ -136,6 +140,10 @@ const bindPersistenceService = ({
 
   if (mockRESTTabService) {
     container.bindMock(RESTTabService, mock)
+  }
+
+  if (mockSecretEnvironmentsService) {
+    container.bindMock(SecretEnvironmentService, mock)
   }
 
   container.bind(PersistenceService)
@@ -893,7 +901,12 @@ describe("PersistenceService", () => {
         // Invalid shape for `environments`
         const environments = [
           // `entries` -> `variables`
-          { name: "Test", entries: [{ key: "test-key", value: "test-value" }] },
+          {
+            v: 1,
+            id: "ENV_1",
+            name: "Test",
+            entries: [{ key: "test-key", value: "test-value", secret: false }],
+          },
         ]
 
         window.localStorage.setItem(
@@ -1040,6 +1053,119 @@ describe("PersistenceService", () => {
         })
         expect(selectedEnvironmentIndex$.subscribe).toHaveBeenCalledWith(
           expect.any(Function)
+        )
+      })
+    })
+
+    describe("Setup secret Environments persistence", () => {
+      // Key read from localStorage across test cases
+      const secretEnvironmentsKey = "secretEnvironments"
+
+      const loadSecretEnvironmentsFromPersistedStateFn = vi.fn()
+      const mock = {
+        loadSecretEnvironmentsFromPersistedState:
+          loadSecretEnvironmentsFromPersistedStateFn,
+      }
+
+      it(`shows an error and sets the entry as a backup in localStorage if "${secretEnvironmentsKey}" read from localStorage doesn't match the schema`, () => {
+        // Invalid shape for `secretEnvironments`
+        const secretEnvironments = {
+          clryz7ir7002al4162bsj0azg: {
+            key: "ENV_KEY",
+            value: "ENV_VALUE",
+          },
+        }
+
+        window.localStorage.setItem(
+          secretEnvironmentsKey,
+          JSON.stringify(secretEnvironments)
+        )
+
+        const getItemSpy = spyOnGetItem()
+        const setItemSpy = spyOnSetItem()
+
+        invokeSetupLocalPersistence()
+
+        expect(getItemSpy).toHaveBeenCalledWith(secretEnvironmentsKey)
+
+        expect(toastErrorFn).toHaveBeenCalledWith(
+          expect.stringContaining(secretEnvironmentsKey)
+        )
+        expect(setItemSpy).toHaveBeenCalledWith(
+          `${secretEnvironmentsKey}-backup`,
+          JSON.stringify(secretEnvironments)
+        )
+      })
+
+      it("loads secret environments from the state persisted in localStorage and sets watcher for `persistableSecretEnvironment`", () => {
+        const secretEnvironment = SECRET_ENVIRONMENTS_MOCK
+        window.localStorage.setItem(
+          secretEnvironmentsKey,
+          JSON.stringify(secretEnvironment)
+        )
+
+        const getItemSpy = spyOnGetItem()
+
+        invokeSetupLocalPersistence({
+          mockSecretEnvironmentsService: true,
+          mock,
+        })
+
+        expect(getItemSpy).toHaveBeenCalledWith(secretEnvironmentsKey)
+
+        expect(toastErrorFn).not.toHaveBeenCalledWith(secretEnvironmentsKey)
+
+        expect(loadSecretEnvironmentsFromPersistedStateFn).toHaveBeenCalledWith(
+          secretEnvironment
+        )
+        expect(watchDebounced).toHaveBeenCalledWith(
+          expect.any(Object),
+          expect.any(Function),
+          { debounce: 500 }
+        )
+      })
+
+      it(`skips schema parsing and the loading of persisted secret environments if there is no "${secretEnvironmentsKey}" key present in localStorage`, () => {
+        window.localStorage.removeItem(secretEnvironmentsKey)
+
+        const getItemSpy = spyOnGetItem()
+        const setItemSpy = spyOnSetItem()
+
+        invokeSetupLocalPersistence({
+          mockSecretEnvironmentsService: true,
+          mock,
+        })
+
+        expect(getItemSpy).toHaveBeenCalledWith(secretEnvironmentsKey)
+
+        expect(toastErrorFn).not.toHaveBeenCalledWith(secretEnvironmentsKey)
+        expect(setItemSpy).not.toHaveBeenCalled()
+
+        expect(watchDebounced).toHaveBeenCalled()
+      })
+
+      it("logs an error to the console on failing to parse persisted secret environments", () => {
+        window.localStorage.setItem(secretEnvironmentsKey, "invalid-json")
+
+        console.error = vi.fn()
+        const getItemSpy = spyOnGetItem()
+        const setItemSpy = spyOnSetItem()
+
+        invokeSetupLocalPersistence()
+
+        expect(getItemSpy).toHaveBeenCalledWith(secretEnvironmentsKey)
+
+        expect(toastErrorFn).not.toHaveBeenCalledWith(secretEnvironmentsKey)
+        expect(setItemSpy).not.toHaveBeenCalled()
+
+        expect(console.error).toHaveBeenCalledWith(
+          `Failed parsing persisted secret environment, state:`,
+          window.localStorage.getItem(secretEnvironmentsKey)
+        )
+        expect(watchDebounced).toHaveBeenCalledWith(
+          expect.any(Object),
+          expect.any(Function),
+          { debounce: 500 }
         )
       })
     })

@@ -1,8 +1,9 @@
-import { runPreRequestScript } from "~/pre-request/node-vm"
 import "@relmify/jest-fp-ts"
 
-describe("execPreRequestScript", () => {
-  test("returns the updated envirionment properly", () => {
+import { runPreRequestScript } from "~/pre-request/node-vm"
+
+describe("runPreRequestScript", () => {
+  test("returns the updated environment properly", () => {
     return expect(
       runPreRequestScript(
         `
@@ -11,16 +12,16 @@ describe("execPreRequestScript", () => {
         {
           global: [],
           selected: [
-            { key: "bob", value: "oldbob" },
-            { key: "foo", value: "bar" },
+            { key: "bob", value: "oldbob", secret: false },
+            { key: "foo", value: "bar", secret: false },
           ],
         }
       )()
     ).resolves.toEqualRight({
       global: [],
       selected: [
-        { key: "bob", value: "newbob" },
-        { key: "foo", value: "bar" },
+        { key: "bob", value: "newbob", secret: false },
+        { key: "foo", value: "bar", secret: false },
       ],
     })
   })
@@ -34,8 +35,8 @@ describe("execPreRequestScript", () => {
         {
           global: [],
           selected: [
-            { key: "bob", value: "oldbob" },
-            { key: "foo", value: "bar" },
+            { key: "bob", value: "oldbob", secret: false },
+            { key: "foo", value: "bar", secret: false },
           ],
         }
       )()
@@ -51,8 +52,8 @@ describe("execPreRequestScript", () => {
         {
           global: [],
           selected: [
-            { key: "bob", value: "oldbob" },
-            { key: "foo", value: "bar" },
+            { key: "bob", value: "oldbob", secret: false },
+            { key: "foo", value: "bar", secret: false },
           ],
         }
       )()
@@ -68,8 +69,8 @@ describe("execPreRequestScript", () => {
         {
           global: [],
           selected: [
-            { key: "bob", value: "oldbob" },
-            { key: "foo", value: "bar" },
+            { key: "bob", value: "oldbob", secret: false },
+            { key: "foo", value: "bar", secret: false },
           ],
         }
       )()
@@ -86,7 +87,7 @@ describe("execPreRequestScript", () => {
       )()
     ).resolves.toEqualRight({
       global: [],
-      selected: [{ key: "foo", value: "bar" }],
+      selected: [{ key: "foo", value: "bar", secret: false }],
     })
   })
 })

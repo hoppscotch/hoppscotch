@@ -80,6 +80,13 @@
                 global
               />
               <HttpTestResultEnv
+                v-for="(env, index) in testResults.envDiff.global.deletions"
+                :key="`env-${env.key}-${index}`"
+                :env="env"
+                status="deletions"
+                global
+              />
+              <HttpTestResultEnv
                 v-for="(env, index) in testResults.envDiff.selected.additions"
                 :key="`env-${env.key}-${index}`"
                 :env="env"
@@ -155,7 +162,7 @@
     </div>
     <HoppSmartPlaceholder
       v-else-if="testResults && testResults.scriptError"
-      :src="`/images/states/${colorMode.value}/youre_lost.svg`"
+      :src="`/images/states/${colorMode.value}/upload_error.svg`"
       :alt="`${t('error.test_script_fail')}`"
       :heading="t('error.test_script_fail')"
       :text="t('helpers.test_script_fail')"
@@ -204,7 +211,6 @@ import { useI18n } from "@composables/i18n"
 import {
   globalEnv$,
   selectedEnvironmentIndex$,
-  setGlobalEnvVariables,
   setSelectedEnvironmentIndex,
 } from "~/newstore/environments"
 import { HoppTestResult } from "~/helpers/types/HoppTestResult"
@@ -218,6 +224,7 @@ import { useColorMode } from "~/composables/theming"
 import { useVModel } from "@vueuse/core"
 import { useService } from "dioc/vue"
 import { WorkspaceService } from "~/services/workspace.service"
+import { invokeAction } from "~/helpers/actions"
 
 const props = defineProps<{
   modelValue: HoppTestResult | null | undefined
@@ -297,9 +304,10 @@ const globalHasAdditions = computed(() => {
 
 const addEnvToGlobal = () => {
   if (!testResults.value?.envDiff.selected.additions) return
-  setGlobalEnvVariables([
-    ...globalEnvVars.value,
-    ...testResults.value.envDiff.selected.additions,
-  ])
+
+  invokeAction("modals.global.environment.update", {
+    variables: testResults.value.envDiff.selected.additions,
+    isSecret: false,
+  })
 }
 </script>

@@ -14,9 +14,9 @@
           v-if="response.body"
           v-tippy="{ theme: 'tooltip' }"
           :title="t('state.linewrap')"
-          :class="{ '!text-accent': linewrapEnabled }"
+          :class="{ '!text-accent': WRAP_LINES }"
           :icon="IconWrapText"
-          @click.prevent="linewrapEnabled = !linewrapEnabled"
+          @click.prevent="toggleNestedSetting('WRAP_LINES', 'httpResponseBody')"
         />
         <HoppButtonSecondary
           v-if="response.body"
@@ -260,6 +260,8 @@ import {
 } from "@composables/lens-actions"
 import { defineActionHandler } from "~/helpers/actions"
 import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
+import { useNestedSetting } from "~/composables/settings"
+import { toggleNestedSetting } from "~/newstore/settings"
 import interfaceLanguages from "~/helpers/utils/interfaceLanguages"
 
 const t = useI18n()
@@ -371,8 +373,8 @@ const { downloadIcon, downloadResponse } = useDownloadResponse(
 // Template refs
 const tippyActions = ref<any | null>(null)
 const jsonResponse = ref<any | null>(null)
+const WRAP_LINES = useNestedSetting("WRAP_LINES", "httpResponseBody")
 const copyInterfaceTippyActions = ref<any | null>(null)
-const linewrapEnabled = ref(true)
 
 const { cursor } = useCodemirror(
   jsonResponse,
@@ -381,7 +383,7 @@ const { cursor } = useCodemirror(
     extendedEditorConfig: {
       mode: "application/ld+json",
       readOnly: true,
-      lineWrapping: linewrapEnabled,
+      lineWrapping: WRAP_LINES,
     },
     linter: null,
     completer: null,

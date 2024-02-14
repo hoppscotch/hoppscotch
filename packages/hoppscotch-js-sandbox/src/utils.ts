@@ -18,6 +18,70 @@ const getEnv = (envName: string, envs: TestResult["envs"]) => {
   )
 }
 
+const findEnvIndex = (
+  envName: string,
+  envList: SelectedEnvItem[] | GlobalEnvItem[]
+): number => {
+  return envList.findIndex(
+    (envItem: SelectedEnvItem) => envItem.key === envName
+  )
+}
+
+const setEnv = (
+  envName: string,
+  envValue: string,
+  envs: TestResult["envs"]
+): TestResult["envs"] => {
+  const { global, selected } = envs
+
+  const indexInSelected = findEnvIndex(envName, selected)
+  const indexInGlobal = findEnvIndex(envName, global)
+
+  if (indexInSelected >= 0) {
+    const selectedEnv = selected[indexInSelected]
+    if ("value" in selectedEnv) {
+      selectedEnv.value = envValue
+    }
+  } else if (indexInGlobal >= 0) {
+    if ("value" in global[indexInGlobal]) {
+      // eslint-disable-next-line @typescript-eslint/no-extra-semi
+      ;(global[indexInGlobal] as { value: string }).value = envValue
+    }
+  } else {
+    selected.push({
+      key: envName,
+      value: envValue,
+      secret: false,
+    })
+  }
+
+  return {
+    global,
+    selected,
+  }
+}
+
+const unsetEnv = (
+  envName: string,
+  envs: TestResult["envs"]
+): TestResult["envs"] => {
+  const { global, selected } = envs
+
+  const indexInSelected = findEnvIndex(envName, selected)
+  const indexInGlobal = findEnvIndex(envName, global)
+
+  if (indexInSelected >= 0) {
+    selected.splice(indexInSelected, 1)
+  } else if (indexInGlobal >= 0) {
+    global.splice(indexInGlobal, 1)
+  }
+
+  return {
+    global,
+    selected,
+  }
+}
+
 // Compiles shared scripting API methods for use in both pre and post request scripts
 const getSharedMethods = (envs: TestResult["envs"]) => {
   let updatedEnvs = envs
@@ -29,9 +93,9 @@ const getSharedMethods = (envs: TestResult["envs"]) => {
 
     const result = pipe(
       getEnv(key, updatedEnvs),
-      O.match(
+      O.fold(
         () => undefined,
-        ({ value }) => String(value)
+        (env) => String(env.value)
       )
     )
 
@@ -47,14 +111,13 @@ const getSharedMethods = (envs: TestResult["envs"]) => {
       getEnv(key, updatedEnvs),
       E.fromOption(() => "INVALID_KEY" as const),
 
-      E.map(({ value }) =>
+      E.map((e) =>
         pipe(
-          parseTemplateStringE(value, [
+          parseTemplateStringE(e.value, [
             ...updatedEnvs.selected,
             ...updatedEnvs.global,
-          ]),
-          // If the recursive resolution failed, return the unresolved value
-          E.getOrElse(() => value)
+          ]), // If the recursive resolution failed, return the unresolved value
+          E.getOrElse(() => e.value)
         )
       ),
       E.map((x) => String(x)),
@@ -75,6 +138,16 @@ const getSharedMethods = (envs: TestResult["envs"]) => {
     }
 
     updatedEnvs = setEnv(key, value, updatedEnvs)
+
+    return undefined
+  }
+
+  const envUnsetFn = (key: any) => {
+    if (typeof key !== "string") {
+      throw new Error("Expected key to be a string")
+    }
+
+    updatedEnvs = unsetEnv(key, updatedEnvs)
 
     return undefined
   }
@@ -101,55 +174,11 @@ const getSharedMethods = (envs: TestResult["envs"]) => {
         get: envGetFn,
         getResolve: envGetResolveFn,
         set: envSetFn,
+        unset: envUnsetFn,
         resolve: envResolveFn,
       },
     },
     updatedEnvs,
-  }
-}
-
-const setEnv = (
-  envName: string,
-  envValue: string,
-  envs: TestResult["envs"]
-): TestResult["envs"] => {
-  const { global, selected } = envs
-
-  const indexInSelected = selected.findIndex(
-    (x: SelectedEnvItem) => x.key === envName
-  )
-
-  // Found the match in selected
-  if (indexInSelected >= 0) {
-    selected[indexInSelected].value = envValue
-
-    return {
-      global,
-      selected,
-    }
-  }
-
-  const indexInGlobal = global.findIndex((x: GlobalEnvItem) => x.key == envName)
-
-  // Found a match in globals
-  if (indexInGlobal >= 0) {
-    global[indexInGlobal].value = envValue
-
-    return {
-      global,
-      selected,
-    }
-  }
-
-  // Didn't find in both places, create a new variable in selected
-  selected.push({
-    key: envName,
-    value: envValue,
-  })
-
-  return {
-    global,
-    selected,
   }
 }
 

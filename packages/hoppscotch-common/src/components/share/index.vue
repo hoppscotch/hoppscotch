@@ -9,8 +9,14 @@
       />
     </div>
     <div
-      class="sticky top-sidebarPrimaryStickyFold z-10 flex flex-1 flex-shrink-0 justify-end overflow-x-auto border-b border-dividerLight bg-primary"
+      class="sticky top-sidebarPrimaryStickyFold z-10 flex flex-1 flex-shrink-0 justify-between overflow-x-auto border-b border-dividerLight bg-primary"
     >
+      <HoppButtonSecondary
+        :label="t('action.new')"
+        :icon="IconPlus"
+        class="!rounded-none"
+        @click="shareRequest()"
+      />
       <HoppButtonSecondary
         v-tippy="{ theme: 'tooltip' }"
         to="https://docs.hoppscotch.io/documentation/features/widgets"
@@ -21,7 +27,7 @@
       />
     </div>
     <div class="flex flex-col">
-      <div v-if="loading" class="flex flex-col items-center justify-center">
+      <div v-if="loading" class="flex flex-col items-center justify-center p-4">
         <HoppSmartSpinner class="mb-4" />
         <span class="text-secondaryLight">{{ t("state.loading") }}</span>
       </div>
@@ -47,7 +53,6 @@
           :request="request"
           @customize-shared-request="customizeSharedRequest"
           @delete-shared-request="deleteSharedRequest"
-          @open-new-tab="openInNewTab"
         />
         <HoppSmartIntersection
           v-if="hasMoreSharedRequests"
@@ -70,7 +75,15 @@
         :alt="`${t('empty.shared_requests')}`"
         :text="t('empty.shared_requests')"
         @drop.stop
-      />
+      >
+        <template #body>
+          <HoppButtonPrimary
+            :label="t('add.new')"
+            :icon="IconPlus"
+            @click="shareRequest()"
+          />
+        </template>
+      </HoppSmartPlaceholder>
     </div>
   </div>
   <HoppSmartConfirmModal
@@ -95,6 +108,7 @@
 
 <script lang="ts" setup>
 import IconHelpCircle from "~icons/lucide/help-circle"
+import IconPlus from "~icons/lucide/plus"
 import { useI18n } from "~/composables/i18n"
 import ShortcodeListAdapter from "~/helpers/shortcode/ShortcodeListAdapter"
 import { useReadonlyStream } from "~/composables/stream"
@@ -136,15 +150,15 @@ const shareRequestCreatingLoading = ref(false)
 const requestToShare = ref<HoppRESTRequest | null>(null)
 
 const embedOptions = ref<EmbedOption>({
-  selectedTab: "parameters",
+  selectedTab: "params",
   tabs: [
     {
-      value: "parameters",
+      value: "params",
       label: t("tab.parameters"),
       enabled: false,
     },
     {
-      value: "body",
+      value: "bodyParams",
       label: t("tab.body"),
       enabled: false,
     },
@@ -208,7 +222,7 @@ const currentUser = useReadonlyStream(
 
 const step = ref(1)
 
-type EmbedTabs = "parameters" | "body" | "headers" | "authorization"
+type EmbedTabs = "params" | "bodyParams" | "headers" | "authorization"
 
 type EmbedOption = {
   selectedTab: EmbedTabs
@@ -249,7 +263,15 @@ const loading = computed(
 
 onLoggedIn(() => {
   try {
-    adapter.initialize()
+    // wait for a bit to let the auth token to be set
+    // because in some race conditions, the token is not set this fixes that
+    const initLoadTimeout = setTimeout(() => {
+      adapter.initialize()
+    }, 10)
+
+    return () => {
+      clearTimeout(initLoadTimeout)
+    }
   } catch (e) {
     console.error(e)
   }
@@ -261,6 +283,17 @@ onAuthEvent((ev) => {
     return
   }
 })
+
+const shareRequest = () => {
+  if (currentUser.value) {
+    const tab = restTab.currentActiveTab
+    invokeAction("share.request", {
+      request: tab.value.document.request,
+    })
+  } else {
+    invokeAction("modals.login.toggle")
+  }
+}
 
 const deleteSharedRequest = (codeID: string) => {
   if (currentUser.value) {
@@ -313,15 +346,15 @@ const displayCustomizeRequestModal = (
       info: t("shared_requests.button_info"),
     }
     embedOptions.value = {
-      selectedTab: "parameters",
+      selectedTab: "params",
       tabs: [
         {
-          value: "parameters",
+          value: "params",
           label: t("tab.parameters"),
           enabled: false,
         },
         {
-          value: "body",
+          value: "bodyParams",
           label: t("tab.body"),
           enabled: false,
         },
@@ -426,13 +459,6 @@ const copySharedRequest = (payload: {
   }
 }
 
-const openInNewTab = (request: HoppRESTRequest) => {
-  restTab.createNewTab({
-    isDirty: false,
-    request,
-  })
-}
-
 const resolveConfirmModal = (title: string | null) => {
   if (title === `${t("confirm.remove_shared_request")}`) onDeleteSharedRequest()
   else {
@@ -451,7 +477,7 @@ const getErrorMessage = (err: GQLError<string>) => {
   }
   switch (err.error) {
     case "shortcode/not_found":
-      return t("shared_request.not_found")
+      return t("shared_requests.not_found")
     default:
       return t("error.something_went_wrong")
   }

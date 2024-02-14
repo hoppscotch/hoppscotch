@@ -8,7 +8,8 @@
       "value": "?",
       "writable": "bool",
       "get": "fn() -> ?",
-      "set": "fn(value: ?)"
+      "set": "fn(value: ?)",
+      "unset": "fn(value: ?)"
     },
     "Promise.prototype": {
       "catch": {
@@ -1255,5 +1256,11 @@
         "!type": "fn(value: ?) -> bool"
       }
     }
+  },
+  "btoa": {
+    "!type": "fn(data: string) -> string"
+  },
+  "atob": {
+    "!type": "fn(data: string) -> string"
   }
 }

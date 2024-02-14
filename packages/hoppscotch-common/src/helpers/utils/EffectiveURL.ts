@@ -45,7 +45,8 @@ export interface EffectiveHoppRESTRequest extends HoppRESTRequest {
 export const getComputedAuthHeaders = (
   envVars: Environment["variables"],
   req?: HoppRESTRequest,
-  auth?: HoppRESTRequest["auth"]
+  auth?: HoppRESTRequest["auth"],
+  parse = true
 ) => {
   const request = auth ? { auth: auth ?? { authActive: false } } : req
   // If Authorization header is also being user-defined, that takes priority
@@ -60,8 +61,12 @@ export const getComputedAuthHeaders = (
 
   // TODO: Support a better b64 implementation than btoa ?
   if (request.auth.authType === "basic") {
-    const username = parseTemplateString(request.auth.username, envVars)
-    const password = parseTemplateString(request.auth.password, envVars)
+    const username = parse
+      ? parseTemplateString(request.auth.username, envVars)
+      : request.auth.username
+    const password = parse
+      ? parseTemplateString(request.auth.password, envVars)
+      : request.auth.password
 
     headers.push({
       active: true,
@@ -75,7 +80,11 @@ export const getComputedAuthHeaders = (
     headers.push({
       active: true,
       key: "Authorization",
-      value: `Bearer ${parseTemplateString(request.auth.token, envVars)}`,
+      value: `Bearer ${
+        parse
+          ? parseTemplateString(request.auth.token, envVars)
+          : request.auth.token
+      }`,
     })
   } else if (request.auth.authType === "api-key") {
     const { key, addTo } = request.auth
@@ -83,7 +92,9 @@ export const getComputedAuthHeaders = (
       headers.push({
         active: true,
         key: parseTemplateString(key, envVars),
-        value: parseTemplateString(request.auth.value ?? "", envVars),
+        value: parse
+          ? parseTemplateString(request.auth.value ?? "", envVars)
+          : request.auth.value ?? "",
       })
     }
   }
@@ -133,10 +144,11 @@ export type ComputedHeader = {
  */
 export const getComputedHeaders = (
   req: HoppRESTRequest,
-  envVars: Environment["variables"]
+  envVars: Environment["variables"],
+  parse = true
 ): ComputedHeader[] => {
   return [
-    ...getComputedAuthHeaders(envVars, req).map((header) => ({
+    ...getComputedAuthHeaders(envVars, req, undefined, parse).map((header) => ({
       source: "auth" as const,
       header,
     })),

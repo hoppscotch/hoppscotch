@@ -3,14 +3,25 @@
     <div class="flex flex-1 border-b border-dividerLight">
       <SmartEnvInput
         v-model="oidcDiscoveryURL"
+        :styles="
+          hasAccessTokenOrAuthURL ? 'pointer-events-none opacity-70' : ''
+        "
         placeholder="OpenID Connect Discovery URL"
       />
     </div>
     <div class="flex flex-1 border-b border-dividerLight">
-      <SmartEnvInput v-model="authURL" placeholder="Authorization URL" />
+      <SmartEnvInput
+        v-model="authURL"
+        placeholder="Authorization URL"
+        :styles="hasOIDCURL ? 'pointer-events-none opacity-70' : ''"
+      ></SmartEnvInput>
     </div>
     <div class="flex flex-1 border-b border-dividerLight">
-      <SmartEnvInput v-model="accessTokenURL" placeholder="Access Token URL" />
+      <SmartEnvInput
+        v-model="accessTokenURL"
+        placeholder="Access Token URL"
+        :styles="hasOIDCURL ? 'pointer-events-none opacity-70' : ''"
+      />
     </div>
     <div class="flex flex-1 border-b border-dividerLight">
       <SmartEnvInput v-model="clientID" placeholder="Client ID" />
@@ -44,6 +55,7 @@ import { useToast } from "@composables/toast"
 import { tokenRequest } from "~/helpers/oauth"
 import { getCombinedEnvVariables } from "~/helpers/preRequest"
 import * as E from "fp-ts/Either"
+import { computed } from "vue"
 
 const t = useI18n()
 const toast = useToast()
@@ -66,10 +78,16 @@ watch(
 )
 
 const oidcDiscoveryURL = pluckRef(auth, "oidcDiscoveryURL")
+const hasOIDCURL = computed(() => {
+  return oidcDiscoveryURL.value
+})
 
 const authURL = pluckRef(auth, "authURL")
 
 const accessTokenURL = pluckRef(auth, "accessTokenURL")
+const hasAccessTokenOrAuthURL = computed(() => {
+  return accessTokenURL.value || authURL.value
+})
 
 const clientID = pluckRef(auth, "clientID")
 
@@ -88,15 +106,13 @@ function translateTokenRequestError(error: string) {
 }
 
 const handleAccessTokenRequest = async () => {
-  if (
-    oidcDiscoveryURL.value === "" &&
-    (authURL.value === "" || accessTokenURL.value === "")
-  ) {
+  if (!oidcDiscoveryURL.value && !(authURL.value || accessTokenURL.value)) {
     toast.error(`${t("error.incomplete_config_urls")}`)
     return
   }
+
   const envs = getCombinedEnvVariables()
-  const envVars = [...envs.selected, ...envs.global]
+  const envVars = [...envs.selected.variables, ...envs.global]
 
   try {
     const tokenReqParams = {

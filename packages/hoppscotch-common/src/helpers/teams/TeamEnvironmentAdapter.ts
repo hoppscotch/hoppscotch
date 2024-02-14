@@ -110,7 +110,7 @@ export default class TeamEnvironmentAdapter {
       throw new Error(`Failed fetching team environments: ${result.left}`)
     }
 
-    if (result.right.team !== undefined && result.right.team !== null) {
+    if (result.right.team) {
       results.push(
         ...result.right.team.teamEnvironments.map(
           (x) =>
@@ -118,6 +118,8 @@ export default class TeamEnvironmentAdapter {
               id: x.id,
               teamID: x.teamID,
               environment: {
+                v: 1,
+                id: x.id,
                 name: x.name,
                 variables: JSON.parse(x.variables),
               },
@@ -196,6 +198,8 @@ export default class TeamEnvironmentAdapter {
                 id: x.id,
                 teamID: x.teamID,
                 environment: {
+                  v: 1,
+                  id: x.id,
                   name: x.name,
                   variables: JSON.parse(x.variables),
                 },
@@ -249,6 +253,8 @@ export default class TeamEnvironmentAdapter {
                 id: x.id,
                 teamID: x.teamID,
                 environment: {
+                  v: 1,
+                  id: x.id,
                   name: x.name,
                   variables: JSON.parse(x.variables),
                 },

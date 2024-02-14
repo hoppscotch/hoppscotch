@@ -45,6 +45,26 @@ const SettingsDefSchema = z.object({
   SIDEBAR: z.boolean(),
   SIDEBAR_ON_LEFT: z.boolean(),
   COLUMN_LAYOUT: z.boolean(),
+
+  WRAP_LINES: z.optional(
+    z.object({
+      httpRequestBody: z.boolean(),
+      httpResponseBody: z.boolean(),
+      httpHeaders: z.boolean(),
+      httpParams: z.boolean(),
+      httpUrlEncoded: z.boolean(),
+      httpPreRequest: z.boolean(),
+      httpTest: z.boolean(),
+      graphqlQuery: z.boolean(),
+      graphqlResponseBody: z.boolean(),
+      graphqlHeaders: z.boolean(),
+      graphqlVariables: z.boolean(),
+      graphqlSchema: z.boolean(),
+      importCurl: z.boolean(),
+      codeGen: z.boolean(),
+      cookie: z.boolean(),
+    })
+  ),
 })
 
 // Common properties shared across REST & GQL collections
@@ -160,7 +180,6 @@ export const SELECTED_ENV_INDEX_SCHEMA = z.nullable(
       type: z.literal("TEAM_ENV"),
       teamID: z.string(),
       teamEnvID: z.string(),
-      // ! Versioned entity
       environment: entityReference(Environment),
     }),
   ])
@@ -212,13 +231,19 @@ export const MQTT_REQUEST_SCHEMA = z.nullable(
 
 export const GLOBAL_ENV_SCHEMA = z.union([
   z.array(z.never()),
+
   z.array(
-    z
-      .object({
+    z.union([
+      z.object({
+        key: z.string(),
+        secret: z.literal(true),
+      }),
+      z.object({
         key: z.string(),
         value: z.string(),
-      })
-      .strict()
+        secret: z.literal(false),
+      }),
+    ])
   ),
 ])
 
@@ -339,12 +364,38 @@ const HoppTestDataSchema = z.lazy(() =>
     .strict()
 )
 
-const EnvironmentVariablesSchema = z
-  .object({
+const EnvironmentVariablesSchema = z.union([
+  z.object({
     key: z.string(),
     value: z.string(),
-  })
-  .strict()
+    secret: z.literal(false),
+  }),
+  z.object({
+    key: z.string(),
+    secret: z.literal(true),
+  }),
+  z.object({
+    key: z.string(),
+    value: z.string(),
+  }),
+])
+
+export const SECRET_ENVIRONMENT_VARIABLE_SCHEMA = z.union([
+  z.object({}).strict(),
+
+  z.record(
+    z.string(),
+    z.array(
+      z
+        .object({
+          key: z.string(),
+          value: z.string(),
+          varIndex: z.number(),
+        })
+        .strict()
+    )
+  ),
+])
 
 const HoppTestResultSchema = z
   .object({
@@ -358,7 +409,13 @@ const HoppTestResultSchema = z
           .object({
             additions: z.array(EnvironmentVariablesSchema),
             updations: z.array(
-              EnvironmentVariablesSchema.extend({ previousValue: z.string() })
+              EnvironmentVariablesSchema.refine(
+                (x) => "secret" in x && !x.secret
+              ).and(
+                z.object({
+                  previousValue: z.string(),
+                })
+              )
             ),
             deletions: z.array(EnvironmentVariablesSchema),
           })
@@ -367,7 +424,13 @@ const HoppTestResultSchema = z
           .object({
             additions: z.array(EnvironmentVariablesSchema),
             updations: z.array(
-              EnvironmentVariablesSchema.extend({ previousValue: z.string() })
+              EnvironmentVariablesSchema.refine(
+                (x) => "secret" in x && !x.secret
+              ).and(
+                z.object({
+                  previousValue: z.string(),
+                })
+              )
             ),
             deletions: z.array(EnvironmentVariablesSchema),
           })

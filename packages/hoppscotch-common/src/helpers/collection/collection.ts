@@ -1,12 +1,12 @@
-import { HoppCollection } from "@hoppscotch/data"
-import { getAffectedIndexes } from "./affectedIndex"
-import { GetSingleRequestDocument } from "../backend/graphql"
-import { runGQLQuery } from "../backend/GQLClient"
 import * as E from "fp-ts/Either"
+import { ref } from "vue"
 import { getService } from "~/modules/dioc"
-import { RESTTabService } from "~/services/tab/rest"
-import { HoppInheritedProperty } from "../types/HoppInheritedProperties"
 import { GQLTabService } from "~/services/tab/graphql"
+import { RESTTabService } from "~/services/tab/rest"
+import { runGQLQuery } from "../backend/GQLClient"
+import { GetSingleRequestDocument } from "../backend/graphql"
+import { HoppInheritedProperty } from "../types/HoppInheritedProperties"
+import { getAffectedIndexes } from "./affectedIndex"
 
 /**
  * Resolve save context on reorder
@@ -174,25 +174,96 @@ export function updateInheritedPropertiesForAffectedRequests(
   const tabService =
     type === "rest" ? getService(RESTTabService) : getService(GQLTabService)
 
-  const effectedTabs = tabService.getTabsRefTo((tab) => {
-    const saveContext = tab.document.saveContext
+  const tabs = tabService.getTabsRefTo((tab) => {
+    if (tab.document.saveContext?.originLocation === "user-collection") {
+      return tab.document.saveContext.folderPath.startsWith(path)
+    }
 
-    const saveContextPath =
-      saveContext?.originLocation === "team-collection"
-        ? saveContext.collectionID
-        : saveContext?.folderPath
+    if (tab.document.saveContext?.originLocation === "team-collection") {
+      return Boolean(tab.document.saveContext.collectionID?.startsWith(path))
+    }
 
-    return saveContextPath?.startsWith(path) ?? false
+    if (
+      tab.document.saveContext?.originLocation !== "workspace-user-collection"
+    ) {
+      return false
+    }
+
+    const requestHandle = ref(tab.document.saveContext.requestHandle)
+
+    return (
+      tab.document.saveContext?.originLocation ===
+        "workspace-user-collection" &&
+      requestHandle.value.type === "ok" &&
+      requestHandle.value.data.collectionID.startsWith(path)
+    )
   })
 
-  effectedTabs.map((tab) => {
+  const tabsEffectedByAuth = tabs.filter((tab) => {
+    if (tab.value.document.saveContext?.originLocation === "user-collection") {
+      return (
+        tab.value.document.saveContext.folderPath.startsWith(path) &&
+        path ===
+          folderPathCloseToSaveContext(
+            tab.value.document.inheritedProperties?.auth.parentID,
+            path,
+            tab.value.document.saveContext.folderPath
+          )
+      )
+    }
+
+    if (tab.value.document.saveContext?.originLocation === "team-collection") {
+      return (
+        tab.value.document.saveContext.collectionID?.startsWith(path) &&
+        path ===
+          folderPathCloseToSaveContext(
+            tab.value.document.inheritedProperties?.auth.parentID,
+            path,
+            tab.value.document.saveContext.collectionID
+          )
+      )
+    }
+
+    if (
+      tab.value.document.saveContext?.originLocation !==
+      "workspace-user-collection"
+    ) {
+      return false
+    }
+
+    const requestHandle = ref(tab.value.document.saveContext.requestHandle)
+
+    return (
+      requestHandle.value.type === "ok" &&
+      requestHandle.value.data.collectionID.startsWith(path) &&
+      path ===
+        folderPathCloseToSaveContext(
+          tab.value.document.inheritedProperties?.auth.parentID,
+          path,
+          requestHandle.value.data.collectionID
+        )
+    )
+  })
+
+  tabsEffectedByAuth.map((tab) => {
     const inheritedParentID =
       tab.value.document.inheritedProperties?.auth.parentID
 
-    const contextPath =
-      tab.value.document.saveContext?.originLocation === "team-collection"
-        ? tab.value.document.saveContext.collectionID
-        : tab.value.document.saveContext?.folderPath
+    let contextPath = ""
+
+    if (tab.value.document.saveContext?.originLocation === "user-collection") {
+      contextPath = tab.value.document.saveContext.folderPath
+    } else if (
+      tab.value.document.saveContext?.originLocation ===
+      "workspace-user-collection"
+    ) {
+      const requestHandle = ref(tab.value.document.saveContext.requestHandle)
+      if (requestHandle.value.type === "ok") {
+        contextPath = requestHandle.value.data.collectionID
+      }
+    } else {
+      contextPath = tab.value.document.saveContext?.collectionID ?? ""
+    }
 
     const effectedPath = folderPathCloseToSaveContext(
       inheritedParentID,

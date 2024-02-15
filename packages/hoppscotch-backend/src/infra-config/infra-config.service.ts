@@ -19,7 +19,12 @@ import {
 } from 'src/errors';
 import { throwErr, validateSMTPEmail, validateSMTPUrl } from 'src/utils';
 import { ConfigService } from '@nestjs/config';
-import { ServiceStatus, getConfiguredSSOProviders, stopApp } from './helper';
+import {
+  ServiceStatus,
+  getConfiguredSSOProviders,
+  stopApp,
+  generateAnalyticsUserId,
+} from './helper';
 import { EnableAndDisableSSOArgs, InfraConfigArgs } from './input-args';
 import { AuthProvider } from 'src/auth/helper';
 
@@ -72,6 +77,14 @@ export class InfraConfigService implements OnModuleInit {
       {
         name: InfraConfigEnum.VITE_ALLOWED_AUTH_PROVIDERS,
         value: getConfiguredSSOProviders(),
+      },
+      {
+        name: InfraConfigEnum.ALLOW_ANALYTICS_COLLECTION,
+        value: true.toString(),
+      },
+      {
+        name: InfraConfigEnum.ANALYTICS_USER_ID,
+        value: generateAnalyticsUserId(),
       },
     ];
 

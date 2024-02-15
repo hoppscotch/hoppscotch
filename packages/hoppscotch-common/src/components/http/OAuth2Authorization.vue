@@ -112,7 +112,7 @@ const handleAccessTokenRequest = async () => {
   }
 
   const envs = getCombinedEnvVariables()
-  const envVars = [...envs.selected.variables, ...envs.global]
+  const envVars = [...envs.selected, ...envs.global]
 
   try {
     const tokenReqParams = {

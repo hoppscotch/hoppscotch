@@ -1,7 +1,7 @@
 {
   "name": "hoppscotch-sh-admin",
   "private": true,
-  "version": "2023.12.4",
+  "version": "2023.12.5",
   "type": "module",
   "scripts": {
     "dev": "pnpm exec npm-run-all -p -l dev:*",

@@ -30,10 +30,10 @@
           :checkbox="true"
           :selected-rows="selectedRows"
           :search-bar="{
-            debounce: 1000,
+            debounce: 500,
             placeholder: t('users.searchbar_placeholder'),
           }"
-          :spinner="{ enabled: fetching, duration: 1000 }"
+          :spinner="{ enabled: fetching, duration: 500 }"
           :pagination="{ totalPages: totalPages }"
           @onRowClicked="goToUserDetails"
           @search="handleSearch"
@@ -104,8 +104,8 @@
                         @click="
                           () => {
                             user.isAdmin
-                              ? makeAdminsUsers(user.uid)
-                              : makeUsersAdmin(user.uid);
+                              ? confirmAdminToUser(user.uid)
+                              : confirmUserToAdmin(user.uid);
                             hide();
                           }
                         "
@@ -117,7 +117,7 @@
                         class="!hover:bg-red-600"
                         @click="
                           () => {
-                            deleteUser(user.uid);
+                            confirmUserDeletion(user.uid);
                             hide();
                           }
                         "
@@ -177,7 +177,7 @@
           ? t('state.confirm_users_to_admin')
           : t('state.confirm_user_to_admin')
       "
-      @hide-modal="confirmUsersToAdmin = false"
+      @hide-modal="resetConfirmUserToAdmin"
       @resolve="makeUsersToAdmin(usersToAdminUID)"
     />
     <HoppSmartConfirmModal
@@ -187,7 +187,7 @@
           ? t('state.confirm_admins_to_users')
           : t('state.confirm_admin_to_user')
       "
-      @hide-modal="confirmAdminsToUsers = false"
+      @hide-modal="resetConfirmAdminToUser"
       @resolve="makeAdminsToUsers(adminsToUserUID)"
     />
     <HoppSmartConfirmModal
@@ -197,7 +197,7 @@
           ? t('state.confirm_users_deletion')
           : t('state.confirm_user_deletion')
       "
-      @hide-modal="confirmUsersDeletion = false"
+      @hide-modal="resetConfirmUserDeletion"
       @resolve="deleteUsers(deleteUserUID)"
     />
   </div>
@@ -247,7 +247,7 @@ const headings = [
 ];
 
 // Get Paginated Results of all the users in the infra
-const usersPerPage = 2;
+const usersPerPage = 20;
 const {
   fetching,
   error,
@@ -300,8 +300,8 @@ const goToUserDetails = (user: UserInfoQuery['infra']['userInfo']) =>
   router.push('/users/' + user.uid);
 
 // Send Invitation through Email
-const sendInvitation = useMutation(InviteNewUserDocument);
 const showInviteUserModal = ref(false);
+const sendInvitation = useMutation(InviteNewUserDocument);
 
 const sendInvite = async (email: string) => {
   if (!email.trim()) {
@@ -329,9 +329,15 @@ const AreMultipleUsersSelected = computed(
   () => usersToAdminUID.value === null && selectedRows.value.length > 0
 );
 
-const makeUsersAdmin = (id: string | null) => {
+const confirmUserToAdmin = (id: string | null) => {
   confirmUsersToAdmin.value = true;
   usersToAdminUID.value = id;
+};
+
+// Resets variables if user cancels the confirmation
+const resetConfirmUserToAdmin = () => {
+  confirmUsersToAdmin.value = false;
+  usersToAdminUID.value = null;
 };
 
 const makeUsersToAdmin = async (id: string | null) => {
@@ -358,13 +364,19 @@ const makeUsersToAdmin = async (id: string | null) => {
 };
 
 // Remove Admin Status from Multiple Users
-const adminsToUser = useMutation(DemoteUsersByAdminDocument);
 const confirmAdminsToUsers = ref(false);
 const adminsToUserUID = ref<string | null>(null);
+const adminsToUser = useMutation(DemoteUsersByAdminDocument);
 
-const makeAdminsUsers = (id: string | null) => {
+const confirmAdminToUser = (id: string | null) => {
   confirmAdminsToUsers.value = true;
   adminsToUserUID.value = id;
+};
+
+// Resets variables if user cancels the confirmation
+const resetConfirmAdminToUser = () => {
+  confirmAdminsToUsers.value = false;
+  adminsToUserUID.value = null;
 };
 
 const AreMultipleUsersSelectedToAdmin = computed(
@@ -400,13 +412,19 @@ const makeAdminsToUsers = async (id: string | null) => {
 };
 
 // Delete Multiple Users
-const usersDeletion = useMutation(RemoveUsersByAdminDocument);
 const confirmUsersDeletion = ref(false);
 const deleteUserUID = ref<string | null>(null);
+const usersDeletion = useMutation(RemoveUsersByAdminDocument);
 
-const deleteUser = (id: string | null) => {
+const confirmUserDeletion = (id: string | null) => {
   confirmUsersDeletion.value = true;
   deleteUserUID.value = id;
+};
+
+// Resets variables if user cancels the confirmation
+const resetConfirmUserDeletion = () => {
+  confirmUsersDeletion.value = false;
+  deleteUserUID.value = null;
 };
 
 const AreMultipleUsersSelectedForDeletion = computed(
@@ -442,13 +460,16 @@ const deleteUsers = async (id: string | null) => {
 
     if (isAdminError) {
       toast.success(
-        `Number of Users Deleted Successfully: ${deletedIDs.length}`
+        t('state.delete_some_users_success', { count: deletedIDs.length })
       );
       toast.error(
-        `Users Not Deleted Due to Admin Status: ${
-          deletedUsers.length - deletedIDs.length
-        }. \nPlease remove admin status before deleting users`
+        t('state.delete_some_users_failure', {
+          count: deletedUsers.length - deletedIDs.length,
+        })
       );
+      setTimeout(() => {
+        toast.error(t('state.remove_admin_for_deletion'));
+      }, 2000);
     } else {
       toast.success(
         id ? t('state.delete_user_success') : t('state.delete_users_success')

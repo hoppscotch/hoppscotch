@@ -100,7 +100,7 @@
 <script lang="ts" setup>
 import { useVModel } from '@vueuse/core';
 import { isEqual } from 'lodash-es';
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import IconLeft from '~icons/lucide/arrow-left';
 import IconRight from '~icons/lucide/arrow-right';
 

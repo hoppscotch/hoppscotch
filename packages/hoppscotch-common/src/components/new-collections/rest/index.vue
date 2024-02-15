@@ -402,8 +402,6 @@ const onRemoveRootCollection = async () => {
         parentCollectionIndexPath.split("/").map((id) => parseInt(id))
       )
 
-      console.log(`Parent collection is `, parentCollection)
-
       if (!parentCollection) {
         tab.document.saveContext = null
         tab.document.isDirty = true

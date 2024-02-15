@@ -233,7 +233,7 @@ const EnvironmentVariablesSchema = z.union([
   z.object({
     key: z.string(),
     value: z.string(),
-    secret: z.literal(false),
+    secret: z.literal(false).catch(false),
   }),
   z.object({
     key: z.string(),

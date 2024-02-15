@@ -568,7 +568,18 @@ export function getLegacyGlobalEnvironment(): Environment | null {
 }
 
 export function getGlobalVariables(): Environment["variables"] {
-  return environmentsStore.value.globals
+  return environmentsStore.value.globals.map(
+    (env: Environment["variables"][number]) => {
+      if (env.key && "value" in env && !("secret" in env)) {
+        return {
+          ...(env as Environment["variables"][number]),
+          secret: false,
+        }
+      }
+
+      return env
+    }
+  ) as Environment["variables"]
 }
 
 export function getGlobalVariableID() {

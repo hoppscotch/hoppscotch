@@ -353,14 +353,14 @@ const onRemoveRootCollection = async () => {
   )
 
   if (E.isLeft(collectionHandleResult)) {
-    // INVALID_WORKSPACE_HANDLE
+    // INVALID_WORKSPACE_HANDLE | INVALID_COLLECTION_ID | INVALID_PATH
     return
   }
 
   const collectionHandle = collectionHandleResult.right
 
   if (collectionHandle.value.type === "invalid") {
-    // WORKSPACE_INVALIDATED | INVALID_COLLECTION_HANDLE
+    // WORKSPACE_INVALIDATED
     return
   }
 
@@ -433,14 +433,14 @@ const onAddRequest = async (requestName: string) => {
   )
 
   if (E.isLeft(collectionHandleResult)) {
-    // INVALID_WORKSPACE_HANDLE
+    // INVALID_WORKSPACE_HANDLE | INVALID_COLLECTION_ID | INVALID_PATH
     return
   }
 
   const collectionHandle = collectionHandleResult.right
 
   if (collectionHandle.value.type === "invalid") {
-    // WORKSPACE_INVALIDATED | INVALID_COLLECTION_HANDLE
+    // WORKSPACE_INVALIDATED
     return
   }
 
@@ -515,14 +515,14 @@ const onAddChildCollection = async (newChildCollectionName: string) => {
   )
 
   if (E.isLeft(collectionHandleResult)) {
-    // INVALID_WORKSPACE_HANDLE
+    // INVALID_WORKSPACE_HANDLE | INVALID_COLLECTION_ID | INVALID_PATH
     return
   }
 
   const collectionHandle = collectionHandleResult.right
 
   if (collectionHandle.value.type === "invalid") {
-    // WORKSPACE_INVALIDATED | INVALID_COLLECTION_HANDLE
+    // WORKSPACE_INVALIDATED
     return
   }
 
@@ -565,14 +565,14 @@ const onEditRootCollection = async (newCollectionName: string) => {
   )
 
   if (E.isLeft(collectionHandleResult)) {
-    // INVALID_WORKSPACE_HANDLE
+    // INVALID_WORKSPACE_HANDLE | INVALID_COLLECTION_ID | INVALID_PATH
     return
   }
 
   const collectionHandle = collectionHandleResult.right
 
   if (collectionHandle.value.type === "invalid") {
-    // WORKSPACE_INVALIDATED | INVALID_COLLECTION_HANDLE
+    // WORKSPACE_INVALIDATED
     return
   }
 
@@ -610,14 +610,14 @@ const onEditChildCollection = async (newChildCollectionName: string) => {
   )
 
   if (E.isLeft(collectionHandleResult)) {
-    // INVALID_WORKSPACE_HANDLE
+    // INVALID_WORKSPACE_HANDLE | INVALID_COLLECTION_ID | INVALID_PATH
     return
   }
 
   const collectionHandle = collectionHandleResult.right
 
   if (collectionHandle.value.type === "invalid") {
-    // WORKSPACE_INVALIDATED | INVALID_COLLECTION_HANDLE
+    // WORKSPACE_INVALIDATED
     return
   }
 
@@ -651,14 +651,14 @@ const onRemoveChildCollection = async () => {
     )
 
   if (E.isLeft(parentCollectionHandleResult)) {
-    // INVALID_WORKSPACE_HANDLE
+    // INVALID_WORKSPACE_HANDLE | INVALID_COLLECTION_ID | INVALID_PATH
     return
   }
 
   const parentCollectionHandle = parentCollectionHandleResult.right
 
   if (parentCollectionHandle.value.type === "invalid") {
-    // WORKSPACE_INVALIDATED | INVALID_COLLECTION_HANDLE
+    // WORKSPACE_INVALIDATED
     return
   }
 
@@ -742,14 +742,14 @@ const onRemoveRequest = async () => {
   )
 
   if (E.isLeft(requestHandleResult)) {
-    // INVALID_COLLECTION_HANDLE
+    // INVALID_COLLECTION_HANDLE | INVALID_REQUEST_ID | REQUEST_NOT_FOUND
     return
   }
 
   const requestHandle = requestHandleResult.right
 
   if (requestHandle.value.type === "invalid") {
-    // COLLECTION_INVALIDATED | INVALID_REQUEST_HANDLE
+    // COLLECTION_INVALIDATED
     return
   }
 
@@ -819,14 +819,14 @@ const selectRequest = async (requestIndexPath: string) => {
   )
 
   if (E.isLeft(requestHandleResult)) {
-    // INVALID_COLLECTION_HANDLE
+    // INVALID_COLLECTION_HANDLE | INVALID_REQUEST_ID | REQUEST_NOT_FOUND
     return
   }
 
   const requestHandle = requestHandleResult.right
 
   if (requestHandle.value.type === "invalid") {
-    // COLLECTION_INVALIDATED | INVALID_REQUEST_HANDLE
+    // COLLECTION_INVALIDATED
     return
   }
 
@@ -883,14 +883,14 @@ const duplicateRequest = async (requestIndexPath: string) => {
   )
 
   if (E.isLeft(requestHandleResult)) {
-    // INVALID_COLLECTION_HANDLE
+    // INVALID_COLLECTION_HANDLE | INVALID_REQUEST_ID | REQUEST_NOT_FOUND
     return
   }
 
   const requestHandle = requestHandleResult.right
 
   if (requestHandle.value.type === "invalid") {
-    // COLLECTION_INVALIDATED | INVALID_REQUEST_HANDLE
+    // COLLECTION_INVALIDATED
     return
   }
 
@@ -931,14 +931,14 @@ const onEditRequest = async (newRequestName: string) => {
   )
 
   if (E.isLeft(requestHandleResult)) {
-    // INVALID_COLLECTION_HANDLE
+    // INVALID_COLLECTION_HANDLE | INVALID_REQUEST_ID | REQUEST_NOT_FOUND
     return
   }
 
   const requestHandle = requestHandleResult.right
 
   if (requestHandle.value.type === "invalid") {
-    // COLLECTION_INVALIDATED | INVALID_REQUEST_HANDLE
+    // COLLECTION_INVALIDATED
     return
   }
 
@@ -994,14 +994,14 @@ const editCollectionProperties = async (collectionIndexPath: string) => {
   )
 
   if (E.isLeft(collectionHandleResult)) {
-    // INVALID_WORKSPACE_HANDLE
+    // INVALID_WORKSPACE_HANDLE | INVALID_COLLECTION_ID | INVALID_PATH
     return
   }
 
   const collectionHandle = collectionHandleResult.right
 
   if (collectionHandle.value.type === "invalid") {
-    // WORKSPACE_INVALIDATED | INVALID_COLLECTION_HANDLE
+    // WORKSPACE_INVALIDATED
     return
   }
 
@@ -1059,14 +1059,14 @@ const setCollectionProperties = async (updatedCollectionProps: {
   )
 
   if (E.isLeft(collectionHandleResult)) {
-    // INVALID_WORKSPACE_HANDLE
+    // INVALID_WORKSPACE_HANDLE | INVALID_COLLECTION_ID | INVALID_PATH
     return
   }
 
   const collectionHandle = collectionHandleResult.right
 
   if (collectionHandle.value.type === "invalid") {
-    // WORKSPACE_INVALIDATED | INVALID_COLLECTION_HANDLE
+    // WORKSPACE_INVALIDATED
     return
   }
 

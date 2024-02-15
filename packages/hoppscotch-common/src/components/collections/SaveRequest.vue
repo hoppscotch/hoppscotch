@@ -238,14 +238,14 @@ const saveRequestAs = async () => {
     )
 
     if (E.isLeft(collHandleResult)) {
-      // INVALID_WORKSPACE_HANDLE
+      // INVALID_WORKSPACE_HANDLE | INVALID_COLLECTION_ID | INVALID_PATH
       return
     }
 
     const collHandle = collHandleResult.right
 
     if (collHandle.value.type === "invalid") {
-      // WORKSPACE_INVALIDATED | INVALID_COLLECTION_HANDLE
+      // WORKSPACE_INVALIDATED
       return
     }
 
@@ -277,14 +277,14 @@ const saveRequestAs = async () => {
     )
 
     if (E.isLeft(requestHandleResult)) {
-      // INVALID_WORKSPACE_HANDLE
+      // INVALID_COLLECTION_HANDLE | INVALID_REQUEST_ID | REQUEST_NOT_FOUND
       return
     }
 
     const requestHandle = requestHandleResult.right
 
     if (requestHandle.value.type === "invalid") {
-      // WORKSPACE_INVALIDATED | INVALID_REQUEST_HANDLE
+      // WORKSPACE_INVALIDATED
       return
     }
 

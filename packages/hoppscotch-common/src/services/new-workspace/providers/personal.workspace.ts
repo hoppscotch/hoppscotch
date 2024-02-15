@@ -104,6 +104,29 @@ export class PersonalWorkspaceProviderService
       return Promise.resolve(E.left("INVALID_WORKSPACE_HANDLE" as const))
     }
 
+    const newCollectionName = newCollection.name as string
+    const newCollectionID =
+      this.restCollectionState.value.state.length.toString()
+
+    const newRootCollection = makeCollection({
+      name: newCollectionName,
+      folders: [],
+      requests: [],
+      headers: [],
+      auth: {
+        authType: "inherit",
+        authActive: false,
+      },
+    })
+    addRESTCollection(newRootCollection)
+
+    platform.analytics?.logEvent({
+      type: "HOPP_CREATE_COLLECTION",
+      platform: "rest",
+      workspaceType: "personal",
+      isRootCollection: true,
+    })
+
     return Promise.resolve(
       E.right(
         computed(() => {
@@ -117,29 +140,6 @@ export class PersonalWorkspaceProviderService
               reason: "WORKSPACE_INVALIDATED" as const,
             }
           }
-
-          const newCollectionName = newCollection.name as string
-          const newCollectionID =
-            this.restCollectionState.value.state.length.toString()
-
-          const newRootCollection = makeCollection({
-            name: newCollectionName,
-            folders: [],
-            requests: [],
-            headers: [],
-            auth: {
-              authType: "inherit",
-              authActive: false,
-            },
-          })
-          addRESTCollection(newRootCollection)
-
-          platform.analytics?.logEvent({
-            type: "HOPP_CREATE_COLLECTION",
-            platform: "rest",
-            workspaceType: "personal",
-            isRootCollection: true,
-          })
 
           return {
             type: "ok",
@@ -167,6 +167,19 @@ export class PersonalWorkspaceProviderService
       return Promise.resolve(E.left("INVALID_COLLECTION_HANDLE" as const))
     }
 
+    const { collectionID, providerID, workspaceID } =
+      parentCollectionHandle.value.data
+
+    const newCollectionName = newChildCollection.name as string
+    addRESTFolder(newCollectionName, collectionID)
+
+    platform.analytics?.logEvent({
+      type: "HOPP_CREATE_COLLECTION",
+      workspaceType: "personal",
+      isRootCollection: false,
+      platform: "rest",
+    })
+
     return Promise.resolve(
       E.right(
         computed(() => {
@@ -180,19 +193,6 @@ export class PersonalWorkspaceProviderService
               reason: "COLLECTION_INVALIDATED" as const,
             }
           }
-
-          const { collectionID, providerID, workspaceID } =
-            parentCollectionHandle.value.data
-
-          const newCollectionName = newChildCollection.name as string
-          addRESTFolder(newCollectionName, collectionID)
-
-          platform.analytics?.logEvent({
-            type: "HOPP_CREATE_COLLECTION",
-            workspaceType: "personal",
-            isRootCollection: false,
-            platform: "rest",
-          })
 
           return {
             type: "ok",
@@ -405,6 +405,34 @@ export class PersonalWorkspaceProviderService
       return Promise.resolve(E.left("INVALID_WORKSPACE_HANDLE" as const))
     }
 
+    if (!collectionID) {
+      return Promise.resolve(E.left("INVALID_COLLECTION_ID" as const))
+    }
+
+    const collection = navigateToFolderWithIndexPath(
+      this.restCollectionState.value.state,
+      collectionID.split("/").map((x) => parseInt(x))
+    )
+
+    if (!collection) {
+      const parentCollectionIndexPath = collectionID
+        .split("/")
+        .slice(0, -1)
+        .join("/")
+      const requestIndex = this.pathToLastIndex(collectionID)
+
+      const parentCollection = navigateToFolderWithIndexPath(
+        this.restCollectionState.value.state,
+        parentCollectionIndexPath.split("/").map((x) => parseInt(x))
+      )
+
+      if (!parentCollection || !parentCollection.requests[requestIndex]) {
+        return Promise.resolve(E.left("INVALID_PATH"))
+      }
+    }
+
+    const { providerID, workspaceID } = workspaceHandle.value.data
+
     return Promise.resolve(
       E.right(
         computed(() => {
@@ -419,47 +447,13 @@ export class PersonalWorkspaceProviderService
             }
           }
 
-          if (!collectionID) {
-            return {
-              type: "invalid" as const,
-              reason: "INVALID_COLLECTION_HANDLE" as const,
-            }
-          }
-
-          const collection = navigateToFolderWithIndexPath(
-            this.restCollectionState.value.state,
-            collectionID.split("/").map((x) => parseInt(x))
-          )
-
-          if (!collection) {
-            const parentCollectionIndexPath = collectionID
-              .split("/")
-              .slice(0, -1)
-              .join("/")
-            const requestIndex = this.pathToLastIndex(collectionID)
-
-            const parentCollection = navigateToFolderWithIndexPath(
-              this.restCollectionState.value.state,
-              parentCollectionIndexPath.split("/").map((x) => parseInt(x))
-            )
-
-            if (!parentCollection || !parentCollection.requests[requestIndex]) {
-              return {
-                type: "invalid" as const,
-                reason: "INVALID_PATH" as const,
-              }
-            }
-          }
-
-          const { providerID, workspaceID } = workspaceHandle.value.data
-
           return {
             type: "ok",
             data: {
               providerID,
               workspaceID,
               collectionID,
-              name: collection?.name as string,
+              name: collection.name,
             },
           }
         })
@@ -479,6 +473,34 @@ export class PersonalWorkspaceProviderService
       return Promise.resolve(E.left("INVALID_COLLECTION_HANDLE" as const))
     }
 
+    if (!requestID) {
+      return Promise.resolve(E.left("INVALID_REQUEST_ID" as const))
+    }
+
+    const { providerID, workspaceID } = workspaceHandle.value.data
+
+    const collectionID = requestID.split("/").slice(0, -1).join("/")
+    const requestIndexPath = requestID.split("/").slice(-1)[0]
+
+    if (!requestIndexPath) {
+      return Promise.resolve(E.left("INVALID_REQUEST_ID" as const))
+    }
+
+    const requestIndex = parseInt(requestIndexPath)
+
+    // Navigate to the collection containing the request
+    const collection = navigateToFolderWithIndexPath(
+      this.restCollectionState.value.state,
+      collectionID.split("/").map((x) => parseInt(x))
+    )
+
+    // Grab the request with it's index
+    const request = collection?.requests[requestIndex] as HoppRESTRequest
+
+    if (!request) {
+      return Promise.resolve(E.left("REQUEST_NOT_FOUND" as const))
+    }
+
     return Promise.resolve(
       E.right(
         computed(() => {
@@ -490,43 +512,6 @@ export class PersonalWorkspaceProviderService
             return {
               type: "invalid" as const,
               reason: "COLLECTION_INVALIDATED" as const,
-            }
-          }
-
-          if (!requestID) {
-            return {
-              type: "invalid" as const,
-              reason: "INVALID_REQUEST_HANDLE" as const,
-            }
-          }
-
-          const { providerID, workspaceID } = workspaceHandle.value.data
-
-          const collectionID = requestID.split("/").slice(0, -1).join("/")
-          const requestIndexPath = requestID.split("/").slice(-1)[0]
-
-          if (!requestIndexPath) {
-            return {
-              type: "invalid" as const,
-              reason: "INVALID_REQUEST_HANDLE" as const,
-            }
-          }
-
-          const requestIndex = parseInt(requestIndexPath)
-
-          // Navigate to the collection containing the request
-          const collection = navigateToFolderWithIndexPath(
-            this.restCollectionState.value.state,
-            collectionID.split("/").map((x) => parseInt(x))
-          )
-
-          // Grab the request with it's index
-          const request = collection?.requests[requestIndex] as HoppRESTRequest
-
-          if (!request) {
-            return {
-              type: "invalid" as const,
-              reason: "REQUEST_PATH_NOT_FOUND" as const,
             }
           }
 

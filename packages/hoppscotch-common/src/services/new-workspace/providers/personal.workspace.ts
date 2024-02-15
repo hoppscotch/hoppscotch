@@ -296,6 +296,20 @@ export class PersonalWorkspaceProviderService
       return Promise.resolve(E.left("INVALID_COLLECTION_HANDLE" as const))
     }
 
+    const { collectionID, providerID, workspaceID } =
+      parentCollectionHandle.value.data
+
+    const insertionIndex = saveRESTRequestAs(collectionID, newRequest)
+
+    const requestID = `${collectionID}/${insertionIndex}`
+
+    platform.analytics?.logEvent({
+      type: "HOPP_SAVE_REQUEST",
+      workspaceType: "personal",
+      createdNow: true,
+      platform: "rest",
+    })
+
     return Promise.resolve(
       E.right(
         computed(() => {
@@ -309,20 +323,6 @@ export class PersonalWorkspaceProviderService
               reason: "COLLECTION_INVALIDATED" as const,
             }
           }
-
-          const { collectionID, providerID, workspaceID } =
-            parentCollectionHandle.value.data
-
-          const insertionIndex = saveRESTRequestAs(collectionID, newRequest)
-
-          platform.analytics?.logEvent({
-            type: "HOPP_SAVE_REQUEST",
-            workspaceType: "personal",
-            createdNow: true,
-            platform: "rest",
-          })
-
-          const requestID = `${collectionID}/${insertionIndex}`
 
           return {
             type: "ok",
@@ -374,6 +374,8 @@ export class PersonalWorkspaceProviderService
     ) {
       return Promise.resolve(E.left("INVALID_REQUEST_HANDLE" as const))
     }
+
+    delete updatedRequest.id
 
     const { collectionID, requestID, request } = requestHandle.value.data
 

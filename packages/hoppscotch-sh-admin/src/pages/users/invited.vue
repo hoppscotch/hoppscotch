@@ -21,11 +21,11 @@
         </div>
 
         <UsersTable
-          v-if="invitedUsers?.length"
+          v-if="pendingInvites"
           :headings="headings"
-          :list="invitedUsers"
+          :list="pendingInvites"
           :checkbox="true"
-          :spinner="{ enabled: fetching, duration: 1000 }"
+          :spinner="{ enabled: fetching, duration: 500 }"
           :selectedRows="selectedRows"
         >
           <template #invitedOn="{ item }">
@@ -44,9 +44,9 @@
             <div v-if="item" class="my-1 mr-2">
               <HoppButtonPrimary
                 :icon="IconTrash"
-                label="Revoke Invitation"
+                :label="t('users.revoke_invitation')"
                 class="bg-red-500 hover:bg-red-600"
-                @click="deleteInvite(item.inviteeEmail)"
+                @click="confirmInviteDeletion(item.inviteeEmail)"
               />
             </div>
           </template>
@@ -66,21 +66,27 @@
 
             <HoppButtonSecondary
               :icon="IconTrash"
-              label="Revoke Invitation"
+              :label="t('users.revoke_invitation')"
               class="py-4 border-divider rounded-l-none hover:bg-red-500"
               @click="confirmDeletion = true"
             />
           </div>
         </div>
 
-        <div v-if="invitedUsers?.length === 0">{{ t('users.no_invite') }}</div>
+        <div v-if="pendingInvites?.length === 0">
+          {{ t('users.no_invite') }}
+        </div>
       </div>
     </div>
     <HoppSmartConfirmModal
       :show="confirmDeletion"
-      :title="t('state.confirm_delete_invites')"
+      :title="
+        selectedRows.length > 0
+          ? t('state.confirm_delete_invites')
+          : t('state.confirm_delete_invite')
+      "
       @hide-modal="confirmDeletion = false"
-      @resolve="deleteUserInvitation(inviteToBeDeleted)"
+      @resolve="deleteInvitation(inviteToBeDeleted)"
     />
   </div>
 </template>
@@ -123,7 +129,7 @@ const headings = [
 const selectedRows = ref<InvitedUsersQuery['infra']['invitedUsers']>([]);
 
 // Invited Users
-const invitedUsers = computed({
+const pendingInvites = computed({
   get: () => data.value?.infra.invitedUsers,
   set: (value) => {
     if (!value) return;
@@ -138,26 +144,31 @@ const deleteInvitationMutation = useMutation(
   RevokeUserInvitationsByAdminDocument
 );
 
-const deleteInvite = (inviteeEmail: string | null) => {
+const confirmInviteDeletion = (inviteeEmail: string | null) => {
   confirmDeletion.value = true;
   inviteToBeDeleted.value = inviteeEmail;
 };
 
-const deleteUserInvitation = async (inviteeEmail: string | null) => {
-  const inviteeEmails = inviteeEmail
-    ? [inviteeEmail]
+const deleteInvitation = async (email: string | null) => {
+  const inviteeEmails = email
+    ? [email]
     : selectedRows.value.map((row) => row.inviteeEmail);
 
   const variables = { inviteeEmails };
   const result = await deleteInvitationMutation.executeMutation(variables);
+
   if (result.error) {
-    toast.error(t('state.delete_invite_failure'));
+    email
+      ? toast.error(t('state.delete_invite_failure'))
+      : toast.error(t('state.delete_invites_failure'));
   } else {
-    invitedUsers.value = invitedUsers.value?.filter(
+    pendingInvites.value = pendingInvites.value?.filter(
       (user) => !inviteeEmails.includes(user.inviteeEmail)
     );
     selectedRows.value.splice(0, selectedRows.value.length);
-    toast.success(t('state.delete_invite_success'));
+    email
+      ? toast.success(t('state.delete_invite_success'))
+      : toast.success(t('state.delete_invites_success'));
   }
 
   confirmDeletion.value = false;

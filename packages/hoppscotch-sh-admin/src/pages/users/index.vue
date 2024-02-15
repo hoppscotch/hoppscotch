@@ -222,6 +222,7 @@ import {
   UsersListV2Document,
 } from '~/helpers/backend/graphql';
 import {
+  ADMIN_CANNOT_BE_DELETED,
   DELETE_USER_FAILED_ONLY_ONE_ADMIN,
   USER_ALREADY_INVITED,
 } from '~/helpers/errors';
@@ -451,7 +452,7 @@ const deleteUsers = async (id: string | null) => {
       .map((user) => user.userUID);
 
     const isAdminError = deletedUsers.some(
-      (user) => user.errorMessage === 'admin/admin_can_not_be_deleted'
+      (user) => user.errorMessage === ADMIN_CANNOT_BE_DELETED
     );
 
     usersList.value = usersList.value.filter(

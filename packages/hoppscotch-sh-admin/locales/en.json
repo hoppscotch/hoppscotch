@@ -133,7 +133,7 @@
     "delete_request_success": "Shared Request deleted successfully!!",
     "delete_team_failure": "Workspace deletion failed!!",
     "delete_team_success": "Workspace deleted successfully!!",
-    "delete_some_users_failure": "Users Not Deleted: {count}",
+    "delete_some_users_failure": "Number of Users Not Deleted: {count}",
     "delete_some_users_success": "Number of Users Deleted: {count}",
     "delete_user_failed_only_one_admin": "Failed to delete user. There should be atleast one admin!!",
     "delete_user_failure": "User deletion failed!!",

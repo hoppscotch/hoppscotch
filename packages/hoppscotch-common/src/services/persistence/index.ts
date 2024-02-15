@@ -425,7 +425,10 @@ export class PersistenceService extends Service {
 
     if (globalIndex !== -1) {
       const globalEnv = environmentsData[globalIndex]
-      globalEnv.variables.forEach((variable) => addGlobalEnvVariable(variable))
+      globalEnv.variables.forEach(
+        (variable: Environment["variables"][number]) =>
+          addGlobalEnvVariable(variable)
+      )
 
       // Remove global from environments
       environmentsData.splice(globalIndex, 1)

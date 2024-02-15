@@ -38,7 +38,7 @@
     </div>
 
     <table v-else-if="list" class="w-full">
-      <thead>
+      <thead v-if="list.length > 0">
         <tr
           class="border-b border-dividerDark bg-primaryLight text-left text-sm text-secondary"
         >

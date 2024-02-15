@@ -24,7 +24,7 @@
         <div v-if="error">{{ t('users.load_list_error') }}</div>
 
         <UsersTable
-          v-if="usersList"
+          v-else-if="usersList"
           :headings="headings"
           :list="usersList"
           :checkbox="true"

@@ -40,7 +40,6 @@ export class PosthogService {
     job.start();
   }
 
-  // ToDo: Change expression to every week in the end
   async capture() {
     if (!this.postHogClient) {
       throwErr(POSTHOG_CLIENT_NOT_INITIALIZED);

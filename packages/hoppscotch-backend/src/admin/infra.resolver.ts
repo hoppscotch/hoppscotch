@@ -30,6 +30,7 @@ import {
   InfraConfigArgs,
 } from 'src/infra-config/input-args';
 import { InfraConfigEnumForClient } from 'src/types/InfraConfig';
+import { ServiceStatus } from 'src/infra-config/helper';
 
 @UseGuards(GqlThrottlerGuard)
 @Resolver(() => Infra)
@@ -285,6 +286,25 @@ export class InfraResolver {
   }
 
   @Mutation(() => Boolean, {
+    description: 'Enable or disable analytics collection',
+  })
+  @UseGuards(GqlAuthGuard, GqlAdminGuard)
+  async toggleAnalyticsCollection(
+    @Args({
+      name: 'status',
+      type: () => ServiceStatus,
+      description: 'Toggle analytics collection',
+    })
+    analyticsCollectionStatus: ServiceStatus,
+  ) {
+    const res = await this.infraConfigService.toggleAnalyticsCollection(
+      analyticsCollectionStatus,
+    );
+    if (E.isLeft(res)) throwErr(res.left);
+    return res.right;
+  }
+
+  @Mutation(() => Boolean, {
     description: 'Reset Infra Configs with default values (.env)',
   })
   @UseGuards(GqlAuthGuard, GqlAdminGuard)
@@ -306,7 +326,9 @@ export class InfraResolver {
     })
     providerInfo: EnableAndDisableSSOArgs[],
   ) {
-    const isUpdated = await this.infraConfigService.enableAndDisableSSO(providerInfo);
+    const isUpdated = await this.infraConfigService.enableAndDisableSSO(
+      providerInfo,
+    );
     if (E.isLeft(isUpdated)) throwErr(isUpdated.left);
 
     return true;

@@ -236,6 +236,16 @@ export class InfraConfigService implements OnModuleInit {
     }
   }
 
+  async toggleAnalyticsCollection(status: ServiceStatus) {
+    const isUpdated = await this.update(
+      InfraConfigEnum.ALLOW_ANALYTICS_COLLECTION,
+      status === ServiceStatus.ENABLE ? 'true' : 'false',
+    );
+
+    if (E.isLeft(isUpdated)) return E.left(isUpdated.left);
+    return E.right(isUpdated.right.value === 'true');
+  }
+
   /**
    * Enable or Disable SSO for login/signup
    * @param provider Auth Provider to enable or disable

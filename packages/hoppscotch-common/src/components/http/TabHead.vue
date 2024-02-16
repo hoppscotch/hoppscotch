@@ -1,7 +1,7 @@
 <template>
   <div
     v-tippy="{ theme: 'tooltip', delay: [500, 20] }"
-    :title="tabDocument.request.name"
+    :title="tab.document.request.name"
     class="flex items-center truncate px-2"
     @dblclick="emit('open-rename-modal')"
     @contextmenu.prevent="options?.tippy?.show()"
@@ -9,9 +9,9 @@
   >
     <span
       class="text-tiny font-semibold mr-2"
-      :style="{ color: getMethodLabelColorClassOf(tabDocument.request) }"
+      :style="{ color: getMethodLabelColorClassOf(tab.document.request) }"
     >
-      {{ tabDocument.request.method }}
+      {{ tab.document.request.method }}
     </span>
     <tippy
       ref="options"
@@ -21,7 +21,7 @@
       :on-shown="() => tippyActions!.focus()"
     >
       <span class="truncate">
-        {{ tabDocument.request.name }}
+        {{ tab.document.request.name }}
       </span>
       <template #content="{ hide }">
         <div
@@ -104,24 +104,21 @@
 </template>
 
 <script setup lang="ts">
-import { ComputedRef, ref, watch } from "vue"
+import { ref } from "vue"
 import { TippyComponent } from "vue-tippy"
-import { getMethodLabelColorClassOf } from "~/helpers/rest/labelColoring"
 import { useI18n } from "~/composables/i18n"
+import { HoppRESTDocument } from "~/helpers/rest/document"
+import { getMethodLabelColorClassOf } from "~/helpers/rest/labelColoring"
+import { HoppTab } from "~/services/tab"
+import IconCopy from "~icons/lucide/copy"
+import IconFileEdit from "~icons/lucide/file-edit"
+import IconShare2 from "~icons/lucide/share-2"
 import IconXCircle from "~icons/lucide/x-circle"
 import IconXSquare from "~icons/lucide/x-square"
-import IconFileEdit from "~icons/lucide/file-edit"
-import IconCopy from "~icons/lucide/copy"
-import IconShare2 from "~icons/lucide/share-2"
-import { HoppTab } from "~/services/tab"
-import { HoppRESTDocument } from "~/helpers/rest/document"
-import { computed } from "vue"
-import { HandleRef } from "~/services/new-workspace/handle"
-import { WorkspaceRequest } from "~/services/new-workspace/workspace"
 
 const t = useI18n()
 
-const props = defineProps<{
+defineProps<{
   tab: HoppTab<HoppRESTDocument>
   isRemovable: boolean
 }>()
@@ -142,40 +139,4 @@ const closeAction = ref<HTMLButtonElement | null>(null)
 const closeOthersAction = ref<HTMLButtonElement | null>(null)
 const duplicateAction = ref<HTMLButtonElement | null>(null)
 const shareRequestAction = ref<HTMLButtonElement | null>(null)
-const tabDocument = ref<HoppRESTDocument>(props.tab.document)
-
-const requestHandleForCurrentTab = computed(() => {
-  return props.tab.document.saveContext?.originLocation ===
-    "workspace-user-collection"
-    ? props.tab.document.saveContext.requestHandle
-    : undefined
-}) as ComputedRef<HandleRef<WorkspaceRequest>["value"] | undefined>
-
-watch(
-  requestHandleForCurrentTab,
-  (newRequestHandleState) => {
-    if (!newRequestHandleState) {
-      return
-    }
-
-    if (newRequestHandleState.type !== "ok") {
-      return
-    }
-
-    if (
-      tabDocument.value.request.name !== newRequestHandleState.data.request.name
-    ) {
-      tabDocument.value.request.name = newRequestHandleState.data.request.name
-    }
-  },
-  { deep: true }
-)
-
-watch(
-  props.tab.document,
-  (newTabDocument) => {
-    ;(tabDocument.value as HoppRESTDocument) = newTabDocument
-  },
-  { deep: true }
-)
 </script>

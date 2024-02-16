@@ -1,5 +1,7 @@
+import { HoppCollection } from "@hoppscotch/data"
 import * as E from "fp-ts/Either"
 import { ref } from "vue"
+
 import { getService } from "~/modules/dioc"
 import { GQLTabService } from "~/services/tab/graphql"
 import { RESTTabService } from "~/services/tab/rest"
@@ -183,19 +185,10 @@ export function updateInheritedPropertiesForAffectedRequests(
       return Boolean(tab.document.saveContext.collectionID?.startsWith(path))
     }
 
-    if (
-      tab.document.saveContext?.originLocation !== "workspace-user-collection"
-    ) {
-      return false
-    }
-
-    const requestHandle = ref(tab.document.saveContext.requestHandle)
-
     return (
       tab.document.saveContext?.originLocation ===
         "workspace-user-collection" &&
-      requestHandle.value.type === "ok" &&
-      requestHandle.value.data.collectionID.startsWith(path)
+      tab.document.saveContext.collectionID?.startsWith(path)
     )
   })
 
@@ -212,18 +205,6 @@ export function updateInheritedPropertiesForAffectedRequests(
       )
     }
 
-    if (tab.value.document.saveContext?.originLocation === "team-collection") {
-      return (
-        tab.value.document.saveContext.collectionID?.startsWith(path) &&
-        path ===
-          folderPathCloseToSaveContext(
-            tab.value.document.inheritedProperties?.auth.parentID,
-            path,
-            tab.value.document.saveContext.collectionID
-          )
-      )
-    }
-
     if (
       tab.value.document.saveContext?.originLocation !==
       "workspace-user-collection"
@@ -231,16 +212,15 @@ export function updateInheritedPropertiesForAffectedRequests(
       return false
     }
 
-    const requestHandle = ref(tab.value.document.saveContext.requestHandle)
+    const { collectionID } = tab.value.document.saveContext
 
     return (
-      requestHandle.value.type === "ok" &&
-      requestHandle.value.data.collectionID.startsWith(path) &&
+      collectionID.startsWith(path) &&
       path ===
         folderPathCloseToSaveContext(
           tab.value.document.inheritedProperties?.auth.parentID,
           path,
-          requestHandle.value.data.collectionID
+          collectionID
         )
     )
   })

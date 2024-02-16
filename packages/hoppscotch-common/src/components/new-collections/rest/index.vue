@@ -47,12 +47,12 @@
             :save-request="saveRequest"
             @add-request="addRequest"
             @add-child-collection="addChildCollection"
+            @edit-child-collection="editChildCollection"
             @edit-root-collection="editRootCollection"
             @edit-collection-properties="editCollectionProperties"
-            @edit-child-collection="editChildCollection"
-            @select-pick="onSelectPick"
-            @remove-root-collection="removeRootCollection"
             @remove-child-collection="removeChildCollection"
+            @remove-root-collection="removeRootCollection"
+            @select-pick="onSelectPick"
             @toggle-children="
               () => {
                 toggleChildren(),
@@ -82,6 +82,7 @@
             @remove-request="removeRequest"
             @select-pick="onSelectPick"
             @select-request="selectRequest"
+            @share-request="shareRequest"
           />
           <div v-else @click="toggleChildren">
             {{ node.data.value }}
@@ -164,6 +165,7 @@ import { cloneDeep } from "lodash-es"
 import { useI18n } from "~/composables/i18n"
 import { useReadonlyStream } from "~/composables/stream"
 import { useToast } from "~/composables/toast"
+import { invokeAction } from "~/helpers/actions"
 import { WorkspaceRESTCollectionTreeAdapter } from "~/helpers/adapters/WorkspaceRESTCollectionTreeAdapter"
 import { TeamCollection } from "~/helpers/backend/graphql"
 import { updateInheritedPropertiesForAffectedRequests } from "~/helpers/collection/collection"
@@ -174,6 +176,7 @@ import {
   restCollections$,
   saveRESTRequestAs,
 } from "~/newstore/collections"
+import { platform } from "~/platform"
 import { NewWorkspaceService } from "~/services/new-workspace"
 import { HandleRef } from "~/services/new-workspace/handle"
 import { RESTCollectionViewRequest } from "~/services/new-workspace/view"
@@ -189,8 +192,8 @@ const tabs = useService(RESTTabService)
 
 const props = defineProps<{
   workspaceHandle: HandleRef<Workspace>
-  picked: Picked | null
-  saveRequest: boolean
+  picked?: Picked | null
+  saveRequest?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -240,6 +243,11 @@ const editingProperties = ref<{
 })
 
 const confirmModalTitle = ref<string | null>(null)
+
+const currentUser = useReadonlyStream(
+  platform.auth.getCurrentUserStream(),
+  platform.auth.getCurrentUser()
+)
 
 const isSelected = ({
   collectionIndex,
@@ -1114,6 +1122,16 @@ const setCollectionProperties = async (updatedCollectionProps: {
   toast.success(t("collection.properties_updated"))
 
   displayModalEditProperties(false)
+}
+
+const shareRequest = (request: HoppRESTRequest) => {
+  if (currentUser.value) {
+    // Opens the share request modal if the user is logged in
+    return invokeAction("share.request", { request })
+  }
+
+  // Else, prompts the user to login
+  invokeAction("modals.login.toggle")
 }
 
 const resolveConfirmModal = (title: string | null) => {

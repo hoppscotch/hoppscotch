@@ -34,9 +34,9 @@ import { Picked } from "~/helpers/types/HoppPicked";
 import { NewWorkspaceService } from "~/services/new-workspace"
 
 defineProps<{
-  picked: Picked | null
+  picked?: Picked | null
   platform: "rest" | "gql"
-  saveRequest: boolean
+  saveRequest?: boolean
 }>()
 
 const emit = defineEmits<{

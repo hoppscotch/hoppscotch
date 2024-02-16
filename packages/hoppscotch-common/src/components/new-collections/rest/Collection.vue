@@ -151,20 +151,22 @@
 </template>
 
 <script setup lang="ts">
-import { RESTCollectionViewCollection } from "~/services/new-workspace/view"
+import { computed, ref } from "vue"
 import { TippyComponent } from "vue-tippy"
-import { ref, computed } from "vue"
+
 import { useI18n } from "~/composables/i18n"
+import { RESTCollectionViewCollection } from "~/services/new-workspace/view"
+
 import IconCheckCircle from "~icons/lucide/check-circle"
-import IconFolderPlus from "~icons/lucide/folder-plus"
-import IconFilePlus from "~icons/lucide/file-plus"
-import IconMoreVertical from "~icons/lucide/more-vertical"
 import IconDownload from "~icons/lucide/download"
-import IconTrash2 from "~icons/lucide/trash-2"
 import IconEdit from "~icons/lucide/edit"
+import IconFilePlus from "~icons/lucide/file-plus"
 import IconFolder from "~icons/lucide/folder"
 import IconFolderOpen from "~icons/lucide/folder-open"
+import IconFolderPlus from "~icons/lucide/folder-plus"
+import IconMoreVertical from "~icons/lucide/more-vertical"
 import IconSettings2 from "~icons/lucide/settings-2"
+import IconTrash2 from "~icons/lucide/trash-2"
 
 const t = useI18n()
 
@@ -175,21 +177,21 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  (event: "toggle-children"): void
-  (event: "add-request", parentCollectionIndexPath: string): void
   (event: "add-child-collection", parentCollectionIndexPath: string): void
-  (
-    event: "edit-root-collection",
-    payload: { collectionIndexPath: string; collectionName: string }
-  ): void
+  (event: "add-request", parentCollectionIndexPath: string): void
   (
     event: "edit-child-collection",
     payload: { collectionIndexPath: string; collectionName: string }
   ): void
   (event: "edit-collection-properties", collectionIndexPath: string): void
+  (
+    event: "edit-root-collection",
+    payload: { collectionIndexPath: string; collectionName: string }
+  ): void
   (event: "export-data"): void
-  (event: "remove-root-collection", collectionIndexPath: string): void
   (event: "remove-child-collection", collectionIndexPath: string): void
+  (event: "remove-root-collection", collectionIndexPath: string): void
+  (event: "toggle-children"): void
 }>()
 
 const tippyActions = ref<TippyComponent | null>(null)

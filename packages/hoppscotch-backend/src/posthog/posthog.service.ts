@@ -21,7 +21,6 @@ export class PosthogService {
   async onModuleInit() {
     if (this.configService.get('INFRA.ALLOW_ANALYTICS_COLLECTION') === 'true') {
       console.log('Initializing PostHog');
-      // Instantiate PostHog client only if env variable is true
       this.postHogClient = new PostHog(this.POSTHOG_API_KEY, {
         // ToDo: Check and change host if required.
         host: 'https://eu.posthog.com',

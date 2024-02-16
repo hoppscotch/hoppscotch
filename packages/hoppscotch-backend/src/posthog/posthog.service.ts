@@ -1,8 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { PostHog } from 'posthog-node';
-import { Cron, CronExpression } from '@nestjs/schedule';
+import { Cron, CronExpression, SchedulerRegistry } from '@nestjs/schedule';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { throwErr } from 'src/utils';
+import { POSTHOG_CLIENT_NOT_INITIALIZED } from 'src/errors';
+import { CronJob } from 'cron';
+
 @Injectable()
 export class PosthogService {
   private postHogClient: PostHog;
@@ -11,6 +15,7 @@ export class PosthogService {
   constructor(
     private readonly configService: ConfigService,
     private readonly prismaService: PrismaService,
+    private schedulerRegistry: SchedulerRegistry,
   ) {}
 
   async onModuleInit() {
@@ -21,13 +26,27 @@ export class PosthogService {
         // ToDo: Check and change host if required.
         host: 'https://eu.posthog.com',
       });
+
+      // Schedule the cron job only if analytics collection is allowed
+      this.scheduleCronJob();
     }
   }
 
-  // ToDo: Change expression to every week in the end
-  @Cron(CronExpression.EVERY_5_SECONDS)
+  private scheduleCronJob() {
+    // ToDo: Change expression to every week in the end
+    const job = new CronJob(CronExpression.EVERY_5_SECONDS, async () => {
+      await this.capture();
+    });
+
+    this.schedulerRegistry.addCronJob('captureAnalytics', job);
+    job.start();
+  }
+
   async capture() {
-    console.log('Sent event to PostHog');
+    if (!this.postHogClient) {
+      throwErr(POSTHOG_CLIENT_NOT_INITIALIZED);
+    }
+
     this.postHogClient.capture({
       distinctId: this.configService.get('INFRA.ANALYTICS_USER_ID'),
       event: 'sh_instance',
@@ -38,5 +57,6 @@ export class PosthogService {
         version: this.configService.get('npm_package_version'),
       },
     });
+    console.log('Sent event to PostHog');
   }
 }

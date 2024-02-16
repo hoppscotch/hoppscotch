@@ -53,6 +53,7 @@
           :request="request"
           @customize-shared-request="customizeSharedRequest"
           @delete-shared-request="deleteSharedRequest"
+          @open-shared-request="openRequestInNewTab"
         />
         <HoppSmartIntersection
           v-if="hasMoreSharedRequests"
@@ -481,6 +482,13 @@ const getErrorMessage = (err: GQLError<string>) => {
     default:
       return t("error.something_went_wrong")
   }
+}
+
+const openRequestInNewTab = (request: HoppRESTRequest) => {
+  restTab.createNewTab({
+    isDirty: false,
+    request,
+  })
 }
 
 defineActionHandler("share.request", ({ request }) => {

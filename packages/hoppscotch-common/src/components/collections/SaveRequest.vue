@@ -267,6 +267,21 @@ const saveRequestAs = async () => {
       return
     }
 
+    const { collectionID, providerID, requestID, workspaceID } =
+      requestHandle.value.data
+
+    RESTTabs.currentActiveTab.value.document = {
+      request: updatedRequest,
+      isDirty: false,
+      saveContext: {
+        originLocation: "workspace-user-collection",
+        workspaceID,
+        providerID,
+        collectionID,
+        requestID,
+      },
+    }
+
     requestSaved()
   } else if (picked.value.pickedType === "my-request") {
     if (!isHoppRESTRequest(updatedRequest))

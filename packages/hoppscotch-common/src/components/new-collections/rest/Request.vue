@@ -115,6 +115,18 @@
                     }
                   "
                 />
+                <HoppSmartItem
+                  ref="shareAction"
+                  :icon="IconShare2"
+                  :label="t('action.share')"
+                  :shortcut="['S']"
+                  @click="
+                    () => {
+                      emit('share-request', requestView.request)
+                      hide()
+                    }
+                  "
+                />
               </div>
             </template>
           </tippy>
@@ -125,17 +137,21 @@
 </template>
 
 <script setup lang="ts">
-import IconCheckCircle from "~icons/lucide/check-circle"
-import IconMoreVertical from "~icons/lucide/more-vertical"
-import IconEdit from "~icons/lucide/edit"
-import IconCopy from "~icons/lucide/copy"
-import IconTrash2 from "~icons/lucide/trash-2"
-import IconRotateCCW from "~icons/lucide/rotate-ccw"
 import { useI18n } from "@composables/i18n"
-import { RESTCollectionViewRequest } from "~/services/new-workspace/view"
+import { HoppRESTRequest } from "@hoppscotch/data"
 import { computed, ref } from "vue"
 import { TippyComponent } from "vue-tippy"
+
 import { getMethodLabelColorClassOf } from "~/helpers/rest/labelColoring"
+import { RESTCollectionViewRequest } from "~/services/new-workspace/view"
+
+import IconCheckCircle from "~icons/lucide/check-circle"
+import IconCopy from "~icons/lucide/copy"
+import IconEdit from "~icons/lucide/edit"
+import IconMoreVertical from "~icons/lucide/more-vertical"
+import IconRotateCCW from "~icons/lucide/rotate-ccw"
+import IconShare2 from "~icons/lucide/share-2"
+import IconTrash2 from "~icons/lucide/trash-2"
 
 const t = useI18n()
 
@@ -156,6 +172,7 @@ const emit = defineEmits<{
   ): void
   (event: "remove-request", requestIndexPath: string): void
   (event: "select-request", requestIndexPath: string): void
+  (event: "share-request", request: HoppRESTRequest): void
 }>()
 
 const tippyActions = ref<TippyComponent | null>(null)

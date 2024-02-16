@@ -453,7 +453,7 @@ export class PersonalWorkspaceProviderService
               providerID,
               workspaceID,
               collectionID,
-              name: collection.name,
+              name: collection?.name ?? "",
             },
           }
         })

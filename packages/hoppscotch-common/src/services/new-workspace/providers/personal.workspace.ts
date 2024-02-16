@@ -227,7 +227,7 @@ export class PersonalWorkspaceProviderService
       collectionID.split("/").map((id) => parseInt(id))
     )
 
-    const newCollection = merge(collection, updatedCollection)
+    const newCollection = { ...collection, ...updatedCollection }
 
     const isRootCollection = collectionID.split("/").length === 1
 

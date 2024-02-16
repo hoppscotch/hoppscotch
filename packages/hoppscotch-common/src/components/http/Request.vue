@@ -519,7 +519,24 @@ const saveRequest = async () => {
       return
     }
 
-    const requestHandle = ref(saveCtx.requestHandle)
+    const { requestID } = saveCtx
+
+    const requestHandleResult = await workspaceService.getRequestHandle(
+      workspaceService.activeWorkspaceHandle.value,
+      requestID
+    )
+
+    if (E.isLeft(requestHandleResult)) {
+      // INVALID_COLLECTION_HANDLE | INVALID_REQUEST_ID | REQUEST_NOT_FOUND
+      return
+    }
+
+    const requestHandle = requestHandleResult.right
+
+    if (requestHandle.value.type === "invalid") {
+      // WORKSPACE_INVALIDATED
+      return
+    }
 
     const updateRequestResult = await workspaceService.updateRESTRequest(
       requestHandle,

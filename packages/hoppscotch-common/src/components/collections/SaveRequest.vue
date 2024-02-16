@@ -227,30 +227,30 @@ const saveRequestAs = async () => {
     if (!isHoppRESTRequest(updatedRequest))
       throw new Error("requestUpdated is not a REST Request")
 
-    const collPathIndex =
+    const collectionPathIndex =
       picked.value.pickedType === "my-collection"
         ? picked.value.collectionIndex.toString()
         : picked.value.folderPath
 
-    const collHandleResult = await workspaceService.getCollectionHandle(
+    const collectionHandleResult = await workspaceService.getCollectionHandle(
       workspaceService.activeWorkspaceHandle.value,
-      collPathIndex
+      collectionPathIndex
     )
 
-    if (E.isLeft(collHandleResult)) {
+    if (E.isLeft(collectionHandleResult)) {
       // INVALID_WORKSPACE_HANDLE | INVALID_COLLECTION_ID | INVALID_PATH
       return
     }
 
-    const collHandle = collHandleResult.right
+    const collectionHandle = collectionHandleResult.right
 
-    if (collHandle.value.type === "invalid") {
+    if (collectionHandle.value.type === "invalid") {
       // WORKSPACE_INVALIDATED
       return
     }
 
     const requestHandleResult = await workspaceService.createRESTRequest(
-      collHandle,
+      collectionHandle,
       updatedRequest
     )
 
@@ -298,13 +298,18 @@ const saveRequestAs = async () => {
       return
     }
 
-    // These remain here in the component
+    const { collectionID, providerID, requestID, workspaceID } =
+      requestHandle.value.data
+
     RESTTabs.currentActiveTab.value.document = {
       request: updatedRequest,
       isDirty: false,
       saveContext: {
         originLocation: "workspace-user-collection",
-        requestHandle,
+        workspaceID,
+        providerID,
+        collectionID,
+        requestID,
       },
     }
 

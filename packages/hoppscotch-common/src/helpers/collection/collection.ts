@@ -1,13 +1,13 @@
 import { HoppCollection } from "@hoppscotch/data"
-import { getAffectedIndexes } from "./affectedIndex"
-import { GetSingleRequestDocument } from "../backend/graphql"
-import { runGQLQuery } from "../backend/GQLClient"
 import * as E from "fp-ts/Either"
+
 import { getService } from "~/modules/dioc"
-import { RESTTabService } from "~/services/tab/rest"
-import { HoppInheritedProperty } from "../types/HoppInheritedProperties"
 import { GQLTabService } from "~/services/tab/graphql"
-import { ref } from "vue"
+import { RESTTabService } from "~/services/tab/rest"
+import { runGQLQuery } from "../backend/GQLClient"
+import { GetSingleRequestDocument } from "../backend/graphql"
+import { HoppInheritedProperty } from "../types/HoppInheritedProperties"
+import { getAffectedIndexes } from "./affectedIndex"
 
 /**
  * Resolve save context on reorder
@@ -173,13 +173,11 @@ export function updateInheritedPropertiesForAffectedRequests(
         return false
       }
 
-      const requestHandle = ref(tab.document.saveContext.requestHandle)
+      const { collectionID } = tab.document.saveContext
 
       return (
         tab.document.saveContext?.originLocation ===
-          "workspace-user-collection" &&
-        requestHandle.value.type === "ok" &&
-        requestHandle.value.data.collectionID.startsWith(path)
+          "workspace-user-collection" && collectionID.startsWith(path)
       )
     })
   } else {
@@ -214,16 +212,15 @@ export function updateInheritedPropertiesForAffectedRequests(
         return false
       }
 
-      const requestHandle = ref(tab.value.document.saveContext.requestHandle)
+      const { collectionID } = tab.value.document.saveContext
 
       return (
-        requestHandle.value.type === "ok" &&
-        requestHandle.value.data.collectionID.startsWith(path) &&
+        collectionID.startsWith(path) &&
         path ===
           folderPathCloseToSaveContext(
             tab.value.document.inheritedProperties?.auth.parentID,
             path,
-            requestHandle.value.data.collectionID
+            collectionID
           )
       )
     }

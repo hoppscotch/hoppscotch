@@ -389,34 +389,9 @@ const onRemoveRootCollection = async () => {
     if (
       tab.document.saveContext?.originLocation === "workspace-user-collection"
     ) {
-      const requestHandle = ref(tab.document.saveContext.requestHandle)
+      const { requestID } = tab.document.saveContext
 
-      if (requestHandle.value.type === "invalid") {
-        tab.document.saveContext = null
-        tab.document.isDirty = true
-        continue
-      }
-
-      const requestID = requestHandle.value.data.requestID
-
-      const parentCollectionIndexPath = requestID
-        .split("/")
-        .slice(0, -1)
-        .join("/")
-      const requestIndex = parseInt(requestID.split("/").slice(-1)[0])
-
-      const parentCollection = navigateToFolderWithIndexPath(
-        restCollectionState.value,
-        parentCollectionIndexPath.split("/").map((id) => parseInt(id))
-      )
-
-      if (!parentCollection) {
-        tab.document.saveContext = null
-        tab.document.isDirty = true
-        continue
-      }
-
-      if (!parentCollection.requests[requestIndex]) {
+      if (requestID.startsWith(collectionIndexPath)) {
         tab.document.saveContext = null
         tab.document.isDirty = true
       }
@@ -493,12 +468,18 @@ const onAddRequest = async (requestName: string) => {
 
   const { auth, headers } = cascadingAuthHeadersHandle.value.data
 
+  const { collectionID, providerID, requestID, workspaceID } =
+    requestHandle.value.data
+
   tabs.createNewTab({
     request: newRequest,
     isDirty: false,
     saveContext: {
       originLocation: "workspace-user-collection",
-      requestHandle,
+      workspaceID,
+      providerID,
+      collectionID,
+      requestID,
     },
     inheritedProperties: {
       auth,
@@ -693,34 +674,9 @@ const onRemoveChildCollection = async () => {
     if (
       tab.document.saveContext?.originLocation === "workspace-user-collection"
     ) {
-      const requestHandle = ref(tab.document.saveContext.requestHandle)
+      const { requestID } = tab.document.saveContext
 
-      if (requestHandle.value.type === "invalid") {
-        tab.document.saveContext = null
-        tab.document.isDirty = true
-        continue
-      }
-
-      const requestID = requestHandle.value.data.requestID
-
-      const parentCollectionIndexPath = requestID
-        .split("/")
-        .slice(0, -1)
-        .join("/")
-      const requestIndex = parseInt(requestID.split("/").slice(-1)[0])
-
-      const parentCollection = navigateToFolderWithIndexPath(
-        restCollectionState.value,
-        parentCollectionIndexPath.split("/").map((id) => parseInt(id))
-      )
-
-      if (!parentCollection) {
-        tab.document.saveContext = null
-        tab.document.isDirty = true
-        continue
-      }
-
-      if (!parentCollection.requests[requestIndex]) {
+      if (requestID.startsWith(parentCollectionIndexPath)) {
         tab.document.saveContext = null
         tab.document.isDirty = true
       }
@@ -761,9 +717,15 @@ const onRemoveRequest = async () => {
     return
   }
 
+  const { collectionID, providerID, requestID, workspaceID } =
+    requestHandle.value.data
+
   const possibleTab = tabs.getTabRefWithSaveContext({
     originLocation: "workspace-user-collection",
-    requestHandle,
+    workspaceID,
+    providerID,
+    requestID,
+    collectionID,
   })
 
   if (
@@ -857,10 +819,16 @@ const selectRequest = async (requestIndexPath: string) => {
 
   const { auth, headers } = cascadingAuthHeadersHandle.value.data
 
+  const { collectionID, providerID, requestID, workspaceID } =
+    requestHandle.value.data
+
   // If there is a request with this save context, switch into it
   const possibleTab = tabs.getTabRefWithSaveContext({
     originLocation: "workspace-user-collection",
-    requestHandle,
+    workspaceID,
+    providerID,
+    collectionID,
+    requestID,
   })
 
   if (possibleTab) {
@@ -872,7 +840,10 @@ const selectRequest = async (requestIndexPath: string) => {
       isDirty: false,
       saveContext: {
         originLocation: "workspace-user-collection",
-        requestHandle,
+        workspaceID,
+        providerID,
+        collectionID,
+        requestID,
       },
       inheritedProperties: {
         auth,
@@ -959,13 +930,21 @@ const onEditRequest = async (newRequestName: string) => {
     return
   }
 
+  const { collectionID, providerID, workspaceID } = requestHandle.value.data
+
   const possibleActiveTab = tabs.getTabRefWithSaveContext({
     originLocation: "workspace-user-collection",
-    requestHandle,
+    workspaceID,
+    providerID,
+    collectionID,
+    requestID,
   })
 
   if (possibleActiveTab) {
-    possibleActiveTab.value.document.request.name = newRequestName
+    possibleActiveTab.value.document.request = {
+      ...possibleActiveTab.value.document.request,
+      name: newRequestName,
+    }
     nextTick(() => {
       possibleActiveTab.value.document.isDirty = false
     })
@@ -1181,17 +1160,9 @@ const isActiveRequest = (requestView: RESTCollectionViewRequest) => {
     return false
   }
 
-  const requestHandle = ref(
-    tabs.currentActiveTab.value.document.saveContext?.requestHandle
-  )
+  const { requestID } = tabs.currentActiveTab.value.document.saveContext
 
-  if (requestHandle.value.type === "invalid") {
-    return false
-  }
-  return (
-    requestHandle.value.data.requestID === requestView.requestID &&
-    requestHandle.value.data.request.id === requestView.request.id
-  )
+  return requestID === requestView.requestID
 }
 
 const onSelectPick = (payload: Picked | null) => {

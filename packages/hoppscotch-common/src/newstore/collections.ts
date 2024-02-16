@@ -1183,7 +1183,6 @@ export function editRESTRequest(
   requestIndex: number,
   requestNew: HoppRESTRequest
 ) {
-  debugger
   const indexPaths = path.split("/").map((x) => parseInt(x))
   if (
     !navigateToFolderWithIndexPath(restCollectionStore.value.state, indexPaths)

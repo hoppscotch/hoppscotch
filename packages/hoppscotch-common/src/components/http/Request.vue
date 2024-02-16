@@ -525,7 +525,19 @@ const saveRequest = async () => {
       return
     }
 
-    const { requestHandle } = saveContext
+    const { requestID } = saveContext
+
+    const requestHandleResult = await newWorkspaceService.getRequestHandle(
+      newWorkspaceService.activeWorkspaceHandle.value,
+      requestID
+    )
+
+    if (E.isLeft(requestHandleResult)) {
+      // INVALID_COLLECTION_HANDLE | INVALID_REQUEST_ID | REQUEST_NOT_FOUND
+      return
+    }
+
+    const requestHandle = requestHandleResult.right
 
     if (!requestHandle.value) {
       return

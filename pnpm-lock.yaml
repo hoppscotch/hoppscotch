@@ -20,8 +20,8 @@ importers:
         specifier: ^16.2.1
         version: 16.2.4
       '@hoppscotch/ui':
-        specifier: file:../ui
-        version: file:../ui(eslint@8.56.0)(terser@5.27.0)(vite@3.2.8)(vue@3.3.9)
+        specifier: ^0.1.0
+        version: 0.1.1(eslint@8.56.0)(terser@5.27.0)(vite@3.2.8)(vue@3.3.9)
       '@types/node':
         specifier: 17.0.27
         version: 17.0.27
@@ -398,8 +398,8 @@ importers:
         specifier: workspace:^
         version: link:../hoppscotch-js-sandbox
       '@hoppscotch/ui':
-        specifier: file:../../../ui
-        version: file:../ui(eslint@8.55.0)(terser@5.27.0)(vite@4.5.0)(vue@3.3.9)
+        specifier: ^0.1.0
+        version: 0.1.1(eslint@8.55.0)(terser@5.27.0)(vite@4.5.0)(vue@3.3.9)
       '@hoppscotch/vue-toasted':
         specifier: ^0.1.0
         version: 0.1.0(vue@3.3.9)
@@ -1080,8 +1080,8 @@ importers:
         specifier: workspace:^
         version: link:../hoppscotch-data
       '@hoppscotch/ui':
-        specifier: file:../../../ui
-        version: file:../ui(eslint@8.55.0)(terser@5.27.0)(vite@4.5.0)(vue@3.3.9)
+        specifier: ^0.1.0
+        version: 0.1.1(eslint@8.55.0)(terser@5.27.0)(vite@4.5.0)(vue@3.3.9)
       '@import-meta-env/unplugin':
         specifier: ^0.4.10
         version: 0.4.10(dotenv@16.4.1)
@@ -1246,8 +1246,8 @@ importers:
         specifier: ^3.1.1
         version: 3.1.1(graphql@16.6.0)
       '@hoppscotch/ui':
-        specifier: file:../../../ui
-        version: file:../ui(eslint@8.56.0)(terser@5.27.0)(vite@3.2.4)(vue@3.3.9)
+        specifier: ^0.1.0
+        version: 0.1.1(eslint@8.56.0)(terser@5.27.0)(vite@3.2.4)(vue@3.3.9)
       '@hoppscotch/vue-toasted':
         specifier: ^0.1.0
         version: 0.1.0(vue@3.3.9)
@@ -7501,6 +7501,84 @@ packages:
       graphql: ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0 || ^17.0.0
     dependencies:
       graphql: 16.8.1
+
+  /@hoppscotch/ui@0.1.1(eslint@8.55.0)(terser@5.27.0)(vite@4.5.0)(vue@3.3.9):
+    resolution: {integrity: sha512-OEFKPWrdEqy4V/s7qvT/2wdUaBX7dfdo2h3pitG/4BEDLJqiInsvd9Tr0xrjCGZf3ewJRTckJ3Jqy/J56B+3Vg==}
+    engines: {node: '>=16'}
+    peerDependencies:
+      vue: 3.3.9
+    dependencies:
+      '@boringer-avatars/vue3': 0.2.1(vue@3.3.9)
+      '@fontsource-variable/inter': 5.0.15
+      '@fontsource-variable/material-symbols-rounded': 5.0.16
+      '@fontsource-variable/roboto-mono': 5.0.16
+      '@hoppscotch/vue-toasted': 0.1.0(vue@3.3.9)
+      '@vitejs/plugin-legacy': 2.3.0(terser@5.27.0)(vite@4.5.0)
+      '@vueuse/core': 8.7.5(vue@3.3.9)
+      fp-ts: 2.16.2
+      lodash-es: 4.17.21
+      path: 0.12.7
+      vite-plugin-eslint: 1.8.1(eslint@8.55.0)(vite@4.5.0)
+      vue: 3.3.9(typescript@5.3.2)
+      vuedraggable-es: 4.1.1(vue@3.3.9)
+    transitivePeerDependencies:
+      - '@vue/composition-api'
+      - eslint
+      - terser
+      - vite
+    dev: false
+
+  /@hoppscotch/ui@0.1.1(eslint@8.56.0)(terser@5.27.0)(vite@3.2.4)(vue@3.3.9):
+    resolution: {integrity: sha512-OEFKPWrdEqy4V/s7qvT/2wdUaBX7dfdo2h3pitG/4BEDLJqiInsvd9Tr0xrjCGZf3ewJRTckJ3Jqy/J56B+3Vg==}
+    engines: {node: '>=16'}
+    peerDependencies:
+      vue: 3.3.9
+    dependencies:
+      '@boringer-avatars/vue3': 0.2.1(vue@3.3.9)
+      '@fontsource-variable/inter': 5.0.15
+      '@fontsource-variable/material-symbols-rounded': 5.0.16
+      '@fontsource-variable/roboto-mono': 5.0.16
+      '@hoppscotch/vue-toasted': 0.1.0(vue@3.3.9)
+      '@vitejs/plugin-legacy': 2.3.0(terser@5.27.0)(vite@3.2.4)
+      '@vueuse/core': 8.7.5(vue@3.3.9)
+      fp-ts: 2.16.2
+      lodash-es: 4.17.21
+      path: 0.12.7
+      vite-plugin-eslint: 1.8.1(eslint@8.56.0)(vite@3.2.4)
+      vue: 3.3.9(typescript@4.9.3)
+      vuedraggable-es: 4.1.1(vue@3.3.9)
+    transitivePeerDependencies:
+      - '@vue/composition-api'
+      - eslint
+      - terser
+      - vite
+    dev: false
+
+  /@hoppscotch/ui@0.1.1(eslint@8.56.0)(terser@5.27.0)(vite@3.2.8)(vue@3.3.9):
+    resolution: {integrity: sha512-OEFKPWrdEqy4V/s7qvT/2wdUaBX7dfdo2h3pitG/4BEDLJqiInsvd9Tr0xrjCGZf3ewJRTckJ3Jqy/J56B+3Vg==}
+    engines: {node: '>=16'}
+    peerDependencies:
+      vue: 3.3.9
+    dependencies:
+      '@boringer-avatars/vue3': 0.2.1(vue@3.3.9)
+      '@fontsource-variable/inter': 5.0.15
+      '@fontsource-variable/material-symbols-rounded': 5.0.16
+      '@fontsource-variable/roboto-mono': 5.0.16
+      '@hoppscotch/vue-toasted': 0.1.0(vue@3.3.9)
+      '@vitejs/plugin-legacy': 2.3.0(terser@5.27.0)(vite@3.2.8)
+      '@vueuse/core': 8.7.5(vue@3.3.9)
+      fp-ts: 2.16.2
+      lodash-es: 4.17.21
+      path: 0.12.7
+      vite-plugin-eslint: 1.8.1(eslint@8.56.0)(vite@3.2.8)
+      vue: 3.3.9(typescript@4.9.5)
+      vuedraggable-es: 4.1.1(vue@3.3.9)
+    transitivePeerDependencies:
+      - '@vue/composition-api'
+      - eslint
+      - terser
+      - vite
+    dev: true
 
   /@hoppscotch/vue-toasted@0.1.0(vue@3.3.9):
     resolution: {integrity: sha512-DIgmeTHxWwX5UeaHLEqDYNLJFGRosx/5N1fCHkaO8zt+sZv8GrHlkrIpjfKF2drmA3kKw5cY42Cw7WuCoabR3g==}
@@ -16501,7 +16579,6 @@ packages:
 
   /fp-ts@2.16.2:
     resolution: {integrity: sha512-CkqAjnIKFqvo3sCyoBTqgJvF+bHrSik584S9nhTjtBESLx26cbtVMR/T9a6ApChOcSDAaM3JydDmWDUn4EEXng==}
-    dev: true
 
   /fraction.js@4.3.7:
     resolution: {integrity: sha512-ZsDfxO51wGAXREY55a7la9LScWpwv9RxIrYABrlvOFBlH/ShPnrtsXeuUIfXKKOVicNxQ+o8JTbJvjS4M89yew==}
@@ -27820,90 +27897,6 @@ packages:
   /zod@3.22.4:
     resolution: {integrity: sha512-iC+8Io04lddc+mVqQ9AZ7OQ2MrUKGN+oIQyq1vemgt46jwCwLfhq7/pwnBnNXXXZb8VTVLKwp9EDkx+ryxIWmg==}
     dev: false
-
-  file:../ui(eslint@8.55.0)(terser@5.27.0)(vite@4.5.0)(vue@3.3.9):
-    resolution: {directory: ../ui, type: directory}
-    id: file:../ui
-    name: '@hoppscotch/ui'
-    engines: {node: '>=16'}
-    peerDependencies:
-      vue: 3.3.9
-    dependencies:
-      '@boringer-avatars/vue3': 0.2.1(vue@3.3.9)
-      '@fontsource-variable/inter': 5.0.15
-      '@fontsource-variable/material-symbols-rounded': 5.0.16
-      '@fontsource-variable/roboto-mono': 5.0.16
-      '@hoppscotch/vue-toasted': 0.1.0(vue@3.3.9)
-      '@vitejs/plugin-legacy': 2.3.0(terser@5.27.0)(vite@4.5.0)
-      '@vueuse/core': 8.7.5(vue@3.3.9)
-      fp-ts: 2.16.1
-      lodash-es: 4.17.21
-      path: 0.12.7
-      vite-plugin-eslint: 1.8.1(eslint@8.55.0)(vite@4.5.0)
-      vue: 3.3.9(typescript@5.3.2)
-      vuedraggable-es: 4.1.1(vue@3.3.9)
-    transitivePeerDependencies:
-      - '@vue/composition-api'
-      - eslint
-      - terser
-      - vite
-    dev: false
-
-  file:../ui(eslint@8.56.0)(terser@5.27.0)(vite@3.2.4)(vue@3.3.9):
-    resolution: {directory: ../ui, type: directory}
-    id: file:../ui
-    name: '@hoppscotch/ui'
-    engines: {node: '>=16'}
-    peerDependencies:
-      vue: 3.3.9
-    dependencies:
-      '@boringer-avatars/vue3': 0.2.1(vue@3.3.9)
-      '@fontsource-variable/inter': 5.0.15
-      '@fontsource-variable/material-symbols-rounded': 5.0.16
-      '@fontsource-variable/roboto-mono': 5.0.16
-      '@hoppscotch/vue-toasted': 0.1.0(vue@3.3.9)
-      '@vitejs/plugin-legacy': 2.3.0(terser@5.27.0)(vite@3.2.4)
-      '@vueuse/core': 8.7.5(vue@3.3.9)
-      fp-ts: 2.16.1
-      lodash-es: 4.17.21
-      path: 0.12.7
-      vite-plugin-eslint: 1.8.1(eslint@8.56.0)(vite@3.2.4)
-      vue: 3.3.9(typescript@4.9.3)
-      vuedraggable-es: 4.1.1(vue@3.3.9)
-    transitivePeerDependencies:
-      - '@vue/composition-api'
-      - eslint
-      - terser
-      - vite
-    dev: false
-
-  file:../ui(eslint@8.56.0)(terser@5.27.0)(vite@3.2.8)(vue@3.3.9):
-    resolution: {directory: ../ui, type: directory}
-    id: file:../ui
-    name: '@hoppscotch/ui'
-    engines: {node: '>=16'}
-    peerDependencies:
-      vue: 3.3.9
-    dependencies:
-      '@boringer-avatars/vue3': 0.2.1(vue@3.3.9)
-      '@fontsource-variable/inter': 5.0.15
-      '@fontsource-variable/material-symbols-rounded': 5.0.16
-      '@fontsource-variable/roboto-mono': 5.0.16
-      '@hoppscotch/vue-toasted': 0.1.0(vue@3.3.9)
-      '@vitejs/plugin-legacy': 2.3.0(terser@5.27.0)(vite@3.2.8)
-      '@vueuse/core': 8.7.5(vue@3.3.9)
-      fp-ts: 2.16.1
-      lodash-es: 4.17.21
-      path: 0.12.7
-      vite-plugin-eslint: 1.8.1(eslint@8.56.0)(vite@3.2.8)
-      vue: 3.3.9(typescript@4.9.5)
-      vuedraggable-es: 4.1.1(vue@3.3.9)
-    transitivePeerDependencies:
-      - '@vue/composition-api'
-      - eslint
-      - terser
-      - vite
-    dev: true
 
   github.com/tauri-apps/tauri-plugin-store/3367248b2661abcb73d2a89f30df780c387fb57d:
     resolution: {tarball: https://codeload.github.com/tauri-apps/tauri-plugin-store/tar.gz/3367248b2661abcb73d2a89f30df780c387fb57d}

@@ -19,7 +19,12 @@ import {
 } from 'src/errors';
 import { throwErr, validateSMTPEmail, validateSMTPUrl } from 'src/utils';
 import { ConfigService } from '@nestjs/config';
-import { ServiceStatus, generateAnalyticsUserId, getConfiguredSSOProviders, stopApp } from './helper';
+import {
+  ServiceStatus,
+  generateAnalyticsUserId,
+  getConfiguredSSOProviders,
+  stopApp,
+} from './helper';
 import { EnableAndDisableSSOArgs, InfraConfigArgs } from './input-args';
 import { AuthProvider } from 'src/auth/helper';
 
@@ -229,6 +234,22 @@ export class InfraConfigService implements OnModuleInit {
       default:
         return false;
     }
+  }
+
+  /**
+   * Enable or Disable Analytics Collection
+   *
+   * @param status Status to enable or disable
+   * @returns Boolean of status of analytics collection
+   */
+  async toggleAnalyticsCollection(status: ServiceStatus) {
+    const isUpdated = await this.update(
+      InfraConfigEnum.ALLOW_ANALYTICS_COLLECTION,
+      status === ServiceStatus.ENABLE ? 'true' : 'false',
+    );
+
+    if (E.isLeft(isUpdated)) return E.left(isUpdated.left);
+    return E.right(isUpdated.right.value === 'true');
   }
 
   /**

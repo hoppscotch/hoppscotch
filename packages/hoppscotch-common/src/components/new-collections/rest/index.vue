@@ -224,7 +224,6 @@ const showModalEditProperties = ref(false)
 const showConfirmModal = ref(false)
 
 const editingCollectionIndexPath = ref<string>("")
-const editingChildCollectionIndexPath = ref<string>("")
 const editingRootCollectionName = ref<string>("")
 const editingChildCollectionName = ref<string>("")
 const editingRequestName = ref<string>("")
@@ -584,14 +583,14 @@ const editChildCollection = (payload: {
 }) => {
   const { collectionIndexPath, collectionName } = payload
 
-  editingChildCollectionIndexPath.value = collectionIndexPath
+  editingCollectionIndexPath.value = collectionIndexPath
   editingChildCollectionName.value = collectionName
 
   displayModalEditChildCollection(true)
 }
 
 const onEditChildCollection = async (newChildCollectionName: string) => {
-  const collectionIndexPath = editingChildCollectionIndexPath.value
+  const collectionIndexPath = editingCollectionIndexPath.value
 
   const collectionHandleResult = await workspaceService.getCollectionHandle(
     props.workspaceHandle,
@@ -1131,6 +1130,10 @@ const resolveConfirmModal = (title: string | null) => {
 
 const resetSelectedData = () => {
   editingCollectionIndexPath.value = ""
+  editingRootCollectionName.value = ""
+  editingChildCollectionName.value = ""
+  editingRequestName.value = ""
+  editingRequestIndexPath.value = ""
 }
 
 /**

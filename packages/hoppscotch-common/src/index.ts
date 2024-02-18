@@ -10,9 +10,6 @@ import { TestWorkspaceProviderService } from "./services/new-workspace/providers
 
 import { PersistenceService } from "./services/persistence"
 
-import "@fontsource-variable/inter"
-import "@fontsource-variable/material-symbols-rounded"
-import "@fontsource-variable/roboto-mono"
 import "nprogress/nprogress.css"
 import "../assets/scss/styles.scss"
 import "../assets/scss/tailwind.scss"

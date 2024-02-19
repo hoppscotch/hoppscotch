@@ -125,11 +125,16 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
             invokeActionType = "modals.my.environment.edit"
           }
 
-          invokeAction(invokeActionType, {
-            envName: tooltipEnv?.sourceEnv !== "Global" ? envName : "Global",
-            variableName: parsedEnvKey,
-            isSecret: tooltipEnv?.secret,
-          })
+          if (tooltipEnv?.sourceEnv === "RequestVariable") {
+            restTabs.currentActiveTab.value.document.optionTabPreference =
+              "requestVariables"
+          } else {
+            invokeAction(invokeActionType, {
+              envName: tooltipEnv?.sourceEnv !== "Global" ? envName : "Global",
+              variableName: parsedEnvKey,
+              isSecret: tooltipEnv?.secret,
+            })
+          }
         })
         editIcon.innerHTML = `<span class="inline-flex items-center justify-center my-1">${IconEdit}</span>`
         tooltip.appendChild(editIcon)

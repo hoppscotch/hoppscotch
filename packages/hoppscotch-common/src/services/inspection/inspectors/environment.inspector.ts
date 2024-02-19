@@ -154,7 +154,18 @@ export class EnvironmentInspectorService extends Service implements Inspector {
             const formattedExEnv = exEnv.slice(2, -2)
             const currentSelectedEnvironment = getCurrentEnvironment()
 
-            this.aggregateEnvsWithSecrets.value.forEach((env) => {
+            const currentTab = this.restTabs.currentActiveTab.value
+
+            const environmentVariables = [
+              ...currentTab.document.request.requestVariables.map((env) => ({
+                ...env,
+                secret: false,
+                sourceEnv: "RequestVariable",
+              })),
+              ...this.aggregateEnvsWithSecrets.value,
+            ]
+
+            environmentVariables.forEach((env) => {
               const hasSecretEnv = this.secretEnvs.hasSecretValue(
                 env.sourceEnv !== "Global"
                   ? currentSelectedEnvironment.id
@@ -208,14 +219,19 @@ export class EnvironmentInspectorService extends Service implements Inspector {
                         "inspections.environment.add_environment_value"
                       ),
                       apply: () => {
-                        invokeAction(invokeActionType, {
-                          envName:
-                            env.sourceEnv !== "Global"
-                              ? currentSelectedEnvironment.name
-                              : "Global",
-                          variableName: formattedExEnv,
-                          isSecret: env.secret,
-                        })
+                        if (env.sourceEnv === "RequestVariable") {
+                          currentTab.document.optionTabPreference =
+                            "requestVariables"
+                        } else {
+                          invokeAction(invokeActionType, {
+                            envName:
+                              env.sourceEnv !== "Global"
+                                ? currentSelectedEnvironment.name
+                                : "Global",
+                            variableName: formattedExEnv,
+                            isSecret: env.secret,
+                          })
+                        }
                       },
                     },
                     severity: 2,

@@ -2,6 +2,7 @@
   <div>
     <SettingsAuthProvider v-model:config="workingConfigs" />
     <SettingsSmtpConfiguration v-model:config="workingConfigs" />
+    <SettingsDataSharing v-model:config="workingConfigs" />
     <SettingsReset />
   </div>
 </template>

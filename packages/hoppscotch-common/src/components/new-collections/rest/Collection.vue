@@ -110,7 +110,8 @@
                     :shortcut="['X']"
                     @click="
                       () => {
-                        emit('export-data'), hide()
+                        emit('export-collection', collectionView.collectionID)
+                        hide()
                       }
                     "
                   />
@@ -189,7 +190,7 @@ const emit = defineEmits<{
     event: "edit-root-collection",
     payload: { collectionIndexPath: string; collectionName: string }
   ): void
-  (event: "export-data"): void
+  (event: "export-collection", collectionIndexPath: string): void
   (event: "remove-child-collection", collectionIndexPath: string): void
   (event: "remove-root-collection", collectionIndexPath: string): void
   (event: "toggle-children"): void

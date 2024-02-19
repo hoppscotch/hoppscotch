@@ -67,4 +67,17 @@ export interface WorkspaceProvider {
   removeRESTRequest(
     requestHandle: HandleRef<WorkspaceRequest>
   ): Promise<E.Either<unknown, void>>
+
+  importRESTCollections(
+    workspaceHandle: HandleRef<Workspace>,
+    collections: HoppCollection[]
+  ): Promise<E.Either<unknown, HandleRef<WorkspaceCollection>>>
+  exportRESTCollections(
+    workspaceHandle: HandleRef<Workspace>,
+    collections: HoppCollection[]
+  ): Promise<E.Either<unknown, void>>
+  exportRESTCollection(
+    collectionHandle: HandleRef<WorkspaceCollection>,
+    collection: HoppCollection
+  ): Promise<E.Either<unknown, void>>
 }

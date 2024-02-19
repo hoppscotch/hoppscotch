@@ -27,7 +27,7 @@
           v-tippy="{ theme: 'tooltip' }"
           :icon="IconImport"
           :title="t('modal.import_export')"
-          @click="() => {}"
+          @click="displayModalImportExport(true)"
         />
       </span>
     </div>
@@ -50,6 +50,7 @@
             @edit-child-collection="editChildCollection"
             @edit-root-collection="editRootCollection"
             @edit-collection-properties="editCollectionProperties"
+            @export-collection="exportCollection"
             @remove-child-collection="removeChildCollection"
             @remove-root-collection="removeRootCollection"
             @select-pick="onSelectPick"
@@ -143,6 +144,13 @@
       @resolve="resolveConfirmModal"
     />
 
+    <!-- TODO: Supply `collectionsType` once teams implementation is in place -->
+    <!-- Defaults to `my-collections` -->
+    <CollectionsImportExport
+      v-if="showImportExportModal"
+      @hide-modal="displayModalImportExport(false)"
+    />
+
     <!-- TODO: Remove the `emitWithFullCollection` prop after porting all usages of the below component -->
     <CollectionsProperties
       :show="showModalEditProperties"
@@ -220,6 +228,7 @@ const showModalAddChildColl = ref(false)
 const showModalEditRootColl = ref(false)
 const showModalEditChildColl = ref(false)
 const showModalEditRequest = ref(false)
+const showImportExportModal = ref(false)
 const showModalEditProperties = ref(false)
 const showConfirmModal = ref(false)
 
@@ -305,6 +314,12 @@ const displayModalEditChildCollection = (show: boolean) => {
 
 const displayModalEditRequest = (show: boolean) => {
   showModalEditRequest.value = show
+
+  if (!show) resetSelectedData()
+}
+
+const displayModalImportExport = (show: boolean) => {
+  showImportExportModal.value = show
 
   if (!show) resetSelectedData()
 }
@@ -1100,6 +1115,40 @@ const setCollectionProperties = async (updatedCollectionProps: {
   toast.success(t("collection.properties_updated"))
 
   displayModalEditProperties(false)
+}
+
+const exportCollection = async (collectionIndexPath: string) => {
+  const collectionHandleResult = await workspaceService.getCollectionHandle(
+    props.workspaceHandle,
+    collectionIndexPath
+  )
+
+  if (E.isLeft(collectionHandleResult)) {
+    // INVALID_WORKSPACE_HANDLE | INVALID_COLLECTION_ID | INVALID_PATH
+    return
+  }
+
+  const collectionHandle = collectionHandleResult.right
+
+  if (collectionHandle.value.type === "invalid") {
+    // WORKSPACE_INVALIDATED
+    return
+  }
+
+  const collection = navigateToFolderWithIndexPath(
+    restCollectionState.value,
+    collectionIndexPath.split("/").map((id) => parseInt(id))
+  ) as HoppCollection
+
+  const result = await workspaceService.exportRESTCollection(
+    collectionHandle,
+    collection
+  )
+
+  if (E.isLeft(result)) {
+    // INVALID_COLLECTION_HANDLE
+    return
+  }
 }
 
 const shareRequest = (request: HoppRESTRequest) => {

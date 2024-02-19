@@ -30,7 +30,7 @@
 import { useService } from "dioc/vue"
 import { ref } from "vue"
 import { useI18n } from "~/composables/i18n"
-import { Picked } from "~/helpers/types/HoppPicked";
+import { Picked } from "~/helpers/types/HoppPicked"
 import { NewWorkspaceService } from "~/services/new-workspace"
 
 defineProps<{

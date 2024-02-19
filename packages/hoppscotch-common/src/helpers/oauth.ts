@@ -250,19 +250,23 @@ const handleOAuthRedirect = async () => {
     return E.left("NO_CODE_VERIFIER" as const)
   }
 
+  const data = new URLSearchParams({
+    grant_type: "authorization_code",
+    code: queryParams.code,
+    client_id: clientID,
+    client_secret: clientSecret,
+    redirect_uri: redirectUri,
+    code_verifier: codeVerifier,
+  })
+
   // Exchange the authorization code for an access token
   const tokenResponse = await runRequestThroughInterceptor({
     url: tokenEndpoint,
-    data: JSON.stringify({
-      grant_type: "authorization_code",
-      code: queryParams.code,
-      client_id: clientID,
-      client_secret: clientSecret,
-      redirect_uri: redirectUri,
-      code_verifier: codeVerifier,
-    }),
+    data: data.toString(),
     method: "POST",
-    headers: {},
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
   })
 
   // Clean these up since we don't need them anymore

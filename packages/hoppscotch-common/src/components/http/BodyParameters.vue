@@ -73,6 +73,8 @@
                 isFile: entry.isFile,
               })
             "
+            :auto-complete-env="true"
+            :envs="envs"
           />
           <div v-if="entry.isFile" class="file-chips-container">
             <div class="file-chips-wrapper space-x-1">
@@ -95,6 +97,8 @@
                   isFile: entry.isFile,
                 })
               "
+              :auto-complete-env="true"
+              :envs="envs"
             />
           </span>
           <span>
@@ -190,11 +194,13 @@ import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
 import { useColorMode } from "@composables/theming"
 import { useVModel } from "@vueuse/core"
+import { AggregateEnvironment } from "~/newstore/environments"
 
 type Body = HoppRESTReqBody & { contentType: "multipart/form-data" }
 
 const props = defineProps<{
   modelValue: Body
+  envs: AggregateEnvironment[]
 }>()
 
 const emit = defineEmits<{

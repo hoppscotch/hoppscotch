@@ -87,7 +87,6 @@ import { platform } from "~/platform"
 import { onClickOutside, useDebounceFn } from "@vueuse/core"
 import { InspectorResult } from "~/services/inspection"
 import { invokeAction } from "~/helpers/actions"
-import { Environment } from "@hoppscotch/data"
 import { useI18n } from "~/composables/i18n"
 import IconEye from "~icons/lucide/eye"
 import IconEyeoff from "~icons/lucide/eye-off"
@@ -98,14 +97,12 @@ import { RESTTabService } from "~/services/tab/rest"
 
 const t = useI18n()
 
-type Env = Environment["variables"][number] & { source: string }
-
 const props = withDefaults(
   defineProps<{
     modelValue?: string
     placeholder?: string
     styles?: string
-    envs?: Env[] | null
+    envs?: AggregateEnvironment[] | null
     focus?: boolean
     selectTextOnMount?: boolean
     environmentHighlights?: boolean
@@ -371,7 +368,7 @@ const envVars = computed(() => {
         if (x.secret) {
           return {
             key: x.key,
-            sourceEnv: "source" in x ? x.source : null,
+            sourceEnv: "sourceEnv" in x ? x.sourceEnv : null,
             value: "********",
             secret: true,
           }
@@ -379,7 +376,7 @@ const envVars = computed(() => {
         return {
           key: x.key,
           value: x.value,
-          sourceEnv: "source" in x ? x.source : null,
+          sourceEnv: "sourceEnv" in x ? x.sourceEnv : null,
           secret: false,
         }
       })

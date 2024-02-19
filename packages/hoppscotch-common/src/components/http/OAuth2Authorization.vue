@@ -8,6 +8,7 @@
         "
         :auto-complete-env="true"
         placeholder="OpenID Connect Discovery URL"
+        :envs="envs"
       />
     </div>
     <div class="flex flex-1 border-b border-dividerLight">
@@ -16,6 +17,7 @@
         placeholder="Authorization URL"
         :auto-complete-env="true"
         :styles="hasOIDCURL ? 'pointer-events-none opacity-70' : ''"
+        :envs="envs"
       ></SmartEnvInput>
     </div>
     <div class="flex flex-1 border-b border-dividerLight">
@@ -24,6 +26,7 @@
         placeholder="Access Token URL"
         :auto-complete-env="true"
         :styles="hasOIDCURL ? 'pointer-events-none opacity-70' : ''"
+        :envs="envs"
       />
     </div>
     <div class="flex flex-1 border-b border-dividerLight">
@@ -31,6 +34,7 @@
         v-model="clientID"
         :auto-complete-env="true"
         placeholder="Client ID"
+        :envs="envs"
       />
     </div>
     <div class="flex flex-1 border-b border-dividerLight">
@@ -38,6 +42,7 @@
         v-model="clientSecret"
         :auto-complete-env="true"
         placeholder="Client Secret"
+        :envs="envs"
       />
     </div>
     <div class="flex flex-1 border-b border-dividerLight">
@@ -45,6 +50,7 @@
         v-model="scope"
         :auto-complete-env="true"
         placeholder="Scope"
+        :envs="envs"
       />
     </div>
     <div class="p-2">
@@ -77,6 +83,7 @@ const toast = useToast()
 
 const props = defineProps<{
   modelValue: HoppRESTAuthOAuth2 | HoppGQLAuthOAuth2
+  envs?: AggregateEnvironment[]
 }>()
 
 const emit = defineEmits<{

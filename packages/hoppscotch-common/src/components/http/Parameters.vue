@@ -88,6 +88,7 @@
                 getInspectorResult(parameterKeyResults, index)
               "
               :auto-complete-env="true"
+              :envs="envs"
               @change="
                 updateParam(index, {
                   id: param.id,
@@ -104,6 +105,7 @@
                 getInspectorResult(parameterValueResults, index)
               "
               :auto-complete-env="true"
+              :envs="envs"
               @change="
                 updateParam(index, {
                   id: param.id,
@@ -211,6 +213,7 @@ import { InspectionService, InspectorResult } from "~/services/inspection"
 import { RESTTabService } from "~/services/tab/rest"
 import { useNestedSetting } from "~/composables/settings"
 import { toggleNestedSetting } from "~/newstore/settings"
+import { AggregateEnvironment } from "~/newstore/environments"
 
 const colorMode = useColorMode()
 
@@ -244,6 +247,7 @@ useCodemirror(
 
 const props = defineProps<{
   modelValue: HoppRESTParam[]
+  envs?: AggregateEnvironment[]
 }>()
 
 const emit = defineEmits<{

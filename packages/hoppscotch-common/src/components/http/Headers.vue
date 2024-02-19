@@ -93,6 +93,7 @@
               :env-index="index"
               :inspection-results="getInspectorResult(headerKeyResults, index)"
               :auto-complete-env="true"
+              :envs="envs"
               @change="
                 updateHeader(index, {
                   id: header.id,
@@ -110,6 +111,7 @@
               "
               :env-index="index"
               :auto-complete-env="true"
+              :envs="envs"
               @change="
                 updateHeader(index, {
                   id: header.id,
@@ -331,7 +333,11 @@ import {
   getComputedHeaders,
   getComputedAuthHeaders,
 } from "~/helpers/utils/EffectiveURL"
-import { aggregateEnvs$, getAggregateEnvs } from "~/newstore/environments"
+import {
+  AggregateEnvironment,
+  aggregateEnvs$,
+  getAggregateEnvs,
+} from "~/newstore/environments"
 import { useVModel } from "@vueuse/core"
 import { useService } from "dioc/vue"
 import { InspectionService, InspectorResult } from "~/services/inspection"
@@ -361,6 +367,7 @@ const props = defineProps<{
   modelValue: HoppRESTRequest
   isCollectionProperty?: boolean
   inheritedProperties?: HoppInheritedProperty
+  envs?: AggregateEnvironment[]
 }>()
 
 const emit = defineEmits<{

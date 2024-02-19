@@ -10,7 +10,7 @@
       :label="`${t('tab.parameters')}`"
       :info="`${newActiveParamsCount$}`"
     >
-      <HttpParameters v-model="request.params" />
+      <HttpParameters v-model="request.params" :envs="envs" />
     </HoppSmartTab>
     <HoppSmartTab
       v-if="properties ? properties.includes('bodyParams') : true"
@@ -20,6 +20,7 @@
       <HttpBody
         v-model:headers="request.headers"
         v-model:body="request.body"
+        :envs="envs"
         @change-tab="changeOptionTab"
       />
     </HoppSmartTab>
@@ -32,6 +33,7 @@
       <HttpHeaders
         v-model="request"
         :inherited-properties="inheritedProperties"
+        :envs="envs"
         @change-tab="changeOptionTab"
       />
     </HoppSmartTab>
@@ -43,6 +45,7 @@
       <HttpAuthorization
         v-model="request.auth"
         :inherited-properties="inheritedProperties"
+        :envs="envs"
       />
     </HoppSmartTab>
     <HoppSmartTab
@@ -85,6 +88,7 @@ import { useVModel } from "@vueuse/core"
 import { computed } from "vue"
 import { defineActionHandler } from "~/helpers/actions"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
+import { AggregateEnvironment } from "~/newstore/environments"
 
 const VALID_OPTION_TABS = [
   "params",
@@ -107,6 +111,7 @@ const props = withDefaults(
     optionTab: RESTOptionTabs
     properties?: string[]
     inheritedProperties?: HoppInheritedProperty
+    envs?: AggregateEnvironment[]
   }>(),
   {
     optionTab: "params",

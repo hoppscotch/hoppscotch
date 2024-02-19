@@ -4,6 +4,7 @@
       v-model="auth.key"
       :auto-complete-env="true"
       placeholder="Key"
+      :envs="envs"
     />
   </div>
   <div class="flex flex-1 border-b border-dividerLight">
@@ -11,6 +12,7 @@
       v-model="auth.value"
       :auto-complete-env="true"
       placeholder="Value"
+      :envs="envs"
     />
   </div>
   <div class="flex items-center border-b border-dividerLight">
@@ -73,11 +75,13 @@ import { useI18n } from "@composables/i18n"
 import { HoppRESTAuthAPIKey } from "@hoppscotch/data"
 import { useVModel } from "@vueuse/core"
 import { ref } from "vue"
+import { AggregateEnvironment } from "~/newstore/environments"
 
 const t = useI18n()
 
 const props = defineProps<{
   modelValue: HoppRESTAuthAPIKey
+  envs?: AggregateEnvironment[]
 }>()
 
 const emit = defineEmits<{

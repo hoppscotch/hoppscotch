@@ -56,6 +56,7 @@
           v-model="tab.document.request.endpoint"
           :placeholder="`${t('request.url')}`"
           :auto-complete-source="userHistories"
+          :auto-complete-env="true"
           :inspection-results="tabResults"
           @paste="onPasteUrl($event)"
           @enter="newSendRequest"

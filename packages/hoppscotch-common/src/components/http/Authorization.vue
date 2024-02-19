@@ -169,7 +169,11 @@
         </div>
         <div v-if="auth.authType === 'bearer'">
           <div class="flex flex-1 border-b border-dividerLight">
-            <SmartEnvInput v-model="auth.token" placeholder="Token" />
+            <SmartEnvInput
+              v-model="auth.token"
+              placeholder="Token"
+              :auto-complete-env="true"
+            />
           </div>
         </div>
         <div v-if="auth.authType === 'oauth-2'">

@@ -3,12 +3,14 @@
     <SmartEnvInput
       v-model="auth.username"
       :placeholder="t('authorization.username')"
+      :auto-complete-env="true"
     />
   </div>
   <div class="flex flex-1 border-b border-dividerLight">
     <SmartEnvInput
       v-model="auth.password"
       :placeholder="t('authorization.password')"
+      :auto-complete-env="true"
     />
   </div>
 </template>

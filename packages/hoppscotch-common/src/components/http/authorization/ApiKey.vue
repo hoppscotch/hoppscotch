@@ -1,9 +1,17 @@
 <template>
   <div class="flex flex-1 border-b border-dividerLight">
-    <SmartEnvInput v-model="auth.key" placeholder="Key" />
+    <SmartEnvInput
+      v-model="auth.key"
+      :auto-complete-env="true"
+      placeholder="Key"
+    />
   </div>
   <div class="flex flex-1 border-b border-dividerLight">
-    <SmartEnvInput v-model="auth.value" placeholder="Value" />
+    <SmartEnvInput
+      v-model="auth.value"
+      :auto-complete-env="true"
+      placeholder="Value"
+    />
   </div>
   <div class="flex items-center border-b border-dividerLight">
     <span class="flex items-center">

@@ -6,6 +6,7 @@
         :styles="
           hasAccessTokenOrAuthURL ? 'pointer-events-none opacity-70' : ''
         "
+        :auto-complete-env="true"
         placeholder="OpenID Connect Discovery URL"
       />
     </div>
@@ -13,6 +14,7 @@
       <SmartEnvInput
         v-model="authURL"
         placeholder="Authorization URL"
+        :auto-complete-env="true"
         :styles="hasOIDCURL ? 'pointer-events-none opacity-70' : ''"
       ></SmartEnvInput>
     </div>
@@ -20,17 +22,30 @@
       <SmartEnvInput
         v-model="accessTokenURL"
         placeholder="Access Token URL"
+        :auto-complete-env="true"
         :styles="hasOIDCURL ? 'pointer-events-none opacity-70' : ''"
       />
     </div>
     <div class="flex flex-1 border-b border-dividerLight">
-      <SmartEnvInput v-model="clientID" placeholder="Client ID" />
+      <SmartEnvInput
+        v-model="clientID"
+        :auto-complete-env="true"
+        placeholder="Client ID"
+      />
     </div>
     <div class="flex flex-1 border-b border-dividerLight">
-      <SmartEnvInput v-model="clientSecret" placeholder="Client Secret" />
+      <SmartEnvInput
+        v-model="clientSecret"
+        :auto-complete-env="true"
+        placeholder="Client Secret"
+      />
     </div>
     <div class="flex flex-1 border-b border-dividerLight">
-      <SmartEnvInput v-model="scope" placeholder="Scope" />
+      <SmartEnvInput
+        v-model="scope"
+        :auto-complete-env="true"
+        placeholder="Scope"
+      />
     </div>
     <div class="p-2">
       <HoppButtonSecondary

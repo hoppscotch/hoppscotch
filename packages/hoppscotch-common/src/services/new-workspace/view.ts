@@ -28,12 +28,9 @@ export interface RootRESTCollectionView {
   providerID: string
   workspaceID: string
 
-  mayHaveMoreContent: Ref<boolean>
   loading: Ref<boolean>
 
   collections: Ref<RESTCollectionViewCollection[]>
-
-  loadMore(count: number): Promise<void>
 }
 
 export interface RESTCollectionChildrenView {
@@ -41,10 +38,7 @@ export interface RESTCollectionChildrenView {
   workspaceID: string
   collectionID: string
 
-  mayHaveMoreContent: Ref<boolean>
   loading: Ref<boolean>
 
   content: Ref<RESTCollectionViewItem[]>
-
-  loadMore(count: number): Promise<void>
 }

@@ -557,7 +557,6 @@ export class PersonalWorkspaceProviderService
               collectionID: collectionHandle.value.data.collectionID,
 
               loading: ref(false),
-              mayHaveMoreContent: ref(false),
 
               content: computed(() => {
                 const indexPath = collectionID
@@ -594,9 +593,6 @@ export class PersonalWorkspaceProviderService
                 }
                 return []
               }),
-              loadMore() {
-                return Promise.resolve()
-              },
             },
           })
         })
@@ -628,7 +624,6 @@ export class PersonalWorkspaceProviderService
               workspaceID: workspaceHandle.value.data.workspaceID,
 
               loading: ref(false),
-              mayHaveMoreContent: ref(false),
 
               collections: computed(() => {
                 return this.restCollectionState.value.state.map((coll, id) => {
@@ -638,9 +633,6 @@ export class PersonalWorkspaceProviderService
                   }
                 })
               }),
-              loadMore() {
-                return Promise.resolve()
-              },
             },
           })
         })

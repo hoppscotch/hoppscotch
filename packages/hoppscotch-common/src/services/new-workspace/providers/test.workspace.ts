@@ -219,7 +219,6 @@ export class TestWorkspaceProviderService
               workspaceID,
               collectionID,
 
-              mayHaveMoreContent: ref(false),
               loading: ref(false),
 
               content: computed(() => [
@@ -249,10 +248,6 @@ export class TestWorkspaceProviderService
                   },
                 })),
               ]),
-
-              loadMore(_count: number) {
-                return Promise.resolve()
-              },
             },
           })
         })
@@ -288,7 +283,6 @@ export class TestWorkspaceProviderService
               providerID: this.providerID,
               workspaceID,
 
-              mayHaveMoreContent: ref(false),
               loading: ref(false),
 
               collections: computed(() => {
@@ -299,10 +293,6 @@ export class TestWorkspaceProviderService
                   name: x.name,
                 }))
               }),
-
-              loadMore() {
-                return Promise.resolve()
-              },
             },
           })
         })

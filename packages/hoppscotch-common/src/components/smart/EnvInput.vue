@@ -373,16 +373,27 @@ const envVars = computed(() => {
             key: x.key,
             sourceEnv: "source" in x ? x.source : null,
             value: "********",
+            secret: true,
           }
         }
         return {
           key: x.key,
           value: x.value,
           sourceEnv: "source" in x ? x.source : null,
+          secret: false,
         }
       })
     : [
-        ...tabs.currentActiveTab.value.document.request.requestVariables,
+        ...tabs.currentActiveTab.value.document.request.requestVariables.map(
+          (x) => {
+            return {
+              key: x.key,
+              value: x.value,
+              sourceEnv: "RequestVariable",
+              secret: false,
+            }
+          }
+        ),
         ...aggregateEnvs.value,
       ]
 })

@@ -91,6 +91,10 @@ import { Environment } from "@hoppscotch/data"
 import { useI18n } from "~/composables/i18n"
 import IconEye from "~icons/lucide/eye"
 import IconEyeoff from "~icons/lucide/eye-off"
+import { syntaxTree } from "@codemirror/language"
+import { CompletionContext, autocompletion } from "@codemirror/autocomplete"
+import { useService } from "dioc/vue"
+import { RESTTabService } from "~/services/tab/rest"
 
 const t = useI18n()
 
@@ -110,6 +114,7 @@ const props = withDefaults(
     inspectionResults?: InspectorResult[] | undefined
     contextMenuEnabled?: boolean
     secret?: boolean
+    autoCompleteEnv?: boolean
   }>(),
   {
     modelValue: "",
@@ -124,6 +129,7 @@ const props = withDefaults(
     inspectionResults: undefined,
     contextMenuEnabled: true,
     secret: false,
+    autoCompleteEnvSource: false,
   }
 )
 
@@ -357,6 +363,8 @@ const aggregateEnvs = useReadonlyStream(aggregateEnvsWithSecrets$, []) as Ref<
   AggregateEnvironment[]
 >
 
+const tabs = useService(RESTTabService)
+
 const envVars = computed(() => {
   return props.envs
     ? props.envs.map((x) => {
@@ -373,8 +381,36 @@ const envVars = computed(() => {
           sourceEnv: "source" in x ? x.source : null,
         }
       })
-    : aggregateEnvs.value
+    : [
+        ...tabs.currentActiveTab.value.document.request.requestVariables,
+        ...aggregateEnvs.value,
+      ]
 })
+
+function envAutoCompletion(context: CompletionContext) {
+  const options = envVars.value
+    ? envVars.value.map((env) => {
+        return {
+          label: `<<${env.key}>>`,
+          info: env.value,
+          apply: `<<${env.key}>>`,
+        }
+      })
+    : []
+
+  const nodeBefore = syntaxTree(context.state).resolveInner(context.pos, -1)
+
+  const textBefore = context.state.sliceDoc(nodeBefore.from, context.pos)
+
+  const tagBefore = /<<\w*/.exec(textBefore)
+
+  if (!tagBefore) return null
+
+  return {
+    from: tagBefore ? nodeBefore.from + tagBefore.index : context.pos,
+    options: options,
+  }
+}
 
 const envTooltipPlugin = new HoppReactiveEnvPlugin(envVars, view)
 
@@ -469,6 +505,12 @@ const getExtensions = (readonly: boolean): Extension => {
         }
       },
     }),
+    props.autoCompleteEnv
+      ? autocompletion({
+          activateOnTyping: true,
+          override: [envAutoCompletion],
+        })
+      : [],
     ViewPlugin.fromClass(
       class {
         update(update: ViewUpdate) {

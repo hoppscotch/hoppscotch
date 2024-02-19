@@ -11,6 +11,7 @@
   ],
   "scripts": {
     "build:code": "vite build",
+    "build:watch": "vite build --watch",
     "build:decl": "tsc --project tsconfig.decl.json",
     "build": "pnpm run build:code && pnpm run build:decl",
     "prepare": "pnpm run build:code && pnpm run build:decl",

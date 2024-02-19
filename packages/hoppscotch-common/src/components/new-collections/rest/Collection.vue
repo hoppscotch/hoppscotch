@@ -64,6 +64,7 @@
                   @keyup.e="edit?.$el.click()"
                   @keyup.delete="deleteAction?.$el.click()"
                   @keyup.x="exportAction?.$el.click()"
+                  @keyup.p="propertiesAction?.$el.click()"
                   @keyup.escape="hide()"
                 >
                   <HoppSmartItem
@@ -200,6 +201,7 @@ const folderAction = ref<HTMLButtonElement | null>(null)
 const edit = ref<HTMLButtonElement | null>(null)
 const deleteAction = ref<HTMLButtonElement | null>(null)
 const exportAction = ref<HTMLButtonElement | null>(null)
+const propertiesAction = ref<TippyComponent | null>(null)
 const options = ref<TippyComponent | null>(null)
 
 const collectionIcon = computed(() => {

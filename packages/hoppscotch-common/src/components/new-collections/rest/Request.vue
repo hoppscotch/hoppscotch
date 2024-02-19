@@ -74,6 +74,7 @@
                 @keyup.e="edit?.$el.click()"
                 @keyup.d="duplicate?.$el.click()"
                 @keyup.delete="deleteAction?.$el.click()"
+                @keyup.s="shareAction?.$el.click()"
                 @keyup.escape="hide()"
               >
                 <HoppSmartItem
@@ -176,7 +177,11 @@ const emit = defineEmits<{
 }>()
 
 const tippyActions = ref<TippyComponent | null>(null)
+const edit = ref<HTMLButtonElement | null>(null)
+const deleteAction = ref<HTMLButtonElement | null>(null)
 const options = ref<TippyComponent | null>(null)
+const duplicate = ref<HTMLButtonElement | null>(null)
+const shareAction = ref<HTMLButtonElement | null>(null)
 
 const requestLabelColor = computed(() =>
   getMethodLabelColorClassOf(props.requestView.request)

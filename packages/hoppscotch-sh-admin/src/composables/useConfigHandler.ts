@@ -54,6 +54,11 @@ export type Config = {
       mailer_from_address: string;
     };
   };
+
+  dataSharingConfigs: {
+    name: string;
+    enabled: boolean;
+  };
 };
 
 type UpdatedConfigs = {
@@ -86,6 +91,7 @@ export function useConfigHandler(updatedConfigs?: Config) {
         'GITHUB_CLIENT_SECRET',
         'MAILER_SMTP_URL',
         'MAILER_ADDRESS_FROM',
+        'ALLOW_ANALYTICS_COLLECTION',
       ] as InfraConfigEnum[],
     },
     (x) => x.infraConfigs
@@ -163,6 +169,15 @@ export function useConfigHandler(updatedConfigs?: Config) {
             infraConfigs.value.find((x) => x.name === 'MAILER_ADDRESS_FROM')
               ?.value ?? '',
         },
+      },
+      dataSharingConfigs: {
+        name: 'data_sharing',
+        enabled:
+          infraConfigs.value.find(
+            (x) => x.name === 'ALLOW_ANALYTICS_COLLECTION'
+          )?.value === 'true'
+            ? true
+            : false,
       },
     };
 
@@ -251,6 +266,17 @@ export function useConfigHandler(updatedConfigs?: Config) {
       config = config.filter(
         (item) =>
           item.name !== 'MAILER_SMTP_URL' && item.name !== 'MAILER_ADDRESS_FROM'
+      );
+    }
+
+    if (updatedConfigs?.dataSharingConfigs.enabled) {
+      config.push({
+        name: 'ALLOW_ANALYTICS_COLLECTION',
+        value: updatedConfigs?.dataSharingConfigs.enabled ? 'true' : 'false',
+      });
+    } else {
+      config = config.filter(
+        (item) => item.name !== 'ALLOW_ANALYTICS_COLLECTION'
       );
     }
 

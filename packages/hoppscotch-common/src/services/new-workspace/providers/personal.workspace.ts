@@ -15,6 +15,7 @@ import { useStreamStatic } from "~/composables/stream"
 import {
   addRESTCollection,
   addRESTFolder,
+  appendRESTCollections,
   editRESTCollection,
   editRESTFolder,
   editRESTRequest,
@@ -49,6 +50,7 @@ import { HoppGQLHeader } from "~/helpers/graphql"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import IconUser from "~icons/lucide/user"
 import { NewWorkspaceService } from ".."
+import { initializeDownloadFile } from "~/helpers/import-export/export"
 
 export class PersonalWorkspaceProviderService
   extends Service
@@ -217,7 +219,7 @@ export class PersonalWorkspaceProviderService
       collectionHandle.value.data.providerID !== this.providerID ||
       collectionHandle.value.data.workspaceID !== "personal"
     ) {
-      return Promise.resolve(E.left("INVALID_WORKSPACE_HANDLE" as const))
+      return Promise.resolve(E.left("INVALID_COLLECTION_HANDLE" as const))
     }
 
     const { collectionID } = collectionHandle.value.data
@@ -389,6 +391,86 @@ export class PersonalWorkspaceProviderService
       createdNow: false,
       workspaceType: "personal",
     })
+
+    return Promise.resolve(E.right(undefined))
+  }
+
+  public importRESTCollections(
+    workspaceHandle: HandleRef<Workspace>,
+    collections: HoppCollection[]
+  ): Promise<E.Either<unknown, HandleRef<WorkspaceCollection>>> {
+    if (
+      workspaceHandle.value.type !== "ok" ||
+      workspaceHandle.value.data.providerID !== this.providerID ||
+      workspaceHandle.value.data.workspaceID !== "personal"
+    ) {
+      return Promise.resolve(E.left("INVALID_WORKSPACE_HANDLE" as const))
+    }
+
+    appendRESTCollections(collections)
+
+    const newCollectionName = collections[0].name
+    const newCollectionID =
+      this.restCollectionState.value.state.length.toString()
+
+    return Promise.resolve(
+      E.right(
+        computed(() => {
+          if (
+            workspaceHandle.value.type !== "ok" ||
+            workspaceHandle.value.data.providerID !== this.providerID ||
+            workspaceHandle.value.data.workspaceID !== "personal"
+          ) {
+            return {
+              type: "invalid" as const,
+              reason: "WORKSPACE_INVALIDATED" as const,
+            }
+          }
+
+          return {
+            type: "ok",
+            data: {
+              providerID: this.providerID,
+              workspaceID: workspaceHandle.value.data.workspaceID,
+              collectionID: newCollectionID,
+              name: newCollectionName,
+            },
+          }
+        })
+      )
+    )
+  }
+
+  public exportRESTCollections(
+    workspaceHandle: HandleRef<WorkspaceCollection>,
+    collections: HoppCollection[]
+  ): Promise<E.Either<unknown, void>> {
+    if (
+      workspaceHandle.value.type !== "ok" ||
+      workspaceHandle.value.data.providerID !== this.providerID ||
+      workspaceHandle.value.data.workspaceID !== "personal"
+    ) {
+      return Promise.resolve(E.left("INVALID_COLLECTION_HANDLE" as const))
+    }
+
+    initializeDownloadFile(JSON.stringify(collections, null, 2), "Collections")
+
+    return Promise.resolve(E.right(undefined))
+  }
+
+  public exportRESTCollection(
+    collectionHandle: HandleRef<WorkspaceCollection>,
+    collection: HoppCollection
+  ): Promise<E.Either<unknown, void>> {
+    if (
+      collectionHandle.value.type !== "ok" ||
+      collectionHandle.value.data.providerID !== this.providerID ||
+      collectionHandle.value.data.workspaceID !== "personal"
+    ) {
+      return Promise.resolve(E.left("INVALID_COLLECTION_HANDLE" as const))
+    }
+
+    initializeDownloadFile(JSON.stringify(collection, null, 2), collection.name)
 
     return Promise.resolve(E.right(undefined))
   }

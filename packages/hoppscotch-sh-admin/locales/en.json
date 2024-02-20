@@ -16,6 +16,14 @@
     },
     "confirm_changes": "Hoppscotch server must restart to reflect the new changes. Confirm changes made to the server configurations?",
     "input_empty": "Please fill all the fields before updating the configurations",
+    "dataSharing": {
+      "title": "Data Sharing",
+      "description": "Help improve Hoppscotch by sharing anonymous data",
+      "enable": "Enable Data Sharing",
+      "see_shared": "See what is shared",
+      "toggle_description": "Share anonymous data",
+      "update_failure": "Failed to update data sharing configurations!!"
+    },
     "load_error": "Unable to load server configurations",
     "mail_configs": {
       "description": " Configure the smtp configurations",

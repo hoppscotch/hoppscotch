@@ -16,7 +16,6 @@ import {
   addRESTCollection,
   addRESTFolder,
   appendRESTCollections,
-  cascadeParentCollectionForHeaderAuth,
   editRESTCollection,
   editRESTFolder,
   editRESTRequest,
@@ -52,20 +51,10 @@ import { HoppRESTRequest } from "@hoppscotch/data"
 import { merge } from "lodash-es"
 import path from "path"
 import { HoppGQLHeader } from "~/helpers/graphql"
+import { initializeDownloadFile } from "~/helpers/import-export/export"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import IconUser from "~icons/lucide/user"
 import { NewWorkspaceService } from ".."
-import { initializeDownloadFile } from "~/helpers/import-export/export"
-import {
-  getFoldersByPath,
-  resolveSaveContextOnCollectionReorder,
-  updateInheritedPropertiesForAffectedRequests,
-  updateSaveContextForAffectedRequests,
-} from "~/helpers/collection/collection"
-import {
-  getRequestsByPath,
-  resolveSaveContextOnRequestReorder,
-} from "~/helpers/collection/request"
 
 export class PersonalWorkspaceProviderService
   extends Service
@@ -492,7 +481,7 @@ export class PersonalWorkspaceProviderService
 
   public reorderRESTCollection(
     collectionHandle: HandleRef<WorkspaceCollection>,
-    destinationCollectionIndex: string
+    destinationCollectionIndex: string | null
   ): Promise<E.Either<unknown, void>> {
     if (
       collectionHandle.value.type !== "ok" ||
@@ -508,11 +497,6 @@ export class PersonalWorkspaceProviderService
       draggedCollectionIndex,
       destinationCollectionIndex
     )
-    resolveSaveContextOnCollectionReorder({
-      lastIndex: this.pathToLastIndex(draggedCollectionIndex),
-      newIndex: this.pathToLastIndex(destinationCollectionIndex ?? ""),
-      folderPath: draggedCollectionIndex.split("/").slice(0, -1).join("/"),
-    })
 
     return Promise.resolve(E.right(undefined))
   }
@@ -529,56 +513,10 @@ export class PersonalWorkspaceProviderService
       return Promise.resolve(E.left("INVALID_COLLECTION_HANDLE" as const))
     }
 
-    const draggedCollectionIndex = collectionHandle.value.data.collectionID
-
-    moveRESTFolder(draggedCollectionIndex, destinationCollectionIndex)
-
-    if (destinationCollectionIndex === null) {
-      return Promise.resolve(E.right(undefined))
-    }
-
-    const parentFolder = draggedCollectionIndex
-      .split("/")
-      .slice(0, -1)
-      .join("/") // remove last folder to get parent folder
-
-    const totalFoldersOfDestinationCollection =
-      getFoldersByPath(
-        restCollectionStore.value.state,
-        destinationCollectionIndex
-      ).length - (parentFolder === destinationCollectionIndex ? 1 : 0)
-
-    resolveSaveContextOnCollectionReorder(
-      {
-        lastIndex: this.pathToLastIndex(draggedCollectionIndex),
-        newIndex: -1,
-        folderPath: parentFolder,
-        length: getFoldersByPath(restCollectionStore.value.state, parentFolder)
-          .length,
-      },
-      "drop"
+    moveRESTFolder(
+      collectionHandle.value.data.collectionID,
+      destinationCollectionIndex
     )
-
-    updateSaveContextForAffectedRequests(
-      draggedCollectionIndex,
-      `${destinationCollectionIndex}/${totalFoldersOfDestinationCollection}`
-    )
-
-    // const { auth, headers } = cascadeParentCollectionForHeaderAuth(
-    //   `${destinationCollectionIndex}/${totalFoldersOfDestinationCollection}`,
-    //   "rest"
-    // )
-
-    // const inheritedProperty = {
-    //   auth,
-    //   headers,
-    // }
-
-    // updateInheritedPropertiesForAffectedRequests(
-    //   `${destinationCollectionIndex}/${totalFoldersOfDestinationCollection}`,
-    //   inheritedProperty,
-    //   "rest"
-    // )
 
     return Promise.resolve(E.right(undefined))
   }
@@ -586,7 +524,7 @@ export class PersonalWorkspaceProviderService
   public reorderRESTRequest(
     requestHandle: HandleRef<WorkspaceRequest>,
     destinationCollectionIndex: string,
-    destinationRequestIndex: string
+    destinationRequestIndex: string | null
   ): Promise<E.Either<unknown, void>> {
     if (
       requestHandle.value.type !== "ok" ||
@@ -626,45 +564,6 @@ export class PersonalWorkspaceProviderService
       .split("/")
       .slice(0, -1)
       .join("/")
-
-    // const { auth, headers } = cascadeParentCollectionForHeaderAuth(
-    //   destinationCollectionIndex,
-    //   "rest"
-    // )
-
-    // const possibleTab = tabs.getTabRefWithSaveContext({
-    //   originLocation: "user-collection",
-    //   folderPath: parentCollectionIndexPath,
-    //   requestIndex: this.pathToLastIndex(requestIndex),
-    // })
-
-    // // If there is a tab attached to this request, change save its save context
-    // if (possibleTab) {
-    //   possibleTab.value.document.saveContext = {
-    //     originLocation: "user-collection",
-    //     folderPath: destinationCollectionIndex,
-    //     requestIndex: getRequestsByPath(
-    //       restCollectionStore.value.state,
-    //       destinationCollectionIndex
-    //     ).length,
-    //   }
-
-    //   possibleTab.value.document.inheritedProperties = {
-    //     auth,
-    //     headers,
-    //   }
-    // }
-
-    // // When it's drop it's basically getting deleted from last folder. reordering last folder accordingly
-    // resolveSaveContextOnRequestReorder({
-    //   lastIndex: this.pathToLastIndex(requestIndex),
-    //   newIndex: -1, // being deleted from last folder
-    //   folderPath: parentCollectionIndexPath,
-    //   length: getRequestsByPath(
-    //     restCollectionStore.value.state,
-    //     parentCollectionIndexPath
-    //   ).length,
-    // })
 
     moveRESTRequest(
       parentCollectionIndexPath,
@@ -924,7 +823,7 @@ export class PersonalWorkspaceProviderService
                     isLastItem:
                       id === this.restCollectionState.value.state.length - 1,
                     name: coll.name,
-                    parentIndex: null,
+                    parentCollectionID: null,
                   }
                 })
               }),

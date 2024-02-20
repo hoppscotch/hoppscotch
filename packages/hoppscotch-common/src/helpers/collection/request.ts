@@ -63,6 +63,19 @@ export function resolveSaveContextOnRequestReorder(payload: {
       )!
       tab.value.document.saveContext.requestIndex = newIndex
     }
+
+    if (
+      tab.value.document.saveContext?.originLocation ===
+      "workspace-user-collection"
+    ) {
+      const requestID = tab.value.document.saveContext.requestID
+      const requestIDArray = requestID.split("/")
+      const requestIndex = affectedIndexes.get(
+        parseInt(requestIDArray[requestIDArray.length - 1])
+      )!
+      requestIDArray[requestIDArray.length - 1] = requestIndex.toString()
+      tab.value.document.saveContext.requestID = requestIDArray.join("/")
+    }
   }
 }
 

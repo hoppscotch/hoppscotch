@@ -86,10 +86,15 @@ export function resolveSaveContextOnCollectionReorder(
       tab.value.document.saveContext?.originLocation ===
       "workspace-user-collection"
     ) {
-      const newPath = affectedPaths.get(
+      const newCollectionID = affectedPaths.get(
         tab.value.document.saveContext?.collectionID
       )!
-      tab.value.document.saveContext.collectionID = newPath
+      const newRequestID = `${newCollectionID}/${
+        tab.value.document.saveContext.requestID.split("/").slice(-1)[0]
+      }`
+
+      tab.value.document.saveContext.collectionID = newCollectionID
+      tab.value.document.saveContext.requestID = newRequestID
     }
   }
 }
@@ -133,12 +138,19 @@ export function updateSaveContextForAffectedRequests(
       tab.value.document.saveContext?.originLocation ===
       "workspace-user-collection"
     ) {
-      tab.value.document.saveContext = {
-        ...tab.value.document.saveContext,
-        collectionID: tab.value.document.saveContext.collectionID.replace(
+      const newCollectionID =
+        tab.value.document.saveContext.collectionID.replace(
           oldFolderPath,
           newFolderPath
-        ),
+        )
+      const newRequestID = `${newCollectionID}/${
+        tab.value.document.saveContext.requestID.split("/").slice(-1)[0]
+      }`
+
+      tab.value.document.saveContext = {
+        ...tab.value.document.saveContext,
+        collectionID: newCollectionID,
+        requestID: newRequestID,
       }
     }
   }

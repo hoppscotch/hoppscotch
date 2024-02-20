@@ -9,7 +9,7 @@ import { throwErr } from 'src/utils';
 @Injectable()
 export class PosthogService {
   private postHogClient: PostHog;
-  private POSTHOG_API_KEY = 'phc_1RM0bUMCRRLIXDXsYFE2fWfrvh3udWb2OmiNN1DngRu';
+  private POSTHOG_API_KEY = 'phc_namjQhJSdrTDjIBXuJeBTfcYL8FqWZuxtonGU7SyxWi';
 
   constructor(
     private readonly configService: ConfigService,

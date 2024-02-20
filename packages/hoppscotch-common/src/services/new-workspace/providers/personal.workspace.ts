@@ -656,7 +656,12 @@ export class PersonalWorkspaceProviderService
                       type: "collection",
                       value: {
                         collectionID: `${collectionID}/${id}`,
+                        isLastItem:
+                          item.folders?.length > 1
+                            ? id === item.folders.length - 1
+                            : false,
                         name: childColl.name,
+                        parentCollectionID: collectionID,
                       },
                     }
                   })
@@ -665,6 +670,11 @@ export class PersonalWorkspaceProviderService
                     return <RESTCollectionViewItem>{
                       type: "request",
                       value: {
+                        isLastItem:
+                          item.requests?.length > 1
+                            ? id === item.requests.length - 1
+                            : false,
+                        parentCollectionID: collectionID,
                         requestID: `${collectionID}/${id}`,
                         request: req,
                       },
@@ -711,7 +721,10 @@ export class PersonalWorkspaceProviderService
                 return this.restCollectionState.value.state.map((coll, id) => {
                   return {
                     collectionID: id.toString(),
+                    isLastItem:
+                      id === this.restCollectionState.value.state.length - 1,
                     name: coll.name,
+                    parentIndex: null,
                   }
                 })
               }),

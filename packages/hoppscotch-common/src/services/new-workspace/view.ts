@@ -10,7 +10,9 @@ export type RESTCollectionLevelAuthHeadersView = {
 export type RESTCollectionViewCollection = {
   collectionID: string
 
+  isLastItem: boolean
   name: string
+  parentCollectionID: string | null
 }
 
 export type RESTCollectionViewRequest = {
@@ -18,6 +20,8 @@ export type RESTCollectionViewRequest = {
   requestID: string
 
   request: HoppRESTRequest
+  isLastItem: boolean
+  parentCollectionID: string | null
 }
 
 export type RESTCollectionViewItem =

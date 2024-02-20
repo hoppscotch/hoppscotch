@@ -9,14 +9,14 @@ import { Environment } from "@hoppscotch/data"
 import { z } from "zod"
 
 export const hoppEnvImporter = (contents: string[]) => {
-  const parsedContents = contents.map((str) => safeParseJSON(str))
+  const parsedContents = contents.map((str) => safeParseJSON(str, true))
 
   if (parsedContents.some((parsed) => O.isNone(parsed))) {
     return TE.left(IMPORTER_INVALID_FILE_FORMAT)
   }
 
   const parsedValues = parsedContents.flatMap((content) => {
-    const unwrappedContent = O.toNullable(content) as HoppEnv[] | null
+    const unwrappedContent = O.toNullable(content) as Environment[] | null
 
     if (unwrappedContent) {
       return unwrappedContent.map((contentEntry) => {
@@ -24,7 +24,9 @@ export const hoppEnvImporter = (contents: string[]) => {
           ...contentEntry,
           variables: contentEntry.variables?.map((valueEntry) => ({
             ...valueEntry,
-            value: String(valueEntry.value),
+            ...("value" in valueEntry
+              ? { value: String(valueEntry.value) }
+              : {}),
           })),
         }
       })

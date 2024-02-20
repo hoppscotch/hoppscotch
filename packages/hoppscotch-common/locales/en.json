@@ -416,7 +416,8 @@
     "postman_environment_description": "Import Postman Environment from a JSON file",
     "title": "Import",
     "file_size_limit_exceeded_warning_multiple_files": "Chosen files exceed the recommended limit of 10MB. Only the first {files} selected will be imported",
-    "file_size_limit_exceeded_warning_single_file": "The currently chosen file exceeds the recommended limit of 10MB. Please select another file."
+    "file_size_limit_exceeded_warning_single_file": "The currently chosen file exceeds the recommended limit of 10MB. Please select another file.",
+    "success": "Successfully imported"
   },
   "inspections": {
     "description": "Inspect possible errors",

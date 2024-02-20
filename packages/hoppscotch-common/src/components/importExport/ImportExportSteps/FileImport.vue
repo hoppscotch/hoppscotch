@@ -67,6 +67,8 @@ defineProps<{
 const t = useI18n()
 const toast = useToast()
 
+const ALLOWED_FILE_SIZE_LIMIT = 10 // 10 MB
+
 const importFilesCount = ref(0)
 
 const hasFile = ref(false)
@@ -80,6 +82,7 @@ const emit = defineEmits<{
 }>()
 
 const onFileChange = async () => {
+  // Reset the state on entering the handler to avoid any stale state
   if (showFileSizeLimitExceededWarning.value) {
     showFileSizeLimitExceededWarning.value = false
   }
@@ -104,14 +107,14 @@ const onFileChange = async () => {
 
   const readerPromises: Promise<string | null>[] = []
 
-  let totalFilesSize = 0
+  let totalFileSize = 0
 
   for (let i = 0; i < inputFileToImport.files.length; i++) {
     const file = inputFileToImport.files[i]
 
-    totalFilesSize += file.size / 1024 / 1024
+    totalFileSize += file.size / 1024 / 1024
 
-    if (totalFilesSize > 10) {
+    if (totalFileSize > ALLOWED_FILE_SIZE_LIMIT) {
       showFileSizeLimitExceededWarning.value = true
       break
     }

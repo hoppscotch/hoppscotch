@@ -39,10 +39,20 @@ export function resolveSaveContextOnRequestReorder(payload: {
 
   const tabService = getService(RESTTabService)
   const tabs = tabService.getTabsRefTo((tab) => {
+    if (tab.document.saveContext?.originLocation === "user-collection") {
+      return (
+        tab.document.saveContext.folderPath === folderPath &&
+        affectedIndexes.has(tab.document.saveContext.requestIndex)
+      )
+    }
+
     return (
-      tab.document.saveContext?.originLocation === "user-collection" &&
-      tab.document.saveContext.folderPath === folderPath &&
-      affectedIndexes.has(tab.document.saveContext.requestIndex)
+      tab.document.saveContext?.originLocation ===
+        "workspace-user-collection" &&
+      tab.document.saveContext.collectionID === folderPath &&
+      affectedIndexes.has(
+        parseInt(tab.document.saveContext.requestID.split("/").slice(-1)[0])
+      )
     )
   })
 

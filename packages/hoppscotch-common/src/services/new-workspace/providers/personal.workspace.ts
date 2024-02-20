@@ -508,13 +508,11 @@ export class PersonalWorkspaceProviderService
       draggedCollectionIndex,
       destinationCollectionIndex
     )
-    // resolveSaveContextOnCollectionReorder({
-    //   lastIndex: pathToLastIndex(draggedCollectionIndex),
-    //   newIndex: pathToLastIndex(
-    //     destinationCollectionIndex ? destinationCollectionIndex : ""
-    //   ),
-    //   folderPath: draggedCollectionIndex.split("/").slice(0, -1).join("/"),
-    // })
+    resolveSaveContextOnCollectionReorder({
+      lastIndex: this.pathToLastIndex(draggedCollectionIndex),
+      newIndex: this.pathToLastIndex(destinationCollectionIndex ?? ""),
+      folderPath: draggedCollectionIndex.split("/").slice(0, -1).join("/"),
+    })
 
     return Promise.resolve(E.right(undefined))
   }
@@ -533,34 +531,38 @@ export class PersonalWorkspaceProviderService
 
     const draggedCollectionIndex = collectionHandle.value.data.collectionID
 
-    // const parentFolder = draggedCollectionIndex
-    //   .split("/")
-    //   .slice(0, -1)
-    //   .join("/") // remove last folder to get parent folder
-
-    // const totalFoldersOfDestinationCollection =
-    //   getFoldersByPath(
-    //     restCollectionStore.value.state,
-    //     destinationCollectionIndex
-    //   ).length - (parentFolder === destinationCollectionIndex ? 1 : 0)
-
     moveRESTFolder(draggedCollectionIndex, destinationCollectionIndex)
 
-    // resolveSaveContextOnCollectionReorder(
-    //   {
-    //     lastIndex: pathToLastIndex(draggedCollectionIndex),
-    //     newIndex: -1,
-    //     folderPath: parentFolder,
-    //     length: getFoldersByPath(restCollectionStore.value.state, parentFolder)
-    //       .length,
-    //   },
-    //   "drop"
-    // )
+    if (destinationCollectionIndex === null) {
+      return Promise.resolve(E.right(undefined))
+    }
 
-    // updateSaveContextForAffectedRequests(
-    //   draggedCollectionIndex,
-    //   `${destinationCollectionIndex}/${totalFoldersOfDestinationCollection}`
-    // )
+    const parentFolder = draggedCollectionIndex
+      .split("/")
+      .slice(0, -1)
+      .join("/") // remove last folder to get parent folder
+
+    const totalFoldersOfDestinationCollection =
+      getFoldersByPath(
+        restCollectionStore.value.state,
+        destinationCollectionIndex
+      ).length - (parentFolder === destinationCollectionIndex ? 1 : 0)
+
+    resolveSaveContextOnCollectionReorder(
+      {
+        lastIndex: this.pathToLastIndex(draggedCollectionIndex),
+        newIndex: -1,
+        folderPath: parentFolder,
+        length: getFoldersByPath(restCollectionStore.value.state, parentFolder)
+          .length,
+      },
+      "drop"
+    )
+
+    updateSaveContextForAffectedRequests(
+      draggedCollectionIndex,
+      `${destinationCollectionIndex}/${totalFoldersOfDestinationCollection}`
+    )
 
     // const { auth, headers } = cascadeParentCollectionForHeaderAuth(
     //   `${destinationCollectionIndex}/${totalFoldersOfDestinationCollection}`,

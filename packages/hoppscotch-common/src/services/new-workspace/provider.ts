@@ -80,4 +80,22 @@ export interface WorkspaceProvider {
     collectionHandle: HandleRef<WorkspaceCollection>,
     collection: HoppCollection
   ): Promise<E.Either<unknown, void>>
+
+  reorderRESTCollection(
+    collectionHandle: HandleRef<WorkspaceCollection>,
+    destinationCollectionIndex: string
+  ): Promise<E.Either<unknown, void>>
+  moveRESTCollection(
+    collectionHandle: HandleRef<WorkspaceCollection>,
+    destinationCollectionIndex: string | null
+  ): Promise<E.Either<unknown, void>>
+  reorderRESTRequest(
+    requestHandle: HandleRef<WorkspaceRequest>,
+    destinationRequestIndex: string,
+    destinationCollectionIndex: string
+  ): Promise<E.Either<unknown, void>>
+  moveRESTRequest(
+    requestHandle: HandleRef<WorkspaceRequest>,
+    destinationCollectionIndex: string
+  ): Promise<E.Either<unknown, void>>
 }

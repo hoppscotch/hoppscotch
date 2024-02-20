@@ -22,8 +22,8 @@
       ></div>
       <div
         class="z-[3] group pointer-events-auto relative flex cursor-pointer items-stretch"
+        :draggable="true"
         @dragstart="dragStart"
-        @drop="handleDrop($event)"
         @dragover="handleDragOver($event)"
         @dragleave="resetDragState"
         @dragend="
@@ -32,7 +32,8 @@
             dropItemID = ''
           }
         "
-        @contextmenu.prevent="options?.tippy.show()"
+        @drop="handleDrop($event)"
+        @contextmenu.prevent="options?.tippy?.show()"
       >
         <div
           class="flex min-w-0 flex-1 items-center justify-center"
@@ -179,12 +180,12 @@
       </div>
     </div>
     <div
-      v-if="isLastItem"
+      v-if="collectionView.isLastItem"
       class="w-full transition"
       :class="[
         {
           'bg-accentDark': isLastItemReorderable,
-          'h-1 ': isLastItem,
+          'h-1 ': collectionView.isLastItem,
         },
       ]"
       @drop="updateLastItemOrder"
@@ -224,7 +225,6 @@ const props = defineProps<{
   collectionView: RESTCollectionViewCollection
   isOpen: boolean
   isSelected?: boolean | null
-  isLastItem?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -349,8 +349,10 @@ const editCollection = () => {
 const dragStart = ({ dataTransfer }: DragEvent) => {
   if (dataTransfer) {
     emit("drag-event", dataTransfer)
+
     dropItemID.value = dataTransfer.getData("collectionIndex")
     dragging.value = !dragging.value
+
     changeCurrentReorderStatus({
       type: "collection",
       id: props.collectionView.collectionID,
@@ -376,7 +378,7 @@ const handleDragOver = (e: DragEvent) => {
     notSameDestination.value &&
     !isRequestDragging.value &&
     isSameParent.value &&
-    props.isLastItem
+    props.collectionView.isLastItem
   ) {
     orderingLastItem.value = true
     dragging.value = false

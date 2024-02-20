@@ -83,7 +83,7 @@ export interface WorkspaceProvider {
 
   reorderRESTCollection(
     collectionHandle: HandleRef<WorkspaceCollection>,
-    destinationCollectionIndex: string
+    destinationCollectionIndex: string | null
   ): Promise<E.Either<unknown, void>>
   moveRESTCollection(
     collectionHandle: HandleRef<WorkspaceCollection>,
@@ -91,8 +91,8 @@ export interface WorkspaceProvider {
   ): Promise<E.Either<unknown, void>>
   reorderRESTRequest(
     requestHandle: HandleRef<WorkspaceRequest>,
-    destinationRequestIndex: string,
-    destinationCollectionIndex: string
+    destinationCollectionIndex: string,
+    destinationRequestIndex: string | null
   ): Promise<E.Either<unknown, void>>
   moveRESTRequest(
     requestHandle: HandleRef<WorkspaceRequest>,

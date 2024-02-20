@@ -534,6 +534,7 @@ const saveRequest = async () => {
 
     if (E.isLeft(requestHandleResult)) {
       // INVALID_COLLECTION_HANDLE | INVALID_REQUEST_ID | REQUEST_NOT_FOUND
+      showSaveRequestModal.value = true
       return
     }
 

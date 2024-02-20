@@ -1,8 +1,27 @@
 <template>
   <div class="flex flex-col">
     <div
+      class="h-1 w-full transition"
+      :class="[
+        {
+          'bg-accentDark': isReorderable,
+        },
+      ]"
+      @drop="updateRequestOrder"
+      @dragover.prevent="ordering = true"
+      @dragleave="resetDragState"
+      @dragend="resetDragState"
+    ></div>
+
+    <div
       class="group flex items-stretch"
-      @contextmenu.prevent="options?.tippy.show()"
+      :draggable="true"
+      @dragstart="dragStart"
+      @dragover="handleDragOver($event)"
+      @dragleave="resetDragState"
+      @dragend="resetDragState"
+      @drop="handleDrop"
+      @contextmenu.prevent="options?.tippy?.show()"
     >
       <div
         class="pointer-events-auto flex min-w-0 flex-1 cursor-pointer items-center justify-center"
@@ -45,6 +64,7 @@
           </span>
         </span>
       </div>
+
       <div class="flex">
         <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
@@ -59,7 +79,7 @@
             interactive
             trigger="click"
             theme="popover"
-            :on-shown="() => tippyActions!.focus()"
+            :on-shown="() => tippyActions.focus()"
           >
             <HoppButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
@@ -134,6 +154,20 @@
         </span>
       </div>
     </div>
+
+    <div
+      class="w-full transition"
+      :class="[
+        {
+          'bg-accentDark': isLastItemReorderable,
+          'h-1 ': props.requestView.isLastItem,
+        },
+      ]"
+      @drop="handleDrop"
+      @dragover.prevent="orderingLastItem = true"
+      @dragleave="resetDragState"
+      @dragend="resetDragState"
+    ></div>
   </div>
 </template>
 
@@ -142,8 +176,13 @@ import { useI18n } from "@composables/i18n"
 import { HoppRESTRequest } from "@hoppscotch/data"
 import { computed, ref } from "vue"
 import { TippyComponent } from "vue-tippy"
+import { useReadonlyStream } from "~/composables/stream"
 
 import { getMethodLabelColorClassOf } from "~/helpers/rest/labelColoring"
+import {
+  currentReorderingStatus$,
+  changeCurrentReorderStatus,
+} from "~/newstore/reordering"
 import { RESTCollectionViewRequest } from "~/services/new-workspace/view"
 
 import IconCheckCircle from "~icons/lucide/check-circle"
@@ -155,6 +194,12 @@ import IconShare2 from "~icons/lucide/share-2"
 import IconTrash2 from "~icons/lucide/trash-2"
 
 const t = useI18n()
+
+const currentReorderingStatus = useReadonlyStream(currentReorderingStatus$, {
+  type: "collection",
+  id: "",
+  parentID: "",
+})
 
 const props = defineProps<{
   isActive: boolean
@@ -174,6 +219,9 @@ const emit = defineEmits<{
   (event: "remove-request", requestIndexPath: string): void
   (event: "select-request", requestIndexPath: string): void
   (event: "share-request", request: HoppRESTRequest): void
+  (event: "drag-request", payload: DataTransfer): void
+  (event: "update-request-order", payload: DataTransfer): void
+  (event: "update-last-request-order", payload: DataTransfer): void
 }>()
 
 const tippyActions = ref<TippyComponent | null>(null)
@@ -183,9 +231,105 @@ const options = ref<TippyComponent | null>(null)
 const duplicate = ref<HTMLButtonElement | null>(null)
 const shareAction = ref<HTMLButtonElement | null>(null)
 
+const dragging = ref(false)
+const ordering = ref(false)
+const orderingLastItem = ref(false)
+
+const isCollectionDragging = computed(() => {
+  return currentReorderingStatus.value.type === "collection"
+})
+
+const isLastItemReorderable = computed(() => {
+  return (
+    orderingLastItem.value && isSameParent.value && !isCollectionDragging.value
+  )
+})
+
+const isReorderable = computed(() => {
+  return (
+    ordering.value &&
+    !isCollectionDragging.value &&
+    isSameParent.value &&
+    !isSameRequest.value
+  )
+})
+
+const isSameParent = computed(() => {
+  return (
+    currentReorderingStatus.value.parentID ===
+    props.requestView.parentCollectionID
+  )
+})
+
+const isSameRequest = computed(() => {
+  return currentReorderingStatus.value.id === props.requestView.requestID
+})
+
 const requestLabelColor = computed(() =>
   getMethodLabelColorClassOf(props.requestView.request)
 )
 
+const dragStart = ({ dataTransfer }: DragEvent) => {
+  if (dataTransfer) {
+    emit("drag-request", dataTransfer)
+    dragging.value = !dragging.value
+
+    changeCurrentReorderStatus({
+      type: "request",
+      id: props.requestView.requestID,
+      parentID: props.requestView.parentCollectionID,
+    })
+  }
+}
+
+const handleDrop = (e: DragEvent) => {
+  if (ordering.value) {
+    updateRequestOrder(e)
+  } else if (orderingLastItem.value) {
+    updateLastItemOrder(e)
+  } else {
+    updateRequestOrder(e)
+  }
+}
+
+// Trigger the re-ordering event when a request is dragged over another request's top section
+const handleDragOver = (e: DragEvent) => {
+  dragging.value = true
+  if (e.offsetY < 10) {
+    ordering.value = true
+    dragging.value = false
+    orderingLastItem.value = false
+  } else if (e.offsetY > 18) {
+    orderingLastItem.value = true
+    dragging.value = false
+    ordering.value = false
+  } else {
+    ordering.value = false
+    orderingLastItem.value = false
+  }
+}
+
+const resetDragState = () => {
+  dragging.value = false
+  ordering.value = false
+  orderingLastItem.value = false
+}
+
 const selectRequest = () => emit("select-request", props.requestView.requestID)
+
+const updateRequestOrder = (e: DragEvent) => {
+  if (e.dataTransfer) {
+    e.stopPropagation()
+    resetDragState()
+    emit("update-request-order", e.dataTransfer)
+  }
+}
+
+const updateLastItemOrder = (e: DragEvent) => {
+  if (e.dataTransfer) {
+    e.stopPropagation()
+    resetDragState()
+    emit("update-last-request-order", e.dataTransfer)
+  }
+}
 </script>

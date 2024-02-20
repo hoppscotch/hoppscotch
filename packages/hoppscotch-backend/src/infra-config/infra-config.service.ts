@@ -80,7 +80,7 @@ export class InfraConfigService implements OnModuleInit {
       },
       {
         name: InfraConfigEnum.ALLOW_ANALYTICS_COLLECTION,
-        value: true.toString(),
+        value: false.toString(),
       },
       {
         name: InfraConfigEnum.ANALYTICS_USER_ID,

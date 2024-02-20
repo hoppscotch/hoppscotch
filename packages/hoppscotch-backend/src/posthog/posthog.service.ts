@@ -30,7 +30,7 @@ export class PosthogService {
   }
 
   private scheduleCronJob() {
-c    const job = new CronJob(CronExpression.EVERY_WEEK, async () => {
+    const job = new CronJob(CronExpression.EVERY_WEEK, async () => {
       await this.capture();
     });
 

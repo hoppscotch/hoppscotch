@@ -1,4 +1,4 @@
-import { Controller, Get, HttpStatus, UseGuards } from '@nestjs/common';
+import { Controller, Get, HttpStatus, Put, UseGuards } from '@nestjs/common';
 import { ThrottlerBehindProxyGuard } from 'src/guards/throttler-behind-proxy.guard';
 import { InfraConfigService } from './infra-config.service';
 import * as E from 'fp-ts/Either';
@@ -26,5 +26,22 @@ export class SiteController {
         statusCode: HttpStatus.NOT_FOUND,
       });
     return status.right;
+  }
+
+  @Put('setup')
+  @UseGuards(JwtAuthGuard, RESTAdminGuard)
+  async setSetupAsComplete() {
+    const res = await this.infraConfigService.update(
+      InfraConfigEnumForClient.IS_FIRST_TIME_INFRA_SETUP,
+      true.toString(),
+      false,
+    );
+
+    if (E.isLeft(res))
+      throwHTTPErr(<AuthError>{
+        message: res.left,
+        statusCode: HttpStatus.FORBIDDEN,
+      });
+    return res.right;
   }
 }

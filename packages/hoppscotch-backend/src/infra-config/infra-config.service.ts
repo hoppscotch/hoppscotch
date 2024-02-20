@@ -75,7 +75,7 @@ export class InfraConfigService implements OnModuleInit {
       },
       {
         name: InfraConfigEnum.IS_FIRST_TIME_INFRA_SETUP,
-        value: true.toString(),
+        value: false.toString(),
       },
     ];
 
@@ -151,11 +151,13 @@ export class InfraConfigService implements OnModuleInit {
    * Update InfraConfig by name
    * @param name Name of the InfraConfig
    * @param value Value of the InfraConfig
+   * @param restartEnabled If true, restart the app after updating the InfraConfig
    * @returns InfraConfig model
    */
   async update(
     name: InfraConfigEnumForClient | InfraConfigEnum,
     value: string,
+    restartEnabled = false,
   ) {
     const isValidate = this.validateEnvValues([{ name, value }]);
     if (E.isLeft(isValidate)) return E.left(isValidate.left);
@@ -166,7 +168,7 @@ export class InfraConfigService implements OnModuleInit {
         data: { value },
       });
 
-      stopApp();
+      if (restartEnabled) stopApp();
 
       return E.right(this.cast(infraConfig));
     } catch (e) {
@@ -265,6 +267,7 @@ export class InfraConfigService implements OnModuleInit {
     const isUpdated = await this.update(
       InfraConfigEnum.VITE_ALLOWED_AUTH_PROVIDERS,
       updatedAuthProviders.join(','),
+      true,
     );
     if (E.isLeft(isUpdated)) return E.left(isUpdated.left);
 

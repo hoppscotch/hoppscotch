@@ -1,10 +1,12 @@
 {
   "app": {
     "collapse_sidebar": "Collapse Sidebar",
+    "continue_to_dashboard": "Continue to Dashboard",
     "expand_sidebar": "Expand Sidebar",
     "name": "HOPPSCOTCH",
     "no_name": "No name",
-    "open_navigation": "Open Navigation"
+    "open_navigation": "Open Navigation",
+    "read_documentation": "Read Documentation"
   },
   "configs": {
     "auth_providers": {
@@ -16,7 +18,7 @@
     },
     "confirm_changes": "Hoppscotch server must restart to reflect the new changes. Confirm changes made to the server configurations?",
     "input_empty": "Please fill all the fields before updating the configurations",
-    "dataSharing": {
+    "data-sharing": {
       "title": "Data Sharing",
       "description": "Help improve Hoppscotch by sharing anonymous data",
       "enable": "Enable Data Sharing",
@@ -48,6 +50,14 @@
     "save_changes": "Save Changes",
     "title": "Configurations"
   },
+  "data_sharing": {
+    "description": "Share anonymous data usage to improve Hoppscotch",
+    "enable": "Enable Data Sharing",
+    "see_shared": "See what is shared",
+    "toggle_description": "Share data and make Hoppscotch better",
+    "title": "Make Hoppscotch Better",
+    "welcome": "Welcome to"
+  },
   "metrics": {
     "dashboard": "Dashboard",
     "no_metrics": "No metrics found",
@@ -55,6 +65,13 @@
     "total_requests": "Total Requests",
     "total_teams": "Total Workspaces",
     "total_users": "Total Users"
+  },
+  "newsletter": {
+    "description": "Get updates about our latest news",
+    "subscribe": "Subscribe",
+    "title": "Stay in Touch",
+    "toggle_description": "Get updates about the latest at Hoppscotch",
+    "unsubscribe": "Unsubscribe"
   },
   "settings": {
     "settings": "Settings"

@@ -12,6 +12,7 @@ import {
   UpdateInfraConfigsMutation,
   ResetInfraConfigsMutation,
   EnableAndDisableSsoArgs,
+  ToggleAnalyticsCollectionMutation,
   InfraConfigArgs,
 } from '~/helpers/backend/graphql';
 
@@ -269,17 +270,6 @@ export function useConfigHandler(updatedConfigs?: Config) {
       );
     }
 
-    if (updatedConfigs?.dataSharingConfigs.enabled) {
-      config.push({
-        name: 'ALLOW_ANALYTICS_COLLECTION',
-        value: updatedConfigs?.dataSharingConfigs.enabled ? 'true' : 'false',
-      });
-    } else {
-      config = config.filter(
-        (item) => item.name !== 'ALLOW_ANALYTICS_COLLECTION'
-      );
-    }
-
     config = config.filter((item) => item.name !== '');
 
     return config;
@@ -373,12 +363,31 @@ export function useConfigHandler(updatedConfigs?: Config) {
     return true;
   };
 
+  // Updating the data sharing configurations
+  const updateDataSharingConfigs = async (
+    toggleDataSharingMutation: UseMutationResponse<ToggleAnalyticsCollectionMutation>
+  ) => {
+    const variables = {
+      status: updatedConfigs?.dataSharingConfigs.enabled ? 'ENABLE' : 'DISABLE',
+    };
+
+    const result = await toggleDataSharingMutation.executeMutation(variables);
+
+    if (result.error) {
+      toast.error(t('configs.data_sharing.update_failure'));
+      return false;
+    }
+
+    return true;
+  };
+
   return {
     currentConfigs,
     workingConfigs,
     updatedInfraConfigs,
     updatedAllowedAuthProviders,
     updateAuthProvider,
+    updateDataSharingConfigs,
     updateInfraConfigs,
     resetInfraConfigs,
     fetchingInfraConfigs,

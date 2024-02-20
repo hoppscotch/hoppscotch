@@ -45,7 +45,7 @@
 
       <div class="flex flex-col w-48 mx-auto mt-5">
         <HoppButtonPrimary
-          :icon="IconMoveUpRight"
+          :icon="IconLogIn"
           label="Continue to Dashboard"
           @click="submitSelection"
         />
@@ -64,11 +64,6 @@
 </template>
 
 <script setup lang="ts">
-import {
-  HoppButtonPrimary,
-  HoppButtonSecondary,
-  HoppSmartLink,
-} from '@hoppscotch/ui';
 import { useMutation } from '@urql/vue';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
@@ -80,7 +75,7 @@ import {
 } from '~/helpers/backend/graphql';
 import { addSubscriberNewsletterList } from '~/helpers/listmonk';
 import IconBookOpenText from '~icons/lucide/book-open-text';
-import IconMoveUpRight from '~icons/lucide/move-up-right';
+import IconLogIn from '~icons/lucide/log-in';
 import IconShieldQuestion from '~icons/lucide/shield-question';
 
 const toast = useToast();

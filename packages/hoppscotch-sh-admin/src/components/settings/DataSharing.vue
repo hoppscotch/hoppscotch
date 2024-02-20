@@ -29,6 +29,15 @@
             </div>
           </div> -->
         </div>
+
+        <HoppButtonSecondary
+          outline
+          filled
+          :icon="IconShieldQuestion"
+          label="See what is shared"
+          to="http://docs.hoppscotch.io"
+          class="w-min my-2"
+        />
       </section>
     </div>
   </div>
@@ -39,6 +48,7 @@ import { useVModel } from '@vueuse/core';
 import { computed } from 'vue';
 import { useI18n } from '~/composables/i18n';
 import { Config } from '~/composables/useConfigHandler';
+import IconShieldQuestion from '~icons/lucide/shield-question';
 
 const t = useI18n();
 

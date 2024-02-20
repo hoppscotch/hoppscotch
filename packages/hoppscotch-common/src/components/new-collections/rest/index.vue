@@ -34,10 +34,13 @@
 
     <div class="flex flex-1 flex-col">
       <HoppSmartTree :adapter="treeAdapter">
-        <template #content="{ node, toggleChildren, isOpen }">
+        <template
+          #content="{ highlightChildren, isOpen, node, toggleChildren }"
+        >
           <NewCollectionsRestCollection
             v-if="node.data.type === 'collection'"
             :collection-view="node.data.value"
+            :is-last-item="node.data.value.isLastItem"
             :is-open="isOpen"
             :is-selected="
               isSelected(
@@ -47,6 +50,14 @@
             :save-request="saveRequest"
             @add-request="addRequest"
             @add-child-collection="addChildCollection"
+            @dragging="
+              (isDraging) =>
+                highlightChildren(
+                  isDraging ? node.data.value.collectionID : null
+                )
+            "
+            @drag-event="dragEvent($event, node.data.value.collectionID)"
+            @drop-event="dropEvent($event, node.data.value.collectionID)"
             @edit-child-collection="editChildCollection"
             @edit-root-collection="editRootCollection"
             @edit-collection-properties="editCollectionProperties"
@@ -68,22 +79,55 @@
                     })
               }
             "
+            @update-collection-order="
+              updateCollectionOrder($event, {
+                destinationCollectionIndex: node.data.value.collectionID,
+                destinationCollectionParentIndex:
+                  node.data.value.parentCollectionID,
+              })
+            "
+            @update-last-collection-order="
+              updateCollectionOrder($event, {
+                destinationCollectionIndex: null,
+                destinationCollectionParentIndex:
+                  node.data.value.parentCollectionID,
+              })
+            "
           />
 
           <NewCollectionsRestRequest
             v-else-if="node.data.type === 'request'"
             :is-active="isActiveRequest(node.data.value)"
+            :is-last-item="node.data.value.isLastItem"
             :is-selected="
               isSelected(getRequestIndexPathArgs(node.data.value.requestID))
             "
             :request-view="node.data.value"
             :save-request="saveRequest"
+            @drag-request="
+              dragRequest($event, {
+                parentCollectionIndexPath: node.data.value.parentCollectionID,
+                requestIndex: node.data.value.requestID,
+              })
+            "
             @duplicate-request="duplicateRequest"
             @edit-request="editRequest"
             @remove-request="removeRequest"
             @select-pick="onSelectPick"
             @select-request="selectRequest"
             @share-request="shareRequest"
+            @update-request-order="
+              updateRequestOrder($event, {
+                parentCollectionIndexPath: node.data.value.parentCollectionID,
+                requestIndex: node.data.value.requestID,
+              })
+            "
+            @update-last-request-order="
+              updateRequestOrder($event, {
+                parentCollectionIndexPath: node.data.value.parentCollectionID,
+                requestIndex: null,
+              })
+            "
           />
           <div v-else @click="toggleChildren">
             {{ node.data.value }}
@@ -95,6 +139,13 @@
         </template>
       </HoppSmartTree>
     </div>
+
+    <!-- <div
+      class="py-15 hidden flex-1 flex-col items-center justify-center bg-primaryDark px-4 text-secondaryLight"
+      :class="{
+        '!flex': draggingToRoot && currentReorderingStatus.type !== 'request',
+      }"
+    > -->
 
     <CollectionsAdd
       :show="showModalAdd"
@@ -169,20 +220,29 @@ import { useService } from "dioc/vue"
 import { markRaw, nextTick, ref } from "vue"
 
 import { HoppCollection, HoppRESTAuth, HoppRESTRequest } from "@hoppscotch/data"
-import { cloneDeep } from "lodash-es"
+import { cloneDeep, isEqual } from "lodash-es"
 import { useI18n } from "~/composables/i18n"
 import { useReadonlyStream } from "~/composables/stream"
 import { useToast } from "~/composables/toast"
 import { invokeAction } from "~/helpers/actions"
 import { WorkspaceRESTCollectionTreeAdapter } from "~/helpers/adapters/WorkspaceRESTCollectionTreeAdapter"
 import { TeamCollection } from "~/helpers/backend/graphql"
-import { updateInheritedPropertiesForAffectedRequests } from "~/helpers/collection/collection"
+import {
+  getFoldersByPath,
+  resolveSaveContextOnCollectionReorder,
+  updateInheritedPropertiesForAffectedRequests,
+} from "~/helpers/collection/collection"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import { Picked } from "~/helpers/types/HoppPicked"
 import {
+  cascadeParentCollectionForHeaderAuth,
+  moveRESTFolder,
+  moveRESTRequest,
   navigateToFolderWithIndexPath,
   restCollections$,
   saveRESTRequestAs,
+  updateRESTCollectionOrder,
+  updateRESTRequestOrder,
 } from "~/newstore/collections"
 import { platform } from "~/platform"
 import { NewWorkspaceService } from "~/services/new-workspace"
@@ -205,9 +265,42 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  (event: "select", payload: Picked | null): void
   (e: "display-modal-add"): void
   (e: "display-modal-import-export"): void
+  (
+    event: "drop-collection",
+    payload: {
+      collectionIndexDragged: string
+      destinationCollectionIndex: string
+    }
+  ): void
+  (
+    event: "drop-request",
+    payload: {
+      parentCollectionIndexPath: string
+      requestIndex: string
+      destinationCollectionIndex: string
+    }
+  ): void
+  (event: "select", payload: Picked | null): void
+  (
+    event: "update-collection-order",
+    payload: {
+      dragedCollectionIndex: string
+      destinationCollection: {
+        destinationCollectionIndex: string | null
+        destinationCollectionParentIndex: string | null
+      }
+    }
+  ): void
+  (
+    event: "update-request-order",
+    payload: {
+      dragedRequestIndex: string
+      destinationRequestIndex: string | null
+      destinationCollectionIndex: string
+    }
+  ): void
 }>()
 
 const workspaceService = useService(NewWorkspaceService)
@@ -1151,6 +1244,263 @@ const exportCollection = async (collectionIndexPath: string) => {
   }
 }
 
+const dragEvent = (dataTransfer: DataTransfer, collectionIndex: string) => {
+  dataTransfer.setData("collectionIndex", collectionIndex)
+}
+
+const dragRequest = (
+  dataTransfer: DataTransfer,
+  {
+    parentCollectionIndexPath,
+    requestIndex,
+  }: { parentCollectionIndexPath: string | null; requestIndex: string }
+) => {
+  if (!parentCollectionIndexPath) return
+  dataTransfer.setData("parentCollectionIndexPath", parentCollectionIndexPath)
+  dataTransfer.setData("requestIndex", requestIndex)
+}
+
+const dropEvent = (
+  dataTransfer: DataTransfer,
+  destinationCollectionIndex: string
+) => {
+  const parentCollectionIndexPath = dataTransfer.getData(
+    "parentCollectionIndexPath"
+  )
+  const requestIndex = dataTransfer.getData("requestIndex")
+  const collectionIndexDragged = dataTransfer.getData("collectionIndex")
+
+  if (parentCollectionIndexPath && requestIndex) {
+    // emit("drop-request", {
+    //   parentCollectionIndexPath,
+    //   requestIndex,
+    //   destinationCollectionIndex,
+    // })
+    dropRequest({
+      parentCollectionIndexPath,
+      requestIndex,
+      destinationCollectionIndex,
+    })
+  } else {
+    dropCollection({
+      collectionIndexDragged,
+      destinationCollectionIndex,
+    })
+  }
+}
+
+const dropRequest = (payload: {
+  parentCollectionIndexPath?: string | undefined
+  requestIndex: string
+  destinationCollectionIndex: string
+}) => {
+  const {
+    parentCollectionIndexPath,
+    requestIndex,
+    destinationCollectionIndex,
+  } = payload
+
+  if (
+    !requestIndex ||
+    !destinationCollectionIndex ||
+    !parentCollectionIndexPath
+  )
+    return
+
+  // const { auth, headers } = cascadeParentCollectionForHeaderAuth(
+  //   destinationCollectionIndex,
+  //   "rest"
+  // )
+
+  // const possibleTab = tabs.getTabRefWithSaveContext({
+  //   originLocation: "user-collection",
+  //   folderPath,
+  //   requestIndex: pathToLastIndex(requestIndex),
+  // })
+
+  // If there is a tab attached to this request, change save its save context
+  // if (possibleTab) {
+  //   possibleTab.value.document.saveContext = {
+  //     originLocation: "user-collection",
+  //     folderPath: destinationCollectionIndex,
+  //     requestIndex: getRequestsByPath(
+  //       restCollectionState.value,
+  //       destinationCollectionIndex
+  //     ).length,
+  //   }
+
+  //   possibleTab.value.document.inheritedProperties = {
+  //     auth,
+  //     headers,
+  //   }
+  // }
+
+  // When it's drop it's basically getting deleted from last folder. reordering last folder accordingly
+  // resolveSaveContextOnRequestReorder({
+  //   lastIndex: pathToLastIndex(requestIndex),
+  //   newIndex: -1, // being deleted from last folder
+  //   folderPath,
+  //   length: getRequestsByPath(myCollections.value, folderPath).length,
+  // })
+  moveRESTRequest(
+    parentCollectionIndexPath,
+    pathToLastIndex(requestIndex),
+    destinationCollectionIndex
+  )
+
+  toast.success(`${t("request.moved")}`)
+  // draggingToRoot.value = false
+}
+
+const dropCollection = (payload: {
+  collectionIndexDragged: string
+  destinationCollectionIndex: string
+}) => {
+  const { collectionIndexDragged, destinationCollectionIndex } = payload
+  if (!collectionIndexDragged || !destinationCollectionIndex) return
+  if (collectionIndexDragged === destinationCollectionIndex) return
+
+  if (
+    checkIfCollectionIsAParentOfTheChildren(
+      collectionIndexDragged,
+      destinationCollectionIndex
+    )
+  ) {
+    toast.error(`${t("team.parent_coll_move")}`)
+    return
+  }
+
+  //check if the collection is being moved to its own parent
+  if (
+    isMoveToSameLocation(collectionIndexDragged, destinationCollectionIndex)
+  ) {
+    return
+  }
+
+  const parentFolder = collectionIndexDragged.split("/").slice(0, -1).join("/") // remove last folder to get parent folder
+  const totalFoldersOfDestinationCollection =
+    getFoldersByPath(restCollectionState.value, destinationCollectionIndex)
+      .length - (parentFolder === destinationCollectionIndex ? 1 : 0)
+
+  moveRESTFolder(collectionIndexDragged, destinationCollectionIndex)
+
+  // resolveSaveContextOnCollectionReorder(
+  //   {
+  //     lastIndex: pathToLastIndex(collectionIndexDragged),
+  //     newIndex: -1,
+  //     folderPath: parentFolder,
+  //     length: getFoldersByPath(restCollectionState.value, parentFolder).length,
+  //   },
+  //   "drop"
+  // )
+
+  // updateSaveContextForAffectedRequests(
+  //   collectionIndexDragged,
+  //   `${destinationCollectionIndex}/${totalFoldersOfDestinationCollection}`
+  // )
+
+  const { auth, headers } = cascadeParentCollectionForHeaderAuth(
+    `${destinationCollectionIndex}/${totalFoldersOfDestinationCollection}`,
+    "rest"
+  )
+
+  const inheritedProperty = {
+    auth,
+    headers,
+  }
+
+  updateInheritedPropertiesForAffectedRequests(
+    `${destinationCollectionIndex}/${totalFoldersOfDestinationCollection}`,
+    inheritedProperty,
+    "rest"
+  )
+
+  // draggingToRoot.value = false
+  toast.success(`${t("collection.moved")}`)
+}
+
+const updateRequestOrder = (
+  dataTransfer: DataTransfer,
+  {
+    parentCollectionIndexPath,
+    requestIndex,
+  }: { parentCollectionIndexPath: string | null; requestIndex: string | null }
+) => {
+  if (!parentCollectionIndexPath) return
+  const dragedRequestIndex = dataTransfer.getData("requestIndex")
+  const destinationRequestIndex = requestIndex
+  const destinationCollectionIndex = parentCollectionIndexPath
+
+  if (
+    !dragedRequestIndex ||
+    !destinationCollectionIndex ||
+    dragedRequestIndex === destinationRequestIndex
+  ) {
+    return
+  }
+
+  if (
+    !isSameSameParent(
+      dragedRequestIndex,
+      destinationRequestIndex,
+      destinationCollectionIndex
+    )
+  ) {
+    toast.error(`${t("collection.different_parent")}`)
+  } else {
+    updateRESTRequestOrder(
+      pathToLastIndex(dragedRequestIndex),
+      destinationRequestIndex ? pathToLastIndex(destinationRequestIndex) : null,
+      destinationCollectionIndex
+    )
+
+    toast.success(`${t("request.order_changed")}`)
+  }
+}
+
+const updateCollectionOrder = (
+  dataTransfer: DataTransfer,
+  destinationCollection: {
+    destinationCollectionIndex: string | null
+    destinationCollectionParentIndex: string | null
+  }
+) => {
+  const draggedCollectionIndex = dataTransfer.getData("collectionIndex")
+
+  const { destinationCollectionIndex, destinationCollectionParentIndex } =
+    destinationCollection
+
+  if (
+    !draggedCollectionIndex ||
+    draggedCollectionIndex === destinationCollectionIndex
+  ) {
+    return
+  }
+
+  if (
+    !isSameSameParent(
+      draggedCollectionIndex,
+      destinationCollectionIndex,
+      destinationCollectionParentIndex
+    )
+  ) {
+    toast.error(`${t("collection.different_parent")}`)
+  } else {
+    updateRESTCollectionOrder(
+      draggedCollectionIndex,
+      destinationCollectionIndex
+    )
+    // resolveSaveContextOnCollectionReorder({
+    //   lastIndex: pathToLastIndex(draggedCollectionIndex),
+    //   newIndex: pathToLastIndex(
+    //     destinationCollectionIndex ? destinationCollectionIndex : ""
+    //   ),
+    //   folderPath: draggedCollectionIndex.split("/").slice(0, -1).join("/"),
+    // })
+    toast.success(`${t("collection.order_changed")}`)
+  }
+}
+
 const shareRequest = (request: HoppRESTRequest) => {
   if (currentUser.value) {
     // Opens the share request modal if the user is logged in
@@ -1161,37 +1511,35 @@ const shareRequest = (request: HoppRESTRequest) => {
   invokeAction("modals.login.toggle")
 }
 
-const resolveConfirmModal = (title: string | null) => {
-  if (title === `${t("confirm.remove_collection")}`) {
-    onRemoveRootCollection()
-  } else if (title === `${t("confirm.remove_request")}`) {
-    onRemoveRequest()
-  } else if (title === `${t("confirm.remove_folder")}`) {
-    onRemoveChildCollection()
-  } else {
-    console.error(
-      `Confirm modal title ${title} is not handled by the component`
-    )
-    toast.error(t("error.something_went_wrong"))
-    displayConfirmModal(false)
-  }
-}
-
-const resetSelectedData = () => {
-  editingCollectionIndexPath.value = ""
-  editingRootCollectionName.value = ""
-  editingChildCollectionName.value = ""
-  editingRequestName.value = ""
-  editingRequestIndexPath.value = ""
-}
+/**
+ * Generic helpers
+ */
 
 /**
- * @param path The path of the collection or request
- * @returns The index of the collection or request
+ * Used to check if the collection exist as the parent of the childrens
+ * @param collectionIndexDragged The index of the collection dragged
+ * @param destinationCollectionIndex The index of the destination collection
+ * @returns True if the collection exist as the parent of the childrens
  */
-const pathToIndex = (path: string) => {
-  const pathArr = path.split("/")
-  return pathArr
+const checkIfCollectionIsAParentOfTheChildren = (
+  collectionIndexDragged: string,
+  destinationCollectionIndex: string
+) => {
+  const collectionDraggedPath = pathToIndex(collectionIndexDragged)
+  const destinationCollectionPath = pathToIndex(destinationCollectionIndex)
+
+  if (collectionDraggedPath.length < destinationCollectionPath.length) {
+    const slicedDestinationCollectionPath = destinationCollectionPath.slice(
+      0,
+      collectionDraggedPath.length
+    )
+    if (isEqual(slicedDestinationCollectionPath, collectionDraggedPath)) {
+      return true
+    }
+    return false
+  }
+
+  return false
 }
 
 /**
@@ -1241,5 +1589,112 @@ const getRequestIndexPathArgs = (requestIndexPath: string) => {
     folderPath: parentCollectionIndexPath,
     requestIndex,
   }
+}
+
+const isMoveToSameLocation = (
+  draggedItemPath: string,
+  destinationPath: string
+) => {
+  const draggedItemPathArr = pathToIndex(draggedItemPath)
+  const destinationPathArr = pathToIndex(destinationPath)
+
+  if (draggedItemPathArr.length > 0) {
+    const draggedItemParentPathArr = draggedItemPathArr.slice(
+      0,
+      draggedItemPathArr.length - 1
+    )
+
+    if (isEqual(draggedItemParentPathArr, destinationPathArr)) {
+      return true
+    }
+    return false
+  }
+}
+
+/**
+ * Used to check if the request/collection is being moved to the same parent since reorder is only allowed within the same parent
+ * @param draggedItem - path index of the dragged request
+ * @param destinationItem - path index of the destination request
+ * @param destinationCollectionIndex -  index of the destination collection
+ * @returns boolean - true if the request is being moved to the same parent
+ */
+const isSameSameParent = (
+  draggedItemPath: string,
+  destinationItemPath: string | null,
+  destinationCollectionIndex: string | null
+) => {
+  const draggedItemIndex = pathToIndex(draggedItemPath)
+
+  // if the destinationItemPath and destinationCollectionIndex is null, it means the request is being moved to the root
+  if (destinationItemPath === null && destinationCollectionIndex === null) {
+    return draggedItemIndex.length === 1
+  } else if (
+    destinationItemPath === null &&
+    destinationCollectionIndex !== null &&
+    draggedItemIndex.length === 1
+  ) {
+    return draggedItemIndex[0] === destinationCollectionIndex
+  } else if (
+    destinationItemPath === null &&
+    draggedItemIndex.length !== 1 &&
+    destinationCollectionIndex !== null
+  ) {
+    const dragedItemParent = draggedItemIndex.slice(0, -1)
+
+    return dragedItemParent.join("/") === destinationCollectionIndex
+  }
+  if (destinationItemPath === null) return false
+  const destinationItemIndex = pathToIndex(destinationItemPath)
+
+  // length of 1 means the request is in the root
+  if (draggedItemIndex.length === 1 && destinationItemIndex.length === 1) {
+    return true
+  } else if (draggedItemIndex.length === destinationItemIndex.length) {
+    const dragedItemParent = draggedItemIndex.slice(0, -1)
+    const destinationItemParent = destinationItemIndex.slice(0, -1)
+    if (isEqual(dragedItemParent, destinationItemParent)) {
+      return true
+    }
+    return false
+  }
+  return false
+}
+
+/**
+ * @param path The path of the collection or request
+ * @returns The index of the collection or request
+ */
+const pathToIndex = (path: string) => {
+  const pathArr = path.split("/")
+  return pathArr
+}
+
+const pathToLastIndex = (path: string) => {
+  const pathArr = pathToIndex(path)
+  return parseInt(pathArr[pathArr.length - 1])
+}
+
+const resolveConfirmModal = (title: string | null) => {
+  if (title === `${t("confirm.remove_collection")}`) {
+    onRemoveRootCollection()
+  } else if (title === `${t("confirm.remove_request")}`) {
+    onRemoveRequest()
+  } else if (title === `${t("confirm.remove_folder")}`) {
+    onRemoveChildCollection()
+  } else {
+    console.error(
+      `Confirm modal title ${title} is not handled by the component`
+    )
+    toast.error(t("error.something_went_wrong"))
+    displayConfirmModal(false)
+  }
+}
+
+const resetSelectedData = () => {
+  editingCollectionIndexPath.value = ""
+  editingRootCollectionName.value = ""
+  editingChildCollectionName.value = ""
+  editingRequestName.value = ""
+  editingRequestIndexPath.value = ""
 }
 </script>

@@ -75,7 +75,6 @@ export class AdminResolver {
   })
   @UseGuards(GqlAuthGuard, GqlAdminGuard)
   async revokeUserInvitationsByAdmin(
-    @GqlAdmin() adminUser: Admin,
     @Args({
       name: 'inviteeEmails',
       description: 'Invitee Emails',
@@ -83,10 +82,7 @@ export class AdminResolver {
     })
     inviteeEmails: string[],
   ): Promise<boolean> {
-    const invite = await this.adminService.revokeUserInvites(
-      inviteeEmails,
-      adminUser.uid,
-    );
+    const invite = await this.adminService.revokeUserInvitations(inviteeEmails);
     if (E.isLeft(invite)) throwErr(invite.left);
     return invite.right;
   }

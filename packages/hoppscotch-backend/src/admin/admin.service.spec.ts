@@ -105,7 +105,7 @@ describe('AdminService', () => {
     test('should resolve right and apply pagination correctly', async () => {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      mockPrisma.user.findMany.mockResolvedValue([]);
+      mockPrisma.user.findMany.mockResolvedValue([dbAdminUsers[0]]);
       // @ts-ignore
       mockPrisma.invitedUsers.findMany.mockResolvedValue(invitedUsers);
 
@@ -120,7 +120,7 @@ describe('AdminService', () => {
         where: {
           NOT: {
             inviteeEmail: {
-              in: [],
+              in: [dbAdminUsers[0].email],
             },
           },
         },
@@ -131,7 +131,7 @@ describe('AdminService', () => {
 
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      mockPrisma.user.findMany.mockResolvedValue([]);
+      mockPrisma.user.findMany.mockResolvedValue([dbAdminUsers[0]]);
       // @ts-ignore
       mockPrisma.invitedUsers.findMany.mockResolvedValue(invitedUsers);
 
@@ -206,16 +206,15 @@ describe('AdminService', () => {
     });
   });
 
-  describe('revokeUserInvites', () => {
+  describe('revokeUserInvitations', () => {
     test('should resolve left and return error if email not invited', async () => {
       mockPrisma.invitedUsers.deleteMany.mockRejectedValueOnce(
         'RecordNotFound',
       );
 
-      const result = await adminService.revokeUserInvites(
-        ['test@gmail.com'],
-        'adminUid',
-      );
+      const result = await adminService.revokeUserInvitations([
+        'test@gmail.com',
+      ]);
 
       expect(result).toEqualLeft(USER_INVITATION_DELETION_FAILED);
     });
@@ -224,10 +223,9 @@ describe('AdminService', () => {
       const adminUid = 'adminUid';
       mockPrisma.invitedUsers.deleteMany.mockResolvedValueOnce({ count: 1 });
 
-      const result = await adminService.revokeUserInvites(
-        [invitedUsers[0].inviteeEmail],
-        adminUid,
-      );
+      const result = await adminService.revokeUserInvitations([
+        invitedUsers[0].inviteeEmail,
+      ]);
 
       expect(mockPrisma.invitedUsers.deleteMany).toHaveBeenCalledWith({
         where: {

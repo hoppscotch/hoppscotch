@@ -155,7 +155,7 @@ export class AdminService {
    * @param adminUid Admin Uid
    * @returns an Either of boolean or error string
    */
-  async revokeUserInvites(inviteeEmails: string[], adminUid: string) {
+  async revokeUserInvitations(inviteeEmails: string[]) {
     try {
       await this.prisma.invitedUsers.deleteMany({
         where: {
@@ -414,6 +414,7 @@ export class AdminService {
    * Remove a user account by UID
    * @param userUid User UID
    * @returns an Either of boolean or error
+   * @deprecated use removeUserAccounts instead
    */
   async removeUserAccount(userUid: string) {
     const user = await this.userService.findUserById(userUid);
@@ -476,9 +477,7 @@ export class AdminService {
     const promiseResult = await Promise.allSettled(deletionPromises);
 
     // step 4: revoke all the invites sent to the deleted users
-    await this.prisma.invitedUsers.deleteMany({
-      where: { inviteeEmail: { in: deletedUserEmails } },
-    });
+    await this.revokeUserInvitations(deletedUserEmails);
 
     // step 5: return the result
     promiseResult.forEach((result) => {
@@ -494,6 +493,7 @@ export class AdminService {
    * Make a user an admin
    * @param userUid User UID
    * @returns an Either of boolean or error
+   * @deprecated use makeUsersAdmin instead
    */
   async makeUserAdmin(userUID: string) {
     const admin = await this.userService.makeAdmin(userUID);
@@ -516,6 +516,7 @@ export class AdminService {
    * Remove user as admin
    * @param userUid User UID
    * @returns an Either of boolean or error
+   * @deprecated use demoteUsersByAdmin instead
    */
   async removeUserAsAdmin(userUID: string) {
     const adminUsers = await this.userService.fetchAdminUsers();

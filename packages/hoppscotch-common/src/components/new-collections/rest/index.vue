@@ -1,215 +1,244 @@
 <template>
-  <div class="flex flex-1 flex-col">
+  <div
+    :class="{
+      'rounded border border-divider': saveRequest,
+      'bg-primaryDark':
+        draggingToRoot && currentReorderingStatus.type !== 'request',
+    }"
+    class="flex-1"
+    @drop.prevent="dropToRoot"
+    @dragover.prevent="draggingToRoot = true"
+    @dragend="draggingToRoot = false"
+  >
     <div
-      class="sticky z-10 flex flex-1 justify-between border-b border-dividerLight bg-primary"
-      :style="
-        saveRequest
-          ? 'top: calc(var(--upper-primary-sticky-fold) - var(--line-height-body))'
-          : 'top: var(--upper-primary-sticky-fold)'
-      "
+      class="sticky z-10 flex flex-shrink-0 flex-col overflow-x-auto border-b border-dividerLight bg-primary"
+      :style="{
+        top: 0,
+      }"
     >
-      <HoppButtonSecondary
-        :icon="IconPlus"
-        :label="t('add.new')"
-        class="!rounded-none"
-        @click="showModalAdd = true"
+      <WorkspaceCurrent :section="t('tab.collections')" />
+      <input
+        v-model="searchText"
+        type="search"
+        autocomplete="off"
+        class="flex h-8 w-full bg-transparent p-4 py-2"
+        :placeholder="t('action.search')"
       />
-      <span class="flex">
-        <HoppButtonSecondary
-          v-tippy="{ theme: 'tooltip' }"
-          to="https://docs.hoppscotch.io/documentation/features/collections"
-          blank
-          :title="t('app.wiki')"
-          :icon="IconHelpCircle"
-        />
-        <HoppButtonSecondary
-          v-if="!saveRequest"
-          v-tippy="{ theme: 'tooltip' }"
-          :icon="IconImport"
-          :title="t('modal.import_export')"
-          @click="displayModalImportExport(true)"
-        />
-      </span>
     </div>
-
     <div class="flex flex-1 flex-col">
-      <HoppSmartTree :adapter="treeAdapter">
-        <template
-          #content="{ highlightChildren, isOpen, node, toggleChildren }"
-        >
-          <NewCollectionsRestCollection
-            v-if="node.data.type === 'collection'"
-            :collection-view="node.data.value"
-            :is-last-item="node.data.value.isLastItem"
-            :is-open="isOpen"
-            :is-selected="
-              isSelected(
-                getCollectionIndexPathArgs(node.data.value.collectionID)
-              )
-            "
-            :save-request="saveRequest"
-            @add-request="addRequest"
-            @add-child-collection="addChildCollection"
-            @dragging="
-              (isDraging) =>
-                highlightChildren(
-                  isDraging ? node.data.value.collectionID : null
+      <div
+        class="sticky z-10 flex flex-1 justify-between border-b border-dividerLight bg-primary"
+        :style="
+          saveRequest
+            ? 'top: calc(var(--upper-primary-sticky-fold) - var(--line-height-body))'
+            : 'top: var(--upper-primary-sticky-fold)'
+        "
+      >
+        <HoppButtonSecondary
+          :icon="IconPlus"
+          :label="t('add.new')"
+          class="!rounded-none"
+          @click="showModalAdd = true"
+        />
+        <span class="flex">
+          <HoppButtonSecondary
+            v-tippy="{ theme: 'tooltip' }"
+            to="https://docs.hoppscotch.io/documentation/features/collections"
+            blank
+            :title="t('app.wiki')"
+            :icon="IconHelpCircle"
+          />
+          <HoppButtonSecondary
+            v-if="!saveRequest"
+            v-tippy="{ theme: 'tooltip' }"
+            :icon="IconImport"
+            :title="t('modal.import_export')"
+            @click="displayModalImportExport(true)"
+          />
+        </span>
+      </div>
+
+      <div class="flex flex-1 flex-col">
+        <HoppSmartTree :adapter="treeAdapter">
+          <template
+            #content="{ highlightChildren, isOpen, node, toggleChildren }"
+          >
+            <NewCollectionsRestCollection
+              v-if="node.data.type === 'collection'"
+              :collection-view="node.data.value"
+              :is-last-item="node.data.value.isLastItem"
+              :is-open="isOpen"
+              :is-selected="
+                isSelected(
+                  getCollectionIndexPathArgs(node.data.value.collectionID)
                 )
-            "
-            @drag-event="dragEvent($event, node.data.value.collectionID)"
-            @drop-event="dropEvent($event, node.data.value.collectionID)"
-            @edit-child-collection="editChildCollection"
-            @edit-root-collection="editRootCollection"
-            @edit-collection-properties="editCollectionProperties"
-            @export-collection="exportCollection"
-            @remove-child-collection="removeChildCollection"
-            @remove-root-collection="removeRootCollection"
-            @select-pick="onSelectPick"
-            @toggle-children="
-              () => {
-                toggleChildren(),
-                  saveRequest &&
-                    onSelectPick({
-                      pickedType: isAlreadyInRoot(node.data.value.collectionID)
-                        ? 'my-collection'
-                        : 'my-folder',
-                      ...getCollectionIndexPathArgs(
-                        node.data.value.collectionID
-                      ),
-                    })
-              }
-            "
-            @update-collection-order="
-              updateCollectionOrder($event, {
-                destinationCollectionIndex: node.data.value.collectionID,
-                destinationCollectionParentIndex:
-                  node.data.value.parentCollectionID,
-              })
-            "
-            @update-last-collection-order="
-              updateCollectionOrder($event, {
-                destinationCollectionIndex: null,
-                destinationCollectionParentIndex:
-                  node.data.value.parentCollectionID,
-              })
-            "
-          />
+              "
+              :save-request="saveRequest"
+              @add-request="addRequest"
+              @add-child-collection="addChildCollection"
+              @dragging="
+                (isDraging) =>
+                  highlightChildren(
+                    isDraging ? node.data.value.collectionID : null
+                  )
+              "
+              @drag-event="dragEvent($event, node.data.value.collectionID)"
+              @drop-event="dropEvent($event, node.data.value.collectionID)"
+              @edit-child-collection="editChildCollection"
+              @edit-root-collection="editRootCollection"
+              @edit-collection-properties="editCollectionProperties"
+              @export-collection="exportCollection"
+              @remove-child-collection="removeChildCollection"
+              @remove-root-collection="removeRootCollection"
+              @select-pick="onSelectPick"
+              @toggle-children="
+                () => {
+                  toggleChildren(),
+                    saveRequest &&
+                      onSelectPick({
+                        pickedType: isAlreadyInRoot(
+                          node.data.value.collectionID
+                        )
+                          ? 'my-collection'
+                          : 'my-folder',
+                        ...getCollectionIndexPathArgs(
+                          node.data.value.collectionID
+                        ),
+                      })
+                }
+              "
+              @update-collection-order="
+                updateCollectionOrder($event, {
+                  destinationCollectionIndex: node.data.value.collectionID,
+                  destinationCollectionParentIndex:
+                    node.data.value.parentCollectionID,
+                })
+              "
+              @update-last-collection-order="
+                updateCollectionOrder($event, {
+                  destinationCollectionIndex: null,
+                  destinationCollectionParentIndex:
+                    node.data.value.parentCollectionID,
+                })
+              "
+            />
 
-          <NewCollectionsRestRequest
-            v-else-if="node.data.type === 'request'"
-            :is-active="isActiveRequest(node.data.value)"
-            :is-last-item="node.data.value.isLastItem"
-            :is-selected="
-              isSelected(getRequestIndexPathArgs(node.data.value.requestID))
-            "
-            :request-view="node.data.value"
-            :save-request="saveRequest"
-            @drag-request="
-              dragRequest($event, {
-                parentCollectionIndexPath: node.data.value.parentCollectionID,
-                requestIndex: node.data.value.requestID,
-              })
-            "
-            @duplicate-request="duplicateRequest"
-            @edit-request="editRequest"
-            @remove-request="removeRequest"
-            @select-pick="onSelectPick"
-            @select-request="selectRequest"
-            @share-request="shareRequest"
-            @update-request-order="
-              updateRequestOrder($event, {
-                parentCollectionIndexPath: node.data.value.parentCollectionID,
-                requestIndex: node.data.value.requestID,
-              })
-            "
-            @update-last-request-order="
-              updateRequestOrder($event, {
-                parentCollectionIndexPath: node.data.value.parentCollectionID,
-                requestIndex: null,
-              })
-            "
-          />
-          <div v-else @click="toggleChildren">
-            {{ node.data.value }}
-          </div>
-        </template>
-        <template #emptyNode>
-          <!-- TODO: Implement -->
-          <div>Empty Node!</div>
-        </template>
-      </HoppSmartTree>
-    </div>
+            <NewCollectionsRestRequest
+              v-else-if="node.data.type === 'request'"
+              :is-active="isActiveRequest(node.data.value)"
+              :is-last-item="node.data.value.isLastItem"
+              :is-selected="
+                isSelected(getRequestIndexPathArgs(node.data.value.requestID))
+              "
+              :request-view="node.data.value"
+              :save-request="saveRequest"
+              @drag-request="
+                dragRequest($event, {
+                  parentCollectionIndexPath: node.data.value.parentCollectionID,
+                  requestIndex: node.data.value.requestID,
+                })
+              "
+              @duplicate-request="duplicateRequest"
+              @edit-request="editRequest"
+              @remove-request="removeRequest"
+              @select-pick="onSelectPick"
+              @select-request="selectRequest"
+              @share-request="shareRequest"
+              @update-request-order="
+                updateRequestOrder($event, {
+                  parentCollectionIndexPath: node.data.value.parentCollectionID,
+                  requestIndex: node.data.value.requestID,
+                })
+              "
+              @update-last-request-order="
+                updateRequestOrder($event, {
+                  parentCollectionIndexPath: node.data.value.parentCollectionID,
+                  requestIndex: null,
+                })
+              "
+            />
+            <div v-else @click="toggleChildren">
+              {{ node.data.value }}
+            </div>
+          </template>
+          <template #emptyNode>
+            <!-- TODO: Implement -->
+            <div>Empty Node!</div>
+          </template>
+        </HoppSmartTree>
+      </div>
 
-    <!-- <div
+      <!-- <div
       class="py-15 hidden flex-1 flex-col items-center justify-center bg-primaryDark px-4 text-secondaryLight"
       :class="{
         '!flex': draggingToRoot && currentReorderingStatus.type !== 'request',
       }"
     > -->
 
-    <CollectionsAdd
-      :show="showModalAdd"
-      :loading-state="modalLoadingState"
-      @submit="addNewRootCollection"
-      @hide-modal="showModalAdd = false"
-    />
-    <CollectionsAddRequest
-      :show="showModalAddRequest"
-      :loading-state="modalLoadingState"
-      @add-request="onAddRequest"
-      @hide-modal="displayModalAddRequest(false)"
-    />
-    <CollectionsAddFolder
-      :show="showModalAddChildColl"
-      :loading-state="modalLoadingState"
-      @add-folder="onAddChildCollection"
-      @hide-modal="displayModalAddChildColl(false)"
-    />
-    <CollectionsEdit
-      :show="showModalEditRootColl"
-      :editing-collection-name="editingRootCollectionName ?? ''"
-      :loading-state="modalLoadingState"
-      @hide-modal="displayModalEditCollection(false)"
-      @submit="onEditRootCollection"
-    />
-    <CollectionsEditFolder
-      :show="showModalEditChildColl"
-      :editing-folder-name="editingChildCollectionName ?? ''"
-      :loading-state="modalLoadingState"
-      @submit="onEditChildCollection"
-      @hide-modal="displayModalEditChildCollection(false)"
-    />
-    <CollectionsEditRequest
-      v-model="editingRequestName"
-      :show="showModalEditRequest"
-      :loading-state="modalLoadingState"
-      @submit="onEditRequest"
-      @hide-modal="displayModalEditRequest(false)"
-    />
+      <CollectionsAdd
+        :show="showModalAdd"
+        :loading-state="modalLoadingState"
+        @submit="addNewRootCollection"
+        @hide-modal="showModalAdd = false"
+      />
+      <CollectionsAddRequest
+        :show="showModalAddRequest"
+        :loading-state="modalLoadingState"
+        @add-request="onAddRequest"
+        @hide-modal="displayModalAddRequest(false)"
+      />
+      <CollectionsAddFolder
+        :show="showModalAddChildColl"
+        :loading-state="modalLoadingState"
+        @add-folder="onAddChildCollection"
+        @hide-modal="displayModalAddChildColl(false)"
+      />
+      <CollectionsEdit
+        :show="showModalEditRootColl"
+        :editing-collection-name="editingRootCollectionName ?? ''"
+        :loading-state="modalLoadingState"
+        @hide-modal="displayModalEditCollection(false)"
+        @submit="onEditRootCollection"
+      />
+      <CollectionsEditFolder
+        :show="showModalEditChildColl"
+        :editing-folder-name="editingChildCollectionName ?? ''"
+        :loading-state="modalLoadingState"
+        @submit="onEditChildCollection"
+        @hide-modal="displayModalEditChildCollection(false)"
+      />
+      <CollectionsEditRequest
+        v-model="editingRequestName"
+        :show="showModalEditRequest"
+        :loading-state="modalLoadingState"
+        @submit="onEditRequest"
+        @hide-modal="displayModalEditRequest(false)"
+      />
 
-    <HoppSmartConfirmModal
-      :show="showConfirmModal"
-      :title="confirmModalTitle"
-      :loading-state="modalLoadingState"
-      @hide-modal="showConfirmModal = false"
-      @resolve="resolveConfirmModal"
-    />
+      <HoppSmartConfirmModal
+        :show="showConfirmModal"
+        :title="confirmModalTitle"
+        :loading-state="modalLoadingState"
+        @hide-modal="showConfirmModal = false"
+        @resolve="resolveConfirmModal"
+      />
 
-    <!-- TODO: Supply `collectionsType` once teams implementation is in place -->
-    <!-- Defaults to `my-collections` -->
-    <CollectionsImportExport
-      v-if="showImportExportModal"
-      @hide-modal="displayModalImportExport(false)"
-    />
+      <!-- TODO: Supply `collectionsType` once teams implementation is in place -->
+      <!-- Defaults to `my-collections` -->
+      <CollectionsImportExport
+        v-if="showImportExportModal"
+        @hide-modal="displayModalImportExport(false)"
+      />
 
-    <!-- TODO: Remove the `emitWithFullCollection` prop after porting all usages of the below component -->
-    <CollectionsProperties
-      :show="showModalEditProperties"
-      :editing-properties="editingProperties"
-      :emit-with-full-collection="false"
-      @hide-modal="displayModalEditProperties(false)"
-      @set-collection-properties="setCollectionProperties"
-    />
+      <!-- TODO: Remove the `emitWithFullCollection` prop after porting all usages of the below component -->
+      <CollectionsProperties
+        :show="showModalEditProperties"
+        :editing-properties="editingProperties"
+        :emit-with-full-collection="false"
+        @hide-modal="displayModalEditProperties(false)"
+        @set-collection-properties="setCollectionProperties"
+      />
+    </div>
   </div>
 </template>
 
@@ -229,7 +258,6 @@ import { WorkspaceRESTCollectionTreeAdapter } from "~/helpers/adapters/Workspace
 import { TeamCollection } from "~/helpers/backend/graphql"
 import {
   getFoldersByPath,
-  resolveSaveContextOnCollectionReorder,
   updateInheritedPropertiesForAffectedRequests,
 } from "~/helpers/collection/collection"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
@@ -253,6 +281,7 @@ import { RESTTabService } from "~/services/tab/rest"
 import IconImport from "~icons/lucide/folder-down"
 import IconHelpCircle from "~icons/lucide/help-circle"
 import IconPlus from "~icons/lucide/plus"
+import { currentReorderingStatus$ } from "~/newstore/reordering"
 
 const t = useI18n()
 const toast = useToast()
@@ -306,12 +335,21 @@ const emit = defineEmits<{
 const workspaceService = useService(NewWorkspaceService)
 const restCollectionState = useReadonlyStream(restCollections$, [])
 
+const currentReorderingStatus = useReadonlyStream(currentReorderingStatus$, {
+  type: "collection",
+  id: "",
+  parentID: "",
+})
+
 const treeAdapter = markRaw(
   new WorkspaceRESTCollectionTreeAdapter(
     props.workspaceHandle,
     workspaceService
   )
 )
+
+const draggingToRoot = ref(false)
+const searchText = ref("")
 
 const modalLoadingState = ref(false)
 
@@ -1289,6 +1327,27 @@ const dropEvent = (
       collectionIndexDragged,
       destinationCollectionIndex,
     })
+  }
+}
+
+/**
+ * This function is called when the user drops the collection
+ * to the root
+ * @param payload - object containing the collection index dragged
+ */
+const dropToRoot = ({ dataTransfer }: DragEvent) => {
+  if (dataTransfer) {
+    const collectionIndexDragged = dataTransfer.getData("collectionIndex")
+    if (!collectionIndexDragged) return
+    // check if the collection is already in the root
+    if (isAlreadyInRoot(collectionIndexDragged)) {
+      toast.error(`${t("collection.invalid_root_move")}`)
+    } else {
+      moveRESTFolder(collectionIndexDragged, null)
+      toast.success(`${t("collection.moved")}`)
+    }
+
+    draggingToRoot.value = false
   }
 }
 

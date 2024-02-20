@@ -73,6 +73,10 @@ export class InfraConfigService implements OnModuleInit {
         name: InfraConfigEnum.VITE_ALLOWED_AUTH_PROVIDERS,
         value: getConfiguredSSOProviders(),
       },
+      {
+        name: InfraConfigEnum.IS_FIRST_TIME_INFRA_SETUP,
+        value: true.toString(),
+      },
     ];
 
     return infraConfigDefaultObjs;

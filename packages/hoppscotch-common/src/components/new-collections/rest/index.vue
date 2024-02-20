@@ -1255,7 +1255,10 @@ const dragRequest = (
     requestIndex,
   }: { parentCollectionIndexPath: string | null; requestIndex: string }
 ) => {
-  if (!parentCollectionIndexPath) return
+  if (!parentCollectionIndexPath) {
+    return
+  }
+
   dataTransfer.setData("parentCollectionIndexPath", parentCollectionIndexPath)
   dataTransfer.setData("requestIndex", requestIndex)
 }

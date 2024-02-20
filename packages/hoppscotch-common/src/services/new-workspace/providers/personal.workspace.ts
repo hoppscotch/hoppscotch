@@ -16,15 +16,20 @@ import {
   addRESTCollection,
   addRESTFolder,
   appendRESTCollections,
+  cascadeParentCollectionForHeaderAuth,
   editRESTCollection,
   editRESTFolder,
   editRESTRequest,
+  moveRESTFolder,
+  moveRESTRequest,
   navigateToFolderWithIndexPath,
   removeRESTCollection,
   removeRESTFolder,
   removeRESTRequest,
   restCollectionStore,
   saveRESTRequestAs,
+  updateRESTCollectionOrder,
+  updateRESTRequestOrder,
 } from "~/newstore/collections"
 import { platform } from "~/platform"
 
@@ -51,6 +56,16 @@ import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import IconUser from "~icons/lucide/user"
 import { NewWorkspaceService } from ".."
 import { initializeDownloadFile } from "~/helpers/import-export/export"
+import {
+  getFoldersByPath,
+  resolveSaveContextOnCollectionReorder,
+  updateInheritedPropertiesForAffectedRequests,
+  updateSaveContextForAffectedRequests,
+} from "~/helpers/collection/collection"
+import {
+  getRequestsByPath,
+  resolveSaveContextOnRequestReorder,
+} from "~/helpers/collection/request"
 
 export class PersonalWorkspaceProviderService
   extends Service
@@ -471,6 +486,189 @@ export class PersonalWorkspaceProviderService
     }
 
     initializeDownloadFile(JSON.stringify(collection, null, 2), collection.name)
+
+    return Promise.resolve(E.right(undefined))
+  }
+
+  public reorderRESTCollection(
+    collectionHandle: HandleRef<WorkspaceCollection>,
+    destinationCollectionIndex: string
+  ): Promise<E.Either<unknown, void>> {
+    if (
+      collectionHandle.value.type !== "ok" ||
+      collectionHandle.value.data.providerID !== this.providerID ||
+      collectionHandle.value.data.workspaceID !== "personal"
+    ) {
+      return Promise.resolve(E.left("INVALID_COLLECTION_HANDLE" as const))
+    }
+
+    const draggedCollectionIndex = collectionHandle.value.data.collectionID
+
+    updateRESTCollectionOrder(
+      draggedCollectionIndex,
+      destinationCollectionIndex
+    )
+    // resolveSaveContextOnCollectionReorder({
+    //   lastIndex: pathToLastIndex(draggedCollectionIndex),
+    //   newIndex: pathToLastIndex(
+    //     destinationCollectionIndex ? destinationCollectionIndex : ""
+    //   ),
+    //   folderPath: draggedCollectionIndex.split("/").slice(0, -1).join("/"),
+    // })
+
+    return Promise.resolve(E.right(undefined))
+  }
+
+  public moveRESTCollection(
+    collectionHandle: HandleRef<WorkspaceCollection>,
+    destinationCollectionIndex: string | null
+  ): Promise<E.Either<unknown, void>> {
+    if (
+      collectionHandle.value.type !== "ok" ||
+      collectionHandle.value.data.providerID !== this.providerID ||
+      collectionHandle.value.data.workspaceID !== "personal"
+    ) {
+      return Promise.resolve(E.left("INVALID_COLLECTION_HANDLE" as const))
+    }
+
+    const draggedCollectionIndex = collectionHandle.value.data.collectionID
+
+    // const parentFolder = draggedCollectionIndex
+    //   .split("/")
+    //   .slice(0, -1)
+    //   .join("/") // remove last folder to get parent folder
+
+    // const totalFoldersOfDestinationCollection =
+    //   getFoldersByPath(
+    //     restCollectionStore.value.state,
+    //     destinationCollectionIndex
+    //   ).length - (parentFolder === destinationCollectionIndex ? 1 : 0)
+
+    moveRESTFolder(draggedCollectionIndex, destinationCollectionIndex)
+
+    // resolveSaveContextOnCollectionReorder(
+    //   {
+    //     lastIndex: pathToLastIndex(draggedCollectionIndex),
+    //     newIndex: -1,
+    //     folderPath: parentFolder,
+    //     length: getFoldersByPath(restCollectionStore.value.state, parentFolder)
+    //       .length,
+    //   },
+    //   "drop"
+    // )
+
+    // updateSaveContextForAffectedRequests(
+    //   draggedCollectionIndex,
+    //   `${destinationCollectionIndex}/${totalFoldersOfDestinationCollection}`
+    // )
+
+    // const { auth, headers } = cascadeParentCollectionForHeaderAuth(
+    //   `${destinationCollectionIndex}/${totalFoldersOfDestinationCollection}`,
+    //   "rest"
+    // )
+
+    // const inheritedProperty = {
+    //   auth,
+    //   headers,
+    // }
+
+    // updateInheritedPropertiesForAffectedRequests(
+    //   `${destinationCollectionIndex}/${totalFoldersOfDestinationCollection}`,
+    //   inheritedProperty,
+    //   "rest"
+    // )
+
+    return Promise.resolve(E.right(undefined))
+  }
+
+  public reorderRESTRequest(
+    requestHandle: HandleRef<WorkspaceRequest>,
+    destinationCollectionIndex: string,
+    destinationRequestIndex: string
+  ): Promise<E.Either<unknown, void>> {
+    if (
+      requestHandle.value.type !== "ok" ||
+      requestHandle.value.data.providerID !== this.providerID ||
+      requestHandle.value.data.workspaceID !== "personal"
+    ) {
+      return Promise.resolve(E.left("INVALID_REQUEST_HANDLE" as const))
+    }
+
+    const draggedRequestIndex = requestHandle.value.data.requestID
+
+    updateRESTRequestOrder(
+      this.pathToLastIndex(draggedRequestIndex),
+      destinationRequestIndex
+        ? this.pathToLastIndex(destinationRequestIndex)
+        : null,
+      destinationCollectionIndex
+    )
+
+    return Promise.resolve(E.right(undefined))
+  }
+
+  public moveRESTRequest(
+    requestHandle: HandleRef<WorkspaceRequest>,
+    destinationCollectionIndex: string
+  ): Promise<E.Either<unknown, void>> {
+    if (
+      requestHandle.value.type !== "ok" ||
+      requestHandle.value.data.providerID !== this.providerID ||
+      requestHandle.value.data.workspaceID !== "personal"
+    ) {
+      return Promise.resolve(E.left("INVALID_REQUEST_HANDLE" as const))
+    }
+
+    const requestIndex = requestHandle.value.data.requestID
+    const parentCollectionIndexPath = requestIndex
+      .split("/")
+      .slice(0, -1)
+      .join("/")
+
+    // const { auth, headers } = cascadeParentCollectionForHeaderAuth(
+    //   destinationCollectionIndex,
+    //   "rest"
+    // )
+
+    // const possibleTab = tabs.getTabRefWithSaveContext({
+    //   originLocation: "user-collection",
+    //   folderPath: parentCollectionIndexPath,
+    //   requestIndex: this.pathToLastIndex(requestIndex),
+    // })
+
+    // // If there is a tab attached to this request, change save its save context
+    // if (possibleTab) {
+    //   possibleTab.value.document.saveContext = {
+    //     originLocation: "user-collection",
+    //     folderPath: destinationCollectionIndex,
+    //     requestIndex: getRequestsByPath(
+    //       restCollectionStore.value.state,
+    //       destinationCollectionIndex
+    //     ).length,
+    //   }
+
+    //   possibleTab.value.document.inheritedProperties = {
+    //     auth,
+    //     headers,
+    //   }
+    // }
+
+    // // When it's drop it's basically getting deleted from last folder. reordering last folder accordingly
+    // resolveSaveContextOnRequestReorder({
+    //   lastIndex: this.pathToLastIndex(requestIndex),
+    //   newIndex: -1, // being deleted from last folder
+    //   folderPath: parentCollectionIndexPath,
+    //   length: getRequestsByPath(
+    //     restCollectionStore.value.state,
+    //     parentCollectionIndexPath
+    //   ).length,
+    // })
+
+    moveRESTRequest(
+      parentCollectionIndexPath,
+      this.pathToLastIndex(requestIndex),
+      destinationCollectionIndex
+    )
 
     return Promise.resolve(E.right(undefined))
   }

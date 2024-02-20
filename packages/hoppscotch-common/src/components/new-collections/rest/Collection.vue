@@ -23,7 +23,7 @@
       <div
         class="z-[3] group pointer-events-auto relative flex cursor-pointer items-stretch"
         @dragstart="dragStart"
-        @drop="handelDrop($event)"
+        @drop="handleDrop($event)"
         @dragover="handleDragOver($event)"
         @dragleave="resetDragState"
         @dragend="
@@ -387,7 +387,7 @@ const handleDragOver = (e: DragEvent) => {
   }
 }
 
-const handelDrop = (e: DragEvent) => {
+const handleDrop = (e: DragEvent) => {
   if (ordering.value) {
     orderUpdateCollectionEvent(e)
   } else if (orderingLastItem.value) {

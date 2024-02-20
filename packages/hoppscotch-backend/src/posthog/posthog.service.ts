@@ -21,7 +21,6 @@ export class PosthogService {
     if (this.configService.get('INFRA.ALLOW_ANALYTICS_COLLECTION') === 'true') {
       console.log('Initializing PostHog');
       this.postHogClient = new PostHog(this.POSTHOG_API_KEY, {
-        // ToDo: Check and change host if required.
         host: 'https://eu.posthog.com',
       });
 
@@ -31,8 +30,7 @@ export class PosthogService {
   }
 
   private scheduleCronJob() {
-    // ToDo: Change expression to every week in the end
-    const job = new CronJob(CronExpression.EVERY_5_SECONDS, async () => {
+c    const job = new CronJob(CronExpression.EVERY_WEEK, async () => {
       await this.capture();
     });
 

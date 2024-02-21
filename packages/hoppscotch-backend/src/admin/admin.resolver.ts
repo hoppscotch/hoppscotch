@@ -27,9 +27,7 @@ import {
 } from './input-types.args';
 import { GqlThrottlerGuard } from 'src/guards/gql-throttler.guard';
 import { SkipThrottle } from '@nestjs/throttler';
-import { User } from 'src/user/user.model';
-import { PaginationArgs } from 'src/types/input-types.args';
-import { TeamInvitation } from 'src/team-invitation/team-invitation.model';
+import { UserDeletionResult } from 'src/user/user.model';
 
 @UseGuards(GqlThrottlerGuard)
 @Resolver(() => Admin)
@@ -47,203 +45,6 @@ export class AdminResolver {
   @UseGuards(GqlAuthGuard, GqlAdminGuard)
   admin(@GqlAdmin() admin: Admin) {
     return admin;
-  }
-
-  @ResolveField(() => [User], {
-    description: 'Returns a list of all admin users in infra',
-    deprecationReason: 'Use `infra` query instead',
-  })
-  @UseGuards(GqlAuthGuard, GqlAdminGuard)
-  async admins() {
-    const admins = await this.adminService.fetchAdmins();
-    return admins;
-  }
-  @ResolveField(() => User, {
-    description: 'Returns a user info by UID',
-    deprecationReason: 'Use `infra` query instead',
-  })
-  @UseGuards(GqlAuthGuard, GqlAdminGuard)
-  async userInfo(
-    @Args({
-      name: 'userUid',
-      type: () => ID,
-      description: 'The user UID',
-    })
-    userUid: string,
-  ): Promise<AuthUser> {
-    const user = await this.adminService.fetchUserInfo(userUid);
-    if (E.isLeft(user)) throwErr(user.left);
-    return user.right;
-  }
-
-  @ResolveField(() => [User], {
-    description: 'Returns a list of all the users in infra',
-    deprecationReason: 'Use `infra` query instead',
-  })
-  @UseGuards(GqlAuthGuard, GqlAdminGuard)
-  async allUsers(
-    @Parent() admin: Admin,
-    @Args() args: PaginationArgs,
-  ): Promise<AuthUser[]> {
-    const users = await this.adminService.fetchUsers(args.cursor, args.take);
-    return users;
-  }
-
-  @ResolveField(() => [InvitedUser], {
-    description: 'Returns a list of all the invited users',
-    deprecationReason: 'Use `infra` query instead',
-  })
-  async invitedUsers(@Parent() admin: Admin): Promise<InvitedUser[]> {
-    const users = await this.adminService.fetchInvitedUsers();
-    return users;
-  }
-
-  @ResolveField(() => [Team], {
-    description: 'Returns a list of all the teams in the infra',
-    deprecationReason: 'Use `infra` query instead',
-  })
-  async allTeams(
-    @Parent() admin: Admin,
-    @Args() args: PaginationArgs,
-  ): Promise<Team[]> {
-    const teams = await this.adminService.fetchAllTeams(args.cursor, args.take);
-    return teams;
-  }
-  @ResolveField(() => Team, {
-    description: 'Returns a team info by ID when requested by Admin',
-    deprecationReason: 'Use `infra` query instead',
-  })
-  async teamInfo(
-    @Parent() admin: Admin,
-    @Args({
-      name: 'teamID',
-      type: () => ID,
-      description: 'Team ID for which info to fetch',
-    })
-    teamID: string,
-  ): Promise<Team> {
-    const team = await this.adminService.getTeamInfo(teamID);
-    if (E.isLeft(team)) throwErr(team.left);
-    return team.right;
-  }
-
-  @ResolveField(() => Number, {
-    description: 'Return count of all the members in a team',
-    deprecationReason: 'Use `infra` query instead',
-  })
-  async membersCountInTeam(
-    @Parent() admin: Admin,
-    @Args({
-      name: 'teamID',
-      type: () => ID,
-      description: 'Team ID for which team members to fetch',
-      nullable: false,
-    })
-    teamID: string,
-  ): Promise<number> {
-    const teamMembersCount = await this.adminService.membersCountInTeam(teamID);
-    return teamMembersCount;
-  }
-
-  @ResolveField(() => Number, {
-    description: 'Return count of all the stored collections in a team',
-    deprecationReason: 'Use `infra` query instead',
-  })
-  async collectionCountInTeam(
-    @Parent() admin: Admin,
-    @Args({
-      name: 'teamID',
-      type: () => ID,
-      description: 'Team ID for which team members to fetch',
-    })
-    teamID: string,
-  ): Promise<number> {
-    const teamCollCount = await this.adminService.collectionCountInTeam(teamID);
-    return teamCollCount;
-  }
-  @ResolveField(() => Number, {
-    description: 'Return count of all the stored requests in a team',
-    deprecationReason: 'Use `infra` query instead',
-  })
-  async requestCountInTeam(
-    @Parent() admin: Admin,
-    @Args({
-      name: 'teamID',
-      type: () => ID,
-      description: 'Team ID for which team members to fetch',
-    })
-    teamID: string,
-  ): Promise<number> {
-    const teamReqCount = await this.adminService.requestCountInTeam(teamID);
-    return teamReqCount;
-  }
-
-  @ResolveField(() => Number, {
-    description: 'Return count of all the stored environments in a team',
-    deprecationReason: 'Use `infra` query instead',
-  })
-  async environmentCountInTeam(
-    @Parent() admin: Admin,
-    @Args({
-      name: 'teamID',
-      type: () => ID,
-      description: 'Team ID for which team members to fetch',
-    })
-    teamID: string,
-  ): Promise<number> {
-    const envsCount = await this.adminService.environmentCountInTeam(teamID);
-    return envsCount;
-  }
-
-  @ResolveField(() => [TeamInvitation], {
-    description: 'Return all the pending invitations in a team',
-    deprecationReason: 'Use `infra` query instead',
-  })
-  async pendingInvitationCountInTeam(
-    @Parent() admin: Admin,
-    @Args({
-      name: 'teamID',
-      type: () => ID,
-      description: 'Team ID for which team members to fetch',
-    })
-    teamID: string,
-  ) {
-    const invitations = await this.adminService.pendingInvitationCountInTeam(
-      teamID,
-    );
-    return invitations;
-  }
-
-  @ResolveField(() => Number, {
-    description: 'Return total number of Users in organization',
-    deprecationReason: 'Use `infra` query instead',
-  })
-  async usersCount() {
-    return this.adminService.getUsersCount();
-  }
-
-  @ResolveField(() => Number, {
-    description: 'Return total number of Teams in organization',
-    deprecationReason: 'Use `infra` query instead',
-  })
-  async teamsCount() {
-    return this.adminService.getTeamsCount();
-  }
-
-  @ResolveField(() => Number, {
-    description: 'Return total number of Team Collections in organization',
-    deprecationReason: 'Use `infra` query instead',
-  })
-  async teamCollectionsCount() {
-    return this.adminService.getTeamCollectionsCount();
-  }
-
-  @ResolveField(() => Number, {
-    description: 'Return total number of Team Requests in organization',
-    deprecationReason: 'Use `infra` query instead',
-  })
-  async teamRequestsCount() {
-    return this.adminService.getTeamRequestsCount();
   }
 
   /* Mutations */
@@ -270,7 +71,25 @@ export class AdminResolver {
   }
 
   @Mutation(() => Boolean, {
+    description: 'Revoke a user invites by invitee emails',
+  })
+  @UseGuards(GqlAuthGuard, GqlAdminGuard)
+  async revokeUserInvitationsByAdmin(
+    @Args({
+      name: 'inviteeEmails',
+      description: 'Invitee Emails',
+      type: () => [String],
+    })
+    inviteeEmails: string[],
+  ): Promise<boolean> {
+    const invite = await this.adminService.revokeUserInvitations(inviteeEmails);
+    if (E.isLeft(invite)) throwErr(invite.left);
+    return invite.right;
+  }
+
+  @Mutation(() => Boolean, {
     description: 'Delete an user account from infra',
+    deprecationReason: 'Use removeUsersByAdmin instead',
   })
   @UseGuards(GqlAuthGuard, GqlAdminGuard)
   async removeUserByAdmin(
@@ -281,12 +100,33 @@ export class AdminResolver {
     })
     userUID: string,
   ): Promise<boolean> {
-    const invitedUser = await this.adminService.removeUserAccount(userUID);
-    if (E.isLeft(invitedUser)) throwErr(invitedUser.left);
-    return invitedUser.right;
+    const removedUser = await this.adminService.removeUserAccount(userUID);
+    if (E.isLeft(removedUser)) throwErr(removedUser.left);
+    return removedUser.right;
   }
+
+  @Mutation(() => [UserDeletionResult], {
+    description: 'Delete user accounts from infra',
+  })
+  @UseGuards(GqlAuthGuard, GqlAdminGuard)
+  async removeUsersByAdmin(
+    @Args({
+      name: 'userUIDs',
+      description: 'users UID',
+      type: () => [ID],
+    })
+    userUIDs: string[],
+  ): Promise<UserDeletionResult[]> {
+    const deletionResults = await this.adminService.removeUserAccounts(
+      userUIDs,
+    );
+    if (E.isLeft(deletionResults)) throwErr(deletionResults.left);
+    return deletionResults.right;
+  }
+
   @Mutation(() => Boolean, {
     description: 'Make user an admin',
+    deprecationReason: 'Use makeUsersAdmin instead',
   })
   @UseGuards(GqlAuthGuard, GqlAdminGuard)
   async makeUserAdmin(
@@ -303,7 +143,50 @@ export class AdminResolver {
   }
 
   @Mutation(() => Boolean, {
+    description: 'Make users an admin',
+  })
+  @UseGuards(GqlAuthGuard, GqlAdminGuard)
+  async makeUsersAdmin(
+    @Args({
+      name: 'userUIDs',
+      description: 'users UID',
+      type: () => [ID],
+    })
+    userUIDs: string[],
+  ): Promise<boolean> {
+    const isUpdated = await this.adminService.makeUsersAdmin(userUIDs);
+    if (E.isLeft(isUpdated)) throwErr(isUpdated.left);
+    return isUpdated.right;
+  }
+
+  @Mutation(() => Boolean, {
+    description: 'Update user display name',
+  })
+  @UseGuards(GqlAuthGuard, GqlAdminGuard)
+  async updateUserDisplayNameByAdmin(
+    @Args({
+      name: 'userUID',
+      description: 'users UID',
+      type: () => ID,
+    })
+    userUID: string,
+    @Args({
+      name: 'displayName',
+      description: 'users display name',
+    })
+    displayName: string,
+  ): Promise<boolean> {
+    const isUpdated = await this.adminService.updateUserDisplayName(
+      userUID,
+      displayName,
+    );
+    if (E.isLeft(isUpdated)) throwErr(isUpdated.left);
+    return isUpdated.right;
+  }
+
+  @Mutation(() => Boolean, {
     description: 'Remove user as admin',
+    deprecationReason: 'Use demoteUsersByAdmin instead',
   })
   @UseGuards(GqlAuthGuard, GqlAdminGuard)
   async removeUserAsAdmin(
@@ -317,6 +200,23 @@ export class AdminResolver {
     const admin = await this.adminService.removeUserAsAdmin(userUID);
     if (E.isLeft(admin)) throwErr(admin.left);
     return admin.right;
+  }
+
+  @Mutation(() => Boolean, {
+    description: 'Remove users as admin',
+  })
+  @UseGuards(GqlAuthGuard, GqlAdminGuard)
+  async demoteUsersByAdmin(
+    @Args({
+      name: 'userUIDs',
+      description: 'users UID',
+      type: () => [ID],
+    })
+    userUIDs: string[],
+  ): Promise<boolean> {
+    const isUpdated = await this.adminService.demoteUsersByAdmin(userUIDs);
+    if (E.isLeft(isUpdated)) throwErr(isUpdated.left);
+    return isUpdated.right;
   }
 
   @Mutation(() => Team, {

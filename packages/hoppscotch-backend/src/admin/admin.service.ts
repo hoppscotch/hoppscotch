@@ -6,13 +6,16 @@ import * as E from 'fp-ts/Either';
 import * as O from 'fp-ts/Option';
 import { validateEmail } from '../utils';
 import {
+  ADMIN_CAN_NOT_BE_DELETED,
   DUPLICATE_EMAIL,
   EMAIL_FAILED,
   INVALID_EMAIL,
   ONLY_ONE_ADMIN_ACCOUNT,
   TEAM_INVITE_ALREADY_MEMBER,
   TEAM_INVITE_NO_INVITE_FOUND,
+  USERS_NOT_FOUND,
   USER_ALREADY_INVITED,
+  USER_INVITATION_DELETION_FAILED,
   USER_IS_ADMIN,
   USER_NOT_FOUND,
 } from '../errors';
@@ -26,6 +29,8 @@ import { TeamInvitationService } from '../team-invitation/team-invitation.servic
 import { TeamMemberRole } from '../team/team.model';
 import { ShortcodeService } from 'src/shortcode/shortcode.service';
 import { ConfigService } from '@nestjs/config';
+import { OffsetPaginationArgs } from 'src/types/input-types.args';
+import { UserDeletionResult } from 'src/user/user.model';
 
 @Injectable()
 export class AdminService {
@@ -48,9 +53,27 @@ export class AdminService {
    * @param cursorID Users uid
    * @param take number of users to fetch
    * @returns an Either of array of user or error
+   * @deprecated use fetchUsersV2 instead
    */
   async fetchUsers(cursorID: string, take: number) {
     const allUsers = await this.userService.fetchAllUsers(cursorID, take);
+    return allUsers;
+  }
+
+  /**
+   * Fetch all the users in the infra.
+   * @param searchString search on users displayName or email
+   * @param paginationOption pagination options
+   * @returns an Either of array of user or error
+   */
+  async fetchUsersV2(
+    searchString: string,
+    paginationOption: OffsetPaginationArgs,
+  ) {
+    const allUsers = await this.userService.fetchAllUsersV2(
+      searchString,
+      paginationOption,
+    );
     return allUsers;
   }
 
@@ -111,13 +134,67 @@ export class AdminService {
   }
 
   /**
+   * Update the display name of a user
+   * @param userUid Who's display name is being updated
+   * @param displayName New display name of the user
+   * @returns an Either of boolean or error
+   */
+  async updateUserDisplayName(userUid: string, displayName: string) {
+    const updatedUser = await this.userService.updateUserDisplayName(
+      userUid,
+      displayName,
+    );
+    if (E.isLeft(updatedUser)) return E.left(updatedUser.left);
+
+    return E.right(true);
+  }
+
+  /**
+   * Revoke infra level user invitations
+   * @param inviteeEmails Invitee's emails
+   * @param adminUid Admin Uid
+   * @returns an Either of boolean or error string
+   */
+  async revokeUserInvitations(inviteeEmails: string[]) {
+    try {
+      await this.prisma.invitedUsers.deleteMany({
+        where: {
+          inviteeEmail: { in: inviteeEmails },
+        },
+      });
+      return E.right(true);
+    } catch (error) {
+      return E.left(USER_INVITATION_DELETION_FAILED);
+    }
+  }
+
+  /**
    * Fetch the list of invited users by the admin.
    * @returns an Either of array of `InvitedUser` object or error
    */
-  async fetchInvitedUsers() {
-    const invitedUsers = await this.prisma.invitedUsers.findMany();
+  async fetchInvitedUsers(paginationOption: OffsetPaginationArgs) {
+    const userEmailObjs = await this.prisma.user.findMany({
+      select: {
+        email: true,
+      },
+    });
 
-    const users: InvitedUser[] = invitedUsers.map(
+    const pendingInvitedUsers = await this.prisma.invitedUsers.findMany({
+      take: paginationOption.take,
+      skip: paginationOption.skip,
+      orderBy: {
+        invitedOn: 'desc',
+      },
+      where: {
+        NOT: {
+          inviteeEmail: {
+            in: userEmailObjs.map((user) => user.email),
+          },
+        },
+      },
+    });
+
+    const users: InvitedUser[] = pendingInvitedUsers.map(
       (user) => <InvitedUser>{ ...user },
     );
 
@@ -337,6 +414,7 @@ export class AdminService {
    * Remove a user account by UID
    * @param userUid User UID
    * @returns an Either of boolean or error
+   * @deprecated use removeUserAccounts instead
    */
   async removeUserAccount(userUid: string) {
     const user = await this.userService.findUserById(userUid);
@@ -350,9 +428,72 @@ export class AdminService {
   }
 
   /**
+   * Remove user (not Admin) accounts by UIDs
+   * @param userUIDs User UIDs
+   * @returns an Either of boolean or error
+   */
+  async removeUserAccounts(userUIDs: string[]) {
+    const userDeleteResult: UserDeletionResult[] = [];
+
+    // step 1: fetch all users
+    const allUsersList = await this.userService.findUsersByIds(userUIDs);
+    if (allUsersList.length === 0) return E.left(USERS_NOT_FOUND);
+
+    // step 2: admin user can not be deleted without removing admin status/role
+    allUsersList.forEach((user) => {
+      if (user.isAdmin) {
+        userDeleteResult.push({
+          userUID: user.uid,
+          isDeleted: false,
+          errorMessage: ADMIN_CAN_NOT_BE_DELETED,
+        });
+      }
+    });
+
+    const nonAdminUsers = allUsersList.filter((user) => !user.isAdmin);
+    let deletedUserEmails: string[] = [];
+
+    // step 3: delete non-admin users
+    const deletionPromises = nonAdminUsers.map((user) => {
+      return this.userService
+        .deleteUserByUID(user)()
+        .then((res) => {
+          if (E.isLeft(res)) {
+            return {
+              userUID: user.uid,
+              isDeleted: false,
+              errorMessage: res.left,
+            } as UserDeletionResult;
+          }
+
+          deletedUserEmails.push(user.email);
+          return {
+            userUID: user.uid,
+            isDeleted: true,
+            errorMessage: null,
+          } as UserDeletionResult;
+        });
+    });
+    const promiseResult = await Promise.allSettled(deletionPromises);
+
+    // step 4: revoke all the invites sent to the deleted users
+    await this.revokeUserInvitations(deletedUserEmails);
+
+    // step 5: return the result
+    promiseResult.forEach((result) => {
+      if (result.status === 'fulfilled') {
+        userDeleteResult.push(result.value);
+      }
+    });
+
+    return E.right(userDeleteResult);
+  }
+
+  /**
    * Make a user an admin
    * @param userUid User UID
    * @returns an Either of boolean or error
+   * @deprecated use makeUsersAdmin instead
    */
   async makeUserAdmin(userUID: string) {
     const admin = await this.userService.makeAdmin(userUID);
@@ -361,9 +502,21 @@ export class AdminService {
   }
 
   /**
+   * Make users to admin
+   * @param userUid User UIDs
+   * @returns an Either of boolean or error
+   */
+  async makeUsersAdmin(userUIDs: string[]) {
+    const isUpdated = await this.userService.makeAdmins(userUIDs);
+    if (E.isLeft(isUpdated)) return E.left(isUpdated.left);
+    return E.right(true);
+  }
+
+  /**
    * Remove user as admin
    * @param userUid User UID
    * @returns an Either of boolean or error
+   * @deprecated use demoteUsersByAdmin instead
    */
   async removeUserAsAdmin(userUID: string) {
     const adminUsers = await this.userService.fetchAdminUsers();
@@ -372,6 +525,26 @@ export class AdminService {
     const admin = await this.userService.removeUserAsAdmin(userUID);
     if (E.isLeft(admin)) return E.left(admin.left);
     return E.right(true);
+  }
+
+  /**
+   * Remove users as admin
+   * @param userUIDs User UIDs
+   * @returns an Either of boolean or error
+   */
+  async demoteUsersByAdmin(userUIDs: string[]) {
+    const adminUsers = await this.userService.fetchAdminUsers();
+
+    const remainingAdmins = adminUsers.filter(
+      (adminUser) => !userUIDs.includes(adminUser.uid),
+    );
+    if (remainingAdmins.length < 1) {
+      return E.left(ONLY_ONE_ADMIN_ACCOUNT);
+    }
+
+    const isUpdated = await this.userService.removeUsersAsAdmin(userUIDs);
+    if (E.isLeft(isUpdated)) return E.left(isUpdated.left);
+    return E.right(isUpdated.right);
   }
 
   /**

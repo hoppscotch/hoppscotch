@@ -72,7 +72,7 @@
           </tippy>
         </div>
       </div>
-      <div class="relative h-full">
+      <div class="h-full">
         <div ref="schemaEditor"></div>
       </div>
     </div>

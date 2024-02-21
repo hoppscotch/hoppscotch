@@ -119,7 +119,7 @@
         />
       </div>
     </div>
-    <div class="relative h-full">
+    <div class="h-full">
       <div
         ref="jsonResponse"
         :class="toggleFilter ? 'responseToggleOn' : 'responseToggleOff'"

@@ -35,7 +35,9 @@
         />
       </div>
     </div>
-    <div ref="rawResponse" class="flex flex-1 flex-col"></div>
+    <div class="h-full">
+      <div ref="rawResponse" class="flex flex-1 flex-col"></div>
+    </div>
   </div>
 </template>
 

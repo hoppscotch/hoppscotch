@@ -4,7 +4,7 @@
       v-if="
         response && response.length === 1 && response[0].type === 'response'
       "
-      class="flex flex-1 flex-col relative"
+      class="flex flex-1 flex-col"
     >
       <div
         class="sticky top-0 z-10 flex flex-shrink-0 items-center justify-between overflow-x-auto border-b border-dividerLight bg-primary pl-4"
@@ -72,10 +72,9 @@
           </tippy>
         </div>
       </div>
-      <div
-        ref="schemaEditor"
-        class="flex flex-1 flex-col absolute inset-0 top-10"
-      ></div>
+      <div class="relative h-full">
+        <div ref="schemaEditor"></div>
+      </div>
     </div>
     <component
       :is="response[0].error.component"

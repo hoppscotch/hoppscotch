@@ -39,7 +39,9 @@ export class InfraConfigService implements OnModuleInit {
     await this.initializeInfraConfigTable();
   }
 
-  getDefaultInfraConfigs(): { name: InfraConfigEnum; value: string }[] {
+  async getDefaultInfraConfigs(): Promise<
+    { name: InfraConfigEnum; value: string }[]
+  > {
     // Prepare rows for 'infra_config' table with default values (from .env) for each 'name'
     const infraConfigDefaultObjs: { name: InfraConfigEnum; value: string }[] = [
       {
@@ -86,6 +88,10 @@ export class InfraConfigService implements OnModuleInit {
         name: InfraConfigEnum.ANALYTICS_USER_ID,
         value: generateAnalyticsUserId(),
       },
+      {
+        name: InfraConfigEnum.IS_FIRST_TIME_INFRA_SETUP,
+        value: (await this.prisma.infraConfig.count()) === 0 ? 'true' : 'false',
+      },
     ];
 
     return infraConfigDefaultObjs;
@@ -101,7 +107,7 @@ export class InfraConfigService implements OnModuleInit {
       const enumValues = Object.values(InfraConfigEnum);
 
       // Fetch the default values (value in .env) for configs to be saved in 'infra_config' table
-      const infraConfigDefaultObjs = this.getDefaultInfraConfigs();
+      const infraConfigDefaultObjs = await this.getDefaultInfraConfigs();
 
       // Check if all the 'names' are listed in the default values
       if (enumValues.length !== infraConfigDefaultObjs.length) {
@@ -160,11 +166,13 @@ export class InfraConfigService implements OnModuleInit {
    * Update InfraConfig by name
    * @param name Name of the InfraConfig
    * @param value Value of the InfraConfig
+   * @param restartEnabled If true, restart the app after updating the InfraConfig
    * @returns InfraConfig model
    */
   async update(
     name: InfraConfigEnumForClient | InfraConfigEnum,
     value: string,
+    restartEnabled = false,
   ) {
     const isValidate = this.validateEnvValues([{ name, value }]);
     if (E.isLeft(isValidate)) return E.left(isValidate.left);
@@ -175,7 +183,7 @@ export class InfraConfigService implements OnModuleInit {
         data: { value },
       });
 
-      stopApp();
+      if (restartEnabled) stopApp();
 
       return E.right(this.cast(infraConfig));
     } catch (e) {
@@ -290,6 +298,7 @@ export class InfraConfigService implements OnModuleInit {
     const isUpdated = await this.update(
       InfraConfigEnum.VITE_ALLOWED_AUTH_PROVIDERS,
       updatedAuthProviders.join(','),
+      true,
     );
     if (E.isLeft(isUpdated)) return E.left(isUpdated.left);
 
@@ -345,13 +354,24 @@ export class InfraConfigService implements OnModuleInit {
    */
   async reset() {
     try {
-      const infraConfigDefaultObjs = this.getDefaultInfraConfigs();
+      const infraConfigDefaultObjs = await this.getDefaultInfraConfigs();
 
       await this.prisma.infraConfig.deleteMany({
         where: { name: { in: infraConfigDefaultObjs.map((p) => p.name) } },
       });
+
+      // Hardcode t
+      const updatedInfraConfigDefaultObjs = infraConfigDefaultObjs.filter(
+        (obj) => obj.name !== InfraConfigEnum.IS_FIRST_TIME_INFRA_SETUP,
+      );
       await this.prisma.infraConfig.createMany({
-        data: infraConfigDefaultObjs,
+        data: [
+          ...updatedInfraConfigDefaultObjs,
+          {
+            name: InfraConfigEnum.IS_FIRST_TIME_INFRA_SETUP,
+            value: 'true',
+          },
+        ],
       });
 
       stopApp();

@@ -34,7 +34,9 @@ export class InfraConfigService implements OnModuleInit {
     await this.initializeInfraConfigTable();
   }
 
-  getDefaultInfraConfigs(): { name: InfraConfigEnum; value: string }[] {
+  async getDefaultInfraConfigs(): Promise<
+    { name: InfraConfigEnum; value: string }[]
+  > {
     // Prepare rows for 'infra_config' table with default values (from .env) for each 'name'
     const infraConfigDefaultObjs: { name: InfraConfigEnum; value: string }[] = [
       {
@@ -75,7 +77,7 @@ export class InfraConfigService implements OnModuleInit {
       },
       {
         name: InfraConfigEnum.IS_FIRST_TIME_INFRA_SETUP,
-        value: false.toString(),
+        value: (await this.prisma.infraConfig.count()) === 0 ? 'true' : 'false',
       },
     ];
 
@@ -92,7 +94,7 @@ export class InfraConfigService implements OnModuleInit {
       const enumValues = Object.values(InfraConfigEnum);
 
       // Fetch the default values (value in .env) for configs to be saved in 'infra_config' table
-      const infraConfigDefaultObjs = this.getDefaultInfraConfigs();
+      const infraConfigDefaultObjs = await this.getDefaultInfraConfigs();
 
       // Check if all the 'names' are listed in the default values
       if (enumValues.length !== infraConfigDefaultObjs.length) {
@@ -323,13 +325,24 @@ export class InfraConfigService implements OnModuleInit {
    */
   async reset() {
     try {
-      const infraConfigDefaultObjs = this.getDefaultInfraConfigs();
+      const infraConfigDefaultObjs = await this.getDefaultInfraConfigs();
 
       await this.prisma.infraConfig.deleteMany({
         where: { name: { in: infraConfigDefaultObjs.map((p) => p.name) } },
       });
+
+      // Hardcode t
+      const updatedInfraConfigDefaultObjs = infraConfigDefaultObjs.filter(
+        (obj) => obj.name !== InfraConfigEnum.IS_FIRST_TIME_INFRA_SETUP,
+      );
       await this.prisma.infraConfig.createMany({
-        data: infraConfigDefaultObjs,
+        data: [
+          ...updatedInfraConfigDefaultObjs,
+          {
+            name: InfraConfigEnum.IS_FIRST_TIME_INFRA_SETUP,
+            value: 'true',
+          },
+        ],
       });
 
       stopApp();

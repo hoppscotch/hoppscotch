@@ -33,7 +33,7 @@ export class SiteController {
   async setSetupAsComplete() {
     const res = await this.infraConfigService.update(
       InfraConfigEnumForClient.IS_FIRST_TIME_INFRA_SETUP,
-      true.toString(),
+      false.toString(),
       false,
     );
 

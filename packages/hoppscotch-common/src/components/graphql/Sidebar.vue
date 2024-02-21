@@ -145,11 +145,9 @@
           />
         </div>
       </div>
-      <div
-        v-if="schemaString"
-        ref="schemaEditor"
-        class="flex flex-1 flex-col"
-      ></div>
+      <div v-if="schemaString" class="h-full">
+        <div ref="schemaEditor" class="flex flex-1 flex-col"></div>
+      </div>
       <HoppSmartPlaceholder
         v-else
         :src="`/images/states/${colorMode.value}/blockchain.svg`"

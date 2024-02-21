@@ -90,7 +90,6 @@ import { invokeAction } from "~/helpers/actions"
 import { useI18n } from "~/composables/i18n"
 import IconEye from "~icons/lucide/eye"
 import IconEyeoff from "~icons/lucide/eye-off"
-import { syntaxTree } from "@codemirror/language"
 import { CompletionContext, autocompletion } from "@codemirror/autocomplete"
 import { useService } from "dioc/vue"
 import { RESTTabService } from "~/services/tab/rest"
@@ -406,16 +405,14 @@ function envAutoCompletion(context: CompletionContext) {
       })
     : []
 
-  const nodeBefore = syntaxTree(context.state).resolveInner(context.pos, -1)
-
-  const textBefore = context.state.sliceDoc(nodeBefore.from, context.pos)
+  const textBefore = context.state.sliceDoc(context.pos - 2, context.pos)
 
   const tagBefore = /<<\w*/.exec(textBefore)
 
   if (!tagBefore) return null
 
   return {
-    from: tagBefore ? nodeBefore.from + tagBefore.index : context.pos,
+    from: context.pos - 2,
     options: options,
   }
 }

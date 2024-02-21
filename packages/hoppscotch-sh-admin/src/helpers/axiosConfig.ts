@@ -17,4 +17,9 @@ const restApi = axios.create({
   baseURL: import.meta.env.VITE_BACKEND_API_URL,
 });
 
-export { gqlApi, restApi };
+const listmonkApi = axios.create({
+  ...baseConfig,
+  baseURL: 'https://listmonk.hoppscotch.com/api/public',
+});
+
+export { gqlApi, restApi, listmonkApi };

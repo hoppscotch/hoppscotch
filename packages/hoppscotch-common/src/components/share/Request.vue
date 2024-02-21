@@ -62,7 +62,7 @@
                 :shortcut="['T']"
                 @click="
                   () => {
-                    openInNewTab()
+                    emit('open-shared-request', parseRequest)
                     hide()
                   }
                 "
@@ -128,6 +128,7 @@ const emit = defineEmits<{
     embedProperties?: string | null
   ): void
   (e: "delete-shared-request", codeID: string): void
+  (e: "open-shared-request", request: HoppRESTRequest): void
 }>()
 
 const tippyActions = ref<TippyComponent | null>(null)

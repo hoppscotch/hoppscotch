@@ -711,3 +711,9 @@ export const INFRA_CONFIG_SERVICE_NOT_CONFIGURED =
  */
 export const DATABASE_TABLE_NOT_EXIST =
   'Database migration not found. Please check the documentation for assistance: https://docs.hoppscotch.io/documentation/self-host/community-edition/install-and-build#running-migrations';
+
+/**
+ * PostHog client is not initialized
+ * (InfraConfigService)
+ */
+export const POSTHOG_CLIENT_NOT_INITIALIZED = 'posthog/client_not_initialized';

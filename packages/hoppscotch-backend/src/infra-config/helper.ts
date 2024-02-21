@@ -3,6 +3,7 @@ import { AUTH_PROVIDER_NOT_CONFIGURED } from 'src/errors';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { InfraConfigEnum } from 'src/types/InfraConfig';
 import { throwErr } from 'src/utils';
+import { randomBytes } from 'crypto';
 
 export enum ServiceStatus {
   ENABLE = 'ENABLE',
@@ -103,4 +104,13 @@ export function getConfiguredSSOProviders() {
   }
 
   return configuredAuthProviders.join(',');
+}
+
+/**
+ * Generate a hashed valued for analytics
+ * @returns Generated hashed value
+ */
+export function generateAnalyticsUserId() {
+  const hashedUserID = randomBytes(20).toString('hex');
+  return hashedUserID;
 }

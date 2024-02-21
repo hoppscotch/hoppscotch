@@ -33,6 +33,7 @@ import {
   InfraConfigArgs,
 } from 'src/infra-config/input-args';
 import { InfraConfigEnumForClient } from 'src/types/InfraConfig';
+import { ServiceStatus } from 'src/infra-config/helper';
 
 @UseGuards(GqlThrottlerGuard)
 @Resolver(() => Infra)
@@ -308,6 +309,25 @@ export class InfraResolver {
     const updatedRes = await this.infraConfigService.updateMany(infraConfigs);
     if (E.isLeft(updatedRes)) throwErr(updatedRes.left);
     return updatedRes.right;
+  }
+
+  @Mutation(() => Boolean, {
+    description: 'Enable or disable analytics collection',
+  })
+  @UseGuards(GqlAuthGuard, GqlAdminGuard)
+  async toggleAnalyticsCollection(
+    @Args({
+      name: 'status',
+      type: () => ServiceStatus,
+      description: 'Toggle analytics collection',
+    })
+    analyticsCollectionStatus: ServiceStatus,
+  ) {
+    const res = await this.infraConfigService.toggleAnalyticsCollection(
+      analyticsCollectionStatus,
+    );
+    if (E.isLeft(res)) throwErr(res.left);
+    return res.right;
   }
 
   @Mutation(() => Boolean, {

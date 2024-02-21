@@ -49,7 +49,9 @@
         />
       </div>
     </div>
-    <div v-if="bulkMode" ref="bulkEditor" class="flex flex-1 flex-col"></div>
+    <div v-if="bulkMode" class="h-full relative w-full">
+      <div ref="bulkEditor" class="absolute inset-0"></div>
+    </div>
     <div v-else>
       <draggable
         v-model="workingHeaders"

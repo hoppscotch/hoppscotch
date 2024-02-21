@@ -145,8 +145,8 @@
           />
         </div>
       </div>
-      <div v-if="schemaString" class="h-full">
-        <div ref="schemaEditor" class="flex flex-1 flex-col"></div>
+      <div v-if="schemaString" class="h-full relative w-full">
+        <div ref="schemaEditor" class="absolute inset-0"></div>
       </div>
       <HoppSmartPlaceholder
         v-else

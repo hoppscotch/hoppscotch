@@ -59,7 +59,9 @@
         />
       </div>
     </div>
-    <div ref="rawBodyParameters" class="flex flex-1 flex-col"></div>
+    <div class="h-full relative">
+      <div ref="rawBodyParameters" class="absolute inset-0"></div>
+    </div>
   </div>
 </template>
 

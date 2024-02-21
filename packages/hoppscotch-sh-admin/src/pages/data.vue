@@ -74,11 +74,11 @@ import { useRouter } from 'vue-router';
 import { useI18n } from '~/composables/i18n';
 import { useToast } from '~/composables/toast';
 import { auth } from '~/helpers/auth';
+import { listmonkApi } from '~/helpers/axiosConfig';
 import {
   ToggleAnalyticsCollectionDocument,
   ToggleAnalyticsCollectionMutationVariables,
 } from '~/helpers/backend/graphql';
-import { addSubscriberNewsletterList } from '~/helpers/listmonk';
 import IconBookOpenText from '~icons/lucide/book-open-text';
 import IconLogIn from '~icons/lucide/log-in';
 import IconShieldQuestion from '~icons/lucide/shield-question';
@@ -92,13 +92,12 @@ const shareData = ref(true);
 const shareEmail = ref(true);
 
 const submitSelection = async () => {
-  if (shareData.value) {
-    await toggleDataSharing();
+  const dataSharingResult = shareData.value && (await toggleDataSharing());
+  const newsletterResult = shareEmail.value && (await toggleNewsletter());
+
+  if (dataSharingResult && newsletterResult) {
+    router.push('/');
   }
-  if (shareEmail.value) {
-    await toggleNewsletter();
-  }
-  router.push('/');
 };
 
 const dataSharingMutation = useMutation(ToggleAnalyticsCollectionDocument);
@@ -111,17 +110,26 @@ const toggleDataSharing = async () => {
   );
   if (result.error) {
     toast.error('Failed to update data sharing settings');
-  } else {
-    toast.success('Data sharing settings updated');
+    return false;
   }
+  return true;
 };
 
 const toggleNewsletter = async () => {
   shareData.value = !shareData.value;
-  await addSubscriberNewsletterList(
-    user?.email as string,
-    user?.displayName as string
-  );
+  try {
+    await listmonkApi.post('/subscription', {
+      email: user?.email,
+      name: user?.displayName,
+      list_uuids: ['f5f0b457-44d0-4aa1-b6f9-165dc1efa56a'],
+    });
+
+    return true;
+  } catch (e) {
+    console.error(e);
+    toast.error(t('Unable to update newsletter settings'));
+    return false;
+  }
 };
 </script>
 

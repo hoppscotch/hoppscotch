@@ -72,7 +72,9 @@
           </tippy>
         </div>
       </div>
-      <div ref="schemaEditor" class="flex flex-1 flex-col"></div>
+      <div class="h-full">
+        <div ref="schemaEditor"></div>
+      </div>
     </div>
     <component
       :is="response[0].error.component"

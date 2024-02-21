@@ -119,11 +119,12 @@
         />
       </div>
     </div>
-    <div
-      ref="jsonResponse"
-      class="flex h-auto h-full flex-1 flex-col"
-      :class="toggleFilter ? 'responseToggleOn' : 'responseToggleOff'"
-    ></div>
+    <div class="h-full">
+      <div
+        ref="jsonResponse"
+        :class="toggleFilter ? 'responseToggleOn' : 'responseToggleOff'"
+      ></div>
+    </div>
     <div
       v-if="outlinePath"
       class="sticky bottom-0 z-10 flex flex-shrink-0 flex-nowrap overflow-auto overflow-x-auto border-t border-dividerLight bg-primaryLight px-2"

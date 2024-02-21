@@ -44,11 +44,9 @@
         />
       </div>
     </div>
-    <div
-      v-show="!previewEnabled"
-      ref="htmlResponse"
-      class="flex flex-1 flex-col"
-    ></div>
+    <div v-show="!previewEnabled" class="h-full">
+      <div ref="htmlResponse" class="flex flex-1 flex-col"></div>
+    </div>
     <iframe
       v-show="previewEnabled"
       ref="previewFrame"

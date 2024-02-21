@@ -71,14 +71,14 @@ const getTestableBody = (
 
 const combineEnvVariables = (variables: {
   environments: {
-    global: Environment["variables"]
     selected: Environment["variables"]
+    global: Environment["variables"]
   }
   requestVariables: Environment["variables"]
 }) => [
   ...variables.requestVariables,
-  ...variables.environments.global,
   ...variables.environments.selected,
+  ...variables.environments.global,
 ]
 
 export const executedResponses$ = new Subject<

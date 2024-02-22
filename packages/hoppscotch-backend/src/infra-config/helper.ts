@@ -164,7 +164,7 @@ export async function isInfraConfigTablePopulated(): Promise<boolean> {
   const prisma = new PrismaService();
   try {
     const dbInfraConfigs = await prisma.infraConfig.findMany();
-    const infraConfigDefaultObjs = getDefaultInfraConfigs();
+    const infraConfigDefaultObjs = await getDefaultInfraConfigs();
 
     const propsRemainingToInsert = infraConfigDefaultObjs.filter(
       (p) => !dbInfraConfigs.find((e) => e.name === p.name),

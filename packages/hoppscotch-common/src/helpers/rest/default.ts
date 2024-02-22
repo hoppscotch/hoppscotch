@@ -8,7 +8,7 @@ export const getDefaultRESTRequest = (): HoppRESTRequest => ({
   headers: [],
   method: "GET",
   auth: {
-    authType: "none",
+    authType: "inherit",
     authActive: true,
   },
   preRequestScript: "",

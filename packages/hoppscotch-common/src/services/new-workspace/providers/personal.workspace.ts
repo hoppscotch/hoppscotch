@@ -37,7 +37,10 @@ import { WorkspaceProvider } from "~/services/new-workspace/provider"
 import {
   RESTCollectionChildrenView,
   RESTCollectionLevelAuthHeadersView,
+  RESTCollectionViewCollection,
   RESTCollectionViewItem,
+  RESTCollectionViewRequest,
+  RESTSearchResultsView,
   RootRESTCollectionView,
 } from "~/services/new-workspace/view"
 import {
@@ -766,6 +769,7 @@ export class PersonalWorkspaceProviderService
                   })
 
                   const requests = item.requests.map((req, id) => {
+                    // TODO: Replace `parentCollectionID` with `collectionID`
                     return <RESTCollectionViewItem>{
                       type: "request",
                       value: {
@@ -940,6 +944,174 @@ export class PersonalWorkspaceProviderService
           }
 
           return { type: "ok", data: { auth, headers } }
+        })
+      )
+    )
+  }
+
+  public getRESTSearchResultsView(
+    workspaceHandle: HandleRef<Workspace>,
+    searchQuery: Ref<string>
+  ): Promise<E.Either<never, HandleRef<RESTSearchResultsView>>> {
+    return Promise.resolve(
+      E.right(
+        computed(() => {
+          if (
+            workspaceHandle.value.type === "invalid" ||
+            workspaceHandle.value.data.providerID !== this.providerID ||
+            workspaceHandle.value.data.workspaceID !== "personal"
+          ) {
+            return {
+              type: "invalid" as const,
+              reason: "INVALID_WORKSPACE_HANDLE" as const,
+            }
+          }
+
+          if (!searchQuery.value) {
+            return markRaw({
+              type: "ok" as const,
+              data: {
+                providerID: this.providerID,
+                workspaceID: workspaceHandle.value.data.workspaceID,
+
+                loading: ref(false),
+
+                results: computed(() => {
+                  return this.restCollectionState.value.state.map(
+                    (coll, id) => {
+                      return <RESTCollectionViewItem>{
+                        type: "collection",
+                        value: {
+                          collectionID: id.toString(),
+                          isLastItem:
+                            id ===
+                            this.restCollectionState.value.state.length - 1,
+                          name: coll.name,
+                          parentCollectionID: null,
+                        },
+                      }
+                    }
+                  )
+                }),
+              },
+            })
+          }
+
+          return markRaw({
+            type: "ok" as const,
+            data: {
+              providerID: this.providerID,
+              workspaceID: workspaceHandle.value.data.workspaceID,
+
+              loading: ref(false),
+
+              results: computed(() => {
+                const filterText = searchQuery.value.toLowerCase()
+                const filteredCollections: RESTCollectionViewItem[] = []
+
+                const isMatch = (text: string) =>
+                  text.toLowerCase().includes(filterText)
+
+                for (const collection of this.restCollectionState.value.state) {
+                  const filteredRequests: Extract<
+                    RESTCollectionViewItem,
+                    { type: "request" }
+                  >[] = []
+
+                  const filteredFolders: Extract<
+                    RESTCollectionViewItem,
+                    { type: "collection" }
+                  >[] = []
+
+                  collection.requests.forEach((request, requestID) => {
+                    if (isMatch(request.name)) {
+                      filteredRequests.push({
+                        type: "request",
+                        value: {
+                          collectionID: collection.id!,
+                          isLastItem:
+                            collection.requests?.length > 1
+                              ? requestID === collection.requests.length - 1
+                              : false,
+                          // TODO: Replace `parentCollectionID` with `collectionID`
+                          parentCollectionID: collection.id!,
+                          requestID: requestID.toString(),
+                          request: request as HoppRESTRequest,
+                        },
+                      })
+                    }
+                  })
+
+                  collection.folders.forEach(
+                    (childCollection, childCollectionID) => {
+                      if (isMatch(childCollection.name)) {
+                        filteredFolders.push({
+                          type: "collection",
+                          value: {
+                            collectionID: `${collection.id}/${childCollectionID}`,
+                            isLastItem:
+                              collection.folders?.length > 1
+                                ? childCollectionID ===
+                                  collection.folders.length - 1
+                                : false,
+                            name: childCollection.name,
+                            parentCollectionID: collection.id!,
+                          },
+                        })
+                      }
+
+                      const filteredFolderRequests: Extract<
+                        RESTCollectionViewItem,
+                        { type: "request" }
+                      >[] = ([] = [])
+
+                      childCollection.requests.forEach(
+                        (request: HoppRESTRequest, requestID: number) => {
+                          if (isMatch(request.name))
+                            filteredFolderRequests.push({
+                              type: "request",
+                              value: {
+                                collectionID: childCollection.id!,
+                                isLastItem:
+                                  childCollection.requests?.length > 1
+                                    ? requestID ===
+                                      childCollection.requests.length - 1
+                                    : false,
+                                // TODO: Replace `parentCollectionID` with `collectionID`
+                                parentCollectionID: childCollection.id!,
+                                requestID: requestID.toString(),
+                                request,
+                              },
+                            })
+                        }
+                      )
+
+                      if (filteredFolderRequests.length > 0) {
+                        const filteredFolder = Object.assign(
+                          {},
+                          childCollection
+                        )
+                        filteredFolder.requests = filteredFolderRequests
+                        filteredFolders.push(filteredFolder)
+                      }
+                    }
+                  )
+
+                  if (
+                    filteredRequests.length + filteredFolders.length > 0 ||
+                    isMatch(collection.name)
+                  ) {
+                    filteredCollections.push(
+                      ...filteredFolders,
+                      ...filteredRequests
+                    )
+                  }
+                }
+
+                return filteredCollections
+              }),
+            },
+          })
         })
       )
     )

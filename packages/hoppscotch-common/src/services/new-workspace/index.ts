@@ -1,4 +1,6 @@
+import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
 import { Service } from "dioc"
+import * as E from "fp-ts/Either"
 import {
   Component,
   Ref,
@@ -8,17 +10,15 @@ import {
   shallowRef,
   watch,
 } from "vue"
-import { WorkspaceProvider } from "./provider"
 import { HandleRef } from "./handle"
-import * as E from "fp-ts/Either"
-import { Workspace, WorkspaceCollection, WorkspaceRequest } from "./workspace"
+import { WorkspaceProvider } from "./provider"
 import {
   RESTCollectionChildrenView,
   RESTCollectionLevelAuthHeadersView,
   RESTSearchResultsView,
   RootRESTCollectionView,
 } from "./view"
-import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
+import { Workspace, WorkspaceCollection, WorkspaceRequest } from "./workspace"
 
 export type WorkspaceError<ServiceErr> =
   | { type: "SERVICE_ERROR"; error: ServiceErr }

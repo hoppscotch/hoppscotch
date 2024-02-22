@@ -61,7 +61,113 @@
       </div>
 
       <div class="flex flex-1 flex-col">
-        <HoppSmartTree :adapter="treeAdapter">
+        <HoppSmartTree v-if="searchText" :adapter="searchTreeAdapter">
+          <template
+            #content="{ highlightChildren, isOpen, node, toggleChildren }"
+          >
+            <NewCollectionsRestCollection
+              v-if="node.data.type === 'collection'"
+              :collection-view="node.data.value"
+              :is-open="isOpen"
+              :is-selected="
+                isSelected(
+                  getCollectionIndexPathArgs(node.data.value.collectionID)
+                )
+              "
+              :save-request="saveRequest"
+              @add-request="addRequest"
+              @add-child-collection="addChildCollection"
+              @dragging="
+                (isDraging) =>
+                  highlightChildren(
+                    isDraging ? node.data.value.collectionID : null
+                  )
+              "
+              @drag-event="dragEvent($event, node.data.value.collectionID)"
+              @drop-event="dropEvent($event, node.data.value.collectionID)"
+              @edit-child-collection="editChildCollection"
+              @edit-root-collection="editRootCollection"
+              @edit-collection-properties="editCollectionProperties"
+              @export-collection="exportCollection"
+              @remove-child-collection="removeChildCollection"
+              @remove-root-collection="removeRootCollection"
+              @select-pick="onSelectPick"
+              @toggle-children="
+                () => {
+                  toggleChildren(),
+                    saveRequest &&
+                      onSelectPick({
+                        pickedType: isAlreadyInRoot(
+                          node.data.value.collectionID
+                        )
+                          ? 'my-collection'
+                          : 'my-folder',
+                        ...getCollectionIndexPathArgs(
+                          node.data.value.collectionID
+                        ),
+                      })
+                }
+              "
+              @update-collection-order="
+                updateCollectionOrder($event, {
+                  destinationCollectionIndex: node.data.value.collectionID,
+                  destinationCollectionParentIndex:
+                    node.data.value.parentCollectionID,
+                })
+              "
+              @update-last-collection-order="
+                updateCollectionOrder($event, {
+                  destinationCollectionIndex: null,
+                  destinationCollectionParentIndex:
+                    node.data.value.parentCollectionID,
+                })
+              "
+            />
+
+            <NewCollectionsRestRequest
+              v-else-if="node.data.type === 'request'"
+              :is-active="isActiveRequest(node.data.value)"
+              :is-selected="
+                isSelected(getRequestIndexPathArgs(node.data.value.requestID))
+              "
+              :request-view="node.data.value"
+              :save-request="saveRequest"
+              @drag-request="
+                dragRequest($event, {
+                  parentCollectionIndexPath: node.data.value.parentCollectionID,
+                  requestIndex: node.data.value.requestID,
+                })
+              "
+              @duplicate-request="duplicateRequest"
+              @edit-request="editRequest"
+              @remove-request="removeRequest"
+              @select-pick="onSelectPick"
+              @select-request="selectRequest"
+              @share-request="shareRequest"
+              @update-request-order="
+                updateRequestOrder($event, {
+                  parentCollectionIndexPath: node.data.value.parentCollectionID,
+                  requestIndex: node.data.value.requestID,
+                })
+              "
+              @update-last-request-order="
+                updateRequestOrder($event, {
+                  parentCollectionIndexPath: node.data.value.parentCollectionID,
+                  requestIndex: null,
+                })
+              "
+            />
+            <div v-else @click="toggleChildren">
+              {{ node.data.value }}
+            </div>
+          </template>
+          <template #emptyNode>
+            <!-- TODO: Implement -->
+            <div>Empty Node!</div>
+          </template>
+        </HoppSmartTree>
+
+        <HoppSmartTree v-show="!searchText" :adapter="treeAdapter">
           <template
             #content="{ highlightChildren, isOpen, node, toggleChildren }"
           >
@@ -248,7 +354,7 @@
 import * as E from "fp-ts/lib/Either"
 
 import { useService } from "dioc/vue"
-import { markRaw, nextTick, ref } from "vue"
+import { markRaw, nextTick, ref, watch } from "vue"
 
 import { HoppCollection, HoppRESTAuth, HoppRESTRequest } from "@hoppscotch/data"
 import { cloneDeep, isEqual } from "lodash-es"
@@ -282,6 +388,7 @@ import { RESTTabService } from "~/services/tab/rest"
 import IconImport from "~icons/lucide/folder-down"
 import IconHelpCircle from "~icons/lucide/help-circle"
 import IconPlus from "~icons/lucide/plus"
+import { WorkspaceRESTSearchCollectionTreeAdapter } from "~/helpers/adapters/WorkspaceRESTCollectionSearchTreeAdapter"
 
 const t = useI18n()
 const toast = useToast()
@@ -336,6 +443,12 @@ const editingChildCollectionName = ref<string>("")
 const editingRequestName = ref<string>("")
 const editingRequestIndexPath = ref<string>("")
 
+const filteredCollections = ref<HoppCollection[]>([])
+
+const searchTreeAdapter = new WorkspaceRESTSearchCollectionTreeAdapter(
+  filteredCollections
+)
+
 const editingProperties = ref<{
   collection: Omit<HoppCollection, "v"> | TeamCollection | null
   isRootCollection: boolean
@@ -353,6 +466,32 @@ const confirmModalTitle = ref<string | null>(null)
 const currentUser = useReadonlyStream(
   platform.auth.getCurrentUserStream(),
   platform.auth.getCurrentUser()
+)
+
+watch(
+  () => searchText.value,
+  async (newSearchText: string) => {
+    const searchResultsHandleResult =
+      await workspaceService.getRESTSearchResultsView(
+        props.workspaceHandle,
+        newSearchText
+      )
+
+    if (E.isLeft(searchResultsHandleResult)) {
+      filteredCollections.value = []
+      return
+    }
+
+    const searchResultsHandle = searchResultsHandleResult.right
+
+    if (searchResultsHandle.value.type === "invalid") {
+      filteredCollections.value = []
+      return
+    }
+
+    filteredCollections.value = searchResultsHandle.value.data.results.value
+  },
+  { immediate: true }
 )
 
 const isSelected = ({

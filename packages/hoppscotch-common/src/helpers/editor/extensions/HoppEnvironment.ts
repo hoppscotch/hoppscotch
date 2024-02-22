@@ -29,8 +29,11 @@ const HOPP_ENVIRONMENT_REGEX = /(<<[a-zA-Z0-9-_]+>>)/g
 
 const HOPP_ENV_HIGHLIGHT =
   "cursor-help transition rounded px-1 focus:outline-none mx-0.5 env-highlight"
-const HOPP_ENV_HIGHLIGHT_FOUND = "env-found"
-const HOPP_ENV_HIGHLIGHT_NOT_FOUND = "env-not-found"
+
+const HOPP_REQUEST_VARIABLE_HIGHLIGHT = "request-variable-highlight"
+const HOPP_ENVIRONMENT_HIGHLIGHT = "environment-variable-highlight"
+const HOPP_GLOBAL_ENVIRONMENT_HIGHLIGHT = "global-variable-highlight"
+const HOPP_ENV_HIGHLIGHT_NOT_FOUND = "environment-not-found-highlight"
 
 const secretEnvironmentService = getService(SecretEnvironmentService)
 const restTabs = getService(RESTTabService)
@@ -172,11 +175,16 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
   )
 
 function checkEnv(env: string, aggregateEnvs: AggregateEnvironment[]) {
-  const className = aggregateEnvs.find(
+  let className = HOPP_ENV_HIGHLIGHT_NOT_FOUND
+
+  const envSource = aggregateEnvs.find(
     (k: { key: string }) => k.key === env.slice(2, -2)
-  )
-    ? HOPP_ENV_HIGHLIGHT_FOUND
-    : HOPP_ENV_HIGHLIGHT_NOT_FOUND
+  )?.sourceEnv
+
+  if (envSource === "RequestVariable")
+    className = HOPP_REQUEST_VARIABLE_HIGHLIGHT
+  else if (envSource === "Global") className = HOPP_GLOBAL_ENVIRONMENT_HIGHLIGHT
+  else if (envSource !== undefined) className = HOPP_ENVIRONMENT_HIGHLIGHT
 
   return Decoration.mark({
     class: `${HOPP_ENV_HIGHLIGHT} ${className}`,

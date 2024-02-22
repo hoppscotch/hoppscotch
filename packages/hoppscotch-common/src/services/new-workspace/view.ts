@@ -46,3 +46,12 @@ export interface RESTCollectionChildrenView {
 
   content: Ref<RESTCollectionViewItem[]>
 }
+
+export interface RESTSearchResultsView {
+  providerID: string
+  workspaceID: string
+
+  loading: Ref<boolean>
+
+  results: Ref<RESTCollectionViewItem[]>
+}

@@ -951,7 +951,7 @@ export class PersonalWorkspaceProviderService
 
   public getRESTSearchResultsView(
     workspaceHandle: HandleRef<Workspace>,
-    searchQuery: Ref<string>
+    searchQuery: string
   ): Promise<E.Either<never, HandleRef<RESTSearchResultsView>>> {
     return Promise.resolve(
       E.right(
@@ -967,7 +967,7 @@ export class PersonalWorkspaceProviderService
             }
           }
 
-          if (!searchQuery.value) {
+          if (!searchQuery) {
             return {
               type: "ok" as const,
               data: {
@@ -990,7 +990,7 @@ export class PersonalWorkspaceProviderService
               loading: ref(false),
 
               results: computed(() => {
-                const filterText = searchQuery.value.toLowerCase()
+                const filterText = searchQuery.toLowerCase()
                 const filteredCollections = []
 
                 const isMatch = (text: string) =>

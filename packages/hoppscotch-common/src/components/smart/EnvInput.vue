@@ -93,6 +93,7 @@ import IconEyeoff from "~icons/lucide/eye-off"
 import { CompletionContext, autocompletion } from "@codemirror/autocomplete"
 import { useService } from "dioc/vue"
 import { RESTTabService } from "~/services/tab/rest"
+import { syntaxTree } from "@codemirror/language"
 
 const t = useI18n()
 
@@ -405,16 +406,14 @@ function envAutoCompletion(context: CompletionContext) {
         }
       })
     : []
-
-  const textBefore = context.state.sliceDoc(context.pos - 2, context.pos)
-
-  const tagBefore = /<<\w*/.exec(textBefore)
-
-  if (!tagBefore) return null
-
+  const nodeBefore = syntaxTree(context.state).resolveInner(context.pos, -1)
+  const textBefore = context.state.sliceDoc(nodeBefore.from, context.pos)
+  const tagBefore = /<<\w*$/.exec(textBefore)
+  if (!tagBefore && !context.explicit) return null
   return {
-    from: context.pos - 2,
+    from: tagBefore ? nodeBefore.from + tagBefore.index : context.pos,
     options: options,
+    validFor: /^(<<\w*)?$/,
   }
 }
 

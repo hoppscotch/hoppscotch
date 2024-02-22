@@ -381,14 +381,15 @@ const envVars = computed(() => {
       })
     : [
         ...tabs.currentActiveTab.value.document.request.requestVariables.map(
-          (x) => {
-            return {
-              key: x.key,
-              value: x.value,
-              sourceEnv: "RequestVariable",
-              secret: false,
-            }
-          }
+          (x) =>
+            x.active
+              ? {
+                  key: x.key,
+                  value: x.value,
+                  sourceEnv: "RequestVariable",
+                  secret: false,
+                }
+              : ([] as unknown as AggregateEnvironment)
         ),
         ...aggregateEnvs.value,
       ]

@@ -1,4 +1,4 @@
-import { HoppRESTRequest } from "@hoppscotch/data"
+import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
 import { Ref } from "vue"
 import { HoppInheritedRESTProperty } from "~/helpers/types/HoppInheritedProperties"
 
@@ -53,5 +53,5 @@ export interface RESTSearchResultsView {
 
   loading: Ref<boolean>
 
-  results: Ref<RESTCollectionViewItem[]>
+  results: Ref<HoppCollection[]>
 }

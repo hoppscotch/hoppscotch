@@ -968,7 +968,7 @@ export class PersonalWorkspaceProviderService
           }
 
           if (!searchQuery.value) {
-            return markRaw({
+            return {
               type: "ok" as const,
               data: {
                 providerID: this.providerID,
@@ -976,25 +976,9 @@ export class PersonalWorkspaceProviderService
 
                 loading: ref(false),
 
-                results: computed(() => {
-                  return this.restCollectionState.value.state.map(
-                    (coll, id) => {
-                      return <RESTCollectionViewItem>{
-                        type: "collection",
-                        value: {
-                          collectionID: id.toString(),
-                          isLastItem:
-                            id ===
-                            this.restCollectionState.value.state.length - 1,
-                          name: coll.name,
-                          parentCollectionID: null,
-                        },
-                      }
-                    }
-                  )
-                }),
+                results: ref(this.restCollectionState.value.state),
               },
-            })
+            }
           }
 
           return markRaw({
@@ -1007,104 +991,39 @@ export class PersonalWorkspaceProviderService
 
               results: computed(() => {
                 const filterText = searchQuery.value.toLowerCase()
-                const filteredCollections: RESTCollectionViewItem[] = []
+                const filteredCollections = []
 
                 const isMatch = (text: string) =>
                   text.toLowerCase().includes(filterText)
 
                 for (const collection of this.restCollectionState.value.state) {
-                  const filteredRequests: Extract<
-                    RESTCollectionViewItem,
-                    { type: "request" }
-                  >[] = []
-
-                  const filteredFolders: Extract<
-                    RESTCollectionViewItem,
-                    { type: "collection" }
-                  >[] = []
-
-                  collection.requests.forEach((request, requestID) => {
-                    if (isMatch(request.name)) {
-                      filteredRequests.push({
-                        type: "request",
-                        value: {
-                          collectionID: collection.id!,
-                          isLastItem:
-                            collection.requests?.length > 1
-                              ? requestID === collection.requests.length - 1
-                              : false,
-                          // TODO: Replace `parentCollectionID` with `collectionID`
-                          parentCollectionID: collection.id!,
-                          requestID: requestID.toString(),
-                          request: request as HoppRESTRequest,
-                        },
-                      })
+                  const filteredRequests = []
+                  const filteredFolders = []
+                  for (const request of collection.requests) {
+                    if (isMatch(request.name)) filteredRequests.push(request)
+                  }
+                  for (const folder of collection.folders) {
+                    if (isMatch(folder.name)) filteredFolders.push(folder)
+                    const filteredFolderRequests = []
+                    for (const request of folder.requests) {
+                      if (isMatch(request.name))
+                        filteredFolderRequests.push(request)
                     }
-                  })
-
-                  collection.folders.forEach(
-                    (childCollection, childCollectionID) => {
-                      if (isMatch(childCollection.name)) {
-                        filteredFolders.push({
-                          type: "collection",
-                          value: {
-                            collectionID: `${collection.id}/${childCollectionID}`,
-                            isLastItem:
-                              collection.folders?.length > 1
-                                ? childCollectionID ===
-                                  collection.folders.length - 1
-                                : false,
-                            name: childCollection.name,
-                            parentCollectionID: collection.id!,
-                          },
-                        })
-                      }
-
-                      const filteredFolderRequests: Extract<
-                        RESTCollectionViewItem,
-                        { type: "request" }
-                      >[] = ([] = [])
-
-                      childCollection.requests.forEach(
-                        (request: HoppRESTRequest, requestID: number) => {
-                          if (isMatch(request.name))
-                            filteredFolderRequests.push({
-                              type: "request",
-                              value: {
-                                collectionID: childCollection.id!,
-                                isLastItem:
-                                  childCollection.requests?.length > 1
-                                    ? requestID ===
-                                      childCollection.requests.length - 1
-                                    : false,
-                                // TODO: Replace `parentCollectionID` with `collectionID`
-                                parentCollectionID: childCollection.id!,
-                                requestID: requestID.toString(),
-                                request,
-                              },
-                            })
-                        }
-                      )
-
-                      if (filteredFolderRequests.length > 0) {
-                        const filteredFolder = Object.assign(
-                          {},
-                          childCollection
-                        )
-                        filteredFolder.requests = filteredFolderRequests
-                        filteredFolders.push(filteredFolder)
-                      }
+                    if (filteredFolderRequests.length > 0) {
+                      const filteredFolder = Object.assign({}, folder)
+                      filteredFolder.requests = filteredFolderRequests
+                      filteredFolders.push(filteredFolder)
                     }
-                  )
+                  }
 
                   if (
                     filteredRequests.length + filteredFolders.length > 0 ||
                     isMatch(collection.name)
                   ) {
-                    filteredCollections.push(
-                      ...filteredFolders,
-                      ...filteredRequests
-                    )
+                    const filteredCollection = Object.assign({}, collection)
+                    filteredCollection.requests = filteredRequests
+                    filteredCollection.folders = filteredFolders
+                    filteredCollections.push(filteredCollection)
                   }
                 }
 

@@ -75,6 +75,7 @@
       :id="'requestVariables'"
       :label="`${t('tab.variables')}`"
       :info="`${newActiveRequestVariablesCount$}`"
+      :align-last="true"
     >
       <HttpRequestVariables v-model="request.requestVariables" />
     </HoppSmartTab>

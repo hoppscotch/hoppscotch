@@ -264,10 +264,7 @@ import {
   updateInheritedPropertiesForAffectedRequests,
   updateSaveContextForAffectedRequests,
 } from "~/helpers/collection/collection"
-import {
-  getRequestsByPath,
-  resolveSaveContextOnRequestReorder,
-} from "~/helpers/collection/request"
+import { getRequestsByPath } from "~/helpers/collection/request"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import { Picked } from "~/helpers/types/HoppPicked"
 import {
@@ -1523,16 +1520,6 @@ const dropRequest = async (payload: {
     }
   }
 
-  // When it's drop it's basically getting deleted from last folder. reordering last folder accordingly
-  resolveSaveContextOnRequestReorder({
-    lastIndex: pathToLastIndex(requestIndex),
-    newIndex: -1, // being deleted from last folder
-    folderPath: parentCollectionIndexPath,
-    length:
-      getRequestsByPath(restCollectionState.value, parentCollectionIndexPath)
-        .length - 1,
-  })
-
   toast.success(`${t("request.moved")}`)
   draggingToRoot.value = false
 }
@@ -1568,10 +1555,13 @@ const dropCollection = async (payload: {
     return
   }
 
-  const parentFolder = draggedCollectionIndex.split("/").slice(0, -1).join("/") // remove last folder to get parent folder
+  const draggedParentCollection = draggedCollectionIndex
+    .split("/")
+    .slice(0, -1)
+    .join("/") // remove last folder to get parent folder
   const totalFoldersOfDestinationCollection =
     getFoldersByPath(restCollectionState.value, destinationCollectionIndex)
-      .length - (parentFolder === destinationCollectionIndex ? 1 : 0)
+      .length - (draggedParentCollection === destinationCollectionIndex ? 1 : 0)
 
   const draggedCollectionHandleResult =
     await workspaceService.getCollectionHandle(
@@ -1605,8 +1595,11 @@ const dropCollection = async (payload: {
     {
       lastIndex: pathToLastIndex(draggedCollectionIndex),
       newIndex: -1,
-      folderPath: parentFolder,
-      length: getFoldersByPath(restCollectionState.value, parentFolder).length,
+      folderPath: draggedParentCollection,
+      length: getFoldersByPath(
+        restCollectionState.value,
+        draggedParentCollection
+      ).length,
     },
     "drop"
   )
@@ -1736,7 +1729,7 @@ const updateCollectionOrder = async (
   dataTransfer: DataTransfer,
   destinationCollection: {
     destinationCollectionIndex: string | null
-    destinationCollectionParentIndex: string | null
+    destinationCollectionParentIndex: string
   }
 ) => {
   const draggedCollectionIndex = dataTransfer.getData("collectionIndex")
@@ -1788,9 +1781,28 @@ const updateCollectionOrder = async (
     return
   }
 
+  // Moving to the last position indicated by `destinationCollectionIndex` being `null` requires computing the index path of the new child collection being inserted
+  let newDestinationCollectionIndex = 0
+  if (destinationCollectionIndex === null) {
+    const destinationCollectionParent = navigateToFolderWithIndexPath(
+      restCollectionState.value,
+      destinationCollectionParentIndex.split("/").map((id) => parseInt(id))
+    )
+
+    if (!destinationCollectionParent) {
+      return
+    }
+
+    newDestinationCollectionIndex = destinationCollectionParent.folders.length
+  }
+
   resolveSaveContextOnCollectionReorder({
     lastIndex: pathToLastIndex(draggedCollectionIndex),
-    newIndex: pathToLastIndex(destinationCollectionIndex ?? ""),
+    newIndex: pathToLastIndex(
+      destinationCollectionIndex
+        ? destinationCollectionIndex
+        : newDestinationCollectionIndex.toString()
+    ),
     folderPath: draggedCollectionIndex.split("/").slice(0, -1).join("/"),
   })
 

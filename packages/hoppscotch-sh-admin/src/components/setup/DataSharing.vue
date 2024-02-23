@@ -70,7 +70,6 @@
 <script setup lang="ts">
 import { useMutation } from '@urql/vue';
 import { ref } from 'vue';
-import { useRouter } from 'vue-router';
 import { useI18n } from '~/composables/i18n';
 import { useToast } from '~/composables/toast';
 import { auth } from '~/helpers/auth';
@@ -85,8 +84,11 @@ import IconShieldQuestion from '~icons/lucide/shield-question';
 
 const t = useI18n();
 const toast = useToast();
-const router = useRouter();
 const user = auth.getCurrentUser();
+
+const emit = defineEmits<{
+  (event: 'onSetupComplete', status: boolean): void;
+}>();
 
 const shareData = ref(true);
 const shareEmail = ref(true);
@@ -95,9 +97,9 @@ const submitSelection = async () => {
   const dataSharingResult = shareData.value && (await toggleDataSharing());
   const newsletterResult = shareEmail.value && (await toggleNewsletter());
 
-  if (dataSharingResult && newsletterResult) {
-    router.push('/');
-  }
+  // if (dataSharingResult && newsletterResult) {
+  emit('onSetupComplete', true);
+  // }
 };
 
 const dataSharingMutation = useMutation(ToggleAnalyticsCollectionDocument);
@@ -132,8 +134,3 @@ const toggleNewsletter = async () => {
   }
 };
 </script>
-
-<route lang="yaml">
-meta:
-  layout: empty
-</route>

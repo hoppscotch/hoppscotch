@@ -1,0 +1,70 @@
+import { Ref } from "vue"
+import * as E from "fp-ts/Either"
+import { HandleRef } from "./handle"
+import {
+  Workspace,
+  WorkspaceCollection,
+  WorkspaceDecor,
+  WorkspaceRequest,
+} from "./workspace"
+import {
+  RESTCollectionLevelAuthHeadersView,
+  RESTCollectionChildrenView,
+  RootRESTCollectionView,
+} from "./view"
+import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
+
+export interface WorkspaceProvider {
+  providerID: string
+
+  workspaceDecor?: Ref<WorkspaceDecor>
+
+  getWorkspaceHandle(
+    workspaceID: string
+  ): Promise<E.Either<unknown, HandleRef<Workspace>>>
+  getCollectionHandle(
+    workspaceHandle: HandleRef<Workspace>,
+    collectionID: string
+  ): Promise<E.Either<unknown, HandleRef<WorkspaceCollection>>>
+  getRequestHandle(
+    workspaceHandle: HandleRef<Workspace>,
+    requestID: string
+  ): Promise<E.Either<unknown, HandleRef<WorkspaceRequest>>>
+
+  getRESTRootCollectionView(
+    workspaceHandle: HandleRef<Workspace>
+  ): Promise<E.Either<unknown, HandleRef<RootRESTCollectionView>>>
+  getRESTCollectionChildrenView(
+    collectionHandle: HandleRef<WorkspaceCollection>
+  ): Promise<E.Either<unknown, HandleRef<RESTCollectionChildrenView>>>
+  getRESTCollectionLevelAuthHeadersView(
+    collectionHandle: HandleRef<WorkspaceCollection>
+  ): Promise<E.Either<unknown, HandleRef<RESTCollectionLevelAuthHeadersView>>>
+
+  createRESTRootCollection(
+    workspaceHandle: HandleRef<Workspace>,
+    newCollection: Partial<HoppCollection>
+  ): Promise<E.Either<unknown, HandleRef<WorkspaceCollection>>>
+  createRESTChildCollection(
+    parentCollectionHandle: HandleRef<WorkspaceCollection>,
+    newChildCollection: Partial<HoppCollection>
+  ): Promise<E.Either<unknown, HandleRef<WorkspaceCollection>>>
+  updateRESTCollection(
+    collectionHandle: HandleRef<WorkspaceCollection>,
+    updatedCollection: Partial<HoppCollection>
+  ): Promise<E.Either<unknown, void>>
+  removeRESTCollection(
+    collectionHandle: HandleRef<WorkspaceCollection>
+  ): Promise<E.Either<unknown, void>>
+  createRESTRequest(
+    parentCollectionHandle: HandleRef<WorkspaceCollection>,
+    newRequest: HoppRESTRequest
+  ): Promise<E.Either<unknown, HandleRef<WorkspaceRequest>>>
+  updateRESTRequest(
+    requestHandle: HandleRef<WorkspaceRequest>,
+    updatedRequest: Partial<HoppRESTRequest>
+  ): Promise<E.Either<unknown, void>>
+  removeRESTRequest(
+    requestHandle: HandleRef<WorkspaceRequest>
+  ): Promise<E.Either<unknown, void>>
+}

@@ -9,6 +9,32 @@ export type HoppRESTSaveContext =
       /**
        * The origin source of the request
        */
+      // TODO: Make this `user-collection` after porting all usages
+      originLocation: "workspace-user-collection"
+      /**
+       * ID of the workspace
+       */
+      workspaceID: string
+
+      /**
+       * ID of the provider
+       */
+      providerID: string
+
+      /**
+       * ID of the collection
+       */
+      collectionID: string
+
+      /**
+       * Path to the request in the collection tree
+       */
+      requestID: string
+    }
+  | {
+      /**
+       * The origin source of the request
+       */
       originLocation: "user-collection"
       /**
        * Path to the request folder

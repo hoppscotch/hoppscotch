@@ -47,8 +47,17 @@ export class RESTTabService extends TabService<HoppRESTDocument> {
         ) {
           return this.getTabRef(tab.id)
         }
-      } else if (isEqual(ctx, tab.document.saveContext)) {
-        return this.getTabRef(tab.id)
+      } else if (ctx?.originLocation === "user-collection") {
+        if (isEqual(ctx, tab.document.saveContext)) {
+          return this.getTabRef(tab.id)
+        }
+      } else if (
+        ctx?.originLocation === "workspace-user-collection" &&
+        tab.document.saveContext?.originLocation === "workspace-user-collection"
+      ) {
+        if (isEqual(ctx, tab.document.saveContext)) {
+          return this.getTabRef(tab.id)
+        }
       }
     }
 

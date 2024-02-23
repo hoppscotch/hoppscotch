@@ -93,14 +93,14 @@
 <script setup lang="ts">
 import { ref } from "vue"
 import { TippyComponent } from "vue-tippy"
-import { getMethodLabelColorClassOf } from "~/helpers/rest/labelColoring"
 import { useI18n } from "~/composables/i18n"
+import { HoppRESTDocument } from "~/helpers/rest/document"
+import { getMethodLabelColorClassOf } from "~/helpers/rest/labelColoring"
+import { HoppTab } from "~/services/tab"
+import IconCopy from "~icons/lucide/copy"
+import IconFileEdit from "~icons/lucide/file-edit"
 import IconXCircle from "~icons/lucide/x-circle"
 import IconXSquare from "~icons/lucide/x-square"
-import IconFileEdit from "~icons/lucide/file-edit"
-import IconCopy from "~icons/lucide/copy"
-import { HoppTab } from "~/services/tab"
-import { HoppRESTDocument } from "~/helpers/rest/document"
 
 const t = useI18n()
 

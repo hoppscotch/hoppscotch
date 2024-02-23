@@ -1,12 +1,13 @@
 import { HoppCollection } from "@hoppscotch/data"
-import { getAffectedIndexes } from "./affectedIndex"
-import { GetSingleRequestDocument } from "../backend/graphql"
-import { runGQLQuery } from "../backend/GQLClient"
 import * as E from "fp-ts/Either"
+
 import { getService } from "~/modules/dioc"
-import { RESTTabService } from "~/services/tab/rest"
-import { HoppInheritedProperty } from "../types/HoppInheritedProperties"
 import { GQLTabService } from "~/services/tab/graphql"
+import { RESTTabService } from "~/services/tab/rest"
+import { runGQLQuery } from "../backend/GQLClient"
+import { GetSingleRequestDocument } from "../backend/graphql"
+import { HoppInheritedProperty } from "../types/HoppInheritedProperties"
+import { getAffectedIndexes } from "./affectedIndex"
 
 /**
  * Resolve save context on reorder
@@ -162,30 +163,64 @@ export function updateInheritedPropertiesForAffectedRequests(
   let tabs
   if (workspace === "personal") {
     tabs = tabService.getTabsRefTo((tab) => {
+      if (tab.document.saveContext?.originLocation === "user-collection") {
+        return tab.document.saveContext.folderPath.startsWith(path)
+      }
+
+      if (
+        tab.document.saveContext?.originLocation !== "workspace-user-collection"
+      ) {
+        return false
+      }
+
+      const { collectionID } = tab.document.saveContext
+
       return (
-        tab.document.saveContext?.originLocation === "user-collection" &&
-        tab.document.saveContext.folderPath.startsWith(path)
+        tab.document.saveContext?.originLocation ===
+          "workspace-user-collection" && collectionID.startsWith(path)
       )
     })
   } else {
     tabs = tabService.getTabsRefTo((tab) => {
       return (
         tab.document.saveContext?.originLocation === "team-collection" &&
-        tab.document.saveContext.collectionID?.startsWith(path)
+        Boolean(tab.document.saveContext.collectionID?.startsWith(path))
       )
     })
   }
 
   const tabsEffectedByAuth = tabs.filter((tab) => {
     if (workspace === "personal") {
+      if (
+        tab.value.document.saveContext?.originLocation === "user-collection"
+      ) {
+        return (
+          tab.value.document.saveContext.folderPath.startsWith(path) &&
+          path ===
+            folderPathCloseToSaveContext(
+              tab.value.document.inheritedProperties?.auth.parentID,
+              path,
+              tab.value.document.saveContext.folderPath
+            )
+        )
+      }
+
+      if (
+        tab.value.document.saveContext?.originLocation !==
+        "workspace-user-collection"
+      ) {
+        return false
+      }
+
+      const { collectionID } = tab.value.document.saveContext
+
       return (
-        tab.value.document.saveContext?.originLocation === "user-collection" &&
-        tab.value.document.saveContext.folderPath.startsWith(path) &&
+        collectionID.startsWith(path) &&
         path ===
           folderPathCloseToSaveContext(
             tab.value.document.inheritedProperties?.auth.parentID,
             path,
-            tab.value.document.saveContext.folderPath
+            collectionID
           )
       )
     }

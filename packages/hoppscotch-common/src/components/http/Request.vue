@@ -535,6 +535,10 @@ const saveRequest = async () => {
     if (E.isLeft(requestHandleResult)) {
       // INVALID_COLLECTION_HANDLE | INVALID_REQUEST_ID | REQUEST_NOT_FOUND
       showSaveRequestModal.value = true
+
+      if (!tab.value.document.isDirty) {
+        tab.value.document.isDirty = true
+      }
       return
     }
 
@@ -557,6 +561,10 @@ const saveRequest = async () => {
     if (E.isLeft(updateRequestResult)) {
       // INVALID_REQUEST_HANDLE
       showSaveRequestModal.value = true
+
+      if (!tab.value.document.isDirty) {
+        tab.value.document.isDirty = true
+      }
       return
     }
 

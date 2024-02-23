@@ -154,6 +154,14 @@ export const auth = {
   getCurrentUserStream: () => currentUser$,
   getAuthEventsStream: () => authEvents$,
   getCurrentUser: () => currentUser$.value,
+  checkCurrentUser: async () => {
+    try {
+      const res = await authQuery.getUserDetails();
+      return res.data.data.me;
+    } catch (err) {
+      return null;
+    }
+  },
 
   performAuthInit: () => {
     const currentUser = JSON.parse(getLocalConfig('login_state') ?? 'null');
@@ -231,5 +239,25 @@ export const auth = {
   getAllowedAuthProviders: async () => {
     const res = await authQuery.getProviders();
     return res.data?.providers;
+  },
+
+  getFirstTimeInfraSetupStatus: async (): Promise<boolean> => {
+    try {
+      const res = await authQuery.getFirstTimeInfraSetupStatus();
+      return res.data?.value;
+    } catch (err) {
+      // Setup is not done
+      return true;
+    }
+  },
+
+  updateFirstTimeInfraSetupStatus: async () => {
+    try {
+      await authQuery.updateFirstTimeInfraSetupStatus();
+      return true;
+    } catch (err) {
+      console.error(err);
+      return false;
+    }
   },
 };

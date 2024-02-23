@@ -232,6 +232,7 @@ import { useI18n } from "@composables/i18n"
 import { useColorMode } from "@composables/theming"
 import { useVModel } from "@vueuse/core"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
+import { onMounted } from "vue"
 
 const t = useI18n()
 
@@ -247,6 +248,15 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: "update:modelValue", value: HoppGQLAuth): void
 }>()
+
+onMounted(() => {
+  if (props.isRootCollection && auth.value.authType === "inherit") {
+    auth.value = {
+      authType: "none",
+      authActive: true,
+    }
+  }
+})
 
 const auth = useVModel(props, "modelValue", emit)
 

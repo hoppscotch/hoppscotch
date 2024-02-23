@@ -213,6 +213,7 @@ import { pluckRef } from "@composables/ref"
 import { useI18n } from "@composables/i18n"
 import { useColorMode } from "@composables/theming"
 import { useVModel } from "@vueuse/core"
+import { onMounted } from "vue"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 
 const t = useI18n()
@@ -231,6 +232,15 @@ const emit = defineEmits<{
 }>()
 
 const auth = useVModel(props, "modelValue", emit)
+
+onMounted(() => {
+  if (props.isRootCollection && auth.value.authType === "inherit") {
+    auth.value = {
+      authType: "none",
+      authActive: true,
+    }
+  }
+})
 
 const AUTH_KEY_NAME = {
   basic: "Basic Auth",

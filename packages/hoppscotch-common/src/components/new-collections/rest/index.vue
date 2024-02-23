@@ -368,7 +368,6 @@ import {
   getFoldersByPath,
   resolveSaveContextOnCollectionReorder,
   updateInheritedPropertiesForAffectedRequests,
-  updateSaveContextForAffectedRequests,
 } from "~/helpers/collection/collection"
 import { getRequestsByPath } from "~/helpers/collection/request"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
@@ -1698,7 +1697,8 @@ const dropCollection = async (payload: {
     .split("/")
     .slice(0, -1)
     .join("/") // remove last folder to get parent folder
-  const totalFoldersOfDestinationCollection =
+
+  const totalChildCollectionsInDestinationCollection =
     getFoldersByPath(restCollectionState.value, destinationCollectionIndex)
       .length - (draggedParentCollection === destinationCollectionIndex ? 1 : 0)
 
@@ -1730,22 +1730,36 @@ const dropCollection = async (payload: {
     return
   }
 
-  resolveSaveContextOnCollectionReorder(
-    {
-      lastIndex: pathToLastIndex(draggedCollectionIndex),
-      newIndex: -1,
-      folderPath: draggedParentCollection,
-      length: getFoldersByPath(
-        restCollectionState.value,
-        draggedParentCollection
-      ).length,
-    },
-    "drop"
+  // If a root collection is dragged, the root nodes get reduced by 1
+  // Hence, we need to reduce the destination root collection index by 1
+  // This only applies to the case when the destination collection lies below the dragged collection
+
+  let resolvedDestinationCollectionIndex = destinationCollectionIndex
+
+  const draggedRootCollectionIndex = parseInt(
+    pathToIndex(draggedCollectionIndex)[0]
   )
+  const destinationRootCollectionIndex = parseInt(
+    pathToIndex(destinationCollectionIndex)[0]
+  )
+
+  if (
+    isAlreadyInRoot(draggedCollectionIndex) &&
+    destinationRootCollectionIndex > draggedRootCollectionIndex
+  ) {
+    resolvedDestinationCollectionIndex = `${
+      destinationRootCollectionIndex - 1
+    }/${pathToIndex(destinationCollectionIndex).slice(1).join("/")}`
+
+    resolvedDestinationCollectionIndex =
+      resolvedDestinationCollectionIndex.endsWith("/")
+        ? resolvedDestinationCollectionIndex.slice(0, -1)
+        : resolvedDestinationCollectionIndex
+  }
 
   updateSaveContextForAffectedRequests(
     draggedCollectionIndex,
-    `${destinationCollectionIndex}/${totalFoldersOfDestinationCollection}`
+    `${resolvedDestinationCollectionIndex}/${totalChildCollectionsInDestinationCollection}`
   )
 
   const destinationCollectionHandleResult =
@@ -1791,7 +1805,7 @@ const dropCollection = async (payload: {
   }
 
   updateInheritedPropertiesForAffectedRequests(
-    `${destinationCollectionIndex}/${totalFoldersOfDestinationCollection}`,
+    `${destinationCollectionIndex}/${totalChildCollectionsInDestinationCollection}`,
     inheritedProperty,
     "rest"
   )
@@ -1868,7 +1882,7 @@ const updateCollectionOrder = async (
   dataTransfer: DataTransfer,
   destinationCollection: {
     destinationCollectionIndex: string | null
-    destinationCollectionParentIndex: string
+    destinationCollectionParentIndex: string | null
   }
 ) => {
   const draggedCollectionIndex = dataTransfer.getData("collectionIndex")
@@ -1923,27 +1937,36 @@ const updateCollectionOrder = async (
   // Moving to the last position indicated by `destinationCollectionIndex` being `null` requires computing the index path of the new child collection being inserted
   let newDestinationCollectionIndex = 0
   if (destinationCollectionIndex === null) {
-    const destinationCollectionParent = navigateToFolderWithIndexPath(
-      restCollectionState.value,
-      destinationCollectionParentIndex.split("/").map((id) => parseInt(id))
-    )
+    if (destinationCollectionParentIndex === null) {
+      newDestinationCollectionIndex = restCollectionState.value.length - 1
+    } else {
+      const destinationCollectionParent = navigateToFolderWithIndexPath(
+        restCollectionState.value,
+        destinationCollectionParentIndex.split("/").map((id) => parseInt(id))
+      )
 
-    if (!destinationCollectionParent) {
-      return
+      if (!destinationCollectionParent) {
+        return
+      }
+
+      newDestinationCollectionIndex = destinationCollectionParent.folders.length
     }
-
-    newDestinationCollectionIndex = destinationCollectionParent.folders.length
   }
 
-  resolveSaveContextOnCollectionReorder({
-    lastIndex: pathToLastIndex(draggedCollectionIndex),
-    newIndex: pathToLastIndex(
-      destinationCollectionIndex
-        ? destinationCollectionIndex
-        : newDestinationCollectionIndex.toString()
-    ),
-    folderPath: draggedCollectionIndex.split("/").slice(0, -1).join("/"),
-  })
+  // resolveSaveContextOnCollectionReorder({
+  //   lastIndex: pathToLastIndex(draggedCollectionIndex),
+  //   newIndex: pathToLastIndex(
+  //     destinationCollectionIndex
+  //       ? destinationCollectionIndex
+  //       : newDestinationCollectionIndex.toString()
+  //   ),
+  //   folderPath: draggedCollectionIndex.split("/").slice(0, -1).join("/"),
+  // })
+
+  updateSaveContextForAffectedRequests(
+    draggedCollectionIndex,
+    destinationCollectionIndex ?? newDestinationCollectionIndex.toString()
+  )
 
   toast.success(`${t("collection.order_changed")}`)
 }
@@ -2143,5 +2166,39 @@ const resetSelectedData = () => {
   editingChildCollectionName.value = ""
   editingRequestName.value = ""
   editingRequestIndexPath.value = ""
+}
+
+const updateSaveContextForAffectedRequests = (
+  draggedCollectionIndex: string,
+  destinationCollectionIndex: string
+) => {
+  const activeTabs = tabs.getActiveTabs()
+
+  for (const tab of activeTabs.value) {
+    if (
+      tab.document.saveContext?.originLocation === "workspace-user-collection"
+    ) {
+      const { requestID } = tab.document.saveContext
+
+      const collectionID = requestID.split("/").slice(0, -1).join("/")
+      const requestIndex = requestID.split("/").slice(-1)[0]
+
+      if (collectionID.startsWith(draggedCollectionIndex)) {
+        const newCollectionID = collectionID.replace(
+          draggedCollectionIndex,
+          destinationCollectionIndex
+        )
+        const newRequestID = `${newCollectionID}/${requestIndex}`
+
+        tab.document.saveContext = {
+          ...tab.document.saveContext,
+          collectionID: newCollectionID,
+          requestID: newRequestID,
+        }
+
+        console.log(`${t("request.moved")}: ${requestID} -> ${newRequestID}`)
+      }
+    }
+  }
 }
 </script>

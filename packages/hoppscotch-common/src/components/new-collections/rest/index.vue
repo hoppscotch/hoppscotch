@@ -723,8 +723,7 @@ const onAddRequest = async (requestName: string) => {
 
   const { auth, headers } = cascadingAuthHeadersHandle.value.data
 
-  const { collectionID, providerID, requestID, workspaceID } =
-    requestHandle.value.data
+  const { providerID, requestID, workspaceID } = requestHandle.value.data
 
   tabs.createNewTab({
     request: newRequest,
@@ -733,7 +732,6 @@ const onAddRequest = async (requestName: string) => {
       originLocation: "workspace-user-collection",
       workspaceID,
       providerID,
-      collectionID,
       requestID,
     },
     inheritedProperties: {
@@ -972,15 +970,13 @@ const onRemoveRequest = async () => {
     return
   }
 
-  const { collectionID, providerID, requestID, workspaceID } =
-    requestHandle.value.data
+  const { providerID, requestID, workspaceID } = requestHandle.value.data
 
   const possibleTab = tabs.getTabRefWithSaveContext({
     originLocation: "workspace-user-collection",
     workspaceID,
     providerID,
     requestID,
-    collectionID,
   })
 
   if (
@@ -1074,15 +1070,13 @@ const selectRequest = async (requestIndexPath: string) => {
 
   const { auth, headers } = cascadingAuthHeadersHandle.value.data
 
-  const { collectionID, providerID, requestID, workspaceID } =
-    requestHandle.value.data
+  const { providerID, requestID, workspaceID } = requestHandle.value.data
 
   // If there is a request with this save context, switch into it
   const possibleTab = tabs.getTabRefWithSaveContext({
     originLocation: "workspace-user-collection",
     workspaceID,
     providerID,
-    collectionID,
     requestID,
   })
 
@@ -1097,7 +1091,6 @@ const selectRequest = async (requestIndexPath: string) => {
         originLocation: "workspace-user-collection",
         workspaceID,
         providerID,
-        collectionID,
         requestID,
       },
       inheritedProperties: {
@@ -1185,13 +1178,12 @@ const onEditRequest = async (newRequestName: string) => {
     return
   }
 
-  const { collectionID, providerID, workspaceID } = requestHandle.value.data
+  const { providerID, workspaceID } = requestHandle.value.data
 
   const possibleActiveTab = tabs.getTabRefWithSaveContext({
     originLocation: "workspace-user-collection",
     workspaceID,
     providerID,
-    collectionID,
     requestID,
   })
 
@@ -1630,20 +1622,17 @@ const dropRequest = async (payload: {
 
   const { auth, headers } = cascadingAuthHeadersHandle.value.data
 
-  const { collectionID, providerID, requestID, workspaceID } =
-    requestHandle.value.data
+  const { providerID, requestID, workspaceID } = requestHandle.value.data
 
   const possibleTab = tabs.getTabRefWithSaveContext({
     originLocation: "workspace-user-collection",
     workspaceID,
     providerID,
-    collectionID,
     requestID,
   })
 
   // If there is a tab attached to this request, update its save context
   if (possibleTab) {
-    const newCollectionID = destinationCollectionIndex
     const newRequestID = `${destinationCollectionIndex}/${(
       getRequestsByPath(restCollectionState.value, destinationCollectionIndex)
         .length - 1
@@ -1653,7 +1642,6 @@ const dropRequest = async (payload: {
       originLocation: "workspace-user-collection",
       workspaceID,
       providerID,
-      collectionID: newCollectionID,
       requestID: newRequestID,
     }
 
@@ -2144,11 +2132,6 @@ const pathToIndex = (path: string) => {
   return pathArr
 }
 
-const pathToLastIndex = (path: string) => {
-  const pathArr = pathToIndex(path)
-  return parseInt(pathArr[pathArr.length - 1])
-}
-
 const resolveConfirmModal = (title: string | null) => {
   if (title === `${t("confirm.remove_collection")}`) {
     onRemoveRootCollection()
@@ -2197,11 +2180,8 @@ const updateSaveContextForAffectedRequests = (
 
         tab.document.saveContext = {
           ...tab.document.saveContext,
-          collectionID: newCollectionID,
           requestID: newRequestID,
         }
-
-        console.log(`${t("request.moved")}: ${requestID} -> ${newRequestID}`)
       }
     }
   }

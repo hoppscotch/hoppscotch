@@ -46,14 +46,17 @@ export function resolveSaveContextOnRequestReorder(payload: {
       )
     }
 
-    return (
-      tab.document.saveContext?.originLocation ===
-        "workspace-user-collection" &&
-      tab.document.saveContext.collectionID === folderPath &&
-      affectedIndexes.has(
-        parseInt(tab.document.saveContext.requestID.split("/").slice(-1)[0])
-      )
-    )
+    if (
+      tab.document.saveContext?.originLocation !== "workspace-user-collection"
+    ) {
+      return false
+    }
+
+    const { requestID } = tab.document.saveContext
+    const collectionID = requestID.split("/").slice(0, -1).join("/")
+    const requestIndex = parseInt(requestID.split("/").slice(-1)[0])
+
+    return collectionID === folderPath && affectedIndexes.has(requestIndex)
   })
 
   for (const tab of tabs) {
@@ -68,11 +71,13 @@ export function resolveSaveContextOnRequestReorder(payload: {
       tab.value.document.saveContext?.originLocation ===
       "workspace-user-collection"
     ) {
-      const requestID = tab.value.document.saveContext.requestID
+      const { requestID } = tab.value.document.saveContext
+
       const requestIDArray = requestID.split("/")
       const requestIndex = affectedIndexes.get(
         parseInt(requestIDArray[requestIDArray.length - 1])
       )!
+
       requestIDArray[requestIDArray.length - 1] = requestIndex.toString()
       tab.value.document.saveContext.requestID = requestIDArray.join("/")
     }

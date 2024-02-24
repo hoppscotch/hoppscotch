@@ -267,8 +267,7 @@ const saveRequestAs = async () => {
       return
     }
 
-    const { collectionID, providerID, requestID, workspaceID } =
-      requestHandle.value.data
+    const { providerID, requestID, workspaceID } = requestHandle.value.data
 
     RESTTabs.currentActiveTab.value.document = {
       request: updatedRequest,
@@ -277,7 +276,6 @@ const saveRequestAs = async () => {
         originLocation: "workspace-user-collection",
         workspaceID,
         providerID,
-        collectionID,
         requestID,
       },
     }
@@ -314,8 +312,7 @@ const saveRequestAs = async () => {
       return
     }
 
-    const { collectionID, providerID, requestID, workspaceID } =
-      requestHandle.value.data
+    const { providerID, requestID, workspaceID } = requestHandle.value.data
 
     RESTTabs.currentActiveTab.value.document = {
       request: updatedRequest,
@@ -324,7 +321,6 @@ const saveRequestAs = async () => {
         originLocation: "workspace-user-collection",
         workspaceID,
         providerID,
-        collectionID,
         requestID,
       },
     }

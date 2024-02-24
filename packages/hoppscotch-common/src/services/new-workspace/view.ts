@@ -54,4 +54,5 @@ export interface RESTSearchResultsView {
   loading: Ref<boolean>
 
   results: Ref<HoppCollection[]>
+  onSessionEnd: () => void
 }

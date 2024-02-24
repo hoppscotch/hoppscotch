@@ -44,7 +44,7 @@ export interface WorkspaceProvider {
   ): Promise<E.Either<unknown, HandleRef<RESTCollectionLevelAuthHeadersView>>>
   getRESTSearchResultsView(
     workspaceHandle: HandleRef<Workspace>,
-    searchQuery: string
+    searchQuery: Ref<string>
   ): Promise<E.Either<unknown, HandleRef<RESTSearchResultsView>>>
 
   createRESTRootCollection(

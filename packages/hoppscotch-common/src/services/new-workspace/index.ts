@@ -690,7 +690,7 @@ export class NewWorkspaceService extends Service {
 
   public async getRESTSearchResultsView(
     workspaceHandle: HandleRef<Workspace>,
-    searchQuery: string
+    searchQuery: Ref<string>
   ): Promise<
     E.Either<
       WorkspaceError<"INVALID_HANDLE" | "INVALID_PROVIDER">,

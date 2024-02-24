@@ -7,7 +7,16 @@ import {
 } from "@hoppscotch/data"
 import { Service } from "dioc"
 import * as E from "fp-ts/Either"
-import { Ref, computed, markRaw, ref, shallowRef } from "vue"
+import {
+  Ref,
+  computed,
+  effect,
+  effectScope,
+  markRaw,
+  ref,
+  shallowRef,
+  watch,
+} from "vue"
 
 import PersonalWorkspaceSelector from "~/components/workspace/PersonalWorkspaceSelector.vue"
 import { useStreamStatic } from "~/composables/stream"
@@ -951,8 +960,67 @@ export class PersonalWorkspaceProviderService
 
   public getRESTSearchResultsView(
     workspaceHandle: HandleRef<Workspace>,
-    searchQuery: string
+    searchQuery: Ref<string>
   ): Promise<E.Either<never, HandleRef<RESTSearchResultsView>>> {
+    const results = ref<HoppCollection[]>([])
+
+    const scopeHandle = effectScope()
+
+    scopeHandle.run(() => {
+      watch(
+        searchQuery,
+        (newSearchQuery) => {
+          if (!newSearchQuery) {
+            results.value = this.restCollectionState.value.state
+            return
+          }
+
+          const filterText = newSearchQuery.toLowerCase()
+          const filteredCollections = []
+
+          const isMatch = (text: string) =>
+            text.toLowerCase().includes(filterText)
+
+          for (const collection of this.restCollectionState.value.state) {
+            const filteredRequests = []
+            const filteredFolders = []
+            for (const request of collection.requests) {
+              if (isMatch(request.name)) filteredRequests.push(request)
+            }
+            for (const folder of collection.folders) {
+              if (isMatch(folder.name)) filteredFolders.push(folder)
+              const filteredFolderRequests = []
+              for (const request of folder.requests) {
+                if (isMatch(request.name)) filteredFolderRequests.push(request)
+              }
+              if (filteredFolderRequests.length > 0) {
+                const filteredFolder = Object.assign({}, folder)
+                filteredFolder.requests = filteredFolderRequests
+                filteredFolders.push(filteredFolder)
+              }
+            }
+
+            if (
+              filteredRequests.length + filteredFolders.length > 0 ||
+              isMatch(collection.name)
+            ) {
+              const filteredCollection = Object.assign({}, collection)
+              filteredCollection.requests = filteredRequests
+              filteredCollection.folders = filteredFolders
+              filteredCollections.push(filteredCollection)
+            }
+
+            results.value = filteredCollections
+          }
+        },
+        { immediate: true }
+      )
+    })
+
+    const onSessionEnd = () => {
+      scopeHandle.stop()
+    }
+
     return Promise.resolve(
       E.right(
         computed(() => {
@@ -967,21 +1035,7 @@ export class PersonalWorkspaceProviderService
             }
           }
 
-          if (!searchQuery) {
-            return {
-              type: "ok" as const,
-              data: {
-                providerID: this.providerID,
-                workspaceID: workspaceHandle.value.data.workspaceID,
-
-                loading: ref(false),
-
-                results: ref(this.restCollectionState.value.state),
-              },
-            }
-          }
-
-          return markRaw({
+          return {
             type: "ok" as const,
             data: {
               providerID: this.providerID,
@@ -989,48 +1043,10 @@ export class PersonalWorkspaceProviderService
 
               loading: ref(false),
 
-              results: computed(() => {
-                const filterText = searchQuery.toLowerCase()
-                const filteredCollections = []
-
-                const isMatch = (text: string) =>
-                  text.toLowerCase().includes(filterText)
-
-                for (const collection of this.restCollectionState.value.state) {
-                  const filteredRequests = []
-                  const filteredFolders = []
-                  for (const request of collection.requests) {
-                    if (isMatch(request.name)) filteredRequests.push(request)
-                  }
-                  for (const folder of collection.folders) {
-                    if (isMatch(folder.name)) filteredFolders.push(folder)
-                    const filteredFolderRequests = []
-                    for (const request of folder.requests) {
-                      if (isMatch(request.name))
-                        filteredFolderRequests.push(request)
-                    }
-                    if (filteredFolderRequests.length > 0) {
-                      const filteredFolder = Object.assign({}, folder)
-                      filteredFolder.requests = filteredFolderRequests
-                      filteredFolders.push(filteredFolder)
-                    }
-                  }
-
-                  if (
-                    filteredRequests.length + filteredFolders.length > 0 ||
-                    isMatch(collection.name)
-                  ) {
-                    const filteredCollection = Object.assign({}, collection)
-                    filteredCollection.requests = filteredRequests
-                    filteredCollection.folders = filteredFolders
-                    filteredCollections.push(filteredCollection)
-                  }
-                }
-
-                return filteredCollections
-              }),
+              results,
+              onSessionEnd,
             },
-          })
+          }
         })
       )
     )

@@ -351,22 +351,21 @@
 </template>
 
 <script setup lang="ts">
-import * as E from "fp-ts/lib/Either"
-
-import { useService } from "dioc/vue"
-import { markRaw, nextTick, ref, watch } from "vue"
-
 import { HoppCollection, HoppRESTAuth, HoppRESTRequest } from "@hoppscotch/data"
+import { useService } from "dioc/vue"
+import * as E from "fp-ts/lib/Either"
 import { cloneDeep, isEqual } from "lodash-es"
+import { computed, markRaw, nextTick, ref, watch } from "vue"
+
 import { useI18n } from "~/composables/i18n"
 import { useReadonlyStream } from "~/composables/stream"
 import { useToast } from "~/composables/toast"
 import { invokeAction } from "~/helpers/actions"
+import { WorkspaceRESTSearchCollectionTreeAdapter } from "~/helpers/adapters/WorkspaceRESTCollectionSearchTreeAdapter"
 import { WorkspaceRESTCollectionTreeAdapter } from "~/helpers/adapters/WorkspaceRESTCollectionTreeAdapter"
 import { TeamCollection } from "~/helpers/backend/graphql"
 import {
   getFoldersByPath,
-  resolveSaveContextOnCollectionReorder,
   updateInheritedPropertiesForAffectedRequests,
 } from "~/helpers/collection/collection"
 import { getRequestsByPath } from "~/helpers/collection/request"
@@ -387,7 +386,6 @@ import { RESTTabService } from "~/services/tab/rest"
 import IconImport from "~icons/lucide/folder-down"
 import IconHelpCircle from "~icons/lucide/help-circle"
 import IconPlus from "~icons/lucide/plus"
-import { WorkspaceRESTSearchCollectionTreeAdapter } from "~/helpers/adapters/WorkspaceRESTCollectionSearchTreeAdapter"
 
 const t = useI18n()
 const toast = useToast()
@@ -414,11 +412,9 @@ const currentReorderingStatus = useReadonlyStream(currentReorderingStatus$, {
   parentID: "",
 })
 
-const treeAdapter = markRaw(
-  new WorkspaceRESTCollectionTreeAdapter(
-    props.workspaceHandle,
-    workspaceService
-  )
+const currentUser = useReadonlyStream(
+  platform.auth.getCurrentUserStream(),
+  platform.auth.getCurrentUser()
 )
 
 const draggingToRoot = ref(false)
@@ -442,11 +438,9 @@ const editingChildCollectionName = ref<string>("")
 const editingRequestName = ref<string>("")
 const editingRequestIndexPath = ref<string>("")
 
-const filteredCollections = ref<HoppCollection[]>([])
+const onSessionEnd = ref<() => void>()
 
-const searchTreeAdapter = new WorkspaceRESTSearchCollectionTreeAdapter(
-  filteredCollections
-)
+const filteredCollections = ref<HoppCollection[]>([])
 
 const editingProperties = ref<{
   collection: Omit<HoppCollection, "v"> | TeamCollection | null
@@ -462,35 +456,46 @@ const editingProperties = ref<{
 
 const confirmModalTitle = ref<string | null>(null)
 
-const currentUser = useReadonlyStream(
-  platform.auth.getCurrentUserStream(),
-  platform.auth.getCurrentUser()
+const isActiveSearchSession = computed(() => !!searchText.value)
+
+watch(isActiveSearchSession, async (newState) => {
+  if (!newState) {
+    filteredCollections.value = []
+    onSessionEnd.value?.()
+    return
+  }
+
+  const searchResultsHandleResult =
+    await workspaceService.getRESTSearchResultsView(
+      props.workspaceHandle,
+      ref(searchText)
+    )
+
+  if (E.isLeft(searchResultsHandleResult)) {
+    filteredCollections.value = []
+    return
+  }
+
+  const searchResultsHandle = searchResultsHandleResult.right
+
+  if (searchResultsHandle.value.type === "invalid") {
+    filteredCollections.value = []
+    return
+  }
+
+  filteredCollections.value = searchResultsHandle.value.data.results.value
+  onSessionEnd.value = searchResultsHandle.value.data.onSessionEnd
+})
+
+const treeAdapter = markRaw(
+  new WorkspaceRESTCollectionTreeAdapter(
+    props.workspaceHandle,
+    workspaceService
+  )
 )
 
-watch(
-  () => searchText.value,
-  async (newSearchText: string) => {
-    const searchResultsHandleResult =
-      await workspaceService.getRESTSearchResultsView(
-        props.workspaceHandle,
-        newSearchText
-      )
-
-    if (E.isLeft(searchResultsHandleResult)) {
-      filteredCollections.value = []
-      return
-    }
-
-    const searchResultsHandle = searchResultsHandleResult.right
-
-    if (searchResultsHandle.value.type === "invalid") {
-      filteredCollections.value = []
-      return
-    }
-
-    filteredCollections.value = searchResultsHandle.value.data.results.value
-  },
-  { immediate: true }
+const searchTreeAdapter = new WorkspaceRESTSearchCollectionTreeAdapter(
+  filteredCollections
 )
 
 const isSelected = ({

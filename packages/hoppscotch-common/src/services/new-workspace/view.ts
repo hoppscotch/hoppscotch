@@ -21,7 +21,6 @@ export type RESTCollectionViewRequest = {
 
   request: HoppRESTRequest
   isLastItem: boolean
-  parentCollectionID: string | null
 }
 
 export type RESTCollectionViewItem =

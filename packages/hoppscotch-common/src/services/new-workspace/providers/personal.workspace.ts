@@ -10,7 +10,6 @@ import * as E from "fp-ts/Either"
 import {
   Ref,
   computed,
-  effect,
   effectScope,
   markRaw,
   ref,
@@ -46,9 +45,7 @@ import { WorkspaceProvider } from "~/services/new-workspace/provider"
 import {
   RESTCollectionChildrenView,
   RESTCollectionLevelAuthHeadersView,
-  RESTCollectionViewCollection,
   RESTCollectionViewItem,
-  RESTCollectionViewRequest,
   RESTSearchResultsView,
   RootRESTCollectionView,
 } from "~/services/new-workspace/view"
@@ -786,7 +783,7 @@ export class PersonalWorkspaceProviderService
                           item.requests?.length > 1
                             ? id === item.requests.length - 1
                             : false,
-                        parentCollectionID: collectionID,
+                        collectionID,
                         requestID: `${collectionID}/${id}`,
                         request: req,
                       },

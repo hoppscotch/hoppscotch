@@ -22,11 +22,6 @@ export type HoppRESTSaveContext =
       providerID: string
 
       /**
-       * ID of the collection
-       */
-      collectionID: string
-
-      /**
        * Path to the request in the collection tree
        */
       requestID: string

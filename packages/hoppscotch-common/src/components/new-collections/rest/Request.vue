@@ -256,8 +256,7 @@ const isReorderable = computed(() => {
 
 const isSameParent = computed(() => {
   return (
-    currentReorderingStatus.value.parentID ===
-    props.requestView.parentCollectionID
+    currentReorderingStatus.value.parentID === props.requestView.collectionID
   )
 })
 
@@ -277,7 +276,7 @@ const dragStart = ({ dataTransfer }: DragEvent) => {
     changeCurrentReorderStatus({
       type: "request",
       id: props.requestView.requestID,
-      parentID: props.requestView.parentCollectionID,
+      parentID: props.requestView.collectionID,
     })
   }
 }

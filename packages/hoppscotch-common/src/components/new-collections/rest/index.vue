@@ -134,7 +134,7 @@
               :save-request="saveRequest"
               @drag-request="
                 dragRequest($event, {
-                  parentCollectionIndexPath: node.data.value.parentCollectionID,
+                  parentCollectionIndexPath: node.data.value.collectionID,
                   requestIndex: node.data.value.requestID,
                 })
               "
@@ -146,13 +146,13 @@
               @share-request="shareRequest"
               @update-request-order="
                 updateRequestOrder($event, {
-                  parentCollectionIndexPath: node.data.value.parentCollectionID,
+                  parentCollectionIndexPath: node.data.value.collectionID,
                   requestIndex: node.data.value.requestID,
                 })
               "
               @update-last-request-order="
                 updateRequestOrder($event, {
-                  parentCollectionIndexPath: node.data.value.parentCollectionID,
+                  parentCollectionIndexPath: node.data.value.collectionID,
                   requestIndex: null,
                 })
               "
@@ -240,7 +240,7 @@
               :save-request="saveRequest"
               @drag-request="
                 dragRequest($event, {
-                  parentCollectionIndexPath: node.data.value.parentCollectionID,
+                  parentCollectionIndexPath: node.data.value.collectionID,
                   requestIndex: node.data.value.requestID,
                 })
               "
@@ -252,13 +252,13 @@
               @share-request="shareRequest"
               @update-request-order="
                 updateRequestOrder($event, {
-                  parentCollectionIndexPath: node.data.value.parentCollectionID,
+                  parentCollectionIndexPath: node.data.value.collectionID,
                   requestIndex: node.data.value.requestID,
                 })
               "
               @update-last-request-order="
                 updateRequestOrder($event, {
-                  parentCollectionIndexPath: node.data.value.parentCollectionID,
+                  parentCollectionIndexPath: node.data.value.collectionID,
                   requestIndex: null,
                 })
               "

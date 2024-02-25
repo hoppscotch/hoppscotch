@@ -1056,4 +1056,8 @@ export class TeamCollectionService {
       return E.left(TEAM_COLL_NOT_FOUND);
     }
   }
+
+  async searchByTitle(searchQuery: string) {
+    return E.right('Hello! World');
+  }
 }

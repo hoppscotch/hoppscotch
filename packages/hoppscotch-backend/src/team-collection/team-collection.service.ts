@@ -1121,13 +1121,7 @@ export class TeamCollectionService {
   async fetchParentTree(searchResult: SearchQueryReturnType) {
     return searchResult.type === 'collection'
       ? await this.fetchCollectionParentTree(searchResult.id)
-      : // : await this.fetchRequestParentTree(searchResult.id);
-        <CollectionSearchNode>{
-          id: searchResult.id,
-          title: searchResult.title,
-          type: searchResult.type,
-          path: [],
-        };
+      : await this.fetchRequestParentTree(searchResult.id);
   }
 
   async fetchCollectionParentTree(id) {
@@ -1194,22 +1188,26 @@ export class TeamCollectionService {
     return null;
   }
 
-  // async fetchRequestParentTree(id) {
-  //   const query = Prisma.sql`
-  //   WITH RECURSIVE parent_tree AS (
-  //     SELECT id, title, collectionID
-  //     FROM "TeamRequest"
-  //     WHERE id = ${id}
-  //     UNION
-  //     SELECT tr.id, tr.title, tr.collectionID
-  //     FROM "TeamRequest" tr
-  //     JOIN parent_tree pt ON tr.id = pt.collectionID
-  //   )
-  //   SELECT id, title, collectionID
-  //   FROM parent_tree
-  //   `;
-  //   const res = await this.prisma.$queryRaw<CollectionSearchNode[]>(query);
-  //   console.log(res);
-  //   return res;
-  // }
+  async fetchRequestParentTree(id) {
+    const query = Prisma.sql`
+    WITH RECURSIVE request_collection_tree AS (
+      SELECT tc.id, tc."parentID", tc.title
+      FROM "TeamCollection" AS tc
+      JOIN "TeamRequest" AS tr ON tc.id = tr."collectionID"
+      WHERE tr.id = ${id}
+
+      UNION ALL
+
+      SELECT parent.id, parent."parentID", parent.title
+      FROM "TeamCollection" AS parent
+      JOIN request_collection_tree AS ct ON parent.id = ct."parentID"
+    )
+    SELECT * FROM request_collection_tree;
+
+    `;
+    const res = await this.prisma.$queryRaw<CollectionSearchNode[]>(query);
+
+    const transformedData = this.buildHierarchy(res);
+    return transformedData;
+  }
 }

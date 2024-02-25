@@ -1065,6 +1065,7 @@ export class TeamCollectionService {
     }
   }
 
+  // TODO: Implement Pagination for search results
   /**
    * Search for TeamCollections and TeamRequests by title
    *
@@ -1072,6 +1073,7 @@ export class TeamCollectionService {
    * @returns An Either of the search results
    */
   async searchByTitle(searchQuery: string) {
+    const start = performance.now();
     // Fetch all collections and requests that match the search query
     const searchResults: SearchQueryReturnType[] = [];
 
@@ -1082,6 +1084,7 @@ export class TeamCollectionService {
         statusCode: HttpStatus.NOT_FOUND,
       });
     searchResults.push(...matchedCollections.right);
+    console.log('Collections were fetched in', performance.now() - start, 'ms');
 
     const matchedRequests = await this.searchRequests(searchQuery);
     if (E.isLeft(matchedRequests))
@@ -1090,6 +1093,7 @@ export class TeamCollectionService {
         statusCode: HttpStatus.NOT_FOUND,
       });
     searchResults.push(...matchedRequests.right);
+    console.log('Requests were fetched in', performance.now() - start, 'ms');
 
     // Generate the parent tree for searchResults
     const searchResultsWithTree: CollectionSearchNode[] = [];
@@ -1108,9 +1112,11 @@ export class TeamCollectionService {
         id: searchResults[i].id,
         path: !fetchedParentTree
           ? []
-          : ([fetchedParentTree] as CollectionSearchNode[]),
+          : ([fetchedParentTree.right] as CollectionSearchNode[]),
       });
     }
+    console.log('Tree Generation Complete in', performance.now() - start, 'ms');
+
     return E.right({ data: searchResultsWithTree });
   }
 

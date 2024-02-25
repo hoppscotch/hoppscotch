@@ -1092,7 +1092,7 @@ export class TeamCollectionService {
     return E.right(searchResultsWithTree);
   }
 
-  async searchCollections(searchQuery) {
+  private async searchCollections(searchQuery) {
     const query = Prisma.sql`
     select id,title,'collection' AS type
     from "TeamCollection"
@@ -1105,7 +1105,7 @@ export class TeamCollectionService {
     return res;
   }
 
-  async searchRequests(searchQuery) {
+  private async searchRequests(searchQuery) {
     const query = Prisma.sql`
     select id,title,request->>'method' as method,'request' AS type
     from "TeamRequest"
@@ -1118,13 +1118,13 @@ export class TeamCollectionService {
     return res;
   }
 
-  async fetchParentTree(searchResult: SearchQueryReturnType) {
+  private async fetchParentTree(searchResult: SearchQueryReturnType) {
     return searchResult.type === 'collection'
       ? await this.fetchCollectionParentTree(searchResult.id)
       : await this.fetchRequestParentTree(searchResult.id);
   }
 
-  async fetchCollectionParentTree(id) {
+  private async fetchCollectionParentTree(id) {
     const query = Prisma.sql`
     WITH RECURSIVE collection_tree AS (
       SELECT tc.id, tc."parentID", tc.title
@@ -1188,7 +1188,7 @@ export class TeamCollectionService {
     return null;
   }
 
-  async fetchRequestParentTree(id) {
+  private async fetchRequestParentTree(id) {
     const query = Prisma.sql`
     WITH RECURSIVE request_collection_tree AS (
       SELECT tc.id, tc."parentID", tc.title

@@ -1142,11 +1142,11 @@ export class TeamCollectionService {
     `;
     const res = await this.prisma.$queryRaw(query);
 
-    const transformedData = this.buildHierarchy(res);
-    return transformedData;
+    const collectionParentTree = this.generateParentTree(res);
+    return collectionParentTree;
   }
 
-  private buildHierarchy(parentCollections) {
+  private generateParentTree(parentCollections) {
     function findChildren(id) {
       const collection = parentCollections.filter((item) => item.id === id)[0];
       if (collection.parentID == null) {
@@ -1205,9 +1205,9 @@ export class TeamCollectionService {
     SELECT * FROM request_collection_tree;
 
     `;
-    const res = await this.prisma.$queryRaw<CollectionSearchNode[]>(query);
+    const res = await this.prisma.$queryRaw(query);
 
-    const transformedData = this.buildHierarchy(res);
-    return transformedData;
+    const requestParentTree = this.generateParentTree(res);
+    return requestParentTree;
   }
 }

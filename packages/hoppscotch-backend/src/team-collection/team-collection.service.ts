@@ -22,6 +22,9 @@ import * as O from 'fp-ts/Option';
 import { Prisma, TeamCollection as DBTeamCollection } from '@prisma/client';
 import { CollectionFolder } from 'src/types/CollectionFolder';
 import { stringToJson } from 'src/utils';
+import { CollectionSearchNode } from 'src/types/CollectionSearchNode';
+import { SearchQueryReturnType } from './helper';
+import { cons } from 'fp-ts/lib/ReadonlyNonEmptyArray';
 
 @Injectable()
 export class TeamCollectionService {
@@ -1064,6 +1067,149 @@ export class TeamCollectionService {
    * @returns An Either of the search results
    */
   async searchByTitle(searchQuery: string) {
-    return E.right('Hello! World');
+    // Fetch all collections and requests that match the search query
+    const searchResults: SearchQueryReturnType[] = [];
+
+    const matchedCollections = await this.searchCollections(searchQuery);
+    searchResults.push(...matchedCollections);
+
+    const matchedRequests = await this.searchRequests(searchQuery);
+    searchResults.push(...matchedRequests);
+
+    // Generate the parent tree for searchResults
+    const searchResultsWithTree: CollectionSearchNode[] = [];
+
+    for (let i = 0; i < searchResults.length; i++) {
+      const res = await this.fetchParentTree(searchResults[i]);
+      searchResultsWithTree.push({
+        type: searchResults[i].type,
+        title: searchResults[i].title,
+        method: searchResults[i].method,
+        id: searchResults[i].id,
+        path: !res ? [] : ([res] as CollectionSearchNode[]),
+      });
+    }
+    return E.right(searchResultsWithTree);
   }
+
+  async searchCollections(searchQuery) {
+    const query = Prisma.sql`
+    select id,title,'collection' AS type
+    from "TeamCollection"
+    where to_tsvector(title) @@ to_tsquery(${searchQuery})
+    order by ts_rank(to_tsvector(title),to_tsquery(${searchQuery}))
+    limit 10
+    OFFSET 10;
+  `;
+    const res = await this.prisma.$queryRaw<SearchQueryReturnType[]>(query);
+    return res;
+  }
+
+  async searchRequests(searchQuery) {
+    const query = Prisma.sql`
+    select id,title,request->>'method' as method,'request' AS type
+    from "TeamRequest"
+    where to_tsvector(title) @@ to_tsquery(${searchQuery})
+    order by ts_rank(to_tsvector(title),to_tsquery(${searchQuery}))
+    limit 10
+    OFFSET 10;
+  `;
+    const res = await this.prisma.$queryRaw<SearchQueryReturnType[]>(query);
+    return res;
+  }
+
+  async fetchParentTree(searchResult: SearchQueryReturnType) {
+    return searchResult.type === 'collection'
+      ? await this.fetchCollectionParentTree(searchResult.id)
+      : // : await this.fetchRequestParentTree(searchResult.id);
+        <CollectionSearchNode>{
+          id: searchResult.id,
+          title: searchResult.title,
+          type: searchResult.type,
+          path: [],
+        };
+  }
+
+  async fetchCollectionParentTree(id) {
+    const query = Prisma.sql`
+    WITH RECURSIVE collection_tree AS (
+      SELECT tc.id, tc."parentID", tc.title
+      FROM "TeamCollection" AS tc
+      JOIN "TeamCollection" AS tr ON tc.id = tr."parentID"
+      WHERE tr.id = ${id}
+
+      UNION ALL
+
+      SELECT parent.id,  parent."parentID", parent.title
+      FROM "TeamCollection" AS parent
+      JOIN collection_tree AS ct ON parent.id = ct."parentID"
+    )
+    SELECT * FROM collection_tree;
+    `;
+    const res = await this.prisma.$queryRaw(query);
+
+    const transformedData = this.buildHierarchy(res);
+    return transformedData;
+  }
+
+  private buildHierarchy(parentCollections) {
+    function findChildren(id) {
+      const collection = parentCollections.filter((item) => item.id === id)[0];
+      if (collection.parentID == null) {
+        return {
+          id: collection.id,
+          title: collection.title,
+          type: 'collection',
+          path: [],
+        };
+      }
+
+      const res = {
+        id: collection.id,
+        title: collection.title,
+        type: 'collection',
+        path: findChildren(collection.parentID),
+      };
+      return res;
+    }
+
+    if (parentCollections.length > 0) {
+      if (parentCollections[0].parentID == null) {
+        return {
+          id: parentCollections[0].id,
+          title: parentCollections[0].title,
+          type: 'collection',
+          path: [],
+        };
+      }
+
+      return {
+        id: parentCollections[0].id,
+        title: parentCollections[0].title,
+        type: 'collection',
+        path: findChildren(parentCollections[0].parentID),
+      };
+    }
+
+    return null;
+  }
+
+  // async fetchRequestParentTree(id) {
+  //   const query = Prisma.sql`
+  //   WITH RECURSIVE parent_tree AS (
+  //     SELECT id, title, collectionID
+  //     FROM "TeamRequest"
+  //     WHERE id = ${id}
+  //     UNION
+  //     SELECT tr.id, tr.title, tr.collectionID
+  //     FROM "TeamRequest" tr
+  //     JOIN parent_tree pt ON tr.id = pt.collectionID
+  //   )
+  //   SELECT id, title, collectionID
+  //   FROM parent_tree
+  //   `;
+  //   const res = await this.prisma.$queryRaw<CollectionSearchNode[]>(query);
+  //   console.log(res);
+  //   return res;
+  // }
 }

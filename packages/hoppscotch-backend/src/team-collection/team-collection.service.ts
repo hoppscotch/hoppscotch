@@ -1057,6 +1057,12 @@ export class TeamCollectionService {
     }
   }
 
+  /**
+   * Search for TeamCollections and TeamRequests by title
+   *
+   * @param searchQuery The search query
+   * @returns An Either of the search results
+   */
   async searchByTitle(searchQuery: string) {
     return E.right('Hello! World');
   }

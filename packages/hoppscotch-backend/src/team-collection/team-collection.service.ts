@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { TeamCollection } from './team-collection.model';
 import {
@@ -14,6 +14,10 @@ import {
   TEAM_COL_SAME_NEXT_COLL,
   TEAM_COL_REORDERING_FAILED,
   TEAM_COLL_DATA_INVALID,
+  TEAM_REQ_SEARCH_FAILED,
+  TEAM_COL_SEARCH_FAILED,
+  TEAM_REQ_PARENT_TREE_GEN_FAILED,
+  TEAM_COLL_PARENT_TREE_GEN_FAILED,
 } from '../errors';
 import { PubSubService } from '../pubsub/pubsub.service';
 import { isValidLength } from 'src/utils';
@@ -25,6 +29,7 @@ import { stringToJson } from 'src/utils';
 import { CollectionSearchNode } from 'src/types/CollectionSearchNode';
 import { SearchQueryReturnType } from './helper';
 import { cons } from 'fp-ts/lib/ReadonlyNonEmptyArray';
+import { AuthError } from 'src/types/AuthError';
 
 @Injectable()
 export class TeamCollectionService {
@@ -1071,27 +1076,50 @@ export class TeamCollectionService {
     const searchResults: SearchQueryReturnType[] = [];
 
     const matchedCollections = await this.searchCollections(searchQuery);
-    searchResults.push(...matchedCollections);
+    if (E.isLeft(matchedCollections))
+      return E.left(<AuthError>{
+        message: matchedCollections.left,
+        statusCode: HttpStatus.NOT_FOUND,
+      });
+    searchResults.push(...matchedCollections.right);
 
     const matchedRequests = await this.searchRequests(searchQuery);
-    searchResults.push(...matchedRequests);
+    if (E.isLeft(matchedRequests))
+      return E.left(<AuthError>{
+        message: matchedRequests.left,
+        statusCode: HttpStatus.NOT_FOUND,
+      });
+    searchResults.push(...matchedRequests.right);
 
     // Generate the parent tree for searchResults
     const searchResultsWithTree: CollectionSearchNode[] = [];
 
     for (let i = 0; i < searchResults.length; i++) {
-      const res = await this.fetchParentTree(searchResults[i]);
+      const fetchedParentTree = await this.fetchParentTree(searchResults[i]);
+      if (E.isLeft(fetchedParentTree))
+        return E.left(<AuthError>{
+          message: fetchedParentTree.left,
+          statusCode: HttpStatus.NOT_FOUND,
+        });
       searchResultsWithTree.push({
         type: searchResults[i].type,
         title: searchResults[i].title,
         method: searchResults[i].method,
         id: searchResults[i].id,
-        path: !res ? [] : ([res] as CollectionSearchNode[]),
+        path: !fetchedParentTree
+          ? []
+          : ([fetchedParentTree] as CollectionSearchNode[]),
       });
     }
-    return E.right(searchResultsWithTree);
+    return E.right({ data: searchResultsWithTree });
   }
 
+  /**
+   * Search for TeamCollections by title
+   *
+   * @param searchQuery The search query
+   * @returns An Either of the search results
+   */
   private async searchCollections(searchQuery) {
     const query = Prisma.sql`
     select id,title,'collection' AS type
@@ -1101,10 +1129,20 @@ export class TeamCollectionService {
     limit 10
     OFFSET 10;
   `;
-    const res = await this.prisma.$queryRaw<SearchQueryReturnType[]>(query);
-    return res;
+    try {
+      const res = await this.prisma.$queryRaw<SearchQueryReturnType[]>(query);
+      return E.right(res);
+    } catch (error) {
+      return E.left(TEAM_COL_SEARCH_FAILED);
+    }
   }
 
+  /**
+   * Search for TeamRequests by title
+   *
+   * @param searchQuery The search query
+   * @returns An Either of the search results
+   */
   private async searchRequests(searchQuery) {
     const query = Prisma.sql`
     select id,title,request->>'method' as method,'request' AS type
@@ -1114,38 +1152,65 @@ export class TeamCollectionService {
     limit 10
     OFFSET 10;
   `;
-    const res = await this.prisma.$queryRaw<SearchQueryReturnType[]>(query);
-    return res;
+
+    try {
+      const res = await this.prisma.$queryRaw<SearchQueryReturnType[]>(query);
+      return E.right(res);
+    } catch (error) {
+      return E.left(TEAM_REQ_SEARCH_FAILED);
+    }
   }
 
+  /**
+   * Generate the parent tree of a search result
+   *
+   * @param searchResult The search result for which we want to generate the parent tree
+   * @returns The parent tree of the search result
+   */
   private async fetchParentTree(searchResult: SearchQueryReturnType) {
     return searchResult.type === 'collection'
       ? await this.fetchCollectionParentTree(searchResult.id)
       : await this.fetchRequestParentTree(searchResult.id);
   }
 
+  /**
+   * Generate the parent tree of a collection
+   *
+   * @param id The ID of the collection
+   * @returns The parent tree of the collection
+   */
   private async fetchCollectionParentTree(id) {
-    const query = Prisma.sql`
-    WITH RECURSIVE collection_tree AS (
-      SELECT tc.id, tc."parentID", tc.title
-      FROM "TeamCollection" AS tc
-      JOIN "TeamCollection" AS tr ON tc.id = tr."parentID"
-      WHERE tr.id = ${id}
+    try {
+      const query = Prisma.sql`
+      WITH RECURSIVE collection_tree AS (
+        SELECT tc.id, tc."parentID", tc.title
+        FROM "TeamCollection" AS tc
+        JOIN "TeamCollection" AS tr ON tc.id = tr."parentID"
+        WHERE tr.id = ${id}
 
-      UNION ALL
+        UNION ALL
 
-      SELECT parent.id,  parent."parentID", parent.title
-      FROM "TeamCollection" AS parent
-      JOIN collection_tree AS ct ON parent.id = ct."parentID"
-    )
-    SELECT * FROM collection_tree;
-    `;
-    const res = await this.prisma.$queryRaw(query);
+        SELECT parent.id,  parent."parentID", parent.title
+        FROM "TeamCollection" AS parent
+        JOIN collection_tree AS ct ON parent.id = ct."parentID"
+      )
+      SELECT * FROM collection_tree;
+      `;
+      const res = await this.prisma.$queryRaw(query);
 
-    const collectionParentTree = this.generateParentTree(res);
-    return collectionParentTree;
+      const collectionParentTree = this.generateParentTree(res);
+      return E.right(collectionParentTree);
+    } catch (error) {
+      E.left(TEAM_COLL_PARENT_TREE_GEN_FAILED);
+    }
   }
 
+  /**
+   * Generate the parent tree from the collections
+   *
+   * @param parentCollections The parent collections
+   * @returns The parent tree of the parent collections
+   */
   private generateParentTree(parentCollections) {
     function findChildren(id) {
       const collection = parentCollections.filter((item) => item.id === id)[0];
@@ -1188,26 +1253,36 @@ export class TeamCollectionService {
     return null;
   }
 
+  /**
+   * Generate the parent tree of a request
+   *
+   * @param id The ID of the request
+   * @returns The parent tree of the request
+   */
   private async fetchRequestParentTree(id) {
-    const query = Prisma.sql`
-    WITH RECURSIVE request_collection_tree AS (
-      SELECT tc.id, tc."parentID", tc.title
-      FROM "TeamCollection" AS tc
-      JOIN "TeamRequest" AS tr ON tc.id = tr."collectionID"
-      WHERE tr.id = ${id}
+    try {
+      const query = Prisma.sql`
+      WITH RECURSIVE request_collection_tree AS (
+        SELECT tc.id, tc."parentID", tc.title
+        FROM "TeamCollection" AS tc
+        JOIN "TeamRequest" AS tr ON tc.id = tr."collectionID"
+        WHERE tr.id = ${id}
 
-      UNION ALL
+        UNION ALL
 
-      SELECT parent.id, parent."parentID", parent.title
-      FROM "TeamCollection" AS parent
-      JOIN request_collection_tree AS ct ON parent.id = ct."parentID"
-    )
-    SELECT * FROM request_collection_tree;
+        SELECT parent.id, parent."parentID", parent.title
+        FROM "TeamCollection" AS parent
+        JOIN request_collection_tree AS ct ON parent.id = ct."parentID"
+      )
+      SELECT * FROM request_collection_tree;
 
-    `;
-    const res = await this.prisma.$queryRaw(query);
+      `;
+      const res = await this.prisma.$queryRaw(query);
 
-    const requestParentTree = this.generateParentTree(res);
-    return requestParentTree;
+      const requestParentTree = this.generateParentTree(res);
+      return E.right(requestParentTree);
+    } catch (error) {
+      return E.left(TEAM_REQ_PARENT_TREE_GEN_FAILED);
+    }
   }
 }

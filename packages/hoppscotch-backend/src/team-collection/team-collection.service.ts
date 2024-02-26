@@ -1073,6 +1073,7 @@ export class TeamCollectionService {
    * @returns An Either of the search results
    */
   async searchByTitle(searchQuery: string) {
+    console.log('Search Query:', searchQuery);
     const start = performance.now();
     // Fetch all collections and requests that match the search query
     const searchResults: SearchQueryReturnType[] = [];
@@ -1130,8 +1131,8 @@ export class TeamCollectionService {
     const query = Prisma.sql`
     select id,title,'collection' AS type
     from "TeamCollection"
-    where to_tsvector(title) @@ to_tsquery(${searchQuery})
-    order by ts_rank(to_tsvector(title),to_tsquery(${searchQuery}))
+    where titlesearch @@ to_tsquery(${searchQuery})
+    order by ts_rank(titlesearch,to_tsquery(${searchQuery}))
     limit 10
     OFFSET 10;
   `;
@@ -1153,8 +1154,8 @@ export class TeamCollectionService {
     const query = Prisma.sql`
     select id,title,request->>'method' as method,'request' AS type
     from "TeamRequest"
-    where to_tsvector(title) @@ to_tsquery(${searchQuery})
-    order by ts_rank(to_tsvector(title),to_tsquery(${searchQuery}))
+    where titlesearch @@ to_tsquery(${searchQuery})
+    order by ts_rank(titlesearch,to_tsquery(${searchQuery}))
     limit 10
     OFFSET 10;
   `;

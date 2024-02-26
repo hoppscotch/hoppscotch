@@ -20,8 +20,12 @@
           {{ t('users.invite_load_list_error') }}
         </div>
 
+        <div v-else-if="pendingInvites?.length === 0">
+          {{ t('users.no_invite') }}
+        </div>
+
         <UsersTable
-          v-if="pendingInvites"
+          v-else
           :headings="headings"
           :list="pendingInvites"
           :checkbox="true"
@@ -42,10 +46,19 @@
           </template>
           <template #action="{ item }">
             <div v-if="item" class="my-1 mr-2">
-              <HoppButtonPrimary
+              <HoppButtonSecondary
+                v-if="xlAndLarger"
                 :icon="IconTrash"
                 :label="t('users.revoke_invitation')"
-                class="bg-red-500 hover:bg-red-600"
+                class="text-secondaryDark bg-red-500 hover:bg-red-600"
+                @click="confirmInviteDeletion(item.inviteeEmail)"
+              />
+              <HoppButtonSecondary
+                v-else
+                v-tippy="{ theme: 'tooltip' }"
+                :icon="IconTrash"
+                :title="t('users.revoke_invitation')"
+                class="ml-2 !text-red-500"
                 @click="confirmInviteDeletion(item.inviteeEmail)"
               />
             </div>
@@ -72,12 +85,9 @@
             />
           </div>
         </div>
-
-        <div v-if="pendingInvites?.length === 0">
-          {{ t('users.no_invite') }}
-        </div>
       </div>
     </div>
+
     <HoppSmartConfirmModal
       :show="confirmDeletion"
       :title="
@@ -93,6 +103,7 @@
 
 <script setup lang="ts">
 import { useMutation, useQuery } from '@urql/vue';
+import { breakpointsTailwind, useBreakpoints } from '@vueuse/core';
 import { format } from 'date-fns';
 import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
@@ -108,6 +119,9 @@ import {
 const t = useI18n();
 const toast = useToast();
 const router = useRouter();
+
+const breakpoints = useBreakpoints(breakpointsTailwind);
+const xlAndLarger = breakpoints.greater('xl');
 
 // Get Proper Date Formats
 const getCreatedDate = (date: string) => format(new Date(date), 'dd-MM-yyyy');

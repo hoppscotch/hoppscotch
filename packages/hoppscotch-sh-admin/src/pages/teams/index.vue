@@ -84,7 +84,7 @@
           </template>
         </UsersTable>
 
-        <div v-else class="px-2 text-lg">
+        <div v-else class="px-2">
           {{ t('teams.no_teams') }}
         </div>
 

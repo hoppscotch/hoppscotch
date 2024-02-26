@@ -229,7 +229,7 @@
     "name": "Workspace Name",
     "no_members": "No members in this workspace. Add members to this workspace to collaborate",
     "no_pending_invites": "No pending invites",
-    "no_teams": "No workspaces found",
+    "no_teams": "No workspaces found..",
     "pending_invites": "Pending invites",
     "roles": "Roles",
     "roles_description": "Roles are used to control access to the shared collections.",

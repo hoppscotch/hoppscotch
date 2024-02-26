@@ -1,16 +1,16 @@
 <template>
   <div class="md:grid md:grid-cols-3 md:gap-4 border-divider border-b py-8">
     <div class="px-8 md:col-span-1">
-      <h3 class="heading">{{ t('configs.data-sharing.title') }}</h3>
+      <h3 class="heading">{{ t('configs.data_sharing.title') }}</h3>
       <p class="my-1 text-secondaryLight">
-        {{ t('configs.data-sharing.description') }}
+        {{ t('configs.data_sharing.description') }}
       </p>
     </div>
 
     <div class="mt-5 mx-8 md:col-span-2">
       <section v-if="dataSharingConfigs">
         <h4 class="font-semibold text-secondaryDark">
-          {{ t('configs.data-sharing.title') }}
+          {{ t('configs.data_sharing.title') }}
         </h4>
 
         <div class="space-y-4 py-4">
@@ -19,7 +19,7 @@
               :on="dataSharingConfigs.enabled"
               @change="dataSharingConfigs.enabled = !dataSharingConfigs.enabled"
             >
-              {{ t('configs.data-sharing.toggle_description') }}
+              {{ t('configs.data_sharing.toggle_description') }}
             </HoppSmartToggle>
           </div>
         </div>
@@ -28,7 +28,7 @@
           outline
           filled
           :icon="IconShieldQuestion"
-          :label="t('configs.data-sharing.see_shared')"
+          :label="t('configs.data_sharing.see_shared')"
           to="http://docs.hoppscotch.io"
           class="w-min my-2"
         />

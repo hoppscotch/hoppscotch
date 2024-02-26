@@ -36,7 +36,7 @@
           <p class="text-lg font-bold text-white">
             {{ t('newsletter.title') }}
           </p>
-          <p class="text-sm font-light">Get updates about our latest news</p>
+          <p>{{ t('configs.newsletter.description') }}</p>
           <HoppSmartToggle
             :on="shareEmail"
             @change="shareEmail = !shareEmail"
@@ -111,7 +111,7 @@ const toggleDataSharing = async () => {
     variables as ToggleAnalyticsCollectionMutationVariables
   );
   if (result.error) {
-    toast.error('Failed to update data sharing settings');
+    toast.error(t('state.data_sharing_failure'));
     return false;
   }
   return true;
@@ -129,7 +129,7 @@ const toggleNewsletter = async () => {
     return true;
   } catch (e) {
     console.error(e);
-    toast.error(t('Unable to update newsletter settings'));
+    toast.error(t('state.newsletter_failure'));
     return false;
   }
 };

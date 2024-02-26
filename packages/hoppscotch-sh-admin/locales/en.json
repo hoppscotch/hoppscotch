@@ -18,7 +18,7 @@
     },
     "confirm_changes": "Hoppscotch server must restart to reflect the new changes. Confirm changes made to the server configurations?",
     "input_empty": "Please fill all the fields before updating the configurations",
-    "data-sharing": {
+    "data_sharing": {
       "title": "Data Sharing",
       "description": "Help improve Hoppscotch by sharing anonymous data",
       "enable": "Enable Data Sharing",
@@ -111,6 +111,7 @@
     "copied_to_clipboard": "Copied to clipboard",
     "create_team_failure": "Failed to create workspace!!",
     "create_team_success": "Workspace created successfully!!",
+    "data_sharing_failure": "Failed to update data sharing settings",
     "delete_request_failure": "Shared Request deletion failed!!",
     "delete_request_success": "Shared Request deleted successfully!!",
     "delete_team_failure": "Workspace deletion failed!!",
@@ -133,6 +134,7 @@
     "magic_link_sign_in": "Click on the link to sign in.",
     "magic_link_success": "We sent a magic link to",
     "microsoft_signin_failure": "Failed to login with Microsoft",
+    "newsletter_failure": "Unable to update newsletter settings",
     "non_admin_logged_in": "Logged in as non admin user.",
     "non_admin_login": "You are logged in. But you're not an admin",
     "owner_not_present": "Atleast one owner should be present in the team!!",

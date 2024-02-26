@@ -1065,36 +1065,37 @@ export class TeamCollectionService {
     }
   }
 
-  // TODO: Implement Pagination for search results
   /**
    * Search for TeamCollections and TeamRequests by title
    *
    * @param searchQuery The search query
+   * @param take Number of items we want returned
+   * @param skip Number of items we want to skip
    * @returns An Either of the search results
    */
-  async searchByTitle(searchQuery: string) {
-    console.log('Search Query:', searchQuery);
-    const start = performance.now();
+  async searchByTitle(searchQuery: string, take = 10, skip = 0) {
     // Fetch all collections and requests that match the search query
     const searchResults: SearchQueryReturnType[] = [];
 
-    const matchedCollections = await this.searchCollections(searchQuery);
+    const matchedCollections = await this.searchCollections(
+      searchQuery,
+      take,
+      skip,
+    );
     if (E.isLeft(matchedCollections))
       return E.left(<AuthError>{
         message: matchedCollections.left,
         statusCode: HttpStatus.NOT_FOUND,
       });
     searchResults.push(...matchedCollections.right);
-    console.log('Collections were fetched in', performance.now() - start, 'ms');
 
-    const matchedRequests = await this.searchRequests(searchQuery);
+    const matchedRequests = await this.searchRequests(searchQuery, take, skip);
     if (E.isLeft(matchedRequests))
       return E.left(<AuthError>{
         message: matchedRequests.left,
         statusCode: HttpStatus.NOT_FOUND,
       });
     searchResults.push(...matchedRequests.right);
-    console.log('Requests were fetched in', performance.now() - start, 'ms');
 
     // Generate the parent tree for searchResults
     const searchResultsWithTree: CollectionSearchNode[] = [];
@@ -1116,7 +1117,6 @@ export class TeamCollectionService {
           : ([fetchedParentTree.right] as CollectionSearchNode[]),
       });
     }
-    console.log('Tree Generation Complete in', performance.now() - start, 'ms');
 
     return E.right({ data: searchResultsWithTree });
   }
@@ -1127,14 +1127,14 @@ export class TeamCollectionService {
    * @param searchQuery The search query
    * @returns An Either of the search results
    */
-  private async searchCollections(searchQuery) {
+  private async searchCollections(searchQuery, take, skip) {
     const query = Prisma.sql`
     select id,title,'collection' AS type
     from "TeamCollection"
     where titlesearch @@ to_tsquery(${searchQuery})
     order by ts_rank(titlesearch,to_tsquery(${searchQuery}))
-    limit 10
-    OFFSET 10;
+    limit ${take}
+    OFFSET ${skip === 0 ? 0 : (skip - 1) * take};
   `;
     try {
       const res = await this.prisma.$queryRaw<SearchQueryReturnType[]>(query);
@@ -1150,14 +1150,14 @@ export class TeamCollectionService {
    * @param searchQuery The search query
    * @returns An Either of the search results
    */
-  private async searchRequests(searchQuery) {
+  private async searchRequests(searchQuery, take, skip) {
     const query = Prisma.sql`
     select id,title,request->>'method' as method,'request' AS type
     from "TeamRequest"
     where titlesearch @@ to_tsquery(${searchQuery})
     order by ts_rank(titlesearch,to_tsquery(${searchQuery}))
-    limit 10
-    OFFSET 10;
+    limit ${take}
+    OFFSET ${skip === 0 ? 0 : (skip - 1) * take};
   `;
 
     try {

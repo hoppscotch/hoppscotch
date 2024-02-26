@@ -165,6 +165,13 @@
       <CollectionsGraphql />
     </HoppSmartTab>
     <HoppSmartTab
+      :id="'env'"
+      :icon="IconLayers"
+      :label="`${t('tab.environments')}`"
+    >
+      <Environments />
+    </HoppSmartTab>
+    <HoppSmartTab
       :id="'history'"
       :icon="IconClock"
       :label="`${t('tab.history')}`"
@@ -178,6 +185,7 @@
 import IconFolder from "~icons/lucide/folder"
 import IconBookOpen from "~icons/lucide/book-open"
 import IconHelpCircle from "~icons/lucide/help-circle"
+import IconLayers from "~icons/lucide/layers"
 import IconWrapText from "~icons/lucide/wrap-text"
 import IconDownload from "~icons/lucide/download"
 import IconCheck from "~icons/lucide/check"
@@ -203,7 +211,7 @@ import { platform } from "~/platform"
 import { useNestedSetting } from "~/composables/settings"
 import { toggleNestedSetting } from "~/newstore/settings"
 
-type NavigationTabs = "history" | "collection" | "docs" | "schema"
+type NavigationTabs = "history" | "collection" | "env" | "docs" | "schema"
 type GqlTabs = "queries" | "mutations" | "subscriptions" | "types"
 
 const selectedNavigationTab = ref<NavigationTabs>("docs")

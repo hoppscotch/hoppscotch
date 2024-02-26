@@ -3,16 +3,13 @@
     class="sticky top-0 z-10 flex flex-shrink-0 space-x-2 overflow-x-auto bg-primary p-4"
   >
     <div class="inline-flex flex-1 space-x-2">
-      <input
+      <SmartEnvInput
         id="url"
         v-model="url"
-        type="url"
-        autocomplete="off"
-        spellcheck="false"
         class="w-full rounded border border-divider bg-primaryLight px-4 py-2 text-secondaryDark"
         :placeholder="`${t('request.url')}`"
-        :disabled="connected"
-        @keyup.enter="onConnectClick"
+        :readonly="connected"
+        @enter="onConnectClick"
       />
       <HoppButtonPrimary
         id="get"

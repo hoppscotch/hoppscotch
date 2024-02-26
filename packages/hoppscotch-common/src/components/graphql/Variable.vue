@@ -95,6 +95,7 @@ import {
   socketDisconnect,
   subscriptionState,
 } from "~/helpers/graphql/connection"
+import { EditorView } from "@codemirror/view"
 import { useNestedSetting } from "~/composables/settings"
 import { toggleNestedSetting } from "~/newstore/settings"
 
@@ -116,7 +117,7 @@ const selectedOperation = ref<gql.OperationDefinitionNode | null>(null)
 
 const variableString = useVModel(props, "modelValue", emit)
 
-const variableEditor = ref<any | null>(null)
+const variableEditor = ref<EditorView>()
 
 const WRAP_LINES = useNestedSetting("WRAP_LINES", "graphqlVariables")
 
@@ -141,7 +142,7 @@ useCodemirror(
       variableString.value.length > 0 ? jsonLinter : null
     ),
     completer: null,
-    environmentHighlights: false,
+    environmentHighlights: true,
   })
 )
 

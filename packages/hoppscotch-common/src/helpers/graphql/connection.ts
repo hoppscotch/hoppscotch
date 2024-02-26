@@ -1,4 +1,9 @@
-import { GQLHeader, HoppGQLAuth, makeGQLRequest } from "@hoppscotch/data"
+import {
+  GQLHeader,
+  HoppGQLAuth,
+  makeGQLRequest,
+  parseTemplateStringE,
+} from "@hoppscotch/data"
 import { OperationType } from "@urql/core"
 import * as E from "fp-ts/Either"
 import {
@@ -19,6 +24,7 @@ import { addGraphqlHistoryEntry, makeGQLHistoryEntry } from "~/newstore/history"
 
 import { InterceptorService } from "~/services/interceptor.service"
 import { GQLTabService } from "~/services/tab/graphql"
+import { getCombinedEnvVariables } from "../preRequest"
 
 const GQL_SCHEMA_POLL_INTERVAL = 7000
 
@@ -193,22 +199,45 @@ export const reset = () => {
   connection.schema = null
 }
 
+const getComputedHeaders = (headers: GQLHeader[]) => {
+  const envVariables = getCombinedEnvVariables()
+  const finalEnvVariables = [...envVariables.selected, ...envVariables.global]
+  const result: Record<string, string> = {}
+
+  for (const header of headers.filter(
+    (item) => item.active && item.key !== ""
+  )) {
+    let parseResult = parseTemplateStringE(header.value, finalEnvVariables)
+    header.key = E.isLeft(parseResult) ? "error" : result.right
+    parseResult = parseTemplateStringE(header.value, finalEnvVariables)
+    header.value = E.isLeft(parseResult) ? "error" : result.right
+
+    result[header.key] = header.value
+  }
+
+  return result
+}
+
+const getComputedUrl = (url: string) => {
+  const envVariables = getCombinedEnvVariables()
+  const finalEnvVariables = [...envVariables.selected, ...envVariables.global]
+
+  const parseResult = parseTemplateStringE(url, finalEnvVariables)
+
+  return E.isLeft(parseResult) ? "error" : parseResult.right
+}
+
 const getSchema = async (url: string, headers: GQLHeader[]) => {
   try {
     const introspectionQuery = JSON.stringify({
       query: getIntrospectionQuery(),
     })
 
-    const finalHeaders: Record<string, string> = {}
-    headers
-      .filter((x) => x.active && x.key !== "")
-      .forEach((x) => (finalHeaders[x.key] = x.value))
-
     const reqOptions = {
       method: "POST",
-      url,
+      url: getComputedUrl(url),
       headers: {
-        ...finalHeaders,
+        ...getComputedHeaders(headers),
         "content-type": "application/json",
       },
       data: introspectionQuery,
@@ -258,9 +287,8 @@ export const runGQLOperation = async (options: RunQueryOptions) => {
   const { url, headers, query, variables, auth, operationName, operationType } =
     options
 
-  const finalHeaders: Record<string, string> = {}
-
   const parsedVariables = JSON.parse(variables || "{}")
+  const finalVariables: Record<string, any> = {}
 
   const params: Record<string, string> = {}
 
@@ -268,33 +296,55 @@ export const runGQLOperation = async (options: RunQueryOptions) => {
     if (auth.authType === "basic") {
       const username = auth.username
       const password = auth.password
-      finalHeaders.Authorization = `Basic ${btoa(`${username}:${password}`)}`
+      headers.push({
+        active: true,
+        key: "Authorization",
+        value: `Basic ${btoa(`${username}:${password}`)}`,
+      })
     } else if (auth.authType === "bearer" || auth.authType === "oauth-2") {
-      finalHeaders.Authorization = `Bearer ${auth.token}`
+      headers.push({
+        active: true,
+        key: "Authorization",
+        value: `Bearer ${auth.token}`,
+      })
     } else if (auth.authType === "api-key") {
       const { key, value, addTo } = auth
       if (addTo === "Headers") {
-        finalHeaders[key] = value
+        headers.push({
+          active: true,
+          key,
+          value,
+        })
       } else if (addTo === "Query params") {
         params[key] = value
       }
     }
   }
 
-  headers
-    .filter((item) => item.active && item.key !== "")
-    .forEach(({ key, value }) => (finalHeaders[key] = value))
+  const envVariables = getCombinedEnvVariables()
+  const finalEnvVariables = [...envVariables.selected, ...envVariables.global]
+
+  for (const variable of Object.keys(parsedVariables)) {
+    const parseResultKey = parseTemplateStringE(variable, finalEnvVariables)
+    const parseResultValue = parseTemplateStringE(
+      parsedVariables[variable],
+      finalEnvVariables
+    )
+
+    finalVariables[E.isLeft(parseResultKey) ? "error" : parseResultKey.right] =
+      E.isLeft(parseResultValue) ? "error" : parseResultValue.right
+  }
 
   const reqOptions = {
     method: "POST",
-    url,
+    url: getComputedUrl(url),
     headers: {
-      ...finalHeaders,
+      ...getComputedHeaders(headers),
       "content-type": "application/json",
     },
     data: JSON.stringify({
       query,
-      variables: parsedVariables,
+      variables: finalVariables,
       operationName,
     }),
     params: {
@@ -303,7 +353,7 @@ export const runGQLOperation = async (options: RunQueryOptions) => {
   }
 
   if (operationType === "subscription") {
-    return runSubscription(options, finalHeaders)
+    return runSubscription(options, getComputedHeaders(headers))
   }
 
   const interceptorService = getService(InterceptorService)

@@ -485,7 +485,7 @@ import { HoppCollection, HoppRESTAuth, HoppRESTRequest } from "@hoppscotch/data"
 import { useService } from "dioc/vue"
 import * as E from "fp-ts/lib/Either"
 import { cloneDeep, isEqual } from "lodash-es"
-import { computed, markRaw, nextTick, ref, watch } from "vue"
+import { markRaw, nextTick, ref, watchEffect } from "vue"
 
 import { useI18n } from "~/composables/i18n"
 import { useReadonlyStream } from "~/composables/stream"
@@ -587,10 +587,8 @@ const editingProperties = ref<{
 
 const confirmModalTitle = ref<string | null>(null)
 
-const isActiveSearchSession = computed(() => !!searchText.value)
-
-watch(isActiveSearchSession, async (newState) => {
-  if (!newState) {
+watchEffect(async () => {
+  if (!searchText.value) {
     filteredCollections.value = []
     onSessionEnd.value?.()
     return

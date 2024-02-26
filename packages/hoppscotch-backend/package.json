@@ -50,7 +50,7 @@
     "handlebars": "^4.7.7",
     "io-ts": "^2.2.16",
     "luxon": "^3.2.1",
-    "nodemailer": "^6.9.1",
+    "nodemailer": "^6.9.9",
     "passport": "^0.6.0",
     "passport-github2": "^0.1.12",
     "passport-google-oauth20": "^2.0.0",

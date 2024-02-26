@@ -40,6 +40,7 @@ declare module '@vue/runtime-core' {
     SettingsServerRestart: typeof import('./components/settings/ServerRestart.vue')['default']
     SettingsSmtpConfiguration: typeof import('./components/settings/SmtpConfiguration.vue')['default']
     SetupDataSharing: typeof import('./components/setup/DataSharing.vue')['default']
+    SetupDataSharingAndNewsletter: typeof import('./components/setup/DataSharingAndNewsletter.vue')['default']
     TeamsAdd: typeof import('./components/teams/Add.vue')['default']
     TeamsDetails: typeof import('./components/teams/Details.vue')['default']
     TeamsInvite: typeof import('./components/teams/Invite.vue')['default']

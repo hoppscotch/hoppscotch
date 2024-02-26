@@ -54,8 +54,6 @@ export default <HoppModule>{
        * Else, the Setup page
        */
       if (isGuestRoute(to.name)) {
-        console.log('hi');
-
         const name = isInfraNotSetup ? 'setup' : 'dashboard';
         return next({ name });
       }

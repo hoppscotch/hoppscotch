@@ -12,6 +12,7 @@
       @dragleave="ordering = false"
       @dragend="resetDragState"
     ></div>
+
     <div class="relative flex flex-col">
       <div
         class="z-[1] pointer-events-none absolute inset-0 bg-accent opacity-0 transition"
@@ -20,6 +21,7 @@
             dragging && notSameDestination && notSameParentDestination,
         }"
       ></div>
+
       <div
         class="z-[3] group pointer-events-auto relative flex cursor-pointer items-stretch"
         :draggable="true"
@@ -48,6 +50,7 @@
               :class="{ 'text-accent': isSelected }"
             />
           </span>
+
           <span
             class="pointer-events-none flex min-w-0 flex-1 py-2 pr-2 transition group-hover:text-secondaryDark"
           >
@@ -56,6 +59,7 @@
             </span>
           </span>
         </div>
+
         <div class="flex">
           <HoppButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
@@ -64,6 +68,7 @@
             class="hidden group-hover:inline-flex"
             @click="addRequest"
           />
+
           <HoppButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
             :icon="IconFolderPlus"
@@ -71,6 +76,7 @@
             class="hidden group-hover:inline-flex"
             @click="addChildCollection"
           />
+
           <span>
             <tippy
               ref="options"
@@ -179,6 +185,7 @@
         </div>
       </div>
     </div>
+
     <div
       v-if="collectionView.isLastItem"
       class="w-full transition"

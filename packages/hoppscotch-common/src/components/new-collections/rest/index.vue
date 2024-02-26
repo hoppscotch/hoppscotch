@@ -40,7 +40,7 @@
           :icon="IconPlus"
           :label="t('add.new')"
           class="!rounded-none"
-          @click="showModalAdd = true"
+          @click="showModalAddRootCollection = true"
         />
         <span class="flex">
           <HoppButtonSecondary
@@ -161,9 +161,74 @@
               {{ node.data.value }}
             </div>
           </template>
-          <template #emptyNode>
-            <!-- TODO: Implement -->
-            <div>Empty Node!</div>
+
+          <template #emptyNode="{ node }">
+            <HoppSmartPlaceholder
+              v-if="searchText.length !== 0 && filteredCollections.length === 0"
+              :text="`${t('state.nothing_found')} ‟${searchText}”`"
+            >
+              <template #icon>
+                <icon-lucide-search class="svg-icons opacity-75" />
+              </template>
+            </HoppSmartPlaceholder>
+
+            <HoppSmartPlaceholder
+              v-else-if="node === null"
+              :src="`/images/states/${colorMode.value}/pack.svg`"
+              :alt="`${t('empty.collections')}`"
+              :text="t('empty.collections')"
+            >
+              <template #body>
+                <div class="flex flex-col items-center space-y-4">
+                  <span class="text-center text-secondaryLight">
+                    {{ t("collection.import_or_create") }}
+                  </span>
+
+                  <div class="flex flex-col items-stretch gap-4">
+                    <HoppButtonPrimary
+                      :icon="IconImport"
+                      :label="t('import.title')"
+                      filled
+                      outline
+                      @click="displayModalImportExport(true)"
+                    />
+
+                    <HoppButtonSecondary
+                      :icon="IconPlus"
+                      :label="t('add.new')"
+                      filled
+                      outline
+                      @click="showModalAddRootCollection = true"
+                    />
+                  </div>
+                </div>
+              </template>
+            </HoppSmartPlaceholder>
+
+            <template v-else-if="node.data.type === 'collection'">
+              <HoppSmartPlaceholder
+                v-if="isAlreadyInRoot(node.data.value.collectionID)"
+                :src="`/images/states/${colorMode.value}/pack.svg`"
+                :alt="t('empty.collection')"
+                :text="t('empty.collection')"
+              >
+                <template #body>
+                  <HoppButtonSecondary
+                    :label="t('add.new')"
+                    filled
+                    outline
+                    @click="showModalAddRootCollection = true"
+                  />
+                </template>
+              </HoppSmartPlaceholder>
+
+              <HoppSmartPlaceholder
+                v-else
+                :src="`/images/states/${colorMode.value}/pack.svg`"
+                :alt="t('empty.folder')"
+                :text="t('empty.folder')"
+              />
+            </template>
           </template>
         </HoppSmartTree>
 
@@ -267,9 +332,74 @@
               {{ node.data.value }}
             </div>
           </template>
-          <template #emptyNode>
-            <!-- TODO: Implement -->
-            <div>Empty Node!</div>
+
+          <template #emptyNode="{ node }">
+            <HoppSmartPlaceholder
+              v-if="searchText.length !== 0 && filteredCollections.length === 0"
+              :text="`${t('state.nothing_found')} ‟${searchText}”`"
+            >
+              <template #icon>
+                <icon-lucide-search class="svg-icons opacity-75" />
+              </template>
+            </HoppSmartPlaceholder>
+
+            <HoppSmartPlaceholder
+              v-else-if="node === null"
+              :src="`/images/states/${colorMode.value}/pack.svg`"
+              :alt="`${t('empty.collections')}`"
+              :text="t('empty.collections')"
+            >
+              <template #body>
+                <div class="flex flex-col items-center space-y-4">
+                  <span class="text-center text-secondaryLight">
+                    {{ t("collection.import_or_create") }}
+                  </span>
+
+                  <div class="flex flex-col items-stretch gap-4">
+                    <HoppButtonPrimary
+                      :icon="IconImport"
+                      :label="t('import.title')"
+                      filled
+                      outline
+                      @click="displayModalImportExport(true)"
+                    />
+
+                    <HoppButtonSecondary
+                      :icon="IconPlus"
+                      :label="t('add.new')"
+                      filled
+                      outline
+                      @click="showModalAddRootCollection = true"
+                    />
+                  </div>
+                </div>
+              </template>
+            </HoppSmartPlaceholder>
+
+            <template v-else-if="node.data.type === 'collection'">
+              <HoppSmartPlaceholder
+                v-if="isAlreadyInRoot(node.data.value.collectionID)"
+                :src="`/images/states/${colorMode.value}/pack.svg`"
+                :alt="t('empty.collection')"
+                :text="t('empty.collection')"
+              >
+                <template #body>
+                  <HoppButtonSecondary
+                    :label="t('add.new')"
+                    filled
+                    outline
+                    @click="showModalAddRootCollection = true"
+                  />
+                </template>
+              </HoppSmartPlaceholder>
+
+              <HoppSmartPlaceholder
+                v-else
+                :src="`/images/states/${colorMode.value}/pack.svg`"
+                :alt="t('empty.folder')"
+                :text="t('empty.folder')"
+              />
+            </template>
           </template>
         </HoppSmartTree>
       </div>
@@ -284,10 +414,10 @@
       </div>
 
       <CollectionsAdd
-        :show="showModalAdd"
+        :show="showModalAddRootCollection"
         :loading-state="modalLoadingState"
         @submit="addNewRootCollection"
-        @hide-modal="showModalAdd = false"
+        @hide-modal="showModalAddRootCollection = false"
       />
       <CollectionsAddRequest
         :show="showModalAddRequest"
@@ -296,10 +426,10 @@
         @hide-modal="displayModalAddRequest(false)"
       />
       <CollectionsAddFolder
-        :show="showModalAddChildColl"
+        :show="showModalAddChildCollection"
         :loading-state="modalLoadingState"
         @add-folder="onAddChildCollection"
-        @hide-modal="displayModalAddChildColl(false)"
+        @hide-modal="displayModalAddChildCollection(false)"
       />
       <CollectionsEdit
         :show="showModalEditRootColl"
@@ -359,6 +489,7 @@ import { computed, markRaw, nextTick, ref, watch } from "vue"
 
 import { useI18n } from "~/composables/i18n"
 import { useReadonlyStream } from "~/composables/stream"
+import { useColorMode } from "~/composables/theming"
 import { useToast } from "~/composables/toast"
 import { invokeAction } from "~/helpers/actions"
 import { WorkspaceRESTSearchCollectionTreeAdapter } from "~/helpers/adapters/WorkspaceRESTCollectionSearchTreeAdapter"
@@ -387,9 +518,23 @@ import IconImport from "~icons/lucide/folder-down"
 import IconHelpCircle from "~icons/lucide/help-circle"
 import IconPlus from "~icons/lucide/plus"
 
+const colorMode = useColorMode()
 const t = useI18n()
 const toast = useToast()
+
 const tabs = useService(RESTTabService)
+const workspaceService = useService(NewWorkspaceService)
+
+const currentReorderingStatus = useReadonlyStream(currentReorderingStatus$, {
+  type: "collection",
+  id: "",
+  parentID: "",
+})
+const currentUser = useReadonlyStream(
+  platform.auth.getCurrentUserStream(),
+  platform.auth.getCurrentUser()
+)
+const restCollectionState = useReadonlyStream(restCollections$, [])
 
 const props = defineProps<{
   workspaceHandle: HandleRef<Workspace>
@@ -403,28 +548,14 @@ const emit = defineEmits<{
   (event: "select", payload: Picked | null): void
 }>()
 
-const workspaceService = useService(NewWorkspaceService)
-const restCollectionState = useReadonlyStream(restCollections$, [])
-
-const currentReorderingStatus = useReadonlyStream(currentReorderingStatus$, {
-  type: "collection",
-  id: "",
-  parentID: "",
-})
-
-const currentUser = useReadonlyStream(
-  platform.auth.getCurrentUserStream(),
-  platform.auth.getCurrentUser()
-)
-
 const draggingToRoot = ref(false)
 const searchText = ref("")
 
 const modalLoadingState = ref(false)
 
-const showModalAdd = ref(false)
+const showModalAddRootCollection = ref(false)
 const showModalAddRequest = ref(false)
-const showModalAddChildColl = ref(false)
+const showModalAddChildCollection = ref(false)
 const showModalEditRootColl = ref(false)
 const showModalEditChildColl = ref(false)
 const showModalEditRequest = ref(false)
@@ -535,8 +666,8 @@ const displayModalAddRequest = (show: boolean) => {
   if (!show) resetSelectedData()
 }
 
-const displayModalAddChildColl = (show: boolean) => {
-  showModalAddChildColl.value = show
+const displayModalAddChildCollection = (show: boolean) => {
+  showModalAddChildCollection.value = show
 
   if (!show) resetSelectedData()
 }
@@ -597,7 +728,7 @@ const addNewRootCollection = async (name: string) => {
   }
 
   modalLoadingState.value = false
-  showModalAdd.value = false
+  showModalAddRootCollection.value = false
 }
 
 const removeRootCollection = (collectionIndexPath: string) => {
@@ -745,7 +876,7 @@ const onAddRequest = async (requestName: string) => {
 
 const addChildCollection = (parentCollectionIndexPath: string) => {
   editingCollectionIndexPath.value = parentCollectionIndexPath
-  displayModalAddChildColl(true)
+  displayModalAddChildCollection(true)
 }
 
 const onAddChildCollection = async (newChildCollectionName: string) => {
@@ -783,7 +914,7 @@ const onAddChildCollection = async (newChildCollectionName: string) => {
     return
   }
 
-  displayModalAddChildColl(false)
+  displayModalAddChildCollection(false)
 }
 
 const editRootCollection = (payload: {

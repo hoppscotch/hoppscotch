@@ -961,6 +961,45 @@ export class PersonalWorkspaceProviderService
   ): Promise<E.Either<never, HandleRef<RESTSearchResultsView>>> {
     const results = ref<HoppCollection[]>([])
 
+    const isMatch = (inputText: string, textToMatch: string) =>
+      inputText.toLowerCase().includes(textToMatch.toLowerCase())
+
+    // Recursive function to filter requests and folders
+    const filterItems = (items: HoppCollection[], searchQuery: string) => {
+      const filteredItems = []
+
+      for (const item of items) {
+        if (isMatch(item.name, searchQuery)) {
+          filteredItems.push(item)
+        }
+
+        if (item.requests) {
+          const filteredRequests = item.requests.filter((request) =>
+            isMatch(request.name, searchQuery)
+          )
+
+          if (filteredRequests.length > 0) {
+            const filteredItem = { ...item, requests: filteredRequests }
+            filteredItems.push(filteredItem)
+          }
+        }
+
+        if (item.folders) {
+          const filteredFolders: HoppCollection[] = filterItems(
+            item.folders,
+            searchQuery
+          )
+
+          if (filteredFolders.length > 0) {
+            const filteredItem = { ...item, folders: filteredFolders }
+            filteredItems.push(filteredItem)
+          }
+        }
+      }
+
+      return filteredItems
+    }
+
     const scopeHandle = effectScope()
 
     scopeHandle.run(() => {
@@ -972,43 +1011,29 @@ export class PersonalWorkspaceProviderService
             return
           }
 
-          const filterText = newSearchQuery.toLowerCase()
-          const filteredCollections = []
+          const filteredCollections = this.restCollectionState.value.state
+            .map((collection) => {
+              const filteredCollection = { ...collection }
 
-          const isMatch = (text: string) =>
-            text.toLowerCase().includes(filterText)
+              filteredCollection.requests = collection.requests.filter(
+                (request) => isMatch(request.name, newSearchQuery)
+              )
 
-          for (const collection of this.restCollectionState.value.state) {
-            const filteredRequests = []
-            const filteredFolders = []
-            for (const request of collection.requests) {
-              if (isMatch(request.name)) filteredRequests.push(request)
-            }
-            for (const folder of collection.folders) {
-              if (isMatch(folder.name)) filteredFolders.push(folder)
-              const filteredFolderRequests = []
-              for (const request of folder.requests) {
-                if (isMatch(request.name)) filteredFolderRequests.push(request)
-              }
-              if (filteredFolderRequests.length > 0) {
-                const filteredFolder = Object.assign({}, folder)
-                filteredFolder.requests = filteredFolderRequests
-                filteredFolders.push(filteredFolder)
-              }
-            }
+              filteredCollection.folders = filterItems(
+                collection.folders,
+                newSearchQuery
+              )
 
-            if (
-              filteredRequests.length + filteredFolders.length > 0 ||
-              isMatch(collection.name)
-            ) {
-              const filteredCollection = Object.assign({}, collection)
-              filteredCollection.requests = filteredRequests
-              filteredCollection.folders = filteredFolders
-              filteredCollections.push(filteredCollection)
-            }
+              return filteredCollection
+            })
+            .filter(
+              (collection) =>
+                collection.requests.length > 0 ||
+                collection.folders.length > 0 ||
+                isMatch(collection.name, newSearchQuery)
+            )
 
-            results.value = filteredCollections
-          }
+          results.value = filteredCollections
         },
         { immediate: true }
       )
@@ -1032,7 +1057,7 @@ export class PersonalWorkspaceProviderService
             }
           }
 
-          return {
+          return markRaw({
             type: "ok" as const,
             data: {
               providerID: this.providerID,
@@ -1043,7 +1068,7 @@ export class PersonalWorkspaceProviderService
               results,
               onSessionEnd,
             },
-          }
+          })
         })
       )
     )

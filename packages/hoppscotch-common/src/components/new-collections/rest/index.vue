@@ -623,8 +623,8 @@ const treeAdapter = markRaw(
   )
 )
 
-const searchTreeAdapter = new WorkspaceRESTSearchCollectionTreeAdapter(
-  filteredCollections
+const searchTreeAdapter = markRaw(
+  new WorkspaceRESTSearchCollectionTreeAdapter(filteredCollections)
 )
 
 const isSelected = ({

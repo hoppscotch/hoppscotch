@@ -964,40 +964,39 @@ export class PersonalWorkspaceProviderService
     const isMatch = (inputText: string, textToMatch: string) =>
       inputText.toLowerCase().includes(textToMatch.toLowerCase())
 
-    // Recursive function to filter requests and folders
-    const filterItems = (items: HoppCollection[], searchQuery: string) => {
-      const filteredItems = []
+    const filterRequests = (requests: HoppRESTRequest[]) => {
+      return requests.filter((request) =>
+        isMatch(request.name, searchQuery.value)
+      )
+    }
 
-      for (const item of items) {
-        if (isMatch(item.name, searchQuery)) {
-          filteredItems.push(item)
-        }
-
-        if (item.requests) {
-          const filteredRequests = item.requests.filter((request) =>
-            isMatch(request.name, searchQuery)
-          )
-
-          if (filteredRequests.length > 0) {
-            const filteredItem = { ...item, requests: filteredRequests }
-            filteredItems.push(filteredItem)
+    const filterChildCollections = (
+      childCollections: HoppCollection[]
+    ): HoppCollection[] => {
+      return childCollections
+        .map((childCollection) => {
+          // Render the entire collection tree if the search query matches a collection name
+          if (isMatch(childCollection.name, searchQuery.value)) {
+            return childCollection
           }
-        }
 
-        if (item.folders) {
-          const filteredFolders: HoppCollection[] = filterItems(
-            item.folders,
-            searchQuery
+          const requests = filterRequests(
+            childCollection.requests as HoppRESTRequest[]
           )
+          const folders = filterChildCollections(childCollection.folders)
 
-          if (filteredFolders.length > 0) {
-            const filteredItem = { ...item, folders: filteredFolders }
-            filteredItems.push(filteredItem)
+          return {
+            ...childCollection,
+            requests,
+            folders,
           }
-        }
-      }
-
-      return filteredItems
+        })
+        .filter(
+          (childCollection) =>
+            childCollection.requests.length > 0 ||
+            childCollection.folders.length > 0 ||
+            isMatch(childCollection.name, searchQuery.value)
+        )
     }
 
     const scopeHandle = effectScope()
@@ -1013,24 +1012,27 @@ export class PersonalWorkspaceProviderService
 
           const filteredCollections = this.restCollectionState.value.state
             .map((collection) => {
-              const filteredCollection = { ...collection }
+              // Render the entire collection tree if the search query matches a collection name
+              if (isMatch(collection.name, searchQuery.value)) {
+                return collection
+              }
 
-              filteredCollection.requests = collection.requests.filter(
-                (request) => isMatch(request.name, newSearchQuery)
+              const requests = filterRequests(
+                collection.requests as HoppRESTRequest[]
               )
+              const folders = filterChildCollections(collection.folders)
 
-              filteredCollection.folders = filterItems(
-                collection.folders,
-                newSearchQuery
-              )
-
-              return filteredCollection
+              return {
+                ...collection,
+                requests,
+                folders,
+              }
             })
             .filter(
               (collection) =>
                 collection.requests.length > 0 ||
                 collection.folders.length > 0 ||
-                isMatch(collection.name, newSearchQuery)
+                isMatch(collection.name, searchQuery.value)
             )
 
           results.value = filteredCollections

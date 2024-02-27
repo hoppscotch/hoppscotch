@@ -7,7 +7,7 @@
     <div
       class="bg-primaryLight mt-10 p-10 border-2 border-dividerLight rounded-lg"
     >
-      <div>
+      <section>
         <div class="flex flex-col">
           <p class="text-lg font-bold text-white">
             {{ t('data_sharing.title') }}
@@ -45,7 +45,7 @@
             {{ t('newsletter.toggle_description') }}
           </HoppSmartToggle>
         </div>
-      </div>
+      </section>
 
       <div class="flex flex-col w-48 mx-auto mt-5">
         <HoppButtonPrimary

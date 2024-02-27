@@ -16,8 +16,8 @@
             {{ t('data_sharing.description') }}
           </p>
           <HoppSmartToggle
-            :on="shareData"
-            @change="shareData = !shareData"
+            :on="dataSharingToggle"
+            @change="dataSharingToggle = !dataSharingToggle"
             class="my-5 text-white w-min justify-start"
           >
             {{ t('data_sharing.toggle_description') }}
@@ -36,10 +36,10 @@
           <p class="text-lg font-bold text-white">
             {{ t('newsletter.title') }}
           </p>
-          <p>{{ t('configs.newsletter.description') }}</p>
+          <p>{{ t('newsletter.description') }}</p>
           <HoppSmartToggle
-            :on="shareEmail"
-            @change="shareEmail = !shareEmail"
+            :on="newsletterToggle"
+            @change="newsletterToggle = !newsletterToggle"
             class="my-5 text-white"
           >
             {{ t('newsletter.toggle_description') }}
@@ -90,26 +90,19 @@ const emit = defineEmits<{
   (event: 'onSetupComplete', status: boolean): void;
 }>();
 
-const shareData = ref(true);
-const shareEmail = ref(true);
+const dataSharingToggle = ref(true);
+const newsletterToggle = ref(true);
 
-const submitSelection = async () => {
-  const dataSharingResult = shareData.value && (await toggleDataSharing());
-  const newsletterResult = shareEmail.value && (await toggleNewsletter());
-
-  // if (dataSharingResult && newsletterResult) {
-  emit('onSetupComplete', true);
-  // }
-};
-
+// Toggle data sharing
 const dataSharingMutation = useMutation(ToggleAnalyticsCollectionDocument);
 
 const toggleDataSharing = async () => {
-  const status = shareData.value ? 'ENABLE' : 'DISABLE';
+  const status = dataSharingToggle.value ? 'ENABLE' : 'DISABLE';
   const variables = { status };
   const result = await dataSharingMutation.executeMutation(
     variables as ToggleAnalyticsCollectionMutationVariables
   );
+
   if (result.error) {
     toast.error(t('state.data_sharing_failure'));
     return false;
@@ -117,8 +110,8 @@ const toggleDataSharing = async () => {
   return true;
 };
 
+// Toggle subscription to newsletter
 const toggleNewsletter = async () => {
-  shareData.value = !shareData.value;
   try {
     await listmonkApi.post('/subscription', {
       email: user?.email,
@@ -132,5 +125,20 @@ const toggleNewsletter = async () => {
     toast.error(t('state.newsletter_failure'));
     return false;
   }
+};
+
+// Submit selections made
+const submitSelection = async () => {
+  const dataSharingResult =
+    dataSharingToggle.value && (await toggleDataSharing());
+  const newsletterResult = newsletterToggle.value && (await toggleNewsletter());
+
+  const setupDataComplete = !dataSharingToggle.value || dataSharingResult;
+  const setupNewsletterComplete = !newsletterToggle.value || newsletterResult;
+
+  emit(
+    'onSetupComplete',
+    setupDataComplete && setupNewsletterComplete ? true : false
+  );
 };
 </script>

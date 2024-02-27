@@ -490,7 +490,7 @@ export class PersonalWorkspaceProviderService
 
   public reorderRESTCollection(
     collectionHandle: HandleRef<WorkspaceCollection>,
-    destinationCollectionIndex: string | null
+    destinationCollectionID: string | null
   ): Promise<E.Either<unknown, void>> {
     if (
       collectionHandle.value.type !== "ok" ||
@@ -502,17 +502,14 @@ export class PersonalWorkspaceProviderService
 
     const draggedCollectionIndex = collectionHandle.value.data.collectionID
 
-    updateRESTCollectionOrder(
-      draggedCollectionIndex,
-      destinationCollectionIndex
-    )
+    updateRESTCollectionOrder(draggedCollectionIndex, destinationCollectionID)
 
     return Promise.resolve(E.right(undefined))
   }
 
   public moveRESTCollection(
     collectionHandle: HandleRef<WorkspaceCollection>,
-    destinationCollectionIndex: string | null
+    destinationCollectionID: string | null
   ): Promise<E.Either<unknown, void>> {
     if (
       collectionHandle.value.type !== "ok" ||
@@ -524,7 +521,7 @@ export class PersonalWorkspaceProviderService
 
     moveRESTFolder(
       collectionHandle.value.data.collectionID,
-      destinationCollectionIndex
+      destinationCollectionID
     )
 
     return Promise.resolve(E.right(undefined))
@@ -532,8 +529,8 @@ export class PersonalWorkspaceProviderService
 
   public reorderRESTRequest(
     requestHandle: HandleRef<WorkspaceRequest>,
-    destinationCollectionIndex: string,
-    destinationRequestIndex: string | null
+    destinationCollectionID: string,
+    destinationRequestID: string | null
   ): Promise<E.Either<unknown, void>> {
     if (
       requestHandle.value.type !== "ok" ||
@@ -547,10 +544,8 @@ export class PersonalWorkspaceProviderService
 
     updateRESTRequestOrder(
       this.pathToLastIndex(draggedRequestIndex),
-      destinationRequestIndex
-        ? this.pathToLastIndex(destinationRequestIndex)
-        : null,
-      destinationCollectionIndex
+      destinationRequestID ? this.pathToLastIndex(destinationRequestID) : null,
+      destinationCollectionID
     )
 
     return Promise.resolve(E.right(undefined))
@@ -558,7 +553,7 @@ export class PersonalWorkspaceProviderService
 
   public moveRESTRequest(
     requestHandle: HandleRef<WorkspaceRequest>,
-    destinationCollectionIndex: string
+    destinationCollectionID: string
   ): Promise<E.Either<unknown, void>> {
     if (
       requestHandle.value.type !== "ok" ||
@@ -577,7 +572,7 @@ export class PersonalWorkspaceProviderService
     moveRESTRequest(
       parentCollectionIndexPath,
       this.pathToLastIndex(requestIndex),
-      destinationCollectionIndex
+      destinationCollectionID
     )
 
     return Promise.resolve(E.right(undefined))

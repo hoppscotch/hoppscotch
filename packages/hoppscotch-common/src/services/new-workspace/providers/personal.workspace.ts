@@ -1,6 +1,5 @@
 import {
   HoppCollection,
-  HoppGQLAuth,
   HoppRESTAuth,
   HoppRESTHeaders,
   makeCollection,
@@ -59,11 +58,15 @@ import {
 import { HoppRESTRequest } from "@hoppscotch/data"
 import { merge } from "lodash-es"
 import path from "path"
-import { HoppGQLHeader } from "~/helpers/graphql"
 import { initializeDownloadFile } from "~/helpers/import-export/export"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import IconUser from "~icons/lucide/user"
 import { NewWorkspaceService } from ".."
+import {
+  isValidCollectionHandle,
+  isValidRequestHandle,
+  isValidWorkspaceHandle,
+} from "../helpers"
 
 export class PersonalWorkspaceProviderService
   extends Service
@@ -111,11 +114,7 @@ export class PersonalWorkspaceProviderService
     workspaceHandle: HandleRef<Workspace>,
     newCollection: Partial<HoppCollection>
   ): Promise<E.Either<unknown, HandleRef<WorkspaceCollection>>> {
-    if (
-      workspaceHandle.value.type !== "ok" ||
-      workspaceHandle.value.data.providerID !== this.providerID ||
-      workspaceHandle.value.data.workspaceID !== "personal"
-    ) {
+    if (!isValidWorkspaceHandle(workspaceHandle, this.providerID, "personal")) {
       return Promise.resolve(E.left("INVALID_WORKSPACE_HANDLE" as const))
     }
 
@@ -146,9 +145,11 @@ export class PersonalWorkspaceProviderService
       E.right(
         computed(() => {
           if (
-            workspaceHandle.value.type !== "ok" ||
-            workspaceHandle.value.data.providerID !== this.providerID ||
-            workspaceHandle.value.data.workspaceID !== "personal"
+            !isValidWorkspaceHandle(
+              workspaceHandle,
+              this.providerID,
+              "personal"
+            )
           ) {
             return {
               type: "invalid" as const,
@@ -175,9 +176,11 @@ export class PersonalWorkspaceProviderService
     newChildCollection: Partial<HoppCollection>
   ): Promise<E.Either<unknown, HandleRef<WorkspaceCollection>>> {
     if (
-      parentCollectionHandle.value.type !== "ok" ||
-      parentCollectionHandle.value.data.providerID !== this.providerID ||
-      parentCollectionHandle.value.data.workspaceID !== "personal"
+      !isValidCollectionHandle(
+        parentCollectionHandle,
+        this.providerID,
+        "personal"
+      )
     ) {
       return Promise.resolve(E.left("INVALID_COLLECTION_HANDLE" as const))
     }
@@ -199,9 +202,11 @@ export class PersonalWorkspaceProviderService
       E.right(
         computed(() => {
           if (
-            parentCollectionHandle.value.type !== "ok" ||
-            parentCollectionHandle.value.data.providerID !== this.providerID ||
-            parentCollectionHandle.value.data.workspaceID !== "personal"
+            !isValidCollectionHandle(
+              parentCollectionHandle,
+              this.providerID,
+              "personal"
+            )
           ) {
             return {
               type: "invalid" as const,
@@ -228,9 +233,7 @@ export class PersonalWorkspaceProviderService
     updatedCollection: Partial<HoppCollection>
   ): Promise<E.Either<unknown, void>> {
     if (
-      collectionHandle.value.type !== "ok" ||
-      collectionHandle.value.data.providerID !== this.providerID ||
-      collectionHandle.value.data.workspaceID !== "personal"
+      !isValidCollectionHandle(collectionHandle, this.providerID, "personal")
     ) {
       return Promise.resolve(E.left("INVALID_COLLECTION_HANDLE" as const))
     }
@@ -259,9 +262,7 @@ export class PersonalWorkspaceProviderService
     collectionHandle: HandleRef<WorkspaceCollection>
   ): Promise<E.Either<unknown, void>> {
     if (
-      collectionHandle.value.type !== "ok" ||
-      collectionHandle.value.data.providerID !== this.providerID ||
-      collectionHandle.value.data.workspaceID !== "personal"
+      !isValidCollectionHandle(collectionHandle, this.providerID, "personal")
     ) {
       return Promise.resolve(E.left("INVALID_COLLECTION_HANDLE" as const))
     }
@@ -304,9 +305,11 @@ export class PersonalWorkspaceProviderService
     newRequest: HoppRESTRequest
   ): Promise<E.Either<unknown, HandleRef<WorkspaceRequest>>> {
     if (
-      parentCollectionHandle.value.type !== "ok" ||
-      parentCollectionHandle.value.data.providerID !== this.providerID ||
-      parentCollectionHandle.value.data.workspaceID !== "personal"
+      !isValidCollectionHandle(
+        parentCollectionHandle,
+        this.providerID,
+        "personal"
+      )
     ) {
       return Promise.resolve(E.left("INVALID_COLLECTION_HANDLE" as const))
     }
@@ -329,9 +332,11 @@ export class PersonalWorkspaceProviderService
       E.right(
         computed(() => {
           if (
-            parentCollectionHandle.value.type !== "ok" ||
-            parentCollectionHandle.value.data.providerID !== this.providerID ||
-            parentCollectionHandle.value.data.workspaceID !== "personal"
+            !isValidCollectionHandle(
+              parentCollectionHandle,
+              this.providerID,
+              "personal"
+            )
           ) {
             return {
               type: "invalid" as const,
@@ -357,11 +362,7 @@ export class PersonalWorkspaceProviderService
   public removeRESTRequest(
     requestHandle: HandleRef<WorkspaceRequest>
   ): Promise<E.Either<unknown, void>> {
-    if (
-      requestHandle.value.type !== "ok" ||
-      requestHandle.value.data.providerID !== this.providerID ||
-      requestHandle.value.data.workspaceID !== "personal"
-    ) {
+    if (!isValidRequestHandle(requestHandle, this.providerID, "personal")) {
       return Promise.resolve(E.left("INVALID_REQUEST_HANDLE" as const))
     }
 
@@ -382,11 +383,7 @@ export class PersonalWorkspaceProviderService
     requestHandle: HandleRef<WorkspaceRequest>,
     updatedRequest: Partial<HoppRESTRequest>
   ): Promise<E.Either<unknown, void>> {
-    if (
-      requestHandle.value.type !== "ok" ||
-      requestHandle.value.data.providerID !== this.providerID ||
-      requestHandle.value.data.workspaceID !== "personal"
-    ) {
+    if (!isValidRequestHandle(requestHandle, this.providerID, "personal")) {
       return Promise.resolve(E.left("INVALID_REQUEST_HANDLE" as const))
     }
 
@@ -412,11 +409,7 @@ export class PersonalWorkspaceProviderService
     workspaceHandle: HandleRef<Workspace>,
     collections: HoppCollection[]
   ): Promise<E.Either<unknown, HandleRef<WorkspaceCollection>>> {
-    if (
-      workspaceHandle.value.type !== "ok" ||
-      workspaceHandle.value.data.providerID !== this.providerID ||
-      workspaceHandle.value.data.workspaceID !== "personal"
-    ) {
+    if (!isValidWorkspaceHandle(workspaceHandle, this.providerID, "personal")) {
       return Promise.resolve(E.left("INVALID_WORKSPACE_HANDLE" as const))
     }
 
@@ -430,9 +423,11 @@ export class PersonalWorkspaceProviderService
       E.right(
         computed(() => {
           if (
-            workspaceHandle.value.type !== "ok" ||
-            workspaceHandle.value.data.providerID !== this.providerID ||
-            workspaceHandle.value.data.workspaceID !== "personal"
+            !isValidWorkspaceHandle(
+              workspaceHandle,
+              this.providerID,
+              "personal"
+            )
           ) {
             return {
               type: "invalid" as const,
@@ -458,11 +453,7 @@ export class PersonalWorkspaceProviderService
     workspaceHandle: HandleRef<WorkspaceCollection>,
     collections: HoppCollection[]
   ): Promise<E.Either<unknown, void>> {
-    if (
-      workspaceHandle.value.type !== "ok" ||
-      workspaceHandle.value.data.providerID !== this.providerID ||
-      workspaceHandle.value.data.workspaceID !== "personal"
-    ) {
+    if (!isValidWorkspaceHandle(workspaceHandle, this.providerID, "personal")) {
       return Promise.resolve(E.left("INVALID_COLLECTION_HANDLE" as const))
     }
 
@@ -476,9 +467,7 @@ export class PersonalWorkspaceProviderService
     collection: HoppCollection
   ): Promise<E.Either<unknown, void>> {
     if (
-      collectionHandle.value.type !== "ok" ||
-      collectionHandle.value.data.providerID !== this.providerID ||
-      collectionHandle.value.data.workspaceID !== "personal"
+      !isValidCollectionHandle(collectionHandle, this.providerID, "personal")
     ) {
       return Promise.resolve(E.left("INVALID_COLLECTION_HANDLE" as const))
     }
@@ -493,9 +482,7 @@ export class PersonalWorkspaceProviderService
     destinationCollectionID: string | null
   ): Promise<E.Either<unknown, void>> {
     if (
-      collectionHandle.value.type !== "ok" ||
-      collectionHandle.value.data.providerID !== this.providerID ||
-      collectionHandle.value.data.workspaceID !== "personal"
+      !isValidCollectionHandle(collectionHandle, this.providerID, "personal")
     ) {
       return Promise.resolve(E.left("INVALID_COLLECTION_HANDLE" as const))
     }
@@ -512,9 +499,7 @@ export class PersonalWorkspaceProviderService
     destinationCollectionID: string | null
   ): Promise<E.Either<unknown, void>> {
     if (
-      collectionHandle.value.type !== "ok" ||
-      collectionHandle.value.data.providerID !== this.providerID ||
-      collectionHandle.value.data.workspaceID !== "personal"
+      !isValidCollectionHandle(collectionHandle, this.providerID, "personal")
     ) {
       return Promise.resolve(E.left("INVALID_COLLECTION_HANDLE" as const))
     }
@@ -532,11 +517,7 @@ export class PersonalWorkspaceProviderService
     destinationCollectionID: string,
     destinationRequestID: string | null
   ): Promise<E.Either<unknown, void>> {
-    if (
-      requestHandle.value.type !== "ok" ||
-      requestHandle.value.data.providerID !== this.providerID ||
-      requestHandle.value.data.workspaceID !== "personal"
-    ) {
+    if (!isValidRequestHandle(requestHandle, this.providerID, "personal")) {
       return Promise.resolve(E.left("INVALID_REQUEST_HANDLE" as const))
     }
 
@@ -555,11 +536,7 @@ export class PersonalWorkspaceProviderService
     requestHandle: HandleRef<WorkspaceRequest>,
     destinationCollectionID: string
   ): Promise<E.Either<unknown, void>> {
-    if (
-      requestHandle.value.type !== "ok" ||
-      requestHandle.value.data.providerID !== this.providerID ||
-      requestHandle.value.data.workspaceID !== "personal"
-    ) {
+    if (!isValidRequestHandle(requestHandle, this.providerID, "personal")) {
       return Promise.resolve(E.left("INVALID_REQUEST_HANDLE" as const))
     }
 
@@ -582,11 +559,7 @@ export class PersonalWorkspaceProviderService
     workspaceHandle: HandleRef<Workspace>,
     collectionID: string
   ): Promise<E.Either<unknown, HandleRef<WorkspaceCollection>>> {
-    if (
-      workspaceHandle.value.type !== "ok" ||
-      workspaceHandle.value.data.providerID !== this.providerID ||
-      workspaceHandle.value.data.workspaceID !== "personal"
-    ) {
+    if (!isValidWorkspaceHandle(workspaceHandle, this.providerID, "personal")) {
       return Promise.resolve(E.left("INVALID_WORKSPACE_HANDLE" as const))
     }
 
@@ -622,9 +595,11 @@ export class PersonalWorkspaceProviderService
       E.right(
         computed(() => {
           if (
-            workspaceHandle.value.type !== "ok" ||
-            workspaceHandle.value.data.providerID !== this.providerID ||
-            workspaceHandle.value.data.workspaceID !== "personal"
+            !isValidWorkspaceHandle(
+              workspaceHandle,
+              this.providerID,
+              "personal"
+            )
           ) {
             return {
               type: "invalid" as const,
@@ -650,11 +625,7 @@ export class PersonalWorkspaceProviderService
     workspaceHandle: HandleRef<Workspace>,
     requestID: string
   ): Promise<E.Either<unknown, HandleRef<WorkspaceRequest>>> {
-    if (
-      workspaceHandle.value.type !== "ok" ||
-      workspaceHandle.value.data.providerID !== this.providerID ||
-      workspaceHandle.value.data.workspaceID !== "personal"
-    ) {
+    if (!isValidWorkspaceHandle(workspaceHandle, this.providerID, "personal")) {
       return Promise.resolve(E.left("INVALID_COLLECTION_HANDLE" as const))
     }
 
@@ -690,9 +661,11 @@ export class PersonalWorkspaceProviderService
       E.right(
         computed(() => {
           if (
-            workspaceHandle.value.type !== "ok" ||
-            workspaceHandle.value.data.providerID !== this.providerID ||
-            workspaceHandle.value.data.workspaceID !== "personal"
+            !isValidWorkspaceHandle(
+              workspaceHandle,
+              this.providerID,
+              "personal"
+            )
           ) {
             return {
               type: "invalid" as const,
@@ -722,9 +695,11 @@ export class PersonalWorkspaceProviderService
       E.right(
         computed(() => {
           if (
-            collectionHandle.value.type === "invalid" ||
-            collectionHandle.value.data.providerID !== this.providerID ||
-            collectionHandle.value.data.workspaceID !== "personal"
+            !isValidCollectionHandle(
+              collectionHandle,
+              this.providerID,
+              "personal"
+            )
           ) {
             return {
               type: "invalid" as const,
@@ -803,9 +778,11 @@ export class PersonalWorkspaceProviderService
       E.right(
         computed(() => {
           if (
-            workspaceHandle.value.type === "invalid" ||
-            workspaceHandle.value.data.providerID !== this.providerID ||
-            workspaceHandle.value.data.workspaceID !== "personal"
+            !isValidWorkspaceHandle(
+              workspaceHandle,
+              this.providerID,
+              "personal"
+            )
           ) {
             return {
               type: "invalid" as const,
@@ -846,9 +823,11 @@ export class PersonalWorkspaceProviderService
       E.right(
         computed(() => {
           if (
-            collectionHandle.value.type === "invalid" ||
-            collectionHandle.value.data.providerID !== this.providerID ||
-            collectionHandle.value.data.workspaceID !== "personal"
+            !isValidCollectionHandle(
+              collectionHandle,
+              this.providerID,
+              "personal"
+            )
           ) {
             return {
               type: "invalid" as const,
@@ -891,12 +870,8 @@ export class PersonalWorkspaceProviderService
               return { type: "ok", data: { auth, headers } }
             }
 
-            const parentFolderAuth = parentFolder.auth as
-              | HoppRESTAuth
-              | HoppGQLAuth
-            const parentFolderHeaders = parentFolder.headers as
-              | HoppRESTHeaders
-              | HoppGQLHeader[]
+            const parentFolderAuth: HoppRESTAuth = parentFolder.auth
+            const parentFolderHeaders: HoppRESTHeaders = parentFolder.headers
 
             // check if the parent folder has authType 'inherit' and if it is the root folder
             if (
@@ -1044,9 +1019,11 @@ export class PersonalWorkspaceProviderService
       E.right(
         computed(() => {
           if (
-            workspaceHandle.value.type === "invalid" ||
-            workspaceHandle.value.data.providerID !== this.providerID ||
-            workspaceHandle.value.data.workspaceID !== "personal"
+            !isValidWorkspaceHandle(
+              workspaceHandle,
+              this.providerID,
+              "personal"
+            )
           ) {
             return {
               type: "invalid" as const,

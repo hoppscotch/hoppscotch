@@ -479,7 +479,7 @@ export class NewWorkspaceService extends Service {
 
   public async reorderRESTCollection(
     collectionHandle: HandleRef<WorkspaceCollection>,
-    destinationCollectionIndex: string | null
+    destinationCollectionID: string | null
   ): Promise<
     E.Either<WorkspaceError<"INVALID_HANDLE" | "INVALID_PROVIDER">, void>
   > {
@@ -497,7 +497,7 @@ export class NewWorkspaceService extends Service {
 
     const result = await provider.reorderRESTCollection(
       collectionHandle,
-      destinationCollectionIndex
+      destinationCollectionID
     )
 
     if (E.isLeft(result)) {
@@ -509,7 +509,7 @@ export class NewWorkspaceService extends Service {
 
   public async moveRESTCollection(
     collectionHandle: HandleRef<WorkspaceCollection>,
-    destinationCollectionIndex: string | null
+    destinationCollectionID: string | null
   ): Promise<
     E.Either<WorkspaceError<"INVALID_HANDLE" | "INVALID_PROVIDER">, void>
   > {
@@ -527,7 +527,7 @@ export class NewWorkspaceService extends Service {
 
     const result = await provider.moveRESTCollection(
       collectionHandle,
-      destinationCollectionIndex
+      destinationCollectionID
     )
 
     if (E.isLeft(result)) {
@@ -539,8 +539,8 @@ export class NewWorkspaceService extends Service {
 
   public async reorderRESTRequest(
     requestHandle: HandleRef<WorkspaceRequest>,
-    destinationCollectionIndex: string,
-    destinationRequestIndex: string | null
+    destinationCollectionID: string,
+    destinationRequestID: string | null
   ): Promise<
     E.Either<WorkspaceError<"INVALID_HANDLE" | "INVALID_PROVIDER">, void>
   > {
@@ -558,8 +558,8 @@ export class NewWorkspaceService extends Service {
 
     const result = await provider.reorderRESTRequest(
       requestHandle,
-      destinationCollectionIndex,
-      destinationRequestIndex
+      destinationCollectionID,
+      destinationRequestID
     )
 
     if (E.isLeft(result)) {
@@ -571,7 +571,7 @@ export class NewWorkspaceService extends Service {
 
   public async moveRESTRequest(
     requestHandle: HandleRef<WorkspaceRequest>,
-    destinationCollectionIndex: string
+    destinationCollectionID: string
   ): Promise<
     E.Either<WorkspaceError<"INVALID_HANDLE" | "INVALID_PROVIDER">, void>
   > {
@@ -589,7 +589,7 @@ export class NewWorkspaceService extends Service {
 
     const result = await provider.moveRESTRequest(
       requestHandle,
-      destinationCollectionIndex
+      destinationCollectionID
     )
 
     if (E.isLeft(result)) {

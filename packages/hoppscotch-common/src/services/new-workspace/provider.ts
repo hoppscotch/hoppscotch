@@ -89,19 +89,19 @@ export interface WorkspaceProvider {
 
   reorderRESTCollection(
     collectionHandle: HandleRef<WorkspaceCollection>,
-    destinationCollectionIndex: string | null
+    destinationCollectionID: string | null
   ): Promise<E.Either<unknown, void>>
   moveRESTCollection(
     collectionHandle: HandleRef<WorkspaceCollection>,
-    destinationCollectionIndex: string | null
+    destinationCollectionID: string | null
   ): Promise<E.Either<unknown, void>>
   reorderRESTRequest(
     requestHandle: HandleRef<WorkspaceRequest>,
-    destinationCollectionIndex: string,
-    destinationRequestIndex: string | null
+    destinationCollectionID: string,
+    destinationRequestID: string | null
   ): Promise<E.Either<unknown, void>>
   moveRESTRequest(
     requestHandle: HandleRef<WorkspaceRequest>,
-    destinationCollectionIndex: string
+    destinationCollectionID: string
   ): Promise<E.Either<unknown, void>>
 }

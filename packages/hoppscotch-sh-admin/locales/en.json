@@ -154,6 +154,8 @@
     "role_update_success": "Roles updated successfully!!",
     "self_host_docs": "Self Host Documentation",
     "send_magic_link": "Send magic link",
+    "setup_failure": "Setup has failed!!",
+    "setup_success": "Setup completed successful!!",
     "sign_in_agreement": "By signing in, you are agreeing to our",
     "sign_in_options": "All sign in option",
     "sign_out": "Sign out",

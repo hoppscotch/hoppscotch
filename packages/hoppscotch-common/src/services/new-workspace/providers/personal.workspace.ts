@@ -563,7 +563,7 @@ export class PersonalWorkspaceProviderService
       return Promise.resolve(E.left("INVALID_WORKSPACE_HANDLE" as const))
     }
 
-    if (!collectionID) {
+    if (collectionID === "") {
       return Promise.resolve(E.left("INVALID_COLLECTION_ID" as const))
     }
 
@@ -573,20 +573,7 @@ export class PersonalWorkspaceProviderService
     )
 
     if (!collection) {
-      const parentCollectionIndexPath = collectionID
-        .split("/")
-        .slice(0, -1)
-        .join("/")
-      const requestIndex = this.pathToLastIndex(collectionID)
-
-      const parentCollection = navigateToFolderWithIndexPath(
-        this.restCollectionState.value.state,
-        parentCollectionIndexPath.split("/").map((x) => parseInt(x))
-      )
-
-      if (!parentCollection || !parentCollection.requests[requestIndex]) {
-        return Promise.resolve(E.left("INVALID_PATH"))
-      }
+      return Promise.resolve(E.left("COLLECTION_NOT_FOUND"))
     }
 
     const { providerID, workspaceID } = workspaceHandle.value.data
@@ -613,7 +600,7 @@ export class PersonalWorkspaceProviderService
               providerID,
               workspaceID,
               collectionID,
-              name: collection?.name ?? "",
+              name: collection.name,
             },
           }
         })
@@ -629,7 +616,7 @@ export class PersonalWorkspaceProviderService
       return Promise.resolve(E.left("INVALID_COLLECTION_HANDLE" as const))
     }
 
-    if (!requestID) {
+    if (requestID === "") {
       return Promise.resolve(E.left("INVALID_REQUEST_ID" as const))
     }
 
@@ -651,7 +638,9 @@ export class PersonalWorkspaceProviderService
     )
 
     // Grab the request with it's index
-    const request = collection?.requests[requestIndex] as HoppRESTRequest
+    const request = collection?.requests[requestIndex] as
+      | HoppRESTRequest
+      | undefined
 
     if (!request) {
       return Promise.resolve(E.left("REQUEST_NOT_FOUND" as const))
@@ -669,7 +658,7 @@ export class PersonalWorkspaceProviderService
           ) {
             return {
               type: "invalid" as const,
-              reason: "COLLECTION_INVALIDATED" as const,
+              reason: "WORKSPACE_INVALIDATED" as const,
             }
           }
 

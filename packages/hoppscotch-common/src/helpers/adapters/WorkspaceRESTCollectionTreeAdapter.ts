@@ -18,7 +18,8 @@ export class WorkspaceRESTCollectionTreeAdapter
   ) {}
 
   public getChildren(
-    nodeID: string | null
+    nodeID: string | null,
+    nodeType?: string
   ): Ref<ChildrenResult<RESTCollectionViewItem>> {
     if (this.workspaceHandle.value.type !== "ok") {
       throw new Error("Cannot issue children with invalid workspace handle")
@@ -30,6 +31,10 @@ export class WorkspaceRESTCollectionTreeAdapter
 
     if (nodeID !== null) {
       ;(async () => {
+        if (nodeType === "request") {
+          return
+        }
+
         const collectionHandleResult =
           await this.workspaceService.getCollectionHandle(
             this.workspaceHandle,

@@ -25,7 +25,7 @@ export class MailerService {
   ): string {
     switch (mailDesc.template) {
       case 'team-invitation':
-        return `${mailDesc.variables.invitee} invited you to join ${mailDesc.variables.invite_team_name} in Hoppscotch`;
+        return `A user has invited you to join a team workspace in Hoppscotch`;
 
       case 'user-invitation':
         return 'Sign in to Hoppscotch';

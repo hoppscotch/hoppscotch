@@ -23,9 +23,9 @@
         <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           :title="t('state.linewrap')"
-          :class="{ '!text-accent': linewrapEnabled }"
+          :class="{ '!text-accent': WRAP_LINES }"
           :icon="IconWrapText"
-          @click.prevent="linewrapEnabled = !linewrapEnabled"
+          @click.prevent="toggleNestedSetting('WRAP_LINES', 'httpRequestBody')"
         />
         <HoppButtonSecondary
           v-if="
@@ -59,7 +59,9 @@
         />
       </div>
     </div>
-    <div ref="rawBodyParameters" class="flex flex-1 flex-col"></div>
+    <div class="h-full relative">
+      <div ref="rawBodyParameters" class="absolute inset-0"></div>
+    </div>
   </div>
 </template>
 
@@ -85,6 +87,8 @@ import { isJSONContentType } from "~/helpers/utils/contenttypes"
 import jsonLinter from "~/helpers/editor/linting/json"
 import { readFileAsText } from "~/helpers/functional/files"
 import xmlFormat from "xml-formatter"
+import { useNestedSetting } from "~/composables/settings"
+import { toggleNestedSetting } from "~/newstore/settings"
 
 type PossibleContentTypes = Exclude<
   ValidContentTypes,
@@ -122,7 +126,7 @@ const langLinter = computed(() =>
   isJSONContentType(body.value.contentType) ? jsonLinter : null
 )
 
-const linewrapEnabled = ref(true)
+const WRAP_LINES = useNestedSetting("WRAP_LINES", "httpRequestBody")
 const rawBodyParameters = ref<any | null>(null)
 
 const codemirrorValue: Ref<string | undefined> =
@@ -148,7 +152,7 @@ useCodemirror(
   codemirrorValue,
   reactive({
     extendedEditorConfig: {
-      lineWrapping: linewrapEnabled,
+      lineWrapping: WRAP_LINES,
       mode: rawInputEditorLang,
       placeholder: t("request.raw_body").toString(),
     },

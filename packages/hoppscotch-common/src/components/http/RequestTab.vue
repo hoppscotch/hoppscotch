@@ -9,7 +9,7 @@
       />
     </template>
     <template #secondary>
-      <HttpResponse v-model:document="tab.document" />
+      <HttpResponse v-model:document="tab.document" :is-embed="false" />
     </template>
   </AppPaneLayout>
 </template>

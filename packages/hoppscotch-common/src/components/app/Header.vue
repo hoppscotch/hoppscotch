@@ -23,7 +23,7 @@
       <div class="col-span-1 flex items-center justify-between space-x-2">
         <button
           class="flex h-full flex-1 cursor-text items-center justify-between self-stretch rounded border border-dividerDark bg-primaryDark px-2 text-secondaryLight transition hover:border-dividerDark hover:bg-primaryLight hover:text-secondary focus-visible:border-dividerDark focus-visible:bg-primaryLight focus-visible:text-secondary"
-          @click="invokeAction('modals.search.toggle')"
+          @click="invokeAction('modals.search.toggle', undefined, 'mouseclick')"
         >
           <span class="inline-flex flex-1 items-center">
             <icon-lucide-search class="svg-icons mr-2" />

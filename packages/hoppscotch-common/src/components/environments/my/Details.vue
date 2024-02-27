@@ -16,76 +16,103 @@
           @submit="saveEnvironment"
         />
 
-        <div class="flex flex-1 items-center justify-between">
-          <label for="variableList" class="p-4">
-            {{ t("environment.variable_list") }}
-          </label>
-          <div class="flex">
-            <HoppButtonSecondary
-              v-tippy="{ theme: 'tooltip' }"
-              :title="t('action.clear_all')"
-              :icon="clearIcon"
-              @click="clearContent()"
-            />
-            <HoppButtonSecondary
-              v-tippy="{ theme: 'tooltip' }"
-              :icon="IconPlus"
-              :title="t('add.new')"
-              @click="addEnvironmentVariable"
-            />
-          </div>
-        </div>
-        <div
-          v-if="evnExpandError"
-          class="mb-2 w-full overflow-auto whitespace-normal rounded bg-primaryLight px-4 py-2 font-mono text-red-400"
-        >
-          {{ t("environment.nested_overflow") }}
-        </div>
-        <div class="divide-y divide-dividerLight rounded border border-divider">
+        <div class="my-4 flex flex-col border border-divider rounded">
           <div
-            v-for="({ id, env }, index) in vars"
-            :key="`variable-${id}-${index}`"
-            class="flex divide-x divide-dividerLight"
+            v-if="evnExpandError"
+            class="mb-2 w-full overflow-auto whitespace-normal rounded bg-primaryLight px-4 py-2 font-mono text-red-400"
           >
-            <input
-              v-model="env.key"
-              v-focus
-              class="flex flex-1 bg-transparent px-4 py-2"
-              :placeholder="`${t('count.variable', { count: index + 1 })}`"
-              :name="'param' + index"
-            />
-            <SmartEnvInput
-              v-model="env.value"
-              :select-text-on-mount="env.key === editingVariableName"
-              :placeholder="`${t('count.value', { count: index + 1 })}`"
-              :envs="liveEnvs"
-              :name="'value' + index"
-            />
-            <div class="flex">
-              <HoppButtonSecondary
-                id="variable"
-                v-tippy="{ theme: 'tooltip' }"
-                :title="t('action.remove')"
-                :icon="IconTrash"
-                color="red"
-                @click="removeEnvironmentVariable(index)"
-              />
-            </div>
+            {{ t("environment.nested_overflow") }}
           </div>
-          <HoppSmartPlaceholder
-            v-if="vars.length === 0"
-            :src="`/images/states/${colorMode.value}/blockchain.svg`"
-            :alt="`${t('empty.environments')}`"
-            :text="t('empty.environments')"
-          >
-            <template #body>
-              <HoppButtonSecondary
-                :label="`${t('add.new')}`"
-                filled
-                @click="addEnvironmentVariable"
-              />
+          <HoppSmartTabs v-model="selectedEnvOption" render-inactive-tabs>
+            <template #actions>
+              <div class="flex flex-1 items-center justify-between">
+                <HoppButtonSecondary
+                  v-tippy="{ theme: 'tooltip' }"
+                  to="https://docs.hoppscotch.io/documentation/features/environments"
+                  blank
+                  :title="t('app.wiki')"
+                  :icon="IconHelpCircle"
+                />
+                <HoppButtonSecondary
+                  v-tippy="{ theme: 'tooltip' }"
+                  :title="t('action.clear_all')"
+                  :icon="clearIcon"
+                  @click="clearContent()"
+                />
+                <HoppButtonSecondary
+                  v-tippy="{ theme: 'tooltip' }"
+                  :icon="IconPlus"
+                  :title="t('add.new')"
+                  @click="addEnvironmentVariable"
+                />
+              </div>
             </template>
-          </HoppSmartPlaceholder>
+
+            <HoppSmartTab
+              v-for="tab in tabsData"
+              :id="tab.id"
+              :key="tab.id"
+              :label="tab.label"
+            >
+              <div
+                class="divide-y divide-dividerLight rounded border border-divider"
+              >
+                <HoppSmartPlaceholder
+                  v-if="tab.variables.length === 0"
+                  :src="`/images/states/${colorMode.value}/blockchain.svg`"
+                  :alt="tab.emptyStateLabel"
+                  :text="tab.emptyStateLabel"
+                >
+                  <template #body>
+                    <HoppButtonSecondary
+                      :label="`${t('add.new')}`"
+                      filled
+                      :icon="IconPlus"
+                      @click="addEnvironmentVariable"
+                    />
+                  </template>
+                </HoppSmartPlaceholder>
+
+                <template v-else>
+                  <div
+                    v-for="({ id, env }, index) in tab.variables"
+                    :key="`variable-${id}-${index}`"
+                    class="flex divide-x divide-dividerLight"
+                  >
+                    <input
+                      v-model="env.key"
+                      v-focus
+                      class="flex flex-1 bg-transparent px-4 py-2"
+                      :placeholder="`${t('count.variable', {
+                        count: index + 1,
+                      })}`"
+                      :name="'param' + index"
+                    />
+                    <SmartEnvInput
+                      v-model="env.value"
+                      :placeholder="`${t('count.value', { count: index + 1 })}`"
+                      :envs="liveEnvs"
+                      :name="'value' + index"
+                      :secret="tab.isSecret"
+                      :select-text-on-mount="
+                        env.key ? env.key === editingVariableName : false
+                      "
+                    />
+                    <div class="flex">
+                      <HoppButtonSecondary
+                        id="variable"
+                        v-tippy="{ theme: 'tooltip' }"
+                        :title="t('action.remove')"
+                        :icon="IconTrash"
+                        color="red"
+                        @click="removeEnvironmentVariable(id)"
+                      />
+                    </div>
+                  </div>
+                </template>
+              </div>
+            </HoppSmartTab>
+          </HoppSmartTabs>
         </div>
       </div>
     </template>
@@ -112,8 +139,8 @@ import IconTrash2 from "~icons/lucide/trash-2"
 import IconDone from "~icons/lucide/check"
 import IconPlus from "~icons/lucide/plus"
 import IconTrash from "~icons/lucide/trash"
-import { clone } from "lodash-es"
-import { computed, ref, watch } from "vue"
+import IconHelpCircle from "~icons/lucide/help-circle"
+import { ComputedRef, computed, ref, watch } from "vue"
 import * as E from "fp-ts/Either"
 import * as A from "fp-ts/Array"
 import * as O from "fp-ts/Option"
@@ -136,12 +163,16 @@ import { useReadonlyStream } from "@composables/stream"
 import { useColorMode } from "@composables/theming"
 import { environmentsStore } from "~/newstore/environments"
 import { platform } from "~/platform"
+import { useService } from "dioc/vue"
+import { SecretEnvironmentService } from "~/services/secret-environment.service"
+import { uniqueId } from "lodash-es"
 
 type EnvironmentVariable = {
   id: number
   env: {
-    key: string
     value: string
+    key: string
+    secret: boolean
   }
 }
 
@@ -155,6 +186,7 @@ const props = withDefaults(
     action: "edit" | "new"
     editingEnvironmentIndex?: number | "Global" | null
     editingVariableName?: string | null
+    isSecretOptionSelected?: boolean
     envVars?: () => Environment["variables"]
   }>(),
   {
@@ -162,6 +194,7 @@ const props = withDefaults(
     action: "edit",
     editingEnvironmentIndex: null,
     editingVariableName: null,
+    isSecretOptionSelected: false,
     envVars: () => [],
   }
 )
@@ -172,10 +205,54 @@ const emit = defineEmits<{
 
 const idTicker = ref(0)
 
+const tabsData: ComputedRef<
+  {
+    id: string
+    label: string
+    emptyStateLabel: string
+    isSecret: boolean
+    variables: EnvironmentVariable[]
+  }[]
+> = computed(() => {
+  return [
+    {
+      id: "variables",
+      label: t("environment.variables"),
+      emptyStateLabel: t("empty.environments"),
+      isSecret: false,
+      variables: nonSecretVars.value,
+    },
+    {
+      id: "secret",
+      label: t("environment.secrets"),
+      emptyStateLabel: t("empty.secret_environments"),
+      isSecret: true,
+      variables: secretVars.value,
+    },
+  ]
+})
+
 const editingName = ref<string | null>(null)
+const editingID = ref<string>("")
 const vars = ref<EnvironmentVariable[]>([
-  { id: idTicker.value++, env: { key: "", value: "" } },
+  { id: idTicker.value++, env: { key: "", value: "", secret: false } },
 ])
+
+const secretEnvironmentService = useService(SecretEnvironmentService)
+
+const secretVars = computed(() =>
+  pipe(
+    vars.value,
+    A.filter((e) => e.env.secret)
+  )
+)
+
+const nonSecretVars = computed(() =>
+  pipe(
+    vars.value,
+    A.filter((e) => !e.env.secret)
+  )
+)
 
 const clearIcon = refAutoReset<typeof IconTrash2 | typeof IconDone>(
   IconTrash2,
@@ -184,14 +261,23 @@ const clearIcon = refAutoReset<typeof IconTrash2 | typeof IconDone>(
 
 const globalVars = useReadonlyStream(globalEnv$, [])
 
+type SelectedEnv = "variables" | "secret"
+
+const selectedEnvOption = ref<SelectedEnv>("variables")
+
 const workingEnv = computed(() => {
   if (props.editingEnvironmentIndex === "Global") {
+    const vars =
+      props.editingVariableName === "Global"
+        ? props.envVars()
+        : getGlobalVariables()
     return {
       name: "Global",
-      variables: getGlobalVariables(),
+      variables: vars,
     } as Environment
   } else if (props.action === "new") {
     return {
+      id: uniqueId(),
       name: "",
       variables: props.envVars(),
     }
@@ -214,6 +300,7 @@ const evnExpandError = computed(() => {
 
   return pipe(
     variables,
+    A.filter(({ secret }) => !secret),
     A.exists(({ value }) => E.isLeft(parseTemplateStringE(value, variables)))
   )
 })
@@ -239,11 +326,29 @@ watch(
   (show) => {
     if (show) {
       editingName.value = workingEnv.value?.name ?? null
+      selectedEnvOption.value = props.isSecretOptionSelected
+        ? "secret"
+        : "variables"
+
+      if (props.editingEnvironmentIndex !== "Global") {
+        editingID.value = workingEnv.value?.id ?? uniqueId()
+      }
       vars.value = pipe(
         workingEnv.value?.variables ?? [],
-        A.map((e) => ({
+        A.mapWithIndex((index, e) => ({
           id: idTicker.value++,
-          env: clone(e),
+          env: {
+            key: e.key,
+            value: e.secret
+              ? secretEnvironmentService.getSecretEnvironmentVariable(
+                  props.editingEnvironmentIndex === "Global"
+                    ? "Global"
+                    : workingEnv.value?.id,
+                  index
+                )?.value ?? ""
+              : e.value,
+            secret: e.secret,
+          },
         }))
       )
     }
@@ -251,7 +356,10 @@ watch(
 )
 
 const clearContent = () => {
-  vars.value = []
+  vars.value = vars.value.filter((e) =>
+    selectedEnvOption.value === "secret" ? !e.env.secret : e.env.secret
+  )
+
   clearIcon.value = IconDone
   toast.success(`${t("state.cleared")}`)
 }
@@ -262,12 +370,16 @@ const addEnvironmentVariable = () => {
     env: {
       key: "",
       value: "",
+      secret: selectedEnvOption.value === "secret",
     },
   })
 }
 
-const removeEnvironmentVariable = (index: number) => {
-  vars.value.splice(index, 1)
+const removeEnvironmentVariable = (id: number) => {
+  const index = vars.value.findIndex((e) => e.id === id)
+  if (index !== -1) {
+    vars.value.splice(index, 1)
+  }
 }
 
 const saveEnvironment = () => {
@@ -276,7 +388,7 @@ const saveEnvironment = () => {
     return
   }
 
-  const filterdVariables = pipe(
+  const filteredVariables = pipe(
     vars.value,
     A.filterMap(
       flow(
@@ -286,14 +398,43 @@ const saveEnvironment = () => {
     )
   )
 
+  const secretVariables = pipe(
+    filteredVariables,
+    A.filterMapWithIndex((i, e) =>
+      e.secret ? O.some({ key: e.key, value: e.value, varIndex: i }) : O.none
+    )
+  )
+
+  if (editingID.value) {
+    secretEnvironmentService.addSecretEnvironment(
+      editingID.value,
+      secretVariables
+    )
+  } else if (props.editingEnvironmentIndex === "Global") {
+    secretEnvironmentService.addSecretEnvironment("Global", secretVariables)
+  }
+
+  const variables = pipe(
+    filteredVariables,
+    A.map((e) =>
+      e.secret ? { key: e.key, secret: e.secret, value: undefined } : e
+    )
+  )
+
   const environmentUpdated: Environment = {
+    v: 1,
+    id: uniqueId(),
     name: editingName.value,
-    variables: filterdVariables,
+    variables,
   }
 
   if (props.action === "new") {
     // Creating a new environment
-    createEnvironment(editingName.value, environmentUpdated.variables)
+    createEnvironment(
+      editingName.value,
+      environmentUpdated.variables,
+      editingID.value
+    )
     setSelectedEnvironmentIndex({
       type: "MY_ENV",
       index: envList.value.length - 1,
@@ -332,6 +473,7 @@ const saveEnvironment = () => {
 
 const hideModal = () => {
   editingName.value = null
+  selectedEnvOption.value = "variables"
   emit("hide-modal")
 }
 </script>

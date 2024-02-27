@@ -12,8 +12,6 @@ const getEnvironmentJson = (
       ? cloneDeep(environmentObj.environment)
       : cloneDeep(environmentObj)
 
-  delete newEnvironment.id
-
   const environmentId =
     environmentIndex || environmentIndex === 0
       ? environmentIndex

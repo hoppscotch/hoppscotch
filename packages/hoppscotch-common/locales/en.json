@@ -24,6 +24,7 @@
     "go_back": "Go back",
     "go_forward": "Go forward",
     "group_by": "Group by",
+    "hide_secret": "Hide secret",
     "label": "Label",
     "learn_more": "Learn more",
     "less": "Less",
@@ -43,6 +44,7 @@
     "search": "Search",
     "send": "Send",
     "share": "Share",
+    "show_secret": "Show secret",
     "start": "Start",
     "starting": "Starting",
     "stop": "Stop",
@@ -238,6 +240,7 @@
     "profile": "Login to view your profile",
     "protocols": "Protocols are empty",
     "schema": "Connect to a GraphQL endpoint to view schema",
+    "secret_environments": "Secrets are not synced to Hoppscotch",
     "shared_requests": "Shared requests are empty",
     "shared_requests_logout": "Login to view your shared requests or create a new one",
     "subscription": "Subscriptions are empty",
@@ -269,6 +272,8 @@
     "quick_peek": "Environment Quick Peek",
     "replace_with_variable": "Replace with variable",
     "scope": "Scope",
+    "secrets": "Secrets",
+    "secret_value": "Secret value",
     "select": "Select environment",
     "set": "Set environment",
     "set_as_environment": "Set as environment",
@@ -277,6 +282,7 @@
     "updated": "Environment updated",
     "value": "Value",
     "variable": "Variable",
+    "variables":"Variables",
     "variable_list": "Variable List"
   },
   "error": {
@@ -413,6 +419,8 @@
     "description": "Inspect possible errors",
     "environment": {
       "add_environment": "Add to Environment",
+      "add_environment_value": "Add value",
+      "empty_value": "Environment value is empty for the variable '{variable}' ",
       "not_found": "Environment variable “{environment}” not found."
     },
     "header": {
@@ -889,6 +897,7 @@
     "query": "Query",
     "schema": "Schema",
     "shared_requests": "Shared Requests",
+    "share_tab_request": "Share tab request",
     "socketio": "Socket.IO",
     "sse": "SSE",
     "tests": "Tests",

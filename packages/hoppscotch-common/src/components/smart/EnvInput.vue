@@ -3,7 +3,18 @@
     <div
       class="no-scrollbar absolute inset-0 flex flex-1 divide-x divide-dividerLight overflow-x-auto"
     >
+      <input
+        v-if="isSecret"
+        id="secret"
+        v-model="secretText"
+        name="secret"
+        :placeholder="t('environment.secret_value')"
+        class="flex flex-1 bg-transparent px-4"
+        :class="styles"
+        type="password"
+      />
       <div
+        v-else
         ref="editor"
         :placeholder="placeholder"
         class="flex flex-1"
@@ -11,7 +22,14 @@
         @click="emit('click', $event)"
         @keydown="handleKeystroke"
         @focusin="showSuggestionPopover = true"
-      ></div>
+      />
+      <HoppButtonSecondary
+        v-if="secret"
+        v-tippy="{ theme: 'tooltip' }"
+        :title="isSecret ? t('action.show_secret') : t('action.hide_secret')"
+        :icon="isSecret ? IconEyeoff : IconEye"
+        @click="toggleSecret"
+      />
       <AppInspection
         :inspection-results="inspectionResults"
         class="sticky inset-y-0 right-0 rounded-r bg-primary"
@@ -61,18 +79,29 @@ import { history, historyKeymap } from "@codemirror/commands"
 import { inputTheme } from "~/helpers/editor/themes/baseTheme"
 import { HoppReactiveEnvPlugin } from "~/helpers/editor/extensions/HoppEnvironment"
 import { useReadonlyStream } from "@composables/stream"
-import { AggregateEnvironment, aggregateEnvs$ } from "~/newstore/environments"
+import {
+  AggregateEnvironment,
+  aggregateEnvsWithSecrets$,
+} from "~/newstore/environments"
 import { platform } from "~/platform"
 import { onClickOutside, useDebounceFn } from "@vueuse/core"
 import { InspectorResult } from "~/services/inspection"
 import { invokeAction } from "~/helpers/actions"
+import { Environment } from "@hoppscotch/data"
+import { useI18n } from "~/composables/i18n"
+import IconEye from "~icons/lucide/eye"
+import IconEyeoff from "~icons/lucide/eye-off"
+
+const t = useI18n()
+
+type Env = Environment["variables"][number] & { source: string }
 
 const props = withDefaults(
   defineProps<{
     modelValue?: string
     placeholder?: string
     styles?: string
-    envs?: { key: string; value: string; source: string }[] | null
+    envs?: Env[] | null
     focus?: boolean
     selectTextOnMount?: boolean
     environmentHighlights?: boolean
@@ -80,6 +109,7 @@ const props = withDefaults(
     autoCompleteSource?: string[]
     inspectionResults?: InspectorResult[] | undefined
     contextMenuEnabled?: boolean
+    secret?: boolean
   }>(),
   {
     modelValue: "",
@@ -93,6 +123,7 @@ const props = withDefaults(
     inspectionResult: undefined,
     inspectionResults: undefined,
     contextMenuEnabled: true,
+    secret: false,
   }
 )
 
@@ -118,9 +149,26 @@ const showSuggestionPopover = ref(false)
 const suggestionsMenu = ref<any | null>(null)
 const autoCompleteWrapper = ref<any | null>(null)
 
+const isSecret = ref(props.secret)
+
+const secretText = ref(props.modelValue)
+
+watch(
+  () => secretText.value,
+  (newVal) => {
+    if (isSecret.value) {
+      updateModelValue(newVal)
+    }
+  }
+)
+
 onClickOutside(autoCompleteWrapper, () => {
   showSuggestionPopover.value = false
 })
+
+const toggleSecret = () => {
+  isSecret.value = !isSecret.value
+}
 
 //filter autocompleteSource with unique values
 const uniqueAutoCompleteSource = computed(() => {
@@ -169,8 +217,6 @@ watch(
 )
 
 const handleKeystroke = (ev: KeyboardEvent) => {
-  if (!props.autoCompleteSource) return
-
   if (["ArrowDown", "ArrowUp", "Enter", "Escape"].includes(ev.key)) {
     ev.preventDefault()
   }
@@ -307,19 +353,28 @@ watch(
 let clipboardEv: ClipboardEvent | null = null
 let pastedValue: string | null = null
 
-const aggregateEnvs = useReadonlyStream(aggregateEnvs$, []) as Ref<
+const aggregateEnvs = useReadonlyStream(aggregateEnvsWithSecrets$, []) as Ref<
   AggregateEnvironment[]
 >
 
-const envVars = computed(() =>
-  props.envs
-    ? props.envs.map((x) => ({
-        key: x.key,
-        value: x.value,
-        sourceEnv: x.source,
-      }))
+const envVars = computed(() => {
+  return props.envs
+    ? props.envs.map((x) => {
+        if (x.secret) {
+          return {
+            key: x.key,
+            sourceEnv: "source" in x ? x.source : null,
+            value: "********",
+          }
+        }
+        return {
+          key: x.key,
+          value: x.value,
+          sourceEnv: "source" in x ? x.source : null,
+        }
+      })
     : aggregateEnvs.value
-)
+})
 
 const envTooltipPlugin = new HoppReactiveEnvPlugin(envVars, view)
 
@@ -363,17 +418,28 @@ const initView = (el: any) => {
     el.addEventListener("keyup", debounceFn)
   }
 
+  const extensions: Extension = getExtensions(props.readonly || isSecret.value)
+  view.value = new EditorView({
+    parent: el,
+    state: EditorState.create({
+      doc: props.modelValue,
+      extensions,
+    }),
+  })
+}
+
+const getExtensions = (readonly: boolean): Extension => {
   const extensions: Extension = [
     EditorView.contentAttributes.of({ "aria-label": props.placeholder }),
     EditorView.contentAttributes.of({ "data-enable-grammarly": "false" }),
     EditorView.updateListener.of((update) => {
-      if (props.readonly) {
+      if (readonly) {
         update.view.contentDOM.inputMode = "none"
       }
     }),
-    EditorState.changeFilter.of(() => !props.readonly),
+    EditorState.changeFilter.of(() => !readonly),
     inputTheme,
-    props.readonly
+    readonly
       ? EditorView.theme({
           ".cm-content": {
             caretColor: "var(--secondary-dark-color)",
@@ -384,6 +450,7 @@ const initView = (el: any) => {
         })
       : EditorView.theme({}),
     tooltips({
+      parent: document.body,
       position: "absolute",
     }),
     props.environmentHighlights ? envTooltipPlugin : [],
@@ -405,7 +472,8 @@ const initView = (el: any) => {
     ViewPlugin.fromClass(
       class {
         update(update: ViewUpdate) {
-          if (props.readonly) return
+          if (readonly) return
+
           if (update.docChanged) {
             const prevValue = clone(cachedValue.value)
 
@@ -454,14 +522,7 @@ const initView = (el: any) => {
     history(),
     keymap.of([...historyKeymap]),
   ]
-
-  view.value = new EditorView({
-    parent: el,
-    state: EditorState.create({
-      doc: props.modelValue,
-      extensions,
-    }),
-  })
+  return extensions
 }
 
 const triggerTextSelection = () => {
@@ -474,11 +535,11 @@ const triggerTextSelection = () => {
     })
   })
 }
-
 onMounted(() => {
   if (editor.value) {
     if (!view.value) initView(editor.value)
     if (props.selectTextOnMount) triggerTextSelection()
+    if (props.focus) view.value?.focus()
     platform.ui?.onCodemirrorInstanceMount?.(editor.value)
   }
 })

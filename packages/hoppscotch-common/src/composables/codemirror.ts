@@ -4,6 +4,7 @@ import {
   ViewPlugin,
   ViewUpdate,
   placeholder,
+  tooltips,
 } from "@codemirror/view"
 import {
   Extension,
@@ -269,6 +270,7 @@ export function useCodemirror(
       basicSetup,
       baseTheme,
       syntaxHighlighting(baseHighlightStyle, { fallback: true }),
+
       ViewPlugin.fromClass(
         class {
           update(update: ViewUpdate) {
@@ -318,6 +320,7 @@ export function useCodemirror(
           }
         }
       ),
+
       EditorView.domEventHandlers({
         scroll(event) {
           if (event.target && options.contextMenuEnabled) {
@@ -359,6 +362,10 @@ export function useCodemirror(
           run: indentLess,
         },
       ]),
+      tooltips({
+        parent: document.body,
+        position: "absolute",
+      }),
       EditorView.contentAttributes.of({ "data-enable-grammarly": "false" }),
       additionalExts.of(options.additionalExts ?? []),
     ]

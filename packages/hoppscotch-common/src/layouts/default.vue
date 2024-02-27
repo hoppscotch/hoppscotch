@@ -69,13 +69,15 @@ import "splitpanes/dist/splitpanes.css"
 import { computed, onBeforeMount, onMounted, ref, watch } from "vue"
 import { RouterView, useRouter } from "vue-router"
 
-import { defineActionHandler } from "~/helpers/actions"
+import { useI18n } from "~/composables/i18n"
+import { useToast } from "~/composables/toast"
+import { InvocationTriggers, defineActionHandler } from "~/helpers/actions"
 import { hookKeybindingsListener } from "~/helpers/keybindings"
 import { applySetting } from "~/newstore/settings"
-import { useToast } from "~/composables/toast"
-import { useI18n } from "~/composables/i18n"
 import { platform } from "~/platform"
+import { HoppSpotlightSessionEventData } from "~/platform/analytics"
 import { PersistenceService } from "~/services/persistence"
+import { SpotlightService } from "~/services/spotlight"
 
 const router = useRouter()
 
@@ -93,6 +95,7 @@ const toast = useToast()
 const t = useI18n()
 
 const persistenceService = useService(PersistenceService)
+const spotlightService = useService(SpotlightService)
 
 onBeforeMount(() => {
   if (!mdAndLarger.value) {
@@ -144,7 +147,18 @@ const spacerClass = computed(() =>
   expandNavigation.value ? "spacer-small" : "spacer-expand"
 )
 
-defineActionHandler("modals.search.toggle", () => {
+defineActionHandler("modals.search.toggle", (_, trigger) => {
+  const triggerMethodMap: Record<
+    InvocationTriggers,
+    HoppSpotlightSessionEventData["method"]
+  > = {
+    keypress: "keyboard-shortcut",
+    mouseclick: "click-spotlight-bar",
+  }
+  spotlightService.setAnalyticsData({
+    method: triggerMethodMap[trigger as InvocationTriggers],
+  })
+
   showSearch.value = !showSearch.value
 })
 

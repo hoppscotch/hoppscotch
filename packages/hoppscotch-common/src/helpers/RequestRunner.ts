@@ -30,6 +30,13 @@ import { HoppRESTResponse } from "./types/HoppRESTResponse"
 import { HoppTestData, HoppTestResult } from "./types/HoppTestResult"
 import { getEffectiveRESTRequest } from "./utils/EffectiveURL"
 import { isJSONContentType } from "./utils/contenttypes"
+import {
+  SecretEnvironmentService,
+  SecretVariable,
+} from "~/services/secret-environment.service"
+import { getService } from "~/modules/dioc"
+
+const secretEnvironmentService = getService(SecretEnvironmentService)
 
 const getTestableBody = (
   res: HoppRESTResponse & { type: "success" | "fail" }
@@ -58,14 +65,62 @@ const getTestableBody = (
   return x
 }
 
-const combineEnvVariables = (env: {
+const combineEnvVariables = (envs: {
   global: Environment["variables"]
   selected: Environment["variables"]
-}) => [...env.selected, ...env.global]
+}) => [...envs.selected, ...envs.global]
 
 export const executedResponses$ = new Subject<
   HoppRESTResponse & { type: "success" | "fail " }
 >()
+
+/**
+ * Used to update the environment schema with the secret variables
+ * and store the secret variable values in the secret environment service
+ * @param envs The environment variables to update
+ * @param type Whether the environment variables are global or selected
+ * @returns the updated environment variables
+ */
+const updateEnvironmentsWithSecret = (
+  envs: Environment["variables"] &
+    {
+      secret: true
+      value: string | undefined
+      key: string
+    }[],
+  type: "global" | "selected"
+) => {
+  const currentEnvID =
+    type === "selected" ? getCurrentEnvironment().id : "Global"
+
+  const updatedSecretEnvironments: SecretVariable[] = []
+
+  const updatedEnv = pipe(
+    envs,
+    A.mapWithIndex((index, e) => {
+      if (e.secret) {
+        updatedSecretEnvironments.push({
+          key: e.key,
+          value: e.value ?? "",
+          varIndex: index,
+        })
+
+        // delete the value from the environment
+        // so that it doesn't get saved in the environment
+        delete e.value
+        return e
+      }
+      return e
+    })
+  )
+  if (currentEnvID) {
+    secretEnvironmentService.addSecretEnvironment(
+      currentEnvID,
+      updatedSecretEnvironments
+    )
+  }
+  return updatedEnv
+}
 
 export function runRESTRequest$(
   tab: Ref<HoppTab<HoppRESTDocument>>
@@ -154,15 +209,36 @@ export function runRESTRequest$(
           )
 
           if (E.isRight(runResult)) {
+            const updatedGlobalEnvVariables = updateEnvironmentsWithSecret(
+              cloneDeep(runResult.right.envs.global),
+              "global"
+            )
+
+            const updatedSelectedEnvVariables = updateEnvironmentsWithSecret(
+              cloneDeep(runResult.right.envs.selected),
+              "selected"
+            )
+
             // set the response in the tab so that multiple tabs can run request simultaneously
             tab.value.document.response = res
 
-            tab.value.document.testResults = translateToSandboxTestResults(
-              runResult.right
+            const updatedRunResult = {
+              ...runResult.right,
+              envs: {
+                global: updatedGlobalEnvVariables,
+                selected: updatedSelectedEnvVariables,
+              },
+            }
+
+            tab.value.document.testResults =
+              translateToSandboxTestResults(updatedRunResult)
+
+            setGlobalEnvVariables(
+              updateEnvironmentsWithSecret(
+                runResult.right.envs.global,
+                "global"
+              )
             )
-
-            setGlobalEnvVariables(runResult.right.envs.global)
-
             if (
               environmentsStore.value.selectedEnvironmentIndex.type === "MY_ENV"
             ) {
@@ -173,8 +249,10 @@ export function runRESTRequest$(
               updateEnvironment(
                 environmentsStore.value.selectedEnvironmentIndex.index,
                 {
-                  ...env,
-                  variables: runResult.right.envs.selected,
+                  name: env.name,
+                  v: 1,
+                  id: env.id ?? "",
+                  variables: updatedRunResult.envs.selected,
                 }
               )
             } else if (
@@ -186,7 +264,7 @@ export function runRESTRequest$(
               })
               pipe(
                 updateTeamEnvironment(
-                  JSON.stringify(runResult.right.envs.selected),
+                  JSON.stringify(updatedRunResult.envs.selected),
                   environmentsStore.value.selectedEnvironmentIndex.teamEnvID,
                   env.name
                 )
@@ -275,7 +353,6 @@ function translateToSandboxTestResults(
 
   const globals = cloneDeep(getGlobalVariables())
   const env = getCurrentEnvironment()
-
   return {
     description: "",
     expectResults: testDesc.tests.expectResults,

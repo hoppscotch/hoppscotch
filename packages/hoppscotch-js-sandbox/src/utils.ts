@@ -38,13 +38,20 @@ const setEnv = (
   const indexInGlobal = findEnvIndex(envName, global)
 
   if (indexInSelected >= 0) {
-    selected[indexInSelected].value = envValue
+    const selectedEnv = selected[indexInSelected]
+    if ("value" in selectedEnv) {
+      selectedEnv.value = envValue
+    }
   } else if (indexInGlobal >= 0) {
-    global[indexInGlobal].value = envValue
+    if ("value" in global[indexInGlobal]) {
+      // eslint-disable-next-line @typescript-eslint/no-extra-semi
+      ;(global[indexInGlobal] as { value: string }).value = envValue
+    }
   } else {
     selected.push({
       key: envName,
       value: envValue,
+      secret: false,
     })
   }
 
@@ -86,9 +93,9 @@ const getSharedMethods = (envs: TestResult["envs"]) => {
 
     const result = pipe(
       getEnv(key, updatedEnvs),
-      O.match(
+      O.fold(
         () => undefined,
-        ({ value }) => String(value)
+        (env) => String(env.value)
       )
     )
 
@@ -104,14 +111,13 @@ const getSharedMethods = (envs: TestResult["envs"]) => {
       getEnv(key, updatedEnvs),
       E.fromOption(() => "INVALID_KEY" as const),
 
-      E.map(({ value }) =>
+      E.map((e) =>
         pipe(
-          parseTemplateStringE(value, [
+          parseTemplateStringE(e.value, [
             ...updatedEnvs.selected,
             ...updatedEnvs.global,
-          ]),
-          // If the recursive resolution failed, return the unresolved value
-          E.getOrElse(() => value)
+          ]), // If the recursive resolution failed, return the unresolved value
+          E.getOrElse(() => e.value)
         )
       ),
       E.map((x) => String(x)),

@@ -80,7 +80,7 @@ export class AdminService {
       await this.mailerService.sendUserInvitationEmail(inviteeEmail, {
         template: 'user-invitation',
         variables: {
-          inviteeEmail: inviteeEmail,
+          inviteeEmail, //also change hre
           magicLink: `${this.configService.get('VITE_BASE_URL')}`,
         },
       });
@@ -89,19 +89,20 @@ export class AdminService {
     }
 
     // Add invitee email to the list of invited users by admin
+
     const dbInvitedUser = await this.prisma.invitedUsers.create({
       data: {
-        adminUid: adminUID,
-        adminEmail: adminEmail,
-        inviteeEmail: inviteeEmail,
+        adminUid,
+        adminEmail,
+        inviteeEmail
       },
     });
-
+    const {invitedOn} = dbInvitedUser
     const invitedUser = <InvitedUser>{
       adminEmail: dbInvitedUser.adminEmail,
       adminUid: dbInvitedUser.adminUid,
       inviteeEmail: dbInvitedUser.inviteeEmail,
-      invitedOn: dbInvitedUser.invitedOn,
+      invitedOn
     };
 
     // Publish invited user subscription

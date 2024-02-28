@@ -210,7 +210,10 @@
                   {{ variable.key }}
                 </span>
                 <span class="min-w-[9rem] w-full truncate text-secondaryLight">
-                  {{ variable.value }}
+                  <template v-if="variable.secret"> ******** </template>
+                  <template v-else>
+                    {{ variable.value }}
+                  </template>
                 </span>
               </div>
               <div v-if="globalEnvs.length === 0" class="text-secondaryLight">
@@ -265,7 +268,10 @@
                   {{ variable.key }}
                 </span>
                 <span class="min-w-[9rem] w-full truncate text-secondaryLight">
-                  {{ variable.value }}
+                  <template v-if="variable.secret"> ******** </template>
+                  <template v-else>
+                    {{ variable.value }}
+                  </template>
                 </span>
               </div>
               <div
@@ -479,15 +485,20 @@ const selectedEnv = computed(() => {
         type: "MY_ENV",
         index: props.modelValue.index,
         name: props.modelValue.environment?.name,
+        variables: props.modelValue.environment?.variables,
       }
     } else if (props.modelValue?.type === "team-environment") {
       return {
         type: "TEAM_ENV",
         name: props.modelValue.environment.environment.name,
         teamEnvID: props.modelValue.environment.id,
+        variables: props.modelValue.environment.environment.variables,
       }
     }
-    return { type: "global", name: "Global" }
+    return {
+      type: "global",
+      name: "Global",
+    }
   }
   if (selectedEnvironmentIndex.value.type === "MY_ENV") {
     const environment =
@@ -582,9 +593,7 @@ const environmentVariables = computed(() => {
 })
 
 const editGlobalEnv = () => {
-  invokeAction("modals.my.environment.edit", {
-    envName: "Global",
-  })
+  invokeAction("modals.global.environment.update", {})
 }
 
 const editEnv = () => {

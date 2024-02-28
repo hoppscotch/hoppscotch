@@ -19,7 +19,6 @@
     </span>
     <span>
       <tippy
-        v-if="!isViewer"
         ref="options"
         interactive
         trigger="click"
@@ -57,6 +56,7 @@
             />
 
             <HoppSmartItem
+              v-if="!isViewer"
               ref="duplicate"
               :icon="IconCopy"
               :label="`${t('action.duplicate')}`"
@@ -69,6 +69,7 @@
               "
             />
             <HoppSmartItem
+              v-if="!isViewer"
               ref="exportAsJsonEl"
               :icon="IconEdit"
               :label="`${t('export.as_json')}`"
@@ -81,6 +82,7 @@
               "
             />
             <HoppSmartItem
+              v-if="!isViewer"
               ref="deleteAction"
               :icon="IconTrash2"
               :label="`${t('action.delete')}`"
@@ -124,6 +126,8 @@ import IconMoreVertical from "~icons/lucide/more-vertical"
 import { TippyComponent } from "vue-tippy"
 import { HoppSmartItem } from "@hoppscotch/ui"
 import { exportAsJSON } from "~/helpers/import-export/export/environment"
+import { useService } from "dioc/vue"
+import { SecretEnvironmentService } from "~/services/secret-environment.service"
 
 const t = useI18n()
 const toast = useToast()
@@ -136,6 +140,8 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: "edit-environment"): void
 }>()
+
+const secretEnvironmentService = useService(SecretEnvironmentService)
 
 const confirmRemove = ref(false)
 
@@ -161,6 +167,7 @@ const removeEnvironment = () => {
       },
       () => {
         toast.success(`${t("team_environment.deleted")}`)
+        secretEnvironmentService.deleteSecretEnvironment(props.environment.id)
       }
     )
   )()

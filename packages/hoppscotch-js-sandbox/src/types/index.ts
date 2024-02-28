@@ -1,5 +1,3 @@
-import { Environment } from "@hoppscotch/data"
-
 /**
  * The response object structure exposed to the test script
  */
@@ -43,6 +41,13 @@ export type TestDescriptor = {
   children: TestDescriptor[]
 }
 
+// Representation of a transformed state for environment variables in the sandbox
+type TransformedEnvironmentVariable = {
+  key: string
+  value: string
+  secret: boolean
+}
+
 /**
  * Defines the result of a test script execution
  */
@@ -50,8 +55,8 @@ export type TestDescriptor = {
 export type TestResult = {
   tests: TestDescriptor[]
   envs: {
-    global: Environment["variables"]
-    selected: Environment["variables"]
+    global: TransformedEnvironmentVariable[]
+    selected: TransformedEnvironmentVariable[]
   }
 }
 

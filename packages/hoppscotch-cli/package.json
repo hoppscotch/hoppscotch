@@ -1,6 +1,6 @@
 {
   "name": "@hoppscotch/cli",
-  "version": "0.5.2",
+  "version": "0.6.0",
   "description": "A CLI to run Hoppscotch test scripts in CI environments.",
   "homepage": "https://hoppscotch.io",
   "main": "dist/index.js",
@@ -60,6 +60,7 @@
     "ts-jest": "^29.1.1",
     "tsup": "^7.2.0",
     "typescript": "^5.2.2",
+    "verzod": "^0.2.2",
     "zod": "^3.22.4"
   }
 }

@@ -32,17 +32,6 @@
               @keyup.escape="hide()"
             >
               <HoppSmartItem
-                label="None"
-                :icon="authName === 'None' ? IconCircleDot : IconCircle"
-                :active="authName === 'None'"
-                @click="
-                  () => {
-                    auth.authType = 'none'
-                    hide()
-                  }
-                "
-              />
-              <HoppSmartItem
                 v-if="!isRootCollection"
                 label="Inherit"
                 :icon="authName === 'Inherit' ? IconCircleDot : IconCircle"
@@ -50,6 +39,17 @@
                 @click="
                   () => {
                     auth.authType = 'inherit'
+                    hide()
+                  }
+                "
+              />
+              <HoppSmartItem
+                label="None"
+                :icon="authName === 'None' ? IconCircleDot : IconCircle"
+                :active="authName === 'None'"
+                @click="
+                  () => {
+                    auth.authType = 'none'
                     hide()
                   }
                 "
@@ -284,7 +284,7 @@ const authActive = pluckRef(auth, "authActive")
 
 const clearContent = () => {
   auth.value = {
-    authType: "none",
+    authType: "inherit",
     authActive: true,
   }
 }

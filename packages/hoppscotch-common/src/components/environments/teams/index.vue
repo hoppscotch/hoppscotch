@@ -105,6 +105,7 @@
       :editing-environment="editingEnvironment"
       :editing-team-id="team?.id"
       :editing-variable-name="editingVariableName"
+      :is-secret-option-selected="secretOptionSelected"
       :is-viewer="team?.myRole === 'VIEWER'"
       @hide-modal="displayModalEdit(false)"
     />
@@ -148,6 +149,7 @@ const showModalDetails = ref(false)
 const action = ref<"new" | "edit">("edit")
 const editingEnvironment = ref<TeamEnvironment | null>(null)
 const editingVariableName = ref("")
+const secretOptionSelected = ref(false)
 
 const isTeamViewer = computed(() => props.team?.myRole === "VIEWER")
 
@@ -171,6 +173,8 @@ const editEnvironment = (environment: TeamEnvironment | null) => {
 }
 const resetSelectedData = () => {
   editingEnvironment.value = null
+  editingVariableName.value = ""
+  secretOptionSelected.value = false
 }
 
 const getErrorMessage = (err: GQLError<string>) => {
@@ -187,12 +191,15 @@ const getErrorMessage = (err: GQLError<string>) => {
 
 defineActionHandler(
   "modals.team.environment.edit",
-  ({ envName, variableName }) => {
+  ({ envName, variableName, isSecret }) => {
     if (variableName) editingVariableName.value = variableName
     const teamEnvToEdit = props.teamEnvironments.find(
       (environment) => environment.environment.name === envName
     )
-    if (teamEnvToEdit) editEnvironment(teamEnvToEdit)
+    if (teamEnvToEdit) {
+      editEnvironment(teamEnvToEdit)
+      secretOptionSelected.value = isSecret ?? false
+    }
   }
 )
 </script>

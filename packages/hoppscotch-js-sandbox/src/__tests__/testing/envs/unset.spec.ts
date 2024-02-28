@@ -35,6 +35,7 @@ describe("pw.env.unset", () => {
             {
               key: "baseUrl",
               value: "https://echo.hoppscotch.io",
+              secret: false,
             },
           ],
         }
@@ -57,6 +58,7 @@ describe("pw.env.unset", () => {
             {
               key: "baseUrl",
               value: "https://echo.hoppscotch.io",
+              secret: false,
             },
           ],
           selected: [],
@@ -80,12 +82,14 @@ describe("pw.env.unset", () => {
             {
               key: "baseUrl",
               value: "https://httpbin.org",
+              secret: false,
             },
           ],
           selected: [
             {
               key: "baseUrl",
               value: "https://echo.hoppscotch.io",
+              secret: false,
             },
           ],
         }
@@ -96,6 +100,7 @@ describe("pw.env.unset", () => {
           {
             key: "baseUrl",
             value: "https://httpbin.org",
+            secret: false,
           },
         ],
         selected: [],
@@ -114,16 +119,19 @@ describe("pw.env.unset", () => {
             {
               key: "baseUrl",
               value: "https://echo.hoppscotch.io",
+              secret: false,
             },
           ],
           selected: [
             {
               key: "baseUrl",
               value: "https://httpbin.org",
+              secret: false,
             },
             {
               key: "baseUrl",
               value: "https://echo.hoppscotch.io",
+              secret: false,
             },
           ],
         }
@@ -134,12 +142,14 @@ describe("pw.env.unset", () => {
           {
             key: "baseUrl",
             value: "https://echo.hoppscotch.io",
+            secret: false,
           },
         ],
         selected: [
           {
             key: "baseUrl",
             value: "https://echo.hoppscotch.io",
+            secret: false,
           },
         ],
       })
@@ -157,10 +167,12 @@ describe("pw.env.unset", () => {
             {
               key: "baseUrl",
               value: "https://httpbin.org/",
+              secret: false,
             },
             {
               key: "baseUrl",
               value: "https://echo.hoppscotch.io",
+              secret: false,
             },
           ],
           selected: [],
@@ -172,6 +184,7 @@ describe("pw.env.unset", () => {
           {
             key: "baseUrl",
             value: "https://echo.hoppscotch.io",
+            secret: false,
           },
         ],
         selected: [],
@@ -225,6 +238,7 @@ describe("pw.env.unset", () => {
             {
               key: "baseUrl",
               value: "https://echo.hoppscotch.io",
+              secret: false,
             },
           ],
         }

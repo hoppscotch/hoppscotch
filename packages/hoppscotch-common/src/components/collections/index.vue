@@ -614,8 +614,8 @@ const addNewRootCollection = (name: string) => {
         requests: [],
         headers: [],
         auth: {
-          authType: "inherit",
-          authActive: false,
+          authType: "none",
+          authActive: true,
         },
       })
     )

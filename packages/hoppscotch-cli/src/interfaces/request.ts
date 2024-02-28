@@ -21,6 +21,7 @@ export interface RequestStack {
  */
 export interface RequestConfig extends AxiosRequestConfig {
   supported: boolean;
+  displayUrl?: string
 }
 
 export interface EffectiveHoppRESTRequest extends HoppRESTRequest {
@@ -30,6 +31,7 @@ export interface EffectiveHoppRESTRequest extends HoppRESTRequest {
    * This contains path, params and environment variables all applied to it
    */
   effectiveFinalURL: string;
+  effectiveFinalDisplayURL?: string;
   effectiveFinalHeaders: { key: string; value: string; active: boolean }[];
   effectiveFinalParams: { key: string; value: string; active: boolean }[];
   effectiveFinalBody: FormData | string | null;

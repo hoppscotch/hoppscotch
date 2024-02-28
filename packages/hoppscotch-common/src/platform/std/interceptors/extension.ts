@@ -13,6 +13,7 @@ import { browserIsChrome, browserIsFirefox } from "~/helpers/utils/userAgent"
 import SettingsExtension from "~/components/settings/Extension.vue"
 import InterceptorsExtensionSubtitle from "~/components/interceptors/ExtensionSubtitle.vue"
 import InterceptorsErrorPlaceholder from "~/components/interceptors/ErrorPlaceholder.vue"
+import { until } from "@vueuse/core"
 
 export const defineSubscribableObject = <T extends object>(obj: T) => {
   const proxyObject = {
@@ -206,6 +207,14 @@ export class ExtensionInterceptorService
   private async runRequestOnExtension(
     req: AxiosRequestConfig
   ): RequestRunResult["response"] {
+    // wait for the extension to resolve
+    await until(this.extensionStatus).toMatch(
+      (status) => status !== "waiting",
+      {
+        timeout: 1000,
+      }
+    )
+
     const extensionHook = window.__POSTWOMAN_EXTENSION_HOOK__
     if (!extensionHook) {
       return E.left(<InterceptorError>{

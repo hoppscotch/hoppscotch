@@ -9,10 +9,10 @@ export const V0_SCHEMA = z.object({
       key: z.string(),
       value: z.string(),
     })
-  )
+  ),
 })
 
 export default defineVersion({
   initial: true,
-  schema: V0_SCHEMA
+  schema: V0_SCHEMA,
 })

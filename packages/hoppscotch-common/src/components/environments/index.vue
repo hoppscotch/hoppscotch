@@ -24,6 +24,8 @@
       :action="action"
       :editing-environment-index="editingEnvironmentIndex"
       :editing-variable-name="editingVariableName"
+      :env-vars="envVars"
+      :is-secret-option-selected="secretOptionSelected"
       @hide-modal="displayModalEdit(false)"
     />
     <EnvironmentsAdd
@@ -37,7 +39,7 @@
 
   <HoppSmartConfirmModal
     :show="showConfirmRemoveEnvModal"
-    :title="t('confirm.remove_team')"
+    :title="`${t('confirm.remove_environment')}`"
     @hide-modal="showConfirmRemoveEnvModal = false"
     @resolve="removeSelectedEnvironment()"
   />
@@ -67,6 +69,7 @@ import { deleteTeamEnvironment } from "~/helpers/backend/mutations/TeamEnvironme
 import { useToast } from "~/composables/toast"
 import { WorkspaceService } from "~/services/workspace.service"
 import { useService } from "dioc/vue"
+import { Environment } from "@hoppscotch/data"
 
 const t = useI18n()
 const toast = useToast()
@@ -88,6 +91,8 @@ const environmentType = ref<EnvironmentsChooseType>({
 const globalEnv = useReadonlyStream(globalEnv$, [])
 
 const globalEnvironment = computed(() => ({
+  v: 1 as const,
+  id: "Global",
   name: "Global",
   variables: globalEnv.value,
 }))
@@ -186,6 +191,7 @@ const action = ref<"new" | "edit">("edit")
 const editingEnvironmentIndex = ref<"Global" | null>(null)
 const editingVariableName = ref("")
 const editingVariableValue = ref("")
+const secretOptionSelected = ref(false)
 
 const position = ref({ top: 0, left: 0 })
 
@@ -203,6 +209,7 @@ const displayModalEdit = (shouldDisplay: boolean) => {
 const editEnvironment = (environmentIndex: "Global") => {
   editingEnvironmentIndex.value = environmentIndex
   action.value = "edit"
+  editingVariableName.value = ""
   displayModalEdit(true)
 }
 
@@ -232,6 +239,9 @@ const removeSelectedEnvironment = () => {
 
 const resetSelectedData = () => {
   editingEnvironmentIndex.value = null
+  editingVariableName.value = ""
+  editingVariableValue.value = ""
+  secretOptionSelected.value = false
 }
 
 defineActionHandler("modals.environment.new", () => {
@@ -243,11 +253,19 @@ defineActionHandler("modals.environment.delete-selected", () => {
   showConfirmRemoveEnvModal.value = true
 })
 
+const additionalVars = ref<Environment["variables"]>([])
+
+const envVars = () => [...globalEnv.value, ...additionalVars.value]
+
 defineActionHandler(
-  "modals.my.environment.edit",
-  ({ envName, variableName }) => {
-    if (variableName) editingVariableName.value = variableName
-    envName === "Global" && editEnvironment("Global")
+  "modals.global.environment.update",
+  ({ variables, isSecret }) => {
+    if (variables) {
+      additionalVars.value = variables
+    }
+    secretOptionSelected.value = isSecret ?? false
+    editEnvironment("Global")
+    editingVariableName.value = "Global"
   }
 )
 

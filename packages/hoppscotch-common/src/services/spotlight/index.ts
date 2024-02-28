@@ -1,5 +1,8 @@
 import { Service } from "dioc"
-import { watch, type Ref, ref, reactive, effectScope, Component } from "vue"
+import { Component, effectScope, reactive, ref, watch, type Ref } from "vue"
+
+import { platform } from "~/platform"
+import { HoppSpotlightSessionEventData } from "~/platform/analytics"
 
 /**
  * Defines how to render the entry text in a Spotlight Search Result
@@ -115,6 +118,7 @@ export type SpotlightSearchState = {
 export class SpotlightService extends Service {
   public static readonly ID = "SPOTLIGHT_SERVICE"
 
+  private analyticsData: HoppSpotlightSessionEventData = {}
   private searchers: Map<string, SpotlightSearcher> = new Map()
 
   /**
@@ -140,6 +144,8 @@ export class SpotlightService extends Service {
   public createSearchSession(
     query: Ref<string>
   ): [Ref<SpotlightSearchState>, () => void] {
+    const startTime = Date.now()
+
     const searchSessions = Array.from(this.searchers.values()).map(
       (x) => [x, ...x.createSearchSession(query)] as const
     )
@@ -184,6 +190,16 @@ export class SpotlightService extends Service {
       }
 
       watch(
+        query,
+        (newQuery) => {
+          this.setAnalyticsData({
+            inputLength: newQuery.length,
+          })
+        },
+        { immediate: true }
+      )
+
+      watch(
         loadingSearchers,
         (set) => {
           resultObj.value.loading = set.size > 0
@@ -198,6 +214,18 @@ export class SpotlightService extends Service {
       for (const onEnd of onSessionEndList) {
         onEnd()
       }
+
+      // Sets the session duration in the state for analytics event logging
+      const sessionDuration = `${((Date.now() - startTime) / 1000).toFixed(2)}s`
+      this.setAnalyticsData({ sessionDuration })
+
+      platform.analytics?.logEvent({
+        type: "HOPP_SPOTLIGHT_SESSION",
+        ...this.analyticsData,
+      })
+
+      // Reset the state
+      this.setAnalyticsData({}, false)
     }
 
     return [resultObj, onSearchEnd]
@@ -206,12 +234,35 @@ export class SpotlightService extends Service {
   /**
    * Selects a search result. To be called when the user selects a result
    * @param searcherID The ID of the searcher that the result belongs to
-   * @param result The resuklt to look at
+   * @param result The result to look at
    */
   public selectSearchResult(
     searcherID: string,
     result: SpotlightSearcherResult
   ) {
     this.searchers.get(searcherID)?.onResultSelect(result)
+
+    // Sets the action indicating `success` and selected result score in the state for analytics event logging
+    this.setAnalyticsData({
+      action: "success",
+      rank: result.score.toFixed(2),
+      searcherID,
+    })
+  }
+
+  /**
+   * Gets the analytics data for the current search session
+   */
+  public getAnalyticsData(): HoppSpotlightSessionEventData {
+    return this.analyticsData
+  }
+
+  /**
+   * Sets Analytics data for the current search session
+   * @param data The data to set
+   * @param merge Whether to merge the data with the existing data or replace it
+   */
+  public setAnalyticsData(data: HoppSpotlightSessionEventData, merge = true) {
+    this.analyticsData = merge ? { ...this.analyticsData, ...data } : data
   }
 }

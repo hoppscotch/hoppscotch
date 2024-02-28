@@ -22,9 +22,9 @@
               <HoppButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"
                 :title="t('state.linewrap')"
-                :class="{ '!text-accent': linewrapEnabled }"
+                :class="{ '!text-accent': WRAP_LINES }"
                 :icon="IconWrapText"
-                @click.prevent="linewrapEnabled = !linewrapEnabled"
+                @click.prevent="toggleNestedSetting('WRAP_LINES', 'importCurl')"
               />
               <HoppButtonSecondary
                 v-tippy="{ theme: 'tooltip', allowHTML: true }"
@@ -96,6 +96,8 @@ import IconTrash2 from "~icons/lucide/trash-2"
 import { platform } from "~/platform"
 import { RESTTabService } from "~/services/tab/rest"
 import { useService } from "dioc/vue"
+import { useNestedSetting } from "~/composables/settings"
+import { toggleNestedSetting } from "~/newstore/settings"
 
 const t = useI18n()
 
@@ -106,7 +108,7 @@ const tabs = useService(RESTTabService)
 const curl = ref("")
 
 const curlEditor = ref<any | null>(null)
-const linewrapEnabled = ref(true)
+const WRAP_LINES = useNestedSetting("WRAP_LINES", "importCurl")
 
 const props = defineProps<{ show: boolean; text: string }>()
 
@@ -117,7 +119,7 @@ useCodemirror(
     extendedEditorConfig: {
       mode: "application/x-sh",
       placeholder: `${t("request.enter_curl")}`,
-      lineWrapping: linewrapEnabled,
+      lineWrapping: WRAP_LINES,
     },
     linter: null,
     completer: null,

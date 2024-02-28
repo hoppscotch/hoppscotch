@@ -1,0 +1,16 @@
+{
+  "id": 123,
+  "v": "1",
+  "name": "secret-envs",
+  "values": [
+    {
+      "key": "secretVar",
+      "secret": true
+    },
+    {
+      "key": "regularVar",
+      "secret": false,
+      "value": "regular-variable"
+    }
+  ]
+}

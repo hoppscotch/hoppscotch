@@ -1,12 +1,14 @@
-import { describe, it, expect, vi, beforeEach } from "vitest"
+import { TestContainer } from "dioc/testing"
+import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest"
+import { Ref, computed, nextTick, ref, watch } from "vue"
+import { setPlatformDef } from "~/platform"
+import { HoppSpotlightSessionEventData } from "~/platform/analytics"
 import {
   SpotlightSearcher,
-  SpotlightSearcherSessionState,
   SpotlightSearcherResult,
+  SpotlightSearcherSessionState,
   SpotlightService,
 } from "../"
-import { Ref, computed, nextTick, ref, watch } from "vue"
-import { TestContainer } from "dioc/testing"
 
 const echoSearcher: SpotlightSearcher = {
   searcherID: "echo-searcher",
@@ -78,6 +80,15 @@ const emptySearcher: SpotlightSearcher = {
 }
 
 describe("SpotlightService", () => {
+  beforeAll(() => {
+    setPlatformDef({
+      // @ts-expect-error We're mocking the platform
+      analytics: {
+        logEvent: vi.fn(),
+      },
+    })
+  })
+
   describe("registerSearcher", () => {
     it("registers a searcher with a given ID", () => {
       const container = new TestContainer()
@@ -387,16 +398,14 @@ describe("SpotlightService", () => {
         searcherID: "test-searcher",
         searcherSectionTitle: "Test Searcher",
         createSearchSession: (query) => {
-          watch(query, notifiedFn, { immediate: true })
+          const dispose = watch(query, notifiedFn, { immediate: true })
 
           return [
             computed<SpotlightSearcherSessionState>(() => ({
               loading: false,
               results: [],
             })),
-            () => {
-              /* noop */
-            },
+            dispose,
           ]
         },
         onResultSelect: () => {
@@ -420,7 +429,7 @@ describe("SpotlightService", () => {
       query.value = "test3"
       await nextTick()
 
-      expect(notifiedFn).toHaveBeenCalledTimes(3)
+      expect(notifiedFn).toHaveBeenCalledTimes(2)
     })
 
     describe("selectSearchResult", () => {
@@ -545,6 +554,85 @@ describe("SpotlightService", () => {
         ["echo-searcher", echoSearcher],
         ["empty-searcher", emptySearcher],
       ])
+    })
+  })
+
+  describe("getAnalyticsData", () => {
+    const analyticsData: HoppSpotlightSessionEventData = {
+      method: "click-spotlight-bar",
+      inputLength: 0,
+      action: "close",
+      rank: null,
+      searcherID: null,
+      sessionDuration: "0.9s",
+    }
+
+    it("returns the initial state of `analyticsData` in a spotlight session", () => {
+      const container = new TestContainer()
+
+      const spotlight = container.bind(SpotlightService)
+
+      expect(spotlight.getAnalyticsData()).toEqual({})
+    })
+
+    it("returns the current state of `analyticsData` in a spotlight session", () => {
+      const container = new TestContainer()
+
+      const spotlight = container.bind(SpotlightService)
+      spotlight.setAnalyticsData(analyticsData)
+
+      expect(spotlight.getAnalyticsData()).toEqual(analyticsData)
+    })
+  })
+
+  describe("setAnalyticsData", () => {
+    const analyticsData: HoppSpotlightSessionEventData = {
+      method: "click-spotlight-bar",
+      inputLength: 0,
+      action: "close",
+      rank: null,
+      searcherID: null,
+      sessionDuration: "0.9s",
+    }
+
+    it("sets analytics data for the current spotlight session by merging with existing data", () => {
+      const container = new TestContainer()
+
+      const spotlight = container.bind(SpotlightService)
+
+      // Session data, maintained outside and communicated to the service
+      spotlight.setAnalyticsData({
+        method: "click-spotlight-bar",
+        action: "close",
+        rank: null,
+        searcherID: null,
+      })
+
+      // Session duration and input length are computed at the service level
+      const analyticsDataComputedInService: Partial<HoppSpotlightSessionEventData> =
+        {
+          inputLength: 0,
+          sessionDuration: "0.9s",
+        }
+      spotlight.setAnalyticsData(analyticsDataComputedInService)
+
+      expect(spotlight.getAnalyticsData()).toEqual(analyticsData)
+    })
+
+    it("resets analytics data after a spotlight session", () => {
+      const container = new TestContainer()
+
+      const spotlight = container.bind(SpotlightService)
+
+      // Populate `analyticsData` in the service context with sample data
+      spotlight.setAnalyticsData(analyticsData)
+
+      const analyticsDataEmptyState = {}
+
+      // Resets the state with the supplied data by specifying `false` for the `merge` argument
+      spotlight.setAnalyticsData(analyticsDataEmptyState, false)
+
+      expect(spotlight.getAnalyticsData()).toEqual(analyticsDataEmptyState)
     })
   })
 })

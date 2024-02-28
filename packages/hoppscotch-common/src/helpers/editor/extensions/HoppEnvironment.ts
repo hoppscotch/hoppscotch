@@ -12,14 +12,17 @@ import { parseTemplateStringE } from "@hoppscotch/data"
 import { StreamSubscriberFunc } from "@composables/stream"
 import {
   AggregateEnvironment,
-  aggregateEnvs$,
-  getAggregateEnvs,
+  aggregateEnvsWithSecrets$,
+  getAggregateEnvsWithSecrets,
+  getCurrentEnvironment,
   getSelectedEnvironmentType,
 } from "~/newstore/environments"
 import { invokeAction } from "~/helpers/actions"
 import IconUser from "~icons/lucide/user?raw"
 import IconUsers from "~icons/lucide/users?raw"
 import IconEdit from "~icons/lucide/edit?raw"
+import { SecretEnvironmentService } from "~/services/secret-environment.service"
+import { getService } from "~/modules/dioc"
 
 const HOPP_ENVIRONMENT_REGEX = /(<<[a-zA-Z0-9-_]+>>)/g
 
@@ -27,6 +30,8 @@ const HOPP_ENV_HIGHLIGHT =
   "cursor-help transition rounded px-1 focus:outline-none mx-0.5 env-highlight"
 const HOPP_ENV_HIGHLIGHT_FOUND = "env-found"
 const HOPP_ENV_HIGHLIGHT_NOT_FOUND = "env-not-found"
+
+const secretEnvironmentService = getService(SecretEnvironmentService)
 
 const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
   hoverTooltip(
@@ -66,7 +71,27 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
 
       const envName = tooltipEnv?.sourceEnv ?? "Choose an Environment"
 
-      const envValue = tooltipEnv?.value ?? "Not found"
+      let envValue = "Not Found"
+
+      const currentSelectedEnvironment = getCurrentEnvironment()
+
+      const hasSecretEnv = secretEnvironmentService.hasSecretValue(
+        tooltipEnv?.sourceEnv !== "Global"
+          ? currentSelectedEnvironment.id
+          : "Global",
+        tooltipEnv?.key ?? ""
+      )
+
+      if (!tooltipEnv?.secret && tooltipEnv?.value) envValue = tooltipEnv.value
+      else if (tooltipEnv?.secret && hasSecretEnv) {
+        envValue = "******"
+      } else if (tooltipEnv?.secret && !hasSecretEnv) {
+        envValue = "Empty"
+      } else if (!tooltipEnv?.sourceEnv) {
+        envValue = "Not Found"
+      } else if (!tooltipEnv?.value) {
+        envValue = "Empty"
+      }
 
       const result = parseTemplateStringE(envValue, aggregateEnvs)
 
@@ -83,12 +108,25 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
         editIcon.className =
           "ml-2 cursor-pointer text-accent hover:text-accentDark"
         editIcon.addEventListener("click", () => {
-          const isPersonalEnv =
-            envName === "Global" || selectedEnvType !== "TEAM_ENV"
-          const action = isPersonalEnv ? "my" : "team"
-          invokeAction(`modals.${action}.environment.edit`, {
-            envName,
+          let invokeActionType:
+            | "modals.my.environment.edit"
+            | "modals.team.environment.edit"
+            | "modals.global.environment.update" = "modals.my.environment.edit"
+
+          if (tooltipEnv?.sourceEnv === "Global") {
+            invokeActionType = "modals.global.environment.update"
+          } else if (selectedEnvType === "MY_ENV") {
+            invokeActionType = "modals.my.environment.edit"
+          } else if (selectedEnvType === "TEAM_ENV") {
+            invokeActionType = "modals.team.environment.edit"
+          } else {
+            invokeActionType = "modals.my.environment.edit"
+          }
+
+          invokeAction(invokeActionType, {
+            envName: tooltipEnv?.sourceEnv !== "Global" ? envName : "Global",
             variableName: parsedEnvKey,
+            isSecret: tooltipEnv?.secret,
           })
         })
         editIcon.innerHTML = `<span class="inline-flex items-center justify-center my-1">${IconEdit}</span>`
@@ -171,11 +209,10 @@ export class HoppEnvironmentPlugin {
     subscribeToStream: StreamSubscriberFunc,
     private editorView: Ref<EditorView | undefined>
   ) {
-    this.envs = getAggregateEnvs()
+    this.envs = getAggregateEnvsWithSecrets()
 
-    subscribeToStream(aggregateEnvs$, (envs) => {
+    subscribeToStream(aggregateEnvsWithSecrets$, (envs) => {
       this.envs = envs
-
       this.editorView.value?.dispatch({
         effects: this.compartment.reconfigure([
           cursorTooltipField(this.envs),

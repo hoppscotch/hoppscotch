@@ -6,6 +6,7 @@ import { safeParseJSON } from "~/helpers/functional/json"
 
 import { z } from "zod"
 import { Environment } from "@hoppscotch/data"
+import { uniqueId } from "lodash-es"
 
 const postmanEnvSchema = z.object({
   name: z.string(),
@@ -34,12 +35,14 @@ export const postmanEnvImporter = (content: string) => {
   const postmanEnv = validationResult.data
 
   const environment: Environment = {
+    id: uniqueId(),
+    v: 1,
     name: postmanEnv.name,
     variables: [],
   }
 
   postmanEnv.values.forEach(({ key, value }) =>
-    environment.variables.push({ key, value })
+    environment.variables.push({ key, value, secret: false })
   )
 
   return TE.right(environment)

@@ -135,6 +135,8 @@ import { useToast } from "@composables/toast"
 import { TippyComponent } from "vue-tippy"
 import { HoppSmartItem } from "@hoppscotch/ui"
 import { exportAsJSON } from "~/helpers/import-export/export/environment"
+import { useService } from "dioc/vue"
+import { SecretEnvironmentService } from "~/services/secret-environment.service"
 
 const t = useI18n()
 const toast = useToast()
@@ -149,6 +151,8 @@ const emit = defineEmits<{
 }>()
 
 const confirmRemove = ref(false)
+
+const secretEnvironmentService = useService(SecretEnvironmentService)
 
 const exportEnvironmentAsJSON = () => {
   const { environment, environmentIndex } = props
@@ -168,6 +172,7 @@ const removeEnvironment = () => {
   if (props.environmentIndex === null) return
   if (props.environmentIndex !== "Global") {
     deleteEnvironment(props.environmentIndex, props.environment.id)
+    secretEnvironmentService.deleteSecretEnvironment(props.environment.id)
   }
   toast.success(`${t("state.deleted")}`)
 }

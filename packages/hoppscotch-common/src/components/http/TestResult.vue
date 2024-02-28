@@ -211,7 +211,6 @@ import { useI18n } from "@composables/i18n"
 import {
   globalEnv$,
   selectedEnvironmentIndex$,
-  setGlobalEnvVariables,
   setSelectedEnvironmentIndex,
 } from "~/newstore/environments"
 import { HoppTestResult } from "~/helpers/types/HoppTestResult"
@@ -225,6 +224,7 @@ import { useColorMode } from "~/composables/theming"
 import { useVModel } from "@vueuse/core"
 import { useService } from "dioc/vue"
 import { WorkspaceService } from "~/services/workspace.service"
+import { invokeAction } from "~/helpers/actions"
 
 const props = defineProps<{
   modelValue: HoppTestResult | null | undefined
@@ -304,9 +304,10 @@ const globalHasAdditions = computed(() => {
 
 const addEnvToGlobal = () => {
   if (!testResults.value?.envDiff.selected.additions) return
-  setGlobalEnvVariables([
-    ...globalEnvVars.value,
-    ...testResults.value.envDiff.selected.additions,
-  ])
+
+  invokeAction("modals.global.environment.update", {
+    variables: testResults.value.envDiff.selected.additions,
+    isSecret: false,
+  })
 }
 </script>

@@ -7,7 +7,7 @@
       v-tippy="{ theme: 'tooltip', delay: [500, 20] }"
       class="flex items-center justify-center flex-1 min-w-0 py-2 cursor-pointer pointer-events-auto"
       :title="`${timeStamp}`"
-      @click="openInNewTab"
+      @click="customizeSharedRequest()"
     >
       <span
         class="flex items-center justify-center w-16 px-2 truncate pointer-events-none"
@@ -62,7 +62,7 @@
                 :shortcut="['T']"
                 @click="
                   () => {
-                    openInNewTab()
+                    emit('open-shared-request', parseRequest)
                     hide()
                   }
                 "
@@ -128,7 +128,7 @@ const emit = defineEmits<{
     embedProperties?: string | null
   ): void
   (e: "delete-shared-request", codeID: string): void
-  (e: "open-new-tab", request: HoppRESTRequest): void
+  (e: "open-shared-request", request: HoppRESTRequest): void
 }>()
 
 const tippyActions = ref<TippyComponent | null>(null)
@@ -144,10 +144,6 @@ const parseRequest = computed(() =>
 const requestLabelColor = computed(() =>
   getMethodLabelColorClassOf(parseRequest.value)
 )
-
-const openInNewTab = () => {
-  emit("open-new-tab", parseRequest.value)
-}
 
 const customizeSharedRequest = () => {
   const embedProperties = props.request.properties

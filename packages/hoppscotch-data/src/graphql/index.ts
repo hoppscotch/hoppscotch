@@ -57,7 +57,7 @@ export function getDefaultGQLRequest(): HoppGQLRequest {
 }`.trim(),
     query: DEFAULT_QUERY,
     auth: {
-      authType: "none",
+      authType: "inherit",
       authActive: true,
     },
   }

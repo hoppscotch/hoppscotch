@@ -130,7 +130,9 @@
         />
       </div>
     </div>
-    <div ref="wsCommunicationBody" class="flex flex-1 flex-col"></div>
+    <div class="h-full">
+      <div ref="wsCommunicationBody" class="flex flex-1 flex-col"></div>
+    </div>
   </div>
 </template>
 <script setup lang="ts">

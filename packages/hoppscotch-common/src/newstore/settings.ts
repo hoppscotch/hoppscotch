@@ -30,6 +30,24 @@ export type SettingsDef = {
 
   PROXY_URL: string
 
+  WRAP_LINES: {
+    httpRequestBody: boolean
+    httpResponseBody: boolean
+    httpHeaders: boolean
+    httpParams: boolean
+    httpUrlEncoded: boolean
+    httpPreRequest: boolean
+    httpTest: boolean
+    graphqlQuery: boolean
+    graphqlResponseBody: boolean
+    graphqlHeaders: boolean
+    graphqlVariables: boolean
+    graphqlSchema: boolean
+    importCurl: boolean
+    codeGen: boolean
+    cookie: boolean
+  }
+
   CURRENT_INTERCEPTOR_ID: string
 
   URL_EXCLUDES: {
@@ -52,6 +70,24 @@ export const getDefaultSettings = (): SettingsDef => ({
   syncCollections: true,
   syncHistory: true,
   syncEnvironments: true,
+
+  WRAP_LINES: {
+    httpRequestBody: true,
+    httpResponseBody: true,
+    httpHeaders: true,
+    httpParams: true,
+    httpUrlEncoded: true,
+    httpPreRequest: true,
+    httpTest: true,
+    graphqlQuery: true,
+    graphqlResponseBody: true,
+    graphqlHeaders: false,
+    graphqlVariables: false,
+    graphqlSchema: true,
+    importCurl: true,
+    codeGen: true,
+    cookie: true,
+  },
 
   CURRENT_INTERCEPTOR_ID: "browser", // TODO: Allow the platform definition to take this place
 
@@ -80,6 +116,16 @@ type ApplySettingPayload = {
   }
 }[keyof SettingsDef]
 
+type ApplyNestedSettingPayload = {
+  [K in KeysMatching<SettingsDef, Record<string, any>>]: {
+    [P in keyof SettingsDef[K]]: {
+      settingKey: K
+      property: P
+      value: SettingsDef[K][P]
+    }
+  }[keyof SettingsDef[K]]
+}[KeysMatching<SettingsDef, Record<string, any>>]
+
 const dispatchers = defineDispatchers({
   bulkApplySettings(_currentState: SettingsDef, payload: Partial<SettingsDef>) {
     return payload
@@ -100,12 +146,47 @@ const dispatchers = defineDispatchers({
 
     return result
   },
+  toggleNestedSetting(
+    currentState: SettingsDef,
+    {
+      settingKey,
+      property,
+    }: {
+      settingKey: KeysMatching<SettingsDef, Record<string, boolean>>
+      property: KeysMatching<SettingsDef[typeof settingKey], boolean>
+    }
+  ) {
+    if (!has(currentState, [settingKey, property])) {
+      return {}
+    }
+
+    const result: Partial<SettingsDef> = {
+      [settingKey]: {
+        ...currentState[settingKey],
+        [property]: !currentState[settingKey][property],
+      },
+    }
+
+    return result
+  },
   applySetting(
     _currentState: SettingsDef,
     { settingKey, value }: ApplySettingPayload
   ) {
     const result: Partial<SettingsDef> = {
       [settingKey]: value,
+    }
+
+    return result
+  },
+  applyNestedSetting(
+    _currentState: SettingsDef,
+    { settingKey, property, value }: ApplyNestedSettingPayload
+  ) {
+    const result: Partial<SettingsDef> = {
+      [settingKey]: {
+        [property]: value,
+      },
     }
 
     return result
@@ -144,6 +225,20 @@ export function toggleSetting(settingKey: KeysMatching<SettingsDef, boolean>) {
   })
 }
 
+export function toggleNestedSetting<
+  K extends KeysMatching<SettingsDef, Record<string, boolean>>,
+  P extends keyof SettingsDef[K],
+>(settingKey: K, property: P) {
+  settingsStore.dispatch({
+    dispatcher: "toggleNestedSetting",
+    payload: {
+      settingKey,
+      // @ts-expect-error TS is not able to understand the type semantics here
+      property,
+    },
+  })
+}
+
 export function applySetting<K extends keyof SettingsDef>(
   settingKey: K,
   value: SettingsDef[K]
@@ -154,6 +249,22 @@ export function applySetting<K extends keyof SettingsDef>(
       // @ts-expect-error TS is not able to understand the type semantics here
       settingKey,
       // @ts-expect-error TS is not able to understand the type semantics here
+      value,
+    },
+  })
+}
+
+export function applyNestedSetting<
+  K extends KeysMatching<SettingsDef, Record<string, any>>,
+  P extends keyof SettingsDef[K],
+  R extends SettingsDef[K][P],
+>(settingKey: K, property: P, value: R) {
+  settingsStore.dispatch({
+    dispatcher: "applyNestedSetting",
+    payload: {
+      settingKey,
+      // @ts-expect-error TS is not able to understand the type semantics here
+      property,
       value,
     },
   })

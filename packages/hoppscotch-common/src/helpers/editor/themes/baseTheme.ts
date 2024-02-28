@@ -171,9 +171,6 @@ export const baseTheme = EditorView.theme({
   ".cm-activeLineGutter": {
     backgroundColor: "transparent",
   },
-  ".cm-scroller::-webkit-scrollbar": {
-    display: "none",
-  },
   ".cm-foldPlaceholder": {
     backgroundColor: "var(--divider-light-color)",
     color: "var(--secondary-dark-color)",
@@ -319,9 +316,6 @@ export const inputTheme = EditorView.theme({
   },
   ".cm-activeLineGutter": {
     backgroundColor: "transparent",
-  },
-  ".cm-scroller::-webkit-scrollbar": {
-    display: "none",
   },
   ".cm-foldPlaceholder": {
     backgroundColor: "var(--divider-light-color)",

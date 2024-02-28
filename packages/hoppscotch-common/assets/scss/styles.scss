@@ -429,6 +429,11 @@ pre.ace_editor {
   }
 }
 
+.splitpanes__pane {
+  @apply will-change-auto;
+  transform: translateZ(0);
+}
+
 .smart-splitter .splitpanes__splitter {
   @apply relative;
   @apply before:absolute;

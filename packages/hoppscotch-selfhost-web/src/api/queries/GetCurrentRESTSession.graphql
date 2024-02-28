@@ -1,5 +1,0 @@
-query GetCurrentRESTSession {
-  me {
-    currentRESTSession
-  }
-}

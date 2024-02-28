@@ -4,7 +4,6 @@ import { EnvironmentsPlatformDef } from "./environments"
 import { CollectionsPlatformDef } from "./collections"
 import { SettingsPlatformDef } from "./settings"
 import { HistoryPlatformDef } from "./history"
-import { TabStatePlatformDef } from "./tab"
 import { AnalyticsPlatformDef } from "./analytics"
 import { InterceptorsPlatformDef } from "./interceptors"
 import { HoppModule } from "~/modules"
@@ -25,7 +24,6 @@ export type PlatformDef = {
     collections: CollectionsPlatformDef
     settings: SettingsPlatformDef
     history: HistoryPlatformDef
-    tabState: TabStatePlatformDef
   }
   interceptors: InterceptorsPlatformDef
   additionalInspectors?: InspectorsPlatformDef

@@ -40,13 +40,13 @@ export class UserService {
     const dbCurrentGQLSession = dbUser.currentGQLSession;
 
     return {
-      ...dbUser,
+      ...dbUser,   
       currentRESTSession: dbCurrentRESTSession
         ? JSON.stringify(dbCurrentRESTSession)
         : null,
       currentGQLSession: dbCurrentGQLSession
         ? JSON.stringify(dbCurrentGQLSession)
-        : null,
+        : null
     };
   }
 
@@ -147,8 +147,8 @@ export class UserService {
     refreshTokenSSO: string,
     profile,
   ) {
-    const userDisplayName = !profile.displayName ? null : profile.displayName;
-    const userPhotoURL = !profile.photos ? null : profile.photos[0].value;
+    const userDisplayName =  profile?.displayName ?? null;
+    const userPhotoURL =  profile?.photos?.[0]?.value ?? null;
 
     const createdUser = await this.prisma.user.create({
       data: {
@@ -188,8 +188,8 @@ export class UserService {
       data: {
         provider: profile.provider,
         providerAccountId: profile.id,
-        providerRefreshToken: refreshToken ? refreshToken : null,
-        providerAccessToken: accessToken ? accessToken : null,
+        providerRefreshToken: refreshToken ?? null,
+        providerAccessToken: accessToken ?? null,
         user: {
           connect: {
             uid: user.uid,
@@ -215,8 +215,8 @@ export class UserService {
           uid: user.uid,
         },
         data: {
-          displayName: !profile.displayName ? null : profile.displayName,
-          photoURL: !profile.photos ? null : profile.photos[0].value,
+          displayName:  profile?.displayName ?? null,
+          photoURL:  profile?.photos[0]?.value ?? null,
         },
       });
       return E.right(updatedUser);

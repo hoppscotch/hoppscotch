@@ -27,7 +27,7 @@ import { Prisma, TeamCollection as DBTeamCollection } from '@prisma/client';
 import { CollectionFolder } from 'src/types/CollectionFolder';
 import { stringToJson } from 'src/utils';
 import { CollectionSearchNode } from 'src/types/CollectionSearchNode';
-import { SearchQueryReturnType } from './helper';
+import { ParentTreeQueryReturnType, SearchQueryReturnType } from './helper';
 import { AuthError } from 'src/types/AuthError';
 
 @Injectable()
@@ -1214,8 +1214,10 @@ export class TeamCollectionService {
       )
       SELECT * FROM collection_tree;
       `;
-      const res = await this.prisma.$queryRaw(query);
-      console.log('fetchCollectionParentTree', res);
+      const res = await this.prisma.$queryRaw<ParentTreeQueryReturnType[]>(
+        query,
+      );
+
       const collectionParentTree = this.generateParentTree(res);
       return E.right(collectionParentTree);
     } catch (error) {
@@ -1229,7 +1231,7 @@ export class TeamCollectionService {
    * @param parentCollections The parent collections
    * @returns The parent tree of the parent collections
    */
-  private generateParentTree(parentCollections) {
+  private generateParentTree(parentCollections: ParentTreeQueryReturnType[]) {
     function findChildren(id) {
       const collection = parentCollections.filter((item) => item.id === id)[0];
       if (collection.parentID == null) {
@@ -1295,8 +1297,10 @@ export class TeamCollectionService {
       SELECT * FROM request_collection_tree;
 
       `;
-      const res = await this.prisma.$queryRaw(query);
-      console.log('fetchRequestParentTree', res);
+      const res = await this.prisma.$queryRaw<ParentTreeQueryReturnType[]>(
+        query,
+      );
+
       const requestParentTree = this.generateParentTree(res);
       return E.right(requestParentTree);
     } catch (error) {

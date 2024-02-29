@@ -7,7 +7,6 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { RequiresTeamRole } from 'src/team/decorators/requires-team-role.decorator';
 import { TeamMemberRole } from '@prisma/client';
 import { RESTTeamMemberGuard } from 'src/team/guards/rest-team-member.guard';
-import { take } from 'rxjs';
 
 @UseGuards(ThrottlerBehindProxyGuard)
 @Controller({ path: 'team-collection', version: '1' })

@@ -28,7 +28,6 @@ import { CollectionFolder } from 'src/types/CollectionFolder';
 import { stringToJson } from 'src/utils';
 import { CollectionSearchNode } from 'src/types/CollectionSearchNode';
 import { SearchQueryReturnType } from './helper';
-import { cons } from 'fp-ts/lib/ReadonlyNonEmptyArray';
 import { AuthError } from 'src/types/AuthError';
 
 @Injectable()

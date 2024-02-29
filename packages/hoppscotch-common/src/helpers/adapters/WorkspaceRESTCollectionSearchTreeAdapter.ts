@@ -10,8 +10,7 @@ export class WorkspaceRESTSearchCollectionTreeAdapter
   constructor(public data: Ref<HoppCollection[]>) {}
 
   getChildren(
-    nodeID: string | null,
-    nodeType?: string
+    nodeID: string | null
   ): Ref<ChildrenResult<RESTCollectionViewItem>> {
     const result = ref<ChildrenResult<RESTCollectionViewItem>>({
       status: "loading",
@@ -35,7 +34,7 @@ export class WorkspaceRESTSearchCollectionTreeAdapter
             },
           })),
         }
-      } else if (nodeType === "collection") {
+      } else {
         const indexPath = nodeID.split("/").map((x) => parseInt(x))
 
         const item = navigateToFolderWithIndexPath(this.data.value, indexPath)
@@ -62,7 +61,6 @@ export class WorkspaceRESTSearchCollectionTreeAdapter
           )
 
           const requests = item.requests.map((request, requestID) => {
-            // TODO: Replace `parentCollectionID` with `collectionID`
             return {
               id: `${nodeID}/${requestID}`,
               data: <RESTCollectionViewItem>{

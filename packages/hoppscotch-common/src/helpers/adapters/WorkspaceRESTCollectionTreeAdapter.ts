@@ -32,6 +32,10 @@ export class WorkspaceRESTCollectionTreeAdapter
     if (nodeID !== null) {
       ;(async () => {
         if (nodeType === "request") {
+          result.value = {
+            status: "loaded",
+            data: [],
+          }
           return
         }
 

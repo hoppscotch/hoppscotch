@@ -49,11 +49,11 @@ export interface WorkspaceProvider {
 
   createRESTRootCollection(
     workspaceHandle: HandleRef<Workspace>,
-    newCollection: Partial<HoppCollection>
+    newCollection: Partial<Exclude<HoppCollection, "id">> & { name: string }
   ): Promise<E.Either<unknown, HandleRef<WorkspaceCollection>>>
   createRESTChildCollection(
     parentCollectionHandle: HandleRef<WorkspaceCollection>,
-    newChildCollection: Partial<HoppCollection>
+    newChildCollection: Partial<HoppCollection> & { name: string }
   ): Promise<E.Either<unknown, HandleRef<WorkspaceCollection>>>
   updateRESTCollection(
     collectionHandle: HandleRef<WorkspaceCollection>,

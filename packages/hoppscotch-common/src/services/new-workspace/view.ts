@@ -55,3 +55,10 @@ export interface RESTSearchResultsView {
   results: Ref<HoppCollection[]>
   onSessionEnd: () => void
 }
+
+export interface RESTCollectionJSONView {
+  providerID: string
+  workspaceID: string
+
+  content: string
+}

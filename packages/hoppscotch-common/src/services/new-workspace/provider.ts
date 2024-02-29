@@ -13,6 +13,7 @@ import {
   RESTCollectionChildrenView,
   RootRESTCollectionView,
   RESTSearchResultsView,
+  RESTCollectionJSONView,
 } from "./view"
 import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
 
@@ -35,17 +36,20 @@ export interface WorkspaceProvider {
 
   getRESTRootCollectionView(
     workspaceHandle: HandleRef<Workspace>
-  ): Promise<E.Either<unknown, HandleRef<RootRESTCollectionView>>>
+  ): Promise<E.Either<never, HandleRef<RootRESTCollectionView>>>
   getRESTCollectionChildrenView(
     collectionHandle: HandleRef<WorkspaceCollection>
-  ): Promise<E.Either<unknown, HandleRef<RESTCollectionChildrenView>>>
+  ): Promise<E.Either<never, HandleRef<RESTCollectionChildrenView>>>
   getRESTCollectionLevelAuthHeadersView(
     collectionHandle: HandleRef<WorkspaceCollection>
-  ): Promise<E.Either<unknown, HandleRef<RESTCollectionLevelAuthHeadersView>>>
+  ): Promise<E.Either<never, HandleRef<RESTCollectionLevelAuthHeadersView>>>
   getRESTSearchResultsView(
     workspaceHandle: HandleRef<Workspace>,
     searchQuery: Ref<string>
-  ): Promise<E.Either<unknown, HandleRef<RESTSearchResultsView>>>
+  ): Promise<E.Either<never, HandleRef<RESTSearchResultsView>>>
+  getRESTCollectionJSONView(
+    workspaceHandle: HandleRef<Workspace>
+  ): Promise<E.Either<never, HandleRef<RESTCollectionJSONView>>>
 
   createRESTRootCollection(
     workspaceHandle: HandleRef<Workspace>,

@@ -175,7 +175,7 @@ export class NewWorkspaceService extends Service {
 
   public async createRESTRootCollection(
     workspaceHandle: HandleRef<Workspace>,
-    newCollection: Partial<HoppCollection>
+    newCollection: Partial<Exclude<HoppCollection, "id">> & { name: string }
   ): Promise<
     E.Either<
       WorkspaceError<"INVALID_HANDLE" | "INVALID_PROVIDER">,
@@ -208,7 +208,7 @@ export class NewWorkspaceService extends Service {
 
   public async createRESTChildCollection(
     parentCollectionHandle: HandleRef<WorkspaceCollection>,
-    newChildCollection: Partial<HoppCollection>
+    newChildCollection: Partial<HoppCollection> & { name: string }
   ): Promise<
     E.Either<
       WorkspaceError<"INVALID_HANDLE" | "INVALID_PROVIDER">,

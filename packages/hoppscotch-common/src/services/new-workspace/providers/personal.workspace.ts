@@ -112,18 +112,17 @@ export class PersonalWorkspaceProviderService
 
   public createRESTRootCollection(
     workspaceHandle: HandleRef<Workspace>,
-    newCollection: Partial<HoppCollection>
+    newCollection: Partial<Exclude<HoppCollection, "id">> & { name: string }
   ): Promise<E.Either<unknown, HandleRef<WorkspaceCollection>>> {
     if (!isValidWorkspaceHandle(workspaceHandle, this.providerID, "personal")) {
       return Promise.resolve(E.left("INVALID_WORKSPACE_HANDLE" as const))
     }
 
-    const newCollectionName = newCollection.name as string
+    const newCollectionName = newCollection.name
     const newCollectionID =
       this.restCollectionState.value.state.length.toString()
 
     const newRootCollection = makeCollection({
-      name: newCollectionName,
       folders: [],
       requests: [],
       headers: [],
@@ -131,6 +130,7 @@ export class PersonalWorkspaceProviderService
         authType: "inherit",
         authActive: false,
       },
+      ...newCollection,
     })
     addRESTCollection(newRootCollection)
 
@@ -173,7 +173,7 @@ export class PersonalWorkspaceProviderService
 
   public createRESTChildCollection(
     parentCollectionHandle: HandleRef<WorkspaceCollection>,
-    newChildCollection: Partial<HoppCollection>
+    newChildCollection: Partial<HoppCollection> & { name: string }
   ): Promise<E.Either<unknown, HandleRef<WorkspaceCollection>>> {
     if (
       !isValidCollectionHandle(
@@ -188,7 +188,7 @@ export class PersonalWorkspaceProviderService
     const { collectionID, providerID, workspaceID } =
       parentCollectionHandle.value.data
 
-    const newCollectionName = newChildCollection.name as string
+    const newCollectionName = newChildCollection.name
     addRESTFolder(newCollectionName, collectionID)
 
     platform.analytics?.logEvent({

@@ -28,17 +28,23 @@
           :headings="headings"
           :list="usersList"
           :checkbox="true"
+          :spinner="showSpinner"
           :selected-rows="selectedRows"
-          :search-bar="{
-            debounce: 500,
-            placeholder: t('users.searchbar_placeholder'),
-          }"
-          :spinner="{ enabled: fetching, duration: 500 }"
-          :pagination="{ totalPages: totalPages }"
-          @onRowClicked="goToUserDetails"
-          @search="handleSearch"
+          :pagination="{ totalPages }"
           @pageNumber="handlePageChange"
+          @onRowClicked="goToUserDetails"
         >
+          <template #options>
+            <div class="flex w-full items-center bg-primary">
+              <icon-lucide-search class="mx-3 text-xs" />
+              <HoppSmartInput
+                v-model="searchQuery"
+                styles="w-full bg-primary py-1"
+                input-styles="h-full border-none"
+                placeholder="Search by name or email"
+              />
+            </div>
+          </template>
           <template #head>
             <th class="px-6 py-2">{{ t('users.id') }}</th>
             <th class="px-6 py-2">{{ t('users.name') }}</th>
@@ -206,7 +212,7 @@
 <script setup lang="ts">
 import { useMutation, useQuery } from '@urql/vue';
 import { format } from 'date-fns';
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from '~/composables/i18n';
 import { useToast } from '~/composables/toast';
@@ -248,7 +254,7 @@ const headings = [
 ];
 
 // Get Paginated Results of all the users in the infra
-const usersPerPage = 20;
+const usersPerPage = 2;
 const {
   fetching,
   error,
@@ -264,12 +270,38 @@ const {
 // Selected Rows
 const selectedRows = ref<UsersListQuery['infra']['allUsers']>([]);
 
+// Debounce Function
+const debounce = (func: () => void, delay: number) => {
+  let debounceTimeout: ReturnType<typeof setTimeout> | null = null;
+  if (debounceTimeout) clearTimeout(debounceTimeout);
+  debounceTimeout = setTimeout(func, delay);
+};
+
 // Search
 const searchQuery = ref('');
+
 const handleSearch = async (input: string) => {
   searchQuery.value = input;
   await refetch({ searchString: input, take: usersPerPage, skip: 0 });
 };
+
+watch(searchQuery, () => {
+  debounce(() => {
+    handleSearch(searchQuery.value);
+  }, 500);
+});
+
+// Spinner
+const showSpinner = ref(false);
+
+watch(fetching, (fetching) => {
+  if (fetching) {
+    showSpinner.value = true;
+    debounce(() => {
+      showSpinner.value = false;
+    }, 500);
+  }
+});
 
 // Pagination
 const { data } = useQuery({ query: MetricsDocument });

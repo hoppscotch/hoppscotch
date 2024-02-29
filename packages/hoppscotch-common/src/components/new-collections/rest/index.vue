@@ -497,9 +497,14 @@ import { WorkspaceRESTCollectionTreeAdapter } from "~/helpers/adapters/Workspace
 import { TeamCollection } from "~/helpers/backend/graphql"
 import {
   getFoldersByPath,
+  resolveSaveContextOnCollectionReorder,
   updateInheritedPropertiesForAffectedRequests,
+  updateSaveContextForAffectedRequests,
 } from "~/helpers/collection/collection"
-import { getRequestsByPath } from "~/helpers/collection/request"
+import {
+  getRequestsByPath,
+  resolveSaveContextOnRequestReorder,
+} from "~/helpers/collection/request"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import { Picked } from "~/helpers/types/HoppPicked"
 import {
@@ -1780,6 +1785,17 @@ const dropRequest = async (payload: {
     }
   }
 
+  // When it's drop it's basically getting deleted from last folder. reordering last folder accordingly
+  resolveSaveContextOnRequestReorder({
+    lastIndex: pathToLastIndex(requestIndex),
+    newIndex: -1, // being deleted from last folder
+    folderPath: parentCollectionIndexPath,
+    length: getRequestsByPath(
+      restCollectionState.value,
+      parentCollectionIndexPath
+    ).length,
+  })
+
   toast.success(`${t("request.moved")}`)
   draggingToRoot.value = false
 }
@@ -1808,21 +1824,22 @@ const dropCollection = async (payload: {
     return
   }
 
-  //check if the collection is being moved to its own parent
+  // Check if the collection is being moved to its own parent
   if (
     isMoveToSameLocation(draggedCollectionIndex, destinationCollectionIndex)
   ) {
     return
   }
 
-  const draggedParentCollection = draggedCollectionIndex
+  const draggedParentCollectionIndex = draggedCollectionIndex
     .split("/")
     .slice(0, -1)
-    .join("/") // remove last folder to get parent folder
+    .join("/") // Remove the last child-collection index to get the parent collection index
 
   const totalChildCollectionsInDestinationCollection =
     getFoldersByPath(restCollectionState.value, destinationCollectionIndex)
-      .length - (draggedParentCollection === destinationCollectionIndex ? 1 : 0)
+      .length -
+    (draggedParentCollectionIndex === destinationCollectionIndex ? 1 : 0)
 
   const draggedCollectionHandleResult =
     await workspaceService.getCollectionHandle(
@@ -1878,6 +1895,19 @@ const dropCollection = async (payload: {
         ? resolvedDestinationCollectionIndex.slice(0, -1)
         : resolvedDestinationCollectionIndex
   }
+
+  resolveSaveContextOnCollectionReorder(
+    {
+      lastIndex: pathToLastIndex(draggedCollectionIndex),
+      newIndex: -1,
+      folderPath: draggedParentCollectionIndex,
+      length: getFoldersByPath(
+        restCollectionState.value,
+        draggedParentCollectionIndex
+      ).length,
+    },
+    "drop"
+  )
 
   updateSaveContextForAffectedRequests(
     draggedCollectionIndex,
@@ -2075,20 +2105,15 @@ const updateCollectionOrder = async (
     }
   }
 
-  // resolveSaveContextOnCollectionReorder({
-  //   lastIndex: pathToLastIndex(draggedCollectionIndex),
-  //   newIndex: pathToLastIndex(
-  //     destinationCollectionIndex
-  //       ? destinationCollectionIndex
-  //       : newDestinationCollectionIndex.toString()
-  //   ),
-  //   folderPath: draggedCollectionIndex.split("/").slice(0, -1).join("/"),
-  // })
-
-  updateSaveContextForAffectedRequests(
-    draggedCollectionIndex,
-    destinationCollectionIndex ?? newDestinationCollectionIndex.toString()
-  )
+  resolveSaveContextOnCollectionReorder({
+    lastIndex: pathToLastIndex(draggedCollectionIndex),
+    newIndex: pathToLastIndex(
+      destinationCollectionIndex
+        ? destinationCollectionIndex
+        : newDestinationCollectionIndex.toString()
+    ),
+    folderPath: draggedCollectionIndex.split("/").slice(0, -1).join("/"),
+  })
 
   toast.success(`${t("collection.order_changed")}`)
 }
@@ -2261,6 +2286,16 @@ const pathToIndex = (path: string) => {
   return pathArr
 }
 
+/**
+ * Used to get the index of the request from the path
+ * @param path The path of the request
+ * @returns The index of the request
+ */
+const pathToLastIndex = (path: string) => {
+  const pathArr = path.split("/")
+  return parseInt(pathArr[pathArr.length - 1])
+}
+
 const resolveConfirmModal = (title: string | null) => {
   if (title === `${t("confirm.remove_collection")}`) {
     onRemoveRootCollection()
@@ -2283,36 +2318,5 @@ const resetSelectedData = () => {
   editingChildCollectionName.value = ""
   editingRequestName.value = ""
   editingRequestIndexPath.value = ""
-}
-
-const updateSaveContextForAffectedRequests = (
-  draggedCollectionIndex: string,
-  destinationCollectionIndex: string
-) => {
-  const activeTabs = tabs.getActiveTabs()
-
-  for (const tab of activeTabs.value) {
-    if (
-      tab.document.saveContext?.originLocation === "workspace-user-collection"
-    ) {
-      const { requestID } = tab.document.saveContext
-
-      const collectionID = requestID.split("/").slice(0, -1).join("/")
-      const requestIndex = requestID.split("/").slice(-1)[0]
-
-      if (collectionID.startsWith(draggedCollectionIndex)) {
-        const newCollectionID = collectionID.replace(
-          draggedCollectionIndex,
-          destinationCollectionIndex
-        )
-        const newRequestID = `${newCollectionID}/${requestIndex}`
-
-        tab.document.saveContext = {
-          ...tab.document.saveContext,
-          requestID: newRequestID,
-        }
-      }
-    }
-  }
 }
 </script>

@@ -117,57 +117,51 @@ export function resolveSaveContextOnCollectionReorder(
  */
 
 export function updateSaveContextForAffectedRequests(
-  oldFolderPath: string,
-  newFolderPath: string
+  draggedCollectionIndex: string,
+  destinationCollectionIndex: string
 ) {
   const tabService = getService(RESTTabService)
-  const tabs = tabService.getTabsRefTo((tab) => {
+
+  const activeTabs = tabService.getActiveTabs()
+
+  for (const tab of activeTabs.value) {
     if (tab.document.saveContext?.originLocation === "user-collection") {
-      return tab.document.saveContext.folderPath.startsWith(oldFolderPath)
-    }
+      const { folderPath } = tab.document.saveContext
 
-    if (
-      tab.document.saveContext?.originLocation !== "workspace-user-collection"
-    ) {
-      return false
-    }
+      if (folderPath.startsWith(draggedCollectionIndex)) {
+        const newFolderPath = folderPath.replace(
+          draggedCollectionIndex,
+          destinationCollectionIndex
+        )
 
-    const collectionID = tab.document.saveContext.requestID
-      .split("/")
-      .slice(0, -1)
-      .join("/")
-
-    return collectionID.startsWith(oldFolderPath)
-  })
-
-  for (const tab of tabs) {
-    if (tab.value.document.saveContext?.originLocation === "user-collection") {
-      tab.value.document.saveContext = {
-        ...tab.value.document.saveContext,
-        folderPath: tab.value.document.saveContext.folderPath.replace(
-          oldFolderPath,
-          newFolderPath
-        ),
+        tab.document.saveContext = {
+          ...tab.document.saveContext,
+          folderPath: newFolderPath,
+        }
       }
+
+      return
     }
 
     if (
-      tab.value.document.saveContext?.originLocation ===
-      "workspace-user-collection"
+      tab.document.saveContext?.originLocation === "workspace-user-collection"
     ) {
-      const collectionID = tab.value.document.saveContext.requestID
-        .split("/")
-        .slice(0, -1)
-        .join("/")
+      const { requestID } = tab.document.saveContext
 
-      const newCollectionID = collectionID.replace(oldFolderPath, newFolderPath)
-      const newRequestID = `${newCollectionID}/${
-        tab.value.document.saveContext.requestID.split("/").slice(-1)[0]
-      }`
+      const collectionID = requestID.split("/").slice(0, -1).join("/")
+      const requestIndex = requestID.split("/").slice(-1)[0]
 
-      tab.value.document.saveContext = {
-        ...tab.value.document.saveContext,
-        requestID: newRequestID,
+      if (collectionID.startsWith(draggedCollectionIndex)) {
+        const newCollectionID = collectionID.replace(
+          draggedCollectionIndex,
+          destinationCollectionIndex
+        )
+        const newRequestID = `${newCollectionID}/${requestIndex}`
+
+        tab.document.saveContext = {
+          ...tab.document.saveContext,
+          requestID: newRequestID,
+        }
       }
     }
   }

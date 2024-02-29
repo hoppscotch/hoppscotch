@@ -512,7 +512,7 @@ const HoppGistCollectionsExporter: ImporterOrExporter = {
     const collectionJSON = await getCollectionJSON()
     const accessToken = currentUser.value?.accessToken
 
-    if (!accessToken) {
+    if (!accessToken || E.isLeft(collectionJSON)) {
       toast.error(t("error.something_went_wrong"))
       isHoppGistCollectionExporterInProgress.value = false
       return
@@ -608,6 +608,7 @@ const selectedTeamID = computed(() => {
 })
 
 const getCollectionJSON = async () => {
+  // TODO: Implement `getRESTCollectionJSONView` for team workspace
   if (
     props.collectionsType.type === "team-collections" &&
     props.collectionsType.selectedTeam?.id
@@ -618,11 +619,31 @@ const getCollectionJSON = async () => {
 
     return E.isRight(res)
       ? E.right(res.right.exportCollectionsToJSON)
-      : E.left(res.left)
+      : E.left(res.left.error.toString())
   }
 
   if (props.collectionsType.type === "my-collections") {
-    return E.right(JSON.stringify(myCollections.value, null, 2))
+    if (!activeWorkspaceHandle.value) {
+      return E.left("INVALID_WORKSPACE_HANDLE")
+    }
+
+    const collectionJSONHandleResult =
+      await workspaceService.getRESTCollectionJSONView(
+        activeWorkspaceHandle.value
+      )
+
+    if (E.isLeft(collectionJSONHandleResult)) {
+      return E.left(collectionJSONHandleResult.left.error)
+    }
+
+    const collectionJSONHandle = collectionJSONHandleResult.right
+
+    if (collectionJSONHandle.value.type === "invalid") {
+      // WORKSPACE_INVALIDATED
+      return E.left("WORKSPACE_INVALIDATED")
+    }
+
+    return E.right(collectionJSONHandle.value.data.content)
   }
 
   return E.left("INVALID_SELECTED_TEAM_OR_INVALID_COLLECTION_TYPE")

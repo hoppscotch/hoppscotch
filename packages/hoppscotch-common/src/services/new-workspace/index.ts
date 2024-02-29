@@ -14,6 +14,7 @@ import { HandleRef } from "./handle"
 import { WorkspaceProvider } from "./provider"
 import {
   RESTCollectionChildrenView,
+  RESTCollectionJSONView,
   RESTCollectionLevelAuthHeadersView,
   RESTSearchResultsView,
   RootRESTCollectionView,
@@ -713,6 +714,35 @@ export class NewWorkspaceService extends Service {
       workspaceHandle,
       searchQuery
     )
+
+    if (E.isLeft(result)) {
+      return E.left({ type: "PROVIDER_ERROR", error: result.left })
+    }
+
+    return E.right(result.right)
+  }
+
+  public async getRESTCollectionJSONView(
+    workspaceHandle: HandleRef<Workspace>
+  ): Promise<
+    E.Either<
+      WorkspaceError<"INVALID_HANDLE" | "INVALID_PROVIDER">,
+      HandleRef<RESTCollectionJSONView>
+    >
+  > {
+    if (workspaceHandle.value.type === "invalid") {
+      return E.left({ type: "SERVICE_ERROR", error: "INVALID_HANDLE" })
+    }
+
+    const provider = this.registeredProviders.get(
+      workspaceHandle.value.data.providerID
+    )
+
+    if (!provider) {
+      return E.left({ type: "SERVICE_ERROR", error: "INVALID_PROVIDER" })
+    }
+
+    const result = await provider.getRESTCollectionJSONView(workspaceHandle)
 
     if (E.isLeft(result)) {
       return E.left({ type: "PROVIDER_ERROR", error: result.left })

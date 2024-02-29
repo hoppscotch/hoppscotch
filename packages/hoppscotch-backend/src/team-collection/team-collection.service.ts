@@ -1124,9 +1124,15 @@ export class TeamCollectionService {
    * Search for TeamCollections by title
    *
    * @param searchQuery The search query
+   * @param take Number of items we want returned
+   * @param skip Number of items we want to skip
    * @returns An Either of the search results
    */
-  private async searchCollections(searchQuery, take, skip) {
+  private async searchCollections(
+    searchQuery: string,
+    take: number,
+    skip: number,
+  ) {
     const query = Prisma.sql`
     select id,title,'collection' AS type
     from "TeamCollection"
@@ -1147,9 +1153,15 @@ export class TeamCollectionService {
    * Search for TeamRequests by title
    *
    * @param searchQuery The search query
+   * @param take Number of items we want returned
+   * @param skip Number of items we want to skip
    * @returns An Either of the search results
    */
-  private async searchRequests(searchQuery, take, skip) {
+  private async searchRequests(
+    searchQuery: string,
+    take: number,
+    skip: number,
+  ) {
     const query = Prisma.sql`
     select id,title,request->>'method' as method,'request' AS type
     from "TeamRequest"
@@ -1185,7 +1197,7 @@ export class TeamCollectionService {
    * @param id The ID of the collection
    * @returns The parent tree of the collection
    */
-  private async fetchCollectionParentTree(id) {
+  private async fetchCollectionParentTree(id: string) {
     try {
       const query = Prisma.sql`
       WITH RECURSIVE collection_tree AS (
@@ -1203,7 +1215,7 @@ export class TeamCollectionService {
       SELECT * FROM collection_tree;
       `;
       const res = await this.prisma.$queryRaw(query);
-
+      console.log('fetchCollectionParentTree', res);
       const collectionParentTree = this.generateParentTree(res);
       return E.right(collectionParentTree);
     } catch (error) {
@@ -1265,7 +1277,7 @@ export class TeamCollectionService {
    * @param id The ID of the request
    * @returns The parent tree of the request
    */
-  private async fetchRequestParentTree(id) {
+  private async fetchRequestParentTree(id: string) {
     try {
       const query = Prisma.sql`
       WITH RECURSIVE request_collection_tree AS (
@@ -1284,7 +1296,7 @@ export class TeamCollectionService {
 
       `;
       const res = await this.prisma.$queryRaw(query);
-
+      console.log('fetchRequestParentTree', res);
       const requestParentTree = this.generateParentTree(res);
       return E.right(requestParentTree);
     } catch (error) {

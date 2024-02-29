@@ -43,6 +43,7 @@ import { HandleRef } from "~/services/new-workspace/handle"
 import { WorkspaceProvider } from "~/services/new-workspace/provider"
 import {
   RESTCollectionChildrenView,
+  RESTCollectionJSONView,
   RESTCollectionLevelAuthHeadersView,
   RESTCollectionViewItem,
   RESTSearchResultsView,
@@ -1030,6 +1031,42 @@ export class PersonalWorkspaceProviderService
 
               results,
               onSessionEnd,
+            },
+          })
+        })
+      )
+    )
+  }
+
+  public getRESTCollectionJSONView(
+    workspaceHandle: HandleRef<Workspace>
+  ): Promise<E.Either<never, HandleRef<RESTCollectionJSONView>>> {
+    return Promise.resolve(
+      E.right(
+        computed(() => {
+          if (
+            !isValidWorkspaceHandle(
+              workspaceHandle,
+              this.providerID,
+              "personal"
+            )
+          ) {
+            return {
+              type: "invalid" as const,
+              reason: "INVALID_WORKSPACE_HANDLE" as const,
+            }
+          }
+
+          return markRaw({
+            type: "ok" as const,
+            data: {
+              providerID: this.providerID,
+              workspaceID: workspaceHandle.value.data.workspaceID,
+              content: JSON.stringify(
+                this.restCollectionState.value.state,
+                null,
+                2
+              ),
             },
           })
         })

@@ -1,4 +1,6 @@
+import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
 import { Service } from "dioc"
+import * as E from "fp-ts/Either"
 import {
   Component,
   Ref,
@@ -8,16 +10,16 @@ import {
   shallowRef,
   watch,
 } from "vue"
-import { WorkspaceProvider } from "./provider"
 import { HandleRef } from "./handle"
-import * as E from "fp-ts/Either"
-import { Workspace, WorkspaceCollection, WorkspaceRequest } from "./workspace"
+import { WorkspaceProvider } from "./provider"
 import {
   RESTCollectionChildrenView,
+  RESTCollectionJSONView,
   RESTCollectionLevelAuthHeadersView,
+  RESTSearchResultsView,
   RootRESTCollectionView,
 } from "./view"
-import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
+import { Workspace, WorkspaceCollection, WorkspaceRequest } from "./workspace"
 
 export type WorkspaceError<ServiceErr> =
   | { type: "SERVICE_ERROR"; error: ServiceErr }
@@ -174,7 +176,7 @@ export class NewWorkspaceService extends Service {
 
   public async createRESTRootCollection(
     workspaceHandle: HandleRef<Workspace>,
-    newCollection: Partial<HoppCollection>
+    newCollection: Partial<Exclude<HoppCollection, "id">> & { name: string }
   ): Promise<
     E.Either<
       WorkspaceError<"INVALID_HANDLE" | "INVALID_PROVIDER">,
@@ -207,7 +209,7 @@ export class NewWorkspaceService extends Service {
 
   public async createRESTChildCollection(
     parentCollectionHandle: HandleRef<WorkspaceCollection>,
-    newChildCollection: Partial<HoppCollection>
+    newChildCollection: Partial<HoppCollection> & { name: string }
   ): Promise<
     E.Either<
       WorkspaceError<"INVALID_HANDLE" | "INVALID_PROVIDER">,
@@ -383,6 +385,221 @@ export class NewWorkspaceService extends Service {
     return E.right(result.right)
   }
 
+  public async importRESTCollections(
+    workspaceHandle: HandleRef<Workspace>,
+    collections: HoppCollection[]
+  ): Promise<
+    E.Either<
+      WorkspaceError<"INVALID_HANDLE" | "INVALID_PROVIDER">,
+      HandleRef<WorkspaceCollection>
+    >
+  > {
+    if (workspaceHandle.value.type === "invalid") {
+      return E.left({ type: "SERVICE_ERROR", error: "INVALID_HANDLE" })
+    }
+
+    const provider = this.registeredProviders.get(
+      workspaceHandle.value.data.providerID
+    )
+
+    if (!provider) {
+      return E.left({ type: "SERVICE_ERROR", error: "INVALID_PROVIDER" })
+    }
+
+    const result = await provider.importRESTCollections(
+      workspaceHandle,
+      collections
+    )
+
+    if (E.isLeft(result)) {
+      return E.left({ type: "PROVIDER_ERROR", error: result.left })
+    }
+
+    return E.right(result.right)
+  }
+
+  public async exportRESTCollections(
+    workspaceHandle: HandleRef<Workspace>,
+    collections: HoppCollection[]
+  ): Promise<
+    E.Either<WorkspaceError<"INVALID_HANDLE" | "INVALID_PROVIDER">, void>
+  > {
+    if (workspaceHandle.value.type === "invalid") {
+      return E.left({ type: "SERVICE_ERROR", error: "INVALID_HANDLE" })
+    }
+
+    const provider = this.registeredProviders.get(
+      workspaceHandle.value.data.providerID
+    )
+
+    if (!provider) {
+      return E.left({ type: "SERVICE_ERROR", error: "INVALID_PROVIDER" })
+    }
+
+    const result = await provider.exportRESTCollections(
+      workspaceHandle,
+      collections
+    )
+
+    if (E.isLeft(result)) {
+      return E.left({ type: "PROVIDER_ERROR", error: result.left })
+    }
+
+    return E.right(result.right)
+  }
+
+  public async exportRESTCollection(
+    collectionHandle: HandleRef<WorkspaceCollection>,
+    collection: HoppCollection
+  ): Promise<
+    E.Either<WorkspaceError<"INVALID_HANDLE" | "INVALID_PROVIDER">, void>
+  > {
+    if (collectionHandle.value.type === "invalid") {
+      return E.left({ type: "SERVICE_ERROR", error: "INVALID_HANDLE" })
+    }
+
+    const provider = this.registeredProviders.get(
+      collectionHandle.value.data.providerID
+    )
+
+    if (!provider) {
+      return E.left({ type: "SERVICE_ERROR", error: "INVALID_PROVIDER" })
+    }
+
+    const result = await provider.exportRESTCollection(
+      collectionHandle,
+      collection
+    )
+
+    if (E.isLeft(result)) {
+      return E.left({ type: "PROVIDER_ERROR", error: result.left })
+    }
+
+    return E.right(result.right)
+  }
+
+  public async reorderRESTCollection(
+    collectionHandle: HandleRef<WorkspaceCollection>,
+    destinationCollectionID: string | null
+  ): Promise<
+    E.Either<WorkspaceError<"INVALID_HANDLE" | "INVALID_PROVIDER">, void>
+  > {
+    if (collectionHandle.value.type === "invalid") {
+      return E.left({ type: "SERVICE_ERROR", error: "INVALID_HANDLE" })
+    }
+
+    const provider = this.registeredProviders.get(
+      collectionHandle.value.data.providerID
+    )
+
+    if (!provider) {
+      return E.left({ type: "SERVICE_ERROR", error: "INVALID_PROVIDER" })
+    }
+
+    const result = await provider.reorderRESTCollection(
+      collectionHandle,
+      destinationCollectionID
+    )
+
+    if (E.isLeft(result)) {
+      return E.left({ type: "PROVIDER_ERROR", error: result.left })
+    }
+
+    return E.right(result.right)
+  }
+
+  public async moveRESTCollection(
+    collectionHandle: HandleRef<WorkspaceCollection>,
+    destinationCollectionID: string | null
+  ): Promise<
+    E.Either<WorkspaceError<"INVALID_HANDLE" | "INVALID_PROVIDER">, void>
+  > {
+    if (collectionHandle.value.type === "invalid") {
+      return E.left({ type: "SERVICE_ERROR", error: "INVALID_HANDLE" })
+    }
+
+    const provider = this.registeredProviders.get(
+      collectionHandle.value.data.providerID
+    )
+
+    if (!provider) {
+      return E.left({ type: "SERVICE_ERROR", error: "INVALID_PROVIDER" })
+    }
+
+    const result = await provider.moveRESTCollection(
+      collectionHandle,
+      destinationCollectionID
+    )
+
+    if (E.isLeft(result)) {
+      return E.left({ type: "PROVIDER_ERROR", error: result.left })
+    }
+
+    return E.right(result.right)
+  }
+
+  public async reorderRESTRequest(
+    requestHandle: HandleRef<WorkspaceRequest>,
+    destinationCollectionID: string,
+    destinationRequestID: string | null
+  ): Promise<
+    E.Either<WorkspaceError<"INVALID_HANDLE" | "INVALID_PROVIDER">, void>
+  > {
+    if (requestHandle.value.type === "invalid") {
+      return E.left({ type: "SERVICE_ERROR", error: "INVALID_HANDLE" })
+    }
+
+    const provider = this.registeredProviders.get(
+      requestHandle.value.data.providerID
+    )
+
+    if (!provider) {
+      return E.left({ type: "SERVICE_ERROR", error: "INVALID_PROVIDER" })
+    }
+
+    const result = await provider.reorderRESTRequest(
+      requestHandle,
+      destinationCollectionID,
+      destinationRequestID
+    )
+
+    if (E.isLeft(result)) {
+      return E.left({ type: "PROVIDER_ERROR", error: result.left })
+    }
+
+    return E.right(result.right)
+  }
+
+  public async moveRESTRequest(
+    requestHandle: HandleRef<WorkspaceRequest>,
+    destinationCollectionID: string
+  ): Promise<
+    E.Either<WorkspaceError<"INVALID_HANDLE" | "INVALID_PROVIDER">, void>
+  > {
+    if (requestHandle.value.type === "invalid") {
+      return E.left({ type: "SERVICE_ERROR", error: "INVALID_HANDLE" })
+    }
+
+    const provider = this.registeredProviders.get(
+      requestHandle.value.data.providerID
+    )
+
+    if (!provider) {
+      return E.left({ type: "SERVICE_ERROR", error: "INVALID_PROVIDER" })
+    }
+
+    const result = await provider.moveRESTRequest(
+      requestHandle,
+      destinationCollectionID
+    )
+
+    if (E.isLeft(result)) {
+      return E.left({ type: "PROVIDER_ERROR", error: result.left })
+    }
+
+    return E.right(result.right)
+  }
+
   public async getRESTCollectionChildrenView(
     collectionHandle: HandleRef<WorkspaceCollection>
   ): Promise<
@@ -464,6 +681,68 @@ export class NewWorkspaceService extends Service {
 
     const result =
       await provider.getRESTCollectionLevelAuthHeadersView(collectionHandle)
+
+    if (E.isLeft(result)) {
+      return E.left({ type: "PROVIDER_ERROR", error: result.left })
+    }
+
+    return E.right(result.right)
+  }
+
+  public async getRESTSearchResultsView(
+    workspaceHandle: HandleRef<Workspace>,
+    searchQuery: Ref<string>
+  ): Promise<
+    E.Either<
+      WorkspaceError<"INVALID_HANDLE" | "INVALID_PROVIDER">,
+      HandleRef<RESTSearchResultsView>
+    >
+  > {
+    if (workspaceHandle.value.type === "invalid") {
+      return E.left({ type: "SERVICE_ERROR", error: "INVALID_HANDLE" })
+    }
+
+    const provider = this.registeredProviders.get(
+      workspaceHandle.value.data.providerID
+    )
+
+    if (!provider) {
+      return E.left({ type: "SERVICE_ERROR", error: "INVALID_PROVIDER" })
+    }
+
+    const result = await provider.getRESTSearchResultsView(
+      workspaceHandle,
+      searchQuery
+    )
+
+    if (E.isLeft(result)) {
+      return E.left({ type: "PROVIDER_ERROR", error: result.left })
+    }
+
+    return E.right(result.right)
+  }
+
+  public async getRESTCollectionJSONView(
+    workspaceHandle: HandleRef<Workspace>
+  ): Promise<
+    E.Either<
+      WorkspaceError<"INVALID_HANDLE" | "INVALID_PROVIDER">,
+      HandleRef<RESTCollectionJSONView>
+    >
+  > {
+    if (workspaceHandle.value.type === "invalid") {
+      return E.left({ type: "SERVICE_ERROR", error: "INVALID_HANDLE" })
+    }
+
+    const provider = this.registeredProviders.get(
+      workspaceHandle.value.data.providerID
+    )
+
+    if (!provider) {
+      return E.left({ type: "SERVICE_ERROR", error: "INVALID_PROVIDER" })
+    }
+
+    const result = await provider.getRESTCollectionJSONView(workspaceHandle)
 
     if (E.isLeft(result)) {
       return E.left({ type: "PROVIDER_ERROR", error: result.left })

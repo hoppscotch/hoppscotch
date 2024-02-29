@@ -63,10 +63,22 @@ export function resolveSaveContextOnCollectionReorder(
   const tabService = getService(RESTTabService)
 
   const tabs = tabService.getTabsRefTo((tab) => {
-    return (
-      tab.document.saveContext?.originLocation === "user-collection" &&
-      affectedPaths.has(tab.document.saveContext.folderPath)
-    )
+    if (tab.document.saveContext?.originLocation === "user-collection") {
+      return affectedPaths.has(tab.document.saveContext.folderPath)
+    }
+
+    if (
+      tab.document.saveContext?.originLocation !== "workspace-user-collection"
+    ) {
+      return false
+    }
+
+    const collectionID = tab.document.saveContext.requestID
+      .split("/")
+      .slice(0, -1)
+      .join("/")
+
+    return affectedPaths.has(collectionID)
   })
 
   for (const tab of tabs) {
@@ -75,6 +87,23 @@ export function resolveSaveContextOnCollectionReorder(
         tab.value.document.saveContext?.folderPath
       )!
       tab.value.document.saveContext.folderPath = newPath
+    }
+
+    if (
+      tab.value.document.saveContext?.originLocation ===
+      "workspace-user-collection"
+    ) {
+      const collectionID = tab.value.document.saveContext.requestID
+        .split("/")
+        .slice(0, -1)
+        .join("/")
+
+      const newCollectionID = affectedPaths.get(collectionID)
+      const newRequestID = `${newCollectionID}/${
+        tab.value.document.saveContext.requestID.split("/").slice(-1)[0]
+      }`
+
+      tab.value.document.saveContext.requestID = newRequestID
     }
   }
 }
@@ -87,25 +116,51 @@ export function resolveSaveContextOnCollectionReorder(
  */
 
 export function updateSaveContextForAffectedRequests(
-  oldFolderPath: string,
-  newFolderPath: string
+  draggedCollectionIndex: string,
+  destinationCollectionIndex: string
 ) {
   const tabService = getService(RESTTabService)
-  const tabs = tabService.getTabsRefTo((tab) => {
-    return (
-      tab.document.saveContext?.originLocation === "user-collection" &&
-      tab.document.saveContext.folderPath.startsWith(oldFolderPath)
-    )
-  })
 
-  for (const tab of tabs) {
-    if (tab.value.document.saveContext?.originLocation === "user-collection") {
-      tab.value.document.saveContext = {
-        ...tab.value.document.saveContext,
-        folderPath: tab.value.document.saveContext.folderPath.replace(
-          oldFolderPath,
-          newFolderPath
-        ),
+  const activeTabs = tabService.getActiveTabs()
+
+  for (const tab of activeTabs.value) {
+    if (tab.document.saveContext?.originLocation === "user-collection") {
+      const { folderPath } = tab.document.saveContext
+
+      if (folderPath.startsWith(draggedCollectionIndex)) {
+        const newFolderPath = folderPath.replace(
+          draggedCollectionIndex,
+          destinationCollectionIndex
+        )
+
+        tab.document.saveContext = {
+          ...tab.document.saveContext,
+          folderPath: newFolderPath,
+        }
+      }
+
+      return
+    }
+
+    if (
+      tab.document.saveContext?.originLocation === "workspace-user-collection"
+    ) {
+      const { requestID } = tab.document.saveContext
+
+      const collectionID = requestID.split("/").slice(0, -1).join("/")
+      const requestIndex = requestID.split("/").slice(-1)[0]
+
+      if (collectionID.startsWith(draggedCollectionIndex)) {
+        const newCollectionID = collectionID.replace(
+          draggedCollectionIndex,
+          destinationCollectionIndex
+        )
+        const newRequestID = `${newCollectionID}/${requestIndex}`
+
+        tab.document.saveContext = {
+          ...tab.document.saveContext,
+          requestID: newRequestID,
+        }
       }
     }
   }
@@ -173,12 +228,12 @@ export function updateInheritedPropertiesForAffectedRequests(
         return false
       }
 
-      const { collectionID } = tab.document.saveContext
+      const collectionID = tab.document.saveContext.requestID
+        .split("/")
+        .slice(0, -1)
+        .join("/")
 
-      return (
-        tab.document.saveContext?.originLocation ===
-          "workspace-user-collection" && collectionID.startsWith(path)
-      )
+      return collectionID.startsWith(path)
     })
   } else {
     tabs = tabService.getTabsRefTo((tab) => {
@@ -212,7 +267,10 @@ export function updateInheritedPropertiesForAffectedRequests(
         return false
       }
 
-      const { collectionID } = tab.value.document.saveContext
+      const collectionID = tab.value.document.saveContext.requestID
+        .split("/")
+        .slice(0, -1)
+        .join("/")
 
       return (
         collectionID.startsWith(path) &&
@@ -277,10 +335,22 @@ export function updateInheritedPropertiesForAffectedRequests(
 function resetSaveContextForAffectedRequests(folderPath: string) {
   const tabService = getService(RESTTabService)
   const tabs = tabService.getTabsRefTo((tab) => {
-    return (
-      tab.document.saveContext?.originLocation === "user-collection" &&
-      tab.document.saveContext.folderPath.startsWith(folderPath)
-    )
+    if (tab.document.saveContext?.originLocation === "user-collection") {
+      return tab.document.saveContext.folderPath.startsWith(folderPath)
+    }
+
+    if (
+      tab.document.saveContext?.originLocation !== "workspace-user-collection"
+    ) {
+      return false
+    }
+
+    const collectionID = tab.document.saveContext.requestID
+      .split("/")
+      .slice(0, -1)
+      .join("/")
+
+    return collectionID.startsWith(folderPath)
   })
 
   for (const tab of tabs) {

@@ -1,9 +1,41 @@
 <template>
   <div class="flex flex-col">
+    <div
+      class="h-1 w-full transition"
+      :class="[
+        {
+          'bg-accentDark': isReorderable,
+        },
+      ]"
+      @drop="orderUpdateCollectionEvent"
+      @dragover.prevent="ordering = true"
+      @dragleave="ordering = false"
+      @dragend="resetDragState"
+    ></div>
+
     <div class="relative flex flex-col">
       <div
-        class="z-3 group pointer-events-auto relative flex cursor-pointer items-stretch"
-        @contextmenu.prevent="options?.tippy.show()"
+        class="z-[1] pointer-events-none absolute inset-0 bg-accent opacity-0 transition"
+        :class="{
+          'opacity-25':
+            dragging && notSameDestination && notSameParentDestination,
+        }"
+      ></div>
+
+      <div
+        class="z-[3] group pointer-events-auto relative flex cursor-pointer items-stretch"
+        :draggable="true"
+        @dragstart="dragStart"
+        @dragover="handleDragOver($event)"
+        @dragleave="resetDragState"
+        @dragend="
+          () => {
+            resetDragState()
+            dropItemID = ''
+          }
+        "
+        @drop="handleDrop($event)"
+        @contextmenu.prevent="options?.tippy?.show()"
       >
         <div
           class="flex min-w-0 flex-1 items-center justify-center"
@@ -18,6 +50,7 @@
               :class="{ 'text-accent': isSelected }"
             />
           </span>
+
           <span
             class="pointer-events-none flex min-w-0 flex-1 py-2 pr-2 transition group-hover:text-secondaryDark"
           >
@@ -26,6 +59,7 @@
             </span>
           </span>
         </div>
+
         <div class="flex">
           <HoppButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
@@ -34,6 +68,7 @@
             class="hidden group-hover:inline-flex"
             @click="addRequest"
           />
+
           <HoppButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
             :icon="IconFolderPlus"
@@ -41,6 +76,7 @@
             class="hidden group-hover:inline-flex"
             @click="addChildCollection"
           />
+
           <span>
             <tippy
               ref="options"
@@ -110,7 +146,8 @@
                     :shortcut="['X']"
                     @click="
                       () => {
-                        emit('export-data'), hide()
+                        emit('export-collection', collectionView.collectionID)
+                        hide()
                       }
                     "
                   />
@@ -148,14 +185,34 @@
         </div>
       </div>
     </div>
+
+    <div
+      v-if="collectionView.isLastItem"
+      class="w-full transition"
+      :class="[
+        {
+          'bg-accentDark': isLastItemReorderable,
+          'h-1 ': collectionView.isLastItem,
+        },
+      ]"
+      @drop="updateLastItemOrder"
+      @dragover.prevent="orderingLastItem = true"
+      @dragleave="orderingLastItem = false"
+      @dragend="resetDragState"
+    ></div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue"
+import { computed, ref, watch } from "vue"
 import { TippyComponent } from "vue-tippy"
 
 import { useI18n } from "~/composables/i18n"
+import { useReadonlyStream } from "~/composables/stream"
+import {
+  currentReorderingStatus$,
+  changeCurrentReorderStatus,
+} from "~/newstore/reordering"
 import { RESTCollectionViewCollection } from "~/services/new-workspace/view"
 
 import IconCheckCircle from "~icons/lucide/check-circle"
@@ -180,6 +237,9 @@ const props = defineProps<{
 const emit = defineEmits<{
   (event: "add-child-collection", parentCollectionIndexPath: string): void
   (event: "add-request", parentCollectionIndexPath: string): void
+  (event: "dragging", payload: boolean): void
+  (event: "drop-event", payload: DataTransfer): void
+  (event: "drag-event", payload: DataTransfer): void
   (
     event: "edit-child-collection",
     payload: { collectionIndexPath: string; collectionName: string }
@@ -189,10 +249,12 @@ const emit = defineEmits<{
     event: "edit-root-collection",
     payload: { collectionIndexPath: string; collectionName: string }
   ): void
-  (event: "export-data"): void
+  (event: "export-collection", collectionIndexPath: string): void
   (event: "remove-child-collection", collectionIndexPath: string): void
   (event: "remove-root-collection", collectionIndexPath: string): void
   (event: "toggle-children"): void
+  (event: "update-collection-order", payload: DataTransfer): void
+  (event: "update-last-collection-order", payload: DataTransfer): void
 }>()
 
 const tippyActions = ref<TippyComponent | null>(null)
@@ -204,11 +266,69 @@ const exportAction = ref<HTMLButtonElement | null>(null)
 const propertiesAction = ref<TippyComponent | null>(null)
 const options = ref<TippyComponent | null>(null)
 
+const dragging = ref(false)
+const ordering = ref(false)
+const orderingLastItem = ref(false)
+const dropItemID = ref("")
+
+const currentReorderingStatus = useReadonlyStream(currentReorderingStatus$, {
+  type: "collection",
+  id: "",
+  parentID: "",
+})
+
+// Used to determine if the collection is being dragged to a different destination
+// This is used to make the highlight effect work
+watch(
+  () => dragging.value,
+  (val) => {
+    if (val && notSameDestination.value && notSameParentDestination.value) {
+      emit("dragging", true)
+    } else {
+      emit("dragging", false)
+    }
+  }
+)
+
 const collectionIcon = computed(() => {
   if (props.isSelected) {
     return IconCheckCircle
   }
-  return !props.isOpen ? IconFolder : IconFolderOpen
+  return props.isOpen ? IconFolderOpen : IconFolder
+})
+
+const notSameParentDestination = computed(() => {
+  return (
+    currentReorderingStatus.value.parentID !== props.collectionView.collectionID
+  )
+})
+
+const isRequestDragging = computed(() => {
+  return currentReorderingStatus.value.type === "request"
+})
+
+const isSameParent = computed(() => {
+  return (
+    currentReorderingStatus.value.parentID ===
+    props.collectionView.parentCollectionID
+  )
+})
+
+const isReorderable = computed(() => {
+  return (
+    ordering.value &&
+    notSameDestination.value &&
+    !isRequestDragging.value &&
+    isSameParent.value
+  )
+})
+const isLastItemReorderable = computed(() => {
+  return (
+    orderingLastItem.value &&
+    notSameDestination.value &&
+    !isRequestDragging.value &&
+    isSameParent.value
+  )
 })
 
 const addChildCollection = () => {
@@ -233,11 +353,98 @@ const editCollection = () => {
     : emit("edit-root-collection", data)
 }
 
+const dragStart = ({ dataTransfer }: DragEvent) => {
+  if (dataTransfer) {
+    emit("drag-event", dataTransfer)
+
+    dropItemID.value = dataTransfer.getData("collectionIndex")
+    dragging.value = !dragging.value
+
+    changeCurrentReorderStatus({
+      type: "collection",
+      id: props.collectionView.collectionID,
+      parentID: props.collectionView.parentCollectionID,
+    })
+  }
+}
+
+// Trigger the re-ordering event when a collection is dragged over another collection's top section
+const handleDragOver = (e: DragEvent) => {
+  dragging.value = true
+  if (
+    e.offsetY < 10 &&
+    notSameDestination.value &&
+    !isRequestDragging.value &&
+    isSameParent.value
+  ) {
+    ordering.value = true
+    dragging.value = false
+    orderingLastItem.value = false
+  } else if (
+    e.offsetY > 18 &&
+    notSameDestination.value &&
+    !isRequestDragging.value &&
+    isSameParent.value &&
+    props.collectionView.isLastItem
+  ) {
+    orderingLastItem.value = true
+    dragging.value = false
+    ordering.value = false
+  } else {
+    ordering.value = false
+    orderingLastItem.value = false
+  }
+}
+
+const handleDrop = (e: DragEvent) => {
+  if (ordering.value) {
+    orderUpdateCollectionEvent(e)
+  } else if (orderingLastItem.value) {
+    updateLastItemOrder(e)
+  } else {
+    notSameParentDestination.value ? dropEvent(e) : e.stopPropagation()
+  }
+}
+
+const dropEvent = (e: DragEvent) => {
+  if (e.dataTransfer) {
+    e.stopPropagation()
+    emit("drop-event", e.dataTransfer)
+    resetDragState()
+  }
+}
+
+const orderUpdateCollectionEvent = (e: DragEvent) => {
+  if (e.dataTransfer) {
+    e.stopPropagation()
+    emit("update-collection-order", e.dataTransfer)
+    resetDragState()
+  }
+}
+
+const updateLastItemOrder = (e: DragEvent) => {
+  if (e.dataTransfer) {
+    e.stopPropagation()
+    emit("update-last-collection-order", e.dataTransfer)
+    resetDragState()
+  }
+}
+
+const notSameDestination = computed(() => {
+  return dropItemID.value !== props.collectionView.collectionID
+})
+
 const removeCollection = () => {
   const { collectionID } = props.collectionView
 
   collectionID.split("/").length > 1
     ? emit("remove-child-collection", collectionID)
     : emit("remove-root-collection", collectionID)
+}
+
+const resetDragState = () => {
+  dragging.value = false
+  ordering.value = false
+  orderingLastItem.value = false
 }
 </script>

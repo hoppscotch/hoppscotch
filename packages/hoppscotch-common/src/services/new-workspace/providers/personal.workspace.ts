@@ -1,13 +1,20 @@
 import {
   HoppCollection,
-  HoppGQLAuth,
   HoppRESTAuth,
   HoppRESTHeaders,
   makeCollection,
 } from "@hoppscotch/data"
 import { Service } from "dioc"
 import * as E from "fp-ts/Either"
-import { Ref, computed, markRaw, ref, shallowRef } from "vue"
+import {
+  Ref,
+  computed,
+  effectScope,
+  markRaw,
+  ref,
+  shallowRef,
+  watch,
+} from "vue"
 
 import PersonalWorkspaceSelector from "~/components/workspace/PersonalWorkspaceSelector.vue"
 import { useStreamStatic } from "~/composables/stream"
@@ -15,15 +22,20 @@ import { useStreamStatic } from "~/composables/stream"
 import {
   addRESTCollection,
   addRESTFolder,
+  appendRESTCollections,
   editRESTCollection,
   editRESTFolder,
   editRESTRequest,
+  moveRESTFolder,
+  moveRESTRequest,
   navigateToFolderWithIndexPath,
   removeRESTCollection,
   removeRESTFolder,
   removeRESTRequest,
   restCollectionStore,
   saveRESTRequestAs,
+  updateRESTCollectionOrder,
+  updateRESTRequestOrder,
 } from "~/newstore/collections"
 import { platform } from "~/platform"
 
@@ -31,8 +43,10 @@ import { HandleRef } from "~/services/new-workspace/handle"
 import { WorkspaceProvider } from "~/services/new-workspace/provider"
 import {
   RESTCollectionChildrenView,
+  RESTCollectionJSONView,
   RESTCollectionLevelAuthHeadersView,
   RESTCollectionViewItem,
+  RESTSearchResultsView,
   RootRESTCollectionView,
 } from "~/services/new-workspace/view"
 import {
@@ -45,10 +59,15 @@ import {
 import { HoppRESTRequest } from "@hoppscotch/data"
 import { merge } from "lodash-es"
 import path from "path"
-import { HoppGQLHeader } from "~/helpers/graphql"
+import { initializeDownloadFile } from "~/helpers/import-export/export"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import IconUser from "~icons/lucide/user"
 import { NewWorkspaceService } from ".."
+import {
+  isValidCollectionHandle,
+  isValidRequestHandle,
+  isValidWorkspaceHandle,
+} from "../helpers"
 
 export class PersonalWorkspaceProviderService
   extends Service
@@ -94,22 +113,17 @@ export class PersonalWorkspaceProviderService
 
   public createRESTRootCollection(
     workspaceHandle: HandleRef<Workspace>,
-    newCollection: Partial<HoppCollection>
+    newCollection: Partial<Exclude<HoppCollection, "id">> & { name: string }
   ): Promise<E.Either<unknown, HandleRef<WorkspaceCollection>>> {
-    if (
-      workspaceHandle.value.type !== "ok" ||
-      workspaceHandle.value.data.providerID !== this.providerID ||
-      workspaceHandle.value.data.workspaceID !== "personal"
-    ) {
+    if (!isValidWorkspaceHandle(workspaceHandle, this.providerID, "personal")) {
       return Promise.resolve(E.left("INVALID_WORKSPACE_HANDLE" as const))
     }
 
-    const newCollectionName = newCollection.name as string
+    const newCollectionName = newCollection.name
     const newCollectionID =
       this.restCollectionState.value.state.length.toString()
 
     const newRootCollection = makeCollection({
-      name: newCollectionName,
       folders: [],
       requests: [],
       headers: [],
@@ -117,6 +131,7 @@ export class PersonalWorkspaceProviderService
         authType: "inherit",
         authActive: false,
       },
+      ...newCollection,
     })
     addRESTCollection(newRootCollection)
 
@@ -131,9 +146,11 @@ export class PersonalWorkspaceProviderService
       E.right(
         computed(() => {
           if (
-            workspaceHandle.value.type !== "ok" ||
-            workspaceHandle.value.data.providerID !== this.providerID ||
-            workspaceHandle.value.data.workspaceID !== "personal"
+            !isValidWorkspaceHandle(
+              workspaceHandle,
+              this.providerID,
+              "personal"
+            )
           ) {
             return {
               type: "invalid" as const,
@@ -157,12 +174,14 @@ export class PersonalWorkspaceProviderService
 
   public createRESTChildCollection(
     parentCollectionHandle: HandleRef<WorkspaceCollection>,
-    newChildCollection: Partial<HoppCollection>
+    newChildCollection: Partial<HoppCollection> & { name: string }
   ): Promise<E.Either<unknown, HandleRef<WorkspaceCollection>>> {
     if (
-      parentCollectionHandle.value.type !== "ok" ||
-      parentCollectionHandle.value.data.providerID !== this.providerID ||
-      parentCollectionHandle.value.data.workspaceID !== "personal"
+      !isValidCollectionHandle(
+        parentCollectionHandle,
+        this.providerID,
+        "personal"
+      )
     ) {
       return Promise.resolve(E.left("INVALID_COLLECTION_HANDLE" as const))
     }
@@ -170,7 +189,7 @@ export class PersonalWorkspaceProviderService
     const { collectionID, providerID, workspaceID } =
       parentCollectionHandle.value.data
 
-    const newCollectionName = newChildCollection.name as string
+    const newCollectionName = newChildCollection.name
     addRESTFolder(newCollectionName, collectionID)
 
     platform.analytics?.logEvent({
@@ -184,9 +203,11 @@ export class PersonalWorkspaceProviderService
       E.right(
         computed(() => {
           if (
-            parentCollectionHandle.value.type !== "ok" ||
-            parentCollectionHandle.value.data.providerID !== this.providerID ||
-            parentCollectionHandle.value.data.workspaceID !== "personal"
+            !isValidCollectionHandle(
+              parentCollectionHandle,
+              this.providerID,
+              "personal"
+            )
           ) {
             return {
               type: "invalid" as const,
@@ -213,11 +234,9 @@ export class PersonalWorkspaceProviderService
     updatedCollection: Partial<HoppCollection>
   ): Promise<E.Either<unknown, void>> {
     if (
-      collectionHandle.value.type !== "ok" ||
-      collectionHandle.value.data.providerID !== this.providerID ||
-      collectionHandle.value.data.workspaceID !== "personal"
+      !isValidCollectionHandle(collectionHandle, this.providerID, "personal")
     ) {
-      return Promise.resolve(E.left("INVALID_WORKSPACE_HANDLE" as const))
+      return Promise.resolve(E.left("INVALID_COLLECTION_HANDLE" as const))
     }
 
     const { collectionID } = collectionHandle.value.data
@@ -244,9 +263,7 @@ export class PersonalWorkspaceProviderService
     collectionHandle: HandleRef<WorkspaceCollection>
   ): Promise<E.Either<unknown, void>> {
     if (
-      collectionHandle.value.type !== "ok" ||
-      collectionHandle.value.data.providerID !== this.providerID ||
-      collectionHandle.value.data.workspaceID !== "personal"
+      !isValidCollectionHandle(collectionHandle, this.providerID, "personal")
     ) {
       return Promise.resolve(E.left("INVALID_COLLECTION_HANDLE" as const))
     }
@@ -289,9 +306,11 @@ export class PersonalWorkspaceProviderService
     newRequest: HoppRESTRequest
   ): Promise<E.Either<unknown, HandleRef<WorkspaceRequest>>> {
     if (
-      parentCollectionHandle.value.type !== "ok" ||
-      parentCollectionHandle.value.data.providerID !== this.providerID ||
-      parentCollectionHandle.value.data.workspaceID !== "personal"
+      !isValidCollectionHandle(
+        parentCollectionHandle,
+        this.providerID,
+        "personal"
+      )
     ) {
       return Promise.resolve(E.left("INVALID_COLLECTION_HANDLE" as const))
     }
@@ -314,9 +333,11 @@ export class PersonalWorkspaceProviderService
       E.right(
         computed(() => {
           if (
-            parentCollectionHandle.value.type !== "ok" ||
-            parentCollectionHandle.value.data.providerID !== this.providerID ||
-            parentCollectionHandle.value.data.workspaceID !== "personal"
+            !isValidCollectionHandle(
+              parentCollectionHandle,
+              this.providerID,
+              "personal"
+            )
           ) {
             return {
               type: "invalid" as const,
@@ -342,11 +363,7 @@ export class PersonalWorkspaceProviderService
   public removeRESTRequest(
     requestHandle: HandleRef<WorkspaceRequest>
   ): Promise<E.Either<unknown, void>> {
-    if (
-      requestHandle.value.type !== "ok" ||
-      requestHandle.value.data.providerID !== this.providerID ||
-      requestHandle.value.data.workspaceID !== "personal"
-    ) {
+    if (!isValidRequestHandle(requestHandle, this.providerID, "personal")) {
       return Promise.resolve(E.left("INVALID_REQUEST_HANDLE" as const))
     }
 
@@ -367,11 +384,7 @@ export class PersonalWorkspaceProviderService
     requestHandle: HandleRef<WorkspaceRequest>,
     updatedRequest: Partial<HoppRESTRequest>
   ): Promise<E.Either<unknown, void>> {
-    if (
-      requestHandle.value.type !== "ok" ||
-      requestHandle.value.data.providerID !== this.providerID ||
-      requestHandle.value.data.workspaceID !== "personal"
-    ) {
+    if (!isValidRequestHandle(requestHandle, this.providerID, "personal")) {
       return Promise.resolve(E.left("INVALID_REQUEST_HANDLE" as const))
     }
 
@@ -393,19 +406,165 @@ export class PersonalWorkspaceProviderService
     return Promise.resolve(E.right(undefined))
   }
 
+  public importRESTCollections(
+    workspaceHandle: HandleRef<Workspace>,
+    collections: HoppCollection[]
+  ): Promise<E.Either<unknown, HandleRef<WorkspaceCollection>>> {
+    if (!isValidWorkspaceHandle(workspaceHandle, this.providerID, "personal")) {
+      return Promise.resolve(E.left("INVALID_WORKSPACE_HANDLE" as const))
+    }
+
+    appendRESTCollections(collections)
+
+    const newCollectionName = collections[0].name
+    const newCollectionID =
+      this.restCollectionState.value.state.length.toString()
+
+    return Promise.resolve(
+      E.right(
+        computed(() => {
+          if (
+            !isValidWorkspaceHandle(
+              workspaceHandle,
+              this.providerID,
+              "personal"
+            )
+          ) {
+            return {
+              type: "invalid" as const,
+              reason: "WORKSPACE_INVALIDATED" as const,
+            }
+          }
+
+          return {
+            type: "ok",
+            data: {
+              providerID: this.providerID,
+              workspaceID: workspaceHandle.value.data.workspaceID,
+              collectionID: newCollectionID,
+              name: newCollectionName,
+            },
+          }
+        })
+      )
+    )
+  }
+
+  public exportRESTCollections(
+    workspaceHandle: HandleRef<WorkspaceCollection>,
+    collections: HoppCollection[]
+  ): Promise<E.Either<unknown, void>> {
+    if (!isValidWorkspaceHandle(workspaceHandle, this.providerID, "personal")) {
+      return Promise.resolve(E.left("INVALID_COLLECTION_HANDLE" as const))
+    }
+
+    initializeDownloadFile(JSON.stringify(collections, null, 2), "Collections")
+
+    return Promise.resolve(E.right(undefined))
+  }
+
+  public exportRESTCollection(
+    collectionHandle: HandleRef<WorkspaceCollection>,
+    collection: HoppCollection
+  ): Promise<E.Either<unknown, void>> {
+    if (
+      !isValidCollectionHandle(collectionHandle, this.providerID, "personal")
+    ) {
+      return Promise.resolve(E.left("INVALID_COLLECTION_HANDLE" as const))
+    }
+
+    initializeDownloadFile(JSON.stringify(collection, null, 2), collection.name)
+
+    return Promise.resolve(E.right(undefined))
+  }
+
+  public reorderRESTCollection(
+    collectionHandle: HandleRef<WorkspaceCollection>,
+    destinationCollectionID: string | null
+  ): Promise<E.Either<unknown, void>> {
+    if (
+      !isValidCollectionHandle(collectionHandle, this.providerID, "personal")
+    ) {
+      return Promise.resolve(E.left("INVALID_COLLECTION_HANDLE" as const))
+    }
+
+    const draggedCollectionIndex = collectionHandle.value.data.collectionID
+
+    updateRESTCollectionOrder(draggedCollectionIndex, destinationCollectionID)
+
+    return Promise.resolve(E.right(undefined))
+  }
+
+  public moveRESTCollection(
+    collectionHandle: HandleRef<WorkspaceCollection>,
+    destinationCollectionID: string | null
+  ): Promise<E.Either<unknown, void>> {
+    if (
+      !isValidCollectionHandle(collectionHandle, this.providerID, "personal")
+    ) {
+      return Promise.resolve(E.left("INVALID_COLLECTION_HANDLE" as const))
+    }
+
+    moveRESTFolder(
+      collectionHandle.value.data.collectionID,
+      destinationCollectionID
+    )
+
+    return Promise.resolve(E.right(undefined))
+  }
+
+  public reorderRESTRequest(
+    requestHandle: HandleRef<WorkspaceRequest>,
+    destinationCollectionID: string,
+    destinationRequestID: string | null
+  ): Promise<E.Either<unknown, void>> {
+    if (!isValidRequestHandle(requestHandle, this.providerID, "personal")) {
+      return Promise.resolve(E.left("INVALID_REQUEST_HANDLE" as const))
+    }
+
+    const draggedRequestIndex = requestHandle.value.data.requestID
+
+    updateRESTRequestOrder(
+      this.pathToLastIndex(draggedRequestIndex),
+      destinationRequestID ? this.pathToLastIndex(destinationRequestID) : null,
+      destinationCollectionID
+    )
+
+    return Promise.resolve(E.right(undefined))
+  }
+
+  public moveRESTRequest(
+    requestHandle: HandleRef<WorkspaceRequest>,
+    destinationCollectionID: string
+  ): Promise<E.Either<unknown, void>> {
+    if (!isValidRequestHandle(requestHandle, this.providerID, "personal")) {
+      return Promise.resolve(E.left("INVALID_REQUEST_HANDLE" as const))
+    }
+
+    const requestIndex = requestHandle.value.data.requestID
+    const parentCollectionIndexPath = requestIndex
+      .split("/")
+      .slice(0, -1)
+      .join("/")
+
+    moveRESTRequest(
+      parentCollectionIndexPath,
+      this.pathToLastIndex(requestIndex),
+      destinationCollectionID
+    )
+
+    return Promise.resolve(E.right(undefined))
+  }
+
   public getCollectionHandle(
     workspaceHandle: HandleRef<Workspace>,
     collectionID: string
   ): Promise<E.Either<unknown, HandleRef<WorkspaceCollection>>> {
-    if (
-      workspaceHandle.value.type !== "ok" ||
-      workspaceHandle.value.data.providerID !== this.providerID ||
-      workspaceHandle.value.data.workspaceID !== "personal"
-    ) {
+    if (!isValidWorkspaceHandle(workspaceHandle, this.providerID, "personal")) {
       return Promise.resolve(E.left("INVALID_WORKSPACE_HANDLE" as const))
     }
 
-    if (!collectionID) {
+    if (collectionID === "") {
       return Promise.resolve(E.left("INVALID_COLLECTION_ID" as const))
     }
 
@@ -415,20 +574,7 @@ export class PersonalWorkspaceProviderService
     )
 
     if (!collection) {
-      const parentCollectionIndexPath = collectionID
-        .split("/")
-        .slice(0, -1)
-        .join("/")
-      const requestIndex = this.pathToLastIndex(collectionID)
-
-      const parentCollection = navigateToFolderWithIndexPath(
-        this.restCollectionState.value.state,
-        parentCollectionIndexPath.split("/").map((x) => parseInt(x))
-      )
-
-      if (!parentCollection || !parentCollection.requests[requestIndex]) {
-        return Promise.resolve(E.left("INVALID_PATH"))
-      }
+      return Promise.resolve(E.left("COLLECTION_NOT_FOUND"))
     }
 
     const { providerID, workspaceID } = workspaceHandle.value.data
@@ -437,9 +583,11 @@ export class PersonalWorkspaceProviderService
       E.right(
         computed(() => {
           if (
-            workspaceHandle.value.type !== "ok" ||
-            workspaceHandle.value.data.providerID !== this.providerID ||
-            workspaceHandle.value.data.workspaceID !== "personal"
+            !isValidWorkspaceHandle(
+              workspaceHandle,
+              this.providerID,
+              "personal"
+            )
           ) {
             return {
               type: "invalid" as const,
@@ -453,7 +601,7 @@ export class PersonalWorkspaceProviderService
               providerID,
               workspaceID,
               collectionID,
-              name: collection?.name ?? "",
+              name: collection.name,
             },
           }
         })
@@ -465,15 +613,11 @@ export class PersonalWorkspaceProviderService
     workspaceHandle: HandleRef<Workspace>,
     requestID: string
   ): Promise<E.Either<unknown, HandleRef<WorkspaceRequest>>> {
-    if (
-      workspaceHandle.value.type !== "ok" ||
-      workspaceHandle.value.data.providerID !== this.providerID ||
-      workspaceHandle.value.data.workspaceID !== "personal"
-    ) {
+    if (!isValidWorkspaceHandle(workspaceHandle, this.providerID, "personal")) {
       return Promise.resolve(E.left("INVALID_COLLECTION_HANDLE" as const))
     }
 
-    if (!requestID) {
+    if (requestID === "") {
       return Promise.resolve(E.left("INVALID_REQUEST_ID" as const))
     }
 
@@ -495,7 +639,9 @@ export class PersonalWorkspaceProviderService
     )
 
     // Grab the request with it's index
-    const request = collection?.requests[requestIndex] as HoppRESTRequest
+    const request = collection?.requests[requestIndex] as
+      | HoppRESTRequest
+      | undefined
 
     if (!request) {
       return Promise.resolve(E.left("REQUEST_NOT_FOUND" as const))
@@ -505,13 +651,15 @@ export class PersonalWorkspaceProviderService
       E.right(
         computed(() => {
           if (
-            workspaceHandle.value.type !== "ok" ||
-            workspaceHandle.value.data.providerID !== this.providerID ||
-            workspaceHandle.value.data.workspaceID !== "personal"
+            !isValidWorkspaceHandle(
+              workspaceHandle,
+              this.providerID,
+              "personal"
+            )
           ) {
             return {
               type: "invalid" as const,
-              reason: "COLLECTION_INVALIDATED" as const,
+              reason: "WORKSPACE_INVALIDATED" as const,
             }
           }
 
@@ -537,9 +685,11 @@ export class PersonalWorkspaceProviderService
       E.right(
         computed(() => {
           if (
-            collectionHandle.value.type === "invalid" ||
-            collectionHandle.value.data.providerID !== this.providerID ||
-            collectionHandle.value.data.workspaceID !== "personal"
+            !isValidCollectionHandle(
+              collectionHandle,
+              this.providerID,
+              "personal"
+            )
           ) {
             return {
               type: "invalid" as const,
@@ -574,15 +724,26 @@ export class PersonalWorkspaceProviderService
                       type: "collection",
                       value: {
                         collectionID: `${collectionID}/${id}`,
+                        isLastItem:
+                          item.folders?.length > 1
+                            ? id === item.folders.length - 1
+                            : false,
                         name: childColl.name,
+                        parentCollectionID: collectionID,
                       },
                     }
                   })
 
                   const requests = item.requests.map((req, id) => {
+                    // TODO: Replace `parentCollectionID` with `collectionID`
                     return <RESTCollectionViewItem>{
                       type: "request",
                       value: {
+                        isLastItem:
+                          item.requests?.length > 1
+                            ? id === item.requests.length - 1
+                            : false,
+                        collectionID,
                         requestID: `${collectionID}/${id}`,
                         request: req,
                       },
@@ -607,9 +768,11 @@ export class PersonalWorkspaceProviderService
       E.right(
         computed(() => {
           if (
-            workspaceHandle.value.type === "invalid" ||
-            workspaceHandle.value.data.providerID !== this.providerID ||
-            workspaceHandle.value.data.workspaceID !== "personal"
+            !isValidWorkspaceHandle(
+              workspaceHandle,
+              this.providerID,
+              "personal"
+            )
           ) {
             return {
               type: "invalid" as const,
@@ -629,7 +792,10 @@ export class PersonalWorkspaceProviderService
                 return this.restCollectionState.value.state.map((coll, id) => {
                   return {
                     collectionID: id.toString(),
+                    isLastItem:
+                      id === this.restCollectionState.value.state.length - 1,
                     name: coll.name,
+                    parentCollectionID: null,
                   }
                 })
               }),
@@ -647,9 +813,11 @@ export class PersonalWorkspaceProviderService
       E.right(
         computed(() => {
           if (
-            collectionHandle.value.type === "invalid" ||
-            collectionHandle.value.data.providerID !== this.providerID ||
-            collectionHandle.value.data.workspaceID !== "personal"
+            !isValidCollectionHandle(
+              collectionHandle,
+              this.providerID,
+              "personal"
+            )
           ) {
             return {
               type: "invalid" as const,
@@ -692,12 +860,8 @@ export class PersonalWorkspaceProviderService
               return { type: "ok", data: { auth, headers } }
             }
 
-            const parentFolderAuth = parentFolder.auth as
-              | HoppRESTAuth
-              | HoppGQLAuth
-            const parentFolderHeaders = parentFolder.headers as
-              | HoppRESTHeaders
-              | HoppGQLHeader[]
+            const parentFolderAuth: HoppRESTAuth = parentFolder.auth
+            const parentFolderHeaders: HoppRESTHeaders = parentFolder.headers
 
             // check if the parent folder has authType 'inherit' and if it is the root folder
             if (
@@ -746,6 +910,165 @@ export class PersonalWorkspaceProviderService
           }
 
           return { type: "ok", data: { auth, headers } }
+        })
+      )
+    )
+  }
+
+  public getRESTSearchResultsView(
+    workspaceHandle: HandleRef<Workspace>,
+    searchQuery: Ref<string>
+  ): Promise<E.Either<never, HandleRef<RESTSearchResultsView>>> {
+    const results = ref<HoppCollection[]>([])
+
+    const isMatch = (inputText: string, textToMatch: string) =>
+      inputText.toLowerCase().includes(textToMatch.toLowerCase())
+
+    const filterRequests = (requests: HoppRESTRequest[]) => {
+      return requests.filter((request) =>
+        isMatch(request.name, searchQuery.value)
+      )
+    }
+
+    const filterChildCollections = (
+      childCollections: HoppCollection[]
+    ): HoppCollection[] => {
+      return childCollections
+        .map((childCollection) => {
+          // Render the entire collection tree if the search query matches a collection name
+          if (isMatch(childCollection.name, searchQuery.value)) {
+            return childCollection
+          }
+
+          const requests = filterRequests(
+            childCollection.requests as HoppRESTRequest[]
+          )
+          const folders = filterChildCollections(childCollection.folders)
+
+          return {
+            ...childCollection,
+            requests,
+            folders,
+          }
+        })
+        .filter(
+          (childCollection) =>
+            childCollection.requests.length > 0 ||
+            childCollection.folders.length > 0 ||
+            isMatch(childCollection.name, searchQuery.value)
+        )
+    }
+
+    const scopeHandle = effectScope()
+
+    scopeHandle.run(() => {
+      watch(
+        searchQuery,
+        (newSearchQuery) => {
+          if (!newSearchQuery) {
+            results.value = this.restCollectionState.value.state
+            return
+          }
+
+          const filteredCollections = this.restCollectionState.value.state
+            .map((collection) => {
+              // Render the entire collection tree if the search query matches a collection name
+              if (isMatch(collection.name, searchQuery.value)) {
+                return collection
+              }
+
+              const requests = filterRequests(
+                collection.requests as HoppRESTRequest[]
+              )
+              const folders = filterChildCollections(collection.folders)
+
+              return {
+                ...collection,
+                requests,
+                folders,
+              }
+            })
+            .filter(
+              (collection) =>
+                collection.requests.length > 0 ||
+                collection.folders.length > 0 ||
+                isMatch(collection.name, searchQuery.value)
+            )
+
+          results.value = filteredCollections
+        },
+        { immediate: true }
+      )
+    })
+
+    const onSessionEnd = () => {
+      scopeHandle.stop()
+    }
+
+    return Promise.resolve(
+      E.right(
+        computed(() => {
+          if (
+            !isValidWorkspaceHandle(
+              workspaceHandle,
+              this.providerID,
+              "personal"
+            )
+          ) {
+            return {
+              type: "invalid" as const,
+              reason: "INVALID_WORKSPACE_HANDLE" as const,
+            }
+          }
+
+          return markRaw({
+            type: "ok" as const,
+            data: {
+              providerID: this.providerID,
+              workspaceID: workspaceHandle.value.data.workspaceID,
+
+              loading: ref(false),
+
+              results,
+              onSessionEnd,
+            },
+          })
+        })
+      )
+    )
+  }
+
+  public getRESTCollectionJSONView(
+    workspaceHandle: HandleRef<Workspace>
+  ): Promise<E.Either<never, HandleRef<RESTCollectionJSONView>>> {
+    return Promise.resolve(
+      E.right(
+        computed(() => {
+          if (
+            !isValidWorkspaceHandle(
+              workspaceHandle,
+              this.providerID,
+              "personal"
+            )
+          ) {
+            return {
+              type: "invalid" as const,
+              reason: "INVALID_WORKSPACE_HANDLE" as const,
+            }
+          }
+
+          return markRaw({
+            type: "ok" as const,
+            data: {
+              providerID: this.providerID,
+              workspaceID: workspaceHandle.value.data.workspaceID,
+              content: JSON.stringify(
+                this.restCollectionState.value.state,
+                null,
+                2
+              ),
+            },
+          })
         })
       )
     )

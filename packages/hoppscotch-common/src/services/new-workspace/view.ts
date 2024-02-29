@@ -1,4 +1,4 @@
-import { HoppRESTRequest } from "@hoppscotch/data"
+import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
 import { Ref } from "vue"
 import { HoppInheritedRESTProperty } from "~/helpers/types/HoppInheritedProperties"
 
@@ -10,7 +10,9 @@ export type RESTCollectionLevelAuthHeadersView = {
 export type RESTCollectionViewCollection = {
   collectionID: string
 
+  isLastItem: boolean
   name: string
+  parentCollectionID: string | null
 }
 
 export type RESTCollectionViewRequest = {
@@ -18,6 +20,7 @@ export type RESTCollectionViewRequest = {
   requestID: string
 
   request: HoppRESTRequest
+  isLastItem: boolean
 }
 
 export type RESTCollectionViewItem =
@@ -41,4 +44,21 @@ export interface RESTCollectionChildrenView {
   loading: Ref<boolean>
 
   content: Ref<RESTCollectionViewItem[]>
+}
+
+export interface RESTSearchResultsView {
+  providerID: string
+  workspaceID: string
+
+  loading: Ref<boolean>
+
+  results: Ref<HoppCollection[]>
+  onSessionEnd: () => void
+}
+
+export interface RESTCollectionJSONView {
+  providerID: string
+  workspaceID: string
+
+  content: string
 }

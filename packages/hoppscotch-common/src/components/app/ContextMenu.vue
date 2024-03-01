@@ -1,8 +1,8 @@
 <template>
   <div
     ref="contextMenuRef"
-    class="fixed translate-y-8 transform rounded border border-dividerDark bg-popover p-2 shadow-lg"
-    :style="`top: ${position.top}px; left: ${position.left}px; z-index: 1000;`"
+    class="fixed transform -translate-x-10 -translate-y-8 rounded border border-dividerDark bg-popover p-2 shadow-lg"
+    :style="`top: ${position.top}px; left: ${position.left}px; z-index: 100;`"
   >
     <div v-if="contextMenuOptions" class="flex flex-col">
       <div

@@ -51,7 +51,7 @@
               {{ team.members?.length }}
             </td>
 
-            <td @click.stop>
+            <td @click.stop class="flex justify-end mr-10">
               <div class="relative">
                 <tippy interactive trigger="click" theme="popover">
                   <HoppButtonSecondary

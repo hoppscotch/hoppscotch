@@ -27,7 +27,6 @@
           v-else-if="usersList"
           :headings="headings"
           :list="usersList"
-          :checkbox="true"
           :loading="showSpinner"
           :selected-rows="selectedRows"
           :pagination="{ totalPages }"
@@ -74,7 +73,7 @@
               </div>
             </td>
 
-            <td class="py-2 px-7">
+            <td class="py-2 px-7 truncate">
               {{ user.email }}
             </td>
 
@@ -85,7 +84,7 @@
               </div>
             </td>
 
-            <td @click.stop>
+            <td @click.stop class="flex justify-end items-center mr-10">
               <div class="relative">
                 <tippy interactive trigger="click" theme="popover">
                   <HoppButtonSecondary
@@ -251,6 +250,7 @@ const headings = [
   { key: 'displayName', label: t('users.name') },
   { key: 'email', label: t('users.email') },
   { key: 'createdOn', label: t('users.date') },
+  { key: '', label: '' },
 ];
 
 // Get Paginated Results of all the users in the infra

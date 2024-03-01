@@ -26,26 +26,28 @@
       <!-- An Extension Slot to extend the table functionality such as search   -->
       <slot name="extension"></slot>
 
-      <div v-if="loading" class="mx-auto my-3 h-5 w-5 text-center">
-        <HoppSmartSpinner />
-      </div>
-
-      <table v-else-if="list.length" class="w-full">
+      <table class="w-full table-fixed">
         <thead>
           <tr
             class="border-b border-dividerDark bg-primaryLight text-left text-sm text-secondary"
           >
-            <th v-if="checkbox" class="px-3">
+            <th v-if="selectedRows" class="w-24">
               <input
                 ref="selectAllCheckbox"
                 type="checkbox"
                 :checked="areAllRowsSelected"
+                :disabled="loading"
                 class="flex h-full w-full items-center justify-center"
                 @click.stop="toggleAllRows"
               />
             </th>
             <slot name="head">
-              <th v-for="th in headings" scope="col" class="px-6 py-3">
+              <th
+                v-for="th in headings"
+                :key="th.key"
+                scope="col"
+                class="px-6 py-3"
+              >
                 {{ th.label ?? th.key }}
               </th>
             </slot>
@@ -53,40 +55,60 @@
         </thead>
 
         <tbody class="divide-y divide-divider">
-          <tr
-            v-for="(rowData, rowIndex) in workingList"
-            :key="rowIndex"
-            class="rounded-xl text-secondaryDark hover:cursor-pointer hover:bg-divider"
-            :class="{ 'divide-x divide-divider': showYBorder }"
-            @click="onRowClicked(rowData)"
-          >
-            <td v-if="checkbox" class="px-3">
-              <input
-                type="checkbox"
-                :checked="isRowSelected(rowData)"
-                class="flex h-full w-full items-center justify-center"
-                @click.stop="toggleRow(rowData)"
-              />
-            </td>
-            <slot name="body" :row="rowData">
-              <td
-                v-for="cellHeading in headings"
-                :key="cellHeading.key"
-                class="px-4 py-2"
-                @click="!cellHeading.preventClick && onRowClicked(rowData)"
-              >
-                <!-- Dynamic column slot -->
-                <slot :name="cellHeading.key" :item="rowData">
-                  <!-- Generic implementation of the column -->
-                  <div class="flex flex-col truncate">
-                    <span class="truncate">
-                      {{ rowData[cellHeading.key] ?? '-' }}
-                    </span>
-                  </div>
-                </slot>
+          <tr v-if="loading">
+            <slot name="loading-state">
+              <td :colspan="columnSpan">
+                <div class="mx-auto my-3 h-5 w-5 text-center">
+                  <HoppSmartSpinner />
+                </div>
               </td>
             </slot>
           </tr>
+
+          <tr v-else-if="!list.length">
+            <slot name="empty-state">
+              <td :colspan="columnSpan" class="py-3 text-center">
+                <p>No data available</p>
+              </td>
+            </slot>
+          </tr>
+
+          <template v-else>
+            <tr
+              v-for="(rowData, rowIndex) in workingList"
+              :key="rowIndex"
+              class="rounded-xl text-secondaryDark hover:cursor-pointer hover:bg-divider"
+              :class="{ 'divide-x divide-divider': showYBorder }"
+              @click="onRowClicked(rowData)"
+            >
+              <td v-if="selectedRows">
+                <input
+                  type="checkbox"
+                  :checked="isRowSelected(rowData)"
+                  class="flex h-full w-full items-center justify-center"
+                  @click.stop="toggleRow(rowData)"
+                />
+              </td>
+              <slot name="body" :row="rowData">
+                <td
+                  v-for="cellHeading in headings"
+                  :key="cellHeading.key"
+                  class="px-4 py-2"
+                  @click="!cellHeading.preventClick && onRowClicked(rowData)"
+                >
+                  <!-- Dynamic column slot -->
+                  <slot :name="cellHeading.key" :item="rowData">
+                    <!-- Generic implementation of the column -->
+                    <div class="flex flex-col truncate">
+                      <span class="truncate">
+                        {{ rowData[cellHeading.key] ?? '-' }}
+                      </span>
+                    </div>
+                  </slot>
+                </td>
+              </slot>
+            </tr>
+          </template>
         </tbody>
       </table>
     </div>
@@ -97,6 +119,7 @@
 import { useVModel } from '@vueuse/core';
 import { isEqual } from 'lodash-es';
 import { computed, ref, watch } from 'vue';
+
 import IconLeft from '~icons/lucide/arrow-left';
 import IconRight from '~icons/lucide/arrow-right';
 
@@ -116,10 +139,6 @@ const props = withDefaults(
     list: Item[];
     /** The headings of the table */
     headings?: CellHeading[];
-    /** Whether to show the checkbox column
-     * This will be overriden if custom implementation for body slot is provided
-     */
-    checkbox?: boolean;
 
     selectedRows?: Item[];
     /** Whether to enable sorting */
@@ -139,10 +158,9 @@ const props = withDefaults(
   }>(),
   {
     showYBorder: false,
-    checkbox: false,
     sort: undefined,
     selectedRows: undefined,
-    spinner: false,
+    loading: false,
   }
 );
 
@@ -182,7 +200,7 @@ const workingList = useVModel(props, 'list', emit);
 const selectedRows = useVModel(props, 'selectedRows', emit);
 
 watch(workingList.value, (updatedList) => {
-  if (props.checkbox) {
+  if (props.selectedRows) {
     updatedList = updatedList.map((item) => ({
       ...item,
       selected: false,
@@ -260,5 +278,9 @@ watch(
     }
   },
   { immediate: true }
+);
+
+const columnSpan = computed(
+  () => (props.headings?.length ?? 0) + (props.selectedRows ? 1 : 0)
 );
 </script>

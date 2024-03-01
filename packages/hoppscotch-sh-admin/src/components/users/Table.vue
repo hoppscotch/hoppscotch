@@ -10,7 +10,7 @@
       />
 
       <div class="flex h-full w-10 items-center justify-center">
-        <p>{{ page }}</p>
+        <span>{{ page }}</span>
       </div>
 
       <HoppButtonSecondary
@@ -23,9 +23,10 @@
     </div>
 
     <div class="overflow-auto rounded-md border border-dividerDark shadow-md">
-      <slot name="options"></slot>
+      <!-- An Extension Slot to extend the table functionality such as search   -->
+      <slot name="extension"></slot>
 
-      <div v-if="spinner" class="mx-auto my-3 h-5 w-5 text-center">
+      <div v-if="loading" class="mx-auto my-3 h-5 w-5 text-center">
         <HoppSmartSpinner />
       </div>
 
@@ -133,8 +134,8 @@ const props = withDefaults(
       totalPages: number;
     };
 
-    /** Whether to show the spinner */
-    spinner?: boolean;
+    /** Whether to show a loading spinner */
+    loading?: boolean;
   }>(),
   {
     showYBorder: false,
@@ -242,20 +243,17 @@ const areAllRowsSelected = computed(() => {
 export type Direction = 'ascending' | 'descending';
 
 const sortList = (key: string, direction: Direction) => {
-  const sortedList = [...workingList.value];
-  sortedList.sort((a, b) => {
+  workingList.value.sort((a, b) => {
     const valueA = a[key] as string;
     const valueB = b[key] as string;
     return direction === 'ascending'
       ? valueA.localeCompare(valueB)
       : valueB.localeCompare(valueA);
   });
-
-  workingList.value = sortedList;
 };
 
 watch(
-  workingList.value,
+  () => props.sort?.direction,
   () => {
     if (props.sort) {
       sortList(props.sort.key, props.sort.direction);

@@ -28,13 +28,13 @@
           :headings="headings"
           :list="usersList"
           :checkbox="true"
-          :spinner="showSpinner"
+          :loading="showSpinner"
           :selected-rows="selectedRows"
           :pagination="{ totalPages }"
           @pageNumber="handlePageChange"
           @onRowClicked="goToUserDetails"
         >
-          <template #options>
+          <template #extension>
             <div class="flex w-full items-center bg-primary">
               <icon-lucide-search class="mx-3 text-xs" />
               <HoppSmartInput

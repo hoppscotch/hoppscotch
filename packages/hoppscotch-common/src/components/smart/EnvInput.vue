@@ -417,7 +417,9 @@ function handleTextSelection() {
     const { from, to } = selection
     if (from === to) return
     const text = view.value?.state.doc.sliceString(from, to)
-    const { top, left } = view.value?.coordsAtPos(from)
+    const coords = view.value?.coordsAtPos(from)
+    const top = coords?.top ?? 0
+    const left = coords?.left ?? 0
     if (text) {
       invokeAction("contextmenu.open", {
         position: {

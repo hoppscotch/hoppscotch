@@ -1072,12 +1072,18 @@ export class TeamCollectionService {
    * @param skip Number of items we want to skip
    * @returns An Either of the search results
    */
-  async searchByTitle(searchQuery: string, take = 10, skip = 0) {
+  async searchByTitle(
+    searchQuery: string,
+    teamID: string,
+    take = 10,
+    skip = 0,
+  ) {
     // Fetch all collections and requests that match the search query
     const searchResults: SearchQueryReturnType[] = [];
 
     const matchedCollections = await this.searchCollections(
       searchQuery,
+      teamID,
       take,
       skip,
     );
@@ -1088,7 +1094,12 @@ export class TeamCollectionService {
       });
     searchResults.push(...matchedCollections.right);
 
-    const matchedRequests = await this.searchRequests(searchQuery, take, skip);
+    const matchedRequests = await this.searchRequests(
+      searchQuery,
+      teamID,
+      take,
+      skip,
+    );
     if (E.isLeft(matchedRequests))
       return E.left(<AuthError>{
         message: matchedRequests.left,
@@ -1124,19 +1135,22 @@ export class TeamCollectionService {
    * Search for TeamCollections by title
    *
    * @param searchQuery The search query
+   * @param teamID The Team ID
    * @param take Number of items we want returned
    * @param skip Number of items we want to skip
    * @returns An Either of the search results
    */
   private async searchCollections(
     searchQuery: string,
+    teamID: string,
     take: number,
     skip: number,
   ) {
     const query = Prisma.sql`
     select id,title,'collection' AS type
     from "TeamCollection"
-    where titlesearch @@ to_tsquery(${searchQuery})
+    where "TeamCollection"."teamID"=${teamID}
+    and titlesearch @@ to_tsquery(${searchQuery})
     order by ts_rank(titlesearch,to_tsquery(${searchQuery}))
     limit ${take}
     OFFSET ${skip === 0 ? 0 : (skip - 1) * take};
@@ -1153,19 +1167,22 @@ export class TeamCollectionService {
    * Search for TeamRequests by title
    *
    * @param searchQuery The search query
+   * @param teamID The Team ID
    * @param take Number of items we want returned
    * @param skip Number of items we want to skip
    * @returns An Either of the search results
    */
   private async searchRequests(
     searchQuery: string,
+    teamID: string,
     take: number,
     skip: number,
   ) {
     const query = Prisma.sql`
     select id,title,request->>'method' as method,'request' AS type
     from "TeamRequest"
-    where titlesearch @@ to_tsquery(${searchQuery})
+    where "TeamRequest"."teamID"=${teamID}
+    and titlesearch @@ to_tsquery(${searchQuery})
     order by ts_rank(titlesearch,to_tsquery(${searchQuery}))
     limit ${take}
     OFFSET ${skip === 0 ? 0 : (skip - 1) * take};

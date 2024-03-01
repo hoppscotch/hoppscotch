@@ -22,11 +22,13 @@ export class TeamCollectionController {
   @UseGuards(JwtAuthGuard, RESTTeamMemberGuard)
   async searchByTitle(
     @Param('searchQuery') searchQuery: string,
+    @Param('teamID') teamID: string,
     @Query('take') take: string,
     @Query('skip') skip: string,
   ) {
     const res = await this.teamCollectionService.searchByTitle(
       searchQuery,
+      teamID,
       parseInt(take),
       parseInt(skip),
     );

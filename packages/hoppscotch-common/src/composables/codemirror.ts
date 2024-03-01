@@ -242,7 +242,9 @@ export function useCodemirror(
       const { from, to } = selection
       if (from === to) return
       const text = view.value?.state.doc.sliceString(from, to)
-      const { top, left } = view.value?.coordsAtPos(from)
+      const coords = view.value?.coordsAtPos(from)
+      const top = coords?.top ?? 0
+      const left = coords?.left ?? 0
       if (text?.trim()) {
         invokeAction("contextmenu.open", {
           position: {
@@ -263,6 +265,12 @@ export function useCodemirror(
     }
   }
 
+  // Debounce to prevent double click from selecting the word
+  const debouncedTextSelection = (time: number) =>
+    useDebounceFn(() => {
+      handleTextSelection()
+    }, time)
+
   const initView = (el: any) => {
     if (el) platform.ui?.onCodemirrorInstanceMount?.(el)
 
@@ -274,15 +282,10 @@ export function useCodemirror(
       ViewPlugin.fromClass(
         class {
           update(update: ViewUpdate) {
-            // Debounce to prevent double click from selecting the word
-            const debounceFn = useDebounceFn(() => {
-              handleTextSelection()
-            }, 140)
-
             // Only add event listeners if context menu is enabled in the editor
             if (options.contextMenuEnabled) {
-              el.addEventListener("mouseup", debounceFn)
-              el.addEventListener("keyup", debounceFn)
+              el.addEventListener("mouseup", debouncedTextSelection(140))
+              el.addEventListener("keyup", debouncedTextSelection(140))
             }
 
             if (options.onUpdate) {
@@ -324,7 +327,8 @@ export function useCodemirror(
       EditorView.domEventHandlers({
         scroll(event) {
           if (event.target && options.contextMenuEnabled) {
-            handleTextSelection()
+            // Debounce to make the performance better
+            debouncedTextSelection(30)()
           }
         },
       }),

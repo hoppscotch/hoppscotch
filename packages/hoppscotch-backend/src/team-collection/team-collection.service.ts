@@ -1068,6 +1068,7 @@ export class TeamCollectionService {
    * Search for TeamCollections and TeamRequests by title
    *
    * @param searchQuery The search query
+   * @param teamID The Team ID
    * @param take Number of items we want returned
    * @param skip Number of items we want to skip
    * @returns An Either of the search results

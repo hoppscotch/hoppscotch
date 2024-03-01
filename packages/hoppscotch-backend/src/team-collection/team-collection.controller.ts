@@ -1,12 +1,12 @@
 import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
 import { TeamCollectionService } from './team-collection.service';
-import { throwHTTPErr } from 'src/auth/helper';
 import * as E from 'fp-ts/Either';
 import { ThrottlerBehindProxyGuard } from 'src/guards/throttler-behind-proxy.guard';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { RequiresTeamRole } from 'src/team/decorators/requires-team-role.decorator';
 import { TeamMemberRole } from '@prisma/client';
 import { RESTTeamMemberGuard } from 'src/team/guards/rest-team-member.guard';
+import { throwHTTPErr } from 'src/utils';
 
 @UseGuards(ThrottlerBehindProxyGuard)
 @Controller({ path: 'team-collection', version: '1' })

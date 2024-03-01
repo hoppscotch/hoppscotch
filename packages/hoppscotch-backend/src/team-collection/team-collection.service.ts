@@ -28,7 +28,7 @@ import { CollectionFolder } from 'src/types/CollectionFolder';
 import { stringToJson } from 'src/utils';
 import { CollectionSearchNode } from 'src/types/CollectionSearchNode';
 import { ParentTreeQueryReturnType, SearchQueryReturnType } from './helper';
-import { AuthError } from 'src/types/AuthError';
+import { RESTError } from 'src/types/RESTError';
 
 @Injectable()
 export class TeamCollectionService {
@@ -1089,7 +1089,7 @@ export class TeamCollectionService {
       skip,
     );
     if (E.isLeft(matchedCollections))
-      return E.left(<AuthError>{
+      return E.left(<RESTError>{
         message: matchedCollections.left,
         statusCode: HttpStatus.NOT_FOUND,
       });
@@ -1102,7 +1102,7 @@ export class TeamCollectionService {
       skip,
     );
     if (E.isLeft(matchedRequests))
-      return E.left(<AuthError>{
+      return E.left(<RESTError>{
         message: matchedRequests.left,
         statusCode: HttpStatus.NOT_FOUND,
       });
@@ -1114,7 +1114,7 @@ export class TeamCollectionService {
     for (let i = 0; i < searchResults.length; i++) {
       const fetchedParentTree = await this.fetchParentTree(searchResults[i]);
       if (E.isLeft(fetchedParentTree))
-        return E.left(<AuthError>{
+        return E.left(<RESTError>{
           message: fetchedParentTree.left,
           statusCode: HttpStatus.NOT_FOUND,
         });

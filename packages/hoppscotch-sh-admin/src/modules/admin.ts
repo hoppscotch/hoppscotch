@@ -31,40 +31,47 @@ const getFirstTimeInfraSetupStatus = async () => {
 export default <HoppModule>{
   async onBeforeRouteChange(to, _from, next) {
     const isAdmin = await getAdminStatus();
+
     if (!isAdmin) {
+      auth.signOutUser();
+    }
+
+    // Route Guards
+    if (!isGuestRoute(to.name) && !isAdmin) {
       /**
        * Reroutes the user to the login page if user is not logged in
        * and is not an admin
        */
-      if (!isGuestRoute(to.name)) {
-        return next({ name: 'index' });
+      return next({ name: 'index' });
+    }
+    if (isAdmin) {
+      // These route guards applies to the case where the user is logged in successfully and validated as an admin
+      const isInfraNotSetup = await getFirstTimeInfraSetupStatus();
+
+      /**
+       * Reroutes the user to the dashboard homepage if they have setup the infra already
+       * Else, the Setup page
+       */
+      if (isGuestRoute(to.name)) {
+        const name = isInfraNotSetup ? 'setup' : 'dashboard';
+        return next({ name });
       }
-      return auth.signOutUser();
+      /**
+       * Reroutes the user to the dashboard homepage if they have setup the infra already
+       * and are trying to access the setup page
+       */
+      if (isSetupRoute(to.name) && !isInfraNotSetup) {
+        return next({ name: 'dashboard' });
+      }
+      /**
+       * Reroutes the user to the setup page if they have not setup the infra yet
+       * and tries to access a valid route which is not a guest route
+       */
+      if (isInfraNotSetup && !isSetupRoute(to.name)) {
+        return next({ name: 'setup' });
+      }
     }
-    // The route guards below applies to the case where the user is logged in successfully and validated as an admin
-    const isInfraNotSetup = await getFirstTimeInfraSetupStatus();
-    /**
-     * Reroutes the user to the dashboard homepage if they have setup the infra already
-     * Else, the Setup page
-     */
-    if (isGuestRoute(to.name)) {
-      const name = isInfraNotSetup ? 'setup' : 'dashboard';
-      return next({ name });
-    }
-    /**
-     * Reroutes the user to the dashboard homepage if they have setup the infra already
-     * and are trying to access the setup page
-     */
-    if (isSetupRoute(to.name) && !isInfraNotSetup) {
-      return next({ name: 'dashboard' });
-    }
-    /**
-     * Reroutes the user to the setup page if they have not setup the infra yet
-     * and tries to access a valid route which is not a guest route
-     */
-    if (isInfraNotSetup && !isSetupRoute(to.name)) {
-      return next({ name: 'setup' });
-    }
+
     next();
   },
 };

@@ -173,12 +173,9 @@ export function useConfigHandler(updatedConfigs?: Config) {
       },
       dataSharingConfigs: {
         name: 'data_sharing',
-        enabled:
-          infraConfigs.value.find(
-            (x) => x.name === 'ALLOW_ANALYTICS_COLLECTION'
-          )?.value === 'true'
-            ? true
-            : false,
+        enabled: !!infraConfigs.value.find(
+          (x) => x.name === 'ALLOW_ANALYTICS_COLLECTION' && x.value === 'true'
+        ),
       },
     };
 

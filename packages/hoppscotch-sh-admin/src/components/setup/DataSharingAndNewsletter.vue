@@ -129,7 +129,8 @@ const toggleNewsletter = async () => {
 
 // Submit selections made
 const submitSelection = async () => {
-  const dataSharingResult = await toggleDataSharing();
+  const dataSharingResult =
+    dataSharingToggle.value && (await toggleDataSharing());
   const newsletterResult = newsletterToggle.value && (await toggleNewsletter());
 
   const setupDataComplete = !dataSharingToggle.value || dataSharingResult;

@@ -32,10 +32,6 @@ export default <HoppModule>{
   async onBeforeRouteChange(to, _from, next) {
     const isAdmin = await getAdminStatus();
 
-    if (!isAdmin) {
-      auth.signOutUser();
-    }
-
     // Route Guards
     if (!isGuestRoute(to.name) && !isAdmin) {
       /**

@@ -281,16 +281,16 @@ export function useConfigHandler(updatedConfigs?: Config) {
   };
 
   const AreAnyConfigFieldsEmpty = (config: Config): boolean => {
-    const sections: Array<[ConfigSection, boolean]> = [
-      [config.providers.github, config.providers.github.enabled],
-      [config.providers.google, config.providers.google.enabled],
-      [config.providers.microsoft, config.providers.microsoft.enabled],
-      [config.mailConfigs, config.mailConfigs.enabled],
+    const sections: Array<ConfigSection> = [
+      config.providers.github,
+      config.providers.google,
+      config.providers.microsoft,
+      config.mailConfigs,
     ];
 
     return sections.some(
-      ([section, enabled]) =>
-        enabled && Object.values(section.fields).some(isFieldEmpty)
+      (section) =>
+        section.enabled && Object.values(section.fields).some(isFieldEmpty)
     );
   };
 
@@ -335,7 +335,7 @@ export function useConfigHandler(updatedConfigs?: Config) {
   };
 
   // Updating the auth provider configurations
-  const updateAuthProvider = async (
+  const updateAuthProvider = (
     updateProviderStatus: UseMutationResponse<EnableAndDisableSsoMutation>
   ) =>
     executeMutation(
@@ -348,7 +348,7 @@ export function useConfigHandler(updatedConfigs?: Config) {
     );
 
   // Updating the infra configurations
-  const updateInfraConfigs = async (
+  const updateInfraConfigs = (
     updateInfraConfigsMutation: UseMutationResponse<UpdateInfraConfigsMutation>
   ) =>
     executeMutation(
@@ -360,7 +360,7 @@ export function useConfigHandler(updatedConfigs?: Config) {
     );
 
   // Resetting the infra configurations
-  const resetInfraConfigs = async (
+  const resetInfraConfigs = (
     resetInfraConfigsMutation: UseMutationResponse<ResetInfraConfigsMutation>
   ) =>
     executeMutation(
@@ -370,7 +370,7 @@ export function useConfigHandler(updatedConfigs?: Config) {
     );
 
   // Updating the data sharing configurations
-  const updateDataSharingConfigs = async (
+  const updateDataSharingConfigs = (
     toggleDataSharingMutation: UseMutationResponse<ToggleAnalyticsCollectionMutation>
   ) =>
     executeMutation(

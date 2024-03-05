@@ -89,11 +89,11 @@ onMounted(async () => {
     );
     if (!authResult) return;
 
-    const dataSharingReult = await updateDataSharingConfigs(
+    const dataSharingResult = await updateDataSharingConfigs(
       toggleDataSharingMutation
     );
 
-    if (!dataSharingReult) return;
+    if (!dataSharingResult) return;
   }
 
   restart.value = true;

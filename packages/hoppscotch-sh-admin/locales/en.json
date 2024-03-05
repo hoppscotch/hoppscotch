@@ -22,6 +22,7 @@
       "title": "Data Sharing",
       "description": "Help improve Hoppscotch by sharing anonymous data",
       "enable": "Enable Data Sharing",
+      "secondary_title": "Data Sharing Configurations",
       "see_shared": "See what is shared",
       "toggle_description": "Share anonymous data",
       "update_failure": "Failed to update data sharing configurations!!"

@@ -9,9 +9,9 @@
         @click="changePage(PageDirection.Previous)"
       />
 
-      <div class="flex h-full w-10 items-center justify-center">
-        <span>{{ page }}</span>
-      </div>
+      <span class="flex h-full w-10 items-center justify-center">{{
+        page
+      }}</span>
 
       <HoppButtonSecondary
         outline

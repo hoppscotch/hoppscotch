@@ -50,7 +50,15 @@
             <th class="px-6 py-2">{{ t('users.email') }}</th>
             <th class="px-6 py-2">{{ t('users.date') }}</th>
             <!-- Empty header for Action Button -->
-            <th class="px-6 py-2"></th>
+            <th class="w-20 px-6 py-2"></th>
+          </template>
+
+          <template #empty-state>
+            <td colspan="6">
+              <span class="flex justify-center p-3">
+                {{ t('users.no_users') }}
+              </span>
+            </td>
           </template>
 
           <template #body="{ row: user }">
@@ -84,8 +92,8 @@
               </div>
             </td>
 
-            <td @click.stop class="flex justify-end items-center mr-10">
-              <div class="relative">
+            <td @click.stop class="flex justify-end w-20">
+              <div class="mt-2 mr-5">
                 <tippy interactive trigger="click" theme="popover">
                   <HoppButtonSecondary
                     v-tippy="{ theme: 'tooltip' }"

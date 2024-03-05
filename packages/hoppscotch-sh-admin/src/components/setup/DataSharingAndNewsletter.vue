@@ -76,7 +76,6 @@ import {
 } from '~/helpers/backend/graphql';
 import IconBookOpenText from '~icons/lucide/book-open-text';
 import IconLogIn from '~icons/lucide/log-in';
-import IconShieldQuestion from '~icons/lucide/shield-question';
 
 const t = useI18n();
 const toast = useToast();

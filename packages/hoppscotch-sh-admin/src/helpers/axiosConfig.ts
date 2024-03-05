@@ -19,6 +19,7 @@ const restApi = axios.create({
 
 const listmonkApi = axios.create({
   ...baseConfig,
+  withCredentials: false,
   baseURL: 'https://listmonk.hoppscotch.com/api/public',
 });
 

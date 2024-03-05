@@ -244,7 +244,7 @@ export const auth = {
   getFirstTimeInfraSetupStatus: async (): Promise<boolean> => {
     try {
       const res = await authQuery.getFirstTimeInfraSetupStatus();
-      return res.data?.value === 'true' ? true : false;
+      return res.data?.value === 'true';
     } catch (err) {
       // Setup is not done
       return true;

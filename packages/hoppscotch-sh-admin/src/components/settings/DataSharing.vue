@@ -7,32 +7,29 @@
       </p>
     </div>
 
-    <div class="mt-5 mx-8 md:col-span-2">
-      <section v-if="dataSharingConfigs">
-        <h4 class="font-semibold text-secondaryDark">
-          {{ t('configs.data_sharing.title') }}
-        </h4>
+    <div class="mx-8 md:col-span-2">
+      <h4 class="font-semibold text-secondaryDark">
+        {{ t('configs.data_sharing.title') }}
+      </h4>
 
-        <div class="space-y-4 py-4">
-          <div class="flex items-center">
-            <HoppSmartToggle
-              :on="dataSharingConfigs.enabled"
-              @change="dataSharingConfigs.enabled = !dataSharingConfigs.enabled"
-            >
-              {{ t('configs.data_sharing.toggle_description') }}
-            </HoppSmartToggle>
-          </div>
-        </div>
+      <div class="flex items-center space-y-4 py-4">
+        <HoppSmartToggle
+          :on="dataSharingConfigs.enabled"
+          @change="dataSharingConfigs.enabled = !dataSharingConfigs.enabled"
+        >
+          {{ t('configs.data_sharing.toggle_description') }}
+        </HoppSmartToggle>
+      </div>
 
-        <HoppButtonSecondary
-          outline
-          filled
-          :icon="IconShieldQuestion"
-          :label="t('configs.data_sharing.see_shared')"
-          to="http://docs.hoppscotch.io"
-          class="w-min my-2"
-        />
-      </section>
+      <!-- TODO: Update the link below -->
+      <HoppButtonSecondary
+        outline
+        filled
+        :icon="IconShieldQuestion"
+        :label="t('configs.data_sharing.see_shared')"
+        to="http://docs.hoppscotch.io"
+        class="w-min my-2"
+      />
     </div>
   </div>
 </template>

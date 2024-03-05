@@ -1,6 +1,6 @@
 <template>
   <SetupDataSharingAndNewsletter
-    @onSetupComplete="(status: boolean) => (isDataSharingAndNewsletterSetup = status)"
+    @setup-complete="(status: boolean) => (isDataSharingAndNewsletterSetup = status)"
   />
 </template>
 

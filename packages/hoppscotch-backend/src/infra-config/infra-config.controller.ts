@@ -4,9 +4,9 @@ import { InfraConfigService } from './infra-config.service';
 import * as E from 'fp-ts/Either';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { RESTAdminGuard } from 'src/admin/guards/rest-admin.guard';
-import { throwHTTPErr } from 'src/auth/helper';
-import { AuthError } from 'src/types/AuthError';
+import { RESTError } from 'src/types/RESTError';
 import { InfraConfigEnumForClient } from 'src/types/InfraConfig';
+import { throwHTTPErr } from 'src/utils';
 
 @UseGuards(ThrottlerBehindProxyGuard)
 @Controller({ path: 'site', version: '1' })
@@ -21,7 +21,7 @@ export class SiteController {
     );
 
     if (E.isLeft(status))
-      throwHTTPErr(<AuthError>{
+      throwHTTPErr(<RESTError>{
         message: status.left,
         statusCode: HttpStatus.NOT_FOUND,
       });
@@ -38,7 +38,7 @@ export class SiteController {
     );
 
     if (E.isLeft(res))
-      throwHTTPErr(<AuthError>{
+      throwHTTPErr(<RESTError>{
         message: res.left,
         statusCode: HttpStatus.FORBIDDEN,
       });

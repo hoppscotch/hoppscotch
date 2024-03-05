@@ -41,31 +41,31 @@ model TeamInvitation {
 }
 
 model TeamCollection {
-  id         String           @id @default(cuid())
+  id         String                   @id @default(cuid())
   parentID   String?
   data       Json?
-  parent     TeamCollection?  @relation("TeamCollectionChildParent", fields: [parentID], references: [id])
-  children   TeamCollection[] @relation("TeamCollectionChildParent")
+  parent     TeamCollection?          @relation("TeamCollectionChildParent", fields: [parentID], references: [id])
+  children   TeamCollection[]         @relation("TeamCollectionChildParent")
   requests   TeamRequest[]
   teamID     String
-  team       Team             @relation(fields: [teamID], references: [id], onDelete: Cascade)
+  team       Team                     @relation(fields: [teamID], references: [id], onDelete: Cascade)
   title      String
   orderIndex Int
-  createdOn  DateTime         @default(now()) @db.Timestamp(3)
-  updatedOn  DateTime         @updatedAt @db.Timestamp(3)
+  createdOn  DateTime                 @default(now()) @db.Timestamp(3)
+  updatedOn  DateTime                 @updatedAt @db.Timestamp(3)
 }
 
 model TeamRequest {
-  id           String         @id @default(cuid())
+  id           String                   @id @default(cuid())
   collectionID String
-  collection   TeamCollection @relation(fields: [collectionID], references: [id], onDelete: Cascade)
+  collection   TeamCollection           @relation(fields: [collectionID], references: [id], onDelete: Cascade)
   teamID       String
-  team         Team           @relation(fields: [teamID], references: [id], onDelete: Cascade)
+  team         Team                     @relation(fields: [teamID], references: [id], onDelete: Cascade)
   title        String
   request      Json
   orderIndex   Int
-  createdOn    DateTime       @default(now()) @db.Timestamp(3)
-  updatedOn    DateTime       @updatedAt @db.Timestamp(3)
+  createdOn    DateTime                 @default(now()) @db.Timestamp(3)
+  updatedOn    DateTime                 @updatedAt @db.Timestamp(3)
 }
 
 model Shortcode {

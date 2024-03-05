@@ -1,4 +1,4 @@
-import { ExecutionContext } from '@nestjs/common';
+import { ExecutionContext, HttpException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import { pipe } from 'fp-ts/lib/function';
@@ -16,6 +16,7 @@ import {
   JSON_INVALID,
 } from './errors';
 import { AuthProvider } from './auth/helper';
+import { RESTError } from './types/RESTError';
 
 /**
  * A workaround to throw an exception in an expression.
@@ -25,6 +26,15 @@ import { AuthProvider } from './auth/helper';
  */
 export function throwErr(errMessage: string): never {
   throw new Error(errMessage);
+}
+
+/**
+ * This function allows throw to be used as an expression
+ * @param errMessage Message present in the error message
+ */
+export function throwHTTPErr(errorData: RESTError): never {
+  const { message, statusCode } = errorData;
+  throw new HttpException(message, statusCode);
 }
 
 /**

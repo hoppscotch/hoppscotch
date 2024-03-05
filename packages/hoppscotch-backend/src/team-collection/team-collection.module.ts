@@ -6,6 +6,7 @@ import { GqlCollectionTeamMemberGuard } from './guards/gql-collection-team-membe
 import { TeamModule } from '../team/team.module';
 import { UserModule } from '../user/user.module';
 import { PubSubModule } from '../pubsub/pubsub.module';
+import { TeamCollectionController } from './team-collection.controller';
 
 @Module({
   imports: [PrismaModule, TeamModule, UserModule, PubSubModule],
@@ -15,5 +16,6 @@ import { PubSubModule } from '../pubsub/pubsub.module';
     GqlCollectionTeamMemberGuard,
   ],
   exports: [TeamCollectionService, GqlCollectionTeamMemberGuard],
+  controllers: [TeamCollectionController],
 })
 export class TeamCollectionModule {}

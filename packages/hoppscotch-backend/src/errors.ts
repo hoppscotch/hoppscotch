@@ -229,6 +229,12 @@ export const TEAM_COL_SAME_NEXT_COLL =
   'team_coll/collection_and_next_collection_are_same';
 
 /**
+ * Team Collection search failed
+ * (TeamCollectionService)
+ */
+export const TEAM_COL_SEARCH_FAILED = 'team_coll/team_collection_search_failed';
+
+/**
  * Team Collection Re-Ordering Failed
  * (TeamCollectionService)
  */
@@ -284,6 +290,13 @@ export const TEAM_COLL_DATA_INVALID =
   'team_coll/team_coll_data_invalid' as const;
 
 /**
+ * Team Collection parent tree generation failed
+ * (TeamCollectionService)
+ */
+export const TEAM_COLL_PARENT_TREE_GEN_FAILED =
+  'team_coll/team_coll_parent_tree_generation_failed';
+
+/**
  * Tried to perform an action on a request that doesn't accept their member role level
  * (GqlRequestTeamMemberGuard)
  */
@@ -307,6 +320,19 @@ export const TEAM_REQ_INVALID_TARGET_COLL_ID =
  * (TeamRequestService)
  */
 export const TEAM_REQ_REORDERING_FAILED = 'team_req/reordering_failed' as const;
+
+/**
+ * Team Request search failed
+ * (TeamRequestService)
+ */
+export const TEAM_REQ_SEARCH_FAILED = 'team_req/team_request_search_failed';
+
+/**
+ * Team Request parent tree generation failed
+ * (TeamRequestService)
+ */
+export const TEAM_REQ_PARENT_TREE_GEN_FAILED =
+  'team_req/team_req_parent_tree_generation_failed';
 
 /**
  * No Postmark Sender Email defined

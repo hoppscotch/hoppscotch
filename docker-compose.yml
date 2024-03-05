@@ -112,17 +112,17 @@ services:
     build:
       dockerfile: packages/hoppscotch-backend/Dockerfile
       context: .
-      target: prod
+      target: dev
     env_file:
       - ./.env
     restart: always
     environment:
       # Edit the below line to match your PostgresDB URL if you have an outside DB (make sure to update the .env file as well)
-      # - DATABASE_URL=postgresql://postgres:testpass@hoppscotch-db:5432/hoppscotch?connect_timeout=300
+      - DATABASE_URL=postgresql://postgres:testpass@hoppscotch-db:5432/hoppscotch?connect_timeout=300
       - PORT=3000
     volumes:
       # Uncomment the line below when modifying code. Only applicable when using the "dev" target.
-      # - ./packages/hoppscotch-backend/:/usr/src/app
+      - ./packages/hoppscotch-backend/:/usr/src/app
       - /usr/src/app/node_modules/
     depends_on:
       hoppscotch-db:

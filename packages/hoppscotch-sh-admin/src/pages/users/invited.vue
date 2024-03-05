@@ -28,9 +28,7 @@
           v-else
           :headings="headings"
           :list="pendingInvites"
-          :checkbox="true"
-          :spinner="{ enabled: fetching, duration: 500 }"
-          :selectedRows="selectedRows"
+          :selected-rows="selectedRows"
         >
           <template #invitedOn="{ item }">
             <div v-if="item" class="pr-2 truncate">

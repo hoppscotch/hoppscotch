@@ -47,7 +47,7 @@
               </span>
             </td>
 
-            <td class="py-4 px-7">
+            <td class="py-4 px-8">
               {{ team.members?.length }}
             </td>
 

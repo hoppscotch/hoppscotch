@@ -61,7 +61,7 @@ export function navigateToFolderWithIndexPath(
 
   let target = collections[indexPaths.shift() as number]
 
-  while (indexPaths.length > 0)
+  while (indexPaths.length > 0 && target)
     target = target.folders[indexPaths.shift() as number]
 
   return target !== undefined ? target : null

@@ -55,7 +55,11 @@ const readPMCollection = (def: string) =>
   pipe(
     def,
     safeParseJSON,
-    O.chain((data) => O.tryCatch(() => new PMCollection(data)))
+    O.chain((data) =>
+      O.tryCatch(() => {
+        return new PMCollection(data)
+      })
+    )
   )
 
 const getHoppReqHeaders = (item: Item): HoppRESTHeader[] =>
@@ -296,15 +300,17 @@ const getHoppFolder = (ig: ItemGroup<Item>): HoppCollection =>
     headers: [],
   })
 
-export const getHoppCollection = (coll: PMCollection) => getHoppFolder(coll)
+export const getHoppCollections = (collections: PMCollection[]) => {
+  return collections.map(getHoppFolder)
+}
 
-export const hoppPostmanImporter = (fileContent: string) =>
+export const hoppPostmanImporter = (fileContents: string[]) =>
   pipe(
     // Try reading
-    fileContent,
-    readPMCollection,
+    fileContents,
+    A.traverse(O.Applicative)(readPMCollection),
 
-    O.map(flow(getHoppCollection, A.of)),
+    O.map(flow(getHoppCollections)),
 
     TE.fromOption(() => IMPORTER_INVALID_FILE_FORMAT)
   )

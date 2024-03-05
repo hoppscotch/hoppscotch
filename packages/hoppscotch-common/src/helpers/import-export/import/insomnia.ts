@@ -1,19 +1,21 @@
-import { convert, ImportRequest } from "insomnia-importers"
-import { pipe } from "fp-ts/function"
 import {
+  HoppCollection,
   HoppRESTAuth,
   HoppRESTHeader,
   HoppRESTParam,
   HoppRESTReqBody,
   HoppRESTRequest,
   knownContentTypes,
-  makeRESTRequest,
-  HoppCollection,
   makeCollection,
+  makeRESTRequest,
 } from "@hoppscotch/data"
+
 import * as A from "fp-ts/Array"
-import * as TO from "fp-ts/TaskOption"
 import * as TE from "fp-ts/TaskEither"
+import * as TO from "fp-ts/TaskOption"
+import { pipe } from "fp-ts/function"
+import { ImportRequest, convert } from "insomnia-importers"
+
 import { IMPORTER_INVALID_FILE_FORMAT } from "."
 import { replaceInsomniaTemplating } from "./insomniaEnv"
 
@@ -203,15 +205,18 @@ const getHoppFolder = (
     headers: [],
   })
 
-const getHoppCollections = (doc: InsomniaDoc) =>
-  getFoldersIn(null, doc.data.resources).map((f) =>
-    getHoppFolder(f, doc.data.resources)
-  )
+const getHoppCollections = (docs: InsomniaDoc[]) => {
+  return docs.flatMap((doc) => {
+    return getFoldersIn(null, doc.data.resources).map((f) =>
+      getHoppFolder(f, doc.data.resources)
+    )
+  })
+}
 
-export const hoppInsomniaImporter = (fileContent: string) =>
+export const hoppInsomniaImporter = (fileContents: string[]) =>
   pipe(
-    fileContent,
-    parseInsomniaDoc,
+    fileContents,
+    A.traverse(TO.ApplicativeSeq)(parseInsomniaDoc),
     TO.map(getHoppCollections),
     TE.fromTaskOption(() => IMPORTER_INVALID_FILE_FORMAT)
   )

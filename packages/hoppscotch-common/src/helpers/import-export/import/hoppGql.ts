@@ -3,10 +3,10 @@ import * as E from "fp-ts/Either"
 
 // TODO: add zod validation
 export const hoppGqlCollectionsImporter = (
-  content: string
+  contents: string[]
 ): E.Either<"INVALID_JSON", HoppCollection[]> => {
   return E.tryCatch(
-    () => JSON.parse(content) as HoppCollection[],
+    () => contents.flatMap((content) => JSON.parse(content)),
     () => "INVALID_JSON"
   )
 }

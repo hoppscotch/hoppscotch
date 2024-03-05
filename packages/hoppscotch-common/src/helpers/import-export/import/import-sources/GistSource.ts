@@ -10,14 +10,14 @@ import { v4 as uuidv4 } from "uuid"
 export function GistSource(metadata: {
   caption: string
   onImportFromGist: (
-    importResult: E.Either<string, string>
+    importResult: E.Either<string, string[]>
   ) => any | Promise<any>
 }) {
   const stepID = uuidv4()
 
   return defineStep(stepID, UrlImport, () => ({
     caption: metadata.caption,
-    onImportFromURL: (gistResponse) => {
+    onImportFromURL: (gistResponse: Record<string, unknown>) => {
       const fileSchema = z.object({
         files: z.record(z.object({ content: z.string() })),
       })
@@ -29,9 +29,11 @@ export function GistSource(metadata: {
         return
       }
 
-      const content = Object.values(parseResult.data.files)[0].content
+      const contents = Object.values(parseResult.data.files).map(
+        ({ content }) => content
+      )
 
-      metadata.onImportFromGist(E.right(content))
+      metadata.onImportFromGist(E.right(contents))
     },
     fetchLogic: fetchGistFromUrl,
   }))

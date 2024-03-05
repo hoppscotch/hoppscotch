@@ -29,33 +29,36 @@ export const replaceInsomniaTemplating = (expression: string) => {
   return expression.replaceAll(regex, "<<$1>>")
 }
 
-export const insomniaEnvImporter = (content: string) => {
-  const parsedContent = safeParseJSONOrYAML(content)
-
-  if (O.isNone(parsedContent)) {
+export const insomniaEnvImporter = (contents: string[]) => {
+  const parsedContents = contents.map((str) => safeParseJSONOrYAML(str))
+  if (parsedContents.some((parsed) => O.isNone(parsed))) {
     return TE.left(IMPORTER_INVALID_FILE_FORMAT)
   }
 
-  const validationResult = insomniaResourcesSchema.safeParse(
-    parsedContent.value
-  )
+  const parsedValues = parsedContents.map((parsed) => O.toNullable(parsed))
+
+  const validationResult = z
+    .array(insomniaResourcesSchema)
+    .safeParse(parsedValues)
 
   if (!validationResult.success) {
     return TE.left(IMPORTER_INVALID_FILE_FORMAT)
   }
 
-  const insomniaEnvs = validationResult.data.resources
-    .filter((resource) => resource._type === "environment")
-    .map((envResource) => {
-      const envResourceData = envResource.data as Record<string, unknown>
-      const stringifiedData: Record<string, string> = {}
+  const insomniaEnvs = validationResult.data.flatMap(({ resources }) => {
+    return resources
+      .filter((resource) => resource._type === "environment")
+      .map((envResource) => {
+        const envResourceData = envResource.data as Record<string, unknown>
+        const stringifiedData: Record<string, string> = {}
 
-      Object.keys(envResourceData).forEach((key) => {
-        stringifiedData[key] = String(envResourceData[key])
+        Object.keys(envResourceData).forEach((key) => {
+          stringifiedData[key] = String(envResourceData[key])
+        })
+
+        return { ...envResource, data: stringifiedData }
       })
-
-      return { ...envResource, data: stringifiedData }
-    })
+  })
 
   const environments: NonSecretEnvironment[] = []
 

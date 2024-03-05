@@ -315,7 +315,8 @@
     "proxy_error": "Proxy error",
     "script_fail": "Could not execute pre-request script",
     "something_went_wrong": "Something went wrong",
-    "test_script_fail": "Could not execute post-request script"
+    "test_script_fail": "Could not execute post-request script",
+    "reading_files": "Error while reading one or more files."
   },
   "export": {
     "as_json": "Export as JSON",
@@ -413,7 +414,10 @@
     "json_description": "Import collections from a Hoppscotch Collections JSON file",
     "postman_environment": "Postman Environment",
     "postman_environment_description": "Import Postman Environment from a JSON file",
-    "title": "Import"
+    "title": "Import",
+    "file_size_limit_exceeded_warning_multiple_files": "Chosen files exceed the recommended limit of 10MB. Only the first {files} selected will be imported",
+    "file_size_limit_exceeded_warning_single_file": "The currently chosen file exceeds the recommended limit of 10MB. Please select another file.",
+    "success": "Successfully imported"
   },
   "inspections": {
     "description": "Inspect possible errors",

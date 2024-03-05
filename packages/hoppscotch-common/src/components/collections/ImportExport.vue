@@ -263,7 +263,7 @@ const HoppOpenAPIImporter: ImporterOrExporter = {
       step: UrlSource({
         caption: "import.from_url",
         onImportFromURL: async (content) => {
-          const res = await hoppOpenAPIImporter(content)()
+          const res = await hoppOpenAPIImporter([content])()
 
           if (E.isRight(res)) {
             handleImportToStore(res.right)

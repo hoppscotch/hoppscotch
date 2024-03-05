@@ -1,12 +1,11 @@
-import * as TE from "fp-ts/TaskEither"
-import * as O from "fp-ts/Option"
-
-import { IMPORTER_INVALID_FILE_FORMAT } from "."
-import { safeParseJSON } from "~/helpers/functional/json"
-
-import { z } from "zod"
 import { Environment } from "@hoppscotch/data"
+import * as O from "fp-ts/Option"
+import * as TE from "fp-ts/TaskEither"
 import { uniqueId } from "lodash-es"
+import { z } from "zod"
+
+import { safeParseJSON } from "~/helpers/functional/json"
+import { IMPORTER_INVALID_FILE_FORMAT } from "."
 
 const postmanEnvSchema = z.object({
   name: z.string(),
@@ -18,32 +17,44 @@ const postmanEnvSchema = z.object({
   ),
 })
 
-export const postmanEnvImporter = (content: string) => {
-  const parsedContent = safeParseJSON(content)
+type PostmanEnv = z.infer<typeof postmanEnvSchema>
 
-  // parse json from the environments string
-  if (O.isNone(parsedContent)) {
+export const postmanEnvImporter = (contents: string[]) => {
+  const parsedContents = contents.map((str) => safeParseJSON(str, true))
+  if (parsedContents.some((parsed) => O.isNone(parsed))) {
     return TE.left(IMPORTER_INVALID_FILE_FORMAT)
   }
 
-  const validationResult = postmanEnvSchema.safeParse(parsedContent.value)
+  const parsedValues = parsedContents.flatMap((parsed) => {
+    const unwrappedEntry = O.toNullable(parsed) as PostmanEnv[] | null
+
+    if (unwrappedEntry) {
+      return unwrappedEntry.map((entry) => ({
+        ...entry,
+        values: entry.values?.map((valueEntry) => ({
+          ...valueEntry,
+          value: String(valueEntry.value),
+        })),
+      }))
+    }
+    return null
+  })
+
+  const validationResult = z.array(postmanEnvSchema).safeParse(parsedValues)
 
   if (!validationResult.success) {
     return TE.left(IMPORTER_INVALID_FILE_FORMAT)
   }
 
-  const postmanEnv = validationResult.data
-
-  const environment: Environment = {
-    id: uniqueId(),
-    v: 1,
-    name: postmanEnv.name,
-    variables: [],
-  }
-
-  postmanEnv.values.forEach(({ key, value }) =>
-    environment.variables.push({ key, value, secret: false })
+  // Convert `values` to `variables` to match the format expected by the system
+  const environments: Environment[] = validationResult.data.map(
+    ({ name, values }) => ({
+      id: uniqueId(),
+      v: 1,
+      name,
+      variables: values.map((entires) => ({ ...entires, secret: false })),
+    })
   )
 
-  return TE.right(environment)
+  return TE.right(environments)
 }

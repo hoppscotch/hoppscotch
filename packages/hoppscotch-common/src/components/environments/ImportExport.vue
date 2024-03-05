@@ -133,7 +133,7 @@ const PostmanEnvironmentsImport: ImporterOrExporter = {
         return
       }
 
-      handleImportToStore([res.right])
+      handleImportToStore(res.right)
 
       platform.analytics?.logEvent({
         type: "HOPP_IMPORT_ENVIRONMENT",
@@ -166,19 +166,14 @@ const insomniaEnvironmentsImport: ImporterOrExporter = {
         return
       }
 
-      const globalEnvIndex = res.right.findIndex(
+      const globalEnvs = res.right.filter(
         (env) => env.name === "Base Environment"
       )
+      const otherEnvs = res.right.filter(
+        (env) => env.name !== "Base Environment"
+      )
 
-      const globalEnv =
-        globalEnvIndex !== -1 ? res.right[globalEnvIndex] : undefined
-
-      // remove the global env from the environments array to prevent it from being imported twice
-      if (globalEnvIndex !== -1) {
-        res.right.splice(globalEnvIndex, 1)
-      }
-
-      handleImportToStore(res.right, globalEnv)
+      handleImportToStore(otherEnvs, globalEnvs)
 
       platform.analytics?.logEvent({
         type: "HOPP_IMPORT_ENVIRONMENT",
@@ -340,14 +335,14 @@ const showImportFailedError = () => {
 
 const handleImportToStore = async (
   environments: Environment[],
-  globalEnv?: NonSecretEnvironment
+  globalEnvs: NonSecretEnvironment[] = []
 ) => {
-  // if there's a global env, add them to the store
-  if (globalEnv) {
-    globalEnv.variables.forEach(({ key, value, secret }) =>
+  // Add global envs to the store
+  globalEnvs.forEach(({ variables }) => {
+    variables.forEach(({ key, value, secret }) => {
       addGlobalEnvVariable({ key, value, secret })
-    )
-  }
+    })
+  })
 
   if (props.environmentType === "MY_ENV") {
     appendEnvironments(environments)

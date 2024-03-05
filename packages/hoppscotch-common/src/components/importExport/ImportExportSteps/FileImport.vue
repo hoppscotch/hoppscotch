@@ -13,6 +13,7 @@
         {{ t(`${caption}`) }}
       </span>
     </p>
+
     <div
       class="flex flex-col ml-10 border border-dashed rounded border-dividerDark"
     >
@@ -23,15 +24,30 @@
         type="file"
         class="p-4 cursor-pointer transition file:transition file:cursor-pointer text-secondary hover:text-secondaryDark file:mr-2 file:py-2 file:px-4 file:rounded file:border-0 file:text-secondary hover:file:text-secondaryDark file:bg-primaryLight hover:file:bg-primaryDark"
         :accept="acceptedFileTypes"
+        multiple
         @change="onFileChange"
       />
     </div>
 
+    <p v-if="showFileSizeLimitExceededWarning" class="text-red-500 ml-10">
+      <template v-if="importFilesCount">
+        {{
+          t("import.file_size_limit_exceeded_warning_multiple_files", {
+            files:
+              importFilesCount === 1 ? "file" : `${importFilesCount} files`,
+          })
+        }}
+      </template>
+
+      <template v-else>
+        {{ t("import.file_size_limit_exceeded_warning_single_file") }}
+      </template>
+    </p>
     <div>
       <HoppButtonPrimary
         class="w-full"
         :label="t('import.title')"
-        :disabled="!hasFile"
+        :disabled="!hasFile || showFileSizeLimitExceededWarning"
         @click="emit('importFromFile', fileContent)"
       />
     </div>
@@ -51,16 +67,30 @@ defineProps<{
 const t = useI18n()
 const toast = useToast()
 
+const ALLOWED_FILE_SIZE_LIMIT = 10 // 10 MB
+
+const importFilesCount = ref(0)
+
 const hasFile = ref(false)
-const fileContent = ref("")
+const showFileSizeLimitExceededWarning = ref(false)
+const fileContent = ref<string[]>([])
 
 const inputChooseFileToImportFrom = ref<HTMLInputElement | any>()
 
 const emit = defineEmits<{
-  (e: "importFromFile", content: string): void
+  (e: "importFromFile", content: string[]): void
 }>()
 
-const onFileChange = () => {
+const onFileChange = async () => {
+  // Reset the state on entering the handler to avoid any stale state
+  if (showFileSizeLimitExceededWarning.value) {
+    showFileSizeLimitExceededWarning.value = false
+  }
+
+  if (importFilesCount.value) {
+    importFilesCount.value = 0
+  }
+
   const inputFileToImport = inputChooseFileToImportFrom.value
 
   if (!inputFileToImport) {
@@ -69,27 +99,52 @@ const onFileChange = () => {
   }
 
   if (!inputFileToImport.files || inputFileToImport.files.length === 0) {
-    inputChooseFileToImportFrom.value[0].value = ""
+    inputChooseFileToImportFrom.value = ""
     hasFile.value = false
     toast.show(t("action.choose_file").toString())
     return
   }
 
-  const reader = new FileReader()
+  const readerPromises: Promise<string | null>[] = []
 
-  reader.onload = ({ target }) => {
-    const content = target!.result as string | null
-    if (!content) {
-      hasFile.value = false
-      toast.show(t("action.choose_file").toString())
-      return
+  let totalFileSize = 0
+
+  for (let i = 0; i < inputFileToImport.files.length; i++) {
+    const file = inputFileToImport.files[i]
+
+    totalFileSize += file.size / 1024 / 1024
+
+    if (totalFileSize > ALLOWED_FILE_SIZE_LIMIT) {
+      showFileSizeLimitExceededWarning.value = true
+      break
     }
 
-    fileContent.value = content
+    const reader = new FileReader()
 
-    hasFile.value = !!content?.length
+    readerPromises.push(
+      new Promise((resolve, reject) => {
+        reader.onload = () => resolve(reader.result as string | null)
+        reader.onerror = reject
+        reader.readAsText(file)
+      })
+    )
   }
 
-  reader.readAsText(inputFileToImport.files[0])
+  importFilesCount.value = readerPromises.length
+
+  const results = await Promise.allSettled(readerPromises)
+
+  const contentsArr = results
+    .filter((result) => result.status === "fulfilled")
+    .map((result) => (result as { value: string | null }).value)
+    .filter(Boolean) as string[]
+
+  const errors = results.filter((result) => result.status === "rejected")
+  if (errors.length) {
+    toast.error(t("error.reading_files"))
+  }
+
+  fileContent.value = contentsArr
+  hasFile.value = contentsArr.length > 0
 }
 </script>

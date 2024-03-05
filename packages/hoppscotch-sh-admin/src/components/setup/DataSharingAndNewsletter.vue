@@ -94,6 +94,7 @@ const dataSharingMutation = useMutation(ToggleAnalyticsCollectionDocument);
 
 const toggleDataSharing = async () => {
   const status = dataSharingToggle.value ? 'ENABLE' : 'DISABLE';
+
   const variables = { status };
   const result = await dataSharingMutation.executeMutation(
     variables as ToggleAnalyticsCollectionMutationVariables
@@ -125,8 +126,7 @@ const toggleNewsletter = async () => {
 
 // Submit selections made
 const submitSelection = async () => {
-  const dataSharingResult =
-    dataSharingToggle.value && (await toggleDataSharing());
+  const dataSharingResult = await toggleDataSharing();
   const newsletterResult = newsletterToggle.value && (await toggleNewsletter());
 
   const setupDataComplete = !dataSharingToggle.value || dataSharingResult;

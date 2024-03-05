@@ -34,7 +34,7 @@ export type HoppModule = {
     to: RouteLocationNormalized,
     from: RouteLocationNormalized,
     router: Router
-  ) => void
+  ) => void | Promise<void>
 
   /**
    * Called by the router to tell all the modules that a route navigation has completed

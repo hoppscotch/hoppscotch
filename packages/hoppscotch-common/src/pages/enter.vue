@@ -44,4 +44,5 @@ export default defineComponent({
 <route lang="yaml">
 meta:
   layout: empty
+  onlyGuest: true
 </route>

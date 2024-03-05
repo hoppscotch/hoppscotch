@@ -47,15 +47,21 @@ export default <HoppModule>{
       routes,
     })
 
-    router.beforeEach((to, from) => {
+    router.beforeEach(async (to, from) => {
       _isLoadingInitialRoute.value = isInitialRoute(from)
 
+      const onBeforeRouteChangePromises: Promise<any>[] = []
+
       HOPP_MODULES.forEach((mod) => {
-        mod.onBeforeRouteChange?.(to, from, router)
+        const res = mod.onBeforeRouteChange?.(to, from, router)
+        if (res) onBeforeRouteChangePromises.push(res)
       })
       platform.addedHoppModules?.forEach((mod) => {
-        mod.onBeforeRouteChange?.(to, from, router)
+        const res = mod.onBeforeRouteChange?.(to, from, router)
+        if (res) onBeforeRouteChangePromises.push(res)
       })
+
+      await Promise.all(onBeforeRouteChangePromises)
     })
 
     // Instead of this a better architecture is for the router

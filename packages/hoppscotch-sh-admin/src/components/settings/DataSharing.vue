@@ -28,6 +28,7 @@
         :icon="IconShieldQuestion"
         :label="t('configs.data_sharing.see_shared')"
         to="http://docs.hoppscotch.io"
+        blank
         class="w-min my-2"
       />
     </div>

@@ -1,0 +1,3 @@
+mutation ToggleAnalyticsCollection($status: ServiceStatus!) {
+  toggleAnalyticsCollection(status: $status)
+}

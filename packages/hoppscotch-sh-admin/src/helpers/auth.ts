@@ -67,7 +67,7 @@ const signOut = async (reloadWindow = false) => {
   });
 };
 
-const getInitialUserDetails = async () => {
+const getUserDetails = async () => {
   const res = await authQuery.getUserDetails();
   return res.data;
 };
@@ -80,7 +80,7 @@ const setUser = (user: HoppUser | null) => {
 
 const setInitialUser = async () => {
   isGettingInitialUser.value = true;
-  const res = await getInitialUserDetails();
+  const res = await getUserDetails();
 
   if (res.errors?.[0]) {
     const [error] = res.errors;
@@ -154,7 +154,7 @@ export const auth = {
   getCurrentUserStream: () => currentUser$,
   getAuthEventsStream: () => authEvents$,
   getCurrentUser: () => currentUser$.value,
-
+  getUserDetails,
   performAuthInit: () => {
     const currentUser = JSON.parse(getLocalConfig('login_state') ?? 'null');
     currentUser$.next(currentUser);
@@ -231,5 +231,25 @@ export const auth = {
   getAllowedAuthProviders: async () => {
     const res = await authQuery.getProviders();
     return res.data?.providers;
+  },
+
+  getFirstTimeInfraSetupStatus: async (): Promise<boolean> => {
+    try {
+      const res = await authQuery.getFirstTimeInfraSetupStatus();
+      return res.data?.value === 'true';
+    } catch (err) {
+      // Setup is not done
+      return true;
+    }
+  },
+
+  updateFirstTimeInfraSetupStatus: async () => {
+    try {
+      await authQuery.updateFirstTimeInfraSetupStatus();
+      return true;
+    } catch (err) {
+      console.error(err);
+      return false;
+    }
   },
 };

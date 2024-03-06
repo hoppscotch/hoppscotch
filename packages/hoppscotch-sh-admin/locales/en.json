@@ -1,10 +1,12 @@
 {
   "app": {
     "collapse_sidebar": "Collapse Sidebar",
+    "continue_to_dashboard": "Continue to Dashboard",
     "expand_sidebar": "Expand Sidebar",
     "name": "HOPPSCOTCH",
     "no_name": "No name",
-    "open_navigation": "Open Navigation"
+    "open_navigation": "Open Navigation",
+    "read_documentation": "Read Documentation"
   },
   "configs": {
     "auth_providers": {
@@ -16,6 +18,15 @@
     },
     "confirm_changes": "Hoppscotch server must restart to reflect the new changes. Confirm changes made to the server configurations?",
     "input_empty": "Please fill all the fields before updating the configurations",
+    "data_sharing": {
+      "title": "Data Sharing",
+      "description": "Help improve Hoppscotch by sharing anonymous data",
+      "enable": "Enable Data Sharing",
+      "secondary_title": "Data Sharing Configurations",
+      "see_shared": "See what is shared",
+      "toggle_description": "Share anonymous data",
+      "update_failure": "Failed to update data sharing configurations!!"
+    },
     "load_error": "Unable to load server configurations",
     "mail_configs": {
       "description": " Configure the smtp configurations",
@@ -40,6 +51,14 @@
     "save_changes": "Save Changes",
     "title": "Configurations"
   },
+  "data_sharing": {
+    "description": "Share anonymous data usage to improve Hoppscotch",
+    "enable": "Enable Data Sharing",
+    "see_shared": "See what is shared",
+    "toggle_description": "Share data and make Hoppscotch better",
+    "title": "Make Hoppscotch Better",
+    "welcome": "Welcome to"
+  },
   "metrics": {
     "dashboard": "Dashboard",
     "no_metrics": "No metrics found",
@@ -47,6 +66,13 @@
     "total_requests": "Total Requests",
     "total_teams": "Total Workspaces",
     "total_users": "Total Users"
+  },
+  "newsletter": {
+    "description": "Get updates about our latest news",
+    "subscribe": "Subscribe",
+    "title": "Stay in Touch",
+    "toggle_description": "Get updates about the latest at Hoppscotch",
+    "unsubscribe": "Unsubscribe"
   },
   "settings": {
     "settings": "Settings"
@@ -86,6 +112,7 @@
     "copied_to_clipboard": "Copied to clipboard",
     "create_team_failure": "Failed to create workspace!!",
     "create_team_success": "Workspace created successfully!!",
+    "data_sharing_failure": "Failed to update data sharing settings",
     "delete_request_failure": "Shared Request deletion failed!!",
     "delete_request_success": "Shared Request deleted successfully!!",
     "delete_team_failure": "Workspace deletion failed!!",
@@ -108,6 +135,7 @@
     "magic_link_sign_in": "Click on the link to sign in.",
     "magic_link_success": "We sent a magic link to",
     "microsoft_signin_failure": "Failed to login with Microsoft",
+    "newsletter_failure": "Unable to update newsletter settings",
     "non_admin_logged_in": "Logged in as non admin user.",
     "non_admin_login": "You are logged in. But you're not an admin",
     "owner_not_present": "Atleast one owner should be present in the team!!",
@@ -127,10 +155,12 @@
     "role_update_success": "Roles updated successfully!!",
     "self_host_docs": "Self Host Documentation",
     "send_magic_link": "Send magic link",
+    "setup_failure": "Setup has failed!!",
+    "setup_success": "Setup completed successfully!!",
     "sign_in_agreement": "By signing in, you are agreeing to our",
     "sign_in_options": "All sign in option",
     "sign_out": "Sign out",
-    "team_name_long": "Workspace name should be atleast 6 characters long!!",
+    "team_name_too_short": "Workspace name should be atleast 6 characters long!!",
     "user_not_found": "User not found in the infra!!"
   },
   "teams": {

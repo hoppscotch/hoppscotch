@@ -1,19 +1,20 @@
-import { computed, onMounted, ref } from 'vue';
+import { AnyVariables, UseMutationResponse } from '@urql/vue';
 import { cloneDeep } from 'lodash-es';
-import { UseMutationResponse } from '@urql/vue';
-import { useClientHandler } from './useClientHandler';
-import { useToast } from './toast';
+import { computed, onMounted, ref } from 'vue';
 import { useI18n } from '~/composables/i18n';
 import {
+  AllowedAuthProvidersDocument,
+  EnableAndDisableSsoArgs,
+  EnableAndDisableSsoMutation,
+  InfraConfigArgs,
   InfraConfigEnum,
   InfraConfigsDocument,
-  AllowedAuthProvidersDocument,
-  EnableAndDisableSsoMutation,
-  UpdateInfraConfigsMutation,
   ResetInfraConfigsMutation,
-  EnableAndDisableSsoArgs,
-  InfraConfigArgs,
+  ToggleAnalyticsCollectionMutation,
+  UpdateInfraConfigsMutation,
 } from '~/helpers/backend/graphql';
+import { useToast } from './toast';
+import { useClientHandler } from './useClientHandler';
 
 // Types
 export type SsoAuthProviders = 'google' | 'microsoft' | 'github';
@@ -54,6 +55,11 @@ export type Config = {
       mailer_from_address: string;
     };
   };
+
+  dataSharingConfigs: {
+    name: string;
+    enabled: boolean;
+  };
 };
 
 type UpdatedConfigs = {
@@ -86,6 +92,7 @@ export function useConfigHandler(updatedConfigs?: Config) {
         'GITHUB_CLIENT_SECRET',
         'MAILER_SMTP_URL',
         'MAILER_ADDRESS_FROM',
+        'ALLOW_ANALYTICS_COLLECTION',
       ] as InfraConfigEnum[],
     },
     (x) => x.infraConfigs
@@ -163,6 +170,12 @@ export function useConfigHandler(updatedConfigs?: Config) {
             infraConfigs.value.find((x) => x.name === 'MAILER_ADDRESS_FROM')
               ?.value ?? '',
         },
+      },
+      dataSharingConfigs: {
+        name: 'data_sharing',
+        enabled: !!infraConfigs.value.find(
+          (x) => x.name === 'ALLOW_ANALYTICS_COLLECTION' && x.value === 'true'
+        ),
       },
     };
 
@@ -262,15 +275,23 @@ export function useConfigHandler(updatedConfigs?: Config) {
   // Checking if any of the config fields are empty
   const isFieldEmpty = (field: string) => field.trim() === '';
 
-  const AreAnyConfigFieldsEmpty = (config: Config): boolean => {
-    const providerFieldsEmpty = Object.values(config.providers).some(
-      (provider) => Object.values(provider.fields).some(isFieldEmpty)
-    );
-    const mailFieldsEmpty = Object.values(config.mailConfigs.fields).some(
-      isFieldEmpty
-    );
+  type ConfigSection = {
+    enabled: boolean;
+    fields: Record<string, string>;
+  };
 
-    return providerFieldsEmpty || mailFieldsEmpty;
+  const AreAnyConfigFieldsEmpty = (config: Config): boolean => {
+    const sections: Array<ConfigSection> = [
+      config.providers.github,
+      config.providers.google,
+      config.providers.microsoft,
+      config.mailConfigs,
+    ];
+
+    return sections.some(
+      (section) =>
+        section.enabled && Object.values(section.fields).some(isFieldEmpty)
+    );
   };
 
   // Transforming the working configs back into the format required by the mutations
@@ -297,55 +318,70 @@ export function useConfigHandler(updatedConfigs?: Config) {
     ];
   });
 
-  // Updating the auth provider configurations
-  const updateAuthProvider = async (
-    updateProviderStatus: UseMutationResponse<EnableAndDisableSsoMutation>
-  ) => {
-    const variables = {
-      providerInfo:
-        updatedAllowedAuthProviders.value as EnableAndDisableSsoArgs[],
-    };
-
-    const result = await updateProviderStatus.executeMutation(variables);
+  // Generic function to handle mutation execution and error handling
+  const executeMutation = async <T, V>(
+    mutation: UseMutationResponse<T>,
+    variables: AnyVariables = undefined,
+    errorMessage: string
+  ): Promise<boolean> => {
+    const result = await mutation.executeMutation(variables);
 
     if (result.error) {
-      toast.error(t('configs.auth_providers.update_failure'));
+      toast.error(t(errorMessage));
       return false;
     }
 
     return true;
   };
+
+  // Updating the auth provider configurations
+  const updateAuthProvider = (
+    updateProviderStatus: UseMutationResponse<EnableAndDisableSsoMutation>
+  ) =>
+    executeMutation(
+      updateProviderStatus,
+      {
+        providerInfo:
+          updatedAllowedAuthProviders.value as EnableAndDisableSsoArgs[],
+      },
+      'configs.auth_providers.update_failure'
+    );
 
   // Updating the infra configurations
-  const updateInfraConfigs = async (
+  const updateInfraConfigs = (
     updateInfraConfigsMutation: UseMutationResponse<UpdateInfraConfigsMutation>
-  ) => {
-    const variables = {
-      infraConfigs: updatedInfraConfigs.value as InfraConfigArgs[],
-    };
-
-    const result = await updateInfraConfigsMutation.executeMutation(variables);
-
-    if (result.error) {
-      toast.error(t('configs.mail_configs.update_failure'));
-      return false;
-    }
-
-    return true;
-  };
+  ) =>
+    executeMutation(
+      updateInfraConfigsMutation,
+      {
+        infraConfigs: updatedInfraConfigs.value as InfraConfigArgs[],
+      },
+      'configs.mail_configs.update_failure'
+    );
 
   // Resetting the infra configurations
-  const resetInfraConfigs = async (
+  const resetInfraConfigs = (
     resetInfraConfigsMutation: UseMutationResponse<ResetInfraConfigsMutation>
-  ) => {
-    const result = await resetInfraConfigsMutation.executeMutation();
+  ) =>
+    executeMutation(
+      resetInfraConfigsMutation,
+      undefined,
+      'configs.reset.failure'
+    );
 
-    if (result.error) {
-      toast.error(t('configs.reset.failure'));
-      return false;
-    }
-    return true;
-  };
+  // Updating the data sharing configurations
+  const updateDataSharingConfigs = (
+    toggleDataSharingMutation: UseMutationResponse<ToggleAnalyticsCollectionMutation>
+  ) =>
+    executeMutation(
+      toggleDataSharingMutation,
+      {
+        status: updatedConfigs?.dataSharingConfigs.enabled
+          ? 'ENABLE'
+          : 'DISABLE',
+      },
+      'configs.data_sharing.update_failure'
+    );
 
   return {
     currentConfigs,
@@ -353,6 +389,7 @@ export function useConfigHandler(updatedConfigs?: Config) {
     updatedInfraConfigs,
     updatedAllowedAuthProviders,
     updateAuthProvider,
+    updateDataSharingConfigs,
     updateInfraConfigs,
     resetInfraConfigs,
     fetchingInfraConfigs,

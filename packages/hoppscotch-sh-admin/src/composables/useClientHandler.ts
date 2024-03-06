@@ -25,22 +25,26 @@ export function useClientHandler<
 
   const fetchData = async () => {
     fetching.value = true;
-    try {
-      const result = await client
-        .query(query, {
-          ...variables,
-        })
-        .toPromise();
 
-      if (getList) {
-        const resultList = getList(result.data!);
-        dataAsList.value.push(...resultList);
-      } else {
-        data.value = result.data;
-      }
-    } catch (e) {
+    const result = await client
+      .query(query, {
+        ...variables,
+      })
+      .toPromise();
+
+    if (result.error) {
       error.value = true;
+      fetching.value = false;
+      return;
     }
+
+    if (getList) {
+      const resultList = getList(result.data!);
+      dataAsList.value.push(...resultList);
+    } else {
+      data.value = result.data;
+    }
+
     fetching.value = false;
   };
 

@@ -1,6 +1,6 @@
 <template>
   <div v-if="fetching" class="flex justify-center"><HoppSmartSpinner /></div>
-  <div v-else-if="error">{{ t('users.load_info_error') }}</div>
+  <div v-else-if="error" class="text-lg">{{ t('users.load_info_error') }}</div>
   <div v-else-if="user" class="flex flex-col space-y-4">
     <div class="flex gap-x-3">
       <button

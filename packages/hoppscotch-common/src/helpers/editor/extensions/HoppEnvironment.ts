@@ -38,6 +38,31 @@ const HOPP_ENV_HIGHLIGHT_NOT_FOUND = "environment-not-found-highlight"
 const secretEnvironmentService = getService(SecretEnvironmentService)
 const restTabs = getService(RESTTabService)
 
+/**
+ * Transforms the environment list to a list with unique keys with value
+ * @param envs The environment list to be transformed
+ * @returns The transformed environment list with keys with value
+ */
+const filterNonEmptyEnvironmentVariables = (
+  envs: AggregateEnvironment[]
+): AggregateEnvironment[] => {
+  const envsMap = new Map<string, AggregateEnvironment>()
+
+  envs.forEach((env) => {
+    if (envsMap.has(env.key)) {
+      const existingEnv = envsMap.get(env.key)
+
+      if (existingEnv?.value === "" && env.value !== "") {
+        envsMap.set(env.key, env)
+      }
+    } else {
+      envsMap.set(env.key, env)
+    }
+  })
+
+  return Array.from(envsMap.values())
+}
+
 const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
   hoverTooltip(
     (view, pos, side) => {
@@ -72,7 +97,12 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
 
       const parsedEnvKey = text.slice(start - from, end - from)
 
-      const tooltipEnv = aggregateEnvs.find((env) => env.key === parsedEnvKey)
+      const envsWithNoEmptyValues =
+        filterNonEmptyEnvironmentVariables(aggregateEnvs)
+
+      const tooltipEnv = envsWithNoEmptyValues.find(
+        (env) => env.key === parsedEnvKey
+      )
 
       const envName = tooltipEnv?.sourceEnv ?? "Choose an Environment"
 
@@ -205,7 +235,10 @@ const getMatchDecorator = (aggregateEnvs: AggregateEnvironment[]) =>
 export const environmentHighlightStyle = (
   aggregateEnvs: AggregateEnvironment[]
 ) => {
-  const decorator = getMatchDecorator(aggregateEnvs)
+  const envsWithNoEmptyValues =
+    filterNonEmptyEnvironmentVariables(aggregateEnvs)
+
+  const decorator = getMatchDecorator(envsWithNoEmptyValues)
 
   return ViewPlugin.define(
     (view) => ({

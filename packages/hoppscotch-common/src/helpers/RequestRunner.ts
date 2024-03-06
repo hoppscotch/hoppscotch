@@ -133,6 +133,38 @@ const updateEnvironmentsWithSecret = (
   return updatedEnv
 }
 
+/**
+ * Transforms the environment list to a list with unique keys with value
+ * @param envs The environment list to be transformed
+ * @returns The transformed environment list with keys with value
+ */
+const filterNonEmptyEnvironmentVariables = (
+  envs: Environment["variables"]
+): Environment["variables"] => {
+  const envsMap = new Map<string, Environment["variables"][number]>()
+
+  envs.forEach((env) => {
+    if (env.secret) {
+      envsMap.set(env.key, env)
+    } else if (envsMap.has(env.key)) {
+      const existingEnv = envsMap.get(env.key)
+
+      if (
+        existingEnv &&
+        "value" in existingEnv &&
+        existingEnv.value === "" &&
+        env.value !== ""
+      ) {
+        envsMap.set(env.key, env)
+      }
+    } else {
+      envsMap.set(env.key, env)
+    }
+  })
+
+  return Array.from(envsMap.values())
+}
+
 export function runRESTRequest$(
   tab: Ref<HoppTab<HoppRESTDocument>>
 ): [
@@ -207,15 +239,19 @@ export function runRESTRequest$(
     }
 
     const finalEnvs = {
-      environments: envs.right,
       requestVariables: finalRequestVariables as Environment["variables"],
+      environments: envs.right,
     }
+
+    const finalEnvsWithNonEmptyValues = filterNonEmptyEnvironmentVariables(
+      combineEnvVariables(finalEnvs)
+    )
 
     const effectiveRequest = getEffectiveRESTRequest(finalRequest, {
       id: "env-id",
       v: 1,
       name: "Env",
-      variables: combineEnvVariables(finalEnvs),
+      variables: finalEnvsWithNonEmptyValues,
     })
 
     const [stream, cancelRun] = createRESTNetworkRequestStream(effectiveRequest)

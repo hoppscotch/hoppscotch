@@ -10,6 +10,7 @@ import { Ref, markRaw } from "vue"
 import IconPlusCircle from "~icons/lucide/plus-circle"
 import { HoppRESTRequest } from "@hoppscotch/data"
 import {
+  AggregateEnvironment,
   aggregateEnvsWithSecrets$,
   getCurrentEnvironment,
   getSelectedEnvironmentType,
@@ -134,6 +135,31 @@ export class EnvironmentInspectorService extends Service implements Inspector {
   }
 
   /**
+   * Transforms the environment list to a list with unique keys with value
+   * @param envs The environment list to be transformed
+   * @returns The transformed environment list with keys with value
+   */
+  private filterNonEmptyEnvironmentVariables = (
+    envs: AggregateEnvironment[]
+  ): AggregateEnvironment[] => {
+    const envsMap = new Map<string, AggregateEnvironment>()
+
+    envs.forEach((env) => {
+      if (envsMap.has(env.key)) {
+        const existingEnv = envsMap.get(env.key)
+
+        if (existingEnv?.value === "" && env.value !== "") {
+          envsMap.set(env.key, env)
+        }
+      } else {
+        envsMap.set(env.key, env)
+      }
+    })
+
+    return Array.from(envsMap.values())
+  }
+
+  /**
    * Checks if the environment variables in the target array are empty
    * @param target The target array to validate
    * @param locations The location where results are to be displayed
@@ -156,14 +182,15 @@ export class EnvironmentInspectorService extends Service implements Inspector {
 
             const currentTab = this.restTabs.currentActiveTab.value
 
-            const environmentVariables = [
-              ...currentTab.document.request.requestVariables.map((env) => ({
-                ...env,
-                secret: false,
-                sourceEnv: "RequestVariable",
-              })),
-              ...this.aggregateEnvsWithSecrets.value,
-            ]
+            const environmentVariables =
+              this.filterNonEmptyEnvironmentVariables([
+                ...currentTab.document.request.requestVariables.map((env) => ({
+                  ...env,
+                  secret: false,
+                  sourceEnv: "RequestVariable",
+                })),
+                ...this.aggregateEnvsWithSecrets.value,
+              ])
 
             environmentVariables.forEach((env) => {
               const hasSecretEnv = this.secretEnvs.hasSecretValue(

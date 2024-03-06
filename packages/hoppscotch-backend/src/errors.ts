@@ -732,6 +732,13 @@ export const INFRA_CONFIG_SERVICE_NOT_CONFIGURED =
   'infra_config/service_not_configured' as const;
 
 /**
+ * Infra Config update/fetch operation not allowed
+ * (InfraConfigService)
+ */
+export const INFRA_CONFIG_OPERATION_NOT_ALLOWED =
+  'infra_config/operation_not_allowed';
+
+/**
  * Error message for when the database table does not exist
  * (InfraConfigService)
  */

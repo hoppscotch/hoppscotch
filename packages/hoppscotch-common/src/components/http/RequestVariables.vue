@@ -49,7 +49,7 @@
     </div>
     <div v-else>
       <draggable
-        v-model="workingRequestVaraiables"
+        v-model="workingRequestVariables"
         item-key="id"
         animation="250"
         handle=".draggable-handle"
@@ -62,25 +62,23 @@
           <div
             class="draggable-content group flex divide-x divide-dividerLight border-b border-dividerLight"
           >
-            <span>
-              <HoppButtonSecondary
-                v-tippy="{
-                  theme: 'tooltip',
-                  delay: [500, 20],
-                  content:
-                    index !== workingRequestVaraiables?.length - 1
-                      ? t('action.drag_to_reorder')
-                      : null,
-                }"
-                :icon="IconGripVertical"
-                class="opacity-0"
-                :class="{
-                  'draggable-handle cursor-grab group-hover:opacity-100':
-                    index !== workingRequestVaraiables?.length - 1,
-                }"
-                tabindex="-1"
-              />
-            </span>
+            <HoppButtonSecondary
+              v-tippy="{
+                theme: 'tooltip',
+                delay: [500, 20],
+                content:
+                  index !== workingRequestVariables?.length - 1
+                    ? t('action.drag_to_reorder')
+                    : null,
+              }"
+              :icon="IconGripVertical"
+              class="opacity-0"
+              :class="{
+                'draggable-handle cursor-grab group-hover:opacity-100':
+                  index !== workingRequestVariables?.length - 1,
+              }"
+              tabindex="-1"
+            />
             <SmartEnvInput
               v-model="variable.key"
               :placeholder="`${t('count.variable', { count: index + 1 })}`"
@@ -105,50 +103,46 @@
                 })
               "
             />
-            <span>
-              <HoppButtonSecondary
-                v-tippy="{ theme: 'tooltip' }"
-                :title="
-                  variable.hasOwnProperty('active')
-                    ? variable.active
-                      ? t('action.turn_off')
-                      : t('action.turn_on')
-                    : t('action.turn_off')
-                "
-                :icon="
-                  variable.hasOwnProperty('active')
-                    ? variable.active
-                      ? IconCheckCircle
-                      : IconCircle
-                    : IconCheckCircle
-                "
-                color="green"
-                @click="
-                  updateVariable(index, {
-                    id: variable.id,
-                    key: variable.key,
-                    value: variable.value,
-                    active: variable.hasOwnProperty('active')
-                      ? !variable.active
-                      : false,
-                  })
-                "
-              />
-            </span>
-            <span>
-              <HoppButtonSecondary
-                v-tippy="{ theme: 'tooltip' }"
-                :title="t('action.remove')"
-                :icon="IconTrash"
-                color="red"
-                @click="deleteVariable(index)"
-              />
-            </span>
+            <HoppButtonSecondary
+              v-tippy="{ theme: 'tooltip' }"
+              :title="
+                variable.hasOwnProperty('active')
+                  ? variable.active
+                    ? t('action.turn_off')
+                    : t('action.turn_on')
+                  : t('action.turn_off')
+              "
+              :icon="
+                variable.hasOwnProperty('active')
+                  ? variable.active
+                    ? IconCheckCircle
+                    : IconCircle
+                  : IconCheckCircle
+              "
+              color="green"
+              @click="
+                updateVariable(index, {
+                  id: variable.id,
+                  key: variable.key,
+                  value: variable.value,
+                  active: variable.hasOwnProperty('active')
+                    ? !variable.active
+                    : false,
+                })
+              "
+            />
+            <HoppButtonSecondary
+              v-tippy="{ theme: 'tooltip' }"
+              :title="t('action.remove')"
+              :icon="IconTrash"
+              color="red"
+              @click="deleteVariable(index)"
+            />
           </div>
         </template>
       </draggable>
       <HoppSmartPlaceholder
-        v-if="workingRequestVaraiables.length === 0"
+        v-if="workingRequestVariables.length === 0"
         :src="`/images/states/${colorMode.value}/add_files.svg`"
         :alt="`${t('empty.request_variables')}`"
         :text="t('empty.request_variables')"
@@ -238,7 +232,7 @@ useCodemirror(
 
 const idTicker = ref(0)
 
-const workingRequestVaraiables = ref<
+const workingRequestVariables = ref<
   Array<HoppRESTRequestVariable & { id: number }>
 >([
   {
@@ -255,7 +249,7 @@ watch(
   (newRequestVariableList) => {
     // Sync should overwrite working params
     const filteredWorkingRequestVariables: HoppRESTRequestVariable[] = pipe(
-      workingRequestVaraiables.value,
+      workingRequestVariables.value,
       A.filterMap(
         flow(
           O.fromPredicate((e) => e.key !== ""),
@@ -276,7 +270,7 @@ watch(
     )
 
     if (!isEqual(newRequestVariableList, filteredWorkingRequestVariables)) {
-      workingRequestVaraiables.value = pipe(
+      workingRequestVariables.value = pipe(
         newRequestVariableList,
         A.map((x) => ({ id: idTicker.value++, ...x }))
       )
@@ -289,7 +283,7 @@ watch(
   { immediate: true }
 )
 
-watch(workingRequestVaraiables, (newWorkingRequestVariables) => {
+watch(workingRequestVariables, (newWorkingRequestVariables) => {
   const fixedRequestVariables = pipe(
     newWorkingRequestVariables,
     A.filterMap(
@@ -323,12 +317,12 @@ watch(bulkVariables, (newBulkParams) => {
 })
 
 // Rule: Working Request variable always have last element is always an empty param
-watch(workingRequestVaraiables, (variableList) => {
+watch(workingRequestVariables, (variableList) => {
   if (
     variableList.length > 0 &&
     variableList[variableList.length - 1].key !== ""
   ) {
-    workingRequestVaraiables.value.push({
+    workingRequestVariables.value.push({
       id: idTicker.value++,
       key: "",
       value: "",
@@ -338,7 +332,7 @@ watch(workingRequestVaraiables, (variableList) => {
 })
 
 const addVariable = () => {
-  workingRequestVaraiables.value.push({
+  workingRequestVariables.value.push({
     id: idTicker.value++,
     key: "",
     value: "",
@@ -347,14 +341,14 @@ const addVariable = () => {
 }
 
 const updateVariable = (index: number, variable: any & { id: number }) => {
-  workingRequestVaraiables.value = workingRequestVaraiables.value.map((h, i) =>
+  workingRequestVariables.value = workingRequestVariables.value.map((h, i) =>
     i === index ? variable : h
   )
 }
 
 const deleteVariable = (index: number) => {
   const requestVariablesBeforeDeletion = cloneDeep(
-    workingRequestVaraiables.value
+    workingRequestVariables.value
   )
 
   if (
@@ -373,7 +367,7 @@ const deleteVariable = (index: number) => {
         {
           text: `${t("action.undo")}`,
           onClick: (_, toastObject) => {
-            workingRequestVaraiables.value = requestVariablesBeforeDeletion
+            workingRequestVariables.value = requestVariablesBeforeDeletion
             toastObject.goAway(0)
             deletionToast.value = null
           },
@@ -386,8 +380,8 @@ const deleteVariable = (index: number) => {
     })
   }
 
-  workingRequestVaraiables.value = pipe(
-    workingRequestVaraiables.value,
+  workingRequestVariables.value = pipe(
+    workingRequestVariables.value,
     A.deleteAt(index),
     O.getOrElseW(() =>
       throwError("Working Request Variable Deletion Out of Bounds")
@@ -397,7 +391,7 @@ const deleteVariable = (index: number) => {
 
 const clearContent = () => {
   // set params list to the initial state
-  workingRequestVaraiables.value = [
+  workingRequestVariables.value = [
     {
       id: idTicker.value++,
       key: "",

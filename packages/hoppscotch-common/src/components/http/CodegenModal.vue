@@ -196,7 +196,7 @@ const requestCode = computed(() => {
           value: requestVariable.value,
           secret: false,
         }
-      return []
+      return {}
     }
   )
   const env: Environment = {

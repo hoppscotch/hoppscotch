@@ -123,9 +123,9 @@ const sharedRequestURL = computed(() => {
 })
 
 const tabRequestVariables = computed(() => {
-  return tab.value.document.request.requestVariables.map((v) => ({
-    key: v.key,
-    value: v.value,
+  return tab.value.document.request.requestVariables.map(({ key, value }) => ({
+    key,
+    value,
     secret: false,
     sourceEnv: "RequestVariable",
   }))

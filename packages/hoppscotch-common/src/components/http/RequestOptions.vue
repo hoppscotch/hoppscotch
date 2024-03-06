@@ -5,15 +5,15 @@
     render-inactive-tabs
   >
     <HoppSmartTab
-      v-if="properties ? properties.includes('params') : true"
+      v-if="properties?.includes('params') ?? true"
       :id="'params'"
       :label="`${t('tab.parameters')}`"
-      :info="`${newActiveParamsCount$}`"
+      :info="`${newActiveParamsCount}`"
     >
       <HttpParameters v-model="request.params" :envs="envs" />
     </HoppSmartTab>
     <HoppSmartTab
-      v-if="properties ? properties.includes('bodyParams') : true"
+      v-if="properties?.includes('bodyParams') ?? true"
       :id="'bodyParams'"
       :label="`${t('tab.body')}`"
     >
@@ -25,10 +25,10 @@
       />
     </HoppSmartTab>
     <HoppSmartTab
-      v-if="properties ? properties.includes('headers') : true"
+      v-if="properties?.includes('headers') ?? true"
       :id="'headers'"
       :label="`${t('tab.headers')}`"
-      :info="`${newActiveHeadersCount$}`"
+      :info="`${newActiveHeadersCount}`"
     >
       <HttpHeaders
         v-model="request"
@@ -38,7 +38,7 @@
       />
     </HoppSmartTab>
     <HoppSmartTab
-      v-if="properties ? properties.includes('authorization') : true"
+      v-if="properties?.includes('authorization') ?? true"
       :id="'authorization'"
       :label="`${t('tab.authorization')}`"
     >
@@ -49,7 +49,7 @@
       />
     </HoppSmartTab>
     <HoppSmartTab
-      v-if="properties ? properties.includes('preRequestScript') : true"
+      v-if="properties?.includes('preRequestScript') ?? true"
       :id="'preRequestScript'"
       :label="`${t('tab.pre_request_script')}`"
       :indicator="
@@ -61,7 +61,7 @@
       <HttpPreRequestScript v-model="request.preRequestScript" />
     </HoppSmartTab>
     <HoppSmartTab
-      v-if="properties ? properties.includes('tests') : true"
+      v-if="properties?.includes('tests') ?? true"
       :id="'tests'"
       :label="`${t('tab.tests')}`"
       :indicator="
@@ -71,10 +71,10 @@
       <HttpTests v-model="request.testScript" />
     </HoppSmartTab>
     <HoppSmartTab
-      v-if="properties ? properties.includes('requestVariables') : true"
+      v-if="properties?.includes('requestVariables') ?? true"
       :id="'requestVariables'"
       :label="`${t('tab.variables')}`"
-      :info="`${newActiveRequestVariablesCount$}`"
+      :info="`${newActiveRequestVariablesCount}`"
       :align-last="true"
     >
       <HttpRequestVariables v-model="request.requestVariables" />
@@ -131,31 +131,27 @@ const changeOptionTab = (e: RESTOptionTabs) => {
   selectedOptionTab.value = e
 }
 
-const newActiveParamsCount$ = computed(() => {
-  const e = request.value.params.filter(
-    (x) => x.active && (x.key !== "" || x.value !== "")
+const newActiveParamsCount = computed(() => {
+  const count = request.value.params.filter(
+    (x) => x.active && (x.key || x.value)
   ).length
 
-  if (e === 0) return null
-  return `${e}`
+  return count ? count : null
 })
 
-const newActiveHeadersCount$ = computed(() => {
-  const e = request.value.headers.filter(
-    (x) => x.active && (x.key !== "" || x.value !== "")
+const newActiveHeadersCount = computed(() => {
+  const count = request.value.headers.filter(
+    (x) => x.active && (x.key || x.value)
   ).length
 
-  if (e === 0) return null
-  return `${e}`
+  return count ? count : null
 })
 
-const newActiveRequestVariablesCount$ = computed(() => {
-  const e = request.value.requestVariables.filter(
-    (x) => x.active && (x.key !== "" || x.value !== "")
+const newActiveRequestVariablesCount = computed(() => {
+  const count = request.value.requestVariables.filter(
+    (x) => x.active && (x.key || x.value)
   ).length
-
-  if (e === 0) return null
-  return `${e}`
+  return count ? count : null
 })
 
 defineActionHandler("request.open-tab", ({ tab }) => {

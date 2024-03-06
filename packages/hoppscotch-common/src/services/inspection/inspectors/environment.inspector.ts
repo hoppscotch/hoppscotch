@@ -225,9 +225,9 @@ export class EnvironmentInspectorService extends Service implements Inspector {
                         } else {
                           invokeAction(invokeActionType, {
                             envName:
-                              env.sourceEnv !== "Global"
-                                ? currentSelectedEnvironment.name
-                                : "Global",
+                              env.sourceEnv === "Global"
+                                ? "Global"
+                                : currentSelectedEnvironment.name,
                             variableName: formattedExEnv,
                             isSecret: env.secret,
                           })

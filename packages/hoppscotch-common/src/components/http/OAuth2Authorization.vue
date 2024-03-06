@@ -18,7 +18,7 @@
         :auto-complete-env="true"
         :styles="hasOIDCURL ? 'pointer-events-none opacity-70' : ''"
         :envs="envs"
-      ></SmartEnvInput>
+      />
     </div>
     <div class="flex flex-1 border-b border-dividerLight">
       <SmartEnvInput

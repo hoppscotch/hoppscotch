@@ -138,7 +138,7 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
               "requestVariables"
           } else {
             invokeAction(invokeActionType, {
-              envName: tooltipEnv?.sourceEnv !== "Global" ? envName : "Global",
+              envName: tooltipEnv?.sourceEnv === "Global" ? "Global" : envName,
               variableName: parsedEnvKey,
               isSecret: tooltipEnv?.secret,
             })
@@ -236,9 +236,9 @@ export class HoppEnvironmentPlugin {
       currentTab.document.request,
       (reqVariables) => {
         this.envs = [
-          ...reqVariables.requestVariables.map((variable) => ({
-            key: variable.key,
-            value: variable.value,
+          ...reqVariables.requestVariables.map(({ key, value }) => ({
+            key,
+            value,
             sourceEnv: "RequestVariable",
             secret: false,
           })),
@@ -257,12 +257,14 @@ export class HoppEnvironmentPlugin {
 
     subscribeToStream(aggregateEnvsWithSecrets$, (envs) => {
       this.envs = [
-        ...currentTab.document.request.requestVariables.map((variable) => ({
-          key: variable.key,
-          value: variable.value,
-          sourceEnv: "RequestVariable",
-          secret: false,
-        })),
+        ...currentTab.document.request.requestVariables.map(
+          ({ key, value }) => ({
+            key,
+            value,
+            sourceEnv: "RequestVariable",
+            secret: false,
+          })
+        ),
         ...envs,
       ]
 

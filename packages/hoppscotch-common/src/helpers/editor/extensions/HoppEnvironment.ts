@@ -13,7 +13,7 @@ import { StreamSubscriberFunc } from "@composables/stream"
 import {
   AggregateEnvironment,
   aggregateEnvsWithSecrets$,
-  getAggregateEnvsWithSecrets,
+  getAggregateEnvs,
   getCurrentEnvironment,
   getSelectedEnvironmentType,
 } from "~/newstore/environments"
@@ -100,7 +100,12 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
 
       const result = parseTemplateStringE(envValue, aggregateEnvs)
 
-      const finalEnv = E.isLeft(result) ? "error" : result.right
+      let finalEnv = E.isLeft(result) ? "error" : result.right
+
+      // If the request variable has an secret variable
+      // parseTemplateStringE is passed the secret value which has value undefined
+      // So, we need to check if the result is undefined and then set the finalEnv to ******
+      if (finalEnv === "undefined") finalEnv = "******"
 
       const selectedEnvType = getSelectedEnvironmentType()
 
@@ -224,7 +229,7 @@ export class HoppEnvironmentPlugin {
     subscribeToStream: StreamSubscriberFunc,
     private editorView: Ref<EditorView | undefined>
   ) {
-    const aggregateEnvs = getAggregateEnvsWithSecrets()
+    const aggregateEnvs = getAggregateEnvs()
     const currentTab = restTabs.currentActiveTab.value
 
     watch(

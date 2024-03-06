@@ -4,7 +4,9 @@
       <HoppSmartSpinner />
     </div>
 
-    <div v-else-if="error">{{ t('teams.load_info_error') }}</div>
+    <div v-else-if="error" class="text-lg">
+      {{ t('teams.load_info_error') }}
+    </div>
 
     <div v-else-if="team" class="flex flex-col">
       <div class="flex items-center space-x-4">

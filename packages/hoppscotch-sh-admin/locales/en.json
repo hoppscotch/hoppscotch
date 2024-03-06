@@ -156,11 +156,11 @@
     "self_host_docs": "Self Host Documentation",
     "send_magic_link": "Send magic link",
     "setup_failure": "Setup has failed!!",
-    "setup_success": "Setup completed successful!!",
+    "setup_success": "Setup completed successfully!!",
     "sign_in_agreement": "By signing in, you are agreeing to our",
     "sign_in_options": "All sign in option",
     "sign_out": "Sign out",
-    "team_name_long": "Workspace name should be atleast 6 characters long!!",
+    "team_name_too_short": "Workspace name should be atleast 6 characters long!!",
     "user_not_found": "User not found in the infra!!"
   },
   "teams": {

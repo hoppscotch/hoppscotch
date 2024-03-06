@@ -1,14 +1,10 @@
 import { auth } from '~/helpers/auth';
+import { UNAUTHORIZED } from '~/helpers/errors';
 import { HoppModule } from '.';
 
 const isSetupRoute = (to: unknown) => to === 'setup';
 
 const isGuestRoute = (to: unknown) => ['index', 'enter'].includes(to as string);
-
-const getAdminStatus = async () => {
-  const user = await auth.checkCurrentUser();
-  return !!user?.isAdmin;
-};
 
 const getFirstTimeInfraSetupStatus = async () => {
   const isInfraNotSetup = await auth.getFirstTimeInfraSetupStatus();
@@ -30,7 +26,14 @@ const getFirstTimeInfraSetupStatus = async () => {
 
 export default <HoppModule>{
   async onBeforeRouteChange(to, _from, next) {
-    const isAdmin = await getAdminStatus();
+    const res = await auth.getUserDetails();
+
+    // Allow performing the silent refresh flow for an invalid access token state
+    if (res.errors?.[0].message === UNAUTHORIZED) {
+      return next();
+    }
+
+    const isAdmin = res.data?.me.isAdmin;
 
     // Route Guards
     if (!isGuestRoute(to.name) && !isAdmin) {
@@ -40,6 +43,7 @@ export default <HoppModule>{
        */
       return next({ name: 'index' });
     }
+
     if (isAdmin) {
       // These route guards applies to the case where the user is logged in successfully and validated as an admin
       const isInfraNotSetup = await getFirstTimeInfraSetupStatus();

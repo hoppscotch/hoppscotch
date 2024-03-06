@@ -1,4 +1,4 @@
-import { onMounted, ref } from 'vue';
+import { Ref, onMounted, ref } from 'vue';
 import { DocumentNode } from 'graphql';
 import { TypedDocumentNode, useClientHandle } from '@urql/vue';
 
@@ -16,38 +16,41 @@ export function usePagedQuery<
   const { client } = useClientHandle();
   const fetching = ref(true);
   const error = ref(false);
-  const list = ref<ListItem[]>([]);
+  const list: Ref<ListItem[]> = ref([]);
   const currentPage = ref(0);
   const hasNextPage = ref(true);
 
   const fetchNextPage = async () => {
     fetching.value = true;
 
-    try {
-      const cursor =
-        list.value.length > 0 ? getCursor(list.value.at(-1)) : undefined;
-      const variablesForPagination = {
-        ...variables,
-        take: itemsPerPage,
-        cursor,
-      };
+    const cursor =
+      list.value.length > 0 ? getCursor(list.value.at(-1)!) : undefined;
+    const variablesForPagination = {
+      ...variables,
+      take: itemsPerPage,
+      cursor,
+    };
 
-      const result = await client
-        .query(query, variablesForPagination)
-        .toPromise();
-      const resultList = getList(result.data!);
+    const result = await client
+      .query(query, variablesForPagination)
+      .toPromise();
 
-      if (resultList.length < itemsPerPage) {
-        hasNextPage.value = false;
-      }
-
-      list.value.push(...resultList);
-      currentPage.value++;
-    } catch (e) {
+    if (result.error) {
       error.value = true;
-    } finally {
       fetching.value = false;
+      return;
     }
+
+    const resultList = getList(result.data!);
+
+    if (resultList.length < itemsPerPage) {
+      hasNextPage.value = false;
+    }
+
+    list.value.push(...resultList);
+    currentPage.value++;
+
+    fetching.value = false;
   };
 
   onMounted(async () => {

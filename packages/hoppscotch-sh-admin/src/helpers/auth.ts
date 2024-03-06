@@ -67,7 +67,7 @@ const signOut = async (reloadWindow = false) => {
   });
 };
 
-const getInitialUserDetails = async () => {
+const getUserDetails = async () => {
   const res = await authQuery.getUserDetails();
   return res.data;
 };
@@ -80,7 +80,7 @@ const setUser = (user: HoppUser | null) => {
 
 const setInitialUser = async () => {
   isGettingInitialUser.value = true;
-  const res = await getInitialUserDetails();
+  const res = await getUserDetails();
 
   if (res.errors?.[0]) {
     const [error] = res.errors;
@@ -154,15 +154,7 @@ export const auth = {
   getCurrentUserStream: () => currentUser$,
   getAuthEventsStream: () => authEvents$,
   getCurrentUser: () => currentUser$.value,
-  checkCurrentUser: async () => {
-    try {
-      const res = await authQuery.getUserDetails();
-      return res.data.data.me;
-    } catch (err) {
-      return null;
-    }
-  },
-
+  getUserDetails,
   performAuthInit: () => {
     const currentUser = JSON.parse(getLocalConfig('login_state') ?? 'null');
     currentUser$.next(currentUser);

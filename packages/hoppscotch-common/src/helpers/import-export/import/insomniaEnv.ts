@@ -6,7 +6,7 @@ import { IMPORTER_INVALID_FILE_FORMAT } from "."
 import { z } from "zod"
 import { NonSecretEnvironment } from "@hoppscotch/data"
 import { safeParseJSONOrYAML } from "~/helpers/functional/yaml"
-import { uniqueId } from "lodash-es"
+import { uniqueID } from "~/helpers/utils/uniqueID"
 
 const insomniaResourcesSchema = z.object({
   resources: z.array(
@@ -67,7 +67,7 @@ export const insomniaEnvImporter = (contents: string[]) => {
 
     if (parsedInsomniaEnv.success) {
       const environment: NonSecretEnvironment = {
-        id: uniqueId(),
+        id: uniqueID(),
         v: 1,
         name: parsedInsomniaEnv.data.name,
         variables: Object.entries(parsedInsomniaEnv.data.data).map(

@@ -37,36 +37,42 @@
             >
               <div v-if="field.key !== 'tenant'">
                 <label>{{ field.name }}</label>
-                <span class="flex">
+                <span class="flex max-w-lg">
                   <HoppSmartInput
                     v-model="provider.fields[field.key]"
-                    :type="field.isMasked ? 'password' : 'text'"
-                    :disabled="field.isMasked"
+                    :type="
+                      isMasked(provider.name, field.key) ? 'password' : 'text'
+                    "
+                    :disabled="isMasked(provider.name, field.key)"
                     :autofocus="false"
-                    class="!my-2 !bg-primaryLight w-72"
+                    class="!my-2 !bg-primaryLight flex-1"
                   />
                   <HoppButtonSecondary
-                    :icon="field.isMasked ? IconEye : IconEyeOff"
+                    :icon="
+                      isMasked(provider.name, field.key) ? IconEye : IconEyeOff
+                    "
                     class="bg-primaryLight h-9 mt-2"
-                    @click="field.isMasked = !field.isMasked"
+                    @click="toggleMask(provider.name, field.key)"
                   />
                 </span>
               </div>
               <!-- Microsoft Configs has an extra tenant field -->
               <div v-else-if="provider.name === 'microsoft'">
                 <label>{{ field.name }}</label>
-                <span class="flex">
+                <span class="flex max-w-lg">
                   <HoppSmartInput
-                    v-model="microsoftTenant"
-                    :type="field.isMasked ? 'password' : 'text'"
-                    :disabled="field.isMasked"
+                    v-model="provider.fields[field.key as keyof typeof provider['fields']]"
+                    :type="
+                      isMasked(provider.name, field.key) ? 'password' : 'text'
+                    "
+                    :disabled="isMasked(provider.name, field.key)"
                     :autofocus="false"
-                    class="!my-2 !bg-primaryLight w-72"
+                    class="!my-2 !bg-primaryLight flex-1"
                   />
                   <HoppButtonSecondary
                     :icon="field.isMasked ? IconEye : IconEyeOff"
                     class="bg-primaryLight h-9 mt-2"
-                    @click="field.isMasked = !field.isMasked"
+                    @click="toggleMask(provider.name, field.key)"
                   />
                 </span>
               </div>
@@ -82,7 +88,7 @@
 import { useVModel } from '@vueuse/core';
 import { reactive } from 'vue';
 import { useI18n } from '~/composables/i18n';
-import { Config } from '~/composables/useConfigHandler';
+import { Config, SsoAuthProviders } from '~/composables/useConfigHandler';
 import IconEye from '~icons/lucide/eye';
 import IconEyeOff from '~icons/lucide/eye-off';
 
@@ -137,4 +143,34 @@ const providerConfigFields = reactive<Field[]>([
 ]);
 
 const microsoftTenant = workingConfigs.value.providers.microsoft.fields.tenant;
+
+const maskState = reactive({
+  google: {
+    client_id: true,
+    client_secret: true,
+    callback_url: true,
+    scope: true,
+  },
+  github: {
+    client_id: true,
+    client_secret: true,
+    callback_url: true,
+    scope: true,
+  },
+  microsoft: {
+    client_id: true,
+    client_secret: true,
+    callback_url: true,
+    scope: true,
+    tenant: true,
+  },
+});
+
+const toggleMask = (provider: SsoAuthProviders, fieldKey: FieldKey) => {
+  maskState[provider][fieldKey as keyof (typeof maskState)[typeof provider]] =
+    !maskState[provider][fieldKey as keyof (typeof maskState)[typeof provider]];
+};
+
+const isMasked = (provider: SsoAuthProviders, fieldKey: FieldKey) =>
+  maskState[provider][fieldKey as keyof (typeof maskState)[typeof provider]];
 </script>

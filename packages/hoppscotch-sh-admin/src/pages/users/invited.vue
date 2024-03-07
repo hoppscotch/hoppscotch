@@ -24,7 +24,7 @@
           {{ t('users.no_invite') }}
         </div>
 
-        <UsersTable
+        <HoppSmartTable
           v-else
           :headings="headings"
           :list="pendingInvites"
@@ -61,7 +61,7 @@
               />
             </div>
           </template>
-        </UsersTable>
+        </HoppSmartTable>
 
         <div
           v-if="selectedRows.length"

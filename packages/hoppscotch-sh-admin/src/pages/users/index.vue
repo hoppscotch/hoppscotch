@@ -23,7 +23,7 @@
       <div class="overflow-x-auto">
         <div v-if="error">{{ t('users.load_list_error') }}</div>
 
-        <UsersTable
+        <HoppSmartTable
           v-else-if="usersList"
           :headings="headings"
           :list="usersList"
@@ -141,7 +141,7 @@
               </div>
             </td>
           </template>
-        </UsersTable>
+        </HoppSmartTable>
 
         <!-- Actions for Selected Rows -->
         <div

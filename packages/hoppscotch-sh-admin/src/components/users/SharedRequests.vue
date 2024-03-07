@@ -10,7 +10,7 @@
       {{ t('users.no_shared_requests') }}
     </div>
 
-    <UsersTable v-else :headings="headings" :list="sharedRequests">
+    <HoppSmartTable v-else :headings="headings" :list="sharedRequests">
       <template #head>
         <th class="px-6 py-2">{{ t('shared_requests.id') }}</th>
         <th class="px-6 py-2 w-30">{{ t('shared_requests.url') }}</th>
@@ -64,7 +64,7 @@
           />
         </td>
       </template>
-    </UsersTable>
+    </HoppSmartTable>
 
     <!-- Pagination -->
     <div

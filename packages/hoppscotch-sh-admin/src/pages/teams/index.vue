@@ -18,7 +18,7 @@
 
         <div v-else-if="error">{{ t('teams.load_list_error') }}</div>
 
-        <UsersTable
+        <HoppSmartTable
           v-else-if="teamsList.length"
           :headings="headings"
           :list="teamsList"
@@ -82,7 +82,7 @@
               </div>
             </td>
           </template>
-        </UsersTable>
+        </HoppSmartTable>
 
         <div v-else class="px-2">
           {{ t('teams.no_teams') }}

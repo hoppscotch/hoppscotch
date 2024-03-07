@@ -15,6 +15,7 @@
       "client_secret": "CLIENT SECRET",
       "description": "Configure authentication providers for your server",
       "scope": "SCOPE",
+      "tenant": "TENANT",
       "title": "Authentication Providers",
       "update_failure": "Failed to update authentication provider configurations!!"
     },

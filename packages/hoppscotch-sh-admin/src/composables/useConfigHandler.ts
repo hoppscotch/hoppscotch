@@ -49,6 +49,7 @@ export type Config = {
         client_secret: string;
         callback_url: string;
         scope: string;
+        tenant: string;
       };
     };
   };
@@ -98,6 +99,7 @@ export function useConfigHandler(updatedConfigs?: Config) {
         'MICROSOFT_CLIENT_SECRET',
         'MICROSOFT_CALLBACK_URL',
         'MICROSOFT_SCOPE',
+        'MICROSOFT_TENANT',
         'GITHUB_CLIENT_ID',
         'GITHUB_CLIENT_SECRET',
         'GITHUB_CALLBACK_URL',
@@ -164,6 +166,7 @@ export function useConfigHandler(updatedConfigs?: Config) {
             client_secret: getFieldValue('MICROSOFT_CLIENT_SECRET'),
             callback_url: getFieldValue('MICROSOFT_CALLBACK_URL'),
             scope: getFieldValue('MICROSOFT_SCOPE'),
+            tenant: getFieldValue('MICROSOFT_TENANT'),
           },
         },
       },
@@ -242,6 +245,10 @@ export function useConfigHandler(updatedConfigs?: Config) {
         {
           name: 'MICROSOFT_SCOPE',
           value: updatedConfigs?.providers.microsoft.fields.scope ?? '',
+        },
+        {
+          name: 'MICROSOFT_TENANT',
+          value: updatedConfigs?.providers.microsoft.fields.tenant ?? '',
         }
       );
     } else {
@@ -250,7 +257,8 @@ export function useConfigHandler(updatedConfigs?: Config) {
           item.name !== 'MICROSOFT_CLIENT_ID' &&
           item.name !== 'MICROSOFT_CLIENT_SECRET' &&
           item.name !== 'MICROSOFT_CALLBACK_URL' &&
-          item.name !== 'MICROSOFT_SCOPE'
+          item.name !== 'MICROSOFT_SCOPE' &&
+          item.name !== 'MICROSOFT_TENANT'
       );
     }
 

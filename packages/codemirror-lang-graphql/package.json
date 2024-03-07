@@ -19,14 +19,14 @@
   "dependencies": {
     "@codemirror/language": "6.9.3",
     "@lezer/highlight": "1.2.0",
-    "@lezer/lr": "^1.3.14"
+    "@lezer/lr": "1.3.14"
   },
   "devDependencies": {
-    "@lezer/generator": "^1.5.1",
-    "mocha": "^9.2.2",
-    "rollup": "^3.29.3",
-    "rollup-plugin-dts": "^6.0.2",
-    "rollup-plugin-ts": "^3.4.5",
-    "typescript": "^5.2.2"
+    "@lezer/generator": "1.5.1",
+    "mocha": "9.2.2",
+    "rollup": "3.29.4",
+    "rollup-plugin-dts": "6.0.2",
+    "rollup-plugin-ts": "3.4.5",
+    "typescript": "5.2.2"
   }
 }

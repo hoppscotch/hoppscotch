@@ -34,18 +34,17 @@ const currentUser = useReadonlyStream(
 )
 
 const currentWorkspace = computed(() => {
-  if (props.isOnlyPersonal) {
-    return currentUser.value?.displayName
-      ? t("workspace.personal_workspace", {
-          name: currentUser.value.displayName,
-        })
-      : t("workspace.personal")
-  } else if (workspace.value.type === "team") {
-    return teamWorkspaceName.value
-  }
-  return currentUser.value?.displayName
+  const personalWorkspaceName = currentUser.value?.displayName
     ? t("workspace.personal_workspace", { name: currentUser.value.displayName })
     : t("workspace.personal")
+
+  if (props.isOnlyPersonal) {
+    return personalWorkspaceName
+  }
+  if (workspace.value.type === "team") {
+    return teamWorkspaceName.value
+  }
+  return personalWorkspaceName
 })
 
 const teamWorkspaceName = computed(() => {

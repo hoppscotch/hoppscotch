@@ -417,7 +417,9 @@ function handleTextSelection() {
     const { from, to } = selection
     if (from === to) return
     const text = view.value?.state.doc.sliceString(from, to)
-    const { top, left } = view.value?.coordsAtPos(from)
+    const coords = view.value?.coordsAtPos(from)
+    const top = coords?.top ?? 0
+    const left = coords?.left ?? 0
     if (text) {
       invokeAction("contextmenu.open", {
         position: {
@@ -439,16 +441,17 @@ function handleTextSelection() {
   }
 }
 
-const initView = (el: any) => {
-  // Debounce to prevent double click from selecting the word
-  const debounceFn = useDebounceFn(() => {
+// Debounce to prevent double click from selecting the word
+const debouncedTextSelection = (time: number) =>
+  useDebounceFn(() => {
     handleTextSelection()
-  }, 140)
+  }, time)
 
+const initView = (el: any) => {
   // Only add event listeners if context menu is enabled in the component
   if (props.contextMenuEnabled) {
-    el.addEventListener("mouseup", debounceFn)
-    el.addEventListener("keyup", debounceFn)
+    el.addEventListener("mouseup", debouncedTextSelection(140))
+    el.addEventListener("keyup", debouncedTextSelection(140))
   }
 
   const extensions: Extension = getExtensions(props.readonly || isSecret.value)
@@ -498,7 +501,8 @@ const getExtensions = (readonly: boolean): Extension => {
       },
       scroll(event) {
         if (event.target && props.contextMenuEnabled) {
-          handleTextSelection()
+          // Debounce to make the performance better
+          debouncedTextSelection(30)()
         }
       },
     }),

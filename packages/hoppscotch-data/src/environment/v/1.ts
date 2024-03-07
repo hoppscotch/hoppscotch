@@ -1,6 +1,7 @@
 import { z } from "zod"
 import { defineVersion } from "verzod"
 import { V0_SCHEMA } from "./0"
+import { uniqueId } from "lodash"
 
 export const V1_SCHEMA = z.object({
   v: z.literal(1),
@@ -28,7 +29,7 @@ export default defineVersion({
     const result: z.infer<typeof V1_SCHEMA> = {
       ...old,
       v: 1,
-      id: old.id ?? "",
+      id: old.id ?? uniqueId(),
       variables: old.variables.map((variable) => {
         return {
           ...variable,

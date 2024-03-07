@@ -3,28 +3,25 @@ import { InfraConfig } from './infra-config.model';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { InfraConfig as DBInfraConfig } from '@prisma/client';
 import * as E from 'fp-ts/Either';
-import {
-  InfraConfigEnum,
-  InfraConfigEnumForClient,
-} from 'src/types/InfraConfig';
+import { InfraConfigEnum } from 'src/types/InfraConfig';
 import {
   AUTH_PROVIDER_NOT_SPECIFIED,
   DATABASE_TABLE_NOT_EXIST,
   INFRA_CONFIG_INVALID_INPUT,
   INFRA_CONFIG_NOT_FOUND,
-  INFRA_CONFIG_NOT_LISTED,
   INFRA_CONFIG_RESET_FAILED,
   INFRA_CONFIG_UPDATE_FAILED,
   INFRA_CONFIG_SERVICE_NOT_CONFIGURED,
+  INFRA_CONFIG_OPERATION_NOT_ALLOWED,
 } from 'src/errors';
-import { throwErr, validateSMTPEmail, validateSMTPUrl } from 'src/utils';
-import { ConfigService } from '@nestjs/config';
 import {
-  ServiceStatus,
-  generateAnalyticsUserId,
-  getConfiguredSSOProviders,
-  stopApp,
-} from './helper';
+  throwErr,
+  validateSMTPEmail,
+  validateSMTPUrl,
+  validateUrl,
+} from 'src/utils';
+import { ConfigService } from '@nestjs/config';
+import { ServiceStatus, getDefaultInfraConfigs, stopApp } from './helper';
 import { EnableAndDisableSSOArgs, InfraConfigArgs } from './input-args';
 import { AuthProvider } from 'src/auth/helper';
 
@@ -35,66 +32,22 @@ export class InfraConfigService implements OnModuleInit {
     private readonly configService: ConfigService,
   ) {}
 
+  // Following fields are not updatable by `infraConfigs` Mutation. Use dedicated mutations for these fields instead.
+  EXCLUDE_FROM_UPDATE_CONFIGS = [
+    InfraConfigEnum.VITE_ALLOWED_AUTH_PROVIDERS,
+    InfraConfigEnum.ALLOW_ANALYTICS_COLLECTION,
+    InfraConfigEnum.ANALYTICS_USER_ID,
+    InfraConfigEnum.IS_FIRST_TIME_INFRA_SETUP,
+  ];
+  // Following fields can not be fetched by `infraConfigs` Query. Use dedicated queries for these fields instead.
+  EXCLUDE_FROM_FETCH_CONFIGS = [
+    InfraConfigEnum.VITE_ALLOWED_AUTH_PROVIDERS,
+    InfraConfigEnum.ANALYTICS_USER_ID,
+    InfraConfigEnum.IS_FIRST_TIME_INFRA_SETUP,
+  ];
+
   async onModuleInit() {
     await this.initializeInfraConfigTable();
-  }
-
-  async getDefaultInfraConfigs(): Promise<
-    { name: InfraConfigEnum; value: string }[]
-  > {
-    // Prepare rows for 'infra_config' table with default values (from .env) for each 'name'
-    const infraConfigDefaultObjs: { name: InfraConfigEnum; value: string }[] = [
-      {
-        name: InfraConfigEnum.MAILER_SMTP_URL,
-        value: process.env.MAILER_SMTP_URL,
-      },
-      {
-        name: InfraConfigEnum.MAILER_ADDRESS_FROM,
-        value: process.env.MAILER_ADDRESS_FROM,
-      },
-      {
-        name: InfraConfigEnum.GOOGLE_CLIENT_ID,
-        value: process.env.GOOGLE_CLIENT_ID,
-      },
-      {
-        name: InfraConfigEnum.GOOGLE_CLIENT_SECRET,
-        value: process.env.GOOGLE_CLIENT_SECRET,
-      },
-      {
-        name: InfraConfigEnum.GITHUB_CLIENT_ID,
-        value: process.env.GITHUB_CLIENT_ID,
-      },
-      {
-        name: InfraConfigEnum.GITHUB_CLIENT_SECRET,
-        value: process.env.GITHUB_CLIENT_SECRET,
-      },
-      {
-        name: InfraConfigEnum.MICROSOFT_CLIENT_ID,
-        value: process.env.MICROSOFT_CLIENT_ID,
-      },
-      {
-        name: InfraConfigEnum.MICROSOFT_CLIENT_SECRET,
-        value: process.env.MICROSOFT_CLIENT_SECRET,
-      },
-      {
-        name: InfraConfigEnum.VITE_ALLOWED_AUTH_PROVIDERS,
-        value: getConfiguredSSOProviders(),
-      },
-      {
-        name: InfraConfigEnum.ALLOW_ANALYTICS_COLLECTION,
-        value: false.toString(),
-      },
-      {
-        name: InfraConfigEnum.ANALYTICS_USER_ID,
-        value: generateAnalyticsUserId(),
-      },
-      {
-        name: InfraConfigEnum.IS_FIRST_TIME_INFRA_SETUP,
-        value: (await this.prisma.infraConfig.count()) === 0 ? 'true' : 'false',
-      },
-    ];
-
-    return infraConfigDefaultObjs;
   }
 
   /**
@@ -103,16 +56,8 @@ export class InfraConfigService implements OnModuleInit {
    */
   async initializeInfraConfigTable() {
     try {
-      // Get all the 'names' of the properties to be saved in the 'infra_config' table
-      const enumValues = Object.values(InfraConfigEnum);
-
       // Fetch the default values (value in .env) for configs to be saved in 'infra_config' table
-      const infraConfigDefaultObjs = await this.getDefaultInfraConfigs();
-
-      // Check if all the 'names' are listed in the default values
-      if (enumValues.length !== infraConfigDefaultObjs.length) {
-        throw new Error(INFRA_CONFIG_NOT_LISTED);
-      }
+      const infraConfigDefaultObjs = await getDefaultInfraConfigs();
 
       // Eliminate the rows (from 'infraConfigDefaultObjs') that are already present in the database table
       const dbInfraConfigs = await this.prisma.infraConfig.findMany();
@@ -169,11 +114,7 @@ export class InfraConfigService implements OnModuleInit {
    * @param restartEnabled If true, restart the app after updating the InfraConfig
    * @returns InfraConfig model
    */
-  async update(
-    name: InfraConfigEnumForClient | InfraConfigEnum,
-    value: string,
-    restartEnabled = false,
-  ) {
+  async update(name: InfraConfigEnum, value: string, restartEnabled = false) {
     const isValidate = this.validateEnvValues([{ name, value }]);
     if (E.isLeft(isValidate)) return E.left(isValidate.left);
 
@@ -197,6 +138,11 @@ export class InfraConfigService implements OnModuleInit {
    * @returns InfraConfig model
    */
   async updateMany(infraConfigs: InfraConfigArgs[]) {
+    for (let i = 0; i < infraConfigs.length; i++) {
+      if (this.EXCLUDE_FROM_UPDATE_CONFIGS.includes(infraConfigs[i].name))
+        return E.left(INFRA_CONFIG_OPERATION_NOT_ALLOWED);
+    }
+
     const isValidate = this.validateEnvValues(infraConfigs);
     if (E.isLeft(isValidate)) return E.left(isValidate.left);
 
@@ -230,12 +176,26 @@ export class InfraConfigService implements OnModuleInit {
   ) {
     switch (service) {
       case AuthProvider.GOOGLE:
-        return configMap.GOOGLE_CLIENT_ID && configMap.GOOGLE_CLIENT_SECRET;
+        return (
+          configMap.GOOGLE_CLIENT_ID &&
+          configMap.GOOGLE_CLIENT_SECRET &&
+          configMap.GOOGLE_CALLBACK_URL &&
+          configMap.GOOGLE_SCOPE
+        );
       case AuthProvider.GITHUB:
-        return configMap.GITHUB_CLIENT_ID && configMap.GITHUB_CLIENT_SECRET;
+        return (
+          configMap.GITHUB_CLIENT_ID &&
+          configMap.GITHUB_CLIENT_SECRET &&
+          configMap.GITHUB_CALLBACK_URL &&
+          configMap.GITHUB_SCOPE
+        );
       case AuthProvider.MICROSOFT:
         return (
-          configMap.MICROSOFT_CLIENT_ID && configMap.MICROSOFT_CLIENT_SECRET
+          configMap.MICROSOFT_CLIENT_ID &&
+          configMap.MICROSOFT_CLIENT_SECRET &&
+          configMap.MICROSOFT_CALLBACK_URL &&
+          configMap.MICROSOFT_SCOPE &&
+          configMap.MICROSOFT_TENANT
         );
       case AuthProvider.EMAIL:
         return configMap.MAILER_SMTP_URL && configMap.MAILER_ADDRESS_FROM;
@@ -310,7 +270,7 @@ export class InfraConfigService implements OnModuleInit {
    * @param name Name of the InfraConfig
    * @returns InfraConfig model
    */
-  async get(name: InfraConfigEnumForClient) {
+  async get(name: InfraConfigEnum) {
     try {
       const infraConfig = await this.prisma.infraConfig.findUniqueOrThrow({
         where: { name },
@@ -327,7 +287,15 @@ export class InfraConfigService implements OnModuleInit {
    * @param names Names of the InfraConfigs
    * @returns InfraConfig model
    */
-  async getMany(names: InfraConfigEnumForClient[]) {
+  async getMany(names: InfraConfigEnum[], checkDisallowedKeys: boolean = true) {
+    if (checkDisallowedKeys) {
+      // Check if the names are allowed to fetch by client
+      for (let i = 0; i < names.length; i++) {
+        if (this.EXCLUDE_FROM_FETCH_CONFIGS.includes(names[i]))
+          return E.left(INFRA_CONFIG_OPERATION_NOT_ALLOWED);
+      }
+    }
+
     try {
       const infraConfigs = await this.prisma.infraConfig.findMany({
         where: { name: { in: names } },
@@ -354,7 +322,7 @@ export class InfraConfigService implements OnModuleInit {
    */
   async reset() {
     try {
-      const infraConfigDefaultObjs = await this.getDefaultInfraConfigs();
+      const infraConfigDefaultObjs = await getDefaultInfraConfigs();
 
       await this.prisma.infraConfig.deleteMany({
         where: { name: { in: infraConfigDefaultObjs.map((p) => p.name) } },
@@ -387,36 +355,60 @@ export class InfraConfigService implements OnModuleInit {
    */
   validateEnvValues(
     infraConfigs: {
-      name: InfraConfigEnumForClient | InfraConfigEnum;
+      name: InfraConfigEnum;
       value: string;
     }[],
   ) {
     for (let i = 0; i < infraConfigs.length; i++) {
       switch (infraConfigs[i].name) {
-        case InfraConfigEnumForClient.MAILER_SMTP_URL:
+        case InfraConfigEnum.MAILER_SMTP_URL:
           const isValidUrl = validateSMTPUrl(infraConfigs[i].value);
           if (!isValidUrl) return E.left(INFRA_CONFIG_INVALID_INPUT);
           break;
-        case InfraConfigEnumForClient.MAILER_ADDRESS_FROM:
+        case InfraConfigEnum.MAILER_ADDRESS_FROM:
           const isValidEmail = validateSMTPEmail(infraConfigs[i].value);
           if (!isValidEmail) return E.left(INFRA_CONFIG_INVALID_INPUT);
           break;
-        case InfraConfigEnumForClient.GOOGLE_CLIENT_ID:
+        case InfraConfigEnum.GOOGLE_CLIENT_ID:
           if (!infraConfigs[i].value) return E.left(INFRA_CONFIG_INVALID_INPUT);
           break;
-        case InfraConfigEnumForClient.GOOGLE_CLIENT_SECRET:
+        case InfraConfigEnum.GOOGLE_CLIENT_SECRET:
           if (!infraConfigs[i].value) return E.left(INFRA_CONFIG_INVALID_INPUT);
           break;
-        case InfraConfigEnumForClient.GITHUB_CLIENT_ID:
+        case InfraConfigEnum.GOOGLE_CALLBACK_URL:
+          if (!validateUrl(infraConfigs[i].value))
+            return E.left(INFRA_CONFIG_INVALID_INPUT);
+          break;
+        case InfraConfigEnum.GOOGLE_SCOPE:
           if (!infraConfigs[i].value) return E.left(INFRA_CONFIG_INVALID_INPUT);
           break;
-        case InfraConfigEnumForClient.GITHUB_CLIENT_SECRET:
+        case InfraConfigEnum.GITHUB_CLIENT_ID:
           if (!infraConfigs[i].value) return E.left(INFRA_CONFIG_INVALID_INPUT);
           break;
-        case InfraConfigEnumForClient.MICROSOFT_CLIENT_ID:
+        case InfraConfigEnum.GITHUB_CLIENT_SECRET:
           if (!infraConfigs[i].value) return E.left(INFRA_CONFIG_INVALID_INPUT);
           break;
-        case InfraConfigEnumForClient.MICROSOFT_CLIENT_SECRET:
+        case InfraConfigEnum.GITHUB_CALLBACK_URL:
+          if (!validateUrl(infraConfigs[i].value))
+            return E.left(INFRA_CONFIG_INVALID_INPUT);
+          break;
+        case InfraConfigEnum.GITHUB_SCOPE:
+          if (!infraConfigs[i].value) return E.left(INFRA_CONFIG_INVALID_INPUT);
+          break;
+        case InfraConfigEnum.MICROSOFT_CLIENT_ID:
+          if (!infraConfigs[i].value) return E.left(INFRA_CONFIG_INVALID_INPUT);
+          break;
+        case InfraConfigEnum.MICROSOFT_CLIENT_SECRET:
+          if (!infraConfigs[i].value) return E.left(INFRA_CONFIG_INVALID_INPUT);
+          break;
+        case InfraConfigEnum.MICROSOFT_CALLBACK_URL:
+          if (!validateUrl(infraConfigs[i].value))
+            return E.left(INFRA_CONFIG_INVALID_INPUT);
+          break;
+        case InfraConfigEnum.MICROSOFT_SCOPE:
+          if (!infraConfigs[i].value) return E.left(INFRA_CONFIG_INVALID_INPUT);
+          break;
+        case InfraConfigEnum.MICROSOFT_TENANT:
           if (!infraConfigs[i].value) return E.left(INFRA_CONFIG_INVALID_INPUT);
           break;
         default:

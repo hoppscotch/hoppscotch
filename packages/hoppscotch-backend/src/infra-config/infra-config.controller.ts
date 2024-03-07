@@ -5,7 +5,7 @@ import * as E from 'fp-ts/Either';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { RESTAdminGuard } from 'src/admin/guards/rest-admin.guard';
 import { RESTError } from 'src/types/RESTError';
-import { InfraConfigEnumForClient } from 'src/types/InfraConfig';
+import { InfraConfigEnum } from 'src/types/InfraConfig';
 import { throwHTTPErr } from 'src/utils';
 
 @UseGuards(ThrottlerBehindProxyGuard)
@@ -17,7 +17,7 @@ export class SiteController {
   @UseGuards(JwtAuthGuard, RESTAdminGuard)
   async fetchSetupInfo() {
     const status = await this.infraConfigService.get(
-      InfraConfigEnumForClient.IS_FIRST_TIME_INFRA_SETUP,
+      InfraConfigEnum.IS_FIRST_TIME_INFRA_SETUP,
     );
 
     if (E.isLeft(status))
@@ -32,7 +32,7 @@ export class SiteController {
   @UseGuards(JwtAuthGuard, RESTAdminGuard)
   async setSetupAsComplete() {
     const res = await this.infraConfigService.update(
-      InfraConfigEnumForClient.IS_FIRST_TIME_INFRA_SETUP,
+      InfraConfigEnum.IS_FIRST_TIME_INFRA_SETUP,
       false.toString(),
       false,
     );

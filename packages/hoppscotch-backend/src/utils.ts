@@ -184,6 +184,16 @@ export const validateSMTPUrl = (url: string) => {
 };
 
 /**
+ * Checks to see if the URL is valid or not
+ * @param url The URL to validate
+ * @returns boolean
+ */
+export const validateUrl = (url: string) => {
+  const urlRegex = /^(http|https):\/\/[^ "]+$/;
+  return urlRegex.test(url);
+};
+
+/**
  * String to JSON parser
  * @param {str} str The string to parse
  * @returns {E.Right<T> | E.Left<"json_invalid">} An Either of the parsed JSON

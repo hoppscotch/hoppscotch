@@ -1,6 +1,6 @@
 import { Field, ObjectType, registerEnumType } from '@nestjs/graphql';
 import { AuthProvider } from 'src/auth/helper';
-import { InfraConfigEnumForClient } from 'src/types/InfraConfig';
+import { InfraConfigEnum } from 'src/types/InfraConfig';
 import { ServiceStatus } from './helper';
 
 @ObjectType()
@@ -8,7 +8,7 @@ export class InfraConfig {
   @Field({
     description: 'Infra Config Name',
   })
-  name: InfraConfigEnumForClient;
+  name: InfraConfigEnum;
 
   @Field({
     description: 'Infra Config Value',
@@ -16,7 +16,7 @@ export class InfraConfig {
   value: string;
 }
 
-registerEnumType(InfraConfigEnumForClient, {
+registerEnumType(InfraConfigEnum, {
   name: 'InfraConfigEnum',
 });
 

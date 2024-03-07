@@ -32,7 +32,7 @@ import {
   EnableAndDisableSSOArgs,
   InfraConfigArgs,
 } from 'src/infra-config/input-args';
-import { InfraConfigEnumForClient } from 'src/types/InfraConfig';
+import { InfraConfigEnum } from 'src/types/InfraConfig';
 import { ServiceStatus } from 'src/infra-config/helper';
 
 @UseGuards(GqlThrottlerGuard)
@@ -274,10 +274,10 @@ export class InfraResolver {
   async infraConfigs(
     @Args({
       name: 'configNames',
-      type: () => [InfraConfigEnumForClient],
+      type: () => [InfraConfigEnum],
       description: 'Configs to fetch',
     })
-    names: InfraConfigEnumForClient[],
+    names: InfraConfigEnum[],
   ) {
     const infraConfigs = await this.infraConfigService.getMany(names);
     if (E.isLeft(infraConfigs)) throwErr(infraConfigs.left);

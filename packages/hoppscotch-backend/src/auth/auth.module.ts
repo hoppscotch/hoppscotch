@@ -12,7 +12,10 @@ import { GithubStrategy } from './strategies/github.strategy';
 import { MicrosoftStrategy } from './strategies/microsoft.strategy';
 import { AuthProvider, authProviderCheck } from './helper';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { loadInfraConfiguration } from 'src/infra-config/helper';
+import {
+  isInfraConfigTablePopulated,
+  loadInfraConfiguration,
+} from 'src/infra-config/helper';
 import { InfraConfigModule } from 'src/infra-config/infra-config.module';
 
 @Module({
@@ -34,6 +37,11 @@ import { InfraConfigModule } from 'src/infra-config/infra-config.module';
 })
 export class AuthModule {
   static async register() {
+    const isInfraConfigPopulated = await isInfraConfigTablePopulated();
+    if (!isInfraConfigPopulated) {
+      return { module: AuthModule };
+    }
+
     const env = await loadInfraConfiguration();
     const allowedAuthProviders = env.INFRA.VITE_ALLOWED_AUTH_PROVIDERS;
 

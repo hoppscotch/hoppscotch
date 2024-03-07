@@ -17,9 +17,9 @@ export class MicrosoftStrategy extends PassportStrategy(Strategy) {
     super({
       clientID: configService.get('INFRA.MICROSOFT_CLIENT_ID'),
       clientSecret: configService.get('INFRA.MICROSOFT_CLIENT_SECRET'),
-      callbackURL: configService.get('MICROSOFT_CALLBACK_URL'),
-      scope: [configService.get('MICROSOFT_SCOPE')],
-      tenant: configService.get('MICROSOFT_TENANT'),
+      callbackURL: configService.get('INFRA.MICROSOFT_CALLBACK_URL'),
+      scope: [configService.get('INFRA.MICROSOFT_SCOPE')],
+      tenant: configService.get('INFRA.MICROSOFT_TENANT'),
       store: true,
     });
   }

@@ -130,6 +130,9 @@ export function useConfigHandler(updatedConfigs?: Config) {
     await fetchInfraConfigs();
     await fetchAllowedAuthProviders();
 
+    const getFieldValue = (name: string) =>
+      infraConfigs.value.find((x) => x.name === name)?.value ?? '';
+
     // Transforming the fetched data into a Configs object
     currentConfigs.value = {
       providers: {
@@ -137,56 +140,30 @@ export function useConfigHandler(updatedConfigs?: Config) {
           name: 'google',
           enabled: allowedAuthProviders.value.includes('GOOGLE'),
           fields: {
-            client_id:
-              infraConfigs.value.find((x) => x.name === 'GOOGLE_CLIENT_ID')
-                ?.value ?? '',
-            client_secret:
-              infraConfigs.value.find((x) => x.name === 'GOOGLE_CLIENT_SECRET')
-                ?.value ?? '',
-            callback_url:
-              infraConfigs.value.find((x) => x.name === 'GOOGLE_CALLBACK_URL')
-                ?.value ?? '',
-            scope:
-              infraConfigs.value.find((x) => x.name === 'GOOGLE_SCOPE')
-                ?.value ?? '',
+            client_id: getFieldValue('GOOGLE_CLIENT_ID'),
+            client_secret: getFieldValue('GOOGLE_CLIENT_SECRET'),
+            callback_url: getFieldValue('GOOGLE_CALLBACK_URL'),
+            scope: getFieldValue('GOOGLE_SCOPE'),
           },
         },
         github: {
           name: 'github',
           enabled: allowedAuthProviders.value.includes('GITHUB'),
           fields: {
-            client_id:
-              infraConfigs.value.find((x) => x.name === 'GITHUB_CLIENT_ID')
-                ?.value ?? '',
-            client_secret:
-              infraConfigs.value.find((x) => x.name === 'GITHUB_CLIENT_SECRET')
-                ?.value ?? '',
-            callback_url:
-              infraConfigs.value.find((x) => x.name === 'GITHUB_CALLBACK_URL')
-                ?.value ?? '',
-            scope:
-              infraConfigs.value.find((x) => x.name === 'GITHUB_SCOPE')
-                ?.value ?? '',
+            client_id: getFieldValue('GITHUB_CLIENT_ID'),
+            client_secret: getFieldValue('GITHUB_CLIENT_SECRET'),
+            callback_url: getFieldValue('GITHUB_CALLBACK_URL'),
+            scope: getFieldValue('GITHUB_SCOPE'),
           },
         },
         microsoft: {
           name: 'microsoft',
           enabled: allowedAuthProviders.value.includes('MICROSOFT'),
           fields: {
-            client_id:
-              infraConfigs.value.find((x) => x.name === 'MICROSOFT_CLIENT_ID')
-                ?.value ?? '',
-            client_secret:
-              infraConfigs.value.find(
-                (x) => x.name === 'MICROSOFT_CLIENT_SECRET'
-              )?.value ?? '',
-            callback_url:
-              infraConfigs.value.find(
-                (x) => x.name === 'MICROSOFT_CALLBACK_URL'
-              )?.value ?? '',
-            scope:
-              infraConfigs.value.find((x) => x.name === 'MICROSOFT_SCOPE')
-                ?.value ?? '',
+            client_id: getFieldValue('MICROSOFT_CLIENT_ID'),
+            client_secret: getFieldValue('MICROSOFT_CLIENT_SECRET'),
+            callback_url: getFieldValue('MICROSOFT_CALLBACK_URL'),
+            scope: getFieldValue('MICROSOFT_SCOPE'),
           },
         },
       },
@@ -194,12 +171,8 @@ export function useConfigHandler(updatedConfigs?: Config) {
         name: 'email',
         enabled: allowedAuthProviders.value.includes('EMAIL'),
         fields: {
-          mailer_smtp_url:
-            infraConfigs.value.find((x) => x.name === 'MAILER_SMTP_URL')
-              ?.value ?? '',
-          mailer_from_address:
-            infraConfigs.value.find((x) => x.name === 'MAILER_ADDRESS_FROM')
-              ?.value ?? '',
+          mailer_smtp_url: getFieldValue('MAILER_SMTP_URL'),
+          mailer_from_address: getFieldValue('MAILER_ADDRESS_FROM'),
         },
       },
       dataSharingConfigs: {
@@ -215,7 +188,7 @@ export function useConfigHandler(updatedConfigs?: Config) {
     workingConfigs.value = cloneDeep(currentConfigs.value);
   });
 
-  // Trasforming the working configs back into the format required by the mutations
+  // Transforming the working configs back into the format required by the mutations
   const updatedInfraConfigs = computed(() => {
     let config: UpdatedConfigs[] = [
       {

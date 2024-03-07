@@ -17,6 +17,7 @@ import {
   HoppCollection,
   makeCollection,
   HoppRESTRequestVariable,
+  HoppRESTRequest,
 } from "@hoppscotch/data"
 import { pipe, flow } from "fp-ts/function"
 import * as A from "fp-ts/Array"
@@ -25,6 +26,7 @@ import * as O from "fp-ts/Option"
 import * as TE from "fp-ts/TaskEither"
 import * as RA from "fp-ts/ReadonlyArray"
 import { IMPORTER_INVALID_FILE_FORMAT } from "."
+import { cloneDeep } from "lodash-es"
 
 export const OPENAPI_DEREF_ERROR = "openapi/deref_error" as const
 
@@ -580,30 +582,42 @@ const convertPathToHoppReqs = (
           ? openAPIUrl + openAPIPath.slice(1)
           : openAPIUrl + openAPIPath
 
-      return makeRESTRequest({
-        name: info.operationId ?? info.summary ?? "Untitled Request",
-        method: method.toUpperCase(),
-        endpoint,
+      const res: {
+        request: HoppRESTRequest
+        metadata: {
+          tags: string[]
+        }
+      } = {
+        request: makeRESTRequest({
+          name: info.operationId ?? info.summary ?? "Untitled Request",
+          method: method.toUpperCase(),
+          endpoint,
 
-        // We don't need to worry about reference types as the Dereferencing pass should remove them
-        params: parseOpenAPIParams(
-          (info.parameters as OpenAPIParamsType[] | undefined) ?? []
-        ),
-        headers: parseOpenAPIHeaders(
-          (info.parameters as OpenAPIParamsType[] | undefined) ?? []
-        ),
+          // We don't need to worry about reference types as the Dereferencing pass should remove them
+          params: parseOpenAPIParams(
+            (info.parameters as OpenAPIParamsType[] | undefined) ?? []
+          ),
+          headers: parseOpenAPIHeaders(
+            (info.parameters as OpenAPIParamsType[] | undefined) ?? []
+          ),
 
-        auth: parseOpenAPIAuth(doc, info),
+          auth: parseOpenAPIAuth(doc, info),
 
-        body: parseOpenAPIBody(doc, info),
+          body: parseOpenAPIBody(doc, info),
 
-        preRequestScript: "",
-        testScript: "",
+          preRequestScript: "",
+          testScript: "",
 
-        requestVariables: parseOpenAPIVariables(
-          (info.parameters as OpenAPIParamsType[] | undefined) ?? []
-        ),
-      })
+          requestVariables: parseOpenAPIVariables(
+            (info.parameters as OpenAPIParamsType[] | undefined) ?? []
+          ),
+        }),
+        metadata: {
+          tags: info.tags ?? [],
+        },
+      }
+
+      return res
     }),
 
     // Disable Readonly
@@ -622,10 +636,38 @@ const convertOpenApiDocsToHopp = (
       )
       .flat()
 
+    const requestsByTags: Record<string, Array<HoppRESTRequest>> = {}
+    const requestsWithoutTags: Array<HoppRESTRequest> = []
+
+    paths.forEach(({ metadata, request }) => {
+      const tags = metadata.tags
+
+      if (tags.length === 0) {
+        requestsWithoutTags.push(request)
+        return
+      }
+
+      for (const tag of tags) {
+        if (!requestsByTags[tag]) {
+          requestsByTags[tag] = []
+        }
+
+        requestsByTags[tag].push(cloneDeep(request))
+      }
+    })
+
     return makeCollection({
       name,
-      folders: [],
-      requests: paths,
+      folders: Object.entries(requestsByTags).map(([name, paths]) =>
+        makeCollection({
+          name,
+          requests: paths,
+          folders: [],
+          auth: { authType: "inherit", authActive: true },
+          headers: [],
+        })
+      ),
+      requests: requestsWithoutTags,
       auth: { authType: "inherit", authActive: true },
       headers: [],
     })

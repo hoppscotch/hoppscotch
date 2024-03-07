@@ -1,4 +1,8 @@
-import { Environment } from "@hoppscotch/data"
+import {
+  Environment,
+  HoppRESTHeaders,
+  HoppRESTRequestVariable,
+} from "@hoppscotch/data"
 import { SandboxTestResult, TestDescriptor } from "@hoppscotch/js-sandbox"
 import { runTestScript } from "@hoppscotch/js-sandbox/web"
 import * as A from "fp-ts/Array"
@@ -65,10 +69,17 @@ const getTestableBody = (
   return x
 }
 
-const combineEnvVariables = (envs: {
-  global: Environment["variables"]
-  selected: Environment["variables"]
-}) => [...envs.selected, ...envs.global]
+const combineEnvVariables = (variables: {
+  environments: {
+    selected: Environment["variables"]
+    global: Environment["variables"]
+  }
+  requestVariables: Environment["variables"]
+}) => [
+  ...variables.requestVariables,
+  ...variables.environments.selected,
+  ...variables.environments.global,
+]
 
 export const executedResponses$ = new Subject<
   HoppRESTResponse & { type: "success" | "fail " }
@@ -120,6 +131,38 @@ const updateEnvironmentsWithSecret = (
     )
   }
   return updatedEnv
+}
+
+/**
+ * Transforms the environment list to a list with unique keys with value
+ * @param envs The environment list to be transformed
+ * @returns The transformed environment list with keys with value
+ */
+const filterNonEmptyEnvironmentVariables = (
+  envs: Environment["variables"]
+): Environment["variables"] => {
+  const envsMap = new Map<string, Environment["variables"][number]>()
+
+  envs.forEach((env) => {
+    if (env.secret) {
+      envsMap.set(env.key, env)
+    } else if (envsMap.has(env.key)) {
+      const existingEnv = envsMap.get(env.key)
+
+      if (
+        existingEnv &&
+        "value" in existingEnv &&
+        existingEnv.value === "" &&
+        env.value !== ""
+      ) {
+        envsMap.set(env.key, env)
+      }
+    } else {
+      envsMap.set(env.key, env)
+    }
+  })
+
+  return Array.from(envsMap.values())
 }
 
 export function runRESTRequest$(
@@ -175,15 +218,40 @@ export function runRESTRequest$(
       requestHeaders = [...tab.value.document.request.headers]
     }
 
+    const finalRequestVariables =
+      tab.value.document.request.requestVariables.map(
+        (v: HoppRESTRequestVariable) => {
+          if (v.active) {
+            return {
+              key: v.key,
+              value: v.value,
+              secret: false,
+            }
+          }
+          return []
+        }
+      )
+
     const finalRequest = {
       ...tab.value.document.request,
       auth: requestAuth ?? { authType: "none", authActive: false },
-      headers: requestHeaders,
+      headers: requestHeaders as HoppRESTHeaders,
     }
 
+    const finalEnvs = {
+      requestVariables: finalRequestVariables as Environment["variables"],
+      environments: envs.right,
+    }
+
+    const finalEnvsWithNonEmptyValues = filterNonEmptyEnvironmentVariables(
+      combineEnvVariables(finalEnvs)
+    )
+
     const effectiveRequest = getEffectiveRESTRequest(finalRequest, {
+      id: "env-id",
+      v: 1,
       name: "Env",
-      variables: combineEnvVariables(envs.right),
+      variables: finalEnvsWithNonEmptyValues,
     })
 
     const [stream, cancelRun] = createRESTNetworkRequestStream(effectiveRequest)

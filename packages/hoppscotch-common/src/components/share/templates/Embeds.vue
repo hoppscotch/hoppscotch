@@ -28,7 +28,7 @@
       </button>
     </div>
     <div
-      class="flex"
+      class="flex overflow-x-scroll"
       :class="[{ 'border-b pt-2 ': !noActiveTab }, embedColours]"
     >
       <span
@@ -57,7 +57,12 @@ import { computed } from "vue"
 
 import { useI18n } from "~/composables/i18n"
 
-type Tabs = "params" | "bodyParams" | "headers" | "authorization"
+type Tabs =
+  | "params"
+  | "bodyParams"
+  | "headers"
+  | "authorization"
+  | "requestVariables"
 
 type EmbedOption = {
   selectedTab: Tabs

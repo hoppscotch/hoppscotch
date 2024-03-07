@@ -16,6 +16,7 @@ import {
   makeRESTRequest,
   HoppCollection,
   makeCollection,
+  HoppRESTRequestVariable,
 } from "@hoppscotch/data"
 import { pipe, flow } from "fp-ts/function"
 import * as A from "fp-ts/Array"
@@ -73,6 +74,27 @@ const parseOpenAPIParams = (params: OpenAPIParamsType[]): HoppRESTParam[] =>
         O.map(
           (param) =>
             <HoppRESTParam>{
+              key: param.name,
+              value: "", // TODO: Can we do anything more ? (parse default values maybe)
+              active: true,
+            }
+        )
+      )
+    )
+  )
+
+const parseOpenAPIVariables = (
+  variables: OpenAPIParamsType[]
+): HoppRESTRequestVariable[] =>
+  pipe(
+    variables,
+
+    A.filterMap(
+      flow(
+        O.fromPredicate((param) => param.in === "path"),
+        O.map(
+          (param) =>
+            <HoppRESTRequestVariable>{
               key: param.name,
               value: "", // TODO: Can we do anything more ? (parse default values maybe)
               active: true,
@@ -577,6 +599,10 @@ const convertPathToHoppReqs = (
 
         preRequestScript: "",
         testScript: "",
+
+        requestVariables: parseOpenAPIVariables(
+          (info.parameters as OpenAPIParamsType[] | undefined) ?? []
+        ),
       })
     }),
 

@@ -79,29 +79,27 @@ import { history, historyKeymap } from "@codemirror/commands"
 import { inputTheme } from "~/helpers/editor/themes/baseTheme"
 import { HoppReactiveEnvPlugin } from "~/helpers/editor/extensions/HoppEnvironment"
 import { useReadonlyStream } from "@composables/stream"
-import {
-  AggregateEnvironment,
-  aggregateEnvsWithSecrets$,
-} from "~/newstore/environments"
+import { AggregateEnvironment, aggregateEnvs$ } from "~/newstore/environments"
 import { platform } from "~/platform"
 import { onClickOutside, useDebounceFn } from "@vueuse/core"
 import { InspectorResult } from "~/services/inspection"
 import { invokeAction } from "~/helpers/actions"
-import { Environment } from "@hoppscotch/data"
 import { useI18n } from "~/composables/i18n"
 import IconEye from "~icons/lucide/eye"
 import IconEyeoff from "~icons/lucide/eye-off"
+import { CompletionContext, autocompletion } from "@codemirror/autocomplete"
+import { useService } from "dioc/vue"
+import { RESTTabService } from "~/services/tab/rest"
+import { syntaxTree } from "@codemirror/language"
 
 const t = useI18n()
-
-type Env = Environment["variables"][number] & { source: string }
 
 const props = withDefaults(
   defineProps<{
     modelValue?: string
     placeholder?: string
     styles?: string
-    envs?: Env[] | null
+    envs?: AggregateEnvironment[] | null
     focus?: boolean
     selectTextOnMount?: boolean
     environmentHighlights?: boolean
@@ -110,6 +108,7 @@ const props = withDefaults(
     inspectionResults?: InspectorResult[] | undefined
     contextMenuEnabled?: boolean
     secret?: boolean
+    autoCompleteEnv?: boolean
   }>(),
   {
     modelValue: "",
@@ -124,6 +123,7 @@ const props = withDefaults(
     inspectionResults: undefined,
     contextMenuEnabled: true,
     secret: false,
+    autoCompleteEnvSource: false,
   }
 )
 
@@ -353,28 +353,61 @@ watch(
 let clipboardEv: ClipboardEvent | null = null
 let pastedValue: string | null = null
 
-const aggregateEnvs = useReadonlyStream(aggregateEnvsWithSecrets$, []) as Ref<
+const aggregateEnvs = useReadonlyStream(aggregateEnvs$, []) as Ref<
   AggregateEnvironment[]
 >
 
+const tabs = useService(RESTTabService)
+
 const envVars = computed(() => {
-  return props.envs
-    ? props.envs.map((x) => {
-        if (x.secret) {
-          return {
-            key: x.key,
-            sourceEnv: "source" in x ? x.source : null,
-            value: "********",
-          }
-        }
-        return {
-          key: x.key,
-          value: x.value,
-          sourceEnv: "source" in x ? x.source : null,
-        }
-      })
-    : aggregateEnvs.value
+  if (props.envs) {
+    return props.envs.map((x) => {
+      const { key, secret } = x
+      const value = secret ? "********" : x.value
+      const sourceEnv = "sourceEnv" in x ? x.sourceEnv : null
+      return {
+        key,
+        value,
+        sourceEnv,
+        secret,
+      }
+    })
+  }
+  return [
+    ...tabs.currentActiveTab.value.document.request.requestVariables.map(
+      ({ active, key, value }) =>
+        active
+          ? {
+              key,
+              value,
+              sourceEnv: "RequestVariable",
+              secret: false,
+            }
+          : ({} as AggregateEnvironment)
+    ),
+    ...aggregateEnvs.value,
+  ]
 })
+
+function envAutoCompletion(context: CompletionContext) {
+  const options = (envVars.value ?? [])
+    .map((env) => ({
+      label: env?.key ? `<<${env.key}>>` : "",
+      info: env?.value ?? "",
+      apply: env?.key ? `<<${env.key}>>` : "",
+    }))
+    .filter((x) => x)
+
+  const nodeBefore = syntaxTree(context.state).resolveInner(context.pos, -1)
+  const textBefore = context.state.sliceDoc(nodeBefore.from, context.pos)
+  const tagBefore = /<<\w*$/.exec(textBefore)
+  if (!tagBefore && !context.explicit) return null
+  return {
+    from: tagBefore ? nodeBefore.from + tagBefore.index : context.pos,
+    options: options,
+    validFor: /^(<<\w*)?$/,
+  }
+}
 
 const envTooltipPlugin = new HoppReactiveEnvPlugin(envVars, view)
 
@@ -469,6 +502,12 @@ const getExtensions = (readonly: boolean): Extension => {
         }
       },
     }),
+    props.autoCompleteEnv
+      ? autocompletion({
+          activateOnTyping: true,
+          override: [envAutoCompletion],
+        })
+      : [],
     ViewPlugin.fromClass(
       class {
         update(update: ViewUpdate) {

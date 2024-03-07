@@ -563,12 +563,22 @@ details[open] summary .indicator {
 .env-highlight {
   @apply text-accentContrast;
 
-  &.env-found {
-    @apply bg-accentDark;
-    @apply hover:bg-accent;
+  &.request-variable-highlight {
+    @apply bg-amber-500;
+    @apply hover:bg-amber-600;
   }
 
-  &.env-not-found {
+  &.environment-variable-highlight {
+    @apply bg-green-500;
+    @apply hover:bg-green-600;
+  }
+
+  &.global-variable-highlight {
+    @apply bg-blue-500;
+    @apply hover:bg-blue-600;
+  }
+
+  &.environment-not-found-highlight {
     @apply bg-red-500;
     @apply hover:bg-red-600;
   }

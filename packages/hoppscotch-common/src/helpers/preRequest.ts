@@ -14,8 +14,8 @@ import { SecretEnvironmentService } from "~/services/secret-environment.service"
 const secretEnvironmentService = getService(SecretEnvironmentService)
 
 const unsecretEnvironments = (
-  global: Environment["variables"],
-  selected: Environment
+  selected: Environment,
+  global: Environment["variables"]
 ) => {
   const resolvedGlobalWithSecrets = global.map((globalVar, index) => {
     const secretVar = secretEnvironmentService.getSecretEnvironmentVariable(
@@ -65,8 +65,8 @@ const unsecretEnvironments = (
 
 export const getCombinedEnvVariables = () => {
   const reformedVars = unsecretEnvironments(
-    getGlobalVariables(),
-    getCurrentEnvironment()
+    getCurrentEnvironment(),
+    getGlobalVariables()
   )
   return {
     global: cloneDeep(reformedVars.global),

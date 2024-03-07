@@ -32,9 +32,13 @@
             {{ tab.document.request.method }}
           </span>
           <div
-            class="flex items-center flex-1 flex-shrink-0 min-w-0 px-4 py-2 truncate rounded-r"
+            class="flex items-center flex-1 flex-shrink-0 min-w-0 truncate rounded-r"
           >
-            {{ tab.document.request.endpoint }}
+            <SmartEnvInput
+              v-model="tab.document.request.endpoint"
+              :readonly="true"
+              :envs="tabRequestVariables"
+            />
           </div>
         </div>
         <div class="flex mt-2 space-x-2 sm:mt-0">
@@ -69,6 +73,7 @@
       v-model="tab.document.request"
       v-model:option-tab="selectedOptionTab"
       :properties="properties"
+      :envs="tabRequestVariables"
     />
     <HttpResponse
       v-if="tab.document.response"
@@ -115,6 +120,15 @@ const shortcodeBaseURL =
 
 const sharedRequestURL = computed(() => {
   return `${shortcodeBaseURL}/r/${props.sharedRequestID}`
+})
+
+const tabRequestVariables = computed(() => {
+  return tab.value.document.request.requestVariables.map(({ key, value }) => ({
+    key,
+    value,
+    secret: false,
+    sourceEnv: "RequestVariable",
+  }))
 })
 
 const { subscribeToStream } = useStreamSubscriber()

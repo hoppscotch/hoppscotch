@@ -21,7 +21,7 @@
           @click="clearContent()"
         />
         <HoppButtonSecondary
-          v-if="bulkMode"
+          v-if="bulkUrlEncodedParams"
           v-tippy="{ theme: 'tooltip' }"
           :title="t('state.linewrap')"
           :class="{ '!text-accent': WRAP_LINES }"
@@ -84,6 +84,8 @@
             <SmartEnvInput
               v-model="param.key"
               :placeholder="`${t('count.parameter', { count: index + 1 })}`"
+              :auto-complete-env="true"
+              :envs="envs"
               @change="
                 updateUrlEncodedParam(index, {
                   id: param.id,
@@ -96,6 +98,8 @@
             <SmartEnvInput
               v-model="param.value"
               :placeholder="`${t('count.value', { count: index + 1 })}`"
+              :auto-complete-env="true"
+              :envs="envs"
               @change="
                 updateUrlEncodedParam(index, {
                   id: param.id,
@@ -200,6 +204,7 @@ import { throwError } from "~/helpers/functional/error"
 import { useVModel } from "@vueuse/core"
 import { useNestedSetting } from "~/composables/settings"
 import { toggleNestedSetting } from "~/newstore/settings"
+import { AggregateEnvironment } from "~/newstore/environments"
 
 type Body = HoppRESTReqBody & {
   contentType: "application/x-www-form-urlencoded"
@@ -207,6 +212,7 @@ type Body = HoppRESTReqBody & {
 
 const props = defineProps<{
   modelValue: Body
+  envs: AggregateEnvironment[]
 }>()
 
 const emit = defineEmits<{

@@ -2,9 +2,9 @@
 	{
 		"v": 1,
 		"folders": [],
-		"requests": 
+		"requests":
 			{
-				"v": "1",
+				"v": "2",
 				"endpoint": "https://echo.hoppscotch.io/<<HEADERS_TYPE1>>",
 				"name": "fail",
 				"params": [],
@@ -22,7 +22,8 @@
 				"body": {
 					"contentType": "application/json",
 					"body": "{\n\"test\": \"<<HEADERS_TYPE1>>\"\n}"
-				}
+				},
+        "requestVariables": []
 			}
 		]
 	}

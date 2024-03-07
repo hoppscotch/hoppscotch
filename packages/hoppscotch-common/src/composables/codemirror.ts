@@ -243,7 +243,7 @@ export function useCodemirror(
       if (from === to) return
       const text = view.value?.state.doc.sliceString(from, to)
       const { top, left } = view.value?.coordsAtPos(from)
-      if (text) {
+      if (text?.trim()) {
         invokeAction("contextmenu.open", {
           position: {
             top,

@@ -6,31 +6,52 @@
         :styles="
           hasAccessTokenOrAuthURL ? 'pointer-events-none opacity-70' : ''
         "
+        :auto-complete-env="true"
         placeholder="OpenID Connect Discovery URL"
+        :envs="envs"
       />
     </div>
     <div class="flex flex-1 border-b border-dividerLight">
       <SmartEnvInput
         v-model="authURL"
         placeholder="Authorization URL"
+        :auto-complete-env="true"
         :styles="hasOIDCURL ? 'pointer-events-none opacity-70' : ''"
-      ></SmartEnvInput>
+        :envs="envs"
+      />
     </div>
     <div class="flex flex-1 border-b border-dividerLight">
       <SmartEnvInput
         v-model="accessTokenURL"
         placeholder="Access Token URL"
+        :auto-complete-env="true"
         :styles="hasOIDCURL ? 'pointer-events-none opacity-70' : ''"
+        :envs="envs"
       />
     </div>
     <div class="flex flex-1 border-b border-dividerLight">
-      <SmartEnvInput v-model="clientID" placeholder="Client ID" />
+      <SmartEnvInput
+        v-model="clientID"
+        :auto-complete-env="true"
+        placeholder="Client ID"
+        :envs="envs"
+      />
     </div>
     <div class="flex flex-1 border-b border-dividerLight">
-      <SmartEnvInput v-model="clientSecret" placeholder="Client Secret" />
+      <SmartEnvInput
+        v-model="clientSecret"
+        :auto-complete-env="true"
+        placeholder="Client Secret"
+        :envs="envs"
+      />
     </div>
     <div class="flex flex-1 border-b border-dividerLight">
-      <SmartEnvInput v-model="scope" placeholder="Scope" />
+      <SmartEnvInput
+        v-model="scope"
+        :auto-complete-env="true"
+        placeholder="Scope"
+        :envs="envs"
+      />
     </div>
     <div class="p-2">
       <HoppButtonSecondary
@@ -62,6 +83,7 @@ const toast = useToast()
 
 const props = defineProps<{
   modelValue: HoppRESTAuthOAuth2 | HoppGQLAuthOAuth2
+  envs?: AggregateEnvironment[]
 }>()
 
 const emit = defineEmits<{

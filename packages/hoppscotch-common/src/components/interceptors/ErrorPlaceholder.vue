@@ -21,28 +21,24 @@
         </span>
       </div>
       <div class="flex flex-col space-y-2 py-4">
-        <span>
-          <HoppSmartItem
-            to="https://chrome.google.com/webstore/detail/hoppscotch-browser-extens/amknoiejhlmhancpahfcfcfhllgkpbld"
-            blank
-            :icon="IconChrome"
-            label="Chrome"
-            :info-icon="hasChromeExtInstalled ? IconCheckCircle : null"
-            :active-info-icon="hasChromeExtInstalled"
-            outline
-          />
-        </span>
-        <span>
-          <HoppSmartItem
-            to="https://addons.mozilla.org/en-US/firefox/addon/hoppscotch"
-            blank
-            :icon="IconFirefox"
-            label="Firefox"
-            :info-icon="hasFirefoxExtInstalled ? IconCheckCircle : null"
-            :active-info-icon="hasFirefoxExtInstalled"
-            outline
-          />
-        </span>
+        <HoppSmartItem
+          to="https://chrome.google.com/webstore/detail/hoppscotch-browser-extens/amknoiejhlmhancpahfcfcfhllgkpbld"
+          blank
+          :icon="IconChrome"
+          label="Chrome"
+          :info-icon="hasChromeExtInstalled ? IconCheckCircle : null"
+          :active-info-icon="hasChromeExtInstalled"
+          outline
+        />
+        <HoppSmartItem
+          to="https://addons.mozilla.org/en-US/firefox/addon/hoppscotch"
+          blank
+          :icon="IconFirefox"
+          label="Firefox"
+          :info-icon="hasFirefoxExtInstalled ? IconCheckCircle : null"
+          :active-info-icon="hasFirefoxExtInstalled"
+          outline
+        />
       </div>
       <div class="space-y-4 py-4">
         <div class="flex items-center">

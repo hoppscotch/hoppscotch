@@ -173,6 +173,11 @@ const embedOptions = ref<EmbedOption>({
       label: t("tab.authorization"),
       enabled: false,
     },
+    {
+      value: "requestVariables",
+      label: t("tab.variables"),
+      enabled: false,
+    },
   ],
   theme: "system",
 })
@@ -223,7 +228,12 @@ const currentUser = useReadonlyStream(
 
 const step = ref(1)
 
-type EmbedTabs = "params" | "bodyParams" | "headers" | "authorization"
+type EmbedTabs =
+  | "params"
+  | "bodyParams"
+  | "headers"
+  | "authorization"
+  | "requestVariables"
 
 type EmbedOption = {
   selectedTab: EmbedTabs
@@ -367,6 +377,11 @@ const displayCustomizeRequestModal = (
         {
           value: "authorization",
           label: t("tab.authorization"),
+          enabled: false,
+        },
+        {
+          value: "requestVariables",
+          label: t("tab.variables"),
           enabled: false,
         },
       ],

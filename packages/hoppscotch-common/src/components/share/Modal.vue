@@ -56,7 +56,12 @@ import { useI18n } from "~/composables/i18n"
 
 const t = useI18n()
 
-type EmbedTabs = "params" | "bodyParams" | "headers" | "authorization"
+type EmbedTabs =
+  | "params"
+  | "bodyParams"
+  | "headers"
+  | "authorization"
+  | "requestVariables"
 
 type EmbedOption = {
   selectedTab: EmbedTabs

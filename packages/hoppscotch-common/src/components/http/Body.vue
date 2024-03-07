@@ -100,10 +100,12 @@
     <HttpBodyParameters
       v-if="body.contentType === 'multipart/form-data'"
       v-model="body"
+      :envs="envs"
     />
     <HttpURLEncodedParams
       v-else-if="body.contentType === 'application/x-www-form-urlencoded'"
       v-model="body"
+      :envs="envs"
     />
     <HttpRawBody v-else-if="body.contentType !== null" v-model="body" />
     <HoppSmartPlaceholder
@@ -141,6 +143,7 @@ import IconExternalLink from "~icons/lucide/external-link"
 import IconInfo from "~icons/lucide/info"
 import IconRefreshCW from "~icons/lucide/refresh-cw"
 import { RESTOptionTabs } from "./RequestOptions.vue"
+import { AggregateEnvironment } from "~/newstore/environments"
 
 const colorMode = useColorMode()
 const t = useI18n()
@@ -148,6 +151,7 @@ const t = useI18n()
 const props = defineProps<{
   body: HoppRESTReqBody
   headers: HoppRESTHeader[]
+  envs?: AggregateEnvironment[]
 }>()
 
 const emit = defineEmits<{

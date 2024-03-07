@@ -65,6 +65,8 @@
           <SmartEnvInput
             v-model="entry.key"
             :placeholder="`${t('count.parameter', { count: index + 1 })}`"
+            :auto-complete-env="true"
+            :envs="envs"
             @change="
               updateBodyParam(index, {
                 key: $event,
@@ -87,6 +89,8 @@
             <SmartEnvInput
               v-model="entry.value"
               :placeholder="`${t('count.value', { count: index + 1 })}`"
+              :auto-complete-env="true"
+              :envs="envs"
               @change="
                 updateBodyParam(index, {
                   key: entry.key,
@@ -190,11 +194,13 @@ import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
 import { useColorMode } from "@composables/theming"
 import { useVModel } from "@vueuse/core"
+import { AggregateEnvironment } from "~/newstore/environments"
 
 type Body = HoppRESTReqBody & { contentType: "multipart/form-data" }
 
 const props = defineProps<{
   modelValue: Body
+  envs: AggregateEnvironment[]
 }>()
 
 const emit = defineEmits<{

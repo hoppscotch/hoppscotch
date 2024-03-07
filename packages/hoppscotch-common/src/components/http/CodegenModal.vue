@@ -188,11 +188,25 @@ const copyCodeIcon = refAutoReset<typeof IconCopy | typeof IconCheck>(
 
 const requestCode = computed(() => {
   const aggregateEnvs = getAggregateEnvs()
+  const requestVariables = request.value.requestVariables.map(
+    (requestVariable) => {
+      if (requestVariable.active)
+        return {
+          key: requestVariable.key,
+          value: requestVariable.value,
+          secret: false,
+        }
+      return {}
+    }
+  )
   const env: Environment = {
     v: 1,
     id: "env",
     name: "Env",
-    variables: aggregateEnvs,
+    variables: [
+      ...(requestVariables as Environment["variables"]),
+      ...aggregateEnvs,
+    ],
   }
   const effectiveRequest = getEffectiveRESTRequest(request.value, env)
 
@@ -212,6 +226,12 @@ const requestCode = computed(() => {
         active: true,
       })),
       endpoint: effectiveRequest.effectiveFinalURL,
+      requestVariables: effectiveRequest.effectiveFinalRequestVariables.map(
+        (requestVariable) => ({
+          ...requestVariable,
+          active: true,
+        })
+      ),
     })
   )
 

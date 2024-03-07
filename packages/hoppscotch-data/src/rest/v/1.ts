@@ -141,7 +141,7 @@ export const HoppRESTHeaders = z.array(
 
 export type HoppRESTHeaders = z.infer<typeof HoppRESTHeaders>
 
-const V1_SCHEMA = z.object({
+export const V1_SCHEMA = z.object({
   v: z.literal("1"),
   id: z.optional(z.string()), // Firebase Firestore ID
 
@@ -158,7 +158,7 @@ const V1_SCHEMA = z.object({
   body: HoppRESTReqBody,
 })
 
-function parseRequestBody(
+export function parseRequestBody(
   x: z.infer<typeof V0_SCHEMA>
 ): z.infer<typeof V1_SCHEMA>["body"] {
   return {

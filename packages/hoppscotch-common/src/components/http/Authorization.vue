@@ -150,7 +150,7 @@
     <div v-else class="flex flex-1 border-b border-dividerLight">
       <div class="w-2/3 border-r border-dividerLight">
         <div v-if="auth.authType === 'basic'">
-          <HttpAuthorizationBasic v-model="auth" />
+          <HttpAuthorizationBasic v-model="auth" :envs="envs" />
         </div>
         <div v-if="auth.authType === 'inherit'" class="p-4">
           <span v-if="inheritedProperties?.auth">
@@ -169,17 +169,26 @@
         </div>
         <div v-if="auth.authType === 'bearer'">
           <div class="flex flex-1 border-b border-dividerLight">
-            <SmartEnvInput v-model="auth.token" placeholder="Token" />
+            <SmartEnvInput
+              v-model="auth.token"
+              placeholder="Token"
+              :auto-complete-env="true"
+              :envs="envs"
+            />
           </div>
         </div>
         <div v-if="auth.authType === 'oauth-2'">
           <div class="flex flex-1 border-b border-dividerLight">
-            <SmartEnvInput v-model="auth.token" placeholder="Token" />
+            <SmartEnvInput
+              v-model="auth.token"
+              placeholder="Token"
+              :envs="envs"
+            />
           </div>
-          <HttpOAuth2Authorization v-model="auth" />
+          <HttpOAuth2Authorization v-model="auth" :envs="envs" />
         </div>
         <div v-if="auth.authType === 'api-key'">
-          <HttpAuthorizationApiKey v-model="auth" />
+          <HttpAuthorizationApiKey v-model="auth" :envs="envs" />
         </div>
       </div>
       <div
@@ -215,6 +224,7 @@ import { useColorMode } from "@composables/theming"
 import { useVModel } from "@vueuse/core"
 import { onMounted } from "vue"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
+import { AggregateEnvironment } from "~/newstore/environments"
 
 const t = useI18n()
 
@@ -225,6 +235,7 @@ const props = defineProps<{
   isCollectionProperty?: boolean
   isRootCollection?: boolean
   inheritedProperties?: HoppInheritedProperty
+  envs?: AggregateEnvironment[]
 }>()
 
 const emit = defineEmits<{

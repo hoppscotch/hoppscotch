@@ -163,38 +163,40 @@
 </template>
 
 <script lang="ts" setup>
-import IconHelpCircle from "~icons/lucide/help-circle"
-import IconTrash2 from "~icons/lucide/trash-2"
-import IconEdit from "~icons/lucide/edit"
-import IconPlus from "~icons/lucide/plus"
-import IconGripVertical from "~icons/lucide/grip-vertical"
+import { throwError } from "@functional/error"
+import {
+  HoppRESTRequestVariable,
+  RawKeyValueEntry,
+  parseRawKeyValueEntriesE,
+  rawKeyValueEntriesToString,
+} from "@hoppscotch/data"
+import { useVModel } from "@vueuse/core"
+import * as A from "fp-ts/Array"
+import * as E from "fp-ts/Either"
+import * as O from "fp-ts/Option"
+import * as RA from "fp-ts/ReadonlyArray"
+import { flow, pipe } from "fp-ts/function"
+import { cloneDeep, isEqual } from "lodash-es"
+import { reactive, ref, watch } from "vue"
+import draggable from "vuedraggable-es"
+
+import { useCodemirror } from "~/composables/codemirror"
+import { useI18n } from "~/composables/i18n"
+import { useNestedSetting } from "~/composables/settings"
+import { useColorMode } from "~/composables/theming"
+import { useToast } from "~/composables/toast"
+import linter from "~/helpers/editor/linting/rawKeyValue"
+import { objRemoveKey } from "~/helpers/functional/object"
+import { toggleNestedSetting } from "~/newstore/settings"
 import IconCheckCircle from "~icons/lucide/check-circle"
 import IconCircle from "~icons/lucide/circle"
+import IconEdit from "~icons/lucide/edit"
+import IconGripVertical from "~icons/lucide/grip-vertical"
+import IconHelpCircle from "~icons/lucide/help-circle"
+import IconPlus from "~icons/lucide/plus"
 import IconTrash from "~icons/lucide/trash"
+import IconTrash2 from "~icons/lucide/trash-2"
 import IconWrapText from "~icons/lucide/wrap-text"
-import { useToast } from "~/composables/toast"
-import { useI18n } from "~/composables/i18n"
-import { useColorMode } from "~/composables/theming"
-import { ref, watch } from "vue"
-import { useCodemirror } from "~/composables/codemirror"
-import { reactive } from "vue"
-import linter from "~/helpers/editor/linting/rawKeyValue"
-import draggable from "vuedraggable-es"
-import { cloneDeep, isEqual } from "lodash-es"
-import { flow, pipe } from "fp-ts/function"
-import * as O from "fp-ts/Option"
-import * as A from "fp-ts/Array"
-import * as RA from "fp-ts/ReadonlyArray"
-import * as E from "fp-ts/Either"
-import { throwError } from "@functional/error"
-import { HoppRESTRequestVariable } from "@hoppscotch/data"
-import { useVModel } from "@vueuse/core"
-import { objRemoveKey } from "~/helpers/functional/object"
-import { parseRawKeyValueEntriesE } from "@hoppscotch/data"
-import { RawKeyValueEntry } from "@hoppscotch/data"
-import { rawKeyValueEntriesToString } from "@hoppscotch/data"
-import { useNestedSetting } from "~/composables/settings"
-import { toggleNestedSetting } from "~/newstore/settings"
 
 const colorMode = useColorMode()
 

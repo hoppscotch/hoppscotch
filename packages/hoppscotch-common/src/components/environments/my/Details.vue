@@ -416,9 +416,7 @@ const saveEnvironment = () => {
 
   const variables = pipe(
     filteredVariables,
-    A.map((e) =>
-      e.secret ? { key: e.key, secret: e.secret, value: undefined } : e
-    )
+    A.map((e) => (e.secret ? { key: e.key, secret: e.secret } : e))
   )
 
   const environmentUpdated: Environment = {

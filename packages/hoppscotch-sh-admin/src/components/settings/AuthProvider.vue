@@ -35,13 +35,29 @@
               :key="field.key"
               class="mt-5"
             >
-              <div
-                v-if="field.key !== 'tenant' || provider.name === 'microsoft'"
-              >
+              <div v-if="field.key !== 'tenant'">
                 <label>{{ field.name }}</label>
                 <span class="flex">
                   <HoppSmartInput
                     v-model="provider.fields[field.key]"
+                    :type="field.isMasked ? 'password' : 'text'"
+                    :disabled="field.isMasked"
+                    :autofocus="false"
+                    class="!my-2 !bg-primaryLight"
+                  />
+                  <HoppButtonSecondary
+                    :icon="field.isMasked ? IconEye : IconEyeOff"
+                    class="bg-primaryLight h-9 mt-2"
+                    @click="field.isMasked = !field.isMasked"
+                  />
+                </span>
+              </div>
+              <!-- Microsoft Configs has an extra tenant field -->
+              <div v-else-if="provider.name === 'microsoft'">
+                <label>{{ field.name }}</label>
+                <span class="flex">
+                  <HoppSmartInput
+                    v-model="microsoftTenant"
                     :type="field.isMasked ? 'password' : 'text'"
                     :disabled="field.isMasked"
                     :autofocus="false"
@@ -86,7 +102,7 @@ const workingConfigs = useVModel(props, 'config', emit);
 const capitalize = (text: string) =>
   text.charAt(0).toUpperCase() + text.slice(1);
 
-// Define a union type for all possible field keys
+// Union type for all possible field keys
 type FieldKey =
   | 'client_id'
   | 'client_secret'
@@ -94,7 +110,6 @@ type FieldKey =
   | 'scope'
   | 'tenant';
 
-// Masking sensitive fields
 type Field = {
   name: string;
   key: FieldKey;
@@ -120,4 +135,6 @@ const providerConfigFields = reactive<Field[]>([
   { name: t('configs.auth_providers.scope'), key: 'scope', isMasked: true },
   { name: t('configs.auth_providers.tenant'), key: 'tenant', isMasked: true },
 ]);
+
+const microsoftTenant = workingConfigs.value.providers.microsoft.fields.tenant;
 </script>

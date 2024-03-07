@@ -142,8 +142,6 @@ const providerConfigFields = reactive<Field[]>([
   { name: t('configs.auth_providers.tenant'), key: 'tenant', isMasked: true },
 ]);
 
-const microsoftTenant = workingConfigs.value.providers.microsoft.fields.tenant;
-
 const maskState = reactive({
   google: {
     client_id: true,

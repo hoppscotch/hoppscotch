@@ -70,7 +70,9 @@
                     class="!my-2 !bg-primaryLight flex-1"
                   />
                   <HoppButtonSecondary
-                    :icon="field.isMasked ? IconEye : IconEyeOff"
+                    :icon="
+                      isMasked(provider.name, field.key) ? IconEye : IconEyeOff
+                    "
                     class="bg-primaryLight h-9 mt-2"
                     @click="toggleMask(provider.name, field.key)"
                   />

@@ -119,27 +119,23 @@ type FieldKey =
 type Field = {
   name: string;
   key: FieldKey;
-  isMasked: boolean;
 };
 
 const providerConfigFields = reactive<Field[]>([
   {
     name: t('configs.auth_providers.client_id'),
     key: 'client_id',
-    isMasked: true,
   },
   {
     name: t('configs.auth_providers.client_secret'),
     key: 'client_secret',
-    isMasked: true,
   },
   {
     name: t('configs.auth_providers.callback_url'),
     key: 'callback_url',
-    isMasked: true,
   },
-  { name: t('configs.auth_providers.scope'), key: 'scope', isMasked: true },
-  { name: t('configs.auth_providers.tenant'), key: 'tenant', isMasked: true },
+  { name: t('configs.auth_providers.scope'), key: 'scope' },
+  { name: t('configs.auth_providers.tenant'), key: 'tenant' },
 ]);
 
 const maskState = reactive({

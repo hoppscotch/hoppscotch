@@ -84,6 +84,8 @@
             <SmartEnvInput
               v-model="param.key"
               :placeholder="`${t('count.parameter', { count: index + 1 })}`"
+              :auto-complete-env="true"
+              :envs="envs"
               @change="
                 updateUrlEncodedParam(index, {
                   id: param.id,
@@ -92,12 +94,12 @@
                   active: param.active,
                 })
               "
-              :auto-complete-env="true"
-              :envs="envs"
             />
             <SmartEnvInput
               v-model="param.value"
               :placeholder="`${t('count.value', { count: index + 1 })}`"
+              :auto-complete-env="true"
+              :envs="envs"
               @change="
                 updateUrlEncodedParam(index, {
                   id: param.id,
@@ -106,8 +108,6 @@
                   active: param.active,
                 })
               "
-              :auto-complete-env="true"
-              :envs="envs"
             />
             <span>
               <HoppButtonSecondary

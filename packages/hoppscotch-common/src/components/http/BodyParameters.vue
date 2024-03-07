@@ -65,6 +65,8 @@
           <SmartEnvInput
             v-model="entry.key"
             :placeholder="`${t('count.parameter', { count: index + 1 })}`"
+            :auto-complete-env="true"
+            :envs="envs"
             @change="
               updateBodyParam(index, {
                 key: $event,
@@ -73,8 +75,6 @@
                 isFile: entry.isFile,
               })
             "
-            :auto-complete-env="true"
-            :envs="envs"
           />
           <div v-if="entry.isFile" class="file-chips-container">
             <div class="file-chips-wrapper space-x-1">
@@ -89,6 +89,8 @@
             <SmartEnvInput
               v-model="entry.value"
               :placeholder="`${t('count.value', { count: index + 1 })}`"
+              :auto-complete-env="true"
+              :envs="envs"
               @change="
                 updateBodyParam(index, {
                   key: entry.key,
@@ -97,8 +99,6 @@
                   isFile: entry.isFile,
                 })
               "
-              :auto-complete-env="true"
-              :envs="envs"
             />
           </span>
           <span>

@@ -15,6 +15,8 @@ import { computed } from "vue"
 import { useI18n } from "~/composables/i18n"
 import { useService } from "dioc/vue"
 import { WorkspaceService } from "~/services/workspace.service"
+import { useReadonlyStream } from "~/composables/stream"
+import { platform } from "~/platform"
 
 const props = defineProps<{
   section?: string
@@ -26,14 +28,24 @@ const t = useI18n()
 const workspaceService = useService(WorkspaceService)
 const workspace = workspaceService.currentWorkspace
 
+const currentUser = useReadonlyStream(
+  platform.auth.getProbableUserStream(),
+  platform.auth.getProbableUser()
+)
+
 const currentWorkspace = computed(() => {
   if (props.isOnlyPersonal) {
-    return `${t("workspace.personal")}`
-  }
-  if (workspace.value.type === "team") {
+    return currentUser.value?.displayName
+      ? t("workspace.personal_workspace", {
+          name: currentUser.value.displayName,
+        })
+      : t("workspace.personal")
+  } else if (workspace.value.type === "team") {
     return teamWorkspaceName.value
   }
-  return `${t("workspace.personal")}`
+  return currentUser.value?.displayName
+    ? t("workspace.personal_workspace", { name: currentUser.value.displayName })
+    : t("workspace.personal")
 })
 
 const teamWorkspaceName = computed(() => {

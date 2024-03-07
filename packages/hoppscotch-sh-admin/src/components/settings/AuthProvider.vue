@@ -43,7 +43,7 @@
                     :type="field.isMasked ? 'password' : 'text'"
                     :disabled="field.isMasked"
                     :autofocus="false"
-                    class="!my-2 !bg-primaryLight"
+                    class="!my-2 !bg-primaryLight w-72"
                   />
                   <HoppButtonSecondary
                     :icon="field.isMasked ? IconEye : IconEyeOff"
@@ -61,7 +61,7 @@
                     :type="field.isMasked ? 'password' : 'text'"
                     :disabled="field.isMasked"
                     :autofocus="false"
-                    class="!my-2 !bg-primaryLight"
+                    class="!my-2 !bg-primaryLight w-72"
                   />
                   <HoppButtonSecondary
                     :icon="field.isMasked ? IconEye : IconEyeOff"

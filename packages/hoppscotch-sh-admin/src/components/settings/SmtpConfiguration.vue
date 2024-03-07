@@ -39,7 +39,7 @@
                   :type="isMasked(field.key) ? 'password' : 'text'"
                   :disabled="isMasked(field.key)"
                   :autofocus="false"
-                  class="!my-2 !bg-primaryLight"
+                  class="!my-2 !bg-primaryLight w-72"
                 />
                 <HoppButtonSecondary
                   :icon="isMasked(field.key) ? IconEye : IconEyeOff"

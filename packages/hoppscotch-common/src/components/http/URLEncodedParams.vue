@@ -21,7 +21,7 @@
           @click="clearContent()"
         />
         <HoppButtonSecondary
-          v-if="bulkMode"
+          v-if="bulkUrlEncodedParams"
           v-tippy="{ theme: 'tooltip' }"
           :title="t('state.linewrap')"
           :class="{ '!text-accent': WRAP_LINES }"

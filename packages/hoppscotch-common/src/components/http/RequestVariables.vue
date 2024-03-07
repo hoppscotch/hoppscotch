@@ -24,9 +24,11 @@
           v-if="bulkVariables"
           v-tippy="{ theme: 'tooltip' }"
           :title="t('state.linewrap')"
-          :class="{ '!text-accent': linewrapEnabled }"
+          :class="{ '!text-accent': WRAP_LINES }"
           :icon="IconWrapText"
-          @click.prevent="linewrapEnabled = !linewrapEnabled"
+          @click.prevent="
+            toggleNestedSetting('WRAP_LINES', 'httpRequestVariables')
+          "
         />
         <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
@@ -191,6 +193,8 @@ import { objRemoveKey } from "~/helpers/functional/object"
 import { parseRawKeyValueEntriesE } from "@hoppscotch/data"
 import { RawKeyValueEntry } from "@hoppscotch/data"
 import { rawKeyValueEntriesToString } from "@hoppscotch/data"
+import { useNestedSetting } from "~/composables/settings"
+import { toggleNestedSetting } from "~/newstore/settings"
 
 const colorMode = useColorMode()
 
@@ -200,7 +204,8 @@ const toast = useToast()
 const bulkMode = ref(false)
 const bulkEditor = ref<any | null>(null)
 const bulkVariables = ref("")
-const linewrapEnabled = ref(true)
+
+const WRAP_LINES = useNestedSetting("WRAP_LINES", "httpRequestVariables")
 
 const deletionToast = ref<{ goAway: (delay: number) => void } | null>(null)
 
@@ -222,7 +227,7 @@ useCodemirror(
     extendedEditorConfig: {
       mode: "text/x-yaml",
       placeholder: `${t("state.bulk_mode_placeholder")}`,
-      lineWrapping: linewrapEnabled,
+      lineWrapping: WRAP_LINES,
     },
     linter,
     completer: null,

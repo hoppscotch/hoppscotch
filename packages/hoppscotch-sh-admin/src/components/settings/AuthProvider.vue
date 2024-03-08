@@ -35,29 +35,9 @@
               :key="field.key"
               class="mt-5"
             >
-              <div v-if="field.key !== 'tenant'">
-                <label>{{ field.name }}</label>
-                <span class="flex max-w-lg">
-                  <HoppSmartInput
-                    v-model="provider.fields[field.key]"
-                    :type="
-                      isMasked(provider.name, field.key) ? 'password' : 'text'
-                    "
-                    :disabled="isMasked(provider.name, field.key)"
-                    :autofocus="false"
-                    class="!my-2 !bg-primaryLight flex-1"
-                  />
-                  <HoppButtonSecondary
-                    :icon="
-                      isMasked(provider.name, field.key) ? IconEye : IconEyeOff
-                    "
-                    class="bg-primaryLight h-9 mt-2"
-                    @click="toggleMask(provider.name, field.key)"
-                  />
-                </span>
-              </div>
-              <!-- Microsoft Configs has an extra tenant field -->
-              <div v-else-if="provider.name === 'microsoft'">
+              <template
+                v-if="field.applicableProviders.includes(provider.name)"
+              >
                 <label>{{ field.name }}</label>
                 <span class="flex max-w-lg">
                   <HoppSmartInput
@@ -77,7 +57,7 @@
                     @click="toggleMask(provider.name, field.key)"
                   />
                 </span>
-              </div>
+              </template>
             </div>
           </div>
         </div>
@@ -111,36 +91,47 @@ const capitalize = (text: string) =>
   text.charAt(0).toUpperCase() + text.slice(1);
 
 // Union type for all possible field keys
-type FieldKey =
-  | 'client_id'
-  | 'client_secret'
-  | 'callback_url'
-  | 'scope'
-  | 'tenant';
+type ProviderFieldKeys = keyof ProviderFields;
 
-type Field = {
+type ProviderFields = {
+  [Field in keyof Config['providers'][SsoAuthProviders]['fields']]: boolean;
+} & Partial<{ tenant: boolean }>;
+
+type ProviderFieldMetadata = {
   name: string;
-  key: FieldKey;
+  key: ProviderFieldKeys;
+  applicableProviders: SsoAuthProviders[];
 };
 
-const providerConfigFields = reactive<Field[]>([
+const providerConfigFields = <ProviderFieldMetadata[]>[
   {
     name: t('configs.auth_providers.client_id'),
     key: 'client_id',
+    applicableProviders: ['google', 'github', 'microsoft'],
   },
   {
     name: t('configs.auth_providers.client_secret'),
     key: 'client_secret',
+    applicableProviders: ['google', 'github', 'microsoft'],
   },
   {
     name: t('configs.auth_providers.callback_url'),
     key: 'callback_url',
+    applicableProviders: ['google', 'github', 'microsoft'],
   },
-  { name: t('configs.auth_providers.scope'), key: 'scope' },
-  { name: t('configs.auth_providers.tenant'), key: 'tenant' },
-]);
+  {
+    name: t('configs.auth_providers.scope'),
+    key: 'scope',
+    applicableProviders: ['google', 'github', 'microsoft'],
+  },
+  {
+    name: t('configs.auth_providers.tenant'),
+    key: 'tenant',
+    applicableProviders: ['microsoft'],
+  },
+];
 
-const maskState = reactive({
+const maskState = reactive<Record<SsoAuthProviders, ProviderFields>>({
   google: {
     client_id: true,
     client_secret: true,
@@ -162,11 +153,13 @@ const maskState = reactive({
   },
 });
 
-const toggleMask = (provider: SsoAuthProviders, fieldKey: FieldKey) => {
-  maskState[provider][fieldKey as keyof (typeof maskState)[typeof provider]] =
-    !maskState[provider][fieldKey as keyof (typeof maskState)[typeof provider]];
+const toggleMask = (
+  provider: SsoAuthProviders,
+  fieldKey: ProviderFieldKeys
+) => {
+  maskState[provider][fieldKey] = !maskState[provider][fieldKey];
 };
 
-const isMasked = (provider: SsoAuthProviders, fieldKey: FieldKey) =>
-  maskState[provider][fieldKey as keyof (typeof maskState)[typeof provider]];
+const isMasked = (provider: SsoAuthProviders, fieldKey: ProviderFieldKeys) =>
+  maskState[provider][fieldKey];
 </script>

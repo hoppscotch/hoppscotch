@@ -27,6 +27,8 @@ export type Config = {
       fields: {
         client_id: string;
         client_secret: string;
+        callback_url: string;
+        scope: string;
       };
     };
     github: {
@@ -35,6 +37,8 @@ export type Config = {
       fields: {
         client_id: string;
         client_secret: string;
+        callback_url: string;
+        scope: string;
       };
     };
     microsoft: {
@@ -43,6 +47,9 @@ export type Config = {
       fields: {
         client_id: string;
         client_secret: string;
+        callback_url: string;
+        scope: string;
+        tenant: string;
       };
     };
   };
@@ -86,10 +93,17 @@ export function useConfigHandler(updatedConfigs?: Config) {
       configNames: [
         'GOOGLE_CLIENT_ID',
         'GOOGLE_CLIENT_SECRET',
+        'GOOGLE_CALLBACK_URL',
+        'GOOGLE_SCOPE',
         'MICROSOFT_CLIENT_ID',
         'MICROSOFT_CLIENT_SECRET',
+        'MICROSOFT_CALLBACK_URL',
+        'MICROSOFT_SCOPE',
+        'MICROSOFT_TENANT',
         'GITHUB_CLIENT_ID',
         'GITHUB_CLIENT_SECRET',
+        'GITHUB_CALLBACK_URL',
+        'GITHUB_SCOPE',
         'MAILER_SMTP_URL',
         'MAILER_ADDRESS_FROM',
         'ALLOW_ANALYTICS_COLLECTION',
@@ -118,6 +132,9 @@ export function useConfigHandler(updatedConfigs?: Config) {
     await fetchInfraConfigs();
     await fetchAllowedAuthProviders();
 
+    const getFieldValue = (name: string) =>
+      infraConfigs.value.find((x) => x.name === name)?.value ?? '';
+
     // Transforming the fetched data into a Configs object
     currentConfigs.value = {
       providers: {
@@ -125,37 +142,31 @@ export function useConfigHandler(updatedConfigs?: Config) {
           name: 'google',
           enabled: allowedAuthProviders.value.includes('GOOGLE'),
           fields: {
-            client_id:
-              infraConfigs.value.find((x) => x.name === 'GOOGLE_CLIENT_ID')
-                ?.value ?? '',
-            client_secret:
-              infraConfigs.value.find((x) => x.name === 'GOOGLE_CLIENT_SECRET')
-                ?.value ?? '',
+            client_id: getFieldValue('GOOGLE_CLIENT_ID'),
+            client_secret: getFieldValue('GOOGLE_CLIENT_SECRET'),
+            callback_url: getFieldValue('GOOGLE_CALLBACK_URL'),
+            scope: getFieldValue('GOOGLE_SCOPE'),
           },
         },
         github: {
           name: 'github',
           enabled: allowedAuthProviders.value.includes('GITHUB'),
           fields: {
-            client_id:
-              infraConfigs.value.find((x) => x.name === 'GITHUB_CLIENT_ID')
-                ?.value ?? '',
-            client_secret:
-              infraConfigs.value.find((x) => x.name === 'GITHUB_CLIENT_SECRET')
-                ?.value ?? '',
+            client_id: getFieldValue('GITHUB_CLIENT_ID'),
+            client_secret: getFieldValue('GITHUB_CLIENT_SECRET'),
+            callback_url: getFieldValue('GITHUB_CALLBACK_URL'),
+            scope: getFieldValue('GITHUB_SCOPE'),
           },
         },
         microsoft: {
           name: 'microsoft',
           enabled: allowedAuthProviders.value.includes('MICROSOFT'),
           fields: {
-            client_id:
-              infraConfigs.value.find((x) => x.name === 'MICROSOFT_CLIENT_ID')
-                ?.value ?? '',
-            client_secret:
-              infraConfigs.value.find(
-                (x) => x.name === 'MICROSOFT_CLIENT_SECRET'
-              )?.value ?? '',
+            client_id: getFieldValue('MICROSOFT_CLIENT_ID'),
+            client_secret: getFieldValue('MICROSOFT_CLIENT_SECRET'),
+            callback_url: getFieldValue('MICROSOFT_CALLBACK_URL'),
+            scope: getFieldValue('MICROSOFT_SCOPE'),
+            tenant: getFieldValue('MICROSOFT_TENANT'),
           },
         },
       },
@@ -163,12 +174,8 @@ export function useConfigHandler(updatedConfigs?: Config) {
         name: 'email',
         enabled: allowedAuthProviders.value.includes('EMAIL'),
         fields: {
-          mailer_smtp_url:
-            infraConfigs.value.find((x) => x.name === 'MAILER_SMTP_URL')
-              ?.value ?? '',
-          mailer_from_address:
-            infraConfigs.value.find((x) => x.name === 'MAILER_ADDRESS_FROM')
-              ?.value ?? '',
+          mailer_smtp_url: getFieldValue('MAILER_SMTP_URL'),
+          mailer_from_address: getFieldValue('MAILER_ADDRESS_FROM'),
         },
       },
       dataSharingConfigs: {
@@ -184,7 +191,7 @@ export function useConfigHandler(updatedConfigs?: Config) {
     workingConfigs.value = cloneDeep(currentConfigs.value);
   });
 
-  // Trasforming the working configs back into the format required by the mutations
+  // Transforming the working configs back into the format required by the mutations
   const updatedInfraConfigs = computed(() => {
     let config: UpdatedConfigs[] = [
       {
@@ -202,13 +209,23 @@ export function useConfigHandler(updatedConfigs?: Config) {
         {
           name: 'GOOGLE_CLIENT_SECRET',
           value: updatedConfigs?.providers.google.fields.client_secret ?? '',
+        },
+        {
+          name: 'GOOGLE_CALLBACK_URL',
+          value: updatedConfigs?.providers.google.fields.callback_url ?? '',
+        },
+        {
+          name: 'GOOGLE_SCOPE',
+          value: updatedConfigs?.providers.google.fields.scope ?? '',
         }
       );
     } else {
       config = config.filter(
         (item) =>
           item.name !== 'GOOGLE_CLIENT_ID' &&
-          item.name !== 'GOOGLE_CLIENT_SECRET'
+          item.name !== 'GOOGLE_CLIENT_SECRET' &&
+          item.name !== 'GOOGLE_CALLBACK_URL' &&
+          item.name !== 'GOOGLE_SCOPE'
       );
     }
     if (updatedConfigs?.providers.microsoft.enabled) {
@@ -220,13 +237,28 @@ export function useConfigHandler(updatedConfigs?: Config) {
         {
           name: 'MICROSOFT_CLIENT_SECRET',
           value: updatedConfigs?.providers.microsoft.fields.client_secret ?? '',
+        },
+        {
+          name: 'MICROSOFT_CALLBACK_URL',
+          value: updatedConfigs?.providers.microsoft.fields.callback_url ?? '',
+        },
+        {
+          name: 'MICROSOFT_SCOPE',
+          value: updatedConfigs?.providers.microsoft.fields.scope ?? '',
+        },
+        {
+          name: 'MICROSOFT_TENANT',
+          value: updatedConfigs?.providers.microsoft.fields.tenant ?? '',
         }
       );
     } else {
       config = config.filter(
         (item) =>
           item.name !== 'MICROSOFT_CLIENT_ID' &&
-          item.name !== 'MICROSOFT_CLIENT_SECRET'
+          item.name !== 'MICROSOFT_CLIENT_SECRET' &&
+          item.name !== 'MICROSOFT_CALLBACK_URL' &&
+          item.name !== 'MICROSOFT_SCOPE' &&
+          item.name !== 'MICROSOFT_TENANT'
       );
     }
 
@@ -239,13 +271,23 @@ export function useConfigHandler(updatedConfigs?: Config) {
         {
           name: 'GITHUB_CLIENT_SECRET',
           value: updatedConfigs?.providers.github.fields.client_secret ?? '',
+        },
+        {
+          name: 'GITHUB_CALLBACK_URL',
+          value: updatedConfigs?.providers.github.fields.callback_url ?? '',
+        },
+        {
+          name: 'GITHUB_SCOPE',
+          value: updatedConfigs?.providers.github.fields.scope ?? '',
         }
       );
     } else {
       config = config.filter(
         (item) =>
           item.name !== 'GITHUB_CLIENT_ID' &&
-          item.name !== 'GITHUB_CLIENT_SECRET'
+          item.name !== 'GITHUB_CLIENT_SECRET' &&
+          item.name !== 'GITHUB_CALLBACK_URL' &&
+          item.name !== 'GITHUB_SCOPE'
       );
     }
 

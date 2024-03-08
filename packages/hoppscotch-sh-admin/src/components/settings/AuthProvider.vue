@@ -35,25 +35,29 @@
               :key="field.key"
               class="mt-5"
             >
-              <label>{{ field.name }}</label>
-              <span class="flex">
-                <HoppSmartInput
-                  v-model="provider.fields[field.key]"
-                  :type="
-                    isMasked(provider.name, field.key) ? 'password' : 'text'
-                  "
-                  :disabled="isMasked(provider.name, field.key)"
-                  :autofocus="false"
-                  class="!my-2 !bg-primaryLight"
-                />
-                <HoppButtonSecondary
-                  :icon="
-                    isMasked(provider.name, field.key) ? IconEye : IconEyeOff
-                  "
-                  class="bg-primaryLight h-9 mt-2"
-                  @click="toggleMask(provider.name, field.key)"
-                />
-              </span>
+              <template
+                v-if="field.applicableProviders.includes(provider.name)"
+              >
+                <label>{{ field.name }}</label>
+                <span class="flex max-w-lg">
+                  <HoppSmartInput
+                    v-model="provider.fields[field.key as keyof typeof provider['fields']]"
+                    :type="
+                      isMasked(provider.name, field.key) ? 'password' : 'text'
+                    "
+                    :disabled="isMasked(provider.name, field.key)"
+                    :autofocus="false"
+                    class="!my-2 !bg-primaryLight flex-1"
+                  />
+                  <HoppButtonSecondary
+                    :icon="
+                      isMasked(provider.name, field.key) ? IconEye : IconEyeOff
+                    "
+                    class="bg-primaryLight h-9 mt-2"
+                    @click="toggleMask(provider.name, field.key)"
+                  />
+                </span>
+              </template>
             </div>
           </div>
         </div>
@@ -86,47 +90,76 @@ const workingConfigs = useVModel(props, 'config', emit);
 const capitalize = (text: string) =>
   text.charAt(0).toUpperCase() + text.slice(1);
 
-// Masking sensitive fields
-type Field = {
+// Union type for all possible field keys
+type ProviderFieldKeys = keyof ProviderFields;
+
+type ProviderFields = {
+  [Field in keyof Config['providers'][SsoAuthProviders]['fields']]: boolean;
+} & Partial<{ tenant: boolean }>;
+
+type ProviderFieldMetadata = {
   name: string;
-  key: keyof Config['providers']['google' | 'github' | 'microsoft']['fields'];
+  key: ProviderFieldKeys;
+  applicableProviders: SsoAuthProviders[];
 };
 
-const providerConfigFields = reactive<Field[]>([
-  { name: t('configs.auth_providers.client_id'), key: 'client_id' },
-  { name: t('configs.auth_providers.client_secret'), key: 'client_secret' },
-]);
+const providerConfigFields = <ProviderFieldMetadata[]>[
+  {
+    name: t('configs.auth_providers.client_id'),
+    key: 'client_id',
+    applicableProviders: ['google', 'github', 'microsoft'],
+  },
+  {
+    name: t('configs.auth_providers.client_secret'),
+    key: 'client_secret',
+    applicableProviders: ['google', 'github', 'microsoft'],
+  },
+  {
+    name: t('configs.auth_providers.callback_url'),
+    key: 'callback_url',
+    applicableProviders: ['google', 'github', 'microsoft'],
+  },
+  {
+    name: t('configs.auth_providers.scope'),
+    key: 'scope',
+    applicableProviders: ['google', 'github', 'microsoft'],
+  },
+  {
+    name: t('configs.auth_providers.tenant'),
+    key: 'tenant',
+    applicableProviders: ['microsoft'],
+  },
+];
 
-const maskState = reactive({
+const maskState = reactive<Record<SsoAuthProviders, ProviderFields>>({
   google: {
     client_id: true,
     client_secret: true,
+    callback_url: true,
+    scope: true,
   },
   github: {
     client_id: true,
     client_secret: true,
+    callback_url: true,
+    scope: true,
   },
   microsoft: {
     client_id: true,
     client_secret: true,
+    callback_url: true,
+    scope: true,
+    tenant: true,
   },
 });
 
 const toggleMask = (
   provider: SsoAuthProviders,
-  fieldKey: keyof Config['providers'][
-    | 'google'
-    | 'github'
-    | 'microsoft']['fields']
+  fieldKey: ProviderFieldKeys
 ) => {
   maskState[provider][fieldKey] = !maskState[provider][fieldKey];
 };
 
-const isMasked = (
-  provider: SsoAuthProviders,
-  fieldKey: keyof Config['providers'][
-    | 'google'
-    | 'github'
-    | 'microsoft']['fields']
-) => maskState[provider][fieldKey];
+const isMasked = (provider: SsoAuthProviders, fieldKey: ProviderFieldKeys) =>
+  maskState[provider][fieldKey];
 </script>

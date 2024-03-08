@@ -262,7 +262,7 @@ const headings = [
 ];
 
 // Get Paginated Results of all the users in the infra
-const usersPerPage = 2;
+const usersPerPage = 20;
 const {
   fetching,
   error,

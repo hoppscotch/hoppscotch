@@ -1258,8 +1258,8 @@ importers:
         specifier: 3.1.1
         version: 3.1.1(graphql@16.6.0)
       '@hoppscotch/ui':
-        specifier: 0.1.0
-        version: 0.1.0(eslint@8.55.0)(terser@5.27.0)(vite@3.2.4)(vue@3.3.9)
+        specifier: 0.1.2
+        version: 0.1.2(eslint@8.55.0)(terser@5.27.0)(vite@3.2.4)(vue@3.3.9)
       '@hoppscotch/vue-toasted':
         specifier: 0.1.0
         version: 0.1.0(vue@3.3.9)
@@ -6015,13 +6015,14 @@ packages:
       lodash-es: 4.17.21
       path: 0.12.7
       vite-plugin-eslint: 1.8.1(eslint@8.55.0)(vite@3.2.4)
-      vue: 3.3.9(typescript@4.9.3)
+      vue: 3.3.9(typescript@4.9.5)
       vuedraggable-es: 4.1.1(vue@3.3.9)
     transitivePeerDependencies:
       - '@vue/composition-api'
       - eslint
       - terser
       - vite
+    dev: true
 
   /@hoppscotch/ui@0.1.0(eslint@8.55.0)(terser@5.27.0)(vite@4.5.0)(vue@3.3.9):
     resolution: {integrity: sha512-+4iHdfO7gRn7l3vpnPcQZbgdA+uE/K1KQX0/eUFcCWvja/C3eSM0db31MRX2cz1KYGwiezzhhVe21mIT4a0CZQ==}
@@ -6041,6 +6042,32 @@ packages:
       path: 0.12.7
       vite-plugin-eslint: 1.8.1(eslint@8.55.0)(vite@4.5.0)
       vue: 3.3.9(typescript@5.3.2)
+      vuedraggable-es: 4.1.1(vue@3.3.9)
+    transitivePeerDependencies:
+      - '@vue/composition-api'
+      - eslint
+      - terser
+      - vite
+    dev: false
+
+  /@hoppscotch/ui@0.1.2(eslint@8.55.0)(terser@5.27.0)(vite@3.2.4)(vue@3.3.9):
+    resolution: {integrity: sha512-bBn7Km1iIFMBsXgnrDLqTBzz29XOPRZcRbQd18DZMYxoR7WQo9amBfa850vk5debYQx2+Mb0ExOnrGVO1QlBRg==}
+    engines: {node: '>=16'}
+    peerDependencies:
+      vue: 3.3.9
+    dependencies:
+      '@boringer-avatars/vue3': 0.2.1(vue@3.3.9)
+      '@fontsource-variable/inter': 5.0.15
+      '@fontsource-variable/material-symbols-rounded': 5.0.16
+      '@fontsource-variable/roboto-mono': 5.0.16
+      '@hoppscotch/vue-toasted': 0.1.0(vue@3.3.9)
+      '@vitejs/plugin-legacy': 2.3.0(terser@5.27.0)(vite@3.2.4)
+      '@vueuse/core': 8.7.5(vue@3.3.9)
+      fp-ts: 2.16.2
+      lodash-es: 4.17.21
+      path: 0.12.7
+      vite-plugin-eslint: 1.8.1(eslint@8.55.0)(vite@3.2.4)
+      vue: 3.3.9(typescript@4.9.3)
       vuedraggable-es: 4.1.1(vue@3.3.9)
     transitivePeerDependencies:
       - '@vue/composition-api'

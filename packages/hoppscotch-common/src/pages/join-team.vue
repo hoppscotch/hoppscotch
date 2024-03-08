@@ -71,7 +71,7 @@
           <h1 class="heading">
             {{
               t("team.join_team", {
-                team: inviteDetails.data.right.teamInvitation.team.name,
+                workspace: inviteDetails.data.right.teamInvitation.team.name,
               })
             }}
           </h1>
@@ -81,7 +81,7 @@
                 owner:
                   inviteDetails.data.right.teamInvitation.creator.displayName ??
                   inviteDetails.data.right.teamInvitation.creator.email,
-                team: inviteDetails.data.right.teamInvitation.team.name,
+                workspace: inviteDetails.data.right.teamInvitation.team.name,
               })
             }}
           </p>
@@ -89,7 +89,7 @@
             <HoppButtonPrimary
               :label="
                 t('team.join_team', {
-                  team: inviteDetails.data.right.teamInvitation.team.name,
+                  workspace: inviteDetails.data.right.teamInvitation.team.name,
                 })
               "
               :loading="loading"
@@ -109,14 +109,14 @@
           <h1 class="heading">
             {{
               t("team.joined_team", {
-                team: inviteDetails.data.right.teamInvitation.team.name,
+                workspace: inviteDetails.data.right.teamInvitation.team.name,
               })
             }}
           </h1>
           <p class="mt-2 text-secondaryLight">
             {{
               t("team.joined_team_description", {
-                team: inviteDetails.data.right.teamInvitation.team.name,
+                workspace: inviteDetails.data.right.teamInvitation.team.name,
               })
             }}
           </p>

@@ -321,31 +321,34 @@ const handleSearch = async (input: string) => {
     // If search query is present, fetch all the users filtered by the search query
     await refetch({ searchString: input, take: usersCount.value!, skip: 0 });
   }
+  page.value = 1;
 };
 
-// Final Users List after Search and Pagination operations
-const finalUsersList = computed(() =>
-  // If search query is present, filter the list based on the search query and return the paginated results
-  // Else just return the paginated results directly
-  searchQuery.value.length > 0
-    ? usersList.value.slice(
-        (page.value - 1) * usersPerPage,
-        page.value * usersPerPage
-      )
-    : usersList.value
-);
-
 watch(searchQuery, () => {
-  console.log('search');
+  console.log('search', searchQuery.value);
 
   if (searchQuery.value.length === 0) {
     handleSearch(searchQuery.value);
   } else {
-    page.value = 1;
     debounce(() => {
       handleSearch(searchQuery.value);
     }, 500);
   }
+});
+
+// Final Users List after Search and Pagination operations
+const finalUsersList = computed(() => {
+  // If search query is present, filter the list based on the search query and return the paginated results
+  // Else just return the paginated results directly
+
+  console.log('userslist', usersList.value);
+
+  return searchQuery.value.length > 0
+    ? usersList.value.slice(
+        (page.value - 1) * usersPerPage,
+        page.value * usersPerPage
+      )
+    : usersList.value;
 });
 
 // Spinner
@@ -378,11 +381,15 @@ watch(page, async () => {
 
   if (page.value < 1 || page.value > totalPages.value) {
     return;
-  } else if (searchQuery.value.length > 0 && page.value !== 1) {
+  } else if (searchQuery.value.length > 0) {
+    console.log('inside');
+
     // // Simulate fetching state
     showSpinner.value = true;
     debounce(() => (showSpinner.value = false), 500);
   } else {
+    console.log('refetch');
+
     await refetch({
       searchString: '',
       take: usersPerPage,

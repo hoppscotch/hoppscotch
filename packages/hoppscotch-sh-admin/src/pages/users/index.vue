@@ -56,7 +56,7 @@
             <div class="flex w-full items-center bg-primary">
               <icon-lucide-search class="mx-3 text-xs" />
               <HoppSmartInput
-                v-model="searchQuery"
+                v-model="query"
                 styles="w-full bg-primary py-1"
                 input-styles="h-full border-none"
                 placeholder="Search by name or email"
@@ -283,7 +283,7 @@ const headings = [
 ];
 
 // Get Paginated Results of all the users in the infra
-const usersPerPage = 2;
+const usersPerPage = 20;
 const {
   fetching,
   error,
@@ -307,11 +307,13 @@ const debounce = (func: () => void, delay: number) => {
 };
 
 // Search
+
+const query = ref('');
+// Query which is sent to the backend after debouncing
 const searchQuery = ref('');
-const inputQuery = ref('');
 
 const handleSearch = async (input: string) => {
-  inputQuery.value = input;
+  searchQuery.value = input;
 
   if (input.length === 0) {
     await refetch({
@@ -324,30 +326,31 @@ const handleSearch = async (input: string) => {
     await refetch({ searchString: input, take: usersCount.value!, skip: 0 });
   }
 
+  // Reset the page to 1 when the search query changes
   page.value = 1;
 };
 
-watch(searchQuery, () => {
-  if (searchQuery.value.length === 0) {
-    handleSearch(searchQuery.value);
+watch(query, () => {
+  if (query.value.length === 0) {
+    handleSearch(query.value);
   } else {
     debounce(() => {
-      handleSearch(searchQuery.value);
+      handleSearch(query.value);
     }, 500);
   }
 });
 
 // Final Users List after Search and Pagination operations
-const finalUsersList = computed(() => {
+const finalUsersList = computed(() =>
   // If search query is present, filter the list based on the search query and return the paginated results
   // Else just return the paginated results directly
-  return inputQuery.value.length > 0
+  searchQuery.value.length > 0
     ? usersList.value.slice(
         (page.value - 1) * usersPerPage,
         page.value * usersPerPage
       )
-    : usersList.value;
-});
+    : usersList.value
+);
 
 // Spinner
 const showSpinner = ref(false);
@@ -362,40 +365,14 @@ watch(fetching, (fetching) => {
 });
 
 // Pagination
-const page = ref(1);
-const { data } = useQuery({ query: MetricsDocument });
-const usersCount = computed(() => data?.value?.infra.usersCount);
-
-const totalPages = computed(() => {
-  if (!usersCount.value) return 0;
-  if (searchQuery.value.length > 0) {
-    return Math.ceil(usersList.value.length / usersPerPage);
-  }
-  return Math.ceil(usersCount.value / usersPerPage);
-});
-
-watch(page, async () => {
-  if (page.value < 1 || page.value > totalPages.value) {
-    return;
-  } else if (searchQuery.value.length > 0) {
-    // // Simulate fetching state
-    showSpinner.value = true;
-    debounce(() => (showSpinner.value = false), 500);
-  } else {
-    console.log('refetch');
-
-    await refetch({
-      searchString: '',
-      take: usersPerPage,
-      skip: (page.value - 1) * usersPerPage,
-    });
-  }
-});
-
 enum PageDirection {
   Previous,
   Next,
 }
+
+const page = ref(1);
+const { data } = useQuery({ query: MetricsDocument });
+const usersCount = computed(() => data?.value?.infra.usersCount);
 
 const changePage = (direction: PageDirection) => {
   const isPrevious = direction === PageDirection.Previous;
@@ -407,6 +384,31 @@ const changePage = (direction: PageDirection) => {
     page.value += isPrevious ? -1 : 1;
   }
 };
+
+const totalPages = computed(() => {
+  if (!usersCount.value) return 0;
+  if (query.value.length > 0) {
+    return Math.ceil(usersList.value.length / usersPerPage);
+  }
+  return Math.ceil(usersCount.value / usersPerPage);
+});
+
+watch(page, async () => {
+  if (page.value < 1 || page.value > totalPages.value) {
+    return;
+  }
+  // Show spinner when moving to a different page when search query is present
+  else if (query.value.length > 0) {
+    showSpinner.value = true;
+    debounce(() => (showSpinner.value = false), 500);
+  } else {
+    await refetch({
+      searchString: '',
+      take: usersPerPage,
+      skip: (page.value - 1) * usersPerPage,
+    });
+  }
+});
 
 // Go to Individual User Details Page
 const router = useRouter();

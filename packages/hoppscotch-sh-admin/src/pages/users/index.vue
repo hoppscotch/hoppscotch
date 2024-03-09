@@ -23,14 +23,33 @@
       <div class="overflow-x-auto">
         <div v-if="error">{{ t('users.load_list_error') }}</div>
 
+        <div v-else-if="usersList" class="mb-3 flex items-center justify-end">
+          <HoppButtonSecondary
+            outline
+            filled
+            :icon="IconLeft"
+            :disabled="page === 1"
+            @click="changePage(PageDirection.Previous)"
+          />
+
+          <div class="flex h-full w-10 items-center justify-center">
+            <span>{{ page }}</span>
+          </div>
+
+          <HoppButtonSecondary
+            outline
+            filled
+            :icon="IconRight"
+            :disabled="page === totalPages"
+            @click="changePage(PageDirection.Next)"
+          />
+        </div>
+
         <HoppSmartTable
-          v-else-if="usersList"
           :headings="headings"
           :list="finalUsersList"
           :loading="showSpinner"
           :selected-rows="selectedRows"
-          :pagination="{ totalPages }"
-          @pageNumber="handlePageChange"
           @onRowClicked="goToUserDetails"
         >
           <template #extension>
@@ -244,6 +263,8 @@ import IconTrash from '~icons/lucide/trash';
 import IconUserCheck from '~icons/lucide/user-check';
 import IconUserMinus from '~icons/lucide/user-minus';
 import IconAddUser from '~icons/lucide/user-plus';
+import IconLeft from '~icons/lucide/chevron-left';
+import IconRight from '~icons/lucide/chevron-right';
 
 // Get Proper Date Formats
 const t = useI18n();
@@ -262,7 +283,7 @@ const headings = [
 ];
 
 // Get Paginated Results of all the users in the infra
-const usersPerPage = 20;
+const usersPerPage = 2;
 const {
   fetching,
   error,
@@ -294,7 +315,7 @@ const handleSearch = async (input: string) => {
     await refetch({
       searchString: '',
       take: usersPerPage,
-      skip: (pageNumber.value - 1) * usersPerPage,
+      skip: (page.value - 1) * usersPerPage,
     });
   } else {
     // If search query is present, fetch all the users filtered by the search query
@@ -308,16 +329,23 @@ const finalUsersList = computed(() =>
   // Else just return the paginated results directly
   searchQuery.value.length > 0
     ? usersList.value.slice(
-        (pageNumber.value - 1) * usersPerPage,
-        pageNumber.value * usersPerPage
+        (page.value - 1) * usersPerPage,
+        page.value * usersPerPage
       )
     : usersList.value
 );
 
 watch(searchQuery, () => {
-  debounce(() => {
+  console.log('search');
+
+  if (searchQuery.value.length === 0) {
     handleSearch(searchQuery.value);
-  }, 500);
+  } else {
+    page.value = 1;
+    debounce(() => {
+      handleSearch(searchQuery.value);
+    }, 500);
+  }
 });
 
 // Spinner
@@ -333,7 +361,7 @@ watch(fetching, (fetching) => {
 });
 
 // Pagination
-const pageNumber = ref(1);
+const page = ref(1);
 const { data } = useQuery({ query: MetricsDocument });
 const usersCount = computed(() => data?.value?.infra.usersCount);
 
@@ -345,20 +373,37 @@ const totalPages = computed(() => {
   return Math.ceil(usersCount.value / usersPerPage);
 });
 
-const handlePageChange = async (page: number) => {
-  pageNumber.value = page;
-  if (page < 1 || page > totalPages.value) {
+watch(page, async () => {
+  console.log('page');
+
+  if (page.value < 1 || page.value > totalPages.value) {
     return;
-  } else if (searchQuery.value.length > 0) {
-    // Simulate fetching state
-    fetching.value = true;
-    debounce(() => (fetching.value = false), 500);
+  } else if (searchQuery.value.length > 0 && page.value !== 1) {
+    // // Simulate fetching state
+    showSpinner.value = true;
+    debounce(() => (showSpinner.value = false), 500);
   } else {
     await refetch({
       searchString: '',
       take: usersPerPage,
-      skip: (page - 1) * usersPerPage,
+      skip: (page.value - 1) * usersPerPage,
     });
+  }
+});
+
+enum PageDirection {
+  Previous,
+  Next,
+}
+
+const changePage = (direction: PageDirection) => {
+  const isPrevious = direction === PageDirection.Previous;
+
+  const isValidPreviousAction = isPrevious && page.value > 1;
+  const isValidNextAction = !isPrevious && page.value < totalPages.value;
+
+  if (isValidNextAction || isValidPreviousAction) {
+    page.value += isPrevious ? -1 : 1;
   }
 };
 

@@ -26,7 +26,7 @@
         <HoppSmartTable
           v-else-if="usersList"
           :headings="headings"
-          :list="usersList"
+          :list="finalUsersList"
           :loading="showSpinner"
           :selected-rows="selectedRows"
           :pagination="{ totalPages }"
@@ -290,8 +290,29 @@ const searchQuery = ref('');
 
 const handleSearch = async (input: string) => {
   searchQuery.value = input;
-  await refetch({ searchString: input, take: usersPerPage, skip: 0 });
+  if (input.length === 0) {
+    await refetch({
+      searchString: '',
+      take: usersPerPage,
+      skip: (pageNumber.value - 1) * usersPerPage,
+    });
+  } else {
+    // If search query is present, fetch all the users filtered by the search query
+    await refetch({ searchString: input, take: usersCount.value!, skip: 0 });
+  }
 };
+
+// Final Users List after Search and Pagination operations
+const finalUsersList = computed(() =>
+  // If search query is present, filter the list based on the search query and return the paginated results
+  // Else just return the paginated results directly
+  searchQuery.value.length > 0
+    ? usersList.value.slice(
+        (pageNumber.value - 1) * usersPerPage,
+        pageNumber.value * usersPerPage
+      )
+    : usersList.value
+);
 
 watch(searchQuery, () => {
   debounce(() => {
@@ -312,23 +333,29 @@ watch(fetching, (fetching) => {
 });
 
 // Pagination
+const pageNumber = ref(1);
 const { data } = useQuery({ query: MetricsDocument });
 const usersCount = computed(() => data?.value?.infra.usersCount);
 
 const totalPages = computed(() => {
   if (!usersCount.value) return 0;
   if (searchQuery.value.length > 0) {
-    return usersList.value.length;
+    return Math.ceil(usersList.value.length / usersPerPage);
   }
   return Math.ceil(usersCount.value / usersPerPage);
 });
 
 const handlePageChange = async (page: number) => {
+  pageNumber.value = page;
   if (page < 1 || page > totalPages.value) {
     return;
+  } else if (searchQuery.value.length > 0) {
+    // Simulate fetching state
+    fetching.value = true;
+    debounce(() => (fetching.value = false), 500);
   } else {
     await refetch({
-      searchString: searchQuery.value,
+      searchString: '',
       take: usersPerPage,
       skip: (page - 1) * usersPerPage,
     });

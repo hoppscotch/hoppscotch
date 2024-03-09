@@ -308,9 +308,11 @@ const debounce = (func: () => void, delay: number) => {
 
 // Search
 const searchQuery = ref('');
+const inputQuery = ref('');
 
 const handleSearch = async (input: string) => {
-  searchQuery.value = input;
+  inputQuery.value = input;
+
   if (input.length === 0) {
     await refetch({
       searchString: '',
@@ -321,12 +323,11 @@ const handleSearch = async (input: string) => {
     // If search query is present, fetch all the users filtered by the search query
     await refetch({ searchString: input, take: usersCount.value!, skip: 0 });
   }
+
   page.value = 1;
 };
 
 watch(searchQuery, () => {
-  console.log('search', searchQuery.value);
-
   if (searchQuery.value.length === 0) {
     handleSearch(searchQuery.value);
   } else {
@@ -340,10 +341,7 @@ watch(searchQuery, () => {
 const finalUsersList = computed(() => {
   // If search query is present, filter the list based on the search query and return the paginated results
   // Else just return the paginated results directly
-
-  console.log('userslist', usersList.value);
-
-  return searchQuery.value.length > 0
+  return inputQuery.value.length > 0
     ? usersList.value.slice(
         (page.value - 1) * usersPerPage,
         page.value * usersPerPage
@@ -377,13 +375,9 @@ const totalPages = computed(() => {
 });
 
 watch(page, async () => {
-  console.log('page');
-
   if (page.value < 1 || page.value > totalPages.value) {
     return;
   } else if (searchQuery.value.length > 0) {
-    console.log('inside');
-
     // // Simulate fetching state
     showSpinner.value = true;
     debounce(() => (showSpinner.value = false), 500);

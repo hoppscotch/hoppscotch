@@ -189,7 +189,7 @@
         <div v-if="auth.authType === 'oauth-2'">
           <div class="flex flex-1 border-b border-dividerLight">
             <SmartEnvInput
-              v-model="auth.token"
+              v-model="auth.grantTypeInfo.token"
               :environment-highlights="false"
               placeholder="Token"
             />

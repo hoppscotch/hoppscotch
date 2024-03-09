@@ -71,7 +71,7 @@ export const HoppGQLAuth = z
 
 export type HoppGQLAuth = z.infer<typeof HoppGQLAuth>
 
-const V2_SCHEMA = z.object({
+export const V2_SCHEMA = z.object({
   id: z.optional(z.string()),
   v: z.literal(2),
 

@@ -41,10 +41,10 @@ const processVariables = (variable: Environment["variables"][number]) => {
       ...variable,
       value:
         "value" in variable ? variable.value : process.env[variable.key] || "",
-    }
+    };
   }
-  return variable
-}
+  return variable;
+};
 
 /**
  * Processes given envs, which includes processing each variable in global
@@ -56,10 +56,10 @@ const processEnvs = (envs: HoppEnvs) => {
   const processedEnvs = {
     global: envs.global.map(processVariables),
     selected: envs.selected.map(processVariables),
-  }
+  };
 
-  return processedEnvs
-}
+  return processedEnvs;
+};
 
 /**
  * Transforms given request data to request-config used by request-runner to
@@ -70,7 +70,7 @@ const processEnvs = (envs: HoppEnvs) => {
 export const createRequest = (req: EffectiveHoppRESTRequest): RequestConfig => {
   const config: RequestConfig = {
     supported: true,
-    displayUrl: req.effectiveFinalDisplayURL
+    displayUrl: req.effectiveFinalDisplayURL,
   };
   const { finalBody, finalEndpoint, finalHeaders, finalParams } = getRequest;
   const reqParams = finalParams(req);
@@ -131,6 +131,7 @@ export const requestRunner =
       let status: number;
       const baseResponse = await axios(requestConfig);
       const { config } = baseResponse;
+      // PR-COMMENT: type error
       const runnerResponse: RequestRunnerResponse = {
         ...baseResponse,
         endpoint: getRequest.endpoint(config.url),
@@ -257,10 +258,13 @@ export const processRequest =
     let updatedEnvs = <HoppEnvs>{};
 
     // Fetch values for secret environment variables from system environment
-    const processedEnvs = processEnvs(envs)
+    const processedEnvs = processEnvs(envs);
 
     // Executing pre-request-script
-    const preRequestRes = await preRequestScriptRunner(request, processedEnvs)();
+    const preRequestRes = await preRequestScriptRunner(
+      request,
+      processedEnvs
+    )();
     if (E.isLeft(preRequestRes)) {
       printPreRequestRunner.fail();
 
@@ -347,7 +351,7 @@ export const processRequest =
  */
 export const preProcessRequest = (
   request: HoppRESTRequest,
-  collection: HoppCollection,
+  collection: HoppCollection
 ): HoppRESTRequest => {
   const tempRequest = Object.assign({}, request);
   const { headers: parentHeaders, auth: parentAuth } = collection;
@@ -372,8 +376,10 @@ export const preProcessRequest = (
     // Filter out header entries present in the parent (folder/collection) under the same name
     // This ensures the child headers take precedence over the parent headers
     const filteredEntries = parentHeaders.filter((parentHeaderEntries) => {
-      return !tempRequest.headers.some((reqHeaderEntries) => reqHeaderEntries.key === parentHeaderEntries.key)
-    })
+      return !tempRequest.headers.some(
+        (reqHeaderEntries) => reqHeaderEntries.key === parentHeaderEntries.key
+      );
+    });
     tempRequest.headers.push(...filteredEntries);
   } else if (!tempRequest.headers) {
     tempRequest.headers = [];

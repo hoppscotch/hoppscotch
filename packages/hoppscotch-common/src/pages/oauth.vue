@@ -5,7 +5,6 @@
 </template>
 
 <script setup lang="ts">
-import { handleOAuthRedirect } from "~/helpers/oauth"
 import { useToast } from "~/composables/toast"
 import { useI18n } from "~/composables/i18n"
 
@@ -15,6 +14,8 @@ import { RESTTabService } from "~/services/tab/rest"
 import { onMounted } from "vue"
 
 import { useRouter } from "vue-router"
+
+import { routeOAuthRedirect } from "~/services/oauth/oauth.service"
 
 const t = useI18n()
 const router = useRouter()
@@ -60,7 +61,7 @@ function translateOAuthRedirectError(error: string) {
 }
 
 onMounted(async () => {
-  const tokenInfo = await handleOAuthRedirect()
+  const tokenInfo = await routeOAuthRedirect()
 
   if (E.isLeft(tokenInfo)) {
     toast.error(translateOAuthRedirectError(tokenInfo.left))
@@ -71,8 +72,10 @@ onMounted(async () => {
   if (
     tabs.currentActiveTab.value.document.request.auth.authType === "oauth-2"
   ) {
-    tabs.currentActiveTab.value.document.request.auth.token =
+    tabs.currentActiveTab.value.document.request.auth.grantTypeInfo.token =
       tokenInfo.right.access_token
+
+    toast.success(t("authorization.oauth.token_fetched_successfully"))
 
     router.push("/")
     return

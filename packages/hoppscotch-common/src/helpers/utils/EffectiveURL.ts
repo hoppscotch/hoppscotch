@@ -84,14 +84,15 @@ export const getComputedAuthHeaders = (
     request.auth.authType === "bearer" ||
     request.auth.authType === "oauth-2"
   ) {
+    const token =
+      request.auth.authType === "bearer"
+        ? request.auth.token
+        : request.auth.grantTypeInfo.token
+
     headers.push({
       active: true,
       key: "Authorization",
-      value: `Bearer ${
-        parse
-          ? parseTemplateString(request.auth.token, envVars)
-          : request.auth.token
-      }`,
+      value: `Bearer ${parse ? parseTemplateString(token, envVars) : token}`,
     })
   } else if (request.auth.authType === "api-key") {
     const { key, addTo } = request.auth

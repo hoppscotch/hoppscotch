@@ -42,6 +42,7 @@ export async function parseEnvsData(path: string) {
 
   if (HoppEnvKeyPairResult.success) {
     for (const [key, value] of Object.entries(HoppEnvKeyPairResult.data)) {
+      // PR-COMMENT: type error
       envPairs.push({ key, value });
     }
   } else if (HoppEnvExportObjectResult.type === "ok") {

@@ -1,4 +1,4 @@
-import { customRef, onBeforeUnmount, Ref, watch } from "vue"
+import { customRef, onBeforeUnmount, ref, Ref, UnwrapRef, watch } from "vue"
 
 export function pluckRef<T, K extends keyof T>(ref: Ref<T>, key: K): Ref<T[K]> {
   return customRef((track, trigger) => {
@@ -30,4 +30,17 @@ export function pluckMultipleFromRef<T, K extends Array<keyof T>>(
   keys: K
 ): { [key in K[number]]: Ref<T[key]> } {
   return Object.fromEntries(keys.map((x) => [x, pluckRef(sourceRef, x)])) as any
+}
+
+export const refWithCallbackOnChange = <T>(
+  initialValue: T,
+  callback: (value: UnwrapRef<T>) => void
+) => {
+  const targetRef = ref(initialValue)
+
+  watch(targetRef, (value) => {
+    callback(value)
+  })
+
+  return targetRef
 }

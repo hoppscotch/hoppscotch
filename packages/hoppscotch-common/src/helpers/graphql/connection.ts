@@ -270,7 +270,11 @@ export const runGQLOperation = async (options: RunQueryOptions) => {
       const password = auth.password
       finalHeaders.Authorization = `Basic ${btoa(`${username}:${password}`)}`
     } else if (auth.authType === "bearer" || auth.authType === "oauth-2") {
-      finalHeaders.Authorization = `Bearer ${auth.token}`
+      const isOAuth2 = auth.authType === "oauth-2"
+
+      const token = isOAuth2 ? auth.grantTypeInfo.token : auth.token
+
+      finalHeaders.Authorization = `Bearer ${token}`
     } else if (auth.authType === "api-key") {
       const { key, value, addTo } = auth
       if (addTo === "Headers") {

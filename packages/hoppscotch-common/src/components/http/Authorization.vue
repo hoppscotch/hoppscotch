@@ -82,7 +82,7 @@
                 :active="authName === 'OAuth 2.0'"
                 @click="
                   () => {
-                    auth.authType = 'oauth-2'
+                    selectOAuth2AuthType()
                     hide()
                   }
                 "
@@ -148,7 +148,7 @@
       </template>
     </HoppSmartPlaceholder>
     <div v-else class="flex flex-1 border-b border-dividerLight">
-      <div class="w-2/3 border-r border-dividerLight">
+      <div class="w-2/3 border-r border-dividerLight flex justify-start">
         <div v-if="auth.authType === 'basic'">
           <HttpAuthorizationBasic v-model="auth" :envs="envs" />
         </div>
@@ -177,10 +177,11 @@
             />
           </div>
         </div>
-        <div v-if="auth.authType === 'oauth-2'">
+        <div v-if="auth.authType === 'oauth-2'" class="w-full">
           <div class="flex flex-1 border-b border-dividerLight">
+            <!-- AM-COMMENT: look into this -->
             <SmartEnvInput
-              v-model="auth.token"
+              v-model="auth.grantTypeInfo.token"
               placeholder="Token"
               :envs="envs"
             />
@@ -217,7 +218,7 @@ import IconExternalLink from "~icons/lucide/external-link"
 import IconCircleDot from "~icons/lucide/circle-dot"
 import IconCircle from "~icons/lucide/circle"
 import { computed, ref } from "vue"
-import { HoppRESTAuth } from "@hoppscotch/data"
+import { HoppRESTAuth, HoppRESTAuthOAuth2 } from "@hoppscotch/data"
 import { pluckRef } from "@composables/ref"
 import { useI18n } from "@composables/i18n"
 import { useColorMode } from "@composables/theming"
@@ -225,6 +226,8 @@ import { useVModel } from "@vueuse/core"
 import { onMounted } from "vue"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import { AggregateEnvironment } from "~/newstore/environments"
+
+import { getDefaultAuthCodeOauthFlowParams } from "~/services/oauth/flows/authCode"
 
 const t = useI18n()
 
@@ -270,6 +273,29 @@ const authName = computed(() =>
 const getAuthName = (type: HoppRESTAuth["authType"] | undefined) => {
   if (!type) return "None"
   return AUTH_KEY_NAME[type] ? AUTH_KEY_NAME[type] : "None"
+}
+
+const selectOAuth2AuthType = () => {
+  const defaultGrantTypeInfo: HoppRESTAuthOAuth2["grantTypeInfo"] = {
+    ...getDefaultAuthCodeOauthFlowParams(),
+    grantType: "AUTHORIZATION_CODE",
+    token: "",
+  }
+
+  // @ts-expect-error - the existing grantTypeInfo might be in the auth object, typescript doesnt know that
+  const existingGrantTypeInfo = auth.value.grantTypeInfo as
+    | HoppRESTAuthOAuth2["grantTypeInfo"]
+    | undefined
+
+  const grantTypeInfo = existingGrantTypeInfo
+    ? existingGrantTypeInfo
+    : defaultGrantTypeInfo
+
+  auth.value = {
+    ...auth.value,
+    authType: "oauth-2",
+    grantTypeInfo: grantTypeInfo,
+  }
 }
 
 const authActive = pluckRef(auth, "authActive")

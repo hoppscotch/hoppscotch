@@ -279,67 +279,86 @@ const resolveOpenAPIV3SecurityObj = (
       return {
         authType: "oauth-2",
         authActive: true,
-        accessTokenURL: scheme.flows.authorizationCode.tokenUrl ?? "",
-        authURL: scheme.flows.authorizationCode.authorizationUrl ?? "",
-        clientID: "",
-        oidcDiscoveryURL: "",
-        scope: _schemeData.join(" "),
-        token: "",
+        grantTypeInfo: {
+          grantType: "AUTHORIZATION_CODE",
+          authEndpoint: scheme.flows.authorizationCode.authorizationUrl ?? "",
+          clientID: "",
+          scopes: _schemeData.join(" "),
+          token: "",
+          isPKCE: false,
+          tokenEndpoint: scheme.flows.authorizationCode.tokenUrl ?? "",
+          clientSecret: "",
+        },
       }
     } else if (scheme.flows.implicit) {
       return {
         authType: "oauth-2",
         authActive: true,
-        authURL: scheme.flows.implicit.authorizationUrl ?? "",
-        accessTokenURL: "",
-        clientID: "",
-        oidcDiscoveryURL: "",
-        scope: _schemeData.join(" "),
-        token: "",
+        grantTypeInfo: {
+          grantType: "IMPLICIT",
+          authEndpoint: scheme.flows.implicit.authorizationUrl ?? "",
+          clientID: "",
+          token: "",
+          scopes: _schemeData.join(" "),
+        },
       }
     } else if (scheme.flows.password) {
       return {
         authType: "oauth-2",
         authActive: true,
-        authURL: "",
-        accessTokenURL: scheme.flows.password.tokenUrl ?? "",
-        clientID: "",
-        oidcDiscoveryURL: "",
-        scope: _schemeData.join(" "),
-        token: "",
+        grantTypeInfo: {
+          grantType: "PASSWORD",
+          clientID: "",
+          authEndpoint: scheme.flows.password.tokenUrl,
+          clientSecret: "",
+          password: "",
+          username: "",
+          token: "",
+          scopes: _schemeData.join(" "),
+        },
       }
     } else if (scheme.flows.clientCredentials) {
       return {
         authType: "oauth-2",
         authActive: true,
-        accessTokenURL: scheme.flows.clientCredentials.tokenUrl ?? "",
-        authURL: "",
-        clientID: "",
-        oidcDiscoveryURL: "",
-        scope: _schemeData.join(" "),
-        token: "",
+        grantTypeInfo: {
+          grantType: "CLIENT_CREDENTIALS",
+          authEndpoint: scheme.flows.clientCredentials.tokenUrl ?? "",
+          clientID: "",
+          clientSecret: "",
+          scopes: _schemeData.join(" "),
+          token: "",
+        },
       }
     }
     return {
       authType: "oauth-2",
       authActive: true,
-      accessTokenURL: "",
-      authURL: "",
-      clientID: "",
-      oidcDiscoveryURL: "",
-      scope: _schemeData.join(" "),
-      token: "",
+      grantTypeInfo: {
+        grantType: "AUTHORIZATION_CODE",
+        authEndpoint: "",
+        clientID: "",
+        scopes: _schemeData.join(" "),
+        token: "",
+        isPKCE: false,
+        tokenEndpoint: "",
+        clientSecret: "",
+      },
     }
   } else if (scheme.type === "openIdConnect") {
     return {
       authType: "oauth-2",
       authActive: true,
-      accessTokenURL: "",
-      authURL: "",
-      clientID: "",
-      oidcDiscoveryURL: scheme.openIdConnectUrl ?? "",
-      scope: _schemeData.join(" "),
-      token: "",
+      grantTypeInfo: {
+        grantType: "AUTHORIZATION_CODE",
+        authEndpoint: "",
+        clientID: "",
+        scopes: _schemeData.join(" "),
+        token: "",
+        isPKCE: false,
+        tokenEndpoint: "",
+        clientSecret: "",
+      },
     }
   }
 
@@ -416,56 +435,71 @@ const resolveOpenAPIV2SecurityScheme = (
       return {
         authType: "oauth-2",
         authActive: true,
-        accessTokenURL: scheme.tokenUrl ?? "",
-        authURL: scheme.authorizationUrl ?? "",
-        clientID: "",
-        oidcDiscoveryURL: "",
-        scope: _schemeData.join(" "),
-        token: "",
+        grantTypeInfo: {
+          authEndpoint: scheme.authorizationUrl ?? "",
+          clientID: "",
+          clientSecret: "",
+          grantType: "AUTHORIZATION_CODE",
+          scopes: _schemeData.join(" "),
+          token: "",
+          isPKCE: false,
+          tokenEndpoint: scheme.tokenUrl ?? "",
+        },
       }
     } else if (scheme.flow === "implicit") {
       return {
         authType: "oauth-2",
         authActive: true,
-        accessTokenURL: "",
-        authURL: scheme.authorizationUrl ?? "",
-        clientID: "",
-        oidcDiscoveryURL: "",
-        scope: _schemeData.join(" "),
-        token: "",
+        grantTypeInfo: {
+          authEndpoint: scheme.authorizationUrl ?? "",
+          clientID: "",
+          grantType: "IMPLICIT",
+          scopes: _schemeData.join(" "),
+          token: "",
+        },
       }
     } else if (scheme.flow === "application") {
       return {
         authType: "oauth-2",
         authActive: true,
-        accessTokenURL: scheme.tokenUrl ?? "",
-        authURL: "",
-        clientID: "",
-        oidcDiscoveryURL: "",
-        scope: _schemeData.join(" "),
-        token: "",
+        grantTypeInfo: {
+          authEndpoint: scheme.tokenUrl ?? "",
+          clientID: "",
+          clientSecret: "",
+          grantType: "CLIENT_CREDENTIALS",
+          scopes: _schemeData.join(" "),
+          token: "",
+        },
       }
     } else if (scheme.flow === "password") {
       return {
         authType: "oauth-2",
         authActive: true,
-        accessTokenURL: scheme.tokenUrl ?? "",
-        authURL: "",
-        clientID: "",
-        oidcDiscoveryURL: "",
-        scope: _schemeData.join(" "),
-        token: "",
+        grantTypeInfo: {
+          grantType: "PASSWORD",
+          authEndpoint: scheme.tokenUrl ?? "",
+          clientID: "",
+          clientSecret: "",
+          password: "",
+          scopes: _schemeData.join(" "),
+          token: "",
+          username: "",
+        },
       }
     }
     return {
       authType: "oauth-2",
       authActive: true,
-      accessTokenURL: "",
-      authURL: "",
-      clientID: "",
-      oidcDiscoveryURL: "",
-      scope: _schemeData.join(" "),
-      token: "",
+      grantTypeInfo: {
+        authEndpoint: "",
+        clientID: "",
+        clientSecret: "",
+        grantType: "AUTHORIZATION_CODE",
+        scopes: _schemeData.join(" "),
+        token: "",
+        isPKCE: false,
+        tokenEndpoint: "",
+      },
     }
   }
 

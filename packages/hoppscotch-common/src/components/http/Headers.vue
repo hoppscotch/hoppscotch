@@ -625,6 +625,7 @@ const inheritedProperties = computed(() => {
   const computedAuthHeader = getComputedAuthHeaders(
     aggregateEnvs.value,
     request.value,
+    // AM-COMMENT: check this line, this is because the GqlAuth is not updated yet to use the updated auth type
     props.inheritedProperties.auth.inheritedAuth,
     false
   )[0]

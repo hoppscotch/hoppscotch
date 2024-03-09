@@ -581,10 +581,16 @@ const getComputedAuthHeaders = (
     request.auth.authType === "bearer" ||
     request.auth.authType === "oauth-2"
   ) {
+    const requestAuth = request.auth
+
+    const isOAuth2 = requestAuth.authType === "oauth-2"
+
+    const token = isOAuth2 ? requestAuth.grantTypeInfo.token : requestAuth.token
+
     headers.push({
       active: true,
       key: "Authorization",
-      value: `Bearer ${request.auth.token}`,
+      value: `Bearer ${token}`,
     })
   } else if (request.auth.authType === "api-key") {
     const { key, addTo } = request.auth
@@ -661,6 +667,7 @@ const inheritedProperties = computed(() => {
 
   const computedAuthHeader = getComputedAuthHeaders(
     request.value,
+    // AM-COMMENT: look into this, GQLAuth not yet updated yet issue
     props.inheritedProperties.auth.inheritedAuth
   )[0]
 

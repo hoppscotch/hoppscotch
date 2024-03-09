@@ -113,13 +113,18 @@ export function getEffectiveRESTRequest(
       request.auth.authType === "bearer" ||
       request.auth.authType === "oauth-2"
     ) {
+      const requestAuth = request.auth;
+
+      const isOAuth2 = requestAuth.authType === "oauth-2";
+
+      const token = isOAuth2
+        ? requestAuth.grantTypeInfo.token
+        : requestAuth.token;
+
       effectiveFinalHeaders.push({
         active: true,
         key: "Authorization",
-        value: `Bearer ${parseTemplateString(
-          request.auth.token,
-          envVariables
-        )}`,
+        value: `Bearer ${parseTemplateString(token, envVariables)}`,
       });
     } else if (request.auth.authType === "api-key") {
       const { key, value, addTo } = request.auth;

@@ -609,3 +609,18 @@ details[open] summary .indicator {
 .gql-operation-highlight {
   @apply opacity-100;
 }
+
+.predefined-variable-highlight {
+  @apply text-accentContrast;
+  @apply border-2;
+
+  &.predefined-variable-found {
+    @apply hover:bg-green-400;
+    @apply border-green-400;
+  }
+
+  &.predefined-variable-not-found {
+    @apply hover:bg-red-400;
+    @apply border-red-400;
+  }
+}

@@ -63,6 +63,12 @@ type CodeMirrorOptions = {
   // NOTE: This property is not reactive
   environmentHighlights: boolean
 
+  /**
+   * Whether or not to highlight predefined variables, such as: `<<$guid>>`.
+   * - These are special variables that starts with a dolar sign.
+   */
+  predefinedVariablesHighlights?: boolean
+
   additionalExts?: Extension[]
 
   contextMenuEnabled?: boolean
@@ -237,7 +243,10 @@ export function useCodemirror(
     ? new HoppEnvironmentPlugin(subscribeToStream, view)
     : null
 
-  const predefinedVariable = new HoppPredefinedVariablesPlugin()
+  const predefinedVariable: HoppPredefinedVariablesPlugin | null =
+    options.predefinedVariablesHighlights
+      ? new HoppPredefinedVariablesPlugin()
+      : null
 
   function handleTextSelection() {
     const selection = view.value?.state.selection.main

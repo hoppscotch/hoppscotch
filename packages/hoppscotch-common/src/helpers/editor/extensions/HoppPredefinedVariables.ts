@@ -5,16 +5,15 @@ import {
   ViewPlugin,
   hoverTooltip,
 } from "@codemirror/view"
-import IconVariable from "~icons/lucide/variable?raw"
-import { HOPP_PREDEFINED_VARIABLES } from "@hoppscotch/data"
+import IconSquareAsterisk from "~icons/lucide/square-asterisk?raw"
+import { HOPP_SUPPORTED_PREDEFINED_VARIABLES } from "@hoppscotch/data"
 
 const HOPP_PREDEFINED_VARIABLES_REGEX = /(<<\$[a-zA-Z0-9-_]+>>)/g
 
 const HOPP_PREDEFINED_VARIABLE_HIGHLIGHT =
   "cursor-help transition rounded px-1 focus:outline-none mx-0.5 predefined-variable-highlight"
-const HOPP_PREDEFINED_VARIABLE_HIGHLIGHT_FOUND = "predefined-variable-found"
-const HOPP_PREDEFINED_VARIABLE_HIGHLIGHT_NOT_FOUND =
-  "predefined-variable-not-found"
+const HOPP_PREDEFINED_VARIABLE_HIGHLIGHT_VALID = "predefined-variable-valid"
+const HOPP_PREDEFINED_VARIABLE_HIGHLIGHT_INVALID = "predefined-variable-invalid"
 
 const getMatchDecorator = () => {
   return new MatchDecorator({
@@ -58,12 +57,15 @@ const cursorTooltipField = () =>
 
       const variableName = text.slice(start - from - 1, end - from)
 
-      const variable = HOPP_PREDEFINED_VARIABLES.find(
-        (VARIABLE) => VARIABLE.name === variableName
+      const variable = HOPP_SUPPORTED_PREDEFINED_VARIABLES.find(
+        (VARIABLE) => VARIABLE.key === variableName
       )
-      const variableValue = variable?.value() ?? "Empty"
 
-      const variableIcon = `<span class="inline-flex items-center justify-center my-1">${IconVariable}</span>`
+      const variableIcon = `<span class="inline-flex items-center justify-center my-1">${IconSquareAsterisk}</span>`
+      const variableDescription =
+        variable !== undefined
+          ? `${variableName} - ${variable.description}`
+          : `${variableName} is not a valid predefined variable.`
 
       return {
         pos: start,
@@ -71,21 +73,22 @@ const cursorTooltipField = () =>
         above: true,
         arrow: true,
         create() {
-          const dom = document.createElement("span")
-          const tooltipContainer = document.createElement("span")
-          const kbd = document.createElement("kbd")
+          const dom = document.createElement("div")
+          dom.className = "tippy-box"
+          dom.dataset.theme = "tooltip"
+
           const icon = document.createElement("span")
           icon.innerHTML = variableIcon
           icon.className = "mr-2"
-          kbd.textContent = variableValue
+
+          const tooltipContainer = document.createElement("span")
+          tooltipContainer.className = "tippy-content"
+
           tooltipContainer.appendChild(icon)
           tooltipContainer.appendChild(
-            document.createTextNode(`${variableName} `)
+            document.createTextNode(variableDescription)
           )
-          tooltipContainer.appendChild(kbd)
-          tooltipContainer.className = "tippy-content"
-          dom.className = "tippy-box"
-          dom.dataset.theme = "tooltip"
+
           dom.appendChild(tooltipContainer)
           return { dom }
         },
@@ -98,12 +101,13 @@ const cursorTooltipField = () =>
   )
 
 const checkPredefinedVariable = (variable: string) => {
-  const className = HOPP_PREDEFINED_VARIABLES.find((VARIABLE) => {
-    const userInputVariableName = variable.slice(2, -2)
-    return VARIABLE.name === userInputVariableName
+  const inputVariableKey = variable.slice(2, -2)
+
+  const className = HOPP_SUPPORTED_PREDEFINED_VARIABLES.find((v) => {
+    return v.key === inputVariableKey
   })
-    ? HOPP_PREDEFINED_VARIABLE_HIGHLIGHT_FOUND
-    : HOPP_PREDEFINED_VARIABLE_HIGHLIGHT_NOT_FOUND
+    ? HOPP_PREDEFINED_VARIABLE_HIGHLIGHT_VALID
+    : HOPP_PREDEFINED_VARIABLE_HIGHLIGHT_INVALID
 
   return Decoration.mark({
     class: `${HOPP_PREDEFINED_VARIABLE_HIGHLIGHT} ${className}`,
@@ -127,6 +131,17 @@ export const predefinedVariableHighlightStyle = () => {
 }
 
 export class HoppPredefinedVariablesPlugin {
+  private compartment = new Compartment()
+
+  get extension() {
+    return this.compartment.of([
+      cursorTooltipField(),
+      predefinedVariableHighlightStyle(),
+    ])
+  }
+}
+
+export class HoppReactivePredefinedVariablesPlugin {
   private compartment = new Compartment()
 
   get extension() {

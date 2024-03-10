@@ -78,6 +78,7 @@ import { clone } from "lodash-es"
 import { history, historyKeymap } from "@codemirror/commands"
 import { inputTheme } from "~/helpers/editor/themes/baseTheme"
 import { HoppReactiveEnvPlugin } from "~/helpers/editor/extensions/HoppEnvironment"
+import { HoppPredefinedVariablesPlugin } from "~/helpers/editor/extensions/HoppPredefinedVariables"
 import { useReadonlyStream } from "@composables/stream"
 import { AggregateEnvironment, aggregateEnvs$ } from "~/newstore/environments"
 import { platform } from "~/platform"
@@ -103,6 +104,7 @@ const props = withDefaults(
     focus?: boolean
     selectTextOnMount?: boolean
     environmentHighlights?: boolean
+    predefinedVariablesHighlights?: boolean
     readonly?: boolean
     autoCompleteSource?: string[]
     inspectionResults?: InspectorResult[] | undefined
@@ -118,6 +120,7 @@ const props = withDefaults(
     focus: false,
     readonly: false,
     environmentHighlights: true,
+    predefinedVariablesHighlights: true,
     autoCompleteSource: undefined,
     inspectionResult: undefined,
     inspectionResults: undefined,
@@ -410,6 +413,7 @@ function envAutoCompletion(context: CompletionContext) {
 }
 
 const envTooltipPlugin = new HoppReactiveEnvPlugin(envVars, view)
+const predefinedVariablePlugin = new HoppPredefinedVariablesPlugin()
 
 function handleTextSelection() {
   const selection = view.value?.state.selection.main
@@ -490,6 +494,7 @@ const getExtensions = (readonly: boolean): Extension => {
       position: "absolute",
     }),
     props.environmentHighlights ? envTooltipPlugin : [],
+    props.predefinedVariablesHighlights ? predefinedVariablePlugin : [],
     placeholderExt(props.placeholder),
     EditorView.domEventHandlers({
       paste(ev) {

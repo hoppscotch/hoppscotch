@@ -611,16 +611,17 @@ details[open] summary .indicator {
 }
 
 .predefined-variable-highlight {
-  @apply text-accentContrast;
+  color: inherit;
   @apply border-2;
 
-  &.predefined-variable-found {
-    @apply hover:bg-green-400;
-    @apply border-green-400;
+  &.predefined-variable-valid {
+    @apply hover:text-accentContrast #{!important};
+    @apply hover:bg-accentDark;
+    @apply border-accent;
   }
 
-  &.predefined-variable-not-found {
-    @apply hover:bg-red-400;
-    @apply border-red-400;
+  &.predefined-variable-invalid {
+    @apply hover:bg-red-300;
+    @apply border-red-300;
   }
 }

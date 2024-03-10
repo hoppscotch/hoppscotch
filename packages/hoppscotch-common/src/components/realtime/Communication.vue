@@ -225,6 +225,7 @@ useCodemirror(
     linter: langLinter,
     completer: null,
     environmentHighlights: true,
+    predefinedVariablesHighlights: true,
   })
 )
 

@@ -52,8 +52,6 @@ export function makeCollection(x: Omit<HoppCollection, "v">): HoppCollection {
  * @returns The proper new collection format
  */
 export function translateToNewRESTCollection(x: any): HoppCollection {
-  if (x.v && x.v === CollectionSchemaVersion) return x
-
   // Legacy
   const name = x.name ?? "Untitled"
   const folders = (x.folders ?? []).map(translateToNewRESTCollection)
@@ -81,8 +79,6 @@ export function translateToNewRESTCollection(x: any): HoppCollection {
  * @returns The proper new collection format
  */
 export function translateToNewGQLCollection(x: any): HoppCollection {
-  if (x.v && x.v === CollectionSchemaVersion) return x
-
   // Legacy
   const name = x.name ?? "Untitled"
   const folders = (x.folders ?? []).map(translateToNewGQLCollection)

@@ -21,9 +21,7 @@
         </div>
       </div>
       <div class="overflow-x-auto">
-        <div v-if="error">{{ t('users.load_list_error') }}</div>
-
-        <div v-else-if="usersList" class="mb-3 flex items-center justify-end">
+        <div class="mb-3 flex items-center justify-end">
           <HoppButtonSecondary
             outline
             filled
@@ -40,7 +38,7 @@
             outline
             filled
             :icon="IconRight"
-            :disabled="page === totalPages"
+            :disabled="page >= totalPages"
             @click="changePage(PageDirection.Next)"
           />
         </div>
@@ -75,7 +73,7 @@
           <template #empty-state>
             <td colspan="6">
               <span class="flex justify-center p-3">
-                {{ t('users.no_users') }}
+                {{ error ? t('users.load_list_error') : t('users.no_users') }}
               </span>
             </td>
           </template>
@@ -238,7 +236,7 @@
 <script setup lang="ts">
 import { useMutation, useQuery } from '@urql/vue';
 import { format } from 'date-fns';
-import { computed, ref, watch } from 'vue';
+import { computed, ref, watch, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from '~/composables/i18n';
 import { useToast } from '~/composables/toast';
@@ -299,9 +297,23 @@ const {
 // Selected Rows
 const selectedRows = ref<UsersListQuery['infra']['allUsers']>([]);
 
+// Ensure this variable is declared outside the debounce function
+let debounceTimeout: ReturnType<typeof setTimeout> | null = null;
+
+let toastTimeout: ReturnType<typeof setTimeout> | null = null;
+
+onUnmounted(() => {
+  if (debounceTimeout) {
+    clearTimeout(debounceTimeout);
+  }
+
+  if (toastTimeout) {
+    clearTimeout(toastTimeout);
+  }
+});
+
 // Debounce Function
 const debounce = (func: () => void, delay: number) => {
-  let debounceTimeout: ReturnType<typeof setTimeout> | null = null;
   if (debounceTimeout) clearTimeout(debounceTimeout);
   debounceTimeout = setTimeout(func, delay);
 };
@@ -583,7 +595,7 @@ const deleteUsers = async (id: string | null) => {
           count: deletedUsers.length - deletedIDs.length,
         })
       );
-      setTimeout(() => {
+      toastTimeout = setTimeout(() => {
         toast.error(t('state.remove_admin_for_deletion'));
       }, 2000);
     } else {

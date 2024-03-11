@@ -124,35 +124,35 @@ function exportedCollectionToHoppCollection(
         const requestParsedResult = HoppRESTRequest.safeParse(request)
         if (requestParsedResult.type === "ok") {
           return requestParsedResult.value
-        } else {
-          const {
-            v,
-            id,
-            auth,
-            body,
-            endpoint,
-            headers,
-            method,
-            name,
-            params,
-            preRequestScript,
-            testScript,
-            requestVariables,
-          } = request
-          return {
-            v,
-            id,
-            name,
-            endpoint,
-            method,
-            params,
-            requestVariables: requestVariables,
-            auth,
-            headers,
-            body,
-            preRequestScript,
-            testScript,
-          }
+        }
+
+        const {
+          v,
+          id,
+          auth,
+          body,
+          endpoint,
+          headers,
+          method,
+          name,
+          params,
+          preRequestScript,
+          testScript,
+          requestVariables,
+        } = request
+        return {
+          v,
+          id,
+          name,
+          endpoint,
+          method,
+          params,
+          requestVariables: requestVariables,
+          auth,
+          headers,
+          body,
+          preRequestScript,
+          testScript,
         }
       }),
       auth: data.auth,

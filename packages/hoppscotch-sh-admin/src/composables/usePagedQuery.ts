@@ -10,7 +10,7 @@ export function usePagedQuery<
   query: string | TypedDocumentNode<Result, Vars> | DocumentNode,
   getList: (result: Result) => ListItem[],
   itemsPerPage: number,
-  variables: Vars,
+  baseVariables: Vars,
   getCursor?: (value: ListItem) => string
 ) {
   const { client } = useClientHandle();
@@ -21,6 +21,8 @@ export function usePagedQuery<
   const hasNextPage = ref(true);
 
   const fetchNextPage = async (additionalVariables?: Vars) => {
+    let variables = { ...baseVariables };
+
     fetching.value = true;
 
     // Cursor based pagination
@@ -36,7 +38,7 @@ export function usePagedQuery<
       variables = { ...variables, ...additionalVariables };
     }
 
-    const result = await client.query(query, { ...variables }).toPromise();
+    const result = await client.query(query, variables).toPromise();
     if (result.error) {
       error.value = true;
       fetching.value = false;

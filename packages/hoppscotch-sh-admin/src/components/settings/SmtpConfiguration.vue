@@ -37,7 +37,6 @@
                 <HoppSmartInput
                   v-model="smtpConfigs.fields[field.key]"
                   :type="isMasked(field.key) ? 'password' : 'text'"
-                  :disabled="isMasked(field.key)"
                   :autofocus="false"
                   class="!my-2 !bg-primaryLight flex-1"
                 />

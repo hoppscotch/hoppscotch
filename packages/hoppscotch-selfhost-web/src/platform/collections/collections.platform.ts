@@ -120,10 +120,15 @@ function exportedCollectionToHoppCollection(
       folders: restCollection.folders.map((folder) =>
         exportedCollectionToHoppCollection(folder, collectionType)
       ),
-      requests: restCollection.requests.map(
-        ({
-          id,
+      requests: restCollection.requests.map((request) => {
+        const requestParsedResult = HoppRESTRequest.safeParse(request)
+        if (requestParsedResult.type === "ok") {
+          return requestParsedResult.value
+        }
+
+        const {
           v,
+          id,
           auth,
           body,
           endpoint,
@@ -134,21 +139,22 @@ function exportedCollectionToHoppCollection(
           preRequestScript,
           testScript,
           requestVariables,
-        }) => ({
-          id,
+        } = request
+        return {
           v,
-          auth,
-          body,
-          endpoint,
-          headers,
-          method,
+          id,
           name,
+          endpoint,
+          method,
           params,
+          requestVariables: requestVariables,
+          auth,
+          headers,
+          body,
           preRequestScript,
           testScript,
-          requestVariables,
-        })
-      ),
+        }
+      }),
       auth: data.auth,
       headers: data.headers,
     }

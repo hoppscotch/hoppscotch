@@ -4,11 +4,12 @@ import * as O from "fp-ts/Option"
 import * as RA from "fp-ts/ReadonlyArray"
 import * as A from "fp-ts/Array"
 import { translateToNewRESTCollection, HoppCollection } from "@hoppscotch/data"
-import { isPlainObject as _isPlainObject } from "lodash-es"
 
 import { IMPORTER_INVALID_FILE_FORMAT } from "."
 import { safeParseJSON } from "~/helpers/functional/json"
 import { translateToNewGQLCollection } from "@hoppscotch/data"
+import { entityReference } from "verzod"
+import { z } from "zod"
 
 export const hoppRESTImporter = (content: string[]) =>
   pipe(
@@ -27,25 +28,13 @@ export const hoppRESTImporter = (content: string[]) =>
   )
 
 /**
- * checks if a value is a plain object
- */
-const isPlainObject = (value: any): value is object => _isPlainObject(value)
-
-/**
- * checks if a collection matches the schema for a hoppscotch collection.
- * here 2 is the latest version of the schema.
- */
-const isValidCollection = (collection: unknown): collection is HoppCollection =>
-  isPlainObject(collection) && "v" in collection && collection.v === 2
-
-/**
  * checks if a collection is a valid hoppscotch collection.
  * else translate it into one.
  */
 const validateCollection = (collection: unknown) => {
-  if (isValidCollection(collection)) {
-    return O.some(collection)
-  }
+  const result = entityReference(HoppCollection).safeParse(collection)
+  if (result.success) return O.some(result.data)
+
   return O.some(translateToNewRESTCollection(collection))
 }
 
@@ -75,8 +64,9 @@ export const hoppGQLImporter = (content: string) =>
  * @returns the collection if it is valid, else a translated version of the collection
  */
 export const validateGQLCollection = (collection: unknown) => {
-  if (isValidCollection(collection)) {
-    return O.some(collection)
-  }
+  const result = z.array(entityReference(HoppCollection)).safeParse(collection)
+
+  if (result.success) return O.some(result.data)
+
   return O.some(translateToNewGQLCollection(collection))
 }

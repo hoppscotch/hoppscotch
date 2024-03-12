@@ -18,22 +18,8 @@ export const HoppRESTRequestVariables = z.array(
 
 export type HoppRESTRequestVariables = z.infer<typeof HoppRESTRequestVariables>
 
-const V2_SCHEMA = z.object({
+const V2_SCHEMA = V1_SCHEMA.extend({
   v: z.literal("2"),
-  id: z.optional(z.string()), // Firebase Firestore ID
-
-  name: z.string(),
-  method: z.string(),
-  endpoint: z.string(),
-  params: HoppRESTParams,
-  headers: HoppRESTHeaders,
-  preRequestScript: z.string().catch(""),
-  testScript: z.string().catch(""),
-
-  auth: HoppRESTAuth,
-
-  body: HoppRESTReqBody,
-
   requestVariables: HoppRESTRequestVariables,
 })
 

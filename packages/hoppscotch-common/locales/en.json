@@ -988,7 +988,6 @@
   "workspace": {
     "change": "Change workspace",
     "personal": "Personal Workspace",
-    "personal_workspace": "{name}'s Workspace",
     "other_workspaces": "My Workspaces",
     "team": "Workspace",
     "title": "Workspaces"

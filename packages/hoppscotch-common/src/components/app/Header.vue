@@ -331,13 +331,7 @@ const myTeams = useReadonlyStream(teamListAdapter.teamList$, null)
 const workspace = workspaceService.currentWorkspace
 
 const workspaceName = computed(() => {
-  if (workspace.value.type === "personal") {
-    return currentUser.value?.displayName
-      ? t("workspace.personal_workspace", {
-          name: currentUser.value.displayName,
-        })
-      : t("workspace.personal")
-  }
+  if (workspace.value.type === "personal") return t("workspace.personal")
   return workspace.value.teamName
 })
 

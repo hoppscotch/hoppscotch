@@ -21,7 +21,6 @@
         </HoppSmartToggle>
       </div>
 
-      <!-- TODO: Update the link below -->
       <HoppButtonSecondary
         outline
         filled

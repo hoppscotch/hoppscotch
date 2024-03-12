@@ -28,7 +28,6 @@
         >
           {{ t('data_sharing.toggle_description') }}
         </HoppSmartToggle>
-        <!-- TODO: Update link -->
         <HoppSmartAnchor
           blank
           to="https://docs.hoppscotch.io/documentation/self-host/community-edition/telemetry"

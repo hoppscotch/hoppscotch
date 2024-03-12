@@ -1125,7 +1125,7 @@ export class TeamCollectionService {
         id: searchResults[i].id,
         path: !fetchedParentTree
           ? []
-          : ([fetchedParentTree.right] as CollectionSearchNode[]),
+          : (fetchedParentTree.right as CollectionSearchNode[]),
       });
     }
 
@@ -1250,45 +1250,53 @@ export class TeamCollectionService {
    * @returns The parent tree of the parent collections
    */
   private generateParentTree(parentCollections: ParentTreeQueryReturnType[]) {
-    function findChildren(id) {
+    function findChildren(id): CollectionSearchNode[] {
       const collection = parentCollections.filter((item) => item.id === id)[0];
       if (collection.parentID == null) {
-        return {
-          id: collection.id,
-          title: collection.title,
-          type: 'collection',
-          path: [],
-        };
+        return [
+          {
+            id: collection.id,
+            title: collection.title,
+            type: 'collection' as const,
+            path: [],
+          },
+        ];
       }
 
-      const res = {
-        id: collection.id,
-        title: collection.title,
-        type: 'collection',
-        path: findChildren(collection.parentID),
-      };
+      const res = [
+        {
+          id: collection.id,
+          title: collection.title,
+          type: 'collection' as const,
+          path: findChildren(collection.parentID),
+        },
+      ];
       return res;
     }
 
     if (parentCollections.length > 0) {
       if (parentCollections[0].parentID == null) {
-        return {
+        return [
+          {
+            id: parentCollections[0].id,
+            title: parentCollections[0].title,
+            type: 'collection',
+            path: [],
+          },
+        ];
+      }
+
+      return [
+        {
           id: parentCollections[0].id,
           title: parentCollections[0].title,
           type: 'collection',
-          path: [],
-        };
-      }
-
-      return {
-        id: parentCollections[0].id,
-        title: parentCollections[0].title,
-        type: 'collection',
-        path: findChildren(parentCollections[0].parentID),
-      };
+          path: findChildren(parentCollections[0].parentID),
+        },
+      ];
     }
 
-    return null;
+    return [];
   }
 
   /**

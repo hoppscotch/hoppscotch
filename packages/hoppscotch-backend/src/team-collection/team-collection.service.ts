@@ -1250,10 +1250,10 @@ export class TeamCollectionService {
    * @returns The parent tree of the parent collections
    */
   private generateParentTree(parentCollections: ParentTreeQueryReturnType[]) {
-    function findChildren(id): CollectionSearchNode[] {
+    function findChildren(id: string): CollectionSearchNode[] {
       const collection = parentCollections.filter((item) => item.id === id)[0];
       if (collection.parentID == null) {
-        return [
+        return <CollectionSearchNode[]>[
           {
             id: collection.id,
             title: collection.title,
@@ -1263,7 +1263,7 @@ export class TeamCollectionService {
         ];
       }
 
-      const res = [
+      const res = <CollectionSearchNode[]>[
         {
           id: collection.id,
           title: collection.title,
@@ -1276,7 +1276,7 @@ export class TeamCollectionService {
 
     if (parentCollections.length > 0) {
       if (parentCollections[0].parentID == null) {
-        return [
+        return <CollectionSearchNode[]>[
           {
             id: parentCollections[0].id,
             title: parentCollections[0].title,
@@ -1286,7 +1286,7 @@ export class TeamCollectionService {
         ];
       }
 
-      return [
+      return <CollectionSearchNode[]>[
         {
           id: parentCollections[0].id,
           title: parentCollections[0].title,
@@ -1296,7 +1296,7 @@ export class TeamCollectionService {
       ];
     }
 
-    return [];
+    return <CollectionSearchNode[]>[];
   }
 
   /**

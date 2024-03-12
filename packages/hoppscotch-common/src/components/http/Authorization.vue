@@ -148,7 +148,7 @@
       </template>
     </HoppSmartPlaceholder>
     <div v-else class="flex flex-1 border-b border-dividerLight">
-      <div class="w-2/3 border-r border-dividerLight flex justify-start">
+      <div class="w-2/3 border-r border-dividerLight">
         <div v-if="auth.authType === 'basic'">
           <HttpAuthorizationBasic v-model="auth" :envs="envs" />
         </div>

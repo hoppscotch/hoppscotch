@@ -1152,7 +1152,7 @@ export class TeamCollectionService {
     from "TeamCollection"
     where "TeamCollection"."teamID"=${teamID}
     and titlesearch @@ plainto_tsquery(${searchQuery})
-    order by ts_rank(titlesearch,to_tsquery(${searchQuery}))
+    order by ts_rank(titlesearch,plainto_tsquery(${searchQuery}))
     limit ${take}
     OFFSET ${skip === 0 ? 0 : (skip - 1) * take};
   `;
@@ -1184,7 +1184,7 @@ export class TeamCollectionService {
     from "TeamRequest"
     where "TeamRequest"."teamID"=${teamID}
     and titlesearch @@ plainto_tsquery(${searchQuery})
-    order by ts_rank(titlesearch,to_tsquery(${searchQuery}))
+    order by ts_rank(titlesearch,plainto_tsquery(${searchQuery}))
     limit ${take}
     OFFSET ${skip === 0 ? 0 : (skip - 1) * take};
   `;

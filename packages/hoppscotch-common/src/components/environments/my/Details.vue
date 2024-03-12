@@ -331,7 +331,7 @@ watch(
         : "variables"
 
       if (props.editingEnvironmentIndex !== "Global") {
-        editingID.value = workingEnv.value?.id ?? uniqueID()
+        editingID.value = workingEnv.value?.id || uniqueID()
       }
       vars.value = pipe(
         workingEnv.value?.variables ?? [],

@@ -165,7 +165,7 @@ export const translateToNewEnvironment = (x: any): Environment => {
   if (x.v && x.v === EnvironmentSchemaVersion) return x
 
   // Legacy
-  const id = x.id ?? uniqueID()
+  const id = x.id || uniqueID()
   const name = x.name ?? "Untitled"
   const variables = (x.variables ?? []).map(translateToNewEnvironmentVariables)
 

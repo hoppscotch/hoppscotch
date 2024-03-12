@@ -30,7 +30,7 @@ export default defineVersion({
     const result: z.infer<typeof V1_SCHEMA> = {
       ...old,
       v: 1,
-      id: old.id ?? uniqueID(),
+      id: old.id || uniqueID(),
       variables: old.variables.map((variable) => {
         return {
           ...variable,

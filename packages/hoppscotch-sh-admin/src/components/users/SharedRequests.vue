@@ -20,21 +20,21 @@
           {{ t('shared_requests.action') }}
         </th>
       </template>
-      <template #body="{ row: request }">
+      <template #body="{ row: sharedRequest }">
         <td class="flex py-4 px-7 max-w-50">
           <span class="truncate">
-            {{ request.id }}
+            {{ sharedRequest.id }}
           </span>
         </td>
 
         <td class="py-4 px-7 w-96">
-          {{ sharedRequestURL(request.request) }}
+          {{ sharedRequestURL(sharedRequest.request) }}
         </td>
 
         <td class="py-2 px-7">
-          {{ getCreatedDate(request.createdOn) }}
+          {{ getCreatedDate(sharedRequest.createdOn) }}
           <div class="text-gray-400 text-tiny">
-            {{ getCreatedTime(request.createdOn) }}
+            {{ getCreatedTime(sharedRequest.createdOn) }}
           </div>
         </td>
 
@@ -42,7 +42,7 @@
           <HoppButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
             :title="t('shared_requests.open_request')"
-            :to="`${shortcodeBaseURL}/r/${request.id}`"
+            :to="`${shortcodeBaseURL}/r/${sharedRequest.id}`"
             :blank="true"
             :icon="IconExternalLink"
             class="px-3 text-emerald-500 hover:text-accent"
@@ -51,7 +51,7 @@
           <UiAutoResetIcon
             :title="t('shared_requests.copy')"
             :icon="{ default: IconCopy, temporary: IconCheck }"
-            @click="copySharedRequest(request.id)"
+            @click="copySharedRequest(sharedRequest.id)"
           />
 
           <HoppButtonSecondary
@@ -60,7 +60,7 @@
             :icon="IconTrash"
             color="red"
             class="px-3"
-            @click="deleteSharedRequest(request.id)"
+            @click="deleteSharedRequest(sharedRequest.id)"
           />
         </td>
       </template>

@@ -17,7 +17,6 @@ declare module '@vue/runtime-core' {
     HoppButtonPrimary: typeof import('@hoppscotch/ui')['HoppButtonPrimary']
     HoppButtonSecondary: typeof import('@hoppscotch/ui')['HoppButtonSecondary']
     HoppSmartAnchor: typeof import('@hoppscotch/ui')['HoppSmartAnchor']
-    HoppSmartAutoComplete: typeof import('@hoppscotch/ui')['HoppSmartAutoComplete']
     HoppSmartConfirmModal: typeof import('@hoppscotch/ui')['HoppSmartConfirmModal']
     HoppSmartInput: typeof import('@hoppscotch/ui')['HoppSmartInput']
     HoppSmartItem: typeof import('@hoppscotch/ui')['HoppSmartItem']

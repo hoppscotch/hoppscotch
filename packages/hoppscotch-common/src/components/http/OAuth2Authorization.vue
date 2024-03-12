@@ -131,18 +131,20 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue"
-import { ref } from "vue"
-import IconCircleDot from "~icons/lucide/circle-dot"
-import IconCircle from "~icons/lucide/circle"
-import { useToast } from "~/composables/toast"
 import {
   HoppGQLAuthOAuth2,
   HoppRESTAuthOAuth2,
   parseTemplateStringE,
 } from "@hoppscotch/data"
+import { useService } from "dioc/vue"
+import * as E from "fp-ts/Either"
+import { Ref, computed, ref } from "vue"
+import { z } from "zod"
 import { useI18n } from "~/composables/i18n"
-import { Ref } from "vue"
+import { refWithCallbackOnChange } from "~/composables/ref"
+import { useToast } from "~/composables/toast"
+import { getCombinedEnvVariables } from "~/helpers/preRequest"
+import { AggregateEnvironment } from "~/newstore/environments"
 import authCode, {
   AuthCodeOauthFlowParams,
   getDefaultAuthCodeOauthFlowParams,
@@ -159,18 +161,16 @@ import passwordFlow, {
   PasswordFlowParams,
   getDefaultPasswordFlowParams,
 } from "~/services/oauth/flows/password"
-import * as E from "fp-ts/Either"
-import { AggregateEnvironment } from "~/newstore/environments"
-import { z } from "zod"
-import { useService } from "dioc/vue"
+import { GQLTabService } from "~/services/tab/graphql"
 import { RESTTabService } from "~/services/tab/rest"
-import { refWithCallbackOnChange } from "~/composables/ref"
-import { getCombinedEnvVariables } from "~/helpers/preRequest"
+import IconCircle from "~icons/lucide/circle"
+import IconCircleDot from "~icons/lucide/circle-dot"
 
 const t = useI18n()
 const toast = useToast()
 
-const tabsService = useService(RESTTabService)
+const restTabsService = useService(RESTTabService)
+const gqlTabsService = useService(GQLTabService)
 
 const props = defineProps<{
   modelValue: HoppRESTAuthOAuth2 | HoppGQLAuthOAuth2
@@ -431,11 +431,20 @@ const supportedGrantTypes = [
         }
 
         if (
-          tabsService.currentActiveTab.value.document.request.auth.authType ===
-            "oauth-2" &&
+          restTabsService.currentActiveTab.value.document.request.auth
+            .authType === "oauth-2" &&
           res.right?.access_token
         ) {
-          tabsService.currentActiveTab.value.document.request.auth.grantTypeInfo.token =
+          restTabsService.currentActiveTab.value.document.request.auth.grantTypeInfo.token =
+            res.right.access_token
+        }
+
+        if (
+          gqlTabsService.currentActiveTab.value.document.request.auth
+            .authType === "oauth-2" &&
+          res.right?.access_token
+        ) {
+          gqlTabsService.currentActiveTab.value.document.request.auth.grantTypeInfo.token =
             res.right.access_token
         }
 
@@ -568,11 +577,20 @@ const supportedGrantTypes = [
         }
 
         if (
-          tabsService.currentActiveTab.value.document.request.auth.authType ===
-            "oauth-2" &&
+          restTabsService.currentActiveTab.value.document.request.auth
+            .authType === "oauth-2" &&
           res.right?.access_token
         ) {
-          tabsService.currentActiveTab.value.document.request.auth.grantTypeInfo.token =
+          restTabsService.currentActiveTab.value.document.request.auth.grantTypeInfo.token =
+            res.right.access_token
+        }
+
+        if (
+          gqlTabsService.currentActiveTab.value.document.request.auth
+            .authType === "oauth-2" &&
+          res.right?.access_token
+        ) {
+          gqlTabsService.currentActiveTab.value.document.request.auth.grantTypeInfo.token =
             res.right.access_token
         }
 

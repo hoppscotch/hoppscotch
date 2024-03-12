@@ -5,24 +5,26 @@
 </template>
 
 <script setup lang="ts">
-import { useToast } from "~/composables/toast"
 import { useI18n } from "~/composables/i18n"
+import { useToast } from "~/composables/toast"
 
-import * as E from "fp-ts/Either"
 import { useService } from "dioc/vue"
-import { RESTTabService } from "~/services/tab/rest"
+import * as E from "fp-ts/Either"
 import { onMounted } from "vue"
+import { RESTTabService } from "~/services/tab/rest"
 
 import { useRouter } from "vue-router"
 
 import { routeOAuthRedirect } from "~/services/oauth/oauth.service"
+import { GQLTabService } from "~/services/tab/graphql"
 
 const t = useI18n()
 const router = useRouter()
 
 const toast = useToast()
 
-const tabs = useService(RESTTabService)
+const restTabs = useService(RESTTabService)
+const gqlTabs = useService(GQLTabService)
 
 function translateOAuthRedirectError(error: string) {
   switch (error) {
@@ -70,14 +72,26 @@ onMounted(async () => {
   }
 
   if (
-    tabs.currentActiveTab.value.document.request.auth.authType === "oauth-2"
+    restTabs.currentActiveTab.value.document.request.auth.authType === "oauth-2"
   ) {
-    tabs.currentActiveTab.value.document.request.auth.grantTypeInfo.token =
+    restTabs.currentActiveTab.value.document.request.auth.grantTypeInfo.token =
       tokenInfo.right.access_token
 
     toast.success(t("authorization.oauth.token_fetched_successfully"))
 
     router.push("/")
+    return
+  }
+
+  if (
+    gqlTabs.currentActiveTab.value.document.request.auth.authType === "oauth-2"
+  ) {
+    gqlTabs.currentActiveTab.value.document.request.auth.grantTypeInfo.token =
+      tokenInfo.right.access_token
+
+    toast.success(t("authorization.oauth.token_fetched_successfully"))
+
+    router.push("/graphql")
     return
   }
 })

@@ -453,9 +453,7 @@ const confirmUsersToAdmin = ref(false);
 const usersToAdminUID = ref<string | null>(null);
 const usersToAdmin = useMutation(MakeUsersAdminDocument);
 
-const AreMultipleUsersSelected = computed(
-  () => usersToAdminUID.value === null && selectedRows.value.length > 0
-);
+const AreMultipleUsersSelected = computed(() => selectedRows.value.length > 1);
 
 const confirmUserToAdmin = (id: string | null) => {
   confirmUsersToAdmin.value = true;
@@ -508,7 +506,7 @@ const resetConfirmAdminToUser = () => {
 };
 
 const AreMultipleUsersSelectedToAdmin = computed(
-  () => adminsToUserUID.value === null && selectedRows.value.length > 0
+  () => selectedRows.value.length > 1
 );
 
 const makeAdminsToUsers = async (id: string | null) => {
@@ -556,7 +554,7 @@ const resetConfirmUserDeletion = () => {
 };
 
 const AreMultipleUsersSelectedForDeletion = computed(
-  () => deleteUserUID.value === null && selectedRows.value.length > 0
+  () => selectedRows.value.length > 1
 );
 
 const deleteUsers = async (id: string | null) => {

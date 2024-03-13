@@ -812,7 +812,29 @@ const replaceTemplateStringsInObjectValues = <
   obj: T
 ) => {
   const envs = getCombinedEnvVariables()
-  const envVars = [...envs.selected, ...envs.global]
+
+  const requestVariables =
+    props.source === "REST"
+      ? restTabsService.currentActiveTab.value.document.request.requestVariables.map(
+          ({ key, value }) => ({
+            key,
+            value,
+            secret: false,
+          })
+        )
+      : []
+
+  // Ensure request variables are prioritized by removing any selected/global environment variables with the same key
+  const selectedEnvVars = envs.selected.filter(
+    ({ key }) =>
+      !requestVariables.some(({ key: reqVarKey }) => reqVarKey === key)
+  )
+  const globalEnvVars = envs.global.filter(
+    ({ key }) =>
+      !requestVariables.some(({ key: reqVarKey }) => reqVarKey === key)
+  )
+
+  const envVars = [...selectedEnvVars, ...globalEnvVars, ...requestVariables]
 
   const newObj: Partial<T> = {}
 

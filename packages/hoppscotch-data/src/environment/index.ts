@@ -5,7 +5,7 @@ import { InferredEntity, createVersionedEntity } from "verzod"
 import { z } from "zod"
 
 import V0_VERSION from "./v/0"
-import V1_VERSION from "./v/1"
+import V1_VERSION, { uniqueID } from "./v/1"
 
 const versionedObject = z.object({
   v: z.number(),
@@ -165,7 +165,7 @@ export const translateToNewEnvironment = (x: any): Environment => {
   if (x.v && x.v === EnvironmentSchemaVersion) return x
 
   // Legacy
-  const id = x.id ?? ""
+  const id = x.id || uniqueID()
   const name = x.name ?? "Untitled"
   const variables = (x.variables ?? []).map(translateToNewEnvironmentVariables)
 

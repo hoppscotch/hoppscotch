@@ -1,11 +1,11 @@
 import { Environment } from "@hoppscotch/data"
 import * as O from "fp-ts/Option"
 import * as TE from "fp-ts/TaskEither"
-import { uniqueId } from "lodash-es"
 import { z } from "zod"
 
 import { safeParseJSON } from "~/helpers/functional/json"
 import { IMPORTER_INVALID_FILE_FORMAT } from "."
+import { uniqueID } from "~/helpers/utils/uniqueID"
 
 const postmanEnvSchema = z.object({
   name: z.string(),
@@ -49,7 +49,7 @@ export const postmanEnvImporter = (contents: string[]) => {
   // Convert `values` to `variables` to match the format expected by the system
   const environments: Environment[] = validationResult.data.map(
     ({ name, values }) => ({
-      id: uniqueId(),
+      id: uniqueID(),
       v: 1,
       name,
       variables: values.map((entires) => ({ ...entires, secret: false })),

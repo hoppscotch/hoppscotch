@@ -1,7 +1,8 @@
 import { Environment } from "@hoppscotch/data"
-import { cloneDeep, isEqual, uniqueId } from "lodash-es"
+import { cloneDeep, isEqual } from "lodash-es"
 import { combineLatest, Observable } from "rxjs"
 import { distinctUntilChanged, map, pluck } from "rxjs/operators"
+import { uniqueID } from "~/helpers/utils/uniqueID"
 import { getService } from "~/modules/dioc"
 import DispatchingStore, {
   defineDispatchers,
@@ -22,7 +23,7 @@ const defaultEnvironmentsState = {
   environments: [
     {
       v: 1,
-      id: uniqueId(),
+      id: uniqueID(),
       name: "My Environment Variables",
       variables: [],
     },
@@ -100,7 +101,7 @@ const dispatchers = defineDispatchers({
             }
           : {
               v: 1,
-              id: "",
+              id: uniqueID(),
               name,
               variables,
             },
@@ -123,7 +124,7 @@ const dispatchers = defineDispatchers({
         ...environments,
         {
           ...cloneDeep(newEnvironment),
-          id: uniqueId(),
+          id: uniqueID(),
           name: `${newEnvironment.name} - Duplicate`,
         },
       ],

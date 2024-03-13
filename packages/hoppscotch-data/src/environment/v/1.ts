@@ -2,6 +2,8 @@ import { z } from "zod"
 import { defineVersion } from "verzod"
 import { V0_SCHEMA } from "./0"
 
+export const uniqueID = () => Math.random().toString(36).substring(2, 16)
+
 export const V1_SCHEMA = z.object({
   v: z.literal(1),
   id: z.string(),
@@ -28,7 +30,7 @@ export default defineVersion({
     const result: z.infer<typeof V1_SCHEMA> = {
       ...old,
       v: 1,
-      id: old.id ?? "",
+      id: old.id || uniqueID(),
       variables: old.variables.map((variable) => {
         return {
           ...variable,

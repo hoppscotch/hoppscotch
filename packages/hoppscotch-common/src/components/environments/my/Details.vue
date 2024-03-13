@@ -165,7 +165,7 @@ import { environmentsStore } from "~/newstore/environments"
 import { platform } from "~/platform"
 import { useService } from "dioc/vue"
 import { SecretEnvironmentService } from "~/services/secret-environment.service"
-import { uniqueId } from "lodash-es"
+import { uniqueID } from "~/helpers/utils/uniqueID"
 
 type EnvironmentVariable = {
   id: number
@@ -277,7 +277,7 @@ const workingEnv = computed(() => {
     } as Environment
   } else if (props.action === "new") {
     return {
-      id: uniqueId(),
+      id: uniqueID(),
       name: "",
       variables: props.envVars(),
     }
@@ -331,7 +331,7 @@ watch(
         : "variables"
 
       if (props.editingEnvironmentIndex !== "Global") {
-        editingID.value = workingEnv.value?.id ?? uniqueId()
+        editingID.value = workingEnv.value?.id || uniqueID()
       }
       vars.value = pipe(
         workingEnv.value?.variables ?? [],
@@ -416,14 +416,12 @@ const saveEnvironment = () => {
 
   const variables = pipe(
     filteredVariables,
-    A.map((e) =>
-      e.secret ? { key: e.key, secret: e.secret, value: undefined } : e
-    )
+    A.map((e) => (e.secret ? { key: e.key, secret: e.secret } : e))
   )
 
   const environmentUpdated: Environment = {
     v: 1,
-    id: uniqueId(),
+    id: uniqueID(),
     name: editingName.value,
     variables,
   }

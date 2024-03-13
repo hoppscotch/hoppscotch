@@ -1,10 +1,10 @@
 /**
  * Converts an array of key-value tuples (for e.g ["key", "value"]), into a record.
  * (for eg. output -> { "key": "value" })
- * NOTE: This function will discard duplicate key occurances and only keep the last occurance. If you do not want that behaviour,
+ * NOTE: This function will discard duplicate key occurrences and only keep the last occurrence. If you do not want that behaviour,
  * use `tupleWithSamesKeysToRecord`.
  * @param tuples Array of tuples ([key, value])
- * @returns A record with value corresponding to the last occurance of that key
+ * @returns A record with value corresponding to the last occurrence of that key
  */
 export const tupleToRecord = <
   KeyType extends string | number | symbol,

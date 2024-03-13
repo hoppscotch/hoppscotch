@@ -112,7 +112,7 @@ export const printTestsMetrics = (testsMetrics: TestMetrics) => {
 
 /**
  * Prints details of each reported error for a request with error code.
- * @param path Request's path in collection for which errors occured.
+ * @param path Request's path in collection for which errors occurred.
  * @param errorsReport List of errors reported.
  */
 export const printErrorsReport = (

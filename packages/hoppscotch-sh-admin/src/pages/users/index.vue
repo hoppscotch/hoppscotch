@@ -44,10 +44,10 @@
         </div>
 
         <HoppSmartTable
+          v-model:list="finalUsersList"
+          v-model:selected-rows="selectedRows"
           :headings="headings"
-          :list="finalUsersList"
           :loading="showSpinner"
-          :selected-rows="selectedRows"
           @onRowClicked="goToUserDetails"
         >
           <template #extension>
@@ -57,7 +57,7 @@
                 v-model="query"
                 styles="w-full bg-primary py-1"
                 input-styles="h-full border-none"
-                placeholder="Search by name or email"
+                :placeholder="t('users.searchbar_placeholder')"
               />
             </div>
           </template>
@@ -169,6 +169,7 @@
             class="flex justify-center items-end bg-primaryLight border border-divider rounded-md mb-5"
           >
             <HoppButtonSecondary
+              :icon="IconCheck"
               :label="t('state.selected', { count: selectedRows.length })"
               class="py-4 border-divider rounded-r-none bg-emerald-800 text-secondaryDark"
             />
@@ -187,8 +188,14 @@
             <HoppButtonSecondary
               :icon="IconTrash"
               :label="t('users.delete_users')"
-              class="py-4 border-divider rounded-l-none hover:bg-red-500"
+              class="py-4 border-divider rounded-none hover:bg-red-500"
               @click="confirmUsersDeletion = true"
+            />
+            <HoppButtonSecondary
+              :icon="IconX"
+              :label="t('state.clear_selection')"
+              class="py-4 border-divider rounded-l-none text-secondaryDark bg-red-600 hover:bg-red-500"
+              @click="selectedRows.splice(0, selectedRows.length)"
             />
           </div>
         </div>
@@ -236,7 +243,7 @@
 <script setup lang="ts">
 import { useMutation, useQuery } from '@urql/vue';
 import { format } from 'date-fns';
-import { computed, ref, watch, onUnmounted } from 'vue';
+import { computed, onUnmounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from '~/composables/i18n';
 import { useToast } from '~/composables/toast';
@@ -256,13 +263,15 @@ import {
   DELETE_USER_FAILED_ONLY_ONE_ADMIN,
   USER_ALREADY_INVITED,
 } from '~/helpers/errors';
+import IconCheck from '~icons/lucide/check';
+import IconLeft from '~icons/lucide/chevron-left';
+import IconRight from '~icons/lucide/chevron-right';
 import IconMoreHorizontal from '~icons/lucide/more-horizontal';
 import IconTrash from '~icons/lucide/trash';
 import IconUserCheck from '~icons/lucide/user-check';
 import IconUserMinus from '~icons/lucide/user-minus';
 import IconAddUser from '~icons/lucide/user-plus';
-import IconLeft from '~icons/lucide/chevron-left';
-import IconRight from '~icons/lucide/chevron-right';
+import IconX from '~icons/lucide/x';
 
 // Get Proper Date Formats
 const t = useI18n();

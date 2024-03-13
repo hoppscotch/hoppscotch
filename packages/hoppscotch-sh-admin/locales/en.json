@@ -106,6 +106,7 @@
     "admin_failure": "Failed to make user an admin!!",
     "admin_success": "User is now an admin!!",
     "and": "and",
+    "clear_selection": "Clear Selection",
     "configure_auth": "Check out the documentation to configure auth providers.",
     "confirm_admin_to_user": "Do you want to remove admin status from this user?",
     "confirm_admins_to_users": "Do you want to remove admin status from selected users?",

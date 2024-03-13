@@ -10,6 +10,7 @@
         v-model="email"
         :label="t('users.email_address')"
         input-styles="floating-input"
+        @submit="sendInvite"
       />
     </template>
     <template #footer>
@@ -18,7 +19,12 @@
           :label="t('users.send_invite')"
           @click="sendInvite"
         />
-        <HoppButtonSecondary label="Cancel" outline filled @click="hideModal" />
+        <HoppButtonSecondary
+          :label="t('users.cancel')"
+          outline
+          filled
+          @click="hideModal"
+        />
       </span>
     </template>
   </HoppSmartModal>

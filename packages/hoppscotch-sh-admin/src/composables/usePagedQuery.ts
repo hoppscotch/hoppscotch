@@ -1,4 +1,4 @@
-import { Ref, onMounted, ref } from 'vue';
+import { onMounted, ref, Ref } from 'vue';
 import { DocumentNode } from 'graphql';
 import { TypedDocumentNode, useClientHandle } from '@urql/vue';
 
@@ -9,9 +9,9 @@ export function usePagedQuery<
 >(
   query: string | TypedDocumentNode<Result, Vars> | DocumentNode,
   getList: (result: Result) => ListItem[],
-  getCursor: (value: ListItem) => string,
   itemsPerPage: number,
-  variables: Vars
+  baseVariables: Vars,
+  getCursor?: (value: ListItem) => string
 ) {
   const { client } = useClientHandle();
   const fetching = ref(true);
@@ -20,21 +20,25 @@ export function usePagedQuery<
   const currentPage = ref(0);
   const hasNextPage = ref(true);
 
-  const fetchNextPage = async () => {
+  const fetchNextPage = async (additionalVariables?: Vars) => {
+    let variables = { ...baseVariables };
+
     fetching.value = true;
 
-    const cursor =
-      list.value.length > 0 ? getCursor(list.value.at(-1)!) : undefined;
-    const variablesForPagination = {
-      ...variables,
-      take: itemsPerPage,
-      cursor,
-    };
+    // Cursor based pagination
+    if (getCursor) {
+      const cursor =
+        list.value.length > 0
+          ? getCursor(list.value.at(-1) as ListItem)
+          : undefined;
+      variables = { ...variables, cursor };
+    }
+    // Offset based pagination
+    else if (additionalVariables) {
+      variables = { ...variables, ...additionalVariables };
+    }
 
-    const result = await client
-      .query(query, variablesForPagination)
-      .toPromise();
-
+    const result = await client.query(query, variables).toPromise();
     if (result.error) {
       error.value = true;
       fetching.value = false;
@@ -63,11 +67,14 @@ export function usePagedQuery<
     }
   };
 
-  const refetch = async () => {
+  const refetch = async (variables?: Vars) => {
     currentPage.value = 0;
     hasNextPage.value = true;
     list.value = [];
-    await fetchNextPage();
+
+    if (hasNextPage.value) {
+      variables ? await fetchNextPage(variables) : await fetchNextPage();
+    }
   };
 
   return {

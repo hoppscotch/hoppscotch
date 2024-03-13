@@ -18,89 +18,83 @@
 
         <div v-else-if="error">{{ t('teams.load_list_error') }}</div>
 
-        <HoppSmartTable v-else-if="teamsList.length" :list="teamsList">
+        <HoppSmartTable
+          v-else-if="teamsList.length"
+          :headings="headings"
+          :list="teamsList"
+          @onRowClicked="goToTeamDetails"
+        >
           <template #head>
-            <tr
-              class="text-secondary border-b border-dividerDark text-sm text-left bg-primaryLight"
-            >
-              <th class="px-6 py-2">{{ t('teams.id') }}</th>
-              <th class="px-6 py-2">{{ t('teams.name') }}</th>
-              <th class="px-6 py-2">{{ t('teams.members') }}</th>
-              <!-- Empty Heading for the Action Button -->
-              <th class="px-6 py-2"></th>
-            </tr>
+            <th class="px-6 py-2">{{ t('teams.id') }}</th>
+            <th class="px-6 py-2">{{ t('teams.name') }}</th>
+            <th class="px-6 py-2">{{ t('teams.members') }}</th>
+            <!-- Empty Heading for the Action Button -->
+            <th class="px-6 py-2"></th>
           </template>
-          <template #body="{ list }">
-            <tr
-              v-for="team in list"
-              :key="team.id"
-              class="text-secondaryDark hover:bg-divider hover:cursor-pointer rounded-xl"
-              @click="goToTeamDetails(team.id)"
-            >
-              <td class="flex py-4 px-7 max-w-[16rem]">
-                <span class="truncate">
-                  {{ team.id }}
-                </span>
-              </td>
+          <template #body="{ row: team }">
+            <td class="flex py-4 px-7 max-w-[16rem]">
+              <span class="truncate">
+                {{ team.id }}
+              </span>
+            </td>
 
-              <td class="py-4 px-7 min-w-[20rem]">
-                <span
-                  class="flex items-center truncate"
-                  :class="{ truncate: team.name }"
-                >
-                  {{ team.name ?? t('teams.unnamed') }}
-                </span>
-              </td>
+            <td class="py-4 px-7 min-w-[20rem]">
+              <span
+                class="flex items-center truncate"
+                :class="{ truncate: team.name }"
+              >
+                {{ team.name ?? t('teams.unnamed') }}
+              </span>
+            </td>
 
-              <td class="py-4 px-7">
-                {{ team.members?.length }}
-              </td>
+            <td class="py-4 px-8">
+              {{ team.members?.length }}
+            </td>
 
-              <td @click.stop>
-                <div class="relative">
-                  <tippy interactive trigger="click" theme="popover">
-                    <HoppButtonSecondary
-                      v-tippy="{ theme: 'tooltip' }"
-                      :icon="IconMoreHorizontal"
-                    />
-                    <template #content="{ hide }">
-                      <div
-                        ref="tippyActions"
-                        class="flex flex-col focus:outline-none"
-                        tabindex="0"
-                        @keyup.escape="hide()"
-                      >
-                        <HoppSmartItem
-                          :icon="IconTrash"
-                          :label="t('teams.delete_team')"
-                          class="!hover:bg-red-600 w-full"
-                          @click="
-                            () => {
-                              deleteTeam(team.id);
-                              hide();
-                            }
-                          "
-                        />
-                      </div>
-                    </template>
-                  </tippy>
-                </div>
-              </td>
-            </tr>
+            <td @click.stop class="flex justify-end mr-10">
+              <div class="relative">
+                <tippy interactive trigger="click" theme="popover">
+                  <HoppButtonSecondary
+                    v-tippy="{ theme: 'tooltip' }"
+                    :icon="IconMoreHorizontal"
+                  />
+                  <template #content="{ hide }">
+                    <div
+                      ref="tippyActions"
+                      class="flex flex-col focus:outline-none"
+                      tabindex="0"
+                      @keyup.escape="hide()"
+                    >
+                      <HoppSmartItem
+                        :icon="IconTrash"
+                        :label="t('teams.delete_team')"
+                        class="!hover:bg-red-600 w-full"
+                        @click="
+                          () => {
+                            deleteTeam(team.id);
+                            hide();
+                          }
+                        "
+                      />
+                    </div>
+                  </template>
+                </tippy>
+              </div>
+            </td>
           </template>
         </HoppSmartTable>
 
-        <div v-else class="px-2 text-lg">
+        <div v-else class="px-2">
           {{ t('teams.no_teams') }}
         </div>
 
         <div
           v-if="hasNextPage && teamsList.length >= teamsPerPage"
-          class="flex justify-center my-5 px-3 py-2 cursor-pointer font-semibold rounded-3xl bg-dividerDark hover:bg-divider transition mx-auto w-38 text-secondaryDark"
+          class="flex items-center w-28 px-3 py-2 mt-5 mx-auto font-semibold text-secondaryDark bg-divider hover:bg-dividerDark rounded-3xl cursor-pointer"
           @click="fetchNextTeams"
         >
           <span>{{ t('teams.show_more') }}</span>
-          <icon-lucide-chevron-down class="ml-2 text-lg" />
+          <icon-lucide-chevron-down class="ml-2" />
         </div>
       </div>
     </div>
@@ -135,6 +129,7 @@ import {
   CreateTeamDocument,
   MetricsDocument,
   RemoveTeamDocument,
+  TeamInfoQuery,
   TeamListDocument,
   UsersListDocument,
 } from '../../helpers/backend/graphql';
@@ -149,9 +144,9 @@ const usersPerPage = computed(() => data.value?.infra.usersCount || 10000);
 const { list: usersList } = usePagedQuery(
   UsersListDocument,
   (x) => x.infra.allUsers,
-  (x) => x.uid,
   usersPerPage.value,
-  { cursor: undefined, take: usersPerPage.value }
+  { cursor: undefined, take: usersPerPage.value },
+  (x) => x.uid
 );
 
 const allUsersEmail = computed(() => usersList.value.map((user) => user.email));
@@ -168,10 +163,18 @@ const {
 } = usePagedQuery(
   TeamListDocument,
   (x) => x.infra.allTeams,
-  (x) => x.id,
   teamsPerPage,
-  { cursor: undefined, take: teamsPerPage }
+  { cursor: undefined, take: teamsPerPage },
+  (x) => x.id
 );
+
+// Table Headings
+const headings = [
+  { key: 'id', label: t('teams.id') },
+  { key: 'name', label: t('teams.name') },
+  { key: 'members', label: t('teams.members') },
+  { key: 'actions', label: '' },
+];
 
 // Create Team
 const showCreateTeamModal = ref(false);
@@ -212,7 +215,8 @@ const createTeam = async (newTeamName: string, ownerEmail: string) => {
 
 // Go To Individual Team Details Page
 const router = useRouter();
-const goToTeamDetails = (teamId: string) => router.push('/teams/' + teamId);
+const goToTeamDetails = (team: TeamInfoQuery['infra']['teamInfo']) =>
+  router.push('/teams/' + team.id);
 
 // Team Deletion
 const confirmDeletion = ref(false);

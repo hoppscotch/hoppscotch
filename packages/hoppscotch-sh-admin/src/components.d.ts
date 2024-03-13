@@ -29,8 +29,11 @@ declare module '@vue/runtime-core' {
     HoppSmartTable: typeof import('@hoppscotch/ui')['HoppSmartTable']
     HoppSmartTabs: typeof import('@hoppscotch/ui')['HoppSmartTabs']
     HoppSmartToggle: typeof import('@hoppscotch/ui')['HoppSmartToggle']
+    IconLucideArrowLeft: typeof import('~icons/lucide/arrow-left')['default']
     IconLucideChevronDown: typeof import('~icons/lucide/chevron-down')['default']
     IconLucideInbox: typeof import('~icons/lucide/inbox')['default']
+    IconLucideSearch: typeof import('~icons/lucide/search')['default']
+    IconLucideUser: typeof import('~icons/lucide/user')['default']
     SettingsAuthProvider: typeof import('./components/settings/AuthProvider.vue')['default']
     SettingsConfigurations: typeof import('./components/settings/Configurations.vue')['default']
     SettingsDataSharing: typeof import('./components/settings/DataSharing.vue')['default']
@@ -48,6 +51,7 @@ declare module '@vue/runtime-core' {
     UsersDetails: typeof import('./components/users/Details.vue')['default']
     UsersInviteModal: typeof import('./components/users/InviteModal.vue')['default']
     UsersSharedRequests: typeof import('./components/users/SharedRequests.vue')['default']
+    UsersTable: typeof import('./components/users/Table.vue')['default']
   }
 
 }

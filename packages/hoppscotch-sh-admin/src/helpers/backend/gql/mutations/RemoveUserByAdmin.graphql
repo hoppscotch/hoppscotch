@@ -1,3 +1,0 @@
-mutation RemoveUserByAdmin($uid: ID!) {
-  removeUserByAdmin(userUID: $uid)
-}

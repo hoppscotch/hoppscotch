@@ -21,13 +21,12 @@
         </HoppSmartToggle>
       </div>
 
-      <!-- TODO: Update the link below -->
       <HoppButtonSecondary
         outline
         filled
         :icon="IconShieldQuestion"
         :label="t('configs.data_sharing.see_shared')"
-        to="http://docs.hoppscotch.io"
+        to="https://docs.hoppscotch.io/documentation/self-host/community-edition/telemetry"
         blank
         class="w-min my-2"
       />

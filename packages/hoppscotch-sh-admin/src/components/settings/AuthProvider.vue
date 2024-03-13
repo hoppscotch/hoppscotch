@@ -45,7 +45,6 @@
                     :type="
                       isMasked(provider.name, field.key) ? 'password' : 'text'
                     "
-                    :disabled="isMasked(provider.name, field.key)"
                     :autofocus="false"
                     class="!my-2 !bg-primaryLight flex-1"
                   />

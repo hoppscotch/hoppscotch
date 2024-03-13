@@ -161,6 +161,7 @@ import passwordFlow, {
   PasswordFlowParams,
   getDefaultPasswordFlowParams,
 } from "~/services/oauth/flows/password"
+import { PersistenceService } from "~/services/persistence"
 import { GQLTabService } from "~/services/tab/graphql"
 import { RESTTabService } from "~/services/tab/rest"
 import IconCircle from "~icons/lucide/circle"
@@ -169,12 +170,14 @@ import IconCircleDot from "~icons/lucide/circle-dot"
 const t = useI18n()
 const toast = useToast()
 
-const restTabsService = useService(RESTTabService)
 const gqlTabsService = useService(GQLTabService)
+const persistenceService = useService(PersistenceService)
+const restTabsService = useService(RESTTabService)
 
 const props = defineProps<{
   modelValue: HoppRESTAuthOAuth2 | HoppGQLAuthOAuth2
   envs?: AggregateEnvironment[]
+  source: "REST" | "GraphQL"
 }>()
 
 const auth = ref(props.modelValue)
@@ -430,23 +433,7 @@ const supportedGrantTypes = [
           return E.left("OAUTH_TOKEN_FETCH_FAILED" as const)
         }
 
-        if (
-          restTabsService.currentActiveTab.value.document.request.auth
-            .authType === "oauth-2" &&
-          res.right?.access_token
-        ) {
-          restTabsService.currentActiveTab.value.document.request.auth.grantTypeInfo.token =
-            res.right.access_token
-        }
-
-        if (
-          gqlTabsService.currentActiveTab.value.document.request.auth
-            .authType === "oauth-2" &&
-          res.right?.access_token
-        ) {
-          gqlTabsService.currentActiveTab.value.document.request.auth.grantTypeInfo.token =
-            res.right.access_token
-        }
+        setAccessTokenInActiveTab(res.right?.access_token)
 
         toast.success(t("authorization.oauth.token_fetched_successfully"))
 
@@ -576,23 +563,7 @@ const supportedGrantTypes = [
           return E.left("OAUTH_TOKEN_FETCH_FAILED" as const)
         }
 
-        if (
-          restTabsService.currentActiveTab.value.document.request.auth
-            .authType === "oauth-2" &&
-          res.right?.access_token
-        ) {
-          restTabsService.currentActiveTab.value.document.request.auth.grantTypeInfo.token =
-            res.right.access_token
-        }
-
-        if (
-          gqlTabsService.currentActiveTab.value.document.request.auth
-            .authType === "oauth-2" &&
-          res.right?.access_token
-        ) {
-          gqlTabsService.currentActiveTab.value.document.request.auth.grantTypeInfo.token =
-            res.right.access_token
-        }
+        setAccessTokenInActiveTab(res.right?.access_token)
 
         toast.success(t("authorization.oauth.token_fetched_successfully"))
 
@@ -755,6 +726,29 @@ const selectedGrantType = computed(() => {
   )
 })
 
+const setAccessTokenInActiveTab = (accessToken?: string) => {
+  if (
+    props.source === "REST" &&
+    restTabsService.currentActiveTab.value.document.request.auth.authType ===
+      "oauth-2" &&
+    accessToken
+  ) {
+    restTabsService.currentActiveTab.value.document.request.auth.grantTypeInfo.token =
+      accessToken
+
+    return
+  }
+
+  if (
+    gqlTabsService.currentActiveTab.value.document.request.auth.authType ===
+      "oauth-2" &&
+    accessToken
+  ) {
+    gqlTabsService.currentActiveTab.value.document.request.auth.grantTypeInfo.token =
+      accessToken
+  }
+}
+
 const changeSelectedGrantType = (
   grantType: (typeof supportedGrantTypes)[number]["id"]
 ) => {
@@ -798,7 +792,18 @@ const generateOAuthToken = async () => {
     }
 
     toast.error(errorMessages[res.left])
+    return
   }
+
+  const localConfig = persistenceService.getLocalConfig("oauth_temp_config")
+
+  persistenceService.setLocalConfig(
+    "oauth_temp_config",
+    JSON.stringify({
+      ...(localConfig ? JSON.parse(localConfig) : {}),
+      source: props.source,
+    })
+  )
 }
 
 const replaceTemplateStringsInObjectValues = <

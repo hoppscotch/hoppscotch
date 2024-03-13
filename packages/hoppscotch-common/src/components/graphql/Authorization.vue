@@ -194,7 +194,7 @@
               placeholder="Token"
             />
           </div>
-          <HttpOAuth2Authorization v-model="auth" />
+          <HttpOAuth2Authorization v-model="auth" source="GraphQL" />
         </div>
         <div v-if="auth.authType === 'api-key'">
           <HttpAuthorizationApiKey v-model="auth" />

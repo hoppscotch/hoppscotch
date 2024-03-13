@@ -186,7 +186,7 @@
               :envs="envs"
             />
           </div>
-          <HttpOAuth2Authorization v-model="auth" :envs="envs" />
+          <HttpOAuth2Authorization v-model="auth" :envs="envs" source="REST" />
         </div>
         <div v-if="auth.authType === 'api-key'">
           <HttpAuthorizationApiKey v-model="auth" :envs="envs" />

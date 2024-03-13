@@ -16,6 +16,7 @@ import { RESTTabService } from "~/services/tab/rest"
 import { useRouter } from "vue-router"
 
 import { routeOAuthRedirect } from "~/services/oauth/oauth.service"
+import { PersistenceService } from "~/services/persistence"
 import { GQLTabService } from "~/services/tab/graphql"
 
 const t = useI18n()
@@ -23,8 +24,9 @@ const router = useRouter()
 
 const toast = useToast()
 
-const restTabs = useService(RESTTabService)
 const gqlTabs = useService(GQLTabService)
+const persistenceService = useService(PersistenceService)
+const restTabs = useService(RESTTabService)
 
 function translateOAuthRedirectError(error: string) {
   switch (error) {
@@ -71,7 +73,12 @@ onMounted(async () => {
     return
   }
 
+  const localConfig = persistenceService.getLocalConfig("oauth_temp_config")
+
+  const source = localConfig ? JSON.parse(localConfig).source : "REST"
+
   if (
+    source === "REST" &&
     restTabs.currentActiveTab.value.document.request.auth.authType === "oauth-2"
   ) {
     restTabs.currentActiveTab.value.document.request.auth.grantTypeInfo.token =

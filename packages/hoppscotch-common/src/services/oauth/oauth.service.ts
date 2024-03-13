@@ -17,6 +17,7 @@ export const routeOAuthRedirect = async () => {
   }
 
   const expectedSchema = z.object({
+    source: z.optional(z.string()),
     grant_type: z.string(),
   })
 

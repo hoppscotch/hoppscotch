@@ -88,11 +88,18 @@ const initAuthCodeOauthFlow = async ({
     }
   }
 
+  // Get the source (`REST` | `GraphQL`) from where the request was initiated
+  const localConfig = persistenceService.getLocalConfig("oauth_temp_config")
+  const source = localConfig ? { source: JSON.parse(localConfig).source } : {}
+
   // persist the state so we can compare it when we get redirected back
   // also persist the grant_type,tokenEndpoint and clientSecret so we can use them when we get redirected back
   persistenceService.setLocalConfig(
     "oauth_temp_config",
-    JSON.stringify(oauthTempConfig)
+    JSON.stringify({
+      ...source,
+      ...oauthTempConfig,
+    })
   )
 
   let url: URL
@@ -139,6 +146,7 @@ const handleRedirectForAuthCodeOauthFlow = async (localConfig: string) => {
   }
 
   const expectedSchema = z.object({
+    source: z.optional(z.string()),
     state: z.string(),
     tokenEndpoint: z.string(),
     clientSecret: z.string(),

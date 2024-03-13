@@ -3,7 +3,7 @@
     <div class="flex flex-col">
       <div class="flex flex-col">
         <HoppSmartItem
-          :label="personalWorkspaceName"
+          :label="t('workspace.personal')"
           :icon="IconUser"
           :info-icon="workspace.type === 'personal' ? IconDone : undefined"
           :active-info-icon="workspace.type === 'personal'"
@@ -94,12 +94,6 @@ const showModalAdd = ref(false)
 const currentUser = useReadonlyStream(
   platform.auth.getProbableUserStream(),
   platform.auth.getProbableUser()
-)
-
-const personalWorkspaceName = computed(() =>
-  currentUser.value?.displayName
-    ? t("workspace.personal_workspace", { name: currentUser.value.displayName })
-    : t("workspace.personal")
 )
 
 const workspaceService = useService(WorkspaceService)

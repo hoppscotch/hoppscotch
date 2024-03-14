@@ -140,6 +140,32 @@ function folderPathCloseToSaveContext(
     : newFolderPath
 }
 
+function removeDuplicatesAndKeepLast(arr: HoppInheritedProperty["headers"]) {
+  const keyMap: { [key: string]: number[] } = {} // Map to store array of indices for each key
+
+  // Populate keyMap with the indices of each key
+  arr.forEach((item, index) => {
+    const key = item.inheritedHeader.key
+    if (!(key in keyMap)) {
+      keyMap[key] = []
+    }
+    keyMap[key].push(index)
+  })
+
+  // Create a new array containing only the last occurrence of each key
+  const result = []
+  for (const key in keyMap) {
+    if (Object.prototype.hasOwnProperty.call(keyMap, key)) {
+      const lastIndex = keyMap[key][keyMap[key].length - 1]
+      result.push(arr[lastIndex])
+    }
+  }
+
+  // Sort the result array based on the parentID
+  result.sort((a, b) => a.parentID.localeCompare(b.parentID))
+  return result
+}
+
 export function updateInheritedPropertiesForAffectedRequests(
   path: string,
   inheritedProperties: HoppInheritedProperty,
@@ -192,12 +218,9 @@ export function updateInheritedPropertiesForAffectedRequests(
       )
 
       // merge the headers with the parentID as the path
-      const mergedHeaders = [...new Set([...inheritedHeaders, ...headers])]
-
-      // re-order the headers based on the parentID
-      mergedHeaders.sort((a, b) => {
-        return a.parentID.localeCompare(b.parentID)
-      })
+      const mergedHeaders = removeDuplicatesAndKeepLast([
+        ...new Set([...inheritedHeaders, ...headers]),
+      ])
 
       tab.value.document.inheritedProperties.headers = mergedHeaders
     }

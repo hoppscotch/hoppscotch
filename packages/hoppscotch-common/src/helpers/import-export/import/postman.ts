@@ -191,6 +191,7 @@ const getHoppReqAuth = (item: Item): HoppRESTAuth => {
         clientSecret: "",
         isPKCE: false,
       },
+      addTo: "Headers",
     }
   }
 

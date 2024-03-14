@@ -120,6 +120,60 @@
       </div>
     </div>
 
+    <div class="flex items-center border-b border-dividerLight">
+      <span class="flex items-center">
+        <label class="ml-4 text-secondaryLight">
+          {{ t("authorization.pass_key_by") }}
+        </label>
+        <tippy
+          interactive
+          trigger="click"
+          theme="popover"
+          :on-shown="() => authTippyActions?.focus()"
+        >
+          <HoppSmartSelectWrapper>
+            <HoppButtonSecondary
+              :label="auth.addTo || t('state.none')"
+              class="ml-2 rounded-none pr-8"
+            />
+          </HoppSmartSelectWrapper>
+          <template #content="{ hide }">
+            <div
+              ref="authTippyActions"
+              class="flex flex-col focus:outline-none"
+              tabindex="0"
+              @keyup.escape="hide()"
+            >
+              <HoppSmartItem
+                :icon="auth.addTo === 'Headers' ? IconCircleDot : IconCircle"
+                :active="auth.addTo === 'Headers'"
+                :label="'Headers'"
+                @click="
+                  () => {
+                    auth.addTo = 'Headers'
+                    hide()
+                  }
+                "
+              />
+              <HoppSmartItem
+                :icon="
+                  auth.addTo === 'Query params' ? IconCircleDot : IconCircle
+                "
+                :active="auth.addTo === 'Query params'"
+                :label="'Query params'"
+                @click="
+                  () => {
+                    auth.addTo = 'Query params'
+                    hide()
+                  }
+                "
+              />
+            </div>
+          </template>
+        </tippy>
+      </span>
+    </div>
+
     <div class="p-2">
       <HoppButtonSecondary
         filled
@@ -138,7 +192,7 @@ import {
 } from "@hoppscotch/data"
 import { useService } from "dioc/vue"
 import * as E from "fp-ts/Either"
-import { Ref, computed, onMounted, ref } from "vue"
+import { Ref, computed, ref } from "vue"
 import { z } from "zod"
 import { useI18n } from "~/composables/i18n"
 import { refWithCallbackOnChange } from "~/composables/ref"
@@ -880,4 +934,5 @@ const replaceTemplateStringsInObjectValues = <
 
 const grantTypeTippyActions = ref<HTMLElement | null>(null)
 const pkceTippyActions = ref<HTMLElement | null>(null)
+const authTippyActions = ref<HTMLElement | null>(null)
 </script>

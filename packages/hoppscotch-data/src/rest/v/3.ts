@@ -60,6 +60,7 @@ export const HoppRESTAuthOAuth2 = z.object({
     PasswordGrantTypeParams,
     ImplicitOauthFlowParams,
   ]),
+  addTo: z.string().catch("Headers"),
 })
 
 export type HoppRESTAuthOAuth2 = z.infer<typeof HoppRESTAuthOAuth2>
@@ -110,6 +111,7 @@ export default defineVersion({
             isPKCE: false,
             token,
           },
+          addTo: "Headers",
         },
       }
     }

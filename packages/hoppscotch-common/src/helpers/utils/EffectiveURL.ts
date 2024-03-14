@@ -82,7 +82,7 @@ export const getComputedAuthHeaders = (
     })
   } else if (
     request.auth.authType === "bearer" ||
-    request.auth.authType === "oauth-2"
+    (request.auth.authType === "oauth-2" && request.auth.addTo === "Headers")
   ) {
     const token =
       request.auth.authType === "bearer"
@@ -197,17 +197,40 @@ export const getComputedParams = (
 ): ComputedParam[] => {
   // When this gets complex, its best to split this function off (like with getComputedHeaders)
   // API-key auth can be added to query params
-  if (!req.auth || !req.auth.authActive) return []
-  if (req.auth.authType !== "api-key") return []
-  if (req.auth.addTo !== "Query params") return []
+  if (!req.auth || !req.auth.authActive) {
+    return []
+  }
+
+  if (req.auth.authType !== "api-key" && req.auth.authType !== "oauth-2") {
+    return []
+  }
+
+  if (req.auth.addTo !== "Query params") {
+    return []
+  }
+
+  if (req.auth.authType === "api-key") {
+    return [
+      {
+        source: "auth" as const,
+        param: {
+          active: true,
+          key: parseTemplateString(req.auth.key, envVars),
+          value: parseTemplateString(req.auth.value, envVars),
+        },
+      },
+    ]
+  }
+
+  const { grantTypeInfo } = req.auth
 
   return [
     {
       source: "auth",
       param: {
         active: true,
-        key: parseTemplateString(req.auth.key, envVars),
-        value: parseTemplateString(req.auth.value, envVars),
+        key: "access_token",
+        value: parseTemplateString(grantTypeInfo.token, envVars),
       },
     },
   ]
@@ -354,6 +377,8 @@ export function getEffectiveRESTRequest(
       value: parseTemplateString(x.value, environment.variables),
     }))
   )
+
+  console.log(`Final params are `, effectiveFinalParams)
 
   const effectiveFinalRequestVariables = pipe(
     request.requestVariables,

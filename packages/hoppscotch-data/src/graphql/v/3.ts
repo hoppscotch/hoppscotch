@@ -61,6 +61,7 @@ export default defineVersion({
             isPKCE: false,
             token,
           },
+          addTo: "Headers",
         },
       }
     }

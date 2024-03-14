@@ -109,23 +109,31 @@ export function getEffectiveRESTRequest(
         key: "Authorization",
         value: `Basic ${btoa(`${username}:${password}`)}`,
       });
-    } else if (
-      request.auth.authType === "bearer" ||
-      request.auth.authType === "oauth-2"
-    ) {
-      const requestAuth = request.auth;
-
-      const isOAuth2 = requestAuth.authType === "oauth-2";
-
-      const token = isOAuth2
-        ? requestAuth.grantTypeInfo.token
-        : requestAuth.token;
-
+    } else if (request.auth.authType === "bearer") {
       effectiveFinalHeaders.push({
         active: true,
         key: "Authorization",
-        value: `Bearer ${parseTemplateString(token, envVariables)}`,
+        value: `Bearer ${parseTemplateString(request.auth.token, envVariables)}`,
       });
+    } else if (request.auth.authType === "oauth-2") {
+      const { addTo } = request.auth;
+
+      if (addTo === "Headers") {
+        effectiveFinalHeaders.push({
+          active: true,
+          key: "Authorization",
+          value: `Bearer ${parseTemplateString(request.auth.grantTypeInfo.token, envVariables)}`,
+        });
+      } else if (addTo === "Query params") {
+        effectiveFinalParams.push({
+          active: true,
+          key: "access_token",
+          value: parseTemplateString(
+            request.auth.grantTypeInfo.token,
+            envVariables
+          ),
+        });
+      }
     } else if (request.auth.authType === "api-key") {
       const { key, value, addTo } = request.auth;
       if (addTo === "Headers") {

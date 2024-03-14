@@ -321,25 +321,28 @@ export class InfraConfigService implements OnModuleInit {
    * Reset all the InfraConfigs to their default values (from .env)
    */
   async reset() {
+    // These are all the infra-configs that should not be reset
+    const RESET_EXCLUSION_LIST = [
+      InfraConfigEnum.IS_FIRST_TIME_INFRA_SETUP,
+      InfraConfigEnum.ANALYTICS_USER_ID,
+      InfraConfigEnum.ALLOW_ANALYTICS_COLLECTION,
+    ];
     try {
       const infraConfigDefaultObjs = await getDefaultInfraConfigs();
+      const updatedInfraConfigDefaultObjs = infraConfigDefaultObjs.filter(
+        (p) => RESET_EXCLUSION_LIST.includes(p.name) === false,
+      );
 
       await this.prisma.infraConfig.deleteMany({
-        where: { name: { in: infraConfigDefaultObjs.map((p) => p.name) } },
+        where: {
+          name: {
+            in: updatedInfraConfigDefaultObjs.map((p) => p.name),
+          },
+        },
       });
 
-      // Hardcode t
-      const updatedInfraConfigDefaultObjs = infraConfigDefaultObjs.filter(
-        (obj) => obj.name !== InfraConfigEnum.IS_FIRST_TIME_INFRA_SETUP,
-      );
       await this.prisma.infraConfig.createMany({
-        data: [
-          ...updatedInfraConfigDefaultObjs,
-          {
-            name: InfraConfigEnum.IS_FIRST_TIME_INFRA_SETUP,
-            value: 'true',
-          },
-        ],
+        data: updatedInfraConfigDefaultObjs,
       });
 
       stopApp();

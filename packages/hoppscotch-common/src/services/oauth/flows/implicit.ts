@@ -35,8 +35,11 @@ const initImplicitOauthFlow = async ({
 }: ImplicitOauthFlowParams) => {
   const state = generateRandomString()
 
-  const localConfig = persistenceService.getLocalConfig("oauth_temp_config")
-  const persistedOAuthConfig = localConfig ? { ...JSON.parse(localConfig) } : {}
+  const localOAuthTempConfig =
+    persistenceService.getLocalConfig("oauth_temp_config")
+  const persistedOAuthConfig = localOAuthTempConfig
+    ? { ...JSON.parse(localOAuthTempConfig) }
+    : {}
 
   // Persist the necessary information for retrieval while getting redirected back
   persistenceService.setLocalConfig(

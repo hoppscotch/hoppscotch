@@ -65,14 +65,6 @@ function translateOAuthRedirectError(error: string) {
 }
 
 onMounted(async () => {
-  const tokenInfo = await routeOAuthRedirect()
-
-  if (E.isLeft(tokenInfo)) {
-    toast.error(translateOAuthRedirectError(tokenInfo.left))
-    router.push("/")
-    return
-  }
-
   const localOAuthTempConfig =
     persistenceService.getLocalConfig("oauth_temp_config")
 
@@ -86,6 +78,14 @@ onMounted(async () => {
 
   const { context, source } = persistedOAuthConfig
 
+  const tokenInfo = await routeOAuthRedirect()
+
+  if (E.isLeft(tokenInfo)) {
+    toast.error(translateOAuthRedirectError(tokenInfo.left))
+    router.push(source === "REST" ? "/" : "/graphql")
+    return
+  }
+
   // Indicates the access token generation flow originated from the modal for setting authorization/headers at the collection level
   if (context.type === "collection-properties") {
     // Set the access token in `localStorage` to retrieve from the modal while redirecting back
@@ -97,8 +97,7 @@ onMounted(async () => {
       })
     )
 
-    // TODO: Account for GraphQL in redirection based on `source`
-    router.push("/")
+    router.push(source === "REST" ? "/" : "/graphql")
     return
   }
 

@@ -163,6 +163,7 @@
     <CollectionsProperties
       :show="showModalEditProperties"
       :editing-properties="editingProperties"
+      source="REST"
       @hide-modal="displayModalEditProperties(false)"
       @set-collection-properties="setCollectionProperties"
     />
@@ -391,13 +392,14 @@ watch(
 const persistenceService = useService(PersistenceService)
 
 onMounted(() => {
-  const localConfig = persistenceService.getLocalConfig("oauth_temp_config")
+  const localOAuthTempConfig =
+    persistenceService.getLocalConfig("oauth_temp_config")
 
-  if (!localConfig) {
+  if (!localOAuthTempConfig) {
     return
   }
 
-  const persistedOAuthConfig = JSON.parse(localConfig)
+  const persistedOAuthConfig = JSON.parse(localOAuthTempConfig)
 
   // If returning from an OAuth redirect, retrieve the persisted information in `localStorage` and display the collection properties modal
   if (persistedOAuthConfig.context.type === "collection-properties") {

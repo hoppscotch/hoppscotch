@@ -148,6 +148,7 @@
     <CollectionsProperties
       :show="showModalEditProperties"
       :editing-properties="editingProperties"
+      source="GraphQL"
       @hide-modal="displayModalEditProperties(false)"
       @set-collection-properties="setCollectionProperties"
     />
@@ -155,7 +156,7 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, ref } from "vue"
+import { nextTick, onMounted, ref } from "vue"
 import { clone, cloneDeep } from "lodash-es"
 import {
   graphqlCollections$,
@@ -186,6 +187,7 @@ import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import { updateInheritedPropertiesForAffectedRequests } from "~/helpers/collection/collection"
 import { useToast } from "~/composables/toast"
 import { getRequestsByPath } from "~/helpers/collection/request"
+import { PersistenceService } from "~/services/persistence"
 
 const t = useI18n()
 const toast = useToast()
@@ -231,6 +233,65 @@ const editingProperties = ref<{
 })
 
 const filterText = ref("")
+
+const persistenceService = useService(PersistenceService)
+
+onMounted(() => {
+  const localOAuthTempConfig =
+    persistenceService.getLocalConfig("oauth_temp_config")
+
+  if (!localOAuthTempConfig) {
+    return
+  }
+
+  const persistedOAuthConfig = JSON.parse(localOAuthTempConfig)
+
+  // If returning from an OAuth redirect, retrieve the persisted information in `localStorage` and display the collection properties modal
+  if (persistedOAuthConfig.context.type === "collection-properties") {
+    const { collection, collectionID } = persistedOAuthConfig.context.metadata
+
+    const parentCollectionID = collectionID.split("/").slice(0, -1).join("/") // remove last folder to get parent folder
+
+    let inheritedProperties = {
+      auth: {
+        parentID: "",
+        parentName: "",
+        inheritedAuth: {
+          authType: "inherit",
+          authActive: true,
+        },
+      },
+      headers: [
+        {
+          parentID: "",
+          parentName: "",
+          inheritedHeader: {},
+        },
+      ],
+    } as HoppInheritedProperty
+
+    if (parentCollectionID) {
+      const { auth, headers } = cascadeParentCollectionForHeaderAuth(
+        parentCollectionID,
+        "graphql"
+      )
+
+      inheritedProperties = {
+        auth,
+        headers,
+      }
+    }
+
+    editingProperties.value = {
+      collection,
+      isRootCollection: isAlreadyInRoot(collectionID),
+      path: collectionID,
+      inheritedProperties,
+    }
+
+    showModalEditProperties.value = true
+  }
+})
 
 const filteredCollections = computed(() => {
   const collectionsClone = clone(collections.value)

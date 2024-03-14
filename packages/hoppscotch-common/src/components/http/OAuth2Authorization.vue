@@ -807,12 +807,13 @@ const generateOAuthToken = async () => {
     return
   }
 
-  const localConfig = persistenceService.getLocalConfig("oauth_temp_config")
+  const localOAuthTempConfig =
+    persistenceService.getLocalConfig("oauth_temp_config")
 
   persistenceService.setLocalConfig(
     "oauth_temp_config",
     JSON.stringify({
-      ...(localConfig ? JSON.parse(localConfig) : {}),
+      ...(localOAuthTempConfig ? JSON.parse(localOAuthTempConfig) : {}),
       source: props.source,
       context: props.isCollectionProperty
         ? { type: "collection-properties", metadata: {} }
@@ -820,7 +821,7 @@ const generateOAuthToken = async () => {
     })
   )
 
-  // We use this event to instruct the collection level auth/headers modal to write the collection object to `localStorage` that can be retrieved back after the OAuth flow instead
+  // We use this event to instruct the collection level auth/headers modal to write the collection object to `localStorage` that can be retrieved back after the OAuth 2.0 flow for generating an access token
   // It gets written under the `metadata` field as part of the `context` object
   // We use this approach to avoid prop drilling
   if (props.isCollectionProperty) {

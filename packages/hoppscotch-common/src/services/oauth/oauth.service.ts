@@ -10,9 +10,10 @@ const persistenceService = getService(PersistenceService)
 
 export const routeOAuthRedirect = async () => {
   // get the temp data from the local storage
-  const localConfig = persistenceService.getLocalConfig("oauth_temp_config")
+  const localOAuthTempConfig =
+    persistenceService.getLocalConfig("oauth_temp_config")
 
-  if (!localConfig) {
+  if (!localOAuthTempConfig) {
     return E.left("INVALID_STATE")
   }
 
@@ -21,7 +22,9 @@ export const routeOAuthRedirect = async () => {
     grant_type: z.string(),
   })
 
-  const decodedLocalConfig = expectedSchema.safeParse(JSON.parse(localConfig))
+  const decodedLocalConfig = expectedSchema.safeParse(
+    JSON.parse(localOAuthTempConfig)
+  )
 
   if (!decodedLocalConfig.success) {
     return E.left("INVALID_STATE")
@@ -36,7 +39,7 @@ export const routeOAuthRedirect = async () => {
     return E.left("INVALID_STATE")
   }
 
-  return flowConfig?.onRedirectReceived(localConfig)
+  return flowConfig?.onRedirectReceived(localOAuthTempConfig)
 }
 
 export function createFlowConfig<

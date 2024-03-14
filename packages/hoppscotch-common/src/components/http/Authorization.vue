@@ -190,7 +190,7 @@
             v-model="auth"
             :is-collection-property="isCollectionProperty"
             :envs="envs"
-            source="REST"
+            :source="source"
             @generate-o-auth-token="emit('generateOAuthToken')"
           />
         </div>
@@ -248,6 +248,7 @@ const props = defineProps<{
   isRootCollection?: boolean
   inheritedProperties?: HoppInheritedProperty
   envs?: AggregateEnvironment[]
+  source: "REST" | "GraphQL"
 }>()
 
 const emit = defineEmits<{

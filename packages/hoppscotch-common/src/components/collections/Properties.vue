@@ -34,6 +34,7 @@
             :is-collection-property="true"
             :is-root-collection="editingProperties?.isRootCollection"
             :inherited-properties="editingProperties?.inheritedProperties"
+            :source="source"
             @generate-o-auth-token="onGenerateOAuthToken"
           />
           <div
@@ -89,6 +90,7 @@ const props = withDefaults(
     show: boolean
     loadingState: boolean
     editingProperties: EditingProperties | null
+    source: "REST" | "GraphQL"
   }>(),
   {
     show: false,
@@ -163,13 +165,14 @@ const hideModal = () => {
 }
 
 const onGenerateOAuthToken = () => {
-  const localConfig = persistenceService.getLocalConfig("oauth_temp_config")
+  const localOAuthTempConfig =
+    persistenceService.getLocalConfig("oauth_temp_config")
 
-  if (!localConfig || !props.editingProperties) {
+  if (!localOAuthTempConfig || !props.editingProperties) {
     return
   }
 
-  const persistedOAuthConfig = JSON.parse(localConfig)
+  const persistedOAuthConfig = JSON.parse(localOAuthTempConfig)
 
   // Write the collection object to `localStorage` to retrieve later while redirecting back post the OAuth flow
   if (persistedOAuthConfig.context.type === "collection-properties") {

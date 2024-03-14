@@ -739,7 +739,7 @@ const onAddRequest = (requestName: string) => {
             saveContext: {
               originLocation: "team-collection",
               requestID: createRequestInCollection.id,
-              collectionID: createRequestInCollection.collection.id,
+              collectionID: path,
               teamID: createRequestInCollection.collection.team.id,
             },
             inheritedProperties: {
@@ -2021,7 +2021,7 @@ const editProperties = (payload: {
         {
           parentID: "",
           parentName: "",
-          inheritedHeaders: [],
+          inheritedHeaders: {},
         },
       ],
     } as HoppInheritedProperty
@@ -2148,8 +2148,7 @@ const setCollectionProperties = (newCollection: {
           auth,
           headers,
         },
-        "rest",
-        "team"
+        "rest"
       )
     }, 200)
   }

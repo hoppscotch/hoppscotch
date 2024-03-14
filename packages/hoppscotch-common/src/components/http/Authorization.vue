@@ -186,7 +186,13 @@
               :envs="envs"
             />
           </div>
-          <HttpOAuth2Authorization v-model="auth" :envs="envs" source="REST" />
+          <HttpOAuth2Authorization
+            v-model="auth"
+            :is-collection-property="isCollectionProperty"
+            :envs="envs"
+            source="REST"
+            @generate-o-auth-token="emit('generateOAuthToken')"
+          />
         </div>
         <div v-if="auth.authType === 'api-key'">
           <HttpAuthorizationApiKey v-model="auth" :envs="envs" />
@@ -228,10 +234,13 @@ import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import { AggregateEnvironment } from "~/newstore/environments"
 
 import { getDefaultAuthCodeOauthFlowParams } from "~/services/oauth/flows/authCode"
+import { PersistenceService } from "~/services/persistence"
+import { useService } from "dioc/vue"
 
 const t = useI18n()
 
 const colorMode = useColorMode()
+const persistenceService = useService(PersistenceService)
 
 const props = defineProps<{
   modelValue: HoppRESTAuth
@@ -243,6 +252,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: "update:modelValue", value: HoppRESTAuth): void
+  (e: "generateOAuthToken"): void
 }>()
 
 const auth = useVModel(props, "modelValue", emit)
@@ -254,6 +264,29 @@ onMounted(() => {
       authActive: true,
     }
   }
+
+  const localOAuthTempConfig =
+    persistenceService.getLocalConfig("oauth_temp_config")
+
+  if (!localOAuthTempConfig || !props.isCollectionProperty) {
+    return
+  }
+
+  const persistedOAuthConfig = JSON.parse(localOAuthTempConfig)
+
+  if (persistedOAuthConfig.context.type === "collection-properties") {
+    auth.value = {
+      ...auth.value,
+      authType: "oauth-2",
+      // Replace any values with the associated env var key if applicable
+      grantTypeInfo: {
+        ...persistedOAuthConfig,
+        grantType: persistedOAuthConfig.grant_type,
+      },
+    }
+  }
+
+  persistenceService.removeLocalConfig("oauth_temp_config")
 })
 
 const AUTH_KEY_NAME = {

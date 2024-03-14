@@ -34,6 +34,7 @@
             :is-collection-property="true"
             :is-root-collection="editingProperties?.isRootCollection"
             :inherited-properties="editingProperties?.inheritedProperties"
+            @generate-o-auth-token="onGenerateOAuthToken"
           />
           <div
             class="bg-bannerInfo px-4 py-2 flex items-center sticky bottom-0"
@@ -70,7 +71,10 @@ import { HoppCollection, HoppRESTAuth, HoppRESTHeaders } from "@hoppscotch/data"
 import { RESTOptionTabs } from "../http/RequestOptions.vue"
 import { clone } from "lodash-es"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
+import { PersistenceService } from "~/services/persistence"
+import { useService } from "dioc/vue"
 
+const persistenceService = useService(PersistenceService)
 const t = useI18n()
 
 type EditingProperties = {
@@ -156,5 +160,32 @@ const saveEditedCollection = () => {
 
 const hideModal = () => {
   emit("hide-modal")
+}
+
+const onGenerateOAuthToken = () => {
+  const localConfig = persistenceService.getLocalConfig("oauth_temp_config")
+
+  if (!localConfig || !props.editingProperties) {
+    return
+  }
+
+  const persistedOAuthConfig = JSON.parse(localConfig)
+
+  // Write the collection object to `localStorage` to retrieve later while redirecting back post the OAuth flow
+  if (persistedOAuthConfig.context.type === "collection-properties") {
+    persistenceService.setLocalConfig(
+      "oauth_temp_config",
+      JSON.stringify({
+        ...persistedOAuthConfig,
+        context: {
+          ...persistedOAuthConfig.context,
+          metadata: {
+            collection: props.editingProperties.collection,
+            collectionID: props.editingProperties.path,
+          },
+        },
+      })
+    )
+  }
 }
 </script>

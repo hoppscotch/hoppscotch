@@ -170,7 +170,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, PropType, ref, watch } from "vue"
+import { computed, nextTick, onMounted, PropType, ref, watch } from "vue"
 import { useToast } from "@composables/toast"
 import { useI18n } from "@composables/i18n"
 import { Picked } from "~/helpers/types/HoppPicked"
@@ -248,6 +248,7 @@ import { useService } from "dioc/vue"
 import { RESTTabService } from "~/services/tab/rest"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import { TeamSearchService } from "~/helpers/teams/TeamsSearch.service"
+import { PersistenceService } from "~/services/persistence"
 
 const t = useI18n()
 const toast = useToast()
@@ -387,6 +388,63 @@ watch(
     immediate: true,
   }
 )
+const persistenceService = useService(PersistenceService)
+
+onMounted(() => {
+  const localConfig = persistenceService.getLocalConfig("oauth_temp_config")
+
+  if (!localConfig) {
+    return
+  }
+
+  const persistedOAuthConfig = JSON.parse(localConfig)
+
+  // If returning from an OAuth redirect, retrieve the persisted information in `localStorage` and display the collection properties modal
+  if (persistedOAuthConfig.context.type === "collection-properties") {
+    const { collection, collectionID } = persistedOAuthConfig.context.metadata
+
+    const parentCollectionID = collectionID.split("/").slice(0, -1).join("/") // remove last folder to get parent folder
+
+    let inheritedProperties = {
+      auth: {
+        parentID: "",
+        parentName: "",
+        inheritedAuth: {
+          authType: "inherit",
+          authActive: true,
+        },
+      },
+      headers: [
+        {
+          parentID: "",
+          parentName: "",
+          inheritedHeader: {},
+        },
+      ],
+    } as HoppInheritedProperty
+
+    if (parentCollectionID) {
+      const { auth, headers } = cascadeParentCollectionForHeaderAuth(
+        parentCollectionID,
+        "rest"
+      )
+
+      inheritedProperties = {
+        auth,
+        headers,
+      }
+    }
+
+    editingProperties.value = {
+      collection,
+      isRootCollection: isAlreadyInRoot(collectionID),
+      path: collectionID,
+      inheritedProperties,
+    }
+
+    showModalEditProperties.value = true
+  }
+})
 
 watch(
   () => myTeams.value,

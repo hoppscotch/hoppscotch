@@ -35,19 +35,19 @@ const initImplicitOauthFlow = async ({
 }: ImplicitOauthFlowParams) => {
   const state = generateRandomString()
 
-  // Get the source (`REST` | `GraphQL`) from where the request originated
   const localConfig = persistenceService.getLocalConfig("oauth_temp_config")
-  const source = localConfig ? { source: JSON.parse(localConfig).source } : {}
+  const persistedOAuthConfig = localConfig ? { ...JSON.parse(localConfig) } : {}
 
-  // persist the state so we can compare it when we get redirected back
-  // also persist the grant_type,tokenEndpoint and clientSecret so we can use them when we get redirected back
+  // Persist the necessary information for retrieval while getting redirected back
   persistenceService.setLocalConfig(
     "oauth_temp_config",
     JSON.stringify({
-      ...source,
+      ...persistedOAuthConfig,
       state,
       grant_type: "IMPLICIT",
       clientID,
+      authEndpoint,
+      scopes,
     })
   )
 

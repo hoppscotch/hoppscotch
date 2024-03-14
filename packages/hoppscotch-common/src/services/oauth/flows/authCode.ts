@@ -67,17 +67,25 @@ const initAuthCodeOauthFlow = async ({
   let oauthTempConfig: {
     state: string
     grant_type: "AUTHORIZATION_CODE"
+    authEndpoint: string
     tokenEndpoint: string
     clientSecret: string
     clientID: string
+    isPKCE: boolean
     codeVerifier?: string
+    codeVerifierMethod?: string
     codeChallenge?: string
+    scopes?: string
   } = {
     state,
     grant_type: "AUTHORIZATION_CODE",
+    authEndpoint,
     tokenEndpoint,
     clientSecret,
     clientID,
+    isPKCE,
+    codeVerifierMethod,
+    scopes,
   }
 
   if (codeVerifier && codeChallenge) {
@@ -88,16 +96,15 @@ const initAuthCodeOauthFlow = async ({
     }
   }
 
-  // Get the source (`REST` | `GraphQL`) from where the request was initiated
   const localConfig = persistenceService.getLocalConfig("oauth_temp_config")
-  const source = localConfig ? { source: JSON.parse(localConfig).source } : {}
+  const persistedOAuthConfig = localConfig ? { ...JSON.parse(localConfig) } : {}
 
   // persist the state so we can compare it when we get redirected back
   // also persist the grant_type,tokenEndpoint and clientSecret so we can use them when we get redirected back
   persistenceService.setLocalConfig(
     "oauth_temp_config",
     JSON.stringify({
-      ...source,
+      ...persistedOAuthConfig,
       ...oauthTempConfig,
     })
   )

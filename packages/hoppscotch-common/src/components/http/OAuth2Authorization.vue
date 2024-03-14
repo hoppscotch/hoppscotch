@@ -138,7 +138,7 @@ import {
 } from "@hoppscotch/data"
 import { useService } from "dioc/vue"
 import * as E from "fp-ts/Either"
-import { Ref, computed, ref } from "vue"
+import { Ref, computed, onMounted, ref } from "vue"
 import { z } from "zod"
 import { useI18n } from "~/composables/i18n"
 import { refWithCallbackOnChange } from "~/composables/ref"
@@ -176,8 +176,13 @@ const restTabsService = useService(RESTTabService)
 
 const props = defineProps<{
   modelValue: HoppRESTAuthOAuth2 | HoppGQLAuthOAuth2
+  isCollectionProperty?: boolean
   envs?: AggregateEnvironment[]
   source: "REST" | "GraphQL"
+}>()
+
+const emit = defineEmits<{
+  (e: "generateOAuthToken"): void
 }>()
 
 const auth = ref(props.modelValue)
@@ -727,6 +732,13 @@ const selectedGrantType = computed(() => {
 })
 
 const setAccessTokenInActiveTab = (accessToken?: string) => {
+  if (accessToken) {
+    auth.value.grantTypeInfo = {
+      ...auth.value.grantTypeInfo,
+      token: accessToken,
+    }
+  }
+
   if (
     props.source === "REST" &&
     restTabsService.currentActiveTab.value.document.request.auth.authType ===
@@ -802,8 +814,18 @@ const generateOAuthToken = async () => {
     JSON.stringify({
       ...(localConfig ? JSON.parse(localConfig) : {}),
       source: props.source,
+      context: props.isCollectionProperty
+        ? { type: "collection-properties", metadata: {} }
+        : { type: "request-tab" },
     })
   )
+
+  // We use this event to instruct the collection level auth/headers modal to write the collection object to `localStorage` that can be retrieved back after the OAuth flow instead
+  // It gets written under the `metadata` field as part of the `context` object
+  // We use this approach to avoid prop drilling
+  if (props.isCollectionProperty) {
+    emit("generateOAuthToken")
+  }
 }
 
 const replaceTemplateStringsInObjectValues = <

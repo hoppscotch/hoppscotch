@@ -215,6 +215,7 @@ import passwordFlow, {
   PasswordFlowParams,
   getDefaultPasswordFlowParams,
 } from "~/services/oauth/flows/password"
+import { grantTypesInvolvingRedirect } from "~/services/oauth/oauth.service"
 import { PersistenceService } from "~/services/persistence"
 import { GQLTabService } from "~/services/tab/graphql"
 import { RESTTabService } from "~/services/tab/rest"
@@ -256,7 +257,10 @@ const supportedGrantTypes = [
       const authEndpoint = refWithCallbackOnChange(
         grantType?.authEndpoint,
         (value) => {
-          auth.value.grantTypeInfo.authEndpoint = value
+          auth.value.grantTypeInfo = {
+            ...auth.value.grantTypeInfo,
+            authEndpoint: value,
+          }
         }
       )
 
@@ -267,12 +271,18 @@ const supportedGrantTypes = [
             return
           }
 
-          auth.value.grantTypeInfo.tokenEndpoint = value
+          auth.value.grantTypeInfo = {
+            ...auth.value.grantTypeInfo,
+            tokenEndpoint: value,
+          }
         }
       )
 
       const clientID = refWithCallbackOnChange(grantType?.clientID, (value) => {
-        auth.value.grantTypeInfo.clientID = value
+        auth.value.grantTypeInfo = {
+          ...auth.value.grantTypeInfo,
+          clientID: value,
+        }
       })
 
       const clientSecret = refWithCallbackOnChange(
@@ -282,14 +292,20 @@ const supportedGrantTypes = [
             return
           }
 
-          auth.value.grantTypeInfo.clientSecret = value
+          auth.value.grantTypeInfo = {
+            ...auth.value.grantTypeInfo,
+            clientSecret: value,
+          }
         }
       )
 
       const scopes = refWithCallbackOnChange(
         grantType?.scopes ? grantType.scopes : undefined,
         (value) => {
-          auth.value.grantTypeInfo.scopes = value
+          auth.value.grantTypeInfo = {
+            ...auth.value.grantTypeInfo,
+            scopes: value,
+          }
         }
       )
 
@@ -300,7 +316,10 @@ const supportedGrantTypes = [
             return
           }
 
-          auth.value.grantTypeInfo.isPKCE = value
+          auth.value.grantTypeInfo = {
+            ...auth.value.grantTypeInfo,
+            isPKCE: value,
+          }
         }
       )
 
@@ -322,7 +341,10 @@ const supportedGrantTypes = [
             return
           }
 
-          auth.value.grantTypeInfo.codeVerifierMethod = value.id
+          auth.value.grantTypeInfo = {
+            ...auth.value.grantTypeInfo,
+            codeVerifierMethod: value.id,
+          }
         }
       )
 
@@ -442,14 +464,20 @@ const supportedGrantTypes = [
       const authEndpoint = refWithCallbackOnChange(
         grantTypeInfo?.authEndpoint,
         (value) => {
-          auth.value.grantTypeInfo.authEndpoint = value
+          auth.value.grantTypeInfo = {
+            ...auth.value.grantTypeInfo,
+            authEndpoint: value,
+          }
         }
       )
 
       const clientID = refWithCallbackOnChange(
         grantTypeInfo?.clientID,
         (value) => {
-          auth.value.grantTypeInfo.clientID = value
+          auth.value.grantTypeInfo = {
+            ...auth.value.grantTypeInfo,
+            clientID: value,
+          }
         }
       )
 
@@ -460,14 +488,20 @@ const supportedGrantTypes = [
             return
           }
 
-          auth.value.grantTypeInfo.clientSecret = value
+          auth.value.grantTypeInfo = {
+            ...auth.value.grantTypeInfo,
+            clientSecret: value,
+          }
         }
       )
 
       const scopes = refWithCallbackOnChange(
         grantTypeInfo?.scopes ? grantTypeInfo.scopes : undefined,
         (value) => {
-          auth.value.grantTypeInfo.scopes = value
+          auth.value.grantTypeInfo = {
+            ...auth.value.grantTypeInfo,
+            scopes: value,
+          }
         }
       )
 
@@ -547,14 +581,20 @@ const supportedGrantTypes = [
       const authEndpoint = refWithCallbackOnChange(
         grantTypeInfo?.authEndpoint,
         (value) => {
-          auth.value.grantTypeInfo.authEndpoint = value
+          auth.value.grantTypeInfo = {
+            ...auth.value.grantTypeInfo,
+            authEndpoint: value,
+          }
         }
       )
 
       const clientID = refWithCallbackOnChange(
         grantTypeInfo?.clientID,
         (value) => {
-          auth.value.grantTypeInfo.clientID = value
+          auth.value.grantTypeInfo = {
+            ...auth.value.grantTypeInfo,
+            clientID: value,
+          }
         }
       )
 
@@ -565,7 +605,10 @@ const supportedGrantTypes = [
             return
           }
 
-          auth.value.grantTypeInfo.clientSecret = value
+          auth.value.grantTypeInfo = {
+            ...auth.value.grantTypeInfo,
+            clientSecret: value,
+          }
         }
       )
 
@@ -583,7 +626,10 @@ const supportedGrantTypes = [
             return
           }
 
-          auth.value.grantTypeInfo.username = value
+          auth.value.grantTypeInfo = {
+            ...auth.value.grantTypeInfo,
+            username: value,
+          }
         }
       )
 
@@ -594,7 +640,10 @@ const supportedGrantTypes = [
             return
           }
 
-          auth.value.grantTypeInfo.password = value
+          auth.value.grantTypeInfo = {
+            ...auth.value.grantTypeInfo,
+            password: value,
+          }
         }
       )
 
@@ -685,21 +734,30 @@ const supportedGrantTypes = [
       const authEndpoint = refWithCallbackOnChange(
         grantTypeInfo?.authEndpoint,
         (value) => {
-          auth.value.grantTypeInfo.authEndpoint = value
+          auth.value.grantTypeInfo = {
+            ...auth.value.grantTypeInfo,
+            authEndpoint: value,
+          }
         }
       )
 
       const clientID = refWithCallbackOnChange(
         grantTypeInfo?.clientID,
         (value) => {
-          auth.value.grantTypeInfo.clientID = value
+          auth.value.grantTypeInfo = {
+            ...auth.value.grantTypeInfo,
+            clientID: value,
+          }
         }
       )
 
       const scopes = refWithCallbackOnChange(
         grantTypeInfo?.scopes ? grantTypeInfo.scopes : undefined,
         (value) => {
-          auth.value.grantTypeInfo.scopes = value
+          auth.value.grantTypeInfo = {
+            ...auth.value.grantTypeInfo,
+            scopes: value,
+          }
         }
       )
 
@@ -786,11 +844,13 @@ const selectedGrantType = computed(() => {
 })
 
 const setAccessTokenInActiveTab = (accessToken?: string) => {
-  if (accessToken) {
+  if (props.isCollectionProperty && accessToken) {
     auth.value.grantTypeInfo = {
       ...auth.value.grantTypeInfo,
       token: accessToken,
     }
+
+    return
   }
 
   if (
@@ -864,10 +924,22 @@ const generateOAuthToken = async () => {
   const localOAuthTempConfig =
     persistenceService.getLocalConfig("oauth_temp_config")
 
+  const persistedOAuthConfig = localOAuthTempConfig
+    ? JSON.parse(localOAuthTempConfig)
+    : {}
+
+  // Only Grant Types involving redirects require persisting associated information
+  if (
+    auth.value.grantTypeInfo.grantType &&
+    !grantTypesInvolvingRedirect.includes(auth.value.grantTypeInfo.grantType)
+  ) {
+    return
+  }
+
   persistenceService.setLocalConfig(
     "oauth_temp_config",
     JSON.stringify({
-      ...(localOAuthTempConfig ? JSON.parse(localOAuthTempConfig) : {}),
+      ...persistedOAuthConfig,
       source: props.source,
       context: props.isCollectionProperty
         ? { type: "collection-properties", metadata: {} }

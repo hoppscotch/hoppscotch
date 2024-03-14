@@ -30,7 +30,7 @@ const AuthCodeOauthFlowParamsSchema = AuthCodeGrantTypeParams.pick({
         params.tokenEndpoint.length >= 1 &&
         params.clientID.length >= 1 &&
         params.clientSecret.length >= 1 &&
-        (params.scopes === undefined || params.scopes.trim().length >= 1)
+        (!params.scopes || params.scopes.trim().length >= 1)
       )
     },
     {

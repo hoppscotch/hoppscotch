@@ -8,6 +8,8 @@ import { getService } from "~/modules/dioc"
 
 const persistenceService = getService(PersistenceService)
 
+export const grantTypesInvolvingRedirect = ["AUTHORIZATION_CODE", "IMPLICIT"]
+
 export const routeOAuthRedirect = async () => {
   // get the temp data from the local storage
   const localOAuthTempConfig =

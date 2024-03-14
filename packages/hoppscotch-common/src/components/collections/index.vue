@@ -401,9 +401,17 @@ onMounted(() => {
 
   const persistedOAuthConfig = JSON.parse(localOAuthTempConfig)
 
+  if (persistedOAuthConfig.source === "GraphQL") {
+    return
+  }
+
   // If returning from an OAuth redirect, retrieve the persisted information in `localStorage` and display the collection properties modal
-  if (persistedOAuthConfig.context.type === "collection-properties") {
+  if (persistedOAuthConfig.context?.type === "collection-properties") {
     const { collection, collectionID } = persistedOAuthConfig.context.metadata
+
+    if (!collection || !collectionID) {
+      return
+    }
 
     const parentCollectionID = collectionID.split("/").slice(0, -1).join("/") // remove last folder to get parent folder
 

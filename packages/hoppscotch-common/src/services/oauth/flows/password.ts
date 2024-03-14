@@ -27,7 +27,7 @@ const PasswordFlowParamsSchema = PasswordGrantTypeParams.pick({
       params.clientSecret.length >= 1 &&
       params.username.length >= 1 &&
       params.password.length >= 1 &&
-      (params.scopes === undefined || params.scopes.length >= 1)
+      (!params.scopes || params.scopes.length >= 1)
     )
   },
   {
@@ -79,7 +79,7 @@ const initPasswordOauthFlow = async ({
 
   const res = await response
 
-  if (E.isLeft(res)) {
+  if (E.isLeft(res) || res.right.status !== 200) {
     toast.error("AUTH_TOKEN_REQUEST_FAILED")
     return E.left("AUTH_TOKEN_REQUEST_FAILED" as const)
   }

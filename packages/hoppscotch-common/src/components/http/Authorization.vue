@@ -179,11 +179,14 @@
         </div>
         <div v-if="auth.authType === 'oauth-2'" class="w-full">
           <div class="flex flex-1 border-b border-dividerLight">
-            <!-- AM-COMMENT: look into this -->
+            <!-- Ensure a new object is assigned here to avoid reactivity issues -->
             <SmartEnvInput
-              v-model="auth.grantTypeInfo.token"
+              :model-value="auth.grantTypeInfo.token"
               placeholder="Token"
               :envs="envs"
+              @update:model-value="
+                auth.grantTypeInfo = { ...auth.grantTypeInfo, token: $event }
+              "
             />
           </div>
           <HttpOAuth2Authorization
@@ -282,11 +285,10 @@ onMounted(() => {
 
   const persistedOAuthConfig = JSON.parse(localOAuthTempConfig)
 
-  if (persistedOAuthConfig.context.type === "collection-properties") {
+  if (persistedOAuthConfig.context?.type === "collection-properties") {
     auth.value = <HoppRESTAuth>{
       ...auth.value,
       authType: "oauth-2",
-      // Replace any values with the associated env var key if applicable
       grantTypeInfo: {
         ...persistedOAuthConfig,
         grantType: persistedOAuthConfig.grant_type,

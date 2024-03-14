@@ -8,17 +8,32 @@ import { getService } from "~/modules/dioc"
 import * as E from "fp-ts/Either"
 import { InterceptorService } from "~/services/interceptor.service"
 import { useToast } from "~/composables/toast"
+import { PasswordGrantTypeParams } from "@hoppscotch/data"
 
 const interceptorService = getService(InterceptorService)
 
-const PasswordFlowParamsSchema = z.object({
-  authEndpoint: z.string().trim().min(1),
-  clientID: z.string().trim().min(1),
-  clientSecret: z.string().trim().min(1),
-  scopes: z.string().trim().min(1).optional(),
-  username: z.string().trim().min(1),
-  password: z.string().trim().min(1),
-})
+const PasswordFlowParamsSchema = PasswordGrantTypeParams.pick({
+  authEndpoint: true,
+  clientID: true,
+  clientSecret: true,
+  scopes: true,
+  username: true,
+  password: true,
+}).refine(
+  (params) => {
+    return (
+      params.authEndpoint.length >= 1 &&
+      params.clientID.length >= 1 &&
+      params.clientSecret.length >= 1 &&
+      params.username.length >= 1 &&
+      params.password.length >= 1 &&
+      (params.scopes === undefined || params.scopes.length >= 1)
+    )
+  },
+  {
+    message: "Minimum length requirement not met for one or more parameters",
+  }
+)
 
 export type PasswordFlowParams = z.infer<typeof PasswordFlowParamsSchema>
 

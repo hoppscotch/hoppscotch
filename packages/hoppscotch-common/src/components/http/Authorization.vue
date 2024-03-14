@@ -242,14 +242,21 @@ const t = useI18n()
 const colorMode = useColorMode()
 const persistenceService = useService(PersistenceService)
 
-const props = defineProps<{
-  modelValue: HoppRESTAuth
-  isCollectionProperty?: boolean
-  isRootCollection?: boolean
-  inheritedProperties?: HoppInheritedProperty
-  envs?: AggregateEnvironment[]
-  source: "REST" | "GraphQL"
-}>()
+const props = withDefaults(
+  defineProps<{
+    modelValue: HoppRESTAuth
+    isCollectionProperty?: boolean
+    isRootCollection?: boolean
+    inheritedProperties?: HoppInheritedProperty
+    envs?: AggregateEnvironment[]
+    source?: "REST" | "GraphQL"
+  }>(),
+  {
+    source: "REST",
+    envs: undefined,
+    inheritedProperties: undefined,
+  }
+)
 
 const emit = defineEmits<{
   (e: "update:modelValue", value: HoppRESTAuth): void
@@ -276,7 +283,7 @@ onMounted(() => {
   const persistedOAuthConfig = JSON.parse(localOAuthTempConfig)
 
   if (persistedOAuthConfig.context.type === "collection-properties") {
-    auth.value = {
+    auth.value = <HoppRESTAuth>{
       ...auth.value,
       authType: "oauth-2",
       // Replace any values with the associated env var key if applicable
@@ -325,7 +332,7 @@ const selectOAuth2AuthType = () => {
     ? existingGrantTypeInfo
     : defaultGrantTypeInfo
 
-  auth.value = {
+  auth.value = <HoppRESTAuth>{
     ...auth.value,
     authType: "oauth-2",
     grantTypeInfo: grantTypeInfo,

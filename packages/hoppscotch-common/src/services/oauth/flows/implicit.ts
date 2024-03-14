@@ -15,6 +15,12 @@ const ImplicitOauthFlowParamsSchema = ImplicitOauthFlowParams.pick({
   authEndpoint: true,
   clientID: true,
   scopes: true,
+}).refine((params) => {
+  return (
+    params.authEndpoint.length >= 1 &&
+    params.clientID.length >= 1 &&
+    (params.scopes === undefined || params.scopes.length >= 1)
+  )
 })
 
 export type ImplicitOauthFlowParams = z.infer<

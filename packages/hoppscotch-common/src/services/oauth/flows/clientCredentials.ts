@@ -19,6 +19,18 @@ const ClientCredentialsFlowParamsSchema = ClientCredentialsGrantTypeParams.pick(
     clientSecret: true,
     scopes: true,
   }
+).refine(
+  (params) => {
+    return (
+      params.authEndpoint.length >= 1 &&
+      params.clientID.length >= 1 &&
+      params.clientSecret.length >= 1 &&
+      (params.scopes === undefined || params.scopes.length >= 1)
+    )
+  },
+  {
+    message: "Minimum length requirement not met for one or more parameters",
+  }
 )
 
 export type ClientCredentialsFlowParams = z.infer<

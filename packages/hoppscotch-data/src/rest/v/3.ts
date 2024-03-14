@@ -12,11 +12,11 @@ import { defineVersion } from "verzod"
 
 export const AuthCodeGrantTypeParams = z.object({
   grantType: z.literal("AUTHORIZATION_CODE"),
-  authEndpoint: z.string().trim().min(1),
-  tokenEndpoint: z.string().trim().min(1),
-  clientID: z.string().trim().min(1),
-  clientSecret: z.string().trim().min(1),
-  scopes: z.string().trim().min(1).optional(),
+  authEndpoint: z.string().trim(),
+  tokenEndpoint: z.string().trim(),
+  clientID: z.string().trim(),
+  clientSecret: z.string().trim(),
+  scopes: z.string().trim().optional(),
   token: z.string().catch(""),
   isPKCE: z.boolean(),
   codeVerifierMethod: z
@@ -26,29 +26,29 @@ export const AuthCodeGrantTypeParams = z.object({
 
 export const ClientCredentialsGrantTypeParams = z.object({
   grantType: z.literal("CLIENT_CREDENTIALS"),
-  authEndpoint: z.string().trim().min(1),
-  clientID: z.string().trim().min(1),
-  clientSecret: z.string().trim().min(1),
-  scopes: z.string().trim().min(1).optional(),
+  authEndpoint: z.string().trim(),
+  clientID: z.string().trim(),
+  clientSecret: z.string().trim(),
+  scopes: z.string().trim().optional(),
   token: z.string().catch(""),
 })
 
 export const PasswordGrantTypeParams = z.object({
   grantType: z.literal("PASSWORD"),
-  authEndpoint: z.string().trim().min(1),
-  clientID: z.string().trim().min(1),
-  clientSecret: z.string().trim().min(1),
-  scopes: z.string().trim().min(1).optional(),
-  username: z.string().trim().min(1),
-  password: z.string().trim().min(1),
+  authEndpoint: z.string().trim(),
+  clientID: z.string().trim(),
+  clientSecret: z.string().trim(),
+  scopes: z.string().trim().optional(),
+  username: z.string().trim(),
+  password: z.string().trim(),
   token: z.string().catch(""),
 })
 
 export const ImplicitOauthFlowParams = z.object({
   grantType: z.literal("IMPLICIT"),
-  authEndpoint: z.string().trim().min(1),
-  clientID: z.string().trim().min(1),
-  scopes: z.string().trim().min(1).optional(),
+  authEndpoint: z.string().trim(),
+  clientID: z.string().trim(),
+  scopes: z.string().trim().optional(),
   token: z.string().catch(""),
 })
 

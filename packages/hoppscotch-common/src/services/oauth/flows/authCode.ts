@@ -22,10 +22,25 @@ const AuthCodeOauthFlowParamsSchema = AuthCodeGrantTypeParams.pick({
   scopes: true,
   isPKCE: true,
   codeVerifierMethod: true,
-}).refine((params) => (params.isPKCE ? !!params.codeVerifierMethod : true), {
-  message: "codeVerifierMethod is required when using PKCE",
-  path: ["codeVerifierMethod"],
 })
+  .refine(
+    (params) => {
+      return (
+        params.authEndpoint.length >= 1 &&
+        params.tokenEndpoint.length >= 1 &&
+        params.clientID.length >= 1 &&
+        params.clientSecret.length >= 1 &&
+        (params.scopes === undefined || params.scopes.trim().length >= 1)
+      )
+    },
+    {
+      message: "Minimum length requirement not met for one or more parameters",
+    }
+  )
+  .refine((params) => (params.isPKCE ? !!params.codeVerifierMethod : true), {
+    message: "codeVerifierMethod is required when using PKCE",
+    path: ["codeVerifierMethod"],
+  })
 
 export type AuthCodeOauthFlowParams = z.infer<
   typeof AuthCodeOauthFlowParamsSchema

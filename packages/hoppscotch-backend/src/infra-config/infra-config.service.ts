@@ -337,7 +337,7 @@ export class InfraConfigService implements OnModuleInit {
           ...updatedInfraConfigDefaultObjs,
           {
             name: InfraConfigEnum.IS_FIRST_TIME_INFRA_SETUP,
-            value: 'true',
+            value: 'false',
           },
         ],
       });

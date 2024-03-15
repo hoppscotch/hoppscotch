@@ -247,7 +247,6 @@ export function runRESTRequest$(
       combineEnvVariables(finalEnvs)
     )
 
-    // AM-COMMENT: check this, this is due to the GqlAuth not updated yet, revist after GqlAuth is updated
     const effectiveRequest = getEffectiveRESTRequest(finalRequest, {
       id: "env-id",
       v: 1,

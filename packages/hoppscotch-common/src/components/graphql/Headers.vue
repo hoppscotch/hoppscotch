@@ -667,7 +667,6 @@ const inheritedProperties = computed(() => {
 
   const computedAuthHeader = getComputedAuthHeaders(
     request.value,
-    // AM-COMMENT: look into this, GQLAuth not yet updated yet issue
     props.inheritedProperties.auth.inheritedAuth
   )[0]
 

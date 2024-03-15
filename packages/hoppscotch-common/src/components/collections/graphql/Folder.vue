@@ -128,10 +128,8 @@
                   :shortcut="['P']"
                   @click="
                     () => {
-                      debugger
                       emit('edit-properties', {
                         collectionIndex: collectionIndex,
-                        // AM-REMINDER: check this line, because collection is not defined anywhere
                         collection: collection,
                       })
                       hide()

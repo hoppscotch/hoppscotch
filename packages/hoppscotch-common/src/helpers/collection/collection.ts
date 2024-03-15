@@ -109,7 +109,6 @@ export function updateSaveContextForAffectedRequests(
     }
   }
 }
-
 /**
  * Used to check the new folder path is close to the save context folder path or not
  * @param folderPathCurrent The path saved as the inherited path in the inherited properties
@@ -123,120 +122,109 @@ function folderPathCloseToSaveContext(
   saveContextPath: string
 ) {
   if (!folderPathCurrent) return newFolderPath
+
   const folderPathCurrentArray = folderPathCurrent.split("/")
   const newFolderPathArray = newFolderPath.split("/")
-
   const saveContextFolderPathArray = saveContextPath.split("/")
 
-  let folderPathCurrentMatch = 0
+  const folderPathCurrentMatch = folderPathCurrentArray.filter(
+    (folder, i) => folder === saveContextFolderPathArray[i]
+  ).length
 
-  for (let i = 0; i < folderPathCurrentArray.length; i++) {
-    if (folderPathCurrentArray[i] === saveContextFolderPathArray[i]) {
-      folderPathCurrentMatch++
+  const newFolderPathMatch = newFolderPathArray.filter(
+    (folder, i) => folder === saveContextFolderPathArray[i]
+  ).length
+
+  return folderPathCurrentMatch > newFolderPathMatch
+    ? folderPathCurrent
+    : newFolderPath
+}
+
+function removeDuplicatesAndKeepLast(arr: HoppInheritedProperty["headers"]) {
+  const keyMap: { [key: string]: number[] } = {} // Map to store array of indices for each key
+
+  // Populate keyMap with the indices of each key
+  arr.forEach((item, index) => {
+    const key = item.inheritedHeader.key
+    if (!(key in keyMap)) {
+      keyMap[key] = []
+    }
+    keyMap[key].push(index)
+  })
+
+  // Create a new array containing only the last occurrence of each key
+  const result = []
+  for (const key in keyMap) {
+    if (Object.prototype.hasOwnProperty.call(keyMap, key)) {
+      const lastIndex = keyMap[key][keyMap[key].length - 1]
+      result.push(arr[lastIndex])
     }
   }
 
-  let newFolderPathMatch = 0
-
-  for (let i = 0; i < newFolderPathArray.length; i++) {
-    if (newFolderPathArray[i] === saveContextFolderPathArray[i]) {
-      newFolderPathMatch++
-    }
-  }
-
-  if (folderPathCurrentMatch > newFolderPathMatch) {
-    return folderPathCurrent
-  }
-  return newFolderPath
+  // Sort the result array based on the parentID
+  result.sort((a, b) => a.parentID.localeCompare(b.parentID))
+  return result
 }
 
 export function updateInheritedPropertiesForAffectedRequests(
   path: string,
   inheritedProperties: HoppInheritedProperty,
-  type: "rest" | "graphql",
-  workspace: "personal" | "team" = "personal"
+  type: "rest" | "graphql"
 ) {
   const tabService =
     type === "rest" ? getService(RESTTabService) : getService(GQLTabService)
 
-  let tabs
-  if (workspace === "personal") {
-    tabs = tabService.getTabsRefTo((tab) => {
-      return (
-        tab.document.saveContext?.originLocation === "user-collection" &&
-        tab.document.saveContext.folderPath.startsWith(path)
-      )
-    })
-  } else {
-    tabs = tabService.getTabsRefTo((tab) => {
-      return (
-        tab.document.saveContext?.originLocation === "team-collection" &&
-        tab.document.saveContext.collectionID?.startsWith(path)
-      )
-    })
-  }
+  const effectedTabs = tabService.getTabsRefTo((tab) => {
+    const saveContext = tab.document.saveContext
 
-  const tabsEffectedByAuth = tabs.filter((tab) => {
-    if (workspace === "personal") {
-      return (
-        tab.value.document.saveContext?.originLocation === "user-collection" &&
-        tab.value.document.saveContext.folderPath.startsWith(path) &&
-        path ===
-          folderPathCloseToSaveContext(
-            tab.value.document.inheritedProperties?.auth.parentID,
-            path,
-            tab.value.document.saveContext.folderPath
-          )
-      )
-    }
+    const saveContextPath =
+      saveContext?.originLocation === "team-collection"
+        ? saveContext.collectionID
+        : saveContext?.folderPath
 
-    return (
-      tab.value.document.saveContext?.originLocation === "team-collection" &&
-      tab.value.document.saveContext.collectionID?.startsWith(path) &&
-      path ===
-        folderPathCloseToSaveContext(
-          tab.value.document.inheritedProperties?.auth.parentID,
-          path,
-          tab.value.document.saveContext.collectionID
-        )
-    )
+    return saveContextPath?.startsWith(path) ?? false
   })
 
-  const tabsEffectedByHeaders = tabs.filter((tab) => {
-    return (
-      tab.value.document.inheritedProperties &&
-      tab.value.document.inheritedProperties.headers.some(
+  effectedTabs.map((tab) => {
+    const inheritedParentID =
+      tab.value.document.inheritedProperties?.auth.parentID
+
+    const contextPath =
+      tab.value.document.saveContext?.originLocation === "team-collection"
+        ? tab.value.document.saveContext.collectionID
+        : tab.value.document.saveContext?.folderPath
+
+    const effectedPath = folderPathCloseToSaveContext(
+      inheritedParentID,
+      path,
+      contextPath ?? ""
+    )
+
+    if (effectedPath === path) {
+      if (tab.value.document.inheritedProperties) {
+        tab.value.document.inheritedProperties.auth = inheritedProperties.auth
+      }
+    }
+
+    if (tab.value.document.inheritedProperties?.headers) {
+      // filter out the headers with the parentID not as the path
+      const headers = tab.value.document.inheritedProperties.headers.filter(
+        (header) => header.parentID !== path
+      )
+
+      // filter out the headers with the parentID as the path in the inheritedProperties
+      const inheritedHeaders = inheritedProperties.headers.filter(
         (header) => header.parentID === path
       )
-    )
-  })
 
-  for (const tab of tabsEffectedByAuth) {
-    tab.value.document.inheritedProperties = inheritedProperties
-  }
+      // merge the headers with the parentID as the path
+      const mergedHeaders = removeDuplicatesAndKeepLast([
+        ...new Set([...inheritedHeaders, ...headers]),
+      ])
 
-  for (const tab of tabsEffectedByHeaders) {
-    const headers = tab.value.document.inheritedProperties?.headers.map(
-      (header) => {
-        if (header.parentID === path) {
-          return {
-            ...header,
-            inheritedHeader: inheritedProperties.headers.find(
-              (inheritedHeader) =>
-                inheritedHeader.inheritedHeader?.key ===
-                header.inheritedHeader?.key
-            )?.inheritedHeader,
-          }
-        }
-        return header
-      }
-    )
-
-    tab.value.document.inheritedProperties = {
-      ...tab.value.document.inheritedProperties,
-      headers,
+      tab.value.document.inheritedProperties.headers = mergedHeaders
     }
-  }
+  })
 }
 
 function resetSaveContextForAffectedRequests(folderPath: string) {

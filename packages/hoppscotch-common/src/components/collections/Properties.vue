@@ -66,19 +66,18 @@
 <script setup lang="ts">
 import { watch, ref } from "vue"
 import { useI18n } from "@composables/i18n"
-import { HoppCollection } from "@hoppscotch/data"
+import { HoppCollection, HoppRESTAuth, HoppRESTHeaders } from "@hoppscotch/data"
 import { RESTOptionTabs } from "../http/RequestOptions.vue"
-import { TeamCollection } from "~/helpers/teams/TeamCollection"
 import { clone } from "lodash-es"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 
 const t = useI18n()
 
 type EditingProperties = {
-  collection: HoppCollection | TeamCollection | null
+  collection: Partial<HoppCollection> | null
   isRootCollection: boolean
   path: string
-  inheritedProperties: HoppInheritedProperty | undefined
+  inheritedProperties?: HoppInheritedProperty
 }
 
 const props = withDefaults(
@@ -95,21 +94,23 @@ const props = withDefaults(
 )
 
 const emit = defineEmits<{
-  (e: "set-collection-properties", newCollection: any): void
+  (
+    e: "set-collection-properties",
+    newCollection: Omit<EditingProperties, "inheritedProperties">
+  ): void
   (e: "hide-modal"): void
 }>()
 
-const editableCollection = ref({
-  body: {
-    contentType: null,
-    body: null,
-  },
+const editableCollection = ref<{
+  headers: HoppRESTHeaders
+  auth: HoppRESTAuth
+}>({
   headers: [],
   auth: {
     authType: "inherit",
     authActive: false,
   },
-}) as any
+})
 
 const selectedOptionTab = ref("headers")
 
@@ -122,17 +123,13 @@ watch(
   (show) => {
     if (show && props.editingProperties?.collection) {
       editableCollection.value.auth = clone(
-        props.editingProperties.collection.auth
+        props.editingProperties.collection.auth as HoppRESTAuth
       )
       editableCollection.value.headers = clone(
-        props.editingProperties.collection.headers
+        props.editingProperties.collection.headers as HoppRESTHeaders
       )
     } else {
       editableCollection.value = {
-        body: {
-          contentType: null,
-          body: null,
-        },
         headers: [],
         auth: {
           authType: "inherit",
@@ -146,7 +143,6 @@ watch(
 const saveEditedCollection = () => {
   if (!props.editingProperties) return
   const finalCollection = clone(editableCollection.value)
-  delete finalCollection.body
   const collection = {
     path: props.editingProperties.path,
     collection: {
@@ -155,7 +151,7 @@ const saveEditedCollection = () => {
     },
     isRootCollection: props.editingProperties.isRootCollection,
   }
-  emit("set-collection-properties", collection)
+  emit("set-collection-properties", collection as EditingProperties)
 }
 
 const hideModal = () => {

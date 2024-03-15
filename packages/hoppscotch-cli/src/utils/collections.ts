@@ -131,7 +131,7 @@ const getCollectionStack = (collections: HoppCollection[]): CollectionStack[] =>
  * path of each request within collection-json file, failed-tests-report, errors,
  * total execution duration for requests, pre-request-scripts, test-scripts.
  * @returns True, if collection runner executed without any errors or failed test-cases.
- * False, if errors occured or test-cases failed.
+ * False, if errors occurred or test-cases failed.
  */
 export const collectionsRunnerResult = (
   requestsReport: RequestReport[]

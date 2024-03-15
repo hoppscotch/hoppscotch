@@ -39,7 +39,7 @@ export function onLoggedIn(exec: (user: HoppUser) => void) {
  * the auth system.
  *
  * NOTE: Unlike `onLoggedIn` for which the callback will be called once on mount with the current state,
- * here the callback will only be called on authentication event occurances.
+ * here the callback will only be called on authentication event occurrences.
  * You might want to check the auth state from an `onMounted` hook or something
  * if you want to access the initial state
  *

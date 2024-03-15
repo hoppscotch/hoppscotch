@@ -283,7 +283,15 @@
         </template>
         <template #emptyNode="{ node }">
           <HoppSmartPlaceholder
-            v-if="node === null"
+            v-if="filterText.length !== 0 && teamCollectionList.length === 0"
+            :text="`${t('state.nothing_found')} ‟${filterText}”`"
+          >
+            <template #icon>
+              <icon-lucide-search class="svg-icons opacity-75" />
+            </template>
+          </HoppSmartPlaceholder>
+          <HoppSmartPlaceholder
+            v-else-if="node === null"
             :src="`/images/states/${colorMode.value}/pack.svg`"
             :alt="`${t('empty.collections')}`"
             :text="t('empty.collections')"
@@ -392,6 +400,11 @@ const props = defineProps({
   collectionsType: {
     type: Object as PropType<CollectionType>,
     default: () => ({ type: "my-collections", selectedTeam: undefined }),
+    required: true,
+  },
+  filterText: {
+    type: String as PropType<string>,
+    default: "",
     required: true,
   },
   teamCollectionList: {

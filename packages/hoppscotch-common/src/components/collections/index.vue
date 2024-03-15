@@ -24,7 +24,6 @@
         autocomplete="off"
         class="flex w-full bg-transparent px-4 py-2 h-8"
         :placeholder="t('action.search')"
-        :disabled="collectionsType.type === 'team-collections'"
       />
     </div>
     <CollectionsMyCollections
@@ -58,8 +57,13 @@
     <CollectionsTeamCollections
       v-else
       :collections-type="collectionsType"
-      :team-collection-list="teamCollectionList"
-      :team-loading-collections="teamLoadingCollections"
+      :team-collection-list="
+        filterTexts.length > 0 ? teamsSearchResults : teamCollectionList
+      "
+      :team-loading-collections="
+        teamLoadingCollections || teamsSearchResultsLoading
+      "
+      :filter-text="filterTexts"
       :export-loading="exportLoading"
       :duplicate-loading="duplicateLoading"
       :save-request="saveRequest"
@@ -199,7 +203,7 @@ import {
   HoppRESTRequest,
   makeCollection,
 } from "@hoppscotch/data"
-import { cloneDeep, isEqual } from "lodash-es"
+import { cloneDeep, debounce, isEqual } from "lodash-es"
 import { GQLError } from "~/helpers/backend/GQLClient"
 import {
   createNewRootCollection,
@@ -240,6 +244,7 @@ import { WorkspaceService } from "~/services/workspace.service"
 import { useService } from "dioc/vue"
 import { RESTTabService } from "~/services/tab/rest"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
+import { TeamSearchService } from "~/helpers/teams/TeamsSearch.service"
 
 const t = useI18n()
 const toast = useToast()
@@ -334,6 +339,29 @@ const teamCollectionList = useReadonlyStream(
 const teamLoadingCollections = useReadonlyStream(
   teamCollectionAdapter.loadingCollections$,
   []
+)
+
+const {
+  cascadeParentCollectionForHeaderAuthForSearchResults,
+  searchTeams,
+  teamsSearchResults,
+  teamsSearchResultsLoading,
+} = useService(TeamSearchService)
+
+watch(
+  filterTexts,
+  (newFilterText) => {
+    if (collectionsType.value.type === "team-collections") {
+      const selectedTeamID = collectionsType.value.selectedTeam?.id
+      const debouncedSearch = debounce(searchTeams, 400)
+
+      selectedTeamID &&
+        debouncedSearch(newFilterText, selectedTeamID)?.catch((_) => {})
+    }
+  },
+  {
+    immediate: true,
+  }
 )
 
 watch(
@@ -1330,13 +1358,25 @@ const selectRequest = (selectedRequest: {
   let possibleTab = null
 
   if (collectionsType.value.type === "team-collections") {
-    const { auth, headers } =
-      teamCollectionAdapter.cascadeParentCollectionForHeaderAuth(folderPath)
+    let inheritedProperties: HoppInheritedProperty | undefined = undefined
 
-    possibleTab = tabs.getTabRefWithSaveContext({
+    if (filterTexts.value.length > 0) {
+      const collectionID = folderPath.split("/").at(-1)
+
+      if (!collectionID) return
+
+      inheritedProperties =
+        cascadeParentCollectionForHeaderAuthForSearchResults(collectionID)
+    } else {
+      inheritedProperties =
+        teamCollectionAdapter.cascadeParentCollectionForHeaderAuth(folderPath)
+    }
+
+    const possibleTab = tabs.getTabRefWithSaveContext({
       originLocation: "team-collection",
       requestID: requestIndex,
     })
+
     if (possibleTab) {
       tabs.setActiveTab(possibleTab.value.id)
     } else {
@@ -1348,10 +1388,7 @@ const selectRequest = (selectedRequest: {
           requestID: requestIndex,
           collectionID: folderPath,
         },
-        inheritedProperties: {
-          auth,
-          headers,
-        },
+        inheritedProperties: inheritedProperties,
       })
     }
   } else {

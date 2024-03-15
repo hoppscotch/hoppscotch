@@ -61,7 +61,7 @@ export default defineVersion({
             isPKCE: false,
             token,
           },
-          addTo: "Headers",
+          addTo: "HEADERS" as const,
         },
       }
     }

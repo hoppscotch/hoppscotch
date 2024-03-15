@@ -145,29 +145,27 @@
               @keyup.escape="hide()"
             >
               <HoppSmartItem
-                :icon="auth.addTo === 'Headers' ? IconCircleDot : IconCircle"
-                :active="auth.addTo === 'Headers'"
-                :label="'Headers'"
-                @click="
-                  () => {
-                    auth.addTo = 'Headers'
-                    hide()
-                  }
-                "
-              />
-              <HoppSmartItem
+                v-for="addToTarget in [
+                  { id: 'header', label: 'Headers', value: 'HEADERS' as const },
+                  {
+                    id: 'query',
+                    label: 'Query Params',
+                    value: 'QUERY_PARAMS' as const,
+                  },
+                ]"
+                :key="addToTarget.id"
+                :label="addToTarget.label"
                 :icon="
-                  auth.addTo === 'Query params' ? IconCircleDot : IconCircle
+                  auth.addTo === addToTarget.value ? IconCircleDot : IconCircle
                 "
-                :active="auth.addTo === 'Query params'"
-                :label="'Query params'"
+                :active="auth.addTo === addToTarget.value"
                 @click="
                   () => {
-                    auth.addTo = 'Query params'
+                    auth.addTo = addToTarget.value
                     hide()
                   }
                 "
-              />
+              ></HoppSmartItem>
             </div>
           </template>
         </tippy>

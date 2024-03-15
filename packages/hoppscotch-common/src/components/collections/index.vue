@@ -347,12 +347,13 @@ const {
   teamsSearchResultsLoading,
 } = useService(TeamSearchService)
 
+const debouncedSearch = debounce(searchTeams, 400)
+
 watch(
   filterTexts,
   (newFilterText) => {
     if (collectionsType.value.type === "team-collections") {
       const selectedTeamID = collectionsType.value.selectedTeam?.id
-      const debouncedSearch = debounce(searchTeams, 400)
 
       selectedTeamID &&
         debouncedSearch(newFilterText, selectedTeamID)?.catch((_) => {})

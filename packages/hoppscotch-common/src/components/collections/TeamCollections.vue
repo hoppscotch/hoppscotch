@@ -283,7 +283,11 @@
         </template>
         <template #emptyNode="{ node }">
           <HoppSmartPlaceholder
-            v-if="filterText.length !== 0 && teamCollectionList.length === 0"
+            v-if="
+              !teamSearchResultsLoading &&
+              filterText.length !== 0 &&
+              teamCollectionList.length === 0
+            "
             :text="`${t('state.nothing_found')} ‟${filterText}”`"
           >
             <template #icon>
@@ -416,6 +420,11 @@ const props = defineProps({
     type: Array as PropType<string[]>,
     default: () => [],
     required: true,
+  },
+  teamSearchResultsLoading: {
+    type: Boolean,
+    default: false,
+    required: false,
   },
   saveRequest: {
     type: Boolean,
@@ -767,7 +776,10 @@ class TeamCollectionsAdapter implements SmartTreeAdapter<TeamCollectionNode> {
   getChildren(id: string | null): Ref<ChildrenResult<TeamCollectionNode>> {
     return computed(() => {
       if (id === null) {
-        if (props.teamLoadingCollections.includes("root")) {
+        if (
+          props.teamLoadingCollections.includes("root") ||
+          props.teamSearchResultsLoading
+        ) {
           return {
             status: "loading",
           }
@@ -791,9 +803,13 @@ class TeamCollectionsAdapter implements SmartTreeAdapter<TeamCollectionNode> {
       const parsedID = id.split("/")[id.split("/").length - 1]
 
       !props.teamLoadingCollections.includes(parsedID) &&
+        !props.teamSearchResultsLoading &&
         emit("expand-team-collection", parsedID)
 
-      if (props.teamLoadingCollections.includes(parsedID)) {
+      if (
+        props.teamLoadingCollections.includes(parsedID) ||
+        props.teamSearchResultsLoading
+      ) {
         return {
           status: "loading",
         }

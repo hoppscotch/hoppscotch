@@ -60,9 +60,8 @@
       :team-collection-list="
         filterTexts.length > 0 ? teamsSearchResults : teamCollectionList
       "
-      :team-loading-collections="
-        teamLoadingCollections || teamsSearchResultsLoading
-      "
+      :team-search-results-loading="teamsSearchResultsLoading"
+      :team-loading-collections="teamLoadingCollections"
       :filter-text="filterTexts"
       :export-loading="exportLoading"
       :duplicate-loading="duplicateLoading"

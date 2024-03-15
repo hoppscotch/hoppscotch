@@ -362,6 +362,7 @@ const selectOAuth2AuthType = () => {
   auth.value = <HoppRESTAuth>{
     ...auth.value,
     authType: "oauth-2",
+    addTo: "HEADERS",
     grantTypeInfo: grantTypeInfo,
   }
 }

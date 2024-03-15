@@ -302,6 +302,7 @@ const selectOAuth2AuthType = () => {
   auth.value = <HoppGQLAuth>{
     ...auth.value,
     authType: "oauth-2",
+    addTo: "HEADERS",
     grantTypeInfo: grantTypeInfo,
   }
 }

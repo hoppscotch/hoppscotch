@@ -917,24 +917,14 @@ const setAccessTokenInActiveTab = (accessToken?: string) => {
     return
   }
 
+  const tabService = props.source === "REST" ? restTabsService : gqlTabsService
+
   if (
-    props.source === "REST" &&
-    restTabsService.currentActiveTab.value.document.request.auth.authType ===
+    tabService.currentActiveTab.value.document.request.auth.authType ===
       "oauth-2" &&
     accessToken
   ) {
-    restTabsService.currentActiveTab.value.document.request.auth.grantTypeInfo.token =
-      accessToken
-
-    return
-  }
-
-  if (
-    gqlTabsService.currentActiveTab.value.document.request.auth.authType ===
-      "oauth-2" &&
-    accessToken
-  ) {
-    gqlTabsService.currentActiveTab.value.document.request.auth.grantTypeInfo.token =
+    tabService.currentActiveTab.value.document.request.auth.grantTypeInfo.token =
       accessToken
   }
 }

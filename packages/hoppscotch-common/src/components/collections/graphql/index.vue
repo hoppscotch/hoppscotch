@@ -146,6 +146,7 @@
       @hide-modal="displayModalImportExport(false)"
     />
     <CollectionsProperties
+      v-model="collectionPropertiesModalActiveTab"
       :show="showModalEditProperties"
       :editing-properties="editingProperties"
       source="GraphQL"
@@ -237,6 +238,8 @@ const filterText = ref("")
 
 const persistenceService = useService(PersistenceService)
 
+const collectionPropertiesModalActiveTab = ref("headers")
+
 onMounted(() => {
   const localOAuthTempConfig =
     persistenceService.getLocalConfig("oauth_temp_config")
@@ -299,6 +302,7 @@ onMounted(() => {
       inheritedProperties,
     }
 
+    collectionPropertiesModalActiveTab.value = "authorization"
     showModalEditProperties.value = true
   }
 })

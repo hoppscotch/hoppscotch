@@ -975,8 +975,6 @@ const currentOAuthGrantTypeFormElements = computed(() => {
 })
 
 const generateOAuthToken = async () => {
-  debugger
-
   const res = await runAction.value?.()
 
   if (res && E.isLeft(res)) {

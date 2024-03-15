@@ -20,7 +20,7 @@ import {
   TEAM_COLL_PARENT_TREE_GEN_FAILED,
 } from '../errors';
 import { PubSubService } from '../pubsub/pubsub.service';
-import { isValidLength } from 'src/utils';
+import { escapeSqlLikeString, isValidLength } from 'src/utils';
 import * as E from 'fp-ts/Either';
 import * as O from 'fp-ts/Option';
 import { Prisma, TeamCollection as DBTeamCollection } from '@prisma/client';
@@ -1125,7 +1125,7 @@ export class TeamCollectionService {
         id: searchResults[i].id,
         path: !fetchedParentTree
           ? []
-          : ([fetchedParentTree.right] as CollectionSearchNode[]),
+          : (fetchedParentTree.right as CollectionSearchNode[]),
       });
     }
 
@@ -1148,14 +1148,20 @@ export class TeamCollectionService {
     skip: number,
   ) {
     const query = Prisma.sql`
-    select id,title,'collection' AS type
-    from "TeamCollection"
-    where "TeamCollection"."teamID"=${teamID}
-    and titlesearch @@ to_tsquery(${searchQuery})
-    order by ts_rank(titlesearch,to_tsquery(${searchQuery}))
-    limit ${take}
+    SELECT
+      id,title,'collection' AS type
+    FROM
+      "TeamCollection"
+    WHERE
+      "TeamCollection"."teamID"=${teamID}
+      AND
+        title ILIKE ${`%${escapeSqlLikeString(searchQuery)}%`}
+    ORDER BY
+      similarity(title, ${searchQuery})
+    LIMIT ${take}
     OFFSET ${skip === 0 ? 0 : (skip - 1) * take};
   `;
+
     try {
       const res = await this.prisma.$queryRaw<SearchQueryReturnType[]>(query);
       return E.right(res);
@@ -1180,12 +1186,17 @@ export class TeamCollectionService {
     skip: number,
   ) {
     const query = Prisma.sql`
-    select id,title,request->>'method' as method,'request' AS type
-    from "TeamRequest"
-    where "TeamRequest"."teamID"=${teamID}
-    and titlesearch @@ to_tsquery(${searchQuery})
-    order by ts_rank(titlesearch,to_tsquery(${searchQuery}))
-    limit ${take}
+    SELECT
+      id,title,request->>'method' as method,'request' AS type
+    FROM
+      "TeamRequest"
+    WHERE
+      "TeamRequest"."teamID"=${teamID}
+      AND
+        title ILIKE ${`%${escapeSqlLikeString(searchQuery)}%`}
+    ORDER BY
+      similarity(title, ${searchQuery})
+    LIMIT ${take}
     OFFSET ${skip === 0 ? 0 : (skip - 1) * take};
   `;
 
@@ -1250,45 +1261,53 @@ export class TeamCollectionService {
    * @returns The parent tree of the parent collections
    */
   private generateParentTree(parentCollections: ParentTreeQueryReturnType[]) {
-    function findChildren(id) {
+    function findChildren(id: string): CollectionSearchNode[] {
       const collection = parentCollections.filter((item) => item.id === id)[0];
       if (collection.parentID == null) {
-        return {
-          id: collection.id,
-          title: collection.title,
-          type: 'collection',
-          path: [],
-        };
+        return <CollectionSearchNode[]>[
+          {
+            id: collection.id,
+            title: collection.title,
+            type: 'collection' as const,
+            path: [],
+          },
+        ];
       }
 
-      const res = {
-        id: collection.id,
-        title: collection.title,
-        type: 'collection',
-        path: findChildren(collection.parentID),
-      };
+      const res = <CollectionSearchNode[]>[
+        {
+          id: collection.id,
+          title: collection.title,
+          type: 'collection' as const,
+          path: findChildren(collection.parentID),
+        },
+      ];
       return res;
     }
 
     if (parentCollections.length > 0) {
       if (parentCollections[0].parentID == null) {
-        return {
+        return <CollectionSearchNode[]>[
+          {
+            id: parentCollections[0].id,
+            title: parentCollections[0].title,
+            type: 'collection',
+            path: [],
+          },
+        ];
+      }
+
+      return <CollectionSearchNode[]>[
+        {
           id: parentCollections[0].id,
           title: parentCollections[0].title,
           type: 'collection',
-          path: [],
-        };
-      }
-
-      return {
-        id: parentCollections[0].id,
-        title: parentCollections[0].title,
-        type: 'collection',
-        path: findChildren(parentCollections[0].parentID),
-      };
+          path: findChildren(parentCollections[0].parentID),
+        },
+      ];
     }
 
-    return null;
+    return <CollectionSearchNode[]>[];
   }
 
   /**

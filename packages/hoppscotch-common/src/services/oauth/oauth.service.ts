@@ -2,9 +2,28 @@ import { Service } from "dioc"
 import { PersistenceService } from "../persistence"
 import { ZodType, z } from "zod"
 import * as E from "fp-ts/Either"
-import authCode from "./flows/authCode"
-import implicit from "./flows/implicit"
+import authCode, { AuthCodeOauthFlowParams } from "./flows/authCode"
+import implicit, { ImplicitOauthFlowParams } from "./flows/implicit"
 import { getService } from "~/modules/dioc"
+import { HoppCollection } from "@hoppscotch/data"
+import { TeamCollection } from "~/helpers/backend/graphql"
+
+export type PersistedOAuthConfig = {
+  source: string
+  context?: {
+    type: "collection-properties" | "request-tab"
+    metadata: {
+      collection?: HoppCollection | TeamCollection
+      collectionID?: string
+    }
+  }
+  grant_type: string
+  fields?: (AuthCodeOauthFlowParams | ImplicitOauthFlowParams) & {
+    state: string
+  }
+  envVarsMap: Record<string, string>
+  token?: string
+}
 
 const persistenceService = getService(PersistenceService)
 

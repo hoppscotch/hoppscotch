@@ -250,6 +250,7 @@ import { RESTTabService } from "~/services/tab/rest"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import { TeamSearchService } from "~/helpers/teams/TeamsSearch.service"
 import { PersistenceService } from "~/services/persistence"
+import { PersistedOAuthConfig } from "~/services/oauth/oauth.service"
 
 const t = useI18n()
 const toast = useToast()
@@ -399,15 +400,16 @@ onMounted(() => {
     return
   }
 
-  const persistedOAuthConfig = JSON.parse(localOAuthTempConfig)
+  const { context, source }: PersistedOAuthConfig =
+    JSON.parse(localOAuthTempConfig)
 
-  if (persistedOAuthConfig.source === "GraphQL") {
+  if (source === "GraphQL") {
     return
   }
 
   // If returning from an OAuth redirect, retrieve the persisted information in `localStorage` and display the collection properties modal
-  if (persistedOAuthConfig.context?.type === "collection-properties") {
-    const { collection, collectionID } = persistedOAuthConfig.context.metadata
+  if (context?.type === "collection-properties") {
+    const { collection, collectionID } = context.metadata
 
     if (!collection || !collectionID) {
       return
@@ -446,7 +448,7 @@ onMounted(() => {
     }
 
     editingProperties.value = {
-      collection,
+      collection: collection as HoppCollection | TeamCollection,
       isRootCollection: isAlreadyInRoot(collectionID),
       path: collectionID,
       inheritedProperties,

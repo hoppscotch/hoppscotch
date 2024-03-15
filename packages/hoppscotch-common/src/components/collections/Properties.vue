@@ -74,7 +74,10 @@ import { clone } from "lodash-es"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import { PersistenceService } from "~/services/persistence"
 import { useService } from "dioc/vue"
-import { grantTypesInvolvingRedirect } from "~/services/oauth/oauth.service"
+import {
+  PersistedOAuthConfig,
+  grantTypesInvolvingRedirect,
+} from "~/services/oauth/oauth.service"
 
 const persistenceService = useService(PersistenceService)
 const t = useI18n()
@@ -173,7 +176,8 @@ const onGenerateOAuthToken = () => {
     return
   }
 
-  const persistedOAuthConfig = JSON.parse(localOAuthTempConfig)
+  const persistedOAuthConfig: PersistedOAuthConfig =
+    JSON.parse(localOAuthTempConfig)
 
   // Only Grant Types involving redirects require persisting associated information
   if (
@@ -184,10 +188,10 @@ const onGenerateOAuthToken = () => {
   }
 
   // Write the collection object to `localStorage` to retrieve later while redirecting back post the OAuth flow
-  if (persistedOAuthConfig.context.type === "collection-properties") {
+  if (persistedOAuthConfig.context?.type === "collection-properties") {
     persistenceService.setLocalConfig(
       "oauth_temp_config",
-      JSON.stringify({
+      JSON.stringify(<PersistedOAuthConfig>{
         ...persistedOAuthConfig,
         context: {
           ...persistedOAuthConfig.context,

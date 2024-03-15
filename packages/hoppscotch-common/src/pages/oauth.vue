@@ -15,7 +15,10 @@ import { RESTTabService } from "~/services/tab/rest"
 
 import { useRouter } from "vue-router"
 
-import { routeOAuthRedirect } from "~/services/oauth/oauth.service"
+import {
+  PersistedOAuthConfig,
+  routeOAuthRedirect,
+} from "~/services/oauth/oauth.service"
 import { PersistenceService } from "~/services/persistence"
 import { GQLTabService } from "~/services/tab/graphql"
 
@@ -74,7 +77,8 @@ onMounted(async () => {
     return
   }
 
-  const persistedOAuthConfig = JSON.parse(localOAuthTempConfig)
+  const persistedOAuthConfig: PersistedOAuthConfig =
+    JSON.parse(localOAuthTempConfig)
 
   const { context, source } = persistedOAuthConfig
 
@@ -87,15 +91,17 @@ onMounted(async () => {
   }
 
   // Indicates the access token generation flow originated from the modal for setting authorization/headers at the collection level
-  if (context.type === "collection-properties") {
+  if (context?.type === "collection-properties") {
     // Set the access token in `localStorage` to retrieve from the modal while redirecting back
     persistenceService.setLocalConfig(
       "oauth_temp_config",
-      JSON.stringify({
+      JSON.stringify(<PersistedOAuthConfig>{
         ...persistedOAuthConfig,
         token: tokenInfo.right.access_token,
       })
     )
+
+    toast.success(t("authorization.oauth.token_fetched_successfully"))
 
     router.push(source === "REST" ? "/" : "/graphql")
     return

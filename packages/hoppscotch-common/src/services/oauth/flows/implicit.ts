@@ -1,6 +1,7 @@
 import { PersistenceService } from "~/services/persistence"
 import {
   OauthAuthService,
+  PersistedOAuthConfig,
   createFlowConfig,
   generateRandomString,
 } from "../oauth.service"
@@ -43,20 +44,23 @@ const initImplicitOauthFlow = async ({
 
   const localOAuthTempConfig =
     persistenceService.getLocalConfig("oauth_temp_config")
-  const persistedOAuthConfig = localOAuthTempConfig
+
+  const persistedOAuthConfig: PersistedOAuthConfig = localOAuthTempConfig
     ? { ...JSON.parse(localOAuthTempConfig) }
     : {}
 
   // Persist the necessary information for retrieval while getting redirected back
   persistenceService.setLocalConfig(
     "oauth_temp_config",
-    JSON.stringify({
+    JSON.stringify(<PersistedOAuthConfig>{
       ...persistedOAuthConfig,
-      state,
+      fields: {
+        clientID,
+        authEndpoint,
+        scopes,
+        state,
+      },
       grant_type: "IMPLICIT",
-      clientID,
-      authEndpoint,
-      scopes,
     })
   )
 
@@ -105,7 +109,9 @@ const handleRedirectForAuthCodeOauthFlow = async (localConfig: string) => {
     clientID: z.string(),
   })
 
-  const decodedLocalConfig = expectedSchema.safeParse(JSON.parse(localConfig))
+  const decodedLocalConfig = expectedSchema.safeParse(
+    JSON.parse(localConfig).fields
+  )
 
   if (!decodedLocalConfig.success) {
     return E.left("INVALID_LOCAL_CONFIG")

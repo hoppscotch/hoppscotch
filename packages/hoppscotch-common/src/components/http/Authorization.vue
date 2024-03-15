@@ -239,6 +239,7 @@ import { AggregateEnvironment } from "~/newstore/environments"
 import { getDefaultAuthCodeOauthFlowParams } from "~/services/oauth/flows/authCode"
 import { PersistenceService } from "~/services/persistence"
 import { useService } from "dioc/vue"
+import { PersistedOAuthConfig } from "~/services/oauth/oauth.service"
 
 const t = useI18n()
 
@@ -283,17 +284,41 @@ onMounted(() => {
     return
   }
 
-  const persistedOAuthConfig = JSON.parse(localOAuthTempConfig)
+  const {
+    context,
+    envVarsMap,
+    fields,
+    grant_type,
+    token,
+  }: PersistedOAuthConfig = JSON.parse(localOAuthTempConfig)
 
-  if (persistedOAuthConfig.context?.type === "collection-properties") {
+  if (context?.type === "collection-properties") {
+    auth.value.authType = "oauth-2"
+
     auth.value = <HoppRESTAuth>{
       ...auth.value,
       authType: "oauth-2",
       grantTypeInfo: {
-        ...persistedOAuthConfig,
-        grantType: persistedOAuthConfig.grant_type,
+        // @ts-expect-error - TS is not able to infer the type semantics here
+        ...auth.value.grantTypeInfo,
+        grant_type,
+        token,
       },
     }
+
+    if (!fields) {
+      return
+    }
+
+    Object.keys(fields).forEach((key) => {
+      if (["state"].includes(key)) {
+        return
+      }
+
+      // @ts-expect-error - TS is not able to infer the type semantics here
+      auth.value.grantTypeInfo[key] =
+        envVarsMap[key] || fields[key as keyof typeof fields]
+    })
   }
 
   persistenceService.removeLocalConfig("oauth_temp_config")

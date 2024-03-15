@@ -215,7 +215,10 @@ import passwordFlow, {
   PasswordFlowParams,
   getDefaultPasswordFlowParams,
 } from "~/services/oauth/flows/password"
-import { grantTypesInvolvingRedirect } from "~/services/oauth/oauth.service"
+import {
+  PersistedOAuthConfig,
+  grantTypesInvolvingRedirect,
+} from "~/services/oauth/oauth.service"
 import { PersistenceService } from "~/services/persistence"
 import { GQLTabService } from "~/services/tab/graphql"
 import { RESTTabService } from "~/services/tab/rest"
@@ -349,18 +352,49 @@ const supportedGrantTypes = [
       )
 
       const runAction = () => {
-        const params: AuthCodeOauthFlowParams =
-          replaceTemplateStringsInObjectValues({
-            authEndpoint: authEndpoint.value,
-            tokenEndpoint: tokenEndpoint.value,
-            clientID: clientID.value,
-            clientSecret: clientSecret.value,
-            scopes: scopes.value,
-            isPKCE: isPKCE.value,
-            codeVerifierMethod: codeChallenge.value?.id,
-          })
+        const params: AuthCodeOauthFlowParams = {
+          authEndpoint: authEndpoint.value,
+          tokenEndpoint: tokenEndpoint.value,
+          clientID: clientID.value,
+          clientSecret: clientSecret.value,
+          scopes: scopes.value,
+          isPKCE: isPKCE.value,
+          codeVerifierMethod: codeChallenge.value?.id,
+        }
 
-        const parsedArgs = authCode.params.safeParse(params)
+        // If any field values refer to environment variables, we store them in local storage to retrieve later
+        const REGEX_ENV_VAR = /<<([^>]*)>>/g
+        const envVarsMap: Record<string, string> = {}
+
+        Object.keys(params).forEach((key) => {
+          const paramValue = params[key as keyof typeof params]
+
+          if (
+            typeof paramValue === "string" &&
+            paramValue.match(REGEX_ENV_VAR)
+          ) {
+            envVarsMap[key] = paramValue.replace(REGEX_ENV_VAR, "<<$1>>")
+          }
+        })
+
+        const localOAuthTempConfig =
+          persistenceService.getLocalConfig("oauth_temp_config")
+
+        const persistedOAuthConfig: PersistedOAuthConfig = localOAuthTempConfig
+          ? JSON.parse(localOAuthTempConfig)
+          : {}
+
+        persistenceService.setLocalConfig(
+          "oauth_temp_config",
+          JSON.stringify(<PersistedOAuthConfig>{
+            ...persistedOAuthConfig,
+            envVarsMap,
+          })
+        )
+
+        const unwrappedParams = replaceTemplateStringsInObjectValues(params)
+
+        const parsedArgs = authCode.params.safeParse(unwrappedParams)
 
         if (!parsedArgs.success) {
           return E.left("VALIDATION_FAILED" as const)
@@ -769,7 +803,39 @@ const supportedGrantTypes = [
             scopes: scopes.value,
           })
 
-        const parsedArgs = implicit.params.safeParse(values)
+        // If any field values refer to environment variables, we store them in local storage to retrieve later
+        const REGEX_ENV_VAR = /<<([^>]*)>>/g
+        const envVarsMap: Record<string, string> = {}
+
+        Object.keys(values).forEach((key) => {
+          const paramValue = values[key as keyof typeof values]
+
+          if (
+            typeof paramValue === "string" &&
+            paramValue.match(REGEX_ENV_VAR)
+          ) {
+            envVarsMap[key] = paramValue.replace(REGEX_ENV_VAR, "$1")
+          }
+        })
+
+        const localOAuthTempConfig =
+          persistenceService.getLocalConfig("oauth_temp_config")
+
+        const persistedOAuthConfig: PersistedOAuthConfig = localOAuthTempConfig
+          ? JSON.parse(localOAuthTempConfig)
+          : {}
+
+        persistenceService.setLocalConfig(
+          "oauth_temp_config",
+          JSON.stringify(<PersistedOAuthConfig>{
+            ...persistedOAuthConfig,
+            envVarsMap,
+          })
+        )
+
+        const unwrappedValues = replaceTemplateStringsInObjectValues(values)
+
+        const parsedArgs = implicit.params.safeParse(unwrappedValues)
 
         if (!parsedArgs.success) {
           return E.left("VALIDATION_FAILED" as const)
@@ -909,6 +975,8 @@ const currentOAuthGrantTypeFormElements = computed(() => {
 })
 
 const generateOAuthToken = async () => {
+  debugger
+
   const res = await runAction.value?.()
 
   if (res && E.isLeft(res)) {
@@ -924,7 +992,7 @@ const generateOAuthToken = async () => {
   const localOAuthTempConfig =
     persistenceService.getLocalConfig("oauth_temp_config")
 
-  const persistedOAuthConfig = localOAuthTempConfig
+  const persistedOAuthConfig: PersistedOAuthConfig = localOAuthTempConfig
     ? JSON.parse(localOAuthTempConfig)
     : {}
 
@@ -938,7 +1006,7 @@ const generateOAuthToken = async () => {
 
   persistenceService.setLocalConfig(
     "oauth_temp_config",
-    JSON.stringify({
+    JSON.stringify(<PersistedOAuthConfig>{
       ...persistedOAuthConfig,
       source: props.source,
       context: props.isCollectionProperty

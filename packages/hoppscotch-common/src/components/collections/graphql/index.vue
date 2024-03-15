@@ -188,6 +188,7 @@ import { updateInheritedPropertiesForAffectedRequests } from "~/helpers/collecti
 import { useToast } from "~/composables/toast"
 import { getRequestsByPath } from "~/helpers/collection/request"
 import { PersistenceService } from "~/services/persistence"
+import { PersistedOAuthConfig } from "~/services/oauth/oauth.service"
 
 const t = useI18n()
 const toast = useToast()
@@ -244,15 +245,16 @@ onMounted(() => {
     return
   }
 
-  const persistedOAuthConfig = JSON.parse(localOAuthTempConfig)
+  const { context, source }: PersistedOAuthConfig =
+    JSON.parse(localOAuthTempConfig)
 
-  if (persistedOAuthConfig.source === "REST") {
+  if (source === "REST") {
     return
   }
 
   // If returning from an OAuth redirect, retrieve the persisted information in `localStorage` and display the collection properties modal
-  if (persistedOAuthConfig.context.type === "collection-properties") {
-    const { collection, collectionID } = persistedOAuthConfig.context.metadata
+  if (context?.type === "collection-properties") {
+    const { collection, collectionID } = context.metadata
 
     if (!collection || !collectionID) {
       return
@@ -291,7 +293,7 @@ onMounted(() => {
     }
 
     editingProperties.value = {
-      collection,
+      collection: collection as HoppCollection,
       isRootCollection: isAlreadyInRoot(collectionID),
       path: collectionID,
       inheritedProperties,

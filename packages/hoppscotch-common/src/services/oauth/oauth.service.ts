@@ -9,7 +9,7 @@ import { HoppCollection } from "@hoppscotch/data"
 import { TeamCollection } from "~/helpers/backend/graphql"
 
 export type PersistedOAuthConfig = {
-  source: string
+  source: "REST" | "GraphQL"
   context?: {
     type: "collection-properties" | "request-tab"
     metadata: {

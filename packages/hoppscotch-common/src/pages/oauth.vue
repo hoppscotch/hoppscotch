@@ -107,31 +107,19 @@ onMounted(async () => {
     return
   }
 
+  const routeToRedirect = source === "GraphQL" ? "/graphql" : "/"
+  const tabService = source === "GraphQL" ? gqlTabs : restTabs
+
   if (
-    source === "REST" &&
-    restTabs.currentActiveTab.value.document.request.auth.authType === "oauth-2"
+    tabService.currentActiveTab.value.document.request.auth.authType ===
+    "oauth-2"
   ) {
-    restTabs.currentActiveTab.value.document.request.auth.grantTypeInfo.token =
+    tabService.currentActiveTab.value.document.request.auth.grantTypeInfo.token =
       tokenInfo.right.access_token
 
     toast.success(t("authorization.oauth.token_fetched_successfully"))
-
-    router.push("/")
-    return
   }
 
-  if (
-    gqlTabs.currentActiveTab.value.document.request.auth.authType === "oauth-2"
-  ) {
-    gqlTabs.currentActiveTab.value.document.request.auth.grantTypeInfo.token =
-      tokenInfo.right.access_token
-
-    toast.success(t("authorization.oauth.token_fetched_successfully"))
-
-    router.push("/graphql")
-    return
-  }
-
-  router.push("/")
+  router.push(routeToRedirect)
 })
 </script>

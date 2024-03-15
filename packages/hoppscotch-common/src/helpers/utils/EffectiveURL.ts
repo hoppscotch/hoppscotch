@@ -18,6 +18,8 @@ import {
   HoppRESTParam,
   parseRawKeyValueEntriesE,
   parseTemplateStringE,
+  HoppRESTAuth,
+  HoppRESTHeaders,
 } from "@hoppscotch/data"
 import { arrayFlatMap, arraySort } from "../functional/array"
 import { toFormData } from "../functional/formData"
@@ -44,7 +46,12 @@ export interface EffectiveHoppRESTRequest extends HoppRESTRequest {
  */
 export const getComputedAuthHeaders = (
   envVars: Environment["variables"],
-  req?: HoppRESTRequest,
+  req?:
+    | HoppRESTRequest
+    | {
+        auth: HoppRESTAuth
+        headers: HoppRESTHeaders
+      },
   auth?: HoppRESTRequest["auth"],
   parse = true
 ) => {
@@ -108,7 +115,12 @@ export const getComputedAuthHeaders = (
  * @returns The list of headers
  */
 export const getComputedBodyHeaders = (
-  req: HoppRESTRequest
+  req:
+    | HoppRESTRequest
+    | {
+        auth: HoppRESTAuth
+        headers: HoppRESTHeaders
+      }
 ): HoppRESTHeader[] => {
   // If a content-type is already defined, that will override this
   if (
@@ -118,8 +130,10 @@ export const getComputedBodyHeaders = (
   )
     return []
 
+  if (!("body" in req)) return []
+
   // Body should have a non-null content-type
-  if (req.body.contentType === null) return []
+  if (!req.body || req.body.contentType === null) return []
 
   return [
     {
@@ -143,7 +157,12 @@ export type ComputedHeader = {
  * @returns The headers that are generated along with the source of that header
  */
 export const getComputedHeaders = (
-  req: HoppRESTRequest,
+  req:
+    | HoppRESTRequest
+    | {
+        auth: HoppRESTAuth
+        headers: HoppRESTHeaders
+      },
   envVars: Environment["variables"],
   parse = true
 ): ComputedHeader[] => {

@@ -292,7 +292,7 @@ const editingRequestIndex = ref<number | null>(null)
 const editingRequestID = ref<string | null>(null)
 
 const editingProperties = ref<{
-  collection: Omit<HoppCollection, "v"> | TeamCollection | null
+  collection: Partial<HoppCollection> | null
   isRootCollection: boolean
   path: string
   inheritedProperties?: HoppInheritedProperty
@@ -2021,7 +2021,7 @@ const editProperties = (payload: {
         {
           parentID: "",
           parentName: "",
-          inheritedHeaders: {},
+          inheritedHeader: {},
         },
       ],
     } as HoppInheritedProperty
@@ -2039,7 +2039,7 @@ const editProperties = (payload: {
     }
 
     editingProperties.value = {
-      collection,
+      collection: collection as Partial<HoppCollection>,
       isRootCollection: isAlreadyInRoot(collectionIndex),
       path: collectionIndex,
       inheritedProperties,
@@ -2083,7 +2083,7 @@ const editProperties = (payload: {
     }
 
     editingProperties.value = {
-      collection: coll,
+      collection: coll as unknown as Partial<HoppCollection>,
       isRootCollection: isAlreadyInRoot(collectionIndex),
       path: collectionIndex,
       inheritedProperties,
@@ -2094,11 +2094,12 @@ const editProperties = (payload: {
 }
 
 const setCollectionProperties = (newCollection: {
-  collection: HoppCollection
-  path: string
+  collection: Partial<HoppCollection> | null
   isRootCollection: boolean
+  path: string
 }) => {
   const { collection, path, isRootCollection } = newCollection
+  if (!collection) return
 
   if (collectionsType.value.type === "my-collections") {
     if (isRootCollection) {

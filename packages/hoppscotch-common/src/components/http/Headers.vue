@@ -307,6 +307,7 @@ import { useColorMode } from "@composables/theming"
 import { computed, reactive, ref, watch } from "vue"
 import { isEqual, cloneDeep } from "lodash-es"
 import {
+  HoppRESTAuth,
   HoppRESTHeader,
   HoppRESTRequest,
   parseRawKeyValueEntriesE,
@@ -364,7 +365,12 @@ const deletionToast = ref<{ goAway: (delay: number) => void } | null>(null)
 
 // v-model integration with props and emit
 const props = defineProps<{
-  modelValue: HoppRESTRequest
+  modelValue:
+    | HoppRESTRequest
+    | {
+        headers: HoppRESTHeader[]
+        auth: HoppRESTAuth
+      }
   isCollectionProperty?: boolean
   inheritedProperties?: HoppInheritedProperty
   envs?: AggregateEnvironment[]

@@ -1,7 +1,12 @@
 <template>
   <div class="flex flex-1 flex-col">
     <div
-      class="sticky top-upperMobileSecondaryStickyFold z-10 flex flex-shrink-0 items-center justify-between overflow-x-auto border-b border-dividerLight bg-primary pl-4 sm:top-upperSecondaryStickyFold"
+      class="sticky z-10 flex flex-shrink-0 items-center justify-between overflow-x-auto border-b border-dividerLight bg-primary pl-4"
+      :class="[
+        isCollectionProperty
+          ? 'top-unset'
+          : 'top-upperMobileSecondaryStickyFold sm:top-upperSecondaryStickyFold',
+      ]"
     >
       <label class="truncate font-semibold text-secondaryLight">
         {{ t("preRequest.javascript_code") }}
@@ -30,7 +35,10 @@
       </div>
     </div>
     <div class="flex flex-1 border-b border-dividerLight">
-      <div class="w-2/3 border-r border-dividerLight h-full relative">
+      <div
+        class="w-2/3 border-r border-dividerLight relative"
+        :class="[isCollectionProperty ? 'h-unset' : 'h-full']"
+      >
         <div ref="preRequestEditor" class="h-full absolute inset-0"></div>
       </div>
       <div
@@ -79,6 +87,7 @@ const t = useI18n()
 
 const props = defineProps<{
   modelValue: string
+  isCollectionProperty?: boolean
 }>()
 const emit = defineEmits<{
   (e: "update:modelValue", value: string): void

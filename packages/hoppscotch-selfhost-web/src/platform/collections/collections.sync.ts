@@ -39,12 +39,31 @@ export const restRequestsMapper = createMapper<string, string>()
 // temp implementation untill the backend implements an endpoint that accepts an entire collection
 // TODO: use importCollectionsJSON to do this
 const recursivelySyncCollections = async (
-  collection: HoppCollection,
+  collection: HoppCollection<HoppRESTRequest>,
   collectionPath: string,
   parentUserCollectionID?: string
 ) => {
-  let parentCollectionID = parentUserCollectionID
+  const stack: {
+    collection: HoppCollection<HoppRESTRequest>
+    collectionPath: string
+    parentUserCollectionID?: string
+  }[] = [{ collection, collectionPath, parentUserCollectionID }]
+  let rootFolderId
 
+  while (stack.length > 0) {
+    const { collection, collectionPath, parentUserCollectionID } = stack.pop()
+
+    let parentCollectionID = parentUserCollectionID
+
+    if (!parentUserCollectionID) {
+      const res = await createRESTRootUserCollection(collection.name)
+
+      if (E.isRight(res)) {
+        parentCollectionID = res.right.createRESTRootUserCollection.id
+        rootFolderId = parentCollectionID
+        console.log(
+          This is parent collection with this id ${parentCollectionID}
+        )
   // if parentUserCollectionID does not exist, create the collection as a root collection
   if (!parentUserCollectionID) {
     const data = {
@@ -71,6 +90,18 @@ const recursivelySyncCollections = async (
             headers: [],
           }
 
+        collection.id = parentCollectionID
+        removeDuplicateRESTCollectionOrFolder(
+          parentCollectionID,
+          collectionPath
+        )
+      } else {
+        parentCollectionID = undefined
+      }
+    } else {
+      console.log(
+        we are in sub-folder/request ${collection.name} which is the child of ${parentUserCollectionID} root is ${rootFolderId}
+      )
       collection.id = parentCollectionID
       collection.auth = returnedData.auth
       collection.headers = returnedData.headers
@@ -88,12 +119,25 @@ const recursivelySyncCollections = async (
       headers: collection.headers ?? [],
     }
 
+      const res = await createRESTChildUserCollection(
+        collection.name,
+        parentUserCollectionID
+      )
     const res = await createRESTChildUserCollection(
       collection.name,
       parentUserCollectionID,
       JSON.stringify(data)
     )
 
+      if (E.isRight(res)) {
+        const childCollectionId = res.right.createRESTChildUserCollection.id
+        collection.id = childCollectionId
+        removeDuplicateRESTCollectionOrFolder(
+          childCollectionId,
+          ${collectionPath}
+        )
+      }
+    }
     if (E.isRight(res)) {
       const childCollectionId = res.right.createRESTChildUserCollection.id
 
@@ -113,39 +157,37 @@ const recursivelySyncCollections = async (
 
       removeDuplicateRESTCollectionOrFolder(
         childCollectionId,
-        `${collectionPath}`
+        ${collectionPath}
       )
     }
   }
 
-  // create the requests
-  if (parentCollectionID) {
-    collection.requests.forEach(async (request) => {
-      const res =
-        parentCollectionID &&
-        (await createRESTUserRequest(
+    if (parentCollectionID) {
+      for (let i = collection.folders.length - 1; i >= 0; i--) {
+        const folder = collection.folders[i]
+        stack.push({
+          collection: folder,
+          collectionPath: ${collectionPath}/${i},
+          parentUserCollectionID: parentCollectionID,
+        })
+      }
+    }
+
+    if (parentCollectionID) {
+      for (let i = collection.requests.length - 1; i >= 0; i--) {
+        const request = collection.requests[i]
+
+        const res = await createRESTUserRequest(
           request.name,
           JSON.stringify(request),
-          parentCollectionID
-        ))
-
-      if (res && E.isRight(res)) {
-        const requestId = res.right.createRESTUserRequest.id
-
-        request.id = requestId
+          collection.id
+        )
+        if (res && E.isRight(res)) {
+          request.id = res.right.createRESTUserRequest.id
+        }
       }
-    })
+    }
   }
-
-  // create the folders aka child collections
-  if (parentCollectionID)
-    collection.folders.forEach(async (folder, index) => {
-      recursivelySyncCollections(
-        folder,
-        `${collectionPath}/${index}`,
-        parentCollectionID
-      )
-    })
 }
 
 // TODO: generalize this

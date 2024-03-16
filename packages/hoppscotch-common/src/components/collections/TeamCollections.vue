@@ -9,7 +9,7 @@
       "
     >
       <HoppButtonSecondary
-        v-if="hasNoTeamAccess"
+        v-if="hasNoTeamAccess || isShowingSearchResults"
         v-tippy="{ theme: 'tooltip' }"
         disabled
         class="!rounded-none"
@@ -36,8 +36,9 @@
           v-if="!saveRequest"
           v-tippy="{ theme: 'tooltip' }"
           :disabled="
-            collectionsType.type === 'team-collections' &&
-            collectionsType.selectedTeam === undefined
+            (collectionsType.type === 'team-collections' &&
+              collectionsType.selectedTeam === undefined) ||
+            isShowingSearchResults
           "
           :icon="IconImport"
           :title="t('modal.import_export')"
@@ -58,7 +59,7 @@
             :collections-type="collectionsType.type"
             :is-open="isOpen"
             :export-loading="exportLoading"
-            :has-no-team-access="hasNoTeamAccess"
+            :has-no-team-access="hasNoTeamAccess || isShowingSearchResults"
             :collection-move-loading="collectionMoveLoading"
             :is-last-item="node.data.isLastItem"
             :is-selected="
@@ -137,7 +138,7 @@
             :collections-type="collectionsType.type"
             :is-open="isOpen"
             :export-loading="exportLoading"
-            :has-no-team-access="hasNoTeamAccess"
+            :has-no-team-access="hasNoTeamAccess || isShowingSearchResults"
             :collection-move-loading="collectionMoveLoading"
             :is-last-item="node.data.isLastItem"
             :is-selected="
@@ -218,7 +219,7 @@
             :collections-type="collectionsType.type"
             :duplicate-loading="duplicateLoading"
             :is-active="isActiveRequest(node.data.data.data.id)"
-            :has-no-team-access="hasNoTeamAccess"
+            :has-no-team-access="hasNoTeamAccess || isShowingSearchResults"
             :request-move-loading="requestMoveLoading"
             :is-last-item="node.data.isLastItem"
             :is-selected="
@@ -457,6 +458,8 @@ const props = defineProps({
     required: false,
   },
 })
+
+const isShowingSearchResults = computed(() => props.filterText.length > 0)
 
 const emit = defineEmits<{
   (

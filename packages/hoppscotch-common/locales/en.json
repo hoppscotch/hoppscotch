@@ -365,6 +365,7 @@
     "authorization": "The authorization header will be automatically generated when you send the request.",
     "collection_properties_authorization": " This authorization will be set for every request in this collection.",
     "collection_properties_header": "This header will be set for every request in this collection.",
+    "collection_properties_pre_request_script": "This pre-request script will be set for every request in this collection.",
     "generate_documentation_first": "Generate documentation first",
     "network_fail": "Unable to reach the API endpoint. Check your network connection or select a different Interceptor and try again.",
     "offline": "You're using Hoppscotch offline. Updates will sync when you're online, based on workspace settings.",

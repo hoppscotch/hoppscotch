@@ -42,6 +42,21 @@
             {{ t("helpers.collection_properties_authorization") }}
           </div>
         </HoppSmartTab>
+        <HoppSmartTab
+          :id="'pre_request_script'"
+          :label="`${t('tab.pre_request_script')}`"
+        >
+          <HttpPreRequestScript
+            v-model="editableCollection.preRequestScript"
+            :is-collection-property="true"
+          />
+          <div
+            class="bg-bannerInfo px-4 py-2 flex items-center sticky bottom-0"
+          >
+            <icon-lucide-info class="svg-icons mr-2" />
+            {{ t("helpers.collection_properties_pre_request_script") }}
+          </div>
+        </HoppSmartTab>
       </HoppSmartTabs>
     </template>
     <template #footer>
@@ -109,6 +124,7 @@ const editableCollection = ref({
     authType: "inherit",
     authActive: false,
   },
+  preRequestScript: "",
 }) as any
 
 const selectedOptionTab = ref("headers")

@@ -1,6 +1,8 @@
 import { ref } from "vue"
 import { runGQLQuery } from "../backend/GQLClient"
 import {
+  GetCollectionChildrenDocument,
+  GetCollectionRequestsDocument,
   GetSingleCollectionDocument,
   GetSingleRequestDocument,
 } from "../backend/graphql"
@@ -31,10 +33,10 @@ type CollectionSearchNode =
     }
 
 function convertToTeamCollection(
-  node: CollectionSearchNode,
+  node: CollectionSearchNode & { isSearchResult?: boolean },
   existingCollections: Record<
     string,
-    TeamCollection & { parentID: string | null }
+    TeamCollection & { parentID: string | null; isSearchResult?: boolean }
   >,
   existingRequests: Record<
     string,
@@ -46,6 +48,7 @@ function convertToTeamCollection(
         name: string
         method: string
       }
+      isSearchResult?: boolean
     }
   >
 ) {
@@ -58,6 +61,7 @@ function convertToTeamCollection(
         name: node.title,
         method: node.method,
       },
+      isSearchResult: node.isSearchResult,
     }
 
     if (node.path[0]) {
@@ -76,6 +80,7 @@ function convertToTeamCollection(
       requests: [],
       data: null,
       parentID: node.path[0]?.id,
+      isSearchResult: node.isSearchResult,
     }
 
     if (node.path[0]) {
@@ -105,6 +110,12 @@ function convertToTeamTree(
       ? collections.find((c) => c.id === collection.parentID)
       : null
 
+    const isAlreadyInserted = parentCollection?.children?.find(
+      (c) => c.id === collection.id
+    )
+
+    if (isAlreadyInserted) return
+
     if (parentCollection) {
       parentCollection.children = parentCollection.children || []
       parentCollection.children.push(collection)
@@ -117,6 +128,12 @@ function convertToTeamTree(
     const parentCollection = collections.find(
       (c) => c.id === request.collectionID
     )
+
+    const isAlreadyInserted = parentCollection?.requests?.find(
+      (r) => r.id === request.id
+    )
+
+    if (isAlreadyInserted) return
 
     if (parentCollection) {
       parentCollection.requests = parentCollection.requests || []
@@ -152,7 +169,7 @@ export class TeamSearchService extends Service {
 
   searchResultsCollections: Record<
     string,
-    TeamCollection & { parentID: string | null }
+    TeamCollection & { parentID: string | null; isSearchResult?: boolean }
   > = {}
 
   searchResultsRequests: Record<
@@ -167,6 +184,8 @@ export class TeamSearchService extends Service {
       }
     }
   > = {}
+
+  private expandingCollections: string[] = []
 
   // FUTURE-TODO: ideally this should return the search results / formatted results instead of directly manipulating the result set
   // eg: do the spotlight formatting in the spotlight searcher and not here
@@ -197,7 +216,14 @@ export class TeamSearchService extends Service {
       searchResults
         .map((node) => {
           const { existingCollections, existingRequests } =
-            convertToTeamCollection(node, {}, {})
+            convertToTeamCollection(
+              {
+                ...node,
+                isSearchResult: true,
+              },
+              {},
+              {}
+            )
 
           return {
             collections: existingCollections,
@@ -416,6 +442,17 @@ export class TeamSearchService extends Service {
   }
 
   expandCollection = async (collectionID: string) => {
+    if (this.expandingCollections.includes(collectionID)) return
+
+    const collectionToExpand = Object.values(
+      this.searchResultsCollections
+    ).find((col) => col.id === collectionID)
+
+    // only allow search result collections to be expanded
+    if (!collectionToExpand || !collectionToExpand.isSearchResult) return
+
+    this.expandingCollections.push(collectionID)
+
     const childCollectionsPromise = getCollectionChildCollections(collectionID)
     const childRequestsPromise = getCollectionChildRequests(collectionID)
 
@@ -463,6 +500,11 @@ export class TeamSearchService extends Service {
       // asserting because we've already added the missing properties after fetching the full details
       Object.values(this.searchResultsRequests) as TeamRequest[]
     )
+
+    // remove the collection after expanding
+    this.expandingCollections = this.expandingCollections.filter(
+      (colID) => colID !== collectionID
+    )
   }
 }
 
@@ -479,6 +521,22 @@ const getSingleRequest = (requestID: string) =>
     query: GetSingleRequestDocument,
     variables: {
       requestID,
+    },
+  })
+
+const getCollectionChildCollections = (collectionID: string) =>
+  runGQLQuery({
+    query: GetCollectionChildrenDocument,
+    variables: {
+      collectionID,
+    },
+  })
+
+const getCollectionChildRequests = (collectionID: string) =>
+  runGQLQuery({
+    query: GetCollectionRequestsDocument,
+    variables: {
+      collectionID,
     },
   })
 

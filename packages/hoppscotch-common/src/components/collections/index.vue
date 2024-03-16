@@ -90,6 +90,7 @@
       @expand-team-collection="expandTeamCollection"
       @display-modal-add="displayModalAdd(true)"
       @display-modal-import-export="displayModalImportExport(true)"
+      @collection-clicked="handleCollectionClick"
     />
     <div
       class="py-15 hidden flex-1 flex-col items-center justify-center bg-primaryDark px-4 text-secondaryLight"
@@ -345,6 +346,7 @@ const {
   searchTeams,
   teamsSearchResults,
   teamsSearchResultsLoading,
+  expandCollection,
 } = useService(TeamSearchService)
 
 const debouncedSearch = debounce(searchTeams, 400)
@@ -390,6 +392,23 @@ const switchToMyCollections = () => {
   collectionsType.value.type = "my-collections"
   collectionsType.value.selectedTeam = undefined
   teamCollectionAdapter.changeTeamID(null)
+}
+
+/**
+ * right now, for search results, we rely on collection click + isOpen to expand the collection
+ */
+const handleCollectionClick = (payload: {
+  collectionID: string
+  isOpen: boolean
+}) => {
+  if (
+    filterTexts.value.length > 0 &&
+    teamsSearchResults.value &&
+    payload.isOpen
+  ) {
+    expandCollection(payload.collectionID)
+    return
+  }
 }
 
 const expandTeamCollection = (collectionID: string) => {

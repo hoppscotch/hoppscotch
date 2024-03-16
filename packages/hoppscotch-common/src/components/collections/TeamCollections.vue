@@ -129,6 +129,14 @@
                     })
               }
             "
+            @click="
+              () => {
+                collectionClicked({
+                  collectionID: node.id,
+                  isOpen: isOpen,
+                })
+              }
+            "
           />
           <CollectionsCollection
             v-if="node.data.type === 'folders'"
@@ -208,6 +216,15 @@
                       pickedType: 'teams-folder',
                       folderID: node.data.data.data.id,
                     })
+              }
+            "
+            @click="
+              () => {
+                collectionClicked({
+                  // for the folders, we get a path, so we need to get the last part of the path which is the folder id
+                  collectionID: node.id.split('/').pop() as string,
+                  isOpen: isOpen,
+                })
               }
             "
           />
@@ -568,6 +585,14 @@ const emit = defineEmits<{
       }
     }
   ): void
+  (
+    event: "collection-clicked",
+    payload: {
+      // if the collection is open or not in the tree
+      isOpen: boolean
+      collectionID: string
+    }
+  ): void
   (event: "select", payload: Picked | null): void
   (event: "expand-team-collection", payload: string): void
   (event: "display-modal-add"): void
@@ -578,6 +603,16 @@ const getPath = (path: string) => {
   const pathArray = path.split("/")
   pathArray.pop()
   return pathArray.join("/")
+}
+
+const collectionClicked = (payload: {
+  collectionID: string
+  isOpen: boolean
+}) => {
+  emit("collection-clicked", {
+    collectionID: payload.collectionID,
+    isOpen: payload.isOpen,
+  })
 }
 
 const teamCollectionsList = toRef(props, "teamCollectionList")

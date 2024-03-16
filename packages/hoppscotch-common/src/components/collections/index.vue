@@ -393,6 +393,15 @@ const switchToMyCollections = () => {
 }
 
 const expandTeamCollection = (collectionID: string) => {
+  if (filterTexts.value.length > 0 && teamsSearchResults.value) {
+    console.group("expandTeamCollection")
+    console.log(collectionID)
+
+    console.groupEnd()
+    // expandCollection(collectionID)
+    return
+  }
+
   teamCollectionAdapter.expandCollection(collectionID)
 }
 

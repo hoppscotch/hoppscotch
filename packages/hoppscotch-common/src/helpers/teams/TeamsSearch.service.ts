@@ -414,6 +414,56 @@ export class TeamSearchService extends Service {
 
     return E.right(existingHeaders)
   }
+
+  expandCollection = async (collectionID: string) => {
+    const childCollectionsPromise = getCollectionChildCollections(collectionID)
+    const childRequestsPromise = getCollectionChildRequests(collectionID)
+
+    const [childCollections, childRequests] = await Promise.all([
+      childCollectionsPromise,
+      childRequestsPromise,
+    ])
+
+    if (E.isLeft(childCollections)) {
+      return
+    }
+
+    if (E.isLeft(childRequests)) {
+      return
+    }
+
+    childCollections.right.collection?.children
+      .map((child) => ({
+        id: child.id,
+        title: child.title,
+        data: child.data ?? null,
+        children: [],
+        requests: [],
+      }))
+      .forEach((child) => {
+        this.searchResultsCollections[child.id] = {
+          ...child,
+          parentID: collectionID,
+        }
+      })
+
+    childRequests.right.requestsInCollection
+      .map((request) => ({
+        id: request.id,
+        collectionID: collectionID,
+        title: request.title,
+        request: JSON.parse(request.request) as TeamRequest["request"],
+      }))
+      .forEach((request) => {
+        this.searchResultsRequests[request.id] = request
+      })
+
+    this.teamsSearchResults.value = convertToTeamTree(
+      Object.values(this.searchResultsCollections),
+      // asserting because we've already added the missing properties after fetching the full details
+      Object.values(this.searchResultsRequests) as TeamRequest[]
+    )
+  }
 }
 
 const getSingleCollection = (collectionID: string) =>

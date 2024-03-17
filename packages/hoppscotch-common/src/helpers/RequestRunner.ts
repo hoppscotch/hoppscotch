@@ -143,6 +143,8 @@ export function runRESTRequest$(
     tab.value.document.request.preRequestScript,
     getCombinedEnvVariables()
   ).then((envs) => {
+    console.log("ENVS??", envs)
+
     if (cancelCalled) return E.left("cancellation" as const)
 
     if (E.isLeft(envs)) {

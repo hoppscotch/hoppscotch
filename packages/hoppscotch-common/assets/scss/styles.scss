@@ -599,3 +599,19 @@ details[open] summary .indicator {
 .gql-operation-highlight {
   @apply opacity-100;
 }
+
+.predefined-variable-highlight {
+  color: inherit;
+  @apply border-2;
+
+  &.predefined-variable-valid {
+    @apply hover:text-accentContrast #{!important};
+    @apply hover:bg-accentDark;
+    @apply border-accent;
+  }
+
+  &.predefined-variable-invalid {
+    @apply hover:bg-red-300;
+    @apply border-red-300;
+  }
+}

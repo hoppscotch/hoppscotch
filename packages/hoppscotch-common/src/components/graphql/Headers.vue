@@ -579,7 +579,7 @@ const getComputedAuthHeaders = (
     })
   } else if (
     request.auth.authType === "bearer" ||
-    (request.auth.authType === "oauth-2" && request.auth.addTo === "Headers")
+    (request.auth.authType === "oauth-2" && request.auth.addTo === "HEADERS")
   ) {
     const requestAuth = request.auth
 

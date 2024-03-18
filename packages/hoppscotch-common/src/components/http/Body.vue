@@ -190,4 +190,21 @@ const isContentTypeAlreadyExist = () => {
 
 // Template refs
 const tippyActions = ref<any | null>(null)
+
+// When the user clicks to change the content type
+@click="
+  () => {
+    // If the selected content type is 'none'
+    if (contentTypeItem === 'none') {
+      // Set the body.contentType to null
+      body.contentType = null
+      // And remove the 'Content-Type' header
+      headers.value = headers.value.filter(header => header.key.toLowerCase() !== 'content-type');
+    } else {
+      // Otherwise, set the body.contentType as usual
+      body.contentType = contentTypeItem
+    }
+    hide()
+  }
+"
 </script>

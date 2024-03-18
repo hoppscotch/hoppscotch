@@ -28,12 +28,31 @@ import {
 
 const defaultRESTReq = getDefaultRESTRequest()
 
+const parseCurlArguments = (curlCommand: string) => {
+  let args: parser.Arguments = parser(curlCommand)
+
+  if (
+    objHasProperty("dataUrlencode", "string")(args) ||
+    objHasProperty("dataUrlencode", "object")(args)
+  ) {
+    const urlEncodedData: string[] = Array.isArray(args.dataUrlencode)
+      ? args.dataUrlencode
+      : [args.dataUrlencode]
+
+    const data = A.map((key: string) => decodeURI(key))(urlEncodedData)
+
+    args = { ...args, d: data }
+  }
+
+  return args
+}
+
 export const parseCurlCommand = (curlCommand: string) => {
   // const isDataBinary = curlCommand.includes(" --data-binary")
   // const compressed = !!parsedArguments.compressed
 
   curlCommand = preProcessCurlCommand(curlCommand)
-  const parsedArguments = parser(curlCommand)
+  const parsedArguments = parseCurlArguments(curlCommand)
 
   const headerObject = getHeaders(parsedArguments)
   const { headers } = headerObject

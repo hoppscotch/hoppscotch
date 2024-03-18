@@ -872,7 +872,7 @@ const samples = [
     command: `curl --location 'https://api.example.net/id/1164/requests' \
     --header 'Accept: application/vnd.test-data.v2.1+json' \
     --header 'Content-Type: application/x-www-form-urlencoded' \
-    --data-urlencode 'data={\"type\":\"test\",\"typeId\":\"101\"}' \
+    --data-urlencode 'data={"type":"test","typeId":"101"}' \
     --data-urlencode 'data2={"type":"test2","typeId":"123"}'`,
     response: makeRESTRequest({
       method: "POST",

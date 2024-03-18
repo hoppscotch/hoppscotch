@@ -60,8 +60,11 @@
       :team-collection-list="
         filterTexts.length > 0 ? teamsSearchResults : teamCollectionList
       "
-      :team-search-results-loading="teamsSearchResultsLoading"
-      :team-loading-collections="teamLoadingCollections"
+      :team-loading-collections="
+        filterTexts.length > 0
+          ? collectionsBeingLoadedFromSearch
+          : teamLoadingCollections
+      "
       :filter-text="filterTexts"
       :export-loading="exportLoading"
       :duplicate-loading="duplicateLoading"
@@ -347,9 +350,28 @@ const {
   teamsSearchResults,
   teamsSearchResultsLoading,
   expandCollection,
+  expandingCollections,
 } = useService(TeamSearchService)
 
+watch(teamsSearchResults, (newSearchResults) => {
+  if (newSearchResults.length === 1 && filterTexts.value.length > 0) {
+    expandCollection(newSearchResults[0].id)
+  }
+})
+
 const debouncedSearch = debounce(searchTeams, 400)
+
+const collectionsBeingLoadedFromSearch = computed(() => {
+  const collections = []
+
+  if (teamsSearchResultsLoading.value) {
+    collections.push("root")
+  }
+
+  collections.push(...expandingCollections.value)
+
+  return collections
+})
 
 watch(
   filterTexts,
@@ -413,11 +435,6 @@ const handleCollectionClick = (payload: {
 
 const expandTeamCollection = (collectionID: string) => {
   if (filterTexts.value.length > 0 && teamsSearchResults.value) {
-    console.group("expandTeamCollection")
-    console.log(collectionID)
-
-    console.groupEnd()
-    // expandCollection(collectionID)
     return
   }
 

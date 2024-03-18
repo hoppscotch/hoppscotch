@@ -14,6 +14,12 @@ import { HoppInheritedProperty } from "../types/HoppInheritedProperties"
 import { TeamRequest } from "./TeamRequest"
 import { Service } from "dioc"
 import axios from "axios"
+import { Ref } from "vue"
+
+type CollectionSearchMeta = {
+  isSearchResult?: boolean
+  insertedWhileExpanding?: boolean
+}
 
 type CollectionSearchNode =
   | {
@@ -32,25 +38,28 @@ type CollectionSearchNode =
       path: CollectionSearchNode[]
     }
 
+type _SearchCollection = TeamCollection & {
+  parentID: string | null
+  meta?: CollectionSearchMeta
+}
+
+type _SearchRequest = {
+  id: string
+  collectionID: string
+  title: string
+  request: {
+    name: string
+    method: string
+  }
+  meta?: CollectionSearchMeta
+}
+
 function convertToTeamCollection(
-  node: CollectionSearchNode & { isSearchResult?: boolean },
-  existingCollections: Record<
-    string,
-    TeamCollection & { parentID: string | null; isSearchResult?: boolean }
-  >,
-  existingRequests: Record<
-    string,
-    {
-      id: string
-      collectionID: string
-      title: string
-      request: {
-        name: string
-        method: string
-      }
-      isSearchResult?: boolean
-    }
-  >
+  node: CollectionSearchNode & {
+    meta?: CollectionSearchMeta
+  },
+  existingCollections: Record<string, _SearchCollection>,
+  existingRequests: Record<string, _SearchRequest>
 ) {
   if (node.type === "request") {
     existingRequests[node.id] = {
@@ -61,7 +70,9 @@ function convertToTeamCollection(
         name: node.title,
         method: node.method,
       },
-      isSearchResult: node.isSearchResult,
+      meta: {
+        isSearchResult: node.meta?.isSearchResult || false,
+      },
     }
 
     if (node.path[0]) {
@@ -80,7 +91,9 @@ function convertToTeamCollection(
       requests: [],
       data: null,
       parentID: node.path[0]?.id,
-      isSearchResult: node.isSearchResult,
+      meta: {
+        isSearchResult: node.meta?.isSearchResult || false,
+      },
     }
 
     if (node.path[0]) {
@@ -167,25 +180,11 @@ export class TeamSearchService extends Service {
     }[]
   >([])
 
-  searchResultsCollections: Record<
-    string,
-    TeamCollection & { parentID: string | null; isSearchResult?: boolean }
-  > = {}
+  searchResultsCollections: Record<string, _SearchCollection> = {}
+  searchResultsRequests: Record<string, _SearchRequest> = {}
 
-  searchResultsRequests: Record<
-    string,
-    {
-      id: string
-      collectionID: string
-      title: string
-      request: {
-        name: string
-        method: string
-      }
-    }
-  > = {}
-
-  private expandingCollections: string[] = []
+  expandingCollections: Ref<string[]> = ref([])
+  expandedCollections: Ref<string[]> = ref([])
 
   // FUTURE-TODO: ideally this should return the search results / formatted results instead of directly manipulating the result set
   // eg: do the spotlight formatting in the spotlight searcher and not here
@@ -198,6 +197,7 @@ export class TeamSearchService extends Service {
 
     this.searchResultsCollections = {}
     this.searchResultsRequests = {}
+    this.expandedCollections.value = []
 
     try {
       const searchResponse = await axios.get(
@@ -219,7 +219,9 @@ export class TeamSearchService extends Service {
             convertToTeamCollection(
               {
                 ...node,
-                isSearchResult: true,
+                meta: {
+                  isSearchResult: true,
+                },
               },
               {},
               {}
@@ -442,16 +444,27 @@ export class TeamSearchService extends Service {
   }
 
   expandCollection = async (collectionID: string) => {
-    if (this.expandingCollections.includes(collectionID)) return
+    if (this.expandingCollections.value.includes(collectionID)) return
 
     const collectionToExpand = Object.values(
       this.searchResultsCollections
     ).find((col) => col.id === collectionID)
 
-    // only allow search result collections to be expanded
-    if (!collectionToExpand || !collectionToExpand.isSearchResult) return
+    const isAlreadyExpanded =
+      this.expandedCollections.value.includes(collectionID)
 
-    this.expandingCollections.push(collectionID)
+    // only allow search result collections to be expanded
+    if (
+      isAlreadyExpanded ||
+      !collectionToExpand ||
+      !(
+        collectionToExpand.meta?.isSearchResult ||
+        collectionToExpand.meta?.insertedWhileExpanding
+      )
+    )
+      return
+
+    this.expandingCollections.value.push(collectionID)
 
     const childCollectionsPromise = getCollectionChildCollections(collectionID)
     const childRequestsPromise = getCollectionChildRequests(collectionID)
@@ -481,6 +494,10 @@ export class TeamSearchService extends Service {
         this.searchResultsCollections[child.id] = {
           ...child,
           parentID: collectionID,
+          meta: {
+            isSearchResult: false,
+            insertedWhileExpanding: true,
+          },
         }
       })
 
@@ -492,7 +509,13 @@ export class TeamSearchService extends Service {
         request: JSON.parse(request.request) as TeamRequest["request"],
       }))
       .forEach((request) => {
-        this.searchResultsRequests[request.id] = request
+        this.searchResultsRequests[request.id] = {
+          ...request,
+          meta: {
+            isSearchResult: false,
+            insertedWhileExpanding: true,
+          },
+        }
       })
 
     this.teamsSearchResults.value = convertToTeamTree(
@@ -502,9 +525,11 @@ export class TeamSearchService extends Service {
     )
 
     // remove the collection after expanding
-    this.expandingCollections = this.expandingCollections.filter(
+    this.expandingCollections.value = this.expandingCollections.value.filter(
       (colID) => colID !== collectionID
     )
+
+    this.expandedCollections.value.push(collectionID)
   }
 }
 

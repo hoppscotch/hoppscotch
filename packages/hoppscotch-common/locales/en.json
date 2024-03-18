@@ -27,7 +27,7 @@
     "hide_secret": "Hide secret",
     "label": "Label",
     "learn_more": "Learn more",
-    "download_now": "Download now",
+    "download_here": "Download here",
     "less": "Less",
     "more": "More",
     "new": "New",
@@ -428,7 +428,7 @@
       "not_found": "Environment variable “{environment}” not found."
     },
     "header": {
-      "cookie": "Download our Hopscotch Desktop App for seamless usage. The browser doesn't allow Hopscotch to set the Cookie Header, use the Authorization Header instead on the browser."
+      "cookie": "The browser doesn't allow Hoppscotch to set Cookie Headers. Please use Authorization Headers instead. However, our Hoppscotch Desktop App is live now and support Cookies."
     },
     "response": {
       "401_error": "Please check your authentication credentials.",

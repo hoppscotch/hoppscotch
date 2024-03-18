@@ -252,6 +252,7 @@ import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import { TeamSearchService } from "~/helpers/teams/TeamsSearch.service"
 import { PersistenceService } from "~/services/persistence"
 import { PersistedOAuthConfig } from "~/services/oauth/oauth.service"
+import { RESTOptionTabs } from "../http/RequestOptions.vue"
 
 const t = useI18n()
 const toast = useToast()
@@ -393,7 +394,7 @@ watch(
 )
 const persistenceService = useService(PersistenceService)
 
-const collectionPropertiesModalActiveTab = ref("headers")
+const collectionPropertiesModalActiveTab = ref<RESTOptionTabs>("headers")
 
 onMounted(() => {
   const localOAuthTempConfig =

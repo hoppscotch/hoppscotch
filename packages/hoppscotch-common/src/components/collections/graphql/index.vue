@@ -190,6 +190,7 @@ import { useToast } from "~/composables/toast"
 import { getRequestsByPath } from "~/helpers/collection/request"
 import { PersistenceService } from "~/services/persistence"
 import { PersistedOAuthConfig } from "~/services/oauth/oauth.service"
+import { GQLOptionTabs } from "~/components/graphql/RequestOptions.vue"
 
 const t = useI18n()
 const toast = useToast()
@@ -238,7 +239,7 @@ const filterText = ref("")
 
 const persistenceService = useService(PersistenceService)
 
-const collectionPropertiesModalActiveTab = ref("headers")
+const collectionPropertiesModalActiveTab = ref<GQLOptionTabs>("headers")
 
 onMounted(() => {
   const localOAuthTempConfig =

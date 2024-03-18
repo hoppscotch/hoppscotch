@@ -868,6 +868,38 @@ const samples = [
       requestVariables: [],
     }),
   },
+  {
+    command: `curl --location 'https://api.example.net/id/1164/requests' \
+    --header 'Accept: application/vnd.test-data.v2.1+json' \
+    --header 'Content-Type: application/x-www-form-urlencoded' \
+    --data-urlencode 'data={\"type\":\"test\",\"typeId\":\"101\"}' \
+    --data-urlencode 'data2={"type":"test2","typeId":"123"}'`,
+    response: makeRESTRequest({
+      method: "POST",
+      name: "Untitled",
+      endpoint: "https://api.example.net/id/1164/requests",
+      auth: {
+        authType: "inherit",
+        authActive: true,
+      },
+      body: {
+        contentType: "application/x-www-form-urlencoded",
+        body: `data: {"type":"test","typeId":"101"}
+data2: {"type":"test2","typeId":"123"}`,
+      },
+      params: [],
+      headers: [
+        {
+          active: true,
+          key: "Accept",
+          value: "application/vnd.test-data.v2.1+json",
+        },
+      ],
+      preRequestScript: "",
+      testScript: "",
+      requestVariables: [],
+    }),
+  },
 ]
 
 describe("Parse curl command to Hopp REST Request", () => {

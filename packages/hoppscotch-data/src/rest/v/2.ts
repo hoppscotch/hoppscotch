@@ -18,7 +18,7 @@ export const HoppRESTRequestVariables = z.array(
 
 export type HoppRESTRequestVariables = z.infer<typeof HoppRESTRequestVariables>
 
-export const V2_SCHEMA = z.object({
+export const V2_SCHEMA = V1_SCHEMA.extend({
   v: z.literal("2"),
   requestVariables: HoppRESTRequestVariables,
 })

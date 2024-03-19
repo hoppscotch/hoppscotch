@@ -158,7 +158,7 @@
                     hide()
                   }
                 "
-              ></HoppSmartItem>
+              />
             </div>
           </template>
         </tippy>
@@ -230,22 +230,16 @@ const props = defineProps<{
   source: "REST" | "GraphQL"
 }>()
 
-const emit = defineEmits<{
-  (e: "generateOAuthToken"): void
-}>()
-
 const auth = ref(props.modelValue)
 
 const addToTargets = [
   {
     id: "HEADERS" as const,
     label: "Headers",
-    value: "Headers",
   },
   {
     id: "QUERY_PARAMS" as const,
     label: "Query Params",
-    value: "Query Params",
   },
 ]
 
@@ -541,7 +535,7 @@ const supportedGrantTypes = [
           return E.left("OAUTH_TOKEN_FETCH_FAILED" as const)
         }
 
-        setAccessTokenInActiveTab(res.right?.access_token)
+        setAccessTokenInActiveContext(res.right?.access_token)
 
         toast.success(t("authorization.oauth.token_fetched_successfully"))
 
@@ -686,7 +680,7 @@ const supportedGrantTypes = [
           return E.left("OAUTH_TOKEN_FETCH_FAILED" as const)
         }
 
-        setAccessTokenInActiveTab(res.right?.access_token)
+        setAccessTokenInActiveContext(res.right?.access_token)
 
         toast.success(t("authorization.oauth.token_fetched_successfully"))
 
@@ -860,7 +854,7 @@ const selectedGrantType = computed(() => {
   )
 })
 
-const setAccessTokenInActiveTab = (accessToken?: string) => {
+const setAccessTokenInActiveContext = (accessToken?: string) => {
   if (props.isCollectionProperty && accessToken) {
     auth.value.grantTypeInfo = {
       ...auth.value.grantTypeInfo,
@@ -916,15 +910,19 @@ const currentOAuthGrantTypeFormElements = computed(() => {
 })
 
 const generateOAuthToken = async () => {
-  persistenceService.setLocalConfig(
-    "oauth_temp_config",
-    JSON.stringify(<PersistedOAuthConfig>{
-      source: props.source,
-      context: props.isCollectionProperty
-        ? { type: "collection-properties", metadata: {} }
-        : { type: "request-tab" },
-    })
-  )
+  if (
+    grantTypesInvolvingRedirect.includes(auth.value.grantTypeInfo.grantType)
+  ) {
+    persistenceService.setLocalConfig(
+      "oauth_temp_config",
+      JSON.stringify(<PersistedOAuthConfig>{
+        source: props.source,
+        context: props.isCollectionProperty
+          ? { type: "collection-properties", metadata: {} }
+          : { type: "request-tab" },
+      })
+    )
+  }
 
   const res = await runAction.value?.()
 

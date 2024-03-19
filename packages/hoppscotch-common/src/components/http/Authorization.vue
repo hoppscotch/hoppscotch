@@ -259,7 +259,6 @@ const props = withDefaults(
 
 const emit = defineEmits<{
   (e: "update:modelValue", value: HoppRESTAuth): void
-  (e: "generateOAuthToken"): void
 }>()
 
 const auth = useVModel(props, "modelValue", emit)

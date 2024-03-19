@@ -424,7 +424,7 @@ onMounted(() => {
       const auth = unsavedCollectionProperties.collection?.auth as HoppRESTAuth
 
       if (auth?.authType === "oauth-2") {
-        const grantTypeInfo = auth?.grantTypeInfo
+        const grantTypeInfo = auth.grantTypeInfo
 
         grantTypeInfo && (grantTypeInfo.token = token ?? "")
       }

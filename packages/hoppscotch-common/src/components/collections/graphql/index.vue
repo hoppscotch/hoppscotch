@@ -251,73 +251,6 @@ onMounted(() => {
     return
   }
 
-  const { context, source }: PersistedOAuthConfig =
-    JSON.parse(localOAuthTempConfig)
-
-  if (source === "REST") {
-    return
-  }
-
-  // If returning from an OAuth redirect, retrieve the persisted information in `localStorage` and display the collection properties modal
-  if (context?.type === "collection-properties") {
-    const { collection, collectionID } = context.metadata
-
-    if (!collection || !collectionID) {
-      return
-    }
-
-    const parentCollectionID = collectionID.split("/").slice(0, -1).join("/") // remove last folder to get parent folder
-
-    let inheritedProperties = {
-      auth: {
-        parentID: "",
-        parentName: "",
-        inheritedAuth: {
-          authType: "inherit",
-          authActive: true,
-        },
-      },
-      headers: [
-        {
-          parentID: "",
-          parentName: "",
-          inheritedHeader: {},
-        },
-      ],
-    } as HoppInheritedProperty
-
-    if (parentCollectionID) {
-      const { auth, headers } = cascadeParentCollectionForHeaderAuth(
-        parentCollectionID,
-        "graphql"
-      )
-
-      inheritedProperties = {
-        auth,
-        headers,
-      }
-    }
-
-    editingProperties.value = {
-      collection: collection as HoppCollection,
-      isRootCollection: isAlreadyInRoot(collectionID),
-      path: collectionID,
-      inheritedProperties,
-    }
-
-    collectionPropertiesModalActiveTab.value = "authorization"
-    showModalEditProperties.value = true
-  }
-})
-
-onMounted(() => {
-  const localOAuthTempConfig =
-    persistenceService.getLocalConfig("oauth_temp_config")
-
-  if (!localOAuthTempConfig) {
-    return
-  }
-
   const { context, source, token }: PersistedOAuthConfig =
     JSON.parse(localOAuthTempConfig)
 
@@ -338,7 +271,7 @@ onMounted(() => {
       const auth = unsavedCollectionProperties.collection?.auth
 
       if (auth?.authType === "oauth-2") {
-        const grantTypeInfo = auth?.grantTypeInfo
+        const grantTypeInfo = auth.grantTypeInfo
 
         grantTypeInfo && (grantTypeInfo.token = token ?? "")
       }

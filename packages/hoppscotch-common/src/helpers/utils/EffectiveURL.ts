@@ -378,8 +378,6 @@ export function getEffectiveRESTRequest(
     }))
   )
 
-  console.log(`Final params are `, effectiveFinalParams)
-
   const effectiveFinalRequestVariables = pipe(
     request.requestVariables,
     A.filter((x) => x.active && x.key !== ""),

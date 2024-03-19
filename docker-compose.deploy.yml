@@ -16,7 +16,7 @@ services:
       target: aio
     environment:
       - DATABASE_URL=postgresql://postgres:testpass@hoppscotch-db:5432/hoppscotch
-      - ENABLE_SUBPATH_BASED_ACCESS=false
+      - ENABLE_SUBPATH_BASED_ACCESS=true
     depends_on:
       hoppscotch-db:
         condition: service_healthy

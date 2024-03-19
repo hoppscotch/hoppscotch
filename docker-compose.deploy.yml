@@ -22,7 +22,7 @@ services:
     depends_on:
       hoppscotch-db:
         condition: service_healthy
-    command: pnpm exec prisma migrate deploy && node /usr/src/app/aio_run.mjs
+    command: ["sh", "-c", "pnpm exec prisma migrate deploy && node /usr/src/app/aio_run.mjs"]
     ports:
       - "3000:3000"
       - "3100:3100"

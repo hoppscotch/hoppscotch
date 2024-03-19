@@ -93,7 +93,7 @@
       @expand-team-collection="expandTeamCollection"
       @display-modal-add="displayModalAdd(true)"
       @display-modal-import-export="displayModalImportExport(true)"
-      @collection-clicked="handleCollectionClick"
+      @collection-click="handleCollectionClick"
     />
     <div
       class="py-15 hidden flex-1 flex-col items-center justify-center bg-primaryDark px-4 text-secondaryLight"
@@ -425,7 +425,7 @@ const handleCollectionClick = (payload: {
 }) => {
   if (
     filterTexts.value.length > 0 &&
-    teamsSearchResults.value &&
+    teamsSearchResults.value.length &&
     payload.isOpen
   ) {
     expandCollection(payload.collectionID)

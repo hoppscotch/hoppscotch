@@ -51,11 +51,11 @@ export class TeamsSpotlightSearcherService
     const scopeHandle = effectScope()
 
     scopeHandle.run(() => {
+      const debouncedSearch = debounce(this.teamsSearch.searchTeams, 400)
+
       watch(
         query,
         (query) => {
-          const debouncedSearch = debounce(this.teamsSearch.searchTeams, 400)
-
           if (this.workspaceService.currentWorkspace.value.type === "team") {
             const teamID = this.workspaceService.currentWorkspace.value.teamID
             debouncedSearch(query, teamID)?.catch((_) => {})

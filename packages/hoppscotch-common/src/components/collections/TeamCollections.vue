@@ -131,9 +131,9 @@
             "
             @click="
               () => {
-                collectionClicked({
+                handleCollectionClick({
                   collectionID: node.id,
-                  isOpen: isOpen,
+                  isOpen,
                 })
               }
             "
@@ -220,10 +220,10 @@
             "
             @click="
               () => {
-                collectionClicked({
+                handleCollectionClick({
                   // for the folders, we get a path, so we need to get the last part of the path which is the folder id
                   collectionID: node.id.split('/').pop() as string,
-                  isOpen: isOpen,
+                  isOpen,
                 })
               }
             "
@@ -577,7 +577,7 @@ const emit = defineEmits<{
     }
   ): void
   (
-    event: "collection-clicked",
+    event: "collection-click",
     payload: {
       // if the collection is open or not in the tree
       isOpen: boolean
@@ -596,13 +596,15 @@ const getPath = (path: string) => {
   return pathArray.join("/")
 }
 
-const collectionClicked = (payload: {
+const handleCollectionClick = (payload: {
   collectionID: string
   isOpen: boolean
 }) => {
-  emit("collection-clicked", {
-    collectionID: payload.collectionID,
-    isOpen: payload.isOpen,
+  const { collectionID, isOpen } = payload
+
+  emit("collection-click", {
+    collectionID,
+    isOpen,
   })
 }
 

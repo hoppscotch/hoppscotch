@@ -201,7 +201,9 @@ export class TeamSearchService extends Service {
 
     try {
       const searchResponse = await axios.get(
-        `${this.endpoint}/team-collection/search/${teamID}/${encodeURIComponent(
+        `${
+          this.endpoint
+        }/team-collection/search/${teamID}?searchQuery=${encodeURIComponent(
           query
         )}}`,
         {

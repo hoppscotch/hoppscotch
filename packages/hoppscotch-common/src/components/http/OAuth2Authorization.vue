@@ -360,36 +360,6 @@ const supportedGrantTypes = [
           codeVerifierMethod: codeChallenge.value?.id,
         }
 
-        // If any field values refer to environment variables, we store them in local storage to retrieve later
-        const REGEX_ENV_VAR = /<<([^>]*)>>/g
-        const envVarsMap: Record<string, string> = {}
-
-        Object.keys(params).forEach((key) => {
-          const paramValue = params[key as keyof typeof params]
-
-          if (
-            typeof paramValue === "string" &&
-            paramValue.match(REGEX_ENV_VAR)
-          ) {
-            envVarsMap[key] = paramValue.replace(REGEX_ENV_VAR, "<<$1>>")
-          }
-        })
-
-        const localOAuthTempConfig =
-          persistenceService.getLocalConfig("oauth_temp_config")
-
-        const persistedOAuthConfig: PersistedOAuthConfig = localOAuthTempConfig
-          ? JSON.parse(localOAuthTempConfig)
-          : {}
-
-        persistenceService.setLocalConfig(
-          "oauth_temp_config",
-          JSON.stringify(<PersistedOAuthConfig>{
-            ...persistedOAuthConfig,
-            envVarsMap,
-          })
-        )
-
         const unwrappedParams = replaceTemplateStringsInObjectValues(params)
 
         const parsedArgs = authCode.params.safeParse(unwrappedParams)
@@ -801,36 +771,6 @@ const supportedGrantTypes = [
             scopes: scopes.value,
           })
 
-        // If any field values refer to environment variables, we store them in local storage to retrieve later
-        const REGEX_ENV_VAR = /<<([^>]*)>>/g
-        const envVarsMap: Record<string, string> = {}
-
-        Object.keys(values).forEach((key) => {
-          const paramValue = values[key as keyof typeof values]
-
-          if (
-            typeof paramValue === "string" &&
-            paramValue.match(REGEX_ENV_VAR)
-          ) {
-            envVarsMap[key] = paramValue.replace(REGEX_ENV_VAR, "$1")
-          }
-        })
-
-        const localOAuthTempConfig =
-          persistenceService.getLocalConfig("oauth_temp_config")
-
-        const persistedOAuthConfig: PersistedOAuthConfig = localOAuthTempConfig
-          ? JSON.parse(localOAuthTempConfig)
-          : {}
-
-        persistenceService.setLocalConfig(
-          "oauth_temp_config",
-          JSON.stringify(<PersistedOAuthConfig>{
-            ...persistedOAuthConfig,
-            envVarsMap,
-          })
-        )
-
         const unwrappedValues = replaceTemplateStringsInObjectValues(values)
 
         const parsedArgs = implicit.params.safeParse(unwrappedValues)
@@ -963,6 +903,16 @@ const currentOAuthGrantTypeFormElements = computed(() => {
 })
 
 const generateOAuthToken = async () => {
+  persistenceService.setLocalConfig(
+    "oauth_temp_config",
+    JSON.stringify(<PersistedOAuthConfig>{
+      source: props.source,
+      context: props.isCollectionProperty
+        ? { type: "collection-properties", metadata: {} }
+        : { type: "request-tab" },
+    })
+  )
+
   const res = await runAction.value?.()
 
   if (res && E.isLeft(res)) {
@@ -973,39 +923,6 @@ const generateOAuthToken = async () => {
 
     toast.error(errorMessages[res.left])
     return
-  }
-
-  const localOAuthTempConfig =
-    persistenceService.getLocalConfig("oauth_temp_config")
-
-  const persistedOAuthConfig: PersistedOAuthConfig = localOAuthTempConfig
-    ? JSON.parse(localOAuthTempConfig)
-    : {}
-
-  // Only Grant Types involving redirects require persisting associated information
-  if (
-    auth.value.grantTypeInfo.grantType &&
-    !grantTypesInvolvingRedirect.includes(auth.value.grantTypeInfo.grantType)
-  ) {
-    return
-  }
-
-  persistenceService.setLocalConfig(
-    "oauth_temp_config",
-    JSON.stringify(<PersistedOAuthConfig>{
-      ...persistedOAuthConfig,
-      source: props.source,
-      context: props.isCollectionProperty
-        ? { type: "collection-properties", metadata: {} }
-        : { type: "request-tab" },
-    })
-  )
-
-  // We use this event to instruct the collection level auth/headers modal to write the collection object to `localStorage` that can be retrieved back after the OAuth 2.0 flow for generating an access token
-  // It gets written under the `metadata` field as part of the `context` object
-  // We use this approach to avoid prop drilling
-  if (props.isCollectionProperty) {
-    emit("generateOAuthToken")
   }
 }
 

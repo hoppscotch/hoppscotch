@@ -34,7 +34,6 @@
             :is-root-collection="editingProperties?.isRootCollection"
             :inherited-properties="editingProperties?.inheritedProperties"
             :source="source"
-            @generate-o-auth-token="onGenerateOAuthToken"
           />
           <div
             class="bg-bannerInfo px-4 py-2 flex items-center sticky bottom-0"
@@ -82,7 +81,7 @@ import { useVModel } from "@vueuse/core"
 const persistenceService = useService(PersistenceService)
 const t = useI18n()
 
-type EditingProperties = {
+export type EditingProperties = {
   collection: Partial<HoppCollection> | null
   isRootCollection: boolean
   path: string
@@ -124,6 +123,26 @@ const editableCollection = ref<{
   },
 })
 
+watch(
+  editableCollection,
+  (updatedEditableCollection) => {
+    if (props.show) {
+      persistenceService.setLocalConfig(
+        "unsaved_collection_properties",
+        JSON.stringify(<EditingProperties>{
+          collection: updatedEditableCollection,
+          isRootCollection: props.editingProperties?.isRootCollection,
+          path: props.editingProperties?.path,
+          inheritedProperties: props.editingProperties?.inheritedProperties,
+        })
+      )
+    }
+  },
+  {
+    deep: true,
+  }
+)
+
 const activeTab = useVModel(props, "modelValue", emit)
 
 watch(
@@ -144,6 +163,8 @@ watch(
           authActive: false,
         },
       }
+
+      persistenceService.removeLocalConfig("unsaved_collection_properties")
     }
   }
 )
@@ -160,46 +181,11 @@ const saveEditedCollection = () => {
     isRootCollection: props.editingProperties.isRootCollection,
   }
   emit("set-collection-properties", collection as EditingProperties)
+  persistenceService.removeLocalConfig("unsaved_collection_properties")
 }
 
 const hideModal = () => {
+  persistenceService.removeLocalConfig("unsaved_collection_properties")
   emit("hide-modal")
-}
-
-const onGenerateOAuthToken = () => {
-  const localOAuthTempConfig =
-    persistenceService.getLocalConfig("oauth_temp_config")
-
-  if (!localOAuthTempConfig || !props.editingProperties) {
-    return
-  }
-
-  const persistedOAuthConfig: PersistedOAuthConfig =
-    JSON.parse(localOAuthTempConfig)
-
-  // Only Grant Types involving redirects require persisting associated information
-  if (
-    persistedOAuthConfig.grant_type &&
-    !grantTypesInvolvingRedirect.includes(persistedOAuthConfig.grant_type)
-  ) {
-    return
-  }
-
-  // Write the collection object to `localStorage` to retrieve later while redirecting back post the OAuth flow
-  if (persistedOAuthConfig.context?.type === "collection-properties") {
-    persistenceService.setLocalConfig(
-      "oauth_temp_config",
-      JSON.stringify(<PersistedOAuthConfig>{
-        ...persistedOAuthConfig,
-        context: {
-          ...persistedOAuthConfig.context,
-          metadata: {
-            collection: props.editingProperties.collection,
-            collectionID: props.editingProperties.path,
-          },
-        },
-      })
-    )
-  }
 }
 </script>

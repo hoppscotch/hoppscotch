@@ -253,6 +253,7 @@ import { TeamSearchService } from "~/helpers/teams/TeamsSearch.service"
 import { PersistenceService } from "~/services/persistence"
 import { PersistedOAuthConfig } from "~/services/oauth/oauth.service"
 import { RESTOptionTabs } from "../http/RequestOptions.vue"
+import { EditingProperties } from "./Properties.vue"
 
 const t = useI18n()
 const toast = useToast()
@@ -404,60 +405,39 @@ onMounted(() => {
     return
   }
 
-  const { context, source }: PersistedOAuthConfig =
+  const { context, source, token }: PersistedOAuthConfig =
     JSON.parse(localOAuthTempConfig)
 
   if (source === "GraphQL") {
     return
   }
 
-  // If returning from an OAuth redirect, retrieve the persisted information in `localStorage` and display the collection properties modal
   if (context?.type === "collection-properties") {
-    const { collection, collectionID } = context.metadata
+    // load the unsaved editing properties
+    const unsavedCollectionPropertiesString = persistenceService.getLocalConfig(
+      "unsaved_collection_properties"
+    )
 
-    if (!collection || !collectionID) {
-      return
-    }
+    if (unsavedCollectionPropertiesString) {
+      const unsavedCollectionProperties = JSON.parse(
+        unsavedCollectionPropertiesString
+      ) as EditingProperties
 
-    const parentCollectionID = collectionID.split("/").slice(0, -1).join("/") // remove last folder to get parent folder
+      // casting because the type `EditingProperties["collection"]["auth"] and the usage in Properties.vue is different. there it's casted as an any.
+      // FUTURE-TODO: look into this
+      // @ts-expect-error because of the above reason
+      const auth = unsavedCollectionProperties.collection?.auth as HoppRESTAuth
 
-    let inheritedProperties = {
-      auth: {
-        parentID: "",
-        parentName: "",
-        inheritedAuth: {
-          authType: "inherit",
-          authActive: true,
-        },
-      },
-      headers: [
-        {
-          parentID: "",
-          parentName: "",
-          inheritedHeader: {},
-        },
-      ],
-    } as HoppInheritedProperty
+      if (auth?.authType === "oauth-2") {
+        const grantTypeInfo = auth?.grantTypeInfo
 
-    if (parentCollectionID) {
-      const { auth, headers } = cascadeParentCollectionForHeaderAuth(
-        parentCollectionID,
-        "rest"
-      )
-
-      inheritedProperties = {
-        auth,
-        headers,
+        grantTypeInfo && (grantTypeInfo.token = token ?? "")
       }
+
+      editingProperties.value = unsavedCollectionProperties
     }
 
-    editingProperties.value = {
-      collection: collection as HoppCollection | TeamCollection,
-      isRootCollection: isAlreadyInRoot(collectionID),
-      path: collectionID,
-      inheritedProperties,
-    }
-
+    persistenceService.removeLocalConfig("oauth_temp_config")
     collectionPropertiesModalActiveTab.value = "authorization"
     showModalEditProperties.value = true
   }

@@ -21,7 +21,6 @@ export type PersistedOAuthConfig = {
   fields?: (AuthCodeOauthFlowParams | ImplicitOauthFlowParams) & {
     state: string
   }
-  envVarsMap: Record<string, string>
   token?: string
 }
 

@@ -191,6 +191,7 @@ import { getRequestsByPath } from "~/helpers/collection/request"
 import { PersistenceService } from "~/services/persistence"
 import { PersistedOAuthConfig } from "~/services/oauth/oauth.service"
 import { GQLOptionTabs } from "~/components/graphql/RequestOptions.vue"
+import { EditingProperties } from "../Properties.vue"
 
 const t = useI18n()
 const toast = useToast()
@@ -303,6 +304,53 @@ onMounted(() => {
       inheritedProperties,
     }
 
+    collectionPropertiesModalActiveTab.value = "authorization"
+    showModalEditProperties.value = true
+  }
+})
+
+onMounted(() => {
+  const localOAuthTempConfig =
+    persistenceService.getLocalConfig("oauth_temp_config")
+
+  if (!localOAuthTempConfig) {
+    return
+  }
+
+  const { context, source, token }: PersistedOAuthConfig =
+    JSON.parse(localOAuthTempConfig)
+
+  if (source === "REST") {
+    return
+  }
+
+  if (context?.type === "collection-properties") {
+    // load the unsaved editing properties
+    const unsavedCollectionPropertiesString = persistenceService.getLocalConfig(
+      "unsaved_collection_properties"
+    )
+
+    if (unsavedCollectionPropertiesString) {
+      const unsavedCollectionProperties = JSON.parse(
+        unsavedCollectionPropertiesString
+      ) as EditingProperties
+
+      // casting because the type `EditingProperties["collection"]["auth"] and the usage in Properties.vue is different. there it's casted as an any.
+      // FUTURE-TODO: look into this
+      // @ts-expect-error because of the above reason
+      const auth = unsavedCollectionProperties.collection?.auth as HoppRESTAuth
+
+      if (auth?.authType === "oauth-2") {
+        const grantTypeInfo = auth?.grantTypeInfo
+
+        grantTypeInfo && (grantTypeInfo.token = token ?? "")
+      }
+
+      // @ts-expect-error the collection type is incorrect in the EditingProperties type, this is out of scope now
+      editingProperties.value = unsavedCollectionProperties
+    }
+
+    persistenceService.removeLocalConfig("oauth_temp_config")
     collectionPropertiesModalActiveTab.value = "authorization"
     showModalEditProperties.value = true
   }

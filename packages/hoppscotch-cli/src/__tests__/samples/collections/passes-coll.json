@@ -5,7 +5,7 @@
     "folders": [],
     "requests": [
       {
-        "v": "2",
+        "v": "3",
         "endpoint": "https://echo.hoppscotch.io/<<HEADERS_TYPE1>>",
         "name": "",
         "params": [],
@@ -13,10 +13,7 @@
         "method": "GET",
         "auth": {
           "authType": "none",
-          "authActive": true,
-          "addTo": "Headers",
-          "key": "",
-          "value": ""
+          "authActive": true
         },
         "preRequestScript": "pw.env.set(\"HEADERS_TYPE1\", \"devblin_local1\");",
         "testScript": "// Check status code is 200\npw.test(\"Status code is 200\", ()=> {\n    pw.expect(pw.response.status).toBe(200);\n});\n\n// Check JSON response property\npw.test(\"Check JSON response property\", ()=> {\n    pw.expect(pw.response.body.method).toBe(\"GET\");\n    pw.expect(pw.response.body.headers).toBeType(\"object\");\n});",
@@ -27,7 +24,7 @@
         "requestVariables": []
       },
       {
-        "v": "2",
+        "v": "3",
         "endpoint": "https://echo.hoppscotch.io/<<HEADERS_TYPE2>>",
         "name": "success",
         "params": [],
@@ -35,10 +32,7 @@
         "method": "GET",
         "auth": {
           "authType": "none",
-          "authActive": true,
-          "addTo": "Headers",
-          "key": "",
-          "value": ""
+          "authActive": true
         },
         "preRequestScript": "pw.env.set(\"HEADERS_TYPE2\", \"devblin_local2\");",
         "testScript": "// Check status code is 200\npw.test(\"Status code is 200\", ()=> {\n    pw.expect(pw.response.status).toBe(200);\n});\n\n// Check JSON response property\npw.test(\"Check JSON response property\", ()=> {\n    pw.expect(pw.response.body.method).toBe(\"GET\");\n    pw.expect(pw.response.body.headers).toBeType(\"object\");\n});",

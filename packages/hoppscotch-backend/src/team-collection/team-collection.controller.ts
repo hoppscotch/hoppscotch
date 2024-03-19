@@ -13,7 +13,7 @@ import { throwHTTPErr } from 'src/utils';
 export class TeamCollectionController {
   constructor(private readonly teamCollectionService: TeamCollectionService) {}
 
-  @Get('search/:teamID/:searchQuery')
+  @Get('search/:teamID')
   @RequiresTeamRole(
     TeamMemberRole.VIEWER,
     TeamMemberRole.EDITOR,
@@ -21,7 +21,7 @@ export class TeamCollectionController {
   )
   @UseGuards(JwtAuthGuard, RESTTeamMemberGuard)
   async searchByTitle(
-    @Param('searchQuery') searchQuery: string,
+    @Query('searchQuery') searchQuery: string,
     @Param('teamID') teamID: string,
     @Query('take') take: string,
     @Query('skip') skip: string,

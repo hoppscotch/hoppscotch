@@ -72,10 +72,6 @@ import { PersistenceService } from "~/services/persistence"
 import { useService } from "dioc/vue"
 import { ref, watch } from "vue"
 
-import {
-  PersistedOAuthConfig,
-  grantTypesInvolvingRedirect,
-} from "~/services/oauth/oauth.service"
 import { useVModel } from "@vueuse/core"
 
 const persistenceService = useService(PersistenceService)

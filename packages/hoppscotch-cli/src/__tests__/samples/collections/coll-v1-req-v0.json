@@ -1,0 +1,27 @@
+{
+    "v": 1,
+    "name": "coll-v1",
+    "folders": [],
+    "requests": [
+        {
+            "url": "https://httpbin.org",
+            "path": "/get",
+            "headers": [
+              { "key": "Inactive-Header", "value": "Inactive Header", "active": false },
+              { "key": "Authorization", "value": "Bearer token123", "active": true }
+            ],
+            "params": [
+              { "key": "key", "value": "value", "active": true },
+              { "key": "inactive-key", "value": "inactive-param", "active": false }
+            ],
+            "name": "req-v0",
+            "method": "GET",
+            "preRequestScript": "",
+            "testScript": "pw.test(\"Asserts request params\", () => {\n  pw.expect(pw.response.body.args.key).toBe(\"value\")\n  pw.expect(pw.response.body.args[\"inactive-key\"]).toBe(undefined)\n})\n\npw.test(\"Asserts request headers\", () => {\n  pw.expect(pw.response.body.headers[\"Authorization\"]).toBe(\"Bearer token123\")\n  pw.expect(pw.response.body.headers[\"Inactive-Header\"]).toBe(undefined)\n})",
+            "contentType": "application/json",
+            "body": "",
+            "auth": "Bearer Token",
+            "bearerToken": "token123"
+          }
+    ]
+}

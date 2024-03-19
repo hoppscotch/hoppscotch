@@ -68,6 +68,9 @@ type CodeMirrorOptions = {
 
   // callback on editor update
   onUpdate?: (view: ViewUpdate) => void
+
+  // callback on view initialization
+  onInit?: (view: EditorView) => void
 }
 
 const hoppCompleterExt = (completer: Completer): Extension => {
@@ -208,7 +211,9 @@ export function useCodemirror(
   el: Ref<any | null>,
   value: Ref<string | undefined>,
   options: CodeMirrorOptions
-): { cursor: Ref<{ line: number; ch: number }> } {
+): {
+  cursor: Ref<{ line: number; ch: number }>
+} {
   const { subscribeToStream } = useStreamSubscriber()
 
   // Set default value for contextMenuEnabled if not provided
@@ -383,6 +388,8 @@ export function useCodemirror(
         extensions,
       }),
     })
+
+    options.onInit?.(view.value)
   }
 
   onMounted(() => {

@@ -98,6 +98,7 @@ import { RESTTabService } from "~/services/tab/rest"
 import { useService } from "dioc/vue"
 import { useNestedSetting } from "~/composables/settings"
 import { toggleNestedSetting } from "~/newstore/settings"
+import { EditorView } from "@codemirror/view"
 
 const t = useI18n()
 
@@ -124,8 +125,13 @@ useCodemirror(
     linter: null,
     completer: null,
     environmentHighlights: false,
+    onInit: onInitView,
   })
 )
+
+function onInitView(view: EditorView) {
+  view.focus()
+}
 
 watch(
   () => props.show,

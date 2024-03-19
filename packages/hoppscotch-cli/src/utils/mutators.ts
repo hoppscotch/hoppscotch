@@ -1,18 +1,11 @@
+import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data";
 import fs from "fs/promises";
-import { FormDataEntry } from "../types/request";
-import { error } from "../types/errors";
-import { isRESTCollection, isHoppErrnoException } from "./checks";
-import {
-  GQLHeader,
-  HoppCollection,
-  HoppGQLAuth,
-  HoppGQLRequest,
-  HoppRESTAuth,
-  HoppRESTHeaders,
-  HoppRESTRequest,
-} from "@hoppscotch/data";
-import { z } from "zod";
 import { entityReference } from "verzod";
+import { z } from "zod";
+
+import { error } from "../types/errors";
+import { FormDataEntry } from "../types/request";
+import { isHoppErrnoException } from "./checks";
 
 /**
  * Parses array of FormDataEntry to FormData.
@@ -93,6 +86,7 @@ export async function parseCollectionData(
     const requestSchemaParsedResult = z
       .array(entityReference(HoppRESTRequest))
       .safeParse(collection.requests);
+
     if (!requestSchemaParsedResult.success) {
       throw error({
         code: "MALFORMED_COLLECTION",

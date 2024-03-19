@@ -72,6 +72,7 @@ describe("Test `hopp test <file>` command:", () => {
         { fileName: "coll-v1-req-v0.json", collVersion: 1, reqVersion: 0 },
         { fileName: "coll-v1-req-v1.json", collVersion: 1, reqVersion: 1 },
         { fileName: "coll-v2-req-v2.json", collVersion: 2, reqVersion: 2 },
+        { fileName: "coll-v2-req-v3.json", collVersion: 2, reqVersion: 3 },
       ];
 
       testFixtures.forEach(({ collVersion, fileName, reqVersion }) => {

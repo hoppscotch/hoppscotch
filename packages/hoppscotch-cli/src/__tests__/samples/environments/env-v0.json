@@ -2,7 +2,7 @@
   "name": "env-v0",
   "variables": [
     {
-      "key": "baseUrl",
+      "key": "baseURL",
       "value": "https://echo.hoppscotch.io"
     }
   ]

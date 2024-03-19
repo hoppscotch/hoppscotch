@@ -8,7 +8,6 @@ import { translateToNewRequest } from "../rest"
 import { translateToGQLRequest } from "../graphql"
 
 const versionedObject = z.object({
-  // v is a stringified number
   v: z.number(),
 })
 

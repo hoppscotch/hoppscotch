@@ -5,7 +5,7 @@
     "requests": [
         {
             "v": "2",
-            "endpoint": "<<baseUrl>>",
+            "endpoint": "<<baseURL>>",
             "name": "",
             "params": [],
             "headers": [],

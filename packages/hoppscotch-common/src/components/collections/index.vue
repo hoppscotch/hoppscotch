@@ -305,12 +305,7 @@ const editingRequestName = ref("")
 const editingRequestIndex = ref<number | null>(null)
 const editingRequestID = ref<string | null>(null)
 
-const editingProperties = ref<{
-  collection: Partial<HoppCollection> | null
-  isRootCollection: boolean
-  path: string
-  inheritedProperties?: HoppInheritedProperty
-}>({
+const editingProperties = ref<EditingProperties>({
   collection: null,
   isRootCollection: false,
   path: "",
@@ -419,9 +414,9 @@ onMounted(() => {
     )
 
     if (unsavedCollectionPropertiesString) {
-      const unsavedCollectionProperties = JSON.parse(
+      const unsavedCollectionProperties: EditingProperties<"REST"> = JSON.parse(
         unsavedCollectionPropertiesString
-      ) as EditingProperties
+      )
 
       // casting because the type `EditingProperties["collection"]["auth"] and the usage in Properties.vue is different. there it's casted as an any.
       // FUTURE-TODO: look into this

@@ -180,6 +180,7 @@ import { GQLTabService } from "~/services/tab/graphql"
 import { computed } from "vue"
 import {
   HoppCollection,
+  HoppGQLAuth,
   HoppGQLRequest,
   makeGQLRequest,
 } from "@hoppscotch/data"
@@ -331,14 +332,10 @@ onMounted(() => {
     )
 
     if (unsavedCollectionPropertiesString) {
-      const unsavedCollectionProperties = JSON.parse(
-        unsavedCollectionPropertiesString
-      ) as EditingProperties
+      const unsavedCollectionProperties: EditingProperties<"GraphQL"> =
+        JSON.parse(unsavedCollectionPropertiesString)
 
-      // casting because the type `EditingProperties["collection"]["auth"] and the usage in Properties.vue is different. there it's casted as an any.
-      // FUTURE-TODO: look into this
-      // @ts-expect-error because of the above reason
-      const auth = unsavedCollectionProperties.collection?.auth as HoppRESTAuth
+      const auth = unsavedCollectionProperties.collection?.auth
 
       if (auth?.authType === "oauth-2") {
         const grantTypeInfo = auth?.grantTypeInfo
@@ -346,7 +343,6 @@ onMounted(() => {
         grantTypeInfo && (grantTypeInfo.token = token ?? "")
       }
 
-      // @ts-expect-error the collection type is incorrect in the EditingProperties type, this is out of scope now
       editingProperties.value = unsavedCollectionProperties
     }
 

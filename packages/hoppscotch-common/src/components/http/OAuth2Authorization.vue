@@ -133,7 +133,7 @@
         >
           <HoppSmartSelectWrapper>
             <HoppButtonSecondary
-              :label="auth.addTo || t('state.none')"
+              :label="passBy"
               class="ml-2 rounded-none pr-8"
             />
           </HoppSmartSelectWrapper>
@@ -145,23 +145,16 @@
               @keyup.escape="hide()"
             >
               <HoppSmartItem
-                v-for="addToTarget in [
-                  { id: 'header', label: 'Headers', value: 'HEADERS' as const },
-                  {
-                    id: 'query',
-                    label: 'Query Params',
-                    value: 'QUERY_PARAMS' as const,
-                  },
-                ]"
+                v-for="addToTarget in addToTargets"
                 :key="addToTarget.id"
                 :label="addToTarget.label"
                 :icon="
-                  auth.addTo === addToTarget.value ? IconCircleDot : IconCircle
+                  auth.addTo === addToTarget.id ? IconCircleDot : IconCircle
                 "
-                :active="auth.addTo === addToTarget.value"
+                :active="auth.addTo === addToTarget.id"
                 @click="
                   () => {
-                    auth.addTo = addToTarget.value
+                    auth.addTo = addToTarget.id
                     hide()
                   }
                 "
@@ -242,6 +235,26 @@ const emit = defineEmits<{
 }>()
 
 const auth = ref(props.modelValue)
+
+const addToTargets = [
+  {
+    id: "HEADERS" as const,
+    label: "Headers",
+    value: "Headers",
+  },
+  {
+    id: "QUERY_PARAMS" as const,
+    label: "Query Params",
+    value: "Query Params",
+  },
+]
+
+const passBy = computed(() => {
+  return (
+    addToTargets.find((target) => target.id === auth.value.addTo)?.label ||
+    t("state.none")
+  )
+})
 
 const supportedGrantTypes = [
   {

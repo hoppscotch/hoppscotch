@@ -274,9 +274,9 @@ export const runGQLOperation = async (options: RunQueryOptions) => {
     } else if (auth.authType === "oauth-2") {
       const { addTo } = auth
 
-      if (addTo === "Headers") {
+      if (addTo === "HEADERS") {
         finalHeaders.Authorization = `Bearer ${auth.grantTypeInfo.token}`
-      } else if (addTo === "Query params") {
+      } else if (addTo === "QUERY_PARAMS") {
         params["access_token"] = auth.grantTypeInfo.token
       }
     } else if (auth.authType === "api-key") {

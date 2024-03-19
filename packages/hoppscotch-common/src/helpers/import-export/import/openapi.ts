@@ -289,7 +289,7 @@ const resolveOpenAPIV3SecurityObj = (
           tokenEndpoint: scheme.flows.authorizationCode.tokenUrl ?? "",
           clientSecret: "",
         },
-        addTo: "Headers",
+        addTo: "HEADERS",
       }
     } else if (scheme.flows.implicit) {
       return {
@@ -302,7 +302,7 @@ const resolveOpenAPIV3SecurityObj = (
           token: "",
           scopes: _schemeData.join(" "),
         },
-        addTo: "Headers",
+        addTo: "HEADERS",
       }
     } else if (scheme.flows.password) {
       return {
@@ -318,7 +318,7 @@ const resolveOpenAPIV3SecurityObj = (
           token: "",
           scopes: _schemeData.join(" "),
         },
-        addTo: "Headers",
+        addTo: "HEADERS",
       }
     } else if (scheme.flows.clientCredentials) {
       return {
@@ -332,7 +332,7 @@ const resolveOpenAPIV3SecurityObj = (
           scopes: _schemeData.join(" "),
           token: "",
         },
-        addTo: "Headers",
+        addTo: "HEADERS",
       }
     }
     return {
@@ -348,7 +348,7 @@ const resolveOpenAPIV3SecurityObj = (
         tokenEndpoint: "",
         clientSecret: "",
       },
-      addTo: "Headers",
+      addTo: "HEADERS",
     }
   } else if (scheme.type === "openIdConnect") {
     return {
@@ -364,7 +364,7 @@ const resolveOpenAPIV3SecurityObj = (
         tokenEndpoint: "",
         clientSecret: "",
       },
-      addTo: "Headers",
+      addTo: "HEADERS",
     }
   }
 
@@ -451,7 +451,7 @@ const resolveOpenAPIV2SecurityScheme = (
           isPKCE: false,
           tokenEndpoint: scheme.tokenUrl ?? "",
         },
-        addTo: "Headers",
+        addTo: "HEADERS",
       }
     } else if (scheme.flow === "implicit") {
       return {
@@ -464,7 +464,7 @@ const resolveOpenAPIV2SecurityScheme = (
           scopes: _schemeData.join(" "),
           token: "",
         },
-        addTo: "Headers",
+        addTo: "HEADERS",
       }
     } else if (scheme.flow === "application") {
       return {
@@ -478,7 +478,7 @@ const resolveOpenAPIV2SecurityScheme = (
           scopes: _schemeData.join(" "),
           token: "",
         },
-        addTo: "Headers",
+        addTo: "HEADERS",
       }
     } else if (scheme.flow === "password") {
       return {
@@ -494,7 +494,7 @@ const resolveOpenAPIV2SecurityScheme = (
           token: "",
           username: "",
         },
-        addTo: "Headers",
+        addTo: "HEADERS",
       }
     }
     return {
@@ -510,7 +510,7 @@ const resolveOpenAPIV2SecurityScheme = (
         isPKCE: false,
         tokenEndpoint: "",
       },
-      addTo: "Headers",
+      addTo: "HEADERS",
     }
   }
 

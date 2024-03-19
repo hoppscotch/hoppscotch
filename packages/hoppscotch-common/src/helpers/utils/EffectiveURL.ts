@@ -82,7 +82,7 @@ export const getComputedAuthHeaders = (
     })
   } else if (
     request.auth.authType === "bearer" ||
-    (request.auth.authType === "oauth-2" && request.auth.addTo === "Headers")
+    (request.auth.authType === "oauth-2" && request.auth.addTo === "HEADERS")
   ) {
     const token =
       request.auth.authType === "bearer"
@@ -205,7 +205,7 @@ export const getComputedParams = (
     return []
   }
 
-  if (req.auth.addTo !== "Query params") {
+  if (req.auth.addTo !== "QUERY_PARAMS") {
     return []
   }
 

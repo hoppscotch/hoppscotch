@@ -67,7 +67,7 @@ defineProps<{
 const t = useI18n()
 const toast = useToast()
 
-const ALLOWED_FILE_SIZE_LIMIT = 10 // 10 MB
+const ALLOWED_FILE_SIZE_LIMIT = 100 // 10 MB
 
 const importFilesCount = ref(0)
 

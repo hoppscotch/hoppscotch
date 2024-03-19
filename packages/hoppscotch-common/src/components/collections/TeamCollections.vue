@@ -9,7 +9,7 @@
       "
     >
       <HoppButtonSecondary
-        v-if="hasNoTeamAccess"
+        v-if="hasNoTeamAccess || isShowingSearchResults"
         v-tippy="{ theme: 'tooltip' }"
         disabled
         class="!rounded-none"
@@ -36,8 +36,9 @@
           v-if="!saveRequest"
           v-tippy="{ theme: 'tooltip' }"
           :disabled="
-            collectionsType.type === 'team-collections' &&
-            collectionsType.selectedTeam === undefined
+            (collectionsType.type === 'team-collections' &&
+              collectionsType.selectedTeam === undefined) ||
+            isShowingSearchResults
           "
           :icon="IconImport"
           :title="t('modal.import_export')"
@@ -58,7 +59,7 @@
             :collections-type="collectionsType.type"
             :is-open="isOpen"
             :export-loading="exportLoading"
-            :has-no-team-access="hasNoTeamAccess"
+            :has-no-team-access="hasNoTeamAccess || isShowingSearchResults"
             :collection-move-loading="collectionMoveLoading"
             :is-last-item="node.data.isLastItem"
             :is-selected="
@@ -128,6 +129,14 @@
                     })
               }
             "
+            @click="
+              () => {
+                handleCollectionClick({
+                  collectionID: node.id,
+                  isOpen,
+                })
+              }
+            "
           />
           <CollectionsCollection
             v-if="node.data.type === 'folders'"
@@ -137,7 +146,7 @@
             :collections-type="collectionsType.type"
             :is-open="isOpen"
             :export-loading="exportLoading"
-            :has-no-team-access="hasNoTeamAccess"
+            :has-no-team-access="hasNoTeamAccess || isShowingSearchResults"
             :collection-move-loading="collectionMoveLoading"
             :is-last-item="node.data.isLastItem"
             :is-selected="
@@ -209,6 +218,15 @@
                     })
               }
             "
+            @click="
+              () => {
+                handleCollectionClick({
+                  // for the folders, we get a path, so we need to get the last part of the path which is the folder id
+                  collectionID: node.id.split('/').pop() as string,
+                  isOpen,
+                })
+              }
+            "
           />
           <CollectionsRequest
             v-if="node.data.type === 'requests'"
@@ -218,7 +236,7 @@
             :collections-type="collectionsType.type"
             :duplicate-loading="duplicateLoading"
             :is-active="isActiveRequest(node.data.data.data.id)"
-            :has-no-team-access="hasNoTeamAccess"
+            :has-no-team-access="hasNoTeamAccess || isShowingSearchResults"
             :request-move-loading="requestMoveLoading"
             :is-last-item="node.data.isLastItem"
             :is-selected="
@@ -283,7 +301,15 @@
         </template>
         <template #emptyNode="{ node }">
           <HoppSmartPlaceholder
-            v-if="node === null"
+            v-if="filterText.length !== 0 && teamCollectionList.length === 0"
+            :text="`${t('state.nothing_found')} ‟${filterText}”`"
+          >
+            <template #icon>
+              <icon-lucide-search class="svg-icons opacity-75" />
+            </template>
+          </HoppSmartPlaceholder>
+          <HoppSmartPlaceholder
+            v-else-if="node === null"
             :src="`/images/states/${colorMode.value}/pack.svg`"
             :alt="`${t('empty.collections')}`"
             :text="t('empty.collections')"
@@ -394,6 +420,11 @@ const props = defineProps({
     default: () => ({ type: "my-collections", selectedTeam: undefined }),
     required: true,
   },
+  filterText: {
+    type: String as PropType<string>,
+    default: "",
+    required: true,
+  },
   teamCollectionList: {
     type: Array as PropType<TeamCollection[]>,
     default: () => [],
@@ -435,6 +466,8 @@ const props = defineProps({
     required: false,
   },
 })
+
+const isShowingSearchResults = computed(() => props.filterText.length > 0)
 
 const emit = defineEmits<{
   (
@@ -543,6 +576,14 @@ const emit = defineEmits<{
       }
     }
   ): void
+  (
+    event: "collection-click",
+    payload: {
+      // if the collection is open or not in the tree
+      isOpen: boolean
+      collectionID: string
+    }
+  ): void
   (event: "select", payload: Picked | null): void
   (event: "expand-team-collection", payload: string): void
   (event: "display-modal-add"): void
@@ -553,6 +594,18 @@ const getPath = (path: string) => {
   const pathArray = path.split("/")
   pathArray.pop()
   return pathArray.join("/")
+}
+
+const handleCollectionClick = (payload: {
+  collectionID: string
+  isOpen: boolean
+}) => {
+  const { collectionID, isOpen } = payload
+
+  emit("collection-click", {
+    collectionID,
+    isOpen,
+  })
 }
 
 const teamCollectionsList = toRef(props, "teamCollectionList")

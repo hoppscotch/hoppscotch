@@ -24,7 +24,6 @@
         autocomplete="off"
         class="flex w-full bg-transparent px-4 py-2 h-8"
         :placeholder="t('action.search')"
-        :disabled="collectionsType.type === 'team-collections'"
       />
     </div>
     <CollectionsMyCollections
@@ -58,8 +57,15 @@
     <CollectionsTeamCollections
       v-else
       :collections-type="collectionsType"
-      :team-collection-list="teamCollectionList"
-      :team-loading-collections="teamLoadingCollections"
+      :team-collection-list="
+        filterTexts.length > 0 ? teamsSearchResults : teamCollectionList
+      "
+      :team-loading-collections="
+        filterTexts.length > 0
+          ? collectionsBeingLoadedFromSearch
+          : teamLoadingCollections
+      "
+      :filter-text="filterTexts"
       :export-loading="exportLoading"
       :duplicate-loading="duplicateLoading"
       :save-request="saveRequest"
@@ -87,6 +93,7 @@
       @expand-team-collection="expandTeamCollection"
       @display-modal-add="displayModalAdd(true)"
       @display-modal-import-export="displayModalImportExport(true)"
+      @collection-click="handleCollectionClick"
     />
     <div
       class="py-15 hidden flex-1 flex-col items-center justify-center bg-primaryDark px-4 text-secondaryLight"
@@ -199,7 +206,7 @@ import {
   HoppRESTRequest,
   makeCollection,
 } from "@hoppscotch/data"
-import { cloneDeep, isEqual } from "lodash-es"
+import { cloneDeep, debounce, isEqual } from "lodash-es"
 import { GQLError } from "~/helpers/backend/GQLClient"
 import {
   createNewRootCollection,
@@ -240,6 +247,7 @@ import { WorkspaceService } from "~/services/workspace.service"
 import { useService } from "dioc/vue"
 import { RESTTabService } from "~/services/tab/rest"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
+import { TeamSearchService } from "~/helpers/teams/TeamsSearch.service"
 
 const t = useI18n()
 const toast = useToast()
@@ -336,6 +344,50 @@ const teamLoadingCollections = useReadonlyStream(
   []
 )
 
+const {
+  cascadeParentCollectionForHeaderAuthForSearchResults,
+  searchTeams,
+  teamsSearchResults,
+  teamsSearchResultsLoading,
+  expandCollection,
+  expandingCollections,
+} = useService(TeamSearchService)
+
+watch(teamsSearchResults, (newSearchResults) => {
+  if (newSearchResults.length === 1 && filterTexts.value.length > 0) {
+    expandCollection(newSearchResults[0].id)
+  }
+})
+
+const debouncedSearch = debounce(searchTeams, 400)
+
+const collectionsBeingLoadedFromSearch = computed(() => {
+  const collections = []
+
+  if (teamsSearchResultsLoading.value) {
+    collections.push("root")
+  }
+
+  collections.push(...expandingCollections.value)
+
+  return collections
+})
+
+watch(
+  filterTexts,
+  (newFilterText) => {
+    if (collectionsType.value.type === "team-collections") {
+      const selectedTeamID = collectionsType.value.selectedTeam?.id
+
+      selectedTeamID &&
+        debouncedSearch(newFilterText, selectedTeamID)?.catch((_) => {})
+    }
+  },
+  {
+    immediate: true,
+  }
+)
+
 watch(
   () => myTeams.value,
   (newTeams) => {
@@ -364,7 +416,28 @@ const switchToMyCollections = () => {
   teamCollectionAdapter.changeTeamID(null)
 }
 
+/**
+ * right now, for search results, we rely on collection click + isOpen to expand the collection
+ */
+const handleCollectionClick = (payload: {
+  collectionID: string
+  isOpen: boolean
+}) => {
+  if (
+    filterTexts.value.length > 0 &&
+    teamsSearchResults.value.length &&
+    payload.isOpen
+  ) {
+    expandCollection(payload.collectionID)
+    return
+  }
+}
+
 const expandTeamCollection = (collectionID: string) => {
+  if (filterTexts.value.length > 0 && teamsSearchResults.value) {
+    return
+  }
+
   teamCollectionAdapter.expandCollection(collectionID)
 }
 
@@ -1330,13 +1403,25 @@ const selectRequest = (selectedRequest: {
   let possibleTab = null
 
   if (collectionsType.value.type === "team-collections") {
-    const { auth, headers } =
-      teamCollectionAdapter.cascadeParentCollectionForHeaderAuth(folderPath)
+    let inheritedProperties: HoppInheritedProperty | undefined = undefined
 
-    possibleTab = tabs.getTabRefWithSaveContext({
+    if (filterTexts.value.length > 0) {
+      const collectionID = folderPath.split("/").at(-1)
+
+      if (!collectionID) return
+
+      inheritedProperties =
+        cascadeParentCollectionForHeaderAuthForSearchResults(collectionID)
+    } else {
+      inheritedProperties =
+        teamCollectionAdapter.cascadeParentCollectionForHeaderAuth(folderPath)
+    }
+
+    const possibleTab = tabs.getTabRefWithSaveContext({
       originLocation: "team-collection",
       requestID: requestIndex,
     })
+
     if (possibleTab) {
       tabs.setActiveTab(possibleTab.value.id)
     } else {
@@ -1348,10 +1433,7 @@ const selectRequest = (selectedRequest: {
           requestID: requestIndex,
           collectionID: folderPath,
         },
-        inheritedProperties: {
-          auth,
-          headers,
-        },
+        inheritedProperties: inheritedProperties,
       })
     }
   } else {

@@ -111,6 +111,7 @@ import { RequestSpotlightSearcherService } from "~/services/spotlight/searchers/
 import { ResponseSpotlightSearcherService } from "~/services/spotlight/searchers/response.searcher"
 import { SettingsSpotlightSearcherService } from "~/services/spotlight/searchers/settings.searcher"
 import { TabSpotlightSearcherService } from "~/services/spotlight/searchers/tab.searcher"
+import { TeamsSpotlightSearcherService } from "~/services/spotlight/searchers/teamRequest.searcher"
 import { UserSpotlightSearcherService } from "~/services/spotlight/searchers/user.searcher"
 import {
   SwitchWorkspaceSpotlightSearcherService,
@@ -144,6 +145,7 @@ useService(SwitchEnvSpotlightSearcherService)
 useService(WorkspaceSpotlightSearcherService)
 useService(SwitchWorkspaceSpotlightSearcherService)
 useService(InterceptorSpotlightSearcherService)
+useService(TeamsSpotlightSearcherService)
 
 platform.spotlight?.additionalSearchers?.forEach((searcher) =>
   useService(searcher)

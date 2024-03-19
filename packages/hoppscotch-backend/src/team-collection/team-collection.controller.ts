@@ -26,7 +26,6 @@ export class TeamCollectionController {
     @Query('take') take: string,
     @Query('skip') skip: string,
   ) {
-    console.log('searchQuery', searchQuery);
     const res = await this.teamCollectionService.searchByTitle(
       searchQuery,
       teamID,

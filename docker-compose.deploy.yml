@@ -17,10 +17,16 @@ services:
     environment:
       - DATABASE_URL=postgresql://postgres:testpass@hoppscotch-db:5432/hoppscotch
       - ENABLE_SUBPATH_BASED_ACCESS=true
+    env_file:
+      - ./.env
     depends_on:
       hoppscotch-db:
         condition: service_healthy
+    command: pnpm exec prisma migrate deploy && node /usr/src/app/aio_run.mjs
     ports:
+      - "3000:3000"
+      - "3100:3100"
+      - "3170:3170"
       - "3080:80"
 
   # The preset DB service, you can delete/comment the below lines if

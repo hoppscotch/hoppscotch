@@ -23,8 +23,6 @@ services:
       hoppscotch-db:
         condition: service_healthy
     command: ["sh", "-c", "pnpm exec prisma migrate deploy && node /usr/src/app/aio_run.mjs"]
-    ports:
-      - "80:80"
 
   # The preset DB service, you can delete/comment the below lines if
   # you are using an external postgres instance

@@ -162,25 +162,36 @@ const getHoppReqAuth = (item: Item): HoppRESTAuth => {
       ),
     }
   } else if (auth.type === "oauth2") {
+    const accessTokenURL = replacePMVarTemplating(
+      getVariableValue(auth.oauth2, "accessTokenUrl") ?? ""
+    )
+    const authURL = replacePMVarTemplating(
+      getVariableValue(auth.oauth2, "authUrl") ?? ""
+    )
+    const clientId = replacePMVarTemplating(
+      getVariableValue(auth.oauth2, "clientId") ?? ""
+    )
+    const scope = replacePMVarTemplating(
+      getVariableValue(auth.oauth2, "scope") ?? ""
+    )
+    const token = replacePMVarTemplating(
+      getVariableValue(auth.oauth2, "accessToken") ?? ""
+    )
+
     return {
       authType: "oauth-2",
       authActive: true,
-      accessTokenURL: replacePMVarTemplating(
-        getVariableValue(auth.oauth2, "accessTokenUrl") ?? ""
-      ),
-      authURL: replacePMVarTemplating(
-        getVariableValue(auth.oauth2, "authUrl") ?? ""
-      ),
-      clientID: replacePMVarTemplating(
-        getVariableValue(auth.oauth2, "clientId") ?? ""
-      ),
-      scope: replacePMVarTemplating(
-        getVariableValue(auth.oauth2, "scope") ?? ""
-      ),
-      token: replacePMVarTemplating(
-        getVariableValue(auth.oauth2, "accessToken") ?? ""
-      ),
-      oidcDiscoveryURL: "",
+      grantTypeInfo: {
+        grantType: "AUTHORIZATION_CODE",
+        authEndpoint: authURL,
+        clientID: clientId,
+        scopes: scope,
+        token: token,
+        tokenEndpoint: accessTokenURL,
+        clientSecret: "",
+        isPKCE: false,
+      },
+      addTo: "HEADERS",
     }
   }
 

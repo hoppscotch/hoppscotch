@@ -82,7 +82,7 @@
                 :active="authName === 'OAuth 2.0'"
                 @click="
                   () => {
-                    auth.authType = 'oauth-2'
+                    selectOAuth2AuthType()
                     hide()
                   }
                 "
@@ -189,12 +189,12 @@
         <div v-if="auth.authType === 'oauth-2'">
           <div class="flex flex-1 border-b border-dividerLight">
             <SmartEnvInput
-              v-model="auth.token"
+              v-model="auth.grantTypeInfo.token"
               :environment-highlights="false"
               placeholder="Token"
             />
           </div>
-          <HttpOAuth2Authorization v-model="auth" />
+          <HttpOAuth2Authorization v-model="auth" source="GraphQL" />
         </div>
         <div v-if="auth.authType === 'api-key'">
           <HttpAuthorizationApiKey v-model="auth" />
@@ -220,19 +220,22 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from "@composables/i18n"
+import { pluckRef } from "@composables/ref"
+import { useColorMode } from "@composables/theming"
+import { HoppGQLAuth, HoppGQLAuthOAuth2 } from "@hoppscotch/data"
+import { useVModel } from "@vueuse/core"
+import { computed, onMounted, ref } from "vue"
+
+import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
+
+import IconCircle from "~icons/lucide/circle"
+import IconCircleDot from "~icons/lucide/circle-dot"
+import IconExternalLink from "~icons/lucide/external-link"
 import IconHelpCircle from "~icons/lucide/help-circle"
 import IconTrash2 from "~icons/lucide/trash-2"
-import IconExternalLink from "~icons/lucide/external-link"
-import IconCircleDot from "~icons/lucide/circle-dot"
-import IconCircle from "~icons/lucide/circle"
-import { computed, ref } from "vue"
-import { HoppGQLAuth } from "@hoppscotch/data"
-import { pluckRef } from "@composables/ref"
-import { useI18n } from "@composables/i18n"
-import { useColorMode } from "@composables/theming"
-import { useVModel } from "@vueuse/core"
-import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
-import { onMounted } from "vue"
+
+import { getDefaultAuthCodeOauthFlowParams } from "~/services/oauth/flows/authCode"
 
 const t = useI18n()
 
@@ -278,6 +281,30 @@ const authName = computed(() =>
 const getAuthName = (type: HoppGQLAuth["authType"] | undefined) => {
   if (!type) return "None"
   return AUTH_KEY_NAME[type] ? AUTH_KEY_NAME[type] : "None"
+}
+
+const selectOAuth2AuthType = () => {
+  const defaultGrantTypeInfo: HoppGQLAuthOAuth2["grantTypeInfo"] = {
+    ...getDefaultAuthCodeOauthFlowParams(),
+    grantType: "AUTHORIZATION_CODE",
+    token: "",
+  }
+
+  // @ts-expect-error - the existing grantTypeInfo might be in the auth object, typescript doesnt know that
+  const existingGrantTypeInfo = auth.value.grantTypeInfo as
+    | HoppGQLAuthOAuth2["grantTypeInfo"]
+    | undefined
+
+  const grantTypeInfo = existingGrantTypeInfo
+    ? existingGrantTypeInfo
+    : defaultGrantTypeInfo
+
+  auth.value = <HoppGQLAuth>{
+    ...auth.value,
+    authType: "oauth-2",
+    addTo: "HEADERS",
+    grantTypeInfo: grantTypeInfo,
+  }
 }
 
 const authActive = pluckRef(auth, "authActive")

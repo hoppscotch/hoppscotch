@@ -231,6 +231,7 @@ export class ExtensionInterceptorService
     try {
       const result = await extensionHook.sendRequest({
         ...req,
+        headers: req.headers ?? {},
         wantsBinary: true,
       })
 

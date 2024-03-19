@@ -8,7 +8,7 @@
   >
     <template #body>
       <HoppSmartTabs
-        v-model="selectedOptionTab"
+        v-model="activeTab"
         styles="sticky overflow-x-auto flex-shrink-0 bg-primary top-0 z-10 !-py-4"
         render-inactive-tabs
       >
@@ -16,7 +16,6 @@
           <HttpHeaders
             v-model="editableCollection"
             :is-collection-property="true"
-            @change-tab="changeOptionTab"
           />
           <div
             class="bg-bannerInfo px-4 py-2 flex items-center sticky bottom-0"
@@ -34,6 +33,7 @@
             :is-collection-property="true"
             :is-root-collection="editingProperties?.isRootCollection"
             :inherited-properties="editingProperties?.inheritedProperties"
+            :source="source"
           />
           <div
             class="bg-bannerInfo px-4 py-2 flex items-center sticky bottom-0"
@@ -64,16 +64,20 @@
 </template>
 
 <script setup lang="ts">
-import { watch, ref } from "vue"
 import { useI18n } from "@composables/i18n"
 import { HoppCollection, HoppRESTAuth, HoppRESTHeaders } from "@hoppscotch/data"
-import { RESTOptionTabs } from "../http/RequestOptions.vue"
 import { clone } from "lodash-es"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
+import { PersistenceService } from "~/services/persistence"
+import { useService } from "dioc/vue"
+import { ref, watch } from "vue"
 
+import { useVModel } from "@vueuse/core"
+
+const persistenceService = useService(PersistenceService)
 const t = useI18n()
 
-type EditingProperties = {
+export type EditingProperties = {
   collection: Partial<HoppCollection> | null
   isRootCollection: boolean
   path: string
@@ -85,6 +89,8 @@ const props = withDefaults(
     show: boolean
     loadingState: boolean
     editingProperties: EditingProperties | null
+    source: "REST" | "GraphQL"
+    modelValue: string
   }>(),
   {
     show: false,
@@ -99,6 +105,7 @@ const emit = defineEmits<{
     newCollection: Omit<EditingProperties, "inheritedProperties">
   ): void
   (e: "hide-modal"): void
+  (e: "update:modelValue"): void
 }>()
 
 const editableCollection = ref<{
@@ -112,11 +119,27 @@ const editableCollection = ref<{
   },
 })
 
-const selectedOptionTab = ref("headers")
+watch(
+  editableCollection,
+  (updatedEditableCollection) => {
+    if (props.show) {
+      persistenceService.setLocalConfig(
+        "unsaved_collection_properties",
+        JSON.stringify(<EditingProperties>{
+          collection: updatedEditableCollection,
+          isRootCollection: props.editingProperties?.isRootCollection,
+          path: props.editingProperties?.path,
+          inheritedProperties: props.editingProperties?.inheritedProperties,
+        })
+      )
+    }
+  },
+  {
+    deep: true,
+  }
+)
 
-const changeOptionTab = (tab: RESTOptionTabs) => {
-  selectedOptionTab.value = tab
-}
+const activeTab = useVModel(props, "modelValue", emit)
 
 watch(
   () => props.show,
@@ -136,6 +159,8 @@ watch(
           authActive: false,
         },
       }
+
+      persistenceService.removeLocalConfig("unsaved_collection_properties")
     }
   }
 )
@@ -152,9 +177,11 @@ const saveEditedCollection = () => {
     isRootCollection: props.editingProperties.isRootCollection,
   }
   emit("set-collection-properties", collection as EditingProperties)
+  persistenceService.removeLocalConfig("unsaved_collection_properties")
 }
 
 const hideModal = () => {
+  persistenceService.removeLocalConfig("unsaved_collection_properties")
   emit("hide-modal")
 }
 </script>

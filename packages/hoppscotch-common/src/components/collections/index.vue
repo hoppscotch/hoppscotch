@@ -161,8 +161,10 @@
       @hide-modal="displayTeamModalAdd(false)"
     />
     <CollectionsProperties
+      v-model="collectionPropertiesModalActiveTab"
       :show="showModalEditProperties"
       :editing-properties="editingProperties"
+      source="REST"
       @hide-modal="displayModalEditProperties(false)"
       @set-collection-properties="setCollectionProperties"
     />
@@ -170,7 +172,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, PropType, ref, watch } from "vue"
+import { computed, nextTick, onMounted, PropType, ref, watch } from "vue"
 import { useToast } from "@composables/toast"
 import { useI18n } from "@composables/i18n"
 import { Picked } from "~/helpers/types/HoppPicked"
@@ -248,6 +250,10 @@ import { useService } from "dioc/vue"
 import { RESTTabService } from "~/services/tab/rest"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import { TeamSearchService } from "~/helpers/teams/TeamsSearch.service"
+import { PersistenceService } from "~/services/persistence"
+import { PersistedOAuthConfig } from "~/services/oauth/oauth.service"
+import { RESTOptionTabs } from "../http/RequestOptions.vue"
+import { EditingProperties } from "./Properties.vue"
 
 const t = useI18n()
 const toast = useToast()
@@ -299,12 +305,7 @@ const editingRequestName = ref("")
 const editingRequestIndex = ref<number | null>(null)
 const editingRequestID = ref<string | null>(null)
 
-const editingProperties = ref<{
-  collection: Partial<HoppCollection> | null
-  isRootCollection: boolean
-  path: string
-  inheritedProperties?: HoppInheritedProperty
-}>({
+const editingProperties = ref<EditingProperties>({
   collection: null,
   isRootCollection: false,
   path: "",
@@ -387,6 +388,55 @@ watch(
     immediate: true,
   }
 )
+const persistenceService = useService(PersistenceService)
+
+const collectionPropertiesModalActiveTab = ref<RESTOptionTabs>("headers")
+
+onMounted(() => {
+  const localOAuthTempConfig =
+    persistenceService.getLocalConfig("oauth_temp_config")
+
+  if (!localOAuthTempConfig) {
+    return
+  }
+
+  const { context, source, token }: PersistedOAuthConfig =
+    JSON.parse(localOAuthTempConfig)
+
+  if (source === "GraphQL") {
+    return
+  }
+
+  if (context?.type === "collection-properties") {
+    // load the unsaved editing properties
+    const unsavedCollectionPropertiesString = persistenceService.getLocalConfig(
+      "unsaved_collection_properties"
+    )
+
+    if (unsavedCollectionPropertiesString) {
+      const unsavedCollectionProperties: EditingProperties<"REST"> = JSON.parse(
+        unsavedCollectionPropertiesString
+      )
+
+      // casting because the type `EditingProperties["collection"]["auth"] and the usage in Properties.vue is different. there it's casted as an any.
+      // FUTURE-TODO: look into this
+      // @ts-expect-error because of the above reason
+      const auth = unsavedCollectionProperties.collection?.auth as HoppRESTAuth
+
+      if (auth?.authType === "oauth-2") {
+        const grantTypeInfo = auth.grantTypeInfo
+
+        grantTypeInfo && (grantTypeInfo.token = token ?? "")
+      }
+
+      editingProperties.value = unsavedCollectionProperties
+    }
+
+    persistenceService.removeLocalConfig("oauth_temp_config")
+    collectionPropertiesModalActiveTab.value = "authorization"
+    showModalEditProperties.value = true
+  }
+})
 
 watch(
   () => myTeams.value,

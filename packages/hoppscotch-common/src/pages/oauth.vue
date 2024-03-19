@@ -5,23 +5,31 @@
 </template>
 
 <script setup lang="ts">
-import { handleOAuthRedirect } from "~/helpers/oauth"
-import { useToast } from "~/composables/toast"
 import { useI18n } from "~/composables/i18n"
+import { useToast } from "~/composables/toast"
 
-import * as E from "fp-ts/Either"
 import { useService } from "dioc/vue"
-import { RESTTabService } from "~/services/tab/rest"
+import * as E from "fp-ts/Either"
 import { onMounted } from "vue"
+import { RESTTabService } from "~/services/tab/rest"
 
 import { useRouter } from "vue-router"
+
+import {
+  PersistedOAuthConfig,
+  routeOAuthRedirect,
+} from "~/services/oauth/oauth.service"
+import { PersistenceService } from "~/services/persistence"
+import { GQLTabService } from "~/services/tab/graphql"
 
 const t = useI18n()
 const router = useRouter()
 
 const toast = useToast()
 
-const tabs = useService(RESTTabService)
+const gqlTabs = useService(GQLTabService)
+const persistenceService = useService(PersistenceService)
+const restTabs = useService(RESTTabService)
 
 function translateOAuthRedirectError(error: string) {
   switch (error) {
@@ -60,22 +68,58 @@ function translateOAuthRedirectError(error: string) {
 }
 
 onMounted(async () => {
-  const tokenInfo = await handleOAuthRedirect()
+  const localOAuthTempConfig =
+    persistenceService.getLocalConfig("oauth_temp_config")
+
+  if (!localOAuthTempConfig) {
+    toast.error(t("authorization.oauth.something_went_wrong_on_oauth_redirect"))
+    router.push("/")
+    return
+  }
+
+  const persistedOAuthConfig: PersistedOAuthConfig =
+    JSON.parse(localOAuthTempConfig)
+
+  const { context, source } = persistedOAuthConfig
+
+  const tokenInfo = await routeOAuthRedirect()
 
   if (E.isLeft(tokenInfo)) {
     toast.error(translateOAuthRedirectError(tokenInfo.left))
-    router.push("/")
+    router.push(source === "REST" ? "/" : "/graphql")
     return
   }
+
+  // Indicates the access token generation flow originated from the modal for setting authorization/headers at the collection level
+  if (context?.type === "collection-properties") {
+    // Set the access token in `localStorage` to retrieve from the modal while redirecting back
+    persistenceService.setLocalConfig(
+      "oauth_temp_config",
+      JSON.stringify(<PersistedOAuthConfig>{
+        ...persistedOAuthConfig,
+        token: tokenInfo.right.access_token,
+      })
+    )
+
+    toast.success(t("authorization.oauth.token_fetched_successfully"))
+
+    router.push(source === "REST" ? "/" : "/graphql")
+    return
+  }
+
+  const routeToRedirect = source === "GraphQL" ? "/graphql" : "/"
+  const tabService = source === "GraphQL" ? gqlTabs : restTabs
 
   if (
-    tabs.currentActiveTab.value.document.request.auth.authType === "oauth-2"
+    tabService.currentActiveTab.value.document.request.auth.authType ===
+    "oauth-2"
   ) {
-    tabs.currentActiveTab.value.document.request.auth.token =
+    tabService.currentActiveTab.value.document.request.auth.grantTypeInfo.token =
       tokenInfo.right.access_token
 
-    router.push("/")
-    return
+    toast.success(t("authorization.oauth.token_fetched_successfully"))
   }
+
+  router.push(routeToRedirect)
 })
 </script>

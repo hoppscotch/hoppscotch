@@ -111,12 +111,16 @@ const getHoppReqAuth = (req: InsomniaRequestResource): HoppRESTAuth => {
     return {
       authType: "oauth-2",
       authActive: !(auth.disabled ?? false),
-      accessTokenURL: replaceVarTemplating(auth.accessTokenUrl ?? ""),
-      authURL: replaceVarTemplating(auth.authorizationUrl ?? ""),
-      clientID: replaceVarTemplating(auth.clientId ?? ""),
-      oidcDiscoveryURL: "",
-      scope: replaceVarTemplating(auth.scope ?? ""),
-      token: "",
+      grantTypeInfo: {
+        authEndpoint: replaceVarTemplating(auth.authorizationUrl ?? ""),
+        clientID: replaceVarTemplating(auth.clientId ?? ""),
+        clientSecret: "",
+        grantType: "AUTHORIZATION_CODE",
+        scopes: replaceVarTemplating(auth.scope ?? ""),
+        token: "",
+        isPKCE: false,
+        tokenEndpoint: replaceVarTemplating(auth.accessTokenUrl ?? ""),
+      },
     }
   else if (auth.type === "bearer")
     return {

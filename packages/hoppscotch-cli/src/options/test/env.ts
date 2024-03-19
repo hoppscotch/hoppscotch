@@ -6,7 +6,7 @@ import { error } from "../../types/errors";
 import {
   HoppEnvKeyPairObject,
   HoppEnvPair,
-  HoppEnvs
+  HoppEnvs,
 } from "../../types/request";
 import { readJsonFile } from "../../utils/mutators";
 
@@ -17,7 +17,7 @@ import { readJsonFile } from "../../utils/mutators";
  */
 export async function parseEnvsData(path: string) {
   const contents = await readJsonFile(path);
-  const envPairs: Array<Environment["variables"][number] | HoppEnvPair> = [];
+  const envPairs: Array<HoppEnvPair | Record<string, string>> = [];
 
   // The legacy key-value pair format that is still supported
   const HoppEnvKeyPairResult = HoppEnvKeyPairObject.safeParse(contents);
@@ -26,7 +26,9 @@ export async function parseEnvsData(path: string) {
   const HoppEnvExportObjectResult = Environment.safeParse(contents);
 
   // Shape of the bulk environment export object that is exported from the app
-  const HoppBulkEnvExportObjectResult = z.array(entityReference(Environment)).safeParse(contents)
+  const HoppBulkEnvExportObjectResult = z
+    .array(entityReference(Environment))
+    .safeParse(contents);
 
   // CLI doesnt support bulk environments export
   // Hence we check for this case and throw an error if it matches the format
@@ -36,7 +38,10 @@ export async function parseEnvsData(path: string) {
 
   //  Checks if the environment file is of the correct format
   // If it doesnt match either of them, we throw an error
-  if (!HoppEnvKeyPairResult.success && HoppEnvExportObjectResult.type === "err") {
+  if (
+    !HoppEnvKeyPairResult.success &&
+    HoppEnvExportObjectResult.type === "err"
+  ) {
     throw error({ code: "MALFORMED_ENV_FILE", path, data: error });
   }
 

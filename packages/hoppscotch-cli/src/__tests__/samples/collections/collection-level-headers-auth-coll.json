@@ -17,7 +17,7 @@
                 "folders": [],
                 "requests": [
                   {
-                    "v": "2",
+                    "v": "3",
                     "endpoint": "https://echo.hoppscotch.io",
                     "name": "RequestD",
                     "params": [],
@@ -53,7 +53,7 @@
             ],
             "requests": [
               {
-                "v": "2",
+                "v": "3",
                 "endpoint": "https://echo.hoppscotch.io",
                 "name": "RequestC",
                 "params": [],
@@ -90,7 +90,7 @@
         ],
         "requests": [
           {
-            "v": "2",
+            "v": "3",
             "endpoint": "https://echo.hoppscotch.io",
             "name": "RequestB",
             "params": [],
@@ -119,7 +119,7 @@
     ],
     "requests": [
       {
-        "v": "2",
+        "v": "3",
         "endpoint": "https://echo.hoppscotch.io",
         "name": "RequestA",
         "params": [],
@@ -162,7 +162,7 @@
         "folders": [],
         "requests": [
           {
-            "v": "2",
+            "v": "3",
             "endpoint": "https://echo.hoppscotch.io",
             "name": "RequestB",
             "params": [],
@@ -191,7 +191,7 @@
     ],
     "requests": [
       {
-        "v": "2",
+        "v": "3",
         "endpoint": "https://echo.hoppscotch.io",
         "name": "RequestA",
         "params": [],

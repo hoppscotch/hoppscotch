@@ -2,29 +2,32 @@ import { InferredEntity, createVersionedEntity } from "verzod"
 import { z } from "zod"
 import V1_VERSION from "./v/1"
 import V2_VERSION from "./v/2"
+import V3_VERSION from "./v/3"
 
 export { GQLHeader } from "./v/1"
 export {
-  HoppGQLAuth,
   HoppGQLAuthAPIKey,
   HoppGQLAuthBasic,
   HoppGQLAuthBearer,
   HoppGQLAuthNone,
-  HoppGQLAuthOAuth2,
   HoppGQLAuthInherit,
 } from "./v/2"
 
-export const GQL_REQ_SCHEMA_VERSION = 2
+export { HoppGQLAuth } from "./v/3"
+export { HoppGQLAuthOAuth2 } from "./v/3"
+
+export const GQL_REQ_SCHEMA_VERSION = 3
 
 const versionedObject = z.object({
   v: z.number(),
 })
 
 export const HoppGQLRequest = createVersionedEntity({
-  latestVersion: 2,
+  latestVersion: 3,
   versionMap: {
     1: V1_VERSION,
     2: V2_VERSION,
+    3: V3_VERSION,
   },
   getVersion(x) {
     const result = versionedObject.safeParse(x)

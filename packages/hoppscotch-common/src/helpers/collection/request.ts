@@ -66,12 +66,20 @@ export function getRequestsByPath(
   let currentCollection = collections[pathArray[0]]
 
   if (pathArray.length === 1) {
-    return currentCollection.requests
+    const latestVersionedRequests = currentCollection.requests.filter(
+      (req): req is HoppRESTRequest => req.v === "3"
+    )
+
+    return latestVersionedRequests
   }
   for (let i = 1; i < pathArray.length; i++) {
     const folder = currentCollection.folders[pathArray[i]]
     if (folder) currentCollection = folder
   }
 
-  return currentCollection.requests
+  const latestVersionedRequests = currentCollection.requests.filter(
+    (req): req is HoppRESTRequest => req.v === "3"
+  )
+
+  return latestVersionedRequests
 }

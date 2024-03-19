@@ -579,12 +579,18 @@ const getComputedAuthHeaders = (
     })
   } else if (
     request.auth.authType === "bearer" ||
-    request.auth.authType === "oauth-2"
+    (request.auth.authType === "oauth-2" && request.auth.addTo === "HEADERS")
   ) {
+    const requestAuth = request.auth
+
+    const isOAuth2 = requestAuth.authType === "oauth-2"
+
+    const token = isOAuth2 ? requestAuth.grantTypeInfo.token : requestAuth.token
+
     headers.push({
       active: true,
       key: "Authorization",
-      value: `Bearer ${request.auth.token}`,
+      value: `Bearer ${token}`,
     })
   } else if (request.auth.authType === "api-key") {
     const { key, addTo } = request.auth

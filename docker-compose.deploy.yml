@@ -19,6 +19,8 @@ services:
       - ENABLE_SUBPATH_BASED_ACCESS=true
     env_file:
       - ./.env
+    ports:
+      - "3080:80"
     depends_on:
       hoppscotch-db:
         condition: service_healthy

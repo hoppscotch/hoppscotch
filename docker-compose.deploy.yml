@@ -21,7 +21,7 @@ services:
       hoppscotch-db:
         condition: service_healthy
     ports:
-      - "80:80"
+      - "3080:80"
 
   # The preset DB service, you can delete/comment the below lines if
   # you are using an external postgres instance

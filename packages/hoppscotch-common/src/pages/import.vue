@@ -79,7 +79,7 @@ const importCollections = (url: unknown, type: unknown) =>
         content.data,
         TO.fromPredicate(isOfType("string")),
         TE.fromTaskOption(() => IMPORTER_INVALID_FILE_FORMAT),
-        TE.chain((data) => importer.importer(data))
+        TE.chain((data) => importer.importer([data]))
       )
     )
   )

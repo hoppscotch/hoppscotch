@@ -3,8 +3,6 @@ version: "3.7"
 services:
   hoppscotch-db:
     image: postgres:15
-    ports:
-      - "5432:5432"
     user: postgres
     environment:
       POSTGRES_USER: postgres
@@ -22,8 +20,6 @@ services:
       - ENABLE_SUBPATH_BASED_ACCESS=true
     env_file:
       - ./.env
-    ports:
-      - "3080:80"
     depends_on:
       - hoppscotch-db
     command: ["sh", "-c", "pnpm exec prisma migrate deploy && node /usr/src/app/aio_run.mjs"]

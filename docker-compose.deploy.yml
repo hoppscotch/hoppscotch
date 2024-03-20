@@ -13,7 +13,6 @@ services:
 
   hoppscotch-aio:
     container_name: hoppscotch-aio
-    restart: unless-stopped
     build:
       dockerfile: prod.Dockerfile
       context: .
@@ -28,4 +27,13 @@ services:
     depends_on:
       - hoppscotch-db
     command: ["sh", "-c", "pnpm exec prisma migrate deploy && node /usr/src/app/aio_run.mjs"]
+    healthcheck:
+      test:
+        - CMD
+        - curl
+        - '-f'
+        - 'http://localhost:3080'
+      interval: 2s
+      timeout: 10s
+      retries: 30
 

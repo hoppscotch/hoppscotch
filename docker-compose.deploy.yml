@@ -32,7 +32,7 @@ services:
         - CMD
         - curl
         - '-f'
-        - 'http://localhost:3080'
+        - 'http://localhost:80'
       interval: 2s
       timeout: 10s
       retries: 30

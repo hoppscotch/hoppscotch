@@ -1,18 +1,18 @@
 [
   {
-    "v": 1,
+    "v": 2,
     "name": "CollectionA",
     "folders": [
       {
-        "v": 1,
+        "v": 2,
         "name": "FolderA",
         "folders": [
           {
-            "v": 1,
+            "v": 2,
             "name": "FolderB",
             "folders": [
               {
-                "v": 1,
+                "v": 2,
                 "name": "FolderC",
                 "folders": [],
                 "requests": [
@@ -153,11 +153,11 @@
     }
   },
   {
-    "v": 1,
+    "v": 2,
     "name": "CollectionB",
     "folders": [
       {
-        "v": 1,
+        "v": 2,
         "name": "FolderA",
         "folders": [],
         "requests": [

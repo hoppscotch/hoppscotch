@@ -1,8 +1,11 @@
+import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data";
 import fs from "fs/promises";
-import { FormDataEntry } from "../types/request";
+import { entityReference } from "verzod";
+import { z } from "zod";
+
 import { error } from "../types/errors";
-import { isRESTCollection, isHoppErrnoException } from "./checks";
-import { HoppCollection } from "@hoppscotch/data";
+import { FormDataEntry } from "../types/request";
+import { isHoppErrnoException } from "./checks";
 
 /**
  * Parses array of FormDataEntry to FormData.
@@ -67,7 +70,11 @@ export async function parseCollectionData(
     ? contents
     : [contents];
 
-  if (maybeArrayOfCollections.some((x) => !isRESTCollection(x))) {
+  const collectionSchemaParsedResult = z
+    .array(entityReference(HoppCollection))
+    .safeParse(maybeArrayOfCollections);
+
+  if (!collectionSchemaParsedResult.success) {
     throw error({
       code: "MALFORMED_COLLECTION",
       path,
@@ -75,5 +82,22 @@ export async function parseCollectionData(
     });
   }
 
-  return maybeArrayOfCollections as HoppCollection[];
+  return collectionSchemaParsedResult.data.map((collection) => {
+    const requestSchemaParsedResult = z
+      .array(entityReference(HoppRESTRequest))
+      .safeParse(collection.requests);
+
+    if (!requestSchemaParsedResult.success) {
+      throw error({
+        code: "MALFORMED_COLLECTION",
+        path,
+        data: "Please check the collection data.",
+      });
+    }
+
+    return {
+      ...collection,
+      requests: requestSchemaParsedResult.data,
+    };
+  });
 }

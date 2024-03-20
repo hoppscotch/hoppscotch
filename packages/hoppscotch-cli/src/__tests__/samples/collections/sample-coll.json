@@ -1,0 +1,26 @@
+{
+    "v": 1,
+    "name": "tests",
+    "folders": [],
+    "requests": [
+        {
+            "v": "2",
+            "endpoint": "<<baseURL>>",
+            "name": "",
+            "params": [],
+            "headers": [],
+            "method": "GET",
+            "auth": {
+                "authType": "none",
+                "authActive": true
+            },
+            "preRequestScript": "",
+            "testScript": "// Check status code is 200\npw.test(\"Status code is 200\", ()=> {\n    pw.expect(pw.response.status).toBe(200);\n});\n\n// Check JSON response property\npw.test(\"Check JSON response property\", ()=> {\n    pw.expect(pw.response.body.method).toBe(\"GET\");\n    pw.expect(pw.response.body.headers).toBeType(\"object\");\n});",
+            "body": {
+                "contentType": null,
+                "body": null
+              },
+            "requestVariables": []
+        }
+    ]
+}

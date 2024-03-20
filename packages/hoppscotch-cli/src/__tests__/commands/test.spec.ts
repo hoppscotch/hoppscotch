@@ -20,7 +20,7 @@ describe("Test `hopp test <file>` command:", () => {
       const out = getErrorCode(stderr);
       expect(out).toBe<HoppErrorCode>("INVALID_ARGUMENT");
     });
-  })
+  });
 
   describe("Supplied collection export file validations", () => {
     test("Errors with the code `FILE_NOT_FOUND` if the supplied collection export file doesn't exist", async () => {
@@ -66,6 +66,43 @@ describe("Test `hopp test <file>` command:", () => {
     });
   });
 
+  describe("Versioned entities", () => {
+    describe("Collections & Requests", () => {
+      const testFixtures = [
+        { fileName: "coll-v1-req-v0.json", collVersion: 1, reqVersion: 0 },
+        { fileName: "coll-v1-req-v1.json", collVersion: 1, reqVersion: 1 },
+        { fileName: "coll-v2-req-v2.json", collVersion: 2, reqVersion: 2 },
+        { fileName: "coll-v2-req-v3.json", collVersion: 2, reqVersion: 3 },
+      ];
+
+      testFixtures.forEach(({ collVersion, fileName, reqVersion }) => {
+        test(`Successfully processes a supplied collection export file where the collection is based on the "v${collVersion}" schema and the request following the "v${reqVersion}" schema`, async () => {
+          const args = `test ${getTestJsonFilePath(fileName, "collection")}`;
+          const { error } = await runCLI(args);
+
+          expect(error).toBeNull();
+        });
+      });
+    });
+
+    describe("Environments", () => {
+      const testFixtures = [
+        { fileName: "env-v0.json", version: 0 },
+        { fileName: "env-v1.json", version: 1 },
+      ];
+
+      testFixtures.forEach(({ fileName, version }) => {
+        test(`Successfully processes the supplied collection and environment export files where the environment is based on the "v${version}" schema`, async () => {
+          const ENV_PATH = getTestJsonFilePath(fileName, "environment");
+          const args = `test ${getTestJsonFilePath("sample-coll.json", "collection")} --env ${ENV_PATH}`;
+          const { error } = await runCLI(args);
+
+          expect(error).toBeNull();
+        });
+      });
+    });
+  });
+
   test("Successfully processes a supplied collection export file of the expected format", async () => {
     const args = `test ${getTestJsonFilePath("passes-coll.json", "collection")}`;
     const { error } = await runCLI(args);
@@ -75,7 +112,8 @@ describe("Test `hopp test <file>` command:", () => {
 
   test("Successfully inherits headers and authorization set at the root collection", async () => {
     const args = `test ${getTestJsonFilePath(
-      "collection-level-headers-auth-coll.json", "collection"
+      "collection-level-headers-auth-coll.json",
+      "collection"
     )}`;
     const { error } = await runCLI(args);
 
@@ -84,7 +122,8 @@ describe("Test `hopp test <file>` command:", () => {
 
   test("Persists environment variables set in the pre-request script for consumption in the test script", async () => {
     const args = `test ${getTestJsonFilePath(
-      "pre-req-script-env-var-persistence-coll.json", "collection"
+      "pre-req-script-env-var-persistence-coll.json",
+      "collection"
     )}`;
     const { error } = await runCLI(args);
 
@@ -106,7 +145,8 @@ describe("Test `hopp test <file> --env <file>` command:", () => {
 
     test("Errors with the code `INVALID_FILE_TYPE` if the supplied environment export file doesn't end with the `.json` extension", async () => {
       const args = `${VALID_TEST_ARGS} --env ${getTestJsonFilePath(
-        "notjson-coll.txt", "collection"
+        "notjson-coll.txt",
+        "collection"
       )}`;
       const { stderr } = await runCLI(args);
 
@@ -123,7 +163,10 @@ describe("Test `hopp test <file> --env <file>` command:", () => {
     });
 
     test("Errors with the code `MALFORMED_ENV_FILE` on supplying a malformed environment export file", async () => {
-      const ENV_PATH = getTestJsonFilePath("malformed-envs.json", "environment");
+      const ENV_PATH = getTestJsonFilePath(
+        "malformed-envs.json",
+        "environment"
+      );
       const args = `${VALID_TEST_ARGS} --env ${ENV_PATH}`;
       const { stderr } = await runCLI(args);
 
@@ -142,7 +185,10 @@ describe("Test `hopp test <file> --env <file>` command:", () => {
   });
 
   test("Successfully resolves values from the supplied environment export file", async () => {
-    const TESTS_PATH = getTestJsonFilePath("env-flag-tests-coll.json", "collection");
+    const TESTS_PATH = getTestJsonFilePath(
+      "env-flag-tests-coll.json",
+      "collection"
+    );
     const ENV_PATH = getTestJsonFilePath("env-flag-envs.json", "environment");
     const args = `test ${TESTS_PATH} --env ${ENV_PATH}`;
 
@@ -151,8 +197,14 @@ describe("Test `hopp test <file> --env <file>` command:", () => {
   });
 
   test("Successfully resolves environment variables referenced in the request body", async () => {
-    const COLL_PATH = getTestJsonFilePath("req-body-env-vars-coll.json", "collection");
-    const ENVS_PATH = getTestJsonFilePath("req-body-env-vars-envs.json", "environment");
+    const COLL_PATH = getTestJsonFilePath(
+      "req-body-env-vars-coll.json",
+      "collection"
+    );
+    const ENVS_PATH = getTestJsonFilePath(
+      "req-body-env-vars-envs.json",
+      "environment"
+    );
     const args = `test ${COLL_PATH} --env ${ENVS_PATH}`;
 
     const { error } = await runCLI(args);
@@ -160,7 +212,10 @@ describe("Test `hopp test <file> --env <file>` command:", () => {
   });
 
   test("Works with shorth `-e` flag", async () => {
-    const TESTS_PATH = getTestJsonFilePath("env-flag-tests-coll.json", "collection");
+    const TESTS_PATH = getTestJsonFilePath(
+      "env-flag-tests-coll.json",
+      "collection"
+    );
     const ENV_PATH = getTestJsonFilePath("env-flag-envs.json", "environment");
     const args = `test ${TESTS_PATH} -e ${ENV_PATH}`;
 
@@ -183,7 +238,10 @@ describe("Test `hopp test <file> --env <file>` command:", () => {
         secretHeaderValue: "secret-header-value",
       };
 
-      const COLL_PATH = getTestJsonFilePath("secret-envs-coll.json", "collection");
+      const COLL_PATH = getTestJsonFilePath(
+        "secret-envs-coll.json",
+        "collection"
+      );
       const ENVS_PATH = getTestJsonFilePath("secret-envs.json", "environment");
       const args = `test ${COLL_PATH} --env ${ENVS_PATH}`;
 
@@ -197,8 +255,14 @@ describe("Test `hopp test <file> --env <file>` command:", () => {
 
     // Prefers values specified in the environment export file over values set in the system environment
     test("Successfully picks the values for secret environment variables set directly in the environment export file and persists the environment variables set from the pre-request script", async () => {
-      const COLL_PATH = getTestJsonFilePath("secret-envs-coll.json", "collection");
-      const ENVS_PATH = getTestJsonFilePath("secret-supplied-values-envs.json", "environment");
+      const COLL_PATH = getTestJsonFilePath(
+        "secret-envs-coll.json",
+        "collection"
+      );
+      const ENVS_PATH = getTestJsonFilePath(
+        "secret-supplied-values-envs.json",
+        "environment"
+      );
       const args = `test ${COLL_PATH} --env ${ENVS_PATH}`;
 
       const { error, stdout } = await runCLI(args);
@@ -212,9 +276,13 @@ describe("Test `hopp test <file> --env <file>` command:", () => {
     // Values set from the scripting context takes the highest precedence
     test("Setting values for secret environment variables from the pre-request script overrides values set at the supplied environment export file", async () => {
       const COLL_PATH = getTestJsonFilePath(
-        "secret-envs-persistence-coll.json", "collection"
+        "secret-envs-persistence-coll.json",
+        "collection"
       );
-      const ENVS_PATH = getTestJsonFilePath("secret-supplied-values-envs.json", "environment");
+      const ENVS_PATH = getTestJsonFilePath(
+        "secret-supplied-values-envs.json",
+        "environment"
+      );
       const args = `test ${COLL_PATH} --env ${ENVS_PATH}`;
 
       const { error, stdout } = await runCLI(args);
@@ -227,10 +295,12 @@ describe("Test `hopp test <file> --env <file>` command:", () => {
 
     test("Persists secret environment variable values set from the pre-request script for consumption in the request and post-request script context", async () => {
       const COLL_PATH = getTestJsonFilePath(
-        "secret-envs-persistence-scripting-coll.json", "collection"
+        "secret-envs-persistence-scripting-coll.json",
+        "collection"
       );
       const ENVS_PATH = getTestJsonFilePath(
-        "secret-envs-persistence-scripting-envs.json", "environment"
+        "secret-envs-persistence-scripting-envs.json",
+        "environment"
       );
       const args = `test ${COLL_PATH} --env ${ENVS_PATH}`;
 

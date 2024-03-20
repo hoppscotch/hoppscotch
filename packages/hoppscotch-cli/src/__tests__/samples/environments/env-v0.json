@@ -1,0 +1,9 @@
+{
+  "name": "env-v0",
+  "variables": [
+    {
+      "key": "baseURL",
+      "value": "https://echo.hoppscotch.io"
+    }
+  ]
+}

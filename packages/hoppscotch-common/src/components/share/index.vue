@@ -273,6 +273,10 @@ const loading = computed(
 )
 
 onLoggedIn(() => {
+  if (adapter.isInitialized()) {
+    return
+  }
+
   try {
     // wait for a bit to let the auth token to be set
     // because in some race conditions, the token is not set this fixes that

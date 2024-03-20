@@ -23,10 +23,10 @@
             @click="provider.action"
           />
 
-          <hr v-if="additonalLoginItems.length > 0" />
+          <hr v-if="additionalLoginItems.length > 0" />
 
           <HoppSmartItem
-            v-for="loginItem in additonalLoginItems"
+            v-for="loginItem in additionalLoginItems"
             :key="loginItem.id"
             :icon="loginItem.icon"
             :label="loginItem.text(t)"
@@ -170,7 +170,7 @@ type AuthProviderItem = {
 }
 
 let allowedAuthProviders: AuthProviderItem[] = []
-let additonalLoginItems: LoginItemDef[] = []
+const additionalLoginItems: LoginItemDef[] = []
 
 const doAdditionalLoginItemClickAction = async (item: LoginItemDef) => {
   await item.onClick()
@@ -199,10 +199,33 @@ onMounted(async () => {
   allowedAuthProviders = enabledAuthProviders
 
   // setup the additional login items
-  additonalLoginItems =
-    platform.auth.additionalLoginItems?.filter((item) =>
-      res.right.includes(item.id)
-    ) ?? []
+  platform.auth.additionalLoginItems?.forEach((item) => {
+    if (res.right.includes(item.id)) {
+      additionalLoginItems.push(item)
+    }
+
+    // since the BE send the OIDC auth providers as OIDC:providerName,
+    // we need to split the string and use the providerName as the text
+    if (item.id === "OIDC") {
+      res.right
+        .filter((provider) => provider.startsWith("OIDC"))
+        .forEach((provider) => {
+          const OIDCName = provider.split(":")[1]
+          const loginItemText = OIDCName
+            ? () =>
+                t("auth.continue_with_auth_provider", {
+                  provider: OIDCName,
+                })
+            : item.text
+
+          const OIDCLoginItem = {
+            ...item,
+            text: loginItemText,
+          }
+          additionalLoginItems.push(OIDCLoginItem)
+        })
+    }
+  })
 
   isLoadingAllowedAuthProviders.value = false
 })
@@ -308,6 +331,14 @@ const authProvidersAvailable: AuthProviderItem[] = [
     id: "GITHUB",
     icon: IconGithub,
     label: t("auth.continue_with_github"),
+    action: signInWithGithub,
+    isLoading: signingInWithGitHub,
+  },
+  // the authprovider either send github or github:enterprise and both are handled by the same route
+  {
+    id: "GITHUB:ENTERPRISE",
+    icon: IconGithub,
+    label: t("auth.continue_with_github_enterprise"),
     action: signInWithGithub,
     isLoading: signingInWithGitHub,
   },

@@ -1,40 +1,14 @@
-# Docker Compose config used for internal test and QA deployments
-# This just spins up the AIO container along with an attached DB to the standard HTTP ports with subpath access mode
-
-# TODO: Add Healthcheck for the AIO container
+# THIS IS NOT TO BE USED FOR PERSONAL DEPLOYMENTS!
+# Internal Docker Compose Image used for internal testing deployments
 
 version: "3.7"
 
 services:
-  # The service that spins up all 3 services at once in one container
-  hoppscotch-aio:
-    container_name: hoppscotch-aio
-    restart: unless-stopped
-    build:
-      dockerfile: prod.Dockerfile
-      context: .
-      target: aio
-    environment:
-      - DATABASE_URL=postgresql://postgres:testpass@hoppscotch-db:5432/hoppscotch
-      - ENABLE_SUBPATH_BASED_ACCESS=true
-    depends_on:
-      hoppscotch-db:
-        condition: service_healthy
-    ports:
-      - "3080:80"
-
-  # The preset DB service, you can delete/comment the below lines if
-  # you are using an external postgres instance
-  # This will be exposed at port 5432
   hoppscotch-db:
     image: postgres:15
-    ports:
-      - "5432:5432"
     user: postgres
     environment:
-      # The default user defined by the docker image
       POSTGRES_USER: postgres
-      # NOTE: Please UPDATE THIS PASSWORD!
       POSTGRES_PASSWORD: testpass
       POSTGRES_DB: hoppscotch
     healthcheck:
@@ -46,3 +20,29 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+
+  hoppscotch-aio:
+    container_name: hoppscotch-aio
+    build:
+      dockerfile: prod.Dockerfile
+      context: .
+      target: aio
+    environment:
+      - DATABASE_URL=postgresql://postgres:testpass@hoppscotch-db:5432/hoppscotch
+      - ENABLE_SUBPATH_BASED_ACCESS=true
+    env_file:
+      - ./.env
+    depends_on:
+      hoppscotch-db:
+        condition: service_healthy
+    command: ["sh", "-c", "pnpm exec prisma migrate deploy && node /usr/src/app/aio_run.mjs"]
+    healthcheck:
+      test:
+        - CMD
+        - curl
+        - '-f'
+        - 'http://localhost:80'
+      interval: 2s
+      timeout: 10s
+      retries: 30
+

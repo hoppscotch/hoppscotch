@@ -23,10 +23,10 @@
             @click="provider.action"
           />
 
-          <hr v-if="additonalLoginItems.length > 0" />
+          <hr v-if="additionalLoginItems.length > 0" />
 
           <HoppSmartItem
-            v-for="loginItem in additonalLoginItems"
+            v-for="loginItem in additionalLoginItems"
             :key="loginItem.id"
             :icon="loginItem.icon"
             :label="loginItem.text(t)"
@@ -170,7 +170,7 @@ type AuthProviderItem = {
 }
 
 let allowedAuthProviders: AuthProviderItem[] = []
-const additonalLoginItems: LoginItemDef[] = []
+const additionalLoginItems: LoginItemDef[] = []
 
 const doAdditionalLoginItemClickAction = async (item: LoginItemDef) => {
   await item.onClick()

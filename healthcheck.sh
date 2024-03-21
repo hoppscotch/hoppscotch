@@ -9,6 +9,10 @@ curlCheck() {
   fi
 }
 
-curlCheck "http://localhost:3000"
-curlCheck "http://localhost:3100"
-curlCheck "http://localhost:3170/ping"
+if [ "$ENABLE_SUBPATH_BASED_ACCESS" = "true" ]; then
+  curlCheck "http://localhost:80/backend/ping"
+else
+  curlCheck "http://localhost:3000"
+  curlCheck "http://localhost:3100"
+  curlCheck "http://localhost:3170/ping"
+fi

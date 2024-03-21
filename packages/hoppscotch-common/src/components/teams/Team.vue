@@ -3,137 +3,131 @@
     class="flex flex-1 flex-col rounded border border-divider"
     @contextmenu.prevent="!compact ? options.tippy.show() : null"
   >
-    <div v-if="loading" class="flex flex-col items-center justify-center p-2">
-      <HoppSmartSpinner class="mb-4" />
-      <span class="text-secondaryLight">{{ t("state.loading") }}</span>
+    <div
+      class="flex flex-1 items-start"
+      :class="
+        compact
+          ? team.myRole === 'OWNER'
+            ? 'cursor-pointer transition hover:border-dividerDark hover:bg-primaryDark focus-visible:border-dividerDark'
+            : 'cursor-not-allowed bg-primaryLight'
+          : ''
+      "
+      @click="
+        compact
+          ? team.myRole === 'OWNER'
+            ? $emit('invite-team')
+            : noPermission()
+          : ''
+      "
+    >
+      <div class="p-4">
+        <label
+          class="font-semibold text-secondaryDark"
+          :class="{ 'cursor-pointer': compact && team.myRole === 'OWNER' }"
+        >
+          {{ team.name || t("state.nothing_found") }}
+        </label>
+        <TeamsMemberStack :team-members="team.teamMembers" class="mt-4" />
+      </div>
     </div>
-    <template v-else>
-      <div
-        class="flex flex-1 items-start"
-        :class="
-          compact
-            ? team.myRole === 'OWNER'
-              ? 'cursor-pointer transition hover:border-dividerDark hover:bg-primaryDark focus-visible:border-dividerDark'
-              : 'cursor-not-allowed bg-primaryLight'
-            : ''
-        "
-        @click="
-          compact
-            ? team.myRole === 'OWNER'
-              ? $emit('invite-team')
-              : noPermission()
-            : ''
-        "
-      >
-        <div class="p-4">
-          <label
-            class="font-semibold text-secondaryDark"
-            :class="{ 'cursor-pointer': compact && team.myRole === 'OWNER' }"
-          >
-            {{ team.name || t("state.nothing_found") }}
-          </label>
-          <TeamsMemberStack :team-members="team.teamMembers" class="mt-4" />
-        </div>
-      </div>
-      <div v-if="!compact" class="flex flex-shrink-0 items-end justify-between">
-        <span>
+    <div v-if="!compact" class="flex flex-shrink-0 items-end justify-between">
+      <span>
+        <HoppButtonSecondary
+          v-if="team.myRole === 'OWNER'"
+          :icon="IconEdit"
+          class="rounded-none"
+          :label="t('action.edit')"
+          @click="
+            () => {
+              $emit('edit-team')
+            }
+          "
+        />
+        <HoppButtonSecondary
+          v-if="team.myRole === 'OWNER'"
+          :icon="IconUserPlus"
+          class="rounded-none"
+          :label="t('team.invite')"
+          @click="
+            () => {
+              emit('invite-team')
+            }
+          "
+        />
+      </span>
+      <span>
+        <tippy
+          ref="options"
+          interactive
+          trigger="click"
+          theme="popover"
+          :on-shown="() => tippyActions.focus()"
+        >
           <HoppButtonSecondary
-            v-if="team.myRole === 'OWNER'"
-            :icon="IconEdit"
-            class="rounded-none"
-            :label="t('action.edit')"
-            @click="
-              () => {
-                $emit('edit-team')
-              }
-            "
+            v-tippy="{ theme: 'tooltip' }"
+            :title="t('action.more')"
+            :icon="IconMoreVertical"
           />
-          <HoppButtonSecondary
-            v-if="team.myRole === 'OWNER'"
-            :icon="IconUserPlus"
-            class="rounded-none"
-            :label="t('team.invite')"
-            @click="
-              () => {
-                emit('invite-team')
-              }
-            "
-          />
-        </span>
-        <span>
-          <tippy
-            ref="options"
-            interactive
-            trigger="click"
-            theme="popover"
-            :on-shown="() => tippyActions.focus()"
-          >
-            <HoppButtonSecondary
-              v-tippy="{ theme: 'tooltip' }"
-              :title="t('action.more')"
-              :icon="IconMoreVertical"
-            />
-            <template #content="{ hide }">
-              <div
-                ref="tippyActions"
-                class="flex flex-col focus:outline-none"
-                tabindex="0"
-                @keyup.e="team.myRole === 'OWNER' ? edit.$el.click() : null"
-                @keyup.x="
-                  !(team.myRole === 'OWNER' && team.ownersCount == 1)
-                    ? exit.$el.click()
-                    : null
+          <template #content="{ hide }">
+            <div
+              ref="tippyActions"
+              class="flex flex-col focus:outline-none"
+              tabindex="0"
+              @keyup.e="team.myRole === 'OWNER' ? edit.$el.click() : null"
+              @keyup.x="
+                !(team.myRole === 'OWNER' && team.ownersCount == 1)
+                  ? exit.$el.click()
+                  : null
+              "
+              @keyup.delete="
+                team.myRole === 'OWNER' ? deleteAction.$el.click() : null
+              "
+              @keyup.escape="hide()"
+            >
+              <HoppSmartItem
+                v-if="team.myRole === 'OWNER'"
+                ref="edit"
+                :icon="IconEdit"
+                :label="t('action.edit')"
+                :shortcut="['E']"
+                @click="
+                  () => {
+                    $emit('edit-team')
+                    hide()
+                  }
                 "
-                @keyup.delete="
-                  team.myRole === 'OWNER' ? deleteAction.$el.click() : null
+              />
+              <HoppSmartItem
+                v-if="!(team.myRole === 'OWNER' && team.ownersCount == 1)"
+                ref="exit"
+                :icon="IconUserX"
+                :label="t('team.exit')"
+                :shortcut="['X']"
+                @click="
+                  () => {
+                    confirmExit = true
+                    hide()
+                  }
                 "
-                @keyup.escape="hide()"
-              >
-                <HoppSmartItem
-                  v-if="team.myRole === 'OWNER'"
-                  ref="edit"
-                  :icon="IconEdit"
-                  :label="t('action.edit')"
-                  :shortcut="['E']"
-                  @click="
-                    () => {
-                      $emit('edit-team')
-                      hide()
-                    }
-                  "
-                />
-                <HoppSmartItem
-                  v-if="!(team.myRole === 'OWNER' && team.ownersCount == 1)"
-                  ref="exit"
-                  :icon="IconUserX"
-                  :label="t('team.exit')"
-                  :shortcut="['X']"
-                  @click="
-                    () => {
-                      confirmExit = true
-                      hide()
-                    }
-                  "
-                />
-                <HoppSmartItem
-                  v-if="team.myRole === 'OWNER'"
-                  ref="deleteAction"
-                  :icon="IconTrash2"
-                  :label="t('action.delete')"
-                  :shortcut="['⌫']"
-                  @click="
-                    () => {
-                      confirmRemove = true
-                      hide()
-                    }
-                  "
-                />
-              </div>
-            </template>
-          </tippy>
-        </span>
-      </div>
-    </template>
+              />
+              <HoppSmartItem
+                v-if="team.myRole === 'OWNER'"
+                ref="deleteAction"
+                :icon="IconTrash2"
+                :label="t('action.delete')"
+                :shortcut="['⌫']"
+                @click="
+                  () => {
+                    confirmRemove = true
+                    hide()
+                  }
+                "
+              />
+            </div>
+          </template>
+        </tippy>
+      </span>
+    </div>
     <HoppSmartConfirmModal
       :show="confirmRemove"
       :title="t('confirm.remove_team')"
@@ -212,13 +206,15 @@ const deleteTeam = () => {
 
         const currentWorkspace = workspaceService.currentWorkspace.value
 
-        // If the current workspace is the deleted team, change the workspace to personal
+        // If the current workspace is the deleted workspace, change the workspace to personal
         if (
           currentWorkspace.type === "team" &&
           currentWorkspace.teamID === props.teamID
         ) {
           workspaceService.changeWorkspace({ type: "personal" })
         }
+
+        confirmRemove.value = false
       }
     )
   )() // Tasks (and TEs) are lazy, so call the function returned

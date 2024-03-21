@@ -428,7 +428,7 @@
       "not_found": "Environment variable “{environment}” not found."
     },
     "header": {
-      "cookie": "The browser doesn't allow Hoppscotch to set Cookie Headers. Please use Authorization Headers instead. However, our Hoppscotch Desktop App is live now and support Cookies."
+      "cookie": "The browser doesn't allow Hoppscotch to set Cookie Headers. Please use Authorization Headers instead. However, our Hoppscotch Desktop App is live now and supports Cookies."
     },
     "response": {
       "401_error": "Please check your authentication credentials.",

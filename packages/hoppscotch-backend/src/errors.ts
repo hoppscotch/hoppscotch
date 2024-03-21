@@ -85,6 +85,12 @@ export const USER_ALREADY_INVITED = 'admin/user_already_invited' as const;
 export const USER_UPDATE_FAILED = 'user/update_failed' as const;
 
 /**
+ * User display name validation failure
+ * (UserService)
+ */
+export const USER_SHORT_DISPLAY_NAME = 'user/short_display_name' as const;
+
+/**
  * User deletion failure
  * (UserService)
  */

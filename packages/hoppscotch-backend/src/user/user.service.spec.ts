@@ -1,4 +1,9 @@
-import { JSON_INVALID, USERS_NOT_FOUND, USER_NOT_FOUND } from 'src/errors';
+import {
+  JSON_INVALID,
+  USERS_NOT_FOUND,
+  USER_NOT_FOUND,
+  USER_SHORT_DISPLAY_NAME,
+} from 'src/errors';
 import { mockDeep, mockReset } from 'jest-mock-extended';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AuthUser } from 'src/types/AuthUser';
@@ -479,6 +484,14 @@ describe('UserService', () => {
         user.displayName,
       );
       expect(result).toEqualLeft(USER_NOT_FOUND);
+    });
+    test('should resolve left and error when short display name is passed', async () => {
+      const newDisplayName = '';
+      const result = await userService.updateUserDisplayName(
+        user.uid,
+        newDisplayName,
+      );
+      expect(result).toEqualLeft(USER_SHORT_DISPLAY_NAME);
     });
   });
 

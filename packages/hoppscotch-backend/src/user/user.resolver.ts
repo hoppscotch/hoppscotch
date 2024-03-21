@@ -63,18 +63,18 @@ export class UserResolver {
     description: 'Update a users display name',
   })
   @UseGuards(GqlAuthGuard)
-  async updateUserName(
+  async updateDisplayName(
     @GqlUser() user: AuthUser,
     @Args({
-      name: 'updatedUserName',
+      name: 'updatedDisplayName',
       description: 'New name of user',
       type: () => String,
     })
-    updatedUserName: string,
+    updatedDisplayName: string,
   ) {
     const updatedUser = await this.userService.updateUserDisplayName(
       user.uid,
-      updatedUserName,
+      updatedDisplayName,
     );
 
     if (E.isLeft(updatedUser)) throwErr(updatedUser.left);

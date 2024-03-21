@@ -4,6 +4,7 @@ import {
   ViewPlugin,
   ViewUpdate,
   placeholder,
+  tooltips,
 } from "@codemirror/view"
 import {
   Extension,
@@ -44,6 +45,8 @@ import { invokeAction } from "~/helpers/actions"
 import { useDebounceFn } from "@vueuse/core"
 // TODO: Migrate from legacy mode
 
+import * as E from "fp-ts/Either"
+
 type ExtendedEditorConfig = {
   mode: string
   placeholder: string
@@ -60,6 +63,8 @@ type CodeMirrorOptions = {
   environmentHighlights: boolean
 
   additionalExts?: Extension[]
+
+  contextMenuEnabled?: boolean
 
   // callback on editor update
   onUpdate?: (view: ViewUpdate) => void
@@ -160,6 +165,21 @@ const getLanguage = (langMime: string): Language | null => {
   return null
 }
 
+const formatXML = (doc: string) => {
+  try {
+    const formatted = xmlFormat(doc, {
+      indentation: "  ",
+      collapseContent: true,
+      lineSeparator: "\n",
+      whiteSpaceAtEndOfSelfclosingTag: true,
+    })
+
+    return E.right(formatted)
+  } catch (e) {
+    return E.left(e)
+  }
+}
+
 /**
  * Uses xml-formatter to format the XML document
  * @param doc Document to parse
@@ -171,14 +191,11 @@ const parseDoc = (
   langMime: string
 ): string | undefined => {
   if (langMime === "application/xml" && doc) {
-    return xmlFormat(doc, {
-      indentation: "  ",
-      collapseContent: true,
-      lineSeparator: "\n",
-    })
-  } else {
-    return doc
+    const xmlFormatingResult = formatXML(doc)
+    if (E.isRight(xmlFormatingResult)) return xmlFormatingResult.right
   }
+
+  return doc
 }
 
 const getEditorLanguage = (
@@ -193,6 +210,9 @@ export function useCodemirror(
   options: CodeMirrorOptions
 ): { cursor: Ref<{ line: number; ch: number }> } {
   const { subscribeToStream } = useStreamSubscriber()
+
+  // Set default value for contextMenuEnabled if not provided
+  options.contextMenuEnabled = options.contextMenuEnabled ?? true
 
   const additionalExts = new Compartment()
   const language = new Compartment()
@@ -250,6 +270,7 @@ export function useCodemirror(
       basicSetup,
       baseTheme,
       syntaxHighlighting(baseHighlightStyle, { fallback: true }),
+
       ViewPlugin.fromClass(
         class {
           update(update: ViewUpdate) {
@@ -258,8 +279,11 @@ export function useCodemirror(
               handleTextSelection()
             }, 140)
 
-            el.addEventListener("mouseup", debounceFn)
-            el.addEventListener("keyup", debounceFn)
+            // Only add event listeners if context menu is enabled in the editor
+            if (options.contextMenuEnabled) {
+              el.addEventListener("mouseup", debounceFn)
+              el.addEventListener("keyup", debounceFn)
+            }
 
             if (options.onUpdate) {
               options.onUpdate(update)
@@ -296,9 +320,10 @@ export function useCodemirror(
           }
         }
       ),
+
       EditorView.domEventHandlers({
         scroll(event) {
-          if (event.target) {
+          if (event.target && options.contextMenuEnabled) {
             handleTextSelection()
           }
         },
@@ -337,6 +362,10 @@ export function useCodemirror(
           run: indentLess,
         },
       ]),
+      tooltips({
+        parent: document.body,
+        position: "absolute",
+      }),
       EditorView.contentAttributes.of({ "data-enable-grammarly": "false" }),
       additionalExts.of(options.additionalExts ?? []),
     ]

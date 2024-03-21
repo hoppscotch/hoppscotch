@@ -1,6 +1,8 @@
 import * as TE from "fp-ts/TaskEither"
 import { pipe } from "fp-ts/function"
-import { execTestScript, TestResponse } from "../../test-runner"
+
+import { runTestScript } from "~/test-runner/node-vm"
+import { TestResponse } from "~/types"
 
 const fakeResponse: TestResponse = {
   status: 200,
@@ -10,12 +12,12 @@ const fakeResponse: TestResponse = {
 
 const func = (script: string, res: TestResponse) =>
   pipe(
-    execTestScript(script, { global: [], selected: [] }, res),
+    runTestScript(script, { global: [], selected: [] }, res),
     TE.map((x) => x.tests)
   )
 
-describe("execTestScript function behavior", () => {
-  test("returns a resolved promise for a valid test scripts with all green", () => {
+describe("runTestScript", () => {
+  test("returns a resolved promise for a valid test script with all green", () => {
     return expect(
       func(
         `

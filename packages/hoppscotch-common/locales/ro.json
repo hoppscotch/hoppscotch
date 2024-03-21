@@ -1,5 +1,6 @@
 {
   "action": {
+    "add": "Add",
     "autoscroll": "Derulare automată",
     "cancel": "Anulare",
     "choose_file": "Alegeți un fișier",
@@ -10,6 +11,7 @@
     "connect": "Conectare",
     "connecting": "Connecting",
     "copy": "Copiază",
+    "create": "Create",
     "delete": "Șterge",
     "disconnect": "Deconectare",
     "dismiss": "Renunță",
@@ -31,6 +33,7 @@
     "open_workspace": "Deschide spațiul de lucru",
     "paste": "Lipește",
     "prettify": "Formatează",
+    "properties": "Properties",
     "remove": "Elimină",
     "rename": "Rename",
     "restore": "Restabilește",
@@ -39,6 +42,7 @@
     "scroll_to_top": "Derulare la început",
     "search": "Căutare",
     "send": "Trimite",
+    "share": "Share",
     "start": "Start",
     "starting": "Starting",
     "stop": "Stop",
@@ -57,7 +61,9 @@
   "app": {
     "chat_with_us": "Vorbeste cu noi",
     "contact_us": "Contactează-ne",
+    "cookies": "Cookies",
     "copy": "Copiază",
+    "copy_interface_type": "Copy interface type",
     "copy_user_id": "Copiază token-ul de autentificare",
     "developer_option": "Setări pentru dezvoltatori",
     "developer_option_description": "Unelte pentru dezvoltatori care ajută în dezvoltarea și menținerea Hoopscotch.",
@@ -73,6 +79,7 @@
     "keyboard_shortcuts": "Comenzi rapide de la tastatură",
     "name": "Hoppscotch",
     "new_version_found": "Nouă versiune găsită. Reîmprospătați pentru a actualiza.",
+    "open_in_hoppscotch": "Open in Hoppscotch",
     "options": "Opțiuni",
     "proxy_privacy_policy": "Politica de confidențialitate proxy",
     "reload": "Reîncarcă",
@@ -112,10 +119,27 @@
   },
   "authorization": {
     "generate_token": "Generați token",
+    "graphql_headers": "Authorization Headers are sent as part of the payload to connection_init",
     "include_in_url": "Includeți în URL",
+    "inherited_from": "Inherited from {auth} from Parent Collection {collection} ",
     "learn": "Află cum",
+    "oauth": {
+      "redirect_auth_server_returned_error": "Auth Server returned an error state",
+      "redirect_auth_token_request_failed": "Request to get the auth token failed",
+      "redirect_auth_token_request_invalid_response": "Invalid Response from the Token Endpoint when requesting for an auth token",
+      "redirect_invalid_state": "Invalid State value present in the redirect",
+      "redirect_no_auth_code": "No Authorization Code present in the redirect",
+      "redirect_no_client_id": "No Client ID defined",
+      "redirect_no_client_secret": "No Client Secret Defined",
+      "redirect_no_code_verifier": "No Code Verifier Defined",
+      "redirect_no_token_endpoint": "No Token Endpoint Defined",
+      "something_went_wrong_on_oauth_redirect": "Something went wrong during OAuth Redirect",
+      "something_went_wrong_on_token_generation": "Something went wrong on token generation",
+      "token_generation_oidc_discovery_failed": "Failure on token generation: OpenID Connect Discovery Failed"
+    },
     "pass_key_by": "Transimteți cheia",
     "password": "Parolă",
+    "save_to_inherit": "Please save this request in any collection to inherit the authorization",
     "token": "Token",
     "type": "Tipul de autorizare",
     "username": "Nume de utilizator"
@@ -124,6 +148,7 @@
     "created": "Colecție creată",
     "different_parent": "Cannot reorder collection with different parent",
     "edit": "Editați colecția",
+    "import_or_create": "Import or create a collection",
     "invalid_name": "Vă rugăm să furnizați un nume valid pentru colecție",
     "invalid_root_move": "Collection already in the root",
     "moved": "Moved Successfully",
@@ -132,6 +157,8 @@
     "name_length_insufficient": "Numele colecției trebuie să aibă minim 3 caractere lungime",
     "new": "Colecție nouă",
     "order_changed": "Collection Order Updated",
+    "properties": "Collection Properties",
+    "properties_updated": "Collection Properties Updated",
     "renamed": "Colecția redenumită",
     "request_in_use": "Cerere în executare",
     "save_as": "Salvează ca",
@@ -151,6 +178,7 @@
     "remove_folder": "Sigur doriți să ștergeți definitiv acest folder?",
     "remove_history": "Sigur doriți să ștergeți definitiv tot istoricul?",
     "remove_request": "Sigur doriți să ștergeți definitiv această solicitare?",
+    "remove_shared_request": "Are you sure you want to permanently delete this shared request?",
     "remove_team": "Sigur doriți să ștergeți această echipă?",
     "remove_telemetry": "Sigur doriți să renunțați la telemetrie?",
     "request_change": "Sigur doriți să renunțați la cererea curentă? Modificările nesalvate se vor pierde.",
@@ -161,6 +189,24 @@
     "add_parameters": "Add to parameters",
     "open_request_in_new_tab": "Open request in new tab",
     "set_environment_variable": "Set as variable"
+  },
+  "cookies": {
+    "modal": {
+      "cookie_expires": "Expires",
+      "cookie_name": "Name",
+      "cookie_path": "Path",
+      "cookie_string": "Cookie string",
+      "cookie_value": "Value",
+      "empty_domain": "Domain is empty",
+      "empty_domains": "Domain list is empty",
+      "enter_cookie_string": "Enter cookie string",
+      "interceptor_no_support": "Your currently selected interceptor does not support cookies. Select a different Interceptor and try again.",
+      "managed_tab": "Managed",
+      "new_domain_name": "New domain name",
+      "no_cookies_in_domain": "No cookies set for this domain",
+      "raw_tab": "Raw",
+      "set": "Set a cookie"
+    }
   },
   "count": {
     "header": "Antet {count}",
@@ -192,11 +238,13 @@
     "profile": "Autentificați-vă pentru a putea vizualiza profilul",
     "protocols": "Protocoalele sunt goale",
     "schema": "Conectați-vă la un Endpoint GraphQL",
-    "shortcodes": "Codurile scurte sunt goale",
+    "shared_requests": "Shared requests are empty",
+    "shared_requests_logout": "Login to view your shared requests or create a new one",
     "subscription": "Subscriptions are empty",
     "team_name": "Numele echipei este gol",
     "teams": "Echipele sunt goale",
-    "tests": "Nu există teste pentru această solicitare"
+    "tests": "Nu există teste pentru această solicitare",
+    "shortcodes": "Codurile scurte sunt goale"
   },
   "environment": {
     "add_to_global": "Adaugă global",
@@ -209,6 +257,7 @@
     "empty_variables": "No variables",
     "global": "Global",
     "global_variables": "Global variables",
+    "import_or_create": "Import or create a environment",
     "invalid_name": "Vă rugăm să furnizați un nume valid pentru mediu",
     "list": "Environment variables",
     "my_environments": "My Environments",
@@ -232,8 +281,10 @@
     "variable_list": "Lista variabilelor"
   },
   "error": {
+    "authproviders_load_error": "Unable to load auth providers",
     "browser_support_sse": "Acest browser pare să nu aibă suport pentru Server Sent Events.",
     "check_console_details": "Verificați jurnalul consolei pentru detalii.",
+    "check_how_to_add_origin": "Check how you can add an origin",
     "curl_invalid_format": "cURL nu este formatat corect",
     "danger_zone": "Danger zone",
     "delete_account": "Your account is currently an owner in these teams:",
@@ -249,9 +300,12 @@
     "json_prettify_invalid_body": "Nu s-a putut formata un corp invalid, rezolvați erorile de sintaxă JSON și încercați din nou",
     "network_error": "Probleme cu conexiunea. Încercați din nou.",
     "network_fail": "Nu s-a putut trimite solicitarea",
+    "no_collections_to_export": "No collections to export. Please create a collection to get started.",
     "no_duration": "Fără durată",
+    "no_environments_to_export": "No environments to export. Please create an environment to get started.",
     "no_results_found": "Nu au fost găsite potriviri",
     "page_not_found": "Pagina nu a putut fi găsită",
+    "please_install_extension": "Please install the extension and add origin to the extension.",
     "proxy_error": "Proxy error",
     "script_fail": "Nu s-a putut executa scriptul",
     "something_went_wrong": "Ceva nu a mers bine",
@@ -260,6 +314,7 @@
   "export": {
     "as_json": "Exportați ca JSON",
     "create_secret_gist": "Creați Gist secret",
+    "failed": "Something went wrong while exporting",
     "gist_created": "Gist creat",
     "require_github": "Conectați-vă cu GitHub pentru a crea un Gist secret",
     "title": "Export"
@@ -286,6 +341,9 @@
     "subscriptions": "Abonamente",
     "switch_connection": "Switch connection"
   },
+  "graphql_collections": {
+    "title": "GraphQL Collections"
+  },
   "group": {
     "time": "Time",
     "url": "URL"
@@ -297,6 +355,8 @@
   },
   "helpers": {
     "authorization": "Antetul autorizației va fi generat automat la trimiterea cererii.",
+    "collection_properties_authorization": " This authorization will be set for every request in this collection.",
+    "collection_properties_header": "This header will be set for every request in this collection.",
     "generate_documentation_first": "Generați mai întâi documentația",
     "network_fail": "Imposibil de atins endpoint-ul API. Verificați conexiunea la rețea și încercați din nou.",
     "offline": "Pari să fii offline. Este posibil ca datele din acest spațiu de lucru să nu fie actualizate.",
@@ -316,7 +376,10 @@
   "import": {
     "collections": "Importați colecții",
     "curl": "Importați cURL",
+    "environments_from_gist": "Import From Gist",
+    "environments_from_gist_description": "Import Hoppscotch Environments From Gist",
     "failed": "Importul nu a reușit",
+    "from_file": "Import from File",
     "from_gist": "Importați din Gist",
     "from_gist_description": "Importați din Gist URL",
     "from_insomnia": "Importați din Insomnia",
@@ -331,11 +394,17 @@
     "from_postman_description": "Importați dintr-o colecție Postman",
     "from_url": "Importați prin URL",
     "gist_url": "Introduceți adresa URL Gist",
+    "gql_collections_from_gist_description": "Import GraphQL Collections From Gist",
+    "hoppscotch_environment": "Hoppscotch Environment",
+    "hoppscotch_environment_description": "Import Hoppscotch Environment JSON file",
     "import_from_url_invalid_fetch": "Nu s-au putut obține date de la URL",
     "import_from_url_invalid_file_format": "Eroare la importarea colecțiilor",
     "import_from_url_invalid_type": "Tip nesuportat. Valorile acceptate sunt 'hoppscotch', 'openapi', 'postman', 'insomnia'",
     "import_from_url_success": "Colecții importate",
+    "insomnia_environment_description": "Import Insomnia Environment from a JSON/YAML file",
     "json_description": "Importați colecții dintr-un fisier de collectii JSON Hoppscotch",
+    "postman_environment": "Postman Environment",
+    "postman_environment_description": "Import Postman Environment from a JSON file",
     "title": "Import"
   },
   "inspections": {
@@ -373,8 +442,10 @@
     "close_unsaved_tab": "You have unsaved changes",
     "collections": "Colecții",
     "confirm": "Confirmă",
+    "customize_request": "Customize Request",
     "edit_request": "Solicită editare",
-    "import_export": "Import Export"
+    "import_export": "Import Export",
+    "share_request": "Share Request"
   },
   "mqtt": {
     "already_subscribed": "You are already subscribed to this topic.",
@@ -449,13 +520,14 @@
       "structured": "Structurat",
       "text": "Text"
     },
-    "copy_link": "Copiază legătură",
     "different_collection": "Cannot reorder requests from different collections",
     "duplicated": "Request duplicated",
     "duration": "Durată",
     "enter_curl": "Introduceți cURL",
     "generate_code": "Generați cod",
     "generated_code": "Cod generat",
+    "go_to_authorization_tab": "Go to Authorization tab",
+    "go_to_body_tab": "Go to Body tab",
     "header_list": "Lista anteturilor",
     "invalid_name": "Vă rugăm să furnizați un nume pentru cerere",
     "method": "Metodă",
@@ -480,12 +552,14 @@
     "saved": "Cererea a fost salvată",
     "share": "Distribuie",
     "share_description": "Distribuie Hoppscotch către prietenii tăi",
+    "share_request": "Share Request",
     "stop": "Stop",
     "title": "Cerere",
     "type": "Tip de cerere",
     "url": "URL",
     "variables": "Variabile",
-    "view_my_links": "Vizualizare link-uri"
+    "view_my_links": "Vizualizare link-uri",
+    "copy_link": "Copiază legătură"
   },
   "response": {
     "audio": "Audio",
@@ -513,6 +587,7 @@
     "account_description": "Personalizați setările contului.",
     "account_email_description": "Adresa dvs. de e-mail principală.",
     "account_name_description": "Acesta este numele dvs. afișat.",
+    "additional": "Additional Settings",
     "background": "Fundal",
     "black_mode": "Negru",
     "choose_language": "Alege limba",
@@ -559,14 +634,31 @@
     "verified_email": "Adresă de email verificată",
     "verify_email": "Verificați adresa de email"
   },
-  "shortcodes": {
-    "actions": "Acțiuni",
-    "created_on": "Creat la",
-    "deleted": "Cod scurt șters",
-    "method": "Metodă",
-    "not_found": "Codul scurt nu a fost găsit",
-    "short_code": "Cod scurt",
-    "url": "URL"
+  "shared_requests": {
+    "button": "Button",
+    "button_info": "Create a 'Run in Hoppscotch' button for your website, blog or a README.",
+    "copy_html": "Copy HTML",
+    "copy_link": "Copy Link",
+    "copy_markdown": "Copy Markdown",
+    "creating_widget": "Creating widget",
+    "customize": "Customize",
+    "deleted": "Shared request deleted",
+    "description": "Select a widget, you can change and customize this later",
+    "embed": "Embed",
+    "embed_info": "Add a mini 'Hoppscotch API Playground' to your website, blog or documentation.",
+    "link": "Link",
+    "link_info": "Create a shareable link to share with anyone on the internet with view access.",
+    "modified": "Shared request modified",
+    "not_found": "Shared request not found",
+    "open_new_tab": "Open in new tab",
+    "preview": "Preview",
+    "run_in_hoppscotch": "Run in Hoppscotch",
+    "theme": {
+      "dark": "Dark",
+      "light": "Light",
+      "system": "System",
+      "title": "Theme"
+    }
   },
   "shortcut": {
     "general": {
@@ -596,7 +688,6 @@
       "title": "Others"
     },
     "request": {
-      "copy_request_link": "Copiați legătura de solicitare",
       "delete_method": "Selectați metoda DELETE",
       "get_method": "Selectați metoda GET",
       "head_method": "Selectați metoda HEAD",
@@ -611,8 +702,10 @@
       "save_request": "Save Request",
       "save_to_collections": "Salvați în colecții",
       "send_request": "Trimite cerere",
+      "share_request": "Share Request",
       "show_code": "Generate code snippet",
-      "title": "Cerere"
+      "title": "Cerere",
+      "copy_request_link": "Copiați legătura de solicitare"
     },
     "response": {
       "copy": "Copiați răspunsul în clipboard",
@@ -735,6 +828,7 @@
     "connection_error": "Eroare la conectare",
     "connection_failed": "Concetare eșuată",
     "connection_lost": "Conexiune pierdută",
+    "copied_interface_to_clipboard": "Copied {language} interface type to clipboard",
     "copied_to_clipboard": "Copiat în clipboard",
     "deleted": "Șters",
     "deprecated": "NEMENȚINUT",
@@ -742,10 +836,12 @@
     "disconnected": "Deconectat",
     "disconnected_from": "Deconectat de la {name}",
     "docs_generated": "Documentație generată",
+    "download_failed": "Download failed",
     "download_started": "Descărcarea a început",
     "enabled": "Activat",
     "file_imported": "Fișier importat",
     "finished_in": "Finalizat în {duration} ms",
+    "hide": "Hide",
     "history_deleted": "Istoricul a fost șters",
     "linewrap": "Înfășurați liniile",
     "loading": "Se încarcă...",
@@ -756,6 +852,7 @@
     "published_error": "Ceva a mers greșit la publicarea mesajului: {message} la topicul: {topic}",
     "published_message": "Mesaj publicat: {message} la topicul: {topic}",
     "reconnection_error": "Reconectare eșuată",
+    "show": "Show",
     "subscribed_failed": "Abonare eșuată la topicul: {topic}",
     "subscribed_success": "Abonare reușită la topicul: {topic}",
     "unsubscribed_failed": "Dezabonare eșuată la topicul: {topic}",
@@ -791,6 +888,7 @@
     "queries": "Întrebări",
     "query": "Interogare",
     "schema": "Schema",
+    "shared_requests": "Shared Requests",
     "socketio": "Socket.IO",
     "sse": "SSE",
     "tests": "Teste",
@@ -807,6 +905,7 @@
     "email_do_not_match": "Email-ul nu se potrivește cu detaliile contului dumneavoastră. Contactați proprietarul echipei.",
     "exit": "Ieșiți din echipă",
     "exit_disabled": "Numai proprietarul nu poate ieși din echipă",
+    "failed_invites": "Failed invites",
     "invalid_coll_id": "Invalid collection ID",
     "invalid_email_format": "Formatul de e-mail nu este valid",
     "invalid_id": "ID-ul echipei nu este valid. Contactați proprietarul echipei.",
@@ -848,6 +947,7 @@
     "same_target_destination": "Same target and destination",
     "saved": "Echipă salvată",
     "select_a_team": "Selectați o echipă",
+    "success_invites": "Success invites",
     "title": "Echipe",
     "we_sent_invite_link": "Am trimis un link de invitație către toți invitații!",
     "we_sent_invite_link_description": "Rugați toate persoanele invitate să iși verifice căsuța. Click pe link pentru a se alătura echipei."
@@ -879,5 +979,14 @@
     "personal": "My Workspace",
     "team": "Team Workspace",
     "title": "Workspaces"
+  },
+  "shortcodes": {
+    "actions": "Acțiuni",
+    "created_on": "Creat la",
+    "deleted": "Cod scurt șters",
+    "method": "Metodă",
+    "not_found": "Codul scurt nu a fost găsit",
+    "short_code": "Cod scurt",
+    "url": "URL"
   }
 }

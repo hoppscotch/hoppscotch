@@ -13,6 +13,7 @@ import { browserIsChrome, browserIsFirefox } from "~/helpers/utils/userAgent"
 import SettingsExtension from "~/components/settings/Extension.vue"
 import InterceptorsExtensionSubtitle from "~/components/interceptors/ExtensionSubtitle.vue"
 import InterceptorsErrorPlaceholder from "~/components/interceptors/ErrorPlaceholder.vue"
+import { until } from "@vueuse/core"
 
 export const defineSubscribableObject = <T extends object>(obj: T) => {
   const proxyObject = {
@@ -103,9 +104,8 @@ export class ExtensionInterceptorService
   public extensionVersion = computed(() => {
     if (this.extensionStatus.value === "available") {
       return window.__POSTWOMAN_EXTENSION_HOOK__?.getVersion()
-    } else {
-      return null
     }
+    return null
   })
 
   /**
@@ -197,19 +197,25 @@ export class ExtensionInterceptorService
       if (this.extensionStatus.value === "available" && version) {
         const { major, minor } = version
         return `${t("settings.extensions")}: v${major}.${minor}`
-      } else {
-        return `${t("settings.extensions")}: ${t(
-          "settings.extension_ver_not_reported"
-        )}`
       }
+      return `${t("settings.extensions")}: ${t(
+        "settings.extension_ver_not_reported"
+      )}`
     })
   }
 
   private async runRequestOnExtension(
     req: AxiosRequestConfig
   ): RequestRunResult["response"] {
-    const extensionHook = window.__POSTWOMAN_EXTENSION_HOOK__
+    // wait for the extension to resolve
+    await until(this.extensionStatus).toMatch(
+      (status) => status !== "waiting",
+      {
+        timeout: 1000,
+      }
+    )
 
+    const extensionHook = window.__POSTWOMAN_EXTENSION_HOOK__
     if (!extensionHook) {
       return E.left(<InterceptorError>{
         // TODO: i18n this
@@ -230,6 +236,7 @@ export class ExtensionInterceptorService
 
       return E.right(result)
     } catch (e) {
+      console.error(e)
       // TODO: improve type checking
       if ((e as any).response) {
         return E.right((e as any).response)

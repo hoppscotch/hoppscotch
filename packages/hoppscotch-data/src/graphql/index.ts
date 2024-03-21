@@ -11,6 +11,7 @@ export {
   HoppGQLAuthBearer,
   HoppGQLAuthNone,
   HoppGQLAuthOAuth2,
+  HoppGQLAuthInherit,
 } from "./v/2"
 
 export const GQL_REQ_SCHEMA_VERSION = 2
@@ -56,7 +57,7 @@ export function getDefaultGQLRequest(): HoppGQLRequest {
 }`.trim(),
     query: DEFAULT_QUERY,
     auth: {
-      authType: "none",
+      authType: "inherit",
       authActive: true,
     },
   }

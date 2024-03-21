@@ -1,8 +1,4 @@
-import {
-  HoppCollection,
-  HoppRESTRequest,
-  isHoppRESTRequest,
-} from "@hoppscotch/data";
+import { HoppCollection, isHoppRESTRequest } from "@hoppscotch/data";
 import * as A from "fp-ts/Array";
 import { CommanderError } from "commander";
 import { HoppCLIError, HoppErrnoException } from "../types/errors";
@@ -24,9 +20,7 @@ export const hasProperty = <P extends PropertyKey>(
  * @returns True, if unknown parameter is valid Hoppscotch REST Collection;
  * False, otherwise.
  */
-export const isRESTCollection = (
-  param: unknown
-): param is HoppCollection<HoppRESTRequest> => {
+export const isRESTCollection = (param: unknown): param is HoppCollection => {
   if (!!param && typeof param === "object") {
     if (!hasProperty(param, "v") || typeof param.v !== "number") {
       return false;
@@ -61,7 +55,6 @@ export const isRESTCollection = (
 
   return false;
 };
-
 
 /**
  * Checks if given error data is of type HoppCLIError, based on existence

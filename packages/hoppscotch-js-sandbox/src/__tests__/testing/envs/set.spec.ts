@@ -1,6 +1,8 @@
 import * as TE from "fp-ts/TaskEither"
 import { pipe } from "fp-ts/function"
-import { execTestScript, TestResponse, TestResult } from "../../../test-runner"
+
+import { runTestScript } from "~/test-runner/node-vm"
+import { TestResponse, TestResult } from "~/types"
 
 const fakeResponse: TestResponse = {
   status: 200,
@@ -10,13 +12,13 @@ const fakeResponse: TestResponse = {
 
 const func = (script: string, envs: TestResult["envs"]) =>
   pipe(
-    execTestScript(script, envs, fakeResponse),
+    runTestScript(script, envs, fakeResponse),
     TE.map((x) => x.envs)
   )
 
 const funcTest = (script: string, envs: TestResult["envs"]) =>
   pipe(
-    execTestScript(script, envs, fakeResponse),
+    runTestScript(script, envs, fakeResponse),
     TE.map((x) => x.tests)
   )
 
@@ -33,6 +35,7 @@ describe("pw.env.set", () => {
             {
               key: "a",
               value: "b",
+              secret: false,
             },
           ],
         }
@@ -43,6 +46,7 @@ describe("pw.env.set", () => {
           {
             key: "a",
             value: "c",
+            secret: false,
           },
         ],
       })
@@ -60,6 +64,7 @@ describe("pw.env.set", () => {
             {
               key: "a",
               value: "b",
+              secret: false,
             },
           ],
           selected: [],
@@ -71,6 +76,7 @@ describe("pw.env.set", () => {
           {
             key: "a",
             value: "c",
+            secret: false,
           },
         ],
       })
@@ -88,12 +94,14 @@ describe("pw.env.set", () => {
             {
               key: "a",
               value: "b",
+              secret: false,
             },
           ],
           selected: [
             {
               key: "a",
               value: "d",
+              secret: false,
             },
           ],
         }
@@ -104,12 +112,14 @@ describe("pw.env.set", () => {
           {
             key: "a",
             value: "b",
+            secret: false,
           },
         ],
         selected: [
           {
             key: "a",
             value: "c",
+            secret: false,
           },
         ],
       })
@@ -134,6 +144,7 @@ describe("pw.env.set", () => {
           {
             key: "a",
             value: "c",
+            secret: false,
           },
         ],
       })

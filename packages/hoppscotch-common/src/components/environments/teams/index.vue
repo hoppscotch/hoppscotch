@@ -1,7 +1,7 @@
 <template>
   <div>
     <div
-      class="sticky z-10 flex justify-between flex-1 flex-shrink-0 overflow-x-auto border-b top-upperPrimaryStickyFold border-dividerLight bg-primary"
+      class="sticky top-upperPrimaryStickyFold z-10 flex flex-1 flex-shrink-0 justify-between overflow-x-auto border-b border-dividerLight bg-primary"
     >
       <HoppButtonSecondary
         v-if="team === undefined || team.myRole === 'VIEWER'"
@@ -49,31 +49,33 @@
       :alt="`${t('empty.environments')}`"
       :text="t('empty.environments')"
     >
-      <div class="flex flex-col items-center space-y-4">
-        <span class="text-secondaryLight text-center">
-          {{ t("environment.import_or_create") }}
-        </span>
-        <div class="flex gap-4 flex-col items-stretch">
-          <HoppButtonPrimary
-            :icon="IconImport"
-            :label="t('import.title')"
-            filled
-            outline
-            :title="isTeamViewer ? t('team.no_access') : ''"
-            :disabled="isTeamViewer"
-            @click="isTeamViewer ? null : displayModalImportExport(true)"
-          />
-          <HoppButtonSecondary
-            :label="`${t('add.new')}`"
-            filled
-            outline
-            :icon="IconPlus"
-            :title="isTeamViewer ? t('team.no_access') : ''"
-            :disabled="isTeamViewer"
-            @click="isTeamViewer ? null : displayModalAdd(true)"
-          />
+      <template #body>
+        <div class="flex flex-col items-center space-y-4">
+          <span class="text-center text-secondaryLight">
+            {{ t("environment.import_or_create") }}
+          </span>
+          <div class="flex flex-col items-stretch gap-4">
+            <HoppButtonPrimary
+              :icon="IconImport"
+              :label="t('import.title')"
+              filled
+              outline
+              :title="isTeamViewer ? t('team.no_access') : ''"
+              :disabled="isTeamViewer"
+              @click="isTeamViewer ? null : displayModalImportExport(true)"
+            />
+            <HoppButtonSecondary
+              :label="`${t('add.new')}`"
+              filled
+              outline
+              :icon="IconPlus"
+              :title="isTeamViewer ? t('team.no_access') : ''"
+              :disabled="isTeamViewer"
+              @click="isTeamViewer ? null : displayModalAdd(true)"
+            />
+          </div>
         </div>
-      </div>
+      </template>
     </HoppSmartPlaceholder>
     <div v-else-if="!loading">
       <EnvironmentsTeamsEnvironment
@@ -94,7 +96,7 @@
       v-if="!loading && adapterError"
       class="flex flex-col items-center py-4"
     >
-      <icon-lucide-help-circle class="mb-4 svg-icons" />
+      <icon-lucide-help-circle class="svg-icons mb-4" />
       {{ getErrorMessage(adapterError) }}
     </div>
     <EnvironmentsTeamsDetails
@@ -103,11 +105,12 @@
       :editing-environment="editingEnvironment"
       :editing-team-id="team?.id"
       :editing-variable-name="editingVariableName"
+      :is-secret-option-selected="secretOptionSelected"
       :is-viewer="team?.myRole === 'VIEWER'"
       @hide-modal="displayModalEdit(false)"
     />
     <EnvironmentsImportExport
-      :show="showModalImportExport"
+      v-if="showModalImportExport"
       :team-environments="teamEnvironments"
       :team-id="team?.id"
       environment-type="TEAM_ENV"
@@ -146,6 +149,7 @@ const showModalDetails = ref(false)
 const action = ref<"new" | "edit">("edit")
 const editingEnvironment = ref<TeamEnvironment | null>(null)
 const editingVariableName = ref("")
+const secretOptionSelected = ref(false)
 
 const isTeamViewer = computed(() => props.team?.myRole === "VIEWER")
 
@@ -169,29 +173,33 @@ const editEnvironment = (environment: TeamEnvironment | null) => {
 }
 const resetSelectedData = () => {
   editingEnvironment.value = null
+  editingVariableName.value = ""
+  secretOptionSelected.value = false
 }
 
 const getErrorMessage = (err: GQLError<string>) => {
   if (err.type === "network_error") {
     return t("error.network_error")
-  } else {
-    switch (err.error) {
-      case "team_environment/not_found":
-        return t("team_environment.not_found")
-      default:
-        return t("error.something_went_wrong")
-    }
+  }
+  switch (err.error) {
+    case "team_environment/not_found":
+      return t("team_environment.not_found")
+    default:
+      return t("error.something_went_wrong")
   }
 }
 
 defineActionHandler(
   "modals.team.environment.edit",
-  ({ envName, variableName }) => {
+  ({ envName, variableName, isSecret }) => {
     if (variableName) editingVariableName.value = variableName
     const teamEnvToEdit = props.teamEnvironments.find(
       (environment) => environment.environment.name === envName
     )
-    if (teamEnvToEdit) editEnvironment(teamEnvToEdit)
+    if (teamEnvToEdit) {
+      editEnvironment(teamEnvToEdit)
+      secretOptionSelected.value = isSecret ?? false
+    }
   }
 )
 </script>

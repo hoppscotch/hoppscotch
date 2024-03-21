@@ -26,12 +26,13 @@
                 @close-tab="removeTab(tab.id)"
                 @close-other-tabs="closeOtherTabsAction(tab.id)"
                 @duplicate-tab="duplicateTab(tab.id)"
+                @share-tab-request="shareTabRequest(tab.id)"
               />
             </template>
             <template #suffix>
               <span
                 v-if="tab.document.isDirty"
-                class="flex items-center justify-center text-secondary group-hover:hidden w-4"
+                class="flex w-4 items-center justify-center text-secondary group-hover:hidden"
               >
                 <svg
                   viewBox="0 0 24 24"
@@ -144,6 +145,11 @@ const toast = useToast()
 const tabs = useService(RESTTabService)
 
 const currentTabID = tabs.currentTabID
+
+const currentUser = useReadonlyStream(
+  platform.auth.getCurrentUserStream(),
+  platform.auth.getCurrentUser()
+)
 
 type PopupDetails = {
   show: boolean
@@ -305,6 +311,19 @@ const onSaveModalClose = () => {
   if (confirmingCloseForTabID.value) {
     tabs.closeTab(confirmingCloseForTabID.value)
     confirmingCloseForTabID.value = null
+  }
+}
+
+const shareTabRequest = (tabID: string) => {
+  const tab = tabs.getTabRef(tabID)
+  if (tab.value) {
+    if (currentUser.value) {
+      invokeAction("share.request", {
+        request: tab.value.document.request,
+      })
+    } else {
+      invokeAction("modals.login.toggle")
+    }
   }
 }
 

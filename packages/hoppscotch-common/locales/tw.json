@@ -1,5 +1,6 @@
 {
   "action": {
+    "add": "Add",
     "autoscroll": "自動捲動",
     "cancel": "取消",
     "choose_file": "選擇一個檔案",
@@ -10,6 +11,7 @@
     "connect": "連線",
     "connecting": "正在連接",
     "copy": "複製",
+    "create": "Create",
     "delete": "刪除",
     "disconnect": "斷開連線",
     "dismiss": "忽略",
@@ -31,6 +33,7 @@
     "open_workspace": "開啟工作區",
     "paste": "貼上",
     "prettify": "美化",
+    "properties": "Properties",
     "remove": "移除",
     "rename": "Rename",
     "restore": "還原",
@@ -39,6 +42,7 @@
     "scroll_to_top": "捲動至頂部",
     "search": "搜尋",
     "send": "傳送",
+    "share": "Share",
     "start": "開始",
     "starting": "正在開始",
     "stop": "停止",
@@ -57,7 +61,9 @@
   "app": {
     "chat_with_us": "與我們交談",
     "contact_us": "聯絡我們",
+    "cookies": "Cookies",
     "copy": "複製",
+    "copy_interface_type": "Copy interface type",
     "copy_user_id": "複製使用者驗證權杖",
     "developer_option": "開發者選項",
     "developer_option_description": "協助開發和維護 Hoppscotch 的工具。",
@@ -73,6 +79,7 @@
     "keyboard_shortcuts": "鍵盤快捷鍵",
     "name": "Hoppscotch",
     "new_version_found": "已發現新版本。重新整理頁面以更新。",
+    "open_in_hoppscotch": "Open in Hoppscotch",
     "options": "選項",
     "proxy_privacy_policy": "Proxy 隱私政策",
     "reload": "重新載入",
@@ -112,10 +119,27 @@
   },
   "authorization": {
     "generate_token": "產生權杖",
+    "graphql_headers": "Authorization Headers are sent as part of the payload to connection_init",
     "include_in_url": "包含在網址",
+    "inherited_from": "Inherited from {auth} from Parent Collection {collection} ",
     "learn": "瞭解更多",
+    "oauth": {
+      "redirect_auth_server_returned_error": "Auth Server returned an error state",
+      "redirect_auth_token_request_failed": "Request to get the auth token failed",
+      "redirect_auth_token_request_invalid_response": "Invalid Response from the Token Endpoint when requesting for an auth token",
+      "redirect_invalid_state": "Invalid State value present in the redirect",
+      "redirect_no_auth_code": "No Authorization Code present in the redirect",
+      "redirect_no_client_id": "No Client ID defined",
+      "redirect_no_client_secret": "No Client Secret Defined",
+      "redirect_no_code_verifier": "No Code Verifier Defined",
+      "redirect_no_token_endpoint": "No Token Endpoint Defined",
+      "something_went_wrong_on_oauth_redirect": "Something went wrong during OAuth Redirect",
+      "something_went_wrong_on_token_generation": "Something went wrong on token generation",
+      "token_generation_oidc_discovery_failed": "Failure on token generation: OpenID Connect Discovery Failed"
+    },
     "pass_key_by": "傳遞方式",
     "password": "密碼",
+    "save_to_inherit": "Please save this request in any collection to inherit the authorization",
     "token": "權杖",
     "type": "授權類型",
     "username": "使用者名稱"
@@ -124,6 +148,7 @@
     "created": "集合已建立",
     "different_parent": "無法為父集合不同的集合重新排序",
     "edit": "編輯集合",
+    "import_or_create": "Import or create a collection",
     "invalid_name": "請提供有效的集合名稱",
     "invalid_root_move": "集合已在根目錄",
     "moved": "移動成功",
@@ -132,6 +157,8 @@
     "name_length_insufficient": "集合名稱至少要有 3 個字元。",
     "new": "建立集合",
     "order_changed": "集合順序已更新",
+    "properties": "Collection Properties",
+    "properties_updated": "Collection Properties Updated",
     "renamed": "集合已重新命名",
     "request_in_use": "請求正在使用中",
     "save_as": "另存為",
@@ -151,6 +178,7 @@
     "remove_folder": "您確定要永久刪除該資料夾嗎？",
     "remove_history": "您確定要永久刪除全部歷史記錄嗎？",
     "remove_request": "您確定要永久刪除該請求嗎？",
+    "remove_shared_request": "Are you sure you want to permanently delete this shared request?",
     "remove_team": "您確定要刪除該團隊嗎？",
     "remove_telemetry": "您確定要退出遙測服務嗎？",
     "request_change": "您確定要捨棄目前的請求嗎？未儲存的變更將遺失。",
@@ -161,6 +189,24 @@
     "add_parameters": "新增至參數",
     "open_request_in_new_tab": "在新分頁開啟請求",
     "set_environment_variable": "設為變數"
+  },
+  "cookies": {
+    "modal": {
+      "cookie_expires": "Expires",
+      "cookie_name": "Name",
+      "cookie_path": "Path",
+      "cookie_string": "Cookie string",
+      "cookie_value": "Value",
+      "empty_domain": "Domain is empty",
+      "empty_domains": "Domain list is empty",
+      "enter_cookie_string": "Enter cookie string",
+      "interceptor_no_support": "Your currently selected interceptor does not support cookies. Select a different Interceptor and try again.",
+      "managed_tab": "Managed",
+      "new_domain_name": "New domain name",
+      "no_cookies_in_domain": "No cookies set for this domain",
+      "raw_tab": "Raw",
+      "set": "Set a cookie"
+    }
   },
   "count": {
     "header": "請求標頭 {count}",
@@ -192,11 +238,13 @@
     "profile": "登入以檢視您的設定檔",
     "protocols": "協定為空",
     "schema": "連線至 GraphQL 端點",
-    "shortcodes": "Shortcodes 為空",
+    "shared_requests": "Shared requests are empty",
+    "shared_requests_logout": "Login to view your shared requests or create a new one",
     "subscription": "訂閱為空",
     "team_name": "團隊名稱為空",
     "teams": "團隊為空",
-    "tests": "沒有針對該請求的測試"
+    "tests": "沒有針對該請求的測試",
+    "shortcodes": "Shortcodes 為空"
   },
   "environment": {
     "add_to_global": "新增至全域",
@@ -209,6 +257,7 @@
     "empty_variables": "無變數",
     "global": "全域",
     "global_variables": "全域變數",
+    "import_or_create": "Import or create a environment",
     "invalid_name": "請提供有效的環境名稱",
     "list": "環境變數",
     "my_environments": "我的環境",
@@ -232,8 +281,10 @@
     "variable_list": "變數列表"
   },
   "error": {
+    "authproviders_load_error": "Unable to load auth providers",
     "browser_support_sse": "此瀏覽器似乎不支援 SSE。",
     "check_console_details": "檢查控制台日誌以獲悉詳情",
+    "check_how_to_add_origin": "Check how you can add an origin",
     "curl_invalid_format": "cURL 格式不正確",
     "danger_zone": "危險地帶",
     "delete_account": "您的帳號目前為這些團隊的擁有者：",
@@ -249,9 +300,12 @@
     "json_prettify_invalid_body": "無法美化無效的請求主體，處理 JSON 語法錯誤並重試",
     "network_error": "似乎有網路錯誤。請再試一次。",
     "network_fail": "無法傳送請求",
+    "no_collections_to_export": "No collections to export. Please create a collection to get started.",
     "no_duration": "無持續時間",
+    "no_environments_to_export": "No environments to export. Please create an environment to get started.",
     "no_results_found": "找不到結果",
     "page_not_found": "找不到此頁面",
+    "please_install_extension": "Please install the extension and add origin to the extension.",
     "proxy_error": "Proxy 錯誤",
     "script_fail": "無法執行預請求指令碼",
     "something_went_wrong": "發生了一些錯誤",
@@ -260,6 +314,7 @@
   "export": {
     "as_json": "匯出為 JSON",
     "create_secret_gist": "建立私密 Gist",
+    "failed": "Something went wrong while exporting",
     "gist_created": "已建立 Gist",
     "require_github": "使用 GitHub 登入以建立私密 Gist",
     "title": "匯出"
@@ -286,6 +341,9 @@
     "subscriptions": "訂閱",
     "switch_connection": "切換連線"
   },
+  "graphql_collections": {
+    "title": "GraphQL Collections"
+  },
   "group": {
     "time": "時間",
     "url": "網址"
@@ -297,6 +355,8 @@
   },
   "helpers": {
     "authorization": "授權標頭將會在您傳送請求時自動產生。",
+    "collection_properties_authorization": " This authorization will be set for every request in this collection.",
+    "collection_properties_header": "This header will be set for every request in this collection.",
     "generate_documentation_first": "請先產生文件",
     "network_fail": "無法到達 API 端點。請檢查網路連線並重試。",
     "offline": "您似乎處於離線狀態，該工作區中的資料可能不是最新。",
@@ -316,7 +376,10 @@
   "import": {
     "collections": "匯入集合",
     "curl": "匯入 cURL",
+    "environments_from_gist": "Import From Gist",
+    "environments_from_gist_description": "Import Hoppscotch Environments From Gist",
     "failed": "匯入失敗",
+    "from_file": "Import from File",
     "from_gist": "從 Gist 匯入",
     "from_gist_description": "從 Gist 網址匯入",
     "from_insomnia": "從 Insomnia 匯入",
@@ -331,11 +394,17 @@
     "from_postman_description": "從 Postman 集合匯入",
     "from_url": "從網址匯入",
     "gist_url": "輸入 Gist 網址",
+    "gql_collections_from_gist_description": "Import GraphQL Collections From Gist",
+    "hoppscotch_environment": "Hoppscotch Environment",
+    "hoppscotch_environment_description": "Import Hoppscotch Environment JSON file",
     "import_from_url_invalid_fetch": "無法從網址取得資料",
     "import_from_url_invalid_file_format": "匯入集合時發生錯誤",
     "import_from_url_invalid_type": "不支援此類型。可接受的值為 'hoppscotch'、'openapi'、'postman'、'insomnia'",
     "import_from_url_success": "已匯入集合",
+    "insomnia_environment_description": "Import Insomnia Environment from a JSON/YAML file",
     "json_description": "從 Hoppscotch 集合 JSON 檔匯入集合",
+    "postman_environment": "Postman Environment",
+    "postman_environment_description": "Import Postman Environment from a JSON file",
     "title": "匯入"
   },
   "inspections": {
@@ -373,8 +442,10 @@
     "close_unsaved_tab": "您有未儲存的改動",
     "collections": "集合",
     "confirm": "確認",
+    "customize_request": "Customize Request",
     "edit_request": "編輯請求",
-    "import_export": "匯入／匯出"
+    "import_export": "匯入／匯出",
+    "share_request": "Share Request"
   },
   "mqtt": {
     "already_subscribed": "您已經訂閱了此主題。",
@@ -449,13 +520,14 @@
       "structured": "結構",
       "text": "文字"
     },
-    "copy_link": "複製連結",
     "different_collection": "無法重新排列來自不同集合的請求",
     "duplicated": "已複製請求",
     "duration": "持續時間",
     "enter_curl": "輸入 cURL",
     "generate_code": "產生程式碼",
     "generated_code": "已產生程式碼",
+    "go_to_authorization_tab": "Go to Authorization tab",
+    "go_to_body_tab": "Go to Body tab",
     "header_list": "請求標頭列表",
     "invalid_name": "請提供請求名稱",
     "method": "方法",
@@ -480,12 +552,14 @@
     "saved": "請求已儲存",
     "share": "分享",
     "share_description": "與您的朋友分享 Hoppscotch",
+    "share_request": "Share Request",
     "stop": "Stop",
     "title": "請求",
     "type": "請求類型",
     "url": "網址",
     "variables": "變數",
-    "view_my_links": "檢視我的連結"
+    "view_my_links": "檢視我的連結",
+    "copy_link": "複製連結"
   },
   "response": {
     "audio": "音訊",
@@ -513,6 +587,7 @@
     "account_description": "自訂您的帳號設定。",
     "account_email_description": "您的主要電子郵件地址。",
     "account_name_description": "這是您的顯示名稱。",
+    "additional": "Additional Settings",
     "background": "背景",
     "black_mode": "黑色",
     "choose_language": "選擇語言",
@@ -559,14 +634,31 @@
     "verified_email": "已確認電子郵件地址",
     "verify_email": "確認電子郵件地址"
   },
-  "shortcodes": {
-    "actions": "操作",
-    "created_on": "建立於",
-    "deleted": "已刪除快捷碼",
-    "method": "方法",
-    "not_found": "找不到快捷碼",
-    "short_code": "快捷碼",
-    "url": "網址"
+  "shared_requests": {
+    "button": "Button",
+    "button_info": "Create a 'Run in Hoppscotch' button for your website, blog or a README.",
+    "copy_html": "Copy HTML",
+    "copy_link": "Copy Link",
+    "copy_markdown": "Copy Markdown",
+    "creating_widget": "Creating widget",
+    "customize": "Customize",
+    "deleted": "Shared request deleted",
+    "description": "Select a widget, you can change and customize this later",
+    "embed": "Embed",
+    "embed_info": "Add a mini 'Hoppscotch API Playground' to your website, blog or documentation.",
+    "link": "Link",
+    "link_info": "Create a shareable link to share with anyone on the internet with view access.",
+    "modified": "Shared request modified",
+    "not_found": "Shared request not found",
+    "open_new_tab": "Open in new tab",
+    "preview": "Preview",
+    "run_in_hoppscotch": "Run in Hoppscotch",
+    "theme": {
+      "dark": "Dark",
+      "light": "Light",
+      "system": "System",
+      "title": "Theme"
+    }
   },
   "shortcut": {
     "general": {
@@ -596,7 +688,6 @@
       "title": "其他"
     },
     "request": {
-      "copy_request_link": "複製請求連結",
       "delete_method": "選擇 DELETE 方法",
       "get_method": "選擇 GET 方法",
       "head_method": "選擇 HEAD 方法",
@@ -611,8 +702,10 @@
       "save_request": "儲存請求",
       "save_to_collections": "儲存到集合",
       "send_request": "傳送請求",
+      "share_request": "Share Request",
       "show_code": "產生程式碼片段",
-      "title": "請求"
+      "title": "請求",
+      "copy_request_link": "複製請求連結"
     },
     "response": {
       "copy": "複製回應至剪貼簿",
@@ -735,6 +828,7 @@
     "connection_error": "連線失敗",
     "connection_failed": "連線失敗",
     "connection_lost": "失去連線",
+    "copied_interface_to_clipboard": "Copied {language} interface type to clipboard",
     "copied_to_clipboard": "已複製到剪貼簿",
     "deleted": "已刪除",
     "deprecated": "已棄用",
@@ -742,10 +836,12 @@
     "disconnected": "斷開連線",
     "disconnected_from": "與 {name} 斷開連線",
     "docs_generated": "已產生檔案",
+    "download_failed": "Download failed",
     "download_started": "開始下載",
     "enabled": "啟用",
     "file_imported": "檔案已匯入",
     "finished_in": "在 {duration} 毫秒內完成",
+    "hide": "Hide",
     "history_deleted": "歷史記錄已刪除",
     "linewrap": "換行",
     "loading": "正在載入……",
@@ -756,6 +852,7 @@
     "published_error": "將訊息：{topic} 發布至主題：{message} 時發生錯誤",
     "published_message": "已將此訊息：{message} 發布至主題：{topic}",
     "reconnection_error": "重新連線失敗",
+    "show": "Show",
     "subscribed_failed": "無法訂閱此主題：{topic}",
     "subscribed_success": "成功訂閱此主題：{topic}",
     "unsubscribed_failed": "無法取消訂閱此主題：{topic}",
@@ -791,6 +888,7 @@
     "queries": "查詢",
     "query": "查詢",
     "schema": "綱要",
+    "shared_requests": "Shared Requests",
     "socketio": "Socket.IO",
     "sse": "SSE",
     "tests": "測試",
@@ -807,6 +905,7 @@
     "email_do_not_match": "電子信箱與您的帳號資料不一致。請聯絡您的團隊擁有者。",
     "exit": "退出團隊",
     "exit_disabled": "團隊擁有者無法退出團隊",
+    "failed_invites": "Failed invites",
     "invalid_coll_id": "集合 ID 無效",
     "invalid_email_format": "電子信箱格式無效",
     "invalid_id": "團隊 ID 無效。請聯絡您的團隊擁有者。",
@@ -848,6 +947,7 @@
     "same_target_destination": "目標和目的地相同",
     "saved": "團隊已儲存",
     "select_a_team": "選擇團隊",
+    "success_invites": "Success invites",
     "title": "團隊",
     "we_sent_invite_link": "我們向所有受邀者傳送了邀請連結！",
     "we_sent_invite_link_description": "請所有受邀者檢查他們的收件匣。點擊連結加入團隊。"
@@ -879,5 +979,14 @@
     "personal": "我的工作區",
     "team": "團隊工作區",
     "title": "工作區"
+  },
+  "shortcodes": {
+    "actions": "操作",
+    "created_on": "建立於",
+    "deleted": "已刪除快捷碼",
+    "method": "方法",
+    "not_found": "找不到快捷碼",
+    "short_code": "快捷碼",
+    "url": "網址"
   }
 }

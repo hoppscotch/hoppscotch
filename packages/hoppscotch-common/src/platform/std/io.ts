@@ -34,4 +34,10 @@ export const browserIODef: IOPlatformDef = {
     // Browsers provide no way for us to know the save went successfully.
     return Promise.resolve({ type: "unknown" })
   },
+  openExternalLink(url) {
+    window.open(url, "_blank")
+
+    // Browsers provide no way for us to know the open went successfully.
+    return Promise.resolve()
+  },
 }

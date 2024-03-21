@@ -15,10 +15,14 @@ import {
   INVALID_ACCESS_TOKEN,
   USER_NOT_FOUND,
 } from 'src/errors';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
-  constructor(private usersService: UserService) {
+  constructor(
+    private usersService: UserService,
+    private configService: ConfigService,
+  ) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
         (request: Request) => {
@@ -29,7 +33,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
           return ATCookie;
         },
       ]),
-      secretOrKey: process.env.JWT_SECRET,
+      secretOrKey: configService.get('JWT_SECRET'),
     });
   }
 

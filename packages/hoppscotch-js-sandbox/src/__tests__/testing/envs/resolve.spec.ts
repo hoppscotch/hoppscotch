@@ -1,6 +1,8 @@
-import { pipe } from "fp-ts/function"
 import * as TE from "fp-ts/TaskEither"
-import { execTestScript, TestResponse, TestResult } from "../../../test-runner"
+import { pipe } from "fp-ts/function"
+
+import { runTestScript } from "~/test-runner/node-vm"
+import { TestResponse, TestResult } from "~/types"
 
 const fakeResponse: TestResponse = {
   status: 200,
@@ -10,7 +12,7 @@ const fakeResponse: TestResponse = {
 
 const func = (script: string, envs: TestResult["envs"]) =>
   pipe(
-    execTestScript(script, envs, fakeResponse),
+    runTestScript(script, envs, fakeResponse),
     TE.map((x) => x.tests)
   )
 
@@ -41,6 +43,7 @@ describe("pw.env.resolve", () => {
             {
               key: "hello",
               value: "there",
+              secret: false,
             },
           ],
           selected: [],
@@ -71,6 +74,7 @@ describe("pw.env.resolve", () => {
             {
               key: "hello",
               value: "there",
+              secret: false,
             },
           ],
         }
@@ -99,12 +103,14 @@ describe("pw.env.resolve", () => {
             {
               key: "hello",
               value: "yo",
+              secret: false,
             },
           ],
           selected: [
             {
               key: "hello",
               value: "there",
+              secret: false,
             },
           ],
         }
@@ -134,10 +140,12 @@ describe("pw.env.resolve", () => {
             {
               key: "hello",
               value: "<<there>>",
+              secret: false,
             },
             {
               key: "there",
               value: "<<hello>>",
+              secret: false,
             },
           ],
         }

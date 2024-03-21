@@ -1,24 +1,24 @@
 <template>
   <div
-    class="flex items-stretch group"
+    class="group flex items-stretch"
     @contextmenu.prevent="options!.tippy.show()"
   >
     <span
       v-if="environmentIndex === 'Global'"
-      class="flex items-center justify-center px-4 cursor-pointer"
+      class="flex cursor-pointer items-center justify-center px-4"
       @click="emit('edit-environment')"
     >
       <icon-lucide-globe class="svg-icons" />
     </span>
     <span
       v-else
-      class="flex items-center justify-center px-4 cursor-pointer"
+      class="flex cursor-pointer items-center justify-center px-4"
       @click="emit('edit-environment')"
     >
       <icon-lucide-layers class="svg-icons" />
     </span>
     <span
-      class="flex flex-1 min-w-0 py-2 pr-2 cursor-pointer transition group-hover:text-secondaryDark"
+      class="flex min-w-0 flex-1 cursor-pointer py-2 pr-2 transition group-hover:text-secondaryDark"
       @click="emit('edit-environment')"
     >
       <span class="truncate">
@@ -135,6 +135,8 @@ import { useToast } from "@composables/toast"
 import { TippyComponent } from "vue-tippy"
 import { HoppSmartItem } from "@hoppscotch/ui"
 import { exportAsJSON } from "~/helpers/import-export/export/environment"
+import { useService } from "dioc/vue"
+import { SecretEnvironmentService } from "~/services/secret-environment.service"
 
 const t = useI18n()
 const toast = useToast()
@@ -149,6 +151,8 @@ const emit = defineEmits<{
 }>()
 
 const confirmRemove = ref(false)
+
+const secretEnvironmentService = useService(SecretEnvironmentService)
 
 const exportEnvironmentAsJSON = () => {
   const { environment, environmentIndex } = props
@@ -168,6 +172,7 @@ const removeEnvironment = () => {
   if (props.environmentIndex === null) return
   if (props.environmentIndex !== "Global") {
     deleteEnvironment(props.environmentIndex, props.environment.id)
+    secretEnvironmentService.deleteSecretEnvironment(props.environment.id)
   }
   toast.success(`${t("state.deleted")}`)
 }

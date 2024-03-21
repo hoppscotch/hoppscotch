@@ -1,33 +1,65 @@
+import { Environment, HoppCollection, HoppRESTRequest } from "@hoppscotch/data";
 import axios, { Method } from "axios";
-import { URL } from "url";
-import * as S from "fp-ts/string";
 import * as A from "fp-ts/Array";
-import * as T from "fp-ts/Task";
 import * as E from "fp-ts/Either";
+import * as T from "fp-ts/Task";
 import * as TE from "fp-ts/TaskEither";
-import { HoppRESTRequest } from "@hoppscotch/data";
-import { responseErrors } from "./constants";
-import { getDurationInSeconds, getMetaDataPairs } from "./getters";
-import { testRunner, getTestScriptParams, hasFailedTestCases } from "./test";
-import { RequestConfig, EffectiveHoppRESTRequest } from "../interfaces/request";
+import { pipe } from "fp-ts/function";
+import * as S from "fp-ts/string";
+import { hrtime } from "process";
+import { URL } from "url";
+import { EffectiveHoppRESTRequest, RequestConfig } from "../interfaces/request";
 import { RequestRunnerResponse } from "../interfaces/response";
-import { preRequestScriptRunner } from "./pre-request";
+import { HoppCLIError, error } from "../types/errors";
 import {
   HoppEnvs,
   ProcessRequestParams,
   RequestReport,
 } from "../types/request";
+import { RequestMetrics } from "../types/response";
+import { responseErrors } from "./constants";
 import {
   printPreRequestRunner,
   printRequestRunner,
   printTestRunner,
 } from "./display";
-import { error, HoppCLIError } from "../types/errors";
-import { hrtime } from "process";
-import { RequestMetrics } from "../types/response";
-import { pipe } from "fp-ts/function";
+import { getDurationInSeconds, getMetaDataPairs } from "./getters";
+import { preRequestScriptRunner } from "./pre-request";
+import { getTestScriptParams, hasFailedTestCases, testRunner } from "./test";
 
 // !NOTE: The `config.supported` checks are temporary until OAuth2 and Multipart Forms are supported
+
+/**
+ * Processes given variable, which includes checking for secret variables
+ * and getting value from system environment
+ * @param variable Variable to be processed
+ * @returns Updated variable with value from system environment
+ */
+const processVariables = (variable: Environment["variables"][number]) => {
+  if (variable.secret) {
+    return {
+      ...variable,
+      value:
+        "value" in variable ? variable.value : process.env[variable.key] || "",
+    }
+  }
+  return variable
+}
+
+/**
+ * Processes given envs, which includes processing each variable in global
+ * and selected envs
+ * @param envs Global + selected envs used by requests with in collection
+ * @returns Processed envs with each variable processed
+ */
+const processEnvs = (envs: HoppEnvs) => {
+  const processedEnvs = {
+    global: envs.global.map(processVariables),
+    selected: envs.selected.map(processVariables),
+  }
+
+  return processedEnvs
+}
 
 /**
  * Transforms given request data to request-config used by request-runner to
@@ -38,6 +70,7 @@ import { pipe } from "fp-ts/function";
 export const createRequest = (req: EffectiveHoppRESTRequest): RequestConfig => {
   const config: RequestConfig = {
     supported: true,
+    displayUrl: req.effectiveFinalDisplayURL
   };
   const { finalBody, finalEndpoint, finalHeaders, finalParams } = getRequest;
   const reqParams = finalParams(req);
@@ -221,9 +254,13 @@ export const processRequest =
       effectiveFinalParams: [],
       effectiveFinalURL: "",
     };
+    let updatedEnvs = <HoppEnvs>{};
+
+    // Fetch values for secret environment variables from system environment
+    const processedEnvs = processEnvs(envs)
 
     // Executing pre-request-script
-    const preRequestRes = await preRequestScriptRunner(request, envs)();
+    const preRequestRes = await preRequestScriptRunner(request, processedEnvs)();
     if (E.isLeft(preRequestRes)) {
       printPreRequestRunner.fail();
 
@@ -231,8 +268,8 @@ export const processRequest =
       report.errors.push(preRequestRes.left);
       report.result = report.result && false;
     } else {
-      // Updating effective-request
-      effectiveRequest = preRequestRes.right;
+      // Updating effective-request and consuming updated envs after pre-request script execution
+      ({ effectiveRequest, updatedEnvs } = preRequestRes.right);
     }
 
     // Creating request-config for request-runner.
@@ -270,7 +307,7 @@ export const processRequest =
     const testScriptParams = getTestScriptParams(
       _requestRunnerRes,
       request,
-      envs
+      updatedEnvs
     );
 
     // Executing test-runner.
@@ -309,9 +346,12 @@ export const processRequest =
  * @returns Updated request object free of invalid/missing data.
  */
 export const preProcessRequest = (
-  request: HoppRESTRequest
+  request: HoppRESTRequest,
+  collection: HoppCollection,
 ): HoppRESTRequest => {
   const tempRequest = Object.assign({}, request);
+  const { headers: parentHeaders, auth: parentAuth } = collection;
+
   if (!tempRequest.v) {
     tempRequest.v = "1";
   }
@@ -327,18 +367,31 @@ export const preProcessRequest = (
   if (!tempRequest.params) {
     tempRequest.params = [];
   }
-  if (!tempRequest.headers) {
+
+  if (parentHeaders?.length) {
+    // Filter out header entries present in the parent (folder/collection) under the same name
+    // This ensures the child headers take precedence over the parent headers
+    const filteredEntries = parentHeaders.filter((parentHeaderEntries) => {
+      return !tempRequest.headers.some((reqHeaderEntries) => reqHeaderEntries.key === parentHeaderEntries.key)
+    })
+    tempRequest.headers.push(...filteredEntries);
+  } else if (!tempRequest.headers) {
     tempRequest.headers = [];
   }
+
   if (!tempRequest.preRequestScript) {
     tempRequest.preRequestScript = "";
   }
   if (!tempRequest.testScript) {
     tempRequest.testScript = "";
   }
-  if (!tempRequest.auth) {
+
+  if (tempRequest.auth?.authType === "inherit") {
+    tempRequest.auth = parentAuth;
+  } else if (!tempRequest.auth) {
     tempRequest.auth = { authActive: false, authType: "none" };
   }
+
   if (!tempRequest.body) {
     tempRequest.body = { contentType: null, body: null };
   }

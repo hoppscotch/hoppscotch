@@ -1,6 +1,6 @@
 <template>
   <div
-    class="sticky top-sidebarPrimaryStickyFold z-10 flex items-center justify-between pl-4 border-y bg-primary border-dividerLight"
+    class="sticky top-sidebarPrimaryStickyFold z-10 flex items-center justify-between border-y border-dividerLight bg-primary pl-4"
   >
     <label class="font-semibold text-secondaryLight">
       {{ t("request.query") }}
@@ -16,7 +16,7 @@
         :title="`${t('request.stop')}`"
         :label="`${t('request.stop')}`"
         :icon="IconStop"
-        class="rounded-none !text-accent !hover:text-accentDark"
+        class="!hover:text-accentDark rounded-none !text-accent"
         @click="unsubscribe()"
       />
 
@@ -31,7 +31,7 @@
         :label="`${selectedOperation.name?.value ?? t('request.run')}`"
         :icon="IconPlay"
         :disabled="!selectedOperation"
-        class="rounded-none !text-accent !hover:text-accentDark"
+        class="!hover:text-accentDark rounded-none !text-accent"
         @click="runQuery(selectedOperation)"
       />
 
@@ -61,9 +61,9 @@
       <HoppButtonSecondary
         v-tippy="{ theme: 'tooltip' }"
         :title="t('state.linewrap')"
-        :class="{ '!text-accent': linewrapEnabled }"
+        :class="{ '!text-accent': WRAP_LINES }"
         :icon="IconWrapText"
-        @click.prevent="linewrapEnabled = !linewrapEnabled"
+        @click.prevent="toggleNestedSetting('WRAP_LINES', 'graphqlQuery')"
       />
       <HoppButtonSecondary
         v-tippy="{ theme: 'tooltip' }"
@@ -79,7 +79,7 @@
       />
     </div>
   </div>
-  <div ref="queryEditor" class="flex flex-col flex-1"></div>
+  <div ref="queryEditor" class="flex flex-1 flex-col"></div>
 </template>
 
 <script setup lang="ts">
@@ -112,6 +112,8 @@ import {
   socketDisconnect,
   subscriptionState,
 } from "~/helpers/graphql/connection"
+import { useNestedSetting } from "~/composables/settings"
+import { toggleNestedSetting } from "~/newstore/settings"
 
 // Template refs
 const queryEditor = ref<any | null>(null)
@@ -137,7 +139,7 @@ const prettifyQueryIcon = refAutoReset<
   typeof IconWand | typeof IconCheck | typeof IconInfo
 >(IconWand, 1000)
 
-const linewrapEnabled = ref(true)
+const WRAP_LINES = useNestedSetting("WRAP_LINES", "graphqlQuery")
 
 const selectedOperation = ref<gql.OperationDefinitionNode | null>(null)
 
@@ -184,7 +186,7 @@ useCodemirror(
     extendedEditorConfig: {
       mode: "graphql",
       placeholder: `${t("request.query")}`,
-      lineWrapping: linewrapEnabled,
+      lineWrapping: WRAP_LINES,
     },
     linter: createGQLQueryLinter(schema),
     completer: queryCompleter(schema),

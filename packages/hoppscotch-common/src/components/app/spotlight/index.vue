@@ -3,10 +3,10 @@
     v-if="show"
     styles="sm:max-w-lg"
     full-width
-    @close="emit('hide-modal')"
+    @close="closeSpotlightModal"
   >
     <template #body>
-      <div class="flex flex-col border-b transition border-divider">
+      <div class="flex flex-col border-b border-divider transition">
         <div class="flex items-center">
           <input
             id="command"
@@ -16,14 +16,14 @@
             autocomplete="off"
             name="command"
             :placeholder="`${t('app.type_a_command_search')}`"
-            class="flex flex-1 text-base bg-transparent text-secondaryDark px-6 py-5"
+            class="flex flex-1 bg-transparent px-6 pt-5 pb-3 text-base text-secondaryDark"
           />
           <HoppSmartSpinner v-if="searchSession?.loading" class="mr-6" />
         </div>
       </div>
       <div
         v-if="searchSession && search.length > 0"
-        class="flex flex-col flex-1 overflow-y-auto border-b border-divider divide-y divide-dividerLight"
+        class="flex flex-1 flex-col divide-y divide-dividerLight overflow-y-auto border-b border-divider"
       >
         <div
           v-for="([sectionID, sectionResult], sectionIndex) in scoredResults"
@@ -31,7 +31,7 @@
           class="flex flex-col"
         >
           <h5
-            class="px-6 py-2 bg-primaryContrast z-10 text-secondaryLight sticky top-0"
+            class="sticky top-0 z-10 bg-primaryContrast px-6 py-2 text-secondaryLight"
           >
             {{ sectionResult.title }}
           </h5>
@@ -49,17 +49,19 @@
           :text="`${t('state.nothing_found')} ‟${search}”`"
         >
           <template #icon>
-            <icon-lucide-search class="pb-2 opacity-75 svg-icons" />
+            <icon-lucide-search class="svg-icons opacity-75" />
           </template>
-          <HoppButtonSecondary
-            :label="t('action.clear')"
-            outline
-            @click="search = ''"
-          />
+          <template #body>
+            <HoppButtonSecondary
+              :label="t('action.clear')"
+              outline
+              @click="search = ''"
+            />
+          </template>
         </HoppSmartPlaceholder>
       </div>
       <div
-        class="flex flex-shrink-0 text-tiny text-secondaryLight p-4 justify-between whitespace-nowrap overflow-auto <sm:hidden"
+        class="flex flex-shrink-0 justify-between overflow-auto whitespace-nowrap p-4 text-tiny text-secondaryLight <sm:hidden"
       >
         <div class="flex items-center">
           <kbd class="shortcut-key">↑</kbd>
@@ -84,34 +86,36 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from "vue"
-import { useService } from "dioc/vue"
 import { useI18n } from "@composables/i18n"
+import { useService } from "dioc/vue"
+import { isEqual } from "lodash-es"
+import { computed, ref, watch } from "vue"
+import { platform } from "~/platform"
+import { HoppSpotlightSessionEventData } from "~/platform/analytics"
 import {
-  SpotlightService,
   SpotlightSearchState,
   SpotlightSearcherResult,
+  SpotlightService,
 } from "~/services/spotlight"
-import { isEqual } from "lodash-es"
-import { HistorySpotlightSearcherService } from "~/services/spotlight/searchers/history.searcher"
-import { UserSpotlightSearcherService } from "~/services/spotlight/searchers/user.searcher"
-import { NavigationSpotlightSearcherService } from "~/services/spotlight/searchers/navigation.searcher"
-import { SettingsSpotlightSearcherService } from "~/services/spotlight/searchers/settings.searcher"
 import { CollectionsSpotlightSearcherService } from "~/services/spotlight/searchers/collections.searcher"
-import { MiscellaneousSpotlightSearcherService } from "~/services/spotlight/searchers/miscellaneous.searcher"
-import { TabSpotlightSearcherService } from "~/services/spotlight/searchers/tab.searcher"
-import { GeneralSpotlightSearcherService } from "~/services/spotlight/searchers/general.searcher"
-import { ResponseSpotlightSearcherService } from "~/services/spotlight/searchers/response.searcher"
-import { RequestSpotlightSearcherService } from "~/services/spotlight/searchers/request.searcher"
 import {
   EnvironmentsSpotlightSearcherService,
   SwitchEnvSpotlightSearcherService,
 } from "~/services/spotlight/searchers/environment.searcher"
+import { GeneralSpotlightSearcherService } from "~/services/spotlight/searchers/general.searcher"
+import { HistorySpotlightSearcherService } from "~/services/spotlight/searchers/history.searcher"
+import { InterceptorSpotlightSearcherService } from "~/services/spotlight/searchers/interceptor.searcher"
+import { MiscellaneousSpotlightSearcherService } from "~/services/spotlight/searchers/miscellaneous.searcher"
+import { NavigationSpotlightSearcherService } from "~/services/spotlight/searchers/navigation.searcher"
+import { RequestSpotlightSearcherService } from "~/services/spotlight/searchers/request.searcher"
+import { ResponseSpotlightSearcherService } from "~/services/spotlight/searchers/response.searcher"
+import { SettingsSpotlightSearcherService } from "~/services/spotlight/searchers/settings.searcher"
+import { TabSpotlightSearcherService } from "~/services/spotlight/searchers/tab.searcher"
+import { UserSpotlightSearcherService } from "~/services/spotlight/searchers/user.searcher"
 import {
   SwitchWorkspaceSpotlightSearcherService,
   WorkspaceSpotlightSearcherService,
 } from "~/services/spotlight/searchers/workspace.searcher"
-import { InterceptorSpotlightSearcherService } from "~/services/spotlight/searchers/interceptor.searcher"
 
 const t = useI18n()
 
@@ -140,6 +144,10 @@ useService(SwitchEnvSpotlightSearcherService)
 useService(WorkspaceSpotlightSearcherService)
 useService(SwitchWorkspaceSpotlightSearcherService)
 useService(InterceptorSpotlightSearcherService)
+
+platform.spotlight?.additionalSearchers?.forEach((searcher) =>
+  useService(searcher)
+)
 
 const search = ref("")
 
@@ -282,5 +290,18 @@ function newUseArrowKeysForNavigation() {
   )
 
   return { selectedEntry }
+}
+
+function closeSpotlightModal() {
+  const analyticsData: HoppSpotlightSessionEventData = {
+    action: "close",
+    searcherID: null,
+    rank: null,
+  }
+
+  // Sets the action indicating `close` and rank as `null` in the state for analytics event logging
+  spotlightService.setAnalyticsData(analyticsData)
+
+  emit("hide-modal")
 }
 </script>

@@ -20,8 +20,7 @@
         :src="`/images/states/${colorMode.value}/add_comment.svg`"
         :alt="`${t('empty.documentation')}`"
         :text="t('empty.documentation')"
-      >
-      </HoppSmartPlaceholder>
+      />
       <div v-else>
         <div
           class="sticky top-0 z-10 flex flex-shrink-0 overflow-x-auto bg-primary"
@@ -30,7 +29,7 @@
             v-model="graphqlFieldsFilterText"
             type="search"
             autocomplete="off"
-            class="flex w-full p-4 py-2 bg-transparent h-8"
+            class="flex w-full bg-transparent px-4 py-2 h-8"
             :placeholder="`${t('action.search')}`"
           />
           <div class="flex">
@@ -112,9 +111,9 @@
     <HoppSmartTab :id="'schema'" :icon="IconBox" :label="`${t('tab.schema')}`">
       <div
         v-if="schemaString"
-        class="sticky top-0 z-10 flex items-center justify-between flex-shrink-0 pl-4 overflow-x-auto border-b bg-primary border-dividerLight"
+        class="sticky top-0 z-10 flex flex-shrink-0 items-center justify-between overflow-x-auto border-b border-dividerLight bg-primary pl-4"
       >
-        <label class="font-semibold truncate text-secondaryLight">
+        <label class="truncate font-semibold text-secondaryLight">
           {{ t("graphql.schema") }}
         </label>
         <div class="flex">
@@ -128,9 +127,9 @@
           <HoppButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
             :title="t('state.linewrap')"
-            :class="{ '!text-accent': linewrapEnabled }"
+            :class="{ '!text-accent': WRAP_LINES }"
             :icon="IconWrapText"
-            @click.prevent="linewrapEnabled = !linewrapEnabled"
+            @click.prevent="toggleNestedSetting('WRAP_LINES', 'graphqlSchema')"
           />
           <HoppButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
@@ -146,11 +145,9 @@
           />
         </div>
       </div>
-      <div
-        v-if="schemaString"
-        ref="schemaEditor"
-        class="flex flex-col flex-1"
-      ></div>
+      <div v-if="schemaString" class="h-full relative w-full">
+        <div ref="schemaEditor" class="absolute inset-0"></div>
+      </div>
       <HoppSmartPlaceholder
         v-else
         :src="`/images/states/${colorMode.value}/blockchain.svg`"
@@ -188,7 +185,7 @@ import IconClock from "~icons/lucide/clock"
 import IconCopy from "~icons/lucide/copy"
 import IconBox from "~icons/lucide/box"
 import { computed, nextTick, reactive, ref } from "vue"
-import { GraphQLField, GraphQLType } from "graphql"
+import { GraphQLField, GraphQLType, getNamedType } from "graphql"
 import { refAutoReset } from "@vueuse/core"
 import { useCodemirror } from "@composables/codemirror"
 import { copyToClipboard } from "@helpers/utils/clipboard"
@@ -203,6 +200,8 @@ import {
   subscriptionFields,
 } from "~/helpers/graphql/connection"
 import { platform } from "~/platform"
+import { useNestedSetting } from "~/composables/settings"
+import { toggleNestedSetting } from "~/newstore/settings"
 
 type NavigationTabs = "history" | "collection" | "docs" | "schema"
 type GqlTabs = "queries" | "mutations" | "subscriptions" | "types"
@@ -259,12 +258,6 @@ function getFilteredGraphqlTypes(filterText: string, types: GraphQLType[]) {
 
     return isFilterTextMatchingAtLeastOneField
   })
-}
-
-function resolveRootType(type: GraphQLType) {
-  let t: any = type
-  while (t.ofType) t = t.ofType
-  return t
 }
 
 const toast = useToast()
@@ -332,7 +325,7 @@ const handleJumpToType = async (type: GraphQLType) => {
   selectedGqlTab.value = "types"
   await nextTick()
 
-  const rootTypeName = resolveRootType(type).name
+  const rootTypeName = getNamedType(type).name
   const target = document.getElementById(`type_${rootTypeName}`)
   if (target) {
     target.scrollIntoView({ block: "center", behavior: "smooth" })
@@ -356,7 +349,7 @@ const handleJumpToType = async (type: GraphQLType) => {
 }
 
 const schemaEditor = ref<any | null>(null)
-const linewrapEnabled = ref(true)
+const WRAP_LINES = useNestedSetting("WRAP_LINES", "graphqlSchema")
 
 useCodemirror(
   schemaEditor,
@@ -365,7 +358,7 @@ useCodemirror(
     extendedEditorConfig: {
       mode: "graphql",
       readOnly: true,
-      lineWrapping: linewrapEnabled,
+      lineWrapping: WRAP_LINES,
     },
     linter: null,
     completer: null,

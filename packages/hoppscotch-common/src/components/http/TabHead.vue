@@ -2,18 +2,17 @@
   <div
     v-tippy="{ theme: 'tooltip', delay: [500, 20] }"
     :title="tab.document.request.name"
-    class="truncate px-2 flex items-center"
+    class="flex items-center truncate px-2"
     @dblclick="emit('open-rename-modal')"
     @contextmenu.prevent="options?.tippy?.show()"
     @click.middle="emit('close-tab')"
   >
     <span
-      class="font-semibold text-tiny"
-      :class="getMethodLabelColorClassOf(tab.document.request)"
+      class="text-tiny font-semibold mr-2"
+      :style="{ color: getMethodLabelColorClassOf(tab.document.request) }"
     >
       {{ tab.document.request.method }}
     </span>
-
     <tippy
       ref="options"
       trigger="manual"
@@ -21,7 +20,7 @@
       theme="popover"
       :on-shown="() => tippyActions!.focus()"
     >
-      <span class="leading-8 px-2 truncate">
+      <span class="truncate">
         {{ tab.document.request.name }}
       </span>
       <template #content="{ hide }">
@@ -30,6 +29,7 @@
           class="flex flex-col focus:outline-none"
           tabindex="0"
           @keyup.r="renameAction?.$el.click()"
+          @keyup.s="shareRequestAction?.$el.click()"
           @keyup.d="duplicateAction?.$el.click()"
           @keyup.w="closeAction?.$el.click()"
           @keyup.x="closeOthersAction?.$el.click()"
@@ -55,6 +55,18 @@
             @click="
               () => {
                 emit('duplicate-tab')
+                hide()
+              }
+            "
+          />
+          <HoppSmartItem
+            ref="shareRequestAction"
+            :icon="IconShare2"
+            :label="t('tab.share_tab_request')"
+            :shortcut="['S']"
+            @click="
+              () => {
+                emit('share-tab-request')
                 hide()
               }
             "
@@ -100,6 +112,7 @@ import IconXCircle from "~icons/lucide/x-circle"
 import IconXSquare from "~icons/lucide/x-square"
 import IconFileEdit from "~icons/lucide/file-edit"
 import IconCopy from "~icons/lucide/copy"
+import IconShare2 from "~icons/lucide/share-2"
 import { HoppTab } from "~/services/tab"
 import { HoppRESTDocument } from "~/helpers/rest/document"
 
@@ -115,6 +128,7 @@ const emit = defineEmits<{
   (event: "close-tab"): void
   (event: "close-other-tabs"): void
   (event: "duplicate-tab"): void
+  (event: "share-tab-request"): void
 }>()
 
 const tippyActions = ref<TippyComponent | null>(null)
@@ -124,4 +138,5 @@ const renameAction = ref<HTMLButtonElement | null>(null)
 const closeAction = ref<HTMLButtonElement | null>(null)
 const closeOthersAction = ref<HTMLButtonElement | null>(null)
 const duplicateAction = ref<HTMLButtonElement | null>(null)
+const shareRequestAction = ref<HTMLButtonElement | null>(null)
 </script>

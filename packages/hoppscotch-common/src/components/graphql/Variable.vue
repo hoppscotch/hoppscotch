@@ -1,6 +1,6 @@
 <template>
   <div
-    class="sticky top-sidebarPrimaryStickyFold z-10 flex items-center justify-between pl-4 border-y bg-primary border-dividerLight"
+    class="sticky top-sidebarPrimaryStickyFold z-10 flex items-center justify-between border-y border-dividerLight bg-primary pl-4"
   >
     <label class="font-semibold text-secondaryLight">
       {{ t("request.variables") }}
@@ -16,7 +16,7 @@
         :title="`${t('request.stop')}`"
         :label="`${t('request.stop')}`"
         :icon="IconStop"
-        class="rounded-none !text-accent !hover:text-accentDark"
+        class="!hover:text-accentDark rounded-none !text-accent"
         @click="unsubscribe()"
       />
       <HoppButtonSecondary
@@ -30,7 +30,7 @@
         :label="`${selectedOperation.name?.value ?? t('request.run')}`"
         :icon="IconPlay"
         :disabled="!selectedOperation"
-        class="rounded-none !text-accent !hover:text-accentDark"
+        class="!hover:text-accentDark rounded-none !text-accent"
         @click="runQuery(selectedOperation)"
       />
       <HoppButtonSecondary
@@ -49,9 +49,9 @@
       <HoppButtonSecondary
         v-tippy="{ theme: 'tooltip' }"
         :title="t('state.linewrap')"
-        :class="{ '!text-accent': linewrapEnabled }"
+        :class="{ '!text-accent': WRAP_LINES }"
         :icon="IconWrapText"
-        @click.prevent="linewrapEnabled = !linewrapEnabled"
+        @click.prevent="toggleNestedSetting('WRAP_LINES', 'graphqlVariables')"
       />
       <HoppButtonSecondary
         v-tippy="{ theme: 'tooltip' }"
@@ -67,7 +67,9 @@
       />
     </div>
   </div>
-  <div ref="variableEditor" class="flex flex-col flex-1"></div>
+  <div class="h-full relative">
+    <div ref="variableEditor" class="flex flex-1 flex-col"></div>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -93,6 +95,8 @@ import {
   socketDisconnect,
   subscriptionState,
 } from "~/helpers/graphql/connection"
+import { useNestedSetting } from "~/composables/settings"
+import { toggleNestedSetting } from "~/newstore/settings"
 
 const t = useI18n()
 const toast = useToast()
@@ -114,7 +118,7 @@ const variableString = useVModel(props, "modelValue", emit)
 
 const variableEditor = ref<any | null>(null)
 
-const linewrapEnabled = ref(false)
+const WRAP_LINES = useNestedSetting("WRAP_LINES", "graphqlVariables")
 
 const copyVariablesIcon = refAutoReset<typeof IconCopy | typeof IconCheck>(
   IconCopy,
@@ -131,7 +135,7 @@ useCodemirror(
     extendedEditorConfig: {
       mode: "application/ld+json",
       placeholder: `${t("request.variables")}`,
-      lineWrapping: linewrapEnabled,
+      lineWrapping: WRAP_LINES,
     },
     linter: computed(() =>
       variableString.value.length > 0 ? jsonLinter : null

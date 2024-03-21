@@ -5,10 +5,11 @@
       <HttpRequestOptions
         v-model="tab.document.request"
         v-model:option-tab="tab.document.optionTabPreference"
+        v-model:inherited-properties="tab.document.inheritedProperties"
       />
     </template>
     <template #secondary>
-      <HttpResponse v-model:document="tab.document" />
+      <HttpResponse v-model:document="tab.document" :is-embed="false" />
     </template>
   </AppPaneLayout>
 </template>

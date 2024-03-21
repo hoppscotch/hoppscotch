@@ -1,5 +1,5 @@
 query TeamList($cursor: ID, $take: Int) {
-  admin {
+  infra {
     allTeams(cursor: $cursor, take: $take) {
       id
       name

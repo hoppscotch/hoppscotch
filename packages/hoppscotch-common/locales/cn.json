@@ -1,15 +1,17 @@
 {
   "action": {
+    "add": "Add",
     "autoscroll": "自动滚动",
     "cancel": "取消",
     "choose_file": "选择文件",
     "clear": "清除",
     "clear_all": "全部清除",
-    "clear_history": "Clear all History",
+    "clear_history": "清除全部历史记录",
     "close": "关闭",
     "connect": "连接",
     "connecting": "连接中",
     "copy": "复制",
+    "create": "Create",
     "delete": "删除",
     "disconnect": "断开连接",
     "dismiss": "忽略",
@@ -31,14 +33,16 @@
     "open_workspace": "打开工作区",
     "paste": "粘贴",
     "prettify": "美化",
+    "properties": "Properties",
     "remove": "移除",
-    "rename": "Rename",
+    "rename": "重命名",
     "restore": "恢复",
     "save": "保存",
     "scroll_to_bottom": "滚动至底部",
     "scroll_to_top": "滚动至顶部",
     "search": "搜索",
     "send": "发送",
+    "share": "Share",
     "start": "开始",
     "starting": "正在开始",
     "stop": "停止",
@@ -57,7 +61,9 @@
   "app": {
     "chat_with_us": "与我们交谈",
     "contact_us": "联系我们",
+    "cookies": "Cookies",
     "copy": "复制",
+    "copy_interface_type": "Copy interface type",
     "copy_user_id": "复制认证 Token",
     "developer_option": "开发者选项",
     "developer_option_description": "开发者工具，有助于开发和维护 Hoppscotch。",
@@ -73,14 +79,15 @@
     "keyboard_shortcuts": "键盘快捷键",
     "name": "Hoppscotch",
     "new_version_found": "已发现新版本。刷新页面以更新。",
+    "open_in_hoppscotch": "Open in Hoppscotch",
     "options": "选项",
     "proxy_privacy_policy": "代理隐私政策",
     "reload": "重新加载",
     "search": "搜索",
     "share": "分享",
     "shortcuts": "快捷方式",
-    "social_description": "Follow us on social media to stay updated with the latest news, updates and releases.",
-    "social_links": "Social links",
+    "social_description": "在社交媒体上关注我们，了解最新新闻、更新和发布。",
+    "social_links": "社交媒体链接",
     "spotlight": "聚光灯",
     "status": "状态",
     "status_description": "检查网站状态",
@@ -112,10 +119,27 @@
   },
   "authorization": {
     "generate_token": "生成令牌",
+    "graphql_headers": "Authorization Headers are sent as part of the payload to connection_init",
     "include_in_url": "包含在 URL 内",
+    "inherited_from": "Inherited {auth} from parent collection {collection} ",
     "learn": "了解更多",
+    "oauth": {
+      "redirect_auth_server_returned_error": "Auth Server returned an error state",
+      "redirect_auth_token_request_failed": "Request to get the auth token failed",
+      "redirect_auth_token_request_invalid_response": "Invalid Response from the Token Endpoint when requesting for an auth token",
+      "redirect_invalid_state": "Invalid State value present in the redirect",
+      "redirect_no_auth_code": "No Authorization Code present in the redirect",
+      "redirect_no_client_id": "No Client ID defined",
+      "redirect_no_client_secret": "No Client Secret Defined",
+      "redirect_no_code_verifier": "No Code Verifier Defined",
+      "redirect_no_token_endpoint": "No Token Endpoint Defined",
+      "something_went_wrong_on_oauth_redirect": "Something went wrong during OAuth Redirect",
+      "something_went_wrong_on_token_generation": "Something went wrong on token generation",
+      "token_generation_oidc_discovery_failed": "Failure on token generation: OpenID Connect Discovery Failed"
+    },
     "pass_key_by": "传递方式",
     "password": "密码",
+    "save_to_inherit": "Please save this request in any collection to inherit the authorization",
     "token": "令牌",
     "type": "授权类型",
     "username": "用户名"
@@ -124,6 +148,7 @@
     "created": "集合已创建",
     "different_parent": "不能用不同的父类来重新排序集合",
     "edit": "编辑集合",
+    "import_or_create": "Import or create a collection",
     "invalid_name": "请提供有效的集合名称",
     "invalid_root_move": "该集合已经在根级了",
     "moved": "移动完成",
@@ -132,18 +157,20 @@
     "name_length_insufficient": "集合名字至少需要 3 个字符",
     "new": "新建集合",
     "order_changed": "集合顺序已更新",
+    "properties": "Collection Properties",
+    "properties_updated": "Collection Properties Updated",
     "renamed": "集合已更名",
     "request_in_use": "请求正在使用中",
     "save_as": "另存为",
-    "save_to_collection": "Save to Collection",
+    "save_to_collection": "保存至集合",
     "select": "选择一个集合",
     "select_location": "选择位置",
     "select_team": "选择一个团队",
     "team_collections": "团队集合"
   },
   "confirm": {
-    "close_unsaved_tab": "Are you sure you want to close this tab?",
-    "close_unsaved_tabs": "Are you sure you want to close all tabs? {count} unsaved tabs will be lost.",
+    "close_unsaved_tab": "你确定要关闭此标签页吗？",
+    "close_unsaved_tabs": "你确定要关闭所有标签页吗？ {count} 个未保存的标签页将被丢失。",
     "exit_team": "你确定要离开此团队吗？",
     "logout": "你确定要登出吗？",
     "remove_collection": "你确定要永久删除该集合吗？",
@@ -151,6 +178,7 @@
     "remove_folder": "你确定要永久删除该文件夹吗？",
     "remove_history": "你确定要永久删除全部历史记录吗？",
     "remove_request": "你确定要永久删除该请求吗？",
+    "remove_shared_request": "Are you sure you want to permanently delete this shared request?",
     "remove_team": "你确定要删除该团队吗？",
     "remove_telemetry": "你确定要退出遥测服务吗？",
     "request_change": "你确定你要放弃当前的请求，未保存的修改将被丢失。",
@@ -158,9 +186,27 @@
     "sync": "您确定要同步该工作区吗？"
   },
   "context_menu": {
-    "add_parameters": "Add to parameters",
-    "open_request_in_new_tab": "Open request in new tab",
-    "set_environment_variable": "Set as variable"
+    "add_parameters": "添加至参数",
+    "open_request_in_new_tab": "在新标签页中打开请求",
+    "set_environment_variable": "设置为变量"
+  },
+  "cookies": {
+    "modal": {
+      "cookie_expires": "Expires",
+      "cookie_name": "Name",
+      "cookie_path": "Path",
+      "cookie_string": "Cookie string",
+      "cookie_value": "Value",
+      "empty_domain": "Domain is empty",
+      "empty_domains": "Domain list is empty",
+      "enter_cookie_string": "Enter cookie string",
+      "interceptor_no_support": "Your currently selected interceptor does not support cookies. Select a different Interceptor and try again.",
+      "managed_tab": "Managed",
+      "new_domain_name": "New domain name",
+      "no_cookies_in_domain": "No cookies set for this domain",
+      "raw_tab": "Raw",
+      "set": "Set a cookie"
+    }
   },
   "count": {
     "header": "请求头 {count}",
@@ -192,11 +238,13 @@
     "profile": "登录以查看你的个人资料",
     "protocols": "协议为空",
     "schema": "连接至 GraphQL 端点",
-    "shortcodes": "Shortcodes 为空",
+    "shared_requests": "Shared requests are empty",
+    "shared_requests_logout": "Login to view your shared requests or create a new one",
     "subscription": "订阅为空",
     "team_name": "团队名称为空",
     "teams": "团队为空",
-    "tests": "没有针对该请求的测试"
+    "tests": "没有针对该请求的测试",
+    "shortcodes": "短链接为空"
   },
   "environment": {
     "add_to_global": "添加到全局环境",
@@ -204,36 +252,39 @@
     "create_new": "创建新环境",
     "created": "环境已创建",
     "deleted": "环境已删除",
-    "duplicated": "Environment duplicated",
+    "duplicated": "环境已复制",
     "edit": "编辑环境",
-    "empty_variables": "No variables",
-    "global": "Global",
-    "global_variables": "Global variables",
+    "empty_variables": "没有变量",
+    "global": "全局",
+    "global_variables": "全局变量",
+    "import_or_create": "Import or create a environment",
     "invalid_name": "请提供有效的环境名称",
-    "list": "Environment variables",
+    "list": "环境变量",
     "my_environments": "我的环境",
-    "name": "Name",
+    "name": "名称",
     "nested_overflow": "环境嵌套深度超过限制（10层）",
     "new": "新建环境",
-    "no_active_environment": "No active environment",
+    "no_active_environment": "没有激活的环境",
     "no_environment": "无环境",
     "no_environment_description": "没有选择环境。选择如何处理以下变量。",
-    "quick_peek": "Environment Quick Peek",
-    "replace_with_variable": "Replace with variable",
-    "scope": "Scope",
+    "quick_peek": "快速浏览环境",
+    "replace_with_variable": "替换为变量",
+    "scope": "范围",
     "select": "选择环境",
-    "set": "Set environment",
-    "set_as_environment": "Set as environment",
+    "set": "设置环境",
+    "set_as_environment": "设置为环境",
     "team_environments": "团队环境",
     "title": "环境",
     "updated": "环境已更新",
-    "value": "Value",
-    "variable": "Variable",
+    "value": "值",
+    "variable": "变量",
     "variable_list": "变量列表"
   },
   "error": {
+    "authproviders_load_error": "Unable to load auth providers",
     "browser_support_sse": "该浏览器似乎不支持 SSE。",
     "check_console_details": "检查控制台日志以获悉详情",
+    "check_how_to_add_origin": "Check how you can add an origin",
     "curl_invalid_format": "cURL 格式不正确",
     "danger_zone": "危险区域",
     "delete_account": "您的帐号目前为这些团队的拥有者：",
@@ -245,14 +296,18 @@
     "incorrect_email": "电子邮箱错误",
     "invalid_link": "无效链接",
     "invalid_link_description": "你点击的链接无效或已过期。",
+    "invalid_embed_link": "The embed does not exist or is invalid.",
     "json_parsing_failed": "不合法的 JSON",
     "json_prettify_invalid_body": "无法美化无效的请求头，处理 JSON 语法错误并重试",
     "network_error": "好像发生了网络错误，请重试。",
     "network_fail": "无法发送请求",
+    "no_collections_to_export": "No collections to export. Please create a collection to get started.",
     "no_duration": "无持续时间",
+    "no_environments_to_export": "No environments to export. Please create an environment to get started.",
     "no_results_found": "找不到结果",
     "page_not_found": "找不到此頁面",
-    "proxy_error": "Proxy error",
+    "please_install_extension": "Please install the extension and add origin to the extension.",
+    "proxy_error": "代理错误",
     "script_fail": "无法执行预请求脚本",
     "something_went_wrong": "发生了一些错误",
     "test_script_fail": "无法执行请求脚本"
@@ -260,9 +315,13 @@
   "export": {
     "as_json": "导出为 JSON",
     "create_secret_gist": "创建私密 Gist",
-    "gist_created": "已创建 Gist",
+    "create_secret_gist_tooltip_text": "Export as secret Gist",
+    "failed": "Something went wrong while exporting",
+    "secret_gist_success": "Successfully exported as secret Gist",
     "require_github": "使用 GitHub 登录以创建私密 Gist",
-    "title": "导出"
+    "title": "导出",
+    "success": "Successfully exported",
+    "gist_created": "已创建 Gist"
   },
   "filter": {
     "all": "全部",
@@ -278,13 +337,16 @@
     "renamed": "文件夹已更名"
   },
   "graphql": {
-    "connection_switch_confirm": "Do you want to connect with the latest GraphQL endpoint?",
-    "connection_switch_new_url": "Switching to a tab will disconnected you from the active GraphQL connection. New connection URL is",
-    "connection_switch_url": "You're connected to a GraphQL endpoint the connection URL is",
+    "connection_switch_confirm": "您想连接最新的 GraphQL 端点吗？",
+    "connection_switch_new_url": "切换到标签页将使您与活动的 GraphQL 连接断开。新的连接 URL 是",
+    "connection_switch_url": "您已连接到 GraphQL 端点，连接 URL 为",
     "mutations": "变更",
     "schema": "模式",
     "subscriptions": "订阅",
-    "switch_connection": "Switch connection"
+    "switch_connection": "切换连接"
+  },
+  "graphql_collections": {
+    "title": "GraphQL Collections"
   },
   "group": {
     "time": "时间",
@@ -297,6 +359,8 @@
   },
   "helpers": {
     "authorization": "授权头将会在你发送请求时自动生成。",
+    "collection_properties_authorization": " This authorization will be set for every request in this collection.",
+    "collection_properties_header": "This header will be set for every request in this collection.",
     "generate_documentation_first": "请先生成文档",
     "network_fail": "无法到达 API 端点。请检查网络连接并重试。",
     "offline": "你似乎处于离线状态，该工作区中的数据可能不是最新。",
@@ -316,7 +380,10 @@
   "import": {
     "collections": "导入集合",
     "curl": "导入 cURL",
+    "environments_from_gist": "Import From Gist",
+    "environments_from_gist_description": "Import Hoppscotch Environments From Gist",
     "failed": "导入失败",
+    "from_file": "Import from File",
     "from_gist": "从 Gist 导入",
     "from_gist_description": "从 Gist URL 导入",
     "from_insomnia": "从 Insomnia 导入",
@@ -331,35 +398,41 @@
     "from_postman_description": "从 Postman 集合中导入",
     "from_url": "从 URL 导入",
     "gist_url": "输入 Gist URL",
+    "gql_collections_from_gist_description": "Import GraphQL Collections From Gist",
+    "hoppscotch_environment": "Hoppscotch Environment",
+    "hoppscotch_environment_description": "Import Hoppscotch Environment JSON file",
     "import_from_url_invalid_fetch": "无法从网址取得资料",
     "import_from_url_invalid_file_format": "导入组合时发生错误",
     "import_from_url_invalid_type": "不支持此类型。可接受的值为 'hoppscotch'、'openapi'、'postman'、'insomnia'",
     "import_from_url_success": "已导入组合",
+    "insomnia_environment_description": "Import Insomnia Environment from a JSON/YAML file",
     "json_description": "从 Hoppscotch 的集合文件导入（JSON）",
+    "postman_environment": "Postman Environment",
+    "postman_environment_description": "Import Postman Environment from a JSON file",
     "title": "导入"
   },
   "inspections": {
-    "description": "Inspect possible errors",
+    "description": "查可能的错误",
     "environment": {
-      "add_environment": "Add to Environment",
-      "not_found": "Environment variable “{environment}” not found."
+      "add_environment": "添加到环境",
+      "not_found": "环境变量“{environment}”未找到。"
     },
     "header": {
-      "cookie": "The browser doesn't allow Hoppscotch to set the Cookie Header. While we're working on the Hoppscotch Desktop App (coming soon), please use the Authorization Header instead."
+      "cookie": "浏览器不允许 Hoppscotch 设置 Cookie 标头。当前我们正在开发 Hoppscotch 桌面应用程序（即将推出），与此同时请改用授权标头。"
     },
     "response": {
-      "401_error": "Please check your authentication credentials.",
-      "404_error": "Please check your request URL and method type.",
-      "cors_error": "Please check your Cross-Origin Resource Sharing configuration.",
-      "default_error": "Please check your request.",
-      "network_error": "Please check your network connection."
+      "401_error": "请检查您的身份验证凭据。",
+      "404_error": "请检查您的请求 URL 和方法类型。",
+      "cors_error": "请检查您的跨源资源共享配置。",
+      "default_error": "请检查您的请求。",
+      "network_error": "请检查您的网络连接。"
     },
     "title": "Inspector",
     "url": {
-      "extension_not_installed": "Extension not installed.",
-      "extension_unknown_origin": "Make sure you've added the API endpoint's origin to the Hoppscotch Browser Extension list.",
-      "extention_enable_action": "Enable Browser Extension",
-      "extention_not_enabled": "Extension not enabled."
+      "extension_not_installed": "未安装扩展。",
+      "extension_unknown_origin": "确保您已将 API 端点的源添加到 Hoppscotch 浏览器扩展列表中。",
+      "extention_enable_action": "启用浏览器扩展",
+      "extention_not_enabled": "扩展未启用。"
     }
   },
   "layout": {
@@ -373,8 +446,10 @@
     "close_unsaved_tab": "有未保存的变更",
     "collections": "集合",
     "confirm": "确认",
+    "customize_request": "Customize Request",
     "edit_request": "编辑请求",
-    "import_export": "导入/导出"
+    "import_export": "导入/导出",
+    "share_request": "Share Request"
   },
   "mqtt": {
     "already_subscribed": "您已经订阅了此主题。",
@@ -389,10 +464,10 @@
     "invalid_topic": "请提供该订阅的主题",
     "keep_alive": "Keep Alive",
     "log": "日志",
-    "lw_message": "Last-Will Message",
-    "lw_qos": "Last-Will QoS",
-    "lw_retain": "Last-Will Retain",
-    "lw_topic": "Last-Will Topic",
+    "lw_message": "遗嘱消息",
+    "lw_qos": "遗嘱消息QoS",
+    "lw_retain": "遗嘱消息保留",
+    "lw_topic": "遗嘱消息主题",
     "message": "消息",
     "new": "新订阅",
     "not_connected": "请先启动MQTT连接。",
@@ -449,13 +524,14 @@
       "structured": "结构",
       "text": "文字"
     },
-    "copy_link": "复制链接",
     "different_collection": "不能对来自不同集合的请求进行重新排序",
     "duplicated": "重复的请求",
     "duration": "持续时间",
     "enter_curl": "输入 cURL",
     "generate_code": "生成代码",
     "generated_code": "已生成代码",
+    "go_to_authorization_tab": "Go to Authorization tab",
+    "go_to_body_tab": "Go to Body tab",
     "header_list": "请求头列表",
     "invalid_name": "请提供请求名称",
     "method": "方法",
@@ -472,7 +548,7 @@
     "payload": "负载",
     "query": "查询",
     "raw_body": "原始请求体",
-    "rename": "Rename Request",
+    "rename": "重命名请求",
     "renamed": "请求重命名",
     "run": "运行",
     "save": "保存",
@@ -480,12 +556,14 @@
     "saved": "请求已保存",
     "share": "分享",
     "share_description": "分享 Hoppscotch 给你的朋友",
-    "stop": "Stop",
+    "share_request": "Share Request",
+    "stop": "停止",
     "title": "请求",
     "type": "请求类型",
     "url": "URL",
     "variables": "变量",
-    "view_my_links": "查看我的链接"
+    "view_my_links": "查看我的链接",
+    "copy_link": "复制链接"
   },
   "response": {
     "audio": "Audio",
@@ -513,6 +591,7 @@
     "account_description": "自定义您的帐户设置。",
     "account_email_description": "您的主要电子邮箱地址。",
     "account_name_description": "这是您的显示名称。",
+    "additional": "Additional Settings",
     "background": "背景",
     "black_mode": "黑色",
     "choose_language": "选择语言",
@@ -559,14 +638,31 @@
     "verified_email": "已验证电子邮件地址",
     "verify_email": "验证电子邮箱"
   },
-  "shortcodes": {
-    "actions": "操作",
-    "created_on": "创建于",
-    "deleted": "已刪除快捷键",
-    "method": "方法",
-    "not_found": "找不到快捷键",
-    "short_code": "快捷键",
-    "url": "URL"
+  "shared_requests": {
+    "button": "Button",
+    "button_info": "Create a 'Run in Hoppscotch' button for your website, blog or a README.",
+    "copy_html": "Copy HTML",
+    "copy_link": "Copy Link",
+    "copy_markdown": "Copy Markdown",
+    "creating_widget": "Creating widget",
+    "customize": "Customize",
+    "deleted": "Shared request deleted",
+    "description": "Select a widget, you can change and customize this later",
+    "embed": "Embed",
+    "embed_info": "Add a mini 'Hoppscotch API Playground' to your website, blog or documentation.",
+    "link": "Link",
+    "link_info": "Create a shareable link to share with anyone on the internet with view access.",
+    "modified": "Shared request modified",
+    "not_found": "Shared request not found",
+    "open_new_tab": "Open in new tab",
+    "preview": "Preview",
+    "run_in_hoppscotch": "Run in Hoppscotch",
+    "theme": {
+      "dark": "Dark",
+      "light": "Light",
+      "system": "System",
+      "title": "Theme"
+    }
   },
   "shortcut": {
     "general": {
@@ -592,27 +688,28 @@
       "title": "导航"
     },
     "others": {
-      "prettify": "Prettify Editor's Content",
-      "title": "Others"
+      "prettify": "美化内容",
+      "title": "其他"
     },
     "request": {
-      "copy_request_link": "复制请求链接",
       "delete_method": "选择 DELETE 方法",
       "get_method": "选择 GET 方法",
       "head_method": "选择 HEAD 方法",
-      "import_curl": "Import cURL",
+      "import_curl": "导入cURL",
       "method": "方法",
       "next_method": "选择下一个方法",
       "post_method": "选择 POST 方法",
       "previous_method": "选择上一个方法",
       "put_method": "选择 PUT 方法",
-      "rename": "Rename Request",
+      "rename": "重命名请求",
       "reset_request": "重置请求",
-      "save_request": "Save Request",
+      "save_request": "保存请求",
       "save_to_collections": "保存到集合",
       "send_request": "发送请求",
-      "show_code": "Generate code snippet",
-      "title": "请求"
+      "share_request": "Share Request",
+      "show_code": "生成代码片段",
+      "title": "请求",
+      "copy_request_link": "复制请求链接"
     },
     "response": {
       "copy": "复制响应至剪贴板",
@@ -642,82 +739,82 @@
     "url": "URL"
   },
   "spotlight": {
-    "change_language": "Change Language",
+    "change_language": "更改语言",
     "environments": {
-      "delete": "Delete current environment",
-      "duplicate": "Duplicate current environment",
-      "duplicate_global": "Duplicate global environment",
-      "edit": "Edit current environment",
-      "edit_global": "Edit global environment",
-      "new": "Create new environment",
-      "new_variable": "Create a new environment variable",
-      "title": "Environments"
+      "delete": "删除当前环境",
+      "duplicate": "复制当前环境",
+      "duplicate_global": "复制全局环境",
+      "edit": "编辑当前环境",
+      "edit_global": "编辑全局环境",
+      "new": "创建新环境",
+      "new_variable": "创建新的环境变量",
+      "title": "环境"
     },
     "general": {
-      "chat": "Chat with support",
-      "help_menu": "Help and support",
-      "open_docs": "Read Documentation",
-      "open_github": "Open GitHub repository",
-      "open_keybindings": "Keyboard shortcuts",
-      "social": "Social",
-      "title": "General"
+      "chat": "与支持人员聊天",
+      "help_menu": "帮助和支持",
+      "open_docs": "阅读文档",
+      "open_github": "打开 GitHub 存储库",
+      "open_keybindings": "键盘快捷键",
+      "social": "社交媒体",
+      "title": "一般"
     },
     "graphql": {
-      "connect": "Connect to server",
-      "disconnect": "Disconnect from server"
+      "connect": "连接到服务器",
+      "disconnect": "与服务器断开连接"
     },
     "miscellaneous": {
-      "invite": "Invite your friends to Hoppscotch",
-      "title": "Miscellaneous"
+      "invite": "邀请你的朋友来 Hoppscotch",
+      "title": "杂项"
     },
     "request": {
-      "save_as_new": "Save as new request",
-      "select_method": "Select method",
-      "switch_to": "Switch to",
-      "tab_authorization": "Authorization tab",
-      "tab_body": "Body tab",
-      "tab_headers": "Headers tab",
-      "tab_parameters": "Parameters tab",
-      "tab_pre_request_script": "Pre-request script tab",
-      "tab_query": "Query tab",
-      "tab_tests": "Tests tab",
-      "tab_variables": "Variables tab"
+      "save_as_new": "另存为新请求",
+      "select_method": "选择方法",
+      "switch_to": "切换到",
+      "tab_authorization": "授权标签页",
+      "tab_body": "请求体标签页",
+      "tab_headers": "请求头标签页",
+      "tab_parameters": "参数标签页",
+      "tab_pre_request_script": "预请求脚本标签页",
+      "tab_query": "查询标签页",
+      "tab_tests": "测试标签页b",
+      "tab_variables": "变量标签页"
     },
     "response": {
-      "copy": "Copy response",
-      "download": "Download response as file",
-      "title": "Response"
+      "copy": "复制响应",
+      "download": "将响应下载为文件",
+      "title": "响应"
     },
     "section": {
-      "interceptor": "Interceptor",
-      "interface": "Interface",
-      "theme": "Theme",
-      "user": "User"
+      "interceptor": "拦截器",
+      "interface": "界面",
+      "theme": "主题",
+      "user": "用户"
     },
     "settings": {
-      "change_interceptor": "Change Interceptor",
-      "change_language": "Change Language",
+      "change_interceptor": "更改拦截器",
+      "change_language": "更改语言",
       "theme": {
-        "black": "Black",
-        "dark": "Dark",
-        "light": "Light",
-        "system": "System preference"
+        "black": "黑色",
+        "dark": "暗色",
+        "light": "亮色",
+        "system": "系统"
       }
     },
     "tab": {
-      "close_current": "Close current tab",
-      "close_others": "Close all other tabs",
-      "duplicate": "Duplicate current tab",
-      "new_tab": "Open a new tab",
-      "title": "Tabs"
+      "close_current": "关闭当前标签页",
+      "close_others": "关闭所有其他标签页",
+      "duplicate": "复制当前标签页",
+      "new_tab": "打开新的标签页",
+      "title": "标签页"
     },
     "workspace": {
-      "delete": "Delete current team",
-      "edit": "Edit current team",
-      "invite": "Invite people to team",
-      "new": "Create new team",
-      "switch_to_personal": "Switch to your personal workspace",
-      "title": "Teams"
+      "delete": "删除当前团队",
+      "edit": "编辑当前团队",
+      "invite": "邀请人员加入团队",
+      "new": "创建新团队",
+      "switch_to_personal": "切换到您的个人工作空间",
+      "title": "团队"
     }
   },
   "sse": {
@@ -735,6 +832,7 @@
     "connection_error": "连接错误",
     "connection_failed": "连接失败",
     "connection_lost": "连接丢失",
+    "copied_interface_to_clipboard": "Copied {language} interface type to clipboard",
     "copied_to_clipboard": "已复制到剪贴板",
     "deleted": "已删除",
     "deprecated": "已弃用",
@@ -742,10 +840,12 @@
     "disconnected": "断开连接",
     "disconnected_from": "与 {name} 断开连接",
     "docs_generated": "已生成文档",
+    "download_failed": "Download failed",
     "download_started": "开始下载",
     "enabled": "启用",
     "file_imported": "文件已导入",
     "finished_in": "在 {duration} 毫秒内完成",
+    "hide": "Hide",
     "history_deleted": "历史记录已删除",
     "linewrap": "换行",
     "loading": "正在加载……",
@@ -756,6 +856,7 @@
     "published_error": "将信息：{topic}发布至主题：{message}时发生错误",
     "published_message": "已将此信息：{message} 发布至主题：{topic}",
     "reconnection_error": "重连失败",
+    "show": "Show",
     "subscribed_failed": "无法订阅此主题：{topic}",
     "subscribed_success": "成功订阅此主题：{topic}",
     "unsubscribed_failed": "无法取消订阅此主题：{topic}",
@@ -791,6 +892,7 @@
     "queries": "查询",
     "query": "查询",
     "schema": "Schema",
+    "shared_requests": "Shared Requests",
     "socketio": "Socket.IO",
     "sse": "SSE",
     "tests": "测试",
@@ -807,6 +909,7 @@
     "email_do_not_match": "邮箱无法与你的帐户信息匹配。请联系你的团队者。",
     "exit": "退出团队",
     "exit_disabled": "团队所有者无法退出团队",
+    "failed_invites": "Failed invites",
     "invalid_coll_id": "无效的集合 ID",
     "invalid_email_format": "电子邮箱格式无效",
     "invalid_id": "无效的团队 ID，请联系你的团队者。",
@@ -848,6 +951,7 @@
     "same_target_destination": "目标相同",
     "saved": "团队已保存",
     "select_a_team": "选择团队",
+    "success_invites": "Success invites",
     "title": "团队",
     "we_sent_invite_link": "我们向所有受邀者发送了邀请链接！",
     "we_sent_invite_link_description": "请所有受邀者检查他们的收件箱，点击链接以加入团队。"
@@ -879,5 +983,14 @@
     "personal": "我的工作空间",
     "team": "团队工作空间",
     "title": "工作空间"
+  },
+  "shortcodes": {
+    "actions": "操作",
+    "created_on": "创建于",
+    "deleted": "已刪除短链接",
+    "method": "方法",
+    "not_found": "找不到短链接",
+    "short_code": "短链接",
+    "url": "URL"
   }
 }

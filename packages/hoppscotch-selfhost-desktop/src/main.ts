@@ -96,3 +96,29 @@ const headerPaddingTop = ref("0px")
     headerPaddingLeft.value = "70px"
   }
 })()
+
+
+function isTextInput(target: EventTarget | null) {
+  if (target instanceof HTMLInputElement) {
+    return target.type === 'text'
+      || target.type === 'email'
+      || target.type === 'password'
+      || target.type === 'number'
+      || target.type === 'search'
+      || target.type === 'tel'
+      || target.type === 'url'
+      || target.type === 'textarea'
+  } else if (target instanceof HTMLTextAreaElement) {
+    return true
+  } else if (target instanceof HTMLElement && target.isContentEditable) {
+    return true
+  }
+
+  return false
+}
+
+window.addEventListener('keydown',function(e){
+  if (e.key === "Backspace" && !isTextInput(e.target)) {
+    e.preventDefault()
+  }
+},true);

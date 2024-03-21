@@ -12,16 +12,16 @@
       @dragleave="ordering = false"
       @dragend="resetDragState"
     ></div>
-    <div class="flex flex-col relative">
+    <div class="relative flex flex-col">
       <div
-        class="absolute bg-accent opacity-0 pointer-events-none inset-0 z-1 transition"
+        class="z-[1] pointer-events-none absolute inset-0 bg-accent opacity-0 transition"
         :class="{
           'opacity-25':
             dragging && notSameDestination && notSameParentDestination,
         }"
       ></div>
       <div
-        class="flex items-stretch group relative z-3 cursor-pointer pointer-events-auto"
+        class="z-[3] group pointer-events-auto relative flex cursor-pointer items-stretch"
         :draggable="!hasNoTeamAccess"
         @dragstart="dragStart"
         @drop="handelDrop($event)"
@@ -36,11 +36,11 @@
         @contextmenu.prevent="options?.tippy.show()"
       >
         <div
-          class="flex items-center justify-center flex-1 min-w-0"
+          class="flex min-w-0 flex-1 items-center justify-center"
           @click="emit('toggle-children')"
         >
           <span
-            class="flex items-center justify-center px-4 pointer-events-none"
+            class="pointer-events-none flex items-center justify-center px-4"
           >
             <HoppSmartSpinner v-if="isCollLoading" />
             <component
@@ -51,7 +51,7 @@
             />
           </span>
           <span
-            class="flex flex-1 min-w-0 py-2 pr-2 transition pointer-events-none group-hover:text-secondaryDark"
+            class="pointer-events-none flex min-w-0 flex-1 py-2 pr-2 transition group-hover:text-secondaryDark"
           >
             <span class="truncate" :class="{ 'text-accent': isSelected }">
               {{ collectionName }}
@@ -96,6 +96,7 @@
                   @keyup.e="edit?.$el.click()"
                   @keyup.delete="deleteAction?.$el.click()"
                   @keyup.x="exportAction?.$el.click()"
+                  @keyup.p="propertiesAction?.$el.click()"
                   @keyup.escape="hide()"
                 >
                   <HoppSmartItem
@@ -159,6 +160,18 @@
                       }
                     "
                   />
+                  <HoppSmartItem
+                    ref="propertiesAction"
+                    :icon="IconSettings2"
+                    :label="t('action.properties')"
+                    :shortcut="['P']"
+                    @click="
+                      () => {
+                        emit('edit-properties')
+                        hide()
+                      }
+                    "
+                  />
                 </div>
               </template>
             </tippy>
@@ -193,8 +206,9 @@ import IconTrash2 from "~icons/lucide/trash-2"
 import IconEdit from "~icons/lucide/edit"
 import IconFolder from "~icons/lucide/folder"
 import IconFolderOpen from "~icons/lucide/folder-open"
+import IconSettings2 from "~icons/lucide/settings-2"
 import { ref, computed, watch } from "vue"
-import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
+import { HoppCollection } from "@hoppscotch/data"
 import { useI18n } from "@composables/i18n"
 import { TippyComponent } from "vue-tippy"
 import { TeamCollection } from "~/helpers/teams/TeamCollection"
@@ -213,7 +227,7 @@ const props = withDefaults(
   defineProps<{
     id: string
     parentID?: string | null
-    data: HoppCollection<HoppRESTRequest> | TeamCollection
+    data: HoppCollection | TeamCollection
     /**
      * Collection component can be used for both collections and folders.
      * folderType is used to determine which one it is.
@@ -245,6 +259,7 @@ const emit = defineEmits<{
   (event: "add-request"): void
   (event: "add-folder"): void
   (event: "edit-collection"): void
+  (event: "edit-properties"): void
   (event: "export-data"): void
   (event: "remove-collection"): void
   (event: "drop-event", payload: DataTransfer): void
@@ -261,6 +276,7 @@ const edit = ref<HTMLButtonElement | null>(null)
 const deleteAction = ref<HTMLButtonElement | null>(null)
 const exportAction = ref<HTMLButtonElement | null>(null)
 const options = ref<TippyComponent | null>(null)
+const propertiesAction = ref<TippyComponent | null>(null)
 
 const dragging = ref(false)
 const ordering = ref(false)
@@ -290,13 +306,13 @@ const collectionIcon = computed(() => {
   if (props.isSelected) return IconCheckCircle
   else if (!props.isOpen) return IconFolder
   else if (props.isOpen) return IconFolderOpen
-  else return IconFolder
+  return IconFolder
 })
 
 const collectionName = computed(() => {
-  if ((props.data as HoppCollection<HoppRESTRequest>).name)
-    return (props.data as HoppCollection<HoppRESTRequest>).name
-  else return (props.data as TeamCollection).title
+  if ((props.data as HoppCollection).name)
+    return (props.data as HoppCollection).name
+  return (props.data as TeamCollection).title
 })
 
 watch(
@@ -424,9 +440,8 @@ const isCollLoading = computed(() => {
     props.data.id
   ) {
     return collectionMoveLoading.includes(props.data.id)
-  } else {
-    return false
   }
+  return false
 })
 
 const resetDragState = () => {

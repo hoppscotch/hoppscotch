@@ -5,19 +5,21 @@ import { AuthService } from '../auth.service';
 import { UserService } from 'src/user/user.service';
 import * as O from 'fp-ts/Option';
 import * as E from 'fp-ts/Either';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class MicrosoftStrategy extends PassportStrategy(Strategy) {
   constructor(
     private authService: AuthService,
     private usersService: UserService,
+    private configService: ConfigService,
   ) {
     super({
-      clientID: process.env.MICROSOFT_CLIENT_ID,
-      clientSecret: process.env.MICROSOFT_CLIENT_SECRET,
-      callbackURL: process.env.MICROSOFT_CALLBACK_URL,
-      scope: [process.env.MICROSOFT_SCOPE],
-      tenant: process.env.MICROSOFT_TENANT,
+      clientID: configService.get('INFRA.MICROSOFT_CLIENT_ID'),
+      clientSecret: configService.get('INFRA.MICROSOFT_CLIENT_SECRET'),
+      callbackURL: configService.get('MICROSOFT_CALLBACK_URL'),
+      scope: [configService.get('MICROSOFT_SCOPE')],
+      tenant: configService.get('MICROSOFT_TENANT'),
       store: true,
     });
   }

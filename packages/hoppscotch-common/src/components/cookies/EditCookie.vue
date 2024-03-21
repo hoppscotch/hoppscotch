@@ -6,10 +6,10 @@
     @close="hideModal"
   >
     <template #body>
-      <div class="border rounded border-dividerLight">
+      <div class="rounded border border-dividerLight">
         <div class="flex flex-col">
           <div class="flex items-center justify-between pl-4">
-            <label class="font-semibold truncate text-secondaryLight">
+            <label class="truncate font-semibold text-secondaryLight">
               {{ t("cookies.modal.cookie_string") }}
             </label>
             <div class="flex items-center">
@@ -22,9 +22,9 @@
               <HoppButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"
                 :title="t('state.linewrap')"
-                :class="{ '!text-accent': linewrapEnabled }"
+                :class="{ '!text-accent': WRAP_LINES }"
                 :icon="IconWrapText"
-                @click.prevent="linewrapEnabled = !linewrapEnabled"
+                @click.prevent="toggleNestedSetting('WRAP_LINES', 'cookie')"
               />
               <HoppButtonSecondary
                 v-tippy="{ theme: 'tooltip', allowHTML: true }"
@@ -43,7 +43,7 @@
           <div class="h-46">
             <div
               ref="cookieEditor"
-              class="h-full border-t rounded-b border-dividerLight"
+              class="h-full rounded-b border-t border-dividerLight"
             ></div>
           </div>
         </div>
@@ -102,6 +102,8 @@ import {
   useCopyResponse,
   useDownloadResponse,
 } from "~/composables/lens-actions"
+import { useNestedSetting } from "~/composables/settings"
+import { toggleNestedSetting } from "~/newstore/settings"
 
 // TODO: Build Managed Mode!
 
@@ -122,7 +124,7 @@ const toast = useToast()
 
 const cookieEditor = ref<HTMLElement>()
 const rawCookieString = ref("")
-const linewrapEnabled = ref(true)
+const WRAP_LINES = useNestedSetting("WRAP_LINES", "cookie")
 
 useCodemirror(
   cookieEditor,
@@ -131,7 +133,7 @@ useCodemirror(
     extendedEditorConfig: {
       mode: "text/plain",
       placeholder: `${t("cookies.modal.enter_cookie_string")}`,
-      lineWrapping: linewrapEnabled,
+      lineWrapping: WRAP_LINES,
     },
     linter: null,
     completer: null,

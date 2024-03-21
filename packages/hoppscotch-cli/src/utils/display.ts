@@ -176,7 +176,7 @@ export const printRequestRunner = {
    */
   start: (requestConfig: RequestConfig) => {
     const METHOD = BG_INFO(` ${requestConfig.method} `);
-    const ENDPOINT = requestConfig.url;
+    const ENDPOINT = requestConfig.displayUrl || requestConfig.url;
 
     process.stdout.write(`${METHOD} ${ENDPOINT}`);
   },

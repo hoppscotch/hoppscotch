@@ -1,9 +1,21 @@
 <template>
   <div
-    class="sticky top-0 z-10 flex items-center justify-center flex-shrink-0 p-4 overflow-auto overflow-x-auto bg-primary whitespace-nowrap"
+    class="sticky top-0 z-10 flex flex-shrink-0 items-center justify-center overflow-auto overflow-x-auto whitespace-nowrap bg-primary p-4"
   >
-    <AppShortcutsPrompt v-if="response == null" class="flex-1" />
-    <div v-else class="flex flex-col flex-1">
+    <AppShortcutsPrompt v-if="response == null && !isEmbed" class="flex-1" />
+
+    <div v-if="response == null && isEmbed">
+      <HoppButtonSecondary
+        :label="`${t('app.documentation')}`"
+        to="https://docs.hoppscotch.io/documentation/features/rest-api-testing#response"
+        :icon="IconExternalLink"
+        blank
+        outline
+        reverse
+      />
+    </div>
+
+    <div v-else-if="response" class="flex flex-1 flex-col">
       <div
         v-if="response.type === 'loading'"
         class="flex flex-col items-center justify-center"
@@ -19,32 +31,34 @@
       />
       <HoppSmartPlaceholder
         v-if="response.type === 'network_fail'"
-        :src="`/images/states/${colorMode.value}/youre_lost.svg`"
+        :src="`/images/states/${colorMode.value}/upload_error.svg`"
         :alt="`${t('error.network_fail')}`"
         :heading="t('error.network_fail')"
         :text="t('helpers.network_fail')"
-        large
       >
-        <AppInterceptor class="p-2 border rounded border-dividerLight" />
+        <template #body>
+          <AppInterceptor class="rounded border border-dividerLight p-2" />
+        </template>
       </HoppSmartPlaceholder>
       <HoppSmartPlaceholder
         v-if="response.type === 'script_fail'"
-        :src="`/images/states/${colorMode.value}/youre_lost.svg`"
+        :src="`/images/states/${colorMode.value}/upload_error.svg`"
         :alt="`${t('error.script_fail')}`"
         :label="t('error.script_fail')"
         :text="t('helpers.script_fail')"
-        large
       >
-        <div
-          class="mt-2 w-full px-4 py-2 overflow-auto font-mono text-red-400 whitespace-normal rounded bg-primaryLight"
-        >
-          {{ response.error.name }}: {{ response.error.message }}<br />
-          {{ response.error.stack }}
-        </div>
+        <template #body>
+          <div
+            class="mt-2 w-full overflow-auto whitespace-normal rounded bg-primaryLight px-4 py-2 font-mono text-red-400"
+          >
+            {{ response.error.name }}: {{ response.error.message }}<br />
+            {{ response.error.stack }}
+          </div>
+        </template>
       </HoppSmartPlaceholder>
       <div
         v-if="response.type === 'success' || response.type === 'fail'"
-        class="flex items-center font-semibold text-tiny"
+        class="flex items-center text-tiny font-semibold"
       >
         <div
           :class="statusCategory.className"
@@ -53,7 +67,12 @@
           <span v-if="response.statusCode">
             <span class="text-secondary"> {{ t("response.status") }}: </span>
             {{ `${response.statusCode}\xA0 • \xA0`
-            }}{{ getStatusCodeReasonPhrase(response.statusCode) }}
+            }}{{
+              getStatusCodeReasonPhrase(
+                response.statusCode,
+                response.statusText
+              )
+            }}
           </span>
           <span v-if="response.meta && response.meta.responseDuration">
             <span class="text-secondary"> {{ t("response.time") }}: </span>
@@ -84,7 +103,7 @@
       :class="[
         response === null || response?.type === 'network_fail'
           ? 'absolute right-2 top-2'
-          : 'ml-2 -m-2',
+          : '-m-2 ml-2',
       ]"
     />
   </div>
@@ -100,6 +119,7 @@ import { getStatusCodeReasonPhrase } from "~/helpers/utils/statusCodes"
 import { useService } from "dioc/vue"
 import { InspectionService } from "~/services/inspection"
 import { RESTTabService } from "~/services/tab/rest"
+import IconExternalLink from "~icons/lucide/external-link"
 
 const t = useI18n()
 const colorMode = useColorMode()
@@ -107,6 +127,7 @@ const tabs = useService(RESTTabService)
 
 const props = defineProps<{
   response: HoppRESTResponse | null | undefined
+  isEmbed?: boolean
 }>()
 
 /**

@@ -1,5 +1,5 @@
 import { onBeforeUnmount, onMounted } from "vue"
-import { HoppActionWithNoArgs, invokeAction } from "./actions"
+import { HoppActionWithOptionalArgs, invokeAction } from "./actions"
 import { isAppleDevice } from "./platformutils"
 import { isDOMElement, isTypableElement } from "./utils/dom"
 
@@ -40,11 +40,11 @@ type SingleCharacterShortcutKey = `${Key}`
 type ShortcutKey = ModifierBasedShortcutKey | SingleCharacterShortcutKey
 
 export const bindings: {
-  [_ in ShortcutKey]?: HoppActionWithNoArgs
+  [_ in ShortcutKey]?: HoppActionWithOptionalArgs
 } = {
   "ctrl-enter": "request.send-cancel",
   "ctrl-i": "request.reset",
-  "ctrl-u": "request.copy-link",
+  "ctrl-u": "request.share-request",
   "ctrl-s": "request.save",
   "ctrl-shift-s": "request.save-as",
   "alt-up": "request.method.next",
@@ -96,7 +96,7 @@ function handleKeyDown(ev: KeyboardEvent) {
   if (!boundAction) return
 
   ev.preventDefault()
-  invokeAction(boundAction)
+  invokeAction(boundAction, undefined, "keypress")
 }
 
 function generateKeybindingString(ev: KeyboardEvent): ShortcutKey | null {

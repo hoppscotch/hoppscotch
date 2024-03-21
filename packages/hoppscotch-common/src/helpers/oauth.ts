@@ -1,43 +1,18 @@
-import {
-  getLocalConfig,
-  setLocalConfig,
-  removeLocalConfig,
-} from "~/newstore/localpersistence"
+import { getService } from "~/modules/dioc"
+import { PersistenceService } from "~/services/persistence"
 
 import * as E from "fp-ts/Either"
 import { z } from "zod"
+import { InterceptorService } from "~/services/interceptor.service"
+
+import { AxiosRequestConfig } from "axios"
 
 const redirectUri = `${window.location.origin}/oauth`
 
+const interceptorService = getService(InterceptorService)
+const persistenceService = getService(PersistenceService)
+
 // GENERAL HELPER FUNCTIONS
-
-/**
- * Makes a POST request and parse the response as JSON
- *
- * @param {String} url - The resource
- * @param {Object} params - Configuration options
- * @returns {Object}
- */
-
-const sendPostRequest = async (url: string, params: Record<string, string>) => {
-  const body = Object.keys(params)
-    .map((key) => `${key}=${params[key]}`)
-    .join("&")
-  const options = {
-    method: "POST",
-    headers: {
-      "Content-type": "application/x-www-form-urlencoded; charset=UTF-8",
-    },
-    body,
-  }
-  try {
-    const response = await fetch(url, options)
-    const data = await response.json()
-    return E.right(data)
-  } catch (e) {
-    return E.left("AUTH_TOKEN_REQUEST_FAILED")
-  }
-}
 
 /**
  * Parse a query string into an object
@@ -72,9 +47,16 @@ const getTokenConfiguration = async (endpoint: string) => {
     },
   }
   try {
-    const response = await fetch(endpoint, options)
-    const config = await response.json()
-    return E.right(config)
+    const res = await runRequestThroughInterceptor({
+      url: endpoint,
+      ...options,
+    })
+
+    if (E.isLeft(res)) {
+      return E.left("OIDC_DISCOVERY_FAILED")
+    }
+
+    return E.right(JSON.parse(res.right))
   } catch (e) {
     return E.left("OIDC_DISCOVERY_FAILED")
   }
@@ -167,8 +149,7 @@ const tokenRequest = async ({
   clientSecret,
   scope,
 }: TokenRequestParams) => {
-  // Check oauth configuration
-  if (oidcDiscoveryUrl !== "") {
+  if (oidcDiscoveryUrl) {
     const res = await getTokenConfiguration(oidcDiscoveryUrl)
 
     const OIDCConfigurationSchema = z.object({
@@ -190,17 +171,17 @@ const tokenRequest = async ({
     accessTokenUrl = parsedOIDCConfiguration.data.token_endpoint
   }
   // Store oauth information
-  setLocalConfig("tokenEndpoint", accessTokenUrl)
-  setLocalConfig("client_id", clientId)
-  setLocalConfig("client_secret", clientSecret)
+  persistenceService.setLocalConfig("tokenEndpoint", accessTokenUrl)
+  persistenceService.setLocalConfig("client_id", clientId)
+  persistenceService.setLocalConfig("client_secret", clientSecret)
 
   // Create and store a random state value
   const state = generateRandomString()
-  setLocalConfig("pkce_state", state)
+  persistenceService.setLocalConfig("pkce_state", state)
 
   // Create and store a new PKCE codeVerifier (the plaintext random secret)
   const codeVerifier = generateRandomString()
-  setLocalConfig("pkce_codeVerifier", codeVerifier)
+  persistenceService.setLocalConfig("pkce_codeVerifier", codeVerifier)
 
   // Hash and base64-urlencode the secret to use as the challenge
   const codeChallenge = await pkceChallengeFromVerifier(codeVerifier)
@@ -244,14 +225,14 @@ const handleOAuthRedirect = async () => {
 
   // If the server returned an authorization code, attempt to exchange it for an access token
   // Verify state matches what we set at the beginning
-  if (getLocalConfig("pkce_state") !== queryParams.state) {
+  if (persistenceService.getLocalConfig("pkce_state") !== queryParams.state) {
     return E.left("INVALID_STATE" as const)
   }
 
-  const tokenEndpoint = getLocalConfig("tokenEndpoint")
-  const clientID = getLocalConfig("client_id")
-  const clientSecret = getLocalConfig("client_secret")
-  const codeVerifier = getLocalConfig("pkce_codeVerifier")
+  const tokenEndpoint = persistenceService.getLocalConfig("tokenEndpoint")
+  const clientID = persistenceService.getLocalConfig("client_id")
+  const clientSecret = persistenceService.getLocalConfig("client_secret")
+  const codeVerifier = persistenceService.getLocalConfig("pkce_codeVerifier")
 
   if (!tokenEndpoint) {
     return E.left("NO_TOKEN_ENDPOINT" as const)
@@ -269,18 +250,24 @@ const handleOAuthRedirect = async () => {
     return E.left("NO_CODE_VERIFIER" as const)
   }
 
+  const data = new URLSearchParams({
+    grant_type: "authorization_code",
+    code: queryParams.code,
+    client_id: clientID,
+    client_secret: clientSecret,
+    redirect_uri: redirectUri,
+    code_verifier: codeVerifier,
+  })
+
   // Exchange the authorization code for an access token
-  const tokenResponse: E.Either<string, any> = await sendPostRequest(
-    tokenEndpoint,
-    {
-      grant_type: "authorization_code",
-      code: queryParams.code,
-      client_id: clientID,
-      client_secret: clientSecret,
-      redirect_uri: redirectUri,
-      code_verifier: codeVerifier,
-    }
-  )
+  const tokenResponse = await runRequestThroughInterceptor({
+    url: tokenEndpoint,
+    data: data.toString(),
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+  })
 
   // Clean these up since we don't need them anymore
   clearPKCEState()
@@ -294,7 +281,7 @@ const handleOAuthRedirect = async () => {
   })
 
   const parsedTokenResponse = withAccessTokenSchema.safeParse(
-    tokenResponse.right
+    JSON.parse(tokenResponse.right)
   )
 
   return parsedTokenResponse.success
@@ -303,11 +290,27 @@ const handleOAuthRedirect = async () => {
 }
 
 const clearPKCEState = () => {
-  removeLocalConfig("pkce_state")
-  removeLocalConfig("pkce_codeVerifier")
-  removeLocalConfig("tokenEndpoint")
-  removeLocalConfig("client_id")
-  removeLocalConfig("client_secret")
+  persistenceService.removeLocalConfig("pkce_state")
+  persistenceService.removeLocalConfig("pkce_codeVerifier")
+  persistenceService.removeLocalConfig("tokenEndpoint")
+  persistenceService.removeLocalConfig("client_id")
+  persistenceService.removeLocalConfig("client_secret")
+}
+
+async function runRequestThroughInterceptor(config: AxiosRequestConfig) {
+  const res = await interceptorService.runRequest(config).response
+
+  if (E.isLeft(res)) {
+    return E.left("REQUEST_FAILED")
+  }
+
+  // convert ArrayBuffer to string
+  if (!(res.right.data instanceof ArrayBuffer)) {
+    return E.left("REQUEST_FAILED")
+  }
+
+  const data = new TextDecoder().decode(res.right.data).replace(/\0+$/, "")
+  return E.right(data)
 }
 
 export { tokenRequest, handleOAuthRedirect }

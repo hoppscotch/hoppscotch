@@ -6,23 +6,24 @@ import {
   parseTemplateString,
   parseTemplateStringE,
 } from "@hoppscotch/data";
-import { runPreRequestScript } from "@hoppscotch/js-sandbox";
-import { flow, pipe } from "fp-ts/function";
-import * as TE from "fp-ts/TaskEither";
-import * as E from "fp-ts/Either";
-import * as RA from "fp-ts/ReadonlyArray";
+import { runPreRequestScript } from "@hoppscotch/js-sandbox/node";
 import * as A from "fp-ts/Array";
+import * as E from "fp-ts/Either";
 import * as O from "fp-ts/Option";
+import * as RA from "fp-ts/ReadonlyArray";
+import * as TE from "fp-ts/TaskEither";
+import { flow, pipe } from "fp-ts/function";
 import * as S from "fp-ts/string";
 import qs from "qs";
+
 import { EffectiveHoppRESTRequest } from "../interfaces/request";
-import { error, HoppCLIError } from "../types/errors";
+import { HoppCLIError, error } from "../types/errors";
 import { HoppEnvs } from "../types/request";
-import { isHoppCLIError } from "./checks";
-import { tupleToRecord, arraySort, arrayFlatMap } from "./functions/array";
-import { toFormData } from "./mutators";
-import { getEffectiveFinalMetaData } from "./getters";
 import { PreRequestMetrics } from "../types/response";
+import { isHoppCLIError } from "./checks";
+import { arrayFlatMap, arraySort, tupleToRecord } from "./functions/array";
+import { getEffectiveFinalMetaData } from "./getters";
+import { toFormData } from "./mutators";
 
 /**
  * Runs pre-request-script runner over given request which extracts set ENVs and
@@ -35,7 +36,10 @@ import { PreRequestMetrics } from "../types/response";
 export const preRequestScriptRunner = (
   request: HoppRESTRequest,
   envs: HoppEnvs
-): TE.TaskEither<HoppCLIError, EffectiveHoppRESTRequest> =>
+): TE.TaskEither<
+  HoppCLIError,
+  { effectiveRequest: EffectiveHoppRESTRequest } & { updatedEnvs: HoppEnvs }
+> =>
   pipe(
     TE.of(request),
     TE.chain(({ preRequestScript }) =>
@@ -67,7 +71,10 @@ export const preRequestScriptRunner = (
 export function getEffectiveRESTRequest(
   request: HoppRESTRequest,
   environment: Environment
-): E.Either<HoppCLIError, EffectiveHoppRESTRequest> {
+): E.Either<
+  HoppCLIError,
+  { effectiveRequest: EffectiveHoppRESTRequest } & { updatedEnvs: HoppEnvs }
+> {
   const envVariables = environment.variables;
 
   // Parsing final headers with applied ENVs.
@@ -161,12 +168,30 @@ export function getEffectiveRESTRequest(
   }
   const effectiveFinalURL = _effectiveFinalURL.right;
 
+  // Secret environment variables referenced in the request endpoint should be masked
+  let effectiveFinalDisplayURL;
+  if (envVariables.some(({ secret }) => secret)) {
+    const _effectiveFinalDisplayURL = parseTemplateStringE(
+      request.endpoint,
+      envVariables,
+      true
+    );
+
+    if (E.isRight(_effectiveFinalDisplayURL)) {
+      effectiveFinalDisplayURL = _effectiveFinalDisplayURL.right;
+    }
+  }
+
   return E.right({
-    ...request,
-    effectiveFinalURL,
-    effectiveFinalHeaders,
-    effectiveFinalParams,
-    effectiveFinalBody,
+    effectiveRequest: {
+      ...request,
+      effectiveFinalURL,
+      effectiveFinalDisplayURL,
+      effectiveFinalHeaders,
+      effectiveFinalParams,
+      effectiveFinalBody,
+    },
+    updatedEnvs: { global: [], selected: envVariables },
   });
 }
 

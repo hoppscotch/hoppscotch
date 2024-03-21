@@ -1,9 +1,14 @@
 <template>
-  <div class="flex flex-col flex-1">
+  <div class="flex flex-1 flex-col">
     <div
-      class="sticky z-10 flex items-center justify-between flex-shrink-0 pl-4 overflow-x-auto border-b bg-primary border-dividerLight top-upperMobileSecondaryStickyFold sm:top-upperSecondaryStickyFold"
+      class="sticky z-10 flex flex-shrink-0 items-center justify-between overflow-x-auto border-b border-dividerLight bg-primary pl-4"
+      :class="[
+        isCollectionProperty
+          ? 'top-propertiesPrimaryStickyFold'
+          : 'top-upperMobileSecondaryStickyFold sm:top-upperSecondaryStickyFold',
+      ]"
     >
-      <label class="font-semibold truncate text-secondaryLight">
+      <label class="truncate font-semibold text-secondaryLight">
         {{ t("request.header_list") }}
       </label>
       <div class="flex">
@@ -24,9 +29,9 @@
           v-if="bulkMode"
           v-tippy="{ theme: 'tooltip' }"
           :title="t('state.linewrap')"
-          :class="{ '!text-accent': linewrapEnabled }"
+          :class="{ '!text-accent': WRAP_LINES }"
           :icon="IconWrapText"
-          @click.prevent="linewrapEnabled = !linewrapEnabled"
+          @click.prevent="toggleNestedSetting('WRAP_LINES', 'httpHeaders')"
         />
         <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
@@ -44,7 +49,9 @@
         />
       </div>
     </div>
-    <div v-if="bulkMode" ref="bulkEditor" class="flex flex-col flex-1"></div>
+    <div v-if="bulkMode" class="h-full relative w-full">
+      <div ref="bulkEditor" class="absolute inset-0"></div>
+    </div>
     <div v-else>
       <draggable
         v-model="workingHeaders"
@@ -58,7 +65,7 @@
       >
         <template #item="{ element: header, index }">
           <div
-            class="flex border-b divide-x divide-dividerLight border-dividerLight draggable-content group"
+            class="draggable-content group flex divide-x divide-dividerLight border-b border-dividerLight"
           >
             <span>
               <HoppButtonSecondary
@@ -71,9 +78,9 @@
                       : null,
                 }"
                 :icon="IconGripVertical"
-                class="cursor-auto text-primary hover:text-primary"
+                class="opacity-0"
                 :class="{
-                  'draggable-handle group-hover:text-secondaryLight !cursor-grab':
+                  'draggable-handle cursor-grab group-hover:opacity-100':
                     index !== workingHeaders?.length - 1,
                 }"
                 tabindex="-1"
@@ -163,12 +170,12 @@
       >
         <template #item="{ element: header, index }">
           <div
-            class="flex border-b divide-x divide-dividerLight border-dividerLight draggable-content group"
+            class="draggable-content group flex divide-x divide-dividerLight border-b border-dividerLight"
           >
             <span>
               <HoppButtonSecondary
                 :icon="IconLock"
-                class="opacity-25 cursor-auto text-secondaryLight bg-divider"
+                class="cursor-auto bg-divider text-secondaryLight opacity-25"
                 tabindex="-1"
               />
             </span>
@@ -190,37 +197,88 @@
                 :icon="masking ? IconEye : IconEyeOff"
                 @click="toggleMask()"
               />
-              <HoppButtonSecondary
-                v-else
-                v-tippy="{ theme: 'tooltip' }"
-                :icon="IconArrowUpRight"
-                :title="t('request.go_to_authorization_tab')"
-                class="cursor-auto text-primary hover:text-primary"
-              />
+              <div v-else class="aspect-square w-8"></div>
             </span>
             <span>
               <HoppButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"
                 :icon="IconArrowUpRight"
-                :title="t('request.go_to_authorization_tab')"
+                :title="changeTabTooltip(header.source)"
                 @click="changeTab(header.source)"
               />
             </span>
           </div>
         </template>
       </draggable>
+
+      <draggable
+        v-model="inheritedProperties"
+        item-key="id"
+        animation="250"
+        handle=".draggable-handle"
+        draggable=".draggable-content"
+        ghost-class="cursor-move"
+        chosen-class="bg-primaryLight"
+        drag-class="cursor-grabbing"
+      >
+        <template #item="{ element: header, index }">
+          <div
+            class="draggable-content group flex divide-x divide-dividerLight border-b border-dividerLight"
+          >
+            <span>
+              <HoppButtonSecondary
+                :icon="IconLock"
+                class="cursor-auto bg-divider text-secondaryLight opacity-25"
+                tabindex="-1"
+              />
+            </span>
+            <SmartEnvInput
+              v-model="header.header.key"
+              :placeholder="`${t('count.value', { count: index + 1 })}`"
+              readonly
+            />
+            <SmartEnvInput
+              :model-value="
+                header.source === 'auth' ? mask(header) : header.header.value
+              "
+              :placeholder="`${t('count.value', { count: index + 1 })}`"
+              readonly
+            />
+            <HoppButtonSecondary
+              v-if="header.source === 'auth'"
+              v-tippy="{ theme: 'tooltip' }"
+              :title="t(masking ? 'state.show' : 'state.hide')"
+              :icon="masking && header.source === 'auth' ? IconEye : IconEyeOff"
+              @click="toggleMask()"
+            />
+            <span v-else class="aspect-square w-[2.05rem]"></span>
+            <span>
+              <HoppButtonSecondary
+                v-tippy="{ theme: 'tooltip' }"
+                :icon="IconInfo"
+                :title="`This header is inherited from Parent Collection ${
+                  header.inheritedFrom ?? ''
+                }`"
+              />
+            </span>
+          </div>
+        </template>
+      </draggable>
+
       <HoppSmartPlaceholder
         v-if="workingHeaders.length === 0"
         :src="`/images/states/${colorMode.value}/add_category.svg`"
         :alt="`${t('empty.headers')}`"
         :text="t('empty.headers')"
       >
-        <HoppButtonSecondary
-          filled
-          :label="`${t('add.new')}`"
-          :icon="IconPlus"
-          @click="addHeader"
-        />
+        <template #body>
+          <HoppButtonSecondary
+            filled
+            :label="`${t('add.new')}`"
+            :icon="IconPlus"
+            @click="addHeader"
+          />
+        </template>
       </HoppSmartPlaceholder>
     </div>
   </div>
@@ -240,6 +298,7 @@ import IconEye from "~icons/lucide/eye"
 import IconEyeOff from "~icons/lucide/eye-off"
 import IconArrowUpRight from "~icons/lucide/arrow-up-right"
 import IconWrapText from "~icons/lucide/wrap-text"
+import IconInfo from "~icons/lucide/info"
 import { useColorMode } from "@composables/theming"
 import { computed, reactive, ref, watch } from "vue"
 import { isEqual, cloneDeep } from "lodash-es"
@@ -268,12 +327,16 @@ import { objRemoveKey } from "~/helpers/functional/object"
 import {
   ComputedHeader,
   getComputedHeaders,
+  getComputedAuthHeaders,
 } from "~/helpers/utils/EffectiveURL"
 import { aggregateEnvs$, getAggregateEnvs } from "~/newstore/environments"
 import { useVModel } from "@vueuse/core"
 import { useService } from "dioc/vue"
 import { InspectionService, InspectorResult } from "~/services/inspection"
 import { RESTTabService } from "~/services/tab/rest"
+import { useNestedSetting } from "~/composables/settings"
+import { toggleNestedSetting } from "~/newstore/settings"
+import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 
 const t = useI18n()
 const toast = useToast()
@@ -287,12 +350,16 @@ const idTicker = ref(0)
 const bulkMode = ref(false)
 const bulkHeaders = ref("")
 const bulkEditor = ref<any | null>(null)
-const linewrapEnabled = ref(true)
+const WRAP_LINES = useNestedSetting("WRAP_LINES", "httpHeaders")
 
 const deletionToast = ref<{ goAway: (delay: number) => void } | null>(null)
 
 // v-model integration with props and emit
-const props = defineProps<{ modelValue: HoppRESTRequest }>()
+const props = defineProps<{
+  modelValue: HoppRESTRequest
+  isCollectionProperty?: boolean
+  inheritedProperties?: HoppInheritedProperty
+}>()
 
 const emit = defineEmits<{
   (e: "change-tab", value: RESTOptionTabs): void
@@ -308,7 +375,7 @@ useCodemirror(
     extendedEditorConfig: {
       mode: "text/x-yaml",
       placeholder: `${t("state.bulk_mode_placeholder")}`,
-      lineWrapping: linewrapEnabled,
+      lineWrapping: WRAP_LINES,
     },
     linter,
     completer: null,
@@ -490,13 +557,80 @@ const clearContent = () => {
 const aggregateEnvs = useReadonlyStream(aggregateEnvs$, getAggregateEnvs())
 
 const computedHeaders = computed(() =>
-  getComputedHeaders(request.value, aggregateEnvs.value).map(
+  getComputedHeaders(request.value, aggregateEnvs.value, false).map(
     (header, index) => ({
       id: `header-${index}`,
       ...header,
     })
   )
 )
+
+const inheritedProperties = computed(() => {
+  if (!props.inheritedProperties?.auth || !props.inheritedProperties.headers)
+    return []
+
+  //filter out headers that are already in the request headers
+
+  const inheritedHeaders = props.inheritedProperties.headers.filter(
+    (header) =>
+      !request.value.headers.some(
+        (requestHeader) => requestHeader.key === header.inheritedHeader?.key
+      )
+  )
+
+  const headers = inheritedHeaders
+    .filter(
+      (header) =>
+        header.inheritedHeader !== null &&
+        header.inheritedHeader !== undefined &&
+        header.inheritedHeader.active
+    )
+    .map((header, index) => ({
+      inheritedFrom: props.inheritedProperties?.headers[index].parentName,
+      source: "headers",
+      id: `header-${index}`,
+      header: {
+        key: header.inheritedHeader?.key,
+        value: header.inheritedHeader?.value,
+        active: header.inheritedHeader?.active,
+      },
+    }))
+
+  let auth = [] as {
+    inheritedFrom: string
+    source: "auth"
+    id: string
+    header: {
+      key: string
+      value: string
+      active: boolean
+    }
+  }[]
+
+  const computedAuthHeader = getComputedAuthHeaders(
+    aggregateEnvs.value,
+    request.value,
+    props.inheritedProperties.auth.inheritedAuth,
+    false
+  )[0]
+
+  if (
+    computedAuthHeader &&
+    request.value.auth.authType === "inherit" &&
+    request.value.auth.authActive
+  ) {
+    auth = [
+      {
+        inheritedFrom: props.inheritedProperties?.auth.parentName,
+        source: "auth",
+        id: `header-auth`,
+        header: computedAuthHeader,
+      },
+    ]
+  }
+
+  return [...headers, ...auth]
+})
 
 const masking = ref(true)
 
@@ -508,6 +642,15 @@ const mask = (header: ComputedHeader) => {
   if (header.source === "auth" && masking.value)
     return header.header.value.replace(/\S/gi, "*")
   return header.header.value
+}
+
+const changeTabTooltip = (tab: ComputedHeader["source"]) => {
+  switch (tab) {
+    case "auth":
+      return t("request.go_to_authorization_tab")
+    case "body":
+      return t("request.go_to_body_tab")
+  }
 }
 
 const changeTab = (tab: ComputedHeader["source"]) => {

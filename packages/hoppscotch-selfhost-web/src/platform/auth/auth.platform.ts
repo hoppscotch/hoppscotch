@@ -8,7 +8,8 @@ import { PersistenceService } from "@hoppscotch/common/services/persistence"
 import axios from "axios"
 import { BehaviorSubject, Subject } from "rxjs"
 import { Ref, ref, watch } from "vue"
-import { getAllowedAuthProviders } from "./auth.api"
+import { getAllowedAuthProviders, updateUserDisplayName } from "./auth.api"
+import * as E from "fp-ts/Either"
 
 export const authEvents$ = new Subject<AuthEvent | { event: "token_refresh" }>()
 const currentUser$ = new BehaviorSubject<HoppUser | null>(null)
@@ -317,9 +318,15 @@ export const def: AuthPlatformDef = {
   async setEmailAddress(_email: string) {
     return
   },
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
   async setDisplayName(name: string) {
-    return
+    const res = await updateUserDisplayName(name)
+    if (E.isRight(res)) {
+      probableUser$.next({
+        ...probableUser$.value,
+        displayName: res.right.updateDisplayName.displayName ?? name,
+      } as HoppUser)
+    }
   },
 
   async signOutUser() {

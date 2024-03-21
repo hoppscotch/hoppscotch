@@ -64,12 +64,7 @@
                         : undefined
                     "
                     :active-info-icon="contentTypeItem === body.contentType"
-                    @click="
-                      () => {
-                        body.contentType = contentTypeItem
-                        hide()
-                      }
-                    "
+                    @click="updateContentType(contentTypeItem, hide)"
                   />
                 </div>
               </div>
@@ -188,23 +183,20 @@ const isContentTypeAlreadyExist = () => {
   )
 }
 
-// Template refs
-const tippyActions = ref<any | null>(null)
-
-// When the user clicks to change the content type
-@click="
-  () => {
-    // If the selected content type is 'none'
-    if (contentTypeItem === 'none') {
-      // Set the body.contentType to null
+const updateContentType = (contentTypeItem, hide) => {
+  if (contentTypeItem === 'none') {
+      body.contentType = null
       body.contentType = null
       // And remove the 'Content-Type' header
-      headers.value = headers.value.filter(header => header.key.toLowerCase() !== 'content-type');
-    } else {
-      // Otherwise, set the body.contentType as usual
-      body.contentType = contentTypeItem
-    }
-    hide()
+    body.contentType = null
+      // And remove the 'Content-Type' header
+    headers.value = headers.value.filter(header => header.key.toLowerCase() !== 'content-type');
+  } else {
+    body.contentType = contentTypeItem
   }
-"
+  hide()
+}
+
+// Template refs
+const tippyActions = ref<any | null>(null)
 </script>

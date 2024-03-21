@@ -51,7 +51,6 @@ declare module '@vue/runtime-core' {
     UsersDetails: typeof import('./components/users/Details.vue')['default']
     UsersInviteModal: typeof import('./components/users/InviteModal.vue')['default']
     UsersSharedRequests: typeof import('./components/users/SharedRequests.vue')['default']
-    UsersTable: typeof import('./components/users/Table.vue')['default']
   }
 
 }

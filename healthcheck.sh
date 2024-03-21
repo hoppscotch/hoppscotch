@@ -2,7 +2,7 @@
 
 curlCheck() {
   if ! curl -s --head "$1" | head -n 1 | grep -q "HTTP/1.[01] [23].."; then
-    echo "$1 URL request failed!"
+    echo "URL request failed!"
     exit 1
   else
     echo "URL request succeeded!"

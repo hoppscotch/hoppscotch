@@ -15,6 +15,7 @@ import { TeamRequest } from "./TeamRequest"
 import { Service } from "dioc"
 import axios from "axios"
 import { Ref } from "vue"
+import { platform } from "~/platform"
 
 type CollectionSearchMeta = {
   isSearchResult?: boolean
@@ -207,6 +208,7 @@ export class TeamSearchService extends Service {
           query
         )}`,
         {
+          headers: platform.auth.getBackendHeaders(),
           withCredentials: true,
         }
       )

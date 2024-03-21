@@ -205,7 +205,7 @@ export class TeamSearchService extends Service {
           this.endpoint
         }/team-collection/search/${teamID}?searchQuery=${encodeURIComponent(
           query
-        )}}`,
+        )}`,
         {
           withCredentials: true,
         }

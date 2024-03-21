@@ -66,8 +66,8 @@ export class HeaderInspectorService extends Service implements Inspector {
                 index: index,
               },
               doc: {
-                text: this.t("action.learn_more"),
-                link: "https://docs.hoppscotch.io/documentation/features/inspections",
+                text: this.t("action.download_here"),
+                link: "https://hoppscotch.com/download",
               },
             })
           }

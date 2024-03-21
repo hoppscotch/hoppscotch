@@ -20,7 +20,7 @@
           />
         </div>
       </div>
-      <div class="overflow-x-auto">
+      <div class="overflow-x-auto mb-5">
         <div class="mb-3 flex items-center justify-end">
           <HoppButtonSecondary
             outline

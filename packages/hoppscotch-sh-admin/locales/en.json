@@ -253,7 +253,6 @@
   },
   "users": {
     "admin": "Admin",
-    "admin_email": "Admin Email",
     "admin_id": "Admin ID",
     "cancel": "Cancel",
     "created_on": "Created On",
@@ -270,6 +269,7 @@
     "invalid_user": "Invalid User",
     "invite_load_list_error": "Unable to Load Invited Users List",
     "invite_user": "Invite User",
+    "invited_by": "Invited By",
     "invited_on": "Invited On",
     "invited_users": "Invited Users",
     "invitee_email": "Invitee Email",

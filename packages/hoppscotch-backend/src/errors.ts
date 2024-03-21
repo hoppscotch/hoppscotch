@@ -750,3 +750,8 @@ export const DATABASE_TABLE_NOT_EXIST =
  * (InfraConfigService)
  */
 export const POSTHOG_CLIENT_NOT_INITIALIZED = 'posthog/client_not_initialized';
+
+/**
+ * Inputs supplied are invalid
+ */
+export const INVALID_PARAMS = 'invalid_parameters' as const;

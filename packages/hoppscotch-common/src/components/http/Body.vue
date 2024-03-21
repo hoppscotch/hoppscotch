@@ -185,11 +185,7 @@ const isContentTypeAlreadyExist = () => {
 
 const updateContentType = (contentTypeItem, hide) => {
   if (contentTypeItem === 'none') {
-      body.contentType = null
-      body.contentType = null
-      // And remove the 'Content-Type' header
     body.contentType = null
-      // And remove the 'Content-Type' header
     headers.value = headers.value.filter(header => header.key.toLowerCase() !== 'content-type');
   } else {
     body.contentType = contentTypeItem

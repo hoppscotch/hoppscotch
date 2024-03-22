@@ -211,6 +211,13 @@ export const def: AuthPlatformDef = {
     }
   },
 
+  axiosPlatformConfig() {
+    return {
+      // for including cookies in the request
+      withCredentials: true,
+    }
+  },
+
   /**
    * it is not possible for us to know if the current cookie is expired because we cannot access http-only cookies from js
    * hence just returning if the currentUser$ has a value associated with it

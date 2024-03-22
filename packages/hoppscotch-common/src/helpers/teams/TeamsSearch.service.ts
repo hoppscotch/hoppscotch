@@ -15,6 +15,7 @@ import { TeamRequest } from "./TeamRequest"
 import { Service } from "dioc"
 import axios from "axios"
 import { Ref } from "vue"
+import { platform } from "~/platform"
 
 type CollectionSearchMeta = {
   isSearchResult?: boolean
@@ -199,6 +200,8 @@ export class TeamSearchService extends Service {
     this.searchResultsRequests = {}
     this.expandedCollections.value = []
 
+    const axiosPlatformConfig = platform.auth.axiosPlatformConfig?.() ?? {}
+
     try {
       const searchResponse = await axios.get(
         `${
@@ -206,9 +209,7 @@ export class TeamSearchService extends Service {
         }/team-collection/search/${teamID}?searchQuery=${encodeURIComponent(
           query
         )}`,
-        {
-          withCredentials: true,
-        }
+        axiosPlatformConfig
       )
 
       if (searchResponse.status !== 200) {

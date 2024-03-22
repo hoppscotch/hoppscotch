@@ -198,6 +198,7 @@ const deleteTeam = () => {
         toast.error(`${t("error.something_went_wrong")}`)
         console.error(err)
         loading.value = false
+        confirmRemove.value = false
       },
       () => {
         toast.success(`${t("team.deleted")}`)

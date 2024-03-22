@@ -274,7 +274,7 @@ function getFinalBodyFromRequest(
 
   if (request.body.contentType === "application/x-www-form-urlencoded") {
     const parsedBodyRecord = pipe(
-      request.body.body,
+      request.body.body ?? "",
       parseRawKeyValueEntriesE,
       E.map(
         flow(
@@ -311,7 +311,7 @@ function getFinalBodyFromRequest(
 
   if (request.body.contentType === "multipart/form-data") {
     return pipe(
-      request.body.body,
+      request.body.body ?? [],
       A.filter((x) => (x.key !== "" || x.isFile) && x.active), // Remove empty keys
 
       // Sort files down

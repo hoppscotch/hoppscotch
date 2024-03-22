@@ -10,6 +10,7 @@
     "dist/*"
   ],
   "scripts": {
+    "dev": "vite build --watch",
     "build:code": "vite build",
     "build:decl": "tsc --project tsconfig.decl.json",
     "build": "pnpm run build:code && pnpm run build:decl",

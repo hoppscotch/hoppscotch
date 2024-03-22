@@ -45,7 +45,7 @@
           <template #action="{ item }">
             <div v-if="item" class="my-1 mr-2">
               <HoppButtonSecondary
-                v-if="xlAndLarger"
+                v-if="lgAndLarger"
                 :icon="IconTrash"
                 :label="t('users.revoke_invitation')"
                 class="text-secondaryDark bg-red-500 hover:bg-red-600"
@@ -119,7 +119,7 @@ const toast = useToast();
 const router = useRouter();
 
 const breakpoints = useBreakpoints(breakpointsTailwind);
-const xlAndLarger = breakpoints.greater('xl');
+const lgAndLarger = breakpoints.greater('lg');
 
 // Get Proper Date Formats
 const getCreatedDate = (date: string) => format(new Date(date), 'dd-MM-yyyy');
@@ -130,9 +130,8 @@ const { fetching, error, data } = useQuery({ query: InvitedUsersDocument });
 
 // Table Headings
 const headings = [
-  { key: 'adminUid', label: t('users.admin_id') },
-  { key: 'adminEmail', label: t('users.admin_email') },
   { key: 'inviteeEmail', label: t('users.invitee_email') },
+  { key: 'adminEmail', label: t('users.invited_by') },
   { key: 'invitedOn', label: t('users.invited_on') },
   { key: 'action', label: 'Action' },
 ];

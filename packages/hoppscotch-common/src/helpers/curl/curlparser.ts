@@ -28,31 +28,32 @@ import {
 
 const defaultRESTReq = getDefaultRESTRequest()
 
-const parseCurlArguments = (curlCommand: string) => {
-  let args: parser.Arguments = parser(curlCommand)
-
-  if (
-    objHasProperty("dataUrlencode", "string")(args) ||
-    objHasProperty("dataUrlencode", "object")(args)
-  ) {
-    const urlEncodedData: string[] = Array.isArray(args.dataUrlencode)
-      ? args.dataUrlencode
-      : [args.dataUrlencode]
-
-    const data = A.map((key: string) => decodeURI(key))(urlEncodedData)
-
-    args = { ...args, d: data }
-  }
-
-  return args
-}
-
 export const parseCurlCommand = (curlCommand: string) => {
   // const isDataBinary = curlCommand.includes(" --data-binary")
   // const compressed = !!parsedArguments.compressed
 
   curlCommand = preProcessCurlCommand(curlCommand)
-  const parsedArguments = parseCurlArguments(curlCommand)
+
+  const args: parser.Arguments = parser(curlCommand)
+
+  const parsedArguments = pipe(
+    args,
+    O.fromPredicate(
+      (args) =>
+        objHasProperty("dataUrlencode", "string")(args) ||
+        objHasProperty("dataUrlencode", "object")(args)
+    ),
+    O.map((args) => {
+      const urlEncodedData: string[] = Array.isArray(args.dataUrlencode)
+        ? args.dataUrlencode
+        : [args.dataUrlencode]
+
+      const data = A.map((key: string) => decodeURI(key))(urlEncodedData)
+
+      return { ...args, d: data }
+    }),
+    O.getOrElse(() => args)
+  )
 
   const headerObject = getHeaders(parsedArguments)
   const { headers } = headerObject

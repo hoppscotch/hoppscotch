@@ -125,13 +125,9 @@ useCodemirror(
     linter: null,
     completer: null,
     environmentHighlights: false,
-    onInit: onInitView,
+    onInit: (view: EditorView) => view.focus(),
   })
 )
-
-function onInitView(view: EditorView) {
-  view.focus()
-}
 
 watch(
   () => props.show,

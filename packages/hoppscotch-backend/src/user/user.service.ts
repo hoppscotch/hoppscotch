@@ -8,7 +8,11 @@ import * as T from 'fp-ts/Task';
 import * as A from 'fp-ts/Array';
 import { pipe, constVoid } from 'fp-ts/function';
 import { AuthUser } from 'src/types/AuthUser';
-import { USERS_NOT_FOUND, USER_NOT_FOUND } from 'src/errors';
+import {
+  USERS_NOT_FOUND,
+  USER_NOT_FOUND,
+  USER_SHORT_DISPLAY_NAME,
+} from 'src/errors';
 import { SessionType, User } from './user.model';
 import { USER_UPDATE_FAILED } from 'src/errors';
 import { PubSubService } from 'src/pubsub/pubsub.service';
@@ -291,6 +295,10 @@ export class UserService {
    * @returns a Either of User or error
    */
   async updateUserDisplayName(userUID: string, displayName: string) {
+    if (!displayName || displayName.length === 0) {
+      return E.left(USER_SHORT_DISPLAY_NAME);
+    }
+
     try {
       const dbUpdatedUser = await this.prisma.user.update({
         where: { uid: userUID },

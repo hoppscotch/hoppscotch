@@ -58,6 +58,29 @@ export class UserResolver {
     if (E.isLeft(updatedUser)) throwErr(updatedUser.left);
     return updatedUser.right;
   }
+
+  @Mutation(() => User, {
+    description: 'Update a users display name',
+  })
+  @UseGuards(GqlAuthGuard)
+  async updateDisplayName(
+    @GqlUser() user: AuthUser,
+    @Args({
+      name: 'updatedDisplayName',
+      description: 'New name of user',
+      type: () => String,
+    })
+    updatedDisplayName: string,
+  ) {
+    const updatedUser = await this.userService.updateUserDisplayName(
+      user.uid,
+      updatedDisplayName,
+    );
+
+    if (E.isLeft(updatedUser)) throwErr(updatedUser.left);
+    return updatedUser.right;
+  }
+
   @Mutation(() => Boolean, {
     description: 'Delete an user account',
   })

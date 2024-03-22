@@ -210,6 +210,8 @@ import { toggleSetting } from "~/newstore/settings"
 import IconVerified from "~icons/lucide/verified"
 import IconSettings from "~icons/lucide/settings"
 
+import * as E from "fp-ts/Either"
+
 type ProfileTabs = "sync" | "teams"
 
 const selectedProfileTab = ref<ProfileTabs>("sync")
@@ -250,13 +252,15 @@ const updateDisplayName = () => {
     return
   }
   updatingDisplayName.value = true
+
   platform.auth
-    .setDisplayName(displayName.value as string)
-    .then(() => {
-      toast.success(`${t("profile.updated")}`)
-    })
-    .catch(() => {
-      toast.error(`${t("error.something_went_wrong")}`)
+    .setDisplayName(displayName.value)
+    .then((res) => {
+      if (E.isLeft(res)) {
+        toast.error(t("error.something_went_wrong"))
+      } else if (E.isRight(res)) {
+        toast.success(`${t("profile.updated")}`)
+      }
     })
     .finally(() => {
       updatingDisplayName.value = false

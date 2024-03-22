@@ -320,14 +320,18 @@ export const def: AuthPlatformDef = {
   },
 
   async setDisplayName(name: string) {
-    if (!name) return
+    if (!name) return E.left("CAN_NOT_BE_EMPTY")
+
     const res = await updateUserDisplayName(name)
+
     if (E.isRight(res)) {
       probableUser$.next({
         ...probableUser$.value,
-        displayName: res.right.updateDisplayName.displayName ?? name,
+        displayName: res.right.updateDisplayName.displayName,
       } as HoppUser)
+      return E.right(undefined)
     }
+    return E.left(res.left)
   },
 
   async signOutUser() {

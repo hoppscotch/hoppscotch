@@ -65,6 +65,25 @@ export class TeamsSpotlightSearcherService
           immediate: true,
         }
       )
+
+      // set the search section title based on the current workspace
+      const teamName = computed(() => {
+        return (
+          (this.workspaceService.currentWorkspace.value.type === "team" &&
+            this.workspaceService.currentWorkspace.value.teamName) ||
+          this.t("team.search_title")
+        )
+      })
+
+      watch(
+        teamName,
+        (teamName) => {
+          this.searcherSectionTitle = teamName
+        },
+        {
+          immediate: true,
+        }
+      )
     })
 
     const onSessionEnd = () => {

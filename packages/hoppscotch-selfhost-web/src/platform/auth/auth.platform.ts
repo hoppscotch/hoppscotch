@@ -320,6 +320,7 @@ export const def: AuthPlatformDef = {
   },
 
   async setDisplayName(name: string) {
+    if (!name) return
     const res = await updateUserDisplayName(name)
     if (E.isRight(res)) {
       probableUser$.next({

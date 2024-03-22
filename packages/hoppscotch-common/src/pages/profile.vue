@@ -245,6 +245,10 @@ const updatingDisplayName = ref(false)
 watchEffect(() => (displayName.value = currentUser.value?.displayName || ""))
 
 const updateDisplayName = () => {
+  if (!displayName.value) {
+    toast.error(`${t("error.empty_profile_name")}`)
+    return
+  }
   updatingDisplayName.value = true
   platform.auth
     .setDisplayName(displayName.value as string)

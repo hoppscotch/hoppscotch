@@ -200,6 +200,10 @@ export class TeamSearchService extends Service {
     this.searchResultsRequests = {}
     this.expandedCollections.value = []
 
+    const axiosPlatformConfig = platform.auth.axiosPlatformConfig
+      ? platform.auth.axiosPlatformConfig()
+      : {}
+
     try {
       const searchResponse = await axios.get(
         `${
@@ -208,8 +212,7 @@ export class TeamSearchService extends Service {
           query
         )}`,
         {
-          headers: platform.auth.getBackendHeaders(),
-          withCredentials: true,
+          ...axiosPlatformConfig,
         }
       )
 

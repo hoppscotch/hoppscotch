@@ -3,6 +3,7 @@ import { Observable } from "rxjs"
 import { Component } from "vue"
 import { getI18n } from "~/modules/i18n"
 import * as E from "fp-ts/Either"
+import { AxiosRequestConfig } from "axios"
 
 /**
  * A common (and required) set of fields that describe a user.
@@ -134,6 +135,15 @@ export type AuthPlatformDef = {
    * @returns
    */
   getGQLClientOptions?: () => Partial<ClientOptions>
+
+  /**
+   * called by the platform to provide additional/different config options when
+   * sending requests with axios
+   * eg: SH needs to include cookies in the request, while Central doesn't and throws a cors error if it does
+   *
+   * @returns AxiosRequestConfig
+   */
+  axiosPlatformConfig?: () => AxiosRequestConfig
 
   /**
    * Returns the string content that should be returned when the user selects to

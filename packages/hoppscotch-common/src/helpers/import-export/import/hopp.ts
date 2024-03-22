@@ -37,6 +37,7 @@ export const hoppRESTImporter = (content: string[]) =>
  */
 const validateCollection = (collection: unknown) => {
   const collectionSchemaParsedResult = HoppCollection.safeParse(collection)
+
   if (collectionSchemaParsedResult.type === "ok") {
     const requests = collectionSchemaParsedResult.value.requests.map(
       (request) => {
@@ -83,19 +84,24 @@ export const hoppGQLImporter = (content: string) =>
  * @returns the collection if it is valid, else a translated version of the collection
  */
 export const validateGQLCollection = (collection: unknown) => {
-  const result = HoppCollection.safeParse(collection)
+  const collectionSchemaParsedResult = HoppCollection.safeParse(collection)
 
-  if (result.type === "ok")
-    return O.some({
-      ...result.value,
-      requests: result.value.requests.map((request) => {
+  if (collectionSchemaParsedResult.type === "ok") {
+    const requests = collectionSchemaParsedResult.value.requests.map(
+      (request) => {
         const requestSchemaParsedResult = HoppRESTRequest.safeParse(request)
 
         return requestSchemaParsedResult.type === "ok"
           ? requestSchemaParsedResult.value
           : getDefaultGQLRequest()
-      }),
+      }
+    )
+
+    return O.some({
+      ...collectionSchemaParsedResult.value,
+      requests,
     })
+  }
 
   return O.some(translateToNewGQLCollection(collection))
 }

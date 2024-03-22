@@ -58,7 +58,7 @@ export class TeamsSpotlightSearcherService
         (query) => {
           if (this.workspaceService.currentWorkspace.value.type === "team") {
             const teamID = this.workspaceService.currentWorkspace.value.teamID
-            debouncedSearch(query, teamID)?.catch((_) => {})
+            debouncedSearch(query, teamID)?.catch(() => {})
           }
         },
         {
@@ -77,8 +77,8 @@ export class TeamsSpotlightSearcherService
 
       watch(
         teamName,
-        (teamName) => {
-          this.searcherSectionTitle = teamName
+        (newTeamName) => {
+          this.searcherSectionTitle = newTeamName
         },
         {
           immediate: true,

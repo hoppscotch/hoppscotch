@@ -11,7 +11,7 @@ import * as RA from "fp-ts/ReadonlyArray"
 import * as TE from "fp-ts/TaskEither"
 import { flow, pipe } from "fp-ts/function"
 
-import { translateToNewGQLCollection } from "@hoppscotch/data"
+import { HoppGQLRequest, translateToNewGQLCollection } from "@hoppscotch/data"
 import { safeParseJSON } from "~/helpers/functional/json"
 import { IMPORTER_INVALID_FILE_FORMAT } from "."
 
@@ -89,7 +89,7 @@ export const validateGQLCollection = (collection: unknown) => {
   if (collectionSchemaParsedResult.type === "ok") {
     const requests = collectionSchemaParsedResult.value.requests.map(
       (request) => {
-        const requestSchemaParsedResult = HoppRESTRequest.safeParse(request)
+        const requestSchemaParsedResult = HoppGQLRequest.safeParse(request)
 
         return requestSchemaParsedResult.type === "ok"
           ? requestSchemaParsedResult.value

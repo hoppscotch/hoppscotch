@@ -48,7 +48,7 @@ export const parseCurlCommand = (curlCommand: string) => {
         ? args.dataUrlencode
         : [args.dataUrlencode]
 
-      const data = A.map((key: string) => decodeURI(key))(urlEncodedData)
+      const data = A.map(decodeURIComponent)(urlEncodedData)
 
       return { ...args, d: data }
     }),

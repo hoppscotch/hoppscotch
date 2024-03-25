@@ -251,6 +251,12 @@ const updateDisplayName = async () => {
     toast.error(`${t("error.empty_profile_name")}`)
     return
   }
+
+  if (probableUser.value?.displayName === displayName.value) {
+    toast.error(`${t("error.same_profile_name")}`)
+    return
+  }
+
   updatingDisplayName.value = true
 
   const res = await platform.auth.setDisplayName(displayName.value)

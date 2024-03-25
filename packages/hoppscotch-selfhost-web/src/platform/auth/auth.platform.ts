@@ -320,7 +320,7 @@ export const def: AuthPlatformDef = {
   },
 
   async setDisplayName(name: string) {
-    if (!name) return E.left("CAN_NOT_BE_EMPTY")
+    if (!name) return E.left("USER_NAME_CANNOT_BE_EMPTY")
 
     const res = await updateUserDisplayName(name)
 

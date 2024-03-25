@@ -169,7 +169,16 @@ export class CollectionsSpotlightSearcherService
     }
 
     scopeHandle.run(() => {
+      const isPersonalWorkspace = computed(
+        () => this.workspaceService.currentWorkspace.value.type === "personal"
+      )
+
       watch(query, (query) => {
+        if (!isPersonalWorkspace.value) {
+          results.value = []
+          return
+        }
+
         if (pageCategory === "other") {
           results.value = []
           return

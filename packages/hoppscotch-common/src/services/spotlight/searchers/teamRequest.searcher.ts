@@ -58,8 +58,27 @@ export class TeamsSpotlightSearcherService
         (query) => {
           if (this.workspaceService.currentWorkspace.value.type === "team") {
             const teamID = this.workspaceService.currentWorkspace.value.teamID
-            debouncedSearch(query, teamID)?.catch((_) => {})
+            debouncedSearch(query, teamID)?.catch(() => {})
           }
+        },
+        {
+          immediate: true,
+        }
+      )
+
+      // set the search section title based on the current workspace
+      const teamName = computed(() => {
+        return (
+          (this.workspaceService.currentWorkspace.value.type === "team" &&
+            this.workspaceService.currentWorkspace.value.teamName) ||
+          this.t("team.search_title")
+        )
+      })
+
+      watch(
+        teamName,
+        (newTeamName) => {
+          this.searcherSectionTitle = newTeamName
         },
         {
           immediate: true,

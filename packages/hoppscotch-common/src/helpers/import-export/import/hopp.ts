@@ -1,15 +1,19 @@
-import { pipe, flow } from "fp-ts/function"
-import * as TE from "fp-ts/TaskEither"
+import {
+  HoppCollection,
+  HoppRESTRequest,
+  getDefaultGQLRequest,
+  getDefaultRESTRequest,
+  translateToNewRESTCollection,
+} from "@hoppscotch/data"
+import * as A from "fp-ts/Array"
 import * as O from "fp-ts/Option"
 import * as RA from "fp-ts/ReadonlyArray"
-import * as A from "fp-ts/Array"
-import { translateToNewRESTCollection, HoppCollection } from "@hoppscotch/data"
+import * as TE from "fp-ts/TaskEither"
+import { flow, pipe } from "fp-ts/function"
 
-import { IMPORTER_INVALID_FILE_FORMAT } from "."
+import { HoppGQLRequest, translateToNewGQLCollection } from "@hoppscotch/data"
 import { safeParseJSON } from "~/helpers/functional/json"
-import { translateToNewGQLCollection } from "@hoppscotch/data"
-import { entityReference } from "verzod"
-import { z } from "zod"
+import { IMPORTER_INVALID_FILE_FORMAT } from "."
 
 export const hoppRESTImporter = (content: string[]) =>
   pipe(
@@ -32,8 +36,24 @@ export const hoppRESTImporter = (content: string[]) =>
  * else translate it into one.
  */
 const validateCollection = (collection: unknown) => {
-  const result = entityReference(HoppCollection).safeParse(collection)
-  if (result.success) return O.some(result.data)
+  const collectionSchemaParsedResult = HoppCollection.safeParse(collection)
+
+  if (collectionSchemaParsedResult.type === "ok") {
+    const requests = collectionSchemaParsedResult.value.requests.map(
+      (request) => {
+        const requestSchemaParsedResult = HoppRESTRequest.safeParse(request)
+
+        return requestSchemaParsedResult.type === "ok"
+          ? requestSchemaParsedResult.value
+          : getDefaultRESTRequest()
+      }
+    )
+
+    return O.some({
+      ...collectionSchemaParsedResult.value,
+      requests,
+    })
+  }
 
   return O.some(translateToNewRESTCollection(collection))
 }
@@ -64,9 +84,24 @@ export const hoppGQLImporter = (content: string) =>
  * @returns the collection if it is valid, else a translated version of the collection
  */
 export const validateGQLCollection = (collection: unknown) => {
-  const result = z.array(entityReference(HoppCollection)).safeParse(collection)
+  const collectionSchemaParsedResult = HoppCollection.safeParse(collection)
 
-  if (result.success) return O.some(result.data)
+  if (collectionSchemaParsedResult.type === "ok") {
+    const requests = collectionSchemaParsedResult.value.requests.map(
+      (request) => {
+        const requestSchemaParsedResult = HoppGQLRequest.safeParse(request)
+
+        return requestSchemaParsedResult.type === "ok"
+          ? requestSchemaParsedResult.value
+          : getDefaultGQLRequest()
+      }
+    )
+
+    return O.some({
+      ...collectionSchemaParsedResult.value,
+      requests,
+    })
+  }
 
   return O.some(translateToNewGQLCollection(collection))
 }

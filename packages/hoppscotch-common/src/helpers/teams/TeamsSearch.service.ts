@@ -1,4 +1,14 @@
-import { ref } from "vue"
+import {
+  HoppRESTAuth,
+  HoppRESTHeader,
+  HoppRESTRequest,
+  getDefaultRESTRequest,
+} from "@hoppscotch/data"
+import axios from "axios"
+import { Service } from "dioc"
+import * as E from "fp-ts/Either"
+import { Ref, ref } from "vue"
+
 import { runGQLQuery } from "../backend/GQLClient"
 import {
   GetCollectionChildrenDocument,
@@ -7,15 +17,10 @@ import {
   GetSingleRequestDocument,
 } from "../backend/graphql"
 import { TeamCollection } from "./TeamCollection"
-import { HoppRESTAuth, HoppRESTHeader } from "@hoppscotch/data"
 
-import * as E from "fp-ts/Either"
+import { platform } from "~/platform"
 import { HoppInheritedProperty } from "../types/HoppInheritedProperties"
 import { TeamRequest } from "./TeamRequest"
-import { Service } from "dioc"
-import axios from "axios"
-import { Ref } from "vue"
-import { platform } from "~/platform"
 
 type CollectionSearchMeta = {
   isSearchResult?: boolean
@@ -150,12 +155,21 @@ function convertToTeamTree(
     if (isAlreadyInserted) return
 
     if (parentCollection) {
+      const requestSchemaParsedResult = HoppRESTRequest.safeParse(
+        request.request
+      )
+
+      const effectiveRequest =
+        requestSchemaParsedResult.type === "ok"
+          ? requestSchemaParsedResult.value
+          : getDefaultRESTRequest()
+
       parentCollection.requests = parentCollection.requests || []
       parentCollection.requests.push({
         id: request.id,
         collectionID: request.collectionID,
         title: request.title,
-        request: request.request,
+        request: effectiveRequest,
       })
     }
   })

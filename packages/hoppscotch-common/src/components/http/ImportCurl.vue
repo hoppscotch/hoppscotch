@@ -78,7 +78,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, watch } from "vue"
+import { markRaw, reactive, ref, watch } from "vue"
 import { refAutoReset } from "@vueuse/core"
 import { useCodemirror } from "@composables/codemirror"
 import { useI18n } from "@composables/i18n"
@@ -98,7 +98,8 @@ import { RESTTabService } from "~/services/tab/rest"
 import { useService } from "dioc/vue"
 import { useNestedSetting } from "~/composables/settings"
 import { toggleNestedSetting } from "~/newstore/settings"
-import { EditorView } from "@codemirror/view"
+import { EditorView, keymap } from "@codemirror/view"
+import { Prec } from "@codemirror/state"
 
 const t = useI18n()
 
@@ -126,6 +127,22 @@ useCodemirror(
     completer: null,
     environmentHighlights: false,
     onInit: (view: EditorView) => view.focus(),
+    additionalExts: [
+      markRaw(
+        Prec.highest(
+          keymap.of([
+            {
+              key: "Mod-Enter", // 'Ctrl-Enter' on Windows, 'Cmd-Enter' on macOS
+              preventDefault: true,
+              run: () => {
+                handleImport()
+                return true
+              },
+            },
+          ])
+        )
+      ),
+    ],
   })
 )
 

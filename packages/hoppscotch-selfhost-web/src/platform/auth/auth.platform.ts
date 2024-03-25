@@ -321,14 +321,16 @@ export const def: AuthPlatformDef = {
 
   async setDisplayName(name: string) {
     if (!name) return E.left("USER_NAME_CANNOT_BE_EMPTY")
+    if (!currentUser$.value) return E.left("NO_USER_LOGGED_IN")
 
     const res = await updateUserDisplayName(name)
 
     if (E.isRight(res)) {
-      probableUser$.next({
-        ...probableUser$.value,
-        displayName: res.right.updateDisplayName.displayName,
-      } as HoppUser)
+      setUser({
+        ...currentUser$.value,
+        displayName: res.right.updateDisplayName.displayName ?? null,
+      })
+
       return E.right(undefined)
     }
     return E.left(res.left)

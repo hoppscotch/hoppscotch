@@ -252,7 +252,7 @@ const updateDisplayName = async () => {
     return
   }
 
-  if (probableUser.value?.displayName === displayName.value) {
+  if (currentUser.value?.displayName === displayName.value) {
     toast.error(`${t("error.same_profile_name")}`)
     return
   }

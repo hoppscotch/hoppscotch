@@ -381,7 +381,7 @@ watch(
       const selectedTeamID = collectionsType.value.selectedTeam?.id
 
       selectedTeamID &&
-        debouncedSearch(newFilterText, selectedTeamID)?.catch((_) => {})
+        debouncedSearch(newFilterText, selectedTeamID)?.catch(() => {})
     }
   },
   {

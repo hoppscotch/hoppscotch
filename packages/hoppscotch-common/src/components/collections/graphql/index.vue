@@ -180,7 +180,6 @@ import { GQLTabService } from "~/services/tab/graphql"
 import { computed } from "vue"
 import {
   HoppCollection,
-  HoppGQLAuth,
   HoppGQLRequest,
   makeGQLRequest,
 } from "@hoppscotch/data"

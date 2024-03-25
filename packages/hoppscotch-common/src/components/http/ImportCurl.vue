@@ -53,12 +53,18 @@
       <span class="flex space-x-2">
         <HoppButtonPrimary
           ref="importButton"
+          v-tippy="{ theme: 'tooltip', delay: [500, 20], allowHTML: true }"
           :label="`${t('import.title')}`"
+          :title="`${t(
+            'import.title'
+          )} <kbd>${getSpecialKey()}</kbd><kbd>↩</kbd>`"
           outline
           @click="handleImport"
         />
         <HoppButtonSecondary
           :label="`${t('action.cancel')}`"
+          v-tippy="{ theme: 'tooltip', delay: [500, 20], allowHTML: true }"
+          :title="`${t('action.cancel')} <kbd>ESC</kbd>`"
           outline
           filled
           @click="hideModal"
@@ -93,6 +99,7 @@ import IconWrapText from "~icons/lucide/wrap-text"
 import IconClipboard from "~icons/lucide/clipboard"
 import IconCheck from "~icons/lucide/check"
 import IconTrash2 from "~icons/lucide/trash-2"
+import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
 import { platform } from "~/platform"
 import { RESTTabService } from "~/services/tab/rest"
 import { useService } from "dioc/vue"

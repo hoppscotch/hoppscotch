@@ -210,6 +210,8 @@ import { toggleSetting } from "~/newstore/settings"
 import IconVerified from "~icons/lucide/verified"
 import IconSettings from "~icons/lucide/settings"
 
+import * as E from "fp-ts/Either"
+
 type ProfileTabs = "sync" | "teams"
 
 const selectedProfileTab = ref<ProfileTabs>("sync")
@@ -244,19 +246,28 @@ const displayName = ref(currentUser.value?.displayName || "")
 const updatingDisplayName = ref(false)
 watchEffect(() => (displayName.value = currentUser.value?.displayName || ""))
 
-const updateDisplayName = () => {
+const updateDisplayName = async () => {
+  if (!displayName.value) {
+    toast.error(`${t("error.empty_profile_name")}`)
+    return
+  }
+
+  if (currentUser.value?.displayName === displayName.value) {
+    toast.error(`${t("error.same_profile_name")}`)
+    return
+  }
+
   updatingDisplayName.value = true
-  platform.auth
-    .setDisplayName(displayName.value as string)
-    .then(() => {
-      toast.success(`${t("profile.updated")}`)
-    })
-    .catch(() => {
-      toast.error(`${t("error.something_went_wrong")}`)
-    })
-    .finally(() => {
-      updatingDisplayName.value = false
-    })
+
+  const res = await platform.auth.setDisplayName(displayName.value)
+
+  if (E.isLeft(res)) {
+    toast.error(t("error.something_went_wrong"))
+  } else if (E.isRight(res)) {
+    toast.success(`${t("profile.updated")}`)
+  }
+
+  updatingDisplayName.value = false
 }
 
 const emailAddress = ref(currentUser.value?.email || "")

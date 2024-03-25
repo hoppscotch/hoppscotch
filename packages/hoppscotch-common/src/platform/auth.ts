@@ -4,6 +4,7 @@ import { Component } from "vue"
 import { getI18n } from "~/modules/i18n"
 import * as E from "fp-ts/Either"
 import { AxiosRequestConfig } from "axios"
+import { GQLError } from "~/helpers/backend/GQLClient"
 
 /**
  * A common (and required) set of fields that describe a user.
@@ -229,9 +230,11 @@ export type AuthPlatformDef = {
   /**
    * Updates the display name of the user
    * @param name The new name to set this to.
-   * @returns An empty promise that is resolved when the operation is complete
+   * @returns A promise that resolves with the display name update status when the operation is complete
    */
-  setDisplayName: (name: string) => Promise<void>
+  setDisplayName: (
+    name: string
+  ) => Promise<E.Either<GQLError<string>, undefined>>
 
   /**
    * Returns the list of allowed auth providers for the platform ( the currently supported ones are GOOGLE, GITHUB, EMAIL, MICROSOFT, SAML )

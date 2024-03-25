@@ -20,7 +20,7 @@
           : ''
       "
     >
-      <div class="p-4">
+      <div class="p-4 truncate">
         <label
           class="font-semibold text-secondaryDark"
           :class="{ 'cursor-pointer': compact && team.myRole === 'OWNER' }"

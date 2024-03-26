@@ -73,7 +73,7 @@ import {
   RemoveUsersByAdminDocument,
   UserInfoDocument,
 } from '~/helpers/backend/graphql';
-import { ADMIN_CANNOT_BE_DELETED } from '~/helpers/errors';
+import { ADMIN_CANNOT_BE_DELETED, USER_IS_OWNER } from '~/helpers/errors';
 
 const t = useI18n();
 const toast = useToast();
@@ -210,13 +210,35 @@ const deleteUserMutation = async (id: string | null) => {
   } else {
     const deletedUsers = result.data?.removeUsersByAdmin || [];
 
-    const isAdminError = deletedUsers.some(
-      (user) => user.errorMessage === ADMIN_CANNOT_BE_DELETED
-    );
+    const uniqueErrorMessages = new Set(
+      deletedUsers.map(({ errorMessage }) => errorMessage).filter(Boolean)
+    ) as Set<string>;
 
-    isAdminError
-      ? toast.error(t('state.delete_user_failed_only_one_admin'))
-      : toast.success(t('state.delete_user_success'));
+    if (uniqueErrorMessages.size > 0) {
+      const errMsgMap = {
+        [ADMIN_CANNOT_BE_DELETED]: t('state.remove_admin_to_delete_user'),
+        [USER_IS_OWNER]: t('state.remove_owner_to_delete_user'),
+      };
+
+      const errMsgMapKeys = Object.keys(errMsgMap);
+
+      uniqueErrorMessages.forEach((errorMessage) => {
+        if (errMsgMapKeys.includes(errorMessage)) {
+          toast.error(errMsgMap[errorMessage as keyof typeof errMsgMap]);
+        }
+      });
+
+      // Fallback for the case where the error message is not in the compiled list
+      if (
+        Array.from(uniqueErrorMessages).some(
+          (key) => !((key as string) in errMsgMap)
+        )
+      ) {
+        toast.error(t('state.delete_user_failure'));
+      }
+    } else {
+      toast.success(t('state.delete_user_success'));
+    }
   }
   confirmDeletion.value = false;
   deleteUserUID.value = null;

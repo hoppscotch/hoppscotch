@@ -17,3 +17,6 @@ export const ADMIN_CANNOT_BE_DELETED =
 // When trying to invite a user that is already invited
 export const USER_ALREADY_INVITED =
   '[GraphQL] admin/user_already_invited' as const;
+
+// When attempting to delete a user who is an owner of a team
+export const USER_IS_OWNER = 'user/is_owner' as const;

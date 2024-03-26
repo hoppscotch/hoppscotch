@@ -27,14 +27,15 @@ const wsSurround = P.surroundedBy(S.spaces)
 
 const stringArrayJoin = (sep: string) => (input: string[]) => input.join(sep)
 
-const stringTakeUntilChars = (chars: C.Char[]) => pipe(
-  P.takeUntil((c: C.Char) => chars.includes(c)),
-  P.map(stringArrayJoin("")),
-)
+const stringTakeUntilChars = (chars: C.Char[]) =>
+  pipe(
+    P.takeUntil((c: C.Char) => chars.includes(c)),
+    P.map(stringArrayJoin(""))
+  )
 
 const stringTakeUntilCharsInclusive = flow(
   stringTakeUntilChars,
-  P.chainFirst(() => P.sat(() => true)),
+  P.chainFirst(() => P.sat(() => true))
 )
 
 const quotedString = pipe(
@@ -45,29 +46,16 @@ const quotedString = pipe(
 const key = pipe(
   wsSurround(quotedString),
 
-  P.alt(() =>
-    pipe(
-      stringTakeUntilChars([":", "\n"]),
-      P.map(Str.trim)
-    )
-  )
+  P.alt(() => pipe(stringTakeUntilChars([":", "\n"]), P.map(Str.trim)))
 )
 
 const value = pipe(
   wsSurround(quotedString),
 
-  P.alt(() =>
-    pipe(
-      stringTakeUntilChars(["\n"]),
-      P.map(Str.trim)
-    )
-  )
+  P.alt(() => pipe(stringTakeUntilChars(["\n"]), P.map(Str.trim)))
 )
 
-const commented = pipe(
-  S.maybe(S.string("#")),
-  P.map(not(Str.isEmpty))
-)
+const commented = pipe(S.maybe(S.string("#")), P.map(not(Str.isEmpty)))
 
 const line = pipe(
   wsSurround(commented),
@@ -77,53 +65,48 @@ const line = pipe(
 
   P.chainFirst(() => C.char(":")),
 
-  P.bind("value", () => value),
+  P.bind("value", () => value)
 )
 
 const lineWithNoColon = pipe(
   wsSurround(commented),
   P.bindTo("commented"),
-  P.bind("key", () => P.either(
-    stringTakeUntilCharsInclusive(["\n"]),
-    () => pipe(
-      P.manyTill(P.sat((_: string) => true), P.eof()),
-      P.map(flow(
-        RA.toArray,
-        stringArrayJoin("")
-      ))
+  P.bind("key", () =>
+    P.either(stringTakeUntilCharsInclusive(["\n"]), () =>
+      pipe(
+        P.manyTill(
+          P.sat((_: string) => true),
+          P.eof()
+        ),
+        P.map(flow(RA.toArray, stringArrayJoin("")))
+      )
     )
-  )),
-  P.map(flow(
-    O.fromPredicate(({ key }) => !Str.isEmpty(key))
-  ))
+  ),
+  P.map(flow(O.fromPredicate(({ key }) => !Str.isEmpty(key))))
 )
 
-const file = pipe(
-  P.manyTill(wsSurround(line), P.eof()),
-)
+const file = pipe(P.manyTill(wsSurround(line), P.eof()))
 
 /**
  * This Raw Key Value parser ignores the key value pair (no colon) issues
  */
 const tolerantFile = pipe(
   P.manyTill(
-    P.either(
-      pipe(line, P.map(O.some)),
-      () => pipe(
-        lineWithNoColon,
-        P.map(flow(
-          O.map((a) => ({ ...a, value: "" }))
-        ))
-      )
+    P.either(pipe(line, P.map(O.some)), () =>
+      pipe(lineWithNoColon, P.map(flow(O.map((a) => ({ ...a, value: "" })))))
     ),
     P.eof()
   ),
-  P.map(flow(
-    RA.filterMap(flow(
-      O.fromPredicate(O.isSome),
-      O.map((a) => a.value)
-    ))
-  ))
+  P.map(
+    flow(
+      RA.filterMap(
+        flow(
+          O.fromPredicate(O.isSome),
+          O.map((a) => a.value)
+        )
+      )
+    )
+  )
 )
 
 /* End of Parser Definitions */
@@ -134,19 +117,7 @@ const tolerantFile = pipe(
  */
 const stringNeedsEscapingForRawKVString = (input: string) => {
   // If there are any of our special characters, it needs to be escaped definitely
-  if (SPECIAL_CHARS.some((x) => input.includes(x)))
-    return true
-
-  // The theory behind this impl is that if we apply JSON.stringify on a string
-  // it does escaping and then return a JSON string representation.
-  // We remove the quotes of the JSON and see if it can be matched against the input string
-  const stringified = JSON.stringify(input)
-
-  const y = stringified
-    .substring(1, stringified.length - 1)
-    .trim()
-
-  return y !== input
+  return SPECIAL_CHARS.some((x) => input.includes(x))
 }
 
 /**
@@ -155,9 +126,7 @@ const stringNeedsEscapingForRawKVString = (input: string) => {
  * @returns If needed, the escaped string, else the input string itself
  */
 const applyEscapeIfNeeded = (input: string) =>
-  stringNeedsEscapingForRawKVString(input)
-    ? JSON.stringify(input)
-    : input
+  stringNeedsEscapingForRawKVString(input) ? JSON.stringify(input) : input
 
 /**
  * Converts Raw Key Value Entries to the file string format
@@ -172,7 +141,7 @@ export const rawKeyValueEntriesToString = (entries: RawKeyValueEntry[]) =>
         recordUpdate("key", applyEscapeIfNeeded),
         recordUpdate("value", applyEscapeIfNeeded),
         ({ key, value, active }) =>
-          active ? `${(key)}: ${value}` : `# ${key}: ${value}`
+          active ? `${key}: ${value}` : `# ${key}: ${value}`
       )
     ),
     stringArrayJoin("\n")
@@ -192,15 +161,16 @@ export const parseRawKeyValueEntriesE = (s: string) =>
       expected: err.expected,
       pos: err.input.cursor,
     })),
-    E.map(
-      ({ value }) => pipe(
+    E.map(({ value }) =>
+      pipe(
         value,
-        RA.map(({ key, value, commented }) =>
-          <RawKeyValueEntry>{
-            active: !commented,
-            key,
-            value
-          }
+        RA.map(
+          ({ key, value, commented }) =>
+            <RawKeyValueEntry>{
+              active: !commented,
+              key,
+              value,
+            }
         )
       )
     )
@@ -220,15 +190,16 @@ export const strictParseRawKeyValueEntriesE = (s: string) =>
       expected: err.expected,
       pos: err.input.cursor,
     })),
-    E.map(
-      ({ value }) => pipe(
+    E.map(({ value }) =>
+      pipe(
         value,
-        RA.map(({ key, value, commented }) =>
-          <RawKeyValueEntry>{
-            active: !commented,
-            key,
-            value
-          }
+        RA.map(
+          ({ key, value, commented }) =>
+            <RawKeyValueEntry>{
+              active: !commented,
+              key,
+              value,
+            }
         )
       )
     )

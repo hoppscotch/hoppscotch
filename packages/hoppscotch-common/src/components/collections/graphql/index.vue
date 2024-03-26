@@ -225,7 +225,7 @@ const editingRequest = ref<HoppGQLRequest | null>(null)
 const editingRequestIndex = ref<number | null>(null)
 
 const editingProperties = ref<{
-  collection: HoppCollection | null
+  collection: Partial<HoppCollection> | null
   isRootCollection: boolean
   path: string
   inheritedProperties?: HoppInheritedProperty
@@ -264,8 +264,9 @@ onMounted(() => {
     )
 
     if (unsavedCollectionPropertiesString) {
-      const unsavedCollectionProperties: EditingProperties<"GraphQL"> =
-        JSON.parse(unsavedCollectionPropertiesString)
+      const unsavedCollectionProperties: EditingProperties = JSON.parse(
+        unsavedCollectionPropertiesString
+      )
 
       const auth = unsavedCollectionProperties.collection?.auth
 
@@ -609,7 +610,7 @@ const editProperties = ({
   if (collectionIndex === null || collection === null) return
 
   const parentIndex = collectionIndex.split("/").slice(0, -1).join("/") // remove last folder to get parent folder
-  let inheritedProperties = {}
+  let inheritedProperties = undefined
 
   if (parentIndex) {
     const { auth, headers } = cascadeParentCollectionForHeaderAuth(
@@ -620,7 +621,7 @@ const editProperties = ({
     inheritedProperties = {
       auth,
       headers,
-    } as HoppInheritedProperty
+    }
   }
 
   editingProperties.value = {
@@ -634,11 +635,15 @@ const editProperties = ({
 }
 
 const setCollectionProperties = (newCollection: {
-  collection: HoppCollection
+  collection: Partial<HoppCollection> | null
   path: string
   isRootCollection: boolean
 }) => {
   const { collection, path, isRootCollection } = newCollection
+  if (!collection) {
+    return
+  }
+
   if (isRootCollection) {
     editGraphqlCollection(parseInt(path), collection)
   } else {

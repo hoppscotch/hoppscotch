@@ -54,6 +54,7 @@
     "@hoppscotch/data": "workspace:^",
     "@types/lodash-es": "4.17.12",
     "fp-ts": "2.12.1",
+    "isolated-vm": "4.7.2",
     "lodash": "4.17.21",
     "lodash-es": "4.17.21"
   },

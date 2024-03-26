@@ -14,7 +14,7 @@ export default defineConfig({
       formats: ["es", "cjs"],
     },
     rollupOptions: {
-      external: ["vm"],
+      external: ["isolated-vm"],
     },
   },
   resolve: {

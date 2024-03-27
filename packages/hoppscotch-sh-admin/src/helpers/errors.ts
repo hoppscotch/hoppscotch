@@ -8,8 +8,8 @@ export const UNAUTHORIZED = 'Unauthorized' as const;
 // Sometimes the backend returns Unauthorized error message as follows:
 export const GRAPHQL_UNAUTHORIZED = '[GraphQL] Unauthorized' as const;
 
-export const DELETE_USER_FAILED_ONLY_ONE_ADMIN =
-  'admin/only_one_admin_account_found' as const;
+export const ONLY_ONE_ADMIN_ACCOUNT_FOUND =
+  '[GraphQL] admin/only_one_admin_account_found' as const;
 
 export const ADMIN_CANNOT_BE_DELETED =
   'admin/admin_can_not_be_deleted' as const;

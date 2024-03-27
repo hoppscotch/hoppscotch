@@ -164,6 +164,7 @@
     "privacy_policy": "Privacy Policy",
     "reenter_email": "Re-enter email",
     "remove_admin_failure": "Failed to remove admin status!!",
+    "remove_admin_failure_only_one_admin": "Failed to remove admin status. There should be at least one admin!!",
     "remove_admin_success": "Admin status removed!!",
     "remove_admin_from_users_failure": "Failed to remove admin status from selected users!!",
     "remove_admin_from_users_success": "Admin status removed from selected users!!",

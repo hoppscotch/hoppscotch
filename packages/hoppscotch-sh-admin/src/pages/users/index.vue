@@ -258,7 +258,10 @@ import {
   UsersListQuery,
   UsersListV2Document,
 } from '~/helpers/backend/graphql';
-import { USER_ALREADY_INVITED } from '~/helpers/errors';
+import {
+  ONLY_ONE_ADMIN_ACCOUNT_FOUND,
+  USER_ALREADY_INVITED,
+} from '~/helpers/errors';
 import { handleUserDeletion } from '~/helpers/userManagement';
 import IconCheck from '~icons/lucide/check';
 import IconLeft from '~icons/lucide/chevron-left';
@@ -525,6 +528,10 @@ const makeAdminsToUsers = async (id: string | null) => {
   const variables = { userUIDs };
   const result = await adminsToUser.executeMutation(variables);
   if (result.error) {
+    if (result.error.message === ONLY_ONE_ADMIN_ACCOUNT_FOUND) {
+      return toast.error(t('state.remove_admin_failure_only_one_admin'));
+    }
+
     toast.error(
       areMultipleUsersSelected.value
         ? t('state.remove_admin_from_users_failure')

@@ -3,106 +3,112 @@ import { getI18n } from '~/modules/i18n';
 import { UserDeletionResult } from './backend/graphql';
 import { ADMIN_CANNOT_BE_DELETED, USER_IS_OWNER } from './errors';
 
-type IndividualActionInput = {
-  type: 'individual';
-  metadata: null;
+type IndividualActionMetadata = null;
+type BulkActionMetadata = {
+  areMultipleUsersSelected: boolean;
+  deletedUserIDs: string[];
 };
-type BulkActionInput = {
-  type: 'bulk';
-  metadata: {
-    areMultipleUsersSelected: boolean;
-    deletedIDs: string[];
-  };
-};
-
-type IndividualActionResult = {
-  data: null;
-};
-type BulkActionResult = {
-  data: { timeoutID: NodeJS.Timeout | null };
-};
+type ActionMetadata = IndividualActionMetadata | BulkActionMetadata;
 
 type HandleUserDeletion = {
-  (
-    deletedUsersList: UserDeletionResult[],
-    action: IndividualActionInput | BulkActionInput
-  ): IndividualActionResult | BulkActionResult;
+  (deletedUsersList: UserDeletionResult[], metadata: ActionMetadata): void;
+};
+
+type ToastMessage = {
+  message: string;
+  state: 'success' | 'error';
 };
 
 const t = getI18n();
 const toast = useToast();
 
+const displayToastMessages = (
+  toastMessages: ToastMessage[],
+  currentIndex: number
+) => {
+  const { message, state } = toastMessages[currentIndex];
+
+  toast[state](message, {
+    duration: 2000,
+    onComplete: () => {
+      if (currentIndex < toastMessages.length - 1) {
+        displayToastMessages(toastMessages, currentIndex + 1);
+      }
+    },
+  });
+};
+
 export const handleUserDeletion: HandleUserDeletion = (
   deletedUsersList,
-  action
+  metadata
 ) => {
-  let timeoutID: NodeJS.Timeout | null = null;
-
   const uniqueErrorMessages = new Set(
     deletedUsersList.map(({ errorMessage }) => errorMessage).filter(Boolean)
   ) as Set<string>;
 
-  const { type, metadata } = action;
+  const isBulkAction = deletedUsersList.length > 1;
 
   // Show the success toast based on the action type if there are no errors
   if (uniqueErrorMessages.size === 0) {
-    if (type === 'bulk') {
+    if (isBulkAction) {
       toast.success(
-        metadata.areMultipleUsersSelected
+        (metadata as BulkActionMetadata).areMultipleUsersSelected
           ? t('state.delete_user_success')
           : t('state.delete_users_success')
       );
 
-      return { type, data: { timeoutID } };
+      return;
     }
 
     toast.success(t('state.delete_user_success'));
-    return { type, data: null };
+    return;
   }
 
   const errMsgMap = {
-    [ADMIN_CANNOT_BE_DELETED]:
-      type === 'bulk'
-        ? t('state.remove_admin_for_deletion')
-        : t('state.remove_admin_to_delete_user'),
+    [ADMIN_CANNOT_BE_DELETED]: isBulkAction
+      ? t('state.remove_admin_for_deletion')
+      : t('state.remove_admin_to_delete_user'),
 
-    [USER_IS_OWNER]:
-      type === 'bulk'
-        ? t('state.remove_owner_for_deletion')
-        : t('state.remove_owner_to_delete_user'),
+    [USER_IS_OWNER]: isBulkAction
+      ? t('state.remove_owner_for_deletion')
+      : t('state.remove_owner_to_delete_user'),
   };
   const errMsgMapKeys = Object.keys(errMsgMap);
 
-  if (type === 'bulk') {
-    const { areMultipleUsersSelected, deletedIDs } = metadata;
+  const toastMessages: ToastMessage[] = [];
 
-    // Show toast messages with the count of users deleted only if multiple users are selected
-    if (areMultipleUsersSelected) {
-      toast.success(
-        t('state.delete_some_users_success', { count: deletedIDs.length })
-      );
-      toast.error(
-        t('state.delete_some_users_failure', {
-          count: deletedUsersList.length - deletedIDs.length,
-        })
-      );
+  if (isBulkAction) {
+    const { areMultipleUsersSelected, deletedUserIDs } =
+      metadata as BulkActionMetadata;
+
+    // Indicates the actual count of users deleted (filtered via the `isDeleted` field)
+    const deletedUsersCount = deletedUserIDs.length;
+
+    if (areMultipleUsersSelected && deletedUsersCount > 0) {
+      toastMessages.push({
+        message: t('state.delete_some_users_success', {
+          count: deletedUsersCount,
+        }),
+        state: 'success',
+      });
+    }
+    const remainingDeletionsCount = deletedUsersList.length - deletedUsersCount;
+    if (remainingDeletionsCount > 0) {
+      toastMessages.push({
+        message: t('state.delete_some_users_failure', {
+          count: remainingDeletionsCount,
+        }),
+        state: 'error',
+      });
     }
   }
 
   uniqueErrorMessages.forEach((errorMessage) => {
     if (errMsgMapKeys.includes(errorMessage)) {
-      if (type === 'bulk') {
-        timeoutID = setTimeout(
-          () => {
-            toast.error(errMsgMap[errorMessage as keyof typeof errMsgMap]);
-          },
-          metadata.areMultipleUsersSelected ? 2000 : 0
-        );
-
-        return;
-      }
-
-      toast.error(errMsgMap[errorMessage as keyof typeof errMsgMap]);
+      toastMessages.push({
+        message: errMsgMap[errorMessage as keyof typeof errMsgMap],
+        state: 'error',
+      });
     }
   });
 
@@ -112,10 +118,16 @@ export const handleUserDeletion: HandleUserDeletion = (
       (key) => !((key as string) in errMsgMap)
     )
   ) {
-    type === 'bulk' && metadata.areMultipleUsersSelected
-      ? t('state.delete_users_failure')
-      : t('state.delete_user_failure');
+    const fallbackErrMsg =
+      isBulkAction && (metadata as BulkActionMetadata).areMultipleUsersSelected
+        ? t('state.delete_users_failure')
+        : t('state.delete_user_failure');
+
+    toastMessages.push({
+      message: fallbackErrMsg,
+      state: 'error',
+    });
   }
 
-  return { data: type === 'bulk' ? { timeoutID } : null };
+  displayToastMessages(toastMessages, 0);
 };

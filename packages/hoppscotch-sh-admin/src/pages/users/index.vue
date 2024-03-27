@@ -309,15 +309,9 @@ const selectedRows = ref<UsersListQuery['infra']['allUsers']>([]);
 // Ensure this variable is declared outside the debounce function
 let debounceTimeout: ReturnType<typeof setTimeout> | null = null;
 
-let toastTimeout: ReturnType<typeof setTimeout> | null = null;
-
 onUnmounted(() => {
   if (debounceTimeout) {
     clearTimeout(debounceTimeout);
-  }
-
-  if (toastTimeout) {
-    clearTimeout(toastTimeout);
   }
 });
 
@@ -586,24 +580,17 @@ const deleteUsers = async (id: string | null) => {
     toast.error(errorMessage);
   } else {
     const deletedUsers = result.data?.removeUsersByAdmin || [];
-    const deletedIDs = deletedUsers
+    const deletedUserIDs = deletedUsers
       .filter((user) => user.isDeleted)
       .map((user) => user.userUID);
 
-    const { data } = handleUserDeletion(deletedUsers, {
-      type: 'bulk',
-      metadata: {
-        areMultipleUsersSelected: areMultipleUsersSelected.value,
-        deletedIDs,
-      },
+    handleUserDeletion(deletedUsers, {
+      areMultipleUsersSelected: areMultipleUsersSelected.value,
+      deletedUserIDs,
     });
 
-    if (data?.timeoutID) {
-      toastTimeout = data.timeoutID;
-    }
-
     usersList.value = usersList.value.filter(
-      (user) => !deletedIDs.includes(user.uid)
+      (user) => !deletedUserIDs.includes(user.uid)
     );
 
     selectedRows.value.splice(0, selectedRows.value.length);

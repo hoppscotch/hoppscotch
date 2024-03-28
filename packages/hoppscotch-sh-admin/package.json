@@ -31,7 +31,7 @@
     "express": "4.18.2",
     "express-graphql": "0.12.0",
     "fp-ts": "2.13.1",
-    "graphql": "16.6.0",
+    "graphql": "16.8.1",
     "io-ts": "2.2.16",
     "lodash-es": "4.17.21",
     "postcss": "8.4.31",

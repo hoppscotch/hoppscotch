@@ -913,14 +913,16 @@ const generateOAuthToken = async () => {
   if (
     grantTypesInvolvingRedirect.includes(auth.value.grantTypeInfo.grantType)
   ) {
+    const authConfig: PersistedOAuthConfig = {
+      source: props.source,
+      context: props.isCollectionProperty
+        ? { type: "collection-properties", metadata: {} }
+        : { type: "request-tab", metadata: {} },
+      grant_type: auth.value.grantTypeInfo.grantType,
+    }
     persistenceService.setLocalConfig(
       "oauth_temp_config",
-      JSON.stringify(<PersistedOAuthConfig>{
-        source: props.source,
-        context: props.isCollectionProperty
-          ? { type: "collection-properties", metadata: {} }
-          : { type: "request-tab" },
-      })
+      JSON.stringify(authConfig)
     )
   }
 

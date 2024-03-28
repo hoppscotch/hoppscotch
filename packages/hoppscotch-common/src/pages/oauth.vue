@@ -93,12 +93,13 @@ onMounted(async () => {
   // Indicates the access token generation flow originated from the modal for setting authorization/headers at the collection level
   if (context?.type === "collection-properties") {
     // Set the access token in `localStorage` to retrieve from the modal while redirecting back
+    const authConfig: PersistedOAuthConfig = {
+      ...persistedOAuthConfig,
+      token: tokenInfo.right.access_token,
+    }
     persistenceService.setLocalConfig(
       "oauth_temp_config",
-      JSON.stringify(<PersistedOAuthConfig>{
-        ...persistedOAuthConfig,
-        token: tokenInfo.right.access_token,
-      })
+      JSON.stringify(authConfig)
     )
 
     toast.success(t("authorization.oauth.token_fetched_successfully"))

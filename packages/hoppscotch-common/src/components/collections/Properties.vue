@@ -65,14 +65,20 @@
 
 <script setup lang="ts">
 import { useI18n } from "@composables/i18n"
-import { HoppCollection, HoppRESTAuth, HoppRESTHeaders } from "@hoppscotch/data"
-import { clone } from "lodash-es"
-import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
-import { PersistenceService } from "~/services/persistence"
+import {
+  GQLHeader,
+  HoppCollection,
+  HoppGQLAuth,
+  HoppRESTAuth,
+  HoppRESTHeaders,
+} from "@hoppscotch/data"
+import { useVModel } from "@vueuse/core"
 import { useService } from "dioc/vue"
+import { clone } from "lodash-es"
 import { ref, watch } from "vue"
 
-import { useVModel } from "@vueuse/core"
+import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
+import { PersistenceService } from "~/services/persistence"
 
 const persistenceService = useService(PersistenceService)
 const t = useI18n()
@@ -83,6 +89,9 @@ export type EditingProperties = {
   path: string
   inheritedProperties?: HoppInheritedProperty
 }
+
+type HoppCollectionAuth = HoppRESTAuth | HoppGQLAuth
+type HoppCollectionHeaders = HoppRESTHeaders | GQLHeader[]
 
 const props = withDefaults(
   defineProps<{
@@ -109,8 +118,8 @@ const emit = defineEmits<{
 }>()
 
 const editableCollection = ref<{
-  headers: HoppRESTHeaders
-  auth: HoppRESTAuth
+  headers: HoppCollectionHeaders
+  auth: HoppCollectionAuth
 }>({
   headers: [],
   auth: {
@@ -122,15 +131,16 @@ const editableCollection = ref<{
 watch(
   editableCollection,
   (updatedEditableCollection) => {
-    if (props.show) {
+    if (props.show && props.editingProperties) {
+      const unsavedCollectionProperties: EditingProperties = {
+        collection: updatedEditableCollection,
+        isRootCollection: props.editingProperties?.isRootCollection ?? false,
+        path: props.editingProperties?.path,
+        inheritedProperties: props.editingProperties?.inheritedProperties,
+      }
       persistenceService.setLocalConfig(
         "unsaved_collection_properties",
-        JSON.stringify(<EditingProperties>{
-          collection: updatedEditableCollection,
-          isRootCollection: props.editingProperties?.isRootCollection,
-          path: props.editingProperties?.path,
-          inheritedProperties: props.editingProperties?.inheritedProperties,
-        })
+        JSON.stringify(unsavedCollectionProperties)
       )
     }
   },
@@ -146,10 +156,10 @@ watch(
   (show) => {
     if (show && props.editingProperties?.collection) {
       editableCollection.value.auth = clone(
-        props.editingProperties.collection.auth as HoppRESTAuth
+        props.editingProperties.collection.auth as HoppCollectionAuth
       )
       editableCollection.value.headers = clone(
-        props.editingProperties.collection.headers as HoppRESTHeaders
+        props.editingProperties.collection.headers as HoppCollectionHeaders
       )
     } else {
       editableCollection.value = {

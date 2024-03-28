@@ -299,7 +299,7 @@ const selectOAuth2AuthType = () => {
     ? existingGrantTypeInfo
     : defaultGrantTypeInfo
 
-  auth.value = <HoppGQLAuth>{
+  auth.value = {
     ...auth.value,
     authType: "oauth-2",
     addTo: "HEADERS",

@@ -11,6 +11,9 @@ module.exports = {
   parserOptions: {
     sourceType: "module",
     requireConfigFile: false,
+    ecmaFeatures: {
+      jsx: false,
+    },
   },
   extends: [
     "@vue/typescript/recommended",

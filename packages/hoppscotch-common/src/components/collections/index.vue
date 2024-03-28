@@ -381,7 +381,7 @@ watch(
       const selectedTeamID = collectionsType.value.selectedTeam?.id
 
       selectedTeamID &&
-        debouncedSearch(newFilterText, selectedTeamID)?.catch((_) => {})
+        debouncedSearch(newFilterText, selectedTeamID)?.catch(() => {})
     }
   },
   {
@@ -414,14 +414,11 @@ onMounted(() => {
     )
 
     if (unsavedCollectionPropertiesString) {
-      const unsavedCollectionProperties: EditingProperties<"REST"> = JSON.parse(
+      const unsavedCollectionProperties: EditingProperties = JSON.parse(
         unsavedCollectionPropertiesString
       )
 
-      // casting because the type `EditingProperties["collection"]["auth"] and the usage in Properties.vue is different. there it's casted as an any.
-      // FUTURE-TODO: look into this
-      // @ts-expect-error because of the above reason
-      const auth = unsavedCollectionProperties.collection?.auth as HoppRESTAuth
+      const auth = unsavedCollectionProperties.collection?.auth
 
       if (auth?.authType === "oauth-2") {
         const grantTypeInfo = auth.grantTypeInfo

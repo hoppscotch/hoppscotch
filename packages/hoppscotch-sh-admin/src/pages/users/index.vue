@@ -584,10 +584,7 @@ const deleteUsers = async (id: string | null) => {
       .filter((user) => user.isDeleted)
       .map((user) => user.userUID);
 
-    handleUserDeletion(deletedUsers, {
-      areMultipleUsersSelected: areMultipleUsersSelected.value,
-      deletedUserIDs,
-    });
+    handleUserDeletion(deletedUsers);
 
     usersList.value = usersList.value.filter(
       (user) => !deletedUserIDs.includes(user.uid)

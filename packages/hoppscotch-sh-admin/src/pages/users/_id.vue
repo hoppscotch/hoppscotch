@@ -210,7 +210,7 @@ const deleteUserMutation = async (id: string | null) => {
   } else {
     const deletedUsers = result.data?.removeUsersByAdmin || [];
 
-    handleUserDeletion(deletedUsers, null);
+    handleUserDeletion(deletedUsers);
   }
   confirmDeletion.value = false;
   deleteUserUID.value = null;

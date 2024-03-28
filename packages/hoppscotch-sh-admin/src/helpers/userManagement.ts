@@ -3,17 +3,6 @@ import { getI18n } from '~/modules/i18n';
 import { UserDeletionResult } from './backend/graphql';
 import { ADMIN_CANNOT_BE_DELETED, USER_IS_OWNER } from './errors';
 
-type IndividualActionMetadata = null;
-type BulkActionMetadata = {
-  areMultipleUsersSelected: boolean;
-  deletedUserIDs: string[];
-};
-type ActionMetadata = IndividualActionMetadata | BulkActionMetadata;
-
-type HandleUserDeletion = {
-  (deletedUsersList: UserDeletionResult[], metadata: ActionMetadata): void;
-};
-
 type ToastMessage = {
   message: string;
   state: 'success' | 'error';
@@ -38,21 +27,22 @@ const displayToastMessages = (
   });
 };
 
-export const handleUserDeletion: HandleUserDeletion = (
-  deletedUsersList,
-  metadata
-) => {
+export const handleUserDeletion = (deletedUsersList: UserDeletionResult[]) => {
   const uniqueErrorMessages = new Set(
     deletedUsersList.map(({ errorMessage }) => errorMessage).filter(Boolean)
   ) as Set<string>;
 
   const isBulkAction = deletedUsersList.length > 1;
 
+  const deletedUserIDs = deletedUsersList
+    .filter((user) => user.isDeleted)
+    .map((user) => user.userUID);
+
   // Show the success toast based on the action type if there are no errors
   if (uniqueErrorMessages.size === 0) {
     if (isBulkAction) {
       toast.success(
-        (metadata as BulkActionMetadata).areMultipleUsersSelected
+        isBulkAction
           ? t('state.delete_user_success')
           : t('state.delete_users_success')
       );
@@ -78,13 +68,10 @@ export const handleUserDeletion: HandleUserDeletion = (
   const toastMessages: ToastMessage[] = [];
 
   if (isBulkAction) {
-    const { areMultipleUsersSelected, deletedUserIDs } =
-      metadata as BulkActionMetadata;
-
     // Indicates the actual count of users deleted (filtered via the `isDeleted` field)
     const deletedUsersCount = deletedUserIDs.length;
 
-    if (areMultipleUsersSelected && deletedUsersCount > 0) {
+    if (isBulkAction && deletedUsersCount > 0) {
       toastMessages.push({
         message: t('state.delete_some_users_success', {
           count: deletedUsersCount,
@@ -118,10 +105,9 @@ export const handleUserDeletion: HandleUserDeletion = (
       (key) => !((key as string) in errMsgMap)
     )
   ) {
-    const fallbackErrMsg =
-      isBulkAction && (metadata as BulkActionMetadata).areMultipleUsersSelected
-        ? t('state.delete_users_failure')
-        : t('state.delete_user_failure');
+    const fallbackErrMsg = isBulkAction
+      ? t('state.delete_users_failure')
+      : t('state.delete_user_failure');
 
     toastMessages.push({
       message: fallbackErrMsg,

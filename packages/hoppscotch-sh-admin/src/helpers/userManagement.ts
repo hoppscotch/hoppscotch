@@ -40,17 +40,11 @@ export const handleUserDeletion = (deletedUsersList: UserDeletionResult[]) => {
 
   // Show the success toast based on the action type if there are no errors
   if (uniqueErrorMessages.size === 0) {
-    if (isBulkAction) {
-      toast.success(
-        isBulkAction
-          ? t('state.delete_user_success')
-          : t('state.delete_users_success')
-      );
-
-      return;
-    }
-
-    toast.success(t('state.delete_user_success'));
+    toast.success(
+      isBulkAction
+        ? t('state.delete_users_success')
+        : t('state.delete_user_success')
+    );
     return;
   }
 

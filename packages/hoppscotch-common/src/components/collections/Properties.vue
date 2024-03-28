@@ -131,15 +131,16 @@ const editableCollection = ref<{
 watch(
   editableCollection,
   (updatedEditableCollection) => {
-    if (props.show) {
+    if (props.show && props.editingProperties) {
+      const unsavedCollectionProperties: EditingProperties = {
+        collection: updatedEditableCollection,
+        isRootCollection: props.editingProperties?.isRootCollection ?? false,
+        path: props.editingProperties?.path,
+        inheritedProperties: props.editingProperties?.inheritedProperties,
+      }
       persistenceService.setLocalConfig(
         "unsaved_collection_properties",
-        JSON.stringify(<EditingProperties>{
-          collection: updatedEditableCollection,
-          isRootCollection: props.editingProperties?.isRootCollection,
-          path: props.editingProperties?.path,
-          inheritedProperties: props.editingProperties?.inheritedProperties,
-        })
+        JSON.stringify(unsavedCollectionProperties)
       )
     }
   },

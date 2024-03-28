@@ -73,7 +73,7 @@ import {
   RemoveUsersByAdminDocument,
   UserInfoDocument,
 } from '~/helpers/backend/graphql';
-import { ADMIN_CANNOT_BE_DELETED } from '~/helpers/errors';
+import { handleUserDeletion } from '~/helpers/userManagement';
 
 const t = useI18n();
 const toast = useToast();
@@ -207,19 +207,13 @@ const deleteUserMutation = async (id: string | null) => {
 
   if (result.error) {
     toast.error(t('state.delete_user_failure'));
+    router.push('/users');
   } else {
     const deletedUsers = result.data?.removeUsersByAdmin || [];
 
-    const isAdminError = deletedUsers.some(
-      (user) => user.errorMessage === ADMIN_CANNOT_BE_DELETED
-    );
-
-    isAdminError
-      ? toast.error(t('state.delete_user_failed_only_one_admin'))
-      : toast.success(t('state.delete_user_success'));
+    handleUserDeletion(deletedUsers);
   }
   confirmDeletion.value = false;
   deleteUserUID.value = null;
-  router.push('/users');
 };
 </script>

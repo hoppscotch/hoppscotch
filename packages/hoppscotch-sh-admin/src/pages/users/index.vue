@@ -210,7 +210,7 @@
     <HoppSmartConfirmModal
       :show="confirmUsersToAdmin"
       :title="
-        AreMultipleUsersSelected
+        areMultipleUsersSelected
           ? t('state.confirm_users_to_admin')
           : t('state.confirm_user_to_admin')
       "
@@ -220,7 +220,7 @@
     <HoppSmartConfirmModal
       :show="confirmAdminsToUsers"
       :title="
-        AreMultipleUsersSelectedToAdmin
+        areMultipleUsersSelectedToAdmin
           ? t('state.confirm_admins_to_users')
           : t('state.confirm_admin_to_user')
       "
@@ -230,7 +230,7 @@
     <HoppSmartConfirmModal
       :show="confirmUsersDeletion"
       :title="
-        AreMultipleUsersSelectedForDeletion
+        areMultipleUsersSelectedForDeletion
           ? t('state.confirm_users_deletion')
           : t('state.confirm_user_deletion')
       "
@@ -259,10 +259,10 @@ import {
   UsersListV2Document,
 } from '~/helpers/backend/graphql';
 import {
-  ADMIN_CANNOT_BE_DELETED,
-  DELETE_USER_FAILED_ONLY_ONE_ADMIN,
+  ONLY_ONE_ADMIN_ACCOUNT_FOUND,
   USER_ALREADY_INVITED,
 } from '~/helpers/errors';
+import { handleUserDeletion } from '~/helpers/userManagement';
 import IconCheck from '~icons/lucide/check';
 import IconLeft from '~icons/lucide/chevron-left';
 import IconRight from '~icons/lucide/chevron-right';
@@ -309,15 +309,9 @@ const selectedRows = ref<UsersListQuery['infra']['allUsers']>([]);
 // Ensure this variable is declared outside the debounce function
 let debounceTimeout: ReturnType<typeof setTimeout> | null = null;
 
-let toastTimeout: ReturnType<typeof setTimeout> | null = null;
-
 onUnmounted(() => {
   if (debounceTimeout) {
     clearTimeout(debounceTimeout);
-  }
-
-  if (toastTimeout) {
-    clearTimeout(toastTimeout);
   }
 });
 
@@ -462,7 +456,7 @@ const confirmUsersToAdmin = ref(false);
 const usersToAdminUID = ref<string | null>(null);
 const usersToAdmin = useMutation(MakeUsersAdminDocument);
 
-const AreMultipleUsersSelected = computed(() => selectedRows.value.length > 1);
+const areMultipleUsersSelected = computed(() => selectedRows.value.length > 1);
 
 const confirmUserToAdmin = (id: string | null) => {
   confirmUsersToAdmin.value = true;
@@ -482,11 +476,15 @@ const makeUsersToAdmin = async (id: string | null) => {
 
   if (result.error) {
     toast.error(
-      id ? t('state.admin_failure') : t('state.users_to_admin_failure')
+      areMultipleUsersSelected.value
+        ? t('state.users_to_admin_failure')
+        : t('state.admin_failure')
     );
   } else {
     toast.success(
-      id ? t('state.admin_success') : t('state.users_to_admin_success')
+      areMultipleUsersSelected.value
+        ? t('state.users_to_admin_success')
+        : t('state.admin_success')
     );
     usersList.value = usersList.value.map((user) => ({
       ...user,
@@ -514,7 +512,7 @@ const resetConfirmAdminToUser = () => {
   adminsToUserUID.value = null;
 };
 
-const AreMultipleUsersSelectedToAdmin = computed(
+const areMultipleUsersSelectedToAdmin = computed(
   () => selectedRows.value.length > 1
 );
 
@@ -524,16 +522,20 @@ const makeAdminsToUsers = async (id: string | null) => {
   const variables = { userUIDs };
   const result = await adminsToUser.executeMutation(variables);
   if (result.error) {
+    if (result.error.message === ONLY_ONE_ADMIN_ACCOUNT_FOUND) {
+      return toast.error(t('state.remove_admin_failure_only_one_admin'));
+    }
+
     toast.error(
-      id
-        ? t('state.remove_admin_failure')
-        : t('state.remove_admin_from_users_failure')
+      areMultipleUsersSelected.value
+        ? t('state.remove_admin_from_users_failure')
+        : t('state.remove_admin_failure')
     );
   } else {
     toast.success(
-      id
-        ? t('state.remove_admin_success')
-        : t('state.remove_admin_from_users_success')
+      areMultipleUsersSelected.value
+        ? t('state.remove_admin_from_users_success')
+        : t('state.remove_admin_success')
     );
     usersList.value = usersList.value.map((user) => ({
       ...user,
@@ -562,7 +564,7 @@ const resetConfirmUserDeletion = () => {
   deleteUserUID.value = null;
 };
 
-const AreMultipleUsersSelectedForDeletion = computed(
+const areMultipleUsersSelectedForDeletion = computed(
   () => selectedRows.value.length > 1
 );
 
@@ -572,44 +574,21 @@ const deleteUsers = async (id: string | null) => {
   const result = await usersDeletion.executeMutation(variables);
 
   if (result.error) {
-    const errorMessage =
-      result.error.message === DELETE_USER_FAILED_ONLY_ONE_ADMIN
-        ? t('state.delete_user_failed_only_one_admin')
-        : id
-        ? t('state.delete_user_failure')
-        : t('state.delete_users_failure');
+    const errorMessage = areMultipleUsersSelected.value
+      ? t('state.delete_users_failure')
+      : t('state.delete_user_failure');
     toast.error(errorMessage);
   } else {
     const deletedUsers = result.data?.removeUsersByAdmin || [];
-    const deletedIDs = deletedUsers
+    const deletedUserIDs = deletedUsers
       .filter((user) => user.isDeleted)
       .map((user) => user.userUID);
 
-    const isAdminError = deletedUsers.some(
-      (user) => user.errorMessage === ADMIN_CANNOT_BE_DELETED
-    );
+    handleUserDeletion(deletedUsers);
 
     usersList.value = usersList.value.filter(
-      (user) => !deletedIDs.includes(user.uid)
+      (user) => !deletedUserIDs.includes(user.uid)
     );
-
-    if (isAdminError) {
-      toast.success(
-        t('state.delete_some_users_success', { count: deletedIDs.length })
-      );
-      toast.error(
-        t('state.delete_some_users_failure', {
-          count: deletedUsers.length - deletedIDs.length,
-        })
-      );
-      toastTimeout = setTimeout(() => {
-        toast.error(t('state.remove_admin_for_deletion'));
-      }, 2000);
-    } else {
-      toast.success(
-        id ? t('state.delete_user_success') : t('state.delete_users_success')
-      );
-    }
 
     selectedRows.value.splice(0, selectedRows.value.length);
   }

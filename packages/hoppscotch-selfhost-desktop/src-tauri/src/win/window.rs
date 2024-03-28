@@ -16,7 +16,7 @@ use windows::Win32::Graphics::Dwm::DwmSetWindowAttribute;
 use windows::Win32::Foundation::HWND;
 use windows::Win32::Graphics::Dwm::{DWMWA_USE_IMMERSIVE_DARK_MODE};
 
-use crate::win::utils::is_windows_version_higher;
+use winver::WindowsVersion;
 
 fn hex_color_to_colorref(color: HexColor) -> COLORREF {
   // TODO: Remove this unsafe, This operation doesn't need to be unsafe!
@@ -44,8 +44,11 @@ fn update_bg_color(hwnd: &HWND, bg_color: HexColor) {
       ptr::addr_of!(use_dark_mode) as *const c_void,
       size_of::<BOOL>().try_into().unwrap()
     ).unwrap();
+  }
 
-    if is_windows_version_higher(10, 0, 22000) {
+  let version = WindowsVersion::detect().unwrap();
+  if version >= WindowsVersion::new(10, 0, 22000) {
+    unsafe {
       DwmSetWindowAttribute(
         HWND(hwnd.0),
         DWMWA_CAPTION_COLOR,
@@ -53,11 +56,13 @@ fn update_bg_color(hwnd: &HWND, bg_color: HexColor) {
         size_of::<COLORREF>().try_into().unwrap()
       ).unwrap();
     }
+  }
 
-    let flags = WTNCA_NODRAWCAPTION | WTNCA_NODRAWICON;
-    let mask  = WTNCA_NODRAWCAPTION | WTNCA_NODRAWICON | WTNCA_NOSYSMENU | WTNCA_NOMIRRORHELP;
-    let options = WinThemeAttribute { flag: flags, mask };
+  let flags = WTNCA_NODRAWCAPTION | WTNCA_NODRAWICON;
+  let mask  = WTNCA_NODRAWCAPTION | WTNCA_NODRAWICON | WTNCA_NOSYSMENU | WTNCA_NOMIRRORHELP;
+  let options = WinThemeAttribute { flag: flags, mask };
 
+  unsafe {
     SetWindowThemeAttribute(
       HWND(hwnd.0),
       WTA_NONCLIENT,

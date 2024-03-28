@@ -41,6 +41,7 @@ windows = { version = "0.52.0", features = [
   "Win32_Foundation",
   "Win32_UI_Controls",
 ] }
+winver = "1"
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem

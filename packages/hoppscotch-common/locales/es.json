@@ -198,7 +198,7 @@
       "cookie_string": "Cookies",
       "cookie_value": "Valor",
       "empty_domain": "Dominio vacio",
-      "empty_domains": "La lista de dominios está vacía",
+      "empty_domains": "No hay dominios",
       "enter_cookie_string": "Introducir cookies",
       "interceptor_no_support": "El interceptor seleccionado actualmente no admite cookies. Seleccione otro interceptor e inténtelo de nuevo.",
       "managed_tab": "Gestionado",

@@ -181,6 +181,7 @@ const handleImport = () => {
     })
 
     tabs.currentActiveTab.value.document.request = req
+    toast.success(`${t("import.success")}`)
   } catch (e) {
     console.error(e)
     toast.error(`${t("error.curl_invalid_format")}`)

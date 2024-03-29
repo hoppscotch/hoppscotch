@@ -410,7 +410,7 @@
     "curl": "Import cURL",
     "environments_from_gist": "Import From Gist",
     "environments_from_gist_description": "Import Hoppscotch Environments From Gist",
-    "failed": "Error while importing: format not recognized",
+    "failed": "Import error. Check your browser console for error details.",
     "from_file": "Import from File",
     "from_gist": "Import from Gist",
     "from_gist_description": "Import from Gist URL",

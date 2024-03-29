@@ -53,12 +53,18 @@
       <span class="flex space-x-2">
         <HoppButtonPrimary
           ref="importButton"
+          v-tippy="{ theme: 'tooltip', delay: [500, 20], allowHTML: true }"
           :label="`${t('import.title')}`"
+          :title="`${t(
+            'import.title'
+          )} <kbd>${getSpecialKey()}</kbd><kbd>↩</kbd>`"
           outline
           @click="handleImport"
         />
         <HoppButtonSecondary
           :label="`${t('action.cancel')}`"
+          v-tippy="{ theme: 'tooltip', delay: [500, 20], allowHTML: true }"
+          :title="`${t('action.cancel')} <kbd>ESC</kbd>`"
           outline
           filled
           @click="hideModal"
@@ -78,7 +84,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, watch } from "vue"
+import { markRaw, reactive, ref, watch } from "vue"
 import { refAutoReset } from "@vueuse/core"
 import { useCodemirror } from "@composables/codemirror"
 import { useI18n } from "@composables/i18n"
@@ -93,12 +99,14 @@ import IconWrapText from "~icons/lucide/wrap-text"
 import IconClipboard from "~icons/lucide/clipboard"
 import IconCheck from "~icons/lucide/check"
 import IconTrash2 from "~icons/lucide/trash-2"
+import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
 import { platform } from "~/platform"
 import { RESTTabService } from "~/services/tab/rest"
 import { useService } from "dioc/vue"
 import { useNestedSetting } from "~/composables/settings"
 import { toggleNestedSetting } from "~/newstore/settings"
-import { EditorView } from "@codemirror/view"
+import { EditorView, keymap } from "@codemirror/view"
+import { Prec } from "@codemirror/state"
 
 const t = useI18n()
 
@@ -126,6 +134,22 @@ useCodemirror(
     completer: null,
     environmentHighlights: false,
     onInit: (view: EditorView) => view.focus(),
+    additionalExts: [
+      markRaw(
+        Prec.highest(
+          keymap.of([
+            {
+              key: "Mod-Enter", // 'Ctrl-Enter' on Windows, 'Cmd-Enter' on macOS
+              preventDefault: true,
+              run: () => {
+                handleImport()
+                return true
+              },
+            },
+          ])
+        )
+      ),
+    ],
   })
 )
 
@@ -157,6 +181,7 @@ const handleImport = () => {
     })
 
     tabs.currentActiveTab.value.document.request = req
+    toast.success(`${t("import.success")}`)
   } catch (e) {
     console.error(e)
     toast.error(`${t("error.curl_invalid_format")}`)

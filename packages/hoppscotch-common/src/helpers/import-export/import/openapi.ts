@@ -1,32 +1,32 @@
+import SwaggerParser from "@apidevtools/swagger-parser"
+import {
+  FormDataKeyValue,
+  HoppCollection,
+  HoppRESTAuth,
+  HoppRESTHeader,
+  HoppRESTParam,
+  HoppRESTReqBody,
+  HoppRESTRequest,
+  HoppRESTRequestVariable,
+  knownContentTypes,
+  makeCollection,
+  makeRESTRequest,
+} from "@hoppscotch/data"
+import * as A from "fp-ts/Array"
+import * as O from "fp-ts/Option"
+import * as RA from "fp-ts/ReadonlyArray"
+import * as TE from "fp-ts/TaskEither"
+import { flow, pipe } from "fp-ts/function"
+import * as S from "fp-ts/string"
+import yaml from "js-yaml"
+import { cloneDeep } from "lodash-es"
 import {
   OpenAPI,
   OpenAPIV2,
   OpenAPIV3,
   OpenAPIV3_1 as OpenAPIV31,
 } from "openapi-types"
-import SwaggerParser from "@apidevtools/swagger-parser"
-import yaml from "js-yaml"
-import {
-  FormDataKeyValue,
-  HoppRESTAuth,
-  HoppRESTHeader,
-  HoppRESTParam,
-  HoppRESTReqBody,
-  knownContentTypes,
-  makeRESTRequest,
-  HoppCollection,
-  makeCollection,
-  HoppRESTRequestVariable,
-  HoppRESTRequest,
-} from "@hoppscotch/data"
-import { pipe, flow } from "fp-ts/function"
-import * as A from "fp-ts/Array"
-import * as S from "fp-ts/string"
-import * as O from "fp-ts/Option"
-import * as TE from "fp-ts/TaskEither"
-import * as RA from "fp-ts/ReadonlyArray"
 import { IMPORTER_INVALID_FILE_FORMAT } from "."
-import { cloneDeep } from "lodash-es"
 
 export const OPENAPI_DEREF_ERROR = "openapi/deref_error" as const
 
@@ -627,6 +627,19 @@ const convertPathToHoppReqs = (
           ? openAPIUrl + openAPIPath.slice(1)
           : openAPIUrl + openAPIPath
 
+      let defaultRequestName = "Untitled Request"
+
+      if (info.tags?.length) {
+        const pathStartIndex =
+          openAPIPath.indexOf(info.tags[0]) + info.tags[0].length
+
+        if (pathStartIndex > 0) {
+          defaultRequestName =
+            openAPIPath.slice(pathStartIndex).split("/")?.[1] ??
+            defaultRequestName
+        }
+      }
+
       const res: {
         request: HoppRESTRequest
         metadata: {
@@ -634,7 +647,7 @@ const convertPathToHoppReqs = (
         }
       } = {
         request: makeRESTRequest({
-          name: info.operationId ?? info.summary ?? "Untitled Request",
+          name: info.operationId ?? info.summary ?? defaultRequestName,
           method: method.toUpperCase(),
           endpoint,
 
@@ -753,7 +766,14 @@ export const hoppOpenAPIImporter = (fileContents: string[]) =>
 
             return resultDoc
           },
-          () => IMPORTER_INVALID_FILE_FORMAT
+          (e) => {
+            console.error(
+              (e as { message?: string })?.message ??
+                "An unexpected error occurred while parsing the OpenApi file."
+            )
+
+            return IMPORTER_INVALID_FILE_FORMAT
+          }
         )
       )
     }),

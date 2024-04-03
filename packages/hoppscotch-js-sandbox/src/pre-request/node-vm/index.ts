@@ -48,8 +48,8 @@ export const runPreRequestScript = (
             const wrappedMethods = wrapMethodsInReference(pw)
             jail.setSync("wrappedMethods", wrappedMethods, { copy: true })
 
-            await context.global.set("atob", globalThis.atob)
-            await context.global.set("btoa", globalThis.btoa)
+            jail.setSync("atob", atob)
+            jail.setSync("btoa", btoa)
 
             // Methods in the isolate context can't be invoked straightaway
             const finalScript = `
@@ -74,7 +74,7 @@ export const runPreRequestScript = (
               const pw = getResolvedMethods(wrappedMethods)
 
               ${preRequestScript}
-          `
+            `
 
             // Create a script and compile it
             const script = await isolate.compileScript(finalScript)

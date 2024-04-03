@@ -6,6 +6,25 @@ import ivm from "isolated-vm"
 import { TestResponse, TestResult } from "~/types"
 import { getTestRunnerScriptMethods, preventCyclicObjects } from "~/utils"
 
+// Function to recursively wrap functions in `ivm.Reference`
+const wrapMethodsInReference = (
+  obj: Record<string, unknown>
+): Record<string, unknown> => {
+  const wrappedObj: Record<string, unknown> = {}
+
+  for (const [key, value] of Object.entries(obj)) {
+    if (typeof value === "object" && value !== null && !Array.isArray(value)) {
+      wrappedObj[key] = wrapMethodsInReference(value as Record<string, unknown>)
+    } else if (typeof value === "function") {
+      wrappedObj[key] = new ivm.Reference(value)
+    } else {
+      wrappedObj[key] = value
+    }
+  }
+
+  return wrappedObj
+}
+
 export const runTestScript = (
   testScript: string,
   envs: TestResult["envs"],
@@ -59,18 +78,46 @@ const executeScriptInContext = (
       return reject(`Response parsing failed: ${responseObjHandle.left}`)
     }
 
+    const jail = context.global
+
     const { pw, testRunStack, updatedEnvs } = getTestRunnerScriptMethods(envs)
 
-    // Expose pw to the context
-    context.global.set(
-      "pw",
-      new ivm.ExternalCopy({ ...pw, response: responseObjHandle.right })
-    )
-    context.global.set("atob", new ivm.ExternalCopy(globalThis.atob))
-    context.global.set("btoa", new ivm.ExternalCopy(globalThis.btoa))
+    const wrappedMethods = wrapMethodsInReference({
+      ...pw,
+      response: responseObjHandle.right,
+    })
+    jail.setSync("wrappedMethods", wrappedMethods, { copy: true })
+
+    jail.setSync("atob", atob)
+    jail.setSync("btoa", btoa)
+
+    // Methods in the isolate context can't be invoked straightaway
+    const finalScript = `
+      const getResolvedMethods = (
+        obj
+      ) => {
+        const result = {}
+        
+        for (const [key, value] of Object.entries(obj)) {
+          if (typeof value === "object" && value !== null && !Array.isArray(value) && Object.keys(value).length > 0) {
+            result[key] = getResolvedMethods(value)
+          } else if(value.typeof === "function") {
+            result[key] = (...args) => value.applySync(null, args) 
+          } else {
+            result[key] = value
+          }
+        }
+        
+        return result
+      }
+
+      const pw = getResolvedMethods(wrappedMethods)
+
+      ${testScript}
+    `
 
     // Create a script and compile it
-    const script = isolate.compileScript(testScript)
+    const script = isolate.compileScript(finalScript)
 
     // Run the test script in the provided context
     script

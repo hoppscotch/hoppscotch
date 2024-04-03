@@ -13,9 +13,6 @@ export default defineConfig({
       name: "js-sandbox",
       formats: ["es", "cjs"],
     },
-    rollupOptions: {
-      external: ["isolated-vm"],
-    },
   },
   resolve: {
     alias: {

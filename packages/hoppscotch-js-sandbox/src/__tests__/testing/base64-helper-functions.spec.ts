@@ -21,7 +21,7 @@ describe("Base64 helper functions", () => {
     },
   }
 
-  describe("Pre-request script", () => {
+  describe.only("Pre-request script", () => {
     describe("atob", () => {
       test("successfully decodes the input string", () => {
         return expect(

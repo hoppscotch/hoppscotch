@@ -1,4 +1,4 @@
-import "@relmify/jest-fp-ts"
+import { describe, expect, test } from "vitest"
 
 import { runPreRequestScript } from "~/pre-request/node-vm"
 

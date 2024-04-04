@@ -14,6 +14,9 @@ export default defineConfig({
       formats: ["es", "cjs"],
     },
   },
+  test: {
+    setupFiles: ["./setupFiles.ts"],
+  },
   resolve: {
     alias: {
       "~": resolve(__dirname, "./src"),

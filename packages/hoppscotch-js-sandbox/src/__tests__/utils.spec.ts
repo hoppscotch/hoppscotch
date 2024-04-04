@@ -1,5 +1,7 @@
 import { preventCyclicObjects } from "~/utils"
 
+import { describe, expect, test } from "vitest"
+
 describe("preventCyclicObjects", () => {
   test("succeeds with a simple object", () => {
     const testObj = {

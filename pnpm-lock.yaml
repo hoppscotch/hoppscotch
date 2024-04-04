@@ -871,9 +871,6 @@ importers:
       io-ts:
         specifier: 2.2.16
         version: 2.2.16(fp-ts@2.12.1)
-      jest:
-        specifier: 27.5.1
-        version: 27.5.1
       prettier:
         specifier: 2.8.4
         version: 2.8.4
@@ -886,6 +883,9 @@ importers:
       vite:
         specifier: 5.0.5
         version: 5.0.5(@types/node@17.0.45)(terser@5.27.0)
+      vitest:
+        specifier: 0.34.6
+        version: 0.34.6(sass@1.69.5)(terser@5.27.0)
 
   packages/hoppscotch-selfhost-desktop:
     dependencies:

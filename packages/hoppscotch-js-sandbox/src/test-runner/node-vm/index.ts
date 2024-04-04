@@ -1,10 +1,15 @@
 import * as E from "fp-ts/Either"
 import * as TE from "fp-ts/TaskEither"
 import { pipe } from "fp-ts/function"
-import ivm from "isolated-vm"
+import { createRequire } from "module"
+
+import type ivmT from "isolated-vm"
 
 import { TestResponse, TestResult } from "~/types"
 import { getTestRunnerScriptMethods, preventCyclicObjects } from "~/utils"
+
+const nodeRequire = createRequire(import.meta.url)
+const ivm = nodeRequire("isolated-vm")
 
 // Function to recursively wrap functions in `ivm.Reference`
 const wrapMethodsInReference = (
@@ -33,7 +38,7 @@ export const runTestScript = (
   pipe(
     TE.tryCatch(
       async () => {
-        const isolate = new ivm.Isolate()
+        const isolate: ivmT.Isolate = new ivm.Isolate()
         const context = await isolate.createContext()
         return { isolate, context }
       },
@@ -68,8 +73,8 @@ const executeScriptInContext = (
   testScript: string,
   envs: TestResult["envs"],
   response: TestResponse,
-  isolate: ivm.Isolate,
-  context: ivm.Context
+  isolate: ivmT.Isolate,
+  context: ivmT.Context
 ): Promise<TestResult> => {
   return new Promise((resolve, reject) => {
     // Parse response object

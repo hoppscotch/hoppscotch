@@ -1,9 +1,14 @@
 import { pipe } from "fp-ts/function"
 import * as TE from "fp-ts/lib/TaskEither"
-import ivm from "isolated-vm"
+import { createRequire } from "module"
+
+import type ivmT from "isolated-vm"
 
 import { TestResult } from "~/types"
 import { getPreRequestScriptMethods } from "~/utils"
+
+const nodeRequire = createRequire(import.meta.url)
+const ivm = nodeRequire("isolated-vm")
 
 // Function to recursively wrap functions in `ivm.Reference`
 const wrapMethodsInReference = (
@@ -31,7 +36,7 @@ export const runPreRequestScript = (
   pipe(
     TE.tryCatch(
       async () => {
-        const isolate = new ivm.Isolate()
+        const isolate: ivmT.Isolate = new ivm.Isolate()
         const context = await isolate.createContext()
         return { isolate, context }
       },

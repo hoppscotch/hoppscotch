@@ -13,6 +13,9 @@ export default defineConfig({
       name: "js-sandbox",
       formats: ["es", "cjs"],
     },
+    rollupOptions: {
+      external: ["module"],
+    },
   },
   test: {
     setupFiles: ["./setupFiles.ts"],

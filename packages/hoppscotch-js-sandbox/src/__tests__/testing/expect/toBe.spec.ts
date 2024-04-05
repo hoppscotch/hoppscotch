@@ -25,7 +25,7 @@ describe("toBe", () => {
       return expect(
         func(
           `
-              pw.expect(2).toBe(2)
+            pw.expect(2).toBe(2)
           `,
           fakeResponse
         )()

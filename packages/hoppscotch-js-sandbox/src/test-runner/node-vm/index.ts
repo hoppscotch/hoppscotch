@@ -12,22 +12,22 @@ const nodeRequire = createRequire(import.meta.url)
 const ivm = nodeRequire("isolated-vm")
 
 // Function to recursively wrap functions in `ivm.Reference`
-const wrapMethodsInReference = (
-  obj: Record<string, unknown>
+const getSerializedAPIMethods = (
+  namespaceObj: Record<string, unknown>
 ): Record<string, unknown> => {
-  const wrappedObj: Record<string, unknown> = {}
+  const result: Record<string, unknown> = {}
 
-  for (const [key, value] of Object.entries(obj)) {
+  for (const [key, value] of Object.entries(namespaceObj)) {
     if (typeof value === "object" && value !== null && !Array.isArray(value)) {
-      wrappedObj[key] = wrapMethodsInReference(value as Record<string, unknown>)
+      result[key] = getSerializedAPIMethods(value as Record<string, unknown>)
     } else if (typeof value === "function") {
-      wrappedObj[key] = new ivm.Reference(value)
+      result[key] = new ivm.Reference(value)
     } else {
-      wrappedObj[key] = value
+      result[key] = value
     }
   }
 
-  return wrappedObj
+  return result
 }
 
 export const runTestScript = (
@@ -87,36 +87,127 @@ const executeScriptInContext = (
 
     const { pw, testRunStack, updatedEnvs } = getTestRunnerScriptMethods(envs)
 
-    const wrappedMethods = wrapMethodsInReference({
+    const serializedAPIMethods = getSerializedAPIMethods({
       ...pw,
       response: responseObjHandle.right,
     })
-    jail.setSync("wrappedMethods", wrappedMethods, { copy: true })
+    jail.setSync("serializedAPIMethods", serializedAPIMethods, { copy: true })
 
     jail.setSync("atob", atob)
     jail.setSync("btoa", btoa)
 
+    jail.setSync("ivm", ivm)
+
     // Methods in the isolate context can't be invoked straightaway
     const finalScript = `
-      const getResolvedMethods = (
-        obj
-      ) => {
-        const result = {}
-        
-        for (const [key, value] of Object.entries(obj)) {
-          if (typeof value === "object" && value !== null && !Array.isArray(value) && Object.keys(value).length > 0) {
-            result[key] = getResolvedMethods(value)
-          } else if(value.typeof === "function") {
-            result[key] = (...args) => value.applySync(null, args) 
-          } else {
-            result[key] = value
+    const pw = new Proxy(serializedAPIMethods, {
+      get: (pwObj, pwKey) => {
+        // pw.expect(), pw.env, etc.
+        const topLevelProperty = pwObj[pwKey]
+
+        // If the property exists and is a function
+        // pw.expect(), pw.test(), etc.
+        if (topLevelProperty && topLevelProperty.typeof === "function") {
+          // pw.test() just involves invoking the function via "applySync()"
+          if (pwKey === "test") {
+            return (...args) => topLevelProperty.applySync(null, args)
+          }
+
+          // pw.expect() returns an object with matcher methods
+          return (...args) => {
+            // Invoke "pw.expect()" and get access to the object with matcher methods
+            const expectFnResult = topLevelProperty.applySync(
+              null,
+              args.map((expectVal) => {
+                if (typeof expectVal === "object") {
+                  if (expectVal === null) {
+                    return null
+                  }
+
+                  // Only arrays and objects stringified here should be parsed from the "pw.expect()" method definition
+                  // The usecase is that any JSON string supplied should be preserved
+                  // An extra "isStringifiedWithinIsolate" prop is added to indicate it has to be parsed
+
+                  if (Array.isArray(expectVal)) {
+                    return JSON.stringify({
+                      arr: expectVal,
+                      isStringifiedWithinIsolate: true,
+                    })
+                  }
+
+                  return JSON.stringify({
+                    ...expectVal,
+                    isStringifiedWithinIsolate: true,
+                  })
+                }
+
+                return expectVal
+              })
+            )
+
+            // Matcher methods that can be chained with "pw.expect()"
+            // pw.expect().toBe(), etc
+            if (expectFnResult.typeof === "object") {
+              // Access the getter that points to the negated matcher methods via "{ accessors: true }"
+              const matcherMethods = {
+                not: expectFnResult.getSync("not", { accessors: true }),
+              }
+
+              // Serialize matcher methods for use in the isolate context
+              const matcherMethodNames = [
+                "toBe",
+                "toBeLevel2xx",
+                "toBeLevel3xx",
+                "toBeLevel4xx",
+                "toBeLevel5xx",
+                "toBeType",
+                "toHaveLength",
+                "toInclude",
+              ]
+              matcherMethodNames.forEach((methodName) => {
+                matcherMethods[methodName] = expectFnResult.getSync(methodName)
+              })
+
+              return new Proxy(matcherMethods, {
+                get: (matcherMethodTarget, matcherMethodProp) => {
+                  // pw.expect().not.toBe(), etc
+                  const matcherMethodEntry = matcherMethodTarget[matcherMethodProp]
+
+                  if (matcherMethodProp === "not") {
+                    return new Proxy(matcherMethodEntry, {
+                      get: (negatedTarget, prop) => {
+                        // Return the negated matcher method defn that is invoked from the test script
+                        const negatedMatcherMethodDefn = negatedTarget.getSync(prop)
+                        return negatedMatcherMethodDefn
+                      },
+                    })
+                  }
+
+                  // Return the matcher method defn that is invoked from the test script
+                  return matcherMethodEntry
+                },
+              })
+            }
           }
         }
-        
-        return result
-      }
 
-      const pw = getResolvedMethods(wrappedMethods)
+        // "pw.env" set of API methods
+        if (typeof topLevelProperty === "object" && pwKey !== "response") {
+          return new Proxy(topLevelProperty, {
+            get: (subTarget, subProp) => {
+              if (
+                subProp in subTarget &&
+                subTarget[subProp].typeof === "function"
+              ) {
+                return (...args) => subTarget[subProp].applySync(null, args)
+              }
+            },
+          })
+        }
+
+        return topLevelProperty
+      },
+    })
 
       ${testScript}
     `
@@ -134,7 +225,7 @@ const executeScriptInContext = (
         })
       })
       .catch((error: Error) => {
-        reject(`Script execution failed: ${error}`)
+        reject(error)
       })
   })
 }

@@ -10,23 +10,22 @@ import { getPreRequestScriptMethods } from "~/utils"
 const nodeRequire = createRequire(import.meta.url)
 const ivm = nodeRequire("isolated-vm")
 
-// Function to recursively wrap functions in `ivm.Reference`
-const wrapMethodsInReference = (
-  obj: Record<string, unknown>
+const getSerializedAPIMethods = (
+  namespaceObj: Record<string, unknown>
 ): Record<string, unknown> => {
-  const wrappedObj: Record<string, unknown> = {}
+  const result: Record<string, unknown> = {}
 
-  for (const [key, value] of Object.entries(obj)) {
+  for (const [key, value] of Object.entries(namespaceObj)) {
     if (typeof value === "object" && value !== null && !Array.isArray(value)) {
-      wrappedObj[key] = wrapMethodsInReference(value as Record<string, unknown>)
+      result[key] = getSerializedAPIMethods(value as Record<string, unknown>)
     } else if (typeof value === "function") {
-      wrappedObj[key] = new ivm.Reference(value)
+      result[key] = new ivm.Reference(value)
     } else {
-      wrappedObj[key] = value
+      result[key] = value
     }
   }
 
-  return wrappedObj
+  return result
 }
 
 export const runPreRequestScript = (
@@ -50,33 +49,33 @@ export const runPreRequestScript = (
 
             const { pw, updatedEnvs } = getPreRequestScriptMethods(envs)
 
-            const wrappedMethods = wrapMethodsInReference(pw)
-            jail.setSync("wrappedMethods", wrappedMethods, { copy: true })
+            const serializedAPIMethods = getSerializedAPIMethods(pw)
+            jail.setSync("serializedAPIMethods", serializedAPIMethods, {
+              copy: true,
+            })
 
             jail.setSync("atob", atob)
             jail.setSync("btoa", btoa)
 
             // Methods in the isolate context can't be invoked straightaway
             const finalScript = `
-              const getResolvedMethods = (
-                obj
-              ) => {
-                const result = {}
-                
-                for (const [key, value] of Object.entries(obj)) {
-                  if (typeof value === "object" && value !== null && !Array.isArray(value) && Object.keys(value).length > 0) {
-                    result[key] = getResolvedMethods(value)
-                  } else if(value.typeof === "function") {
-                    result[key] = (...args) => value.applySync(null, args) 
-                  } else {
-                    result[key] = value
-                  }
-                }
-                
-                return result
-              }
+              const pw = new Proxy(serializedAPIMethods, {
+                get: (target, prop) => {
+                    if (prop in target && typeof target[prop] === "object") {
+                      return new Proxy(target[prop], {
+                        get: (subTarget, subProp) => {
+                          if (subProp in subTarget && subTarget[subProp].typeof === "function") {
+                            return (...args) => subTarget[subProp].applySync(null, args)
+                          }
 
-              const pw = getResolvedMethods(wrappedMethods)
+                          return
+                        },
+                      })
+                    }
+          
+                    return
+                }
+              })
 
               ${preRequestScript}
             `

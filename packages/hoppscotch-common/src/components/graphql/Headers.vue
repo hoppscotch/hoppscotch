@@ -595,7 +595,7 @@ const getComputedAuthHeaders = (
   } else if (request.auth.authType === "api-key") {
     const { key, addTo } = request.auth
 
-    if (addTo === "Headers" && key) {
+    if (addTo === "HEADERS" && key) {
       headers.push({
         active: true,
         key,

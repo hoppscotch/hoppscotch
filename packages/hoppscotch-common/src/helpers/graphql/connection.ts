@@ -281,9 +281,9 @@ export const runGQLOperation = async (options: RunQueryOptions) => {
       }
     } else if (auth.authType === "api-key") {
       const { key, value, addTo } = auth
-      if (addTo === "Headers") {
+      if (addTo === "HEADERS") {
         finalHeaders[key] = value
-      } else if (addTo === "Query params") {
+      } else if (addTo === "QUERY_PARAMS") {
         params[key] = value
       }
     }

@@ -40,23 +40,23 @@
             @keyup.escape="hide()"
           >
             <HoppSmartItem
-              :icon="auth.addTo === 'Headers' ? IconCircleDot : IconCircle"
-              :active="auth.addTo === 'Headers'"
+              :icon="auth.addTo === 'HEADERS' ? IconCircleDot : IconCircle"
+              :active="auth.addTo === 'HEADERS'"
               :label="'Headers'"
               @click="
                 () => {
-                  auth.addTo = 'Headers'
+                  auth.addTo = 'HEADERS'
                   hide()
                 }
               "
             />
             <HoppSmartItem
-              :icon="auth.addTo === 'Query params' ? IconCircleDot : IconCircle"
-              :active="auth.addTo === 'Query params'"
+              :icon="auth.addTo === 'QUERY_PARAMS' ? IconCircleDot : IconCircle"
+              :active="auth.addTo === 'QUERY_PARAMS'"
               :label="'Query params'"
               @click="
                 () => {
-                  auth.addTo = 'Query params'
+                  auth.addTo = 'QUERY_PARAMS'
                   hide()
                 }
               "

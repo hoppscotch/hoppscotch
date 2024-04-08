@@ -150,8 +150,8 @@ const getHoppReqAuth = (item: Item): HoppRESTAuth => {
       ),
       addTo:
         (getVariableValue(auth.apikey, "in") ?? "query") === "query"
-          ? "Query params"
-          : "Headers",
+          ? "QUERY_PARAMS"
+          : "HEADERS",
     }
   } else if (auth.type === "bearer") {
     return {

@@ -5,12 +5,13 @@ import V0_VERSION from "./v/0"
 import V1_VERSION from "./v/1"
 import V2_VERSION from "./v/2"
 import V3_VERSION from "./v/3"
+import V4_VERSION from "./v/4"
 import { createVersionedEntity, InferredEntity } from "verzod"
 import { lodashIsEqualEq, mapThenEq, undefinedEq } from "../utils/eq"
 
 import { HoppRESTReqBody, HoppRESTHeaders, HoppRESTParams } from "./v/1"
 
-import { HoppRESTAuth } from "./v/3"
+import { HoppRESTAuth } from "./v/4"
 import { HoppRESTRequestVariables } from "./v/2"
 import { z } from "zod"
 
@@ -19,7 +20,6 @@ export * from "./content-types"
 export {
   FormDataKeyValue,
   HoppRESTReqBodyFormData,
-  HoppRESTAuthAPIKey,
   HoppRESTAuthBasic,
   HoppRESTAuthInherit,
   HoppRESTAuthBearer,
@@ -29,13 +29,14 @@ export {
 } from "./v/1"
 
 export {
-  HoppRESTAuth,
   HoppRESTAuthOAuth2,
   AuthCodeGrantTypeParams,
   ClientCredentialsGrantTypeParams,
   ImplicitOauthFlowParams,
   PasswordGrantTypeParams,
 } from "./v/3"
+
+export { HoppRESTAuth, HoppRESTAuthAPIKey } from "./v/4"
 
 export { HoppRESTRequestVariables } from "./v/2"
 
@@ -45,12 +46,13 @@ const versionedObject = z.object({
 })
 
 export const HoppRESTRequest = createVersionedEntity({
-  latestVersion: 3,
+  latestVersion: 4,
   versionMap: {
     0: V0_VERSION,
     1: V1_VERSION,
     2: V2_VERSION,
     3: V3_VERSION,
+    4: V4_VERSION,
   },
   getVersion(data) {
     // For V1 onwards we have the v string storing the number
@@ -92,7 +94,7 @@ const HoppRESTRequestEq = Eq.struct<HoppRESTRequest>({
   ),
 })
 
-export const RESTReqSchemaVersion = "3"
+export const RESTReqSchemaVersion = "4"
 
 export type HoppRESTParam = HoppRESTRequest["params"][number]
 export type HoppRESTHeader = HoppRESTRequest["headers"][number]
@@ -187,7 +189,7 @@ export function makeRESTRequest(
 
 export function getDefaultRESTRequest(): HoppRESTRequest {
   return {
-    v: "3",
+    v: "4",
     endpoint: "https://echo.hoppscotch.io",
     name: "Untitled",
     params: [],

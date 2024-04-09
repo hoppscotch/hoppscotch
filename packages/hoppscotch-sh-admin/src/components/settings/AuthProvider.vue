@@ -69,7 +69,7 @@
 import { useVModel } from '@vueuse/core';
 import { reactive } from 'vue';
 import { useI18n } from '~/composables/i18n';
-import { Config, SsoAuthProviders } from '~/composables/useConfigHandler';
+import { Config, SsoAuthProviders } from '~/helpers/configs';
 import IconEye from '~icons/lucide/eye';
 import IconEyeOff from '~icons/lucide/eye-off';
 

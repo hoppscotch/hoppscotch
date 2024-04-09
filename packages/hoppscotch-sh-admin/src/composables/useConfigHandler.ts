@@ -16,63 +16,16 @@ import {
 import { useToast } from './toast';
 import { useClientHandler } from './useClientHandler';
 
-// Types
-export type SsoAuthProviders = 'google' | 'microsoft' | 'github';
-
-export type Config = {
-  providers: {
-    google: {
-      name: SsoAuthProviders;
-      enabled: boolean;
-      fields: {
-        client_id: string;
-        client_secret: string;
-        callback_url: string;
-        scope: string;
-      };
-    };
-    github: {
-      name: SsoAuthProviders;
-      enabled: boolean;
-      fields: {
-        client_id: string;
-        client_secret: string;
-        callback_url: string;
-        scope: string;
-      };
-    };
-    microsoft: {
-      name: SsoAuthProviders;
-      enabled: boolean;
-      fields: {
-        client_id: string;
-        client_secret: string;
-        callback_url: string;
-        scope: string;
-        tenant: string;
-      };
-    };
-  };
-
-  mailConfigs: {
-    name: string;
-    enabled: boolean;
-    fields: {
-      mailer_smtp_url: string;
-      mailer_from_address: string;
-    };
-  };
-
-  dataSharingConfigs: {
-    name: string;
-    enabled: boolean;
-  };
-};
-
-type UpdatedConfigs = {
-  name: string;
-  value: string;
-};
+import {
+  Config,
+  UpdatedConfigs,
+  IndividualConfig,
+  GOOGLE_CONFIGS,
+  MICROSOFT_CONFIGS,
+  GITHUB_CONFIGS,
+  MAIL_CONFIGS,
+  ALL_CONFIGS,
+} from '~/helpers/configs';
 
 /** Composable that handles all operations related to server configurations
  * @param updatedConfigs A Config Object contatining the updated configs
@@ -90,24 +43,9 @@ export function useConfigHandler(updatedConfigs?: Config) {
   } = useClientHandler(
     InfraConfigsDocument,
     {
-      configNames: [
-        'GOOGLE_CLIENT_ID',
-        'GOOGLE_CLIENT_SECRET',
-        'GOOGLE_CALLBACK_URL',
-        'GOOGLE_SCOPE',
-        'MICROSOFT_CLIENT_ID',
-        'MICROSOFT_CLIENT_SECRET',
-        'MICROSOFT_CALLBACK_URL',
-        'MICROSOFT_SCOPE',
-        'MICROSOFT_TENANT',
-        'GITHUB_CLIENT_ID',
-        'GITHUB_CLIENT_SECRET',
-        'GITHUB_CALLBACK_URL',
-        'GITHUB_SCOPE',
-        'MAILER_SMTP_URL',
-        'MAILER_ADDRESS_FROM',
-        'ALLOW_ANALYTICS_COLLECTION',
-      ] as InfraConfigEnum[],
+      configNames: ALL_CONFIGS.flat().map(
+        ({ name }) => name
+      ) as InfraConfigEnum[],
     },
     (x) => x.infraConfigs
   );
@@ -191,127 +129,59 @@ export function useConfigHandler(updatedConfigs?: Config) {
     workingConfigs.value = cloneDeep(currentConfigs.value);
   });
 
+  let individualConfigs: UpdatedConfigs[] = [
+    {
+      name: '',
+      value: '',
+    },
+  ];
+
+  const pushOrFilterConfigs = (
+    configObject: IndividualConfig[],
+    configEnabledCondition: boolean,
+    configFields?: Record<string, string>
+  ) => {
+    if (configEnabledCondition && configFields) {
+      configObject.forEach(({ name, key }) => {
+        individualConfigs.push({
+          name,
+          value: configFields[key] ?? '',
+        });
+      });
+    } else {
+      configObject.forEach(({ name }) => {
+        individualConfigs = individualConfigs.filter((item) => item.name !== name);
+      });
+    }
+  };
+
   // Transforming the working configs back into the format required by the mutations
   const updatedInfraConfigs = computed(() => {
-    let config: UpdatedConfigs[] = [
-      {
-        name: '',
-        value: '',
-      },
-    ];
+    pushOrFilterConfigs(
+      GOOGLE_CONFIGS,
+      !!updatedConfigs?.providers.google.enabled,
+      updatedConfigs?.providers.google.fields
+    );
 
-    if (updatedConfigs?.providers.google.enabled) {
-      config.push(
-        {
-          name: 'GOOGLE_CLIENT_ID',
-          value: updatedConfigs?.providers.google.fields.client_id ?? '',
-        },
-        {
-          name: 'GOOGLE_CLIENT_SECRET',
-          value: updatedConfigs?.providers.google.fields.client_secret ?? '',
-        },
-        {
-          name: 'GOOGLE_CALLBACK_URL',
-          value: updatedConfigs?.providers.google.fields.callback_url ?? '',
-        },
-        {
-          name: 'GOOGLE_SCOPE',
-          value: updatedConfigs?.providers.google.fields.scope ?? '',
-        }
-      );
-    } else {
-      config = config.filter(
-        (item) =>
-          item.name !== 'GOOGLE_CLIENT_ID' &&
-          item.name !== 'GOOGLE_CLIENT_SECRET' &&
-          item.name !== 'GOOGLE_CALLBACK_URL' &&
-          item.name !== 'GOOGLE_SCOPE'
-      );
-    }
-    if (updatedConfigs?.providers.microsoft.enabled) {
-      config.push(
-        {
-          name: 'MICROSOFT_CLIENT_ID',
-          value: updatedConfigs?.providers.microsoft.fields.client_id ?? '',
-        },
-        {
-          name: 'MICROSOFT_CLIENT_SECRET',
-          value: updatedConfigs?.providers.microsoft.fields.client_secret ?? '',
-        },
-        {
-          name: 'MICROSOFT_CALLBACK_URL',
-          value: updatedConfigs?.providers.microsoft.fields.callback_url ?? '',
-        },
-        {
-          name: 'MICROSOFT_SCOPE',
-          value: updatedConfigs?.providers.microsoft.fields.scope ?? '',
-        },
-        {
-          name: 'MICROSOFT_TENANT',
-          value: updatedConfigs?.providers.microsoft.fields.tenant ?? '',
-        }
-      );
-    } else {
-      config = config.filter(
-        (item) =>
-          item.name !== 'MICROSOFT_CLIENT_ID' &&
-          item.name !== 'MICROSOFT_CLIENT_SECRET' &&
-          item.name !== 'MICROSOFT_CALLBACK_URL' &&
-          item.name !== 'MICROSOFT_SCOPE' &&
-          item.name !== 'MICROSOFT_TENANT'
-      );
-    }
+    pushOrFilterConfigs(
+      MICROSOFT_CONFIGS,
+      !!updatedConfigs?.providers.microsoft.enabled,
+      updatedConfigs?.providers.microsoft.fields
+    );
 
-    if (updatedConfigs?.providers.github.enabled) {
-      config.push(
-        {
-          name: 'GITHUB_CLIENT_ID',
-          value: updatedConfigs?.providers.github.fields.client_id ?? '',
-        },
-        {
-          name: 'GITHUB_CLIENT_SECRET',
-          value: updatedConfigs?.providers.github.fields.client_secret ?? '',
-        },
-        {
-          name: 'GITHUB_CALLBACK_URL',
-          value: updatedConfigs?.providers.github.fields.callback_url ?? '',
-        },
-        {
-          name: 'GITHUB_SCOPE',
-          value: updatedConfigs?.providers.github.fields.scope ?? '',
-        }
-      );
-    } else {
-      config = config.filter(
-        (item) =>
-          item.name !== 'GITHUB_CLIENT_ID' &&
-          item.name !== 'GITHUB_CLIENT_SECRET' &&
-          item.name !== 'GITHUB_CALLBACK_URL' &&
-          item.name !== 'GITHUB_SCOPE'
-      );
-    }
+    pushOrFilterConfigs(
+      GITHUB_CONFIGS,
+      !!updatedConfigs?.providers.github.enabled,
+      updatedConfigs?.providers.github.fields
+    );
 
-    if (updatedConfigs?.mailConfigs.enabled) {
-      config.push(
-        {
-          name: 'MAILER_SMTP_URL',
-          value: updatedConfigs?.mailConfigs.fields.mailer_smtp_url ?? '',
-        },
-        {
-          name: 'MAILER_ADDRESS_FROM',
-          value: updatedConfigs?.mailConfigs.fields.mailer_from_address ?? '',
-        }
-      );
-    } else {
-      config = config.filter(
-        (item) =>
-          item.name !== 'MAILER_SMTP_URL' && item.name !== 'MAILER_ADDRESS_FROM'
-      );
-    }
+    pushOrFilterConfigs(
+      MAIL_CONFIGS,
+      !!updatedConfigs?.mailConfigs.enabled,
+      updatedConfigs?.mailConfigs.fields
+    );
 
-    config = config.filter((item) => item.name !== '');
-
-    return config;
+    return individualConfigs;
   });
 
   // Checking if any of the config fields are empty

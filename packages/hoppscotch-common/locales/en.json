@@ -162,6 +162,8 @@
       "label_client_credentials": "Client Credentials"
     },
     "pass_key_by": "Pass by",
+    "pass_by_query_params_label": "Query Parameters",
+    "pass_by_headers_label": "Headers",
     "password": "Password",
     "save_to_inherit": "Please save this request in any collection to inherit the authorization",
     "token": "Token",

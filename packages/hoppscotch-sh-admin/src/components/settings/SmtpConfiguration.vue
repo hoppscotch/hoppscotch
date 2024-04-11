@@ -58,18 +58,18 @@
 import { useVModel } from '@vueuse/core';
 import { computed, reactive } from 'vue';
 import { useI18n } from '~/composables/i18n';
-import { Config } from '~/composables/useConfigHandler';
+import { ServerConfigs } from '~/helpers/configs';
 import IconEye from '~icons/lucide/eye';
 import IconEyeOff from '~icons/lucide/eye-off';
 
 const t = useI18n();
 
 const props = defineProps<{
-  config: Config;
+  config: ServerConfigs;
 }>();
 
 const emit = defineEmits<{
-  (e: 'update:config', v: Config): void;
+  (e: 'update:config', v: ServerConfigs): void;
 }>();
 
 const workingConfigs = useVModel(props, 'config', emit);
@@ -87,7 +87,7 @@ const smtpConfigs = computed({
 // Mask sensitive fields
 type Field = {
   name: string;
-  key: keyof Config['mailConfigs']['fields'];
+  key: keyof ServerConfigs['mailConfigs']['fields'];
 };
 
 const smtpConfigFields = reactive<Field[]>([
@@ -100,10 +100,10 @@ const maskState = reactive<Record<string, boolean>>({
   mailer_from_address: true,
 });
 
-const toggleMask = (fieldKey: keyof Config['mailConfigs']['fields']) => {
+const toggleMask = (fieldKey: keyof ServerConfigs['mailConfigs']['fields']) => {
   maskState[fieldKey] = !maskState[fieldKey];
 };
 
-const isMasked = (fieldKey: keyof Config['mailConfigs']['fields']) =>
+const isMasked = (fieldKey: keyof ServerConfigs['mailConfigs']['fields']) =>
   maskState[fieldKey];
 </script>

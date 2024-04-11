@@ -20,11 +20,6 @@ export type ServerConfigs = {
         client_secret: string;
         callback_url: string;
         scope: string;
-        enterprise_enabled: boolean;
-        authorization_url: string;
-        token_url: string;
-        user_profile_url: string;
-        user_email_url: string;
       };
     };
     microsoft: {
@@ -49,59 +44,10 @@ export type ServerConfigs = {
     };
   };
 
-  samlConfigs: {
-    name: string;
-    enabled: boolean;
-    fields: {
-      saml_issuer: string;
-      saml_audience: string;
-      saml_cert: string;
-      saml_entry_point: string;
-      saml_callback_url: string;
-      saml_want_assertions_signed: boolean;
-      saml_want_response_signed: boolean;
-    };
-  };
-
-  oidcConfigs: {
-    name: string;
-    enabled: boolean;
-    fields: {
-      oidc_issuer: string;
-      oidc_auth_url: string;
-      oidc_token_url: string;
-      oidc_user_info_url: string;
-      oidc_client_id: string;
-      oidc_client_secret: string;
-      oidc_callback_url: string;
-      oidc_provider_name: string;
-      oidc_scope: string;
-    };
-  };
-
-  auditLogsConfigs: {
-    name: string;
-    enabled: boolean;
-    fields: {
-      clickhouse_host: string;
-      clickhouse_user: string;
-      clickhouse_password: string;
-    };
-  };
-  siteProtectionConfigs: {
-    name: string;
-    enabled: boolean;
-  };
-  whitelistedDomains?: {
-    name: string;
-    enabled: boolean;
-    domains: string[];
-  };
   dataSharingConfigs: {
     name: string;
     enabled: boolean;
   };
-  licenseKey?: string;
 };
 
 export type UpdatedConfigs = {
@@ -172,10 +118,6 @@ const GITHUB_CONFIGS: Config[] = [
   {
     name: 'GITHUB_SCOPE',
     key: 'scope',
-  },
-  {
-    name: 'IS_GITHUB_ENTERPRISE_ENABLED',
-    key: 'enterprise_enabled',
   },
 ];
 

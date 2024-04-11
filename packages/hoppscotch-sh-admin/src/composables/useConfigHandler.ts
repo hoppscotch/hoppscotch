@@ -13,24 +13,23 @@ import {
   ToggleAnalyticsCollectionMutation,
   UpdateInfraConfigsMutation,
 } from '~/helpers/backend/graphql';
+import {
+  ALL_CONFIGS,
+  ServerConfigs,
+  GITHUB_CONFIGS,
+  GOOGLE_CONFIGS,
+  Config,
+  MAIL_CONFIGS,
+  MICROSOFT_CONFIGS,
+  UpdatedConfigs,
+} from '~/helpers/configs';
 import { useToast } from './toast';
 import { useClientHandler } from './useClientHandler';
-
-import {
-  Config,
-  UpdatedConfigs,
-  IndividualConfig,
-  GOOGLE_CONFIGS,
-  MICROSOFT_CONFIGS,
-  GITHUB_CONFIGS,
-  MAIL_CONFIGS,
-  ALL_CONFIGS,
-} from '~/helpers/configs';
 
 /** Composable that handles all operations related to server configurations
  * @param updatedConfigs A Config Object contatining the updated configs
  */
-export function useConfigHandler(updatedConfigs?: Config) {
+export function useConfigHandler(updatedConfigs?: ServerConfigs) {
   const t = useI18n();
   const toast = useToast();
 
@@ -63,8 +62,8 @@ export function useConfigHandler(updatedConfigs?: Config) {
   );
 
   // Current and working configs
-  const currentConfigs = ref<Config>();
-  const workingConfigs = ref<Config>();
+  const currentConfigs = ref<ServerConfigs>();
+  const workingConfigs = ref<ServerConfigs>();
 
   onMounted(async () => {
     await fetchInfraConfigs();
@@ -129,59 +128,72 @@ export function useConfigHandler(updatedConfigs?: Config) {
     workingConfigs.value = cloneDeep(currentConfigs.value);
   });
 
-  let individualConfigs: UpdatedConfigs[] = [
+  /**
+   * The updated configs are transformed into a format that can be used by the mutations
+   */
+
+  let newConfigs: UpdatedConfigs[] = [
     {
       name: '',
       value: '',
     },
   ];
 
+  // Push or filter the configs based on the enabled condition
   const pushOrFilterConfigs = (
-    configObject: IndividualConfig[],
-    configEnabledCondition: boolean,
-    configFields?: Record<string, string>
+    configs: Config[],
+    enabled: boolean,
+    field?: Record<string, string | boolean> | string
   ) => {
-    if (configEnabledCondition && configFields) {
-      configObject.forEach(({ name, key }) => {
-        individualConfigs.push({
-          name,
-          value: configFields[key] ?? '',
-        });
-      });
-    } else {
-      configObject.forEach(({ name }) => {
-        individualConfigs = individualConfigs.filter((item) => item.name !== name);
-      });
-    }
+    configs.forEach(({ name, key }) => {
+      if (enabled && field) {
+        const value = typeof field === 'string' ? field : String(field[key]);
+        newConfigs.push({ name, value });
+      } else {
+        newConfigs = newConfigs.filter((item) => item.name !== name);
+      }
+    });
   };
 
   // Transforming the working configs back into the format required by the mutations
   const updatedInfraConfigs = computed(() => {
+    if (!updatedConfigs) {
+      return [];
+    }
+
     pushOrFilterConfigs(
       GOOGLE_CONFIGS,
-      !!updatedConfigs?.providers.google.enabled,
-      updatedConfigs?.providers.google.fields
+      updatedConfigs.providers.google.enabled,
+      updatedConfigs.providers.google.fields
     );
 
     pushOrFilterConfigs(
       MICROSOFT_CONFIGS,
-      !!updatedConfigs?.providers.microsoft.enabled,
-      updatedConfigs?.providers.microsoft.fields
+      updatedConfigs.providers.microsoft.enabled,
+      updatedConfigs.providers.microsoft.fields
+    );
+
+    const githubFields = Object.fromEntries(
+      Object.entries(updatedConfigs.providers.github.fields ?? {}).filter(
+        ([key]) => GITHUB_CONFIGS.some((x) => x.key === key)
+      )
     );
 
     pushOrFilterConfigs(
       GITHUB_CONFIGS,
-      !!updatedConfigs?.providers.github.enabled,
-      updatedConfigs?.providers.github.fields
+      updatedConfigs.providers.github.enabled,
+      githubFields
     );
 
     pushOrFilterConfigs(
       MAIL_CONFIGS,
-      !!updatedConfigs?.mailConfigs.enabled,
-      updatedConfigs?.mailConfigs.fields
+      updatedConfigs.mailConfigs.enabled,
+      updatedConfigs.mailConfigs.fields
     );
 
-    return individualConfigs;
+    newConfigs = newConfigs.filter((item) => item.name !== '');
+
+    return newConfigs;
   });
 
   // Checking if any of the config fields are empty
@@ -192,7 +204,7 @@ export function useConfigHandler(updatedConfigs?: Config) {
     fields: Record<string, string>;
   };
 
-  const AreAnyConfigFieldsEmpty = (config: Config): boolean => {
+  const AreAnyConfigFieldsEmpty = (config: ServerConfigs): boolean => {
     const sections: Array<ConfigSection> = [
       config.providers.github,
       config.providers.google,
@@ -207,28 +219,26 @@ export function useConfigHandler(updatedConfigs?: Config) {
   };
 
   // Transforming the working configs back into the format required by the mutations
-  const updatedAllowedAuthProviders = computed(() => {
-    return [
-      {
-        provider: 'GOOGLE',
-        status: updatedConfigs?.providers.google.enabled ? 'ENABLE' : 'DISABLE',
-      },
-      {
-        provider: 'MICROSOFT',
-        status: updatedConfigs?.providers.microsoft.enabled
-          ? 'ENABLE'
-          : 'DISABLE',
-      },
-      {
-        provider: 'GITHUB',
-        status: updatedConfigs?.providers.github.enabled ? 'ENABLE' : 'DISABLE',
-      },
-      {
-        provider: 'EMAIL',
-        status: updatedConfigs?.mailConfigs.enabled ? 'ENABLE' : 'DISABLE',
-      },
-    ];
-  });
+  const updatedAllowedAuthProviders = computed(() => [
+    {
+      provider: 'GOOGLE',
+      status: updatedConfigs?.providers.google.enabled ? 'ENABLE' : 'DISABLE',
+    },
+    {
+      provider: 'MICROSOFT',
+      status: updatedConfigs?.providers.microsoft.enabled
+        ? 'ENABLE'
+        : 'DISABLE',
+    },
+    {
+      provider: 'GITHUB',
+      status: updatedConfigs?.providers.github.enabled ? 'ENABLE' : 'DISABLE',
+    },
+    {
+      provider: 'EMAIL',
+      status: updatedConfigs?.mailConfigs.enabled ? 'ENABLE' : 'DISABLE',
+    },
+  ]);
 
   // Generic function to handle mutation execution and error handling
   const executeMutation = async <T, V>(
@@ -268,7 +278,7 @@ export function useConfigHandler(updatedConfigs?: Config) {
       {
         infraConfigs: updatedInfraConfigs.value as InfraConfigArgs[],
       },
-      'configs.mail_configs.update_failure'
+      'configs.update_failure'
     );
 
   // Resetting the infra configurations
@@ -281,7 +291,6 @@ export function useConfigHandler(updatedConfigs?: Config) {
       'configs.reset.failure'
     );
 
-  // Updating the data sharing configurations
   const updateDataSharingConfigs = (
     toggleDataSharingMutation: UseMutationResponse<ToggleAnalyticsCollectionMutation>
   ) =>

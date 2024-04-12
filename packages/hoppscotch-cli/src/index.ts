@@ -1,6 +1,7 @@
 import chalk from "chalk";
 import { Command } from "commander";
 import * as E from "fp-ts/Either";
+
 import { version } from "../package.json";
 import { test } from "./commands/test";
 import { handleError } from "./handlers/error";

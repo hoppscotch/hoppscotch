@@ -4,8 +4,8 @@
 
 import { cli } from "../dist/index.js";
 
-import { cloneDeep } from "lodash-es";
 import { spawnSync } from "child_process";
+import { cloneDeep } from "lodash-es";
 
 const nodeVersion = parseInt(process.versions.node.split(".")[0]);
 

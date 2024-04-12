@@ -1,4 +1,3 @@
-import type from "@relmify/jest-fp-ts"
 import * as TE from "fp-ts/TaskEither"
 import { pipe } from "fp-ts/function"
 

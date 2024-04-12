@@ -233,7 +233,7 @@ export function preventCyclicObjects(
 
 /**
  * Creates an Expectation object for use inside the sandbox
- * @param resolvedExpectVal The expecting value of the expectation
+ * @param expectVal The expecting value of the expectation
  * @param negated Whether the expectation is negated (negative)
  * @param currTestStack The current state of the test execution stack
  * @returns Object with the expectation methods

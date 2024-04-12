@@ -83,22 +83,22 @@ const executeScriptInContext = (
     // Methods in the isolate context can't be invoked straightaway
     const finalScript = `
     const pw = new Proxy(serializedAPIMethods, {
-      get: (pwObj, pwKey) => {
+      get: (pwObj, pwObjProp) => {
         // pw.expect(), pw.env, etc.
-        const topLevelProperty = pwObj[pwKey]
+        const topLevelEntry = pwObj[pwObjProp]
 
-        // If the property exists and is a function
+        // If the entry exists and is a function
         // pw.expect(), pw.test(), etc.
-        if (topLevelProperty && topLevelProperty.typeof === "function") {
+        if (topLevelEntry && topLevelEntry.typeof === "function") {
           // pw.test() just involves invoking the function via "applySync()"
-          if (pwKey === "test") {
-            return (...args) => topLevelProperty.applySync(null, args)
+          if (pwObjProp === "test") {
+            return (...args) => topLevelEntry.applySync(null, args)
           }
 
           // pw.expect() returns an object with matcher methods
           return (...args) => {
             // Invoke "pw.expect()" and get access to the object with matcher methods
-            const expectFnResult = topLevelProperty.applySync(
+            const expectFnResult = topLevelEntry.applySync(
               null,
               args.map((expectVal) => {
                 if (typeof expectVal === "object") {
@@ -157,9 +157,9 @@ const executeScriptInContext = (
 
                   if (matcherMethodProp === "not") {
                     return new Proxy(matcherMethodEntry, {
-                      get: (negatedTarget, prop) => {
+                      get: (negatedObjTarget, negatedObjprop) => {
                         // Return the negated matcher method defn that is invoked from the test script
-                        const negatedMatcherMethodDefn = negatedTarget.getSync(prop)
+                        const negatedMatcherMethodDefn = negatedObjTarget.getSync(negatedObjprop)
                         return negatedMatcherMethodDefn
                       },
                     })
@@ -174,20 +174,21 @@ const executeScriptInContext = (
         }
 
         // "pw.env" set of API methods
-        if (typeof topLevelProperty === "object" && pwKey !== "response") {
-          return new Proxy(topLevelProperty, {
+        if (typeof topLevelEntry === "object" && pwObjProp !== "response") {
+          return new Proxy(topLevelEntry, {
             get: (subTarget, subProp) => {
+              const subLevelProperty = subTarget[subProp]
               if (
-                subProp in subTarget &&
-                subTarget[subProp].typeof === "function"
+                subLevelProperty &&
+                subLevelProperty.typeof === "function"
               ) {
-                return (...args) => subTarget[subProp].applySync(null, args)
+                return (...args) => subLevelProperty.applySync(null, args)
               }
             },
           })
         }
 
-        return topLevelProperty
+        return topLevelEntry
       },
     })
 

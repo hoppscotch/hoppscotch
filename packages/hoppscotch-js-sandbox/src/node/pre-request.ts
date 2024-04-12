@@ -43,20 +43,20 @@ export const runPreRequestScript = (
             // Methods in the isolate context can't be invoked straightaway
             const finalScript = `
               const pw = new Proxy(serializedAPIMethods, {
-                get: (target, prop) => {
-                    if (prop in target && typeof target[prop] === "object") {
-                      return new Proxy(target[prop], {
-                        get: (subTarget, subProp) => {
-                          if (subProp in subTarget && subTarget[subProp].typeof === "function") {
-                            return (...args) => subTarget[subProp].applySync(null, args)
-                          }
+                get: (pwObjTarget, pwObjProp) => {
+                  const topLevelEntry = pwObjTarget[pwObjProp]
 
-                          return
+                  // "pw.env" set of API methods
+                    if (topLevelEntry && typeof topLevelEntry === "object") {
+                      return new Proxy(topLevelEntry, {
+                        get: (subTarget, subProp) => {
+                          const subLevelProperty = subTarget[subProp]
+                          if (subLevelProperty && subLevelProperty.typeof === "function") {
+                            return (...args) => subLevelProperty.applySync(null, args)
+                          }
                         },
                       })
                     }
-          
-                    return
                 }
               })
 

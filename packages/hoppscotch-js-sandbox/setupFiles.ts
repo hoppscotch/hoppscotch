@@ -1,3 +1,6 @@
+// Vitest doesn't work without globals
+// Ref: https://github.com/relmify/jest-fp-ts/issues/11
+
 import decodeMatchers from "@relmify/jest-fp-ts/dist/decodeMatchers"
 import eitherMatchers from "@relmify/jest-fp-ts/dist/eitherMatchers"
 import optionMatchers from "@relmify/jest-fp-ts/dist/optionMatchers"

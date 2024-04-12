@@ -1,9 +1,10 @@
+import type from "@relmify/jest-fp-ts"
 import * as TE from "fp-ts/TaskEither"
 import { pipe } from "fp-ts/function"
 
 import { describe, expect, test } from "vitest"
 
-import { runTestScript } from "~/test-runner/node-vm"
+import { runTestScript } from "~/node"
 import { TestResponse } from "~/types"
 
 const fakeResponse: TestResponse = {

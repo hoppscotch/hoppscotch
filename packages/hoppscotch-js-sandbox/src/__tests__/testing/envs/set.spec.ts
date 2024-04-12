@@ -3,7 +3,7 @@ import { pipe } from "fp-ts/function"
 
 import { describe, expect, test } from "vitest"
 
-import { runTestScript } from "~/test-runner/node-vm"
+import { runTestScript } from "~/node"
 import { TestResponse, TestResult } from "~/types"
 
 const fakeResponse: TestResponse = {

@@ -3,8 +3,7 @@ import { pipe } from "fp-ts/function"
 
 import { describe, expect, test } from "vitest"
 
-import { runPreRequestScript } from "~/pre-request/node-vm"
-import { runTestScript } from "~/test-runner/node-vm"
+import { runPreRequestScript, runTestScript } from "~/node"
 import { TestResponse, TestResult } from "~/types"
 
 describe("Base64 helper functions", () => {

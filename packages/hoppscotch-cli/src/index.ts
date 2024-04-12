@@ -20,7 +20,7 @@ const CLI_AFTER_ALL_TXT = `\nFor more help, head on to ${accent(
   "https://docs.hoppscotch.io/documentation/clients/cli"
 )}`;
 
-const program = new Command()
+const program = new Command();
 
 program
   .name("hopp")

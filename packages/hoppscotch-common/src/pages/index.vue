@@ -71,13 +71,41 @@
       @hide-modal="onCloseConfirmSaveTab"
       @resolve="onResolveConfirmSaveTab"
     />
-    <HoppSmartConfirmModal
-      :show="confirmingCloseAllTabs"
-      :confirm="t('modal.close_unsaved_tab')"
-      :title="t('confirm.close_unsaved_tabs', { count: unsavedTabsCount })"
-      @hide-modal="confirmingCloseAllTabs = false"
-      @resolve="onResolveConfirmCloseAllTabs"
-    />
+    <HoppSmartModal
+      v-if="confirmingCloseForTabID !== null"
+      :title="t('modal.close_unsaved_tab')"
+      @close="confirmingCloseForTabID = null"
+    >
+      <template #body>
+        <div class="text-center">
+          {{ t("confirm.save_unsaved_tab") }}
+        </div>
+      </template>
+      <template #footer>
+        <span class="flex space-x-2">
+          <HoppButtonPrimary
+            v-focus
+            :label="t?.('action.save')"
+            outline
+            @click="onResolveConfirmSaveTab"
+          />
+          <HoppButtonSecondary
+            :label="t?.('action.dont_save')"
+            filled
+            outline
+            @click="onCloseConfirmSaveTab"
+          />
+        </span>
+        <span class="flex space-x-2">
+          <HoppButtonSecondary
+            :label="t?.('action.cancel')"
+            filled
+            outline
+            @click="confirmingCloseForTabID = null"
+          />
+        </span>
+      </template>
+    </HoppSmartModal>
     <CollectionsSaveRequest
       v-if="savingRequest"
       mode="rest"

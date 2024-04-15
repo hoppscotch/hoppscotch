@@ -66,6 +66,8 @@ const SettingsDefSchema = z.object({
       cookie: z.boolean().catch(true),
     })
   ),
+
+  HAS_OPENED_SPOTLIGHT: z.optional(z.boolean()),
 })
 
 // Common properties shared across REST & GQL collections

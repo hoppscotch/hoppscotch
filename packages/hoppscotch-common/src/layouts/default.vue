@@ -73,7 +73,7 @@ import { useI18n } from "~/composables/i18n"
 import { useToast } from "~/composables/toast"
 import { InvocationTriggers, defineActionHandler } from "~/helpers/actions"
 import { hookKeybindingsListener } from "~/helpers/keybindings"
-import { applySetting } from "~/newstore/settings"
+import { applySetting, toggleSetting } from "~/newstore/settings"
 import { platform } from "~/platform"
 import { HoppSpotlightSessionEventData } from "~/platform/analytics"
 import { PersistenceService } from "~/services/persistence"
@@ -96,6 +96,8 @@ const t = useI18n()
 
 const persistenceService = useService(PersistenceService)
 const spotlightService = useService(SpotlightService)
+
+const HAS_OPENED_SPOTLIGHT = useSetting("HAS_OPENED_SPOTLIGHT")
 
 onBeforeMount(() => {
   if (!mdAndLarger.value) {
@@ -160,6 +162,7 @@ defineActionHandler("modals.search.toggle", (_, trigger) => {
   })
 
   showSearch.value = !showSearch.value
+  !HAS_OPENED_SPOTLIGHT.value && toggleSetting("HAS_OPENED_SPOTLIGHT")
 })
 
 defineActionHandler("modals.support.toggle", () => {

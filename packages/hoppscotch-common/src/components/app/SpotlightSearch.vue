@@ -12,22 +12,22 @@
       @click="
         () => {
           invokeAction('modals.search.toggle', undefined, 'mouseclick')
-          !HAS_OPENED_SPOTLIGHT ? toggleSetting('HAS_OPENED_SPOTLIGHT') : null
+          !HAS_OPENED_SPOTLIGHT && toggleSetting('HAS_OPENED_SPOTLIGHT')
         }
       "
     >
       <span class="inline-flex flex-1 items-center">
         <icon-lucide-search class="svg-icons mr-2" />
         <span v-if="!HAS_OPENED_SPOTLIGHT" class="flex flex-1">
-          Try
+          {{ t("spotlight.phrases.try") }}
           <TransitionGroup tag="div" name="list" class="ml-1 relative">
             <span
-              v-for="(word, index) in wordToShow"
-              :key="word.text"
+              v-for="(phrase, index) in phraseToShow"
+              :key="phrase.text"
               :data-index="index"
               class="truncate"
             >
-              {{ word.text }}
+              "{{ t(phrase.text) }}"
             </span>
           </TransitionGroup>
         </span>
@@ -57,39 +57,40 @@ const t = useI18n()
 
 const HAS_OPENED_SPOTLIGHT = useSetting("HAS_OPENED_SPOTLIGHT")
 
-const words = ref([
-  { text: '"Selecting a Request"', show: true },
-  { text: '"Switching Environment"', show: false },
-  { text: '"Changing Theme"', show: false },
+const phrases = ref([
+  { text: "spotlight.phrases.import_collections", show: true },
+  { text: "spotlight.phrases.create_environment", show: false },
+  { text: "spotlight.phrases.create_workspace", show: false },
+  { text: "spotlight.phrases.share_request", show: false },
 ])
 
 let intervalId: ReturnType<typeof setTimeout> | null = null
 
-//cycle through the words
-const showNextWords = () => {
+//cycle through the phrases
+const showNextPhrase = () => {
   let i = 0
   intervalId = setInterval(() => {
-    words.value[i].show = false
+    phrases.value[i].show = false
     i++
-    if (i >= words.value.length) {
+    if (i >= phrases.value.length) {
       i = 0
     }
-    words.value[i].show = true
+    phrases.value[i].show = true
   }, 3000)
 }
 
-const stopWordsInterval = () => {
+const stopPhraseInterval = () => {
   if (intervalId) clearInterval(intervalId)
 }
 
-const wordToShow = computed(() => {
-  return words.value.filter((word) => word.show)
+const phraseToShow = computed(() => {
+  return phrases.value.filter((phrase) => phrase.show)
 })
 
 watch(
   HAS_OPENED_SPOTLIGHT,
   () => {
-    !HAS_OPENED_SPOTLIGHT.value ? showNextWords() : stopWordsInterval()
+    !HAS_OPENED_SPOTLIGHT.value ? showNextPhrase() : stopPhraseInterval()
   },
   {
     immediate: true,

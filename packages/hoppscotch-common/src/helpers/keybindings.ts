@@ -132,22 +132,19 @@ function generateKeybindingString(ev: KeyboardEvent): ShortcutKey | null {
 
 function getPressedKey(ev: KeyboardEvent): Key | null {
   // Sometimes the property code is not available on the KeyboardEvent object
-  const val = (ev.code ?? "").toLowerCase()
+  const key = (ev.key ?? "").toLowerCase()
 
   // Check arrow keys
-  if (val === "arrowup") return "up"
-  else if (val === "arrowdown") return "down"
-  else if (val === "arrowleft") return "left"
-  else if (val === "arrowright") return "right"
-
-  const key = ev.key.toLowerCase()
+  if (key.startsWith("arrow")) {
+    return key.slice(5) as Key
+  }
 
   // Check letter keys
-  const isLetter = val.startsWith("key")
+  const isLetter = key.length === 1 && key >= "a" && key <= "z"
   if (isLetter) return key as Key
 
   // Check if number keys
-  const isDigit = val.startsWith("digit")
+  const isDigit = key.length === 1 && key >= "0" && key <= "9"
   if (isDigit) return key as Key
 
   // Check if slash, period or enter

@@ -7,6 +7,41 @@ import { error } from "../types/errors";
 import { FormDataEntry } from "../types/request";
 import { isHoppErrnoException } from "./checks";
 
+const getValidRequests = (
+  collections: HoppCollection[],
+  collectionFilePath: string
+) => {
+  return collections.map((collection) => {
+    // Validate requests using zod schema
+    const requestSchemaParsedResult = z
+      .array(entityReference(HoppRESTRequest))
+      .safeParse(collection.requests);
+
+    // Handle validation errors
+    if (!requestSchemaParsedResult.success) {
+      throw error({
+        code: "MALFORMED_COLLECTION",
+        path: collectionFilePath,
+        data: "Please check the collection data.",
+      });
+    }
+
+    // Recursively validate requests in nested folders
+    if (collection.folders.length > 0) {
+      collection.folders = getValidRequests(
+        collection.folders,
+        collectionFilePath
+      );
+    }
+
+    // Return validated collection
+    return {
+      ...collection,
+      requests: requestSchemaParsedResult.data,
+    };
+  });
+};
+
 /**
  * Parses array of FormDataEntry to FormData.
  * @param values Array of FormDataEntry.
@@ -82,22 +117,5 @@ export async function parseCollectionData(
     });
   }
 
-  return collectionSchemaParsedResult.data.map((collection) => {
-    const requestSchemaParsedResult = z
-      .array(entityReference(HoppRESTRequest))
-      .safeParse(collection.requests);
-
-    if (!requestSchemaParsedResult.success) {
-      throw error({
-        code: "MALFORMED_COLLECTION",
-        path,
-        data: "Please check the collection data.",
-      });
-    }
-
-    return {
-      ...collection,
-      requests: requestSchemaParsedResult.data,
-    };
-  });
+  return getValidRequests(collectionSchemaParsedResult.data, path);
 }

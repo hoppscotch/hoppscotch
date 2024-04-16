@@ -75,7 +75,7 @@
             "auth": {
               "authType": "api-key",
               "authActive": true,
-              "addTo": "Headers",
+              "addTo": "HEADERS",
               "key": "key",
               "value": "test-key"
             },

@@ -2351,4 +2351,7 @@ const getErrorMessage = (err: GQLError<string>) => {
 defineActionHandler("collection.new", () => {
   displayModalAdd(true)
 })
+defineActionHandler("modals.collection.import", () => {
+  displayModalImportExport(true)
+})
 </script>

@@ -132,7 +132,7 @@ function generateKeybindingString(ev: KeyboardEvent): ShortcutKey | null {
 
 function getPressedKey(ev: KeyboardEvent): Key | null {
   // Sometimes the property code is not available on the KeyboardEvent object
-  const val = (ev.key ?? "").toLowerCase()
+  const val = (ev.code ?? "").toLowerCase()
 
   // Check arrow keys
   if (val === "arrowup") return "up"

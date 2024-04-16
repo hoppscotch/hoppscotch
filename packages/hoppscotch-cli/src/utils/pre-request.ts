@@ -136,13 +136,13 @@ export function getEffectiveRESTRequest(
       }
     } else if (request.auth.authType === "api-key") {
       const { key, value, addTo } = request.auth;
-      if (addTo === "Headers") {
+      if (addTo === "HEADERS") {
         effectiveFinalHeaders.push({
           active: true,
           key: parseTemplateString(key, envVariables),
           value: parseTemplateString(value, envVariables),
         });
-      } else if (addTo === "Query params") {
+      } else if (addTo === "QUERY_PARAMS") {
         effectiveFinalParams.push({
           active: true,
           key: parseTemplateString(key, envVariables),

@@ -28,7 +28,13 @@
       >
         <HoppSmartSelectWrapper>
           <HoppButtonSecondary
-            :label="auth.addTo || t('state.none')"
+            :label="
+              auth.addTo
+                ? auth.addTo === 'HEADERS'
+                  ? t('authorization.pass_by_headers_label')
+                  : t('authorization.pass_by_query_params_label')
+                : t('state.none')
+            "
             class="ml-2 rounded-none pr-8"
           />
         </HoppSmartSelectWrapper>
@@ -40,23 +46,23 @@
             @keyup.escape="hide()"
           >
             <HoppSmartItem
-              :icon="auth.addTo === 'Headers' ? IconCircleDot : IconCircle"
-              :active="auth.addTo === 'Headers'"
-              :label="'Headers'"
+              :icon="auth.addTo === 'HEADERS' ? IconCircleDot : IconCircle"
+              :active="auth.addTo === 'HEADERS'"
+              :label="t('authorization.pass_by_headers_label')"
               @click="
                 () => {
-                  auth.addTo = 'Headers'
+                  auth.addTo = 'HEADERS'
                   hide()
                 }
               "
             />
             <HoppSmartItem
-              :icon="auth.addTo === 'Query params' ? IconCircleDot : IconCircle"
-              :active="auth.addTo === 'Query params'"
-              :label="'Query params'"
+              :icon="auth.addTo === 'QUERY_PARAMS' ? IconCircleDot : IconCircle"
+              :active="auth.addTo === 'QUERY_PARAMS'"
+              :label="t('authorization.pass_by_query_params_label')"
               @click="
                 () => {
-                  auth.addTo = 'Query params'
+                  auth.addTo = 'QUERY_PARAMS'
                   hide()
                 }
               "

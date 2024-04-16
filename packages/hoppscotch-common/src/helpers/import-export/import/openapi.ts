@@ -260,7 +260,7 @@ const resolveOpenAPIV3SecurityObj = (
       return {
         authType: "api-key",
         authActive: true,
-        addTo: "Headers",
+        addTo: "HEADERS",
         key: scheme.name,
         value: "",
       }
@@ -268,7 +268,7 @@ const resolveOpenAPIV3SecurityObj = (
       return {
         authType: "api-key",
         authActive: true,
-        addTo: "Query params",
+        addTo: "QUERY_PARAMS",
         key: scheme.in,
         value: "",
       }
@@ -430,7 +430,7 @@ const resolveOpenAPIV2SecurityScheme = (
     // V2 only supports in: header and in: query
     return {
       authType: "api-key",
-      addTo: scheme.in === "header" ? "Headers" : "Query params",
+      addTo: scheme.in === "header" ? "HEADERS" : "QUERY_PARAMS",
       authActive: true,
       key: scheme.name,
       value: "",

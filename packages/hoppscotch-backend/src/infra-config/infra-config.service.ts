@@ -22,6 +22,7 @@ import {
 } from 'src/utils';
 import { ConfigService } from '@nestjs/config';
 import {
+  AuthProviderConfigurations,
   ServiceStatus,
   getDefaultInfraConfigs,
   getMissingInfraConfigEntries,
@@ -174,29 +175,12 @@ export class InfraConfigService implements OnModuleInit {
   ) {
     switch (service) {
       case AuthProvider.GOOGLE:
-        return (
-          configMap.GOOGLE_CLIENT_ID &&
-          configMap.GOOGLE_CLIENT_SECRET &&
-          configMap.GOOGLE_CALLBACK_URL &&
-          configMap.GOOGLE_SCOPE
-        );
       case AuthProvider.GITHUB:
-        return (
-          configMap.GITHUB_CLIENT_ID &&
-          configMap.GITHUB_CLIENT_SECRET &&
-          configMap.GITHUB_CALLBACK_URL &&
-          configMap.GITHUB_SCOPE
-        );
       case AuthProvider.MICROSOFT:
-        return (
-          configMap.MICROSOFT_CLIENT_ID &&
-          configMap.MICROSOFT_CLIENT_SECRET &&
-          configMap.MICROSOFT_CALLBACK_URL &&
-          configMap.MICROSOFT_SCOPE &&
-          configMap.MICROSOFT_TENANT
-        );
       case AuthProvider.EMAIL:
-        return configMap.MAILER_SMTP_URL && configMap.MAILER_ADDRESS_FROM;
+        const requiredConfigs = AuthProviderConfigurations[service];
+        if (!requiredConfigs) return false;
+        return requiredConfigs.every((config) => configMap[config]);
       default:
         return false;
     }

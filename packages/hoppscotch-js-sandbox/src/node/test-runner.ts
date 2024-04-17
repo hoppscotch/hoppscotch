@@ -6,7 +6,10 @@ import { createRequire } from "module"
 import type ivmT from "isolated-vm"
 
 import { TestResponse, TestResult } from "~/types"
-import { getTestRunnerScriptMethods, preventCyclicObjects } from "~/utils"
+import {
+  getTestRunnerScriptMethods,
+  preventCyclicObjects,
+} from "~/shared-utils"
 import { getSerializedAPIMethods } from "./utils"
 
 const nodeRequire = createRequire(import.meta.url)

@@ -1,7 +1,7 @@
 import * as TE from "fp-ts/TaskEither"
 
 import { TestResult } from "~/types"
-import { getPreRequestScriptMethods } from "~/utils"
+import { getPreRequestScriptMethods } from "~/shared-utils"
 
 const executeScriptInContext = (
   preRequestScript: string,

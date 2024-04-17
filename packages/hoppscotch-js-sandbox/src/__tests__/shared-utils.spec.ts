@@ -1,4 +1,4 @@
-import { preventCyclicObjects } from "~/utils"
+import { preventCyclicObjects } from "~/shared-utils"
 
 import { describe, expect, test } from "vitest"
 

@@ -2,7 +2,10 @@ import * as E from "fp-ts/Either"
 import * as TE from "fp-ts/TaskEither"
 
 import { SandboxTestResult, TestResponse, TestResult } from "~/types"
-import { getTestRunnerScriptMethods, preventCyclicObjects } from "~/utils"
+import {
+  getTestRunnerScriptMethods,
+  preventCyclicObjects,
+} from "~/shared-utils"
 
 const executeScriptInContext = (
   testScript: string,

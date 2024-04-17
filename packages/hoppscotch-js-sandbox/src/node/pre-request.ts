@@ -5,7 +5,7 @@ import { createRequire } from "module"
 import type ivmT from "isolated-vm"
 
 import { TestResult } from "~/types"
-import { getPreRequestScriptMethods } from "~/utils"
+import { getPreRequestScriptMethods } from "~/shared-utils"
 import { getSerializedAPIMethods } from "./utils"
 
 const nodeRequire = createRequire(import.meta.url)

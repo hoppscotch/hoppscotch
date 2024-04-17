@@ -267,6 +267,7 @@ export class InfraConfigService implements OnModuleInit {
   /**
    * Get InfraConfigs by names
    * @param names Names of the InfraConfigs
+   * @param checkDisallowedKeys If true, check if the names are allowed to fetch by client
    * @returns InfraConfig model
    */
   async getMany(names: InfraConfigEnum[], checkDisallowedKeys: boolean = true) {

@@ -15,12 +15,12 @@ import {
 } from '~/helpers/backend/graphql';
 import {
   ALL_CONFIGS,
-  ServerConfigs,
+  Config,
   GITHUB_CONFIGS,
   GOOGLE_CONFIGS,
-  Config,
   MAIL_CONFIGS,
   MICROSOFT_CONFIGS,
+  ServerConfigs,
   UpdatedConfigs,
 } from '~/helpers/configs';
 import { useToast } from './toast';
@@ -173,16 +173,10 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
       updatedConfigs.providers.microsoft.fields
     );
 
-    const githubFields = Object.fromEntries(
-      Object.entries(updatedConfigs.providers.github.fields ?? {}).filter(
-        ([key]) => GITHUB_CONFIGS.some((x) => x.key === key)
-      )
-    );
-
     pushOrFilterConfigs(
       GITHUB_CONFIGS,
       updatedConfigs.providers.github.enabled,
-      githubFields
+      updatedConfigs.providers.github.fields
     );
 
     pushOrFilterConfigs(

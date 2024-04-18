@@ -338,7 +338,7 @@ export class TeamService implements UserDataHandler, OnModuleInit {
         const user = await this.userService.findUserById(member.userUid);
 
         // // TODO:Investigate if a race condition exists that deletes user from teams.
-        // // Delete the membership if the user doesnt exist
+        // // Delete the membership if the user doesn't exist
         // if (!user) this.leaveTeam(teamID, member.userUid);
 
         if (O.isSome(user)) return member;

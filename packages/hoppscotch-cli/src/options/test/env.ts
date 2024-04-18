@@ -30,14 +30,14 @@ export async function parseEnvsData(path: string) {
     .array(entityReference(Environment))
     .safeParse(contents);
 
-  // CLI doesnt support bulk environments export
+  // CLI doesn't support bulk environments export
   // Hence we check for this case and throw an error if it matches the format
   if (HoppBulkEnvExportObjectResult.success) {
     throw error({ code: "BULK_ENV_FILE", path, data: error });
   }
 
   //  Checks if the environment file is of the correct format
-  // If it doesnt match either of them, we throw an error
+  // If it doesn't match either of them, we throw an error
   if (
     !HoppEnvKeyPairResult.success &&
     HoppEnvExportObjectResult.type === "err"

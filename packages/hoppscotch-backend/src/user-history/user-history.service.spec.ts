@@ -123,7 +123,7 @@ describe('UserHistoryService', () => {
         await userHistoryService.fetchUserHistory('abc', 2, ReqType.GQL),
       ).toEqual(userHistory);
     });
-    test('Should return an empty list of users REST history if doesnt exists', async () => {
+    test('Should return an empty list of users REST history if doesn't exists', async () => {
       mockPrisma.userHistory.findMany.mockResolvedValueOnce([]);
 
       const userHistory: UserHistory[] = [];
@@ -131,7 +131,7 @@ describe('UserHistoryService', () => {
         await userHistoryService.fetchUserHistory('abc', 2, ReqType.REST),
       ).toEqual(userHistory);
     });
-    test('Should return an empty list of users GQL history if doesnt exists', async () => {
+    test('Should return an empty list of users GQL history if doesn't exists', async () => {
       mockPrisma.userHistory.findMany.mockResolvedValueOnce([]);
 
       const userHistory: UserHistory[] = [];

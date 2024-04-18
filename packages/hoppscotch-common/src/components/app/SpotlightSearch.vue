@@ -44,9 +44,7 @@
 </template>
 
 <script lang="ts" setup>
-import { watch } from "vue"
-import { computed } from "vue"
-import { ref } from "vue"
+import { watch, computed, ref } from "vue"
 import { useI18n } from "~/composables/i18n"
 import { useSetting } from "~/composables/settings"
 import { invokeAction } from "~/helpers/actions"

@@ -89,16 +89,14 @@ export class TeamsSpotlightSearcherService
       },
     })
 
-    if (pageCategory === "rest") {
-      minisearch.add({
-        id: `create-collection`,
-        name: this.t("collection.new"),
-      })
-      minisearch.add({
-        id: "import-collection",
-        name: this.t("collection.import"),
-      })
-    }
+    minisearch.add({
+      id: `create-collection`,
+      name: this.t("collection.new"),
+    })
+    minisearch.add({
+      id: "import-collection",
+      name: this.t("collection.import"),
+    })
 
     const newCollectionText: SpotlightResultTextType<any> = {
       type: "text",

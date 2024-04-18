@@ -216,25 +216,14 @@ export class CollectionsSpotlightSearcherService
           return markRaw(IconFolder)
         }
 
-        if (pageCategory === "rest") {
-          const searchResults = minisearch.search(query).slice(0, 10)
+        const searchResults = minisearch.search(query).slice(0, 10)
 
-          results.value = searchResults.map((result) => ({
-            id: result.id,
-            text: getResultText(result.id),
-            icon: getResultIcon(result.id),
-            score: result.score,
-          }))
-        } else if (pageCategory === "graphql") {
-          const searchResults = minisearch.search(query).slice(0, 10)
-
-          results.value = searchResults.map((result) => ({
-            id: result.id,
-            text: getResultText(result.id),
-            icon: getResultIcon(result.id),
-            score: result.score,
-          }))
-        }
+        results.value = searchResults.map((result) => ({
+          id: result.id,
+          text: getResultText(result.id),
+          icon: getResultIcon(result.id),
+          score: result.score,
+        }))
       })
     })
 

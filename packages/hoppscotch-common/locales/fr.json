@@ -237,7 +237,7 @@
     "profile": "Connectez-vous pour voir votre profil",
     "protocols": "Les protocoles sont vides",
     "schema": "Se connecter à un point de terminaison GraphQL",
-    "shared_requests": "Shared requests are empty",
+    "shared_requests": "Il n'y a pas de requêtes partagées",
     "shared_requests_logout": "Login to view your shared requests or create a new one",
     "subscription": "Subscriptions are empty",
     "team_name": "Nom de l'équipe vide",
@@ -251,15 +251,15 @@
     "create_new": "Créer un nouvel environnement",
     "created": "Environnement créé",
     "deleted": "Environnement supprimé",
-    "duplicated": "Environment duplicated",
+    "duplicated": "Environnement dupliqué",
     "edit": "Modifier l'environnement",
     "empty_variables": "No variables",
     "global": "Global",
-    "global_variables": "Global variables",
+    "global_variables": "Variables globales",
     "import_or_create": "Importer ou créer un environnement",
     "invalid_name": "Veuillez fournir un nom valide pour l'environnement",
-    "list": "Environment variables",
-    "my_environments": "My Environments",
+    "list": "Variables d'environnement",
+    "my_environments": "Mes environnements",
     "name": "Name",
     "nested_overflow": "les variables d'environnement imbriquées sont limitées à 10 niveaux",
     "new": "Nouvel environnement",
@@ -375,7 +375,7 @@
   "import": {
     "collections": "Importer des collections",
     "curl": "Importer en cURL",
-    "environments_from_gist": "Import From Gist",
+    "environments_from_gist": "Importer depuis Gist",
     "environments_from_gist_description": "Import Hoppscotch Environments From Gist",
     "failed": "Échec de l'importation",
     "from_file": "Import from File",
@@ -438,13 +438,13 @@
     "row": "Disposition horizontale"
   },
   "modal": {
-    "close_unsaved_tab": "You have unsaved changes",
+    "close_unsaved_tab": "Vous avez des modifications non enregistrées",
     "collections": "Collections",
     "confirm": "Confirmer",
     "customize_request": "Customize Request",
     "edit_request": "Modifier la requête",
     "import_export": "Importer / Exporter",
-    "share_request": "Share Request"
+    "share_request": "Partager une requête"
   },
   "mqtt": {
     "already_subscribed": "Vous êtes déjà abonné à ce sujet.",
@@ -887,7 +887,7 @@
     "queries": "Requêtes",
     "query": "Requête",
     "schema": "Schema",
-    "shared_requests": "Shared Requests",
+    "shared_requests": "Requêtes partagées",
     "socketio": "Socket.IO",
     "sse": "ESS",
     "tests": "Tests",
@@ -952,9 +952,9 @@
     "we_sent_invite_link_description": "Demandez à tous les invités de vérifier leur boîte de réception. Cliquez sur le lien pour rejoindre l'équipe."
   },
   "team_environment": {
-    "deleted": "Environnement Supprimé",
-    "duplicate": "Environnement dupliqué",
-    "not_found": "Environnement non trouvé."
+    "deleted": "Environment supprimé",
+    "duplicate": "Environment dupliqué",
+    "not_found": "Environment non trouvé"
   },
   "test": {
     "failed": "Test échoué",

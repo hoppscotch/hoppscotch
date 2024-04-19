@@ -21,7 +21,12 @@ import {
   validateUrl,
 } from 'src/utils';
 import { ConfigService } from '@nestjs/config';
-import { ServiceStatus, getDefaultInfraConfigs, stopApp } from './helper';
+import {
+  ServiceStatus,
+  getDefaultInfraConfigs,
+  getMissingInfraConfigEntries,
+  stopApp,
+} from './helper';
 import { EnableAndDisableSSOArgs, InfraConfigArgs } from './input-args';
 import { AuthProvider } from 'src/auth/helper';
 
@@ -56,14 +61,7 @@ export class InfraConfigService implements OnModuleInit {
    */
   async initializeInfraConfigTable() {
     try {
-      // Fetch the default values (value in .env) for configs to be saved in 'infra_config' table
-      const infraConfigDefaultObjs = await getDefaultInfraConfigs();
-
-      // Eliminate the rows (from 'infraConfigDefaultObjs') that are already present in the database table
-      const dbInfraConfigs = await this.prisma.infraConfig.findMany();
-      const propsToInsert = infraConfigDefaultObjs.filter(
-        (p) => !dbInfraConfigs.find((e) => e.name === p.name),
-      );
+      const propsToInsert = await getMissingInfraConfigEntries();
 
       if (propsToInsert.length > 0) {
         await this.prisma.infraConfig.createMany({ data: propsToInsert });
@@ -285,6 +283,7 @@ export class InfraConfigService implements OnModuleInit {
   /**
    * Get InfraConfigs by names
    * @param names Names of the InfraConfigs
+   * @param checkDisallowedKeys If true, check if the names are allowed to fetch by client
    * @returns InfraConfig model
    */
   async getMany(names: InfraConfigEnum[], checkDisallowedKeys: boolean = true) {

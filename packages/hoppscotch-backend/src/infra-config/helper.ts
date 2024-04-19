@@ -13,7 +13,7 @@ export enum ServiceStatus {
   DISABLE = 'DISABLE',
 }
 
-export const AuthProviderConfigurations = {
+const AuthProviderConfigurations = {
   [AuthProvider.GOOGLE]: [
     InfraConfigEnum.GOOGLE_CLIENT_ID,
     InfraConfigEnum.GOOGLE_CLIENT_SECRET,

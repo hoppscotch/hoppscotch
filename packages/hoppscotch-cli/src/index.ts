@@ -1,6 +1,7 @@
 import chalk from "chalk";
 import { Command } from "commander";
 import * as E from "fp-ts/Either";
+
 import { version } from "../package.json";
 import { test } from "./commands/test";
 import { handleError } from "./handlers/error";
@@ -20,7 +21,7 @@ const CLI_AFTER_ALL_TXT = `\nFor more help, head on to ${accent(
   "https://docs.hoppscotch.io/documentation/clients/cli"
 )}`;
 
-const program = new Command()
+const program = new Command();
 
 program
   .name("hopp")

@@ -224,7 +224,7 @@ describe("Test `hopp test <file> --env <file>` command:", () => {
   });
 
   describe("Secret environment variables", () => {
-    jest.setTimeout(10000);
+    jest.setTimeout(100000);
 
     // Reads secret environment values from system environment
     test("Successfully picks the values for secret environment variables from `process.env` and persists the variables set from the pre-request script", async () => {

@@ -1,6 +1,6 @@
-import "@relmify/jest-fp-ts"
+import { describe, expect, test } from "vitest"
 
-import { runPreRequestScript } from "~/pre-request/node-vm"
+import { runPreRequestScript } from "~/node"
 
 describe("runPreRequestScript", () => {
   test("returns the updated environment properly", () => {

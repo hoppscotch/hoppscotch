@@ -1,8 +1,9 @@
-import "@relmify/jest-fp-ts"
 import * as TE from "fp-ts/TaskEither"
 import { pipe } from "fp-ts/function"
 
-import { runTestScript } from "~/test-runner/node-vm"
+import { describe, expect, test } from "vitest"
+
+import { runTestScript } from "~/node"
 import { TestResponse } from "~/types"
 
 const fakeResponse: TestResponse = {
@@ -23,7 +24,7 @@ describe("toBe", () => {
       return expect(
         func(
           `
-              pw.expect(2).toBe(2)
+            pw.expect(2).toBe(2)
           `,
           fakeResponse
         )()

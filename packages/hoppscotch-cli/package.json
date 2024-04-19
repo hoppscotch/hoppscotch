@@ -1,6 +1,6 @@
 {
   "name": "@hoppscotch/cli",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "A CLI to run Hoppscotch test scripts in CI environments.",
   "homepage": "https://hoppscotch.io",
   "type": "module",
@@ -44,6 +44,7 @@
     "axios": "1.6.7",
     "chalk": "5.3.0",
     "commander": "11.1.0",
+    "isolated-vm": "4.7.2",
     "lodash-es": "4.17.21",
     "qs": "6.11.2",
     "verzod": "0.2.2",

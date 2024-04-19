@@ -7,15 +7,19 @@ export default defineConfig({
     emptyOutDir: true,
     lib: {
       entry: {
-        web: "./src/web.ts",
-        node: "./src/node.ts",
+        web: "./src/web/index.ts",
+        node: "./src/node/index.ts",
       },
       name: "js-sandbox",
       formats: ["es", "cjs"],
     },
     rollupOptions: {
-      external: ["vm"],
+      external: ["module"],
     },
+  },
+  test: {
+    environment: "node",
+    setupFiles: ["./setupFiles.ts"],
   },
   resolve: {
     alias: {

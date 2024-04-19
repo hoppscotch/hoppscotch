@@ -182,6 +182,36 @@ const getSharedMethods = (envs: TestResult["envs"]) => {
   }
 }
 
+const getResolvedExpectValue = (expectVal: any) => {
+  if (typeof expectVal !== "string") {
+    return expectVal
+  }
+
+  try {
+    const parsedExpectVal = JSON.parse(expectVal)
+
+    // Supplying non-primitive values is not permitted in the `isStringifiedWithinIsolate` property indicates that the object was stringified before executing the script from the isolate context
+    // This is done to ensure a JSON string supplied as the "expectVal" is not parsed and preserved as is
+    if (typeof parsedExpectVal === "object") {
+      if (parsedExpectVal.isStringifiedWithinIsolate !== true) {
+        return expectVal
+      }
+
+      // For an array, the contents are stored in the `arr` property
+      if (Array.isArray(parsedExpectVal.arr)) {
+        return parsedExpectVal.arr
+      }
+
+      delete parsedExpectVal.isStringifiedWithinIsolate
+      return parsedExpectVal
+    }
+
+    return expectVal
+  } catch (_) {
+    return expectVal
+  }
+}
+
 export function preventCyclicObjects(
   obj: Record<string, any>
 ): E.Left<string> | E.Right<Record<string, any>> {
@@ -215,15 +245,18 @@ export const createExpectation = (
 ) => {
   const result: Record<string, unknown> = {}
 
+  // Non-primitive values supplied are stringified in the isolate context
+  const resolvedExpectVal = getResolvedExpectValue(expectVal)
+
   const toBeFn = (expectedVal: any) => {
-    let assertion = expectVal === expectedVal
+    let assertion = resolvedExpectVal === expectedVal
 
     if (negated) {
       assertion = !assertion
     }
 
     const status = assertion ? "pass" : "fail"
-    const message = `Expected '${expectVal}' to${
+    const message = `Expected '${resolvedExpectVal}' to${
       negated ? " not" : ""
     } be '${expectedVal}'`
 
@@ -240,7 +273,7 @@ export const createExpectation = (
     rangeStart: number,
     rangeEnd: number
   ) => {
-    const parsedExpectVal = parseInt(expectVal)
+    const parsedExpectVal = parseInt(resolvedExpectVal)
 
     if (!Number.isNaN(parsedExpectVal)) {
       let assertion =
@@ -260,7 +293,7 @@ export const createExpectation = (
         message,
       })
     } else {
-      const message = `Expected ${level}-level status but could not parse value '${expectVal}'`
+      const message = `Expected ${level}-level status but could not parse value '${resolvedExpectVal}'`
       currTestStack[currTestStack.length - 1].expectResults.push({
         status: "error",
         message,
@@ -288,14 +321,14 @@ export const createExpectation = (
         "function",
       ].includes(expectedType)
     ) {
-      let assertion = typeof expectVal === expectedType
+      let assertion = typeof resolvedExpectVal === expectedType
 
       if (negated) {
         assertion = !assertion
       }
 
       const status = assertion ? "pass" : "fail"
-      const message = `Expected '${expectVal}' to${
+      const message = `Expected '${resolvedExpectVal}' to${
         negated ? " not" : ""
       } be type '${expectedType}'`
 
@@ -316,7 +349,12 @@ export const createExpectation = (
   }
 
   const toHaveLengthFn = (expectedLength: any) => {
-    if (!(Array.isArray(expectVal) || typeof expectVal === "string")) {
+    if (
+      !(
+        Array.isArray(resolvedExpectVal) ||
+        typeof resolvedExpectVal === "string"
+      )
+    ) {
       const message =
         "Expected toHaveLength to be called for an array or string"
       currTestStack[currTestStack.length - 1].expectResults.push({
@@ -328,7 +366,7 @@ export const createExpectation = (
     }
 
     if (typeof expectedLength === "number" && !Number.isNaN(expectedLength)) {
-      let assertion = expectVal.length === expectedLength
+      let assertion = resolvedExpectVal.length === expectedLength
 
       if (negated) {
         assertion = !assertion
@@ -355,7 +393,12 @@ export const createExpectation = (
   }
 
   const toIncludeFn = (needle: any) => {
-    if (!(Array.isArray(expectVal) || typeof expectVal === "string")) {
+    if (
+      !(
+        Array.isArray(resolvedExpectVal) ||
+        typeof resolvedExpectVal === "string"
+      )
+    ) {
       const message = "Expected toInclude to be called for an array or string"
       currTestStack[currTestStack.length - 1].expectResults.push({
         status: "error",
@@ -382,13 +425,13 @@ export const createExpectation = (
       return undefined
     }
 
-    let assertion = expectVal.includes(needle)
+    let assertion = resolvedExpectVal.includes(needle)
 
     if (negated) {
       assertion = !assertion
     }
 
-    const expectValPretty = JSON.stringify(expectVal)
+    const expectValPretty = JSON.stringify(resolvedExpectVal)
     const needlePretty = JSON.stringify(needle)
     const status = assertion ? "pass" : "fail"
     const message = `Expected ${expectValPretty} to${

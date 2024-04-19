@@ -3,15 +3,16 @@ import { resolve } from "path";
 
 import { ExecResponse } from "./types";
 
-export const runCLI = (args: string, options = {}): Promise<ExecResponse> =>
-  {
-    const CLI_PATH = resolve(__dirname, "../../bin/hopp");
-    const command = `node ${CLI_PATH} ${args}`
+export const runCLI = (args: string, options = {}): Promise<ExecResponse> => {
+  const CLI_PATH = resolve(__dirname, "../../bin/hopp.js");
+  const command = `node ${CLI_PATH} ${args}`;
 
-    return new Promise((resolve) =>
-      exec(command, options, (error, stdout, stderr) => resolve({ error, stdout, stderr }))
-    );
-  }
+  return new Promise((resolve) =>
+    exec(command, options, (error, stdout, stderr) =>
+      resolve({ error, stdout, stderr })
+    )
+  );
+};
 
 export const trimAnsi = (target: string) => {
   const ansiRegex =
@@ -25,12 +26,18 @@ export const getErrorCode = (out: string) => {
   return ansiTrimmedStr.split(" ")[0];
 };
 
-export const getTestJsonFilePath = (file: string, kind: "collection" | "environment") => {
+export const getTestJsonFilePath = (
+  file: string,
+  kind: "collection" | "environment"
+) => {
   const kindDir = {
     collection: "collections",
     environment: "environments",
   }[kind];
 
-  const filePath = resolve(__dirname, `../../src/__tests__/samples/${kindDir}/${file}`);
+  const filePath = resolve(
+    __dirname,
+    `../../src/__tests__/samples/${kindDir}/${file}`
+  );
   return filePath;
 };

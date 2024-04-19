@@ -1,2 +1,2 @@
-export { default } from "./dist/web.d.ts"
-export * from "./dist/web.d.ts"
+export { default } from "./dist/web/index.d.ts"
+export * from "./dist/web/index.d.ts"

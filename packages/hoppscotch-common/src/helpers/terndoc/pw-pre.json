@@ -7,6 +7,9 @@
       "get": "fn(key: string) -> string",
       "getResolve": "fn(key: string) -> string",
       "resolve": "fn(value: string) -> string"
+    },
+    "variables": {
+      "replaceIn": "fn(value: string) -> string"
     }
   }
 }

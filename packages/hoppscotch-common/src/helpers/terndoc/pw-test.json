@@ -27,6 +27,9 @@
       "getResolve": "fn(key: string) -> string",
       "resolve": "fn(value: string) -> string"
     },
-    "test": "fn(name: string, func: fn())"
+    "test": "fn(name: string, func: fn())",
+    "variables": {
+      "replaceIn": "fn(value: string) -> string"
+    }
   }
 }

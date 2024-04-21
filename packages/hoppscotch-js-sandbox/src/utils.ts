@@ -82,6 +82,19 @@ const unsetEnv = (
   }
 }
 
+const getUUIDV4 = () => {
+  if (!window.crypto) {
+    throw new Error("Function $guid and $randomUUID is not supported in this version")
+  }
+
+  return "10000000-1000-4000-8000-100000000000".replace(/[018]/g, (c) =>
+    (
+      +c ^
+      (window.crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (+c / 4)))
+    ).toString(16)
+  )
+}
+
 // Compiles shared scripting API methods for use in both pre and post request scripts
 const getSharedMethods = (envs: TestResult["envs"]) => {
   let updatedEnvs = envs
@@ -133,6 +146,10 @@ const getSharedMethods = (envs: TestResult["envs"]) => {
       throw new Error("Expected key to be a string")
     }
 
+    if (typeof value === "number") {
+      value = value + ""
+    }
+
     if (typeof value !== "string") {
       throw new Error("Expected value to be a string")
     }
@@ -168,6 +185,23 @@ const getSharedMethods = (envs: TestResult["envs"]) => {
     return String(result)
   }
 
+  const variablesReplaceInFn = (value: any) => {
+    if (typeof value !== "string") {
+      throw new Error("Expected value to be a string")
+    }
+
+    value = value.replace(/^{{\s*/g, "").replace(/\s*}}/g, "")
+
+    const variables = {
+      $guid: () => getUUIDV4(),
+      $timestamp: () => Math.floor(Date.now() / 1000),
+      $isoTimestamp: () => new Date().toISOString(),
+      $randomUUID: () => getUUIDV4(),
+    }
+
+    return (variables as any)[value]()
+  }
+
   return {
     methods: {
       env: {
@@ -176,6 +210,9 @@ const getSharedMethods = (envs: TestResult["envs"]) => {
         set: envSetFn,
         unset: envUnsetFn,
         resolve: envResolveFn,
+      },
+      variables: {
+        replaceIn: variablesReplaceInFn,
       },
     },
     updatedEnvs,

@@ -90,4 +90,44 @@ describe("runPreRequestScript", () => {
       selected: [{ key: "foo", value: "bar", secret: false }],
     })
   })
+
+  test("creates new env variable with pw.variables.replaceIn({{$timestamp}})", () => {
+    const replaceInTimestamp = runPreRequestScript(
+      `
+        pw.env.set("foo", pw.variables.replaceIn("{{$timestamp}}"))
+        `,
+      { global: [], selected: [] }
+    )()
+
+    expect(replaceInTimestamp).resolves.toHaveProperty(
+      "right.selected[0].key",
+      "foo"
+    )
+    expect(replaceInTimestamp).resolves.toHaveProperty(
+      "right.selected[0].secret",
+      false
+    )
+    expect(replaceInTimestamp).resolves.toHaveProperty(
+      "right.selected[0].value",
+      Math.floor(Date.now() / 1000) + ""
+    )
+  })
+
+  test("creates new env variable with pw.variables.replaceIn({{$isoTimestamp}})", () => {
+    const replaceInTimestamp = runPreRequestScript(
+      `
+        pw.env.set("foo", pw.variables.replaceIn("{{$isoTimestamp}}"))
+        `,
+      { global: [], selected: [] }
+    )()
+
+    expect(replaceInTimestamp).resolves.toHaveProperty(
+      "right.selected[0].key",
+      "foo"
+    )
+    expect(replaceInTimestamp).resolves.toHaveProperty(
+      "right.selected[0].secret",
+      false
+    )
+  })
 })

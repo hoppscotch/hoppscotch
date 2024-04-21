@@ -146,10 +146,6 @@ const getSharedMethods = (envs: TestResult["envs"]) => {
       throw new Error("Expected key to be a string")
     }
 
-    if (typeof value === "number") {
-      value = value + ""
-    }
-
     if (typeof value !== "string") {
       throw new Error("Expected value to be a string")
     }

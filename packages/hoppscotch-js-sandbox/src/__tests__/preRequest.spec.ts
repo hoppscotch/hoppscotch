@@ -94,7 +94,7 @@ describe("runPreRequestScript", () => {
   test("creates new env variable with pw.variables.replaceIn({{$timestamp}})", () => {
     const replaceInTimestamp = runPreRequestScript(
       `
-        pw.env.set("foo", pw.variables.replaceIn("{{$timestamp}}"))
+        pw.env.set("foo", pw.variables.replaceIn("{{$timestamp}}") + "")
         `,
       { global: [], selected: [] }
     )()
@@ -120,7 +120,7 @@ describe("runPreRequestScript", () => {
         `,
       { global: [], selected: [] }
     )()
-
+    expect(replaceInTimestamp).resolves.toBeRight()
     expect(replaceInTimestamp).resolves.toHaveProperty(
       "right.selected[0].key",
       "foo"

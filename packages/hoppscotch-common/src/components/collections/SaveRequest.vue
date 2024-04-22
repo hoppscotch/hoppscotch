@@ -277,6 +277,7 @@ const saveRequestAs = async () => {
         workspaceID,
         providerID,
         requestID,
+        requestHandle,
       },
     }
 

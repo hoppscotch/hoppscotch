@@ -3,6 +3,8 @@ import { HoppRESTResponse } from "../types/HoppRESTResponse"
 import { HoppTestResult } from "../types/HoppTestResult"
 import { RESTOptionTabs } from "~/components/http/RequestOptions.vue"
 import { HoppInheritedProperty } from "../types/HoppInheritedProperties"
+import { HandleRef } from "~/services/new-workspace/handle"
+import { WorkspaceRequest } from "~/services/new-workspace/workspace"
 
 export type HoppRESTSaveContext =
   | {
@@ -25,6 +27,11 @@ export type HoppRESTSaveContext =
        * Path to the request in the collection tree
        */
       requestID: string
+
+      /**
+       * Handle to the request open in the tab
+       */
+      requestHandle?: HandleRef<WorkspaceRequest>
     }
   | {
       /**

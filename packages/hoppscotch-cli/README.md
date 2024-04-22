@@ -52,11 +52,34 @@ hopp [options or commands] arguments
 		Taking the above example, `pw.env.get("ENV1")` will return `"value1"`
 
 ## Install
+- Before you install Hoppscotch CLI you need to make sure you have the dependencies it requires to run.
+  - **Windows & macOS**: You will need `node-gyp` installed. Find instructions here: https://github.com/nodejs/node-gyp
+  - **Debian/Ubuntu derivatives**:
+    ```sh
+    sudo apt-get install python g++ build-essential
+    ```
+  - **Alpine Linux**:
+    ```sh
+    sudo apk add python3 make g++
+    ```
+  - **Amazon Linux (AMI)**
+    ```sh
+    sudo yum install gcc72 gcc72-c++
+    ```
+  - **Arch Linux**
+    ```sh
+    sudo pacman -S make gcc python
+    ```
+  - **RHEL/Fedora derivatives**:
+    ```sh
+    sudo dnf install python3 make gcc gcc-c++ zlib-devel brotli-devel openssl-devel libuv-devel
+    ```
 
-Install [@hoppscotch/cli](https://www.npmjs.com/package/@hoppscotch/cli) from npm by running:
-```
-npm i -g @hoppscotch/cli
-```
+
+- Once the dependencies are installed, install [@hoppscotch/cli](https://www.npmjs.com/package/@hoppscotch/cli) from npm by running:
+  ```
+  npm i -g @hoppscotch/cli
+  ```
 
 ## **Developing:**
 

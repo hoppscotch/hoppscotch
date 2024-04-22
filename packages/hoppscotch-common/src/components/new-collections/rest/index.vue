@@ -517,7 +517,7 @@ import { platform } from "~/platform"
 import { NewWorkspaceService } from "~/services/new-workspace"
 import { HandleRef } from "~/services/new-workspace/handle"
 import { RESTCollectionViewRequest } from "~/services/new-workspace/view"
-import { Workspace } from "~/services/new-workspace/workspace"
+import { Workspace, WorkspaceRequest } from "~/services/new-workspace/workspace"
 import { RESTTabService } from "~/services/tab/rest"
 import IconImport from "~icons/lucide/folder-down"
 import IconHelpCircle from "~icons/lucide/help-circle"
@@ -778,9 +778,15 @@ const onRemoveRootCollection = async () => {
     if (
       tab.document.saveContext?.originLocation === "workspace-user-collection"
     ) {
-      const { requestID } = tab.document.saveContext
+      const requestHandle = tab.document.saveContext?.requestHandle as
+        | HandleRef<WorkspaceRequest>["value"]
+        | undefined
 
-      if (requestID.startsWith(collectionIndexPath)) {
+      if (requestHandle?.type === "invalid") {
+        continue
+      }
+
+      if (requestHandle!.data.requestID.startsWith(collectionIndexPath)) {
         tab.document.saveContext = null
         tab.document.isDirty = true
       }
@@ -867,6 +873,7 @@ const onAddRequest = async (requestName: string) => {
       workspaceID,
       providerID,
       requestID,
+      requestHandle,
     },
     inheritedProperties: {
       auth,
@@ -1055,15 +1062,22 @@ const onRemoveChildCollection = async () => {
     return
   }
 
+  // TODO: Tab holding a request under the collection should be aware of the parent collection invalidation and toggle the dirty state
   const activeTabs = tabs.getActiveTabs()
 
   for (const tab of activeTabs.value) {
     if (
       tab.document.saveContext?.originLocation === "workspace-user-collection"
     ) {
-      const { requestID } = tab.document.saveContext
+      const requestHandle = tab.document.saveContext?.requestHandle as
+        | HandleRef<WorkspaceRequest>["value"]
+        | undefined
 
-      if (requestID.startsWith(parentCollectionIndexPath)) {
+      if (requestHandle?.type === "invalid") {
+        continue
+      }
+
+      if (requestHandle!.data.requestID.startsWith(parentCollectionIndexPath)) {
         tab.document.saveContext = null
         tab.document.isDirty = true
       }
@@ -1209,9 +1223,7 @@ const selectRequest = async (requestIndexPath: string) => {
   // If there is a request with this save context, switch into it
   const possibleTab = tabs.getTabRefWithSaveContext({
     originLocation: "workspace-user-collection",
-    workspaceID,
-    providerID,
-    requestID,
+    requestHandle,
   })
 
   if (possibleTab) {
@@ -1226,6 +1238,7 @@ const selectRequest = async (requestIndexPath: string) => {
         workspaceID,
         providerID,
         requestID,
+        requestHandle,
       },
       inheritedProperties: {
         auth,
@@ -2177,9 +2190,18 @@ const isActiveRequest = (requestView: RESTCollectionViewRequest) => {
     return false
   }
 
-  const { requestID } = tabs.currentActiveTab.value.document.saveContext
+  // TODO: Investigate why requestHandle is available unwrapped here
+  const requestHandle = tabs.currentActiveTab.value.document.saveContext
+    .requestHandle as HandleRef<WorkspaceRequest>["value"] | undefined
+  if (!requestHandle) {
+    return false
+  }
 
-  return requestID === requestView.requestID
+  if (requestHandle.type === "invalid") {
+    return false
+  }
+
+  return requestHandle.data.requestID === requestView.requestID
 }
 
 const onSelectPick = (payload: Picked | null) => {

@@ -560,6 +560,11 @@ const saveRequest = async () => {
 
     tab.value.document.isDirty = false
 
+    tab.value.document.saveContext = {
+      ...saveCtx,
+      requestHandle,
+    }
+
     toast.success(`${t("request.saved")}`)
   } else if (saveCtx.originLocation === "team-collection") {
     const req = tab.value.document.request

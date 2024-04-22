@@ -3,6 +3,8 @@ import { computed } from "vue"
 import { getDefaultRESTRequest } from "~/helpers/rest/default"
 import { HoppRESTDocument, HoppRESTSaveContext } from "~/helpers/rest/document"
 import { TabService } from "./tab"
+import { HandleRef } from "../new-workspace/handle"
+import { WorkspaceRequest } from "../new-workspace/workspace"
 
 export class RESTTabService extends TabService<HoppRESTDocument> {
   public static readonly ID = "REST_TAB_SERVICE"
@@ -55,7 +57,16 @@ export class RESTTabService extends TabService<HoppRESTDocument> {
         ctx?.originLocation === "workspace-user-collection" &&
         tab.document.saveContext?.originLocation === "workspace-user-collection"
       ) {
-        if (isEqual(ctx, tab.document.saveContext)) {
+        if (
+          isEqual(
+            ctx.requestHandle?.value,
+
+            // TODO: Investigate why requestHandle gets unwrapped
+            tab.document.saveContext.requestHandle as
+              | HandleRef<WorkspaceRequest>["value"]
+              | undefined
+          )
+        ) {
           return this.getTabRef(tab.id)
         }
       }

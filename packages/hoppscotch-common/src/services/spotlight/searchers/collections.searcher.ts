@@ -15,6 +15,7 @@ import {
   restCollectionStore,
 } from "~/newstore/collections"
 import IconFolder from "~icons/lucide/folder"
+import IconImport from "~icons/lucide/folder-down"
 import RESTRequestSpotlightEntry from "~/components/app/spotlight/entry/RESTRequest.vue"
 import GQLRequestSpotlightEntry from "~/components/app/spotlight/entry/GQLRequest.vue"
 import {
@@ -151,6 +152,10 @@ export class CollectionsSpotlightSearcherService
         id: `create-collection`,
         name: this.t("collection.new"),
       })
+      minisearch.add({
+        id: "import-collection",
+        name: this.t("collection.import"),
+      })
     }
 
     if (pageCategory === "rest") {
@@ -168,6 +173,11 @@ export class CollectionsSpotlightSearcherService
       text: this.t("collection.new"),
     }
 
+    const importCollectionText: SpotlightResultTextType<any> = {
+      type: "text",
+      text: this.t("collection.import_collection"),
+    }
+
     scopeHandle.run(() => {
       const isPersonalWorkspace = computed(
         () => this.workspaceService.currentWorkspace.value.type === "personal"
@@ -183,44 +193,37 @@ export class CollectionsSpotlightSearcherService
           results.value = []
           return
         }
-
-        if (pageCategory === "rest") {
-          const searchResults = minisearch.search(query).slice(0, 10)
-
-          results.value = searchResults.map((result) => ({
-            id: result.id,
-            text:
-              result.id === "create-collection"
-                ? newCollectionText
-                : {
-                    type: "custom",
-                    component: markRaw(RESTRequestSpotlightEntry),
-                    componentProps: {
-                      folderPath: result.id.split("rest-")[1],
-                    },
-                  },
-            icon: markRaw(IconFolder),
-            score: result.score,
-          }))
-        } else if (pageCategory === "graphql") {
-          const searchResults = minisearch.search(query).slice(0, 10)
-
-          results.value = searchResults.map((result) => ({
-            id: result.id,
-            text:
-              result.id === "create-collection"
-                ? newCollectionText
-                : {
-                    type: "custom",
-                    component: markRaw(GQLRequestSpotlightEntry),
-                    componentProps: {
-                      folderPath: result.id.split("gql-")[1],
-                    },
-                  },
-            icon: markRaw(IconFolder),
-            score: result.score,
-          }))
+        const getResultText = (id: string): SpotlightResultTextType<any> => {
+          if (id === "create-collection") return newCollectionText
+          else if (id === "import-collection") return importCollectionText
+          return {
+            type: "custom",
+            component: markRaw(
+              pageCategory === "rest"
+                ? RESTRequestSpotlightEntry
+                : GQLRequestSpotlightEntry
+            ),
+            componentProps: {
+              folderPath: id.split(
+                pageCategory === "rest" ? "rest-" : "gql-"
+              )[1],
+            },
+          }
         }
+
+        const getResultIcon = (id: string) => {
+          if (id === "import-collection") return markRaw(IconImport)
+          return markRaw(IconFolder)
+        }
+
+        const searchResults = minisearch.search(query).slice(0, 10)
+
+        results.value = searchResults.map((result) => ({
+          id: result.id,
+          text: getResultText(result.id),
+          icon: getResultIcon(result.id),
+          score: result.score,
+        }))
       })
     })
 
@@ -287,6 +290,9 @@ export class CollectionsSpotlightSearcherService
 
   public onResultSelect(result: SpotlightSearcherResult): void {
     if (result.id === "create-collection") return invokeAction("collection.new")
+
+    if (result.id === "import-collection")
+      return invokeAction(`modals.collection.import`)
 
     const [type, path] = result.id.split("-")
 

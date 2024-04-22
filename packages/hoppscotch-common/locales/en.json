@@ -175,6 +175,7 @@
     "different_parent": "Cannot reorder collection with different parent",
     "edit": "Edit Collection",
     "import_or_create": "Import or create a collection",
+    "import_collection":"Import Collection",
     "invalid_name": "Please provide a name for the collection",
     "invalid_root_move": "Collection already in the root",
     "moved": "Moved Successfully",
@@ -849,6 +850,13 @@
       "new": "Create new workspace",
       "switch_to_personal": "Switch to your personal workspace",
       "title": "Workspaces"
+    },
+    "phrases":{
+      "try": "Try",
+      "import_collections": "Import collections",
+      "create_environment": "Create environment",
+      "create_workspace": "Create workspace",
+      "share_request": "Share request"
     }
   },
   "sse": {

@@ -21,19 +21,7 @@
         </div>
       </div>
       <div class="col-span-1 flex items-center justify-between space-x-2">
-        <button
-          class="flex h-full flex-1 cursor-text items-center justify-between self-stretch rounded border border-dividerDark bg-primaryDark px-2 text-secondaryLight transition hover:border-dividerDark hover:bg-primaryLight hover:text-secondary focus-visible:border-dividerDark focus-visible:bg-primaryLight focus-visible:text-secondary"
-          @click="invokeAction('modals.search.toggle', undefined, 'mouseclick')"
-        >
-          <span class="inline-flex flex-1 items-center">
-            <icon-lucide-search class="svg-icons mr-2" />
-            {{ t("app.search") }}
-          </span>
-          <span class="flex space-x-1">
-            <kbd class="shortcut-key">{{ getPlatformSpecialKey() }}</kbd>
-            <kbd class="shortcut-key">K</kbd>
-          </span>
-        </button>
+        <AppSpotlightSearch />
       </div>
       <div class="col-span-2 flex items-center justify-between space-x-2">
         <div class="flex">
@@ -251,7 +239,6 @@ import { breakpointsTailwind, useBreakpoints, useNetwork } from "@vueuse/core"
 import { computed, reactive, ref, watch } from "vue"
 import { useToast } from "~/composables/toast"
 import { GetMyTeamsQuery, TeamMemberRole } from "~/helpers/backend/graphql"
-import { getPlatformSpecialKey } from "~/helpers/platformutils"
 import { platform } from "~/platform"
 import IconDownload from "~icons/lucide/download"
 import IconLifeBuoy from "~icons/lucide/life-buoy"

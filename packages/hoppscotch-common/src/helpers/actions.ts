@@ -36,6 +36,7 @@ export type HoppAction =
   | "collection.new" // Create root collection
   | "flyouts.chat.open" // Shows the keybinds flyout
   | "flyouts.keybinds.toggle" // Shows the keybinds flyout
+  | "modals.collection.import" // Shows the collection import modal
   | "modals.search.toggle" // Shows the search modal
   | "modals.support.toggle" // Shows the support modal
   | "modals.share.toggle" // Shows the share modal

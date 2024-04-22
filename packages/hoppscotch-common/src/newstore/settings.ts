@@ -65,6 +65,8 @@ export type SettingsDef = {
   SIDEBAR: boolean
   SIDEBAR_ON_LEFT: boolean
   COLUMN_LAYOUT: boolean
+
+  HAS_OPENED_SPOTLIGHT: boolean
 }
 
 export const getDefaultSettings = (): SettingsDef => ({
@@ -109,6 +111,8 @@ export const getDefaultSettings = (): SettingsDef => ({
   SIDEBAR: true,
   SIDEBAR_ON_LEFT: false,
   COLUMN_LAYOUT: true,
+
+  HAS_OPENED_SPOTLIGHT: false,
 })
 
 type ApplySettingPayload = {

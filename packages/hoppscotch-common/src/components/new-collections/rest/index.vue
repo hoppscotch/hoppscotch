@@ -1118,15 +1118,6 @@ const onRemoveRequest = async () => {
     return
   }
 
-  const { providerID, requestID, workspaceID } = requestHandle.value.data
-
-  const possibleTab = tabs.getTabRefWithSaveContext({
-    originLocation: "workspace-user-collection",
-    workspaceID,
-    providerID,
-    requestID,
-  })
-
   if (
     isSelected({
       requestIndex: parseInt(requestIndexPath.split("/").pop() ?? ""),
@@ -1141,12 +1132,6 @@ const onRemoveRequest = async () => {
   if (E.isLeft(result)) {
     // INVALID_WORKSPACE_HANDLE
     return
-  }
-
-  // If there is a tab attached to this request, dissociate its state and mark it dirty
-  if (possibleTab) {
-    possibleTab.value.document.saveContext = null
-    possibleTab.value.document.isDirty = true
   }
 
   toast.success(t("state.deleted"))

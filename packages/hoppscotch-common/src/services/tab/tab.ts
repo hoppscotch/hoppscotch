@@ -18,6 +18,7 @@ import {
   TabService as TabServiceInterface,
 } from "."
 
+import { HoppGQLDocument } from "~/helpers/graphql/document"
 import { NewWorkspaceService } from "../new-workspace"
 import { HandleRef } from "../new-workspace/handle"
 import { WorkspaceRequest } from "../new-workspace/workspace"
@@ -44,9 +45,12 @@ export abstract class TabService<Doc>
     },
   })
 
-  public currentActiveTab = computed(
-    () => this.tabMap.get(this.currentTabID.value)!
-  ) // Guaranteed to not be undefined
+  public currentActiveTab = computed(() => {
+    const tab = this.tabMap.get(this.currentTabID.value)!
+    return this.getResolvedTabData(
+      tab as HoppTab<HoppRESTDocument | HoppGQLDocument>
+    )
+  }) // Guaranteed to not be undefined
 
   protected watchCurrentTabID() {
     watch(
@@ -83,7 +87,15 @@ export abstract class TabService<Doc>
   }
 
   public getActiveTab(): HoppTab<Doc> | null {
-    return this.tabMap.get(this.currentTabID.value) ?? null
+    const tab = this.tabMap.get(this.currentTabID.value)
+
+    if (!tab) {
+      return null
+    }
+
+    return this.getResolvedTabData(
+      tab as HoppTab<HoppRESTDocument | HoppGQLDocument>
+    )
   }
 
   public setActiveTab(tabID: string): void {
@@ -159,18 +171,28 @@ export abstract class TabService<Doc>
   }
   public getActiveTabs(): Readonly<ComputedRef<HoppTab<Doc>[]>> {
     return shallowReadonly(
-      computed(() => this.tabOrdering.value.map((x) => this.tabMap.get(x)!))
+      computed(() =>
+        this.tabOrdering.value.map((x) => {
+          const tab = this.tabMap.get(x) as HoppTab<
+            HoppRESTDocument | HoppGQLDocument
+          >
+
+          return this.getResolvedTabData(tab)
+        })
+      )
     )
   }
 
   public getTabRef(tabID: string) {
     return computed({
       get: () => {
-        const result = this.tabMap.get(tabID)
+        const result = this.tabMap.get(tabID) as HoppTab<
+          HoppRESTDocument | HoppGQLDocument
+        >
 
         if (result === undefined) throw new Error(`Invalid tab id: ${tabID}`)
 
-        return result
+        return this.getResolvedTabData(result)
       },
       set: (value) => {
         return this.tabMap.set(tabID, value)
@@ -237,20 +259,23 @@ export abstract class TabService<Doc>
     this.currentTabID.value = tabID
   }
 
-  private getPersistedDocument(tabDoc: Doc): Doc {
+  public getPersistedDocument(tabDoc: Doc): Doc {
     const { saveContext } = tabDoc as HoppRESTDocument
 
     if (saveContext?.originLocation !== "workspace-user-collection") {
       return tabDoc
     }
 
-    const { requestHandle } = saveContext
+    // TODO: Investigate why requestHandle is available unwrapped here
+    const requestHandle = saveContext.requestHandle as
+      | HandleRef<WorkspaceRequest>["value"]
+      | undefined
 
     if (!requestHandle) {
       return tabDoc
     }
 
-    if (requestHandle.value.type === "invalid") {
+    if (requestHandle.type === "invalid") {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { requestHandle, ...rest } = saveContext
 
@@ -261,7 +286,7 @@ export abstract class TabService<Doc>
       }
     }
 
-    const { providerID, workspaceID, requestID } = requestHandle.value.data
+    const { providerID, workspaceID, requestID } = requestHandle.data
 
     // Return the document without the handle
     return {
@@ -279,9 +304,13 @@ export abstract class TabService<Doc>
     lastActiveTabID: this.currentTabID.value,
     orderedDocs: this.tabOrdering.value.map((tabID) => {
       const tab = this.tabMap.get(tabID)! // tab ordering is guaranteed to have value for this key
+      const resolvedTabData = this.getResolvedTabData(
+        tab as HoppTab<HoppRESTDocument | HoppGQLDocument>
+      )
+
       return {
         tabID: tab.id,
-        doc: this.getPersistedDocument(tab.document),
+        doc: this.getPersistedDocument(resolvedTabData.document),
       }
     }),
   }))
@@ -298,5 +327,33 @@ export abstract class TabService<Doc>
 
       if (!this.tabMap.has(id)) return id
     }
+  }
+
+  protected getResolvedTabData(
+    tab: HoppTab<HoppRESTDocument | HoppGQLDocument>
+  ): HoppTab<Doc> {
+    if (
+      tab.document.isDirty ||
+      !tab.document.saveContext ||
+      tab.document.saveContext.originLocation !== "workspace-user-collection"
+    ) {
+      return tab as HoppTab<Doc>
+    }
+
+    const requestHandle = tab.document.saveContext.requestHandle as
+      | HandleRef<WorkspaceRequest>["value"]
+      | undefined
+
+    if (!requestHandle) {
+      return tab as HoppTab<Doc>
+    }
+
+    return {
+      ...tab,
+      document: {
+        ...tab.document,
+        isDirty: requestHandle.type === "invalid",
+      },
+    } as HoppTab<Doc>
   }
 }

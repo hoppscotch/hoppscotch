@@ -35,17 +35,19 @@ export class RESTTabService extends TabService<HoppRESTDocument> {
     lastActiveTabID: this.currentTabID.value,
     orderedDocs: this.tabOrdering.value.map((tabID) => {
       const tab = this.tabMap.get(tabID)! // tab ordering is guaranteed to have value for this key
+      const resolvedTabData = this.getResolvedTabData(tab)
+
       return {
         tabID: tab.id,
         doc: {
-          ...tab.document,
+          ...this.getPersistedDocument(resolvedTabData.document),
           response: null,
         },
       }
     }),
   }))
 
-  public getTabRefWithSaveContext(ctx: HoppRESTSaveContext) {
+  public getTabRefWithSaveContext(ctx: Partial<HoppRESTSaveContext>) {
     for (const tab of this.tabMap.values()) {
       // For `team-collection` request id can be considered unique
       if (ctx?.originLocation === "team-collection") {

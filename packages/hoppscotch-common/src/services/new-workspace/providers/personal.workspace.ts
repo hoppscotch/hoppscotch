@@ -39,7 +39,7 @@ import {
 } from "~/newstore/collections"
 import { platform } from "~/platform"
 
-import { HandleRef } from "~/services/new-workspace/handle"
+import { HandleRef, WritableHandleRef } from "~/services/new-workspace/handle"
 import { WorkspaceProvider } from "~/services/new-workspace/provider"
 import {
   RESTCollectionChildrenView,
@@ -86,6 +86,10 @@ export class PersonalWorkspaceProviderService
   })
 
   private restCollectionState: Ref<{ state: HoppCollection[] }>
+
+  private issuedHandles: WritableHandleRef<
+    WorkspaceCollection | WorkspaceRequest
+  >[] = []
 
   public constructor() {
     super()
@@ -298,6 +302,19 @@ export class PersonalWorkspaceProviderService
       )
     }
 
+    for (const handle of this.issuedHandles) {
+      if (handle.value.type === "invalid") continue
+
+      if ("requestID" in handle.value.data) {
+        if (handle.value.data.requestID.startsWith(collectionID)) {
+          handle.value = {
+            type: "invalid",
+            reason: "REQUEST_INVALIDATED",
+          }
+        }
+      }
+    }
+
     return Promise.resolve(E.right(undefined))
   }
 
@@ -329,35 +346,44 @@ export class PersonalWorkspaceProviderService
       platform: "rest",
     })
 
-    return Promise.resolve(
-      E.right(
-        computed(() => {
-          if (
-            !isValidCollectionHandle(
-              parentCollectionHandle,
-              this.providerID,
-              "personal"
-            )
-          ) {
-            return {
-              type: "invalid" as const,
-              reason: "COLLECTION_INVALIDATED" as const,
-            }
-          }
+    const handle: HandleRef<WorkspaceRequest> = computed(() => {
+      if (
+        !isValidCollectionHandle(
+          parentCollectionHandle,
+          this.providerID,
+          "personal"
+        )
+      ) {
+        return {
+          type: "invalid" as const,
+          reason: "COLLECTION_INVALIDATED" as const,
+        }
+      }
 
-          return {
-            type: "ok",
-            data: {
-              providerID,
-              workspaceID,
-              collectionID,
-              requestID,
-              request: newRequest,
-            },
-          }
-        })
-      )
-    )
+      return {
+        type: "ok",
+        data: {
+          providerID,
+          workspaceID,
+          collectionID,
+          requestID,
+          request: newRequest,
+        },
+      }
+    })
+
+    const writableHandle = computed({
+      get() {
+        return handle.value
+      },
+      set(newValue) {
+        handle.value = newValue
+      },
+    })
+
+    this.issuedHandles.push(writableHandle)
+
+    return Promise.resolve(E.right(handle))
   }
 
   public removeRESTRequest(
@@ -376,6 +402,19 @@ export class PersonalWorkspaceProviderService
     )?.requests[requestIndex]
 
     removeRESTRequest(collectionID, requestIndex, requestToRemove?.id)
+
+    for (const handle of this.issuedHandles) {
+      if (handle.value.type === "invalid") continue
+
+      if ("requestID" in handle.value.data) {
+        if (handle.value.data.requestID === requestID) {
+          handle.value = {
+            type: "invalid",
+            reason: "REQUEST_INVALIDATED",
+          }
+        }
+      }
+    }
 
     return Promise.resolve(E.right(undefined))
   }
@@ -647,35 +686,42 @@ export class PersonalWorkspaceProviderService
       return Promise.resolve(E.left("REQUEST_NOT_FOUND" as const))
     }
 
-    return Promise.resolve(
-      E.right(
-        computed(() => {
-          if (
-            !isValidWorkspaceHandle(
-              workspaceHandle,
-              this.providerID,
-              "personal"
-            )
-          ) {
-            return {
-              type: "invalid" as const,
-              reason: "WORKSPACE_INVALIDATED" as const,
-            }
-          }
+    const handleRefData = ref({
+      type: "ok" as const,
+      data: {
+        providerID,
+        workspaceID,
+        collectionID,
+        requestID,
+        request,
+      },
+    })
 
-          return {
-            type: "ok",
-            data: {
-              providerID,
-              workspaceID,
-              collectionID,
-              requestID,
-              request,
-            },
-          }
-        })
-      )
-    )
+    const handle: HandleRef<WorkspaceRequest> = computed(() => {
+      if (
+        !isValidWorkspaceHandle(workspaceHandle, this.providerID, "personal")
+      ) {
+        return {
+          type: "invalid" as const,
+          reason: "WORKSPACE_INVALIDATED" as const,
+        }
+      }
+
+      return handleRefData.value
+    })
+
+    const writableHandle = computed({
+      get() {
+        return handleRefData.value
+      },
+      set(newValue) {
+        handleRefData.value = newValue
+      },
+    })
+
+    this.issuedHandles.push(writableHandle)
+
+    return Promise.resolve(E.right(handle))
   }
 
   public getRESTCollectionChildrenView(

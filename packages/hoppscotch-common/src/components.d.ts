@@ -32,6 +32,7 @@ declare module 'vue' {
     AppSpotlightEntryRESTHistory: typeof import('./components/app/spotlight/entry/RESTHistory.vue')['default']
     AppSpotlightEntryRESTRequest: typeof import('./components/app/spotlight/entry/RESTRequest.vue')['default']
     AppSpotlightEntryRESTTeamRequestEntry: typeof import('./components/app/spotlight/entry/RESTTeamRequestEntry.vue')['default']
+    AppSpotlightSearch: typeof import('./components/app/SpotlightSearch.vue')['default']
     AppSupport: typeof import('./components/app/Support.vue')['default']
     Collections: typeof import('./components/collections/index.vue')['default']
     CollectionsAdd: typeof import('./components/collections/Add.vue')['default']

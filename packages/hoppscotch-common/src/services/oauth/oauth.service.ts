@@ -109,10 +109,6 @@ export class OauthAuthService extends Service {
   public static readonly ID = "OAUTH_AUTH_SERVICE"
 
   static redirectURI = `${window.location.origin}/oauth`
-
-  constructor() {
-    super()
-  }
 }
 
 export const generateRandomString = () => {

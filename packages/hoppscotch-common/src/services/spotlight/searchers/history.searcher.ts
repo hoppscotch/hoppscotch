@@ -66,9 +66,7 @@ export class HistorySpotlightSearcherService
     }
   )[0]
 
-  constructor() {
-    super()
-
+  override onServiceInit() {
     this.spotlight.registerSearcher(this)
   }
 

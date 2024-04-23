@@ -41,9 +41,7 @@ export class ParameterMenuService extends Service implements ContextMenu {
 
   private readonly contextMenu = this.bind(ContextMenuService)
 
-  constructor() {
-    super()
-
+  override onServiceInit() {
     this.contextMenu.registerMenu(this)
   }
 

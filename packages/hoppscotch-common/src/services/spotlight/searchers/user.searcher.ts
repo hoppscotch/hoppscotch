@@ -9,6 +9,7 @@ import { useStreamStatic } from "~/composables/stream"
 import IconLogin from "~icons/lucide/log-in"
 import IconLogOut from "~icons/lucide/log-out"
 import { activeActions$, invokeAction } from "~/helpers/actions"
+import { Container } from "dioc"
 
 type Doc = {
   text: string
@@ -59,8 +60,9 @@ export class UserSpotlightSearcherService extends StaticSpotlightSearcherService
     },
   })
 
-  constructor() {
-    super({
+  // TODO: Constructors are no longer recommended as of dioc > 3, move to onServiceInit
+  constructor(c: Container) {
+    super(c, {
       searchFields: ["text", "alternates"],
       fieldWeights: {
         text: 2,

@@ -31,9 +31,7 @@ export class InterceptorSpotlightSearcherService
   private readonly spotlight = this.bind(SpotlightService)
   private interceptorService = this.bind(InterceptorService)
 
-  constructor() {
-    super()
-
+  override onServiceInit() {
     this.spotlight.registerSearcher(this)
   }
 

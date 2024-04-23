@@ -6,9 +6,7 @@ import { reactive } from "vue"
 class MockTabService extends TabService<{ request: string }> {
   public static readonly ID = "MOCK_TAB_SERVICE"
 
-  constructor() {
-    super()
-
+  override onServiceInit() {
     this.tabMap = reactive(
       new Map([
         [

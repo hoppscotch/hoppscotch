@@ -178,9 +178,7 @@ export class InterceptorService extends Service {
     return this.interceptors.get(this.currentInterceptorID.value)
   })
 
-  constructor() {
-    super()
-
+  override onServiceInit() {
     // If the current interceptor is unselectable, select the first selectable one, else null
     watch([() => this.interceptors, this.currentInterceptorID], () => {
       if (!this.currentInterceptorID.value) return

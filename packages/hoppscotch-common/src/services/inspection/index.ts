@@ -107,9 +107,7 @@ export class InspectionService extends Service {
 
   private readonly restTab = this.bind(RESTTabService)
 
-  constructor() {
-    super()
-
+  override onServiceInit() {
     this.initializeListeners()
   }
 

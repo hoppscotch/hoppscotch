@@ -13,7 +13,7 @@
           <HoppSmartWindow
             v-for="tab in activeTabs"
             :id="tab.id"
-            :key="tab.id"
+            :key="`${tab.id}-${tab.document.isDirty}`"
             :label="tab.document.request.name"
             :is-removable="activeTabs.length > 1"
             :close-visibility="'hover'"
@@ -94,40 +94,42 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, onBeforeUnmount } from "vue"
-import { safelyExtractRESTRequest } from "@hoppscotch/data"
-import { translateExtURLParams } from "~/helpers/RESTExtURLParams"
-import { useRoute } from "vue-router"
 import { useI18n } from "@composables/i18n"
-import { getDefaultRESTRequest } from "~/helpers/rest/default"
-import { defineActionHandler, invokeAction } from "~/helpers/actions"
-import { onLoggedIn } from "~/composables/auth"
-import { platform } from "~/platform"
+import { safelyExtractRESTRequest } from "@hoppscotch/data"
+import { watchDebounced } from "@vueuse/core"
+import { useService } from "dioc/vue"
+import { cloneDeep } from "lodash-es"
 import {
-  audit,
   BehaviorSubject,
-  combineLatest,
   EMPTY,
+  Subscription,
+  audit,
+  combineLatest,
   from,
   map,
-  Subscription,
 } from "rxjs"
-import { useToast } from "~/composables/toast"
-import { watchDebounced } from "@vueuse/core"
+import { onBeforeUnmount, onMounted, ref } from "vue"
+import { useRoute } from "vue-router"
+import { onLoggedIn } from "~/composables/auth"
 import { useReadonlyStream } from "~/composables/stream"
+import { useToast } from "~/composables/toast"
+import { translateExtURLParams } from "~/helpers/RESTExtURLParams"
+import { defineActionHandler, invokeAction } from "~/helpers/actions"
+import { getDefaultRESTRequest } from "~/helpers/rest/default"
+import { HoppRESTDocument } from "~/helpers/rest/document"
 import {
   changeCurrentSyncStatus,
   currentSyncingStatus$,
 } from "~/newstore/syncing"
-import { useService } from "dioc/vue"
+import { platform } from "~/platform"
 import { InspectionService } from "~/services/inspection"
-import { HeaderInspectorService } from "~/services/inspection/inspectors/header.inspector"
 import { EnvironmentInspectorService } from "~/services/inspection/inspectors/environment.inspector"
+import { HeaderInspectorService } from "~/services/inspection/inspectors/header.inspector"
 import { ResponseInspectorService } from "~/services/inspection/inspectors/response.inspector"
-import { cloneDeep } from "lodash-es"
-import { RESTTabService } from "~/services/tab/rest"
+import { HandleRef } from "~/services/new-workspace/handle"
+import { WorkspaceRequest } from "~/services/new-workspace/workspace"
 import { HoppTab, PersistableTabState } from "~/services/tab"
-import { HoppRESTDocument } from "~/helpers/rest/document"
+import { RESTTabService } from "~/services/tab/rest"
 
 const savingRequest = ref(false)
 const confirmingCloseForTabID = ref<string | null>(null)
@@ -285,15 +287,29 @@ const onCloseConfirmSaveTab = () => {
  * Called when the user confirms they want to save the tab
  */
 const onResolveConfirmSaveTab = () => {
-  if (tabs.currentActiveTab.value.document.saveContext) {
-    invokeAction("request.save")
+  const { saveContext } = tabs.currentActiveTab.value.document
 
-    if (confirmingCloseForTabID.value) {
-      tabs.closeTab(confirmingCloseForTabID.value)
-      confirmingCloseForTabID.value = null
-    }
-  } else {
-    savingRequest.value = true
+  // There're two cases where the save request under a collection modal should open
+  // 1. Attempting to save a request that is not under a collection (When the save context is not available)
+  // 2. Deleting a request from the collection tree and attempting to save it while closing the respective tab (When the request handle is invalid)
+  if (
+    !saveContext ||
+    (saveContext.originLocation === "workspace-user-collection" &&
+      // `requestHandle` gets unwrapped here
+      (
+        saveContext.requestHandle as
+          | HandleRef<WorkspaceRequest>["value"]
+          | undefined
+      )?.type === "invalid")
+  ) {
+    return (savingRequest.value = true)
+  }
+
+  invokeAction("request.save")
+
+  if (confirmingCloseForTabID.value) {
+    tabs.closeTab(confirmingCloseForTabID.value)
+    confirmingCloseForTabID.value = null
   }
 }
 

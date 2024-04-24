@@ -254,6 +254,7 @@ import { PersistenceService } from "~/services/persistence"
 import { PersistedOAuthConfig } from "~/services/oauth/oauth.service"
 import { RESTOptionTabs } from "../http/RequestOptions.vue"
 import { EditingProperties } from "./Properties.vue"
+import { getDefaultRESTRequest } from "~/helpers/rest/default"
 
 const t = useI18n()
 const toast = useToast()
@@ -790,6 +791,9 @@ const onAddRequest = (requestName: string) => {
   const newRequest = {
     ...cloneDeep(tabs.currentActiveTab.value.document.request),
     name: requestName,
+    endpoint:
+      tabs.currentActiveTab.value.document.request.endpoint ||
+      getDefaultRESTRequest().endpoint,
   }
 
   const path = editingFolderPath.value

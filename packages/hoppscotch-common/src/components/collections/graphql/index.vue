@@ -193,6 +193,7 @@ import { PersistedOAuthConfig } from "~/services/oauth/oauth.service"
 import { GQLOptionTabs } from "~/components/graphql/RequestOptions.vue"
 import { EditingProperties } from "../Properties.vue"
 import { defineActionHandler } from "~/helpers/actions"
+import { getDefaultGQLRequest } from "~/helpers/graphql/default"
 
 const t = useI18n()
 const toast = useToast()
@@ -380,32 +381,26 @@ const editCollection = (
   displayModalEdit(true)
 }
 
-const onAddRequest = ({
-  name,
-  path,
-  index,
-}: {
-  name: string
-  path: string
-  index: number
-}) => {
+const onAddRequest = ({ name, path }: { name: string; path: string }) => {
   const newRequest = {
     ...tabs.currentActiveTab.value.document.request,
     name,
+    url:
+      tabs.currentActiveTab.value.document.request.url ||
+      getDefaultGQLRequest().url,
   }
 
-  saveGraphqlRequestAs(path, newRequest)
+  const insertionIndex = saveGraphqlRequestAs(path, newRequest)
 
   const { auth, headers } = cascadeParentCollectionForHeaderAuth(
     path,
     "graphql"
   )
-
   tabs.createNewTab({
     saveContext: {
       originLocation: "user-collection",
       folderPath: path,
-      requestIndex: index,
+      requestIndex: insertionIndex,
     },
     request: newRequest,
     isDirty: false,

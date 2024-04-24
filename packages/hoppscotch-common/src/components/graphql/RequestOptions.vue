@@ -120,7 +120,9 @@ const request = useVModel(props, "modelValue", emit)
 
 const url = computedWithControl(
   () => tabs.currentActiveTab.value,
-  () => tabs.currentActiveTab.value.document.request.url
+  () =>
+    tabs.currentActiveTab.value.document.request.url ||
+    getDefaultGQLRequest().url
 )
 
 const activeGQLHeadersCount = computed(

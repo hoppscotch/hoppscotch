@@ -13,7 +13,10 @@ export class RESTTabService extends TabService<HoppRESTDocument> {
     this.tabMap.set("test", {
       id: "test",
       document: {
-        request: getDefaultRESTRequest(),
+        request: {
+          ...getDefaultRESTRequest(),
+          endpoint: "",
+        },
         isDirty: false,
         optionTabPreference: "params",
       },

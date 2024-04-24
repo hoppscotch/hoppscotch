@@ -13,7 +13,10 @@ export class GQLTabService extends TabService<HoppGQLDocument> {
     this.tabMap.set("test", {
       id: "test",
       document: {
-        request: getDefaultGQLRequest(),
+        request: {
+          ...getDefaultGQLRequest(),
+          url: "",
+        },
         isDirty: false,
         optionTabPreference: "query",
       },

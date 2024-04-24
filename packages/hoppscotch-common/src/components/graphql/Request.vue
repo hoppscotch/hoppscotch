@@ -3,16 +3,13 @@
     class="sticky top-0 z-10 flex flex-shrink-0 space-x-2 overflow-x-auto bg-primary p-4"
   >
     <div class="inline-flex flex-1 space-x-2">
-      <input
-        id="url"
+      <SmartEnvInput
         v-model="url"
-        type="url"
-        autocomplete="off"
-        spellcheck="false"
-        class="w-full rounded border border-divider bg-primaryLight px-4 py-2 text-secondaryDark"
-        :placeholder="`${t('request.url')}`"
-        :disabled="connected"
-        @keyup.enter="onConnectClick"
+        :placeholder="getDefaultGQLRequest().url"
+        placeholder-hover-string="Enter a URL or paste a GraphQL endpoint"
+        :readonly="connected"
+        class="rounded border border-divider bg-primaryLight"
+        @enter="onConnectClick"
       />
       <HoppButtonPrimary
         id="get"
@@ -72,6 +69,7 @@ import { InterceptorService } from "~/services/interceptor.service"
 import { useService } from "dioc/vue"
 import { defineActionHandler } from "~/helpers/actions"
 import { GQLTabService } from "~/services/tab/graphql"
+import { getDefaultGQLRequest } from "~/helpers/graphql/default"
 
 const t = useI18n()
 const tabs = useService(GQLTabService)
@@ -83,7 +81,9 @@ const connectionSwitchModal = ref(false)
 const connected = computed(() => connection.state === "CONNECTED")
 
 const url = computed({
-  get: () => tabs.currentActiveTab.value?.document.request.url ?? "",
+  get: () =>
+    tabs.currentActiveTab.value?.document.request.url ||
+    getDefaultGQLRequest().url,
   set: (value) => {
     tabs.currentActiveTab.value!.document.request.url = value
   },
@@ -118,7 +118,9 @@ watch(
   tabs.currentActiveTab,
   (newVal) => {
     if (newVal) {
-      lastTwoUrls.value.push(newVal.document.request.url)
+      lastTwoUrls.value.push(
+        newVal.document.request.url ?? getDefaultGQLRequest().url
+      )
       if (lastTwoUrls.value.length > 2) {
         lastTwoUrls.value.shift()
       }

@@ -54,9 +54,10 @@
       >
         <SmartEnvInput
           v-model="tab.document.request.endpoint"
-          :placeholder="`${t('request.url')}`"
+          :placeholder="getDefaultRESTRequest().endpoint"
           :auto-complete-source="userHistories"
           :auto-complete-env="true"
+          placeholder-hover-string="Enter a URL or cURL command"
           :inspection-results="tabResults"
           @paste="onPasteUrl($event)"
           @enter="newSendRequest"
@@ -331,12 +332,12 @@ const tabs = useService(RESTTabService)
 const workspaceService = useService(WorkspaceService)
 
 const newSendRequest = async () => {
-  if (newEndpoint.value === "" || /^\s+$/.test(newEndpoint.value)) {
+  if (/^\s+$/.test(newEndpoint.value)) {
     toast.error(`${t("empty.endpoint")}`)
     return
   }
 
-  ensureMethodInEndpoint()
+  if (newEndpoint.value) ensureMethodInEndpoint()
 
   loading.value = true
 
@@ -348,7 +349,20 @@ const newSendRequest = async () => {
     workspaceType: workspaceService.currentWorkspace.value.type,
   })
 
-  const [cancel, streamPromise] = runRESTRequest$(tab)
+  const finalTab = ref({
+    ...tab.value,
+    document: {
+      ...tab.value.document,
+      request: {
+        ...tab.value.document.request,
+        endpoint:
+          tab.value.document.request.endpoint ||
+          getDefaultRESTRequest().endpoint,
+      },
+    },
+  })
+
+  const [cancel, streamPromise] = runRESTRequest$(finalTab)
   const streamResult = await streamPromise
 
   requestCancelFunc.value = cancel
@@ -472,8 +486,13 @@ const fetchingShareLink = ref(false)
 
 const shareRequest = () => {
   if (currentUser.value) {
+    const finalRequest = {
+      ...tab.value.document.request,
+      endpoint:
+        tab.value.document.request.endpoint || getDefaultRESTRequest().endpoint,
+    }
     invokeAction("share.request", {
-      request: tab.value.document.request,
+      request: finalRequest,
     })
   } else {
     invokeAction("modals.login.toggle")
@@ -513,11 +532,17 @@ const saveRequest = () => {
     showSaveRequestModal.value = true
     return
   }
-  if (saveCtx.originLocation === "user-collection") {
-    const req = tab.value.document.request
 
+  const req = tab.value.document.request
+
+  const finalRequest = {
+    ...req,
+    endpoint: req.endpoint.trim() || getDefaultRESTRequest().endpoint,
+  }
+
+  if (saveCtx.originLocation === "user-collection") {
     try {
-      editRESTRequest(saveCtx.folderPath, saveCtx.requestIndex, req)
+      editRESTRequest(saveCtx.folderPath, saveCtx.requestIndex, finalRequest)
 
       tab.value.document.isDirty = false
 
@@ -534,8 +559,6 @@ const saveRequest = () => {
       saveRequest()
     }
   } else if (saveCtx.originLocation === "team-collection") {
-    const req = tab.value.document.request
-
     // TODO: handle error case (NOTE: overwriteRequestTeams is async)
     try {
       platform.analytics?.logEvent({
@@ -549,7 +572,7 @@ const saveRequest = () => {
         requestID: saveCtx.requestID,
         data: {
           title: req.name,
-          request: JSON.stringify(req),
+          request: JSON.stringify(finalRequest),
         },
       })().then((result) => {
         if (E.isLeft(result)) {

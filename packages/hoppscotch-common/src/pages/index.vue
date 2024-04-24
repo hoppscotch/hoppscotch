@@ -65,11 +65,11 @@
       @hide-modal="showRenamingReqNameModal = false"
     />
     <HoppSmartConfirmModal
-      :show="confirmingCloseForTabID !== null"
+      :show="confirmingCloseAllTabs"
       :confirm="t('modal.close_unsaved_tab')"
-      :title="t('confirm.save_unsaved_tab')"
-      @hide-modal="onCloseConfirmSaveTab"
-      @resolve="onResolveConfirmSaveTab"
+      :title="t('confirm.close_unsaved_tabs', { count: unsavedTabsCount })"
+      @hide-modal="confirmingCloseAllTabs = false"
+      @resolve="onResolveConfirmCloseAllTabs"
     />
     <HoppSmartModal
       v-if="confirmingCloseForTabID !== null"
@@ -85,12 +85,12 @@
         <span class="flex space-x-2">
           <HoppButtonPrimary
             v-focus
-            :label="t?.('action.save')"
+            :label="t?.('action.yes')"
             outline
             @click="onResolveConfirmSaveTab"
           />
           <HoppButtonSecondary
-            :label="t?.('action.dont_save')"
+            :label="t?.('action.no')"
             filled
             outline
             @click="onCloseConfirmSaveTab"

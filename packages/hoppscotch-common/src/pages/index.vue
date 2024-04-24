@@ -96,14 +96,6 @@
             @click="onCloseConfirmSaveTab"
           />
         </span>
-        <span class="flex space-x-2">
-          <HoppButtonSecondary
-            :label="t?.('action.cancel')"
-            filled
-            outline
-            @click="confirmingCloseForTabID = null"
-          />
-        </span>
       </template>
     </HoppSmartModal>
     <CollectionsSaveRequest

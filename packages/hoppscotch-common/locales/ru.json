@@ -11,7 +11,7 @@
     "connect": "Подключиться",
     "connecting": "Соединение...",
     "copy": "Скопировать",
-    "create": "Create",
+    "create": "Создать",
     "delete": "Удалить",
     "disconnect": "Отключиться",
     "dismiss": "Скрыть",
@@ -33,7 +33,7 @@
     "open_workspace": "Открыть пространство",
     "paste": "Вставить",
     "prettify": "Форматировать",
-    "properties": "Properties",
+    "properties": "Параметры",
     "remove": "Удалить",
     "rename": "Переименовать",
     "restore": "Восстановить",
@@ -42,13 +42,13 @@
     "scroll_to_top": "Вверх",
     "search": "Поиск",
     "send": "Отправить",
-    "share": "Share",
+    "share": "Поделиться",
     "start": "Начать",
     "starting": "Запускаю",
     "stop": "Стоп",
-    "to_close": "что бы закрыть",
+    "to_close": "закрыть",
     "to_navigate": "для навигации",
-    "to_select": "выборать",
+    "to_select": "выбрать",
     "turn_off": "Выключить",
     "turn_on": "Включить",
     "undo": "Отменить",
@@ -71,7 +71,7 @@
     "documentation": "Документация",
     "github": "GitHub",
     "help": "Справка, отзывы и документация",
-    "home": "Дом",
+    "home": "На главную",
     "invite": "Пригласить",
     "invite_description": "В Hoppscotch мы разработали простой и интуитивно понятный интерфейс для создания и управления вашими API. Hoppscotch - это инструмент, который помогает создавать, тестировать, документировать и делиться своими API.",
     "invite_your_friends": "Пригласить своих друзей",
@@ -85,7 +85,7 @@
     "reload": "Перезагрузить",
     "search": "Поиск",
     "share": "Поделиться",
-    "shortcuts": "Ярлыки",
+    "shortcuts": "Горячие клавиши",
     "social_description": "Подписывайся на наши соц. сети и оставайся всегда в курсе последних новостей, обновлений и релизов.",
     "social_links": "Социальные сети",
     "spotlight": "Прожектор",
@@ -96,7 +96,7 @@
     "type_a_command_search": "Введите команду или выполните поиск…",
     "we_use_cookies": "Мы используем куки",
     "whats_new": "Что нового?",
-    "wiki": "Вики"
+    "wiki": "Узнать больше"
   },
   "auth": {
     "account_exists": "Учетная запись существует с разными учетными данными - войдите, чтобы связать обе учетные записи",
@@ -106,7 +106,7 @@
     "continue_with_google": "Продолжить с Google",
     "continue_with_microsoft": "Продолжить с Microsoft",
     "email": "Электронное письмо",
-    "logged_out": "Вышли из",
+    "logged_out": "Успешно вышли. Будем скучать!",
     "login": "Авторизоваться",
     "login_success": "Успешный вход в систему",
     "login_to_hoppscotch": "Войти в Hoppscotch",
@@ -121,7 +121,7 @@
     "generate_token": "Сгенерировать токен",
     "graphql_headers": "Authorization Headers are sent as part of the payload to connection_init",
     "include_in_url": "Добавить в URL",
-    "inherited_from": "Inherited {auth} from parent collection {collection} ",
+    "inherited_from": "Унаследован тип аутентификации {auth} из родительской коллекции \"{collection}\"",
     "learn": "Узнать больше",
     "oauth": {
       "redirect_auth_server_returned_error": "Auth Server returned an error state",
@@ -135,11 +135,30 @@
       "redirect_no_token_endpoint": "No Token Endpoint Defined",
       "something_went_wrong_on_oauth_redirect": "Something went wrong during OAuth Redirect",
       "something_went_wrong_on_token_generation": "Something went wrong on token generation",
-      "token_generation_oidc_discovery_failed": "Failure on token generation: OpenID Connect Discovery Failed"
+      "token_generation_oidc_discovery_failed": "Failure on token generation: OpenID Connect Discovery Failed",
+      "grant_type": "Grant Type",
+      "grant_type_auth_code": "Authorization Code",
+      "token_fetched_successfully": "Token fetched successfully",
+      "token_fetch_failed": "Failed to fetch token",
+      "validation_failed": "Validation Failed, please check the form fields",
+      "label_authorization_endpoint": "Authorization Endpoint",
+      "label_client_id": "Client ID",
+      "label_client_secret": "Client Secret",
+      "label_code_challenge": "Code Challenge",
+      "label_code_challenge_method": "Code Challenge Method",
+      "label_code_verifier": "Code Verifier",
+      "label_scopes": "Scopes",
+      "label_token_endpoint": "Token Endpoint",
+      "label_use_pkce": "Use PKCE",
+      "label_implicit": "Implicit",
+      "label_password": "Password",
+      "label_username": "Username",
+      "label_auth_code": "Authorization Code",
+      "label_client_credentials": "Client Credentials"
     },
     "pass_key_by": "Pass by",
     "password": "Пароль",
-    "save_to_inherit": "Please save this request in any collection to inherit the authorization",
+    "save_to_inherit": "Чтобы унаследовать аутентификации, нужно сохранить запрос в коллекции",
     "token": "Токен",
     "type": "Метод авторизации",
     "username": "Имя пользователя"
@@ -157,8 +176,8 @@
     "name_length_insufficient": "Имя коллекции должно иметь 3 или более символов",
     "new": "Создать коллекцию",
     "order_changed": "Порядок коллекции обновлён",
-    "properties": "Collection Properties",
-    "properties_updated": "Collection Properties Updated",
+    "properties": "Параметры коллекции",
+    "properties_updated": "Параметры коллекции обновлены",
     "renamed": "Коллекция переименована",
     "request_in_use": "Запрос обрабатывается",
     "save_as": "Сохранить как",
@@ -169,8 +188,8 @@
     "team_collections": "Коллекции команд"
   },
   "confirm": {
-    "close_unsaved_tab": "Вы уверены что хотите закрыть эту вкладку?",
-    "close_unsaved_tabs": "Вы уверены что хотите закрыть все эти вкладки? Несохранённые данные {count} вкладок будут утеряны.",
+    "close_unsaved_tab": "Вы уверены, что хотите закрыть эту вкладку?",
+    "close_unsaved_tabs": "Вы уверены, что хотите закрыть все эти вкладки? Несохранённые данные {count} вкладок будут утеряны.",
     "exit_team": "Вы точно хотите покинуть эту команду?",
     "logout": "Вы действительно хотите выйти?",
     "remove_collection": "Вы уверены, что хотите навсегда удалить эту коллекцию?",
@@ -181,14 +200,14 @@
     "remove_shared_request": "Are you sure you want to permanently delete this shared request?",
     "remove_team": "Вы уверены, что хотите удалить эту команду?",
     "remove_telemetry": "Вы действительно хотите отказаться от телеметрии?",
-    "request_change": "Вы уверены что хотите сбросить текущий запрос, все не сохранённые данные будт утеряны?",
+    "request_change": "Вы уверены, что хотите сбросить текущий запрос, все не сохранённые данные будт утеряны?",
     "save_unsaved_tab": "Вы хотите сохранить изменения в этой вкладке?",
     "sync": "Вы уверены, что хотите синхронизировать это рабочее пространство?"
   },
   "context_menu": {
     "add_parameters": "Add to parameters",
-    "open_request_in_new_tab": "Open request in new tab",
-    "set_environment_variable": "Set as variable"
+    "open_request_in_new_tab": "Открыть запрос в новом окне",
+    "set_environment_variable": "Добавить значение в переменную"
   },
   "cookies": {
     "modal": {
@@ -227,7 +246,7 @@
     "collections": "Коллекции пустые",
     "documentation": "Подключите GraphQL endpoint, чтобы увидеть документацию.",
     "endpoint": "Endpoint не может быть пустым",
-    "environments": "Окружения пусты",
+    "environments": "Переменных окружения нет",
     "folder": "Папка пуста",
     "headers": "У этого запроса нет заголовков",
     "history": "История пуста",
@@ -237,6 +256,7 @@
     "pending_invites": "Пока что нет ожидающих заявок на вступление в команду",
     "profile": "Войдите, чтобы просмотреть свой профиль",
     "protocols": "Протоколы пустые",
+    "secret_environments": "Секреты хранятся только на этом устройстве и не синхронизируются с сервером",
     "schema": "Подключиться к конечной точке GraphQL",
     "shared_requests": "Shared requests are empty",
     "shared_requests_logout": "Login to view your shared requests or create a new one",
@@ -256,7 +276,7 @@
     "edit": "Редактировать окружение",
     "empty_variables": "No variables",
     "global": "Global",
-    "global_variables": "Global variables",
+    "global_variables": "Глобальные переменные",
     "import_or_create": "Импортировать или создать новое окружение",
     "invalid_name": "Укажите допустимое имя для окружения",
     "list": "Переменные окружения",
@@ -270,6 +290,8 @@
     "quick_peek": "Environment Quick Peek",
     "replace_with_variable": "Replace with variable",
     "scope": "Scope",
+    "secrets": "Секретные переменные",
+    "secret_value": "Секретное значение",
     "select": "Выберите среду",
     "set": "Set environment",
     "set_as_environment": "Set as environment",
@@ -277,28 +299,29 @@
     "title": "Окружения",
     "updated": "Окружение обновлено",
     "value": "Value",
-    "variable": "Variable",
+    "variable": "Переменная",
+    "variables": "Переменные",
     "variable_list": "Список переменных"
   },
   "error": {
     "authproviders_load_error": "Unable to load auth providers",
     "browser_support_sse": "Похоже, в этом браузере нет поддержки событий, отправленных сервером.",
     "check_console_details": "Подробности смотрите в журнале консоли.",
-    "check_how_to_add_origin": "Инструкция как добавить origin в настройки расширения",
+    "check_how_to_add_origin": "Инструкция как это сделать",
     "curl_invalid_format": "cURL неправильно отформатирован",
     "danger_zone": "Опасная зона",
     "delete_account": "Вы являетесь владельцем этой команды:",
     "delete_account_description": "Прежде чем удалить аккаунт вам необходимо либо назначить владельцом другого пользователя, либо удалить команды в которых вы являетесь владельцем.",
     "empty_req_name": "Пустое имя запроса",
     "f12_details": "(F12 для подробностей)",
-    "gql_prettify_invalid_query": "Не удалось определить недопустимый запрос, устранить синтаксические ошибки запроса и повторить попытку.",
+    "gql_prettify_invalid_query": "Не удалось отформатировать, т.к. в запросе есть синтаксические ошибки. Устраните их и повторите попытку.",
     "incomplete_config_urls": "Не заполнены URL конфигурации",
     "incorrect_email": "Не корректный Email",
     "invalid_link": "Не корректная ссылка",
     "invalid_link_description": "Ссылка, по которой вы перешли, - недействительна, либо срок ее действия истек.",
     "invalid_embed_link": "The embed does not exist or is invalid.",
     "json_parsing_failed": "Не корректный JSON",
-    "json_prettify_invalid_body": "Не удалось определить недопустимое тело, устранить синтаксические ошибки json и повторить попытку.",
+    "json_prettify_invalid_body": "Не удалось определить формат строки, устраните синтаксические ошибки и повторите попытку.",
     "network_error": "Похоже, возникла проблема с соединением. Попробуйте еще раз.",
     "network_fail": "Не удалось отправить запрос",
     "no_collections_to_export": "Нечего экспортировать. Для начала нужно создать коллекцию.",
@@ -306,7 +329,7 @@
     "no_environments_to_export": "Нечего экспортировать. Для начала нужно создать переменные окружения.",
     "no_results_found": "Совпадения не найдены",
     "page_not_found": "Эта страница не найдена",
-    "please_install_extension": "Нужно установить специальное расширение и добавить этот домен как новый origin в настройках расширения.",
+    "please_install_extension": "Ничего страшного. Просто нужно установить специальное расширение в браузере.",
     "proxy_error": "Proxy error",
     "script_fail": "Не удалось выполнить сценарий предварительного запроса",
     "something_went_wrong": "Что-то пошло не так",
@@ -359,8 +382,8 @@
   },
   "helpers": {
     "authorization": "Заголовок авторизации будет автоматически сгенерирован при отправке запроса.",
-    "collection_properties_authorization": " This authorization will be set for every request in this collection.",
-    "collection_properties_header": "This header will be set for every request in this collection.",
+    "collection_properties_authorization": "Этот заголовок авторизации будет подставляться при каждом запросе в этой коллекции.",
+    "collection_properties_header": "Этот заголовок будет подставляться при каждом запросе в этой коллекции.",
     "generate_documentation_first": "Сначала создайте документацию",
     "network_fail": "Невозможно достичь конечной точки API. Проверьте подключение к сети и попробуйте еще раз.",
     "offline": "Кажется, вы не в сети. Данные в этой рабочей области могут быть устаревшими.",
@@ -380,10 +403,10 @@
   "import": {
     "collections": "Импортировать коллекции",
     "curl": "Импортировать из cURL",
-    "environments_from_gist": "Import From Gist",
-    "environments_from_gist_description": "Import Hoppscotch Environments From Gist",
+    "environments_from_gist": "Импортировать из Gist",
+    "environments_from_gist_description": "Импортировать переменные окружения Hoppscotch из Gist",
     "failed": "Ошибка импорта",
-    "from_file": "Import from File",
+    "from_file": "Импортировать из одного или нескольких файлов",
     "from_gist": "Импорт из Gist",
     "from_gist_description": "Импортировать через Gist URL",
     "from_insomnia": "Импортировать с Insomnia",
@@ -412,13 +435,13 @@
     "title": "Импортировать"
   },
   "inspections": {
-    "description": "Inspect possible errors",
+    "description": "Показать возможные ошибки",
     "environment": {
-      "add_environment": "Add to Environment",
-      "not_found": "Environment variable “{environment}” not found."
+      "add_environment": "Добавить переменную",
+      "not_found": "Переменная окружения “{environment}” не задана."
     },
     "header": {
-      "cookie": "The browser doesn't allow Hoppscotch to set the Cookie Header. While we're working on the Hoppscotch Desktop App (coming soon), please use the Authorization Header instead."
+      "cookie": "Из-за ограничений безопасности в веб версии нельзя задать Cookie параметры. Пожалуйста, используйте Hoppscotch Desktop приложение или используйте заголовок Authorization вместо этого."
     },
     "response": {
       "401_error": "Please check your authentication credentials.",
@@ -427,12 +450,12 @@
       "default_error": "Please check your request.",
       "network_error": "Please check your network connection."
     },
-    "title": "Inspector",
+    "title": "Помощник",
     "url": {
-      "extension_not_installed": "Extension not installed.",
-      "extension_unknown_origin": "Make sure you've added the API endpoint's origin to the Hoppscotch Browser Extension list.",
-      "extention_enable_action": "Enable Browser Extension",
-      "extention_not_enabled": "Extension not enabled."
+      "extension_not_installed": "Расширение не установлено.",
+      "extension_unknown_origin": "Убедитесь, что текущий домен добавлен в список доверенных ресурсов в расширении браузера",
+      "extention_enable_action": "Подключить расширение",
+      "extention_not_enabled": "Расширение в браузере не подключено."
     }
   },
   "layout": {
@@ -445,11 +468,11 @@
   "modal": {
     "close_unsaved_tab": "У вас есть не сохранённые изменения",
     "collections": "Коллекции",
-    "confirm": "Подтверждать",
+    "confirm": "Подтвердите действие",
     "customize_request": "Customize Request",
     "edit_request": "Изменить запрос",
     "import_export": "Импорт Экспорт",
-    "share_request": "Share Request"
+    "share_request": "Поделиться запросом"
   },
   "mqtt": {
     "already_subscribed": "Вы уже подписаны на этот топик",
@@ -485,7 +508,7 @@
     "doc": "Документы",
     "graphql": "GraphQL",
     "profile": "Профиль",
-    "realtime": "В реальном времени",
+    "realtime": "Realtime",
     "rest": "REST",
     "settings": "Настройки"
   },
@@ -507,8 +530,8 @@
     "roles": "Роли",
     "roles_description": "Роли позволяют настраивать доступ конкретным людям к публичным коллекциям.",
     "updated": "Профиль обновлен",
-    "viewer": "Зритель",
-    "viewer_description": "Зрительно могут только просматривать и использовать запросы."
+    "viewer": "Читатель",
+    "viewer_description": "Могут только просматривать и использовать запросы."
   },
   "remove": {
     "star": "Удалить звезду"
@@ -534,7 +557,7 @@
     "go_to_body_tab": "Go to Body tab",
     "header_list": "Список заголовков",
     "invalid_name": "Укажите имя для запроса",
-    "method": "Методика",
+    "method": "Метод",
     "moved": "Запрос перемещён",
     "name": "Имя запроса",
     "new": "Новый запрос",
@@ -548,15 +571,16 @@
     "payload": "Полезная нагрузка",
     "query": "Запрос",
     "raw_body": "Необработанное тело запроса",
-    "rename": "Переименость запрос",
+    "rename": "Переименовать запрос",
     "renamed": "Запрос переименован",
+    "request_variables": "Переменные запроса",
     "run": "Запустить",
     "save": "Сохранить",
     "save_as": "Сохранить как",
     "saved": "Запрос сохранен",
-    "share": "Делиться",
+    "share": "Поделиться",
     "share_description": "Поделиться Hoppscotch с друзьями",
-    "share_request": "Share Request",
+    "share_request": "Поделиться запросом",
     "stop": "Stop",
     "title": "Запрос",
     "type": "Тип запроса",
@@ -586,7 +610,7 @@
   },
   "settings": {
     "accent_color": "Основной цвет",
-    "account": "Счет",
+    "account": "Аккаунт",
     "account_deleted": "Ваш аккаунт был удалён",
     "account_description": "Настройте параметры своей учетной записи.",
     "account_email_description": "Ваш основной адрес электронной почты.",
@@ -669,7 +693,7 @@
       "close_current_menu": "Закрыть текущее меню",
       "command_menu": "Меню поиска и команд",
       "help_menu": "Меню помощи",
-      "show_all": "Горячие клавиши",
+      "show_all": "Список горячих клавиш",
       "title": "Общий"
     },
     "miscellaneous": {
@@ -696,7 +720,7 @@
       "get_method": "Выберите метод GET",
       "head_method": "Выберите метод HEAD",
       "import_curl": "Импортировать из cURL",
-      "method": "Методика",
+      "method": "Метод",
       "next_method": "Выберите следующий метод",
       "post_method": "Выберите метод POST",
       "previous_method": "Выбрать предыдущий метод",
@@ -706,7 +730,7 @@
       "save_request": "Сохарнить запрос",
       "save_to_collections": "Сохранить в коллекции",
       "send_request": "Послать запрос",
-      "share_request": "Share Request",
+      "share_request": "Поделиться запросом",
       "show_code": "Generate code snippet",
       "title": "Запрос",
       "copy_request_link": "Копировать ссылку на запрос"
@@ -739,16 +763,16 @@
     "url": "URL"
   },
   "spotlight": {
-    "change_language": "Change Language",
+    "change_language": "Изменить язык",
     "environments": {
-      "delete": "Delete current environment",
-      "duplicate": "Duplicate current environment",
-      "duplicate_global": "Duplicate global environment",
-      "edit": "Edit current environment",
-      "edit_global": "Edit global environment",
-      "new": "Create new environment",
-      "new_variable": "Create a new environment variable",
-      "title": "Environments"
+      "delete": "Удалить текущее окружение",
+      "duplicate": "Дублировать текущее окружение",
+      "duplicate_global": "Дублировать глобальное окружение",
+      "edit": "Редактировать текущее окружение",
+      "edit_global": "Редактировать глобальное окружение",
+      "new": "Создать новое окружение",
+      "new_variable": "Создать новую переменную окружения",
+      "title": "Окружение"
     },
     "general": {
       "chat": "Chat with support",
@@ -809,12 +833,12 @@
       "title": "Tabs"
     },
     "workspace": {
-      "delete": "Delete current team",
-      "edit": "Edit current team",
-      "invite": "Invite people to team",
-      "new": "Create new team",
-      "switch_to_personal": "Switch to your personal workspace",
-      "title": "Teams"
+      "delete": "Удалить текущую команду",
+      "edit": "Редактировать текущую команду",
+      "invite": "Пригласить людей в команду",
+      "new": "Создать новую команду",
+      "switch_to_personal": "Переключить на персональное пространство",
+      "title": "Команды"
     }
   },
   "sse": {
@@ -824,7 +848,7 @@
   },
   "state": {
     "bulk_mode": "Множественное редактирование",
-    "bulk_mode_placeholder": "Каждый параметр должен начинаться с новой строки\nКлючи и значения разедляются двоеточием\nИспользуйте # для комментария",
+    "bulk_mode_placeholder": "Каждый параметр должен начинаться с новой строки\nКлючи и значения разделяются двоеточием\nИспользуйте # для комментария",
     "cleared": "Очищено",
     "connected": "Связаны",
     "connected_to": "Подключено к {name}",
@@ -843,7 +867,7 @@
     "download_failed": "Download failed",
     "download_started": "Скачивание началось",
     "enabled": "Включено",
-    "file_imported": "Файл импортирован",
+    "file_imported": "Файл  успешно импортирован",
     "finished_in": "Завершено через {duration} мс",
     "hide": "Hide",
     "history_deleted": "История удалена",
@@ -851,12 +875,12 @@
     "loading": "Загрузка...",
     "message_received": "Сообщение: {message} получено по топику: {topic}",
     "mqtt_subscription_failed": "Что-то пошло не так, при попытке подписаться на топик: {topic}",
-    "none": "Никто",
+    "none": "Не задан",
     "nothing_found": "Ничего не найдено для",
     "published_error": "Что-то пошло не так при попытке опубликовать сообщение в топик {topic}: {message}",
     "published_message": "Опубликовано сообщение: {message} в топик: {topic}",
     "reconnection_error": "Не удалось переподключиться",
-    "show": "Show",
+    "show": "Показать",
     "subscribed_failed": "Не удалось подписаться на топик: {topic}",
     "subscribed_success": "Успешно подписался на топик: {topic}",
     "unsubscribed_failed": "Не удалось отписаться от топика: {topic}",
@@ -882,7 +906,7 @@
     "close_others": "Закрыть остальные вкладки",
     "collections": "Коллекции",
     "documentation": "Документация",
-    "duplicate": "Duplicate Tab",
+    "duplicate": "Дублировать вкладку",
     "environments": "Окружения",
     "headers": "Заголовки",
     "history": "История",
@@ -892,7 +916,8 @@
     "queries": "Запросы",
     "query": "Запрос",
     "schema": "Схема",
-    "shared_requests": "Shared Requests",
+    "shared_requests": "Запросы в общем доступе",
+    "share_tab_request": "Поделиться запросом",
     "socketio": "Socket.IO",
     "sse": "SSE",
     "tests": "Тесты",
@@ -981,6 +1006,7 @@
   "workspace": {
     "change": "Изменить пространство",
     "personal": "Моё пространство",
+    "other_workspaces": "Пространства",
     "team": "Пространство команды",
     "title": "Рабочие пространства"
   },

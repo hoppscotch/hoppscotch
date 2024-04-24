@@ -473,21 +473,6 @@ const initView = (el: any) => {
       extensions,
     }),
   })
-
-  if (props.placeholderHoverString) {
-    if (props.modelValue === props.placeholder) {
-      // clear input
-      view.value?.dispatch({
-        changes: {
-          from: 0,
-          to: view.value.state.doc.length,
-          insert: "",
-        },
-      })
-    }
-
-    placeholderCompt.reconfigure(placeholderExt(placeholderString.value))
-  }
 }
 
 const getExtensions = (readonly: boolean): Extension => {

@@ -169,7 +169,7 @@
   },
   "confirm": {
     "close_unsaved_tab": "Êtes-vous sûr de vouloir fermer cet onglet ?",
-    "close_unsaved_tabs": "Êtes-vous sûr de vouloir fermer tous les onglets ? {count} onglets non enregistrés seront perd",
+    "close_unsaved_tabs": "Êtes-vous sûr de vouloir fermer tous les onglets ? {count} onglets non enregistrés seront perdus",
     "exit_team": "Êtes-vous sûr de vouloir quitter cette équipe ?",
     "logout": "Êtes-vous sûr de vouloir vous déconnecter?",
     "remove_collection": "Voulez-vous vraiment supprimer définitivement cette collection ?",

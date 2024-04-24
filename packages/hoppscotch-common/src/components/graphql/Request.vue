@@ -6,7 +6,7 @@
       <SmartEnvInput
         v-model="url"
         :placeholder="getDefaultGQLRequest().url"
-        placeholder-hover-string="Enter a URL or paste a GraphQL endpoint"
+        :placeholder-hover-string="t('request.graphql_placeholder')"
         :readonly="connected"
         class="rounded border border-divider bg-primaryLight"
         @enter="onConnectClick"
@@ -81,9 +81,7 @@ const connectionSwitchModal = ref(false)
 const connected = computed(() => connection.state === "CONNECTED")
 
 const url = computed({
-  get: () =>
-    tabs.currentActiveTab.value?.document.request.url ||
-    getDefaultGQLRequest().url,
+  get: () => tabs.currentActiveTab.value?.document.request.url ?? "",
   set: (value) => {
     tabs.currentActiveTab.value!.document.request.url = value
   },
@@ -98,7 +96,10 @@ const onConnectClick = () => {
 }
 
 const gqlConnect = () => {
-  connect(url.value, tabs.currentActiveTab.value?.document.request.headers)
+  connect(
+    url.value || getDefaultGQLRequest().url,
+    tabs.currentActiveTab.value?.document.request.headers
+  )
 
   platform.analytics?.logEvent({
     type: "HOPP_REQUEST_RUN",

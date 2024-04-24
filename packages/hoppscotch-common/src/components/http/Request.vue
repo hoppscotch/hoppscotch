@@ -57,7 +57,7 @@
           :placeholder="getDefaultRESTRequest().endpoint"
           :auto-complete-source="userHistories"
           :auto-complete-env="true"
-          placeholder-hover-string="Enter a URL or cURL command"
+          :placeholder-hover-string="t('request.http_placeholder')"
           :inspection-results="tabResults"
           @paste="onPasteUrl($event)"
           @enter="newSendRequest"

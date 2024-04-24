@@ -134,6 +134,7 @@ import * as E from "fp-ts/Either"
 import { RESTTabService } from "~/services/tab/rest"
 import { useService } from "dioc/vue"
 import { watch } from "vue"
+import { getDefaultRESTRequest } from "~/helpers/rest/default"
 
 const t = useI18n()
 const colorMode = useColorMode()
@@ -511,7 +512,10 @@ const openRequestInNewTab = (request: HoppRESTRequest) => {
 }
 
 defineActionHandler("share.request", ({ request }) => {
-  requestToShare.value = request
+  requestToShare.value = {
+    ...request,
+    endpoint: request.endpoint || getDefaultRESTRequest().endpoint,
+  }
   displayShareRequestModal(true)
 })
 </script>

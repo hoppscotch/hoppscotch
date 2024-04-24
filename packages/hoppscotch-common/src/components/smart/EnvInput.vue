@@ -451,6 +451,7 @@ function handleTextSelection() {
 }
 
 const placeholderCompt = new Compartment()
+const readOnlyCompt = new Compartment()
 
 // Debounce to prevent double click from selecting the word
 const debouncedTextSelection = (time: number) =>
@@ -486,6 +487,7 @@ const getExtensions = (readonly: boolean): Extension => {
     }),
     EditorState.changeFilter.of(() => !readonly),
     inputTheme,
+    readOnlyCompt.of(EditorState.readOnly.of(readonly)),
     readonly
       ? EditorView.theme({
           ".cm-content": {
@@ -519,7 +521,7 @@ const getExtensions = (readonly: boolean): Extension => {
       },
       mouseenter() {
         //change placeholder to hover string if provided
-        if (props.placeholderHoverString) {
+        if (props.placeholderHoverString && !props.readonly) {
           placeholderString.value = props.placeholderHoverString
           view.value?.dispatch({
             effects: placeholderCompt.reconfigure(
@@ -530,7 +532,7 @@ const getExtensions = (readonly: boolean): Extension => {
       },
       mouseleave() {
         //change placeholder back to original string
-        if (props.placeholderHoverString) {
+        if (props.placeholderHoverString && !props.readonly) {
           view.value?.dispatch({
             effects: placeholderCompt.reconfigure(
               placeholderExt(props.placeholder)
@@ -600,6 +602,29 @@ const getExtensions = (readonly: boolean): Extension => {
   ]
   return extensions
 }
+
+watch(
+  () => props.readonly,
+  (readonly) => {
+    if (readonly) {
+      view.value!.dispatch({
+        effects: [
+          readOnlyCompt.reconfigure([
+            EditorState.readOnly.of(readonly),
+            EditorView.theme({
+              ".cm-content": {
+                caretColor: "var(--secondary-dark-color)",
+                color: "var(--secondary-dark-color)",
+                backgroundColor: "var(--divider-color)",
+                opacity: 0.25,
+              },
+            }),
+          ]),
+        ],
+      })
+    }
+  }
+)
 
 const triggerTextSelection = () => {
   nextTick(() => {

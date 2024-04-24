@@ -17,20 +17,21 @@ import { useMutation } from '@urql/vue';
 import { onMounted, ref } from 'vue';
 import { useI18n } from '~/composables/i18n';
 import { useToast } from '~/composables/toast';
-import { Config, useConfigHandler } from '~/composables/useConfigHandler';
+import { useConfigHandler } from '~/composables/useConfigHandler';
 import {
   EnableAndDisableSsoDocument,
   ResetInfraConfigsDocument,
-  UpdateInfraConfigsDocument,
   ToggleAnalyticsCollectionDocument,
+  UpdateInfraConfigsDocument,
 } from '~/helpers/backend/graphql';
+import { ServerConfigs } from '~/helpers/configs';
 
 const t = useI18n();
 const toast = useToast();
 
 const props = withDefaults(
   defineProps<{
-    workingConfigs?: Config;
+    workingConfigs?: ServerConfigs;
     reset?: boolean;
   }>(),
   {

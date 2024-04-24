@@ -9,14 +9,14 @@
 
 <script setup lang="ts">
 import { useVModel } from '@vueuse/core';
-import { Config } from '~/composables/useConfigHandler';
+import { ServerConfigs } from '~/helpers/configs';
 
 const props = defineProps<{
-  config: Config;
+  config: ServerConfigs;
 }>();
 
 const emit = defineEmits<{
-  (e: 'update:config', v: Config): void;
+  (e: 'update:config', v: ServerConfigs): void;
 }>();
 
 const workingConfigs = useVModel(props, 'config', emit);

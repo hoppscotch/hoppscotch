@@ -76,6 +76,7 @@ import { InterceptorService } from "~/services/interceptor.service"
 import { editGraphqlRequest } from "~/newstore/collections"
 import { GQLTabService } from "~/services/tab/graphql"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
+import { getDefaultGQLRequest } from "~/helpers/graphql/default"
 
 const VALID_GQL_OPERATIONS = [
   "query",
@@ -247,10 +248,16 @@ const saveRequest = () => {
     tabs.currentActiveTab.value.document.saveContext.originLocation ===
       "user-collection"
   ) {
+    const finalRequest = {
+      ...tabs.currentActiveTab.value.document.request,
+      url:
+        tabs.currentActiveTab.value.document.request.url ||
+        getDefaultGQLRequest().url,
+    }
     editGraphqlRequest(
       tabs.currentActiveTab.value.document.saveContext.folderPath,
       tabs.currentActiveTab.value.document.saveContext.requestIndex,
-      tabs.currentActiveTab.value.document.request
+      finalRequest
     )
 
     tabs.currentActiveTab.value.document.isDirty = false

@@ -86,6 +86,8 @@ import { platform } from "~/platform"
 import { useService } from "dioc/vue"
 import { RESTTabService } from "~/services/tab/rest"
 import { GQLTabService } from "~/services/tab/graphql"
+import { getDefaultRESTRequest } from "~/helpers/rest/default"
+import { getDefaultGQLRequest } from "~/helpers/graphql/default"
 
 const t = useI18n()
 const toast = useToast()
@@ -220,6 +222,15 @@ const saveRequestAs = async () => {
       : cloneDeep(GQLTabs.currentActiveTab.value.document.request)
 
   requestUpdated.name = requestName.value
+
+  if (props.mode === "rest") {
+    ;(requestUpdated as HoppRESTRequest).endpoint =
+      (requestUpdated as HoppRESTRequest).endpoint ||
+      getDefaultRESTRequest().endpoint
+  } else {
+    ;(requestUpdated as HoppGQLRequest).url =
+      (requestUpdated as HoppGQLRequest).url || getDefaultGQLRequest().url
+  }
 
   if (picked.value.pickedType === "my-collection") {
     if (!isHoppRESTRequest(requestUpdated))

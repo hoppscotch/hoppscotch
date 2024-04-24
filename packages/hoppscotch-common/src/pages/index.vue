@@ -178,7 +178,10 @@ const onTabUpdate = (tab: HoppTab<HoppRESTDocument>) => {
 
 const addNewTab = () => {
   const tab = tabs.createNewTab({
-    request: getDefaultRESTRequest(),
+    request: {
+      ...getDefaultRESTRequest(),
+      endpoint: "",
+    },
     isDirty: false,
   })
 
@@ -295,8 +298,14 @@ const shareTabRequest = (tabID: string) => {
   const tab = tabs.getTabRef(tabID)
   if (tab.value) {
     if (currentUser.value) {
+      const finalRequest = {
+        ...tab.value.document.request,
+        endpoint:
+          tab.value.document.request.endpoint ||
+          getDefaultRESTRequest().endpoint,
+      }
       invokeAction("share.request", {
-        request: tab.value.document.request,
+        request: finalRequest,
       })
     } else {
       invokeAction("modals.login.toggle")

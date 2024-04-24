@@ -112,7 +112,10 @@ const activeTabs = tabs.getActiveTabs()
 
 const addNewTab = () => {
   const tab = tabs.createNewTab({
-    request: getDefaultGQLRequest(),
+    request: {
+      ...getDefaultGQLRequest(),
+      url: "",
+    },
     isDirty: false,
   })
 

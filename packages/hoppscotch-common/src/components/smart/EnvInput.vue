@@ -73,7 +73,12 @@ import {
   keymap,
   tooltips,
 } from "@codemirror/view"
-import { EditorSelection, EditorState, Extension } from "@codemirror/state"
+import {
+  Compartment,
+  EditorSelection,
+  EditorState,
+  Extension,
+} from "@codemirror/state"
 import { clone } from "lodash-es"
 import { history, historyKeymap } from "@codemirror/commands"
 import { inputTheme } from "~/helpers/editor/themes/baseTheme"
@@ -109,6 +114,7 @@ const props = withDefaults(
     contextMenuEnabled?: boolean
     secret?: boolean
     autoCompleteEnv?: boolean
+    placeholderHoverString: string
   }>(),
   {
     modelValue: "",
@@ -124,6 +130,7 @@ const props = withDefaults(
     contextMenuEnabled: true,
     secret: false,
     autoCompleteEnvSource: false,
+    placeholderHoverString: "",
   }
 )
 
@@ -136,6 +143,8 @@ const emit = defineEmits<{
   (e: "keydown", ev: any): void
   (e: "click", ev: any): void
 }>()
+
+const placeholderString = ref(props.placeholder)
 
 const cachedValue = ref(props.modelValue)
 
@@ -441,6 +450,8 @@ function handleTextSelection() {
   }
 }
 
+const placeholderCompt = new Compartment()
+
 // Debounce to prevent double click from selecting the word
 const debouncedTextSelection = (time: number) =>
   useDebounceFn(() => {
@@ -462,6 +473,21 @@ const initView = (el: any) => {
       extensions,
     }),
   })
+
+  if (props.placeholderHoverString) {
+    if (props.modelValue === props.placeholder) {
+      // clear input
+      view.value?.dispatch({
+        changes: {
+          from: 0,
+          to: view.value.state.doc.length,
+          insert: "",
+        },
+      })
+    }
+
+    placeholderCompt.reconfigure(placeholderExt(placeholderString.value))
+  }
 }
 
 const getExtensions = (readonly: boolean): Extension => {
@@ -490,7 +516,8 @@ const getExtensions = (readonly: boolean): Extension => {
       position: "absolute",
     }),
     props.environmentHighlights ? envTooltipPlugin : [],
-    placeholderExt(props.placeholder),
+    placeholderCompt.of(placeholderExt(props.placeholder)),
+
     EditorView.domEventHandlers({
       paste(ev) {
         clipboardEv = ev
@@ -503,6 +530,27 @@ const getExtensions = (readonly: boolean): Extension => {
         if (event.target && props.contextMenuEnabled) {
           // Debounce to make the performance better
           debouncedTextSelection(30)()
+        }
+      },
+      mouseenter() {
+        //change placeholder to hover string if provided
+        if (props.placeholderHoverString) {
+          placeholderString.value = props.placeholderHoverString
+          view.value?.dispatch({
+            effects: placeholderCompt.reconfigure(
+              placeholderExt(props.placeholderHoverString)
+            ),
+          })
+        }
+      },
+      mouseleave() {
+        //change placeholder back to original string
+        if (props.placeholderHoverString) {
+          view.value?.dispatch({
+            effects: placeholderCompt.reconfigure(
+              placeholderExt(props.placeholder)
+            ),
+          })
         }
       },
     }),

@@ -201,7 +201,7 @@ export class TeamSearchService extends Service {
   expandingCollections: Ref<string[]> = ref([])
   expandedCollections: Ref<string[]> = ref([])
 
-  // FUTURE-TODO: ideally this should return the search results / formatted results instead of directly manipulating the result set
+  // TODO: ideally this should return the search results / formatted results instead of directly manipulating the result set
   // eg: do the spotlight formatting in the spotlight searcher and not here
   searchTeams = async (query: string, teamID: string) => {
     if (!query.length) {

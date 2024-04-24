@@ -1,5 +1,5 @@
 import { HoppModule } from "."
-import { Container, Service } from "dioc"
+import { Container, ServiceClassInstance } from "dioc"
 import { diocPlugin } from "dioc/vue"
 import { DebugService } from "~/services/debug.service"
 import { platform } from "~/platform"
@@ -22,7 +22,7 @@ if (import.meta.env.DEV) {
  * services. Please use `useService` if within components or try to convert your
  * legacy subsystem into a service if possible.
  */
-export function getService<T extends typeof Service<any> & { ID: string }>(
+export function getService<T extends ServiceClassInstance<any>>(
   service: T
 ): InstanceType<T> {
   return serviceContainer.bind(service)
@@ -30,11 +30,10 @@ export function getService<T extends typeof Service<any> & { ID: string }>(
 
 export default <HoppModule>{
   onVueAppInit(app) {
-    // TODO: look into this
-    // @ts-expect-error Something weird with Vue versions
     app.use(diocPlugin, {
       container: serviceContainer,
     })
+
     for (const service of platform.addedServices ?? []) {
       serviceContainer.bind(service)
     }

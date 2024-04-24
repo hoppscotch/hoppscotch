@@ -622,6 +622,15 @@ watch(
           ]),
         ],
       })
+    } else {
+      view.value!.dispatch({
+        effects: [
+          readOnlyCompt.reconfigure([
+            EditorState.readOnly.of(readonly),
+            EditorView.theme({}),
+          ]),
+        ],
+      })
     }
   }
 )

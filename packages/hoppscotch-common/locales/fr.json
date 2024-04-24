@@ -410,7 +410,7 @@
     "description": "Inspecter les erreurs possibles",
     "environment": {
       "add_environment": "Ajouter à l'environnement",
-      "not_found": "La variable d'environnement “{environnement}“ n'a pas été trouvée."
+      "not_found": "La variable d'environnement “{environment}“ n'a pas été trouvée."
     },
     "header": {
       "cookie": "Le navigateur ne permet pas à Hoppscotch de définir l'en-tête Cookie. Pendant que nous travaillons sur l'application de bureau Hoppscotch (bientôt disponible), veuillez utiliser l'en-tête d'autorisation à la place."

@@ -772,27 +772,6 @@ const onRemoveRootCollection = async () => {
     return
   }
 
-  const activeTabs = tabs.getActiveTabs()
-
-  for (const tab of activeTabs.value) {
-    if (
-      tab.document.saveContext?.originLocation === "workspace-user-collection"
-    ) {
-      const requestHandle = tab.document.saveContext?.requestHandle as
-        | HandleRef<WorkspaceRequest>["value"]
-        | undefined
-
-      if (requestHandle?.type === "invalid") {
-        continue
-      }
-
-      if (requestHandle!.data.requestID.startsWith(collectionIndexPath)) {
-        tab.document.saveContext = null
-        tab.document.isDirty = true
-      }
-    }
-  }
-
   toast.success(t("state.deleted"))
   displayConfirmModal(false)
 }
@@ -1060,28 +1039,6 @@ const onRemoveChildCollection = async () => {
   if (E.isLeft(result)) {
     // INVALID_COLLECTION_HANDLE
     return
-  }
-
-  // TODO: Tab holding a request under the collection should be aware of the parent collection invalidation and toggle the dirty state
-  const activeTabs = tabs.getActiveTabs()
-
-  for (const tab of activeTabs.value) {
-    if (
-      tab.document.saveContext?.originLocation === "workspace-user-collection"
-    ) {
-      const requestHandle = tab.document.saveContext?.requestHandle as
-        | HandleRef<WorkspaceRequest>["value"]
-        | undefined
-
-      if (requestHandle?.type === "invalid") {
-        continue
-      }
-
-      if (requestHandle!.data.requestID.startsWith(parentCollectionIndexPath)) {
-        tab.document.saveContext = null
-        tab.document.isDirty = true
-      }
-    }
   }
 
   toast.success(t("state.deleted"))

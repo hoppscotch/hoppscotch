@@ -46,10 +46,7 @@ export abstract class TabService<Doc>
   })
 
   public currentActiveTab = computed(() => {
-    const tab = this.tabMap.get(this.currentTabID.value)!
-    return this.getResolvedTabData(
-      tab as HoppTab<HoppRESTDocument | HoppGQLDocument>
-    )
+    return this.tabMap.get(this.currentTabID.value)!
   }) // Guaranteed to not be undefined
 
   protected watchCurrentTabID() {
@@ -87,15 +84,7 @@ export abstract class TabService<Doc>
   }
 
   public getActiveTab(): HoppTab<Doc> | null {
-    const tab = this.tabMap.get(this.currentTabID.value)
-
-    if (!tab) {
-      return null
-    }
-
-    return this.getResolvedTabData(
-      tab as HoppTab<HoppRESTDocument | HoppGQLDocument>
-    )
+    return this.tabMap.get(this.currentTabID.value) ?? null
   }
 
   public setActiveTab(tabID: string): void {
@@ -172,13 +161,7 @@ export abstract class TabService<Doc>
   public getActiveTabs(): Readonly<ComputedRef<HoppTab<Doc>[]>> {
     return shallowReadonly(
       computed(() =>
-        this.tabOrdering.value.map((x) => {
-          const tab = this.tabMap.get(x) as HoppTab<
-            HoppRESTDocument | HoppGQLDocument
-          >
-
-          return this.getResolvedTabData(tab)
-        })
+        this.tabOrdering.value.map((x) => this.tabMap.get(x) as HoppTab<Doc>)
       )
     )
   }
@@ -186,13 +169,11 @@ export abstract class TabService<Doc>
   public getTabRef(tabID: string) {
     return computed({
       get: () => {
-        const result = this.tabMap.get(tabID) as HoppTab<
-          HoppRESTDocument | HoppGQLDocument
-        >
+        const result = this.tabMap.get(tabID)
 
         if (result === undefined) throw new Error(`Invalid tab id: ${tabID}`)
 
-        return this.getResolvedTabData(result)
+        return result
       },
       set: (value) => {
         return this.tabMap.set(tabID, value)
@@ -304,13 +285,10 @@ export abstract class TabService<Doc>
     lastActiveTabID: this.currentTabID.value,
     orderedDocs: this.tabOrdering.value.map((tabID) => {
       const tab = this.tabMap.get(tabID)! // tab ordering is guaranteed to have value for this key
-      const resolvedTabData = this.getResolvedTabData(
-        tab as HoppTab<HoppRESTDocument | HoppGQLDocument>
-      )
 
       return {
         tabID: tab.id,
-        doc: this.getPersistedDocument(resolvedTabData.document),
+        doc: this.getPersistedDocument(tab.document),
       }
     }),
   }))
@@ -327,33 +305,5 @@ export abstract class TabService<Doc>
 
       if (!this.tabMap.has(id)) return id
     }
-  }
-
-  protected getResolvedTabData(
-    tab: HoppTab<HoppRESTDocument | HoppGQLDocument>
-  ): HoppTab<Doc> {
-    if (
-      tab.document.isDirty ||
-      !tab.document.saveContext ||
-      tab.document.saveContext.originLocation !== "workspace-user-collection"
-    ) {
-      return tab as HoppTab<Doc>
-    }
-
-    const requestHandle = tab.document.saveContext.requestHandle as
-      | HandleRef<WorkspaceRequest>["value"]
-      | undefined
-
-    if (!requestHandle) {
-      return tab as HoppTab<Doc>
-    }
-
-    return {
-      ...tab,
-      document: {
-        ...tab.document,
-        isDirty: requestHandle.type === "invalid",
-      },
-    } as HoppTab<Doc>
   }
 }

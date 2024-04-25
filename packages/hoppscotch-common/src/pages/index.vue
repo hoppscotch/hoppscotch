@@ -13,7 +13,7 @@
           <HoppSmartWindow
             v-for="tab in activeTabs"
             :id="tab.id"
-            :key="`${tab.id}-${tab.document.isDirty}`"
+            :key="tab.id"
             :label="tab.document.request.name"
             :is-removable="activeTabs.length > 1"
             :close-visibility="'hover'"
@@ -30,7 +30,7 @@
             </template>
             <template #suffix>
               <span
-                v-if="tab.document.isDirty"
+                v-if="getTabDirtyStatus(tab)"
                 class="flex w-4 items-center justify-center text-secondary group-hover:hidden"
               >
                 <svg
@@ -108,7 +108,7 @@ import {
   from,
   map,
 } from "rxjs"
-import { onBeforeUnmount, onMounted, ref } from "vue"
+import { onBeforeUnmount, onMounted, ref, watch } from "vue"
 import { useRoute } from "vue-router"
 import { onLoggedIn } from "~/composables/auth"
 import { useReadonlyStream } from "~/composables/stream"
@@ -212,7 +212,7 @@ const inspectionService = useService(InspectionService)
 const removeTab = (tabID: string) => {
   const tabState = tabs.getTabRef(tabID).value
 
-  if (tabState.document.isDirty) {
+  if (getTabDirtyStatus(tabState)) {
     confirmingCloseForTabID.value = tabID
   } else {
     tabs.closeTab(tabState.id)
@@ -221,8 +221,10 @@ const removeTab = (tabID: string) => {
 }
 
 const closeOtherTabsAction = (tabID: string) => {
-  const isTabDirty = tabs.getTabRef(tabID).value?.document.isDirty
   const dirtyTabCount = tabs.getDirtyTabsCount()
+
+  const isTabDirty = getTabDirtyStatus(tabs.getTabRef(tabID).value)
+
   // If current tab is dirty, so we need to subtract 1 from the dirty tab count
   const balanceDirtyTabCount = isTabDirty ? dirtyTabCount - 1 : dirtyTabCount
 
@@ -327,6 +329,21 @@ const onSaveModalClose = () => {
 const syncTabState = () => {
   if (tabStateForSync.value)
     tabs.loadTabsFromPersistedState(tabStateForSync.value)
+}
+
+const getTabDirtyStatus = (tab: HoppTab<HoppRESTDocument>) => {
+  if (tab.document.isDirty) {
+    return true
+  }
+
+  return (
+    tab.document.saveContext?.originLocation === "workspace-user-collection" &&
+    (
+      tab.document.saveContext.requestHandle as
+        | HandleRef<WorkspaceRequest>["value"]
+        | undefined
+    )?.type === "invalid"
+  )
 }
 
 /**

@@ -11,6 +11,7 @@ import {
   computed,
   effectScope,
   markRaw,
+  nextTick,
   ref,
   shallowRef,
   watch,
@@ -302,15 +303,18 @@ export class PersonalWorkspaceProviderService
       )
     }
 
-    for (const handle of this.issuedHandles) {
+    for (const [idx, handle] of this.issuedHandles.entries()) {
       if (handle.value.type === "invalid") continue
 
       if ("requestID" in handle.value.data) {
         if (handle.value.data.requestID.startsWith(collectionID)) {
-          handle.value = {
-            type: "invalid",
-            reason: "REQUEST_INVALIDATED",
-          }
+          // @ts-expect-error - We're deleting the data to invalidate the handle
+          delete this.issuedHandles[idx].value.data
+
+          this.issuedHandles[idx].value.type = "invalid"
+
+          // @ts-expect-error - Setting the handle invalidation reason
+          this.issuedHandles[idx].value.reason = "REQUEST_INVALIDATED"
         }
       }
     }
@@ -403,15 +407,18 @@ export class PersonalWorkspaceProviderService
 
     removeRESTRequest(collectionID, requestIndex, requestToRemove?.id)
 
-    for (const handle of this.issuedHandles) {
+    for (const [idx, handle] of this.issuedHandles.entries()) {
       if (handle.value.type === "invalid") continue
 
       if ("requestID" in handle.value.data) {
         if (handle.value.data.requestID === requestID) {
-          handle.value = {
-            type: "invalid",
-            reason: "REQUEST_INVALIDATED",
-          }
+          // @ts-expect-error - We're deleting the data to invalidate the handle
+          delete this.issuedHandles[idx].value.data
+
+          this.issuedHandles[idx].value.type = "invalid"
+
+          // @ts-expect-error - Setting the handle invalidation reason
+          this.issuedHandles[idx].value.reason = "REQUEST_INVALIDATED"
         }
       }
     }

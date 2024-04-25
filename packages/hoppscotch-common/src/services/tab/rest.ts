@@ -35,12 +35,11 @@ export class RESTTabService extends TabService<HoppRESTDocument> {
     lastActiveTabID: this.currentTabID.value,
     orderedDocs: this.tabOrdering.value.map((tabID) => {
       const tab = this.tabMap.get(tabID)! // tab ordering is guaranteed to have value for this key
-      const resolvedTabData = this.getResolvedTabData(tab)
 
       return {
         tabID: tab.id,
         doc: {
-          ...this.getPersistedDocument(resolvedTabData.document),
+          ...this.getPersistedDocument(tab.document),
           response: null,
         },
       }

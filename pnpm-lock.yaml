@@ -455,8 +455,8 @@ importers:
         specifier: 1.0.0
         version: 1.0.0
       dioc:
-        specifier: 3.0.0
-        version: 3.0.0(vue@3.3.9(typescript@5.3.2))
+        specifier: 3.0.1
+        version: 3.0.1(vue@3.3.9(typescript@5.3.2))
       esprima:
         specifier: 4.0.1
         version: 4.0.1
@@ -923,8 +923,8 @@ importers:
         specifier: 6.0.3
         version: 6.0.3
       dioc:
-        specifier: 3.0.0
-        version: 3.0.0(vue@3.3.9(typescript@4.9.5))
+        specifier: 3.0.1
+        version: 3.0.1(vue@3.3.9(typescript@4.9.5))
       environments.api:
         specifier: link:@platform/environments/environments.api
         version: link:@platform/environments/environments.api
@@ -6457,8 +6457,8 @@ packages:
     resolution: {integrity: sha512-/VTCrvm5Z0JGty/BWHljh+BAiw3IK+2j87NGMu8Nwc/f48WoDAC395uomO9ZD117ZOBaHmkX1oyLvkVM/aIT3w==}
     engines: {node: '>=0.3.1'}
 
-  dioc@3.0.0:
-    resolution: {integrity: sha512-hDHYJ3CEx6ooxvUJdDf12+Z4flJlA1mWBHimH3a8lBkJB69PyD9xPuy029eS+P72VSefQMG0mR6IUcX0ZbWETg==}
+  dioc@3.0.1:
+    resolution: {integrity: sha512-LawhI08/B5f5sA6zqrNdtZY9URCjIzmebKVZhmR8lH05HFlx/spAoz4kJ7x1E6pRf/kvWsePSkudv18OR5FT6Q==}
     peerDependencies:
       vue: 3.3.9
     peerDependenciesMeta:
@@ -19341,13 +19341,13 @@ snapshots:
 
   diff@5.0.0: {}
 
-  dioc@3.0.0(vue@3.3.9(typescript@4.9.5)):
+  dioc@3.0.1(vue@3.3.9(typescript@4.9.5)):
     dependencies:
       rxjs: 7.8.1
     optionalDependencies:
       vue: 3.3.9(typescript@4.9.5)
 
-  dioc@3.0.0(vue@3.3.9(typescript@5.3.2)):
+  dioc@3.0.1(vue@3.3.9(typescript@5.3.2)):
     dependencies:
       rxjs: 7.8.1
     optionalDependencies:

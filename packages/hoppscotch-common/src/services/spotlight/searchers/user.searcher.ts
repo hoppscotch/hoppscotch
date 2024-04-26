@@ -69,7 +69,9 @@ export class UserSpotlightSearcherService extends StaticSpotlightSearcherService
         alternates: 1,
       },
     })
+  }
 
+  override onServiceInit(): void {
     this.setDocuments(this.documents)
     this.spotlight.registerSearcher(this)
   }

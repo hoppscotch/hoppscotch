@@ -1267,25 +1267,6 @@ const onEditRequest = async (newRequestName: string) => {
     return
   }
 
-  const { providerID, workspaceID } = requestHandle.value.data
-
-  const possibleActiveTab = tabs.getTabRefWithSaveContext({
-    originLocation: "workspace-user-collection",
-    workspaceID,
-    providerID,
-    requestID,
-  })
-
-  if (possibleActiveTab) {
-    possibleActiveTab.value.document.request = {
-      ...possibleActiveTab.value.document.request,
-      name: newRequestName,
-    }
-    nextTick(() => {
-      possibleActiveTab.value.document.isDirty = false
-    })
-  }
-
   displayModalEditRequest(false)
   toast.success(t("request.renamed"))
 }

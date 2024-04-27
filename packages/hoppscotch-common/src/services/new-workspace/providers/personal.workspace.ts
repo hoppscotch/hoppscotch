@@ -449,6 +449,17 @@ export class PersonalWorkspaceProviderService
       workspaceType: "personal",
     })
 
+    for (const [idx, handle] of this.issuedHandles.entries()) {
+      if (handle.value.type === "invalid") continue
+
+      if ("requestID" in handle.value.data) {
+        if (handle.value.data.requestID === requestID) {
+          // @ts-expect-error - We're updating the request data
+          this.issuedHandles[idx].value.data.request = newRequest
+        }
+      }
+    }
+
     return Promise.resolve(E.right(undefined))
   }
 

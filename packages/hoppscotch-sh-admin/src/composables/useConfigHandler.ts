@@ -129,16 +129,29 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
     workingConfigs.value = cloneDeep(currentConfigs.value);
   });
 
+  /*
+    Checking if any of the config fields are empty
+  */
+
+  const isFieldEmpty = (field: string) => field.trim() === '';
+
+  const AreAnyConfigFieldsEmpty = (config: ServerConfigs): boolean => {
+    const sections: Array<ConfigSection> = [
+      config.providers.github,
+      config.providers.google,
+      config.providers.microsoft,
+      config.mailConfigs,
+    ];
+
+    return sections.some(
+      (section) =>
+        section.enabled && Object.values(section.fields).some(isFieldEmpty)
+    );
+  };
+
   /**
    * The updated configs are transformed into a format that can be used by the mutations
    */
-
-  let newConfigs: UpdatedConfigs[] = [
-    {
-      name: '',
-      value: '',
-    },
-  ];
 
   const toBeTransformedConfigs: ConfigObject[] = [
     {
@@ -164,7 +177,9 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
   ];
 
   // Push or filter the configs based on the enabled condition
-  const pushOrFilterConfigs = (workingConfigs: ConfigObject[]) => {
+  const transformInfraConfigs = (workingConfigs: ConfigObject[]) => {
+    let newConfigs: UpdatedConfigs[] = [];
+
     workingConfigs.forEach(({ config, enabled, field }) => {
       config.forEach(({ name, key }) => {
         if (enabled && field) {
@@ -175,38 +190,16 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
         }
       });
     });
-  };
-
-  // Transforming the working configs back into the format required by the mutations
-  const updatedInfraConfigs = computed(() => {
-    if (!updatedConfigs) {
-      return [];
-    }
-
-    pushOrFilterConfigs(toBeTransformedConfigs);
-
     newConfigs = newConfigs.filter((item) => item.name !== '');
     return newConfigs;
-  });
-
-  // Checking if any of the config fields are empty
-  const isFieldEmpty = (field: string) => field.trim() === '';
-
-  const AreAnyConfigFieldsEmpty = (config: ServerConfigs): boolean => {
-    const sections: Array<ConfigSection> = [
-      config.providers.github,
-      config.providers.google,
-      config.providers.microsoft,
-      config.mailConfigs,
-    ];
-
-    return sections.some(
-      (section) =>
-        section.enabled && Object.values(section.fields).some(isFieldEmpty)
-    );
   };
 
   // Transforming the working configs back into the format required by the mutations
+  const updatedInfraConfigs = computed(() =>
+    updatedConfigs ? transformInfraConfigs(toBeTransformedConfigs) : []
+  );
+
+  // Updated allowed auth providers
   const updatedAllowedAuthProviders = [
     {
       provider: 'GOOGLE',

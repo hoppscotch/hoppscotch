@@ -1,6 +1,6 @@
 import { AnyVariables, UseMutationResponse } from '@urql/vue';
 import { cloneDeep } from 'lodash-es';
-import { computed, onMounted, ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useI18n } from '~/composables/i18n';
 import {
   AllowedAuthProvidersDocument,
@@ -15,8 +15,8 @@ import {
 } from '~/helpers/backend/graphql';
 import {
   ALL_CONFIGS,
-  ConfigTransform,
   ConfigSection,
+  ConfigTransform,
   GITHUB_CONFIGS,
   GOOGLE_CONFIGS,
   MAIL_CONFIGS,

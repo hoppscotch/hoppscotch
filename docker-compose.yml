@@ -100,13 +100,13 @@ services:
       test:
         [
           "CMD-SHELL",
-          "sh -c 'pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}'"
+          "sh -c 'pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}' && psql -U $${POSTGRES_USER} -d $${POSTGRES_DB} -c 'SELECT 1'"
         ]
       interval: 5s
       timeout: 5s
       retries: 10
 
-  # All the services listed below are deprececated
+  # # All the services listed below are deprececated
   hoppscotch-old-backend:
     container_name: hoppscotch-old-backend
     build:

@@ -55,12 +55,18 @@ export type UpdatedConfigs = {
   value: string;
 };
 
+export type ConfigObject = {
+  config: Config[];
+  enabled?: boolean;
+  field?: Record<string, string | boolean> | string;
+};
+
 export type Config = {
   name: string;
   key: string;
 };
 
-const GOOGLE_CONFIGS: Config[] = [
+export const GOOGLE_CONFIGS: Config[] = [
   {
     name: 'GOOGLE_CLIENT_ID',
     key: 'client_id',
@@ -79,7 +85,7 @@ const GOOGLE_CONFIGS: Config[] = [
   },
 ];
 
-const MICROSOFT_CONFIGS: Config[] = [
+export const MICROSOFT_CONFIGS: Config[] = [
   {
     name: 'MICROSOFT_CLIENT_ID',
     key: 'client_id',
@@ -102,7 +108,7 @@ const MICROSOFT_CONFIGS: Config[] = [
   },
 ];
 
-const GITHUB_CONFIGS: Config[] = [
+export const GITHUB_CONFIGS: Config[] = [
   {
     name: 'GITHUB_CLIENT_ID',
     key: 'client_id',
@@ -121,7 +127,7 @@ const GITHUB_CONFIGS: Config[] = [
   },
 ];
 
-const MAIL_CONFIGS: Config[] = [
+export const MAIL_CONFIGS: Config[] = [
   {
     name: 'MAILER_SMTP_URL',
     key: 'mailer_smtp_url',
@@ -132,26 +138,16 @@ const MAIL_CONFIGS: Config[] = [
   },
 ];
 
-const DATA_SHARING_CONFIGS: Config[] = [
+const DATA_SHARING_CONFIGS: Omit<Config, 'key'>[] = [
   {
     name: 'ALLOW_ANALYTICS_COLLECTION',
-    key: 'allow_analytics_collection',
   },
 ];
 
-const ALL_CONFIGS = [
+export const ALL_CONFIGS = [
   GOOGLE_CONFIGS,
   MICROSOFT_CONFIGS,
   GITHUB_CONFIGS,
   MAIL_CONFIGS,
   DATA_SHARING_CONFIGS,
 ];
-
-export {
-  GOOGLE_CONFIGS,
-  MICROSOFT_CONFIGS,
-  GITHUB_CONFIGS,
-  MAIL_CONFIGS,
-  DATA_SHARING_CONFIGS,
-  ALL_CONFIGS,
-};

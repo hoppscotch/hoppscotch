@@ -15,7 +15,8 @@ import {
 } from '~/helpers/backend/graphql';
 import {
   ALL_CONFIGS,
-  Config,
+  ConfigObject,
+  ConfigSection,
   GITHUB_CONFIGS,
   GOOGLE_CONFIGS,
   MAIL_CONFIGS,
@@ -139,19 +140,40 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
     },
   ];
 
+  const toBeTransformedConfigs: ConfigObject[] = [
+    {
+      config: GOOGLE_CONFIGS,
+      enabled: updatedConfigs?.providers.google.enabled,
+      field: updatedConfigs?.providers.google.fields,
+    },
+    {
+      config: GITHUB_CONFIGS,
+      enabled: updatedConfigs?.providers.github.enabled,
+      field: updatedConfigs?.providers.github.fields,
+    },
+    {
+      config: MICROSOFT_CONFIGS,
+      enabled: updatedConfigs?.providers.microsoft.enabled,
+      field: updatedConfigs?.providers.microsoft.fields,
+    },
+    {
+      config: MAIL_CONFIGS,
+      enabled: updatedConfigs?.mailConfigs.enabled,
+      field: updatedConfigs?.mailConfigs.fields,
+    },
+  ];
+
   // Push or filter the configs based on the enabled condition
-  const pushOrFilterConfigs = (
-    configs: Config[],
-    enabled: boolean,
-    field?: Record<string, string | boolean> | string
-  ) => {
-    configs.forEach(({ name, key }) => {
-      if (enabled && field) {
-        const value = typeof field === 'string' ? field : String(field[key]);
-        newConfigs.push({ name, value });
-      } else {
-        newConfigs = newConfigs.filter((item) => item.name !== name);
-      }
+  const pushOrFilterConfigs = (workingConfigs: ConfigObject[]) => {
+    workingConfigs.forEach(({ config, enabled, field }) => {
+      config.forEach(({ name, key }) => {
+        if (enabled && field) {
+          const value = typeof field === 'string' ? field : String(field[key]);
+          newConfigs.push({ name, value });
+        } else {
+          newConfigs = newConfigs.filter((item) => item.name !== name);
+        }
+      });
     });
   };
 
@@ -161,42 +183,14 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
       return [];
     }
 
-    pushOrFilterConfigs(
-      GOOGLE_CONFIGS,
-      updatedConfigs.providers.google.enabled,
-      updatedConfigs.providers.google.fields
-    );
-
-    pushOrFilterConfigs(
-      MICROSOFT_CONFIGS,
-      updatedConfigs.providers.microsoft.enabled,
-      updatedConfigs.providers.microsoft.fields
-    );
-
-    pushOrFilterConfigs(
-      GITHUB_CONFIGS,
-      updatedConfigs.providers.github.enabled,
-      updatedConfigs.providers.github.fields
-    );
-
-    pushOrFilterConfigs(
-      MAIL_CONFIGS,
-      updatedConfigs.mailConfigs.enabled,
-      updatedConfigs.mailConfigs.fields
-    );
+    pushOrFilterConfigs(toBeTransformedConfigs);
 
     newConfigs = newConfigs.filter((item) => item.name !== '');
-
     return newConfigs;
   });
 
   // Checking if any of the config fields are empty
   const isFieldEmpty = (field: string) => field.trim() === '';
-
-  type ConfigSection = {
-    enabled: boolean;
-    fields: Record<string, string>;
-  };
 
   const AreAnyConfigFieldsEmpty = (config: ServerConfigs): boolean => {
     const sections: Array<ConfigSection> = [
@@ -213,7 +207,7 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
   };
 
   // Transforming the working configs back into the format required by the mutations
-  const updatedAllowedAuthProviders = computed(() => [
+  const updatedAllowedAuthProviders = [
     {
       provider: 'GOOGLE',
       status: updatedConfigs?.providers.google.enabled ? 'ENABLE' : 'DISABLE',
@@ -232,7 +226,7 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
       provider: 'EMAIL',
       status: updatedConfigs?.mailConfigs.enabled ? 'ENABLE' : 'DISABLE',
     },
-  ]);
+  ];
 
   // Generic function to handle mutation execution and error handling
   const executeMutation = async <T, V>(
@@ -257,8 +251,7 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
     executeMutation(
       updateProviderStatus,
       {
-        providerInfo:
-          updatedAllowedAuthProviders.value as EnableAndDisableSsoArgs[],
+        providerInfo: updatedAllowedAuthProviders as EnableAndDisableSsoArgs[],
       },
       'configs.auth_providers.update_failure'
     );

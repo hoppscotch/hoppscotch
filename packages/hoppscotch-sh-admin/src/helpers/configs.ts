@@ -61,6 +61,11 @@ export type ConfigObject = {
   field?: Record<string, string | boolean> | string;
 };
 
+export type ConfigSection = {
+  enabled: boolean;
+  fields: Record<string, string>;
+};
+
 export type Config = {
   name: string;
   key: string;

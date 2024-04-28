@@ -15,7 +15,7 @@ import {
 } from '~/helpers/backend/graphql';
 import {
   ALL_CONFIGS,
-  ConfigObject,
+  ConfigTransform,
   ConfigSection,
   GITHUB_CONFIGS,
   GOOGLE_CONFIGS,
@@ -130,7 +130,7 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
   });
 
   /*
-    Checking if any of the config fields are empty
+    Check if any of the config fields are empty
   */
 
   const isFieldEmpty = (field: string) => field.trim() === '';
@@ -153,7 +153,7 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
    * The updated configs are transformed into a format that can be used by the mutations
    */
 
-  const toBeTransformedConfigs: ConfigObject[] = [
+  const workingUpdatedConfigs: ConfigTransform[] = [
     {
       config: GOOGLE_CONFIGS,
       enabled: updatedConfigs?.providers.google.enabled,
@@ -177,7 +177,7 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
   ];
 
   // Push or filter the configs based on the enabled condition
-  const transformInfraConfigs = (workingConfigs: ConfigObject[]) => {
+  const transformInfraConfigs = (workingConfigs: ConfigTransform[]) => {
     let newConfigs: UpdatedConfigs[] = [];
 
     workingConfigs.forEach(({ config, enabled, field }) => {
@@ -195,9 +195,8 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
   };
 
   // Transforming the working configs back into the format required by the mutations
-  const updatedInfraConfigs = computed(() =>
-    updatedConfigs ? transformInfraConfigs(toBeTransformedConfigs) : []
-  );
+  const updatedInfraConfigs = () =>
+    updatedConfigs ? transformInfraConfigs(workingUpdatedConfigs) : [];
 
   // Updated allowed auth providers
   const updatedAllowedAuthProviders = [
@@ -256,7 +255,7 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
     executeMutation(
       updateInfraConfigsMutation,
       {
-        infraConfigs: updatedInfraConfigs.value as InfraConfigArgs[],
+        infraConfigs: updatedInfraConfigs() as InfraConfigArgs[],
       },
       'configs.update_failure'
     );

@@ -55,7 +55,7 @@ export type UpdatedConfigs = {
   value: string;
 };
 
-export type ConfigObject = {
+export type ConfigTransform = {
   config: Config[];
   enabled?: boolean;
   field?: Record<string, string | boolean> | string;

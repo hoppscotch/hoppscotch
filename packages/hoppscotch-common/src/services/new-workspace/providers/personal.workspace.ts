@@ -457,7 +457,7 @@ export class PersonalWorkspaceProviderService
       if ("requestID" in handle.value.data) {
         if (handle.value.data.requestID === requestID) {
           // @ts-expect-error - We're updating the request data
-          this.issuedHandles[idx].value.data.request = newRequest
+          this.issuedHandles[idx].value.data.request.name = newRequest.name
         }
       }
     }

@@ -1267,6 +1267,15 @@ const onEditRequest = async (newRequestName: string) => {
     return
   }
 
+  const possibleTab = tabs.getTabRefWithSaveContext({
+    originLocation: "workspace-user-collection",
+    requestHandle,
+  })
+
+  if (possibleTab) {
+    possibleTab.value.document.isDirty = false
+  }
+
   displayModalEditRequest(false)
   toast.success(t("request.renamed"))
 }
@@ -1692,13 +1701,11 @@ const dropRequest = async (payload: {
 
   const { auth, headers } = cascadingAuthHeadersHandle.value.data
 
-  const { providerID, requestID, workspaceID } = requestHandle.value.data
+  const { providerID, workspaceID } = requestHandle.value.data
 
   const possibleTab = tabs.getTabRefWithSaveContext({
     originLocation: "workspace-user-collection",
-    workspaceID,
-    providerID,
-    requestID,
+    requestHandle,
   })
 
   // If there is a tab attached to this request, update its save context

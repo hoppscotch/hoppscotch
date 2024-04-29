@@ -264,37 +264,25 @@ export class TeamService implements UserDataHandler, OnModuleInit {
   }
 
   async getTeamsOfUser(uid: string, cursor: string | null): Promise<Team[]> {
-    if (!cursor) {
-      const entries = await this.prisma.teamMember.findMany({
-        take: 10,
-        where: {
-          userUid: uid,
-        },
-        include: {
-          team: true,
-        },
-      });
-
-      return entries.map((entry) => entry.team);
-    } else {
-      const entries = await this.prisma.teamMember.findMany({
-        take: 10,
-        skip: 1,
-        cursor: {
-          teamID_userUid: {
-            teamID: cursor,
-            userUid: uid,
-          },
-        },
-        where: {
-          userUid: uid,
-        },
-        include: {
-          team: true,
-        },
-      });
-      return entries.map((entry) => entry.team);
-    }
+    const entries = await this.prisma.teamMember.findMany({
+      take: 10,
+      skip: cursor ? 1 : 0,
+      cursor: cursor
+        ? {
+            teamID_userUid: {
+              teamID: cursor,
+              userUid: uid,
+            },
+          }
+        : undefined,
+      where: {
+        userUid: uid,
+      },
+      include: {
+        team: true,
+      },
+    });
+    return entries.map((entry) => entry.team);
   }
 
   async getTeamWithID(teamID: string): Promise<Team | null> {

@@ -10,7 +10,7 @@
         autocomplete="off"
         spellcheck="false"
         class="w-full rounded border border-divider bg-primaryLight px-4 py-2 text-secondaryDark"
-        :placeholder="`${t('request.url')}`"
+        :placeholder="`${t('graphql.url_placeholder')}`"
         :disabled="connected"
         @keyup.enter="onConnectClick"
       />

@@ -374,7 +374,8 @@
     "mutations": "Mutations",
     "schema": "Schema",
     "subscriptions": "Subscriptions",
-    "switch_connection": "Switch connection"
+    "switch_connection": "Switch connection",
+    "url_placeholder": "Enter a GraphQL endpoint URL"
   },
   "graphql_collections": {
     "title": "GraphQL Collections"
@@ -598,6 +599,7 @@
     "title": "Request",
     "type": "Request type",
     "url": "URL",
+    "url_placeholder": "Enter a URL or paste a cURL command",
     "variables": "Variables",
     "view_my_links": "View my links"
   },

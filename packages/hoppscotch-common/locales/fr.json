@@ -58,24 +58,6 @@
     "new": "Ajouter un nouveau",
     "star": "Ajouter une étoile"
   },
-  "cookies": {
-    "modal": {
-      "new_domain_name": "Nouveau nom de domaine",
-      "set": "Définir un cookie",
-      "cookie_string": "Chaîne de caractères de cookie",
-      "enter_cookie_string": "Saisir la chaîne de caractères du cookie",
-      "cookie_name": "Nom",
-      "cookie_value": "Valeur",
-      "cookie_path": "Chemin d'accès",
-      "cookie_expires": "Expiration",
-      "managed_tab": "Gestion",
-      "raw_tab": "Brut",
-      "interceptor_no_support": "L'intercepteur que vous avez sélectionné ne prend pas en charge les cookies. Sélectionnez un autre intercepteur et réessayez.",
-      "empty_domains": "La liste des domaines est vide",
-      "empty_domain": "Le domaine est vide",
-      "no_cookies_in_domain": "Aucun cookie n'est défini pour ce domaine"
-    }
-  },
   "app": {
     "chat_with_us": "Discuter avec nous",
     "contact_us": "Nous contacter",
@@ -187,7 +169,7 @@
   },
   "confirm": {
     "close_unsaved_tab": "Êtes-vous sûr de vouloir fermer cet onglet ?",
-    "close_unsaved_tabs": "Êtes-vous sûr de vouloir fermer tous les onglets ? {Les onglets non enregistrés seront perdus.",
+    "close_unsaved_tabs": "Êtes-vous sûr de vouloir fermer tous les onglets ? {count} onglets non enregistrés seront perdus",
     "exit_team": "Êtes-vous sûr de vouloir quitter cette équipe ?",
     "logout": "Êtes-vous sûr de vouloir vous déconnecter?",
     "remove_collection": "Voulez-vous vraiment supprimer définitivement cette collection ?",
@@ -206,6 +188,24 @@
     "add_parameters": "Ajouter aux paramètres",
     "open_request_in_new_tab": "Ouvrir la demande dans un nouvel onglet",
     "set_environment_variable": "Définir comme variable"
+  },
+  "cookies": {
+    "modal": {
+      "new_domain_name": "Nouveau nom de domaine",
+      "set": "Définir un cookie",
+      "cookie_string": "Chaîne de caractères de cookie",
+      "enter_cookie_string": "Saisir la chaîne de caractères du cookie",
+      "cookie_name": "Nom",
+      "cookie_value": "Valeur",
+      "cookie_path": "Chemin d'accès",
+      "cookie_expires": "Expiration",
+      "managed_tab": "Gestion",
+      "raw_tab": "Brut",
+      "interceptor_no_support": "L'intercepteur que vous avez sélectionné ne prend pas en charge les cookies. Sélectionnez un autre intercepteur et réessayez.",
+      "empty_domains": "La liste des domaines est vide",
+      "empty_domain": "Le domaine est vide",
+      "no_cookies_in_domain": "Aucun cookie n'est défini pour ce domaine"
+    }
   },
   "count": {
     "header": "En-tête {count}",
@@ -410,7 +410,7 @@
     "description": "Inspecter les erreurs possibles",
     "environment": {
       "add_environment": "Ajouter à l'environnement",
-      "not_found": "La variable d'environnement “{environnement}“ n'a pas été trouvée."
+      "not_found": "La variable d'environnement “{environment}“ n'a pas été trouvée."
     },
     "header": {
       "cookie": "Le navigateur ne permet pas à Hoppscotch de définir l'en-tête Cookie. Pendant que nous travaillons sur l'application de bureau Hoppscotch (bientôt disponible), veuillez utiliser l'en-tête d'autorisation à la place."

@@ -311,19 +311,6 @@ export class TeamService implements UserDataHandler, OnModuleInit {
     }
   }
 
-  getTeamWithIDTE(teamID: string): TE.TaskEither<'team/invalid_id', Team> {
-    return pipe(
-      () => this.getTeamWithID(teamID),
-      TE.fromTask,
-      TE.chain(
-        TE.fromPredicate(
-          (x): x is Team => !!x,
-          () => TEAM_INVALID_ID,
-        ),
-      ),
-    );
-  }
-
   /**
    * Filters out team members that we weren't able to match
    * (also deletes the membership)

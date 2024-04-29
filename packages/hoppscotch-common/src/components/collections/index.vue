@@ -515,7 +515,7 @@ watch(
   }
 )
 
-// look for the teamID change in the workspace and update the teamCollectionAdapter
+// look for the teamID change in the workspace and change the collection adapter teamID
 watch(
   () => {
     const teamID =

@@ -3,11 +3,16 @@ import { computed } from "vue"
 import { getDefaultRESTRequest } from "~/helpers/rest/default"
 import { HoppRESTDocument, HoppRESTSaveContext } from "~/helpers/rest/document"
 import { TabService } from "./tab"
+import { Container } from "dioc"
 
 export class RESTTabService extends TabService<HoppRESTDocument> {
   public static readonly ID = "REST_TAB_SERVICE"
 
-  override onServiceInit() {
+  // TODO: Moving this to `onServiceInit` breaks `persistableTabState`
+  // Figure out how to fix this
+  constructor(c: Container) {
+    super(c)
+
     this.tabMap.set("test", {
       id: "test",
       document: {

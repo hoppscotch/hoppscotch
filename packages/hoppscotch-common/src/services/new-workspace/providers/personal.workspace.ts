@@ -2,16 +2,18 @@ import {
   HoppCollection,
   HoppRESTAuth,
   HoppRESTHeaders,
+  HoppRESTRequest,
   makeCollection,
 } from "@hoppscotch/data"
 import { Service } from "dioc"
 import * as E from "fp-ts/Either"
+import { merge } from "lodash-es"
+import path from "path"
 import {
   Ref,
   computed,
   effectScope,
   markRaw,
-  nextTick,
   ref,
   shallowRef,
   watch,
@@ -57,9 +59,7 @@ import {
   WorkspaceRequest,
 } from "~/services/new-workspace/workspace"
 
-import { HoppRESTRequest } from "@hoppscotch/data"
-import { merge } from "lodash-es"
-import path from "path"
+import { getRequestsByPath } from "~/helpers/collection/request"
 import { initializeDownloadFile } from "~/helpers/import-export/export"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import IconUser from "~icons/lucide/user"
@@ -611,6 +611,30 @@ export class PersonalWorkspaceProviderService
       this.pathToLastIndex(requestIndex),
       destinationCollectionID
     )
+
+    for (const [idx, handle] of this.issuedHandles.entries()) {
+      if (handle.value.type === "invalid") continue
+
+      if ("requestID" in handle.value.data) {
+        if (
+          handle.value.data.requestID === requestHandle.value.data.requestID
+        ) {
+          const destinationRequestID = `${destinationCollectionID}/${(
+            getRequestsByPath(
+              this.restCollectionState.value.state,
+              destinationCollectionID
+            ).length - 1
+          ).toString()}`
+
+          // @ts-expect-error - We're updating the request handle data
+          this.issuedHandles[idx].value.data.collectionID =
+            destinationCollectionID
+
+          // @ts-expect-error - We're updating the request handle data
+          this.issuedHandles[idx].value.data.requestID = destinationRequestID
+        }
+      }
+    }
 
     return Promise.resolve(E.right(undefined))
   }

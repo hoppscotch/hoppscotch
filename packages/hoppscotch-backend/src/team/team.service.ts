@@ -15,7 +15,6 @@ import {
 } from '../errors';
 import { PubSubService } from '../pubsub/pubsub.service';
 import { flow, pipe } from 'fp-ts/function';
-import * as TE from 'fp-ts/TaskEither';
 import * as TO from 'fp-ts/TaskOption';
 import * as O from 'fp-ts/Option';
 import * as E from 'fp-ts/Either';

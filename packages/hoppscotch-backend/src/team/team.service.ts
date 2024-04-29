@@ -459,25 +459,12 @@ export class TeamService implements UserDataHandler, OnModuleInit {
   ): Promise<TeamMember[]> {
     let teamMembers: DbTeamMember[];
 
-    if (!cursor) {
-      teamMembers = await this.prisma.teamMember.findMany({
-        take: 10,
-        where: {
-          teamID,
-        },
-      });
-    } else {
-      teamMembers = await this.prisma.teamMember.findMany({
-        take: 10,
-        skip: 1,
-        cursor: {
-          id: cursor,
-        },
-        where: {
-          teamID,
-        },
-      });
-    }
+    teamMembers = await this.prisma.teamMember.findMany({
+      take: 10,
+      skip: cursor ? 1 : 0,
+      cursor: cursor ? { id: cursor } : undefined,
+      where: { teamID },
+    });
 
     const members = teamMembers.map(
       (entry) =>

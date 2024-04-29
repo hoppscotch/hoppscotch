@@ -6,6 +6,7 @@ import {
 import { nextTick, reactive, ref } from "vue"
 import { SpotlightSearcherResult } from "../../.."
 import { TestContainer } from "dioc/testing"
+import { Container } from "dioc"
 
 async function flushPromises() {
   return await new Promise((r) => setTimeout(r))
@@ -32,12 +33,15 @@ describe("StaticSpotlightSearcherService", () => {
         },
       })
 
-      constructor() {
-        super({
+      // TODO: dioc > v3 does not recommend using constructors, move to onServiceInit
+      constructor(c: Container) {
+        super(c, {
           searchFields: ["text"],
           fieldWeights: {},
         })
+      }
 
+      override onServiceInit() {
         this.setDocuments(this.documents)
       }
 
@@ -94,12 +98,15 @@ describe("StaticSpotlightSearcherService", () => {
         },
       })
 
-      constructor() {
-        super({
+      // TODO: dioc > v3 does not recommend using constructors, move to onServiceInit
+      constructor(c: Container) {
+        super(c, {
           searchFields: ["text"],
           fieldWeights: {},
         })
+      }
 
+      override onServiceInit() {
         this.setDocuments(this.documents)
       }
 
@@ -159,12 +166,15 @@ describe("StaticSpotlightSearcherService", () => {
         },
       })
 
-      constructor() {
-        super({
+      // TODO: dioc > v3 does not recommend using constructors, move to onServiceInit
+      constructor(c: Container) {
+        super(c, {
           searchFields: ["text"],
           fieldWeights: {},
         })
+      }
 
+      override onServiceInit() {
         this.setDocuments(this.documents)
       }
 
@@ -224,12 +234,15 @@ describe("StaticSpotlightSearcherService", () => {
         },
       })
 
-      constructor() {
-        super({
+      // TODO: dioc > v3 does not recommend using constructors, move to onServiceInit
+      constructor(c: Container) {
+        super(c, {
           searchFields: ["text"],
           fieldWeights: {},
         })
+      }
 
+      override onServiceInit() {
         this.setDocuments(this.documents)
       }
 
@@ -285,12 +298,15 @@ describe("StaticSpotlightSearcherService", () => {
         },
       })
 
-      constructor() {
-        super({
+      // TODO: dioc > v3 does not recommend using constructors, move to onServiceInit
+      constructor(c: Container) {
+        super(c, {
           searchFields: ["text"],
           fieldWeights: {},
         })
+      }
 
+      override onServiceInit() {
         this.setDocuments(this.documents)
       }
 
@@ -354,12 +370,15 @@ describe("StaticSpotlightSearcherService", () => {
         },
       })
 
-      constructor() {
-        super({
+      // TODO: dioc > v3 does not recommend using constructors, move to onServiceInit
+      constructor(c: Container) {
+        super(c, {
           searchFields: ["text", "alternate"],
           fieldWeights: {},
         })
+      }
 
+      override onServiceInit() {
         this.setDocuments(this.documents)
       }
 

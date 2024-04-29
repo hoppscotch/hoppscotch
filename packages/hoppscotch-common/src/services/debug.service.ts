@@ -14,9 +14,7 @@ import { Service } from "dioc"
 export class DebugService extends Service {
   public static readonly ID = "DEBUG_SERVICE"
 
-  constructor() {
-    super()
-
+  override onServiceInit() {
     console.log("DebugService is initialized...")
 
     const container = this.getContainer()

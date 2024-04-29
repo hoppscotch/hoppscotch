@@ -31,9 +31,7 @@ export class ExtensionInspectorService extends Service implements Inspector {
 
   private readonly inspection = this.bind(InspectionService)
 
-  constructor() {
-    super()
-
+  override onServiceInit() {
     this.inspection.registerInspector(this)
   }
 

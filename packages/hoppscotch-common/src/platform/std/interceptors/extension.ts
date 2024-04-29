@@ -133,9 +133,7 @@ export class ExtensionInterceptorService
 
   public selectable = { type: "selectable" as const }
 
-  constructor() {
-    super()
-
+  override onServiceInit() {
     this.listenForExtensionStatus()
   }
 

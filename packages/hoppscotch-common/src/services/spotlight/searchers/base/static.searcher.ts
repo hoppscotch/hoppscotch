@@ -1,4 +1,4 @@
-import { Service } from "dioc"
+import { Container, Service } from "dioc"
 import {
   type SpotlightSearcher,
   type SpotlightSearcherResult,
@@ -67,8 +67,12 @@ export abstract class StaticSpotlightSearcherService<
 
   private _documents: Record<string, Doc> = {}
 
-  constructor(private opts: StaticSpotlightSearcherOptions<Doc>) {
-    super()
+  // TODO: This pattern is no longer recommended in dioc > 3, move to something else
+  constructor(
+    c: Container,
+    private opts: StaticSpotlightSearcherOptions<Doc>
+  ) {
+    super(c)
 
     this.minisearch = new MiniSearch({
       fields: opts.searchFields as string[],

@@ -53,9 +53,7 @@ export class EnvironmentInspectorService extends Service implements Inspector {
     }
   )[0]
 
-  constructor() {
-    super()
-
+  override onServiceInit() {
     this.inspection.registerInspector(this)
   }
 

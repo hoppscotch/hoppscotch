@@ -20,10 +20,6 @@ export class CookieJarService extends Service {
    */
   public cookieJar = ref(new Map<string, string[]>())
 
-  constructor() {
-    super()
-  }
-
   public parseSetCookieString(setCookieString: string) {
     return setCookieParse(setCookieString)
   }

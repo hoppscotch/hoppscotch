@@ -27,10 +27,6 @@ export class SecretEnvironmentService extends Service {
    */
   public secretEnvironments = reactive(new Map<string, SecretVariable[]>())
 
-  constructor() {
-    super()
-  }
-
   /**
    * Add a new secret environment.
    * @param id ID of the environment

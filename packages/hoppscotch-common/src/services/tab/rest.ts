@@ -7,9 +7,7 @@ import { TabService } from "./tab"
 export class RESTTabService extends TabService<HoppRESTDocument> {
   public static readonly ID = "REST_TAB_SERVICE"
 
-  constructor() {
-    super()
-
+  override onServiceInit() {
     this.tabMap.set("test", {
       id: "test",
       document: {

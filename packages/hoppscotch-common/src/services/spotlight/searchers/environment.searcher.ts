@@ -26,7 +26,7 @@ import IconEdit from "~icons/lucide/edit"
 import IconLayers from "~icons/lucide/layers"
 import IconTrash2 from "~icons/lucide/trash-2"
 
-import { Service } from "dioc"
+import { Container, Service } from "dioc"
 import * as TE from "fp-ts/TaskEither"
 import { pipe } from "fp-ts/function"
 import { cloneDeep } from "lodash-es"
@@ -164,15 +164,18 @@ export class EnvironmentsSpotlightSearcherService extends StaticSpotlightSearche
     },
   })
 
-  constructor() {
-    super({
+  // TODO: This pattern is no longer recommended in dioc > 3, move to something else
+  constructor(c: Container) {
+    super(c, {
       searchFields: ["text", "alternates"],
       fieldWeights: {
         text: 2,
         alternates: 1,
       },
     })
+  }
 
+  override onServiceInit() {
     this.setDocuments(this.documents)
     this.spotlight.registerSearcher(this)
   }
@@ -277,9 +280,7 @@ export class SwitchEnvSpotlightSearcherService
   private readonly workspaceService = this.bind(WorkspaceService)
   private teamEnvironmentList: TeamEnvironment[] = []
 
-  constructor() {
-    super()
-
+  override onServiceInit() {
     this.spotlight.registerSearcher(this)
   }
 

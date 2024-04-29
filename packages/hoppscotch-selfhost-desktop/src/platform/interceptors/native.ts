@@ -138,10 +138,6 @@ export class NativeInterceptorService extends Service implements Interceptor {
 
   public cookieJarService = this.bind(CookieJarService)
 
-  constructor() {
-    super()
-  }
-
   public runRequest(req: any) {
     const processedReq = preProcessRequest(req)
 

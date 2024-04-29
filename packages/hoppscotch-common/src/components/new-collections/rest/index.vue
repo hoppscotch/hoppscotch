@@ -1701,43 +1701,18 @@ const dropRequest = async (payload: {
 
   const { auth, headers } = cascadingAuthHeadersHandle.value.data
 
-  const { providerID, workspaceID } = requestHandle.value.data
-
   const possibleTab = tabs.getTabRefWithSaveContext({
     originLocation: "workspace-user-collection",
     requestHandle,
   })
 
-  // If there is a tab attached to this request, update its save context
+  // If there is a tab attached to this request, update the document `inheritedProperties`
   if (possibleTab) {
-    const newRequestID = `${destinationCollectionIndex}/${(
-      getRequestsByPath(restCollectionState.value, destinationCollectionIndex)
-        .length - 1
-    ).toString()}`
-
-    possibleTab.value.document.saveContext = {
-      originLocation: "workspace-user-collection",
-      workspaceID,
-      providerID,
-      requestID: newRequestID,
-    }
-
     possibleTab.value.document.inheritedProperties = {
       auth,
       headers,
     }
   }
-
-  // When it's drop it's basically getting deleted from last folder. reordering last folder accordingly
-  resolveSaveContextOnRequestReorder({
-    lastIndex: pathToLastIndex(requestIndex),
-    newIndex: -1, // being deleted from last folder
-    folderPath: parentCollectionIndexPath,
-    length: getRequestsByPath(
-      restCollectionState.value,
-      parentCollectionIndexPath
-    ).length,
-  })
 
   toast.success(`${t("request.moved")}`)
   draggingToRoot.value = false

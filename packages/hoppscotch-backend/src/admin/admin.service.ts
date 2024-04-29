@@ -332,11 +332,11 @@ export class AdminService {
     const user = await this.userService.findUserByEmail(userEmail);
     if (O.isNone(user)) return E.left(USER_NOT_FOUND);
 
-    const teamMember = await this.teamService.getTeamMemberTE(
+    const teamMember = await this.teamService.getTeamMember(
       teamID,
       user.value.uid,
-    )();
-    if (E.isLeft(teamMember)) {
+    );
+    if (!teamMember) {
       const addedUser = await this.teamService.addMemberToTeamWithEmail(
         teamID,
         userEmail,

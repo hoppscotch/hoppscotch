@@ -362,19 +362,6 @@ export class TeamService implements UserDataHandler, OnModuleInit {
     }
   }
 
-  getTeamMemberTE(teamID: string, userUid: string) {
-    return pipe(
-      () => this.getTeamMember(teamID, userUid),
-      TE.fromTask,
-      TE.chain(
-        TE.fromPredicate(
-          (x): x is TeamMember => !!x,
-          () => TEAM_MEMBER_NOT_FOUND,
-        ),
-      ),
-    );
-  }
-
   async getRoleOfUserInTeam(
     teamID: string,
     userUid: string,

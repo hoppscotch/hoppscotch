@@ -66,7 +66,11 @@
         {{ t("error.something_went_wrong") }}
       </div>
     </div>
-    <TeamsAdd :show="showModalAdd" @hide-modal="displayModalAdd(false)" />
+    <TeamsAdd
+      :show="showModalAdd"
+      :switch-workspace-after-creation="true"
+      @hide-modal="displayModalAdd(false)"
+    />
   </div>
 </template>
 <script setup lang="ts">
@@ -117,7 +121,7 @@ watch(
   elVisible,
   () => {
     if (elVisible.value) {
-      teamListadapter.fetchList()
+      if (!teamListadapter.isInitialized) teamListadapter.fetchList()
 
       resumeListPoll()
     } else {
@@ -175,7 +179,6 @@ watch(
 
 const displayModalAdd = (shouldDisplay: boolean) => {
   showModalAdd.value = shouldDisplay
-  teamListadapter.fetchList()
 }
 
 defineActionHandler("modals.team.new", () => {

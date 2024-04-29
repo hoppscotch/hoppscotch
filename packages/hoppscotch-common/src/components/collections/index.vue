@@ -448,15 +448,6 @@ watch(
   }
 )
 
-watch(
-  () => collectionsType.value.selectedTeam,
-  (newTeam) => {
-    if (newTeam) {
-      teamCollectionAdapter.changeTeamID(newTeam.id)
-    }
-  }
-)
-
 const switchToMyCollections = () => {
   collectionsType.value.type = "my-collections"
   collectionsType.value.selectedTeam = undefined
@@ -521,6 +512,23 @@ watch(
   },
   {
     immediate: true,
+  }
+)
+
+// look for the teamID change in the workspace and update the teamCollectionAdapter
+watch(
+  () => {
+    const teamID =
+      workspace.value.type === "team" && workspace.value.teamID
+        ? workspace.value.teamID
+        : null
+
+    return teamID
+  },
+  (newTeamID) => {
+    if (newTeamID) {
+      teamCollectionAdapter.changeTeamID(newTeamID)
+    }
   }
 )
 

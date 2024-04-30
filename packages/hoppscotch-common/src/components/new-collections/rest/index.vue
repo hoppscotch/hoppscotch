@@ -1708,6 +1708,17 @@ const dropRequest = async (payload: {
 
   // If there is a tab attached to this request, update the document `inheritedProperties`
   if (possibleTab) {
+    // @ts-expect-error - Updating the handle
+    possibleTab.value.document.saveContext.requestHandle.data = {
+      // @ts-expect-error - Updating the handle
+      ...possibleTab.value.document.saveContext.requestHandle.data,
+      collectionID: destinationCollectionIndex,
+      requestID: `${destinationCollectionIndex}/${(
+        getRequestsByPath(restCollectionState.value, destinationCollectionIndex)
+          .length - 1
+      ).toString()}`,
+    }
+
     possibleTab.value.document.inheritedProperties = {
       auth,
       headers,

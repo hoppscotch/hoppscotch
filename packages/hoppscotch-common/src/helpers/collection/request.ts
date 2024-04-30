@@ -3,9 +3,12 @@ import {
   HoppGQLRequest,
   HoppRESTRequest,
 } from "@hoppscotch/data"
-import { getAffectedIndexes } from "./affectedIndex"
-import { RESTTabService } from "~/services/tab/rest"
+
 import { getService } from "~/modules/dioc"
+import { HandleRef } from "~/services/new-workspace/handle"
+import { WorkspaceRequest } from "~/services/new-workspace/workspace"
+import { RESTTabService } from "~/services/tab/rest"
+import { getAffectedIndexes } from "./affectedIndex"
 
 /**
  * Resolve save context on reorder
@@ -29,20 +32,20 @@ export function resolveSaveContextOnRequestReorder(payload: {
   if (newIndex > lastIndex) newIndex-- // there is a issue when going down? better way to resolve this?
   if (lastIndex === newIndex) return
 
-  const affectedIndexes = getAffectedIndexes(
+  const affectedIndices = getAffectedIndexes(
     lastIndex,
     newIndex === -1 ? length! : newIndex
   )
 
   // if (newIndex === -1) remove it from the map because it will be deleted
-  if (newIndex === -1) affectedIndexes.delete(lastIndex)
+  if (newIndex === -1) affectedIndices.delete(lastIndex)
 
   const tabService = getService(RESTTabService)
   const tabs = tabService.getTabsRefTo((tab) => {
     if (tab.document.saveContext?.originLocation === "user-collection") {
       return (
         tab.document.saveContext.folderPath === folderPath &&
-        affectedIndexes.has(tab.document.saveContext.requestIndex)
+        affectedIndices.has(tab.document.saveContext.requestIndex)
       )
     }
 
@@ -52,35 +55,56 @@ export function resolveSaveContextOnRequestReorder(payload: {
       return false
     }
 
-    const { requestID } = tab.document.saveContext
+    const requestHandle = tab.document.saveContext.requestHandle as
+      | HandleRef<WorkspaceRequest>["value"]
+      | undefined
+
+    if (!requestHandle || requestHandle.type === "invalid") {
+      return false
+    }
+
+    const { requestID } = requestHandle.data
     const collectionID = requestID.split("/").slice(0, -1).join("/")
     const requestIndex = parseInt(requestID.split("/").slice(-1)[0])
 
-    return collectionID === folderPath && affectedIndexes.has(requestIndex)
+    return collectionID === folderPath && affectedIndices.has(requestIndex)
   })
 
   for (const tab of tabs) {
     if (tab.value.document.saveContext?.originLocation === "user-collection") {
-      const newIndex = affectedIndexes.get(
+      const newIndex = affectedIndices.get(
         tab.value.document.saveContext?.requestIndex
       )!
       tab.value.document.saveContext.requestIndex = newIndex
     }
 
     if (
-      tab.value.document.saveContext?.originLocation ===
+      tab.value.document.saveContext?.originLocation !==
       "workspace-user-collection"
     ) {
-      const { requestID } = tab.value.document.saveContext
-
-      const requestIDArray = requestID.split("/")
-      const requestIndex = affectedIndexes.get(
-        parseInt(requestIDArray[requestIDArray.length - 1])
-      )!
-
-      requestIDArray[requestIDArray.length - 1] = requestIndex.toString()
-      tab.value.document.saveContext.requestID = requestIDArray.join("/")
+      return
     }
+
+    const requestHandle = tab.value.document.saveContext.requestHandle as
+      | HandleRef<WorkspaceRequest>["value"]
+      | undefined
+
+    if (!requestHandle || requestHandle.type === "invalid") {
+      return
+    }
+
+    const { requestID } = requestHandle.data
+
+    const requestIDArr = requestID.split("/")
+    const requestIndex = affectedIndices.get(
+      parseInt(requestIDArr[requestIDArr.length - 1])
+    )!
+
+    requestIDArr[requestIDArr.length - 1] = requestIndex.toString()
+
+    tab.value.document.saveContext.requestID = requestIDArr.join("/")
+    requestHandle.data.requestID = requestIDArr.join("/")
+    requestHandle.data.collectionID = requestIDArr.slice(0, -1).join("/")
   }
 }
 

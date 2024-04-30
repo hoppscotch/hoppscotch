@@ -59,7 +59,10 @@ import {
   WorkspaceRequest,
 } from "~/services/new-workspace/workspace"
 
-import { getRequestsByPath } from "~/helpers/collection/request"
+import {
+  getRequestsByPath,
+  resolveSaveContextOnRequestReorder,
+} from "~/helpers/collection/request"
 import { initializeDownloadFile } from "~/helpers/import-export/export"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import IconUser from "~icons/lucide/user"
@@ -605,6 +608,17 @@ export class PersonalWorkspaceProviderService
       .split("/")
       .slice(0, -1)
       .join("/")
+
+    // When it's drop it's basically getting deleted from last folder, reordering last folder accordingly
+    resolveSaveContextOnRequestReorder({
+      lastIndex: this.pathToLastIndex(requestIndex),
+      newIndex: -1, // being deleted from last folder
+      folderPath: parentCollectionIndexPath,
+      length: getRequestsByPath(
+        restCollectionStore.value.state,
+        parentCollectionIndexPath
+      ).length,
+    })
 
     moveRESTRequest(
       parentCollectionIndexPath,

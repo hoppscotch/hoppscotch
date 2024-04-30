@@ -120,7 +120,7 @@ export function resolveSaveContextOnCollectionReorder(
 
     const newCollectionID = affectedPaths.get(collectionID)
     const newRequestID = `${newCollectionID}/${
-      tab.value.document.saveContext.requestID.split("/").slice(-1)[0]
+      requestID.split("/").slice(-1)[0]
     }`
 
     tab.value.document.saveContext.requestID = newRequestID
@@ -329,7 +329,7 @@ export function updateInheritedPropertiesForAffectedRequests(
       "workspace-user-collection"
     ) {
       const requestHandle = ref(tab.value.document.saveContext.requestHandle)
-      if (requestHandle.value.type === "ok") {
+      if (requestHandle.value?.type === "ok") {
         contextPath = requestHandle.value.data.collectionID
       }
     } else {
@@ -382,17 +382,49 @@ function resetSaveContextForAffectedRequests(folderPath: string) {
       return false
     }
 
-    const collectionID = tab.document.saveContext.requestID
-      .split("/")
-      .slice(0, -1)
-      .join("/")
+    const requestHandle = tab.document.saveContext.requestHandle as
+      | HandleRef<WorkspaceRequest>["value"]
+      | undefined
+
+    if (!requestHandle || requestHandle.type === "invalid") {
+      return false
+    }
+
+    const { requestID } = requestHandle.data
+    const collectionID = requestID.split("/").slice(0, -1).join("/")
 
     return collectionID.startsWith(folderPath)
   })
 
   for (const tab of tabs) {
-    tab.value.document.saveContext = null
-    tab.value.document.isDirty = true
+    if (tab.value.document.saveContext?.originLocation === "user-collection") {
+      tab.value.document.saveContext = null
+      tab.value.document.isDirty = true
+
+      return
+    }
+
+    if (
+      tab.value.document.saveContext?.originLocation ===
+      "workspace-user-collection"
+    ) {
+      const requestHandle = tab.value.document.saveContext.requestHandle as
+        | HandleRef<WorkspaceRequest>["value"]
+        | undefined
+
+      if (!requestHandle || requestHandle.type === "invalid") {
+        return
+      }
+
+      // @ts-expect-error - Removing the `data` property
+      delete requestHandle.data
+
+      // @ts-expect-error - Updating the type
+      requestHandle.type = "invalid"
+
+      // @ts-expect-error - Specifying the reason
+      requestHandle.reason = "REQUEST_INVALIDATED"
+    }
   }
 }
 

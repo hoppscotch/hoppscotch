@@ -40,7 +40,6 @@ import { platform } from "~/platform"
 import { useService } from "dioc/vue"
 import { WorkspaceService } from "~/services/workspace.service"
 import { useLocalState } from "~/newstore/localstate"
-import { nextTick } from "vue"
 
 const t = useI18n()
 
@@ -87,18 +86,16 @@ const addNewTeam = async () => {
       },
       (team) => {
         toast.success(`${t("team.new_created")}`)
-        nextTick(() => {
-          if (props.switchWorkspaceAfterCreation) {
-            if (props.switchWorkspaceAfterCreation) {
-              REMEMBERED_TEAM_ID.value = team.id
-              workspaceService.changeWorkspace({
-                teamID: team.id,
-                teamName: team.name,
-                type: "team",
-              })
-            }
-          }
-        })
+
+        if (props.switchWorkspaceAfterCreation) {
+          REMEMBERED_TEAM_ID.value = team.id
+          workspaceService.changeWorkspace({
+            teamID: team.id,
+            teamName: team.name,
+            type: "team",
+          })
+        }
+
         hideModal()
       }
     )

@@ -121,7 +121,7 @@ watch(
   elVisible,
   () => {
     if (elVisible.value) {
-      if (!teamListadapter.isInitialized) teamListadapter.fetchList()
+      teamListadapter.fetchList()
 
       resumeListPoll()
     } else {

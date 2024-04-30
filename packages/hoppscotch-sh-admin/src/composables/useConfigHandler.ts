@@ -157,22 +157,22 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
     {
       config: GOOGLE_CONFIGS,
       enabled: updatedConfigs?.providers.google.enabled,
-      field: updatedConfigs?.providers.google.fields,
+      fields: updatedConfigs?.providers.google.fields,
     },
     {
       config: GITHUB_CONFIGS,
       enabled: updatedConfigs?.providers.github.enabled,
-      field: updatedConfigs?.providers.github.fields,
+      fields: updatedConfigs?.providers.github.fields,
     },
     {
       config: MICROSOFT_CONFIGS,
       enabled: updatedConfigs?.providers.microsoft.enabled,
-      field: updatedConfigs?.providers.microsoft.fields,
+      fields: updatedConfigs?.providers.microsoft.fields,
     },
     {
       config: MAIL_CONFIGS,
       enabled: updatedConfigs?.mailConfigs.enabled,
-      field: updatedConfigs?.mailConfigs.fields,
+      fields: updatedConfigs?.mailConfigs.fields,
     },
   ];
 
@@ -180,17 +180,15 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
   const transformInfraConfigs = (workingConfigs: ConfigTransform[]) => {
     let newConfigs: UpdatedConfigs[] = [];
 
-    workingConfigs.forEach(({ config, enabled, field }) => {
+    workingConfigs.forEach(({ config, enabled, fields }) => {
       config.forEach(({ name, key }) => {
-        if (enabled && field) {
-          const value = typeof field === 'string' ? field : String(field[key]);
+        if (enabled && fields) {
+          const value =
+            typeof fields === 'string' ? fields : String(fields[key]);
           newConfigs.push({ name, value });
-        } else {
-          newConfigs = newConfigs.filter((item) => item.name !== name);
         }
       });
     });
-    newConfigs = newConfigs.filter((item) => item.name !== '');
     return newConfigs;
   };
 
@@ -286,8 +284,6 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
   return {
     currentConfigs,
     workingConfigs,
-    updatedInfraConfigs,
-    updatedAllowedAuthProviders,
     updateAuthProvider,
     updateDataSharingConfigs,
     updateInfraConfigs,

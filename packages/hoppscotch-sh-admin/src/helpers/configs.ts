@@ -58,7 +58,7 @@ export type UpdatedConfigs = {
 export type ConfigTransform = {
   config: Config[];
   enabled?: boolean;
-  field?: Record<string, string | boolean> | string;
+  fields?: Record<string, string | boolean> | string;
 };
 
 export type ConfigSection = {

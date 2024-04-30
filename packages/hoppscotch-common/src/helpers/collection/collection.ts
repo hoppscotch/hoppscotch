@@ -9,6 +9,8 @@ import { runGQLQuery } from "../backend/GQLClient"
 import { GetSingleRequestDocument } from "../backend/graphql"
 import { HoppInheritedProperty } from "../types/HoppInheritedProperties"
 import { getAffectedIndexes } from "./affectedIndex"
+import { WorkspaceRequest } from "~/services/new-workspace/workspace"
+import { HandleRef } from "~/services/new-workspace/handle"
 
 /**
  * Resolve save context on reorder
@@ -74,10 +76,17 @@ export function resolveSaveContextOnCollectionReorder(
       return false
     }
 
-    const collectionID = tab.document.saveContext.requestID
-      .split("/")
-      .slice(0, -1)
-      .join("/")
+    const requestHandle = tab.document.saveContext.requestHandle as
+      | HandleRef<WorkspaceRequest>["value"]
+      | undefined
+
+    if (!requestHandle || requestHandle.type === "invalid") {
+      return false
+    }
+
+    const { requestID } = requestHandle.data
+
+    const collectionID = requestID.split("/").slice(0, -1).join("/")
 
     return affectedPaths.has(collectionID)
   })
@@ -91,20 +100,34 @@ export function resolveSaveContextOnCollectionReorder(
     }
 
     if (
-      tab.value.document.saveContext?.originLocation ===
+      tab.value.document.saveContext?.originLocation !==
       "workspace-user-collection"
     ) {
-      const collectionID = tab.value.document.saveContext.requestID
-        .split("/")
-        .slice(0, -1)
-        .join("/")
+      return false
+    }
 
-      const newCollectionID = affectedPaths.get(collectionID)
-      const newRequestID = `${newCollectionID}/${
-        tab.value.document.saveContext.requestID.split("/").slice(-1)[0]
-      }`
+    const requestHandle = tab.value.document.saveContext.requestHandle as
+      | HandleRef<WorkspaceRequest>["value"]
+      | undefined
 
-      tab.value.document.saveContext.requestID = newRequestID
+    if (!requestHandle || requestHandle.type === "invalid") {
+      return false
+    }
+
+    const { requestID } = requestHandle.data
+
+    const collectionID = requestID.split("/").slice(0, -1).join("/")
+
+    const newCollectionID = affectedPaths.get(collectionID)
+    const newRequestID = `${newCollectionID}/${
+      tab.value.document.saveContext.requestID.split("/").slice(-1)[0]
+    }`
+
+    tab.value.document.saveContext.requestID = newRequestID
+    requestHandle.data = {
+      ...requestHandle.data,
+      collectionID: newCollectionID!,
+      requestID: newRequestID,
     }
   }
 }
@@ -146,7 +169,15 @@ export function updateSaveContextForAffectedRequests(
     if (
       tab.document.saveContext?.originLocation === "workspace-user-collection"
     ) {
-      const { requestID } = tab.document.saveContext
+      const requestHandle = tab.document.saveContext.requestHandle as
+        | HandleRef<WorkspaceRequest>["value"]
+        | undefined
+
+      if (!requestHandle || requestHandle.type === "invalid") {
+        return false
+      }
+
+      const { requestID } = requestHandle.data
 
       const collectionID = requestID.split("/").slice(0, -1).join("/")
       const requestIndex = requestID.split("/").slice(-1)[0]
@@ -160,6 +191,12 @@ export function updateSaveContextForAffectedRequests(
 
         tab.document.saveContext = {
           ...tab.document.saveContext,
+          requestID: newRequestID,
+        }
+
+        requestHandle.data = {
+          ...requestHandle.data,
+          collectionID: newCollectionID,
           requestID: newRequestID,
         }
       }

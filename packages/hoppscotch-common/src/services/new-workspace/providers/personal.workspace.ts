@@ -626,30 +626,6 @@ export class PersonalWorkspaceProviderService
       destinationCollectionID
     )
 
-    for (const [idx, handle] of this.issuedHandles.entries()) {
-      if (handle.value.type === "invalid") continue
-
-      if ("requestID" in handle.value.data) {
-        if (
-          handle.value.data.requestID === requestHandle.value.data.requestID
-        ) {
-          const destinationRequestID = `${destinationCollectionID}/${(
-            getRequestsByPath(
-              this.restCollectionState.value.state,
-              destinationCollectionID
-            ).length - 1
-          ).toString()}`
-
-          // @ts-expect-error - We're updating the request handle data
-          this.issuedHandles[idx].value.data.collectionID =
-            destinationCollectionID
-
-          // @ts-expect-error - We're updating the request handle data
-          this.issuedHandles[idx].value.data.requestID = destinationRequestID
-        }
-      }
-    }
-
     return Promise.resolve(E.right(undefined))
   }
 

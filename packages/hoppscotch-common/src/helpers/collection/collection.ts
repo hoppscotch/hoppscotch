@@ -21,15 +21,12 @@ import { HandleRef } from "~/services/new-workspace/handle"
  * @returns
  */
 
-export function resolveSaveContextOnCollectionReorder(
-  payload: {
-    lastIndex: number
-    newIndex: number
-    folderPath: string
-    length?: number // better way to do this? now it could be undefined
-  },
-  type: "remove" | "drop" = "remove"
-) {
+export function resolveSaveContextOnCollectionReorder(payload: {
+  lastIndex: number
+  newIndex: number
+  folderPath: string
+  length?: number // better way to do this? now it could be undefined
+}) {
   const { lastIndex, folderPath, length } = payload
   let { newIndex } = payload
 
@@ -44,12 +41,6 @@ export function resolveSaveContextOnCollectionReorder(
   if (newIndex === -1) {
     // if (newIndex === -1) remove it from the map because it will be deleted
     affectedIndexes.delete(lastIndex)
-    // when collection deleted opended requests from that collection be affected
-    if (type === "remove") {
-      resetSaveContextForAffectedRequests(
-        folderPath ? `${folderPath}/${lastIndex}` : lastIndex.toString()
-      )
-    }
   }
 
   // add folder path as prefix to the affected indexes

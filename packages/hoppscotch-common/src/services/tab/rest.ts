@@ -82,7 +82,7 @@ export class RESTTabService extends TabService<HoppRESTDocument> {
     for (const tab of this.tabMap.values()) {
       if (tab.document.isDirty) {
         count++
-        return
+        continue
       }
 
       if (

@@ -512,34 +512,25 @@ const saveRequest = async () => {
     showSaveRequestModal.value = true
     return
   }
+
   if (saveCtx.originLocation === "workspace-user-collection") {
     const updatedRequest = tab.value.document.request
 
-    if (!workspaceService.activeWorkspaceHandle.value) {
+    if (
+      !workspaceService.activeWorkspaceHandle.value ||
+      !saveCtx.requestHandle
+    ) {
       return
     }
 
-    const { requestID } = saveCtx
+    const requestHandle = ref(saveCtx.requestHandle)
 
-    const requestHandleResult = await workspaceService.getRequestHandle(
-      workspaceService.activeWorkspaceHandle.value,
-      requestID
-    )
-
-    if (E.isLeft(requestHandleResult)) {
-      // INVALID_COLLECTION_HANDLE | INVALID_REQUEST_ID | REQUEST_NOT_FOUND
-      showSaveRequestModal.value = true
-
-      if (!tab.value.document.isDirty) {
-        tab.value.document.isDirty = true
-      }
+    if (!requestHandle.value) {
       return
     }
-
-    const requestHandle = requestHandleResult.right
 
     if (requestHandle.value.type === "invalid") {
-      // WORKSPACE_INVALIDATED
+      showSaveRequestModal.value = true
       return
     }
 

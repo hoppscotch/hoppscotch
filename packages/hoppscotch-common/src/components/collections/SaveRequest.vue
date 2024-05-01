@@ -266,16 +266,11 @@ const saveRequestAs = async () => {
       return
     }
 
-    const { providerID, requestID, workspaceID } = requestHandle.value.data
-
     RESTTabs.currentActiveTab.value.document = {
       request: updatedRequest,
       isDirty: false,
       saveContext: {
         originLocation: "workspace-user-collection",
-        workspaceID,
-        providerID,
-        requestID,
         requestHandle,
       },
     }
@@ -312,16 +307,12 @@ const saveRequestAs = async () => {
       return
     }
 
-    const { providerID, requestID, workspaceID } = requestHandle.value.data
-
     RESTTabs.currentActiveTab.value.document = {
       request: updatedRequest,
       isDirty: false,
       saveContext: {
         originLocation: "workspace-user-collection",
-        workspaceID,
-        providerID,
-        requestID,
+        requestHandle,
       },
     }
 

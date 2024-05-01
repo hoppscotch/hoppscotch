@@ -1,3 +1,5 @@
+import { InfraConfigEnum } from './backend/graphql';
+
 export type SsoAuthProviders = 'google' | 'microsoft' | 'github';
 
 export type ServerConfigs = {
@@ -51,7 +53,7 @@ export type ServerConfigs = {
 };
 
 export type UpdatedConfigs = {
-  name: string;
+  name: InfraConfigEnum;
   value: string;
 };
 
@@ -67,85 +69,85 @@ export type ConfigSection = {
 };
 
 export type Config = {
-  name: string;
+  name: InfraConfigEnum;
   key: string;
 };
 
 export const GOOGLE_CONFIGS: Config[] = [
   {
-    name: 'GOOGLE_CLIENT_ID',
+    name: InfraConfigEnum.GoogleClientId,
     key: 'client_id',
   },
   {
-    name: 'GOOGLE_CLIENT_SECRET',
+    name: InfraConfigEnum.GoogleClientSecret,
     key: 'client_secret',
   },
   {
-    name: 'GOOGLE_CALLBACK_URL',
+    name: InfraConfigEnum.GoogleCallbackUrl,
     key: 'callback_url',
   },
   {
-    name: 'GOOGLE_SCOPE',
+    name: InfraConfigEnum.GoogleScope,
     key: 'scope',
   },
 ];
 
 export const MICROSOFT_CONFIGS: Config[] = [
   {
-    name: 'MICROSOFT_CLIENT_ID',
+    name: InfraConfigEnum.MicrosoftClientId,
     key: 'client_id',
   },
   {
-    name: 'MICROSOFT_CLIENT_SECRET',
+    name: InfraConfigEnum.MicrosoftClientSecret,
     key: 'client_secret',
   },
   {
-    name: 'MICROSOFT_CALLBACK_URL',
+    name: InfraConfigEnum.MicrosoftCallbackUrl,
     key: 'callback_url',
   },
   {
-    name: 'MICROSOFT_SCOPE',
+    name: InfraConfigEnum.MicrosoftScope,
     key: 'scope',
   },
   {
-    name: 'MICROSOFT_TENANT',
+    name: InfraConfigEnum.MicrosoftTenant,
     key: 'tenant',
   },
 ];
 
 export const GITHUB_CONFIGS: Config[] = [
   {
-    name: 'GITHUB_CLIENT_ID',
+    name: InfraConfigEnum.GithubClientId,
     key: 'client_id',
   },
   {
-    name: 'GITHUB_CLIENT_SECRET',
+    name: InfraConfigEnum.GithubClientSecret,
     key: 'client_secret',
   },
   {
-    name: 'GITHUB_CALLBACK_URL',
+    name: InfraConfigEnum.GithubCallbackUrl,
     key: 'callback_url',
   },
   {
-    name: 'GITHUB_SCOPE',
+    name: InfraConfigEnum.GithubScope,
     key: 'scope',
   },
 ];
 
 export const MAIL_CONFIGS: Config[] = [
   {
-    name: 'MAILER_SMTP_URL',
+    name: InfraConfigEnum.MailerSmtpUrl,
     key: 'mailer_smtp_url',
   },
   {
-    name: 'MAILER_ADDRESS_FROM',
+    name: InfraConfigEnum.MailerAddressFrom,
     key: 'mailer_from_address',
   },
 ];
 
 const DATA_SHARING_CONFIGS: Omit<Config, 'key'>[] = [
   {
-    name: 'ALLOW_ANALYTICS_COLLECTION',
+    name: InfraConfigEnum.AllowAnalyticsCollection,
   },
 ];
 

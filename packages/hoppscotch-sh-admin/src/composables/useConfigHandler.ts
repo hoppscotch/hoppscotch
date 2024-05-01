@@ -1,15 +1,18 @@
 import { AnyVariables, UseMutationResponse } from '@urql/vue';
 import { cloneDeep } from 'lodash-es';
 import { onMounted, ref } from 'vue';
+
 import { useI18n } from '~/composables/i18n';
 import {
   AllowedAuthProvidersDocument,
+  AuthProvider,
   EnableAndDisableSsoArgs,
   EnableAndDisableSsoMutation,
   InfraConfigArgs,
   InfraConfigEnum,
   InfraConfigsDocument,
   ResetInfraConfigsMutation,
+  ServiceStatus,
   ToggleAnalyticsCollectionMutation,
   UpdateInfraConfigsMutation,
 } from '~/helpers/backend/graphql';
@@ -70,7 +73,7 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
     await fetchInfraConfigs();
     await fetchAllowedAuthProviders();
 
-    const getFieldValue = (name: string) =>
+    const getFieldValue = (name: InfraConfigEnum) =>
       infraConfigs.value.find((x) => x.name === name)?.value ?? '';
 
     // Transforming the fetched data into a Configs object
@@ -78,42 +81,42 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
       providers: {
         google: {
           name: 'google',
-          enabled: allowedAuthProviders.value.includes('GOOGLE'),
+          enabled: allowedAuthProviders.value.includes(AuthProvider.Google),
           fields: {
-            client_id: getFieldValue('GOOGLE_CLIENT_ID'),
-            client_secret: getFieldValue('GOOGLE_CLIENT_SECRET'),
-            callback_url: getFieldValue('GOOGLE_CALLBACK_URL'),
-            scope: getFieldValue('GOOGLE_SCOPE'),
+            client_id: getFieldValue(InfraConfigEnum.GoogleClientId),
+            client_secret: getFieldValue(InfraConfigEnum.GoogleClientSecret),
+            callback_url: getFieldValue(InfraConfigEnum.GoogleCallbackUrl),
+            scope: getFieldValue(InfraConfigEnum.GoogleScope),
           },
         },
         github: {
           name: 'github',
-          enabled: allowedAuthProviders.value.includes('GITHUB'),
+          enabled: allowedAuthProviders.value.includes(AuthProvider.Github),
           fields: {
-            client_id: getFieldValue('GITHUB_CLIENT_ID'),
-            client_secret: getFieldValue('GITHUB_CLIENT_SECRET'),
-            callback_url: getFieldValue('GITHUB_CALLBACK_URL'),
-            scope: getFieldValue('GITHUB_SCOPE'),
+            client_id: getFieldValue(InfraConfigEnum.GithubClientId),
+            client_secret: getFieldValue(InfraConfigEnum.GithubClientSecret),
+            callback_url: getFieldValue(InfraConfigEnum.GoogleCallbackUrl),
+            scope: getFieldValue(InfraConfigEnum.GithubScope),
           },
         },
         microsoft: {
           name: 'microsoft',
-          enabled: allowedAuthProviders.value.includes('MICROSOFT'),
+          enabled: allowedAuthProviders.value.includes(AuthProvider.Microsoft),
           fields: {
-            client_id: getFieldValue('MICROSOFT_CLIENT_ID'),
-            client_secret: getFieldValue('MICROSOFT_CLIENT_SECRET'),
-            callback_url: getFieldValue('MICROSOFT_CALLBACK_URL'),
-            scope: getFieldValue('MICROSOFT_SCOPE'),
-            tenant: getFieldValue('MICROSOFT_TENANT'),
+            client_id: getFieldValue(InfraConfigEnum.MicrosoftClientId),
+            client_secret: getFieldValue(InfraConfigEnum.MicrosoftClientSecret),
+            callback_url: getFieldValue(InfraConfigEnum.MicrosoftCallbackUrl),
+            scope: getFieldValue(InfraConfigEnum.MicrosoftScope),
+            tenant: getFieldValue(InfraConfigEnum.MicrosoftTenant),
           },
         },
       },
       mailConfigs: {
         name: 'email',
-        enabled: allowedAuthProviders.value.includes('EMAIL'),
+        enabled: allowedAuthProviders.value.includes(AuthProvider.Email),
         fields: {
-          mailer_smtp_url: getFieldValue('MAILER_SMTP_URL'),
-          mailer_from_address: getFieldValue('MAILER_ADDRESS_FROM'),
+          mailer_smtp_url: getFieldValue(InfraConfigEnum.MailerSmtpUrl),
+          mailer_from_address: getFieldValue(InfraConfigEnum.MailerAddressFrom),
         },
       },
       dataSharingConfigs: {
@@ -149,74 +152,45 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
     );
   };
 
-  /**
-   * The updated configs are transformed into a format that can be used by the mutations
-   */
+  // Transforming the working configs back into the format required by the mutations
+  const transformInfraConfigs = () => {
+    const updatedWorkingConfigs: ConfigTransform[] = [
+      {
+        config: GOOGLE_CONFIGS,
+        enabled: updatedConfigs?.providers.google.enabled,
+        fields: updatedConfigs?.providers.google.fields,
+      },
+      {
+        config: GITHUB_CONFIGS,
+        enabled: updatedConfigs?.providers.github.enabled,
+        fields: updatedConfigs?.providers.github.fields,
+      },
+      {
+        config: MICROSOFT_CONFIGS,
+        enabled: updatedConfigs?.providers.microsoft.enabled,
+        fields: updatedConfigs?.providers.microsoft.fields,
+      },
+      {
+        config: MAIL_CONFIGS,
+        enabled: updatedConfigs?.mailConfigs.enabled,
+        fields: updatedConfigs?.mailConfigs.fields,
+      },
+    ];
 
-  const workingUpdatedConfigs: ConfigTransform[] = [
-    {
-      config: GOOGLE_CONFIGS,
-      enabled: updatedConfigs?.providers.google.enabled,
-      fields: updatedConfigs?.providers.google.fields,
-    },
-    {
-      config: GITHUB_CONFIGS,
-      enabled: updatedConfigs?.providers.github.enabled,
-      fields: updatedConfigs?.providers.github.fields,
-    },
-    {
-      config: MICROSOFT_CONFIGS,
-      enabled: updatedConfigs?.providers.microsoft.enabled,
-      fields: updatedConfigs?.providers.microsoft.fields,
-    },
-    {
-      config: MAIL_CONFIGS,
-      enabled: updatedConfigs?.mailConfigs.enabled,
-      fields: updatedConfigs?.mailConfigs.fields,
-    },
-  ];
+    const transformedConfigs: UpdatedConfigs[] = [];
 
-  // Push or filter the configs based on the enabled condition
-  const transformInfraConfigs = (workingConfigs: ConfigTransform[]) => {
-    let newConfigs: UpdatedConfigs[] = [];
-
-    workingConfigs.forEach(({ config, enabled, fields }) => {
+    updatedWorkingConfigs.forEach(({ config, enabled, fields }) => {
       config.forEach(({ name, key }) => {
         if (enabled && fields) {
           const value =
             typeof fields === 'string' ? fields : String(fields[key]);
-          newConfigs.push({ name, value });
+          transformedConfigs.push({ name, value });
         }
       });
     });
-    return newConfigs;
+
+    return transformedConfigs;
   };
-
-  // Transforming the working configs back into the format required by the mutations
-  const updatedInfraConfigs = () =>
-    updatedConfigs ? transformInfraConfigs(workingUpdatedConfigs) : [];
-
-  // Updated allowed auth providers
-  const updatedAllowedAuthProviders = [
-    {
-      provider: 'GOOGLE',
-      status: updatedConfigs?.providers.google.enabled ? 'ENABLE' : 'DISABLE',
-    },
-    {
-      provider: 'MICROSOFT',
-      status: updatedConfigs?.providers.microsoft.enabled
-        ? 'ENABLE'
-        : 'DISABLE',
-    },
-    {
-      provider: 'GITHUB',
-      status: updatedConfigs?.providers.github.enabled ? 'ENABLE' : 'DISABLE',
-    },
-    {
-      provider: 'EMAIL',
-      status: updatedConfigs?.mailConfigs.enabled ? 'ENABLE' : 'DISABLE',
-    },
-  ];
 
   // Generic function to handle mutation execution and error handling
   const executeMutation = async <T, V>(
@@ -237,26 +211,59 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
   // Updating the auth provider configurations
   const updateAuthProvider = (
     updateProviderStatus: UseMutationResponse<EnableAndDisableSsoMutation>
-  ) =>
-    executeMutation(
+  ) => {
+    const updatedAllowedAuthProviders: EnableAndDisableSsoArgs[] = [
+      {
+        provider: AuthProvider.Google,
+        status: updatedConfigs?.providers.google.enabled
+          ? ServiceStatus.Enable
+          : ServiceStatus.Disable,
+      },
+      {
+        provider: AuthProvider.Microsoft,
+        status: updatedConfigs?.providers.microsoft.enabled
+          ? ServiceStatus.Enable
+          : ServiceStatus.Disable,
+      },
+      {
+        provider: AuthProvider.Github,
+        status: updatedConfigs?.providers.github.enabled
+          ? ServiceStatus.Enable
+          : ServiceStatus.Disable,
+      },
+      {
+        provider: AuthProvider.Email,
+        status: updatedConfigs?.mailConfigs.enabled
+          ? ServiceStatus.Enable
+          : ServiceStatus.Disable,
+      },
+    ];
+
+    return executeMutation(
       updateProviderStatus,
       {
-        providerInfo: updatedAllowedAuthProviders as EnableAndDisableSsoArgs[],
+        providerInfo: updatedAllowedAuthProviders,
       },
       'configs.auth_providers.update_failure'
     );
+  };
 
   // Updating the infra configurations
   const updateInfraConfigs = (
     updateInfraConfigsMutation: UseMutationResponse<UpdateInfraConfigsMutation>
-  ) =>
-    executeMutation(
+  ) => {
+    const infraConfigs: InfraConfigArgs[] = updatedConfigs
+      ? transformInfraConfigs()
+      : [];
+
+    return executeMutation(
       updateInfraConfigsMutation,
       {
-        infraConfigs: updatedInfraConfigs() as InfraConfigArgs[],
+        infraConfigs,
       },
       'configs.update_failure'
     );
+  };
 
   // Resetting the infra configurations
   const resetInfraConfigs = (
@@ -275,8 +282,8 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
       toggleDataSharingMutation,
       {
         status: updatedConfigs?.dataSharingConfigs.enabled
-          ? 'ENABLE'
-          : 'DISABLE',
+          ? ServiceStatus.Enable
+          : ServiceStatus.Disable,
       },
       'configs.data_sharing.update_failure'
     );

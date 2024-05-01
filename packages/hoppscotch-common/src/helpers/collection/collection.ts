@@ -122,7 +122,6 @@ export function resolveSaveContextOnCollectionReorder(
       requestID.split("/").slice(-1)[0]
     }`
 
-    tab.value.document.saveContext.requestID = newRequestID
     requestHandle.data = {
       ...requestHandle.data,
       collectionID: newCollectionID!,

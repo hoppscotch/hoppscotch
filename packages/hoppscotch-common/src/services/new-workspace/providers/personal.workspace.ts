@@ -60,6 +60,10 @@ import {
 } from "~/services/new-workspace/workspace"
 
 import {
+  getFoldersByPath,
+  resolveSaveContextOnCollectionReorder,
+} from "~/helpers/collection/collection"
+import {
   getRequestsByPath,
   resolveSaveContextOnRequestReorder,
 } from "~/helpers/collection/request"
@@ -279,10 +283,9 @@ export class PersonalWorkspaceProviderService
     const { collectionID } = collectionHandle.value.data
 
     const isRootCollection = collectionID.split("/").length === 1
+    const collectionIndex = parseInt(collectionID)
 
     if (isRootCollection) {
-      const collectionIndex = parseInt(collectionID)
-
       const collectionToRemove = navigateToFolderWithIndexPath(
         restCollectionStore.value.state,
         [collectionIndex]
@@ -320,6 +323,26 @@ export class PersonalWorkspaceProviderService
           this.issuedHandles[idx].value.reason = "REQUEST_INVALIDATED"
         }
       }
+    }
+
+    if (isRootCollection) {
+      resolveSaveContextOnCollectionReorder({
+        lastIndex: collectionIndex,
+        newIndex: -1,
+        folderPath: "", // root folder
+        length: restCollectionStore.value.state.length,
+      })
+    } else {
+      const parentCollectionID = collectionID.split("/").slice(0, -1).join("/") // remove last folder to get parent folder
+      resolveSaveContextOnCollectionReorder({
+        lastIndex: this.pathToLastIndex(collectionID),
+        newIndex: -1,
+        folderPath: parentCollectionID,
+        length: getFoldersByPath(
+          restCollectionStore.value.state,
+          parentCollectionID
+        ).length,
+      })
     }
 
     return Promise.resolve(E.right(undefined))

@@ -1812,18 +1812,15 @@ const dropCollection = async (payload: {
         : resolvedDestinationCollectionIndex
   }
 
-  resolveSaveContextOnCollectionReorder(
-    {
-      lastIndex: pathToLastIndex(draggedCollectionIndex),
-      newIndex: -1,
-      folderPath: draggedParentCollectionIndex,
-      length: getFoldersByPath(
-        restCollectionState.value,
-        draggedParentCollectionIndex
-      ).length,
-    },
-    "drop"
-  )
+  resolveSaveContextOnCollectionReorder({
+    lastIndex: pathToLastIndex(draggedCollectionIndex),
+    newIndex: -1,
+    folderPath: draggedParentCollectionIndex,
+    length: getFoldersByPath(
+      restCollectionState.value,
+      draggedParentCollectionIndex
+    ).length,
+  })
 
   updateSaveContextForAffectedRequests(
     draggedCollectionIndex,

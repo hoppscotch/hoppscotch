@@ -80,7 +80,22 @@ export class RESTTabService extends TabService<HoppRESTDocument> {
     let count = 0
 
     for (const tab of this.tabMap.values()) {
-      if (tab.document.isDirty) count++
+      if (tab.document.isDirty) {
+        count++
+        return
+      }
+
+      if (
+        tab.document.saveContext?.originLocation === "workspace-user-collection"
+      ) {
+        const requestHandle = tab.document.saveContext.requestHandle as
+          | HandleRef<WorkspaceRequest>["value"]
+          | undefined
+
+        if (requestHandle?.type === "invalid") {
+          count++
+        }
+      }
     }
 
     return count

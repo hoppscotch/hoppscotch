@@ -428,6 +428,15 @@ export class PersonalWorkspaceProviderService
       }
     }
 
+    // The same function is used to reorder requests since after removing, it's basically doing reorder
+    resolveSaveContextOnRequestReorder({
+      lastIndex: requestIndex,
+      newIndex: -1,
+      folderPath: collectionID,
+      length: getRequestsByPath(restCollectionStore.value.state, collectionID)
+        .length,
+    })
+
     return Promise.resolve(E.right(undefined))
   }
 

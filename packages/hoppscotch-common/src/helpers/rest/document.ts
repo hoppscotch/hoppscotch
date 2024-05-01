@@ -16,17 +16,17 @@ export type HoppRESTSaveContext =
       /**
        * ID of the workspace
        */
-      workspaceID: string
+      workspaceID?: string
 
       /**
        * ID of the provider
        */
-      providerID: string
+      providerID?: string
 
       /**
        * Path to the request in the collection tree
        */
-      requestID: string
+      requestID?: string
 
       /**
        * Handle to the request open in the tab

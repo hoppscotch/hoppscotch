@@ -79,7 +79,7 @@
             interactive
             trigger="click"
             theme="popover"
-            :on-shown="() => tippyActions.focus()"
+            :on-shown="() => tippyActions?.focus()"
           >
             <HoppButtonSecondary
               v-tippy="{ theme: 'tooltip' }"

@@ -18,7 +18,6 @@ import {
   TabService as TabServiceInterface,
 } from "."
 
-import { HoppGQLDocument } from "~/helpers/graphql/document"
 import { NewWorkspaceService } from "../new-workspace"
 import { HandleRef } from "../new-workspace/handle"
 import { WorkspaceRequest } from "../new-workspace/workspace"
@@ -137,10 +136,12 @@ export abstract class TabService<Doc>
           if (E.isRight(requestHandleResult)) {
             requestHandle = requestHandleResult.right
 
+            const { originLocation } = saveContext
+
             resolvedTabDoc = {
               ...resolvedTabDoc,
               saveContext: {
-                ...saveContext,
+                originLocation,
                 requestHandle,
               },
             }

@@ -102,7 +102,6 @@ export function resolveSaveContextOnRequestReorder(payload: {
 
     requestIDArr[requestIDArr.length - 1] = requestIndex.toString()
 
-    tab.value.document.saveContext.requestID = requestIDArr.join("/")
     requestHandle.data.requestID = requestIDArr.join("/")
     requestHandle.data.collectionID = requestIDArr.slice(0, -1).join("/")
   }

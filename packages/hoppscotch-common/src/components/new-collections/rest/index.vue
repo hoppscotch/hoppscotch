@@ -501,10 +501,7 @@ import {
   updateInheritedPropertiesForAffectedRequests,
   updateSaveContextForAffectedRequests,
 } from "~/helpers/collection/collection"
-import {
-  getRequestsByPath,
-  resolveSaveContextOnRequestReorder,
-} from "~/helpers/collection/request"
+import { getRequestsByPath } from "~/helpers/collection/request"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import { Picked } from "~/helpers/types/HoppPicked"
 import {
@@ -842,16 +839,11 @@ const onAddRequest = async (requestName: string) => {
 
   const { auth, headers } = cascadingAuthHeadersHandle.value.data
 
-  const { providerID, requestID, workspaceID } = requestHandle.value.data
-
   tabs.createNewTab({
     request: newRequest,
     isDirty: false,
     saveContext: {
       originLocation: "workspace-user-collection",
-      workspaceID,
-      providerID,
-      requestID,
       requestHandle,
     },
     inheritedProperties: {
@@ -1160,8 +1152,6 @@ const selectRequest = async (requestIndexPath: string) => {
 
   const { auth, headers } = cascadingAuthHeadersHandle.value.data
 
-  const { providerID, requestID, workspaceID } = requestHandle.value.data
-
   // If there is a request with this save context, switch into it
   const possibleTab = tabs.getTabRefWithSaveContext({
     originLocation: "workspace-user-collection",
@@ -1177,9 +1167,6 @@ const selectRequest = async (requestIndexPath: string) => {
       isDirty: false,
       saveContext: {
         originLocation: "workspace-user-collection",
-        workspaceID,
-        providerID,
-        requestID,
         requestHandle,
       },
       inheritedProperties: {

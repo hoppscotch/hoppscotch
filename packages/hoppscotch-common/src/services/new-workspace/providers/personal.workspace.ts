@@ -59,6 +59,7 @@ import {
   WorkspaceRequest,
 } from "~/services/new-workspace/workspace"
 
+import { getAffectedIndexes } from "~/helpers/collection/affectedIndex"
 import {
   getFoldersByPath,
   resolveSaveContextOnCollectionReorder,
@@ -635,28 +636,55 @@ export class PersonalWorkspaceProviderService
       return Promise.resolve(E.left("INVALID_REQUEST_HANDLE" as const))
     }
 
-    const requestIndex = requestHandle.value.data.requestID
-    const parentCollectionIndexPath = requestIndex
+    const { requestID } = requestHandle.value.data
+    const draggedRequestParentCollectionID = requestID
       .split("/")
       .slice(0, -1)
       .join("/")
 
-    // When it's drop it's basically getting deleted from last folder, reordering last folder accordingly
-    resolveSaveContextOnRequestReorder({
-      lastIndex: this.pathToLastIndex(requestIndex),
-      newIndex: -1, // being deleted from last folder
-      folderPath: parentCollectionIndexPath,
-      length: getRequestsByPath(
-        restCollectionStore.value.state,
-        parentCollectionIndexPath
-      ).length,
-    })
+    const draggedRequestIndexPos = this.pathToLastIndex(requestID)
+
+    // `-1` indicates the incoming request in the last position for the destination collection
+    const destinationRequestIndexPos = -1
+
+    const affectedRequestIndices = getAffectedIndexes(
+      draggedRequestIndexPos,
+      destinationRequestIndexPos
+    )
+
+    // Remove deleted request from the map
+    if (destinationRequestIndexPos === -1) {
+      affectedRequestIndices.delete(draggedRequestIndexPos)
+    }
 
     moveRESTRequest(
-      parentCollectionIndexPath,
-      this.pathToLastIndex(requestIndex),
+      draggedRequestParentCollectionID,
+      draggedRequestIndexPos,
       destinationCollectionID
     )
+
+    for (const [key, value] of affectedRequestIndices) {
+      const handle = this.issuedHandles.find((handle) => {
+        if (handle.value.type === "invalid") return
+
+        if (!("requestID" in handle.value.data)) return
+
+        return (
+          handle.value.data.requestID ===
+          `${draggedRequestParentCollectionID}/${key}`
+        )
+      })
+
+      if (
+        !handle ||
+        handle.value.type === "invalid" ||
+        !("requestID" in handle.value.data)
+      ) {
+        continue
+      }
+
+      handle.value.data.requestID = `${destinationCollectionID}/${value}`
+    }
 
     return Promise.resolve(E.right(undefined))
   }

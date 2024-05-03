@@ -157,6 +157,7 @@ const switchToTeamWorkspace = (team: GetMyTeamsQuery["myTeams"][number]) => {
   workspaceService.changeWorkspace({
     teamID: team.id,
     teamName: team.name,
+    role: team.myRole,
     type: "team",
   })
 }

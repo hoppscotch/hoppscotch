@@ -93,6 +93,7 @@ const addNewTeam = async () => {
             teamID: team.id,
             teamName: team.name,
             type: "team",
+            role: team.myRole,
           })
         }
 

@@ -49,7 +49,6 @@
 import { computed, ref, watch } from "vue"
 import { isEqual } from "lodash-es"
 import { platform } from "~/platform"
-import { GetMyTeamsQuery } from "~/helpers/backend/graphql"
 import { useReadonlyStream, useStream } from "@composables/stream"
 import { useI18n } from "~/composables/i18n"
 import {
@@ -67,7 +66,7 @@ import { GQLError } from "~/helpers/backend/GQLClient"
 import { deleteEnvironment } from "~/newstore/environments"
 import { deleteTeamEnvironment } from "~/helpers/backend/mutations/TeamEnvironment"
 import { useToast } from "~/composables/toast"
-import { WorkspaceService } from "~/services/workspace.service"
+import { MyWorkspace, WorkspaceService } from "~/services/workspace.service"
 import { useService } from "dioc/vue"
 import { Environment } from "@hoppscotch/data"
 
@@ -76,11 +75,9 @@ const toast = useToast()
 
 type EnvironmentType = "my-environments" | "team-environments"
 
-type SelectedTeam = GetMyTeamsQuery["myTeams"][number] | undefined
-
 type EnvironmentsChooseType = {
   type: EnvironmentType
-  selectedTeam: SelectedTeam
+  selectedTeam: MyWorkspace | undefined
 }
 
 const environmentType = ref<EnvironmentsChooseType>({
@@ -102,11 +99,7 @@ const currentUser = useReadonlyStream(
   platform.auth.getCurrentUser()
 )
 
-// TeamList-Adapter
 const workspaceService = useService(WorkspaceService)
-const teamListAdapter = workspaceService.acquireTeamListAdapter(null)
-const myTeams = useReadonlyStream(teamListAdapter.teamList$, null)
-const teamListFetched = ref(false)
 const REMEMBERED_TEAM_ID = useLocalState("REMEMBERED_TEAM_ID")
 
 const adapter = new TeamEnvironmentAdapter(undefined)
@@ -118,44 +111,23 @@ const loading = computed(
   () => adapterLoading.value && teamEnvironmentList.value.length === 0
 )
 
-watch(
-  () => myTeams.value,
-  (newTeams) => {
-    if (newTeams && !teamListFetched.value) {
-      teamListFetched.value = true
-      if (REMEMBERED_TEAM_ID.value && currentUser.value) {
-        const team = newTeams.find((t) => t.id === REMEMBERED_TEAM_ID.value)
-        if (team) updateSelectedTeam(team)
-      }
-    }
-  }
-)
-
 const switchToMyEnvironments = () => {
   environmentType.value.selectedTeam = undefined
   updateEnvironmentType("my-environments")
   adapter.changeTeamID(undefined)
 }
 
-const updateSelectedTeam = (newSelectedTeam: SelectedTeam | undefined) => {
+const updateSelectedTeam = (newSelectedTeam: MyWorkspace | undefined) => {
   if (newSelectedTeam) {
+    adapter.changeTeamID(newSelectedTeam.teamID)
     environmentType.value.selectedTeam = newSelectedTeam
-    REMEMBERED_TEAM_ID.value = newSelectedTeam.id
+    REMEMBERED_TEAM_ID.value = newSelectedTeam.teamID
     updateEnvironmentType("team-environments")
   }
 }
 const updateEnvironmentType = (newEnvironmentType: EnvironmentType) => {
   environmentType.value.type = newEnvironmentType
 }
-
-watch(
-  () => environmentType.value.selectedTeam,
-  (newTeam) => {
-    if (newTeam) {
-      adapter.changeTeamID(newTeam.id)
-    }
-  }
-)
 
 const workspace = workspaceService.currentWorkspace
 
@@ -170,8 +142,7 @@ watch(workspace, (newWorkspace) => {
       })
     }
   } else if (newWorkspace.type === "team") {
-    const team = myTeams.value?.find((t) => t.id === newWorkspace.teamID)
-    updateSelectedTeam(team)
+    updateSelectedTeam(newWorkspace)
   }
 })
 

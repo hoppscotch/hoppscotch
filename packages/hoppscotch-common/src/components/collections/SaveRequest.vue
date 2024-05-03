@@ -65,7 +65,6 @@ import {
 } from "@hoppscotch/data"
 import { pipe } from "fp-ts/function"
 import * as TE from "fp-ts/TaskEither"
-import { GetMyTeamsQuery } from "~/helpers/backend/graphql"
 import {
   createRequestInCollection,
   updateTeamRequest,
@@ -86,6 +85,7 @@ import { platform } from "~/platform"
 import { useService } from "dioc/vue"
 import { RESTTabService } from "~/services/tab/rest"
 import { GQLTabService } from "~/services/tab/graphql"
+import { MyWorkspace } from "~/services/workspace.service"
 
 const t = useI18n()
 const toast = useToast()
@@ -93,12 +93,10 @@ const toast = useToast()
 const RESTTabs = useService(RESTTabService)
 const GQLTabs = useService(GQLTabService)
 
-type SelectedTeam = GetMyTeamsQuery["myTeams"][number] | undefined
-
 type CollectionType =
   | {
       type: "team-collections"
-      selectedTeam: SelectedTeam
+      selectedTeam: MyWorkspace
     }
   | { type: "my-collections"; selectedTeam: undefined }
 
@@ -192,7 +190,7 @@ watch(
   }
 )
 
-const updateTeam = (newTeam: SelectedTeam) => {
+const updateTeam = (newTeam: MyWorkspace) => {
   collectionsType.value.selectedTeam = newTeam
 }
 
@@ -493,7 +491,7 @@ const updateTeamCollectionOrFolder = (
   const data = {
     title: requestUpdated.name,
     request: JSON.stringify(requestUpdated),
-    teamID: collectionsType.value.selectedTeam.id,
+    teamID: collectionsType.value.selectedTeam.teamID,
   }
   pipe(
     createRequestInCollection(collectionID, data),

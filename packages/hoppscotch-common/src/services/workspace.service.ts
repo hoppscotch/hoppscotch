@@ -5,13 +5,24 @@ import { useStreamStatic } from "~/composables/stream"
 import TeamListAdapter from "~/helpers/teams/TeamListAdapter"
 import { platform } from "~/platform"
 import { min } from "lodash-es"
+import { TeamMemberRole } from "~/helpers/backend/graphql"
 
 /**
  * Defines a workspace and its information
  */
-export type Workspace =
-  | { type: "personal" }
-  | { type: "team"; teamID: string; teamName: string }
+
+export type PersonalWorkspace = {
+  type: "personal"
+}
+
+export type MyWorkspace = {
+  type: "team"
+  teamID: string
+  teamName: string
+  role: TeamMemberRole | null
+}
+
+export type Workspace = PersonalWorkspace | MyWorkspace
 
 export type WorkspaceServiceEvent = {
   type: "managed-team-list-adapter-polled"

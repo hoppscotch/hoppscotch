@@ -364,6 +364,7 @@ const switchToTeamWorkspace = (team: GetMyTeamsQuery["myTeams"][number]) => {
     teamID: team.id,
     teamName: team.name,
     type: "team",
+    role: team.myRole,
   })
 }
 watch(

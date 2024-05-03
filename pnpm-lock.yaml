@@ -445,6 +445,9 @@ importers:
       acorn-walk:
         specifier: 8.3.0
         version: 8.3.0
+      ajv:
+        specifier: 6.12.3
+        version: 6.12.3
       axios:
         specifier: 1.6.2
         version: 1.6.2
@@ -480,7 +483,7 @@ importers:
         version: 2.12.6(graphql@16.8.1)
       httpsnippet:
         specifier: 3.0.1
-        version: 3.0.1(ajv@8.12.0)
+        version: 3.0.1(ajv@6.12.3)
       insomnia-importers:
         specifier: 3.6.0
         version: 3.6.0(openapi-types@12.1.3)
@@ -3511,8 +3514,8 @@ packages:
     resolution: {integrity: sha512-4ttr/FNO29w+kBbU7HZ/U0Lzuh2cRDhP8UlWOtV9ERcjHzuyXVZmjyleESK6eVP60tGC9QtQW9yZE+JeRhDHkg==}
     engines: {node: '>= 14'}
 
-  '@intlify/message-compiler@10.0.0-alpha.2':
-    resolution: {integrity: sha512-OGwttsMwB2BUzhZLraoAfAqcza5UyLMEU013ort3LbmdE6ke/pFONFyxjNQdmFWzW2K868AIVgwx4zo8lbmhjg==}
+  '@intlify/message-compiler@10.0.0-alpha.3':
+    resolution: {integrity: sha512-WjM1KAl5enpOfprfVAJ3FzwACmizZFPgyV0sn+QXoWH8BG2ahVkf7uVEqQH0mvUr2rKKaScwpzhH3wZ5F7ZdPw==}
     engines: {node: '>= 16'}
 
   '@intlify/message-compiler@9.2.2':
@@ -3527,8 +3530,8 @@ packages:
     resolution: {integrity: sha512-McnYWhcoYmDJvssVu6QGR0shqlkJuL1HHdi5lK7fNqvQqRYaQ4lSLjYmZxwc8tRNMdIe9/KUKfyPxU9M6yCtNQ==}
     engines: {node: '>= 16'}
 
-  '@intlify/shared@10.0.0-alpha.2':
-    resolution: {integrity: sha512-pWlpsC3IqkDuIH/5bNlyyiUbAXYymeNXkznORzPWT3qpAe8MazPOm14wMHGn/wESCdB5b9txQson4+CH0ym1hQ==}
+  '@intlify/shared@10.0.0-alpha.3':
+    resolution: {integrity: sha512-fi2q48i+C6sSCAt3vOj/9LD3tkr1wcvLt+ifZEHrpPiwHCyKLDYGp5qBNUHUBBA/iqFTeWdtHUbHE9z9OeTXkw==}
     engines: {node: '>= 16'}
 
   '@intlify/shared@9.2.2':
@@ -5437,11 +5440,17 @@ packages:
     peerDependencies:
       ajv: ^6.9.1
 
+  ajv@6.12.3:
+    resolution: {integrity: sha512-4K0cK3L1hsqk9xIb2z9vs/XU+PGJZ9PNpJRDS9YLzmNdX6jmVPfamLvTJr0aDAusnHyCHO6MjzlkAsgtqp9teA==}
+
   ajv@6.12.6:
     resolution: {integrity: sha512-j3fVLgvTo527anyYyJOGTYJbG+vnnQYvE0m5mmkc1TK+nxAppkCLMIL0aZ4dblVCNoGShhm+kzE4ZUykBoMg4g==}
 
   ajv@8.12.0:
     resolution: {integrity: sha512-sRu1kpcO9yLtYxBKvqfTeh9KzZEwO3STyX1HT+4CaDzC6HpTGYhIhPIzj9XuKU7KYDwnaeh5hcOwjy1QuJzBPA==}
+
+  ajv@8.13.0:
+    resolution: {integrity: sha512-PRA911Blj99jR5RMeTunVbNXMF6Lp4vZXnk5GQjcnUWUTsrXtekg/pnmFFI2u/I36Y/2bITGS30GZCXei6uNkA==}
 
   alce@1.2.0:
     resolution: {integrity: sha512-XppPf2S42nO2WhvKzlwzlfcApcXHzjlod30pKmcWjRgLOtqoe5DMuqdiYoM6AgyXksc6A6pV4v1L/WW217e57w==}
@@ -12132,7 +12141,6 @@ packages:
 
   workbox-google-analytics@7.0.0:
     resolution: {integrity: sha512-MEYM1JTn/qiC3DbpvP2BVhyIH+dV/5BjHk756u9VbwuAhu0QHyKscTnisQuz21lfRpOwiS9z4XdqeVAKol0bzg==}
-    deprecated: It is not compatible with newer versions of GA starting with v4, as long as you are using GAv3 it should be ok, but the package is not longer being maintained
 
   workbox-navigation-preload@7.0.0:
     resolution: {integrity: sha512-juWCSrxo/fiMz3RsvDspeSLGmbgC0U9tKqcUPZBCf35s64wlaLXyn2KdHHXVQrb2cqF7I0Hc9siQalainmnXJA==}
@@ -12468,9 +12476,9 @@ snapshots:
 
   '@antfu/utils@0.7.6': {}
 
-  '@apideck/better-ajv-errors@0.3.6(ajv@8.12.0)':
+  '@apideck/better-ajv-errors@0.3.6(ajv@8.13.0)':
     dependencies:
-      ajv: 8.12.0
+      ajv: 8.13.0
       json-schema: 0.4.0
       jsonpointer: 5.0.1
       leven: 3.1.0
@@ -12508,8 +12516,8 @@ snapshots:
       '@apidevtools/openapi-schemas': 2.1.0
       '@apidevtools/swagger-methods': 3.0.2
       '@jsdevtools/ono': 7.1.3
-      ajv: 8.12.0
-      ajv-draft-04: 1.0.0(ajv@8.12.0)
+      ajv: 8.13.0
+      ajv-draft-04: 1.0.0(ajv@8.13.0)
       call-me-maybe: 1.0.2
       openapi-types: 12.1.3
 
@@ -15445,8 +15453,8 @@ snapshots:
 
   '@intlify/bundle-utils@3.4.0(vue-i18n@9.8.0(vue@3.3.9(typescript@5.3.2)))':
     dependencies:
-      '@intlify/message-compiler': 10.0.0-alpha.2
-      '@intlify/shared': 10.0.0-alpha.2
+      '@intlify/message-compiler': 10.0.0-alpha.3
+      '@intlify/shared': 10.0.0-alpha.3
       jsonc-eslint-parser: 1.4.1
       source-map: 0.6.1
       yaml-eslint-parser: 0.3.2
@@ -15499,9 +15507,9 @@ snapshots:
     dependencies:
       '@intlify/shared': 9.2.2
 
-  '@intlify/message-compiler@10.0.0-alpha.2':
+  '@intlify/message-compiler@10.0.0-alpha.3':
     dependencies:
-      '@intlify/shared': 10.0.0-alpha.2
+      '@intlify/shared': 10.0.0-alpha.3
       source-map-js: 1.0.2
 
   '@intlify/message-compiler@9.2.2':
@@ -15519,7 +15527,7 @@ snapshots:
       '@intlify/shared': 9.8.0
       source-map-js: 1.0.2
 
-  '@intlify/shared@10.0.0-alpha.2': {}
+  '@intlify/shared@10.0.0-alpha.3': {}
 
   '@intlify/shared@9.2.2': {}
 
@@ -15550,7 +15558,7 @@ snapshots:
   '@intlify/vite-plugin-vue-i18n@6.0.1(vite@4.5.0(@types/node@18.18.8)(sass@1.69.5)(terser@5.27.0))(vue-i18n@9.8.0(vue@3.3.9(typescript@4.9.5)))':
     dependencies:
       '@intlify/bundle-utils': 7.0.0(vue-i18n@9.8.0(vue@3.3.9(typescript@4.9.5)))
-      '@intlify/shared': 10.0.0-alpha.2
+      '@intlify/shared': 10.0.0-alpha.3
       '@rollup/pluginutils': 4.2.1
       debug: 4.3.4(supports-color@9.2.2)
       fast-glob: 3.3.2
@@ -15564,7 +15572,7 @@ snapshots:
   '@intlify/vite-plugin-vue-i18n@7.0.0(vite@4.5.0(@types/node@18.18.8)(sass@1.69.5)(terser@5.27.0))(vue-i18n@9.8.0(vue@3.3.9(typescript@5.3.2)))':
     dependencies:
       '@intlify/bundle-utils': 3.4.0(vue-i18n@9.8.0(vue@3.3.9(typescript@5.3.2)))
-      '@intlify/shared': 10.0.0-alpha.2
+      '@intlify/shared': 10.0.0-alpha.3
       '@rollup/pluginutils': 4.2.1
       debug: 4.3.4(supports-color@9.2.2)
       fast-glob: 3.3.2
@@ -18141,9 +18149,9 @@ snapshots:
       clean-stack: 2.2.0
       indent-string: 4.0.0
 
-  ajv-draft-04@1.0.0(ajv@8.12.0):
+  ajv-draft-04@1.0.0(ajv@8.13.0):
     optionalDependencies:
-      ajv: 8.12.0
+      ajv: 8.13.0
 
   ajv-formats@2.1.1(ajv@8.12.0):
     optionalDependencies:
@@ -18153,6 +18161,13 @@ snapshots:
     dependencies:
       ajv: 6.12.6
 
+  ajv@6.12.3:
+    dependencies:
+      fast-deep-equal: 3.1.3
+      fast-json-stable-stringify: 2.1.0
+      json-schema-traverse: 0.4.1
+      uri-js: 4.4.1
+
   ajv@6.12.6:
     dependencies:
       fast-deep-equal: 3.1.3
@@ -18161,6 +18176,13 @@ snapshots:
       uri-js: 4.4.1
 
   ajv@8.12.0:
+    dependencies:
+      fast-deep-equal: 3.1.3
+      json-schema-traverse: 1.0.0
+      require-from-string: 2.0.2
+      uri-js: 4.4.1
+
+  ajv@8.13.0:
     dependencies:
       fast-deep-equal: 3.1.3
       json-schema-traverse: 1.0.0
@@ -20036,7 +20058,7 @@ snapshots:
     dependencies:
       '@eslint/eslintrc': 1.3.3
       '@humanwhocodes/config-array': 0.9.5
-      ajv: 6.12.6
+      ajv: 6.12.3
       chalk: 4.1.2
       cross-spawn: 7.0.3
       debug: 4.3.4(supports-color@9.2.2)
@@ -20078,7 +20100,7 @@ snapshots:
       '@humanwhocodes/config-array': 0.11.14
       '@humanwhocodes/module-importer': 1.0.1
       '@nodelib/fs.walk': 1.2.8
-      ajv: 6.12.6
+      ajv: 6.12.3
       chalk: 4.1.2
       cross-spawn: 7.0.3
       debug: 4.3.4(supports-color@9.2.2)
@@ -21257,9 +21279,9 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  httpsnippet@3.0.1(ajv@8.12.0):
+  httpsnippet@3.0.1(ajv@6.12.3):
     dependencies:
-      ajv: 8.12.0
+      ajv: 6.12.3
       chalk: 4.1.2
       event-stream: 4.0.1
       form-data: 4.0.0
@@ -26894,7 +26916,7 @@ snapshots:
 
   workbox-build@7.0.0(@types/babel__core@7.1.19):
     dependencies:
-      '@apideck/better-ajv-errors': 0.3.6(ajv@8.12.0)
+      '@apideck/better-ajv-errors': 0.3.6(ajv@8.13.0)
       '@babel/core': 7.23.9
       '@babel/preset-env': 7.23.9(@babel/core@7.23.9)
       '@babel/runtime': 7.23.9
@@ -26902,7 +26924,7 @@ snapshots:
       '@rollup/plugin-node-resolve': 11.2.1(rollup@2.79.1)
       '@rollup/plugin-replace': 2.4.2(rollup@2.79.1)
       '@surma/rollup-plugin-off-main-thread': 2.2.3
-      ajv: 8.12.0
+      ajv: 8.13.0
       common-tags: 1.8.2
       fast-json-stable-stringify: 2.1.0
       fs-extra: 9.1.0

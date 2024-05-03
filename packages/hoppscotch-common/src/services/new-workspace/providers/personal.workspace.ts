@@ -7,7 +7,7 @@ import {
 } from "@hoppscotch/data"
 import { Service } from "dioc"
 import * as E from "fp-ts/Either"
-import { merge } from "lodash-es"
+import { isEqual, merge } from "lodash-es"
 import path from "path"
 import {
   Ref,
@@ -414,7 +414,32 @@ export class PersonalWorkspaceProviderService
       },
     })
 
-    this.issuedHandles.push(writableHandle)
+    const handleIsAlreadyIssued = this.issuedHandles.some((handle) => {
+      if (handle.value.type === "invalid") {
+        return false
+      }
+
+      if (!("requestID" in handle.value.data)) {
+        return false
+      }
+
+      const { request, ...dataProps } = handle.value.data
+
+      if (
+        isEqual(dataProps, {
+          providerID,
+          workspaceID,
+          collectionID,
+          requestID,
+        })
+      ) {
+        return true
+      }
+    })
+
+    if (!handleIsAlreadyIssued) {
+      this.issuedHandles.push(writableHandle)
+    }
 
     return Promise.resolve(E.right(handle))
   }
@@ -636,55 +661,107 @@ export class PersonalWorkspaceProviderService
       return Promise.resolve(E.left("INVALID_REQUEST_HANDLE" as const))
     }
 
-    const { requestID } = requestHandle.value.data
-    const draggedRequestParentCollectionID = requestID
+    const { requestID: draggedRequestID } = requestHandle.value.data
+    const sourceCollectionID = draggedRequestID
       .split("/")
       .slice(0, -1)
       .join("/")
 
-    const draggedRequestIndexPos = this.pathToLastIndex(requestID)
+    const draggedRequestIndexPos = this.pathToLastIndex(draggedRequestID)
 
-    // `-1` indicates the incoming request in the last position for the destination collection
-    const destinationRequestIndexPos = -1
+    const movedRequestHandleIdx = this.issuedHandles.findIndex((handle) => {
+      if (handle.value.type === "invalid") {
+        return
+      }
 
-    const affectedRequestIndices = getAffectedIndexes(
-      draggedRequestIndexPos,
-      destinationRequestIndexPos
-    )
+      if (!("requestID" in handle.value.data)) {
+        return
+      }
 
-    // Remove deleted request from the map
-    if (destinationRequestIndexPos === -1) {
-      affectedRequestIndices.delete(draggedRequestIndexPos)
+      return handle.value.data.requestID === draggedRequestID
+    })
+
+    const movedRequestHandle = this.issuedHandles[movedRequestHandleIdx]
+
+    if (
+      !movedRequestHandle ||
+      movedRequestHandle.value.type === "invalid" ||
+      !("requestID" in movedRequestHandle.value.data)
+    ) {
+      return Promise.resolve(E.left("INVALID_REQUEST_HANDLE" as const))
     }
 
+    const draggedCollectionReqCountBeforeMove = getRequestsByPath(
+      restCollectionStore.value.state,
+      sourceCollectionID
+    ).length
+
+    // Requests appearing below the request being moved will be affected by the action
+    const affectedReqIndexRange =
+      draggedCollectionReqCountBeforeMove - 1 - draggedRequestIndexPos
+
+    const affectedRequestIDs = Array.from({
+      length: affectedReqIndexRange,
+    }).map((_, idx) => {
+      const val = affectedReqIndexRange + idx
+      return `${sourceCollectionID}/${val}`
+    })
+
     moveRESTRequest(
-      draggedRequestParentCollectionID,
+      sourceCollectionID,
       draggedRequestIndexPos,
       destinationCollectionID
     )
 
-    for (const [key, value] of affectedRequestIndices) {
-      const handle = this.issuedHandles.find((handle) => {
-        if (handle.value.type === "invalid") return
+    const destinationCollectionReqCount = getRequestsByPath(
+      restCollectionStore.value.state,
+      destinationCollectionID
+    ).length
 
-        if (!("requestID" in handle.value.data)) return
+    // @ts-expect-error - Updating handle data the moved request
+    this.issuedHandles[movedRequestHandleIdx].value.data = {
+      // @ts-expect-error - Updating the IDs
+      ...this.issuedHandles[movedRequestHandleIdx].value.data,
+      collectionID: destinationCollectionID,
+      requestID: `${destinationCollectionID}/${
+        destinationCollectionReqCount - 1
+      }`,
+    }
 
-        return (
-          handle.value.data.requestID ===
-          `${draggedRequestParentCollectionID}/${key}`
-        )
+    affectedRequestIDs.forEach((requestID) => {
+      const handleIdx = this.issuedHandles.findIndex((handle) => {
+        if (handle.value.type === "invalid") {
+          return
+        }
+
+        if (!("requestID" in handle.value.data)) {
+          return
+        }
+
+        return handle.value.data.requestID === requestID
       })
+
+      const handle = this.issuedHandles[handleIdx]
 
       if (
         !handle ||
         handle.value.type === "invalid" ||
         !("requestID" in handle.value.data)
       ) {
-        continue
+        return
       }
 
-      handle.value.data.requestID = `${destinationCollectionID}/${value}`
-    }
+      // Decrement the index pos in affected requests due to move
+      const reqIndexPos = Number(
+        handle.value.data.requestID.split("/").slice(-1)[0]
+      )
+
+      // @ts-expect-error - Updating the request ID
+      this.issuedHandles[handleIdx].value.data = {
+        ...handle.value.data,
+        requestID: `${sourceCollectionID}/${reqIndexPos - 1}`,
+      }
+    })
 
     return Promise.resolve(E.right(undefined))
   }
@@ -813,7 +890,32 @@ export class PersonalWorkspaceProviderService
       },
     })
 
-    this.issuedHandles.push(writableHandle)
+    const handleIsAlreadyIssued = this.issuedHandles.some((handle) => {
+      if (handle.value.type === "invalid") {
+        return false
+      }
+
+      if (!("requestID" in handle.value.data)) {
+        return false
+      }
+
+      const { request, ...dataProps } = handle.value.data
+
+      if (
+        isEqual(dataProps, {
+          providerID,
+          workspaceID,
+          collectionID,
+          requestID,
+        })
+      ) {
+        return true
+      }
+    })
+
+    if (!handleIsAlreadyIssued) {
+      this.issuedHandles.push(writableHandle)
+    }
 
     return Promise.resolve(E.right(handle))
   }

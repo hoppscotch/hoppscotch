@@ -58,15 +58,28 @@ export class RESTTabService extends TabService<HoppRESTDocument> {
         ctx?.originLocation === "workspace-user-collection" &&
         tab.document.saveContext?.originLocation === "workspace-user-collection"
       ) {
-        if (
-          isEqual(
-            ctx.requestHandle?.value,
+        const requestHandle = tab.document.saveContext.requestHandle as
+          | HandleRef<WorkspaceRequest>["value"]
+          | undefined
 
-            // TODO: Investigate why requestHandle gets unwrapped
-            tab.document.saveContext.requestHandle as
-              | HandleRef<WorkspaceRequest>["value"]
-              | undefined
-          )
+        if (!ctx.requestHandle || !requestHandle) {
+          return null
+        }
+
+        if (
+          ctx.requestHandle.value.type === "invalid" ||
+          requestHandle.type === "invalid"
+        ) {
+          return null
+        }
+
+        if (
+          ctx.requestHandle.value.data.providerID ===
+            requestHandle.data.providerID &&
+          ctx.requestHandle.value.data.workspaceID ===
+            requestHandle.data.workspaceID &&
+          ctx.requestHandle.value.data.requestID ===
+            requestHandle.data.requestID
         ) {
           return this.getTabRef(tab.id)
         }

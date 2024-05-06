@@ -69,18 +69,18 @@
 import { useVModel } from '@vueuse/core';
 import { reactive } from 'vue';
 import { useI18n } from '~/composables/i18n';
-import { Config, SsoAuthProviders } from '~/composables/useConfigHandler';
+import { ServerConfigs, SsoAuthProviders } from '~/helpers/configs';
 import IconEye from '~icons/lucide/eye';
 import IconEyeOff from '~icons/lucide/eye-off';
 
 const t = useI18n();
 
 const props = defineProps<{
-  config: Config;
+  config: ServerConfigs;
 }>();
 
 const emit = defineEmits<{
-  (e: 'update:config', v: Config): void;
+  (e: 'update:config', v: ServerConfigs): void;
 }>();
 
 const workingConfigs = useVModel(props, 'config', emit);
@@ -93,7 +93,7 @@ const capitalize = (text: string) =>
 type ProviderFieldKeys = keyof ProviderFields;
 
 type ProviderFields = {
-  [Field in keyof Config['providers'][SsoAuthProviders]['fields']]: boolean;
+  [Field in keyof ServerConfigs['providers'][SsoAuthProviders]['fields']]: boolean;
 } & Partial<{ tenant: boolean }>;
 
 type ProviderFieldMetadata = {

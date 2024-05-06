@@ -38,17 +38,17 @@
 import { useVModel } from '@vueuse/core';
 import { computed } from 'vue';
 import { useI18n } from '~/composables/i18n';
-import { Config } from '~/composables/useConfigHandler';
+import { ServerConfigs } from '~/helpers/configs';
 import IconShieldQuestion from '~icons/lucide/shield-question';
 
 const t = useI18n();
 
 const props = defineProps<{
-  config: Config;
+  config: ServerConfigs;
 }>();
 
 const emit = defineEmits<{
-  (e: 'update:config', v: Config): void;
+  (e: 'update:config', v: ServerConfigs): void;
 }>();
 
 const workingConfigs = useVModel(props, 'config', emit);

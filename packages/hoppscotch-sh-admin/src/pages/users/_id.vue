@@ -208,13 +208,14 @@ const deleteUserMutation = async (id: string | null) => {
   if (result.error) {
     toast.error(t('state.delete_user_failure'));
   } else {
-    const deletedUsers = result.data?.removeUsersByAdmin || [];
+    const deletedUser = result.data?.removeUsersByAdmin || [];
+    handleUserDeletion(deletedUser);
 
-    handleUserDeletion(deletedUsers);
+    const { isDeleted } = deletedUser[0];
+    if (isDeleted) router.push('/users');
   }
+
   confirmDeletion.value = false;
   deleteUserUID.value = null;
-
-  !result.error && router.push('/users');
 };
 </script>

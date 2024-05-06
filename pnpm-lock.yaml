@@ -7,7 +7,7 @@ settings:
 overrides:
   vue: 3.3.9
 
-packageExtensionsChecksum: bdb9819fb2a1070afb75d3fc2c7fd132
+packageExtensionsChecksum: e7f8d2e2f491662822f685ff3c4b1274
 
 importers:
 
@@ -445,9 +445,6 @@ importers:
       acorn-walk:
         specifier: 8.3.0
         version: 8.3.0
-      ajv:
-        specifier: 6.12.3
-        version: 6.12.3
       axios:
         specifier: 1.6.2
         version: 1.6.2
@@ -477,13 +474,13 @@ importers:
         version: 16.8.1
       graphql-language-service-interface:
         specifier: 2.10.2
-        version: 2.10.2(@types/node@18.18.8)(cosmiconfig-typescript-loader@4.3.0(@types/node@18.18.8)(cosmiconfig@8.2.0)(ts-node@10.9.1(@swc/core@1.4.2)(@types/node@18.18.8)(typescript@5.3.2))(typescript@5.3.2))(graphql@16.8.1)
+        version: 2.10.2(@types/node@18.18.8)(cosmiconfig-typescript-loader@4.3.0(@types/node@18.18.8)(cosmiconfig@7.0.1)(ts-node@10.9.1(@swc/core@1.4.2)(@types/node@18.18.8)(typescript@5.3.2))(typescript@5.3.2))(graphql@16.8.1)
       graphql-tag:
         specifier: 2.12.6
         version: 2.12.6(graphql@16.8.1)
       httpsnippet:
         specifier: 3.0.1
-        version: 3.0.1(ajv@6.12.3)
+        version: 3.0.1
       insomnia-importers:
         specifier: 3.6.0
         version: 3.6.0(openapi-types@12.1.3)
@@ -763,7 +760,7 @@ importers:
         version: 4.5.0(@types/node@18.18.8)(sass@1.69.5)(terser@5.27.0)
       vite-plugin-checker:
         specifier: 0.6.2
-        version: 0.6.2(eslint@8.57.0)(meow@8.1.2)(optionator@0.9.3)(typescript@5.3.2)(vite@4.5.0(@types/node@18.18.8)(sass@1.69.5)(terser@5.27.0))(vue-tsc@1.8.24(typescript@5.3.2))
+        version: 0.6.2(eslint@8.57.0)(optionator@0.9.3)(typescript@5.3.2)(vite@4.5.0(@types/node@18.18.8)(sass@1.69.5)(terser@5.27.0))(vue-tsc@1.8.24(typescript@5.3.2))
       vite-plugin-fonts:
         specifier: 0.7.0
         version: 0.7.0(vite@4.5.0(@types/node@18.18.8)(sass@1.69.5)(terser@5.27.0))
@@ -882,7 +879,7 @@ importers:
         version: 2.8.4
       ts-jest:
         specifier: 27.1.5
-        version: 27.1.5(@babel/core@7.23.9)(@types/jest@27.5.2)(babel-jest@29.7.0(@babel/core@7.23.9))(jest@29.7.0(@types/node@17.0.45)(ts-node@10.9.1(@swc/core@1.4.2)(@types/node@17.0.45)(typescript@4.9.5)))(typescript@4.9.5)
+        version: 27.1.5(@babel/core@7.23.9)(@types/jest@27.5.2)(jest@29.7.0(@types/node@17.0.45)(ts-node@10.9.1(@swc/core@1.4.2)(@types/node@17.0.45)(typescript@4.9.5)))(typescript@4.9.5)
       typescript:
         specifier: 4.9.5
         version: 4.9.5
@@ -1051,10 +1048,10 @@ importers:
         version: 1.1.1(vite@4.5.0(@types/node@18.18.8)(sass@1.69.5)(terser@5.27.0))
       unplugin-icons:
         specifier: 0.14.9
-        version: 0.14.9(@vue/compiler-sfc@3.3.10)(esbuild@0.20.0)(rollup@3.29.4)(vite@4.5.0(@types/node@18.18.8)(sass@1.69.5)(terser@5.27.0))(vue-template-compiler@2.7.14)(webpack@5.90.0(@swc/core@1.4.2)(esbuild@0.20.0))
+        version: 0.14.9(@vue/compiler-sfc@3.3.10)(esbuild@0.20.0)(rollup@2.79.1)(vite@4.5.0(@types/node@18.18.8)(sass@1.69.5)(terser@5.27.0))(vue-template-compiler@2.7.14)(webpack@5.90.0(@swc/core@1.4.2)(esbuild@0.20.0))
       unplugin-vue-components:
         specifier: 0.21.0
-        version: 0.21.0(@babel/parser@7.23.9)(esbuild@0.20.0)(rollup@3.29.4)(vite@4.5.0(@types/node@18.18.8)(sass@1.69.5)(terser@5.27.0))(vue@3.3.9(typescript@4.9.5))(webpack@5.90.0(@swc/core@1.4.2)(esbuild@0.20.0))
+        version: 0.21.0(@babel/parser@7.23.9)(esbuild@0.20.0)(rollup@2.79.1)(vite@4.5.0(@types/node@18.18.8)(sass@1.69.5)(terser@5.27.0))(vue@3.3.9(typescript@4.9.5))(webpack@5.90.0(@swc/core@1.4.2)(esbuild@0.20.0))
       vite:
         specifier: 4.5.0
         version: 4.5.0(@types/node@18.18.8)(sass@1.69.5)(terser@5.27.0)
@@ -1063,7 +1060,7 @@ importers:
         version: 1.0.11(vite@4.5.0(@types/node@18.18.8)(sass@1.69.5)(terser@5.27.0))
       vite-plugin-inspect:
         specifier: 0.7.38
-        version: 0.7.38(rollup@3.29.4)(vite@4.5.0(@types/node@18.18.8)(sass@1.69.5)(terser@5.27.0))
+        version: 0.7.38(rollup@2.79.1)(vite@4.5.0(@types/node@18.18.8)(sass@1.69.5)(terser@5.27.0))
       vite-plugin-pages:
         specifier: 0.26.0
         version: 0.26.0(@vue/compiler-sfc@3.3.10)(vite@4.5.0(@types/node@18.18.8)(sass@1.69.5)(terser@5.27.0))
@@ -1220,7 +1217,7 @@ importers:
         version: 0.17.4(@vue/compiler-sfc@3.3.10)(vue-template-compiler@2.7.14)
       unplugin-vue-components:
         specifier: 0.25.2
-        version: 0.25.2(@babel/parser@7.23.9)(rollup@3.29.4)(vue@3.3.9(typescript@5.3.2))
+        version: 0.25.2(@babel/parser@7.23.9)(rollup@2.79.1)(vue@3.3.9(typescript@5.3.2))
       vite:
         specifier: 4.5.0
         version: 4.5.0(@types/node@18.18.8)(sass@1.69.5)(terser@5.27.0)
@@ -1232,7 +1229,7 @@ importers:
         version: 1.0.11(vite@4.5.0(@types/node@18.18.8)(sass@1.69.5)(terser@5.27.0))
       vite-plugin-inspect:
         specifier: 0.7.42
-        version: 0.7.42(rollup@3.29.4)(vite@4.5.0(@types/node@18.18.8)(sass@1.69.5)(terser@5.27.0))
+        version: 0.7.42(rollup@2.79.1)(vite@4.5.0(@types/node@18.18.8)(sass@1.69.5)(terser@5.27.0))
       vite-plugin-pages:
         specifier: 0.31.0
         version: 0.31.0(@vue/compiler-sfc@3.3.10)(vite@4.5.0(@types/node@18.18.8)(sass@1.69.5)(terser@5.27.0))
@@ -1274,7 +1271,7 @@ importers:
         version: 0.1.0(vue@3.3.9(typescript@4.9.3))
       '@intlify/unplugin-vue-i18n':
         specifier: 1.2.0
-        version: 1.2.0(rollup@3.29.4)(vue-i18n@9.2.2(vue@3.3.9(typescript@4.9.3)))
+        version: 1.2.0(rollup@2.79.1)(vue-i18n@9.2.2(vue@3.3.9(typescript@4.9.3)))
       '@types/cors':
         specifier: 2.8.13
         version: 2.8.13
@@ -1337,10 +1334,10 @@ importers:
         version: 2.0.0(@swc/core@1.4.2)(@types/node@18.18.8)(typescript@4.9.3)
       unplugin-icons:
         specifier: 0.14.9
-        version: 0.14.9(@vue/compiler-sfc@3.2.45)(esbuild@0.20.0)(rollup@3.29.4)(vite@3.2.4(@types/node@18.18.8)(sass@1.58.0)(terser@5.27.0))(vue-template-compiler@2.7.14)(webpack@5.90.0(@swc/core@1.4.2)(esbuild@0.20.0))
+        version: 0.14.9(@vue/compiler-sfc@3.2.45)(esbuild@0.20.0)(rollup@2.79.1)(vite@3.2.4(@types/node@18.18.8)(sass@1.58.0)(terser@5.27.0))(vue-template-compiler@2.7.14)(webpack@5.90.0(@swc/core@1.4.2)(esbuild@0.20.0))
       unplugin-vue-components:
         specifier: 0.21.0
-        version: 0.21.0(@babel/parser@7.23.9)(esbuild@0.20.0)(rollup@3.29.4)(vite@3.2.4(@types/node@18.18.8)(sass@1.58.0)(terser@5.27.0))(vue@3.3.9(typescript@4.9.3))(webpack@5.90.0(@swc/core@1.4.2)(esbuild@0.20.0))
+        version: 0.21.0(@babel/parser@7.23.9)(esbuild@0.20.0)(rollup@2.79.1)(vite@3.2.4(@types/node@18.18.8)(sass@1.58.0)(terser@5.27.0))(vue@3.3.9(typescript@4.9.3))(webpack@5.90.0(@swc/core@1.4.2)(esbuild@0.20.0))
       vue:
         specifier: 3.3.9
         version: 3.3.9(typescript@4.9.3)
@@ -7833,8 +7830,6 @@ packages:
     resolution: {integrity: sha512-RJbzVu9Gq97Ti76MPKAb9AknKbRluRbzOqswM2qgEW48QUShVEIuJjl43dZG5q0Upj2SZlKqzR6B6ah1q5znfg==}
     engines: {node: ^14.19.1 || ^16.14.2 || ^18.0.0}
     hasBin: true
-    peerDependencies:
-      ajv: 6.12.3
 
   human-signals@1.1.1:
     resolution: {integrity: sha512-SEQu7vl8KjNL2eoGBLF3+wAjpsNfA9XMlXAYj/3EdaNfAlxKthD1xjEQfGOUhllCGGJVNY34bRr6lPINhNjyZw==}
@@ -15535,11 +15530,11 @@ snapshots:
 
   '@intlify/shared@9.8.0': {}
 
-  '@intlify/unplugin-vue-i18n@1.2.0(rollup@3.29.4)(vue-i18n@9.2.2(vue@3.3.9(typescript@4.9.3)))':
+  '@intlify/unplugin-vue-i18n@1.2.0(rollup@2.79.1)(vue-i18n@9.2.2(vue@3.3.9(typescript@4.9.3)))':
     dependencies:
       '@intlify/bundle-utils': 7.4.0(vue-i18n@9.2.2(vue@3.3.9(typescript@4.9.3)))
       '@intlify/shared': 9.8.0
-      '@rollup/pluginutils': 5.1.0(rollup@3.29.4)
+      '@rollup/pluginutils': 5.1.0(rollup@2.79.1)
       '@vue/compiler-sfc': 3.3.10
       debug: 4.3.4(supports-color@9.2.2)
       fast-glob: 3.3.2
@@ -16386,6 +16381,14 @@ snapshots:
     dependencies:
       estree-walker: 2.0.2
       picomatch: 2.3.1
+
+  '@rollup/pluginutils@5.1.0(rollup@2.79.1)':
+    dependencies:
+      '@types/estree': 1.0.5
+      estree-walker: 2.0.2
+      picomatch: 2.3.1
+    optionalDependencies:
+      rollup: 2.79.1
 
   '@rollup/pluginutils@5.1.0(rollup@3.29.4)':
     dependencies:
@@ -19039,10 +19042,10 @@ snapshots:
       ts-node: 10.9.1(@swc/core@1.4.2)(@types/node@18.18.8)(typescript@4.9.3)
       typescript: 4.9.3
 
-  cosmiconfig-typescript-loader@4.3.0(@types/node@18.18.8)(cosmiconfig@8.2.0)(ts-node@10.9.1(@swc/core@1.4.2)(@types/node@18.18.8)(typescript@5.3.2))(typescript@5.3.2):
+  cosmiconfig-typescript-loader@4.3.0(@types/node@18.18.8)(cosmiconfig@7.0.1)(ts-node@10.9.1(@swc/core@1.4.2)(@types/node@18.18.8)(typescript@5.3.2))(typescript@5.3.2):
     dependencies:
       '@types/node': 18.18.8
-      cosmiconfig: 8.2.0
+      cosmiconfig: 7.0.1
       ts-node: 10.9.1(@swc/core@1.4.2)(@types/node@18.18.8)(typescript@5.3.2)
       typescript: 5.3.2
     optional: true
@@ -20917,7 +20920,7 @@ snapshots:
       - encoding
       - utf-8-validate
 
-  graphql-config@4.4.1(@types/node@18.18.8)(cosmiconfig-typescript-loader@4.3.0(@types/node@18.18.8)(cosmiconfig@8.2.0)(ts-node@10.9.1(@swc/core@1.4.2)(@types/node@18.18.8)(typescript@5.3.2))(typescript@5.3.2))(graphql@16.8.1):
+  graphql-config@4.4.1(@types/node@18.18.8)(cosmiconfig-typescript-loader@4.3.0(@types/node@18.18.8)(cosmiconfig@7.0.1)(ts-node@10.9.1(@swc/core@1.4.2)(@types/node@18.18.8)(typescript@5.3.2))(typescript@5.3.2))(graphql@16.8.1):
     dependencies:
       '@graphql-tools/graphql-file-loader': 7.5.16(graphql@16.8.1)
       '@graphql-tools/json-file-loader': 7.4.17(graphql@16.8.1)
@@ -20931,7 +20934,7 @@ snapshots:
       string-env-interpolation: 1.0.1
       tslib: 2.6.2
     optionalDependencies:
-      cosmiconfig-typescript-loader: 4.3.0(@types/node@18.18.8)(cosmiconfig@8.2.0)(ts-node@10.9.1(@swc/core@1.4.2)(@types/node@18.18.8)(typescript@5.3.2))(typescript@5.3.2)
+      cosmiconfig-typescript-loader: 4.3.0(@types/node@18.18.8)(cosmiconfig@7.0.1)(ts-node@10.9.1(@swc/core@1.4.2)(@types/node@18.18.8)(typescript@5.3.2))(typescript@5.3.2)
     transitivePeerDependencies:
       - '@types/node'
       - bufferutil
@@ -20958,13 +20961,13 @@ snapshots:
       - encoding
       - utf-8-validate
 
-  graphql-language-service-interface@2.10.2(@types/node@18.18.8)(cosmiconfig-typescript-loader@4.3.0(@types/node@18.18.8)(cosmiconfig@8.2.0)(ts-node@10.9.1(@swc/core@1.4.2)(@types/node@18.18.8)(typescript@5.3.2))(typescript@5.3.2))(graphql@16.8.1):
+  graphql-language-service-interface@2.10.2(@types/node@18.18.8)(cosmiconfig-typescript-loader@4.3.0(@types/node@18.18.8)(cosmiconfig@7.0.1)(ts-node@10.9.1(@swc/core@1.4.2)(@types/node@18.18.8)(typescript@5.3.2))(typescript@5.3.2))(graphql@16.8.1):
     dependencies:
       graphql: 16.8.1
-      graphql-config: 4.4.1(@types/node@18.18.8)(cosmiconfig-typescript-loader@4.3.0(@types/node@18.18.8)(cosmiconfig@8.2.0)(ts-node@10.9.1(@swc/core@1.4.2)(@types/node@18.18.8)(typescript@5.3.2))(typescript@5.3.2))(graphql@16.8.1)
-      graphql-language-service-parser: 1.10.4(@types/node@18.18.8)(cosmiconfig-typescript-loader@4.3.0(@types/node@18.18.8)(cosmiconfig@8.2.0)(ts-node@10.9.1(@swc/core@1.4.2)(@types/node@18.18.8)(typescript@5.3.2))(typescript@5.3.2))(graphql@16.8.1)
-      graphql-language-service-types: 1.8.7(@types/node@18.18.8)(cosmiconfig-typescript-loader@4.3.0(@types/node@18.18.8)(cosmiconfig@8.2.0)(ts-node@10.9.1(@swc/core@1.4.2)(@types/node@18.18.8)(typescript@5.3.2))(typescript@5.3.2))(graphql@16.8.1)
-      graphql-language-service-utils: 2.7.1(@types/node@18.18.8)(cosmiconfig-typescript-loader@4.3.0(@types/node@18.18.8)(cosmiconfig@8.2.0)(ts-node@10.9.1(@swc/core@1.4.2)(@types/node@18.18.8)(typescript@5.3.2))(typescript@5.3.2))(graphql@16.8.1)
+      graphql-config: 4.4.1(@types/node@18.18.8)(cosmiconfig-typescript-loader@4.3.0(@types/node@18.18.8)(cosmiconfig@7.0.1)(ts-node@10.9.1(@swc/core@1.4.2)(@types/node@18.18.8)(typescript@5.3.2))(typescript@5.3.2))(graphql@16.8.1)
+      graphql-language-service-parser: 1.10.4(@types/node@18.18.8)(cosmiconfig-typescript-loader@4.3.0(@types/node@18.18.8)(cosmiconfig@7.0.1)(ts-node@10.9.1(@swc/core@1.4.2)(@types/node@18.18.8)(typescript@5.3.2))(typescript@5.3.2))(graphql@16.8.1)
+      graphql-language-service-types: 1.8.7(@types/node@18.18.8)(cosmiconfig-typescript-loader@4.3.0(@types/node@18.18.8)(cosmiconfig@7.0.1)(ts-node@10.9.1(@swc/core@1.4.2)(@types/node@18.18.8)(typescript@5.3.2))(typescript@5.3.2))(graphql@16.8.1)
+      graphql-language-service-utils: 2.7.1(@types/node@18.18.8)(cosmiconfig-typescript-loader@4.3.0(@types/node@18.18.8)(cosmiconfig@7.0.1)(ts-node@10.9.1(@swc/core@1.4.2)(@types/node@18.18.8)(typescript@5.3.2))(typescript@5.3.2))(graphql@16.8.1)
       vscode-languageserver-types: 3.17.2
     transitivePeerDependencies:
       - '@types/node'
@@ -20974,10 +20977,10 @@ snapshots:
       - encoding
       - utf-8-validate
 
-  graphql-language-service-parser@1.10.4(@types/node@18.18.8)(cosmiconfig-typescript-loader@4.3.0(@types/node@18.18.8)(cosmiconfig@8.2.0)(ts-node@10.9.1(@swc/core@1.4.2)(@types/node@18.18.8)(typescript@5.3.2))(typescript@5.3.2))(graphql@16.8.1):
+  graphql-language-service-parser@1.10.4(@types/node@18.18.8)(cosmiconfig-typescript-loader@4.3.0(@types/node@18.18.8)(cosmiconfig@7.0.1)(ts-node@10.9.1(@swc/core@1.4.2)(@types/node@18.18.8)(typescript@5.3.2))(typescript@5.3.2))(graphql@16.8.1):
     dependencies:
       graphql: 16.8.1
-      graphql-language-service-types: 1.8.7(@types/node@18.18.8)(cosmiconfig-typescript-loader@4.3.0(@types/node@18.18.8)(cosmiconfig@8.2.0)(ts-node@10.9.1(@swc/core@1.4.2)(@types/node@18.18.8)(typescript@5.3.2))(typescript@5.3.2))(graphql@16.8.1)
+      graphql-language-service-types: 1.8.7(@types/node@18.18.8)(cosmiconfig-typescript-loader@4.3.0(@types/node@18.18.8)(cosmiconfig@7.0.1)(ts-node@10.9.1(@swc/core@1.4.2)(@types/node@18.18.8)(typescript@5.3.2))(typescript@5.3.2))(graphql@16.8.1)
     transitivePeerDependencies:
       - '@types/node'
       - bufferutil
@@ -20986,10 +20989,10 @@ snapshots:
       - encoding
       - utf-8-validate
 
-  graphql-language-service-types@1.8.7(@types/node@18.18.8)(cosmiconfig-typescript-loader@4.3.0(@types/node@18.18.8)(cosmiconfig@8.2.0)(ts-node@10.9.1(@swc/core@1.4.2)(@types/node@18.18.8)(typescript@5.3.2))(typescript@5.3.2))(graphql@16.8.1):
+  graphql-language-service-types@1.8.7(@types/node@18.18.8)(cosmiconfig-typescript-loader@4.3.0(@types/node@18.18.8)(cosmiconfig@7.0.1)(ts-node@10.9.1(@swc/core@1.4.2)(@types/node@18.18.8)(typescript@5.3.2))(typescript@5.3.2))(graphql@16.8.1):
     dependencies:
       graphql: 16.8.1
-      graphql-config: 4.4.1(@types/node@18.18.8)(cosmiconfig-typescript-loader@4.3.0(@types/node@18.18.8)(cosmiconfig@8.2.0)(ts-node@10.9.1(@swc/core@1.4.2)(@types/node@18.18.8)(typescript@5.3.2))(typescript@5.3.2))(graphql@16.8.1)
+      graphql-config: 4.4.1(@types/node@18.18.8)(cosmiconfig-typescript-loader@4.3.0(@types/node@18.18.8)(cosmiconfig@7.0.1)(ts-node@10.9.1(@swc/core@1.4.2)(@types/node@18.18.8)(typescript@5.3.2))(typescript@5.3.2))(graphql@16.8.1)
       vscode-languageserver-types: 3.17.2
     transitivePeerDependencies:
       - '@types/node'
@@ -20999,11 +21002,11 @@ snapshots:
       - encoding
       - utf-8-validate
 
-  graphql-language-service-utils@2.7.1(@types/node@18.18.8)(cosmiconfig-typescript-loader@4.3.0(@types/node@18.18.8)(cosmiconfig@8.2.0)(ts-node@10.9.1(@swc/core@1.4.2)(@types/node@18.18.8)(typescript@5.3.2))(typescript@5.3.2))(graphql@16.8.1):
+  graphql-language-service-utils@2.7.1(@types/node@18.18.8)(cosmiconfig-typescript-loader@4.3.0(@types/node@18.18.8)(cosmiconfig@7.0.1)(ts-node@10.9.1(@swc/core@1.4.2)(@types/node@18.18.8)(typescript@5.3.2))(typescript@5.3.2))(graphql@16.8.1):
     dependencies:
       '@types/json-schema': 7.0.9
       graphql: 16.8.1
-      graphql-language-service-types: 1.8.7(@types/node@18.18.8)(cosmiconfig-typescript-loader@4.3.0(@types/node@18.18.8)(cosmiconfig@8.2.0)(ts-node@10.9.1(@swc/core@1.4.2)(@types/node@18.18.8)(typescript@5.3.2))(typescript@5.3.2))(graphql@16.8.1)
+      graphql-language-service-types: 1.8.7(@types/node@18.18.8)(cosmiconfig-typescript-loader@4.3.0(@types/node@18.18.8)(cosmiconfig@7.0.1)(ts-node@10.9.1(@swc/core@1.4.2)(@types/node@18.18.8)(typescript@5.3.2))(typescript@5.3.2))(graphql@16.8.1)
       nullthrows: 1.1.1
     transitivePeerDependencies:
       - '@types/node'
@@ -21279,7 +21282,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  httpsnippet@3.0.1(ajv@6.12.3):
+  httpsnippet@3.0.1:
     dependencies:
       ajv: 6.12.3
       chalk: 4.1.2
@@ -25301,7 +25304,7 @@ snapshots:
 
   ts-interface-checker@0.1.13: {}
 
-  ts-jest@27.1.5(@babel/core@7.23.9)(@types/jest@27.5.2)(babel-jest@29.7.0(@babel/core@7.23.9))(jest@29.7.0(@types/node@17.0.45)(ts-node@10.9.1(@swc/core@1.4.2)(@types/node@17.0.45)(typescript@4.9.5)))(typescript@4.9.5):
+  ts-jest@27.1.5(@babel/core@7.23.9)(@types/jest@27.5.2)(jest@29.7.0(@types/node@17.0.45)(ts-node@10.9.1(@swc/core@1.4.2)(@types/node@17.0.45)(typescript@4.9.5)))(typescript@4.9.5):
     dependencies:
       bs-logger: 0.2.6
       fast-json-stable-stringify: 2.1.0
@@ -25316,7 +25319,6 @@ snapshots:
     optionalDependencies:
       '@babel/core': 7.23.9
       '@types/jest': 27.5.2
-      babel-jest: 29.7.0(@babel/core@7.23.9)
 
   ts-jest@29.0.5(@babel/core@7.23.9)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.23.9))(jest@29.4.1(@types/node@18.11.10)(ts-node@10.9.1(@swc/core@1.4.2)(@types/node@18.11.10)(typescript@4.9.3)))(typescript@4.9.3):
     dependencies:
@@ -25738,7 +25740,7 @@ snapshots:
       unplugin: 1.5.1
       vite: 4.5.0(@types/node@18.18.8)(sass@1.69.5)(terser@5.27.0)
 
-  unplugin-icons@0.14.9(@vue/compiler-sfc@3.2.45)(esbuild@0.20.0)(rollup@3.29.4)(vite@3.2.4(@types/node@18.18.8)(sass@1.58.0)(terser@5.27.0))(vue-template-compiler@2.7.14)(webpack@5.90.0(@swc/core@1.4.2)(esbuild@0.20.0)):
+  unplugin-icons@0.14.9(@vue/compiler-sfc@3.2.45)(esbuild@0.20.0)(rollup@2.79.1)(vite@3.2.4(@types/node@18.18.8)(sass@1.58.0)(terser@5.27.0))(vue-template-compiler@2.7.14)(webpack@5.90.0(@swc/core@1.4.2)(esbuild@0.20.0)):
     dependencies:
       '@antfu/install-pkg': 0.1.1
       '@antfu/utils': 0.5.2
@@ -25746,7 +25748,7 @@ snapshots:
       debug: 4.3.4(supports-color@9.2.2)
       kolorist: 1.8.0
       local-pkg: 0.4.3
-      unplugin: 0.9.5(esbuild@0.20.0)(rollup@3.29.4)(vite@3.2.4(@types/node@18.18.8)(sass@1.58.0)(terser@5.27.0))(webpack@5.90.0(@swc/core@1.4.2)(esbuild@0.20.0))
+      unplugin: 0.9.5(esbuild@0.20.0)(rollup@2.79.1)(vite@3.2.4(@types/node@18.18.8)(sass@1.58.0)(terser@5.27.0))(webpack@5.90.0(@swc/core@1.4.2)(esbuild@0.20.0))
     optionalDependencies:
       '@vue/compiler-sfc': 3.2.45
       vue-template-compiler: 2.7.14
@@ -25757,7 +25759,7 @@ snapshots:
       - vite
       - webpack
 
-  unplugin-icons@0.14.9(@vue/compiler-sfc@3.3.10)(esbuild@0.20.0)(rollup@3.29.4)(vite@4.5.0(@types/node@18.18.8)(sass@1.69.5)(terser@5.27.0))(vue-template-compiler@2.7.14)(webpack@5.90.0(@swc/core@1.4.2)(esbuild@0.20.0)):
+  unplugin-icons@0.14.9(@vue/compiler-sfc@3.3.10)(esbuild@0.20.0)(rollup@2.79.1)(vite@4.5.0(@types/node@18.18.8)(sass@1.69.5)(terser@5.27.0))(vue-template-compiler@2.7.14)(webpack@5.90.0(@swc/core@1.4.2)(esbuild@0.20.0)):
     dependencies:
       '@antfu/install-pkg': 0.1.1
       '@antfu/utils': 0.5.2
@@ -25765,7 +25767,7 @@ snapshots:
       debug: 4.3.4(supports-color@9.2.2)
       kolorist: 1.8.0
       local-pkg: 0.4.3
-      unplugin: 0.9.5(esbuild@0.20.0)(rollup@3.29.4)(vite@4.5.0(@types/node@18.18.8)(sass@1.69.5)(terser@5.27.0))(webpack@5.90.0(@swc/core@1.4.2)(esbuild@0.20.0))
+      unplugin: 0.9.5(esbuild@0.20.0)(rollup@2.79.1)(vite@4.5.0(@types/node@18.18.8)(sass@1.69.5)(terser@5.27.0))(webpack@5.90.0(@swc/core@1.4.2)(esbuild@0.20.0))
     optionalDependencies:
       '@vue/compiler-sfc': 3.3.10
       vue-template-compiler: 2.7.14
@@ -25791,7 +25793,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  unplugin-vue-components@0.21.0(@babel/parser@7.23.9)(esbuild@0.20.0)(rollup@3.29.4)(vite@3.2.4(@types/node@18.18.8)(sass@1.58.0)(terser@5.27.0))(vue@3.3.9(typescript@4.9.3))(webpack@5.90.0(@swc/core@1.4.2)(esbuild@0.20.0)):
+  unplugin-vue-components@0.21.0(@babel/parser@7.23.9)(esbuild@0.20.0)(rollup@2.79.1)(vite@3.2.4(@types/node@18.18.8)(sass@1.58.0)(terser@5.27.0))(vue@3.3.9(typescript@4.9.3))(webpack@5.90.0(@swc/core@1.4.2)(esbuild@0.20.0)):
     dependencies:
       '@antfu/utils': 0.5.2
       '@rollup/pluginutils': 4.2.1
@@ -25802,7 +25804,7 @@ snapshots:
       magic-string: 0.26.7
       minimatch: 5.1.6
       resolve: 1.22.8
-      unplugin: 0.7.1(esbuild@0.20.0)(rollup@3.29.4)(vite@3.2.4(@types/node@18.18.8)(sass@1.58.0)(terser@5.27.0))(webpack@5.90.0(@swc/core@1.4.2)(esbuild@0.20.0))
+      unplugin: 0.7.1(esbuild@0.20.0)(rollup@2.79.1)(vite@3.2.4(@types/node@18.18.8)(sass@1.58.0)(terser@5.27.0))(webpack@5.90.0(@swc/core@1.4.2)(esbuild@0.20.0))
       vue: 3.3.9(typescript@4.9.3)
     optionalDependencies:
       '@babel/parser': 7.23.9
@@ -25813,7 +25815,7 @@ snapshots:
       - vite
       - webpack
 
-  unplugin-vue-components@0.21.0(@babel/parser@7.23.9)(esbuild@0.20.0)(rollup@3.29.4)(vite@4.5.0(@types/node@18.18.8)(sass@1.69.5)(terser@5.27.0))(vue@3.3.9(typescript@4.9.5))(webpack@5.90.0(@swc/core@1.4.2)(esbuild@0.20.0)):
+  unplugin-vue-components@0.21.0(@babel/parser@7.23.9)(esbuild@0.20.0)(rollup@2.79.1)(vite@4.5.0(@types/node@18.18.8)(sass@1.69.5)(terser@5.27.0))(vue@3.3.9(typescript@4.9.5))(webpack@5.90.0(@swc/core@1.4.2)(esbuild@0.20.0)):
     dependencies:
       '@antfu/utils': 0.5.2
       '@rollup/pluginutils': 4.2.1
@@ -25824,7 +25826,7 @@ snapshots:
       magic-string: 0.26.7
       minimatch: 5.1.6
       resolve: 1.22.8
-      unplugin: 0.7.1(esbuild@0.20.0)(rollup@3.29.4)(vite@4.5.0(@types/node@18.18.8)(sass@1.69.5)(terser@5.27.0))(webpack@5.90.0(@swc/core@1.4.2)(esbuild@0.20.0))
+      unplugin: 0.7.1(esbuild@0.20.0)(rollup@2.79.1)(vite@4.5.0(@types/node@18.18.8)(sass@1.69.5)(terser@5.27.0))(webpack@5.90.0(@swc/core@1.4.2)(esbuild@0.20.0))
       vue: 3.3.9(typescript@4.9.5)
     optionalDependencies:
       '@babel/parser': 7.23.9
@@ -25835,10 +25837,10 @@ snapshots:
       - vite
       - webpack
 
-  unplugin-vue-components@0.25.2(@babel/parser@7.23.9)(rollup@3.29.4)(vue@3.3.9(typescript@5.3.2)):
+  unplugin-vue-components@0.25.2(@babel/parser@7.23.9)(rollup@2.79.1)(vue@3.3.9(typescript@5.3.2)):
     dependencies:
       '@antfu/utils': 0.7.6
-      '@rollup/pluginutils': 5.1.0(rollup@3.29.4)
+      '@rollup/pluginutils': 5.1.0(rollup@2.79.1)
       chokidar: 3.5.3
       debug: 4.3.4(supports-color@9.2.2)
       fast-glob: 3.3.2
@@ -25873,7 +25875,7 @@ snapshots:
       - rollup
       - supports-color
 
-  unplugin@0.7.1(esbuild@0.20.0)(rollup@3.29.4)(vite@3.2.4(@types/node@18.18.8)(sass@1.58.0)(terser@5.27.0))(webpack@5.90.0(@swc/core@1.4.2)(esbuild@0.20.0)):
+  unplugin@0.7.1(esbuild@0.20.0)(rollup@2.79.1)(vite@3.2.4(@types/node@18.18.8)(sass@1.58.0)(terser@5.27.0))(webpack@5.90.0(@swc/core@1.4.2)(esbuild@0.20.0)):
     dependencies:
       acorn: 8.11.3
       chokidar: 3.5.3
@@ -25881,11 +25883,11 @@ snapshots:
       webpack-virtual-modules: 0.4.4
     optionalDependencies:
       esbuild: 0.20.0
-      rollup: 3.29.4
+      rollup: 2.79.1
       vite: 3.2.4(@types/node@18.18.8)(sass@1.58.0)(terser@5.27.0)
       webpack: 5.90.0(@swc/core@1.4.2)(esbuild@0.20.0)
 
-  unplugin@0.7.1(esbuild@0.20.0)(rollup@3.29.4)(vite@4.5.0(@types/node@18.18.8)(sass@1.69.5)(terser@5.27.0))(webpack@5.90.0(@swc/core@1.4.2)(esbuild@0.20.0)):
+  unplugin@0.7.1(esbuild@0.20.0)(rollup@2.79.1)(vite@4.5.0(@types/node@18.18.8)(sass@1.69.5)(terser@5.27.0))(webpack@5.90.0(@swc/core@1.4.2)(esbuild@0.20.0)):
     dependencies:
       acorn: 8.11.3
       chokidar: 3.5.3
@@ -25893,11 +25895,11 @@ snapshots:
       webpack-virtual-modules: 0.4.4
     optionalDependencies:
       esbuild: 0.20.0
-      rollup: 3.29.4
+      rollup: 2.79.1
       vite: 4.5.0(@types/node@18.18.8)(sass@1.69.5)(terser@5.27.0)
       webpack: 5.90.0(@swc/core@1.4.2)(esbuild@0.20.0)
 
-  unplugin@0.9.5(esbuild@0.20.0)(rollup@3.29.4)(vite@3.2.4(@types/node@18.18.8)(sass@1.58.0)(terser@5.27.0))(webpack@5.90.0(@swc/core@1.4.2)(esbuild@0.20.0)):
+  unplugin@0.9.5(esbuild@0.20.0)(rollup@2.79.1)(vite@3.2.4(@types/node@18.18.8)(sass@1.58.0)(terser@5.27.0))(webpack@5.90.0(@swc/core@1.4.2)(esbuild@0.20.0)):
     dependencies:
       acorn: 8.11.3
       chokidar: 3.5.3
@@ -25905,11 +25907,11 @@ snapshots:
       webpack-virtual-modules: 0.4.4
     optionalDependencies:
       esbuild: 0.20.0
-      rollup: 3.29.4
+      rollup: 2.79.1
       vite: 3.2.4(@types/node@18.18.8)(sass@1.58.0)(terser@5.27.0)
       webpack: 5.90.0(@swc/core@1.4.2)(esbuild@0.20.0)
 
-  unplugin@0.9.5(esbuild@0.20.0)(rollup@3.29.4)(vite@4.5.0(@types/node@18.18.8)(sass@1.69.5)(terser@5.27.0))(webpack@5.90.0(@swc/core@1.4.2)(esbuild@0.20.0)):
+  unplugin@0.9.5(esbuild@0.20.0)(rollup@2.79.1)(vite@4.5.0(@types/node@18.18.8)(sass@1.69.5)(terser@5.27.0))(webpack@5.90.0(@swc/core@1.4.2)(esbuild@0.20.0)):
     dependencies:
       acorn: 8.11.3
       chokidar: 3.5.3
@@ -25917,7 +25919,7 @@ snapshots:
       webpack-virtual-modules: 0.4.4
     optionalDependencies:
       esbuild: 0.20.0
-      rollup: 3.29.4
+      rollup: 2.79.1
       vite: 4.5.0(@types/node@18.18.8)(sass@1.69.5)(terser@5.27.0)
       webpack: 5.90.0(@swc/core@1.4.2)(esbuild@0.20.0)
 
@@ -26051,7 +26053,7 @@ snapshots:
       - supports-color
       - terser
 
-  vite-plugin-checker@0.6.2(eslint@8.57.0)(meow@8.1.2)(optionator@0.9.3)(typescript@5.3.2)(vite@4.5.0(@types/node@18.18.8)(sass@1.69.5)(terser@5.27.0))(vue-tsc@1.8.24(typescript@5.3.2)):
+  vite-plugin-checker@0.6.2(eslint@8.57.0)(optionator@0.9.3)(typescript@5.3.2)(vite@4.5.0(@types/node@18.18.8)(sass@1.69.5)(terser@5.27.0))(vue-tsc@1.8.24(typescript@5.3.2)):
     dependencies:
       '@babel/code-frame': 7.23.5
       ansi-escapes: 4.3.2
@@ -26073,7 +26075,6 @@ snapshots:
       vscode-uri: 3.0.7
     optionalDependencies:
       eslint: 8.57.0
-      meow: 8.1.2
       optionator: 0.9.3
       typescript: 5.3.2
       vue-tsc: 1.8.24(typescript@5.3.2)
@@ -26119,10 +26120,10 @@ snapshots:
     dependencies:
       vite: 4.5.0(@types/node@18.18.8)(sass@1.69.5)(terser@5.27.0)
 
-  vite-plugin-inspect@0.7.38(rollup@3.29.4)(vite@4.5.0(@types/node@18.18.8)(sass@1.69.5)(terser@5.27.0)):
+  vite-plugin-inspect@0.7.38(rollup@2.79.1)(vite@4.5.0(@types/node@18.18.8)(sass@1.69.5)(terser@5.27.0)):
     dependencies:
       '@antfu/utils': 0.7.6
-      '@rollup/pluginutils': 5.1.0(rollup@3.29.4)
+      '@rollup/pluginutils': 5.1.0(rollup@2.79.1)
       debug: 4.3.4(supports-color@9.2.2)
       error-stack-parser-es: 0.1.1
       fs-extra: 11.1.1
@@ -26134,10 +26135,10 @@ snapshots:
       - rollup
       - supports-color
 
-  vite-plugin-inspect@0.7.42(rollup@3.29.4)(vite@4.5.0(@types/node@18.18.8)(sass@1.69.5)(terser@5.27.0)):
+  vite-plugin-inspect@0.7.42(rollup@2.79.1)(vite@4.5.0(@types/node@18.18.8)(sass@1.69.5)(terser@5.27.0)):
     dependencies:
       '@antfu/utils': 0.7.6
-      '@rollup/pluginutils': 5.1.0(rollup@3.29.4)
+      '@rollup/pluginutils': 5.1.0(rollup@2.79.1)
       debug: 4.3.4(supports-color@9.2.2)
       error-stack-parser-es: 0.1.1
       fs-extra: 11.1.1

@@ -73,6 +73,9 @@
     />
     <HoppSmartModal
       v-if="confirmingCloseForTabID !== null"
+      dialog
+      role="dialog"
+      aria-modal="true"
       :title="t('modal.close_unsaved_tab')"
       @close="confirmingCloseForTabID = null"
     >

@@ -39,9 +39,7 @@ export class URLMenuService extends Service implements ContextMenu {
   private readonly contextMenu = this.bind(ContextMenuService)
   private readonly restTab = this.bind(RESTTabService)
 
-  constructor() {
-    super()
-
+  override onServiceInit() {
     this.contextMenu.registerMenu(this)
   }
 

@@ -15,6 +15,7 @@ import IconMonitor from "~icons/lucide/monitor"
 import IconMoon from "~icons/lucide/moon"
 import IconSun from "~icons/lucide/sun"
 import IconCheckCircle from "~icons/lucide/check-circle"
+import { Container } from "dioc"
 
 type Doc = {
   text: string | string[]
@@ -100,15 +101,18 @@ export class SettingsSpotlightSearcherService extends StaticSpotlightSearcherSer
     },
   })
 
-  constructor() {
-    super({
+  // TODO: Constuctors are no longer recommended as of dioc > 3, move to onServiceInit
+  constructor(c: Container) {
+    super(c, {
       searchFields: ["text", "alternates"],
       fieldWeights: {
         text: 2,
         alternates: 1,
       },
     })
+  }
 
+  override onServiceInit() {
     this.setDocuments(this.documents)
     this.spotlight.registerSearcher(this)
   }

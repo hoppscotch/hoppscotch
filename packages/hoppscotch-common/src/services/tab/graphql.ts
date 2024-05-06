@@ -3,12 +3,15 @@ import { getDefaultGQLRequest } from "~/helpers/graphql/default"
 import { HoppGQLDocument, HoppGQLSaveContext } from "~/helpers/graphql/document"
 import { TabService } from "./tab"
 import { computed } from "vue"
+import { Container } from "dioc"
 
 export class GQLTabService extends TabService<HoppGQLDocument> {
   public static readonly ID = "GQL_TAB_SERVICE"
 
-  constructor() {
-    super()
+  // TODO: Moving this to `onServiceInit` breaks `persistableTabState`
+  // Figure out how to fix this
+  constructor(c: Container) {
+    super(c)
 
     this.tabMap.set("test", {
       id: "test",

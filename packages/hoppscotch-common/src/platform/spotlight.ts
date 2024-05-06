@@ -1,10 +1,10 @@
-import { Service } from "dioc"
+import { Container, ServiceClassInstance } from "dioc"
 import { SpotlightSearcher } from "~/services/spotlight"
 
 export type SpotlightPlatformDef = {
   additionalSearchers?: Array<
-    typeof Service<unknown> & { ID: string } & {
-      new (): Service & SpotlightSearcher
+    ServiceClassInstance<unknown> & {
+      new (c: Container): SpotlightSearcher
     }
   >
 }

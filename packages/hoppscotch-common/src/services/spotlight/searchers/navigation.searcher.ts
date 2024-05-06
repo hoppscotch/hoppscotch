@@ -8,6 +8,7 @@ import {
 } from "./base/static.searcher"
 
 import IconArrowRight from "~icons/lucide/arrow-right"
+import { Container } from "dioc"
 
 type Doc = {
   text: string
@@ -61,15 +62,18 @@ export class NavigationSpotlightSearcherService extends StaticSpotlightSearcherS
 
   private docKeys = Object.keys(this.documents)
 
-  constructor() {
-    super({
+  // TODO: Constructors are no longer recommended as of dioc > 3, use onServiceInit instead
+  constructor(c: Container) {
+    super(c, {
       searchFields: ["text", "alternates"],
       fieldWeights: {
         text: 2,
         alternates: 1,
       },
     })
+  }
 
+  override onServiceInit() {
     this.setDocuments(this.documents)
     this.spotlight.registerSearcher(this)
   }

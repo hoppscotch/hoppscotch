@@ -8,14 +8,14 @@ import { AnalyticsPlatformDef } from "./analytics"
 import { InterceptorsPlatformDef } from "./interceptors"
 import { HoppModule } from "~/modules"
 import { InspectorsPlatformDef } from "./inspectors"
-import { Service } from "dioc"
+import { ServiceClassInstance } from "dioc"
 import { IOPlatformDef } from "./io"
 import { SpotlightPlatformDef } from "./spotlight"
 
 export type PlatformDef = {
   ui?: UIPlatformDef
   addedHoppModules?: HoppModule[]
-  addedServices?: Array<typeof Service<unknown> & { ID: string }>
+  addedServices?: Array<ServiceClassInstance<unknown>>
   auth: AuthPlatformDef
   analytics?: AnalyticsPlatformDef
   io: IOPlatformDef

@@ -50,9 +50,7 @@ export class CollectionsSpotlightSearcherService
   private readonly spotlight = this.bind(SpotlightService)
   private readonly workspaceService = this.bind(WorkspaceService)
 
-  constructor() {
-    super()
-
+  override onServiceInit() {
     this.spotlight.registerSearcher(this)
   }
 

@@ -1,7 +1,7 @@
 {
   "name": "@hoppscotch/selfhost-desktop",
   "private": true,
-  "version": "2024.3.0",
+  "version": "2024.3.2",
   "type": "module",
   "scripts": {
     "dev:vite": "vite",
@@ -23,7 +23,7 @@
     "@vueuse/core": "10.5.0",
     "axios": "0.21.4",
     "buffer": "6.0.3",
-    "dioc": "1.0.1",
+    "dioc": "3.0.1",
     "environments.api": "link:@platform/environments/environments.api",
     "event": "link:@tauri-apps/api/event",
     "fp-ts": "2.16.1",

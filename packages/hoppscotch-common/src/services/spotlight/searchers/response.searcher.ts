@@ -9,6 +9,7 @@ import {
 
 import IconDownload from "~icons/lucide/download"
 import IconCopy from "~icons/lucide/copy"
+import { Container } from "dioc"
 
 type Doc = {
   text: string
@@ -56,15 +57,18 @@ export class ResponseSpotlightSearcherService extends StaticSpotlightSearcherSer
     },
   })
 
-  constructor() {
-    super({
+  // TODO: Constructors are no longer recommended as of dioc > 3, move to onServiceInit
+  constructor(c: Container) {
+    super(c, {
       searchFields: ["text", "alternates"],
       fieldWeights: {
         text: 2,
         alternates: 1,
       },
     })
+  }
 
+  override onServiceInit() {
     this.setDocuments(this.documents)
     this.spotlight.registerSearcher(this)
   }

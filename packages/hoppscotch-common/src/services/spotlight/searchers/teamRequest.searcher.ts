@@ -39,9 +39,7 @@ export class TeamsSpotlightSearcherService
 
   private readonly tabs = this.bind(RESTTabService)
 
-  constructor() {
-    super()
-
+  override onServiceInit() {
     this.spotlight.registerSearcher(this)
   }
 

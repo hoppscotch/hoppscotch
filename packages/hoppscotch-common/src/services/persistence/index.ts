@@ -89,10 +89,6 @@ export class PersistenceService extends Service {
 
   public hoppLocalConfigStorage: StorageLike = localStorage
 
-  constructor() {
-    super()
-  }
-
   private showErrorToast(localStorageKey: string) {
     const toast = useToast()
     toast.error(

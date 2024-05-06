@@ -1,7 +1,7 @@
 {
   "name": "@hoppscotch/common",
   "private": true,
-  "version": "2024.3.1",
+  "version": "2024.3.2",
   "scripts": {
     "dev": "pnpm exec npm-run-all -p -l dev:*",
     "test": "vitest --run",
@@ -50,7 +50,7 @@
     "axios": "1.6.2",
     "buffer": "6.0.3",
     "cookie-es": "1.0.0",
-    "dioc": "1.0.1",
+    "dioc": "3.0.1",
     "esprima": "4.0.1",
     "events": "3.3.0",
     "fp-ts": "2.16.1",

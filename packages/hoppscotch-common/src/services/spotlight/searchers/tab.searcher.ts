@@ -14,6 +14,7 @@ import IconXSquare from "~icons/lucide/x-square"
 import { invokeAction } from "~/helpers/actions"
 import { RESTTabService } from "~/services/tab/rest"
 import { GQLTabService } from "~/services/tab/graphql"
+import { Container } from "dioc"
 
 type Doc = {
   text: string | string[]
@@ -89,15 +90,18 @@ export class TabSpotlightSearcherService extends StaticSpotlightSearcherService<
     },
   })
 
-  constructor() {
-    super({
+  // TODO: Constructors are no longer recommended as of dioc > 3, use onServiceInit instead
+  constructor(c: Container) {
+    super(c, {
       searchFields: ["text", "alternates"],
       fieldWeights: {
         text: 2,
         alternates: 1,
       },
     })
+  }
 
+  override onServiceInit() {
     this.setDocuments(this.documents)
     this.spotlight.registerSearcher(this)
   }

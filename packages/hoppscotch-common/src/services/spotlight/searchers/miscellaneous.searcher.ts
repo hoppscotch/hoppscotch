@@ -8,6 +8,7 @@ import {
 } from "./base/static.searcher"
 
 import IconShare from "~icons/lucide/share"
+import { Container } from "dioc"
 
 type Doc = {
   text: string
@@ -39,15 +40,18 @@ export class MiscellaneousSpotlightSearcherService extends StaticSpotlightSearch
     },
   })
 
-  constructor() {
-    super({
+  // TODO: Constructors are no longer recommended as of dioc > 3, move to onServiceInit
+  constructor(c: Container) {
+    super(c, {
       searchFields: ["text", "alternates"],
       fieldWeights: {
         text: 2,
         alternates: 1,
       },
     })
+  }
 
+  override onServiceInit() {
     this.setDocuments(this.documents)
     this.spotlight.registerSearcher(this)
   }

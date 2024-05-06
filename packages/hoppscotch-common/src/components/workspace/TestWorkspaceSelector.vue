@@ -59,6 +59,6 @@ async function selectWorkspace(workspaceID: string) {
     return
   }
 
-  workspaceService.activeWorkspaceHandle.value = result.right
+  workspaceService.activeWorkspaceHandle.value = result.right.get()
 }
 </script>

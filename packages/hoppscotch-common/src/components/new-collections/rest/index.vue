@@ -607,7 +607,7 @@ watchEffect(async () => {
     return
   }
 
-  const searchResultsHandle = searchResultsHandleResult.right
+  const searchResultsHandle = searchResultsHandleResult.right.get()
 
   if (searchResultsHandle.value.type === "invalid") {
     filteredCollections.value = []
@@ -722,7 +722,7 @@ const addNewRootCollection = async (name: string) => {
   }
 
   // Workspace invalidated
-  if (result.right.value.type === "invalid") {
+  if (result.right.get().value.type === "invalid") {
     // TODO: Error Handling
     return
   }
@@ -751,7 +751,7 @@ const onRemoveRootCollection = async () => {
     return
   }
 
-  const collectionHandle = collectionHandleResult.right
+  const collectionHandle = collectionHandleResult.right.get()
 
   if (collectionHandle.value.type === "invalid") {
     // WORKSPACE_INVALIDATED
@@ -791,7 +791,7 @@ const onAddRequest = async (requestName: string) => {
     return
   }
 
-  const collectionHandle = collectionHandleResult.right
+  const collectionHandle = collectionHandleResult.right.get()
 
   if (collectionHandle.value.type === "invalid") {
     // WORKSPACE_INVALIDATED
@@ -813,7 +813,7 @@ const onAddRequest = async (requestName: string) => {
     return
   }
 
-  const requestHandle = requestHandleResult.right
+  const requestHandle = requestHandleResult.right.get()
 
   if (requestHandle.value.type === "invalid") {
     // COLLECTION_INVALIDATED
@@ -830,7 +830,8 @@ const onAddRequest = async (requestName: string) => {
     return
   }
 
-  const cascadingAuthHeadersHandle = cascadingAuthHeadersHandleResult.right
+  const cascadingAuthHeadersHandle =
+    cascadingAuthHeadersHandleResult.right.get()
 
   if (cascadingAuthHeadersHandle.value.type === "invalid") {
     // COLLECTION_INVALIDATED
@@ -873,7 +874,7 @@ const onAddChildCollection = async (newChildCollectionName: string) => {
     return
   }
 
-  const collectionHandle = collectionHandleResult.right
+  const collectionHandle = collectionHandleResult.right.get()
 
   if (collectionHandle.value.type === "invalid") {
     // WORKSPACE_INVALIDATED
@@ -890,7 +891,7 @@ const onAddChildCollection = async (newChildCollectionName: string) => {
     return
   }
 
-  if (result.right.value.type === "invalid") {
+  if (result.right.get().value.type === "invalid") {
     // COLLECTION_INVALIDATED
     return
   }
@@ -923,7 +924,7 @@ const onEditRootCollection = async (newCollectionName: string) => {
     return
   }
 
-  const collectionHandle = collectionHandleResult.right
+  const collectionHandle = collectionHandleResult.right.get()
 
   if (collectionHandle.value.type === "invalid") {
     // WORKSPACE_INVALIDATED
@@ -968,7 +969,7 @@ const onEditChildCollection = async (newChildCollectionName: string) => {
     return
   }
 
-  const collectionHandle = collectionHandleResult.right
+  const collectionHandle = collectionHandleResult.right.get()
 
   if (collectionHandle.value.type === "invalid") {
     // WORKSPACE_INVALIDATED
@@ -1009,7 +1010,7 @@ const onRemoveChildCollection = async () => {
     return
   }
 
-  const parentCollectionHandle = parentCollectionHandleResult.right
+  const parentCollectionHandle = parentCollectionHandleResult.right.get()
 
   if (parentCollectionHandle.value.type === "invalid") {
     // WORKSPACE_INVALIDATED
@@ -1060,7 +1061,7 @@ const onRemoveRequest = async () => {
     return
   }
 
-  const requestHandle = requestHandleResult.right
+  const requestHandle = requestHandleResult.right.get()
 
   if (requestHandle.value.type === "invalid") {
     // COLLECTION_INVALIDATED
@@ -1109,7 +1110,7 @@ const selectRequest = async (requestIndexPath: string) => {
     return
   }
 
-  const collectionHandle = collectionHandleResult.right
+  const collectionHandle = collectionHandleResult.right.get()
 
   if (collectionHandle.value.type === "invalid") {
     // WORKSPACE_INVALIDATED | INVALID_COLLECTION_HANDLE
@@ -1126,7 +1127,7 @@ const selectRequest = async (requestIndexPath: string) => {
     return
   }
 
-  const requestHandle = requestHandleResult.right
+  const requestHandle = requestHandleResult.right.get()
 
   if (requestHandle.value.type === "invalid") {
     // COLLECTION_INVALIDATED
@@ -1143,7 +1144,8 @@ const selectRequest = async (requestIndexPath: string) => {
     return
   }
 
-  const cascadingAuthHeadersHandle = cascadingAuthHeadersHandleResult.right
+  const cascadingAuthHeadersHandle =
+    cascadingAuthHeadersHandleResult.right.get()
 
   if (cascadingAuthHeadersHandle.value.type === "invalid") {
     // COLLECTION_INVALIDATED
@@ -1190,7 +1192,7 @@ const duplicateRequest = async (requestIndexPath: string) => {
     return
   }
 
-  const requestHandle = requestHandleResult.right
+  const requestHandle = requestHandleResult.right.get()
 
   if (requestHandle.value.type === "invalid") {
     // COLLECTION_INVALIDATED
@@ -1238,7 +1240,7 @@ const onEditRequest = async (newRequestName: string) => {
     return
   }
 
-  const requestHandle = requestHandleResult.right
+  const requestHandle = requestHandleResult.right.get()
 
   if (requestHandle.value.type === "invalid") {
     // COLLECTION_INVALIDATED
@@ -1298,7 +1300,7 @@ const editCollectionProperties = async (collectionIndexPath: string) => {
     return
   }
 
-  const collectionHandle = collectionHandleResult.right
+  const collectionHandle = collectionHandleResult.right.get()
 
   if (collectionHandle.value.type === "invalid") {
     // WORKSPACE_INVALIDATED
@@ -1316,7 +1318,8 @@ const editCollectionProperties = async (collectionIndexPath: string) => {
       return
     }
 
-    const cascadingAuthHeadersHandle = cascadingAuthHeadersHandleResult.right
+    const cascadingAuthHeadersHandle =
+      cascadingAuthHeadersHandleResult.right.get()
 
     if (cascadingAuthHeadersHandle.value.type === "invalid") {
       // COLLECTION_INVALIDATED
@@ -1363,7 +1366,7 @@ const setCollectionProperties = async (updatedCollectionProps: {
     return
   }
 
-  const collectionHandle = collectionHandleResult.right
+  const collectionHandle = collectionHandleResult.right.get()
 
   if (collectionHandle.value.type === "invalid") {
     // WORKSPACE_INVALIDATED
@@ -1390,7 +1393,8 @@ const setCollectionProperties = async (updatedCollectionProps: {
     return
   }
 
-  const cascadingAuthHeadersHandle = cascadingAuthHeadersHandleResult.right
+  const cascadingAuthHeadersHandle =
+    cascadingAuthHeadersHandleResult.right.get()
 
   if (cascadingAuthHeadersHandle.value.type === "invalid") {
     // COLLECTION_INVALIDATED
@@ -1427,7 +1431,7 @@ const exportCollection = async (collectionIndexPath: string) => {
     return
   }
 
-  const collectionHandle = collectionHandleResult.right
+  const collectionHandle = collectionHandleResult.right.get()
 
   if (collectionHandle.value.type === "invalid") {
     // WORKSPACE_INVALIDATED
@@ -1526,7 +1530,7 @@ const dropToRoot = async ({ dataTransfer }: DragEvent) => {
     return
   }
 
-  const draggedCollectionHandle = draggedCollectionHandleResult.right
+  const draggedCollectionHandle = draggedCollectionHandleResult.right.get()
 
   if (draggedCollectionHandle.value.type === "invalid") {
     // WORKSPACE_INVALIDATED
@@ -1564,7 +1568,7 @@ const dropToRoot = async ({ dataTransfer }: DragEvent) => {
   }
 
   const destinationRootCollectionHandle =
-    destinationRootCollectionHandleResult.right
+    destinationRootCollectionHandleResult.right.get()
 
   if (destinationRootCollectionHandle.value.type === "invalid") {
     // WORKSPACE_INVALIDATED
@@ -1581,7 +1585,8 @@ const dropToRoot = async ({ dataTransfer }: DragEvent) => {
     return
   }
 
-  const cascadingAuthHeadersHandle = cascadingAuthHeadersHandleResult.right
+  const cascadingAuthHeadersHandle =
+    cascadingAuthHeadersHandleResult.right.get()
 
   if (cascadingAuthHeadersHandle.value.type === "invalid") {
     // COLLECTION_INVALIDATED
@@ -1635,7 +1640,7 @@ const dropRequest = async (payload: {
     return
   }
 
-  const requestHandle = requestHandleResult.right
+  const requestHandle = requestHandleResult.right.get()
 
   if (requestHandle.value.type === "invalid") {
     // COLLECTION_INVALIDATED
@@ -1662,7 +1667,7 @@ const dropRequest = async (payload: {
     return
   }
 
-  const collectionHandle = collectionHandleResult.right
+  const collectionHandle = collectionHandleResult.right.get()
 
   if (collectionHandle.value.type === "invalid") {
     // WORKSPACE_INVALIDATED
@@ -1679,7 +1684,8 @@ const dropRequest = async (payload: {
     return
   }
 
-  const cascadingAuthHeadersHandle = cascadingAuthHeadersHandleResult.right
+  const cascadingAuthHeadersHandle =
+    cascadingAuthHeadersHandleResult.right.get()
 
   if (cascadingAuthHeadersHandle.value.type === "invalid") {
     // COLLECTION_INVALIDATED
@@ -1768,7 +1774,7 @@ const dropCollection = async (payload: {
     return
   }
 
-  const draggedCollectionHandle = draggedCollectionHandleResult.right
+  const draggedCollectionHandle = draggedCollectionHandleResult.right.get()
 
   if (draggedCollectionHandle.value.type === "invalid") {
     // WORKSPACE_INVALIDATED
@@ -1838,7 +1844,8 @@ const dropCollection = async (payload: {
     return
   }
 
-  const destinationCollectionHandle = destinationCollectionHandleResult.right
+  const destinationCollectionHandle =
+    destinationCollectionHandleResult.right.get()
 
   if (destinationCollectionHandle.value.type === "invalid") {
     // WORKSPACE_INVALIDATED
@@ -1855,7 +1862,8 @@ const dropCollection = async (payload: {
     return
   }
 
-  const cascadingAuthHeadersHandle = cascadingAuthHeadersHandleResult.right
+  const cascadingAuthHeadersHandle =
+    cascadingAuthHeadersHandleResult.right.get()
 
   if (cascadingAuthHeadersHandle.value.type === "invalid") {
     // COLLECTION_INVALIDATED
@@ -1922,7 +1930,7 @@ const updateRequestOrder = async (
     return
   }
 
-  const requestHandle = requestHandleResult.right
+  const requestHandle = requestHandleResult.right.get()
 
   if (requestHandle.value.type === "invalid") {
     // COLLECTION_INVALIDATED
@@ -1982,7 +1990,7 @@ const updateCollectionOrder = async (
     return
   }
 
-  const collectionHandle = collectionHandleResult.right
+  const collectionHandle = collectionHandleResult.right.get()
 
   if (collectionHandle.value.type === "invalid") {
     // WORKSPACE_INVALIDATED

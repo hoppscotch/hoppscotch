@@ -10,7 +10,7 @@ import {
   shallowRef,
   watch,
 } from "vue"
-import { HandleRef } from "./handle"
+import { Handle, HandleRef } from "./handle"
 import { WorkspaceProvider } from "./provider"
 import {
   RESTCollectionChildrenView,
@@ -91,9 +91,7 @@ export class NewWorkspaceService extends Service {
   public async getWorkspaceHandle(
     providerID: string,
     workspaceID: string
-  ): Promise<
-    E.Either<WorkspaceError<"INVALID_PROVIDER">, HandleRef<Workspace>>
-  > {
+  ): Promise<E.Either<WorkspaceError<"INVALID_PROVIDER">, Handle<Workspace>>> {
     const provider = this.registeredProviders.get(providerID)
 
     if (!provider) {
@@ -117,7 +115,7 @@ export class NewWorkspaceService extends Service {
   ): Promise<
     E.Either<
       WorkspaceError<"INVALID_HANDLE" | "INVALID_PROVIDER">,
-      HandleRef<WorkspaceCollection>
+      Handle<WorkspaceCollection>
     >
   > {
     if (workspaceHandle.value.type === "invalid") {
@@ -150,7 +148,7 @@ export class NewWorkspaceService extends Service {
   ): Promise<
     E.Either<
       WorkspaceError<"INVALID_HANDLE" | "INVALID_PROVIDER">,
-      HandleRef<WorkspaceRequest>
+      Handle<WorkspaceRequest>
     >
   > {
     if (workspaceHandle.value.type === "invalid") {
@@ -180,7 +178,7 @@ export class NewWorkspaceService extends Service {
   ): Promise<
     E.Either<
       WorkspaceError<"INVALID_HANDLE" | "INVALID_PROVIDER">,
-      HandleRef<WorkspaceCollection>
+      Handle<WorkspaceCollection>
     >
   > {
     if (workspaceHandle.value.type === "invalid") {
@@ -213,7 +211,7 @@ export class NewWorkspaceService extends Service {
   ): Promise<
     E.Either<
       WorkspaceError<"INVALID_HANDLE" | "INVALID_PROVIDER">,
-      HandleRef<WorkspaceCollection>
+      Handle<WorkspaceCollection>
     >
   > {
     if (parentCollectionHandle.value.type === "invalid") {
@@ -302,7 +300,7 @@ export class NewWorkspaceService extends Service {
   ): Promise<
     E.Either<
       WorkspaceError<"INVALID_HANDLE" | "INVALID_PROVIDER">,
-      HandleRef<WorkspaceRequest>
+      Handle<WorkspaceRequest>
     >
   > {
     if (parentCollectionHandle.value.type === "invalid") {
@@ -391,7 +389,7 @@ export class NewWorkspaceService extends Service {
   ): Promise<
     E.Either<
       WorkspaceError<"INVALID_HANDLE" | "INVALID_PROVIDER">,
-      HandleRef<WorkspaceCollection>
+      Handle<WorkspaceCollection>
     >
   > {
     if (workspaceHandle.value.type === "invalid") {
@@ -605,7 +603,7 @@ export class NewWorkspaceService extends Service {
   ): Promise<
     E.Either<
       WorkspaceError<"INVALID_HANDLE" | "INVALID_PROVIDER">,
-      HandleRef<RESTCollectionChildrenView>
+      Handle<RESTCollectionChildrenView>
     >
   > {
     if (collectionHandle.value.type === "invalid") {
@@ -635,7 +633,7 @@ export class NewWorkspaceService extends Service {
   ): Promise<
     E.Either<
       WorkspaceError<"INVALID_HANDLE" | "INVALID_PROVIDER">,
-      HandleRef<RootRESTCollectionView>
+      Handle<RootRESTCollectionView>
     >
   > {
     if (workspaceHandle.value.type === "invalid") {
@@ -664,7 +662,7 @@ export class NewWorkspaceService extends Service {
   ): Promise<
     E.Either<
       WorkspaceError<"INVALID_HANDLE" | "INVALID_PROVIDER">,
-      HandleRef<RESTCollectionLevelAuthHeadersView>
+      Handle<RESTCollectionLevelAuthHeadersView>
     >
   > {
     if (collectionHandle.value.type === "invalid") {
@@ -695,7 +693,7 @@ export class NewWorkspaceService extends Service {
   ): Promise<
     E.Either<
       WorkspaceError<"INVALID_HANDLE" | "INVALID_PROVIDER">,
-      HandleRef<RESTSearchResultsView>
+      Handle<RESTSearchResultsView>
     >
   > {
     if (workspaceHandle.value.type === "invalid") {
@@ -727,7 +725,7 @@ export class NewWorkspaceService extends Service {
   ): Promise<
     E.Either<
       WorkspaceError<"INVALID_HANDLE" | "INVALID_PROVIDER">,
-      HandleRef<RESTCollectionJSONView>
+      Handle<RESTCollectionJSONView>
     >
   > {
     if (workspaceHandle.value.type === "invalid") {

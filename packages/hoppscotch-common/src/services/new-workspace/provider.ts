@@ -1,7 +1,7 @@
 import { Ref } from "vue"
 import * as E from "fp-ts/Either"
 
-import { HandleRef } from "./handle"
+import { Handle, HandleRef } from "./handle"
 import {
   Workspace,
   WorkspaceCollection,
@@ -24,41 +24,41 @@ export interface WorkspaceProvider {
 
   getWorkspaceHandle(
     workspaceID: string
-  ): Promise<E.Either<unknown, HandleRef<Workspace>>>
+  ): Promise<E.Either<unknown, Handle<Workspace>>>
   getCollectionHandle(
     workspaceHandle: HandleRef<Workspace>,
     collectionID: string
-  ): Promise<E.Either<unknown, HandleRef<WorkspaceCollection>>>
+  ): Promise<E.Either<unknown, Handle<WorkspaceCollection>>>
   getRequestHandle(
     workspaceHandle: HandleRef<Workspace>,
     requestID: string
-  ): Promise<E.Either<unknown, HandleRef<WorkspaceRequest>>>
+  ): Promise<E.Either<unknown, Handle<WorkspaceRequest>>>
 
   getRESTRootCollectionView(
     workspaceHandle: HandleRef<Workspace>
-  ): Promise<E.Either<never, HandleRef<RootRESTCollectionView>>>
+  ): Promise<E.Either<never, Handle<RootRESTCollectionView>>>
   getRESTCollectionChildrenView(
     collectionHandle: HandleRef<WorkspaceCollection>
-  ): Promise<E.Either<never, HandleRef<RESTCollectionChildrenView>>>
+  ): Promise<E.Either<never, Handle<RESTCollectionChildrenView>>>
   getRESTCollectionLevelAuthHeadersView(
     collectionHandle: HandleRef<WorkspaceCollection>
-  ): Promise<E.Either<never, HandleRef<RESTCollectionLevelAuthHeadersView>>>
+  ): Promise<E.Either<never, Handle<RESTCollectionLevelAuthHeadersView>>>
   getRESTSearchResultsView(
     workspaceHandle: HandleRef<Workspace>,
     searchQuery: Ref<string>
-  ): Promise<E.Either<never, HandleRef<RESTSearchResultsView>>>
+  ): Promise<E.Either<never, Handle<RESTSearchResultsView>>>
   getRESTCollectionJSONView(
     workspaceHandle: HandleRef<Workspace>
-  ): Promise<E.Either<never, HandleRef<RESTCollectionJSONView>>>
+  ): Promise<E.Either<never, Handle<RESTCollectionJSONView>>>
 
   createRESTRootCollection(
     workspaceHandle: HandleRef<Workspace>,
     newCollection: Partial<Exclude<HoppCollection, "id">> & { name: string }
-  ): Promise<E.Either<unknown, HandleRef<WorkspaceCollection>>>
+  ): Promise<E.Either<unknown, Handle<WorkspaceCollection>>>
   createRESTChildCollection(
     parentCollectionHandle: HandleRef<WorkspaceCollection>,
     newChildCollection: Partial<HoppCollection> & { name: string }
-  ): Promise<E.Either<unknown, HandleRef<WorkspaceCollection>>>
+  ): Promise<E.Either<unknown, Handle<WorkspaceCollection>>>
   updateRESTCollection(
     collectionHandle: HandleRef<WorkspaceCollection>,
     updatedCollection: Partial<HoppCollection>
@@ -69,7 +69,7 @@ export interface WorkspaceProvider {
   createRESTRequest(
     parentCollectionHandle: HandleRef<WorkspaceCollection>,
     newRequest: HoppRESTRequest
-  ): Promise<E.Either<unknown, HandleRef<WorkspaceRequest>>>
+  ): Promise<E.Either<unknown, Handle<WorkspaceRequest>>>
   updateRESTRequest(
     requestHandle: HandleRef<WorkspaceRequest>,
     updatedRequest: Partial<HoppRESTRequest>
@@ -81,7 +81,7 @@ export interface WorkspaceProvider {
   importRESTCollections(
     workspaceHandle: HandleRef<Workspace>,
     collections: HoppCollection[]
-  ): Promise<E.Either<unknown, HandleRef<WorkspaceCollection>>>
+  ): Promise<E.Either<unknown, Handle<WorkspaceCollection>>>
   exportRESTCollections(
     workspaceHandle: HandleRef<Workspace>,
     collections: HoppCollection[]

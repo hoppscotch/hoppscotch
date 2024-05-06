@@ -2,12 +2,12 @@ import {
   ChildrenResult,
   SmartTreeAdapter,
 } from "@hoppscotch/ui/dist/src/helpers/treeAdapter"
+import * as E from "fp-ts/Either"
 import { Ref, ref, watchEffect } from "vue"
 import { NewWorkspaceService } from "~/services/new-workspace"
 import { HandleRef } from "~/services/new-workspace/handle"
 import { RESTCollectionViewItem } from "~/services/new-workspace/view"
 import { Workspace } from "~/services/new-workspace/workspace"
-import * as E from "fp-ts/Either"
 
 export class WorkspaceRESTCollectionTreeAdapter
   implements SmartTreeAdapter<RESTCollectionViewItem>
@@ -50,7 +50,7 @@ export class WorkspaceRESTCollectionTreeAdapter
           throw new Error(JSON.stringify(collectionHandleResult.left.error))
         }
 
-        const collectionHandle = collectionHandleResult.right
+        const collectionHandle = collectionHandleResult.right.get()
 
         const collectionChildrenResult =
           await this.workspaceService.getRESTCollectionChildrenView(
@@ -62,7 +62,8 @@ export class WorkspaceRESTCollectionTreeAdapter
           throw new Error(JSON.stringify(collectionChildrenResult.left.error))
         }
 
-        const collectionChildrenViewHandle = collectionChildrenResult.right
+        const collectionChildrenViewHandle =
+          collectionChildrenResult.right.get()
 
         watchEffect(() => {
           if (collectionChildrenViewHandle.value.type !== "ok") return
@@ -100,7 +101,7 @@ export class WorkspaceRESTCollectionTreeAdapter
           throw new Error(JSON.stringify(viewResult.left.error))
         }
 
-        const viewHandle = viewResult.right
+        const viewHandle = viewResult.right.get()
 
         watchEffect(() => {
           if (viewHandle.value.type !== "ok") return

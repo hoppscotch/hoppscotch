@@ -108,7 +108,7 @@ import {
   from,
   map,
 } from "rxjs"
-import { onBeforeUnmount, onMounted, ref, watch } from "vue"
+import { onBeforeUnmount, onMounted, ref } from "vue"
 import { useRoute } from "vue-router"
 import { onLoggedIn } from "~/composables/auth"
 import { useReadonlyStream } from "~/composables/stream"

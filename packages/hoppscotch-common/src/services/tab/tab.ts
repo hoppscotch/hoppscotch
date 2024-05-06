@@ -19,7 +19,7 @@ import {
 } from "."
 
 import { NewWorkspaceService } from "../new-workspace"
-import { HandleRef } from "../new-workspace/handle"
+import { Handle, HandleRef } from "../new-workspace/handle"
 import { WorkspaceRequest } from "../new-workspace/workspace"
 
 export abstract class TabService<Doc>
@@ -98,7 +98,7 @@ export abstract class TabService<Doc>
       this.tabOrdering.value = []
 
       for (const doc of data.orderedDocs) {
-        let requestHandle: HandleRef<WorkspaceRequest> | null = null
+        let requestHandle: Handle<WorkspaceRequest> | null = null
         let resolvedTabDoc = doc.doc
 
         // TODO: Account for GQL
@@ -121,7 +121,7 @@ export abstract class TabService<Doc>
             continue
           }
 
-          const workspaceHandle = workspaceHandleResult.right
+          const workspaceHandle = workspaceHandleResult.right.get()
 
           if (workspaceHandle.value.type === "invalid") {
             continue

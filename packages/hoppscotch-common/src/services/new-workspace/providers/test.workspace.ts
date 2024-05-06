@@ -3,7 +3,7 @@ import { useTimestamp } from "@vueuse/core"
 import { Service } from "dioc"
 import { WorkspaceProvider } from "../provider"
 import * as E from "fp-ts/Either"
-import { HandleRef } from "../handle"
+import { Handle, HandleRef } from "../handle"
 import { Workspace, WorkspaceCollection } from "../workspace"
 import { NewWorkspaceService } from ".."
 import TestWorkspaceSelector from "~/components/workspace/TestWorkspaceSelector.vue"
@@ -83,7 +83,7 @@ export class TestWorkspaceProviderService
     workspaceHandle: HandleRef<Workspace>,
     collectionName: string
   ): Promise<
-    E.Either<"INVALID_WORKSPACE_HANDLE", HandleRef<WorkspaceCollection>>
+    E.Either<"INVALID_WORKSPACE_HANDLE", Handle<WorkspaceCollection>>
   > {
     if (workspaceHandle.value.type !== "ok") {
       return Promise.resolve(E.left("INVALID_WORKSPACE_HANDLE" as const))
@@ -106,14 +106,14 @@ export class TestWorkspaceProviderService
   public createRESTChildCollection(
     parentCollHandle: HandleRef<WorkspaceCollection>,
     collectionName: string
-  ): Promise<E.Either<unknown, HandleRef<WorkspaceCollection>>> {
+  ): Promise<E.Either<unknown, Handle<WorkspaceCollection>>> {
     // TODO: Implement
     throw new Error("Method not implemented.")
   }
 
   public getWorkspaceHandle(
     workspaceID: string
-  ): Promise<E.Either<never, HandleRef<Workspace>>> {
+  ): Promise<E.Either<never, Handle<Workspace>>> {
     return Promise.resolve(
       E.right(
         computed(() => {
@@ -142,7 +142,7 @@ export class TestWorkspaceProviderService
     workspaceHandle: HandleRef<Workspace>,
     collectionID: string
   ): Promise<
-    E.Either<"INVALID_WORKSPACE_HANDLE", HandleRef<WorkspaceCollection>>
+    E.Either<"INVALID_WORKSPACE_HANDLE", Handle<WorkspaceCollection>>
   > {
     return Promise.resolve(
       E.right(
@@ -187,7 +187,7 @@ export class TestWorkspaceProviderService
 
   public getRESTCollectionChildrenView(
     collectionHandle: HandleRef<WorkspaceCollection>
-  ): Promise<E.Either<never, HandleRef<RESTCollectionChildrenView>>> {
+  ): Promise<E.Either<never, Handle<RESTCollectionChildrenView>>> {
     return Promise.resolve(
       E.right(
         computed(() => {
@@ -257,7 +257,7 @@ export class TestWorkspaceProviderService
 
   public getRESTRootCollectionView(
     workspaceHandle: HandleRef<Workspace>
-  ): Promise<E.Either<never, HandleRef<RootRESTCollectionView>>> {
+  ): Promise<E.Either<never, Handle<RootRESTCollectionView>>> {
     return Promise.resolve(
       E.right(
         computed(() => {

@@ -48,6 +48,6 @@ const activeWorkspaceInfo = computed(() => {
 
 function selectWorkspace() {
   workspaceService.activeWorkspaceHandle.value =
-    personalWorkspaceProviderService.getPersonalWorkspaceHandle()
+    personalWorkspaceProviderService.getPersonalWorkspaceHandle().get()
 }
 </script>

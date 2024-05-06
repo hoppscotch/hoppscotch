@@ -3,46 +3,46 @@ import { HandleRef } from "./handle"
 import { Workspace, WorkspaceCollection, WorkspaceRequest } from "./workspace"
 
 export const isValidWorkspaceHandle = (
-  workspace: HandleRef<Workspace>,
+  workspaceHandle: HandleRef<Workspace>,
   providerID: string,
   workspaceID: string
-): workspace is Ref<{
+): workspaceHandle is Ref<{
   data: Workspace
   type: "ok"
 }> => {
   return (
-    workspace.value.type === "ok" &&
-    workspace.value.data.providerID === providerID &&
-    workspace.value.data.workspaceID === workspaceID
+    workspaceHandle.value.type === "ok" &&
+    workspaceHandle.value.data.providerID === providerID &&
+    workspaceHandle.value.data.workspaceID === workspaceID
   )
 }
 
 export const isValidCollectionHandle = (
-  collection: HandleRef<WorkspaceCollection>,
+  collectionHandle: HandleRef<WorkspaceCollection>,
   providerID: string,
   workspaceID: string
-): collection is Ref<{
+): collectionHandle is Ref<{
   data: WorkspaceCollection
   type: "ok"
 }> => {
   return (
-    collection.value.type === "ok" &&
-    collection.value.data.providerID === providerID &&
-    collection.value.data.workspaceID === workspaceID
+    collectionHandle.value.type === "ok" &&
+    collectionHandle.value.data.providerID === providerID &&
+    collectionHandle.value.data.workspaceID === workspaceID
   )
 }
 
 export const isValidRequestHandle = (
-  request: HandleRef<WorkspaceRequest>,
+  requestHandle: HandleRef<WorkspaceRequest>,
   providerID: string,
   workspaceID: string
-): request is Ref<{
+): requestHandle is Ref<{
   data: WorkspaceRequest
   type: "ok"
 }> => {
   return (
-    request.value.type === "ok" &&
-    request.value.data.providerID === providerID &&
-    request.value.data.workspaceID === workspaceID
+    requestHandle.value.type === "ok" &&
+    requestHandle.value.data.providerID === providerID &&
+    requestHandle.value.data.workspaceID === workspaceID
   )
 }

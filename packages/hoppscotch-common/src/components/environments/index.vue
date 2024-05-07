@@ -46,29 +46,29 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from "vue"
-import { isEqual } from "lodash-es"
-import { platform } from "~/platform"
 import { useReadonlyStream, useStream } from "@composables/stream"
+import { Environment } from "@hoppscotch/data"
+import { useService } from "dioc/vue"
+import * as TE from "fp-ts/TaskEither"
+import { pipe } from "fp-ts/function"
+import { isEqual } from "lodash-es"
+import { computed, ref, watch } from "vue"
 import { useI18n } from "~/composables/i18n"
+import { useToast } from "~/composables/toast"
+import { defineActionHandler } from "~/helpers/actions"
+import { GQLError } from "~/helpers/backend/GQLClient"
+import { deleteTeamEnvironment } from "~/helpers/backend/mutations/TeamEnvironment"
+import TeamEnvironmentAdapter from "~/helpers/teams/TeamEnvironmentAdapter"
 import {
+  deleteEnvironment,
   getSelectedEnvironmentIndex,
   globalEnv$,
   selectedEnvironmentIndex$,
   setSelectedEnvironmentIndex,
 } from "~/newstore/environments"
-import TeamEnvironmentAdapter from "~/helpers/teams/TeamEnvironmentAdapter"
-import { defineActionHandler } from "~/helpers/actions"
 import { useLocalState } from "~/newstore/localstate"
-import { pipe } from "fp-ts/function"
-import * as TE from "fp-ts/TaskEither"
-import { GQLError } from "~/helpers/backend/GQLClient"
-import { deleteEnvironment } from "~/newstore/environments"
-import { deleteTeamEnvironment } from "~/helpers/backend/mutations/TeamEnvironment"
-import { useToast } from "~/composables/toast"
+import { platform } from "~/platform"
 import { MyWorkspace, WorkspaceService } from "~/services/workspace.service"
-import { useService } from "dioc/vue"
-import { Environment } from "@hoppscotch/data"
 
 const t = useI18n()
 const toast = useToast()

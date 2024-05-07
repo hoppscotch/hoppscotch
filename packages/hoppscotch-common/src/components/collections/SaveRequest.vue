@@ -56,22 +56,25 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, reactive, ref, watch } from "vue"
-import { cloneDeep } from "lodash-es"
+import { useI18n } from "@composables/i18n"
+import { useToast } from "@composables/toast"
 import {
   HoppGQLRequest,
   HoppRESTRequest,
   isHoppRESTRequest,
 } from "@hoppscotch/data"
-import { pipe } from "fp-ts/function"
+import { computedWithControl } from "@vueuse/core"
+import { useService } from "dioc/vue"
 import * as TE from "fp-ts/TaskEither"
+import { pipe } from "fp-ts/function"
+import { cloneDeep } from "lodash-es"
+import { computed, nextTick, reactive, ref, watch } from "vue"
+import { GQLError } from "~/helpers/backend/GQLClient"
 import {
   createRequestInCollection,
   updateTeamRequest,
 } from "~/helpers/backend/mutations/TeamRequest"
 import { Picked } from "~/helpers/types/HoppPicked"
-import { useI18n } from "@composables/i18n"
-import { useToast } from "@composables/toast"
 import {
   cascadeParentCollectionForHeaderAuth,
   editGraphqlRequest,
@@ -79,12 +82,9 @@ import {
   saveGraphqlRequestAs,
   saveRESTRequestAs,
 } from "~/newstore/collections"
-import { GQLError } from "~/helpers/backend/GQLClient"
-import { computedWithControl } from "@vueuse/core"
 import { platform } from "~/platform"
-import { useService } from "dioc/vue"
-import { RESTTabService } from "~/services/tab/rest"
 import { GQLTabService } from "~/services/tab/graphql"
+import { RESTTabService } from "~/services/tab/rest"
 import { MyWorkspace } from "~/services/workspace.service"
 
 const t = useI18n()

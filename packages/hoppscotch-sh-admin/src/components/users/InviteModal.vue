@@ -31,14 +31,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import { useI18n } from '~/composables/i18n';
 import { useToast } from '~/composables/toast';
 
 const t = useI18n();
 const toast = useToast();
 
-withDefaults(
+const props = withDefaults(
   defineProps<{
     show: boolean;
   }>(),
@@ -65,4 +65,11 @@ const sendInvite = () => {
 const hideModal = () => {
   emit('hide-modal');
 };
+
+watch(
+  () => props.show,
+  (show) => {
+    if (show) email.value = '';
+  }
+);
 </script>

@@ -1,7 +1,11 @@
 import { useToast } from '~/composables/toast';
 import { getI18n } from '~/modules/i18n';
 import { UserDeletionResult } from './backend/graphql';
-import { ADMIN_CANNOT_BE_DELETED, USER_IS_OWNER } from './errors';
+import {
+  ADMIN_CANNOT_BE_DELETED,
+  USER_IS_OWNER,
+  getErrorMessage,
+} from './errors';
 
 type ToastMessage = {
   message: string;
@@ -50,12 +54,12 @@ export const handleUserDeletion = (deletedUsersList: UserDeletionResult[]) => {
 
   const errMsgMap = {
     [ADMIN_CANNOT_BE_DELETED]: isBulkAction
-      ? t('state.remove_admin_for_deletion')
-      : t('state.remove_admin_to_delete_user'),
+      ? t(getErrorMessage(ADMIN_CANNOT_BE_DELETED, true))
+      : t(getErrorMessage(ADMIN_CANNOT_BE_DELETED)),
 
     [USER_IS_OWNER]: isBulkAction
-      ? t('state.remove_owner_for_deletion')
-      : t('state.remove_owner_to_delete_user'),
+      ? t(getErrorMessage(USER_IS_OWNER, true))
+      : t(getErrorMessage(USER_IS_OWNER)),
   };
   const errMsgMapKeys = Object.keys(errMsgMap);
 

@@ -174,18 +174,21 @@
               class="py-4 border-divider rounded-r-none bg-emerald-800 text-secondaryDark"
             />
             <HoppButtonSecondary
+              v-if="showAdminButton"
               :icon="IconUserCheck"
               :label="t('users.make_admin')"
               class="py-4 border-divider border-r-1 rounded-none hover:bg-emerald-600"
               @click="confirmUsersToAdmin = true"
             />
             <HoppButtonSecondary
+              v-if="showRemoveAdminButton"
               :icon="IconUserMinus"
               :label="t('users.remove_admin_status')"
               class="py-4 border-divider border-r-1 rounded-none hover:bg-orange-500"
               @click="confirmAdminsToUsers = true"
             />
             <HoppButtonSecondary
+              v-if="showDeleteButton"
               :icon="IconTrash"
               :label="t('users.delete_users')"
               class="py-4 border-divider rounded-none hover:bg-red-500"
@@ -258,10 +261,7 @@ import {
   UsersListQuery,
   UsersListV2Document,
 } from '~/helpers/backend/graphql';
-import {
-  ONLY_ONE_ADMIN_ACCOUNT_FOUND,
-  USER_ALREADY_INVITED,
-} from '~/helpers/errors';
+import { getErrorMessage, isErrorPresent } from '~/helpers/errors';
 import { handleUserDeletion } from '~/helpers/userManagement';
 import IconCheck from '~icons/lucide/check';
 import IconLeft from '~icons/lucide/chevron-left';
@@ -305,6 +305,21 @@ const {
 
 // Selected Rows
 const selectedRows = ref<UsersListQuery['infra']['allUsers']>([]);
+
+const adminCount = computed(
+  () => usersList.value.filter((user) => user.isAdmin).length
+);
+
+const showAdminButton = computed(() =>
+  selectedRows.value.some((user) => !user.isAdmin)
+);
+const showRemoveAdminButton = computed(
+  () => selectedRows.value.some((user) => user.isAdmin) && adminCount.value > 1
+);
+const showDeleteButton = computed(
+  () =>
+    selectedRows.value.some((user) => !user.isAdmin) && usersCount.value !== 1
+);
 
 // Ensure this variable is declared outside the debounce function
 let debounceTimeout: ReturnType<typeof setTimeout> | null = null;
@@ -442,9 +457,10 @@ const sendInvite = async (email: string) => {
   const variables = { inviteeEmail: email.trim() };
   const result = await sendInvitation.executeMutation(variables);
   if (result.error) {
-    if (result.error.message === USER_ALREADY_INVITED)
-      toast.error(t('state.user_already_invited'));
-    else toast.error(t('state.email_failure'));
+    const { message } = result.error;
+    isErrorPresent(message)
+      ? toast.error(t(getErrorMessage(message)))
+      : toast.error(t('state.email_failure'));
   } else {
     toast.success(t('state.email_success'));
     showInviteUserModal.value = false;
@@ -522,8 +538,8 @@ const makeAdminsToUsers = async (id: string | null) => {
   const variables = { userUIDs };
   const result = await adminsToUser.executeMutation(variables);
   if (result.error) {
-    if (result.error.message === ONLY_ONE_ADMIN_ACCOUNT_FOUND) {
-      return toast.error(t('state.remove_admin_failure_only_one_admin'));
+    if (isErrorPresent(result.error.message)) {
+      return toast.error(t(getErrorMessage(result.error.message)));
     }
 
     toast.error(

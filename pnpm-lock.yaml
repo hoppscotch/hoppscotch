@@ -104,6 +104,9 @@ importers:
       '@nestjs/schedule':
         specifier: 4.0.1
         version: 4.0.1(@nestjs/common@10.2.7(reflect-metadata@0.1.13)(rxjs@7.6.0))(@nestjs/core@10.2.7(@nestjs/common@10.2.7(reflect-metadata@0.1.13)(rxjs@7.6.0))(@nestjs/platform-express@10.2.7)(reflect-metadata@0.1.13)(rxjs@7.6.0))
+      '@nestjs/terminus':
+        specifier: 10.2.3
+        version: 10.2.3(@nestjs/common@10.2.7(reflect-metadata@0.1.13)(rxjs@7.6.0))(@nestjs/core@10.2.7(@nestjs/common@10.2.7(reflect-metadata@0.1.13)(rxjs@7.6.0))(@nestjs/platform-express@10.2.7)(reflect-metadata@0.1.13)(rxjs@7.6.0))(@prisma/client@5.8.1(prisma@5.8.1))(reflect-metadata@0.1.13)(rxjs@7.6.0)
       '@nestjs/throttler':
         specifier: 5.0.1
         version: 5.0.1(@nestjs/common@10.2.7(reflect-metadata@0.1.13)(rxjs@7.6.0))(@nestjs/core@10.2.7(@nestjs/common@10.2.7(reflect-metadata@0.1.13)(rxjs@7.6.0))(@nestjs/platform-express@10.2.7)(reflect-metadata@0.1.13)(rxjs@7.6.0))(reflect-metadata@0.1.13)
@@ -3918,6 +3921,54 @@ packages:
     peerDependencies:
       typescript: '>=4.8.2'
 
+  '@nestjs/terminus@10.2.3':
+    resolution: {integrity: sha512-iX7gXtAooePcyQqFt57aDke5MzgdkBeYgF5YsFNNFwOiAFdIQEhfv3PR0G+HlH9F6D7nBCDZt9U87Pks/qHijg==}
+    peerDependencies:
+      '@grpc/grpc-js': '*'
+      '@grpc/proto-loader': '*'
+      '@mikro-orm/core': '*'
+      '@mikro-orm/nestjs': '*'
+      '@nestjs/axios': ^1.0.0 || ^2.0.0 || ^3.0.0
+      '@nestjs/common': ^9.0.0 || ^10.0.0
+      '@nestjs/core': ^9.0.0 || ^10.0.0
+      '@nestjs/microservices': ^9.0.0 || ^10.0.0
+      '@nestjs/mongoose': ^9.0.0 || ^10.0.0
+      '@nestjs/sequelize': ^9.0.0 || ^10.0.0
+      '@nestjs/typeorm': ^9.0.0 || ^10.0.0
+      '@prisma/client': '*'
+      mongoose: '*'
+      reflect-metadata: 0.1.x || 0.2.x
+      rxjs: 7.x
+      sequelize: '*'
+      typeorm: '*'
+    peerDependenciesMeta:
+      '@grpc/grpc-js':
+        optional: true
+      '@grpc/proto-loader':
+        optional: true
+      '@mikro-orm/core':
+        optional: true
+      '@mikro-orm/nestjs':
+        optional: true
+      '@nestjs/axios':
+        optional: true
+      '@nestjs/microservices':
+        optional: true
+      '@nestjs/mongoose':
+        optional: true
+      '@nestjs/sequelize':
+        optional: true
+      '@nestjs/typeorm':
+        optional: true
+      '@prisma/client':
+        optional: true
+      mongoose:
+        optional: true
+      sequelize:
+        optional: true
+      typeorm:
+        optional: true
+
   '@nestjs/testing@10.2.7':
     resolution: {integrity: sha512-d2SIqiJIf/7NSILeNNWSdRvTTpHSouGgisGHwf5PVDC7z4/yXZw/wPO9eJhegnxFlqk6n2LW4QBTmMzbqjAfHA==}
     peerDependencies:
@@ -5453,6 +5504,9 @@ packages:
     resolution: {integrity: sha512-XppPf2S42nO2WhvKzlwzlfcApcXHzjlod30pKmcWjRgLOtqoe5DMuqdiYoM6AgyXksc6A6pV4v1L/WW217e57w==}
     engines: {node: '>=0.8.0'}
 
+  ansi-align@3.0.1:
+    resolution: {integrity: sha512-IOfwwBF5iczOjp/WeY4YxyjqAFMQoZufdQWDd19SEExbVLNXqvpzSJ/M7Za4/sCPmQ0+GRquoA7bGcINcxew6w==}
+
   ansi-colors@4.1.1:
     resolution: {integrity: sha512-JoX0apGbHaUJBNl6yF+p6JAFYZ666/hhCGKN5t9QFjbJQKUU/g8MNbFDbvfrgKXvI1QpZplPOnwIo99lX/AAmA==}
     engines: {node: '>=6'}
@@ -5719,6 +5773,10 @@ packages:
   boolbase@1.0.0:
     resolution: {integrity: sha512-JZOSA7Mo9sNGB8+UjSgzdLtokWAky1zbztM3WRLCbZ70/3cTANmQmOdR7y2g+J0e2WXywy1yS468tY+IruqEww==}
 
+  boxen@5.1.2:
+    resolution: {integrity: sha512-9gYgQKXx+1nP8mP7CzFyaUARhg7D3n1dF/FnErWmu9l6JvGpNUN278h0aSb+QjoiKSWG+iZ3uHrcqk0qrY9RQQ==}
+    engines: {node: '>=10'}
+
   bplist-parser@0.2.0:
     resolution: {integrity: sha512-z0M+byMThzQmD9NILRniCUXYsYpjwnlO8N5uCFaCqIOpqRsJCrQL9NK3JsD67CN5a08nF5oIL2bD6loTdHOuKw==}
     engines: {node: '>= 5.10.0'}
@@ -5883,6 +5941,10 @@ packages:
     resolution: {integrity: sha512-6dVyOOYjpfFcL1Y4qChrAoQLRHvj2ziyhcm0QJlhOcAhykL/k1kTUPbeo+87MNRTRdk2OIIsIXbuF3x2wi5EXg==}
     engines: {node: '>=4.0.0'}
 
+  check-disk-space@3.4.0:
+    resolution: {integrity: sha512-drVkSqfwA+TvuEhFipiR1OC9boEGZL5RrWvVsOthdcvQNXyCCuKkEiTOTXZ7qxSf/GLwq4GvzfrQD/Wz325hgw==}
+    engines: {node: '>=16'}
+
   check-error@1.0.3:
     resolution: {integrity: sha512-iKEoDYaRmd1mxM90a2OEfWhjsjPpYPuQ+lMYsoxB126+t8fw7ySEO48nmDg5COTjxDI65/Y2OWpeEHk3ZOe8zg==}
 
@@ -5924,6 +5986,10 @@ packages:
 
   clean-stack@2.2.0:
     resolution: {integrity: sha512-4diC9HaTE+KRAMWhDhrGOECgWZxoevMc5TlkObMqNSsVU62PYzXZ/SMTjzyGAFF1YusgxGcSWTEXBhp0CPwQ1A==}
+    engines: {node: '>=6'}
+
+  cli-boxes@2.2.1:
+    resolution: {integrity: sha512-y4coMcylgSCdVinjiDBuR8PCC2bLjyGTwEmPb9NHR/QaNU6EUOXcTY/s6VjGMD6ENSEaeQYHCY0GNGS5jfMwPw==}
     engines: {node: '>=6'}
 
   cli-cursor@3.1.0:
@@ -12094,6 +12160,10 @@ packages:
   wide-align@1.1.5:
     resolution: {integrity: sha512-eDMORYaPNZ4sQIuuYPDHdQvf4gyCF9rEEV/yPxGfwPkRodwEgiMUUXTx/dex+Me0wxx53S+NgUHaP7y3MGlDmg==}
 
+  widest-line@3.1.0:
+    resolution: {integrity: sha512-NsmoXalsWVDMGupxZ5R08ka9flZjjiLvHVAWYOKtiKM8ujtZWr9cRffak+uSE48+Ob8ObalXpwyeUiyDD6QFgg==}
+    engines: {node: '>=8'}
+
   windows-release@4.0.0:
     resolution: {integrity: sha512-OxmV4wzDKB1x7AZaZgXMVsdJ1qER1ed83ZrTYd5Bwq2HfJVg3DJS8nqlAG4sMoJ7mu8cuRmLEYyU13BKwctRAg==}
     engines: {node: '>=10'}
@@ -12136,6 +12206,7 @@ packages:
 
   workbox-google-analytics@7.0.0:
     resolution: {integrity: sha512-MEYM1JTn/qiC3DbpvP2BVhyIH+dV/5BjHk756u9VbwuAhu0QHyKscTnisQuz21lfRpOwiS9z4XdqeVAKol0bzg==}
+    deprecated: It is not compatible with newer versions of GA starting with v4, as long as you are using GAv3 it should be ok, but the package is not longer being maintained
 
   workbox-navigation-preload@7.0.0:
     resolution: {integrity: sha512-juWCSrxo/fiMz3RsvDspeSLGmbgC0U9tKqcUPZBCf35s64wlaLXyn2KdHHXVQrb2cqF7I0Hc9siQalainmnXJA==}
@@ -16151,6 +16222,17 @@ snapshots:
     transitivePeerDependencies:
       - chokidar
 
+  '@nestjs/terminus@10.2.3(@nestjs/common@10.2.7(reflect-metadata@0.1.13)(rxjs@7.6.0))(@nestjs/core@10.2.7(@nestjs/common@10.2.7(reflect-metadata@0.1.13)(rxjs@7.6.0))(@nestjs/platform-express@10.2.7)(reflect-metadata@0.1.13)(rxjs@7.6.0))(@prisma/client@5.8.1(prisma@5.8.1))(reflect-metadata@0.1.13)(rxjs@7.6.0)':
+    dependencies:
+      '@nestjs/common': 10.2.7(reflect-metadata@0.1.13)(rxjs@7.6.0)
+      '@nestjs/core': 10.2.7(@nestjs/common@10.2.7(reflect-metadata@0.1.13)(rxjs@7.6.0))(@nestjs/platform-express@10.2.7)(reflect-metadata@0.1.13)(rxjs@7.6.0)
+      boxen: 5.1.2
+      check-disk-space: 3.4.0
+      reflect-metadata: 0.1.13
+      rxjs: 7.6.0
+    optionalDependencies:
+      '@prisma/client': 5.8.1(prisma@5.8.1)
+
   '@nestjs/testing@10.2.7(@nestjs/common@10.2.7(reflect-metadata@0.1.13)(rxjs@7.6.0))(@nestjs/core@10.2.7(@nestjs/common@10.2.7(reflect-metadata@0.1.13)(rxjs@7.6.0))(@nestjs/platform-express@10.2.7)(reflect-metadata@0.1.13)(rxjs@7.6.0))(@nestjs/platform-express@10.2.7(@nestjs/common@10.2.7(reflect-metadata@0.1.13)(rxjs@7.6.0))(@nestjs/core@10.2.7))':
     dependencies:
       '@nestjs/common': 10.2.7(reflect-metadata@0.1.13)(rxjs@7.6.0)
@@ -18197,6 +18279,10 @@ snapshots:
       esprima: 1.2.5
       estraverse: 1.9.3
 
+  ansi-align@3.0.1:
+    dependencies:
+      string-width: 4.2.3
+
   ansi-colors@4.1.1: {}
 
   ansi-colors@4.1.3: {}
@@ -18558,6 +18644,17 @@ snapshots:
 
   boolbase@1.0.0: {}
 
+  boxen@5.1.2:
+    dependencies:
+      ansi-align: 3.0.1
+      camelcase: 6.3.0
+      chalk: 4.1.2
+      cli-boxes: 2.2.1
+      string-width: 4.2.3
+      type-fest: 0.20.2
+      widest-line: 3.1.0
+      wrap-ansi: 7.0.0
+
   bplist-parser@0.2.0:
     dependencies:
       big-integer: 1.6.51
@@ -18766,6 +18863,8 @@ snapshots:
 
   charset@1.0.1: {}
 
+  check-disk-space@3.4.0: {}
+
   check-error@1.0.3:
     dependencies:
       get-func-name: 2.0.2
@@ -18818,6 +18917,8 @@ snapshots:
       source-map: 0.6.1
 
   clean-stack@2.2.0: {}
+
+  cli-boxes@2.2.1: {}
 
   cli-cursor@3.1.0:
     dependencies:
@@ -26886,6 +26987,10 @@ snapshots:
       stackback: 0.0.2
 
   wide-align@1.1.5:
+    dependencies:
+      string-width: 4.2.3
+
+  widest-line@3.1.0:
     dependencies:
       string-width: 4.2.3
 

@@ -19,7 +19,7 @@ export type MyWorkspace = {
   type: "team"
   teamID: string
   teamName: string
-  role: TeamMemberRole | null
+  role: TeamMemberRole | null | undefined
 }
 
 export type Workspace = PersonalWorkspace | MyWorkspace

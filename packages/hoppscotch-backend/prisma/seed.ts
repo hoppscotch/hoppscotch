@@ -16,6 +16,7 @@ const createUsersAndAccounts = async (
           isAdmin: isAdmin ?? false,
         },
       });
+
       await prisma.account.create({
         data: {
           userId: newUser.uid,
@@ -24,7 +25,7 @@ const createUsersAndAccounts = async (
         },
       });
     } catch (e) {
-      console.log(e.message);
+      console.log('Error creating user/account:', e.message);
     }
   };
 
@@ -40,10 +41,10 @@ const createUsersAndAccounts = async (
 };
 
 const createInvitedUsers = async (entries = 10) => {
-  const admin = await prisma.user.findFirst({ where: { isAdmin: true } });
+  try {
+    const admin = await prisma.user.findFirst({ where: { isAdmin: true } });
 
-  for (let i = 0; i < entries; i++) {
-    try {
+    for (let i = 0; i < entries; i++) {
       await prisma.invitedUsers.create({
         data: {
           adminUid: admin.uid,
@@ -51,12 +52,12 @@ const createInvitedUsers = async (entries = 10) => {
           inviteeEmail: faker.internet.email().toLowerCase(),
         },
       });
-    } catch (e) {
-      console.log(e.message);
     }
-  }
 
-  console.log('Invited users created');
+    console.log('Invited users created');
+  } catch (e) {
+    console.log('Error creating invited users:', e.message);
+  }
 };
 
 const createUserCollections = async (
@@ -64,47 +65,48 @@ const createUserCollections = async (
   childCollEntriesOnEachParent = 10,
 ) => {
   const createACollection = async (userUid, parentID, orderIndex) => {
-    try {
-      return prisma.userCollection.create({
-        data: {
-          parentID,
-          title: faker.vehicle.vehicle(),
-          orderIndex,
-          type: 'REST',
-          userUid,
-        },
-      });
-    } catch (e) {
-      console.log(e.message);
-    }
+    return prisma.userCollection.create({
+      data: {
+        parentID,
+        title: faker.vehicle.vehicle(),
+        orderIndex,
+        type: 'REST',
+        userUid,
+      },
+    });
   };
 
-  const users = await prisma.user.findMany();
+  try {
+    const users = await prisma.user.findMany();
 
-  for (let u = 0; u < users.length; u++) {
-    const user = users[u];
+    for (let u = 0; u < users.length; u++) {
+      const user = users[u];
 
-    for (let i = 0; i < parentCollEntries; i++) {
-      const parentCollection = await createACollection(user.uid, null, i + 1);
+      for (let i = 0; i < parentCollEntries; i++) {
+        const parentCollection = await createACollection(user.uid, null, i + 1);
 
-      for (let j = 0; j < childCollEntriesOnEachParent; j++) {
-        await createACollection(user.uid, parentCollection.id, j + 1);
+        for (let j = 0; j < childCollEntriesOnEachParent; j++) {
+          await createACollection(user.uid, parentCollection.id, j + 1);
+        }
       }
     }
-  }
 
-  console.log('User collections created');
+    console.log('User collections created');
+  } catch (e) {
+    console.log('Error creating user collections:', e.message);
+  }
 };
 
 const createUserRequests = async (entriesPerCollection = 10) => {
-  const collections = await prisma.userCollection.findMany();
+  try {
+    const collections = await prisma.userCollection.findMany();
 
-  for (let i = 0; i < collections.length; i++) {
-    const collection = collections[i];
+    for (let i = 0; i < collections.length; i++) {
+      const collection = collections[i];
 
-    for (let j = 0; j < entriesPerCollection; j++) {
-      try {
+      for (let j = 0; j < entriesPerCollection; j++) {
         const requestTitle = faker.git.branch();
+
         await prisma.userRequest.create({
           data: {
             collectionID: collection.id,
@@ -127,27 +129,27 @@ const createUserRequests = async (entriesPerCollection = 10) => {
             orderIndex: j + 1,
           },
         });
-      } catch (e) {
-        console.log(e.message);
       }
     }
-  }
 
-  console.log('User requests created');
+    console.log('User requests created');
+  } catch (e) {
+    console.log('Error creating user requests:', e.message);
+  }
 };
 
 const createUserEnvironments = async () => {
-  const users = await prisma.user.findMany();
+  try {
+    const users = await prisma.user.findMany();
 
-  for (let i = 0; i < users.length; i++) {
-    const user = users[i];
+    for (let i = 0; i < users.length; i++) {
+      const user = users[i];
 
-    const environments = await prisma.userEnvironment.findMany({
-      where: { userUid: user.uid },
-    });
-    if (environments.length > 1) continue; // skip if already created. (assuming default GLOBAL environments are created by APP itself)
+      const environments = await prisma.userEnvironment.findMany({
+        where: { userUid: user.uid },
+      });
+      if (environments.length > 1) continue; // skip if already created. (assuming default GLOBAL environments are created by APP itself)
 
-    try {
       await prisma.userEnvironment.createMany({
         data: [
           {
@@ -176,12 +178,12 @@ const createUserEnvironments = async () => {
           },
         ],
       });
-    } catch (e) {
-      console.log(e.message);
     }
-  }
 
-  console.log('User environments created');
+    console.log('User environments created');
+  } catch (e) {
+    console.log('Error creating user environment:', e.message);
+  }
 };
 
 const createTeamsAndTeamMembers = async (
@@ -189,21 +191,12 @@ const createTeamsAndTeamMembers = async (
   memberCountInATeam = 4,
 ) => {
   const createATeam = async (ownerUid) => {
-    try {
-      return prisma.team.create({
-        data: {
-          name: faker.airline.airplane().name,
-          members: {
-            create: {
-              userUid: ownerUid,
-              role: 'OWNER',
-            },
-          },
-        },
-      });
-    } catch (e) {
-      console.log(e.message);
-    }
+    return prisma.team.create({
+      data: {
+        name: faker.airline.airplane().name,
+        members: { create: { userUid: ownerUid, role: 'OWNER' } },
+      },
+    });
   };
   const createATeamMember = async (teamID, userUid) => {
     try {
@@ -219,45 +212,49 @@ const createTeamsAndTeamMembers = async (
     }
   };
 
-  const users = await prisma.user.findMany();
+  try {
+    const users = await prisma.user.findMany();
 
-  for (let i = 0; i < entries; i++) {
-    const ownerIndex = faker.number.int({ min: 0, max: users.length - 1 });
-    const team = await createATeam(users[ownerIndex].uid); // create a team with owner
+    for (let i = 0; i < entries; i++) {
+      const ownerIndex = faker.number.int({ min: 0, max: users.length - 1 });
+      const team = await createATeam(users[ownerIndex].uid); // create a team with owner
 
-    for (let j = 0; j < Math.min(memberCountInATeam, users.length) - 1; ) {
-      const memberIndex = faker.number.int({ min: 0, max: users.length - 1 });
+      for (let j = 0; j < Math.min(memberCountInATeam, users.length) - 1; ) {
+        const memberIndex = faker.number.int({ min: 0, max: users.length - 1 });
 
-      // check if user already added
-      const existingTeamMember = await prisma.teamMember.findFirst({
-        where: {
-          teamID: team.id,
-          userUid: users[memberIndex].uid,
-        },
-      });
-      if (existingTeamMember) continue;
+        // check if user already added
+        const existingTeamMember = await prisma.teamMember.findFirst({
+          where: {
+            teamID: team.id,
+            userUid: users[memberIndex].uid,
+          },
+        });
+        if (existingTeamMember) continue;
 
-      await createATeamMember(team.id, users[memberIndex].uid);
+        await createATeamMember(team.id, users[memberIndex].uid);
 
-      j++;
+        j++;
+      }
     }
-  }
 
-  console.log('Teams and TeamMembers created');
+    console.log('Teams and TeamMembers created');
+  } catch (e) {
+    console.log('Error creating teams and team members:', e.message);
+  }
 };
 
 const createTeamEnvironments = async () => {
-  const teams = await prisma.team.findMany();
+  try {
+    const teams = await prisma.team.findMany();
 
-  for (let i = 0; i < teams.length; i++) {
-    const team = teams[i];
+    for (let i = 0; i < teams.length; i++) {
+      const team = teams[i];
 
-    const environments = await prisma.teamEnvironment.findMany({
-      where: { teamID: team.id },
-    });
-    if (environments.length > 1) continue; // skip if already created. (assuming default GLOBAL environments are created by APP itself)
+      const environments = await prisma.teamEnvironment.findMany({
+        where: { teamID: team.id },
+      });
+      if (environments.length > 1) continue; // skip if already created. (assuming default GLOBAL environments are created by APP itself)
 
-    try {
       await prisma.teamEnvironment.createMany({
         data: [
           {
@@ -284,12 +281,12 @@ const createTeamEnvironments = async () => {
           },
         ],
       });
-    } catch (e) {
-      console.log(e.message);
     }
-  }
 
-  console.log('Team environments created');
+    console.log('Team environments created');
+  } catch (e) {
+    console.log('Error creating team environments: ', e.message);
+  }
 };
 
 const createTeamCollections = async (
@@ -297,45 +294,40 @@ const createTeamCollections = async (
   childCollEntriesOnEachParent = 10,
 ) => {
   const createACollection = async (teamID, parentID, orderIndex) => {
-    try {
-      return prisma.teamCollection.create({
-        data: {
-          parentID,
-          title: faker.vehicle.vehicle(),
-          orderIndex,
-          teamID,
-        },
-      });
-    } catch (e) {
-      console.log(e.message);
-    }
+    return prisma.teamCollection.create({
+      data: { parentID, title: faker.vehicle.vehicle(), orderIndex, teamID },
+    });
   };
 
-  const teams = await prisma.team.findMany();
+  try {
+    const teams = await prisma.team.findMany();
 
-  for (let t = 0; t < teams.length; t++) {
-    const team = teams[t];
+    for (let t = 0; t < teams.length; t++) {
+      const team = teams[t];
 
-    for (let i = 0; i < parentCollEntries; i++) {
-      const parentCollection = await createACollection(team.id, null, i + 1);
+      for (let i = 0; i < parentCollEntries; i++) {
+        const parentCollection = await createACollection(team.id, null, i + 1);
 
-      for (let j = 0; j < childCollEntriesOnEachParent; j++) {
-        await createACollection(team.id, parentCollection.id, j + 1);
+        for (let j = 0; j < childCollEntriesOnEachParent; j++) {
+          await createACollection(team.id, parentCollection.id, j + 1);
+        }
       }
     }
-  }
 
-  console.log('Team collections created');
+    console.log('Team collections created');
+  } catch (e) {
+    console.log('Error creating team collection:', e.message);
+  }
 };
 
 const createTeamRequests = async (entriesPerCollection = 10) => {
-  const collections = await prisma.teamCollection.findMany();
+  try {
+    const collections = await prisma.teamCollection.findMany();
 
-  for (let i = 0; i < collections.length; i++) {
-    const collection = collections[i];
+    for (let i = 0; i < collections.length; i++) {
+      const collection = collections[i];
 
-    for (let j = 0; j < entriesPerCollection; j++) {
-      try {
+      for (let j = 0; j < entriesPerCollection; j++) {
         const requestTitle = faker.git.branch();
         await prisma.teamRequest.create({
           data: {
@@ -358,31 +350,76 @@ const createTeamRequests = async (entriesPerCollection = 10) => {
             orderIndex: j + 1,
           },
         });
-      } catch (e) {
-        console.log(e.message);
       }
     }
-  }
 
-  console.log('Team requests created');
+    console.log('Team requests created');
+  } catch (e) {
+    console.log('Error creating team requests:', e.message);
+  }
 };
 
-async function clearAllData() {
-  // Get all model names
-  const modelNames = Object.keys(prisma).filter(
-    (str) => !str.startsWith('_') && !str.startsWith('$'),
-  );
+async function createShortcodes(entriesPerUser = 2) {
+  try {
+    const users = await prisma.user.findMany();
 
-  // Iterate through each model and delete all data
-  for (const modelName of modelNames) {
-    try {
-      await prisma[modelName].deleteMany({});
-    } catch (e) {
-      console.log(e.message);
+    for (let i = 0; i < users.length; i++) {
+      const user = users[i];
+
+      for (let j = 0; j < entriesPerUser; j++) {
+        const userRequests = await prisma.userRequest.findMany({
+          where: { userUid: user.uid },
+          take: entriesPerUser,
+        });
+
+        let shortCodeRequestObj = {
+          v: '4',
+          id: userRequests[j].id,
+          auth: { authType: 'inherit', authActive: true },
+          body: { body: null, contentType: null },
+          name: 'driver-hack',
+          method: 'GET',
+          params: [],
+          headers: [],
+          endpoint: 'https://echo.hoppscotch.io',
+          testScript: '',
+          preRequestScript: '',
+          requestVariables: [],
+        };
+
+        await prisma.shortcode.create({
+          data: {
+            id: faker.string.alphanumeric(12),
+            creatorUid: user.uid,
+            request: shortCodeRequestObj,
+            embedProperties: null,
+          },
+        });
+      }
     }
-  }
 
-  console.log('All data cleared');
+    console.log('Shortcodes created');
+  } catch (e) {
+    console.log('Error creating shortcodes:', e.message);
+  }
+}
+
+async function clearAllData() {
+  try {
+    // Get all model names
+    const modelNames = Object.keys(prisma).filter(
+      (str) => !str.startsWith('_') && !str.startsWith('$'),
+    );
+
+    // Iterate through each model and delete all data
+    for (let i = 0; i < modelNames.length; i++) {
+      await prisma[modelNames[i]].deleteMany({});
+    }
+
+    console.log('All data cleared');
+  } catch (e) {
+    console.log('Error in clearing data:', e.message);
+  }
 }
 
 (async () => {
@@ -398,7 +435,7 @@ async function clearAllData() {
   await createUserRequests(10);
   // `userHistory` can be created by APP itself
   await createUserEnvironments();
-  // `shortcode` can be created by APP itself
+  await createShortcodes(3);
   await createTeamsAndTeamMembers(10, 4);
   // `teamInvitation` can be created by APP itself
   await createTeamEnvironments();

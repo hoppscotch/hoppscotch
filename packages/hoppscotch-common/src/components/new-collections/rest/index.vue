@@ -514,7 +514,7 @@ import { platform } from "~/platform"
 import { NewWorkspaceService } from "~/services/new-workspace"
 import { HandleRef } from "~/services/new-workspace/handle"
 import { RESTCollectionViewRequest } from "~/services/new-workspace/view"
-import { Workspace, WorkspaceRequest } from "~/services/new-workspace/workspace"
+import { Workspace } from "~/services/new-workspace/workspace"
 import { RESTTabService } from "~/services/tab/rest"
 import IconImport from "~icons/lucide/folder-down"
 import IconHelpCircle from "~icons/lucide/help-circle"
@@ -1110,12 +1110,7 @@ const selectRequest = async (requestIndexPath: string) => {
     return
   }
 
-  const collectionHandle = collectionHandleResult.right.get()
-
-  if (collectionHandle.value.type === "invalid") {
-    // WORKSPACE_INVALIDATED | INVALID_COLLECTION_HANDLE
-    return
-  }
+  const collectionHandle = collectionHandleResult.right
 
   const requestHandleResult = await workspaceService.getRequestHandle(
     props.workspaceHandle,
@@ -1127,12 +1122,7 @@ const selectRequest = async (requestIndexPath: string) => {
     return
   }
 
-  const requestHandle = requestHandleResult.right.get()
-
-  if (requestHandle.value.type === "invalid") {
-    // COLLECTION_INVALIDATED
-    return
-  }
+  const requestHandle = requestHandleResult.right
 
   const cascadingAuthHeadersHandleResult =
     await workspaceService.getRESTCollectionLevelAuthHeadersView(
@@ -1163,9 +1153,11 @@ const selectRequest = async (requestIndexPath: string) => {
   if (possibleTab) {
     tabs.setActiveTab(possibleTab.value.id)
   } else {
+    const requestHandleRef = requestHandle.get()
+
     // If not, open the request in a new tab
     tabs.createNewTab({
-      request: requestHandle.value.data.request,
+      request: requestHandleRef.value.data.request,
       isDirty: false,
       saveContext: {
         originLocation: "workspace-user-collection",
@@ -1640,12 +1632,7 @@ const dropRequest = async (payload: {
     return
   }
 
-  const requestHandle = requestHandleResult.right.get()
-
-  if (requestHandle.value.type === "invalid") {
-    // COLLECTION_INVALIDATED
-    return
-  }
+  const requestHandle = requestHandleResult.right
 
   const result = await workspaceService.moveRESTRequest(
     requestHandle,
@@ -1667,12 +1654,7 @@ const dropRequest = async (payload: {
     return
   }
 
-  const collectionHandle = collectionHandleResult.right.get()
-
-  if (collectionHandle.value.type === "invalid") {
-    // WORKSPACE_INVALIDATED
-    return
-  }
+  const collectionHandle = collectionHandleResult.right
 
   const cascadingAuthHeadersHandleResult =
     await workspaceService.getRESTCollectionLevelAuthHeadersView(
@@ -2098,18 +2080,20 @@ const isActiveRequest = (requestView: RESTCollectionViewRequest) => {
     return false
   }
 
-  // TODO: Investigate why requestHandle is available unwrapped here
-  const requestHandle = tabs.currentActiveTab.value.document.saveContext
-    .requestHandle as HandleRef<WorkspaceRequest>["value"] | undefined
+  const requestHandle =
+    tabs.currentActiveTab.value.document.saveContext.requestHandle
+
   if (!requestHandle) {
     return false
   }
 
-  if (requestHandle.type === "invalid") {
+  const requestHandleRef = requestHandle.get()
+
+  if (requestHandleRef.value.type === "invalid") {
     return false
   }
 
-  return requestHandle.data.requestID === requestView.requestID
+  return requestHandleRef.value.data.requestID === requestView.requestID
 }
 
 const onSelectPick = (payload: Picked | null) => {

@@ -244,11 +244,6 @@ const saveRequestAs = async () => {
 
     const collectionHandle = collectionHandleResult.right
 
-    if (collectionHandle.value.type === "invalid") {
-      // WORKSPACE_INVALIDATED
-      return
-    }
-
     const requestHandleResult = await workspaceService.createRESTRequest(
       collectionHandle,
       updatedRequest

@@ -2,8 +2,6 @@ import { isEqual } from "lodash-es"
 import { computed } from "vue"
 import { getDefaultRESTRequest } from "~/helpers/rest/default"
 import { HoppRESTDocument, HoppRESTSaveContext } from "~/helpers/rest/document"
-import { HandleRef } from "../new-workspace/handle"
-import { WorkspaceRequest } from "../new-workspace/workspace"
 import { TabService } from "./tab"
 
 export class RESTTabService extends TabService<HoppRESTDocument> {
@@ -58,28 +56,29 @@ export class RESTTabService extends TabService<HoppRESTDocument> {
         ctx?.originLocation === "workspace-user-collection" &&
         tab.document.saveContext?.originLocation === "workspace-user-collection"
       ) {
-        const requestHandle = tab.document.saveContext.requestHandle as
-          | HandleRef<WorkspaceRequest>["value"]
-          | undefined
+        const requestHandle = tab.document.saveContext.requestHandle
 
         if (!ctx.requestHandle || !requestHandle) {
           return null
         }
 
+        const tabRequestHandleRef = requestHandle.get()
+        const requestHandleRef = ctx.requestHandle.get()
+
         if (
-          ctx.requestHandle.value.type === "invalid" ||
-          requestHandle.type === "invalid"
+          requestHandleRef.value.type === "invalid" ||
+          tabRequestHandleRef.value.type === "invalid"
         ) {
           return null
         }
 
         if (
-          ctx.requestHandle.value.data.providerID ===
-            requestHandle.data.providerID &&
-          ctx.requestHandle.value.data.workspaceID ===
-            requestHandle.data.workspaceID &&
-          ctx.requestHandle.value.data.requestID ===
-            requestHandle.data.requestID
+          requestHandleRef.value.data.providerID ===
+            tabRequestHandleRef.value.data.providerID &&
+          requestHandleRef.value.data.workspaceID ===
+            tabRequestHandleRef.value.data.workspaceID &&
+          requestHandleRef.value.data.requestID ===
+            tabRequestHandleRef.value.data.requestID
         ) {
           return this.getTabRef(tab.id)
         }
@@ -101,11 +100,9 @@ export class RESTTabService extends TabService<HoppRESTDocument> {
       if (
         tab.document.saveContext?.originLocation === "workspace-user-collection"
       ) {
-        const requestHandle = tab.document.saveContext.requestHandle as
-          | HandleRef<WorkspaceRequest>["value"]
-          | undefined
+        const requestHandle = tab.document.saveContext.requestHandle
 
-        if (requestHandle?.type === "invalid") {
+        if (requestHandle?.get().value.type === "invalid") {
           count++
         }
       }

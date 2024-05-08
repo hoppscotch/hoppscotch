@@ -5,7 +5,7 @@ import {
 import * as E from "fp-ts/Either"
 import { Ref, ref, watchEffect } from "vue"
 import { NewWorkspaceService } from "~/services/new-workspace"
-import { HandleRef } from "~/services/new-workspace/handle"
+import { Handle } from "~/services/new-workspace/handle"
 import { RESTCollectionViewItem } from "~/services/new-workspace/view"
 import { Workspace } from "~/services/new-workspace/workspace"
 
@@ -13,7 +13,7 @@ export class WorkspaceRESTCollectionTreeAdapter
   implements SmartTreeAdapter<RESTCollectionViewItem>
 {
   constructor(
-    private workspaceHandle: HandleRef<Workspace>,
+    private workspaceHandle: Handle<Workspace>,
     private workspaceService: NewWorkspaceService
   ) {}
 
@@ -21,7 +21,9 @@ export class WorkspaceRESTCollectionTreeAdapter
     nodeID: string | null,
     nodeType?: string
   ): Ref<ChildrenResult<RESTCollectionViewItem>> {
-    if (this.workspaceHandle.value.type !== "ok") {
+    const workspaceHandleRef = this.workspaceHandle.get()
+
+    if (workspaceHandleRef.value.type !== "ok") {
       throw new Error("Cannot issue children with invalid workspace handle")
     }
 
@@ -50,7 +52,7 @@ export class WorkspaceRESTCollectionTreeAdapter
           throw new Error(JSON.stringify(collectionHandleResult.left.error))
         }
 
-        const collectionHandle = collectionHandleResult.right.get()
+        const collectionHandle = collectionHandleResult.right
 
         const collectionChildrenResult =
           await this.workspaceService.getRESTCollectionChildrenView(

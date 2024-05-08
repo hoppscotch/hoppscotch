@@ -34,12 +34,13 @@ const personalWorkspaceProviderService = useService(
 )
 
 const activeWorkspaceInfo = computed(() => {
-  const activeWorkspace = workspaceService.activeWorkspaceHandle.value
+  const activeWorkspaceHandleRef =
+    workspaceService.activeWorkspaceHandle.value?.get()
 
-  if (activeWorkspace?.value.type === "ok") {
+  if (activeWorkspaceHandleRef?.value.type === "ok") {
     return {
-      provider: activeWorkspace.value.data.providerID,
-      workspaceID: activeWorkspace.value.data.workspaceID,
+      provider: activeWorkspaceHandleRef.value.data.providerID,
+      workspaceID: activeWorkspaceHandleRef.value.data.workspaceID,
     }
   }
 
@@ -48,6 +49,6 @@ const activeWorkspaceInfo = computed(() => {
 
 function selectWorkspace() {
   workspaceService.activeWorkspaceHandle.value =
-    personalWorkspaceProviderService.getPersonalWorkspaceHandle().get()
+    personalWorkspaceProviderService.getPersonalWorkspaceHandle()
 }
 </script>

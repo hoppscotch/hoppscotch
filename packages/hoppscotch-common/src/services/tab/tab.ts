@@ -19,7 +19,7 @@ import {
 } from "."
 
 import { NewWorkspaceService } from "../new-workspace"
-import { Handle, HandleRef } from "../new-workspace/handle"
+import { Handle } from "../new-workspace/handle"
 import { WorkspaceRequest } from "../new-workspace/workspace"
 
 export abstract class TabService<Doc>
@@ -121,11 +121,7 @@ export abstract class TabService<Doc>
             continue
           }
 
-          const workspaceHandle = workspaceHandleResult.right.get()
-
-          if (workspaceHandle.value.type === "invalid") {
-            continue
-          }
+          const workspaceHandle = workspaceHandleResult.right
 
           const requestHandleResult =
             await this.workspaceService.getRequestHandle(
@@ -249,15 +245,15 @@ export abstract class TabService<Doc>
     }
 
     // TODO: Investigate why requestHandle is available unwrapped here
-    const requestHandle = saveContext.requestHandle as
-      | HandleRef<WorkspaceRequest>["value"]
-      | undefined
+    const requestHandle = saveContext.requestHandle
 
     if (!requestHandle) {
       return tabDoc
     }
 
-    if (requestHandle.type === "invalid") {
+    const requestHandleRef = requestHandle.get()
+
+    if (requestHandleRef.value.type === "invalid") {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { requestHandle, ...rest } = saveContext
 
@@ -268,7 +264,7 @@ export abstract class TabService<Doc>
       }
     }
 
-    const { providerID, workspaceID, requestID } = requestHandle.data
+    const { providerID, workspaceID, requestID } = requestHandleRef.value.data
 
     // Return the document without the handle
     return {

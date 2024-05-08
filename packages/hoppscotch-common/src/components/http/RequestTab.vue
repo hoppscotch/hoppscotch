@@ -20,8 +20,6 @@ import { useVModel } from "@vueuse/core"
 import { cloneDeep, isEqual } from "lodash-es"
 import { HoppTab } from "~/services/tab"
 import { HoppRESTDocument } from "~/helpers/rest/document"
-import { WorkspaceRequest } from "~/services/new-workspace/workspace"
-import { HandleRef } from "~/services/new-workspace/handle"
 
 // TODO: Move Response and Request execution code to over here
 
@@ -43,24 +41,23 @@ watch(
       tab.value.document.saveContext?.originLocation ===
       "workspace-user-collection"
     ) {
-      const requestHandle = tab.value.document.saveContext.requestHandle as
-        | HandleRef<WorkspaceRequest>["value"]
-        | undefined
+      const requestHandleRef =
+        tab.value.document.saveContext.requestHandle?.get()
 
-      if (!requestHandle || requestHandle.type === "invalid") {
+      if (!requestHandleRef || requestHandleRef.value.type === "invalid") {
         return
       }
 
       if (
         !tab.value.document.isDirty &&
-        !isEqual(oldRequest, requestHandle?.data.request)
+        !isEqual(oldRequest, requestHandleRef?.value.data.request)
       ) {
         tab.value.document.isDirty = true
       }
 
       if (
         tab.value.document.isDirty &&
-        isEqual(oldRequest, requestHandle?.data.request)
+        isEqual(oldRequest, requestHandleRef?.value.data.request)
       ) {
         tab.value.document.isDirty = false
       }

@@ -382,8 +382,10 @@ watch(
 const newWorkspaceService = useService(NewWorkspaceService)
 
 const activeWorkspaceName = computed(() => {
-  if (newWorkspaceService.activeWorkspaceHandle.value?.value.type === "ok") {
-    return newWorkspaceService.activeWorkspaceHandle.value?.value.data.name
+  const activeWorkspaceHandleRef = newWorkspaceService.activeWorkspaceHandle.value?.get()
+
+  if (activeWorkspaceHandleRef?.value.type === "ok") {
+    return activeWorkspaceHandleRef.value.data.name
   }
 
   return t("workspace.no_workspace")

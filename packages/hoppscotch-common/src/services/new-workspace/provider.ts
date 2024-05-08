@@ -1,7 +1,7 @@
 import { Ref } from "vue"
 import * as E from "fp-ts/Either"
 
-import { Handle, HandleRef } from "./handle"
+import { Handle } from "./handle"
 import {
   Workspace,
   WorkspaceCollection,
@@ -26,86 +26,86 @@ export interface WorkspaceProvider {
     workspaceID: string
   ): Promise<E.Either<unknown, Handle<Workspace>>>
   getCollectionHandle(
-    workspaceHandle: HandleRef<Workspace>,
+    workspaceHandle: Handle<Workspace>,
     collectionID: string
   ): Promise<E.Either<unknown, Handle<WorkspaceCollection>>>
   getRequestHandle(
-    workspaceHandle: HandleRef<Workspace>,
+    workspaceHandle: Handle<Workspace>,
     requestID: string
   ): Promise<E.Either<unknown, Handle<WorkspaceRequest>>>
 
   getRESTRootCollectionView(
-    workspaceHandle: HandleRef<Workspace>
+    workspaceHandle: Handle<Workspace>
   ): Promise<E.Either<never, Handle<RootRESTCollectionView>>>
   getRESTCollectionChildrenView(
-    collectionHandle: HandleRef<WorkspaceCollection>
+    collectionHandle: Handle<WorkspaceCollection>
   ): Promise<E.Either<never, Handle<RESTCollectionChildrenView>>>
   getRESTCollectionLevelAuthHeadersView(
-    collectionHandle: HandleRef<WorkspaceCollection>
+    collectionHandle: Handle<WorkspaceCollection>
   ): Promise<E.Either<never, Handle<RESTCollectionLevelAuthHeadersView>>>
   getRESTSearchResultsView(
-    workspaceHandle: HandleRef<Workspace>,
+    workspaceHandle: Handle<Workspace>,
     searchQuery: Ref<string>
   ): Promise<E.Either<never, Handle<RESTSearchResultsView>>>
   getRESTCollectionJSONView(
-    workspaceHandle: HandleRef<Workspace>
+    workspaceHandle: Handle<Workspace>
   ): Promise<E.Either<never, Handle<RESTCollectionJSONView>>>
 
   createRESTRootCollection(
-    workspaceHandle: HandleRef<Workspace>,
+    workspaceHandle: Handle<Workspace>,
     newCollection: Partial<Exclude<HoppCollection, "id">> & { name: string }
   ): Promise<E.Either<unknown, Handle<WorkspaceCollection>>>
   createRESTChildCollection(
-    parentCollectionHandle: HandleRef<WorkspaceCollection>,
+    parentCollectionHandle: Handle<WorkspaceCollection>,
     newChildCollection: Partial<HoppCollection> & { name: string }
   ): Promise<E.Either<unknown, Handle<WorkspaceCollection>>>
   updateRESTCollection(
-    collectionHandle: HandleRef<WorkspaceCollection>,
+    collectionHandle: Handle<WorkspaceCollection>,
     updatedCollection: Partial<HoppCollection>
   ): Promise<E.Either<unknown, void>>
   removeRESTCollection(
-    collectionHandle: HandleRef<WorkspaceCollection>
+    collectionHandle: Handle<WorkspaceCollection>
   ): Promise<E.Either<unknown, void>>
   createRESTRequest(
-    parentCollectionHandle: HandleRef<WorkspaceCollection>,
+    parentCollectionHandle: Handle<WorkspaceCollection>,
     newRequest: HoppRESTRequest
   ): Promise<E.Either<unknown, Handle<WorkspaceRequest>>>
   updateRESTRequest(
-    requestHandle: HandleRef<WorkspaceRequest>,
+    requestHandle: Handle<WorkspaceRequest>,
     updatedRequest: Partial<HoppRESTRequest>
   ): Promise<E.Either<unknown, void>>
   removeRESTRequest(
-    requestHandle: HandleRef<WorkspaceRequest>
+    requestHandle: Handle<WorkspaceRequest>
   ): Promise<E.Either<unknown, void>>
 
   importRESTCollections(
-    workspaceHandle: HandleRef<Workspace>,
+    workspaceHandle: Handle<Workspace>,
     collections: HoppCollection[]
   ): Promise<E.Either<unknown, Handle<WorkspaceCollection>>>
   exportRESTCollections(
-    workspaceHandle: HandleRef<Workspace>,
+    workspaceHandle: Handle<Workspace>,
     collections: HoppCollection[]
   ): Promise<E.Either<unknown, void>>
   exportRESTCollection(
-    collectionHandle: HandleRef<WorkspaceCollection>,
+    collectionHandle: Handle<WorkspaceCollection>,
     collection: HoppCollection
   ): Promise<E.Either<unknown, void>>
 
   reorderRESTCollection(
-    collectionHandle: HandleRef<WorkspaceCollection>,
+    collectionHandle: Handle<WorkspaceCollection>,
     destinationCollectionID: string | null
   ): Promise<E.Either<unknown, void>>
   moveRESTCollection(
-    collectionHandle: HandleRef<WorkspaceCollection>,
+    collectionHandle: Handle<WorkspaceCollection>,
     destinationCollectionID: string | null
   ): Promise<E.Either<unknown, void>>
   reorderRESTRequest(
-    requestHandle: HandleRef<WorkspaceRequest>,
+    requestHandle: Handle<WorkspaceRequest>,
     destinationCollectionID: string,
     destinationRequestID: string | null
   ): Promise<E.Either<unknown, void>>
   moveRESTRequest(
-    requestHandle: HandleRef<WorkspaceRequest>,
+    requestHandle: Handle<WorkspaceRequest>,
     destinationCollectionID: string
   ): Promise<E.Either<unknown, void>>
 }

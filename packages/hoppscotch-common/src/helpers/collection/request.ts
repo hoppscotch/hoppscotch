@@ -5,8 +5,6 @@ import {
 } from "@hoppscotch/data"
 
 import { getService } from "~/modules/dioc"
-import { HandleRef } from "~/services/new-workspace/handle"
-import { WorkspaceRequest } from "~/services/new-workspace/workspace"
 import { RESTTabService } from "~/services/tab/rest"
 import { getAffectedIndexes } from "./affectedIndex"
 
@@ -55,15 +53,13 @@ export function resolveSaveContextOnRequestReorder(payload: {
       return false
     }
 
-    const requestHandle = tab.document.saveContext.requestHandle as
-      | HandleRef<WorkspaceRequest>["value"]
-      | undefined
+    const requestHandleRef = tab.document.saveContext.requestHandle?.get()
 
-    if (!requestHandle || requestHandle.type === "invalid") {
+    if (!requestHandleRef || requestHandleRef.value.type === "invalid") {
       return false
     }
 
-    const { requestID } = requestHandle.data
+    const { requestID } = requestHandleRef.value.data
     const collectionID = requestID.split("/").slice(0, -1).join("/")
     const requestIndex = parseInt(requestID.split("/").slice(-1)[0])
 
@@ -85,15 +81,13 @@ export function resolveSaveContextOnRequestReorder(payload: {
       return
     }
 
-    const requestHandle = tab.value.document.saveContext.requestHandle as
-      | HandleRef<WorkspaceRequest>["value"]
-      | undefined
+    const requestHandleRef = tab.value.document.saveContext.requestHandle?.get()
 
-    if (!requestHandle || requestHandle.type === "invalid") {
+    if (!requestHandleRef || requestHandleRef.value.type === "invalid") {
       return
     }
 
-    const { requestID } = requestHandle.data
+    const { requestID } = requestHandleRef.value.data
 
     const requestIDArr = requestID.split("/")
     const requestIndex = affectedIndices.get(
@@ -102,8 +96,10 @@ export function resolveSaveContextOnRequestReorder(payload: {
 
     requestIDArr[requestIDArr.length - 1] = requestIndex.toString()
 
-    requestHandle.data.requestID = requestIDArr.join("/")
-    requestHandle.data.collectionID = requestIDArr.slice(0, -1).join("/")
+    requestHandleRef.value.data.requestID = requestIDArr.join("/")
+    requestHandleRef.value.data.collectionID = requestIDArr
+      .slice(0, -1)
+      .join("/")
   }
 }
 

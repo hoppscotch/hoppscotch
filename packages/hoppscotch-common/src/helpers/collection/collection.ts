@@ -9,8 +9,6 @@ import { runGQLQuery } from "../backend/GQLClient"
 import { GetSingleRequestDocument } from "../backend/graphql"
 import { HoppInheritedProperty } from "../types/HoppInheritedProperties"
 import { getAffectedIndexes } from "./affectedIndex"
-import { WorkspaceRequest } from "~/services/new-workspace/workspace"
-import { HandleRef } from "~/services/new-workspace/handle"
 
 /**
  * Resolve save context on reorder
@@ -67,15 +65,13 @@ export function resolveSaveContextOnCollectionReorder(payload: {
       return false
     }
 
-    const requestHandle = tab.document.saveContext.requestHandle as
-      | HandleRef<WorkspaceRequest>["value"]
-      | undefined
+    const requestHandleRef = tab.document.saveContext.requestHandle?.get()
 
-    if (!requestHandle || requestHandle.type === "invalid") {
+    if (!requestHandleRef || requestHandleRef.value.type === "invalid") {
       return false
     }
 
-    const { requestID } = requestHandle.data
+    const { requestID } = requestHandleRef.value.data
 
     const collectionID = requestID.split("/").slice(0, -1).join("/")
 
@@ -97,15 +93,13 @@ export function resolveSaveContextOnCollectionReorder(payload: {
       return false
     }
 
-    const requestHandle = tab.value.document.saveContext.requestHandle as
-      | HandleRef<WorkspaceRequest>["value"]
-      | undefined
+    const requestHandleRef = tab.value.document.saveContext.requestHandle?.get()
 
-    if (!requestHandle || requestHandle.type === "invalid") {
+    if (!requestHandleRef || requestHandleRef.value.type === "invalid") {
       return false
     }
 
-    const { requestID } = requestHandle.data
+    const { requestID } = requestHandleRef.value.data
 
     const collectionID = requestID.split("/").slice(0, -1).join("/")
 
@@ -114,8 +108,8 @@ export function resolveSaveContextOnCollectionReorder(payload: {
       requestID.split("/").slice(-1)[0]
     }`
 
-    requestHandle.data = {
-      ...requestHandle.data,
+    requestHandleRef.value.data = {
+      ...requestHandleRef.value.data,
       collectionID: newCollectionID!,
       requestID: newRequestID,
     }
@@ -159,15 +153,13 @@ export function updateSaveContextForAffectedRequests(
     if (
       tab.document.saveContext?.originLocation === "workspace-user-collection"
     ) {
-      const requestHandle = tab.document.saveContext.requestHandle as
-        | HandleRef<WorkspaceRequest>["value"]
-        | undefined
+      const requestHandleRef = tab.document.saveContext.requestHandle?.get()
 
-      if (!requestHandle || requestHandle.type === "invalid") {
+      if (!requestHandleRef || requestHandleRef.value.type === "invalid") {
         return false
       }
 
-      const { requestID } = requestHandle.data
+      const { requestID } = requestHandleRef.value.data
 
       const collectionID = requestID.split("/").slice(0, -1).join("/")
       const requestIndex = requestID.split("/").slice(-1)[0]
@@ -184,8 +176,8 @@ export function updateSaveContextForAffectedRequests(
           requestID: newRequestID,
         }
 
-        requestHandle.data = {
-          ...requestHandle.data,
+        requestHandleRef.value.data = {
+          ...requestHandleRef.value.data,
           collectionID: newCollectionID,
           requestID: newRequestID,
         }
@@ -268,7 +260,7 @@ export function updateInheritedPropertiesForAffectedRequests(
     }
 
     const collectionID = tab.document.saveContext?.requestID
-      .split("/")
+      ?.split("/")
       .slice(0, -1)
       .join("/")
 
@@ -357,65 +349,6 @@ export function updateInheritedPropertiesForAffectedRequests(
       tab.value.document.inheritedProperties.headers = mergedHeaders
     }
   })
-}
-
-function resetSaveContextForAffectedRequests(folderPath: string) {
-  const tabService = getService(RESTTabService)
-  const tabs = tabService.getTabsRefTo((tab) => {
-    if (tab.document.saveContext?.originLocation === "user-collection") {
-      return tab.document.saveContext.folderPath.startsWith(folderPath)
-    }
-
-    if (
-      tab.document.saveContext?.originLocation !== "workspace-user-collection"
-    ) {
-      return false
-    }
-
-    const requestHandle = tab.document.saveContext.requestHandle as
-      | HandleRef<WorkspaceRequest>["value"]
-      | undefined
-
-    if (!requestHandle || requestHandle.type === "invalid") {
-      return false
-    }
-
-    const { requestID } = requestHandle.data
-    const collectionID = requestID.split("/").slice(0, -1).join("/")
-
-    return collectionID.startsWith(folderPath)
-  })
-
-  for (const tab of tabs) {
-    if (tab.value.document.saveContext?.originLocation === "user-collection") {
-      tab.value.document.saveContext = null
-      tab.value.document.isDirty = true
-
-      return
-    }
-
-    if (
-      tab.value.document.saveContext?.originLocation ===
-      "workspace-user-collection"
-    ) {
-      const requestHandle = tab.value.document.saveContext.requestHandle as
-        | HandleRef<WorkspaceRequest>["value"]
-        | undefined
-
-      if (!requestHandle || requestHandle.type === "invalid") {
-        return
-      }
-
-      // @ts-expect-error - Removing the `data` property
-      delete requestHandle.data
-
-      // @ts-expect-error - Updating the type
-      requestHandle.type = "invalid"
-
-      // @ts-expect-error - Specifying the reason
-      requestHandle.reason = "REQUEST_INVALIDATED"
-    }
-  }
 }
 
 /**

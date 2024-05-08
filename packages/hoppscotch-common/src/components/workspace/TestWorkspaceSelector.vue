@@ -37,12 +37,13 @@ const testWorkspaceProviderService = useService(TestWorkspaceProviderService)
 const candidates = testWorkspaceProviderService.getWorkspaceCandidates()
 
 const activeWorkspaceInfo = computed(() => {
-  const activeWorkspace = workspaceService.activeWorkspaceHandle.value
+  const activeWorkspaceHandle = workspaceService.activeWorkspaceHandle.value
+  const activeWorkspaceHandleRef = activeWorkspaceHandle?.get()
 
-  if (activeWorkspace?.value.type === "ok") {
+  if (activeWorkspaceHandleRef?.value.type === "ok") {
     return {
-      provider: activeWorkspace.value.data.providerID,
-      workspaceID: activeWorkspace.value.data.workspaceID,
+      provider: activeWorkspaceHandleRef.value.data.providerID,
+      workspaceID: activeWorkspaceHandleRef.value.data.workspaceID,
     }
   }
 
@@ -59,6 +60,6 @@ async function selectWorkspace(workspaceID: string) {
     return
   }
 
-  workspaceService.activeWorkspaceHandle.value = result.right.get()
+  workspaceService.activeWorkspaceHandle.value = result.right
 }
 </script>

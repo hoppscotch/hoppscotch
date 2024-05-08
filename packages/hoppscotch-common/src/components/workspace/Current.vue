@@ -26,8 +26,10 @@ const workspaceService = useService(NewWorkspaceService)
 const activeWorkspaceHandle = workspaceService.activeWorkspaceHandle
 
 const workspaceName = computed(() => {
-  if (activeWorkspaceHandle.value?.value.type === "ok") {
-    return activeWorkspaceHandle.value.value.data.name
+  const activeWorkspaceHandleRef = activeWorkspaceHandle.value?.get()
+
+  if (activeWorkspaceHandleRef?.value.type === "ok") {
+    return activeWorkspaceHandleRef.value.data.name
   }
 
   return undefined

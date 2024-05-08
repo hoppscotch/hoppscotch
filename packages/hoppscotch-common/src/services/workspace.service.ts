@@ -15,14 +15,14 @@ export type PersonalWorkspace = {
   type: "personal"
 }
 
-export type MyWorkspace = {
+export type TeamWorkspace = {
   type: "team"
   teamID: string
   teamName: string
   role: TeamMemberRole | null | undefined
 }
 
-export type Workspace = PersonalWorkspace | MyWorkspace
+export type Workspace = PersonalWorkspace | TeamWorkspace
 
 export type WorkspaceServiceEvent = {
   type: "managed-team-list-adapter-polled"

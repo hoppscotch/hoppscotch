@@ -85,7 +85,7 @@ import {
 import { platform } from "~/platform"
 import { GQLTabService } from "~/services/tab/graphql"
 import { RESTTabService } from "~/services/tab/rest"
-import { MyWorkspace } from "~/services/workspace.service"
+import { TeamWorkspace } from "~/services/workspace.service"
 
 const t = useI18n()
 const toast = useToast()
@@ -96,7 +96,7 @@ const GQLTabs = useService(GQLTabService)
 type CollectionType =
   | {
       type: "team-collections"
-      selectedTeam: MyWorkspace
+      selectedTeam: TeamWorkspace
     }
   | { type: "my-collections"; selectedTeam: undefined }
 
@@ -190,7 +190,7 @@ watch(
   }
 )
 
-const updateTeam = (newTeam: MyWorkspace) => {
+const updateTeam = (newTeam: TeamWorkspace) => {
   collectionsType.value.selectedTeam = newTeam
 }
 

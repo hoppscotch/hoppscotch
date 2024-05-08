@@ -129,14 +129,14 @@ import IconPlus from "~icons/lucide/plus"
 import IconHelpCircle from "~icons/lucide/help-circle"
 import IconImport from "~icons/lucide/folder-down"
 import { defineActionHandler } from "~/helpers/actions"
-import { MyWorkspace } from "~/services/workspace.service"
+import { TeamWorkspace } from "~/services/workspace.service"
 
 const t = useI18n()
 
 const colorMode = useColorMode()
 
 const props = defineProps<{
-  team: MyWorkspace | undefined
+  team: TeamWorkspace | undefined
   teamEnvironments: TeamEnvironment[]
   adapterError: GQLError<string> | null
   loading: boolean

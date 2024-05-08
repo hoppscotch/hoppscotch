@@ -244,7 +244,7 @@ import {
 } from "~/helpers/collection/collection"
 import { currentReorderingStatus$ } from "~/newstore/reordering"
 import { defineActionHandler, invokeAction } from "~/helpers/actions"
-import { MyWorkspace, WorkspaceService } from "~/services/workspace.service"
+import { TeamWorkspace, WorkspaceService } from "~/services/workspace.service"
 import { useService } from "dioc/vue"
 import { RESTTabService } from "~/services/tab/rest"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
@@ -273,14 +273,14 @@ const props = defineProps({
 
 const emit = defineEmits<{
   (event: "select", payload: Picked | null): void
-  (event: "update-team", team: MyWorkspace): void
+  (event: "update-team", team: TeamWorkspace): void
   (event: "update-collection-type", type: CollectionType["type"]): void
 }>()
 
 type CollectionType =
   | {
       type: "team-collections"
-      selectedTeam: MyWorkspace
+      selectedTeam: TeamWorkspace
     }
   | { type: "my-collections"; selectedTeam: undefined }
 
@@ -461,7 +461,7 @@ const expandTeamCollection = (collectionID: string) => {
   teamCollectionAdapter.expandCollection(collectionID)
 }
 
-const updateSelectedTeam = (team: MyWorkspace) => {
+const updateSelectedTeam = (team: TeamWorkspace) => {
   if (team) {
     collectionsType.value.type = "team-collections"
     teamCollectionAdapter.changeTeamID(team.teamID)

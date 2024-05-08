@@ -68,7 +68,7 @@ import {
 } from "~/newstore/environments"
 import { useLocalState } from "~/newstore/localstate"
 import { platform } from "~/platform"
-import { MyWorkspace, WorkspaceService } from "~/services/workspace.service"
+import { TeamWorkspace, WorkspaceService } from "~/services/workspace.service"
 
 const t = useI18n()
 const toast = useToast()
@@ -77,7 +77,7 @@ type EnvironmentType = "my-environments" | "team-environments"
 
 type EnvironmentsChooseType = {
   type: EnvironmentType
-  selectedTeam: MyWorkspace | undefined
+  selectedTeam: TeamWorkspace | undefined
 }
 
 const environmentType = ref<EnvironmentsChooseType>({
@@ -117,7 +117,7 @@ const switchToMyEnvironments = () => {
   adapter.changeTeamID(undefined)
 }
 
-const updateSelectedTeam = (newSelectedTeam: MyWorkspace | undefined) => {
+const updateSelectedTeam = (newSelectedTeam: TeamWorkspace | undefined) => {
   if (newSelectedTeam) {
     adapter.changeTeamID(newSelectedTeam.teamID)
     environmentType.value.selectedTeam = newSelectedTeam

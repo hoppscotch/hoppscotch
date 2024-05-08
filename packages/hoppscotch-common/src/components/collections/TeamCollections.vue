@@ -399,7 +399,7 @@ import * as O from "fp-ts/Option"
 import { Picked } from "~/helpers/types/HoppPicked.js"
 import { RESTTabService } from "~/services/tab/rest"
 import { useService } from "dioc/vue"
-import { MyWorkspace } from "~/services/workspace.service"
+import { TeamWorkspace } from "~/services/workspace.service"
 
 const t = useI18n()
 const colorMode = useColorMode()
@@ -408,7 +408,7 @@ const tabs = useService(RESTTabService)
 type CollectionType =
   | {
       type: "team-collections"
-      selectedTeam: MyWorkspace
+      selectedTeam: TeamWorkspace
     }
   | { type: "my-collections"; selectedTeam: undefined }
 

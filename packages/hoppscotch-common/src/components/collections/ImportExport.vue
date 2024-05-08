@@ -54,7 +54,7 @@ import { teamCollectionsExporter } from "~/helpers/import-export/export/teamColl
 
 import { GistSource } from "~/helpers/import-export/import/import-sources/GistSource"
 import { ImporterOrExporter } from "~/components/importExport/types"
-import { MyWorkspace } from "~/services/workspace.service"
+import { TeamWorkspace } from "~/services/workspace.service"
 
 const t = useI18n()
 const toast = useToast()
@@ -62,7 +62,7 @@ const toast = useToast()
 type CollectionType =
   | {
       type: "team-collections"
-      selectedTeam: MyWorkspace
+      selectedTeam: TeamWorkspace
     }
   | { type: "my-collections" }
 

@@ -11,7 +11,7 @@ const createUsersAndAccounts = async (
       const newUser = await prisma.user.create({
         data: {
           displayName: faker.person.fullName(),
-          email: email ?? faker.internet.email(),
+          email: email ?? faker.internet.email().toLowerCase(),
           photoURL: faker.image.avatar(),
           isAdmin: isAdmin ?? false,
         },
@@ -30,7 +30,7 @@ const createUsersAndAccounts = async (
 
   for (let i = 0; i < withDedicateUsers.length; i++) {
     const user = withDedicateUsers[i];
-    await createAUser(user.email, user.isAdmin);
+    await createAUser(user.email.toLowerCase(), user.isAdmin);
   }
   for (let i = 0; i < entries - withDedicateUsers.length; i++) {
     await createAUser();
@@ -48,7 +48,7 @@ const createInvitedUsers = async (entries = 10) => {
         data: {
           adminUid: admin.uid,
           adminEmail: admin.email,
-          inviteeEmail: faker.internet.email(),
+          inviteeEmail: faker.internet.email().toLowerCase(),
         },
       });
     } catch (e) {

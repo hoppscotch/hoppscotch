@@ -12,6 +12,7 @@ export type HoppRESTSaveContext =
        * The origin source of the request
        */
       // TODO: Make this `user-collection` after porting all usages
+      // Future TODO: Keep separate types for the IDs (specific to persistence) & `requestHandle` (only existing at runtime)
       originLocation: "workspace-user-collection"
       /**
        * ID of the workspace

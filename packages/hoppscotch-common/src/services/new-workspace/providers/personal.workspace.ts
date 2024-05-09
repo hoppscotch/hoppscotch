@@ -712,7 +712,7 @@ export class PersonalWorkspaceProviderService
 
     const draggedRequestIndexPos = this.pathToLastIndex(draggedRequestID)
 
-    const movedRequestHandleIdx = this.issuedHandles.findIndex((handle) => {
+    const movedRequestHandle = this.issuedHandles.find((handle) => {
       if (handle.value.type === "invalid") {
         return
       }
@@ -723,8 +723,6 @@ export class PersonalWorkspaceProviderService
 
       return handle.value.data.requestID === draggedRequestID
     })
-
-    const movedRequestHandle = this.issuedHandles[movedRequestHandleIdx]
 
     if (
       !movedRequestHandle ||
@@ -746,8 +744,9 @@ export class PersonalWorkspaceProviderService
     const affectedRequestIDs = Array.from({
       length: affectedReqIndexRange,
     }).map((_, idx) => {
-      const val = affectedReqIndexRange + idx
-      return `${sourceCollectionID}/${val}`
+      // Affected request indices will start from the next position of the dragged request, hence adding `1`
+      const resolvedRequestIndexPos = draggedRequestIndexPos + idx + 1
+      return `${sourceCollectionID}/${resolvedRequestIndexPos}`
     })
 
     moveRESTRequest(
@@ -761,18 +760,13 @@ export class PersonalWorkspaceProviderService
       destinationCollectionID
     ).length
 
-    // @ts-expect-error - Updating handle data the moved request
-    this.issuedHandles[movedRequestHandleIdx].value.data = {
-      // @ts-expect-error - Updating the IDs
-      ...this.issuedHandles[movedRequestHandleIdx].value.data,
-      collectionID: destinationCollectionID,
-      requestID: `${destinationCollectionID}/${
-        destinationCollectionReqCount - 1
-      }`,
-    }
+    movedRequestHandle.value.data.collectionID = destinationCollectionID
+    movedRequestHandle.value.data.requestID = `${destinationCollectionID}/${
+      destinationCollectionReqCount - 1
+    }`
 
     affectedRequestIDs.forEach((requestID) => {
-      const handleIdx = this.issuedHandles.findIndex((handle) => {
+      const handle = this.issuedHandles.find((handle) => {
         if (handle.value.type === "invalid") {
           return
         }
@@ -783,8 +777,6 @@ export class PersonalWorkspaceProviderService
 
         return handle.value.data.requestID === requestID
       })
-
-      const handle = this.issuedHandles[handleIdx]
 
       if (
         !handle ||

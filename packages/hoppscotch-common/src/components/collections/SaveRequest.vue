@@ -257,7 +257,9 @@ const saveRequestAs = async () => {
 
     const requestHandle = requestHandleResult.right
 
-    if (requestHandle.value.type === "invalid") {
+    const requestHandleRef = requestHandle.get()
+
+    if (requestHandleRef.value.type === "invalid") {
       // WORKSPACE_INVALIDATED | INVALID_COLLECTION_HANDLE
       return
     }
@@ -288,7 +290,9 @@ const saveRequestAs = async () => {
 
     const requestHandle = requestHandleResult.right
 
-    if (requestHandle.value.type === "invalid") {
+    const requestHandleRef = requestHandle.get()
+
+    if (requestHandleRef.value.type === "invalid") {
       // WORKSPACE_INVALIDATED
       return
     }

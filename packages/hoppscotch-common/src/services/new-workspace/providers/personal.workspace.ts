@@ -120,6 +120,8 @@ export class PersonalWorkspaceProviderService
     this.workspaceService.registerWorkspaceProvider(this)
   }
 
+  // TODO: Move the below out of provider definitions as generic helper functions
+
   /**
    * Used to get the index of the request from the path
    * @param path The path of the request
@@ -128,6 +130,25 @@ export class PersonalWorkspaceProviderService
   private pathToLastIndex(path: string) {
     const pathArr = path.split("/")
     return parseInt(pathArr[pathArr.length - 1])
+  }
+
+  /**
+   * @param path The path of the collection or request
+   * @returns The index of the collection or request
+   */
+  private pathToIndex(path: string) {
+    const pathArr = path.split("/")
+    return pathArr
+  }
+
+  /**
+   * Checks if the collection is already in the root
+   * @param id - path of the collection
+   * @returns boolean - true if the collection is already in the root
+   */
+  private isAlreadyInRoot(id: string) {
+    const indexPath = this.pathToIndex(id)
+    return indexPath.length === 1
   }
 
   public createRESTRootCollection(
@@ -665,10 +686,163 @@ export class PersonalWorkspaceProviderService
     ) {
       return Promise.resolve(E.left("INVALID_COLLECTION_HANDLE" as const))
     }
+    const { collectionID: draggedCollectionID } = collectionHandleRef.value.data
+
+    const draggedParentCollectionID = this.isAlreadyInRoot(draggedCollectionID)
+      ? draggedCollectionID
+      : draggedCollectionID.split("/").slice(0, -1).join("/")
+
+    const isMoveToSiblingCollection = this.isAlreadyInRoot(draggedCollectionID)
+      ? this.isAlreadyInRoot(
+          destinationCollectionID === null
+            ? // Move to root
+              this.restCollectionState.value.state.length.toString()
+            : destinationCollectionID
+        )
+      : !!destinationCollectionID?.startsWith(draggedParentCollectionID)
+
+    const draggedCollectionIndexPos = this.pathToLastIndex(draggedCollectionID)
+
+    let resolvedDestinationCollectionID = ""
+
+    if (destinationCollectionID === null) {
+      // destinationCollectionID` being `null` indicates moving to root
+      // New ID will be the length of the root nodes at this point (before the store update)
+      resolvedDestinationCollectionID =
+        this.restCollectionState.value.state.length.toString()
+    } else {
+      // Move to an inner-level collection
+      const destinationCollectionIndexPos = this.pathToLastIndex(
+        destinationCollectionID
+      )
+
+      // The count of child collections within the destination collection will be the new index position
+      // Appended to the `resolvedDestinationCollectionID`
+      const resolvedDestinationCollectionIndexPos = getFoldersByPath(
+        this.restCollectionState.value.state,
+        destinationCollectionID
+      ).length
+
+      // Indicates a move from a collection at the top to a sibling collection below it
+      if (
+        isMoveToSiblingCollection &&
+        destinationCollectionIndexPos > draggedCollectionIndexPos
+      ) {
+        const draggedCollectionIDStrLength =
+          draggedCollectionID.split("/").length
+
+        // Obtain a subset of the destination collection ID till the dragged collection ID string length
+        // Only update the index position at the level of the dragged collection
+        // This ensures moves to deeply any nested collections are accounted
+        const destinationCollectionIDSubset = destinationCollectionID
+          .split("/")
+          .slice(0, draggedCollectionIDStrLength)
+          .join("/")
+
+        // Reduce `1` from the index position to account for the dragged collection
+        // Dragged collection doesn't exist anymore at the previous level
+        const collectionIDSubsetIndexPos = Number(
+          this.pathToLastIndex(destinationCollectionIDSubset) - 1
+        )
+
+        // Replace the destination collection ID with `1` reduced from the index position
+        const replacedDestinationCollectionID = destinationCollectionID.replace(
+          destinationCollectionIDSubset,
+          `${destinationCollectionIDSubset
+            .split("/")
+            .slice(0, -1)
+            .join("/")}/${collectionIDSubsetIndexPos}`
+        )
+
+        const resolvedDestinationCollectionIDPrefix = this.isAlreadyInRoot(
+          draggedCollectionID
+        )
+          ? collectionIDSubsetIndexPos
+          : replacedDestinationCollectionID
+
+        resolvedDestinationCollectionID = `${resolvedDestinationCollectionIDPrefix}/${resolvedDestinationCollectionIndexPos}`
+      } else {
+        resolvedDestinationCollectionID = `${destinationCollectionID}/${resolvedDestinationCollectionIndexPos}`
+      }
+    }
+
+    const draggedParentCollectionSize = this.isAlreadyInRoot(
+      draggedCollectionID
+    )
+      ? this.restCollectionState.value.state.length
+      : getFoldersByPath(
+          this.restCollectionState.value.state,
+          draggedParentCollectionID
+        ).length
+
+    const affectedParentCollectionIDRange =
+      draggedParentCollectionSize - 1 - draggedCollectionIndexPos
 
     moveRESTFolder(
       collectionHandleRef.value.data.collectionID,
       destinationCollectionID
+    )
+
+    this.issuedHandles.forEach((handle) => {
+      if (handle.value.type === "invalid") {
+        return
+      }
+
+      if (!("requestID" in handle.value.data)) {
+        return
+      }
+
+      const { collectionID, requestID } = handle.value.data
+
+      const reqIndexPos = requestID.slice(-1)[0]
+
+      if (requestID.startsWith(draggedCollectionID)) {
+        const newCollectionID = collectionID.replace(
+          draggedCollectionID,
+          resolvedDestinationCollectionID
+        )
+
+        handle.value.data.collectionID = newCollectionID
+        handle.value.data.requestID = `${newCollectionID}/${reqIndexPos}`
+      }
+    })
+
+    Array.from({ length: affectedParentCollectionIDRange }).forEach(
+      (_, idx) => {
+        // Adding `1` to dragged collection index position to get the affected collection index position
+        const affectedCollectionIndexPos = draggedCollectionIndexPos + idx + 1
+
+        const affectedCollectionID = `${draggedParentCollectionID}/${affectedCollectionIndexPos}`
+
+        // The index position will be reduced by `1` for the affected collections
+        const newAffectedCollectionID = `${draggedParentCollectionID}/${
+          affectedCollectionIndexPos - 1
+        }`
+
+        // For each affected collection, we'll have to iterate over the `issuedHandles` to account for nested collections
+        this.issuedHandles.forEach((handle) => {
+          if (
+            handle.value.type === "invalid" ||
+            !("requestID" in handle.value.data)
+          ) {
+            return
+          }
+
+          if (handle.value.data.requestID.startsWith(affectedCollectionID)) {
+            const { collectionID, requestID } = handle.value.data
+
+            handle.value.data.collectionID = collectionID.replace(
+              affectedCollectionID,
+              newAffectedCollectionID
+            )
+
+            handle.value.data.requestID = requestID.replace(
+              affectedCollectionID,
+              newAffectedCollectionID
+            )
+          }
+        })
+      }
     )
 
     return Promise.resolve(E.right(undefined))

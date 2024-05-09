@@ -126,8 +126,6 @@ import { InspectionService } from "~/services/inspection"
 import { EnvironmentInspectorService } from "~/services/inspection/inspectors/environment.inspector"
 import { HeaderInspectorService } from "~/services/inspection/inspectors/header.inspector"
 import { ResponseInspectorService } from "~/services/inspection/inspectors/response.inspector"
-import { HandleRef } from "~/services/new-workspace/handle"
-import { WorkspaceRequest } from "~/services/new-workspace/workspace"
 import { HoppTab, PersistableTabState } from "~/services/tab"
 import { RESTTabService } from "~/services/tab/rest"
 
@@ -297,12 +295,7 @@ const onResolveConfirmSaveTab = () => {
   if (
     !saveContext ||
     (saveContext.originLocation === "workspace-user-collection" &&
-      // `requestHandle` gets unwrapped here
-      (
-        saveContext.requestHandle as
-          | HandleRef<WorkspaceRequest>["value"]
-          | undefined
-      )?.type === "invalid")
+      saveContext.requestHandle?.get().value.type === "invalid")
   ) {
     return (savingRequest.value = true)
   }
@@ -338,11 +331,7 @@ const getTabDirtyStatus = (tab: HoppTab<HoppRESTDocument>) => {
 
   return (
     tab.document.saveContext?.originLocation === "workspace-user-collection" &&
-    (
-      tab.document.saveContext.requestHandle as
-        | HandleRef<WorkspaceRequest>["value"]
-        | undefined
-    )?.type === "invalid"
+    tab.document.saveContext.requestHandle?.get().value.type === "invalid"
   )
 }
 

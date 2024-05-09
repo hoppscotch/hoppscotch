@@ -71,7 +71,7 @@ export type SettingsDef = {
 }
 
 export const getDefaultSettings = (): SettingsDef => {
-  const defaultSettings: Partial<SettingsDef> = {
+  const defaultSettings: SettingsDef = {
     syncCollections: true,
     syncHistory: true,
     syncEnvironments: true,
@@ -125,7 +125,7 @@ export const getDefaultSettings = (): SettingsDef => {
     )
   })
 
-  return defaultSettings as SettingsDef
+  return defaultSettings
 }
 
 type ApplySettingPayload = {

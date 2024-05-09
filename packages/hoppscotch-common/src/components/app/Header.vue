@@ -330,12 +330,6 @@ const myTeams = useReadonlyStream(teamListAdapter.teamList$, null)
 
 const workspace = workspaceService.currentWorkspace
 
-const workspaceName = computed(() =>
-  workspace.value.type === "personal"
-    ? t("workspace.personal")
-    : workspace.value.teamName
-)
-
 const refetchTeams = () => {
   teamListAdapter.fetchList()
 }
@@ -373,7 +367,8 @@ watch(
 const newWorkspaceService = useService(NewWorkspaceService)
 
 const activeWorkspaceName = computed(() => {
-  const activeWorkspaceHandleRef = newWorkspaceService.activeWorkspaceHandle.value?.get()
+  const activeWorkspaceHandleRef =
+    newWorkspaceService.activeWorkspaceHandle.value?.get()
 
   if (activeWorkspaceHandleRef?.value.type === "ok") {
     return activeWorkspaceHandleRef.value.data.name

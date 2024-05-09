@@ -81,6 +81,8 @@ import {
   isValidWorkspaceHandle,
 } from "../helpers"
 import { lazy } from "~/helpers/utils/lazy"
+import { getAffectedIndexes } from "~/helpers/collection/affectedIndex"
+import { request } from "http"
 
 export class PersonalWorkspaceProviderService
   extends Service
@@ -683,10 +685,67 @@ export class PersonalWorkspaceProviderService
       return Promise.resolve(E.left("INVALID_REQUEST_HANDLE" as const))
     }
 
-    const draggedRequestIndex = requestHandleRef.value.data.requestID
+    const { collectionID, requestID: draggedRequestID } =
+      requestHandleRef.value.data
+
+    const collectionRequestCount = getRequestsByPath(
+      restCollectionStore.value.state,
+      collectionID
+    ).length
+
+    // Compute the affected request IDs
+    // Maps the previous request ID to the new one affected by the reorder
+    const affectedRequestIndices = getAffectedIndexes(
+      this.pathToLastIndex(draggedRequestID),
+      destinationRequestID === null
+        ? collectionRequestCount - 1
+        : this.pathToLastIndex(destinationRequestID)
+    )
+
+    // Compile the handle indices within `issuedHandles` along with the ID to update it based on the affected request indices
+    // This is done in 2 steps since finding the corresponding handle and updating it straightaway would result in ambiguities
+    // Updating the request ID for a certain handle and attempting to find the handle corresponding to the same ID would pick the former handle
+    const affectedRequestHandleUpdateInfo = Array.from(
+      affectedRequestIndices.entries()
+    ).map(([oldRequestIndexPos, newRequestIndexPos]) => {
+      const affectedRequestHandleIdx = this.issuedHandles.findIndex(
+        (handle) => {
+          if (handle.value.type === "invalid") {
+            return
+          }
+
+          if (!("requestID" in handle.value.data)) {
+            return
+          }
+
+          return (
+            handle.value.data.requestID ===
+            `${collectionID}/${oldRequestIndexPos}`
+          )
+        }
+      )
+
+      return { affectedRequestHandleIdx, newRequestIndexPos }
+    })
+
+    affectedRequestHandleUpdateInfo.forEach(
+      ({ affectedRequestHandleIdx, newRequestIndexPos }) => {
+        const handle = this.issuedHandles[affectedRequestHandleIdx]
+
+        if (
+          !handle ||
+          handle.value.type === "invalid" ||
+          !("requestID" in handle.value.data)
+        ) {
+          return
+        }
+
+        handle.value.data.requestID = `${collectionID}/${newRequestIndexPos}`
+      }
+    )
 
     updateRESTRequestOrder(
-      this.pathToLastIndex(draggedRequestIndex),
+      this.pathToLastIndex(draggedRequestID),
       destinationRequestID ? this.pathToLastIndex(destinationRequestID) : null,
       destinationCollectionID
     )

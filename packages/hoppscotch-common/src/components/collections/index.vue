@@ -178,7 +178,6 @@ import { useI18n } from "@composables/i18n"
 import { Picked } from "~/helpers/types/HoppPicked"
 import { useReadonlyStream } from "~/composables/stream"
 import { useLocalState } from "~/newstore/localstate"
-import { GetMyTeamsQuery } from "~/helpers/backend/graphql"
 import { pipe } from "fp-ts/function"
 import * as TE from "fp-ts/TaskEither"
 import {
@@ -245,7 +244,7 @@ import {
 } from "~/helpers/collection/collection"
 import { currentReorderingStatus$ } from "~/newstore/reordering"
 import { defineActionHandler, invokeAction } from "~/helpers/actions"
-import { WorkspaceService } from "~/services/workspace.service"
+import { TeamWorkspace, WorkspaceService } from "~/services/workspace.service"
 import { useService } from "dioc/vue"
 import { RESTTabService } from "~/services/tab/rest"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
@@ -274,16 +273,14 @@ const props = defineProps({
 
 const emit = defineEmits<{
   (event: "select", payload: Picked | null): void
-  (event: "update-team", team: SelectedTeam): void
+  (event: "update-team", team: TeamWorkspace): void
   (event: "update-collection-type", type: CollectionType["type"]): void
 }>()
-
-type SelectedTeam = GetMyTeamsQuery["myTeams"][number] | undefined
 
 type CollectionType =
   | {
       type: "team-collections"
-      selectedTeam: SelectedTeam
+      selectedTeam: TeamWorkspace
     }
   | { type: "my-collections"; selectedTeam: undefined }
 
@@ -330,9 +327,7 @@ const requestMoveLoading = ref<string[]>([])
 // TeamList-Adapter
 const workspaceService = useService(WorkspaceService)
 const teamListAdapter = workspaceService.acquireTeamListAdapter(null)
-const myTeams = useReadonlyStream(teamListAdapter.teamList$, null)
 const REMEMBERED_TEAM_ID = useLocalState("REMEMBERED_TEAM_ID")
-const teamListFetched = ref(false)
 
 // Team Collection Adapter
 const teamCollectionAdapter = new TeamCollectionAdapter(null)
@@ -378,7 +373,7 @@ watch(
   filterTexts,
   (newFilterText) => {
     if (collectionsType.value.type === "team-collections") {
-      const selectedTeamID = collectionsType.value.selectedTeam?.id
+      const selectedTeamID = collectionsType.value.selectedTeam?.teamID
 
       selectedTeamID &&
         debouncedSearch(newFilterText, selectedTeamID)?.catch(() => {})
@@ -435,28 +430,6 @@ onMounted(() => {
   }
 })
 
-watch(
-  () => myTeams.value,
-  (newTeams) => {
-    if (newTeams && !teamListFetched.value) {
-      teamListFetched.value = true
-      if (REMEMBERED_TEAM_ID.value && currentUser.value) {
-        const team = newTeams.find((t) => t.id === REMEMBERED_TEAM_ID.value)
-        if (team) updateSelectedTeam(team)
-      }
-    }
-  }
-)
-
-watch(
-  () => collectionsType.value.selectedTeam,
-  (newTeam) => {
-    if (newTeam) {
-      teamCollectionAdapter.changeTeamID(newTeam.id)
-    }
-  }
-)
-
 const switchToMyCollections = () => {
   collectionsType.value.type = "my-collections"
   collectionsType.value.selectedTeam = undefined
@@ -488,11 +461,12 @@ const expandTeamCollection = (collectionID: string) => {
   teamCollectionAdapter.expandCollection(collectionID)
 }
 
-const updateSelectedTeam = (team: SelectedTeam) => {
+const updateSelectedTeam = (team: TeamWorkspace) => {
   if (team) {
     collectionsType.value.type = "team-collections"
+    teamCollectionAdapter.changeTeamID(team.teamID)
     collectionsType.value.selectedTeam = team
-    REMEMBERED_TEAM_ID.value = team.id
+    REMEMBERED_TEAM_ID.value = team.teamID
     emit("update-team", team)
     emit("update-collection-type", "team-collections")
   }
@@ -501,23 +475,14 @@ const updateSelectedTeam = (team: SelectedTeam) => {
 const workspace = workspaceService.currentWorkspace
 
 // Used to switch collection type and team when user switch workspace in the global workspace switcher
-// Check if there is a teamID in the workspace, if yes, switch to team collections and select the team
-// If there is no teamID, switch to my collections
 watch(
-  () => {
-    const space = workspace.value
-    return space.type === "personal" ? undefined : space.teamID
-  },
-  (teamID) => {
-    if (teamID) {
-      const team = myTeams.value?.find((t) => t.id === teamID)
-      if (team) {
-        updateSelectedTeam(team)
-      }
-      return
+  workspace,
+  (newWorkspace) => {
+    if (newWorkspace.type === "personal") {
+      switchToMyCollections()
+    } else if (newWorkspace.type === "team") {
+      updateSelectedTeam(newWorkspace)
     }
-
-    return switchToMyCollections()
   },
   {
     immediate: true,
@@ -545,7 +510,7 @@ const hasTeamWriteAccess = computed(() => {
     return false
   }
 
-  const role = collectionsType.value.selectedTeam?.myRole
+  const role = collectionsType.value.selectedTeam?.role
   return role === "OWNER" || role === "EDITOR"
 })
 
@@ -760,7 +725,7 @@ const addNewRootCollection = (name: string) => {
     })
 
     pipe(
-      createNewRootCollection(name, collectionsType.value.selectedTeam.id),
+      createNewRootCollection(name, collectionsType.value.selectedTeam.teamID),
       TE.match(
         (err: GQLError<string>) => {
           toast.error(`${getErrorMessage(err)}`)
@@ -831,7 +796,7 @@ const onAddRequest = (requestName: string) => {
 
     const data = {
       request: JSON.stringify(newRequest),
-      teamID: collectionsType.value.selectedTeam.id,
+      teamID: collectionsType.value.selectedTeam.teamID,
       title: requestName,
     }
 
@@ -1158,7 +1123,7 @@ const duplicateRequest = (payload: {
 
     const data = {
       request: JSON.stringify(newRequest),
-      teamID: collectionsType.value.selectedTeam.id,
+      teamID: collectionsType.value.selectedTeam.teamID,
       title: `${request.name} - ${t("action.duplicate")}`,
     }
 

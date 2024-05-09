@@ -56,23 +56,25 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, reactive, ref, watch } from "vue"
-import { cloneDeep } from "lodash-es"
+import { useI18n } from "@composables/i18n"
+import { useToast } from "@composables/toast"
 import {
   HoppGQLRequest,
   HoppRESTRequest,
   isHoppRESTRequest,
 } from "@hoppscotch/data"
-import { pipe } from "fp-ts/function"
+import { computedWithControl } from "@vueuse/core"
+import { useService } from "dioc/vue"
 import * as TE from "fp-ts/TaskEither"
-import { GetMyTeamsQuery } from "~/helpers/backend/graphql"
+import { pipe } from "fp-ts/function"
+import { cloneDeep } from "lodash-es"
+import { computed, nextTick, reactive, ref, watch } from "vue"
+import { GQLError } from "~/helpers/backend/GQLClient"
 import {
   createRequestInCollection,
   updateTeamRequest,
 } from "~/helpers/backend/mutations/TeamRequest"
 import { Picked } from "~/helpers/types/HoppPicked"
-import { useI18n } from "@composables/i18n"
-import { useToast } from "@composables/toast"
 import {
   cascadeParentCollectionForHeaderAuth,
   editGraphqlRequest,
@@ -80,12 +82,10 @@ import {
   saveGraphqlRequestAs,
   saveRESTRequestAs,
 } from "~/newstore/collections"
-import { GQLError } from "~/helpers/backend/GQLClient"
-import { computedWithControl } from "@vueuse/core"
 import { platform } from "~/platform"
-import { useService } from "dioc/vue"
-import { RESTTabService } from "~/services/tab/rest"
 import { GQLTabService } from "~/services/tab/graphql"
+import { RESTTabService } from "~/services/tab/rest"
+import { TeamWorkspace } from "~/services/workspace.service"
 
 const t = useI18n()
 const toast = useToast()
@@ -93,12 +93,10 @@ const toast = useToast()
 const RESTTabs = useService(RESTTabService)
 const GQLTabs = useService(GQLTabService)
 
-type SelectedTeam = GetMyTeamsQuery["myTeams"][number] | undefined
-
 type CollectionType =
   | {
       type: "team-collections"
-      selectedTeam: SelectedTeam
+      selectedTeam: TeamWorkspace
     }
   | { type: "my-collections"; selectedTeam: undefined }
 
@@ -192,7 +190,7 @@ watch(
   }
 )
 
-const updateTeam = (newTeam: SelectedTeam) => {
+const updateTeam = (newTeam: TeamWorkspace) => {
   collectionsType.value.selectedTeam = newTeam
 }
 
@@ -493,7 +491,7 @@ const updateTeamCollectionOrFolder = (
   const data = {
     title: requestUpdated.name,
     request: JSON.stringify(requestUpdated),
-    teamID: collectionsType.value.selectedTeam.id,
+    teamID: collectionsType.value.selectedTeam.teamID,
   }
   pipe(
     createRequestInCollection(collectionID, data),

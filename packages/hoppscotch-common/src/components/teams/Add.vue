@@ -37,13 +37,17 @@ import { TeamNameCodec } from "~/helpers/backend/types/TeamName"
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
 import { platform } from "~/platform"
+import { useService } from "dioc/vue"
+import { WorkspaceService } from "~/services/workspace.service"
+import { useLocalState } from "~/newstore/localstate"
 
 const t = useI18n()
 
 const toast = useToast()
 
-defineProps<{
+const props = defineProps<{
   show: boolean
+  switchWorkspaceAfterCreation?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -52,7 +56,11 @@ const emit = defineEmits<{
 
 const editingName = ref<string | null>(null)
 
+const REMEMBERED_TEAM_ID = useLocalState("REMEMBERED_TEAM_ID")
+
 const isLoading = ref(false)
+
+const workspaceService = useService(WorkspaceService)
 
 const addNewTeam = async () => {
   isLoading.value = true
@@ -76,8 +84,19 @@ const addNewTeam = async () => {
           // Handle GQL errors (use err obj)
         }
       },
-      () => {
+      (team) => {
         toast.success(`${t("team.new_created")}`)
+
+        if (props.switchWorkspaceAfterCreation) {
+          REMEMBERED_TEAM_ID.value = team.id
+          workspaceService.changeWorkspace({
+            teamID: team.id,
+            teamName: team.name,
+            type: "team",
+            role: team.myRole,
+          })
+        }
+
         hideModal()
       }
     )

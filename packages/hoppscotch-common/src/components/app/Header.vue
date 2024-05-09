@@ -368,7 +368,8 @@ watch(
 const newWorkspaceService = useService(NewWorkspaceService)
 
 const activeWorkspaceName = computed(() => {
-  const activeWorkspaceHandleRef = newWorkspaceService.activeWorkspaceHandle.value?.get()
+  const activeWorkspaceHandleRef =
+    newWorkspaceService.activeWorkspaceHandle.value?.get()
 
   if (activeWorkspaceHandleRef?.value.type === "ok") {
     return activeWorkspaceHandleRef.value.data.name

@@ -111,7 +111,9 @@ const handleImportToStore = async (collections: HoppCollection[]) => {
 
     const resultHandle = collectionHandleResult.right
 
-    if (resultHandle.value.type === "invalid") {
+    const requestHandleRef = resultHandle.get()
+
+    if (requestHandleRef.value.type === "invalid") {
       // WORKSPACE_INVALIDATED
     }
 
@@ -636,12 +638,14 @@ const getCollectionJSON = async () => {
 
     const collectionJSONHandle = collectionJSONHandleResult.right
 
-    if (collectionJSONHandle.value.type === "invalid") {
+    const collectionJSONHandleRef = collectionJSONHandle.get()
+
+    if (collectionJSONHandleRef.value.type === "invalid") {
       // WORKSPACE_INVALIDATED
       return E.left("WORKSPACE_INVALIDATED")
     }
 
-    return E.right(collectionJSONHandle.value.data.content)
+    return E.right(collectionJSONHandleRef.value.data.content)
   }
 
   return E.left("INVALID_SELECTED_TEAM_OR_INVALID_COLLECTION_TYPE")

@@ -512,7 +512,7 @@ import {
 import { currentReorderingStatus$ } from "~/newstore/reordering"
 import { platform } from "~/platform"
 import { NewWorkspaceService } from "~/services/new-workspace"
-import { HandleRef } from "~/services/new-workspace/handle"
+import { Handle } from "~/services/new-workspace/handle"
 import { RESTCollectionViewRequest } from "~/services/new-workspace/view"
 import { Workspace } from "~/services/new-workspace/workspace"
 import { RESTTabService } from "~/services/tab/rest"
@@ -539,7 +539,7 @@ const currentUser = useReadonlyStream(
 const restCollectionState = useReadonlyStream(restCollections$, [])
 
 const props = defineProps<{
-  workspaceHandle: HandleRef<Workspace>
+  workspaceHandle: Handle<Workspace>
   picked?: Picked | null
   saveRequest?: boolean
 }>()
@@ -751,9 +751,11 @@ const onRemoveRootCollection = async () => {
     return
   }
 
-  const collectionHandle = collectionHandleResult.right.get()
+  const collectionHandle = collectionHandleResult.right
 
-  if (collectionHandle.value.type === "invalid") {
+  const collectionHandleRef = collectionHandle.get()
+
+  if (collectionHandleRef.value.type === "invalid") {
     // WORKSPACE_INVALIDATED
     return
   }
@@ -791,9 +793,11 @@ const onAddRequest = async (requestName: string) => {
     return
   }
 
-  const collectionHandle = collectionHandleResult.right.get()
+  const collectionHandle = collectionHandleResult.right
 
-  if (collectionHandle.value.type === "invalid") {
+  const collectionHandleRef = collectionHandle.get()
+
+  if (collectionHandleRef.value.type === "invalid") {
     // WORKSPACE_INVALIDATED
     return
   }
@@ -813,9 +817,11 @@ const onAddRequest = async (requestName: string) => {
     return
   }
 
-  const requestHandle = requestHandleResult.right.get()
+  const requestHandle = requestHandleResult.right
 
-  if (requestHandle.value.type === "invalid") {
+  const requestHandleRef = requestHandle.get()
+
+  if (requestHandleRef.value.type === "invalid") {
     // COLLECTION_INVALIDATED
     return
   }
@@ -874,9 +880,11 @@ const onAddChildCollection = async (newChildCollectionName: string) => {
     return
   }
 
-  const collectionHandle = collectionHandleResult.right.get()
+  const collectionHandle = collectionHandleResult.right
 
-  if (collectionHandle.value.type === "invalid") {
+  const collectionHandleRef = collectionHandle.get()
+
+  if (collectionHandleRef.value.type === "invalid") {
     // WORKSPACE_INVALIDATED
     return
   }
@@ -924,9 +932,11 @@ const onEditRootCollection = async (newCollectionName: string) => {
     return
   }
 
-  const collectionHandle = collectionHandleResult.right.get()
+  const collectionHandle = collectionHandleResult.right
 
-  if (collectionHandle.value.type === "invalid") {
+  const collectionHandleRef = collectionHandle.get()
+
+  if (collectionHandleRef.value.type === "invalid") {
     // WORKSPACE_INVALIDATED
     return
   }
@@ -969,9 +979,11 @@ const onEditChildCollection = async (newChildCollectionName: string) => {
     return
   }
 
-  const collectionHandle = collectionHandleResult.right.get()
+  const collectionHandle = collectionHandleResult.right
 
-  if (collectionHandle.value.type === "invalid") {
+  const collectionHandleRef = collectionHandle.get()
+
+  if (collectionHandleRef.value.type === "invalid") {
     // WORKSPACE_INVALIDATED
     return
   }
@@ -1010,9 +1022,11 @@ const onRemoveChildCollection = async () => {
     return
   }
 
-  const parentCollectionHandle = parentCollectionHandleResult.right.get()
+  const parentCollectionHandle = parentCollectionHandleResult.right
 
-  if (parentCollectionHandle.value.type === "invalid") {
+  const parentCollectionHandleRef = parentCollectionHandle.get()
+
+  if (parentCollectionHandleRef.value.type === "invalid") {
     // WORKSPACE_INVALIDATED
     return
   }
@@ -1061,9 +1075,11 @@ const onRemoveRequest = async () => {
     return
   }
 
-  const requestHandle = requestHandleResult.right.get()
+  const requestHandle = requestHandleResult.right
 
-  if (requestHandle.value.type === "invalid") {
+  const requestHandleRef = requestHandle.get()
+
+  if (requestHandleRef.value.type === "invalid") {
     // COLLECTION_INVALIDATED
     return
   }
@@ -1150,11 +1166,11 @@ const selectRequest = async (requestIndexPath: string) => {
     requestHandle,
   })
 
+  const requestHandleRef = requestHandle.get()
+
   if (possibleTab) {
     tabs.setActiveTab(possibleTab.value.id)
-  } else {
-    const requestHandleRef = requestHandle.get()
-
+  } else if (requestHandleRef.value.type === "ok") {
     // If not, open the request in a new tab
     tabs.createNewTab({
       request: requestHandleRef.value.data.request,
@@ -1232,9 +1248,11 @@ const onEditRequest = async (newRequestName: string) => {
     return
   }
 
-  const requestHandle = requestHandleResult.right.get()
+  const requestHandle = requestHandleResult.right
 
-  if (requestHandle.value.type === "invalid") {
+  const requestHandleRef = requestHandle.get()
+
+  if (requestHandleRef.value.type === "invalid") {
     // COLLECTION_INVALIDATED
     return
   }
@@ -1292,9 +1310,11 @@ const editCollectionProperties = async (collectionIndexPath: string) => {
     return
   }
 
-  const collectionHandle = collectionHandleResult.right.get()
+  const collectionHandle = collectionHandleResult.right
 
-  if (collectionHandle.value.type === "invalid") {
+  const collectionHandleRef = collectionHandle.get()
+
+  if (collectionHandleRef.value.type === "invalid") {
     // WORKSPACE_INVALIDATED
     return
   }
@@ -1358,9 +1378,11 @@ const setCollectionProperties = async (updatedCollectionProps: {
     return
   }
 
-  const collectionHandle = collectionHandleResult.right.get()
+  const collectionHandle = collectionHandleResult.right
 
-  if (collectionHandle.value.type === "invalid") {
+  const collectionHandleRef = collectionHandle.get()
+
+  if (collectionHandleRef.value.type === "invalid") {
     // WORKSPACE_INVALIDATED
     return
   }
@@ -1423,9 +1445,11 @@ const exportCollection = async (collectionIndexPath: string) => {
     return
   }
 
-  const collectionHandle = collectionHandleResult.right.get()
+  const collectionHandle = collectionHandleResult.right
 
-  if (collectionHandle.value.type === "invalid") {
+  const collectionHandleRef = collectionHandle.get()
+
+  if (collectionHandleRef.value.type === "invalid") {
     // WORKSPACE_INVALIDATED
     return
   }
@@ -1522,9 +1546,11 @@ const dropToRoot = async ({ dataTransfer }: DragEvent) => {
     return
   }
 
-  const draggedCollectionHandle = draggedCollectionHandleResult.right.get()
+  const draggedCollectionHandle = draggedCollectionHandleResult.right
 
-  if (draggedCollectionHandle.value.type === "invalid") {
+  const draggedCollectionHandleRef = draggedCollectionHandle.get()
+
+  if (draggedCollectionHandleRef.value.type === "invalid") {
     // WORKSPACE_INVALIDATED
     return
   }
@@ -1560,9 +1586,12 @@ const dropToRoot = async ({ dataTransfer }: DragEvent) => {
   }
 
   const destinationRootCollectionHandle =
-    destinationRootCollectionHandleResult.right.get()
+    destinationRootCollectionHandleResult.right
 
-  if (destinationRootCollectionHandle.value.type === "invalid") {
+  const destinationRootCollectionHandleRef =
+    destinationRootCollectionHandle.get()
+
+  if (destinationRootCollectionHandleRef.value.type === "invalid") {
     // WORKSPACE_INVALIDATED
     return
   }
@@ -1756,9 +1785,11 @@ const dropCollection = async (payload: {
     return
   }
 
-  const draggedCollectionHandle = draggedCollectionHandleResult.right.get()
+  const draggedCollectionHandle = draggedCollectionHandleResult.right
 
-  if (draggedCollectionHandle.value.type === "invalid") {
+  const draggedCollectionHandleRef = draggedCollectionHandle.get()
+
+  if (draggedCollectionHandleRef.value.type === "invalid") {
     // WORKSPACE_INVALIDATED
     return
   }
@@ -1826,10 +1857,11 @@ const dropCollection = async (payload: {
     return
   }
 
-  const destinationCollectionHandle =
-    destinationCollectionHandleResult.right.get()
+  const destinationCollectionHandle = destinationCollectionHandleResult.right
 
-  if (destinationCollectionHandle.value.type === "invalid") {
+  const destinationCollectionHandleRef = destinationCollectionHandle.get()
+
+  if (destinationCollectionHandleRef.value.type === "invalid") {
     // WORKSPACE_INVALIDATED
     return
   }
@@ -1912,9 +1944,11 @@ const updateRequestOrder = async (
     return
   }
 
-  const requestHandle = requestHandleResult.right.get()
+  const requestHandle = requestHandleResult.right
 
-  if (requestHandle.value.type === "invalid") {
+  const requestHandleRef = requestHandle.get()
+
+  if (requestHandleRef.value.type === "invalid") {
     // COLLECTION_INVALIDATED
     return
   }
@@ -1972,9 +2006,11 @@ const updateCollectionOrder = async (
     return
   }
 
-  const collectionHandle = collectionHandleResult.right.get()
+  const collectionHandle = collectionHandleResult.right
 
-  if (collectionHandle.value.type === "invalid") {
+  const collectionHandleRef = collectionHandle.get()
+
+  if (collectionHandleRef.value.type === "invalid") {
     // WORKSPACE_INVALIDATED
     return
   }

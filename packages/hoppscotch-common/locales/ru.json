@@ -126,7 +126,7 @@
     "generate_token": "Сгенерировать токен",
     "graphql_headers": "Authorization Headers are sent as part of the payload to connection_init",
     "include_in_url": "Добавить в URL",
-    "inherited_from": "Унаследован тип аутентификации {auth} из родительской коллекции \"{collection}\"",
+    "inherited_from": "Унаследован тип аутентификации {auth} из родительской коллекции {collection}",
     "learn": "Узнать больше",
     "oauth": {
       "redirect_auth_server_returned_error": "Auth Server returned an error state",

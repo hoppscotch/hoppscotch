@@ -295,7 +295,7 @@ const onResolveConfirmSaveTab = () => {
   if (
     !saveContext ||
     (saveContext.originLocation === "workspace-user-collection" &&
-      saveContext.requestHandle?.value.type === "invalid")
+      saveContext.requestHandle?.get().value.type === "invalid")
   ) {
     return (savingRequest.value = true)
   }
@@ -331,7 +331,7 @@ const getTabDirtyStatus = (tab: HoppTab<HoppRESTDocument>) => {
 
   return (
     tab.document.saveContext?.originLocation === "workspace-user-collection" &&
-    tab.document.saveContext.requestHandle?.value.type === "invalid"
+    tab.document.saveContext.requestHandle?.get().value.type === "invalid"
   )
 }
 

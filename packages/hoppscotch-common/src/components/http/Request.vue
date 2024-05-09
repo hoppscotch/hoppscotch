@@ -523,13 +523,15 @@ const saveRequest = async () => {
       return
     }
 
-    const requestHandle = ref(saveCtx.requestHandle)
+    const { requestHandle } = saveCtx
 
-    if (!requestHandle.value) {
+    const requestHandleRef = requestHandle.get()
+
+    if (!requestHandleRef.value) {
       return
     }
 
-    if (requestHandle.value.type === "invalid") {
+    if (requestHandleRef.value.type === "invalid") {
       showSaveRequestModal.value = true
       return
     }

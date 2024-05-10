@@ -601,8 +601,7 @@
     "url": "URL",
     "url_placeholder": "Enter a URL or paste a cURL command",
     "variables": "Değişkenler",
-    "view_my_links": "View my links",
-    "copy_link": "Bağlantıyı kopyala"
+    "view_my_links": "View my links"
   },
   "response": {
     "audio": "Audio",
@@ -747,8 +746,7 @@
       "send_request": "İstek gönder",
       "share_request": "Share Request",
       "show_code": "Generate code snippet",
-      "title": "İstek",
-      "copy_request_link": "İstek bağlantısını kopyala"
+      "title": "İstek"
     },
     "response": {
       "copy": "Copy response to clipboard",
@@ -768,6 +766,11 @@
     "collection": "Expand Collection Panel",
     "more": "Daha fazla göster",
     "sidebar": "Kenar çubuğunu göster"
+  },
+  "site_protection": {
+      "error_fetching_site_protection_status": "Something Went Wrong While Fetching Site Protection Status",
+      "login_to_continue": "Login to continue",
+      "login_to_continue_description": "You need to be logged in to access this Hoppscotch Enterprise Instance."
   },
   "socketio": {
     "communication": "İletişim",

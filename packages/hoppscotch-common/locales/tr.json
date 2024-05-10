@@ -185,15 +185,13 @@
     "new": "Yeni koleksiyon",
     "order_changed": "Collection Order Updated",
     "properties": "Collection Properties",
-    "properties_updated": "Collection Properties Updated",
+    "properties_updated": "Koleksiyon Özellikleri Güncellendi",
     "renamed": "Koleksiyon yeniden adlandırıldı",
     "request_in_use": "Kullanımda istek",
     "save_as": "Farklı kaydet",
     "save_to_collection": "Save to Collection",
     "select": "Bir koleksiyon Seçin",
-    "select_location": "Konum seçin",
-    "select_team": "Bir takım seçin",
-    "team_collections": "Takım koleksiyonları"
+    "select_location": "Konum seçin"
   },
   "confirm": {
     "close_unsaved_tab": "Are you sure you want to close this tab?",
@@ -298,6 +296,8 @@
     "quick_peek": "Environment Quick Peek",
     "replace_with_variable": "Replace with variable",
     "scope": "Scope",
+    "secrets": "Secrets",
+    "secret_value": "Secret value",
     "select": "Ortam seçin",
     "set": "Set environment",
     "set_as_environment": "Set as environment",
@@ -306,6 +306,7 @@
     "updated": "Ortam güncellendi",
     "value": "Değer",
     "variable": "Değişken",
+    "variables": "Değişkenler",
     "variable_list": "Değişken listesi"
   },
   "error": {
@@ -317,6 +318,7 @@
     "danger_zone": "Danger zone",
     "delete_account": "Your account is currently an owner in these teams:",
     "delete_account_description": "You must either remove yourself, transfer ownership, or delete these teams before you can delete your account.",
+    "empty_profile_name": "Profile name cannot be empty",
     "empty_req_name": "Boş İstek Adı",
     "f12_details": "(Ayrıntılar için F12)",
     "gql_prettify_invalid_query": "Geçersiz bir sorgu güzelleştirilemedi, sorgu sözdizimi hatalarını çözüp tekrar deneyin",
@@ -324,7 +326,8 @@
     "incorrect_email": "Geçersiz e-posta",
     "invalid_link": "Geçersiz bağlantı",
     "invalid_link_description": "Tıkladığınız linkin süresi geçmiş veya geçersiz",
-    "json_parsing_failed": "Invalid JSON",
+    "invalid_embed_link": "The embed does not exist or is invalid.",
+    "json_parsing_failed": "Geçersiz JSON",
     "json_prettify_invalid_body": "Geçersiz bir gövde güzelleştirilemedi, JSON sözdizimi hatalarını çözüp tekrar deneyin",
     "network_error": "Görünene göre bir ağ hatası var. Lütfen tekrar deneyin.",
     "network_fail": "İstek gönderilemedi",
@@ -335,17 +338,21 @@
     "page_not_found": "This page could not be found",
     "please_install_extension": "Please install the extension and add origin to the extension.",
     "proxy_error": "Proxy error",
+    "same_profile_name": "Updated profile name is same as the current profile name",
     "script_fail": "Ön istek komut dosyası çalıştırılamadı",
     "something_went_wrong": "Bir şeyler yanlış gitti",
-    "test_script_fail": "Could not execute post-request script"
+    "test_script_fail": "Could not execute post-request script",
+    "reading_files": "Error while reading one or more files."
   },
   "export": {
     "as_json": "JSON olarak dışa aktar",
     "create_secret_gist": "Gizli Gist oluştur",
+    "create_secret_gist_tooltip_text": "Export as secret Gist",
     "failed": "Something went wrong while exporting",
     "gist_created": "Gist oluşturuldu",
     "require_github": "Gizli Gist oluşturmak için GitHub ile giriş yapın",
-    "title": "Dışarı Aktar"
+    "title": "Dışarı Aktar",
+    "success": "Successfully exported"
   },
   "filter": {
     "all": "All",
@@ -574,6 +581,7 @@
     "raw_body": "Ham istek gövdesi",
     "rename": "Rename Request",
     "renamed": "Yeniden adlandırılmış istek",
+    "request_variables": "Request variables",
     "run": "Çalıştır",
     "save": "Kaydet",
     "save_as": "Farklı kaydet",

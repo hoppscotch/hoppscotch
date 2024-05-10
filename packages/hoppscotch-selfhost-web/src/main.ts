@@ -26,7 +26,7 @@ createHoppApp("#app", {
     history: historyDef,
   },
   interceptors: {
-    default: "browser",
+    default: "proxy",
     interceptors: [
       { type: "standalone", interceptor: browserInterceptor },
       { type: "standalone", interceptor: proxyInterceptor },

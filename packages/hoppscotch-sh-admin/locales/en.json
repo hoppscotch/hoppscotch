@@ -52,7 +52,8 @@
       "title": "Server is restarting"
     },
     "save_changes": "Save Changes",
-    "title": "Configurations"
+    "title": "Configurations",
+    "update_failure": "Failed to update server configurations"
   },
   "data_sharing": {
     "description": "Share anonymous data usage to improve Hoppscotch",

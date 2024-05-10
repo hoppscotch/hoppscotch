@@ -4,7 +4,7 @@
       class="sticky top-upperPrimaryStickyFold z-10 flex flex-1 flex-shrink-0 justify-between overflow-x-auto border-b border-dividerLight bg-primary"
     >
       <HoppButtonSecondary
-        v-if="team === undefined || team.myRole === 'VIEWER'"
+        v-if="team === undefined || team.role === 'VIEWER'"
         v-tippy="{ theme: 'tooltip' }"
         disabled
         class="!rounded-none"
@@ -28,7 +28,7 @@
           :icon="IconHelpCircle"
         />
         <HoppButtonSecondary
-          v-if="team !== undefined && team.myRole === 'VIEWER'"
+          v-if="team !== undefined && team.role === 'VIEWER'"
           v-tippy="{ theme: 'tooltip' }"
           disabled
           :icon="IconImport"
@@ -84,7 +84,7 @@
         )"
         :key="`environment-${index}`"
         :environment="environment"
-        :is-viewer="team?.myRole === 'VIEWER'"
+        :is-viewer="team?.role === 'VIEWER'"
         @edit-environment="editEnvironment(environment)"
       />
     </div>
@@ -103,16 +103,16 @@
       :show="showModalDetails"
       :action="action"
       :editing-environment="editingEnvironment"
-      :editing-team-id="team?.id"
+      :editing-team-id="team?.teamID"
       :editing-variable-name="editingVariableName"
       :is-secret-option-selected="secretOptionSelected"
-      :is-viewer="team?.myRole === 'VIEWER'"
+      :is-viewer="team?.role === 'VIEWER'"
       @hide-modal="displayModalEdit(false)"
     />
     <EnvironmentsImportExport
       v-if="showModalImportExport"
       :team-environments="teamEnvironments"
-      :team-id="team?.id"
+      :team-id="team?.teamID"
       environment-type="TEAM_ENV"
       @hide-modal="displayModalImportExport(false)"
     />
@@ -129,16 +129,14 @@ import IconPlus from "~icons/lucide/plus"
 import IconHelpCircle from "~icons/lucide/help-circle"
 import IconImport from "~icons/lucide/folder-down"
 import { defineActionHandler } from "~/helpers/actions"
-import { GetMyTeamsQuery } from "~/helpers/backend/graphql"
+import { TeamWorkspace } from "~/services/workspace.service"
 
 const t = useI18n()
 
 const colorMode = useColorMode()
 
-type SelectedTeam = GetMyTeamsQuery["myTeams"][number] | undefined
-
 const props = defineProps<{
-  team: SelectedTeam
+  team: TeamWorkspace | undefined
   teamEnvironments: TeamEnvironment[]
   adapterError: GQLError<string> | null
   loading: boolean
@@ -151,7 +149,7 @@ const editingEnvironment = ref<TeamEnvironment | null>(null)
 const editingVariableName = ref("")
 const secretOptionSelected = ref(false)
 
-const isTeamViewer = computed(() => props.team?.myRole === "VIEWER")
+const isTeamViewer = computed(() => props.team?.role === "VIEWER")
 
 const displayModalAdd = (shouldDisplay: boolean) => {
   action.value = "new"

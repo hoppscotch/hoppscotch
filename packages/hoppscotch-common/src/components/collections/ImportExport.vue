@@ -32,7 +32,6 @@ import { useI18n } from "~/composables/i18n"
 import { useToast } from "~/composables/toast"
 import { appendRESTCollections, restCollections$ } from "~/newstore/collections"
 import MyCollectionImport from "~/components/importExport/ImportExportSteps/MyCollectionImport.vue"
-import { GetMyTeamsQuery } from "~/helpers/backend/graphql"
 
 import IconFolderPlus from "~icons/lucide/folder-plus"
 import IconOpenAPI from "~icons/lucide/file"
@@ -55,16 +54,15 @@ import { teamCollectionsExporter } from "~/helpers/import-export/export/teamColl
 
 import { GistSource } from "~/helpers/import-export/import/import-sources/GistSource"
 import { ImporterOrExporter } from "~/components/importExport/types"
+import { TeamWorkspace } from "~/services/workspace.service"
 
 const t = useI18n()
 const toast = useToast()
 
-type SelectedTeam = GetMyTeamsQuery["myTeams"][number] | undefined
-
 type CollectionType =
   | {
       type: "team-collections"
-      selectedTeam: SelectedTeam
+      selectedTeam: TeamWorkspace
     }
   | { type: "my-collections" }
 
@@ -433,7 +431,7 @@ const HoppTeamCollectionsExporter: ImporterOrExporter = {
       props.collectionsType.selectedTeam
     ) {
       const res = await teamCollectionsExporter(
-        props.collectionsType.selectedTeam.id
+        props.collectionsType.selectedTeam.teamID
       )
 
       if (E.isRight(res)) {
@@ -569,8 +567,8 @@ const hasTeamWriteAccess = computed(() => {
   }
 
   return (
-    collectionsType.selectedTeam.myRole === "EDITOR" ||
-    collectionsType.selectedTeam.myRole === "OWNER"
+    collectionsType.selectedTeam.role === "EDITOR" ||
+    collectionsType.selectedTeam.role === "OWNER"
   )
 })
 
@@ -578,17 +576,17 @@ const selectedTeamID = computed(() => {
   const { collectionsType } = props
 
   return collectionsType.type === "team-collections"
-    ? collectionsType.selectedTeam?.id
+    ? collectionsType.selectedTeam?.teamID
     : undefined
 })
 
 const getCollectionJSON = async () => {
   if (
     props.collectionsType.type === "team-collections" &&
-    props.collectionsType.selectedTeam?.id
+    props.collectionsType.selectedTeam?.teamID
   ) {
     const res = await getTeamCollectionJSON(
-      props.collectionsType.selectedTeam?.id
+      props.collectionsType.selectedTeam?.teamID
     )
 
     return E.isRight(res)

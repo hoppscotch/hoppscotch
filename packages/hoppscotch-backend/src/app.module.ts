@@ -26,6 +26,7 @@ import { loadInfraConfiguration } from './infra-config/helper';
 import { MailerModule } from './mailer/mailer.module';
 import { PosthogModule } from './posthog/posthog.module';
 import { ScheduleModule } from '@nestjs/schedule';
+import { HealthModule } from './health/health.module';
 
 @Module({
   imports: [
@@ -100,6 +101,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     InfraConfigModule,
     PosthogModule,
     ScheduleModule.forRoot(),
+    HealthModule,
   ],
   providers: [GQLComplexityPlugin],
   controllers: [AppController],

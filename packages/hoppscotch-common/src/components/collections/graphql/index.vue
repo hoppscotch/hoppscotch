@@ -200,7 +200,7 @@ const toast = useToast()
 defineProps<{
   // Whether to activate the ability to pick items (activates 'select' events)
   saveRequest: boolean
-  picked: Picked
+  picked: Picked | null
 }>()
 
 const collections = useReadonlyStream(graphqlCollections$, [], "deep")

@@ -1,6 +1,6 @@
 {
   "name": "hoppscotch-backend",
-  "version": "2024.3.2",
+  "version": "2024.3.3",
   "description": "",
   "author": "",
   "private": true,
@@ -35,6 +35,7 @@
     "@nestjs/passport": "10.0.2",
     "@nestjs/platform-express": "10.2.7",
     "@nestjs/schedule": "4.0.1",
+    "@nestjs/terminus": "10.2.3",
     "@nestjs/throttler": "5.0.1",
     "@prisma/client": "5.8.1",
     "argon2": "0.30.3",

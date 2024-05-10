@@ -66,7 +66,11 @@
         {{ t("error.something_went_wrong") }}
       </div>
     </div>
-    <TeamsAdd :show="showModalAdd" @hide-modal="displayModalAdd(false)" />
+    <TeamsAdd
+      :show="showModalAdd"
+      :switch-workspace-after-creation="true"
+      @hide-modal="displayModalAdd(false)"
+    />
   </div>
 </template>
 <script setup lang="ts">
@@ -153,6 +157,7 @@ const switchToTeamWorkspace = (team: GetMyTeamsQuery["myTeams"][number]) => {
   workspaceService.changeWorkspace({
     teamID: team.id,
     teamName: team.name,
+    role: team.myRole,
     type: "team",
   })
 }
@@ -175,7 +180,6 @@ watch(
 
 const displayModalAdd = (shouldDisplay: boolean) => {
   showModalAdd.value = shouldDisplay
-  teamListadapter.fetchList()
 }
 
 defineActionHandler("modals.team.new", () => {

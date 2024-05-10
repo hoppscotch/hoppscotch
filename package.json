@@ -38,7 +38,7 @@
     },
     "packageExtensions": {
       "httpsnippet@3.0.1": {
-        "peerDependencies": {
+        "dependencies": {
           "ajv": "6.12.3"
         }
       }

@@ -43,12 +43,19 @@
             @click="invokeAction('modals.support.toggle')"
           />
         </div>
-        <div class="flex">
+        <div
+          class="flex"
+          :class="{
+            'flex-row-reverse gap-2':
+              workspaceSelectorFlagEnabled && !currentUser,
+          }"
+        >
           <div
             v-if="currentUser === null"
             class="inline-flex items-center space-x-2"
           >
             <HoppButtonSecondary
+              v-if="!workspaceSelectorFlagEnabled"
               :icon="IconUploadCloud"
               :label="t('header.save_workspace')"
               class="!focus-visible:text-emerald-600 !hover:text-emerald-600 hidden h-8 border border-emerald-600/25 bg-emerald-500/10 !text-emerald-500 hover:border-emerald-600/20 hover:bg-emerald-600/20 focus-visible:border-emerald-600/20 focus-visible:bg-emerald-600/20 md:flex"
@@ -60,18 +67,22 @@
               @click="invokeAction('modals.login.toggle')"
             />
           </div>
-          <div v-else class="inline-flex items-center space-x-2">
-            <TeamsMemberStack
-              v-if="
-                workspace.type === 'team' &&
-                selectedTeam &&
-                selectedTeam.teamMembers.length > 1
-              "
-              :team-members="selectedTeam.teamMembers"
-              show-count
-              class="mx-2"
-              @handle-click="handleTeamEdit()"
-            />
+          <TeamsMemberStack
+            v-else-if="
+              currentUser !== null &&
+              workspace.type === 'team' &&
+              selectedTeam &&
+              selectedTeam.teamMembers.length > 1
+            "
+            :team-members="selectedTeam.teamMembers"
+            show-count
+            class="mx-2"
+            @handle-click="handleTeamEdit()"
+          />
+          <div
+            v-if="workspaceSelectorFlagEnabled || currentUser"
+            class="inline-flex items-center space-x-2"
+          >
             <div
               class="flex h-8 divide-x divide-emerald-600/25 rounded border border-emerald-600/25 bg-emerald-500/10 focus-within:divide-emerald-600/20 focus-within:border-emerald-600/20 focus-within:bg-emerald-600/20 hover:divide-emerald-600/20 hover:border-emerald-600/20 hover:bg-emerald-600/20"
             >
@@ -84,6 +95,7 @@
               />
               <HoppButtonSecondary
                 v-if="
+                  currentUser &&
                   workspace.type === 'team' &&
                   selectedTeam &&
                   selectedTeam?.myRole === 'OWNER'
@@ -124,7 +136,7 @@
                 </div>
               </template>
             </tippy>
-            <span class="px-2">
+            <span v-if="currentUser" class="px-2">
               <tippy
                 interactive
                 trigger="click"
@@ -260,6 +272,13 @@ const t = useI18n()
 const toast = useToast()
 
 /**
+ * Feature flag to enable the workspace selector login conversion
+ */
+const workspaceSelectorFlagEnabled = computed(
+  () => !!platform.platformFeatureFlags.workspaceSwitcherLogin?.value
+)
+
+/**
  * Once the PWA code is initialized, this holds a method
  * that can be called to show the user the installation
  * prompt.
@@ -380,6 +399,8 @@ const inviteTeam = (team: { name: string }, teamID: string) => {
 
 // Show the workspace selected team invite modal if the user is an owner of the team else show the default invite modal
 const handleInvite = () => {
+  if (!currentUser.value) return invokeAction("modals.login.toggle")
+
   if (
     workspace.value.type === "team" &&
     workspace.value.teamID &&

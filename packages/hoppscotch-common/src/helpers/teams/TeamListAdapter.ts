@@ -50,6 +50,7 @@ export default class TeamListAdapter {
   }
 
   public dispose() {
+    this.teamList$.next([])
     this.isDispose = true
     clearTimeout(this.timeoutHandle as any)
     this.timeoutHandle = null

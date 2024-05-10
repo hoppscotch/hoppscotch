@@ -59,7 +59,7 @@
         />
       </div>
       <div
-        v-if="!loading && teamListAdapterError"
+        v-else-if="teamListAdapterError"
         class="flex flex-col items-center py-4"
       >
         <icon-lucide-help-circle class="svg-icons mb-4" />
@@ -85,7 +85,7 @@ import { useColorMode } from "@composables/theming"
 import { GetMyTeamsQuery } from "~/helpers/backend/graphql"
 import IconDone from "~icons/lucide/check"
 import { useLocalState } from "~/newstore/localstate"
-import { defineActionHandler } from "~/helpers/actions"
+import { defineActionHandler, invokeAction } from "~/helpers/actions"
 import { WorkspaceService } from "~/services/workspace.service"
 import { useService } from "dioc/vue"
 import { useElementVisibility, useIntervalFn } from "@vueuse/core"
@@ -157,8 +157,8 @@ const switchToTeamWorkspace = (team: GetMyTeamsQuery["myTeams"][number]) => {
   workspaceService.changeWorkspace({
     teamID: team.id,
     teamName: team.name,
-    role: team.myRole,
     type: "team",
+    role: team.myRole,
   })
 }
 
@@ -174,12 +174,16 @@ watch(
   (user) => {
     if (!user) {
       switchToPersonalWorkspace()
+      teamListadapter.dispose()
     }
   }
 )
 
 const displayModalAdd = (shouldDisplay: boolean) => {
+  if (!currentUser.value) return invokeAction("modals.login.toggle")
+
   showModalAdd.value = shouldDisplay
+  teamListadapter.fetchList()
 }
 
 defineActionHandler("modals.team.new", () => {

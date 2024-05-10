@@ -11,6 +11,7 @@ import { InspectorsPlatformDef } from "./inspectors"
 import { ServiceClassInstance } from "dioc"
 import { IOPlatformDef } from "./io"
 import { SpotlightPlatformDef } from "./spotlight"
+import { Ref } from "vue"
 
 export type PlatformDef = {
   ui?: UIPlatformDef
@@ -45,6 +46,11 @@ export type PlatformDef = {
      * If a value is not given, then the value is assumed to be true
      */
     promptAsUsingCookies?: boolean
+
+    /**
+     * Whether to show the A/B testing workspace switcher click login flow or not
+     */
+    workspaceSwitcherLogin?: Ref<boolean>
   }
 }
 

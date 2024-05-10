@@ -264,13 +264,13 @@
     "protocols": "Protokoller boş",
     "request_variables": "This request does not have any request variables",
     "schema": "Bir GraphQL uç noktasına bağlanma",
+    "secret_environments": "Secrets are not synced to Hoppscotch",
     "shared_requests": "Shared requests are empty",
     "shared_requests_logout": "Login to view your shared requests or create a new one",
     "subscription": "Subscriptions are empty",
     "team_name": "Takım adı boş",
     "teams": "Takımlar boş",
-    "tests": "Bu istek için test yok",
-    "shortcodes": "Shortcodes are empty"
+    "tests": "Bu istek için test yok"
   },
   "environment": {
     "add_to_global": "Globale ekle",
@@ -349,15 +349,15 @@
     "create_secret_gist": "Gizli Gist oluştur",
     "create_secret_gist_tooltip_text": "Export as secret Gist",
     "failed": "Something went wrong while exporting",
-    "gist_created": "Gist oluşturuldu",
     "require_github": "Gizli Gist oluşturmak için GitHub ile giriş yapın",
-    "title": "Dışarı Aktar",
-    "success": "Successfully exported"
+    "secret_gist_success": "Successfully exported as secret Gist",
+    "success": "Successfully exported",
+    "title": "Dışarı Aktar"
   },
   "filter": {
-    "all": "All",
-    "none": "None",
-    "starred": "Starred"
+    "all": "Tümü",
+    "none": "Hiçbiri",
+    "starred": "Yıldızlı"
   },
   "folder": {
     "created": "Klasör oluşturuldu",
@@ -374,7 +374,8 @@
     "mutations": "Mutasyonlar",
     "schema": "Şema",
     "subscriptions": "Abonelikler",
-    "switch_connection": "Switch connection"
+    "switch_connection": "Switch connection",
+    "url_placeholder": "Enter a GraphQL endpoint URL"
   },
   "graphql_collections": {
     "title": "GraphQL Collections"
@@ -414,6 +415,8 @@
     "environments_from_gist": "Import From Gist",
     "environments_from_gist_description": "Import Hoppscotch Environments From Gist",
     "failed": "İçe aktarılamadı",
+    "file_size_limit_exceeded_warning_multiple_files": "Chosen files exceed the recommended limit of 10MB. Only the first {files} selected will be imported",
+    "file_size_limit_exceeded_warning_single_file": "The currently chosen file exceeds the recommended limit of 10MB. Please select another file.",
     "from_file": "Import from File",
     "from_gist": "Gist'ten içe aktar",
     "from_gist_description": "Gist ile içe aktar",
@@ -440,12 +443,15 @@
     "json_description": "Import collections from a Hoppscotch Collections JSON file",
     "postman_environment": "Postman Environment",
     "postman_environment_description": "Import Postman Environment from a JSON file",
+    "success": "Successfully imported",
     "title": "İçe aktar"
   },
   "inspections": {
     "description": "Inspect possible errors",
     "environment": {
       "add_environment": "Add to Environment",
+      "add_environment_value": "Add value",
+      "empty_value": "Environment value is empty for the variable '{variable}' ",
       "not_found": "Environment variable “{environment}” not found."
     },
     "header": {
@@ -593,6 +599,7 @@
     "title": "İstek",
     "type": "İstek türü",
     "url": "URL",
+    "url_placeholder": "Enter a URL or paste a cURL command",
     "variables": "Değişkenler",
     "view_my_links": "View my links",
     "copy_link": "Bağlantıyı kopyala"
@@ -799,6 +806,13 @@
       "invite": "Invite your friends to Hoppscotch",
       "title": "Miscellaneous"
     },
+    "phrases": {
+        "create_environment": "Create environment",
+        "create_workspace": "Create workspace",
+        "import_collections": "Import collections",
+        "share_request": "Share request",
+        "try": "Try"
+    },
     "request": {
       "save_as_new": "Save as new request",
       "select_method": "Select method",
@@ -903,7 +917,6 @@
     "forum": "Sorular sorun ve cevaplar alın",
     "github": "Bizi Github'da takip edin",
     "shortcuts": "Uygulamaya daha hızlı göz atın",
-    "team": "Takımla iletişim kurun",
     "title": "Destek",
     "twitter": "Bizi Twitter'da takip edin"
   },
@@ -924,6 +937,7 @@
     "queries": "Sorgular",
     "query": "Sorgu",
     "schema": "Schema",
+    "share_tab_request": "Share tab request",
     "shared_requests": "Shared Requests",
     "socketio": "Socket.IO",
     "sse": "SSE",
@@ -953,7 +967,6 @@
     "invite_tooltip": "İnsanları bu çalışma alanına davet edin",
     "invited_to_team": "{owner} seni {team} takımına davet etti.",
     "join": "Davet kabul edildi",
-    "join_beta": "Takımlara erişmek için beta programına katılın.",
     "join_team": "{team}'e katıl",
     "joined_team": "{team} takımına katıldın",
     "joined_team_description": "Artık bu takımın bir üyesisin",
@@ -982,6 +995,7 @@
     "permissions": "İzinler",
     "same_target_destination": "Same target and destination",
     "saved": "Takım kaydedildi",
+    "search_title": "Team Requests",
     "select_a_team": "Takım seç",
     "success_invites": "Success invites",
     "title": "Başlık",
@@ -1012,17 +1026,9 @@
   },
   "workspace": {
     "change": "Change workspace",
+    "other_workspaces": "My Workspaces",
     "personal": "My Workspace",
     "team": "Team Workspace",
     "title": "Workspaces"
-  },
-  "shortcodes": {
-    "actions": "Actions",
-    "created_on": "Created on",
-    "deleted": "Shortcode deleted",
-    "method": "Method",
-    "not_found": "Shortcode not found",
-    "short_code": "Short code",
-    "url": "URL"
   }
 }

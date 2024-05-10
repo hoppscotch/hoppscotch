@@ -274,8 +274,9 @@ const toast = useToast()
 /**
  * Feature flag to enable the workspace selector login conversion
  */
-const workspaceSelectorFlagEnabled =
-  platform.platformFeatureFlags.workspaceSwitcherLogin?.value
+const workspaceSelectorFlagEnabled = computed(
+  () => !!platform.platformFeatureFlags.workspaceSwitcherLogin?.value
+)
 
 /**
  * Once the PWA code is initialized, this holds a method

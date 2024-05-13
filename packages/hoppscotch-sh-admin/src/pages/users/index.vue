@@ -291,6 +291,7 @@ const headings = [
 
 // Get Paginated Results of all the users in the infra
 const usersPerPage = 20;
+
 const {
   fetching,
   error,
@@ -306,19 +307,16 @@ const {
 // Selected Rows
 const selectedRows = ref<UsersListQuery['infra']['allUsers']>([]);
 
-const adminCount = computed(
-  () => usersList.value.filter((user) => user.isAdmin).length
-);
-
 const showAdminButton = computed(() =>
   selectedRows.value.some((user) => !user.isAdmin)
 );
-const showRemoveAdminButton = computed(
-  () => selectedRows.value.some((user) => user.isAdmin) && adminCount.value > 1
+
+const showRemoveAdminButton = computed(() =>
+  selectedRows.value.some((user) => user.isAdmin)
 );
-const showDeleteButton = computed(
-  () =>
-    selectedRows.value.some((user) => !user.isAdmin) && usersCount.value !== 1
+
+const showDeleteButton = computed(() =>
+  selectedRows.value.some((user) => !user.isAdmin)
 );
 
 // Ensure this variable is declared outside the debounce function

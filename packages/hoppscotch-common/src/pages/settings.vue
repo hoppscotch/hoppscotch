@@ -98,6 +98,7 @@
           </p>
         </div>
         <div class="space-y-8 p-8 md:col-span-2">
+          <AppInterceptor />
           <section v-for="[id, settings] in interceptorsWithSettings" :key="id">
             <h4 class="font-semibold text-secondaryDark">
               {{ settings.entryTitle(t) }}

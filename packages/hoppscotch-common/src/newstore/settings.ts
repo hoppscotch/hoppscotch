@@ -119,10 +119,8 @@ export const getDefaultSettings = (): SettingsDef => {
 
   // Wait for platform to initialize before setting CURRENT_INTERCEPTOR_ID
   nextTick(() => {
-    applySetting(
-      "CURRENT_INTERCEPTOR_ID",
+    defaultSettings.CURRENT_INTERCEPTOR_ID =
       platform?.interceptors.default || "browser"
-    )
   })
 
   return defaultSettings

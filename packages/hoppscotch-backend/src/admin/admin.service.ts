@@ -89,12 +89,17 @@ export class AdminService {
     adminEmail: string,
     inviteeEmail: string,
   ) {
-    if (inviteeEmail == adminEmail) return E.left(DUPLICATE_EMAIL);
+    if (inviteeEmail.toLowerCase() == adminEmail.toLowerCase()) {
+      return E.left(DUPLICATE_EMAIL);
+    }
     if (!validateEmail(inviteeEmail)) return E.left(INVALID_EMAIL);
 
     const alreadyInvitedUser = await this.prisma.invitedUsers.findFirst({
       where: {
-        inviteeEmail: inviteeEmail,
+        inviteeEmail: {
+          equals: inviteeEmail,
+          mode: 'insensitive',
+        },
       },
     });
     if (alreadyInvitedUser != null) return E.left(USER_ALREADY_INVITED);
@@ -159,7 +164,7 @@ export class AdminService {
     try {
       await this.prisma.invitedUsers.deleteMany({
         where: {
-          inviteeEmail: { in: inviteeEmails },
+          inviteeEmail: { in: inviteeEmails, mode: 'insensitive' },
         },
       });
       return E.right(true);
@@ -189,6 +194,7 @@ export class AdminService {
         NOT: {
           inviteeEmail: {
             in: userEmailObjs.map((user) => user.email),
+            mode: 'insensitive',
           },
         },
       },

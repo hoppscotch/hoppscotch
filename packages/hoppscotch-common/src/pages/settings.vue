@@ -98,7 +98,15 @@
           </p>
         </div>
         <div class="space-y-8 p-8 md:col-span-2">
-          <AppInterceptor />
+          <section class="flex flex-col">
+            <h4 class="font-semibold text-secondaryDark">
+              {{ t("settings.interceptor") }}
+            </h4>
+            <p class="my-1 text-secondaryLight capitalize">
+              {{ interceptorService.currentInterceptor.value?.interceptorID }}
+            </p>
+            <AppInterceptor :is-tooltip-component="false" />
+          </section>
           <section v-for="[id, settings] in interceptorsWithSettings" :key="id">
             <h4 class="font-semibold text-secondaryDark">
               {{ settings.entryTitle(t) }}

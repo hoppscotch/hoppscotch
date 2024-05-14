@@ -82,7 +82,6 @@ import {
 } from "../helpers"
 import { lazy } from "~/helpers/utils/lazy"
 import { getAffectedIndexes } from "~/helpers/collection/affectedIndex"
-import { request } from "http"
 
 export class PersonalWorkspaceProviderService
   extends Service
@@ -668,9 +667,129 @@ export class PersonalWorkspaceProviderService
       return Promise.resolve(E.left("INVALID_COLLECTION_HANDLE" as const))
     }
 
-    const draggedCollectionIndex = collectionHandleRef.value.data.collectionID
+    const { collectionID: draggedCollectionID } = collectionHandleRef.value.data
 
-    updateRESTCollectionOrder(draggedCollectionIndex, destinationCollectionID)
+    // Reorder happens under the same parent collection
+    const parentCollectionID = this.isAlreadyInRoot(draggedCollectionID)
+      ? ""
+      : draggedCollectionID.split("/").slice(0, -1).join("/")
+
+    const parentCollectionSize = this.isAlreadyInRoot(draggedCollectionID)
+      ? this.restCollectionState.value.state.length
+      : getFoldersByPath(
+          this.restCollectionState.value.state,
+          parentCollectionID
+        ).length
+
+    const draggedCollectionIndexPos = this.pathToLastIndex(draggedCollectionID)
+    const destinationCollectionIndexPos =
+      destinationCollectionID === null
+        ? parentCollectionSize - 1
+        : this.pathToLastIndex(destinationCollectionID)
+
+    // Reordering a request from top to bottom will require reducing `1` from the index position to arrive at the resultant ID
+    // This is to account for the request being moved
+    // This is not required for the case where the destination is the last position where the index position is computed here and not supplied from the component
+    const resolvedDestinationCollectionIDPostfix =
+      destinationCollectionID === null
+        ? destinationCollectionIndexPos
+        : destinationCollectionIndexPos - 1
+
+    const resolvedDestinationCollectionID =
+      destinationCollectionIndexPos > draggedCollectionIndexPos
+        ? `${destinationCollectionID}/${resolvedDestinationCollectionIDPostfix}`
+        : destinationCollectionID
+
+    const resolvedDestinationCollectionIndexPos =
+      resolvedDestinationCollectionID === null
+        ? parentCollectionSize - 1
+        : this.pathToLastIndex(resolvedDestinationCollectionID)
+
+    const affectedCollectionIndices = getAffectedIndexes(
+      draggedCollectionIndexPos,
+      resolvedDestinationCollectionIndexPos
+    )
+
+    // Compile the handle indices within `issuedHandles` along with the ID to update it based on the affected collection indices
+    // This is done in 2 steps since finding the corresponding handle and updating it straightaway would result in ambiguities
+    // Updating the request ID for a certain handle and attempting to find the handle corresponding to the same ID in the next iteration would pick the former handle
+    const affectedCollectionHandleUpdateInfo = Array.from(
+      affectedCollectionIndices.entries()
+    ).map(([oldCollectionIndexPos, newCollectionIndexPos]) => {
+      const affectedCollectionHandleIndices: number[] = []
+
+      this.issuedHandles.forEach((handle, idx) => {
+        if (handle.value.type === "invalid") {
+          return
+        }
+
+        if (!("requestID" in handle.value.data)) {
+          return
+        }
+
+        if (
+          handle.value.data.requestID.startsWith(
+            parentCollectionID
+              ? `${parentCollectionID}/${oldCollectionIndexPos}`
+              : // Requests directly under root collection
+                oldCollectionIndexPos.toString()
+          )
+        ) {
+          affectedCollectionHandleIndices.push(idx)
+        }
+      })
+
+      return {
+        affectedCollectionHandleIndices,
+        oldCollectionIndexPos,
+        newCollectionIndexPos,
+      }
+    })
+
+    updateRESTCollectionOrder(draggedCollectionID, destinationCollectionID)
+
+    affectedCollectionHandleUpdateInfo.forEach(
+      ({
+        affectedCollectionHandleIndices,
+        oldCollectionIndexPos,
+        newCollectionIndexPos,
+      }) => {
+        affectedCollectionHandleIndices.forEach(
+          (affectedCollectionHandleIdx: number) => {
+            const handle = this.issuedHandles[affectedCollectionHandleIdx]
+
+            if (
+              !handle ||
+              handle.value.type === "invalid" ||
+              !("requestID" in handle.value.data)
+            ) {
+              return
+            }
+
+            const { collectionID, requestID } = handle.value.data
+
+            const oldCollectionID = parentCollectionID
+              ? `${parentCollectionID}/${oldCollectionIndexPos}`
+              : oldCollectionIndexPos.toString()
+
+            const newCollectionID = parentCollectionID
+              ? `${parentCollectionID}/${newCollectionIndexPos}`
+              : // Requests directly under root collection
+                newCollectionIndexPos.toString()
+
+            handle.value.data.collectionID = collectionID.replace(
+              oldCollectionID,
+              newCollectionID
+            )
+
+            handle.value.data.requestID = requestID.replace(
+              oldCollectionID,
+              newCollectionID
+            )
+          }
+        )
+      }
+    )
 
     return Promise.resolve(E.right(undefined))
   }
@@ -867,13 +986,35 @@ export class PersonalWorkspaceProviderService
       collectionID
     ).length
 
-    // Compute the affected request IDs
-    // Maps the previous request ID to the new one affected by the reorder
-    const affectedRequestIndices = getAffectedIndexes(
-      this.pathToLastIndex(draggedRequestID),
+    const draggedRequestIndexPos = this.pathToLastIndex(draggedRequestID)
+    const destinationRequestIndexPos =
       destinationRequestID === null
         ? collectionRequestCount - 1
         : this.pathToLastIndex(destinationRequestID)
+
+    // Reordering a request from top to bottom will require reducing `1` from the index position to arrive at the resultant ID
+    // This is to account for the request being moved
+    // This is not required for the case where the destination is the last position where the index position is computed here and not supplied from the component
+    const resolvedDestinationRequestIDPostfix =
+      destinationRequestID === null
+        ? destinationRequestIndexPos
+        : destinationRequestIndexPos - 1
+
+    const resolvedDestinationRequestID =
+      destinationRequestIndexPos > draggedRequestIndexPos
+        ? `${destinationCollectionID}/${resolvedDestinationRequestIDPostfix}`
+        : destinationRequestID
+
+    const resolvedDestinationRequestIndexPos =
+      resolvedDestinationRequestID === null
+        ? collectionRequestCount - 1
+        : this.pathToLastIndex(resolvedDestinationRequestID)
+
+    // Compute the affected request IDs
+    // Maps the previous request ID to the new one affected by the reorder
+    const affectedRequestIndices = getAffectedIndexes(
+      draggedRequestIndexPos,
+      resolvedDestinationRequestIndexPos
     )
 
     // Compile the handle indices within `issuedHandles` along with the ID to update it based on the affected request indices
@@ -920,7 +1061,7 @@ export class PersonalWorkspaceProviderService
 
     updateRESTRequestOrder(
       this.pathToLastIndex(draggedRequestID),
-      destinationRequestID ? this.pathToLastIndex(destinationRequestID) : null,
+      destinationRequestID ? destinationRequestIndexPos : null,
       destinationCollectionID
     )
 

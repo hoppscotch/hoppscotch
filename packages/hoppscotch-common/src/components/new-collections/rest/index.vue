@@ -1804,48 +1804,6 @@ const dropCollection = async (payload: {
     return
   }
 
-  // If a root collection is dragged, the root nodes get reduced by 1
-  // Hence, we need to reduce the destination root collection index by 1
-  // This only applies to the case when the destination collection lies below the dragged collection
-
-  // let resolvedDestinationCollectionIndex = destinationCollectionIndex
-
-  // const draggedRootCollectionIndex = parseInt(
-  //   pathToIndex(draggedCollectionIndex)[0]
-  // )
-  // const destinationRootCollectionIndex = parseInt(
-  //   pathToIndex(destinationCollectionIndex)[0]
-  // )
-
-  // if (
-  //   isAlreadyInRoot(draggedCollectionIndex) &&
-  //   destinationRootCollectionIndex > draggedRootCollectionIndex
-  // ) {
-  //   resolvedDestinationCollectionIndex = `${
-  //     destinationRootCollectionIndex - 1
-  //   }/${pathToIndex(destinationCollectionIndex).slice(1).join("/")}`
-
-  //   resolvedDestinationCollectionIndex =
-  //     resolvedDestinationCollectionIndex.endsWith("/")
-  //       ? resolvedDestinationCollectionIndex.slice(0, -1)
-  //       : resolvedDestinationCollectionIndex
-  // }
-
-  // resolveSaveContextOnCollectionReorder({
-  //   lastIndex: pathToLastIndex(draggedCollectionIndex),
-  //   newIndex: -1,
-  //   folderPath: draggedParentCollectionIndex,
-  //   length: getFoldersByPath(
-  //     restCollectionState.value,
-  //     draggedParentCollectionIndex
-  //   ).length,
-  // })
-
-  // updateSaveContextForAffectedRequests(
-  //   draggedCollectionIndex,
-  //   `${resolvedDestinationCollectionIndex}/${totalChildCollectionsInDestinationCollection}`
-  // )
-
   const destinationCollectionHandleResult =
     await workspaceService.getCollectionHandle(
       props.workspaceHandle,
@@ -2026,33 +1984,33 @@ const updateCollectionOrder = async (
   }
 
   // Moving to the last position indicated by `destinationCollectionIndex` being `null` requires computing the index path of the new child collection being inserted
-  let newDestinationCollectionIndex = 0
-  if (destinationCollectionIndex === null) {
-    if (destinationCollectionParentIndex === null) {
-      newDestinationCollectionIndex = restCollectionState.value.length - 1
-    } else {
-      const destinationCollectionParent = navigateToFolderWithIndexPath(
-        restCollectionState.value,
-        destinationCollectionParentIndex.split("/").map((id) => parseInt(id))
-      )
+  // let newDestinationCollectionIndex = 0
+  // if (destinationCollectionIndex === null) {
+  //   if (destinationCollectionParentIndex === null) {
+  //     newDestinationCollectionIndex = restCollectionState.value.length - 1
+  //   } else {
+  //     const destinationCollectionParent = navigateToFolderWithIndexPath(
+  //       restCollectionState.value,
+  //       destinationCollectionParentIndex.split("/").map((id) => parseInt(id))
+  //     )
 
-      if (!destinationCollectionParent) {
-        return
-      }
+  //     if (!destinationCollectionParent) {
+  //       return
+  //     }
 
-      newDestinationCollectionIndex = destinationCollectionParent.folders.length
-    }
-  }
+  //     newDestinationCollectionIndex = destinationCollectionParent.folders.length
+  //   }
+  // }
 
-  resolveSaveContextOnCollectionReorder({
-    lastIndex: pathToLastIndex(draggedCollectionIndex),
-    newIndex: pathToLastIndex(
-      destinationCollectionIndex
-        ? destinationCollectionIndex
-        : newDestinationCollectionIndex.toString()
-    ),
-    folderPath: draggedCollectionIndex.split("/").slice(0, -1).join("/"),
-  })
+  // resolveSaveContextOnCollectionReorder({
+  //   lastIndex: pathToLastIndex(draggedCollectionIndex),
+  //   newIndex: pathToLastIndex(
+  //     destinationCollectionIndex
+  //       ? destinationCollectionIndex
+  //       : newDestinationCollectionIndex.toString()
+  //   ),
+  //   folderPath: draggedCollectionIndex.split("/").slice(0, -1).join("/"),
+  // })
 
   toast.success(`${t("collection.order_changed")}`)
 }

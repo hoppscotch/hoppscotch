@@ -158,7 +158,7 @@ describe('UserService', () => {
     });
 
     test('should return a null user given a invalid email', async () => {
-      mockPrisma.user.findUniqueOrThrow.mockRejectedValueOnce('NotFoundError');
+      mockPrisma.user.findFirst.mockResolvedValueOnce(null);
 
       const result = await userService.findUserByEmail('jim@dundermifflin.com');
       expect(result).resolves.toBeNone;

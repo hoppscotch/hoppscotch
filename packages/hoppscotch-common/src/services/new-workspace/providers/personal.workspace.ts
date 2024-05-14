@@ -63,16 +63,15 @@ import {
   WorkspaceRequest,
 } from "~/services/new-workspace/workspace"
 
+import { getAffectedIndexes } from "~/helpers/collection/affectedIndex"
 import {
   getFoldersByPath,
   resolveSaveContextOnCollectionReorder,
 } from "~/helpers/collection/collection"
-import {
-  getRequestsByPath,
-  resolveSaveContextOnRequestReorder,
-} from "~/helpers/collection/request"
+import { getRequestsByPath } from "~/helpers/collection/request"
 import { initializeDownloadFile } from "~/helpers/import-export/export"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
+import { lazy } from "~/helpers/utils/lazy"
 import IconUser from "~icons/lucide/user"
 import { NewWorkspaceService } from ".."
 import {
@@ -80,8 +79,6 @@ import {
   isValidRequestHandle,
   isValidWorkspaceHandle,
 } from "../helpers"
-import { lazy } from "~/helpers/utils/lazy"
-import { getAffectedIndexes } from "~/helpers/collection/affectedIndex"
 
 export class PersonalWorkspaceProviderService
   extends Service
@@ -496,38 +493,79 @@ export class PersonalWorkspaceProviderService
     }
 
     const { collectionID, requestID } = requestHandleRef.value.data
-    const requestIndex = parseInt(requestID.split("/").slice(-1)[0])
+    const requestIndexPos = parseInt(requestID.split("/").slice(-1)[0])
 
     const requestToRemove = navigateToFolderWithIndexPath(
       restCollectionStore.value.state,
       collectionID.split("/").map((id) => parseInt(id))
-    )?.requests[requestIndex]
+    )?.requests[requestIndexPos]
 
-    removeRESTRequest(collectionID, requestIndex, requestToRemove?.id)
+    const parentCollectionSizeBeforeDeletion = getRequestsByPath(
+      this.restCollectionState.value.state,
+      collectionID
+    ).length
 
-    for (const [idx, handle] of this.issuedHandles.entries()) {
-      if (handle.value.type === "invalid") continue
+    // Requests appearing below the request being moved will be affected by the action
+    const affectedReqIndexRange =
+      parentCollectionSizeBeforeDeletion - 1 - requestIndexPos
 
-      if ("requestID" in handle.value.data) {
-        if (handle.value.data.requestID === requestID) {
-          // @ts-expect-error - We're deleting the data to invalidate the handle
-          delete this.issuedHandles[idx].value.data
+    const affectedRequestIDs = Array.from({
+      length: affectedReqIndexRange,
+    }).map((_, idx) => {
+      // Affected request indices will start from the next position of the dragged request, hence adding `1`
+      const resolvedRequestIndexPos = requestIndexPos + idx + 1
+      return `${collectionID}/${resolvedRequestIndexPos}`
+    })
 
-          this.issuedHandles[idx].value.type = "invalid"
+    removeRESTRequest(collectionID, requestIndexPos, requestToRemove?.id)
 
-          // @ts-expect-error - Setting the handle invalidation reason
-          this.issuedHandles[idx].value.reason = "REQUEST_INVALIDATED"
-        }
+    const deletedRequestHandle = this.issuedHandles.find((handle) => {
+      if (
+        handle.value.type === "invalid" ||
+        !("requestID" in handle.value.data)
+      ) {
+        return
       }
+
+      return handle.value.data.requestID === requestID
+    })
+
+    if (deletedRequestHandle) {
+      deletedRequestHandle.value.type = "invalid"
+
+      // @ts-expect-error - Setting the handle invalidation reason
+      deletedRequestHandle.value.reason = "REQUEST_INVALIDATED"
     }
 
-    // The same function is used to reorder requests since after removing, it's basically doing reorder
-    resolveSaveContextOnRequestReorder({
-      lastIndex: requestIndex,
-      newIndex: -1,
-      folderPath: collectionID,
-      length: getRequestsByPath(restCollectionStore.value.state, collectionID)
-        .length,
+    affectedRequestIDs.forEach((requestID) => {
+      const handle = this.issuedHandles.find((handle) => {
+        if (handle.value.type === "invalid") {
+          return
+        }
+
+        if (!("requestID" in handle.value.data)) {
+          return
+        }
+
+        return handle.value.data.requestID === requestID
+      })
+
+      if (
+        !handle ||
+        handle.value.type === "invalid" ||
+        !("requestID" in handle.value.data)
+      ) {
+        return
+      }
+
+      // Decrement the index pos in affected requests due to move
+      const affectedRequestIndexPos = Number(
+        handle.value.data.requestID.split("/").slice(-1)[0]
+      )
+
+      handle.value.data.requestID = `${collectionID}/${
+        affectedRequestIndexPos - 1
+      }`
     })
 
     return Promise.resolve(E.right(undefined))
@@ -913,7 +951,7 @@ export class PersonalWorkspaceProviderService
 
       const { collectionID, requestID } = handle.value.data
 
-      const reqIndexPos = requestID.slice(-1)[0]
+      const affectedRequestIndexPos = requestID.slice(-1)[0]
 
       if (requestID.startsWith(draggedCollectionID)) {
         const newCollectionID = collectionID.replace(
@@ -922,7 +960,7 @@ export class PersonalWorkspaceProviderService
         )
 
         handle.value.data.collectionID = newCollectionID
-        handle.value.data.requestID = `${newCollectionID}/${reqIndexPos}`
+        handle.value.data.requestID = `${newCollectionID}/${affectedRequestIndexPos}`
       }
     })
 
@@ -1161,11 +1199,13 @@ export class PersonalWorkspaceProviderService
       }
 
       // Decrement the index pos in affected requests due to move
-      const reqIndexPos = Number(
+      const affectedRequestIndexPos = Number(
         handle.value.data.requestID.split("/").slice(-1)[0]
       )
 
-      handle.value.data.requestID = `${sourceCollectionID}/${reqIndexPos - 1}`
+      handle.value.data.requestID = `${sourceCollectionID}/${
+        affectedRequestIndexPos - 1
+      }`
     })
 
     return Promise.resolve(E.right(undefined))

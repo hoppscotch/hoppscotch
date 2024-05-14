@@ -64,10 +64,7 @@ import {
 } from "~/services/new-workspace/workspace"
 
 import { getAffectedIndexes } from "~/helpers/collection/affectedIndex"
-import {
-  getFoldersByPath,
-  resolveSaveContextOnCollectionReorder,
-} from "~/helpers/collection/collection"
+import { getFoldersByPath } from "~/helpers/collection/collection"
 import { getRequestsByPath } from "~/helpers/collection/request"
 import { initializeDownloadFile } from "~/helpers/import-export/export"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
@@ -318,70 +315,126 @@ export class PersonalWorkspaceProviderService
       return Promise.resolve(E.left("INVALID_COLLECTION_HANDLE" as const))
     }
 
-    const { collectionID } = collectionHandleRef.value.data
+    const { collectionID: removedCollectionID } = collectionHandleRef.value.data
 
-    const isRootCollection = collectionID.split("/").length === 1
-    const collectionIndex = parseInt(collectionID)
+    const isRootCollection = this.isAlreadyInRoot(removedCollectionID)
+
+    const parentCollectionID = this.isAlreadyInRoot(removedCollectionID)
+      ? ""
+      : removedCollectionID.split("/").slice(0, -1).join("/")
+
+    const parentCollectionSizeBeforeRemoval = isRootCollection
+      ? this.restCollectionState.value.state.length
+      : getFoldersByPath(
+          this.restCollectionState.value.state,
+          parentCollectionID
+        ).length
+
+    const collectionIndexPos = isRootCollection
+      ? parseInt(removedCollectionID)
+      : this.pathToLastIndex(removedCollectionID)
+
+    const affectedCollectionIDRange =
+      parentCollectionSizeBeforeRemoval - 1 - collectionIndexPos
 
     if (isRootCollection) {
       const collectionToRemove = navigateToFolderWithIndexPath(
         restCollectionStore.value.state,
-        [collectionIndex]
+        [collectionIndexPos]
       )
 
       removeRESTCollection(
-        collectionIndex,
+        collectionIndexPos,
         collectionToRemove ? collectionToRemove.id : undefined
       )
     } else {
       const folderToRemove = path
         ? navigateToFolderWithIndexPath(
             restCollectionStore.value.state,
-            collectionID.split("/").map((id) => parseInt(id))
+            removedCollectionID.split("/").map((id) => parseInt(id))
           )
         : undefined
 
       removeRESTFolder(
-        collectionID,
+        removedCollectionID,
         folderToRemove ? folderToRemove.id : undefined
       )
     }
 
-    for (const [idx, handle] of this.issuedHandles.entries()) {
-      if (handle.value.type === "invalid") continue
+    this.issuedHandles.forEach((handle) => {
+      if (
+        handle.value.type === "invalid" ||
+        !("requestID" in handle.value.data)
+      ) {
+        return
+      }
 
-      if ("requestID" in handle.value.data) {
-        if (handle.value.data.requestID.startsWith(collectionID)) {
-          // @ts-expect-error - We're deleting the data to invalidate the handle
-          delete this.issuedHandles[idx].value.data
-
-          this.issuedHandles[idx].value.type = "invalid"
-
-          // @ts-expect-error - Setting the handle invalidation reason
-          this.issuedHandles[idx].value.reason = "REQUEST_INVALIDATED"
+      if (handle.value.data.requestID.startsWith(removedCollectionID)) {
+        handle.value = {
+          type: "invalid",
+          reason: "REQUEST_INVALIDATED",
         }
       }
-    }
+    })
 
-    if (isRootCollection) {
-      resolveSaveContextOnCollectionReorder({
-        lastIndex: collectionIndex,
-        newIndex: -1,
-        folderPath: "", // root folder
-        length: restCollectionStore.value.state.length,
+    Array.from({
+      length: affectedCollectionIDRange,
+    }).forEach((_, idx) => {
+      const resolvedCollectionIndexPos = collectionIndexPos + idx + 1
+
+      const affectedCollectionID = parentCollectionID
+        ? `${parentCollectionID}/${resolvedCollectionIndexPos}`
+        : resolvedCollectionIndexPos.toString()
+
+      this.issuedHandles.forEach((handle) => {
+        if (
+          handle.value.type === "invalid" ||
+          !("requestID" in handle.value.data)
+        ) {
+          return
+        }
+
+        // For each affected collection, we'll have to iterate over the `issuedHandles`
+        // The collection index position which has to be reduced by `1` is computed by matching against the string representation of the affected collection ID
+        // This is done to account for nested collections under each affected collection
+        if (handle.value.data.requestID.startsWith(affectedCollectionID)) {
+          const { collectionID, requestID } = handle.value.data
+
+          // Compute the length of the string representation of the affected collection ID
+          const affectedCollectionIDStrLen =
+            affectedCollectionID.split("/").length
+
+          // Obtain a subset of the collection ID till the affected collection ID string length
+          const collectionIDSubset = collectionID
+            .split("/")
+            .slice(0, affectedCollectionIDStrLen)
+            .join("/")
+
+          // Compute the index position of the subset collection ID
+          const collectionIDSubsetIndexPos =
+            this.pathToLastIndex(collectionIDSubset)
+
+          // Replace the affected collection ID with `1` reduced from the index position
+          const newAffectedCollectionID = parentCollectionID
+            ? `${parentCollectionID}/${collectionIDSubsetIndexPos - 1}`
+            : (collectionIDSubsetIndexPos - 1).toString()
+
+          const newCollectionID = collectionID.replace(
+            affectedCollectionID,
+            newAffectedCollectionID
+          )
+
+          const newRequestID = requestID.replace(
+            affectedCollectionID,
+            newAffectedCollectionID
+          )
+
+          handle.value.data.collectionID = newCollectionID
+
+          handle.value.data.requestID = newRequestID
+        }
       })
-    } else {
-      const parentCollectionID = collectionID.split("/").slice(0, -1).join("/") // remove last folder to get parent folder
-      resolveSaveContextOnCollectionReorder({
-        lastIndex: this.pathToLastIndex(collectionID),
-        newIndex: -1,
-        folderPath: parentCollectionID,
-        length: getFoldersByPath(
-          restCollectionStore.value.state,
-          parentCollectionID
-        ).length,
-      })
-    }
+    })
 
     return Promise.resolve(E.right(undefined))
   }
@@ -531,10 +584,10 @@ export class PersonalWorkspaceProviderService
     })
 
     if (deletedRequestHandle) {
-      deletedRequestHandle.value.type = "invalid"
-
-      // @ts-expect-error - Setting the handle invalidation reason
-      deletedRequestHandle.value.reason = "REQUEST_INVALIDATED"
+      deletedRequestHandle.value = {
+        type: "invalid",
+        reason: "REQUEST_INVALIDATED",
+      }
     }
 
     affectedRequestIDs.forEach((requestID) => {

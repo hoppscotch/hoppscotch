@@ -497,9 +497,7 @@ import { WorkspaceRESTCollectionTreeAdapter } from "~/helpers/adapters/Workspace
 import { TeamCollection } from "~/helpers/backend/graphql"
 import {
   getFoldersByPath,
-  resolveSaveContextOnCollectionReorder,
   updateInheritedPropertiesForAffectedRequests,
-  updateSaveContextForAffectedRequests,
 } from "~/helpers/collection/collection"
 import { getRequestsByPath } from "~/helpers/collection/request"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
@@ -1983,35 +1981,6 @@ const updateCollectionOrder = async (
     return
   }
 
-  // Moving to the last position indicated by `destinationCollectionIndex` being `null` requires computing the index path of the new child collection being inserted
-  // let newDestinationCollectionIndex = 0
-  // if (destinationCollectionIndex === null) {
-  //   if (destinationCollectionParentIndex === null) {
-  //     newDestinationCollectionIndex = restCollectionState.value.length - 1
-  //   } else {
-  //     const destinationCollectionParent = navigateToFolderWithIndexPath(
-  //       restCollectionState.value,
-  //       destinationCollectionParentIndex.split("/").map((id) => parseInt(id))
-  //     )
-
-  //     if (!destinationCollectionParent) {
-  //       return
-  //     }
-
-  //     newDestinationCollectionIndex = destinationCollectionParent.folders.length
-  //   }
-  // }
-
-  // resolveSaveContextOnCollectionReorder({
-  //   lastIndex: pathToLastIndex(draggedCollectionIndex),
-  //   newIndex: pathToLastIndex(
-  //     destinationCollectionIndex
-  //       ? destinationCollectionIndex
-  //       : newDestinationCollectionIndex.toString()
-  //   ),
-  //   folderPath: draggedCollectionIndex.split("/").slice(0, -1).join("/"),
-  // })
-
   toast.success(`${t("collection.order_changed")}`)
 }
 
@@ -2192,16 +2161,6 @@ const isSameSameParent = (
 const pathToIndex = (path: string) => {
   const pathArr = path.split("/")
   return pathArr
-}
-
-/**
- * Used to get the index of the request from the path
- * @param path The path of the request
- * @returns The index of the request
- */
-const pathToLastIndex = (path: string) => {
-  const pathArr = path.split("/")
-  return parseInt(pathArr[pathArr.length - 1])
 }
 
 const resolveConfirmModal = (title: string | null) => {

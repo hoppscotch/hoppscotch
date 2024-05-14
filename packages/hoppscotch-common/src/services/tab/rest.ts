@@ -59,7 +59,7 @@ export class RESTTabService extends TabService<HoppRESTDocument> {
         const requestHandle = tab.document.saveContext.requestHandle
 
         if (!ctx.requestHandle || !requestHandle) {
-          return null
+          continue
         }
 
         const tabRequestHandleRef = requestHandle.get()
@@ -69,7 +69,7 @@ export class RESTTabService extends TabService<HoppRESTDocument> {
           requestHandleRef.value.type === "invalid" ||
           tabRequestHandleRef.value.type === "invalid"
         ) {
-          return null
+          continue
         }
 
         if (

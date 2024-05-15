@@ -1703,27 +1703,28 @@ const dropRequest = async (payload: {
 
   const { auth, headers } = cascadingAuthHeadersHandle.value.data
 
-  const possibleTab = tabs.getTabRefWithSaveContext({
-    originLocation: "workspace-user-collection",
-    requestHandle,
-  })
+  const requestHandleRef = requestHandle.get()
 
-  // If there is a tab attached to this request, update the document `inheritedProperties`
-  if (possibleTab) {
-    // @ts-expect-error - Updating the handle
-    possibleTab.value.document.saveContext.requestHandle.data = {
-      // @ts-expect-error - Updating the handle
-      ...possibleTab.value.document.saveContext.requestHandle.data,
-      collectionID: destinationCollectionIndex,
-      requestID: `${destinationCollectionIndex}/${(
-        getRequestsByPath(restCollectionState.value, destinationCollectionIndex)
-          .length - 1
-      ).toString()}`,
-    }
+  if (requestHandleRef.value.type === "ok") {
+    const newRequestIndexPos = (
+      getRequestsByPath(restCollectionState.value, destinationCollectionIndex)
+        .length - 1
+    ).toString()
 
-    possibleTab.value.document.inheritedProperties = {
-      auth,
-      headers,
+    requestHandleRef.value.data.collectionID = destinationCollectionIndex
+    requestHandleRef.value.data.requestID = `${destinationCollectionIndex}/${newRequestIndexPos}`
+
+    const possibleTab = tabs.getTabRefWithSaveContext({
+      originLocation: "workspace-user-collection",
+      requestHandle: { get: () => requestHandleRef },
+    })
+
+    // If there is a tab attached to this request, update the document `inheritedProperties`
+    if (possibleTab) {
+      possibleTab.value.document.inheritedProperties = {
+        auth,
+        headers,
+      }
     }
   }
 

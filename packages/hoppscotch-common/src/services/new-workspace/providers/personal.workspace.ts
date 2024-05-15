@@ -1,7 +1,5 @@
 import {
   HoppCollection,
-  HoppRESTAuth,
-  HoppRESTHeaders,
   HoppRESTRequest,
   makeCollection,
 } from "@hoppscotch/data"
@@ -369,7 +367,8 @@ export class PersonalWorkspaceProviderService
         return
       }
 
-      if (handle.value.data.requestID.startsWith(removedCollectionID)) {
+      // TODO: Obtain collection ID from request ID instead
+      if (handle.value.data.collectionID.startsWith(removedCollectionID)) {
         handle.value = {
           type: "invalid",
           reason: "REQUEST_INVALIDATED",
@@ -1623,8 +1622,8 @@ export class PersonalWorkspaceProviderService
                 return { type: "ok", data: { auth, headers } }
               }
 
-              const parentFolderAuth: HoppRESTAuth = parentFolder.auth
-              const parentFolderHeaders: HoppRESTHeaders = parentFolder.headers
+              const { auth: parentFolderAuth, headers: parentFolderHeaders } =
+                parentFolder
 
               // check if the parent folder has authType 'inherit' and if it is the root folder
               if (

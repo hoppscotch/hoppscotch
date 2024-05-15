@@ -142,6 +142,11 @@ watch(workspace, (newWorkspace) => {
       })
     }
   } else if (newWorkspace.type === "team") {
+    if (selectedEnvironmentIndex.value.type !== "MY_ENV") {
+      setSelectedEnvironmentIndex({
+        type: "NO_ENV_SELECTED",
+      })
+    }
     updateSelectedTeam(newWorkspace)
   }
 })

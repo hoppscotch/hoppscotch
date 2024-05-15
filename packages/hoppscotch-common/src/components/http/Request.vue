@@ -35,7 +35,7 @@
                   :key="`method-${index}`"
                   :label="method"
                   :style="{
-                    color: getMethodLabelColorClassOf({ method }),
+                    color: getMethodLabelColor(method),
                   }"
                   @click="
                     () => {
@@ -261,7 +261,7 @@ import { InterceptorService } from "~/services/interceptor.service"
 import { HoppTab } from "~/services/tab"
 import { HoppRESTDocument } from "~/helpers/rest/document"
 import { RESTTabService } from "~/services/tab/rest"
-import { getMethodLabelColorClassOf } from "~/helpers/rest/labelColoring"
+import { getMethodLabelColor } from "~/helpers/rest/labelColoring"
 import { NewWorkspaceService } from "~/services/new-workspace"
 
 const t = useI18n()
@@ -506,24 +506,24 @@ const cycleDownMethod = () => {
 }
 
 const saveRequest = async () => {
-  const saveCtx = tab.value.document.saveContext
+  const { saveContext } = tab.value.document
 
-  if (!saveCtx) {
+  if (!saveContext) {
     showSaveRequestModal.value = true
     return
   }
 
-  if (saveCtx.originLocation === "workspace-user-collection") {
+  if (saveContext.originLocation === "workspace-user-collection") {
     const updatedRequest = tab.value.document.request
 
     if (
       !workspaceService.activeWorkspaceHandle.value ||
-      !saveCtx.requestHandle
+      !saveContext.requestHandle
     ) {
       return
     }
 
-    const { requestHandle } = saveCtx
+    const { requestHandle } = saveContext
 
     const requestHandleRef = requestHandle.get()
 
@@ -554,12 +554,12 @@ const saveRequest = async () => {
     tab.value.document.isDirty = false
 
     tab.value.document.saveContext = {
-      ...saveCtx,
+      ...saveContext,
       requestHandle,
     }
 
     toast.success(`${t("request.saved")}`)
-  } else if (saveCtx.originLocation === "team-collection") {
+  } else if (saveContext.originLocation === "team-collection") {
     const req = tab.value.document.request
 
     // TODO: handle error case (NOTE: overwriteRequestTeams is async)
@@ -572,7 +572,7 @@ const saveRequest = async () => {
       })
 
       runMutation(UpdateRequestDocument, {
-        requestID: saveCtx.requestID,
+        requestID: saveContext.requestID,
         data: {
           title: req.name,
           request: JSON.stringify(req),

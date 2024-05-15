@@ -75,12 +75,13 @@ export class TeamInvitationService {
     if (!isEmailValid) return E.left(INVALID_EMAIL);
 
     try {
-      const teamInvite = await this.prisma.teamInvitation.findUniqueOrThrow({
+      const teamInvite = await this.prisma.teamInvitation.findFirstOrThrow({
         where: {
-          teamID_inviteeEmail: {
-            inviteeEmail: inviteeEmail,
-            teamID: teamID,
+          inviteeEmail: {
+            equals: inviteeEmail,
+            mode: 'insensitive',
           },
+          teamID,
         },
       });
 

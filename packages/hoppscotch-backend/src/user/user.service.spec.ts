@@ -149,7 +149,7 @@ beforeEach(() => {
 describe('UserService', () => {
   describe('findUserByEmail', () => {
     test('should successfully return a valid user given a valid email', async () => {
-      mockPrisma.user.findUniqueOrThrow.mockResolvedValueOnce(user);
+      mockPrisma.user.findFirst.mockResolvedValueOnce(user);
 
       const result = await userService.findUserByEmail(
         'dwight@dundermifflin.com',
@@ -158,7 +158,7 @@ describe('UserService', () => {
     });
 
     test('should return a null user given a invalid email', async () => {
-      mockPrisma.user.findUniqueOrThrow.mockRejectedValueOnce('NotFoundError');
+      mockPrisma.user.findFirst.mockResolvedValueOnce(null);
 
       const result = await userService.findUserByEmail('jim@dundermifflin.com');
       expect(result).resolves.toBeNone;

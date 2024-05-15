@@ -299,7 +299,10 @@ export class ShortcodeService implements UserDataHandler, OnModuleInit {
       where: userEmail
         ? {
             User: {
-              email: userEmail,
+              email: {
+                equals: userEmail,
+                mode: 'insensitive',
+              },
             },
           }
         : undefined,

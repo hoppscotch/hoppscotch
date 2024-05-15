@@ -1,12 +1,13 @@
 import { HoppCollection } from "@hoppscotch/data"
 import * as E from "fp-ts/Either"
-import { ref } from "vue"
 
 import { getService } from "~/modules/dioc"
 import { GQLTabService } from "~/services/tab/graphql"
 import { RESTTabService } from "~/services/tab/rest"
 import { runGQLQuery } from "../backend/GQLClient"
 import { GetSingleRequestDocument } from "../backend/graphql"
+import { HoppGQLSaveContext } from "../graphql/document"
+import { HoppRESTSaveContext } from "../rest/document"
 import { HoppInheritedProperty } from "../types/HoppInheritedProperties"
 import { getAffectedIndexes } from "./affectedIndex"
 
@@ -242,6 +243,33 @@ function removeDuplicatesAndKeepLast(arr: HoppInheritedProperty["headers"]) {
   return result
 }
 
+function getSaveContextCollectionID(
+  saveContext: HoppRESTSaveContext | HoppGQLSaveContext | undefined
+): string | undefined {
+  if (!saveContext) {
+    return
+  }
+
+  const { originLocation } = saveContext
+
+  if (originLocation === "team-collection") {
+    return saveContext.collectionID
+  }
+
+  if (originLocation === "user-collection") {
+    return saveContext.folderPath
+  }
+
+  const requestHandleRef = saveContext.requestHandle?.get()
+
+  if (!requestHandleRef || requestHandleRef.value.type === "invalid") {
+    return
+  }
+
+  // TODO: Remove `collectionID` and obtain it from `requestID`
+  return requestHandleRef.value.data.collectionID
+}
+
 export function updateInheritedPropertiesForAffectedRequests(
   path: string,
   inheritedProperties: HoppInheritedProperty,
@@ -250,73 +278,20 @@ export function updateInheritedPropertiesForAffectedRequests(
   const tabService =
     type === "rest" ? getService(RESTTabService) : getService(GQLTabService)
 
-  const tabs = tabService.getTabsRefTo((tab) => {
-    if (tab.document.saveContext?.originLocation === "user-collection") {
-      return tab.document.saveContext.folderPath.startsWith(path)
-    }
+  const effectedTabs = tabService.getTabsRefTo((tab) => {
+    const saveContext = tab.document.saveContext
 
-    if (tab.document.saveContext?.originLocation === "team-collection") {
-      return Boolean(tab.document.saveContext.collectionID?.startsWith(path))
-    }
-
-    const collectionID = tab.document.saveContext?.requestID
-      ?.split("/")
-      .slice(0, -1)
-      .join("/")
-
-    return Boolean(collectionID?.startsWith(path))
+    const collectionID = getSaveContextCollectionID(saveContext)
+    return collectionID?.startsWith(path) ?? false
   })
 
-  const tabsEffectedByAuth = tabs.filter((tab) => {
-    if (tab.value.document.saveContext?.originLocation === "user-collection") {
-      return (
-        tab.value.document.saveContext.folderPath.startsWith(path) &&
-        path ===
-          folderPathCloseToSaveContext(
-            tab.value.document.inheritedProperties?.auth.parentID,
-            path,
-            tab.value.document.saveContext.folderPath
-          )
-      )
-    }
-
-    if (
-      tab.value.document.saveContext?.originLocation !==
-      "workspace-user-collection"
-    ) {
-      return false
-    }
-
-    return (
-      tab.value.document.saveContext.folderPath.startsWith(path) &&
-      path ===
-        folderPathCloseToSaveContext(
-          tab.value.document.inheritedProperties?.auth.parentID,
-          path,
-          tab.value.document.saveContext.folderPath
-        )
-    )
-  })
-
-  tabsEffectedByAuth.map((tab) => {
+  effectedTabs.map((tab) => {
     const inheritedParentID =
       tab.value.document.inheritedProperties?.auth.parentID
 
-    let contextPath = ""
-
-    if (tab.value.document.saveContext?.originLocation === "user-collection") {
-      contextPath = tab.value.document.saveContext.folderPath
-    } else if (
-      tab.value.document.saveContext?.originLocation ===
-      "workspace-user-collection"
-    ) {
-      const requestHandle = ref(tab.value.document.saveContext.requestHandle)
-      if (requestHandle.value?.type === "ok") {
-        contextPath = requestHandle.value.data.collectionID
-      }
-    } else {
-      contextPath = tab.value.document.saveContext?.collectionID ?? ""
-    }
+    const contextPath = getSaveContextCollectionID(
+      tab.value.document.saveContext
+    )
 
     const effectedPath = folderPathCloseToSaveContext(
       inheritedParentID,

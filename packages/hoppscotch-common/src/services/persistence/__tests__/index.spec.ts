@@ -572,8 +572,6 @@ describe("PersistenceService", () => {
 
         invokeSetupLocalPersistence()
 
-        // toastErrorFn = vi.fn()
-
         expect(getItemSpy).toHaveBeenCalledWith(settingsKey)
 
         expect(toastErrorFn).not.toHaveBeenCalledWith(settingsKey)

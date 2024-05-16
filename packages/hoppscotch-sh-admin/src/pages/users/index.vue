@@ -174,21 +174,21 @@
               class="py-4 border-divider rounded-r-none bg-emerald-800 text-secondaryDark"
             />
             <HoppButtonSecondary
-              v-if="showAdminButton"
+              v-if="areNonAdminsSelected"
               :icon="IconUserCheck"
               :label="t('users.make_admin')"
               class="py-4 border-divider border-r-1 rounded-none hover:bg-emerald-600"
               @click="confirmUsersToAdmin = true"
             />
             <HoppButtonSecondary
-              v-if="showRemoveAdminButton"
+              v-if="areAdminsSelected"
               :icon="IconUserMinus"
               :label="t('users.remove_admin_status')"
               class="py-4 border-divider border-r-1 rounded-none hover:bg-orange-500"
               @click="confirmAdminsToUsers = true"
             />
             <HoppButtonSecondary
-              v-if="showDeleteButton"
+              v-if="areNonAdminsSelected"
               :icon="IconTrash"
               :label="t('users.delete_users')"
               class="py-4 border-divider rounded-none hover:bg-red-500"
@@ -307,15 +307,11 @@ const {
 // Selected Rows
 const selectedRows = ref<UsersListQuery['infra']['allUsers']>([]);
 
-const showAdminButton = computed(() =>
-  selectedRows.value.some((user) => !user.isAdmin)
-);
-
-const showRemoveAdminButton = computed(() =>
+const areAdminsSelected = computed(() =>
   selectedRows.value.some((user) => user.isAdmin)
 );
 
-const showDeleteButton = computed(() =>
+const areNonAdminsSelected = computed(() =>
   selectedRows.value.some((user) => !user.isAdmin)
 );
 

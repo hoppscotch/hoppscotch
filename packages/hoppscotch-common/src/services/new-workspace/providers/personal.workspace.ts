@@ -948,6 +948,11 @@ export class PersonalWorkspaceProviderService
           .slice(0, draggedCollectionIDStrLength)
           .join("/")
 
+        const destinationParentCollectionIDSubset = destinationCollectionID
+          .split("/")
+          .slice(0, -1)
+          .join("/")
+
         // Reduce `1` from the index position to account for the dragged collection
         // Dragged collection doesn't exist anymore at the previous level
         const collectionIDSubsetIndexPos = Number(
@@ -957,10 +962,7 @@ export class PersonalWorkspaceProviderService
         // Replace the destination collection ID with `1` reduced from the index position
         const replacedDestinationCollectionID = destinationCollectionID.replace(
           destinationCollectionIDSubset,
-          `${destinationCollectionIDSubset
-            .split("/")
-            .slice(0, -1)
-            .join("/")}/${collectionIDSubsetIndexPos}`
+          `${destinationParentCollectionIDSubset}/${collectionIDSubsetIndexPos}`
         )
 
         const resolvedDestinationCollectionIDPrefix = this.isAlreadyInRoot(
@@ -1022,6 +1024,11 @@ export class PersonalWorkspaceProviderService
         const affectedCollectionIndexPos = draggedCollectionIndexPos + idx + 1
 
         const affectedCollectionID = `${draggedParentCollectionID}/${affectedCollectionIndexPos}`
+
+        // Return early for the case when a collection is moved to a sibling collection below it where the destination collection becomes one among the affected collections
+        if (resolvedDestinationCollectionID.startsWith(affectedCollectionID)) {
+          return
+        }
 
         // The index position will be reduced by `1` for the affected collections
         const newAffectedCollectionID = `${draggedParentCollectionID}/${

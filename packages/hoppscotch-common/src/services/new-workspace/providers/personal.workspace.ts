@@ -91,11 +91,9 @@ export class PersonalWorkspaceProviderService
     workspaceSelectorPriority: 100,
   })
 
-  private restCollectionState: Ref<{ state: HoppCollection[] }>
+  public restCollectionState: Ref<{ state: HoppCollection[] }>
 
-  private issuedHandles: WritableHandleRef<
-    WorkspaceCollection | WorkspaceRequest
-  >[] = []
+  public issuedHandles: WritableHandleRef<WorkspaceRequest>[] = []
 
   public constructor() {
     super()
@@ -337,7 +335,7 @@ export class PersonalWorkspaceProviderService
 
     if (isRootCollection) {
       const collectionToRemove = navigateToFolderWithIndexPath(
-        restCollectionStore.value.state,
+        this.restCollectionState.value.state,
         [collectionIndexPos]
       )
 
@@ -348,7 +346,7 @@ export class PersonalWorkspaceProviderService
     } else {
       const folderToRemove = path
         ? navigateToFolderWithIndexPath(
-            restCollectionStore.value.state,
+            this.restCollectionState.value.state,
             removedCollectionID.split("/").map((id) => parseInt(id))
           )
         : undefined
@@ -548,7 +546,7 @@ export class PersonalWorkspaceProviderService
     const requestIndexPos = parseInt(requestID.split("/").slice(-1)[0])
 
     const requestToRemove = navigateToFolderWithIndexPath(
-      restCollectionStore.value.state,
+      this.restCollectionState.value.state,
       collectionID.split("/").map((id) => parseInt(id))
     )?.requests[requestIndexPos]
 
@@ -1079,7 +1077,7 @@ export class PersonalWorkspaceProviderService
       requestHandleRef.value.data
 
     const collectionRequestCount = getRequestsByPath(
-      restCollectionStore.value.state,
+      this.restCollectionState.value.state,
       collectionID
     ).length
 
@@ -1140,6 +1138,12 @@ export class PersonalWorkspaceProviderService
       return { affectedRequestHandleIdx, newRequestIndexPos }
     })
 
+    updateRESTRequestOrder(
+      this.pathToLastIndex(draggedRequestID),
+      destinationRequestID ? destinationRequestIndexPos : null,
+      destinationCollectionID
+    )
+
     affectedRequestHandleUpdateInfo.forEach(
       ({ affectedRequestHandleIdx, newRequestIndexPos }) => {
         const handle = this.issuedHandles[affectedRequestHandleIdx]
@@ -1154,12 +1158,6 @@ export class PersonalWorkspaceProviderService
 
         handle.value.data.requestID = `${collectionID}/${newRequestIndexPos}`
       }
-    )
-
-    updateRESTRequestOrder(
-      this.pathToLastIndex(draggedRequestID),
-      destinationRequestID ? destinationRequestIndexPos : null,
-      destinationCollectionID
     )
 
     return Promise.resolve(E.right(undefined))
@@ -1183,7 +1181,7 @@ export class PersonalWorkspaceProviderService
 
     const draggedRequestIndexPos = this.pathToLastIndex(draggedRequestID)
 
-    const movedRequestHandle = this.issuedHandles.find((handle) => {
+    const draggedRequestHandle = this.issuedHandles.find((handle) => {
       if (handle.value.type === "invalid") {
         return
       }
@@ -1196,15 +1194,15 @@ export class PersonalWorkspaceProviderService
     })
 
     if (
-      !movedRequestHandle ||
-      movedRequestHandle.value.type === "invalid" ||
-      !("requestID" in movedRequestHandle.value.data)
+      !draggedRequestHandle ||
+      draggedRequestHandle.value.type === "invalid" ||
+      !("requestID" in draggedRequestHandle.value.data)
     ) {
       return Promise.resolve(E.left("INVALID_REQUEST_HANDLE" as const))
     }
 
     const draggedCollectionReqCountBeforeMove = getRequestsByPath(
-      restCollectionStore.value.state,
+      this.restCollectionState.value.state,
       sourceCollectionID
     ).length
 
@@ -1227,12 +1225,12 @@ export class PersonalWorkspaceProviderService
     )
 
     const destinationCollectionReqCount = getRequestsByPath(
-      restCollectionStore.value.state,
+      this.restCollectionState.value.state,
       destinationCollectionID
     ).length
 
-    movedRequestHandle.value.data.collectionID = destinationCollectionID
-    movedRequestHandle.value.data.requestID = `${destinationCollectionID}/${
+    draggedRequestHandle.value.data.collectionID = destinationCollectionID
+    draggedRequestHandle.value.data.requestID = `${destinationCollectionID}/${
       destinationCollectionReqCount - 1
     }`
 

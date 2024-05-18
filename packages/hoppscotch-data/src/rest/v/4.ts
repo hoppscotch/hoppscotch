@@ -35,9 +35,39 @@ export const HoppRESTAuth = z
 
 export type HoppRESTAuth = z.infer<typeof HoppRESTAuth>
 
+// export type HoppRESTExampleResponse = {
+//   type: string
+//   headers: { key: string; value: string }[]
+//   body: string
+//   statusCode: number
+//   meta: {
+//     responseSize: number // in bytes
+//     responseDuration: number // in millis
+//   }
+// }
+//
+export const HoppRESTExampleResponse = z.object({
+  name: z.string(),
+  type: z.string(),
+  headers: z.array(z.object({
+    key: z.string(),
+    value: z.string()
+  })),
+  body: z.string().catch(""),
+  statusCode: z.number().catch(200),
+  meta: z.object({
+    responseSize: z.number(),
+    responseDuration: z.number()
+  })
+})
+
+
+export type HoppRESTExampleResponse = z.infer<typeof HoppRESTExampleResponse>
+
 export const V4_SCHEMA = V3_SCHEMA.extend({
   v: z.literal("4"),
   auth: HoppRESTAuth,
+  responses: z.array(HoppRESTExampleResponse)
 })
 
 export default defineVersion({
@@ -55,6 +85,7 @@ export default defineVersion({
               ? ("QUERY_PARAMS" as const)
               : ("HEADERS" as const),
         },
+        responses: []
       }
     }
 
@@ -64,6 +95,7 @@ export default defineVersion({
         ...old.auth,
       },
       v: "4" as const,
+      responses: []
     }
   },
 })

@@ -236,6 +236,34 @@
                   requestIndex: pathToIndex(node.id),
                 })
             "
+            @select-request-response="
+              (response) =>
+                node.data.type === 'requests' &&
+                selectRequestResponse({
+                  request: node.data.data.data,
+                  folderPath: node.data.data.parentIndex,
+                  requestIndex: pathToIndex(node.id),
+                  response,
+                })
+            "
+            @remove-response="
+              (idx) =>
+                node.data.type === 'requests' &&
+                emit('remove-response', {
+                  folderPath: node.data.data.parentIndex,
+                  requestIndex: pathToIndex(node.id),
+                  responseIndex: idx,
+                })
+            "
+            @edit-response="
+              (idx) =>
+                node.data.type === 'requests' &&
+                emit('edit-response', {
+                  folderPath: node.data.data.parentIndex,
+                  requestIndex: pathToIndex(node.id),
+                  responseIndex: idx,
+                })
+            "
             @share-request="
               node.data.type === 'requests' &&
                 emit('share-request', {
@@ -339,6 +367,7 @@ import IconPlus from "~icons/lucide/plus"
 import IconHelpCircle from "~icons/lucide/help-circle"
 import IconImport from "~icons/lucide/folder-down"
 import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
+import type { HoppRESTExampleResponse } from "@hoppscotch/data"
 import { computed, PropType, Ref, toRef } from "vue"
 import { GetMyTeamsQuery } from "~/helpers/backend/graphql"
 import { ChildrenResult, SmartTreeAdapter } from "@hoppscotch/ui/helpers"
@@ -480,12 +509,29 @@ const emit = defineEmits<{
     }
   ): void
   (
+    event: "remove-response",
+    payload: {
+      folderPath: string | null
+      requestIndex: string
+      responseIndex: number
+    }
+  ): void
+  (
+    event: "edit-response",
+    payload: {
+      folderPath: string | null
+      requestIndex: string
+      responseIndex: number
+    }
+  ): void
+  (
     event: "select-request",
     payload: {
       request: HoppRESTRequest
       folderPath: string
       requestIndex: string
       isActive: boolean
+      response: HoppRESTExampleResponse
     }
   ): void
   (
@@ -604,6 +650,31 @@ const selectRequest = (data: {
       folderPath,
       requestIndex,
       isActive: isActiveRequest(folderPath, parseInt(requestIndex)),
+    })
+  }
+}
+
+const selectRequestResponse = (data: {
+  request: HoppRESTRequest
+  folderPath: string
+  requestIndex: string
+  response: HoppRESTExampleResponse
+}) => {
+  const { request, folderPath, requestIndex, response } = data
+
+  if (props.saveRequest) {
+    emit("select", {
+      pickedType: "my-request",
+      folderPath: folderPath,
+      requestIndex: parseInt(requestIndex),
+    })
+  } else {
+    emit("select-request", {
+      request,
+      folderPath,
+      requestIndex,
+      isActive: isActiveRequest(folderPath, parseInt(requestIndex)),
+      response,
     })
   }
 }

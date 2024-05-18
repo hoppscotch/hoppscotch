@@ -1,5 +1,6 @@
 {
   "action": {
+    "add_request_example_response": "Save example",
     "add": "Add",
     "autoscroll": "Autoscroll",
     "cancel": "Cancel",
@@ -175,7 +176,7 @@
     "different_parent": "Cannot reorder collection with different parent",
     "edit": "Edit Collection",
     "import_or_create": "Import or create a collection",
-    "import_collection":"Import Collection",
+    "import_collection": "Import Collection",
     "invalid_name": "Please provide a name for the collection",
     "invalid_root_move": "Collection already in the root",
     "moved": "Moved Successfully",
@@ -203,6 +204,7 @@
     "remove_folder": "Are you sure you want to permanently delete this folder?",
     "remove_history": "Are you sure you want to permanently delete all history?",
     "remove_request": "Are you sure you want to permanently delete this request?",
+    "remove_response": "Are you sure you want to permanently delete this response?",
     "remove_shared_request": "Are you sure you want to permanently delete this shared request?",
     "remove_team": "Are you sure you want to delete this workspace?",
     "remove_telemetry": "Are you sure you want to opt-out of Telemetry?",
@@ -485,6 +487,7 @@
     "confirm": "Confirm",
     "customize_request": "Customize Request",
     "edit_request": "Edit Request",
+    "edit_response": "Edit Response",
     "import_export": "Import / Export",
     "share_request": "Share Request"
   },
@@ -853,7 +856,7 @@
       "switch_to_personal": "Switch to your personal workspace",
       "title": "Workspaces"
     },
-    "phrases":{
+    "phrases": {
       "try": "Try",
       "import_collections": "Import collections",
       "create_environment": "Create environment",
@@ -901,6 +904,7 @@
     "published_message": "Published message: {message} to topic: {topic}",
     "reconnection_error": "Failed to reconnect",
     "show": "Show",
+    "changed": "Changed",
     "subscribed_failed": "Failed to subscribe to topic: {topic}",
     "subscribed_success": "Successfully subscribed to topic: {topic}",
     "unsubscribed_failed": "Failed to unsubscribe from topic: {topic}",

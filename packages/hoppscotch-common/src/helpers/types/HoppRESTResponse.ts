@@ -1,4 +1,6 @@
 import { HoppRESTRequest } from "@hoppscotch/data"
+import { HoppRESTExampleResponse } from "@hoppscotch/data"
+import { getStatusCodeReasonPhrase } from "../utils/statusCodes"
 import { Component } from "vue"
 
 export type HoppRESTResponseHeader = { key: string; value: string }
@@ -47,3 +49,35 @@ export type HoppRESTResponse =
       component: Component
       req: HoppRESTRequest
     }
+
+export const fromResponse = (
+  response: HoppRESTResponse
+): HoppRESTExampleResponse | undefined => {
+  if (response.type !== "success") {
+    return undefined
+  }
+
+  const statusPhrase = getStatusCodeReasonPhrase(
+    response.statusCode,
+    response.statusText
+  )
+  try {
+    return {
+      name: `${response.statusCode}\xA0 • \xA0 ${statusPhrase}`,
+      type: response.type,
+      headers: response.headers,
+      body: new TextDecoder("utf-8").decode(response.body),
+      statusCode: response.statusCode,
+      meta: response.meta,
+    }
+  } catch (err) {
+    return {
+      name: `${response.statusCode}\xA0 • \xA0 ${statusPhrase}`,
+      type: response.type,
+      headers: response.headers,
+      body: response.body,
+      statusCode: response.statusCode,
+      meta: response.meta,
+    }
+  }
+}

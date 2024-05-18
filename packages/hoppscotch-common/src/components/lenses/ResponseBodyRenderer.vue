@@ -14,6 +14,7 @@
       <component
         :is="lensRendererFor(lens.renderer)"
         :response="doc.response"
+        :doc="doc"
       />
     </HoppSmartTab>
     <HoppSmartTab

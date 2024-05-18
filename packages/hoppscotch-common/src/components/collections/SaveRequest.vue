@@ -218,6 +218,7 @@ const saveRequestAs = async () => {
       : cloneDeep(GQLTabs.currentActiveTab.value.document.request)
 
   requestUpdated.name = requestName.value
+  requestUpdated.responses = []
 
   if (picked.value.pickedType === "my-collection") {
     if (!isHoppRESTRequest(requestUpdated))

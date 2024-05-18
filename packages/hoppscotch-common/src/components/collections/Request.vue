@@ -152,6 +152,21 @@
       </div>
     </div>
     <div
+      v-if="showChildren && hasResponseExamples"
+      class="border-l border-dividerLight text-secondaryLight px-4 items-center justify-center"
+    >
+      <CollectionsExample
+        v-for="(response, index) in request.responses"
+        :key="`response-example-${index}`"
+        class="border-l border-dividerLight"
+        :request="request"
+        :response-index="index"
+        @select-response="() => selectRequestWithResponse(response)"
+        @delete-response="() => emit('remove-response', index)"
+        @edit-response="() => emit('edit-response', index)"
+      />
+    </div>
+    <div
       class="w-full transition"
       :class="[
         {
@@ -185,6 +200,7 @@ import {
 } from "~/newstore/reordering"
 import { useReadonlyStream } from "~/composables/stream"
 import { getMethodLabelColorClassOf } from "~/helpers/rest/labelColoring"
+import type { HoppRESTExampleResponse } from "@hoppscotch/data"
 
 type CollectionType = "my-collections" | "team-collections"
 
@@ -252,7 +268,10 @@ const emit = defineEmits<{
   (event: "edit-request"): void
   (event: "duplicate-request"): void
   (event: "remove-request"): void
+  (event: "remove-response", index: number): void
+  (event: "edit-response", index: number): void
   (event: "select-request"): void
+  (event: "select-request-response", response: HoppRESTExampleResponse): void
   (event: "share-request"): void
   (event: "drag-request", payload: DataTransfer): void
   (event: "update-request-order", payload: DataTransfer): void
@@ -269,6 +288,8 @@ const shareAction = ref<HTMLButtonElement | null>(null)
 const dragging = ref(false)
 const ordering = ref(false)
 const orderingLastItem = ref(false)
+
+const showChildren = ref(false)
 
 const currentReorderingStatus = useReadonlyStream(currentReorderingStatus$, {
   type: "collection",
@@ -287,6 +308,11 @@ watch(
 
 const selectRequest = () => {
   emit("select-request")
+  showChildren.value = !showChildren.value
+}
+
+const selectRequestWithResponse = (response: HoppRESTExampleResponse) => {
+  emit("select-request-response", response)
 }
 
 const dragStart = ({ dataTransfer }: DragEvent) => {
@@ -300,6 +326,10 @@ const dragStart = ({ dataTransfer }: DragEvent) => {
     })
   }
 }
+
+const hasResponseExamples = computed(() => {
+  return props.request.responses?.length > 0
+})
 
 const isSameRequest = computed(() => {
   return currentReorderingStatus.value.id === props.requestID

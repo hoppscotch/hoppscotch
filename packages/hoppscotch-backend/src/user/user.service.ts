@@ -174,6 +174,7 @@ export class UserService {
         displayName: userDisplayName,
         email: profile.emails[0].value,
         photoURL: userPhotoURL,
+        lastLoggedOn: new Date(),
         providerAccounts: {
           create: {
             provider: profile.provider,
@@ -236,6 +237,7 @@ export class UserService {
         data: {
           displayName: !profile.displayName ? null : profile.displayName,
           photoURL: !profile.photos ? null : profile.photos[0].value,
+          lastLoggedOn: new Date(),
         },
       });
       return E.right(updatedUser);

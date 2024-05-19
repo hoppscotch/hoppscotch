@@ -114,7 +114,7 @@ export class UserService {
    * @param userUid User uid
    * @returns Either of User with updated refreshToken
    */
-  async UpdateUserRefreshToken(refreshTokenHash: string, userUid: string) {
+  async updateUserRefreshToken(refreshTokenHash: string, userUid: string) {
     try {
       const user = await this.prisma.user.update({
         where: {
@@ -122,6 +122,7 @@ export class UserService {
         },
         data: {
           refreshToken: refreshTokenHash,
+          lastLoggedOn: new Date(),
         },
       });
 
@@ -141,6 +142,7 @@ export class UserService {
     const createdUser = await this.prisma.user.create({
       data: {
         email: email,
+        lastLoggedOn: new Date(),
         providerAccounts: {
           create: {
             provider: 'magic',
@@ -222,7 +224,7 @@ export class UserService {
   }
 
   /**
-   * Update User displayName and photoURL
+   * Update User displayName and photoURL when logged in via a SSO provider
    *
    * @param user User object
    * @param profile Data received from SSO provider on the users account
@@ -291,7 +293,7 @@ export class UserService {
   }
 
   /**
-   * Update a user's data
+   * Update a user's displayName
    * @param userUID User UID
    * @param displayName User's displayName
    * @returns a Either of User or error
@@ -316,6 +318,17 @@ export class UserService {
     } catch (error) {
       return E.left(USER_NOT_FOUND);
     }
+  }
+
+  /**
+   * Update user's lastLoggedOn timestamp
+   * @param userUID User UID
+   */
+  async updateUserLastLoggedOn(userUid: string) {
+    await this.prisma.user.update({
+      where: { uid: userUid },
+      data: { lastLoggedOn: new Date() },
+    });
   }
 
   /**

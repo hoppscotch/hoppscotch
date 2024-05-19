@@ -31,6 +31,7 @@ export class User {
   isAdmin: boolean;
 
   @Field({
+    nullable: true,
     description: 'Date when the user last logged in',
   })
   lastLoggedOn: Date;

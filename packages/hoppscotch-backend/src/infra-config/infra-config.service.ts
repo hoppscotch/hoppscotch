@@ -363,6 +363,13 @@ export class InfraConfigService implements OnModuleInit {
   ) {
     for (let i = 0; i < infraConfigs.length; i++) {
       switch (infraConfigs[i].name) {
+        case InfraConfigEnum.MAILER_SMTP_ENABLE:
+          if (
+            infraConfigs[i].value !== 'true' &&
+            infraConfigs[i].value !== 'false'
+          )
+            return E.left(INFRA_CONFIG_INVALID_INPUT);
+          break;
         case InfraConfigEnum.MAILER_SMTP_URL:
           const isValidUrl = validateSMTPUrl(infraConfigs[i].value);
           if (!isValidUrl) return E.left(INFRA_CONFIG_INVALID_INPUT);

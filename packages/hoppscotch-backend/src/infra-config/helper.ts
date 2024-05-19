@@ -76,6 +76,10 @@ export async function getDefaultInfraConfigs(): Promise<
   // Prepare rows for 'infra_config' table with default values (from .env) for each 'name'
   const infraConfigDefaultObjs: { name: InfraConfigEnum; value: string }[] = [
     {
+      name: InfraConfigEnum.MAILER_SMTP_ENABLE,
+      value: process.env.MAILER_SMTP_ENABLE ?? 'true',
+    },
+    {
       name: InfraConfigEnum.MAILER_SMTP_URL,
       value: process.env.MAILER_SMTP_URL,
     },

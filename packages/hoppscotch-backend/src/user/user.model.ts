@@ -31,6 +31,11 @@ export class User {
   isAdmin: boolean;
 
   @Field({
+    description: 'Date when the user last logged in',
+  })
+  lastLoggedOn: Date;
+
+  @Field({
     description: 'Date when the user account was created',
   })
   createdOn: Date;

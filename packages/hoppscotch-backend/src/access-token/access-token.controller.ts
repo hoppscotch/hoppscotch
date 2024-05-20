@@ -24,6 +24,9 @@ import { PATAuthGuard } from 'src/guards/rest-pat-auth.guard';
 import { AccessTokenInterceptor } from 'src/interceptors/access-token.interceptor';
 import { TeamEnvironmentsService } from 'src/team-environments/team-environments.service';
 import { TeamCollectionService } from 'src/team-collection/team-collection.service';
+import { RESTTeamMemberGuard } from 'src/team/guards/rest-team-member.guard';
+import { RequiresTeamRole } from 'src/team/decorators/requires-team-role.decorator';
+import { TeamMemberRole } from '@prisma/client';
 
 @UseGuards(ThrottlerBehindProxyGuard)
 @Controller({ path: 'access-tokens', version: '1' })
@@ -75,7 +78,12 @@ export class AccessTokenController {
   }
 
   @Get('collection/:id')
-  @UseGuards(PATAuthGuard)
+  @RequiresTeamRole(
+    TeamMemberRole.VIEWER,
+    TeamMemberRole.EDITOR,
+    TeamMemberRole.OWNER,
+  )
+  @UseGuards(JwtAuthGuard, PATAuthGuard, RESTTeamMemberGuard)
   @UseInterceptors(AccessTokenInterceptor)
   async fetchCollection(@Param('id') id: string) {
     const res = await this.teamCollectionService.getCollectionForCLI(id);
@@ -89,7 +97,13 @@ export class AccessTokenController {
   }
 
   @Get('environment/:id')
-  @UseGuards(PATAuthGuard)
+  @RequiresTeamRole(
+    TeamMemberRole.VIEWER,
+    TeamMemberRole.EDITOR,
+    TeamMemberRole.OWNER,
+  )
+  // TODO: Create a new custom decorator to annotate if route if for collection or environment
+  @UseGuards(JwtAuthGuard, PATAuthGuard, RESTTeamMemberGuard)
   @UseInterceptors(AccessTokenInterceptor)
   async fetchEnvironment(@Param('id') id: string) {
     const res = await this.teamEnvironmentsService.getTeamEnvironment(id);

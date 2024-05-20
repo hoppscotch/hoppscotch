@@ -27,7 +27,6 @@ export class AccessTokenInterceptor implements NestInterceptor {
           await this.accessTokenService.updateLastUsedforPAT(token);
         if (E.isLeft(userAccessToken)) throw new UnauthorizedException();
 
-        console.log('After...');
         return data;
       }),
     );

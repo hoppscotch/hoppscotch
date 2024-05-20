@@ -196,7 +196,7 @@
     "sign_in_options": "All sign in option",
     "sign_out": "Sign out",
     "team_name_too_short": "Workspace name should be atleast 6 characters long!!",
-    "user_already_invited": "User is already a member, please choose a different email address",
+    "user_already_invited": "Failed to send invite. User is already invited!!",
     "user_not_found": "User not found in the infra!!",
     "users_to_admin_success": "Selected users are elevated to admin status!!",
     "users_to_admin_failure": "Failed to elevate selected users to admin status!!"

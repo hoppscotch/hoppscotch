@@ -115,4 +115,18 @@ export class AccessTokenService {
       });
     }
   }
+
+  async getUserPAT(accessToken: string) {
+    try {
+      const userPAT = await this.prisma.personalAccessToken.findUniqueOrThrow({
+        where: { token: accessToken },
+      });
+      return E.right(this.cast(userPAT));
+    } catch {
+      return E.left({
+        message: ACCESS_TOKEN_NOT_FOUND,
+        statusCode: HttpStatus.NOT_FOUND,
+      });
+    }
+  }
 }

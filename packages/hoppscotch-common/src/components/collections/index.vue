@@ -1152,6 +1152,9 @@ const updateEditingResponse = (newName: string) => {
     if (possibleActiveTab) {
       possibleActiveTab.value.document.response =
         request.responses[responseIndex]
+
+      possibleActiveTab.value.document.request.responses[responseIndex].name =
+        newName
       nextTick(() => {
         possibleActiveTab.value.document.isDirty = false
       })

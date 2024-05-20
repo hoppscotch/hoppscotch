@@ -13,7 +13,7 @@ import {
 import { CreateAccessTokenResponse } from './helper';
 import { PersonalAccessToken } from '@prisma/client';
 import { AccessToken } from 'src/types/AccessToken';
-
+import { Request } from 'express';
 @Injectable()
 export class AccessTokenService {
   constructor(private readonly prisma: PrismaService) {}
@@ -127,16 +127,17 @@ export class AccessTokenService {
     }
   }
 
-  async updateLastUsedforPAT(accessTokenID: string) {
-    try {
-      await this.prisma.personalAccessToken.update({
-        where: { id: accessTokenID },
-        data: {
-          updatedOn: new Date(),
-        },
-      });
-    } catch {
-      return E.left(ACCESS_TOKEN_NOT_FOUND);
-    }
+  async updateLastUsedforPAT(token: string) {
+    console.log('Before...dcsc', token);
+    // try {
+    //   await this.prisma.personalAccessToken.update({
+    //     where: { token },
+    //     data: {
+    //       updatedOn: new Date(),
+    //     },
+    //   });
+    // } catch {
+    //   return E.left(ACCESS_TOKEN_NOT_FOUND);
+    // }
   }
 }

@@ -11,7 +11,13 @@ import { TeamEnvironmentsController } from './team-environments.controller';
 import { AccessTokenModule } from 'src/access-token/access-token.module';
 
 @Module({
-  imports: [PrismaModule, PubSubModule, UserModule, TeamModule,AccessTokenModule],
+  imports: [
+    PrismaModule,
+    PubSubModule,
+    UserModule,
+    TeamModule,
+    AccessTokenModule,
+  ],
   providers: [
     TeamEnvironmentsResolver,
     TeamEnvironmentsService,

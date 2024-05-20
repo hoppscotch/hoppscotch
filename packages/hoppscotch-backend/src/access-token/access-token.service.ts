@@ -128,16 +128,17 @@ export class AccessTokenService {
   }
 
   async updateLastUsedforPAT(token: string) {
-    console.log('Before...dcsc', token);
-    // try {
-    //   await this.prisma.personalAccessToken.update({
-    //     where: { token },
-    //     data: {
-    //       updatedOn: new Date(),
-    //     },
-    //   });
-    // } catch {
-    //   return E.left(ACCESS_TOKEN_NOT_FOUND);
-    // }
+    try {
+      const updatedAccessToken = await this.prisma.personalAccessToken.update({
+        where: { token },
+        data: {
+          updatedOn: new Date(),
+        },
+      });
+
+      return E.right(this.cast(updatedAccessToken));
+    } catch {
+      return E.left(ACCESS_TOKEN_NOT_FOUND);
+    }
   }
 }

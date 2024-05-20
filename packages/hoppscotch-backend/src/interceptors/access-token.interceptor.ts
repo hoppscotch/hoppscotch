@@ -2,6 +2,7 @@ import {
   BadRequestException,
   CallHandler,
   ExecutionContext,
+  Injectable,
   NestInterceptor,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -10,6 +11,7 @@ import { AccessTokenService } from 'src/access-token/access-token.service';
 import * as E from 'fp-ts/Either';
 import { PrismaService } from 'src/prisma/prisma.service';
 
+@Injectable()
 export class AccessTokenInterceptor implements NestInterceptor {
   constructor(
     private readonly accessTokenService: AccessTokenService,
@@ -20,7 +22,6 @@ export class AccessTokenInterceptor implements NestInterceptor {
     context: ExecutionContext,
     handler: CallHandler,
   ): Promise<Observable<any>> {
-    console.log('Before...');
     const req = context.switchToHttp().getRequest();
     const authHeader = req.headers.authorization;
     const token = authHeader && authHeader.split(' ')[1];
@@ -31,8 +32,7 @@ export class AccessTokenInterceptor implements NestInterceptor {
     const userAccessToken = await this.accessTokenService.updateLastUsedforPAT(
       token,
     );
-    // if (E.isLeft(userAccessToken)) throw new UnauthorizedException();
-    console.log('cvdfvdfv', token);
+    if (E.isLeft(userAccessToken)) throw new UnauthorizedException();
 
     return handler.handle();
   }

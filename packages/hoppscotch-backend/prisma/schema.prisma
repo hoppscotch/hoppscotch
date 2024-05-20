@@ -220,7 +220,7 @@ model InfraConfig {
   updatedOn DateTime @updatedAt @db.Timestamp(3)
 }
 
-model UserTokens {
+model PersonalAccessToken {
   id        String   @id @default(cuid())
   userUid   String
   user      User     @relation(fields: [userUid], references: [uid], onDelete: Cascade)

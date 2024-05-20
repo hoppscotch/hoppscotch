@@ -30,6 +30,9 @@ export const TEAM_ONLY_ONE_OWNER = '[GraphQL] team/only_one_owner';
 export const AUTH_PROVIDER_NOT_SPECIFIED =
   '[GraphQL] auth/provider_not_specified' as const;
 
+export const BOTH_EMAILS_CANNOT_BE_SAME =
+  '[GraphQL] email/both_emails_cannot_be_same' as const;
+
 const ERROR_MESSAGES = [
   {
     name: ONLY_ONE_ADMIN_ACCOUNT_FOUND,
@@ -53,10 +56,13 @@ const ERROR_MESSAGES = [
     name: TEAM_ONLY_ONE_OWNER,
     message: 'state.remove_owner_failure_only_one_owner',
   },
-
   {
     name: AUTH_PROVIDER_NOT_SPECIFIED,
     message: 'configs.auth_providers.provider_not_specified',
+  },
+  {
+    name: BOTH_EMAILS_CANNOT_BE_SAME,
+    message: 'state.emails_cannot_be_same',
   },
 ];
 

@@ -147,6 +147,7 @@
     "email_failure": "Failed to send invitation",
     "email_signin_failure": "Failed to login with Email",
     "email_success": "Email invitation sent successfully",
+    "emails_cannot_be_same": "You cannot invite yourself, please choose a different email address!!",
     "enter_team_email": "Please enter email of workspace owner!!",
     "error": "Something went wrong",
     "error_auth_providers": "Unable to load auth providers",

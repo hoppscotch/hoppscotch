@@ -66,6 +66,7 @@
             <th class="px-6 py-2">{{ t('users.name') }}</th>
             <th class="px-6 py-2">{{ t('users.email') }}</th>
             <th class="px-6 py-2">{{ t('users.date') }}</th>
+            <th class="px-6 py-2">{{ t('users.last_logged_on') }}</th>
             <!-- Empty header for Action Button -->
             <th class="w-20 px-6 py-2"></th>
           </template>
@@ -106,6 +107,13 @@
               {{ getCreatedDate(user.createdOn) }}
               <div class="text-gray-400 text-tiny">
                 {{ getCreatedTime(user.createdOn) }}
+              </div>
+            </td>
+
+            <td class="py-2 px-7">
+              {{ getCreatedDate(user.lastLoggedOn) }}
+              <div class="text-gray-400 text-tiny">
+                {{ getCreatedTime(user.lastLoggedOn) }}
               </div>
             </td>
 
@@ -286,6 +294,7 @@ const headings = [
   { key: 'displayName', label: t('users.name') },
   { key: 'email', label: t('users.email') },
   { key: 'createdOn', label: t('users.date') },
+  { key: 'lastLoggedOn', label: t('users.last_logged_on') },
   { key: '', label: '' },
 ];
 

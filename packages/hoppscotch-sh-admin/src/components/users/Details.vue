@@ -133,7 +133,7 @@ const getCreatedDateAndTime = (date: string) =>
   format(new Date(date), 'd-MM-yyyy  hh:mm a');
 
 // User Info
-const { uid, displayName, email, createdOn } = props.user;
+const { uid, displayName, email, createdOn, lastLoggedOn } = props.user;
 
 const userInfo = {
   uid: {
@@ -155,6 +155,11 @@ const userInfo = {
     condition: createdOn,
     label: t('users.created_on'),
     value: getCreatedDateAndTime(createdOn),
+  },
+  lastLoggedOn: {
+    condition: lastLoggedOn,
+    label: t('users.last_logged_on'),
+    value: getCreatedDateAndTime(lastLoggedOn),
   },
 };
 

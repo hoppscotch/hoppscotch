@@ -89,25 +89,25 @@ model TeamEnvironment {
 }
 
 model User {
-  uid                String              @id @default(cuid())
-  displayName        String?
-  email              String?             @unique
-  photoURL           String?
-  isAdmin            Boolean             @default(false)
-  refreshToken       String?
-  providerAccounts   Account[]
-  VerificationToken  VerificationToken[]
-  settings           UserSettings?
-  UserHistory        UserHistory[]
-  UserEnvironments   UserEnvironment[]
-  userCollections    UserCollection[]
-  userRequests       UserRequest[]
-  currentRESTSession Json?
-  currentGQLSession  Json?
-  createdOn          DateTime            @default(now()) @db.Timestamp(3)
-  invitedUsers       InvitedUsers[]
-  shortcodes         Shortcode[]
-  UserTokens         UserTokens[]
+  uid                  String                @id @default(cuid())
+  displayName          String?
+  email                String?               @unique
+  photoURL             String?
+  isAdmin              Boolean               @default(false)
+  refreshToken         String?
+  providerAccounts     Account[]
+  VerificationToken    VerificationToken[]
+  settings             UserSettings?
+  UserHistory          UserHistory[]
+  UserEnvironments     UserEnvironment[]
+  userCollections      UserCollection[]
+  userRequests         UserRequest[]
+  currentRESTSession   Json?
+  currentGQLSession    Json?
+  createdOn            DateTime              @default(now()) @db.Timestamp(3)
+  invitedUsers         InvitedUsers[]
+  shortcodes           Shortcode[]
+  PersonalAccessTokens PersonalAccessToken[]
 }
 
 model Account {
@@ -221,12 +221,12 @@ model InfraConfig {
 }
 
 model PersonalAccessToken {
-  id        String   @id @default(cuid())
+  id        String    @id @default(cuid())
   userUid   String
-  user      User     @relation(fields: [userUid], references: [uid], onDelete: Cascade)
+  user      User      @relation(fields: [userUid], references: [uid], onDelete: Cascade)
   label     String
-  token     String   @unique @default(uuid())
+  token     String    @unique @default(uuid())
   expiresOn DateTime? @db.Timestamp(3)
-  createdOn DateTime @default(now()) @db.Timestamp(3)
-  updatedOn DateTime @updatedAt @db.Timestamp(3)
+  createdOn DateTime  @default(now()) @db.Timestamp(3)
+  updatedOn DateTime  @updatedAt @db.Timestamp(3)
 }

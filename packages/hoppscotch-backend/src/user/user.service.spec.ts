@@ -503,6 +503,26 @@ describe('UserService', () => {
     });
   });
 
+  describe('updateUserLastLoggedOn', () => {
+    test('should resolve right and update user last logged on', async () => {
+      const currentTime = new Date();
+      mockPrisma.user.update.mockResolvedValueOnce({
+        ...user,
+        lastLoggedOn: currentTime,
+      });
+
+      const result = await userService.updateUserLastLoggedOn(user.uid);
+      expect(result).toEqualRight(true);
+    });
+
+    test('should resolve left and error when invalid user uid is passed', async () => {
+      mockPrisma.user.update.mockRejectedValueOnce('NotFoundError');
+
+      const result = await userService.updateUserLastLoggedOn('invalidUserUid');
+      expect(result).toEqualLeft(USER_NOT_FOUND);
+    });
+  });
+
   describe('fetchAllUsers', () => {
     test('should resolve right and return 20 users when cursor is null', async () => {
       mockPrisma.user.findMany.mockResolvedValueOnce(users);

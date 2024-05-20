@@ -122,7 +122,6 @@ export class UserService {
         },
         data: {
           refreshToken: refreshTokenHash,
-          lastLoggedOn: new Date(),
         },
       });
 
@@ -142,7 +141,6 @@ export class UserService {
     const createdUser = await this.prisma.user.create({
       data: {
         email: email,
-        lastLoggedOn: new Date(),
         providerAccounts: {
           create: {
             provider: 'magic',
@@ -325,10 +323,15 @@ export class UserService {
    * @param userUID User UID
    */
   async updateUserLastLoggedOn(userUid: string) {
-    await this.prisma.user.update({
-      where: { uid: userUid },
-      data: { lastLoggedOn: new Date() },
-    });
+    try {
+      await this.prisma.user.update({
+        where: { uid: userUid },
+        data: { lastLoggedOn: new Date() },
+      });
+      return E.right(true);
+    } catch (e) {
+      return E.left(USER_NOT_FOUND);
+    }
   }
 
   /**

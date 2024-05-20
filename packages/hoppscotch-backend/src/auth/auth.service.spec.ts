@@ -176,6 +176,8 @@ describe('verifyMagicLinkTokens', () => {
     mockUser.updateUserRefreshToken.mockResolvedValueOnce(E.right(user));
     // deletePasswordlessVerificationToken
     mockPrisma.verificationToken.delete.mockResolvedValueOnce(passwordlessData);
+    // usersService.updateUserLastLoggedOn
+    mockUser.updateUserLastLoggedOn.mockResolvedValue(E.right(true));
 
     const result = await authService.verifyMagicLinkTokens(magicLinkVerify);
     expect(result).toEqualRight({
@@ -201,6 +203,8 @@ describe('verifyMagicLinkTokens', () => {
     mockUser.updateUserRefreshToken.mockResolvedValueOnce(E.right(user));
     // deletePasswordlessVerificationToken
     mockPrisma.verificationToken.delete.mockResolvedValueOnce(passwordlessData);
+    // usersService.updateUserLastLoggedOn
+    mockUser.updateUserLastLoggedOn.mockResolvedValue(E.right(true));
 
     const result = await authService.verifyMagicLinkTokens(magicLinkVerify);
     expect(result).toEqualRight({

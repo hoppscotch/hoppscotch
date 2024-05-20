@@ -78,10 +78,10 @@ export class AccessTokenService {
     return E.right(res);
   }
 
-  async deletePAT(patID: string) {
+  async deletePAT(accessTokenID: string) {
     try {
       await this.prisma.personalAccessToken.delete({
-        where: { id: patID },
+        where: { id: accessTokenID },
       });
       return E.right(true);
     } catch {
@@ -123,10 +123,20 @@ export class AccessTokenService {
       });
       return E.right(this.cast(userPAT));
     } catch {
-      return E.left({
-        message: ACCESS_TOKEN_NOT_FOUND,
-        statusCode: HttpStatus.NOT_FOUND,
+      return E.left(ACCESS_TOKEN_NOT_FOUND);
+    }
+  }
+
+  async updateLastUsedforPAT(accessTokenID: string) {
+    try {
+      await this.prisma.personalAccessToken.update({
+        where: { id: accessTokenID },
+        data: {
+          updatedOn: new Date(),
+        },
       });
+    } catch {
+      return E.left(ACCESS_TOKEN_NOT_FOUND);
     }
   }
 }

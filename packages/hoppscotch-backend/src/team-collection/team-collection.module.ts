@@ -7,17 +7,9 @@ import { TeamModule } from '../team/team.module';
 import { UserModule } from '../user/user.module';
 import { PubSubModule } from '../pubsub/pubsub.module';
 import { TeamCollectionController } from './team-collection.controller';
-import { AccessTokenController } from 'src/access-token/access-token.controller';
-import { AccessTokenModule } from 'src/access-token/access-token.module';
 
 @Module({
-  imports: [
-    PrismaModule,
-    TeamModule,
-    UserModule,
-    PubSubModule,
-    AccessTokenModule,
-  ],
+  imports: [PrismaModule, TeamModule, UserModule, PubSubModule],
   providers: [
     TeamCollectionService,
     TeamCollectionResolver,

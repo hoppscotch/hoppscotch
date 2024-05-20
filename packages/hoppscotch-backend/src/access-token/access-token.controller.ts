@@ -76,8 +76,16 @@ export class AccessTokenController {
 
   @Get('collection/:id')
   @UseGuards(PATAuthGuard)
+  @UseInterceptors(AccessTokenInterceptor)
   async fetchCollection(@Param('id') id: string) {
-    return true;
+    const res = await this.teamCollectionService.getCollectionForCLI(id);
+
+    if (E.isLeft(res))
+      throwHTTPErr({
+        message: res.left,
+        statusCode: HttpStatus.NOT_FOUND,
+      });
+    return res.right;
   }
 
   @Get('environment/:id')

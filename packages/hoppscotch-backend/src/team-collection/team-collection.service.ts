@@ -23,11 +23,19 @@ import { PubSubService } from '../pubsub/pubsub.service';
 import { escapeSqlLikeString, isValidLength } from 'src/utils';
 import * as E from 'fp-ts/Either';
 import * as O from 'fp-ts/Option';
-import { Prisma, TeamCollection as DBTeamCollection } from '@prisma/client';
+import {
+  Prisma,
+  TeamCollection as DBTeamCollection,
+  TeamRequest,
+} from '@prisma/client';
 import { CollectionFolder } from 'src/types/CollectionFolder';
 import { stringToJson } from 'src/utils';
 import { CollectionSearchNode } from 'src/types/CollectionSearchNode';
-import { ParentTreeQueryReturnType, SearchQueryReturnType } from './helper';
+import {
+  GetCollectionResponse,
+  ParentTreeQueryReturnType,
+  SearchQueryReturnType,
+} from './helper';
 import { RESTError } from 'src/types/RESTError';
 
 @Injectable()
@@ -1342,6 +1350,70 @@ export class TeamCollectionService {
       return E.right(requestParentTree);
     } catch (error) {
       return E.left(TEAM_REQ_PARENT_TREE_GEN_FAILED);
+    }
+  }
+
+  private async getAllRequestsInCollection(collectionID: string) {
+    const dbTeamRequests = await this.prisma.teamRequest.findMany({
+      where: {
+        collectionID: collectionID,
+      },
+    });
+
+    const teamRequests = dbTeamRequests.map((tr) => {
+      return <TeamRequest>{
+        id: tr.id,
+        collectionID: tr.collectionID,
+        teamID: tr.teamID,
+        title: tr.title,
+        request: JSON.stringify(tr.request),
+      };
+    });
+
+    return teamRequests;
+  }
+
+  private async getCollectionTreeForCLI(parentID: string | null) {
+    const collections = await this.prisma.teamCollection.findMany({
+      where: { parentID },
+      orderBy: { orderIndex: 'asc' },
+    });
+
+    const response: GetCollectionResponse[] = [];
+
+    for (const collection of collections) {
+      const folder: GetCollectionResponse = {
+        id: collection.id,
+        data: JSON.stringify(collection.data),
+        title: collection.title,
+        parentID: collection.parentID,
+        folders: await this.getCollectionTreeForCLI(collection.id),
+        requests: await this.getAllRequestsInCollection(collection.id),
+      };
+
+      response.push(folder);
+    }
+
+    return response;
+  }
+
+  async getCollectionForCLI(collectionID: string | null) {
+    try {
+      const parentCollection =
+        await this.prisma.teamCollection.findUniqueOrThrow({
+          where: { id: collectionID },
+        });
+
+      return E.right(<GetCollectionResponse>{
+        id: parentCollection.id,
+        data: JSON.stringify(parentCollection.data),
+        title: parentCollection.title,
+        parentID: parentCollection.parentID,
+        folders: await this.getCollectionTreeForCLI(parentCollection.id),
+        requests: await this.getAllRequestsInCollection(parentCollection.id),
+      });
+    } catch (error) {
+      return E.left(TEAM_COLL_NOT_FOUND);
     }
   }
 }

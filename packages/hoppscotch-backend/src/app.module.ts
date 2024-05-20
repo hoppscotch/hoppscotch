@@ -27,6 +27,7 @@ import { MailerModule } from './mailer/mailer.module';
 import { PosthogModule } from './posthog/posthog.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { HealthModule } from './health/health.module';
+import { AccessTokenModule } from './access-token/access-token.module';
 
 @Module({
   imports: [
@@ -102,6 +103,7 @@ import { HealthModule } from './health/health.module';
     PosthogModule,
     ScheduleModule.forRoot(),
     HealthModule,
+    AccessTokenModule,
   ],
   providers: [GQLComplexityPlugin],
   controllers: [AppController],

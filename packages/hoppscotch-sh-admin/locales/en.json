@@ -279,6 +279,7 @@
     "invited_on": "Invited On",
     "invited_users": "Invited Users",
     "invitee_email": "Invitee Email",
+    "last_logged_on": "Last Logged On",
     "load_info_error": "Unable to load user info",
     "load_list_error": "Unable to Load Users List",
     "make_admin": "Make Admin",

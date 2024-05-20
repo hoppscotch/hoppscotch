@@ -7,8 +7,7 @@ import {
 import { Request } from 'express';
 import { AccessTokenService } from 'src/access-token/access-token.service';
 import * as E from 'fp-ts/Either';
-import { throwHTTPErr } from 'src/utils';
-
+import { DateTime } from 'luxon';
 @Injectable()
 export class PATAuthGuard implements CanActivate {
   constructor(private accessTokenService: AccessTokenService) {}
@@ -20,17 +19,14 @@ export class PATAuthGuard implements CanActivate {
       throw new UnauthorizedException();
     }
     try {
-      // TODO: Check if token is valid (ie present in DB)
       const userAccessToken = await this.accessTokenService.getUserPAT(token);
-      if (E.isLeft(userAccessToken)) throwHTTPErr(userAccessToken.left);
-      console.log(userAccessToken);
+      if (E.isLeft(userAccessToken)) throw new UnauthorizedException();
 
-      // TODO: Check if token is expired
       const accessToken = userAccessToken.right;
       if (accessToken.expiresOn === null) return true;
 
-      const today = new Date();
-      if (accessToken.expiresOn > today) return true;
+      const today = DateTime.now().toISO();
+      if (accessToken.expiresOn.toISOString() > today) return true;
 
       return false;
     } catch {

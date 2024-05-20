@@ -7,9 +7,11 @@ import { TeamModule } from 'src/team/team.module';
 import { PrismaModule } from 'src/prisma/prisma.module';
 import { GqlTeamEnvTeamGuard } from './gql-team-env-team.guard';
 import { TeamEnvsTeamResolver } from './team.resolver';
+import { TeamEnvironmentsController } from './team-environments.controller';
+import { AccessTokenModule } from 'src/access-token/access-token.module';
 
 @Module({
-  imports: [PrismaModule, PubSubModule, UserModule, TeamModule],
+  imports: [PrismaModule, PubSubModule, UserModule, TeamModule,AccessTokenModule],
   providers: [
     TeamEnvironmentsResolver,
     TeamEnvironmentsService,
@@ -17,5 +19,6 @@ import { TeamEnvsTeamResolver } from './team.resolver';
     TeamEnvsTeamResolver,
   ],
   exports: [TeamEnvironmentsService, GqlTeamEnvTeamGuard],
+  controllers: [TeamEnvironmentsController],
 })
 export class TeamEnvironmentsModule {}

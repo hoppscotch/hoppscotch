@@ -7,5 +7,6 @@ import { AccessTokenService } from './access-token.service';
   imports: [PrismaModule],
   controllers: [AccessTokenController],
   providers: [AccessTokenService],
+  exports: [AccessTokenService],
 })
 export class AccessTokenModule {}

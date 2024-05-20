@@ -30,6 +30,7 @@
     "@nestjs/common": "10.2.7",
     "@nestjs/config": "3.1.1",
     "@nestjs/core": "10.2.7",
+    "@nestjs/event-emitter": "2.0.4",
     "@nestjs/graphql": "12.0.9",
     "@nestjs/jwt": "10.1.1",
     "@nestjs/passport": "10.0.2",

@@ -19,7 +19,6 @@ import {
   USER_IS_ADMIN,
   USER_NOT_FOUND,
 } from '../errors';
-import { MailerService } from '../mailer/mailer.service';
 import { InvitedUser } from './invited-user.model';
 import { TeamService } from '../team/team.service';
 import { TeamCollectionService } from '../team-collection/team-collection.service';
@@ -31,6 +30,8 @@ import { ShortcodeService } from 'src/shortcode/shortcode.service';
 import { ConfigService } from '@nestjs/config';
 import { OffsetPaginationArgs } from 'src/types/input-types.args';
 import { UserDeletionResult } from 'src/user/user.model';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { Events } from 'src/types/EventEmitter';
 
 @Injectable()
 export class AdminService {
@@ -43,9 +44,9 @@ export class AdminService {
     private readonly teamInvitationService: TeamInvitationService,
     private readonly pubsub: PubSubService,
     private readonly prisma: PrismaService,
-    private readonly mailerService: MailerService,
     private readonly shortcodeService: ShortcodeService,
     private readonly configService: ConfigService,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   /**
@@ -104,17 +105,16 @@ export class AdminService {
     });
     if (alreadyInvitedUser != null) return E.left(USER_ALREADY_INVITED);
 
-    try {
-      await this.mailerService.sendUserInvitationEmail(inviteeEmail, {
+    this.eventEmitter.emit(Events.MAILER_SEND_USER_INVITATION_EMAIL, {
+      to: inviteeEmail,
+      mailDesc: {
         template: 'user-invitation',
         variables: {
           inviteeEmail: inviteeEmail,
           magicLink: `${this.configService.get('VITE_BASE_URL')}`,
         },
-      });
-    } catch (e) {
-      return E.left(EMAIL_FAILED);
-    }
+      },
+    });
 
     // Add invitee email to the list of invited users by admin
     const dbInvitedUser = await this.prisma.invitedUsers.create({

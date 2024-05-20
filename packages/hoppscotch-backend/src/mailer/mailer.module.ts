@@ -9,17 +9,21 @@ import {
 } from 'src/errors';
 import { ConfigService } from '@nestjs/config';
 import { loadInfraConfiguration } from 'src/infra-config/helper';
+import { MailerEventListener } from './mailer.listener';
 
 @Global()
-@Module({
-  imports: [],
-  providers: [MailerService],
-  exports: [MailerService],
-})
+@Module({})
 export class MailerModule {
   static async register() {
     const env = await loadInfraConfiguration();
 
+    // If mailer SMTP is DISABLED, return the module without any configuration
+    if (env.INFRA.MAILER_SMTP_ENABLE !== 'true') {
+      console.log('Mailer SMTP is disabled');
+      return { module: MailerModule };
+    }
+
+    // If mailer is ENABLED, return the module with configuration
     let mailerSmtpUrl = env.INFRA.MAILER_SMTP_URL;
     let mailerAddressFrom = env.INFRA.MAILER_ADDRESS_FROM;
 
@@ -31,6 +35,7 @@ export class MailerModule {
 
     return {
       module: MailerModule,
+      providers: [MailerService, MailerEventListener],
       imports: [
         NestMailerModule.forRoot({
           transport: mailerSmtpUrl ?? throwErr(MAILER_SMTP_URL_UNDEFINED),

@@ -7,10 +7,14 @@ import {
 import { throwErr } from 'src/utils';
 import { EMAIL_FAILED } from 'src/errors';
 import { MailerService as NestMailerService } from '@nestjs-modules/mailer';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class MailerService {
-  constructor(private readonly nestMailerService: NestMailerService) {}
+  constructor(
+    private readonly nestMailerService: NestMailerService,
+    private readonly configService: ConfigService,
+  ) {}
 
   /**
    * Takes an input mail description and spits out the Email subject required for it
@@ -42,6 +46,8 @@ export class MailerService {
     to: string,
     mailDesc: MailDescription | UserMagicLinkMailDescription,
   ) {
+    if (this.configService.get('INFRA.MAILER_SMTP_ENABLE') !== 'true') return;
+
     try {
       await this.nestMailerService.sendMail({
         to,
@@ -64,6 +70,8 @@ export class MailerService {
     to: string,
     mailDesc: AdminUserInvitationMailDescription,
   ) {
+    if (this.configService.get('INFRA.MAILER_SMTP_ENABLE') !== 'true') return;
+
     try {
       const res = await this.nestMailerService.sendMail({
         to,

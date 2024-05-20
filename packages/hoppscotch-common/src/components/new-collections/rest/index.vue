@@ -217,7 +217,7 @@
                     :label="t('add.new')"
                     filled
                     outline
-                    @click="showModalAddRootCollection = true"
+                    @click="addChildCollection(node.data.value.collectionID)"
                   />
                 </template>
               </HoppSmartPlaceholder>
@@ -388,7 +388,7 @@
                     :label="t('add.new')"
                     filled
                     outline
-                    @click="showModalAddRootCollection = true"
+                    @click="addChildCollection(node.data.value.collectionID)"
                   />
                 </template>
               </HoppSmartPlaceholder>

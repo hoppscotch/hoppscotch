@@ -21,7 +21,7 @@
       :on-shown="() => tippyActions!.focus()"
     >
       <span class="truncate">
-        {{ tab.document.request.name }}
+        {{ tabName }}
       </span>
       <template #content="{ hide }">
         <div
@@ -104,7 +104,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue"
+import { ref, computed } from "vue"
 import { TippyComponent } from "vue-tippy"
 import { getMethodLabelColorClassOf } from "~/helpers/rest/labelColoring"
 import { useI18n } from "~/composables/i18n"
@@ -118,7 +118,7 @@ import { HoppRESTDocument } from "~/helpers/rest/document"
 
 const t = useI18n()
 
-defineProps<{
+const props = defineProps<{
   tab: HoppTab<HoppRESTDocument>
   isRemovable: boolean
 }>()
@@ -139,4 +139,11 @@ const closeAction = ref<HTMLButtonElement | null>(null)
 const closeOthersAction = ref<HTMLButtonElement | null>(null)
 const duplicateAction = ref<HTMLButtonElement | null>(null)
 const shareRequestAction = ref<HTMLButtonElement | null>(null)
+
+const tabName = computed(() => {
+  if (props.tab.document.isTryMode && !!props.tab.document.response) {
+    return props.tab.document.response.name
+  }
+  return props.tab.document.request.name
+})
 </script>

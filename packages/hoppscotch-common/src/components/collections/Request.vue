@@ -161,7 +161,7 @@
         class="border-l border-dividerLight"
         :request="request"
         :response-index="index"
-        @select-response="() => selectRequestWithResponse(response)"
+        @select-response="() => emit('select-response', index)"
         @delete-response="() => emit('remove-response', index)"
         @edit-response="() => emit('edit-response', index)"
       />
@@ -200,7 +200,6 @@ import {
 } from "~/newstore/reordering"
 import { useReadonlyStream } from "~/composables/stream"
 import { getMethodLabelColorClassOf } from "~/helpers/rest/labelColoring"
-import type { HoppRESTExampleResponse } from "@hoppscotch/data"
 
 type CollectionType = "my-collections" | "team-collections"
 
@@ -271,7 +270,7 @@ const emit = defineEmits<{
   (event: "remove-response", index: number): void
   (event: "edit-response", index: number): void
   (event: "select-request"): void
-  (event: "select-request-response", response: HoppRESTExampleResponse): void
+  (event: "select-response", index: number): void
   (event: "share-request"): void
   (event: "drag-request", payload: DataTransfer): void
   (event: "update-request-order", payload: DataTransfer): void
@@ -309,10 +308,6 @@ watch(
 const selectRequest = () => {
   emit("select-request")
   showChildren.value = !showChildren.value
-}
-
-const selectRequestWithResponse = (response: HoppRESTExampleResponse) => {
-  emit("select-request-response", response)
 }
 
 const dragStart = ({ dataTransfer }: DragEvent) => {

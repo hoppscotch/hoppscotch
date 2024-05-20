@@ -236,14 +236,14 @@
                   requestIndex: pathToIndex(node.id),
                 })
             "
-            @select-request-response="
-              (response) =>
+            @select-response="
+              (responseIndex) =>
                 node.data.type === 'requests' &&
-                selectRequestResponse({
+                selectResponse({
                   request: node.data.data.data,
                   folderPath: node.data.data.parentIndex,
                   requestIndex: pathToIndex(node.id),
-                  response,
+                  responseIndex,
                 })
             "
             @remove-response="
@@ -509,6 +509,15 @@ const emit = defineEmits<{
     }
   ): void
   (
+    event: "select-response",
+    payload: {
+      request: HoppRESTRequest
+      folderPath: string | null
+      requestIndex: string
+      responseIndex: number
+    }
+  ): void
+  (
     event: "remove-response",
     payload: {
       folderPath: string | null
@@ -654,29 +663,19 @@ const selectRequest = (data: {
   }
 }
 
-const selectRequestResponse = (data: {
+const selectResponse = (data: {
   request: HoppRESTRequest
   folderPath: string
   requestIndex: string
-  response: HoppRESTExampleResponse
+  responseIndex: number
 }) => {
-  const { request, folderPath, requestIndex, response } = data
-
-  if (props.saveRequest) {
-    emit("select", {
-      pickedType: "my-request",
-      folderPath: folderPath,
-      requestIndex: parseInt(requestIndex),
-    })
-  } else {
-    emit("select-request", {
-      request,
-      folderPath,
-      requestIndex,
-      isActive: isActiveRequest(folderPath, parseInt(requestIndex)),
-      response,
-    })
-  }
+  const { request, folderPath, requestIndex, responseIndex } = data
+  emit("select-response", {
+    request,
+    folderPath,
+    requestIndex,
+    responseIndex,
+  })
 }
 
 const dragEvent = (dataTransfer: DataTransfer, collectionIndex: string) => {

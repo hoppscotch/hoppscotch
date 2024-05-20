@@ -15,6 +15,7 @@
         :is="lensRendererFor(lens.renderer)"
         :response="doc.response"
         :doc="doc"
+        @update:response="updateResponse"
       />
     </HoppSmartTab>
     <HoppSmartTab
@@ -47,6 +48,7 @@ import {
 import { useI18n } from "@composables/i18n"
 import { useVModel } from "@vueuse/core"
 import { HoppRESTDocument } from "~/helpers/rest/document"
+import { HoppRESTResponse } from "@helpers/types/HoppRESTResponse"
 
 const props = defineProps<{
   document: HoppRESTDocument
@@ -54,6 +56,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: "update:document", document: HoppRESTDocument): void
+  (e: "update:response", response: HoppRESTResponse): void
 }>()
 
 const doc = useVModel(props, "document", emit)
@@ -126,4 +129,8 @@ watch(
 watch(selectedLensTab, (newLensID) => {
   doc.value.responseTabPreference = newLensID
 })
+
+const updateResponse = (response: HoppRESTResponse) => {
+  doc.value.response = response
+}
 </script>

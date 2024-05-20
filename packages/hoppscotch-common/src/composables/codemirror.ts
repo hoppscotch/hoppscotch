@@ -68,6 +68,7 @@ type CodeMirrorOptions = {
 
   // callback on editor update
   onUpdate?: (view: ViewUpdate) => void
+  onChange?: (value: string) => void
 
   // callback on view initialization
   onInit?: (view: EditorView) => void
@@ -322,8 +323,11 @@ export function useCodemirror(
               cachedValue.value = update.state.doc
                 .toJSON()
                 .join(update.state.lineBreak)
-              if (!options.extendedEditorConfig.readOnly)
-                value.value = cachedValue.value
+              if (!options.extendedEditorConfig.readOnly) {
+                if (options.onChange) {
+                  options.onChange(cachedValue.value)
+                }
+              }
             }
           }
         }

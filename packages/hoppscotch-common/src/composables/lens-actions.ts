@@ -63,8 +63,15 @@ export function useSaveResponse(doc: HoppRESTDocument) {
     return
   }
   const resp = fromResponse(doc.response)
+  const responseIndex = doc.saveContext?.responseIndex
   if (resp) {
-    doc.request.responses.push(resp)
+    if (responseIndex >= 0) {
+      // Don't change saved response name when changing body
+      const { name } = doc.request.responses[responseIndex]
+      doc.request.responses[responseIndex] = { ...resp, name }
+    } else {
+      doc.request.responses.push(resp)
+    }
   }
   editRESTRequest(
     doc.saveContext.folderPath,

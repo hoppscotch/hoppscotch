@@ -40,7 +40,7 @@
           ref="setExampleResponse"
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('action.add_request_example_response')"
-          :icon="IconArchive"
+          :icon="IconSave"
           @click="() => useSaveResponse(props.doc)"
         />
         <HoppButtonSecondary
@@ -246,7 +246,7 @@ import IconFilter from "~icons/lucide/filter"
 import IconMore from "~icons/lucide/more-horizontal"
 import IconHelpCircle from "~icons/lucide/help-circle"
 import IconCopy from "~icons/lucide/copy"
-import IconArchive from "~icons/lucide/archive"
+import IconSave from "~icons/lucide/save"
 import * as LJSON from "lossless-json"
 import * as O from "fp-ts/Option"
 import * as E from "fp-ts/Either"
@@ -281,6 +281,10 @@ const t = useI18n()
 const props = defineProps<{
   response: HoppRESTResponse
   doc: HoppRESTDocument
+}>()
+
+const emit = defineEmits<{
+  (e: "update:response", response: HoppRESTResponse): void
 }>()
 
 const { responseBodyText } = useResponseBody(props.response)
@@ -395,12 +399,15 @@ const { cursor } = useCodemirror(
   reactive({
     extendedEditorConfig: {
       mode: "application/ld+json",
-      readOnly: true,
+      readOnly: !props.doc.isTryMode,
       lineWrapping: WRAP_LINES,
     },
     linter: null,
     completer: null,
     environmentHighlights: true,
+    onChange: (update: string) => {
+      emit("update:response", { ...props.response, body: update })
+    },
   })
 )
 

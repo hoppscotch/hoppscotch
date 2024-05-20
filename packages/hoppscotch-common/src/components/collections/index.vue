@@ -51,6 +51,7 @@
       @remove-response="removeResponse"
       @edit-response="editResponse"
       @select-request="selectRequest"
+      @select-response="selectResponse"
       @select="selectPicked"
       @drop-request="dropRequest"
       @display-modal-add="displayModalAdd(true)"
@@ -214,7 +215,6 @@ import {
   HoppRESTAuth,
   HoppRESTHeaders,
   HoppRESTRequest,
-  HoppRESTExampleResponse,
   makeCollection,
 } from "@hoppscotch/data"
 import { cloneDeep, debounce, isEqual } from "lodash-es"
@@ -1139,17 +1139,24 @@ const updateEditingResponse = (newName: string) => {
       emit("select", null)
     }
 
-    const changedRequest = request.responses.map((resp, i) => {
-      if (i === responseIndex) {
-        return {
-          ...resp,
-          name: newName,
-        }
-      }
-      return resp
-    })
-    request.responses = changedRequest
+    request.responses[responseIndex].name = newName
     editRESTRequest(folderPath, requestIndex, request)
+
+    const possibleActiveTab = tabs.getTabRefWithSaveContext({
+      originLocation: "user-collection",
+      requestIndex,
+      folderPath,
+      responseIndex,
+    })
+
+    if (possibleActiveTab) {
+      possibleActiveTab.value.document.response =
+        request.responses[responseIndex]
+      nextTick(() => {
+        possibleActiveTab.value.document.isDirty = false
+      })
+    }
+
     toast.success(t("state.changed"))
     displayModalEditResponse(false)
   }
@@ -1557,9 +1564,8 @@ const selectRequest = (selectedRequest: {
   folderPath: string
   requestIndex: string
   isActive: boolean
-  response?: HoppRESTExampleResponse
 }) => {
-  const { request, folderPath, requestIndex, response } = selectedRequest
+  const { request, folderPath, requestIndex } = selectedRequest
   // If there is a request with this save context, switch into it
   let possibleTab = null
 
@@ -1608,8 +1614,6 @@ const selectRequest = (selectedRequest: {
       folderPath: folderPath!,
     })
     if (possibleTab) {
-      possibleTab.value.document.response = response
-      tabs.updateTab(possibleTab.value)
       tabs.setActiveTab(possibleTab.value.id)
     } else {
       // If not, open the request in a new tab
@@ -1620,6 +1624,58 @@ const selectRequest = (selectedRequest: {
           originLocation: "user-collection",
           folderPath: folderPath!,
           requestIndex: parseInt(requestIndex),
+        },
+        inheritedProperties: {
+          auth,
+          headers,
+        },
+      })
+    }
+  }
+}
+
+/**
+ * This function is called when the user clicks on a request example
+ */
+const selectResponse = (selectedResponse: {
+  request: HoppRESTRequest
+  folderPath: string
+  requestIndex: string
+  responseIndex: number
+}) => {
+  const { request, folderPath, requestIndex, responseIndex } = selectedResponse
+  // If there is a request with this save context, switch into it
+  let possibleTab = null
+
+  const response = request.responses[responseIndex]
+
+  if (collectionsType.value.type === "my-collections") {
+    const { auth, headers } = cascadeParentCollectionForHeaderAuth(
+      folderPath,
+      "rest"
+    )
+    possibleTab = tabs.getTabRefWithSaveContext({
+      originLocation: "user-collection",
+      requestIndex: parseInt(requestIndex),
+      folderPath: folderPath!,
+      responseIndex,
+    })
+    if (possibleTab) {
+      possibleTab.value.document.response = response
+      possibleTab.value.document.isTryMode = true
+      tabs.updateTab(possibleTab.value)
+      tabs.setActiveTab(possibleTab.value.id)
+    } else {
+      // If not, open the request in a new tab
+      tabs.createNewTab({
+        request: cloneDeep(request),
+        isDirty: false,
+        isTryMode: true,
+        saveContext: {
+          originLocation: "user-collection",
+          folderPath: folderPath!,
+          requestIndex: parseInt(requestIndex),
+          responseIndex: parseInt(responseIndex),
         },
         inheritedProperties: {
           auth,

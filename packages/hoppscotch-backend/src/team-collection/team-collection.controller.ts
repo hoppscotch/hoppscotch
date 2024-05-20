@@ -16,7 +16,6 @@ import { RESTTeamMemberGuard } from 'src/team/guards/rest-team-member.guard';
 import { throwHTTPErr } from 'src/utils';
 import { RESTError } from 'src/types/RESTError';
 import { INVALID_PARAMS } from 'src/errors';
-import { PATAuthGuard } from 'src/guards/rest-pat-auth.guard';
 
 @UseGuards(ThrottlerBehindProxyGuard)
 @Controller({ path: 'team-collection', version: '1' })
@@ -51,11 +50,5 @@ export class TeamCollectionController {
     );
     if (E.isLeft(res)) throwHTTPErr(res.left);
     return res.right;
-  }
-
-  @Get(':id')
-  @UseGuards(PATAuthGuard)
-  async fetchCollection(@Param('id') id: string) {
-    return true;
   }
 }

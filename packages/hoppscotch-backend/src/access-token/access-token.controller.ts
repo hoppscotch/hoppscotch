@@ -10,7 +10,6 @@ import {
   Query,
   UseGuards,
   UseInterceptors,
-  ValidationPipe,
 } from '@nestjs/common';
 import { AccessTokenService } from './access-token.service';
 import { CreateAccessTokenDto } from './dto/create-access-token.dto';
@@ -24,9 +23,9 @@ import { PATAuthGuard } from 'src/guards/rest-pat-auth.guard';
 import { AccessTokenInterceptor } from 'src/interceptors/access-token.interceptor';
 import { TeamEnvironmentsService } from 'src/team-environments/team-environments.service';
 import { TeamCollectionService } from 'src/team-collection/team-collection.service';
-import { RESTTeamMemberGuard } from 'src/team/guards/rest-team-member.guard';
 import { RequiresTeamRole } from 'src/team/decorators/requires-team-role.decorator';
 import { TeamMemberRole } from '@prisma/client';
+import { userInfo } from 'os';
 
 @UseGuards(ThrottlerBehindProxyGuard)
 @Controller({ path: 'access-tokens', version: '1' })
@@ -83,15 +82,18 @@ export class AccessTokenController {
     TeamMemberRole.EDITOR,
     TeamMemberRole.OWNER,
   )
-  @UseGuards(JwtAuthGuard, PATAuthGuard, RESTTeamMemberGuard)
+  @UseGuards(JwtAuthGuard, PATAuthGuard)
   @UseInterceptors(AccessTokenInterceptor)
-  async fetchCollection(@Param('id') id: string) {
-    const res = await this.teamCollectionService.getCollectionForCLI(id);
+  async fetchCollection(@GqlUser() user: AuthUser, @Param('id') id: string) {
+    const res = await this.teamCollectionService.getCollectionForCLI(
+      id,
+      user.uid,
+    );
 
     if (E.isLeft(res))
       throwHTTPErr({
         message: res.left,
-        statusCode: HttpStatus.NOT_FOUND,
+        statusCode: HttpStatus.BAD_REQUEST,
       });
     return res.right;
   }
@@ -102,16 +104,18 @@ export class AccessTokenController {
     TeamMemberRole.EDITOR,
     TeamMemberRole.OWNER,
   )
-  // TODO: Create a new custom decorator to annotate if route if for collection or environment
-  @UseGuards(JwtAuthGuard, PATAuthGuard, RESTTeamMemberGuard)
+  @UseGuards(JwtAuthGuard, PATAuthGuard)
   @UseInterceptors(AccessTokenInterceptor)
-  async fetchEnvironment(@Param('id') id: string) {
-    const res = await this.teamEnvironmentsService.getTeamEnvironment(id);
+  async fetchEnvironment(@GqlUser() user: AuthUser, @Param('id') id: string) {
+    const res = await this.teamEnvironmentsService.getTeamEnvironmentForCLI(
+      id,
+      user.uid,
+    );
 
     if (E.isLeft(res))
       throwHTTPErr({
         message: res.left,
-        statusCode: HttpStatus.NOT_FOUND,
+        statusCode: HttpStatus.BAD_REQUEST,
       });
     return res.right;
   }

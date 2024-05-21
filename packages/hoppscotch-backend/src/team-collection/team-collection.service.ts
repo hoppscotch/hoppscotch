@@ -18,6 +18,7 @@ import {
   TEAM_COL_SEARCH_FAILED,
   TEAM_REQ_PARENT_TREE_GEN_FAILED,
   TEAM_COLL_PARENT_TREE_GEN_FAILED,
+  TEAM_MEMBER_NOT_FOUND,
 } from '../errors';
 import { PubSubService } from '../pubsub/pubsub.service';
 import { escapeSqlLikeString, isValidLength } from 'src/utils';
@@ -37,12 +38,14 @@ import {
   SearchQueryReturnType,
 } from './helper';
 import { RESTError } from 'src/types/RESTError';
+import { TeamService } from 'src/team/team.service';
 
 @Injectable()
 export class TeamCollectionService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly pubsub: PubSubService,
+    private readonly teamService: TeamService,
   ) {}
 
   TITLE_LENGTH = 3;
@@ -1397,12 +1400,18 @@ export class TeamCollectionService {
     return response;
   }
 
-  async getCollectionForCLI(collectionID: string | null) {
+  async getCollectionForCLI(collectionID: string | null, userUid: string) {
     try {
       const parentCollection =
         await this.prisma.teamCollection.findUniqueOrThrow({
           where: { id: collectionID },
         });
+
+      const teamMember = await this.teamService.getTeamMember(
+        parentCollection.teamID,
+        userUid,
+      );
+      if (!teamMember) return E.left(TEAM_MEMBER_NOT_FOUND);
 
       return E.right(<GetCollectionResponse>{
         id: parentCollection.id,

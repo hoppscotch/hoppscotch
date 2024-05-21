@@ -63,6 +63,7 @@ export function useSaveResponse(doc: HoppRESTDocument) {
     if (!doc.saveContext.folderPath) {
       return
     }
+    doc.request.responses = doc.request?.responses || []
     const resp = fromResponse(doc.response)
     const responseIndex =
       "responseIndex" in doc.saveContext ? doc.saveContext.responseIndex : -1

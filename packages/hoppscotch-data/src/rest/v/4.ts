@@ -63,11 +63,12 @@ export const HoppRESTResponse = z.object({
   })).optional(),
   body: z.string().optional(),
   statusCode: z.number().catch(200).optional(),
+  statusText: z.string().catch("OK").optional(),
   meta: z.object({
     responseSize: z.number(),
     responseDuration: z.number()
   }),
-  req: V4_BASE_SCHEMA.optional()
+  request: V4_BASE_SCHEMA.optional()
 })
 
 export type HoppRESTResponse = z.infer<typeof HoppRESTResponse>

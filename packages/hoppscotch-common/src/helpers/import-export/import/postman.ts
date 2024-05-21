@@ -315,7 +315,7 @@ const getHoppReqBody = (item: Item): HoppRESTReqBody => {
 }
 
 const getHoppResponses = (item: Item): HoppRESTResponse[] => {
-  const basicResponse = {
+  const basicResponse = <HoppRESTResponse>{
     name: "",
     statusCode: 200,
     statusText: "",
@@ -326,7 +326,7 @@ const getHoppResponses = (item: Item): HoppRESTResponse[] => {
       responseSize: 0,
       responseDuration: 0,
     },
-    req: <HoppRESTRequest>{},
+    request: <HoppRESTRequest>{},
   }
   if (!item.responses.count()) return []
 
@@ -350,7 +350,7 @@ const getHoppResponses = (item: Item): HoppRESTResponse[] => {
 
     basicResponse.headers = getHoppResponseHeaders(response)
 
-    basicResponse.req = {
+    basicResponse.request = {
       v: "4",
       name: response.originalRequest?.name || "",
       endpoint: response.originalRequest
@@ -369,7 +369,6 @@ const getHoppResponses = (item: Item): HoppRESTResponse[] => {
       },
       auth: { authActive: false, authType: "none" },
       requestVariables: [],
-      responses: [],
     }
     responses.push(basicResponse)
   })

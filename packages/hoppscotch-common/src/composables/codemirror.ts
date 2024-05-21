@@ -324,6 +324,7 @@ export function useCodemirror(
                 .toJSON()
                 .join(update.state.lineBreak)
               if (!options.extendedEditorConfig.readOnly) {
+                value.value = cachedValue.value
                 if (options.onChange) {
                   options.onChange(cachedValue.value)
                 }

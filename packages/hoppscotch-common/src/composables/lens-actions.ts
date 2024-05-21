@@ -59,25 +59,28 @@ export function useSaveResponse(doc: HoppRESTDocument) {
   if (!doc.response) {
     return null
   }
-  if (!doc.saveContext || !doc.saveContext.hasOwnProperty("folderPath")) {
-    return
-  }
-  const resp = fromResponse(doc.response)
-  const responseIndex = doc.saveContext?.responseIndex
-  if (resp) {
-    if (responseIndex >= 0) {
-      // Don't change saved response name when changing body
-      const { name } = doc.request.responses[responseIndex]
-      doc.request.responses[responseIndex] = { ...resp, name }
-    } else {
-      doc.request.responses.push(resp)
+  if (doc.saveContext && doc.saveContext.originLocation === "user-collection") {
+    if (!doc.saveContext.folderPath) {
+      return
     }
+    const resp = fromResponse(doc.response)
+    const responseIndex =
+      "responseIndex" in doc.saveContext ? doc.saveContext.responseIndex : -1
+    if (resp) {
+      if (responseIndex >= 0) {
+        // Don't change saved response name when changing body
+        const { name } = doc.request.responses[responseIndex]
+        doc.request.responses[responseIndex] = { ...resp, name }
+      } else {
+        doc.request.responses.push(resp)
+      }
+    }
+    editRESTRequest(
+      doc.saveContext.folderPath,
+      doc.saveContext.requestIndex,
+      doc.request
+    )
   }
-  editRESTRequest(
-    doc.saveContext.folderPath,
-    doc.saveContext.requestIndex,
-    doc.request
-  )
 }
 
 export type downloadResponseReturnType = (() => void) | Ref<any>

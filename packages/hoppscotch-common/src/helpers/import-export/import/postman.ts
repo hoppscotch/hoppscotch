@@ -6,6 +6,8 @@ import {
   RequestAuthDefinition,
   VariableDefinition,
   Variable,
+  Response,
+  Request,
 } from "postman-collection"
 import {
   HoppRESTAuth,
@@ -20,6 +22,7 @@ import {
   knownContentTypes,
   FormDataKeyValue,
   HoppRESTRequestVariable,
+  HoppRESTResponse,
 } from "@hoppscotch/data"
 import { pipe, flow } from "fp-ts/function"
 import * as S from "fp-ts/string"
@@ -29,6 +32,7 @@ import * as TE from "fp-ts/TaskEither"
 import { IMPORTER_INVALID_FILE_FORMAT } from "."
 import { PMRawLanguage } from "~/types/pm-coll-exts"
 import { stringArrayJoin } from "~/helpers/functional/array"
+import { HoppRESTResponseHeader } from "~/helpers/types/HoppRESTResponse"
 
 const safeParseJSON = (jsonStr: string) => O.tryCatch(() => JSON.parse(jsonStr))
 
@@ -65,13 +69,27 @@ const readPMCollection = (def: string) =>
   )
 
 const getHoppReqHeaders = (item: Item): HoppRESTHeader[] =>
+  getHoppReqHeadersInner(item.request)
+
+const getHoppReqHeadersInner = (request: Request): HoppRESTHeader[] =>
   pipe(
-    item.request.headers.all(),
+    request.headers.all(),
     A.map((header) => {
       return <HoppRESTHeader>{
         key: replacePMVarTemplating(header.key),
         value: replacePMVarTemplating(header.value),
         active: !header.disabled,
+      }
+    })
+  )
+
+const getHoppResponseHeaders = (response: Response): HoppRESTResponseHeader[] =>
+  pipe(
+    response.headers.all(),
+    A.map((header) => {
+      return <HoppRESTResponseHeader>{
+        key: replacePMVarTemplating(header.key),
+        value: replacePMVarTemplating(header.value),
       }
     })
   )
@@ -296,9 +314,74 @@ const getHoppReqBody = (item: Item): HoppRESTReqBody => {
   return { contentType: null, body: null }
 }
 
-const getHoppReqURL = (item: Item): string =>
+const getHoppResponses = (item: Item): HoppRESTResponse[] => {
+  const basicResponse = {
+    name: "",
+    statusCode: 200,
+    statusText: "",
+    type: "success",
+    headers: <HoppRESTResponseHeader[]>[],
+    body: "",
+    meta: {
+      responseSize: 0,
+      responseDuration: 0,
+    },
+    req: <HoppRESTRequest>{},
+  }
+  if (!item.responses.count()) return []
+
+  const responses = <HoppRESTResponse[]>[]
+  item.responses.each((response: Response) => {
+    const details = response.details()
+    basicResponse.name =
+      details?.name || `${response.code}\xA0 • \xA0 ${response.status}`
+    basicResponse.statusCode = response.code
+    basicResponse.statusText = response.status
+    const responseBody = response.text()
+    if (!!responseBody) {
+      basicResponse.body = responseBody
+    }
+    const responseSize = response.size()
+    basicResponse.meta = {
+      // @ts-expect-error See https://github.com/postmanlabs/postman-collection/issues/1107
+      responseSize: responseSize.total,
+      responseDuration: response?.responseTime || 0,
+    }
+
+    basicResponse.headers = getHoppResponseHeaders(response)
+
+    basicResponse.req = {
+      v: "4",
+      name: response.originalRequest?.name || "",
+      endpoint: response.originalRequest
+        ? getHoppReqURLInner(response.originalRequest)
+        : "",
+      method: response.originalRequest?.method.toString() || "",
+      headers: !!response.originalRequest
+        ? getHoppReqHeadersInner(response.originalRequest)
+        : [],
+      params: [],
+      preRequestScript: "",
+      testScript: "",
+      body: {
+        contentType: null,
+        body: null,
+      },
+      auth: { authActive: false, authType: "none" },
+      requestVariables: [],
+      responses: [],
+    }
+    responses.push(basicResponse)
+  })
+
+  return responses
+}
+
+const getHoppReqURL = (item: Item): string => getHoppReqURLInner(item.request)
+
+const getHoppReqURLInner = (request: Request): string =>
   pipe(
-    item.request.url.toString(false),
+    request.url.toString(false),
     S.replace(/\?.+/g, ""),
     replacePMVarTemplating
   )
@@ -317,6 +400,7 @@ const getHoppRequest = (item: Item): HoppRESTRequest => {
     // TODO: Decide about this
     preRequestScript: "",
     testScript: "",
+    responses: getHoppResponses(item),
   })
 }
 

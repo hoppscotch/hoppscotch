@@ -46,30 +46,36 @@ export type HoppRESTAuth = z.infer<typeof HoppRESTAuth>
 //   }
 // }
 //
-export const HoppRESTExampleResponse = z.object({
-  name: z.string(),
+
+
+export const V4_BASE_SCHEMA = V3_SCHEMA.extend({
+  v: z.literal("4"),
+  auth: HoppRESTAuth,
+})
+
+export const HoppRESTResponse = z.object({
+  name: z.string().optional(),
   type: z.string(),
+  error: z.string().optional(),
   headers: z.array(z.object({
     key: z.string(),
     value: z.string()
-  })),
-  body: z.string().catch(""),
-  statusCode: z.number().catch(200),
+  })).optional(),
+  body: z.string().optional(),
+  statusCode: z.number().catch(200).optional(),
   meta: z.object({
     responseSize: z.number(),
     responseDuration: z.number()
-  })
+  }),
+  req: V4_BASE_SCHEMA.optional()
 })
 
+export type HoppRESTResponse = z.infer<typeof HoppRESTResponse>
 
-export type HoppRESTExampleResponse = z.infer<typeof HoppRESTExampleResponse>
-
-export const V4_SCHEMA = V3_SCHEMA.extend({
+export const V4_SCHEMA = V4_BASE_SCHEMA.extend({
   v: z.literal("4"),
-  auth: HoppRESTAuth,
-  responses: z.array(HoppRESTExampleResponse)
+  responses: z.array(HoppRESTResponse).optional()
 })
-
 export default defineVersion({
   schema: V4_SCHEMA,
   initial: false,

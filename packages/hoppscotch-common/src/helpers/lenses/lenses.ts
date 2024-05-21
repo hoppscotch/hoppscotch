@@ -1,4 +1,7 @@
-import { HoppRESTResponse } from "../types/HoppRESTResponse"
+import {
+  HoppRESTResponse,
+  HoppRESTResponseHeader,
+} from "../types/HoppRESTResponse"
 import jsonLens from "./jsonLens"
 import rawLens from "./rawLens"
 import imageLens from "./imageLens"
@@ -37,7 +40,9 @@ export function getSuitableLenses(response: HoppRESTResponse): Lens[] {
   )
     return []
 
-  const contentType = response.headers.find((h) => h.key === "content-type")
+  const contentType = response.headers.find(
+    (h: HoppRESTResponseHeader) => h.key.toLowerCase() === "content-type"
+  )
 
   if (!contentType) return [rawLens]
 

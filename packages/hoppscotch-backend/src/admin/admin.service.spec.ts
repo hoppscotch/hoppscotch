@@ -22,6 +22,7 @@ import { ShortcodeService } from 'src/shortcode/shortcode.service';
 import { ConfigService } from '@nestjs/config';
 import { OffsetPaginationArgs } from 'src/types/input-types.args';
 import * as E from 'fp-ts/Either';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 const mockPrisma = mockDeep<PrismaService>();
 const mockPubSub = mockDeep<PubSubService>();
@@ -34,6 +35,7 @@ const mockTeamCollectionService = mockDeep<TeamCollectionService>();
 const mockMailerService = mockDeep<MailerService>();
 const mockShortcodeService = mockDeep<ShortcodeService>();
 const mockConfigService = mockDeep<ConfigService>();
+const mockEventEmitter = mockDeep<EventEmitter2>();
 
 const adminService = new AdminService(
   mockUserService,
@@ -44,9 +46,9 @@ const adminService = new AdminService(
   mockTeamInvitationService,
   mockPubSub as any,
   mockPrisma as any,
-  mockMailerService,
   mockShortcodeService,
   mockConfigService,
+  mockEventEmitter,
 );
 
 const invitedUsers: InvitedUsers[] = [

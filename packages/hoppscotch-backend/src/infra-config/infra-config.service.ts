@@ -370,6 +370,13 @@ export class InfraConfigService implements OnModuleInit {
           )
             return E.left(INFRA_CONFIG_INVALID_INPUT);
           break;
+        case InfraConfigEnum.MAILER_USE_ADVANCE_CONFIGS:
+          if (
+            infraConfigs[i].value !== 'true' &&
+            infraConfigs[i].value !== 'false'
+          )
+            return E.left(INFRA_CONFIG_INVALID_INPUT);
+          break;
         case InfraConfigEnum.MAILER_SMTP_URL:
           const isValidUrl = validateSMTPUrl(infraConfigs[i].value);
           if (!isValidUrl) return E.left(INFRA_CONFIG_INVALID_INPUT);
@@ -377,6 +384,32 @@ export class InfraConfigService implements OnModuleInit {
         case InfraConfigEnum.MAILER_ADDRESS_FROM:
           const isValidEmail = validateSMTPEmail(infraConfigs[i].value);
           if (!isValidEmail) return E.left(INFRA_CONFIG_INVALID_INPUT);
+          break;
+        case InfraConfigEnum.MAILER_SMTP_HOST:
+          if (!infraConfigs[i].value) return E.left(INFRA_CONFIG_INVALID_INPUT);
+          break;
+        case InfraConfigEnum.MAILER_SMTP_PORT:
+          if (!infraConfigs[i].value) return E.left(INFRA_CONFIG_INVALID_INPUT);
+          break;
+        case InfraConfigEnum.MAILER_SMTP_SECURE:
+          if (
+            infraConfigs[i].value !== 'true' &&
+            infraConfigs[i].value !== 'false'
+          )
+            return E.left(INFRA_CONFIG_INVALID_INPUT);
+          break;
+        case InfraConfigEnum.MAILER_SMTP_USER:
+          if (!infraConfigs[i].value) return E.left(INFRA_CONFIG_INVALID_INPUT);
+          break;
+        case InfraConfigEnum.MAILER_SMTP_PASSWORD:
+          if (!infraConfigs[i].value) return E.left(INFRA_CONFIG_INVALID_INPUT);
+          break;
+        case InfraConfigEnum.MAILER_TLS_REJECT_UNAUTHORIZED:
+          if (
+            infraConfigs[i].value !== 'true' &&
+            infraConfigs[i].value !== 'false'
+          )
+            return E.left(INFRA_CONFIG_INVALID_INPUT);
           break;
         case InfraConfigEnum.GOOGLE_CLIENT_ID:
           if (!infraConfigs[i].value) return E.left(INFRA_CONFIG_INVALID_INPUT);

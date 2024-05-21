@@ -33,10 +33,17 @@ const AuthProviderConfigurations = {
     InfraConfigEnum.MICROSOFT_SCOPE,
     InfraConfigEnum.MICROSOFT_TENANT,
   ],
-  [AuthProvider.EMAIL]: [
-    InfraConfigEnum.MAILER_SMTP_URL,
-    InfraConfigEnum.MAILER_ADDRESS_FROM,
-  ],
+  [AuthProvider.EMAIL]: !!process.env.MAILER_USE_ADVANCE_CONFIGS
+    ? [
+        InfraConfigEnum.MAILER_SMTP_HOST,
+        InfraConfigEnum.MAILER_SMTP_PORT,
+        InfraConfigEnum.MAILER_SMTP_SECURE,
+        InfraConfigEnum.MAILER_SMTP_USER,
+        InfraConfigEnum.MAILER_SMTP_PASSWORD,
+        InfraConfigEnum.MAILER_TLS_REJECT_UNAUTHORIZED,
+        InfraConfigEnum.MAILER_ADDRESS_FROM,
+      ]
+    : [InfraConfigEnum.MAILER_SMTP_URL, InfraConfigEnum.MAILER_ADDRESS_FROM],
 };
 
 /**
@@ -80,12 +87,40 @@ export async function getDefaultInfraConfigs(): Promise<
       value: process.env.MAILER_SMTP_ENABLE ?? 'true',
     },
     {
+      name: InfraConfigEnum.MAILER_USE_ADVANCE_CONFIGS,
+      value: process.env.MAILER_USE_ADVANCE_CONFIGS ?? 'false',
+    },
+    {
       name: InfraConfigEnum.MAILER_SMTP_URL,
       value: process.env.MAILER_SMTP_URL,
     },
     {
       name: InfraConfigEnum.MAILER_ADDRESS_FROM,
       value: process.env.MAILER_ADDRESS_FROM,
+    },
+    {
+      name: InfraConfigEnum.MAILER_SMTP_HOST,
+      value: process.env.MAILER_SMTP_HOST,
+    },
+    {
+      name: InfraConfigEnum.MAILER_SMTP_PORT,
+      value: process.env.MAILER_SMTP_PORT,
+    },
+    {
+      name: InfraConfigEnum.MAILER_SMTP_SECURE,
+      value: process.env.MAILER_SMTP_SECURE,
+    },
+    {
+      name: InfraConfigEnum.MAILER_SMTP_USER,
+      value: process.env.MAILER_SMTP_USER,
+    },
+    {
+      name: InfraConfigEnum.MAILER_SMTP_PASSWORD,
+      value: process.env.MAILER_SMTP_PASSWORD,
+    },
+    {
+      name: InfraConfigEnum.MAILER_TLS_REJECT_UNAUTHORIZED,
+      value: process.env.MAILER_TLS_REJECT_UNAUTHORIZED,
     },
     {
       name: InfraConfigEnum.GOOGLE_CLIENT_ID,

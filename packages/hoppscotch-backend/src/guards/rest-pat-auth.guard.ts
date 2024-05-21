@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   CanActivate,
   ExecutionContext,
   Injectable,
@@ -8,6 +9,7 @@ import { Request } from 'express';
 import { AccessTokenService } from 'src/access-token/access-token.service';
 import * as E from 'fp-ts/Either';
 import { DateTime } from 'luxon';
+import { ACCESS_TOKENS_EXPIRED, ACCESS_TOKENS_INVALID } from 'src/errors';
 @Injectable()
 export class PATAuthGuard implements CanActivate {
   constructor(private accessTokenService: AccessTokenService) {}
@@ -16,22 +18,20 @@ export class PATAuthGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeader(request);
     if (!token) {
-      throw new UnauthorizedException();
+      throw new BadRequestException({ reason: ACCESS_TOKENS_INVALID });
     }
-    try {
-      const userAccessToken = await this.accessTokenService.getUserPAT(token);
-      if (E.isLeft(userAccessToken)) throw new UnauthorizedException();
 
-      const accessToken = userAccessToken.right;
-      if (accessToken.expiresOn === null) return true;
+    const userAccessToken = await this.accessTokenService.getUserPAT(token);
+    if (E.isLeft(userAccessToken))
+      throw new BadRequestException({ reason: ACCESS_TOKENS_INVALID });
 
-      const today = DateTime.now().toISO();
-      if (accessToken.expiresOn.toISOString() > today) return true;
+    const accessToken = userAccessToken.right;
+    if (accessToken.expiresOn === null) return true;
 
-      return false;
-    } catch {
-      throw new UnauthorizedException();
-    }
+    const today = DateTime.now().toISO();
+    if (accessToken.expiresOn.toISOString() > today) return true;
+
+    throw new BadRequestException({ reason: ACCESS_TOKENS_EXPIRED });
   }
 
   private extractTokenFromHeader(request: Request): string | undefined {

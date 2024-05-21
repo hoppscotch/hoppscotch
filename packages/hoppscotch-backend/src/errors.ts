@@ -785,3 +785,21 @@ export const ACCESS_TOKEN_NOT_FOUND = 'access_token/access_token_not_found';
  * (AccessTokenService)
  */
 export const ACCESS_TOKENS_NOT_FOUND = 'access_token/access_tokens_not_found';
+
+/**
+ * AccessTokens is expired
+ * (AccessTokenService)
+ */
+export const ACCESS_TOKENS_EXPIRED = 'TOKEN_EXPIRED';
+
+/**
+ * AccessTokens is invalid
+ * (AccessTokenService)
+ */
+export const ACCESS_TOKENS_INVALID = 'TOKEN_INVALID';
+
+/**
+ * AccessTokens is invalid
+ * (AccessTokenService)
+ */
+export const ACCESS_TOKENS_INVALID_DATA_ID = 'INVALID_ID';

@@ -26,6 +26,7 @@ import { TeamCollectionService } from 'src/team-collection/team-collection.servi
 import { RequiresTeamRole } from 'src/team/decorators/requires-team-role.decorator';
 import { TeamMemberRole } from '@prisma/client';
 import { userInfo } from 'os';
+import { ACCESS_TOKENS_INVALID_DATA_ID } from 'src/errors';
 
 @UseGuards(ThrottlerBehindProxyGuard)
 @Controller({ path: 'access-tokens', version: '1' })
@@ -92,7 +93,7 @@ export class AccessTokenController {
 
     if (E.isLeft(res))
       throwHTTPErr({
-        message: res.left,
+        message: { reason: ACCESS_TOKENS_INVALID_DATA_ID },
         statusCode: HttpStatus.BAD_REQUEST,
       });
     return res.right;
@@ -114,7 +115,7 @@ export class AccessTokenController {
 
     if (E.isLeft(res))
       throwHTTPErr({
-        message: res.left,
+        message: { reason: ACCESS_TOKENS_INVALID_DATA_ID },
         statusCode: HttpStatus.BAD_REQUEST,
       });
     return res.right;

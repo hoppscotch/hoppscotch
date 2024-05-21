@@ -1,6 +1,5 @@
 <template>
   <HoppSmartModal
-    v-if="show"
     dialog
     :title="t('users.invite_user')"
     @close="emit('hide-modal')"
@@ -31,21 +30,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { ref } from 'vue';
 import { useI18n } from '~/composables/i18n';
 import { useToast } from '~/composables/toast';
 
 const t = useI18n();
 const toast = useToast();
-
-const props = withDefaults(
-  defineProps<{
-    show: boolean;
-  }>(),
-  {
-    show: false,
-  }
-);
 
 const emit = defineEmits<{
   (event: 'hide-modal'): void;
@@ -65,11 +55,4 @@ const sendInvite = () => {
 const hideModal = () => {
   emit('hide-modal');
 };
-
-watch(
-  () => props.show,
-  (show) => {
-    if (show) email.value = '';
-  }
-);
 </script>

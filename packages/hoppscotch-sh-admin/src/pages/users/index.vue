@@ -206,7 +206,7 @@
     </div>
 
     <UsersInviteModal
-      :show="showInviteUserModal"
+      v-if="showInviteUserModal"
       @hide-modal="showInviteUserModal = false"
       @send-invite="sendInvite"
     />

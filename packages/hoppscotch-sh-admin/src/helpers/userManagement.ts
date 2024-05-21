@@ -53,14 +53,12 @@ export const handleUserDeletion = (deletedUsersList: UserDeletionResult[]) => {
   }
 
   const errMsgMap = {
-    [ADMIN_CANNOT_BE_DELETED]: isBulkAction
-      ? t(getErrorMessage(ADMIN_CANNOT_BE_DELETED, true))
-      : t(getErrorMessage(ADMIN_CANNOT_BE_DELETED)),
-
-    [USER_IS_OWNER]: isBulkAction
-      ? t(getErrorMessage(USER_IS_OWNER, true))
-      : t(getErrorMessage(USER_IS_OWNER)),
+    [ADMIN_CANNOT_BE_DELETED]: t(
+      getErrorMessage(ADMIN_CANNOT_BE_DELETED, isBulkAction)
+    ),
+    [USER_IS_OWNER]: t(getErrorMessage(USER_IS_OWNER, isBulkAction)),
   };
+
   const errMsgMapKeys = Object.keys(errMsgMap);
 
   const toastMessages: ToastMessage[] = [];

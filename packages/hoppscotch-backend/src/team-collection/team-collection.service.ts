@@ -1419,7 +1419,7 @@ export class TeamCollectionService {
    * @param userUid The User UID
    * @returns An Either of the Collection details
    */
-  async getCollectionForCLI(collectionID: string | null, userUid: string) {
+  async getCollectionForCLI(collectionID: string, userUid: string) {
     try {
       const parentCollection =
         await this.prisma.teamCollection.findUniqueOrThrow({

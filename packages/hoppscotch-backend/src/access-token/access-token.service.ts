@@ -131,27 +131,20 @@ export class AccessTokenService {
    * @returns Either of the list of Personal Access Tokens or error message
    */
   async listAllUserPAT(userUid: string, offset: number, limit: number) {
-    try {
-      const userPATs = await this.prisma.personalAccessToken.findMany({
-        where: {
-          userUid: userUid,
-        },
-        skip: offset,
-        take: limit,
-        orderBy: {
-          createdOn: 'desc',
-        },
-      });
+    const userPATs = await this.prisma.personalAccessToken.findMany({
+      where: {
+        userUid: userUid,
+      },
+      skip: offset,
+      take: limit,
+      orderBy: {
+        createdOn: 'desc',
+      },
+    });
 
-      const userAccessTokenList = userPATs.map((pat) => this.cast(pat));
+    const userAccessTokenList = userPATs.map((pat) => this.cast(pat));
 
-      return E.right(userAccessTokenList);
-    } catch {
-      return E.left({
-        message: ACCESS_TOKENS_NOT_FOUND,
-        statusCode: HttpStatus.NOT_FOUND,
-      });
-    }
+    return userAccessTokenList;
   }
 
   /**

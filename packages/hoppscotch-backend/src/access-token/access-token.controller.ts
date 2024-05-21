@@ -64,14 +64,11 @@ export class AccessTokenController {
     @Query('offset', ParseIntPipe) offset: number,
     @Query('limit', ParseIntPipe) limit: number,
   ) {
-    const result = await this.accessTokenService.listAllUserPAT(
+    return await this.accessTokenService.listAllUserPAT(
       user.uid,
       offset,
       limit,
     );
-
-    if (E.isLeft(result)) throwHTTPErr(result.left);
-    return result.right;
   }
 
   @Get('collection/:id')

@@ -1356,6 +1356,12 @@ export class TeamCollectionService {
     }
   }
 
+  /**
+   * Get all requests in a collection
+   *
+   * @param collectionID The Collection ID
+   * @returns A list of all requests in the collection
+   */
   private async getAllRequestsInCollection(collectionID: string) {
     const dbTeamRequests = await this.prisma.teamRequest.findMany({
       where: {
@@ -1376,6 +1382,12 @@ export class TeamCollectionService {
     return teamRequests;
   }
 
+  /**
+   * Get Collection Tree for CLI
+   *
+   * @param parentID The parent Collection ID
+   * @returns Collection tree for CLI
+   */
   private async getCollectionTreeForCLI(parentID: string | null) {
     const collections = await this.prisma.teamCollection.findMany({
       where: { parentID },
@@ -1400,6 +1412,13 @@ export class TeamCollectionService {
     return response;
   }
 
+  /**
+   * Get Collection for CLI
+   *
+   * @param collectionID The Collection ID
+   * @param userUid The User UID
+   * @returns An Either of the Collection details
+   */
   async getCollectionForCLI(collectionID: string | null, userUid: string) {
     try {
       const parentCollection =

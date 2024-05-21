@@ -247,7 +247,7 @@ export class TeamEnvironmentsService {
   }
 
   /**
-   * Get details of a TeamEnvironment.
+   * Get details of a TeamEnvironment for CLI.
    *
    * @param id TeamEnvironment ID
    * @param userUid User UID

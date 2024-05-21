@@ -22,17 +22,34 @@ export class AccessTokenService {
   VALID_TOKEN_DURATIONS = [7, 30, 60, 90];
   TOKEN_PREFIX = 'pat';
 
+  /**
+   * Calculate the expiration date of the token
+   *
+   * @param expiresOn Number of days the token is valid for
+   * @returns Date object of the expiration date
+   */
   private calculateExpirationDate(expiresOn: null | number) {
     if (expiresOn === null) return null;
     return new Date(Date.now() + expiresOn * 24 * 60 * 60 * 1000);
   }
 
+  /**
+   * Validate the expiration date of the token
+   *
+   * @param expiresOn Number of days the token is valid for
+   * @returns Boolean indicating if the expiration date is valid
+   */
   private validateExpirationDate(expiresOn: null | number) {
     if (expiresOn === null || this.VALID_TOKEN_DURATIONS.includes(expiresOn))
       return true;
     return false;
   }
 
+  /**
+   * Typecast a database PersonalAccessToken to a AccessToken model
+   * @param token database PersonalAccessToken
+   * @returns AccessToken model
+   */
   private cast(token: PersonalAccessToken): AccessToken {
     return <AccessToken>{
       id: token.id,
@@ -43,6 +60,13 @@ export class AccessTokenService {
     };
   }
 
+  /**
+   * Create a Personal Access Token
+   *
+   * @param createAccessTokenDto DTO for creating a Personal Access Token
+   * @param user AuthUser object
+   * @returns Either of the created token or error message
+   */
   async createPAT(createAccessTokenDto: CreateAccessTokenDto, user: AuthUser) {
     const isTitleValid = isValidLength(
       createAccessTokenDto.label,
@@ -78,6 +102,12 @@ export class AccessTokenService {
     return E.right(res);
   }
 
+  /**
+   * Delete a Personal Access Token
+   *
+   * @param accessTokenID ID of the Personal Access Token
+   * @returns Either of true or error message
+   */
   async deletePAT(accessTokenID: string) {
     try {
       await this.prisma.personalAccessToken.delete({
@@ -92,6 +122,14 @@ export class AccessTokenService {
     }
   }
 
+  /**
+   * List all Personal Access Tokens of a user
+   *
+   * @param userUid UID of the user
+   * @param offset Offset for pagination
+   * @param limit Limit for pagination
+   * @returns Either of the list of Personal Access Tokens or error message
+   */
   async listAllUserPAT(userUid: string, offset: number, limit: number) {
     try {
       const userPATs = await this.prisma.personalAccessToken.findMany({
@@ -116,6 +154,12 @@ export class AccessTokenService {
     }
   }
 
+  /**
+   * Get a Personal Access Token
+   *
+   * @param accessToken Personal Access Token
+   * @returns Either of the Personal Access Token or error message
+   */
   async getUserPAT(accessToken: string) {
     try {
       const userPAT = await this.prisma.personalAccessToken.findUniqueOrThrow({
@@ -127,6 +171,12 @@ export class AccessTokenService {
     }
   }
 
+  /**
+   * Update the last used date of a Personal Access Token
+   *
+   * @param token Personal Access Token
+   * @returns Either of the updated Personal Access Token or error message
+   */
   async updateLastUsedforPAT(token: string) {
     try {
       const updatedAccessToken = await this.prisma.personalAccessToken.update({

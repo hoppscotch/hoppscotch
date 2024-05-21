@@ -23,9 +23,6 @@ import { PATAuthGuard } from 'src/guards/rest-pat-auth.guard';
 import { AccessTokenInterceptor } from 'src/interceptors/access-token.interceptor';
 import { TeamEnvironmentsService } from 'src/team-environments/team-environments.service';
 import { TeamCollectionService } from 'src/team-collection/team-collection.service';
-import { RequiresTeamRole } from 'src/team/decorators/requires-team-role.decorator';
-import { TeamMemberRole } from '@prisma/client';
-import { userInfo } from 'os';
 import { ACCESS_TOKENS_INVALID_DATA_ID } from 'src/errors';
 
 @UseGuards(ThrottlerBehindProxyGuard)
@@ -78,11 +75,6 @@ export class AccessTokenController {
   }
 
   @Get('collection/:id')
-  @RequiresTeamRole(
-    TeamMemberRole.VIEWER,
-    TeamMemberRole.EDITOR,
-    TeamMemberRole.OWNER,
-  )
   @UseGuards(JwtAuthGuard, PATAuthGuard)
   @UseInterceptors(AccessTokenInterceptor)
   async fetchCollection(@GqlUser() user: AuthUser, @Param('id') id: string) {
@@ -100,11 +92,6 @@ export class AccessTokenController {
   }
 
   @Get('environment/:id')
-  @RequiresTeamRole(
-    TeamMemberRole.VIEWER,
-    TeamMemberRole.EDITOR,
-    TeamMemberRole.OWNER,
-  )
   @UseGuards(JwtAuthGuard, PATAuthGuard)
   @UseInterceptors(AccessTokenInterceptor)
   async fetchEnvironment(@GqlUser() user: AuthUser, @Param('id') id: string) {

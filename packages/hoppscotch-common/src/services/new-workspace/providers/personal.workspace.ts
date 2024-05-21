@@ -93,7 +93,10 @@ export class PersonalWorkspaceProviderService
 
   public restCollectionState: Ref<{ state: HoppCollection[] }>
 
-  public issuedHandles: WritableHandleRef<WorkspaceRequest>[] = []
+  // Issued handles can have collection handles when the collection runner is introduced
+  public issuedHandles: WritableHandleRef<
+    WorkspaceRequest | WorkspaceCollection
+  >[] = []
 
   public constructor() {
     super()
@@ -900,12 +903,10 @@ export class PersonalWorkspaceProviderService
       : draggedCollectionID.split("/").slice(0, -1).join("/")
 
     const isMoveToSiblingCollection = this.isAlreadyInRoot(draggedCollectionID)
-      ? this.isAlreadyInRoot(
-          destinationCollectionID === null
-            ? // Move to root
-              this.restCollectionState.value.state.length.toString()
-            : destinationCollectionID
-        )
+      ? destinationCollectionID === null
+        ? // Move to root
+          this.restCollectionState.value.state.length.toString()
+        : this.isAlreadyInRoot(destinationCollectionID)
       : !!destinationCollectionID?.startsWith(draggedParentCollectionID)
 
     const draggedCollectionIndexPos = this.pathToLastIndex(draggedCollectionID)
@@ -919,9 +920,6 @@ export class PersonalWorkspaceProviderService
         this.restCollectionState.value.state.length.toString()
     } else {
       // Move to an inner-level collection
-      const destinationCollectionIndexPos = this.pathToLastIndex(
-        destinationCollectionID
-      )
 
       // The count of child collections within the destination collection will be the new index position
       // Appended to the `resolvedDestinationCollectionID`
@@ -930,32 +928,33 @@ export class PersonalWorkspaceProviderService
         destinationCollectionID
       ).length
 
+      const draggedCollectionIDStrLength = draggedCollectionID.split("/").length
+
+      // Obtain a subset of the destination collection ID till the dragged collection ID string length
+      const destinationCollectionIDSubset = destinationCollectionID
+        .split("/")
+        .slice(0, draggedCollectionIDStrLength)
+        .join("/")
+
+      const destinationCollectionIDSubsetIndexPos = this.pathToLastIndex(
+        destinationCollectionIDSubset
+      )
+
       // Indicates a move from a collection at the top to a sibling collection below it
       if (
         isMoveToSiblingCollection &&
-        destinationCollectionIndexPos > draggedCollectionIndexPos
+        destinationCollectionIDSubsetIndexPos > draggedCollectionIndexPos
       ) {
-        const draggedCollectionIDStrLength =
-          draggedCollectionID.split("/").length
-
-        // Obtain a subset of the destination collection ID till the dragged collection ID string length
         // Only update the index position at the level of the dragged collection
         // This ensures moves to deeply any nested collections are accounted
-        const destinationCollectionIDSubset = destinationCollectionID
-          .split("/")
-          .slice(0, draggedCollectionIDStrLength)
-          .join("/")
 
-        const destinationParentCollectionIDSubset = destinationCollectionID
-          .split("/")
-          .slice(0, -1)
-          .join("/")
+        const destinationParentCollectionIDSubset =
+          destinationCollectionIDSubset.split("/").slice(0, -1).join("/")
 
         // Reduce `1` from the index position to account for the dragged collection
         // Dragged collection doesn't exist anymore at the previous level
-        const collectionIDSubsetIndexPos = Number(
-          this.pathToLastIndex(destinationCollectionIDSubset) - 1
-        )
+        const collectionIDSubsetIndexPos =
+          destinationCollectionIDSubsetIndexPos - 1
 
         // Replace the destination collection ID with `1` reduced from the index position
         const replacedDestinationCollectionID = destinationCollectionID.replace(
@@ -992,6 +991,11 @@ export class PersonalWorkspaceProviderService
       destinationCollectionID
     )
 
+    const affectedIDs: Record<
+      string,
+      { collectionID: string; requestID: string }
+    > = {}
+
     this.issuedHandles.forEach((handle) => {
       if (handle.value.type === "invalid") {
         return
@@ -1011,8 +1015,10 @@ export class PersonalWorkspaceProviderService
           resolvedDestinationCollectionID
         )
 
-        handle.value.data.collectionID = newCollectionID
-        handle.value.data.requestID = `${newCollectionID}/${affectedRequestIndexPos}`
+        affectedIDs[requestID] = {
+          collectionID: newCollectionID,
+          requestID: `${newCollectionID}/${affectedRequestIndexPos}`,
+        }
       }
     })
 
@@ -1022,11 +1028,6 @@ export class PersonalWorkspaceProviderService
         const affectedCollectionIndexPos = draggedCollectionIndexPos + idx + 1
 
         const affectedCollectionID = `${draggedParentCollectionID}/${affectedCollectionIndexPos}`
-
-        // Return early for the case when a collection is moved to a sibling collection below it where the destination collection becomes one among the affected collections
-        if (resolvedDestinationCollectionID.startsWith(affectedCollectionID)) {
-          return
-        }
 
         // The index position will be reduced by `1` for the affected collections
         const newAffectedCollectionID = `${draggedParentCollectionID}/${
@@ -1045,19 +1046,44 @@ export class PersonalWorkspaceProviderService
           if (handle.value.data.requestID.startsWith(affectedCollectionID)) {
             const { collectionID, requestID } = handle.value.data
 
-            handle.value.data.collectionID = collectionID.replace(
-              affectedCollectionID,
-              newAffectedCollectionID
-            )
-
-            handle.value.data.requestID = requestID.replace(
-              affectedCollectionID,
-              newAffectedCollectionID
-            )
+            affectedIDs[requestID] = {
+              collectionID: collectionID.replace(
+                affectedCollectionID,
+                newAffectedCollectionID
+              ),
+              requestID: requestID.replace(
+                affectedCollectionID,
+                newAffectedCollectionID
+              ),
+            }
           }
         })
       }
     )
+
+    Object.keys(affectedIDs).forEach((requestID) => {
+      const handle = this.issuedHandles.find((handle) => {
+        if (
+          handle.value.type === "invalid" ||
+          !("requestID" in handle.value.data)
+        ) {
+          return
+        }
+
+        return handle.value.data.requestID === requestID
+      })
+
+      if (
+        !handle ||
+        handle.value.type === "invalid" ||
+        !("requestID" in handle.value.data)
+      ) {
+        return
+      }
+
+      handle.value.data.collectionID = affectedIDs[requestID].collectionID
+      handle.value.data.requestID = affectedIDs[requestID].requestID
+    })
 
     return Promise.resolve(E.right(undefined))
   }
@@ -1255,7 +1281,7 @@ export class PersonalWorkspaceProviderService
         return
       }
 
-      // Decrement the index pos in affected requests due to move
+      // Decrement the index position in affected requests due to move
       const affectedRequestIndexPos = Number(
         handle.value.data.requestID.split("/").slice(-1)[0]
       )
@@ -1492,7 +1518,6 @@ export class PersonalWorkspaceProviderService
                     })
 
                     const requests = item.requests.map((req, id) => {
-                      // TODO: Replace `parentCollectionID` with `collectionID`
                       return <RESTCollectionViewItem>{
                         type: "request",
                         value: {

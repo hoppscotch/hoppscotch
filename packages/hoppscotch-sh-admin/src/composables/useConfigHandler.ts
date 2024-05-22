@@ -27,7 +27,7 @@ import {
   ServerConfigs,
   UpdatedConfigs,
 } from '~/helpers/configs';
-import { getErrorMessage, isErrorPresent } from '~/helpers/errors';
+import { getCompiledErrorMessage } from '~/helpers/errors';
 import { useToast } from './toast';
 import { useClientHandler } from './useClientHandler';
 
@@ -203,9 +203,10 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
 
     if (result.error) {
       const { message } = result.error;
+      const compiledErrorMessage = getCompiledErrorMessage(message);
 
-      isErrorPresent(message)
-        ? toast.error(t(getErrorMessage(message)))
+      compiledErrorMessage
+        ? toast.error(t(compiledErrorMessage))
         : toast.error(t(errorMessage));
       return false;
     }

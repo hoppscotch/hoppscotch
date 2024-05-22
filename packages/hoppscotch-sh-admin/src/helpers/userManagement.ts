@@ -4,7 +4,7 @@ import { UserDeletionResult } from './backend/graphql';
 import {
   ADMIN_CANNOT_BE_DELETED,
   USER_IS_OWNER,
-  getErrorMessage,
+  getCompiledErrorMessage,
 } from './errors';
 
 type ToastMessage = {
@@ -54,9 +54,9 @@ export const handleUserDeletion = (deletedUsersList: UserDeletionResult[]) => {
 
   const errMsgMap = {
     [ADMIN_CANNOT_BE_DELETED]: t(
-      getErrorMessage(ADMIN_CANNOT_BE_DELETED, isBulkAction)
+      getCompiledErrorMessage(ADMIN_CANNOT_BE_DELETED, isBulkAction)
     ),
-    [USER_IS_OWNER]: t(getErrorMessage(USER_IS_OWNER, isBulkAction)),
+    [USER_IS_OWNER]: t(getCompiledErrorMessage(USER_IS_OWNER, isBulkAction)),
   };
 
   const errMsgMapKeys = Object.keys(errMsgMap);

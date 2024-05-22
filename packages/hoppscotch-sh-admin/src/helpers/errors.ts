@@ -34,48 +34,37 @@ export const BOTH_EMAILS_CANNOT_BE_SAME =
   '[GraphQL] email/both_emails_cannot_be_same' as const;
 
 type ErrorMessages = {
-  name: string;
   message: string;
   alternateMessage?: string;
 };
 
 const ERROR_MESSAGES: Record<string, ErrorMessages> = {
-  ONLY_ONE_ADMIN_ACCOUNT_FOUND: {
-    name: ONLY_ONE_ADMIN_ACCOUNT_FOUND,
+  [ONLY_ONE_ADMIN_ACCOUNT_FOUND]: {
     message: 'state.remove_admin_failure_only_one_admin',
   },
-  ADMIN_CANNOT_BE_DELETED: {
-    name: ADMIN_CANNOT_BE_DELETED,
+  [ADMIN_CANNOT_BE_DELETED]: {
     message: 'state.remove_admin_to_delete_user',
     alternateMessage: 'state.remove_admin_for_deletion',
   },
-  USER_ALREADY_INVITED: {
-    name: USER_ALREADY_INVITED,
+  [USER_ALREADY_INVITED]: {
     message: 'state.user_already_invited',
   },
-  USER_IS_OWNER: {
-    name: USER_IS_OWNER,
+  [USER_IS_OWNER]: {
     message: 'state.remove_owner_to_delete_user',
     alternateMessage: 'state.remove_owner_for_deletion',
   },
-  TEAM_ONLY_ONE_OWNER: {
-    name: TEAM_ONLY_ONE_OWNER,
+  [TEAM_ONLY_ONE_OWNER]: {
     message: 'state.remove_owner_failure_only_one_owner',
   },
-  AUTH_PROVIDER_NOT_SPECIFIED: {
-    name: AUTH_PROVIDER_NOT_SPECIFIED,
+  [AUTH_PROVIDER_NOT_SPECIFIED]: {
     message: 'configs.auth_providers.provider_not_specified',
   },
-  BOTH_EMAILS_CANNOT_BE_SAME: {
-    name: BOTH_EMAILS_CANNOT_BE_SAME,
+  [BOTH_EMAILS_CANNOT_BE_SAME]: {
     message: 'state.emails_cannot_be_same',
   },
 };
 
-export const isErrorPresent = (error: string) =>
-  Object.values(ERROR_MESSAGES).some((err) => err.name === error);
-
-export const getErrorMessage = (name: string, altMessage = false) => {
-  const error = Object.values(ERROR_MESSAGES).find((err) => err.name === name);
+export const getCompiledErrorMessage = (name: string, altMessage = false) => {
+  const error = ERROR_MESSAGES[name];
   return altMessage ? error?.alternateMessage ?? '' : error?.message ?? '';
 };

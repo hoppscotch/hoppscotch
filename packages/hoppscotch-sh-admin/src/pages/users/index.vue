@@ -261,7 +261,7 @@ import {
   UsersListQuery,
   UsersListV2Document,
 } from '~/helpers/backend/graphql';
-import { getErrorMessage, isErrorPresent } from '~/helpers/errors';
+import { getCompiledErrorMessage } from '~/helpers/errors';
 import { handleUserDeletion } from '~/helpers/userManagement';
 import IconCheck from '~icons/lucide/check';
 import IconLeft from '~icons/lucide/chevron-left';
@@ -452,8 +452,10 @@ const sendInvite = async (email: string) => {
   const result = await sendInvitation.executeMutation(variables);
   if (result.error) {
     const { message } = result.error;
-    isErrorPresent(message)
-      ? toast.error(t(getErrorMessage(message)))
+    const compiledErrorMessage = getCompiledErrorMessage(message);
+
+    compiledErrorMessage
+      ? toast.error(t(compiledErrorMessage))
       : toast.error(t('state.email_failure'));
   } else {
     toast.success(t('state.email_success'));
@@ -532,8 +534,10 @@ const makeAdminsToUsers = async (id: string | null) => {
   const variables = { userUIDs };
   const result = await adminsToUser.executeMutation(variables);
   if (result.error) {
-    if (isErrorPresent(result.error.message)) {
-      return toast.error(t(getErrorMessage(result.error.message)));
+    const compiledErrorMessage = getCompiledErrorMessage(result.error.message);
+
+    if (compiledErrorMessage) {
+      return toast.error(t(getCompiledErrorMessage(result.error.message)));
     }
 
     toast.error(

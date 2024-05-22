@@ -39,6 +39,10 @@ const props = withDefaults(
   }
 );
 
+const emit = defineEmits<{
+  (e: 'mutationFailure'): void;
+}>();
+
 // Mutations to update or reset server configurations and audit logs
 const resetInfraConfigsMutation = useMutation(ResetInfraConfigsDocument);
 const updateInfraConfigsMutation = useMutation(UpdateInfraConfigsDocument);
@@ -79,22 +83,22 @@ onMounted(async () => {
 
   if (props.reset) {
     success = await resetInfraConfigs(resetInfraConfigsMutation);
-    if (!success) return;
+    if (!success) emit('mutationFailure');
   } else {
     const infraResult = await updateInfraConfigs(updateInfraConfigsMutation);
 
-    if (!infraResult) return;
+    if (!infraResult) emit('mutationFailure');
 
     const authResult = await updateAuthProvider(
       updateAllowedAuthProviderMutation
     );
-    if (!authResult) return;
+    if (!authResult) emit('mutationFailure');
 
     const dataSharingResult = await updateDataSharingConfigs(
       toggleDataSharingMutation
     );
 
-    if (!dataSharingResult) return;
+    if (!dataSharingResult) emit('mutationFailure');
   }
 
   restart.value = true;

@@ -15,9 +15,12 @@
 <script setup lang="ts">
 import { useService } from "dioc/vue"
 import { NewWorkspaceService } from "~/services/new-workspace"
-import { TestWorkspaceProviderService } from "~/services/new-workspace/providers/test.workspace"
+import { TeamsWorkspaceProviderService } from "~/services/new-workspace/providers/teams.workspace"
+// import { TestWorkspaceProviderService } from "~/services/new-workspace/providers/test.workspace"
 
-useService(TestWorkspaceProviderService)
+// useService(TestWorkspaceProviderService)
+
+useService(TeamsWorkspaceProviderService)
 
 const newWorkspaceService = useService(NewWorkspaceService)
 const workspaceSelectorComponents =

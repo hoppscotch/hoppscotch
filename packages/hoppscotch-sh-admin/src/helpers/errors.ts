@@ -8,6 +8,9 @@ export const UNAUTHORIZED = 'Unauthorized' as const;
 // Sometimes the backend returns Unauthorized error message as follows:
 export const GRAPHQL_UNAUTHORIZED = '[GraphQL] Unauthorized' as const;
 
+// When the email is invalid
+export const INVALID_EMAIL = '[GraphQL] invalid/email' as const;
+
 // When trying to remove the only admin account
 export const ONLY_ONE_ADMIN_ACCOUNT_FOUND =
   '[GraphQL] admin/only_one_admin_account_found' as const;
@@ -39,6 +42,9 @@ type ErrorMessages = {
 };
 
 const ERROR_MESSAGES: Record<string, ErrorMessages> = {
+  [INVALID_EMAIL]: {
+    message: 'state.invalid_email',
+  },
   [ONLY_ONE_ADMIN_ACCOUNT_FOUND]: {
     message: 'state.remove_admin_failure_only_one_admin',
   },

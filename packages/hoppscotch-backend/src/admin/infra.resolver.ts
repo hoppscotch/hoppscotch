@@ -292,6 +292,14 @@ export class InfraResolver {
     return this.infraConfigService.getAllowedAuthProviders();
   }
 
+  @Query(() => Boolean, {
+    description: 'Check if the SMTP is enabled or not',
+  })
+  @UseGuards(GqlAuthGuard)
+  isSMTPEnabled() {
+    return this.infraConfigService.isSMTPEnabled();
+  }
+
   /* Mutations */
 
   @Mutation(() => [InfraConfig], {

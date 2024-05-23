@@ -317,6 +317,16 @@ export class InfraConfigService implements OnModuleInit {
   }
 
   /**
+   * Check if SMTP is enabled or not
+   * @returns boolean
+   */
+  isSMTPEnabled() {
+    return (
+      this.configService.get<string>('INFRA.MAILER_SMTP_ENABLE') === 'true'
+    );
+  }
+
+  /**
    * Reset all the InfraConfigs to their default values (from .env)
    */
   async reset() {

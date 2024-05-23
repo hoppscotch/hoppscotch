@@ -26,6 +26,7 @@
                 @close-tab="removeTab(tab.id)"
                 @close-other-tabs="closeOtherTabsAction(tab.id)"
                 @duplicate-tab="duplicateTab(tab.id)"
+                @share-tab-request="shareTabRequest(tab.id)"
               />
             </template>
             <template #suffix>
@@ -96,37 +97,21 @@
 <script lang="ts" setup>
 import { useI18n } from "@composables/i18n"
 import { safelyExtractRESTRequest } from "@hoppscotch/data"
-import { watchDebounced } from "@vueuse/core"
 import { useService } from "dioc/vue"
 import { cloneDeep } from "lodash-es"
-import {
-  BehaviorSubject,
-  EMPTY,
-  Subscription,
-  audit,
-  combineLatest,
-  from,
-  map,
-} from "rxjs"
-import { onBeforeUnmount, onMounted, ref } from "vue"
+import { onMounted, ref } from "vue"
 import { useRoute } from "vue-router"
-import { onLoggedIn } from "~/composables/auth"
 import { useReadonlyStream } from "~/composables/stream"
-import { useToast } from "~/composables/toast"
 import { translateExtURLParams } from "~/helpers/RESTExtURLParams"
 import { defineActionHandler, invokeAction } from "~/helpers/actions"
 import { getDefaultRESTRequest } from "~/helpers/rest/default"
 import { HoppRESTDocument } from "~/helpers/rest/document"
-import {
-  changeCurrentSyncStatus,
-  currentSyncingStatus$,
-} from "~/newstore/syncing"
 import { platform } from "~/platform"
 import { InspectionService } from "~/services/inspection"
 import { EnvironmentInspectorService } from "~/services/inspection/inspectors/environment.inspector"
 import { HeaderInspectorService } from "~/services/inspection/inspectors/header.inspector"
 import { ResponseInspectorService } from "~/services/inspection/inspectors/response.inspector"
-import { HoppTab, PersistableTabState } from "~/services/tab"
+import { HoppTab } from "~/services/tab"
 import { RESTTabService } from "~/services/tab/rest"
 
 const savingRequest = ref(false)
@@ -139,11 +124,15 @@ const exceptedTabID = ref<string | null>(null)
 const renameTabID = ref<string | null>(null)
 
 const t = useI18n()
-const toast = useToast()
 
 const tabs = useService(RESTTabService)
 
 const currentTabID = tabs.currentTabID
+
+const currentUser = useReadonlyStream(
+  platform.auth.getCurrentUserStream(),
+  platform.auth.getCurrentUser()
+)
 
 type PopupDetails = {
   show: boolean
@@ -164,12 +153,6 @@ const contextMenu = ref<PopupDetails>({
 })
 
 const activeTabs = tabs.getActiveTabs()
-
-const confirmSync = useReadonlyStream(currentSyncingStatus$, {
-  isInitialSync: false,
-  shouldSync: true,
-})
-const tabStateForSync = ref<PersistableTabState<HoppRESTDocument> | null>(null)
 
 function bindRequestToURLParams() {
   const route = useRoute()
@@ -319,9 +302,17 @@ const onSaveModalClose = () => {
   }
 }
 
-const syncTabState = () => {
-  if (tabStateForSync.value)
-    tabs.loadTabsFromPersistedState(tabStateForSync.value)
+const shareTabRequest = (tabID: string) => {
+  const tab = tabs.getTabRef(tabID)
+  if (tab.value) {
+    if (currentUser.value) {
+      invokeAction("share.request", {
+        request: tab.value.document.request,
+      })
+    } else {
+      invokeAction("modals.login.toggle")
+    }
+  }
 }
 
 const getTabDirtyStatus = (tab: HoppTab<HoppRESTDocument>) => {
@@ -333,106 +324,6 @@ const getTabDirtyStatus = (tab: HoppTab<HoppRESTDocument>) => {
     tab.document.saveContext?.originLocation === "workspace-user-collection" &&
     tab.document.saveContext.requestHandle?.get().value.type === "invalid"
   )
-}
-
-/**
- * Performs sync of the REST Tab session with Firestore.
- *
- * @returns A subscription to the sync observable stream.
- * Unsubscribe to stop syncing.
- */
-function startTabStateSync(): Subscription {
-  const currentUser$ = platform.auth.getCurrentUserStream()
-  const tabState$ =
-    new BehaviorSubject<PersistableTabState<HoppRESTDocument> | null>(null)
-
-  watchDebounced(
-    tabs.persistableTabState,
-    (state) => {
-      tabState$.next(state)
-    },
-    { debounce: 500, deep: true }
-  )
-
-  const sub = combineLatest([currentUser$, tabState$])
-    .pipe(
-      map(([user, tabState]) =>
-        user && tabState
-          ? from(platform.sync.tabState.writeCurrentTabState(user, tabState))
-          : EMPTY
-      ),
-      audit((x) => x)
-    )
-    .subscribe(() => {
-      // NOTE: This subscription should be kept
-    })
-
-  return sub
-}
-
-const showSyncToast = () => {
-  toast.show(t("confirm.sync"), {
-    duration: 0,
-    action: [
-      {
-        text: `${t("action.yes")}`,
-        onClick: (_, toastObject) => {
-          syncTabState()
-          changeCurrentSyncStatus({
-            isInitialSync: true,
-            shouldSync: true,
-          })
-          toastObject.goAway(0)
-        },
-      },
-      {
-        text: `${t("action.no")}`,
-        onClick: (_, toastObject) => {
-          changeCurrentSyncStatus({
-            isInitialSync: true,
-            shouldSync: false,
-          })
-          toastObject.goAway(0)
-        },
-      },
-    ],
-  })
-}
-
-function setupTabStateSync() {
-  const route = useRoute()
-
-  // Subscription to request sync
-  let sub: Subscription | null = null
-
-  // Load request on login resolve and start sync
-  onLoggedIn(async () => {
-    if (
-      Object.keys(route.query).length === 0 &&
-      !(route.query.code || route.query.error)
-    ) {
-      const tabStateFromSync =
-        await platform.sync.tabState.loadTabStateFromSync()
-
-      if (tabStateFromSync && !confirmSync.value.isInitialSync) {
-        tabStateForSync.value = tabStateFromSync
-        showSyncToast()
-        // Have to set isInitialSync to true here because the toast is shown
-        // and the user does not click on any of the actions
-        changeCurrentSyncStatus({
-          isInitialSync: true,
-          shouldSync: false,
-        })
-      }
-    }
-
-    sub = startTabStateSync()
-  })
-
-  // Stop subscription to stop syncing
-  onBeforeUnmount(() => {
-    sub?.unsubscribe()
-  })
 }
 
 defineActionHandler("contextmenu.open", ({ position, text }) => {
@@ -451,7 +342,6 @@ defineActionHandler("contextmenu.open", ({ position, text }) => {
   }
 })
 
-setupTabStateSync()
 bindRequestToURLParams()
 
 defineActionHandler("rest.request.open", ({ doc }) => {

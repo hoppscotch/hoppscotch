@@ -495,9 +495,9 @@ const HoppRESTSaveContextSchema = z.nullable(
     z
       .object({
         originLocation: z.literal("workspace-user-collection"),
-        workspaceID: z.string(),
-        providerID: z.string(),
-        requestID: z.string(),
+        workspaceID: z.optional(z.string()),
+        providerID: z.optional(z.string()),
+        requestID: z.optional(z.string()),
         requestHandle: z.optional(z.record(z.unknown())),
       })
       .strict(),

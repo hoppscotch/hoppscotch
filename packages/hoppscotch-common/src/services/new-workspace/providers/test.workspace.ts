@@ -73,9 +73,7 @@ export class TestWorkspaceProviderService
 
   private readonly workspaceService = this.bind(NewWorkspaceService)
 
-  constructor() {
-    super()
-
+  override onServiceInit() {
     this.workspaceService.registerWorkspaceProvider(this)
   }
 

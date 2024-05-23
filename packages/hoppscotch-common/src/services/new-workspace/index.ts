@@ -65,9 +65,7 @@ export class NewWorkspaceService extends Service {
     return items
   })
 
-  constructor() {
-    super()
-
+  override onServiceInit() {
     // Watch for situations where the handle is invalidated
     // so the active workspace handle definition can be invalidated
     watch(

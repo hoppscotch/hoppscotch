@@ -91,16 +91,16 @@ export class PersonalWorkspaceProviderService
     workspaceSelectorPriority: 100,
   })
 
-  public restCollectionState: Ref<{ state: HoppCollection[] }>
+  public restCollectionState: Ref<{ state: HoppCollection[] }> = ref({
+    state: [],
+  })
 
   // Issued handles can have collection handles when the collection runner is introduced
   public issuedHandles: WritableHandleRef<
     WorkspaceRequest | WorkspaceCollection
   >[] = []
 
-  public constructor() {
-    super()
-
+  override onServiceInit() {
     this.restCollectionState = useStreamStatic(
       restCollectionStore.subject$,
       { state: [] },

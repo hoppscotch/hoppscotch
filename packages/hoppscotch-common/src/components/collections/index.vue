@@ -48,7 +48,10 @@
       @edit-request="editRequest"
       @duplicate-request="duplicateRequest"
       @remove-request="removeRequest"
+      @remove-response="removeResponse"
+      @edit-response="editResponse"
       @select-request="selectRequest"
+      @select-response="selectResponse"
       @select="selectPicked"
       @drop-request="dropRequest"
       @display-modal-add="displayModalAdd(true)"
@@ -141,6 +144,13 @@
       :loading-state="modalLoadingState"
       @submit="updateEditingRequest"
       @hide-modal="displayModalEditRequest(false)"
+    />
+    <CollectionsEditResponse
+      v-model="editingResponseName"
+      :show="showModalEditResponse"
+      :loading-state="modalLoadingState"
+      @submit="updateEditingResponse"
+      @hide-modal="displayModalEditResponse(false)"
     />
     <HoppSmartConfirmModal
       :show="showConfirmModal"
@@ -299,8 +309,10 @@ const editingFolderName = ref<string | null>(null)
 const editingFolderPath = ref<string | null>(null)
 const editingRequest = ref<HoppRESTRequest | null>(null)
 const editingRequestName = ref("")
+const editingResponseName = ref("")
 const editingRequestIndex = ref<number | null>(null)
 const editingRequestID = ref<string | null>(null)
+const selectedResponseIndex = ref<number | null>(null)
 
 const editingProperties = ref<EditingProperties>({
   collection: null,
@@ -625,6 +637,7 @@ const showModalAddFolder = ref(false)
 const showModalEditCollection = ref(false)
 const showModalEditFolder = ref(false)
 const showModalEditRequest = ref(false)
+const showModalEditResponse = ref(false)
 const showModalImportExport = ref(false)
 const showModalEditProperties = ref(false)
 const showConfirmModal = ref(false)
@@ -662,6 +675,12 @@ const displayModalEditFolder = (show: boolean) => {
 
 const displayModalEditRequest = (show: boolean) => {
   showModalEditRequest.value = show
+
+  if (!show) resetSelectedData()
+}
+
+const displayModalEditResponse = (show: boolean) => {
+  showModalEditResponse.value = show
 
   if (!show) resetSelectedData()
 }
@@ -1101,6 +1120,51 @@ const updateEditingRequest = (newName: string) => {
   }
 }
 
+const updateEditingResponse = (newName: string) => {
+  const request = editingRequest.value
+  const responseIndex = selectedResponseIndex.value
+  if (!request) return
+
+  if (collectionsType.value.type === "my-collections") {
+    const folderPath = editingFolderPath.value
+    const requestIndex = editingRequestIndex.value
+    if (folderPath === null || requestIndex === null) return
+
+    if (
+      isSelected({
+        folderPath,
+        requestIndex,
+      })
+    ) {
+      emit("select", null)
+    }
+
+    request.responses[responseIndex].name = newName
+    editRESTRequest(folderPath, requestIndex, request)
+
+    const possibleActiveTab = tabs.getTabRefWithSaveContext({
+      originLocation: "user-collection",
+      requestIndex,
+      folderPath,
+      responseIndex,
+    })
+
+    if (possibleActiveTab) {
+      possibleActiveTab.value.document.response =
+        request.responses[responseIndex]
+
+      possibleActiveTab.value.document.request.responses[responseIndex].name =
+        newName
+      nextTick(() => {
+        possibleActiveTab.value.document.isDirty = false
+      })
+    }
+
+    toast.success(t("state.changed"))
+    displayModalEditResponse(false)
+  }
+}
+
 const duplicateRequest = (payload: {
   folderPath: string
   request: HoppRESTRequest
@@ -1395,6 +1459,100 @@ const onRemoveRequest = () => {
   }
 }
 
+const removeResponse = (payload: {
+  folderPath: string | null
+  requestIndex: string
+  responseIndex: string
+}) => {
+  const { folderPath, requestIndex, responseIndex } = payload
+  selectedResponseIndex.value = responseIndex
+  if (collectionsType.value.type === "my-collections" && folderPath) {
+    editingFolderPath.value = folderPath
+    editingRequestIndex.value = parseInt(requestIndex)
+  } else {
+    editingRequestID.value = requestIndex
+  }
+  confirmModalTitle.value = `${t("confirm.remove_response")}`
+  displayConfirmModal(true)
+}
+
+const onRemoveResponse = () => {
+  if (collectionsType.value.type === "my-collections") {
+    const folderPath = editingFolderPath.value
+    const requestIndex = editingRequestIndex.value
+
+    if (folderPath === null || requestIndex === null) return
+
+    if (
+      isSelected({
+        folderPath,
+        requestIndex,
+      })
+    ) {
+      emit("select", null)
+    }
+
+    const possibleTab = tabs.getTabRefWithSaveContext({
+      originLocation: "user-collection",
+      folderPath,
+      requestIndex,
+    })
+
+    // If there is a tab attached to this request, dissociate its state and mark it dirty
+    if (possibleTab) {
+      possibleTab.value.document.response = null
+      tabs.updateTab(possibleTab.value)
+    }
+
+    const request = navigateToFolderWithIndexPath(
+      restCollectionStore.value.state,
+      folderPath.split("/").map((i) => parseInt(i))
+    )?.requests[requestIndex]
+
+    const filtered = request.responses.filter((item, index) => {
+      return index !== selectedResponseIndex.value
+    })
+    request.responses = filtered
+    editRESTRequest(folderPath, requestIndex, request)
+
+    // the same function is used to reorder requests since after removing, it's basically doing reorder
+    resolveSaveContextOnRequestReorder({
+      lastIndex: requestIndex,
+      newIndex: -1,
+      folderPath,
+      length: getRequestsByPath(myCollections.value, folderPath).length,
+    })
+
+    toast.success(t("state.deleted"))
+    displayConfirmModal(false)
+  }
+}
+
+const editResponse = (payload: {
+  folderPath: string | null
+  requestIndex: string
+  responseIndex: string
+}) => {
+  const { folderPath, requestIndex, responseIndex } = payload
+
+  selectedResponseIndex.value = responseIndex
+
+  const request = navigateToFolderWithIndexPath(
+    restCollectionStore.value.state,
+    folderPath.split("/").map((i) => parseInt(i))
+  )?.requests[requestIndex]
+
+  const selectedResponse = request.responses[responseIndex]
+
+  if (collectionsType.value.type === "my-collections" && folderPath) {
+    editingFolderPath.value = folderPath
+    editingRequestIndex.value = parseInt(requestIndex)
+    editingResponseName.value = selectedResponse?.name
+    editingRequest.value = request
+  }
+  displayModalEditResponse(true)
+}
+
 // The request is picked in the save request as modal
 const selectPicked = (payload: Picked | null) => {
   emit("select", payload)
@@ -1474,6 +1632,59 @@ const selectRequest = (selectedRequest: {
           auth,
           headers,
         },
+      })
+    }
+  }
+}
+
+/**
+ * This function is called when the user clicks on a request example
+ */
+const selectResponse = (selectedResponse: {
+  request: HoppRESTRequest
+  folderPath: string
+  requestIndex: string
+  responseIndex: number
+}) => {
+  const { request, folderPath, requestIndex, responseIndex } = selectedResponse
+  // If there is a request with this save context, switch into it
+  let possibleTab = null
+
+  const response = request.responses[responseIndex]
+
+  if (collectionsType.value.type === "my-collections") {
+    const { auth, headers } = cascadeParentCollectionForHeaderAuth(
+      folderPath,
+      "rest"
+    )
+    possibleTab = tabs.getTabRefWithSaveContext({
+      originLocation: "user-collection",
+      requestIndex: parseInt(requestIndex),
+      folderPath: folderPath!,
+      responseIndex,
+    })
+    if (possibleTab) {
+      possibleTab.value.document.response = response
+      possibleTab.value.document.isTryMode = true
+      tabs.updateTab(possibleTab.value)
+      tabs.setActiveTab(possibleTab.value.id)
+    } else {
+      // If not, open the request in a new tab
+      tabs.createNewTab({
+        request: cloneDeep(request),
+        isDirty: false,
+        isTryMode: true,
+        saveContext: {
+          originLocation: "user-collection",
+          folderPath: folderPath!,
+          requestIndex: parseInt(requestIndex),
+          responseIndex: parseInt(responseIndex),
+        },
+        inheritedProperties: {
+          auth,
+          headers,
+        },
+        response: response,
       })
     }
   }
@@ -2254,6 +2465,7 @@ const setCollectionProperties = (newCollection: {
 const resolveConfirmModal = (title: string | null) => {
   if (title === `${t("confirm.remove_collection")}`) onRemoveCollection()
   else if (title === `${t("confirm.remove_request")}`) onRemoveRequest()
+  else if (title === `${t("confirm.remove_response")}`) onRemoveResponse()
   else if (title === `${t("confirm.remove_folder")}`) onRemoveFolder()
   else {
     console.error(

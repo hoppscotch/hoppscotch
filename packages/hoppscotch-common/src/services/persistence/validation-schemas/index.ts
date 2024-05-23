@@ -4,8 +4,8 @@ import {
   HoppGQLAuth,
   HoppGQLRequest,
   HoppRESTAuth,
-  HoppRESTRequest,
   HoppRESTHeaders,
+  HoppRESTRequest,
 } from "@hoppscotch/data"
 import { entityReference } from "verzod"
 import { z } from "zod"
@@ -497,6 +497,7 @@ const HoppRESTSaveContextSchema = z.nullable(
         originLocation: z.literal("user-collection"),
         folderPath: z.string(),
         requestIndex: z.number(),
+        responseIndex: z.number().optional(),
       })
       .strict(),
     z
@@ -531,6 +532,7 @@ export const REST_TAB_STATE_SCHEMA = z
             // !Versioned entity
             request: entityReference(HoppRESTRequest),
             isDirty: z.boolean(),
+            isTryMode: z.boolean().optional(),
             saveContext: z.optional(HoppRESTSaveContextSchema),
             response: z.optional(z.nullable(HoppRESTResponseSchema)),
             testResults: z.optional(z.nullable(HoppTestResultSchema)),

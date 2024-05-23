@@ -9,6 +9,7 @@ import {
 } from "@hoppscotch/data"
 import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
 import { executedResponses$ } from "~/helpers/RequestRunner"
+import { fromResponse } from "~/helpers/types/HoppRESTResponse"
 
 export type RESTHistoryEntry = {
   v: number
@@ -341,6 +342,11 @@ export function removeDuplicateGraphqlHistoryEntry(id: string) {
 
 // Listen to completed responses to add to history
 executedResponses$.subscribe((res) => {
+  const exampleResponses = []
+  const exampleResponse = fromResponse(res)
+  if (exampleResponse) {
+    exampleResponses.push(exampleResponse)
+  }
   addRESTHistoryEntry(
     makeRESTHistoryEntry({
       request: {
@@ -354,6 +360,7 @@ executedResponses$.subscribe((res) => {
         preRequestScript: res.req.preRequestScript,
         testScript: res.req.testScript,
         requestVariables: res.req.requestVariables,
+        responses: exampleResponses,
         v: res.req.v,
       },
       responseMeta: {

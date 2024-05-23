@@ -19,6 +19,7 @@ export class RESTTabService extends TabService<HoppRESTDocument> {
         request: getDefaultRESTRequest(),
         isDirty: false,
         optionTabPreference: "params",
+        isTryMode: false,
       },
     })
 

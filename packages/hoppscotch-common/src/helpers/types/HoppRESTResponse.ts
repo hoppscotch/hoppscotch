@@ -1,5 +1,10 @@
-import { HoppRESTRequest } from "@hoppscotch/data"
+import {
+  HoppRESTRequest,
+  HoppRESTResponse as HoppRESTResponse_,
+} from "@hoppscotch/data"
+import { getStatusCodeReasonPhrase } from "../utils/statusCodes"
 import { Component } from "vue"
+import { z } from "zod"
 
 export type HoppRESTResponseHeader = { key: string; value: string }
 
@@ -28,6 +33,7 @@ export type HoppRESTResponse =
       type: "script_fail"
       error: Error
     }
+  | z.infer<typeof HoppRESTResponse_>
   | {
       type: "success"
       headers: HoppRESTResponseHeader[]
@@ -47,3 +53,35 @@ export type HoppRESTResponse =
       component: Component
       req: HoppRESTRequest
     }
+
+export const fromResponse = (
+  response: HoppRESTResponse
+): HoppRESTResponse_ | undefined => {
+  if (response.type !== "success") {
+    return undefined
+  }
+
+  const statusPhrase = getStatusCodeReasonPhrase(
+    response.statusCode,
+    response.statusText
+  )
+  try {
+    return {
+      name: `${response.statusCode}\xA0 • \xA0 ${statusPhrase}`,
+      type: response.type,
+      headers: response.headers,
+      body: new TextDecoder("utf-8").decode(response.body),
+      statusCode: response.statusCode,
+      meta: response.meta,
+    }
+  } catch (err) {
+    return {
+      name: `${response.statusCode}\xA0 • \xA0 ${statusPhrase}`,
+      type: response.type,
+      headers: response.headers,
+      body: response.body,
+      statusCode: response.statusCode,
+      meta: response.meta,
+    }
+  }
+}

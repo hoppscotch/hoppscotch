@@ -37,6 +37,14 @@
         />
         <HoppButtonSecondary
           v-if="response.body"
+          ref="setExampleResponse"
+          v-tippy="{ theme: 'tooltip' }"
+          :title="$t('action.add_request_example_response')"
+          :icon="IconSave"
+          @click="() => useSaveResponse(props.doc)"
+        />
+        <HoppButtonSecondary
+          v-if="response.body"
           v-tippy="{ theme: 'tooltip', allowHTML: true }"
           :title="`${t(
             'action.copy'
@@ -238,6 +246,7 @@ import IconFilter from "~icons/lucide/filter"
 import IconMore from "~icons/lucide/more-horizontal"
 import IconHelpCircle from "~icons/lucide/help-circle"
 import IconCopy from "~icons/lucide/copy"
+import IconSave from "~icons/lucide/save"
 import * as LJSON from "lossless-json"
 import * as O from "fp-ts/Option"
 import * as E from "fp-ts/Either"
@@ -257,6 +266,7 @@ import {
   useCopyResponse,
   useResponseBody,
   useDownloadResponse,
+  useSaveResponse,
   useCopyInterface,
 } from "@composables/lens-actions"
 import { defineActionHandler } from "~/helpers/actions"
@@ -264,11 +274,17 @@ import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
 import { useNestedSetting } from "~/composables/settings"
 import { toggleNestedSetting } from "~/newstore/settings"
 import interfaceLanguages from "~/helpers/utils/interfaceLanguages"
+import { HoppRESTDocument } from "~/helpers/rest/document"
 
 const t = useI18n()
 
 const props = defineProps<{
   response: HoppRESTResponse
+  doc: HoppRESTDocument
+}>()
+
+const emit = defineEmits<{
+  (e: "update:response", response: HoppRESTResponse): void
 }>()
 
 const { responseBodyText } = useResponseBody(props.response)
@@ -383,12 +399,15 @@ const { cursor } = useCodemirror(
   reactive({
     extendedEditorConfig: {
       mode: "application/ld+json",
-      readOnly: true,
+      readOnly: !props.doc.isTryMode,
       lineWrapping: WRAP_LINES,
     },
     linter: null,
     completer: null,
     environmentHighlights: true,
+    onChange: (update: string) => {
+      emit("update:response", { ...props.response, body: update })
+    },
   })
 )
 

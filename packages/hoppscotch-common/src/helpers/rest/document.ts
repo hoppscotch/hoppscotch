@@ -23,6 +23,24 @@ export type HoppRESTSaveContext =
       /**
        * The origin source of the request
        */
+      originLocation: "user-collection"
+      /**
+       * Path to the request folder
+       */
+      folderPath: string
+      /**
+       * Index to the request
+       */
+      requestIndex: number
+      /**
+       * Index to the response
+       */
+      responseIndex: number
+    }
+  | {
+      /**
+       * The origin source of the request
+       */
       originLocation: "team-collection"
       /**
        * ID of the request in the team
@@ -53,6 +71,11 @@ export type HoppRESTDocument = {
    * (atleast as far as we can say)
    */
   isDirty: boolean
+
+  /**
+   * Whether the request example is open
+   */
+  isTryMode: boolean
 
   /**
    * Info about where this request should be saved.

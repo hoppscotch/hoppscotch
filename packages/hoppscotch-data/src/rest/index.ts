@@ -5,7 +5,7 @@ import V0_VERSION from "./v/0"
 import V1_VERSION from "./v/1"
 import V2_VERSION from "./v/2"
 import V3_VERSION from "./v/3"
-import V4_VERSION from "./v/4"
+import V4_VERSION, { HoppRESTResponse } from "./v/4"
 import { createVersionedEntity, InferredEntity } from "verzod"
 import { lodashIsEqualEq, mapThenEq, undefinedEq } from "../utils/eq"
 
@@ -36,7 +36,7 @@ export {
   PasswordGrantTypeParams,
 } from "./v/3"
 
-export { HoppRESTAuth, HoppRESTAuthAPIKey } from "./v/4"
+export { HoppRESTAuth, HoppRESTAuthAPIKey, HoppRESTResponse } from "./v/4"
 
 export { HoppRESTRequestVariables } from "./v/2"
 
@@ -69,6 +69,7 @@ export const HoppRESTRequest = createVersionedEntity({
 
 export type HoppRESTRequest = InferredEntity<typeof HoppRESTRequest>
 
+
 // TODO: Handle the issue with the preRequestScript and testScript type check failures on pre-commit
 const HoppRESTRequestEq = Eq.struct<HoppRESTRequest>({
   id: undefinedEq(S.Eq),
@@ -90,6 +91,10 @@ const HoppRESTRequestEq = Eq.struct<HoppRESTRequest>({
   testScript: S.Eq,
   requestVariables: mapThenEq(
     (arr) => arr.filter((v: any) => v.key !== "" && v.value !== ""),
+    lodashIsEqualEq
+  ),
+  responses: mapThenEq(
+    (arr) => !!arr && arr.filter((h: HoppRESTResponse) => h.type !== ""),
     lodashIsEqualEq
   ),
 })
@@ -206,6 +211,7 @@ export function getDefaultRESTRequest(): HoppRESTRequest {
       body: null,
     },
     requestVariables: [],
+    responses: []
   }
 }
 

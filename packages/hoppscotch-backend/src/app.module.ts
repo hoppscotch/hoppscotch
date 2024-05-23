@@ -27,6 +27,7 @@ import { MailerModule } from './mailer/mailer.module';
 import { PosthogModule } from './posthog/posthog.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { HealthModule } from './health/health.module';
+import { MockModule } from './mock/mock.module';
 
 @Module({
   imports: [
@@ -102,6 +103,7 @@ import { HealthModule } from './health/health.module';
     PosthogModule,
     ScheduleModule.forRoot(),
     HealthModule,
+    MockModule,
   ],
   providers: [GQLComplexityPlugin],
   controllers: [AppController],

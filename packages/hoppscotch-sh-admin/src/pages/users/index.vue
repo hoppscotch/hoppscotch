@@ -311,9 +311,14 @@ const areAdminsSelected = computed(() =>
   selectedRows.value.some((user) => user.isAdmin)
 );
 
-const areNonAdminsSelected = computed(() =>
-  selectedRows.value.some((user) => !user.isAdmin)
-);
+const areNonAdminsSelected = computed(() => {
+  // No Admins selected implicitly conveys that all the selected users are non-Admins assuming `selectedRows.length` > 0 (markup render condition)
+  if (!areAdminsSelected.value) {
+    return true;
+  }
+
+  return selectedRows.value.some((user) => !user.isAdmin);
+});
 
 // Ensure this variable is declared outside the debounce function
 let debounceTimeout: ReturnType<typeof setTimeout> | null = null;

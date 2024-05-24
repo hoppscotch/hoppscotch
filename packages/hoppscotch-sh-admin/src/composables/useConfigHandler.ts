@@ -1,7 +1,6 @@
 import { AnyVariables, UseMutationResponse } from '@urql/vue';
 import { cloneDeep } from 'lodash-es';
 import { onMounted, ref } from 'vue';
-
 import { useI18n } from '~/composables/i18n';
 import {
   AllowedAuthProvidersDocument,
@@ -118,6 +117,23 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
         fields: {
           mailer_smtp_url: getFieldValue(InfraConfigEnum.MailerSmtpUrl),
           mailer_from_address: getFieldValue(InfraConfigEnum.MailerAddressFrom),
+          mailer_smtp_enabled:
+            getFieldValue(InfraConfigEnum.MailerSmtpEnable) === 'true',
+          mailer_smtp_host: getFieldValue(InfraConfigEnum.MailerSmtpHost),
+          mailer_smtp_port: getFieldValue(InfraConfigEnum.MailerSmtpPort),
+          mailer_smtp_user: getFieldValue(InfraConfigEnum.MailerSmtpUser),
+          mailer_smtp_password: getFieldValue(
+            InfraConfigEnum.MailerSmtpPassword
+          ),
+          mailer_smtp_secure:
+            getFieldValue(InfraConfigEnum.MailerSmtpSecure) === 'true',
+
+          mailer_tls_reject_unauthorized:
+            getFieldValue(InfraConfigEnum.MailerTlsRejectUnauthorized) ===
+            'true',
+
+          mailer_use_advance_configs:
+            getFieldValue(InfraConfigEnum.MailerUseAdvanceConfigs) === 'true',
         },
       },
       dataSharingConfigs: {
@@ -137,7 +153,14 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
     Check if any of the config fields are empty
   */
 
-  const isFieldEmpty = (field: string) => field.trim() === '';
+  // const isFieldEmpty = (field: string) => field.trim() === '';
+
+  const isFieldEmpty = (field: string | boolean) => {
+    if (typeof field === 'boolean') {
+      return false;
+    }
+    return field.trim() === '';
+  };
 
   const AreAnyConfigFieldsEmpty = (config: ServerConfigs): boolean => {
     const sections: Array<ConfigSection> = [

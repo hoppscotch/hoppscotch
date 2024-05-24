@@ -43,6 +43,14 @@ export type ServerConfigs = {
     fields: {
       mailer_smtp_url: string;
       mailer_from_address: string;
+      mailer_smtp_enabled: boolean;
+      mailer_smtp_host: string;
+      mailer_smtp_port: string;
+      mailer_smtp_user: string;
+      mailer_smtp_password: string;
+      mailer_smtp_secure: boolean;
+      mailer_tls_reject_unauthorized: boolean;
+      mailer_use_advance_configs: boolean;
     };
   };
 
@@ -65,7 +73,7 @@ export type ConfigTransform = {
 
 export type ConfigSection = {
   enabled: boolean;
-  fields: Record<string, string>;
+  fields: Record<string, string | boolean>;
 };
 
 export type Config = {
@@ -142,6 +150,38 @@ export const MAIL_CONFIGS: Config[] = [
   {
     name: InfraConfigEnum.MailerAddressFrom,
     key: 'mailer_from_address',
+  },
+  {
+    name: InfraConfigEnum.MailerSmtpHost,
+    key: 'mailer_smtp_host',
+  },
+  {
+    name: InfraConfigEnum.MailerSmtpPort,
+    key: 'mailer_smtp_port',
+  },
+  {
+    name: InfraConfigEnum.MailerSmtpEnable,
+    key: 'mailer_smtp_enabled',
+  },
+  {
+    name: InfraConfigEnum.MailerSmtpUser,
+    key: 'mailer_smtp_user',
+  },
+  {
+    name: InfraConfigEnum.MailerSmtpPassword,
+    key: 'mailer_smtp_password',
+  },
+  {
+    name: InfraConfigEnum.MailerSmtpSecure,
+    key: 'mailer_smtp_secure',
+  },
+  {
+    name: InfraConfigEnum.MailerTlsRejectUnauthorized,
+    key: 'mailer_tls_reject_unauthorized',
+  },
+  {
+    name: InfraConfigEnum.MailerUseAdvanceConfigs,
+    key: 'mailer_use_advance_configs',
   },
 ];
 

@@ -33,12 +33,19 @@
     },
     "load_error": "Unable to load server configurations",
     "mail_configs": {
+      "address_from": "MAILER FROM ADDRESS",
       "description": " Configure the smtp configurations",
       "enable": "Email based authentication",
+      "host": "MAILER HOST",
+      "password": "MAILER PASSWORD",
+      "port": "MAILER PORT",
+      "secure": "MAILER SECURE",
       "smtp_url": "MAILER SMTP URL",
-      "address_from": "MAILER FROM ADDRESS",
+      "tls_reject_unauthorized": "TLS REJECT UNAUTHORIZED",
       "title": "SMTP Configurations",
-      "update_failure": "Failed to update smtp configurations!!"
+      "update_failure": "Failed to update smtp configurations!!",
+      "use_advance_configs": "USE ADVANCE CONFIGS",
+      "user": "MAILER USER"
     },
     "reset": {
       "confirm_reset": "Hoppscotch server must restart to reflect the new changes. Confirm the reset of server configurations?",

@@ -1,18 +1,29 @@
 import {
-  HoppRESTHeader,
   Environment,
-  parseTemplateStringE,
+  HoppCollection,
+  HoppRESTHeader,
   HoppRESTParam,
+  parseTemplateStringE,
 } from "@hoppscotch/data";
+import axios, { AxiosError } from "axios";
 import chalk from "chalk";
-import { pipe } from "fp-ts/function";
 import * as A from "fp-ts/Array";
 import * as E from "fp-ts/Either";
-import * as S from "fp-ts/string";
 import * as O from "fp-ts/Option";
-import { error } from "../types/errors";
+import { pipe } from "fp-ts/function";
+import * as S from "fp-ts/string";
+import fs from "fs/promises";
 import { round } from "lodash-es";
+
+import { error } from "../types/errors";
 import { DEFAULT_DURATION_PRECISION } from "./constants";
+import { readJsonFile } from "./mutators";
+import {
+  WorkspaceCollection,
+  WorkspaceEnvironment,
+  transformWorkspaceCollection,
+  transformWorkspaceEnvironment,
+} from "./workspace-access";
 
 /**
  * Generates template string (status + statusText) with specific color unicodes
@@ -134,3 +145,88 @@ export const roundDuration = (
   duration: number,
   precision: number = DEFAULT_DURATION_PRECISION
 ) => round(duration, precision);
+
+export const getResourceContents = async ({
+  pathOrId,
+  accessToken,
+  serverUrl,
+  resourceType,
+}: {
+  pathOrId: string;
+  accessToken?: string;
+  serverUrl?: string;
+  resourceType: "collection" | "environment";
+}): Promise<HoppCollection | Environment> => {
+  let contents = null;
+  let fileExistsInPath = false;
+
+  try {
+    await fs.access(pathOrId);
+    fileExistsInPath = true;
+  } catch (e) {
+    fileExistsInPath = false;
+  }
+
+  if (accessToken && !fileExistsInPath) {
+    try {
+      const hostname = serverUrl || "https://api.hoppscotch.io";
+
+      const separator = hostname.endsWith("/") ? "" : "/";
+      const resourcePath =
+        resourceType === "collection" ? "collection" : "environment";
+
+      const url = `${hostname}${separator}v1/access-tokens/${resourcePath}/${pathOrId}`;
+
+      const { data, headers } = await axios.get(url, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      if (!headers["content-type"].includes("application/json")) {
+        throw new Error("INVALID_CONTENT_TYPE");
+      }
+
+      contents =
+        resourceType === "collection"
+          ? transformWorkspaceCollection(data as WorkspaceCollection)
+          : transformWorkspaceEnvironment(data as WorkspaceEnvironment);
+    } catch (err) {
+      const axiosErr = err as AxiosError<{
+        reason?: any;
+        message: string;
+        error: string;
+        statusCode: number;
+      }>;
+
+      if (axiosErr.code === "ECONNREFUSED") {
+        throw error({ code: "SERVER_CONNECTION_REFUSED", data: serverUrl });
+      }
+
+      if (
+        axiosErr.message === "INVALID_CONTENT_TYPE" ||
+        axiosErr.code === "ERR_INVALID_URL" ||
+        axiosErr.code === "ENOTFOUND" ||
+        axiosErr.response?.status === 404
+      ) {
+        throw error({ code: "INVALID_SERVER_URL", data: serverUrl });
+      }
+
+      const errReason = axiosErr.response?.data?.reason;
+
+      if (errReason) {
+        throw error({
+          code: errReason,
+          data: errReason === "TOKEN_INVALID" ? accessToken : pathOrId,
+        });
+      }
+    }
+  }
+
+  // Fallback to reading from file if contents are not available
+  if (contents === null) {
+    contents = await readJsonFile(pathOrId, fileExistsInPath);
+  }
+
+  return contents;
+};

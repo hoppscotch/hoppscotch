@@ -1,9 +1,9 @@
 import { ExecException } from "child_process";
 
 import { HoppErrorCode } from "../../types/errors";
-import { runCLI, getErrorCode, getTestJsonFilePath } from "../utils";
+import { getErrorCode, getTestJsonFilePath, runCLI } from "../utils";
 
-describe("Test `hopp test <file>` command:", () => {
+describe("Test `hopp test <file_path_or_id>` command:", () => {
   describe("Argument parsing", () => {
     test("Errors with the code `INVALID_ARGUMENT` for not supplying enough arguments", async () => {
       const args = "test";
@@ -131,7 +131,7 @@ describe("Test `hopp test <file>` command:", () => {
   });
 });
 
-describe("Test `hopp test <file> --env <file>` command:", () => {
+describe("Test `hopp test <file_path_or_id> --env <file_path_or_id>` command:", () => {
   describe("Supplied environment export file validations", () => {
     const VALID_TEST_ARGS = `test ${getTestJsonFilePath("passes-coll.json", "collection")}`;
 
@@ -310,7 +310,7 @@ describe("Test `hopp test <file> --env <file>` command:", () => {
   });
 });
 
-describe("Test `hopp test <file> --delay <delay_in_ms>` command:", () => {
+describe("Test `hopp test <file_path_or_id> --delay <delay_in_ms>` command:", () => {
   const VALID_TEST_ARGS = `test ${getTestJsonFilePath("passes-coll.json", "collection")}`;
 
   test("Errors with the code `INVALID_ARGUMENT` on not supplying a delay value", async () => {
@@ -340,6 +340,143 @@ describe("Test `hopp test <file> --delay <delay_in_ms>` command:", () => {
     const args = `${VALID_TEST_ARGS} -d 1`;
     const { error } = await runCLI(args);
 
+    expect(error).toBeNull();
+  });
+});
+
+describe("Test `hopp test <file_path_or_id> --env <file_path_or_id> --token <access_token> --server <server_url>` command:", () => {
+  const {
+    REQ_BODY_ENV_VARS_COLL_ID,
+    COLLECTION_LEVEL_HEADERS_AUTH_COLL_ID,
+    REQ_BODY_ENV_VARS_ENVS_ID,
+    PERSONAL_ACCESS_TOKEN,
+  } = process.env;
+
+  if (
+    !REQ_BODY_ENV_VARS_COLL_ID ||
+    !COLLECTION_LEVEL_HEADERS_AUTH_COLL_ID ||
+    !REQ_BODY_ENV_VARS_ENVS_ID ||
+    !PERSONAL_ACCESS_TOKEN
+  ) {
+    return;
+  }
+
+  const SERVER_URL = "https://stage-shc.hoppscotch.io/backend";
+
+  describe("Workspace access validations", () => {
+    const INVALID_COLLECTION_ID = "invalid-coll-id";
+    const INVALID_ENVIRONMENT_ID = "invalid-env-id";
+    const INVALID_ACCESS_TOKEN = "invalid-token";
+
+    test("Errors with the code `INVALID_ARGUMENT` on not supplying a value for the `--token` flag", async () => {
+      const args = `test ${REQ_BODY_ENV_VARS_COLL_ID} --token`;
+      const { stderr } = await runCLI(args);
+
+      const out = getErrorCode(stderr);
+      expect(out).toBe<HoppErrorCode>("INVALID_ARGUMENT");
+    });
+
+    test("Errors with the code `INVALID_ARGUMENT` on not supplying a value for the `--server` flag", async () => {
+      const args = `test ${REQ_BODY_ENV_VARS_COLL_ID} --server`;
+      const { stderr } = await runCLI(args);
+
+      const out = getErrorCode(stderr);
+      expect(out).toBe<HoppErrorCode>("INVALID_ARGUMENT");
+    });
+
+    test("Errors with the code `TOKEN_INVALID` if the supplied access token is invalid", async () => {
+      const args = `test ${REQ_BODY_ENV_VARS_COLL_ID} --token ${INVALID_ACCESS_TOKEN} --server ${SERVER_URL}`;
+      const { stderr } = await runCLI(args);
+
+      const out = getErrorCode(stderr);
+      expect(out).toBe<HoppErrorCode>("TOKEN_INVALID");
+    });
+
+    test("Errors with the code `INVALID_ID` if the supplied collection ID is invalid", async () => {
+      const args = `test ${INVALID_COLLECTION_ID} --token ${PERSONAL_ACCESS_TOKEN} --server ${SERVER_URL}`;
+      const { stderr } = await runCLI(args);
+
+      const out = getErrorCode(stderr);
+      expect(out).toBe<HoppErrorCode>("INVALID_ID");
+    });
+
+    test("Errors with the code `INVALID_ID` if the supplied environment ID is invalid", async () => {
+      const args = `test ${REQ_BODY_ENV_VARS_COLL_ID} --env ${INVALID_ENVIRONMENT_ID} --token ${PERSONAL_ACCESS_TOKEN} --server ${SERVER_URL}`;
+      const { stderr } = await runCLI(args);
+
+      const out = getErrorCode(stderr);
+      expect(out).toBe<HoppErrorCode>("INVALID_ID");
+    });
+
+    test("Errors with the code `INVALID_SERVER_URL` if not supplying a valid SH instance server URL", async () => {
+      // FE URL of the staging SHC instance
+      const INVALID_SERVER_URL = "https://stage-shc.hoppscotch.io";
+      const args = `test ${REQ_BODY_ENV_VARS_COLL_ID} --env ${REQ_BODY_ENV_VARS_ENVS_ID} --token ${PERSONAL_ACCESS_TOKEN} --server ${INVALID_SERVER_URL}`;
+
+      const { stderr } = await runCLI(args);
+
+      const out = getErrorCode(stderr);
+      expect(out).toBe<HoppErrorCode>("INVALID_SERVER_URL");
+    });
+
+    test("Errors with the code `SERVER_CONNECTION_REFUSED` if supplying an SH instance server URL that doesn't follow URL semantics", async () => {
+      const INVALID_URL = "invalid-url";
+      const args = `test ${REQ_BODY_ENV_VARS_COLL_ID} --env ${REQ_BODY_ENV_VARS_ENVS_ID} --token ${PERSONAL_ACCESS_TOKEN} --server ${INVALID_URL}`;
+      const { stderr } = await runCLI(args);
+
+      const out = getErrorCode(stderr);
+      expect(out).toBe<HoppErrorCode>("SERVER_CONNECTION_REFUSED");
+    });
+  });
+
+  test("Successfully retrieves a collection with the ID", async () => {
+    const args = `test ${COLLECTION_LEVEL_HEADERS_AUTH_COLL_ID} --token ${PERSONAL_ACCESS_TOKEN} --server ${SERVER_URL}`;
+
+    const { error } = await runCLI(args);
+    expect(error).toBeNull();
+  });
+
+  test("Successfully retrieves collections and environments from a workspace using their respective IDs", async () => {
+    const args = `test ${REQ_BODY_ENV_VARS_COLL_ID} --env ${REQ_BODY_ENV_VARS_ENVS_ID} --token ${PERSONAL_ACCESS_TOKEN} --server ${SERVER_URL}`;
+
+    const { error } = await runCLI(args);
+    expect(error).toBeNull();
+  });
+
+  test("Supports specifying collection file path along with environment ID", async () => {
+    const TESTS_PATH = getTestJsonFilePath(
+      "req-body-env-vars-coll.json",
+      "collection"
+    );
+    const args = `test ${TESTS_PATH} --env ${REQ_BODY_ENV_VARS_ENVS_ID} --token ${PERSONAL_ACCESS_TOKEN} --server ${SERVER_URL}`;
+
+    const { error } = await runCLI(args);
+    expect(error).toBeNull();
+  });
+
+  test("Supports specifying environment file path along with collection ID", async () => {
+    const ENV_PATH = getTestJsonFilePath(
+      "req-body-env-vars-envs.json",
+      "environment"
+    );
+    const args = `test ${REQ_BODY_ENV_VARS_COLL_ID} --env ${ENV_PATH} --token ${PERSONAL_ACCESS_TOKEN} --server ${SERVER_URL}`;
+
+    const { error } = await runCLI(args);
+    expect(error).toBeNull();
+  });
+
+  test("Supports specifying both collection and environment file paths", async () => {
+    const TESTS_PATH = getTestJsonFilePath(
+      "req-body-env-vars-coll.json",
+      "collection"
+    );
+    const ENV_PATH = getTestJsonFilePath(
+      "req-body-env-vars-envs.json",
+      "environment"
+    );
+    const args = `test ${TESTS_PATH} --env ${ENV_PATH} --token ${PERSONAL_ACCESS_TOKEN}`;
+
+    const { error } = await runCLI(args);
     expect(error).toBeNull();
   });
 });

@@ -83,22 +83,34 @@ onMounted(async () => {
 
   if (props.reset) {
     success = await resetInfraConfigs(resetInfraConfigsMutation);
-    if (!success) emit('mutationFailure');
+    if (!success) {
+      emit('mutationFailure');
+      return;
+    }
   } else {
     const infraResult = await updateInfraConfigs(updateInfraConfigsMutation);
 
-    if (!infraResult) emit('mutationFailure');
+    if (!infraResult) {
+      emit('mutationFailure');
+      return;
+    }
 
     const authResult = await updateAuthProvider(
       updateAllowedAuthProviderMutation
     );
-    if (!authResult) emit('mutationFailure');
+    if (!authResult) {
+      emit('mutationFailure');
+      return;
+    }
 
     const dataSharingResult = await updateDataSharingConfigs(
       toggleDataSharingMutation
     );
 
-    if (!dataSharingResult) emit('mutationFailure');
+    if (!dataSharingResult) {
+      emit('mutationFailure');
+      return;
+    }
   }
 
   restart.value = true;

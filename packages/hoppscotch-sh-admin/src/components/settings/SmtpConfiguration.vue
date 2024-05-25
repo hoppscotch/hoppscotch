@@ -39,9 +39,12 @@
               </HoppSmartCheckbox>
 
               <HoppSmartCheckbox
-                :on="smtpAdvanced"
+                :on="smtpConfigs.fields.mailer_use_advance_configs"
                 :title="t('configs.mail_configs.enable')"
-                @change="smtpAdvanced = !smtpAdvanced"
+                @change="
+                  smtpConfigs.fields.mailer_use_advance_configs =
+                    !smtpConfigs.fields.mailer_use_advance_configs
+                "
               >
                 Advanced SMTP Configurations
               </HoppSmartCheckbox>
@@ -91,7 +94,7 @@
 <script setup lang="ts">
 import { HoppSmartCheckbox } from '@hoppscotch/ui';
 import { useVModel } from '@vueuse/core';
-import { computed, reactive, ref } from 'vue';
+import { computed, reactive } from 'vue';
 import { useI18n } from '~/composables/i18n';
 import { ServerConfigs } from '~/helpers/configs';
 import IconEye from '~icons/lucide/eye';
@@ -184,8 +187,6 @@ const toggleMask = (fieldKey: keyof ServerConfigs['mailConfigs']['fields']) => {
 const isMasked = (fieldKey: keyof ServerConfigs['mailConfigs']['fields']) =>
   maskState[fieldKey];
 
-const smtpAdvanced = ref(false);
-
 const fieldCondition = (field: Field) => {
   const advancedFields = [
     'mailer_smtp_host',
@@ -194,7 +195,6 @@ const fieldCondition = (field: Field) => {
     'mailer_smtp_password',
     'mailer_smtp_secure',
     'mailer_tls_reject_unauthorized',
-    'mailer_use_advance_configs',
   ];
   const basicFields = ['mailer_smtp_url'];
 
@@ -202,7 +202,7 @@ const fieldCondition = (field: Field) => {
     return true;
   }
 
-  if (smtpAdvanced.value) {
+  if (smtpConfigs.value.fields.mailer_use_advance_configs) {
     return (
       !basicFields.includes(field.key) && advancedFields.includes(field.key)
     );
@@ -210,11 +210,7 @@ const fieldCondition = (field: Field) => {
 };
 
 const isCheckboxField = (field: Field) => {
-  const checkboxKeys = [
-    'mailer_smtp_secure',
-    'mailer_use_advance_configs',
-    'mailer_tls_reject_unauthorized',
-  ];
+  const checkboxKeys = ['mailer_smtp_secure', 'mailer_tls_reject_unauthorized'];
   return checkboxKeys.includes(field.key);
 };
 

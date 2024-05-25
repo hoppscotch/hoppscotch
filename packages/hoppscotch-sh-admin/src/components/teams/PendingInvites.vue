@@ -1,5 +1,7 @@
 <template>
-  <div class="border rounded divide-y divide-dividerLight border-divider my-8">
+  <div
+    class="border rounded divide-y divide-dividerLight border-divider mx-4 my-8"
+  >
     <HoppSmartPlaceholder
       v-if="team && pendingInvites?.length === 0"
       text="No pending invites"
@@ -26,16 +28,22 @@
           :value="invitee.inviteeRole"
           readonly
         />
-        <div class="flex">
-          <HoppButtonSecondary
-            v-tippy="{ theme: 'tooltip' }"
-            :title="t('teams.remove')"
-            :icon="IconTrash"
-            color="red"
-            :loading="isLoadingIndex === index"
-            @click="removeInvitee(invitee.id, index)"
-          />
-        </div>
+        <HoppButtonSecondary
+          v-tippy="{ theme: 'tooltip' }"
+          :title="t('teams.copy')"
+          :icon="IconCopy"
+          color="white"
+          :loading="isLoadingIndex === index"
+          @click="copyInviteLink(invitee.id)"
+        />
+        <HoppButtonSecondary
+          v-tippy="{ theme: 'tooltip' }"
+          :title="t('teams.remove')"
+          :icon="IconTrash"
+          color="red"
+          :loading="isLoadingIndex === index"
+          @click="removeInvitee(invitee.id, index)"
+        />
       </div>
     </div>
   </div>
@@ -51,6 +59,8 @@ import {
   RevokeTeamInvitationDocument,
   TeamInfoQuery,
 } from '~/helpers/backend/graphql';
+import { copyToClipboard } from '~/helpers/utils/clipboard';
+import IconCopy from '~icons/lucide/copy';
 import IconTrash from '~icons/lucide/trash';
 
 const t = useI18n();
@@ -95,5 +105,12 @@ const removeInvitee = async (id: string, index: number) => {
     }
   }
   isLoadingIndex.value = null;
+};
+
+const baseURL = import.meta.env.VITE_BASE_URL ?? '';
+
+const copyInviteLink = (inviteID: string) => {
+  copyToClipboard(`${baseURL}/join-team?id=${inviteID}`);
+  toast.success(t('state.copied_to_clipboard'));
 };
 </script>

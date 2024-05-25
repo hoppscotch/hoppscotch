@@ -25,6 +25,12 @@
           @click="hideModal"
         />
       </span>
+      <HoppButtonSecondary
+        :label="t('users.copy_link')"
+        outline
+        filled
+        @click="copyInviteLink"
+      />
     </template>
   </HoppSmartModal>
 </template>
@@ -33,6 +39,7 @@
 import { ref } from 'vue';
 import { useI18n } from '~/composables/i18n';
 import { useToast } from '~/composables/toast';
+import { copyToClipboard } from '~/helpers/utils/clipboard';
 
 const t = useI18n();
 const toast = useToast();
@@ -50,6 +57,18 @@ const sendInvite = () => {
     return;
   }
   emit('send-invite', email.value);
+};
+
+const baseURL = import.meta.env.VITE_BASE_URL ?? '';
+
+const copyInviteLink = () => {
+  if (email.value.trim() === '') {
+    toast.error(t('users.valid_email'));
+    return;
+  }
+  emit('send-invite', email.value);
+  copyToClipboard(baseURL);
+  toast.success(t('state.copied_to_clipboard'));
 };
 
 const hideModal = () => {

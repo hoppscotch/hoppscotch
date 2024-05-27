@@ -144,12 +144,18 @@ describe('AccessTokenService', () => {
     });
 
     test('should successfully return a user Access Tokens', async () => {
-      mockPrisma.personalAccessToken.findUniqueOrThrow.mockResolvedValueOnce(
-        userAccessToken,
-      );
+      mockPrisma.personalAccessToken.findUniqueOrThrow.mockResolvedValueOnce({
+        ...userAccessToken,
+        user,
+      } as any);
 
-      const result = await accessTokenService.getUserPAT(userAccessToken.token);
-      expect(result).toEqualRight(userAccessTokenCasted);
+      const result = await accessTokenService.getUserPAT(
+        `pat-${userAccessToken.token}`,
+      );
+      expect(result).toEqualRight({
+        user,
+        ...userAccessToken,
+      } as any);
     });
   });
 
@@ -171,7 +177,7 @@ describe('AccessTokenService', () => {
       );
 
       const result = await accessTokenService.updateLastUsedforPAT(
-        userAccessToken.token,
+        `pat-${userAccessToken.token}`,
       );
       expect(result).toEqualRight(userAccessTokenCasted);
     });

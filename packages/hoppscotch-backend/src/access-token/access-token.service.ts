@@ -166,7 +166,8 @@ export class AccessTokenService {
    */
   async getUserPAT(accessToken: string) {
     const extractedToken = this.extractUUID(accessToken);
-    if (!extractedToken) return E.left(ACCESS_TOKENS_NOT_FOUND);
+    console.log('Extracted Token:', extractedToken);
+    if (!extractedToken) return E.left(ACCESS_TOKEN_NOT_FOUND);
 
     try {
       const userPAT = await this.prisma.personalAccessToken.findUniqueOrThrow({
@@ -187,7 +188,8 @@ export class AccessTokenService {
    */
   async updateLastUsedforPAT(token: string) {
     const extractedToken = this.extractUUID(token);
-    if (!extractedToken) return E.left(ACCESS_TOKENS_NOT_FOUND);
+    console.log('Extracted Token:', extractedToken);
+    if (!extractedToken) return E.left(ACCESS_TOKEN_NOT_FOUND);
 
     try {
       const updatedAccessToken = await this.prisma.personalAccessToken.update({

@@ -19,29 +19,28 @@ import { UrlSource } from "~/helpers/import-export/import/import-sources/UrlSour
 import IconFile from "~icons/lucide/file"
 
 import {
-  hoppRESTImporter,
   hoppInsomniaImporter,
-  hoppPostmanImporter,
-  toTeamsImporter,
   hoppOpenAPIImporter,
+  hoppPostmanImporter,
+  hoppRESTImporter,
+  toTeamsImporter,
 } from "~/helpers/import-export/import/importers"
 
 import { defineStep } from "~/composables/step-components"
 
+import MyCollectionImport from "~/components/importExport/ImportExportSteps/MyCollectionImport.vue"
 import { useI18n } from "~/composables/i18n"
 import { useToast } from "~/composables/toast"
-import { restCollections$ } from "~/newstore/collections"
-import MyCollectionImport from "~/components/importExport/ImportExportSteps/MyCollectionImport.vue"
 
-import IconFolderPlus from "~icons/lucide/folder-plus"
-import IconOpenAPI from "~icons/lucide/file"
-import IconPostman from "~icons/hopp/postman"
 import IconInsomnia from "~icons/hopp/insomnia"
+import IconPostman from "~icons/hopp/postman"
+import IconOpenAPI from "~icons/lucide/file"
+import IconFolderPlus from "~icons/lucide/folder-plus"
 import IconGithub from "~icons/lucide/github"
 import IconLink from "~icons/lucide/link"
 
-import IconUser from "~icons/lucide/user"
 import { useReadonlyStream } from "~/composables/stream"
+import IconUser from "~icons/lucide/user"
 
 import { getTeamCollectionJSON } from "~/helpers/backend/helpers"
 
@@ -51,9 +50,9 @@ import { initializeDownloadFile } from "~/helpers/import-export/export"
 import { gistExporter } from "~/helpers/import-export/export/gist"
 import { teamCollectionsExporter } from "~/helpers/import-export/export/teamCollections"
 
-import { GistSource } from "~/helpers/import-export/import/import-sources/GistSource"
-import { ImporterOrExporter } from "~/components/importExport/types"
 import { useService } from "dioc/vue"
+import { ImporterOrExporter } from "~/components/importExport/types"
+import { GistSource } from "~/helpers/import-export/import/import-sources/GistSource"
 import { NewWorkspaceService } from "~/services/new-workspace"
 import { TeamWorkspace } from "~/services/workspace.service"
 
@@ -83,8 +82,6 @@ const currentUser = useReadonlyStream(
   platform.auth.getCurrentUser()
 )
 
-const myCollections = useReadonlyStream(restCollections$, [])
-
 const workspaceService = useService(NewWorkspaceService)
 
 const activeWorkspaceHandle = workspaceService.activeWorkspaceHandle
@@ -96,7 +93,7 @@ const showImportFailedError = () => {
 const handleImportToStore = async (collections: HoppCollection[]) => {
   if (props.collectionsType.type === "my-collections") {
     if (!activeWorkspaceHandle.value) {
-      return
+      return E.left("INVALID_WORKSPACE_HANDLE")
     }
 
     const collectionHandleResult = await workspaceService.importRESTCollections(
@@ -413,23 +410,25 @@ const HoppMyCollectionsExporter: ImporterOrExporter = {
     isLoading: isHoppMyCollectionExporterInProgress,
   },
   action: async () => {
-    if (!myCollections.value.length) {
-      return toast.error(t("error.no_collections_to_export"))
-    }
-
     if (!activeWorkspaceHandle.value) {
-      return
+      return toast.error("error.something_went_wrong")
     }
 
     isHoppMyCollectionExporterInProgress.value = true
 
     const result = await workspaceService.exportRESTCollections(
-      activeWorkspaceHandle.value,
-      myCollections.value
+      activeWorkspaceHandle.value
     )
 
+    // INVALID_COLLECTION_HANDLE | NO_COLLECTIONS_TO_EXPORT
     if (E.isLeft(result)) {
-      // INVALID_WORKSPACE_HANDLE
+      isHoppMyCollectionExporterInProgress.value = false
+
+      if (result.left.error === "NO_COLLECTIONS_TO_EXPORT") {
+        return toast.error(t("error.no_collections_to_export"))
+      }
+
+      return toast.error(t("error.something_went_wrong"))
     }
 
     toast.success(t("state.download_started"))

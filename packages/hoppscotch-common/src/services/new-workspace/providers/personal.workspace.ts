@@ -713,18 +713,26 @@ export class PersonalWorkspaceProviderService
   }
 
   public exportRESTCollections(
-    workspaceHandle: Handle<WorkspaceCollection>,
-    collections: HoppCollection[]
+    workspaceHandle: Handle<WorkspaceCollection>
   ): Promise<E.Either<unknown, void>> {
     const workspaceHandleRef = workspaceHandle.get()
 
     if (
       !isValidWorkspaceHandle(workspaceHandleRef, this.providerID, "personal")
     ) {
-      return Promise.resolve(E.left("INVALID_COLLECTION_HANDLE" as const))
+      return Promise.resolve(E.left("INVALID_WORKSPACE_HANDLE" as const))
     }
 
-    initializeDownloadFile(JSON.stringify(collections, null, 2), "Collections")
+    const collectionsToExport = this.restCollectionState.value.state
+
+    if (collectionsToExport.length === 0) {
+      return Promise.resolve(E.left("NO_COLLECTIONS_TO_EXPORT" as const))
+    }
+
+    initializeDownloadFile(
+      JSON.stringify(collectionsToExport, null, 2),
+      `${workspaceHandleRef.value.data.workspaceID}-collections`
+    )
 
     return Promise.resolve(E.right(undefined))
   }
@@ -1362,7 +1370,7 @@ export class PersonalWorkspaceProviderService
     if (
       !isValidWorkspaceHandle(workspaceHandleRef, this.providerID, "personal")
     ) {
-      return Promise.resolve(E.left("INVALID_COLLECTION_HANDLE" as const))
+      return Promise.resolve(E.left("INVALID_WORKSPACE_HANDLE" as const))
     }
 
     if (requestID === "") {

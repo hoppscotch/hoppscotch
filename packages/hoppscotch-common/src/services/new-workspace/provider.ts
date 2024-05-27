@@ -1,21 +1,21 @@
-import { Ref } from "vue"
 import * as E from "fp-ts/Either"
+import { Ref } from "vue"
 
+import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
 import { Handle } from "./handle"
+import {
+  RESTCollectionChildrenView,
+  RESTCollectionJSONView,
+  RESTCollectionLevelAuthHeadersView,
+  RESTSearchResultsView,
+  RootRESTCollectionView,
+} from "./view"
 import {
   Workspace,
   WorkspaceCollection,
   WorkspaceDecor,
   WorkspaceRequest,
 } from "./workspace"
-import {
-  RESTCollectionLevelAuthHeadersView,
-  RESTCollectionChildrenView,
-  RootRESTCollectionView,
-  RESTSearchResultsView,
-  RESTCollectionJSONView,
-} from "./view"
-import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
 
 export interface WorkspaceProvider {
   providerID: string
@@ -83,8 +83,7 @@ export interface WorkspaceProvider {
     collections: HoppCollection[]
   ): Promise<E.Either<unknown, Handle<WorkspaceCollection>>>
   exportRESTCollections(
-    workspaceHandle: Handle<Workspace>,
-    collections: HoppCollection[]
+    workspaceHandle: Handle<Workspace>
   ): Promise<E.Either<unknown, void>>
   exportRESTCollection(
     collectionHandle: Handle<WorkspaceCollection>,

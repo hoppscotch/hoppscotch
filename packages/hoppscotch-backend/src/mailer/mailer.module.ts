@@ -8,7 +8,7 @@ import {
   MAILER_SMTP_PASSWORD_UNDEFINED,
   MAILER_SMTP_URL_UNDEFINED,
   MAILER_SMTP_USER_UNDEFINED,
-  MAILER_USE_ADVANCE_CONFIGS_INVALID_VALUE,
+  MAILER_USE_CUSTOM_CONFIGS_INVALID_VALUE,
 } from 'src/errors';
 import { ConfigService } from '@nestjs/config';
 import { loadInfraConfiguration } from 'src/infra-config/helper';
@@ -37,8 +37,8 @@ export class MailerModule {
       throwErr(MAILER_SMTP_URL_UNDEFINED);
 
     if (
-      (env.INFRA.MAILER_USE_ADVANCE_CONFIGS ??
-        config.get('MAILER_USE_ADVANCE_CONFIGS')) === 'false'
+      (env.INFRA.MAILER_USE_CUSTOM_CONFIGS ??
+        config.get('MAILER_USE_CUSTOM_CONFIGS')) === 'false'
     ) {
       console.log('Using simple mailer configuration');
 
@@ -47,8 +47,8 @@ export class MailerModule {
         config.get('MAILER_SMTP_URL') ??
         throwErr(MAILER_SMTP_URL_UNDEFINED);
     } else if (
-      (env.INFRA.MAILER_USE_ADVANCE_CONFIGS ??
-        config.get('MAILER_USE_ADVANCE_CONFIGS')) === 'true'
+      (env.INFRA.MAILER_USE_CUSTOM_CONFIGS ??
+        config.get('MAILER_USE_CUSTOM_CONFIGS')) === 'true'
     ) {
       console.log('Using advance mailer configuration');
 
@@ -74,7 +74,7 @@ export class MailerModule {
         },
       };
     } else {
-      throwErr(MAILER_USE_ADVANCE_CONFIGS_INVALID_VALUE);
+      throwErr(MAILER_USE_CUSTOM_CONFIGS_INVALID_VALUE);
     }
 
     return {

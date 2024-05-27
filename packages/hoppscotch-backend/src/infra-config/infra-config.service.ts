@@ -422,7 +422,7 @@ export class InfraConfigService implements OnModuleInit {
           )
             return E.left(INFRA_CONFIG_INVALID_INPUT);
           break;
-        case InfraConfigEnum.MAILER_USE_ADVANCE_CONFIGS:
+        case InfraConfigEnum.MAILER_USE_CUSTOM_CONFIGS:
           if (
             infraConfigs[i].value !== 'true' &&
             infraConfigs[i].value !== 'false'

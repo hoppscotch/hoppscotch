@@ -695,8 +695,8 @@ export const MAILER_SMTP_PASSWORD_UNDEFINED =
  * MAILER_USE_GRANULAR environment variable is not defined
  * (MailerModule)
  */
-export const MAILER_USE_ADVANCE_CONFIGS_INVALID_VALUE =
-  'mailer/use_advance_configs_invalid_value' as const;
+export const MAILER_USE_CUSTOM_CONFIGS_INVALID_VALUE =
+  'mailer/use_custom_configs_invalid_value' as const;
 
 /**
  * SharedRequest invalid request JSON format

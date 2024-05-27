@@ -33,7 +33,7 @@ const AuthProviderConfigurations = {
     InfraConfigEnum.MICROSOFT_SCOPE,
     InfraConfigEnum.MICROSOFT_TENANT,
   ],
-  [AuthProvider.EMAIL]: !!process.env.MAILER_USE_ADVANCE_CONFIGS
+  [AuthProvider.EMAIL]: !!process.env.MAILER_USE_CUSTOM_CONFIGS
     ? [
         InfraConfigEnum.MAILER_SMTP_HOST,
         InfraConfigEnum.MAILER_SMTP_PORT,
@@ -87,8 +87,8 @@ export async function getDefaultInfraConfigs(): Promise<
       value: process.env.MAILER_SMTP_ENABLE ?? 'true',
     },
     {
-      name: InfraConfigEnum.MAILER_USE_ADVANCE_CONFIGS,
-      value: process.env.MAILER_USE_ADVANCE_CONFIGS ?? 'false',
+      name: InfraConfigEnum.MAILER_USE_CUSTOM_CONFIGS,
+      value: process.env.MAILER_USE_CUSTOM_CONFIGS ?? 'false',
     },
     {
       name: InfraConfigEnum.MAILER_SMTP_URL,

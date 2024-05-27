@@ -372,7 +372,7 @@ export class InfraResolver {
     description: 'Enable or Disable SMTP for sending emails',
   })
   @UseGuards(GqlAuthGuard, GqlAdminGuard)
-  async enableAndDisableSMTP(
+  async toggleSMTP(
     @Args({
       name: 'status',
       type: () => ServiceStatus,

@@ -24,7 +24,11 @@
     </div>
   </div>
 
-  <SettingsServerRestart v-if="resetInfraConfigs" :reset="resetInfraConfigs" />
+  <SettingsServerRestart
+    v-if="resetInfraConfigs"
+    :reset="resetInfraConfigs"
+    @mutation-failure="resetInfraConfigs = false"
+  />
 
   <HoppSmartConfirmModal
     :show="resetModal"

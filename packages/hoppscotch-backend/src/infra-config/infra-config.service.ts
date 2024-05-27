@@ -43,6 +43,7 @@ export class InfraConfigService implements OnModuleInit {
     InfraConfigEnum.ALLOW_ANALYTICS_COLLECTION,
     InfraConfigEnum.ANALYTICS_USER_ID,
     InfraConfigEnum.IS_FIRST_TIME_INFRA_SETUP,
+    InfraConfigEnum.MAILER_SMTP_ENABLE,
   ];
   // Following fields can not be fetched by `infraConfigs` Query. Use dedicated queries for these fields instead.
   EXCLUDE_FROM_FETCH_CONFIGS = [

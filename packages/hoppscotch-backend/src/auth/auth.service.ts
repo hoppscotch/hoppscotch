@@ -112,7 +112,7 @@ export class AuthService {
 
     const refreshTokenHash = await argon2.hash(refreshToken);
 
-    const updatedUser = await this.usersService.UpdateUserRefreshToken(
+    const updatedUser = await this.usersService.updateUserRefreshToken(
       refreshTokenHash,
       userUid,
     );
@@ -319,6 +319,8 @@ export class AuthService {
         message: deletedPasswordlessToken.left,
         statusCode: HttpStatus.NOT_FOUND,
       });
+
+    this.usersService.updateUserLastLoggedOn(passwordlessTokens.value.userUid);
 
     return E.right(tokens.right);
   }

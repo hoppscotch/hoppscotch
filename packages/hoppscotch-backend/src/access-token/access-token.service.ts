@@ -20,7 +20,7 @@ export class AccessTokenService {
 
   TITLE_LENGTH = 3;
   VALID_TOKEN_DURATIONS = [7, 30, 60, 90];
-  TOKEN_PREFIX = 'pat';
+  TOKEN_PREFIX = 'pat-';
 
   /**
    * Calculate the expiration date of the token
@@ -61,6 +61,17 @@ export class AccessTokenService {
   }
 
   /**
+   * Extract UUID from the token
+   *
+   * @param token Personal Access Token
+   * @returns UUID of the token
+   */
+  private extractUUID(token): string | null {
+    if (!token.startsWith(this.TOKEN_PREFIX)) return null;
+    return token.slice(this.TOKEN_PREFIX.length);
+  }
+
+  /**
    * Create a Personal Access Token
    *
    * @param createAccessTokenDto DTO for creating a Personal Access Token
@@ -95,7 +106,7 @@ export class AccessTokenService {
     });
 
     const res: CreateAccessTokenResponse = {
-      token: `${this.TOKEN_PREFIX}-${createdPAT.token}`,
+      token: `${this.TOKEN_PREFIX}${createdPAT.token}`,
       info: this.cast(createdPAT),
     };
 
@@ -154,9 +165,12 @@ export class AccessTokenService {
    * @returns Either of the Personal Access Token or error message
    */
   async getUserPAT(accessToken: string) {
+    const extractedToken = this.extractUUID(accessToken);
+    if (!extractedToken) return E.left(ACCESS_TOKENS_NOT_FOUND);
+
     try {
       const userPAT = await this.prisma.personalAccessToken.findUniqueOrThrow({
-        where: { token: accessToken },
+        where: { token: extractedToken },
         include: { user: true },
       });
       return E.right(userPAT);
@@ -172,9 +186,12 @@ export class AccessTokenService {
    * @returns Either of the updated Personal Access Token or error message
    */
   async updateLastUsedforPAT(token: string) {
+    const extractedToken = this.extractUUID(token);
+    if (!extractedToken) return E.left(ACCESS_TOKENS_NOT_FOUND);
+
     try {
       const updatedAccessToken = await this.prisma.personalAccessToken.update({
-        where: { token },
+        where: { token: extractedToken },
         data: {
           updatedOn: new Date(),
         },

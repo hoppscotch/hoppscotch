@@ -72,7 +72,7 @@ export class AccessTokenController {
   }
 
   @Get('collection/:id')
-  @UseGuards(JwtAuthGuard, PATAuthGuard)
+  @UseGuards(PATAuthGuard)
   @UseInterceptors(AccessTokenInterceptor)
   async fetchCollection(@GqlUser() user: AuthUser, @Param('id') id: string) {
     const res = await this.teamCollectionService.getCollectionForCLI(
@@ -89,7 +89,7 @@ export class AccessTokenController {
   }
 
   @Get('environment/:id')
-  @UseGuards(JwtAuthGuard, PATAuthGuard)
+  @UseGuards(PATAuthGuard)
   @UseInterceptors(AccessTokenInterceptor)
   async fetchEnvironment(@GqlUser() user: AuthUser, @Param('id') id: string) {
     const res = await this.teamEnvironmentsService.getTeamEnvironmentForCLI(

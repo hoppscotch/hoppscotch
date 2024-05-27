@@ -24,6 +24,7 @@ export class PATAuthGuard implements CanActivate {
     const userAccessToken = await this.accessTokenService.getUserPAT(token);
     if (E.isLeft(userAccessToken))
       throw new BadRequestException({ reason: ACCESS_TOKENS_INVALID });
+    request.user = userAccessToken.right.user;
 
     const accessToken = userAccessToken.right;
     if (accessToken.expiresOn === null) return true;

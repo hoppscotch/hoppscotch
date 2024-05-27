@@ -439,8 +439,7 @@ export class NewWorkspaceService extends Service {
   }
 
   public async exportRESTCollections(
-    workspaceHandle: Handle<Workspace>,
-    collections: HoppCollection[]
+    workspaceHandle: Handle<Workspace>
   ): Promise<
     E.Either<WorkspaceError<"INVALID_HANDLE" | "INVALID_PROVIDER">, void>
   > {
@@ -458,10 +457,7 @@ export class NewWorkspaceService extends Service {
       return E.left({ type: "SERVICE_ERROR", error: "INVALID_PROVIDER" })
     }
 
-    const result = await provider.exportRESTCollections(
-      workspaceHandle,
-      collections
-    )
+    const result = await provider.exportRESTCollections(workspaceHandle)
 
     if (E.isLeft(result)) {
       return E.left({ type: "PROVIDER_ERROR", error: result.left })

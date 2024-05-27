@@ -219,6 +219,47 @@ export class InfraConfigService implements OnModuleInit {
   }
 
   /**
+   * Enable or Disable SMTP
+   * @param status Status to enable or disable
+   * @returns Either true or an error
+   */
+  async enableAndDisableSMTP(status: ServiceStatus) {
+    const isUpdated = await this.toggleServiceStatus(
+      InfraConfigEnum.MAILER_SMTP_ENABLE,
+      status,
+      true,
+    );
+    if (E.isLeft(isUpdated)) return E.left(isUpdated.left);
+
+    if (status === ServiceStatus.DISABLE) {
+      this.enableAndDisableSSO([{ provider: AuthProvider.EMAIL, status }]);
+    }
+    return E.right(true);
+  }
+
+  /**
+   * Enable or Disable Service (i.e. ALLOW_AUDIT_LOGS, ALLOW_ANALYTICS_COLLECTION, ALLOW_DOMAIN_WHITELISTING, SITE_PROTECTION)
+   * @param configName Name of the InfraConfigEnum
+   * @param status Status to enable or disable
+   * @param restartEnabled If true, restart the app after updating the InfraConfig
+   * @returns Either true or an error
+   */
+  async toggleServiceStatus(
+    configName: InfraConfigEnum,
+    status: ServiceStatus,
+    restartEnabled = false,
+  ) {
+    const isUpdated = await this.update(
+      configName,
+      status === ServiceStatus.ENABLE ? 'true' : 'false',
+      restartEnabled,
+    );
+    if (E.isLeft(isUpdated)) return E.left(isUpdated.left);
+
+    return E.right(true);
+  }
+
+  /**
    * Enable or Disable SSO for login/signup
    * @param provider Auth Provider to enable or disable
    * @param status Status to enable or disable

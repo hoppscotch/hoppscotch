@@ -164,7 +164,6 @@ export class AccessTokenService {
    */
   async getUserPAT(accessToken: string) {
     const extractedToken = this.extractUUID(accessToken);
-    console.log('Extracted Token:', extractedToken);
     if (!extractedToken) return E.left(ACCESS_TOKEN_NOT_FOUND);
 
     try {
@@ -186,7 +185,6 @@ export class AccessTokenService {
    */
   async updateLastUsedForPAT(token: string) {
     const extractedToken = this.extractUUID(token);
-    console.log('Extracted Token:', extractedToken);
     if (!extractedToken) return E.left(ACCESS_TOKEN_NOT_FOUND);
 
     try {

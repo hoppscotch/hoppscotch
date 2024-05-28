@@ -42,6 +42,7 @@ const user: AuthUser = {
   currentRESTSession: {},
   currentGQLSession: {},
   refreshToken: 'hbfvdkhjbvkdvdfjvbnkhjb',
+  lastLoggedOn: currentTime,
   createdOn: currentTime,
 };
 
@@ -54,6 +55,7 @@ const adminUser: AuthUser = {
   currentRESTSession: {},
   currentGQLSession: {},
   refreshToken: 'hbfvdkhjbvkdvdfjvbnkhjb',
+  lastLoggedOn: currentTime,
   createdOn: currentTime,
 };
 
@@ -67,6 +69,7 @@ const users: AuthUser[] = [
     currentRESTSession: {},
     currentGQLSession: {},
     refreshToken: 'hbfvdkhjbvkdvdfjvbnkhjb',
+    lastLoggedOn: currentTime,
     createdOn: currentTime,
   },
   {
@@ -78,6 +81,7 @@ const users: AuthUser[] = [
     currentRESTSession: {},
     currentGQLSession: {},
     refreshToken: 'hbfvdkhjbvkdvdfjvbnkhjb',
+    lastLoggedOn: currentTime,
     createdOn: currentTime,
   },
   {
@@ -89,6 +93,7 @@ const users: AuthUser[] = [
     currentRESTSession: {},
     currentGQLSession: {},
     refreshToken: 'hbfvdkhjbvkdvdfjvbnkhjb',
+    lastLoggedOn: currentTime,
     createdOn: currentTime,
   },
 ];
@@ -103,6 +108,7 @@ const adminUsers: AuthUser[] = [
     currentRESTSession: {},
     currentGQLSession: {},
     refreshToken: 'hbfvdkhjbvkdvdfjvbnkhjb',
+    lastLoggedOn: currentTime,
     createdOn: currentTime,
   },
   {
@@ -114,6 +120,7 @@ const adminUsers: AuthUser[] = [
     currentRESTSession: {},
     currentGQLSession: {},
     refreshToken: 'hbfvdkhjbvkdvdfjvbnkhjb',
+    lastLoggedOn: currentTime,
     createdOn: currentTime,
   },
   {
@@ -125,6 +132,7 @@ const adminUsers: AuthUser[] = [
     currentRESTSession: {},
     currentGQLSession: {},
     refreshToken: 'hbfvdkhjbvkdvdfjvbnkhjb',
+    lastLoggedOn: currentTime,
     createdOn: currentTime,
   },
 ];
@@ -492,6 +500,26 @@ describe('UserService', () => {
         newDisplayName,
       );
       expect(result).toEqualLeft(USER_SHORT_DISPLAY_NAME);
+    });
+  });
+
+  describe('updateUserLastLoggedOn', () => {
+    test('should resolve right and update user last logged on', async () => {
+      const currentTime = new Date();
+      mockPrisma.user.update.mockResolvedValueOnce({
+        ...user,
+        lastLoggedOn: currentTime,
+      });
+
+      const result = await userService.updateUserLastLoggedOn(user.uid);
+      expect(result).toEqualRight(true);
+    });
+
+    test('should resolve left and error when invalid user uid is passed', async () => {
+      mockPrisma.user.update.mockRejectedValueOnce('NotFoundError');
+
+      const result = await userService.updateUserLastLoggedOn('invalidUserUid');
+      expect(result).toEqualLeft(USER_NOT_FOUND);
     });
   });
 

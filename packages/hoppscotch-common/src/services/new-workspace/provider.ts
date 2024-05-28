@@ -86,8 +86,7 @@ export interface WorkspaceProvider {
     workspaceHandle: Handle<Workspace>
   ): Promise<E.Either<unknown, void>>
   exportRESTCollection(
-    collectionHandle: Handle<WorkspaceCollection>,
-    collection: HoppCollection
+    collectionHandle: Handle<WorkspaceCollection>
   ): Promise<E.Either<unknown, void>>
 
   reorderRESTCollection(
@@ -100,7 +99,6 @@ export interface WorkspaceProvider {
   ): Promise<E.Either<unknown, void>>
   reorderRESTRequest(
     requestHandle: Handle<WorkspaceRequest>,
-    destinationCollectionID: string,
     destinationRequestID: string | null
   ): Promise<E.Either<unknown, void>>
   moveRESTRequest(

@@ -738,8 +738,7 @@ export class PersonalWorkspaceProviderService
   }
 
   public exportRESTCollection(
-    collectionHandle: Handle<WorkspaceCollection>,
-    collection: HoppCollection
+    collectionHandle: Handle<WorkspaceCollection>
   ): Promise<E.Either<unknown, void>> {
     const collectionHandleRef = collectionHandle.get()
 
@@ -747,6 +746,17 @@ export class PersonalWorkspaceProviderService
       !isValidCollectionHandle(collectionHandleRef, this.providerID, "personal")
     ) {
       return Promise.resolve(E.left("INVALID_COLLECTION_HANDLE" as const))
+    }
+
+    const collection = navigateToFolderWithIndexPath(
+      this.restCollectionState.value.state,
+      collectionHandleRef.value.data.collectionID
+        .split("/")
+        .map((id) => parseInt(id))
+    )
+
+    if (!collection) {
+      return Promise.resolve(E.left("COLLECTION_NOT_FOUND" as const))
     }
 
     initializeDownloadFile(JSON.stringify(collection, null, 2), collection.name)
@@ -1098,7 +1108,6 @@ export class PersonalWorkspaceProviderService
 
   public reorderRESTRequest(
     requestHandle: Handle<WorkspaceRequest>,
-    destinationCollectionID: string,
     destinationRequestID: string | null
   ): Promise<E.Either<unknown, void>> {
     const requestHandleRef = requestHandle.get()
@@ -1131,7 +1140,7 @@ export class PersonalWorkspaceProviderService
 
     const resolvedDestinationRequestID =
       destinationRequestIndexPos > draggedRequestIndexPos
-        ? `${destinationCollectionID}/${resolvedDestinationRequestIDPostfix}`
+        ? `${collectionID}/${resolvedDestinationRequestIDPostfix}`
         : destinationRequestID
 
     const resolvedDestinationRequestIndexPos =
@@ -1175,7 +1184,7 @@ export class PersonalWorkspaceProviderService
     updateRESTRequestOrder(
       this.pathToLastIndex(draggedRequestID),
       destinationRequestID ? destinationRequestIndexPos : null,
-      destinationCollectionID
+      collectionID
     )
 
     affectedRequestHandleUpdateInfo.forEach(

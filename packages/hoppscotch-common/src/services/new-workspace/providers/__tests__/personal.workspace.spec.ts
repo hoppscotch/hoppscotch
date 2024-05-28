@@ -225,13 +225,11 @@ describe("PersonalWorkspaceProviderService", () => {
           }),
       }
 
-      const destinationCollectionID = "1"
       const destinationRequestID = "1/1"
 
       const moveRequestResult =
         await personalWorkspaceProviderService.reorderRESTRequest(
           requestHandle,
-          destinationCollectionID,
           destinationRequestID
         )
 
@@ -262,7 +260,7 @@ describe("PersonalWorkspaceProviderService", () => {
 
         // Request (req-0/0/0/7) dragged from `0/0/0/7` to `0/0/0/2`
         const draggedRequestID = "0/0/0/7"
-        const destinationCollectionID = "0/0/0"
+
         const destinationRequestID = "0/0/0/2"
 
         const draggedRequestHandle =
@@ -277,7 +275,6 @@ describe("PersonalWorkspaceProviderService", () => {
 
         await personalWorkspaceProviderService.reorderRESTRequest(
           draggedRequestHandle.right,
-          destinationCollectionID,
           destinationRequestID
         )
 
@@ -328,7 +325,7 @@ describe("PersonalWorkspaceProviderService", () => {
 
         // Request (req-0/0/0/5) dragged from `0/0/0/5` to `0/0/0/0`
         const draggedRequestID = "0/0/0/5"
-        const destinationCollectionID = "0/0/0"
+
         const destinationRequestID = "0/0/0/0"
 
         const draggedRequestHandle =
@@ -343,7 +340,6 @@ describe("PersonalWorkspaceProviderService", () => {
 
         await personalWorkspaceProviderService.reorderRESTRequest(
           draggedRequestHandle.right,
-          destinationCollectionID,
           destinationRequestID
         )
 
@@ -411,7 +407,7 @@ describe("PersonalWorkspaceProviderService", () => {
 
         // Request (req-0/0/0/3) dragged from `0/0/0/3` to `0/0/0/8`
         const draggedRequestID = "0/0/0/3"
-        const destinationCollectionID = "0/0/0"
+
         const destinationRequestID = "0/0/0/8"
 
         const draggedRequestHandle =
@@ -426,7 +422,6 @@ describe("PersonalWorkspaceProviderService", () => {
 
         await personalWorkspaceProviderService.reorderRESTRequest(
           draggedRequestHandle.right,
-          destinationCollectionID,
           destinationRequestID
         )
 
@@ -478,7 +473,7 @@ describe("PersonalWorkspaceProviderService", () => {
 
         // Request (req-0/0/0/5) dragged from `0/0/0/5` to `0/0/0/9`
         const draggedRequestID = "0/0/0/5"
-        const destinationCollectionID = "0/0/0"
+
         // Indicates move to the last position `0/0/0/9`
         const destinationRequestID = null
 
@@ -494,7 +489,6 @@ describe("PersonalWorkspaceProviderService", () => {
 
         await personalWorkspaceProviderService.reorderRESTRequest(
           draggedRequestHandle.right,
-          destinationCollectionID,
           destinationRequestID
         )
 

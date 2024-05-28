@@ -1452,18 +1452,10 @@ const exportCollection = async (collectionIndexPath: string) => {
     return
   }
 
-  const collection = navigateToFolderWithIndexPath(
-    restCollectionState.value,
-    collectionIndexPath.split("/").map((id) => parseInt(id))
-  ) as HoppCollection
-
-  const result = await workspaceService.exportRESTCollection(
-    collectionHandle,
-    collection
-  )
+  const result = await workspaceService.exportRESTCollection(collectionHandle)
 
   if (E.isLeft(result)) {
-    // INVALID_COLLECTION_HANDLE
+    // INVALID_COLLECTION_HANDLE | COLLECTION_NOT_FOUND
     return
   }
 }
@@ -1912,7 +1904,6 @@ const updateRequestOrder = async (
 
   const result = await workspaceService.reorderRESTRequest(
     requestHandle,
-    destinationCollectionIndex,
     destinationRequestIndex
   )
 

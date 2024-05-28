@@ -8,10 +8,10 @@ export type CreateAccessTokenResponse = {
 
 // Response type of any error in PAT module
 export type CLIErrorResponse = {
-  message: string;
+  reason: string;
 };
 
 // Return a CLIErrorResponse object
-export function createCLIErrorResponse(message: string): CLIErrorResponse {
-  return { message };
+export function createCLIErrorResponse(reason: string): CLIErrorResponse {
+  return { reason };
 }

@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -82,10 +83,9 @@ export class AccessTokenController {
     );
 
     if (E.isLeft(res))
-      throwHTTPErr({
-        message: createCLIErrorResponse(ACCESS_TOKENS_INVALID_DATA_ID),
-        statusCode: HttpStatus.BAD_REQUEST,
-      });
+      throw new BadRequestException(
+        createCLIErrorResponse(ACCESS_TOKENS_INVALID_DATA_ID),
+      );
     return res.right;
   }
 
@@ -99,10 +99,9 @@ export class AccessTokenController {
     );
 
     if (E.isLeft(res))
-      throwHTTPErr({
-        message: createCLIErrorResponse(ACCESS_TOKENS_INVALID_DATA_ID),
-        statusCode: HttpStatus.BAD_REQUEST,
-      });
+      throw new BadRequestException(
+        createCLIErrorResponse(ACCESS_TOKENS_INVALID_DATA_ID),
+      );
     return res.right;
   }
 }

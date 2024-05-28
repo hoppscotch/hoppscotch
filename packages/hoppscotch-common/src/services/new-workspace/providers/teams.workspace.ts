@@ -8,7 +8,12 @@ import {
   WorkspaceDecor,
   WorkspaceRequest,
 } from "../workspace"
-import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
+import {
+  HoppCollection,
+  HoppRESTAuth,
+  HoppRESTHeader,
+  HoppRESTRequest,
+} from "@hoppscotch/data"
 
 import * as E from "fp-ts/Either"
 import { platform } from "~/platform"
@@ -27,8 +32,8 @@ import { createTeam } from "~/helpers/backend/mutations/Team"
 import { Ref, computed, ref } from "vue"
 import {
   RESTCollectionChildrenView,
+  RESTCollectionJSONView,
   RESTCollectionLevelAuthHeadersView,
-  RESTCollectionViewItem,
   RootRESTCollectionView,
 } from "../view"
 import { runGQLQuery, runGQLSubscription } from "~/helpers/backend/GQLClient"
@@ -53,6 +58,19 @@ import { generateKeyBetween } from "fractional-indexing"
 import IconUser from "~icons/lucide/user"
 import TeamsWorkspaceSelector from "~/components/workspace/TeamsWorkspaceSelector.vue"
 import { lazy } from "~/helpers/utils/lazy"
+import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
+import { initializeDownloadFile } from "~/helpers/import-export/export"
+
+type TeamsWorkspaceCollection = WorkspaceCollection & {
+  parentCollectionID?: string
+  order: string
+  auth: HoppRESTAuth
+  headers: HoppRESTHeader[]
+}
+
+type TeamsWorkspaceRequest = WorkspaceRequest & {
+  order: string
+}
 
 export class TeamsWorkspaceProviderService
   extends Service
@@ -66,18 +84,9 @@ export class TeamsWorkspaceProviderService
 
   private workspaces: Ref<Workspace[]> = ref([])
 
-  private collections: Ref<
-    (WorkspaceCollection & {
-      parentCollectionID?: string
-      order: string
-    })[]
-  > = ref([])
+  private collections: Ref<TeamsWorkspaceCollection[]> = ref([])
 
-  private requests: Ref<
-    (WorkspaceRequest & {
-      order: string
-    })[]
-  > = ref([])
+  private requests: Ref<TeamsWorkspaceRequest[]> = ref([])
 
   private orderedRequests = computed(() => {
     return sortByOrder(this.requests.value)
@@ -716,6 +725,196 @@ export class TeamsWorkspaceProviderService
     })
   }
 
+  async getRESTCollectionLevelAuthHeadersView(
+    collectionHandle: Handle<WorkspaceCollection>
+  ): Promise<E.Either<never, Handle<RESTCollectionLevelAuthHeadersView>>> {
+    return E.right({
+      get: () =>
+        computed(() => {
+          const collectionHandleRef = collectionHandle.get()
+
+          if (!isValidCollectionHandle(collectionHandleRef, this.providerID)) {
+            return {
+              type: "invalid" as const,
+              reason: "INVALID_COLLECTION_HANDLE",
+            }
+          }
+
+          const { collectionID } = collectionHandleRef.value.data
+
+          const collection = this.collections.value.find(
+            (collection) => collection.collectionID === collectionID
+          )
+
+          if (!collection) {
+            return {
+              type: "invalid" as const,
+              reason: "COLLECTION_DOES_NOT_EXIST",
+            }
+          }
+
+          let inheritedAuth: HoppInheritedProperty["auth"] = {
+            parentID: "",
+            parentName: "",
+            inheritedAuth: {
+              authType: "none",
+              authActive: true,
+            },
+          }
+
+          let collectionToProcess: typeof collection | undefined = collection
+
+          // TODO: move this into a function
+          while (collectionToProcess) {
+            if (collectionToProcess.auth.authType !== "inherit") {
+              inheritedAuth = {
+                parentID: collectionToProcess.collectionID,
+                parentName: collectionToProcess.name,
+                inheritedAuth: collectionToProcess.auth,
+              }
+
+              break
+            }
+
+            const parentCollectionID: string | undefined =
+              collectionToProcess.parentCollectionID
+
+            if (!parentCollectionID) {
+              break
+            }
+
+            collectionToProcess = this.collections.value.find(
+              (collection) => collection.collectionID === parentCollectionID
+            )
+          }
+
+          let collectionToProcessHeaders: typeof collection | undefined =
+            collection
+
+          const inheritedHeaders: HoppInheritedProperty["headers"] = []
+
+          const headerKeys = new Set<string>()
+
+          // TODO: move this into a function
+          while (collectionToProcessHeaders) {
+            collectionToProcessHeaders.headers
+              .filter((header) => header.active)
+              .forEach((header) => {
+                if (!headerKeys.has(header.key) && collectionToProcessHeaders) {
+                  inheritedHeaders.push({
+                    parentID: collectionToProcessHeaders.collectionID,
+                    parentName: collectionToProcessHeaders.name,
+                    inheritedHeader: header,
+                  })
+
+                  headerKeys.add(header.key)
+                }
+              })
+
+            const parentCollectionID: string | undefined =
+              collectionToProcessHeaders.parentCollectionID
+
+            if (!parentCollectionID) {
+              break
+            }
+
+            collectionToProcessHeaders = this.collections.value.find(
+              (collection) => collection.collectionID === parentCollectionID
+            )
+          }
+
+          return {
+            data: {
+              auth: inheritedAuth,
+              headers: inheritedHeaders,
+            },
+            type: "ok" as const,
+          }
+        }),
+    })
+  }
+
+  public async exportRESTCollections(
+    workspaceHandle: Handle<WorkspaceCollection>
+  ): Promise<E.Either<unknown, void>> {
+    const workspaceHandleRef = workspaceHandle.get()
+
+    if (!isValidWorkspaceHandle(workspaceHandleRef, this.providerID)) {
+      return E.left("INVALID_WORKSPACE_HANDLE" as const)
+    }
+
+    const workspaceID = workspaceHandleRef.value.data.workspaceID
+
+    const collectionsInWorkspace = this.collections.value.filter(
+      (collection) => {
+        return collection.workspaceID === workspaceID
+      }
+    )
+
+    const requestsInWorkspace = this.requests.value.filter((request) => {
+      return request.workspaceID === workspaceID
+    })
+
+    const tree = makeCollectionTree(collectionsInWorkspace, requestsInWorkspace)
+
+    const downloadRes = await initializeDownloadFile(
+      JSON.stringify(tree, null, 2),
+      "Collections"
+    )
+
+    if (E.isLeft(downloadRes)) {
+      return downloadRes
+    }
+
+    return E.right(undefined)
+  }
+
+  public async getRESTCollectionJSONView(
+    workspaceHandle: Handle<Workspace>
+  ): Promise<E.Either<never, Handle<RESTCollectionJSONView>>> {
+    const workspaceHandleRef = workspaceHandle.get()
+
+    return E.right({
+      get: () =>
+        computed(() => {
+          if (!isValidWorkspaceHandle(workspaceHandleRef, this.providerID)) {
+            return {
+              type: "invalid" as const,
+              reason: "INVALID_WORKSPACE_HANDLE",
+            }
+          }
+
+          const workspaceID = workspaceHandleRef.value.data.workspaceID
+
+          const collectionsInWorkspace = this.collections.value.filter(
+            (collection) => {
+              return collection.workspaceID === workspaceID
+            }
+          )
+
+          const requestsInWorkspace = this.requests.value.filter((request) => {
+            return request.workspaceID === workspaceID
+          })
+
+          const tree = makeCollectionTree(
+            collectionsInWorkspace,
+            requestsInWorkspace
+          )
+
+          const view: RESTCollectionJSONView = {
+            providerID: this.providerID,
+            workspaceID,
+            content: JSON.stringify(tree, null, 2),
+          }
+
+          return {
+            type: "ok" as const,
+            data: view,
+          }
+        }),
+    })
+  }
+
   // this might be temporary, might move this to decor
   async getWorkspaceHandle(
     workspaceID: string
@@ -757,10 +956,6 @@ export class TeamsWorkspaceProviderService
         console.error(result.left)
         return
       }
-
-      console.group("Team Collection Added")
-      console.log(result)
-      console.groupEnd()
 
       const parentCollectionID = result.right.teamCollectionAdded.parent?.id
 
@@ -1344,6 +1539,77 @@ const sortByOrder = <OrderedItem extends { order: string }>(
 
     return 0
   })
+}
+
+// converts the flat collections structure to the HoppCollection tree format
+function makeCollectionTree(
+  collections: TeamsWorkspaceCollection[],
+  requests: TeamsWorkspaceRequest[]
+) {
+  const collectionsTree: HoppCollection[] = []
+  const collectionsMap = new Map<
+    string,
+    HoppCollection & { parentCollectionID?: string; id: string; order: string }
+  >()
+
+  // build a copy of the collections array with empty folders & requests
+  // so we don't mutate the original argument array
+  const hoppCollections = collections.map(
+    (
+      collection
+    ): HoppCollection & {
+      parentCollectionID?: string
+      id: string
+      order: string
+    } => ({
+      parentCollectionID: collection.parentCollectionID,
+      order: collection.order,
+      id: collection.collectionID,
+      name: collection.name,
+      auth: collection.auth,
+      headers: collection.headers,
+      // we'll populate the child collections and child requests in the next steps
+      folders: [],
+      requests: [],
+      v: 2,
+    })
+  )
+
+  const uniqueParentCollectionIDs = new Set<string>()
+
+  hoppCollections.forEach((collection) => {
+    if (collection.parentCollectionID) {
+      uniqueParentCollectionIDs.add(collection.parentCollectionID)
+    } else {
+      collectionsTree.push(collection)
+      uniqueParentCollectionIDs.add(collection.id)
+    }
+
+    collectionsMap.set(collection.id, collection)
+  })
+
+  const collectionsMapArray = Array.from(collectionsMap)
+
+  uniqueParentCollectionIDs.forEach((parentCollectionID) => {
+    const childCollections = collectionsMapArray
+      .filter(([, collection]) => {
+        return collection.parentCollectionID === parentCollectionID
+      })
+      .map(([, collection]) => collection)
+      .sort((a, b) => a.order.localeCompare(b.order))
+
+    const childRequests = requests
+      .filter((request) => request.collectionID === parentCollectionID)
+      .sort((a, b) => a.order.localeCompare(b.order))
+
+    const parentCollection = collectionsMap.get(parentCollectionID)
+    parentCollection?.folders.push(...childCollections)
+    parentCollection?.requests.push(
+      ...childRequests.map((request): HoppRESTRequest => request.request)
+    )
+  })
+
+  return collectionsTree
 }
 
 // TODO

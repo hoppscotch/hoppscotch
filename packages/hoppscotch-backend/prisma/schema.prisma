@@ -89,25 +89,26 @@ model TeamEnvironment {
 }
 
 model User {
-  uid                String              @id @default(cuid())
-  displayName        String?
-  email              String?             @unique
-  photoURL           String?
-  isAdmin            Boolean             @default(false)
-  refreshToken       String?
-  providerAccounts   Account[]
-  VerificationToken  VerificationToken[]
-  settings           UserSettings?
-  UserHistory        UserHistory[]
-  UserEnvironments   UserEnvironment[]
-  userCollections    UserCollection[]
-  userRequests       UserRequest[]
-  currentRESTSession Json?
-  currentGQLSession  Json?
-  lastLoggedOn       DateTime?
-  createdOn          DateTime            @default(now()) @db.Timestamp(3)
-  invitedUsers       InvitedUsers[]
-  shortcodes         Shortcode[]
+  uid                  String                @id @default(cuid())
+  displayName          String?
+  email                String?               @unique
+  photoURL             String?
+  isAdmin              Boolean               @default(false)
+  refreshToken         String?
+  providerAccounts     Account[]
+  VerificationToken    VerificationToken[]
+  settings             UserSettings?
+  UserHistory          UserHistory[]
+  UserEnvironments     UserEnvironment[]
+  userCollections      UserCollection[]
+  userRequests         UserRequest[]
+  currentRESTSession   Json?
+  currentGQLSession    Json?
+  lastLoggedOn         DateTime?
+  createdOn            DateTime              @default(now()) @db.Timestamp(3)
+  invitedUsers         InvitedUsers[]
+  shortcodes           Shortcode[]
+  personalAccessTokens PersonalAccessToken[]
 }
 
 model Account {
@@ -218,4 +219,15 @@ model InfraConfig {
   active    Boolean  @default(true) // Use case: Let's say, Admin wants to disable Google SSO, but doesn't want to delete the config
   createdOn DateTime @default(now()) @db.Timestamp(3)
   updatedOn DateTime @updatedAt @db.Timestamp(3)
+}
+
+model PersonalAccessToken {
+  id        String    @id @default(cuid())
+  userUid   String
+  user      User      @relation(fields: [userUid], references: [uid], onDelete: Cascade)
+  label     String
+  token     String    @unique @default(uuid())
+  expiresOn DateTime? @db.Timestamp(3)
+  createdOn DateTime  @default(now()) @db.Timestamp(3)
+  updatedOn DateTime  @updatedAt @db.Timestamp(3)
 }

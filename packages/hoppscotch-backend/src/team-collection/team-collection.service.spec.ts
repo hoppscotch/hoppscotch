@@ -12,6 +12,7 @@ import {
   TEAM_COL_REORDERING_FAILED,
   TEAM_COL_SAME_NEXT_COLL,
   TEAM_INVALID_COLL_ID,
+  TEAM_MEMBER_NOT_FOUND,
   TEAM_NOT_OWNER,
 } from 'src/errors';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -19,15 +20,18 @@ import { PubSubService } from 'src/pubsub/pubsub.service';
 import { AuthUser } from 'src/types/AuthUser';
 import { TeamCollectionService } from './team-collection.service';
 import { TeamCollection } from './team-collection.model';
+import { TeamService } from 'src/team/team.service';
 
 const mockPrisma = mockDeep<PrismaService>();
 const mockPubSub = mockDeep<PubSubService>();
+const mockTeamService = mockDeep<TeamService>();
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 const teamCollectionService = new TeamCollectionService(
   mockPrisma,
   mockPubSub as any,
+  mockTeamService,
 );
 
 const currentTime = new Date();
@@ -1739,3 +1743,63 @@ describe('updateTeamCollection', () => {
 });
 
 //ToDo: write test cases for exportCollectionsToJSON
+
+describe('getCollectionForCLI', () => {
+  test('should throw TEAM_COLL_NOT_FOUND if collectionID is invalid', async () => {
+    mockPrisma.teamCollection.findUniqueOrThrow.mockRejectedValueOnce(
+      'NotFoundError',
+    );
+
+    const result = await teamCollectionService.getCollectionForCLI(
+      'invalidID',
+      user.uid,
+    );
+    expect(result).toEqualLeft(TEAM_COLL_NOT_FOUND);
+  });
+
+  test('should throw TEAM_MEMBER_NOT_FOUND if user not in same team', async () => {
+    mockPrisma.teamCollection.findUniqueOrThrow.mockResolvedValueOnce(
+      rootTeamCollection,
+    );
+    mockTeamService.getTeamMember.mockResolvedValue(null);
+
+    const result = await teamCollectionService.getCollectionForCLI(
+      rootTeamCollection.id,
+      user.uid,
+    );
+    expect(result).toEqualLeft(TEAM_MEMBER_NOT_FOUND);
+  });
+
+  // test('should return the TeamCollection data for CLI', async () => {
+  //   mockPrisma.teamCollection.findUniqueOrThrow.mockResolvedValueOnce(
+  //     rootTeamCollection,
+  //   );
+  //   mockTeamService.getTeamMember.mockResolvedValue({
+  //     membershipID: 'sdc3sfdv',
+  //     userUid: user.uid,
+  //     role: TeamMemberRole.OWNER,
+  //   });
+
+  //   const result = await teamCollectionService.getCollectionForCLI(
+  //     rootTeamCollection.id,
+  //     user.uid,
+  //   );
+  //   expect(result).toEqualRight({
+  //     id: rootTeamCollection.id,
+  //     data: JSON.stringify(rootTeamCollection.data),
+  //     title: rootTeamCollection.title,
+  //     parentID: rootTeamCollection.parentID,
+  //     folders: [
+  //       {
+  //         id: childTeamCollection.id,
+  //         data: JSON.stringify(childTeamCollection.data),
+  //         title: childTeamCollection.title,
+  //         parentID: childTeamCollection.parentID,
+  //         folders: [],
+  //         requests: [],
+  //       },
+  //     ],
+  //     requests: [],
+  //   });
+  // });
+});

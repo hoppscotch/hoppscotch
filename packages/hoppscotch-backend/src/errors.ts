@@ -761,3 +761,39 @@ export const POSTHOG_CLIENT_NOT_INITIALIZED = 'posthog/client_not_initialized';
  * Inputs supplied are invalid
  */
 export const INVALID_PARAMS = 'invalid_parameters' as const;
+
+/**
+ * The provided label for the access-token is short (less than 3 characters)
+ * (AccessTokenService)
+ */
+export const ACCESS_TOKEN_LABEL_SHORT = 'access_token/label_too_short';
+
+/**
+ * The provided expiryInDays value is not valid
+ * (AccessTokenService)
+ */
+export const ACCESS_TOKEN_EXPIRY_INVALID = 'access_token/expiry_days_invalid';
+
+/**
+ * The provided PAT ID is invalid
+ * (AccessTokenService)
+ */
+export const ACCESS_TOKEN_NOT_FOUND = 'access_token/access_token_not_found';
+
+/**
+ * AccessTokens is expired
+ * (AccessTokenService)
+ */
+export const ACCESS_TOKENS_EXPIRED = 'TOKEN_EXPIRED';
+
+/**
+ * AccessTokens is invalid
+ * (AccessTokenService)
+ */
+export const ACCESS_TOKENS_INVALID = 'TOKEN_INVALID';
+
+/**
+ * AccessTokens is invalid
+ * (AccessTokenService)
+ */
+export const ACCESS_TOKENS_INVALID_DATA_ID = 'INVALID_ID';

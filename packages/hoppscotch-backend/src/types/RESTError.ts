@@ -5,6 +5,6 @@ import { HttpStatus } from '@nestjs/common';
  ** Since its REST we need to return the HTTP status code along with the error message
  */
 export type RESTError = {
-  message: string;
+  message: string | Record<string, string>;
   statusCode: HttpStatus;
 };

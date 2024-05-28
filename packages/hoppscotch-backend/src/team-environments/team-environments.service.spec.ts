@@ -6,19 +6,24 @@ import {
   JSON_INVALID,
   TEAM_ENVIRONMENT_NOT_FOUND,
   TEAM_ENVIRONMENT_SHORT_NAME,
+  TEAM_MEMBER_NOT_FOUND,
 } from 'src/errors';
+import { TeamService } from 'src/team/team.service';
+import { TeamMemberRole } from 'src/team/team.model';
 
 const mockPrisma = mockDeep<PrismaService>();
 
 const mockPubSub = {
   publish: jest.fn().mockResolvedValue(null),
 };
+const mockTeamService = mockDeep<TeamService>();
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 const teamEnvironmentsService = new TeamEnvironmentsService(
   mockPrisma,
   mockPubSub as any,
+  mockTeamService,
 );
 
 const teamEnvironment = {
@@ -378,6 +383,49 @@ describe('TeamEnvironmentsService', () => {
         },
       });
       expect(result).toEqual(0);
+    });
+  });
+
+  describe('getTeamEnvironmentForCLI', () => {
+    test('should successfully return a TeamEnvironment with valid ID', async () => {
+      mockPrisma.teamEnvironment.findFirstOrThrow.mockResolvedValueOnce(
+        teamEnvironment,
+      );
+      mockTeamService.getTeamMember.mockResolvedValue({
+        membershipID: 'sdc3sfdv',
+        userUid: '123454',
+        role: TeamMemberRole.OWNER,
+      });
+
+      const result = await teamEnvironmentsService.getTeamEnvironmentForCLI(
+        teamEnvironment.id,
+        '123454',
+      );
+      expect(result).toEqualRight(teamEnvironment);
+    });
+
+    test('should throw TEAM_ENVIRONMENT_NOT_FOUND with invalid ID', async () => {
+      mockPrisma.teamEnvironment.findFirstOrThrow.mockRejectedValueOnce(
+        'RejectOnNotFound',
+      );
+
+      const result = await teamEnvironmentsService.getTeamEnvironment(
+        teamEnvironment.id,
+      );
+      expect(result).toEqualLeft(TEAM_ENVIRONMENT_NOT_FOUND);
+    });
+
+    test('should throw TEAM_MEMBER_NOT_FOUND if user not in same team', async () => {
+      mockPrisma.teamEnvironment.findFirstOrThrow.mockResolvedValueOnce(
+        teamEnvironment,
+      );
+      mockTeamService.getTeamMember.mockResolvedValue(null);
+
+      const result = await teamEnvironmentsService.getTeamEnvironmentForCLI(
+        teamEnvironment.id,
+        '333',
+      );
+      expect(result).toEqualLeft(TEAM_MEMBER_NOT_FOUND);
     });
   });
 });

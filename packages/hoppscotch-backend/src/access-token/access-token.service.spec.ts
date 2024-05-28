@@ -1,6 +1,5 @@
-import { Test, TestingModule } from '@nestjs/testing';
 import { AccessTokenService } from './access-token.service';
-import { mockDeep } from 'jest-mock-extended';
+import { mockDeep, mockReset } from 'jest-mock-extended';
 import { PrismaService } from 'src/prisma/prisma.service';
 import {
   ACCESS_TOKEN_EXPIRY_INVALID,
@@ -30,15 +29,22 @@ const user: AuthUser = {
   createdOn: currentTime,
   currentGQLSession: {},
   currentRESTSession: {},
+  lastLoggedOn: currentTime,
 };
+
+const PATCreatedOn = new Date();
+const expiryInDays = 7;
+const PATExpiresOn = new Date(
+  PATCreatedOn.getTime() + expiryInDays * 24 * 60 * 60 * 1000,
+);
 
 const userAccessToken: PersonalAccessToken = {
   id: 'skfvhj8uvdfivb',
   userUid: user.uid,
   label: 'test',
   token: '0140e328-b187-4823-ae4b-ed4bec832ac2',
-  expiresOn: new Date(),
-  createdOn: new Date(),
+  expiresOn: PATExpiresOn,
+  createdOn: PATCreatedOn,
   updatedOn: new Date(),
 };
 
@@ -49,6 +55,10 @@ const userAccessTokenCasted: AccessToken = {
   lastUsedOn: userAccessToken.updatedOn,
   expiresOn: userAccessToken.expiresOn,
 };
+
+beforeEach(() => {
+  mockReset(mockPrisma);
+});
 
 describe('AccessTokenService', () => {
   describe('createPAT', () => {
@@ -87,8 +97,8 @@ describe('AccessTokenService', () => {
 
       const result = await accessTokenService.createPAT(
         {
-          label: 'test',
-          expiryInDays: 7,
+          label: userAccessToken.label,
+          expiryInDays,
         },
         user,
       );

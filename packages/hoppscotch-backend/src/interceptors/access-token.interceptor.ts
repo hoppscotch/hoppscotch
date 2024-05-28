@@ -24,7 +24,7 @@ export class AccessTokenInterceptor implements NestInterceptor {
     return handler.handle().pipe(
       map(async (data) => {
         const userAccessToken =
-          await this.accessTokenService.updateLastUsedforPAT(token);
+          await this.accessTokenService.updateLastUsedForPAT(token);
         if (E.isLeft(userAccessToken)) throw new UnauthorizedException();
 
         return data;

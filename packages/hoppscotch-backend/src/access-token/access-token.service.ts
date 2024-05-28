@@ -12,7 +12,6 @@ import {
 import { CreateAccessTokenResponse } from './helper';
 import { PersonalAccessToken } from '@prisma/client';
 import { AccessToken } from 'src/types/AccessToken';
-import { Request } from 'express';
 @Injectable()
 export class AccessTokenService {
   constructor(private readonly prisma: PrismaService) {}
@@ -185,7 +184,7 @@ export class AccessTokenService {
    * @param token Personal Access Token
    * @returns Either of the updated Personal Access Token or error message
    */
-  async updateLastUsedforPAT(token: string) {
+  async updateLastUsedForPAT(token: string) {
     const extractedToken = this.extractUUID(token);
     console.log('Extracted Token:', extractedToken);
     if (!extractedToken) return E.left(ACCESS_TOKEN_NOT_FOUND);

@@ -165,7 +165,7 @@ describe('AccessTokenService', () => {
         'RecordNotFound',
       );
 
-      const result = await accessTokenService.updateLastUsedforPAT(
+      const result = await accessTokenService.updateLastUsedForPAT(
         userAccessToken.token,
       );
       expect(result).toEqualLeft(ACCESS_TOKEN_NOT_FOUND);
@@ -176,7 +176,7 @@ describe('AccessTokenService', () => {
         userAccessToken,
       );
 
-      const result = await accessTokenService.updateLastUsedforPAT(
+      const result = await accessTokenService.updateLastUsedForPAT(
         `pat-${userAccessToken.token}`,
       );
       expect(result).toEqualRight(userAccessTokenCasted);

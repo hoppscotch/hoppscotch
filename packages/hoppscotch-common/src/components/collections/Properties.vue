@@ -126,7 +126,7 @@ import {
 import { refAutoReset, useVModel } from "@vueuse/core"
 import { useService } from "dioc/vue"
 import { clone } from "lodash-es"
-import { computed, ref, toRefs, watch } from "vue"
+import { computed, ref, watch } from "vue"
 import { useToast } from "~/composables/toast"
 
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
@@ -255,22 +255,15 @@ const saveEditedCollection = () => {
   if (!props.editingProperties) return
   const finalCollection = clone(editableCollection.value)
 
-  const { path } = toRefs(props.editingProperties)
-
   const collection = {
-    path: path.value,
+    path: props.editingProperties.path,
     collection: {
       ...props.editingProperties.collection,
       ...finalCollection,
     },
     isRootCollection: props.editingProperties.isRootCollection,
   }
-
-  const data = props.emitWithFullCollection
-    ? collection
-    : { ...finalCollection, collIndexPath: path.value }
-  emit("set-collection-properties", data as EditingProperties)
-
+  emit("set-collection-properties", collection as EditingProperties)
   persistenceService.removeLocalConfig("unsaved_collection_properties")
 }
 

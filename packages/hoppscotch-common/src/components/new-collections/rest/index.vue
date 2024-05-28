@@ -468,11 +468,11 @@
         @hide-modal="displayModalImportExport(false)"
       />
 
-      <!-- TODO: Remove the `emitWithFullCollection` prop after porting all usages of the below component -->
       <CollectionsProperties
+        v-model="collectionPropertiesModalActiveTab"
         :show="showModalEditProperties"
         :editing-properties="editingProperties"
-        :emit-with-full-collection="false"
+        source="REST"
         @hide-modal="displayModalEditProperties(false)"
         @set-collection-properties="setCollectionProperties"
       />
@@ -481,11 +481,13 @@
 </template>
 
 <script setup lang="ts">
-import { HoppCollection, HoppRESTAuth, HoppRESTRequest } from "@hoppscotch/data"
+import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
 import { useService } from "dioc/vue"
 import * as E from "fp-ts/lib/Either"
 import { cloneDeep, isEqual } from "lodash-es"
-import { markRaw, nextTick, ref, watchEffect } from "vue"
+import { markRaw, nextTick, onMounted, ref, watchEffect } from "vue"
+import { EditingProperties } from "~/components/collections/Properties.vue"
+import { RESTOptionTabs } from "~/components/http/RequestOptions.vue"
 
 import { useI18n } from "~/composables/i18n"
 import { useReadonlyStream } from "~/composables/stream"
@@ -494,7 +496,6 @@ import { useToast } from "~/composables/toast"
 import { invokeAction } from "~/helpers/actions"
 import { WorkspaceRESTSearchCollectionTreeAdapter } from "~/helpers/adapters/WorkspaceRESTCollectionSearchTreeAdapter"
 import { WorkspaceRESTCollectionTreeAdapter } from "~/helpers/adapters/WorkspaceRESTCollectionTreeAdapter"
-import { TeamCollection } from "~/helpers/backend/graphql"
 import {
   getFoldersByPath,
   updateInheritedPropertiesForAffectedRequests,
@@ -513,6 +514,8 @@ import { NewWorkspaceService } from "~/services/new-workspace"
 import { Handle } from "~/services/new-workspace/handle"
 import { RESTCollectionViewRequest } from "~/services/new-workspace/view"
 import { Workspace } from "~/services/new-workspace/workspace"
+import { PersistedOAuthConfig } from "~/services/oauth/oauth.service"
+import { PersistenceService } from "~/services/persistence"
 import { RESTTabService } from "~/services/tab/rest"
 import IconImport from "~icons/lucide/folder-down"
 import IconHelpCircle from "~icons/lucide/help-circle"
@@ -524,6 +527,7 @@ const toast = useToast()
 
 const tabs = useService(RESTTabService)
 const workspaceService = useService(NewWorkspaceService)
+const persistenceService = useService(PersistenceService)
 
 const currentReorderingStatus = useReadonlyStream(currentReorderingStatus$, {
   type: "collection",
@@ -573,12 +577,7 @@ const onSessionEnd = ref<() => void>()
 
 const filteredCollections = ref<HoppCollection[]>([])
 
-const editingProperties = ref<{
-  collection: Omit<HoppCollection, "v"> | TeamCollection | null
-  isRootCollection: boolean
-  path: string
-  inheritedProperties?: HoppInheritedProperty
-}>({
+const editingProperties = ref<EditingProperties>({
   collection: null,
   isRootCollection: false,
   path: "",
@@ -586,6 +585,51 @@ const editingProperties = ref<{
 })
 
 const confirmModalTitle = ref<string | null>(null)
+
+const collectionPropertiesModalActiveTab = ref<RESTOptionTabs>("headers")
+
+onMounted(() => {
+  const localOAuthTempConfig =
+    persistenceService.getLocalConfig("oauth_temp_config")
+
+  if (!localOAuthTempConfig) {
+    return
+  }
+
+  const { context, source, token }: PersistedOAuthConfig =
+    JSON.parse(localOAuthTempConfig)
+
+  if (source === "GraphQL") {
+    return
+  }
+
+  if (context?.type === "collection-properties") {
+    // load the unsaved editing properties
+    const unsavedCollectionPropertiesString = persistenceService.getLocalConfig(
+      "unsaved_collection_properties"
+    )
+
+    if (unsavedCollectionPropertiesString) {
+      const unsavedCollectionProperties: EditingProperties = JSON.parse(
+        unsavedCollectionPropertiesString
+      )
+
+      const auth = unsavedCollectionProperties.collection?.auth
+
+      if (auth?.authType === "oauth-2") {
+        const grantTypeInfo = auth.grantTypeInfo
+
+        grantTypeInfo && (grantTypeInfo.token = token ?? "")
+      }
+
+      editingProperties.value = unsavedCollectionProperties
+    }
+
+    persistenceService.removeLocalConfig("oauth_temp_config")
+    collectionPropertiesModalActiveTab.value = "authorization"
+    showModalEditProperties.value = true
+  }
+})
 
 watchEffect(async () => {
   if (!searchText.value) {
@@ -1360,15 +1404,21 @@ const editCollectionProperties = async (collectionIndexPath: string) => {
 }
 
 const setCollectionProperties = async (updatedCollectionProps: {
-  auth: HoppRESTAuth
-  headers: HoppCollection["headers"]
-  collectionIndexPath: string
+  collection: Partial<HoppCollection> | null
+  isRootCollection: boolean
+  path: string
 }) => {
-  const { collectionIndexPath, auth, headers } = updatedCollectionProps
+  console.error("Setting collection props")
+
+  const { collection, path } = updatedCollectionProps
+
+  if (!collection) {
+    return
+  }
 
   const collectionHandleResult = await workspaceService.getCollectionHandle(
     props.workspaceHandle,
-    collectionIndexPath
+    path
   )
 
   if (E.isLeft(collectionHandleResult)) {
@@ -1385,10 +1435,10 @@ const setCollectionProperties = async (updatedCollectionProps: {
     return
   }
 
-  const result = await workspaceService.updateRESTCollection(collectionHandle, {
-    auth,
-    headers,
-  })
+  const result = await workspaceService.updateRESTCollection(
+    collectionHandle,
+    collection
+  )
 
   if (E.isLeft(result)) {
     // INVALID_COLLECTION_HANDLE
@@ -1418,7 +1468,7 @@ const setCollectionProperties = async (updatedCollectionProps: {
 
   nextTick(() => {
     updateInheritedPropertiesForAffectedRequests(
-      collectionIndexPath,
+      path,
       {
         auth: cascadedAuth,
         headers: cascadedHeaders,

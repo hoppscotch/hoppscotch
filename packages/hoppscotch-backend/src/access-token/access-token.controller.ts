@@ -24,6 +24,7 @@ import { AccessTokenInterceptor } from 'src/interceptors/access-token.intercepto
 import { TeamEnvironmentsService } from 'src/team-environments/team-environments.service';
 import { TeamCollectionService } from 'src/team-collection/team-collection.service';
 import { ACCESS_TOKENS_INVALID_DATA_ID } from 'src/errors';
+import { createCLIErrorResponse } from './helper';
 
 @UseGuards(ThrottlerBehindProxyGuard)
 @Controller({ path: 'access-tokens', version: '1' })
@@ -82,7 +83,7 @@ export class AccessTokenController {
 
     if (E.isLeft(res))
       throwHTTPErr({
-        message: { reason: ACCESS_TOKENS_INVALID_DATA_ID },
+        message: createCLIErrorResponse(ACCESS_TOKENS_INVALID_DATA_ID),
         statusCode: HttpStatus.BAD_REQUEST,
       });
     return res.right;
@@ -99,7 +100,7 @@ export class AccessTokenController {
 
     if (E.isLeft(res))
       throwHTTPErr({
-        message: { reason: ACCESS_TOKENS_INVALID_DATA_ID },
+        message: createCLIErrorResponse(ACCESS_TOKENS_INVALID_DATA_ID),
         statusCode: HttpStatus.BAD_REQUEST,
       });
     return res.right;

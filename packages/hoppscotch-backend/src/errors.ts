@@ -781,12 +781,6 @@ export const ACCESS_TOKEN_EXPIRY_INVALID = 'access_token/expiry_days_invalid';
 export const ACCESS_TOKEN_NOT_FOUND = 'access_token/access_token_not_found';
 
 /**
- * AccessTokens could not be found for given userUid
- * (AccessTokenService)
- */
-export const ACCESS_TOKENS_NOT_FOUND = 'access_token/access_tokens_not_found';
-
-/**
  * AccessTokens is expired
  * (AccessTokenService)
  */

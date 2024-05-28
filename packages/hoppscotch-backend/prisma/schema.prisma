@@ -107,7 +107,7 @@ model User {
   createdOn            DateTime              @default(now()) @db.Timestamp(3)
   invitedUsers         InvitedUsers[]
   shortcodes           Shortcode[]
-  PersonalAccessTokens PersonalAccessToken[]
+  personalAccessTokens PersonalAccessToken[]
 }
 
 model Account {

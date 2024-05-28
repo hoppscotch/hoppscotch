@@ -5,7 +5,6 @@ import { AuthUser } from 'src/types/AuthUser';
 import { isValidLength } from 'src/utils';
 import * as E from 'fp-ts/Either';
 import {
-  ACCESS_TOKENS_NOT_FOUND,
   ACCESS_TOKEN_EXPIRY_INVALID,
   ACCESS_TOKEN_LABEL_SHORT,
   ACCESS_TOKEN_NOT_FOUND,

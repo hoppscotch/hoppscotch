@@ -1367,6 +1367,9 @@ export class TeamCollectionService {
       where: {
         collectionID: collectionID,
       },
+      orderBy: {
+        orderIndex: 'asc',
+      },
     });
 
     const teamRequests = dbTeamRequests.map((tr) => {
@@ -1389,17 +1392,17 @@ export class TeamCollectionService {
    * @returns Collection tree for CLI
    */
   private async getCollectionTreeForCLI(parentID: string | null) {
-    const collections = await this.prisma.teamCollection.findMany({
+    const childCollections = await this.prisma.teamCollection.findMany({
       where: { parentID },
       orderBy: { orderIndex: 'asc' },
     });
 
     const response: GetCollectionResponse[] = [];
 
-    for (const collection of collections) {
+    for (const collection of childCollections) {
       const folder: GetCollectionResponse = {
         id: collection.id,
-        data: JSON.stringify(collection.data),
+        data: collection.data === null ? null : JSON.stringify(collection.data),
         title: collection.title,
         parentID: collection.parentID,
         folders: await this.getCollectionTreeForCLI(collection.id),
@@ -1421,24 +1424,23 @@ export class TeamCollectionService {
    */
   async getCollectionForCLI(collectionID: string, userUid: string) {
     try {
-      const parentCollection =
-        await this.prisma.teamCollection.findUniqueOrThrow({
-          where: { id: collectionID },
-        });
+      const collection = await this.prisma.teamCollection.findUniqueOrThrow({
+        where: { id: collectionID },
+      });
 
       const teamMember = await this.teamService.getTeamMember(
-        parentCollection.teamID,
+        collection.teamID,
         userUid,
       );
       if (!teamMember) return E.left(TEAM_MEMBER_NOT_FOUND);
 
       return E.right(<GetCollectionResponse>{
-        id: parentCollection.id,
-        data: JSON.stringify(parentCollection.data),
-        title: parentCollection.title,
-        parentID: parentCollection.parentID,
-        folders: await this.getCollectionTreeForCLI(parentCollection.id),
-        requests: await this.getAllRequestsInCollection(parentCollection.id),
+        id: collection.id,
+        data: collection.data === null ? null : JSON.stringify(collection.data),
+        title: collection.title,
+        parentID: collection.parentID,
+        folders: await this.getCollectionTreeForCLI(collection.id),
+        requests: await this.getAllRequestsInCollection(collection.id),
       });
     } catch (error) {
       return E.left(TEAM_COLL_NOT_FOUND);

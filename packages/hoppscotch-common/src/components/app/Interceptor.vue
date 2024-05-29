@@ -20,7 +20,7 @@
           :label="unref(interceptor.name(t))"
           :selected="interceptorSelection === interceptor.interceptorID"
           :class="{
-            'px-0 hover:bg-transparent': !isTooltipComponent,
+            '!px-0 hover:bg-transparent': !isTooltipComponent,
           }"
           @change="interceptorSelection = interceptor.interceptorID"
         />

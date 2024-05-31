@@ -1,7 +1,13 @@
+use dashmap::DashMap;
 use reqwest::{header::{HeaderMap, HeaderName, HeaderValue}, Certificate, ClientBuilder, Identity};
 use serde::{Deserialize, Serialize};
-use tauri::{plugin::{Builder, TauriPlugin}, Runtime};
+use tauri::{plugin::{Builder, TauriPlugin}, Manager, Runtime, State};
+use tokio_util::sync::CancellationToken;
 
+#[derive(Default)]
+struct InterceptorState {
+  cancellation_tokens: DashMap<usize, CancellationToken>
+}
 
 #[derive(Debug, Serialize, Deserialize)]
 struct KeyValuePair {
@@ -46,6 +52,8 @@ enum ClientCertDef {
 
 #[derive(Debug, Deserialize)]
 struct RequestDef {
+  req_id: usize,
+
   method: String,
   endpoint: String,
 
@@ -127,6 +135,7 @@ struct RunRequestResponse {
 
 #[derive(Serialize)]
 enum RunRequestError {
+  RequestCancelled,
   ClientCertError,
   RootCertError,
   InvalidMethod,
@@ -135,8 +144,63 @@ enum RunRequestError {
   RequestRunError(String)
 }
 
+async fn execute_request(req_builder: reqwest::RequestBuilder) -> Result<RunRequestResponse, RunRequestError> {
+  let start_time_ms = std::time::SystemTime::now()
+    .duration_since(std::time::UNIX_EPOCH)
+    .unwrap()
+    .as_millis();
+
+  let response = req_builder.send()
+    .await
+    .map_err(|err| RunRequestError::RequestRunError(err.to_string()))?;
+
+  // We hold on to these values becase we lose ownership of response
+  // when we read the body
+  let res_status = response.status();
+  let res_headers = response.headers().clone();
+
+
+  let res_body_bytes = response.bytes()
+    .await
+    .map_err(|err| RunRequestError::RequestRunError(err.to_string()))?;
+
+  // Reqwest resolves the send before all the response is loaded, to keep the timing
+  // correctly, we load the response as well.
+  let end_time_ms = std::time::SystemTime::now()
+    .duration_since(std::time::UNIX_EPOCH)
+    .unwrap()
+    .as_millis();
+
+  let response_status = res_status.as_u16();
+  let response_status_text = res_status
+      .canonical_reason()
+      .unwrap_or("Unknown Status")
+      .to_owned();
+
+  let response_headers = res_headers
+    .iter()
+    .map(|(key, value)|
+      KeyValuePair {
+        key: key.as_str().to_owned(),
+        value: value.to_str().unwrap_or("").to_owned()
+      }
+    )
+    .collect();
+
+  Ok(
+    RunRequestResponse {
+      status: response_status,
+      status_text: response_status_text,
+      headers: response_headers,
+      data: res_body_bytes.into(),
+      time_start_ms: start_time_ms,
+      time_end_ms: end_time_ms
+    }
+  )
+}
+
 #[tauri::command]
-async fn run_request(req: RequestDef) -> Result<RunRequestResponse, RunRequestError> {
+async fn run_request(req: RequestDef, state: State<'_, InterceptorState>) -> Result<RunRequestResponse, RunRequestError> {
   let method = reqwest::Method::from_bytes(req.method.as_bytes())
     .map_err(|_| RunRequestError::InvalidMethod)?;
 
@@ -194,67 +258,49 @@ async fn run_request(req: RequestDef) -> Result<RunRequestResponse, RunRequestEr
     Some(ReqBodyAction::MultipartForm(form)) => req_builder.multipart(form)
   };
 
-  let start_time_ms = std::time::SystemTime::now()
-    .duration_since(std::time::UNIX_EPOCH)
-    .unwrap()
-    .as_millis();
+  let cancel_token = CancellationToken::new();
 
-  let response = req_builder.send()
-    .await
-    .map_err(|err| RunRequestError::RequestRunError(err.to_string()))?;
+  // NOTE: This will drop reference to an existing cancellation token
+  // if you send a request with the same request id as an existing one,
+  // thereby, dropping any means to cancel a running operation with the old token.
+  // This is done so because, on FE side, we may lose cancel token info upon reloads
+  // and this allows us to work around that.
+  state.cancellation_tokens.insert(req.req_id, cancel_token.clone());
 
-  // We hold on to these values becase we lose ownership of response
-  // when we read the body
-  let res_status = response.status();
-  let res_headers = response.headers().clone();
+  // Races between whether cancellation happened or requext execution happened
+  let result = tokio::select! {
+    _ = cancel_token.cancelled() => { None },
+    result = execute_request(req_builder) => {
+      // Remove cancellation token since the request has now completed
+      state.cancellation_tokens.remove(&req.req_id);
 
-
-  let res_body_bytes = response.bytes()
-    .await
-    .map_err(|err| RunRequestError::RequestRunError(err.to_string()))?;
-
-  // Reqwest resolves the send before all the response is loaded, to keep the timing
-  // correctly, we load the response as well.
-  let end_time_ms = std::time::SystemTime::now()
-    .duration_since(std::time::UNIX_EPOCH)
-    .unwrap()
-    .as_millis();
-
-  let response_status = res_status.as_u16();
-  let response_status_text = res_status
-      .canonical_reason()
-      .unwrap_or("Unknown Status")
-      .to_owned();
-
-  let response_headers = res_headers
-    .iter()
-    .map(|(key, value)|
-      KeyValuePair {
-        key: key.as_str().to_owned(),
-        value: value.to_str().unwrap_or("").to_owned()
-      }
-    )
-    .collect();
-
-  Ok(
-    RunRequestResponse {
-      status: response_status,
-      status_text: response_status_text,
-      headers: response_headers,
-      data: res_body_bytes.into(),
-      time_start_ms: start_time_ms,
-      time_end_ms: end_time_ms
+      Some(result)
     }
-  )
+  };
+
+  result
+    .unwrap_or(Err(RunRequestError::RequestCancelled))
 }
 
+#[tauri::command]
+fn cancel_request(req_id: usize, state: State<'_, InterceptorState>) {
+  if let Some((_, cancel_token)) = state.cancellation_tokens.remove(&req_id) {
+    cancel_token.cancel();
+  }
+}
 
 pub fn init<R: Runtime>() -> TauriPlugin<R> {
   Builder::new("hopp_native_interceptor")
     .invoke_handler(
       tauri::generate_handler![
-        run_request
+        run_request,
+        cancel_request
       ]
     )
+    .setup(|app_handle| {
+      app_handle.manage(InterceptorState::default());
+
+      Ok(())
+    })
     .build()
 }

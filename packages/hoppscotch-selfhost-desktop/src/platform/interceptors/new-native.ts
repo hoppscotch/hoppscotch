@@ -45,6 +45,8 @@ type ClientCertDef =
 
 // TODO: Figure out a way to autogen this from the interceptor definition on the Rust side
 type RequestDef = {
+  req_id: number
+
   method: string
   endpoint: string
 
@@ -134,8 +136,9 @@ async function processBody(axiosReq: AxiosRequestConfig): Promise<BodyDef | null
   throw new Error("Native Process Body: Unhandled Axios Request Configuration")
 }
 
-async function convertToRequestDef(axiosReq: AxiosRequestConfig): Promise<RequestDef> {
+async function convertToRequestDef(axiosReq: AxiosRequestConfig, reqID: number): Promise<RequestDef> {
   return {
+    req_id: reqID,
     method: axiosReq.method ?? "GET",
     endpoint: axiosReq.url ?? "",
     headers: Object.entries(axiosReq.headers ?? {})
@@ -162,6 +165,8 @@ export class NewNativeInterceptorService extends Service implements Interceptor 
 
   public cookieJarService = this.bind(CookieJarService)
 
+  private reqIDTicker = 0
+
   public runRequest(req: AxiosRequestConfig): RequestRunResult<InterceptorError> {
     const processedReq = preProcessRequest(req)
 
@@ -173,14 +178,17 @@ export class NewNativeInterceptorService extends Service implements Interceptor 
       .map((cookie) => `${cookie.name!}=${cookie.value!}`)
       .join(";")
 
+    const reqID = this.reqIDTicker++;
+
     return {
       cancel: () => {
-        // TODO: Implement
+        invoke("plugin:hopp_native_interceptor|cancel_request", { reqId: reqID });
       },
       response: (async () => {
-        const requestDef = await convertToRequestDef(processedReq)
+        const requestDef = await convertToRequestDef(processedReq, reqID)
 
         try {
+          console.log(reqID);
           const response: RunRequestResponse = await invoke(
             "plugin:hopp_native_interceptor|run_request",
             { req: requestDef }
@@ -200,8 +208,11 @@ export class NewNativeInterceptorService extends Service implements Interceptor 
               }
             }
           })
-        } catch (_) {
-          // TODO: Better error messages ?
+        } catch (e) {
+          if (typeof e === "object" && (e as any)["RequestCancelled"]) {
+            return E.left("cancellation" as const)
+          }
+
           return E.left(<InterceptorError>{
             humanMessage: {
               heading: (t) => t("error.network_fail"),

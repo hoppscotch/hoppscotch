@@ -14,6 +14,7 @@ import { appWindow } from "@tauri-apps/api/window"
 import { stdFooterItems } from "@hoppscotch/common/platform/std/ui/footerItem"
 import { stdSupportOptionItems } from "@hoppscotch/common/platform/std/ui/supportOptionsItem"
 import { ioDef } from "./platform/io"
+import { NewNativeInterceptorService } from "@platform/interceptors/new-native"
 
 const headerPaddingLeft = ref("0px")
 const headerPaddingTop = ref("0px")
@@ -49,6 +50,7 @@ const headerPaddingTop = ref("0px")
       default: "native",
       interceptors: [
         { type: "service", service: NativeInterceptorService },
+        { type: "service", service: NewNativeInterceptorService },
         { type: "standalone", interceptor: proxyInterceptor },
       ],
     },

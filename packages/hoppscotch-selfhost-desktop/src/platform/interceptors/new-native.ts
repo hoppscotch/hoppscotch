@@ -4,6 +4,8 @@ import { Service } from "dioc";
 import { cloneDeep } from "lodash-es";
 import { invoke } from "@tauri-apps/api/tauri";
 import * as E from "fp-ts/Either";
+import SettingsNativeInterceptor from "../../components/settings/NativeInterceptor.vue";
+import { ref } from "vue";
 
 
 type KeyValuePair = {
@@ -56,7 +58,7 @@ type RequestDef = {
   body: BodyDef | null,
 
   validate_certs: boolean,
-  root_certs_pems: Uint8Array[],
+  root_cert_bundle_files: Uint8Array[],
   client_cert: ClientCertDef | null
 }
 
@@ -136,7 +138,11 @@ async function processBody(axiosReq: AxiosRequestConfig): Promise<BodyDef | null
   throw new Error("Native Process Body: Unhandled Axios Request Configuration")
 }
 
-async function convertToRequestDef(axiosReq: AxiosRequestConfig, reqID: number): Promise<RequestDef> {
+async function convertToRequestDef(
+  axiosReq: AxiosRequestConfig,
+  reqID: number,
+  caCertificates: CACertificateEntry[]
+): Promise<RequestDef> {
   return {
     req_id: reqID,
     method: axiosReq.method ?? "GET",
@@ -146,10 +152,16 @@ async function convertToRequestDef(axiosReq: AxiosRequestConfig, reqID: number):
     parameters: Object.entries(axiosReq.params as Record<string, string> ?? {})
       .map(([key, value]): KeyValuePair => ({ key, value })),
     body: await processBody(axiosReq),
-    root_certs_pems: [], // TODO: Implement
+    root_cert_bundle_files: caCertificates.map((cert) => cert.certificate),
     validate_certs: true, // TODO: Implement
     client_cert: null, // TODO: Implement
   }
+}
+
+export type CACertificateEntry = {
+  filename: string,
+  enabled: boolean,
+  certificate: Uint8Array
 }
 
 export class NewNativeInterceptorService extends Service implements Interceptor {
@@ -166,6 +178,14 @@ export class NewNativeInterceptorService extends Service implements Interceptor 
   public cookieJarService = this.bind(CookieJarService)
 
   private reqIDTicker = 0
+
+  public settingsPageEntry = {
+    entryTitle: () => "New Native Interceptor", // TODO: i18n this
+    component: SettingsNativeInterceptor
+  }
+
+  // TODO: Sync this into persistence
+  public caCertificates = ref<CACertificateEntry[]>([])
 
   public runRequest(req: AxiosRequestConfig): RequestRunResult<InterceptorError> {
     const processedReq = preProcessRequest(req)
@@ -185,7 +205,11 @@ export class NewNativeInterceptorService extends Service implements Interceptor 
         invoke("plugin:hopp_native_interceptor|cancel_request", { reqId: reqID });
       },
       response: (async () => {
-        const requestDef = await convertToRequestDef(processedReq, reqID)
+        const requestDef = await convertToRequestDef(
+          processedReq,
+          reqID,
+          this.caCertificates.value
+        )
 
         try {
           console.log(reqID);

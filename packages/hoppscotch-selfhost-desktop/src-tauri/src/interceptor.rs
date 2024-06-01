@@ -63,7 +63,7 @@ struct RequestDef {
   body: Option<BodyDef>,
 
   validate_certs: bool,
-  root_certs_pems: Vec<Vec<u8>>,
+  root_cert_bundle_files: Vec<Vec<u8>>,
   client_cert: Option<ClientCertDef>
 }
 
@@ -78,10 +78,14 @@ fn get_identity_from_req(req: &RequestDef) -> Result<Option<Identity>, reqwest::
 }
 
 fn parse_root_certs(req: &RequestDef) -> Result<Vec<Certificate>, reqwest::Error> {
-  req.root_certs_pems
-    .iter()
-    .map(|pem| Certificate::from_pem(pem))
-    .collect()
+  let mut result = vec![];
+
+  for cert_bundle_file in &req.root_cert_bundle_files {
+    let mut certs = Certificate::from_pem_bundle(&cert_bundle_file)?;
+    result.append(&mut certs);
+  }
+
+  Ok(result)
 }
 
 enum ReqBodyAction {

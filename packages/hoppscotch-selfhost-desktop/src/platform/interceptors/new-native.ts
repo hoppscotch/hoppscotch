@@ -6,6 +6,7 @@ import { invoke } from "@tauri-apps/api/tauri";
 import * as E from "fp-ts/Either";
 import SettingsNativeInterceptor from "../../components/settings/NativeInterceptor.vue";
 import { ref } from "vue";
+import { z } from "zod";
 
 
 type KeyValuePair = {
@@ -38,7 +39,8 @@ type ClientCertDef =
         certificate_pem: Uint8Array,
         key_pem: Uint8Array
       },
-
+    }
+  | {
       PFXCert: {
         certificate_pfx: Uint8Array,
         password: string
@@ -138,11 +140,43 @@ async function processBody(axiosReq: AxiosRequestConfig): Promise<BodyDef | null
   throw new Error("Native Process Body: Unhandled Axios Request Configuration")
 }
 
+function getURLDomain(url: string): string | null {
+  try {
+    return new URL(url).host
+  } catch (_) {
+    return null
+  }
+}
+
+function convertClientCertToDefCert(cert: ClientCertificateEntry): ClientCertDef {
+  if ("PEMCert" in cert.cert) {
+    return {
+      PEMCert: {
+        certificate_pem: cert.cert.PEMCert.certificate_pem,
+        key_pem: cert.cert.PEMCert.key_pem
+      }
+    }
+  } else {
+    return {
+      PFXCert: {
+        certificate_pfx: cert.cert.PFXCert.certificate_pfx,
+        password: cert.cert.PFXCert.password
+      }
+    }
+  }
+}
+
 async function convertToRequestDef(
   axiosReq: AxiosRequestConfig,
   reqID: number,
-  caCertificates: CACertificateEntry[]
+  caCertificates: CACertificateEntry[],
+  clientCertificates: Map<string, ClientCertificateEntry>,
+  validateCerts: boolean
 ): Promise<RequestDef> {
+  const clientCertDomain = getURLDomain(axiosReq.url!)
+
+  const clientCert = clientCertDomain ? clientCertificates.get(clientCertDomain) : null
+
   return {
     req_id: reqID,
     method: axiosReq.method ?? "GET",
@@ -153,8 +187,8 @@ async function convertToRequestDef(
       .map(([key, value]): KeyValuePair => ({ key, value })),
     body: await processBody(axiosReq),
     root_cert_bundle_files: caCertificates.map((cert) => cert.certificate),
-    validate_certs: true, // TODO: Implement
-    client_cert: null, // TODO: Implement
+    validate_certs: validateCerts,
+    client_cert: clientCert ? convertClientCertToDefCert(clientCert) : null
   }
 }
 
@@ -163,6 +197,32 @@ export type CACertificateEntry = {
   enabled: boolean,
   certificate: Uint8Array
 }
+
+export const ClientCertificateEntry = z.object({
+  enabled: z.boolean(),
+  domain: z.string().trim().min(1),
+  cert: z.union([
+    z.object({
+      PEMCert: z.object({
+        certificate_filename: z.string().min(1),
+        certificate_pem: z.instanceof(Uint8Array),
+
+        key_filename: z.string().min(1),
+        key_pem: z.instanceof(Uint8Array),
+      })
+    }),
+    z.object({
+      PFXCert: z.object({
+        certificate_filename: z.string().min(1),
+        certificate_pfx: z.instanceof(Uint8Array),
+
+        password: z.string()
+      })
+    })
+  ])
+})
+
+export type ClientCertificateEntry = z.infer<typeof ClientCertificateEntry>
 
 export class NewNativeInterceptorService extends Service implements Interceptor {
   public static readonly ID = "NEW_NATIVE_INTERCEPTOR_SERVICE"
@@ -187,6 +247,9 @@ export class NewNativeInterceptorService extends Service implements Interceptor 
   // TODO: Sync this into persistence
   public caCertificates = ref<CACertificateEntry[]>([])
 
+  public clientCertificates = ref<Map<string, ClientCertificateEntry>>(new Map())
+  public validateCerts = ref(true)
+
   public runRequest(req: AxiosRequestConfig): RequestRunResult<InterceptorError> {
     const processedReq = preProcessRequest(req)
 
@@ -208,7 +271,9 @@ export class NewNativeInterceptorService extends Service implements Interceptor 
         const requestDef = await convertToRequestDef(
           processedReq,
           reqID,
-          this.caCertificates.value
+          this.caCertificates.value,
+          this.clientCertificates.value,
+          this.validateCerts.value
         )
 
         try {

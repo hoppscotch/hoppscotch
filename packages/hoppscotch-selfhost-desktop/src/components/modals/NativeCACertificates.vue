@@ -67,6 +67,7 @@
           :label="'Cancel'"
           filled
           outline
+          @click="emit('hide-modal')"
         />
       </div>
     </template>

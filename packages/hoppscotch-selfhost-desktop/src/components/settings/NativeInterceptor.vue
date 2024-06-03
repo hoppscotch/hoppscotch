@@ -1,7 +1,10 @@
 <template>
   <div class="py-4 space-y-4">
     <div class="flex items-center">
-      <HoppSmartToggle />
+      <HoppSmartToggle
+        :on="allowSSLVerification"
+        @change="allowSSLVerification = !allowSSLVerification"
+      />
       Skip SSL Certificate Verification
     </div>
 
@@ -36,6 +39,12 @@
 import { ref } from "vue"
 import IconLucideFileBadge from "~icons/lucide/file-badge"
 import IconLucideFileKey from "~icons/lucide/file-key"
+import { useService } from "dioc/vue"
+import { NewNativeInterceptorService } from "@platform/interceptors/new-native";
+
+const nativeInterceptorService = useService(NewNativeInterceptorService)
+
+const allowSSLVerification = nativeInterceptorService.validateCerts
 
 const showCACertificatesModal = ref(false)
 const showClientCertificatesModal = ref(false)

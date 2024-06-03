@@ -56,7 +56,7 @@ export class MailerService {
         context: mailDesc.variables,
       });
     } catch (error) {
-      return throwErr(EMAIL_FAILED);
+      console.log('Error from sendEmail:', error);
     }
   }
 
@@ -81,7 +81,7 @@ export class MailerService {
       });
       return res;
     } catch (error) {
-      return throwErr(EMAIL_FAILED);
+      console.log('Error from sendUserInvitationEmail:', error);
     }
   }
 }

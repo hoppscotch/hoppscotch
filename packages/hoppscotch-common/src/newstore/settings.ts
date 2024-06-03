@@ -1,8 +1,6 @@
 import { cloneDeep, defaultsDeep, has } from "lodash-es"
 import { Observable } from "rxjs"
 import { distinctUntilChanged, pluck } from "rxjs/operators"
-import { nextTick } from "vue"
-import { platform } from "~/platform"
 import type { KeysMatching } from "~/types/ts-utils"
 import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
 
@@ -70,63 +68,52 @@ export type SettingsDef = {
   HAS_OPENED_SPOTLIGHT: boolean
 }
 
-export const getDefaultSettings = (): SettingsDef => {
-  const defaultSettings: SettingsDef = {
-    syncCollections: true,
-    syncHistory: true,
-    syncEnvironments: true,
+export const getDefaultSettings = (): SettingsDef => ({
+  syncCollections: true,
+  syncHistory: true,
+  syncEnvironments: true,
 
-    WRAP_LINES: {
-      httpRequestBody: true,
-      httpResponseBody: true,
-      httpHeaders: true,
-      httpParams: true,
-      httpUrlEncoded: true,
-      httpPreRequest: true,
-      httpTest: true,
-      httpRequestVariables: true,
-      graphqlQuery: true,
-      graphqlResponseBody: true,
-      graphqlHeaders: false,
-      graphqlVariables: false,
-      graphqlSchema: true,
-      importCurl: true,
-      codeGen: true,
-      cookie: true,
-    },
+  WRAP_LINES: {
+    httpRequestBody: true,
+    httpResponseBody: true,
+    httpHeaders: true,
+    httpParams: true,
+    httpUrlEncoded: true,
+    httpPreRequest: true,
+    httpTest: true,
+    httpRequestVariables: true,
+    graphqlQuery: true,
+    graphqlResponseBody: true,
+    graphqlHeaders: false,
+    graphqlVariables: false,
+    graphqlSchema: true,
+    importCurl: true,
+    codeGen: true,
+    cookie: true,
+  },
 
-    CURRENT_INTERCEPTOR_ID: "",
+  // Set empty because interceptor module will set the default value
+  CURRENT_INTERCEPTOR_ID: "",
 
-    // TODO: Interceptor related settings should move under the interceptor systems
-    PROXY_URL: "https://proxy.hoppscotch.io/",
-    URL_EXCLUDES: {
-      auth: true,
-      httpUser: true,
-      httpPassword: true,
-      bearerToken: true,
-      oauth2Token: true,
-    },
-    THEME_COLOR: "indigo",
-    BG_COLOR: "system",
-    TELEMETRY_ENABLED: true,
-    EXPAND_NAVIGATION: false,
-    SIDEBAR: true,
-    SIDEBAR_ON_LEFT: false,
-    COLUMN_LAYOUT: true,
+  // TODO: Interceptor related settings should move under the interceptor systems
+  PROXY_URL: "https://proxy.hoppscotch.io/",
+  URL_EXCLUDES: {
+    auth: true,
+    httpUser: true,
+    httpPassword: true,
+    bearerToken: true,
+    oauth2Token: true,
+  },
+  THEME_COLOR: "indigo",
+  BG_COLOR: "system",
+  TELEMETRY_ENABLED: true,
+  EXPAND_NAVIGATION: false,
+  SIDEBAR: true,
+  SIDEBAR_ON_LEFT: false,
+  COLUMN_LAYOUT: true,
 
-    HAS_OPENED_SPOTLIGHT: false,
-  }
-
-  // Wait for platform to initialize before setting CURRENT_INTERCEPTOR_ID
-  nextTick(() => {
-    applySetting(
-      "CURRENT_INTERCEPTOR_ID",
-      platform?.interceptors.default || "browser"
-    )
-  })
-
-  return defaultSettings
-}
+  HAS_OPENED_SPOTLIGHT: false,
+})
 
 type ApplySettingPayload = {
   [K in keyof SettingsDef]: {

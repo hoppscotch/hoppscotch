@@ -38,7 +38,7 @@
       :icon="IconCode"
       :label="`${t('tab.codegen')}`"
     >
-      <Share />
+      <HttpCodegen />
     </HoppSmartTab>
   </HoppSmartTabs>
 </template>

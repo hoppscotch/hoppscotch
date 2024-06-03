@@ -11,28 +11,33 @@ export const usePwaPrompt = function () {
     pwaNeedsRefresh,
     (value) => {
       if (value) {
-        toast.show(`${t("app.new_version_found")}`, {
-          duration: 0,
-          action: [
-            {
-              text: `${t("action.dismiss")}`,
-              onClick: (_, toastObject) => {
-                toastObject.goAway(0)
-              },
-            },
-            {
-              text: `${t("app.reload")}`,
-              onClick: (_, toastObject) => {
-                toastObject.goAway(0)
-                refreshAppForPWAUpdate()
-              },
-            },
-          ],
-        })
+        showUpdateToast()
       }
     },
     {
       immediate: true,
     }
   )
+
+  function showUpdateToast() {
+    toast.show(`${t("app.new_version_found")}`, {
+      position: "bottom-left",
+      duration: 0,
+      action: [
+        {
+          text: `${t("action.dismiss")}`,
+          onClick: (_, toastObject) => {
+            toastObject.goAway(0)
+          },
+        },
+        {
+          text: `${t("app.reload")}`,
+          onClick: (_, toastObject) => {
+            toastObject.goAway(0)
+            refreshAppForPWAUpdate()
+          },
+        },
+      ],
+    })
+  }
 }

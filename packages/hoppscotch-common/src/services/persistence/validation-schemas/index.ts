@@ -400,7 +400,7 @@ const HoppTestResultSchema = z
                 (x) => "secret" in x && !x.secret
               ).and(
                 z.object({
-                  previousValue: z.string(),
+                  previousValue: z.optional(z.string()),
                 })
               )
             ),
@@ -415,7 +415,7 @@ const HoppTestResultSchema = z
                 (x) => "secret" in x && !x.secret
               ).and(
                 z.object({
-                  previousValue: z.string(),
+                  previousValue: z.optional(z.string()),
                 })
               )
             ),

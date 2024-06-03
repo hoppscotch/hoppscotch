@@ -37,6 +37,7 @@
   <SettingsServerRestart
     v-if="initiateServerRestart"
     :workingConfigs="workingConfigs"
+    @mutation-failure="initiateServerRestart = false"
   />
 
   <HoppSmartConfirmModal

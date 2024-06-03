@@ -666,7 +666,7 @@ export class PersonalWorkspaceProviderService
   public importRESTCollections(
     workspaceHandle: Handle<Workspace>,
     collections: HoppCollection[]
-  ): Promise<E.Either<unknown, Handle<WorkspaceCollection>>> {
+  ): Promise<E.Either<unknown, void>> {
     const workspaceHandleRef = workspaceHandle.get()
     if (
       !isValidWorkspaceHandle(workspaceHandleRef, this.providerID, "personal")
@@ -676,40 +676,7 @@ export class PersonalWorkspaceProviderService
 
     appendRESTCollections(collections)
 
-    const newCollectionName = collections[0].name
-    const newCollectionID =
-      this.restCollectionState.value.state.length.toString()
-
-    return Promise.resolve(
-      E.right({
-        get: lazy(() =>
-          computed(() => {
-            if (
-              !isValidWorkspaceHandle(
-                workspaceHandleRef,
-                this.providerID,
-                "personal"
-              )
-            ) {
-              return {
-                type: "invalid" as const,
-                reason: "WORKSPACE_INVALIDATED" as const,
-              }
-            }
-
-            return {
-              type: "ok",
-              data: {
-                providerID: this.providerID,
-                workspaceID: workspaceHandleRef.value.data.workspaceID,
-                collectionID: newCollectionID,
-                name: newCollectionName,
-              },
-            }
-          })
-        ),
-      })
-    )
+    return Promise.resolve(E.right(undefined))
   }
 
   public exportRESTCollections(

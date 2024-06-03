@@ -81,7 +81,7 @@ export interface WorkspaceProvider {
   importRESTCollections(
     workspaceHandle: Handle<Workspace>,
     collections: HoppCollection[]
-  ): Promise<E.Either<unknown, Handle<WorkspaceCollection>>>
+  ): Promise<E.Either<unknown, void>>
   exportRESTCollections(
     workspaceHandle: Handle<Workspace>
   ): Promise<E.Either<unknown, void>>

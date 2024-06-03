@@ -407,10 +407,7 @@ export class NewWorkspaceService extends Service {
     workspaceHandle: Handle<Workspace>,
     collections: HoppCollection[]
   ): Promise<
-    E.Either<
-      WorkspaceError<"INVALID_HANDLE" | "INVALID_PROVIDER">,
-      Handle<WorkspaceCollection>
-    >
+    E.Either<WorkspaceError<"INVALID_HANDLE" | "INVALID_PROVIDER">, void>
   > {
     const workspaceHandleRef = workspaceHandle.get()
 

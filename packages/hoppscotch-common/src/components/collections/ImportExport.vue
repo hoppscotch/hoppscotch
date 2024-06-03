@@ -106,14 +106,6 @@ const handleImportToStore = async (collections: HoppCollection[]) => {
       return toast.error(t("import.failed"))
     }
 
-    const resultHandle = collectionHandleResult.right
-
-    const requestHandleRef = resultHandle.get()
-
-    if (requestHandleRef.value.type === "invalid") {
-      // WORKSPACE_INVALIDATED
-    }
-
     toast.success(t("state.file_imported"))
     emit("hide-modal")
 

@@ -1,5 +1,9 @@
 <template>
-  <HoppSmartModal dialog title="New Personal Access Token" @close="hideModal">
+  <HoppSmartModal
+    dialog
+    :title="t('access_tokens.generate_modal_title')"
+    @close="hideModal"
+  >
     <template #body>
       <template v-if="accessToken">
         <p class="p-4 mb-4 border rounded-md text-amber-500 border-amber-600">

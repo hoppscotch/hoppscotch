@@ -34,12 +34,20 @@ import {
   RESTCollectionChildrenView,
   RESTCollectionJSONView,
   RESTCollectionLevelAuthHeadersView,
+  RESTSearchResultsView,
   RootRESTCollectionView,
 } from "../view"
-import { runGQLQuery, runGQLSubscription } from "~/helpers/backend/GQLClient"
+import {
+  runGQLQuery,
+  runGQLSubscription,
+  runMutation,
+} from "~/helpers/backend/GQLClient"
 import {
   GetCollectionChildrenDocument,
   GetMyTeamsDocument,
+  ImportFromJsonDocument,
+  ImportFromJsonMutation,
+  ImportFromJsonMutationVariables,
   RootCollectionsOfTeamDocument,
   TeamCollectionAddedDocument,
   TeamCollectionMovedDocument,
@@ -60,6 +68,7 @@ import TeamsWorkspaceSelector from "~/components/workspace/TeamsWorkspaceSelecto
 import { lazy } from "~/helpers/utils/lazy"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import { initializeDownloadFile } from "~/helpers/import-export/export"
+import { TeamSearchService } from "~/helpers/teams/TeamsSearch.service"
 
 type TeamsWorkspaceCollection = WorkspaceCollection & {
   parentCollectionID?: string
@@ -95,6 +104,8 @@ export class TeamsWorkspaceProviderService
   private subscriptions: Subscription[] = []
 
   private fetchingWorkspaces = ref(false)
+
+  private teamSearchService = this.bind(TeamSearchService)
 
   constructor() {
     super()
@@ -915,6 +926,100 @@ export class TeamsWorkspaceProviderService
     })
   }
 
+  public async exportRESTCollection(
+    collectionHandle: Handle<WorkspaceCollection>
+  ): Promise<E.Either<unknown, void>> {
+    const collectionHandleRef = collectionHandle.get()
+
+    if (!isValidCollectionHandle(collectionHandleRef, this.providerID)) {
+      return E.left("INVALID_COLLECTION_HANDLE" as const)
+    }
+
+    const collectionID = collectionHandleRef.value.data.collectionID
+
+    const collection = this.collections.value.find(
+      (collection) => collection.collectionID === collectionID
+    )
+
+    if (!collection) {
+      return E.left("COLLECTION_DOES_NOT_EXIST" as const)
+    }
+
+    const collectionTree = buildTreeForSingleCollection(
+      collection,
+      this.collections.value,
+      this.requests.value
+    )
+
+    const downloadRes = await initializeDownloadFile(
+      JSON.stringify(collectionTree, null, 2),
+      collection.name
+    )
+
+    if (E.isLeft(downloadRes)) {
+      return downloadRes
+    }
+
+    return E.right(undefined)
+  }
+
+  public async importRESTCollections(
+    workspaceHandle: Handle<Workspace>,
+    collections: HoppCollection[]
+  ): Promise<E.Either<unknown, Handle<WorkspaceCollection>>> {
+    const workspaceHandleRef = workspaceHandle.get()
+
+    if (!isValidWorkspaceHandle(workspaceHandleRef, this.providerID)) {
+      return E.left("INVALID_WORKSPACE_HANDLE")
+    }
+
+    const workspaceID = workspaceHandleRef.value.data.workspaceID
+
+    const teamCollectionsFormat = collections.map(
+      translateToTeamCollectionFormat
+    )
+
+    const res = await importJSONToTeam(
+      JSON.stringify(teamCollectionsFormat),
+      workspaceID
+    )()
+
+    if (E.isLeft(res)) {
+      return res
+    }
+
+    return E.right(undefined)
+  }
+
+  async getRESTSearchResultsView(
+    workspaceHandle: Handle<Workspace>,
+    searchQuery: Ref<string>
+  ): Promise<E.Either<never, Handle<RESTSearchResultsView>>> {
+    return E.right({
+      get: () =>
+        computed(() => {
+          const workspaceHandleRef = workspaceHandle.get()
+
+          if (!isValidWorkspaceHandle(workspaceHandleRef, this.providerID)) {
+            return {
+              type: "invalid" as const,
+              reason: "INVALID_WORKSPACE_HANDLE",
+            }
+          }
+
+          const teamsSearchResults = this.teamSearchService.searchTeams(
+            searchQuery.value,
+            workspaceHandleRef.value.data.workspaceID
+          )
+
+          return {
+            type: "ok" as const,
+            data: teamsSearchResults,
+          }
+        }),
+    })
+  }
+
   // this might be temporary, might move this to decor
   async getWorkspaceHandle(
     workspaceID: string
@@ -1381,6 +1486,15 @@ const runTeamRequestOrderUpdatedSubscription = (teamID: string) =>
     },
   })
 
+const importJSONToTeam = (collectionJSON: string, teamID: string) =>
+  runMutation<ImportFromJsonMutation, ImportFromJsonMutationVariables, "">(
+    ImportFromJsonDocument,
+    {
+      jsonString: collectionJSON,
+      teamID,
+    }
+  )
+
 window.TeamsWorkspaceProviderService = TeamsWorkspaceProviderService
 
 // createWorkspace + selectWorkspace situation
@@ -1539,6 +1653,51 @@ const sortByOrder = <OrderedItem extends { order: string }>(
 
     return 0
   })
+}
+
+function buildTreeForSingleCollection(
+  collection: TeamsWorkspaceCollection,
+  collections: TeamsWorkspaceCollection[],
+  requests: TeamsWorkspaceRequest[]
+): HoppCollection {
+  const childCollections = collections.filter(
+    (childCollection) =>
+      childCollection.parentCollectionID === collection.collectionID
+  )
+
+  const childRequests = requests.filter(
+    (request) => request.collectionID === collection.collectionID
+  )
+
+  return {
+    v: 2,
+    ...collection,
+    folders: childCollections.map((childCollection) =>
+      buildTreeForSingleCollection(childCollection, collections, requests)
+    ),
+    requests: childRequests.map((request) => request.request),
+  }
+}
+
+function translateToTeamCollectionFormat(collection: HoppCollection) {
+  const folders: HoppCollection[] = (collection.folders ?? []).map(
+    translateToTeamCollectionFormat
+  )
+
+  const data = {
+    auth: collection.auth,
+    headers: collection.headers,
+  }
+
+  const teamCollectionObj = {
+    ...collection,
+    folders,
+    data,
+  }
+
+  if (collection.id) teamCollectionObj.id = collection.id
+
+  return teamCollectionObj
 }
 
 // converts the flat collections structure to the HoppCollection tree format

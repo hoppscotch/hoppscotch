@@ -172,13 +172,17 @@ export function useResponseBody(response: HoppRESTResponse): {
       response.type === "extension_error"
     )
       return ""
-    if (typeof response.body === "string") return response.body
-
-    const res = new TextDecoder("utf-8").decode(response.body)
-    // HACK: Temporary trailing null character issue from the extension fix
-    return res.replace(/\0+$/, "")
+    return getResponseBodyText(response.body)
   })
   return {
     responseBodyText,
   }
+}
+
+export function getResponseBodyText(body: ArrayBuffer): string {
+  if (typeof body === "string") return body
+
+  const res = new TextDecoder("utf-8").decode(body)
+  // HACK: Temporary trailing null character issue from the extension fix
+  return res.replace(/\0+$/, "")
 }

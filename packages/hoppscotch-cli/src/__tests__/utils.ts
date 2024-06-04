@@ -37,7 +37,7 @@ export const getTestJsonFilePath = (
 
   const filePath = resolve(
     __dirname,
-    `../../src/__tests__/samples/${kindDir}/${file}`
+    `../../src/__tests__/e2e/fixtures/${kindDir}/${file}`
   );
   return filePath;
 };

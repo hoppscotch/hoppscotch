@@ -20,7 +20,7 @@
     "debugger": "node debugger.js 9999",
     "prepublish": "pnpm exec tsup",
     "prettier-format": "prettier --config .prettierrc 'src/**/*.ts' --write",
-    "test": "pnpm run build && jest && rm -rf dist",
+    "test": "pnpm run build && vitest run && rm -rf dist",
     "do-typecheck": "pnpm exec tsc --noEmit",
     "do-test": "pnpm test"
   },
@@ -55,15 +55,13 @@
     "@hoppscotch/js-sandbox": "workspace:^",
     "@relmify/jest-fp-ts": "2.1.1",
     "@swc/core": "1.4.2",
-    "@types/jest": "29.5.12",
     "@types/lodash-es": "4.17.12",
     "@types/qs": "6.9.12",
     "fp-ts": "2.16.2",
-    "jest": "29.7.0",
     "prettier": "3.2.5",
     "qs": "6.11.2",
-    "ts-jest": "29.1.2",
     "tsup": "8.0.2",
-    "typescript": "5.3.3"
+    "typescript": "5.3.3",
+    "vitest": "0.34.6"
   }
 }

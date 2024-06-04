@@ -217,7 +217,9 @@ export const getResourceContents = async ({
       if (errReason) {
         throw error({
           code: errReason,
-          data: errReason === "TOKEN_INVALID" ? accessToken : pathOrId,
+          data: ["TOKEN_EXPIRED", "TOKEN_INVALID"].includes(errReason)
+            ? accessToken
+            : pathOrId,
         });
       }
     }

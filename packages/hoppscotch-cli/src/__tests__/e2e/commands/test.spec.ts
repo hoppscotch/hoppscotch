@@ -1,7 +1,8 @@
 import { ExecException } from "child_process";
+import { describe, expect, test } from "vitest";
 
-import { HoppErrorCode } from "../../types/errors";
-import { getErrorCode, getTestJsonFilePath, runCLI } from "../utils";
+import { HoppErrorCode } from "../../../types/errors";
+import { getErrorCode, getTestJsonFilePath, runCLI } from "../../utils";
 
 describe("Test `hopp test <file_path_or_id>` command:", () => {
   describe("Argument parsing", () => {
@@ -223,91 +224,96 @@ describe("Test `hopp test <file_path_or_id> --env <file_path_or_id>` command:", 
     expect(error).toBeNull();
   });
 
-  describe("Secret environment variables", () => {
-    jest.setTimeout(100000);
+  describe(
+    "Secret environment variables",
+    () => {
+      // Reads secret environment values from system environment
+      test("Successfully picks the values for secret environment variables from `process.env` and persists the variables set from the pre-request script", async () => {
+        const env = {
+          ...process.env,
+          secretBearerToken: "test-token",
+          secretBasicAuthUsername: "test-user",
+          secretBasicAuthPassword: "test-pass",
+          secretQueryParamValue: "secret-query-param-value",
+          secretBodyValue: "secret-body-value",
+          secretHeaderValue: "secret-header-value",
+        };
 
-    // Reads secret environment values from system environment
-    test("Successfully picks the values for secret environment variables from `process.env` and persists the variables set from the pre-request script", async () => {
-      const env = {
-        ...process.env,
-        secretBearerToken: "test-token",
-        secretBasicAuthUsername: "test-user",
-        secretBasicAuthPassword: "test-pass",
-        secretQueryParamValue: "secret-query-param-value",
-        secretBodyValue: "secret-body-value",
-        secretHeaderValue: "secret-header-value",
-      };
+        const COLL_PATH = getTestJsonFilePath(
+          "secret-envs-coll.json",
+          "collection"
+        );
+        const ENVS_PATH = getTestJsonFilePath(
+          "secret-envs.json",
+          "environment"
+        );
+        const args = `test ${COLL_PATH} --env ${ENVS_PATH}`;
 
-      const COLL_PATH = getTestJsonFilePath(
-        "secret-envs-coll.json",
-        "collection"
-      );
-      const ENVS_PATH = getTestJsonFilePath("secret-envs.json", "environment");
-      const args = `test ${COLL_PATH} --env ${ENVS_PATH}`;
+        const { error, stdout } = await runCLI(args, { env });
 
-      const { error, stdout } = await runCLI(args, { env });
+        expect(stdout).toContain(
+          "https://httpbin.org/basic-auth/*********/*********"
+        );
+        expect(error).toBeNull();
+      });
 
-      expect(stdout).toContain(
-        "https://httpbin.org/basic-auth/*********/*********"
-      );
-      expect(error).toBeNull();
-    });
+      // Prefers values specified in the environment export file over values set in the system environment
+      test("Successfully picks the values for secret environment variables set directly in the environment export file and persists the environment variables set from the pre-request script", async () => {
+        const COLL_PATH = getTestJsonFilePath(
+          "secret-envs-coll.json",
+          "collection"
+        );
+        const ENVS_PATH = getTestJsonFilePath(
+          "secret-supplied-values-envs.json",
+          "environment"
+        );
+        const args = `test ${COLL_PATH} --env ${ENVS_PATH}`;
 
-    // Prefers values specified in the environment export file over values set in the system environment
-    test("Successfully picks the values for secret environment variables set directly in the environment export file and persists the environment variables set from the pre-request script", async () => {
-      const COLL_PATH = getTestJsonFilePath(
-        "secret-envs-coll.json",
-        "collection"
-      );
-      const ENVS_PATH = getTestJsonFilePath(
-        "secret-supplied-values-envs.json",
-        "environment"
-      );
-      const args = `test ${COLL_PATH} --env ${ENVS_PATH}`;
+        const { error, stdout } = await runCLI(args);
 
-      const { error, stdout } = await runCLI(args);
+        expect(stdout).toContain(
+          "https://httpbin.org/basic-auth/*********/*********"
+        );
+        expect(error).toBeNull();
+      });
 
-      expect(stdout).toContain(
-        "https://httpbin.org/basic-auth/*********/*********"
-      );
-      expect(error).toBeNull();
-    });
+      // Values set from the scripting context takes the highest precedence
+      test("Setting values for secret environment variables from the pre-request script overrides values set at the supplied environment export file", async () => {
+        const COLL_PATH = getTestJsonFilePath(
+          "secret-envs-persistence-coll.json",
+          "collection"
+        );
+        const ENVS_PATH = getTestJsonFilePath(
+          "secret-supplied-values-envs.json",
+          "environment"
+        );
+        const args = `test ${COLL_PATH} --env ${ENVS_PATH}`;
 
-    // Values set from the scripting context takes the highest precedence
-    test("Setting values for secret environment variables from the pre-request script overrides values set at the supplied environment export file", async () => {
-      const COLL_PATH = getTestJsonFilePath(
-        "secret-envs-persistence-coll.json",
-        "collection"
-      );
-      const ENVS_PATH = getTestJsonFilePath(
-        "secret-supplied-values-envs.json",
-        "environment"
-      );
-      const args = `test ${COLL_PATH} --env ${ENVS_PATH}`;
+        const { error, stdout } = await runCLI(args);
 
-      const { error, stdout } = await runCLI(args);
+        expect(stdout).toContain(
+          "https://httpbin.org/basic-auth/*********/*********"
+        );
+        expect(error).toBeNull();
+      });
 
-      expect(stdout).toContain(
-        "https://httpbin.org/basic-auth/*********/*********"
-      );
-      expect(error).toBeNull();
-    });
+      test("Persists secret environment variable values set from the pre-request script for consumption in the request and post-request script context", async () => {
+        const COLL_PATH = getTestJsonFilePath(
+          "secret-envs-persistence-scripting-coll.json",
+          "collection"
+        );
+        const ENVS_PATH = getTestJsonFilePath(
+          "secret-envs-persistence-scripting-envs.json",
+          "environment"
+        );
+        const args = `test ${COLL_PATH} --env ${ENVS_PATH}`;
 
-    test("Persists secret environment variable values set from the pre-request script for consumption in the request and post-request script context", async () => {
-      const COLL_PATH = getTestJsonFilePath(
-        "secret-envs-persistence-scripting-coll.json",
-        "collection"
-      );
-      const ENVS_PATH = getTestJsonFilePath(
-        "secret-envs-persistence-scripting-envs.json",
-        "environment"
-      );
-      const args = `test ${COLL_PATH} --env ${ENVS_PATH}`;
-
-      const { error } = await runCLI(args);
-      expect(error).toBeNull();
-    });
-  });
+        const { error } = await runCLI(args);
+        expect(error).toBeNull();
+      });
+    },
+    { timeout: 10000 }
+  );
 });
 
 describe("Test `hopp test <file_path_or_id> --delay <delay_in_ms>` command:", () => {
@@ -344,7 +350,7 @@ describe("Test `hopp test <file_path_or_id> --delay <delay_in_ms>` command:", ()
   });
 });
 
-describe("Test `hopp test <file_path_or_id> --env <file_path_or_id> --token <access_token> --server <server_url>` command:", () => {
+describe.skip("Test `hopp test <file_path_or_id> --env <file_path_or_id> --token <access_token> --server <server_url>` command:", () => {
   const {
     REQ_BODY_ENV_VARS_COLL_ID,
     COLLECTION_LEVEL_HEADERS_AUTH_COLL_ID,

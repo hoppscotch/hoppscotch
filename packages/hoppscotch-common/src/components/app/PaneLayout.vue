@@ -16,7 +16,7 @@
     >
       <Splitpanes
         class="smart-splitter"
-        :horizontal="COLUMN_LAYOUT"
+        :horizontal="COLUMN_LAYOUT || forceColumnLayout"
         @resize="setPaneEvent($event, 'horizontal')"
       >
         <Pane
@@ -77,6 +77,10 @@ const props = defineProps({
   layoutId: {
     type: String,
     default: null,
+  },
+  forceColumnLayout: {
+    type: Boolean,
+    default: false,
   },
 })
 

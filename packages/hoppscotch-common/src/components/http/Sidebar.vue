@@ -43,7 +43,7 @@
       >
         <span class="truncate"> Request </span>
         <icon-lucide-chevron-right class="mx-2" />
-        Codegen
+        Code snippet
       </div>
       <HttpCodegen
         :hide-label="true"

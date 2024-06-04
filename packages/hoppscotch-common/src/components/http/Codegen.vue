@@ -150,6 +150,10 @@ defineProps({
   },
 })
 
+const emit = defineEmits<{
+  (e: "request-code", value: string): void
+}>()
+
 const requestCode = computed(() => {
   const aggregateEnvs = getAggregateEnvs()
   const requestVariables = request.value.requestVariables.map(
@@ -199,6 +203,7 @@ const requestCode = computed(() => {
 
   if (O.isSome(result)) {
     errorState.value = false
+    emit("request-code", result.value)
     return result.value
   }
   errorState.value = true

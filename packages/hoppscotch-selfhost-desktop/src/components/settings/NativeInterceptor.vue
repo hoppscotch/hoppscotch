@@ -5,7 +5,7 @@
         :on="allowSSLVerification"
         @change="allowSSLVerification = !allowSSLVerification"
       />
-      Skip SSL Certificate Verification
+      Verify SSL Certificates
     </div>
 
     <div class="flex space-x-4">

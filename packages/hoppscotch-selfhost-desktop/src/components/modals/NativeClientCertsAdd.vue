@@ -180,6 +180,9 @@ const certificate = computed<ClientCertificateEntry | null>(() => {
           PEMCert: {
             certificate_filename: pemCert.value.filename,
             certificate_pem: pemCert.value.data,
+
+            key_filename: pemKey.value.filename,
+            key_pem: pemCert.value.data
           }
         }
       }

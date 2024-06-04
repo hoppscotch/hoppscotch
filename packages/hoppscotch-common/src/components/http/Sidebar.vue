@@ -38,7 +38,7 @@
       :icon="IconCode"
       :label="`${t('tab.codegen')}`"
     >
-      <HttpCodegen />
+      <HttpCodegen v-if="selectedNavigationTab === 'codegen'" />
     </HoppSmartTab>
   </HoppSmartTabs>
 </template>
@@ -54,7 +54,12 @@ import { useI18n } from "@composables/i18n"
 
 const t = useI18n()
 
-type RequestOptionTabs = "history" | "collections" | "env"
+type RequestOptionTabs =
+  | "history"
+  | "collections"
+  | "env"
+  | "share-request"
+  | "codegen"
 
 const selectedNavigationTab = ref<RequestOptionTabs>("collections")
 </script>

@@ -139,7 +139,9 @@ import IconWrapText from "~icons/lucide/wrap-text"
 const t = useI18n()
 
 const tabs = useService(RESTTabService)
-const request = ref(cloneDeep(tabs.currentActiveTab.value.document.request))
+const request = computed(() =>
+  cloneDeep(tabs.currentActiveTab.value.document.request)
+)
 const codegenType = ref<CodegenName>("shell-curl")
 const errorState = ref(false)
 
@@ -231,8 +233,6 @@ useCodemirror(
 )
 
 onMounted(() => {
-  request.value = cloneDeep(tabs.currentActiveTab.value.document.request)
-
   platform.analytics?.logEvent({
     type: "HOPP_REST_CODEGEN_OPENED",
   })

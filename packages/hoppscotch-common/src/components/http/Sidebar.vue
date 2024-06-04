@@ -38,7 +38,18 @@
       :icon="IconCode"
       :label="`${t('tab.codegen')}`"
     >
-      <HttpCodegen v-if="selectedNavigationTab === 'codegen'" />
+      <div
+        class="flex items-center overflow-x-auto whitespace-nowrap border-b border-dividerLight px-4 py-2 text-tiny text-secondaryLight"
+      >
+        <span class="truncate"> Request </span>
+        <icon-lucide-chevron-right class="mx-2" />
+        Codegen
+      </div>
+      <HttpCodegen
+        :hide-label="true"
+        class="px-4 mt-4"
+        v-if="selectedNavigationTab === 'codegen'"
+      />
     </HoppSmartTab>
   </HoppSmartTabs>
 </template>

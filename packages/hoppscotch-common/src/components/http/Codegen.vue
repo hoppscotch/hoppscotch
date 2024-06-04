@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col">
-    <label for="requestType" class="px-4 pb-4">
+    <label for="requestType" class="px-4 pb-4" v-if="!hideLabel">
       {{ t("request.choose_language") }}
     </label>
     <tippy
@@ -142,6 +142,13 @@ const tabs = useService(RESTTabService)
 const request = ref(cloneDeep(tabs.currentActiveTab.value.document.request))
 const codegenType = ref<CodegenName>("shell-curl")
 const errorState = ref(false)
+
+defineProps({
+  hideLabel: {
+    type: Boolean,
+    default: false,
+  },
+})
 
 const requestCode = computed(() => {
   const aggregateEnvs = getAggregateEnvs()

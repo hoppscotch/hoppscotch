@@ -1,12 +1,14 @@
-import { CookieJarService } from "@hoppscotch/common/services/cookie-jar.service";
-import { Interceptor, InterceptorError, RequestRunResult } from "@hoppscotch/common/services/interceptor.service";
-import { Service } from "dioc";
-import { cloneDeep } from "lodash-es";
-import { invoke } from "@tauri-apps/api/tauri";
-import * as E from "fp-ts/Either";
-import SettingsNativeInterceptor from "../../components/settings/NativeInterceptor.vue";
-import { ref } from "vue";
-import { z } from "zod";
+import { CookieJarService } from "@hoppscotch/common/services/cookie-jar.service"
+import { Interceptor, InterceptorError, RequestRunResult } from "@hoppscotch/common/services/interceptor.service"
+import { Service } from "dioc"
+import { cloneDeep } from "lodash-es"
+import { invoke } from "@tauri-apps/api/tauri"
+import * as E from "fp-ts/Either"
+import SettingsNativeInterceptor from "../../../components/settings/NativeInterceptor.vue"
+import { ref, watch } from "vue"
+import { z } from "zod"
+import { PersistenceService } from "@hoppscotch/common/services/persistence"
+import { CACertStore, ClientCertsStore, ClientCertStore, StoredClientCert } from "./persisted-data"
 
 
 type KeyValuePair = {
@@ -192,11 +194,13 @@ async function convertToRequestDef(
   }
 }
 
-export type CACertificateEntry = {
-  filename: string,
-  enabled: boolean,
-  certificate: Uint8Array
-}
+export const CACertificateEntry = z.object({
+  filename: z.string().min(1),
+  enabled: z.boolean(),
+  certificate: z.instanceof(Uint8Array)
+})
+
+export type CACertificateEntry = z.infer<typeof CACertificateEntry>
 
 export const ClientCertificateEntry = z.object({
   enabled: z.boolean(),
@@ -224,6 +228,10 @@ export const ClientCertificateEntry = z.object({
 
 export type ClientCertificateEntry = z.infer<typeof ClientCertificateEntry>
 
+const CA_STORE_PERSIST_KEY = "native_interceptor_ca_store"
+const CLIENT_CERTS_PERSIST_KEY = "native_interceptor_client_certs_store"
+const VALIDATE_SSL_KEY = "native_interceptor_validate_ssl"
+
 export class NewNativeInterceptorService extends Service implements Interceptor {
   public static readonly ID = "NEW_NATIVE_INTERCEPTOR_SERVICE"
 
@@ -235,7 +243,8 @@ export class NewNativeInterceptorService extends Service implements Interceptor 
 
   public supportsCookies = true
 
-  public cookieJarService = this.bind(CookieJarService)
+  private cookieJarService = this.bind(CookieJarService)
+  private persistenceService: PersistenceService = this.bind(PersistenceService)
 
   private reqIDTicker = 0
 
@@ -244,11 +253,140 @@ export class NewNativeInterceptorService extends Service implements Interceptor 
     component: SettingsNativeInterceptor
   }
 
-  // TODO: Sync this into persistence
   public caCertificates = ref<CACertificateEntry[]>([])
 
   public clientCertificates = ref<Map<string, ClientCertificateEntry>>(new Map())
   public validateCerts = ref(true)
+
+  override onServiceInit() {
+    // Load SSL Validation
+    const persistedValidateSSL: unknown = JSON.parse(
+      this.persistenceService.getLocalConfig(VALIDATE_SSL_KEY) ?? "null"
+    )
+
+    if (typeof persistedValidateSSL === "boolean") {
+      this.validateCerts.value = persistedValidateSSL
+    }
+
+    watch(this.validateCerts, () => {
+      this.persistenceService.setLocalConfig(VALIDATE_SSL_KEY, JSON.stringify(this.validateCerts.value))
+    })
+
+    // Load and setup writes for CA Store
+    const persistedCAStoreData = JSON.parse(
+      this.persistenceService.getLocalConfig(CA_STORE_PERSIST_KEY) ?? "null"
+    )
+
+    const caStoreDataParseResult = CACertStore.safeParse(persistedCAStoreData)
+
+    if (caStoreDataParseResult.type === "ok") {
+      this.caCertificates.value = caStoreDataParseResult.value.certs
+        .map((entry) => ({ ...entry, certificate: new Uint8Array(entry.certificate) }))
+    }
+
+    watch(this.caCertificates, (certs) => {
+      const storableValue: CACertStore = {
+        v: 1,
+        certs: certs
+          .map((el) => ({ ...el, certificate: Array.from(el.certificate) }))
+      }
+
+      this.persistenceService.setLocalConfig(CA_STORE_PERSIST_KEY, JSON.stringify(storableValue))
+    })
+
+
+    // Load and setup writes for Client Certs Store
+    const persistedClientCertStoreData = JSON.parse(
+      this.persistenceService.getLocalConfig(CLIENT_CERTS_PERSIST_KEY) ?? "null"
+    )
+
+    const clientCertStoreDataParseResult = ClientCertsStore.safeParse(persistedClientCertStoreData)
+
+    if (clientCertStoreDataParseResult.type === "ok") {
+      this.clientCertificates.value = new Map(
+        Object.entries(
+          clientCertStoreDataParseResult.value.clientCerts
+        )
+        .map(([domain, cert]) => {
+          if ("PFXCert" in cert.cert) {
+            const newCert = <ClientCertificateEntry>{
+              ...cert,
+              cert: {
+                PFXCert: {
+                  certificate_pfx: new Uint8Array(cert.cert.PFXCert.certificate_pfx),
+                  certificate_filename: cert.cert.PFXCert.certificate_filename,
+
+                  password: cert.cert.PFXCert.password
+                }
+              }
+            }
+
+            return [domain, newCert]
+          } else {
+            const newCert = <ClientCertificateEntry>{
+              ...cert,
+              cert: {
+                PEMCert: {
+                  certificate_pem: new Uint8Array(cert.cert.PEMCert.certificate_pem),
+                  certificate_filename: cert.cert.PEMCert.certificate_filename,
+
+                  key_pem: new Uint8Array(cert.cert.PEMCert.key_pem),
+                  key_filename: cert.cert.PEMCert.key_filename
+                }
+              }
+            }
+
+            return [domain, newCert]
+          }
+        })
+      )
+      debugger
+    }
+
+    watch(this.clientCertificates, (certs) => {
+      const storableValue: ClientCertStore = {
+        v: 1,
+        clientCerts: Object.fromEntries(
+          Array.from(certs.entries())
+            .map(([domain, cert]) => {
+              if ("PFXCert" in cert.cert) {
+                const newCert = <StoredClientCert>{
+                  ...cert,
+                  cert: {
+                    PFXCert: {
+                      certificate_pfx: Array.from(cert.cert.PFXCert.certificate_pfx),
+                      certificate_filename: cert.cert.PFXCert.certificate_filename,
+
+                      password: cert.cert.PFXCert.password
+                    }
+                  }
+                }
+
+                return [domain, newCert]
+              } else {
+                const newCert = <StoredClientCert>{
+                  ...cert,
+                  cert: {
+                    PEMCert: {
+                      certificate_pem: Array.from(cert.cert.PEMCert.certificate_pem),
+                      certificate_filename: cert.cert.PEMCert.certificate_filename,
+
+                      key_pem: Array.from(cert.cert.PEMCert.key_pem),
+                      key_filename: cert.cert.PEMCert.key_filename
+                    }
+                  }
+                }
+
+                return [domain, newCert]
+              }
+            })
+        )
+      }
+
+
+      this.persistenceService.setLocalConfig(CLIENT_CERTS_PERSIST_KEY, JSON.stringify(storableValue))
+    })
+  }
 
   public runRequest(req: AxiosRequestConfig): RequestRunResult<InterceptorError> {
     const processedReq = preProcessRequest(req)
@@ -277,7 +415,6 @@ export class NewNativeInterceptorService extends Service implements Interceptor 
         )
 
         try {
-          console.log(reqID);
           const response: RunRequestResponse = await invoke(
             "plugin:hopp_native_interceptor|run_request",
             { req: requestDef }
@@ -302,6 +439,7 @@ export class NewNativeInterceptorService extends Service implements Interceptor 
             return E.left("cancellation" as const)
           }
 
+          // TODO: More in-depth error messages
           return E.left(<InterceptorError>{
             humanMessage: {
               heading: (t) => t("error.network_fail"),

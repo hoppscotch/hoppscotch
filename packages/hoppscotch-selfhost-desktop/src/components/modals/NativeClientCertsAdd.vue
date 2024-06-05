@@ -121,7 +121,7 @@ import IconEye from "~icons/lucide/eye"
 import IconFile from "~icons/lucide/file"
 import { ref, watch, computed } from "vue"
 import { useFileDialog } from "@vueuse/core"
-import { ClientCertificateEntry } from "../../platform/interceptors/new-native"
+import { ClientCertificateEntry } from "../../platform/interceptors/native"
 
 const props = defineProps<{
   show: boolean,

@@ -91,7 +91,7 @@ import IconTrash from "~icons/lucide/trash"
 import { ref, watch } from "vue"
 import { useI18n } from "@composables/i18n"
 import { useService } from "dioc/vue"
-import { ClientCertificateEntry, NewNativeInterceptorService } from "@platform/interceptors/new-native"
+import { ClientCertificateEntry, NativeInterceptorService } from "@platform/interceptors/native"
 import { cloneDeep } from "lodash-es"
 
 const props = defineProps<{
@@ -104,7 +104,7 @@ const emit = defineEmits<{
 
 const t = useI18n()
 
-const nativeInterceptorService = useService(NewNativeInterceptorService)
+const nativeInterceptorService = useService(NativeInterceptorService)
 
 const certificateMap = ref(new Map<string, ClientCertificateEntry>())
 

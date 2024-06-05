@@ -44,9 +44,9 @@ import { ref } from "vue"
 import IconLucideFileBadge from "~icons/lucide/file-badge"
 import IconLucideFileKey from "~icons/lucide/file-key"
 import { useService } from "dioc/vue"
-import { NewNativeInterceptorService } from "@platform/interceptors/new-native";
+import { NativeInterceptorService } from "@platform/interceptors/native";
 
-const nativeInterceptorService = useService(NewNativeInterceptorService)
+const nativeInterceptorService = useService(NativeInterceptorService)
 
 const allowSSLVerification = nativeInterceptorService.validateCerts
 

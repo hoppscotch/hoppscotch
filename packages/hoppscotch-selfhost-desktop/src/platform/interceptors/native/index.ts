@@ -232,12 +232,12 @@ const CA_STORE_PERSIST_KEY = "native_interceptor_ca_store"
 const CLIENT_CERTS_PERSIST_KEY = "native_interceptor_client_certs_store"
 const VALIDATE_SSL_KEY = "native_interceptor_validate_ssl"
 
-export class NewNativeInterceptorService extends Service implements Interceptor {
-  public static readonly ID = "NEW_NATIVE_INTERCEPTOR_SERVICE"
+export class NativeInterceptorService extends Service implements Interceptor {
+  public static readonly ID = "NATIVE_INTERCEPTOR_SERVICE"
 
-  public interceptorID = "new-native"
+  public interceptorID = "native"
 
-  public name = () => "New Native"
+  public name = () => "Native"
 
   public selectable = { type: "selectable" as const }
 
@@ -249,7 +249,7 @@ export class NewNativeInterceptorService extends Service implements Interceptor 
   private reqIDTicker = 0
 
   public settingsPageEntry = {
-    entryTitle: () => "New Native Interceptor", // TODO: i18n this
+    entryTitle: () => "Native", // TODO: i18n this
     component: SettingsNativeInterceptor
   }
 

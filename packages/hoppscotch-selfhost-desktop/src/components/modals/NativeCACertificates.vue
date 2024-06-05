@@ -84,7 +84,7 @@ import { useService } from "dioc/vue"
 import { ref, watch } from "vue"
 import { useFileDialog } from "@vueuse/core"
 import { cloneDeep } from "lodash-es"
-import { NewNativeInterceptorService, CACertificateEntry } from "@platform/interceptors/new-native";
+import { NativeInterceptorService, CACertificateEntry } from "@platform/interceptors/native";
 import { useI18n } from "@composables/i18n"
 
 const t = useI18n()
@@ -97,7 +97,7 @@ const emit = defineEmits<{
   (e: "hide-modal"): void
 }>()
 
-const nativeInterceptorService = useService(NewNativeInterceptorService)
+const nativeInterceptorService = useService(NativeInterceptorService)
 
 const certificates = ref<CACertificateEntry[]>([])
 

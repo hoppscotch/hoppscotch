@@ -1,15 +1,34 @@
 <template>
-  <div class="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+  <div
+    v-if="hasError && !hasMoreTokens"
+    class="flex flex-col items-center py-4"
+  >
+    <icon-lucide-help-circle class="mb-4 svg-icons" />
+    {{ t("error.something_went_wrong") }}
+  </div>
+
+  <HoppSmartPlaceholder
+    v-else-if="accessTokens.length === 0"
+    :src="`/images/states/${colorMode}/pack.svg`"
+    :alt="`${t('empty.access_tokens')}`"
+    :text="t('empty.access_tokens')"
+    @drop.stop
+  />
+
+  <div
+    v-else
+    class="grid gap-4 p-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+  >
     <div
       v-for="{ id, label, lastUsedOn, expiresOn } in accessTokens"
       :key="id"
-      class="flex items-center justify-between p-4 border rounded md:items-baseline md:flex-col md:gap-4 md:justify-normal border-divider"
+      class="flex flex-col items-center gap-4 p-4 border rounded border-divider"
     >
       <div class="w-full text-sm font-semibold truncate text-secondaryDark">
         {{ label }}
       </div>
 
-      <div class="flex items-center gap-x-4">
+      <div class="flex items-center justify-between w-full gap-x-4">
         <div class="space-y-1 text-secondaryLight">
           <div class="space-x-1">
             <span class="font-semibold"
@@ -53,23 +72,32 @@
     v-if="hasMoreTokens"
     @intersecting="emit('fetch-more-tokens')"
   >
-    <div v-if="tokensListLoading" class="flex flex-col items-center py-3">
+    <div v-if="loading" class="flex flex-col items-center py-3">
       <HoppSmartSpinner />
+    </div>
+
+    <div v-else-if="hasError" class="flex flex-col items-center py-4">
+      <icon-lucide-help-circle class="mb-4 svg-icons" />
+      {{ t("error.something_went_wrong") }}
     </div>
   </HoppSmartIntersection>
 </template>
 
 <script setup lang="ts">
 import { useI18n } from "@composables/i18n"
+import { useColorMode } from "@vueuse/core"
+
 import { shortDateTime } from "~/helpers/utils/date"
 import { AccessToken } from "~/pages/profile.vue"
 
+const colorMode = useColorMode()
 const t = useI18n()
 
 defineProps<{
   accessTokens: AccessToken[]
   hasMoreTokens: boolean
-  tokensListLoading: boolean
+  loading: boolean
+  hasError: boolean
 }>()
 
 const emit = defineEmits<{

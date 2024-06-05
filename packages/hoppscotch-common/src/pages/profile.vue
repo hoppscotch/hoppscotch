@@ -185,11 +185,7 @@
               <Teams :modal="false" class="p-4" />
             </HoppSmartTab>
 
-            <HoppSmartTab
-              id="tokens"
-              :label="t('access_tokens.tab_title')"
-              class="space-y-4"
-            >
+            <HoppSmartTab id="tokens" :label="t('access_tokens.tab_title')">
               <AccessTokens />
             </HoppSmartTab>
           </HoppSmartTabs>

@@ -271,7 +271,8 @@
     "subscription": "Subscriptions are empty",
     "team_name": "Workspace name empty",
     "teams": "You don't belong to any workspaces",
-    "tests": "There are no tests for this request"
+    "tests": "There are no tests for this request",
+    "access_tokens": "Access tokens are empty"
   },
   "environment": {
     "add_to_global": "Add to Global",
@@ -1056,6 +1057,7 @@
     "no_expiration_verbose": "This token will never expire!",
     "token_expires_on": "This token will expire on",
     "generate_new_token": "Generate new token",
-    "generate_modal_title": "New Personal Access Token"
+    "generate_modal_title": "New Personal Access Token",
+    "deletion_success": "The access token {label} has been deleted"
   }
 }

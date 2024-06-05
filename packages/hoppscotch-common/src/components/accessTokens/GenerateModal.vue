@@ -30,12 +30,8 @@
           </div>
           <HoppSmartInput
             v-model="accessTokenLabel"
-            placeholder=" "
-            class="floating-input"
+            :placeholder="t('access_tokens.token_purpose')"
           />
-          <div class="text-secondaryLight">
-            {{ t("access_tokens.token_purpose") }}
-          </div>
         </div>
 
         <div class="space-y-2">
@@ -48,7 +44,7 @@
               interactive
               trigger="click"
               theme="popover"
-              :on-shown="tippyActions?.focus()"
+              :on-shown="() => tippyActions?.focus()"
             >
               <HoppSmartSelectWrapper>
                 <input
@@ -138,8 +134,8 @@
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
 import { refAutoReset } from "@vueuse/core"
-import { computed, ref } from "vue"
-import { TippyComponent } from "vue-tippy"
+import { VNodeRef, computed, ref } from "vue"
+
 import { copyToClipboard } from "~/helpers/utils/clipboard"
 import { shortDateTime } from "~/helpers/utils/date"
 
@@ -165,7 +161,7 @@ const emit = defineEmits<{
 }>()
 
 // Template refs
-const tippyActions = ref<TippyComponent[] | null>(null)
+const tippyActions = ref<VNodeRef | null>(null)
 
 const copyIcon = refAutoReset<typeof IconCopy | typeof IconCheck>(
   IconCopy,

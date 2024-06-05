@@ -5,8 +5,9 @@
 
   <AccessTokensList
     :access-tokens="accessTokens"
+    :has-error="tokensListFetchErrored"
     :has-more-tokens="hasMoreTokens"
-    :tokens-list-loading="tokensListLoading"
+    :loading="tokensListLoading"
     @delete-access-token="displayDeleteAccessTokenConfirmationModal"
     @fetch-more-tokens="fetchAccessTokens"
   />
@@ -26,7 +27,7 @@
       t('confirm.delete_access_token', { tokenLabel: tokenToDelete?.label })
     "
     @hide-modal="confirmDeleteAccessToken = false"
-    @resolve="() => deleteAccessToken()"
+    @resolve="deleteAccessToken"
   />
 </template>
 
@@ -50,10 +51,11 @@ const t = useI18n()
 const toast = useToast()
 
 const confirmDeleteAccessToken = ref(false)
-const hasMoreTokens = ref(true)
+const hasMoreTokens = ref(false)
 const showAccessTokensGenerateModal = ref(false)
 const tokenDeleteActionLoading = ref(false)
 const tokenGenerateActionLoading = ref(false)
+const tokensListFetchErrored = ref(false)
 const tokensListLoading = ref(false)
 
 const accessToken: Ref<string | null> = ref(null)
@@ -90,8 +92,13 @@ const fetchAccessTokens = async () => {
     }
 
     hasMoreTokens.value = data.length === limit
+
+    if (tokensListFetchErrored.value) {
+      tokensListFetchErrored.value = false
+    }
   } catch (err) {
     toast.error(t("error.fetching_access_tokens_list"))
+    tokensListFetchErrored.value = true
   } finally {
     tokensListLoading.value = false
   }
@@ -126,6 +133,7 @@ const generateAccessToken = async ({
     offset += 1
   } catch (err) {
     toast.error(t("error.generate_access_token"))
+    showAccessTokensGenerateModal.value = false
   } finally {
     tokenGenerateActionLoading.value = false
   }
@@ -133,11 +141,11 @@ const generateAccessToken = async ({
 
 const deleteAccessToken = async () => {
   if (tokenToDelete.value === null) {
-    toast.error("error.something_went_wrong")
+    toast.error(t("error.something_went_wrong"))
     return
   }
 
-  const { id: tokenIdToDelete } = tokenToDelete.value
+  const { id: tokenIdToDelete, label: tokenLabelToDelete } = tokenToDelete.value
 
   tokenDeleteActionLoading.value = true
 
@@ -154,6 +162,10 @@ const deleteAccessToken = async () => {
 
     // Decreasing the offset value by 1 to account for the deleted token
     offset = offset > 0 ? offset - 1 : offset
+
+    toast.success(
+      t("access_tokens.deletion_success", { label: tokenLabelToDelete })
+    )
   } catch (err) {
     toast.error(t("error.delete_access_token"))
   } finally {

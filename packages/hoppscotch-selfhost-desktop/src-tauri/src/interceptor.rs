@@ -235,6 +235,14 @@ async fn run_request(req: RequestDef, state: State<'_, InterceptorState>) -> Res
   let mut client_builder = ClientBuilder::new()
     .danger_accept_invalid_certs(!req.validate_certs);
 
+  // NOTE: Root Certificates are not currently implemented into the Hoppscotch UI
+  // This is done so as the current mechanism doesn't allow for v1 X.509 certificates
+  // to be accepted. Reqwest supports `native-tls` and `rustls`.
+  // `native-tls` should support v1 X.509 in Linux [OpenSSL] (and hopefully on Win [SChannel]), but on
+  // macOS the Security Framework system in it blocks certiticates pretty harshly and blocks v1.
+  // `rustls` doesn't allow v1 x.509 as well as documented here: https://github.com/rustls/webpki/issues/29
+  // We will fully introduce the feature when the dilemma is solved (or demand is voiced), until
+  // then, disabling SSL verification should yield same results
   for root_cert in root_certs {
     client_builder = client_builder.add_root_certificate(root_cert);
   }

@@ -45,7 +45,9 @@
       </div>
     </div>
     <div v-if="bulkMode" class="h-full relative">
-      <div ref="bulkEditor" class="absolute inset-0"></div>
+      <div class="absolute inset-0 overflow-auto">
+        <div ref="bulkEditor"></div>
+      </div>
     </div>
     <div v-else>
       <draggable

@@ -60,7 +60,9 @@
       </div>
     </div>
     <div class="h-full relative">
-      <div ref="rawBodyParameters" class="absolute inset-0"></div>
+      <div class="absolute inset-0 overflow-auto">
+        <div ref="rawBodyParameters"></div>
+      </div>
     </div>
   </div>
 </template>

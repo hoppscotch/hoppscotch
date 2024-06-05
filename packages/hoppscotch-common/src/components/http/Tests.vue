@@ -31,7 +31,9 @@
     </div>
     <div class="flex flex-1 border-b border-dividerLight">
       <div class="w-2/3 border-r border-dividerLight h-full relative">
-        <div ref="testScriptEditor" class="h-full absolute inset-0"></div>
+        <div class="h-full absolute inset-0 overflow-auto">
+          <div ref="testScriptEditor"></div>
+        </div>
       </div>
       <div
         class="z-[9] sticky top-upperTertiaryStickyFold h-full min-w-[12rem] max-w-1/3 flex-shrink-0 overflow-auto overflow-x-auto bg-primary p-4"

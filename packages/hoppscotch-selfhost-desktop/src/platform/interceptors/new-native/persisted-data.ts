@@ -77,7 +77,6 @@ export const ClientCertsStore = createVersionedEntity({
   },
   getVersion(data) {
     const result = clientCertsStore_v1.schema.safeParse(data)
-    debugger
 
     return result.success ? result.data.v : null
   }

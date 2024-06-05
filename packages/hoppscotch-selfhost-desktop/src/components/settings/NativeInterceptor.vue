@@ -9,12 +9,14 @@
     </div>
 
     <div class="flex space-x-4">
+      <!--
       <HoppButtonSecondary
         :icon="IconLucideFileBadge"
         :label="'CA Certificates'"
         outline
         @click="showCACertificatesModal = true"
       />
+      -->
       <HoppButtonSecondary
         :icon="IconLucideFileKey"
         :label="'Client Certificates'"
@@ -23,10 +25,12 @@
       />
     </div>
 
+    <!--
     <ModalsNativeCACertificates
       :show="showCACertificatesModal"
       @hide-modal="showCACertificatesModal = false"
     />
+    -->
     <ModalsNativeClientCertificates
       :show="showClientCertificatesModal"
       @hide-modal="showClientCertificatesModal = false"
@@ -46,7 +50,7 @@ const nativeInterceptorService = useService(NewNativeInterceptorService)
 
 const allowSSLVerification = nativeInterceptorService.validateCerts
 
-const showCACertificatesModal = ref(false)
+// const showCACertificatesModal = ref(false)
 const showClientCertificatesModal = ref(false)
 </script>
 

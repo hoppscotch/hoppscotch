@@ -38,13 +38,13 @@ type BodyDef =
 type ClientCertDef =
   | {
       PEMCert: {
-        certificate_pem: Uint8Array,
-        key_pem: Uint8Array
+        certificate_pem: number[],
+        key_pem: number[]
       },
     }
   | {
       PFXCert: {
-        certificate_pfx: Uint8Array,
+        certificate_pfx: number[],
         password: string
       }
     }
@@ -62,7 +62,7 @@ type RequestDef = {
   body: BodyDef | null,
 
   validate_certs: boolean,
-  root_cert_bundle_files: Uint8Array[],
+  root_cert_bundle_files: number[],
   client_cert: ClientCertDef | null
 }
 
@@ -154,14 +154,14 @@ function convertClientCertToDefCert(cert: ClientCertificateEntry): ClientCertDef
   if ("PEMCert" in cert.cert) {
     return {
       PEMCert: {
-        certificate_pem: cert.cert.PEMCert.certificate_pem,
-        key_pem: cert.cert.PEMCert.key_pem
+        certificate_pem: Array.from(cert.cert.PEMCert.certificate_pem),
+        key_pem: Array.from(cert.cert.PEMCert.key_pem)
       }
     }
   } else {
     return {
       PFXCert: {
-        certificate_pfx: cert.cert.PFXCert.certificate_pfx,
+        certificate_pfx: Array.from(cert.cert.PFXCert.certificate_pfx),
         password: cert.cert.PFXCert.password
       }
     }
@@ -188,7 +188,7 @@ async function convertToRequestDef(
     parameters: Object.entries(axiosReq.params as Record<string, string> ?? {})
       .map(([key, value]): KeyValuePair => ({ key, value })),
     body: await processBody(axiosReq),
-    root_cert_bundle_files: caCertificates.map((cert) => cert.certificate),
+    root_cert_bundle_files: caCertificates.map((cert) => Array.from(cert.certificate)),
     validate_certs: validateCerts,
     client_cert: clientCert ? convertClientCertToDefCert(clientCert) : null
   }
@@ -340,7 +340,6 @@ export class NewNativeInterceptorService extends Service implements Interceptor 
           }
         })
       )
-      debugger
     }
 
     watch(this.clientCertificates, (certs) => {
@@ -415,6 +414,8 @@ export class NewNativeInterceptorService extends Service implements Interceptor 
         )
 
         try {
+          console.log(requestDef)
+
           const response: RunRequestResponse = await invoke(
             "plugin:hopp_native_interceptor|run_request",
             { req: requestDef }
@@ -435,6 +436,8 @@ export class NewNativeInterceptorService extends Service implements Interceptor 
             }
           })
         } catch (e) {
+          console.log(e)
+
           if (typeof e === "object" && (e as any)["RequestCancelled"]) {
             return E.left("cancellation" as const)
           }

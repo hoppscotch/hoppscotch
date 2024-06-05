@@ -41,9 +41,9 @@
       <div
         class="flex items-center overflow-x-auto whitespace-nowrap border-b border-dividerLight px-4 py-2 text-tiny text-secondaryLight"
       >
-        <span class="truncate"> Request </span>
+        <span class="truncate"> {{ t("request.title") }} </span>
         <icon-lucide-chevron-right class="mx-2" />
-        Code snippet
+        {{ t("tab.code_snippet") }}
       </div>
       <HttpCodegen
         :hide-label="true"

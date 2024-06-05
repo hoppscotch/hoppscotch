@@ -942,6 +942,7 @@
     "schema": "Schema",
     "shared_requests": "Shared Requests",
     "codegen": "Generate Code",
+    "code_snippet": "Code snippet",
     "share_tab_request": "Share tab request",
     "socketio": "Socket.IO",
     "sse": "SSE",

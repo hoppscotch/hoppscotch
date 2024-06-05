@@ -8,7 +8,7 @@ import { Request } from 'express';
 import { AccessTokenService } from 'src/access-token/access-token.service';
 import * as E from 'fp-ts/Either';
 import { DateTime } from 'luxon';
-import { ACCESS_TOKENS_EXPIRED, ACCESS_TOKENS_INVALID } from 'src/errors';
+import { ACCESS_TOKEN_EXPIRED, ACCESS_TOKEN_INVALID } from 'src/errors';
 import { createCLIErrorResponse } from 'src/access-token/helper';
 @Injectable()
 export class PATAuthGuard implements CanActivate {
@@ -19,14 +19,14 @@ export class PATAuthGuard implements CanActivate {
     const token = this.extractTokenFromHeader(request);
     if (!token) {
       throw new BadRequestException(
-        createCLIErrorResponse(ACCESS_TOKENS_INVALID),
+        createCLIErrorResponse(ACCESS_TOKEN_INVALID),
       );
     }
 
     const userAccessToken = await this.accessTokenService.getUserPAT(token);
     if (E.isLeft(userAccessToken))
       throw new BadRequestException(
-        createCLIErrorResponse(ACCESS_TOKENS_INVALID),
+        createCLIErrorResponse(ACCESS_TOKEN_INVALID),
       );
     request.user = userAccessToken.right.user;
 
@@ -37,7 +37,7 @@ export class PATAuthGuard implements CanActivate {
     if (accessToken.expiresOn.toISOString() > today) return true;
 
     throw new BadRequestException(
-      createCLIErrorResponse(ACCESS_TOKENS_EXPIRED),
+      createCLIErrorResponse(ACCESS_TOKEN_EXPIRED),
     );
   }
 

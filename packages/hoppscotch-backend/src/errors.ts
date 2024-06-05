@@ -784,13 +784,13 @@ export const ACCESS_TOKEN_NOT_FOUND = 'access_token/access_token_not_found';
  * AccessTokens is expired
  * (AccessTokenService)
  */
-export const ACCESS_TOKENS_EXPIRED = 'TOKEN_EXPIRED';
+export const ACCESS_TOKEN_EXPIRED = 'TOKEN_EXPIRED';
 
 /**
  * AccessTokens is invalid
  * (AccessTokenService)
  */
-export const ACCESS_TOKENS_INVALID = 'TOKEN_INVALID';
+export const ACCESS_TOKEN_INVALID = 'TOKEN_INVALID';
 
 /**
  * AccessTokens is invalid

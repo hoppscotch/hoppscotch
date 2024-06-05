@@ -1391,10 +1391,16 @@ export class TeamCollectionService {
    * @param parentID The parent Collection ID
    * @returns Collection tree for CLI
    */
-  private async getCollectionTreeForCLI(parentID: string | null) {
+  private async getCollectionTreeForCLI(
+    parentID: string | null,
+    cursor: string | null,
+    take: number,
+  ) {
     const childCollections = await this.prisma.teamCollection.findMany({
       where: { parentID },
       orderBy: { orderIndex: 'asc' },
+      skip: cursor ? 1 : 0,
+      cursor: cursor ? { id: cursor } : undefined,
     });
 
     const response: GetCollectionResponse[] = [];
@@ -1422,7 +1428,12 @@ export class TeamCollectionService {
    * @param userUid The User UID
    * @returns An Either of the Collection details
    */
-  async getCollectionForCLI(collectionID: string, userUid: string) {
+  async getCollectionForCLI(
+    collectionID: string,
+    userUid: string,
+    cursor: string | null,
+    take: number,
+  ) {
     try {
       const collection = await this.prisma.teamCollection.findUniqueOrThrow({
         where: { id: collectionID },
@@ -1439,7 +1450,11 @@ export class TeamCollectionService {
         data: collection.data === null ? null : JSON.stringify(collection.data),
         title: collection.title,
         parentID: collection.parentID,
-        folders: await this.getCollectionTreeForCLI(collection.id),
+        folders: await this.getCollectionTreeForCLI(
+          collection.id,
+          cursor,
+          take,
+        ),
         requests: await this.getAllRequestsInCollection(collection.id),
       });
     } catch (error) {

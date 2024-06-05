@@ -5,15 +5,16 @@ import {
   transformWorkspaceEnvironment,
 } from "../../utils/workspace-access";
 import {
-  TRANFORMED_DEEPLY_NESTED_COLLECTIONS_WITH_AUTH_HEADERS_MOCK,
   TRANSFORMED_COLLECTIONS_WITHOUT_AUTH_HEADERS_AT_CERTAIN_LEVELS_MOCK,
+  TRANSFORMED_DEEPLY_NESTED_COLLECTIONS_WITH_AUTH_HEADERS_MOCK,
   TRANSFORMED_ENVIRONMENT_MOCK,
-  TRANSFORMED_MULTIPLE_CHILD_COLLECTIONS_WITH_AUTH_HEADERS_MOCK,
   WORKSPACE_COLLECTIONS_WITHOUT_AUTH_HEADERS_AT_CERTAIN_LEVELS_MOCK,
   WORKSPACE_DEEPLY_NESTED_COLLECTIONS_WITH_AUTH_HEADERS_MOCK,
   WORKSPACE_ENVIRONMENT_MOCK,
   WORKSPACE_MULTIPLE_CHILD_COLLECTIONS_WITH_AUTH_HEADERS_MOCK,
 } from "./fixtures/workspace-access.mock";
+
+import TRANSFORMED_MULTIPLE_CHILD_COLLECTIONS_WITH_AUTH_HEADERS_MOCK from "../e2e/fixtures/collections/multiple-child-collections-auth-headers-coll.json";
 
 describe("workspace-access", () => {
   describe("transformWorkspaceCollection", () => {
@@ -22,7 +23,7 @@ describe("workspace-access", () => {
         transformWorkspaceCollection(
           WORKSPACE_DEEPLY_NESTED_COLLECTIONS_WITH_AUTH_HEADERS_MOCK
         )
-      ).toEqual(TRANFORMED_DEEPLY_NESTED_COLLECTIONS_WITH_AUTH_HEADERS_MOCK);
+      ).toEqual(TRANSFORMED_DEEPLY_NESTED_COLLECTIONS_WITH_AUTH_HEADERS_MOCK);
     });
 
     test("Successfully transforms collection data with multiple child collections and authorization/headers set at each level to the `HoppCollection` format", () => {

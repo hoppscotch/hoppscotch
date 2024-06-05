@@ -193,9 +193,8 @@ export const getResourceContents = async ({
           : transformWorkspaceEnvironment(data as WorkspaceEnvironment);
     } catch (err) {
       const axiosErr = err as AxiosError<{
-        reason?: any;
+        reason?: "TOKEN_EXPIRED" | "TOKEN_INVALID" | "INVALID_ID";
         message: string;
-        error: string;
         statusCode: number;
       }>;
 

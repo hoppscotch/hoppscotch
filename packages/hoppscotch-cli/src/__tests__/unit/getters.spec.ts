@@ -1,6 +1,6 @@
 import axios from "axios";
 import fs from "fs/promises";
-import { describe, expect, it, test, vi } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 
 import {
   CollectionSchemaVersion,
@@ -48,11 +48,11 @@ describe("getters", () => {
       variables: [{ key: "PARAM", value: "parsed_param" }],
     };
 
-    test("Empty list of meta-data.", () => {
+    test("Empty list of meta-data", () => {
       expect(getEffectiveFinalMetaData([], DEFAULT_ENV)).toSubsetEqualRight([]);
     });
 
-    test("Non-empty active list of meta-data with unavailable ENV.", () => {
+    test("Non-empty active list of meta-data with unavailable ENV", () => {
       expect(
         getEffectiveFinalMetaData(
           [
@@ -67,7 +67,7 @@ describe("getters", () => {
       ).toSubsetEqualRight([{ active: true, key: "", value: "" }]);
     });
 
-    test("Inactive list of meta-data.", () => {
+    test("Inactive list of meta-data", () => {
       expect(
         getEffectiveFinalMetaData(
           [{ active: false, key: "KEY", value: "<<PARAM>>" }],
@@ -76,7 +76,7 @@ describe("getters", () => {
       ).toSubsetEqualRight([]);
     });
 
-    test("Active list of meta-data.", () => {
+    test("Active list of meta-data", () => {
       expect(
         getEffectiveFinalMetaData(
           [{ active: true, key: "PARAM", value: "<<PARAM>>" }],
@@ -90,247 +90,152 @@ describe("getters", () => {
 
   describe("getResourceContents", () => {
     describe("Network call failure", () => {
-      it("Promise rejects with the code `SERVER_CONNECTION_REFUSED` if the network call fails with the code `ECONNREFUSED`", () => {
-        const pathOrId = "valid-collection-id";
-        const resourceType = "collection";
-        const accessToken = "valid-access-token";
-        const serverUrl = "invalid-url";
+      const args = {
+        pathOrId: "test-collection-id-or-path",
+        resourceType: "collection" as const,
+        accessToken: "test-token",
+        serverUrl: "test-url",
+      };
 
-        vi.spyOn(axios, "get").mockImplementation(() => {
-          return Promise.reject({
+      const cases = [
+        {
+          description:
+            "Promise rejects with the code `SERVER_CONNECTION_REFUSED` if the network call fails with the code `ECONNREFUSED`",
+          args,
+          axiosMock: {
             code: "ECONNREFUSED",
-          });
-        });
-
-        expect(
-          getResourceContents({
-            pathOrId,
-            accessToken,
-            serverUrl,
-            resourceType,
-          })
-        ).rejects.toEqual({
-          code: "SERVER_CONNECTION_REFUSED",
-          data: serverUrl,
-        });
-      });
-
-      it("Promise rejects with the code `INVALID_SERVER_URL` if the network call fails with the code `ERR_INVALID_URL`", () => {
-        const pathOrId = "valid-collection-id";
-        const resourceType = "collection";
-        const accessToken = "valid-access-token";
-        const serverUrl = "htp://example.com";
-
-        vi.spyOn(axios, "get").mockImplementation(() => {
-          return Promise.reject({
+          },
+          expected: {
+            code: "SERVER_CONNECTION_REFUSED",
+            data: args.serverUrl,
+          },
+        },
+        {
+          description:
+            "Promise rejects with the code `INVALID_SERVER_URL` if the network call fails with the code `ERR_INVALID_URL`",
+          args,
+          axiosMock: {
             code: "ERR_INVALID_URL",
-          });
-        });
-
-        expect(
-          getResourceContents({
-            pathOrId,
-            accessToken,
-            serverUrl,
-            resourceType,
-          })
-        ).rejects.toEqual({
-          code: "INVALID_SERVER_URL",
-          data: serverUrl,
-        });
-      });
-
-      it("Promise rejects with the code `INVALID_SERVER_URL` if the network call succeeds and the received response content type is not `application/json`", () => {
-        const pathOrId = "valid-collection-id";
-        const resourceType = "collection";
-        const accessToken = "valid-access-token";
-        const serverUrl = "https://stage-hoppscotch.io";
-
-        vi.spyOn(axios, "get").mockImplementation(() => {
-          return Promise.reject({
+          },
+          expected: {
+            code: "INVALID_SERVER_URL",
+            data: args.serverUrl,
+          },
+        },
+        {
+          description:
+            "Promise rejects with the code `INVALID_SERVER_URL` if the network call succeeds and the received response content type is not `application/json`",
+          args,
+          axiosMock: {
             message: "INVALID_CONTENT_TYPE",
-          });
-        });
-
-        expect(
-          getResourceContents({
-            pathOrId,
-            accessToken,
-            serverUrl,
-            resourceType,
-          })
-        ).rejects.toEqual({
-          code: "INVALID_SERVER_URL",
-          data: serverUrl,
-        });
-      });
-
-      it("Promise rejects with the code `INVALID_SERVER_URL` if the network call fails with the code `ENOTFOUND`", () => {
-        const pathOrId = "valid-collection-id";
-        const resourceType = "collection";
-        const accessToken = "valid-access-token";
-        const serverUrl = "https://stage-hoppscotch.io";
-
-        vi.spyOn(axios, "get").mockImplementation(() => {
-          return Promise.reject({
+          },
+          expected: {
+            code: "INVALID_SERVER_URL",
+            data: args.serverUrl,
+          },
+        },
+        {
+          description:
+            "Promise rejects with the code `INVALID_SERVER_URL` if the network call fails with the code `ENOTFOUND`",
+          args,
+          axiosMock: {
             code: "ENOTFOUND",
-          });
-        });
-
-        expect(
-          getResourceContents({
-            pathOrId,
-            accessToken,
-            serverUrl,
-            resourceType,
-          })
-        ).rejects.toEqual({
-          code: "INVALID_SERVER_URL",
-          data: serverUrl,
-        });
-      });
-
-      it("Promise rejects with the code `INVALID_SERVER_URL` if the network call yields a response with status code of `404`", () => {
-        const pathOrId = "valid-collection-id";
-        const resourceType = "collection";
-        const accessToken = "valid-access-token";
-        const serverUrl = "https://stage-hoppscotch.io";
-
-        vi.spyOn(axios, "get").mockImplementation(() => {
-          return Promise.reject({
+          },
+          expected: {
+            code: "INVALID_SERVER_URL",
+            data: args.serverUrl,
+          },
+        },
+        {
+          description:
+            "Promise rejects with the code `INVALID_SERVER_URL` if the network call returns a response with a status code of `404`",
+          args,
+          axiosMock: {
             response: {
               status: 404,
             },
-          });
-        });
-
-        expect(
-          getResourceContents({
-            pathOrId,
-            accessToken,
-            serverUrl,
-            resourceType,
-          })
-        ).rejects.toEqual({
-          code: "INVALID_SERVER_URL",
-          data: serverUrl,
-        });
-      });
-
-      it("Promise rejects with the code `TOKEN_EXPIRED` if the network call fails with the same reason", () => {
-        const pathOrId = "valid-collection-id";
-        const resourceType = "collection";
-        const accessToken = "expired-access-token";
-        const serverUrl = "https://stage-hoppscotch.io/backend";
-
-        vi.spyOn(axios, "get").mockImplementation(() => {
-          return Promise.reject({
+          },
+          expected: {
+            code: "INVALID_SERVER_URL",
+            data: args.serverUrl,
+          },
+        },
+        {
+          description:
+            "Promise rejects with the code `TOKEN_EXPIRED` if the network call fails for the same reason",
+          args,
+          axiosMock: {
             response: {
               data: {
                 reason: "TOKEN_EXPIRED",
               },
             },
-          });
-        });
-
-        expect(
-          getResourceContents({
-            pathOrId,
-            accessToken,
-            serverUrl,
-            resourceType,
-          })
-        ).rejects.toEqual({
-          code: "TOKEN_EXPIRED",
-          data: accessToken,
-        });
-      });
-
-      it("Promise rejects with the code `TOKEN_INVALID` if the network call fails with the same reason", () => {
-        const pathOrId = "valid-collection-id";
-        const resourceType = "collection";
-        const accessToken = "invalid-access-token";
-        const serverUrl = "https://stage-hoppscotch.io/backend";
-
-        vi.spyOn(axios, "get").mockImplementation(() => {
-          return Promise.reject({
+          },
+          expected: {
+            code: "TOKEN_EXPIRED",
+            data: args.accessToken,
+          },
+        },
+        {
+          description:
+            "Promise rejects with the code `TOKEN_INVALID` if the network call fails for the same reason",
+          args,
+          axiosMock: {
             response: {
               data: {
                 reason: "TOKEN_INVALID",
               },
             },
-          });
-        });
-
-        expect(
-          getResourceContents({
-            pathOrId,
-            accessToken,
-            serverUrl,
-            resourceType,
-          })
-        ).rejects.toEqual({
-          code: "TOKEN_INVALID",
-          data: accessToken,
-        });
-      });
-
-      it("Promise rejects with the code `INVALID_ID` if the network call fails with the same reason for a supplied collection ID", () => {
-        const pathOrId = "invalid-collection-id";
-        const resourceType = "collection";
-        const accessToken = "valid-access-token";
-        const serverUrl = "https://stage-hoppscotch.io/backend";
-
-        vi.spyOn(axios, "get").mockImplementation(() => {
-          return Promise.reject({
+          },
+          expected: {
+            code: "TOKEN_INVALID",
+            data: args.accessToken,
+          },
+        },
+        {
+          description:
+            "Promise rejects with the code `INVALID_ID` if the network call fails for the same reason when the supplied collection ID or path is invalid",
+          args,
+          axiosMock: {
             response: {
               data: {
                 reason: "INVALID_ID",
               },
             },
-          });
-        });
-
-        expect(
-          getResourceContents({
-            pathOrId,
-            accessToken,
-            serverUrl,
-            resourceType,
-          })
-        ).rejects.toEqual({
-          code: "INVALID_ID",
-          data: pathOrId,
-        });
-      });
-
-      it("Promise rejects with the code `INVALID_ID` if the network call fails with the same reason for a supplied environment ID", () => {
-        const pathOrId = "invalid-environment-id";
-        const resourceType = "environment";
-        const accessToken = "valid-access-token";
-        const serverUrl = "https://stage-hoppscotch.io/backend";
-
-        vi.spyOn(axios, "get").mockImplementation(() => {
-          return Promise.reject({
+          },
+          expected: {
+            code: "INVALID_ID",
+            data: args.pathOrId,
+          },
+        },
+        {
+          description:
+            "Promise rejects with the code `INVALID_ID` if the network call fails for the same reason when the supplied environment ID or path is invalid",
+          args: {
+            ...args,
+            pathOrId: "test-environment-id-or-path",
+            resourceType: "environment" as const,
+          },
+          axiosMock: {
             response: {
               data: {
                 reason: "INVALID_ID",
               },
             },
-          });
-        });
+          },
+          expected: {
+            code: "INVALID_ID",
+            data: "test-environment-id-or-path",
+          },
+        },
+      ];
 
-        expect(
-          getResourceContents({
-            pathOrId,
-            accessToken,
-            serverUrl,
-            resourceType,
-          })
-        ).rejects.toEqual({
-          code: "INVALID_ID",
-          data: pathOrId,
-        });
+      test.each(cases)("$description", ({ args, axiosMock, expected }) => {
+        vi.spyOn(axios, "get").mockImplementation(() =>
+          Promise.reject(axiosMock)
+        );
+
+        expect(getResourceContents(args)).rejects.toEqual(expected);
       });
     });
 

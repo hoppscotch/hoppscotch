@@ -101,6 +101,10 @@ export class TeamsWorkspaceProviderService
     return sortByOrder(this.requests.value)
   })
 
+  private orderedCollections = computed(() => {
+    return sortByOrder(this.collections.value)
+  })
+
   private subscriptions: Subscription[] = []
 
   private fetchingWorkspaces = ref(false)
@@ -1018,6 +1022,184 @@ export class TeamsWorkspaceProviderService
           }
         }),
     })
+  }
+
+  moveRESTCollection(
+    collectionHandle: Handle<WorkspaceCollection>,
+    destinationCollectionID: string | null
+  ): Promise<E.Either<unknown, void>> {
+    const collectionHandleRef = collectionHandle.get()
+
+    if (!isValidCollectionHandle(collectionHandleRef, this.providerID)) {
+      return Promise.resolve(E.left("INVALID_COLLECTION_HANDLE" as const))
+    }
+
+    const collection = this.collections.value.find(
+      (collection) =>
+        collection.collectionID === collectionHandleRef.value.data.collectionID
+    )
+
+    if (!collection) {
+      return Promise.resolve(E.left("COLLECTION_DOES_NOT_EXIST" as const))
+    }
+
+    // find the sibling collections, and move the collection to the end of that collection
+    // also consider the destinationCollectionID being null, in that case, move it to the root
+    const siblingCollections = this.collections.value.filter(
+      (collection) => collection.parentCollectionID === destinationCollectionID
+    )
+
+    const lastSibling = siblingCollections.at(-1)
+
+    const order = generateKeyBetween(lastSibling?.order, null)
+
+    // TODO: check this type error
+    this.collections.value = this.collections.value.map((col) => {
+      if (col.collectionID === collection.collectionID) {
+        return {
+          ...col,
+          parentCollectionID: destinationCollectionID,
+          order,
+        }
+      }
+
+      return col
+    })
+
+    return Promise.resolve(E.right(undefined))
+  }
+
+  moveRESTRequest(
+    requestHandle: Handle<WorkspaceRequest>,
+    destinationCollectionID: string
+  ): Promise<E.Either<unknown, void>> {
+    const requestHandleRef = requestHandle.get()
+
+    if (!isValidRequestHandle(requestHandleRef, this.providerID)) {
+      return Promise.resolve(E.left("INVALID_REQUEST_HANDLE" as const))
+    }
+
+    const request = this.requests.value.find(
+      (request) => request.requestID === requestHandleRef.value.data.requestID
+    )
+
+    if (!request) {
+      return Promise.resolve(E.left("REQUEST_DOES_NOT_EXIST" as const))
+    }
+
+    // get the destination collection, and move the request to the end of that collection
+    const destinationCollection = this.collections.value.find(
+      (collection) => collection.collectionID === destinationCollectionID
+    )
+
+    if (!destinationCollection) {
+      return Promise.resolve(E.left("DESTINATION_COLLECTION_DOES_NOT_EXIST"))
+    }
+
+    const siblingRequests = this.requests.value.filter(
+      (request) => request.collectionID === destinationCollectionID
+    )
+
+    const lastSibling = siblingRequests.at(-1)
+
+    const order = generateKeyBetween(lastSibling?.order, null)
+
+    this.requests.value = this.requests.value.map((req) => {
+      if (req.requestID === request.requestID) {
+        return {
+          ...req,
+          collectionID: destinationCollectionID,
+          order,
+        }
+      }
+
+      return req
+    })
+
+    return Promise.resolve(E.right(undefined))
+  }
+
+  reorderRESTCollection(
+    collectionHandle: Handle<WorkspaceCollection>,
+    destinationCollectionID: string | null
+  ): Promise<E.Either<unknown, void>> {
+    const collectionHandleRef = collectionHandle.get()
+
+    if (!isValidCollectionHandle(collectionHandleRef, this.providerID)) {
+      return Promise.resolve(E.left("INVALID_COLLECTION_HANDLE" as const))
+    }
+
+    const collection = this.collections.value.find(
+      (collection) =>
+        collection.collectionID === collectionHandleRef.value.data.collectionID
+    )
+
+    if (!collection) {
+      return Promise.resolve(E.left("COLLECTION_DOES_NOT_EXIST" as const))
+    }
+
+    const nextCollection = this.collections.value.find(
+      (collection) => collection.collectionID === destinationCollectionID
+    )
+
+    const reorderOperation = reorderItemsWithoutChangingParent(
+      collection.collectionID,
+      nextCollection?.collectionID ?? null,
+
+      // TODO: undefined v/s null thing, fix later
+      this.orderedCollections.value,
+      "collectionID",
+      "parentCollectionID"
+    )
+
+    if (E.isLeft(reorderOperation)) {
+      return Promise.resolve(reorderOperation)
+    }
+
+    // TODO: might be due to figuring out the return type. fix later
+    this.collections.value = reorderOperation.right
+
+    return Promise.resolve(E.right(undefined))
+  }
+
+  reorderRESTRequest(
+    requestHandle: Handle<WorkspaceRequest>,
+    destinationCollectionID: string,
+    destinationRequestID: string | null
+  ): Promise<E.Either<unknown, void>> {
+    const requestHandleRef = requestHandle.get()
+
+    if (!isValidRequestHandle(requestHandleRef, this.providerID)) {
+      return Promise.resolve(E.left("INVALID_REQUEST_HANDLE" as const))
+    }
+
+    const request = this.requests.value.find(
+      (request) => request.requestID === requestHandleRef.value.data.requestID
+    )
+
+    if (!request) {
+      return Promise.resolve(E.left("REQUEST_DOES_NOT_EXIST" as const))
+    }
+
+    const nextRequest = this.requests.value.find(
+      (request) => request.requestID === destinationRequestID
+    )
+
+    const reorderOperation = reorderItemsWithoutChangingParent(
+      request.requestID,
+      nextRequest?.requestID ?? null,
+      this.orderedRequests.value,
+      "requestID",
+      "collectionID"
+    )
+
+    if (E.isLeft(reorderOperation)) {
+      return Promise.resolve(reorderOperation)
+    }
+
+    this.requests.value = reorderOperation.right
+
+    return Promise.resolve(E.right(undefined))
   }
 
   // this might be temporary, might move this to decor

@@ -16,6 +16,22 @@ export type NetworkResponse = AxiosResponse<unknown> & {
       endTime: number
     }
   }
+  /**
+   * Optional additional fields with special optional metadata that can be used
+   */
+  additional?: {
+    /**
+     * By the HTTP spec, we can have multiple headers with the same name, but
+     * this is not accessible in the AxiosResponse type as the headers there are Record<string, string>
+     * (and hence cannot have secondary values).
+     *
+     * If this value is present, headers can be read from here which will have the data.
+     */
+    multiHeaders?: Array<{
+      key: string
+      value: string
+    }>
+  }
 }
 
 /**

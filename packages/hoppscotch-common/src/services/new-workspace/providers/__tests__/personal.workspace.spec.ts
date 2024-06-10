@@ -12,9 +12,11 @@ import { WritableHandleRef } from "../../handle"
 import { WorkspaceCollection, WorkspaceRequest } from "../../workspace"
 import { PersonalWorkspaceProviderService } from "../personal.workspace"
 import {
-  MOVE_REST_COLLECTION,
-  MOVE_REST_REQUEST,
-  REORDER_REST_REQUEST,
+  MOVE_REST_COLLECTION_STORE_MOCK,
+  MOVE_REST_REQUEST_STORE_MOCK,
+  REMOVE_REST_COLLECTION_STORE_MOCK,
+  REMOVE_REST_REQUEST_STORE_MOCK,
+  REORDER_REST_REQUEST_STORE_MOCK,
 } from "./__mocks__/store"
 import { generateIssuedHandleValues, getWritableHandle } from "./helpers"
 
@@ -30,7 +32,7 @@ describe("PersonalWorkspaceProviderService", () => {
 
   describe("moveRESTRequest", () => {
     it("Returns a `Left` value `INVALID_REQUEST_HANDLE` on supplying an invalid request handle", async () => {
-      // Simulating an invalid request handle due to workspace invalidation
+      // Simulating an invalid request handle
       const requestHandle = {
         get: () =>
           ref({
@@ -53,7 +55,7 @@ describe("PersonalWorkspaceProviderService", () => {
 
     it("Successfully updates the store and issued handles for affected requests while moving a top-level REST request between collections", async () => {
       restCollectionStore.subject$.next({
-        state: MOVE_REST_REQUEST.TOP_LEVEL_COLLECTIONS,
+        state: MOVE_REST_REQUEST_STORE_MOCK.TOP_LEVEL_COLLECTIONS,
       })
 
       const issuedHandleValues = generateIssuedHandleValues([
@@ -128,7 +130,7 @@ describe("PersonalWorkspaceProviderService", () => {
 
     it("Successfully updates the store and issued handles for affected requests while moving a REST request between deeply nested collections", async () => {
       restCollectionStore.subject$.next({
-        state: MOVE_REST_REQUEST.DEEPLY_NESTED_COLLECTIONS,
+        state: MOVE_REST_REQUEST_STORE_MOCK.DEEPLY_NESTED_COLLECTIONS,
       })
 
       const issuedHandleValues = generateIssuedHandleValues([
@@ -216,7 +218,7 @@ describe("PersonalWorkspaceProviderService", () => {
 
   describe("reorderRESTRequest", () => {
     it("Returns a `Left` value `INVALID_REQUEST_HANDLE` on supplying an invalid request handle", async () => {
-      // Simulating an invalid request handle due to workspace invalidation
+      // Simulating an invalid request handle
       const requestHandle = {
         get: () =>
           ref({
@@ -245,7 +247,7 @@ describe("PersonalWorkspaceProviderService", () => {
 
       beforeEach(() => {
         restCollectionStore.subject$.next({
-          state: REORDER_REST_REQUEST.DESTINATION_ABOVE,
+          state: REORDER_REST_REQUEST_STORE_MOCK.DESTINATION_ABOVE,
         })
 
         const issuedHandleValues = generateIssuedHandleValues([
@@ -392,7 +394,7 @@ describe("PersonalWorkspaceProviderService", () => {
 
       beforeEach(() => {
         restCollectionStore.subject$.next({
-          state: REORDER_REST_REQUEST.DESTINATION_BELOW,
+          state: REORDER_REST_REQUEST_STORE_MOCK.DESTINATION_BELOW,
         })
 
         const issuedHandleValues = generateIssuedHandleValues([
@@ -537,7 +539,7 @@ describe("PersonalWorkspaceProviderService", () => {
 
   describe("reorderRESTCollection", () => {
     it("Returns a `Left` value `INVALID_COLLECTION_HANDLE` on supplying an invalid collection handle", async () => {
-      // Simulating an invalid request handle due to workspace invalidation
+      // Simulating an invalid request handle due
       const collectiontHandle = {
         get: () =>
           ref({
@@ -1609,7 +1611,7 @@ describe("PersonalWorkspaceProviderService", () => {
 
   describe("moveRESTCollection", () => {
     it("Returns a `Left` value `INVALID_COLLECTION_HANDLE` on supplying an invalid collection handle", async () => {
-      // Simulating an invalid collection handle due to workspace invalidation
+      // Simulating an invalid collection handle due
       const collectiontHandle = {
         get: () =>
           ref({
@@ -1632,7 +1634,7 @@ describe("PersonalWorkspaceProviderService", () => {
 
     it("Successfully updates the store and issued handles for requests under affected collections while moving a REST collection to be one among the root nodes", async () => {
       restCollectionStore.subject$.next({
-        state: MOVE_REST_COLLECTION.DESTINATION_ROOT,
+        state: MOVE_REST_COLLECTION_STORE_MOCK.DESTINATION_ROOT,
       })
 
       const collectionIDs = ["1/0", "1/0/0", "1/1", "1/1/0", "1/2", "1/2/0"]
@@ -1737,7 +1739,8 @@ describe("PersonalWorkspaceProviderService", () => {
 
     it("Successfully updates the store and issued handles for requests under affected collections while moving a REST collection between deeply nested collections", async () => {
       restCollectionStore.subject$.next({
-        state: MOVE_REST_COLLECTION.BETWEEN_DEEPLY_NESTED_COLLECTIONS,
+        state:
+          MOVE_REST_COLLECTION_STORE_MOCK.BETWEEN_DEEPLY_NESTED_COLLECTIONS,
       })
 
       const collectionIDs = [
@@ -1867,7 +1870,8 @@ describe("PersonalWorkspaceProviderService", () => {
     describe("Moving a REST collection to a sibling collection below it", () => {
       it("Successfully updates the store and issued handles for requests under affected collections while moving a REST collection to a collection at the same level", async () => {
         restCollectionStore.subject$.next({
-          state: MOVE_REST_COLLECTION.SIBLING_COLLECTION_BELOW_SAME_LEVEL,
+          state:
+            MOVE_REST_COLLECTION_STORE_MOCK.SIBLING_COLLECTION_BELOW_SAME_LEVEL,
         })
 
         const collectionIDs = [
@@ -2007,7 +2011,8 @@ describe("PersonalWorkspaceProviderService", () => {
 
       it("Successfully updates the store and issued handles for requests under affected collections while moving a REST collection to a nested child collection", async () => {
         restCollectionStore.subject$.next({
-          state: MOVE_REST_COLLECTION.SIBLING_COLLECTION_BELOW_NESTED_LEVEL,
+          state:
+            MOVE_REST_COLLECTION_STORE_MOCK.SIBLING_COLLECTION_BELOW_NESTED_LEVEL,
         })
 
         const collectionIDs = [
@@ -2143,6 +2148,256 @@ describe("PersonalWorkspaceProviderService", () => {
           updatedIssuedHandlesDataArr
         )
       })
+    })
+  })
+
+  describe("removeRESTRequest", () => {
+    it("Returns a `Left` value `INVALID_REQUEST_HANDLE` on supplying an invalid request handle", async () => {
+      // Simulating an invalid request handle
+      const requestHandle = {
+        get: () =>
+          ref({
+            type: "invalid" as const,
+            reason: "INVALID_REQUEST_HANDLE",
+          }),
+      }
+
+      const removeRequestResult =
+        await personalWorkspaceProviderService.removeRESTRequest(requestHandle)
+
+      expect(removeRequestResult).toEqual(
+        E.left("INVALID_REQUEST_HANDLE" as const)
+      )
+    })
+
+    it("Successfully updates the store and issued handles for affected requests appearing below while deleting a request", async () => {
+      restCollectionStore.subject$.next({
+        state: REMOVE_REST_REQUEST_STORE_MOCK,
+      })
+
+      const issuedHandles: WritableHandleRef<
+        WorkspaceRequest | WorkspaceCollection
+      >[] = []
+
+      const issuedHandleValues = generateIssuedHandleValues([
+        { collectionID: "0", requestCount: 6 },
+      ])
+
+      issuedHandles.push(...issuedHandleValues.map(getWritableHandle))
+
+      personalWorkspaceProviderService.issuedHandles = issuedHandles
+
+      const requestIDToRemove = "0/2"
+
+      const requestHandleToRemove =
+        await personalWorkspaceProviderService.getRequestHandle(
+          workspaceHandle,
+          requestIDToRemove
+        )
+
+      if (E.isLeft(requestHandleToRemove)) {
+        throw new Error(requestHandleToRemove.left?.toString())
+      }
+
+      await personalWorkspaceProviderService.removeRESTRequest(
+        requestHandleToRemove.right
+      )
+
+      const expectedIssuedHandlesDataArr = [
+        {
+          requestID: "0/0",
+          requestName: "req-0/0",
+          collectionName: "coll-0",
+        },
+        {
+          requestID: "0/1",
+          requestName: "req-0/1",
+          collectionName: "coll-0",
+        },
+
+        // IDs for the requests appearing below the deleted request (`req-0/2`) gets reduced by `1`
+        {
+          requestID: "0/2",
+          requestName: "req-0/3",
+          collectionName: "coll-0",
+        },
+        {
+          requestID: "0/3",
+          requestName: "req-0/4",
+          collectionName: "coll-0",
+        },
+        {
+          requestID: "0/4",
+          requestName: "req-0/5",
+          collectionName: "coll-0",
+        },
+      ]
+
+      const updatedIssuedHandlesDataArr: {
+        requestID: string
+        requestName: string
+        collectionName: string
+      }[] = []
+
+      personalWorkspaceProviderService.issuedHandles.forEach((handle) => {
+        if (handle.value.type === "ok" && "requestID" in handle.value.data) {
+          const { collectionID, requestID, request } = handle.value.data
+
+          const { name: requestName } = request
+
+          const collectionName = navigateToFolderWithIndexPath(
+            personalWorkspaceProviderService.restCollectionState.value.state,
+            collectionID.split("/").map((id) => parseInt(id))
+          )!.name
+
+          updatedIssuedHandlesDataArr.push({
+            requestID,
+            requestName,
+            collectionName,
+          })
+        }
+      })
+
+      expect(expectedIssuedHandlesDataArr).toEqual(updatedIssuedHandlesDataArr)
+    })
+  })
+
+  describe("removeRESTCollection", () => {
+    it("Returns a `Left` value `INVALID_COLLECTION_HANDLE` on supplying an invalid collection handle", async () => {
+      // Simulating an invalid collection handle
+      const collectionHandle = {
+        get: () =>
+          ref({
+            type: "invalid" as const,
+            reason: "INVALID_COLLECTION_HANDLE",
+          }),
+      }
+
+      const removeCollectionResult =
+        await personalWorkspaceProviderService.removeRESTCollection(
+          collectionHandle
+        )
+
+      expect(removeCollectionResult).toEqual(
+        E.left("INVALID_COLLECTION_HANDLE" as const)
+      )
+    })
+
+    it("Successfully updates the store and issued handles for affected requests appearing at any child level below while deleting a collection", async () => {
+      restCollectionStore.subject$.next({
+        state: REMOVE_REST_COLLECTION_STORE_MOCK,
+      })
+
+      const collectionIDs = [
+        "0",
+        "0/0",
+        "0/0/0",
+        "0/0/0/0",
+        "1",
+        "1/0",
+        "2",
+        "2/0",
+      ]
+
+      const issuedHandles: WritableHandleRef<
+        WorkspaceRequest | WorkspaceCollection
+      >[] = []
+
+      collectionIDs.forEach((collectionID) => {
+        const issuedHandleValues = generateIssuedHandleValues([
+          { collectionID, requestCount: 2 },
+        ])
+
+        issuedHandles.push(...issuedHandleValues.map(getWritableHandle))
+      })
+
+      personalWorkspaceProviderService.issuedHandles = issuedHandles
+
+      const collectionIDToRemove = "0"
+
+      const collectionHandleToRemove =
+        await personalWorkspaceProviderService.getCollectionHandle(
+          workspaceHandle,
+          collectionIDToRemove
+        )
+
+      if (E.isLeft(collectionHandleToRemove)) {
+        throw new Error(collectionHandleToRemove.left?.toString())
+      }
+
+      await personalWorkspaceProviderService.removeRESTCollection(
+        collectionHandleToRemove.right
+      )
+
+      const expectedIssuedHandlesDataArr = [
+        {
+          requestID: "0/0",
+          requestName: "req-1/0",
+          collectionName: "coll-1",
+        },
+        {
+          requestID: "0/1",
+          requestName: "req-1/1",
+          collectionName: "coll-1",
+        },
+        {
+          requestID: "0/0/0",
+          requestName: "req-1/0/0",
+          collectionName: "coll-1/0",
+        },
+        {
+          requestID: "0/0/1",
+          requestName: "req-1/0/1",
+          collectionName: "coll-1/0",
+        },
+        {
+          requestID: "1/0",
+          requestName: "req-2/0",
+          collectionName: "coll-2",
+        },
+        {
+          requestID: "1/1",
+          requestName: "req-2/1",
+          collectionName: "coll-2",
+        },
+        {
+          requestID: "1/0/0",
+          requestName: "req-2/0/0",
+          collectionName: "coll-2/0",
+        },
+        {
+          requestID: "1/0/1",
+          requestName: "req-2/0/1",
+          collectionName: "coll-2/0",
+        },
+      ]
+
+      const updatedIssuedHandlesDataArr: {
+        requestID: string
+        requestName: string
+        collectionName: string
+      }[] = []
+
+      personalWorkspaceProviderService.issuedHandles.forEach((handle) => {
+        if (handle.value.type === "ok" && "requestID" in handle.value.data) {
+          const { collectionID, requestID, request } = handle.value.data
+
+          const { name: requestName } = request
+
+          const collectionName = navigateToFolderWithIndexPath(
+            personalWorkspaceProviderService.restCollectionState.value.state,
+            collectionID.split("/").map((id) => parseInt(id))
+          )!.name
+
+          updatedIssuedHandlesDataArr.push({
+            requestID,
+            requestName,
+            collectionName,
+          })
+        }
+      })
+
+      expect(expectedIssuedHandlesDataArr).toEqual(updatedIssuedHandlesDataArr)
     })
   })
 })

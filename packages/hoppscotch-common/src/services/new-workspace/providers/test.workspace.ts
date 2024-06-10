@@ -148,7 +148,7 @@ export class TestWorkspaceProviderService
           if (workspaceHandle.value.type !== "ok") {
             return {
               type: "invalid",
-              reason: "WORKSPACE_INVALIDATED" as const,
+              reason: "INVALID_WORKSPACE_HANDLE" as const,
             }
           }
 

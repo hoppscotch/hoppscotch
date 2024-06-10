@@ -35,7 +35,7 @@ describe("PersonalWorkspaceProviderService", () => {
         get: () =>
           ref({
             type: "invalid" as const,
-            reason: "WORKSPACE_INVALIDATED",
+            reason: "INVALID_WORKSPACE_HANDLE",
           }),
       }
 
@@ -221,7 +221,7 @@ describe("PersonalWorkspaceProviderService", () => {
         get: () =>
           ref({
             type: "invalid" as const,
-            reason: "WORKSPACE_INVALIDATED",
+            reason: "INVALID_WORKSPACE_HANDLE",
           }),
       }
 
@@ -542,7 +542,7 @@ describe("PersonalWorkspaceProviderService", () => {
         get: () =>
           ref({
             type: "invalid" as const,
-            reason: "WORKSPACE_INVALIDATED",
+            reason: "INVALID_WORKSPACE_HANDLE",
           }),
       }
 
@@ -1614,7 +1614,7 @@ describe("PersonalWorkspaceProviderService", () => {
         get: () =>
           ref({
             type: "invalid" as const,
-            reason: "WORKSPACE_INVALIDATED",
+            reason: "INVALID_WORKSPACE_HANDLE",
           }),
       }
 

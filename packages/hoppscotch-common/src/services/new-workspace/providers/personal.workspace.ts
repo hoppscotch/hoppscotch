@@ -220,7 +220,7 @@ export class PersonalWorkspaceProviderService
       collectionID
     )}`
 
-    // Verify whether a collection update action is reflected correctly in the handle being returned below
+    // TODO: Verify whether a collection update action is reflected correctly in the handle being returned below
 
     const createdCollectionHandle = await this.getCollectionHandle(
       parentCollectionHandle,
@@ -277,23 +277,63 @@ export class PersonalWorkspaceProviderService
 
     const isRootCollection = this.isAlreadyInRoot(removedCollectionID)
 
-    const parentCollectionID = this.isAlreadyInRoot(removedCollectionID)
-      ? ""
-      : removedCollectionID.split("/").slice(0, -1).join("/")
-
-    const parentCollectionSizeBeforeRemoval = isRootCollection
-      ? this.restCollectionState.value.state.length
-      : getFoldersByPath(
-          this.restCollectionState.value.state,
-          parentCollectionID
-        ).length
-
     const collectionIndexPos = isRootCollection
       ? parseInt(removedCollectionID)
       : this.pathToLastIndex(removedCollectionID)
 
-    const affectedCollectionIDRange =
-      parentCollectionSizeBeforeRemoval - 1 - collectionIndexPos
+    this.issuedHandles.forEach((handle) => {
+      if (
+        handle.value.type === "invalid" ||
+        !("requestID" in handle.value.data)
+      ) {
+        return
+      }
+
+      const { requestID } = handle.value.data
+
+      if (requestID.startsWith(removedCollectionID)) {
+        handle.value = {
+          type: "invalid",
+          reason: "REQUEST_INVALIDATED",
+        }
+
+        return
+      }
+
+      const removedCollectionIDStrLen = removedCollectionID.split("/").length
+
+      // Obtain the subset of the request ID till the removed collection ID string length
+      const requestIDSubset = requestID
+        .split("/")
+        .slice(0, removedCollectionIDStrLen)
+        .join("/")
+
+      const parentRequestIDSubset = requestIDSubset
+        .split("/")
+        .slice(0, -1)
+        .join("/")
+
+      // Obtain the index position of the matching collection ID
+      const matchingCollectionIndexPos = this.pathToLastIndex(requestIDSubset)
+
+      // If the collection lies below the removed collection, reduce the index position for child request handles by `1`
+      if (matchingCollectionIndexPos > collectionIndexPos) {
+        const newCollectionIndexPos = matchingCollectionIndexPos - 1
+        const newMatchingCollectionID = `${parentRequestIDSubset}${newCollectionIndexPos}`
+
+        const newRequestID = requestID.replace(
+          requestIDSubset,
+          newMatchingCollectionID
+        )
+
+        handle.value.data.collectionID = newRequestID
+          .split("/")
+          .slice(0, -1)
+          .join("/")
+
+        handle.value.data.requestID = newRequestID
+      }
+    })
 
     if (isRootCollection) {
       const collectionToRemove = navigateToFolderWithIndexPath(
@@ -318,82 +358,6 @@ export class PersonalWorkspaceProviderService
         folderToRemove ? folderToRemove.id : undefined
       )
     }
-
-    this.issuedHandles.forEach((handle) => {
-      if (
-        handle.value.type === "invalid" ||
-        !("requestID" in handle.value.data)
-      ) {
-        return
-      }
-
-      // TODO: Obtain collection ID from request ID instead
-      if (handle.value.data.collectionID.startsWith(removedCollectionID)) {
-        handle.value = {
-          type: "invalid",
-          reason: "REQUEST_INVALIDATED",
-        }
-      }
-    })
-
-    Array.from({
-      length: affectedCollectionIDRange,
-    }).forEach((_, idx) => {
-      const resolvedCollectionIndexPos = collectionIndexPos + idx + 1
-
-      const affectedCollectionID = parentCollectionID
-        ? `${parentCollectionID}/${resolvedCollectionIndexPos}`
-        : resolvedCollectionIndexPos.toString()
-
-      this.issuedHandles.forEach((handle) => {
-        if (
-          handle.value.type === "invalid" ||
-          !("requestID" in handle.value.data)
-        ) {
-          return
-        }
-
-        // For each affected collection, we'll have to iterate over the `issuedHandles`
-        // The collection index position which has to be reduced by `1` is computed by matching against the string representation of the affected collection ID
-        // This is done to account for nested collections under each affected collection
-        if (handle.value.data.requestID.startsWith(affectedCollectionID)) {
-          const { collectionID, requestID } = handle.value.data
-
-          // Compute the length of the string representation of the affected collection ID
-          const affectedCollectionIDStrLen =
-            affectedCollectionID.split("/").length
-
-          // Obtain a subset of the collection ID till the affected collection ID string length
-          const collectionIDSubset = collectionID
-            .split("/")
-            .slice(0, affectedCollectionIDStrLen)
-            .join("/")
-
-          // Compute the index position of the subset collection ID
-          const collectionIDSubsetIndexPos =
-            this.pathToLastIndex(collectionIDSubset)
-
-          // Replace the affected collection ID with `1` reduced from the index position
-          const newAffectedCollectionID = parentCollectionID
-            ? `${parentCollectionID}/${collectionIDSubsetIndexPos - 1}`
-            : (collectionIDSubsetIndexPos - 1).toString()
-
-          const newCollectionID = collectionID.replace(
-            affectedCollectionID,
-            newAffectedCollectionID
-          )
-
-          const newRequestID = requestID.replace(
-            affectedCollectionID,
-            newAffectedCollectionID
-          )
-
-          handle.value.data.collectionID = newCollectionID
-
-          handle.value.data.requestID = newRequestID
-        }
-      })
-    })
 
     return Promise.resolve(E.right(undefined))
   }
@@ -475,7 +439,7 @@ export class PersonalWorkspaceProviderService
       this.issuedHandles.push(writableHandle)
     }
 
-    // Verify whether a request update action is reflected correctly in the handle being returned below
+    // TODO: Verify whether a request update action is reflected correctly in the handle being returned below
 
     const createdRequestHandle = await this.getRequestHandle(
       parentCollectionHandle,
@@ -494,34 +458,20 @@ export class PersonalWorkspaceProviderService
       return Promise.resolve(E.left("INVALID_REQUEST_HANDLE" as const))
     }
 
-    const { collectionID, requestID } = requestHandleRef.value.data
-    const requestIndexPos = parseInt(requestID.split("/").slice(-1)[0])
+    const { collectionID, requestID: removedRequestID } =
+      requestHandleRef.value.data
+
+    const removedRequestIndexPos = parseInt(
+      removedRequestID.split("/").slice(-1)[0]
+    )
 
     const requestToRemove = navigateToFolderWithIndexPath(
       this.restCollectionState.value.state,
       collectionID.split("/").map((id) => parseInt(id))
-    )?.requests[requestIndexPos]
+    )?.requests[removedRequestIndexPos]
 
-    const parentCollectionSizeBeforeDeletion = getRequestsByPath(
-      this.restCollectionState.value.state,
-      collectionID
-    ).length
-
-    // Requests appearing below the request being moved will be affected by the action
-    const affectedReqIndexRange =
-      parentCollectionSizeBeforeDeletion - 1 - requestIndexPos
-
-    const affectedRequestIDs = Array.from({
-      length: affectedReqIndexRange,
-    }).map((_, idx) => {
-      // Affected request indices will start from the next position of the dragged request, hence adding `1`
-      const resolvedRequestIndexPos = requestIndexPos + idx + 1
-      return `${collectionID}/${resolvedRequestIndexPos}`
-    })
-
-    removeRESTRequest(collectionID, requestIndexPos, requestToRemove?.id)
-
-    const deletedRequestHandle = this.issuedHandles.find((handle) => {
+    // Iterate over issued handles and update affected requests
+    this.issuedHandles.forEach((handle) => {
       if (
         handle.value.type === "invalid" ||
         !("requestID" in handle.value.data)
@@ -529,46 +479,28 @@ export class PersonalWorkspaceProviderService
         return
       }
 
-      return handle.value.data.requestID === requestID
-    })
+      const { requestID } = handle.value.data
 
-    if (deletedRequestHandle) {
-      deletedRequestHandle.value = {
-        type: "invalid",
-        reason: "REQUEST_INVALIDATED",
-      }
-    }
-
-    affectedRequestIDs.forEach((requestID) => {
-      const handle = this.issuedHandles.find((handle) => {
-        if (handle.value.type === "invalid") {
-          return
+      // Invalidate the handle for the request being removed
+      if (requestID === removedRequestID) {
+        handle.value = {
+          type: "invalid",
+          reason: "REQUEST_INVALIDATED",
         }
-
-        if (!("requestID" in handle.value.data)) {
-          return
-        }
-
-        return handle.value.data.requestID === requestID
-      })
-
-      if (
-        !handle ||
-        handle.value.type === "invalid" ||
-        !("requestID" in handle.value.data)
-      ) {
         return
       }
 
-      // Decrement the index pos in affected requests due to move
-      const affectedRequestIndexPos = Number(
-        handle.value.data.requestID.split("/").slice(-1)[0]
-      )
+      const resolvedRequestIndexPos = Number(requestID.split("/").slice(-1)[0])
 
-      handle.value.data.requestID = `${collectionID}/${
-        affectedRequestIndexPos - 1
-      }`
+      // Affected requests appear below the request being removed
+      if (resolvedRequestIndexPos > removedRequestIndexPos) {
+        handle.value.data.requestID = `${collectionID}/${
+          resolvedRequestIndexPos - 1
+        }`
+      }
     })
+
+    removeRESTRequest(collectionID, removedRequestIndexPos, requestToRemove?.id)
 
     return Promise.resolve(E.right(undefined))
   }
@@ -598,15 +530,20 @@ export class PersonalWorkspaceProviderService
       workspaceType: "personal",
     })
 
-    for (const [idx, handle] of this.issuedHandles.entries()) {
-      if (handle.value.type === "invalid") continue
+    const handleToUpdate = this.issuedHandles.find((handle) => {
+      return (
+        handle.value.type === "ok" &&
+        "requestID" in handle.value.data &&
+        handle.value.data.requestID === requestID
+      )
+    })
 
-      if ("requestID" in handle.value.data) {
-        if (handle.value.data.requestID === requestID) {
-          // @ts-expect-error - We're updating the request data
-          this.issuedHandles[idx].value.data.request.name = newRequest.name
-        }
-      }
+    if (
+      handleToUpdate &&
+      handleToUpdate.value.type === "ok" &&
+      "requestID" in handleToUpdate.value.data
+    ) {
+      handleToUpdate.value.data.request.name = newRequest.name
     }
 
     return Promise.resolve(E.right(undefined))
@@ -694,16 +631,18 @@ export class PersonalWorkspaceProviderService
 
     const { collectionID: draggedCollectionID } = collectionHandleRef.value.data
 
+    const draggedCollectionIsInRoot = this.isAlreadyInRoot(draggedCollectionID)
+
     // Reorder happens under the same parent collection
-    const parentCollectionID = this.isAlreadyInRoot(draggedCollectionID)
-      ? ""
+    const parentCollectionID = draggedCollectionIsInRoot
+      ? null
       : draggedCollectionID.split("/").slice(0, -1).join("/")
 
-    const parentCollectionSize = this.isAlreadyInRoot(draggedCollectionID)
+    const parentCollectionSize = draggedCollectionIsInRoot
       ? this.restCollectionState.value.state.length
       : getFoldersByPath(
           this.restCollectionState.value.state,
-          parentCollectionID
+          parentCollectionID as string
         ).length
 
     const draggedCollectionIndexPos = this.pathToLastIndex(draggedCollectionID)
@@ -712,8 +651,8 @@ export class PersonalWorkspaceProviderService
         ? parentCollectionSize - 1
         : this.pathToLastIndex(destinationCollectionID)
 
-    // Reordering a request from top to bottom will require reducing `1` from the index position to arrive at the resultant ID
-    // This is to account for the request being moved
+    // Reordering a collection from top to bottom will require reducing `1` from the index position to arrive at the resultant ID
+    // This is to account for the collection being moved
     // This is not required for the case where the destination is the last position where the index position is computed here and not supplied from the component
     const resolvedDestinationCollectionIDPostfix =
       destinationCollectionID === null
@@ -736,85 +675,64 @@ export class PersonalWorkspaceProviderService
     )
 
     // Compile the handle indices within `issuedHandles` along with the ID to update it based on the affected collection indices
-    // This is done in 2 steps since finding the corresponding handle and updating it straightaway would result in ambiguities
+    // This is done in multiple steps since finding the corresponding handle and updating it straightaway would result in ambiguities
     // Updating the request ID for a certain handle and attempting to find the handle corresponding to the same ID in the next iteration would pick the former handle
-    const affectedCollectionHandleUpdateInfo = Array.from(
-      affectedCollectionIndices.entries()
-    ).map(([oldCollectionIndexPos, newCollectionIndexPos]) => {
-      const affectedCollectionHandleIndices: number[] = []
 
-      this.issuedHandles.forEach((handle, idx) => {
-        if (handle.value.type === "invalid") {
-          return
-        }
+    // Compile update information
+    const handleUpdateMap: Map<
+      string,
+      { oldCollectionID: string; newCollectionID: string }
+    > = new Map()
 
-        if (!("requestID" in handle.value.data)) {
-          return
-        }
+    this.issuedHandles.forEach((handle) => {
+      if (handle.value.type === "ok" && "requestID" in handle.value.data) {
+        Array.from(affectedCollectionIndices).forEach(
+          ([oldCollectionIndexPos, newCollectionIndexPos]) => {
+            const resolvedParentCollectionID =
+              parentCollectionID === null ? "" : `${parentCollectionID}/`
 
-        if (
-          handle.value.data.requestID.startsWith(
-            parentCollectionID
-              ? `${parentCollectionID}/${oldCollectionIndexPos}`
-              : // Requests directly under root collection
-                oldCollectionIndexPos.toString()
+            const oldCollectionID = `${resolvedParentCollectionID}${oldCollectionIndexPos}`
+            const newCollectionID = `${resolvedParentCollectionID}${newCollectionIndexPos}`
+
+            if (
+              handle.value.type === "ok" &&
+              "requestID" in handle.value.data &&
+              handle.value.data.requestID.startsWith(oldCollectionID)
+            ) {
+              handleUpdateMap.set(handle.value.data.requestID, {
+                oldCollectionID,
+                newCollectionID,
+              })
+            }
+          }
+        )
+      }
+    })
+
+    // Apply collected updates
+    this.issuedHandles.forEach((handle) => {
+      if (handle.value.type === "ok" && "requestID" in handle.value.data) {
+        const { collectionID, requestID } = handle.value.data
+
+        const updateInfo = handleUpdateMap.get(requestID)
+
+        if (updateInfo) {
+          const { oldCollectionID, newCollectionID } = updateInfo
+
+          handle.value.data.collectionID = collectionID.replace(
+            oldCollectionID,
+            newCollectionID
           )
-        ) {
-          affectedCollectionHandleIndices.push(idx)
-        }
-      })
 
-      return {
-        affectedCollectionHandleIndices,
-        oldCollectionIndexPos,
-        newCollectionIndexPos,
+          handle.value.data.requestID = requestID.replace(
+            oldCollectionID,
+            newCollectionID
+          )
+        }
       }
     })
 
     updateRESTCollectionOrder(draggedCollectionID, destinationCollectionID)
-
-    affectedCollectionHandleUpdateInfo.forEach(
-      ({
-        affectedCollectionHandleIndices,
-        oldCollectionIndexPos,
-        newCollectionIndexPos,
-      }) => {
-        affectedCollectionHandleIndices.forEach(
-          (affectedCollectionHandleIdx: number) => {
-            const handle = this.issuedHandles[affectedCollectionHandleIdx]
-
-            if (
-              !handle ||
-              handle.value.type === "invalid" ||
-              !("requestID" in handle.value.data)
-            ) {
-              return
-            }
-
-            const { collectionID, requestID } = handle.value.data
-
-            const oldCollectionID = parentCollectionID
-              ? `${parentCollectionID}/${oldCollectionIndexPos}`
-              : oldCollectionIndexPos.toString()
-
-            const newCollectionID = parentCollectionID
-              ? `${parentCollectionID}/${newCollectionIndexPos}`
-              : // Requests directly under root collection
-                newCollectionIndexPos.toString()
-
-            handle.value.data.collectionID = collectionID.replace(
-              oldCollectionID,
-              newCollectionID
-            )
-
-            handle.value.data.requestID = requestID.replace(
-              oldCollectionID,
-              newCollectionID
-            )
-          }
-        )
-      }
-    )
 
     return Promise.resolve(E.right(undefined))
   }
@@ -832,11 +750,13 @@ export class PersonalWorkspaceProviderService
     }
     const { collectionID: draggedCollectionID } = collectionHandleRef.value.data
 
-    const draggedParentCollectionID = this.isAlreadyInRoot(draggedCollectionID)
+    const draggedCollectionIsInRoot = this.isAlreadyInRoot(draggedCollectionID)
+
+    const draggedParentCollectionID = draggedCollectionIsInRoot
       ? draggedCollectionID
       : draggedCollectionID.split("/").slice(0, -1).join("/")
 
-    const isMoveToSiblingCollection = this.isAlreadyInRoot(draggedCollectionID)
+    const isMoveToSiblingCollection = draggedCollectionIsInRoot
       ? destinationCollectionID === null
         ? // Move to root
           this.restCollectionState.value.state.length.toString()
@@ -896,9 +816,7 @@ export class PersonalWorkspaceProviderService
           `${destinationParentCollectionIDSubset}/${collectionIDSubsetIndexPos}`
         )
 
-        const resolvedDestinationCollectionIDPrefix = this.isAlreadyInRoot(
-          draggedCollectionID
-        )
+        const resolvedDestinationCollectionIDPrefix = draggedCollectionIsInRoot
           ? collectionIDSubsetIndexPos
           : replacedDestinationCollectionID
 
@@ -908,9 +826,7 @@ export class PersonalWorkspaceProviderService
       }
     }
 
-    const draggedParentCollectionSize = this.isAlreadyInRoot(
-      draggedCollectionID
-    )
+    const draggedParentCollectionSize = draggedCollectionIsInRoot
       ? this.restCollectionState.value.state.length
       : getFoldersByPath(
           this.restCollectionState.value.state,
@@ -920,83 +836,45 @@ export class PersonalWorkspaceProviderService
     const affectedParentCollectionIDRange =
       draggedParentCollectionSize - 1 - draggedCollectionIndexPos
 
-    moveRESTFolder(
-      collectionHandleRef.value.data.collectionID,
-      destinationCollectionID
-    )
-
-    const affectedIDs: Record<
+    const affectedIDsMap = new Map<
       string,
       { collectionID: string; requestID: string }
-    > = {}
+    >()
 
+    // Compile the new collection and request IDs for the requests under the dragged collection
     this.issuedHandles.forEach((handle) => {
-      if (handle.value.type === "invalid") {
-        return
-      }
-
-      if (!("requestID" in handle.value.data)) {
+      if (
+        handle.value.type === "invalid" ||
+        !("requestID" in handle.value.data)
+      ) {
         return
       }
 
       const { collectionID, requestID } = handle.value.data
-
-      const affectedRequestIndexPos = requestID.slice(-1)[0]
 
       if (requestID.startsWith(draggedCollectionID)) {
         const newCollectionID = collectionID.replace(
           draggedCollectionID,
           resolvedDestinationCollectionID
         )
-
-        affectedIDs[requestID] = {
+        const affectedRequestIndexPos = requestID.split("/").slice(-1)[0]
+        affectedIDsMap.set(requestID, {
           collectionID: newCollectionID,
           requestID: `${newCollectionID}/${affectedRequestIndexPos}`,
-        }
+        })
       }
     })
 
-    Array.from({ length: affectedParentCollectionIDRange }).forEach(
-      (_, idx) => {
-        // Adding `1` to dragged collection index position to get the affected collection index position
-        const affectedCollectionIndexPos = draggedCollectionIndexPos + idx + 1
+    // Compile the new collection and request IDs for the requests under the affected collections due to the move
+    for (let idx = 1; idx <= affectedParentCollectionIDRange; idx++) {
+      const affectedCollectionIndexPos = draggedCollectionIndexPos + idx
 
-        const affectedCollectionID = `${draggedParentCollectionID}/${affectedCollectionIndexPos}`
+      const affectedCollectionID = `${draggedParentCollectionID}/${affectedCollectionIndexPos}`
+      const newAffectedCollectionID = `${draggedParentCollectionID}/${
+        affectedCollectionIndexPos - 1
+      }`
 
-        // The index position will be reduced by `1` for the affected collections
-        const newAffectedCollectionID = `${draggedParentCollectionID}/${
-          affectedCollectionIndexPos - 1
-        }`
-
-        // For each affected collection, we'll have to iterate over the `issuedHandles` to account for nested collections
-        this.issuedHandles.forEach((handle) => {
-          if (
-            handle.value.type === "invalid" ||
-            !("requestID" in handle.value.data)
-          ) {
-            return
-          }
-
-          if (handle.value.data.requestID.startsWith(affectedCollectionID)) {
-            const { collectionID, requestID } = handle.value.data
-
-            affectedIDs[requestID] = {
-              collectionID: collectionID.replace(
-                affectedCollectionID,
-                newAffectedCollectionID
-              ),
-              requestID: requestID.replace(
-                affectedCollectionID,
-                newAffectedCollectionID
-              ),
-            }
-          }
-        })
-      }
-    )
-
-    Object.keys(affectedIDs).forEach((requestID) => {
-      const handle = this.issuedHandles.find((handle) => {
+      this.issuedHandles.forEach((handle) => {
         if (
           handle.value.type === "invalid" ||
           !("requestID" in handle.value.data)
@@ -1004,20 +882,45 @@ export class PersonalWorkspaceProviderService
           return
         }
 
-        return handle.value.data.requestID === requestID
-      })
+        if (handle.value.data.requestID.startsWith(affectedCollectionID)) {
+          const { collectionID, requestID } = handle.value.data
 
+          affectedIDsMap.set(requestID, {
+            collectionID: collectionID.replace(
+              affectedCollectionID,
+              newAffectedCollectionID
+            ),
+
+            requestID: requestID.replace(
+              affectedCollectionID,
+              newAffectedCollectionID
+            ),
+          })
+        }
+      })
+    }
+
+    // Apply updates at the last phase to avoid ambiguities based on the compiled affected IDs
+    this.issuedHandles.forEach((handle) => {
       if (
-        !handle ||
         handle.value.type === "invalid" ||
         !("requestID" in handle.value.data)
       ) {
         return
       }
 
-      handle.value.data.collectionID = affectedIDs[requestID].collectionID
-      handle.value.data.requestID = affectedIDs[requestID].requestID
+      const affectedIDs = affectedIDsMap.get(handle.value.data.requestID)
+
+      if (affectedIDs) {
+        handle.value.data.collectionID = affectedIDs.collectionID
+        handle.value.data.requestID = affectedIDs.requestID
+      }
     })
+
+    moveRESTFolder(
+      collectionHandleRef.value.data.collectionID,
+      destinationCollectionID
+    )
 
     return Promise.resolve(E.right(undefined))
   }
@@ -1074,49 +977,55 @@ export class PersonalWorkspaceProviderService
     // Compile the handle indices within `issuedHandles` along with the ID to update it based on the affected request indices
     // This is done in 2 steps since finding the corresponding handle and updating it straightaway would result in ambiguities
     // Updating the request ID for a certain handle and attempting to find the handle corresponding to the same ID would pick the former handle
-    const affectedRequestHandleUpdateInfo = Array.from(
-      affectedRequestIndices.entries()
-    ).map(([oldRequestIndexPos, newRequestIndexPos]) => {
-      const affectedRequestHandleIdx = this.issuedHandles.findIndex(
-        (handle) => {
-          if (handle.value.type === "invalid") {
-            return
-          }
 
-          if (!("requestID" in handle.value.data)) {
-            return
-          }
+    // Construct a map with the handle index positions from the `issuedHandles`array  mapped to the respective request IDs
+    const handleIdxMap = new Map()
 
-          return (
-            handle.value.data.requestID ===
-            `${collectionID}/${oldRequestIndexPos}`
-          )
-        }
-      )
-
-      return { affectedRequestHandleIdx, newRequestIndexPos }
+    this.issuedHandles.forEach((handle, idx) => {
+      if (handle.value.type === "ok" && "requestID" in handle.value.data) {
+        const { requestID } = handle.value.data
+        handleIdxMap.set(requestID, idx)
+      }
     })
+
+    const affectedRequestHandleIndices: {
+      affectedRequestHandleIdx: number
+      newRequestIndexPos: number
+    }[] = []
+
+    // Compile a list with the affected request handle index positions from the `issuedHandles` array and the new request index position
+    Array.from(affectedRequestIndices).forEach(
+      ([oldRequestIndexPos, newRequestIndexPos]) => {
+        const requestID = `${collectionID}/${oldRequestIndexPos}`
+        const affectedRequestHandleIdx = handleIdxMap.get(requestID)
+
+        if (Number.isFinite(affectedRequestHandleIdx)) {
+          affectedRequestHandleIndices.push({
+            affectedRequestHandleIdx,
+            newRequestIndexPos,
+          })
+        }
+      }
+    )
+
+    // Update the request IDs for the affected handles
+    affectedRequestHandleIndices.forEach(
+      ({ affectedRequestHandleIdx, newRequestIndexPos }) => {
+        const handle = this.issuedHandles[affectedRequestHandleIdx]
+        if (
+          handle &&
+          handle.value.type === "ok" &&
+          "requestID" in handle.value.data
+        ) {
+          handle.value.data.requestID = `${collectionID}/${newRequestIndexPos}`
+        }
+      }
+    )
 
     updateRESTRequestOrder(
       this.pathToLastIndex(draggedRequestID),
       destinationRequestID ? destinationRequestIndexPos : null,
       collectionID
-    )
-
-    affectedRequestHandleUpdateInfo.forEach(
-      ({ affectedRequestHandleIdx, newRequestIndexPos }) => {
-        const handle = this.issuedHandles[affectedRequestHandleIdx]
-
-        if (
-          !handle ||
-          handle.value.type === "invalid" ||
-          !("requestID" in handle.value.data)
-        ) {
-          return
-        }
-
-        handle.value.data.requestID = `${collectionID}/${newRequestIndexPos}`
-      }
     )
 
     return Promise.resolve(E.right(undefined))
@@ -1132,97 +1041,69 @@ export class PersonalWorkspaceProviderService
       return Promise.resolve(E.left("INVALID_REQUEST_HANDLE" as const))
     }
 
-    const { requestID: draggedRequestID } = requestHandleRef.value.data
-    const sourceCollectionID = draggedRequestID
-      .split("/")
-      .slice(0, -1)
-      .join("/")
+    const {
+      collectionID: draggedRequestCollectionID,
+      requestID: draggedRequestID,
+    } = requestHandleRef.value.data
 
     const draggedRequestIndexPos = this.pathToLastIndex(draggedRequestID)
 
+    // Iterate over issued handles to find the dragged request handle
     const draggedRequestHandle = this.issuedHandles.find((handle) => {
-      if (handle.value.type === "invalid") {
-        return
-      }
-
-      if (!("requestID" in handle.value.data)) {
-        return
-      }
-
-      return handle.value.data.requestID === draggedRequestID
+      return (
+        handle.value.type === "ok" &&
+        "requestID" in handle.value.data &&
+        handle.value.data?.requestID === draggedRequestID
+      )
     })
 
-    if (
-      !draggedRequestHandle ||
-      draggedRequestHandle.value.type === "invalid" ||
-      !("requestID" in draggedRequestHandle.value.data)
-    ) {
+    if (!draggedRequestHandle) {
       return Promise.resolve(E.left("INVALID_REQUEST_HANDLE" as const))
     }
-
-    const draggedCollectionReqCountBeforeMove = getRequestsByPath(
-      this.restCollectionState.value.state,
-      sourceCollectionID
-    ).length
-
-    // Requests appearing below the request being moved will be affected by the action
-    const affectedReqIndexRange =
-      draggedCollectionReqCountBeforeMove - 1 - draggedRequestIndexPos
-
-    const affectedRequestIDs = Array.from({
-      length: affectedReqIndexRange,
-    }).map((_, idx) => {
-      // Affected request indices will start from the next position of the dragged request, hence adding `1`
-      const resolvedRequestIndexPos = draggedRequestIndexPos + idx + 1
-      return `${sourceCollectionID}/${resolvedRequestIndexPos}`
-    })
-
-    moveRESTRequest(
-      sourceCollectionID,
-      draggedRequestIndexPos,
-      destinationCollectionID
-    )
 
     const destinationCollectionReqCount = getRequestsByPath(
       this.restCollectionState.value.state,
       destinationCollectionID
     ).length
 
-    draggedRequestHandle.value.data.collectionID = destinationCollectionID
-    draggedRequestHandle.value.data.requestID = `${destinationCollectionID}/${
-      destinationCollectionReqCount - 1
-    }`
-
-    affectedRequestIDs.forEach((requestID) => {
-      const handle = this.issuedHandles.find((handle) => {
-        if (handle.value.type === "invalid") {
-          return
-        }
-
-        if (!("requestID" in handle.value.data)) {
-          return
-        }
-
-        return handle.value.data.requestID === requestID
-      })
-
+    // Iterate over issued handles and update affected requests
+    this.issuedHandles.forEach((handle) => {
       if (
-        !handle ||
         handle.value.type === "invalid" ||
         !("requestID" in handle.value.data)
       ) {
         return
       }
 
-      // Decrement the index position in affected requests due to move
-      const affectedRequestIndexPos = Number(
-        handle.value.data.requestID.split("/").slice(-1)[0]
-      )
+      const { requestID } = handle.value.data
 
-      handle.value.data.requestID = `${sourceCollectionID}/${
-        affectedRequestIndexPos - 1
-      }`
+      // Update the dragged request handle to the new collection
+      if (requestID === draggedRequestID) {
+        handle.value.data.collectionID = destinationCollectionID
+        handle.value.data.requestID = `${destinationCollectionID}/${destinationCollectionReqCount}`
+        return
+      }
+
+      // Check if this request is in the same collection as the dragged request
+      if (requestID.startsWith(draggedRequestCollectionID)) {
+        const resolvedRequestIndexPos = Number(
+          requestID.split("/").slice(-1)[0]
+        )
+
+        // If the request is below the dragged request, it needs to be updated
+        if (resolvedRequestIndexPos > draggedRequestIndexPos) {
+          handle.value.data.requestID = `${draggedRequestCollectionID}/${
+            resolvedRequestIndexPos - 1
+          }`
+        }
+      }
     })
+
+    moveRESTRequest(
+      draggedRequestCollectionID,
+      draggedRequestIndexPos,
+      destinationCollectionID
+    )
 
     return Promise.resolve(E.right(undefined))
   }

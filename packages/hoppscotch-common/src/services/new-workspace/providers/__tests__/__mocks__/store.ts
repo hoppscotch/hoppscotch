@@ -24,7 +24,7 @@ enum MoveRestCollectionActions {
 
 const defaultRESTRequest = getDefaultRESTRequest()
 
-export const MOVE_REST_REQUEST: Record<
+export const MOVE_REST_REQUEST_STORE_MOCK: Record<
   MoveRestRequestActions,
   HoppCollection[]
 > = {
@@ -221,7 +221,7 @@ export const MOVE_REST_REQUEST: Record<
   ],
 }
 
-export const REORDER_REST_REQUEST: Record<
+export const REORDER_REST_REQUEST_STORE_MOCK: Record<
   ReorderRestRequestActions,
   HoppCollection[]
 > = {
@@ -313,7 +313,7 @@ export const REORDER_REST_REQUEST: Record<
   ],
 }
 
-export const REORDER_REST_COLLECTION: Record<
+export const REORDER_REST_COLLECTION_STORE_MOCK: Record<
   ReorderRestCollectionActions,
   HoppCollection[]
 > = {
@@ -641,7 +641,7 @@ export const REORDER_REST_COLLECTION: Record<
   ],
 }
 
-export const MOVE_REST_COLLECTION: Record<
+export const MOVE_REST_COLLECTION_STORE_MOCK: Record<
   MoveRestCollectionActions,
   HoppCollection[]
 > = {
@@ -1420,3 +1420,197 @@ export const MOVE_REST_COLLECTION: Record<
     },
   ],
 }
+
+export const REMOVE_REST_REQUEST_STORE_MOCK: HoppCollection[] = [
+  {
+    id: "clx8wsqct000026afru5edhot",
+    v: 2,
+    name: "coll-0",
+    folders: [],
+    requests: [
+      {
+        ...defaultRESTRequest,
+        name: "req-0/0",
+      },
+      {
+        ...defaultRESTRequest,
+        name: "req-0/1",
+      },
+      {
+        ...defaultRESTRequest,
+        name: "req-0/2",
+      },
+      {
+        ...defaultRESTRequest,
+        name: "req-0/3",
+      },
+      {
+        ...defaultRESTRequest,
+        name: "req-0/4",
+      },
+      {
+        ...defaultRESTRequest,
+        name: "req-0/5",
+      },
+    ],
+    auth: {
+      authType: "inherit",
+      authActive: false,
+    },
+    headers: [],
+  },
+]
+
+export const REMOVE_REST_COLLECTION_STORE_MOCK: HoppCollection[] = [
+  {
+    id: "clx916vy6000it2ukcrhuuxjp",
+    v: 2,
+    name: "coll-0",
+    folders: [
+      {
+        id: "clx917bz3000lt2ukuz89ixwq",
+        v: 2,
+        name: "coll-0/0/0",
+        folders: [
+          {
+            v: 2,
+            name: "coll-0/0/0/0",
+            folders: [],
+            requests: [
+              {
+                ...defaultRESTRequest,
+                name: "req-0/0/0/0/0",
+              },
+              {
+                ...defaultRESTRequest,
+                name: "req-0/0/0/0/1",
+              },
+            ],
+            auth: {
+              authType: "inherit",
+              authActive: true,
+            },
+            headers: [],
+            id: "clx91afkh000ut2uks2mnueps",
+          },
+        ],
+        requests: [
+          {
+            ...defaultRESTRequest,
+            name: "req-0/0/0/0",
+          },
+          {
+            ...defaultRESTRequest,
+            name: "req-0/0/0/1",
+          },
+        ],
+        auth: {
+          authType: "inherit",
+          authActive: false,
+        },
+        headers: [],
+      },
+    ],
+    requests: [
+      {
+        ...defaultRESTRequest,
+        name: "req-0/0",
+      },
+      {
+        ...defaultRESTRequest,
+        name: "req-0/1",
+      },
+    ],
+    auth: {
+      authType: "inherit",
+      authActive: false,
+    },
+    headers: [],
+  },
+  {
+    name: "coll-1",
+    folders: [
+      {
+        v: 2,
+        name: "coll-1/0",
+        folders: [],
+        requests: [
+          {
+            ...defaultRESTRequest,
+            name: "req-1/0/0",
+          },
+          {
+            ...defaultRESTRequest,
+            name: "req-1/0/1",
+          },
+        ],
+        auth: {
+          authType: "inherit",
+          authActive: true,
+        },
+        headers: [],
+        id: "clx93q089001dt2ukdpo6jbf6",
+      },
+    ],
+    requests: [
+      {
+        ...defaultRESTRequest,
+        name: "req-1/0",
+      },
+      {
+        ...defaultRESTRequest,
+        name: "req-1/1",
+      },
+    ],
+    v: 2,
+    auth: {
+      authType: "inherit",
+      authActive: false,
+    },
+    headers: [],
+    id: "clx93ptr7001bt2ukp601s0qg",
+  },
+  {
+    name: "coll-2",
+    folders: [
+      {
+        v: 2,
+        name: "coll-2/0",
+        folders: [],
+        requests: [
+          {
+            ...defaultRESTRequest,
+            name: "req-2/0/0",
+          },
+          {
+            ...defaultRESTRequest,
+            name: "req-2/0/1",
+          },
+        ],
+        auth: {
+          authType: "inherit",
+          authActive: true,
+        },
+        headers: [],
+        id: "clx93q4gx001et2ukbfyc4x1n",
+      },
+    ],
+    requests: [
+      {
+        ...defaultRESTRequest,
+        name: "req-2/0",
+      },
+      {
+        ...defaultRESTRequest,
+        name: "req-2/1",
+      },
+    ],
+    v: 2,
+    auth: {
+      authType: "inherit",
+      authActive: false,
+    },
+    headers: [],
+    id: "clx93pwad001ct2uk33a1jzjh",
+  },
+]

@@ -31,7 +31,7 @@
             </template>
             <template #suffix>
               <span
-                v-if="tab.document.isDirty"
+                v-if="getTabDirtyStatus(tab)"
                 class="flex w-4 items-center justify-center text-secondary group-hover:hidden"
               >
                 <svg
@@ -65,42 +65,19 @@
       @hide-modal="showRenamingReqNameModal = false"
     />
     <HoppSmartConfirmModal
+      :show="confirmingCloseForTabID !== null"
+      :confirm="t('modal.close_unsaved_tab')"
+      :title="t('confirm.save_unsaved_tab')"
+      @hide-modal="onCloseConfirmSaveTab"
+      @resolve="onResolveConfirmSaveTab"
+    />
+    <HoppSmartConfirmModal
       :show="confirmingCloseAllTabs"
       :confirm="t('modal.close_unsaved_tab')"
       :title="t('confirm.close_unsaved_tabs', { count: unsavedTabsCount })"
       @hide-modal="confirmingCloseAllTabs = false"
       @resolve="onResolveConfirmCloseAllTabs"
     />
-    <HoppSmartModal
-      v-if="confirmingCloseForTabID !== null"
-      dialog
-      role="dialog"
-      aria-modal="true"
-      :title="t('modal.close_unsaved_tab')"
-      @close="confirmingCloseForTabID = null"
-    >
-      <template #body>
-        <div class="text-center">
-          {{ t("confirm.save_unsaved_tab") }}
-        </div>
-      </template>
-      <template #footer>
-        <span class="flex space-x-2">
-          <HoppButtonPrimary
-            v-focus
-            :label="t?.('action.yes')"
-            outline
-            @click="onResolveConfirmSaveTab"
-          />
-          <HoppButtonSecondary
-            :label="t?.('action.no')"
-            filled
-            outline
-            @click="onCloseConfirmSaveTab"
-          />
-        </span>
-      </template>
-    </HoppSmartModal>
     <CollectionsSaveRequest
       v-if="savingRequest"
       mode="rest"
@@ -118,24 +95,24 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted } from "vue"
-import { safelyExtractRESTRequest } from "@hoppscotch/data"
-import { translateExtURLParams } from "~/helpers/RESTExtURLParams"
-import { useRoute } from "vue-router"
 import { useI18n } from "@composables/i18n"
-import { getDefaultRESTRequest } from "~/helpers/rest/default"
-import { defineActionHandler, invokeAction } from "~/helpers/actions"
-import { platform } from "~/platform"
-import { useReadonlyStream } from "~/composables/stream"
+import { safelyExtractRESTRequest } from "@hoppscotch/data"
 import { useService } from "dioc/vue"
-import { InspectionService } from "~/services/inspection"
-import { HeaderInspectorService } from "~/services/inspection/inspectors/header.inspector"
-import { EnvironmentInspectorService } from "~/services/inspection/inspectors/environment.inspector"
-import { ResponseInspectorService } from "~/services/inspection/inspectors/response.inspector"
 import { cloneDeep } from "lodash-es"
-import { RESTTabService } from "~/services/tab/rest"
-import { HoppTab } from "~/services/tab"
+import { onMounted, ref } from "vue"
+import { useRoute } from "vue-router"
+import { useReadonlyStream } from "~/composables/stream"
+import { translateExtURLParams } from "~/helpers/RESTExtURLParams"
+import { defineActionHandler, invokeAction } from "~/helpers/actions"
+import { getDefaultRESTRequest } from "~/helpers/rest/default"
 import { HoppRESTDocument } from "~/helpers/rest/document"
+import { platform } from "~/platform"
+import { InspectionService } from "~/services/inspection"
+import { EnvironmentInspectorService } from "~/services/inspection/inspectors/environment.inspector"
+import { HeaderInspectorService } from "~/services/inspection/inspectors/header.inspector"
+import { ResponseInspectorService } from "~/services/inspection/inspectors/response.inspector"
+import { HoppTab } from "~/services/tab"
+import { RESTTabService } from "~/services/tab/rest"
 
 const savingRequest = ref(false)
 const confirmingCloseForTabID = ref<string | null>(null)
@@ -216,7 +193,7 @@ const inspectionService = useService(InspectionService)
 const removeTab = (tabID: string) => {
   const tabState = tabs.getTabRef(tabID).value
 
-  if (tabState.document.isDirty) {
+  if (getTabDirtyStatus(tabState)) {
     confirmingCloseForTabID.value = tabID
   } else {
     tabs.closeTab(tabState.id)
@@ -225,8 +202,10 @@ const removeTab = (tabID: string) => {
 }
 
 const closeOtherTabsAction = (tabID: string) => {
-  const isTabDirty = tabs.getTabRef(tabID).value?.document.isDirty
   const dirtyTabCount = tabs.getDirtyTabsCount()
+
+  const isTabDirty = getTabDirtyStatus(tabs.getTabRef(tabID).value)
+
   // If current tab is dirty, so we need to subtract 1 from the dirty tab count
   const balanceDirtyTabCount = isTabDirty ? dirtyTabCount - 1 : dirtyTabCount
 
@@ -291,15 +270,24 @@ const onCloseConfirmSaveTab = () => {
  * Called when the user confirms they want to save the tab
  */
 const onResolveConfirmSaveTab = () => {
-  if (tabs.currentActiveTab.value.document.saveContext) {
-    invokeAction("request.save")
+  const { saveContext } = tabs.currentActiveTab.value.document
 
-    if (confirmingCloseForTabID.value) {
-      tabs.closeTab(confirmingCloseForTabID.value)
-      confirmingCloseForTabID.value = null
-    }
-  } else {
-    savingRequest.value = true
+  // There're two cases where the save request under a collection modal should open
+  // 1. Attempting to save a request that is not under a collection (When the save context is not available)
+  // 2. Deleting a request from the collection tree and attempting to save it while closing the respective tab (When the request handle is invalid)
+  if (
+    !saveContext ||
+    (saveContext.originLocation === "workspace-user-collection" &&
+      saveContext.requestHandle?.get().value.type === "invalid")
+  ) {
+    return (savingRequest.value = true)
+  }
+
+  invokeAction("request.save")
+
+  if (confirmingCloseForTabID.value) {
+    tabs.closeTab(confirmingCloseForTabID.value)
+    confirmingCloseForTabID.value = null
   }
 }
 
@@ -325,6 +313,17 @@ const shareTabRequest = (tabID: string) => {
       invokeAction("modals.login.toggle")
     }
   }
+}
+
+const getTabDirtyStatus = (tab: HoppTab<HoppRESTDocument>) => {
+  if (tab.document.isDirty) {
+    return true
+  }
+
+  return (
+    tab.document.saveContext?.originLocation === "workspace-user-collection" &&
+    tab.document.saveContext.requestHandle?.get().value.type === "invalid"
+  )
 }
 
 defineActionHandler("contextmenu.open", ({ position, text }) => {

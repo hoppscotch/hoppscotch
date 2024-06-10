@@ -121,6 +121,11 @@ export class InspectionService extends Service {
   }
 
   private initializeListeners() {
+    console.log(
+      `Current active tab from inspection service is `,
+      this.restTab.currentActiveTab.value
+    )
+
     watch(
       () => [this.inspectors.entries(), this.restTab.currentActiveTab.value.id],
       () => {

@@ -37,7 +37,7 @@ import IconFolderPlus from "~icons/lucide/folder-plus"
 import IconPostman from "~icons/hopp/postman"
 import IconInsomnia from "~icons/hopp/insomnia"
 import IconUser from "~icons/lucide/user"
-import { initializeDownloadCollection } from "~/helpers/import-export/export"
+import { initializeDownloadFile } from "~/helpers/import-export/export"
 import { computed } from "vue"
 import { useReadonlyStream } from "~/composables/stream"
 import { environmentsExporter } from "~/helpers/import-export/export/environments"
@@ -230,12 +230,12 @@ const HoppEnvironmentsExport: ImporterOrExporter = {
     disabled: false,
     applicableTo: ["personal-workspace", "team-workspace"],
   },
-  action: () => {
+  action: async () => {
     if (!environmentJson.value.length) {
       return toast.error(t("error.no_environments_to_export"))
     }
 
-    const message = initializeDownloadCollection(
+    const message = await initializeDownloadFile(
       environmentsExporter(environmentJson.value),
       "Environments"
     )

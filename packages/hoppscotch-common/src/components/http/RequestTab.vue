@@ -17,8 +17,7 @@
 <script setup lang="ts">
 import { watch } from "vue"
 import { useVModel } from "@vueuse/core"
-import { cloneDeep } from "lodash-es"
-import { isEqualHoppRESTRequest } from "@hoppscotch/data"
+import { cloneDeep, isEqual } from "lodash-es"
 import { HoppTab } from "~/services/tab"
 import { HoppRESTDocument } from "~/helpers/rest/document"
 
@@ -32,15 +31,42 @@ const emit = defineEmits<{
 
 const tab = useVModel(props, "modelValue", emit)
 
-// TODO: Come up with a better dirty check
 let oldRequest = cloneDeep(tab.value.document.request)
+
 watch(
   () => tab.value.document.request,
   (updatedValue) => {
+    // Request from the collection tree
     if (
-      !tab.value.document.isDirty &&
-      !isEqualHoppRESTRequest(oldRequest, updatedValue)
+      tab.value.document.saveContext?.originLocation ===
+      "workspace-user-collection"
     ) {
+      const requestHandleRef =
+        tab.value.document.saveContext.requestHandle?.get()
+
+      if (!requestHandleRef || requestHandleRef.value.type === "invalid") {
+        return
+      }
+
+      if (
+        !tab.value.document.isDirty &&
+        !isEqual(oldRequest, requestHandleRef?.value.data.request)
+      ) {
+        tab.value.document.isDirty = true
+      }
+
+      if (
+        tab.value.document.isDirty &&
+        isEqual(oldRequest, requestHandleRef?.value.data.request)
+      ) {
+        tab.value.document.isDirty = false
+      }
+
+      return
+    }
+
+    // Unsaved request
+    if (!tab.value.document.isDirty && !isEqual(oldRequest, updatedValue)) {
       tab.value.document.isDirty = true
     }
 

@@ -100,11 +100,15 @@ const props = withDefaults(
     editingProperties: EditingProperties | null
     source: "REST" | "GraphQL"
     modelValue: string
+    // TODO: Purpose of this prop is to maintain backwards compatibility
+    // To be removed after porting all usages of this component
+    emitWithFullCollection: boolean
   }>(),
   {
     show: false,
     loadingState: false,
     editingProperties: null,
+    emitWithFullCollection: true,
   }
 )
 

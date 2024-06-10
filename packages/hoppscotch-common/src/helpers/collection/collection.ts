@@ -1,12 +1,15 @@
 import { HoppCollection } from "@hoppscotch/data"
-import { getAffectedIndexes } from "./affectedIndex"
-import { GetSingleRequestDocument } from "../backend/graphql"
-import { runGQLQuery } from "../backend/GQLClient"
 import * as E from "fp-ts/Either"
+
 import { getService } from "~/modules/dioc"
-import { RESTTabService } from "~/services/tab/rest"
-import { HoppInheritedProperty } from "../types/HoppInheritedProperties"
 import { GQLTabService } from "~/services/tab/graphql"
+import { RESTTabService } from "~/services/tab/rest"
+import { runGQLQuery } from "../backend/GQLClient"
+import { GetSingleRequestDocument } from "../backend/graphql"
+import { HoppGQLSaveContext } from "../graphql/document"
+import { HoppRESTSaveContext } from "../rest/document"
+import { HoppInheritedProperty } from "../types/HoppInheritedProperties"
+import { getAffectedIndexes } from "./affectedIndex"
 
 /**
  * Resolve save context on reorder
@@ -18,15 +21,12 @@ import { GQLTabService } from "~/services/tab/graphql"
  * @returns
  */
 
-export function resolveSaveContextOnCollectionReorder(
-  payload: {
-    lastIndex: number
-    newIndex: number
-    folderPath: string
-    length?: number // better way to do this? now it could be undefined
-  },
-  type: "remove" | "drop" = "remove"
-) {
+export function resolveSaveContextOnCollectionReorder(payload: {
+  lastIndex: number
+  newIndex: number
+  folderPath: string
+  length?: number // better way to do this? now it could be undefined
+}) {
   const { lastIndex, folderPath, length } = payload
   let { newIndex } = payload
 
@@ -41,12 +41,6 @@ export function resolveSaveContextOnCollectionReorder(
   if (newIndex === -1) {
     // if (newIndex === -1) remove it from the map because it will be deleted
     affectedIndexes.delete(lastIndex)
-    // when collection deleted opended requests from that collection be affected
-    if (type === "remove") {
-      resetSaveContextForAffectedRequests(
-        folderPath ? `${folderPath}/${lastIndex}` : lastIndex.toString()
-      )
-    }
   }
 
   // add folder path as prefix to the affected indexes
@@ -62,10 +56,27 @@ export function resolveSaveContextOnCollectionReorder(
   const tabService = getService(RESTTabService)
 
   const tabs = tabService.getTabsRefTo((tab) => {
-    return (
-      tab.document.saveContext?.originLocation === "user-collection" &&
-      affectedPaths.has(tab.document.saveContext.folderPath)
-    )
+    if (tab.document.saveContext?.originLocation === "user-collection") {
+      return affectedPaths.has(tab.document.saveContext.folderPath)
+    }
+
+    if (
+      tab.document.saveContext?.originLocation !== "workspace-user-collection"
+    ) {
+      return false
+    }
+
+    const requestHandleRef = tab.document.saveContext.requestHandle?.get()
+
+    if (!requestHandleRef || requestHandleRef.value.type === "invalid") {
+      return false
+    }
+
+    const { requestID } = requestHandleRef.value.data
+
+    const collectionID = requestID.split("/").slice(0, -1).join("/")
+
+    return affectedPaths.has(collectionID)
   })
 
   for (const tab of tabs) {
@@ -74,6 +85,34 @@ export function resolveSaveContextOnCollectionReorder(
         tab.value.document.saveContext?.folderPath
       )!
       tab.value.document.saveContext.folderPath = newPath
+    }
+
+    if (
+      tab.value.document.saveContext?.originLocation !==
+      "workspace-user-collection"
+    ) {
+      return false
+    }
+
+    const requestHandleRef = tab.value.document.saveContext.requestHandle?.get()
+
+    if (!requestHandleRef || requestHandleRef.value.type === "invalid") {
+      return false
+    }
+
+    const { requestID } = requestHandleRef.value.data
+
+    const collectionID = requestID.split("/").slice(0, -1).join("/")
+
+    const newCollectionID = affectedPaths.get(collectionID)
+    const newRequestID = `${newCollectionID}/${
+      requestID.split("/").slice(-1)[0]
+    }`
+
+    requestHandleRef.value.data = {
+      ...requestHandleRef.value.data,
+      collectionID: newCollectionID!,
+      requestID: newRequestID,
     }
   }
 }
@@ -86,25 +125,63 @@ export function resolveSaveContextOnCollectionReorder(
  */
 
 export function updateSaveContextForAffectedRequests(
-  oldFolderPath: string,
-  newFolderPath: string
+  draggedCollectionIndex: string,
+  destinationCollectionIndex: string
 ) {
   const tabService = getService(RESTTabService)
-  const tabs = tabService.getTabsRefTo((tab) => {
-    return (
-      tab.document.saveContext?.originLocation === "user-collection" &&
-      tab.document.saveContext.folderPath.startsWith(oldFolderPath)
-    )
-  })
 
-  for (const tab of tabs) {
-    if (tab.value.document.saveContext?.originLocation === "user-collection") {
-      tab.value.document.saveContext = {
-        ...tab.value.document.saveContext,
-        folderPath: tab.value.document.saveContext.folderPath.replace(
-          oldFolderPath,
-          newFolderPath
-        ),
+  const activeTabs = tabService.getActiveTabs()
+
+  for (const tab of activeTabs.value) {
+    if (tab.document.saveContext?.originLocation === "user-collection") {
+      const { folderPath } = tab.document.saveContext
+
+      if (folderPath.startsWith(draggedCollectionIndex)) {
+        const newFolderPath = folderPath.replace(
+          draggedCollectionIndex,
+          destinationCollectionIndex
+        )
+
+        tab.document.saveContext = {
+          ...tab.document.saveContext,
+          folderPath: newFolderPath,
+        }
+      }
+
+      return
+    }
+
+    if (
+      tab.document.saveContext?.originLocation === "workspace-user-collection"
+    ) {
+      const requestHandleRef = tab.document.saveContext.requestHandle?.get()
+
+      if (!requestHandleRef || requestHandleRef.value.type === "invalid") {
+        return false
+      }
+
+      const { requestID } = requestHandleRef.value.data
+
+      const collectionID = requestID.split("/").slice(0, -1).join("/")
+      const requestIndex = requestID.split("/").slice(-1)[0]
+
+      if (collectionID.startsWith(draggedCollectionIndex)) {
+        const newCollectionID = collectionID.replace(
+          draggedCollectionIndex,
+          destinationCollectionIndex
+        )
+        const newRequestID = `${newCollectionID}/${requestIndex}`
+
+        tab.document.saveContext = {
+          ...tab.document.saveContext,
+          requestID: newRequestID,
+        }
+
+        requestHandleRef.value.data = {
+          ...requestHandleRef.value.data,
+          collectionID: newCollectionID,
+          requestID: newRequestID,
+        }
       }
     }
   }
@@ -166,6 +243,33 @@ function removeDuplicatesAndKeepLast(arr: HoppInheritedProperty["headers"]) {
   return result
 }
 
+function getSaveContextCollectionID(
+  saveContext: HoppRESTSaveContext | HoppGQLSaveContext | undefined
+): string | undefined {
+  if (!saveContext) {
+    return
+  }
+
+  const { originLocation } = saveContext
+
+  if (originLocation === "team-collection") {
+    return saveContext.collectionID
+  }
+
+  if (originLocation === "user-collection") {
+    return saveContext.folderPath
+  }
+
+  const requestHandleRef = saveContext.requestHandle?.get()
+
+  if (!requestHandleRef || requestHandleRef.value.type === "invalid") {
+    return
+  }
+
+  // TODO: Remove `collectionID` and obtain it from `requestID`
+  return requestHandleRef.value.data.collectionID
+}
+
 export function updateInheritedPropertiesForAffectedRequests(
   path: string,
   inheritedProperties: HoppInheritedProperty,
@@ -177,22 +281,17 @@ export function updateInheritedPropertiesForAffectedRequests(
   const effectedTabs = tabService.getTabsRefTo((tab) => {
     const saveContext = tab.document.saveContext
 
-    const saveContextPath =
-      saveContext?.originLocation === "team-collection"
-        ? saveContext.collectionID
-        : saveContext?.folderPath
-
-    return saveContextPath?.startsWith(path) ?? false
+    const collectionID = getSaveContextCollectionID(saveContext)
+    return collectionID?.startsWith(path) ?? false
   })
 
   effectedTabs.map((tab) => {
     const inheritedParentID =
       tab.value.document.inheritedProperties?.auth.parentID
 
-    const contextPath =
-      tab.value.document.saveContext?.originLocation === "team-collection"
-        ? tab.value.document.saveContext.collectionID
-        : tab.value.document.saveContext?.folderPath
+    const contextPath = getSaveContextCollectionID(
+      tab.value.document.saveContext
+    )
 
     const effectedPath = folderPathCloseToSaveContext(
       inheritedParentID,
@@ -225,21 +324,6 @@ export function updateInheritedPropertiesForAffectedRequests(
       tab.value.document.inheritedProperties.headers = mergedHeaders
     }
   })
-}
-
-function resetSaveContextForAffectedRequests(folderPath: string) {
-  const tabService = getService(RESTTabService)
-  const tabs = tabService.getTabsRefTo((tab) => {
-    return (
-      tab.document.saveContext?.originLocation === "user-collection" &&
-      tab.document.saveContext.folderPath.startsWith(folderPath)
-    )
-  })
-
-  for (const tab of tabs) {
-    tab.value.document.saveContext = null
-    tab.value.document.isDirty = true
-  }
 }
 
 /**

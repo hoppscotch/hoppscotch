@@ -34,7 +34,7 @@
   },
   "pnpm": {
     "overrides": {
-      "vue": "3.3.9"
+      "vue": "3.4.27"
     },
     "packageExtensions": {
       "httpsnippet@3.0.1": {

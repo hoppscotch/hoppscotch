@@ -236,16 +236,28 @@ import { useI18n } from "@composables/i18n"
 import { useSetting } from "@composables/settings"
 import { useReadonlyStream, useStreamSubscriber } from "@composables/stream"
 import { useToast } from "@composables/toast"
+import { HoppRESTRequest } from "@hoppscotch/data"
 import { useVModel } from "@vueuse/core"
+import { useService } from "dioc/vue"
 import * as E from "fp-ts/Either"
-import { Ref, computed, ref, onUnmounted } from "vue"
+import { Ref, computed, onUnmounted, ref } from "vue"
+import { runRESTRequest$ } from "~/helpers/RequestRunner"
 import { defineActionHandler, invokeAction } from "~/helpers/actions"
 import { runMutation } from "~/helpers/backend/GQLClient"
 import { UpdateRequestDocument } from "~/helpers/backend/graphql"
 import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
-import { runRESTRequest$ } from "~/helpers/RequestRunner"
+import { getDefaultRESTRequest } from "~/helpers/rest/default"
+import { HoppRESTDocument } from "~/helpers/rest/document"
+import { getMethodLabelColor } from "~/helpers/rest/labelColoring"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
-import { editRESTRequest } from "~/newstore/collections"
+import { RESTHistoryEntry, restHistory$ } from "~/newstore/history"
+import { platform } from "~/platform"
+import { InspectionService } from "~/services/inspection"
+import { InterceptorService } from "~/services/interceptor.service"
+import { NewWorkspaceService } from "~/services/new-workspace"
+import { HoppTab } from "~/services/tab"
+import { RESTTabService } from "~/services/tab/rest"
+import { WorkspaceService } from "~/services/workspace.service"
 import IconChevronDown from "~icons/lucide/chevron-down"
 import IconCode2 from "~icons/lucide/code-2"
 import IconFileCode from "~icons/lucide/file-code"
@@ -253,21 +265,10 @@ import IconFolderPlus from "~icons/lucide/folder-plus"
 import IconRotateCCW from "~icons/lucide/rotate-ccw"
 import IconSave from "~icons/lucide/save"
 import IconShare2 from "~icons/lucide/share-2"
-import { getDefaultRESTRequest } from "~/helpers/rest/default"
-import { RESTHistoryEntry, restHistory$ } from "~/newstore/history"
-import { platform } from "~/platform"
-import { HoppRESTRequest } from "@hoppscotch/data"
-import { useService } from "dioc/vue"
-import { InspectionService } from "~/services/inspection"
-import { InterceptorService } from "~/services/interceptor.service"
-import { HoppTab } from "~/services/tab"
-import { HoppRESTDocument } from "~/helpers/rest/document"
-import { RESTTabService } from "~/services/tab/rest"
-import { getMethodLabelColor } from "~/helpers/rest/labelColoring"
-import { WorkspaceService } from "~/services/workspace.service"
 
 const t = useI18n()
 const interceptorService = useService(InterceptorService)
+const newWorkspaceService = useService(NewWorkspaceService)
 
 const methods = [
   "GET",
@@ -506,34 +507,61 @@ const cycleDownMethod = () => {
   }
 }
 
-const saveRequest = () => {
-  const saveCtx = tab.value.document.saveContext
+const saveRequest = async () => {
+  const { saveContext } = tab.value.document
 
-  if (!saveCtx) {
+  if (!saveContext) {
     showSaveRequestModal.value = true
     return
   }
-  if (saveCtx.originLocation === "user-collection") {
-    const req = tab.value.document.request
 
-    try {
-      editRESTRequest(saveCtx.folderPath, saveCtx.requestIndex, req)
+  if (saveContext.originLocation === "workspace-user-collection") {
+    const updatedRequest = tab.value.document.request
 
-      tab.value.document.isDirty = false
-
-      platform.analytics?.logEvent({
-        type: "HOPP_SAVE_REQUEST",
-        platform: "rest",
-        createdNow: false,
-        workspaceType: "personal",
-      })
-
-      toast.success(`${t("request.saved")}`)
-    } catch (e) {
-      tab.value.document.saveContext = undefined
-      saveRequest()
+    if (
+      !newWorkspaceService.activeWorkspaceHandle.value ||
+      !saveContext.requestHandle
+    ) {
+      return
     }
-  } else if (saveCtx.originLocation === "team-collection") {
+
+    const { requestHandle } = saveContext
+
+    const requestHandleRef = requestHandle.get()
+
+    if (!requestHandleRef.value) {
+      return
+    }
+
+    if (requestHandleRef.value.type === "invalid") {
+      showSaveRequestModal.value = true
+      return
+    }
+
+    const updateRequestResult = await newWorkspaceService.updateRESTRequest(
+      requestHandle,
+      updatedRequest
+    )
+
+    if (E.isLeft(updateRequestResult)) {
+      // INVALID_REQUEST_HANDLE
+      showSaveRequestModal.value = true
+
+      if (!tab.value.document.isDirty) {
+        tab.value.document.isDirty = true
+      }
+      return
+    }
+
+    tab.value.document.isDirty = false
+
+    tab.value.document.saveContext = {
+      ...saveContext,
+      requestHandle,
+    }
+
+    toast.success(`${t("request.saved")}`)
+  } else if (saveContext.originLocation === "team-collection") {
     const req = tab.value.document.request
 
     // TODO: handle error case (NOTE: overwriteRequestTeams is async)
@@ -546,7 +574,7 @@ const saveRequest = () => {
       })
 
       runMutation(UpdateRequestDocument, {
-        requestID: saveCtx.requestID,
+        requestID: saveContext.requestID,
         data: {
           title: req.name,
           request: JSON.stringify(req),

@@ -143,7 +143,7 @@ export class PersonalWorkspaceProviderService
     return indexPath.length === 1
   }
 
-  public createRESTRootCollection(
+  public async createRESTRootCollection(
     workspaceHandle: Handle<Workspace>,
     newCollection: Partial<Exclude<HoppCollection, "id">> & { name: string }
   ): Promise<E.Either<unknown, Handle<WorkspaceCollection>>> {
@@ -155,7 +155,6 @@ export class PersonalWorkspaceProviderService
       return Promise.resolve(E.left("INVALID_WORKSPACE_HANDLE" as const))
     }
 
-    const newCollectionName = newCollection.name
     const newCollectionID =
       this.restCollectionState.value.state.length.toString()
 
@@ -178,39 +177,17 @@ export class PersonalWorkspaceProviderService
       isRootCollection: true,
     })
 
-    return Promise.resolve(
-      E.right({
-        get: lazy(() =>
-          computed(() => {
-            if (
-              !isValidWorkspaceHandle(
-                workspaceHandleRef,
-                this.providerID,
-                "personal"
-              )
-            ) {
-              return {
-                type: "invalid" as const,
-                reason: "WORKSPACE_INVALIDATED" as const,
-              }
-            }
+    // TODO: Verify whether a collection update action is reflected correctly in the handle being returned below
 
-            return {
-              type: "ok",
-              data: {
-                providerID: this.providerID,
-                workspaceID: workspaceHandleRef.value.data.workspaceID,
-                collectionID: newCollectionID,
-                name: newCollectionName,
-              },
-            }
-          })
-        ),
-      })
+    const createdCollectionHandle = await this.getCollectionHandle(
+      workspaceHandle,
+      newCollectionID
     )
+
+    return createdCollectionHandle
   }
 
-  public createRESTChildCollection(
+  public async createRESTChildCollection(
     parentCollectionHandle: Handle<WorkspaceCollection>,
     newChildCollection: Partial<HoppCollection> & { name: string }
   ): Promise<E.Either<unknown, Handle<WorkspaceCollection>>> {
@@ -226,8 +203,7 @@ export class PersonalWorkspaceProviderService
       return Promise.resolve(E.left("INVALID_COLLECTION_HANDLE" as const))
     }
 
-    const { collectionID, providerID, workspaceID } =
-      parentCollectionHandleRef.value.data
+    const { collectionID } = parentCollectionHandleRef.value.data
 
     const newCollectionName = newChildCollection.name
     addRESTFolder(newCollectionName, collectionID)
@@ -239,36 +215,19 @@ export class PersonalWorkspaceProviderService
       platform: "rest",
     })
 
-    return Promise.resolve(
-      E.right({
-        get: lazy(() =>
-          computed(() => {
-            if (
-              !isValidCollectionHandle(
-                parentCollectionHandleRef,
-                this.providerID,
-                "personal"
-              )
-            ) {
-              return {
-                type: "invalid" as const,
-                reason: "COLLECTION_INVALIDATED" as const,
-              }
-            }
+    const newChildCollectionID = `${collectionID}/${getFoldersByPath(
+      this.restCollectionState.value.state,
+      collectionID
+    )}`
 
-            return {
-              type: "ok",
-              data: {
-                providerID,
-                workspaceID,
-                collectionID,
-                name: newCollectionName,
-              },
-            }
-          })
-        ),
-      })
+    // Verify whether a collection update action is reflected correctly in the handle being returned below
+
+    const createdCollectionHandle = await this.getCollectionHandle(
+      parentCollectionHandle,
+      newChildCollectionID
     )
+
+    return createdCollectionHandle
   }
 
   public updateRESTCollection(
@@ -439,7 +398,7 @@ export class PersonalWorkspaceProviderService
     return Promise.resolve(E.right(undefined))
   }
 
-  public createRESTRequest(
+  public async createRESTRequest(
     parentCollectionHandle: Handle<WorkspaceCollection>,
     newRequest: HoppRESTRequest
   ): Promise<E.Either<unknown, Handle<WorkspaceRequest>>> {
@@ -480,23 +439,6 @@ export class PersonalWorkspaceProviderService
       },
     })
 
-    const handle: HandleRef<WorkspaceRequest> = computed(() => {
-      if (
-        !isValidCollectionHandle(
-          parentCollectionHandleRef,
-          this.providerID,
-          "personal"
-        )
-      ) {
-        return {
-          type: "invalid" as const,
-          reason: "COLLECTION_INVALIDATED" as const,
-        }
-      }
-
-      return handleRefData.value
-    })
-
     const writableHandle = computed({
       get() {
         return handleRefData.value
@@ -533,7 +475,14 @@ export class PersonalWorkspaceProviderService
       this.issuedHandles.push(writableHandle)
     }
 
-    return Promise.resolve(E.right({ get: lazy(() => handle) }))
+    // Verify whether a request update action is reflected correctly in the handle being returned below
+
+    const createdRequestHandle = await this.getRequestHandle(
+      parentCollectionHandle,
+      requestID
+    )
+
+    return createdRequestHandle
   }
 
   public removeRESTRequest(
@@ -723,7 +672,7 @@ export class PersonalWorkspaceProviderService
     )
 
     if (!collection) {
-      return Promise.resolve(E.left("COLLECTION_NOT_FOUND" as const))
+      return Promise.resolve(E.left("COLLECTION_DOES_NOT_EXIST" as const))
     }
 
     initializeDownloadFile(JSON.stringify(collection, null, 2), collection.name)
@@ -1300,10 +1249,8 @@ export class PersonalWorkspaceProviderService
     )
 
     if (!collection) {
-      return Promise.resolve(E.left("COLLECTION_NOT_FOUND"))
+      return Promise.resolve(E.left("COLLECTION_DOES_NOT_EXIST"))
     }
-
-    const { providerID, workspaceID } = workspaceHandleRef.value.data
 
     return Promise.resolve(
       E.right({
@@ -1318,9 +1265,11 @@ export class PersonalWorkspaceProviderService
             ) {
               return {
                 type: "invalid" as const,
-                reason: "WORKSPACE_INVALIDATED" as const,
+                reason: "INVALID_WORKSPACE_HANDLE" as const,
               }
             }
+
+            const { providerID, workspaceID } = workspaceHandleRef.value.data
 
             return {
               type: "ok",
@@ -1396,7 +1345,7 @@ export class PersonalWorkspaceProviderService
       ) {
         return {
           type: "invalid" as const,
-          reason: "WORKSPACE_INVALIDATED" as const,
+          reason: "INVALID_WORKSPACE_HANDLE" as const,
         }
       }
 
@@ -1864,11 +1813,12 @@ export class PersonalWorkspaceProviderService
   public getWorkspaceHandle(
     workspaceID: string
   ): Promise<E.Either<unknown, Handle<Workspace>>> {
-    if (workspaceID !== "personal") {
-      return Promise.resolve(E.left("INVALID_WORKSPACE_ID" as const))
-    }
+    const handle =
+      workspaceID === "personal"
+        ? E.right(this.getPersonalWorkspaceHandle())
+        : E.left("INVALID_WORKSPACE_ID" as const)
 
-    return Promise.resolve(E.right(this.getPersonalWorkspaceHandle()))
+    return Promise.resolve(handle)
   }
 
   public getPersonalWorkspaceHandle(): Handle<Workspace> {

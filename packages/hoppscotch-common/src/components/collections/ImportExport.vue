@@ -632,8 +632,8 @@ const getCollectionJSON = async () => {
     const collectionJSONHandleRef = collectionJSONHandle.get()
 
     if (collectionJSONHandleRef.value.type === "invalid") {
-      // WORKSPACE_INVALIDATED
-      return E.left("WORKSPACE_INVALIDATED")
+      // INVALID_WORKSPACE_HANDLE
+      return E.left("INVALID_WORKSPACE_HANDLE")
     }
 
     return E.right(collectionJSONHandleRef.value.data.content)

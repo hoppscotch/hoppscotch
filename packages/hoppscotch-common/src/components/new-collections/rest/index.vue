@@ -753,18 +753,18 @@ const displayConfirmModal = (show: boolean) => {
 const addNewRootCollection = async (name: string) => {
   modalLoadingState.value = true
 
-  const result = await workspaceService.createRESTRootCollection(
-    props.workspaceHandle,
-    { name }
-  )
+  const collectionHandleResult =
+    await workspaceService.createRESTRootCollection(props.workspaceHandle, {
+      name,
+    })
 
-  if (E.isLeft(result)) {
+  if (E.isLeft(collectionHandleResult)) {
     // TODO: Error Handling
     return
   }
 
   // Workspace invalidated
-  if (result.right.get().value.type === "invalid") {
+  if (collectionHandleResult.right.get().value.type === "invalid") {
     // TODO: Error Handling
     return
   }
@@ -798,7 +798,7 @@ const onRemoveRootCollection = async () => {
   const collectionHandleRef = collectionHandle.get()
 
   if (collectionHandleRef.value.type === "invalid") {
-    // WORKSPACE_INVALIDATED
+    // INVALID_WORKSPACE_HANDLE
     return
   }
 
@@ -840,7 +840,7 @@ const onAddRequest = async (requestName: string) => {
   const collectionHandleRef = collectionHandle.get()
 
   if (collectionHandleRef.value.type === "invalid") {
-    // WORKSPACE_INVALIDATED
+    // INVALID_WORKSPACE_HANDLE
     return
   }
 
@@ -927,7 +927,7 @@ const onAddChildCollection = async (newChildCollectionName: string) => {
   const collectionHandleRef = collectionHandle.get()
 
   if (collectionHandleRef.value.type === "invalid") {
-    // WORKSPACE_INVALIDATED
+    // INVALID_WORKSPACE_HANDLE
     return
   }
 
@@ -979,7 +979,7 @@ const onEditRootCollection = async (newCollectionName: string) => {
   const collectionHandleRef = collectionHandle.get()
 
   if (collectionHandleRef.value.type === "invalid") {
-    // WORKSPACE_INVALIDATED
+    // INVALID_WORKSPACE_HANDLE
     return
   }
 
@@ -1026,7 +1026,7 @@ const onEditChildCollection = async (newChildCollectionName: string) => {
   const collectionHandleRef = collectionHandle.get()
 
   if (collectionHandleRef.value.type === "invalid") {
-    // WORKSPACE_INVALIDATED
+    // INVALID_WORKSPACE_HANDLE
     return
   }
 
@@ -1069,7 +1069,7 @@ const onRemoveChildCollection = async () => {
   const parentCollectionHandleRef = parentCollectionHandle.get()
 
   if (parentCollectionHandleRef.value.type === "invalid") {
-    // WORKSPACE_INVALIDATED
+    // INVALID_WORKSPACE_HANDLE
     return
   }
 
@@ -1357,7 +1357,7 @@ const editCollectionProperties = async (collectionIndexPath: string) => {
   const collectionHandleRef = collectionHandle.get()
 
   if (collectionHandleRef.value.type === "invalid") {
-    // WORKSPACE_INVALIDATED
+    // INVALID_WORKSPACE_HANDLE
     return
   }
 
@@ -1431,7 +1431,7 @@ const setCollectionProperties = async (updatedCollectionProps: {
   const collectionHandleRef = collectionHandle.get()
 
   if (collectionHandleRef.value.type === "invalid") {
-    // WORKSPACE_INVALIDATED
+    // INVALID_WORKSPACE_HANDLE
     return
   }
 
@@ -1498,14 +1498,14 @@ const exportCollection = async (collectionIndexPath: string) => {
   const collectionHandleRef = collectionHandle.get()
 
   if (collectionHandleRef.value.type === "invalid") {
-    // WORKSPACE_INVALIDATED
+    // INVALID_WORKSPACE_HANDLE
     return
   }
 
   const result = await workspaceService.exportRESTCollection(collectionHandle)
 
   if (E.isLeft(result)) {
-    // INVALID_COLLECTION_HANDLE | COLLECTION_NOT_FOUND
+    // INVALID_COLLECTION_HANDLE | COLLECTION_DOES_NOT_EXIST
     return
   }
 }
@@ -1591,7 +1591,7 @@ const dropToRoot = async ({ dataTransfer }: DragEvent) => {
   const draggedCollectionHandleRef = draggedCollectionHandle.get()
 
   if (draggedCollectionHandleRef.value.type === "invalid") {
-    // WORKSPACE_INVALIDATED
+    // INVALID_WORKSPACE_HANDLE
     return
   }
 
@@ -1632,7 +1632,7 @@ const dropToRoot = async ({ dataTransfer }: DragEvent) => {
     destinationRootCollectionHandle.get()
 
   if (destinationRootCollectionHandleRef.value.type === "invalid") {
-    // WORKSPACE_INVALIDATED
+    // INVALID_WORKSPACE_HANDLE
     return
   }
 
@@ -1831,7 +1831,7 @@ const dropCollection = async (payload: {
   const draggedCollectionHandleRef = draggedCollectionHandle.get()
 
   if (draggedCollectionHandleRef.value.type === "invalid") {
-    // WORKSPACE_INVALIDATED
+    // INVALID_WORKSPACE_HANDLE
     return
   }
 
@@ -1861,7 +1861,7 @@ const dropCollection = async (payload: {
   const destinationCollectionHandleRef = destinationCollectionHandle.get()
 
   if (destinationCollectionHandleRef.value.type === "invalid") {
-    // WORKSPACE_INVALIDATED
+    // INVALID_WORKSPACE_HANDLE
     return
   }
 
@@ -2009,7 +2009,7 @@ const updateCollectionOrder = async (
   const collectionHandleRef = collectionHandle.get()
 
   if (collectionHandleRef.value.type === "invalid") {
-    // WORKSPACE_INVALIDATED
+    // INVALID_WORKSPACE_HANDLE
     return
   }
 

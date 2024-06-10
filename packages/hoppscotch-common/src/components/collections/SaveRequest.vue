@@ -251,7 +251,7 @@ const saveRequestAs = async () => {
     )
 
     if (E.isLeft(requestHandleResult)) {
-      // WORKSPACE_INVALIDATED | INVALID_COLLECTION_HANDLE
+      // INVALID_WORKSPACE_HANDLE | INVALID_COLLECTION_HANDLE
       return
     }
 
@@ -260,7 +260,7 @@ const saveRequestAs = async () => {
     const requestHandleRef = requestHandle.get()
 
     if (requestHandleRef.value.type === "invalid") {
-      // WORKSPACE_INVALIDATED | INVALID_COLLECTION_HANDLE
+      // INVALID_WORKSPACE_HANDLE | INVALID_COLLECTION_HANDLE
       return
     }
 
@@ -293,7 +293,7 @@ const saveRequestAs = async () => {
     const requestHandleRef = requestHandle.get()
 
     if (requestHandleRef.value.type === "invalid") {
-      // WORKSPACE_INVALIDATED
+      // INVALID_WORKSPACE_HANDLE
       return
     }
 
@@ -303,7 +303,7 @@ const saveRequestAs = async () => {
     )
 
     if (E.isLeft(updateRequestResult)) {
-      // WORKSPACE_INVALIDATED | INVALID_REQUEST_HANDLE
+      // INVALID_WORKSPACE_HANDLE | INVALID_REQUEST_HANDLE
       return
     }
 

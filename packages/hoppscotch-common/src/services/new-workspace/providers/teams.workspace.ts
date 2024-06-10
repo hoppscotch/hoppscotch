@@ -29,7 +29,7 @@ import {
   deleteTeamRequest,
 } from "~/helpers/backend/mutations/TeamRequest"
 import { createTeam } from "~/helpers/backend/mutations/Team"
-import { Ref, computed, ref } from "vue"
+import { Ref, computed, ref, watch } from "vue"
 import {
   RESTCollectionChildrenView,
   RESTCollectionJSONView,
@@ -69,6 +69,7 @@ import { lazy } from "~/helpers/utils/lazy"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import { initializeDownloadFile } from "~/helpers/import-export/export"
 import { TeamSearchService } from "~/helpers/teams/TeamsSearch.service"
+import { fetchAllTeams } from "~/helpers/teams/TeamListAdapter"
 
 type TeamsWorkspaceCollection = WorkspaceCollection & {
   parentCollectionID?: string
@@ -114,32 +115,29 @@ export class TeamsWorkspaceProviderService
   constructor() {
     super()
 
+    this.workspaceService.registerWorkspaceProvider(this)
+  }
+
+  public async init() {
     this.fetchingWorkspaces = ref(true)
 
-    fetchAllWorkspaces().then((res) => {
-      // ignoring error for now, write logic for that later
-      if (E.isLeft(res)) {
-        console.error("Failed to fetch workspaces")
+    const res = await fetchAllTeams()
 
-        this.fetchingWorkspaces.value = false
-
-        return
-      }
-
-      console.log(res.right.myTeams)
-
-      this.workspaces.value = res.right.myTeams.map((team) => {
-        return {
-          name: team.name,
-          workspaceID: team.id,
-          providerID: this.providerID,
-        }
-      })
-
+    if (E.isLeft(res)) {
       this.fetchingWorkspaces.value = false
+
+      return
+    }
+
+    this.workspaces.value = res.right.myTeams.map((team) => {
+      return {
+        name: team.name,
+        workspaceID: team.id,
+        providerID: this.providerID,
+      }
     })
 
-    this.workspaceService.registerWorkspaceProvider(this)
+    this.fetchingWorkspaces.value = false
   }
 
   public workspaceDecor: Ref<WorkspaceDecor> = ref({
@@ -151,7 +149,7 @@ export class TeamsWorkspaceProviderService
   // this is temporary, i need this to create workspaces
   async createWorkspace(
     workspaceName: string
-  ): Promise<E.Either<unknown, HandleRef<Workspace>>> {
+  ): Promise<E.Either<unknown, Handle<Workspace>>> {
     const res = await createTeam(workspaceName)()
 
     if (E.isLeft(res)) {
@@ -168,14 +166,15 @@ export class TeamsWorkspaceProviderService
 
     this.workspaces.value.push(workspace)
 
-    return E.right(
-      computed(() => {
-        return {
-          data: workspace,
-          type: "ok" as const,
-        }
-      })
-    )
+    return E.right({
+      get: () =>
+        computed(() => {
+          return {
+            data: workspace,
+            type: "ok" as const,
+          }
+        }),
+    })
   }
 
   // this is temporary, i need this to populate root collections
@@ -284,30 +283,42 @@ export class TeamsWorkspaceProviderService
     const collectionID = res.right.createRootCollection.id
     const providerID = workspaceHandleRef.value.data.providerID
 
-    return E.right({
-      get: lazy(() =>
-        computed(() => {
-          if (!isValidWorkspaceHandle(workspaceHandleRef, providerID)) {
-            return {
-              type: "invalid" as const,
-              reason: "INVALID_COLLECTION_HANDLE" as const,
-            }
-          }
+    // add the new collection to the collections
+    const siblingCollections = this.collections.value
+      .filter((collection) => collection.parentCollectionID === null)
+      .at(-1)
 
-          const createdCollectionHandle = {
-            data: {
-              name,
-              collectionID,
-              providerID: workspaceHandleRef.value.data.providerID,
-              workspaceID: workspaceHandleRef.value.data.workspaceID,
-            },
-            type: "ok" as const,
-          }
+    const order = generateKeyBetween(siblingCollections?.order, null)
 
-          return createdCollectionHandle
-        })
-      ),
+    this.collections.value.push({
+      collectionID,
+      providerID,
+      workspaceID: workspaceHandleRef.value.data.workspaceID,
+      name,
+      order,
+      auth: {
+        authType: "none",
+        authActive: true,
+      },
+      headers: [],
     })
+
+    const createdCollectionHandle = await this.getCollectionHandle(
+      workspaceHandle,
+      collectionID
+    )
+
+    return createdCollectionHandle
+  }
+
+  // for testing purposes
+  _setWorkspaces(workspaces: Workspace[]) {
+    this.workspaces.value = workspaces
+  }
+
+  // for testing purposes
+  _setCollections(collections: TeamsWorkspaceCollection[]) {
+    this.collections.value = collections
   }
 
   async createRESTChildCollection(
@@ -322,10 +333,9 @@ export class TeamsWorkspaceProviderService
 
     const { name } = newChildCollection
 
-    const res = await createChildCollection(
-      name,
-      parentCollectionHandleRef.value.data.collectionID
-    )()
+    const parentCollectionID = parentCollectionHandleRef.value.data.collectionID
+
+    const res = await createChildCollection(name, parentCollectionID)()
 
     if (E.isLeft(res)) {
       return res
@@ -342,52 +352,87 @@ export class TeamsWorkspaceProviderService
     const providerID = parentCollectionHandleRef.value.data.providerID
     const workspaceID = parentCollectionHandleRef.value.data.workspaceID
 
-    return E.right({
-      get: lazy(() =>
-        computed(() => {
-          if (!isValidCollectionHandle(parentCollectionHandleRef, providerID)) {
-            return {
-              type: "invalid" as const,
-              reason: "INVALID_COLLECTION_HANDLE",
-            }
-          }
+    const lastSibling = this.collections.value
+      .filter(
+        (collection) => collection.parentCollectionID === parentCollectionID
+      )
+      .at(-1)
 
-          return {
-            data: {
-              name,
-              collectionID,
-              providerID,
-              workspaceID,
-            },
-            type: "ok" as const,
-          }
-        })
-      ),
+    const order = generateKeyBetween(lastSibling?.order, null)
+
+    this.collections.value.push({
+      collectionID,
+      providerID,
+      workspaceID,
+      name,
+      parentCollectionID: parentCollectionHandleRef.value.data.collectionID,
+      order,
+      auth: {
+        authType: "none",
+        authActive: true,
+      },
+      headers: [],
     })
+
+    const createdCollectionHandle = await this.getCollectionHandle(
+      parentCollectionHandle,
+      collectionID
+    )
+
+    return createdCollectionHandle
   }
 
   async updateRESTCollection(
     collectionHandle: Handle<WorkspaceCollection>,
     updatedCollection: Partial<HoppCollection>
-  ) {
+  ): Promise<E.Either<unknown, void>> {
     const collectionHandleRef = collectionHandle.get()
 
     if (!isValidCollectionHandle(collectionHandleRef, this.providerID)) {
       return E.left("INVALID_COLLECTION_HANDLE" as const)
     }
 
+    const existingCollection = this.collections.value.find(
+      (collection) =>
+        collection.collectionID === collectionHandleRef.value.data.collectionID
+    )
+
+    if (!existingCollection) {
+      return E.left("INVALID_COLLECTION_HANDLE" as const)
+    }
+
+    const name = updatedCollection.name ?? existingCollection.name
+    const headers = updatedCollection.headers ?? existingCollection.headers
+    const auth = updatedCollection.auth ?? existingCollection.auth
+
     const res = await updateTeamCollection(
       collectionHandleRef.value.data.collectionID,
       JSON.stringify({
-        headers: updatedCollection.headers,
-        auth: updatedCollection.auth,
+        headers,
+        auth,
       }),
-      updatedCollection.name
+      name
     )()
 
     if (E.isLeft(res)) {
       return res
     }
+
+    // update the existing collection
+    this.collections.value = this.collections.value.map((collection) => {
+      if (
+        collection.collectionID === collectionHandleRef.value.data.collectionID
+      ) {
+        return {
+          ...collection,
+          name,
+          headers,
+          auth,
+        }
+      }
+
+      return collection
+    })
 
     return E.right(undefined)
   }
@@ -418,29 +463,29 @@ export class TeamsWorkspaceProviderService
     const providerID = parentCollectionHandleRef.value.data.providerID
     const workspaceID = parentCollectionHandleRef.value.data.workspaceID
 
-    return E.right({
-      get: lazy(() =>
-        computed(() => {
-          if (!isValidCollectionHandle(parentCollectionHandleRef, providerID)) {
-            return {
-              type: "invalid" as const,
-              reason: "INVALID_COLLECTION_HANDLE",
-            }
-          }
+    const siblingRequests = this.requests.value.filter(
+      (request) => request.collectionID === collectionID
+    )
 
-          return {
-            data: {
-              requestID,
-              providerID,
-              workspaceID,
-              collectionID,
-              request: newRequest,
-            },
-            type: "ok" as const,
-          }
-        })
-      ),
+    const lastSibling = siblingRequests.at(-1)
+
+    const order = generateKeyBetween(lastSibling?.order, null)
+
+    this.requests.value.push({
+      requestID,
+      providerID,
+      workspaceID,
+      collectionID,
+      request: newRequest,
+      order,
     })
+
+    const createdRequestHandle = await this.getRequestHandle(
+      parentCollectionHandle,
+      requestID
+    )
+
+    return createdRequestHandle
   }
 
   async updateRESTRequest(
@@ -453,10 +498,36 @@ export class TeamsWorkspaceProviderService
       return E.left("INVALID_REQUEST_HANDLE" as const)
     }
 
+    const request = this.requests.value.find(
+      (request) => request.requestID === requestHandleRef.value.data.requestID
+    )
+
+    if (!request) {
+      return E.left("REQUEST_DOES_NOT_EXIST" as const)
+    }
+
     const res = await updateTeamRequest(requestHandleRef.value.data.requestID, {
       request: JSON.stringify(updatedRequest),
       title: updatedRequest.name,
     })()
+
+    if (E.isLeft(res)) {
+      return res
+    }
+
+    this.requests.value = this.requests.value.map((req) => {
+      if (req.requestID === requestHandleRef.value.data.requestID) {
+        return {
+          ...req,
+          request: {
+            ...request.request,
+            ...updatedRequest,
+          },
+        }
+      }
+
+      return req
+    })
 
     if (E.isLeft(res)) {
       return res
@@ -553,25 +624,15 @@ export class TeamsWorkspaceProviderService
     workspaceHandle: Handle<Workspace>,
     collectionID: string
   ): Promise<E.Either<unknown, Handle<WorkspaceCollection>>> {
-    const workspaceHandleRef = workspaceHandle.get()
-
-    if (!isValidWorkspaceHandle(workspaceHandleRef, this.providerID)) {
-      return E.left("INVALID_WORKSPACE_HANDLE" as const)
-    }
-
-    const collection = computed(() => {
-      return this.collections.value.find(
-        (collection) => collection.collectionID === collectionID
-      )
-    })
-
-    if (!collection.value) {
-      return E.left("COLLECTION_DOES_NOT_EXIST" as const)
-    }
-
     return E.right({
       get: lazy(() =>
         computed(() => {
+          const workspaceHandleRef = workspaceHandle.get()
+
+          const collection = this.collections.value.find(
+            (collection) => collection.collectionID === collectionID
+          )
+
           if (!isValidWorkspaceHandle(workspaceHandleRef, this.providerID)) {
             return {
               type: "invalid" as const,
@@ -579,7 +640,7 @@ export class TeamsWorkspaceProviderService
             }
           }
 
-          if (!collection.value) {
+          if (!collection) {
             return {
               type: "invalid" as const,
               reason: "COLLECTION_DOES_NOT_EXIST",
@@ -588,10 +649,10 @@ export class TeamsWorkspaceProviderService
 
           return {
             data: {
-              collectionID: collection.value.collectionID,
-              providerID: collection.value.providerID,
-              workspaceID: collection.value.workspaceID,
-              name: collection.value.name,
+              collectionID: collection.collectionID,
+              providerID: collection.providerID,
+              workspaceID: collection.workspaceID,
+              name: collection.name,
             },
             type: "ok" as const,
           }
@@ -1561,17 +1622,6 @@ const isValidRequestHandle = (
   )
 }
 
-const fetchAllWorkspaces = async (cursor?: string) => {
-  const result = await runGQLQuery({
-    query: GetMyTeamsDocument,
-    variables: {
-      cursor,
-    },
-  })
-
-  return result
-}
-
 const fetchRootCollections = async (teamID: string, cursor?: string) => {
   const result = await runGQLQuery({
     query: RootCollectionsOfTeamDocument,
@@ -1682,7 +1732,12 @@ window.TeamsWorkspaceProviderService = TeamsWorkspaceProviderService
 // createWorkspace + selectWorkspace situation
 // cache the children of a collection
 // cursors
-// setup subscriptions for the changes
+// setup subscriptions for the change
+// take care of last item when returning the children
+
+// another drawback of the approch we're taking
+// not keeping one way for the source of truth -> i could update a collection & return a handle that does not exist
+// also every place we're issuing a collection/request handle, we need to test if its proper and works as expected when it comes to reactivity
 
 const testProvider = async () => {
   const provider = new TeamsWorkspaceProviderService()

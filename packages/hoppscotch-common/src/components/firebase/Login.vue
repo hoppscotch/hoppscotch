@@ -6,7 +6,11 @@
     @close="hideModal"
   >
     <template #body>
-      <template v-if="isLoadingAllowedAuthProviders">
+      <template v-if="platform.auth.customLoginSelectorUI">
+        <component :is="platform.auth.customLoginSelectorUI" />
+      </template>
+
+      <template v-else-if="isLoadingAllowedAuthProviders">
         <div class="flex justify-center">
           <HoppSmartSpinner />
         </div>

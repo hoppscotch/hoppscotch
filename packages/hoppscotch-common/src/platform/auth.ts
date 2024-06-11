@@ -53,6 +53,13 @@ export type LoginItemDef = {
 
 export type AuthPlatformDef = {
   /**
+   * Whether this platform shows a custom login selector UI. Used for situations
+   * where we don't want to render the traditional UI and want to replace it
+   * with something else
+   */
+  customLoginSelectorUI?: Component
+
+  /**
    * Returns an observable that emits the current user as per the auth implementation.
    *
    * NOTES:

@@ -98,9 +98,10 @@ async function runRequest(
         },
       },
       additional: {
-        multiHeaders: Object.entries(res.rawHeaders)
-          .flatMap(([header, values]) => values.map((val) => ({ key: header, value: val })))
-      }
+        multiHeaders: Object.entries(res.rawHeaders).flatMap(
+          ([header, values]) => values.map((value) => ({ key: header, value }))
+        ),
+      },
     })
   } catch (e) {
     const timeEnd = Date.now()

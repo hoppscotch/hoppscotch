@@ -33,12 +33,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue"
-import { useToast } from "@composables/toast"
 import { useI18n } from "@composables/i18n"
-import { makeCollection } from "@hoppscotch/data"
-import { addGraphqlCollection } from "~/newstore/collections"
-import { platform } from "~/platform"
+import { useToast } from "@composables/toast"
+import { ref } from "vue"
 
 const t = useI18n()
 const toast = useToast()
@@ -49,6 +46,7 @@ defineProps<{
 
 const emit = defineEmits<{
   (e: "hide-modal"): void
+  (e: "submit", name: string): void
 }>()
 
 const name = ref<string | null>(null)
@@ -59,27 +57,9 @@ const addNewCollection = () => {
     return
   }
 
-  addGraphqlCollection(
-    makeCollection({
-      name: name.value,
-      folders: [],
-      requests: [],
-      auth: {
-        authType: "inherit",
-        authActive: true,
-      },
-      headers: [],
-    })
-  )
+  emit("submit", name.value)
 
   hideModal()
-
-  platform.analytics?.logEvent({
-    type: "HOPP_CREATE_COLLECTION",
-    isRootCollection: true,
-    platform: "gql",
-    workspaceType: "personal",
-  })
 }
 
 const hideModal = () => {

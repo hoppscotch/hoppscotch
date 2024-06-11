@@ -1,6 +1,5 @@
 <template>
   <HoppSmartModal
-    v-if="show"
     dialog
     :title="`${t('folder.edit')}`"
     @close="$emit('hide-modal')"
@@ -33,46 +32,36 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from "vue"
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
-import { editGraphqlFolder } from "~/newstore/collections"
+import { onMounted, ref } from "vue"
 
 const t = useI18n()
 const toast = useToast()
 
 const props = defineProps<{
-  show: boolean
-  folderPath?: string
-  folder: any
   editingFolderName: string
 }>()
 
-const emit = defineEmits(["hide-modal"])
+const emit = defineEmits(["submit", "hide-modal"])
 
-const name = ref("")
+const name = ref<string | null>(null)
 
-watch(
-  () => props.editingFolderName,
-  (val) => {
-    name.value = val
-  }
-)
+onMounted(() => {
+  name.value = props.editingFolderName
+})
 
 const editFolder = () => {
   if (!name.value) {
     toast.error(`${t("collection.invalid_name")}`)
     return
   }
-  editGraphqlFolder(props.folderPath, {
-    ...(props.folder as any),
-    name: name.value,
-  })
+
+  emit("submit", name.value)
   hideModal()
 }
 
 const hideModal = () => {
-  name.value = ""
   emit("hide-modal")
 }
 </script>

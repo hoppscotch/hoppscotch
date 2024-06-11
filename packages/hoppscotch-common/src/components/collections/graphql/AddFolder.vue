@@ -43,7 +43,7 @@ const toast = useToast()
 const props = defineProps<{
   show: boolean
   folderPath?: string
-  collectionIndex: number
+  collectionIndex: string
 }>()
 
 const emit = defineEmits<{
@@ -67,7 +67,7 @@ const addFolder = () => {
 
   emit("add-folder", {
     name: name.value,
-    path: props.folderPath || `${props.collectionIndex}`,
+    path: props.folderPath || props.collectionIndex,
   })
 
   hideModal()

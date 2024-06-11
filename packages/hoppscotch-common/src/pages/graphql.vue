@@ -34,7 +34,7 @@
 
             <template #suffix>
               <span
-                v-if="tab.document.isDirty"
+                v-if="getTabDirtyStatus(tab)"
                 class="flex w-4 items-center justify-center text-secondary group-hover:hidden"
               >
                 <svg
@@ -207,6 +207,17 @@ const duplicateTab = (tabID: string) => {
     })
     tabs.setActiveTab(newTab.id)
   }
+}
+
+const getTabDirtyStatus = (tab: HoppTab<HoppGQLDocument>) => {
+  if (tab.document.isDirty) {
+    return true
+  }
+
+  return (
+    tab.document.saveContext?.originLocation === "workspace-user-collection" &&
+    tab.document.saveContext.requestHandle?.get().value.type === "invalid"
+  )
 }
 
 defineActionHandler("gql.request.open", ({ request, saveContext }) => {

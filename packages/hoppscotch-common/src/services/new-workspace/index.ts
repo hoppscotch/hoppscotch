@@ -1,4 +1,8 @@
-import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
+import {
+  HoppCollection,
+  HoppGQLRequest,
+  HoppRESTRequest,
+} from "@hoppscotch/data"
 import { Service } from "dioc"
 import * as E from "fp-ts/Either"
 import {
@@ -14,9 +18,9 @@ import { Handle } from "./handle"
 import { WorkspaceProvider } from "./provider"
 import {
   RESTCollectionChildrenView,
-  RESTCollectionJSONView,
-  RESTCollectionLevelAuthHeadersView,
-  RESTSearchResultsView,
+  CollectionJSONView,
+  CollectionLevelAuthHeadersView,
+  SearchResultsView,
   RootRESTCollectionView,
 } from "./view"
 import { Workspace, WorkspaceCollection, WorkspaceRequest } from "./workspace"
@@ -113,7 +117,8 @@ export class NewWorkspaceService extends Service {
 
   public async getCollectionHandle(
     workspaceHandle: Handle<Workspace>,
-    collectionID: string
+    collectionID: string,
+    type: "REST" | "GQL"
   ): Promise<
     E.Either<
       WorkspaceError<"INVALID_HANDLE" | "INVALID_PROVIDER">,
@@ -136,7 +141,8 @@ export class NewWorkspaceService extends Service {
 
     const result = await provider.getCollectionHandle(
       workspaceHandle,
-      collectionID
+      collectionID,
+      type
     )
 
     if (E.isLeft(result)) {
@@ -148,7 +154,8 @@ export class NewWorkspaceService extends Service {
 
   public async getRequestHandle(
     workspaceHandle: Handle<Workspace>,
-    requestID: string
+    requestID: string,
+    type: "REST" | "GQL"
   ): Promise<
     E.Either<
       WorkspaceError<"INVALID_HANDLE" | "INVALID_PROVIDER">,
@@ -169,7 +176,11 @@ export class NewWorkspaceService extends Service {
       return E.left({ type: "SERVICE_ERROR", error: "INVALID_PROVIDER" })
     }
 
-    const result = await provider.getRequestHandle(workspaceHandle, requestID)
+    const result = await provider.getRequestHandle(
+      workspaceHandle,
+      requestID,
+      type
+    )
 
     if (E.isLeft(result)) {
       return E.left({ type: "PROVIDER_ERROR", error: result.left })
@@ -682,12 +693,13 @@ export class NewWorkspaceService extends Service {
     return E.right(result.right)
   }
 
-  public async getRESTCollectionLevelAuthHeadersView(
-    collectionHandle: Handle<WorkspaceCollection>
+  public async getCollectionLevelAuthHeadersView(
+    collectionHandle: Handle<WorkspaceCollection>,
+    type: "REST" | "GQL"
   ): Promise<
     E.Either<
       WorkspaceError<"INVALID_HANDLE" | "INVALID_PROVIDER">,
-      Handle<RESTCollectionLevelAuthHeadersView>
+      Handle<CollectionLevelAuthHeadersView>
     >
   > {
     const collectionHandleRef = collectionHandle.get()
@@ -704,8 +716,10 @@ export class NewWorkspaceService extends Service {
       return E.left({ type: "SERVICE_ERROR", error: "INVALID_PROVIDER" })
     }
 
-    const result =
-      await provider.getRESTCollectionLevelAuthHeadersView(collectionHandle)
+    const result = await provider.getCollectionLevelAuthHeadersView(
+      collectionHandle,
+      type
+    )
 
     if (E.isLeft(result)) {
       return E.left({ type: "PROVIDER_ERROR", error: result.left })
@@ -714,13 +728,14 @@ export class NewWorkspaceService extends Service {
     return E.right(result.right)
   }
 
-  public async getRESTSearchResultsView(
+  public async getSearchResultsView(
     workspaceHandle: Handle<Workspace>,
-    searchQuery: Ref<string>
+    searchQuery: Ref<string>,
+    type: "REST" | "GQL"
   ): Promise<
     E.Either<
       WorkspaceError<"INVALID_HANDLE" | "INVALID_PROVIDER">,
-      Handle<RESTSearchResultsView>
+      Handle<SearchResultsView>
     >
   > {
     const workspaceHandleRef = workspaceHandle.get()
@@ -737,9 +752,10 @@ export class NewWorkspaceService extends Service {
       return E.left({ type: "SERVICE_ERROR", error: "INVALID_PROVIDER" })
     }
 
-    const result = await provider.getRESTSearchResultsView(
+    const result = await provider.getSearchResultsView(
       workspaceHandle,
-      searchQuery
+      searchQuery,
+      type
     )
 
     if (E.isLeft(result)) {
@@ -754,7 +770,7 @@ export class NewWorkspaceService extends Service {
   ): Promise<
     E.Either<
       WorkspaceError<"INVALID_HANDLE" | "INVALID_PROVIDER">,
-      Handle<RESTCollectionJSONView>
+      Handle<CollectionJSONView>
     >
   > {
     const workspaceHandleRef = workspaceHandle.get()
@@ -772,6 +788,323 @@ export class NewWorkspaceService extends Service {
     }
 
     const result = await provider.getRESTCollectionJSONView(workspaceHandle)
+
+    if (E.isLeft(result)) {
+      return E.left({ type: "PROVIDER_ERROR", error: result.left })
+    }
+
+    return E.right(result.right)
+  }
+
+  public async createRESTGQLCollection(
+    workspaceHandle: Handle<Workspace>,
+    newCollection: Partial<Exclude<HoppCollection, "id">> & { name: string }
+  ): Promise<
+    E.Either<
+      WorkspaceError<"INVALID_HANDLE" | "INVALID_PROVIDER">,
+      Handle<WorkspaceCollection>
+    >
+  > {
+    const workspaceHandleRef = workspaceHandle.get()
+
+    if (workspaceHandleRef.value.type === "invalid") {
+      return E.left({ type: "SERVICE_ERROR", error: "INVALID_HANDLE" })
+    }
+
+    const provider = this.registeredProviders.get(
+      workspaceHandleRef.value.data.providerID
+    )
+
+    if (!provider) {
+      return E.left({ type: "SERVICE_ERROR", error: "INVALID_PROVIDER" })
+    }
+
+    const result = await provider.createGQLRootCollection(
+      workspaceHandle,
+      newCollection
+    )
+
+    if (E.isLeft(result)) {
+      return E.left({ type: "PROVIDER_ERROR", error: result.left })
+    }
+
+    return E.right(result.right)
+  }
+
+  public async createGQLChildCollection(
+    parentCollectionHandle: Handle<WorkspaceCollection>,
+    newChildCollection: Partial<HoppCollection> & { name: string }
+  ): Promise<
+    E.Either<
+      WorkspaceError<"INVALID_HANDLE" | "INVALID_PROVIDER">,
+      Handle<WorkspaceCollection>
+    >
+  > {
+    const parentCollectionHandleRef = parentCollectionHandle.get()
+
+    if (parentCollectionHandleRef.value.type === "invalid") {
+      return E.left({ type: "SERVICE_ERROR", error: "INVALID_HANDLE" })
+    }
+
+    const provider = this.registeredProviders.get(
+      parentCollectionHandleRef.value.data.providerID
+    )
+
+    if (!provider) {
+      return E.left({ type: "SERVICE_ERROR", error: "INVALID_PROVIDER" })
+    }
+
+    const result = await provider.createGQLChildCollection(
+      parentCollectionHandle,
+      newChildCollection
+    )
+
+    if (E.isLeft(result)) {
+      return E.left({ type: "PROVIDER_ERROR", error: result.left })
+    }
+
+    return E.right(result.right)
+  }
+
+  public async updateGQLCollection(
+    collectionHandle: Handle<WorkspaceCollection>,
+    updatedCollection: Partial<HoppCollection>
+  ): Promise<
+    E.Either<WorkspaceError<"INVALID_HANDLE" | "INVALID_PROVIDER">, void>
+  > {
+    const collectionHandleRef = collectionHandle.get()
+
+    if (collectionHandleRef.value.type === "invalid") {
+      return E.left({ type: "SERVICE_ERROR", error: "INVALID_HANDLE" })
+    }
+
+    const provider = this.registeredProviders.get(
+      collectionHandleRef.value.data.providerID
+    )
+
+    if (!provider) {
+      return E.left({ type: "SERVICE_ERROR", error: "INVALID_PROVIDER" })
+    }
+
+    const result = await provider.updateGQLCollection(
+      collectionHandle,
+      updatedCollection
+    )
+
+    if (E.isLeft(result)) {
+      return E.left({ type: "PROVIDER_ERROR", error: result.left })
+    }
+
+    return E.right(undefined)
+  }
+
+  public async removeGQLCollection(
+    collectionHandle: Handle<WorkspaceCollection>
+  ): Promise<
+    E.Either<WorkspaceError<"INVALID_HANDLE" | "INVALID_PROVIDER">, void>
+  > {
+    const collectionHandleRef = collectionHandle.get()
+
+    if (collectionHandleRef.value.type === "invalid") {
+      return E.left({ type: "SERVICE_ERROR", error: "INVALID_HANDLE" })
+    }
+
+    const provider = this.registeredProviders.get(
+      collectionHandleRef.value.data.providerID
+    )
+
+    if (!provider) {
+      return E.left({ type: "SERVICE_ERROR", error: "INVALID_PROVIDER" })
+    }
+
+    const result = await provider.removeGQLCollection(collectionHandle)
+
+    if (E.isLeft(result)) {
+      return E.left({ type: "PROVIDER_ERROR", error: result.left })
+    }
+
+    return E.right(undefined)
+  }
+
+  public async createGQLRequest(
+    parentCollectionHandle: Handle<WorkspaceCollection>,
+    newRequest: HoppGQLRequest
+  ): Promise<
+    E.Either<
+      WorkspaceError<"INVALID_HANDLE" | "INVALID_PROVIDER">,
+      Handle<WorkspaceRequest>
+    >
+  > {
+    const parentCollectionHandleRef = parentCollectionHandle.get()
+
+    if (parentCollectionHandleRef.value.type === "invalid") {
+      return E.left({ type: "SERVICE_ERROR", error: "INVALID_HANDLE" })
+    }
+
+    const provider = this.registeredProviders.get(
+      parentCollectionHandleRef.value.data.providerID
+    )
+
+    if (!provider) {
+      return E.left({ type: "SERVICE_ERROR", error: "INVALID_PROVIDER" })
+    }
+
+    const result = await provider.createGQLRequest(
+      parentCollectionHandle,
+      newRequest
+    )
+
+    if (E.isLeft(result)) {
+      return E.left({ type: "PROVIDER_ERROR", error: result.left })
+    }
+
+    return E.right(result.right)
+  }
+
+  public async removeGQLRequest(
+    requestHandle: Handle<WorkspaceRequest>
+  ): Promise<
+    E.Either<WorkspaceError<"INVALID_HANDLE" | "INVALID_PROVIDER">, void>
+  > {
+    const requestHandleRef = requestHandle.get()
+
+    if (requestHandleRef.value.type === "invalid") {
+      return E.left({ type: "SERVICE_ERROR", error: "INVALID_HANDLE" })
+    }
+
+    const provider = this.registeredProviders.get(
+      requestHandleRef.value.data.providerID
+    )
+
+    if (!provider) {
+      return E.left({ type: "SERVICE_ERROR", error: "INVALID_PROVIDER" })
+    }
+
+    const result = await provider.removeGQLRequest(requestHandle)
+
+    if (E.isLeft(result)) {
+      return E.left({ type: "PROVIDER_ERROR", error: result.left })
+    }
+
+    return E.right(undefined)
+  }
+
+  public async updateGQLRequest(
+    requestHandle: Handle<WorkspaceRequest>,
+    updatedRequest: Partial<HoppGQLRequest>
+  ): Promise<
+    E.Either<WorkspaceError<"INVALID_HANDLE" | "INVALID_PROVIDER">, void>
+  > {
+    const requestHandleRef = requestHandle.get()
+
+    if (requestHandleRef.value.type === "invalid") {
+      return E.left({ type: "SERVICE_ERROR", error: "INVALID_HANDLE" })
+    }
+
+    const provider = this.registeredProviders.get(
+      requestHandleRef.value.data.providerID
+    )
+
+    if (!provider) {
+      return E.left({ type: "SERVICE_ERROR", error: "INVALID_PROVIDER" })
+    }
+
+    const result = await provider.updateGQLRequest(
+      requestHandle,
+      updatedRequest
+    )
+
+    if (E.isLeft(result)) {
+      return E.left({ type: "PROVIDER_ERROR", error: result.left })
+    }
+
+    return E.right(result.right)
+  }
+
+  public async moveGQLRequest(
+    requestHandle: Handle<WorkspaceRequest>,
+    destinationCollectionID: string
+  ): Promise<
+    E.Either<WorkspaceError<"INVALID_HANDLE" | "INVALID_PROVIDER">, void>
+  > {
+    const requestHandleRef = requestHandle.get()
+
+    if (requestHandleRef.value.type === "invalid") {
+      return E.left({ type: "SERVICE_ERROR", error: "INVALID_HANDLE" })
+    }
+
+    const provider = this.registeredProviders.get(
+      requestHandleRef.value.data.providerID
+    )
+
+    if (!provider) {
+      return E.left({ type: "SERVICE_ERROR", error: "INVALID_PROVIDER" })
+    }
+
+    const result = await provider.moveGQLRequest(
+      requestHandle,
+      destinationCollectionID
+    )
+
+    if (E.isLeft(result)) {
+      return E.left({ type: "PROVIDER_ERROR", error: result.left })
+    }
+
+    return E.right(result.right)
+  }
+
+  public async importGQLCollections(
+    workspaceHandle: Handle<Workspace>,
+    collections: HoppCollection[]
+  ): Promise<
+    E.Either<WorkspaceError<"INVALID_HANDLE" | "INVALID_PROVIDER">, void>
+  > {
+    const workspaceHandleRef = workspaceHandle.get()
+
+    if (workspaceHandleRef.value.type === "invalid") {
+      return E.left({ type: "SERVICE_ERROR", error: "INVALID_HANDLE" })
+    }
+
+    const provider = this.registeredProviders.get(
+      workspaceHandleRef.value.data.providerID
+    )
+
+    if (!provider) {
+      return E.left({ type: "SERVICE_ERROR", error: "INVALID_PROVIDER" })
+    }
+
+    const result = await provider.importGQLCollections(
+      workspaceHandle,
+      collections
+    )
+
+    if (E.isLeft(result)) {
+      return E.left({ type: "PROVIDER_ERROR", error: result.left })
+    }
+
+    return E.right(result.right)
+  }
+
+  public async exportGQLCollections(
+    workspaceHandle: Handle<Workspace>
+  ): Promise<
+    E.Either<WorkspaceError<"INVALID_HANDLE" | "INVALID_PROVIDER">, void>
+  > {
+    const workspaceHandleRef = workspaceHandle.get()
+
+    if (workspaceHandleRef.value.type === "invalid") {
+      return E.left({ type: "SERVICE_ERROR", error: "INVALID_HANDLE" })
+    }
+
+    const provider = this.registeredProviders.get(
+      workspaceHandleRef.value.data.providerID
+    )
+
+    if (!provider) {
+      return E.left({ type: "SERVICE_ERROR", error: "INVALID_PROVIDER" })
+    }
+
+    const result = await provider.exportGQLCollections(workspaceHandle)
 
     if (E.isLeft(result)) {
       return E.left({ type: "PROVIDER_ERROR", error: result.left })

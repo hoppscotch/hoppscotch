@@ -1,9 +1,39 @@
 import { HoppGQLRequest } from "@hoppscotch/data"
-import { GQLResponseEvent } from "./connection"
+
 import { GQLOptionTabs } from "~/components/graphql/RequestOptions.vue"
+import { Handle } from "~/services/new-workspace/handle"
+import { WorkspaceRequest } from "~/services/new-workspace/workspace"
 import { HoppInheritedProperty } from "../types/HoppInheritedProperties"
+import { GQLResponseEvent } from "./connection"
 
 export type HoppGQLSaveContext =
+  | {
+      /**
+       * The origin source of the request
+       */
+      // TODO: Make this `user-collection` after porting all usages
+      // Future TODO: Keep separate types for the IDs (specific to persistence) & `requestHandle` (only existing at runtime)
+      originLocation: "workspace-user-collection"
+      /**
+       * ID of the workspace
+       */
+      workspaceID?: string
+
+      /**
+       * ID of the provider
+       */
+      providerID?: string
+
+      /**
+       * Path to the request in the collection tree
+       */
+      requestID?: string
+
+      /**
+       * Handle to the request open in the tab
+       */
+      requestHandle?: Handle<WorkspaceRequest>
+    }
   | {
       /**
        * The origin source of the request

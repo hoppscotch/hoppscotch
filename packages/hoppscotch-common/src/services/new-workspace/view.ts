@@ -2,7 +2,8 @@ import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
 import { Ref } from "vue"
 import { HoppInheritedRESTProperty } from "~/helpers/types/HoppInheritedProperties"
 
-export type RESTCollectionLevelAuthHeadersView = {
+// Shared across REST/GQL collections
+export type CollectionLevelAuthHeadersView = {
   auth: HoppInheritedRESTProperty["auth"]
   headers: HoppInheritedRESTProperty["headers"]
 }
@@ -46,7 +47,8 @@ export interface RESTCollectionChildrenView {
   content: Ref<RESTCollectionViewItem[]>
 }
 
-export interface RESTSearchResultsView {
+// Shared across REST/GQL collections
+export interface SearchResultsView {
   providerID: string
   workspaceID: string
 
@@ -56,7 +58,8 @@ export interface RESTSearchResultsView {
   onSessionEnd: () => void
 }
 
-export interface RESTCollectionJSONView {
+// Shared across REST/GQL collections
+export interface CollectionJSONView {
   providerID: string
   workspaceID: string
 

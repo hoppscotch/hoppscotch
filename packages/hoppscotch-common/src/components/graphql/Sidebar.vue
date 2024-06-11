@@ -162,7 +162,8 @@
       :icon="IconFolder"
       :label="`${t('tab.collections')}`"
     >
-      <CollectionsGraphql />
+      <!-- <CollectionsGraphql /> -->
+      <NewCollections :platform="'graphql'" />
     </HoppSmartTab>
     <HoppSmartTab
       :id="'history'"

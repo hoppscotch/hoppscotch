@@ -91,7 +91,7 @@
             "
             @edit-properties="
               node.data.type === 'collections' &&
-                emit('edit-properties', {
+                emit('edit-collection-properties', {
                   collectionIndex: node.id,
                   collection: node.data.data.data,
                 })
@@ -177,7 +177,7 @@
             "
             @edit-properties="
               node.data.type === 'folders' &&
-                emit('edit-properties', {
+                emit('edit-collection-properties', {
                   collectionIndex: node.id,
                   collection: node.data.data.data,
                 })
@@ -496,7 +496,7 @@ const emit = defineEmits<{
     }
   ): void
   (
-    event: "edit-properties",
+    event: "edit-collection-properties",
     payload: {
       collectionIndex: string
       collection: TeamCollection

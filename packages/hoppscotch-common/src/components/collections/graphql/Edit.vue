@@ -1,10 +1,5 @@
 <template>
-  <HoppSmartModal
-    v-if="show"
-    dialog
-    :title="`${t('collection.edit')}`"
-    @close="hideModal"
-  >
+  <HoppSmartModal dialog :title="`${t('collection.edit')}`" @close="hideModal">
     <template #body>
       <HoppSmartInput
         v-model="editingName"
@@ -33,34 +28,27 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from "vue"
-import { editGraphqlCollection } from "~/newstore/collections"
-import { useToast } from "@composables/toast"
 import { useI18n } from "@composables/i18n"
-import { HoppCollection } from "@hoppscotch/data"
+import { useToast } from "@composables/toast"
+import { onMounted, ref } from "vue"
 
 const props = defineProps<{
-  show: boolean
-  editingCollectionIndex: number | null
-  editingCollection: HoppCollection | null
   editingCollectionName: string
 }>()
 
 const emit = defineEmits<{
+  (e: "submit", name: string): void
   (e: "hide-modal"): void
 }>()
 
 const t = useI18n()
 const toast = useToast()
 
-const editingName = ref<string | null>()
+const editingName = ref<string | null>(null)
 
-watch(
-  () => props.editingCollectionName,
-  (val) => {
-    editingName.value = val
-  }
-)
+onMounted(() => {
+  editingName.value = props.editingCollectionName
+})
 
 const saveCollection = () => {
   if (!editingName.value) {
@@ -68,18 +56,10 @@ const saveCollection = () => {
     return
   }
 
-  // TODO: Better typechecking here ?
-  const collectionUpdated = {
-    ...(props.editingCollection as any),
-    name: editingName.value,
-  }
-
-  editGraphqlCollection(props.editingCollectionIndex, collectionUpdated)
-  hideModal()
+  emit("submit", editingName.value)
 }
 
 const hideModal = () => {
-  editingName.value = null
   emit("hide-modal")
 }
 </script>

@@ -37,7 +37,7 @@
         <NewCollections
           :picked="picked"
           :save-request="true"
-          platform="rest"
+          :platform="mode"
           @select="onSelect"
         />
       </div>
@@ -235,7 +235,8 @@ const saveRequestAs = async () => {
 
     const collectionHandleResult = await workspaceService.getCollectionHandle(
       workspaceService.activeWorkspaceHandle.value,
-      collectionPathIndex
+      collectionPathIndex,
+      "REST"
     )
 
     if (E.isLeft(collectionHandleResult)) {
@@ -280,7 +281,8 @@ const saveRequestAs = async () => {
 
     const requestHandleResult = await workspaceService.getRequestHandle(
       workspaceService.activeWorkspaceHandle.value,
-      `${picked.value.folderPath}/${picked.value.requestIndex.toString()}`
+      `${picked.value.folderPath}/${picked.value.requestIndex.toString()}`,
+      "REST"
     )
 
     if (E.isLeft(requestHandleResult)) {

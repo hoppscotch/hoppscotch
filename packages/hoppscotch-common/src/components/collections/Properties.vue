@@ -90,6 +90,11 @@ export type EditingProperties = {
   inheritedProperties?: HoppInheritedProperty
 }
 
+export type UpdatedCollectionProps = Omit<
+  EditingProperties,
+  "inheritedProperties" | "isRootCollection"
+>
+
 type HoppCollectionAuth = HoppRESTAuth | HoppGQLAuth
 type HoppCollectionHeaders = HoppRESTHeaders | GQLHeader[]
 
@@ -115,7 +120,10 @@ const props = withDefaults(
 const emit = defineEmits<{
   (
     e: "set-collection-properties",
-    newCollection: Omit<EditingProperties, "inheritedProperties">
+    newCollection: Omit<
+      EditingProperties,
+      "inheritedProperties" | "isRootCollection"
+    >
   ): void
   (e: "hide-modal"): void
   (e: "update:modelValue"): void
@@ -182,15 +190,14 @@ watch(
 const saveEditedCollection = () => {
   if (!props.editingProperties) return
   const finalCollection = clone(editableCollection.value)
-  const collection = {
+  const collection: UpdatedCollectionProps = {
     path: props.editingProperties.path,
     collection: {
       ...props.editingProperties.collection,
       ...finalCollection,
     },
-    isRootCollection: props.editingProperties.isRootCollection,
   }
-  emit("set-collection-properties", collection as EditingProperties)
+  emit("set-collection-properties", collection)
   persistenceService.removeLocalConfig("unsaved_collection_properties")
 }
 

@@ -280,7 +280,8 @@ const onResolveConfirmSaveTab = () => {
     (saveContext.originLocation === "workspace-user-collection" &&
       saveContext.requestHandle?.get().value.type === "invalid")
   ) {
-    return (savingRequest.value = true)
+    savingRequest.value = true
+    return
   }
 
   invokeAction("request.save")

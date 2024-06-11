@@ -1,4 +1,4 @@
-import { HoppRESTRequest } from "@hoppscotch/data"
+import { HoppGQLRequest, HoppRESTRequest } from "@hoppscotch/data"
 import { Component } from "vue"
 
 export type Workspace = {
@@ -22,7 +22,7 @@ export type WorkspaceRequest = {
   collectionID: string
   requestID: string
 
-  request: HoppRESTRequest
+  request: HoppRESTRequest | HoppGQLRequest
 }
 
 export type WorkspaceDecor = {

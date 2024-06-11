@@ -198,6 +198,17 @@ export const getResourceContents = async ({
         statusCode: number;
       }>;
 
+      const errReason = axiosErr.response?.data?.reason;
+
+      if (errReason) {
+        throw error({
+          code: errReason,
+          data: ["TOKEN_EXPIRED", "TOKEN_INVALID"].includes(errReason)
+            ? accessToken
+            : pathOrId,
+        });
+      }
+
       if (axiosErr.code === "ECONNREFUSED") {
         throw error({ code: "SERVER_CONNECTION_REFUSED", data: serverUrl });
       }
@@ -209,17 +220,6 @@ export const getResourceContents = async ({
         axiosErr.response?.status === 404
       ) {
         throw error({ code: "INVALID_SERVER_URL", data: serverUrl });
-      }
-
-      const errReason = axiosErr.response?.data?.reason;
-
-      if (errReason) {
-        throw error({
-          code: errReason,
-          data: ["TOKEN_EXPIRED", "TOKEN_INVALID"].includes(errReason)
-            ? accessToken
-            : pathOrId,
-        });
       }
     }
   }

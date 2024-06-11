@@ -486,7 +486,10 @@ import { useService } from "dioc/vue"
 import * as E from "fp-ts/lib/Either"
 import { cloneDeep, isEqual } from "lodash-es"
 import { markRaw, nextTick, onMounted, ref, watchEffect } from "vue"
-import { EditingProperties } from "~/components/collections/Properties.vue"
+import {
+  EditingProperties,
+  UpdatedCollectionProps,
+} from "~/components/collections/Properties.vue"
 import { RESTOptionTabs } from "~/components/http/RequestOptions.vue"
 
 import { useI18n } from "~/composables/i18n"
@@ -638,11 +641,11 @@ watchEffect(async () => {
     return
   }
 
-  const searchResultsHandleResult =
-    await workspaceService.getRESTSearchResultsView(
-      props.workspaceHandle,
-      ref(searchText)
-    )
+  const searchResultsHandleResult = await workspaceService.getSearchResultsView(
+    props.workspaceHandle,
+    searchText,
+    "REST"
+  )
 
   if (E.isLeft(searchResultsHandleResult)) {
     filteredCollections.value = []
@@ -785,7 +788,8 @@ const onRemoveRootCollection = async () => {
 
   const collectionHandleResult = await workspaceService.getCollectionHandle(
     props.workspaceHandle,
-    collectionIndexPath
+    collectionIndexPath,
+    "REST"
   )
 
   if (E.isLeft(collectionHandleResult)) {
@@ -827,7 +831,8 @@ const onAddRequest = async (requestName: string) => {
 
   const collectionHandleResult = await workspaceService.getCollectionHandle(
     props.workspaceHandle,
-    parentCollectionIndexPath
+    parentCollectionIndexPath,
+    "REST"
   )
 
   if (E.isLeft(collectionHandleResult)) {
@@ -869,8 +874,9 @@ const onAddRequest = async (requestName: string) => {
   }
 
   const cascadingAuthHeadersHandleResult =
-    await workspaceService.getRESTCollectionLevelAuthHeadersView(
-      collectionHandle
+    await workspaceService.getCollectionLevelAuthHeadersView(
+      collectionHandle,
+      "REST"
     )
 
   if (E.isLeft(cascadingAuthHeadersHandleResult)) {
@@ -914,7 +920,8 @@ const onAddChildCollection = async (newChildCollectionName: string) => {
 
   const collectionHandleResult = await workspaceService.getCollectionHandle(
     props.workspaceHandle,
-    parentCollectionIndexPath
+    parentCollectionIndexPath,
+    "REST"
   )
 
   if (E.isLeft(collectionHandleResult)) {
@@ -966,7 +973,8 @@ const onEditRootCollection = async (newCollectionName: string) => {
 
   const collectionHandleResult = await workspaceService.getCollectionHandle(
     props.workspaceHandle,
-    collectionIndexPath
+    collectionIndexPath,
+    "REST"
   )
 
   if (E.isLeft(collectionHandleResult)) {
@@ -1013,7 +1021,8 @@ const onEditChildCollection = async (newChildCollectionName: string) => {
 
   const collectionHandleResult = await workspaceService.getCollectionHandle(
     props.workspaceHandle,
-    collectionIndexPath
+    collectionIndexPath,
+    "REST"
   )
 
   if (E.isLeft(collectionHandleResult)) {
@@ -1056,7 +1065,8 @@ const onRemoveChildCollection = async () => {
   const parentCollectionHandleResult =
     await workspaceService.getCollectionHandle(
       props.workspaceHandle,
-      parentCollectionIndexPath
+      parentCollectionIndexPath,
+      "REST"
     )
 
   if (E.isLeft(parentCollectionHandleResult)) {
@@ -1109,7 +1119,8 @@ const onRemoveRequest = async () => {
 
   const requestHandleResult = await workspaceService.getRequestHandle(
     props.workspaceHandle,
-    requestIndexPath
+    requestIndexPath,
+    "REST"
   )
 
   if (E.isLeft(requestHandleResult)) {
@@ -1160,7 +1171,8 @@ const selectRequest = async (requestIndexPath: string) => {
 
   const collectionHandleResult = await workspaceService.getCollectionHandle(
     props.workspaceHandle,
-    collectionIndexPath
+    collectionIndexPath,
+    "REST"
   )
 
   if (E.isLeft(collectionHandleResult)) {
@@ -1172,7 +1184,8 @@ const selectRequest = async (requestIndexPath: string) => {
 
   const requestHandleResult = await workspaceService.getRequestHandle(
     props.workspaceHandle,
-    requestIndexPath
+    requestIndexPath,
+    "REST"
   )
 
   if (E.isLeft(requestHandleResult)) {
@@ -1183,8 +1196,9 @@ const selectRequest = async (requestIndexPath: string) => {
   const requestHandle = requestHandleResult.right
 
   const cascadingAuthHeadersHandleResult =
-    await workspaceService.getRESTCollectionLevelAuthHeadersView(
-      collectionHandle
+    await workspaceService.getCollectionLevelAuthHeadersView(
+      collectionHandle,
+      "REST"
     )
 
   if (E.isLeft(cascadingAuthHeadersHandleResult)) {
@@ -1215,7 +1229,7 @@ const selectRequest = async (requestIndexPath: string) => {
   } else if (requestHandleRef.value.type === "ok") {
     // If not, open the request in a new tab
     tabs.createNewTab({
-      request: requestHandleRef.value.data.request,
+      request: requestHandleRef.value.data.request as HoppRESTRequest,
       isDirty: false,
       saveContext: {
         originLocation: "workspace-user-collection",
@@ -1234,7 +1248,8 @@ const duplicateRequest = async (requestIndexPath: string) => {
 
   const requestHandleResult = await workspaceService.getRequestHandle(
     props.workspaceHandle,
-    requestIndexPath
+    requestIndexPath,
+    "REST"
   )
 
   if (E.isLeft(requestHandleResult)) {
@@ -1282,7 +1297,8 @@ const onEditRequest = async (newRequestName: string) => {
 
   const requestHandleResult = await workspaceService.getRequestHandle(
     props.workspaceHandle,
-    requestID
+    requestID,
+    "REST"
   )
 
   if (E.isLeft(requestHandleResult)) {
@@ -1322,7 +1338,10 @@ const onEditRequest = async (newRequestName: string) => {
 }
 
 const editCollectionProperties = async (collectionIndexPath: string) => {
-  const parentIndex = collectionIndexPath.split("/").slice(0, -1).join("/") // remove last folder to get parent folder
+  const parentCollectionID = collectionIndexPath
+    .split("/")
+    .slice(0, -1)
+    .join("/") // remove last folder to get parent folder
 
   let inheritedProperties = {
     auth: {
@@ -1344,7 +1363,8 @@ const editCollectionProperties = async (collectionIndexPath: string) => {
 
   const collectionHandleResult = await workspaceService.getCollectionHandle(
     props.workspaceHandle,
-    collectionIndexPath
+    collectionIndexPath,
+    "REST"
   )
 
   if (E.isLeft(collectionHandleResult)) {
@@ -1361,10 +1381,11 @@ const editCollectionProperties = async (collectionIndexPath: string) => {
     return
   }
 
-  if (parentIndex) {
+  if (parentCollectionID) {
     const cascadingAuthHeadersHandleResult =
-      await workspaceService.getRESTCollectionLevelAuthHeadersView(
-        collectionHandle
+      await workspaceService.getCollectionLevelAuthHeadersView(
+        collectionHandle,
+        "REST"
       )
 
     if (E.isLeft(cascadingAuthHeadersHandleResult)) {
@@ -1403,13 +1424,9 @@ const editCollectionProperties = async (collectionIndexPath: string) => {
   displayModalEditProperties(true)
 }
 
-const setCollectionProperties = async (updatedCollectionProps: {
-  collection: Partial<HoppCollection> | null
-  isRootCollection: boolean
-  path: string
-}) => {
-  console.error("Setting collection props")
-
+const setCollectionProperties = async (
+  updatedCollectionProps: UpdatedCollectionProps
+) => {
   const { collection, path } = updatedCollectionProps
 
   if (!collection) {
@@ -1418,7 +1435,8 @@ const setCollectionProperties = async (updatedCollectionProps: {
 
   const collectionHandleResult = await workspaceService.getCollectionHandle(
     props.workspaceHandle,
-    path
+    path,
+    "REST"
   )
 
   if (E.isLeft(collectionHandleResult)) {
@@ -1446,8 +1464,9 @@ const setCollectionProperties = async (updatedCollectionProps: {
   }
 
   const cascadingAuthHeadersHandleResult =
-    await workspaceService.getRESTCollectionLevelAuthHeadersView(
-      collectionHandle
+    await workspaceService.getCollectionLevelAuthHeadersView(
+      collectionHandle,
+      "REST"
     )
 
   if (E.isLeft(cascadingAuthHeadersHandleResult)) {
@@ -1485,7 +1504,8 @@ const setCollectionProperties = async (updatedCollectionProps: {
 const exportCollection = async (collectionIndexPath: string) => {
   const collectionHandleResult = await workspaceService.getCollectionHandle(
     props.workspaceHandle,
-    collectionIndexPath
+    collectionIndexPath,
+    "REST"
   )
 
   if (E.isLeft(collectionHandleResult)) {
@@ -1578,7 +1598,8 @@ const dropToRoot = async ({ dataTransfer }: DragEvent) => {
   const draggedCollectionHandleResult =
     await workspaceService.getCollectionHandle(
       props.workspaceHandle,
-      draggedCollectionIndex
+      draggedCollectionIndex,
+      "REST"
     )
 
   if (E.isLeft(draggedCollectionHandleResult)) {
@@ -1617,7 +1638,8 @@ const dropToRoot = async ({ dataTransfer }: DragEvent) => {
   const destinationRootCollectionHandleResult =
     await workspaceService.getCollectionHandle(
       props.workspaceHandle,
-      destinationRootCollectionIndex
+      destinationRootCollectionIndex,
+      "REST"
     )
 
   if (E.isLeft(destinationRootCollectionHandleResult)) {
@@ -1637,8 +1659,9 @@ const dropToRoot = async ({ dataTransfer }: DragEvent) => {
   }
 
   const cascadingAuthHeadersHandleResult =
-    await workspaceService.getRESTCollectionLevelAuthHeadersView(
-      destinationRootCollectionHandle
+    await workspaceService.getCollectionLevelAuthHeadersView(
+      destinationRootCollectionHandle,
+      "REST"
     )
 
   if (E.isLeft(cascadingAuthHeadersHandleResult)) {
@@ -1693,7 +1716,8 @@ const dropRequest = async (payload: {
 
   const requestHandleResult = await workspaceService.getRequestHandle(
     props.workspaceHandle,
-    requestIndex
+    requestIndex,
+    "REST"
   )
 
   if (E.isLeft(requestHandleResult)) {
@@ -1715,7 +1739,8 @@ const dropRequest = async (payload: {
 
   const collectionHandleResult = await workspaceService.getCollectionHandle(
     props.workspaceHandle,
-    destinationCollectionIndex
+    destinationCollectionIndex,
+    "REST"
   )
 
   if (E.isLeft(collectionHandleResult)) {
@@ -1726,8 +1751,9 @@ const dropRequest = async (payload: {
   const collectionHandle = collectionHandleResult.right
 
   const cascadingAuthHeadersHandleResult =
-    await workspaceService.getRESTCollectionLevelAuthHeadersView(
-      collectionHandle
+    await workspaceService.getCollectionLevelAuthHeadersView(
+      collectionHandle,
+      "REST"
     )
 
   if (E.isLeft(cascadingAuthHeadersHandleResult)) {
@@ -1818,7 +1844,8 @@ const dropCollection = async (payload: {
   const draggedCollectionHandleResult =
     await workspaceService.getCollectionHandle(
       props.workspaceHandle,
-      draggedCollectionIndex
+      draggedCollectionIndex,
+      "REST"
     )
 
   if (E.isLeft(draggedCollectionHandleResult)) {
@@ -1848,7 +1875,8 @@ const dropCollection = async (payload: {
   const destinationCollectionHandleResult =
     await workspaceService.getCollectionHandle(
       props.workspaceHandle,
-      destinationCollectionIndex
+      destinationCollectionIndex,
+      "REST"
     )
 
   if (E.isLeft(destinationCollectionHandleResult)) {
@@ -1866,8 +1894,9 @@ const dropCollection = async (payload: {
   }
 
   const cascadingAuthHeadersHandleResult =
-    await workspaceService.getRESTCollectionLevelAuthHeadersView(
-      destinationCollectionHandle
+    await workspaceService.getCollectionLevelAuthHeadersView(
+      destinationCollectionHandle,
+      "REST"
     )
 
   if (E.isLeft(cascadingAuthHeadersHandleResult)) {
@@ -1935,7 +1964,8 @@ const updateRequestOrder = async (
 
   const requestHandleResult = await workspaceService.getRequestHandle(
     props.workspaceHandle,
-    draggedRequestIndex
+    draggedRequestIndex,
+    "REST"
   )
 
   if (E.isLeft(requestHandleResult)) {
@@ -1996,7 +2026,8 @@ const updateCollectionOrder = async (
 
   const collectionHandleResult = await workspaceService.getCollectionHandle(
     props.workspaceHandle,
-    draggedCollectionIndex
+    draggedCollectionIndex,
+    "REST"
   )
 
   if (E.isLeft(collectionHandleResult)) {

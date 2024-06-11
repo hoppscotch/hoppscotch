@@ -10,25 +10,24 @@
       @dragend="dragging = false"
       @contextmenu.prevent="options.tippy.show()"
     >
-      <div
-        class="flex min-w-0 flex-1 items-center justify-center cursor-pointer"
+      <span
+        class="flex cursor-pointer items-center justify-center px-4"
         @click="toggleShowChildren()"
       >
-        <span class="pointer-events-none flex items-center justify-center px-4">
-          <component
-            :is="collectionIcon"
-            class="svg-icons"
-            :class="{ 'text-accent': isSelected }"
-          />
+        <component
+          :is="collectionIcon"
+          class="svg-icons"
+          :class="{ 'text-accent': isSelected }"
+        />
+      </span>
+      <span
+        class="flex min-w-0 flex-1 cursor-pointer py-2 pr-2 transition group-hover:text-secondaryDark"
+        @click="toggleShowChildren()"
+      >
+        <span class="truncate" :class="{ 'text-accent': isSelected }">
+          {{ collection.name }}
         </span>
-        <span
-          class="pointer-events-none flex min-w-0 flex-1 cursor-pointer py-2 pr-2 transition group-hover:text-secondaryDark"
-        >
-          <span class="truncate" :class="{ 'text-accent': isSelected }">
-            {{ folder.name }}
-          </span>
-        </span>
-      </div>
+      </span>
       <div class="flex">
         <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
@@ -37,8 +36,8 @@
           class="hidden group-hover:inline-flex"
           @click="
             emit('add-request', {
-              path: folderPath,
-              index: folder.requests.length,
+              path: `${collectionIndex}`,
+              index: collection.requests.length,
             })
           "
         />
@@ -47,7 +46,11 @@
           :icon="IconFolderPlus"
           :title="t('folder.new')"
           class="hidden group-hover:inline-flex"
-          @click="emit('add-folder', { folder, path: folderPath })"
+          @click="
+            emit('add-folder', {
+              path: `${collectionIndex}`,
+            })
+          "
         />
         <span>
           <tippy
@@ -80,7 +83,9 @@
                   :shortcut="['R']"
                   @click="
                     () => {
-                      emit('add-request', { path: folderPath })
+                      $emit('add-request', {
+                        path: `${collectionIndex}`,
+                      })
                       hide()
                     }
                   "
@@ -92,7 +97,9 @@
                   :shortcut="['N']"
                   @click="
                     () => {
-                      emit('add-folder', { folder, path: folderPath })
+                      emit('add-folder', {
+                        path: `${collectionIndex}`,
+                      })
                       hide()
                     }
                   "
@@ -104,7 +111,7 @@
                   :shortcut="['E']"
                   @click="
                     () => {
-                      emit('edit-folder', { folder, folderPath })
+                      emit('edit-collection')
                       hide()
                     }
                   "
@@ -128,10 +135,10 @@
                   :shortcut="['P']"
                   @click="
                     () => {
-                      emit('edit-properties', {
-                        collectionIndex: collectionIndex,
-                        collection: collection,
-                      })
+                      emit(
+                        'edit-collection-properties',
+                        collectionIndex.toString()
+                      )
                       hide()
                     }
                   "
@@ -148,118 +155,132 @@
         @click="toggleShowChildren()"
       ></div>
       <div class="flex flex-1 flex-col truncate">
-        <!-- Referring to this component only (this is recursive) -->
-        <Folder
-          v-for="(subFolder, subFolderIndex) in folder.folders"
-          :key="`subFolder-${String(subFolderIndex)}`"
+        <NewCollectionsGraphqlChildCollection
+          v-for="(folder, index) in collection.folders"
+          :key="`folder-${String(index)}`"
           :picked="picked"
           :save-request="saveRequest"
-          :folder="subFolder"
-          :folder-index="subFolderIndex"
-          :folder-path="`${folderPath}/${String(subFolderIndex)}`"
+          :folder="folder"
+          :folder-index="index"
+          :folder-path="`${collectionIndex}/${String(index)}`"
           :collection-index="collectionIndex"
           :is-filtered="isFiltered"
-          @add-request="emit('add-request', $event)"
-          @add-folder="emit('add-folder', $event)"
-          @edit-folder="emit('edit-folder', $event)"
-          @edit-request="emit('edit-request', $event)"
-          @duplicate-request="emit('duplicate-request', $event)"
-          @edit-properties="
-            emit('edit-properties', {
-              collectionIndex: `${folderPath}/${String(subFolderIndex)}`,
-              collection: subFolder,
-            })
+          @add-request="$emit('add-request', $event)"
+          @add-folder="$emit('add-folder', $event)"
+          @edit-folder="$emit('edit-folder', $event)"
+          @edit-request="$emit('edit-request', $event)"
+          @duplicate-request="$emit('duplicate-request', $event)"
+          @edit-collection-properties="
+            $emit(
+              'edit-collection-properties',
+              `${collectionIndex}/${String(index)}`
+            )
           "
-          @select="emit('select', $event)"
+          @select="$emit('select', $event)"
           @select-request="$emit('select-request', $event)"
+          @drop-request="$emit('drop-request', $event)"
+          @remove-collection="$emit('remove-collection', $event)"
+          @remove-request="$emit('remove-request', $event)"
         />
-        <CollectionsGraphqlRequest
-          v-for="(request, index) in folder.requests"
+        <NewCollectionsGraphqlRequest
+          v-for="(request, index) in collection.requests"
           :key="`request-${String(index)}`"
           :picked="picked"
           :save-request="saveRequest"
           :request="request as HoppGQLRequest"
           :collection-index="collectionIndex"
-          :folder-index="folderIndex"
-          :folder-path="folderPath"
-          :folder-name="folder.name"
+          :folder-index="-1"
+          :folder-name="collection.name"
+          :folder-path="`${collectionIndex}`"
           :request-index="index"
-          @edit-request="emit('edit-request', $event)"
-          @duplicate-request="emit('duplicate-request', $event)"
-          @select="emit('select', $event)"
+          @edit-request="$emit('edit-request', $event)"
+          @duplicate-request="$emit('duplicate-request', $event)"
+          @select="$emit('select', $event)"
           @select-request="$emit('select-request', $event)"
+          @remove-request="$emit('remove-request', $event)"
         />
-
         <HoppSmartPlaceholder
           v-if="
-            folder.folders &&
-            folder.folders.length === 0 &&
-            folder.requests &&
-            folder.requests.length === 0
+            collection.folders.length === 0 && collection.requests.length === 0
           "
           :src="`/images/states/${colorMode.value}/pack.svg`"
-          :alt="`${t('empty.folder')}`"
-          :text="t('empty.folder')"
-        />
+          :alt="`${t('empty.collection')}`"
+          :text="t('empty.collection')"
+        >
+          <template #body>
+            <HoppButtonSecondary
+              :label="t('add.new')"
+              filled
+              outline
+              @click="
+                emit('add-folder', {
+                  path: `${collectionIndex}`,
+                })
+              "
+            />
+          </template>
+        </HoppSmartPlaceholder>
       </div>
     </div>
     <HoppSmartConfirmModal
       :show="confirmRemove"
-      :title="`${t('confirm.remove_folder')}`"
+      :title="`${t('confirm.remove_collection')}`"
       @hide-modal="confirmRemove = false"
-      @resolve="removeFolder"
+      @resolve="removeCollection"
     />
   </div>
 </template>
 
 <script setup lang="ts">
-import IconEdit from "~icons/lucide/edit"
-import IconTrash2 from "~icons/lucide/trash-2"
-import IconFolderPlus from "~icons/lucide/folder-plus"
-import IconFilePlus from "~icons/lucide/file-plus"
-import IconMoreVertical from "~icons/lucide/more-vertical"
-import IconCheckCircle from "~icons/lucide/check-circle"
-import IconFolder from "~icons/lucide/folder"
-import IconFolderOpen from "~icons/lucide/folder-open"
-import IconSettings2 from "~icons/lucide/settings-2"
-import { useToast } from "@composables/toast"
 import { useI18n } from "@composables/i18n"
 import { useColorMode } from "@composables/theming"
-import { removeGraphqlFolder } from "~/newstore/collections"
-import { computed, ref } from "vue"
-import { useService } from "dioc/vue"
-import { GQLTabService } from "~/services/tab/graphql"
-import { Picked } from "~/helpers/types/HoppPicked"
 import { HoppCollection, HoppGQLRequest } from "@hoppscotch/data"
+import { computed, ref } from "vue"
 
-const toast = useToast()
-const t = useI18n()
-const colorMode = useColorMode()
-
-const tabs = useService(GQLTabService)
+import { Picked } from "~/helpers/types/HoppPicked"
+import IconCheckCircle from "~icons/lucide/check-circle"
+import IconEdit from "~icons/lucide/edit"
+import IconFilePlus from "~icons/lucide/file-plus"
+import IconFolder from "~icons/lucide/folder"
+import IconFolderOpen from "~icons/lucide/folder-open"
+import IconFolderPlus from "~icons/lucide/folder-plus"
+import IconMoreVertical from "~icons/lucide/more-vertical"
+import IconSettings2 from "~icons/lucide/settings-2"
+import IconTrash2 from "~icons/lucide/trash-2"
 
 const props = defineProps<{
-  picked: Picked
-  // Whether the request is in a selectable mode (activates 'select' event)
-  saveRequest: boolean
-  folder: HoppCollection
-  folderIndex: number
+  picked?: Picked | null
+  // Whether the viewing context is related to picking (activates 'select' events)
+  saveRequest?: boolean
   collectionIndex: number
-  folderPath: string
+  collection: HoppCollection
   isFiltered: boolean
 }>()
 
-const emit = defineEmits([
-  "select",
-  "add-request",
-  "edit-request",
-  "add-folder",
-  "edit-folder",
-  "duplicate-request",
-  "edit-properties",
-  "select-request",
-  "drop-request",
-])
+const colorMode = useColorMode()
+const t = useI18n()
+
+const emit = defineEmits<{
+  (e: "select", i: Picked | null): void
+  (e: "edit-request", i: any): void
+  (e: "duplicate-request", i: any): void
+  (e: "add-request", i: any): void
+  (e: "add-folder", i: any): void
+  (e: "edit-folder", i: any): void
+  (e: "remove-collection", collectionID: string): void
+  (e: "remove-request", requestID: string): void
+  (e: "edit-collection-properties", collectionID: string): void
+  (e: "edit-collection"): void
+  (e: "select-request", i: any): void
+  (
+    e: "drop-request",
+    payload: {
+      folderPath: string
+      requestIndex: string
+      collectionIndex: string | null
+    }
+  ): void
+}>()
 
 // Template refs
 const tippyActions = ref<any | null>(null)
@@ -271,24 +292,25 @@ const deleteAction = ref<any | null>(null)
 
 const showChildren = ref(false)
 const dragging = ref(false)
+
 const confirmRemove = ref(false)
 
 const isSelected = computed(
   () =>
-    props.picked?.pickedType === "gql-my-folder" &&
-    props.picked?.folderPath === props.folderPath
+    props.picked?.pickedType === "gql-my-collection" &&
+    props.picked?.collectionIndex === props.collectionIndex
 )
 const collectionIcon = computed(() => {
   if (isSelected.value) return IconCheckCircle
   else if (!showChildren.value && !props.isFiltered) return IconFolder
-  else if (showChildren.value || !props.isFiltered) return IconFolderOpen
+  else if (!showChildren.value || props.isFiltered) return IconFolderOpen
   return IconFolder
 })
 
 const pick = () => {
   emit("select", {
-    pickedType: "gql-my-folder",
-    folderPath: props.folderPath,
+    pickedType: "gql-my-collection",
+    collectionIndex: props.collectionIndex,
   })
 }
 
@@ -300,44 +322,26 @@ const toggleShowChildren = () => {
   showChildren.value = !showChildren.value
 }
 
-const removeFolder = () => {
-  // Cancel pick if the picked folder is deleted
+const removeCollection = () => {
+  // Cancel pick if picked collection is deleted
   if (
-    props.picked?.pickedType === "gql-my-folder" &&
-    props.picked?.folderPath === props.folderPath
+    props.picked?.pickedType === "gql-my-collection" &&
+    props.picked?.collectionIndex === props.collectionIndex
   ) {
-    emit("select", { picked: null })
+    emit("select", null)
   }
 
-  const possibleTabs = tabs.getTabsRefTo((tab) => {
-    const ctx = tab.document.saveContext
-
-    if (!ctx) return false
-
-    return (
-      ctx.originLocation === "user-collection" &&
-      ctx.folderPath.startsWith(props.folderPath)
-    )
-  })
-
-  for (const tab of possibleTabs) {
-    tab.value.document.saveContext = undefined
-    tab.value.document.isDirty = true
-  }
-
-  removeGraphqlFolder(props.folderPath, props.folder.id)
-  toast.success(t("state.deleted"))
+  emit("remove-collection", props.collectionIndex.toString())
 }
 
 const dropEvent = ({ dataTransfer }: any) => {
   dragging.value = !dragging.value
   const folderPath = dataTransfer.getData("folderPath")
   const requestIndex = dataTransfer.getData("requestIndex")
-
   emit("drop-request", {
     folderPath,
     requestIndex,
-    collectionIndex: props.folderPath,
+    collectionIndex: props.collectionIndex.toString(),
   })
 }
 </script>

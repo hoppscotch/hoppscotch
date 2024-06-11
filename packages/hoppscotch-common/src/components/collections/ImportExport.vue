@@ -425,12 +425,6 @@ const HoppMyCollectionsExporter: ImporterOrExporter = {
 
     toast.success(t("state.download_started"))
 
-    platform.analytics?.logEvent({
-      type: "HOPP_EXPORT_COLLECTION",
-      exporter: "json",
-      platform: "rest",
-    })
-
     isHoppMyCollectionExporterInProgress.value = false
   },
 }

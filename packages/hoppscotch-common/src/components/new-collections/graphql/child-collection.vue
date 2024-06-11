@@ -12,7 +12,7 @@
     >
       <div
         class="flex min-w-0 flex-1 items-center justify-center cursor-pointer"
-        @click="toggleShowChildren()"
+        @click="toggleShowChildren"
       >
         <span class="pointer-events-none flex items-center justify-center px-4">
           <component
@@ -104,7 +104,10 @@
                   :shortcut="['E']"
                   @click="
                     () => {
-                      emit('edit-folder', { folder, folderPath })
+                      emit('edit-folder', {
+                        collectionID: folderPath,
+                        collectionName: folder.name,
+                      })
                       hide()
                     }
                   "
@@ -128,10 +131,7 @@
                   :shortcut="['P']"
                   @click="
                     () => {
-                      emit('edit-properties', {
-                        collectionIndex: collectionIndex,
-                        collection: collection,
-                      })
+                      emit('edit-collection-properties', collectionIndex)
                       hide()
                     }
                   "
@@ -149,7 +149,7 @@
       ></div>
       <div class="flex flex-1 flex-col truncate">
         <!-- Referring to this component only (this is recursive) -->
-        <Folder
+        <ChildCollection
           v-for="(subFolder, subFolderIndex) in folder.folders"
           :key="`subFolder-${String(subFolderIndex)}`"
           :picked="picked"
@@ -164,16 +164,18 @@
           @edit-folder="emit('edit-folder', $event)"
           @edit-request="emit('edit-request', $event)"
           @duplicate-request="emit('duplicate-request', $event)"
-          @edit-properties="
-            emit('edit-properties', {
-              collectionIndex: `${folderPath}/${String(subFolderIndex)}`,
-              collection: subFolder,
-            })
+          @edit-collection-properties="
+            emit(
+              'edit-collection-properties',
+              `${folderPath}/${String(subFolderIndex)}`
+            )
           "
           @select="emit('select', $event)"
           @select-request="$emit('select-request', $event)"
+          @remove-collection="$emit('remove-collection', $event)"
+          @remove-request="$emit('remove-request', $event)"
         />
-        <CollectionsGraphqlRequest
+        <NewCollectionsGraphqlRequest
           v-for="(request, index) in folder.requests"
           :key="`request-${String(index)}`"
           :picked="picked"
@@ -188,6 +190,7 @@
           @duplicate-request="emit('duplicate-request', $event)"
           @select="emit('select', $event)"
           @select-request="$emit('select-request', $event)"
+          @remove-request="$emit('remove-request', $event)"
         />
 
         <HoppSmartPlaceholder
@@ -213,35 +216,29 @@
 </template>
 
 <script setup lang="ts">
-import IconEdit from "~icons/lucide/edit"
-import IconTrash2 from "~icons/lucide/trash-2"
-import IconFolderPlus from "~icons/lucide/folder-plus"
-import IconFilePlus from "~icons/lucide/file-plus"
-import IconMoreVertical from "~icons/lucide/more-vertical"
-import IconCheckCircle from "~icons/lucide/check-circle"
-import IconFolder from "~icons/lucide/folder"
-import IconFolderOpen from "~icons/lucide/folder-open"
-import IconSettings2 from "~icons/lucide/settings-2"
-import { useToast } from "@composables/toast"
 import { useI18n } from "@composables/i18n"
 import { useColorMode } from "@composables/theming"
-import { removeGraphqlFolder } from "~/newstore/collections"
-import { computed, ref } from "vue"
-import { useService } from "dioc/vue"
-import { GQLTabService } from "~/services/tab/graphql"
-import { Picked } from "~/helpers/types/HoppPicked"
 import { HoppCollection, HoppGQLRequest } from "@hoppscotch/data"
+import { computed, ref } from "vue"
 
-const toast = useToast()
+import { Picked } from "~/helpers/types/HoppPicked"
+import IconCheckCircle from "~icons/lucide/check-circle"
+import IconEdit from "~icons/lucide/edit"
+import IconFilePlus from "~icons/lucide/file-plus"
+import IconFolder from "~icons/lucide/folder"
+import IconFolderOpen from "~icons/lucide/folder-open"
+import IconFolderPlus from "~icons/lucide/folder-plus"
+import IconMoreVertical from "~icons/lucide/more-vertical"
+import IconSettings2 from "~icons/lucide/settings-2"
+import IconTrash2 from "~icons/lucide/trash-2"
+
 const t = useI18n()
 const colorMode = useColorMode()
 
-const tabs = useService(GQLTabService)
-
 const props = defineProps<{
-  picked: Picked
+  picked?: Picked | null
   // Whether the request is in a selectable mode (activates 'select' event)
-  saveRequest: boolean
+  saveRequest?: boolean
   folder: HoppCollection
   folderIndex: number
   collectionIndex: number
@@ -256,9 +253,11 @@ const emit = defineEmits([
   "add-folder",
   "edit-folder",
   "duplicate-request",
-  "edit-properties",
+  "edit-collection-properties",
   "select-request",
   "drop-request",
+  "remove-collection",
+  "remove-request",
 ])
 
 // Template refs
@@ -309,24 +308,7 @@ const removeFolder = () => {
     emit("select", { picked: null })
   }
 
-  const possibleTabs = tabs.getTabsRefTo((tab) => {
-    const ctx = tab.document.saveContext
-
-    if (!ctx) return false
-
-    return (
-      ctx.originLocation === "user-collection" &&
-      ctx.folderPath.startsWith(props.folderPath)
-    )
-  })
-
-  for (const tab of possibleTabs) {
-    tab.value.document.saveContext = undefined
-    tab.value.document.isDirty = true
-  }
-
-  removeGraphqlFolder(props.folderPath, props.folder.id)
-  toast.success(t("state.deleted"))
+  emit("remove-collection", props.folderPath)
 }
 
 const dropEvent = ({ dataTransfer }: any) => {

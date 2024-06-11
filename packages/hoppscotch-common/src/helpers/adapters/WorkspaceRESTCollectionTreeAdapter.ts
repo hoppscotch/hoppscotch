@@ -44,7 +44,8 @@ export class WorkspaceRESTCollectionTreeAdapter
         const collectionHandleResult =
           await this.workspaceService.getCollectionHandle(
             this.workspaceHandle,
-            nodeID
+            nodeID,
+            "REST"
           )
 
         // TODO: Better error handling

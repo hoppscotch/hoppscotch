@@ -50,8 +50,41 @@ export class GQLTabService extends TabService<HoppGQLDocument> {
         ) {
           return this.getTabRef(tab.id)
         }
-      } else if (isEqual(ctx, tab.document.saveContext))
-        return this.getTabRef(tab.id)
+      } else if (ctx?.originLocation === "user-collection") {
+        if (isEqual(ctx, tab.document.saveContext)) {
+          return this.getTabRef(tab.id)
+        }
+      } else if (
+        ctx?.originLocation === "workspace-user-collection" &&
+        tab.document.saveContext?.originLocation === "workspace-user-collection"
+      ) {
+        const requestHandle = tab.document.saveContext.requestHandle
+
+        if (!ctx.requestHandle || !requestHandle) {
+          continue
+        }
+
+        const tabRequestHandleRef = requestHandle.get()
+        const requestHandleRef = ctx.requestHandle.get()
+
+        if (
+          requestHandleRef.value.type === "invalid" ||
+          tabRequestHandleRef.value.type === "invalid"
+        ) {
+          continue
+        }
+
+        if (
+          requestHandleRef.value.data.providerID ===
+            tabRequestHandleRef.value.data.providerID &&
+          requestHandleRef.value.data.workspaceID ===
+            tabRequestHandleRef.value.data.workspaceID &&
+          requestHandleRef.value.data.requestID ===
+            tabRequestHandleRef.value.data.requestID
+        ) {
+          return this.getTabRef(tab.id)
+        }
+      }
     }
 
     return null
@@ -61,7 +94,20 @@ export class GQLTabService extends TabService<HoppGQLDocument> {
     let count = 0
 
     for (const tab of this.tabMap.values()) {
-      if (tab.document.isDirty) count++
+      if (tab.document.isDirty) {
+        count++
+        continue
+      }
+
+      if (
+        tab.document.saveContext?.originLocation === "workspace-user-collection"
+      ) {
+        const requestHandle = tab.document.saveContext.requestHandle
+
+        if (requestHandle?.get().value.type === "invalid") {
+          count++
+        }
+      }
     }
 
     return count

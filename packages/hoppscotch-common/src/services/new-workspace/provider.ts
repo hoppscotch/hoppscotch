@@ -1,13 +1,17 @@
 import * as E from "fp-ts/Either"
 import { Ref } from "vue"
 
-import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
+import {
+  HoppCollection,
+  HoppGQLRequest,
+  HoppRESTRequest,
+} from "@hoppscotch/data"
 import { Handle } from "./handle"
 import {
   RESTCollectionChildrenView,
-  RESTCollectionJSONView,
-  RESTCollectionLevelAuthHeadersView,
-  RESTSearchResultsView,
+  CollectionJSONView,
+  CollectionLevelAuthHeadersView,
+  SearchResultsView,
   RootRESTCollectionView,
 } from "./view"
 import {
@@ -22,17 +26,31 @@ export interface WorkspaceProvider {
 
   workspaceDecor?: Ref<WorkspaceDecor>
 
+  // TODO: import/export API methods could be unified b/w REST & GQL perhaps taking in a `type` parameter
+
   getWorkspaceHandle(
     workspaceID: string
   ): Promise<E.Either<unknown, Handle<Workspace>>>
   getCollectionHandle(
     workspaceHandle: Handle<Workspace>,
-    collectionID: string
+    collectionID: string,
+    type: "REST" | "GQL"
   ): Promise<E.Either<unknown, Handle<WorkspaceCollection>>>
   getRequestHandle(
     workspaceHandle: Handle<Workspace>,
-    requestID: string
+    requestID: string,
+    type: "REST" | "GQL"
   ): Promise<E.Either<unknown, Handle<WorkspaceRequest>>>
+
+  getCollectionLevelAuthHeadersView(
+    collectionHandle: Handle<WorkspaceCollection>,
+    type: "REST" | "GQL"
+  ): Promise<E.Either<never, Handle<CollectionLevelAuthHeadersView>>>
+  getSearchResultsView(
+    workspaceHandle: Handle<Workspace>,
+    searchQuery: Ref<string>,
+    type: "REST" | "GQL"
+  ): Promise<E.Either<never, Handle<SearchResultsView>>>
 
   getRESTRootCollectionView(
     workspaceHandle: Handle<Workspace>
@@ -40,16 +58,9 @@ export interface WorkspaceProvider {
   getRESTCollectionChildrenView(
     collectionHandle: Handle<WorkspaceCollection>
   ): Promise<E.Either<never, Handle<RESTCollectionChildrenView>>>
-  getRESTCollectionLevelAuthHeadersView(
-    collectionHandle: Handle<WorkspaceCollection>
-  ): Promise<E.Either<never, Handle<RESTCollectionLevelAuthHeadersView>>>
-  getRESTSearchResultsView(
-    workspaceHandle: Handle<Workspace>,
-    searchQuery: Ref<string>
-  ): Promise<E.Either<never, Handle<RESTSearchResultsView>>>
   getRESTCollectionJSONView(
     workspaceHandle: Handle<Workspace>
-  ): Promise<E.Either<never, Handle<RESTCollectionJSONView>>>
+  ): Promise<E.Either<never, Handle<CollectionJSONView>>>
 
   createRESTRootCollection(
     workspaceHandle: Handle<Workspace>,
@@ -104,5 +115,45 @@ export interface WorkspaceProvider {
   moveRESTRequest(
     requestHandle: Handle<WorkspaceRequest>,
     destinationCollectionID: string
+  ): Promise<E.Either<unknown, void>>
+
+  createGQLRootCollection(
+    workspaceHandle: Handle<Workspace>,
+    newCollection: Partial<Exclude<HoppCollection, "id">> & { name: string }
+  ): Promise<E.Either<unknown, Handle<WorkspaceCollection>>>
+  createGQLChildCollection(
+    parentCollectionHandle: Handle<WorkspaceCollection>,
+    newChildCollection: Partial<HoppCollection> & { name: string }
+  ): Promise<E.Either<unknown, Handle<WorkspaceCollection>>>
+  updateGQLCollection(
+    collectionHandle: Handle<WorkspaceCollection>,
+    updatedCollection: Partial<HoppCollection>
+  ): Promise<E.Either<unknown, void>>
+  removeGQLCollection(
+    collectionHandle: Handle<WorkspaceCollection>
+  ): Promise<E.Either<unknown, void>>
+  createGQLRequest(
+    parentCollectionHandle: Handle<WorkspaceCollection>,
+    newRequest: HoppGQLRequest
+  ): Promise<E.Either<unknown, Handle<WorkspaceRequest>>>
+  updateGQLRequest(
+    requestHandle: Handle<WorkspaceRequest>,
+    updatedRequest: Partial<HoppGQLRequest>
+  ): Promise<E.Either<unknown, void>>
+  removeGQLRequest(
+    requestHandle: Handle<WorkspaceRequest>
+  ): Promise<E.Either<unknown, void>>
+
+  moveGQLRequest(
+    requestHandle: Handle<WorkspaceRequest>,
+    destinationCollectionID: string
+  ): Promise<E.Either<unknown, void>>
+
+  importGQLCollections(
+    workspaceHandle: Handle<Workspace>,
+    collections: HoppCollection[]
+  ): Promise<E.Either<unknown, void>>
+  exportGQLCollections(
+    workspaceHandle: Handle<Workspace>
   ): Promise<E.Either<unknown, void>>
 }

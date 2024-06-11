@@ -1,7 +1,9 @@
 import {
+  GQL_REQ_SCHEMA_VERSION,
   HoppCollection,
   HoppGQLRequest,
   HoppRESTRequest,
+  RESTReqSchemaVersion,
 } from "@hoppscotch/data"
 
 import { getService } from "~/modules/dioc"
@@ -114,10 +116,11 @@ export function getRequestsByPath(
 
   if (pathArray.length === 1) {
     const latestVersionedRequests = currentCollection.requests.filter(
-      (req): req is HoppRESTRequest => req.v === "4"
+      (req): req is HoppRESTRequest | HoppGQLRequest =>
+        req.v === RESTReqSchemaVersion || req.v === GQL_REQ_SCHEMA_VERSION
     )
 
-    return latestVersionedRequests
+    return latestVersionedRequests as HoppRESTRequest[] | HoppGQLRequest[]
   }
   for (let i = 1; i < pathArray.length; i++) {
     const folder = currentCollection.folders[pathArray[i]]
@@ -125,8 +128,9 @@ export function getRequestsByPath(
   }
 
   const latestVersionedRequests = currentCollection.requests.filter(
-    (req): req is HoppRESTRequest => req.v === "4"
+    (req): req is HoppRESTRequest | HoppGQLRequest =>
+      req.v === RESTReqSchemaVersion || req.v === GQL_REQ_SCHEMA_VERSION
   )
 
-  return latestVersionedRequests
+  return latestVersionedRequests as HoppRESTRequest[] | HoppGQLRequest[]
 }

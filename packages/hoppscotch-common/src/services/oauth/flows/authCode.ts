@@ -30,7 +30,6 @@ const AuthCodeOauthFlowParamsSchema = AuthCodeGrantTypeParams.pick({
         params.authEndpoint.length >= 1 &&
         params.tokenEndpoint.length >= 1 &&
         params.clientID.length >= 1 &&
-        params.clientSecret.length >= 1 &&
         (!params.scopes || params.scopes.trim().length >= 1)
       )
     },
@@ -85,7 +84,7 @@ const initAuthCodeOauthFlow = async ({
     grant_type: "AUTHORIZATION_CODE"
     authEndpoint: string
     tokenEndpoint: string
-    clientSecret: string
+    clientSecret?: string
     clientID: string
     isPKCE: boolean
     codeVerifier?: string

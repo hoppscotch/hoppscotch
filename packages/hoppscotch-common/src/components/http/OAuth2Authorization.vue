@@ -302,7 +302,7 @@ const supportedGrantTypes = [
 
           auth.value.grantTypeInfo = {
             ...auth.value.grantTypeInfo,
-            clientSecret: value,
+            clientSecret: value ?? "",
           }
         }
       )

@@ -125,6 +125,7 @@ declare module 'vue' {
     HttpCodegen: typeof import('./components/http/Codegen.vue')['default']
     HttpCodegenBody: typeof import('./components/http/CodegenBody.vue')['default']
     HttpCodegenModal: typeof import('./components/http/CodegenModal.vue')['default']
+    HttpGenerateCode: typeof import('./components/http/GenerateCode.vue')['default']
     HttpHeaders: typeof import('./components/http/Headers.vue')['default']
     HttpImportCurl: typeof import('./components/http/ImportCurl.vue')['default']
     HttpOAuth2Authorization: typeof import('./components/http/OAuth2Authorization.vue')['default']

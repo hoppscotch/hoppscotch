@@ -38,32 +38,7 @@
       :icon="IconCode"
       :label="`${t('tab.codegen')}`"
     >
-      <AppPaneLayout layout-id="code-gen" force-column-layout>
-        <template #primary>
-          <div
-            class="flex items-center overflow-x-auto whitespace-nowrap border-b border-dividerLight px-4 py-2 text-tiny text-secondaryLight"
-          >
-            <span class="truncate"> Request </span>
-            <icon-lucide-chevron-right class="mx-2" />
-            Code snippet
-          </div>
-          <HttpCodegen
-            :hide-label="true"
-            class="px-4 mt-4"
-            v-if="selectedNavigationTab === 'codegen'"
-          />
-        </template>
-        <template #secondary>
-          <div
-            class="flex items-center overflow-x-auto whitespace-nowrap border-b border-dividerLight px-4 py-2 text-tiny text-secondaryLight"
-          >
-            <span class="truncate"> Response </span>
-            <icon-lucide-chevron-right class="mx-2" />
-            Inteface type
-          </div>
-          <HttpResponseInterface />
-        </template>
-      </AppPaneLayout>
+      <HttpGenerateCode :show="selectedNavigationTab === 'codegen'" />
     </HoppSmartTab>
   </HoppSmartTabs>
 </template>
@@ -86,5 +61,5 @@ type RequestOptionTabs =
   | "share-request"
   | "codegen"
 
-const selectedNavigationTab = ref<RequestOptionTabs>("collections")
+const selectedNavigationTab = ref<RequestOptionTabs>("codegen")
 </script>

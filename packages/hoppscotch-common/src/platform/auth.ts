@@ -148,6 +148,7 @@ export type AuthPlatformDef = {
    * called by the platform to provide additional/different config options when
    * sending requests with axios
    * eg: SH needs to include cookies in the request, while Central doesn't and throws a cors error if it does
+   * Ensure to invoke `platform.auth.waitProbableLoginToConfirm()` before accessing
    *
    * @returns AxiosRequestConfig
    */

@@ -66,9 +66,11 @@ const accessTokens: Ref<AccessToken[]> = ref([])
 const limit = 12
 let offset = 0
 
-const accessTokenEndpointMetadata = {
-  axiosPlatformConfig: platform.auth.axiosPlatformConfig?.() ?? {},
-  endpointPrefix: `${import.meta.env.VITE_BACKEND_API_URL}/access-tokens`,
+const endpointPrefix = `${import.meta.env.VITE_BACKEND_API_URL}/access-tokens`
+
+const getAxiosPlatformConfig = async () => {
+  await platform.auth.waitProbableLoginToConfirm()
+  return platform.auth.axiosPlatformConfig?.() ?? {}
 }
 
 onMounted(async () => {
@@ -78,12 +80,11 @@ onMounted(async () => {
 const fetchAccessTokens = async () => {
   tokensListLoading.value = true
 
-  const { axiosPlatformConfig, endpointPrefix } = accessTokenEndpointMetadata
-
+  const axiosConfig = await getAxiosPlatformConfig()
   const endpoint = `${endpointPrefix}/list?offset=${offset}&limit=${limit}`
 
   try {
-    const { data } = await axios.get(endpoint, axiosPlatformConfig)
+    const { data } = await axios.get(endpoint, axiosConfig)
 
     accessTokens.value.push(...data)
 
@@ -113,8 +114,7 @@ const generateAccessToken = async ({
 }) => {
   tokenGenerateActionLoading.value = true
 
-  const { axiosPlatformConfig, endpointPrefix } = accessTokenEndpointMetadata
-
+  const axiosConfig = await getAxiosPlatformConfig()
   const endpoint = `${endpointPrefix}/create`
 
   const body = {
@@ -124,7 +124,7 @@ const generateAccessToken = async ({
 
   try {
     const { data }: { data: { token: string; info: AccessToken } } =
-      await axios.post(endpoint, body, axiosPlatformConfig)
+      await axios.post(endpoint, body, axiosConfig)
 
     accessTokens.value.unshift(data.info)
     accessToken.value = data.token
@@ -149,12 +149,11 @@ const deleteAccessToken = async () => {
 
   tokenDeleteActionLoading.value = true
 
-  const { axiosPlatformConfig, endpointPrefix } = accessTokenEndpointMetadata
-
+  const axiosConfig = await getAxiosPlatformConfig()
   const endpoint = `${endpointPrefix}/revoke?id=${tokenIdToDelete}`
 
   try {
-    await axios.delete(endpoint, axiosPlatformConfig)
+    await axios.delete(endpoint, axiosConfig)
 
     accessTokens.value = accessTokens.value.filter(
       (token) => token.id !== tokenIdToDelete

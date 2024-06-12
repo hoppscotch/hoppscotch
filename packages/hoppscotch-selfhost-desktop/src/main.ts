@@ -5,7 +5,6 @@ import { def as collectionsDef } from "./platform/collections/collections.platfo
 import { def as settingsDef } from "./platform/settings/settings.platform"
 import { def as historyDef } from "./platform/history/history.platform"
 import { proxyInterceptor } from "@hoppscotch/common/platform/std/interceptors/proxy"
-import { ExtensionInspectorService } from "@hoppscotch/common/platform/std/inspections/extension.inspector"
 import { NativeInterceptorService } from "./platform/interceptors/native"
 import { nextTick, ref, watch } from "vue"
 import { emit, listen } from "@tauri-apps/api/event"
@@ -53,9 +52,6 @@ const headerPaddingTop = ref("0px")
         { type: "standalone", interceptor: proxyInterceptor },
       ],
     },
-    additionalInspectors: [
-      { type: "service", service: ExtensionInspectorService },
-    ],
     platformFeatureFlags: {
       exportAsGIST: false,
       hasTelemetry: false,

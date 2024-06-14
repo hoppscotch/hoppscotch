@@ -117,26 +117,22 @@
 </template>
 
 <script setup lang="ts">
-import IconMoreVertical from "~icons/lucide/more-vertical"
-import IconEdit from "~icons/lucide/edit"
-import IconCopy from "~icons/lucide/copy"
-import IconTrash2 from "~icons/lucide/trash-2"
-import { ref } from "vue"
-import { Environment } from "@hoppscotch/data"
-import { cloneDeep } from "lodash-es"
-import {
-  deleteEnvironment,
-  duplicateEnvironment,
-  createEnvironment,
-  getGlobalVariables,
-} from "~/newstore/environments"
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
-import { TippyComponent } from "vue-tippy"
+import { Environment } from "@hoppscotch/data"
 import { HoppSmartItem } from "@hoppscotch/ui"
-import { exportAsJSON } from "~/helpers/import-export/export/environment"
 import { useService } from "dioc/vue"
+import { cloneDeep } from "lodash-es"
+import { ref } from "vue"
+import { TippyComponent } from "vue-tippy"
+
+import { exportAsJSON } from "~/helpers/import-export/export/environment"
+import { createEnvironment, getGlobalVariables } from "~/newstore/environments"
 import { SecretEnvironmentService } from "~/services/secret-environment.service"
+import IconCopy from "~icons/lucide/copy"
+import IconEdit from "~icons/lucide/edit"
+import IconMoreVertical from "~icons/lucide/more-vertical"
+import IconTrash2 from "~icons/lucide/trash-2"
 
 const t = useI18n()
 const toast = useToast()
@@ -148,6 +144,8 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: "edit-environment"): void
+  (e: "duplicate-environment", environmentID: number): void
+  (e: "delete-environment", environmentID: number): void
 }>()
 
 const confirmRemove = ref(false)
@@ -169,23 +167,31 @@ const exportAsJsonEl = ref<typeof HoppSmartItem>()
 const deleteAction = ref<typeof HoppSmartItem>()
 
 const removeEnvironment = () => {
-  if (props.environmentIndex === null) return
+  if (props.environmentIndex === null) {
+    return
+  }
+
   if (props.environmentIndex !== "Global") {
-    deleteEnvironment(props.environmentIndex, props.environment.id)
+    emit("delete-environment", props.environmentIndex)
+
     secretEnvironmentService.deleteSecretEnvironment(props.environment.id)
   }
-  toast.success(`${t("state.deleted")}`)
 }
 
 const duplicateEnvironments = () => {
-  if (props.environmentIndex === null) return
+  if (props.environmentIndex === null) {
+    return
+  }
+
   if (props.environmentIndex === "Global") {
     createEnvironment(
       `Global - ${t("action.duplicate")}`,
       cloneDeep(getGlobalVariables())
     )
-  } else duplicateEnvironment(props.environmentIndex)
 
-  toast.success(`${t("environment.duplicated")}`)
+    return
+  }
+
+  emit("duplicate-environment", props.environmentIndex)
 }
 </script>

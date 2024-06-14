@@ -277,7 +277,27 @@ const saveRequestAs = async () => {
     requestSaved()
   } else if (picked.value.pickedType === "my-request") {
     if (!isHoppRESTRequest(updatedRequest))
-      throw new Error("requestUpdated is not a REST Request")
+      throw new Error("updatedRequest is not a REST Request")
+
+    const collectionHandleResult = await workspaceService.getCollectionHandle(
+      workspaceService.activeWorkspaceHandle.value,
+      picked.value.folderPath,
+      "REST"
+    )
+
+    if (E.isLeft(collectionHandleResult)) {
+      // INVALID_WORKSPACE_HANDLE | INVALID_COLLECTION_ID | INVALID_PATH
+      return
+    }
+
+    const collectionHandle = collectionHandleResult.right
+
+    const collectionHandleRef = collectionHandle.get()
+
+    if (collectionHandleRef.value.type === "invalid") {
+      // INVALID_WORKSPACE_HANDLE
+      return
+    }
 
     const requestHandleResult = await workspaceService.getRequestHandle(
       workspaceService.activeWorkspaceHandle.value,
@@ -318,12 +338,174 @@ const saveRequestAs = async () => {
       },
     }
 
-    const { auth, headers } = cascadeParentCollectionForHeaderAuth(
-      picked.value.folderPath,
-      "rest"
-    )
+    const cascadingAuthHeadersHandleResult =
+      await workspaceService.getCollectionLevelAuthHeadersView(
+        collectionHandle,
+        "REST"
+      )
+
+    if (E.isLeft(cascadingAuthHeadersHandleResult)) {
+      // INVALID_COLLECTION_HANDLE
+      return
+    }
+
+    const cascadingAuthHeadersHandle =
+      cascadingAuthHeadersHandleResult.right.get()
+
+    if (cascadingAuthHeadersHandle.value.type === "invalid") {
+      // COLLECTION_INVALIDATED
+      return
+    }
+
+    const { auth, headers } = cascadingAuthHeadersHandle.value.data
 
     RESTTabs.currentActiveTab.value.document.inheritedProperties = {
+      auth,
+      headers,
+    }
+
+    requestSaved()
+  } else if (
+    picked.value.pickedType === "gql-my-collection" ||
+    picked.value.pickedType === "gql-my-folder"
+  ) {
+    if (HoppGQLRequest.safeParse(updatedRequest).type === "err") {
+      throw new Error("updatedRequest is not a GQL Request")
+    }
+
+    const collectionPathIndex =
+      picked.value.pickedType === "gql-my-collection"
+        ? picked.value.collectionIndex.toString()
+        : picked.value.folderPath
+
+    const collectionHandleResult = await workspaceService.getCollectionHandle(
+      workspaceService.activeWorkspaceHandle.value,
+      collectionPathIndex,
+      "GQL"
+    )
+
+    if (E.isLeft(collectionHandleResult)) {
+      // INVALID_WORKSPACE_HANDLE | INVALID_COLLECTION_ID | INVALID_PATH
+      return
+    }
+
+    const collectionHandle = collectionHandleResult.right
+
+    const requestHandleResult = await workspaceService.createGQLRequest(
+      collectionHandle,
+      updatedRequest as HoppGQLRequest
+    )
+
+    if (E.isLeft(requestHandleResult)) {
+      // INVALID_WORKSPACE_HANDLE | INVALID_COLLECTION_HANDLE
+      return
+    }
+
+    const requestHandle = requestHandleResult.right
+
+    const requestHandleRef = requestHandle.get()
+
+    if (requestHandleRef.value.type === "invalid") {
+      // INVALID_WORKSPACE_HANDLE | INVALID_COLLECTION_HANDLE
+      return
+    }
+
+    GQLTabs.currentActiveTab.value.document = {
+      request: updatedRequest as HoppGQLRequest,
+      isDirty: false,
+      saveContext: {
+        originLocation: "workspace-user-collection",
+        requestHandle,
+      },
+    }
+
+    requestSaved()
+  } else if (picked.value.pickedType === "gql-my-request") {
+    if (HoppGQLRequest.safeParse(updatedRequest).type === "err") {
+      throw new Error("updatedRequest is not a GQL Request")
+    }
+
+    const collectionHandleResult = await workspaceService.getCollectionHandle(
+      workspaceService.activeWorkspaceHandle.value,
+      picked.value.folderPath,
+      "GQL"
+    )
+
+    if (E.isLeft(collectionHandleResult)) {
+      // INVALID_WORKSPACE_HANDLE | INVALID_COLLECTION_ID | INVALID_PATH
+      return
+    }
+
+    const collectionHandle = collectionHandleResult.right
+
+    const collectionHandleRef = collectionHandle.get()
+
+    if (collectionHandleRef.value.type === "invalid") {
+      // INVALID_WORKSPACE_HANDLE
+      return
+    }
+
+    const requestHandleResult = await workspaceService.getRequestHandle(
+      workspaceService.activeWorkspaceHandle.value,
+      `${picked.value.folderPath}/${picked.value.requestIndex.toString()}`,
+      "GQL"
+    )
+
+    if (E.isLeft(requestHandleResult)) {
+      // INVALID_COLLECTION_HANDLE | INVALID_REQUEST_ID | REQUEST_NOT_FOUND
+      return
+    }
+
+    const requestHandle = requestHandleResult.right
+
+    const requestHandleRef = requestHandle.get()
+
+    if (requestHandleRef.value.type === "invalid") {
+      // INVALID_WORKSPACE_HANDLE
+      return
+    }
+
+    const updateRequestResult = await workspaceService.updateGQLRequest(
+      requestHandle,
+      updatedRequest as HoppGQLRequest
+    )
+
+    if (E.isLeft(updateRequestResult)) {
+      // INVALID_WORKSPACE_HANDLE | INVALID_REQUEST_HANDLE
+      return
+    }
+
+    GQLTabs.currentActiveTab.value.document = {
+      request: updatedRequest as HoppGQLRequest,
+      isDirty: false,
+      saveContext: {
+        originLocation: "workspace-user-collection",
+        requestHandle,
+      },
+    }
+
+    const cascadingAuthHeadersHandleResult =
+      await workspaceService.getCollectionLevelAuthHeadersView(
+        collectionHandle,
+        "GQL"
+      )
+
+    if (E.isLeft(cascadingAuthHeadersHandleResult)) {
+      // INVALID_COLLECTION_HANDLE
+      return
+    }
+
+    const cascadingAuthHeadersHandle =
+      cascadingAuthHeadersHandleResult.right.get()
+
+    if (cascadingAuthHeadersHandle.value.type === "invalid") {
+      // COLLECTION_INVALIDATED
+      return
+    }
+
+    const { auth, headers } = cascadingAuthHeadersHandle.value.data
+
+    GQLTabs.currentActiveTab.value.document.inheritedProperties = {
       auth,
       headers,
     }
@@ -392,82 +574,6 @@ const saveRequestAs = async () => {
   //       }
   //     )
   //   )()
-  // } else if (picked.value.pickedType === "gql-my-request") {
-  //   // TODO: Check for GQL request ?
-  //   editGraphqlRequest(
-  //     picked.value.folderPath,
-  //     picked.value.requestIndex,
-  //     updatedRequest as HoppGQLRequest
-  //   )
-
-  //   platform.analytics?.logEvent({
-  //     type: "HOPP_SAVE_REQUEST",
-  //     createdNow: false,
-  //     platform: "gql",
-  //     workspaceType: "team",
-  //   })
-
-  //   const { auth, headers } = cascadeParentCollectionForHeaderAuth(
-  //     picked.value.folderPath,
-  //     "graphql"
-  //   )
-
-  //   GQLTabs.currentActiveTab.value.document.inheritedProperties = {
-  //     auth,
-  //     headers,
-  //   }
-
-  //   requestSaved()
-  // } else if (picked.value.pickedType === "gql-my-folder") {
-  //   // TODO: Check for GQL request ?
-  //   saveGraphqlRequestAs(
-  //     picked.value.folderPath,
-  //     updatedRequest as HoppGQLRequest
-  //   )
-
-  //   platform.analytics?.logEvent({
-  //     type: "HOPP_SAVE_REQUEST",
-  //     createdNow: true,
-  //     platform: "gql",
-  //     workspaceType: "team",
-  //   })
-
-  //   const { auth, headers } = cascadeParentCollectionForHeaderAuth(
-  //     picked.value.folderPath,
-  //     "graphql"
-  //   )
-
-  //   GQLTabs.currentActiveTab.value.document.inheritedProperties = {
-  //     auth,
-  //     headers,
-  //   }
-
-  //   requestSaved()
-  // } else if (picked.value.pickedType === "gql-my-collection") {
-  //   // TODO: Check for GQL request ?
-  //   saveGraphqlRequestAs(
-  //     `${picked.value.collectionIndex}`,
-  //     updatedRequest as HoppGQLRequest
-  //   )
-
-  //   platform.analytics?.logEvent({
-  //     type: "HOPP_SAVE_REQUEST",
-  //     createdNow: true,
-  //     platform: "gql",
-  //     workspaceType: "team",
-  //   })
-
-  //   const { auth, headers } = cascadeParentCollectionForHeaderAuth(
-  //     `${picked.value.collectionIndex}`,
-  //     "graphql"
-  //   )
-
-  //   GQLTabs.currentActiveTab.value.document.inheritedProperties = {
-  //     auth,
-  //     headers,
-  //   }
-
-  //   requestSaved()
   // }
 }
 

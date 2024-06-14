@@ -1630,11 +1630,6 @@ const dropToRoot = async ({ dataTransfer }: DragEvent) => {
     restCollectionState.value.length - 1
   ).toString()
 
-  // updateSaveContextForAffectedRequests(
-  //   draggedCollectionIndex,
-  //   destinationRootCollectionIndex
-  // )
-
   const destinationRootCollectionHandleResult =
     await workspaceService.getCollectionHandle(
       props.workspaceHandle,

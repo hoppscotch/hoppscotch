@@ -1,6 +1,11 @@
 import { Ref } from "vue"
 import { HandleRef } from "./handle"
-import { Workspace, WorkspaceCollection, WorkspaceRequest } from "./workspace"
+import {
+  Workspace,
+  WorkspaceCollection,
+  WorkspaceEnvironment,
+  WorkspaceRequest,
+} from "./workspace"
 
 export const isValidWorkspaceHandle = (
   workspaceHandle: HandleRef<Workspace>,
@@ -44,5 +49,20 @@ export const isValidRequestHandle = (
     requestHandle.value.type === "ok" &&
     requestHandle.value.data.providerID === providerID &&
     requestHandle.value.data.workspaceID === workspaceID
+  )
+}
+
+export const isValidEnvironmentHandle = (
+  environmentHandle: HandleRef<WorkspaceEnvironment>,
+  providerID: string,
+  workspaceID: string
+): environmentHandle is Ref<{
+  data: WorkspaceEnvironment
+  type: "ok"
+}> => {
+  return (
+    environmentHandle.value.type === "ok" &&
+    environmentHandle.value.data.providerID === providerID &&
+    environmentHandle.value.data.workspaceID === workspaceID
   )
 }

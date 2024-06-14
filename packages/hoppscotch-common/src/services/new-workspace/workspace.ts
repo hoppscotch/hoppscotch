@@ -25,6 +25,14 @@ export type WorkspaceRequest = {
   request: HoppRESTRequest | HoppGQLRequest
 }
 
+export type WorkspaceEnvironment = {
+  providerID: string
+  workspaceID: string
+  environmentID: number
+
+  name: string
+}
+
 export type WorkspaceDecor = {
   headerComponent?: Component
 

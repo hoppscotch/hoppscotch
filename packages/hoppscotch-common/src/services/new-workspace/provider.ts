@@ -2,22 +2,24 @@ import * as E from "fp-ts/Either"
 import { Ref } from "vue"
 
 import {
+  Environment,
   HoppCollection,
   HoppGQLRequest,
   HoppRESTRequest,
 } from "@hoppscotch/data"
 import { Handle } from "./handle"
 import {
-  RESTCollectionChildrenView,
   CollectionJSONView,
   CollectionLevelAuthHeadersView,
-  SearchResultsView,
+  RESTCollectionChildrenView,
   RootRESTCollectionView,
+  SearchResultsView,
 } from "./view"
 import {
   Workspace,
   WorkspaceCollection,
   WorkspaceDecor,
+  WorkspaceEnvironment,
   WorkspaceRequest,
 } from "./workspace"
 
@@ -41,6 +43,10 @@ export interface WorkspaceProvider {
     requestID: string,
     type: "REST" | "GQL"
   ): Promise<E.Either<unknown, Handle<WorkspaceRequest>>>
+  getRESTEnvironmentHandle(
+    workspaceHandle: Handle<Workspace>,
+    environmentID: number
+  ): Promise<E.Either<unknown, Handle<WorkspaceEnvironment>>>
 
   getCollectionLevelAuthHeadersView(
     collectionHandle: Handle<WorkspaceCollection>,
@@ -155,5 +161,20 @@ export interface WorkspaceProvider {
   ): Promise<E.Either<unknown, void>>
   exportGQLCollections(
     workspaceHandle: Handle<Workspace>
+  ): Promise<E.Either<unknown, void>>
+
+  createRESTEnvironment(
+    workspaceHandle: Handle<Workspace>,
+    newEnvironment: Partial<Environment> & { name: string }
+  ): Promise<E.Either<unknown, Handle<WorkspaceEnvironment>>>
+  duplicateRESTEnvironment(
+    environmentHandle: Handle<WorkspaceEnvironment>
+  ): Promise<E.Either<unknown, Handle<WorkspaceEnvironment>>>
+  updateRESTEnvironment(
+    environmentHandle: Handle<WorkspaceEnvironment>,
+    updatedEnvironment: Partial<Environment>
+  ): Promise<E.Either<unknown, void>>
+  removeRESTEnvironment(
+    environmentHandle: Handle<WorkspaceEnvironment>
   ): Promise<E.Either<unknown, void>>
 }

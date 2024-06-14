@@ -1,4 +1,5 @@
 import {
+  Environment,
   HoppCollection,
   HoppGQLRequest,
   HoppRESTRequest,
@@ -23,7 +24,12 @@ import {
   SearchResultsView,
   RootRESTCollectionView,
 } from "./view"
-import { Workspace, WorkspaceCollection, WorkspaceRequest } from "./workspace"
+import {
+  Workspace,
+  WorkspaceCollection,
+  WorkspaceEnvironment,
+  WorkspaceRequest,
+} from "./workspace"
 
 export type WorkspaceError<ServiceErr> =
   | { type: "SERVICE_ERROR"; error: ServiceErr }
@@ -180,6 +186,41 @@ export class NewWorkspaceService extends Service {
       workspaceHandle,
       requestID,
       type
+    )
+
+    if (E.isLeft(result)) {
+      return E.left({ type: "PROVIDER_ERROR", error: result.left })
+    }
+
+    return E.right(result.right)
+  }
+
+  public async getRESTEnvironmentHandle(
+    workspaceHandle: Handle<Workspace>,
+    environmentID: number
+  ): Promise<
+    E.Either<
+      WorkspaceError<"INVALID_HANDLE" | "INVALID_PROVIDER">,
+      Handle<WorkspaceEnvironment>
+    >
+  > {
+    const workspaceHandleRef = workspaceHandle.get()
+
+    if (workspaceHandleRef.value.type === "invalid") {
+      return E.left({ type: "SERVICE_ERROR", error: "INVALID_HANDLE" })
+    }
+
+    const provider = this.registeredProviders.get(
+      workspaceHandleRef.value.data.providerID
+    )
+
+    if (!provider) {
+      return E.left({ type: "SERVICE_ERROR", error: "INVALID_PROVIDER" })
+    }
+
+    const result = await provider.getRESTEnvironmentHandle(
+      workspaceHandle,
+      environmentID
     )
 
     if (E.isLeft(result)) {
@@ -1105,6 +1146,132 @@ export class NewWorkspaceService extends Service {
     }
 
     const result = await provider.exportGQLCollections(workspaceHandle)
+
+    if (E.isLeft(result)) {
+      return E.left({ type: "PROVIDER_ERROR", error: result.left })
+    }
+
+    return E.right(result.right)
+  }
+
+  public async createRESTEnvironment(
+    workspaceHandle: Handle<Workspace>,
+    newEnvironment: Partial<Environment> & { name: string }
+  ): Promise<
+    E.Either<
+      WorkspaceError<"INVALID_HANDLE" | "INVALID_PROVIDER">,
+      Handle<WorkspaceEnvironment>
+    >
+  > {
+    const workspaceHandleRef = workspaceHandle.get()
+
+    if (workspaceHandleRef.value.type === "invalid") {
+      return E.left({ type: "SERVICE_ERROR", error: "INVALID_HANDLE" })
+    }
+
+    const provider = this.registeredProviders.get(
+      workspaceHandleRef.value.data.providerID
+    )
+
+    if (!provider) {
+      return E.left({ type: "SERVICE_ERROR", error: "INVALID_PROVIDER" })
+    }
+
+    const result = await provider.createRESTEnvironment(
+      workspaceHandle,
+      newEnvironment
+    )
+
+    if (E.isLeft(result)) {
+      return E.left({ type: "PROVIDER_ERROR", error: result.left })
+    }
+
+    return E.right(result.right)
+  }
+
+  public async duplicateRESTEnvironment(
+    environmentHandle: Handle<WorkspaceEnvironment>
+  ): Promise<
+    E.Either<
+      WorkspaceError<"INVALID_HANDLE" | "INVALID_PROVIDER">,
+      Handle<WorkspaceEnvironment>
+    >
+  > {
+    const environmentHandleRef = environmentHandle.get()
+
+    if (environmentHandleRef.value.type === "invalid") {
+      return E.left({ type: "SERVICE_ERROR", error: "INVALID_HANDLE" })
+    }
+
+    const provider = this.registeredProviders.get(
+      environmentHandleRef.value.data.providerID
+    )
+
+    if (!provider) {
+      return E.left({ type: "SERVICE_ERROR", error: "INVALID_PROVIDER" })
+    }
+
+    const result = await provider.duplicateRESTEnvironment(environmentHandle)
+
+    if (E.isLeft(result)) {
+      return E.left({ type: "PROVIDER_ERROR", error: result.left })
+    }
+
+    return E.right(result.right)
+  }
+
+  public async updateRESTEnvironment(
+    environmentHandle: Handle<WorkspaceEnvironment>,
+    updatedEnvironment: Partial<Environment>
+  ): Promise<
+    E.Either<WorkspaceError<"INVALID_HANDLE" | "INVALID_PROVIDER">, void>
+  > {
+    const environmentHandleRef = environmentHandle.get()
+
+    if (environmentHandleRef.value.type === "invalid") {
+      return E.left({ type: "SERVICE_ERROR", error: "INVALID_HANDLE" })
+    }
+
+    const provider = this.registeredProviders.get(
+      environmentHandleRef.value.data.providerID
+    )
+
+    if (!provider) {
+      return E.left({ type: "SERVICE_ERROR", error: "INVALID_PROVIDER" })
+    }
+
+    const result = await provider.updateRESTEnvironment(
+      environmentHandle,
+      updatedEnvironment
+    )
+
+    if (E.isLeft(result)) {
+      return E.left({ type: "PROVIDER_ERROR", error: result.left })
+    }
+
+    return E.right(result.right)
+  }
+
+  public async removeRESTEnvironment(
+    environmentHandle: Handle<WorkspaceEnvironment>
+  ): Promise<
+    E.Either<WorkspaceError<"INVALID_HANDLE" | "INVALID_PROVIDER">, void>
+  > {
+    const environmentHandleRef = environmentHandle.get()
+
+    if (environmentHandleRef.value.type === "invalid") {
+      return E.left({ type: "SERVICE_ERROR", error: "INVALID_HANDLE" })
+    }
+
+    const provider = this.registeredProviders.get(
+      environmentHandleRef.value.data.providerID
+    )
+
+    if (!provider) {
+      return E.left({ type: "SERVICE_ERROR", error: "INVALID_PROVIDER" })
+    }
+
+    const result = await provider.removeRESTEnvironment(environmentHandle)
 
     if (E.isLeft(result)) {
       return E.left({ type: "PROVIDER_ERROR", error: result.left })

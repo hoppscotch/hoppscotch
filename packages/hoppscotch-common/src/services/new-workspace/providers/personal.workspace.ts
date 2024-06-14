@@ -1,4 +1,5 @@
 import {
+  Environment,
   HoppCollection,
   HoppGQLRequest,
   HoppRESTRequest,
@@ -71,6 +72,7 @@ import {
   Workspace,
   WorkspaceCollection,
   WorkspaceDecor,
+  WorkspaceEnvironment,
   WorkspaceRequest,
 } from "~/services/new-workspace/workspace"
 
@@ -80,10 +82,18 @@ import { getRequestsByPath } from "~/helpers/collection/request"
 import { initializeDownloadFile } from "~/helpers/import-export/export"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import { lazy } from "~/helpers/utils/lazy"
+import {
+  createEnvironment,
+  deleteEnvironment,
+  duplicateEnvironment,
+  environments$,
+  updateEnvironment,
+} from "~/newstore/environments"
 import IconUser from "~icons/lucide/user"
 import { NewWorkspaceService } from ".."
 import {
   isValidCollectionHandle,
+  isValidEnvironmentHandle,
   isValidRequestHandle,
   isValidWorkspaceHandle,
 } from "../helpers"
@@ -112,6 +122,8 @@ export class PersonalWorkspaceProviderService
     state: [],
   })
 
+  public restEnvironmentState: Ref<Environment[]> = ref([])
+
   // Issued handles can have collection handles when the collection runner is introduced
   public issuedHandles: WritableHandleRef<
     WorkspaceRequest | WorkspaceCollection
@@ -133,6 +145,10 @@ export class PersonalWorkspaceProviderService
         /* noop */
       }
     )[0]
+
+    this.restEnvironmentState = useStreamStatic(environments$, [], () => {
+      /* noop */
+    })[0]
 
     this.workspaceService.registerWorkspaceProvider(this)
   }
@@ -455,8 +471,9 @@ export class PersonalWorkspaceProviderService
 
     // TODO: Verify whether a request update action is reflected correctly in the handle being returned below
 
+    const personalWorkspaceHandle = this.getPersonalWorkspaceHandle()
     const createdRequestHandle = await this.getRequestHandle(
-      parentCollectionHandle,
+      personalWorkspaceHandle,
       requestID,
       "REST"
     )
@@ -1300,6 +1317,59 @@ export class PersonalWorkspaceProviderService
     return Promise.resolve(E.right({ get: lazy(() => handle) }))
   }
 
+  public getRESTEnvironmentHandle(
+    workspaceHandle: Handle<Workspace>,
+    environmentID: number
+  ): Promise<E.Either<unknown, Handle<WorkspaceEnvironment>>> {
+    const workspaceHandleRef = workspaceHandle.get()
+
+    if (
+      !isValidWorkspaceHandle(workspaceHandleRef, this.providerID, "personal")
+    ) {
+      return Promise.resolve(E.left("INVALID_WORKSPACE_HANDLE" as const))
+    }
+
+    const environment = this.restEnvironmentState.value[environmentID]
+
+    // Out of bounds check
+    if (!environment) {
+      return Promise.resolve(E.left("ENVIRONMENT_DOES_NOT_EXIST"))
+    }
+
+    return Promise.resolve(
+      E.right({
+        get: lazy(() =>
+          computed(() => {
+            if (
+              !isValidWorkspaceHandle(
+                workspaceHandleRef,
+                this.providerID,
+                "personal"
+              )
+            ) {
+              return {
+                type: "invalid" as const,
+                reason: "INVALID_WORKSPACE_HANDLE" as const,
+              }
+            }
+
+            const { providerID, workspaceID } = workspaceHandleRef.value.data
+
+            return {
+              type: "ok",
+              data: {
+                providerID,
+                workspaceID,
+                environmentID,
+                name: environment.name,
+              },
+            }
+          })
+        ),
+      })
+    )
+  }
+
   public getCollectionLevelAuthHeadersView(
     collectionHandle: Handle<WorkspaceCollection>,
     type: "REST" | "GQL"
@@ -1857,8 +1927,9 @@ export class PersonalWorkspaceProviderService
 
     // TODO: Verify whether a request update action is reflected correctly in the handle being returned below
 
+    const personalWorkspaceHandle = this.getPersonalWorkspaceHandle()
     const createdRequestHandle = await this.getRequestHandle(
-      parentCollectionHandle,
+      personalWorkspaceHandle,
       requestID,
       "GQL"
     )
@@ -2260,6 +2331,156 @@ export class PersonalWorkspaceProviderService
       exporter: "json",
       platform: "gql",
     })
+
+    return Promise.resolve(E.right(undefined))
+  }
+
+  public async createRESTEnvironment(
+    workspaceHandle: Handle<Workspace>,
+    newEnvironment: Partial<Environment> & { name: string }
+  ): Promise<E.Either<unknown, Handle<WorkspaceEnvironment>>> {
+    const workspaceHandleRef = workspaceHandle.get()
+
+    if (
+      !isValidWorkspaceHandle(workspaceHandleRef, this.providerID, "personal")
+    ) {
+      return Promise.resolve(E.left("INVALID_WORKSPACE_HANDLE" as const))
+    }
+
+    createEnvironment(
+      newEnvironment.name,
+      newEnvironment.variables,
+      newEnvironment.id
+    )
+
+    platform.analytics?.logEvent({
+      type: "HOPP_CREATE_ENVIRONMENT",
+      workspaceType: "personal",
+    })
+
+    const createdEnvironmentHandle = await this.getRESTEnvironmentHandle(
+      workspaceHandle,
+      this.restEnvironmentState.value.length - 1
+    )
+
+    return createdEnvironmentHandle
+  }
+
+  public async duplicateRESTEnvironment(
+    environmentHandle: Handle<WorkspaceEnvironment>
+  ): Promise<E.Either<unknown, Handle<WorkspaceEnvironment>>> {
+    const environmentHandleRef = environmentHandle.get()
+
+    if (
+      !isValidEnvironmentHandle(
+        environmentHandleRef,
+        this.providerID,
+        "personal"
+      )
+    ) {
+      return Promise.resolve(E.left("INVALID_ENVIRONMENT_HANDLE" as const))
+    }
+
+    duplicateEnvironment(environmentHandleRef.value.data.environmentID)
+
+    const createdEnvironmentHandle = await this.getRESTEnvironmentHandle(
+      this.getPersonalWorkspaceHandle(),
+      this.restEnvironmentState.value.length - 1
+    )
+
+    return createdEnvironmentHandle
+  }
+
+  public async updateRESTEnvironment(
+    environmentHandle: Handle<WorkspaceEnvironment>,
+    updatedEnvironment: Partial<Environment>
+  ): Promise<E.Either<unknown, void>> {
+    const environmentHandleRef = environmentHandle.get()
+
+    if (
+      !isValidEnvironmentHandle(
+        environmentHandleRef,
+        this.providerID,
+        "personal"
+      )
+    ) {
+      return Promise.resolve(E.left("INVALID_ENVIRONMENT_HANDLE" as const))
+    }
+
+    const { environmentID } = environmentHandleRef.value.data
+
+    const existingEnvironment =
+      this.restEnvironmentState.value[
+        environmentHandleRef.value.data.environmentID
+      ]
+
+    const { id: environmentSyncID } = existingEnvironment
+
+    const newEnvironment = {
+      ...existingEnvironment,
+      ...updatedEnvironment,
+    }
+
+    updateEnvironment(
+      environmentID,
+      environmentSyncID
+        ? {
+            ...newEnvironment,
+            id: environmentSyncID,
+          }
+        : {
+            ...newEnvironment,
+          }
+    )
+
+    const updatedEnvironmentHandle = await this.getRESTEnvironmentHandle(
+      this.getPersonalWorkspaceHandle(),
+      environmentID
+    )
+
+    if (E.isRight(updatedEnvironmentHandle)) {
+      const updatedEnvironmentHandleRef = updatedEnvironmentHandle.right.get()
+
+      if (updatedEnvironmentHandleRef.value.type === "ok") {
+        updatedEnvironmentHandleRef.value.data.name = newEnvironment.name
+      }
+    }
+
+    return Promise.resolve(E.right(undefined))
+  }
+
+  public async removeRESTEnvironment(
+    environmentHandle: Handle<WorkspaceEnvironment>
+  ): Promise<E.Either<unknown, void>> {
+    const environmentHandleRef = environmentHandle.get()
+
+    if (
+      !isValidEnvironmentHandle(
+        environmentHandleRef,
+        this.providerID,
+        "personal"
+      )
+    ) {
+      return Promise.resolve(E.left("INVALID_ENVIRONMENT_HANDLE" as const))
+    }
+
+    const removedEnvironmentHandle = await this.getRESTEnvironmentHandle(
+      this.getPersonalWorkspaceHandle(),
+      environmentHandleRef.value.data.environmentID
+    )
+
+    if (E.isRight(removedEnvironmentHandle)) {
+      const removedEnvironmentHandleRef = removedEnvironmentHandle.right.get()
+
+      if (removedEnvironmentHandleRef.value.type === "ok") {
+        removedEnvironmentHandleRef.value = {
+          type: "invalid",
+          reason: "ENVIRONMENT_INVALIDATED",
+        }
+      }
+    }
+
+    deleteEnvironment(environmentHandleRef.value.data.environmentID)
 
     return Promise.resolve(E.right(undefined))
   }

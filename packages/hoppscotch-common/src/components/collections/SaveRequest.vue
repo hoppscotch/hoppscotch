@@ -76,8 +76,8 @@ import { cloneDeep } from "lodash-es"
 import { computed, nextTick, reactive, ref, watch } from "vue"
 
 import { Picked } from "~/helpers/types/HoppPicked"
-import { cascadeParentCollectionForHeaderAuth } from "~/newstore/collections"
 import { NewWorkspaceService } from "~/services/new-workspace"
+import { PersonalWorkspaceProviderService } from "~/services/new-workspace/providers/personal.workspace"
 import { GQLTabService } from "~/services/tab/graphql"
 import { RESTTabService } from "~/services/tab/rest"
 
@@ -87,6 +87,9 @@ const toast = useToast()
 const RESTTabs = useService(RESTTabService)
 const GQLTabs = useService(GQLTabService)
 const workspaceService = useService(NewWorkspaceService)
+const personalWorkspaceProviderService = useService(
+  PersonalWorkspaceProviderService
+)
 
 // type SelectedTeam = GetMyTeamsQuery["myTeams"][number] | undefined
 
@@ -220,6 +223,9 @@ const saveRequestAs = async () => {
   if (!workspaceService.activeWorkspaceHandle.value) {
     return
   }
+
+  // TODO: Cleanup: Compute collection handles once at the top
+  // Replace `personalWorkspaceProviderService` with `workspaceService` for GQL once support for teams is brought about
 
   if (
     picked.value.pickedType === "my-collection" ||
@@ -378,11 +384,12 @@ const saveRequestAs = async () => {
         ? picked.value.collectionIndex.toString()
         : picked.value.folderPath
 
-    const collectionHandleResult = await workspaceService.getCollectionHandle(
-      workspaceService.activeWorkspaceHandle.value,
-      collectionPathIndex,
-      "GQL"
-    )
+    const collectionHandleResult =
+      await personalWorkspaceProviderService.getCollectionHandle(
+        workspaceService.activeWorkspaceHandle.value,
+        collectionPathIndex,
+        "GQL"
+      )
 
     if (E.isLeft(collectionHandleResult)) {
       // INVALID_WORKSPACE_HANDLE | INVALID_COLLECTION_ID | INVALID_PATH
@@ -391,10 +398,11 @@ const saveRequestAs = async () => {
 
     const collectionHandle = collectionHandleResult.right
 
-    const requestHandleResult = await workspaceService.createGQLRequest(
-      collectionHandle,
-      updatedRequest as HoppGQLRequest
-    )
+    const requestHandleResult =
+      await personalWorkspaceProviderService.createGQLRequest(
+        collectionHandle,
+        updatedRequest as HoppGQLRequest
+      )
 
     if (E.isLeft(requestHandleResult)) {
       // INVALID_WORKSPACE_HANDLE | INVALID_COLLECTION_HANDLE
@@ -425,11 +433,12 @@ const saveRequestAs = async () => {
       throw new Error("updatedRequest is not a GQL Request")
     }
 
-    const collectionHandleResult = await workspaceService.getCollectionHandle(
-      workspaceService.activeWorkspaceHandle.value,
-      picked.value.folderPath,
-      "GQL"
-    )
+    const collectionHandleResult =
+      await personalWorkspaceProviderService.getCollectionHandle(
+        workspaceService.activeWorkspaceHandle.value,
+        picked.value.folderPath,
+        "GQL"
+      )
 
     if (E.isLeft(collectionHandleResult)) {
       // INVALID_WORKSPACE_HANDLE | INVALID_COLLECTION_ID | INVALID_PATH
@@ -445,11 +454,12 @@ const saveRequestAs = async () => {
       return
     }
 
-    const requestHandleResult = await workspaceService.getRequestHandle(
-      workspaceService.activeWorkspaceHandle.value,
-      `${picked.value.folderPath}/${picked.value.requestIndex.toString()}`,
-      "GQL"
-    )
+    const requestHandleResult =
+      await personalWorkspaceProviderService.getRequestHandle(
+        workspaceService.activeWorkspaceHandle.value,
+        `${picked.value.folderPath}/${picked.value.requestIndex.toString()}`,
+        "GQL"
+      )
 
     if (E.isLeft(requestHandleResult)) {
       // INVALID_COLLECTION_HANDLE | INVALID_REQUEST_ID | REQUEST_NOT_FOUND
@@ -465,10 +475,11 @@ const saveRequestAs = async () => {
       return
     }
 
-    const updateRequestResult = await workspaceService.updateGQLRequest(
-      requestHandle,
-      updatedRequest as HoppGQLRequest
-    )
+    const updateRequestResult =
+      await personalWorkspaceProviderService.updateGQLRequest(
+        requestHandle,
+        updatedRequest as HoppGQLRequest
+      )
 
     if (E.isLeft(updateRequestResult)) {
       // INVALID_WORKSPACE_HANDLE | INVALID_REQUEST_HANDLE
@@ -485,7 +496,7 @@ const saveRequestAs = async () => {
     }
 
     const cascadingAuthHeadersHandleResult =
-      await workspaceService.getCollectionLevelAuthHeadersView(
+      await personalWorkspaceProviderService.getCollectionLevelAuthHeadersView(
         collectionHandle,
         "GQL"
       )

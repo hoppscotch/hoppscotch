@@ -182,6 +182,7 @@ export class PersonalWorkspaceProviderService
 
     const newCollectionID =
       this.restCollectionState.value.state.length.toString()
+    const newCollectionName = newCollection.name
 
     const newRootCollection = makeCollection({
       folders: [],
@@ -405,8 +406,7 @@ export class PersonalWorkspaceProviderService
       return Promise.resolve(E.left("INVALID_COLLECTION_HANDLE" as const))
     }
 
-    const { collectionID, providerID, workspaceID } =
-      parentCollectionHandleRef.value.data
+    const { collectionID } = parentCollectionHandleRef.value.data
 
     const insertionIndex = saveRESTRequestAs(collectionID, newRequest)
 
@@ -418,53 +418,6 @@ export class PersonalWorkspaceProviderService
       createdNow: true,
       platform: "rest",
     })
-
-    const handleRefData = ref({
-      type: "ok" as const,
-      data: {
-        providerID,
-        workspaceID,
-        collectionID,
-        requestID,
-        request: newRequest,
-      },
-    })
-
-    const writableHandle = computed({
-      get() {
-        return handleRefData.value
-      },
-      set(newValue) {
-        handleRefData.value = newValue
-      },
-    })
-
-    const handleIsAlreadyIssued = this.issuedHandles.some((handle) => {
-      if (handle.value.type === "invalid") {
-        return false
-      }
-
-      if (!("requestID" in handle.value.data)) {
-        return false
-      }
-
-      const { request, ...dataProps } = handle.value.data
-
-      if (
-        isEqual(dataProps, {
-          providerID,
-          workspaceID,
-          collectionID,
-          requestID,
-        })
-      ) {
-        return true
-      }
-    })
-
-    if (!handleIsAlreadyIssued) {
-      this.issuedHandles.push(writableHandle)
-    }
 
     // TODO: Verify whether a request update action is reflected correctly in the handle being returned below
 
@@ -1852,8 +1805,7 @@ export class PersonalWorkspaceProviderService
       return Promise.resolve(E.left("INVALID_COLLECTION_HANDLE" as const))
     }
 
-    const { collectionID, providerID, workspaceID } =
-      parentCollectionHandleRef.value.data
+    const { collectionID } = parentCollectionHandleRef.value.data
 
     saveGraphqlRequestAs(collectionID, newRequest)
 
@@ -1868,53 +1820,6 @@ export class PersonalWorkspaceProviderService
       createdNow: true,
       workspaceType: "personal",
     })
-
-    const handleRefData = ref({
-      type: "ok" as const,
-      data: {
-        providerID,
-        workspaceID,
-        collectionID,
-        requestID,
-        request: newRequest,
-      },
-    })
-
-    const writableHandle = computed({
-      get() {
-        return handleRefData.value
-      },
-      set(newValue) {
-        handleRefData.value = newValue
-      },
-    })
-
-    const handleIsAlreadyIssued = this.issuedHandles.some((handle) => {
-      if (handle.value.type === "invalid") {
-        return false
-      }
-
-      if (!("requestID" in handle.value.data)) {
-        return false
-      }
-
-      const { request, ...dataProps } = handle.value.data
-
-      if (
-        isEqual(dataProps, {
-          providerID,
-          workspaceID,
-          collectionID,
-          requestID,
-        })
-      ) {
-        return true
-      }
-    })
-
-    if (!handleIsAlreadyIssued) {
-      this.issuedHandles.push(writableHandle)
-    }
 
     // TODO: Verify whether a request update action is reflected correctly in the handle being returned below
 
@@ -1948,7 +1853,7 @@ export class PersonalWorkspaceProviderService
 
     platform.analytics?.logEvent({
       type: "HOPP_SAVE_REQUEST",
-      platform: "rest",
+      platform: "gql",
       createdNow: false,
       workspaceType: "personal",
     })
@@ -2287,7 +2192,7 @@ export class PersonalWorkspaceProviderService
     platform.analytics?.logEvent({
       type: "HOPP_EXPORT_COLLECTION",
       exporter: "json",
-      platform: "rest",
+      platform: "gql",
     })
 
     return Promise.resolve(E.right(undefined))

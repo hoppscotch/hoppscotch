@@ -23,7 +23,7 @@
 
 <script setup lang="ts">
 import { computed } from "vue"
-import { BannerContent, BannerType } from "~/services/banner.service"
+import { BannerContent, BannerTypes } from "~/services/banner.service"
 import { useI18n } from "@composables/i18n"
 
 import IconAlertCircle from "~icons/lucide/alert-circle"
@@ -40,22 +40,22 @@ const emit = defineEmits<{
   (e: "dismiss"): void
 }>()
 
-const ariaRoles: Record<BannerType, string> = {
-  info: "status",
-  warning: "status",
-  error: "alert",
+const ariaRoles: Record<BannerTypes, string> = {
+  [BannerTypes.Info]: "status",
+  [BannerTypes.Warning]: "status",
+  [BannerTypes.Error]: "alert",
 }
 
-const bgColors: Record<BannerType, string> = {
-  info: "bg-bannerInfo",
-  warning: "bg-bannerWarning",
-  error: "bg-bannerError",
+const bgColors: Record<BannerTypes, string> = {
+  [BannerTypes.Info]: "bg-bannerInfo",
+  [BannerTypes.Warning]: "bg-bannerWarning",
+  [BannerTypes.Error]: "bg-bannerError",
 }
 
 const icons = {
-  info: IconInfo,
-  warning: IconAlertCircle,
-  error: IconAlertTriangle,
+  [BannerTypes.Info]: IconInfo,
+  [BannerTypes.Warning]: IconAlertCircle,
+  [BannerTypes.Error]: IconAlertTriangle,
 }
 
 const bannerColor = computed(() => bgColors[props.banner.type])

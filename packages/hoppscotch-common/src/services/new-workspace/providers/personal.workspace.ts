@@ -182,7 +182,6 @@ export class PersonalWorkspaceProviderService
 
     const newCollectionID =
       this.restCollectionState.value.state.length.toString()
-    const newCollectionName = newCollection.name
 
     const newRootCollection = makeCollection({
       folders: [],
@@ -258,7 +257,7 @@ export class PersonalWorkspaceProviderService
     return createdCollectionHandle
   }
 
-  public updateRESTCollection(
+  public async updateRESTCollection(
     collectionHandle: Handle<WorkspaceCollection>,
     updatedCollection: Partial<HoppCollection>
   ): Promise<E.Either<unknown, void>> {
@@ -277,7 +276,10 @@ export class PersonalWorkspaceProviderService
       collectionID.split("/").map((id) => parseInt(id))
     )
 
-    const newCollection = { ...collection, ...updatedCollection }
+    const newCollection = {
+      ...collection,
+      ...updatedCollection,
+    }
 
     const isRootCollection = collectionID.split("/").length === 1
 
@@ -287,10 +289,25 @@ export class PersonalWorkspaceProviderService
       editRESTFolder(collectionID, newCollection)
     }
 
+    const updatedCollectionHandle = await this.getCollectionHandle(
+      this.getPersonalWorkspaceHandle(),
+      collectionID,
+      "REST"
+    )
+
+    if (E.isRight(updatedCollectionHandle)) {
+      const updatedCollectionHandleRef = updatedCollectionHandle.right.get()
+
+      if (updatedCollectionHandleRef.value.type === "ok") {
+        // Name is guaranteed to be present for a collection
+        updatedCollectionHandleRef.value.data.name = newCollection.name!
+      }
+    }
+
     return Promise.resolve(E.right(undefined))
   }
 
-  public removeRESTCollection(
+  public async removeRESTCollection(
     collectionHandle: Handle<WorkspaceCollection>
   ): Promise<E.Either<unknown, void>> {
     const collectionHandleRef = collectionHandle.get()
@@ -308,6 +325,23 @@ export class PersonalWorkspaceProviderService
     const collectionIndexPos = isRootCollection
       ? parseInt(removedCollectionID)
       : this.pathToLastIndex(removedCollectionID)
+
+    const removedCollectionHandle = await this.getCollectionHandle(
+      this.getPersonalWorkspaceHandle(),
+      removedCollectionID,
+      "REST"
+    )
+
+    if (E.isRight(removedCollectionHandle)) {
+      const removedCollectionHandleRef = removedCollectionHandle.right.get()
+
+      if (removedCollectionHandleRef.value.type === "ok") {
+        removedCollectionHandleRef.value = {
+          type: "invalid",
+          reason: "COLLECTION_INVALIDATED",
+        }
+      }
+    }
 
     this.issuedHandles.forEach((handle) => {
       if (
@@ -1954,7 +1988,7 @@ export class PersonalWorkspaceProviderService
     return Promise.resolve(E.right(undefined))
   }
 
-  public updateGQLCollection(
+  public async updateGQLCollection(
     collectionHandle: Handle<WorkspaceCollection>,
     updatedCollection: Partial<HoppCollection>
   ): Promise<E.Either<unknown, void>> {
@@ -1983,10 +2017,25 @@ export class PersonalWorkspaceProviderService
       editGraphqlFolder(collectionID, newCollection)
     }
 
+    const updatedCollectionHandle = await this.getCollectionHandle(
+      this.getPersonalWorkspaceHandle(),
+      collectionID,
+      "GQL"
+    )
+
+    if (E.isRight(updatedCollectionHandle)) {
+      const updatedCollectionHandleRef = updatedCollectionHandle.right.get()
+
+      if (updatedCollectionHandleRef.value.type === "ok") {
+        // Name is guaranteed to be present for a collection
+        updatedCollectionHandleRef.value.data.name = newCollection.name!
+      }
+    }
+
     return Promise.resolve(E.right(undefined))
   }
 
-  public removeGQLCollection(
+  public async removeGQLCollection(
     collectionHandle: Handle<WorkspaceCollection>
   ): Promise<E.Either<unknown, void>> {
     const collectionHandleRef = collectionHandle.get()
@@ -2004,6 +2053,23 @@ export class PersonalWorkspaceProviderService
     const collectionIndexPos = isRootCollection
       ? parseInt(removedCollectionID)
       : this.pathToLastIndex(removedCollectionID)
+
+    const removedCollectionHandle = await this.getCollectionHandle(
+      this.getPersonalWorkspaceHandle(),
+      removedCollectionID,
+      "GQL"
+    )
+
+    if (E.isRight(removedCollectionHandle)) {
+      const removedCollectionHandleRef = removedCollectionHandle.right.get()
+
+      if (removedCollectionHandleRef.value.type === "ok") {
+        removedCollectionHandleRef.value = {
+          type: "invalid",
+          reason: "COLLECTION_INVALIDATED",
+        }
+      }
+    }
 
     this.issuedHandles.forEach((handle) => {
       if (

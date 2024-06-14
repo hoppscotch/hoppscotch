@@ -29,7 +29,7 @@ export abstract class TabService<Doc>
 {
   private workspaceService = this.bind(NewWorkspaceService)
 
-  protected tabMap = reactive(new Map<string, HoppTab<Doc>>())
+  protected tabMap: Map<string, HoppTab<Doc>> = reactive(new Map())
   protected tabOrdering = ref<string[]>(["test"])
 
   public currentTabID = refWithControl("test", {

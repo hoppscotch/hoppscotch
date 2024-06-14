@@ -1046,6 +1046,7 @@
     "last_used_on": "Last used on",
     "expires_on": "Expires on",
     "no_expiration": "No expiration",
+    "expired": "Expired",
     "copy_token_warning": "Make sure to copy your personal access token now. You won't be able to see it again!",
     "token_purpose": "What's this token for?",
     "expiration_label": "Expiration",

@@ -42,9 +42,9 @@ import { useToast } from "@composables/toast"
 export type AccessToken = {
   id: string
   label: string
-  createdOn: Date
-  lastUsedOn: Date
-  expiresOn: Date | null
+  createdOn: string
+  lastUsedOn: string
+  expiresOn: string | null
 }
 
 const t = useI18n()
@@ -131,6 +131,11 @@ const generateAccessToken = async ({
 
     // Incrementing the offset value by 1 to account for the newly generated token
     offset += 1
+
+    // Toggle the error state in case it was set
+    if (tokensListFetchErrored.value) {
+      tokensListFetchErrored.value = false
+    }
   } catch (err) {
     toast.error(t("error.generate_access_token"))
     showAccessTokensGenerateModal.value = false
@@ -165,6 +170,11 @@ const deleteAccessToken = async () => {
     toast.success(
       t("access_tokens.deletion_success", { label: tokenLabelToDelete })
     )
+
+    // Toggle the error state in case it was set
+    if (tokensListFetchErrored.value) {
+      tokensListFetchErrored.value = false
+    }
   } catch (err) {
     toast.error(t("error.delete_access_token"))
   } finally {

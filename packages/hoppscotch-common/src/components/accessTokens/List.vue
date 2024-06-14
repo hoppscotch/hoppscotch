@@ -1,6 +1,10 @@
 <template>
+  <div v-if="isInitialPageLoad" class="flex flex-col items-center py-3">
+    <HoppSmartSpinner />
+  </div>
+
   <div
-    v-if="hasError && !hasMoreTokens"
+    v-else-if="initialPageLoadHasError"
     class="flex flex-col items-center py-4"
   >
     <icon-lucide-help-circle class="mb-4 svg-icons" />
@@ -44,11 +48,7 @@
               >{{ t("access_tokens.expires_on") }}:</span
             >
             <span>
-              {{
-                expiresOn
-                  ? shortDateTime(expiresOn, false)
-                  : t("access_tokens.no_expiration")
-              }}
+              {{ getTokenExpiryText(expiresOn) }}
             </span>
           </div>
         </div>
@@ -86,14 +86,15 @@
 <script setup lang="ts">
 import { useI18n } from "@composables/i18n"
 import { useColorMode } from "@vueuse/core"
+import { computed } from "vue"
 
 import { shortDateTime } from "~/helpers/utils/date"
-import { AccessToken } from "~/pages/profile.vue"
+import { AccessToken } from "./index.vue"
 
 const colorMode = useColorMode()
 const t = useI18n()
 
-defineProps<{
+const props = defineProps<{
   accessTokens: AccessToken[]
   hasMoreTokens: boolean
   loading: boolean
@@ -107,4 +108,21 @@ const emit = defineEmits<{
     { tokenId, tokenLabel }: { tokenId: string; tokenLabel: string }
   ): void
 }>()
+
+const isInitialPageLoad = computed(() => props.loading && !props.hasMoreTokens)
+const initialPageLoadHasError = computed(
+  () => props.hasError && !props.hasMoreTokens
+)
+
+const getTokenExpiryText = (tokenExpiresOn: string | null) => {
+  if (!tokenExpiresOn) {
+    return t("access_tokens.no_expiration")
+  }
+
+  const isTokenExpired = new Date(tokenExpiresOn).toISOString() > tokenExpiresOn
+
+  return isTokenExpired
+    ? t("access_tokens.expired")
+    : shortDateTime(tokenExpiresOn, false)
+}
 </script>

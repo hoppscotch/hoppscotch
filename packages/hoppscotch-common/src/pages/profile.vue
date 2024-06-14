@@ -76,7 +76,7 @@
             styles="sticky overflow-x-auto flex-shrink-0 bg-primary top-0 z-10"
             render-inactive-tabs
           >
-            <HoppSmartTab :id="'sync'" :label="t('settings.account')">
+            <HoppSmartTab id="sync" :label="t('settings.account')">
               <div class="grid grid-cols-1">
                 <section class="p-4">
                   <h4 class="font-semibold text-secondaryDark">
@@ -181,7 +181,7 @@
               </div>
             </HoppSmartTab>
 
-            <HoppSmartTab :id="'teams'" :label="t('team.title')">
+            <HoppSmartTab id="teams" :label="t('team.title')">
               <Teams :modal="false" class="p-4" />
             </HoppSmartTab>
 
@@ -215,14 +215,6 @@ import IconSettings from "~icons/lucide/settings"
 import IconVerified from "~icons/lucide/verified"
 
 type ProfileTabs = "sync" | "teams"
-
-export type AccessToken = {
-  id: string
-  label: string
-  createdOn: Date
-  lastUsedOn: Date
-  expiresOn: Date | null
-}
 
 const selectedProfileTab = ref<ProfileTabs>("sync")
 

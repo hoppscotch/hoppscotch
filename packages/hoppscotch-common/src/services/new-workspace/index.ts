@@ -18,11 +18,12 @@ import {
 import { Handle } from "./handle"
 import { WorkspaceProvider } from "./provider"
 import {
-  RESTCollectionChildrenView,
   CollectionJSONView,
   CollectionLevelAuthHeadersView,
-  SearchResultsView,
+  RESTCollectionChildrenView,
+  RESTEnvironmentsView,
   RootRESTCollectionView,
+  SearchResultsView,
 } from "./view"
 import {
   Workspace,
@@ -837,6 +838,37 @@ export class NewWorkspaceService extends Service {
     return E.right(result.right)
   }
 
+  public async getRESTEnvironmentsView(
+    workspaceHandle: Handle<Workspace>
+  ): Promise<
+    E.Either<
+      WorkspaceError<"INVALID_HANDLE" | "INVALID_PROVIDER">,
+      Handle<RESTEnvironmentsView>
+    >
+  > {
+    const workspaceHandleRef = workspaceHandle.get()
+
+    if (workspaceHandleRef.value.type === "invalid") {
+      return E.left({ type: "SERVICE_ERROR", error: "INVALID_HANDLE" })
+    }
+
+    const provider = this.registeredProviders.get(
+      workspaceHandleRef.value.data.providerID
+    )
+
+    if (!provider) {
+      return E.left({ type: "SERVICE_ERROR", error: "INVALID_PROVIDER" })
+    }
+
+    const result = await provider.getRESTEnvironmentsView(workspaceHandle)
+
+    if (E.isLeft(result)) {
+      return E.left({ type: "PROVIDER_ERROR", error: result.left })
+    }
+
+    return E.right(result.right)
+  }
+
   public async createRESTGQLCollection(
     workspaceHandle: Handle<Workspace>,
     newCollection: Partial<Exclude<HoppCollection, "id">> & { name: string }
@@ -1272,6 +1304,94 @@ export class NewWorkspaceService extends Service {
     }
 
     const result = await provider.removeRESTEnvironment(environmentHandle)
+
+    if (E.isLeft(result)) {
+      return E.left({ type: "PROVIDER_ERROR", error: result.left })
+    }
+
+    return E.right(result.right)
+  }
+
+  public async importRESTEnvironments(
+    workspaceHandle: Handle<Workspace>,
+    environments: Environment[]
+  ): Promise<
+    E.Either<WorkspaceError<"INVALID_HANDLE" | "INVALID_PROVIDER">, void>
+  > {
+    const workspaceHandleRef = workspaceHandle.get()
+
+    if (workspaceHandleRef.value.type === "invalid") {
+      return E.left({ type: "SERVICE_ERROR", error: "INVALID_HANDLE" })
+    }
+
+    const provider = this.registeredProviders.get(
+      workspaceHandleRef.value.data.providerID
+    )
+
+    if (!provider) {
+      return E.left({ type: "SERVICE_ERROR", error: "INVALID_PROVIDER" })
+    }
+
+    const result = await provider.importRESTEnvironments(
+      workspaceHandle,
+      environments
+    )
+
+    if (E.isLeft(result)) {
+      return E.left({ type: "PROVIDER_ERROR", error: result.left })
+    }
+
+    return E.right(result.right)
+  }
+
+  public async exportRESTEnvironments(
+    workspaceHandle: Handle<Workspace>
+  ): Promise<
+    E.Either<WorkspaceError<"INVALID_HANDLE" | "INVALID_PROVIDER">, void>
+  > {
+    const workspaceHandleRef = workspaceHandle.get()
+
+    if (workspaceHandleRef.value.type === "invalid") {
+      return E.left({ type: "SERVICE_ERROR", error: "INVALID_HANDLE" })
+    }
+
+    const provider = this.registeredProviders.get(
+      workspaceHandleRef.value.data.providerID
+    )
+
+    if (!provider) {
+      return E.left({ type: "SERVICE_ERROR", error: "INVALID_PROVIDER" })
+    }
+
+    const result = await provider.exportRESTEnvironments(workspaceHandle)
+
+    if (E.isLeft(result)) {
+      return E.left({ type: "PROVIDER_ERROR", error: result.left })
+    }
+
+    return E.right(result.right)
+  }
+
+  public async exportRESTEnvironment(
+    environmentHandle: Handle<WorkspaceEnvironment>
+  ): Promise<
+    E.Either<WorkspaceError<"INVALID_HANDLE" | "INVALID_PROVIDER">, void>
+  > {
+    const environmentHandleRef = environmentHandle.get()
+
+    if (environmentHandleRef.value.type === "invalid") {
+      return E.left({ type: "SERVICE_ERROR", error: "INVALID_HANDLE" })
+    }
+
+    const provider = this.registeredProviders.get(
+      environmentHandleRef.value.data.providerID
+    )
+
+    if (!provider) {
+      return E.left({ type: "SERVICE_ERROR", error: "INVALID_PROVIDER" })
+    }
+
+    const result = await provider.exportRESTEnvironment(environmentHandle)
 
     if (E.isLeft(result)) {
       return E.left({ type: "PROVIDER_ERROR", error: result.left })

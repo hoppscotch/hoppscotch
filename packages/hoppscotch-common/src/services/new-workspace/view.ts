@@ -1,5 +1,6 @@
-import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
+import { Environment, HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
 import { Ref } from "vue"
+
 import { HoppInheritedRESTProperty } from "~/helpers/types/HoppInheritedProperties"
 
 // Shared across REST/GQL collections
@@ -64,4 +65,12 @@ export interface CollectionJSONView {
   workspaceID: string
 
   content: string
+}
+
+export interface RESTEnvironmentsView {
+  providerID: string
+  workspaceID: string
+
+  // TODO: Evaluate if this needs to be a `ref`
+  environments: Ref<Environment[]>
 }

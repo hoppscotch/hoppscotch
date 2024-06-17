@@ -68,8 +68,6 @@ import { GQLError } from "~/helpers/backend/GQLClient"
 import { deleteTeamEnvironment } from "~/helpers/backend/mutations/TeamEnvironment"
 import TeamEnvironmentAdapter from "~/helpers/teams/TeamEnvironmentAdapter"
 import {
-  deleteEnvironment,
-  environments$,
   getSelectedEnvironmentIndex,
   globalEnv$,
   selectedEnvironmentIndex$,
@@ -78,6 +76,7 @@ import {
 import { useLocalState } from "~/newstore/localstate"
 import { platform } from "~/platform"
 import { NewWorkspaceService } from "~/services/new-workspace"
+import { SecretEnvironmentService } from "~/services/secret-environment.service"
 import { TeamWorkspace, WorkspaceService } from "~/services/workspace.service"
 
 const t = useI18n()
@@ -96,7 +95,6 @@ const environmentType = ref<EnvironmentsChooseType>({
 })
 
 const globalEnv = useReadonlyStream(globalEnv$, [])
-const environments = useReadonlyStream(environments$, [])
 
 const globalEnvironment = computed(() => ({
   v: 1 as const,
@@ -112,6 +110,8 @@ const currentUser = useReadonlyStream(
 
 const workspaceService = useService(WorkspaceService)
 const newWorkspaceService = useService(NewWorkspaceService)
+const secretEnvironmentService = useService(SecretEnvironmentService)
+
 const REMEMBERED_TEAM_ID = useLocalState("REMEMBERED_TEAM_ID")
 
 const adapter = new TeamEnvironmentAdapter(undefined)
@@ -253,10 +253,24 @@ const createEnvironment = async (newEnvironment: Environment) => {
     return
   }
 
-  setSelectedEnvironmentIndex({
-    type: "MY_ENV",
-    index: environments.value.length - 1,
-  })
+  const environmentsViewResult =
+    await newWorkspaceService.getRESTEnvironmentsView(
+      activeWorkspaceHandle.value
+    )
+
+  if (E.isRight(environmentsViewResult)) {
+    const environmentsViewHandle = environmentsViewResult.right
+    const environmentsViewHandleRef = environmentsViewHandle.get()
+
+    if (environmentsViewHandleRef.value.type === "ok") {
+      const { environments } = environmentsViewHandleRef.value.data
+
+      setSelectedEnvironmentIndex({
+        type: "MY_ENV",
+        index: environments.value.length - 1,
+      })
+    }
+  }
 
   toast.success(t("environment.created"))
 }
@@ -352,15 +366,44 @@ const removeEnvironment = async (environmentID: number) => {
 
   const environmentHandle = environmentHandleResult.right
 
-  const updatedEnvironmentHandleResult =
+  const deletedEnvironmentHandleResult =
     await newWorkspaceService.removeRESTEnvironment(environmentHandle)
 
-  if (E.isLeft(updatedEnvironmentHandleResult)) {
-    // INVALID_WORKSPACE_HANDLE
+  if (E.isLeft(deletedEnvironmentHandleResult)) {
+    // INVALID_WORKSPACE_HANDLE | team workspace n/w call failure
+    toast.error(
+      (deletedEnvironmentHandleResult.left.error as string) ??
+        "error.something_went_wrong"
+    )
     return
   }
 
-  toast.success(t("environment.deleted"))
+  const environmentsViewResult =
+    await newWorkspaceService.getRESTEnvironmentsView(
+      activeWorkspaceHandle.value
+    )
+
+  if (E.isRight(environmentsViewResult)) {
+    const environmentsViewHandleRef = environmentsViewResult.right.get()
+
+    if (environmentsViewHandleRef.value.type === "ok") {
+      const { environments } = environmentsViewHandleRef.value.data
+
+      const { id } = environments.value[environmentID]
+      secretEnvironmentService.deleteSecretEnvironment(id)
+    }
+  }
+
+  const activeWorkspaceHandleRef = activeWorkspaceHandle.value.get()
+
+  const isTeam =
+    activeWorkspaceHandleRef.value.type === "ok" &&
+    activeWorkspaceHandleRef.value.data.providerID ===
+      "TEAMS_WORKSPACE_PROVIDER"
+
+  isTeam
+    ? toast.success(t("team_environment.deleted"))
+    : toast.success(t("environment.deleted"))
 }
 
 const resetSelectedData = () => {

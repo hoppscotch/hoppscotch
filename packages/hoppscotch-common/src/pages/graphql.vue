@@ -125,7 +125,7 @@ const sortTabs = (e: { oldIndex: number; newIndex: number }) => {
 const removeTab = (tabID: string) => {
   const tabState = tabs.getTabRef(tabID).value
 
-  if (tabState.document.isDirty) {
+  if (getTabDirtyStatus(tabState)) {
     confirmingCloseForTabID.value = tabID
   } else {
     tabs.closeTab(tabState.id)

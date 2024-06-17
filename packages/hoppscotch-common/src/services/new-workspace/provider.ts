@@ -12,6 +12,7 @@ import {
   CollectionJSONView,
   CollectionLevelAuthHeadersView,
   RESTCollectionChildrenView,
+  RESTEnvironmentsView,
   RootRESTCollectionView,
   SearchResultsView,
 } from "./view"
@@ -67,6 +68,9 @@ export interface WorkspaceProvider {
   getRESTCollectionJSONView(
     workspaceHandle: Handle<Workspace>
   ): Promise<E.Either<never, Handle<CollectionJSONView>>>
+  getRESTEnvironmentsView(
+    workspaceHandle: Handle<Workspace>
+  ): Promise<E.Either<never, Handle<RESTEnvironmentsView>>>
 
   createRESTRootCollection(
     workspaceHandle: Handle<Workspace>,
@@ -175,6 +179,17 @@ export interface WorkspaceProvider {
     updatedEnvironment: Partial<Environment>
   ): Promise<E.Either<unknown, void>>
   removeRESTEnvironment(
+    environmentHandle: Handle<WorkspaceEnvironment>
+  ): Promise<E.Either<unknown, void>>
+
+  importRESTEnvironments(
+    workspaceHandle: Handle<Workspace>,
+    environments: Environment[]
+  ): Promise<E.Either<unknown, void>>
+  exportRESTEnvironments(
+    workspaceHandle: Handle<Workspace>
+  ): Promise<E.Either<unknown, void>>
+  exportRESTEnvironment(
     environmentHandle: Handle<WorkspaceEnvironment>
   ): Promise<E.Either<unknown, void>>
 }

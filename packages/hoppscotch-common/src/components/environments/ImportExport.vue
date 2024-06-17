@@ -10,39 +10,34 @@
 
 <script setup lang="ts">
 import { Environment, NonSecretEnvironment } from "@hoppscotch/data"
+import { useService } from "dioc/vue"
 import * as E from "fp-ts/Either"
-import { ref } from "vue"
+import { computed, ref } from "vue"
 
+import { ImporterOrExporter } from "~/components/importExport/types"
 import { useI18n } from "~/composables/i18n"
 import { useToast } from "~/composables/toast"
-import { ImporterOrExporter } from "~/components/importExport/types"
+import { hoppEnvImporter } from "~/helpers/import-export/import/hoppEnv"
 import { FileSource } from "~/helpers/import-export/import/import-sources/FileSource"
 import { GistSource } from "~/helpers/import-export/import/import-sources/GistSource"
-import { hoppEnvImporter } from "~/helpers/import-export/import/hoppEnv"
 
-import {
-  appendEnvironments,
-  addGlobalEnvVariable,
-  environments$,
-} from "~/newstore/environments"
+import { addGlobalEnvVariable } from "~/newstore/environments"
 
-import { createTeamEnvironment } from "~/helpers/backend/mutations/TeamEnvironment"
-import { TeamEnvironment } from "~/helpers/teams/TeamEnvironment"
 import { GQLError } from "~/helpers/backend/GQLClient"
 import { CreateTeamEnvironmentMutation } from "~/helpers/backend/graphql"
-import { postmanEnvImporter } from "~/helpers/import-export/import/postmanEnv"
+import { createTeamEnvironment } from "~/helpers/backend/mutations/TeamEnvironment"
 import { insomniaEnvImporter } from "~/helpers/import-export/import/insomniaEnv"
+import { postmanEnvImporter } from "~/helpers/import-export/import/postmanEnv"
+import { TeamEnvironment } from "~/helpers/teams/TeamEnvironment"
 
-import IconFolderPlus from "~icons/lucide/folder-plus"
-import IconPostman from "~icons/hopp/postman"
-import IconInsomnia from "~icons/hopp/insomnia"
-import IconUser from "~icons/lucide/user"
-import { initializeDownloadFile } from "~/helpers/import-export/export"
-import { computed } from "vue"
 import { useReadonlyStream } from "~/composables/stream"
-import { environmentsExporter } from "~/helpers/import-export/export/environments"
 import { gistExporter } from "~/helpers/import-export/export/gist"
 import { platform } from "~/platform"
+import { NewWorkspaceService } from "~/services/new-workspace"
+import IconInsomnia from "~icons/hopp/insomnia"
+import IconPostman from "~icons/hopp/postman"
+import IconFolderPlus from "~icons/lucide/folder-plus"
+import IconUser from "~icons/lucide/user"
 
 const t = useI18n()
 const toast = useToast()
@@ -53,12 +48,14 @@ const props = defineProps<{
   environmentType: "MY_ENV" | "TEAM_ENV"
 }>()
 
-const myEnvironments = useReadonlyStream(environments$, [])
-
 const currentUser = useReadonlyStream(
   platform.auth.getCurrentUserStream(),
   platform.auth.getCurrentUser()
 )
+
+const workspaceService = useService(NewWorkspaceService)
+
+const activeWorkspaceHandle = workspaceService.activeWorkspaceHandle
 
 const isEnvironmentGistExportInProgress = ref(false)
 
@@ -66,7 +63,8 @@ const isTeamEnvironment = computed(() => {
   return props.environmentType === "TEAM_ENV"
 })
 
-const environmentJson = computed(() => {
+const getActiveWorkspaceEnvironment = async () => {
+  // TODO: Remove once the team workspace changes are in place
   if (
     props.environmentType === "TEAM_ENV" &&
     props.teamEnvironments !== undefined
@@ -77,8 +75,24 @@ const environmentJson = computed(() => {
     return teamEnvironments
   }
 
-  return myEnvironments.value
-})
+  const environmentsViewResult = await workspaceService.getRESTEnvironmentsView(
+    activeWorkspaceHandle.value!
+  )
+
+  if (E.isLeft(environmentsViewResult)) {
+    return []
+  }
+
+  const environmentsViewHandle = environmentsViewResult.right
+  const environmentsViewHandleRef = environmentsViewHandle.get()
+
+  if (environmentsViewHandleRef.value.type === "invalid") {
+    return []
+  }
+
+  const { environments } = environmentsViewHandleRef.value.data
+  return environments.value
+}
 
 const HoppEnvironmentsImport: ImporterOrExporter = {
   metadata: {
@@ -231,26 +245,24 @@ const HoppEnvironmentsExport: ImporterOrExporter = {
     applicableTo: ["personal-workspace", "team-workspace"],
   },
   action: async () => {
-    if (!environmentJson.value.length) {
-      return toast.error(t("error.no_environments_to_export"))
+    if (!activeWorkspaceHandle.value) {
+      return toast.error("error.something_went_wrong")
     }
 
-    const message = await initializeDownloadFile(
-      environmentsExporter(environmentJson.value),
-      "Environments"
+    const result = await workspaceService.exportRESTEnvironments(
+      activeWorkspaceHandle.value
     )
 
-    if (E.isLeft(message)) {
-      toast.error(t(message.left))
-      return
+    // INVALID_COLLECTION_HANDLE | NO_ENVIRONMENTS_TO_EXPORT
+    if (E.isLeft(result)) {
+      if (result.left.error === "NO_ENVIRONMENTS_TO_EXPORT") {
+        return toast.error(t("no_environments_to_export"))
+      }
+
+      return toast.error(t("export.failed"))
     }
 
-    toast.success(t(message.right))
-
-    platform.analytics?.logEvent({
-      type: "HOPP_EXPORT_ENVIRONMENT",
-      platform: "rest",
-    })
+    toast.success(t("state.download_started"))
   },
 }
 
@@ -272,7 +284,9 @@ const HoppEnvironmentsGistExporter: ImporterOrExporter = {
     isLoading: isEnvironmentGistExportInProgress,
   },
   action: async () => {
-    if (!environmentJson.value.length) {
+    const environments = await getActiveWorkspaceEnvironment()
+
+    if (!environments.length) {
       return toast.error(t("error.no_environments_to_export"))
     }
 
@@ -287,7 +301,7 @@ const HoppEnvironmentsGistExporter: ImporterOrExporter = {
 
     if (accessToken) {
       const res = await gistExporter(
-        JSON.stringify(environmentJson.value),
+        JSON.stringify(environments),
         accessToken,
         "hoppscotch-environment.json"
       )
@@ -344,12 +358,29 @@ const handleImportToStore = async (
     })
   })
 
+  // TODO: Remove the check once the team workspace changes are in place
   if (props.environmentType === "MY_ENV") {
-    appendEnvironments(environments)
+    if (!activeWorkspaceHandle.value) {
+      return E.left("INVALID_WORKSPACE_HANDLE")
+    }
+
+    const collectionHandleResult =
+      await workspaceService.importRESTEnvironments(
+        activeWorkspaceHandle.value,
+        environments
+      )
+
+    if (E.isLeft(collectionHandleResult)) {
+      // INVALID_WORKSPACE_HANDLE
+      return toast.error(t("import.failed"))
+    }
+
     toast.success(t("state.file_imported"))
-  } else {
-    await importToTeams(environments)
+    return
   }
+
+  // TODO: Remove once the team workspace changes are in place
+  await importToTeams(environments)
 }
 
 const importToTeams = async (content: Environment[]) => {

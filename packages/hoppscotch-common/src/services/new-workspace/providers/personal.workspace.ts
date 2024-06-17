@@ -65,6 +65,7 @@ import {
   CollectionLevelAuthHeadersView,
   RESTCollectionChildrenView,
   RESTCollectionViewItem,
+  RESTEnvironmentsView,
   RootRESTCollectionView,
   SearchResultsView,
 } from "~/services/new-workspace/view"
@@ -83,6 +84,7 @@ import { initializeDownloadFile } from "~/helpers/import-export/export"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import { lazy } from "~/helpers/utils/lazy"
 import {
+  appendEnvironments,
   createEnvironment,
   deleteEnvironment,
   duplicateEnvironment,
@@ -598,7 +600,7 @@ export class PersonalWorkspaceProviderService
     return Promise.resolve(E.right(undefined))
   }
 
-  public exportRESTCollections(
+  public async exportRESTCollections(
     workspaceHandle: Handle<Workspace>
   ): Promise<E.Either<unknown, void>> {
     const workspaceHandleRef = workspaceHandle.get()
@@ -615,10 +617,14 @@ export class PersonalWorkspaceProviderService
       return Promise.resolve(E.left("NO_COLLECTIONS_TO_EXPORT" as const))
     }
 
-    initializeDownloadFile(
+    const result = await initializeDownloadFile(
       JSON.stringify(collectionsToExport, null, 2),
       `${workspaceHandleRef.value.data.workspaceID}-collections`
     )
+
+    if (E.isLeft(result)) {
+      return Promise.resolve(E.left("EXPORT_FAILED" as const))
+    }
 
     platform.analytics?.logEvent({
       type: "HOPP_EXPORT_COLLECTION",
@@ -629,7 +635,7 @@ export class PersonalWorkspaceProviderService
     return Promise.resolve(E.right(undefined))
   }
 
-  public exportRESTCollection(
+  public async exportRESTCollection(
     collectionHandle: Handle<WorkspaceCollection>
   ): Promise<E.Either<unknown, void>> {
     const collectionHandleRef = collectionHandle.get()
@@ -651,7 +657,14 @@ export class PersonalWorkspaceProviderService
       return Promise.resolve(E.left("COLLECTION_DOES_NOT_EXIST" as const))
     }
 
-    initializeDownloadFile(JSON.stringify(collection, null, 2), collection.name)
+    const result = await initializeDownloadFile(
+      JSON.stringify(collection, null, 2),
+      collection.name
+    )
+
+    if (E.isLeft(result)) {
+      return Promise.resolve(E.left("EXPORT_FAILED" as const))
+    }
 
     return Promise.resolve(E.right(undefined))
   }
@@ -1801,6 +1814,42 @@ export class PersonalWorkspaceProviderService
     )
   }
 
+  public getRESTEnvironmentsView(
+    workspaceHandle: Handle<Workspace>
+  ): Promise<E.Either<never, Handle<RESTEnvironmentsView>>> {
+    const workspaceHandleRef = workspaceHandle.get()
+
+    return Promise.resolve(
+      E.right({
+        get: lazy(() =>
+          computed(() => {
+            if (
+              !isValidWorkspaceHandle(
+                workspaceHandleRef,
+                this.providerID,
+                "personal"
+              )
+            ) {
+              return {
+                type: "invalid" as const,
+                reason: "INVALID_WORKSPACE_HANDLE" as const,
+              }
+            }
+
+            return markRaw({
+              type: "ok" as const,
+              data: {
+                providerID: this.providerID,
+                workspaceID: workspaceHandleRef.value.data.workspaceID,
+                environments: this.restEnvironmentState,
+              },
+            })
+          })
+        ),
+      })
+    )
+  }
+
   // GQL methods
   public async createGQLRootCollection(
     workspaceHandle: Handle<Workspace>,
@@ -2304,7 +2353,7 @@ export class PersonalWorkspaceProviderService
     return Promise.resolve(E.right(undefined))
   }
 
-  public exportGQLCollections(
+  public async exportGQLCollections(
     workspaceHandle: Handle<Workspace>
   ): Promise<E.Either<unknown, void>> {
     const workspaceHandleRef = workspaceHandle.get()
@@ -2321,10 +2370,14 @@ export class PersonalWorkspaceProviderService
       return Promise.resolve(E.left("NO_COLLECTIONS_TO_EXPORT" as const))
     }
 
-    initializeDownloadFile(
+    const result = await initializeDownloadFile(
       JSON.stringify(collectionsToExport, null, 2),
       `${workspaceHandleRef.value.data.workspaceID}-collections`
     )
+
+    if (E.isLeft(result)) {
+      return Promise.resolve(E.left("EXPORT_FAILED" as const))
+    }
 
     platform.analytics?.logEvent({
       type: "HOPP_EXPORT_COLLECTION",
@@ -2464,9 +2517,11 @@ export class PersonalWorkspaceProviderService
       return Promise.resolve(E.left("INVALID_ENVIRONMENT_HANDLE" as const))
     }
 
+    const { environmentID } = environmentHandleRef.value.data
+
     const removedEnvironmentHandle = await this.getRESTEnvironmentHandle(
       this.getPersonalWorkspaceHandle(),
-      environmentHandleRef.value.data.environmentID
+      environmentID
     )
 
     if (E.isRight(removedEnvironmentHandle)) {
@@ -2480,7 +2535,96 @@ export class PersonalWorkspaceProviderService
       }
     }
 
-    deleteEnvironment(environmentHandleRef.value.data.environmentID)
+    const { id: environmentSyncID } =
+      this.restEnvironmentState.value[environmentID]
+
+    deleteEnvironment(environmentID, environmentSyncID)
+
+    return Promise.resolve(E.right(undefined))
+  }
+
+  public importRESTEnvironments(
+    workspaceHandle: Handle<Workspace>,
+    environments: Environment[]
+  ): Promise<E.Either<unknown, void>> {
+    const workspaceHandleRef = workspaceHandle.get()
+    if (
+      !isValidWorkspaceHandle(workspaceHandleRef, this.providerID, "personal")
+    ) {
+      return Promise.resolve(E.left("INVALID_WORKSPACE_HANDLE" as const))
+    }
+
+    appendEnvironments(environments)
+
+    return Promise.resolve(E.right(undefined))
+  }
+
+  public async exportRESTEnvironments(
+    workspaceHandle: Handle<Workspace>
+  ): Promise<E.Either<unknown, void>> {
+    const workspaceHandleRef = workspaceHandle.get()
+
+    if (
+      !isValidWorkspaceHandle(workspaceHandleRef, this.providerID, "personal")
+    ) {
+      return Promise.resolve(E.left("INVALID_WORKSPACE_HANDLE" as const))
+    }
+
+    const environmentsToExport = this.restEnvironmentState.value
+
+    if (environmentsToExport.length === 0) {
+      return Promise.resolve(E.left("NO_ENVIRONMENTS_TO_EXPORT" as const))
+    }
+
+    const result = await initializeDownloadFile(
+      JSON.stringify(environmentsToExport, null, 2),
+      `${workspaceHandleRef.value.data.workspaceID}-environments`
+    )
+
+    if (E.isLeft(result)) {
+      return Promise.resolve(E.left("EXPORT_FAILED" as const))
+    }
+
+    platform.analytics?.logEvent({
+      type: "HOPP_EXPORT_ENVIRONMENT",
+      platform: "rest",
+    })
+
+    return Promise.resolve(E.right(undefined))
+  }
+
+  public async exportRESTEnvironment(
+    environmentHandle: Handle<WorkspaceEnvironment>
+  ): Promise<E.Either<unknown, void>> {
+    const environmentHandleRef = environmentHandle.get()
+
+    if (
+      !isValidEnvironmentHandle(
+        environmentHandleRef,
+        this.providerID,
+        "personal"
+      )
+    ) {
+      return Promise.resolve(E.left("INVALID_ENVIRONMENT_HANDLE" as const))
+    }
+
+    const environment =
+      this.restEnvironmentState.value[
+        environmentHandleRef.value.data.environmentID
+      ]
+
+    if (!environment) {
+      return Promise.resolve(E.left("ENVIRONMENT_DOES_NOT_EXIST" as const))
+    }
+
+    const result = await initializeDownloadFile(
+      JSON.stringify(environment, null, 2),
+      environment.name
+    )
+
+    if (E.isLeft(result)) {
+      return Promise.resolve(E.left("EXPORT_FAILED" as const))
+    }
 
     return Promise.resolve(E.right(undefined))
   }

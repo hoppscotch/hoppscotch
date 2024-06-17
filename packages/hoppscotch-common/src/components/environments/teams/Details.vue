@@ -204,6 +204,13 @@ const props = withDefaults(
 
 const emit = defineEmits<{
   (e: "hide-modal"): void
+  // TODO: Enable once the team workspace changes are in place
+  // (e: 'create-environment', newEnvironment: Environment): void;
+  // (
+  //   e: 'update-environment',
+  //   environmentID: number,
+  //   updatedEnvironment: Partial<Environment>
+  // ): void;
 }>()
 
 const idTicker = ref(0)
@@ -394,6 +401,8 @@ const saveEnvironment = async () => {
     })
 
     if (!props.isViewer) {
+      // TODO: Perform creation using the `workspaceService` method
+      // emit("create-environment", environmentUpdated)
       await pipe(
         createTeamEnvironment(
           JSON.stringify(environmentUpdated.variables),
@@ -442,6 +451,8 @@ const saveEnvironment = async () => {
     }
 
     if (!props.isViewer) {
+      // TODO: Perform updation using the `workspaceService` method
+      // emit("update-environment", environmentUpdated)
       await pipe(
         updateTeamEnvironment(
           JSON.stringify(environmentUpdated.variables),

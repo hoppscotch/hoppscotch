@@ -1526,7 +1526,7 @@ const exportCollection = async (collectionIndexPath: string) => {
 
   if (E.isLeft(result)) {
     // INVALID_COLLECTION_HANDLE | COLLECTION_DOES_NOT_EXIST
-    return
+    return toast.error(t("export.failed"))
   }
 }
 

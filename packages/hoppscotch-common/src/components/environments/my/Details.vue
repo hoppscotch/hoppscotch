@@ -148,7 +148,6 @@ import { ComputedRef, computed, ref, watch } from "vue"
 
 import { uniqueID } from "~/helpers/utils/uniqueID"
 import {
-  environments$,
   environmentsStore,
   getEnvironment,
   getGlobalVariables,
@@ -290,8 +289,6 @@ const workingEnv = computed(() => {
   }
   return null
 })
-
-const envList = useReadonlyStream(environments$, []) || props.envVars()
 
 const evnExpandError = computed(() => {
   const variables = pipe(

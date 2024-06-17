@@ -1,30 +1,21 @@
 # CODEOWNERS is prioritized from bottom to top
 
-# If none of the below matched
-*                                                       @AndrewBastin @liyasthomas
-
 # Packages
 /packages/codemirror-lang-graphql/                      @AndrewBastin
-/packages/hoppscotch-cli/                               @AndrewBastin
-/packages/hoppscotch-common/                            @amk-dev @AndrewBastin
+/packages/hoppscotch-cli/                               @jamesgeorge007
 /packages/hoppscotch-data/                              @AndrewBastin
-/packages/hoppscotch-js-sandbox/                        @AndrewBastin
-/packages/hoppscotch-ui/                                @anwarulislam
-/packages/hoppscotch-web/                               @amk-dev
-/packages/hoppscotch-selfhost-web/                      @amk-dev
+/packages/hoppscotch-js-sandbox/                        @jamesgeorge007
+/packages/hoppscotch-selfhost-web/                      @jamesgeorge007
+/packages/hoppscotch-selfhost-desktop/                  @AndrewBastin
 /packages/hoppscotch-sh-admin/                          @JoelJacobStephen
-/packages/hoppscotch-backend/                           @ankitsridhar16 @balub
+/packages/hoppscotch-backend/                           @balub
 
-# Sections within Hoppscotch Common
-/packages/hoppscotch-common/src/components              @anwarulislam
-/packages/hoppscotch-common/src/components/collections  @nivedin @amk-dev
-/packages/hoppscotch-common/src/components/environments @nivedin @amk-dev
-/packages/hoppscotch-common/src/composables             @amk-dev
-/packages/hoppscotch-common/src/modules                 @AndrewBastin @amk-dev
-/packages/hoppscotch-common/src/pages                   @AndrewBastin @amk-dev
-/packages/hoppscotch-common/src/newstore                @AndrewBastin @amk-dev
+# READMEs and other documentation files
+*.md                                                    @liyasthomas
 
-README.md                                               @liyasthomas
-
-# The lockfile has no owner
-pnpm-lock.yaml
+# Self Host deployment related files
+*.Dockerfile                                            @balub
+docker-compose.yml                                      @balub
+docker-compose.deploy.yml                               @balub
+*.Caddyfile                                             @balub
+.dockerignore                                           @balub

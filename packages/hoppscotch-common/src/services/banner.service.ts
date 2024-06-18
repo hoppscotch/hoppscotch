@@ -6,10 +6,10 @@ export const BANNER_PRIORITY_LOW = 1
 export const BANNER_PRIORITY_MEDIUM = 3
 export const BANNER_PRIORITY_HIGH = 5
 
-export type BannerTypes = "info" | "warning" | "error"
+export type BannerType = "info" | "warning" | "error"
 
 export type BannerContent = {
-  type: BannerTypes
+  type: BannerType
   text: (t: ReturnType<typeof getI18n>) => string
   // Can be used to display an alternate text when display size is small
   alternateText?: (t: ReturnType<typeof getI18n>) => string

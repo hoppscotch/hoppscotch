@@ -12,7 +12,7 @@ import {
   HoppCollection,
   HoppRESTAuth,
   HoppRESTHeader,
-  HoppRESTRequest,
+  HoppRESTHeaders,
 } from "@hoppscotch/data"
 
 import * as E from "fp-ts/Either"
@@ -34,10 +34,12 @@ import {
   RESTCollectionChildrenView,
   RESTCollectionJSONView,
   RESTCollectionLevelAuthHeadersView,
+  RESTCollectionViewItem,
   RESTSearchResultsView,
   RootRESTCollectionView,
 } from "../view"
 import {
+  GQLError,
   runGQLQuery,
   runGQLSubscription,
   runMutation,
@@ -70,6 +72,12 @@ import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import { initializeDownloadFile } from "~/helpers/import-export/export"
 import { TeamSearchService } from "~/helpers/teams/TeamsSearch.service"
 import { fetchAllTeams } from "~/helpers/teams/TeamListAdapter"
+import { HoppRESTRequest } from "@hoppscotch/data"
+import {
+  getCollectionChildren,
+  getCollectionChildRequests,
+  getRootCollections,
+} from "~/helpers/backend/helpers"
 
 type TeamsWorkspaceCollection = WorkspaceCollection & {
   parentCollectionID?: string
@@ -491,7 +499,12 @@ export class TeamsWorkspaceProviderService
   async updateRESTRequest(
     requestHandle: Handle<WorkspaceRequest>,
     updatedRequest: Partial<HoppRESTRequest> & { name: string }
-  ) {
+  ): Promise<
+    E.Either<
+      "INVALID_REQUEST_HANDLE" | "REQUEST_DOES_NOT_EXIST" | GQLError<any>,
+      void
+    >
+  > {
     const requestHandleRef = requestHandle.get()
 
     if (!isValidRequestHandle(requestHandleRef, this.providerID)) {
@@ -536,11 +549,18 @@ export class TeamsWorkspaceProviderService
     return E.right(undefined)
   }
 
-  async removeRESTCollection(collectionHandle: Handle<WorkspaceCollection>) {
+  async removeRESTCollection(
+    collectionHandle: Handle<WorkspaceCollection>
+  ): Promise<
+    E.Either<
+      "INVALID_COLLECTION_HANDLE" | GQLError<"team/invalid_coll_id">,
+      void
+    >
+  > {
     const collectionHandleRef = collectionHandle.get()
 
     if (!isValidCollectionHandle(collectionHandleRef, this.providerID)) {
-      return Promise.resolve(E.left("INVALID_COLLECTION_HANDLE" as const))
+      return E.left("INVALID_COLLECTION_HANDLE" as const)
     }
 
     const res = await deleteCollection(
@@ -551,14 +571,25 @@ export class TeamsWorkspaceProviderService
       return res
     }
 
-    return Promise.resolve(E.right(undefined))
+    // remove the collection from the collections
+    // the subscriptions will also take care of this
+    this.collections.value = this.collections.value.filter(
+      (collection) =>
+        collection.collectionID !== collectionHandleRef.value.data.collectionID
+    )
+
+    return E.right(undefined)
   }
 
-  async removeRESTRequest(requestHandle: Handle<WorkspaceRequest>) {
+  async removeRESTRequest(
+    requestHandle: Handle<WorkspaceRequest>
+  ): Promise<
+    E.Either<"INVALID_REQUEST_HANDLE" | GQLError<"team_req/not_found">, void>
+  > {
     const requestHandleRef = requestHandle.get()
 
     if (!isValidRequestHandle(requestHandleRef, this.providerID)) {
-      return Promise.resolve(E.left("INVALID_REQUEST_HANDLE" as const))
+      return E.left("INVALID_REQUEST_HANDLE" as const)
     }
 
     const res = await deleteTeamRequest(requestHandleRef.value.data.requestID)()
@@ -567,7 +598,13 @@ export class TeamsWorkspaceProviderService
       return res
     }
 
-    return Promise.resolve(E.right(undefined))
+    // remove the request from the requests
+    // the subscriptions will also take care of this
+    this.requests.value = this.requests.value.filter(
+      (request) => request.requestID !== requestHandleRef.value.data.requestID
+    )
+
+    return E.right(undefined)
   }
 
   getWorkspaces(): HandleRef<HandleRef<Workspace>[], "LOADING_WORKSPACES"> {
@@ -666,6 +703,119 @@ export class TeamsWorkspaceProviderService
   ): Promise<E.Either<never, Handle<RESTCollectionChildrenView>>> {
     const collectionHandleRef = collectionHandle.get()
 
+    const isFetchingCollection = ref(false)
+    const isFetchingRequests = ref(false)
+
+    const isFetchingChildren = computed(() => {
+      return isFetchingCollection.value || isFetchingRequests.value
+    })
+
+    if (isValidCollectionHandle(collectionHandleRef, this.providerID)) {
+      isFetchingCollection.value = true
+      // fetch the child collections
+      getCollectionChildren(collectionHandleRef.value.data.collectionID)
+        .then((children) => {
+          if (E.isLeft(children) || !children.right.collection?.children) {
+            return
+          }
+
+          // remove the existing children
+          this.collections.value = this.collections.value.filter(
+            (collection) =>
+              collection.parentCollectionID !==
+              collectionHandleRef.value.data.collectionID
+          )
+
+          let previousOrder: string | null = null
+
+          // now push the new children
+          this.collections.value.push(
+            ...children.right.collection?.children.map((collection) => {
+              const collectionProperties = collection.data
+                ? JSON.parse(collection.data)
+                : null
+
+              let auth: HoppRESTAuth = {
+                authType: "inherit",
+                authActive: true,
+              }
+
+              let headers: HoppRESTHeader[] = []
+
+              const authParsingRes = HoppRESTAuth.safeParse(
+                collectionProperties?.auth
+              )
+
+              const headersParsingRes = HoppRESTHeaders.safeParse(
+                collectionProperties?.headers
+              )
+
+              if (authParsingRes.success) {
+                auth = authParsingRes.data
+              }
+
+              if (headersParsingRes.success) {
+                headers = headersParsingRes.data
+              }
+
+              const order = generateKeyBetween(previousOrder, null)
+              previousOrder = order
+
+              return {
+                collectionID: collection.id,
+                providerID: this.providerID,
+                workspaceID: collectionHandleRef.value.data.workspaceID,
+                name: collection.title,
+                parentCollectionID: collectionHandleRef.value.data.collectionID,
+                order,
+                auth: auth,
+                headers: headers,
+              }
+            })
+          )
+        })
+        .finally(() => {
+          isFetchingCollection.value = false
+        })
+
+      // fetch the child requests
+      getCollectionChildRequests(collectionHandleRef.value.data.collectionID)
+        .then((requests) => {
+          if (E.isLeft(requests)) {
+            return
+          }
+
+          // remove the existing requests
+          this.requests.value = this.requests.value.filter(
+            (request) =>
+              request.collectionID !==
+              collectionHandleRef.value.data.collectionID
+          )
+
+          let previousOrder: string | null = null
+
+          // now push the new requests
+          this.requests.value.push(
+            ...requests.right.requestsInCollection.map((request) => {
+              const order = generateKeyBetween(previousOrder, null)
+              previousOrder = order
+
+              return {
+                requestID: request.id,
+                providerID: this.providerID,
+                workspaceID: collectionHandleRef.value.data.workspaceID,
+                collectionID: collectionHandleRef.value.data.collectionID,
+                request: JSON.parse(request.request), // TODO: validation
+                order,
+              }
+            })
+          )
+        })
+        .finally(() => {
+          isFetchingRequests.value = false
+        })
+    }
+
     return E.right({
       get: lazy(() =>
         computed(() => {
@@ -677,23 +827,52 @@ export class TeamsWorkspaceProviderService
           }
 
           // TODO: Why computed in a computed ? doing this to make typescript happy here, check later
-          const collectionChildren = computed(() =>
-            sortByOrder(
+          const collectionChildren = computed(() => {
+            const sortedAndFilteredCollections = sortByOrder(
               this.collections.value.filter(
                 (collection) =>
                   collection.parentCollectionID ===
                   collectionHandleRef.value.data.collectionID
               )
-            ).map((collection) => ({
-              type: "collection" as const,
-              value: {
-                collectionID: collection.collectionID,
-                name: collection.name,
-                parentCollectionID: collection.parentCollectionID ?? null,
-                isLastItem: false,
-              },
-            }))
-          )
+            )
+
+            const collections = sortedAndFilteredCollections.map(
+              (collection, index) =>
+                <RESTCollectionViewItem>{
+                  type: "collection" as const,
+                  value: {
+                    collectionID: collection.collectionID,
+                    name: collection.name,
+                    parentCollectionID: collection.parentCollectionID ?? null,
+                    isLastItem:
+                      index === sortedAndFilteredCollections.length - 1,
+                  },
+                }
+            )
+
+            const sortedAndFilteredRequests = sortByOrder(
+              this.requests.value.filter(
+                (request) =>
+                  request.collectionID ===
+                  collectionHandleRef.value.data.collectionID
+              )
+            )
+
+            const requests = sortedAndFilteredRequests.map(
+              (request, index) =>
+                <RESTCollectionViewItem>{
+                  type: "request",
+                  value: {
+                    request: request.request,
+                    collectionID: request.collectionID,
+                    isLastItem: index === sortedAndFilteredRequests.length - 1,
+                    requestID: request.requestID,
+                  },
+                }
+            )
+
+            return [...collections, ...requests]
+          })
 
           if (!isValidCollectionHandle(collectionHandleRef, this.providerID)) {
             return {
@@ -708,7 +887,7 @@ export class TeamsWorkspaceProviderService
               providerID: collectionHandleRef.value.data.providerID,
               workspaceID: collectionHandleRef.value.data.workspaceID,
               content: collectionChildren,
-              loading: ref(false), // TODO: make this dynamic
+              loading: isFetchingChildren,
             },
             type: "ok" as const,
           }
@@ -722,6 +901,74 @@ export class TeamsWorkspaceProviderService
   ): Promise<E.Either<never, Handle<RootRESTCollectionView>>> {
     const workspaceHandleRef = workspaceHandle.get()
 
+    const isFetchingRootCollections = ref(false)
+
+    if (isValidWorkspaceHandle(workspaceHandleRef, this.providerID)) {
+      isFetchingRootCollections.value = true
+
+      // fetch the root collections
+      getRootCollections(workspaceHandleRef.value.data.workspaceID)
+        .then((collections) => {
+          if (E.isLeft(collections)) {
+            return
+          }
+
+          // remove the existing collections
+          this.collections.value = this.collections.value.filter(
+            (collection) => !collection.parentCollectionID
+          )
+
+          let previousOrder: string | null = null
+
+          this.collections.value.push(
+            ...collections.right.rootCollectionsOfTeam.map((collection) => {
+              const collectionProperties = collection.data
+                ? JSON.parse(collection.data)
+                : null
+
+              let auth: HoppRESTAuth = {
+                authType: "none",
+                authActive: true,
+              }
+
+              let headers: HoppRESTHeader[] = []
+
+              const authParsingRes = HoppRESTAuth.safeParse(
+                collectionProperties?.auth
+              )
+
+              const headersParsingRes = HoppRESTHeaders.safeParse(
+                collectionProperties?.headers
+              )
+
+              if (authParsingRes.success) {
+                auth = authParsingRes.data
+              }
+
+              if (headersParsingRes.success) {
+                headers = headersParsingRes.data
+              }
+
+              const order = generateKeyBetween(previousOrder, null)
+              previousOrder = order
+
+              return {
+                collectionID: collection.id,
+                providerID: this.providerID,
+                workspaceID: workspaceHandleRef.value.data.workspaceID,
+                name: collection.title,
+                order,
+                auth: auth,
+                headers: headers,
+              }
+            })
+          )
+        })
+        .finally(() => {
+          isFetchingRootCollections.value = false
+        })
+    }
+
     return E.right({
       get: lazy(() =>
         computed(() => {
@@ -732,25 +979,30 @@ export class TeamsWorkspaceProviderService
             }
           }
 
-          const rootCollections = computed(() =>
-            sortByOrder(
+          const rootCollections = computed(() => {
+            const filteredAndSorted = sortByOrder(
               this.collections.value.filter(
                 (collection) => !collection.parentCollectionID
               )
-            ).map((collection) => ({
-              collectionID: collection.collectionID,
-              name: collection.name,
-              isLastItem: false,
-              parentCollectionID: null,
-            }))
-          )
+            )
+
+            return filteredAndSorted.map((collection, index) => {
+              return {
+                collectionID: collection.collectionID,
+                name: collection.name,
+                isLastItem: index === filteredAndSorted.length - 1,
+                parentCollectionID: null,
+              }
+            })
+          })
 
           return {
             data: {
               workspaceID: workspaceHandleRef.value.data.workspaceID,
               providerID: this.providerID,
+              // this won't be triggered
               collections: rootCollections,
-              loading: ref(false), // TODO: make this dynamic
+              loading: isFetchingRootCollections,
             },
             type: "ok" as const,
           }
@@ -1632,18 +1884,6 @@ const fetchRootCollections = async (teamID: string, cursor?: string) => {
   })
 
   return result
-}
-
-const getCollectionChildren = async (collectionID: string, cursor?: string) => {
-  const res = await runGQLQuery({
-    query: GetCollectionChildrenDocument,
-    variables: {
-      collectionID: collectionID,
-      cursor,
-    },
-  })
-
-  return res
 }
 
 const runTeamCollectionAddedSubscription = (teamID: string) =>

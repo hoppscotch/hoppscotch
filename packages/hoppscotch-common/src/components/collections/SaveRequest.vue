@@ -239,11 +239,11 @@ const saveRequestAs = async () => {
         ? picked.value.collectionIndex.toString()
         : picked.value.folderPath
 
-    const collectionHandleResult = await workspaceService.getCollectionHandle(
-      workspaceService.activeWorkspaceHandle.value,
-      collectionPathIndex,
-      "REST"
-    )
+    const collectionHandleResult =
+      await workspaceService.getRESTCollectionHandle(
+        workspaceService.activeWorkspaceHandle.value,
+        collectionPathIndex
+      )
 
     if (E.isLeft(collectionHandleResult)) {
       // INVALID_WORKSPACE_HANDLE | INVALID_COLLECTION_ID | INVALID_PATH
@@ -285,11 +285,11 @@ const saveRequestAs = async () => {
     if (!isHoppRESTRequest(updatedRequest))
       throw new Error("updatedRequest is not a REST Request")
 
-    const collectionHandleResult = await workspaceService.getCollectionHandle(
-      workspaceService.activeWorkspaceHandle.value,
-      picked.value.folderPath,
-      "REST"
-    )
+    const collectionHandleResult =
+      await workspaceService.getRESTCollectionHandle(
+        workspaceService.activeWorkspaceHandle.value,
+        picked.value.folderPath
+      )
 
     if (E.isLeft(collectionHandleResult)) {
       // INVALID_WORKSPACE_HANDLE | INVALID_COLLECTION_ID | INVALID_PATH
@@ -305,10 +305,9 @@ const saveRequestAs = async () => {
       return
     }
 
-    const requestHandleResult = await workspaceService.getRequestHandle(
+    const requestHandleResult = await workspaceService.getRESTRequestHandle(
       workspaceService.activeWorkspaceHandle.value,
-      `${picked.value.folderPath}/${picked.value.requestIndex.toString()}`,
-      "REST"
+      `${picked.value.folderPath}/${picked.value.requestIndex.toString()}`
     )
 
     if (E.isLeft(requestHandleResult)) {
@@ -345,9 +344,8 @@ const saveRequestAs = async () => {
     }
 
     const cascadingAuthHeadersHandleResult =
-      await workspaceService.getCollectionLevelAuthHeadersView(
-        collectionHandle,
-        "REST"
+      await workspaceService.getRESTCollectionLevelAuthHeadersView(
+        collectionHandle
       )
 
     if (E.isLeft(cascadingAuthHeadersHandleResult)) {
@@ -385,10 +383,9 @@ const saveRequestAs = async () => {
         : picked.value.folderPath
 
     const collectionHandleResult =
-      await personalWorkspaceProviderService.getCollectionHandle(
+      await personalWorkspaceProviderService.getGQLCollectionHandle(
         workspaceService.activeWorkspaceHandle.value,
-        collectionPathIndex,
-        "GQL"
+        collectionPathIndex
       )
 
     if (E.isLeft(collectionHandleResult)) {
@@ -434,10 +431,9 @@ const saveRequestAs = async () => {
     }
 
     const collectionHandleResult =
-      await personalWorkspaceProviderService.getCollectionHandle(
+      await personalWorkspaceProviderService.getGQLCollectionHandle(
         workspaceService.activeWorkspaceHandle.value,
-        picked.value.folderPath,
-        "GQL"
+        picked.value.folderPath
       )
 
     if (E.isLeft(collectionHandleResult)) {
@@ -455,10 +451,9 @@ const saveRequestAs = async () => {
     }
 
     const requestHandleResult =
-      await personalWorkspaceProviderService.getRequestHandle(
+      await personalWorkspaceProviderService.getGQLRequestHandle(
         workspaceService.activeWorkspaceHandle.value,
-        `${picked.value.folderPath}/${picked.value.requestIndex.toString()}`,
-        "GQL"
+        `${picked.value.folderPath}/${picked.value.requestIndex.toString()}`
       )
 
     if (E.isLeft(requestHandleResult)) {
@@ -496,9 +491,8 @@ const saveRequestAs = async () => {
     }
 
     const cascadingAuthHeadersHandleResult =
-      await personalWorkspaceProviderService.getCollectionLevelAuthHeadersView(
-        collectionHandle,
-        "GQL"
+      await personalWorkspaceProviderService.getGQLCollectionLevelAuthHeadersView(
+        collectionHandle
       )
 
     if (E.isLeft(cascadingAuthHeadersHandleResult)) {

@@ -222,10 +222,9 @@ export class PersonalWorkspaceProviderService
 
     // TODO: Verify whether a collection update action is reflected correctly in the handle being returned below
 
-    const createdCollectionHandle = await this.getCollectionHandle(
+    const createdCollectionHandle = await this.getRESTCollectionHandle(
       workspaceHandle,
-      newCollectionID,
-      "REST"
+      newCollectionID
     )
 
     return createdCollectionHandle
@@ -266,10 +265,9 @@ export class PersonalWorkspaceProviderService
 
     // TODO: Verify whether a collection update action is reflected correctly in the handle being returned below
 
-    const createdCollectionHandle = await this.getCollectionHandle(
+    const createdCollectionHandle = await this.getRESTCollectionHandle(
       parentCollectionHandle,
-      newChildCollectionID,
-      "REST"
+      newChildCollectionID
     )
 
     return createdCollectionHandle
@@ -307,10 +305,9 @@ export class PersonalWorkspaceProviderService
       editRESTFolder(collectionID, newCollection)
     }
 
-    const updatedCollectionHandle = await this.getCollectionHandle(
+    const updatedCollectionHandle = await this.getRESTCollectionHandle(
       this.getPersonalWorkspaceHandle(),
-      collectionID,
-      "REST"
+      collectionID
     )
 
     if (E.isRight(updatedCollectionHandle)) {
@@ -344,10 +341,9 @@ export class PersonalWorkspaceProviderService
       ? parseInt(removedCollectionID)
       : this.pathToLastIndex(removedCollectionID)
 
-    const removedCollectionHandle = await this.getCollectionHandle(
+    const removedCollectionHandle = await this.getRESTCollectionHandle(
       this.getPersonalWorkspaceHandle(),
-      removedCollectionID,
-      "REST"
+      removedCollectionID
     )
 
     if (E.isRight(removedCollectionHandle)) {
@@ -474,10 +470,9 @@ export class PersonalWorkspaceProviderService
     // TODO: Verify whether a request update action is reflected correctly in the handle being returned below
 
     const personalWorkspaceHandle = this.getPersonalWorkspaceHandle()
-    const createdRequestHandle = await this.getRequestHandle(
+    const createdRequestHandle = await this.getRESTRequestHandle(
       personalWorkspaceHandle,
-      requestID,
-      "REST"
+      requestID
     )
 
     return createdRequestHandle
@@ -1160,10 +1155,9 @@ export class PersonalWorkspaceProviderService
     return Promise.resolve(E.right(undefined))
   }
 
-  public getCollectionHandle(
+  public getRESTCollectionHandle(
     workspaceHandle: Handle<Workspace>,
-    collectionID: string,
-    type: "REST" | "GQL"
+    collectionID: string
   ): Promise<E.Either<unknown, Handle<WorkspaceCollection>>> {
     const workspaceHandleRef = workspaceHandle.get()
 
@@ -1178,9 +1172,7 @@ export class PersonalWorkspaceProviderService
     }
 
     const collection = navigateToFolderWithIndexPath(
-      type === "REST"
-        ? this.restCollectionState.value.state
-        : this.gqlCollectionState.value.state,
+      this.restCollectionState.value.state,
       collectionID.split("/").map((x) => parseInt(x))
     )
 
@@ -1222,10 +1214,9 @@ export class PersonalWorkspaceProviderService
     )
   }
 
-  public getRequestHandle(
+  public getRESTRequestHandle(
     workspaceHandle: Handle<Workspace>,
-    requestID: string,
-    type: "REST" | "GQL"
+    requestID: string
   ): Promise<E.Either<unknown, Handle<WorkspaceRequest>>> {
     const workspaceHandleRef = workspaceHandle.get()
 
@@ -1252,9 +1243,7 @@ export class PersonalWorkspaceProviderService
 
     // Navigate to the collection containing the request
     const collection = navigateToFolderWithIndexPath(
-      type === "REST"
-        ? this.restCollectionState.value.state
-        : this.gqlCollectionState.value.state,
+      this.restCollectionState.value.state,
       collectionID.split("/").map((x) => parseInt(x))
     )
 
@@ -1309,6 +1298,7 @@ export class PersonalWorkspaceProviderService
         return false
       }
 
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { request, ...dataProps } = handle.value.data
 
       if (
@@ -1383,16 +1373,12 @@ export class PersonalWorkspaceProviderService
     )
   }
 
-  public getCollectionLevelAuthHeadersView(
-    collectionHandle: Handle<WorkspaceCollection>,
-    type: "REST" | "GQL"
+  public getRESTCollectionLevelAuthHeadersView(
+    collectionHandle: Handle<WorkspaceCollection>
   ): Promise<E.Either<never, Handle<CollectionLevelAuthHeadersView>>> {
     const collectionHandleRef = collectionHandle.get()
 
-    const collectionStore =
-      type === "REST"
-        ? this.restCollectionState.value.state
-        : this.gqlCollectionState.value.state
+    const collectionStore = this.restCollectionState.value.state
 
     return Promise.resolve(
       E.right({
@@ -1641,17 +1627,13 @@ export class PersonalWorkspaceProviderService
     )
   }
 
-  public getSearchResultsView(
+  public getRESTSearchResultsView(
     workspaceHandle: Handle<Workspace>,
-    searchQuery: Ref<string>,
-    type: "REST" | "GQL"
+    searchQuery: Ref<string>
   ): Promise<E.Either<never, Handle<SearchResultsView>>> {
     const results = ref<HoppCollection[]>([])
 
-    const collectionStore =
-      type === "REST"
-        ? this.restCollectionState.value.state
-        : this.gqlCollectionState.value.state
+    const collectionStore = this.restCollectionState.value.state
 
     const isMatch = (inputText: string, textToMatch: string) =>
       inputText.toLowerCase().includes(textToMatch.toLowerCase())
@@ -1851,6 +1833,417 @@ export class PersonalWorkspaceProviderService
   }
 
   // GQL methods
+  public getGQLCollectionHandle(
+    workspaceHandle: Handle<Workspace>,
+    collectionID: string
+  ): Promise<E.Either<unknown, Handle<WorkspaceCollection>>> {
+    const workspaceHandleRef = workspaceHandle.get()
+
+    if (
+      !isValidWorkspaceHandle(workspaceHandleRef, this.providerID, "personal")
+    ) {
+      return Promise.resolve(E.left("INVALID_WORKSPACE_HANDLE" as const))
+    }
+
+    if (collectionID === "") {
+      return Promise.resolve(E.left("INVALID_COLLECTION_ID" as const))
+    }
+
+    const collection = navigateToFolderWithIndexPath(
+      this.gqlCollectionState.value.state,
+      collectionID.split("/").map((x) => parseInt(x))
+    )
+
+    if (!collection) {
+      return Promise.resolve(E.left("COLLECTION_DOES_NOT_EXIST"))
+    }
+
+    return Promise.resolve(
+      E.right({
+        get: lazy(() =>
+          computed(() => {
+            if (
+              !isValidWorkspaceHandle(
+                workspaceHandleRef,
+                this.providerID,
+                "personal"
+              )
+            ) {
+              return {
+                type: "invalid" as const,
+                reason: "INVALID_WORKSPACE_HANDLE" as const,
+              }
+            }
+
+            const { providerID, workspaceID } = workspaceHandleRef.value.data
+
+            return {
+              type: "ok",
+              data: {
+                providerID,
+                workspaceID,
+                collectionID,
+                name: collection.name,
+              },
+            }
+          })
+        ),
+      })
+    )
+  }
+
+  public getGQLRequestHandle(
+    workspaceHandle: Handle<Workspace>,
+    requestID: string
+  ): Promise<E.Either<unknown, Handle<WorkspaceRequest>>> {
+    const workspaceHandleRef = workspaceHandle.get()
+
+    if (
+      !isValidWorkspaceHandle(workspaceHandleRef, this.providerID, "personal")
+    ) {
+      return Promise.resolve(E.left("INVALID_WORKSPACE_HANDLE" as const))
+    }
+
+    if (requestID === "") {
+      return Promise.resolve(E.left("INVALID_REQUEST_ID" as const))
+    }
+
+    const { providerID, workspaceID } = workspaceHandleRef.value.data
+
+    const collectionID = requestID.split("/").slice(0, -1).join("/")
+    const requestIndexPath = requestID.split("/").slice(-1)[0]
+
+    if (!requestIndexPath) {
+      return Promise.resolve(E.left("INVALID_REQUEST_ID" as const))
+    }
+
+    const requestIndex = parseInt(requestIndexPath)
+
+    // Navigate to the collection containing the request
+    const collection = navigateToFolderWithIndexPath(
+      this.gqlCollectionState.value.state,
+      collectionID.split("/").map((x) => parseInt(x))
+    )
+
+    // Grab the request with it's index
+    const request = collection?.requests[requestIndex] as
+      | HoppRESTRequest
+      | undefined
+
+    if (!request) {
+      return Promise.resolve(E.left("REQUEST_NOT_FOUND" as const))
+    }
+
+    const handleRefData = ref({
+      type: "ok" as const,
+      data: {
+        providerID,
+        workspaceID,
+        collectionID,
+        requestID,
+        request,
+      },
+    })
+
+    const handle: HandleRef<WorkspaceRequest> = computed(() => {
+      if (
+        !isValidWorkspaceHandle(workspaceHandleRef, this.providerID, "personal")
+      ) {
+        return {
+          type: "invalid" as const,
+          reason: "INVALID_WORKSPACE_HANDLE" as const,
+        }
+      }
+
+      return handleRefData.value
+    })
+
+    const writableHandle = computed({
+      get() {
+        return handleRefData.value
+      },
+      set(newValue) {
+        handleRefData.value = newValue
+      },
+    })
+
+    const handleIsAlreadyIssued = this.issuedHandles.some((handle) => {
+      if (handle.value.type === "invalid") {
+        return false
+      }
+
+      if (!("requestID" in handle.value.data)) {
+        return false
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { request, ...dataProps } = handle.value.data
+
+      if (
+        isEqual(dataProps, {
+          providerID,
+          workspaceID,
+          collectionID,
+          requestID,
+        })
+      ) {
+        return true
+      }
+    })
+
+    if (!handleIsAlreadyIssued) {
+      this.issuedHandles.push(writableHandle)
+    }
+
+    return Promise.resolve(E.right({ get: lazy(() => handle) }))
+  }
+
+  public getGQLCollectionLevelAuthHeadersView(
+    collectionHandle: Handle<WorkspaceCollection>
+  ): Promise<E.Either<never, Handle<CollectionLevelAuthHeadersView>>> {
+    const collectionHandleRef = collectionHandle.get()
+
+    const collectionStore = this.gqlCollectionState.value.state
+
+    return Promise.resolve(
+      E.right({
+        get: lazy(() =>
+          computed(() => {
+            if (
+              !isValidCollectionHandle(
+                collectionHandleRef,
+                this.providerID,
+                "personal"
+              )
+            ) {
+              return {
+                type: "invalid" as const,
+                reason: "INVALID_COLLECTION_HANDLE" as const,
+              }
+            }
+
+            const { collectionID } = collectionHandleRef.value.data
+
+            let auth: HoppInheritedProperty["auth"] = {
+              parentID: collectionID ?? "",
+              parentName: "",
+              inheritedAuth: {
+                authType: "none",
+                authActive: true,
+              },
+            }
+            const headers: HoppInheritedProperty["headers"] = []
+
+            if (!collectionID) return { type: "ok", data: { auth, headers } }
+
+            const path = collectionID.split("/").map((i) => parseInt(i))
+
+            // Check if the path is empty or invalid
+            if (!path || path.length === 0) {
+              console.error("Invalid path:", collectionID)
+              return { type: "ok", data: { auth, headers } }
+            }
+
+            // Loop through the path and get the last parent folder with authType other than 'inherit'
+            for (let i = 0; i < path.length; i++) {
+              const parentFolder = navigateToFolderWithIndexPath(
+                collectionStore,
+                [...path.slice(0, i + 1)] // Create a copy of the path array
+              )
+
+              // Check if parentFolder is undefined or null
+              if (!parentFolder) {
+                console.error("Parent folder not found for path:", path)
+                return { type: "ok", data: { auth, headers } }
+              }
+
+              const { auth: parentFolderAuth, headers: parentFolderHeaders } =
+                parentFolder
+
+              // check if the parent folder has authType 'inherit' and if it is the root folder
+              if (
+                parentFolderAuth?.authType === "inherit" &&
+                [...path.slice(0, i + 1)].length === 1
+              ) {
+                auth = {
+                  parentID: [...path.slice(0, i + 1)].join("/"),
+                  parentName: parentFolder.name,
+                  inheritedAuth: auth.inheritedAuth,
+                }
+              }
+
+              if (parentFolderAuth?.authType !== "inherit") {
+                auth = {
+                  parentID: [...path.slice(0, i + 1)].join("/"),
+                  parentName: parentFolder.name,
+                  inheritedAuth: parentFolderAuth,
+                }
+              }
+
+              // Update headers, overwriting duplicates by key
+              if (parentFolderHeaders) {
+                const activeHeaders = parentFolderHeaders.filter(
+                  (h) => h.active
+                )
+                activeHeaders.forEach((header) => {
+                  const index = headers.findIndex(
+                    (h) => h.inheritedHeader?.key === header.key
+                  )
+                  const currentPath = [...path.slice(0, i + 1)].join("/")
+                  if (index !== -1) {
+                    // Replace the existing header with the same key
+                    headers[index] = {
+                      parentID: currentPath,
+                      parentName: parentFolder.name,
+                      inheritedHeader: header,
+                    }
+                  } else {
+                    headers.push({
+                      parentID: currentPath,
+                      parentName: parentFolder.name,
+                      inheritedHeader: header,
+                    })
+                  }
+                })
+              }
+            }
+
+            return { type: "ok", data: { auth, headers } }
+          })
+        ),
+      })
+    )
+  }
+
+  public getGQLSearchResultsView(
+    workspaceHandle: Handle<Workspace>,
+    searchQuery: Ref<string>
+  ): Promise<E.Either<never, Handle<SearchResultsView>>> {
+    const results = ref<HoppCollection[]>([])
+
+    const collectionStore = this.gqlCollectionState.value.state
+
+    const isMatch = (inputText: string, textToMatch: string) =>
+      inputText.toLowerCase().includes(textToMatch.toLowerCase())
+
+    const filterRequests = (requests: HoppRESTRequest[]) => {
+      return requests.filter((request) =>
+        isMatch(request.name, searchQuery.value)
+      )
+    }
+
+    const filterChildCollections = (
+      childCollections: HoppCollection[]
+    ): HoppCollection[] => {
+      return childCollections
+        .map((childCollection) => {
+          // Render the entire collection tree if the search query matches a collection name
+          if (isMatch(childCollection.name, searchQuery.value)) {
+            return childCollection
+          }
+
+          const requests = filterRequests(
+            childCollection.requests as HoppRESTRequest[]
+          )
+          const folders = filterChildCollections(childCollection.folders)
+
+          return {
+            ...childCollection,
+            requests,
+            folders,
+          }
+        })
+        .filter(
+          (childCollection) =>
+            childCollection.requests.length > 0 ||
+            childCollection.folders.length > 0 ||
+            isMatch(childCollection.name, searchQuery.value)
+        )
+    }
+
+    const scopeHandle = effectScope()
+
+    scopeHandle.run(() => {
+      watch(
+        searchQuery,
+        (newSearchQuery) => {
+          if (!newSearchQuery) {
+            results.value = collectionStore
+            return
+          }
+
+          const filteredCollections = collectionStore
+            .map((collection) => {
+              // Render the entire collection tree if the search query matches a collection name
+              if (isMatch(collection.name, searchQuery.value)) {
+                return collection
+              }
+
+              const requests = filterRequests(
+                collection.requests as HoppRESTRequest[]
+              )
+              const folders = filterChildCollections(collection.folders)
+
+              return {
+                ...collection,
+                requests,
+                folders,
+              }
+            })
+            .filter(
+              (collection) =>
+                collection.requests.length > 0 ||
+                collection.folders.length > 0 ||
+                isMatch(collection.name, searchQuery.value)
+            )
+
+          results.value = filteredCollections
+        },
+        { immediate: true }
+      )
+    })
+
+    const onSessionEnd = () => {
+      scopeHandle.stop()
+    }
+
+    const workspaceHandleRef = workspaceHandle.get()
+
+    return Promise.resolve(
+      E.right({
+        get: lazy(() =>
+          computed(() => {
+            if (
+              !isValidWorkspaceHandle(
+                workspaceHandleRef,
+                this.providerID,
+                "personal"
+              )
+            ) {
+              return {
+                type: "invalid" as const,
+                reason: "INVALID_WORKSPACE_HANDLE" as const,
+              }
+            }
+
+            return markRaw({
+              type: "ok" as const,
+              data: {
+                providerID: this.providerID,
+                workspaceID: workspaceHandleRef.value.data.workspaceID,
+
+                loading: ref(false),
+
+                results,
+                onSessionEnd,
+              },
+            })
+          })
+        ),
+      })
+    )
+  }
+
   public async createGQLRootCollection(
     workspaceHandle: Handle<Workspace>,
     newCollection: Partial<Exclude<HoppCollection, "id">> & { name: string }
@@ -1888,10 +2281,9 @@ export class PersonalWorkspaceProviderService
 
     // TODO: Verify whether a collection update action is reflected correctly in the handle being returned below
 
-    const createdCollectionHandle = await this.getCollectionHandle(
+    const createdCollectionHandle = await this.getRESTCollectionHandle(
       workspaceHandle,
-      newCollectionID,
-      "GQL"
+      newCollectionID
     )
 
     return createdCollectionHandle
@@ -1933,10 +2325,9 @@ export class PersonalWorkspaceProviderService
 
     // TODO: Verify whether a collection update action is reflected correctly in the handle being returned below
 
-    const createdCollectionHandle = await this.getCollectionHandle(
+    const createdCollectionHandle = await this.getRESTCollectionHandle(
       parentCollectionHandle,
-      newChildCollectionID,
-      "GQL"
+      newChildCollectionID
     )
 
     return createdCollectionHandle
@@ -1977,10 +2368,9 @@ export class PersonalWorkspaceProviderService
     // TODO: Verify whether a request update action is reflected correctly in the handle being returned below
 
     const personalWorkspaceHandle = this.getPersonalWorkspaceHandle()
-    const createdRequestHandle = await this.getRequestHandle(
+    const createdRequestHandle = await this.getRESTRequestHandle(
       personalWorkspaceHandle,
-      requestID,
-      "GQL"
+      requestID
     )
 
     return createdRequestHandle
@@ -2137,10 +2527,9 @@ export class PersonalWorkspaceProviderService
       editGraphqlFolder(collectionID, newCollection)
     }
 
-    const updatedCollectionHandle = await this.getCollectionHandle(
+    const updatedCollectionHandle = await this.getRESTCollectionHandle(
       this.getPersonalWorkspaceHandle(),
-      collectionID,
-      "GQL"
+      collectionID
     )
 
     if (E.isRight(updatedCollectionHandle)) {
@@ -2174,10 +2563,9 @@ export class PersonalWorkspaceProviderService
       ? parseInt(removedCollectionID)
       : this.pathToLastIndex(removedCollectionID)
 
-    const removedCollectionHandle = await this.getCollectionHandle(
+    const removedCollectionHandle = await this.getRESTCollectionHandle(
       this.getPersonalWorkspaceHandle(),
-      removedCollectionID,
-      "GQL"
+      removedCollectionID
     )
 
     if (E.isRight(removedCollectionHandle)) {

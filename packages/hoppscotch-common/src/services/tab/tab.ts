@@ -125,10 +125,9 @@ export abstract class TabService<Doc>
           const workspaceHandle = workspaceHandleResult.right
 
           const requestHandleResult =
-            await this.workspaceService.getRequestHandle(
+            await this.workspaceService.getRESTRequestHandle(
               workspaceHandle,
-              requestID!,
-              "REST"
+              requestID!
             )
 
           if (E.isRight(requestHandleResult)) {

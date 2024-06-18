@@ -98,7 +98,7 @@ export class TestWorkspaceProviderService
       requests: [],
     })
 
-    return this.getCollectionHandle(workspaceHandle, newCollID.toString())
+    return this.getRESTCollectionHandle(workspaceHandle, newCollID.toString())
   }
 
   public createRESTChildCollection(
@@ -136,7 +136,7 @@ export class TestWorkspaceProviderService
     )
   }
 
-  public getCollectionHandle(
+  public getRESTCollectionHandle(
     workspaceHandle: HandleRef<Workspace>,
     collectionID: string
   ): Promise<

@@ -75,10 +75,9 @@ describe("PersonalWorkspaceProviderService", () => {
         personalWorkspaceProviderService.getPersonalWorkspaceHandle()
 
       const draggedRequestHandle =
-        await personalWorkspaceProviderService.getRequestHandle(
+        await personalWorkspaceProviderService.getRESTRequestHandle(
           workspaceHandle,
-          draggedRequestID,
-          "REST"
+          draggedRequestID
         )
 
       if (E.isLeft(draggedRequestHandle)) {
@@ -148,10 +147,9 @@ describe("PersonalWorkspaceProviderService", () => {
       const destinationCollectionID = "1/0/0/0"
 
       const draggedRequestHandle =
-        await personalWorkspaceProviderService.getRequestHandle(
+        await personalWorkspaceProviderService.getRESTRequestHandle(
           workspaceHandle,
-          draggedRequestID,
-          "REST"
+          draggedRequestID
         )
 
       if (E.isLeft(draggedRequestHandle)) {
@@ -268,10 +266,9 @@ describe("PersonalWorkspaceProviderService", () => {
         const destinationRequestID = "0/0/0/2"
 
         const draggedRequestHandle =
-          await personalWorkspaceProviderService.getRequestHandle(
+          await personalWorkspaceProviderService.getRESTRequestHandle(
             workspaceHandle,
-            draggedRequestID,
-            "REST"
+            draggedRequestID
           )
 
         if (E.isLeft(draggedRequestHandle)) {
@@ -334,10 +331,9 @@ describe("PersonalWorkspaceProviderService", () => {
         const destinationRequestID = "0/0/0/0"
 
         const draggedRequestHandle =
-          await personalWorkspaceProviderService.getRequestHandle(
+          await personalWorkspaceProviderService.getRESTRequestHandle(
             workspaceHandle,
-            draggedRequestID,
-            "REST"
+            draggedRequestID
           )
 
         if (E.isLeft(draggedRequestHandle)) {
@@ -417,10 +413,9 @@ describe("PersonalWorkspaceProviderService", () => {
         const destinationRequestID = "0/0/0/8"
 
         const draggedRequestHandle =
-          await personalWorkspaceProviderService.getRequestHandle(
+          await personalWorkspaceProviderService.getRESTRequestHandle(
             workspaceHandle,
-            draggedRequestID,
-            "REST"
+            draggedRequestID
           )
 
         if (E.isLeft(draggedRequestHandle)) {
@@ -485,10 +480,9 @@ describe("PersonalWorkspaceProviderService", () => {
         const destinationRequestID = null
 
         const draggedRequestHandle =
-          await personalWorkspaceProviderService.getRequestHandle(
+          await personalWorkspaceProviderService.getRESTRequestHandle(
             workspaceHandle,
-            draggedRequestID,
-            "REST"
+            draggedRequestID
           )
 
         if (E.isLeft(draggedRequestHandle)) {
@@ -772,10 +766,9 @@ describe("PersonalWorkspaceProviderService", () => {
         const destinationCollectionID = "0/1"
 
         const draggedCollectionHandle =
-          await personalWorkspaceProviderService.getCollectionHandle(
+          await personalWorkspaceProviderService.getRESTCollectionHandle(
             workspaceHandle,
-            draggedCollectionID,
-            "REST"
+            draggedCollectionID
           )
 
         if (E.isLeft(draggedCollectionHandle)) {
@@ -935,10 +928,9 @@ describe("PersonalWorkspaceProviderService", () => {
         const destinationCollectionID = "0/0"
 
         const draggedCollectionHandle =
-          await personalWorkspaceProviderService.getCollectionHandle(
+          await personalWorkspaceProviderService.getRESTCollectionHandle(
             workspaceHandle,
-            draggedCollectionID,
-            "REST"
+            draggedCollectionID
           )
 
         if (E.isLeft(draggedCollectionHandle)) {
@@ -1297,10 +1289,9 @@ describe("PersonalWorkspaceProviderService", () => {
         const destinationCollectionID = "0/2"
 
         const draggedCollectionHandle =
-          await personalWorkspaceProviderService.getCollectionHandle(
+          await personalWorkspaceProviderService.getRESTCollectionHandle(
             workspaceHandle,
-            draggedCollectionID,
-            "REST"
+            draggedCollectionID
           )
 
         if (E.isLeft(draggedCollectionHandle)) {
@@ -1462,10 +1453,9 @@ describe("PersonalWorkspaceProviderService", () => {
         const destinationCollectionID = null
 
         const draggedCollectionHandle =
-          await personalWorkspaceProviderService.getCollectionHandle(
+          await personalWorkspaceProviderService.getRESTCollectionHandle(
             workspaceHandle,
-            draggedCollectionID,
-            "REST"
+            draggedCollectionID
           )
 
         if (E.isLeft(draggedCollectionHandle)) {
@@ -1667,10 +1657,9 @@ describe("PersonalWorkspaceProviderService", () => {
       const destinationCollectionID = null
 
       const draggedCollectionHandle =
-        await personalWorkspaceProviderService.getCollectionHandle(
+        await personalWorkspaceProviderService.getRESTCollectionHandle(
           workspaceHandle,
-          draggedCollectionID,
-          "REST"
+          draggedCollectionID
         )
 
       if (E.isLeft(draggedCollectionHandle)) {
@@ -1783,10 +1772,9 @@ describe("PersonalWorkspaceProviderService", () => {
       const destinationCollectionID = "1/0/0/0/0"
 
       const draggedCollectionHandle =
-        await personalWorkspaceProviderService.getCollectionHandle(
+        await personalWorkspaceProviderService.getRESTCollectionHandle(
           workspaceHandle,
-          draggedCollectionID,
-          "REST"
+          draggedCollectionID
         )
 
       if (E.isLeft(draggedCollectionHandle)) {
@@ -1917,10 +1905,9 @@ describe("PersonalWorkspaceProviderService", () => {
         const destinationCollectionID = "0/2"
 
         const draggedCollectionHandle =
-          await personalWorkspaceProviderService.getCollectionHandle(
+          await personalWorkspaceProviderService.getRESTCollectionHandle(
             workspaceHandle,
-            draggedCollectionID,
-            "REST"
+            draggedCollectionID
           )
 
         if (E.isLeft(draggedCollectionHandle)) {
@@ -2059,10 +2046,9 @@ describe("PersonalWorkspaceProviderService", () => {
         const destinationCollectionID = "0/2/0/0"
 
         const draggedCollectionHandle =
-          await personalWorkspaceProviderService.getCollectionHandle(
+          await personalWorkspaceProviderService.getRESTCollectionHandle(
             workspaceHandle,
-            draggedCollectionID,
-            "REST"
+            draggedCollectionID
           )
 
         if (E.isLeft(draggedCollectionHandle)) {
@@ -2204,10 +2190,9 @@ describe("PersonalWorkspaceProviderService", () => {
       const requestIDToRemove = "0/2"
 
       const requestHandleToRemove =
-        await personalWorkspaceProviderService.getRequestHandle(
+        await personalWorkspaceProviderService.getRESTRequestHandle(
           workspaceHandle,
-          requestIDToRemove,
-          "REST"
+          requestIDToRemove
         )
 
       if (E.isLeft(requestHandleToRemove)) {
@@ -2331,10 +2316,9 @@ describe("PersonalWorkspaceProviderService", () => {
       const collectionIDToRemove = "0"
 
       const collectionHandleToRemove =
-        await personalWorkspaceProviderService.getCollectionHandle(
+        await personalWorkspaceProviderService.getRESTCollectionHandle(
           workspaceHandle,
-          collectionIDToRemove,
-          "REST"
+          collectionIDToRemove
         )
 
       if (E.isLeft(collectionHandleToRemove)) {

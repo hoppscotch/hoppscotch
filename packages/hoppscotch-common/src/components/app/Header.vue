@@ -258,7 +258,6 @@ import {
   BANNER_PRIORITY_LOW,
   BannerContent,
   BannerService,
-  BannerTypes,
 } from "~/services/banner.service"
 import { WorkspaceService } from "~/services/workspace.service"
 import IconDownload from "~icons/lucide/download"
@@ -297,7 +296,7 @@ const bannerContent = computed(() => banner.content.value?.content)
 let offlineBannerID: number | null = null
 
 const offlineBanner: BannerContent = {
-  type: BannerTypes.Warning,
+  type: "warning",
   text: (t) => t("helpers.offline"),
   alternateText: (t) => t("helpers.offline_short"),
   score: BANNER_PRIORITY_LOW,

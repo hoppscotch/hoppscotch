@@ -6,11 +6,7 @@ export const BANNER_PRIORITY_LOW = 1
 export const BANNER_PRIORITY_MEDIUM = 3
 export const BANNER_PRIORITY_HIGH = 5
 
-export enum BannerTypes {
-  Info,
-  Warning,
-  Error,
-}
+export type BannerTypes = "info" | "warning" | "error"
 
 export type BannerContent = {
   type: BannerTypes

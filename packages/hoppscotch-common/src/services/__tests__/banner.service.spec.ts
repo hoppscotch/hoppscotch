@@ -6,7 +6,6 @@ import {
   BANNER_PRIORITY_LOW,
   BANNER_PRIORITY_HIGH,
   BannerContent,
-  BannerTypes,
 } from "../banner.service"
 
 describe("BannerService", () => {
@@ -15,7 +14,7 @@ describe("BannerService", () => {
 
   it("should be able to show and remove a banner", () => {
     const bannerContent: BannerContent = {
-      type: BannerTypes.Info,
+      type: "info",
       text: (t: ReturnType<typeof getI18n>) => t("Info Banner"),
       score: BANNER_PRIORITY_LOW,
     }
@@ -32,13 +31,13 @@ describe("BannerService", () => {
 
   it("should show the banner with the highest score", () => {
     const lowPriorityBanner: BannerContent = {
-      type: BannerTypes.Info,
+      type: "info",
       text: (t: ReturnType<typeof getI18n>) => t("Low Priority Banner"),
       score: BANNER_PRIORITY_LOW,
     }
 
     const highPriorityBanner: BannerContent = {
-      type: BannerTypes.Warning,
+      type: "warning",
       text: (t: ReturnType<typeof getI18n>) => t("High Priority Banner"),
       score: BANNER_PRIORITY_HIGH,
     }

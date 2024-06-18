@@ -41,21 +41,21 @@ const emit = defineEmits<{
 }>()
 
 const ariaRoles: Record<BannerTypes, string> = {
-  [BannerTypes.Info]: "status",
-  [BannerTypes.Warning]: "status",
-  [BannerTypes.Error]: "alert",
+  info: "status",
+  warning: "status",
+  error: "alert",
 }
 
 const bgColors: Record<BannerTypes, string> = {
-  [BannerTypes.Info]: "bg-bannerInfo",
-  [BannerTypes.Warning]: "bg-bannerWarning",
-  [BannerTypes.Error]: "bg-bannerError",
+  info: "bg-bannerInfo",
+  warning: "bg-bannerWarning",
+  error: "bg-bannerError",
 }
 
 const icons = {
-  [BannerTypes.Info]: IconInfo,
-  [BannerTypes.Warning]: IconAlertCircle,
-  [BannerTypes.Error]: IconAlertTriangle,
+  info: IconInfo,
+  warning: IconAlertCircle,
+  error: IconAlertTriangle,
 }
 
 const bannerColor = computed(() => bgColors[props.banner.type])

@@ -100,6 +100,7 @@
 
 <script setup lang="ts">
 import { useMutation } from '@urql/vue';
+import { useTimeAgo } from '@vueuse/core';
 import { format } from 'date-fns';
 import { computed, onMounted, ref } from 'vue';
 import { useI18n } from '~/composables/i18n';
@@ -158,8 +159,8 @@ const userInfo = {
   },
   lastLoggedOn: {
     condition: lastLoggedOn,
-    label: t('users.last_logged_on'),
-    value: getCreatedDateAndTime(lastLoggedOn),
+    label: t('users.last_active_on'),
+    value: useTimeAgo(lastLoggedOn).value,
   },
 };
 

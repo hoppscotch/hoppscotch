@@ -62,11 +62,10 @@
             </div>
           </template>
           <template #head>
-            <th class="px-6 py-2">{{ t('users.id') }}</th>
             <th class="px-6 py-2">{{ t('users.name') }}</th>
             <th class="px-6 py-2">{{ t('users.email') }}</th>
-            <th class="px-6 py-2">{{ t('users.date') }}</th>
-            <th class="px-6 py-2">{{ t('users.last_logged_on') }}</th>
+            <th class="px-6 py-2">{{ t('users.created_on') }}</th>
+            <th class="px-6 py-2">{{ t('users.last_active_on') }}</th>
             <!-- Empty header for Action Button -->
             <th class="w-20 px-6 py-2"></th>
           </template>
@@ -80,10 +79,6 @@
           </template>
 
           <template #body="{ row: user }">
-            <td class="py-2 px-7 max-w-[8rem] truncate">
-              {{ user.uid }}
-            </td>
-
             <td class="py-2 px-7">
               <div class="flex items-center space-x-2">
                 <span>
@@ -111,10 +106,7 @@
             </td>
 
             <td class="py-2 px-7">
-              {{ getCreatedDate(user.lastLoggedOn) }}
-              <div class="text-gray-400 text-tiny">
-                {{ getCreatedTime(user.lastLoggedOn) }}
-              </div>
+              {{ useTimeAgo(user.lastLoggedOn).value }}
             </td>
 
             <td @click.stop class="flex justify-end w-20">
@@ -253,6 +245,7 @@
 
 <script setup lang="ts">
 import { useMutation, useQuery } from '@urql/vue';
+import { useTimeAgo } from '@vueuse/core';
 import { format } from 'date-fns';
 import { computed, onUnmounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
@@ -290,11 +283,10 @@ const getCreatedTime = (date: string) => format(new Date(date), 'hh:mm a');
 
 // Table Headings
 const headings = [
-  { key: 'uid', label: t('users.id') },
   { key: 'displayName', label: t('users.name') },
   { key: 'email', label: t('users.email') },
-  { key: 'createdOn', label: t('users.date') },
-  { key: 'lastLoggedOn', label: t('users.last_logged_on') },
+  { key: 'createdOn', label: t('users.created_on') },
+  { key: 'lastLoggedOn', label: t('users.last_active_on') },
   { key: '', label: '' },
 ];
 

@@ -56,7 +56,6 @@
         @edit-folder="editChildCollection($event)"
         @edit-request="editRequest($event)"
         @duplicate-request="duplicateRequest($event)"
-        @select-collection="$emit('use-collection', collection)"
         @edit-collection-properties="editCollectionProperties($event)"
         @select="$emit('select', $event)"
         @select-request="selectRequest($event)"
@@ -202,6 +201,10 @@ const props = defineProps<{
   saveRequest?: boolean
 }>()
 
+defineEmits<{
+  (e: "select", i: Picked | null): void
+}>()
+
 const gqlCollectionState = useReadonlyStream(graphqlCollections$, [], "deep")
 const colorMode = useColorMode()
 
@@ -304,10 +307,9 @@ watchEffect(async () => {
   }
 
   const searchResultsHandleResult =
-    await personalWorkspaceProviderService.getSearchResultsView(
+    await personalWorkspaceProviderService.getGQLSearchResultsView(
       props.workspaceHandle,
-      filterText,
-      "GQL"
+      filterText
     )
 
   if (E.isLeft(searchResultsHandleResult)) {
@@ -406,10 +408,9 @@ const onEditRootCollection = async (name: string) => {
   }
 
   const collectionHandleResult =
-    await personalWorkspaceProviderService.getCollectionHandle(
+    await personalWorkspaceProviderService.getGQLCollectionHandle(
       props.workspaceHandle,
-      collectionID,
-      "GQL"
+      collectionID
     )
 
   if (E.isLeft(collectionHandleResult)) {
@@ -440,20 +441,11 @@ const onEditRootCollection = async (name: string) => {
 }
 
 // TODO: Remove the `index` field from the payload
-const onAddRequest = async ({
-  name,
-  path,
-  index,
-}: {
-  name: string
-  path: string
-  index: number
-}) => {
+const onAddRequest = async ({ name, path }: { name: string; path: string }) => {
   const collectionHandleResult =
-    await personalWorkspaceProviderService.getCollectionHandle(
+    await personalWorkspaceProviderService.getGQLCollectionHandle(
       props.workspaceHandle,
-      path,
-      "GQL"
+      path
     )
 
   if (E.isLeft(collectionHandleResult)) {
@@ -496,9 +488,8 @@ const onAddRequest = async ({
   }
 
   const cascadingAuthHeadersHandleResult =
-    await personalWorkspaceProviderService.getCollectionLevelAuthHeadersView(
-      collectionHandle,
-      "GQL"
+    await personalWorkspaceProviderService.getGQLCollectionLevelAuthHeadersView(
+      collectionHandle
     )
 
   if (E.isLeft(cascadingAuthHeadersHandleResult)) {
@@ -546,10 +537,9 @@ const onAddFolder = async ({
   path: string | undefined
 }) => {
   const collectionHandleResult =
-    await personalWorkspaceProviderService.getCollectionHandle(
+    await personalWorkspaceProviderService.getGQLCollectionHandle(
       props.workspaceHandle,
-      path ?? "0",
-      "GQL"
+      path ?? "0"
     )
 
   if (E.isLeft(collectionHandleResult)) {
@@ -611,10 +601,9 @@ const onEditChildCollection = async (name: string) => {
   }
 
   const collectionHandleResult =
-    await personalWorkspaceProviderService.getCollectionHandle(
+    await personalWorkspaceProviderService.getGQLCollectionHandle(
       props.workspaceHandle,
-      collectionID,
-      "GQL"
+      collectionID
     )
 
   if (E.isLeft(collectionHandleResult)) {
@@ -658,10 +647,9 @@ const onEditRequest = async (newRequestName: string) => {
   }
 
   const requestHandleResult =
-    await personalWorkspaceProviderService.getRequestHandle(
+    await personalWorkspaceProviderService.getGQLRequestHandle(
       props.workspaceHandle,
-      requestID,
-      "GQL"
+      requestID
     )
 
   if (E.isLeft(requestHandleResult)) {
@@ -707,10 +695,9 @@ const duplicateRequest = async (requestID: string) => {
   const collectionID = requestID.split("/").slice(0, -1).join("/")
 
   const requestHandleResult =
-    await personalWorkspaceProviderService.getRequestHandle(
+    await personalWorkspaceProviderService.getGQLRequestHandle(
       props.workspaceHandle,
-      requestID,
-      "GQL"
+      requestID
     )
 
   if (E.isLeft(requestHandleResult)) {
@@ -739,13 +726,11 @@ const duplicateRequest = async (requestID: string) => {
 
 const selectRequest = async (requestID: string) => {
   const collectionID = requestID.split("/").slice(0, -1).join("/")
-  const requestIndexPos = Number(requestID.split("/").slice(-1)[0])
 
   const collectionHandleResult =
-    await personalWorkspaceProviderService.getCollectionHandle(
+    await personalWorkspaceProviderService.getGQLCollectionHandle(
       props.workspaceHandle,
-      collectionID,
-      "GQL"
+      collectionID
     )
 
   if (E.isLeft(collectionHandleResult)) {
@@ -756,10 +741,9 @@ const selectRequest = async (requestID: string) => {
   const collectionHandle = collectionHandleResult.right
 
   const requestHandleResult =
-    await personalWorkspaceProviderService.getRequestHandle(
+    await personalWorkspaceProviderService.getGQLRequestHandle(
       props.workspaceHandle,
-      requestID,
-      "GQL"
+      requestID
     )
 
   if (E.isLeft(requestHandleResult)) {
@@ -777,9 +761,8 @@ const selectRequest = async (requestID: string) => {
   }
 
   const cascadingAuthHeadersHandleResult =
-    await personalWorkspaceProviderService.getCollectionLevelAuthHeadersView(
-      collectionHandle,
-      "GQL"
+    await personalWorkspaceProviderService.getGQLCollectionLevelAuthHeadersView(
+      collectionHandle
     )
 
   if (E.isLeft(cascadingAuthHeadersHandleResult)) {
@@ -838,10 +821,9 @@ const dropRequest = async (payload: {
   }
 
   const requestHandleResult =
-    await personalWorkspaceProviderService.getRequestHandle(
+    await personalWorkspaceProviderService.getGQLRequestHandle(
       props.workspaceHandle,
-      `${parentCollectionID}/${requestIndexPos}`,
-      "GQL"
+      `${parentCollectionID}/${requestIndexPos}`
     )
 
   if (E.isLeft(requestHandleResult)) {
@@ -862,10 +844,9 @@ const dropRequest = async (payload: {
   }
 
   const collectionHandleResult =
-    await personalWorkspaceProviderService.getCollectionHandle(
+    await personalWorkspaceProviderService.getGQLCollectionHandle(
       props.workspaceHandle,
-      destinationCollectionID.toString(),
-      "GQL"
+      destinationCollectionID.toString()
     )
 
   if (E.isLeft(collectionHandleResult)) {
@@ -876,9 +857,8 @@ const dropRequest = async (payload: {
   const collectionHandle = collectionHandleResult.right
 
   const cascadingAuthHeadersHandleResult =
-    await personalWorkspaceProviderService.getCollectionLevelAuthHeadersView(
-      collectionHandle,
-      "GQL"
+    await personalWorkspaceProviderService.getGQLCollectionLevelAuthHeadersView(
+      collectionHandle
     )
 
   if (E.isLeft(cascadingAuthHeadersHandleResult)) {
@@ -956,10 +936,9 @@ const editCollectionProperties = async (collectionID: string) => {
   } as HoppInheritedProperty
 
   const collectionHandleResult =
-    await personalWorkspaceProviderService.getCollectionHandle(
+    await personalWorkspaceProviderService.getGQLCollectionHandle(
       props.workspaceHandle,
-      collectionID,
-      "GQL"
+      collectionID
     )
 
   if (E.isLeft(collectionHandleResult)) {
@@ -978,9 +957,8 @@ const editCollectionProperties = async (collectionID: string) => {
 
   if (parentCollectionID) {
     const cascadingAuthHeadersHandleResult =
-      await personalWorkspaceProviderService.getCollectionLevelAuthHeadersView(
-        collectionHandle,
-        "GQL"
+      await personalWorkspaceProviderService.getGQLCollectionLevelAuthHeadersView(
+        collectionHandle
       )
 
     if (E.isLeft(cascadingAuthHeadersHandleResult)) {
@@ -1029,10 +1007,9 @@ const setCollectionProperties = async (
   }
 
   const collectionHandleResult =
-    await personalWorkspaceProviderService.getCollectionHandle(
+    await personalWorkspaceProviderService.getGQLCollectionHandle(
       props.workspaceHandle,
-      path,
-      "GQL"
+      path
     )
 
   if (E.isLeft(collectionHandleResult)) {
@@ -1060,9 +1037,8 @@ const setCollectionProperties = async (
   }
 
   const cascadingAuthHeadersHandleResult =
-    await personalWorkspaceProviderService.getCollectionLevelAuthHeadersView(
-      collectionHandle,
-      "GQL"
+    await personalWorkspaceProviderService.getGQLCollectionLevelAuthHeadersView(
+      collectionHandle
     )
 
   if (E.isLeft(cascadingAuthHeadersHandleResult)) {
@@ -1096,10 +1072,9 @@ const setCollectionProperties = async (
 
 const removeCollection = async (collectionID: string) => {
   const collectionHandleResult =
-    await personalWorkspaceProviderService.getCollectionHandle(
+    await personalWorkspaceProviderService.getGQLCollectionHandle(
       props.workspaceHandle,
-      collectionID,
-      "GQL"
+      collectionID
     )
 
   if (E.isLeft(collectionHandleResult)) {
@@ -1129,10 +1104,9 @@ const removeCollection = async (collectionID: string) => {
 
 const removeRequest = async (requestID: string) => {
   const requestHandleResult =
-    await personalWorkspaceProviderService.getRequestHandle(
+    await personalWorkspaceProviderService.getGQLRequestHandle(
       props.workspaceHandle,
-      requestID,
-      "GQL"
+      requestID
     )
 
   if (E.isLeft(requestHandleResult)) {

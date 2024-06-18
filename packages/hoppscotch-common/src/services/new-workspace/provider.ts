@@ -29,34 +29,29 @@ export interface WorkspaceProvider {
 
   workspaceDecor?: Ref<WorkspaceDecor>
 
-  // TODO: import/export API methods could be unified b/w REST & GQL perhaps taking in a `type` parameter
-
   getWorkspaceHandle(
     workspaceID: string
   ): Promise<E.Either<unknown, Handle<Workspace>>>
-  getCollectionHandle(
+
+  getRESTCollectionHandle(
     workspaceHandle: Handle<Workspace>,
-    collectionID: string,
-    type: "REST" | "GQL"
+    collectionID: string
   ): Promise<E.Either<unknown, Handle<WorkspaceCollection>>>
-  getRequestHandle(
+  getRESTRequestHandle(
     workspaceHandle: Handle<Workspace>,
-    requestID: string,
-    type: "REST" | "GQL"
+    requestID: string
   ): Promise<E.Either<unknown, Handle<WorkspaceRequest>>>
   getRESTEnvironmentHandle(
     workspaceHandle: Handle<Workspace>,
     environmentID: number
   ): Promise<E.Either<unknown, Handle<WorkspaceEnvironment>>>
 
-  getCollectionLevelAuthHeadersView(
-    collectionHandle: Handle<WorkspaceCollection>,
-    type: "REST" | "GQL"
+  getRESTCollectionLevelAuthHeadersView(
+    collectionHandle: Handle<WorkspaceCollection>
   ): Promise<E.Either<never, Handle<CollectionLevelAuthHeadersView>>>
-  getSearchResultsView(
+  getRESTSearchResultsView(
     workspaceHandle: Handle<Workspace>,
-    searchQuery: Ref<string>,
-    type: "REST" | "GQL"
+    searchQuery: Ref<string>
   ): Promise<E.Either<never, Handle<SearchResultsView>>>
 
   getRESTRootCollectionView(
@@ -126,6 +121,23 @@ export interface WorkspaceProvider {
     requestHandle: Handle<WorkspaceRequest>,
     destinationCollectionID: string
   ): Promise<E.Either<unknown, void>>
+
+  getGQLCollectionHandle(
+    workspaceHandle: Handle<Workspace>,
+    collectionID: string
+  ): Promise<E.Either<unknown, Handle<WorkspaceCollection>>>
+  getGQLRequestHandle(
+    workspaceHandle: Handle<Workspace>,
+    requestID: string
+  ): Promise<E.Either<unknown, Handle<WorkspaceRequest>>>
+
+  getGQLCollectionLevelAuthHeadersView(
+    collectionHandle: Handle<WorkspaceCollection>
+  ): Promise<E.Either<never, Handle<CollectionLevelAuthHeadersView>>>
+  getGQLSearchResultsView(
+    workspaceHandle: Handle<Workspace>,
+    searchQuery: Ref<string>
+  ): Promise<E.Either<never, Handle<SearchResultsView>>>
 
   createGQLRootCollection(
     workspaceHandle: Handle<Workspace>,

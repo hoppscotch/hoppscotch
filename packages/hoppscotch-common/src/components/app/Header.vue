@@ -255,7 +255,7 @@ import { GetMyTeamsQuery, TeamMemberRole } from "~/helpers/backend/graphql"
 import { deleteTeam as backendDeleteTeam } from "~/helpers/backend/mutations/Team"
 import { platform } from "~/platform"
 import {
-  BANNER_PRIORITY_MEDIUM,
+  BANNER_PRIORITY_LOW,
   BannerContent,
   BannerService,
   BannerTypes,
@@ -300,7 +300,7 @@ const offlineBanner: BannerContent = {
   type: BannerTypes.Warning,
   text: (t) => t("helpers.offline"),
   alternateText: (t) => t("helpers.offline_short"),
-  score: BANNER_PRIORITY_MEDIUM,
+  score: BANNER_PRIORITY_LOW,
   dismissible: true,
 }
 

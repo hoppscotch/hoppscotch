@@ -1,0 +1,173 @@
+import traceback
+import cloudscraper
+from src import cprint
+from rgbprint import Color, rgbprint
+from modes import crash, mines, plinko, slides, towers
+import shutil
+import time
+
+settings = json.load(open("config.json", "r"))
+class Main:
+    def __init__(self):
+        os.system('cls' if os.name == 'nt' else 'clear')
+        self.version = "5.1"
+        self.token = settings.get("Token")
+        self.session = cloudscraper.CloudScraper()
+        self.session.headers.update({"x-auth-token": self.token})
+@@ -21,15 +25,70 @@ def __init__(self):
+        self.wallet, self.username = self.verify_token(self.session)
+        cprint.info(f"Logged in as {self.username} / Balance: {self.wallet:.2f} R$\n")
+
+        while True:
+            self.game_mode = cprint.user_input("What game mode do you want to play? (towers/mines/plinko/crash/slides) > ").lower()
+            if self.game_mode in ["towers", "mines", "plinko", "crash", "slides"]:
+                break
+            else:
+                cprint.error("Invalid game mode.")
+
+        self.setup()
+        self.game_amount = int(cprint.user_input("How many games do you want to play? > "))
+    def display_info(self, banner=None):
+        os.system('cls' if os.name == 'nt' else 'clear')
+        MAIN_COLOR: Color = Color(0xFDA81A)
+        ACCENT_COLOR: Color = Color(255, 255, 255)
+
+        TITLE: str = f"""
+        ░▒▓███████▓▒░░▒▓████████▓▒░░▒▓██████▓▒░▒▓████████▓▒░▒▓█▓▒░░▒▓█▓▒░ 
+        ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░ ░▒▓█▓▒░   ░▒▓█▓▒░░▒▓█▓▒░ 
+        ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░ ░▒▓█▓▒░   ░▒▓█▓▒░░▒▓█▓▒░ 
+        ░▒▓█▓▒░░▒▓█▓▒░▒▓██████▓▒░ ░▒▓████████▓▒░ ░▒▓█▓▒░   ░▒▓████████▓▒░ 
+        ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░ ░▒▓█▓▒░   ░▒▓█▓▒░░▒▓█▓▒░ 
+        ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░ ░▒▓█▓▒░   ░▒▓█▓▒░░▒▓█▓▒░ 
+        ░▒▓███████▓▒░░▒▓████████▓▒░▒▓█▓▒░░▒▓█▓▒░ ░▒▓█▓▒░   ░▒▓█▓▒░░▒▓█▓▒░ 
+        """
+
+        TEXT_IN_BOX: str = "Bloxflip-Auto-Tools"
+
+        SIGNATURE: str = f"""
+        ╔═{"═" * (len(TEXT_IN_BOX) + len(self.version) + 1)}═╗
+        ║ {TEXT_IN_BOX} {self.version} ║
+        ╚═{"═" * (len(TEXT_IN_BOX) + len(self.version) + 1)}═╝
+        """
+
+        OPTIONS: dict[str, str] = {
+    "01": "Mines",
+    "02": "Towers",
+    "03": "Plinko",
+    "04": "Crash",
+    "05": "Slides",
+    "06": "Coming Soon.",
+    }
+
+        OPTIONS_SPACING: str = f"{str().ljust(30)}"
+
+        def _get_shell_size() -> int:
+            return shutil.get_terminal_size().columns
+
+        def _print_centered(text: str, *, color: Color = None, end: str = "\n") -> None:
+            for line in text.splitlines():
+                rgbprint(line.center(_get_shell_size()), color=color, end=end)
+
+        def batched(iterable, n):
+            import itertools
+            it = iter(iterable)
+            while batch := tuple(itertools.islice(it, n)):
+                yield batch
+
+        _print_centered(TITLE, color=MAIN_COLOR)
+        _print_centered(SIGNATURE, color=ACCENT_COLOR)
+        print()
+
+        if banner is None:
+            previous_batch = None
+            for batch in batched(map(lambda x: f"[{x[0]}] -> {x[1]}", OPTIONS.items()), 3):
+                if previous_batch is None:
+                    previous_batch = batch
+                    continue
+
+                max_previous_page = max(len(x) for x in previous_batch)
+                max_page = max(len(x) for x in batch)
+
+                for i, previous_element in enumerate(previous_batch):
+                    _print_centered(f"{previous_element:{max_previous_page}}{OPTIONS_SPACING}{batch[i]:{max_page}}", color=ACCENT_COLOR)
+        print()
+
+    def verify_token(self, session):
+        response = session.get("https://api.bloxflip.com/user")
+@@ -94,17 +153,39 @@ def setup(self):
+    def run(self):
+        while True:
+            try:
+                self.display_info()
+                choice = input(f"""{Color(0x20278C)}┌───({Color(255, 255, 255)}{self.username}@root{Color(0x20278C)})─[{Color(255, 255, 255)}~{Color(0x20278C)}]
+└──{Color(255, 255, 255)}$ """)
+
+                if choice == "exit":
+                    break
+
+                if not choice.isdigit():
+                    cprint.error(f"Please provide a valid option.")
+                    time.sleep(1)
+                    continue
+
+                choice = int(choice)
+                if f"{choice:02d}" not in [f"{i:02d}" for i in range(6)]:
+                    cprint.error(f"Please provide a valid option.")
+                    time.sleep(1)
+                    continue
+
+                self.lost_streak = 0
+                self.win_streak = 0
+
+                os.system('cls' if os.name == 'nt' else 'clear')
+                self.game_mode = {'01': "mines", '02': "towers", '03': "plinko", '04': "crash", '05': "slides"}.get(f"{choice:02d}")
+                self.setup()
+                self.game_amount = int(cprint.user_input(f"How many {self.game_mode.capitalize()} games do you want to play? > "))
+
+                if self.game_mode in ["mines", "towers"] and self.bet_amt < 5:
+                    while self.bet_amt < 5:
+                        try:
+                            self.bet_amt = int(cprint.user_input("Bet amount can not be lower then 5. Enter new bet amount > "))
+                        except ValueError:
+                            continue
+
+
+                self.display_info(1)
+                if self.game_mode == "mines":
+                    for _ in range(self.game_amount):
+                        mines.start(self, self.session)
+@@ -117,25 +198,15 @@ def run(self):
+                    crash.Crash(self, self.session).connect()
+                if self.game_mode == "slides":
+                    slides.Slides(self, self.session).connect()
+
+                while True:
+                    choice = cprint.user_input("Done with all games, do you want to re-run? (y/N) > ").lower()
+                    if choice not in ['y','n']:
+                        continue
+                    break
+                if choice == 'y':
+                    while True:
+                        os.system('cls' if os.name == 'nt' else 'clear')
+                        self.game_mode = cprint.user_input("What game mode do you want to play? (towers/mines/plinko/crash/slides) > ").lower()
+                        if self.game_mode in ["towers", "mines", "plinko", "crash", "slides"]:
+                            break
+                        else:
+                            cprint.error("Invalid game mode.")
+
+                    self.game_amount = int(cprint.user_input("How many games do you want to play? > "))
+                else:
+                    break
+
+
+                while (rerun := cprint.user_input(f"Done with all {self.game_mode.capitalize()} games, do you want to continue playing? (y/N) > ").lower()) not in ['y', 'n']:
+                    pass
+                if rerun == 'n': break
+
+            except KeyboardInterrupt:
+                print("\nExiting... Dont forget to star the repo ;)")
+                time.sleep(1)
+                break
+            except Exception:
+                traceback.print_exc()
+                break

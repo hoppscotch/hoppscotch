@@ -558,6 +558,10 @@ export class PersonalWorkspaceProviderService
       )
     }
 
+    this.setIssuedHandles(
+      this.issuedHandles.filter((handle) => handle.value.type === "ok")
+    )
+
     return Promise.resolve(E.right(undefined))
   }
 
@@ -653,6 +657,10 @@ export class PersonalWorkspaceProviderService
     })
 
     removeRESTRequest(collectionID, removedRequestIndexPos, requestToRemove?.id)
+
+    this.setIssuedHandles(
+      this.issuedHandles.filter((handle) => handle.value.type === "ok")
+    )
 
     return Promise.resolve(E.right(undefined))
   }
@@ -2006,7 +2014,7 @@ export class PersonalWorkspaceProviderService
 
     // TODO: Verify whether a collection update action is reflected correctly in the handle being returned below
 
-    const createdCollectionHandle = await this.getRESTCollectionHandle(
+    const createdCollectionHandle = await this.getGQLCollectionHandle(
       workspaceHandle,
       newCollectionID
     )
@@ -2050,7 +2058,7 @@ export class PersonalWorkspaceProviderService
 
     // TODO: Verify whether a collection update action is reflected correctly in the handle being returned below
 
-    const createdCollectionHandle = await this.getRESTCollectionHandle(
+    const createdCollectionHandle = await this.getGQLCollectionHandle(
       parentCollectionHandle,
       newChildCollectionID
     )
@@ -2093,7 +2101,7 @@ export class PersonalWorkspaceProviderService
     // TODO: Verify whether a request update action is reflected correctly in the handle being returned below
 
     const personalWorkspaceHandle = this.getPersonalWorkspaceHandle()
-    const createdRequestHandle = await this.getRESTRequestHandle(
+    const createdRequestHandle = await this.getGQLRequestHandle(
       personalWorkspaceHandle,
       requestID
     )
@@ -2387,6 +2395,10 @@ export class PersonalWorkspaceProviderService
       )
     }
 
+    this.setIssuedHandles(
+      this.issuedHandles.filter((handle) => handle.value.type === "ok")
+    )
+
     return Promise.resolve(E.right(undefined))
   }
 
@@ -2445,6 +2457,10 @@ export class PersonalWorkspaceProviderService
       collectionID,
       removedRequestIndexPos,
       requestToRemove?.id
+    )
+
+    this.setIssuedHandles(
+      this.issuedHandles.filter((handle) => handle.value.type === "ok")
     )
 
     return Promise.resolve(E.right(undefined))

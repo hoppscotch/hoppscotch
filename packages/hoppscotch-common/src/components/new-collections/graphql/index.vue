@@ -439,7 +439,6 @@ const onEditRootCollection = async (name: string) => {
   }
 }
 
-// TODO: Remove the `index` field from the payload
 const onAddRequest = async ({ name, path }: { name: string; path: string }) => {
   const collectionHandleResult =
     await personalWorkspaceProviderService.getGQLCollectionHandle(

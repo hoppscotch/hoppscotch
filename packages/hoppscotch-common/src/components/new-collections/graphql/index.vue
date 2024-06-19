@@ -175,7 +175,6 @@ import { Picked } from "~/helpers/types/HoppPicked"
 import {
   graphqlCollections$,
   navigateToFolderWithIndexPath,
-  saveGraphqlRequestAs,
 } from "~/newstore/collections"
 import { Handle } from "~/services/new-workspace/handle"
 import { PersonalWorkspaceProviderService } from "~/services/new-workspace/providers/personal.workspace"

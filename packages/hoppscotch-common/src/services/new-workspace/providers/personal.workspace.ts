@@ -303,6 +303,12 @@ export class PersonalWorkspaceProviderService
     )
   }
 
+  public setIssuedHandles(
+    issuedHandles: WritableHandleRef<WorkspaceRequest | WorkspaceCollection>[]
+  ) {
+    this.issuedHandles = issuedHandles ?? this.issuedHandles
+  }
+
   public async createRESTRootCollection(
     workspaceHandle: Handle<Workspace>,
     newCollection: Partial<Exclude<HoppCollection, "id">> & { name: string }

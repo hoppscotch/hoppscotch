@@ -91,7 +91,9 @@ import { defineActionHandler } from "~/helpers/actions"
 import { connection, disconnect } from "~/helpers/graphql/connection"
 import { getDefaultGQLRequest } from "~/helpers/graphql/default"
 import { HoppGQLDocument } from "~/helpers/graphql/document"
+import { updateIssuedHandlesForPersonalWorkspace } from "~/helpers/tab"
 import { InspectionService } from "~/services/inspection"
+import { PersonalWorkspaceProviderService } from "~/services/new-workspace/providers/personal.workspace"
 import { HoppTab } from "~/services/tab"
 import { GQLTabService } from "~/services/tab/graphql"
 
@@ -101,6 +103,10 @@ const tabs = useService(GQLTabService)
 const currentTabID = computed(() => tabs.currentTabID.value)
 
 const inspectionService = useService(InspectionService)
+
+const personalWorkspaceProviderService = useService(
+  PersonalWorkspaceProviderService
+)
 
 const confirmingCloseForTabID = ref<string | null>(null)
 
@@ -129,6 +135,8 @@ const removeTab = (tabID: string) => {
     confirmingCloseForTabID.value = tabID
   } else {
     tabs.closeTab(tabState.id)
+    updateIssuedHandlesForPersonalWorkspace(tabState, "exclude")
+
     inspectionService.deleteTabInspectorResult(tabState.id)
   }
 }
@@ -145,7 +153,11 @@ const onCloseConfirm = () => {
  */
 const onResolveConfirm = () => {
   if (confirmingCloseForTabID.value) {
+    const tabState = tabs.getTabRef(confirmingCloseForTabID.value).value
+
     tabs.closeTab(confirmingCloseForTabID.value)
+    updateIssuedHandlesForPersonalWorkspace(tabState, "exclude")
+
     confirmingCloseForTabID.value = null
   }
 }
@@ -162,12 +174,20 @@ const closeOtherTabsAction = (tabID: string) => {
     unsavedTabsCount.value = dirtyTabCount
     exceptedTabID.value = tabID
   } else {
+    const tabState = tabs.getTabRef(tabID).value
+
     tabs.closeOtherTabs(tabID)
+    updateIssuedHandlesForPersonalWorkspace(tabState, "include")
   }
 }
 
 const onResolveConfirmCloseAllTabs = () => {
-  if (exceptedTabID.value) tabs.closeOtherTabs(exceptedTabID.value)
+  if (exceptedTabID.value) {
+    const tabState = tabs.getTabRef(exceptedTabID.value).value
+
+    tabs.closeOtherTabs(exceptedTabID.value)
+    updateIssuedHandlesForPersonalWorkspace(tabState, "include")
+  }
   confirmingCloseAllTabs.value = false
 }
 
@@ -235,11 +255,15 @@ defineActionHandler("request.rename", () => {
 defineActionHandler("tab.duplicate-tab", ({ tabID }) => {
   duplicateTab(tabID ?? currentTabID.value)
 })
-defineActionHandler("tab.close-current", () => {
-  removeTab(currentTabID.value)
-})
+defineActionHandler("tab.close-current", () => {})
 defineActionHandler("tab.close-other", () => {
+  const tabState = currentTabID.value
+
   tabs.closeOtherTabs(currentTabID.value)
+  updateIssuedHandlesForPersonalWorkspace(
+    tabs.getTabRef(tabState).value,
+    "include"
+  )
 })
 defineActionHandler("tab.open-new", addNewTab)
 </script>

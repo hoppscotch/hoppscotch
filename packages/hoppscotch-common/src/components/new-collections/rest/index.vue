@@ -1232,12 +1232,31 @@ const selectRequest = async (requestIndexPath: string) => {
   }
 }
 
-const duplicateRequest = async (requestIndexPath: string) => {
-  const collectionIndexPath = requestIndexPath.split("/").slice(0, -1).join("/")
+const duplicateRequest = async (requestID: string) => {
+  const collectionID = requestID.split("/").slice(0, -1).join("/")
+
+  const collectionHandleResult = await workspaceService.getRESTCollectionHandle(
+    props.workspaceHandle,
+    collectionID
+  )
+
+  if (E.isLeft(collectionHandleResult)) {
+    // INVALID_WORKSPACE_HANDLE | INVALID_COLLECTION_ID
+    return
+  }
+
+  const collectionHandle = collectionHandleResult.right
+
+  const collectionHandleRef = collectionHandle.get()
+
+  if (collectionHandleRef.value.type === "invalid") {
+    // INVALID_WORKSPACE_HANDLE
+    return
+  }
 
   const requestHandleResult = await workspaceService.getRESTRequestHandle(
     props.workspaceHandle,
-    requestIndexPath
+    requestID
   )
 
   if (E.isLeft(requestHandleResult)) {
@@ -1259,7 +1278,24 @@ const duplicateRequest = async (requestIndexPath: string) => {
     name: `${request.name} - ${t("action.duplicate")}`,
   }
 
-  saveRESTRequestAs(collectionIndexPath, newRequest)
+  const createdRequestHandleResult = await workspaceService.createRESTRequest(
+    collectionHandle,
+    newRequest
+  )
+
+  if (E.isLeft(createdRequestHandleResult)) {
+    // INVALID_COLLECTION_HANDLE
+    return
+  }
+
+  const createdRequestHandle = createdRequestHandleResult.right
+
+  const createdRequestHandleRef = createdRequestHandle.get()
+
+  if (createdRequestHandleRef.value.type === "invalid") {
+    // COLLECTION_INVALIDATED
+    return
+  }
 
   toast.success(t("request.duplicated"))
 }

@@ -694,6 +694,26 @@ const onEditRequest = async (newRequestName: string) => {
 const duplicateRequest = async (requestID: string) => {
   const collectionID = requestID.split("/").slice(0, -1).join("/")
 
+  const collectionHandleResult =
+    await personalWorkspaceProviderService.getGQLCollectionHandle(
+      props.workspaceHandle,
+      collectionID
+    )
+
+  if (E.isLeft(collectionHandleResult)) {
+    // INVALID_WORKSPACE_HANDLE
+    return
+  }
+
+  const collectionHandle = collectionHandleResult.right
+
+  const collectionHandleRef = collectionHandle.get()
+
+  if (collectionHandleRef.value.type === "invalid") {
+    // INVALID_WORKSPACE_HANDLE
+    return
+  }
+
   const requestHandleResult =
     await personalWorkspaceProviderService.getGQLRequestHandle(
       props.workspaceHandle,
@@ -719,7 +739,25 @@ const duplicateRequest = async (requestID: string) => {
     name: `${request.name} - ${t("action.duplicate")}`,
   }
 
-  saveGraphqlRequestAs(collectionID, newRequest)
+  const createdRequestHandleResult =
+    await personalWorkspaceProviderService.createGQLRequest(
+      collectionHandle,
+      newRequest
+    )
+
+  if (E.isLeft(createdRequestHandleResult)) {
+    // INVALID_COLLECTION_HANDLE
+    return
+  }
+
+  const createdRequestHandle = createdRequestHandleResult.right
+
+  const createdRequestHandleRef = createdRequestHandle.get()
+
+  if (createdRequestHandleRef.value.type === "invalid") {
+    // COLLECTION_INVALIDATED
+    return
+  }
 
   toast.success(t("request.duplicated"))
 }
@@ -739,6 +777,13 @@ const selectRequest = async (requestID: string) => {
   }
 
   const collectionHandle = collectionHandleResult.right
+
+  const collectionHandleRef = collectionHandle.get()
+
+  if (collectionHandleRef.value.type === "invalid") {
+    // INVALID_WORKSPACE_HANDLE
+    return
+  }
 
   const requestHandleResult =
     await personalWorkspaceProviderService.getGQLRequestHandle(
@@ -855,6 +900,13 @@ const dropRequest = async (payload: {
   }
 
   const collectionHandle = collectionHandleResult.right
+
+  const collectionHandleRef = collectionHandle.get()
+
+  if (collectionHandleRef.value.type === "invalid") {
+    // INVALID_WORKSPACE_HANDLE
+    return
+  }
 
   const cascadingAuthHeadersHandleResult =
     await personalWorkspaceProviderService.getGQLCollectionLevelAuthHeadersView(

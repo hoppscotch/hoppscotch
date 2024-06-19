@@ -29,6 +29,7 @@ import {
   addRESTFolder,
   appendGraphqlCollections,
   appendRESTCollections,
+  cascadeParentCollectionForHeaderAuth,
   editGraphqlCollection,
   editGraphqlFolder,
   editGraphqlRequest,
@@ -81,7 +82,6 @@ import { getAffectedIndexes } from "~/helpers/collection/affectedIndex"
 import { getFoldersByPath } from "~/helpers/collection/collection"
 import { getRequestsByPath } from "~/helpers/collection/request"
 import { initializeDownloadFile } from "~/helpers/import-export/export"
-import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import { lazy } from "~/helpers/utils/lazy"
 import {
   appendEnvironments,
@@ -184,6 +184,123 @@ export class PersonalWorkspaceProviderService
   private isAlreadyInRoot(id: string) {
     const indexPath = this.pathToIndex(id)
     return indexPath.length === 1
+  }
+
+  private createSearchResultsView<
+    RequestType extends HoppRESTRequest | HoppGQLRequest,
+  >(
+    workspaceHandle: Handle<Workspace>,
+    searchQuery: Ref<string>,
+    type: "REST" | "GQL"
+  ): Promise<E.Either<never, Handle<SearchResultsView>>> {
+    const providerID = this.providerID
+
+    const collectionStoreState =
+      type === "REST"
+        ? this.restCollectionState.value.state
+        : this.gqlCollectionState.value.state
+
+    const results = ref<HoppCollection[]>([])
+
+    const isMatch = (inputText: string, textToMatch: string) =>
+      inputText.toLowerCase().includes(textToMatch.toLowerCase())
+
+    const filterRequests = (requests: RequestType[]) =>
+      requests.filter((request) => isMatch(request.name, searchQuery.value))
+
+    const filterChildCollections = (
+      childCollections: HoppCollection[]
+    ): HoppCollection[] =>
+      childCollections
+        .map((childCollection) => {
+          if (isMatch(childCollection.name, searchQuery.value)) {
+            return childCollection
+          }
+          const requests = filterRequests(
+            childCollection.requests as RequestType[]
+          )
+          const folders = filterChildCollections(childCollection.folders)
+          return { ...childCollection, requests, folders }
+        })
+        .filter(
+          (childCollection) =>
+            childCollection.requests.length > 0 ||
+            childCollection.folders.length > 0 ||
+            isMatch(childCollection.name, searchQuery.value)
+        )
+
+    const scopeHandle = effectScope()
+
+    scopeHandle.run(() => {
+      watch(
+        searchQuery,
+        (newSearchQuery) => {
+          if (!newSearchQuery) {
+            results.value = collectionStoreState
+            return
+          }
+
+          const filteredCollections = collectionStoreState
+            .map((collection) => {
+              if (isMatch(collection.name, searchQuery.value)) {
+                return collection
+              }
+              const requests = filterRequests(
+                collection.requests as RequestType[]
+              )
+              const folders = filterChildCollections(collection.folders)
+              return { ...collection, requests, folders }
+            })
+            .filter(
+              (collection) =>
+                collection.requests.length > 0 ||
+                collection.folders.length > 0 ||
+                isMatch(collection.name, searchQuery.value)
+            )
+
+          results.value = filteredCollections
+        },
+        { immediate: true }
+      )
+    })
+
+    const onSessionEnd = () => {
+      scopeHandle.stop()
+    }
+
+    const workspaceHandleRef = workspaceHandle.get()
+
+    return Promise.resolve(
+      E.right({
+        get: lazy(() =>
+          computed(() => {
+            if (
+              !isValidWorkspaceHandle(
+                workspaceHandleRef,
+                providerID,
+                "personal"
+              )
+            ) {
+              return {
+                type: "invalid" as const,
+                reason: "INVALID_WORKSPACE_HANDLE" as const,
+              }
+            }
+
+            return markRaw({
+              type: "ok" as const,
+              data: {
+                providerID,
+                workspaceID: workspaceHandleRef.value.data.workspaceID,
+                loading: ref(false),
+                results,
+                onSessionEnd,
+              },
+            })
+          })
+        ),
+      })
+    )
   }
 
   public async createRESTRootCollection(
@@ -1378,8 +1495,6 @@ export class PersonalWorkspaceProviderService
   ): Promise<E.Either<never, Handle<CollectionLevelAuthHeadersView>>> {
     const collectionHandleRef = collectionHandle.get()
 
-    const collectionStore = this.restCollectionState.value.state
-
     return Promise.resolve(
       E.right({
         get: lazy(() =>
@@ -1399,89 +1514,10 @@ export class PersonalWorkspaceProviderService
 
             const { collectionID } = collectionHandleRef.value.data
 
-            let auth: HoppInheritedProperty["auth"] = {
-              parentID: collectionID ?? "",
-              parentName: "",
-              inheritedAuth: {
-                authType: "none",
-                authActive: true,
-              },
-            }
-            const headers: HoppInheritedProperty["headers"] = []
-
-            if (!collectionID) return { type: "ok", data: { auth, headers } }
-
-            const path = collectionID.split("/").map((i) => parseInt(i))
-
-            // Check if the path is empty or invalid
-            if (!path || path.length === 0) {
-              console.error("Invalid path:", collectionID)
-              return { type: "ok", data: { auth, headers } }
-            }
-
-            // Loop through the path and get the last parent folder with authType other than 'inherit'
-            for (let i = 0; i < path.length; i++) {
-              const parentFolder = navigateToFolderWithIndexPath(
-                collectionStore,
-                [...path.slice(0, i + 1)] // Create a copy of the path array
-              )
-
-              // Check if parentFolder is undefined or null
-              if (!parentFolder) {
-                console.error("Parent folder not found for path:", path)
-                return { type: "ok", data: { auth, headers } }
-              }
-
-              const { auth: parentFolderAuth, headers: parentFolderHeaders } =
-                parentFolder
-
-              // check if the parent folder has authType 'inherit' and if it is the root folder
-              if (
-                parentFolderAuth?.authType === "inherit" &&
-                [...path.slice(0, i + 1)].length === 1
-              ) {
-                auth = {
-                  parentID: [...path.slice(0, i + 1)].join("/"),
-                  parentName: parentFolder.name,
-                  inheritedAuth: auth.inheritedAuth,
-                }
-              }
-
-              if (parentFolderAuth?.authType !== "inherit") {
-                auth = {
-                  parentID: [...path.slice(0, i + 1)].join("/"),
-                  parentName: parentFolder.name,
-                  inheritedAuth: parentFolderAuth,
-                }
-              }
-
-              // Update headers, overwriting duplicates by key
-              if (parentFolderHeaders) {
-                const activeHeaders = parentFolderHeaders.filter(
-                  (h) => h.active
-                )
-                activeHeaders.forEach((header) => {
-                  const index = headers.findIndex(
-                    (h) => h.inheritedHeader?.key === header.key
-                  )
-                  const currentPath = [...path.slice(0, i + 1)].join("/")
-                  if (index !== -1) {
-                    // Replace the existing header with the same key
-                    headers[index] = {
-                      parentID: currentPath,
-                      parentName: parentFolder.name,
-                      inheritedHeader: header,
-                    }
-                  } else {
-                    headers.push({
-                      parentID: currentPath,
-                      parentName: parentFolder.name,
-                      inheritedHeader: header,
-                    })
-                  }
-                })
-              }
-            }
+            const { auth, headers } = cascadeParentCollectionForHeaderAuth(
+              collectionID,
+              "rest"
+            )
 
             return { type: "ok", data: { auth, headers } }
           })
@@ -1631,128 +1667,10 @@ export class PersonalWorkspaceProviderService
     workspaceHandle: Handle<Workspace>,
     searchQuery: Ref<string>
   ): Promise<E.Either<never, Handle<SearchResultsView>>> {
-    const results = ref<HoppCollection[]>([])
-
-    const collectionStore = this.restCollectionState.value.state
-
-    const isMatch = (inputText: string, textToMatch: string) =>
-      inputText.toLowerCase().includes(textToMatch.toLowerCase())
-
-    const filterRequests = (requests: HoppRESTRequest[]) => {
-      return requests.filter((request) =>
-        isMatch(request.name, searchQuery.value)
-      )
-    }
-
-    const filterChildCollections = (
-      childCollections: HoppCollection[]
-    ): HoppCollection[] => {
-      return childCollections
-        .map((childCollection) => {
-          // Render the entire collection tree if the search query matches a collection name
-          if (isMatch(childCollection.name, searchQuery.value)) {
-            return childCollection
-          }
-
-          const requests = filterRequests(
-            childCollection.requests as HoppRESTRequest[]
-          )
-          const folders = filterChildCollections(childCollection.folders)
-
-          return {
-            ...childCollection,
-            requests,
-            folders,
-          }
-        })
-        .filter(
-          (childCollection) =>
-            childCollection.requests.length > 0 ||
-            childCollection.folders.length > 0 ||
-            isMatch(childCollection.name, searchQuery.value)
-        )
-    }
-
-    const scopeHandle = effectScope()
-
-    scopeHandle.run(() => {
-      watch(
-        searchQuery,
-        (newSearchQuery) => {
-          if (!newSearchQuery) {
-            results.value = collectionStore
-            return
-          }
-
-          const filteredCollections = collectionStore
-            .map((collection) => {
-              // Render the entire collection tree if the search query matches a collection name
-              if (isMatch(collection.name, searchQuery.value)) {
-                return collection
-              }
-
-              const requests = filterRequests(
-                collection.requests as HoppRESTRequest[]
-              )
-              const folders = filterChildCollections(collection.folders)
-
-              return {
-                ...collection,
-                requests,
-                folders,
-              }
-            })
-            .filter(
-              (collection) =>
-                collection.requests.length > 0 ||
-                collection.folders.length > 0 ||
-                isMatch(collection.name, searchQuery.value)
-            )
-
-          results.value = filteredCollections
-        },
-        { immediate: true }
-      )
-    })
-
-    const onSessionEnd = () => {
-      scopeHandle.stop()
-    }
-
-    const workspaceHandleRef = workspaceHandle.get()
-
-    return Promise.resolve(
-      E.right({
-        get: lazy(() =>
-          computed(() => {
-            if (
-              !isValidWorkspaceHandle(
-                workspaceHandleRef,
-                this.providerID,
-                "personal"
-              )
-            ) {
-              return {
-                type: "invalid" as const,
-                reason: "INVALID_WORKSPACE_HANDLE" as const,
-              }
-            }
-
-            return markRaw({
-              type: "ok" as const,
-              data: {
-                providerID: this.providerID,
-                workspaceID: workspaceHandleRef.value.data.workspaceID,
-
-                loading: ref(false),
-
-                results,
-                onSessionEnd,
-              },
-            })
-          })
-        ),
-      })
+    return this.createSearchResultsView<HoppRESTRequest>(
+      workspaceHandle,
+      searchQuery,
+      "REST"
     )
   }
 
@@ -2003,8 +1921,6 @@ export class PersonalWorkspaceProviderService
   ): Promise<E.Either<never, Handle<CollectionLevelAuthHeadersView>>> {
     const collectionHandleRef = collectionHandle.get()
 
-    const collectionStore = this.gqlCollectionState.value.state
-
     return Promise.resolve(
       E.right({
         get: lazy(() =>
@@ -2024,89 +1940,10 @@ export class PersonalWorkspaceProviderService
 
             const { collectionID } = collectionHandleRef.value.data
 
-            let auth: HoppInheritedProperty["auth"] = {
-              parentID: collectionID ?? "",
-              parentName: "",
-              inheritedAuth: {
-                authType: "none",
-                authActive: true,
-              },
-            }
-            const headers: HoppInheritedProperty["headers"] = []
-
-            if (!collectionID) return { type: "ok", data: { auth, headers } }
-
-            const path = collectionID.split("/").map((i) => parseInt(i))
-
-            // Check if the path is empty or invalid
-            if (!path || path.length === 0) {
-              console.error("Invalid path:", collectionID)
-              return { type: "ok", data: { auth, headers } }
-            }
-
-            // Loop through the path and get the last parent folder with authType other than 'inherit'
-            for (let i = 0; i < path.length; i++) {
-              const parentFolder = navigateToFolderWithIndexPath(
-                collectionStore,
-                [...path.slice(0, i + 1)] // Create a copy of the path array
-              )
-
-              // Check if parentFolder is undefined or null
-              if (!parentFolder) {
-                console.error("Parent folder not found for path:", path)
-                return { type: "ok", data: { auth, headers } }
-              }
-
-              const { auth: parentFolderAuth, headers: parentFolderHeaders } =
-                parentFolder
-
-              // check if the parent folder has authType 'inherit' and if it is the root folder
-              if (
-                parentFolderAuth?.authType === "inherit" &&
-                [...path.slice(0, i + 1)].length === 1
-              ) {
-                auth = {
-                  parentID: [...path.slice(0, i + 1)].join("/"),
-                  parentName: parentFolder.name,
-                  inheritedAuth: auth.inheritedAuth,
-                }
-              }
-
-              if (parentFolderAuth?.authType !== "inherit") {
-                auth = {
-                  parentID: [...path.slice(0, i + 1)].join("/"),
-                  parentName: parentFolder.name,
-                  inheritedAuth: parentFolderAuth,
-                }
-              }
-
-              // Update headers, overwriting duplicates by key
-              if (parentFolderHeaders) {
-                const activeHeaders = parentFolderHeaders.filter(
-                  (h) => h.active
-                )
-                activeHeaders.forEach((header) => {
-                  const index = headers.findIndex(
-                    (h) => h.inheritedHeader?.key === header.key
-                  )
-                  const currentPath = [...path.slice(0, i + 1)].join("/")
-                  if (index !== -1) {
-                    // Replace the existing header with the same key
-                    headers[index] = {
-                      parentID: currentPath,
-                      parentName: parentFolder.name,
-                      inheritedHeader: header,
-                    }
-                  } else {
-                    headers.push({
-                      parentID: currentPath,
-                      parentName: parentFolder.name,
-                      inheritedHeader: header,
-                    })
-                  }
-                })
-              }
-            }
+            const { auth, headers } = cascadeParentCollectionForHeaderAuth(
+              collectionID,
+              "graphql"
+            )
 
             return { type: "ok", data: { auth, headers } }
           })
@@ -2119,128 +1956,10 @@ export class PersonalWorkspaceProviderService
     workspaceHandle: Handle<Workspace>,
     searchQuery: Ref<string>
   ): Promise<E.Either<never, Handle<SearchResultsView>>> {
-    const results = ref<HoppCollection[]>([])
-
-    const collectionStore = this.gqlCollectionState.value.state
-
-    const isMatch = (inputText: string, textToMatch: string) =>
-      inputText.toLowerCase().includes(textToMatch.toLowerCase())
-
-    const filterRequests = (requests: HoppRESTRequest[]) => {
-      return requests.filter((request) =>
-        isMatch(request.name, searchQuery.value)
-      )
-    }
-
-    const filterChildCollections = (
-      childCollections: HoppCollection[]
-    ): HoppCollection[] => {
-      return childCollections
-        .map((childCollection) => {
-          // Render the entire collection tree if the search query matches a collection name
-          if (isMatch(childCollection.name, searchQuery.value)) {
-            return childCollection
-          }
-
-          const requests = filterRequests(
-            childCollection.requests as HoppRESTRequest[]
-          )
-          const folders = filterChildCollections(childCollection.folders)
-
-          return {
-            ...childCollection,
-            requests,
-            folders,
-          }
-        })
-        .filter(
-          (childCollection) =>
-            childCollection.requests.length > 0 ||
-            childCollection.folders.length > 0 ||
-            isMatch(childCollection.name, searchQuery.value)
-        )
-    }
-
-    const scopeHandle = effectScope()
-
-    scopeHandle.run(() => {
-      watch(
-        searchQuery,
-        (newSearchQuery) => {
-          if (!newSearchQuery) {
-            results.value = collectionStore
-            return
-          }
-
-          const filteredCollections = collectionStore
-            .map((collection) => {
-              // Render the entire collection tree if the search query matches a collection name
-              if (isMatch(collection.name, searchQuery.value)) {
-                return collection
-              }
-
-              const requests = filterRequests(
-                collection.requests as HoppRESTRequest[]
-              )
-              const folders = filterChildCollections(collection.folders)
-
-              return {
-                ...collection,
-                requests,
-                folders,
-              }
-            })
-            .filter(
-              (collection) =>
-                collection.requests.length > 0 ||
-                collection.folders.length > 0 ||
-                isMatch(collection.name, searchQuery.value)
-            )
-
-          results.value = filteredCollections
-        },
-        { immediate: true }
-      )
-    })
-
-    const onSessionEnd = () => {
-      scopeHandle.stop()
-    }
-
-    const workspaceHandleRef = workspaceHandle.get()
-
-    return Promise.resolve(
-      E.right({
-        get: lazy(() =>
-          computed(() => {
-            if (
-              !isValidWorkspaceHandle(
-                workspaceHandleRef,
-                this.providerID,
-                "personal"
-              )
-            ) {
-              return {
-                type: "invalid" as const,
-                reason: "INVALID_WORKSPACE_HANDLE" as const,
-              }
-            }
-
-            return markRaw({
-              type: "ok" as const,
-              data: {
-                providerID: this.providerID,
-                workspaceID: workspaceHandleRef.value.data.workspaceID,
-
-                loading: ref(false),
-
-                results,
-                onSessionEnd,
-              },
-            })
-          })
-        ),
-      })
+    return this.createSearchResultsView<HoppGQLRequest>(
+      workspaceHandle,
+      searchQuery,
+      "GQL"
     )
   }
 

@@ -13,27 +13,27 @@ import { HoppCollection } from "@hoppscotch/data"
 import * as E from "fp-ts/Either"
 import { ref } from "vue"
 
-import { ImporterOrExporter } from "~/components/importExport/types"
 import { useI18n } from "~/composables/i18n"
 import { useToast } from "~/composables/toast"
+import { ImporterOrExporter } from "~/components/importExport/types"
 import { FileSource } from "~/helpers/import-export/import/import-sources/FileSource"
 import { GistSource } from "~/helpers/import-export/import/import-sources/GistSource"
 
-import { useReadonlyStream } from "~/composables/stream"
 import IconFolderPlus from "~icons/lucide/folder-plus"
 import IconUser from "~icons/lucide/user"
+import { initializeDownloadFile } from "~/helpers/import-export/export"
+import { useReadonlyStream } from "~/composables/stream"
 
-import { useService } from "dioc/vue"
-import { computed } from "vue"
-import { gistExporter } from "~/helpers/import-export/export/gist"
-import { hoppGQLImporter } from "~/helpers/import-export/import/hopp"
-import { hoppGqlCollectionsImporter } from "~/helpers/import-export/import/hoppGql"
-import { graphqlCollections$ } from "~/newstore/collections"
 import { platform } from "~/platform"
-import { NewWorkspaceService } from "~/services/new-workspace"
-import { PersonalWorkspaceProviderService } from "~/services/new-workspace/providers/personal.workspace"
-import { Workspace } from "~/services/new-workspace/workspace"
-import { Handle } from "~/services/new-workspace/handle"
+import {
+  appendGraphqlCollections,
+  graphqlCollections$,
+} from "~/newstore/collections"
+import { hoppGqlCollectionsImporter } from "~/helpers/import-export/import/hoppGql"
+import { gqlCollectionsExporter } from "~/helpers/import-export/export/gqlCollections"
+import { gistExporter } from "~/helpers/import-export/export/gist"
+import { computed } from "vue"
+import { hoppGQLImporter } from "~/helpers/import-export/import/hopp"
 
 const t = useI18n()
 const toast = useToast()
@@ -41,11 +41,6 @@ const toast = useToast()
 const currentUser = useReadonlyStream(
   platform.auth.getCurrentUserStream(),
   platform.auth.getCurrentUser()
-)
-
-const workspaceService = useService(NewWorkspaceService)
-const personalWorkspaceProviderService = useService(
-  PersonalWorkspaceProviderService
 )
 
 const gqlCollections = useReadonlyStream(graphqlCollections$, [])
@@ -139,30 +134,27 @@ const GqlCollectionsHoppExporter: ImporterOrExporter = {
     applicableTo: ["personal-workspace", "team-workspace"],
   },
   action: async () => {
-    const activeWorkspaceHandle = getActiveWorkspaceHandle()
-
-    if (!activeWorkspaceHandle) {
-      return toast.error("error.something_went_wrong")
+    if (!gqlCollections.value.length) {
+      return toast.error(t("error.no_collections_to_export"))
     }
 
-    const result = await personalWorkspaceProviderService.exportGQLCollections(
-      activeWorkspaceHandle
+    const message = await initializeDownloadFile(
+      gqlCollectionsExporter(gqlCollections.value),
+      "GQLCollections"
     )
 
-    // INVALID_COLLECTION_HANDLE | NO_COLLECTIONS_TO_EXPORT
-    if (E.isLeft(result)) {
-      // @ts-expect-error - `result.left` will be `unknown` since using `PersonalWorkspaceProviderService` straightaway instead of via `NewWorkspaceService`
-      if (result.left.error === "NO_COLLECTIONS_TO_EXPORT") {
-        return toast.error(t("error.no_collections_to_export"))
-      }
-
-      return toast.error(t("export.failed"))
+    if (E.isLeft(message)) {
+      toast.error(t("export.failed"))
+      return
     }
 
-    toast.success(t("state.download_started"))
+    toast.success(message.right)
 
-    // TODO: Would it be better to close the modal after exporting?
-    // emit("hide-modal")
+    platform.analytics?.logEvent({
+      type: "HOPP_EXPORT_COLLECTION",
+      platform: "gql",
+      exporter: "json",
+    })
   },
 }
 
@@ -239,39 +231,12 @@ const showImportFailedError = () => {
   toast.error(t("import.failed"))
 }
 
-const handleImportToStore = async (collections: HoppCollection[]) => {
-  const activeWorkspaceHandle = getActiveWorkspaceHandle()
-
-  if (!activeWorkspaceHandle) {
-    return E.left("INVALID_WORKSPACE_HANDLE")
-  }
-
-  const collectionHandleResult =
-    await personalWorkspaceProviderService.importGQLCollections(
-      activeWorkspaceHandle,
-      collections
-    )
-
-  if (E.isLeft(collectionHandleResult)) {
-    // INVALID_WORKSPACE_HANDLE
-    return toast.error(t("import.failed"))
-  }
-
+const handleImportToStore = async (gqlCollections: HoppCollection[]) => {
+  appendGraphqlCollections(gqlCollections)
   toast.success(t("state.file_imported"))
-  emit("hide-modal")
 }
 
 const emit = defineEmits<{
   (e: "hide-modal"): () => void
 }>()
-
-const getActiveWorkspaceHandle = (): Handle<Workspace> | null => {
-  const { activeWorkspaceHandle } = workspaceService
-
-  if (!activeWorkspaceHandle.value) {
-    return null
-  }
-
-  return personalWorkspaceProviderService.getPersonalWorkspaceHandle()
-}
 </script>

@@ -3,8 +3,7 @@ import { Ref } from "vue"
 
 import { HoppInheritedRESTProperty } from "~/helpers/types/HoppInheritedProperties"
 
-// Shared across REST/GQL collections
-export type CollectionLevelAuthHeadersView = {
+export type RESTCollectionLevelAuthHeadersView = {
   auth: HoppInheritedRESTProperty["auth"]
   headers: HoppInheritedRESTProperty["headers"]
 }
@@ -48,8 +47,7 @@ export interface RESTCollectionChildrenView {
   content: Ref<RESTCollectionViewItem[]>
 }
 
-// Shared across REST/GQL collections
-export interface SearchResultsView {
+export interface RESTSearchResultsView {
   providerID: string
   workspaceID: string
 
@@ -59,8 +57,7 @@ export interface SearchResultsView {
   onSessionEnd: () => void
 }
 
-// Shared across REST/GQL collections
-export interface CollectionJSONView {
+export interface RESTCollectionJSONView {
   providerID: string
   workspaceID: string
 

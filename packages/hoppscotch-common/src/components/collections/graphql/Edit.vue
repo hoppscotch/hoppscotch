@@ -1,5 +1,10 @@
 <template>
-  <HoppSmartModal dialog :title="`${t('collection.edit')}`" @close="hideModal">
+  <HoppSmartModal
+    v-if="show"
+    dialog
+    :title="`${t('collection.edit')}`"
+    @close="hideModal"
+  >
     <template #body>
       <HoppSmartInput
         v-model="editingName"
@@ -28,27 +33,34 @@
 </template>
 
 <script setup lang="ts">
-import { useI18n } from "@composables/i18n"
+import { ref, watch } from "vue"
+import { editGraphqlCollection } from "~/newstore/collections"
 import { useToast } from "@composables/toast"
-import { onMounted, ref } from "vue"
+import { useI18n } from "@composables/i18n"
+import { HoppCollection } from "@hoppscotch/data"
 
 const props = defineProps<{
+  show: boolean
+  editingCollectionIndex: number | null
+  editingCollection: HoppCollection | null
   editingCollectionName: string
 }>()
 
 const emit = defineEmits<{
-  (e: "submit", name: string): void
   (e: "hide-modal"): void
 }>()
 
 const t = useI18n()
 const toast = useToast()
 
-const editingName = ref<string | null>(null)
+const editingName = ref<string | null>()
 
-onMounted(() => {
-  editingName.value = props.editingCollectionName
-})
+watch(
+  () => props.editingCollectionName,
+  (val) => {
+    editingName.value = val
+  }
+)
 
 const saveCollection = () => {
   if (!editingName.value) {
@@ -56,10 +68,18 @@ const saveCollection = () => {
     return
   }
 
-  emit("submit", editingName.value)
+  // TODO: Better typechecking here ?
+  const collectionUpdated = {
+    ...(props.editingCollection as any),
+    name: editingName.value,
+  }
+
+  editGraphqlCollection(props.editingCollectionIndex, collectionUpdated)
+  hideModal()
 }
 
 const hideModal = () => {
+  editingName.value = null
   emit("hide-modal")
 }
 </script>

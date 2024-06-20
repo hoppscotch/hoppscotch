@@ -35,7 +35,7 @@
         />
       </div>
     </div>
-    <div class="h-full relative">
+    <div class="h-full relative overflow-auto">
       <div ref="rawResponse" class="absolute inset-0"></div>
     </div>
   </div>

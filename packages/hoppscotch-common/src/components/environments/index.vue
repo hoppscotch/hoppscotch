@@ -145,7 +145,7 @@ const updateEnvironmentType = (newEnvironmentType: EnvironmentType) => {
 
 const workspace = workspaceService.currentWorkspace
 
-// TODO: Replace with `newWorkspaceService`
+// Future TODO: Replace with `newWorkspaceService` once legacy `workspaceService` is completely removed
 // Switch to my environments if workspace is personal and to team environments if workspace is team
 // also resets selected environment if workspace is personal and the previous selected environment was a team environment
 watch(workspace, (newWorkspace) => {
@@ -160,6 +160,22 @@ watch(workspace, (newWorkspace) => {
     updateSelectedTeam(newWorkspace)
   }
 })
+
+watch(
+  activeWorkspaceHandle,
+  (newActiveWorkspaceHandle) => {
+    // Clear environment selection while in no active workspace state
+    if (
+      !newActiveWorkspaceHandle ||
+      newActiveWorkspaceHandle.get().value.type === "invalid"
+    ) {
+      setSelectedEnvironmentIndex({
+        type: "NO_ENV_SELECTED",
+      })
+    }
+  },
+  { immediate: true }
+)
 
 watch(
   () => currentUser.value,

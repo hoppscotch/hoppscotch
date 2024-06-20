@@ -2,7 +2,6 @@ import { getService } from "~/modules/dioc"
 
 import { PersonalWorkspaceProviderService } from "~/services/new-workspace/providers/personal.workspace"
 import { HoppTab } from "~/services/tab"
-import { HoppGQLDocument } from "../graphql/document"
 import { HoppRESTDocument } from "../rest/document"
 
 const personalWorkspaceProviderService = getService(
@@ -18,7 +17,7 @@ const personalWorkspaceProviderService = getService(
  */
 
 export const updateIssuedHandlesForPersonalWorkspace = (
-  tabState: HoppTab<HoppRESTDocument | HoppGQLDocument>,
+  tabState: HoppTab<HoppRESTDocument>,
   action: "include" | "exclude"
 ) => {
   const { saveContext } = tabState.document

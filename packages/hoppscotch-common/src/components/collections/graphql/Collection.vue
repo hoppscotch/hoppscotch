@@ -135,7 +135,7 @@
                   :shortcut="['P']"
                   @click="
                     () => {
-                      emit('edit-collection-properties', {
+                      emit('edit-properties', {
                         collectionIndex: String(collectionIndex),
                         collection: collection,
                       })
@@ -171,7 +171,7 @@
           @edit-request="$emit('edit-request', $event)"
           @duplicate-request="$emit('duplicate-request', $event)"
           @edit-properties="
-            $emit('edit-collection-properties', {
+            $emit('edit-properties', {
               collectionIndex: `${collectionIndex}/${String(index)}`,
               collection: folder,
             })
@@ -272,7 +272,7 @@ const emit = defineEmits<{
   (e: "add-folder", i: any): void
   (e: "edit-folder", i: any): void
   (
-    e: "edit-collection-properties",
+    e: "edit-properties",
     payload: {
       collectionIndex: string | null
       collection: HoppCollection

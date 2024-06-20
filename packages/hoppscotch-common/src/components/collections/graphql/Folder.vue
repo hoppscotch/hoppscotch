@@ -25,7 +25,7 @@
           class="pointer-events-none flex min-w-0 flex-1 cursor-pointer py-2 pr-2 transition group-hover:text-secondaryDark"
         >
           <span class="truncate" :class="{ 'text-accent': isSelected }">
-            {{ folder.name }}
+            {{ folder.name ? folder.name : folder.title }}
           </span>
         </span>
       </div>
@@ -178,7 +178,7 @@
           :key="`request-${String(index)}`"
           :picked="picked"
           :save-request="saveRequest"
-          :request="request as HoppGQLRequest"
+          :request="request"
           :collection-index="collectionIndex"
           :folder-index="folderIndex"
           :folder-path="folderPath"
@@ -230,7 +230,7 @@ import { computed, ref } from "vue"
 import { useService } from "dioc/vue"
 import { GQLTabService } from "~/services/tab/graphql"
 import { Picked } from "~/helpers/types/HoppPicked"
-import { HoppCollection, HoppGQLRequest } from "@hoppscotch/data"
+import { HoppCollection } from "@hoppscotch/data"
 
 const toast = useToast()
 const t = useI18n()

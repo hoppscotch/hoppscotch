@@ -8,14 +8,6 @@
     :workspace-handle="activeWorkspaceHandle"
     @select="(payload) => emit('select', payload)"
   />
-
-  <NewCollectionsGraphql
-    v-else-if="platform === 'graphql'"
-    :picked="picked"
-    :save-request="saveRequest"
-    :workspace-handle="activeWorkspaceHandle"
-    @select="(payload) => emit('select', payload)"
-  />
 </template>
 
 <script setup lang="ts">

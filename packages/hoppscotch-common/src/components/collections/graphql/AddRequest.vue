@@ -46,7 +46,7 @@ const tabs = useService(GQLTabService)
 
 const props = defineProps<{
   show: boolean
-  folderPath: string
+  folderPath?: string
 }>()
 
 const emit = defineEmits<{
@@ -55,7 +55,7 @@ const emit = defineEmits<{
     e: "add-request",
     v: {
       name: string
-      path: string
+      path: string | undefined
     }
   ): void
 }>()

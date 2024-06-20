@@ -20,24 +20,22 @@
         <label class="p-4">
           {{ t("collection.select_location") }}
         </label>
-        <!-- <CollectionsGraphql
-          v-if="mode === 'graphql'"
+
+        <!-- TODO: Remove the below check once GQL collections are ported to the new architecture -->
+        <div v-if="!activeWorkspaceHandle">No Workspace Selected.</div>
+
+        <CollectionsGraphql
+          v-else-if="mode === 'graphql'"
           :picked="picked"
           :save-request="true"
           @select="onSelect"
-        /> -->
-        <!-- <Collections
+        />
+
+        <NewCollections
           v-else
           :picked="picked"
           :save-request="true"
-          @select="onSelect"
-          @update-team="updateTeam"
-          @update-collection-type="updateCollectionType"
-        /> -->
-        <NewCollections
-          :picked="picked"
-          :save-request="true"
-          :platform="mode"
+          platform="rest"
           @select="onSelect"
         />
       </div>
@@ -76,8 +74,13 @@ import { cloneDeep } from "lodash-es"
 import { computed, nextTick, reactive, ref, watch } from "vue"
 
 import { Picked } from "~/helpers/types/HoppPicked"
+import {
+  cascadeParentCollectionForHeaderAuth,
+  editGraphqlRequest,
+  saveGraphqlRequestAs,
+} from "~/newstore/collections"
+import { platform } from "~/platform"
 import { NewWorkspaceService } from "~/services/new-workspace"
-import { PersonalWorkspaceProviderService } from "~/services/new-workspace/providers/personal.workspace"
 import { GQLTabService } from "~/services/tab/graphql"
 import { RESTTabService } from "~/services/tab/rest"
 
@@ -87,9 +90,8 @@ const toast = useToast()
 const RESTTabs = useService(RESTTabService)
 const GQLTabs = useService(GQLTabService)
 const workspaceService = useService(NewWorkspaceService)
-const personalWorkspaceProviderService = useService(
-  PersonalWorkspaceProviderService
-)
+
+const activeWorkspaceHandle = workspaceService.activeWorkspaceHandle
 
 // type SelectedTeam = GetMyTeamsQuery["myTeams"][number] | undefined
 
@@ -224,9 +226,6 @@ const saveRequestAs = async () => {
     return
   }
 
-  // TODO: Cleanup: Compute collection handles once at the top
-  // Replace `personalWorkspaceProviderService` with `workspaceService` for GQL once support for teams is brought about
-
   if (
     picked.value.pickedType === "my-collection" ||
     picked.value.pickedType === "my-folder"
@@ -283,27 +282,7 @@ const saveRequestAs = async () => {
     requestSaved()
   } else if (picked.value.pickedType === "my-request") {
     if (!isHoppRESTRequest(updatedRequest))
-      throw new Error("updatedRequest is not a REST Request")
-
-    const collectionHandleResult =
-      await workspaceService.getRESTCollectionHandle(
-        workspaceService.activeWorkspaceHandle.value,
-        picked.value.folderPath
-      )
-
-    if (E.isLeft(collectionHandleResult)) {
-      // INVALID_WORKSPACE_HANDLE | INVALID_COLLECTION_ID | INVALID_PATH
-      return
-    }
-
-    const collectionHandle = collectionHandleResult.right
-
-    const collectionHandleRef = collectionHandle.get()
-
-    if (collectionHandleRef.value.type === "invalid") {
-      // INVALID_WORKSPACE_HANDLE
-      return
-    }
+      throw new Error("requestUpdated is not a REST Request")
 
     const requestHandleResult = await workspaceService.getRESTRequestHandle(
       workspaceService.activeWorkspaceHandle.value,
@@ -343,174 +322,12 @@ const saveRequestAs = async () => {
       },
     }
 
-    const cascadingAuthHeadersHandleResult =
-      await workspaceService.getRESTCollectionLevelAuthHeadersView(
-        collectionHandle
-      )
-
-    if (E.isLeft(cascadingAuthHeadersHandleResult)) {
-      // INVALID_COLLECTION_HANDLE
-      return
-    }
-
-    const cascadingAuthHeadersHandle =
-      cascadingAuthHeadersHandleResult.right.get()
-
-    if (cascadingAuthHeadersHandle.value.type === "invalid") {
-      // COLLECTION_INVALIDATED
-      return
-    }
-
-    const { auth, headers } = cascadingAuthHeadersHandle.value.data
+    const { auth, headers } = cascadeParentCollectionForHeaderAuth(
+      picked.value.folderPath,
+      "rest"
+    )
 
     RESTTabs.currentActiveTab.value.document.inheritedProperties = {
-      auth,
-      headers,
-    }
-
-    requestSaved()
-  } else if (
-    picked.value.pickedType === "gql-my-collection" ||
-    picked.value.pickedType === "gql-my-folder"
-  ) {
-    if (HoppGQLRequest.safeParse(updatedRequest).type === "err") {
-      throw new Error("updatedRequest is not a GQL Request")
-    }
-
-    const collectionPathIndex =
-      picked.value.pickedType === "gql-my-collection"
-        ? picked.value.collectionIndex.toString()
-        : picked.value.folderPath
-
-    const collectionHandleResult =
-      await personalWorkspaceProviderService.getGQLCollectionHandle(
-        workspaceService.activeWorkspaceHandle.value,
-        collectionPathIndex
-      )
-
-    if (E.isLeft(collectionHandleResult)) {
-      // INVALID_WORKSPACE_HANDLE | INVALID_COLLECTION_ID | INVALID_PATH
-      return
-    }
-
-    const collectionHandle = collectionHandleResult.right
-
-    const requestHandleResult =
-      await personalWorkspaceProviderService.createGQLRequest(
-        collectionHandle,
-        updatedRequest as HoppGQLRequest
-      )
-
-    if (E.isLeft(requestHandleResult)) {
-      // INVALID_WORKSPACE_HANDLE | INVALID_COLLECTION_HANDLE
-      return
-    }
-
-    const requestHandle = requestHandleResult.right
-
-    const requestHandleRef = requestHandle.get()
-
-    if (requestHandleRef.value.type === "invalid") {
-      // INVALID_WORKSPACE_HANDLE | INVALID_COLLECTION_HANDLE
-      return
-    }
-
-    GQLTabs.currentActiveTab.value.document = {
-      request: updatedRequest as HoppGQLRequest,
-      isDirty: false,
-      saveContext: {
-        originLocation: "workspace-user-collection",
-        requestHandle,
-      },
-    }
-
-    requestSaved()
-  } else if (picked.value.pickedType === "gql-my-request") {
-    if (HoppGQLRequest.safeParse(updatedRequest).type === "err") {
-      throw new Error("updatedRequest is not a GQL Request")
-    }
-
-    const collectionHandleResult =
-      await personalWorkspaceProviderService.getGQLCollectionHandle(
-        workspaceService.activeWorkspaceHandle.value,
-        picked.value.folderPath
-      )
-
-    if (E.isLeft(collectionHandleResult)) {
-      // INVALID_WORKSPACE_HANDLE | INVALID_COLLECTION_ID | INVALID_PATH
-      return
-    }
-
-    const collectionHandle = collectionHandleResult.right
-
-    const collectionHandleRef = collectionHandle.get()
-
-    if (collectionHandleRef.value.type === "invalid") {
-      // INVALID_WORKSPACE_HANDLE
-      return
-    }
-
-    const requestHandleResult =
-      await personalWorkspaceProviderService.getGQLRequestHandle(
-        workspaceService.activeWorkspaceHandle.value,
-        `${picked.value.folderPath}/${picked.value.requestIndex.toString()}`
-      )
-
-    if (E.isLeft(requestHandleResult)) {
-      // INVALID_COLLECTION_HANDLE | INVALID_REQUEST_ID | REQUEST_NOT_FOUND
-      return
-    }
-
-    const requestHandle = requestHandleResult.right
-
-    const requestHandleRef = requestHandle.get()
-
-    if (requestHandleRef.value.type === "invalid") {
-      // INVALID_WORKSPACE_HANDLE
-      return
-    }
-
-    const updateRequestResult =
-      await personalWorkspaceProviderService.updateGQLRequest(
-        requestHandle,
-        updatedRequest as HoppGQLRequest
-      )
-
-    if (E.isLeft(updateRequestResult)) {
-      // INVALID_WORKSPACE_HANDLE | INVALID_REQUEST_HANDLE
-      return
-    }
-
-    GQLTabs.currentActiveTab.value.document = {
-      request: updatedRequest as HoppGQLRequest,
-      isDirty: false,
-      saveContext: {
-        originLocation: "workspace-user-collection",
-        requestHandle,
-      },
-    }
-
-    const cascadingAuthHeadersHandleResult =
-      await personalWorkspaceProviderService.getGQLCollectionLevelAuthHeadersView(
-        collectionHandle
-      )
-
-    if (E.isLeft(cascadingAuthHeadersHandleResult)) {
-      // INVALID_COLLECTION_HANDLE
-      return
-    }
-
-    const cascadingAuthHeadersHandle =
-      cascadingAuthHeadersHandleResult.right.get()
-
-    if (cascadingAuthHeadersHandle.value.type === "invalid") {
-      // COLLECTION_INVALIDATED
-      return
-    }
-
-    const { auth, headers } = cascadingAuthHeadersHandle.value.data
-
-    GQLTabs.currentActiveTab.value.document.inheritedProperties = {
       auth,
       headers,
     }
@@ -580,6 +397,83 @@ const saveRequestAs = async () => {
   //     )
   //   )()
   // }
+  else if (picked.value.pickedType === "gql-my-request") {
+    // TODO: Check for GQL request ?
+    editGraphqlRequest(
+      picked.value.folderPath,
+      picked.value.requestIndex,
+      updatedRequest as HoppGQLRequest
+    )
+
+    platform.analytics?.logEvent({
+      type: "HOPP_SAVE_REQUEST",
+      createdNow: false,
+      platform: "gql",
+      workspaceType: "team",
+    })
+
+    const { auth, headers } = cascadeParentCollectionForHeaderAuth(
+      picked.value.folderPath,
+      "graphql"
+    )
+
+    GQLTabs.currentActiveTab.value.document.inheritedProperties = {
+      auth,
+      headers,
+    }
+
+    requestSaved()
+  } else if (picked.value.pickedType === "gql-my-folder") {
+    // TODO: Check for GQL request ?
+    saveGraphqlRequestAs(
+      picked.value.folderPath,
+      updatedRequest as HoppGQLRequest
+    )
+
+    platform.analytics?.logEvent({
+      type: "HOPP_SAVE_REQUEST",
+      createdNow: true,
+      platform: "gql",
+      workspaceType: "team",
+    })
+
+    const { auth, headers } = cascadeParentCollectionForHeaderAuth(
+      picked.value.folderPath,
+      "graphql"
+    )
+
+    GQLTabs.currentActiveTab.value.document.inheritedProperties = {
+      auth,
+      headers,
+    }
+
+    requestSaved()
+  } else if (picked.value.pickedType === "gql-my-collection") {
+    // TODO: Check for GQL request ?
+    saveGraphqlRequestAs(
+      `${picked.value.collectionIndex}`,
+      updatedRequest as HoppGQLRequest
+    )
+
+    platform.analytics?.logEvent({
+      type: "HOPP_SAVE_REQUEST",
+      createdNow: true,
+      platform: "gql",
+      workspaceType: "team",
+    })
+
+    const { auth, headers } = cascadeParentCollectionForHeaderAuth(
+      `${picked.value.collectionIndex}`,
+      "graphql"
+    )
+
+    GQLTabs.currentActiveTab.value.document.inheritedProperties = {
+      auth,
+      headers,
+    }
+
+    requestSaved()
+  }
 }
 
 /**
@@ -666,3 +560,4 @@ const hideModal = () => {
 //   }
 // }
 </script>
+, editGraphqlRequest, saveGraphqlRequestAs

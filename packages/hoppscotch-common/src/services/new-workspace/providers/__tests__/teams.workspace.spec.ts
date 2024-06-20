@@ -7,16 +7,19 @@ import {
   createNewRootCollection,
   updateTeamCollection,
   deleteCollection,
+  moveRESTTeamCollection,
 } from "~/helpers/backend/mutations/TeamCollection"
 
 import * as TE from "fp-ts/TaskEither"
 import { fetchAllTeams } from "~/helpers/teams/TeamListAdapter"
 import {
+  CreateNewRootCollectionMutation,
   CreateRequestInCollectionMutation,
   DeleteCollectionMutation,
   GetCollectionChildrenQuery,
   GetCollectionRequestsQuery,
   GetMyTeamsQuery,
+  MoveRestTeamCollectionMutation,
   RootCollectionsOfTeamQuery,
   UpdateRequestMutation,
   UpdateTeamCollectionMutation,
@@ -30,6 +33,7 @@ import {
 } from "~/helpers/backend/mutations/TeamRequest"
 import {
   getDefaultRESTRequest,
+  HoppCollection,
   HoppRESTAuth,
   HoppRESTHeader,
 } from "@hoppscotch/data"
@@ -39,6 +43,7 @@ import {
   getRootCollections,
 } from "~/helpers/backend/helpers"
 import { toRaw, watch } from "vue"
+import { initializeDownloadFile } from "~/helpers/import-export/export"
 
 vi.mock("./../../../../platform", () => {
   const actual = vi.importActual("./../../../../platform")
@@ -59,6 +64,7 @@ vi.mock("./../../../../helpers/backend/mutations/TeamCollection", () => {
     createChildCollection: vi.fn(),
     updateTeamCollection: vi.fn(),
     deleteCollection: vi.fn(),
+    moveRESTTeamCollection: vi.fn(),
   }
 })
 
@@ -81,6 +87,12 @@ vi.mock("./../../../../helpers/backend/helpers", () => {
     getCollectionChildren: vi.fn(),
     getCollectionChildRequests: vi.fn(),
     getRootCollections: vi.fn(),
+  }
+})
+
+vi.mock("./../../../../helpers/import-export/export", () => {
+  return {
+    initializeDownloadFile: vi.fn(),
   }
 })
 
@@ -858,6 +870,661 @@ describe("TeamsWorkspaceProviderService", () => {
       }
     `)
   })
+
+  test("get collection level auth headers view", async () => {
+    mockFetchAllTeams()
+
+    mockGetCollectionChildren({
+      root_collection_id_0: [
+        {
+          id: "child_collection_id_0",
+          title: "Test Child Collection #0",
+          data: JSON.stringify({
+            auth: {
+              authType: "inherit",
+              authActive: true,
+            },
+            headers: [],
+          }),
+        },
+      ],
+      child_collection_id_0: [
+        {
+          id: "child_collection_id_0_0",
+          title: "Test Child Collection #0",
+          data: JSON.stringify({
+            auth: {
+              authType: "inherit",
+              authActive: true,
+            },
+            headers: [],
+          }),
+        },
+      ],
+    })
+
+    const container = new TestContainer()
+    const teamsWorkspaceProviderService = container.bind(
+      TeamsWorkspaceProviderService
+    )
+
+    await teamsWorkspaceProviderService.init()
+
+    const sampleWorkspace = await getSampleWorkspaceForTesting(
+      "workspace_id_0",
+      teamsWorkspaceProviderService
+    )
+
+    teamsWorkspaceProviderService._setCollections([
+      {
+        collectionID: "root_collection_id_0",
+        name: "Test Collection #0",
+        auth: {
+          authType: "basic",
+          username: "test_username",
+          password: "test_password",
+          authActive: true,
+        },
+        headers: [
+          {
+            key: "X-Test-Header",
+            value: "TESTING_ROOT_COLLECTION_HEADER_INHERITENCE",
+            active: true,
+          },
+        ],
+        order: "a0",
+        providerID: "TEAMS_WORKSPACE_PROVIDER",
+        workspaceID: "workspace_id_0",
+      },
+      {
+        collectionID: "child_collection_id_0",
+        name: "Test Child Collection #0",
+        auth: {
+          authType: "inherit",
+          authActive: true,
+        },
+        headers: [],
+        order: "a1",
+        providerID: "TEAMS_WORKSPACE_PROVIDER",
+        workspaceID: "workspace_id_0",
+        parentCollectionID: "root_collection_id_0",
+      },
+      {
+        collectionID: "child_collection_id_0_0",
+        name: "Test Nested Child Collection #0",
+        auth: {
+          authType: "inherit",
+          authActive: true,
+        },
+        headers: [],
+        order: "a1.1",
+        providerID: "TEAMS_WORKSPACE_PROVIDER",
+        workspaceID: "workspace_id_0",
+        parentCollectionID: "child_collection_id_0",
+      },
+      {
+        collectionID: "child_collection_id_1",
+        name: "Test Child Collection #1",
+        auth: {
+          authType: "api-key",
+          addTo: "header",
+          key: "API_KEY",
+          authActive: true,
+          value: "FAKE_API_KEY",
+        },
+        headers: [
+          {
+            key: "X-Test-Another-Header",
+            value: "TESTING_CHILD_COLLECTION_HEADER_INHERITENCE",
+            active: true,
+          },
+        ],
+        order: "a2",
+        providerID: "TEAMS_WORKSPACE_PROVIDER",
+        workspaceID: "workspace_id_0",
+        parentCollectionID: "root_collection_id_0",
+      },
+      {
+        collectionID: "child_collection_id_1_0",
+        name: "Test Nested Child Collection #1",
+        auth: {
+          authType: "inherit",
+          authActive: true,
+        },
+        headers: [],
+        order: "a2.1",
+        providerID: "TEAMS_WORKSPACE_PROVIDER",
+        workspaceID: "workspace_id_0",
+        parentCollectionID: "child_collection_id_1",
+      },
+    ])
+
+    const nestedChildCollection =
+      await teamsWorkspaceProviderService.getCollectionHandle(
+        sampleWorkspace,
+        "child_collection_id_0_0"
+      )
+
+    const anotherNestedChildCollection =
+      await teamsWorkspaceProviderService.getCollectionHandle(
+        sampleWorkspace,
+        "child_collection_id_1_0"
+      )
+
+    if (E.isLeft(nestedChildCollection)) {
+      throw new Error("FAILED_TO_GET_NESTED_CHILD_COLLECTION")
+    }
+
+    if (E.isLeft(anotherNestedChildCollection)) {
+      throw new Error("FAILED_TO_GET_ANOTHER_NESTED_CHILD_COLLECTION")
+    }
+
+    const authHeadersViewFromRootCollection =
+      await teamsWorkspaceProviderService.getRESTCollectionLevelAuthHeadersView(
+        nestedChildCollection.right
+      )
+
+    if (E.isLeft(authHeadersViewFromRootCollection)) {
+      throw new Error("FAILED_TO_GET_AUTH_HEADERS")
+    }
+
+    expect(authHeadersViewFromRootCollection.right.get().value)
+      .toMatchInlineSnapshot(`
+        {
+          "data": {
+            "auth": {
+              "inheritedAuth": {
+                "authActive": true,
+                "authType": "basic",
+                "password": "test_password",
+                "username": "test_username",
+              },
+              "parentID": "root_collection_id_0",
+              "parentName": "Test Collection #0",
+            },
+            "headers": [
+              {
+                "inheritedHeader": {
+                  "active": true,
+                  "key": "X-Test-Header",
+                  "value": "TESTING_ROOT_COLLECTION_HEADER_INHERITENCE",
+                },
+                "parentID": "root_collection_id_0",
+                "parentName": "Test Collection #0",
+              },
+            ],
+          },
+          "type": "ok",
+        }
+      `)
+
+    const authHeadersViewFromChildCollection =
+      await teamsWorkspaceProviderService.getRESTCollectionLevelAuthHeadersView(
+        anotherNestedChildCollection.right
+      )
+
+    if (E.isLeft(authHeadersViewFromChildCollection)) {
+      throw new Error("FAILED_TO_GET_AUTH_HEADERS")
+    }
+
+    expect(authHeadersViewFromChildCollection.right.get().value)
+      .toMatchInlineSnapshot(`
+        {
+          "data": {
+            "auth": {
+              "inheritedAuth": {
+                "addTo": "header",
+                "authActive": true,
+                "authType": "api-key",
+                "key": "API_KEY",
+                "value": "FAKE_API_KEY",
+              },
+              "parentID": "child_collection_id_1",
+              "parentName": "Test Child Collection #1",
+            },
+            "headers": [
+              {
+                "inheritedHeader": {
+                  "active": true,
+                  "key": "X-Test-Another-Header",
+                  "value": "TESTING_CHILD_COLLECTION_HEADER_INHERITENCE",
+                },
+                "parentID": "child_collection_id_1",
+                "parentName": "Test Child Collection #1",
+              },
+              {
+                "inheritedHeader": {
+                  "active": true,
+                  "key": "X-Test-Header",
+                  "value": "TESTING_ROOT_COLLECTION_HEADER_INHERITENCE",
+                },
+                "parentID": "root_collection_id_0",
+                "parentName": "Test Collection #0",
+              },
+            ],
+          },
+          "type": "ok",
+        }
+      `)
+  })
+
+  test("export rest collections", async () => {
+    mockFetchAllTeams()
+
+    const container = new TestContainer()
+    const teamsWorkspaceProviderService = container.bind(
+      TeamsWorkspaceProviderService
+    )
+
+    await teamsWorkspaceProviderService.init()
+
+    const sampleWorkspace = await getSampleWorkspaceForTesting(
+      "workspace_id_0",
+      teamsWorkspaceProviderService
+    )
+
+    /**
+     * - root_collection_0
+     *    - child_collection_0_0
+     *      - nested_child_collection_0_0_0
+     *      - nested_child_collection_1_0_1
+     *      - nested_request_0_0_0
+     *      - nested_request_0_0_1
+     *    - child_collection_0_1
+     *    - child_collection_0_2
+     *    - request_0_0
+     *    - request_0_1
+     * - root_collection_1
+     *    - child_collection_1_0
+     *      - nested_child_collection_1_0_0
+     *        - nested_nested_request_1_0_0_0
+     *        - nested_nested_request_1_0_0_1
+     *      - nested_child_collection_1_0_1
+     *      - nested_request_1_0_0
+     *    - child_collection_1_1
+     *      - nested_request_1_1_0
+     *    - child_collection_1_2
+     *    - request_1_0
+     *    - request_1_1
+     *    - request_1_2
+     */
+
+    teamsWorkspaceProviderService._setCollections([
+      {
+        collectionID: "root_collection_0",
+        name: "Root Collection 0",
+        auth: {
+          authType: "inherit",
+          authActive: true,
+        },
+        headers: [],
+        order: "a0",
+        providerID: "TEAMS_WORKSPACE_PROVIDER",
+        workspaceID: "workspace_id_0",
+      },
+      {
+        collectionID: "child_collection_0_0",
+        name: "Child Collection 0 0",
+        auth: {
+          authType: "inherit",
+          authActive: true,
+        },
+        headers: [],
+        order: "a0",
+        providerID: "TEAMS_WORKSPACE_PROVIDER",
+        workspaceID: "workspace_id_0",
+        parentCollectionID: "root_collection_0",
+      },
+      {
+        collectionID: "nested_child_collection_0_0_0",
+        name: "Nested Child Collection 0 0 0",
+        auth: {
+          authType: "inherit",
+          authActive: true,
+        },
+        headers: [],
+        order: "a0",
+        providerID: "TEAMS_WORKSPACE_PROVIDER",
+        workspaceID: "workspace_id_0",
+        parentCollectionID: "child_collection_0_0",
+      },
+      {
+        collectionID: "nested_child_collection_1_0_1",
+        name: "Nested Child Collection 1 0 1",
+        auth: {
+          authType: "inherit",
+          authActive: true,
+        },
+        headers: [],
+        order: "a1",
+        providerID: "TEAMS_WORKSPACE_PROVIDER",
+        workspaceID: "workspace_id_0",
+        parentCollectionID: "child_collection_0_0",
+      },
+      {
+        collectionID: "child_collection_0_1",
+        name: "Child Collection 0 1",
+        auth: {
+          authType: "inherit",
+          authActive: true,
+        },
+        headers: [],
+        order: "a1",
+        providerID: "TEAMS_WORKSPACE_PROVIDER",
+        workspaceID: "workspace_id_0",
+        parentCollectionID: "root_collection_0",
+      },
+      {
+        collectionID: "child_collection_0_2",
+        name: "Child Collection 0 2",
+        auth: {
+          authType: "inherit",
+          authActive: true,
+        },
+        headers: [],
+        order: "a2",
+        providerID: "TEAMS_WORKSPACE_PROVIDER",
+        workspaceID: "workspace_id_0",
+        parentCollectionID: "root_collection_0",
+      },
+      {
+        collectionID: "root_collection_1",
+        name: "Root Collection 1",
+        auth: {
+          authType: "inherit",
+          authActive: true,
+        },
+        headers: [],
+        order: "a1",
+        providerID: "TEAMS_WORKSPACE_PROVIDER",
+        workspaceID: "workspace_id_0",
+      },
+      {
+        collectionID: "child_collection_1_0",
+        name: "Child Collection 1 0",
+        auth: {
+          authType: "inherit",
+          authActive: true,
+        },
+        headers: [],
+        order: "a0",
+        providerID: "TEAMS_WORKSPACE_PROVIDER",
+        workspaceID: "workspace_id_0",
+        parentCollectionID: "root_collection_1",
+      },
+      {
+        collectionID: "nested_child_collection_1_0_0",
+        name: "Nested Child Collection 1 0 0",
+        auth: {
+          authType: "inherit",
+          authActive: true,
+        },
+        headers: [],
+        order: "a0",
+        providerID: "TEAMS_WORKSPACE_PROVIDER",
+        workspaceID: "workspace_id_0",
+        parentCollectionID: "child_collection_1_0",
+      },
+      {
+        collectionID: "nested_child_collection_1_0_1",
+        name: "Nested Child Collection 1 0 1",
+        auth: {
+          authType: "inherit",
+          authActive: true,
+        },
+        headers: [],
+        order: "a1",
+        providerID: "TEAMS_WORKSPACE_PROVIDER",
+        workspaceID: "workspace_id_0",
+        parentCollectionID: "child_collection_1_0",
+      },
+      {
+        collectionID: "child_collection_1_1",
+        name: "Child Collection 1 1",
+        auth: {
+          authType: "inherit",
+          authActive: true,
+        },
+        headers: [],
+        order: "a1",
+        providerID: "TEAMS_WORKSPACE_PROVIDER",
+        workspaceID: "workspace_id_0",
+        parentCollectionID: "root_collection_1",
+      },
+      {
+        collectionID: "child_collection_1_2",
+        name: "Child Collection 1 2",
+        auth: {
+          authType: "inherit",
+          authActive: true,
+        },
+        headers: [],
+        order: "a2",
+        providerID: "TEAMS_WORKSPACE_PROVIDER",
+        workspaceID: "workspace_id_0",
+        parentCollectionID: "root_collection_1",
+      },
+    ])
+
+    const mockedInitializedDownloadFile = vi
+      .mocked(initializeDownloadFile)
+      .mockResolvedValue(E.right("DOWNLOAD_STARTED"))
+
+    const exportedJSON =
+      await teamsWorkspaceProviderService.exportRESTCollections(sampleWorkspace)
+
+    expect(JSON.parse(mockedInitializedDownloadFile.mock.calls[0][0]))
+      .toMatchInlineSnapshot(`
+      [
+        {
+          "auth": {
+            "authActive": true,
+            "authType": "inherit",
+          },
+          "folders": [
+            {
+              "auth": {
+                "authActive": true,
+                "authType": "inherit",
+              },
+              "folders": [
+                {
+                  "auth": {
+                    "authActive": true,
+                    "authType": "inherit",
+                  },
+                  "folders": [],
+                  "headers": [],
+                  "id": "nested_child_collection_0_0_0",
+                  "name": "Nested Child Collection 0 0 0",
+                  "order": "a0",
+                  "parentCollectionID": "child_collection_0_0",
+                  "requests": [],
+                  "v": 2,
+                },
+              ],
+              "headers": [],
+              "id": "child_collection_0_0",
+              "name": "Child Collection 0 0",
+              "order": "a0",
+              "parentCollectionID": "root_collection_0",
+              "requests": [],
+              "v": 2,
+            },
+            {
+              "auth": {
+                "authActive": true,
+                "authType": "inherit",
+              },
+              "folders": [],
+              "headers": [],
+              "id": "child_collection_0_1",
+              "name": "Child Collection 0 1",
+              "order": "a1",
+              "parentCollectionID": "root_collection_0",
+              "requests": [],
+              "v": 2,
+            },
+            {
+              "auth": {
+                "authActive": true,
+                "authType": "inherit",
+              },
+              "folders": [],
+              "headers": [],
+              "id": "child_collection_0_2",
+              "name": "Child Collection 0 2",
+              "order": "a2",
+              "parentCollectionID": "root_collection_0",
+              "requests": [],
+              "v": 2,
+            },
+          ],
+          "headers": [],
+          "id": "root_collection_0",
+          "name": "Root Collection 0",
+          "order": "a0",
+          "requests": [],
+          "v": 2,
+        },
+        {
+          "auth": {
+            "authActive": true,
+            "authType": "inherit",
+          },
+          "folders": [
+            {
+              "auth": {
+                "authActive": true,
+                "authType": "inherit",
+              },
+              "folders": [
+                {
+                  "auth": {
+                    "authActive": true,
+                    "authType": "inherit",
+                  },
+                  "folders": [],
+                  "headers": [],
+                  "id": "nested_child_collection_1_0_0",
+                  "name": "Nested Child Collection 1 0 0",
+                  "order": "a0",
+                  "parentCollectionID": "child_collection_1_0",
+                  "requests": [],
+                  "v": 2,
+                },
+                {
+                  "auth": {
+                    "authActive": true,
+                    "authType": "inherit",
+                  },
+                  "folders": [],
+                  "headers": [],
+                  "id": "nested_child_collection_1_0_1",
+                  "name": "Nested Child Collection 1 0 1",
+                  "order": "a1",
+                  "parentCollectionID": "child_collection_1_0",
+                  "requests": [],
+                  "v": 2,
+                },
+              ],
+              "headers": [],
+              "id": "child_collection_1_0",
+              "name": "Child Collection 1 0",
+              "order": "a0",
+              "parentCollectionID": "root_collection_1",
+              "requests": [],
+              "v": 2,
+            },
+            {
+              "auth": {
+                "authActive": true,
+                "authType": "inherit",
+              },
+              "folders": [],
+              "headers": [],
+              "id": "child_collection_1_1",
+              "name": "Child Collection 1 1",
+              "order": "a1",
+              "parentCollectionID": "root_collection_1",
+              "requests": [],
+              "v": 2,
+            },
+            {
+              "auth": {
+                "authActive": true,
+                "authType": "inherit",
+              },
+              "folders": [],
+              "headers": [],
+              "id": "child_collection_1_2",
+              "name": "Child Collection 1 2",
+              "order": "a2",
+              "parentCollectionID": "root_collection_1",
+              "requests": [],
+              "v": 2,
+            },
+          ],
+          "headers": [],
+          "id": "root_collection_1",
+          "name": "Root Collection 1",
+          "order": "a1",
+          "requests": [],
+          "v": 2,
+        },
+      ]
+    `)
+  })
+
+  describe("move rest collections", () => {
+    // todo: abstract the vars like this for all the tests
+    let sampleWorkspace: Handle<Workspace>
+    let teamsWorkspaceProviderService: TeamsWorkspaceProviderService
+
+    beforeAll(async () => {
+      mockFetchAllTeams()
+      mockMoveTeamCollection()
+
+      const container = new TestContainer()
+      teamsWorkspaceProviderService = container.bind(
+        TeamsWorkspaceProviderService
+      )
+
+      await teamsWorkspaceProviderService.init()
+
+      sampleWorkspace = await getSampleWorkspaceForTesting(
+        "workspace_id_0",
+        teamsWorkspaceProviderService
+      )
+
+      seedCollectionsForMovingReorderingExporting(teamsWorkspaceProviderService)
+    })
+
+    test.only("root collection to root collection", async () => {
+      const sourceCollectionHandle =
+        await teamsWorkspaceProviderService.getCollectionHandle(
+          sampleWorkspace,
+          "root_collection_1"
+        )
+
+      if (E.isLeft(sourceCollectionHandle)) {
+        throw new Error("FAILED_TO_GET_SOURCE_COLLECTION")
+      }
+
+      teamsWorkspaceProviderService.moveRESTCollection(
+        sourceCollectionHandle.right,
+        "root_collection_0"
+      )
+
+      // accessing for tests, otherwise it's a private property
+      const childrenAfterMoving =
+        teamsWorkspaceProviderService.collections.value.filter(
+          (collection) => collection.parentCollectionID === "root_collection_0"
+        )
+
+      expect(childrenAfterMoving).toMatchInlineSnapshot()
+    })
+  })
 })
 
 const getSampleWorkspaceForTesting = async (
@@ -875,14 +1542,19 @@ const getSampleWorkspaceForTesting = async (
 
 const createSampleRootCollectionForTesting = async (
   workspace: Handle<Workspace>,
-  teamsProviderClass: TeamsWorkspaceProviderService
+  teamsProviderClass: TeamsWorkspaceProviderService,
+  // TODO: make this Partial<HoppCollection>
+  fields: {
+    name: string
+    auth?: HoppRESTAuth
+  } = { name: "Test Collection #0" }
 ) => {
   mockCreateNewRootCollection()
 
   const collection = await teamsProviderClass.createRESTRootCollection(
     workspace,
     {
-      name: "Test Collection #0",
+      ...fields,
     }
   )
 
@@ -896,7 +1568,11 @@ const createSampleRootCollectionForTesting = async (
 
 const createSampleChildCollectionForTesting = async (
   parentCollectionHandle: Handle<WorkspaceCollection>,
-  teamsProviderClass: TeamsWorkspaceProviderService
+  teamsProviderClass: TeamsWorkspaceProviderService,
+  fields: {
+    name: string
+    auth?: HoppRESTAuth
+  } = { name: "Test Child Collection #0" }
 ) => {
   mockCreateNewRootCollection()
   mockCreateChildCollection()
@@ -904,7 +1580,7 @@ const createSampleChildCollectionForTesting = async (
   const childCollection = await teamsProviderClass.createRESTChildCollection(
     parentCollectionHandle,
     {
-      name: "Test Child Collection #0",
+      ...fields,
     }
   )
 
@@ -1008,7 +1684,16 @@ const mockDeleteRestRequest = () => {
   })
 }
 
-const mockGetCollectionChildren = () => {
+const mockGetCollectionChildren = (
+  mockCollections?: Record<
+    string,
+    {
+      id: string
+      title: string
+      data: string
+    }[]
+  >
+) => {
   return vi
     .mocked(getCollectionChildren)
     .mockImplementation(async (collectionID: string) => {
@@ -1027,34 +1712,38 @@ const mockGetCollectionChildren = () => {
         },
       ]
 
+      const defaultChildren = [
+        {
+          id: "child_collection_id_0",
+          title: "Test Child Collection #0",
+          data: JSON.stringify({
+            auth,
+            headers,
+          }),
+        },
+        {
+          id: "child_collection_id_1",
+          title: "Test Child Collection #1",
+          data: JSON.stringify({
+            auth,
+            headers,
+          }),
+        },
+        {
+          id: "child_collection_id_2",
+          title: "Test Child Collection #2",
+          data: JSON.stringify({
+            auth,
+            headers,
+          }),
+        },
+      ]
+
+      const mockValue = mockCollections ? mockCollections[collectionID] : null
+
       return E.right(<GetCollectionChildrenQuery>{
         collection: {
-          children: [
-            {
-              id: "child_collection_id_0",
-              title: "Test Child Collection #0",
-              data: JSON.stringify({
-                auth,
-                headers,
-              }),
-            },
-            {
-              id: "child_collection_id_1",
-              title: "Test Child Collection #1",
-              data: JSON.stringify({
-                auth,
-                headers,
-              }),
-            },
-            {
-              id: "child_collection_id_2",
-              title: "Test Child Collection #2",
-              data: JSON.stringify({
-                auth,
-                headers,
-              }),
-            },
-          ],
+          children: mockValue || defaultChildren,
         },
       })
     })
@@ -1142,4 +1831,206 @@ const mockGetRootCollections = () => {
       ],
     })
   })
+}
+
+const mockMoveTeamCollection = () => {
+  return vi.mocked(moveRESTTeamCollection).mockImplementation(() => {
+    return TE.right(<MoveRestTeamCollectionMutation>{
+      moveCollection: {
+        // not using this at this point
+        // todo, make sure to pass args to mockMoveTeamCollection and use them to populate this value
+        id: "whatever",
+      },
+    })
+  })
+}
+
+const seedCollectionsForMovingReorderingExporting = (
+  teamsWorkspaceProviderService: TeamsWorkspaceProviderService
+) => {
+  /**
+   * - root_collection_0
+   *    - child_collection_0_0
+   *      - nested_child_collection_0_0_0
+   *      - nested_child_collection_1_0_1
+   *      - nested_request_0_0_0
+   *      - nested_request_0_0_1
+   *    - child_collection_0_1
+   *    - child_collection_0_2
+   *    - request_0_0
+   *    - request_0_1
+   * - root_collection_1
+   *    - child_collection_1_0
+   *      - nested_child_collection_1_0_0
+   *        - nested_nested_request_1_0_0_0
+   *        - nested_nested_request_1_0_0_1
+   *      - nested_child_collection_1_0_1
+   *      - nested_request_1_0_0
+   *    - child_collection_1_1
+   *      - nested_request_1_1_0
+   *    - child_collection_1_2
+   *    - request_1_0
+   *    - request_1_1
+   *    - request_1_2
+   */
+
+  // test cases
+  // 1. move root collection 1 to root collection 0
+
+  teamsWorkspaceProviderService._setCollections([
+    {
+      collectionID: "root_collection_0",
+      name: "Root Collection 0",
+      auth: {
+        authType: "inherit",
+        authActive: true,
+      },
+      headers: [],
+      order: "a0",
+      providerID: "TEAMS_WORKSPACE_PROVIDER",
+      workspaceID: "workspace_id_0",
+    },
+    {
+      collectionID: "child_collection_0_0",
+      name: "Child Collection 0 0",
+      auth: {
+        authType: "inherit",
+        authActive: true,
+      },
+      headers: [],
+      order: "a0",
+      providerID: "TEAMS_WORKSPACE_PROVIDER",
+      workspaceID: "workspace_id_0",
+      parentCollectionID: "root_collection_0",
+    },
+    {
+      collectionID: "nested_child_collection_0_0_0",
+      name: "Nested Child Collection 0 0 0",
+      auth: {
+        authType: "inherit",
+        authActive: true,
+      },
+      headers: [],
+      order: "a0",
+      providerID: "TEAMS_WORKSPACE_PROVIDER",
+      workspaceID: "workspace_id_0",
+      parentCollectionID: "child_collection_0_0",
+    },
+    {
+      collectionID: "nested_child_collection_1_0_1",
+      name: "Nested Child Collection 1 0 1",
+      auth: {
+        authType: "inherit",
+        authActive: true,
+      },
+      headers: [],
+      order: "a1",
+      providerID: "TEAMS_WORKSPACE_PROVIDER",
+      workspaceID: "workspace_id_0",
+      parentCollectionID: "child_collection_0_0",
+    },
+    {
+      collectionID: "child_collection_0_1",
+      name: "Child Collection 0 1",
+      auth: {
+        authType: "inherit",
+        authActive: true,
+      },
+      headers: [],
+      order: "a1",
+      providerID: "TEAMS_WORKSPACE_PROVIDER",
+      workspaceID: "workspace_id_0",
+      parentCollectionID: "root_collection_0",
+    },
+    {
+      collectionID: "child_collection_0_2",
+      name: "Child Collection 0 2",
+      auth: {
+        authType: "inherit",
+        authActive: true,
+      },
+      headers: [],
+      order: "a2",
+      providerID: "TEAMS_WORKSPACE_PROVIDER",
+      workspaceID: "workspace_id_0",
+      parentCollectionID: "root_collection_0",
+    },
+    {
+      collectionID: "root_collection_1",
+      name: "Root Collection 1",
+      auth: {
+        authType: "inherit",
+        authActive: true,
+      },
+      headers: [],
+      order: "a1",
+      providerID: "TEAMS_WORKSPACE_PROVIDER",
+      workspaceID: "workspace_id_0",
+    },
+    {
+      collectionID: "child_collection_1_0",
+      name: "Child Collection 1 0",
+      auth: {
+        authType: "inherit",
+        authActive: true,
+      },
+      headers: [],
+      order: "a0",
+      providerID: "TEAMS_WORKSPACE_PROVIDER",
+      workspaceID: "workspace_id_0",
+      parentCollectionID: "root_collection_1",
+    },
+    {
+      collectionID: "nested_child_collection_1_0_0",
+      name: "Nested Child Collection 1 0 0",
+      auth: {
+        authType: "inherit",
+        authActive: true,
+      },
+      headers: [],
+      order: "a0",
+      providerID: "TEAMS_WORKSPACE_PROVIDER",
+      workspaceID: "workspace_id_0",
+      parentCollectionID: "child_collection_1_0",
+    },
+    {
+      collectionID: "nested_child_collection_1_0_1",
+      name: "Nested Child Collection 1 0 1",
+      auth: {
+        authType: "inherit",
+        authActive: true,
+      },
+      headers: [],
+      order: "a1",
+      providerID: "TEAMS_WORKSPACE_PROVIDER",
+      workspaceID: "workspace_id_0",
+      parentCollectionID: "child_collection_1_0",
+    },
+    {
+      collectionID: "child_collection_1_1",
+      name: "Child Collection 1 1",
+      auth: {
+        authType: "inherit",
+        authActive: true,
+      },
+      headers: [],
+      order: "a1",
+      providerID: "TEAMS_WORKSPACE_PROVIDER",
+      workspaceID: "workspace_id_0",
+      parentCollectionID: "root_collection_1",
+    },
+    {
+      collectionID: "child_collection_1_2",
+      name: "Child Collection 1 2",
+      auth: {
+        authType: "inherit",
+        authActive: true,
+      },
+      headers: [],
+      order: "a2",
+      providerID: "TEAMS_WORKSPACE_PROVIDER",
+      workspaceID: "workspace_id_0",
+      parentCollectionID: "root_collection_1",
+    },
+  ])
 }

@@ -51,8 +51,9 @@ export class BannerService extends Service {
     this.bannerID = this.bannerID + 1
     this.bannerList.value.push({ id: this.bannerID, content: banner })
 
-    this.currentBannerID.value =
-      getBannerWithHighestScore(this.bannerList.value)?.id ?? null
+    this.currentBannerID.value = getBannerWithHighestScore(
+      this.bannerList.value
+    )!.id
 
     return this.bannerID
   }
@@ -61,7 +62,8 @@ export class BannerService extends Service {
     this.bannerList.value = this.bannerList.value.filter(
       (banner) => id !== banner.id
     )
-    this.currentBannerID.value =
-      getBannerWithHighestScore(this.bannerList.value)?.id ?? null
+    this.currentBannerID.value = getBannerWithHighestScore(
+      this.bannerList.value
+    )!.id
   }
 }

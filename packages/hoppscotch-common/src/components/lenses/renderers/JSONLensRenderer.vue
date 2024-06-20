@@ -119,10 +119,11 @@
         />
       </div>
     </div>
-    <div class="h-full">
+    <div class="h-full relative overflow-auto">
       <div
         ref="jsonResponse"
         :class="toggleFilter ? 'responseToggleOn' : 'responseToggleOff'"
+        class="absolute inset-0 h-full"
       ></div>
     </div>
     <div

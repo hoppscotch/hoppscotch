@@ -25,7 +25,7 @@ export const REST_COLLECTIONS_MOCK: HoppCollection[] = [
     folders: [],
     requests: [
       {
-        v: "4",
+        v: "5",
         endpoint: "https://echo.hoppscotch.io",
         name: "Echo test",
         params: [],
@@ -50,7 +50,7 @@ export const GQL_COLLECTIONS_MOCK: HoppCollection[] = [
     folders: [],
     requests: [
       {
-        v: 4,
+        v: 5,
         name: "Echo test",
         url: "https://echo.hoppscotch.io/graphql",
         headers: [],
@@ -138,7 +138,7 @@ export const REST_HISTORY_MOCK: RESTHistoryEntry[] = [
       preRequestScript: "",
       testScript: "",
       requestVariables: [],
-      v: "4",
+      v: "5",
     },
     responseMeta: { duration: 807, statusCode: 200 },
     star: false,
@@ -150,7 +150,7 @@ export const GQL_HISTORY_MOCK: GQLHistoryEntry[] = [
   {
     v: 1,
     request: {
-      v: 4,
+      v: 5,
       name: "Untitled",
       url: "https://echo.hoppscotch.io/graphql",
       query: "query Request { url }",
@@ -171,7 +171,7 @@ export const GQL_TAB_STATE_MOCK: PersistableTabState<HoppGQLDocument> = {
       tabID: "5edbe8d4-65c9-4381-9354-5f1bf05d8ccc",
       doc: {
         request: {
-          v: 4,
+          v: 5,
           name: "Untitled",
           url: "https://echo.hoppscotch.io/graphql",
           headers: [],
@@ -194,7 +194,7 @@ export const REST_TAB_STATE_MOCK: PersistableTabState<HoppRESTDocument> = {
       tabID: "e6e8d800-caa8-44a2-a6a6-b4765a3167aa",
       doc: {
         request: {
-          v: "4",
+          v: "5",
           endpoint: "https://echo.hoppscotch.io",
           name: "Echo test",
           params: [],

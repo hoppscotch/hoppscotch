@@ -168,6 +168,7 @@ import { useRoute } from 'vue-router';
 import { useI18n } from '~/composables/i18n';
 import { useToast } from '~/composables/toast';
 import { useClientHandler } from '~/composables/useClientHandler';
+import { getCompiledErrorMessage } from '~/helpers/errors';
 import IconChevronDown from '~icons/lucide/chevron-down';
 import IconCircle from '~icons/lucide/circle';
 import IconCircleDot from '~icons/lucide/circle-dot';
@@ -353,7 +354,13 @@ const removeExistingTeamMember = async (userID: string, index: number) => {
     team.value.id
   )();
   if (removeTeamMemberResult.error) {
-    toast.error(t('state.remove_member_failure'));
+    const compiledErrorMessage = getCompiledErrorMessage(
+      removeTeamMemberResult.error.message
+    );
+
+    compiledErrorMessage
+      ? toast.error(compiledErrorMessage)
+      : toast.error(t('state.remove_member_failure'));
   } else {
     team.value.teamMembers = team.value.teamMembers?.filter(
       (member: any) => member.user.uid !== userID

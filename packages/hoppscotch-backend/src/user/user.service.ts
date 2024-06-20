@@ -62,16 +62,16 @@ export class UserService {
    * @returns Option of found User
    */
   async findUserByEmail(email: string): Promise<O.None | O.Some<AuthUser>> {
-    try {
-      const user = await this.prisma.user.findUniqueOrThrow({
-        where: {
-          email: email,
+    const user = await this.prisma.user.findFirst({
+      where: {
+        email: {
+          equals: email,
+          mode: 'insensitive',
         },
-      });
-      return O.some(user);
-    } catch (error) {
-      return O.none;
-    }
+      },
+    });
+    if (!user) return O.none;
+    return O.some(user);
   }
 
   /**

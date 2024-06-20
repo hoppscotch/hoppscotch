@@ -17,15 +17,17 @@
     "dismiss": "Boşver",
     "dont_save": "Don't save",
     "download_file": "Dosyayı Indir",
-    "drag_to_reorder": "Drag to reorder",
+    "drag_to_reorder": "Yeniden sıralamak için sürükleyin",
     "duplicate": "Klonla",
     "edit": "Düzenle",
-    "filter": "Filter",
+    "filter": "Filtre",
     "go_back": "Geri git",
-    "go_forward": "Go forward",
+    "go_forward": "İleri git",
     "group_by": "Group by",
+    "hide_secret": "Hide secret",
     "label": "Etiket",
     "learn_more": "Daha fazla bilgi edin",
+    "download_here": "Download here",
     "less": "Daha az",
     "more": "Daha fazla",
     "new": "Yeni",
@@ -42,8 +44,9 @@
     "scroll_to_top": "Scroll to top",
     "search": "Arama",
     "send": "Gönder",
-    "share": "Share",
+    "share": "Paylaş",
     "start": "Başla",
+    "show_secret": "Show secret",
     "starting": "Starting",
     "stop": "Dur",
     "to_close": "kapatmak için",
@@ -101,16 +104,18 @@
   "auth": {
     "account_exists": "Farklı kimlik bilgilerine sahip hesap var - Her iki hesabı birbirine bağlamak için giriş yapın",
     "all_sign_in_options": "Tüm oturum açma seçenekleri",
+    "continue_with_auth_provider": "{provider} ile devam et",
     "continue_with_email": "E-posta ile devam et",
-    "continue_with_github": "GitHub hesabı ile devam et",
-    "continue_with_google": "Google hesabı ile devam et",
-    "continue_with_microsoft": "Microsoft hesabı ile devam et",
+    "continue_with_github": "GitHub ile devam et",
+    "continue_with_github_enterprise": "GitHub Enterprise ile devam et",
+    "continue_with_google": "Google ile devam et",
+    "continue_with_microsoft": "Microsoft ile devam et",
     "email": "E-posta",
     "logged_out": "Çıkış yapıldı",
-    "login": "Giriş yap",
+    "login": "Giriş",
     "login_success": "Başarıyla giriş yapıldı",
     "login_to_hoppscotch": "Hoppscotch'a giriş yapın",
-    "logout": "Çıkış yap",
+    "logout": "Çıkış",
     "re_enter_email": "E-mail adresinizi yeniden girin",
     "send_magic_link": "Sihirli bir bağlantı gönder",
     "sync": "Senkronizasyon",
@@ -135,20 +140,42 @@
       "redirect_no_token_endpoint": "No Token Endpoint Defined",
       "something_went_wrong_on_oauth_redirect": "Something went wrong during OAuth Redirect",
       "something_went_wrong_on_token_generation": "Something went wrong on token generation",
-      "token_generation_oidc_discovery_failed": "Failure on token generation: OpenID Connect Discovery Failed"
+      "token_generation_oidc_discovery_failed": "Failure on token generation: OpenID Connect Discovery Failed",
+      "grant_type": "Grant Type",
+      "grant_type_auth_code": "Authorization Code",
+      "token_fetched_successfully": "Token fetched successfully",
+      "token_fetch_failed": "Failed to fetch token",
+      "validation_failed": "Validation Failed, please check the form fields",
+      "label_authorization_endpoint": "Authorization Endpoint",
+      "label_client_id": "Client ID",
+      "label_client_secret": "Client Secret",
+      "label_code_challenge": "Code Challenge",
+      "label_code_challenge_method": "Code Challenge Method",
+      "label_code_verifier": "Code Verifier",
+      "label_scopes": "Scopes",
+      "label_token_endpoint": "Token Endpoint",
+      "label_use_pkce": "Use PKCE",
+      "label_implicit": "Implicit",
+      "label_password": "Password",
+      "label_username": "Username",
+      "label_auth_code": "Authorization Code",
+      "label_client_credentials": "Client Credentials"
     },
     "pass_key_by": "Şunla anahtar ekleyin",
+    "pass_by_query_params_label": "Query Parameters",
+    "pass_by_headers_label": "Headers",
     "password": "Parola",
     "save_to_inherit": "Please save this request in any collection to inherit the authorization",
     "token": "Jeton",
-    "type": "Yetki türü",
+    "type": "Yetki Türü",
     "username": "Kullanıcı adı"
   },
   "collection": {
     "created": "Koleksiyon oluşturuldu",
     "different_parent": "Cannot reorder collection with different parent",
     "edit": "Koleksiyonu düzenle",
-    "import_or_create": "Import or create a collection",
+    "import_or_create": "Koleksiyon oluşturun veya içe aktarın",
+    "import_collection":"Koleksiyonu İçe Aktar",
     "invalid_name": "Lütfen koleksiyon için geçerli bir ad girin",
     "invalid_root_move": "Collection already in the root",
     "moved": "Başarıyla taşındı",
@@ -158,15 +185,13 @@
     "new": "Yeni koleksiyon",
     "order_changed": "Collection Order Updated",
     "properties": "Collection Properties",
-    "properties_updated": "Collection Properties Updated",
+    "properties_updated": "Koleksiyon Özellikleri Güncellendi",
     "renamed": "Koleksiyon yeniden adlandırıldı",
     "request_in_use": "Kullanımda istek",
     "save_as": "Farklı kaydet",
     "save_to_collection": "Save to Collection",
     "select": "Bir koleksiyon Seçin",
-    "select_location": "Konum seçin",
-    "select_team": "Bir takım seçin",
-    "team_collections": "Takım koleksiyonları"
+    "select_location": "Konum seçin"
   },
   "confirm": {
     "close_unsaved_tab": "Are you sure you want to close this tab?",
@@ -237,14 +262,15 @@
     "pending_invites": "Bu takım için bekleyen bir istek yok",
     "profile": "Bu profili görüntülemek için giriş yapın",
     "protocols": "Protokoller boş",
+    "request_variables": "This request does not have any request variables",
     "schema": "Bir GraphQL uç noktasına bağlanma",
+    "secret_environments": "Secrets are not synced to Hoppscotch",
     "shared_requests": "Shared requests are empty",
     "shared_requests_logout": "Login to view your shared requests or create a new one",
     "subscription": "Subscriptions are empty",
     "team_name": "Takım adı boş",
     "teams": "Takımlar boş",
-    "tests": "Bu istek için test yok",
-    "shortcodes": "Shortcodes are empty"
+    "tests": "Bu istek için test yok"
   },
   "environment": {
     "add_to_global": "Globale ekle",
@@ -260,24 +286,27 @@
     "import_or_create": "Import or create a environment",
     "invalid_name": "Lütfen ortam için geçerli bir ad girin",
     "list": "Environment variables",
-    "my_environments": "My Environments",
+    "my_environments": "Ortamlarım",
     "name": "Name",
     "nested_overflow": "İç içe ortam değişkenleri 10 düzeyle sınırlıdır",
     "new": "Yeni ortam",
-    "no_active_environment": "No active environment",
+    "no_active_environment": "Aktif ortam yok",
     "no_environment": "Ortam yok",
     "no_environment_description": "Hiçbir ortam seçilmedi. Aşağıdaki değişkenlerle ne yapacağınızı seçin.",
     "quick_peek": "Environment Quick Peek",
     "replace_with_variable": "Replace with variable",
     "scope": "Scope",
+    "secrets": "Secrets",
+    "secret_value": "Secret value",
     "select": "Ortam seçin",
     "set": "Set environment",
     "set_as_environment": "Set as environment",
     "team_environments": "Team Environments",
     "title": "Ortamlar",
     "updated": "Ortam güncellendi",
-    "value": "Value",
-    "variable": "Variable",
+    "value": "Değer",
+    "variable": "Değişken",
+    "variables": "Değişkenler",
     "variable_list": "Değişken listesi"
   },
   "error": {
@@ -289,6 +318,7 @@
     "danger_zone": "Danger zone",
     "delete_account": "Your account is currently an owner in these teams:",
     "delete_account_description": "You must either remove yourself, transfer ownership, or delete these teams before you can delete your account.",
+    "empty_profile_name": "Profile name cannot be empty",
     "empty_req_name": "Boş İstek Adı",
     "f12_details": "(Ayrıntılar için F12)",
     "gql_prettify_invalid_query": "Geçersiz bir sorgu güzelleştirilemedi, sorgu sözdizimi hatalarını çözüp tekrar deneyin",
@@ -296,7 +326,8 @@
     "incorrect_email": "Geçersiz e-posta",
     "invalid_link": "Geçersiz bağlantı",
     "invalid_link_description": "Tıkladığınız linkin süresi geçmiş veya geçersiz",
-    "json_parsing_failed": "Invalid JSON",
+    "invalid_embed_link": "The embed does not exist or is invalid.",
+    "json_parsing_failed": "Geçersiz JSON",
     "json_prettify_invalid_body": "Geçersiz bir gövde güzelleştirilemedi, JSON sözdizimi hatalarını çözüp tekrar deneyin",
     "network_error": "Görünene göre bir ağ hatası var. Lütfen tekrar deneyin.",
     "network_fail": "İstek gönderilemedi",
@@ -307,22 +338,26 @@
     "page_not_found": "This page could not be found",
     "please_install_extension": "Please install the extension and add origin to the extension.",
     "proxy_error": "Proxy error",
+    "same_profile_name": "Updated profile name is same as the current profile name",
     "script_fail": "Ön istek komut dosyası çalıştırılamadı",
     "something_went_wrong": "Bir şeyler yanlış gitti",
-    "test_script_fail": "Could not execute post-request script"
+    "test_script_fail": "Could not execute post-request script",
+    "reading_files": "Error while reading one or more files."
   },
   "export": {
     "as_json": "JSON olarak dışa aktar",
     "create_secret_gist": "Gizli Gist oluştur",
+    "create_secret_gist_tooltip_text": "Export as secret Gist",
     "failed": "Something went wrong while exporting",
-    "gist_created": "Gist oluşturuldu",
     "require_github": "Gizli Gist oluşturmak için GitHub ile giriş yapın",
+    "secret_gist_success": "Successfully exported as secret Gist",
+    "success": "Successfully exported",
     "title": "Dışarı Aktar"
   },
   "filter": {
-    "all": "All",
-    "none": "None",
-    "starred": "Starred"
+    "all": "Tümü",
+    "none": "Hiçbiri",
+    "starred": "Yıldızlı"
   },
   "folder": {
     "created": "Klasör oluşturuldu",
@@ -339,7 +374,8 @@
     "mutations": "Mutasyonlar",
     "schema": "Şema",
     "subscriptions": "Abonelikler",
-    "switch_connection": "Switch connection"
+    "switch_connection": "Switch connection",
+    "url_placeholder": "Enter a GraphQL endpoint URL"
   },
   "graphql_collections": {
     "title": "GraphQL Collections"
@@ -379,6 +415,8 @@
     "environments_from_gist": "Import From Gist",
     "environments_from_gist_description": "Import Hoppscotch Environments From Gist",
     "failed": "İçe aktarılamadı",
+    "file_size_limit_exceeded_warning_multiple_files": "Chosen files exceed the recommended limit of 10MB. Only the first {files} selected will be imported",
+    "file_size_limit_exceeded_warning_single_file": "The currently chosen file exceeds the recommended limit of 10MB. Please select another file.",
     "from_file": "Import from File",
     "from_gist": "Gist'ten içe aktar",
     "from_gist_description": "Gist ile içe aktar",
@@ -405,12 +443,15 @@
     "json_description": "Import collections from a Hoppscotch Collections JSON file",
     "postman_environment": "Postman Environment",
     "postman_environment_description": "Import Postman Environment from a JSON file",
+    "success": "Successfully imported",
     "title": "İçe aktar"
   },
   "inspections": {
     "description": "Inspect possible errors",
     "environment": {
       "add_environment": "Add to Environment",
+      "add_environment_value": "Add value",
+      "empty_value": "Environment value is empty for the variable '{variable}' ",
       "not_found": "Environment variable “{environment}” not found."
     },
     "header": {
@@ -546,6 +587,7 @@
     "raw_body": "Ham istek gövdesi",
     "rename": "Rename Request",
     "renamed": "Yeniden adlandırılmış istek",
+    "request_variables": "Request variables",
     "run": "Çalıştır",
     "save": "Kaydet",
     "save_as": "Farklı kaydet",
@@ -557,9 +599,9 @@
     "title": "İstek",
     "type": "İstek türü",
     "url": "URL",
+    "url_placeholder": "Enter a URL or paste a cURL command",
     "variables": "Değişkenler",
-    "view_my_links": "View my links",
-    "copy_link": "Bağlantıyı kopyala"
+    "view_my_links": "View my links"
   },
   "response": {
     "audio": "Audio",
@@ -611,7 +653,7 @@
     "profile_description": "Profil detaylarını güncelle",
     "profile_email": "E-posta adresi",
     "profile_name": "Profil ismi",
-    "proxy": "vekil",
+    "proxy": "Proxy",
     "proxy_url": "Proxy URL'si",
     "proxy_use_toggle": "İstek göndermek için proxy ara yazılımını kullanın",
     "read_the": "Oku",
@@ -704,8 +746,7 @@
       "send_request": "İstek gönder",
       "share_request": "Share Request",
       "show_code": "Generate code snippet",
-      "title": "İstek",
-      "copy_request_link": "İstek bağlantısını kopyala"
+      "title": "İstek"
     },
     "response": {
       "copy": "Copy response to clipboard",
@@ -725,6 +766,11 @@
     "collection": "Expand Collection Panel",
     "more": "Daha fazla göster",
     "sidebar": "Kenar çubuğunu göster"
+  },
+  "site_protection": {
+      "error_fetching_site_protection_status": "Something Went Wrong While Fetching Site Protection Status",
+      "login_to_continue": "Login to continue",
+      "login_to_continue_description": "You need to be logged in to access this Hoppscotch Enterprise Instance."
   },
   "socketio": {
     "communication": "İletişim",
@@ -762,6 +808,13 @@
     "miscellaneous": {
       "invite": "Invite your friends to Hoppscotch",
       "title": "Miscellaneous"
+    },
+    "phrases": {
+        "create_environment": "Create environment",
+        "create_workspace": "Create workspace",
+        "import_collections": "Import collections",
+        "share_request": "Share request",
+        "try": "Try"
     },
     "request": {
       "save_as_new": "Save as new request",
@@ -867,7 +920,6 @@
     "forum": "Sorular sorun ve cevaplar alın",
     "github": "Bizi Github'da takip edin",
     "shortcuts": "Uygulamaya daha hızlı göz atın",
-    "team": "Takımla iletişim kurun",
     "title": "Destek",
     "twitter": "Bizi Twitter'da takip edin"
   },
@@ -888,6 +940,7 @@
     "queries": "Sorgular",
     "query": "Sorgu",
     "schema": "Schema",
+    "share_tab_request": "Share tab request",
     "shared_requests": "Shared Requests",
     "socketio": "Socket.IO",
     "sse": "SSE",
@@ -917,7 +970,6 @@
     "invite_tooltip": "İnsanları bu çalışma alanına davet edin",
     "invited_to_team": "{owner} seni {team} takımına davet etti.",
     "join": "Davet kabul edildi",
-    "join_beta": "Takımlara erişmek için beta programına katılın.",
     "join_team": "{team}'e katıl",
     "joined_team": "{team} takımına katıldın",
     "joined_team_description": "Artık bu takımın bir üyesisin",
@@ -946,6 +998,7 @@
     "permissions": "İzinler",
     "same_target_destination": "Same target and destination",
     "saved": "Takım kaydedildi",
+    "search_title": "Team Requests",
     "select_a_team": "Takım seç",
     "success_invites": "Success invites",
     "title": "Başlık",
@@ -976,6 +1029,7 @@
   },
   "workspace": {
     "change": "Change workspace",
+    "other_workspaces": "My Workspaces",
     "personal": "My Workspace",
     "team": "Team Workspace",
     "title": "Workspaces"

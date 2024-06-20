@@ -4,19 +4,36 @@ This document outlines security procedures and general policies for the Hoppscot
 
 - [Security Policy](#security-policy)
   - [Reporting a security vulnerability](#reporting-a-security-vulnerability)
+  - [What is not a valid vulnerability](#what-is-not-a-valid-vulnerability)
   - [Incident response process](#incident-response-process)
 
 ## Reporting a security vulnerability
 
-Report security vulnerabilities by emailing the Hoppscotch Support team at support@hoppscotch.io.
+We use [Github Security Advisories](https://github.com/hoppscotch/hoppscotch/security/advisories) to manage vulnerability reports and collaboration.
+Someone from the Hoppscotch team shall report to you within 48 hours of the disclosure of the vulnerability in GHSA. If no response was received, please reach out to
+Hoppscotch Support at support@hoppscotch.io along with the GHSA advisory link.
 
-The primary security point of contact from Hoppscotch Support team will acknowledge your email within 48 hours, and will send a more detailed response within 48 hours indicating the next steps in handling your report. After the initial reply to your report, the security team will endeavor to keep you informed of the progress towards a fix and full announcement, and may ask for additional information or guidance.
+> NOTE: Since we have multiple open source components, Advisories may move into the relevant repo (for example, an XSS in a UI component might be part of [`@hoppscotch/ui`](https://github.com/hoppscotch/ui)).
+> If in doubt, open your report in `hoppscotch/hoppscotch` GHSA.
 
-**Do not create a GitHub issue ticket to report a security vulnerability.**
+**Do not create a GitHub issue ticket to report a security vulnerability!**
 
-The Hoppscotch team and community take all security vulnerability reports in Hoppscotch seriously. Thank you for improving the security of Hoppscotch. We appreciate your efforts and responsible disclosure and will make every effort to acknowledge your contributions.
+The Hoppscotch team takes all security vulnerability reports in Hoppscotch seriously. We appreciate your efforts and responsible disclosure and will make every effort to acknowledge your contributions.
 
-Report security bugs in third-party modules to the person or team maintaining the module.
+## What is not a valid vulnerability
+We receive many reports about different sections of the Hoppscotch platform. Hence, we have a fine line we have drawn defining what is considered valid vulnerability.
+Please refrain from opening an advisory if it describes the following:
+
+- A vulnerability in a dependency of Hoppscotch (unless you have practical attack with it on the Hoppscotch codebase)
+- Reports of vulnerabilities related to old runtimes (like NodeJS) or container images used by the codebase
+- Vulnerabilities present when using Hoppscotch in anything other than the defined minimum requirements that Hoppscotch supports.
+
+Hoppscotch Team ensures security support for:
+- Modern Browsers (Chrome/Firefox/Safari/Edge) with versions up to 1 year old.
+- Windows versions on or above Windows 10 on Intel and ARM.
+- macOS versions dating back up to 2 years on Intel and Apple Silicon.
+- Popular Linux distributions with up-to-date packages with preference to x86/64 CPUs.
+- Docker/OCI Runtimes (preference to Docker and Podman) dating back up to 1 year.
 
 ## Incident response process
 

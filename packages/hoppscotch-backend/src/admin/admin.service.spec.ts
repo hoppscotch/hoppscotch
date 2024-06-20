@@ -112,6 +112,7 @@ describe('AdminService', () => {
           NOT: {
             inviteeEmail: {
               in: [dbAdminUsers[0].email],
+              mode: 'insensitive',
             },
           },
         },
@@ -220,7 +221,10 @@ describe('AdminService', () => {
 
       expect(mockPrisma.invitedUsers.deleteMany).toHaveBeenCalledWith({
         where: {
-          inviteeEmail: { in: [invitedUsers[0].inviteeEmail] },
+          inviteeEmail: {
+            in: [invitedUsers[0].inviteeEmail],
+            mode: 'insensitive',
+          },
         },
       });
       expect(result).toEqualRight(true);

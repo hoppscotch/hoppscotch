@@ -36,16 +36,6 @@
       />
     </span>
   </div>
-  <div class="space-y-4 py-4">
-    <div class="flex items-center">
-      <HoppSmartToggle
-        :on="extensionEnabled"
-        @change="extensionEnabled = !extensionEnabled"
-      >
-        {{ t("settings.extensions_use_toggle") }}
-      </HoppSmartToggle>
-    </div>
-  </div>
 </template>
 
 <script setup lang="ts">
@@ -55,34 +45,12 @@ import IconCheckCircle from "~icons/lucide/check-circle"
 import { useI18n } from "@composables/i18n"
 import { ExtensionInterceptorService } from "~/platform/std/interceptors/extension"
 import { useService } from "dioc/vue"
-import { computed } from "vue"
-import { InterceptorService } from "~/services/interceptor.service"
-import { platform } from "~/platform"
 
 const t = useI18n()
 
-const interceptorService = useService(InterceptorService)
 const extensionService = useService(ExtensionInterceptorService)
 
 const extensionVersion = extensionService.extensionVersion
 const hasChromeExtInstalled = extensionService.chromeExtensionInstalled
 const hasFirefoxExtInstalled = extensionService.firefoxExtensionInstalled
-
-const extensionEnabled = computed({
-  get() {
-    return (
-      interceptorService.currentInterceptorID.value ===
-      extensionService.interceptorID
-    )
-  },
-  set(active) {
-    if (active) {
-      interceptorService.currentInterceptorID.value =
-        extensionService.interceptorID
-    } else {
-      interceptorService.currentInterceptorID.value =
-        platform.interceptors.default
-    }
-  },
-})
 </script>

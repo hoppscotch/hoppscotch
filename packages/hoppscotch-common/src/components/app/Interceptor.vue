@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col space-y-2">
-    <div class="flex flex-col px-4 pt-2">
+    <div v-if="isTooltipComponent" class="flex flex-col px-4 pt-2">
       <h2 class="inline-flex pb-1 font-semibold text-secondaryDark">
         {{ t("settings.interceptor") }}
       </h2>
@@ -19,6 +19,9 @@
           :value="interceptor.interceptorID"
           :label="unref(interceptor.name(t))"
           :selected="interceptorSelection === interceptor.interceptorID"
+          :class="{
+            '!px-0 hover:bg-transparent': !isTooltipComponent,
+          }"
           @change="interceptorSelection = interceptor.interceptorID"
         />
 
@@ -38,6 +41,15 @@ import { Ref, unref } from "vue"
 import { InterceptorService } from "~/services/interceptor.service"
 
 const t = useI18n()
+
+withDefaults(
+  defineProps<{
+    isTooltipComponent?: boolean
+  }>(),
+  {
+    isTooltipComponent: true,
+  }
+)
 
 const interceptorService = useService(InterceptorService)
 

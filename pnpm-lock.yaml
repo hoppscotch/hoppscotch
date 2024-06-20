@@ -907,6 +907,9 @@ importers:
       '@hoppscotch/common':
         specifier: workspace:^
         version: link:../hoppscotch-common
+      '@hoppscotch/data':
+        specifier: workspace:^
+        version: link:../hoppscotch-data
       '@platform/auth':
         specifier: 0.1.106
         version: 0.1.106
@@ -3514,8 +3517,8 @@ packages:
     resolution: {integrity: sha512-4ttr/FNO29w+kBbU7HZ/U0Lzuh2cRDhP8UlWOtV9ERcjHzuyXVZmjyleESK6eVP60tGC9QtQW9yZE+JeRhDHkg==}
     engines: {node: '>= 14'}
 
-  '@intlify/message-compiler@10.0.0-alpha.3':
-    resolution: {integrity: sha512-WjM1KAl5enpOfprfVAJ3FzwACmizZFPgyV0sn+QXoWH8BG2ahVkf7uVEqQH0mvUr2rKKaScwpzhH3wZ5F7ZdPw==}
+  '@intlify/message-compiler@10.0.0-beta.1':
+    resolution: {integrity: sha512-rBmXBZzDgq3yPkL/3/r9uK0nrsJOYHSpaW0mtGBxxjt9pY9vaPL0UAKbVAjFPRnfEY41ixgpkpTjai6IKZ+hvg==}
     engines: {node: '>= 16'}
 
   '@intlify/message-compiler@9.2.2':
@@ -3530,8 +3533,8 @@ packages:
     resolution: {integrity: sha512-McnYWhcoYmDJvssVu6QGR0shqlkJuL1HHdi5lK7fNqvQqRYaQ4lSLjYmZxwc8tRNMdIe9/KUKfyPxU9M6yCtNQ==}
     engines: {node: '>= 16'}
 
-  '@intlify/shared@10.0.0-alpha.3':
-    resolution: {integrity: sha512-fi2q48i+C6sSCAt3vOj/9LD3tkr1wcvLt+ifZEHrpPiwHCyKLDYGp5qBNUHUBBA/iqFTeWdtHUbHE9z9OeTXkw==}
+  '@intlify/shared@10.0.0-beta.1':
+    resolution: {integrity: sha512-61MnYhgqS/TyAto9CXOltHlhK2WflLBcKpIkRhZCUL2IkiVvh7qKevsqZ3RYZylyC3q19ajLW6mB+iJtnbAOpg==}
     engines: {node: '>= 16'}
 
   '@intlify/shared@9.2.2':
@@ -15519,8 +15522,8 @@ snapshots:
 
   '@intlify/bundle-utils@3.4.0(vue-i18n@9.8.0(vue@3.3.9(typescript@5.3.2)))':
     dependencies:
-      '@intlify/message-compiler': 10.0.0-alpha.3
-      '@intlify/shared': 10.0.0-alpha.3
+      '@intlify/message-compiler': 10.0.0-beta.1
+      '@intlify/shared': 10.0.0-beta.1
       jsonc-eslint-parser: 1.4.1
       source-map: 0.6.1
       yaml-eslint-parser: 0.3.2
@@ -15573,9 +15576,9 @@ snapshots:
     dependencies:
       '@intlify/shared': 9.2.2
 
-  '@intlify/message-compiler@10.0.0-alpha.3':
+  '@intlify/message-compiler@10.0.0-beta.1':
     dependencies:
-      '@intlify/shared': 10.0.0-alpha.3
+      '@intlify/shared': 10.0.0-beta.1
       source-map-js: 1.0.2
 
   '@intlify/message-compiler@9.2.2':
@@ -15593,7 +15596,7 @@ snapshots:
       '@intlify/shared': 9.8.0
       source-map-js: 1.0.2
 
-  '@intlify/shared@10.0.0-alpha.3': {}
+  '@intlify/shared@10.0.0-beta.1': {}
 
   '@intlify/shared@9.2.2': {}
 
@@ -15624,7 +15627,7 @@ snapshots:
   '@intlify/vite-plugin-vue-i18n@6.0.1(vite@4.5.0(@types/node@18.18.8)(sass@1.69.5)(terser@5.27.0))(vue-i18n@9.8.0(vue@3.3.9(typescript@4.9.5)))':
     dependencies:
       '@intlify/bundle-utils': 7.0.0(vue-i18n@9.8.0(vue@3.3.9(typescript@4.9.5)))
-      '@intlify/shared': 10.0.0-alpha.3
+      '@intlify/shared': 10.0.0-beta.1
       '@rollup/pluginutils': 4.2.1
       debug: 4.3.4(supports-color@9.2.2)
       fast-glob: 3.3.2
@@ -15638,7 +15641,7 @@ snapshots:
   '@intlify/vite-plugin-vue-i18n@7.0.0(vite@4.5.0(@types/node@18.18.8)(sass@1.69.5)(terser@5.27.0))(vue-i18n@9.8.0(vue@3.3.9(typescript@5.3.2)))':
     dependencies:
       '@intlify/bundle-utils': 3.4.0(vue-i18n@9.8.0(vue@3.3.9(typescript@5.3.2)))
-      '@intlify/shared': 10.0.0-alpha.3
+      '@intlify/shared': 10.0.0-beta.1
       '@rollup/pluginutils': 4.2.1
       debug: 4.3.4(supports-color@9.2.2)
       fast-glob: 3.3.2

@@ -15,10 +15,6 @@ export type NetworkStrategy = (
   req: AxiosRequestConfig
 ) => TE.TaskEither<any, NetworkResponse>
 
-export const cancelRunningRequest = () => {
-  // TODO: Implement
-}
-
 function processResponse(
   res: NetworkResponse,
   req: EffectiveHoppRESTRequest,
@@ -34,10 +30,13 @@ function processResponse(
     statusCode: res.status,
     statusText: res.statusText,
     body: res.data,
-    headers: Object.keys(res.headers).map((x) => ({
-      key: x,
-      value: res.headers[x],
-    })),
+    // If multi headers are present, then we can just use that, else fallback to Axios type
+    headers:
+      res.additional?.multiHeaders ??
+      Object.keys(res.headers).map((x) => ({
+        key: x,
+        value: res.headers[x],
+      })),
     meta: {
       responseSize: contentLength,
       responseDuration: backupTimeEnd - backupTimeStart,

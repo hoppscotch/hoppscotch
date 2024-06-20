@@ -27,6 +27,7 @@ import {
   ServerConfigs,
   UpdatedConfigs,
 } from '~/helpers/configs';
+import { getCompiledErrorMessage } from '~/helpers/errors';
 import { useToast } from './toast';
 import { useClientHandler } from './useClientHandler';
 
@@ -201,7 +202,12 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
     const result = await mutation.executeMutation(variables);
 
     if (result.error) {
-      toast.error(t(errorMessage));
+      const { message } = result.error;
+      const compiledErrorMessage = getCompiledErrorMessage(message);
+
+      compiledErrorMessage
+        ? toast.error(t(compiledErrorMessage))
+        : toast.error(t(errorMessage));
       return false;
     }
 

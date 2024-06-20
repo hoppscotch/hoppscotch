@@ -8,16 +8,6 @@
       :label="t('app.proxy_privacy_policy')"
     />.
   </div>
-  <div class="space-y-4 py-4">
-    <div class="flex items-center">
-      <HoppSmartToggle
-        :on="proxyEnabled"
-        @change="proxyEnabled = !proxyEnabled"
-      >
-        {{ t("settings.proxy_use_toggle") }}
-      </HoppSmartToggle>
-    </div>
-  </div>
   <div class="flex items-center space-x-2 py-4">
     <HoppSmartInput
       v-model="PROXY_URL"
@@ -50,7 +40,6 @@ import { computed } from "vue"
 import { useService } from "dioc/vue"
 import { InterceptorService } from "~/services/interceptor.service"
 import { proxyInterceptor } from "~/platform/std/interceptors/proxy"
-import { platform } from "~/platform"
 
 const t = useI18n()
 const toast = useToast()
@@ -59,23 +48,11 @@ const interceptorService = useService(InterceptorService)
 
 const PROXY_URL = useSetting("PROXY_URL")
 
-const proxyEnabled = computed({
-  get() {
-    return (
-      interceptorService.currentInterceptorID.value ===
-      proxyInterceptor.interceptorID
-    )
-  },
-  set(active) {
-    if (active) {
-      interceptorService.currentInterceptorID.value =
-        proxyInterceptor.interceptorID
-    } else {
-      interceptorService.currentInterceptorID.value =
-        platform.interceptors.default
-    }
-  },
-})
+const proxyEnabled = computed(
+  () =>
+    interceptorService.currentInterceptorID.value ===
+    proxyInterceptor.interceptorID
+)
 
 const clearIcon = refAutoReset<typeof IconRotateCCW | typeof IconCheck>(
   IconRotateCCW,

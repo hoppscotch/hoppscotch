@@ -1,7 +1,7 @@
 {
   "name": "@hoppscotch/selfhost-desktop",
   "private": true,
-  "version": "2024.3.3",
+  "version": "2024.3.4",
   "type": "module",
   "scripts": {
     "dev:vite": "vite",
@@ -17,6 +17,7 @@
     "@fontsource-variable/material-symbols-rounded": "5.0.16",
     "@fontsource-variable/roboto-mono": "5.0.16",
     "@hoppscotch/common": "workspace:^",
+    "@hoppscotch/data": "workspace:^",
     "@platform/auth": "0.1.106",
     "@tauri-apps/api": "1.5.1",
     "@tauri-apps/cli": "1.5.6",

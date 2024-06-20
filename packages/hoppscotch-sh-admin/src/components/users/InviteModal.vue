@@ -1,6 +1,5 @@
 <template>
   <HoppSmartModal
-    v-if="show"
     dialog
     :title="t('users.invite_user')"
     @close="emit('hide-modal')"
@@ -37,15 +36,6 @@ import { useToast } from '~/composables/toast';
 
 const t = useI18n();
 const toast = useToast();
-
-withDefaults(
-  defineProps<{
-    show: boolean;
-  }>(),
-  {
-    show: false,
-  }
-);
 
 const emit = defineEmits<{
   (event: 'hide-modal'): void;

@@ -22,6 +22,7 @@ import {
   createChildCollection,
   updateTeamCollection,
   deleteCollection,
+  moveRESTTeamCollection,
 } from "~/helpers/backend/mutations/TeamCollection"
 import {
   createRequestInCollection,
@@ -1163,7 +1164,7 @@ export class TeamsWorkspaceProviderService
   }
 
   public async exportRESTCollections(
-    workspaceHandle: Handle<WorkspaceCollection>
+    workspaceHandle: Handle<Workspace>
   ): Promise<E.Either<unknown, void>> {
     const workspaceHandleRef = workspaceHandle.get()
 
@@ -1197,6 +1198,7 @@ export class TeamsWorkspaceProviderService
     return E.right(undefined)
   }
 
+  // not tested
   public async getRESTCollectionJSONView(
     workspaceHandle: Handle<Workspace>
   ): Promise<E.Either<never, Handle<RESTCollectionJSONView>>> {
@@ -1243,6 +1245,7 @@ export class TeamsWorkspaceProviderService
     })
   }
 
+  // not tested
   public async exportRESTCollection(
     collectionHandle: Handle<WorkspaceCollection>
   ): Promise<E.Either<unknown, void>> {
@@ -1280,10 +1283,11 @@ export class TeamsWorkspaceProviderService
     return E.right(undefined)
   }
 
+  // not tested
   public async importRESTCollections(
     workspaceHandle: Handle<Workspace>,
     collections: HoppCollection[]
-  ): Promise<E.Either<unknown, Handle<WorkspaceCollection>>> {
+  ): Promise<E.Either<unknown, void>> {
     const workspaceHandleRef = workspaceHandle.get()
 
     if (!isValidWorkspaceHandle(workspaceHandleRef, this.providerID)) {
@@ -1305,9 +1309,13 @@ export class TeamsWorkspaceProviderService
       return res
     }
 
+    // here we can't replace the collections from this function because the ID is not returned by the importJSONToTeam
+    // we'll rely on the subscriptions to update the collections
+
     return E.right(undefined)
   }
 
+  // not tested
   async getRESTSearchResultsView(
     workspaceHandle: Handle<Workspace>,
     searchQuery: Ref<string>
@@ -1337,7 +1345,8 @@ export class TeamsWorkspaceProviderService
     })
   }
 
-  moveRESTCollection(
+  // TODO: right now you're not calling the BE for this akash, include it later
+  async moveRESTCollection(
     collectionHandle: Handle<WorkspaceCollection>,
     destinationCollectionID: string | null
   ): Promise<E.Either<unknown, void>> {
@@ -1356,6 +1365,15 @@ export class TeamsWorkspaceProviderService
       return Promise.resolve(E.left("COLLECTION_DOES_NOT_EXIST" as const))
     }
 
+    const moveRES = await moveRESTTeamCollection(
+      collectionHandleRef.value.data.collectionID,
+      destinationCollectionID
+    )()
+
+    if (E.isLeft(moveRES)) {
+      return E.left(moveRES.left)
+    }
+
     // find the sibling collections, and move the collection to the end of that collection
     // also consider the destinationCollectionID being null, in that case, move it to the root
     const siblingCollections = this.collections.value.filter(
@@ -1371,7 +1389,7 @@ export class TeamsWorkspaceProviderService
       if (col.collectionID === collection.collectionID) {
         return {
           ...col,
-          parentCollectionID: destinationCollectionID,
+          parentCollectionID: destinationCollectionID ?? undefined,
           order,
         }
       }

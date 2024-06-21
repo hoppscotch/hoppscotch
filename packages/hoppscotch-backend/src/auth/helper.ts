@@ -51,14 +51,14 @@ export const authCookieHandler = (
     .toMillis();
 
   res.cookie(AuthTokenType.ACCESS_TOKEN, authTokens.access_token, {
-    httpOnly: false,
-    secure: false,
+    httpOnly: true,
+    secure: true,
     sameSite: 'lax',
     maxAge: accessTokenValidity,
   });
   res.cookie(AuthTokenType.REFRESH_TOKEN, authTokens.refresh_token, {
-    httpOnly: false,
-    secure: false,
+    httpOnly: true,
+    secure: true,
     sameSite: 'lax',
     maxAge: refreshTokenValidity,
   });

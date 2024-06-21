@@ -106,6 +106,7 @@ import { translateExtURLParams } from "~/helpers/RESTExtURLParams"
 import { defineActionHandler, invokeAction } from "~/helpers/actions"
 import { getDefaultRESTRequest } from "~/helpers/rest/default"
 import { HoppRESTDocument } from "~/helpers/rest/document"
+import { updateIssuedHandlesForPersonalWorkspace } from "~/helpers/tab"
 import { platform } from "~/platform"
 import { InspectionService } from "~/services/inspection"
 import { EnvironmentInspectorService } from "~/services/inspection/inspectors/environment.inspector"
@@ -197,6 +198,8 @@ const removeTab = (tabID: string) => {
     confirmingCloseForTabID.value = tabID
   } else {
     tabs.closeTab(tabState.id)
+    updateIssuedHandlesForPersonalWorkspace(tabState, "exclude")
+
     inspectionService.deleteTabInspectorResult(tabState.id)
   }
 }
@@ -204,7 +207,8 @@ const removeTab = (tabID: string) => {
 const closeOtherTabsAction = (tabID: string) => {
   const dirtyTabCount = tabs.getDirtyTabsCount()
 
-  const isTabDirty = getTabDirtyStatus(tabs.getTabRef(tabID).value)
+  const tabState = tabs.getTabRef(tabID).value
+  const isTabDirty = getTabDirtyStatus(tabState)
 
   // If current tab is dirty, so we need to subtract 1 from the dirty tab count
   const balanceDirtyTabCount = isTabDirty ? dirtyTabCount - 1 : dirtyTabCount
@@ -216,6 +220,7 @@ const closeOtherTabsAction = (tabID: string) => {
     exceptedTabID.value = tabID
   } else {
     tabs.closeOtherTabs(tabID)
+    updateIssuedHandlesForPersonalWorkspace(tabState, "include")
   }
 }
 
@@ -231,7 +236,12 @@ const duplicateTab = (tabID: string) => {
 }
 
 const onResolveConfirmCloseAllTabs = () => {
-  if (exceptedTabID.value) tabs.closeOtherTabs(exceptedTabID.value)
+  if (exceptedTabID.value) {
+    const tabState = tabs.getTabRef(exceptedTabID.value).value
+
+    tabs.closeOtherTabs(exceptedTabID.value)
+    updateIssuedHandlesForPersonalWorkspace(tabState, "include")
+  }
   confirmingCloseAllTabs.value = false
 }
 
@@ -260,7 +270,11 @@ const renameReqName = () => {
  */
 const onCloseConfirmSaveTab = () => {
   if (!savingRequest.value && confirmingCloseForTabID.value) {
+    const tabState = tabs.getTabRef(confirmingCloseForTabID.value).value
+
     tabs.closeTab(confirmingCloseForTabID.value)
+    updateIssuedHandlesForPersonalWorkspace(tabState, "exclude")
+
     inspectionService.deleteTabInspectorResult(confirmingCloseForTabID.value)
     confirmingCloseForTabID.value = null
   }
@@ -280,13 +294,18 @@ const onResolveConfirmSaveTab = () => {
     (saveContext.originLocation === "workspace-user-collection" &&
       saveContext.requestHandle?.get().value.type === "invalid")
   ) {
-    return (savingRequest.value = true)
+    savingRequest.value = true
+    return
   }
 
   invokeAction("request.save")
 
   if (confirmingCloseForTabID.value) {
+    const tabState = tabs.getTabRef(confirmingCloseForTabID.value).value
+
     tabs.closeTab(confirmingCloseForTabID.value)
+    updateIssuedHandlesForPersonalWorkspace(tabState, "exclude")
+
     confirmingCloseForTabID.value = null
   }
 }
@@ -297,7 +316,11 @@ const onResolveConfirmSaveTab = () => {
 const onSaveModalClose = () => {
   savingRequest.value = false
   if (confirmingCloseForTabID.value) {
+    const tabState = tabs.getTabRef(confirmingCloseForTabID.value).value
+
     tabs.closeTab(confirmingCloseForTabID.value)
+    updateIssuedHandlesForPersonalWorkspace(tabState, "exclude")
+
     confirmingCloseForTabID.value = null
   }
 }
@@ -356,7 +379,10 @@ defineActionHandler("tab.close-current", () => {
   removeTab(currentTabID.value)
 })
 defineActionHandler("tab.close-other", () => {
+  const tabState = tabs.getTabRef(currentTabID.value).value
+
   tabs.closeOtherTabs(currentTabID.value)
+  updateIssuedHandlesForPersonalWorkspace(tabState, "include")
 })
 defineActionHandler("tab.open-new", addNewTab)
 

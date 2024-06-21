@@ -3,16 +3,16 @@ import * as E from "fp-ts/Either"
 import { platform } from "~/platform"
 
 /**
- * Create a downloadable file from a collection and prompts the user to download it.
- * @param collectionJSON - JSON string of the collection
+ * Create a downloadable file from a collection/environment and prompts the user to download it.
+ * @param contentsJSON - JSON string of the collection
  * @param name - Name of the collection set as the file name
  */
 export const initializeDownloadFile = async (
-  collectionJSON: string,
+  contentsJSON: string,
   name: string | null
 ) => {
   const result = await platform.io.saveFileWithDialog({
-    data: collectionJSON,
+    data: contentsJSON,
     contentType: "application/json",
     suggestedFilename: `${name ?? "collection"}.json`,
     filters: [

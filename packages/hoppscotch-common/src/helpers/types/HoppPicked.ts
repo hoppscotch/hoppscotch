@@ -20,6 +20,19 @@ export type Picked =
       pickedType: "my-collection"
       collectionIndex: number
     }
+  | {
+      pickedType: "gql-my-request"
+      folderPath: string
+      requestIndex: number
+    }
+  | {
+      pickedType: "gql-my-folder"
+      folderPath: string
+    }
+  | {
+      pickedType: "gql-my-collection"
+      collectionIndex: number
+    }
 // TODO: Enable this when rest of the implementation is in place
 // | {
 //     pickedType: "teams-request"
@@ -32,17 +45,4 @@ export type Picked =
 // | {
 //     pickedType: "teams-collection"
 //     collectionID: string
-//   }
-// | {
-//     pickedType: "gql-my-request"
-//     folderPath: string
-//     requestIndex: number
-//   }
-// | {
-//     pickedType: "gql-my-folder"
-//     folderPath: string
-//   }
-// | {
-//     pickedType: "gql-my-collection"
-//     collectionIndex: number
 //   }

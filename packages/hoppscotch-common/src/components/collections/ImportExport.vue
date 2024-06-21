@@ -91,6 +91,7 @@ const showImportFailedError = () => {
 }
 
 const handleImportToStore = async (collections: HoppCollection[]) => {
+  // TODO: Remove the check once the team workspace changes are in place
   if (props.collectionsType.type === "my-collections") {
     if (!activeWorkspaceHandle.value) {
       return E.left("INVALID_WORKSPACE_HANDLE")
@@ -112,6 +113,7 @@ const handleImportToStore = async (collections: HoppCollection[]) => {
     return
   }
 
+  // TODO: Remove once the team workspace changes are in place
   const importResult = await importToTeamsWorkspace(collections)
 
   if (E.isRight(importResult)) {
@@ -420,16 +422,10 @@ const HoppMyCollectionsExporter: ImporterOrExporter = {
         return toast.error(t("error.no_collections_to_export"))
       }
 
-      return toast.error(t("error.something_went_wrong"))
+      return toast.error(t("export.failed"))
     }
 
     toast.success(t("state.download_started"))
-
-    platform.analytics?.logEvent({
-      type: "HOPP_EXPORT_COLLECTION",
-      exporter: "json",
-      platform: "rest",
-    })
 
     isHoppMyCollectionExporterInProgress.value = false
   },
@@ -447,6 +443,8 @@ const HoppTeamCollectionsExporter: ImporterOrExporter = {
   },
   action: async () => {
     isHoppTeamCollectionExporterInProgress.value = true
+
+    // TODO: Replace with `workspaceService.exportRESTCollections()` once the team workspace changes are in place
     if (
       props.collectionsType.type === "team-collections" &&
       props.collectionsType.selectedTeam

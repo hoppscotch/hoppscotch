@@ -1,4 +1,5 @@
 import {
+  Environment,
   HoppCollection,
   HoppRESTRequest,
   makeCollection,
@@ -47,10 +48,11 @@ import {
 } from "~/services/new-workspace/handle"
 import { WorkspaceProvider } from "~/services/new-workspace/provider"
 import {
-  RESTCollectionChildrenView,
   RESTCollectionJSONView,
+  RESTCollectionChildrenView,
   RESTCollectionLevelAuthHeadersView,
   RESTCollectionViewItem,
+  RESTEnvironmentsView,
   RESTSearchResultsView,
   RootRESTCollectionView,
 } from "~/services/new-workspace/view"
@@ -58,6 +60,7 @@ import {
   Workspace,
   WorkspaceCollection,
   WorkspaceDecor,
+  WorkspaceEnvironment,
   WorkspaceRequest,
 } from "~/services/new-workspace/workspace"
 
@@ -67,10 +70,19 @@ import { getRequestsByPath } from "~/helpers/collection/request"
 import { initializeDownloadFile } from "~/helpers/import-export/export"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import { lazy } from "~/helpers/utils/lazy"
+import {
+  appendEnvironments,
+  createEnvironment,
+  deleteEnvironment,
+  duplicateEnvironment,
+  environments$,
+  updateEnvironment,
+} from "~/newstore/environments"
 import IconUser from "~icons/lucide/user"
 import { NewWorkspaceService } from ".."
 import {
   isValidCollectionHandle,
+  isValidEnvironmentHandle,
   isValidRequestHandle,
   isValidWorkspaceHandle,
 } from "../helpers"
@@ -95,6 +107,8 @@ export class PersonalWorkspaceProviderService
     state: [],
   })
 
+  public restEnvironmentState: Ref<Environment[]> = ref([])
+
   // Issued handles can have collection handles when the collection runner is introduced
   public issuedHandles: WritableHandleRef<
     WorkspaceRequest | WorkspaceCollection
@@ -108,6 +122,10 @@ export class PersonalWorkspaceProviderService
         /* noop */
       }
     )[0]
+
+    this.restEnvironmentState = useStreamStatic(environments$, [], () => {
+      /* noop */
+    })[0]
 
     this.workspaceService.registerWorkspaceProvider(this)
   }
@@ -141,6 +159,12 @@ export class PersonalWorkspaceProviderService
   private isAlreadyInRoot(id: string) {
     const indexPath = this.pathToIndex(id)
     return indexPath.length === 1
+  }
+
+  public setIssuedHandles(
+    issuedHandles: WritableHandleRef<WorkspaceRequest | WorkspaceCollection>[]
+  ) {
+    this.issuedHandles = issuedHandles ?? this.issuedHandles
   }
 
   public async createRESTRootCollection(
@@ -179,7 +203,7 @@ export class PersonalWorkspaceProviderService
 
     // TODO: Verify whether a collection update action is reflected correctly in the handle being returned below
 
-    const createdCollectionHandle = await this.getCollectionHandle(
+    const createdCollectionHandle = await this.getRESTCollectionHandle(
       workspaceHandle,
       newCollectionID
     )
@@ -215,14 +239,14 @@ export class PersonalWorkspaceProviderService
       platform: "rest",
     })
 
-    const newChildCollectionID = `${collectionID}/${getFoldersByPath(
-      this.restCollectionState.value.state,
-      collectionID
-    )}`
+    const newChildCollectionID = `${collectionID}/${
+      getFoldersByPath(this.restCollectionState.value.state, collectionID)
+        .length - 1
+    }`
 
     // TODO: Verify whether a collection update action is reflected correctly in the handle being returned below
 
-    const createdCollectionHandle = await this.getCollectionHandle(
+    const createdCollectionHandle = await this.getRESTCollectionHandle(
       parentCollectionHandle,
       newChildCollectionID
     )
@@ -230,7 +254,7 @@ export class PersonalWorkspaceProviderService
     return createdCollectionHandle
   }
 
-  public updateRESTCollection(
+  public async updateRESTCollection(
     collectionHandle: Handle<WorkspaceCollection>,
     updatedCollection: Partial<HoppCollection>
   ): Promise<E.Either<unknown, void>> {
@@ -249,7 +273,10 @@ export class PersonalWorkspaceProviderService
       collectionID.split("/").map((id) => parseInt(id))
     )
 
-    const newCollection = { ...collection, ...updatedCollection }
+    const newCollection = {
+      ...collection,
+      ...updatedCollection,
+    }
 
     const isRootCollection = collectionID.split("/").length === 1
 
@@ -259,10 +286,24 @@ export class PersonalWorkspaceProviderService
       editRESTFolder(collectionID, newCollection)
     }
 
+    const updatedCollectionHandle = await this.getRESTCollectionHandle(
+      this.getPersonalWorkspaceHandle(),
+      collectionID
+    )
+
+    if (E.isRight(updatedCollectionHandle)) {
+      const updatedCollectionHandleRef = updatedCollectionHandle.right.get()
+
+      if (updatedCollectionHandleRef.value.type === "ok") {
+        // Name is guaranteed to be present for a collection
+        updatedCollectionHandleRef.value.data.name = newCollection.name!
+      }
+    }
+
     return Promise.resolve(E.right(undefined))
   }
 
-  public removeRESTCollection(
+  public async removeRESTCollection(
     collectionHandle: Handle<WorkspaceCollection>
   ): Promise<E.Either<unknown, void>> {
     const collectionHandleRef = collectionHandle.get()
@@ -280,6 +321,22 @@ export class PersonalWorkspaceProviderService
     const collectionIndexPos = isRootCollection
       ? parseInt(removedCollectionID)
       : this.pathToLastIndex(removedCollectionID)
+
+    const removedCollectionHandle = await this.getRESTCollectionHandle(
+      this.getPersonalWorkspaceHandle(),
+      removedCollectionID
+    )
+
+    if (E.isRight(removedCollectionHandle)) {
+      const removedCollectionHandleRef = removedCollectionHandle.right.get()
+
+      if (removedCollectionHandleRef.value.type === "ok") {
+        removedCollectionHandleRef.value = {
+          type: "invalid",
+          reason: "COLLECTION_INVALIDATED",
+        }
+      }
+    }
 
     this.issuedHandles.forEach((handle) => {
       if (
@@ -359,6 +416,10 @@ export class PersonalWorkspaceProviderService
       )
     }
 
+    this.setIssuedHandles(
+      this.issuedHandles.filter((handle) => handle.value.type === "ok")
+    )
+
     return Promise.resolve(E.right(undefined))
   }
 
@@ -378,8 +439,7 @@ export class PersonalWorkspaceProviderService
       return Promise.resolve(E.left("INVALID_COLLECTION_HANDLE" as const))
     }
 
-    const { collectionID, providerID, workspaceID } =
-      parentCollectionHandleRef.value.data
+    const { collectionID } = parentCollectionHandleRef.value.data
 
     const insertionIndex = saveRESTRequestAs(collectionID, newRequest)
 
@@ -392,57 +452,11 @@ export class PersonalWorkspaceProviderService
       platform: "rest",
     })
 
-    const handleRefData = ref({
-      type: "ok" as const,
-      data: {
-        providerID,
-        workspaceID,
-        collectionID,
-        requestID,
-        request: newRequest,
-      },
-    })
-
-    const writableHandle = computed({
-      get() {
-        return handleRefData.value
-      },
-      set(newValue) {
-        handleRefData.value = newValue
-      },
-    })
-
-    const handleIsAlreadyIssued = this.issuedHandles.some((handle) => {
-      if (handle.value.type === "invalid") {
-        return false
-      }
-
-      if (!("requestID" in handle.value.data)) {
-        return false
-      }
-
-      const { request, ...dataProps } = handle.value.data
-
-      if (
-        isEqual(dataProps, {
-          providerID,
-          workspaceID,
-          collectionID,
-          requestID,
-        })
-      ) {
-        return true
-      }
-    })
-
-    if (!handleIsAlreadyIssued) {
-      this.issuedHandles.push(writableHandle)
-    }
-
     // TODO: Verify whether a request update action is reflected correctly in the handle being returned below
 
-    const createdRequestHandle = await this.getRequestHandle(
-      parentCollectionHandle,
+    const personalWorkspaceHandle = this.getPersonalWorkspaceHandle()
+    const createdRequestHandle = await this.getRESTRequestHandle(
+      personalWorkspaceHandle,
       requestID
     )
 
@@ -467,7 +481,7 @@ export class PersonalWorkspaceProviderService
 
     const requestToRemove = navigateToFolderWithIndexPath(
       this.restCollectionState.value.state,
-      collectionID.split("/").map((id) => parseInt(id))
+      collectionID.split("/").map((id: string) => parseInt(id))
     )?.requests[removedRequestIndexPos]
 
     // Iterate over issued handles and update affected requests
@@ -502,6 +516,10 @@ export class PersonalWorkspaceProviderService
 
     removeRESTRequest(collectionID, removedRequestIndexPos, requestToRemove?.id)
 
+    this.setIssuedHandles(
+      this.issuedHandles.filter((handle) => handle.value.type === "ok")
+    )
+
     return Promise.resolve(E.right(undefined))
   }
 
@@ -520,8 +538,9 @@ export class PersonalWorkspaceProviderService
     const { collectionID, requestID, request } = requestHandleRef.value.data
 
     const newRequest: HoppRESTRequest = merge(request, updatedRequest)
-    const requestIndex = parseInt(requestID.split("/").slice(-1)[0])
-    editRESTRequest(collectionID, requestIndex, newRequest)
+    const requestIndexPos = parseInt(requestID.split("/").slice(-1)[0])
+
+    editRESTRequest(collectionID, requestIndexPos, newRequest)
 
     platform.analytics?.logEvent({
       type: "HOPP_SAVE_REQUEST",
@@ -565,8 +584,8 @@ export class PersonalWorkspaceProviderService
     return Promise.resolve(E.right(undefined))
   }
 
-  public exportRESTCollections(
-    workspaceHandle: Handle<WorkspaceCollection>
+  public async exportRESTCollections(
+    workspaceHandle: Handle<Workspace>
   ): Promise<E.Either<unknown, void>> {
     const workspaceHandleRef = workspaceHandle.get()
 
@@ -582,15 +601,25 @@ export class PersonalWorkspaceProviderService
       return Promise.resolve(E.left("NO_COLLECTIONS_TO_EXPORT" as const))
     }
 
-    initializeDownloadFile(
+    const result = await initializeDownloadFile(
       JSON.stringify(collectionsToExport, null, 2),
       `${workspaceHandleRef.value.data.workspaceID}-collections`
     )
 
+    if (E.isLeft(result)) {
+      return Promise.resolve(E.left("EXPORT_FAILED" as const))
+    }
+
+    platform.analytics?.logEvent({
+      type: "HOPP_EXPORT_COLLECTION",
+      exporter: "json",
+      platform: "rest",
+    })
+
     return Promise.resolve(E.right(undefined))
   }
 
-  public exportRESTCollection(
+  public async exportRESTCollection(
     collectionHandle: Handle<WorkspaceCollection>
   ): Promise<E.Either<unknown, void>> {
     const collectionHandleRef = collectionHandle.get()
@@ -612,7 +641,14 @@ export class PersonalWorkspaceProviderService
       return Promise.resolve(E.left("COLLECTION_DOES_NOT_EXIST" as const))
     }
 
-    initializeDownloadFile(JSON.stringify(collection, null, 2), collection.name)
+    const result = await initializeDownloadFile(
+      JSON.stringify(collection, null, 2),
+      collection.name
+    )
+
+    if (E.isLeft(result)) {
+      return Promise.resolve(E.left("EXPORT_FAILED" as const))
+    }
 
     return Promise.resolve(E.right(undefined))
   }
@@ -1108,7 +1144,7 @@ export class PersonalWorkspaceProviderService
     return Promise.resolve(E.right(undefined))
   }
 
-  public getCollectionHandle(
+  public getRESTCollectionHandle(
     workspaceHandle: Handle<Workspace>,
     collectionID: string
   ): Promise<E.Either<unknown, Handle<WorkspaceCollection>>> {
@@ -1167,7 +1203,7 @@ export class PersonalWorkspaceProviderService
     )
   }
 
-  public getRequestHandle(
+  public getRESTRequestHandle(
     workspaceHandle: Handle<Workspace>,
     requestID: string
   ): Promise<E.Either<unknown, Handle<WorkspaceRequest>>> {
@@ -1251,6 +1287,7 @@ export class PersonalWorkspaceProviderService
         return false
       }
 
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { request, ...dataProps } = handle.value.data
 
       if (
@@ -1270,6 +1307,174 @@ export class PersonalWorkspaceProviderService
     }
 
     return Promise.resolve(E.right({ get: lazy(() => handle) }))
+  }
+
+  public getRESTEnvironmentHandle(
+    workspaceHandle: Handle<Workspace>,
+    environmentID: number
+  ): Promise<E.Either<unknown, Handle<WorkspaceEnvironment>>> {
+    const workspaceHandleRef = workspaceHandle.get()
+
+    if (
+      !isValidWorkspaceHandle(workspaceHandleRef, this.providerID, "personal")
+    ) {
+      return Promise.resolve(E.left("INVALID_WORKSPACE_HANDLE" as const))
+    }
+
+    const environment = this.restEnvironmentState.value[environmentID]
+
+    // Out of bounds check
+    if (!environment) {
+      return Promise.resolve(E.left("ENVIRONMENT_DOES_NOT_EXIST"))
+    }
+
+    return Promise.resolve(
+      E.right({
+        get: lazy(() =>
+          computed(() => {
+            if (
+              !isValidWorkspaceHandle(
+                workspaceHandleRef,
+                this.providerID,
+                "personal"
+              )
+            ) {
+              return {
+                type: "invalid" as const,
+                reason: "INVALID_WORKSPACE_HANDLE" as const,
+              }
+            }
+
+            const { providerID, workspaceID } = workspaceHandleRef.value.data
+
+            return {
+              type: "ok",
+              data: {
+                providerID,
+                workspaceID,
+                environmentID,
+                name: environment.name,
+              },
+            }
+          })
+        ),
+      })
+    )
+  }
+
+  public getRESTCollectionLevelAuthHeadersView(
+    collectionHandle: Handle<WorkspaceCollection>
+  ): Promise<E.Either<never, Handle<RESTCollectionLevelAuthHeadersView>>> {
+    const collectionHandleRef = collectionHandle.get()
+
+    return Promise.resolve(
+      E.right({
+        get: lazy(() =>
+          computed(() => {
+            if (
+              !isValidCollectionHandle(
+                collectionHandleRef,
+                this.providerID,
+                "personal"
+              )
+            ) {
+              return {
+                type: "invalid" as const,
+                reason: "INVALID_COLLECTION_HANDLE" as const,
+              }
+            }
+
+            const { collectionID } = collectionHandleRef.value.data
+
+            let auth: HoppInheritedProperty["auth"] = {
+              parentID: collectionID ?? "",
+              parentName: "",
+              inheritedAuth: {
+                authType: "none",
+                authActive: true,
+              },
+            }
+            const headers: HoppInheritedProperty["headers"] = []
+
+            if (!collectionID) return { type: "ok", data: { auth, headers } }
+
+            const path = collectionID.split("/").map((i) => parseInt(i))
+
+            // Check if the path is empty or invalid
+            if (!path || path.length === 0) {
+              console.error("Invalid path:", collectionID)
+              return { type: "ok", data: { auth, headers } }
+            }
+
+            // Loop through the path and get the last parent folder with authType other than 'inherit'
+            for (let i = 0; i < path.length; i++) {
+              const parentFolder = navigateToFolderWithIndexPath(
+                this.restCollectionState.value.state,
+                [...path.slice(0, i + 1)] // Create a copy of the path array
+              )
+
+              // Check if parentFolder is undefined or null
+              if (!parentFolder) {
+                console.error("Parent folder not found for path:", path)
+                return { type: "ok", data: { auth, headers } }
+              }
+
+              const { auth: parentFolderAuth, headers: parentFolderHeaders } =
+                parentFolder
+
+              // check if the parent folder has authType 'inherit' and if it is the root folder
+              if (
+                parentFolderAuth?.authType === "inherit" &&
+                [...path.slice(0, i + 1)].length === 1
+              ) {
+                auth = {
+                  parentID: [...path.slice(0, i + 1)].join("/"),
+                  parentName: parentFolder.name,
+                  inheritedAuth: auth.inheritedAuth,
+                }
+              }
+
+              if (parentFolderAuth?.authType !== "inherit") {
+                auth = {
+                  parentID: [...path.slice(0, i + 1)].join("/"),
+                  parentName: parentFolder.name,
+                  inheritedAuth: parentFolderAuth,
+                }
+              }
+
+              // Update headers, overwriting duplicates by key
+              if (parentFolderHeaders) {
+                const activeHeaders = parentFolderHeaders.filter(
+                  (h) => h.active
+                )
+                activeHeaders.forEach((header) => {
+                  const index = headers.findIndex(
+                    (h) => h.inheritedHeader?.key === header.key
+                  )
+                  const currentPath = [...path.slice(0, i + 1)].join("/")
+                  if (index !== -1) {
+                    // Replace the existing header with the same key
+                    headers[index] = {
+                      parentID: currentPath,
+                      parentName: parentFolder.name,
+                      inheritedHeader: header,
+                    }
+                  } else {
+                    headers.push({
+                      parentID: currentPath,
+                      parentName: parentFolder.name,
+                      inheritedHeader: header,
+                    })
+                  }
+                })
+              }
+            }
+
+            return { type: "ok", data: { auth, headers } }
+          })
+        ),
+      })
+    )
   }
 
   public getRESTCollectionChildrenView(
@@ -1403,121 +1608,6 @@ export class PersonalWorkspaceProviderService
                 }),
               },
             })
-          })
-        ),
-      })
-    )
-  }
-
-  public getRESTCollectionLevelAuthHeadersView(
-    collectionHandle: Handle<WorkspaceCollection>
-  ): Promise<E.Either<never, Handle<RESTCollectionLevelAuthHeadersView>>> {
-    const collectionHandleRef = collectionHandle.get()
-
-    return Promise.resolve(
-      E.right({
-        get: lazy(() =>
-          computed(() => {
-            if (
-              !isValidCollectionHandle(
-                collectionHandleRef,
-                this.providerID,
-                "personal"
-              )
-            ) {
-              return {
-                type: "invalid" as const,
-                reason: "INVALID_COLLECTION_HANDLE" as const,
-              }
-            }
-
-            const { collectionID } = collectionHandleRef.value.data
-
-            let auth: HoppInheritedProperty["auth"] = {
-              parentID: collectionID ?? "",
-              parentName: "",
-              inheritedAuth: {
-                authType: "none",
-                authActive: true,
-              },
-            }
-            const headers: HoppInheritedProperty["headers"] = []
-
-            if (!collectionID) return { type: "ok", data: { auth, headers } }
-
-            const path = collectionID.split("/").map((i) => parseInt(i))
-
-            // Check if the path is empty or invalid
-            if (!path || path.length === 0) {
-              console.error("Invalid path:", collectionID)
-              return { type: "ok", data: { auth, headers } }
-            }
-
-            // Loop through the path and get the last parent folder with authType other than 'inherit'
-            for (let i = 0; i < path.length; i++) {
-              const parentFolder = navigateToFolderWithIndexPath(
-                this.restCollectionState.value.state,
-                [...path.slice(0, i + 1)] // Create a copy of the path array
-              )
-
-              // Check if parentFolder is undefined or null
-              if (!parentFolder) {
-                console.error("Parent folder not found for path:", path)
-                return { type: "ok", data: { auth, headers } }
-              }
-
-              const { auth: parentFolderAuth, headers: parentFolderHeaders } =
-                parentFolder
-
-              // check if the parent folder has authType 'inherit' and if it is the root folder
-              if (
-                parentFolderAuth?.authType === "inherit" &&
-                [...path.slice(0, i + 1)].length === 1
-              ) {
-                auth = {
-                  parentID: [...path.slice(0, i + 1)].join("/"),
-                  parentName: parentFolder.name,
-                  inheritedAuth: auth.inheritedAuth,
-                }
-              }
-
-              if (parentFolderAuth?.authType !== "inherit") {
-                auth = {
-                  parentID: [...path.slice(0, i + 1)].join("/"),
-                  parentName: parentFolder.name,
-                  inheritedAuth: parentFolderAuth,
-                }
-              }
-
-              // Update headers, overwriting duplicates by key
-              if (parentFolderHeaders) {
-                const activeHeaders = parentFolderHeaders.filter(
-                  (h) => h.active
-                )
-                activeHeaders.forEach((header) => {
-                  const index = headers.findIndex(
-                    (h) => h.inheritedHeader?.key === header.key
-                  )
-                  const currentPath = [...path.slice(0, i + 1)].join("/")
-                  if (index !== -1) {
-                    // Replace the existing header with the same key
-                    headers[index] = {
-                      parentID: currentPath,
-                      parentName: parentFolder.name,
-                      inheritedHeader: header,
-                    }
-                  } else {
-                    headers.push({
-                      parentID: currentPath,
-                      parentName: parentFolder.name,
-                      inheritedHeader: header,
-                    })
-                  }
-                })
-              }
-            }
-
-            return { type: "ok", data: { auth, headers } }
           })
         ),
       })
@@ -1689,6 +1779,283 @@ export class PersonalWorkspaceProviderService
         ),
       })
     )
+  }
+
+  public getRESTEnvironmentsView(
+    workspaceHandle: Handle<Workspace>
+  ): Promise<E.Either<never, Handle<RESTEnvironmentsView>>> {
+    const workspaceHandleRef = workspaceHandle.get()
+
+    return Promise.resolve(
+      E.right({
+        get: lazy(() =>
+          computed(() => {
+            if (
+              !isValidWorkspaceHandle(
+                workspaceHandleRef,
+                this.providerID,
+                "personal"
+              )
+            ) {
+              return {
+                type: "invalid" as const,
+                reason: "INVALID_WORKSPACE_HANDLE" as const,
+              }
+            }
+
+            return markRaw({
+              type: "ok" as const,
+              data: {
+                providerID: this.providerID,
+                workspaceID: workspaceHandleRef.value.data.workspaceID,
+                environments: this.restEnvironmentState,
+              },
+            })
+          })
+        ),
+      })
+    )
+  }
+
+  public async createRESTEnvironment(
+    workspaceHandle: Handle<Workspace>,
+    newEnvironment: Partial<Environment> & { name: string }
+  ): Promise<E.Either<unknown, Handle<WorkspaceEnvironment>>> {
+    const workspaceHandleRef = workspaceHandle.get()
+
+    if (
+      !isValidWorkspaceHandle(workspaceHandleRef, this.providerID, "personal")
+    ) {
+      return Promise.resolve(E.left("INVALID_WORKSPACE_HANDLE" as const))
+    }
+
+    createEnvironment(
+      newEnvironment.name,
+      newEnvironment.variables,
+      newEnvironment.id
+    )
+
+    platform.analytics?.logEvent({
+      type: "HOPP_CREATE_ENVIRONMENT",
+      workspaceType: "personal",
+    })
+
+    const createdEnvironmentHandle = await this.getRESTEnvironmentHandle(
+      workspaceHandle,
+      this.restEnvironmentState.value.length - 1
+    )
+
+    return createdEnvironmentHandle
+  }
+
+  public async duplicateRESTEnvironment(
+    environmentHandle: Handle<WorkspaceEnvironment>
+  ): Promise<E.Either<unknown, Handle<WorkspaceEnvironment>>> {
+    const environmentHandleRef = environmentHandle.get()
+
+    if (
+      !isValidEnvironmentHandle(
+        environmentHandleRef,
+        this.providerID,
+        "personal"
+      )
+    ) {
+      return Promise.resolve(E.left("INVALID_ENVIRONMENT_HANDLE" as const))
+    }
+
+    duplicateEnvironment(environmentHandleRef.value.data.environmentID)
+
+    const createdEnvironmentHandle = await this.getRESTEnvironmentHandle(
+      this.getPersonalWorkspaceHandle(),
+      this.restEnvironmentState.value.length - 1
+    )
+
+    return createdEnvironmentHandle
+  }
+
+  public async updateRESTEnvironment(
+    environmentHandle: Handle<WorkspaceEnvironment>,
+    updatedEnvironment: Partial<Environment>
+  ): Promise<E.Either<unknown, void>> {
+    const environmentHandleRef = environmentHandle.get()
+
+    if (
+      !isValidEnvironmentHandle(
+        environmentHandleRef,
+        this.providerID,
+        "personal"
+      )
+    ) {
+      return Promise.resolve(E.left("INVALID_ENVIRONMENT_HANDLE" as const))
+    }
+
+    const { environmentID } = environmentHandleRef.value.data
+
+    const existingEnvironment =
+      this.restEnvironmentState.value[
+        environmentHandleRef.value.data.environmentID
+      ]
+
+    const { id: environmentSyncID } = existingEnvironment
+
+    const newEnvironment = {
+      ...existingEnvironment,
+      ...updatedEnvironment,
+    }
+
+    updateEnvironment(
+      environmentID,
+      environmentSyncID
+        ? {
+            ...newEnvironment,
+            id: environmentSyncID,
+          }
+        : {
+            ...newEnvironment,
+          }
+    )
+
+    const updatedEnvironmentHandle = await this.getRESTEnvironmentHandle(
+      this.getPersonalWorkspaceHandle(),
+      environmentID
+    )
+
+    if (E.isRight(updatedEnvironmentHandle)) {
+      const updatedEnvironmentHandleRef = updatedEnvironmentHandle.right.get()
+
+      if (updatedEnvironmentHandleRef.value.type === "ok") {
+        updatedEnvironmentHandleRef.value.data.name = newEnvironment.name
+      }
+    }
+
+    return Promise.resolve(E.right(undefined))
+  }
+
+  public async removeRESTEnvironment(
+    environmentHandle: Handle<WorkspaceEnvironment>
+  ): Promise<E.Either<unknown, void>> {
+    const environmentHandleRef = environmentHandle.get()
+
+    if (
+      !isValidEnvironmentHandle(
+        environmentHandleRef,
+        this.providerID,
+        "personal"
+      )
+    ) {
+      return Promise.resolve(E.left("INVALID_ENVIRONMENT_HANDLE" as const))
+    }
+
+    const { environmentID } = environmentHandleRef.value.data
+
+    const removedEnvironmentHandle = await this.getRESTEnvironmentHandle(
+      this.getPersonalWorkspaceHandle(),
+      environmentID
+    )
+
+    if (E.isRight(removedEnvironmentHandle)) {
+      const removedEnvironmentHandleRef = removedEnvironmentHandle.right.get()
+
+      if (removedEnvironmentHandleRef.value.type === "ok") {
+        removedEnvironmentHandleRef.value = {
+          type: "invalid",
+          reason: "ENVIRONMENT_INVALIDATED",
+        }
+      }
+    }
+
+    const { id: environmentSyncID } =
+      this.restEnvironmentState.value[environmentID]
+
+    deleteEnvironment(environmentID, environmentSyncID)
+
+    return Promise.resolve(E.right(undefined))
+  }
+
+  public importRESTEnvironments(
+    workspaceHandle: Handle<Workspace>,
+    environments: Environment[]
+  ): Promise<E.Either<unknown, void>> {
+    const workspaceHandleRef = workspaceHandle.get()
+    if (
+      !isValidWorkspaceHandle(workspaceHandleRef, this.providerID, "personal")
+    ) {
+      return Promise.resolve(E.left("INVALID_WORKSPACE_HANDLE" as const))
+    }
+
+    appendEnvironments(environments)
+
+    return Promise.resolve(E.right(undefined))
+  }
+
+  public async exportRESTEnvironments(
+    workspaceHandle: Handle<Workspace>
+  ): Promise<E.Either<unknown, void>> {
+    const workspaceHandleRef = workspaceHandle.get()
+
+    if (
+      !isValidWorkspaceHandle(workspaceHandleRef, this.providerID, "personal")
+    ) {
+      return Promise.resolve(E.left("INVALID_WORKSPACE_HANDLE" as const))
+    }
+
+    const environmentsToExport = this.restEnvironmentState.value
+
+    if (environmentsToExport.length === 0) {
+      return Promise.resolve(E.left("NO_ENVIRONMENTS_TO_EXPORT" as const))
+    }
+
+    const result = await initializeDownloadFile(
+      JSON.stringify(environmentsToExport, null, 2),
+      `${workspaceHandleRef.value.data.workspaceID}-environments`
+    )
+
+    if (E.isLeft(result)) {
+      return Promise.resolve(E.left("EXPORT_FAILED" as const))
+    }
+
+    platform.analytics?.logEvent({
+      type: "HOPP_EXPORT_ENVIRONMENT",
+      platform: "rest",
+    })
+
+    return Promise.resolve(E.right(undefined))
+  }
+
+  public async exportRESTEnvironment(
+    environmentHandle: Handle<WorkspaceEnvironment>
+  ): Promise<E.Either<unknown, void>> {
+    const environmentHandleRef = environmentHandle.get()
+
+    if (
+      !isValidEnvironmentHandle(
+        environmentHandleRef,
+        this.providerID,
+        "personal"
+      )
+    ) {
+      return Promise.resolve(E.left("INVALID_ENVIRONMENT_HANDLE" as const))
+    }
+
+    const environment =
+      this.restEnvironmentState.value[
+        environmentHandleRef.value.data.environmentID
+      ]
+
+    if (!environment) {
+      return Promise.resolve(E.left("ENVIRONMENT_DOES_NOT_EXIST" as const))
+    }
+
+    const result = await initializeDownloadFile(
+      JSON.stringify(environment, null, 2),
+      environment.name
+    )
+
+    if (E.isLeft(result)) {
+      return Promise.resolve(E.left("EXPORT_FAILED" as const))
+    }
+
+    return Promise.resolve(E.right(undefined))
   }
 
   public getWorkspaceHandle(

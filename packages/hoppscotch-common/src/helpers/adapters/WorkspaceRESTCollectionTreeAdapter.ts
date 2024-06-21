@@ -42,7 +42,7 @@ export class WorkspaceRESTCollectionTreeAdapter
         }
 
         const collectionHandleResult =
-          await this.workspaceService.getCollectionHandle(
+          await this.workspaceService.getRESTCollectionHandle(
             this.workspaceHandle,
             nodeID
           )

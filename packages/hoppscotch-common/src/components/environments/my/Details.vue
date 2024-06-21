@@ -133,37 +133,33 @@
 </template>
 
 <script setup lang="ts">
-import IconTrash2 from "~icons/lucide/trash-2"
-import IconDone from "~icons/lucide/check"
-import IconPlus from "~icons/lucide/plus"
-import IconTrash from "~icons/lucide/trash"
-import IconHelpCircle from "~icons/lucide/help-circle"
-import { ComputedRef, computed, ref, watch } from "vue"
-import * as E from "fp-ts/Either"
-import * as A from "fp-ts/Array"
-import * as O from "fp-ts/Option"
-import { pipe, flow } from "fp-ts/function"
+import { useI18n } from "@composables/i18n"
+import { useReadonlyStream } from "@composables/stream"
+import { useColorMode } from "@composables/theming"
+import { useToast } from "@composables/toast"
 import { Environment, parseTemplateStringE } from "@hoppscotch/data"
 import { refAutoReset } from "@vueuse/core"
+import { useService } from "dioc/vue"
+import * as A from "fp-ts/Array"
+import * as E from "fp-ts/Either"
+import * as O from "fp-ts/Option"
+import { flow, pipe } from "fp-ts/function"
+import { ComputedRef, computed, ref, watch } from "vue"
+
+import { uniqueID } from "~/helpers/utils/uniqueID"
 import {
-  createEnvironment,
-  environments$,
+  environmentsStore,
   getEnvironment,
   getGlobalVariables,
   globalEnv$,
   setGlobalEnvVariables,
-  setSelectedEnvironmentIndex,
-  updateEnvironment,
 } from "~/newstore/environments"
-import { useI18n } from "@composables/i18n"
-import { useToast } from "@composables/toast"
-import { useReadonlyStream } from "@composables/stream"
-import { useColorMode } from "@composables/theming"
-import { environmentsStore } from "~/newstore/environments"
-import { platform } from "~/platform"
-import { useService } from "dioc/vue"
 import { SecretEnvironmentService } from "~/services/secret-environment.service"
-import { uniqueID } from "~/helpers/utils/uniqueID"
+import IconDone from "~icons/lucide/check"
+import IconHelpCircle from "~icons/lucide/help-circle"
+import IconPlus from "~icons/lucide/plus"
+import IconTrash from "~icons/lucide/trash"
+import IconTrash2 from "~icons/lucide/trash-2"
 
 type EnvironmentVariable = {
   id: number
@@ -199,6 +195,12 @@ const props = withDefaults(
 
 const emit = defineEmits<{
   (e: "hide-modal"): void
+  (e: "create-environment", newEnvironment: Environment): void
+  (
+    e: "update-environment",
+    environmentID: number,
+    updatedEnvironment: Partial<Environment>
+  ): void
 }>()
 
 const idTicker = ref(0)
@@ -287,8 +289,6 @@ const workingEnv = computed(() => {
   }
   return null
 })
-
-const envList = useReadonlyStream(environments$, []) || props.envVars()
 
 const evnExpandError = computed(() => {
   const variables = pipe(
@@ -425,22 +425,7 @@ const saveEnvironment = () => {
   }
 
   if (props.action === "new") {
-    // Creating a new environment
-    createEnvironment(
-      editingName.value,
-      environmentUpdated.variables,
-      editingID.value
-    )
-    setSelectedEnvironmentIndex({
-      type: "MY_ENV",
-      index: envList.value.length - 1,
-    })
-    toast.success(`${t("environment.created")}`)
-
-    platform.analytics?.logEvent({
-      type: "HOPP_CREATE_ENVIRONMENT",
-      workspaceType: "personal",
-    })
+    emit("create-environment", { ...environmentUpdated, id: editingID.value })
   } else if (props.editingEnvironmentIndex === "Global") {
     // Editing the Global environment
     setGlobalEnvVariables(environmentUpdated.variables)
@@ -450,18 +435,10 @@ const saveEnvironment = () => {
       environmentsStore.value.environments[props.editingEnvironmentIndex].id
 
     // Editing an environment
-    updateEnvironment(
-      props.editingEnvironmentIndex,
-      envID
-        ? {
-            ...environmentUpdated,
-            id: envID,
-          }
-        : {
-            ...environmentUpdated,
-          }
-    )
-    toast.success(`${t("environment.updated")}`)
+    emit("update-environment", props.editingEnvironmentIndex, {
+      ...environmentUpdated,
+      ...(envID && { id: envID }),
+    })
   }
 
   hideModal()

@@ -1,19 +1,21 @@
 import * as E from "fp-ts/Either"
 import { Ref } from "vue"
 
-import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
+import { Environment, HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
 import { Handle } from "./handle"
 import {
-  RESTCollectionChildrenView,
   RESTCollectionJSONView,
   RESTCollectionLevelAuthHeadersView,
-  RESTSearchResultsView,
+  RESTCollectionChildrenView,
+  RESTEnvironmentsView,
   RootRESTCollectionView,
+  RESTSearchResultsView,
 } from "./view"
 import {
   Workspace,
   WorkspaceCollection,
   WorkspaceDecor,
+  WorkspaceEnvironment,
   WorkspaceRequest,
 } from "./workspace"
 
@@ -25,21 +27,20 @@ export interface WorkspaceProvider {
   getWorkspaceHandle(
     workspaceID: string
   ): Promise<E.Either<unknown, Handle<Workspace>>>
-  getCollectionHandle(
+
+  getRESTCollectionHandle(
     workspaceHandle: Handle<Workspace>,
     collectionID: string
   ): Promise<E.Either<unknown, Handle<WorkspaceCollection>>>
-  getRequestHandle(
+  getRESTRequestHandle(
     workspaceHandle: Handle<Workspace>,
     requestID: string
   ): Promise<E.Either<unknown, Handle<WorkspaceRequest>>>
+  getRESTEnvironmentHandle(
+    workspaceHandle: Handle<Workspace>,
+    environmentID: number
+  ): Promise<E.Either<unknown, Handle<WorkspaceEnvironment>>>
 
-  getRESTRootCollectionView(
-    workspaceHandle: Handle<Workspace>
-  ): Promise<E.Either<never, Handle<RootRESTCollectionView>>>
-  getRESTCollectionChildrenView(
-    collectionHandle: Handle<WorkspaceCollection>
-  ): Promise<E.Either<never, Handle<RESTCollectionChildrenView>>>
   getRESTCollectionLevelAuthHeadersView(
     collectionHandle: Handle<WorkspaceCollection>
   ): Promise<E.Either<never, Handle<RESTCollectionLevelAuthHeadersView>>>
@@ -47,9 +48,19 @@ export interface WorkspaceProvider {
     workspaceHandle: Handle<Workspace>,
     searchQuery: Ref<string>
   ): Promise<E.Either<never, Handle<RESTSearchResultsView>>>
+
+  getRESTRootCollectionView(
+    workspaceHandle: Handle<Workspace>
+  ): Promise<E.Either<never, Handle<RootRESTCollectionView>>>
+  getRESTCollectionChildrenView(
+    collectionHandle: Handle<WorkspaceCollection>
+  ): Promise<E.Either<never, Handle<RESTCollectionChildrenView>>>
   getRESTCollectionJSONView(
     workspaceHandle: Handle<Workspace>
   ): Promise<E.Either<never, Handle<RESTCollectionJSONView>>>
+  getRESTEnvironmentsView(
+    workspaceHandle: Handle<Workspace>
+  ): Promise<E.Either<never, Handle<RESTEnvironmentsView>>>
 
   createRESTRootCollection(
     workspaceHandle: Handle<Workspace>,
@@ -104,5 +115,31 @@ export interface WorkspaceProvider {
   moveRESTRequest(
     requestHandle: Handle<WorkspaceRequest>,
     destinationCollectionID: string
+  ): Promise<E.Either<unknown, void>>
+
+  createRESTEnvironment(
+    workspaceHandle: Handle<Workspace>,
+    newEnvironment: Partial<Environment> & { name: string }
+  ): Promise<E.Either<unknown, Handle<WorkspaceEnvironment>>>
+  duplicateRESTEnvironment(
+    environmentHandle: Handle<WorkspaceEnvironment>
+  ): Promise<E.Either<unknown, Handle<WorkspaceEnvironment>>>
+  updateRESTEnvironment(
+    environmentHandle: Handle<WorkspaceEnvironment>,
+    updatedEnvironment: Partial<Environment>
+  ): Promise<E.Either<unknown, void>>
+  removeRESTEnvironment(
+    environmentHandle: Handle<WorkspaceEnvironment>
+  ): Promise<E.Either<unknown, void>>
+
+  importRESTEnvironments(
+    workspaceHandle: Handle<Workspace>,
+    environments: Environment[]
+  ): Promise<E.Either<unknown, void>>
+  exportRESTEnvironments(
+    workspaceHandle: Handle<Workspace>
+  ): Promise<E.Either<unknown, void>>
+  exportRESTEnvironment(
+    environmentHandle: Handle<WorkspaceEnvironment>
   ): Promise<E.Either<unknown, void>>
 }

@@ -21,6 +21,7 @@ import {
 import { NewWorkspaceService } from "../new-workspace"
 import { Handle } from "../new-workspace/handle"
 import { WorkspaceRequest } from "../new-workspace/workspace"
+import { HoppGQLDocument } from "~/helpers/graphql/document"
 
 export abstract class TabService<Doc>
   extends Service
@@ -28,7 +29,7 @@ export abstract class TabService<Doc>
 {
   private workspaceService = this.bind(NewWorkspaceService)
 
-  protected tabMap = reactive(new Map<string, HoppTab<Doc>>())
+  protected tabMap: Map<string, HoppTab<Doc>> = reactive(new Map())
   protected tabOrdering = ref<string[]>(["test"])
 
   public currentTabID = refWithControl("test", {
@@ -102,7 +103,7 @@ export abstract class TabService<Doc>
         let resolvedTabDoc = doc.doc
 
         // TODO: Account for GQL
-        const { saveContext } = doc.doc as HoppRESTDocument
+        const { saveContext } = doc.doc as HoppRESTDocument | HoppGQLDocument
 
         if (saveContext?.originLocation === "workspace-user-collection") {
           const { providerID, requestID, workspaceID } = saveContext
@@ -124,7 +125,7 @@ export abstract class TabService<Doc>
           const workspaceHandle = workspaceHandleResult.right
 
           const requestHandleResult =
-            await this.workspaceService.getRequestHandle(
+            await this.workspaceService.getRESTRequestHandle(
               workspaceHandle,
               requestID!
             )
@@ -238,7 +239,7 @@ export abstract class TabService<Doc>
   }
 
   public getPersistedDocument(tabDoc: Doc): Doc {
-    const { saveContext } = tabDoc as HoppRESTDocument
+    const { saveContext } = tabDoc as HoppRESTDocument | HoppGQLDocument
 
     if (saveContext?.originLocation !== "workspace-user-collection") {
       return tabDoc

@@ -1,5 +1,6 @@
-import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
+import { Environment, HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
 import { Ref } from "vue"
+
 import { HoppInheritedRESTProperty } from "~/helpers/types/HoppInheritedProperties"
 
 export type RESTCollectionLevelAuthHeadersView = {
@@ -61,4 +62,12 @@ export interface RESTCollectionJSONView {
   workspaceID: string
 
   content: string
+}
+
+export interface RESTEnvironmentsView {
+  providerID: string
+  workspaceID: string
+
+  // TODO: Evaluate if this needs to be a `ref`
+  environments: Ref<Environment[]>
 }

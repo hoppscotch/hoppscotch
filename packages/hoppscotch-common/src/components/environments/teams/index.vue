@@ -142,6 +142,19 @@ const props = defineProps<{
   loading: boolean
 }>()
 
+// TODO: Enable once the team workspace changes are in place
+// Attach handlers to `EnvironmentsTeamsDetails` & `EnvironmentsTeamsEnvironment` & emit them straightaway to the parent component
+// const emit = defineEmits<{
+//   (e: "create-environment", newEnvironment: Environment): void
+//   (e: "duplicate-environment", environmentID: number): void
+//   (
+//     e: "update-environment",
+//     environmentID: number,
+//     updatedEnvironment: Partial<Environment>
+//   ): void
+//   (e: "delete-environment", environmentID: number): void
+// }>()
+
 const showModalImportExport = ref(false)
 const showModalDetails = ref(false)
 const action = ref<"new" | "edit">("edit")

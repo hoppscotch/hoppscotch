@@ -7,7 +7,6 @@ query UserInfo($uid: ID!) {
       isAdmin
       photoURL
       createdOn
-      lastLoggedOn
       lastActiveOn
     }
   }

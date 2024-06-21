@@ -129,6 +129,7 @@
                     })
               }
             "
+            @run-in-cli="(collectionID) => emit('run-in-cli', collectionID)"
             @click="
               () => {
                 handleCollectionClick({
@@ -218,6 +219,7 @@
                     })
               }
             "
+            @run-in-cli="(collectionID) => emit('run-in-cli', collectionID)"
             @click="
               () => {
                 handleCollectionClick({
@@ -586,6 +588,7 @@ const emit = defineEmits<{
   (event: "expand-team-collection", payload: string): void
   (event: "display-modal-add"): void
   (event: "display-modal-import-export"): void
+  (event: "run-in-cli", collectionID: string): void
 }>()
 
 const getPath = (path: string) => {

@@ -61,6 +61,7 @@ declare module 'vue' {
     CollectionsMyCollections: typeof import('./components/collections/MyCollections.vue')['default']
     CollectionsProperties: typeof import('./components/collections/Properties.vue')['default']
     CollectionsRequest: typeof import('./components/collections/Request.vue')['default']
+    CollectionsRunner: typeof import('./components/collections/Runner.vue')['default']
     CollectionsSaveRequest: typeof import('./components/collections/SaveRequest.vue')['default']
     CollectionsTeamCollections: typeof import('./components/collections/TeamCollections.vue')['default']
     CookiesAllModal: typeof import('./components/cookies/AllModal.vue')['default']

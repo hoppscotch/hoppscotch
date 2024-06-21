@@ -106,7 +106,7 @@
             </td>
 
             <td class="py-2 px-7">
-              {{ useTimeAgo(user.lastLoggedOn).value }}
+              {{ useTimeAgo(user.lastActiveOn).value }}
             </td>
 
             <td @click.stop class="flex justify-end w-20">
@@ -286,7 +286,7 @@ const headings = [
   { key: 'displayName', label: t('users.name') },
   { key: 'email', label: t('users.email') },
   { key: 'createdOn', label: t('users.created_on') },
-  { key: 'lastLoggedOn', label: t('users.last_active_on') },
+  { key: 'lastActiveOn', label: t('users.last_active_on') },
   { key: '', label: '' },
 ];
 

@@ -8,6 +8,7 @@ query UsersListV2($searchString: String, $skip: Int, $take: Int) {
       photoURL
       createdOn
       lastLoggedOn
+      lastActiveOn
     }
   }
 }

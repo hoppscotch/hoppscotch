@@ -38,7 +38,7 @@ export class User {
 
   @Field({
     nullable: true,
-    description: 'Date when the user last logged in',
+    description: 'Date when the user last interacted with the app',
   })
   lastActiveOn: Date;
 

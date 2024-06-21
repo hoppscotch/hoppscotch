@@ -112,7 +112,7 @@ services:
     build:
       dockerfile: packages/hoppscotch-backend/Dockerfile
       context: .
-      target: dev
+      target: prod
     env_file:
       - ./.env
     restart: always

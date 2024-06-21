@@ -22,7 +22,9 @@
         </label>
 
         <!-- TODO: Remove the below check once GQL collections are ported to the new architecture -->
-        <div v-if="!activeWorkspaceHandle">No Workspace Selected.</div>
+        <div v-if="!activeWorkspaceHandle" class="p-4">
+          {{ t("workspace.no_workspace_selected") }}
+        </div>
 
         <CollectionsGraphql
           v-else-if="mode === 'graphql'"

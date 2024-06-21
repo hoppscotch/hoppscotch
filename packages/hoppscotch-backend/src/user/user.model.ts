@@ -37,6 +37,12 @@ export class User {
   lastLoggedOn: Date;
 
   @Field({
+    nullable: true,
+    description: 'Date when the user last interacted with the app',
+  })
+  lastActiveOn: Date;
+
+  @Field({
     description: 'Date when the user account was created',
   })
   createdOn: Date;

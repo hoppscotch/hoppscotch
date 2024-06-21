@@ -104,7 +104,8 @@ model User {
   userRequests         UserRequest[]
   currentRESTSession   Json?
   currentGQLSession    Json?
-  lastLoggedOn         DateTime?
+  lastLoggedOn         DateTime?             @db.Timestamp(3)
+  lastActiveOn         DateTime?             @db.Timestamp(3)
   createdOn            DateTime              @default(now()) @db.Timestamp(3)
   invitedUsers         InvitedUsers[]
   shortcodes           Shortcode[]

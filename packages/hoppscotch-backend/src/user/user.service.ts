@@ -335,6 +335,22 @@ export class UserService {
   }
 
   /**
+   * Update user's lastActiveOn timestamp
+   * @param userUID User UID
+   */
+  async updateUserLastActiveOn(userUid: string) {
+    try {
+      await this.prisma.user.update({
+        where: { uid: userUid },
+        data: { lastActiveOn: new Date() },
+      });
+      return E.right(true);
+    } catch (e) {
+      return E.left(USER_NOT_FOUND);
+    }
+  }
+
+  /**
    * Validate and parse currentRESTSession and currentGQLSession
    * @param sessionData string of the session
    * @returns a Either of JSON object or error

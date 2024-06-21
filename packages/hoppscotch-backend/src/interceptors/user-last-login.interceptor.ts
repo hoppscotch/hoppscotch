@@ -16,7 +16,6 @@ export class UserLastLoginInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     const user: AuthUser = context.switchToHttp().getRequest().user;
 
-    const now = Date.now();
     return next.handle().pipe(
       tap(() => {
         this.userService.updateUserLastLoggedOn(user.uid);

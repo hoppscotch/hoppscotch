@@ -35,8 +35,8 @@
         />
       </div>
     </div>
-    <div class="h-full">
-      <div ref="rawResponse" class="flex flex-1 flex-col"></div>
+    <div class="h-full relative overflow-auto">
+      <div ref="rawResponse" class="absolute inset-0"></div>
     </div>
   </div>
 </template>

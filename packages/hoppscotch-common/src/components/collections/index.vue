@@ -165,6 +165,7 @@
       v-model="collectionPropertiesModalActiveTab"
       :show="showModalEditProperties"
       :editing-properties="editingProperties"
+      :show-details="collectionsType.type === 'team-collections'"
       source="REST"
       @hide-modal="displayModalEditProperties(false)"
       @set-collection-properties="setCollectionProperties"

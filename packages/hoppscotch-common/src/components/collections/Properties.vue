@@ -12,7 +12,7 @@
         styles="sticky overflow-x-auto flex-shrink-0 bg-primary top-0 z-10 !-py-4"
         render-inactive-tabs
       >
-        <HoppSmartTab :id="'headers'" :label="`${t('tab.headers')}`">
+        <HoppSmartTab id="headers" :label="`${t('tab.headers')}`">
           <HttpHeaders
             v-model="editableCollection"
             :is-collection-property="true"
@@ -24,10 +24,8 @@
             {{ t("helpers.collection_properties_header") }}
           </div>
         </HoppSmartTab>
-        <HoppSmartTab
-          :id="'authorization'"
-          :label="`${t('tab.authorization')}`"
-        >
+
+        <HoppSmartTab id="authorization" :label="`${t('tab.authorization')}`">
           <HttpAuthorization
             v-model="editableCollection.auth"
             :is-collection-property="true"
@@ -40,6 +38,45 @@
           >
             <icon-lucide-info class="svg-icons mr-2" />
             {{ t("helpers.collection_properties_authorization") }}
+          </div>
+        </HoppSmartTab>
+
+        <HoppSmartTab v-if="showDetails" :id="'details'" label="Details">
+          <div
+            class="flex flex-shrink-0 items-center justify-between border-b border-dividerLight bg-primary pl-4"
+          >
+            <span>Collection ID</span>
+            <HoppButtonSecondary
+              v-tippy="{ theme: 'tooltip' }"
+              to="https://docs.hoppscotch.io/documentation/features/authorization"
+              blank
+              :title="t('app.wiki')"
+              :icon="IconHelpCircle"
+            />
+          </div>
+
+          <div class="p-4">
+            <div
+              class="flex items-center justify-between py-2 px-4 rounded-md bg-primaryLight"
+            >
+              <div class="text-secondaryDark">
+                {{ editingProperties?.path }}
+              </div>
+
+              <HoppButtonSecondary
+                filled
+                :icon="copyIcon"
+                @click="copyAccessToken"
+              />
+            </div>
+          </div>
+
+          <div
+            class="bg-bannerInfo px-4 py-2 flex items-center sticky bottom-0"
+          >
+            <icon-lucide-info class="svg-icons mr-2" />
+            This collection ID will be used for CLI collection runner for
+            Hoppscotch.
           </div>
         </HoppSmartTab>
       </HoppSmartTabs>
@@ -72,13 +109,18 @@ import {
   HoppRESTAuth,
   HoppRESTHeaders,
 } from "@hoppscotch/data"
-import { useVModel } from "@vueuse/core"
+import { refAutoReset, useVModel } from "@vueuse/core"
 import { useService } from "dioc/vue"
 import { clone } from "lodash-es"
 import { ref, watch } from "vue"
+import { useToast } from "~/composables/toast"
 
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
+import { copyToClipboard } from "~/helpers/utils/clipboard"
 import { PersistenceService } from "~/services/persistence"
+import IconCheck from "~icons/lucide/check"
+import IconCopy from "~icons/lucide/copy"
+import IconHelpCircle from "~icons/lucide/help-circle"
 
 const persistenceService = useService(PersistenceService)
 const t = useI18n()
@@ -93,6 +135,8 @@ export type EditingProperties = {
 type HoppCollectionAuth = HoppRESTAuth | HoppGQLAuth
 type HoppCollectionHeaders = HoppRESTHeaders | GQLHeader[]
 
+const toast = useToast()
+
 const props = withDefaults(
   defineProps<{
     show: boolean
@@ -100,11 +144,13 @@ const props = withDefaults(
     editingProperties: EditingProperties | null
     source: "REST" | "GraphQL"
     modelValue: string
+    showDetails: boolean
   }>(),
   {
     show: false,
     loadingState: false,
     editingProperties: null,
+    showDetailsTab: false,
   }
 )
 
@@ -127,6 +173,11 @@ const editableCollection = ref<{
     authActive: false,
   },
 })
+
+const copyIcon = refAutoReset<typeof IconCopy | typeof IconCheck>(
+  IconCopy,
+  1000
+)
 
 watch(
   editableCollection,
@@ -154,6 +205,11 @@ const activeTab = useVModel(props, "modelValue", emit)
 watch(
   () => props.show,
   (show) => {
+    // Prevent the tab contents from appearing empty in a personal workspace if the previous active tab was `details`
+    if (activeTab.value === "details" && !props.showDetails) {
+      activeTab.value = "headers"
+    }
+
     if (show && props.editingProperties?.collection) {
       editableCollection.value.auth = clone(
         props.editingProperties.collection.auth as HoppCollectionAuth
@@ -193,5 +249,11 @@ const saveEditedCollection = () => {
 const hideModal = () => {
   persistenceService.removeLocalConfig("unsaved_collection_properties")
   emit("hide-modal")
+}
+
+const copyAccessToken = () => {
+  copyToClipboard(props.editingProperties?.path ?? "")
+  copyIcon.value = IconCheck
+  toast.success(`${t("state.copied_to_clipboard")}`)
 }
 </script>

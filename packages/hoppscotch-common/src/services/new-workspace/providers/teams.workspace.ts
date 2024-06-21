@@ -23,14 +23,17 @@ import {
   updateTeamCollection,
   deleteCollection,
   moveRESTTeamCollection,
+  updateOrderRESTTeamCollection,
 } from "~/helpers/backend/mutations/TeamCollection"
 import {
   createRequestInCollection,
   updateTeamRequest,
   deleteTeamRequest,
+  moveRESTTeamRequest,
+  updateOrderRESTTeamRequest,
 } from "~/helpers/backend/mutations/TeamRequest"
 import { createTeam } from "~/helpers/backend/mutations/Team"
-import { Ref, computed, ref, watch } from "vue"
+import { Ref, computed, ref } from "vue"
 import {
   RESTCollectionChildrenView,
   RESTCollectionJSONView,
@@ -328,6 +331,11 @@ export class TeamsWorkspaceProviderService
   // for testing purposes
   _setCollections(collections: TeamsWorkspaceCollection[]) {
     this.collections.value = collections
+  }
+
+  // for testing purposes
+  _setRequests(requests: TeamsWorkspaceRequest[]) {
+    this.requests.value = requests
   }
 
   async createRESTChildCollection(
@@ -1345,7 +1353,6 @@ export class TeamsWorkspaceProviderService
     })
   }
 
-  // TODO: right now you're not calling the BE for this akash, include it later
   async moveRESTCollection(
     collectionHandle: Handle<WorkspaceCollection>,
     destinationCollectionID: string | null
@@ -1374,33 +1381,26 @@ export class TeamsWorkspaceProviderService
       return E.left(moveRES.left)
     }
 
-    // find the sibling collections, and move the collection to the end of that collection
-    // also consider the destinationCollectionID being null, in that case, move it to the root
-    const siblingCollections = this.collections.value.filter(
-      (collection) => collection.parentCollectionID === destinationCollectionID
+    const localMoveRES = moveItems(
+      collection.collectionID,
+      destinationCollectionID,
+      // TODO: undefined v/s null thing, fix later
+      this.collections.value,
+      "collectionID",
+      "parentCollectionID"
     )
 
-    const lastSibling = siblingCollections.at(-1)
+    if (E.isLeft(localMoveRES)) {
+      return E.left(localMoveRES.left)
+    }
 
-    const order = generateKeyBetween(lastSibling?.order, null)
+    // TODO: for now casting, make sure to prevent type widening when passing collections to moveItems
+    this.collections.value = localMoveRES.right as TeamsWorkspaceCollection[]
 
-    // TODO: check this type error
-    this.collections.value = this.collections.value.map((col) => {
-      if (col.collectionID === collection.collectionID) {
-        return {
-          ...col,
-          parentCollectionID: destinationCollectionID ?? undefined,
-          order,
-        }
-      }
-
-      return col
-    })
-
-    return Promise.resolve(E.right(undefined))
+    return E.right(undefined)
   }
 
-  moveRESTRequest(
+  async moveRESTRequest(
     requestHandle: Handle<WorkspaceRequest>,
     destinationCollectionID: string
   ): Promise<E.Either<unknown, void>> {
@@ -1427,30 +1427,33 @@ export class TeamsWorkspaceProviderService
       return Promise.resolve(E.left("DESTINATION_COLLECTION_DOES_NOT_EXIST"))
     }
 
-    const siblingRequests = this.requests.value.filter(
-      (request) => request.collectionID === destinationCollectionID
+    const moveRES = await moveRESTTeamRequest(
+      requestHandleRef.value.data.requestID,
+      destinationCollectionID
+    )()
+
+    if (E.isLeft(moveRES)) {
+      return E.left(moveRES.left)
+    }
+
+    const localMoveRES = moveItems(
+      request.requestID,
+      destinationCollectionID,
+      this.requests.value,
+      "requestID",
+      "collectionID"
     )
 
-    const lastSibling = siblingRequests.at(-1)
+    if (E.isLeft(localMoveRES)) {
+      return E.left(localMoveRES.left)
+    }
 
-    const order = generateKeyBetween(lastSibling?.order, null)
-
-    this.requests.value = this.requests.value.map((req) => {
-      if (req.requestID === request.requestID) {
-        return {
-          ...req,
-          collectionID: destinationCollectionID,
-          order,
-        }
-      }
-
-      return req
-    })
+    this.requests.value = localMoveRES.right
 
     return Promise.resolve(E.right(undefined))
   }
 
-  reorderRESTCollection(
+  async reorderRESTCollection(
     collectionHandle: Handle<WorkspaceCollection>,
     destinationCollectionID: string | null
   ): Promise<E.Either<unknown, void>> {
@@ -1469,14 +1472,18 @@ export class TeamsWorkspaceProviderService
       return Promise.resolve(E.left("COLLECTION_DOES_NOT_EXIST" as const))
     }
 
-    const nextCollection = this.collections.value.find(
-      (collection) => collection.collectionID === destinationCollectionID
-    )
-
-    const reorderOperation = reorderItemsWithoutChangingParent(
+    const reorderRes = await updateOrderRESTTeamCollection(
       collection.collectionID,
-      nextCollection?.collectionID ?? null,
+      destinationCollectionID
+    )()
 
+    if (E.isLeft(reorderRes)) {
+      return reorderRes
+    }
+
+    const reorderOperation = reorderItems(
+      collection.collectionID,
+      destinationCollectionID,
       // TODO: undefined v/s null thing, fix later
       this.orderedCollections.value,
       "collectionID",
@@ -1487,13 +1494,14 @@ export class TeamsWorkspaceProviderService
       return Promise.resolve(reorderOperation)
     }
 
-    // TODO: might be due to figuring out the return type. fix later
-    this.collections.value = reorderOperation.right
+    // TODO: for now casting, make sure to prevent type widening when passing collections to moveItems
+    this.collections.value =
+      reorderOperation.right as TeamsWorkspaceCollection[]
 
     return Promise.resolve(E.right(undefined))
   }
 
-  reorderRESTRequest(
+  async reorderRESTRequest(
     requestHandle: Handle<WorkspaceRequest>,
     destinationCollectionID: string,
     destinationRequestID: string | null
@@ -1512,25 +1520,31 @@ export class TeamsWorkspaceProviderService
       return Promise.resolve(E.left("REQUEST_DOES_NOT_EXIST" as const))
     }
 
-    const nextRequest = this.requests.value.find(
-      (request) => request.requestID === destinationRequestID
-    )
-
-    const reorderOperation = reorderItemsWithoutChangingParent(
+    const reorderRes = await updateOrderRESTTeamRequest(
       request.requestID,
-      nextRequest?.requestID ?? null,
-      this.orderedRequests.value,
+      destinationRequestID,
+      destinationCollectionID
+    )()
+
+    if (E.isLeft(reorderRes)) {
+      return reorderRes
+    }
+
+    const localReorderRes = reorderItems(
+      request.requestID,
+      destinationRequestID,
+      this.requests.value,
       "requestID",
       "collectionID"
     )
 
-    if (E.isLeft(reorderOperation)) {
-      return Promise.resolve(reorderOperation)
+    if (E.isLeft(localReorderRes)) {
+      return Promise.resolve(localReorderRes)
     }
 
-    this.requests.value = reorderOperation.right
+    this.requests.value = localReorderRes.right
 
-    return Promise.resolve(E.right(undefined))
+    return E.right(undefined)
   }
 
   // this might be temporary, might move this to decor
@@ -1836,7 +1850,7 @@ export class TeamsWorkspaceProviderService
 
       const { request, nextRequest } = result.right.requestOrderUpdated
 
-      const reorderOperation = reorderItemsWithoutChangingParent(
+      const reorderOperation = reorderItems(
         request.id,
         nextRequest?.id ?? null,
         this.orderedRequests.value,
@@ -2058,7 +2072,8 @@ const testProvider = async () => {
 
 window.testProvider = testProvider
 
-const reorderItemsWithoutChangingParent = <
+// TODO: throw an error if source and destination doesnt have the same parent
+export const reorderItems = <
   ParentIDKey extends keyof Reorderable,
   IDKey extends keyof Reorderable,
   Reorderable extends { order: string } & {
@@ -2079,47 +2094,31 @@ const reorderItemsWithoutChangingParent = <
     return E.left("SOURCE_ITEM_NOT_FOUND_WHILE_REORDERING")
   }
 
-  let destinationItem: Reorderable | undefined
-  let destinationOrder: string | null = null
+  const siblingItems = sortByOrder(
+    items.filter((item) => item[parentIDKey] === sourceItem[parentIDKey])
+  )
 
-  if (destinationItemID) {
-    destinationItem = items.find((item) => item[idKey] === destinationItemID)
+  let previousItem: Reorderable | undefined
+  let nextItem: Reorderable | undefined
 
-    if (!destinationItem) {
+  if (!destinationItemID) {
+    previousItem = siblingItems.at(-1)
+  } else {
+    const destinationIndex = siblingItems.findIndex(
+      (item) => item[idKey] === destinationItemID
+    )
+
+    if (!destinationIndex && destinationIndex !== 0) {
       return E.left("DESTINATION_ITEM_NOT_FOUND_WHILE_REORDERING")
     }
 
-    destinationOrder = destinationItem.order
-  }
-
-  const siblingItems = items.filter(
-    (item) => item[parentIDKey] === sourceItem[parentIDKey]
-  )
-
-  const previousItem = (() => {
-    // if the destination order is null, we're moving the collection to the end of the list
-    if (destinationOrder === null) {
-      return E.right(siblingItems.at(-1))
-    }
-
-    const destinationCollection = siblingItems.find(
-      (collection) => collection[idKey] === destinationItemID
-    )
-
-    if (!destinationCollection) {
-      return E.left("DESTINATION_ITEM_NOT_FOUND")
-    }
-
-    return E.right(destinationCollection)
-  })()
-
-  if (E.isLeft(previousItem)) {
-    return previousItem
+    previousItem = siblingItems[destinationIndex - 1]
+    nextItem = siblingItems[destinationIndex]
   }
 
   const newOrder = generateKeyBetween(
-    previousItem.right?.order ?? null,
-    destinationItem?.order ?? null
+    previousItem?.order ?? null,
+    nextItem?.order ?? null
   )
 
   return E.right(
@@ -2134,7 +2133,61 @@ const reorderItemsWithoutChangingParent = <
   )
 }
 
-const sortByOrder = <OrderedItem extends { order: string }>(
+export const moveItems = <
+  ParentIDKey extends keyof Reorderable,
+  IDKey extends keyof Reorderable,
+  Reorderable extends { order: string } & {
+    [key in ParentIDKey]: string | null
+  } & {
+    [key in IDKey]: string
+  },
+>(
+  sourceItemID: string,
+  destinationParentID: string | null,
+  items: Reorderable[],
+  idKey: IDKey,
+  parentIDKey: ParentIDKey
+): E.Either<
+  | "SOURCE_ITEM_NOT_FOUND_WHILE_MOVING"
+  | "DESTINATION_PARENT_NOT_FOUND_WHILE_MOVING",
+  Reorderable[]
+> => {
+  const destinationParent = items.find(
+    (item) => item[idKey] === destinationParentID
+  )
+
+  if (!destinationParent && destinationParentID) {
+    return E.left("DESTINATION_PARENT_NOT_FOUND_WHILE_MOVING")
+  }
+
+  const sourceItem = items.find((item) => item[idKey] === sourceItemID)
+
+  if (!sourceItem) {
+    return E.left("SOURCE_ITEM_NOT_FOUND_WHILE_MOVING")
+  }
+
+  const siblingItems = sortByOrder(
+    items.filter((item) => item[parentIDKey] === destinationParentID)
+  )
+
+  const lastSibling = siblingItems.at(-1)
+
+  const newOrder = generateKeyBetween(lastSibling?.order, null)
+
+  return E.right(
+    items.map((item) =>
+      item[idKey] === sourceItemID
+        ? {
+            ...item,
+            [parentIDKey]: destinationParentID,
+            order: newOrder,
+          }
+        : item
+    )
+  )
+}
+
+export const sortByOrder = <OrderedItem extends { order: string }>(
   items: OrderedItem[]
 ) => {
   return items.sort((item1, item2) => {

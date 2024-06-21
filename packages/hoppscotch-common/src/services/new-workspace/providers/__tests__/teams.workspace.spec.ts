@@ -1,5 +1,8 @@
-import { beforeAll, describe, expect, test, vi } from "vitest"
-import { TeamsWorkspaceProviderService } from "./../teams.workspace"
+import { beforeAll, beforeEach, describe, expect, test, vi } from "vitest"
+import {
+  sortByOrder,
+  TeamsWorkspaceProviderService,
+} from "./../teams.workspace"
 import * as E from "fp-ts/Either"
 import { TestContainer } from "dioc/testing"
 import {
@@ -8,6 +11,7 @@ import {
   updateTeamCollection,
   deleteCollection,
   moveRESTTeamCollection,
+  updateOrderRESTTeamCollection,
 } from "~/helpers/backend/mutations/TeamCollection"
 
 import * as TE from "fp-ts/TaskEither"
@@ -20,7 +24,10 @@ import {
   GetCollectionRequestsQuery,
   GetMyTeamsQuery,
   MoveRestTeamCollectionMutation,
+  MoveRestTeamRequestMutation,
   RootCollectionsOfTeamQuery,
+  UpdateCollectionOrderMutation,
+  UpdateLookUpRequestOrderMutation,
   UpdateRequestMutation,
   UpdateTeamCollectionMutation,
 } from "~/helpers/backend/graphql"
@@ -30,6 +37,8 @@ import {
   createRequestInCollection,
   updateTeamRequest,
   deleteTeamRequest,
+  moveRESTTeamRequest,
+  updateOrderRESTTeamRequest,
 } from "~/helpers/backend/mutations/TeamRequest"
 import {
   getDefaultRESTRequest,
@@ -65,6 +74,7 @@ vi.mock("./../../../../helpers/backend/mutations/TeamCollection", () => {
     updateTeamCollection: vi.fn(),
     deleteCollection: vi.fn(),
     moveRESTTeamCollection: vi.fn(),
+    updateOrderRESTTeamCollection: vi.fn(),
   }
 })
 
@@ -73,6 +83,8 @@ vi.mock("./../../../../helpers/backend/mutations/TeamRequest", () => {
     createRequestInCollection: vi.fn(),
     updateTeamRequest: vi.fn(),
     deleteTeamRequest: vi.fn(),
+    moveRESTTeamRequest: vi.fn(),
+    updateOrderRESTTeamRequest: vi.fn(),
   }
 })
 
@@ -1476,14 +1488,17 @@ describe("TeamsWorkspaceProviderService", () => {
     `)
   })
 
-  describe("move rest collections", () => {
+  describe("move + reorder", () => {
     // todo: abstract the vars like this for all the tests
     let sampleWorkspace: Handle<Workspace>
     let teamsWorkspaceProviderService: TeamsWorkspaceProviderService
 
-    beforeAll(async () => {
+    beforeEach(async () => {
       mockFetchAllTeams()
       mockMoveTeamCollection()
+      mockMoveTeamRequest()
+      mockUpdateOrderRESTTeamCollection()
+      mockUpdateOrderRESTTeamRequest()
 
       const container = new TestContainer()
       teamsWorkspaceProviderService = container.bind(
@@ -1500,7 +1515,7 @@ describe("TeamsWorkspaceProviderService", () => {
       seedCollectionsForMovingReorderingExporting(teamsWorkspaceProviderService)
     })
 
-    test.only("root collection to root collection", async () => {
+    test("root collection to root collection", async () => {
       const sourceCollectionHandle =
         await teamsWorkspaceProviderService.getCollectionHandle(
           sampleWorkspace,
@@ -1511,7 +1526,7 @@ describe("TeamsWorkspaceProviderService", () => {
         throw new Error("FAILED_TO_GET_SOURCE_COLLECTION")
       }
 
-      teamsWorkspaceProviderService.moveRESTCollection(
+      await teamsWorkspaceProviderService.moveRESTCollection(
         sourceCollectionHandle.right,
         "root_collection_0"
       )
@@ -1522,8 +1537,415 @@ describe("TeamsWorkspaceProviderService", () => {
           (collection) => collection.parentCollectionID === "root_collection_0"
         )
 
-      expect(childrenAfterMoving).toMatchInlineSnapshot()
+      const rootCollectionsAfterMoving =
+        teamsWorkspaceProviderService.collections.value.filter(
+          (collection) => !collection.parentCollectionID
+        )
+
+      // no more root_collection_1 here, because we moved it
+      expect(rootCollectionsAfterMoving).toMatchInlineSnapshot(`
+        [
+          {
+            "auth": {
+              "authActive": true,
+              "authType": "inherit",
+            },
+            "collectionID": "root_collection_0",
+            "headers": [],
+            "name": "Root Collection 0",
+            "order": "a0",
+            "providerID": "TEAMS_WORKSPACE_PROVIDER",
+            "workspaceID": "workspace_id_0",
+          },
+        ]
+      `)
+
+      // can find the root_collection_1 as the child of root_collection_0
+      expect(childrenAfterMoving).toMatchInlineSnapshot(`
+        [
+          {
+            "auth": {
+              "authActive": true,
+              "authType": "inherit",
+            },
+            "collectionID": "child_collection_0_0",
+            "headers": [],
+            "name": "Child Collection 0 0",
+            "order": "a0",
+            "parentCollectionID": "root_collection_0",
+            "providerID": "TEAMS_WORKSPACE_PROVIDER",
+            "workspaceID": "workspace_id_0",
+          },
+          {
+            "auth": {
+              "authActive": true,
+              "authType": "inherit",
+            },
+            "collectionID": "child_collection_0_1",
+            "headers": [],
+            "name": "Child Collection 0 1",
+            "order": "a1",
+            "parentCollectionID": "root_collection_0",
+            "providerID": "TEAMS_WORKSPACE_PROVIDER",
+            "workspaceID": "workspace_id_0",
+          },
+          {
+            "auth": {
+              "authActive": true,
+              "authType": "inherit",
+            },
+            "collectionID": "child_collection_0_2",
+            "headers": [],
+            "name": "Child Collection 0 2",
+            "order": "a2",
+            "parentCollectionID": "root_collection_0",
+            "providerID": "TEAMS_WORKSPACE_PROVIDER",
+            "workspaceID": "workspace_id_0",
+          },
+          {
+            "auth": {
+              "authActive": true,
+              "authType": "inherit",
+            },
+            "collectionID": "root_collection_1",
+            "headers": [],
+            "name": "Root Collection 1",
+            "order": "a3",
+            "parentCollectionID": "root_collection_0",
+            "providerID": "TEAMS_WORKSPACE_PROVIDER",
+            "workspaceID": "workspace_id_0",
+          },
+        ]
+      `)
     })
+
+    test("child collection to root collection", async () => {
+      const sourceCollectionHandle =
+        await teamsWorkspaceProviderService.getCollectionHandle(
+          sampleWorkspace,
+          "child_collection_0_1"
+        )
+
+      if (E.isLeft(sourceCollectionHandle)) {
+        throw new Error("FAILED_TO_GET_SOURCE_COLLECTION")
+      }
+
+      await teamsWorkspaceProviderService.moveRESTCollection(
+        sourceCollectionHandle.right,
+        "root_collection_1"
+      )
+
+      // accessing for tests, otherwise it's a private property
+      const childrenAfterMoving =
+        teamsWorkspaceProviderService.collections.value.filter(
+          (collection) => collection.parentCollectionID === "root_collection_1"
+        )
+
+      const sourceCollectionSiblingsAfterMoving =
+        teamsWorkspaceProviderService.collections.value.filter(
+          (col) => col.parentCollectionID === "root_collection_0"
+        )
+
+      expect(childrenAfterMoving).toMatchInlineSnapshot(`
+        [
+          {
+            "auth": {
+              "authActive": true,
+              "authType": "inherit",
+            },
+            "collectionID": "child_collection_0_1",
+            "headers": [],
+            "name": "Child Collection 0 1",
+            "order": "a3",
+            "parentCollectionID": "root_collection_1",
+            "providerID": "TEAMS_WORKSPACE_PROVIDER",
+            "workspaceID": "workspace_id_0",
+          },
+          {
+            "auth": {
+              "authActive": true,
+              "authType": "inherit",
+            },
+            "collectionID": "child_collection_1_0",
+            "headers": [],
+            "name": "Child Collection 1 0",
+            "order": "a0",
+            "parentCollectionID": "root_collection_1",
+            "providerID": "TEAMS_WORKSPACE_PROVIDER",
+            "workspaceID": "workspace_id_0",
+          },
+          {
+            "auth": {
+              "authActive": true,
+              "authType": "inherit",
+            },
+            "collectionID": "child_collection_1_1",
+            "headers": [],
+            "name": "Child Collection 1 1",
+            "order": "a1",
+            "parentCollectionID": "root_collection_1",
+            "providerID": "TEAMS_WORKSPACE_PROVIDER",
+            "workspaceID": "workspace_id_0",
+          },
+          {
+            "auth": {
+              "authActive": true,
+              "authType": "inherit",
+            },
+            "collectionID": "child_collection_1_2",
+            "headers": [],
+            "name": "Child Collection 1 2",
+            "order": "a2",
+            "parentCollectionID": "root_collection_1",
+            "providerID": "TEAMS_WORKSPACE_PROVIDER",
+            "workspaceID": "workspace_id_0",
+          },
+        ]
+      `)
+
+      expect(sourceCollectionSiblingsAfterMoving).toMatchInlineSnapshot(`
+        [
+          {
+            "auth": {
+              "authActive": true,
+              "authType": "inherit",
+            },
+            "collectionID": "child_collection_0_0",
+            "headers": [],
+            "name": "Child Collection 0 0",
+            "order": "a0",
+            "parentCollectionID": "root_collection_0",
+            "providerID": "TEAMS_WORKSPACE_PROVIDER",
+            "workspaceID": "workspace_id_0",
+          },
+          {
+            "auth": {
+              "authActive": true,
+              "authType": "inherit",
+            },
+            "collectionID": "child_collection_0_2",
+            "headers": [],
+            "name": "Child Collection 0 2",
+            "order": "a2",
+            "parentCollectionID": "root_collection_0",
+            "providerID": "TEAMS_WORKSPACE_PROVIDER",
+            "workspaceID": "workspace_id_0",
+          },
+        ]
+      `)
+    })
+
+    test.only("move a request to another collection", async () => {
+      const sourceRequestHandle =
+        await teamsWorkspaceProviderService.getRequestHandle(
+          sampleWorkspace,
+          "request_0_0"
+        )
+
+      if (E.isLeft(sourceRequestHandle)) {
+        throw new Error("FAILED_TO_GET_SOURCE_REQUEST")
+      }
+
+      const res = await teamsWorkspaceProviderService.moveRESTRequest(
+        sourceRequestHandle.right,
+        "child_collection_1_0"
+      )
+
+      if (E.isLeft(res)) {
+        throw new Error("FAILED_TO_MOVE_REQUEST")
+      }
+
+      const requestsAfterMoving =
+        teamsWorkspaceProviderService.requests.value.filter(
+          (collection) => collection.collectionID === "child_collection_1_0"
+        )
+
+      const sourceRequestSiblingsAfterMoving =
+        teamsWorkspaceProviderService.requests.value.filter(
+          (req) => req.collectionID === "root_collection_0"
+        )
+
+      expect(
+        sortByOrder(
+          requestsAfterMoving.map((item) => {
+            return {
+              collectionID: item.collectionID,
+              order: item.order,
+              providerID: item.providerID,
+              workspaceID: item.workspaceID,
+              requestID: item.requestID,
+            }
+          })
+        )
+      ).toMatchInlineSnapshot(`
+        [
+          {
+            "collectionID": "child_collection_1_0",
+            "order": "a0",
+            "providerID": "TEAMS_WORKSPACE_PROVIDER",
+            "requestID": "nested_request_1_0_0",
+            "workspaceID": "workspace_id_0",
+          },
+          {
+            "collectionID": "child_collection_1_0",
+            "order": "a1",
+            "providerID": "TEAMS_WORKSPACE_PROVIDER",
+            "requestID": "request_0_0",
+            "workspaceID": "workspace_id_0",
+          },
+        ]
+      `)
+
+      expect(
+        sortByOrder(
+          sourceRequestSiblingsAfterMoving.map((item) => {
+            return {
+              collectionID: item.collectionID,
+              order: item.order,
+              providerID: item.providerID,
+              workspaceID: item.workspaceID,
+              requestID: item.requestID,
+            }
+          })
+        )
+      ).toMatchInlineSnapshot(`
+        [
+          {
+            "collectionID": "root_collection_0",
+            "order": "a1",
+            "providerID": "TEAMS_WORKSPACE_PROVIDER",
+            "requestID": "request_0_1",
+            "workspaceID": "workspace_id_0",
+          },
+        ]
+      `)
+    })
+
+    test("reorder a collection", async () => {
+      const sourceCollectionHandle =
+        await teamsWorkspaceProviderService.getCollectionHandle(
+          sampleWorkspace,
+          "child_collection_0_1"
+        )
+
+      if (E.isLeft(sourceCollectionHandle)) {
+        throw new Error("FAILED_TO_GET_SOURCE_COLLECTION")
+      }
+
+      const res = await teamsWorkspaceProviderService.reorderRESTCollection(
+        sourceCollectionHandle.right,
+        "child_collection_0_0"
+      )
+
+      if (E.isLeft(res)) {
+        throw new Error("FAILED_TO_REORDER_COLLECTION")
+      }
+
+      const childrenAfterReordering =
+        teamsWorkspaceProviderService.collections.value.filter(
+          (collection) => collection.parentCollectionID === "root_collection_0"
+        )
+
+      expect(sortByOrder(childrenAfterReordering)).toMatchInlineSnapshot(`
+        [
+          {
+            "auth": {
+              "authActive": true,
+              "authType": "inherit",
+            },
+            "collectionID": "child_collection_0_1",
+            "headers": [],
+            "name": "Child Collection 0 1",
+            "order": "Zz",
+            "parentCollectionID": "root_collection_0",
+            "providerID": "TEAMS_WORKSPACE_PROVIDER",
+            "workspaceID": "workspace_id_0",
+          },
+          {
+            "auth": {
+              "authActive": true,
+              "authType": "inherit",
+            },
+            "collectionID": "child_collection_0_0",
+            "headers": [],
+            "name": "Child Collection 0 0",
+            "order": "a0",
+            "parentCollectionID": "root_collection_0",
+            "providerID": "TEAMS_WORKSPACE_PROVIDER",
+            "workspaceID": "workspace_id_0",
+          },
+          {
+            "auth": {
+              "authActive": true,
+              "authType": "inherit",
+            },
+            "collectionID": "child_collection_0_2",
+            "headers": [],
+            "name": "Child Collection 0 2",
+            "order": "a2",
+            "parentCollectionID": "root_collection_0",
+            "providerID": "TEAMS_WORKSPACE_PROVIDER",
+            "workspaceID": "workspace_id_0",
+          },
+        ]
+      `)
+    })
+
+    test("reorder a request", async () => {
+      const sourceRequestHandle =
+        await teamsWorkspaceProviderService.getRequestHandle(
+          sampleWorkspace,
+          "request_0_0"
+        )
+
+      if (E.isLeft(sourceRequestHandle)) {
+        throw new Error("FAILED_TO_GET_SOURCE_REQUEST")
+      }
+
+      const res = await teamsWorkspaceProviderService.reorderRESTRequest(
+        sourceRequestHandle.right,
+        "root_collection_0",
+        null
+      )
+
+      if (E.isLeft(res)) {
+        throw new Error("FAILED_TO_REORDER_REQUEST")
+      }
+
+      const requestsAfterReordering =
+        teamsWorkspaceProviderService.requests.value.filter(
+          (collection) => collection.collectionID === "root_collection_0"
+        )
+
+      expect(
+        sortByOrder(requestsAfterReordering).map((req) => ({
+          collectionID: req.collectionID,
+          order: req.order,
+          providerID: req.providerID,
+          requestID: req.requestID,
+          workspaceID: req.workspaceID,
+        }))
+      ).toMatchInlineSnapshot(`
+        [
+          {
+            "collectionID": "root_collection_0",
+            "order": "a1",
+            "providerID": "TEAMS_WORKSPACE_PROVIDER",
+            "requestID": "request_0_1",
+            "workspaceID": "workspace_id_0",
+          },
+          {
+            "collectionID": "root_collection_0",
+            "order": "a2",
+            "providerID": "TEAMS_WORKSPACE_PROVIDER",
+            "requestID": "request_0_0",
+            "workspaceID": "workspace_id_0",
+          },
+        ]
+      `)
+    })
+
+    // skipping detailed tests, because reorderItems + moveItems, the methods used in reorders and moves are already tested in a separate test suite
   })
 })
 
@@ -1845,6 +2267,32 @@ const mockMoveTeamCollection = () => {
   })
 }
 
+const mockMoveTeamRequest = () => {
+  return vi.mocked(moveRESTTeamRequest).mockImplementation(() => {
+    return TE.right(<MoveRestTeamRequestMutation>{
+      moveRequest: {
+        id: "whatever",
+      },
+    })
+  })
+}
+
+const mockUpdateOrderRESTTeamCollection = () => {
+  return vi.mocked(updateOrderRESTTeamCollection).mockImplementation(() => {
+    return TE.right(<UpdateCollectionOrderMutation>{
+      updateCollectionOrder: true,
+    })
+  })
+}
+
+const mockUpdateOrderRESTTeamRequest = () => {
+  return vi.mocked(updateOrderRESTTeamRequest).mockImplementation(() => {
+    return TE.right(<UpdateLookUpRequestOrderMutation>{
+      updateLookUpRequestOrder: true,
+    })
+  })
+}
+
 const seedCollectionsForMovingReorderingExporting = (
   teamsWorkspaceProviderService: TeamsWorkspaceProviderService
 ) => {
@@ -1873,9 +2321,6 @@ const seedCollectionsForMovingReorderingExporting = (
    *    - request_1_1
    *    - request_1_2
    */
-
-  // test cases
-  // 1. move root collection 1 to root collection 0
 
   teamsWorkspaceProviderService._setCollections([
     {
@@ -2031,6 +2476,81 @@ const seedCollectionsForMovingReorderingExporting = (
       providerID: "TEAMS_WORKSPACE_PROVIDER",
       workspaceID: "workspace_id_0",
       parentCollectionID: "root_collection_1",
+    },
+  ])
+
+  teamsWorkspaceProviderService._setRequests([
+    {
+      requestID: "request_0_0",
+      collectionID: "root_collection_0",
+      providerID: "TEAMS_WORKSPACE_PROVIDER",
+      order: "a0",
+      request: getDefaultRESTRequest(),
+      workspaceID: "workspace_id_0",
+    },
+    {
+      requestID: "request_0_1",
+      collectionID: "root_collection_0",
+      providerID: "TEAMS_WORKSPACE_PROVIDER",
+      order: "a1",
+      request: getDefaultRESTRequest(),
+      workspaceID: "workspace_id_0",
+    },
+    {
+      requestID: "nested_request_0_0_0",
+      collectionID: "child_collection_0_0",
+      providerID: "TEAMS_WORKSPACE_PROVIDER",
+      order: "a0",
+      request: getDefaultRESTRequest(),
+      workspaceID: "workspace_id_0",
+    },
+    {
+      requestID: "nested_request_0_0_1",
+      collectionID: "child_collection_0_0",
+      providerID: "TEAMS_WORKSPACE_PROVIDER",
+      order: "a1",
+      request: getDefaultRESTRequest(),
+      workspaceID: "workspace_id_0",
+    },
+    {
+      requestID: "request_1_0",
+      collectionID: "root_collection_1",
+      providerID: "TEAMS_WORKSPACE_PROVIDER",
+      order: "a0",
+      request: getDefaultRESTRequest(),
+      workspaceID: "workspace_id_0",
+    },
+    {
+      requestID: "request_1_1",
+      collectionID: "root_collection_1",
+      providerID: "TEAMS_WORKSPACE_PROVIDER",
+      order: "a1",
+      request: getDefaultRESTRequest(),
+      workspaceID: "workspace_id_0",
+    },
+    {
+      requestID: "request_1_2",
+      collectionID: "root_collection_1",
+      providerID: "TEAMS_WORKSPACE_PROVIDER",
+      order: "a2",
+      request: getDefaultRESTRequest(),
+      workspaceID: "workspace_id_0",
+    },
+    {
+      requestID: "nested_request_1_0_0",
+      collectionID: "child_collection_1_0",
+      providerID: "TEAMS_WORKSPACE_PROVIDER",
+      order: "a0",
+      request: getDefaultRESTRequest(),
+      workspaceID: "workspace_id_0",
+    },
+    {
+      requestID: "nested_nested_request_1_0_0_0",
+      collectionID: "nested_child_collection_1_0_0",
+      providerID: "TEAMS_WORKSPACE_PROVIDER",
+      order: "a0",
+      request: getDefaultRESTRequest(),
+      workspaceID: "workspace_id_0",
     },
   ])
 }

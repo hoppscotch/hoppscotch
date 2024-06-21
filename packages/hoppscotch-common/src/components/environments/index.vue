@@ -1,5 +1,7 @@
 <template>
-  <div v-if="!activeWorkspaceHandle">No Workspace Selected.</div>
+  <div v-if="!activeWorkspaceHandle" class="p-4">
+    {{ t("workspace.no_workspace_selected") }}
+  </div>
 
   <div v-else>
     <div

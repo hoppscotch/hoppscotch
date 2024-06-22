@@ -2152,14 +2152,6 @@ export const moveItems = <
   | "DESTINATION_PARENT_NOT_FOUND_WHILE_MOVING",
   Reorderable[]
 > => {
-  const destinationParent = items.find(
-    (item) => item[idKey] === destinationParentID
-  )
-
-  if (!destinationParent && destinationParentID) {
-    return E.left("DESTINATION_PARENT_NOT_FOUND_WHILE_MOVING")
-  }
-
   const sourceItem = items.find((item) => item[idKey] === sourceItemID)
 
   if (!sourceItem) {

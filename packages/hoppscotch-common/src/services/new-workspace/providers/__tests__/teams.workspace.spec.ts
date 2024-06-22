@@ -1735,7 +1735,7 @@ describe("TeamsWorkspaceProviderService", () => {
       `)
     })
 
-    test.only("move a request to another collection", async () => {
+    test("move a request to another collection", async () => {
       const sourceRequestHandle =
         await teamsWorkspaceProviderService.getRequestHandle(
           sampleWorkspace,

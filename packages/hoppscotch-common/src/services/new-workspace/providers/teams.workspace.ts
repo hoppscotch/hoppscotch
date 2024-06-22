@@ -1583,9 +1583,19 @@ export class TeamsWorkspaceProviderService
     this.subscriptions.push(teamCollAddedSub)
 
     teamCollAdded$.subscribe((result) => {
-      console.log(result)
       if (E.isLeft(result)) {
         console.error(result.left)
+        return
+      }
+
+      // check if the collection already exists
+      const collectionExists = this.collections.value.some(
+        (collection) =>
+          collection.collectionID === result.right.teamCollectionAdded.id
+      )
+
+      if (collectionExists) {
+        // it already exists, no need to add it again
         return
       }
 
@@ -1597,16 +1607,19 @@ export class TeamsWorkspaceProviderService
       const lastChild = siblingCollections.at(-1)
       const order = generateKeyBetween(lastChild?.order, null)
 
-      const collection: WorkspaceCollection & {
-        parentCollectionID?: string
-        order: string
-      } = {
+      const inheritedData = result.right.teamCollectionAdded.data
+
+      const { auth, headers } = parseInheritedData(inheritedData ?? undefined)
+
+      const collection: TeamsWorkspaceCollection = {
         name: result.right.teamCollectionAdded.title,
         collectionID: result.right.teamCollectionAdded.id,
         providerID: this.providerID,
         workspaceID: workspaceID,
         parentCollectionID: result.right.teamCollectionAdded.parent?.id,
         order,
+        auth: auth,
+        headers: headers,
       }
 
       this.collections.value.push(collection)
@@ -1625,16 +1638,17 @@ export class TeamsWorkspaceProviderService
         return
       }
 
-      console.group("Team Collection Updated")
-      console.log(result)
-      console.groupEnd()
-
       this.collections.value = this.collections.value.map((collection) => {
         if (collection.collectionID === result.right.teamCollectionUpdated.id) {
+          const { auth, headers } = parseInheritedData(
+            result.right.teamCollectionUpdated.data ?? undefined
+          )
+
           return {
             ...collection,
             name: result.right.teamCollectionUpdated.title,
-            // TODO: add result.right.teamCollectinUpdated.data
+            auth,
+            headers,
           }
         }
 
@@ -1655,10 +1669,6 @@ export class TeamsWorkspaceProviderService
         return
       }
 
-      console.group("Team Collection Removed")
-      console.log(result)
-      console.groupEnd()
-
       this.collections.value = this.collections.value.filter(
         (collection) =>
           collection.collectionID !== result.right.teamCollectionRemoved
@@ -1678,27 +1688,19 @@ export class TeamsWorkspaceProviderService
         return
       }
 
-      const siblingCollections = this.collections.value.filter(
-        (collection) =>
-          collection.parentCollectionID ===
-          result.right.teamCollectionMoved.parent?.id
+      const localMoveRES = moveItems(
+        result.right.teamCollectionMoved.id,
+        result.right.teamCollectionMoved.parent?.id ?? null,
+        this.collections.value,
+        "collectionID",
+        "parentCollectionID"
       )
 
-      const lastChild = siblingCollections.at(-1)
+      if (E.isLeft(localMoveRES)) {
+        return
+      }
 
-      const order = generateKeyBetween(lastChild?.order, null)
-
-      this.collections.value = this.collections.value.map((collection) => {
-        if (collection.collectionID === result.right.teamCollectionMoved.id) {
-          return {
-            ...collection,
-            parentCollectionID: result.right.teamCollectionMoved.parent?.id,
-            order,
-          }
-        }
-
-        return collection
-      })
+      this.collections.value = localMoveRES.right
     })
   }
 
@@ -1714,9 +1716,15 @@ export class TeamsWorkspaceProviderService
         return
       }
 
-      console.group("Team Request Added")
-      console.log(result)
-      console.groupEnd()
+      // check if the request already exists
+      const requestExists = this.requests.value.some(
+        (request) => request.requestID === result.right.teamRequestAdded.id
+      )
+
+      if (requestExists) {
+        // it already exists, no need to add it again
+        return
+      }
 
       const siblingRequests = this.requests.value.filter(
         (request) =>
@@ -1754,10 +1762,6 @@ export class TeamsWorkspaceProviderService
         return
       }
 
-      console.group("Team Request Updated")
-      console.log(result)
-      console.groupEnd()
-
       const updatedRequest: WorkspaceRequest = {
         collectionID: result.right.teamRequestUpdated.collectionID,
         providerID: this.providerID,
@@ -1791,10 +1795,6 @@ export class TeamsWorkspaceProviderService
         return
       }
 
-      console.group("Team Request Removed")
-      console.log(result)
-      console.groupEnd()
-
       this.requests.value = this.requests.value.filter(
         (request) => request.requestID !== result.right.teamRequestDeleted
       )
@@ -1813,26 +1813,19 @@ export class TeamsWorkspaceProviderService
         return
       }
 
-      const siblingRequests = this.requests.value.filter(
-        (request) =>
-          request.collectionID === result.right.requestMoved.collectionID
+      const localMoveRES = moveItems(
+        result.right.requestMoved.id,
+        result.right.requestMoved.collectionID,
+        this.requests.value,
+        "requestID",
+        "collectionID"
       )
 
-      const lastSibling = siblingRequests.at(-1)
+      if (E.isLeft(localMoveRES)) {
+        return
+      }
 
-      const order = generateKeyBetween(lastSibling?.order, null)
-
-      this.requests.value = this.requests.value.map((request) => {
-        if (request.requestID === result.right.requestMoved.id) {
-          return {
-            ...request,
-            collectionID: result.right.requestMoved.collectionID,
-            order,
-          }
-        }
-
-        return request
-      })
+      this.requests.value = localMoveRES.right
     })
   }
 
@@ -2309,6 +2302,54 @@ function makeCollectionTree(
   })
 
   return collectionsTree
+}
+
+const parseInheritedData = (inheritedData?: string) => {
+  let auth: HoppRESTAuth = {
+    authType: "none",
+    authActive: true,
+  }
+
+  let headers: HoppRESTHeader[] = []
+
+  if (!inheritedData) {
+    return {
+      auth,
+      headers,
+    }
+  }
+
+  const parsedInheritedData = E.tryCatch(
+    () => {
+      return JSON.parse(inheritedData)
+    },
+    () => "CANNOT_PARSE_INHERITED_DATA"
+  )
+
+  if (E.isLeft(parsedInheritedData)) {
+    return {
+      auth,
+      headers,
+    }
+  }
+
+  const authParsingRes = HoppRESTAuth.safeParse(parsedInheritedData.right?.auth)
+  const headersParsingRes = HoppRESTHeaders.safeParse(
+    parsedInheritedData.right?.headers
+  )
+
+  if (authParsingRes.success) {
+    auth = authParsingRes.data
+  }
+
+  if (headersParsingRes.success) {
+    headers = headersParsingRes.data
+  }
+
+  return {
+    auth,
+    headers,
+  }
 }
 
 // TODO

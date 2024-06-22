@@ -97,7 +97,7 @@
                   @keyup.delete="deleteAction?.$el.click()"
                   @keyup.x="exportAction?.$el.click()"
                   @keyup.p="propertiesAction?.$el.click()"
-                  @keyup.c="runInCLIAction?.$el.click()"
+                  @keyup.t="runCollectionAction?.$el.click()"
                   @keyup.escape="hide()"
                 >
                   <HoppSmartItem
@@ -175,13 +175,13 @@
                   />
                   <HoppSmartItem
                     v-if="collectionsType === 'team-collections'"
-                    ref="runInCLIAction"
-                    :icon="IconSettings2"
-                    label="Run in CLI"
-                    :shortcut="['C']"
+                    ref="runCollectionAction"
+                    :icon="IconPlay"
+                    label="Run collection"
+                    :shortcut="['T']"
                     @click="
                       () => {
-                        emit('run-in-cli', props.id)
+                        emit('run-collection', props.id)
                         hide()
                       }
                     "
@@ -228,6 +228,7 @@ import IconFolder from "~icons/lucide/folder"
 import IconFolderOpen from "~icons/lucide/folder-open"
 import IconFolderPlus from "~icons/lucide/folder-plus"
 import IconMoreVertical from "~icons/lucide/more-vertical"
+import IconPlay from "~icons/lucide/play"
 import IconSettings2 from "~icons/lucide/settings-2"
 import IconTrash2 from "~icons/lucide/trash-2"
 
@@ -280,7 +281,7 @@ const emit = defineEmits<{
   (event: "dragging", payload: boolean): void
   (event: "update-collection-order", payload: DataTransfer): void
   (event: "update-last-collection-order", payload: DataTransfer): void
-  (event: "run-in-cli", collectionID: string): void
+  (event: "run-collection", collectionID: string): void
 }>()
 
 const tippyActions = ref<VNodeRef | null>(null)
@@ -291,7 +292,7 @@ const deleteAction = ref<VNodeRef | null>(null)
 const exportAction = ref<VNodeRef | null>(null)
 const options = ref<VNodeRef | null>(null)
 const propertiesAction = ref<VNodeRef | null>(null)
-const runInCLIAction = ref<VNodeRef | null>(null)
+const runCollectionAction = ref<VNodeRef | null>(null)
 
 const dragging = ref(false)
 const ordering = ref(false)

@@ -94,7 +94,7 @@
       @display-modal-add="displayModalAdd(true)"
       @display-modal-import-export="displayModalImportExport(true)"
       @collection-click="handleCollectionClick"
-      @run-in-cli="runInCLIHandler"
+      @run-collection="runCollectionHandler"
     />
     <div
       class="py-15 hidden flex-1 flex-col items-center justify-center bg-primaryDark px-4 text-secondaryLight"
@@ -172,11 +172,11 @@
     />
 
     <CollectionsRunner
-      v-if="showRunInCLIModal"
+      v-if="showCollectionsRunnerModal"
       :collection-i-d="selectedCollectionID"
       :environment-i-d="activeEnvironmentID"
       :selected-environment-index="selectedEnvironmentIndex"
-      @hide-modal="showRunInCLIModal = false"
+      @hide-modal="showCollectionsRunnerModal = false"
     />
   </div>
 </template>
@@ -657,7 +657,7 @@ const showModalEditProperties = ref(false)
 const showConfirmModal = ref(false)
 const showTeamModalAdd = ref(false)
 
-const showRunInCLIModal = ref(false)
+const showCollectionsRunnerModal = ref(false)
 const selectedCollectionID = ref<string | null>(null)
 const activeEnvironmentID = ref<string | null | undefined>(null)
 
@@ -2282,9 +2282,9 @@ const setCollectionProperties = (newCollection: {
   displayModalEditProperties(false)
 }
 
-const runInCLIHandler = (collectionID: string) => {
+const runCollectionHandler = (collectionID: string) => {
   selectedCollectionID.value = collectionID
-  showRunInCLIModal.value = true
+  showCollectionsRunnerModal.value = true
 
   const activeWorkspace = workspace.value
   const currentEnv = selectedEnvironmentIndex.value

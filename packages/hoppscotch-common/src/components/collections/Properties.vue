@@ -46,9 +46,11 @@
             class="flex flex-shrink-0 items-center justify-between border-b border-dividerLight bg-primary pl-4"
           >
             <span>Collection ID</span>
+
+            <!-- TODO: Make it point to the section about accessing collections via the ID -->
             <HoppButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
-              to="https://docs.hoppscotch.io/documentation/features/authorization"
+              to="https://docs.hoppscotch.io/documentation/clients/cli"
               blank
               :title="t('app.wiki')"
               :icon="IconHelpCircle"
@@ -66,7 +68,7 @@
               <HoppButtonSecondary
                 filled
                 :icon="copyIcon"
-                @click="copyAccessToken"
+                @click="copyCollectionID"
               />
             </div>
           </div>
@@ -82,7 +84,15 @@
       </HoppSmartTabs>
     </template>
     <template #footer>
-      <span class="flex space-x-2">
+      <HoppButtonPrimary
+        v-if="activeTab === 'details'"
+        :label="t('action.close')"
+        outline
+        filled
+        @click="hideModal"
+      />
+
+      <span v-else class="flex space-x-2">
         <HoppButtonPrimary
           :label="t('action.save')"
           :loading="loadingState"
@@ -251,9 +261,10 @@ const hideModal = () => {
   emit("hide-modal")
 }
 
-const copyAccessToken = () => {
+const copyCollectionID = () => {
   copyToClipboard(props.editingProperties?.path ?? "")
   copyIcon.value = IconCheck
+
   toast.success(`${t("state.copied_to_clipboard")}`)
 }
 </script>

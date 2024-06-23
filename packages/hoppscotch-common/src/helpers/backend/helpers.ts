@@ -12,9 +12,11 @@ import { TeamRequest } from "../teams/TeamRequest"
 import { GQLError, runGQLQuery } from "./GQLClient"
 import {
   ExportAsJsonDocument,
+  GetCollectionChildrenDocument,
   GetCollectionChildrenIDsDocument,
   GetCollectionRequestsDocument,
   GetCollectionTitleAndDataDocument,
+  RootCollectionsOfTeamDocument,
 } from "./graphql"
 
 export const BACKEND_PAGE_SIZE = 10
@@ -153,3 +155,44 @@ export const getTeamCollectionJSON = async (teamID: string) =>
       teamID,
     },
   })
+
+export const getCollectionChildren = async (
+  collectionID: string,
+  cursor?: string
+) => {
+  const res = await runGQLQuery({
+    query: GetCollectionChildrenDocument,
+    variables: {
+      collectionID: collectionID,
+      cursor,
+    },
+  })
+
+  return res
+}
+
+export const getCollectionChildRequests = async (
+  collectionID: string,
+  cursor?: string
+) => {
+  const res = await runGQLQuery({
+    query: GetCollectionRequestsDocument,
+    variables: {
+      collectionID,
+      cursor,
+    },
+  })
+
+  return res
+}
+
+export const getRootCollections = async (teamID: string) => {
+  const result = await runGQLQuery({
+    query: RootCollectionsOfTeamDocument,
+    variables: {
+      teamID,
+    },
+  })
+
+  return result
+}

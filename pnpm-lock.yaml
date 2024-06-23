@@ -469,6 +469,9 @@ importers:
       fp-ts:
         specifier: 2.16.1
         version: 2.16.1
+      fractional-indexing:
+        specifier: 3.2.0
+        version: 3.2.0
       globalthis:
         specifier: 1.0.3
         version: 1.0.3
@@ -7451,6 +7454,10 @@ packages:
 
   fraction.js@4.3.7:
     resolution: {integrity: sha512-ZsDfxO51wGAXREY55a7la9LScWpwv9RxIrYABrlvOFBlH/ShPnrtsXeuUIfXKKOVicNxQ+o8JTbJvjS4M89yew==}
+
+  fractional-indexing@3.2.0:
+    resolution: {integrity: sha512-PcOxmqwYCW7O2ovKRU8OoQQj2yqTfEB/yeTYk4gPid6dN5ODRfU1hXd9tTVZzax/0NkO7AxpHykvZnT1aYp/BQ==}
+    engines: {node: ^14.13.1 || >=16.0.0}
 
   fresh@0.5.2:
     resolution: {integrity: sha512-zJ2mQYM18rEFOudeV4GShTGIQ7RbzA7ozbU9I/XBpm7kqgMywgmylMwXHxZJmkVoYkna9d2pVXVXPdYTP9ej8Q==}
@@ -20772,6 +20779,8 @@ snapshots:
   fp-ts@2.16.2: {}
 
   fraction.js@4.3.7: {}
+
+  fractional-indexing@3.2.0: {}
 
   fresh@0.5.2: {}
 

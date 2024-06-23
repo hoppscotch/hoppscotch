@@ -265,3 +265,14 @@ export default class TeamEnvironmentAdapter {
     )
   }
 }
+
+export const fetchAllTeamEnvironments = async (teamID: string) => {
+  const result = await runGQLQuery({
+    query: GetTeamEnvironmentsDocument,
+    variables: {
+      teamID: teamID,
+    },
+  })
+
+  return result
+}

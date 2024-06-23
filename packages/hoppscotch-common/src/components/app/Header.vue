@@ -319,8 +319,8 @@ watch(isOnline, () => {
 
 // Dismiss the banner
 const dismissBanner = () => {
-  if (banner.currentBannerID.value) {
-    banner.removeBanner(banner.currentBannerID.value)
+  if (banner.content.value) {
+    banner.removeBanner(banner.content.value.id)
   } else if (offlineBannerID) {
     banner.removeBanner(offlineBannerID)
     offlineBannerID = null

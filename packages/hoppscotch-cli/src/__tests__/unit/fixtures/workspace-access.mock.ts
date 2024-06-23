@@ -570,7 +570,7 @@ export const TRANSFORMED_COLLECTIONS_WITHOUT_AUTH_HEADERS_AT_CERTAIN_LEVELS_MOCK
         ],
         auth: {
           authType: "inherit",
-          authActive: false,
+          authActive: true,
         },
         headers: [],
       },
@@ -620,7 +620,7 @@ export const TRANSFORMED_COLLECTIONS_WITHOUT_AUTH_HEADERS_AT_CERTAIN_LEVELS_MOCK
         requests: [],
         auth: {
           authType: "inherit",
-          authActive: false,
+          authActive: true,
         },
         headers: [],
       },
@@ -646,7 +646,7 @@ export const TRANSFORMED_COLLECTIONS_WITHOUT_AUTH_HEADERS_AT_CERTAIN_LEVELS_MOCK
     requests: [],
     auth: {
       authType: "inherit",
-      authActive: false,
+      authActive: true,
     },
     headers: [],
   };

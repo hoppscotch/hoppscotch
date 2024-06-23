@@ -3,7 +3,7 @@ import fs from "fs/promises";
 import { entityReference } from "verzod";
 import { z } from "zod";
 
-import { TestCmdOptions } from "../types/commands";
+import { TestCmdCollectionOptions } from "../types/commands";
 import { error } from "../types/errors";
 import { FormDataEntry } from "../types/request";
 import { isHoppErrnoException } from "./checks";
@@ -74,10 +74,20 @@ export const parseErrorMessage = (e: unknown) => {
   return msg.replace(/\n+$|\s{2,}/g, "").trim();
 };
 
+/**
+ * Reads a JSON file from the specified path and returns the parsed content.
+ *
+ * @param {string} path - The path to the JSON file.
+ * @param {boolean} fileExistsInPath - Indicates whether the file exists in the specified path.
+ * @returns {Promise<unknown>} A Promise that resolves to the parsed JSON contents.
+ * @throws {Error} If the file path does not end with `.json`.
+ * @throws {Error} If the file does not exist in the specified path.
+ * @throws {Error} If an unknown error occurs while reading or parsing the file.
+ */
 export async function readJsonFile(
   path: string,
   fileExistsInPath: boolean
-): Promise<HoppCollection | Environment> {
+): Promise<unknown> {
   if (!path.endsWith(".json")) {
     throw error({ code: "INVALID_FILE_TYPE", data: path });
   }
@@ -94,17 +104,18 @@ export async function readJsonFile(
 }
 
 /**
- * Parses collection json file for given path:context.path, and validates
- * the parsed collectiona array
- * @param pathOrId Collection json file path
- * @param [options] Supplied values for CLI flags
- * @param [options.accessToken] Personal access token to fetch workspace environments
- * @param [options.serverUrl] server URL for SH instance
- * @returns For successful parsing we get array of HoppCollection
+ * Parses collection data from a given path or ID and returns the data conforming to the latest version of the `HoppCollection` schema.
+ *
+ * @param pathOrId Collection JSON file path/ID from a workspace.
+ * @param {TestCmdCollectionOptions} options Supplied values for CLI flags.
+ * @param {string} [options.token] Personal access token to fetch workspace environments.
+ * @param {string} [options.server] server URL for SH instance.
+ * @returns {Promise<HoppCollection[]>} A promise that resolves to an array of HoppCollection objects.
+ * @throws Throws an error if the collection data is malformed.
  */
 export async function parseCollectionData(
   pathOrId: string,
-  options: Omit<TestCmdOptions, "env" | "delay">
+  options: TestCmdCollectionOptions
 ): Promise<HoppCollection[]> {
   const { token: accessToken, server: serverUrl } = options;
 

@@ -5,8 +5,11 @@ export type TestCmdOptions = {
   server?: string;
 };
 
-// Consumed in `--env, -e` flag action handler
-export type TestCmdOptionsWithRequiredEnv = Omit<TestCmdOptions, "env"> & {
+// Consumed in the collection `file_path_or_id` argument action handler
+export type TestCmdCollectionOptions = Omit<TestCmdOptions, "env" | "delay">;
+
+// Consumed in the `--env, -e` flag action handler
+export type TestCmdEnvironmentOptions = Omit<TestCmdOptions, "env"> & {
   env: string;
 };
 

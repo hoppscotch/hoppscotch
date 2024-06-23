@@ -1,10 +1,7 @@
 import { handleError } from "../handlers/error";
 import { parseDelayOption } from "../options/test/delay";
 import { parseEnvsData } from "../options/test/env";
-import {
-  TestCmdOptions,
-  TestCmdOptionsWithRequiredEnv,
-} from "../types/commands";
+import { TestCmdOptions, TestCmdEnvironmentOptions } from "../types/commands";
 import { HoppEnvs } from "../types/request";
 import { isHoppCLIError } from "../utils/checks";
 import {
@@ -19,7 +16,7 @@ export const test = (pathOrId: string, options: TestCmdOptions) => async () => {
     const delay = options.delay ? parseDelayOption(options.delay) : 0;
 
     const envs = options.env
-      ? await parseEnvsData(options as TestCmdOptionsWithRequiredEnv)
+      ? await parseEnvsData(options as TestCmdEnvironmentOptions)
       : <HoppEnvs>{ global: [], selected: [] };
 
     const collections = await parseCollectionData(pathOrId, options);

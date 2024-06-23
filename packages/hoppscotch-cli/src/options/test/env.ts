@@ -2,7 +2,7 @@ import { Environment } from "@hoppscotch/data";
 import { entityReference } from "verzod";
 import { z } from "zod";
 
-import { TestCmdOptionsWithRequiredEnv } from "../../types/commands";
+import { TestCmdEnvironmentOptions } from "../../types/commands";
 import { error } from "../../types/errors";
 import {
   HoppEnvKeyPairObject,
@@ -12,14 +12,15 @@ import {
 import { getResourceContents } from "../../utils/getters";
 
 /**
- * Parses env json file for given path and validates the parsed env json object
- * @param pathOrId Path of env.json file to be parsed
- * @param [options] Supplied values for CLI flags
- * @param [options.accessToken] Personal access token to fetch workspace environments
- * @param [options.serverUrl] server URL for SH instance
- * @returns For successful parsing we get HoppEnvs object
+ * Parses environment data from a given path or ID and returns the data conforming to the latest version of the `Environment` schema.
+ *
+ * @param {TestCmdEnvironmentOptions} options Supplied values for CLI flags.
+ * @param {string} options.env Path of the environment `.json` file to be parsed.
+ * @param {string} [options.token] Personal access token to fetch workspace environments.
+ * @param {string} [options.server] server URL for SH instance.
+ * @returns {Promise<HoppEnvs>} A promise that resolves to the parsed environment object with global and selected environments.
  */
-export async function parseEnvsData(options: TestCmdOptionsWithRequiredEnv) {
+export async function parseEnvsData(options: TestCmdEnvironmentOptions) {
   const { env: pathOrId, token: accessToken, server: serverUrl } = options;
 
   const contents = (await getResourceContents({

@@ -25,6 +25,13 @@ import {
   transformWorkspaceEnvironment,
 } from "./workspace-access";
 
+type GetResourceContentsParams = {
+  pathOrId: string;
+  accessToken?: string;
+  serverUrl?: string;
+  resourceType: "collection" | "environment";
+};
+
 /**
  * Generates template string (status + statusText) with specific color unicodes
  * based on type of status.
@@ -146,18 +153,25 @@ export const roundDuration = (
   precision: number = DEFAULT_DURATION_PRECISION
 ) => round(duration, precision);
 
-export const getResourceContents = async ({
-  pathOrId,
-  accessToken,
-  serverUrl,
-  resourceType,
-}: {
-  pathOrId: string;
-  accessToken?: string;
-  serverUrl?: string;
-  resourceType: "collection" | "environment";
-}): Promise<HoppCollection | Environment> => {
-  let contents = null;
+/**
+ * Retrieves the contents of a resource (collection or environment) from a local file (export) or a remote server (workspaces).
+ *
+ * @param {GetResourceContentsParams} params - The parameters for retrieving resource contents.
+ * @param {string} params.pathOrId - The path to the local file or the ID for remote retrieval.
+ * @param {string} [params.accessToken] - The access token for authorizing remote retrieval.
+ * @param {string} [params.serverUrl] - The SH instance server URL for remote retrieval. Defaults to the cloud instance.
+ * @param {"collection" | "environment"} params.resourceType - The type of the resource to retrieve.
+ * @returns {Promise<HoppCollection | Environment>} A promise that resolves to the contents of the resource.
+ * @throws Will throw an error if the content type of the fetched resource is not `application/json`,
+ *         if there is an issue with the access token, if the server connection is refused,
+ *         or if the server URL is invalid.
+ */
+export const getResourceContents = async (
+  params: GetResourceContentsParams
+): Promise<HoppCollection | Environment> => {
+  const { pathOrId, accessToken, serverUrl, resourceType } = params;
+
+  let contents: HoppCollection | Environment | null = null;
   let fileExistsInPath = false;
 
   try {
@@ -226,7 +240,9 @@ export const getResourceContents = async ({
 
   // Fallback to reading from file if contents are not available
   if (contents === null) {
-    contents = await readJsonFile(pathOrId, fileExistsInPath);
+    contents = (await readJsonFile(pathOrId, fileExistsInPath)) as
+      | HoppCollection
+      | Environment;
   }
 
   return contents;

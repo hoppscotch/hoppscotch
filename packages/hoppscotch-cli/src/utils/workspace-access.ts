@@ -3,6 +3,7 @@ import {
   Environment,
   EnvironmentSchemaVersion,
   HoppCollection,
+  HoppRESTRequest,
 } from "@hoppscotch/data";
 
 import { HoppEnvPair } from "../types/request";
@@ -31,22 +32,35 @@ interface WorkspaceRequest {
   request: string;
 }
 
-const transformWorkspaceRequests = (requests: WorkspaceRequest[]) =>
-  requests.map(({ request }) => JSON.parse(request));
+/**
+ * Transforms the incoming list of workspace requests by applying `JSON.parse` to the `request` field.
+ *
+ * @param {WorkspaceRequest[]} requests - An array of workspace request objects to be transformed.
+ * @returns {HoppRESTRequest[]} The transformed array of requests conforming to the `HoppRESTRequest` type.
+ */
+const transformWorkspaceRequests = (
+  requests: WorkspaceRequest[]
+): HoppRESTRequest[] => requests.map(({ request }) => JSON.parse(request));
 
-const transformChildCollections = (
+/**
+ * Transforms the incoming list of workspace child collections to the `HoppCollection` type.
+ *
+ * @param {WorkspaceCollection[]} childCollections - An array of workspace collection objects to be transformed.
+ * @returns {HoppCollection[]} The transformed array of collections conforming to the `HoppCollection` type.
+ */
+const transformWorkspaceChildCollections = (
   childCollections: WorkspaceCollection[]
 ): HoppCollection[] => {
   return childCollections.map(({ id, title, data, folders, requests }) => {
     const parsedData = data ? JSON.parse(data) : {};
-    const { auth = { authType: "inherit", authActive: false }, headers = [] } =
+    const { auth = { authType: "inherit", authActive: true }, headers = [] } =
       parsedData;
 
     return {
       v: CollectionSchemaVersion,
       id,
       name: title,
-      folders: transformChildCollections(folders),
+      folders: transformWorkspaceChildCollections(folders),
       requests: transformWorkspaceRequests(requests),
       auth,
       headers,
@@ -54,7 +68,12 @@ const transformChildCollections = (
   });
 };
 
-// Helper function to transform workspace environment data to the `HoppEnvironment` format
+/**
+ * Transforms workspace environment data to the `HoppEnvironment` format.
+ *
+ * @param {WorkspaceEnvironment} workspaceEnvironment - The workspace environment object to transform.
+ * @returns {Environment} The transformed environment object conforming to the `Environment` type.
+ */
 export const transformWorkspaceEnvironment = (
   workspaceEnvironment: WorkspaceEnvironment
 ): Environment => {
@@ -78,22 +97,26 @@ export const transformWorkspaceEnvironment = (
     ...rest,
   };
 };
-
-// Helper function to transform workspace collection data to the `HoppCollection` format
+/**
+ * Transforms workspace collection data to the `HoppCollection` format.
+ *
+ * @param {WorkspaceCollection} collection - The workspace collection object to be transformed.
+ * @returns {HoppCollection} The transformed collection object conforming to the `HoppCollection` type.
+ */
 export const transformWorkspaceCollection = (
   collection: WorkspaceCollection
 ): HoppCollection => {
   const { id, title, data, requests, folders } = collection;
 
   const parsedData = data ? JSON.parse(data) : {};
-  const { auth = { authType: "inherit", authActive: false }, headers = [] } =
+  const { auth = { authType: "inherit", authActive: true }, headers = [] } =
     parsedData;
 
   return {
     v: CollectionSchemaVersion,
     id,
     name: title,
-    folders: transformChildCollections(folders),
+    folders: transformWorkspaceChildCollections(folders),
     requests: transformWorkspaceRequests(requests),
     auth,
     headers,

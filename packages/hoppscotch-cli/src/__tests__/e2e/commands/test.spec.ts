@@ -367,6 +367,7 @@ describe("hopp test [options] <file_path_or_id>", () => {
     });
   });
 
+  // Future TODO: Enable once a proper e2e test environment is set up locally
   describe.skip("Test `hopp test <file_path_or_id> --env <file_path_or_id> --token <access_token> --server <server_url>` command:", () => {
     const {
       REQ_BODY_ENV_VARS_COLL_ID,

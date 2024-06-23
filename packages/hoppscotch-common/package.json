@@ -54,6 +54,7 @@
     "esprima": "4.0.1",
     "events": "3.3.0",
     "fp-ts": "2.16.1",
+    "fractional-indexing": "3.2.0",
     "globalthis": "1.0.3",
     "graphql": "16.8.1",
     "graphql-language-service-interface": "2.10.2",

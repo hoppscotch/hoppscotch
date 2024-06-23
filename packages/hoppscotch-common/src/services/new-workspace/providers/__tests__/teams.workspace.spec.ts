@@ -312,7 +312,7 @@ describe("TeamsWorkspaceProviderService", () => {
           "request": {
             "auth": {
               "authActive": true,
-              "authType": "none",
+              "authType": "inherit",
             },
             "body": {
               "body": null,
@@ -324,8 +324,9 @@ describe("TeamsWorkspaceProviderService", () => {
             "name": "Test Request #0",
             "params": [],
             "preRequestScript": "",
+            "requestVariables": [],
             "testScript": "",
-            "v": "1",
+            "v": "4",
           },
           "requestID": "request_id_0",
           "workspaceID": "workspace_id_0",
@@ -389,7 +390,7 @@ describe("TeamsWorkspaceProviderService", () => {
           "request": {
             "auth": {
               "authActive": true,
-              "authType": "none",
+              "authType": "inherit",
             },
             "body": {
               "body": null,
@@ -401,8 +402,9 @@ describe("TeamsWorkspaceProviderService", () => {
             "name": "Request #0 - Updated",
             "params": [],
             "preRequestScript": "",
+            "requestVariables": [],
             "testScript": "",
-            "v": "1",
+            "v": "4",
           },
           "requestID": "request_id_0",
           "workspaceID": "workspace_id_0",
@@ -507,7 +509,7 @@ describe("TeamsWorkspaceProviderService", () => {
           "request": {
             "auth": {
               "authActive": true,
-              "authType": "none",
+              "authType": "inherit",
             },
             "body": {
               "body": null,
@@ -519,8 +521,9 @@ describe("TeamsWorkspaceProviderService", () => {
             "name": "Test Request #0",
             "params": [],
             "preRequestScript": "",
+            "requestVariables": [],
             "testScript": "",
-            "v": "1",
+            "v": "4",
           },
           "requestID": "request_id_0",
           "workspaceID": "workspace_id_0",
@@ -669,7 +672,7 @@ describe("TeamsWorkspaceProviderService", () => {
             "request": {
               "auth": {
                 "authActive": true,
-                "authType": "none",
+                "authType": "inherit",
               },
               "body": {
                 "body": null,
@@ -681,8 +684,9 @@ describe("TeamsWorkspaceProviderService", () => {
               "name": "Untitled",
               "params": [],
               "preRequestScript": "",
+              "requestVariables": [],
               "testScript": "",
-              "v": "1",
+              "v": "4",
             },
             "requestID": "request_id_0",
           },
@@ -695,7 +699,7 @@ describe("TeamsWorkspaceProviderService", () => {
             "request": {
               "auth": {
                 "authActive": true,
-                "authType": "none",
+                "authType": "inherit",
               },
               "body": {
                 "body": null,
@@ -707,8 +711,9 @@ describe("TeamsWorkspaceProviderService", () => {
               "name": "Untitled",
               "params": [],
               "preRequestScript": "",
+              "requestVariables": [],
               "testScript": "",
-              "v": "1",
+              "v": "4",
             },
             "requestID": "request_id_1",
           },
@@ -721,7 +726,7 @@ describe("TeamsWorkspaceProviderService", () => {
             "request": {
               "auth": {
                 "authActive": true,
-                "authType": "none",
+                "authType": "inherit",
               },
               "body": {
                 "body": null,
@@ -733,8 +738,9 @@ describe("TeamsWorkspaceProviderService", () => {
               "name": "Untitled",
               "params": [],
               "preRequestScript": "",
+              "requestVariables": [],
               "testScript": "",
-              "v": "1",
+              "v": "4",
             },
             "requestID": "request_id_2",
           },
@@ -979,7 +985,7 @@ describe("TeamsWorkspaceProviderService", () => {
         name: "Test Child Collection #1",
         auth: {
           authType: "api-key",
-          addTo: "header",
+          addTo: "HEADERS",
           key: "API_KEY",
           authActive: true,
           value: "FAKE_API_KEY",
@@ -1012,13 +1018,13 @@ describe("TeamsWorkspaceProviderService", () => {
     ])
 
     const nestedChildCollection =
-      await teamsWorkspaceProviderService.getCollectionHandle(
+      await teamsWorkspaceProviderService.getRESTCollectionHandle(
         sampleWorkspace,
         "child_collection_id_0_0"
       )
 
     const anotherNestedChildCollection =
-      await teamsWorkspaceProviderService.getCollectionHandle(
+      await teamsWorkspaceProviderService.getRESTCollectionHandle(
         sampleWorkspace,
         "child_collection_id_1_0"
       )
@@ -1517,7 +1523,7 @@ describe("TeamsWorkspaceProviderService", () => {
 
     test("root collection to root collection", async () => {
       const sourceCollectionHandle =
-        await teamsWorkspaceProviderService.getCollectionHandle(
+        await teamsWorkspaceProviderService.getRESTCollectionHandle(
           sampleWorkspace,
           "root_collection_1"
         )
@@ -1621,7 +1627,7 @@ describe("TeamsWorkspaceProviderService", () => {
 
     test("child collection to root collection", async () => {
       const sourceCollectionHandle =
-        await teamsWorkspaceProviderService.getCollectionHandle(
+        await teamsWorkspaceProviderService.getRESTCollectionHandle(
           sampleWorkspace,
           "child_collection_0_1"
         )
@@ -1823,7 +1829,7 @@ describe("TeamsWorkspaceProviderService", () => {
 
     test("reorder a collection", async () => {
       const sourceCollectionHandle =
-        await teamsWorkspaceProviderService.getCollectionHandle(
+        await teamsWorkspaceProviderService.getRESTCollectionHandle(
           sampleWorkspace,
           "child_collection_0_1"
         )
@@ -1904,7 +1910,7 @@ describe("TeamsWorkspaceProviderService", () => {
 
       const res = await teamsWorkspaceProviderService.reorderRESTRequest(
         sourceRequestHandle.right,
-        "root_collection_0",
+        // "root_collection_0",
         null
       )
 

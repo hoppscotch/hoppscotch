@@ -6,9 +6,11 @@ import {
   Workspace,
   WorkspaceCollection,
   WorkspaceDecor,
+  WorkspaceEnvironment,
   WorkspaceRequest,
 } from "../workspace"
 import {
+  Environment,
   HoppCollection,
   HoppRESTAuth,
   HoppRESTHeader,
@@ -39,6 +41,7 @@ import {
   RESTCollectionJSONView,
   RESTCollectionLevelAuthHeadersView,
   RESTCollectionViewItem,
+  RESTEnvironmentsView,
   RESTSearchResultsView,
   RootRESTCollectionView,
 } from "../view"
@@ -59,6 +62,10 @@ import {
   TeamCollectionMovedDocument,
   TeamCollectionRemovedDocument,
   TeamCollectionUpdatedDocument,
+  TeamEnvironment,
+  TeamEnvironmentCreatedDocument,
+  TeamEnvironmentDeletedDocument,
+  TeamEnvironmentUpdatedDocument,
   TeamRequestAddedDocument,
   TeamRequestDeletedDocument,
   TeamRequestMovedDocument,
@@ -82,6 +89,12 @@ import {
   getCollectionChildRequests,
   getRootCollections,
 } from "~/helpers/backend/helpers"
+import {
+  createTeamEnvironment,
+  deleteTeamEnvironment,
+  updateTeamEnvironment,
+} from "~/helpers/backend/mutations/TeamEnvironment"
+import { fetchAllTeamEnvironments } from "~/helpers/teams/TeamEnvironmentAdapter"
 
 type TeamsWorkspaceCollection = WorkspaceCollection & {
   parentCollectionID?: string
@@ -110,6 +123,8 @@ export class TeamsWorkspaceProviderService
 
   private requests: Ref<TeamsWorkspaceRequest[]> = ref([])
 
+  private environments: Ref<TeamEnvironment[]> = ref([])
+
   private orderedRequests = computed(() => {
     return sortByOrder(this.requests.value)
   })
@@ -124,9 +139,7 @@ export class TeamsWorkspaceProviderService
 
   private teamSearchService = this.bind(TeamSearchService)
 
-  constructor() {
-    super()
-
+  onServiceInit() {
     this.workspaceService.registerWorkspaceProvider(this)
   }
 
@@ -233,33 +246,52 @@ export class TeamsWorkspaceProviderService
     this.setupTeamRequestOrderUpdatedSubscription(
       workspaceHandle.value.data.workspaceID
     )
-
-    // start fetching root collections
-    const res = await fetchRootCollections(
+    this.setupTeamsEnvironmentAddedSubscription(
+      workspaceHandle.value.data.workspaceID
+    )
+    this.setupTeamsEnvironmentUpdatedSubscription(
+      workspaceHandle.value.data.workspaceID
+    )
+    this.setupTeamsEnvironmentDeletedSubscription(
       workspaceHandle.value.data.workspaceID
     )
 
-    if (E.isLeft(res)) {
-      return res
-    }
+    const initialData = await Promise.allSettled([
+      fetchRootCollections(workspaceHandle.value.data.workspaceID),
+      fetchAllTeamEnvironments(workspaceHandle.value.data.workspaceID),
+    ])
+
+    const collections =
+      initialData[0].status === "fulfilled" && E.isRight(initialData[0].value)
+        ? initialData[0].value.right.rootCollectionsOfTeam
+        : []
+
+    const environments =
+      initialData[1].status === "fulfilled" && E.isRight(initialData[1].value)
+        ? initialData[1].value.right.team?.teamEnvironments ?? []
+        : []
 
     let previousOrder: string | null = null
 
-    this.collections.value = res.right.rootCollectionsOfTeam.map(
-      (collection) => {
-        const order = generateKeyBetween(previousOrder, null)
+    this.collections.value = collections.map((collection) => {
+      const order = generateKeyBetween(previousOrder, null)
 
-        previousOrder = order
+      previousOrder = order
 
-        return {
-          collectionID: collection.id,
-          providerID: this.providerID,
-          workspaceID: workspaceHandle.value.data.workspaceID,
-          name: collection.title,
-          order,
-        }
+      const { auth, headers } = parseInheritedData(collection.data ?? undefined)
+
+      return {
+        collectionID: collection.id,
+        providerID: this.providerID,
+        workspaceID: workspaceHandle.value.data.workspaceID,
+        name: collection.title,
+        order,
+        auth,
+        headers,
       }
-    )
+    })
+
+    this.environments.value = environments
 
     return E.right(undefined)
   }
@@ -315,7 +347,7 @@ export class TeamsWorkspaceProviderService
       headers: [],
     })
 
-    const createdCollectionHandle = await this.getCollectionHandle(
+    const createdCollectionHandle = await this.getRESTCollectionHandle(
       workspaceHandle,
       collectionID
     )
@@ -391,7 +423,7 @@ export class TeamsWorkspaceProviderService
       headers: [],
     })
 
-    const createdCollectionHandle = await this.getCollectionHandle(
+    const createdCollectionHandle = await this.getRESTCollectionHandle(
       parentCollectionHandle,
       collectionID
     )
@@ -666,7 +698,7 @@ export class TeamsWorkspaceProviderService
     // })
   }
 
-  async getCollectionHandle(
+  async getRESTCollectionHandle(
     workspaceHandle: Handle<Workspace>,
     collectionID: string
   ): Promise<E.Either<unknown, Handle<WorkspaceCollection>>> {
@@ -1503,7 +1535,6 @@ export class TeamsWorkspaceProviderService
 
   async reorderRESTRequest(
     requestHandle: Handle<WorkspaceRequest>,
-    destinationCollectionID: string,
     destinationRequestID: string | null
   ): Promise<E.Either<unknown, void>> {
     const requestHandleRef = requestHandle.get()
@@ -1523,7 +1554,7 @@ export class TeamsWorkspaceProviderService
     const reorderRes = await updateOrderRESTTeamRequest(
       request.requestID,
       destinationRequestID,
-      destinationCollectionID
+      requestHandleRef.value.data.collectionID
     )()
 
     if (E.isLeft(reorderRes)) {
@@ -1574,6 +1605,410 @@ export class TeamsWorkspaceProviderService
         }),
       })
     )
+  }
+
+  async createRESTEnvironment(
+    workspaceHandle: Handle<Workspace>,
+    newEnvironment: Partial<Environment> & { name: string }
+  ): Promise<E.Either<unknown, Handle<WorkspaceEnvironment>>> {
+    const workspaceHandleRef = workspaceHandle.get()
+
+    if (!isValidWorkspaceHandle(workspaceHandleRef, this.providerID)) {
+      return E.left("INVALID_WORKSPACE_HANDLE" as const)
+    }
+
+    const envName = newEnvironment.name
+    const workspaceID = workspaceHandleRef.value.data.workspaceID
+    const variables = newEnvironment.variables ?? []
+
+    const createEnvironmentRes = await createTeamEnvironment(
+      JSON.stringify(variables),
+      workspaceID,
+      envName
+    )()
+
+    if (E.isLeft(createEnvironmentRes)) {
+      return createEnvironmentRes
+    }
+
+    const environment = createEnvironmentRes.right.createTeamEnvironment
+
+    const newEnv: TeamEnvironment = {
+      id: environment.id,
+      name: environment.name,
+      teamID: environment.teamID,
+      variables: JSON.parse(environment.variables),
+    }
+
+    this.environments.value.push(newEnv)
+
+    return this.getRESTEnvironmentHandle(workspaceHandle, environment.id)
+  }
+
+  async duplicateRESTEnvironment(
+    environmentHandle: Handle<WorkspaceEnvironment>
+  ): Promise<E.Either<unknown, Handle<WorkspaceEnvironment>>> {
+    const environmentHandleRef = environmentHandle.get()
+
+    if (!isValidEnvironmentHandle(environmentHandleRef, this.providerID)) {
+      return E.left("INVALID_ENVIRONMENT_HANDLE" as const)
+    }
+
+    const environment = this.environments.value.find(
+      (env) => env.id === environmentHandleRef.value.data.workspaceID
+    )
+
+    if (!environment) {
+      return E.left("ENVIRONMENT_DOES_NOT_EXIST" as const)
+    }
+
+    const environmentVariables = environment?.variables ?? []
+
+    const createEnvironmentRes = await createTeamEnvironment(
+      environmentVariables,
+      environment.teamID,
+      environment.name
+    )()
+
+    if (E.isLeft(createEnvironmentRes)) {
+      return createEnvironmentRes
+    }
+
+    const newEnvironment = createEnvironmentRes.right.createTeamEnvironment
+
+    const duplicatedEnv: TeamEnvironment = {
+      id: newEnvironment.id,
+      name: newEnvironment.name,
+      teamID: newEnvironment.teamID,
+      variables: JSON.parse(newEnvironment.variables),
+    }
+
+    this.environments.value.push(duplicatedEnv)
+
+    const workspaceHandle = await this.getWorkspaceHandle(
+      environmentHandleRef.value.data.workspaceID
+    )
+
+    if (E.isLeft(workspaceHandle)) {
+      return E.left("ENV_CREATED_BUT_FAILED_TO_GENERATE_HANDLE" as const)
+    }
+
+    return this.getRESTEnvironmentHandle(workspaceHandle.right, environment.id)
+  }
+
+  async exportRESTEnvironment(
+    environmentHandle: Handle<WorkspaceEnvironment>
+  ): Promise<E.Either<unknown, void>> {
+    const environmentHandleRef = environmentHandle.get()
+
+    if (!isValidEnvironmentHandle(environmentHandleRef, this.providerID)) {
+      return Promise.resolve(E.left("INVALID_ENVIRONMENT_HANDLE" as const))
+    }
+
+    const environment = this.environments.value.find(
+      (env) => env.id === environmentHandleRef.value.data.workspaceID
+    )
+
+    if (!environment) {
+      return Promise.resolve(E.left("ENVIRONMENT_DOES_NOT_EXIST" as const))
+    }
+
+    const downloadRes = await initializeDownloadFile(
+      JSON.stringify(environment, null, 2),
+      environment.name
+    )
+
+    if (E.isLeft(downloadRes)) {
+      return downloadRes
+    }
+
+    return E.right(undefined)
+  }
+
+  async exportRESTEnvironments(
+    workspaceHandle: Handle<Workspace>
+  ): Promise<E.Either<unknown, void>> {
+    const workspaceHandleRef = workspaceHandle.get()
+
+    if (!isValidWorkspaceHandle(workspaceHandleRef, this.providerID)) {
+      return Promise.resolve(E.left("INVALID_WORKSPACE_HANDLE" as const))
+    }
+
+    const workspaceID = workspaceHandleRef.value.data.workspaceID
+
+    const environmentsInWorkspace = this.environments.value.filter(
+      (env) => env.teamID === workspaceID
+    )
+
+    // downloads json
+    const downloadRes = await initializeDownloadFile(
+      JSON.stringify(environmentsInWorkspace, null, 2),
+      "Environments"
+    )
+
+    if (E.isLeft(downloadRes)) {
+      return downloadRes
+    }
+
+    return E.right(undefined)
+  }
+
+  async removeRESTEnvironment(
+    environmentHandle: Handle<WorkspaceEnvironment>
+  ): Promise<E.Either<unknown, void>> {
+    const environmentHandleRef = environmentHandle.get()
+
+    if (!isValidEnvironmentHandle(environmentHandleRef, this.providerID)) {
+      return Promise.resolve(E.left("INVALID_ENVIRONMENT_HANDLE" as const))
+    }
+
+    const environment = this.environments.value.find(
+      (env) => env.id === environmentHandleRef.value.data.environmentID
+    )
+
+    if (!environment) {
+      return Promise.resolve(E.left("ENVIRONMENT_DOES_NOT_EXIST" as const))
+    }
+
+    const deleteEnvironmentRes = await deleteTeamEnvironment(environment.id)()
+
+    if (E.isLeft(deleteEnvironmentRes)) {
+      return deleteEnvironmentRes
+    }
+
+    this.environments.value = this.environments.value.filter(
+      (env) => env.id !== environment.id
+    )
+
+    return E.right(undefined)
+  }
+
+  async updateRESTEnvironment(
+    environmentHandle: Handle<WorkspaceEnvironment>,
+    updatedEnvironment: Partial<Environment>
+  ): Promise<E.Either<unknown, void>> {
+    const environmentHandleRef = environmentHandle.get()
+
+    if (!isValidEnvironmentHandle(environmentHandleRef, this.providerID)) {
+      return Promise.resolve(E.left("INVALID_ENVIRONMENT_HANDLE" as const))
+    }
+
+    const environment = this.environments.value.find(
+      (env) => env.id === environmentHandleRef.value.data.environmentID
+    )
+
+    if (!environment) {
+      return Promise.resolve(E.left("ENVIRONMENT_DOES_NOT_EXIST" as const))
+    }
+
+    const updatedName = updatedEnvironment.name ?? environment.name
+    const updatedVariables = updatedEnvironment.variables ?? []
+
+    const updateEnvironmentRes = await updateTeamEnvironment(
+      JSON.stringify(updatedVariables),
+      environment.id,
+      updatedName
+    )()
+
+    if (E.isLeft(updateEnvironmentRes)) {
+      return updateEnvironmentRes
+    }
+
+    const updatedEnv = updateEnvironmentRes.right.updateTeamEnvironment
+
+    this.environments.value = this.environments.value.map((env) => {
+      if (env.id === updatedEnv.id) {
+        return {
+          ...env,
+          name: updatedName,
+          variables: JSON.parse(updatedEnv.variables),
+        }
+      }
+
+      return env
+    })
+
+    return E.right(undefined)
+  }
+
+  async getRESTEnvironmentHandle(
+    workspaceHandle: Handle<Workspace>,
+    environmentID: string
+  ): Promise<E.Either<unknown, Handle<WorkspaceEnvironment>>> {
+    return E.right({
+      get: lazy(() => {
+        return computed(() => {
+          const workspaceHandleRef = workspaceHandle.get()
+
+          if (!isValidWorkspaceHandle(workspaceHandleRef, this.providerID)) {
+            return {
+              type: "invalid" as const,
+              reason: "INVALID_WORKSPACE_HANDLE",
+            }
+          }
+
+          const environment = this.environments.value.find(
+            (env) => env.id === environmentID
+          )
+
+          if (!environment) {
+            return {
+              type: "invalid" as const,
+              reason: "ENVIRONMENT_DOES_NOT_EXIST",
+            }
+          }
+
+          return {
+            data: {
+              environmentID: environment.id,
+              providerID: this.providerID,
+              workspaceID: workspaceHandleRef.value.data.workspaceID,
+              name: environment.name,
+              variables: environment.variables,
+            },
+            type: "ok" as const,
+          }
+        })
+      }),
+    })
+  }
+
+  async importRESTEnvironments(
+    workspaceHandle: Handle<Workspace>,
+    environments: Environment[]
+  ): Promise<E.Either<unknown, void>> {
+    const workspaceHandleRef = workspaceHandle.get()
+
+    if (!isValidWorkspaceHandle(workspaceHandleRef, this.providerID)) {
+      return E.left("INVALID_WORKSPACE_HANDLE" as const)
+    }
+
+    // right now there is no direct way to import environments to the team workspace
+    // we'll have to create them one by one
+    // for now, we'll ignore the order of the environments
+
+    const teamID = workspaceHandleRef.value.data.workspaceID
+
+    const importRes = await Promise.allSettled(
+      environments.map((environment) => {
+        return createTeamEnvironment(
+          JSON.stringify(environment.variables),
+          teamID,
+          environment.name
+        )()
+      })
+    )
+
+    const successfulImports = importRes.filter(
+      (res) => res.status === "fulfilled"
+    )
+
+    // if not even one import was successful, return the first "CANNOT_IMPORT_ENVIRONMENT" error
+    if (successfulImports.length === 0) {
+      return E.left("CANNOT_IMPORT_ENVIRONMENTS" as const)
+    }
+
+    // insert the successfully imported environments into the local state
+    successfulImports.forEach((res) => {
+      if (E.isLeft(res.value)) {
+        return
+      }
+
+      const environment = res.value.right.createTeamEnvironment
+
+      const newEnv: TeamEnvironment = {
+        id: environment.id,
+        name: environment.name,
+        teamID: environment.teamID,
+        variables: JSON.parse(environment.variables),
+      }
+
+      this.environments.value.push(newEnv)
+    })
+
+    return E.right(undefined)
+  }
+
+  async getRESTEnvironmentsView(
+    workspaceHandle: Handle<Workspace>
+  ): Promise<E.Either<never, Handle<RESTEnvironmentsView>>> {
+    return E.right({
+      get: () =>
+        computed(() => {
+          const workspaceHandleRef = workspaceHandle.get()
+
+          if (!isValidWorkspaceHandle(workspaceHandleRef, this.providerID)) {
+            return {
+              type: "invalid" as const,
+              reason: "INVALID_WORKSPACE_HANDLE",
+            }
+          }
+
+          const teamID = workspaceHandleRef.value.data.workspaceID
+
+          const environments = this.environments.value.filter(
+            (env) => env.teamID === teamID
+          )
+
+          const hoppEnvs: Environment[] = environments.map((env) => ({
+            name: env.name,
+            variables: JSON.parse(env.variables), // TODO: validate this ?
+            id: env.id,
+            v: 1,
+          }))
+
+          return {
+            type: "ok" as const,
+            data: {
+              providerID: this.providerID,
+              workspaceID: teamID,
+              environments: ref(hoppEnvs),
+            },
+          }
+        }),
+    })
+  }
+
+  async getRESTRequestHandle(
+    workspaceHandle: Handle<Workspace>,
+    requestID: string
+  ): Promise<E.Either<unknown, Handle<WorkspaceRequest>>> {
+    return E.right({
+      get: lazy(() => {
+        return computed(() => {
+          const workspaceHandleRef = workspaceHandle.get()
+
+          if (!isValidWorkspaceHandle(workspaceHandleRef, this.providerID)) {
+            return {
+              type: "invalid" as const,
+              reason: "INVALID_WORKSPACE_HANDLE",
+            }
+          }
+
+          const request = this.requests.value.find(
+            (request) => request.requestID === requestID
+          )
+
+          if (!request) {
+            return {
+              type: "invalid" as const,
+              reason: "REQUEST_DOES_NOT_EXIST",
+            }
+          }
+
+          return {
+            data: {
+              collectionID: request.collectionID,
+              providerID: this.providerID,
+              requestID: request.requestID,
+              workspaceID: workspaceHandleRef.value.data.workspaceID,
+              request: request.request,
+            },
+            type: "ok" as const,
+          }
+        })
+      }),
+    })
   }
 
   private async setupTeamsCollectionAddedSubscription(workspaceID: string) {
@@ -1859,6 +2294,86 @@ export class TeamsWorkspaceProviderService
       this.requests.value = reorderOperation.right
     })
   }
+
+  // env created subscription
+  private async setupTeamsEnvironmentAddedSubscription(workspaceID: string) {
+    const [teamEnvAdded$, teamEnvAddedSub] =
+      runTeamEnvironmentAddedSubscription(workspaceID)
+
+    this.subscriptions.push(teamEnvAddedSub)
+
+    teamEnvAdded$.subscribe((result) => {
+      if (E.isLeft(result)) {
+        console.error(result.left)
+        return
+      }
+
+      const alreadyExists = this.environments.value.some(
+        (env) => env.id === result.right.teamEnvironmentCreated.id
+      )
+
+      if (alreadyExists) {
+        return
+      }
+
+      const newEnv: TeamEnvironment = {
+        id: result.right.teamEnvironmentCreated.id,
+        name: result.right.teamEnvironmentCreated.name,
+        teamID: result.right.teamEnvironmentCreated.teamID,
+        variables: JSON.parse(result.right.teamEnvironmentCreated.variables),
+      }
+
+      this.environments.value.push(newEnv)
+    })
+  }
+
+  // env deleted subscription
+  private async setupTeamsEnvironmentDeletedSubscription(workspaceID: string) {
+    const [teamEnvDeleted$, teamEnvDeletedSub] =
+      runTeamEnvironmentDeletedSubscription(workspaceID)
+
+    this.subscriptions.push(teamEnvDeletedSub)
+
+    teamEnvDeleted$.subscribe((result) => {
+      if (E.isLeft(result)) {
+        console.error(result.left)
+        return
+      }
+
+      this.environments.value = this.environments.value.filter(
+        (env) => env.id !== result.right.teamEnvironmentDeleted.id
+      )
+    })
+  }
+
+  // env updated subscription
+  private async setupTeamsEnvironmentUpdatedSubscription(workspaceID: string) {
+    const [teamEnvUpdated$, teamEnvUpdatedSub] =
+      runTeamEnvironmentUpdatedSubscription(workspaceID)
+
+    this.subscriptions.push(teamEnvUpdatedSub)
+
+    teamEnvUpdated$.subscribe((result) => {
+      if (E.isLeft(result)) {
+        console.error(result.left)
+        return
+      }
+
+      this.environments.value = this.environments.value.map((env) => {
+        if (env.id === result.right.teamEnvironmentUpdated.id) {
+          return {
+            ...env,
+            name: result.right.teamEnvironmentUpdated.name,
+            variables: JSON.parse(
+              result.right.teamEnvironmentUpdated.variables
+            ),
+          }
+        }
+
+        return env
+      })
+    })
+  }
 }
 
 const isValidWorkspaceHandle = (
@@ -1884,6 +2399,19 @@ const isValidCollectionHandle = (
   return (
     collection.value.type === "ok" &&
     collection.value.data.providerID === providerID
+  )
+}
+
+const isValidEnvironmentHandle = (
+  environment: HandleRef<WorkspaceEnvironment>,
+  providerID: string
+): environment is Ref<{
+  data: WorkspaceEnvironment
+  type: "ok"
+}> => {
+  return (
+    environment.value.type === "ok" &&
+    environment.value.data.providerID === providerID
   )
 }
 
@@ -1978,6 +2506,30 @@ const runTeamRequestMovedSubscription = (teamID: string) =>
 const runTeamRequestOrderUpdatedSubscription = (teamID: string) =>
   runGQLSubscription({
     query: TeamRequestOrderUpdatedDocument,
+    variables: {
+      teamID,
+    },
+  })
+
+const runTeamEnvironmentAddedSubscription = (teamID: string) =>
+  runGQLSubscription({
+    query: TeamEnvironmentCreatedDocument,
+    variables: {
+      teamID,
+    },
+  })
+
+const runTeamEnvironmentDeletedSubscription = (teamID: string) =>
+  runGQLSubscription({
+    query: TeamEnvironmentDeletedDocument,
+    variables: {
+      teamID,
+    },
+  })
+
+const runTeamEnvironmentUpdatedSubscription = (teamID: string) =>
+  runGQLSubscription({
+    query: TeamEnvironmentUpdatedDocument,
     variables: {
       teamID,
     },

@@ -25,7 +25,7 @@
                   !smtpConfigs.fields.mailer_smtp_enabled
               "
             >
-              Enable SMTP Configurations
+              {{ t('configs.mail_configs.enable_smtp') }}
             </HoppSmartToggle>
           </div>
 
@@ -35,7 +35,7 @@
                 :on="smtpConfigs.enabled"
                 @change="smtpConfigs.enabled = !smtpConfigs.enabled"
               >
-                Enable Email based authentication
+                {{ t('configs.mail_configs.enable_email_auth') }}
               </HoppSmartCheckbox>
 
               <HoppSmartCheckbox
@@ -46,7 +46,7 @@
                     !smtpConfigs.fields.mailer_use_advance_configs
                 "
               >
-                Advanced SMTP Configurations
+                {{ t('configs.mail_configs.advanced_smtp') }}
               </HoppSmartCheckbox>
             </div>
             <div
@@ -92,7 +92,6 @@
 </template>
 
 <script setup lang="ts">
-import { HoppSmartCheckbox } from '@hoppscotch/ui';
 import { useVModel } from '@vueuse/core';
 import { computed, reactive } from 'vue';
 import { useI18n } from '~/composables/i18n';

@@ -41,11 +41,15 @@
           </div>
         </HoppSmartTab>
 
-        <HoppSmartTab v-if="showDetails" :id="'details'" label="Details">
+        <HoppSmartTab
+          v-if="showDetails"
+          :id="'details'"
+          :label="t('collection.details')"
+        >
           <div
             class="flex flex-shrink-0 items-center justify-between border-b border-dividerLight bg-primary pl-4"
           >
-            <span>Collection ID</span>
+            <span>{{ t("collection_runner.collection_id") }}</span>
 
             <!-- TODO: Make it point to the section about accessing collections via the ID -->
             <HoppButtonSecondary
@@ -77,8 +81,7 @@
             class="bg-bannerInfo px-4 py-2 flex items-center sticky bottom-0"
           >
             <icon-lucide-info class="svg-icons mr-2" />
-            This collection ID will be used for CLI collection runner for
-            Hoppscotch.
+            {{ t("collection_runner.cli_collection_id_description") }}
           </div>
         </HoppSmartTab>
       </HoppSmartTabs>

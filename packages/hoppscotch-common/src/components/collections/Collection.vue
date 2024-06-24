@@ -77,7 +77,7 @@
             v-if="collectionsType === 'team-collections'"
             v-tippy="{ theme: 'tooltip' }"
             :icon="IconPlaySquare"
-            title="Run collection"
+            :title="t('collection_runner.run_collection')"
             class="hidden group-hover:inline-flex"
             @click="emit('run-collection', props.id)"
           />
@@ -185,7 +185,7 @@
                     v-if="collectionsType === 'team-collections'"
                     ref="runCollectionAction"
                     :icon="IconPlaySquare"
-                    label="Run collection"
+                    :label="t('collection_runner.run_collection')"
                     :shortcut="['T']"
                     @click="
                       () => {

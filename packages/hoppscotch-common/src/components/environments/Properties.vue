@@ -2,7 +2,7 @@
   <HoppSmartModal
     dialog
     :full-width-body="true"
-    title="Environment Properties"
+    :title="t('environment.properties')"
     @close="hideModal"
   >
     <template #body>
@@ -11,11 +11,11 @@
         styles="sticky overflow-x-auto flex-shrink-0 bg-primary top-0 z-10 !-py-4"
         render-inactive-tabs
       >
-        <HoppSmartTab id="details" label="Details">
+        <HoppSmartTab id="details" :label="t('environment.details')">
           <div
             class="flex flex-shrink-0 items-center justify-between border-b border-dividerLight bg-primary pl-4"
           >
-            <span>Environment ID</span>
+            <span>{{ t("collection_runner.environment_id") }}</span>
 
             <!-- TODO: Make it point to the section about accessing environments via the ID -->
             <HoppButtonSecondary
@@ -47,8 +47,7 @@
             class="bg-bannerInfo px-4 py-2 flex items-center sticky bottom-0"
           >
             <icon-lucide-info class="svg-icons mr-2" />
-            This environment ID will be used for CLI collection runner for
-            Hoppscotch.
+            {{ t("collection_runner.cli_environment_id_description") }}
           </div>
         </HoppSmartTab>
       </HoppSmartTabs>

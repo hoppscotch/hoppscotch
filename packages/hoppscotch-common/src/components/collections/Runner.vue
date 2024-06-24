@@ -1,8 +1,12 @@
 <template>
-  <HoppSmartModal dialog title="Run collection" @close="closeModal">
+  <HoppSmartModal
+    dialog
+    :title="t('collection_runner.run_collection')"
+    @close="closeModal"
+  >
     <template #body>
       <HoppSmartTabs v-model="activeTab">
-        <HoppSmartTab id="cli" label="CLI">
+        <HoppSmartTab id="cli" :label="t('collection_runner.cli')">
           <div class="space-y-4 p-4">
             <p
               class="p-4 mb-4 border rounded-md text-amber-500 border-amber-600"
@@ -16,7 +20,7 @@
                 @change="toggleIncludeEnvironment"
               />
               <span class="truncate"
-                >Include active environment:
+                >{{ t("collection_runner.include_active_environment") }}
                 <span class="text-secondaryDark">{{
                   activeEnvironment
                 }}</span></span
@@ -29,7 +33,7 @@
           </div>
         </HoppSmartTab>
 
-        <HoppSmartTab id="runner" disabled label="Runner (coming soon)" />
+        <HoppSmartTab id="runner" disabled :label="t('collection_runner.ui')" />
       </HoppSmartTabs>
     </template>
 
@@ -97,13 +101,17 @@ const activeEnvironment = computed(() => {
 const isCloudInstance = window.location.hostname === "domain.xyz"
 
 const cliCommandGenerationDescription = computed(() => {
-  const serverUrlCopy = import.meta.env.VITE_BACKEND_API_URL
-    ? "verify the generated SH instance server URL"
-    : "the SH instance server URL"
+  if (isCloudInstance) {
+    return t("collection_runner.cli_command_generation_description_cloud")
+  }
 
-  return isCloudInstance
-    ? "Copy the below command and run it from the CLI. Please specify a personal access token."
-    : `Copy the below command and run it from the CLI. Please specify a personal access token and ${serverUrlCopy}.`
+  if (import.meta.env.VITE_BACKEND_API_URL) {
+    return t("collection_runner.cli_command_generation_description_sh")
+  }
+
+  return t(
+    "collection_runner.cli_command_generation_description_sh_with_server_url_placeholder"
+  )
 })
 
 const generatedCLICommand = computed(() => {

@@ -44,7 +44,7 @@ import { ref } from "vue"
 import IconLucideFileBadge from "~icons/lucide/file-badge"
 import IconLucideFileKey from "~icons/lucide/file-key"
 import { useService } from "dioc/vue"
-import { NativeInterceptorService } from "@platform/interceptors/native";
+import { NativeInterceptorService } from "@platform/interceptors/native"
 
 const nativeInterceptorService = useService(NativeInterceptorService)
 
@@ -53,4 +53,3 @@ const allowSSLVerification = nativeInterceptorService.validateCerts
 // const showCACertificatesModal = ref(false)
 const showClientCertificatesModal = ref(false)
 </script>
-

@@ -16,35 +16,32 @@
           input-styles="input floating-input"
         />
 
-        <HoppSmartTabs
-          v-model="selectedTab"
-        >
-          <HoppSmartTab
-            :id="'pem'"
-            :label="'PEM'"
-          >
+        <HoppSmartTabs v-model="selectedTab">
+          <HoppSmartTab :id="'pem'" :label="'PEM'">
             <div class="p-4 space-y-4">
-              <div class="flex flex-col mx-4 space-y-2">
-                <label>
-                  Certificate
-                </label>
+              <div class="flex flex-col space-y-2">
+                <label> Certificate </label>
                 <HoppButtonSecondary
                   :icon="pemCert?.type === 'loaded' ? IconFile : IconPlus"
                   :loading="pemCert?.type === 'loading'"
-                  :label="pemCert?.type === 'loaded' ? pemCert.filename : 'Add Certifcate File'"
+                  :label="
+                    pemCert?.type === 'loaded'
+                      ? pemCert.filename
+                      : 'Add Certifcate File'
+                  "
                   filled
                   outline
                   @click="openFilePicker('pem_cert')"
                 />
               </div>
-              <div class="flex flex-col mx-4 space-y-2">
-                <label>
-                  Key
-                </label>
+              <div class="flex flex-col space-y-2">
+                <label> Key </label>
                 <HoppButtonSecondary
                   :icon="pemKey?.type === 'loaded' ? IconFile : IconPlus"
                   :loading="pemKey?.type === 'loading'"
-                  :label="pemKey?.type === 'loaded' ? pemKey.filename : 'Add Key File'"
+                  :label="
+                    pemKey?.type === 'loaded' ? pemKey.filename : 'Add Key File'
+                  "
                   @click="openFilePicker('pem_key')"
                   filled
                   outline
@@ -53,36 +50,38 @@
             </div>
           </HoppSmartTab>
 
-          <HoppSmartTab
-            :id="'pfx'"
-            :label="'PFX/PKCS12'"
-          >
-            <div class="p-4 space-y-4">
-              <div class="flex flex-col mx-4 space-y-2">
-                <label>
-                  PFX/PKCS12 File
-                </label>
+          <HoppSmartTab :id="'pfx'" :label="'PFX/PKCS12'">
+            <div class="p-4 space-y-6">
+              <div class="flex flex-col space-y-2">
+                <label> PFX/PKCS12 File </label>
                 <HoppButtonSecondary
                   :icon="pfxCert?.type === 'loaded' ? IconFile : IconPlus"
                   :loading="pfxCert?.type === 'loading'"
-                  :label="pfxCert?.type === 'loaded' ? pfxCert.filename : 'Add PFX/PKCS12 File'"
+                  :label="
+                    pfxCert?.type === 'loaded'
+                      ? pfxCert.filename
+                      : 'Add PFX/PKCS12 File'
+                  "
                   @click="openFilePicker('pfx_cert')"
                   filled
                   outline
                 />
               </div>
 
-              <div class="mx-4 mt-6">
-                <!-- TODO: Clean this UI up -->
+              <div class="border border-divider rounded">
                 <HoppSmartInput
                   v-model="pfxPassword"
                   :type="showPfxPassword ? 'text' : 'password'"
                   :label="'Password'"
-                  input-styles="floating-input border-none"
+                  input-styles="floating-input !border-0 "
                   :placeholder="' '"
                 >
                   <template #button>
                     <HoppButtonSecondary
+                      v-tippy="{ theme: 'tooltip' }"
+                      :title="
+                        showPfxPassword ? 'Hide Password' : 'Show Password'
+                      "
                       :icon="showPfxPassword ? IconEye : IconEyeOff"
                       @click="showPfxPassword = !showPfxPassword"
                     />
@@ -122,9 +121,13 @@ import IconFile from "~icons/lucide/file"
 import { ref, watch, computed } from "vue"
 import { useFileDialog } from "@vueuse/core"
 import { ClientCertificateEntry } from "../../platform/interceptors/native"
+import { t } from "@tauri-apps/api/event-41a9edf5"
+import { useToast } from "@composables/toast"
+
+const toast = useToast()
 
 const props = defineProps<{
-  show: boolean,
+  show: boolean
   existingDomains: string[]
 }>()
 
@@ -136,7 +139,7 @@ const emit = defineEmits<{
 type FileSelectorState =
   | null
   | { type: "loading" }
-  | { type: "loaded"; filename: string, data: Uint8Array }
+  | { type: "loaded"; filename: string; data: Uint8Array }
 
 const domain = ref("")
 
@@ -148,27 +151,35 @@ const pfxCert = ref<FileSelectorState>(null)
 const pfxPassword = ref("")
 const showPfxPassword = ref(false)
 
-const anyFileSelectorIsLoading = computed(() =>
-  pemCert.value?.type === "loading" || pemKey.value?.type === "loading" || pfxCert.value?.type === "loading"
+const anyFileSelectorIsLoading = computed(
+  () =>
+    pemCert.value?.type === "loading" ||
+    pemKey.value?.type === "loading" ||
+    pfxCert.value?.type === "loading"
 )
 
-const currentlyPickingFile = ref<null | "pem_cert" | "pem_key" | "pfx_cert">(null)
+const currentlyPickingFile = ref<null | "pem_cert" | "pem_key" | "pfx_cert">(
+  null
+)
 
 const selectedTab = ref<"pem" | "pfx">("pem")
 
-watch(() => props.show, (show) => {
-  if (!show) return
+watch(
+  () => props.show,
+  (show) => {
+    if (!show) return
 
-  currentlyPickingFile.value = null
+    currentlyPickingFile.value = null
 
-  domain.value = ""
-  pemCert.value = null
-  pemKey.value = null
-  pfxCert.value = null
-  pfxPassword.value = ""
-  showPfxPassword.value = false
-  selectedTab.value = "pem"
-})
+    domain.value = ""
+    pemCert.value = null
+    pemKey.value = null
+    pfxCert.value = null
+    pfxPassword.value = ""
+    showPfxPassword.value = false
+    selectedTab.value = "pem"
+  }
+)
 
 const certificate = computed<ClientCertificateEntry | null>(() => {
   if (selectedTab.value === "pem") {
@@ -182,9 +193,9 @@ const certificate = computed<ClientCertificateEntry | null>(() => {
             certificate_pem: pemCert.value.data,
 
             key_filename: pemKey.value.filename,
-            key_pem: pemKey.value.data
-          }
-        }
+            key_pem: pemKey.value.data,
+          },
+        },
       }
     }
   } else {
@@ -196,9 +207,9 @@ const certificate = computed<ClientCertificateEntry | null>(() => {
           PFXCert: {
             certificate_filename: pfxCert.value.filename,
             certificate_pfx: pfxCert.value.data,
-            password: pfxPassword.value
-          }
-        }
+            password: pfxPassword.value,
+          },
+        },
       }
     }
   }
@@ -209,7 +220,10 @@ const certificate = computed<ClientCertificateEntry | null>(() => {
 const isValidCertificate = computed(() => {
   if (certificate.value === null) return false
 
-  if (props.existingDomains.includes(certificate.value.domain)) return false
+  if (props.existingDomains.includes(certificate.value.domain)) {
+    toast.error("A certificate for this domain already exists")
+    return false
+  }
 
   return ClientCertificateEntry.safeParse(certificate.value).success
 })
@@ -217,10 +231,10 @@ const isValidCertificate = computed(() => {
 const {
   open: openFileDialog,
   reset: resetFilePicker,
-  onChange: onFilePickerChange
+  onChange: onFilePickerChange,
 } = useFileDialog({
   reset: true,
-  multiple: false
+  multiple: false,
 })
 
 onFilePickerChange(async (files) => {
@@ -262,7 +276,7 @@ function openFilePicker(type: "pem_cert" | "pem_key" | "pfx_cert") {
 function save() {
   if (certificate.value) {
     emit("save", certificate.value)
-    emit('hide-modal')
+    emit("hide-modal")
   }
 }
 </script>

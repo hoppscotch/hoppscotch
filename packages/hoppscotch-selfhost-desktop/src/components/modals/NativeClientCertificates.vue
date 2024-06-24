@@ -7,50 +7,54 @@
   >
     <template #body>
       <div class="flex flex-col space-y-4">
-        <ul v-if="certificateMap.size > 0" class="mx-4 border border-dividerDark rounded">
+        <ul
+          v-if="certificateMap.size > 0"
+          class="mx-4 border border-dividerDark rounded"
+        >
           <li
             v-for="([domain, certificate], index) in certificateMap"
             :key="domain"
             class="flex border-dividerDark px-2 items-center justify-between"
             :class="{ 'border-t border-dividerDark': index !== 0 }"
           >
-              <div class="flex space-x-2">
-                <div class="truncate">
-                  {{ domain }}
-                </div>
+            <div class="flex space-x-2">
+              <div class="truncate">
+                {{ domain }}
+              </div>
+            </div>
+
+            <div class="flex items-center space-x-1">
+              <div class="text-secondaryLight mr-2">
+                {{ "PEMCert" in certificate.cert ? "PEM" : "PFX/PKCS12" }}
               </div>
 
-              <div class="flex items-center space-x-1">
-                <div class="text-secondaryLight mr-2">
-                  {{ 'PEMCert' in certificate.cert ? "PEM" : "PFX/PKCS12" }}
-                </div>
+              <HoppButtonSecondary
+                :icon="certificate.enabled ? IconCheckCircle : IconCircle"
+                v-tippy="{ theme: 'tooltip' }"
+                :title="
+                  certificate.enabled
+                    ? t('action.turn_off')
+                    : t('action.turn_on')
+                "
+                color="green"
+                @click="toggleEntryEnabled(domain)"
+              />
 
-                <HoppButtonSecondary
-                  :icon="certificate.enabled ? IconCheckCircle : IconCircle"
-                  v-tippy="{ theme: 'tooltip' }"
-                  :title="
-                    certificate.enabled
-                      ? t('action.turn_off')
-                      : t('action.turn_on')
-                  "
-                  color="green"
-                  @click="toggleEntryEnabled(domain)"
-                />
-
-                <HoppButtonSecondary
-                  :icon="IconTrash"
-                  v-tippy="{ theme: 'tooltip' }"
-                  :title="t('action.remove')"
-                  @click="deleteEntry(domain)"
-                />
-              </div>
+              <HoppButtonSecondary
+                :icon="IconTrash"
+                v-tippy="{ theme: 'tooltip' }"
+                :title="t('action.remove')"
+                color="red"
+                @click="deleteEntry(domain)"
+              />
+            </div>
           </li>
         </ul>
 
         <HoppButtonSecondary
           class="mx-4"
           :icon="IconPlus"
-          :label="'Add Certifcate File'"
+          :label="'Add Certificate File'"
           filled
           outline
           @click="showAddModal = true"
@@ -60,10 +64,7 @@
 
     <template #footer>
       <div class="flex space-x-2">
-        <HoppButtonPrimary
-          :label="'Save'"
-          @click="save"
-        />
+        <HoppButtonPrimary :label="'Save'" @click="save" />
         <HoppButtonSecondary
           :label="'Cancel'"
           filled
@@ -91,7 +92,10 @@ import IconTrash from "~icons/lucide/trash"
 import { ref, watch } from "vue"
 import { useI18n } from "@composables/i18n"
 import { useService } from "dioc/vue"
-import { ClientCertificateEntry, NativeInterceptorService } from "@platform/interceptors/native"
+import {
+  ClientCertificateEntry,
+  NativeInterceptorService,
+} from "@platform/interceptors/native"
 import { cloneDeep } from "lodash-es"
 
 const props = defineProps<{
@@ -110,15 +114,22 @@ const certificateMap = ref(new Map<string, ClientCertificateEntry>())
 
 const showAddModal = ref(false)
 
-watch(() => props.show, (show) => {
-  if (show) {
-    certificateMap.value = cloneDeep(nativeInterceptorService.clientCertificates.value)
+watch(
+  () => props.show,
+  (show) => {
+    if (show) {
+      certificateMap.value = cloneDeep(
+        nativeInterceptorService.clientCertificates.value
+      )
+    }
   }
-})
+)
 
 function save() {
-  nativeInterceptorService.clientCertificates.value = cloneDeep(certificateMap.value)
-  emit('hide-modal')
+  nativeInterceptorService.clientCertificates.value = cloneDeep(
+    certificateMap.value
+  )
+  emit("hide-modal")
 }
 
 function saveCertificate(cert: ClientCertificateEntry) {
@@ -129,7 +140,10 @@ function toggleEntryEnabled(domain: string) {
   const certificate = certificateMap.value.get(domain)
 
   if (certificate) {
-    certificateMap.value.set(domain, { ...certificate, enabled: !certificate.enabled })
+    certificateMap.value.set(domain, {
+      ...certificate,
+      enabled: !certificate.enabled,
+    })
   }
 }
 

@@ -7,9 +7,12 @@
   >
     <template #body>
       <div class="flex flex-col space-y-4">
-        <ul v-if="certificates.length > 0" class="mx-4 border border-dividerDark rounded">
+        <ul
+          v-if="certificates.length > 0"
+          class="mx-4 border border-dividerDark rounded"
+        >
           <li
-            v-for="certificate, index in certificates"
+            v-for="(certificate, index) in certificates"
             :key="index"
             class="flex border-dividerDark px-2 items-center justify-between"
             :class="{ 'border-t border-dividerDark': index !== 0 }"
@@ -52,17 +55,15 @@
         />
 
         <p class="text-center text-secondaryLight">
-          Hoppscotch supports .crt, .cer or .pem files containing one or more certificates.
+          Hoppscotch supports .crt, .cer or .pem files containing one or more
+          certificates.
         </p>
       </div>
     </template>
 
     <template #footer>
       <div class="flex space-x-2">
-        <HoppButtonPrimary
-          :label="'Save'"
-          @click="save"
-        />
+        <HoppButtonPrimary :label="'Save'" @click="save" />
         <HoppButtonSecondary
           :label="'Cancel'"
           filled
@@ -84,7 +85,10 @@ import { useService } from "dioc/vue"
 import { ref, watch } from "vue"
 import { useFileDialog } from "@vueuse/core"
 import { cloneDeep } from "lodash-es"
-import { NativeInterceptorService, CACertificateEntry } from "@platform/interceptors/native";
+import {
+  NativeInterceptorService,
+  CACertificateEntry,
+} from "@platform/interceptors/native"
 import { useI18n } from "@composables/i18n"
 
 const t = useI18n()
@@ -105,7 +109,7 @@ const {
   files: selectedFiles,
   open: openFilePicker,
   reset: resetFilePicker,
-  onChange: onSelectedFilesChange
+  onChange: onSelectedFilesChange,
 } = useFileDialog({
   multiple: true,
 })
@@ -116,14 +120,14 @@ onSelectedFilesChange(async (files) => {
     const addedCertificates: CACertificateEntry[] = []
 
     for (let i = 0; i < files.length; i++) {
-      const file = files[i];
+      const file = files[i]
 
       const data = new Uint8Array(await file.arrayBuffer())
 
       addedCertificates.push({
         filename: file.name,
         enabled: true,
-        certificate: data
+        certificate: data,
       })
     }
 
@@ -135,17 +139,22 @@ onSelectedFilesChange(async (files) => {
 
 // When the modal is shown, clone the certificates from the service,
 // We only write to the service when the user clicks on save
-watch(() => props.show, (show) => {
-  if (show) {
-    certificates.value = cloneDeep(nativeInterceptorService.caCertificates.value)
-  } else {
-    resetFilePicker()
+watch(
+  () => props.show,
+  (show) => {
+    if (show) {
+      certificates.value = cloneDeep(
+        nativeInterceptorService.caCertificates.value
+      )
+    } else {
+      resetFilePicker()
+    }
   }
-})
+)
 
 function save() {
   nativeInterceptorService.caCertificates.value = certificates.value
-  emit('hide-modal')
+  emit("hide-modal")
 }
 
 function deleteEntry(index: number) {

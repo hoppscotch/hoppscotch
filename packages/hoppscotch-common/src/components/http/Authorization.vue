@@ -136,7 +136,7 @@
               "
             />
           </div>
-          <HttpOAuth2Authorization
+          <HttpAuthorizationOAuth2
             v-model="auth"
             :is-collection-property="isCollectionProperty"
             :envs="envs"
@@ -145,6 +145,9 @@
         </div>
         <div v-if="auth.authType === 'api-key'">
           <HttpAuthorizationApiKey v-model="auth" :envs="envs" />
+        </div>
+        <div v-if="auth.authType === 'aws-signature'">
+          <HttpAuthorizationAWSSign v-model="auth" :envs="envs" />
         </div>
       </div>
       <div

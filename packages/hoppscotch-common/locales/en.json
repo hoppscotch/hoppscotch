@@ -175,7 +175,7 @@
     "different_parent": "Cannot reorder collection with different parent",
     "edit": "Edit Collection",
     "import_or_create": "Import or create a collection",
-    "import_collection":"Import Collection",
+    "import_collection": "Import Collection",
     "invalid_name": "Please provide a name for the collection",
     "invalid_root_move": "Collection already in the root",
     "moved": "Moved Successfully",
@@ -858,7 +858,7 @@
       "switch_to_personal": "Switch to your personal workspace",
       "title": "Workspaces"
     },
-    "phrases":{
+    "phrases": {
       "try": "Try",
       "import_collections": "Import collections",
       "create_environment": "Create environment",
@@ -941,6 +941,8 @@
     "query": "Query",
     "schema": "Schema",
     "shared_requests": "Shared Requests",
+    "codegen": "Generate Code",
+    "code_snippet": "Code snippet",
     "share_tab_request": "Share tab request",
     "socketio": "Socket.IO",
     "sse": "SSE",

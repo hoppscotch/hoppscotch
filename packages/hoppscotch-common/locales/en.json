@@ -208,7 +208,8 @@
     "remove_telemetry": "Are you sure you want to opt-out of Telemetry?",
     "request_change": "Are you sure you want to discard current request, unsaved changes will be lost.",
     "save_unsaved_tab": "Do you want to save changes made in this tab?",
-    "sync": "Would you like to restore your workspace from cloud? This will discard your local progress."
+    "sync": "Would you like to restore your workspace from cloud? This will discard your local progress.",
+    "delete_access_token": "Are you sure you want to delete the access token {tokenLabel}?"
   },
   "context_menu": {
     "add_parameters": "Add to parameters",
@@ -270,7 +271,8 @@
     "subscription": "Subscriptions are empty",
     "team_name": "Workspace name empty",
     "teams": "You don't belong to any workspaces",
-    "tests": "There are no tests for this request"
+    "tests": "There are no tests for this request",
+    "access_tokens": "Access tokens are empty"
   },
   "environment": {
     "add_to_global": "Add to Global",
@@ -342,7 +344,10 @@
     "script_fail": "Could not execute pre-request script",
     "something_went_wrong": "Something went wrong",
     "test_script_fail": "Could not execute post-request script",
-    "reading_files": "Error while reading one or more files."
+    "reading_files": "Error while reading one or more files.",
+    "fetching_access_tokens_list": "Something went wrong while fetching the list of tokens",
+    "generate_access_token": "Something went wrong while generating the access token",
+    "delete_access_token": "Something went wrong while deleting the access token"
   },
   "export": {
     "as_json": "Export as JSON",
@@ -1033,5 +1038,27 @@
     "login_to_continue": "Login to continue",
     "login_to_continue_description": "You need to be logged in to access this Hoppscotch Enterprise Instance.",
     "error_fetching_site_protection_status": "Something Went Wrong While Fetching Site Protection Status"
+  },
+  "access_tokens": {
+    "tab_title": "Tokens",
+    "section_title": "Personal Access Tokens",
+    "section_description": "Personal access tokens currently helps you connect the CLI to your Hoppscotch account",
+    "last_used_on": "Last used on",
+    "expires_on": "Expires on",
+    "no_expiration": "No expiration",
+    "expired": "Expired",
+    "copy_token_warning": "Make sure to copy your personal access token now. You won't be able to see it again!",
+    "token_purpose": "What's this token for?",
+    "expiration_label": "Expiration",
+    "scope_label": "Scope",
+    "workspace_read_only_access": "Read-only access to workspace data.",
+    "personal_workspace_access_limitation": "Personal Access Tokens can't access your personal workspace.",
+    "generate_token": "Generate Token",
+    "invalid_label": "Please provide a label for the token",
+    "no_expiration_verbose": "This token will never expire!",
+    "token_expires_on": "This token will expire on",
+    "generate_new_token": "Generate new token",
+    "generate_modal_title": "New Personal Access Token",
+    "deletion_success": "The access token {label} has been deleted"
   }
 }

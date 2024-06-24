@@ -121,7 +121,6 @@ import IconFile from "~icons/lucide/file"
 import { ref, watch, computed } from "vue"
 import { useFileDialog } from "@vueuse/core"
 import { ClientCertificateEntry } from "../../platform/interceptors/native"
-import { t } from "@tauri-apps/api/event-41a9edf5"
 import { useToast } from "@composables/toast"
 
 const toast = useToast()

@@ -41,7 +41,7 @@
             @keyup.j="exportAsJsonEl!.$el.click()"
             @keyup.delete="deleteAction!.$el.click()"
             @keyup.p="propertiesAction!.$el.click()"
-            @keyup.escape="options!.tippy().hide()"
+            @keyup.escape="options!.tippy?.hide()"
           >
             <HoppSmartItem
               ref="edit"

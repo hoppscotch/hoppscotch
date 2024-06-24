@@ -73,6 +73,14 @@
             class="hidden group-hover:inline-flex"
             @click="emit('add-folder')"
           />
+          <HoppButtonSecondary
+            v-if="collectionsType === 'team-collections'"
+            v-tippy="{ theme: 'tooltip' }"
+            :icon="IconPlaySquare"
+            title="Run collection"
+            class="hidden group-hover:inline-flex"
+            @click="emit('run-collection', props.id)"
+          />
           <span>
             <tippy
               ref="options"
@@ -176,7 +184,7 @@
                   <HoppSmartItem
                     v-if="collectionsType === 'team-collections'"
                     ref="runCollectionAction"
-                    :icon="IconPlay"
+                    :icon="IconPlaySquare"
                     label="Run collection"
                     :shortcut="['T']"
                     @click="
@@ -228,7 +236,7 @@ import IconFolder from "~icons/lucide/folder"
 import IconFolderOpen from "~icons/lucide/folder-open"
 import IconFolderPlus from "~icons/lucide/folder-plus"
 import IconMoreVertical from "~icons/lucide/more-vertical"
-import IconPlay from "~icons/lucide/play"
+import IconPlaySquare from "~icons/lucide/play-square"
 import IconSettings2 from "~icons/lucide/settings-2"
 import IconTrash2 from "~icons/lucide/trash-2"
 

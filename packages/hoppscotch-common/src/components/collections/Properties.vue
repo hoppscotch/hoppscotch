@@ -84,15 +84,7 @@
       </HoppSmartTabs>
     </template>
     <template #footer>
-      <HoppButtonPrimary
-        v-if="activeTab === 'details'"
-        :label="t('action.close')"
-        outline
-        filled
-        @click="hideModal"
-      />
-
-      <span v-else class="flex space-x-2">
+      <span class="flex space-x-2">
         <HoppButtonPrimary
           :label="t('action.save')"
           :loading="loadingState"
@@ -160,7 +152,7 @@ const props = withDefaults(
     show: false,
     loadingState: false,
     editingProperties: null,
-    showDetailsTab: false,
+    showDetails: false,
   }
 )
 
@@ -215,7 +207,8 @@ const activeTab = useVModel(props, "modelValue", emit)
 watch(
   () => props.show,
   (show) => {
-    // Prevent the tab contents from appearing empty in a personal workspace if the previous active tab was `details`
+    // `Details` tab doesn't exist for personal workspace, hence switching to the `Headers` tab
+    // The modal can appear empty while switching from a team workspace with `Details` as the active tab
     if (activeTab.value === "details" && !props.showDetails) {
       activeTab.value = "headers"
     }

@@ -171,9 +171,10 @@
       @set-collection-properties="setCollectionProperties"
     />
 
+    <!-- `selectedCollectionID` is guaranteed to be a string when `showCollectionsRunnerModal` is `true` -->
     <CollectionsRunner
       v-if="showCollectionsRunnerModal"
-      :collection-i-d="selectedCollectionID"
+      :collection-i-d="selectedCollectionID!"
       :environment-i-d="activeEnvironmentID"
       :selected-environment-index="selectedEnvironmentIndex"
       @hide-modal="showCollectionsRunnerModal = false"
@@ -2293,6 +2294,7 @@ const runCollectionHandler = (collectionID: string) => {
     activeEnvironmentID.value = null
     return
   }
+
   if (activeWorkspace.type === "team" && currentEnv.type === "TEAM_ENV") {
     activeEnvironmentID.value = teamEnvironmentList.value.find(
       (env) =>

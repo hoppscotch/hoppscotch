@@ -1,5 +1,5 @@
 <template>
-  <HoppSmartModal dialog title="Run configuration" @close="closeModal">
+  <HoppSmartModal dialog title="Run collection" @close="closeModal">
     <template #body>
       <HoppSmartTabs v-model="activeTab">
         <HoppSmartTab id="cli" label="CLI">
@@ -42,7 +42,7 @@
           @click="copyCLICommandToClipboard"
         />
         <HoppButtonSecondary
-          :label="`${t('action.dismiss')}`"
+          :label="`${t('action.close')}`"
           outline
           filled
           @click="closeModal"
@@ -67,7 +67,7 @@ const t = useI18n()
 const toast = useToast()
 
 const props = defineProps<{
-  collectionID: string | null
+  collectionID: string
   environmentID?: string | null
   selectedEnvironmentIndex: SelectedEnvironmentIndex
 }>()
@@ -94,38 +94,30 @@ const activeEnvironment = computed(() => {
   return null
 })
 
-const isCloudInstance = window.location.hostname === "hoppscotch.io"
+const isCloudInstance = window.location.hostname === "domain.xyz"
 
 const cliCommandGenerationDescription = computed(() => {
-  if (isCloudInstance) {
-    return "Copy the below command and run it from the CLI. Please specify a personal access token."
-  }
-
   const serverUrlCopy = import.meta.env.VITE_BACKEND_API_URL
     ? "verify the generated SH instance server URL"
     : "the SH instance server URL"
 
-  return `Copy the below command and run it from the CLI. Please specify a personal access token and ${serverUrlCopy}.`
+  return isCloudInstance
+    ? "Copy the below command and run it from the CLI. Please specify a personal access token."
+    : `Copy the below command and run it from the CLI. Please specify a personal access token and ${serverUrlCopy}.`
 })
 
 const generatedCLICommand = computed(() => {
   const { collectionID, environmentID } = props
 
-  if (!collectionID) {
-    return ""
-  }
+  const environmentFlag =
+    includeEnvironmentID.value && environmentID ? `-e ${environmentID}` : ""
 
-  const environmentFlag = includeEnvironmentID.value
-    ? environmentID
-      ? `-e ${environmentID}`
-      : ""
-    : ""
+  const serverUrl = import.meta.env.VITE_BACKEND_API_URL?.endsWith("/v1")
+    ? // Removing `/v1` prefix
+      import.meta.env.VITE_BACKEND_API_URL.slice(0, -3)
+    : "<server_url>"
 
-  const serverUrl =
-    // Removing `/v1` prefix
-    import.meta.env.VITE_BACKEND_API_URL.slice(0, -3) || "<server_url>"
-
-  const serverFlag = isCloudInstance ? ":" : `--server ${serverUrl}`
+  const serverFlag = isCloudInstance ? "" : `--server ${serverUrl}`
 
   return `hopp test ${collectionID} ${environmentFlag} --token <access_token> ${serverFlag}`
 })

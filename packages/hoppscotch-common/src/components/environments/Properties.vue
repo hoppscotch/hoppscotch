@@ -37,8 +37,8 @@
 
               <HoppButtonSecondary
                 filled
-                :icon="copyIcon"
-                @click="copyEnvironmentID"
+                :icon="copyTextIcon"
+                @click="copyText"
               />
             </div>
           </div>
@@ -55,12 +55,21 @@
     </template>
 
     <template #footer>
-      <HoppButtonPrimary
-        :label="t('action.close')"
-        outline
-        filled
-        @click="hideModal"
-      />
+      <div class="flex gap-x-2 items-center">
+        <HoppButtonPrimary
+          :label="t('action.copy')"
+          :icon="copyIcon"
+          outline
+          filled
+          @click="copyEnvironmentID"
+        />
+        <HoppButtonSecondary
+          :label="t('action.close')"
+          outline
+          filled
+          @click="hideModal"
+        />
+      </div>
     </template>
   </HoppSmartModal>
 </template>
@@ -68,6 +77,8 @@
 <script setup lang="ts">
 import { useI18n } from "@composables/i18n"
 import { refAutoReset, useVModel } from "@vueuse/core"
+import { toRef } from "vue"
+import { useCopyResponse } from "~/composables/lens-actions"
 import { useToast } from "~/composables/toast"
 
 import { copyToClipboard } from "~/helpers/utils/clipboard"
@@ -82,6 +93,11 @@ const props = defineProps<{
   modelValue: string
   environmentID: string
 }>()
+
+const environmentIDRef = toRef(props, "environmentID")
+
+const { copyIcon: copyTextIcon, copyResponse: copyText } =
+  useCopyResponse(environmentIDRef)
 
 const emit = defineEmits<{
   (e: "hide-modal"): void

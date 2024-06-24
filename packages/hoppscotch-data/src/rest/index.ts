@@ -7,12 +7,13 @@ import V2_VERSION from "./v/2"
 import V3_VERSION from "./v/3"
 import V4_VERSION from "./v/4"
 import V5_VERSION from "./v/5"
+import V6_VERSION from "./v/6"
 import { createVersionedEntity, InferredEntity } from "verzod"
 import { lodashIsEqualEq, mapThenEq, undefinedEq } from "../utils/eq"
 
 import { HoppRESTReqBody, HoppRESTHeaders, HoppRESTParams } from "./v/1"
 
-import { HoppRESTAuth } from "./v/5"
+import { HoppRESTAuth } from "./v/6"
 import { HoppRESTRequestVariables } from "./v/2"
 import { z } from "zod"
 
@@ -35,15 +36,10 @@ export {
   PasswordGrantTypeParams,
 } from "./v/3"
 
-export {
-  AuthCodeGrantTypeParams,
-  HoppRESTAuthOAuth2,
-  HoppRESTAuth,
-} from "./v/5"
-
-export { HoppRESTAuthAPIKey } from "./v/4"
-
 export { HoppRESTRequestVariables } from "./v/2"
+export { HoppRESTAuthAPIKey } from "./v/4"
+export { AuthCodeGrantTypeParams, HoppRESTAuthOAuth2 } from "./v/5"
+export { HoppRESTAuth, HoppRESTAuthAWSSignature } from "./v/6"
 
 const versionedObject = z.object({
   // v is a stringified number
@@ -51,7 +47,7 @@ const versionedObject = z.object({
 })
 
 export const HoppRESTRequest = createVersionedEntity({
-  latestVersion: 5,
+  latestVersion: 6,
   versionMap: {
     0: V0_VERSION,
     1: V1_VERSION,
@@ -59,6 +55,7 @@ export const HoppRESTRequest = createVersionedEntity({
     3: V3_VERSION,
     4: V4_VERSION,
     5: V5_VERSION,
+    6: V6_VERSION,
   },
   getVersion(data) {
     // For V1 onwards we have the v string storing the number
@@ -100,7 +97,7 @@ const HoppRESTRequestEq = Eq.struct<HoppRESTRequest>({
   ),
 })
 
-export const RESTReqSchemaVersion = "5"
+export const RESTReqSchemaVersion = "6"
 
 export type HoppRESTParam = HoppRESTRequest["params"][number]
 export type HoppRESTHeader = HoppRESTRequest["headers"][number]
@@ -195,7 +192,7 @@ export function makeRESTRequest(
 
 export function getDefaultRESTRequest(): HoppRESTRequest {
   return {
-    v: "5",
+    v: "6",
     endpoint: "https://echo.hoppscotch.io",
     name: "Untitled",
     params: [],

@@ -116,6 +116,7 @@
         <div v-if="auth.authType === 'bearer'">
           <div class="flex flex-1 border-b border-dividerLight">
             <SmartEnvInput
+              class="px-4"
               v-model="auth.token"
               placeholder="Token"
               :auto-complete-env="true"
@@ -249,6 +250,10 @@ const authTypes: AuthType[] = [
   {
     key: "api-key",
     label: "API Key",
+  },
+  {
+    key: "aws-signature",
+    label: "AWS Signature",
   },
 ]
 

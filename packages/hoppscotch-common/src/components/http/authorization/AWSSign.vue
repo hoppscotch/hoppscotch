@@ -1,20 +1,58 @@
 <template>
   <div class="flex flex-1 border-b border-dividerLight">
     <SmartEnvInput
-      v-model="auth.key"
+      v-model="auth.accessKey"
       :auto-complete-env="true"
-      placeholder="Key"
+      placeholder="AccessKey"
       :envs="envs"
     />
   </div>
   <div class="flex flex-1 border-b border-dividerLight">
     <SmartEnvInput
-      v-model="auth.value"
+      v-model="auth.secretKey"
       :auto-complete-env="true"
-      placeholder="Value"
+      placeholder="SecretKey"
       :envs="envs"
     />
   </div>
+
+  <!-- advanced config -->
+
+  <div>
+    <!-- label as advanced config here -->
+    <div class="p-4">
+      <label class="text-secondaryLight"> Advanced Configuration </label>
+      <p>
+        Hoppscotch automatically assigns default values to certain fields if no
+        explicit value is provided.
+      </p>
+    </div>
+    <div class="flex flex-1 border-b border-dividerLight">
+      <SmartEnvInput
+        v-model="auth.region"
+        :auto-complete-env="true"
+        placeholder="AWS Region"
+        :envs="envs"
+      />
+    </div>
+    <div class="flex flex-1 border-b border-dividerLight">
+      <SmartEnvInput
+        v-model="auth.serviceName"
+        :auto-complete-env="true"
+        placeholder="Service Name"
+        :envs="envs"
+      />
+    </div>
+    <div class="flex flex-1 border-b border-dividerLight">
+      <SmartEnvInput
+        v-model="auth.serviceToken"
+        :auto-complete-env="true"
+        placeholder="Service Token"
+        :envs="envs"
+      />
+    </div>
+  </div>
+
   <div class="flex items-center border-b border-dividerLight">
     <span class="flex items-center">
       <label class="ml-4 text-secondaryLight">
@@ -78,7 +116,7 @@
 import IconCircle from "~icons/lucide/circle"
 import IconCircleDot from "~icons/lucide/circle-dot"
 import { useI18n } from "@composables/i18n"
-import { HoppRESTAuthAPIKey } from "@hoppscotch/data"
+import { HoppRESTAuthAWSSignature } from "@hoppscotch/data"
 import { useVModel } from "@vueuse/core"
 import { ref } from "vue"
 import { AggregateEnvironment } from "~/newstore/environments"
@@ -86,12 +124,12 @@ import { AggregateEnvironment } from "~/newstore/environments"
 const t = useI18n()
 
 const props = defineProps<{
-  modelValue: HoppRESTAuthAPIKey
+  modelValue: HoppRESTAuthAWSSignature
   envs?: AggregateEnvironment[]
 }>()
 
 const emit = defineEmits<{
-  (e: "update:modelValue", value: HoppRESTAuthAPIKey): void
+  (e: "update:modelValue", value: HoppRESTAuthAWSSignature): void
 }>()
 
 const auth = useVModel(props, "modelValue", emit)

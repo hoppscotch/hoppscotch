@@ -44,7 +44,6 @@ export type ServerConfigs = {
       email_auth: boolean;
       mailer_smtp_url: string;
       mailer_from_address: string;
-      mailer_smtp_enabled: boolean;
       mailer_smtp_host: string;
       mailer_smtp_port: string;
       mailer_smtp_user: string;
@@ -73,6 +72,7 @@ export type ConfigTransform = {
 };
 
 export type ConfigSection = {
+  name: SsoAuthProviders | string;
   enabled: boolean;
   fields: Record<string, string | boolean>;
 };

@@ -20,7 +20,7 @@
           <div class="flex items-center">
             <HoppSmartToggle
               :on="smtpConfigs.enabled"
-              @change="toggleSMTPConfigs"
+              @change="smtpConfigs.enabled = !smtpConfigs.enabled"
             >
               {{ t('configs.mail_configs.enable_smtp') }}
             </HoppSmartToggle>
@@ -136,10 +136,6 @@ const smtpConfigFields = reactive<Field[]>([
     key: 'mailer_from_address',
   },
   {
-    name: t('configs.mail_configs.enable'),
-    key: 'mailer_smtp_enabled',
-  },
-  {
     name: t('configs.mail_configs.host'),
     key: 'mailer_smtp_host',
   },
@@ -215,10 +211,4 @@ const isCheckboxField = (field: Field) => {
 const toggleCheckbox = (field: Field) =>
   ((smtpConfigs.value.fields[field.key] as boolean) =
     !smtpConfigs.value.fields[field.key]);
-
-const toggleSMTPConfigs = () => {
-  smtpConfigs.value.fields.mailer_smtp_enabled =
-    !smtpConfigs.value.fields.mailer_smtp_enabled;
-  smtpConfigs.value.enabled = !smtpConfigs.value.enabled;
-};
 </script>

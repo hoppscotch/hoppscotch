@@ -1,6 +1,6 @@
 import { AnyVariables, UseMutationResponse } from '@urql/vue';
 import { cloneDeep } from 'lodash-es';
-import { computed, onMounted, ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useI18n } from '~/composables/i18n';
 import {
   AllowedAuthProvidersDocument,
@@ -120,8 +120,6 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
           email_auth: allowedAuthProviders.value.includes(AuthProvider.Email),
           mailer_smtp_url: getFieldValue(InfraConfigEnum.MailerSmtpUrl),
           mailer_from_address: getFieldValue(InfraConfigEnum.MailerAddressFrom),
-          mailer_smtp_enabled:
-            getFieldValue(InfraConfigEnum.MailerSmtpEnable) === 'true',
           mailer_smtp_host: getFieldValue(InfraConfigEnum.MailerSmtpHost),
           mailer_smtp_port: getFieldValue(InfraConfigEnum.MailerSmtpPort),
           mailer_smtp_user: getFieldValue(InfraConfigEnum.MailerSmtpUser),
@@ -161,70 +159,58 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
   };
 
   const AreAnyConfigFieldsEmpty = (config: ServerConfigs): boolean => {
-    const mailConfigs = Object.values(config.mailConfigs.fields).filter(
-      (field) => {
-        if (config.mailConfigs.fields.mailer_use_custom_configs) {
-          return config.mailConfigs.fields;
-        } else {
-          const {
-            mailer_smtp_host,
-            mailer_smtp_port,
-            mailer_smtp_user,
-            mailer_smtp_password,
-            ...filteredFields
-          } = config.mailConfigs.fields;
-          return filteredFields;
-        }
-      }
-    );
-
     const sections: Array<ConfigSection> = [
       config.providers.github,
       config.providers.google,
       config.providers.microsoft,
-      {
-        enabled: config.mailConfigs.enabled,
-        fields: Object.assign({}, ...mailConfigs),
-      },
+      config.mailConfigs,
     ];
 
-    return sections.some((section) => {
-      if (section)
+    const hasSectionWithEmptyFields = sections.some((section) => {
+      if (
+        section.name === 'email' &&
+        !section.fields.mailer_use_custom_configs
+      ) {
         return (
-          section.enabled && Object.values(section.fields).some(isFieldEmpty)
+          section.enabled &&
+          Object.entries(section.fields).some(
+            ([key, value]) =>
+              isFieldEmpty(value) &&
+              key !== 'mailer_smtp_host' &&
+              key !== 'mailer_smtp_port' &&
+              key !== 'mailer_smtp_user' &&
+              key !== 'mailer_smtp_password'
+          )
         );
+      }
+
+      return (
+        section.enabled && Object.values(section.fields).some(isFieldEmpty)
+      );
     });
+
+    return hasSectionWithEmptyFields;
   };
 
-  const mailConfigFields = computed(() =>
-    Object.fromEntries(
-      Object.entries(updatedConfigs?.mailConfigs.fields ?? {}).filter(
-        ([key]) => {
-          if (
-            updatedConfigs?.mailConfigs.fields.mailer_use_custom_configs ===
-            true
-          ) {
-            return MAIL_CONFIGS.some(
-              (x) =>
-                x.key === key &&
-                key !== 'mailer_smtp_url' &&
-                key !== 'mailer_smtp_enabled'
-            );
-          } else {
-            return MAIL_CONFIGS.some(
-              (x) => x.key === key && key !== 'mailer_smtp_enabled'
-            );
-          }
-        }
-      )
-    )
+  const mailConfigFields = Object.fromEntries(
+    Object.entries(updatedConfigs?.mailConfigs.fields ?? {}).filter(([key]) => {
+      if (updatedConfigs?.mailConfigs.fields.mailer_use_custom_configs) {
+        return MAIL_CONFIGS.some(
+          (x) =>
+            x.key === key &&
+            key !== 'mailer_smtp_url' &&
+            key !== 'mailer_smtp_enabled'
+        );
+      } else
+        return MAIL_CONFIGS.some(
+          (x) => x.key === key && key !== 'mailer_smtp_enabled'
+        );
+    })
   );
 
-  const customMailConfigFields = computed(() =>
-    Object.fromEntries(
-      Object.entries(updatedConfigs?.mailConfigs.fields ?? {}).filter(([key]) =>
-        CUSTOM_MAIL_CONFIGS.some((x) => x.key === key)
-      )
+  const customMailConfigFields = Object.fromEntries(
+    Object.entries(updatedConfigs?.mailConfigs.fields ?? {}).filter(([key]) =>
+      CUSTOM_MAIL_CONFIGS.some((x) => x.key === key)
     )
   );
 
@@ -249,12 +235,12 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
       {
         config: MAIL_CONFIGS,
         enabled: updatedConfigs?.mailConfigs.enabled,
-        fields: mailConfigFields.value,
+        fields: mailConfigFields,
       },
       {
         config: CUSTOM_MAIL_CONFIGS,
         enabled: updatedConfigs?.mailConfigs.fields.mailer_use_custom_configs,
-        fields: customMailConfigFields.value,
+        fields: customMailConfigFields,
       },
     ];
 

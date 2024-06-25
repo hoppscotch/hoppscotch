@@ -1,5 +1,5 @@
 import { CookieJarService } from "@hoppscotch/common/services/cookie-jar.service"
-import { Interceptor, InterceptorError, RequestRunResult } from "@hoppscotch/common/services/interceptor.service"
+import { Interceptor, InterceptorError, NetworkResponse, RequestRunResult } from "@hoppscotch/common/services/interceptor.service"
 import { Service } from "dioc"
 import { cloneDeep } from "lodash-es"
 import { invoke } from "@tauri-apps/api/tauri"
@@ -433,6 +433,9 @@ export class NativeInterceptorService extends Service implements Interceptor {
                 startTime: response.time_start_ms,
                 endTime: response.time_end_ms
               }
+            },
+            additional: {
+              multiHeaders: response.headers
             }
           })
         } catch (e) {

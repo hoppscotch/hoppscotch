@@ -7,6 +7,10 @@ export {}
 
 declare module '@vue/runtime-core' {
   export interface GlobalComponents {
+    AccessTokens: typeof import('./components/accessTokens/index.vue')['default']
+    AccessTokensGenerateModal: typeof import('./components/accessTokens/GenerateModal.vue')['default']
+    AccessTokensList: typeof import('./components/accessTokens/List.vue')['default']
+    AccessTokensOverview: typeof import('./components/accessTokens/Overview.vue')['default']
     AppActionHandler: typeof import('./components/app/ActionHandler.vue')['default']
     AppBanner: typeof import('./components/app/Banner.vue')['default']
     AppContextMenu: typeof import('./components/app/ContextMenu.vue')['default']
@@ -122,6 +126,7 @@ declare module '@vue/runtime-core' {
     HttpAuthorizationBasic: typeof import('./components/http/authorization/Basic.vue')['default']
     HttpBody: typeof import('./components/http/Body.vue')['default']
     HttpBodyParameters: typeof import('./components/http/BodyParameters.vue')['default']
+    HttpCodegen: typeof import('./components/http/Codegen.vue')['default']
     HttpCodegenModal: typeof import('./components/http/CodegenModal.vue')['default']
     HttpHeaders: typeof import('./components/http/Headers.vue')['default']
     HttpImportCurl: typeof import('./components/http/ImportCurl.vue')['default']
@@ -148,6 +153,7 @@ declare module '@vue/runtime-core' {
     IconLucideAlertTriangle: typeof import('~icons/lucide/alert-triangle')['default']
     IconLucideArrowLeft: typeof import('~icons/lucide/arrow-left')['default']
     IconLucideArrowUpRight: typeof import('~icons/lucide/arrow-up-right')['default']
+    IconLucideBrush: typeof import('~icons/lucide/brush')['default']
     IconLucideCheckCircle: typeof import('~icons/lucide/check-circle')['default']
     IconLucideChevronRight: typeof import('~icons/lucide/chevron-right')['default']
     IconLucideGlobe: typeof import('~icons/lucide/globe')['default']
@@ -157,8 +163,10 @@ declare module '@vue/runtime-core' {
     IconLucideLayers: typeof import('~icons/lucide/layers')['default']
     IconLucideListEnd: typeof import('~icons/lucide/list-end')['default']
     IconLucideMinus: typeof import('~icons/lucide/minus')['default']
+    IconLucideRss: typeof import('~icons/lucide/rss')['default']
     IconLucideSearch: typeof import('~icons/lucide/search')['default']
     IconLucideUsers: typeof import('~icons/lucide/users')['default']
+    IconLucideVerified: typeof import('~icons/lucide/verified')['default']
     IconLucideX: typeof import('~icons/lucide/x')['default']
     ImportExportBase: typeof import('./components/importExport/Base.vue')['default']
     ImportExportImportExportList: typeof import('./components/importExport/ImportExportList.vue')['default']

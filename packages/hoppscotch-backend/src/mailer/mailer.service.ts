@@ -1,16 +1,18 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Optional } from '@nestjs/common';
 import {
   AdminUserInvitationMailDescription,
   MailDescription,
   UserMagicLinkMailDescription,
 } from './MailDescriptions';
+import { throwErr } from 'src/utils';
+import { EMAIL_FAILED } from 'src/errors';
 import { MailerService as NestMailerService } from '@nestjs-modules/mailer';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class MailerService {
   constructor(
-    private readonly nestMailerService: NestMailerService,
+    @Optional() private readonly nestMailerService: NestMailerService,
     private readonly configService: ConfigService,
   ) {}
 
@@ -55,6 +57,7 @@ export class MailerService {
       });
     } catch (error) {
       console.log('Error from sendEmail:', error);
+      return throwErr(EMAIL_FAILED);
     }
   }
 
@@ -80,6 +83,7 @@ export class MailerService {
       return res;
     } catch (error) {
       console.log('Error from sendUserInvitationEmail:', error);
+      return throwErr(EMAIL_FAILED);
     }
   }
 }

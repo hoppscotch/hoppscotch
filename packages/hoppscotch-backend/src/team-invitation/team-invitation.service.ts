@@ -15,13 +15,12 @@ import {
   TEAM_MEMBER_NOT_FOUND,
 } from 'src/errors';
 import { TeamInvitation } from './team-invitation.model';
+import { MailerService } from 'src/mailer/mailer.service';
 import { UserService } from 'src/user/user.service';
 import { PubSubService } from 'src/pubsub/pubsub.service';
 import { validateEmail } from '../utils';
 import { AuthUser } from 'src/types/AuthUser';
 import { ConfigService } from '@nestjs/config';
-import { EventEmitter2 } from '@nestjs/event-emitter';
-import { Events } from 'src/types/EventEmitter';
 
 @Injectable()
 export class TeamInvitationService {
@@ -29,9 +28,9 @@ export class TeamInvitationService {
     private readonly prisma: PrismaService,
     private readonly userService: UserService,
     private readonly teamService: TeamService,
+    private readonly mailerService: MailerService,
     private readonly pubsub: PubSubService,
     private readonly configService: ConfigService,
-    private eventEmitter: EventEmitter2,
   ) {}
 
   /**
@@ -149,17 +148,14 @@ export class TeamInvitationService {
       },
     });
 
-    this.eventEmitter.emit(Events.MAILER_SEND_EMAIL, {
-      to: inviteeEmail,
-      mailDesc: {
-        template: 'team-invitation',
-        variables: {
-          invitee: creator.displayName ?? 'A Hoppscotch User',
-          action_url: `${this.configService.get(
-            'VITE_BASE_URL',
-          )}/join-team?id=${dbInvitation.id}`,
-          invite_team_name: team.name,
-        },
+    await this.mailerService.sendEmail(inviteeEmail, {
+      template: 'team-invitation',
+      variables: {
+        invitee: creator.displayName ?? 'A Hoppscotch User',
+        action_url: `${this.configService.get('VITE_BASE_URL')}/join-team?id=${
+          dbInvitation.id
+        }`,
+        invite_team_name: team.name,
       },
     });
 

@@ -1,4 +1,5 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
+import { MailerService } from 'src/mailer/mailer.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UserService } from 'src/user/user.service';
 import { VerifyMagicDto } from './dto/verify-magic.dto';
@@ -29,8 +30,6 @@ import { VerificationToken } from '@prisma/client';
 import { Origin } from './helper';
 import { ConfigService } from '@nestjs/config';
 import { InfraConfigService } from 'src/infra-config/infra-config.service';
-import { EventEmitter2 } from '@nestjs/event-emitter';
-import { Events } from 'src/types/EventEmitter';
 
 @Injectable()
 export class AuthService {
@@ -38,9 +37,9 @@ export class AuthService {
     private usersService: UserService,
     private prismaService: PrismaService,
     private jwtService: JwtService,
+    private readonly mailerService: MailerService,
     private readonly configService: ConfigService,
     private infraConfigService: InfraConfigService,
-    private eventEmitter: EventEmitter2,
   ) {}
 
   /**
@@ -235,14 +234,11 @@ export class AuthService {
         url = this.configService.get('VITE_BASE_URL');
     }
 
-    this.eventEmitter.emit(Events.MAILER_SEND_EMAIL, {
-      to: email,
-      mailDesc: {
-        template: 'user-invitation',
-        variables: {
-          inviteeEmail: email,
-          magicLink: `${url}/enter?token=${generatedTokens.token}`,
-        },
+    await this.mailerService.sendEmail(email, {
+      template: 'user-invitation',
+      variables: {
+        inviteeEmail: email,
+        magicLink: `${url}/enter?token=${generatedTokens.token}`,
       },
     });
 

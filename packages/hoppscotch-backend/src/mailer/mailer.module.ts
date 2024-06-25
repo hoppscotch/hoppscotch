@@ -10,11 +10,14 @@ import {
 } from 'src/errors';
 import { ConfigService } from '@nestjs/config';
 import { loadInfraConfiguration } from 'src/infra-config/helper';
-import { MailerEventListener } from './mailer.listener';
 import { TransportType } from '@nestjs-modules/mailer/dist/interfaces/mailer-options.interface';
 
 @Global()
-@Module({})
+@Module({
+  imports: [],
+  providers: [MailerService],
+  exports: [MailerService],
+})
 export class MailerModule {
   static async register() {
     const config = new ConfigService();
@@ -23,10 +26,12 @@ export class MailerModule {
     // If mailer SMTP is DISABLED, return the module without any configuration (service, listener, etc.)
     if (env.INFRA.MAILER_SMTP_ENABLE !== 'true') {
       console.log('Mailer SMTP is disabled');
-      return { module: MailerModule };
+      return {
+        module: MailerModule,
+      };
     }
 
-    // If mailer is ENABLED, return the module with configuration (service, listener, etc.)
+    // If mailer is ENABLED, return the module with configuration (service, etc.)
 
     // Determine transport configuration based on custom config flag
     let transportOption = getTransportOption(env, config);
@@ -35,7 +40,6 @@ export class MailerModule {
 
     return {
       module: MailerModule,
-      providers: [MailerService, MailerEventListener],
       imports: [
         NestMailerModule.forRoot({
           transport: transportOption,

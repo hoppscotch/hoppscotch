@@ -29,11 +29,9 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { HealthModule } from './health/health.module';
 import { AccessTokenModule } from './access-token/access-token.module';
 import { UserLastActiveOnInterceptor } from './interceptors/user-last-active-on.interceptor';
-import { EventEmitterModule } from '@nestjs/event-emitter';
 
 @Module({
   imports: [
-    EventEmitterModule.forRoot(),
     ConfigModule.forRoot({
       isGlobal: true,
       load: [async () => loadInfraConfiguration()],

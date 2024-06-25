@@ -89,9 +89,6 @@ importers:
       '@nestjs/core':
         specifier: 10.2.7
         version: 10.2.7(@nestjs/common@10.2.7)(@nestjs/platform-express@10.2.7)(reflect-metadata@0.1.13)(rxjs@7.6.0)
-      '@nestjs/event-emitter':
-        specifier: 2.0.4
-        version: 2.0.4(@nestjs/common@10.2.7)(@nestjs/core@10.2.7)
       '@nestjs/graphql':
         specifier: 12.0.9
         version: 12.0.9(@nestjs/common@10.2.7)(@nestjs/core@10.2.7)(graphql@16.8.1)(reflect-metadata@0.1.13)
@@ -7209,17 +7206,6 @@ packages:
     transitivePeerDependencies:
       - encoding
 
-  /@nestjs/event-emitter@2.0.4(@nestjs/common@10.2.7)(@nestjs/core@10.2.7):
-    resolution: {integrity: sha512-quMiw8yOwoSul0pp3mOonGz8EyXWHSBTqBy8B0TbYYgpnG1Ix2wGUnuTksLWaaBiiOTDhciaZ41Y5fJZsSJE1Q==}
-    peerDependencies:
-      '@nestjs/common': ^8.0.0 || ^9.0.0 || ^10.0.0
-      '@nestjs/core': ^8.0.0 || ^9.0.0 || ^10.0.0
-    dependencies:
-      '@nestjs/common': 10.2.7(reflect-metadata@0.1.13)(rxjs@7.6.0)
-      '@nestjs/core': 10.2.7(@nestjs/common@10.2.7)(@nestjs/platform-express@10.2.7)(reflect-metadata@0.1.13)(rxjs@7.6.0)
-      eventemitter2: 6.4.9
-    dev: false
-
   /@nestjs/graphql@12.0.9(@nestjs/common@10.2.7)(@nestjs/core@10.2.7)(graphql@16.8.1)(reflect-metadata@0.1.13):
     resolution: {integrity: sha512-A5oRD5GMwzaNZum06KSxKtqhC7LvS4p7v0hLGzvNWPuLrBjAjAnm/2NV8IV8lYiJXpPHNtSnnekZH9uvy/hZlw==}
     peerDependencies:
@@ -14141,10 +14127,6 @@ packages:
   /event-target-shim@5.0.1:
     resolution: {integrity: sha512-i/2XbnSz/uxRCU6+NdVJgKWDTM427+MqYbkQzD321DuCQJUqOuJKIA0IM2+W2xtYHdKOmZ4dR6fExsd4SXL+WQ==}
     engines: {node: '>=6'}
-    dev: false
-
-  /eventemitter2@6.4.9:
-    resolution: {integrity: sha512-JEPTiaOt9f04oa6NOkc4aH+nVp5I3wEjpHbIPqfgCdD5v5bUzy7xQqwcVO2aDQgOWhI28da57HksMrzK9HlRxg==}
     dev: false
 
   /eventemitter3@3.1.2:

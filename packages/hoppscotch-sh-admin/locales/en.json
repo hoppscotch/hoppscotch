@@ -34,10 +34,10 @@
     "load_error": "Unable to load server configurations",
     "mail_configs": {
       "address_from": "MAILER FROM ADDRESS",
-      "advanced_smtp": "Advanced SMTP Configurations",
+      "custom_smtp_configs": "Use Custom SMTP Configurations",
       "description": " Configure the smtp configurations",
       "enable_email_auth": "Enable Email based authentication",
-      "enable_smtp": "Enable SMTP Configurations",
+      "enable_smtp": "Enable SMTP",
       "host": "MAILER HOST",
       "password": "MAILER PASSWORD",
       "port": "MAILER PORT",
@@ -45,8 +45,8 @@
       "smtp_url": "MAILER SMTP URL",
       "tls_reject_unauthorized": "TLS REJECT UNAUTHORIZED",
       "title": "SMTP Configurations",
+      "toggle_failure": "Failed to toggle smtp!!",
       "update_failure": "Failed to update smtp configurations!!",
-      "use_advance_configs": "USE ADVANCE CONFIGS",
       "user": "MAILER USER"
     },
     "reset": {

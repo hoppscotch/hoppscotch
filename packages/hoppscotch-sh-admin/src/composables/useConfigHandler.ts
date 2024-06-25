@@ -148,6 +148,10 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
     workingConfigs.value = cloneDeep(currentConfigs.value);
   });
 
+  // Check if custom mail config is enabled
+  const isCustomMailConfigEnabled =
+    updatedConfigs?.mailConfigs.fields.mailer_use_custom_configs;
+
   /*
     Check if any of the config fields are empty
   */
@@ -192,9 +196,10 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
     return hasSectionWithEmptyFields;
   };
 
+  // Extract the mail config fields (excluding the custom mail config fields)
   const mailConfigFields = Object.fromEntries(
     Object.entries(updatedConfigs?.mailConfigs.fields ?? {}).filter(([key]) => {
-      if (updatedConfigs?.mailConfigs.fields.mailer_use_custom_configs) {
+      if (isCustomMailConfigEnabled) {
         return MAIL_CONFIGS.some(
           (x) =>
             x.key === key &&
@@ -208,6 +213,7 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
     })
   );
 
+  // Extract the custom mail config fields
   const customMailConfigFields = Object.fromEntries(
     Object.entries(updatedConfigs?.mailConfigs.fields ?? {}).filter(([key]) =>
       CUSTOM_MAIL_CONFIGS.some((x) => x.key === key)
@@ -239,7 +245,7 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
       },
       {
         config: CUSTOM_MAIL_CONFIGS,
-        enabled: updatedConfigs?.mailConfigs.fields.mailer_use_custom_configs,
+        enabled: isCustomMailConfigEnabled,
         fields: customMailConfigFields,
       },
     ];
@@ -248,8 +254,10 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
 
     updatedWorkingConfigs.forEach(({ config, enabled, fields }) => {
       config.forEach(({ name, key }) => {
-        if (name === 'MAILER_SMTP_URL' || name === 'MAILER_SMTP_ENABLE') return;
-        if (enabled && fields) {
+        if (name === 'MAILER_SMTP_ENABLE') return;
+        else if (isCustomMailConfigEnabled && name === 'MAILER_SMTP_URL')
+          return;
+        else if (enabled && fields) {
           const value =
             typeof fields === 'string' ? fields : String(fields[key]);
           transformedConfigs.push({ name, value });
@@ -348,6 +356,7 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
       'configs.reset.failure'
     );
 
+  // Toggle Data Sharing
   const updateDataSharingConfigs = (
     toggleDataSharingMutation: UseMutationResponse<ToggleAnalyticsCollectionMutation>
   ) =>
@@ -361,7 +370,7 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
       'configs.data_sharing.update_failure'
     );
 
-  // Toggling the SMTP configurations
+  // Toggle SMTP
   const toggleSMTPConfigs = (
     toggleSMTP: UseMutationResponse<ToggleSmtpMutation>
   ) =>
@@ -372,7 +381,7 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
           ? ServiceStatus.Enable
           : ServiceStatus.Disable,
       },
-      'configs.mail.update_failure'
+      'configs.mail_configs.toggle_failure'
     );
 
   return {

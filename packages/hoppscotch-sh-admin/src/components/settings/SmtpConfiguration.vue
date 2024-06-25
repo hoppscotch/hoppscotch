@@ -39,13 +39,13 @@
 
               <HoppSmartCheckbox
                 :on="smtpConfigs.fields.mailer_use_custom_configs"
-                :title="t('configs.mail_configs.enable')"
+                :title="t('configs.mail_configs.custom_smtp_configs')"
                 @change="
                   smtpConfigs.fields.mailer_use_custom_configs =
                     !smtpConfigs.fields.mailer_use_custom_configs
                 "
               >
-                {{ t('configs.mail_configs.advanced_smtp') }}
+                {{ t('configs.mail_configs.custom_smtp_configs') }}
               </HoppSmartCheckbox>
             </div>
             <div
@@ -158,10 +158,6 @@ const smtpConfigFields = reactive<Field[]>([
   {
     name: t('configs.mail_configs.tls_reject_unauthorized'),
     key: 'mailer_tls_reject_unauthorized',
-  },
-  {
-    name: t('configs.mail_configs.use_custom_configs'),
-    key: 'mailer_use_custom_configs',
   },
 ]);
 
